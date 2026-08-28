@@ -1,0 +1,7 @@
+21.5.9
+
+Fixes:
+- chatsMap now renders the owner supplied per chat instead of forcing the main protagonist name.
+- Memory secret knows/hidden parsing accepts arrays and comma/semicolon-separated names.
+- "Не знают" no longer uses a generic hidden class that can be suppressed by SillyTavern/theme CSS.
+- Empty hidden list gets an explicit visible state and fallback derives from active user/character names.
