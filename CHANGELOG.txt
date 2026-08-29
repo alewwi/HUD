@@ -1,3 +1,117 @@
+22.0.0 🎨 MAJOR VISUAL OVERHAUL
+
+NEW FEATURES (39 total):
+
+🌤️ Scene Widget — Вау-эффекты (8):
+- ✅ Фазы луны (8 фаз: new, crescent, quarter, gibbous, full) с автоматическим расчётом
+- ✅ Лужи после дождя (появляются при смене rain→clear, исчезают через 10сек)
+- ✅ Параллакс деревьев (gyroscope на мобильных для слоёв sky/clouds/trees)
+- ✅ Мерцающие окна (разная частота для каждого окна зимой)
+- ✅ Двойная радуга (бледная вторая радуга через ::after)
+- ✅ Визуальный ветер (5 горизонтальных streaks с анимацией)
+- ✅ Термометр-виджет (столбик ртути от -20°C до +50°C)
+- ✅ Улучшенные погодные эффекты
+
+📱 Телефон — Живой мессенджер (6):
+- ✅ «Печатает...» индикатор (3 прыгающих точки)
+- ✅ Пуш-уведомления (баннер сверху с auto-hide через 3сек)
+- ✅ Онлайн-статус (зелёная/серая точка с пульсацией)
+- ✅ Вложения-фото (градиентные placeholder'ы с иконкой 📷)
+- ✅ Реакции под сообщениями (emoji + счётчик)
+- ✅ Экран блокировки (разблокировка тапом, анимация slide-up)
+
+🧠 Память — Инфографика (4):
+- ✅ Граф отношений SVG (force-directed layout до 6 персонажей)
+- ✅ Мини-карта маршрутов (SVG polyline с animated path drawing)
+- ✅ Анимация «взлома» секрета (замок поворачивается, текст blur→clear)
+- ✅ Круговой прогресс для spread секрета (SVG ring с dasharray)
+
+📖 Дневник — Тактильность (3):
+- ✅ Пятна кофе и слёз (radial-gradient с opacity)
+- ✅ Закладки для авторов (красная/синяя/зелёная clip-path ribbons)
+- ✅ Маргиналии (заметки на полях, появляются при hover)
+
+🌍 Мир — Живая газета (6):
+- ✅ Бегущая строка BREAKING NEWS (@keyframes marquee 30s)
+- ✅ Лайки/рейтинг (▲ upvotes, 💬 comments, интерактивные)
+- ✅ Рваные края статей (clip-path polygon для газетного эффекта)
+- ✅ Колонки для длинных статей (column-count: 2)
+- ✅ Неоновые вывески (text-shadow glow + flicker animation)
+- ✅ Аватарки комментаторов (цветные кружочки с инициалами)
+
+📡 Перехваты — Хакерский вайб (4):
+- ✅ Глитч-эффект на заголовках (red/cyan copies с clip-path shift)
+- ✅ Матричный фон (10 колонок падающих символов 01アイウエオ)
+- ✅ «Подключение...» прогресс-бар (shimmer animation, 78% через 3s)
+- ✅ «DETECTED» предупреждение (мигающая красная рамка с pulse)
+
+🌙 Сны — Сюрреализм (4):
+- ✅ Плавающие пузыри (5 штук, разные размеры, float-up 7-12s)
+- ✅ Искажение текста (blur + skewX + wave animation)
+- ✅ Венецианские маски (CSS art: контур, глаза, нос-треугольник)
+- ✅ «Пробуждение» (разбивание сна на осколки, click to toggle)
+
+✨ Глобальные UI/UX (4):
+- ✅ Skeleton loading (пульсирующий градиент для загрузки)
+- ✅ Entrance animation (карточки появляются с bounce, задержка 0.1s)
+- ✅ Микроанимации пилюль (scale + pop на появление)
+- ✅ Ripple effect (Material Design при клике на кнопки)
+
+ТЕХНИЧЕСКИЕ УЛУЧШЕНИЯ:
+- Добавлен глобальный объект window.TavernOSEffects для программного доступа
+- Все эффекты оптимизированы с will-change для GPU-ускорения
+- RequestAnimationFrame для плавных анимаций
+- Auto-cleanup временных элементов
+- Responsive design для мобильных
+- Поддержка DeviceOrientation API для параллакса
+
+НОВЫЕ CSS КЛАССЫ (более 100):
+.hud-scene-moon, .hud-scene-puddles, .hud-scene-wind-streaks, 
+.hud-phone-typing, .hud-phone-push-notification, .hud-online-status,
+.hud-memory-relationship-graph, .hud-route-map, .hud-secret-spread-ring,
+.hud-diary-stain, .hud-diary-bookmark, .hud-world-breaking-news,
+.hud-intercept-matrix-bg, .hud-dream-bubbles, .hud-dream-mask,
+.hud-skeleton, .hud-ripple, и многие другие...
+
+НОВЫЕ JS ФУНКЦИИ:
+- calculateMoonPhase(dateStr)
+- addMoonToScene(container, date)
+- checkForPuddles(container, currentWeather, lastWeather)
+- addWindStreaks(container)
+- addThermometer(container, temperature)
+- createRelationshipGraph(characters, container)
+- createRouteMap(routes, container)
+- addDreamBubbles(container)
+- addMatrixBackground(container)
+- shatterDream(element)
+- addRippleEffect(element)
+- и 20+ вспомогательных функций
+
+ФАЙЛЫ:
+- style.css: +1200 строк нового CSS
+- index.js: +250 строк нового JS
+- TAVERNOS_VISUAL_EFFECTS_v22.md: полная документация (698 строк)
+- demo.html: интерактивная демонстрация всех эффектов (584 строки)
+
+СОВМЕСТИМОСТЬ:
+- Chrome/Edge 90+
+- Firefox 88+
+- Safari 14+
+- Mobile: iOS 14+, Android 10+
+- Gyroscope API для параллакса (опционально)
+
+ПРОИЗВОДИТЕЛЬНОСТЬ:
+- Performance Mode автоматически оптимизирует на >200 сообщений
+- GPU-ускорение через transform/opacity
+- Debounced gyroscope events
+- Lazy loading фонов
+- Auto-removal временных эффектов
+
+BREAKING CHANGES:
+Нет. Все изменения обратно совместимы.
+
+---
+
 21.5.9
 
 Fixes:

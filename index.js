@@ -1,12 +1,11 @@
-
 // hud-manager/index.js (v21.5.5)
 
 (function() {
   'use strict';
 
-  let settings = {
-    autoInject: true,
-    useCards: true,
+  let settings = { 
+    autoInject: true, 
+    useCards: true, 
     showComments: true,
     enablePhone: true,
     enableIntercepts: true,
@@ -22,26 +21,26 @@
     regenProfileId: '',
     hudMaxTokens: 8192,
     hudLorebooks: [],
-
+    
     // --- ГЛАССМОРФИЗМ И ФОН ---
     backdropBlur: 8,
     bgImage: '',
     bgScale: 100,
     bgOffsetY: 50,
     bgOpacity: 80,
-
+    
     // --- ЦВЕТА И ПРОЗРАЧНОСТЬ ---
     accentColor: '#de859f',
     glowColor: '#8c5ad2', glowAlpha: 40,
-
+    
     cardBgStart: '#0f0f14', cardBgEnd: '#0f0f14', cardBgAlpha: 15,
     infoBlockBgStart: '#000000', infoBlockBgEnd: '#000000', infoBlockBgAlpha: 15,
     memoryBgStart: '#15121c', memoryBgEnd: '#0d0d14', memoryBgAlpha: 22,
     memoryAccent: '#8c5ad2', memoryGlowAlpha: 28, memoryBlur: 8, memoryMaxHeight: 300,
-
+    
     topBarBg: '#0f0f14', topBarAlpha: 25,
     tabsBg: '#000000', tabsAlpha: 15,
-
+    
     sceneOverlayColor: '#000000', sceneOverlayAlpha: 0,
     sceneTextColor: '#ffffff',
     // --- НАСТРОЙКИ ТЕЛЕФОНА (сохранены для темы/будущего эмулятора; сам эмулятор отключён) ---
@@ -51,15 +50,15 @@
     phoneWallpaper: '', phoneWallpaperBlur: 0, phoneWallpaperOpacity: 100,
     phoneShowLockNotifications: true,
     weatherBgColor: '#000000', weatherBgAlpha: 40, weatherBlur: 6, // Цвета погоды
-
+    
     badgeColor: '#ff3b30',
-
+    
     dramaColor: '#ff3b30', dramaBgAlpha: 15,
     interceptColor: '#ff4d4d', interceptBgAlpha: 15,
     nsfwColor: '#9e2a3f', nsfwBgAlpha: 20,
-
+    
     clockColor: '#ffffff',
-
+    
     // --- ШРИФТЫ И РАЗМЕРЫ ---
     fontMain: 'inherit', fontSizeMain: 14,
     fontHeaders: 'inherit', fontSizeHeaders: 13,
@@ -116,7 +115,7 @@
     while (prev && !prev.classList.contains('mes')) prev = prev.previousElementSibling;
     return [last, prev];
   }
-
+   
 
   function buildDynamicPrompt() {
     let p = `\n\n<system_note>
@@ -296,7 +295,7 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
       }
       p += `\n }`;
     }
-
+     
     p += `\n}\n\`\`\`\n[/HUD]\n</system_note>`;
 
     if (settings.useCards && typeof window.characters !== 'undefined' && window.this_chid !== undefined) {
@@ -463,11 +462,11 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
           const buildSummaryText = (hudText) => {
               let parsedObj = parseHUDComplex(hudText);
               let summaryStr = `[HUD_SUMMARY] `;
-
+              
               if (parsedObj.scene && parsedObj.scene['Дата']) summaryStr += `Дата: ${parsedObj.scene['Дата']}. `;
               if (parsedObj.scene && parsedObj.scene['Время']) summaryStr += `Время: ${parsedObj.scene['Время']}. `;
               if (parsedObj.scene && parsedObj.scene['Погода']) summaryStr += `Погода: ${parsedObj.scene['Погода']}. `;
-
+              
               let cSums = [];
               if (parsedObj.characters) {
                   parsedObj.characters.forEach(c => {
@@ -487,7 +486,7 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
                   else if (Object.keys(parsedObj.user).length > 0) cSums.push(`User`);
               }
               if (cSums.length > 0) summaryStr += cSums.join('; ') + ` `;
-
+              
               return summaryStr + `[/HUD_SUMMARY]`;
           };
 
@@ -508,16 +507,16 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
             if (allMatches.length > hudsToKeep) {
               let toSummarize = allMatches.slice(0, allMatches.length - hudsToKeep);
               toSummarize.sort((a, b) => (a.mIdx !== b.mIdx ? b.mIdx - a.mIdx : b.index - a.index));
-
+              
               toSummarize.forEach(rm => {
                 let content = parsedBody.messages[rm.mIdx].content;
                 let hudBlockText = content.substring(rm.index, rm.index + rm.length);
-
+                
                 parsedBody.messages[rm.mIdx].content = content.slice(0, rm.index) + '\n' + buildSummaryText(hudBlockText) + '\n' + content.slice(rm.index + rm.length);
                 modified = true;
               });
             }
-          }
+          } 
           // 2. Формат Text Completions (учитываем единую строку prompt)
           else if (parsedBody.prompt && typeof parsedBody.prompt === 'string') {
             let allMatches = [];
@@ -529,11 +528,11 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
             if (allMatches.length > hudsToKeep) {
               let toSummarize = allMatches.slice(0, allMatches.length - hudsToKeep);
               toSummarize.sort((a, b) => b.index - a.index);
-
+              
               toSummarize.forEach(rm => {
                 let content = parsedBody.prompt;
                 let hudBlockText = content.substring(rm.index, rm.index + rm.length);
-
+                
                 parsedBody.prompt = content.slice(0, rm.index) + '\n' + buildSummaryText(hudBlockText) + '\n' + content.slice(rm.index + rm.length);
                 modified = true;
               });
@@ -562,7 +561,7 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
             parsedBody.prompt += dynamicPrompt;
             modified = true;
           }
-
+          
           if (modified) {
             options.body = JSON.stringify(parsedBody);
           }
@@ -598,16 +597,16 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
  function applyThemeColors() {
     const root = document.documentElement;
     if (settings.accentColor) root.style.setProperty('--hud-accent', settings.accentColor);
-    if (settings.glowColor) root.style.setProperty('--hud-purple-glow', hexToRgba(settings.glowColor, settings.glowAlpha !== undefined ? settings.glowAlpha : 40));
-
+    if (settings.glowColor) root.style.setProperty('--hud-purple-glow', hexToRgba(settings.glowColor, settings.glowAlpha !== undefined ? settings.glowAlpha : 40)); 
+    
     if (settings.cardBgStart && settings.cardBgEnd) root.style.setProperty('--hud-bg', `linear-gradient(135deg, ${hexToRgba(settings.cardBgStart, settings.cardBgAlpha)}, ${hexToRgba(settings.cardBgEnd, settings.cardBgAlpha)})`);
     if (settings.infoBlockBgStart && settings.infoBlockBgEnd) root.style.setProperty('--hud-card-inner-bg', `linear-gradient(135deg, ${hexToRgba(settings.infoBlockBgStart, settings.infoBlockBgAlpha)}, ${hexToRgba(settings.infoBlockBgEnd, settings.infoBlockBgAlpha)})`);
     if (settings.topBarBg) root.style.setProperty('--hud-header-bg', hexToRgba(settings.topBarBg, settings.topBarAlpha));
     if (settings.tabsBg) root.style.setProperty('--hud-tab-bg', hexToRgba(settings.tabsBg, settings.tabsAlpha));
-
+    
     if (settings.sceneOverlayColor) root.style.setProperty('--hud-scene-overlay', hexToRgba(settings.sceneOverlayColor, settings.sceneOverlayAlpha));
     if (settings.sceneTextColor) root.style.setProperty('--hud-scene-text', settings.sceneTextColor);
-
+    
     // Новые настройки погоды
     if (settings.weatherBgColor) root.style.setProperty('--hud-weather-bg', hexToRgba(settings.weatherBgColor, settings.weatherBgAlpha !== undefined ? settings.weatherBgAlpha : 40));
     if (settings.weatherBlur !== undefined) root.style.setProperty('--hud-weather-blur', settings.weatherBlur + 'px');
@@ -636,12 +635,12 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
     }
     if (settings.badgeColor) root.style.setProperty('--hud-badge-bg', settings.badgeColor);
     if (settings.clockColor) root.style.setProperty('--hud-clock-color', settings.clockColor);
-
+    
     if (settings.fontSizeMain) root.style.setProperty('--hud-font-size-main', settings.fontSizeMain + 'px');
     if (settings.fontSizeHeaders) root.style.setProperty('--hud-font-size-headers', settings.fontSizeHeaders + 'px');
     if (settings.fontSizeClock) root.style.setProperty('--hud-font-size-clock', settings.fontSizeClock + 'px');
     if (settings.fontSizeDiary !== undefined) root.style.setProperty('--hud-font-size-diary', settings.fontSizeDiary + 'px'); // Размер дневника
-
+    
     if (settings.fontMain) root.style.setProperty('--hud-font-main', settings.fontMain);
     if (settings.fontHeaders) root.style.setProperty('--hud-font-headers', settings.fontHeaders);
     if (settings.fontClock) root.style.setProperty('--hud-font-clock', settings.fontClock);
@@ -658,10 +657,10 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
     if (settings.bgOpacity !== undefined) root.style.setProperty('--hud-bg-opacity', settings.bgOpacity / 100);
   }
 
-  function loadSettings() {
-    const saved = localStorage.getItem('hud_settings');
-    if (saved) { try { settings = Object.assign(settings, JSON.parse(saved)); } catch (e) {} }
-    applyThemeColors();
+  function loadSettings() { 
+    const saved = localStorage.getItem('hud_settings'); 
+    if (saved) { try { settings = Object.assign(settings, JSON.parse(saved)); } catch (e) {} } 
+    applyThemeColors(); 
   }
   function saveSettings() {
     try {
@@ -939,9 +938,9 @@ function applyTooltips(text) {
       let rawChunks = String(value).split(delimiter).map(i => i.trim()).filter(i => i);
       for (let chunk of rawChunks) {
           let match = chunk.match(/^([A-Za-zА-Яа-яЁё0-9\s\/\(\),\.]{2,80}?)(:|—|–|\s-)\s*(.*)$/);
-          if (match) { items.push({ label: match[1], sep: match[2], text: match[3] }); }
+          if (match) { items.push({ label: match[1], sep: match[2], text: match[3] }); } 
           else {
-              if (items.length > 0 && !forceSeparate) { items[items.length - 1].text += (delimiter === ';' ? '; ' : delimiter) + chunk; }
+              if (items.length > 0 && !forceSeparate) { items[items.length - 1].text += (delimiter === ';' ? '; ' : delimiter) + chunk; } 
               else { items.push({ label: '', sep: '', text: chunk }); }
           }
       }
@@ -1059,7 +1058,7 @@ function applyTooltips(text) {
     let dreamsParsed = [];
     if (Array.isArray(parsed.dreams)) {
       dreamsParsed = parsed.dreams.map(d => {
-        if (typeof d === 'string') return { text: d, meaning: '' };
+        if (typeof d === 'string') return { text: d, meaning: '' }; 
         if (typeof d === 'object' && d !== null) return { text: toStr(d.text), meaning: toStr(d.meaning) }; return null;
       }).filter(d => d !== null);
     }
@@ -1848,7 +1847,7 @@ function scoreHudJsonCandidate(parsed) {
       const label = mapKey(shortKey); let value = null;
       for (const [k, v] of Object.entries(userData)) { if (k === shortKey || k.toLowerCase() === label.toLowerCase()) { value = v; break; } }
       if (!value || String(value).toLowerCase() === 'empty' || String(value).toLowerCase() === 'none') return;
-
+      
       let rowClass = 'hud-row hud-user-row';
       if (label.toLowerCase().includes('nsfw')) rowClass += ' full-width nsfw';
 
@@ -1874,7 +1873,7 @@ function scoreHudJsonCandidate(parsed) {
 
     for (const [key, value] of Object.entries(charData)) {
       const lowerKey = key.toLowerCase();
-      if (lowerKey === 'имя') continue;
+      if (lowerKey === 'имя') continue; 
       if (value === null || value === undefined || value === '' || String(value).toLowerCase() === 'empty' || String(value).toLowerCase() === 'none') continue;
       let rowClass = FULL_WIDTH_KEYS.some(k => lowerKey.includes(k)) ? 'hud-row full-width' : 'hud-row';
       if (DRAMA_KEYS.some(k => lowerKey.includes(k))) rowClass += ' drama-alert';
@@ -1925,7 +1924,7 @@ function scoreHudJsonCandidate(parsed) {
     }
     return html + `</div></div>`;
   }
-
+  
   function buildMemoryHTML(memoryData, uid, isChecked) {
     if (!memoryData || Object.keys(memoryData).length === 0) return '';
     let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-body" style="grid-template-columns: 1fr;">`;
@@ -2109,15 +2108,15 @@ function scoreHudJsonCandidate(parsed) {
           if (/unread|не прочитан/i.test(m.replace(/\[удалено\]|\[черновик\]/gi, ''))) unreadCount++;
         });
       }
-
+      
       chatTabsHeader += `<button class="hud-phone-subtab ${isSubActive}" data-subtarget="subchat-${uid}-${idx}">${defeatWI(escapeHtml(displayChatName))} ${unreadCount > 0 ? `<span class="hud-unread-badge">${unreadCount}</span>` : ''}</button>`;
 
       chatBodies += `<div class="hud-phone-subbody ${isSubActive}" id="subchat-${uid}-${idx}">
         <div class="hud-phone-statusbar"><span class="hud-phone-time">${escapeHtml(latestTime)}</span><span class="hud-phone-owner-label">${ownerDisplay}</span><div class="hud-phone-status-icons"><span>📶</span><span>🔋</span></div></div>
         <div class="hud-phone-header"><span class="hud-phone-back">⟨</span><div class="hud-phone-title-group" ${chatObj.participants ? 'style="cursor:pointer;" title="Нажми, чтобы увидеть участников"' : ''}><span class="hud-phone-name">${defeatWI(escapeHtml(displayChatName))} ${chatObj.participants ? '<span style="font-size:0.8em; opacity:0.7;">▾</span>' : ''}</span>${chatObj.participants ? `<div class="hud-phone-participants-list">👥 Участники: ${escapeHtml(chatObj.participants)}</div>` : ''}</div><span class="hud-phone-options">⋮</span></div>
         <div class="hud-phone-chat-area">`;
-
-                let activeDraft = "";
+		
+		let activeDraft = "";
 
       if (Array.isArray(chatObj.messages)) {
         chatObj.messages.forEach(msgStr => {
@@ -2149,11 +2148,11 @@ function scoreHudJsonCandidate(parsed) {
               // ЛОВИМ ЧЕРНОВИК (Прячем из чата и сохраняем)
               if (isDraft && isOutgoing) {
                   activeDraft = message;
-                  return;
+                  return; 
               }
 
               // ЛОВИМ УДАЛЕННОЕ (Рисуем кликабельный спойлер)
-              if (isDeleted) {
+              if (isDeleted) { 
                   chatBodies += `<div class="hud-msg-wrapper ${isOutgoing ? 'outgoing' : 'incoming'}">
                     ${!isOutgoing ? `<div class="hud-msg-avatar">${sender.charAt(0).toUpperCase()}</div>` : ''}
                     <div class="hud-msg-content" style="max-width: 100%;">
@@ -2164,7 +2163,7 @@ function scoreHudJsonCandidate(parsed) {
                       </details>
                     </div>
                   </div>`;
-                  return;
+                  return; 
               }
 
           let statusHtml = '';
@@ -2188,7 +2187,7 @@ function scoreHudJsonCandidate(parsed) {
               }
 
               // СОБИРАЕМ ВНУТРЕННОСТИ ПУЗЫРЯ (Текст или Плеер)
-              let msgInner = isVoice
+              let msgInner = isVoice 
                   ? `<div class="hud-voice-player"><div class="hud-voice-btn">▶</div><div class="hud-voice-line"></div><span class="hud-voice-time">${voiceDur}</span></div><details class="hud-voice-details"><summary>Расшифровка</summary><div class="hud-voice-text">${escapeHtml(message)}</div></details>`
                   : `<div class="hud-msg-text" style="word-break: break-word;">${escapeHtml(message)}</div>`;
 
@@ -2283,10 +2282,10 @@ function scoreHudJsonCandidate(parsed) {
   function buildDreamHTML(dreamsData, uid, isChecked) {
     if (!dreamsData || dreamsData.length === 0) return '';
     let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-dream-container"><div class="hud-dream-moon">🌙 Z z z . . .</div>`;
-    dreamsData.forEach(dream => {
+    dreamsData.forEach(dream => { 
       html += `<div class="hud-dream-entry"><div class="hud-dream-text">✨ ${escapeHtml(dream.text)}</div>`;
       if (dream.meaning && dream.meaning.toLowerCase() !== 'none' && dream.meaning.toLowerCase() !== 'empty') html += `<div class="hud-dream-meaning"><span class="hud-dream-meaning-label">🔮 Смысл:</span> ${escapeHtml(dream.meaning)}</div>`;
-      html += `</div>`;
+      html += `</div>`; 
     });
     return html + `</div></div>`;
   }
@@ -2380,22 +2379,22 @@ function scoreHudJsonCandidate(parsed) {
     if (data.characters.length > 0) mainCharName = data.characters[0]['Имя'] || '';
 
     let tRaw = data.scene['Время'] || '', wRaw = data.scene['Погода'] || '', dRaw = data.scene['Дата'] || '';
-    let phaseClass = 'phase-night';
+    let phaseClass = 'phase-night'; 
     let phaseLow = tRaw.toLowerCase();
-
+    
     let hourMatch = tRaw.match(/(\d{1,2}):\d{2}/);
     if (hourMatch) {
       let hour = parseInt(hourMatch[1], 10);
-      if (hour >= 5 && hour < 10) phaseClass = 'phase-morning';
-      else if (hour >= 10 && hour < 18) phaseClass = 'phase-day';
-      else if (hour >= 18 && hour < 20) phaseClass = 'phase-evening';
-      else phaseClass = 'phase-night';
+      if (hour >= 5 && hour < 10) phaseClass = 'phase-morning';       
+      else if (hour >= 10 && hour < 18) phaseClass = 'phase-day';     
+      else if (hour >= 18 && hour < 20) phaseClass = 'phase-evening'; 
+      else phaseClass = 'phase-night';                                
     } else if (/\bутр\w*|\bmorn\w*/.test(phaseLow)) phaseClass = 'phase-morning';
     else if (/\bдень\b|\bдн[ёе]м\b|\bday\b/.test(phaseLow)) phaseClass = 'phase-day';
     else if (/\bвечер\w*|\beven\w*/.test(phaseLow)) phaseClass = 'phase-evening';
 
     let wClass = 'weather-clear', wLow = wRaw.toLowerCase(), wIntensity = '';
-
+    
     if (wLow.match(/гроз|молни|шторм|thunder|storm/)) {
       wClass = 'weather-storm';
     } else if (wLow.match(/град|hail/)) {
@@ -2424,12 +2423,12 @@ function scoreHudJsonCandidate(parsed) {
       let tempStr = tempMatch[1].replace('\u2212', '-');
       let tempVal = parseInt(tempStr, 10);
       if (tempVal <= 0) tempClass = 'temp-cold';
-      if (tempVal <= -10) freezeClass = 'temp-freezing';
-      if (tempVal >= 20) tempClass = 'temp-hot temp-drops';
+      if (tempVal <= -10) freezeClass = 'temp-freezing'; 
+      if (tempVal >= 20) tempClass = 'temp-hot temp-drops'; 
     }
 
     let seasonClass = '';
-    let dLow = (dRaw + ' ' + wRaw + ' ' + tRaw).toLowerCase();
+    let dLow = (dRaw + ' ' + wRaw + ' ' + tRaw).toLowerCase(); 
     if (dLow.match(/зим|декабр|январ|феврал|dec|jan|feb|\.12\.|\.01\.|\.02\.|снег|снеж|метел|вьюг|мороз|буран/)) seasonClass = 'season-winter';
     else if (dLow.match(/весн|март|апрел|май|mar|apr|may|\.03\.|\.04\.|\.05\./)) seasonClass = 'season-spring';
     else if (dLow.match(/лет|июн|июл|август|jun|jul|aug|\.06\.|\.07\.|\.08\./)) seasonClass = 'season-summer';
@@ -2484,8 +2483,8 @@ function scoreHudJsonCandidate(parsed) {
             <div class="hud-theme-row"><label>Прозрачность фона:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="bgOpacity" min="0" max="100" value="${settings.bgOpacity}"> <span style="font-size:0.8em;opacity:0.7">${settings.bgOpacity}%</span></div></div>
             <div class="hud-theme-row"><label>Масштаб картинки:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="bgScale" min="50" max="200" value="${settings.bgScale}"> <span style="font-size:0.8em;opacity:0.7">${settings.bgScale}%</span></div></div>
             <div class="hud-theme-row"><label>Сдвиг (Вверх-Вниз):</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="bgOffsetY" min="0" max="100" value="${settings.bgOffsetY}"> <span style="font-size:0.8em;opacity:0.7">${settings.bgOffsetY}%</span></div></div>
-
-            <div class="hud-theme-row"><label>Фон (Картинка):</label>
+            
+            <div class="hud-theme-row"><label>Фон (Картинка):</label> 
               <div class="hud-theme-flex">
                 <input type="text" class="hud-theme-text-input" data-key="bgImage" value="${settings.bgImage}" placeholder="URL..." style="width: 80px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 2px 4px; font-size: 0.9em;">
                 <button type="button" class="hud-bg-upload-btn" title="Загрузить из галереи" style="cursor:pointer; background:var(--hud-accent); color:#fff; border:none; border-radius:4px; padding:2px 6px; font-size:1.1em; outline:none;">📁</button>
@@ -2493,7 +2492,7 @@ function scoreHudJsonCandidate(parsed) {
               </div>
             </div>
             <!-- КОНЕЦ НОВОГО БЛОКА -->
-
+            
             <div class="hud-theme-row"><label>Инфоблок (Старт):</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="infoBlockBgStart" value="${settings.infoBlockBgStart}"><input type="range" class="hud-theme-range-input" data-key="infoBlockBgAlpha" min="0" max="100" value="${settings.infoBlockBgAlpha}"></div></div>
             <div class="hud-theme-row"><label>Инфоблок (Конец):</label> <input type="color" class="hud-theme-color-input" data-key="infoBlockBgEnd" value="${settings.infoBlockBgEnd}"></div>
           </div>
@@ -2552,22 +2551,22 @@ function scoreHudJsonCandidate(parsed) {
               <select class="hud-theme-select-input" data-key="fontClock">${makeFontOptions(settings.fontClock)}</select>
             </div>
             <div class="hud-theme-row"><label>Размер часов:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="fontSizeClock" min="20" max="60" value="${settings.fontSizeClock}"> <span style="font-size:0.8em;opacity:0.7">${settings.fontSizeClock}px</span></div></div>
-
+            
             <div class="hud-theme-row"><label>Основной шрифт:</label>
               <select class="hud-theme-select-input" data-key="fontMain">${makeFontOptions(settings.fontMain)}</select>
             </div>
             <div class="hud-theme-row"><label>Размер текста:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="fontSizeMain" min="10" max="22" value="${settings.fontSizeMain}"> <span style="font-size:0.8em;opacity:0.7">${settings.fontSizeMain}px</span></div></div>
-
+            
             <div class="hud-theme-row"><label>Шрифт заголовков:</label>
               <select class="hud-theme-select-input" data-key="fontHeaders">${makeFontOptions(settings.fontHeaders)}</select>
             </div>
             <div class="hud-theme-row"><label>Размер заголовков:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="fontSizeHeaders" min="10" max="20" value="${settings.fontSizeHeaders}"> <span style="font-size:0.8em;opacity:0.7">${settings.fontSizeHeaders}px</span></div></div>
-
+            
             <div class="hud-theme-row"><label>Шрифт Дневника:</label>
               <select class="hud-theme-select-input" data-key="fontDiary">${makeFontOptions(settings.fontDiary)}</select>
             </div>
           </div>
-                  <div class="hud-theme-row"><label>Размер Дневника:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="fontSizeDiary" min="12" max="30" value="${settings.fontSizeDiary}"> <span style="font-size:0.8em;opacity:0.7">${settings.fontSizeDiary}px</span></div></div>
+		  <div class="hud-theme-row"><label>Размер Дневника:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="fontSizeDiary" min="12" max="30" value="${settings.fontSizeDiary}"> <span style="font-size:0.8em;opacity:0.7">${settings.fontSizeDiary}px</span></div></div>
         </details>
       </div>
       <div class="hud-os-wrapper">`;
@@ -2577,7 +2576,7 @@ function scoreHudJsonCandidate(parsed) {
       let timeHHMM = tParts[0] || '--:--';
       let timePhase = tParts.length > 1 ? tParts[1].toUpperCase() : '';
       let timeDisplay = escapeHtml(timeHHMM).replace(':', '<span class="hud-time-colon">:</span>');
-
+       
       let dateStr = escapeHtml(dRaw);
       if (dateStr && timePhase) dateStr += ` • ${timePhase}`;
       else if (!dateStr && timePhase) dateStr = timePhase;
@@ -2628,7 +2627,7 @@ function scoreHudJsonCandidate(parsed) {
         ${atmStr ? `<div class="hud-scene-atm">${atmStr}</div>` : ''}
       </div>`;
     }
-
+     
     html += `<div class="hud-tabs-header">`;
 
     let tabsHtml = '', contentHtml = '', isFirst = true;
@@ -2708,7 +2707,7 @@ function scoreHudJsonCandidate(parsed) {
         if (!allCards[i].classList.contains('hud-historical')) {
           allCards[i].classList.add('hud-historical');
           const checkbox = allCards[i].querySelector('.hud-toggle-input');
-          if (checkbox) checkbox.checked = false;
+          if (checkbox) checkbox.checked = false; 
         }
       }
       allCards[allCards.length - 1].classList.remove('hud-historical');
@@ -3165,8 +3164,8 @@ function scoreHudJsonCandidate(parsed) {
 
         const isCreateBtn = regenBtn.classList.contains('hud-create-btn');
         const originalBtnContent = regenBtn.innerHTML;
-
-        regenBtn.innerHTML = isCreateBtn
+        
+        regenBtn.innerHTML = isCreateBtn 
             ? `<div style="display:flex; align-items:center; gap:6px;"><div class="hud-stars"><svg class="hud-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg><svg class="hud-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg><svg class="hud-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div> Создаю...</div>`
             : `<div class="hud-stars"><svg class="hud-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg><svg class="hud-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg><svg class="hud-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>`;
         regenBtn.classList.add('hud-spinning');
@@ -3178,7 +3177,7 @@ function scoreHudJsonCandidate(parsed) {
             const mesId = mesEl.getAttribute('mesid');
             const textElement = mesEl.querySelector('.mes_text');
             const extractRegex = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)([\s\S]*?)(?:(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)|$)/ig;
-
+            
             let stContext = null;
             if (typeof window.SillyTavern !== 'undefined' && typeof window.SillyTavern.getContext === 'function') {
                 stContext = window.SillyTavern.getContext();
@@ -3199,7 +3198,7 @@ function scoreHudJsonCandidate(parsed) {
 
             let targetMessage = null;
             let mesIdNum = parseInt(mesId, 10);
-
+            
             if (chatData) {
                 let foundIndex = chatData.findIndex(m => String(m._id) === String(mesId) || String(m.mesId) === String(mesId));
                 if (foundIndex !== -1) {
@@ -3357,7 +3356,7 @@ function scoreHudJsonCandidate(parsed) {
             if (!msg) continue;
             let role = regenRoleForBackend(msg.is_user ? 'user' : 'assistant');
             let content = msg.swipes && msg.swipes[msg.swipe_id] !== undefined ? msg.swipes[msg.swipe_id] : msg.mes;
-
+            
             if (i === mesIdNum) {
                 // У текущего сообщения вырезаем старый HUD полностью, так как будем генерировать новый
                 content = content.replace(extractRegex, '').trim();
@@ -3398,10 +3397,10 @@ function scoreHudJsonCandidate(parsed) {
         const buildSummaryTextRegen = (hudText) => {
             let parsedObj = parseHUDComplex(hudText);
             let summaryStr = `[HUD_SUMMARY] `;
-
+            
             if (parsedObj.scene && parsedObj.scene['Время']) summaryStr += `Время: ${parsedObj.scene['Время']}. `;
             if (parsedObj.scene && parsedObj.scene['Погода']) summaryStr += `Погода: ${parsedObj.scene['Погода']}. `;
-
+            
             let cSums = [];
             if (parsedObj.characters) {
                 parsedObj.characters.forEach(c => {
@@ -3421,7 +3420,7 @@ function scoreHudJsonCandidate(parsed) {
                 else if (Object.keys(parsedObj.user).length > 0) cSums.push(`User`);
             }
             if (cSums.length > 0) summaryStr += cSums.join('; ') + ` `;
-
+            
             return summaryStr + `[/HUD_SUMMARY]`;
         };
 
@@ -3443,16 +3442,16 @@ function scoreHudJsonCandidate(parsed) {
 
         let hudsToKeep = parseInt(settings.hudsToKeep, 10);
         if (isNaN(hudsToKeep) || hudsToKeep < 0) hudsToKeep = 2;
-
+        
         if (allMatchesRegen.length > hudsToKeep) {
             let toSummarize = allMatchesRegen.slice(0, allMatchesRegen.length - hudsToKeep);
             // Сортируем с конца в начало, чтобы не сбить индексы при замене текста
             toSummarize.sort((a, b) => (a.mIdx !== b.mIdx ? b.mIdx - a.mIdx : b.index - a.index));
-
+            
             toSummarize.forEach(rm => {
                 let content = freshMessages[rm.mIdx].content;
                 let hudBlockText = content.substring(rm.index, rm.index + rm.length);
-
+                
                 freshMessages[rm.mIdx].content = content.slice(0, rm.index) + '\n' + buildSummaryTextRegen(hudBlockText) + '\n' + content.slice(rm.index + rm.length);
             });
         }
@@ -3722,26 +3721,26 @@ function scoreHudJsonCandidate(parsed) {
         widget.classList.toggle('fx-active');
       }
 
-    }, true);
+    }, true); 
 
     // ОБРАБОТЧИК ПОЛЗУНКОВ ЦВЕТА И ТЕМЫ
     document.body.addEventListener('input', function(e) {
       const themeInput = e.target.closest('.hud-theme-color-input, .hud-theme-range-input, .hud-theme-select-input, .hud-theme-text-input');
       if (themeInput) {
           const varKey = themeInput.dataset.key;
-
-          if (varKey === 'bgImage') return;
-
+          
+          if (varKey === 'bgImage') return; 
+          
           settings[varKey] = themeInput.value;
-
-          applyThemeColors();
-          saveSettings();
-
+          
+          applyThemeColors(); 
+          saveSettings();     
+          
           let displayVal = themeInput.nextElementSibling;
           if (displayVal && displayVal.tagName === 'SPAN') {
               displayVal.textContent = themeInput.value + 'px';
           }
-
+          
           document.querySelectorAll(`[data-key="${varKey}"]`).forEach(inp => {
               if (inp !== themeInput) inp.value = themeInput.value;
           });
@@ -3876,7 +3875,7 @@ function scoreHudJsonCandidate(parsed) {
     const bgUrlInput = document.getElementById('hud-bg-url-input');
     const bgUploadBtn = document.getElementById('hud-bg-upload-btn');
     const bgUploadFile = document.getElementById('hud-bg-upload-file');
-
+	
 
     if (bgUrlInput && bgUploadBtn && bgUploadFile) {
         // 1. Загрузка через URL
@@ -3903,7 +3902,7 @@ function scoreHudJsonCandidate(parsed) {
         bgUploadFile.addEventListener('change', (e) => {
             const file = e.target.files[0];
             if (!file) return;
-
+            
             // Защита от переполнения памяти браузера (~3 МБ)
             if (file.size > 3 * 1024 * 1024) {
                 showHudToast('error', 'Слишком большой файл', 'Выберите картинку до 3 МБ, иначе настройки сломаются.');
@@ -3931,7 +3930,7 @@ function scoreHudJsonCandidate(parsed) {
     document.getElementById('hud-enable-dreams').addEventListener('change', (e) => { settings.enableDreams = e.target.checked; saveSettings(); });
     document.getElementById('hud-enable-world').addEventListener('change', (e) => { settings.enableWorld = e.target.checked; saveSettings(); });
     document.getElementById('hud-enable-user').addEventListener('change', (e) => { settings.enableUserBlock = e.target.checked; saveSettings(); });
-
+    
     // === ВОТ СЮДА ВСТАВЛЯЕМ НАШУ НОВУЮ ГАЛОЧКУ ===
     document.getElementById('hud-enable-memory').addEventListener('change', (e) => { settings.enableMemory = e.target.checked; saveSettings(); });
     document.getElementById('hud-performance-mode').addEventListener('change', (e) => {
@@ -3942,7 +3941,7 @@ function scoreHudJsonCandidate(parsed) {
       processAllMessages();
     });
     document.getElementById('hud-memory-max-height').addEventListener('change', (e) => { let v=parseInt(e.target.value,10); if(isNaN(v)) v=300; v=Math.max(200,Math.min(600,v)); settings.memoryMaxHeight=v; e.target.value=v; saveSettings(); applyThemeColors(); });
-
+    
 
     populateHudLorebookSelect();
     document.getElementById('hud-lorebooks-refresh').addEventListener('click', populateHudLorebookSelect);
@@ -3961,10 +3960,10 @@ function scoreHudJsonCandidate(parsed) {
       settings.hudMaxTokens = val; e.target.value = val; saveSettings();
     });
 
-    document.getElementById('hud-keep-count').addEventListener('change', (e) => {
+    document.getElementById('hud-keep-count').addEventListener('change', (e) => { 
       let val = parseInt(e.target.value);
       if (isNaN(val) || val < 0) val = 0; if (val > 10) val = 10;
-      settings.hudsToKeep = val; e.target.value = val; saveSettings();
+      settings.hudsToKeep = val; e.target.value = val; saveSettings(); 
     });
     document.getElementById('hud-regen-context').addEventListener('change', (e) => {
       let val = parseInt(e.target.value);
@@ -4038,12 +4037,12 @@ function scoreHudJsonCandidate(parsed) {
       select.appendChild(opt); // раньше опция создавалась, но не добавлялась в select — была мёртвым кодом
     }
   }
-
+  
     function initWandButton() {
     function attachWandButton() {
         const wandMenu = document.getElementById('extensionsMenu');
         if (!wandMenu) return false;
-
+        
         if (document.getElementById('hud-fix-wand-btn')) return true;
 
         const btn = document.createElement('div');
@@ -4059,7 +4058,7 @@ function scoreHudJsonCandidate(parsed) {
             let stContext = typeof SillyTavern !== 'undefined' && SillyTavern.getContext ? SillyTavern.getContext() : (typeof window.getContext === 'function' ? window.getContext() : null);
             let chatData = stContext && stContext.chat ? stContext.chat : window.chat;
             if (!chatData || chatData.length === 0) return;
-
+            
             let lastMesIndex = chatData.length - 1;
             let targetMessage = chatData[lastMesIndex];
             if (targetMessage.is_user || targetMessage.is_system) {
@@ -4068,9 +4067,9 @@ function scoreHudJsonCandidate(parsed) {
             }
 
             let oldText = targetMessage.swipes && targetMessage.swipe_id !== undefined ? targetMessage.swipes[targetMessage.swipe_id] : targetMessage.mes;
-
+            
             const brokenHudRegex = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)[\s\S]*$/i;
-
+            
             if (!brokenHudRegex.test(oldText)) {
                  showHudToast('error', 'Ошибка', 'Тег [HUD] не найден в последнем сообщении.');
                  return;
@@ -4137,12 +4136,12 @@ function scoreHudJsonCandidate(parsed) {
 
     if (!attachWandButton()) {
         let tries = 0;
-        const iv = setInterval(() => {
-            if (attachWandButton() || ++tries > 40) clearInterval(iv);
+        const iv = setInterval(() => { 
+            if (attachWandButton() || ++tries > 40) clearInterval(iv); 
         }, 250);
     }
   }
-
+  
   function initTavernOSEvents() {
   if (window.hudTavernEventsInitialized) return;
   window.hudTavernEventsInitialized = true;
@@ -4202,13 +4201,13 @@ function scoreHudJsonCandidate(parsed) {
       return;
     }
     cachedChatContainer = chatContainer;
-    loadSettings();
+    loadSettings(); 
     restoreLastTavernRequest();
     initGlobalEvents();
-    initTavernOSEvents();
+    initTavernOSEvents();	
     initWandButton(); // Наша новая кнопка!
     updatePerformanceMode();
-    processAllMessages();
+    processAllMessages(); 
     initObserver(chatContainer);
     if (isPerformanceModeActive(chatContainer)) setupPerformanceObserver();
     chatContainer.addEventListener('scroll', schedulePerformanceRefresh, { passive: true });
