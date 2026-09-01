@@ -358,10 +358,80 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
     ${a.body}
   </div>`).join('');
 
-  // Сводка на домашнем экране: сколько всего переписок и непрочитанного.
-  const notice = `<div class="hud-phone-home-notice"><div>
+  // Стопка уведомлений на домашнем экране: карточка на каждый чат с
+  // непрочитанным, новые сверху, задние выглядывают со сдвигом и уменьшением.
+  // Данные те же, что в списке чатов: аватарка по хэшу имени, название, превью.
+  const notifItems = [];
+  Object.keys(chatsMap || {}).forEach((rawName, chatIdx) => {
+    const c = chatsMap[rawName] || {};
+    const msgs = Array.isArray(c.messages) ? c.messages : [];
+    let unreadHere = 0, lastTime = '', lastText = '', lastSender = '';
+    msgs.forEach(m => {
+      const s = String(m);
+      if (/unread|не прочитан/i.test(s.replace(/\[удалено\]|\[черновик\]/gi, ''))) unreadHere++;
+      const t = s.match(/\b\d{1,2}:\d{2}\b/); if (t) lastTime = t[0];
+    });
+    if (!unreadHere) return;
+
+    // Берём последнее непрочитанное — именно оно всплывает уведомлением.
+    for (let i = msgs.length - 1; i >= 0; i--) {
+      const s = String(msgs[i]);
+      if (!/unread|не прочитан/i.test(s.replace(/\[удалено\]|\[черновик\]/gi, ''))) continue;
+      const parties = parseMsgParties(s);
+      lastSender = parties.sender || '';
+      let body = s.split('|')[0].replace(/^(?:M|Msg|Сообщение|Chat|Чат):\s*/i, '').trim();
+      const mm = body.match(/^([^:-]+)(?:\s*(?:->|→)\s*([^:]+))?:\s*(.*)$/);
+      if (mm) body = mm[3];
+      lastText = body.replace(/\[(?:VOICE|ГОЛОС)_?\d{0,2}:?\d{0,2}\]/gi, '🎤 Голосовое сообщение')
+                     .replace(/\[удалено\]|\[черновик\]|✓+/gi, '').trim();
+      break;
+    }
+
+    // Заголовок уведомления — тот же умный разбор, что и в списке чатов:
+    // групповой чат подписывается своим именем, личный — именем собеседника.
+    const owner = String(c.owner || '').trim() || phoneOwner;
+    const parts = collectCounterparts(msgs, owner);
+    let title = String(rawName).replace(/<[^>]+>/g, '').trim();
+    if (!title || namesLikelySame(title, owner)) {
+      if (!c.participants && parts.length === 1) title = parts[0];
+      else if (lastSender) title = lastSender;
+    }
+    const who = c.participants && lastSender ? lastSender : '';
+    // chatIdx связывает уведомление с конкретной перепиской: по нему открывается
+    // нужный чат и снимается непрочитанное, когда в него зашли.
+    notifItems.push({ title: title || 'Сообщение', who, text: lastText, time: lastTime, count: unreadHere, target: `subchat-${uid}-${chatIdx}` });
+  });
+
+  const MAX_NOTIF = 3;
+  const shown = notifItems.slice(0, MAX_NOTIF);
+  const hiddenCount = notifItems.length - shown.length;
+
+  const notice = notifItems.length
+    ? `<div class="hud-phone-notif-stack" data-phone-app="messages" data-phone-uid="${uid}" role="button" tabindex="0">
+        <div class="hud-phone-notif-head">
+          <span class="hud-phone-notif-label">💬 Сообщения</span>
+          <span class="hud-phone-notif-count">${unread}</span>
+        </div>
+        ${shown.map((n, i) => {
+          const color = HUD_AVATAR_COLORS[hudHashSeed(n.title) % HUD_AVATAR_COLORS.length];
+          const letter = n.title.trim().charAt(0).toUpperCase() || '?';
+          return `<div class="hud-phone-notif${i === 0 ? " hud-phone-notif--first" : ""}" data-chat-target="${n.target}" style="--depth:${i}; --nc:${color}">
+            <span class="hud-phone-notif-ava">${escapeHtml(letter)}</span>
+            <span class="hud-phone-notif-body">
+              <b>${defeatWI(escapeHtml(n.title))}${n.who ? `<em>${defeatWI(escapeHtml(n.who))}</em>` : ''}</b>
+              <small>${n.text ? escapeHtml(n.text) : 'Новое сообщение'}</small>
+            </span>
+            <span class="hud-phone-notif-meta">
+              <em>${escapeHtml(n.time)}</em>
+              ${n.count > 1 ? `<i>${n.count}</i>` : ''}
+            </span>
+          </div>`;
+        }).join('')}
+        ${hiddenCount > 0 ? `<div class="hud-phone-notif-more">и ещё ${hiddenCount} ${hiddenCount === 1 ? 'чат' : 'чата'}</div>` : ''}
+      </div>`
+    : `<div class="hud-phone-home-notice"><div>
       <span>💬</span><span>${chatCount ? `${chatCount} перепис${chatCount === 1 ? 'ка' : 'ок'}` : 'Переписок нет'}</span>
-      <small>${unread ? `${unread} новых` : ''}</small>
+      <small></small>
     </div></div>`;
 
   return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}">

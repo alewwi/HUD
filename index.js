@@ -1,6 +1,6 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings } from './settings.js';
+import { hexToRgba, settings, defaultSettings } from './settings.js';
 import { escapeHtml, getSafeUserName } from './utils.js';
 import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js';
 import { initGlobalEvents, initObserver, initTavernOSEvents } from './events.js';
@@ -486,6 +486,30 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
         root.style.setProperty('--hud-msg-out-start', settings.msgOutStart);
         root.style.setProperty('--hud-msg-out-end', hexToRgba(settings.msgOutEnd, settings.msgOutAlpha !== undefined ? settings.msgOutAlpha : 80));
     }
+
+    // --- ТЕЛЕФОН ---------------------------------------------------------
+    // При phoneThemeAuto телефон берёт цвета и шрифт у HUD, поэтому выглядит
+    // частью общей темы. Как только пользователь трогает любую телефонную
+    // настройку, флаг снимается (см. обработчик в events.js) и дальше
+    // используются его собственные значения — правку не затирает.
+    const pAuto = settings.phoneThemeAuto !== false;
+    const pBgStart = pAuto ? (settings.cardBgStart || '#0a0a0f') : (settings.phoneBgStart || '#0a0a0f');
+    const pBgEnd   = pAuto ? (settings.cardBgEnd   || '#12121a') : (settings.phoneBgEnd   || '#12121a');
+    const pBgAlpha = pAuto ? 92 : (settings.phoneBgAlpha !== undefined ? settings.phoneBgAlpha : 92);
+    const pAccent  = pAuto ? (settings.accentColor || '#de859f') : (settings.phoneAccent || '#de859f');
+    const pBlur    = pAuto ? (settings.backdropBlur !== undefined ? Number(settings.backdropBlur) + 6 : 14)
+                           : (settings.phoneBlur !== undefined ? settings.phoneBlur : 14);
+    const pFont    = pAuto ? (settings.fontMain || 'inherit') : (settings.phoneFont || 'inherit');
+    const pFontSz  = pAuto ? (settings.fontSizeMain !== undefined ? Number(settings.fontSizeMain) - 1 : 13)
+                           : (settings.phoneFontSize !== undefined ? settings.phoneFontSize : 13);
+
+    root.style.setProperty('--hud-phone-bg', `linear-gradient(160deg, ${hexToRgba(pBgStart, pBgAlpha)}, ${hexToRgba(pBgEnd, pBgAlpha)})`);
+    root.style.setProperty('--hud-phone-accent', pAccent);
+    root.style.setProperty('--hud-phone-blur', pBlur + 'px');
+    root.style.setProperty('--hud-phone-font', pFont);
+    root.style.setProperty('--hud-phone-font-size', pFontSz + 'px');
+    root.style.setProperty('--hud-phone-radius', (settings.phoneBubbleRadius !== undefined ? settings.phoneBubbleRadius : 15) + 'px');
+    root.style.setProperty('--hud-phone-notif-alpha', String((settings.phoneNotifAlpha !== undefined ? settings.phoneNotifAlpha : 94) / 100));
     if (settings.badgeColor) root.style.setProperty('--hud-badge-bg', settings.badgeColor);
     if (settings.clockColor) root.style.setProperty('--hud-clock-color', settings.clockColor);
     
@@ -947,7 +971,6 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
             <div class="hud-theme-row"><label>Фон (Картинка):</label> 
               <div class="hud-theme-flex">
                 <input type="text" class="hud-theme-text-input" data-key="bgImage" value="${settings.bgImage}" placeholder="URL..." style="width: 80px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 2px 4px; font-size: 0.9em;">
-                <button type="button" class="hud-bg-upload-btn" title="Загрузить из галереи" style="cursor:pointer; background:var(--hud-accent); color:#fff; border:none; border-radius:4px; padding:2px 6px; font-size:1.1em; outline:none;">📁</button>
                 <input type="file" class="hud-bg-upload-file" accept="image/*" style="display:none;">
               </div>
             </div>
@@ -968,8 +991,20 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
         </details>
         <details><summary>📱 Телефон — настройки темы</summary>
           <div class="hud-theme-grid">
+            <label class="hud-theme-row hud-phone-auto-row" style="grid-column:1/-1; display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" class="hud-phone-theme-auto" ${settings.phoneThemeAuto !== false ? "checked" : ""}>
+              <span>Наследовать тему HUD</span>
+            </label>
+            <div style="font-size:10.5px;opacity:.55;grid-column:1/-1;margin:-4px 0 4px;">Пока включено, телефон берёт акцент, фон, блюр и шрифт у HUD. Любая правка ниже выключит наследование, чтобы её не затирало.</div>
+            <div class="hud-theme-row"><label>Фон экрана:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="phoneBgStart" value="${settings.phoneBgStart}"><input type="color" class="hud-theme-color-input" data-key="phoneBgEnd" value="${settings.phoneBgEnd}"><input type="range" class="hud-theme-range-input" data-key="phoneBgAlpha" min="0" max="100" value="${settings.phoneBgAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Акцент:</label> <input type="color" class="hud-theme-color-input" data-key="phoneAccent" value="${settings.phoneAccent}"></div>
+            <div class="hud-theme-row"><label>Блюр стекла:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneBlur" min="0" max="30" value="${settings.phoneBlur}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneBlur}px</span></div></div>
             <div class="hud-theme-row"><label>Входящие сообщения:</label><div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="msgInBg" value="${settings.msgInBg}"><input type="range" class="hud-theme-range-input" data-key="msgInAlpha" min="0" max="100" value="${settings.msgInAlpha}"></div></div>
             <div class="hud-theme-row"><label>Исходящие сообщения:</label><div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="msgOutStart" value="${settings.msgOutStart}"><input type="color" class="hud-theme-color-input" data-key="msgOutEnd" value="${settings.msgOutEnd}"><input type="range" class="hud-theme-range-input" data-key="msgOutAlpha" min="0" max="100" value="${settings.msgOutAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Скругление пузырей:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneBubbleRadius" min="2" max="24" value="${settings.phoneBubbleRadius}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneBubbleRadius}px</span></div></div>
+            <div class="hud-theme-row"><label>Шрифт телефона:</label> <select class="hud-theme-select-input" data-key="phoneFont">${makeFontOptions(settings.phoneFont)}</select></div>
+            <div class="hud-theme-row"><label>Размер шрифта:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneFontSize" min="10" max="20" value="${settings.phoneFontSize}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneFontSize}px</span></div></div>
+            <div class="hud-theme-row"><label>Плотность уведомлений:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneNotifAlpha" min="40" max="100" value="${settings.phoneNotifAlpha}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneNotifAlpha}%</span></div></div>
           </div>
         </details>
         <details><summary>🗂️ Верхние плашки & Табы</summary>
@@ -1754,8 +1789,13 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
             // must NEVER be mistaken for an actual historical HUD block.
             const hudSummaryEligibleMessages = new Set();
 
-            const keepN = parseInt(settings.regenContextMessages, 10);
-            let startIndex = keepN > 0 ? Math.max(0, mesIdNum - keepN + 1) : 0;
+            // Сколько сообщений истории уходит в регенерацию. Раньше при 0 или
+            // нечитаемом значении startIndex обнулялся и в запрос улетал ВЕСЬ чат.
+            const parsedKeep = parseInt(settings.regenContextMessages, 10);
+            const keepN = Number.isFinite(parsedKeep) && parsedKeep > 0
+                ? Math.min(parsedKeep, 50)
+                : (defaultSettings.regenContextMessages || 6);
+            const startIndex = Math.max(0, mesIdNum - keepN + 1);
 
             function getHudConnectionProfile(profileId) {
                 try {
@@ -1804,9 +1844,10 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
                 if (role === 'assistant') return isGeminiBackend ? 'model' : 'assistant';
                 return 'user';
             };
-            if (reqBody.messages && reqBody.messages[0] && reqBody.messages[0].role === 'system') {
-                freshMessages.push({ ...reqBody.messages[0], role: regenRoleForBackend('system') });
-            }
+            // НЕ подмешиваем системное сообщение из захваченного запроса ST.
+            // Раньше сюда уезжал весь пресет SillyTavern вместе с его World Info,
+            // и он заглушал наш HUD-контракт и лорбук, выбранный в настройках.
+            // Регенерации нужен только strictBasePrompt + hudExternalContext ниже.
             // IMPORTANT: HUD Regen must receive the FULL HUD contract, not only a short
             // command. The previous version sent only strictBasePrompt, which left the
             // model without the complete schema/field definitions and caused it to return
@@ -1922,12 +1963,26 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
         let aiText = '';
         const hudMaxTokens = Math.max(256, Math.min(32768, parseInt(settings.hudMaxTokens, 10) || 8192));
 
-        // Reuse the last working SillyTavern payload. Provider-specific fields are
-        // required by some backends, so a handcrafted minimal body can be rejected
-        // even though normal generation works.
+        // Тело переиспользуем от последнего рабочего запроса ST: провайдер-специфичные
+        // поля (ключи, прокси, семплеры) нужны, иначе часть бэкендов отвергает запрос.
+        // НО из клона вычищаем всё, что несёт ТЕКСТ промпта: иначе вместе с настройками
+        // соединения уезжает весь пресет SillyTavern, его World Info и карточка,
+        // и наш HUD-контракт с выбранным лорбуком тонет в этом объёме.
+        const HUD_PROMPT_FIELDS = [
+            'prompt', 'prompts', 'prompt_order', 'system_prompt', 'main_prompt',
+            'nsfw_prompt', 'jailbreak_prompt', 'impersonation_prompt', 'new_chat_prompt',
+            'new_group_chat_prompt', 'new_example_chat_prompt', 'continue_nudge_prompt',
+            'group_nudge_prompt', 'negative_prompt', 'assistant_prefill',
+            'assistant_impersonation', 'human_sysprompt_message',
+            'char_name', 'user_name', 'char_description', 'char_personality',
+            'scenario', 'persona_description', 'world_info', 'worldInfoBefore',
+            'worldInfoAfter', 'wi_format', 'scenario_format', 'personality_format',
+            'bias_preset_selected', 'extensions',
+        ];
         const capturedBody = (window.lastTavernRequest?.body && typeof window.lastTavernRequest.body === 'object')
             ? window.lastTavernRequest.body : null;
         const hudRequestBody = capturedBody ? JSON.parse(JSON.stringify(capturedBody)) : {};
+        HUD_PROMPT_FIELDS.forEach(k => { delete hudRequestBody[k]; });
         hudRequestBody.messages = freshMessages;
         hudRequestBody.stream = false;
         if (requestModel) hudRequestBody.model = requestModel;

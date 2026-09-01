@@ -487,6 +487,10 @@ export function applyRelGraphFocus(graphEl, focusNodeId, focusEdgeKey, focusType
     const isActiveByEdge = Boolean(activeEdge) && key === activeEdge;
     const isActiveByType = Boolean(activeType) && type === activeType;
     const isActive = isActiveByNode || isActiveByEdge || isActiveByType;
+    // is-flowing — только у стрелки, по которой ткнули напрямую. Клик по узлу
+    // или фильтр легенды подсвечивают связи, но бегущий пунктир не запускают.
+    // focusEdgeKey всегда один, поэтому одновременно течёт ровно одна стрелка.
+    edge.classList.toggle('is-flowing', isActiveByEdge);
     edge.classList.toggle('is-active', isActive);
     edge.classList.toggle('is-dimmed', hasFocus && !isActive);
     edge.classList.toggle('is-pulsing', isActive);

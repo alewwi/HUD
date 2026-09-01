@@ -51,6 +51,19 @@ export const defaultSettings = {
   // --- НАСТРОЙКИ ТЕЛЕФОНА (сохранены для темы/будущего эмулятора; сам эмулятор отключён) ---
   msgInBg: '#ffffff', msgInAlpha: 15,
   msgOutStart: '#2badde', msgOutEnd: '#a9789a', msgOutAlpha: 80,
+
+  // --- ВНЕШНИЙ ВИД ТЕЛЕФОНА ---
+  // phoneThemeAuto: телефон наследует тему HUD (акцент, фон карточки, блюр,
+  // шрифт). Любая ручная правка телефонной настройки выключает флаг, иначе
+  // при следующем применении темы правку бы затёрло.
+  phoneThemeAuto: true,
+  phoneBgStart: '#0a0a0f', phoneBgEnd: '#12121a', phoneBgAlpha: 92,
+  phoneAccent: '#de859f',
+  phoneBlur: 14,
+  phoneBubbleRadius: 15,
+  phoneFont: 'inherit',
+  phoneFontSize: 13,
+  phoneNotifAlpha: 94,
   phoneShowLockNotifications: true,
   weatherBgColor: '#000000', weatherBgAlpha: 40, weatherBlur: 6, // Цвета погоды
 

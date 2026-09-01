@@ -3269,7 +3269,9 @@
 .hud-rel-ring { stroke: rgba(255,255,255,.52); stroke-width: 1.6; }
 .hud-rel-node.is-user .hud-rel-ring { stroke: rgba(255,255,255,.88); stroke-width: 2; }
 .hud-rel-node.is-primary .hud-rel-ring { stroke: rgba(255,166,211,.92); stroke-width: 2; }
-.hud-rel-graph.fx-active .hud-rel-edge { stroke-dasharray: 5 7; animation: hud-rel-flow 1.25s linear infinite; }
+/* Убрано: раньше при fx-active бежали ВСЕ связи разом. Теперь пунктир
+   только у выбранной стрелки — см. .hud-rel-edge.is-flowing ниже. */
+.hud-rel-graph.fx-active .hud-rel-edge { stroke-dasharray: none; }
 .hud-rel-graph.is-focused .hud-rel-edge-label:not(.is-active),
 .hud-rel-edge.is-dimmed,
 .hud-rel-edge-badge.is-dimmed { opacity: .08; }
@@ -4850,4 +4852,812 @@
   border: 1px solid rgba(255,255,255,.08);
   background: linear-gradient(160deg, rgba(255,255,255,.07), rgba(255,255,255,.025));
   box-shadow: 0 6px 18px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
+}
+
+/* =========================================================================
+   Сцена: луна, ночное затемнение и переработанный снегопад
+   ========================================================================= */
+
+/* --- ЛУНА -------------------------------------------------------------- */
+/* Раньше ночное светило было плоским градиентным кругом. Теперь у него
+   кратеры, мягкое гало и холодное свечение, усиливающееся к глубокой ночи. */
+.phase-night .hud-fx-celestial,
+.phase-deep-night .hud-fx-celestial,
+.phase-evening .hud-fx-celestial {
+  background:
+    radial-gradient(circle at 68% 74%, rgba(120,132,170,.30) 0 5px, transparent 6px),
+    radial-gradient(circle at 38% 60%, rgba(120,132,170,.26) 0 7px, transparent 8px),
+    radial-gradient(circle at 56% 32%, rgba(120,132,170,.22) 0 4px, transparent 5px),
+    radial-gradient(circle at 30% 34%, rgba(120,132,170,.18) 0 3px, transparent 4px),
+    radial-gradient(circle at 35% 35%, #fdfdfe 0%, #eef1fb 45%, #ccd4ec 100%) !important;
+  box-shadow:
+    0 0 22px rgba(198,214,255,.35),
+    0 0 54px rgba(150,175,255,.22),
+    inset -6px -5px 14px rgba(90,102,140,.32),
+    inset 3px 3px 8px rgba(255,255,255,.5);
+}
+/* Гало вокруг луны — отдельным слоем, чтобы не спорило с box-shadow. */
+.phase-night .hud-fx-celestial::before,
+.phase-deep-night .hud-fx-celestial::before,
+.phase-evening .hud-fx-celestial::before {
+  content: '';
+  position: absolute; inset: -55%;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(190,210,255,.20) 0%, rgba(160,185,255,.08) 42%, transparent 68%);
+  animation: hud-moon-halo 6s ease-in-out infinite;
+}
+@keyframes hud-moon-halo {
+  0%, 100% { opacity: .75; transform: scale(1); }
+  50%      { opacity: 1;   transform: scale(1.07); }
+}
+.phase-deep-night .hud-fx-celestial::before { animation-duration: 8s; }
+
+/* --- НОЧНОЕ ЗАТЕМНЕНИЕ --------------------------------------------------- */
+/* Ночью сцена уходит в холодную синеву, к глубокой ночи — сильнее. */
+.hud-fx-overlay { transition: background 1.6s ease, backdrop-filter 1.6s ease; }
+.phase-evening .hud-fx-overlay {
+  background: linear-gradient(180deg, rgba(12,16,34,.20), rgba(6,9,22,.34));
+}
+.phase-night .hud-fx-overlay {
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(24,32,68,.16), transparent 60%),
+    linear-gradient(180deg, rgba(8,11,26,.40), rgba(4,6,16,.56));
+}
+.phase-deep-night .hud-fx-overlay {
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(20,26,58,.20), transparent 58%),
+    linear-gradient(180deg, rgba(5,7,18,.56), rgba(2,3,10,.72));
+}
+/* Чистое небо ночью — свет луны чуть подсвечивает верх сцены. */
+.phase-night.weather-clear .hud-fx-overlay,
+.phase-deep-night.weather-clear .hud-fx-overlay {
+  background-image:
+    radial-gradient(80% 55% at var(--cel-x, 78%) var(--cel-y, 16%), rgba(170,195,255,.14), transparent 62%),
+    linear-gradient(180deg, rgba(6,9,22,.48), rgba(3,4,12,.66));
+}
+
+/* --- СНЕГ --------------------------------------------------------------- */
+/* Три слоя с разной глубиной: дальние хлопья мельче, темнее и медленнее.
+   Скорость, плотность и наклон берутся из переменных — их переопределяют
+   классы интенсивности (weather-intensity-low / -high). */
+.weather-snow .hud-fx-weather {
+  --snow-speed: 11s;
+  --snow-tilt: 10px;
+  --snow-opacity: .85;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,.95) 1.6px, transparent 2.2px),
+    radial-gradient(circle, rgba(255,255,255,.62) 1.15px, transparent 1.7px),
+    radial-gradient(circle, rgba(255,255,255,.38) .8px, transparent 1.2px) !important;
+  background-size: 150px 150px, 110px 110px, 76px 76px !important;
+  opacity: var(--snow-opacity);
+  /* Длинная запись, а НЕ сокращённая: `animation: ... !important` попутно
+     выставляет animation-play-state:running !important и ломает заморозку —
+     снег шёл всегда, без тапа по виджету. */
+  animation-name: hud-snow-layers !important;
+  animation-duration: var(--snow-speed) !important;
+  animation-timing-function: linear !important;
+  animation-iteration-count: infinite !important;
+}
+@keyframes hud-snow-layers {
+  0%   { background-position: 0 0, 0 0, 0 0; }
+  100% { background-position:
+           calc(var(--snow-tilt) * 2.4) 150px,
+           calc(var(--snow-tilt) * 1.5) 110px,
+           calc(var(--snow-tilt) * 0.8) 76px; }
+}
+
+/* Слабый снежок: реже, мельче, почти отвесно и заметно медленнее. */
+.weather-snow.weather-intensity-low .hud-fx-weather {
+  --snow-speed: 19s;
+  --snow-tilt: 4px;
+  --snow-opacity: .55;
+  background-size: 210px 210px, 160px 160px, 120px 120px !important;
+}
+
+/* Метель: густо, крупно, сильный наклон и втрое быстрее обычного. */
+.weather-snow.weather-intensity-high .hud-fx-weather {
+  --snow-speed: 3.4s;
+  --snow-tilt: 34px;
+  --snow-opacity: 1;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,1) 2.1px, transparent 2.8px),
+    radial-gradient(circle, rgba(255,255,255,.8) 1.5px, transparent 2.1px),
+    radial-gradient(circle, rgba(255,255,255,.55) 1px, transparent 1.5px) !important;
+  background-size: 84px 84px, 62px 62px, 44px 44px !important;
+}
+
+/* Ветровые полосы поверх метели: чем сильнее, тем быстрее и заметнее. */
+.weather-snow.weather-intensity-high .hud-fx-weather::after {
+  animation-duration: .8s !important;
+  opacity: .9;
+}
+.weather-snow.weather-intensity-high .hud-fx-weather::before {
+  animation-duration: 2.2s !important;
+}
+/* При слабом снеге ветровых полос и дымки быть не должно. */
+.weather-snow.weather-intensity-low .hud-fx-weather::before,
+.weather-snow.weather-intensity-low .hud-fx-weather::after { display: none; }
+
+/* --- ОСЕННИЕ ПТИЦЫ ------------------------------------------------------ */
+/* Было: два прямоугольника со скруглением сверху — плоская «галочка».
+   Стало: силуэт с телом, изогнутыми крыльями разной длины и хвостом;
+   крылья машут не синхронно, поэтому стая выглядит живой. */
+.hud-bird {
+  width: 16px !important;
+  height: 9px !important;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.25));
+}
+/* Тело-капля с хвостом. */
+.hud-bird > i,
+.hud-bird::marker { display: none; }
+.hud-bird {
+  background:
+    radial-gradient(ellipse 4px 1.6px at 50% 50%, #2a2018 0 60%, transparent 62%);
+  background-repeat: no-repeat;
+  background-position: 50% 52%;
+}
+.hud-bird::before, .hud-bird::after {
+  width: 8px !important;
+  height: 8px !important;
+  top: 1px !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  border-top: 1.7px solid #2a2018;
+  border-right: 1.7px solid transparent;
+}
+/* Левое крыло: дуга вверх-влево. */
+.hud-bird::before {
+  left: -1px !important;
+  border-top-left-radius: 9px;
+  border-top-right-radius: 2px;
+  transform-origin: right center;
+  animation-name: hud-wing-left !important;
+  animation-duration: 0.78s !important;
+  animation-timing-function: ease-in-out !important;
+  animation-iteration-count: infinite !important;
+}
+/* Правое крыло чуть короче — птица не идеально симметрична. */
+.hud-bird::after {
+  right: -1px !important;
+  width: 7px !important;
+  border-top-right-radius: 9px;
+  border-top-left-radius: 2px;
+  transform-origin: left center;
+  animation-name: hud-wing-right !important;
+  animation-duration: 0.78s !important;
+  animation-timing-function: ease-in-out !important;
+  animation-iteration-count: infinite !important;
+}
+@keyframes hud-wing-left {
+  0%, 100% { transform: rotate(16deg) scaleY(1); }
+  45%      { transform: rotate(-30deg) scaleY(.62); }
+}
+@keyframes hud-wing-right {
+  0%, 100% { transform: rotate(-16deg) scaleY(1); }
+  45%      { transform: rotate(30deg) scaleY(.62); }
+}
+/* Разнобой по фазе и темпу: вожак машет чаще, отстающие реже. */
+.hud-bird.b1::before, .hud-bird.b1::after { animation-duration: .70s; }
+.hud-bird.b2::before, .hud-bird.b2::after { animation-duration: .84s; animation-delay: .12s; }
+.hud-bird.b3::before, .hud-bird.b3::after { animation-duration: .76s; animation-delay: .26s; }
+.hud-bird.b4::before, .hud-bird.b4::after { animation-duration: .92s; animation-delay: .05s; }
+.hud-bird.b5::before, .hud-bird.b5::after { animation-duration: .80s; animation-delay: .33s; }
+/* Клин: задние птицы мельче и бледнее — появляется глубина. */
+.hud-bird.b3 { transform: scale(.82); opacity: .8; }
+.hud-bird.b5 { transform: scale(.72); opacity: .68; }
+
+/* =========================================================================
+   Телефон: стопка уведомлений на домашнем экране
+   ========================================================================= */
+.hud-phone-notif-stack {
+  position: relative;
+  display: flex; flex-direction: column; gap: 6px;
+  margin-bottom: 18px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.hud-phone-notif-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 4px 2px;
+  font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase;
+  color: rgba(226,232,240,.5);
+}
+.hud-phone-notif-count {
+  min-width: 20px; height: 20px; padding: 0 6px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 999px;
+  background: var(--hud-badge, #ff3b30); color: #fff;
+  font-size: 11px; font-weight: 800; letter-spacing: 0;
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--hud-badge, #ff3b30) 50%, transparent);
+  animation: hud-notif-pop .45s cubic-bezier(.2,1.4,.4,1) backwards;
+}
+@keyframes hud-notif-pop { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* Карточка уведомления. Задние в стопке уменьшены и сдвинуты — эффект пачки. */
+.hud-phone-notif {
+  display: grid;
+  grid-template-columns: 34px minmax(0,1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border-radius: 15px;
+  border: 1px solid rgba(255,255,255,.09);
+  background: linear-gradient(160deg, rgba(28,30,42,.92), rgba(14,15,22,.92));
+  box-shadow: 0 8px 22px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.07);
+  transform: scale(calc(1 - var(--depth) * .035)) translateY(calc(var(--depth) * -4px));
+  opacity: calc(1 - var(--depth) * .18);
+  transition: transform .22s cubic-bezier(.2,.9,.3,1), opacity .22s ease;
+  animation: hud-notif-in .34s cubic-bezier(.2,.9,.3,1) backwards;
+  animation-delay: calc(var(--depth) * .06s);
+}
+@keyframes hud-notif-in {
+  from { opacity: 0; transform: translateY(-10px) scale(.94); }
+}
+/* При наведении пачка «разъезжается» — видно все уведомления целиком. */
+.hud-phone-notif-stack:hover .hud-phone-notif {
+  transform: none;
+  opacity: 1;
+}
+.hud-phone-notif-stack:active .hud-phone-notif { transform: scale(.985); }
+
+.hud-phone-notif-ava {
+  width: 34px; height: 34px; flex: 0 0 34px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 50%;
+  font-weight: 800; font-size: 14px; color: #fff;
+  text-shadow: 0 1px 3px rgba(0,0,0,.6);
+  box-shadow: 0 3px 9px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.22);
+}
+.hud-phone-notif-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.hud-phone-notif-body b {
+  display: flex; align-items: baseline; gap: 6px;
+  font-size: 12.5px; font-weight: 650; color: rgba(240,238,250,.96);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+/* В групповом чате рядом с названием — кто именно написал. */
+.hud-phone-notif-body b em {
+  font-style: normal; font-weight: 500; font-size: 10.5px;
+  color: rgba(226,232,240,.45);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.hud-phone-notif-body small {
+  font-size: 11.5px; line-height: 1.35; color: rgba(226,232,240,.62);
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.hud-phone-notif-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+.hud-phone-notif-meta em { font-style: normal; font-size: 10px; opacity: .45; }
+.hud-phone-notif-meta i {
+  font-style: normal; font-size: 10px; font-weight: 700;
+  min-width: 17px; height: 17px; padding: 0 5px;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 999px; background: var(--hud-badge, #ff3b30); color: #fff;
+}
+.hud-phone-notif-more {
+  text-align: center; font-size: 10.5px; padding: 3px 0 0;
+  color: rgba(226,232,240,.38);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-phone-notif, .hud-phone-notif-count { animation: none; }
+}
+
+/* =========================================================================
+   Сцена: объёмное облако (CSS-имитация шейдера)
+   ========================================================================= */
+/* Настоящий шейдер здесь не годится: HUD рисует карточку на КАЖДОЕ сообщение,
+   и в длинном чате это были бы сотни живых GPU-циклов. Объём набирается
+   тремя слоями клубов, которые дышат и дрейфуют независимо друг от друга —
+   на глаз читается как одно живое облако, но стоит как обычный градиент. */
+.weather-cloudy .hud-fx-cloud-cover {
+  background:
+    radial-gradient(38% 62% at 26% 62%, rgba(236,242,252,.95), rgba(214,222,238,.55) 55%, transparent 76%),
+    radial-gradient(32% 58% at 47% 44%, rgba(246,250,255,.98), rgba(220,228,244,.6) 52%, transparent 74%),
+    radial-gradient(30% 54% at 68% 58%, rgba(228,235,248,.9),  rgba(202,212,232,.5) 55%, transparent 75%),
+    radial-gradient(24% 44% at 84% 66%, rgba(212,221,238,.8),  transparent 72%) !important;
+  background-size: 190px 92px !important;
+  background-repeat: no-repeat !important;
+  background-position: 34% 16% !important;
+  filter: blur(.6px);
+  animation-name: hud-cloud-breathe !important;
+  animation-duration: 17s !important;
+  animation-timing-function: ease-in-out !important;
+  animation-iteration-count: infinite !important;
+}
+/* Второй слой — тёмное подбрюшье, даёт толщину. */
+.weather-cloudy .hud-fx-cloud-cover::before {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(34% 40% at 38% 76%, rgba(126,138,164,.55), transparent 70%),
+    radial-gradient(28% 34% at 62% 78%, rgba(112,124,152,.45), transparent 70%);
+  background-size: 190px 92px;
+  background-repeat: no-repeat;
+  background-position: 36% 20%;
+  filter: blur(3px);
+  mix-blend-mode: multiply;
+  animation: hud-cloud-underbelly 23s ease-in-out infinite;
+}
+/* Третий слой — светлая кромка сверху, будто солнце подсвечивает край. */
+.weather-cloudy .hud-fx-cloud-cover::after {
+  content: '';
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(30% 30% at 44% 34%, rgba(255,255,255,.9), transparent 66%),
+    radial-gradient(22% 24% at 66% 40%, rgba(255,255,255,.7), transparent 66%);
+  background-size: 190px 92px;
+  background-repeat: no-repeat;
+  background-position: 33% 12%;
+  filter: blur(2px);
+  animation: hud-cloud-rim 13s ease-in-out infinite;
+}
+
+/* Клубы «дышат»: слои растягиваются и смещаются с разным периодом,
+   поэтому силуэт всё время немного меняется и не выглядит статичной картинкой. */
+@keyframes hud-cloud-breathe {
+  0%, 100% { background-size: 190px 92px;  background-position: 34% 16%; }
+  33%      { background-size: 206px 86px;  background-position: 37% 18%; }
+  66%      { background-size: 182px 98px;  background-position: 31% 14%; }
+}
+@keyframes hud-cloud-underbelly {
+  0%, 100% { background-size: 190px 92px; background-position: 36% 20%; opacity: .85; }
+  50%      { background-size: 204px 88px; background-position: 33% 22%; opacity: 1; }
+}
+@keyframes hud-cloud-rim {
+  0%, 100% { background-size: 190px 92px; background-position: 33% 12%; opacity: .7; }
+  50%      { background-size: 178px 98px; background-position: 36% 10%; opacity: 1; }
+}
+
+/* Ночью облако холоднее и глуше, днём — ярче. */
+.phase-night.weather-cloudy .hud-fx-cloud-cover,
+.phase-deep-night.weather-cloudy .hud-fx-cloud-cover,
+.phase-evening.weather-cloudy .hud-fx-cloud-cover { filter: blur(.6px) brightness(.62) saturate(.7); }
+.phase-golden.weather-cloudy .hud-fx-cloud-cover,
+.phase-sunset.weather-cloudy .hud-fx-cloud-cover { filter: blur(.6px) sepia(.28) saturate(1.25) brightness(1.04); }
+
+@media (prefers-reduced-motion: reduce) {
+  .weather-cloudy .hud-fx-cloud-cover,
+  .weather-cloudy .hud-fx-cloud-cover::before,
+  .weather-cloudy .hud-fx-cloud-cover::after { animation: none !important; }
+}
+
+/* =========================================================================
+   Заморозка новых эффектов до тапа/наведения (мобильная оптимизация)
+   ========================================================================= */
+/* Эффекты, добавленные позже, не попали в исходные списки заморозки и
+   крутились всегда — на телефоне это лишняя работа GPU в каждой карточке.
+   Здесь добираем то, что пропущено:
+     • третий слой облака (::after — светлая кромка),
+     • гало луны (.hud-fx-celestial::before),
+     • псевдоэлементы внутри сезонной сцены — крылья птиц и подобное:
+       селектор `.hud-fx-season-scene *` их НЕ покрывает, псевдоэлементы
+       не являются элементами и под `*` не попадают. */
+.hud-fx-cloud-cover::after,
+.hud-fx-celestial,
+.hud-fx-celestial::before,
+.hud-fx-season-scene *::before,
+.hud-fx-season-scene *::after {
+  animation-play-state: paused !important;
+}
+
+.hud-scene-widget.fx-active .hud-fx-cloud-cover::after,
+.hud-scene-widget.fx-active .hud-fx-celestial,
+.hud-scene-widget.fx-active .hud-fx-celestial::before,
+.hud-scene-widget.fx-active .hud-fx-season-scene *::before,
+.hud-scene-widget.fx-active .hud-fx-season-scene *::after {
+  animation-play-state: running !important;
+}
+
+/* Наведение мышью — тот же набор, что и у остальных слоёв. */
+@media (hover: hover) and (pointer: fine) {
+  .hud-scene-widget:hover .hud-fx-cloud-cover::after,
+  .hud-scene-widget:hover .hud-fx-celestial,
+  .hud-scene-widget:hover .hud-fx-celestial::before,
+  .hud-scene-widget:hover .hud-fx-season-scene *::before,
+  .hud-scene-widget:hover .hud-fx-season-scene *::after {
+    animation-play-state: running !important;
+  }
+}
+
+/* Бегущий пунктир — ТОЛЬКО у стрелки, по которой ткнули напрямую (is-flowing),
+   и у той, на которую навели мышью. Клик по персонажу связи подсвечивает, но
+   не анимирует. Одновременно течёт ровно одна стрелка: focusEdgeKey один. */
+.hud-rel-edge.is-flowing {
+  stroke-dasharray: 5 7;
+  animation-name: hud-rel-flow, hud-rel-line-pulse;
+  animation-duration: 1.1s, 1.5s;
+  animation-timing-function: linear, ease-in-out;
+  animation-iteration-count: infinite, infinite;
+  animation-play-state: running;
+}
+.hud-rel-graph.is-focused .hud-rel-edge.is-flowing { opacity: 1; }
+
+@media (hover: hover) and (pointer: fine) {
+  .hud-rel-edge-hit:hover + .hud-rel-edge,
+  .hud-rel-edge:hover {
+    stroke-dasharray: 5 7;
+    animation-name: hud-rel-flow;
+    animation-duration: 1.1s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-play-state: running;
+  }
+}
+
+/* =========================================================================
+   Раскрытый граф отношений: центрирование, устойчивое к вёрстке SillyTavern
+   ========================================================================= */
+/* На мобильном ST задаёт <html> position:fixed с нулевой шириной и вдобавок
+   трансформ. Любой трансформ делает элемент контейнером для position:fixed
+   потомков, а раз его used-ширина 0 — left/top в процентах давали 0px,
+   и граф улетал за левый верхний угол экрана.
+   Вьюпортные единицы от испорченного контейнера не зависят. */
+.hud-rel-graph.is-expanded {
+  left: 50vw !important;
+  top: 50vh !important;
+  transform: translate(-50%, -50%) scale(var(--hud-rel-zoom, 1)) !important;
+}
+/* Подложка раскрытого графа — тоже на вьюпортных единицах. */
+.hud-rel-graph-backdrop {
+  left: 0 !important; top: 0 !important;
+  width: 100vw !important; height: 100vh !important;
+  right: auto !important; bottom: auto !important;
+}
+
+/* Подсветка от клика по персонажу или фильтра легенды остаётся статичной:
+   толщина и свечение есть, движения нет. Анимация — привилегия is-flowing. */
+.hud-rel-edge.is-active:not(.is-flowing) { animation: none !important; stroke-dasharray: none; }
+
+/* =========================================================================
+   Уведомления: настоящая стопка с наложением, раскрытие по клику
+   ========================================================================= */
+/* Свёрнутое состояние: карточки наезжают друг на друга отрицательным
+   отступом, видны только верхние кромки задних. Отменяем прежний gap. */
+.hud-phone-notif-stack { gap: 0; }
+/* Порядок наложения: верхняя карточка выше задних.
+   Отступы, масштаб и переходы заданы ниже, в едином блоке анимации, —
+   здесь их намеренно нет, чтобы правила не спорили между собой. */
+.hud-phone-notif { z-index: calc(10 - var(--depth)); }
+.hud-phone-notif { opacity: calc(1 - var(--depth) * .12); }
+
+/* Раскрытое состояние: карточки разъезжаются в полноценный список.
+   Класс вешается по клику — на телефоне hover недоступен. */
+
+/* Подсказка «нажми, чтобы раскрыть» только в свёрнутом виде. */
+.hud-phone-notif-stack::after {
+  content: 'нажми, чтобы раскрыть';
+  display: block;
+  text-align: center;
+  font-size: 9.5px;
+  letter-spacing: .03em;
+  color: rgba(226,232,240,.3);
+  padding-top: 7px;
+  transition: opacity .2s ease;
+}
+.hud-phone-notif-stack.is-open::after { content: 'нажми на уведомление, чтобы открыть чат'; }
+
+/* На десктопе наведение только приподнимает стопку, но не раскрывает —
+   раскрытие теперь исключительно по клику, одинаково на всех устройствах. */
+@media (hover: hover) and (pointer: fine) {
+  .hud-phone-notif-stack:hover .hud-phone-notif {
+    transform: scale(calc(1 - var(--depth) * .035)) translateY(calc(var(--depth) * 6px));
+    opacity: calc(1 - var(--depth) * .07);
+  }
+  .hud-phone-notif-stack.is-open:hover .hud-phone-notif { transform: none; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-phone-notif { transition: none; }
+}
+
+/* Входная анимация карточки объявлена с fill-mode:backwards — пока она ждёт
+   свою задержку (или если её приостановили), элемент держит стартовый кадр
+   `translateY(-10px) scale(.94)`, и он перебивал раскрытие стопки.
+   В раскрытом состоянии анимация не нужна вовсе. */
+.hud-phone-notif-stack.is-open .hud-phone-notif {
+  animation: none !important;
+  transform: none !important;
+  opacity: 1 !important;
+}
+
+/* =========================================================================
+   Стопка уведомлений: наложение через grid, а не отрицательный отступ
+   ========================================================================= */
+/* margin-top:-46px — фиксированное число, а карточки бывают в одну и в две
+   строки. На высоких карточках наложение не срабатывало и в раскрытом виде
+   они продолжали перекрываться. Grid складывает их в одну ячейку независимо
+   от высоты: свёрнуто — все в одной клетке, раскрыто — обычный столбец. */
+/* Раскладка стопки (наложение/раскрытие) задаётся инлайном из events.js —
+   здесь оставлен только флекс-контейнер. Прежний grid-вариант укладывал все
+   карточки в одну ячейку, из-за чего отступы в раскрытом виде не работали. */
+.hud-phone-notif-stack { display: flex; flex-direction: column; gap: 0; }
+
+/* Раскрытая стопка — обычный столбец с промежутками. */
+.hud-phone-notif-stack.is-open {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+/* =========================================================================
+   Уведомления: внешний вид
+   ========================================================================= */
+/* Стекло вместо плоской заливки, цвет карточки берётся из --nc (тот же хэш
+   имени, что и у аватарки в списке чатов), поэтому каждое уведомление
+   узнаётся по цвету до чтения текста. */
+.hud-phone-notif {
+  position: relative;
+  overflow: hidden;
+  padding: 10px 12px 10px 14px;
+  border-radius: 17px;
+  border: 1px solid color-mix(in srgb, var(--nc, #888) 22%, rgba(255,255,255,.07));
+  background:
+    linear-gradient(150deg,
+      color-mix(in srgb, var(--nc, #888) 13%, rgba(26,28,40,.94)),
+      rgba(13,14,21,.96));
+  backdrop-filter: blur(14px) saturate(1.2);
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  box-shadow:
+    0 10px 26px rgba(0,0,0,.5),
+    0 1px 0 rgba(255,255,255,.05) inset,
+    0 0 0 1px rgba(0,0,0,.35);
+}
+/* Цветная полоска слева — «канал» уведомления. */
+.hud-phone-notif::before {
+  content: '';
+  position: absolute; left: 0; top: 12%; bottom: 12%;
+  width: 3px; border-radius: 0 3px 3px 0;
+  background: linear-gradient(180deg, var(--nc, #888), transparent);
+  opacity: .9;
+}
+/* Мягкое свечение в углу под цвет карточки. */
+.hud-phone-notif::after {
+  content: '';
+  position: absolute; right: -30px; top: -30px;
+  width: 90px; height: 90px; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--nc, #888) 26%, transparent), transparent 70%);
+  pointer-events: none;
+}
+
+/* Аватарка: кольцо своего цвета, градиент внутри. */
+.hud-phone-notif-ava {
+  background: linear-gradient(150deg, var(--nc, #888), rgba(0,0,0,.55));
+  box-shadow:
+    0 3px 10px color-mix(in srgb, var(--nc, #888) 40%, transparent),
+    0 0 0 2px color-mix(in srgb, var(--nc, #888) 28%, transparent),
+    inset 0 1px 0 rgba(255,255,255,.28);
+}
+
+/* Типографика: имя крупнее и белее, текст глуше, отправитель совсем тихо. */
+.hud-phone-notif-body b { font-size: 13px; letter-spacing: .005em; }
+.hud-phone-notif-body b em { opacity: .8; }
+.hud-phone-notif-body small { color: rgba(226,232,240,.66); }
+.hud-phone-notif-meta em { font-variant-numeric: tabular-nums; }
+
+/* Свёрнуто: верхняя карточка чуть ярче, нижние уходят в тень — читается
+   как одна аккуратная полоска с намёком на глубину. */
+.hud-phone-notif-stack:not(.is-open) > .hud-phone-notif:not(:first-of-type) {
+  filter: saturate(.75) brightness(.88);
+}
+
+/* Раскрыто: карточки появляются каскадом и приподнимаются под курсором. */
+.hud-phone-notif-stack.is-open > .hud-phone-notif {
+  animation: hud-notif-drop .32s cubic-bezier(.2,.9,.3,1) backwards !important;
+  animation-delay: calc(var(--depth) * .05s) !important;
+}
+@keyframes hud-notif-drop {
+  from { opacity: 0; transform: translateY(-12px) scale(.96); }
+  to   { opacity: 1; transform: none; }
+}
+@media (hover: hover) and (pointer: fine) {
+  .hud-phone-notif-stack.is-open > .hud-phone-notif:hover {
+    transform: translateY(-2px) !important;
+    border-color: color-mix(in srgb, var(--nc, #888) 45%, transparent);
+    box-shadow: 0 14px 32px rgba(0,0,0,.55), 0 0 0 1px color-mix(in srgb, var(--nc,#888) 30%, transparent);
+  }
+}
+
+/* Шапка стопки и подсказка — тише и аккуратнее. */
+.hud-phone-notif-head { padding: 0 6px 5px; font-weight: 600; }
+.hud-phone-notif-more {
+  margin-top: 2px;
+  padding: 5px 0 0;
+  border-top: 1px solid rgba(255,255,255,.05);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-phone-notif-stack.is-open > .hud-phone-notif { animation: none !important; }
+}
+
+/* =========================================================================
+   Телефон: подключение настраиваемых переменных темы
+   ========================================================================= */
+/* Значения по умолчанию — на случай, если applyThemeColors ещё не отработал. */
+.hud-phone-emulator {
+  --hud-phone-bg: linear-gradient(160deg, rgba(10,10,15,.94), rgba(18,18,26,.94));
+  --hud-phone-accent: var(--hud-accent, #de859f);
+  --hud-phone-blur: 14px;
+  --hud-phone-font: inherit;
+  --hud-phone-font-size: 13px;
+  --hud-phone-radius: 15px;
+  --hud-phone-notif-alpha: .94;
+  font-family: var(--hud-phone-font);
+}
+
+/* Фон экрана и стекло. */
+.hud-phone-home-screen,
+.hud-phone-app-view { backdrop-filter: blur(var(--hud-phone-blur)) !important; -webkit-backdrop-filter: blur(var(--hud-phone-blur)) !important; }
+.hud-phone-app-view { background: var(--hud-phone-bg) !important; }
+.hud-phone-unlocked { background: var(--hud-phone-bg); }
+
+/* Размер текста переписки и списка. */
+.hud-phone-app-view .hud-msg-text,
+.hud-phone-app-view .hud-phone-inputfield,
+.hud-phone-chat-meta small { font-size: var(--hud-phone-font-size); }
+.hud-phone-chat-meta b { font-size: calc(var(--hud-phone-font-size) + .5px); }
+
+/* Скругление пузырей. */
+.hud-phone-app-view .hud-msg-wrapper.incoming .hud-msg-bubble {
+  border-radius: var(--hud-phone-radius) var(--hud-phone-radius) var(--hud-phone-radius) 4px;
+}
+.hud-phone-app-view .hud-msg-wrapper.outgoing .hud-msg-bubble {
+  border-radius: var(--hud-phone-radius) var(--hud-phone-radius) 4px var(--hud-phone-radius);
+}
+
+/* Акцент телефона: кнопка отправки, активные элементы, подсветка. */
+.hud-phone-app-view .hud-phone-send {
+  background: linear-gradient(145deg, var(--hud-phone-accent), color-mix(in srgb, var(--hud-phone-accent) 45%, #6d4ad0)) !important;
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--hud-phone-accent) 42%, transparent) !important;
+}
+.hud-phone-name, .hud-phone-options, .hud-phone-back { color: var(--hud-phone-accent); }
+.hud-phone-home-screen { --hud-accent: var(--hud-phone-accent); }
+
+/* Плотность (непрозрачность) карточек уведомлений. */
+.hud-phone-notif { opacity: var(--hud-phone-notif-alpha); }
+.hud-phone-notif-stack.is-open > .hud-phone-notif { opacity: var(--hud-phone-notif-alpha); }
+
+/* =========================================================================
+   Уведомления: плавные раскрытие и возврат
+   ========================================================================= */
+/* Было: жёсткая смена display grid <-> flex, из-за неё переход рвался.
+   Стало: единый flex-контейнер, а сжатие делается отрицательным margin,
+   который анимируется вместе с прозрачностью и масштабом. */
+.hud-phone-notif-stack,
+.hud-phone-notif-stack.is-open {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.hud-phone-notif-stack > .hud-phone-notif {
+  --collapse: 1;
+  margin-top: calc(var(--collapse) * -1 * (var(--notif-h, 62px) - 9px));
+  transform: scale(calc(1 - var(--collapse) * var(--depth) * .045));
+  transform-origin: 50% 0;
+  transition:
+    margin-top .42s cubic-bezier(.32, .72, 0, 1),
+    transform .42s cubic-bezier(.32, .72, 0, 1),
+    opacity .3s ease,
+    filter .3s ease;
+}
+.hud-phone-notif-stack > .hud-phone-notif:first-of-type { margin-top: 0; }
+.hud-phone-notif-stack.is-open > .hud-phone-notif {
+  --collapse: 0;
+  margin-top: 7px;
+  transform: none;
+  animation: none !important;
+}
+.hud-phone-notif-stack.is-open > .hud-phone-notif:first-of-type { margin-top: 0; }
+
+/* Подсказка и «ещё N» тоже плавно. */
+.hud-phone-notif-stack::after,
+.hud-phone-notif-more { transition: opacity .3s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-phone-notif-stack > .hud-phone-notif { transition: none; }
+}
+
+/* =========================================================================
+   Компактный режим: узкая карточка HUD на телефоне
+   ========================================================================= */
+/* Первая карточка уведомления не должна заезжать на заголовок стопки.
+   Раньше это делал :first-of-type, но шапка стопки — тоже div, поэтому
+   ни одна карточка под селектор не попадала и все получали отрицательный
+   отступ. Теперь у первой явный класс из разметки. */
+.hud-phone-notif--first { margin-top: 0 !important; }
+
+@media (max-width: 600px) {
+  /* Строка превью-тегов зажималась между логотипом в контейнере 125px
+     и обрезалась: 52px видно из 473px. Переносим её на свою строку
+     и делаем прокручиваемой вбок. */
+  .hud-os-topbar-left { flex-wrap: wrap; }
+  .hud-os-subtitle {
+    flex: 1 0 100%;
+    min-width: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .hud-os-subtitle::-webkit-scrollbar { display: none; }
+
+  /* Сетка приложений: три колонки вместо четырёх, иначе подписи ломаются
+     на три строки («Соо/бще/ния»). Иконки и шрифт мельче. */
+  .hud-phone-app-grid { grid-template-columns: repeat(3, 1fr); gap: 14px 8px; }
+  .hud-phone-app > span { width: 46px; height: 46px; font-size: 21px; border-radius: 13px; }
+  .hud-phone-app small {
+    font-size: 9.5px; line-height: 1.15;
+    max-width: 100%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .hud-phone-home-screen { padding: 16px 12px 60px; min-height: 420px; }
+
+  /* Уведомления: компактнее, чтобы влезали в узкий экран. */
+  .hud-phone-notif { padding: 8px 9px 8px 11px; border-radius: 14px; gap: 8px; grid-template-columns: 30px minmax(0,1fr) auto; }
+  .hud-phone-notif-ava { width: 30px; height: 30px; flex: 0 0 30px; font-size: 12px; }
+  .hud-phone-notif-body b { font-size: 11.5px; }
+  .hud-phone-notif-body small { font-size: 10.5px; -webkit-line-clamp: 1; }
+  .hud-phone-notif-meta em { font-size: 9px; }
+
+  /* Переписка: чуть плотнее поля, чтобы текст не жался в колонку. */
+  .hud-phone-app-view { padding: 8px 8px 46px; }
+  .hud-phone-app-view .hud-msg-wrapper { max-width: 94%; }
+  .hud-phone-chat-row { grid-template-columns: 36px minmax(0,1fr) auto; gap: 8px; padding: 7px 6px; }
+  .hud-phone-chat-ava { width: 36px; height: 36px; flex: 0 0 36px; font-size: 15px; }
+
+  /* Контакты и галерея: две колонки вместо трёх/двух. */
+  .hud-phone-contacts { grid-template-columns: repeat(2, 1fr); }
+  .hud-phone-gallery-grid { grid-template-columns: 1fr; }
+}
+
+/* Входная анимация карточки уведомления объявлена с fill-mode:backwards.
+   Пока вкладка «Телефон» неактивна, анимация не стартует, и элемент
+   застревает в стартовом кадре translateY(-10px) scale(.94) — первая
+   карточка наезжала на заголовок стопки. В свёрнутом виде она не нужна:
+   раскладку и так задаёт JS, а каскад для раскрытия описан отдельно. */
+.hud-phone-notif-stack:not(.is-open) > .hud-phone-notif { animation: none !important; }
+.hud-phone-notif--first { transform: none !important; }
+
+@media (max-width: 600px) {
+  /* Даём левой части шапки всю ширину, иначе строка превью упирается
+     в 125px и прокрутка внутри неё бесполезна. */
+  .hud-os-topbar { flex-wrap: wrap; row-gap: 6px; }
+  .hud-os-topbar-left { flex: 1 1 100%; }
+}
+
+@media (max-width: 600px) {
+  /* Поле ввода заезжало на нижнюю панель на 7px: у компактного экрана
+     нижний отступ был равен высоте дока без запаса под тень и рамку. */
+  .hud-phone-app-view { padding-bottom: 54px; }
+  .hud-phone-app-view[data-phone-view="messages"] { padding-bottom: 55px; }
+}
+
+@media (max-width: 600px) {
+  /* Однострочные подписи с многоточием: на узком экране они ломались
+     в колонку («Сооб/щение/...», «Протокол Омега» с ▾ на своей строке). */
+  .hud-phone-inputfield {
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    min-width: 0; border-radius: 999px;
+  }
+  .hud-phone-app-view .hud-phone-input-bar { gap: 7px; padding: 7px 9px; }
+  .hud-phone-app-view .hud-phone-attach,
+  .hud-phone-app-view .hud-phone-send { width: 26px; height: 26px; flex: 0 0 26px; }
+
+  .hud-phone-header { gap: 6px; padding: 7px 10px; }
+  .hud-phone-title-group { min-width: 0; flex: 1 1 auto; }
+  .hud-phone-name {
+    display: block; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-size: 12.5px;
+  }
+  .hud-phone-back, .hud-phone-options { flex: 0 0 auto; }
+
+  .hud-phone-app-title { gap: 6px; font-size: 14px; }
+  .hud-phone-app-title, .hud-phone-app-owner { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Пузыри: на узком экране пусть занимают больше ширины, чтобы текст
+     не сыпался по два слова в строку. */
+  .hud-phone-app-view .hud-msg-wrapper { max-width: 100%; }
+  .hud-phone-app-view .hud-msg-content { max-width: 100%; min-width: 0; }
+  .hud-phone-app-view .hud-msg-bubble { padding: 7px 10px; }
+  .hud-phone-app-view .hud-msg-avatar { width: 22px; height: 22px; flex: 0 0 22px; font-size: 10px; }
 }

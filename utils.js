@@ -48,17 +48,34 @@ export function applyTooltips(text) {
   return escapeHtml(text);
 }
 
+// Метка пилюли: «Имя: значение», «Имя — значение», «Имя - значение».
+//
+// Набор символов юникодный, а не список алфавитов:
+//   \p{L} — любая буква, включая é, ö, ñ и прочие диакритические;
+//   \p{M} — комбинирующие знаки, если «закорюка» пришла отдельным
+//           кодпоинтом (e + U+0301), а не готовой буквой é;
+//   дефис и апостроф — для двойных фамилий («Анна-Мария», «O’Brien»).
+// Прежний набор [A-Za-zА-Яа-яЁё0-9...] такие имена не пропускал, метка
+// не распознавалась, и кусок приклеивался к предыдущей пилюле.
+const PILL_LABEL_RE = /^([\p{L}\p{M}\p{N}\s/(),.'’\u2019-]{2,80}?)(:|—|–|\s-)\s*(.*)$/u;
+
 export function buildPillList(value, pillClass, forceSeparate = false) {
     let items = [];
-    let delimiter = String(value).includes(';') ? ';' : (String(value).includes('\n') ? '\n' : '. ');
-    let rawChunks = String(value).split(delimiter).map(i => i.trim()).filter(i => i);
+    const raw = String(value);
+    // Явный разделитель (точка с запятой или перевод строки) — воля автора:
+    // каждый кусок становится отдельной пилюлей. Разбиение по «. » — эвристика
+    // для сплошного текста, и только там куски можно склеивать обратно.
+    const explicit = raw.includes(';') || raw.includes('\n');
+    let delimiter = raw.includes(';') ? ';' : (raw.includes('\n') ? '\n' : '. ');
+    let rawChunks = raw.split(delimiter).map(i => i.trim()).filter(i => i);
     for (let chunk of rawChunks) {
-        let match = chunk.match(/^([A-Za-zА-Яа-яЁё0-9\s\/\(\),\.]{2,80}?)(:|—|–|\s-)\s*(.*)$/);
-        if (match) { items.push({ label: match[1], sep: match[2], text: match[3] }); } 
-        else {
-            if (items.length > 0 && !forceSeparate) { items[items.length - 1].text += (delimiter === ';' ? '; ' : delimiter) + chunk; } 
-            else { items.push({ label: '', sep: '', text: chunk }); }
+        let match = chunk.match(PILL_LABEL_RE);
+        if (match) { items.push({ label: match[1].trim(), sep: match[2], text: match[3] }); }
+        else if (items.length > 0 && !forceSeparate && !explicit) {
+            // Продолжение предыдущего предложения — дописываем в ту же пилюлю.
+            items[items.length - 1].text += delimiter + chunk;
         }
+        else { items.push({ label: '', sep: '', text: chunk }); }
     }
     return items.map(item => {
         let labelHtml = item.label ? `<span class="hud-pill-label">${escapeHtml(item.label)}${escapeHtml(item.sep)}</span> ` : '';
