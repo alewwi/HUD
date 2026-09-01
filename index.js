@@ -1,83 +1,27 @@
 // hud-manager/index.js (v21.5.5)
 
+import { hexToRgba, settings } from './settings.js';
+import { escapeHtml, getSafeUserName } from './utils.js';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js';
+import { initGlobalEvents, initObserver, initTavernOSEvents } from './events.js';
+import { buildUserHTML, buildCharacterHTML } from './render/character.js';
+import { buildDiaryHTML, hudHasMeaningfulDiary } from './render/diary.js';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js';
+import { buildMemoryHTML } from './render/memory.js';
+import { buildPhoneTabsHTML } from './render/phone.js';
+import { hudHasRelations } from './render/relations-graph.js';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js';
+
 (function() {
+  window.HUD = window.HUD || {};
+  window.HUD.bootstrap = true;
   'use strict';
 
-  let settings = { 
-    autoInject: true, 
-    useCards: true, 
-    showComments: true,
-    enablePhone: true,
-    enableIntercepts: true,
-    enableDiary: true,
-    enableWorld: true,
-    enableDreams: true,
-    enableUserBlock: true,
-    enableMemory: true, // Включаем Память
-    enablePhoneSettings: true, // Настройки телефона сохраняются даже без эмулятора
-    performanceMode: true, // Автоматическая оптимизация чатов от 200 сообщений
-    hudsToKeep: 2,
-    regenContextMessages: 6,
-    regenProfileId: '',
-    hudMaxTokens: 8192,
-    hudLorebooks: [],
-    
-    // --- ГЛАССМОРФИЗМ И ФОН ---
-    backdropBlur: 8,
-    bgImage: '',
-    bgScale: 100,
-    bgOffsetY: 50,
-    bgOpacity: 80,
-    
-    // --- ЦВЕТА И ПРОЗРАЧНОСТЬ ---
-    accentColor: '#de859f',
-    glowColor: '#8c5ad2', glowAlpha: 40,
-    
-    cardBgStart: '#0f0f14', cardBgEnd: '#0f0f14', cardBgAlpha: 15,
-    infoBlockBgStart: '#000000', infoBlockBgEnd: '#000000', infoBlockBgAlpha: 15,
-    memoryBgStart: '#15121c', memoryBgEnd: '#0d0d14', memoryBgAlpha: 22,
-    memoryAccent: '#8c5ad2', memoryGlowAlpha: 28, memoryBlur: 8, memoryMaxHeight: 300,
-    
-    topBarBg: '#0f0f14', topBarAlpha: 25,
-    tabsBg: '#000000', tabsAlpha: 15,
-    
-    sceneOverlayColor: '#000000', sceneOverlayAlpha: 0,
-    sceneTextColor: '#ffffff',
-    // --- НАСТРОЙКИ ТЕЛЕФОНА (сохранены для темы/будущего эмулятора; сам эмулятор отключён) ---
-    phoneBgStart: '#0a0a0f', phoneBgEnd: '#0a0a0f', phoneBgAlpha: 60,
-    msgInBg: '#ffffff', msgInAlpha: 15,
-    msgOutStart: '#2badde', msgOutEnd: '#a9789a', msgOutAlpha: 80,
-    phoneWallpaper: '', phoneWallpaperBlur: 0, phoneWallpaperOpacity: 100,
-    phoneShowLockNotifications: true,
-    weatherBgColor: '#000000', weatherBgAlpha: 40, weatherBlur: 6, // Цвета погоды
-    
-    badgeColor: '#ff3b30',
-    
-    dramaColor: '#ff3b30', dramaBgAlpha: 15,
-    interceptColor: '#ff4d4d', interceptBgAlpha: 15,
-    nsfwColor: '#9e2a3f', nsfwBgAlpha: 20,
-    
-    clockColor: '#ffffff',
-    
-    // --- ШРИФТЫ И РАЗМЕРЫ ---
-    fontMain: 'inherit', fontSizeMain: 14,
-    fontHeaders: 'inherit', fontSizeHeaders: 13,
-    fontClock: 'system-ui, sans-serif', fontSizeClock: 42,
-    fontDiary: "'Caveat', cursive", fontSizeDiary: 16,
-  };
 
   let lastSceneWeather = '';
   let cachedChatContainer = null;
-
-  // УМНОЕ ПОЛУЧЕНИЕ ИМЕНИ ПОЛЬЗОВАТЕЛЯ ИЗ SILLYTAVERN
-  function getSafeUserName() {
-    try {
-        if (typeof window !== 'undefined' && window.name1 && String(window.name1).trim()) return String(window.name1).trim();
-        const ctx = typeof SillyTavern !== 'undefined' && typeof SillyTavern.getContext === 'function' ? SillyTavern.getContext() : (typeof getContext === 'function' ? getContext() : null);
-        if (ctx && ctx.name1) return String(ctx.name1).trim();
-    } catch(e) {}
-    return 'User';
-  }
 
   // Типы генераций SillyTavern, для которых HUD-инструкции инжектить НЕЛЬЗЯ:
   // 'quiet'       — фоновая "тихая" генерация (саммари, автоперевод, генерация промпта для
@@ -138,12 +82,16 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
 - 📱 MESSAGE SNAPSHOT IS REAL-TIME (CRITICAL): chatsMap is a live snapshot of messaging state at the exact current point in the story. Re-evaluate it EVERY TURN while preserving valid ongoing conversations and unresolved messages. Messages may be Read, Unread, Deleted, or Draft. Deleted messages remain marked as deleted and may retain hidden original text for the click-to-reveal UI. Draft messages are unsent and must never count as delivered/read. Voice messages may use [VOICE_0:15] (or another duration) followed by transcript text. Do not generate placeholder chats or fake-phone OS data.
 - 📡 INTERCEPT SNAPSHOT IS REAL-TIME (CRITICAL): intercepts is a live snapshot of conversations the active protagonist cannot directly read. Re-evaluate EVERY TURN while preserving valid ongoing conversations. NPC↔NPC and groups without the active protagonist belong here. Never create an intercept solely to expose information to the protagonist; it must be a plausible independent conversation.
 - 🧠 MEMORY SCOPE (CRITICAL): memory.mood and memory.route track ONLY {{user}} and {{char}} as the main protagonists. If a protagonist is absent from the physical scene, do not invent a present-scene mood or route event for them; this does NOT erase their broader world state from messaging, schedules, relationships or other world-level structures. Mood history: MAX 12 recent points per protagonist. Route history: MAX 20 recent points per protagonist. Timeline: MAX 5 recent events of TODAY.
+- 🕸️ RELATION WEB (CRITICAL for the Memory infographic): JS draws an SVG spiderweb from "Rel" fields. EVERY character in "characters" AND the "user" block MUST emit a complete Rel covering EVERY other named person who currently matters ({{user}}, {{char}}, scene NPCs, mentioned NPCs). Format EXACTLY "Name: how THIS person feels toward Name", separated by ;. Relationships MUST be bidirectional: if Аня has "Максим: ревнует", Максим MUST exist in "characters" with Rel containing "Аня: ...". Any NPC mentioned in anyone's Rel MUST also appear in "characters" with their own Rel. Never omit Rel and never write "empty" while other named people exist this turn.
 - 🧠 KNOWLEDGE BOUNDARIES (CRITICAL): Every character knows only what they could plausibly know. Never leak another character's private thoughts, private conversations, intercepted messages or hidden plans into a different character's internal state without a believable information path.
 - 🛑 NSFW LIFECYCLE (CRITICAL): Fields "W", "NSFW_Det", "SexRev", and user's "UW" MUST ONLY be active during intimacy, sex, or high arousal. Once the scene cools down, clear them by writing "empty". Do NOT leave old NSFW details active.
+- 📱 PHONE OWNERSHIP (CRITICAL): "chatsMap" and "phone" describe EXACTLY ONE device — {{char}}'s own phone. Every chat in "chatsMap" MUST have {{char}} as a participant, and "owner" MUST always be {{char}}. Contacts, gallery, notes, maps and search are {{char}}'s. NEVER put another character's phone, chats or data here.
+- 📡 PHONE vs INTERCEPTS (CRITICAL): any conversation that does NOT include {{char}} — NPC-to-NPC chats, other people's group chats, anything happening on someone else's device — belongs in "intercepts", never in "chatsMap". If you are unsure whether {{char}} is in a conversation, it goes to "intercepts".
 - 📖 DIARY POV (CRITICAL): The diary is PRIVATE IN-WORLD WRITING. Every diary entry MUST be written in first person from the perspective of its named author. The author MUST be a character or NPC, NEVER {{user}}. It is NOT an omniscient scene summary or AI report. The author may only write what they personally experienced, know, believe, remember, suspect or misunderstand.
 - 📖 DIARY SELF-REFLECTION (CRITICAL): The main "text" field is the author's own diary. It should focus on the author's day, condition, emotions, inner conflict, decisions, memories, regrets, hopes, plans and self-talk. The author may freely reflect on what happened and talk to themselves. Do NOT turn the main diary text into a report about {{user}}.
 - 📖 DIARY ABOUT USER (CRITICAL): Every diary entry MUST also contain a separate "aboutUser" field. This is NOT an omniscient analysis and NOT a second narrator. It is a private first-person subsection where the same author says what they personally think and feel about {{user}}: attraction, anger, tenderness, resentment, fear, curiosity, observations, memories, wishes, doubts, expectations or unresolved questions. Keep it separate from the author's general self-reflection. If there is nothing meaningful to say about {{user}} this turn, use "empty". Never write "aboutUser" from {{user}}'s perspective and never make {{user}} the author.
 - 📖 DIARY AUTHOR (CRITICAL): Every diary entry MUST contain an "author" field naming the character/NPC who wrote it. Never use {{user}} as diary author.
+- 📖 DIARY MOOD (CRITICAL): Every diary entry SHOULD include a short "mood" field or "emotion" field to identify the writer's dominant tone. Use single-word or short-phrase descriptors such as sadness, tears, anger, stress, panic, rush, relief, guilt, joy, calm, longing. This field is used only for visual styling and must stay brief.
 - 📱 AUTONOMOUS COMMUNICATION (CRITICAL): Characters and NPCs have independent communication lives. Incoming messages may concern work, friends, family, romance, debt, logistics, bureaucracy, enemies, rivals or routine life. A character may receive messages without answering them immediately. Busy, asleep, working, traveling, offline, ignoring, emotionally overwhelmed or simply not checking the phone are valid reasons for no reply.
 - ⏱️ AUTONOMOUS TIME (CRITICAL): Off-screen characters continue living while the current scene unfolds. They may work, sleep, travel, exchange messages, miss appointments, make decisions, argue, receive news, buy things and plan actions when narratively plausible.
 - ⚠️ FORMATTING: Use EXACTLY these short English keys. ESCAPE inner quotes like this: "He said \\"Hello\\".". ALWAYS use semicolons (;) for lists, NEVER slashes (/).
@@ -177,7 +125,7 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
    "I": "[Inventory items. Format EXACTLY as 'Item: condition'. Separate by ;]",
    "G": "[Goals in 3 strict categories: 1. Right now, 2. Near future, 3. Long-term. Format exactly as: 'Сейчас: [goal]; Скоро: [goal]; Будущее: [goal]'. UPDATE REAL-TIME!]",
    "S": "[Upcoming schedule. MUST include time (exact like '14:30' or approx like 'Вечер') for EACH item! Format: 'Time - Event'; Separate by ; UPDATE REAL-TIME!]",
-   "Rel": "[Relationships. Format EXACTLY as 'Name: relation'. Separate by ;]",
+   "Rel": "[THIS character's feelings toward ALL other relevant named people ({{user}}, {{char}}, scene NPCs, mentioned NPCs). Format EXACTLY 'Name: how THIS person feels about Name'. Separate by ;. MUST be bidirectional: if A lists B, B's Rel MUST list A. Mentioned NPCs MUST also be in this characters array with their own Rel.]",
    "Mem": "[Shared memories with User or NPCs; Separate by ;]",
    "Flag": "[Plot flags/upcoming consequences; Separate by ;]",
    "St": "[Social/romantic status]",
@@ -199,7 +147,7 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
   "C": "[{{user}}'s CURRENT clothing/attire ONLY. UPDATE REAL-TIME!]",
   "Ap": "[{{user}}'s physical appearance ONLY. UPDATE REAL-TIME!]",
   "H": "[{{user}}'s health/physical state ONLY. UPDATE REAL-TIME!]",
-  "Rel": "[{{user}}'s relationships with the other character(s) ONLY. Format EXACTLY as 'Name: relation'; Separate by ;]",
+  "Rel": "[{{user}}'s feelings toward EVERY other relevant named person. Format EXACTLY 'Name: how {{user}} feels about Name'; Separate by ;. MUST be bidirectional with those characters' Rel fields.]",
   "L": "[{{user}}'s exact current location ONLY. UPDATE REAL-TIME!]",
   "UW": "[DURING INTIMACY ONLY. EACH item as 'Label: value': 'Уровень возбуждения: ...; Уровень желания: ...; Готовность: ...; Лобок/Волосы: ...; Анатомия (вагина/клитор, чувствительность, заполненность и т.д.): ...; Смазка: ...; Грудь/Соски: ...; Громкость: ...; Следы: ...; Готовность ко 2 раунду: ...'. CLEAR TO 'empty' WHEN SCENE ENDS! Separate by ;]"
  }`;
@@ -238,12 +186,31 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
       p += `,
   "chatsMap": {
    "[Contact Name OR Group Name]": {
-    "owner": "[Owner of device]",
+    "owner": "[ALWAYS {{char}} — this device belongs to {{char}} and to nobody else]",
     "participants": "[OPTIONAL — include ONLY if this is a group chat; omit the field entirely for one-to-one chats]",
     "messages": [
-     "[Sender] -> [Recipient]: [Message] | [Time] | [Read/Unread/Deleted/Draft]"
+     "[Sender] -> [Recipient]: [Message] | [Time] | [Read/Unread/Deleted/Draft]",
+     "VOICE NOTE: prefix the message text with [VOICE_M:SS] to send it as an audio message instead of text, e.g. 'Аня -> {{user}}: [VOICE_0:42] Перезвони мне, это срочно | 21:40 | Unread'. Use it when a character would realistically record audio rather than type — walking, driving, crying, in a hurry, or being deliberately intimate."
     ]
    }
+  },
+  "phone": {
+   "owner": "[ALWAYS {{char}}. This is {{char}}'s personal device — contacts, gallery, notes, maps and search below are {{char}}'s own. Never put another person's name here.]",
+   "contacts": [
+    {"name": "[Contact name as saved on the device]", "note": "[OPTIONAL: how they are saved / short tag, e.g. 'Не брать трубку', 'Универ']"}
+   ],
+   "gallery": [
+    {"title": "[Photo title]", "time": "[When it was taken]", "desc": "[What is on the photo, 1-2 sentences]", "meta": "[OPTIONAL: who took it / album / hidden meaning]"}
+   ],
+   "notes": [
+    {"title": "[Note title]", "time": "[Created/edited]", "text": "[Note body — lists, drafts, thoughts the character typed]", "footer": "[OPTIONAL: short trailing line]"}
+   ],
+   "maps": [
+    {"place": "[Saved place or recent route]", "note": "[OPTIONAL: why it matters — 'Дом Грея', 'Смотрели вчера в 23:40']"}
+   ],
+   "search": [
+    "[A search query the character actually typed, verbatim — these reveal what they are secretly worried about]"
+   ]
   }`;
     }
 
@@ -255,7 +222,8 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
    "chatName": "[NPC-to-NPC or group chat name]",
    "participants": "[OPTIONAL — include ONLY for a group chat; omit the field entirely for one-to-one/private chats]",
    "messages": [
-    "[REAL-TIME SECRET CONVERSATION] [Sender] -> [Recipient]: [Msg] | [Time] | [Read/Unread/Deleted/Draft]"
+    "[REAL-TIME SECRET CONVERSATION] [Sender] -> [Recipient]: [Msg] | [Time] | [Read/Unread/Deleted/Draft]",
+    "VOICE NOTE: the same [VOICE_M:SS] prefix works here — intercepted audio is often more revealing than text."
    ]
   }
  ]`;
@@ -268,7 +236,9 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
    "author": "[Character/NPC name — NEVER {{user}}]",
    "time": "[Date/Time]",
    "text": "[FIRST-PERSON PRIVATE DIARY ENTRY about the author's own day, physical state, emotions, thoughts, doubts, decisions and self-reflection. MINIMUM 4-7 SENTENCES. The author may talk to themselves and process the situation in their own voice. Never write as an omniscient narrator.]",
-   "aboutUser": "[PRIVATE FIRST-PERSON SUB-ENTRY ABOUT {{user}} ONLY: what the author feels, thinks, wants, fears, notices, remembers or wonders about {{user}}. Write from the author's perspective, never as an external analysis. If the author has nothing meaningful to say about {{user}} this turn, use 'empty'.]"
+   "aboutUser": "[PRIVATE FIRST-PERSON SUB-ENTRY ABOUT {{user}} ONLY: what the author feels, thinks, wants, fears, notices, remembers or wonders about {{user}}. Write from the author's perspective, never as an external analysis. If the author has nothing meaningful to say about {{user}} this turn, use 'empty'.]",
+   "mood": "[Short dominant mood tag for the diary entry: e.g. sadness, stress, anger, panic, calm, relief, guilt, longing, joy. Keep it brief and use one strong descriptor.]",
+   "emotion": "[Optional alternate emotion word if the writer's feeling is more specific. If mood is used, emotion may be empty.]"
   }
  ]`;
     }
@@ -305,114 +275,6 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
     return p;
   }
 
-  function buildLightningSvg() {
-    return `<svg viewBox="0 0 140 140" preserveAspectRatio="none" class="hud-bolt-svg">
-      <path class="hud-bolt-path hud-bolt-main" d="M 78 4 L 62 46 L 76 50 L 48 96 L 58 60 L 44 56 Z"></path>
-      <path class="hud-bolt-path hud-bolt-branch" d="M 68 40 L 84 50 L 74 56"></path>
-    </svg>`;
-  }
-
-  function buildSeasonSceneHtml(seasonClass, extra) {
-    extra = extra || {};
-    if (seasonClass === 'season-autumn') {
-      let birds = '';
-      for (let i = 1; i <= 5; i++) birds += `<span class="hud-bird b${i}"></span>`;
-      // Autumn background: one apple tree (bt2), two leaf-fall trees (bt1/bt4),
-      // one plain tree (bt3). This keeps the scene varied without animating every tree.
-      let backTrees = '';
-      for (let i = 1; i <= 4; i++) {
-        const apples = i === 2
-          ? `<span class="hud-tree-apples"><span class="hud-tree-apple a1"></span><span class="hud-tree-apple a2"></span><span class="hud-tree-apple a3"></span></span>`
-          : '';
-        const fallingLeaves = (i === 1 || i === 4)
-          ? `<span class="hud-tree-leaves"><span class="hud-tree-leaf lf1"></span><span class="hud-tree-leaf lf2"></span><span class="hud-tree-leaf lf3"></span></span>`
-          : '';
-        // Sparse autumn foliage: one lightweight CSS foliage layer per tree, not many DOM leaves.
-        // The apple tree gets slightly denser foliage; leaf-fall trees remain visibly sparse.
-        const foliage = `<span class="hud-bg-tree-autumn-foliage foliage-${i}" aria-hidden="true"></span>`;
-        backTrees += `<span class="hud-bg-tree hud-bg-tree-autumn bt${i}"><span class="hud-bg-tree-trunk"></span><span class="hud-bg-tree-branch br1"></span><span class="hud-bg-tree-branch br2"></span><span class="hud-bg-tree-branch br3"></span>${foliage}${apples}${fallingLeaves}</span>`;
-      }
-      const fallenApples = `<div class="hud-fallen-apples"><span class="hud-fallen-apple fa1"></span><span class="hud-fallen-apple fa2"></span><span class="hud-fallen-apple fa3"></span><span class="hud-fallen-apple fa4"></span><span class="hud-fallen-apple fa5"></span></div>`;
-      return `<div class="hud-ground hud-ground-autumn"></div><div class="hud-bg-trees">${backTrees}</div><div class="hud-bird-flock">${birds}</div>${fallenApples}<div class="hud-hedgehog"><span class="hud-hedgehog-apple ha1"></span><span class="hud-hedgehog-apple ha2"></span><span class="hud-hedgehog-body"></span><span class="hud-hedgehog-spikes"></span><span class="hud-hedgehog-face"></span></div><div class="hud-burrow"><span class="hud-burrow-mound"></span><span class="hud-burrow-hole"></span><span class="hud-burrow-animal"><span class="hud-burrow-animal-body"></span><span class="hud-burrow-animal-spines"></span><span class="hud-burrow-animal-face"></span></span></div><div class="hud-campfire"><span class="hud-campfire-log"></span><span class="hud-campfire-flame f1"></span><span class="hud-campfire-flame f2"></span><span class="hud-campfire-smoke s1"></span><span class="hud-campfire-smoke s2"></span><span class="hud-campfire-smoke s3"></span></div>`;
-    }
-    if (seasonClass === 'season-spring') {
-      let flowers = '';
-      for (let i = 1; i <= 5; i++) {
-        flowers += `<span class="hud-flower f${i}"><span class="hud-flower-stem"></span><span class="hud-flower-head"><span class="hud-petal p1"></span><span class="hud-petal p2"></span><span class="hud-petal p3"></span><span class="hud-petal p4"></span><span class="hud-flower-center"></span></span></span>`;
-      }
-      let pollen = '';
-      for (let i = 1; i <= 4; i++) pollen += `<span class="hud-pollen d${i}"></span>`;
-      let dew = extra.dew ? `<span class="hud-dew dw1"></span><span class="hud-dew dw2"></span><span class="hud-dew dw3"></span><span class="hud-dew dw4"></span>` : '';
-      let backTrees = '';
-      for (let i = 1; i <= 4; i++) {
-        const nest = i === 2
-          ? `<span class="hud-bg-nest"><span class="hud-bg-chick c1"></span><span class="hud-bg-chick c2"></span></span>`
-          : '';
-        backTrees += `<span class="hud-bg-tree hud-bg-tree-spring bt${i}"><span class="hud-bg-tree-trunk"></span><span class="hud-bg-tree-branch br1"></span><span class="hud-bg-tree-branch br2"></span><span class="hud-bg-tree-branch br3"></span><span class="hud-bg-tree-canopy"></span>${nest}</span>`;
-      }
-      return `<div class="hud-meadow"></div><div class="hud-bg-trees">${backTrees}</div><div class="hud-flowerbed">${flowers}</div>${pollen}${dew}<div class="hud-butterfly"><span class="hud-butterfly-wing w-left"></span><span class="hud-butterfly-wing w-right"></span></div><div class="hud-bee bee1"><span class="hud-bee-wing"></span></div><div class="hud-bee bee2"><span class="hud-bee-wing"></span></div>`;
-    }
-    if (seasonClass === 'season-summer') {
-      let teeth = '';
-      for (let i = 1; i <= 6; i++) teeth += `<span class="hud-umbrella-tooth"></span>`;
-      return `<div class="hud-summer-horizon"></div><div class="hud-summer-distant-island"></div><div class="hud-sand"></div><div class="hud-sailboat"><span class="hud-sailboat-hull"></span><span class="hud-sailboat-sail"></span></div><div class="hud-gull g1"></div><div class="hud-gull g2"></div><div class="hud-sea"><span class="hud-wave w1"></span><span class="hud-wave w2"></span></div><div class="hud-summer-heat-haze"></div><div class="hud-sandcastle"><span class="hud-sandcastle-base"></span><span class="hud-sandcastle-tower t1"></span><span class="hud-sandcastle-tower t2"></span><span class="hud-sandcastle-tower t3"></span><span class="hud-sandcastle-turret tr1"></span><span class="hud-sandcastle-turret tr2"></span><span class="hud-sandcastle-turret tr3"></span><span class="hud-sandcastle-flag"></span><span class="hud-sandcastle-shovel"></span></div><div class="hud-volleyball-net"><span class="hud-net-post post-left"></span><span class="hud-net-post post-right"></span><span class="hud-net-band"></span><span class="hud-net-mesh"></span></div><div class="hud-volleyball"><span class="hud-volleyball-seam s1"></span><span class="hud-volleyball-seam s2"></span></div><div class="hud-summer-dragonfly"><span class="hud-dragonfly-head"></span><span class="hud-dragonfly-body"><i></i><i></i><i></i></span><span class="hud-dragonfly-wing wing1"></span><span class="hud-dragonfly-wing wing2"></span><span class="hud-dragonfly-wing wing3"></span><span class="hud-dragonfly-wing wing4"></span></div><div class="hud-summer-cicada-sound c1"></div><div class="hud-summer-cicada-sound c2"></div><div class="hud-towel-shadow"></div><div class="hud-towel"></div><div class="hud-umbrella"><span class="hud-umbrella-canopy"></span><span class="hud-umbrella-valance">${teeth}</span><span class="hud-umbrella-pole"></span></div>`;
-    }
-    if (seasonClass === 'season-winter') {
-      let icicles = '';
-      for (let i = 1; i <= 8; i++) icicles += `<span class="hud-icicle ic${i}"></span>`;
-      let sparkle = extra.deepFreeze ? (() => { let s=''; for (let i=1;i<=6;i++) s += `<span class="hud-sparkle sp${i}"></span>`; return s; })() : '';
-      let backTrees = ''; for (let i = 1; i <= 4; i++) backTrees += `<span class="hud-bg-tree hud-bg-tree-winter bt${i}"><span class="hud-bg-tree-trunk"></span><span class="hud-bg-tree-branch br1"></span><span class="hud-bg-tree-branch br2"></span><span class="hud-bg-tree-branch br3"></span><span class="hud-bg-tree-snow s1"></span><span class="hud-bg-tree-snow s2"></span><span class="hud-bg-tree-snow s3"></span></span>`;
-      return `<div class="hud-winter-distant-forest"></div><div class="hud-winter-aurora"></div><div class="hud-winter-house"><span class="hud-winter-house-body"></span><span class="hud-winter-house-roof"></span><span class="hud-winter-house-door"></span><span class="hud-winter-warm-window"><span class="hud-window-pane p1"></span><span class="hud-window-pane p2"></span></span><span class="hud-winter-chimney"><span class="hud-winter-smoke sm1"></span><span class="hud-winter-smoke sm2"></span><span class="hud-winter-smoke sm3"></span></span></div><div class="hud-winter-animal-trail"><span class="hud-animal-print ap1"></span><span class="hud-animal-print ap2"></span><span class="hud-animal-print ap3"></span><span class="hud-animal-print ap4"></span></div><div class="hud-winter-branch-snow bs1"></div><div class="hud-winter-branch-snow bs2"></div><div class="hud-icicle-row">${icicles}</div><div class="hud-ground hud-ground-snow"></div><div class="hud-winter-frozen-pond"><span class="hud-ice-crack cr1"></span><span class="hud-ice-crack cr2"></span><span class="hud-ice-crack cr3"></span><span class="hud-ice-crack cr4"></span></div><div class="hud-bg-trees">${backTrees}</div>${sparkle}<div class="hud-snowman"><span class="hud-snowman-shadow"></span><span class="hud-snowman-arm arm-left"></span><span class="hud-snowman-arm arm-right"></span><span class="hud-snowman-ball ball-bottom"></span><span class="hud-snowman-ball ball-mid"></span><span class="hud-snowman-button btn1"></span><span class="hud-snowman-button btn2"></span><span class="hud-snowman-button btn3"></span><span class="hud-snowman-ball ball-head"></span><span class="hud-snowman-eye eye-left"></span><span class="hud-snowman-eye eye-right"></span><span class="hud-snowman-carrot"></span><span class="hud-snowman-mouth"><span class="hud-snowman-pebble p1"></span><span class="hud-snowman-pebble p2"></span><span class="hud-snowman-pebble p3"></span><span class="hud-snowman-pebble p4"></span><span class="hud-snowman-pebble p5"></span></span><span class="hud-snowman-hat-brim"></span><span class="hud-snowman-hat-top"></span></div>`;
-    }
-    return '';
-  }
-
-  function mapKey(k) {
-    const raw = String(k ?? '').trim();
-    const n = raw.toLowerCase().replace(/[ё]/g, 'е').replace(/[\s_-]+/g, ' ');
-    const map = {
-      't':'Время','время':'Время','time':'Время',
-      'wth':'Погода','погода':'Погода','weather':'Погода',
-      'dt':'Дата','дата':'Дата','date':'Дата',
-      'atm':'Атмосфера','атмосфера':'Атмосфера','atmosphere':'Атмосфера',
-      'md':'Настроение','настроение':'Настроение','mood':'Настроение',
-      'n':'Имя','имя':'Имя','name':'Имя',
-      'a':'Возраст','возраст':'Возраст','age':'Возраст',
-      'c':'Одежда','одежда':'Одежда','clothing':'Одежда','outfit':'Одежда',
-      'ap':'Внешность','внешность':'Внешность','appearance':'Внешность',
-      'h':'Здоровье','здоровье':'Здоровье','health':'Здоровье',
-      'r':'Роль','роль':'Роль','role':'Роль',
-      'b':'Тело','тело':'Тело','body':'Тело',
-      'ph':'Физиология','физиология':'Физиология','physiology':'Физиология',
-      'l':'Место','место':'Место','location':'Место','place':'Место',
-      'th':'Мысли','мысли':'Мысли','thoughts':'Мысли','thought':'Мысли',
-      'k':'Ключ','ключ':'Ключ','key':'Ключ',
-      'exp':'Ожидание vs Реальность','ожидание vs реальность':'Ожидание vs Реальность','expectation vs reality':'Ожидание vs Реальность','expectation':'Ожидание vs Реальность',
-      'd':'Скрытый подтекст','скрытый подтекст':'Скрытый подтекст','subtext':'Скрытый подтекст','hidden subtext':'Скрытый подтекст',
-      'i':'Инвентарь','инвентарь':'Инвентарь','inventory':'Инвентарь',
-      'g':'Цели','цели':'Цели','goals':'Цели','goal':'Цели',
-      's':'Расписание','расписание':'Расписание','schedule':'Расписание',
-      'rel':'Отношения','отношения':'Отношения','relationships':'Отношения','relationship':'Отношения',
-      'mem':'Общие воспоминания','общие воспоминания':'Общие воспоминания','memories':'Общие воспоминания','shared memories':'Общие воспоминания',
-      'flag':'Флаг-монитор','флаг-монитор':'Флаг-монитор','flag-monitor':'Флаг-монитор','flags':'Флаг-монитор',
-      'st':'Статус','статус':'Статус','status':'Статус',
-      'exo':'Социальное разоблачение','социальное разоблачение':'Социальное разоблачение','social exposure':'Социальное разоблачение',
-      'x':'Глубина конфликта','глубина конфликта':'Глубина конфликта','conflict depth':'Глубина конфликта','conflict':'Глубина конфликта',
-      'sexlast':'Последний секс','последний секс':'Последний секс','last sex':'Последний секс',
-      'sexcount':'Количество партнеров','количество партнеров':'Количество партнеров','partner count':'Количество партнеров','sex count':'Количество партнеров',
-      'sexreg':'Регулярность секса','регулярность секса':'Регулярность секса','sex regularity':'Регулярность секса',
-      'nsfw det':'Детализация NSFW','nsfw_det':'Детализация NSFW','детализация nsfw':'Детализация NSFW','nsfw details':'Детализация NSFW',
-      'sexrev':'Отзыв о сексе','отзыв о сексе':'Отзыв о сексе','sex review':'Отзыв о сексе',
-      'w':'NSFW','nsfw':'NSFW',
-      'dr':'Сновидение','сновидение':'Сновидение','dream':'Сновидение','dreams':'Сновидение',
-      'uw':'NSFW (Юзер)','nsfw (юзер)':'NSFW (Юзер)','nsfw (user)':'NSFW (Юзер)','user nsfw':'NSFW (Юзер)'
-    };
-    return map[n] || raw;
-  }
-
-  const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс'];
-  const DRAMA_KEYS = ['ревность', 'конфликт', 'глубина конфликта'];
-  const TRUNCATE_KEYS = ['мысли', 'физиология'];
 
   if (!window.__tavernOSFetchPatched) {
       window.__tavernOSFetchPatched = true;
@@ -585,15 +447,6 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
   };
   } // <--- ВОТ ЭТА СКОБКА СПАСЕТ НАМ ЖИЗНЬ (закрывает if)
 
-  function hexToRgba(hex, alpha) {
-      alpha = alpha === undefined ? 100 : Number(alpha);
-      if (isNaN(alpha)) alpha = 100;
-      if (typeof hex !== 'string' || !/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(hex)) hex = '#000000';
-      let c = hex.substring(1).split('');
-      if (c.length === 3) c = [c[0], c[0], c[1], c[1], c[2], c[2]];
-      c = '0x' + c.join(''); return `rgba(${[(c>>16)&255, (c>>8)&255, c&255].join(', ')}, ${alpha / 100})`;
-  }
-
  function applyThemeColors() {
     const root = document.documentElement;
     if (settings.accentColor) root.style.setProperty('--hud-accent', settings.accentColor);
@@ -659,7 +512,7 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
 
   function loadSettings() { 
     const saved = localStorage.getItem('hud_settings'); 
-    if (saved) { try { settings = Object.assign(settings, JSON.parse(saved)); } catch (e) {} } 
+    if (saved) { try { Object.assign(settings, JSON.parse(saved)); } catch (e) {} } 
     applyThemeColors(); 
   }
   function saveSettings() {
@@ -894,12 +747,6 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
       if (cached) window.lastTavernRequest = JSON.parse(cached);
     } catch (e) {}
   }
-  function escapeHtml(str) { if (!str) return ''; const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
-
-  function defeatWI(text) {
-      if (!text || typeof text !== 'string' || text.length < 2) return text;
-      return text.charAt(0) + '\u200B' + text.slice(1);
-  }
 
   function showHudToast(type, title, message) {
     let container = document.getElementById('hud-toast-container');
@@ -914,1423 +761,6 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
     return toast;
   }
 
-function applyTooltips(text) {
-    return escapeHtml(text);
-  }
-
-  function formatKeyValue(text) {
-    if (typeof Intl === 'undefined' || !Intl.Segmenter) return escapeHtml(text);
-    const parts = Array.from(new Intl.Segmenter('en', { granularity: 'grapheme' }).segment(text)).map(seg => ({ type: seg.segment.match(/\p{Emoji}/u) ? 'emoji' : 'text', value: seg.segment }));
-    let html = '', currentText = '';
-    for (let part of parts) {
-      if (part.type === 'emoji') {
-        if (currentText) { html += `<span class="hud-key-text">${applyTooltips(currentText)}</span>`; currentText = ''; }
-        html += `<span class="hud-emoji">${escapeHtml(part.value)}</span>`;
-      } else currentText += part.value;
-    }
-    if (currentText) html += `<span class="hud-key-text">${applyTooltips(currentText)}</span>`;
-    return html;
-  }
-
-  function buildPillList(value, pillClass, forceSeparate = false) {
-      let items = [];
-      let delimiter = String(value).includes(';') ? ';' : (String(value).includes('\n') ? '\n' : '. ');
-      let rawChunks = String(value).split(delimiter).map(i => i.trim()).filter(i => i);
-      for (let chunk of rawChunks) {
-          let match = chunk.match(/^([A-Za-zА-Яа-яЁё0-9\s\/\(\),\.]{2,80}?)(:|—|–|\s-)\s*(.*)$/);
-          if (match) { items.push({ label: match[1], sep: match[2], text: match[3] }); } 
-          else {
-              if (items.length > 0 && !forceSeparate) { items[items.length - 1].text += (delimiter === ';' ? '; ' : delimiter) + chunk; } 
-              else { items.push({ label: '', sep: '', text: chunk }); }
-          }
-      }
-      return items.map(item => {
-          let labelHtml = item.label ? `<span class="hud-pill-label">${escapeHtml(item.label)}${escapeHtml(item.sep)}</span> ` : '';
-          return `<div class="${pillClass}">${labelHtml}${applyTooltips(item.text)}</div>`;
-      }).join('');
-  }
-
-  // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
-  // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
-  const HUD_CHARACTER_DEFAULTS = { N:'empty', A:'empty', C:'empty', R:'empty', B:'empty', Ph:'empty', L:'empty', Th:'empty', K:'empty', Exp:'empty', D:'empty', I:'empty', G:'empty', S:'empty', Rel:'empty', Mem:'empty', Flag:'empty', St:'empty', Exo:'empty', X:'empty', SexLast:'empty', SexCount:'empty', SexReg:'empty', W:'empty', NSFW_Det:'empty', SexRev:'empty' };
-  const HUD_USER_DEFAULTS = { A:'empty', C:'empty', Ap:'empty', H:'empty', Rel:'empty', L:'empty', UW:'empty' };
-  const HUD_SCENE_DEFAULTS = { T:'empty', Wth:'empty', Dt:'empty', Atm:'empty', Md:'empty' };
-  const HUD_MEMORY_DEFAULTS = { timeline:[], mood:{ user:{current:'empty',history:[]}, char:{current:'empty',history:[]} }, route:{user:[],char:[]}, important:[], secrets:[] };
-  const HUD_WORLD_DEFAULTS = { headlines:[], rumors:[], ads:[], comments:[] };
-  const cloneSchemaDefault = v => Array.isArray(v) ? [] : (v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k,x]) => [k,cloneSchemaDefault(x)])) : v);
-  function fillMissingObjectFields(obj, defaults) {
-    // Canonicalize aliases BEFORE applying defaults. Otherwise a model that emits
-    // display-language keys (e.g. "Время") gets a second alias key (e.g. "T")
-    // added by the defaults, and the later key-mapping pass can overwrite the
-    // real value with "empty". Preserve actual values; use defaults only for
-    // fields that are genuinely absent.
-    const out = {};
-    if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
-      for (const [key, value] of Object.entries(obj)) {
-        const canonicalKey = mapKey(key);
-        // Prefer an explicitly canonical/display-language key over an alias if
-        // both are present in the same object. This prevents "Имя" being
-        // replaced by a stale "N" value (or vice versa).
-        if (!(canonicalKey in out) || key === canonicalKey) out[canonicalKey] = value;
-      }
-    }
-    for (const [key, def] of Object.entries(defaults)) {
-      const canonicalKey = mapKey(key);
-      if (out[canonicalKey] === undefined || out[canonicalKey] === null) {
-        out[canonicalKey] = cloneSchemaDefault(def);
-      }
-    }
-    return out;
-  }
-  function normalizeHUDSchema(parsed) {
-    const root = (parsed && typeof parsed === 'object') ? parsed : {};
-    // Root keys are already schema keys; only object-field aliases need
-    // canonicalization before defaults are applied.
-    root.scene = fillMissingObjectFields(root.scene, HUD_SCENE_DEFAULTS);
-    root.characters = Array.isArray(root.characters) ? root.characters.map(c => fillMissingObjectFields(c, HUD_CHARACTER_DEFAULTS)) : [];
-    if (settings.enableUserBlock) root.user = fillMissingObjectFields(root.user, HUD_USER_DEFAULTS);
-    if (settings.enableMemory) {
-      root.memory = fillMissingObjectFields(root.memory, HUD_MEMORY_DEFAULTS);
-      root.memory.mood = fillMissingObjectFields(root.memory.mood, HUD_MEMORY_DEFAULTS.mood);
-      root.memory.mood.user = fillMissingObjectFields(root.memory.mood.user, HUD_MEMORY_DEFAULTS.mood.user);
-      root.memory.mood.char = fillMissingObjectFields(root.memory.mood.char, HUD_MEMORY_DEFAULTS.mood.char);
-      root.memory.route = fillMissingObjectFields(root.memory.route, HUD_MEMORY_DEFAULTS.route);
-    }
-    if (settings.enablePhone && (!root.chatsMap || typeof root.chatsMap !== 'object' || Array.isArray(root.chatsMap))) root.chatsMap = {};
-    if (settings.enableIntercepts && !Array.isArray(root.intercepts)) root.intercepts = [];
-    if (settings.enableDiary && !Array.isArray(root.diary)) root.diary = [];
-    if (settings.enableDreams && !Array.isArray(root.dreams)) root.dreams = [];
-    if (settings.enableWorld) root.world = fillMissingObjectFields(root.world, HUD_WORLD_DEFAULTS);
-    return root;
-  }
-
-  function normalizeJSONData(parsed) {
-    parsed = normalizeHUDSchema(parsed);
-    const userName = getSafeUserName();
-    const charName = window.name2 || 'Char';
-    const toStr = (v) => v === null || v === undefined ? '' : String(v);
-    // Local safety predicate used by Memory normalization. Keep it here because
-    // the parser must not depend on a renderer-scoped helper.
-    const valid = (v) => v !== null && v !== undefined && String(v).trim() !== '' && !/^(empty|none)$/i.test(String(v).trim());
-    const normalizeValue = (v) => {
-      if (v === null || v === undefined) return '';
-      if (Array.isArray(v)) return v.map(normalizeValue);
-      if (typeof v === 'object') {
-        const out = {};
-        for (const key of Object.keys(v)) out[mapKey(key)] = normalizeValue(v[key]);
-        return out;
-      }
-      return String(v);
-    };
-    const mapKeys = (obj) => {
-      if (typeof obj !== 'object' || obj === null) return {};
-      const res = {};
-      for (const k of Object.keys(obj)) res[mapKey(k)] = normalizeValue(obj[k]);
-      return res;
-    };
-    const toArr = (v) => Array.isArray(v) ? v.map(toStr) : (v ? [toStr(v)] : []);
-    const cleanArray = (arr) => { return toArr(arr).filter(item => { let lower = item.toLowerCase(); return !lower.includes('generate unlimited') && !lower.includes('n amount') && !lower.includes('generate at least'); }); };
-
-    let chars = Array.isArray(parsed.characters) ? parsed.characters : (typeof parsed.characters === 'object' && parsed.characters !== null ? [parsed.characters] : []);
-    let world = parsed.world || {};
-    let chatsMap = {};
-    if (typeof parsed.chatsMap === 'object' && parsed.chatsMap !== null) {
-      for (const k of Object.keys(parsed.chatsMap)) {
-        const c = parsed.chatsMap[k];
-        if (!c || typeof c !== 'object') continue;
-        chatsMap[toStr(k)] = { owner: toStr(c.owner), participants: toStr(c.participants), messages: cleanArray(c.messages) };
-      }
-    }
-    let interceptsParsed = [];
-    if (Array.isArray(parsed.intercepts)) {
-      interceptsParsed = parsed.intercepts.map(i => {
-        if (typeof i === 'object' && i !== null) return { target: toStr(i.target), chatName: toStr(i.chatName), participants: toStr(i.participants), messages: cleanArray(i.messages) }; return null;
-      }).filter(Boolean);
-    }
-    let diaryParsed = [];
-    if (Array.isArray(parsed.diary)) {
-      diaryParsed = parsed.diary.map(d => {
-        if (typeof d === 'string') return { author:'', time:'', text:d, aboutUser:'' };
-        if (typeof d === 'object' && d !== null) return { author:toStr(d.author), time:toStr(d.time), text:toStr(d.text), aboutUser:toStr(d.aboutUser) };
-        return null;
-      }).filter(Boolean);
-    }
-    let dreamsParsed = [];
-    if (Array.isArray(parsed.dreams)) {
-      dreamsParsed = parsed.dreams.map(d => {
-        if (typeof d === 'string') return { text: d, meaning: '' }; 
-        if (typeof d === 'object' && d !== null) return { text: toStr(d.text), meaning: toStr(d.meaning) }; return null;
-      }).filter(d => d !== null);
-    }
-
-    // === ПАРСЕР ПАМЯТИ ===
-    let memoryParsed = { timeline: [], mood: { user: { current: '', history: [] }, char: { current: '', history: [] } }, route: { user: [], char: [] }, important: [], secrets: [] };
-    if (parsed.memory && typeof parsed.memory === 'object') {
-        memoryParsed.timeline = cleanArray(parsed.memory.timeline).slice(-5);
-        memoryParsed.important = typeof parsed.memory.important === 'string' ? parsed.memory.important.split(';').map(s=>s.trim()).filter(Boolean) : cleanArray(parsed.memory.important);
-        const rawMood = parsed.memory.mood;
-        if (rawMood && typeof rawMood === 'object') {
-            const u = rawMood.user || {}; const c = rawMood.char || {};
-            memoryParsed.mood.user = { current: toStr(u.current), history: cleanArray(u.history).slice(-12) };
-            memoryParsed.mood.char = { current: toStr(c.current), history: cleanArray(c.history).slice(-12) };
-        } else if (rawMood) {
-            const shared = toStr(rawMood);
-            memoryParsed.mood.user.current = shared;
-            memoryParsed.mood.char.current = shared;
-        }
-        if (parsed.memory.route && typeof parsed.memory.route === 'object') {
-            memoryParsed.route.user = cleanArray(parsed.memory.route.user).slice(-20);
-            memoryParsed.route.char = cleanArray(parsed.memory.route.char).slice(-20);
-        }
-        if (Array.isArray(parsed.memory.secrets)) {
-            memoryParsed.secrets = parsed.memory.secrets.map(s => {
-                if (!s || typeof s !== 'object') return null;
-                const status = toStr(s.status || s.state || 'unknown').toLowerCase();
-                if (s.revealed === true || /^(revealed|раскрыт|раскрыто|known_to_all)$/.test(status)) return null;
-                const splitNames = (value) => {
-                    if (Array.isArray(value)) return value.flatMap(x => {
-                        if (x && typeof x === 'object') return [toStr(x.name || x.who)];
-                        return String(x || '').split(/[;,]/).map(v => v.trim());
-                    }).filter(valid);
-                    if (!valid(value)) return [];
-                    return String(value).split(/[;,]/).map(v => v.trim()).filter(valid);
-                };
-                const rawKnows = Array.isArray(s.knows) ? s.knows : splitNames(s.knows).map(name => ({name, source: ''}));
-                const knows = rawKnows.flatMap(k => {
-                    if (k && typeof k === 'object') {
-                        const names = splitNames(k.name || k.who);
-                        return names.map(name => ({name, source: toStr(k.source || '')}));
-                    }
-                    return splitNames(k).map(name => ({name, source: ''}));
-                }).filter(k => valid(k.name));
-                const hiddenRaw = s.hidden ?? s.doesNotKnow ?? s.unknown ?? s.notKnow ?? s.notKnown;
-                let hidden = splitNames(hiddenRaw);
-                if (!hidden.length) {
-                    const activeNames = [];
-                    const addName = v => {
-                        const n = toStr(v).trim();
-                        if (valid(n) && !activeNames.some(x => x.toLowerCase() === n.toLowerCase())) activeNames.push(n);
-                    };
-                    const userObj = parsed.user && typeof parsed.user === 'object' ? parsed.user : {};
-                    addName(userObj.N || userObj.name || userObj['Имя'] || userObj['Name']);
-                    (Array.isArray(parsed.characters) ? parsed.characters : []).forEach(c => {
-                        if (c && typeof c === 'object') addName(c.N || c.name || c['Имя'] || c['Name']);
-                    });
-                    const knownSet = new Set(knows.map(k => k.name.toLowerCase()));
-                    hidden = activeNames.filter(n => !knownSet.has(n.toLowerCase()));
-                }
-                return { fact: toStr(s.fact), level: toStr(s.level || 'medium').toLowerCase(), status, knows, hidden };
-            }).filter(s => s && valid(s.fact));
-        }
-    }
-
-    return {
-      scene: mapKeys(parsed.scene), characters: chars.map(mapKeys), user: mapKeys(parsed.user), memory: memoryParsed, chatsMap: chatsMap, intercepts: interceptsParsed, diary: diaryParsed, dreams: dreamsParsed,
-      world: { headlines: cleanArray(world.headlines), rumors: cleanArray(world.rumors), ads: cleanArray(world.ads), comments: cleanArray(world.comments) }
-    };
-  }
-
-  function parseLegacyHUD(content) { return { scene: {}, characters: [], user: {}, memory: { timeline: [], mood: { user: { current: '', history: [] }, char: { current: '', history: [] } }, route: { user: [], char: [] }, important: [], secrets: [] }, intercepts: [], dreams: [], diary: [], world: { headlines: [], rumors: [], ads: [], comments: [] } }; }
-
-  function decodeHighlightedHudHtml(input) {
-    if (typeof input !== 'string') return '';
-    let text = input;
-
-    // Some ST render paths escape the highlighted HTML transport itself, so
-    // markup can arrive as \<q>...\</q> and line breaks as a literal\n.
-    // Those backslashes are transport artifacts, not JSON content. Remove
-    // them before asking the browser to decode the highlight markup.
-    // ST can escape the already-rendered HTML one or more times.  In the
-    // actual message this may therefore look like \\<q> or \\\\<q>, and a
-    // literal backslash can also precede every highlighted line break.
-    // Strip only backslashes that are clearly transport escapes for markup
-    // or line breaks; NEVER unescape arbitrary JSON string content.
-    text = text
-      .replace(/\\+(?=\s*<\/?[a-z!/])/gi, '')
-      .replace(/\\+(?=\r?\n)/g, '')
-      .replace(/\\+(?=\s*<)/g, '');
-
-    // A few ST/highlighter paths escape the angle brackets as text after the
-    // first pass.  Run the same narrowly-scoped transport cleanup again so
-    // that \\<q> becomes <q> before DOM parsing.
-    text = text.replace(/\\+(?=<)/g, '');
-
-    // SillyTavern renders fenced JSON with highlight.js. In that state the HUD
-    // is no longer plain JSON: keys become e.g. <span class="hljs-string">"scene"</span>.
-    // Use a DOM text extraction pass so the markup is removed while the actual
-    // JSON characters and HTML entities are preserved/decoded.
-    if (/[<][a-z!/][^>]*>/i.test(text)) {
-      try {
-        const holder = document.createElement('div');
-        holder.innerHTML = text;
-        text = holder.textContent || holder.innerText || '';
-      } catch (e) {
-        text = text.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '');
-      }
-    }
-
-    // If the browser received escaped markup as text, strip the remaining
-    // highlighting tags after transport unescaping as a final safe pass.
-    if (/[<]\/?(?:q|span|code|pre|div|br)(?:\s|>)/i.test(text)) {
-      text = text.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '');
-    }
-
-    // Decode entities even when there was no actual HTML element.
-    try {
-      const holder = document.createElement('textarea');
-      holder.innerHTML = text;
-      text = holder.value;
-    } catch (e) {}
-
-    return text
-      .replace(/\u00A0|\u200B|\u202F|\uFEFF/g, ' ')
-      .replace(/\r\n?/g, '\n')
-      .replace(/```(?:json|JSON)?/gi, '')
-      .replace(/```/g, '')
-      .trim();
-  }
-
-  function extractBalancedJsonCandidates(text) {
-    const candidates = [];
-    if (typeof text !== 'string' || !text) return candidates;
-
-    for (let i = 0; i < text.length; i++) {
-      if (text[i] !== '{') continue;
-      let depth = 0;
-      let inString = false;
-      let escaped = false;
-
-      for (let j = i; j < text.length; j++) {
-        const ch = text[j];
-        if (inString) {
-          if (escaped) escaped = false;
-          else if (ch === '\\') escaped = true;
-          else if (ch === '"') inString = false;
-          continue;
-        }
-        if (ch === '"') { inString = true; continue; }
-        if (ch === '{') depth++;
-        else if (ch === '}') {
-          depth--;
-          if (depth === 0) {
-            candidates.push(text.slice(i, j + 1));
-            i = j;
-            break;
-          }
-        }
-      }
-    }
-    return candidates;
-  }
-
-  // ---------------------------------------------------------------------------
-  // HUD DIAGNOSTICS / SAFE JSON REPAIR
-  // ---------------------------------------------------------------------------
-  function setHudRepairDiagnostic(patch = {}) {
-    const previous = window.__tavernOSHudRepairDiagnostic || {};
-    window.__tavernOSHudRepairDiagnostic = {
-      repaired: false,
-      mode: 'none',
-      timestamp: Date.now(),
-      ...previous,
-      ...patch,
-      timestamp: Date.now(),
-    };
-    return window.__tavernOSHudRepairDiagnostic;
-  }
-
-  // Converts the two common non-JSON dialects only as a LAST resort:
-  //   {foo: 'bar'} -> {"foo": "bar"}
-  // It is scanner-based so apostrophes inside normal JSON strings are not touched.
-  function repairCommonJsonDialect(jsonStr) {
-    let source = String(jsonStr || '').trim();
-    if (!source) return source;
-
-    // First quote unquoted object keys outside strings.
-    let out = '';
-    let inDouble = false;
-    let inSingle = false;
-    let escaped = false;
-    for (let i = 0; i < source.length; i++) {
-      const ch = source[i];
-      if (inDouble) {
-        out += ch;
-        if (escaped) { escaped = false; continue; }
-        if (ch === '\\') escaped = true;
-        else if (ch === '"') inDouble = false;
-        continue;
-      }
-      if (inSingle) {
-        out += ch;
-        if (escaped) { escaped = false; continue; }
-        if (ch === '\\') escaped = true;
-        else if (ch === "'") inSingle = false;
-        continue;
-      }
-      if (ch === '"') { inDouble = true; out += ch; continue; }
-      if (ch === "'") { inSingle = true; out += ch; continue; }
-      if (ch === '{' || ch === ',') {
-        let j = i + 1;
-        while (/\s/.test(source[j] || '')) j++;
-        const keyMatch = source.slice(j).match(/^([A-Za-z_$][A-Za-z0-9_$-]*)\s*:/);
-        if (keyMatch) {
-          out += ch + source.slice(i + 1, j) + '"' + keyMatch[1] + '"';
-          i = j + keyMatch[0].length - 1;
-          out += ':';
-          continue;
-        }
-      }
-      out += ch;
-    }
-
-    // Convert single-quoted strings to JSON strings. This is deliberately a
-    // separate pass and only runs if a single quote remains outside a double string.
-    source = out;
-    out = '';
-    inDouble = false;
-    inSingle = false;
-    escaped = false;
-    for (let i = 0; i < source.length; i++) {
-      const ch = source[i];
-      if (inDouble) {
-        out += ch;
-        if (escaped) { escaped = false; continue; }
-        if (ch === '\\') escaped = true;
-        else if (ch === '"') inDouble = false;
-        continue;
-      }
-      if (inSingle) {
-        if (escaped) {
-          // JSON understands \", \\, \\n etc. A JS-style escaped single quote
-          // is simply an apostrophe in JSON, so drop only that escape slash.
-          if (ch === "'") out += "'";
-          else if (ch === '\\') out += '\\\\';
-          else out += '\\' + ch;
-          escaped = false;
-          continue;
-        }
-        if (ch === '\\') { escaped = true; continue; }
-        if (ch === "'") { out += '"'; inSingle = false; continue; }
-        if (ch === '"') out += '\\"';
-        else out += ch;
-        continue;
-      }
-      if (ch === '"') { inDouble = true; out += ch; continue; }
-      if (ch === "'") { inSingle = true; out += '"'; continue; }
-      out += ch;
-    }
-    if (inSingle) out += '"';
-    return out;
-  }
-
-  // JSON permits escaped control characters inside strings, but models sometimes
-  // emit literal newlines/tabs (e.g. a long field split across lines). Normalize
-  // only control characters that occur INSIDE a JSON string; never alter normal
-  // whitespace between tokens or content outside strings.
-  function repairHudJsonControlChars(jsonStr) {
-    const source = String(jsonStr || '');
-    let out = '';
-    let inString = false;
-    let escaped = false;
-
-    for (let i = 0; i < source.length; i++) {
-      const ch = source[i];
-      const code = ch.charCodeAt(0);
-
-      if (!inString) {
-        out += ch;
-        if (ch === '"') inString = true;
-        continue;
-      }
-
-      if (escaped) {
-        out += ch;
-        escaped = false;
-        continue;
-      }
-
-      if (ch === '\\') {
-        out += ch;
-        escaped = true;
-        continue;
-      }
-
-      if (ch === '"') {
-        out += ch;
-        inString = false;
-        continue;
-      }
-
-      if (code === 0x0A) { out += '\\n'; continue; }
-      if (code === 0x0D) {
-        if (source[i + 1] === '\n') i++;
-        out += '\\n';
-        continue;
-      }
-      if (code === 0x09) { out += '\\t'; continue; }
-      if (code === 0x08) { out += '\\b'; continue; }
-      if (code === 0x0C) { out += '\\f'; continue; }
-      if (code < 0x20) {
-        out += '\\u' + code.toString(16).padStart(4, '0');
-        continue;
-      }
-
-      out += ch;
-    }
-    return out;
-  }
-
-  function repairHudJsonStructural(jsonStr) {
-    const source = String(jsonStr || '');
-    const variants = [];
-    const seen = new Set();
-
-    const add = (text, mode) => {
-      if (!text || seen.has(text)) return;
-      seen.add(text);
-      variants.push({ text, mode });
-    };
-
-    // Repair a very common model failure: a property/array item was emitted
-    // without the comma that separates it from the next token. We use the
-    // JSON parser's exact error position and only insert punctuation when the
-    // surrounding tokens make the repair structurally unambiguous.
-    const parseError = (() => {
-      try { JSON.parse(source); return null; }
-      catch (e) { return e; }
-    })();
-
-    if (parseError) {
-      const pos = Number.isInteger(parseError.position) ? parseError.position : (() => { const m = String(parseError.message || '').match(/position\s+(\d+)/i); return m ? Number(m[1]) : -1; })();
-      if (pos < 0) return variants;
-      const before = source.slice(0, pos);
-      const after = source.slice(pos);
-      const next = after.match(/^\s*(?:(\")|([\[\{]))/);
-      const nextChar = next ? (next[1] || next[2]) : '';
-
-      // Object property:  "a": 1  "b": 2  ->  "a": 1, "b": 2
-      if (/Expected ',' or '}' after property value|Expected ',' or '}'/.test(parseError.message || '') && nextChar === '"') {
-        add(before.replace(/\s*$/, '') + ',' + after, 'structural-comma');
-      }
-
-      // Array item:  ["a" "b"]  or  [{...} {...}]  -> insert comma.
-      if (/Expected ',' or ']'/i.test(parseError.message || '') && nextChar) {
-        add(before.replace(/\s*$/, '') + ',' + after, 'structural-comma');
-      }
-    }
-
-    // A few providers report a generic "Unexpected token" instead of the
-    // more useful comma-specific message. Try the same repair at the first
-    // likely next property boundary, but never inside a quoted string.
-    let inString = false;
-    let escaped = false;
-    let depth = 0;
-    for (let i = 0; i < source.length; i++) {
-      const ch = source[i];
-      if (inString) {
-        if (escaped) { escaped = false; continue; }
-        if (ch === '\\') { escaped = true; continue; }
-        if (ch === '"') inString = false;
-        continue;
-      }
-      if (ch === '"') {
-        inString = true;
-        continue;
-      }
-      if (ch === '{' || ch === '[') depth++;
-      else if (ch === '}' || ch === ']') depth = Math.max(0, depth - 1);
-
-      if (depth > 0 && ch === ':' && /\s*"[^"\\]*(?:\\.[^"\\]*)*"\s*:/.test(source.slice(i + 1))) {
-        const tail = source.slice(i + 1);
-        const m = tail.match(/^(\s*)"/);
-        if (m && i > 0) {
-          const prev = source.slice(0, i + 1);
-          const after = source.slice(i + 1);
-          // Only use this fallback if the value before the next quote looks
-          // complete (string/number/true/false/null/object/array).
-          if (/(?:"|\d|true|false|null|[}\]])\s*$/.test(prev)) {
-            add(prev.replace(/\s*$/, '') + ',' + after, 'structural-comma-scan');
-          }
-        }
-      }
-    }
-
-    return variants;
-  }
-
-    // Repairs JSON that ends while a JSON string is still open.
-  // Uses a small JSON-aware scanner so escaped quotes (\\") do not get mistaken
-  // for the end of the string. It only appends a quote; structural closure is
-  // delegated to the existing truncated-JSON repair.
-  function repairHudJsonUnterminatedString(input) {
-    const source = String(input || '');
-    if (!source) return null;
-
-    let inString = false;
-    let escaped = false;
-    let stringStart = -1;
-
-    for (let i = 0; i < source.length; i++) {
-      const ch = source[i];
-
-      if (!inString) {
-        if (ch === '"') {
-          inString = true;
-          escaped = false;
-          stringStart = i;
-        }
-        continue;
-      }
-
-      if (escaped) {
-        escaped = false;
-        continue;
-      }
-
-      if (ch === '\\') {
-        escaped = true;
-        continue;
-      }
-
-      if (ch === '"') {
-        inString = false;
-        stringStart = -1;
-      }
-    }
-
-    if (!inString || stringStart < 0) return null;
-
-    // If the string is open at EOF, closing only that string is the safest
-    // first step. The existing truncated repair can then close containers.
-    return source + '"';
-  }
-
-function scoreHudJsonCandidate(parsed) {
-    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return -Infinity;
-
-    const has = (...keys) => keys.some(key => Object.prototype.hasOwnProperty.call(parsed, key));
-    let score = 0;
-
-    // A model response can contain several valid JSON objects. Only one of
-    // them is the HUD payload; prefer the object whose top-level shape matches
-    // the HUD schema instead of blindly taking the first parseable object.
-    if (has('scene', 'сцена', 'Scene')) score += 12;
-    if (has('characters', 'character', 'персонажи', 'Characters')) score += 12;
-    if (has('user', 'пользователь', 'User')) score += 7;
-    if (has('intercepts', 'перехваты')) score += 3;
-    if (has('diary', 'дневник')) score += 3;
-    if (has('dreams', 'dream', 'сны', 'сновидения')) score += 3;
-    if (has('world', 'мир')) score += 3;
-
-    const scene = parsed.scene ?? parsed['сцена'] ?? parsed.Scene;
-    const chars = parsed.characters ?? parsed.character ?? parsed['персонажи'] ?? parsed.Characters;
-    if (scene && typeof scene === 'object' && !Array.isArray(scene)) score += 4;
-    if (Array.isArray(chars)) score += 4;
-    else if (chars && typeof chars === 'object') score += 2;
-
-    return score;
-  }
-
-  function tryParseHudJsonCandidate(candidate) {
-    const raw = String(candidate || '');
-    const controlSafe = repairHudJsonControlChars(raw);
-    const stateful = repairHudJsonUnterminatedString(controlSafe);
-    const structural = repairHudJsonStructural(controlSafe);
-
-    const attempts = [
-      { text: raw, mode: 'direct' },
-      { text: controlSafe, mode: 'control-chars' },
-
-      // New state-aware path: close only an actually open JSON string first,
-      // then let the existing truncation repair close arrays/objects.
-      ...(stateful ? [
-        { text: stateful, mode: 'unterminated-string' },
-        { text: repairTruncatedHudJson(stateful), mode: 'unterminated-string+truncated' },
-        { text: repairHudJsonSyntax(stateful), mode: 'unterminated-string+syntax' },
-        { text: repairCommonJsonDialect(stateful), mode: 'unterminated-string+dialect' },
-        { text: repairCommonJsonDialect(repairTruncatedHudJson(stateful)), mode: 'unterminated-string+truncated+dialect' },
-      ] : []),
-
-      ...structural.map(item => ({ text: item.text, mode: `control-chars+${item.mode}` })),
-      { text: repairHudJsonSyntax(raw), mode: 'syntax' },
-      { text: repairHudJsonSyntax(controlSafe), mode: 'control-chars+syntax' },
-      { text: repairTruncatedHudJson(raw), mode: 'truncated' },
-      { text: repairCommonJsonDialect(raw), mode: 'dialect' },
-      { text: repairCommonJsonDialect(repairTruncatedHudJson(raw)), mode: 'truncated+dialect' },
-      { text: repairCommonJsonDialect(controlSafe), mode: 'control-chars+dialect' },
-    ];
-
-    let lastError = null;
-    for (const attempt of attempts) {
-      if (typeof attempt.text !== 'string' || !attempt.text.trim()) continue;
-      try {
-        const parsed = JSON.parse(attempt.text);
-        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) continue;
-        return { parsed, mode: attempt.mode, text: attempt.text };
-      } catch (e) {
-        lastError = e;
-      }
-    }
-    return { parsed: null, mode: null, text: null, error: lastError };
-  }
-
-
-  function repairHudJsonSyntax(jsonStr) {
-    let repaired = String(jsonStr || '');
-    repaired = repaired.replace(/^\uFEFF/, '').trim();
-    // Remove JS-style comments only when they are on their own line; do not
-    // touch comment-like content inside JSON strings.
-    repaired = repaired.replace(/(^|\n)\s*\/\/[^\n]*/g, '$1');
-    repaired = repaired.replace(/,\s*([}\]])/g, '$1');
-    return repaired;
-  }
-
-
-  function repairTruncatedHudJson(jsonStr) {
-    let s = repairHudJsonSyntax(jsonStr).trim();
-    if (!s) return s;
-    // Remove a terminal backslash that escapes a character which never arrived.
-    let inString = false, escaped = false, stack = [];
-    let lastSafe = s.length;
-    for (let i = 0; i < s.length; i++) {
-      const ch = s[i];
-      if (inString) {
-        if (escaped) { escaped = false; continue; }
-        if (ch === '\\') { escaped = true; continue; }
-        if (ch === '"') inString = false;
-        continue;
-      }
-      if (ch === '"') { inString = true; continue; }
-      if (ch === '{' || ch === '[') stack.push(ch);
-      else if (ch === '}' || ch === ']') {
-        const want = ch === '}' ? '{' : '[';
-        if (stack[stack.length - 1] === want) stack.pop();
-      }
-    }
-    if (inString) {
-      if (escaped) s = s.slice(0, -1);
-      s += '"';
-    }
-    // A truncated property ending in ':' has no value. Remove that incomplete property.
-    s = s.replace(/,?\s*"(?:[^"\\]|\\.)*"\s*:\s*$/s, '');
-    s = s.replace(/:\s*$/s, '');
-    // A trailing comma is safe to remove before closing containers.
-    s = s.replace(/,\s*$/s, '');
-    // Re-scan after the string/property cleanup and close only genuinely open containers.
-    stack = []; inString = false; escaped = false;
-    for (let i = 0; i < s.length; i++) {
-      const ch = s[i];
-      if (inString) {
-        if (escaped) { escaped = false; continue; }
-        if (ch === '\\') { escaped = true; continue; }
-        if (ch === '"') inString = false;
-      } else {
-        if (ch === '"') inString = true;
-        else if (ch === '{' || ch === '[') stack.push(ch);
-        else if (ch === '}' || ch === ']') {
-          const want = ch === '}' ? '{' : '[';
-          if (stack[stack.length - 1] === want) stack.pop();
-        }
-      }
-    }
-    while (stack.length) s += stack.pop() === '{' ? '}' : ']';
-    return s;
-  }
-
-  function repairGeneratedHudBlock(aiText) {
-    const source = String(aiText || '');
-    const match = source.match(/(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)([\s\S]*?)(?:(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)|$)/i);
-    if (!match) {
-      setHudRepairDiagnostic({ repaired: false, mode: 'missing-hud' });
-      throw new Error('Не удалось найти HUD в ответе ИИ. Попробуйте еще раз.');
-    }
-    const rawInner = match[1] || '';
-    try {
-      const parsed = parseHUDComplex(rawInner);
-      const diag = window.__tavernOSHudRepairDiagnostic || {};
-      // Preserve already-valid output byte-for-byte; canonicalize only when a repair was needed.
-      if (diag.repaired) {
-        return `[HUD]\n\`\`\`json\n${JSON.stringify(parsed, null, 2)}\n\`\`\`\n[/HUD]`;
-      }
-      return `[HUD]\n\`\`\`json\n${JSON.stringify(parsed, null, 2)}\n\`\`\`\n[/HUD]`;
-    } catch (initialError) {
-      const decoded = decodeHighlightedHudHtml(rawInner);
-      const candidates = extractBalancedJsonCandidates(decoded);
-      if (!candidates.length) {
-        const firstBrace = decoded.indexOf('{');
-        if (firstBrace >= 0) candidates.push(decoded.slice(firstBrace));
-      }
-      let lastError = initialError;
-      const parsedCandidates = [];
-      for (let index = 0; index < candidates.length; index++) {
-        const result = tryParseHudJsonCandidate(candidates[index]);
-        if (result.parsed) {
-          parsedCandidates.push({ index, parsed: result.parsed, mode: result.mode || 'direct', score: scoreHudJsonCandidate(result.parsed) });
-        }
-        if (result.error) lastError = result.error;
-      }
-      if (parsedCandidates.length) {
-        parsedCandidates.sort((a, b) => b.score - a.score || a.index - b.index);
-        const selected = parsedCandidates[0];
-        const repaired = selected.mode !== 'direct';
-        setHudRepairDiagnostic({
-          repaired,
-          mode: selected.mode,
-          error: null,
-          candidateCount: candidates.length,
-          parsedCandidateCount: parsedCandidates.length,
-          selectedCandidate: selected.index,
-          selectedScore: selected.score,
-        });
-        console.debug('[TavernOS HUD] HUD JSON repair result', window.__tavernOSHudRepairDiagnostic);
-        return `[HUD]\n\`\`\`json\n${JSON.stringify(selected.parsed, null, 2)}\n\`\`\`\n[/HUD]`;
-      }
-      setHudRepairDiagnostic({ repaired: false, mode: 'failed', error: lastError?.message || 'invalid JSON', errorPosition: lastError?.message?.match(/position (\d+)/)?.[1] ? Number(lastError.message.match(/position (\d+)/)[1]) : null });
-      throw new Error('HUD JSON repair failed: ' + (lastError?.message || 'invalid JSON'));
-    }
-  }
-
-  function parseHUDComplex(contentEncoded) {
-    const decoded = decodeHighlightedHudHtml(contentEncoded);
-    const candidates = extractBalancedJsonCandidates(decoded);
-    if (!candidates.length) {
-      const firstBrace = decoded.indexOf('{');
-      if (firstBrace >= 0) candidates.push(decoded.slice(firstBrace));
-    }
-    if (!candidates.length) {
-      setHudRepairDiagnostic({ repaired: false, mode: 'no-candidate' });
-      throw new Error('HUD JSON parse failed: no JSON object found');
-    }
-
-    let lastError = null;
-    const parsedCandidates = [];
-
-    // IMPORTANT: a response may contain multiple valid JSON objects. Parse all
-    // of them and select the HUD-shaped one. This prevents an auxiliary object
-    // (chat state / diary / world / debug JSON) from being rendered as HUD just
-    // because it happened to appear first.
-    for (let index = 0; index < candidates.length; index++) {
-      const result = tryParseHudJsonCandidate(candidates[index]);
-      if (result.parsed) {
-        parsedCandidates.push({
-          index,
-          parsed: result.parsed,
-          mode: result.mode || 'direct',
-          score: scoreHudJsonCandidate(result.parsed),
-        });
-      }
-      if (result.error) lastError = result.error;
-    }
-
-    if (parsedCandidates.length) {
-      parsedCandidates.sort((a, b) => b.score - a.score || a.index - b.index);
-      const selected = parsedCandidates[0];
-      const repaired = selected.mode !== 'direct';
-      setHudRepairDiagnostic({
-        repaired,
-        mode: selected.mode,
-        error: null,
-        candidateCount: candidates.length,
-        parsedCandidateCount: parsedCandidates.length,
-        selectedCandidate: selected.index,
-        selectedScore: selected.score,
-      });
-
-      if (parsedCandidates.length > 1) {
-        console.debug('[TavernOS HUD] Multiple JSON candidates detected; selected HUD-shaped candidate', {
-          candidates: candidates.length,
-          parsed: parsedCandidates.length,
-          selectedCandidate: selected.index,
-          selectedScore: selected.score,
-          scores: parsedCandidates.map(item => ({ index: item.index, score: item.score, mode: item.mode })),
-        });
-      }
-      if (repaired) console.debug('[TavernOS HUD] HUD JSON repaired', window.__tavernOSHudRepairDiagnostic);
-      return normalizeJSONData(selected.parsed);
-    }
-
-    const preview = decoded.slice(0, 500).replace(/\n/g, '\\n');
-    setHudRepairDiagnostic({ repaired: false, mode: 'failed', error: lastError?.message || 'invalid JSON', candidateCount: candidates.length });
-    console.error('[TavernOS HUD] All HUD JSON candidates failed', {
-      candidates: candidates.length,
-      preview,
-      error: lastError && lastError.message,
-      repaired: false,
-    });
-    throw new Error('HUD JSON parse failed: ' + (lastError ? lastError.message : 'invalid JSON'));
-  }
-
-
-  // Кэш аватарок по имени персонажа: поиск идёт назад по ВСЕМ .mes в чате (нужно найти
-  // самое свежее упоминание имени), в длинном чате это дорогая операция, а вызывается она
-  // на каждый рендер карточки HUD. Кэшируем результат и сбрасываем его только когда в чат
-  // реально добавляются новые сообщения (см. invalidateAvatarCache()).
-  let avatarUrlCache = {};
-  function invalidateAvatarCache() { avatarUrlCache = {}; }
-
-  function resolveAvatarUrl(characterName, isPrimary) {
-    const searchName = (characterName || '').toLowerCase().trim();
-    if (searchName) {
-        const allMes = Array.from(document.querySelectorAll('.mes'));
-        for (let i = allMes.length - 1; i >= 0; i--) {
-            const mes = allMes[i]; const nameEl = mes.querySelector('.mes_name');
-            if (nameEl && nameEl.textContent.trim().toLowerCase().includes(searchName.split(' ')[0])) {
-                const img = mes.querySelector('.avatar img, .avatar_img');
-                if (img) {
-                    const src = img.src || (img.style && img.style.backgroundImage ? img.style.backgroundImage.replace(/url\(['"]?|['"]?\)/g, '') : null);
-                    if (src && !src.includes('undefined') && !src.includes('none')) return { url: src, thumbUrl: src };
-                }
-            }
-        }
-    }
-    if (isPrimary) {
-        const botMsgs = Array.from(document.querySelectorAll('.mes:not([is_user="true"]):not([is_system="true"]) .avatar img'));
-        if (botMsgs.length > 0) {
-            const lastBotMsg = botMsgs[botMsgs.length - 1];
-            if (lastBotMsg && lastBotMsg.src && !lastBotMsg.src.includes('undefined') && !lastBotMsg.src.includes('none')) return { url: lastBotMsg.src, thumbUrl: lastBotMsg.src };
-        }
-    }
-    if (!window.characters || !Array.isArray(window.characters)) return null;
-    let char = window.characters.find(c => c.name && c.name.toLowerCase().trim() === searchName);
-    if (!char) char = window.characters.find(c => c.name && c.name.toLowerCase().includes(searchName));
-    if (!char && searchName.length > 2) {
-        const firstWord = searchName.split(' ')[0].replace(/[^a-zа-яё]/gi, '');
-        if (firstWord) char = window.characters.find(c => c.name && c.name.toLowerCase().includes(firstWord));
-    }
-    if (!char && isPrimary && window.this_chid !== undefined) char = window.characters[window.this_chid];
-    if (!char || !char.avatar || char.avatar === 'none') return null;
-
-    let file = char.avatar;
-    if (file.startsWith('http') || file.startsWith('data:')) return { url: file, thumbUrl: file };
-    if (typeof window.getThumbnailUrl === 'function') return { url: window.getThumbnailUrl('avatar', file), thumbUrl: `/characters/${encodeURIComponent(file)}` };
-    return { url: `/thumbnail?type=avatar&file=${encodeURIComponent(file)}`, thumbUrl: `/characters/${encodeURIComponent(file)}` };
-  }
-
-  function getAvatarUrl(characterName, isPrimary = false) {
-    const searchName = (characterName || '').toLowerCase().trim();
-    const cacheKey = searchName + '::' + (isPrimary ? '1' : '0');
-    if (avatarUrlCache.hasOwnProperty(cacheKey)) return avatarUrlCache[cacheKey];
-    const result = resolveAvatarUrl(characterName, isPrimary);
-    avatarUrlCache[cacheKey] = result;
-    return result;
-  }
-
-  function getUserAvatarUrl() {
-    try {
-        const selectors = ['#user_avatar_block .avatar.selected img', '#user_avatar_block .avatar_img.selected', '.selected_avatar img', '#avatar_img_me', '.mes[is_user="true"] .avatar img'];
-        for (const sel of selectors) {
-            const el = document.querySelector(sel);
-            if (el) {
-                const src = el.src || (el.style && el.style.backgroundImage ? el.style.backgroundImage.replace(/url\(['"]?|['"]?\)/g, '') : null);
-                if (src && src !== '' && !src.includes('undefined') && !src.includes('none')) return src;
-            }
-        }
-        let file = window.user_avatar;
-        if (!file && typeof window.getUserAvatar === 'function') file = window.getUserAvatar();
-        if (file && file !== 'none') {
-            if (file.startsWith('http') || file.startsWith('data:')) return file;
-            if (typeof window.getThumbnailUrl === 'function') return window.getThumbnailUrl('user_avatar', file) || window.getThumbnailUrl('avatar', file);
-            return `/User Avatars/${encodeURIComponent(file)}`;
-        }
-    } catch (e) {} return null;
-  }
-
-  function buildUserHTML(userData, uid, isChecked) {
-    if (!userData || Object.keys(userData).length === 0) return '';
-    const personaName = getSafeUserName();
-    const avatarUrl = getUserAvatarUrl();
-    const avatarHtml = avatarUrl ? `<img src="${avatarUrl}" class="hud-avatar hud-avatar-user" alt="avatar" onerror="this.outerHTML='<div class=&quot;hud-avatar-placeholder hud-avatar-user&quot;></div>'">` : `<div class="hud-avatar-placeholder hud-avatar-user"></div>`;
-
-    const order = ['A', 'C', 'Ap', 'H', 'Rel', 'L', 'UW'];
-    let rows = '';
-    order.forEach(shortKey => {
-      const label = mapKey(shortKey); let value = null;
-      for (const [k, v] of Object.entries(userData)) { if (k === shortKey || k.toLowerCase() === label.toLowerCase()) { value = v; break; } }
-      if (!value || String(value).toLowerCase() === 'empty' || String(value).toLowerCase() === 'none') return;
-      
-      let rowClass = 'hud-row hud-user-row';
-      if (label.toLowerCase().includes('nsfw')) rowClass += ' full-width nsfw';
-
-      if (label.toLowerCase() === 'отношения') {
-        rows += `<div class="${rowClass}"><span class="hud-key">${escapeHtml(label)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill')}</div></div>`;
-      } else if (label.toLowerCase().includes('nsfw')) {
-        rows += `<div class="${rowClass}"><span class="hud-key">🔞 ${escapeHtml(label)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-nsfw-pill')}</div></div>`;
-      } else {
-        rows += `<div class="${rowClass}"><span class="hud-key">${escapeHtml(label)}:</span> <span class="hud-value">${applyTooltips(String(value))}</span></div>`;
-      }
-    });
-    if (!rows) return '';
-    return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-header hud-user-header"><div class="hud-header-info">${avatarHtml}<div class="hud-header-text"><span class="hud-title">${escapeHtml(personaName)}</span></div></div></div><div class="hud-body hud-user-body">${rows}</div></div>`;
-  }
-
-  function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
-    if (!charData || Object.keys(charData).length === 0) return '';
-    const charName = charData['Имя'] || 'Unknown NPC';
-    const avatar = getAvatarUrl(charName, isPrimary);
-    const avatarHtml = avatar ? `<img src="${avatar.url}" data-hud-fallback="${avatar.thumbUrl}" class="hud-avatar" alt="avatar" onerror="if(!this.dataset.hudTried && this.dataset.hudFallback){this.dataset.hudTried='1'; this.src=this.dataset.hudFallback;} else {this.outerHTML='<div class=&quot;hud-avatar-placeholder&quot;>👤</div>';}">` : `<div class="hud-avatar-placeholder">👤</div>`;
-
-    let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-header"><div class="hud-header-info">${avatarHtml}<div class="hud-header-text"><span class="hud-title">${escapeHtml(charName)}</span></div></div></div><div class="hud-body">`;
-
-    for (const [key, value] of Object.entries(charData)) {
-      const lowerKey = key.toLowerCase();
-      if (lowerKey === 'имя') continue; 
-      if (value === null || value === undefined || value === '' || String(value).toLowerCase() === 'empty' || String(value).toLowerCase() === 'none') continue;
-      let rowClass = FULL_WIDTH_KEYS.some(k => lowerKey.includes(k)) ? 'hud-row full-width' : 'hud-row';
-      if (DRAMA_KEYS.some(k => lowerKey.includes(k))) rowClass += ' drama-alert';
-      if (lowerKey.includes('nsfw') || lowerKey.includes('секс') || lowerKey.includes('партнеров')) rowClass += ' nsfw';
-
-      let icon = '';
-      if (lowerKey === 'возраст') icon = '⏳ '; else if (lowerKey === 'одежда') icon = '👕 ';
-      else if (lowerKey === 'роль') icon = '🎭 '; else if (lowerKey === 'место') icon = '📍 ';
-      else if (lowerKey === 'цели') icon = '🎯 '; else if (lowerKey === 'инвентарь') icon = '🎒 ';
-      else if (lowerKey === 'статус') icon = '📌 '; else if (lowerKey === 'тело') icon = '🧍 ';
-      else if (lowerKey === 'мысли') icon = '💭 '; else if (lowerKey === 'ожидание vs реальность') icon = '🔮 ';
-      else if (lowerKey === 'общие воспоминания') icon = '🎞️ '; else if (lowerKey === 'флаг-монитор') icon = '🚩 ';
-      else if (lowerKey === 'социальное разоблачение') icon = '👁️ '; else if (lowerKey === 'физиология') icon = '🩸 ';
-      else if (lowerKey === 'скрытый подтекст' || lowerKey === 'детали') icon = '👁️‍🗨️ ';
-      else if (lowerKey === 'отношения') icon = '🤝 '; else if (lowerKey === 'ревность') icon = '💔 ';
-      else if (lowerKey === 'конфликт') icon = '⚔️ '; else if (lowerKey === 'последний секс') icon = '🛏️ ';
-      else if (lowerKey === 'количество партнеров') icon = '👥 '; else if (lowerKey === 'регулярность секса') icon = '📈 ';
-      else if (lowerKey === 'отзыв о сексе') icon = '📝 '; else if (lowerKey.includes('детализация nsfw')) icon = '🔥 ';
-      else if (lowerKey === 'nsfw') icon = '🔞 ';
-
-      let valueClass = TRUNCATE_KEYS.some(k => lowerKey.includes(k)) ? 'hud-value hud-truncate' : 'hud-value';
-
-      if (lowerKey === 'ключ') {
-        const items = String(value).split(';').filter(i => i.trim().length > 0).map(i => `<div class="hud-key-item">${formatKeyValue(i.trim())}</div>`).join('');
-        html += `<div class="hud-key-block full-width"><span class="hud-key-label">${escapeHtml(key)}:</span> <div class="hud-vertical-container hud-key-list">${items}</div></div>`;
-      } else if (lowerKey === 'инвентарь') {
-        html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-inventory-grid">${buildPillList(value, 'hud-inventory-pill')}</div></div>`;
-      } else if (lowerKey === 'nsfw' || lowerKey === 'детализация nsfw' || lowerKey === 'последний секс') {
-        html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-nsfw-pill')}</div></div>`;
-      } else if (lowerKey === 'расписание') {
-        const items = String(value).split(String(value).includes(';') ? /;/ : /(?:\.\s+(?=[А-ЯA-ZА-ЯЁ])|\n)/)
-          .filter(i => i.trim().length > 0).map(i => {
-            let text = i.trim().replace(/\.$/, ''); let timeMatch = text.match(/^([\d]{1,2}:\d{2})\s*[-—–:]?\s*(.*)$/);
-            return timeMatch ? `<div class="hud-schedule-item"><div class="hud-schedule-time">${escapeHtml(timeMatch[1])}</div><div class="hud-schedule-event">${applyTooltips(timeMatch[2])}</div></div>` : `<div class="hud-schedule-item"><div class="hud-schedule-event">${applyTooltips(text)}</div></div>`;
-          }).join('');
-        html += `<div class="${rowClass} full-width"><div class="hud-schedule-container">${items}</div></div>`;
-      } else if (lowerKey === 'ожидание vs реальность') {
-        html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-exp-reality">${buildPillList(value, '')}</div></div>`;
-      } else if (lowerKey === 'глубина конфликта') {
-        html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-conflict-pill')}</div></div>`;
-      } else if (lowerKey === 'отзыв о сексе') {
-        html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <span class="${valueClass} hud-sex-rev">${applyTooltips(String(value)).replace(/([★☆]+)/g, '<span class="hud-stars-rating">$1</span>')}</span></div>`;
-      } else if (lowerKey === 'отношения' || lowerKey === 'цели' || lowerKey === 'ревность' || lowerKey === 'общие воспоминания' || lowerKey === 'флаг-монитор') {
-        html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill', (lowerKey === 'общие воспоминания' || lowerKey === 'флаг-монитор'))}</div></div>`;
-      } else {
-        html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <span class="${valueClass}">${applyTooltips(String(value))}</span></div>`;
-      }
-    }
-    return html + `</div></div>`;
-  }
-  
-  function buildMemoryHTML(memoryData, uid, isChecked) {
-    if (!memoryData || Object.keys(memoryData).length === 0) return '';
-    let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-body" style="grid-template-columns: 1fr;">`;
-
-    // 1. ТАЙМЛАЙН (Вертикальная линия)
-    if (Array.isArray(memoryData.timeline) && memoryData.timeline.length > 0) {
-      let evHtml = memoryData.timeline.map(item => {
-        let text = String(item).trim().replace(/\.$/, '');
-        let timeMatch = text.match(/^\[?([\d]{1,2}\s*:\s*\d{2})\]?\s*[-—–:]?\s*(.*)$/);
-        return timeMatch
-            ? `<div class="hud-timeline-item"><div class="hud-timeline-time">${escapeHtml(timeMatch[1])}</div><div class="hud-timeline-content">${applyTooltips(timeMatch[2])}</div></div>`
-            : `<div class="hud-timeline-item"><div class="hud-timeline-content">${applyTooltips(text)}</div></div>`;
-      }).join('');
-      html += `<div class="hud-row full-width"><span class="hud-key">⏳ Таймлайн:</span> <div class="hud-timeline-container">${evHtml}</div></div>`;
-    }
-
-    // 2. МАРШРУТЫ (Связанные узлы пути)
-    const buildRouteHTML = (routeArr, entityLabel) => {
-        if (!routeArr || routeArr.length === 0) return '';
-        let rHtml = `<div class="hud-route-group"><div class="hud-route-name">${escapeHtml(entityLabel)}</div><div class="hud-route-path">`;
-        routeArr.forEach((item, index) => {
-            let parts = String(item).split(/[-—–]/).map(s => s.trim());
-            let time = parts[0] || ''; let place = parts[1] || ''; let action = parts.slice(2).join(' - ') || '';
-            let isLast = index === routeArr.length - 1;
-            if (time.match(/^\[?[\d]{1,2}\s*:\s*\d{2}\]?$/)) {
-                 rHtml += `<div class="hud-route-node ${isLast ? 'current' : ''}"><div class="hud-route-info"><div class="hud-route-time">${escapeHtml(time)}</div><div class="hud-route-place">${escapeHtml(place)}</div>${action ? `<div class="hud-route-action">${escapeHtml(action)}</div>` : ''}</div></div>`;
-            } else {
-                 rHtml += `<div class="hud-route-node ${isLast ? 'current' : ''}"><div class="hud-route-info"><div class="hud-route-place">${escapeHtml(item)}</div></div></div>`;
-            }
-        });
-        return rHtml + `</div></div>`;
-    };
-
-    if (memoryData.route && (memoryData.route.user?.length > 0 || memoryData.route.char?.length > 0)) {
-      let routeHtml = '';
-      if (memoryData.route.user?.length > 0) routeHtml += buildRouteHTML(memoryData.route.user, getSafeUserName());
-      if (memoryData.route.char?.length > 0) routeHtml += buildRouteHTML(memoryData.route.char, 'NPC');
-      html += `<div class="hud-row full-width"><span class="hud-key">📍 Маршруты:</span> ${routeHtml}</div>`;
-    }
-
-    // 3. ЭМОЦИИ (Горизонтальные чипы с прокруткой)
-    const buildMoodHTML = (historyArr, currentMood, entityLabel) => {
-        if (!currentMood && (!historyArr || historyArr.length === 0)) return '';
-        let mHtml = `<div class="hud-mood-group"><div class="hud-mood-current">${escapeHtml(entityLabel)}${currentMood ? `: <span style="font-weight:normal; opacity:0.9;">${escapeHtml(currentMood)}</span>` : ''}</div><div class="hud-mood-history">`;
-        (historyArr || []).forEach(item => {
-             let match = String(item).match(/^\[?([\d]{1,2}\s*:\s*\d{2})\]?\s*[-—–:]?\s*(.*)$/);
-             mHtml += match
-                 ? `<div class="hud-mood-chip"><span class="hud-mood-chip-time">${escapeHtml(match[1])}</span><span class="hud-mood-chip-val">${escapeHtml(match[2])}</span></div>`
-                 : `<div class="hud-mood-chip"><span class="hud-mood-chip-val">${escapeHtml(item)}</span></div>`;
-        });
-        return mHtml + `</div></div>`;
-    };
-
-    if (memoryData.mood && (memoryData.mood.user?.current || memoryData.mood.char?.current || memoryData.mood.user?.history?.length > 0)) {
-      let moodHtml = '';
-      moodHtml += buildMoodHTML(memoryData.mood.user?.history, memoryData.mood.user?.current, getSafeUserName());
-      moodHtml += buildMoodHTML(memoryData.mood.char?.history, memoryData.mood.char?.current, 'NPC');
-      html += `<div class="hud-row full-width" style="overflow:hidden;"><span class="hud-key">🎭 Эмоции:</span> ${moodHtml}</div>`;
-    }
-
-    if (Array.isArray(memoryData.important) && memoryData.important.length > 0) {
-      html += `<div class="hud-row full-width"><span class="hud-key">❗ Важное:</span> <div class="hud-vertical-container">${buildPillList(memoryData.important.join('; '), 'hud-detail-pill drama-alert')}</div></div>`;
-    }
-    if (Array.isArray(memoryData.recently_learned) && memoryData.recently_learned.length > 0) {
-      html += `<div class="hud-row full-width"><span class="hud-key">💡 Недавно узнали:</span> <div class="hud-vertical-container">${buildPillList(memoryData.recently_learned.join('; '), 'hud-detail-pill')}</div></div>`;
-    }
-    if (Array.isArray(memoryData.unknown) && memoryData.unknown.length > 0) {
-      html += `<div class="hud-row full-width"><span class="hud-key">❓ Чего герои не знают:</span> <div class="hud-vertical-container">${buildPillList(memoryData.unknown.join('; '), 'hud-detail-pill')}</div></div>`;
-    }
-
-    // 4. СЕКРЕТЫ (Кастомный скрытый спойлер + Уровни)
-    if (Array.isArray(memoryData.secrets) && memoryData.secrets.length > 0) {
-      let secHtml = memoryData.secrets.map(s => {
-         let lvlStr = String(s.level || '').toLowerCase();
-         let lvlText = '🔒 SECRET'; let lvlClass = 'lvl-secret';
-         if(lvlStr.includes('high')) { lvlText = '🔐 HIGHLY SECRET'; lvlClass = 'lvl-high'; }
-         if(lvlStr.includes('crit')) { lvlText = '☠ CLASSIFIED'; lvlClass = 'lvl-critical'; }
-
-         let statStr = String(s.status || '').toLowerCase();
-         let statText = '🔴 UNKNOWN'; let statClass = 'stat-unknown';
-         if(statStr.includes('suspect')) { statText = '🟡 SUSPECTED'; statClass = 'stat-suspected'; }
-         if(statStr.includes('part') || statStr.includes('known')) { statText = '🟢 KNOWN'; statClass = 'stat-known'; }
-
-         let kCount = Array.isArray(s.knows) ? s.knows.length : (s.knows && s.knows !== 'none' ? 1 : 0);
-         // normalizeJSONData stores people who do not know the secret in `hidden`.
-         const unawareValue = s.unaware ?? s.hidden;
-         let uCount = Array.isArray(unawareValue) ? unawareValue.length : (unawareValue && unawareValue !== 'none' ? 1 : 0);
-         let total = kCount + uCount;
-         let ratio = total > 0 ? Math.round((kCount / total) * 10) : 0;
-         let bar = '█'.repeat(ratio) + '░'.repeat(10 - ratio);
-         let spreadText = total > 0 ? `<div class="hud-secret-spread">KNOWLEDGE <span class="hud-secret-bar">${bar}</span> ${kCount} / ${total}</div>` : '';
-
-         let knowsArr = Array.isArray(s.knows) ? s.knows : [];
-         let unawareArr = Array.isArray(unawareValue) ? unawareValue : [];
-         let knowsHtml = knowsArr.length > 0
-             ? knowsArr.map(k => `<div class="hud-secret-person"><span class="hud-secret-pname">✔ ${escapeHtml(k.name || k)}</span> ${k.source ? `<span class="hud-secret-psource">${escapeHtml(k.source)}</span>` : ''}</div>`).join('')
-             : '<div class="hud-secret-person" style="opacity:0.6;">Никто не знает</div>';
-         let unawareHtml = unawareArr.length > 0
-             ? unawareArr.map(u => `<div class="hud-secret-person unaware"><span class="hud-secret-pname">✖ ${escapeHtml(u.name || u)}</span></div>`).join('')
-             : '';
-
-         return `
-         <details class="hud-secret-details">
-            <summary class="hud-secret-summary ${lvlClass}">
-                <div class="hud-secret-header">
-                    <span class="hud-secret-lvl">${lvlText}</span>
-                    <span class="hud-secret-stat ${statClass}">${statText}</span>
-                </div>
-                ${spreadText}
-            </summary>
-            <div class="hud-secret-body">
-                <div class="hud-secret-title">${escapeHtml(s.fact)}</div>
-                <div class="hud-secret-cols">
-                    <div class="hud-secret-col">
-                        <div class="hud-secret-col-title">В КУРСЕ:</div>
-                        ${knowsHtml}
-                    </div>
-                    ${unawareArr.length > 0 ? `
-                    <div class="hud-secret-col">
-                        <div class="hud-secret-col-title">В НЕВЕДЕНИИ:</div>
-                        ${unawareHtml}
-                    </div>` : ''}
-                </div>
-            </div>
-         </details>`;
-      }).join('');
-      html += `<div class="hud-row full-width"><span class="hud-key">🤫 Зашифрованные данные:</span> <div class="hud-vertical-container" style="max-height: none;">${secHtml}</div></div>`;
-    }
-
-    return html + `</div></div>`;
-  }
-
-  function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName) {
-    const chatKeys = Object.keys(chatsMap || {});
-    let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-phone-mockup">`;
-    if (chatKeys.length === 0) {
-      return html + `<div class="hud-phone-empty"><div class="hud-phone-empty-icon">📱</div><div>Нет сообщений</div><small>В текущем повествовании нет доступных разговоров.</small></div></div></div>`;
-    }
-    let chatTabsHeader = `<div class="hud-phone-subtabs">`;
-    let chatBodies = ``;
-
-    chatKeys.forEach((rawChatName, idx) => {
-      let chatObj = chatsMap[rawChatName];
-      let isSubActive = idx === 0 ? 'active' : '';
-
-      // Парсинг владельца телефона с фолбэком
-      let rawOwner = String(chatObj.owner || '').trim();
-      let activeOwner = (rawOwner && rawOwner.toLowerCase() !== 'empty' && rawOwner.toLowerCase() !== 'none') ? rawOwner : mainCharName;
-      let ownerDisplay = `📱 ТЕЛЕФОН (${escapeHtml(activeOwner || 'Unknown')})`;
-
-      // Обрезаем дичь от ИИ в названиях.
-      // Если название имеет вид «Владелец → Контакт», показываем только контакт.
-      // Это влияет ТОЛЬКО на подпись чата/контакта, не на разбор и направление сообщений.
-      let displayChatName = rawChatName.replace(/<[^>]+>/g, '').trim();
-      let dashIndex = displayChatName.indexOf(' — ');
-      if (dashIndex === -1) dashIndex = displayChatName.indexOf(' - ');
-      if (dashIndex > 0) displayChatName = displayChatName.substring(0, dashIndex).trim();
-
-      const arrowParts = displayChatName.split(/\s*(?:→|->|←|↔|↔︎)\s*/).map(s => s.trim()).filter(Boolean);
-      if (arrowParts.length > 1) {
-        const ownerNorm = activeOwner.toLowerCase().replace(/\s+/g, ' ').trim();
-        const ownerFirst = ownerNorm.split(' ')[0];
-        const ownerIndex = arrowParts.findIndex(part => {
-          const partNorm = part.toLowerCase().replace(/\s+/g, ' ').trim();
-          return partNorm === ownerNorm || partNorm === ownerFirst || partNorm.startsWith(ownerNorm + ' ') || ownerNorm.startsWith(partNorm + ' ');
-        });
-
-        if (ownerIndex !== -1) {
-          const contactParts = arrowParts.filter((_, i) => i !== ownerIndex);
-          displayChatName = contactParts.join(' → ').trim();
-        } else {
-          // Если владельца нет в строке, не угадываем направление: берём правую часть.
-          displayChatName = arrowParts[arrowParts.length - 1];
-        }
-      }
-
-      let latestTime = '12:00', unreadCount = 0;
-      if (Array.isArray(chatObj.messages)) {
-        chatObj.messages.forEach(m => {
-          let timeMatch = m.match(/\b\d{1,2}:\d{2}\b/); if (timeMatch) latestTime = timeMatch[0];
-          if (/unread|не прочитан/i.test(m.replace(/\[удалено\]|\[черновик\]/gi, ''))) unreadCount++;
-        });
-      }
-      
-      chatTabsHeader += `<button class="hud-phone-subtab ${isSubActive}" data-subtarget="subchat-${uid}-${idx}">${defeatWI(escapeHtml(displayChatName))} ${unreadCount > 0 ? `<span class="hud-unread-badge">${unreadCount}</span>` : ''}</button>`;
-
-      chatBodies += `<div class="hud-phone-subbody ${isSubActive}" id="subchat-${uid}-${idx}">
-        <div class="hud-phone-statusbar"><span class="hud-phone-time">${escapeHtml(latestTime)}</span><span class="hud-phone-owner-label">${ownerDisplay}</span><div class="hud-phone-status-icons"><span>📶</span><span>🔋</span></div></div>
-        <div class="hud-phone-header"><span class="hud-phone-back">⟨</span><div class="hud-phone-title-group" ${chatObj.participants ? 'style="cursor:pointer;" title="Нажми, чтобы увидеть участников"' : ''}><span class="hud-phone-name">${defeatWI(escapeHtml(displayChatName))} ${chatObj.participants ? '<span style="font-size:0.8em; opacity:0.7;">▾</span>' : ''}</span>${chatObj.participants ? `<div class="hud-phone-participants-list">👥 Участники: ${escapeHtml(chatObj.participants)}</div>` : ''}</div><span class="hud-phone-options">⋮</span></div>
-        <div class="hud-phone-chat-area">`;
-		
-		let activeDraft = "";
-
-      if (Array.isArray(chatObj.messages)) {
-        chatObj.messages.forEach(msgStr => {
-          if (!msgStr.trim()) return;
-          let parts = msgStr.replace(/^(?:M|Msg|Сообщение|Chat|Чат):\s*/i, '').trim().split('|').map(s => s.trim());
-          let mainPart = parts[0], msgTime = parts.length > 1 ? parts[1] : '', msgStatus = parts.length > 2 ? parts[2] : '';
-
-          if (parts.length === 1) {
-            const fallbackMatch = mainPart.match(/(.*?)\s*(?:\|?\s*)(\b(?:Вчера|Сегодня|Завтра)[,\s]*\d{1,2}:\d{2}|\b\d{1,2}:\d{2})(?:\s*\|?\s*)(✓+|read|unread|доставлен[а-я]*|прочитан[а-я]*|отправлен[а-я]*|draft|черновик)?$/i);
-            if (fallbackMatch) { mainPart = fallbackMatch[1].trim(); msgTime = fallbackMatch[2].trim(); msgStatus = (fallbackMatch[3] || '').trim(); }
-          }
-
-          // === НАЧАЛО НОВОГО КОДА ===
-              let isDeleted = msgStatus.toLowerCase().includes('delete') || msgStatus.toLowerCase().includes('удалено') || mainPart.toLowerCase().includes('[удалено]');
-              let isDraft = msgStatus.toLowerCase().includes('draft') || msgStatus.toLowerCase().includes('черновик') || mainPart.toLowerCase().includes('[черновик]');
-
-              mainPart = mainPart.replace(/\[удалено\]|\[черновик\]|✓+/gi, '').trim();
-
-              let sender = "Unknown", message = mainPart, match = mainPart.match(/^([^:-]+)(?:\s*(?:->|→)\s*([^:]+))?:\s*(.*)$/);
-              if (match) { sender = match[1].trim(); message = match[3].trim(); }
-
-              const senderLower = sender.toLowerCase();
-              const mainCharLower = String(mainCharName || '').toLowerCase();
-              let isOutgoing = Boolean(mainCharLower && senderLower.includes(mainCharLower.split(' ')[0]));
-              // В JSON модель может называть владельца телефона User/You/Вы.
-              // Это тоже исходящее сообщение от владельца, а не входящее.
-              if (/^(?:user|you|вы|я|player)$/i.test(sender.trim())) isOutgoing = true;
-
-              // ЛОВИМ ЧЕРНОВИК (Прячем из чата и сохраняем)
-              if (isDraft && isOutgoing) {
-                  activeDraft = message;
-                  return; 
-              }
-
-              // ЛОВИМ УДАЛЕННОЕ (Рисуем кликабельный спойлер)
-              if (isDeleted) { 
-                  chatBodies += `<div class="hud-msg-wrapper ${isOutgoing ? 'outgoing' : 'incoming'}">
-                    ${!isOutgoing ? `<div class="hud-msg-avatar">${sender.charAt(0).toUpperCase()}</div>` : ''}
-                    <div class="hud-msg-content" style="max-width: 100%;">
-                      <span class="hud-msg-sender">${escapeHtml(sender)}</span>
-                      <details class="hud-msg-deleted-details">
-                        <summary>🚫 Сообщение удалено</summary>
-                        <div class="hud-msg-deleted-text">${escapeHtml(message)}</div>
-                      </details>
-                    </div>
-                  </div>`;
-                  return; 
-              }
-
-          let statusHtml = '';
-          if (isOutgoing) {
-            let s = msgStatus.toLowerCase();
-            if (s.includes('read') || s.includes('прочитан') || s.includes('✓✓')) statusHtml = '<span class="msg-status read" style="color: #4facfe; font-weight: bold;">✓✓</span>';
-            else if (s.includes('delivered') || s.includes('доставлен')) statusHtml = '<span class="msg-status delivered" style="opacity: 0.8;">✓✓</span>';
-            else statusHtml = '<span class="msg-status sent" style="opacity: 0.8;">✓</span>';
-          } else if (msgStatus.toLowerCase().includes('unread') || msgStatus.toLowerCase().includes('не прочитан')) {
-            statusHtml = '<span class="msg-status unread-dot"></span>';
-          }
-
-          // === ЛОВИМ ГОЛОСОВЫЕ СООБЩЕНИЯ ===
-              let isVoice = false;
-              let voiceDur = "";
-              let voiceMatch = message.match(/\[(?:VOICE|ГОЛОС)_?(\d{1,2}:\d{2})?\]/i);
-              if (voiceMatch) {
-                  isVoice = true;
-                  voiceDur = voiceMatch[1] || "0:15"; // Берем длину аудио или ставим 15 сек по умолчанию
-                  message = message.replace(voiceMatch[0], '').trim(); // Вырезаем тег из текста
-              }
-
-              // СОБИРАЕМ ВНУТРЕННОСТИ ПУЗЫРЯ (Текст или Плеер)
-              let msgInner = isVoice 
-                  ? `<div class="hud-voice-player"><div class="hud-voice-btn">▶</div><div class="hud-voice-line"></div><span class="hud-voice-time">${voiceDur}</span></div><details class="hud-voice-details"><summary>Расшифровка</summary><div class="hud-voice-text">${escapeHtml(message)}</div></details>`
-                  : `<div class="hud-msg-text" style="word-break: break-word;">${escapeHtml(message)}</div>`;
-
-              // РИСУЕМ ФИНАЛЬНОЕ СООБЩЕНИЕ
-              chatBodies += `<div class="hud-msg-wrapper ${isOutgoing ? 'outgoing' : 'incoming'}">
-                ${!isOutgoing ? `<div class="hud-msg-avatar">${sender.charAt(0).toUpperCase()}</div>` : ''}
-                <div class="hud-msg-content" style="max-width: 100%;">
-                  <span class="hud-msg-sender">${escapeHtml(sender)}</span>
-                  <div class="hud-msg-bubble">
-                    ${msgInner}
-                    ${(msgTime || statusHtml) ? `<div class="hud-msg-meta" style="display: flex; justify-content: flex-end; align-items: center; gap: 4px; font-size: 0.75em; opacity: 0.6; margin-top: 4px;"><span class="hud-msg-time">${escapeHtml(msgTime)}</span>${statusHtml}</div>` : ''}
-                  </div>
-                </div>
-              </div>`;
-        });
-      }
-      chatBodies += `</div><div class="hud-phone-input-bar"><span class="hud-phone-attach">+</span><div class="hud-phone-inputfield ${activeDraft ? 'draft-active' : 'placeholder'}">${activeDraft ? escapeHtml(activeDraft) : 'Сообщение...'}</div><span class="hud-phone-send disabled">↑</span></div></div>`;
-    });
-    return html + chatTabsHeader + `</div>` + chatBodies + `</div></div>`;
-  }
-
-
-  function buildInterceptsHTML(interceptsData, uid, isChecked) {
-    if (!interceptsData || interceptsData.length === 0) return '';
-    let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-phone-mockup intercept-mode">`;
-    let chatTabsHeader = `<div class="hud-phone-subtabs">`;
-    let chatBodies = ``;
-
-    interceptsData.forEach((intercept, idx) => {
-      let targetName = (intercept.target || 'Unknown').replace(/<[^>]+>/g, '').trim(), chatName = (intercept.chatName || 'Chat').replace(/<[^>]+>/g, '').trim();
-      // Для перехвата показываем именно контакт, а не владельца телефона.
-      // Направление сообщений ниже не меняем: target по-прежнему определяет владельца.
-      const interceptArrowParts = chatName.split(/\s*(?:→|->|←|↔|↔︎)\s*/).map(s => s.trim()).filter(Boolean);
-      if (interceptArrowParts.length > 1) {
-        const targetNorm = targetName.toLowerCase().replace(/\s+/g, ' ').trim();
-        const targetFirst = targetNorm.split(' ')[0];
-        const targetIndex = interceptArrowParts.findIndex(part => {
-          const partNorm = part.toLowerCase().replace(/\s+/g, ' ').trim();
-          return partNorm === targetNorm || partNorm === targetFirst ||
-            partNorm.startsWith(targetNorm + ' ') || targetNorm.startsWith(partNorm + ' ');
-        });
-        if (targetIndex !== -1) {
-          const contactParts = interceptArrowParts.filter((_, i) => i !== targetIndex);
-          chatName = contactParts.join(' → ').trim();
-        } else {
-          chatName = interceptArrowParts[interceptArrowParts.length - 1];
-        }
-      }
-
-      let latestTime = '--:--', unreadCount = 0;
-      if (Array.isArray(intercept.messages)) {
-        intercept.messages.forEach(m => {
-          let timeMatch = m.match(/\b\d{1,2}:\d{2}\b/); if (timeMatch) latestTime = timeMatch[0];
-          if (/unread|не прочитан/i.test(m.replace(/\[удалено\]|\[черновик\]/gi, ''))) unreadCount++;
-        });
-      }
-
-      chatTabsHeader += `<button class="hud-phone-subtab intercept-tab ${idx === 0 ? 'active' : ''}" data-subtarget="subhack-${uid}-${idx}">👁️ ${defeatWI(escapeHtml(targetName))} ${unreadCount > 0 ? `<span class="hud-unread-badge">${unreadCount}</span>` : ''}</button>`;
-
-      chatBodies += `<div class="hud-phone-subbody ${idx === 0 ? 'active' : ''}" id="subhack-${uid}-${idx}">
-        <div class="hud-phone-statusbar"><span class="hud-phone-time">${escapeHtml(latestTime)}</span><span class="hud-phone-owner-label intercept-status">📡 ПЕРЕХВАТ (${escapeHtml(targetName)})</span><div class="hud-phone-status-icons"><span class="hud-intercept-icon">⚠</span></div></div>
-        <div class="hud-phone-header hud-intercept-header">
-          <span class="hud-phone-back hud-intercept-icon">⟨</span>
-          <div class="hud-phone-title-group" ${intercept.participants ? 'style="cursor:pointer;" title="Нажми, чтобы увидеть участников"' : ''}><span class="hud-phone-name">${defeatWI(escapeHtml(chatName))} ${intercept.participants ? '<span style="font-size:0.8em; opacity:0.7;">▾</span>' : ''}</span>${intercept.participants ? `<div class="hud-phone-participants-list">👥 Участники: ${escapeHtml(intercept.participants)}</div>` : ''}</div>
-          <span class="hud-phone-options hud-intercept-icon">⋮</span>
-        </div>
-        <div class="hud-phone-chat-area">`;
-
-      if (Array.isArray(intercept.messages)) {
-        intercept.messages.forEach(msgStr => {
-          if (!msgStr.trim()) return;
-          let parts = msgStr.replace(/^(?:M|Msg|Сообщение|Chat|Чат):\s*/i, '').trim().split('|').map(s => s.trim());
-          let mainPart = parts[0], msgTime = parts.length > 1 ? parts[1] : '';
-
-          if (parts.length === 1) {
-            const fallbackMatch = mainPart.match(/(.*?)\s*(?:\|?\s*)(\b(?:Вчера|Сегодня|Завтра)[,\s]*\d{1,2}:\d{2}|\b\d{1,2}:\d{2})/i);
-            if (fallbackMatch) { mainPart = fallbackMatch[1].trim(); msgTime = fallbackMatch[2].trim(); }
-          }
-          mainPart = mainPart.replace(/\[удалено\]|\[черновик\]|✓+/gi, '').trim();
-          let sender = "Unknown", message = mainPart, match = mainPart.match(/^([^:-]+)(?:\s*(?:->|→)\s*([^:]+))?:\s*(.*)$/);
-          if (match) { sender = match[1].trim(); message = match[3].trim(); }
-
-          let isOutgoing = (targetName && sender.toLowerCase().includes(targetName.toLowerCase().split(' ')[0]));
-          chatBodies += `<div class="hud-msg-wrapper ${isOutgoing ? 'outgoing' : 'incoming'}">${!isOutgoing ? `<div class="hud-msg-avatar hud-intercept-avatar">${sender.charAt(0).toUpperCase()}</div>` : ''}<div class="hud-msg-content" style="max-width: 100%;"><span class="hud-msg-sender">${escapeHtml(sender)}</span><div class="hud-msg-bubble"><div class="hud-msg-text" style="word-break: break-word;">${escapeHtml(message)}</div>${msgTime ? `<div class="hud-msg-meta" style="display: flex; justify-content: flex-end; align-items: center; gap: 4px; font-size: 0.75em; opacity: 0.6; margin-top: 4px;"><span class="hud-msg-time">${escapeHtml(msgTime)}</span></div>` : ''}</div></div></div>`;
-        });
-      }
-      chatBodies += `</div><div class="hud-phone-input-bar hud-intercept-input"><span class="hud-phone-attach hud-intercept-icon">⚠</span><div class="hud-phone-inputfield placeholder hud-intercept-icon">ACCESS DENIED - READ ONLY</div></div></div>`;
-    });
-    return html + chatTabsHeader + `</div>` + chatBodies + `</div></div>`;
-  }
-
-  function buildDreamHTML(dreamsData, uid, isChecked) {
-    if (!dreamsData || dreamsData.length === 0) return '';
-    let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-dream-container"><div class="hud-dream-moon">🌙 Z z z . . .</div>`;
-    dreamsData.forEach(dream => { 
-      html += `<div class="hud-dream-entry"><div class="hud-dream-text">✨ ${escapeHtml(dream.text)}</div>`;
-      if (dream.meaning && dream.meaning.toLowerCase() !== 'none' && dream.meaning.toLowerCase() !== 'empty') html += `<div class="hud-dream-meaning"><span class="hud-dream-meaning-label">🔮 Смысл:</span> ${escapeHtml(dream.meaning)}</div>`;
-      html += `</div>`; 
-    });
-    return html + `</div></div>`;
-  }
-
-  function buildDiaryHTML(diaryData, uid, isChecked) {
-    if (!diaryData || diaryData.length === 0) return '';
-    let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-diary-container">`;
-    diaryData.forEach(entry => {
-      if (typeof entry === 'string') {
-        let parts = entry.split('|'); let time = parts[0].trim(); let text = parts.length > 1 ? parts.slice(1).join('|').trim() : '';
-        if (!text) { text = time; time = 'Скрытая запись'; }
-        html += `<div class="hud-diary-entry"><div class="hud-diary-time">${escapeHtml(time)}</div><div class="hud-diary-text">${escapeHtml(text)}</div></div>`;
-      } else {
-        const aboutUser = entry.aboutUser && entry.aboutUser.toLowerCase() !== 'none' && entry.aboutUser.toLowerCase() !== 'empty' ? entry.aboutUser : '';
-        html += `<div class="hud-diary-entry">${entry.author && entry.author.toLowerCase() !== 'none' && entry.author.toLowerCase() !== 'empty' ? `<div class="hud-diary-author">${escapeHtml(entry.author)}</div>` : ''}<div class="hud-diary-time">${escapeHtml(entry.time)}</div><div class="hud-diary-text">${escapeHtml(entry.text)}</div>${aboutUser ? `<div class="hud-diary-about-user"><span class="hud-diary-about-label">О ней:</span> ${escapeHtml(aboutUser)}</div>` : ''}</div>`;
-      }
-    });
-    return html + `</div></div>`;
-  }
-
-  function buildWorldHTML(worldData, uid, isChecked) {
-    if (!Object.values(worldData).some(arr => Array.isArray(arr) && arr.length > 0)) return '';
-    let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-world-container">`;
-    if (worldData.headlines && worldData.headlines.length > 0) {
-      html += `<div class="hud-world-section"><div class="hud-world-title">📰 Главные новости</div>`;
-      worldData.headlines.forEach(hl => { let parts = hl.split('|'); html += `<details class="hud-news-article"><summary>${escapeHtml(parts[0].trim())}</summary><div class="article-text">${escapeHtml(parts.length > 1 ? parts.slice(1).join('|').trim() : '')}</div></details>`; });
-      html += `</div>`;
-    }
-    if (worldData.rumors && worldData.rumors.length > 0) {
-      html += `<div class="hud-world-section"><div class="hud-world-title">🗣️ Слухи</div><ul class="hud-world-list">`;
-      worldData.rumors.forEach(r => html += `<li>${escapeHtml(r)}</li>`);
-      html += `</ul></div>`;
-    }
-    if (worldData.ads && worldData.ads.length > 0) {
-      html += `<div class="hud-world-section"><div class="hud-world-title">📌 Доска объявлений</div><div class="hud-ads-grid">`;
-      worldData.ads.forEach(ad => html += `<div class="hud-ad-card">${escapeHtml(ad)}</div>`);
-      html += `</div></div>`;
-    }
-    if (worldData.comments && worldData.comments.length > 0 && settings.showComments) {
-      html += `<div class="hud-world-section"><div class="hud-world-title">💬 Комментарии Сети</div><div class="hud-comments-list">`;
-      worldData.comments.forEach(c => html += `<div class="hud-comment">${escapeHtml(c)}</div>`);
-      html += `</div></div>`;
-    }
-    return html + `</div></div>`;
-  }
 
   // Вспомогательная функция для генерации опций шрифтов (все поддерживают кириллицу)
   function makeFontOptions(selectedVal) {
@@ -2370,8 +800,12 @@ function scoreHudJsonCandidate(parsed) {
       (Array.isArray(data.memory.secrets) && data.memory.secrets.length) ||
       (data.memory.mood && ((data.memory.mood.user?.current || data.memory.mood.user?.history?.length) || (data.memory.mood.char?.current || data.memory.mood.char?.history?.length))) ||
       (data.memory.route && ((data.memory.route.user?.length || 0) + (data.memory.route.char?.length || 0) > 0))
-    ));
-    const hasPhone = Boolean(settings.enablePhone && data.chatsMap && Object.keys(data.chatsMap).length > 0);
+    )) || hudHasRelations(data);
+    // Телефон показывается, если есть переписки ИЛИ любое содержимое ОС
+    // (контакты, галерея, заметки, карты, история поиска).
+    const phoneOsFilled = Boolean(data.phone && ['contacts','gallery','notes','maps','search']
+      .some(k => Array.isArray(data.phone[k]) && data.phone[k].length > 0));
+    const hasPhone = Boolean(settings.enablePhone && ((data.chatsMap && Object.keys(data.chatsMap).length > 0) || phoneOsFilled));
     if (data.characters.length === 0 && (!data.intercepts || data.intercepts.length === 0) && data.diary.length === 0 && data.dreams.length === 0 && Object.values(data.world || {}).every(v => !v || !v.length) && Object.keys(data.scene).length === 0 && Object.keys(data.user || {}).length === 0 && !hasMemory && !hasPhone) return '';
 
     const baseId = Date.now() + '-' + Math.random().toString(36).slice(2);
@@ -2380,18 +814,31 @@ function scoreHudJsonCandidate(parsed) {
 
     let tRaw = data.scene['Время'] || '', wRaw = data.scene['Погода'] || '', dRaw = data.scene['Дата'] || '';
     let phaseClass = 'phase-night'; 
-    let phaseLow = tRaw.toLowerCase();
+    let phaseLow = (tRaw || '').toLowerCase();
     
     let hourMatch = tRaw.match(/(\d{1,2}):\d{2}/);
     if (hourMatch) {
-      let hour = parseInt(hourMatch[1], 10);
-      if (hour >= 5 && hour < 10) phaseClass = 'phase-morning';       
-      else if (hour >= 10 && hour < 18) phaseClass = 'phase-day';     
-      else if (hour >= 18 && hour < 20) phaseClass = 'phase-evening'; 
-      else phaseClass = 'phase-night';                                
-    } else if (/\bутр\w*|\bmorn\w*/.test(phaseLow)) phaseClass = 'phase-morning';
+      const hour = parseInt(hourMatch[1], 10);
+      const minute = parseInt(hourMatch[2], 10) || 0;
+      const totalMinutes = hour * 60 + minute;
+
+      if (totalMinutes < 120) phaseClass = 'phase-deep-night';
+      else if (totalMinutes < 300) phaseClass = 'phase-night';
+      else if (totalMinutes < 360) phaseClass = 'phase-predawn';
+      else if (totalMinutes < 600) phaseClass = 'phase-morning';
+      else if (totalMinutes < 1020) phaseClass = 'phase-day';
+      else if (totalMinutes < 1110) phaseClass = 'phase-golden';
+      else if (totalMinutes < 1200) phaseClass = 'phase-sunset';
+      else if (totalMinutes < 1320) phaseClass = 'phase-evening';
+      else phaseClass = 'phase-night';
+    } else if (/\bпредрассвет|\bpredawn|\bdawn\b/.test(phaseLow)) phaseClass = 'phase-predawn';
+    else if (/\bутр\w*|\bmorn\w*/.test(phaseLow)) phaseClass = 'phase-morning';
     else if (/\bдень\b|\bдн[ёе]м\b|\bday\b/.test(phaseLow)) phaseClass = 'phase-day';
-    else if (/\bвечер\w*|\beven\w*/.test(phaseLow)) phaseClass = 'phase-evening';
+    else if (/\bзолот\w*|\bgolden\b/.test(phaseLow)) phaseClass = 'phase-golden';
+    else if (/\bзакат|\bsunset|\bсолнц\w*\s*за/.test(phaseLow)) phaseClass = 'phase-sunset';
+    else if (/\bвечер\w*|\beven\w*|\bnightfall\b/.test(phaseLow)) phaseClass = 'phase-evening';
+    else if (/\bглубок\w*\s*ноч\w*|\bdeep\s*night\b/.test(phaseLow)) phaseClass = 'phase-deep-night';
+    else if (/\bноч\w*|\bnight\b/.test(phaseLow)) phaseClass = 'phase-night';
 
     let wClass = 'weather-clear', wLow = wRaw.toLowerCase(), wIntensity = '';
     
@@ -2440,15 +887,28 @@ function scoreHudJsonCandidate(parsed) {
 
     let dewActive = phaseClass === 'phase-morning' && (wClass === 'weather-clear' || wClass === 'weather-cloudy') && (seasonClass === 'season-spring' || seasonClass === 'season-summer');
 
-    let celestialStyle = '', sunVarsStyle = '';
+    let celestialStyle = '', sunVarsStyle = '', sceneStyle = '';
     if (hourMatch) {
       let hh = parseInt(hourMatch[1], 10), mmMatch = tRaw.match(/\d{1,2}:(\d{2})/), mm = mmMatch ? parseInt(mmMatch[1], 10) : 0, minutesOfDay = hh * 60 + mm;
       const DAY_START = 6 * 60, DAY_END = 20 * 60; let p, cx, cy;
       if (minutesOfDay >= DAY_START && minutesOfDay <= DAY_END) p = (minutesOfDay - DAY_START) / (DAY_END - DAY_START);
       else p = (minutesOfDay > DAY_END ? (minutesOfDay - DAY_END) : (minutesOfDay + (1440 - DAY_END))) / (1440 - (DAY_END - DAY_START));
       cx = 6 + p * 84; cy = 76 - Math.sin(p * Math.PI) * 60;
-      celestialStyle = ` style="--cel-x:${cx.toFixed(1)}%;--cel-y:${cy.toFixed(1)}%;"`;
+      const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
+      const smoothStep = (value, edge0, edge1) => {
+        if (value <= edge0) return 0;
+        if (value >= edge1) return 1;
+        return (value - edge0) / (edge1 - edge0);
+      };
+      const nightStrength = clamp(1 - smoothStep(minutesOfDay, 300, 660) + smoothStep(minutesOfDay, 1200, 1440), 0, 1);
+      const goldenStrength = clamp(1 - Math.abs(minutesOfDay - 17 * 60) / 90, 0, 1);
+      const sunsetStrength = clamp(1 - Math.abs(minutesOfDay - 18 * 60) / 90, 0, 1);
+      const starStrength = clamp(1 - smoothStep(minutesOfDay, 330, 720) + smoothStep(minutesOfDay, 1200, 1440), 0, 1);
+
+      const lowMoon = cy > 62;
+      celestialStyle = ` style="--cel-x:${cx.toFixed(1)}%;--cel-y:${cy.toFixed(1)}%;--cel-layer:${lowMoon ? 1 : 3};--scene-layer:${lowMoon ? 2 : 1};"`;
       sunVarsStyle = ` style="--sun-h:${p.toFixed(3)};--sun-alt:${Math.max(0, Math.sin(p * Math.PI)).toFixed(3)};"`;
+      sceneStyle = ` style="--scene-day-progress:${p.toFixed(3)};--scene-night-strength:${nightStrength.toFixed(3)};--scene-golden-strength:${goldenStrength.toFixed(3)};--scene-sunset-strength:${sunsetStrength.toFixed(3)};--scene-star-strength:${starStrength.toFixed(3)};"`;
     }
 
     if (Object.keys(data.scene).length > 0) {
@@ -2508,14 +968,8 @@ function scoreHudJsonCandidate(parsed) {
         </details>
         <details><summary>📱 Телефон — настройки темы</summary>
           <div class="hud-theme-grid">
-            <div style="font-size:11px;opacity:.68;grid-column:1/-1;">Телефонный эмулятор сейчас отключён из HUD. Эти настройки сохранены отдельно и не влияют на остальные блоки.</div>
-            <div class="hud-theme-row"><label>Фон (Старт):</label><div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="phoneBgStart" value="${settings.phoneBgStart}"><input type="range" class="hud-theme-range-input" data-key="phoneBgAlpha" min="0" max="100" value="${settings.phoneBgAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Фон (Конец):</label><input type="color" class="hud-theme-color-input" data-key="phoneBgEnd" value="${settings.phoneBgEnd}"></div>
             <div class="hud-theme-row"><label>Входящие сообщения:</label><div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="msgInBg" value="${settings.msgInBg}"><input type="range" class="hud-theme-range-input" data-key="msgInAlpha" min="0" max="100" value="${settings.msgInAlpha}"></div></div>
             <div class="hud-theme-row"><label>Исходящие сообщения:</label><div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="msgOutStart" value="${settings.msgOutStart}"><input type="color" class="hud-theme-color-input" data-key="msgOutEnd" value="${settings.msgOutEnd}"><input type="range" class="hud-theme-range-input" data-key="msgOutAlpha" min="0" max="100" value="${settings.msgOutAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Обои телефона:</label><input type="text" class="hud-theme-text-input" data-key="phoneWallpaper" value="${settings.phoneWallpaper}" placeholder="URL или data:image/..." style="width:100%;background:rgba(0,0,0,.5);color:#fff;border:1px solid rgba(255,255,255,.2);border-radius:4px;padding:3px 5px;"></div>
-            <div class="hud-theme-row"><label>Блюр обоев:</label><input type="range" class="hud-theme-range-input" data-key="phoneWallpaperBlur" min="0" max="30" value="${settings.phoneWallpaperBlur}"></div>
-            <div class="hud-theme-row"><label>Прозрачность обоев:</label><input type="range" class="hud-theme-range-input" data-key="phoneWallpaperOpacity" min="0" max="100" value="${settings.phoneWallpaperOpacity}"></div>
           </div>
         </details>
         <details><summary>🗂️ Верхние плашки & Табы</summary>
@@ -2600,7 +1054,7 @@ function scoreHudJsonCandidate(parsed) {
       for (let i = 1; i <= 6; i++) fireflies += `<span class="hud-firefly ff${i}"></span>`;
 
       html += `
-      <div class="hud-scene-widget ${phaseClass} ${wClass} ${wIntensity} ${tempClass} ${freezeClass} ${seasonClass} ${dustyClass} ${rainbowClass}" title="Нажмите для анимации">
+      <div class="hud-scene-widget ${phaseClass} ${wClass} ${wIntensity} ${tempClass} ${freezeClass} ${seasonClass} ${dustyClass} ${rainbowClass}"${sceneStyle} title="Нажмите для анимации">
         <div class="hud-fx-bg"></div>
         <div class="hud-fx-stars">${stars}</div>
         <div class="hud-fx-fireflies">${fireflies}</div>
@@ -2651,47 +1105,56 @@ function scoreHudJsonCandidate(parsed) {
       }
     }
 
-    if (settings.enablePhone && data.chatsMap) {
+    if (hasPhone) {
       const uid = `phone-${baseId}`;
       tabsHtml += `<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📱 Телефон</div>`;
-      contentHtml += buildPhoneTabsHTML(data.chatsMap, uid, isFirst, getSafeUserName());
+      contentHtml += buildPhoneTabsHTML(data.chatsMap, uid, isFirst, getSafeUserName(), data.phone);
       isFirst = false;
     }
 
     // === ВСТАВЛЯЕМ ВКЛАДКУ ПАМЯТИ СЮДА ===
-    if (settings.enableMemory && data.memory && (data.memory.timeline.length > 0 || data.memory.important.length > 0 || data.memory.secrets.length > 0 || (data.memory.mood && ((data.memory.mood.user && (data.memory.mood.user.current || data.memory.mood.user.history?.length)) || (data.memory.mood.char && (data.memory.mood.char.current || data.memory.mood.char.history?.length)))) || (data.memory.route && ((data.memory.route.user?.length || 0) > 0 || (data.memory.route.char?.length || 0) > 0)))) {
+    if (settings.enableMemory && hasMemory) {
       const uid = `memory-${baseId}`;
       tabsHtml += `<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🧠 Память</div>`;
-      contentHtml += buildMemoryHTML(data.memory, uid, isFirst);
+      try {
+        contentHtml += buildMemoryHTML(data.memory || {}, uid, isFirst, data);
+      } catch (e) {
+        console.error('[TavernOS HUD] Memory renderer failed; keeping later tabs available:', e);
+        contentHtml += `<div class="hud-tab-content ${isFirst ? 'active' : ''}" id="content-${uid}"><div class="hud-memory-error">🧠 Не удалось отобразить один из блоков памяти. Остальные вкладки HUD доступны.</div></div>`;
+      }
       isFirst = false;
     }
 
 
-    if (data.intercepts && data.intercepts.length > 0 && settings.enableIntercepts) {
+    // Preserve the original visibility contract: a top-level tab appears only
+    // when its section actually contains renderable data. Values such as
+    // "empty", "none" and "пусто" must not create an otherwise blank tab.
+    if (hudHasMeaningfulIntercepts(data.intercepts) && settings.enableIntercepts) {
       const uid = `intercept-${baseId}`;
       tabsHtml += `<div class="hud-tab intercept-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📡 Перехваты</div>`;
       contentHtml += buildInterceptsHTML(data.intercepts, uid, isFirst);
       isFirst = false;
     }
 
-    if (data.diary.length > 0 && settings.enableDiary) {
+    if (hudHasMeaningfulDiary(data.diary) && settings.enableDiary) {
       const uid = `diary-${baseId}`;
       tabsHtml += `<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📖 Дневник</div>`;
       contentHtml += buildDiaryHTML(data.diary, uid, isFirst);
       isFirst = false;
     }
 
-    if (data.dreams.length > 0 && settings.enableDreams) {
+    if (hudHasMeaningfulDreams(data.dreams) && settings.enableDreams) {
       const uid = `dream-${baseId}`;
       tabsHtml += `<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🌙 Сны</div>`;
       contentHtml += buildDreamHTML(data.dreams, uid, isFirst);
       isFirst = false;
     }
 
-    if (Object.values(data.world).some(arr => Array.isArray(arr) && arr.length > 0 && settings.enableWorld)) {
+    if (hudHasMeaningfulWorld(data.world) && settings.enableWorld) {
       const uid = `world-${baseId}`;
       tabsHtml += `<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🌍 Мир</div>`;
-      contentHtml += buildWorldHTML(data.world, uid, isFirst);
+      contentHtml += buildWorldHTML(data.world, uid, isFirst, settings.showComments);
+      isFirst = false;
     }
 
     html += tabsHtml + `</div><div class="hud-tabs-body">` + contentHtml + `</div></div></div>`;
@@ -3592,234 +2055,6 @@ function scoreHudJsonCandidate(parsed) {
     }, true);
   }
 
-  function initGlobalEvents() {
-    if (window.hudEventsInitialized) return;
-    window.hudEventsInitialized = true;
-
-    document.body.addEventListener('change', function(e) {
-      const toggle = e.target.closest('.hud-toggle-input');
-      if (!toggle) return;
-      const card = toggle.closest('.hud-os-card');
-      if (!card) return;
-      if (toggle.checked) card.dataset.userExpanded = 'true';
-      else delete card.dataset.userExpanded;
-    });
-
-    document.addEventListener('click', async function(e) {
-      // === НАЖАТИЕ НА КНОПКУ ПАПКИ ===
-      const uploadBtn = e.target.closest('.hud-bg-upload-btn');
-      if (uploadBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        const fileInput = uploadBtn.nextElementSibling;
-        if (fileInput && fileInput.classList.contains('hud-bg-upload-file')) {
-            // Привязываем загрузку
-            fileInput.onchange = (ev) => {
-                const file = ev.target.files[0];
-                if (!file) return;
-                if (file.size > 3 * 1024 * 1024) {
-                    showHudToast('error', 'Слишком большой файл', 'Выберите картинку до 3 МБ.');
-                    return;
-                }
-                const reader = new FileReader();
-                reader.onload = (readEv) => {
-                    settings.bgImage = readEv.target.result;
-                    saveSettings();
-                    applyThemeColors();
-                    // Красиво пишем во всех карточках, что файл локальный
-                    document.querySelectorAll('.hud-theme-text-input[data-key="bgImage"]').forEach(inp => inp.value = '(Локальный файл)');
-                    showHudToast('success', 'Фон загружен', 'Картинка успешно установлена!');
-                };
-                reader.readAsDataURL(file);
-            };
-            fileInput.click(); // Имитируем клик по скрытому инпуту
-        }
-        return;
-      }
-
-      const loreTip = e.target.closest('.hud-lore-tooltip');
-      if (loreTip) {
-        e.preventDefault();
-        e.stopPropagation();
-        const wasOpen = loreTip.classList.contains('tooltip-open');
-        document.querySelectorAll('.hud-lore-tooltip.tooltip-open').forEach(el => { if (el !== loreTip) el.classList.remove('tooltip-open'); });
-        loreTip.classList.toggle('tooltip-open', !wasOpen);
-        return;
-      }
-      document.querySelectorAll('.hud-lore-tooltip.tooltip-open').forEach(el => el.classList.remove('tooltip-open'));
-
-      const themeBtn = e.target.closest('.hud-theme-btn');
-      if (themeBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        const card = themeBtn.closest('.hud-os-card');
-        const panel = card.querySelector('.hud-theme-panel');
-        if (panel) panel.classList.toggle('active');
-        return;
-      }
-
-      const hudActionBtn = e.target.closest && e.target.closest('.hud-regen-btn');
-      if (hudActionBtn) {
-        e.preventDefault();
-        e.stopPropagation();
-        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
-        void handleHudRegenButton(hudActionBtn);
-        return;
-      }
-
-      const tab = e.target.closest('.hud-tab');
-      if (tab) {
-        e.preventDefault();
-        const parent = tab.closest('.hud-os-wrapper');
-        parent.querySelectorAll('.hud-tab').forEach(t => t.classList.remove('active'));
-        parent.querySelectorAll('.hud-tab-content').forEach(c => c.classList.remove('active'));
-        tab.classList.add('active');
-        parent.querySelector(`#${tab.dataset.target}`).classList.add('active');
-        return;
-      }
-
-      const secretToggle = e.target.closest('[data-secret-toggle]');
-      if (secretToggle) {
-        const id = secretToggle.getAttribute('data-secret-toggle');
-        const body = document.getElementById(id);
-        if (body) {
-          const open = !body.hidden;
-          body.hidden = open;
-          secretToggle.setAttribute('aria-expanded', String(!open));
-          secretToggle.closest('.hud-memory-secret')?.classList.toggle('is-open', !open);
-        }
-        return;
-      }
-
-      const participantsToggle = e.target.closest('.hud-phone-title-group');
-      if (participantsToggle && participantsToggle.querySelector('.hud-phone-participants-list')) {
-        e.preventDefault();
-        const list = participantsToggle.querySelector('.hud-phone-participants-list');
-        const mockup = participantsToggle.closest('.hud-phone-mockup');
-        if (mockup) {
-          mockup.querySelectorAll('.hud-phone-participants-list.active').forEach(el => {
-            if (el !== list) el.classList.remove('active');
-          });
-        }
-        list.classList.toggle('active');
-        return;
-      }
-
-      const subtab = e.target.closest('.hud-phone-subtab');
-      if (subtab) {
-        e.preventDefault();
-        const mockup = subtab.closest('.hud-phone-mockup');
-        mockup.querySelectorAll('.hud-phone-subtab').forEach(t => t.classList.remove('active'));
-        mockup.querySelectorAll('.hud-phone-subbody').forEach(b => b.classList.remove('active'));
-        subtab.classList.add('active');
-        mockup.querySelector(`#${subtab.dataset.subtarget}`).classList.add('active');
-        return;
-      }
-
-      const widget = e.target.closest('.hud-scene-widget');
-      if (widget) {
-        widget.classList.toggle('fx-active');
-      }
-
-    }, true); 
-
-    // ОБРАБОТЧИК ПОЛЗУНКОВ ЦВЕТА И ТЕМЫ
-    document.body.addEventListener('input', function(e) {
-      const themeInput = e.target.closest('.hud-theme-color-input, .hud-theme-range-input, .hud-theme-select-input, .hud-theme-text-input');
-      if (themeInput) {
-          const varKey = themeInput.dataset.key;
-          
-          if (varKey === 'bgImage') return; 
-          
-          settings[varKey] = themeInput.value;
-          
-          applyThemeColors(); 
-          saveSettings();     
-          
-          let displayVal = themeInput.nextElementSibling;
-          if (displayVal && displayVal.tagName === 'SPAN') {
-              displayVal.textContent = themeInput.value + 'px';
-          }
-          
-          document.querySelectorAll(`[data-key="${varKey}"]`).forEach(inp => {
-              if (inp !== themeInput) inp.value = themeInput.value;
-          });
-      }
-    });
-
-  }
-
-  let observer = null;
-
-  function initObserver(chatContainer) {
-    if (observer) {
-      observer.disconnect();
-    }
-
-    observer = new MutationObserver((mutations) => {
-      const touchedMessages = new Set();
-      let avatarChanged = false;
-
-      for (const mutation of mutations) {
-        // Изменился текст внутри сообщения.
-        if (mutation.type === 'characterData') {
-          const mes = mutation.target.parentElement?.closest?.('.mes');
-          if (mes) { touchedMessages.add(mes); }
-        }
-
-        // Добавились новые DOM-ноды.
-        mutation.addedNodes.forEach(node => {
-          if (node.nodeType !== Node.ELEMENT_NODE) return;
-          if (node.matches?.('.mes')) {
-            touchedMessages.add(node);
-            avatarChanged = true;
-            if (performanceIntersectionObserver) performanceIntersectionObserver.observe(node);
-          }
-          node.querySelectorAll?.('.mes').forEach(mes => {
-            touchedMessages.add(mes);
-            avatarChanged = true;
-            if (performanceIntersectionObserver) performanceIntersectionObserver.observe(mes);
-          });
-          if (node.matches?.('.avatar img, .avatar_img') || node.querySelector?.('.avatar img, .avatar_img')) avatarChanged = true;
-          const parentMes = node.closest?.('.mes');
-          if (parentMes) touchedMessages.add(parentMes);
-        });
-
-        // Изменение childList внутри существующего сообщения.
-        if (mutation.type === 'childList') {
-          const targetMes = mutation.target.closest?.('.mes');
-          if (targetMes) touchedMessages.add(targetMes);
-          if (mutation.target.closest?.('.avatar, .avatar img') || mutation.target.matches?.('.avatar, .avatar img')) avatarChanged = true;
-        }
-      }
-
-      if (!touchedMessages.size) return;
-      if (avatarChanged) invalidateAvatarCache();
-
-      // Не запускаем processMessage десятки раз подряд
-      // на одной пачке DOM-изменений.
-      requestAnimationFrame(() => {
-        const performanceActive = isPerformanceModeActive(chatContainer);
-        touchedMessages.forEach(mes => {
-          if (!mes.isConnected) return;
-          // В Performance Mode старые сообщения не гоняем через полный процессор на каждую
-          // внутреннюю мутацию. IntersectionObserver обработает их, когда они приблизятся к экрану.
-          if (performanceActive && mes.classList.contains('hud-perf-older') && !mes.classList.contains('hud-perf-visible')) return;
-          safeProcessMessage(mes);
-        });
-        if (performanceActive) refreshPerformanceMessageClasses();
-        schedulePerformanceRefresh();
-      });
-    });
-
-    observer.observe(chatContainer, {
-      childList: true,
-      subtree: true,
-      characterData: true,
-      characterDataOldValue: false
-    });
-  }
-
 
   function addSettingsUI() {
     if (document.getElementById('hud-settings-wrapper')) return;
@@ -4142,56 +2377,22 @@ function scoreHudJsonCandidate(parsed) {
     }
   }
   
-  function initTavernOSEvents() {
-  if (window.hudTavernEventsInitialized) return;
-  window.hudTavernEventsInitialized = true;
 
-  try {
-    const stContext =
-      window.SillyTavern?.getContext?.() ||
-      window.getContext?.();
-
-    const eventSource = stContext?.eventSource;
-    const eventTypes = stContext?.event_types;
-
-    if (!eventSource || !eventTypes) return;
-
-    const rerenderMessage = (messageId, delay = 50) => {
-      const id = String(messageId);
-      setTimeout(() => {
-        let mes = null;
-        const safeId = (window.CSS && typeof window.CSS.escape === 'function') ? window.CSS.escape(id) : id.replace(/[^a-zA-Z0-9_-]/g, '\\$&');
-        try {
-          mes = cachedChatContainer?.querySelector?.(`.mes[mesid=\"${safeId}\"]`) || null;
-        } catch (_) {}
-        if (!mes) {
-          mes = Array.from(cachedChatContainer?.querySelectorAll?.('.mes') || []).find(el => String(el.getAttribute('mesid')) === id);
-        }
-
-        if (!mes) return;
-
-        mes.removeAttribute('data-hud-processed');
-        requestAnimationFrame(() => {
-          if (mes.isConnected) safeProcessMessage(mes);
-        });
-      }, delay);
-    };
-
-    if (eventTypes.MESSAGE_UPDATED) {
-      eventSource.on(eventTypes.MESSAGE_UPDATED, (messageId) => rerenderMessage(messageId, 50));
-    }
-
-    if (eventTypes.MESSAGE_SWIPED) {
-      eventSource.on(eventTypes.MESSAGE_SWIPED, (messageId) => rerenderMessage(messageId, 50));
-    }
-
-    if (eventTypes.CHARACTER_MESSAGE_RENDERED) {
-      eventSource.on(eventTypes.CHARACTER_MESSAGE_RENDERED, (messageId) => rerenderMessage(messageId, 30));
-    }
-  } catch (_) {
-    // Lifecycle events are optional; the normal message processing still works without them.
-  }
-}
+  // Шов между index.js и events.js. Изменяемое состояние передаётся геттерами:
+  // cachedChatContainer переприсваивается здесь же, в initApp, а
+  // performanceIntersectionObserver создаётся и сбрасывается при смене
+  // performance-режима. settings и функции — стабильные ссылки.
+  const eventsCtx = {
+    getChatContainer: () => cachedChatContainer,
+    getPerformanceObserver: () => performanceIntersectionObserver,
+    saveSettings,
+    applyThemeColors,
+    showHudToast,
+    safeProcessMessage,
+    isPerformanceModeActive,
+    refreshPerformanceMessageClasses,
+    schedulePerformanceRefresh,
+  };
 
   let initRetries = 0;
   function initApp() {
@@ -4203,12 +2404,12 @@ function scoreHudJsonCandidate(parsed) {
     cachedChatContainer = chatContainer;
     loadSettings(); 
     restoreLastTavernRequest();
-    initGlobalEvents();
-    initTavernOSEvents();	
+    initGlobalEvents(eventsCtx);
+    initTavernOSEvents(eventsCtx);	
     initWandButton(); // Наша новая кнопка!
     updatePerformanceMode();
     processAllMessages(); 
-    initObserver(chatContainer);
+    initObserver(eventsCtx, chatContainer);
     if (isPerformanceModeActive(chatContainer)) setupPerformanceObserver();
     chatContainer.addEventListener('scroll', schedulePerformanceRefresh, { passive: true });
     addSettingsUI();
