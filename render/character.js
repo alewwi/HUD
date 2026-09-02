@@ -4,8 +4,8 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey } from '../utils.js';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey } from '../utils.js?v=22.5.8';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.5.8';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс'];
 const DRAMA_KEYS = ['ревность', 'конфликт', 'глубина конфликта'];

@@ -7,7 +7,7 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js';
+import { normalizeJSONData } from './schema.js?v=22.5.8';
 
 export function parseLegacyHUD(content) { return { scene: {}, characters: [], user: {}, memory: { timeline: [], mood: { user: { current: '', history: [] }, char: { current: '', history: [] } }, route: { user: [], char: [] }, important: [], secrets: [] }, intercepts: [], dreams: [], diary: [], world: { headlines: [], rumors: [], ads: [], comments: [] } }; }
 
@@ -638,4 +638,3 @@ export function parseHUDComplex(contentEncoded) {
   });
   throw new Error('HUD JSON parse failed: ' + (lastError ? lastError.message : 'invalid JSON'));
 }
-

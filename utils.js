@@ -57,28 +57,36 @@ export function applyTooltips(text) {
 //   дефис и апостроф — для двойных фамилий («Анна-Мария», «O’Brien»).
 // Прежний набор [A-Za-zА-Яа-яЁё0-9...] такие имена не пропускал, метка
 // не распознавалась, и кусок приклеивался к предыдущей пилюле.
-const PILL_LABEL_RE = /^([\p{L}\p{M}\p{N}\s/(),.'’\u2019-]{2,80}?)(:|—|–|\s-)\s*(.*)$/u;
+// Явные разделители списка: обычная «;», полноширинная «；» (U+FF1B),
+// арабская «؛» (U+061B) и перевод строки.
+const EXPLICIT_SPLIT_RE = /[;\uFF1B\u061B\n]+/;
+
+const PILL_LABEL_RE = /^([\p{L}\p{M}\p{N}\s/(),.'’\u2019-]{2,80}?)(:|\uFF1A|—|–|\s-)\s*(.*)$/u;
 
 export function buildPillList(value, pillClass, forceSeparate = false) {
-    let items = [];
     const raw = String(value);
-    // Явный разделитель (точка с запятой или перевод строки) — воля автора:
-    // каждый кусок становится отдельной пилюлей. Разбиение по «. » — эвристика
-    // для сплошного текста, и только там куски можно склеивать обратно.
-    const explicit = raw.includes(';') || raw.includes('\n');
-    let delimiter = raw.includes(';') ? ';' : (raw.includes('\n') ? '\n' : '. ');
-    let rawChunks = raw.split(delimiter).map(i => i.trim()).filter(i => i);
-    for (let chunk of rawChunks) {
-        let match = chunk.match(PILL_LABEL_RE);
+    // Явный разделитель — воля автора: каждый кусок становится отдельной
+    // пилюлей, даже если метку в нём распознать не удалось. Кроме обычной
+    // «;» ловим её полноширинный и арабский варианты: модель иногда
+    // отдаёт именно их, и текст склеивался в одну длинную пилюлю.
+    // Разбиение по «. » — эвристика для сплошного текста, и только там
+    // куски можно склеивать обратно в одно предложение.
+    const explicit = EXPLICIT_SPLIT_RE.test(raw);
+    const rawChunks = (explicit ? raw.split(EXPLICIT_SPLIT_RE) : raw.split('. '))
+        .map(i => i.trim()).filter(i => i);
+
+    const items = [];
+    for (const chunk of rawChunks) {
+        const match = chunk.match(PILL_LABEL_RE);
         if (match) { items.push({ label: match[1].trim(), sep: match[2], text: match[3] }); }
         else if (items.length > 0 && !forceSeparate && !explicit) {
             // Продолжение предыдущего предложения — дописываем в ту же пилюлю.
-            items[items.length - 1].text += delimiter + chunk;
+            items[items.length - 1].text += '. ' + chunk;
         }
         else { items.push({ label: '', sep: '', text: chunk }); }
     }
     return items.map(item => {
-        let labelHtml = item.label ? `<span class="hud-pill-label">${escapeHtml(item.label)}${escapeHtml(item.sep)}</span> ` : '';
+        const labelHtml = item.label ? `<span class="hud-pill-label">${escapeHtml(item.label)}${escapeHtml(item.sep)}</span> ` : '';
         return `<div class="${pillClass}">${labelHtml}${applyTooltips(item.text)}</div>`;
     }).join('');
 }

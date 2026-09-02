@@ -3,7 +3,7 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHasMeaningfulValue } from '../utils.js';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue } from '../utils.js?v=22.5.8';
 
 export function buildInterceptsHTML(interceptsData, uid, isChecked) {
   let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-phone-mockup intercept-mode">`;

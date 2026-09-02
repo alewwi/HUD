@@ -267,6 +267,9 @@
     cursor: pointer;
     isolation: isolate;
     contain: layout paint style;
+    /* Снег меряется от ширины самого виджета (cqi), а не от вьюпорта:
+       на телефоне и на ПК плотность хлопьев выглядит одинаково. */
+    container-type: inline-size;
     --sky-top: #1b2233; --sky-mid: #232c42; --sky-bot: #0c0e15;
     --scene-glow: rgba(222, 133, 159, 0.12);
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -1px 0 rgba(0,0,0,0.3);
@@ -290,8 +293,11 @@
     position: absolute; inset: 0; pointer-events: none;
     z-index: var(--bg-layer, 0);
 }
-.hud-fx-celestial { z-index: var(--cel-layer, 3); }
-.hud-fx-season-scene { z-index: var(--scene-layer, 1); }
+/* Порядок слоёв неба: фон (0) → светило (1) → пейзаж и облачный
+   покров (2). Солнце и луна всегда позади деревьев и облаков. */
+.hud-fx-celestial { z-index: var(--cel-layer, 1); }
+.hud-fx-season-scene { z-index: var(--scene-layer, 2); }
+.hud-fx-cloud-cover { z-index: var(--scene-layer, 2); }
 
 /* ЗАМОРОЗКА АНИМАЦИЙ ДО КЛИКА/НАВЕДЕНИЯ */
 .hud-fx-weather, .hud-fx-season-scene, .hud-fx-temp, .hud-fx-storm-flash, .hud-fx-cloud-cover,
@@ -478,7 +484,7 @@
         radial-gradient(30% 55% at 85% 60%, rgba(190,196,210,0.7), transparent 72%);
     background-size: 140px 60px; background-repeat: no-repeat;
     background-position: -160px 12px;
-    animation: hud-cloud-cover-pass 11s ease-in-out infinite;
+    animation: hud-cloud-cover-pass calc(11s * var(--gust, 1)) ease-in-out infinite;
 }
 @keyframes hud-cloud-cover-pass {
     0%   { background-position: -160px 12px; opacity: 0; }
@@ -491,7 +497,10 @@
 .weather-cloudy .hud-fx-celestial { transition: opacity 1.4s ease, filter 1.4s ease; }
 
 /* --- ДОЖДЬ И ТУЧИ: Мягкое пушистое облако и центрированные капли --- */
-.weather-rain .hud-fx-weather { background: linear-gradient(180deg, rgba(170,185,210,0.16) 0%, transparent 55%); }
+.weather-rain .hud-fx-weather {
+    --rain-tilt: 10deg; --rain-dur: 2.2s; --cloud-dur: 6s;
+    background: linear-gradient(180deg, rgba(170,185,210,0.16) 0%, transparent 55%);
+}
 .weather-rain .hud-fx-weather::before {
     content: ''; position: absolute; top: 12px; left: 40px; width: 50px; height: 14px; z-index: 2;
     background: #e1e8f2;
@@ -502,14 +511,14 @@
         -6px -8px 0 2px #e1e8f2,
         8px -10px 0 3px #e1e8f2;
     filter: blur(1.5px) drop-shadow(0 4px 5px rgba(0,0,0,0.3));
-    animation: hud-cloud-drift 6s ease-in-out infinite alternate;
+    animation: hud-cloud-drift calc(var(--cloud-dur) * var(--gust, 1)) ease-in-out infinite alternate;
 }
 .weather-rain .hud-fx-weather::after {
     content: ''; position: absolute; top: 28px; left: 15px; width: 90px; height: 110px; z-index: 1;
     background-image: radial-gradient(ellipse 2px 8px at 50% 50%, rgba(222, 233, 252, 0.7) 0%, transparent 100%);
     background-size: 16px 32px;
-    animation: hud-rain-fall 2.2s linear infinite;
-    transform: rotate(10deg);
+    animation: hud-rain-fall calc(var(--rain-dur) * var(--gust, 1)) linear infinite;
+    transform: rotate(calc(var(--rain-tilt) + var(--rain-tilt-extra, 0deg)));
     -webkit-mask-image: linear-gradient(to bottom, black 6%, transparent 92%);
             mask-image: linear-gradient(to bottom, black 6%, transparent 92%);
 }
@@ -524,14 +533,14 @@
         15px 4px 0 -2px #8997ac,
         -6px -8px 0 2px #b8c4d6,
         8px -10px 0 3px #cdd7e5;
-    animation-duration: 3.5s; 
+    animation-duration: calc(3.5s * var(--gust, 1)); 
 }
 .weather-rain.weather-intensity-high .hud-fx-weather::after {
     width: 90px; height: 140px; left: 10px; top: 30px;
     background-image: radial-gradient(ellipse 2px 12px at 50% 50%, rgba(232, 241, 255, 0.85) 0%, transparent 100%);
     background-size: 12px 24px;
-    animation: hud-rain-fall-heavy 1.1s linear infinite;
-    transform: rotate(15deg);
+    animation: hud-rain-fall-heavy calc(1.1s * var(--gust, 1)) linear infinite;
+    transform: rotate(calc(15deg + var(--rain-tilt-extra, 0deg)));
     opacity: 0.95;
 }
 @keyframes hud-rain-fall-heavy { from { background-position: 0 0; } to { background-position: 0 24px; } }
@@ -541,111 +550,220 @@
     width: 70px; height: 100px; left: 20px; top: 30px;
     background-image: radial-gradient(ellipse 1.5px 6px at 50% 50%, rgba(210, 224, 246, 0.5) 0%, transparent 100%);
     background-size: 20px 40px;
-    animation: hud-rain-fall 4s linear infinite;
-    transform: rotate(5deg);
+    animation: hud-rain-fall calc(4s * var(--gust, 1)) linear infinite;
+    transform: rotate(calc(5deg + var(--rain-tilt-extra, 0deg)));
     opacity: 0.6;
 }
 
-/* --- СНЕГ / СНЕГОПАД --- */
-.weather-snow .hud-fx-weather {
-    background-image:
-        radial-gradient(circle, rgba(255,255,255,0.7) 1.5px, transparent 2px),
-        radial-gradient(circle, rgba(255,255,255,0.4) 1px, transparent 1.5px);
-    background-size: 140px 140px, 90px 90px;
-    animation: hud-snow-fall 12s linear infinite;
-}
-@keyframes hud-snow-fall { 0% { background-position: 0 0, 0 0; } 100% { background-position: 24px 140px, -16px 90px; } }
+/* Старая версия снега (плоская решётка из кружков, keyframes
+   hud-snow-fall) удалена в 22.4.0 — её перебивал блок ниже, но она
+   продолжала спорить за animation-play-state. См. «--- СНЕГ ---». */
 
-/* Метель / вьюга — исправленная плавная математика */
-.weather-snow.weather-intensity-high .hud-fx-weather {
-    background-image:
-        radial-gradient(circle, rgba(255,255,255,0.9) 2px, transparent 3px),
-        radial-gradient(circle, rgba(255,255,255,0.7) 1.5px, transparent 2px),
-        radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1.5px);
-    background-size: 70px 70px, 50px 100px, 34px 60px;
-    animation: hud-blizzard-fall 1.5s linear infinite;
-    opacity: 0.95;
-}
-/* X и Y на 100% теперь строго кратны background-size — рывков больше не будет! */
-@keyframes hud-blizzard-fall {
-    0%   { background-position: 0px 0px, 0px 0px, 0px 0px; }
-    100% { background-position: 140px 140px, 100px 200px, 68px 120px; }
-}
+/* Старая решётка метели (hud-blizzard-fall) удалена в 22.4.1.
+   Её селектор .weather-snow.weather-intensity-high .hud-fx-weather имел
+   специфичность выше нового .weather-snow .hud-fx-weather, поэтому при
+   сильном снегопаде поверх нового движка продолжал рисоваться прежний
+   слой из трёх одинаковых кружков — он и дёргался. Плотность метели
+   теперь задают планы снега, см. «--- СНЕГ ---». */
 
 /* Метель: мягкая густая дымка */
+/* Дымка метели. Раньше это был прогон background-position на 400%
+   ширины за 3 секунды — перерисовка всего слоя каждый кадр и заметное
+   мельтешение. Метели хватает спокойной вуали, которая чуть дышит:
+   меняется только opacity, а её композитор считает даром. */
 .weather-snow.weather-intensity-high .hud-fx-weather::before {
     content: ''; position: absolute; inset: 0; z-index: 1;
-    background: linear-gradient(100deg, rgba(230,236,248,0.1) 0%, rgba(255,255,255,0.35) 50%, rgba(230,236,248,0.1) 100%);
-    background-size: 200% 100%;
-    animation: hud-blizzard-haze 3s linear infinite;
+    background:
+      linear-gradient(107deg, rgba(230,236,248,.05) 0%, rgba(255,255,255,.19) 46%, rgba(230,236,248,.05) 100%),
+      linear-gradient(180deg, rgba(226,238,255,.10) 0%, transparent 62%);
+    animation-name: hud-blizzard-haze;
+    animation-duration: 6.5s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
 }
-@keyframes hud-blizzard-haze { 
-    0% { background-position: 200% 0; } 
-    100% { background-position: -200% 0; } 
+@keyframes hud-blizzard-haze {
+    from { opacity: .55; }
+    to   { opacity: 1; }
 }
 
 /* Метель: горизонтальные снежные вихри вместо грубых палок */
+/* Косые вихри позёмки. Движение переведено на transform: прежний
+   прогон background-position на 80px за секунду перерисовывал весь слой
+   каждый кадр — отсюда и рывки. Сдвиг равен ровно одной плитке, поэтому
+   петля незаметна; запас по краям закрывает уехавший угол.
+   Обе плитки приведены к одному размеру, иначе одним трансформом их
+   бесшовно не сдвинуть. */
 .weather-snow.weather-intensity-high .hud-fx-weather::after {
-    content: ''; position: absolute; left: -10%; right: -10%; bottom: 0; height: 100%; z-index: 2;
-    background-image: 
-        radial-gradient(ellipse 20px 1.5px at 50% 50%, rgba(255,255,255,0.7) 0%, transparent 100%),
-        radial-gradient(ellipse 35px 2px at 50% 50%, rgba(255,255,255,0.4) 0%, transparent 100%);
-    background-size: 80px 40px, 120px 70px;
-    animation: hud-blizzard-drift 1s linear infinite;
-    transform: rotate(15deg) scale(1.2);
+    content: ''; position: absolute; inset: -30%; z-index: 2;
+    background-image:
+        radial-gradient(ellipse 20px 1.5px at 50% 50%, rgba(255,255,255,.62) 0%, transparent 100%),
+        radial-gradient(ellipse 35px 2px  at 50% 50%, rgba(255,255,255,.34) 0%, transparent 100%);
+    background-size: 96px 48px;
+    background-position: 0 0, 48px 26px;
+    transform: rotate(15deg) scale(1.2) translate3d(0, 0, 0);
+    will-change: transform;
+    animation-name: hud-blizzard-drift;
+    animation-duration: 1.15s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
     -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
             mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
 }
-@keyframes hud-blizzard-drift { 
-    0% { background-position: 0 0, 0 0; } 
-    100% { background-position: 80px 40px, 120px 70px; } 
+@keyframes hud-blizzard-drift {
+    from { transform: rotate(15deg) scale(1.2) translate3d(0, 0, 0); }
+    to   { transform: rotate(15deg) scale(1.2) translate3d(96px, 48px, 0); }
 }
 
 .weather-fog .hud-fx-weather {
     background: linear-gradient(to top, rgba(230,235,245,0.3), transparent 65%),
                 radial-gradient(70% 40% at 50% 60%, rgba(230,235,245,0.18), transparent 75%);
-    animation: hud-fog-drift 9s ease-in-out infinite alternate;
+    animation: hud-fog-drift calc(9s * var(--gust, 1)) ease-in-out infinite alternate;
 }
 .weather-fog .hud-fx-weather::before {
     content: ''; position: absolute; inset: 0; z-index: 1;
     background: radial-gradient(90% 30% at 20% 75%, rgba(225,232,244,0.4), transparent 70%),
                 radial-gradient(70% 26% at 80% 40%, rgba(225,232,244,0.28), transparent 70%);
-    animation: hud-fog-parallax-far 16s ease-in-out infinite alternate;
+    animation: hud-fog-parallax-far calc(16s * var(--gust, 1)) ease-in-out infinite alternate;
 }
 .weather-fog .hud-fx-weather::after {
     content: ''; position: absolute; inset: 0; z-index: 2;
     background: radial-gradient(80% 22% at 60% 85%, rgba(240,244,250,0.5), transparent 70%),
                 radial-gradient(60% 20% at 15% 55%, rgba(240,244,250,0.32), transparent 70%);
-    animation: hud-fog-parallax-near 8s ease-in-out infinite alternate;
+    animation: hud-fog-parallax-near calc(8s * var(--gust, 1)) ease-in-out infinite alternate;
 }
 @keyframes hud-fog-drift { 0% { transform: translateY(4px); opacity: 0.5; } 100% { transform: translateY(-4px); opacity: 0.85; } }
 @keyframes hud-fog-parallax-far  { 0% { transform: translateX(-10px); } 100% { transform: translateX(10px); } }
 @keyframes hud-fog-parallax-near { 0% { transform: translateX(8px);  } 100% { transform: translateX(-8px); } }
 
+/* --- ВЕТЕР --------------------------------------------------------------
+   Раньше весь ветер был одной полосой в 8% белого, которая проезжала через
+   background-position за 8 секунд, да ещё и лежала под пейзажем (z-index по
+   умолчанию 0 против 2 у сцены). На фоне виджета это не читалось вовсе, а
+   «сильный» отличался от обычного только длительностью той же полосы —
+   поэтому шквалистый ветер выглядел как штиль.
+   Теперь три слоя, все двигаются через transform/translate:
+     фон      — продольная дымка, задаёт направление и «дышит»;
+     ::before — поток штрихов, едет постоянно и бесшовно (сдвиг ровно на
+                плитку), с наложенной пульсацией плотности;
+     ::after  — сам шквал: широкий порыв налетает рывком, проходит и
+                оставляет затишье.
+   Шквалистость держится на том, что периоды потока, порыва и дыхания не
+   кратны друг другу (4.3 / 6.7 / 7.1 с): накладываясь, они дают неровный
+   рисунок вместо метронома. */
 .weather-wind .hud-fx-weather {
-    background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,0.03) 45%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 55%, transparent 100%);
-    background-size: 260% 100%;
-    animation: hud-breeze 8s ease-in-out infinite;
+    --wind-tile: clamp(120px, 30cqi, 280px);
+    --wind-flow: 3.4s;
+    --wind-gust: 6.7s;
+    --wind-breath: 7.1s;
+    --wind-strength: .42;
+    z-index: 8;
+    background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,.03) 50%, transparent 100%);
+    animation-name: hud-wind-breath;
+    animation-duration: var(--wind-breath);
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
 }
-@keyframes hud-breeze { 0% { background-position: 200% 0; opacity: 0; } 25% { opacity: 0.85; } 75% { opacity: 0.85; } 100% { background-position: -100% 0; opacity: 0; } }
-.weather-wind.weather-intensity-high .hud-fx-weather { animation-duration: 3.5s; }
-.weather-wind.weather-intensity-high .hud-flower,
+@keyframes hud-wind-breath { from { opacity: .55; } to { opacity: 1; } }
 
-.weather-hail .hud-fx-weather { background: linear-gradient(180deg, rgba(200,210,225,0.2) 0%, transparent 55%); }
+/* Поток штрихов: плитка вытянута по горизонтали, сдвиг за цикл равен ей
+   ровно, поэтому петля бесшовна. Небольшой вертикальный снос даёт наклон. */
+.weather-wind .hud-fx-weather::before {
+    content: ''; position: absolute; z-index: 2; pointer-events: none;
+    top: calc(-1 * var(--wind-tile) * .17); right: 0; bottom: 0;
+    left: calc(-1 * var(--wind-tile));
+    background-repeat: repeat;
+    background-size: var(--wind-tile) calc(var(--wind-tile) * .17);
+    background-image:
+        radial-gradient(ellipse 30px 1.1px at 22% 30%, rgba(255,255,255,.5)  0 58%, transparent 100%),
+        radial-gradient(ellipse 44px 1.3px at 68% 62%, rgba(255,255,255,.36) 0 58%, transparent 100%),
+        radial-gradient(ellipse 20px .9px  at 45% 86%, rgba(255,255,255,.28) 0 58%, transparent 100%);
+    opacity: var(--wind-strength);
+    animation-name: hud-wind-flow, hud-wind-surge;
+    animation-duration: var(--wind-flow), 4.3s;
+    animation-timing-function: linear, ease-in-out;
+    animation-iteration-count: infinite, infinite;
+    animation-direction: normal, alternate;
+    will-change: translate, opacity;
+}
+@keyframes hud-wind-flow {
+    from { translate: 0 0; }
+    to   { translate: var(--wind-tile) calc(var(--wind-tile) * .17); }
+}
+@keyframes hud-wind-surge {
+    from { opacity: calc(var(--wind-strength) * .45); }
+    to   { opacity: var(--wind-strength); }
+}
+
+/* Порыв: налетает рывком, проходит и оставляет затишье до следующего. */
+.weather-wind .hud-fx-weather::after {
+    content: ''; position: absolute; inset: 0; z-index: 3; pointer-events: none;
+    background: linear-gradient(100deg, transparent 34%, rgba(255,255,255,.16) 46%, rgba(255,255,255,.3) 50%, rgba(255,255,255,.16) 54%, transparent 66%);
+    opacity: 0;
+    animation-name: hud-wind-gust;
+    animation-duration: var(--wind-gust);
+    animation-timing-function: cubic-bezier(.25, .75, .35, 1);
+    animation-iteration-count: infinite;
+    will-change: translate, opacity;
+}
+@keyframes hud-wind-gust {
+    0%   { translate: -75% 0; opacity: 0; }
+    10%  { opacity: calc(var(--wind-strength) * .9); }
+    42%  { opacity: calc(var(--wind-strength) * .9); }
+    58%  { translate: 75% 0; opacity: 0; }
+    100% { translate: 75% 0; opacity: 0; }
+}
+
+/* Сильный, штормовой, шквалистый: поток плотнее и быстрее, порывы вдвое
+   чаще и заметно жёстче. */
+.weather-wind.weather-intensity-high .hud-fx-weather {
+    --wind-tile: clamp(80px, 20cqi, 190px);
+    --wind-flow: 1.5s;
+    --wind-gust: 3.1s;
+    --wind-breath: 4.7s;
+    --wind-strength: .8;
+    background: linear-gradient(100deg, transparent 0%, rgba(255,255,255,.06) 50%, transparent 100%);
+}
+
+/* Град — не снег: летит быстро, почти по прямой, льдинками, а не мягкими
+   хлопьями. Раньше точки строились как чёткий 2px circle с обрывом на
+   2.6px — на практике это тоже уходит в антиалиасинг почти целиком (та же
+   причина, по которой снег до 22.4.2 был не виден, см. «--- СНЕГ» выше) и
+   плюс двигались через background-position (перерисовка слоя каждый кадр,
+   см. там же). Ниже — тот же приём, что и у снега: жёсткое ядро с
+   растушёвкой только на самом краю, но льдинки вытянуты по вертикали
+   (мягкий снег — circle, град — короткий штрих) и в холодном
+   голубовато-сером тоне, а не белом, и падают почти отвесно и заметно
+   быстрее. Движение — transform. */
+.weather-hail .hud-fx-weather { background: linear-gradient(180deg, rgba(190,205,225,0.22) 0%, transparent 55%); }
 .weather-hail .hud-fx-weather::before {
-    content: ''; position: absolute; inset: 0; z-index: 2;
-    background-image: radial-gradient(circle, rgba(235,240,250,0.95) 2px, transparent 2.6px);
-    background-size: 34px 60px;
-    animation: hud-hail-fall 0.9s linear infinite;
+    content: ''; position: absolute; inset: -18% -8%; z-index: 2; pointer-events: none;
+    background-image:
+        radial-gradient(ellipse 2.2px 5.4px, rgba(213,227,245,.95) 0 58%, transparent 100%),
+        radial-gradient(ellipse 1.7px 4.2px, rgba(213,227,245,.8)  0 58%, transparent 100%),
+        radial-gradient(ellipse 2.6px 6.2px, rgba(213,227,245,.68) 0 58%, transparent 100%),
+        radial-gradient(ellipse 1.5px 3.7px, rgba(213,227,245,.55) 0 58%, transparent 100%);
+    background-size: 32px 32px;
+    background-position: 0 0, 13px 8px, 22px 19px, 6px 24px;
+    transform: rotate(var(--hail-tilt, 6deg)) translate3d(0, 0, 0);
+    will-change: transform;
+    animation-name: hud-hail-fall;
+    animation-duration: calc(0.6s * var(--gust, 1));
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
 }
-@keyframes hud-hail-fall { 0% { background-position: 0 -20px; } 100% { background-position: -10px 60px; } }
+@keyframes hud-hail-fall {
+    from { transform: rotate(var(--hail-tilt, 6deg)) translate3d(0, 0, 0); }
+    to   { transform: rotate(var(--hail-tilt, 6deg)) translate3d(0, 32px, 0); }
+}
 .weather-hail .hud-fx-weather::after {
-    content: ''; position: absolute; left: 10%; right: 10%; bottom: 6px; height: 3px; z-index: 1;
-    background-image: radial-gradient(circle, rgba(235,240,250,0.7) 1.5px, transparent 2px);
-    background-size: 22px 3px;
-    animation: hud-hail-bounce 0.5s ease-in-out infinite alternate;
+    content: ''; position: absolute; left: 8%; right: 8%; bottom: 6px; height: 4px; z-index: 1; pointer-events: none;
+    background-image: radial-gradient(circle 1.8px, rgba(220,233,248,0.9) 0 70%, transparent 100%);
+    background-size: 20px 4px;
+    animation: hud-hail-bounce calc(0.45s * var(--gust, 1)) ease-in-out infinite alternate;
 }
-@keyframes hud-hail-bounce { 0% { transform: translateY(0); opacity: 0.8; } 100% { transform: translateY(-3px); opacity: 0.3; } }
+@keyframes hud-hail-bounce { 0% { transform: translateY(0); opacity: 0.85; } 100% { transform: translateY(-4px); opacity: 0.25; } }
 
 .weather-storm .hud-fx-bg { filter: grayscale(0.45) brightness(0.7); }
 .weather-storm .hud-fx-weather {
@@ -716,12 +834,36 @@
 @keyframes hud-heat-shimmer { 0% { opacity: 0.4; } 100% { opacity: 0.85; } }
 
 .hud-fx-frost { z-index: 2; }
+/* В покое общая заморозка держит слой на 12% — иней пропадал вовсе.
+   Поднимаем до различимого, но не громкого уровня. */
+.temp-freezing:not(.fx-active) .hud-fx-frost { opacity: .42; }
 .temp-freezing .hud-fx-frost {
-    background: radial-gradient(circle, rgba(235,245,255,0.9) 0.6px, transparent 1px);
-    background-size: 10px 10px;
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 55%, black 100%);
-            mask-image: linear-gradient(to bottom, transparent 0%, black 55%, black 100%);
+    /* Было: radial-gradient точкой 0.6px с плиткой 10x10 — идеальная
+       решётка одинаковых кружков по всему кадру. Именно её было видно
+       как «горошек» при −12 °C и ниже (порог temp-freezing), а вовсе не
+       снегопад: при −7 °C этого слоя нет вообще.
+       Стало: иней нарастает от краёв внутрь, как на оконном стекле —
+       игольчатые кристаллы под разными углами плюс редкие искры.
+       Маска гасит середину кадра, поэтому центр остаётся чистым. */
+    background-image:
+      repeating-linear-gradient(63deg,  rgba(226,242,255,.20) 0 1px, transparent 1px 9px),
+      repeating-linear-gradient(-51deg, rgba(214,236,255,.15) 0 1px, transparent 1px 13px),
+      repeating-linear-gradient(17deg,  rgba(236,247,255,.11) 0 1px, transparent 1px 19px),
+      radial-gradient(ellipse .7px 1px at 50% 50%, rgba(255,255,255,.7) 0 50%, transparent 62%);
+    background-size: auto, auto, auto, 47px 39px;
+    -webkit-mask-image: radial-gradient(118% 128% at 50% 46%, transparent 34%, rgba(0,0,0,.5) 66%, #000 100%);
+            mask-image: radial-gradient(118% 128% at 50% 46%, transparent 34%, rgba(0,0,0,.5) 66%, #000 100%);
     animation: hud-frost-shimmer 5s ease-in-out infinite alternate;
+}
+/* Морозные «перья» по углам: там стекло замерзает первым. */
+.temp-freezing .hud-fx-frost::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+      radial-gradient(42% 58% at 0% 0%,     rgba(228,244,255,.22), transparent 72%),
+      radial-gradient(38% 52% at 100% 0%,   rgba(220,240,255,.19), transparent 72%),
+      radial-gradient(46% 42% at 0% 100%,   rgba(230,245,255,.15), transparent 74%),
+      radial-gradient(42% 38% at 100% 100%, rgba(226,242,255,.14), transparent 74%);
+    filter: blur(2px);
 }
 @keyframes hud-frost-shimmer { 0% { opacity: 0.5; } 100% { opacity: 0.85; } }
 .temp-freezing .hud-fx-season-scene { filter: saturate(0.75) brightness(1.03); }
@@ -1574,6 +1716,26 @@
    ДНЕВНИК (Тетрадный лист и курсив)
    ========================================= */
 .hud-diary-container { display: flex; flex-direction: column; gap: 16px; max-height: 380px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 6px; }
+
+/* Прокручиваемая колонка на flex: по умолчанию flex-элементы СЖИМАЮТСЯ.
+   При max-height содержимое не выходило за край, а расплющивалось — от
+   записи дневника оставалась полоска с именем автора, а сам контейнер
+   считал, что переполнения нет, и не прокручивался. На телефоне это
+   выглядело как «дневник не скролится». Запрещаем сжатие потомков. */
+.hud-diary-container > *,
+.hud-dream-container > *,
+.hud-world-scroll > *,
+.hud-phone-chat-area > *,
+.hud-phone-chat-list > * { flex-shrink: 0; }
+
+/* Жест прокрутки не «протекает» на чат SillyTavern, когда список
+   докручен до края. */
+.hud-diary-container,
+.hud-dream-container,
+.hud-world-scroll,
+.hud-memory-body.hud-memory-scroll,
+.hud-phone-chat-area,
+.hud-phone-chat-list { overscroll-behavior: contain; touch-action: pan-y; }
 .hud-diary-entry {
     background: #1a1a24;
     background-image: repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.07) 25px, rgba(255,255,255,0.07) 26px);
@@ -1976,7 +2138,7 @@
     50% { box-shadow: 4px 0 10px rgba(0,0,0,0.45), 0 0 10px 2px rgba(239, 68, 68, 0.55); }
 }
 
-.hud-dream-container { display: flex; flex-direction: column; gap: 12px; max-height: 380px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 6px; background: linear-gradient(135deg, rgba(8, 30, 45, 0.8), rgba(15, 23, 42, 0.9)); border-radius: 12px; padding: 16px; border: 1px solid rgba(45, 212, 191, 0.3); box-shadow: inset 0 0 30px rgba(45, 212, 191, 0.15); position: relative; overflow: hidden; }
+.hud-dream-container { display: flex; flex-direction: column; gap: 12px; max-height: 380px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 6px; background: linear-gradient(135deg, rgba(8, 30, 45, 0.8), rgba(15, 23, 42, 0.9)); border-radius: 12px; padding: 16px; border: 1px solid rgba(45, 212, 191, 0.3); box-shadow: inset 0 0 30px rgba(45, 212, 191, 0.15); position: relative; overflow-x: hidden; }
 .hud-dream-moon { font-size: 1.1em; color: #5eead4; font-weight: bold; letter-spacing: 2px; margin-bottom: 8px; text-shadow: 0 0 10px rgba(94, 234, 212, 0.6); animation: moonPulse 4s infinite alternate ease-in-out; animation-play-state: paused; cursor: pointer; display: inline-block; }
 @keyframes moonPulse { 0% { opacity: 0.8; text-shadow: 0 0 8px rgba(94, 234, 212, 0.4); } 100% { opacity: 1; text-shadow: 0 0 16px rgba(94, 234, 212, 0.8); } }
 .hud-dream-moon.fx-active { animation-play-state: running; }
@@ -2205,8 +2367,8 @@
     .season-autumn .hud-fallen-apple { animation-duration:46s; z-index:13; }
     .season-autumn .hud-burrow-animal { animation-duration:46s; }
     .season-autumn .hud-tree-leaf { animation-duration:10s; }
-    .season-autumn .hud-bg-tree-autumn-foliage { opacity:.25; filter:none; }
-    .season-autumn .hud-bg-tree-autumn-foliage.foliage-2 { opacity:.36; }
+    .season-autumn .hud-bg-tree-autumn-foliage { opacity:.74; filter:none; }
+    .season-autumn .hud-bg-tree-autumn-foliage.foliage-2 { opacity:.88; }
     .hud-phone-subtab { padding: 8px 12px; font-size: 0.85em; }
     .hud-tabs-header { padding: 12px 8px 0 8px; }
     .hud-tab { padding: 10px 14px; font-size: 0.95em; }
@@ -2221,23 +2383,37 @@
     }
     .hud-fx-bg::before { display: none; }
     .weather-rain .hud-fx-weather::before { filter: none; }
-    .weather-fog .hud-fx-weather { animation-duration: 12s; }
+    .weather-fog .hud-fx-weather { animation-duration: calc(12s * var(--gust, 1)); }
     .weather-storm .hud-fx-storm-flash { animation-duration: 9s; }
 }
 
 @media (max-width: 420px) and (pointer: coarse) {
-    .hud-fx-celestial { animation: none; }
-    .hud-scene-widget.fx-active .hud-fx-weather,
-    .hud-scene-widget.fx-active .hud-fx-season-scene,
-    .hud-scene-widget.fx-active .hud-fx-temp,
-    .hud-scene-widget.fx-active .hud-fx-storm-flash,
-    .hud-scene-widget.fx-active .hud-fx-cloud-cover,
-    .hud-fx-weather, .hud-fx-season-scene, .hud-fx-season-scene *, .hud-fx-temp, .hud-fx-storm-flash, .hud-fx-cloud-cover {
-        animation: none !important;
-        opacity: 0.5;
+    /* Узкий экран: сцена спокойная, пока по виджету не тапнули.
+       Было `animation: none !important` для .hud-fx-weather без оговорки
+       про .fx-active. Сокращённая запись попутно выставляет
+       animation-play-state:running, и стояла она ПОЗЖЕ правил заморозки —
+       поэтому на телефоне снег и погода шли сами по себе, без тапа.
+       Второе: `opacity: .5` висела на КАЖДОМ потомке сцены и умножалась
+       на собственную прозрачность дерева (0.42) и кроны, из-за чего
+       весной и осенью деревья выглядели голыми.
+       Теперь на телефоне анимации не выключены, а поставлены на паузу —
+       и только пока виджет не активирован. */
+    .hud-fx-celestial { animation-name: none !important; }
+    .hud-scene-widget:not(.fx-active) .hud-fx-weather,
+    .hud-scene-widget:not(.fx-active) .hud-fx-weather::before,
+    .hud-scene-widget:not(.fx-active) .hud-fx-weather::after,
+    .hud-scene-widget:not(.fx-active) .hud-fx-season-scene,
+    .hud-scene-widget:not(.fx-active) .hud-fx-season-scene *,
+    .hud-scene-widget:not(.fx-active) .hud-fx-temp,
+    .hud-scene-widget:not(.fx-active) .hud-fx-storm-flash,
+    .hud-scene-widget:not(.fx-active) .hud-fx-cloud-cover,
+    .hud-scene-widget:not(.fx-active) .hud-fx-cloud-cover::before {
+        animation-play-state: paused !important;
     }
-    .hud-fx-storm-flash { opacity: 0 !important; }
-    .hud-fx-season-scene { opacity: 0.9; animation: none; }
+    .hud-scene-widget:not(.fx-active) .hud-fx-storm-flash { opacity: 0 !important; }
+    /* Сезонная декорация на телефоне видна и в покое: иначе от пейзажа
+       остаётся пустое небо, пока по нему не тапнешь. */
+    .hud-scene-widget:not(.fx-active) .hud-fx-season-scene { opacity: 0.78; }
 }
 
 /* =========================================
@@ -2298,10 +2474,25 @@
     .hud-scene-atm { white-space: normal; word-wrap: break-word; text-align: center; width: 100%; font-size: 0.88em; }
     .hud-fx-bg, .hud-fx-season-scene, .hud-fx-weather { height: 100%; width: 100%; }
 
+    /* Светило на телефоне ездит по небу так же, как на десктопе.
+       Раньше здесь стояло left:auto/right:20px !important — солнце и луна
+       были прибиты к правому верхнему углу в любое время суток, и вся дуга
+       восход-закат на мобильном не работала. Размер уменьшаем, координаты
+       оставляем за --cel-x/--cel-y. */
     .hud-fx-celestial {
         width: 40px; height: 40px;
-        margin: 0 !important;
+        margin-left: -20px !important; margin-top: -20px !important;
+        left: var(--cel-x, auto) !important;
+        /* Дугу поджимаем вниз: на узком экране её вершина (--cel-y = 16%)
+           приходится ровно на плашку с часами, и в полдень/полночь светило
+           пряталось за временем. 16%..76% превращаются в 34%..71%. */
+        top: calc(24% + var(--cel-y, 12px) * 0.62) !important;
+        right: auto !important;
+    }
+    /* Старые карточки без координат — прежний угол. */
+    .hud-fx-celestial:not([style*="--cel-x"]) {
         left: auto !important; right: 20px !important; top: 12px !important;
+        margin: 0 !important;
     }
 
     .weather-rain .hud-fx-weather::after { top: 28px; height: 105px; }
@@ -2332,15 +2523,9 @@
 }
 .hud-tab.intercept-tab { color: #ff4d4d; }
 .hud-tab.intercept-tab.active { color: #fff; background: transparent; border-color: #ff4d4d; }
-/* --- СЛАБЫЙ СНЕГ --- */
-.weather-snow.weather-intensity-low .hud-fx-weather {
-    background-image:
-        radial-gradient(circle, rgba(255,255,255,0.6) 1.5px, transparent 2px),
-        radial-gradient(circle, rgba(255,255,255,0.3) 1px, transparent 1.5px);
-    background-size: 180px 180px, 120px 120px;
-    animation: hud-snow-fall 18s linear infinite; /* Очень медленный, редкий снежок */
-    opacity: 0.7;
-}
+/* Старая версия снега (плоская решётка из кружков, keyframes
+   hud-snow-fall) удалена в 22.4.0 — её перебивал блок ниже, но она
+   продолжала спорить за animation-play-state. См. «--- СНЕГ ---». */
 
 /* --- СВЕТЛЯЧКИ (Магия ночи) --- */
 .hud-fx-fireflies {
@@ -2860,7 +3045,11 @@
 .hud-phone-app-view { display:none; position:absolute; inset:0; padding:10px 12px 55px; overflow:auto; background:rgba(5,7,12,.48); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
 .hud-phone-app-view.active { display:block; animation:fadeIn .18s ease; }
 .hud-phone-app-title { font-weight:700; font-size:16px; padding:4px 2px 12px; position:sticky; top:0; z-index:4; background:linear-gradient(rgba(7,8,13,.8),rgba(7,8,13,0)); }
-.hud-phone-bottom-bar { position:absolute; bottom:0; left:0; right:0; height:46px; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.3); border-top:1px solid rgba(255,255,255,.08); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); z-index:10; }
+/* Нижняя панель обязана быть выше экрана приложения (z-index:40):
+   home-wrap не создаёт своего контекста наложения, поэтому панель и
+   экран конкурируют напрямую. При z-index:10 открытое приложение
+   накрывало кнопку «домой», и с его корневого экрана было не выйти. */
+.hud-phone-bottom-bar { position:absolute; bottom:0; left:0; right:0; height:46px; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.3); border-top:1px solid rgba(255,255,255,.08); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); z-index:50; }
 .hud-phone-home-btn { width:42px; height:28px; border-radius:15px; border:0; background:rgba(255,255,255,.12); color:#fff; cursor:pointer; }
 .hud-phone-chat-list { display:flex; gap:7px; overflow-x:auto; padding-bottom:8px; margin-bottom:8px; }
 .hud-phone-chat-launch { min-width:105px; text-align:left; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.06); color:#fff; border-radius:12px; padding:7px; cursor:pointer; }
@@ -3779,13 +3968,13 @@
 .hud-bg-tree-branch.br1 { transform:rotate(-34deg); }
 .hud-bg-tree-branch.br2 { transform:rotate(24deg); height:36%; }
 .hud-bg-tree-branch.br3 { transform:rotate(52deg); height:25%; bottom:48%; }
-.hud-bg-tree.bt1 { left:2%; height:68%; transform:scale(0.82); opacity:0.42; }
-.hud-bg-tree.bt2 { left:20%; height:82%; transform:scale(1.05); opacity:0.5; }
-.hud-bg-tree.bt3 { left:62%; height:76%; transform:scale(0.94); opacity:0.46; }
-.hud-bg-tree.bt4 { right:0; height:86%; transform:scale(1.12); opacity:0.54; }
+.hud-bg-tree.bt1 { left:2%; height:68%; transform:scale(0.82); opacity:0.62; }
+.hud-bg-tree.bt2 { left:20%; height:82%; transform:scale(1.05); opacity:0.72; }
+.hud-bg-tree.bt3 { left:62%; height:76%; transform:scale(0.94); opacity:0.66; }
+.hud-bg-tree.bt4 { right:0; height:86%; transform:scale(1.12); opacity:0.76; }
 .hud-bg-tree-autumn-foliage {
     position:absolute; left:50%; top:18%; width:82px; height:58%; transform:translateX(-50%);
-    pointer-events:none; z-index:2; opacity:.34;
+    pointer-events:none; z-index:2; opacity:.82;
     background:
       radial-gradient(34px 24px at 22% 24%, rgba(154,82,35,.72) 0 58%, transparent 60%),
       radial-gradient(40px 28px at 52% 18%, rgba(116,87,37,.62) 0 58%, transparent 60%),
@@ -3795,7 +3984,7 @@
     filter:saturate(.9);
 }
 .hud-bg-tree-autumn-foliage.foliage-2 {
-    opacity:.48;
+    opacity:.95;
     background:
       radial-gradient(38px 26px at 20% 24%, rgba(166,91,38,.82) 0 58%, transparent 60%),
       radial-gradient(44px 30px at 50% 18%, rgba(126,91,38,.72) 0 58%, transparent 60%),
@@ -3803,9 +3992,9 @@
       radial-gradient(34px 24px at 34% 47%, rgba(132,82,33,.66) 0 58%, transparent 60%),
       radial-gradient(34px 23px at 69% 50%, rgba(158,90,34,.68) 0 58%, transparent 60%);
 }
-.hud-bg-tree-autumn-foliage.foliage-3 { opacity:.28; }
+.hud-bg-tree-autumn-foliage.foliage-3 { opacity:.72; }
 .hud-bg-tree-autumn-foliage.foliage-1,
-.hud-bg-tree-autumn-foliage.foliage-4 { opacity:.31; }
+.hud-bg-tree-autumn-foliage.foliage-4 { opacity:.78; }
 .hud-bg-tree-autumn .hud-bg-tree-canopy { display:none; }
 .hud-bg-tree-winter .hud-bg-tree-trunk { background:linear-gradient(90deg, rgba(45,43,42,0.9), rgba(92,86,78,0.92), rgba(38,37,36,0.9)); }
 
@@ -4918,66 +5107,492 @@
 }
 
 /* --- СНЕГ --------------------------------------------------------------- */
-/* Три слоя с разной глубиной: дальние хлопья мельче, темнее и медленнее.
-   Скорость, плотность и наклон берутся из переменных — их переопределяют
-   классы интенсивности (weather-intensity-low / -high). */
+/* v22.4.2 — снегопад формально работал, но был нечитаем. Причина —
+   геометрия точки: ellipse 1-2px с мягким затуханием (0%→52%→60% ОТ
+   размера самой точки) почти целиком уходит в антиалиасинг браузера.
+   Проверено предметно: те же координаты и плотность, но с жёстким
+   circle-ядром (заливка до ~68% радиуса, короткая растушёвка до края) —
+   и хлопья сразу стали видны. Это тот же приём, которым на фотографии
+   снежинка отличается от размытого пятна: чёткая точка с лёгким ореолом.
+   Заодно плитки заметно уменьшены — хлопьев на экране кратно больше.
+   Движение — transform, а не background-position (background-position не
+   уходит на композитор, каждый кадр это перерисовка слоя целиком — при
+   высокой плотности это и давало рывки). Слой растрируется один раз,
+   дальше его двигает GPU.
+
+   v22.5.0 — три версии снегопада получили разный характер, а не только
+   разную плотность.
+
+   v22.5.1 — «весь снегопад качает порывами ветра» из 22.5.0 оказалось
+   плохой идеей: это вращало transform: rotate() у ВСЕГО контейнера
+   погоды, то есть буквально весь фон карточки поворачивался туда-сюда на
+   несколько градусов. На маленьком виджете это не читалось как «ветер
+   гонит снег» — читалось как «кто-то крутит картинку». Порыв ветра
+   должен двигать хлопья, а не сцену за ними. Убрано; направление снова
+   держится на --snow-sway (сдвиг хлопьев, не поворот плоскости) — см.
+   ниже у каждого уровня. Заодно «метель» и «снежная буря» разведены на
+   два разных по плотности и ощущению уровня — раньше оба слова ловились
+   одним regex и выглядели одинаково. */
 .weather-snow .hud-fx-weather {
-  --snow-speed: 11s;
-  --snow-tilt: 10px;
-  --snow-opacity: .85;
-  background-image:
-    radial-gradient(circle, rgba(255,255,255,.95) 1.6px, transparent 2.2px),
-    radial-gradient(circle, rgba(255,255,255,.62) 1.15px, transparent 1.7px),
-    radial-gradient(circle, rgba(255,255,255,.38) .8px, transparent 1.2px) !important;
-  background-size: 150px 150px, 110px 110px, 76px 76px !important;
+  --snow-opacity: .95;
+  /* Лёгкое покачивание хлопьев из стороны в сторону — see @keyframes
+     hud-snow-drift ниже. У каждой версии снегопада своя амплитуда: задаёт
+     «характер» без переписывания самой анимации. Это именно сдвиг самих
+     хлопьев (translate), а не поворот всей плоскости — поворачивать
+     контейнер целиком мы пробовали (v22.5.0) и отказались, см. комментарий
+     в начале файла: на маленьком виджете это выглядело как вращение фона. */
+  --snow-sway: 4px;
+  z-index: 8;
+  /* НАПРАВЛЕНИЕ СНЕГОПАДА. Раньше наклон задавался поворотом всего слоя
+     (transform: rotate(--snow-angle)), и это не работало вовсе: решётка
+     одинаковых круглых точек при повороте выглядит точно так же, поэтому
+     слабый снег, метель и буря читались одинаково. Вдобавок перекос
+     оголял углы виджета и требовал огромных запасов по краям.
+     Теперь снос настоящий: за цикл слой уезжает ровно на --snow-dx плиток
+     вбок и на --snow-dy вниз. Целое число плиток — петля бесшовна при
+     любом наклоне, а сам наклон задаётся отношением dx/dy:
+       0/1 — отвесно,  1/4 ≈ 14°,  1/2 ≈ 27°,  1/1 = 45°.
+     Движение остаётся чистым translate, то есть плавным и композитным. */
+  --snow-dx: 1;
+  --snow-dy: 4;
+  /* Поворота больше нет, поэтому запас по краям нужен только под
+     горизонтальное покачивание. */
+  --snow-cover: 16px;
+  inset: 0 calc(-1 * var(--snow-cover));
+  background: none;
   opacity: var(--snow-opacity);
-  /* Длинная запись, а НЕ сокращённая: `animation: ... !important` попутно
-     выставляет animation-play-state:running !important и ломает заморозку —
-     снег шёл всегда, без тапа по виджету. */
-  animation-name: hud-snow-layers !important;
-  animation-duration: var(--snow-speed) !important;
-  animation-timing-function: linear !important;
-  animation-iteration-count: infinite !important;
+  animation-name: none;
 }
-@keyframes hud-snow-layers {
-  0%   { background-position: 0 0, 0 0, 0 0; }
-  100% { background-position:
-           calc(var(--snow-tilt) * 2.4) 150px,
-           calc(var(--snow-tilt) * 1.5) 110px,
-           calc(var(--snow-tilt) * 0.8) 76px; }
-}
+/* В покое снег виден, но неподвижен. */
+.weather-snow:not(.fx-active) .hud-fx-weather { opacity: calc(var(--snow-opacity) * .68); }
 
-/* Слабый снежок: реже, мельче, почти отвесно и заметно медленнее. */
-.weather-snow.weather-intensity-low .hud-fx-weather {
-  --snow-speed: 19s;
-  --snow-tilt: 4px;
-  --snow-opacity: .55;
-  background-size: 210px 210px, 160px 160px, 120px 120px !important;
-}
+/* Планы снега лежат в общем контейнере погоды и при дожде, тумане или
+   ясном небе просто не нужны. */
+.hud-snow-layer { display: none; }
+.weather-snow .hud-snow-layer { display: block; }
 
-/* Метель: густо, крупно, сильный наклон и втрое быстрее обычного. */
-.weather-snow.weather-intensity-high .hud-fx-weather {
-  --snow-speed: 3.4s;
-  --snow-tilt: 34px;
-  --snow-opacity: 1;
+.weather-snow .hud-snow-layer {
+  position: absolute; right: 0; bottom: 0;
+  /* Слой свисает за контейнер ровно на ту дистанцию, которую проезжает за
+     цикл — и вверх, и вбок. Доехав, он закрывает контейнер целиком. */
+  top:  calc(-1 * var(--snow-tile) * var(--snow-dy));
+  left: calc(-1 * var(--snow-tile) * var(--snow-dx));
+  pointer-events: none;
+  background-repeat: repeat;
+  background-size: var(--snow-tile) var(--snow-tile);
+  /* Снос и покачивание — две РАЗНЫЕ анимации на двух разных свойствах:
+     снос едет через `translate`, покачивание через `transform`. Браузер
+     складывает их сам, зато у каждой свой темп.
+     Раньше обе жили в одном наборе кадров, а значит делили один
+     animation-timing-function: linear. Из-за этого горизонтальная
+     составляющая была ломаной — на каждой опорной точке скорость менялась
+     скачком, и на развороте хлопья дёргало. Сколько бы кадров мы ни
+     добавляли, изломы никуда не девались, их просто становилось больше.
+     Теперь покачивание — отдельный маятник: alternate + плавная кривая,
+     то есть на разворотах скорость гасится до нуля и разгоняется обратно.
+     Петля сноса от этого не страдает: покачивание — непрерывное смещение
+     вокруг нуля, а бесшовность держится только на кратности плиткам. */
+  animation-name: hud-snow-drift, hud-snow-sway;
+  /* --snow-speed — время на одну плитку по вертикали; полный цикл длиннее
+     ровно во столько раз, сколько плиток он проходит. Так перекос не
+     меняет ощущаемую скорость падения. */
+  animation-duration: calc(var(--snow-speed) * var(--snow-dy) * var(--gust, 1)), var(--snow-sway-time, 4.6s);
+  animation-timing-function: linear, cubic-bezier(.45, 0, .55, 1);
+  animation-iteration-count: infinite, infinite;
+  animation-direction: normal, alternate;
+  will-change: transform, translate;
+}
+/* Хлопья не падают строго по прямой — лёгкое покачивание в стороны через
+   середину пути и обратно к нулю. Оба конца (0% и 100%) — ровно
+   translate3d(0, N * tile, 0), поэтому петля бесшовна независимо от
+   амплитуды покачивания: цикл замыкается вертикально как раньше, просто
+   внутри него хлопья ещё и «дышат» по горизонтали. */
+@keyframes hud-snow-drift {
+  from { translate: 0 0; }
+  to   { translate: calc(var(--snow-tile) * var(--snow-dx)) calc(var(--snow-tile) * var(--snow-dy)); }
+}
+/* ВЕТЕР КАК МНОЖИТЕЛЬ СКОРОСТИ. Ветер — отдельная ось: он не меняет ни
+   явление, ни плотность, ни наклон, а только подгоняет снег. Технически это
+   множитель к длительности цикла: меньше длительность — быстрее падение.
+   Поэтому работает поверх любого уровня, от слабого снежка до бури, и
+   ничего в них не переопределяет.
+   Слабый ветер сюда не попадает: «лёгкий ветер», «ветер утих», штиль и
+   скорость до 3 м/с отсеиваются ещё в index.js (windCalm). */
+/* --- ВЕТЕР КАК МНОЖИТЕЛЬ ТЕМПА ------------------------------------------
+   Классы weather-windy / weather-windy-strong ставятся на ЛЮБУЮ погоду, но
+   до 22.5.7 их читал только снег: у дождя и тумана «порывистый ветер» был
+   исправно распознан и не делал ровно ничего.
+   Механизм один на всех: --gust множит длительность анимаций (меньше
+   множитель — быстрее движение). Наклон капель добавляется отдельно, он
+   к темпу отношения не имеет.
+   Исключены двое:
+     • сам weather-wind — там ветер и есть явление, у него своя шкала;
+     • ветреные уровни снега (метель, сильная метель, буря) — у них ветер
+       уже заложен в наклон, позёмку и скорость, и множитель поверх давал
+       двойной счёт: метель разгонялась до 78 px/с и начинала мельтешить. */
+.weather-windy:not(.weather-wind):not(.weather-snow)        { --gust: .62; }
+.weather-windy-strong:not(.weather-wind):not(.weather-snow) { --gust: .44; }
+
+.weather-snow.weather-windy:not(.weather-intensity-high):not(.weather-intensity-gale):not(.weather-intensity-extreme)        { --gust: .55; }  /* ~1.8x */
+.weather-snow.weather-windy-strong:not(.weather-intensity-high):not(.weather-intensity-gale):not(.weather-intensity-extreme) { --gust: .38; }  /* ~2.6x */
+
+/* Наклон под ветром — отдельно от темпа. */
+.weather-rain.weather-windy        { --rain-tilt-extra: 9deg; }
+.weather-rain.weather-windy-strong { --rain-tilt-extra: 20deg; }
+.weather-hail.weather-windy        { --hail-tilt: 13deg; }
+.weather-hail.weather-windy-strong { --hail-tilt: 23deg; }
+
+/* Маятник: от края к краю и обратно (animation-direction: alternate).
+   На обоих концах скорость нулевая, поэтому разворот не «щёлкает». */
+@keyframes hud-snow-sway {
+  from { transform: translate3d(calc(-1 * var(--snow-sway)), 0, 0); }
+  to   { transform: translate3d(var(--snow-sway), 0, 0); }
+}
+/* Заморозка до тапа: общее правило про .hud-fx-weather до вложенных
+   планов не дотягивалось. */
+.hud-fx-weather .hud-snow-layer { animation-play-state: paused !important; }
+.hud-scene-widget.fx-active .hud-fx-weather .hud-snow-layer { animation-play-state: running !important; }
+
+/* Дальний план: мелкая, приглушённая крупа — только для глубины. */
+.weather-snow .hud-snow-layer.snow-far {
+  --snow-sway-time: 6.7s;
+  --snow-tile: clamp(44px, 11.3cqi, 105px);
+  --snow-speed: 13s;
   background-image:
-    radial-gradient(circle, rgba(255,255,255,1) 2.1px, transparent 2.8px),
-    radial-gradient(circle, rgba(255,255,255,.8) 1.5px, transparent 2.1px),
-    radial-gradient(circle, rgba(255,255,255,.55) 1px, transparent 1.5px) !important;
-  background-size: 84px 84px, 62px 62px, 44px 44px !important;
+    radial-gradient(circle 1.1px, rgba(255,255,255,.85) 0 62%, transparent 100%),
+    radial-gradient(circle .9px,  rgba(255,255,255,.7)  0 62%, transparent 100%),
+    radial-gradient(circle 1.3px, rgba(255,255,255,.6)  0 62%, transparent 100%),
+    radial-gradient(circle .8px,  rgba(255,255,255,.5)  0 62%, transparent 100%),
+    radial-gradient(circle 1.0px, rgba(255,255,255,.42) 0 62%, transparent 100%);
+  background-position: 0 0, 22px 9px, 47px 31px, 13px 51px, 57px 61px;
+  filter: blur(.4px);
+  opacity: .68;
 }
 
-/* Ветровые полосы поверх метели: чем сильнее, тем быстрее и заметнее. */
-.weather-snow.weather-intensity-high .hud-fx-weather::after {
-  animation-duration: .8s !important;
-  opacity: .9;
+/* Средний план: основная масса хлопьев — то, что глаз распознаёт как
+   «идёт снег». Плотный и контрастный, это несущий слой эффекта. */
+.weather-snow .hud-snow-layer.snow-mid {
+  --snow-sway-time: 5.1s;
+  --snow-tile: clamp(50px, 12.6cqi, 117px);
+  --snow-speed: 9s;
+  background-image:
+    radial-gradient(circle 2.4px, rgba(255,255,255,1)   0 68%, transparent 100%),
+    radial-gradient(circle 1.9px, rgba(255,255,255,.9)  0 68%, transparent 100%),
+    radial-gradient(circle 2.8px, rgba(255,255,255,.82) 0 68%, transparent 100%),
+    radial-gradient(circle 1.7px, rgba(255,255,255,.74) 0 68%, transparent 100%),
+    radial-gradient(circle 2.2px, rgba(255,255,255,.66) 0 68%, transparent 100%),
+    radial-gradient(circle 1.8px, rgba(255,255,255,.58) 0 68%, transparent 100%);
+  background-position: 0 0, 26px 12px, 57px 5px, 11px 38px, 42px 52px, 67px 27px;
 }
-.weather-snow.weather-intensity-high .hud-fx-weather::before {
-  animation-duration: 2.2s !important;
+
+/* Ближний план: крупные хлопья вне фокуса, летят заметно быстрее — дают
+   ощущение объёма, снег идёт перед лицом, а не только вдали. */
+.weather-snow .hud-snow-layer.snow-near {
+  --snow-sway-time: 3.9s;
+  --snow-tile: clamp(94px, 24.2cqi, 225px);
+  --snow-speed: 5s;
+  background-image:
+    radial-gradient(circle 3.6px, rgba(255,255,255,.92) 0 64%, transparent 100%),
+    radial-gradient(circle 4.4px, rgba(255,255,255,.8)  0 64%, transparent 100%),
+    radial-gradient(circle 3.0px, rgba(255,255,255,.7)  0 64%, transparent 100%);
+  background-position: 0 0, 83px 46px, 39px 101px;
+  filter: blur(1.1px);
+  opacity: .85;
 }
-/* При слабом снеге ветровых полос и дымки быть не должно. */
-.weather-snow.weather-intensity-low .hud-fx-weather::before,
-.weather-snow.weather-intensity-low .hud-fx-weather::after { display: none; }
+
+/* Слабый снежок: «лунный», мечтательный — не просто уменьшенная копия
+   обычного снега, а свой характер. Только средний план, реже, почти
+   отвесно и заметно медленнее. Тон точек сдвинут в холодную сторону
+   (голубоватый, а не чисто белый) — как снег выглядит при лунном свете.
+   Покачивание вдвое шире, чем у обычного снега (--snow-sway унаследован
+   от --snow-sway ниже), — редкие хлопья без соседей заметнее «парят»,
+   а не падают по струнке. Добавлено мерцание: хлопья на пределе видимости
+   должны хоть иногда поймать свет и вспыхнуть, иначе лёгкий снежок
+   выглядит тускло по сравнению с плотным. */
+/* Отвесно (dx:0) и вдвое реже обычного — редкие крупные хлопья
+   без ветра, зато с широким покачиванием: они «парят». */
+/* ГУСТОЙ СНЕГОПАД — это не метель. Разница явлений, а не громкости:
+   у снегопада сила выражается количеством и размером хлопьев, у метели —
+   ветром. Поэтому здесь снег валит почти отвесно (снос 1/8 ≈ 7°), зато
+   крупно и часто, и никакой ветровой позёмки поверх нет. Метель рядом
+   отличается сразу: наклон 27°, мелкие быстрые хлопья и штрихи позёмки.
+   Раньше обе фразы ловились словом «сильн» и давали один и тот же класс,
+   поэтому «сильный снегопад» и «сильная метель» выглядели одинаково. */
+.weather-snow.weather-intensity-heavy .hud-fx-weather {
+  --snow-dx: 1;
+  --snow-dy: 8;
+  --snow-cover: 20px;
+  --snow-opacity: 1;
+  --snow-sway: 6px;
+}
+/* Густой снег тоже съедает видимость — но мягко и без ветровой позёмки:
+   позёмка это признак метели, у отвесного снегопада её быть не должно. */
+.weather-snow.weather-intensity-heavy .hud-fx-weather::before {
+  content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(228,240,255,.18) 0%, rgba(228,240,255,.07) 55%, transparent 100%),
+    radial-gradient(120% 70% at 50% 0%, rgba(255,255,255,.09), transparent 70%);
+  animation: hud-blizzard-haze 8.5s ease-in-out infinite alternate;
+}
+.weather-snow.weather-intensity-heavy .hud-snow-layer.snow-far {
+  --snow-tile: clamp(18px, 4.7cqi, 44px);
+  --snow-speed: 5.1s;
+  background-image:
+    radial-gradient(circle 1.4px, rgba(255,255,255,.85) 0 62%, transparent 100%),
+    radial-gradient(circle 1.2px, rgba(255,255,255,.7)  0 62%, transparent 100%),
+    radial-gradient(circle 1.6px, rgba(255,255,255,.6)  0 62%, transparent 100%),
+    radial-gradient(circle 1.1px, rgba(255,255,255,.5)  0 62%, transparent 100%),
+    radial-gradient(circle 1.3px, rgba(255,255,255,.42) 0 62%, transparent 100%);
+  background-position: 0 0, 14px 6px, 30px 20px, 8px 33px, 36px 39px;
+  opacity: .8;
+}
+.weather-snow.weather-intensity-heavy .hud-snow-layer.snow-mid {
+  --snow-tile: clamp(21px, 5.1cqi, 48px);
+  --snow-speed: 3.95s;
+  background-image:
+    radial-gradient(circle 4.0px, rgba(255,255,255,1)   0 70%, transparent 100%),
+    radial-gradient(circle 3.3px, rgba(255,255,255,.92) 0 70%, transparent 100%),
+    radial-gradient(circle 4.6px, rgba(255,255,255,.85) 0 70%, transparent 100%),
+    radial-gradient(circle 2.9px, rgba(255,255,255,.78) 0 70%, transparent 100%),
+    radial-gradient(circle 3.7px, rgba(255,255,255,.7)  0 70%, transparent 100%),
+    radial-gradient(circle 3.1px, rgba(255,255,255,.62) 0 70%, transparent 100%);
+  background-position: 0 0, 13px 6px, 28px 3px, 5px 19px, 20px 26px, 33px 14px;
+}
+.weather-snow.weather-intensity-heavy .hud-snow-layer.snow-near {
+  --snow-tile: clamp(44px, 11cqi, 102px);
+  --snow-speed: 2.3s;
+  background-image:
+    radial-gradient(circle 6.2px, rgba(255,255,255,.95) 0 66%, transparent 100%),
+    radial-gradient(circle 7.6px, rgba(255,255,255,.82) 0 66%, transparent 100%),
+    radial-gradient(circle 5.3px, rgba(255,255,255,.72) 0 66%, transparent 100%);
+  background-position: 0 0, 29px 17px, 13px 38px;
+  filter: blur(1.2px);
+  opacity: .92;
+}
+
+.weather-snow.weather-intensity-low .hud-fx-weather { --snow-dx: 0; --snow-dy: 1; --snow-cover: 22px; --snow-opacity: .6; --snow-sway: 11px; }
+.weather-snow.weather-intensity-low .hud-snow-layer.snow-far,
+.weather-snow.weather-intensity-low .hud-snow-layer.snow-near { display: none; }
+.weather-snow.weather-intensity-low .hud-snow-layer.snow-mid {
+  --snow-tile: clamp(100px, 26cqi, 240px);
+  --snow-speed: 26s;
+  background-image:
+    radial-gradient(circle 1.7px, rgba(226,238,255,.88) 0 64%, transparent 100%),
+    radial-gradient(circle 1.3px, rgba(226,238,255,.72) 0 64%, transparent 100%),
+    radial-gradient(circle 1.5px, rgba(226,238,255,.6)  0 64%, transparent 100%),
+    radial-gradient(circle 1.1px, rgba(226,238,255,.48) 0 64%, transparent 100%);
+  background-position: 0 0, 41px 17px, 19px 63px, 71px 44px;
+  /* Второй, независимый цикл поверх покачивающегося падения: мягкая
+     пульсация яркости, будто хлопья ловят лунный свет под разным углом. */
+  animation-name: hud-snow-drift, hud-snow-sway, hud-snow-twinkle;
+  animation-duration: calc(var(--snow-speed) * var(--snow-dy) * var(--gust, 1)), var(--snow-sway-time, 4.6s), 3.6s;
+  animation-timing-function: linear, cubic-bezier(.45, 0, .55, 1), ease-in-out;
+  animation-iteration-count: infinite, infinite, infinite;
+  animation-direction: normal, alternate, alternate;
+}
+@keyframes hud-snow-twinkle {
+  from { filter: brightness(1); }
+  to   { filter: brightness(1.6); }
+}
+
+/* Метель: заметно плотнее и быстрее обычного снега — хлопьев на экране
+   больше, они и несут эффект. Позёмка ниже — лёгкий акцент поверх них,
+   а не замена.
+   Направление задаёт снос 1/2 плитки (≈27°), а покачивание здесь узкое
+   (8px): при плотном потоке широкий мах читается как болтанка, а не как
+   ветер — ветер уже выражен самим наклоном. */
+.weather-snow.weather-intensity-high .hud-fx-weather {
+  --snow-dx: 1;
+  --snow-dy: 2;
+  --snow-cover: 26px;
+  --snow-opacity: 1;
+  --snow-sway: 8px;
+  box-shadow: inset 0 0 40px rgba(226,238,255,.10);
+}
+.weather-snow.weather-intensity-high .hud-snow-layer.snow-far {
+  --snow-tile: clamp(24px, 6.1cqi, 57px);
+  --snow-speed: 3.2s;
+  opacity: .78;
+}
+.weather-snow.weather-intensity-high .hud-snow-layer.snow-mid {
+  --snow-tile: clamp(29px, 7.4cqi, 69px);
+  --snow-speed: 1.7s;
+  background-image:
+    radial-gradient(circle 2.1px, rgba(255,255,255,1)   0 68%, transparent 100%),
+    radial-gradient(circle 1.7px, rgba(255,255,255,.9)  0 68%, transparent 100%),
+    radial-gradient(circle 2.5px, rgba(255,255,255,.82) 0 68%, transparent 100%),
+    radial-gradient(circle 1.5px, rgba(255,255,255,.74) 0 68%, transparent 100%),
+    radial-gradient(circle 2.0px, rgba(255,255,255,.66) 0 68%, transparent 100%),
+    radial-gradient(circle 1.6px, rgba(255,255,255,.58) 0 68%, transparent 100%);
+  background-position: 0 0, 15px 7px, 33px 3px, 6px 22px, 24px 30px, 38px 16px;
+}
+.weather-snow.weather-intensity-high .hud-snow-layer.snow-near {
+  --snow-tile: clamp(58px, 14.8cqi, 138px);
+  --snow-speed: 0.9s;
+  filter: blur(1.4px);
+  opacity: .94;
+}
+
+/* Позёмка метели: короткие и слабые штрихи-акценты, НЕ длинные полосы —
+   длинная прямая полоса на глаз читается как дождь, а не ветер со снегом.
+   Раньше эллипсы длиной 20/35px при заметной непрозрачности визуально
+   перебивали собой ровные хлопья, и вся сцена выглядела как ливень.
+   Теперь это лёгкая текстура, заметно уступающая хлопьям по контрасту —
+   хлопья остаются главным, что видит глаз. Общая для метели и снежной
+   бури — у бури просто плотнее сама снежная масса и гуще дымка. */
+.weather-snow.weather-intensity-high .hud-fx-weather::before,
+.weather-snow.weather-intensity-gale .hud-fx-weather::before,
+.weather-snow.weather-intensity-extreme .hud-fx-weather::before {
+    content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
+    background:
+      linear-gradient(107deg, rgba(230,236,248,.04) 0%, rgba(255,255,255,.14) 46%, rgba(230,236,248,.04) 100%),
+      linear-gradient(180deg, rgba(226,238,255,.08) 0%, transparent 62%);
+    animation-name: hud-blizzard-haze;
+    /* Метель — просто дымка. Буря ниже перебивает её белой мглой: у бури
+       падает видимость, это её главный признак, а не количество точек. */
+    animation-duration: 6.5s;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+@keyframes hud-blizzard-haze {
+    from { opacity: .55; }
+    to   { opacity: 1; }
+}
+.weather-snow.weather-intensity-high .hud-fx-weather::after,
+.weather-snow.weather-intensity-gale .hud-fx-weather::after,
+.weather-snow.weather-intensity-extreme .hud-fx-weather::after {
+    content: ''; position: absolute; inset: -30%; z-index: 2; pointer-events: none;
+    background-image:
+        radial-gradient(ellipse 9px .9px  at 50% 50%, rgba(255,255,255,.30) 0%, transparent 100%),
+        radial-gradient(ellipse 15px 1.1px at 50% 50%, rgba(255,255,255,.16) 0%, transparent 100%);
+    background-size: 58px 34px;
+    background-position: 0 0, 29px 18px;
+    transform: rotate(15deg) scale(1.2) translate3d(0, 0, 0);
+    will-change: transform;
+    animation-name: hud-blizzard-drift;
+    animation-duration: 1.15s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+            mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
+}
+@keyframes hud-blizzard-drift {
+    from { transform: rotate(15deg) scale(1.2) translate3d(0, 0, 0); }
+    to   { transform: rotate(15deg) scale(1.2) translate3d(58px, 34px, 0); }
+}
+
+/* Снежная буря: не «метель, только погромче», а отдельное, самое тяжёлое
+   состояние — почти нулевая видимость. Плотность и скорость дальше
+   некуда, поэтому берём не «ещё плотнее», а «крупнее и белее»: хлопья
+   среднего плана заметно крупнее, чем в метели, дымка гуще и почти не
+   гаснет (диапазон .75–1 вместо .55–1), а лёгкая примесь серого тона
+   отбирает у сцены часть контраста — так на глаз читается «снег забивает
+   всё вокруг», а не просто «метель, но быстрее». Покачивание чуть шире
+   метели (18px) — снег мотает сильнее. */
+/* СИЛЬНАЯ МЕТЕЛЬ — ступень между метелью и бурей, а не сама буря.
+   Наклон 45° (метель 27°, буря 63°), плотнее и быстрее метели, позёмка и
+   мгла заметнее — но хлопья остаются КРУГЛЫМИ. Вытянутые штрихи и белая
+   мгла это подпись бури, и отдавать их сильной метели нельзя: иначе обе
+   снова сливаются, как было, когда «сильная метель» просто повышалась
+   до бури. */
+.weather-snow.weather-intensity-gale .hud-fx-weather {
+  --snow-dx: 1;
+  --snow-dy: 1;
+  --snow-cover: 28px;
+  --snow-opacity: 1;
+  --snow-sway: 6px;
+  box-shadow: inset 0 0 48px rgba(226,238,255,.13);
+}
+.weather-snow.weather-intensity-gale .hud-snow-layer.snow-far {
+  --snow-tile: clamp(18px, 4.7cqi, 44px);
+  --snow-speed: 2.0s;
+  opacity: .82;
+}
+.weather-snow.weather-intensity-gale .hud-snow-layer.snow-mid {
+  --snow-tile: clamp(22px, 5.7cqi, 53px);
+  --snow-speed: 1.15s;
+  background-image:
+    radial-gradient(circle 2.3px, rgba(255,255,255,1)   0 68%, transparent 100%),
+    radial-gradient(circle 1.9px, rgba(255,255,255,.9)  0 68%, transparent 100%),
+    radial-gradient(circle 2.7px, rgba(255,255,255,.82) 0 68%, transparent 100%),
+    radial-gradient(circle 1.7px, rgba(255,255,255,.74) 0 68%, transparent 100%),
+    radial-gradient(circle 2.2px, rgba(255,255,255,.66) 0 68%, transparent 100%),
+    radial-gradient(circle 1.8px, rgba(255,255,255,.58) 0 68%, transparent 100%);
+  background-position: 0 0, 13px 6px, 29px 3px, 5px 19px, 21px 26px, 33px 14px;
+}
+.weather-snow.weather-intensity-gale .hud-snow-layer.snow-near {
+  --snow-tile: clamp(42px, 10.8cqi, 101px);
+  --snow-speed: 0.6s;
+  filter: blur(1.6px);
+  opacity: .96;
+}
+
+.weather-snow.weather-intensity-extreme .hud-fx-weather {
+  /* Отличие от метели держится не на «ещё гуще»: плотный шум глазом от
+     плотного шума не отличается. Буря отличается характером — снос 2/1
+     (≈63°, почти горизонтально) и сами хлопья вытянуты в штрихи, как
+     смазанные скоростью. Метель при 27° остаётся из круглых хлопьев. */
+  --snow-dx: 2;
+  --snow-dy: 1;
+  --snow-cover: 30px;
+  --snow-opacity: 1;
+  --snow-sway: 4px;
+  box-shadow: inset 0 0 56px rgba(214,224,240,.16);
+  filter: saturate(.85);
+}
+.weather-snow.weather-intensity-extreme .hud-snow-layer.snow-far {
+  --snow-tile: clamp(17px, 4.4cqi, 41px);
+  --snow-speed: 1.8s;
+  background-image:
+    radial-gradient(ellipse 3.4px .9px, rgba(255,255,255,.9)  0 60%, transparent 100%),
+    radial-gradient(ellipse 2.6px .8px, rgba(255,255,255,.75) 0 60%, transparent 100%),
+    radial-gradient(ellipse 4.0px 1.0px, rgba(255,255,255,.6) 0 60%, transparent 100%);
+  background-position: 0 0, 9px 5px, 5px 12px;
+  opacity: .85;
+}
+.weather-snow.weather-intensity-extreme .hud-snow-layer.snow-mid {
+  --snow-tile: clamp(22px, 5.6cqi, 52px);
+  --snow-speed: 0.9s;
+  background-image:
+    radial-gradient(ellipse 5.4px 1.5px, rgba(255,255,255,1)   0 62%, transparent 100%),
+    radial-gradient(ellipse 4.4px 1.3px, rgba(255,255,255,.92) 0 62%, transparent 100%),
+    radial-gradient(ellipse 6.2px 1.7px, rgba(255,255,255,.85) 0 62%, transparent 100%),
+    radial-gradient(ellipse 3.8px 1.2px, rgba(255,255,255,.78) 0 62%, transparent 100%),
+    radial-gradient(ellipse 5.0px 1.4px, rgba(255,255,255,.7)  0 62%, transparent 100%),
+    radial-gradient(ellipse 4.2px 1.3px, rgba(255,255,255,.62) 0 62%, transparent 100%);
+  background-position: 0 0, 14px 6px, 31px 3px, 5px 21px, 23px 29px, 36px 15px;
+}
+.weather-snow.weather-intensity-extreme .hud-snow-layer.snow-near {
+  --snow-tile: clamp(40px, 10cqi, 94px);
+  --snow-speed: 0.5s;
+  background-image:
+    radial-gradient(ellipse 9px 2.6px, rgba(255,255,255,.95) 0 58%, transparent 100%),
+    radial-gradient(ellipse 12px 3.2px, rgba(255,255,255,.82) 0 58%, transparent 100%),
+    radial-gradient(ellipse 7px 2.2px, rgba(255,255,255,.7)  0 58%, transparent 100%);
+  background-position: 0 0, 46px 25px, 22px 58px;
+  filter: blur(2px);
+  opacity: 1;
+}
+/* Мгла сильной метели — заметнее, чем у метели, но далеко не белая
+   мгла бури: видимость садится, а не пропадает. */
+.weather-snow.weather-intensity-gale .hud-fx-weather::before {
+    background:
+      linear-gradient(107deg, rgba(232,239,252,.07) 0%, rgba(255,255,255,.26) 46%, rgba(232,239,252,.07) 100%),
+      linear-gradient(180deg, rgba(226,238,255,.13) 0%, transparent 62%);
+    animation-duration: 4.8s;
+}
+.weather-snow.weather-intensity-extreme .hud-fx-weather::before {
+    background:
+      linear-gradient(107deg, rgba(236,243,255,.12) 0%, rgba(255,255,255,.34) 46%, rgba(236,243,255,.12) 100%),
+      linear-gradient(180deg, rgba(230,240,255,.20) 0%, rgba(226,238,255,.06) 62%, transparent 100%);
+    animation-name: hud-blizzard-haze-extreme;
+    animation-duration: 3.2s;
+}
+@keyframes hud-blizzard-haze-extreme {
+    from { opacity: .75; }
+    to   { opacity: 1; }
+}
 
 /* --- ОСЕННИЕ ПТИЦЫ ------------------------------------------------------ */
 /* Было: два прямоугольника со скруглением сверху — плоская «галочка».
@@ -5083,7 +5698,9 @@
   padding: 9px 11px;
   border-radius: 15px;
   border: 1px solid rgba(255,255,255,.09);
-  background: linear-gradient(160deg, rgba(28,30,42,.92), rgba(14,15,22,.92));
+  /* Непрозрачный фон: при наложении стопкой сквозь верхнюю карточку
+     читались имя и текст нижних — превью выглядело замыленным. */
+  background: linear-gradient(160deg, rgb(28,30,42), rgb(14,15,22));
   box-shadow: 0 8px 22px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.07);
   transform: scale(calc(1 - var(--depth) * .035)) translateY(calc(var(--depth) * -4px));
   opacity: calc(1 - var(--depth) * .18);
@@ -5161,7 +5778,7 @@
   background-position: 34% 16% !important;
   filter: blur(.6px);
   animation-name: hud-cloud-breathe !important;
-  animation-duration: 17s !important;
+  animation-duration: calc(17s * var(--gust, 1)) !important;
   animation-timing-function: ease-in-out !important;
   animation-iteration-count: infinite !important;
 }
@@ -5177,7 +5794,7 @@
   background-position: 36% 20%;
   filter: blur(3px);
   mix-blend-mode: multiply;
-  animation: hud-cloud-underbelly 23s ease-in-out infinite;
+  animation: hud-cloud-underbelly calc(23s * var(--gust, 1)) ease-in-out infinite;
 }
 /* Третий слой — светлая кромка сверху, будто солнце подсвечивает край. */
 .weather-cloudy .hud-fx-cloud-cover::after {
@@ -5190,7 +5807,7 @@
   background-repeat: no-repeat;
   background-position: 33% 12%;
   filter: blur(2px);
-  animation: hud-cloud-rim 13s ease-in-out infinite;
+  animation: hud-cloud-rim calc(13s * var(--gust, 1)) ease-in-out infinite;
 }
 
 /* Клубы «дышат»: слои растягиваются и смещаются с разным периодом,
@@ -5487,8 +6104,19 @@
 
 /* Фон экрана и стекло. */
 .hud-phone-home-screen,
-.hud-phone-app-view { backdrop-filter: blur(var(--hud-phone-blur)) !important; -webkit-backdrop-filter: blur(var(--hud-phone-blur)) !important; }
-.hud-phone-app-view { background: var(--hud-phone-bg) !important; }
+/* Экран приложения непрозрачен. Раньше он был стеклом: тематический фон
+   с альфой + backdrop-filter. Сквозь него просвечивала сетка иконок
+   рабочего стола — сверху чат выглядел прозрачным и размытым.
+   Градиент темы кладём в background-image, а под него — сплошную
+   подложку: какой бы альфа-канал ни выбрал пользователь, домашний
+   экран наружу не проступает. Блюр здесь больше не нужен: за
+   непрозрачным слоем его всё равно не видно, а на телефоне он дорогой. */
+.hud-phone-app-view {
+  background-image: var(--hud-phone-bg) !important;
+  background-color: var(--hud-phone-solid, #07080d) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
 .hud-phone-unlocked { background: var(--hud-phone-bg); }
 
 /* Размер текста переписки и списка. */
@@ -5660,4 +6288,493 @@
   .hud-phone-app-view .hud-msg-content { max-width: 100%; min-width: 0; }
   .hud-phone-app-view .hud-msg-bubble { padding: 7px 10px; }
   .hud-phone-app-view .hud-msg-avatar { width: 22px; height: 22px; flex: 0 0 22px; font-size: 10px; }
+}
+
+
+/* =========================================================================
+   Свёрнутая стопка уведомлений: верхняя карточка полностью непрозрачна
+   ========================================================================= */
+/* Пользовательская прозрачность (--hud-phone-notif-alpha) и затухание по
+   глубине применяются к карточкам ПОД верхней. Сама верхняя остаётся
+   плотной, иначе сквозь неё читались заголовки нижних карточек и превью
+   выглядело двоящимся. */
+.hud-phone-notif-stack:not(.is-open) > .hud-phone-notif--first { opacity: 1 !important; }
+
+/* Никакая стрелка графа не движется сама по себе: бегущий пунктир —
+   привилегия is-flowing (прямой тап по связи) и наведения мышью. Это
+   страховка от залипших классов подсветки и «липкого» :hover на тач-экране. */
+.hud-rel-edge:not(.is-flowing) {
+  animation-name: none !important;
+  stroke-dasharray: none !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  .hud-rel-edge-hit:hover + .hud-rel-edge,
+  .hud-rel-edge:hover {
+    stroke-dasharray: 5 7 !important;
+    animation-name: hud-rel-flow !important;
+    animation-duration: 1.1s !important;
+    animation-timing-function: linear !important;
+    animation-iteration-count: infinite !important;
+    animation-play-state: running !important;
+  }
+}
+
+/* Экран приложения перекрывает рабочий стол целиком.
+   У карточки уведомления z-index:10, а у .hud-phone-app-view был auto —
+   в одном контексте наложения стопка всплывала ПОВЕРХ открытой переписки
+   и накладывалась на её шапку. Со стороны это читалось как «чат сверху
+   прозрачный». Поднимаем экран приложения выше всего домашнего слоя. */
+.hud-phone-app-view { z-index: 40; }
+.hud-phone-home-screen { position: relative; z-index: 1; }
+
+/* =========================================================================
+   ЛЕТО: море от ночи к утру
+   -------------------------------------------------------------------------
+   Всё здесь управляется временем сцены, а не таймером анимации:
+     --scene-night-strength  1 ночью, 0 днём;
+     --scene-day-progress    0..1 внутри текущего полуцикла (ночь или день);
+     --cel-x                 горизонтальное положение светила.
+   Поэтому картинка совпадает с часами HUD: кораблик уходит именно к утру,
+   а лунная дорожка стоит ровно под луной. Анимации оставлены только на
+   мерцание и качку, их гасит общая система заморозки до тапа.
+   ========================================================================= */
+
+/* --- Ночная вода ------------------------------------------------------- */
+/* Раньше море в час ночи оставалось полуденно-бирюзовым. Слой-вуаль внутри
+   .hud-sea гасит его ровно настолько, насколько сейчас ночь. */
+.season-summer .hud-sea-night {
+    position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(180deg, rgba(9,17,38,.82) 0%, rgba(6,12,28,.92) 55%, rgba(4,8,20,.96) 100%);
+    opacity: var(--scene-night-strength, 0);
+    transition: opacity 1.4s ease;
+}
+
+/* --- Лунная дорожка ---------------------------------------------------- */
+/* Столб света от горизонта к берегу. Держится за --cel-x, поэтому едет по
+   воде вслед за луной; книзу расширяется, как в жизни. */
+.season-summer .hud-sea-moonpath {
+    position: absolute; top: 0; bottom: 0;
+    left: var(--cel-x, 50%);
+    width: 34%;
+    margin-left: -17%;
+    pointer-events: none;
+    opacity: var(--scene-night-strength, 0);
+    background: linear-gradient(180deg, rgba(232,240,255,.92) 0%, rgba(214,228,255,.62) 30%, rgba(190,212,255,.34) 62%, rgba(172,198,255,.14) 100%);
+    -webkit-mask-image: radial-gradient(64% 100% at 50% 0%, #000 0%, rgba(0,0,0,.72) 44%, transparent 96%);
+    mask-image: radial-gradient(64% 100% at 50% 0%, #000 0%, rgba(0,0,0,.72) 44%, transparent 96%);
+    filter: blur(.4px);
+    animation: hud-moonpath-shimmer 4.6s ease-in-out infinite alternate;
+    transition: opacity 1.4s ease, left 1.4s ease;
+}
+@keyframes hud-moonpath-shimmer {
+    0%   { transform: scaleX(1);    opacity: calc(var(--scene-night-strength, 0) * .82); }
+    100% { transform: scaleX(1.09); opacity: var(--scene-night-strength, 0); }
+}
+/* Блики на гребнях внутри дорожки: короткие горизонтальные штрихи. */
+.season-summer .hud-sea-moonpath::after {
+    content: ''; position: absolute; inset: 0;
+    background-image:
+      linear-gradient(90deg, transparent 0 18%, rgba(255,255,255,.55) 18% 34%, transparent 34% 100%),
+      linear-gradient(90deg, transparent 0 46%, rgba(255,255,255,.42) 46% 62%, transparent 62% 100%);
+    background-size: 100% 3px, 100% 3px;
+    background-position: 0 22%, 0 58%;
+    background-repeat: no-repeat;
+    opacity: .5;
+    animation: hud-moonpath-glints 3.1s ease-in-out infinite alternate;
+}
+@keyframes hud-moonpath-glints {
+    0%   { background-position: 0 22%, 0 58%; opacity: .28; }
+    100% { background-position: 0 30%, 0 70%; opacity: .62; }
+}
+
+/* --- Солнечные блики (утро и день) ------------------------------------- */
+.season-summer .hud-sea-sparkle {
+    position: absolute; inset: 0; pointer-events: none;
+    opacity: calc((1 - var(--scene-night-strength, 0)) * .75);
+    background-image:
+      radial-gradient(circle, rgba(255,255,255,.9) .8px, transparent 1.4px),
+      radial-gradient(circle, rgba(255,250,225,.7) .6px, transparent 1.1px);
+    background-size: 34px 22px, 23px 17px;
+    background-position: 0 0, 11px 9px;
+    -webkit-mask-image: radial-gradient(70% 120% at var(--cel-x, 50%) 0%, #000 0%, rgba(0,0,0,.45) 52%, transparent 88%);
+    mask-image: radial-gradient(70% 120% at var(--cel-x, 50%) 0%, #000 0%, rgba(0,0,0,.45) 52%, transparent 88%);
+    animation: hud-sea-sparkle 2.7s ease-in-out infinite alternate;
+    transition: opacity 1.4s ease;
+}
+@keyframes hud-sea-sparkle {
+    0%   { background-position: 0 0, 11px 9px;    opacity: calc((1 - var(--scene-night-strength, 0)) * .45); }
+    100% { background-position: 6px 3px, 4px 4px; opacity: calc((1 - var(--scene-night-strength, 0)) * .85); }
+}
+
+/* --- Кораблик, уплывающий к утру --------------------------------------- */
+/* Положение задаёт время сцены: в начале ночи лодка у берега и крупная,
+   к рассвету уходит вправо, поднимается к горизонту и мельчает.
+   Прежний hud-sailboat-drift бесконечно возил её влево по таймеру, с
+   часами HUD это никак не было связано. */
+.season-summer .hud-sailboat {
+    left: calc(12% + var(--scene-day-progress, .5) * 64%);
+    bottom: calc(33% + var(--scene-day-progress, .5) * 4%);
+    opacity: calc(.32 + var(--scene-night-strength, 0) * .55);
+    transform: scale(calc(1 - var(--scene-day-progress, .5) * .42));
+    transform-origin: 50% 100%;
+    animation: hud-sailboat-rock 5.2s ease-in-out infinite alternate;
+    transition: left 2s ease, bottom 2s ease, opacity 1.4s ease, transform 2s ease;
+    z-index: 3;
+}
+/* Качка на волне вместо переезда через весь экран. */
+@keyframes hud-sailboat-rock {
+    0%   { rotate: -2.4deg; translate: 0 0; }
+    100% { rotate:  2.4deg; translate: 0 -1.5px; }
+}
+.season-summer .hud-sailboat-mast {
+    position: absolute; bottom: 5px; left: 11px; width: 1px; height: 16px;
+    background: rgba(228,232,240,.75);
+}
+/* Кливер, второй меньший парус: силуэт читается как лодка, а не треугольник. */
+.season-summer .hud-sailboat-jib {
+    position: absolute; bottom: 5px; left: 3px; width: 0; height: 0;
+    border-left: 7px solid transparent;
+    border-bottom: 11px solid rgba(255,255,255,.55);
+}
+/* Ходовой огонь. Горит только ночью и подсвечивает воду под собой. */
+.season-summer .hud-sailboat-lantern {
+    position: absolute; bottom: 6px; left: 12px; width: 2.4px; height: 2.4px;
+    border-radius: 50%;
+    background: #ffd88a;
+    box-shadow: 0 0 5px 2px rgba(255,196,102,.75), 0 0 12px 5px rgba(255,170,60,.30);
+    opacity: var(--scene-night-strength, 0);
+    animation: hud-lantern-flicker 2.4s ease-in-out infinite alternate;
+    transition: opacity 1.4s ease;
+}
+@keyframes hud-lantern-flicker {
+    0%   { opacity: calc(var(--scene-night-strength, 0) * .72); }
+    100% { opacity: var(--scene-night-strength, 0); }
+}
+/* Кильватерный след: короткий светлый шлейф позади корпуса. */
+.season-summer .hud-sailboat-wake {
+    position: absolute; bottom: 0; right: 22px; width: 26px; height: 3px;
+    border-radius: 50%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.34));
+    opacity: .55;
+    animation: hud-boat-wake 3.4s ease-in-out infinite alternate;
+}
+@keyframes hud-boat-wake {
+    0%   { opacity: .22; width: 20px; }
+    100% { opacity: .6;  width: 30px; }
+}
+
+/* --- Доска для сёрфинга ------------------------------------------------ */
+/* Воткнута в песок у кромки воды; днём отбрасывает тень, ночью гаснет
+   вместе с остальным пляжным реквизитом. */
+.season-summer .hud-surfboard {
+    position: absolute; left: 12%; bottom: 2%;
+    width: 15px; height: 46px;
+    z-index: 6;
+    transform: rotate(-9deg);
+    transform-origin: 50% 100%;
+}
+.season-summer .hud-surfboard-deck {
+    position: absolute; inset: 0;
+    border-radius: 50% 50% 46% 46% / 32% 32% 12% 12%;
+    background: linear-gradient(180deg, #fdf6ec 0%, #f6e2c8 46%, #e6c9a4 100%);
+    box-shadow: inset -2px 0 0 rgba(120,86,52,.18), 0 1px 3px rgba(60,40,10,.28);
+}
+.season-summer .hud-surfboard-stripe {
+    position: absolute; left: 50%; top: 8%; width: 2.6px; height: 78%;
+    margin-left: -1.3px; border-radius: 2px;
+    background: linear-gradient(180deg, #ef7c58, #d94f6a 55%, #7b4bd6);
+    opacity: .85;
+}
+.season-summer .hud-surfboard-fin {
+    position: absolute; left: 50%; bottom: -3px; width: 0; height: 0;
+    margin-left: -3px;
+    border-left: 3px solid transparent; border-right: 3px solid transparent;
+    border-top: 5px solid rgba(120,86,52,.55);
+}
+.season-summer .hud-surfboard-shadow {
+    position: absolute; left: -8px; bottom: -3px; width: 30px; height: 5px;
+    border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(90,62,26,.42), transparent 72%);
+    transform: rotate(9deg) skewX(calc((0.5 - var(--sun-h, .5)) * 52deg));
+    opacity: calc((1 - var(--scene-night-strength, 0)) * .7);
+}
+
+/* --- Планирующая чайка ------------------------------------------------- */
+/* Одна крупная птица пересекает кадр по дуге и машет крыльями. Мелкие
+   .hud-gull кружат на заднем плане как были. */
+.season-summer .hud-gull-glide {
+    /* Место покоя — открытое небо между плашкой часов и линией моря.
+       На 23% птица упиралась в часы и читалась как обрезок. */
+    position: absolute; top: 33%; left: 60%;
+    width: 30px; height: 11px;
+    z-index: 8;
+    opacity: calc((1 - var(--scene-night-strength, 0)) * .85);
+    animation: hud-gull-cross 24s ease-in-out infinite;
+    transition: opacity 1.4s ease;
+}
+.season-summer .hud-gull-body {
+    position: absolute; left: 11px; top: 4px; width: 10px; height: 4px;
+    border-radius: 50% 40% 50% 50%;
+    background: linear-gradient(180deg, #fbfcff 0 58%, #cdd6e4 58% 100%);
+}
+.season-summer .hud-gull-beak {
+    position: absolute; left: 20px; top: 4.8px; width: 4px; height: 1.8px;
+    border-radius: 0 50% 50% 0;
+    background: #f0a63c;
+}
+.season-summer .hud-gull-wing {
+    position: absolute; top: 2.5px; width: 15px; height: 5px;
+    background: linear-gradient(180deg, #ffffff 0 55%, #b9c4d6 55% 100%);
+}
+.season-summer .hud-gull-wing.gw-left {
+    left: 0; border-radius: 70% 20% 0 60%;
+    transform-origin: 100% 60%;
+    animation: hud-gull-flap 1.15s ease-in-out infinite alternate;
+}
+.season-summer .hud-gull-wing.gw-right {
+    left: 16px; border-radius: 20% 70% 60% 0;
+    transform-origin: 0 60%;
+    animation: hud-gull-flap-right 1.15s ease-in-out infinite alternate;
+    animation-delay: -.06s;
+}
+@keyframes hud-gull-flap {
+    0%   { transform: rotate(-26deg) scaleY(.72); }
+    100% { transform: rotate(16deg)  scaleY(1); }
+}
+@keyframes hud-gull-flap-right {
+    0%   { transform: rotate(26deg)  scaleY(.72); }
+    100% { transform: rotate(-16deg) scaleY(1); }
+}
+/* Дуга через кадр: снижение к воде на середине пути и набор высоты к краю. */
+/* Кадр 0% — не за краем экрана, а посреди неба. Пока виджет заморожен,
+   анимация стоит именно на нём: птица видна и в покое. Раньше 0% был
+   left:-12%/opacity:0, и до тапа чайки на пляже просто не было. */
+@keyframes hud-gull-cross {
+    0%   { left: 60%;  top: 33%; opacity: calc((1 - var(--scene-night-strength, 0)) * .85); transform: scale(1); }
+    24%  { left: 96%;  top: 27%; transform: scale(.86); }
+    40%  { left: 124%; top: 21%; opacity: 0; transform: scale(.7); }
+    41%  { left: -18%; top: 31%; opacity: 0; transform: scale(.7); }
+    56%  { left: 4%;   top: 33%; opacity: calc((1 - var(--scene-night-strength, 0)) * .85); transform: scale(.84); }
+    80%  { left: 34%;  top: 39%; transform: scale(.96); }
+    100% { left: 60%;  top: 33%; opacity: calc((1 - var(--scene-night-strength, 0)) * .85); transform: scale(1); }
+}
+
+/* --- Пляж ночью -------------------------------------------------------- */
+/* Реквизит не должен светиться полуденными красками в час ночи. Гасим
+   яркость и насыщенность ровно на силу ночи, одним общим множителем. */
+.season-summer .hud-sand,
+.season-summer .hud-umbrella,
+.season-summer .hud-sandcastle,
+.season-summer .hud-volleyball-net,
+.season-summer .hud-volleyball,
+.season-summer .hud-towel,
+.season-summer .hud-towel-shadow,
+.season-summer .hud-surfboard,
+.season-summer .hud-summer-distant-island {
+    filter:
+      brightness(calc(1 - var(--scene-night-strength, 0) * .58))
+      saturate(calc(1 - var(--scene-night-strength, 0) * .55));
+    transition: filter 1.6s ease;
+}
+/* Мокрая полоса песка у воды отражает небо, поэтому ночью синеет. */
+.season-summer .hud-sand::after {
+    content: ''; position: absolute; left: 0; right: 0; top: 0; height: 34%;
+    pointer-events: none;
+    background: linear-gradient(180deg, rgba(120,170,205,.34), transparent);
+    opacity: calc(.35 + var(--scene-night-strength, 0) * .45);
+}
+
+/* Стрекоза и цикады дневные: ночью их не видно и не слышно. */
+.season-summer .hud-summer-dragonfly,
+.season-summer .hud-summer-cicada-sound {
+    opacity: calc(1 - var(--scene-night-strength, 0));
+    transition: opacity 1.4s ease;
+}
+
+/* =========================================================================
+   ЗИМА: деревня и сугробы
+   -------------------------------------------------------------------------
+   Домик был один и стоял на ровной снежной полосе. Теперь их три — разного
+   размера и удалённости, — а земля перестала быть линией: объекты сидят
+   В сугробах, а не НА них.
+   Порядок слоёв снизу вверх: дальний лес (1) → дальний домик и снег (2) →
+   пруд и дальние сугробы (3) → средний домик (4) → главный домик (5) →
+   снеговик (6) → сугробы у стен (7) → передний вал (11).
+   ========================================================================= */
+
+/* --- Деревня ----------------------------------------------------------- */
+/* Единственное отличие домиков — план: масштаб, место на склоне и дымка.
+   Внутренняя вёрстка (стены, крыша, окно, труба) общая. */
+.season-winter .hud-winter-house.h1 {
+    left: 10.5%; bottom: 9.2%; z-index: 5;
+}
+.season-winter .hud-winter-house.h2 {
+    left: 34%; bottom: 10.4%; z-index: 4;
+    transform: scale(.72); transform-origin: 0 100%;
+}
+/* Дальний дом за прудом: мельче, бледнее и чуть размыт — воздушная
+   перспектива дешевле и честнее, чем просто уменьшение. */
+.season-winter .hud-winter-house.h3 {
+    left: 77%; bottom: 13.4%; z-index: 2;
+    transform: scale(.46); transform-origin: 0 100%;
+    opacity: .62;
+    /* Воздушная перспектива: дальний дом не просто мельче и бледнее, он
+       ещё и светлее и менее контрастен — приближается по тону к небу.
+       Одной прозрачности мало: на светлом дневном фоне тёмный силуэт
+       всё равно читался как ближний. */
+    filter: blur(.4px) brightness(1.5) contrast(.62) saturate(.55)
+            drop-shadow(0 3px 5px rgba(15,18,24,.10));
+}
+
+/* Дым и свет в окнах не должны идти в такт: иначе три дома читаются как
+   один, размноженный копипастой. Разводим по длительности. */
+.season-winter .hud-winter-house.h2 .hud-winter-smoke { animation-duration: 13.5s; }
+.season-winter .hud-winter-house.h3 .hud-winter-smoke { animation-duration: 9.2s; }
+.season-winter .hud-winter-house.h2 .hud-winter-smoke.sm1 { animation-delay: 1.7s; }
+.season-winter .hud-winter-house.h3 .hud-winter-smoke.sm1 { animation-delay: 4.3s; }
+.phase-night.season-winter .hud-winter-house.h2 .hud-winter-warm-window { animation-duration: 9s; }
+.phase-night.season-winter .hud-winter-house.h3 .hud-winter-warm-window { animation-duration: 5.5s; }
+/* В дальнем доме окно горит слабее — оно дальше. */
+.phase-night.season-winter .hud-winter-house.h3 .hud-window-pane { background: rgba(255,220,145,.62); }
+
+/* --- Сугробы ----------------------------------------------------------- */
+.season-winter .hud-snowdrifts { position: absolute; inset: 0; pointer-events: none; }
+.season-winter .hud-snowdrift {
+    position: absolute; bottom: 0; pointer-events: none;
+    /* Купол сугроба: светлая макушка, синеватая тень у основания. */
+    background: linear-gradient(180deg, #fbfdff 0%, #eaf2fc 46%, #cfdcec 100%);
+    box-shadow:
+      inset 0 2px 0 rgba(255,255,255,.95),
+      inset 0 -6px 10px rgba(150,178,208,.28),
+      0 -1px 7px rgba(148,174,204,.22);
+}
+
+/* Дальние — за домами, на склоне. */
+.season-winter .hud-snowdrift.sd-back1 {
+    left: 56%; bottom: 12%; width: 34%; height: 5.4%;
+    border-radius: 52% 48% 0 0 / 100% 100% 0 0;
+    opacity: .8;
+}
+.season-winter .hud-snowdrift.sd-back2 {
+    left: 1%; bottom: 12.6%; width: 26%; height: 4.4%;
+    border-radius: 46% 54% 0 0 / 100% 100% 0 0;
+    opacity: .74;
+}
+
+/* Наметённые к стенам: домики и снеговик стоят по щиколотку в снегу. */
+.season-winter .hud-snowdrift.sd-mid1 {
+    left: 4%; bottom: 7.6%; width: 24%; height: 6.2%; z-index: 7;
+    border-radius: 58% 42% 0 0 / 100% 100% 0 0;
+}
+.season-winter .hud-snowdrift.sd-mid2 {
+    left: 31%; bottom: 8.4%; width: 20%; height: 4.8%; z-index: 7;
+    border-radius: 44% 56% 0 0 / 100% 100% 0 0;
+}
+.season-winter .hud-snowdrift.sd-mid3 {
+    left: 73%; bottom: 12.2%; width: 17%; height: 3.6%; z-index: 3;
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    opacity: .85;
+}
+
+/* Передний вал. Идёт по левой половине и по правому краю, чтобы не
+   закрывать замёрзший пруд посередине справа. */
+.season-winter .hud-snowdrift.sd-front1 {
+    left: -7%; width: 31%; height: 10.4%; z-index: 11;
+    border-radius: 54% 46% 0 0 / 100% 100% 0 0;
+}
+.season-winter .hud-snowdrift.sd-front2 {
+    left: 17%; width: 25%; height: 6.6%; z-index: 11;
+    border-radius: 42% 58% 0 0 / 100% 100% 0 0;
+}
+.season-winter .hud-snowdrift.sd-front3 {
+    left: 37%; width: 17%; height: 4.4%; z-index: 11;
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+}
+.season-winter .hud-snowdrift.sd-front4 {
+    right: -4%; width: 15%; height: 5.2%; z-index: 11;
+    border-radius: 56% 44% 0 0 / 100% 100% 0 0;
+}
+
+/* Снеговика поднимаем над средними сугробами, но оставляем под передним
+   валом: получается, что он стоит в снегу, а не приклеен к полосе. */
+.season-winter .hud-snowman { z-index: 6; }
+
+/* Свой сугроб под снеговиком, в его собственных px-координатах (не %,
+   как остальные — их размер гуляет с шириной карточки, а снеговик стоит
+   на фиксированном left:2px). Раньше его должен был закапывать широкий
+   sd-front1, но у самого левого края тот сходит на нет (это его край
+   эллипса, там он почти плоский) — снеговик стоял на голой земле, а
+   заметная часть вала оказывалась чуть правее него отдельным «куском».
+   Этот сугроб уже, ниже и всегда точно под ним — не зависит от того,
+   насколько широкий передний вал дотягивается до края. */
+.season-winter .hud-snowdrift.sd-snowman {
+    left: -8px; width: 78px; height: 26px; z-index: 11;
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+}
+
+/* --- Свет в окнах ------------------------------------------------------ */
+/* Было наоборот: при phase-night подсвечивались только перекладины рамы —
+   получался светящийся крест на тёмном стекле. И срабатывало это лишь для
+   класса phase-night: в глубокую ночь (phase-deep-night) свет не загорался
+   вовсе. Теперь светится само стекло, а сила света берётся из
+   --scene-night-strength, поэтому окна разгораются к сумеркам и гаснут на
+   рассвете сами, без привязки к именам фаз. */
+.season-winter .hud-winter-warm-window { opacity: 1; }
+.season-winter .hud-winter-warm-window::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(125% 135% at 50% 38%, #fff3d2 0%, #ffd88f 44%, #e2a052 100%);
+    opacity: var(--scene-night-strength, 0);
+    transition: opacity 1.6s ease;
+}
+/* Перекладины рамы — тёмные поверх горящего стекла. */
+.season-winter .hud-winter-warm-window .hud-window-pane { background: rgba(42,33,20,.62); }
+.phase-night.season-winter .hud-winter-warm-window .hud-window-pane,
+.phase-deep-night.season-winter .hud-winter-warm-window .hud-window-pane { background: rgba(46,34,18,.82); }
+/* Ореол наружу — той же силы, что и свет. */
+.season-winter .hud-winter-warm-window {
+    box-shadow: 0 0 0 1px rgba(12,13,16,.65),
+                0 0 calc(20px * var(--scene-night-strength, 0)) rgba(255,205,115,.55);
+    transition: box-shadow 1.6s ease;
+}
+/* Тёплое пятно на сугробе под окном: свет из дома должен куда-то падать. */
+.season-winter .hud-winter-house::after {
+    content: ''; position: absolute; left: 6px; bottom: -7px;
+    width: 52px; height: 13px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(255,206,124,.42), transparent 70%);
+    opacity: var(--scene-night-strength, 0);
+    pointer-events: none;
+    transition: opacity 1.6s ease;
+}
+
+/* Снеговик стоял ровно перед окном главного дома и закрывал его целиком:
+   свет в окнах было видно только у двух дальних домов. Разводим их. */
+.season-winter .hud-snowman { left: 2px; }
+.season-winter .hud-winter-house.h1 { left: 15%; }
+
+/* Свечение окна в два слоя: близкий плотный ореол и дальний рассеянный.
+   Одного 20-пиксельного размытия не хватало — окно читалось как бежевый
+   квадратик, а не как источник света. */
+.season-winter .hud-winter-warm-window {
+    box-shadow:
+      0 0 0 1px rgba(12,13,16,.65),
+      0 0 calc(10px * var(--scene-night-strength, 0)) calc(2px * var(--scene-night-strength, 0)) rgba(255,214,138,.75),
+      0 0 calc(34px * var(--scene-night-strength, 0)) calc(8px * var(--scene-night-strength, 0)) rgba(255,183,86,.30);
+}
+
+/* Три одинаковых по цвету дома днём сливались в одно тёмное пятно.
+   Разводим стены и крыши по тону: тёплый сруб, холодный камень, дальний
+   голубоватый. Силуэты сразу читаются по отдельности. */
+.season-winter .hud-winter-house.h2 .hud-winter-house-body {
+    background: linear-gradient(180deg, #56504a 0%, #3d3832 75%, #2f2b26 100%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.10), inset 0 -6px 12px rgba(0,0,0,.14),
+                -1px 0 0 rgba(255,255,255,.07);
+}
+.season-winter .hud-winter-house.h2 .hud-winter-house-roof {
+    background: linear-gradient(160deg, #63594f 0%, #3a342d 56%, #26221d 100%);
+}
+.season-winter .hud-winter-house.h3 .hud-winter-house-body {
+    background: linear-gradient(180deg, #4d5158 0%, #383c43 75%, #2c3036 100%);
+}
+.season-winter .hud-winter-house.h3 .hud-winter-house-roof {
+    background: linear-gradient(160deg, #59606a 0%, #343a43 56%, #232830 100%);
 }

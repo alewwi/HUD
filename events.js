@@ -3,122 +3,26 @@
 // Домен «События»: глобальные обработчики UI, MutationObserver за контейнером
 // чата и подписка на жизненный цикл SillyTavern.
 //
-// В отличие от остальных модулей, здесь пришлось ввести один шов: обработчики
-// дёргают функции и состояние, которые остались в index.js. Они передаются
-// одним объектом ctx при инициализации. Изменяемое состояние передаётся
-// геттерами, а не значениями:
+// Обработчики дёргают функции и состояние, оставшиеся в index.js. Они
+// передаются одним объектом ctx при инициализации. Изменяемое состояние
+// передаётся геттерами, а не значениями:
 //   getChatContainer()       — cachedChatContainer переприсваивается в initApp;
 //   getPerformanceObserver() — IntersectionObserver создаётся и сбрасывается
 //                              perf-кластером в index.js по мере смены режима.
-// Функции — стабильные ссылки. settings сюда больше не передаётся: модуль
-// импортирует живой синглтон из settings.js напрямую.
+// Всё остальное (settings, функции) — стабильные ссылки.
 
-import { settings } from './settings.js';
-import { invalidateAvatarCache } from './avatars.js';
-import { getWorldVotes } from './render/world.js';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js';
+import { invalidateAvatarCache } from './avatars.js?v=22.5.8';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.5.8';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
 
-// Пометить переписку прочитанной: снять счётчики со строки списка, убрать
-// её уведомление со стопки и пересчитать общий бейдж и значок на иконке.
-// Работает на уровне DOM: сам HUD-блок в сообщении не переписываем, это
-// состояние просмотра, а не данные.
-// Точная высота каждой карточки уведомления в переменную --notif-h.
-// Карточки бывают в одну и в две строки, а сжатие стопки задаётся
-// отрицательным отступом — без реальной высоты задние выглядывали неровно.
-// Раскладка стопки уведомлений задаётся инлайном из JS, а не каскадом CSS.
-// В файле стилей это место оказалось перегружено несколькими поколениями
-// правил, и margin у раскрытого состояния переставал применяться. Инлайн
-// снимает вопрос: он всегда выигрывает, а переходы по-прежнему делает CSS.
-function hudLayoutNotifStack(stack) {
-  if (!stack) return;
-  const open = stack.classList.contains('is-open');
-  const cards = [...stack.querySelectorAll('.hud-phone-notif')];
-  cards.forEach((card, i) => {
-    card.style.setProperty('--depth', String(i));
-    if (open) {
-      card.style.marginTop = i === 0 ? '0px' : '7px';
-      card.style.transform = 'none';
-      card.style.opacity = '';
-    } else {
-      const h = Math.round(card.getBoundingClientRect().height) || 58;
-      // Задняя карточка выглядывает на 9px из-под передней.
-      card.style.marginTop = i === 0 ? '0px' : `-${Math.max(0, h - 9)}px`;
-      card.style.transform = `scale(${(1 - i * 0.045).toFixed(3)})`;
-      card.style.opacity = String(1 - i * 0.12);
-    }
-  });
-}
-
-function hudMeasureNotifCards(stack) {
-  if (!stack) return;
-  stack.querySelectorAll('.hud-phone-notif').forEach(card => {
-    const h = Math.round(card.getBoundingClientRect().height);
-    if (h > 0) card.style.setProperty('--notif-h', h + 'px');
-  });
-}
-
-function hudMarkChatRead(scopeEl, chatTarget) {
-  if (!scopeEl || !chatTarget) return;
-  const emulator = scopeEl.closest('.hud-phone-emulator') || scopeEl;
-
-  // 1. Бейдж непрочитанного у строки чата.
-  const row = emulator.querySelector(`.hud-phone-chat-row[data-chat-target="${CSS.escape(chatTarget)}"]`);
-  if (row) row.querySelectorAll('.hud-unread-badge').forEach(b => b.remove());
-
-  // 2. Карточка уведомления этой переписки.
-  const stack = emulator.querySelector('.hud-phone-notif-stack');
-  const card = stack && stack.querySelector(`.hud-phone-notif[data-chat-target="${CSS.escape(chatTarget)}"]`);
-  if (card) card.remove();
-
-  // Зашли в переписку — стопка возвращается в свёрнутый вид,
-  // чтобы на домашнем экране она снова была одной аккуратной полоской.
-  if (stack) stack.classList.remove("is-open");
-
-  // 3. Пересчёт: сумма оставшихся уведомлений.
-  let left = 0;
-  if (stack) {
-    stack.querySelectorAll('.hud-phone-notif').forEach((c, i) => {
-      c.style.setProperty('--depth', String(i));
-      const per = c.querySelector('.hud-phone-notif-meta i');
-      left += per ? (parseInt(per.textContent, 10) || 1) : 1;
-    });
-    const total = stack.querySelector('.hud-phone-notif-count');
-    if (total) total.textContent = String(left);
-    // Стопка без уведомлений не нужна.
-    if (!stack.querySelector('.hud-phone-notif')) stack.remove();
-  }
-
-  if (stack) { hudMeasureNotifCards(stack); hudLayoutNotifStack(stack); }
-
-  // 4. Значок на иконке «Сообщения».
-  const appBadge = emulator.querySelector('.hud-phone-app[data-phone-app="messages"] .hud-unread-badge');
-  if (appBadge) {
-    if (left > 0) appBadge.textContent = String(left);
-    else appBadge.remove();
-  }
-}
-
 export function initGlobalEvents(ctx) {
-  const { saveSettings, applyThemeColors, showHudToast } = ctx;
+  const { settings, saveSettings, applyThemeColors, showHudToast, getWorldVotes } = ctx;
   if (window.hudEventsInitialized) return;
   window.hudEventsInitialized = true;
 
   document.body.addEventListener('change', function(e) {
-    // Переключатель «наследовать тему HUD» живёт внутри карточки HUD, а карточек
-    // в чате много — поэтому ловим его делегированно по классу, а не по id.
-    const phoneAuto = e.target.closest('.hud-phone-theme-auto');
-    if (phoneAuto) {
-      settings.phoneThemeAuto = phoneAuto.checked;
-      // Синхронизируем остальные копии переключателя в других карточках.
-      document.querySelectorAll('.hud-phone-theme-auto').forEach(box => { box.checked = phoneAuto.checked; });
-      saveSettings();
-      applyThemeColors();
-      return;
-    }
-
     const toggle = e.target.closest('.hud-toggle-input');
     if (!toggle) return;
     const card = toggle.closest('.hud-os-card');
@@ -180,15 +84,6 @@ export function initGlobalEvents(ctx) {
       return;
     }
 
-    const hudActionBtn = e.target.closest && e.target.closest('.hud-regen-btn');
-    if (hudActionBtn) {
-      e.preventDefault();
-      e.stopPropagation();
-      if (e.stopImmediatePropagation) e.stopImmediatePropagation();
-      void handleHudRegenButton(hudActionBtn);
-      return;
-    }
-
     const newsVote = e.target.closest('.hud-news-vote');
     if (newsVote) {
       e.preventDefault();
@@ -239,9 +134,28 @@ export function initGlobalEvents(ctx) {
     }
 
     // Контейнер мессенджера: в личном телефоне это экран приложения внутри
-    // эмулятора, в перехватах — старый .hud-phone-mockup. Ищем любой из них,
-    // чтобы переключение подвкладок работало в обоих случаях.
+    // эмулятора, в перехватах — старый .hud-phone-mockup. Ищем ближайший,
+    // чтобы переключение подвкладок работало в обоих.
+    // Контейнер мессенджера: в личном телефоне это экран приложения внутри
+    // эмулятора, в перехватах — старый .hud-phone-mockup. Ищем ближайший,
+    // чтобы переключение подвкладок работало в обоих.
     const phoneScope = (el) => el.closest('.hud-phone-app-view, .hud-phone-mockup');
+
+    // Экран «Сообщения» живёт в двух состояниях, и переключает их не класс
+    // .active на теле переписки, а is-chat-open на самом экране: без него
+    // .hud-phone-chat-stage остаётся display:none, и тап по чату выглядит
+    // как «телефон не реагирует». Список и сцена переписки взаимно
+    // исключают друг друга — см. правила у [data-phone-view="messages"].
+    const openChat = (view, body) => {
+      if (!view) return;
+      view.querySelectorAll('.hud-phone-subbody.active').forEach(b => b.classList.remove('active'));
+      if (body) {
+        body.classList.add('active');
+        view.classList.add('is-chat-open');
+      } else {
+        view.classList.remove('is-chat-open');
+      }
+    };
 
     const participantsToggle = e.target.closest('.hud-phone-title-group');
     if (participantsToggle && participantsToggle.querySelector('.hud-phone-participants-list')) {
@@ -257,43 +171,26 @@ export function initGlobalEvents(ctx) {
       return;
     }
 
-    // Открытие чата из списка: приложение переключается со списка на переписку.
-    const chatRow = e.target.closest('.hud-phone-chat-row');
-    if (chatRow) {
-      e.preventDefault();
-      const view = chatRow.closest('.hud-phone-app-view');
-      if (view) {
-        view.querySelectorAll('.hud-phone-subbody').forEach(b => b.classList.remove('active'));
-        const target = chatRow.dataset.chatTarget && view.querySelector(`#${CSS.escape(chatRow.dataset.chatTarget)}`);
-        if (target) target.classList.add('active');
-        view.classList.add('is-chat-open');
-        const area = target && target.querySelector('.hud-phone-chat-area');
-        if (area) area.scrollTop = area.scrollHeight;
-        // Зашли в переписку — она прочитана.
-        hudMarkChatRead(view, chatRow.dataset.chatTarget);
-      }
-      return;
-    }
-
-    // Стрелка «назад»: из переписки — к списку чатов, со списка — на домашний экран.
+    // Стрелка «назад» в шапке переписки: сначала закрывает переписку и
+    // возвращает к списку чатов, и только со списка сворачивает приложение
+    // на домашний экран.
     const phoneBack = e.target.closest('.hud-phone-back');
     if (phoneBack) {
+      e.preventDefault();
       const view = phoneBack.closest('.hud-phone-app-view');
       if (view && view.classList.contains('is-chat-open')) {
-        e.preventDefault();
-        view.classList.remove('is-chat-open');
-        view.querySelectorAll('.hud-phone-subbody').forEach(b => b.classList.remove('active'));
+        openChat(view, null);
+        return;
+      }
+      const backScope = view || phoneBack.closest('.hud-phone-mockup');
+      const openBody = backScope && backScope.querySelector('.hud-phone-subbody.active');
+      if (openBody) {
+        openBody.classList.remove('active');
         return;
       }
       const emulator = phoneBack.closest('.hud-phone-emulator');
-      if (emulator) {
-        e.preventDefault();
-        emulator.querySelectorAll('.hud-phone-app-view.active').forEach(v => {
-          v.classList.remove('active');
-          v.classList.remove('is-chat-open');
-        });
-        return;
-      }
+      if (emulator) emulator.querySelectorAll('.hud-phone-app-view.active').forEach(v => v.classList.remove('active'));
+      return;
     }
 
     const subtab = e.target.closest('.hud-phone-subtab');
@@ -310,65 +207,46 @@ export function initGlobalEvents(ctx) {
       return;
     }
 
-    const dreamEntry = e.target.closest('.hud-dream-entry');
-    if (dreamEntry) {
-      const stage = Number(dreamEntry.getAttribute('data-crack') || 0);
-      const next = (stage + 1) % 4;
-      dreamEntry.setAttribute('data-crack', String(next));
-      dreamEntry.classList.toggle('is-awake', next === 3);
-      return;
-    }
-
-    // --- Телефонная ОС: открытие приложения и возврат на домашний экран ---
-    // Иконка приложения ИЛИ стопка уведомлений на домашнем экране — оба
-    // несут data-phone-app и открывают соответствующий экран.
-    // Стопка уведомлений: первый тап раскрывает её, тап по конкретному
-    // уведомлению уже открывает «Сообщения». Так работает одинаково и на
-    // телефоне, и на десктопе — раскрытие больше не завязано на hover.
-    const notifStack = e.target.closest('.hud-phone-notif-stack');
-    if (notifStack) {
+    // Строка списка чатов и карточка уведомления открывают конкретную
+    // переписку: id её тела совпадает с data-chat-target. Уведомление лежит
+    // на домашнем экране, поэтому сначала поднимаем само приложение.
+    const chatRow = e.target.closest('.hud-phone-chat-row, .hud-phone-notif');
+    if (chatRow && chatRow.dataset.chatTarget) {
       e.preventDefault();
-      hudMeasureNotifCards(notifStack);
-      hudLayoutNotifStack(notifStack);
-      const card = e.target.closest('.hud-phone-notif');
-      if (!notifStack.classList.contains('is-open')) {
-        notifStack.classList.add("is-open");
-        hudLayoutNotifStack(notifStack);
-        return;
-      }
-      if (!card) {
-        // Повторный тап мимо карточек — сворачиваем обратно.
-        notifStack.classList.remove("is-open");
-        hudLayoutNotifStack(notifStack);
-        return;
-      }
-      const target = card.dataset.chatTarget;
-      const emulator = notifStack.closest(".hud-phone-emulator");
-      if (emulator) {
-        emulator.querySelectorAll(".hud-phone-app-view").forEach(v => {
-          v.classList.toggle("active", v.dataset.phoneView === "messages");
+      const emulator = chatRow.closest('.hud-phone-emulator');
+      const stack = chatRow.closest('.hud-phone-notif-stack');
+      let view = chatRow.closest('.hud-phone-app-view');
+      if (emulator && stack) {
+        const appId = stack.dataset.phoneApp;
+        emulator.querySelectorAll('.hud-phone-app-view').forEach(v => {
+          v.classList.toggle('active', v.dataset.phoneView === appId);
         });
-        // Открываем именно тот чат, о котором было уведомление, и гасим его.
-        const view = emulator.querySelector(".hud-phone-app-view[data-phone-view='messages']");
-        if (view && target) {
-          view.querySelectorAll(".hud-phone-subbody").forEach(b => b.classList.remove("active"));
-          const body = view.querySelector("#" + CSS.escape(target));
-          if (body) body.classList.add("active");
-          view.classList.add("is-chat-open");
-          hudMarkChatRead(emulator, target);
-        }
+        view = emulator.querySelector(`.hud-phone-app-view[data-phone-view="${CSS.escape(appId)}"]`);
+      }
+      const scope = view || phoneScope(chatRow) || emulator;
+      const body = scope && scope.querySelector(`#${CSS.escape(chatRow.dataset.chatTarget)}`);
+      if (view) openChat(view, body);
+      else if (body) {
+        scope.querySelectorAll('.hud-phone-subbody.active').forEach(b => b.classList.remove('active'));
+        body.classList.add('active');
       }
       return;
     }
 
-    const phoneApp = e.target.closest('.hud-phone-app');
+    // --- Телефонная ОС: открытие приложения и возврат на домашний экран.
+    // Иконка приложения ИЛИ стопка уведомлений на домашнем экране несут
+    // data-phone-app и открывают соответствующий экран. Открытое с иконки
+    // приложение всегда показывает список, а не последнюю переписку.
+    const phoneApp = e.target.closest('.hud-phone-app, .hud-phone-notif-stack');
     if (phoneApp) {
       e.preventDefault();
       const emulator = phoneApp.closest('.hud-phone-emulator');
       if (emulator) {
         const appId = phoneApp.dataset.phoneApp;
         emulator.querySelectorAll('.hud-phone-app-view').forEach(v => {
-          v.classList.toggle('active', v.dataset.phoneView === appId);
+          const on = v.dataset.phoneView === appId;
+          v.classList.toggle('active', on);
+          if (on) openChat(v, null);
         });
       }
       return;
@@ -378,7 +256,19 @@ export function initGlobalEvents(ctx) {
     if (phoneHome) {
       e.preventDefault();
       const emulator = phoneHome.closest('.hud-phone-emulator');
-      if (emulator) emulator.querySelectorAll('.hud-phone-app-view.active').forEach(v => v.classList.remove('active'));
+      if (emulator) emulator.querySelectorAll('.hud-phone-app-view.active').forEach(v => {
+        v.classList.remove('active');
+        openChat(v, null);
+      });
+      return;
+    }
+
+    const dreamEntry = e.target.closest('.hud-dream-entry');
+    if (dreamEntry) {
+      const stage = Number(dreamEntry.getAttribute('data-crack') || 0);
+      const next = (stage + 1) % 4;
+      dreamEntry.setAttribute('data-crack', String(next));
+      dreamEntry.classList.toggle('is-awake', next === 3);
       return;
     }
 
@@ -403,10 +293,6 @@ export function initGlobalEvents(ctx) {
         applyRelGraphFocus(relGraph, '', '', nextType);
         return;
       }
-
-      // Фокус узла или связи тоже «оживляет» граф: без fx-active бегущий
-      // пунктир по линиям не запускался, и нажатая связь оставалась статичной.
-      if (clickedNode || clickedEdge || clickedLabel || clickedLegend) relGraph.classList.add("fx-active");
 
       if (clickedNode) {
         const nodeId = clickedNode.dataset.nodeId || '';
@@ -438,106 +324,39 @@ export function initGlobalEvents(ctx) {
 
       if (!relGraph.dataset.relZoomBound) {
         relGraph.dataset.relZoomBound = '1';
-        
         relGraph.addEventListener('wheel', (wheelEvent) => {
           if (!relGraph.classList.contains('is-expanded')) return;
           wheelEvent.preventDefault();
-          
-          const stageEl = relGraph.querySelector('.hud-rel-stage');
-          const svgEl = relGraph.querySelector('.hud-rel-svg');
-          if (!stageEl || !svgEl) return;
-          
-          const rect = stageEl.getBoundingClientRect();
-          // Вычисляем положение курсора относительно контейнера
-          const mx = wheelEvent.clientX - rect.left;
-          const my = wheelEvent.clientY - rect.top;
-
           const current = Number(relGraph.dataset.zoom || 1);
-          const tx = Number(relGraph.dataset.tx || 0);
-          const ty = Number(relGraph.dataset.ty || 0);
-
-          // Скорость зума
-          const delta = wheelEvent.deltaY > 0 ? -0.15 : 0.15;
-          const next = Math.min(4.0, Math.max(1, current + delta)); // Максимальное увеличение 4x
-
-          // Математика центрирования к курсору
-          const px = (mx - tx) / current;
-          const py = (my - ty) / current;
-          
-          let newTx = mx - px * next;
-          let newTy = my - py * next;
-
-          // Если полностью отдалились, сбрасываем смещение
-          if (next <= 1) { newTx = 0; newTy = 0; }
-
+          const delta = wheelEvent.deltaY > 0 ? -0.12 : 0.12;
+          const next = Math.min(2.2, Math.max(0.7, current + delta));
           relGraph.dataset.zoom = String(next);
-          relGraph.dataset.tx = String(newTx);
-          relGraph.dataset.ty = String(newTy);
-
-          // Применяем точную трансформацию
-          svgEl.style.transformOrigin = '0 0';
-          svgEl.style.transform = `translate(${newTx}px, ${newTy}px) scale(${next})`;
+          relGraph.style.setProperty('--hud-rel-zoom', String(next));
         }, { passive: false });
 
-        let pinchStartDist = null;
-        let pinchStartCenter = null;
-        let pinchStartTx = 0;
-        let pinchStartTy = 0;
-        let pinchStartZoom = 1;
-
+        let pinchStart = null;
         relGraph.addEventListener('touchstart', (touchEvent) => {
           if (touchEvent.touches.length === 2 && relGraph.classList.contains('is-expanded')) {
             const dx = touchEvent.touches[0].clientX - touchEvent.touches[1].clientX;
             const dy = touchEvent.touches[0].clientY - touchEvent.touches[1].clientY;
-            pinchStartDist = Math.hypot(dx, dy);
-            
-            const stageEl = relGraph.querySelector('.hud-rel-stage');
-            if(!stageEl) return;
-            const rect = stageEl.getBoundingClientRect();
-            
-            // Находим центр между двумя пальцами
-            pinchStartCenter = {
-                x: ((touchEvent.touches[0].clientX + touchEvent.touches[1].clientX) / 2) - rect.left,
-                y: ((touchEvent.touches[0].clientY + touchEvent.touches[1].clientY) / 2) - rect.top
-            };
-            pinchStartTx = Number(relGraph.dataset.tx || 0);
-            pinchStartTy = Number(relGraph.dataset.ty || 0);
-            pinchStartZoom = Number(relGraph.dataset.zoom || 1);
+            pinchStart = Math.hypot(dx, dy);
           }
         }, { passive: true });
 
         relGraph.addEventListener('touchmove', (touchEvent) => {
-          if (!relGraph.classList.contains('is-expanded') || pinchStartDist === null || touchEvent.touches.length !== 2) return;
+          if (!relGraph.classList.contains('is-expanded') || pinchStart === null || touchEvent.touches.length !== 2) return;
           const dx = touchEvent.touches[0].clientX - touchEvent.touches[1].clientX;
           const dy = touchEvent.touches[0].clientY - touchEvent.touches[1].clientY;
           const dist = Math.hypot(dx, dy);
-          
-          const scaleDelta = (dist - pinchStartDist) / 150;
-          const next = Math.min(4.0, Math.max(1, pinchStartZoom + scaleDelta));
-
-          const mx = pinchStartCenter.x;
-          const my = pinchStartCenter.y;
-          
-          const px = (mx - pinchStartTx) / pinchStartZoom;
-          const py = (my - pinchStartTy) / pinchStartZoom;
-          
-          let newTx = mx - px * next;
-          let newTy = my - py * next;
-
-          if (next <= 1) { newTx = 0; newTy = 0; }
-
+          const scaleDelta = (dist - pinchStart) / 180;
+          const current = Number(relGraph.dataset.zoom || 1);
+          const next = Math.min(2.2, Math.max(0.7, current + scaleDelta * 0.16));
           relGraph.dataset.zoom = String(next);
-          relGraph.dataset.tx = String(newTx);
-          relGraph.dataset.ty = String(newTy);
-
-          const svgEl = relGraph.querySelector('.hud-rel-svg');
-          if(svgEl) {
-              svgEl.style.transformOrigin = '0 0';
-              svgEl.style.transform = `translate(${newTx}px, ${newTy}px) scale(${next})`;
-          }
+          relGraph.style.setProperty('--hud-rel-zoom', String(next));
+          pinchStart = dist;
         }, { passive: true });
 
-        relGraph.addEventListener('touchend', () => { pinchStartDist = null; }, { passive: true });
+        relGraph.addEventListener('touchend', () => { pinchStart = null; }, { passive: true });
       }
       return;
     }
@@ -575,14 +394,6 @@ export function initGlobalEvents(ctx) {
         if (varKey === 'bgImage') return; 
         
         settings[varKey] = themeInput.value;
-        // Ручная правка любой телефонной настройки снимает наследование темы
-        // HUD — иначе следующий applyThemeColors затёр бы правку обратно.
-        const PHONE_KEYS = /^(phoneBg(Start|End|Alpha)|phoneAccent|phoneBlur|phoneBubbleRadius|phoneFont(Size)?|phoneNotifAlpha|msgIn(Bg|Alpha)|msgOut(Start|End|Alpha))$/;
-        if (PHONE_KEYS.test(varKey) && settings.phoneThemeAuto !== false) {
-          settings.phoneThemeAuto = false;
-          document.querySelectorAll('.hud-phone-theme-auto').forEach(box => { box.checked = false; });
-        }
-
         
         applyThemeColors(); 
         saveSettings();     

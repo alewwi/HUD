@@ -7,9 +7,9 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName } from '../utils.js';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName } from '../utils.js?v=22.5.8';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.5.8';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=22.5.8';
 
 export function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -513,6 +513,69 @@ export function applyRelGraphFocus(graphEl, focusNodeId, focusEdgeKey, focusType
   updateRelGraphInspector(graphEl);
 }
 
+// Раскрытый граф центрируется ИЗМЕРЕНИЕМ, а не процентами и не vw/vh.
+//
+// На мобильном SillyTavern вешает на <html> position:fixed и трансформ.
+// Любой трансформ делает элемент содержащим блоком для position:fixed
+// потомков, и left/top отсчитываются уже не от вьюпорта, а от границы
+// этого блока — граф уезжал в верхний левый угол. vw/vh спасали только
+// от нулевой ширины контейнера, но не от его смещения.
+//
+// Порядок: ставим элемент в начало координат контейнера, смотрим, где он
+// оказался на экране, и сдвигаем на разницу до центра вьюпорта. Заодно
+// вычисляем масштаб предка (нарисованная ширина / вёрстанная), иначе под
+// scale() пиксельный сдвиг был бы неверным.
+export function centerExpandedRelGraph(graphEl) {
+  if (!graphEl || !graphEl.classList.contains('is-expanded')) return;
+  const zoom = graphEl.dataset.zoom || '1';
+  const set = (prop, value) => graphEl.style.setProperty(prop, value, 'important');
+
+  set('transform', 'none');
+  set('left', '0px');
+  set('top', '0px');
+
+  const probe = graphEl.getBoundingClientRect();
+  const laidOutWidth = graphEl.offsetWidth || probe.width || 1;
+  const scale = probe.width ? (probe.width / laidOutWidth) : 1;
+  const s = (Number.isFinite(scale) && scale > 0.01) ? scale : 1;
+
+  const viewW = window.innerWidth || document.documentElement.clientWidth || 0;
+  const viewH = window.innerHeight || document.documentElement.clientHeight || 0;
+
+  set('left', ((viewW / 2 - probe.left) / s) + 'px');
+  set('top', ((viewH / 2 - probe.top) / s) + 'px');
+  set('transform', 'translate(-50%, -50%) scale(' + zoom + ')');
+
+  const backdrop = document.querySelector('.hud-rel-graph-backdrop');
+  if (backdrop) {
+    const bset = (prop, value) => backdrop.style.setProperty(prop, value, 'important');
+    bset('left', '0px'); bset('top', '0px');
+    const bProbe = backdrop.getBoundingClientRect();
+    const bLaidOut = backdrop.offsetWidth || bProbe.width || 1;
+    const bScale = bProbe.width ? (bProbe.width / bLaidOut) : 1;
+    const bs = (Number.isFinite(bScale) && bScale > 0.01) ? bScale : 1;
+    bset('left', (-bProbe.left / bs) + 'px');
+    bset('top', (-bProbe.top / bs) + 'px');
+    bset('width', (viewW / bs) + 'px');
+    bset('height', (viewH / bs) + 'px');
+    bset('right', 'auto'); bset('bottom', 'auto');
+  }
+}
+
+// Пересчёт при повороте экрана и появлении экранной клавиатуры.
+let relGraphViewportHookBound = false;
+function bindRelGraphViewportHook() {
+  if (relGraphViewportHookBound || typeof window === 'undefined') return;
+  relGraphViewportHookBound = true;
+  const recenter = () => {
+    const open = document.querySelector('.hud-rel-graph.is-expanded');
+    if (open) centerExpandedRelGraph(open);
+  };
+  window.addEventListener('resize', recenter);
+  window.addEventListener('orientationchange', recenter);
+  if (window.visualViewport) window.visualViewport.addEventListener('resize', recenter);
+}
+
 export function setRelGraphExpandedState(graphEl, expanded) {
   if (!graphEl) return;
 
@@ -553,6 +616,11 @@ export function setRelGraphExpandedState(graphEl, expanded) {
     }
 
     backdrop.classList.add('visible');
+
+    // Считаем позицию после того, как элемент уже в body и получил размеры.
+    bindRelGraphViewportHook();
+    centerExpandedRelGraph(graphEl);
+    requestAnimationFrame(() => centerExpandedRelGraph(graphEl));
   } else {
     // Возвращаем граф в исходную позицию.
     const home = graphEl._hudRelHome;
@@ -563,6 +631,8 @@ export function setRelGraphExpandedState(graphEl, expanded) {
     delete graphEl._hudRelHome;
 
     graphEl.classList.remove('is-expanded');
+    // Снимаем измеренные координаты, иначе они останутся на свёрнутом графе.
+    ['left', 'top', 'transform'].forEach(p => graphEl.style.removeProperty(p));
     graphEl.style.setProperty('--hud-rel-zoom', '1');
     graphEl.dataset.zoom = '1';
     graphEl.dataset.tx = '0';

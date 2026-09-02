@@ -1,18 +1,18 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js';
-import { escapeHtml, getSafeUserName } from './utils.js';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js';
-import { initGlobalEvents, initObserver, initTavernOSEvents } from './events.js';
-import { buildUserHTML, buildCharacterHTML } from './render/character.js';
-import { buildDiaryHTML, hudHasMeaningfulDiary } from './render/diary.js';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js';
-import { buildMemoryHTML } from './render/memory.js';
-import { buildPhoneTabsHTML } from './render/phone.js';
-import { hudHasRelations } from './render/relations-graph.js';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.5.8';
+import { escapeHtml, getSafeUserName } from './utils.js?v=22.5.8';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.5.8';
+import { initGlobalEvents, initObserver, initTavernOSEvents } from './events.js?v=22.5.8';
+import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.5.8';
+import { buildDiaryHTML, hudHasMeaningfulDiary } from './render/diary.js?v=22.5.8';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.5.8';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.5.8';
+import { buildMemoryHTML } from './render/memory.js?v=22.5.8';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.5.8';
+import { hudHasRelations } from './render/relations-graph.js?v=22.5.8';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.5.8';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.5.8';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -77,21 +77,16 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
 - 🧾 MANDATORY FIELDS (CRITICAL): Every enabled top-level section and every field defined by its schema MUST be present on every turn. The ONLY intentional exception is conditional NSFW content: NSFW fields may contain "empty" when inactive, and the existing renderer may hide empty NSFW content.
 - 🔄 NO OMISSION AS STATE MANAGEMENT (CRITICAL): Missing a required key is NOT a valid way to express "nothing changed" or "nothing to report". Preserve the key and use its empty value.
 - 📝 MESSAGE STATES (CRITICAL): Messages may be Draft or Deleted when the current narrative supports it. These states are part of the live current-turn snapshot, not historical filler.
-- 📱 MESSAGE ROUTING (CRITICAL): Use chatsMap for conversations the active protagonist can legitimately read/access. NPC↔NPC conversations and groups where the active protagonist is absent MUST go to intercepts instead. This routing is about information access, NOT physical presence.
-- 👥 PARTICIPANTS RULE (CRITICAL): The "participants" field MUST be emitted ONLY for genuinely GROUP chats/conversations, both in chatsMap and in intercepts. For one-to-one/private chats, OMIT the "participants" field entirely. Do NOT invent or repeat a participants list for a one-to-one chat. In a group chat, list all actual participants known at the current turn.
+- 📱 ONE PHONE, ONE OWNER (CRITICAL): "chatsMap" and "phone" describe EXACTLY ONE device — the personal phone of ONE person, named in "phone.owner". Keep "owner" identical in every chat and on every turn. EVERY chat in "chatsMap" MUST be a conversation the OWNER personally takes part in — the owner is always one of the two sides. A conversation between two OTHER people is NOT the owner's chat and MUST go to "intercepts", even if the owner knows about it, is discussed in it, was told about it, or could somehow read it. Access is irrelevant; participation is what decides. VIOLATION EXAMPLE: owner is Брэндон, and "chatsMap" holds a chat between Ричард and his lawyer — that conversation has no Брэндон in it, so it belongs in "intercepts". Contacts, gallery, notes, maps and search are the owner's own. If you are unsure whether the owner personally takes part, it goes to "intercepts".
+- 👥 PARTICIPANTS RULE (CRITICAL): Emit "participants" ONLY for a genuine GROUP conversation, which means THREE OR MORE people including the owner. For any one-to-one chat OMIT the field entirely — never write "Нет", "none", "empty" or a single name. Lists shorter than three names are discarded by the renderer, so a two-person list is wasted output. In a group chat list all actual participants known at the current turn, separated by ;.
 - 📱 MESSAGE SNAPSHOT IS REAL-TIME (CRITICAL): chatsMap is a live snapshot of messaging state at the exact current point in the story. Re-evaluate it EVERY TURN while preserving valid ongoing conversations and unresolved messages. Messages may be Read, Unread, Deleted, or Draft. Deleted messages remain marked as deleted and may retain hidden original text for the click-to-reveal UI. Draft messages are unsent and must never count as delivered/read. Voice messages may use [VOICE_0:15] (or another duration) followed by transcript text. Do not generate placeholder chats or fake-phone OS data.
 - 📡 INTERCEPT SNAPSHOT IS REAL-TIME (CRITICAL): intercepts is a live snapshot of conversations the active protagonist cannot directly read. Re-evaluate EVERY TURN while preserving valid ongoing conversations. NPC↔NPC and groups without the active protagonist belong here. Never create an intercept solely to expose information to the protagonist; it must be a plausible independent conversation.
 - 🧠 MEMORY SCOPE (CRITICAL): memory.mood and memory.route track ONLY {{user}} and {{char}} as the main protagonists. If a protagonist is absent from the physical scene, do not invent a present-scene mood or route event for them; this does NOT erase their broader world state from messaging, schedules, relationships or other world-level structures. Mood history: MAX 12 recent points per protagonist. Route history: MAX 20 recent points per protagonist. Timeline: MAX 5 recent events of TODAY.
 - 🕸️ RELATION WEB (CRITICAL for the Memory infographic): JS draws an SVG spiderweb from "Rel" fields. EVERY character in "characters" AND the "user" block MUST emit a complete Rel covering EVERY other named person who currently matters ({{user}}, {{char}}, scene NPCs, mentioned NPCs). Format EXACTLY "Name: how THIS person feels toward Name", separated by ;. Relationships MUST be bidirectional: if Аня has "Максим: ревнует", Максим MUST exist in "characters" with Rel containing "Аня: ...". Any NPC mentioned in anyone's Rel MUST also appear in "characters" with their own Rel. Never omit Rel and never write "empty" while other named people exist this turn.
 - 🧠 KNOWLEDGE BOUNDARIES (CRITICAL): Every character knows only what they could plausibly know. Never leak another character's private thoughts, private conversations, intercepted messages or hidden plans into a different character's internal state without a believable information path.
 - 🛑 NSFW LIFECYCLE (CRITICAL): Fields "W", "NSFW_Det", "SexRev", and user's "UW" MUST ONLY be active during intimacy, sex, or high arousal. Once the scene cools down, clear them by writing "empty". Do NOT leave old NSFW details active.
-- 📱 PHONE OWNERSHIP (CRITICAL): "chatsMap" and "phone" describe EXACTLY ONE device — {{char}}'s own phone. Every chat in "chatsMap" MUST have {{char}} as a participant, and "owner" MUST always be {{char}}. Contacts, gallery, notes, maps and search are {{char}}'s. NEVER put another character's phone, chats or data here.
-- 📡 PHONE vs INTERCEPTS (CRITICAL): any conversation that does NOT include {{char}} — NPC-to-NPC chats, other people's group chats, anything happening on someone else's device — belongs in "intercepts", never in "chatsMap". If you are unsure whether {{char}} is in a conversation, it goes to "intercepts".
-- 📖 DIARY POV (CRITICAL): The diary is PRIVATE IN-WORLD WRITING. Every diary entry MUST be written in first person from the perspective of its named author. The author MUST be a character or NPC, NEVER {{user}}. It is NOT an omniscient scene summary or AI report. The author may only write what they personally experienced, know, believe, remember, suspect or misunderstand.
-- 📖 DIARY SELF-REFLECTION (CRITICAL): The main "text" field is the author's own diary. It should focus on the author's day, condition, emotions, inner conflict, decisions, memories, regrets, hopes, plans and self-talk. The author may freely reflect on what happened and talk to themselves. Do NOT turn the main diary text into a report about {{user}}.
-- 📖 DIARY ABOUT USER (CRITICAL): Every diary entry MUST also contain a separate "aboutUser" field. This is NOT an omniscient analysis and NOT a second narrator. It is a private first-person subsection where the same author says what they personally think and feel about {{user}}: attraction, anger, tenderness, resentment, fear, curiosity, observations, memories, wishes, doubts, expectations or unresolved questions. Keep it separate from the author's general self-reflection. If there is nothing meaningful to say about {{user}} this turn, use "empty". Never write "aboutUser" from {{user}}'s perspective and never make {{user}} the author.
-- 📖 DIARY AUTHOR (CRITICAL): Every diary entry MUST contain an "author" field naming the character/NPC who wrote it. Never use {{user}} as diary author.
-- 📖 DIARY MOOD (CRITICAL): Every diary entry SHOULD include a short "mood" field or "emotion" field to identify the writer's dominant tone. Use single-word or short-phrase descriptors such as sadness, tears, anger, stress, panic, rush, relief, guilt, joy, calm, longing. This field is used only for visual styling and must stay brief.
+- 📖 DIARY VOICE (CRITICAL): The diary is PRIVATE IN-WORLD WRITING, not a scene summary or an AI report. Every entry MUST name its "author" and be written by that author in first person. The author is ALWAYS a character or NPC and NEVER {{user}}. An author may only write what they personally experienced, know, believe, remember, suspect or misunderstand. The main "text" is the author's own diary: their day, condition, emotions, inner conflict, decisions, memories, regrets, hopes, plans and self-talk — not a report about {{user}}.
+- 📖 DIARY FIELDS (CRITICAL): Besides "text", every entry MUST carry "aboutUser" — a private first-person subsection where the SAME author says what they personally think and feel about {{user}}: attraction, anger, tenderness, resentment, fear, curiosity, observations, memories, wishes, doubts or unresolved questions. It is not omniscient analysis and not a second narrator; keep it separate from the general self-reflection, and use "empty" if there is nothing meaningful this turn. Every entry SHOULD also carry a short "mood" (or "emotion") field naming the writer's dominant tone — sadness, tears, anger, stress, panic, rush, relief, guilt, joy, calm, longing. It drives visual styling only, so keep it to one word or a short phrase.
 - 📱 AUTONOMOUS COMMUNICATION (CRITICAL): Characters and NPCs have independent communication lives. Incoming messages may concern work, friends, family, romance, debt, logistics, bureaucracy, enemies, rivals or routine life. A character may receive messages without answering them immediately. Busy, asleep, working, traveling, offline, ignoring, emotionally overwhelmed or simply not checking the phone are valid reasons for no reply.
 - ⏱️ AUTONOMOUS TIME (CRITICAL): Off-screen characters continue living while the current scene unfolds. They may work, sleep, travel, exchange messages, miss appointments, make decisions, argue, receive news, buy things and plan actions when narratively plausible.
 - ⚠️ FORMATTING: Use EXACTLY these short English keys. ESCAPE inner quotes like this: "He said \\"Hello\\".". ALWAYS use semicolons (;) for lists, NEVER slashes (/).
@@ -865,24 +860,96 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
     else if (/\bноч\w*|\bnight\b/.test(phaseLow)) phaseClass = 'phase-night';
 
     let wClass = 'weather-clear', wLow = wRaw.toLowerCase(), wIntensity = '';
+    // СИЛА явления — отдельная ось, общая для всей погоды: «сильный»
+    // одинаково повышает и снегопад, и дождь, и ветер. Какое именно
+    // явление идёт, решают списки ниже; сила только сдвигает уровень
+    // внутри него. Раньше усилители были вписаны прямо в списки явлений,
+    // и «сильная метель» подменялась метелью вместо того, чтобы стать
+    // на ступень выше.
+    const wStrong = /сильн|мощн|свиреп|яростн|беш|лют|дик|жутк|страшн|густ|плотн|валит|стеной|обильн|интенсивн|непрогляд|heavy|strong|intense|fierce/;
+    const wWeak   = /слаб|лёгк|легк|небольш|редк|порош|мелк|изредка|чуть|перв|light|flurr/;
+
+    // Описание погоды — перечисление: «Сильный снегопад, −7°C, лёгкий ветер».
+    // Модификатор относится к СВОЕЙ части, а не ко всей строке. Пока мы
+    // искали усилители по всей фразе, «лёгкий ветер» делал лёгким снегопад,
+    // а «сильный ветер» — усиливал его. Поэтому режем на части и каждую
+    // смотрим отдельно.
+    const wParts = wLow.split(/[,;.|]+|\s+[—–-]\s+/).map(s => s.trim()).filter(Boolean);
+    const partsWith = re => wParts.filter(p => re.test(p));
+    const anyOf = (parts, re) => parts.some(p => re.test(p));
+
+    // ВЕТЕР — ещё одна независимая ось. Он не меняет само явление (снегопад
+    // остаётся снегопадом), но подгоняет снег: тот же наклон и та же
+    // плотность, только быстрее. Слабый ветер не подгоняет ничего, поэтому
+    // «лёгкий ветер», «ветер утих», штиль и прямо указанная скорость до
+    // 3 м/с сюда не попадают.
+    const windRe   = /ветер|ветр|шквал|порыв|сквозняк|дует|wind|gust|squall|breeze/;
+    const windCalm = /слаб|лёгк|легк|тих|утих|стих|ул[её]гся|безветр|штил|едва|слегка|чуть|light|calm/;
+    const windHard = /сильн|шквал|штормов|порыв|ураган|бешен|рв[ёе]т|завыва|воет|гуд|strong|gust|squall|gale/;
+    const windParts = partsWith(windRe);
+    let windSpeed = null;
+    for (const part of windParts) {
+      const m = part.match(/(\d+(?:[.,]\d+)?)\s*м\/?\s*с|(\d+(?:[.,]\d+)?)\s*m\/s/);
+      if (m) { windSpeed = parseFloat((m[1] || m[2]).replace(',', '.')); break; }
+    }
+    let windClass = '';
+    if (windParts.length && !anyOf(windParts, windCalm) && !(windSpeed !== null && windSpeed <= 3)) {
+      windClass = (anyOf(windParts, windHard) || (windSpeed !== null && windSpeed >= 10))
+        ? 'weather-windy-strong' : 'weather-windy';
+    }
     
     if (wLow.match(/гроз|молни|шторм|thunder|storm/)) {
       wClass = 'weather-storm';
     } else if (wLow.match(/град|hail/)) {
       wClass = 'weather-hail';
-    } else if (wLow.match(/снег|снеж|snow|метел|вьюг|blizzard|буран/)) {
+    } else if (wLow.match(/снег|снеж|snow|метел|вьюг|blizzard|буран|пург|мет[её]т|позёмк|поземк|порош|flurr/)) {
       wClass = 'weather-snow';
-      if (wLow.match(/метел|вьюг|blizzard|сильн|буран|heavy|бур/)) wIntensity = 'weather-intensity-high';
-      else if (wLow.match(/слаб|легк|небольш|light/)) wIntensity = 'weather-intensity-low';
+      // «Метель» и «снежная буря» — разные по ощущению вещи, не синонимы:
+      // метель — это ветер несёт снег, буря/буран — уже совсем плохая
+      // видимость. Раньше оба слова ловились одним и тем же «бур», и
+      // выглядели визуально одинаково.
+      // Здесь две независимые вещи, и раньше они были свалены в одну.
+      // ЯВЛЕНИЕ — что происходит: снегопад (снег валит сверху вниз) или
+      // метель/буря (снег несёт ветром). СИЛА — насколько густо.
+      // Слово «сильный» задаёт силу, а не явление, но стояло в одном ряду
+      // с «метелью», из-за чего «сильный снегопад» и «сильная метель»
+      // получали один и тот же класс и выглядели одинаково.
+      // Теперь ветровые явления проверяются первыми и «сильн» их не
+      // трогает, а густой снегопад получил собственный уровень: крупные
+      // хлопья валят почти отвесно, без ветровой позёмки.
+      // Силу снегопада берём только из тех частей, где вообще говорится о
+      // снеге: иначе «лёгкий ветер» из соседней части опускает снегопад
+      // до слабого.
+      const snowRe = /снег|снеж|метел|вьюг|буран|пург|позёмк|поземк|порош|snow|blizzard|flurr/;
+      const snowParts = partsWith(snowRe);
+      const sp = snowParts.length ? snowParts : wParts;
+      const snowStrong = anyOf(sp, wStrong), snowWeak = anyOf(sp, wWeak);
+      if (wLow.match(/буря|буран|пург|snowstorm|whiteout|белая мгла/)) {
+        wIntensity = 'weather-intensity-extreme';
+      } else if (wLow.match(/метел|вьюг|мет[её]т|позёмк|поземк|заряд|blizzard/)) {
+        // Ветровой снег. Усилитель поднимает метель на одну ступень — до
+        // сильной метели, но НЕ до бури: буря это отдельное явление со
+        // своей подписью (горизонтальные штрихи и белая мгла), и если
+        // отдавать её сильной метели, обе снова выглядят одинаково.
+        wIntensity = snowStrong ? 'weather-intensity-gale' : 'weather-intensity-high';
+      } else if (snowWeak) {
+        wIntensity = 'weather-intensity-low';
+      } else if (snowStrong) {
+        // Снег валит сверху вниз, ветра нет — густой снегопад, не метель.
+        wIntensity = 'weather-intensity-heavy';
+      }
     } else if (wLow.match(/дожд|лив|rain|морос|drizzle/)) {
       wClass = 'weather-rain';
-      if (wLow.match(/лив|сильн|проливн|heavy|бур/)) wIntensity = 'weather-intensity-high';
-      else if (wLow.match(/морос|drizzle|слаб|легк|light|мелк/)) wIntensity = 'weather-intensity-low';
+      if (wLow.match(/лив|проливн/) || wStrong.test(wLow)) wIntensity = 'weather-intensity-high';
+      else if (wLow.match(/морос|drizzle/) || wWeak.test(wLow)) wIntensity = 'weather-intensity-low';
     } else if (wLow.match(/облач|пасмур|cloud|overcast/)) {
       wClass = 'weather-cloudy';
-    } else if (wLow.match(/ветер|ветр|wind|ураган|бур/)) {
+    } else if (wLow.match(/ветер|ветр|шквал|wind|squall|ураган|бур/)) {
       wClass = 'weather-wind';
-      if (wLow.match(/сильн|штормов|порыв|strong|gust|ураган|бур/)) wIntensity = 'weather-intensity-high';
+      // «Шквалистый» и «шквал» раньше не ловились ни здесь, ни в силе:
+      // фраза попадала в ветер только из-за слова «ветер» и оставалась
+      // обычной, поэтому шквалистый ветер выглядел как штиль.
+      if (wLow.match(/штормов|шквал|порыв|ураган|бур|gust|squall/) || wStrong.test(wLow)) wIntensity = 'weather-intensity-high';
     } else if (wLow.match(/туман|fog|дымк/)) {
       wClass = 'weather-fog';
     } else if (wLow.match(/ясн|солнеч|clear|sunny/)) {
@@ -929,10 +996,16 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
       const sunsetStrength = clamp(1 - Math.abs(minutesOfDay - 18 * 60) / 90, 0, 1);
       const starStrength = clamp(1 - smoothStep(minutesOfDay, 330, 720) + smoothStep(minutesOfDay, 1200, 1440), 0, 1);
 
-      const lowMoon = cy > 62;
-      celestialStyle = ` style="--cel-x:${cx.toFixed(1)}%;--cel-y:${cy.toFixed(1)}%;--cel-layer:${lowMoon ? 1 : 3};--scene-layer:${lowMoon ? 2 : 1};"`;
+      // Светило всегда ЗА пейзажем, на любой высоте. Небесное тело физически
+      // дальше любого дерева, поэтому пересечение должно его скрывать, а не
+      // наоборот. Раньше слой переключался только у горизонта (cy > 62), и
+      // днём солнце рисовалось поверх крон.
+      celestialStyle = ` style="--cel-x:${cx.toFixed(1)}%;--cel-y:${cy.toFixed(1)}%;--cel-layer:1;--scene-layer:2;"`;
       sunVarsStyle = ` style="--sun-h:${p.toFixed(3)};--sun-alt:${Math.max(0, Math.sin(p * Math.PI)).toFixed(3)};"`;
-      sceneStyle = ` style="--scene-day-progress:${p.toFixed(3)};--scene-night-strength:${nightStrength.toFixed(3)};--scene-golden-strength:${goldenStrength.toFixed(3)};--scene-sunset-strength:${sunsetStrength.toFixed(3)};--scene-star-strength:${starStrength.toFixed(3)};"`;
+      // --cel-x/--cel-y дублируем на виджет: лунная дорожка и солнечные блики
+      // на воде — потомки .hud-fx-season-scene, а не светила, и до его
+      // собственных переменных не дотягиваются.
+      sceneStyle = ` style="--cel-x:${cx.toFixed(1)}%;--cel-y:${cy.toFixed(1)}%;--scene-day-progress:${p.toFixed(3)};--scene-night-strength:${nightStrength.toFixed(3)};--scene-golden-strength:${goldenStrength.toFixed(3)};--scene-sunset-strength:${sunsetStrength.toFixed(3)};--scene-star-strength:${starStrength.toFixed(3)};"`;
     }
 
     if (Object.keys(data.scene).length > 0) {
@@ -1089,7 +1162,7 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
       for (let i = 1; i <= 6; i++) fireflies += `<span class="hud-firefly ff${i}"></span>`;
 
       html += `
-      <div class="hud-scene-widget ${phaseClass} ${wClass} ${wIntensity} ${tempClass} ${freezeClass} ${seasonClass} ${dustyClass} ${rainbowClass}"${sceneStyle} title="Нажмите для анимации">
+      <div class="hud-scene-widget ${phaseClass} ${wClass} ${wIntensity} ${windClass} ${tempClass} ${freezeClass} ${seasonClass} ${dustyClass} ${rainbowClass}"${sceneStyle} title="Нажмите для анимации">
         <div class="hud-fx-bg"></div>
         <div class="hud-fx-stars">${stars}</div>
         <div class="hud-fx-fireflies">${fireflies}</div>
@@ -1099,7 +1172,7 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
         <div class="hud-fx-celestial"${celestialStyle}></div>
         <div class="hud-fx-cloud-cover"></div>
         <div class="hud-fx-season-scene"${sunVarsStyle}>${buildSeasonSceneHtml(seasonClass, { dew: dewActive, deepFreeze: !!freezeClass })}</div>
-        <div class="hud-fx-weather"></div>
+        <div class="hud-fx-weather"><span class="hud-snow-layer snow-far"></span><span class="hud-snow-layer snow-mid"></span><span class="hud-snow-layer snow-near"></span></div>
         <div class="hud-fx-frost"></div>
         <div class="hud-fx-temp"></div>
         <div class="hud-fx-overlay"></div>
@@ -1991,6 +2064,31 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
         if (Object.prototype.hasOwnProperty.call(hudRequestBody, 'max_new_tokens')) hudRequestBody.max_new_tokens = hudMaxTokens;
         else hudRequestBody.max_tokens = hudMaxTokens;
 
+        // Страховка от НЕИЗВЕСТНЫХ текстовых полей. Список HUD_PROMPT_FIELDS
+        // перечисляет то, что мы знаем сегодня; завтра ST или провайдер могут
+        // добавить своё поле с текстом промпта, и оно снова уедет в регенерацию.
+        // Настройки соединения — это имена моделей, URL, числа и флаги; длинных
+        // строк среди них не бывает. Поэтому всё, что длиннее порога и не входит
+        // в белый список, из клона вычищаем.
+        const HUD_ALLOWED_LONG_FIELDS = new Set(['messages', 'reverse_proxy', 'proxy_password', 'custom_url']);
+        const HUD_LONG_FIELD_LIMIT = 400;
+        Object.keys(hudRequestBody).forEach(key => {
+            if (HUD_ALLOWED_LONG_FIELDS.has(key)) return;
+            const value = hudRequestBody[key];
+            if (typeof value === 'string' && value.length > HUD_LONG_FIELD_LIMIT) delete hudRequestBody[key];
+        });
+
+        // Размер запроса — единственный честный ответ на вопрос «а не уехал ли
+        // туда пресет?». Считаем то, что реально уходит на провайдер.
+        const hudPromptChars = freshMessages.reduce(
+            (sum, m) => sum + (typeof m.content === 'string' ? m.content.length : 0), 0);
+        const hudPayloadStats = {
+            сообщений: freshMessages.length,
+            символов: hudPromptChars,
+            'полей в теле': Object.keys(hudRequestBody).join(', '),
+        };
+        console.info('[TavernOS HUD] Регенерация: что уходит на провайдер', hudPayloadStats);
+
         if (settings.regenProfileId && stContext && stContext.ConnectionManagerRequestService && typeof stContext.ConnectionManagerRequestService.sendRequest === 'function') {
             // ConnectionManagerRequestService accepts a ChatMessage[] as its prompt.
             // Disable preset/instruct injection so the selected profile supplies only
@@ -2065,7 +2163,8 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
                 setTimeout(() => loadingToast.remove(), 400);
             }
 
-            showHudToast('success', 'Успех', 'HUD сгенерирован и вшит в сообщение!');
+            showHudToast('success', 'Успех',
+                `HUD вшит в сообщение. В запрос ушло ${freshMessages.length} сообщ., ${Math.round(hudPromptChars / 1000)} тыс. символов — пресет SillyTavern не отправляется.`);
 
             if (saveFn) {
                 saveFn().catch(saveErr => showHudToast('error', 'Не сохранено', 'HUD показан, но не записан: ' + saveErr.message));
