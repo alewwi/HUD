@@ -3,10 +3,10 @@
 // Домен «Телефон»: вкладки чатов, переписки, счётчики непрочитанного,
 // участники. Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=22.7.1';
-import { settings } from '../settings.js?v=22.7.1';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.7.1';
-import { namesLikelySame } from '../names.js?v=22.7.1';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=22.7.4';
+import { settings } from '../settings.js?v=22.7.4';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.7.4';
+import { namesLikelySame } from '../names.js?v=22.7.4';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.

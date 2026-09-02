@@ -11,8 +11,8 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache } from './avatars.js?v=22.7.1';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.7.1';
+import { invalidateAvatarCache } from './avatars.js?v=22.7.4';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.7.4';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -412,7 +412,7 @@ export function initGlobalEvents(ctx) {
       return;
     }
 
-    const fxHost = e.target.closest('.hud-ad-card, .hud-breaking-news, .hud-dream-moon, .hud-route-map');
+    const fxHost = e.target.closest('.hud-ad-card, .hud-breaking-news, .hud-dream-moon, .hud-route-map, .hud-phone-mockup.intercept-mode');
     if (fxHost) {
       fxHost.classList.toggle('fx-active');
       return;

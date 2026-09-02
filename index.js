@@ -1,18 +1,18 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.7.1';
-import { escapeHtml, getSafeUserName } from './utils.js?v=22.7.1';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.7.1';
-import { initGlobalEvents, initObserver, initTavernOSEvents } from './events.js?v=22.7.1';
-import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.7.1';
-import { buildDiaryHTML, hudHasMeaningfulDiary } from './render/diary.js?v=22.7.1';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.7.1';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.7.1';
-import { buildMemoryHTML } from './render/memory.js?v=22.7.1';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.7.1';
-import { hudHasRelations } from './render/relations-graph.js?v=22.7.1';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.7.1';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.7.1';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.7.4';
+import { escapeHtml, getSafeUserName } from './utils.js?v=22.7.4';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.7.4';
+import { initGlobalEvents, initObserver, initTavernOSEvents } from './events.js?v=22.7.4';
+import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.7.4';
+import { buildDiaryHTML, hudHasMeaningfulDiary } from './render/diary.js?v=22.7.4';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.7.4';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.7.4';
+import { buildMemoryHTML } from './render/memory.js?v=22.7.4';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.7.4';
+import { hudHasRelations } from './render/relations-graph.js?v=22.7.4';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.7.4';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.7.4';
 
 (function() {
   window.HUD = window.HUD || {};

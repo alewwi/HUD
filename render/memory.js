@@ -6,8 +6,8 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, hudHashSeed } from '../utils.js?v=22.7.1';
-import { buildRelGraphHTML } from './relations-graph.js?v=22.7.1';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, hudHashSeed } from '../utils.js?v=22.7.4';
+import { buildRelGraphHTML } from './relations-graph.js?v=22.7.4';
 
 export function parseRoutePoint(item) {
   const parts = String(item).split(/[-—–]/).map(s => s.trim());

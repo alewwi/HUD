@@ -7,8 +7,8 @@
 // settings.showComments напрямую из замыкания index.js. Теперь флаг
 // приходит четвёртым аргументом — модуль не знает про глобальные настройки.
 
-import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=22.7.1';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.7.1';
+import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=22.7.4';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.7.4';
 
 const worldVoteState = Object.create(null);
 

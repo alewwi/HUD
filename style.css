@@ -1561,7 +1561,10 @@
     .hud-fx-season-scene, .hud-fx-season-scene *,
     .hud-fx-temp, .hud-fx-storm-flash, .hud-fx-cloud-cover,
     .hud-fx-lightning, .hud-fx-lightning *, .hud-fx-rainbow, .hud-fx-frost, .hud-fx-frost::before,
-    .hud-breaking-marquee, .hud-breaking-label, .hud-ad-card, .hud-dream-moon, .hud-dream-bubble { animation: none !important; }
+    .hud-breaking-marquee, .hud-breaking-label, .hud-ad-card, .hud-dream-moon, .hud-dream-bubble,
+    .hud-phone-mockup.intercept-mode::after, .hud-phone-mockup.intercept-mode .hud-phone-subbody::after,
+    .hud-phone-mockup.intercept-mode .hud-phone-statusbar::after, .hud-intercept-header .hud-phone-name,
+    .hud-route-stop.is-current .hud-route-pin { animation: none !important; }
     .hud-fx-storm-flash { opacity: 0 !important; }
     .hud-fx-lightning { opacity: 0 !important; }
     .hud-dream-shard, .hud-dream-pane, .hud-dream-cracks path, .hud-dream-text, .hud-dream-meaning { transition: none !important; }
@@ -1828,8 +1831,10 @@
     radial-gradient(circle at 68% 71%, rgba(255,255,255,.02) 0 1px, transparent 1px),
     radial-gradient(circle at 84% 18%, rgba(0,0,0,.05) 0 1px, transparent 1px);
   background-size: auto, auto, 37px 41px, 53px 47px, 61px 59px;
-  mix-blend-mode: soft-light;
-  opacity: .9;
+  /* Был mix-blend-mode: soft-light — на телефоне это дорого, а таких слоёв
+     по одному на каждую запись дневника. Тот же эффект даёт обычная
+     полупрозрачность. */
+  opacity: .55;
 }
 /* Поле и проколы: край листа, вырванного из тетради на кольцах. */
 .hud-diary-holes {
@@ -3029,24 +3034,101 @@
 }
 
 /* 5. Активная вкладка перехвата подсвечивается пульсом — идёт запись. */
-.hud-phone-subtab.intercept-tab.active {
-  animation: hud-intercept-rec 3.4s ease-in-out infinite;
-}
+.hud-phone-subtab.intercept-tab.active { animation: hud-intercept-rec 3.4s ease-in-out infinite; }
 @keyframes hud-intercept-rec {
   0%, 100% { box-shadow: 0 0 0 0 rgba(255,59,48,.34); }
   50%      { box-shadow: 0 0 0 4px rgba(255,59,48,0); }
 }
 
-/* 6. Текст чужих сообщений слегка «проявляется» при открытии вкладки. */
+/* 6. Текст чужих сообщений «проявляется» при открытии вкладки. */
 .hud-phone-subbody.active .hud-msg-bubble { animation: hud-intercept-decode .5s ease-out both; }
 @keyframes hud-intercept-decode {
   from { opacity: 0; filter: blur(2.5px); }
   to   { opacity: 1; filter: blur(0); }
 }
 
+/* 7. Зерно помех поверх всей панели — сигнал идёт по грязному каналу. */
+.hud-phone-mockup.intercept-mode .hud-phone-subbody::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 2;
+  background-image:
+    radial-gradient(circle at 17% 23%, rgba(255,255,255,.05) 0 .7px, transparent .7px),
+    radial-gradient(circle at 63% 71%, rgba(255,255,255,.04) 0 .7px, transparent .7px),
+    radial-gradient(circle at 84% 39%, rgba(255,120,120,.05) 0 .7px, transparent .7px);
+  background-size: 23px 19px, 31px 27px, 17px 29px;
+  opacity: .6;
+  animation: hud-intercept-grain .9s steps(3) infinite;
+}
+@keyframes hud-intercept-grain {
+  0%   { background-position: 0 0, 0 0, 0 0; }
+  33%  { background-position: 7px -5px, -6px 4px, 4px 6px; }
+  66%  { background-position: -5px 6px, 5px -7px, -6px -4px; }
+  100% { background-position: 0 0, 0 0, 0 0; }
+}
+
+/* 8. Красная точка записи в статус-строке. */
+.hud-phone-mockup.intercept-mode .hud-phone-statusbar { position: relative; }
+.hud-phone-mockup.intercept-mode .hud-phone-statusbar::after {
+  content: ''; position: absolute; left: 50%; top: 50%; margin-left: -34px; transform: translateY(-50%);
+  width: 5px; height: 5px; border-radius: 50%;
+  background: #ff3b30; box-shadow: 0 0 6px rgba(255,59,48,.9);
+  animation: hud-intercept-blink 1.7s steps(1, end) infinite;
+}
+@keyframes hud-intercept-blink { 0%, 55% { opacity: 1; } 56%, 100% { opacity: .12; } }
+
+/* 9. Имя контакта в шапке слегка дрожит — нестабильный канал. */
+.hud-intercept-header .hud-phone-name {
+  animation: hud-intercept-jitter 6.2s steps(1, end) infinite;
+}
+@keyframes hud-intercept-jitter {
+  0%, 92%, 100% { transform: translateX(0); text-shadow: none; }
+  93%  { transform: translateX(-1px); text-shadow: 1.5px 0 rgba(255,60,60,.7), -1.5px 0 rgba(80,200,255,.5); }
+  95%  { transform: translateX(1px);  text-shadow: -1.5px 0 rgba(255,60,60,.7), 1.5px 0 rgba(80,200,255,.5); }
+  97%  { transform: translateX(0);    text-shadow: 1px 0 rgba(255,60,60,.5); }
+}
+
+/* --- ЗАМОРОЗКА ДО ТАПА ИЛИ НАВЕДЕНИЯ ------------------------------------
+   Панель перехвата подчиняется тому же правилу, что сцена и сны: пока по
+   ней не тапнули (класс fx-active вешает обработчик в events.js) и на неё
+   не навели, всё стоит. Статичные слои — угловые скобки, развёртка,
+   штрихи сигнала — остаются видны всегда, замирает только движение. */
+.hud-phone-mockup.intercept-mode::after,
+.hud-phone-mockup.intercept-mode .hud-phone-subbody::after,
+.hud-phone-mockup.intercept-mode .hud-phone-statusbar::after,
+.hud-intercept-header .hud-phone-options::after,
+.hud-intercept-header .hud-phone-name,
+.hud-phone-mockup.intercept-mode .hud-phone-subtab.intercept-tab.active,
+.hud-phone-mockup.intercept-mode .hud-phone-subbody.active .hud-msg-bubble {
+  animation-play-state: paused;
+}
+.hud-phone-mockup.intercept-mode.fx-active::after,
+.hud-phone-mockup.intercept-mode.fx-active .hud-phone-subbody::after,
+.hud-phone-mockup.intercept-mode.fx-active .hud-phone-statusbar::after,
+.hud-phone-mockup.intercept-mode.fx-active .hud-intercept-header .hud-phone-options::after,
+.hud-phone-mockup.intercept-mode.fx-active .hud-intercept-header .hud-phone-name,
+.hud-phone-mockup.intercept-mode.fx-active .hud-phone-subtab.intercept-tab.active,
+.hud-phone-mockup.intercept-mode.fx-active .hud-phone-subbody.active .hud-msg-bubble {
+  animation-play-state: running;
+}
+@media (hover: hover) {
+  .hud-phone-mockup.intercept-mode:hover::after,
+  .hud-phone-mockup.intercept-mode:hover .hud-phone-subbody::after,
+  .hud-phone-mockup.intercept-mode:hover .hud-phone-statusbar::after,
+  .hud-phone-mockup.intercept-mode:hover .hud-intercept-header .hud-phone-options::after,
+  .hud-phone-mockup.intercept-mode:hover .hud-intercept-header .hud-phone-name,
+  .hud-phone-mockup.intercept-mode:hover .hud-phone-subtab.intercept-tab.active,
+  .hud-phone-mockup.intercept-mode:hover .hud-phone-subbody.active .hud-msg-bubble {
+    animation-play-state: running;
+  }
+}
+/* Пока панель спит — луч не мозолит глаза. */
+.hud-phone-mockup.intercept-mode:not(.fx-active)::after { opacity: .35; }
+
 @media (prefers-reduced-motion: reduce) {
   .hud-phone-mockup.intercept-mode::after,
+  .hud-phone-mockup.intercept-mode .hud-phone-subbody::after,
+  .hud-phone-mockup.intercept-mode .hud-phone-statusbar::after,
   .hud-intercept-header .hud-phone-options::after,
+  .hud-intercept-header .hud-phone-name,
   .hud-phone-subtab.intercept-tab.active,
   .hud-phone-subbody.active .hud-msg-bubble { animation: none !important; }
 }
@@ -3874,8 +3956,13 @@
 }
 .hud-route-stop.is-current .hud-route-pin i { color: #fff; }
 .hud-route-stop.is-current .hud-route-info b { color: #fff; }
-.hud-route-map.fx-active .hud-route-stop.is-current .hud-route-pin {
-  animation: hud-route-pulse 2.2s ease-in-out infinite;
+/* Пульс текущей точки — только после тапа или при наведении. До этого
+   маршрут стоит: на телефоне десяток карточек HUD с живыми анимациями
+   заметно подтормаживает. */
+.hud-route-stop.is-current .hud-route-pin { animation: hud-route-pulse 2.2s ease-in-out infinite; animation-play-state: paused; }
+.hud-route-map.fx-active .hud-route-stop.is-current .hud-route-pin { animation-play-state: running; }
+@media (hover: hover) {
+  .hud-route-map:hover .hud-route-stop.is-current .hud-route-pin { animation-play-state: running; }
 }
 @keyframes hud-route-pulse {
   0%, 100% { box-shadow: 0 0 0 4px rgba(222,133,159,.14), 0 0 10px var(--hud-accent, #de859f); }
@@ -7034,8 +7121,15 @@
 
 /* Передний вал. Идёт по левой половине и по правому краю, чтобы не
    закрывать замёрзший пруд посередине справа. */
+/* Тёмный клин у левого края брался не от сугробов, а от самой земли:
+   у .hud-ground стоит border-radius 50%/30px, и при высоте полосы около
+   21px верхний край уходит крутой дугой вниз уже у самой рамки. Сугробы
+   этот угол не закрывали — они тоже куполообразные. Расширяем полосу
+   земли далеко за кадр, чтобы спуск дуги остался за границей виджета. */
+.season-winter .hud-ground { left: -26%; right: -26%; }
+
 .season-winter .hud-snowdrift.sd-front1 {
-    left: -7%; width: 31%; height: 10.4%; z-index: 11;
+    left: -14%; width: 38%; height: 10.4%; z-index: 11;
     border-radius: 54% 46% 0 0 / 100% 100% 0 0;
 }
 .season-winter .hud-snowdrift.sd-front2 {
@@ -7072,8 +7166,10 @@
 .season-winter .hud-snowdrift.sd-snowman {
     left: -4px; width: 70px; height: 19px; z-index: 11;
     border-radius: 50% 50% 0 0 / 100% 100% 0 0;
-    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
-            mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
+    /* Гасим только правый край: слева виджет заканчивается, и растворять
+       там нечего — прозрачность создавала пустоту вместо стыка. */
+    -webkit-mask-image: linear-gradient(90deg, #000 0%, #000 74%, transparent 100%);
+            mask-image: linear-gradient(90deg, #000 0%, #000 74%, transparent 100%);
 }
 
 /* --- Свет в окнах ------------------------------------------------------ */
