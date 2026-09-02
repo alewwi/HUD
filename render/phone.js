@@ -3,9 +3,10 @@
 // Домен «Телефон»: вкладки чатов, переписки, счётчики непрочитанного,
 // участники. Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=22.5.8';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.5.8';
-import { namesLikelySame } from '../names.js?v=22.5.8';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=22.7.1';
+import { settings } from '../settings.js?v=22.7.1';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.7.1';
+import { namesLikelySame } from '../names.js?v=22.7.1';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -139,7 +140,7 @@ function buildMessengerHTML(chatsMap, uid, mainCharName) {
     </button>`;
 
     chatBodies += `<div class="hud-phone-subbody" id="subchat-${uid}-${idx}">
-      <div class="hud-phone-header"><span class="hud-phone-back">⟨</span><div class="hud-phone-title-group" ${chatObj.participants ? 'style="cursor:pointer;" title="Нажми, чтобы увидеть участников"' : ''}><span class="hud-phone-name">${defeatWI(escapeHtml(displayChatName))} ${chatObj.participants ? '<span style="font-size:0.8em; opacity:0.7;">▾</span>' : ''}</span>${chatObj.participants ? `<div class="hud-phone-participants-list">👥 Участники: ${escapeHtml(chatObj.participants)}</div>` : ''}</div><span class="hud-phone-options">⋮</span></div>
+      <div class="hud-phone-header"><span class="hud-phone-back">⟨</span><div class="hud-phone-title-group" ${chatObj.participants ? 'style="cursor:pointer;" title="Нажми, чтобы увидеть участников"' : ''}><span class="hud-phone-name">${defeatWI(escapeHtml(displayChatName))} ${chatObj.participants ? '<span style="font-size:0.8em; opacity:0.7;">▾</span>' : ''}</span>${chatObj.participants ? `<div class="hud-phone-participants-list">${G_ICONS.people} Участники: ${escapeHtml(chatObj.participants)}</div>` : ''}</div><span class="hud-phone-options">⋮</span></div>
       <div class="hud-phone-chat-area">`;
 		
 		let activeDraft = "";
@@ -246,7 +247,7 @@ function emptyApp(icon, text) {
 }
 
 function buildContactsApp(contacts) {
-  if (!contacts || !contacts.length) return emptyApp('👤', 'Список контактов пуст');
+  if (!contacts || !contacts.length) return emptyApp(G_ICONS.person, 'Список контактов пуст');
   return `<div class="hud-phone-contacts">` + contacts.map(c => {
     const name = c.name || 'Без имени';
     return `<div class="hud-phone-contact">
@@ -257,7 +258,7 @@ function buildContactsApp(contacts) {
 }
 
 function buildGalleryApp(gallery) {
-  if (!gallery || !gallery.length) return emptyApp('🖼️', 'В галерее пока пусто');
+  if (!gallery || !gallery.length) return emptyApp(G_ICONS.image, 'В галерее пока пусто');
   return `<div class="hud-phone-gallery-grid">` + gallery.map(p => `
     <details class="hud-phone-photo-card">
       <summary>
@@ -273,7 +274,7 @@ function buildGalleryApp(gallery) {
 }
 
 function buildNotesApp(notes) {
-  if (!notes || !notes.length) return emptyApp('📝', 'Заметок нет');
+  if (!notes || !notes.length) return emptyApp(G_ICONS.note, 'Заметок нет');
   return notes.map(n => `<div class="hud-phone-note">
     <b>${escapeHtml(n.title || 'Без названия')}</b>
     ${n.time ? `<small>${escapeHtml(n.time)}</small>` : ''}
@@ -283,19 +284,41 @@ function buildNotesApp(notes) {
 }
 
 function buildMapsApp(maps) {
-  if (!maps || !maps.length) return emptyApp('🗺️', 'Нет сохранённых мест');
+  if (!maps || !maps.length) return emptyApp(G_ICONS.map, 'Нет сохранённых мест');
   return `<div class="hud-phone-section">` + maps.map(m => `
     <div class="hud-phone-map-row">
-      <span>📍</span>
+      <span class="hud-g-pin">${G_ICONS.pin}</span>
       <div><b>${escapeHtml(m.place || 'Место')}</b>${m.note ? `<small>${escapeHtml(m.note)}</small>` : ''}</div>
     </div>`).join('') + `</div>`;
 }
 
+// Иконки поиска — svg, а не эмодзи. Эмодзи рисуются шрифтом системы, у
+// каждой ОС по-своему, и экран сразу читается как самоделка; тонкие
+// штриховые значки выглядят как настоящий интерфейс браузера.
+const G_ICONS = {
+  glass: '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.4"/><path d="M15.8 15.8 21 21"/></svg>',
+  clock: '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.2"/><path d="M12 7.4V12l3.2 2"/></svg>',
+  arrow: '<svg class="hud-g-arrow" viewBox="0 0 24 24" aria-hidden="true"><path d="M16.5 16.5 8 8"/><path d="M8 14.5V8h6.5"/></svg>',
+  mic:   '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="9.4" y="3.4" width="5.2" height="10" rx="2.6"/><path d="M6.2 11.4a5.8 5.8 0 0 0 11.6 0"/><path d="M12 17.2V20.6"/></svg>',
+  lens:  '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V5.6A1.6 1.6 0 0 1 5.6 4H9"/><path d="M15 4h3.4A1.6 1.6 0 0 1 20 5.6V9"/><path d="M20 15v3.4a1.6 1.6 0 0 1-1.6 1.6H15"/><path d="M9 20H5.6A1.6 1.6 0 0 1 4 18.4V15"/><circle cx="12" cy="12" r="2.6"/></svg>',
+  chat:  '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M20.5 12.4c0 4-3.8 7.2-8.5 7.2-1 0-2-.15-2.9-.42L4 20.8l1.7-3.9A6.9 6.9 0 0 1 3.5 12.4C3.5 8.4 7.3 5.2 12 5.2s8.5 3.2 8.5 7.2Z"/></svg>',
+  person:'<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8.4" r="3.7"/><path d="M4.8 20.2a7.2 7.2 0 0 1 14.4 0"/></svg>',
+  people:'<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.6" r="3.2"/><path d="M3 19.6a6 6 0 0 1 12 0"/><path d="M16.2 6.1a3.2 3.2 0 0 1 0 6"/><path d="M17.6 14.2a6 6 0 0 1 3.4 5.4"/></svg>',
+  image: '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.4" y="5" width="17.2" height="14" rx="2.4"/><circle cx="9" cy="10" r="1.7"/><path d="m4.6 17.4 4.6-4.3 3.3 3 2.7-2.3 4.2 3.6"/></svg>',
+  note:  '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.6h8.4L19 8.2v12.2H6z"/><path d="M14.2 3.7v4.6h4.6"/><path d="M9 12.6h6M9 16h4.4"/></svg>',
+  map:   '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m3.6 6.4 5.4-2.2 6 2.2 5.4-2.2v13.4l-5.4 2.2-6-2.2-5.4 2.2z"/><path d="M9 4.2v13.4M15 6.4v13.4"/></svg>',
+  pin:   '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6.4-6 6.4-11a6.4 6.4 0 1 0-12.8 0c0 5 6.4 11 6.4 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>',
+  phone: '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.4" y="2.8" width="11.2" height="18.4" rx="2.6"/><path d="M10.6 18.4h2.8"/></svg>'
+};
+
 function buildSearchApp(search) {
-  const bar = `<div class="hud-google-bar">🔍 Поиск</div>`;
-  if (!search || !search.length) return bar + emptyApp('🔍', 'История поиска пуста');
-  return bar + `<div class="hud-phone-section"><h4>Недавние запросы</h4>` + search.map(q => `
-    <div class="hud-phone-search-row"><small>${escapeHtml(q)}</small></div>`).join('') + `</div>`;
+  // Экран повторяет то, что видно в браузере при тапе по строке поиска:
+  // сама строка, а под ней недавние запросы со значком часов и стрелкой
+  // «подставить в строку».
+  const bar = `<div class="hud-google-bar">${G_ICONS.glass}<span class="hud-g-hint">Поиск в Google или URL</span><span class="hud-g-tools">${G_ICONS.mic}${G_ICONS.lens}</span></div>`;
+  if (!search || !search.length) return bar + emptyApp(G_ICONS.clock, 'История поиска пуста');
+  return bar + `<div class="hud-phone-section hud-g-history"><h4>Недавние</h4>` + search.map(q => `
+    <div class="hud-phone-search-row">${G_ICONS.clock}<span class="hud-g-query">${escapeHtml(q)}</span>${G_ICONS.arrow}</div>`).join('') + `</div>`;
 }
 
 // --- Телефон целиком --------------------------------------------------------
@@ -339,13 +362,13 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   });
 
   const apps = [
-    { id: 'messages', icon: '💬', label: 'Сообщения', badge: unread,
-      body: messenger || emptyApp('📱', 'В текущем повествовании нет переписок') },
-    { id: 'contacts', icon: '👤', label: 'Контакты',  body: buildContactsApp(phone.contacts) },
-    { id: 'gallery',  icon: '🖼️', label: 'Галерея',   body: buildGalleryApp(phone.gallery) },
-    { id: 'notes',    icon: '📝', label: 'Заметки',   body: buildNotesApp(phone.notes) },
-    { id: 'maps',     icon: '🗺️', label: 'Карты',     body: buildMapsApp(phone.maps) },
-    { id: 'search',   icon: '🔍', label: 'Поиск',     body: buildSearchApp(phone.search) },
+    { id: 'messages', icon: G_ICONS.chat, label: 'Сообщения', badge: unread,
+      body: messenger || emptyApp(G_ICONS.chat, 'В текущем повествовании нет переписок') },
+    { id: 'contacts', icon: G_ICONS.person, label: 'Контакты',  body: buildContactsApp(phone.contacts) },
+    { id: 'gallery',  icon: G_ICONS.image, label: 'Галерея',   body: buildGalleryApp(phone.gallery) },
+    { id: 'notes',    icon: G_ICONS.note, label: 'Заметки',   body: buildNotesApp(phone.notes) },
+    { id: 'maps',     icon: G_ICONS.map, label: 'Карты',     body: buildMapsApp(phone.maps) },
+    { id: 'search',   icon: G_ICONS.glass, label: 'Поиск',     body: buildSearchApp(phone.search) },
   ];
 
   const grid = apps.map(a => `<button class="hud-phone-app" data-phone-app="${a.id}" data-phone-uid="${uid}">
@@ -402,14 +425,16 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
     notifItems.push({ title: title || 'Сообщение', who, text: lastText, time: lastTime, count: unreadHere, target: `subchat-${uid}-${chatIdx}` });
   });
 
-  const MAX_NOTIF = 3;
+  // Сколько карточек показывать на домашнем экране — настройка «Карточек
+  // уведомлений». Раньше было жёстко три.
+  const MAX_NOTIF = Math.max(1, Math.min(5, Number(settings.phoneNotifMax) || 3));
   const shown = notifItems.slice(0, MAX_NOTIF);
   const hiddenCount = notifItems.length - shown.length;
 
   const notice = notifItems.length
     ? `<div class="hud-phone-notif-stack" data-phone-app="messages" data-phone-uid="${uid}" role="button" tabindex="0">
         <div class="hud-phone-notif-head">
-          <span class="hud-phone-notif-label">💬 Сообщения</span>
+          <span class="hud-phone-notif-label">${G_ICONS.chat} Сообщения</span>
           <span class="hud-phone-notif-count">${unread}</span>
         </div>
         ${shown.map((n, i) => {

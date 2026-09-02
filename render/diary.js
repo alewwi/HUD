@@ -6,7 +6,7 @@
 // index.js импортирует отсюда только buildDiaryHTML и hudHasMeaningfulDiary —
 // остальное экспортируется для тестов и внутренних нужд домена.
 
-import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=22.5.8';
+import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=22.7.1';
 
 // Дневник: расширенный словарь эмоциональных синонимов. Все варианты
 // нормализуются в существующие визуальные темы CSS: sad / angry / panic / neutral.
@@ -81,17 +81,20 @@ export function buildDiaryHTML(diaryData, uid, isChecked) {
       ? `<span class="hud-diary-sticker">${escapeHtml(getDiaryStickerText(entry.author))}</span>`
       : '';
     const stains = buildDiaryStains(seed);
+    // Бумажные слои идут отдельными узлами, а не псевдоэлементами: ::before и
+    // ::after у записи уже заняты полем и настроенческими кляксами.
+    const paper = '<span class="hud-diary-paper"></span><span class="hud-diary-holes"></span><span class="hud-diary-curl"></span>';
 
     if (typeof entry === 'string') {
       let parts = entry.split('|'); let time = parts[0].trim(); let text = parts.length > 1 ? parts.slice(1).join('|').trim() : '';
       if (!text) { text = time; time = 'Скрытая запись'; }
-      html += `<div class="hud-diary-entry hud-diary-mood-${moodKey}">${sticker}${stains}<div class="hud-diary-time">${escapeHtml(time)}</div><div class="hud-diary-text">${renderDiaryText(text)}</div></div>`;
+      html += `<div class="hud-diary-entry hud-diary-mood-${moodKey}">${paper}${sticker}${stains}<div class="hud-diary-time">${escapeHtml(time)}</div><div class="hud-diary-text">${renderDiaryText(text)}</div></div>`;
     } else {
       const author = entry && entry.author && entry.author.toLowerCase() !== 'none' && entry.author.toLowerCase() !== 'empty' ? entry.author : '';
       const time = entry && entry.time ? entry.time : 'Скрытая запись';
       const aboutUser = entry && entry.aboutUser && entry.aboutUser.toLowerCase() !== 'none' && entry.aboutUser.toLowerCase() !== 'empty' ? entry.aboutUser : '';
       const text = entry && entry.text ? entry.text : '';
-      html += `<div class="hud-diary-entry hud-diary-mood-${moodKey}">${sticker}${stains}${author ? `<div class="hud-diary-author">${escapeHtml(author)}</div>` : ''}<div class="hud-diary-time">${escapeHtml(time)}</div><div class="hud-diary-text">${renderDiaryText(text)}</div>${aboutUser ? `<div class="hud-diary-about-user"><span class="hud-diary-about-label">О ней:</span> ${renderDiaryText(aboutUser)}</div>` : ''}</div>`;
+      html += `<div class="hud-diary-entry hud-diary-mood-${moodKey}">${paper}${sticker}${stains}${author ? `<div class="hud-diary-author">${escapeHtml(author)}</div>` : ''}<div class="hud-diary-time">${escapeHtml(time)}</div><div class="hud-diary-text">${renderDiaryText(text)}</div>${aboutUser ? `<div class="hud-diary-about-user"><span class="hud-diary-about-label">О ней:</span> ${renderDiaryText(aboutUser)}</div>` : ''}</div>`;
     }
   });
   return html + `</div></div>`;

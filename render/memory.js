@@ -6,8 +6,8 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, hudHashSeed } from '../utils.js?v=22.5.8';
-import { buildRelGraphHTML } from './relations-graph.js?v=22.5.8';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, hudHashSeed } from '../utils.js?v=22.7.1';
+import { buildRelGraphHTML } from './relations-graph.js?v=22.7.1';
 
 export function parseRoutePoint(item) {
   const parts = String(item).split(/[-—–]/).map(s => s.trim());
@@ -18,32 +18,56 @@ export function parseRoutePoint(item) {
   return { time: '', place: String(item), action: '' };
 }
 
+// Минуты из «21:40» — нужны, чтобы показать, сколько заняло между точками.
+function routeMinutes(time) {
+  const m = String(time || '').match(/(\d{1,2})\s*:\s*(\d{2})/);
+  if (!m) return null;
+  return Number(m[1]) * 60 + Number(m[2]);
+}
+
 export function buildRouteMapHTML(routeArr, entityLabel) {
   if (!routeArr || routeArr.length === 0) return '';
   const pts = routeArr.map(parseRoutePoint);
-  const W = 320, H = 150;
-  const coords = pts.map((p, i) => {
-    const h = hudHashSeed(p.place + ':' + p.time + ':' + i);
-    const t = pts.length === 1 ? 0.5 : i / (pts.length - 1);
-    const x = 22 + t * (W - 44) + ((h % 13) - 6);
-    const y = 36 + (h % 68) + (i % 2 ? 8 : -4);
-    return { x: Math.max(18, Math.min(W - 18, x)), y: Math.max(22, Math.min(H - 28, y)), p, i };
-  });
-  const poly = coords.map(c => `${c.x.toFixed(1)},${c.y.toFixed(1)}`).join(' ');
-  let svg = `<div class="hud-route-map" title="Наведи или нажми, чтобы проиграть путь">
-    <div class="hud-route-name">${escapeHtml(entityLabel)}</div>
-    <svg viewBox="0 0 ${W} ${H}" class="hud-route-svg" role="img">
-      <rect class="hud-route-map-bg" x="4" y="4" width="${W - 8}" height="${H - 8}" rx="10"/>
-      <polyline class="hud-route-map-line-static" points="${poly}" fill="none"/>
-      <polyline class="hud-route-map-line" points="${poly}" fill="none"/>`;
-  coords.forEach((c, i) => {
-    const last = i === coords.length - 1;
-    const label = (c.p.place || '').slice(0, 16);
-    svg += `<circle class="hud-route-map-dot${last ? ' current' : ''}" cx="${c.x.toFixed(1)}" cy="${c.y.toFixed(1)}" r="${last ? 5.5 : 3.5}"/>`;
-    svg += `<text class="hud-route-map-label" x="${c.x.toFixed(1)}" y="${(c.y - 8).toFixed(1)}" text-anchor="middle">${escapeHtml(label)}</text>`;
-  });
-  svg += `</svg></div>`;
-  return svg;
+  // Схема маршрута вместо кривой на сетке. Кривая была нечитаемой: длинные
+  // названия не помещались и обрезались, действие показать было негде,
+  // а сама линия ничего не сообщала — только «точек три». Здесь маршрут
+  // разложен как схема линии метро: время, номер остановки, место и что
+  // там произошло, плюс перегон с длительностью между остановками.
+  const rows = pts.map((p, i) => {
+    const last = i === pts.length - 1;
+    const prevMin = i > 0 ? routeMinutes(pts[i - 1].time) : null;
+    const curMin = routeMinutes(p.time);
+    let gap = '';
+    if (prevMin !== null && curMin !== null) {
+      let d = curMin - prevMin;
+      if (d < 0) d += 24 * 60;               // маршрут через полночь
+      if (d > 0 && d < 24 * 60) gap = d >= 60 ? `${Math.floor(d / 60)} ч ${d % 60 ? (d % 60) + ' мин' : ''}`.trim() : `${d} мин`;
+    }
+    const place = (p.place || '').trim() || 'Без названия';
+    const time = (p.time || '').replace(/[\[\]]/g, '').trim();
+    return `${i > 0 ? `<li class="hud-route-leg"><span class="hud-route-leg-line"></span>${gap ? `<span class="hud-route-leg-time">${escapeHtml(gap)}</span>` : ''}</li>` : ''}
+      <li class="hud-route-stop${last ? ' is-current' : ''}${i === 0 ? ' is-start' : ''}">
+        <span class="hud-route-time">${escapeHtml(time)}</span>
+        <span class="hud-route-pin"><i>${i + 1}</i></span>
+        <span class="hud-route-info">
+          <b>${escapeHtml(place)}</b>
+          ${p.action ? `<small>${escapeHtml(p.action)}</small>` : ''}
+        </span>
+      </li>`;
+  }).join('');
+
+  const first = (pts[0].time || '').replace(/[\[\]]/g, '').trim();
+  const lastT = (pts[pts.length - 1].time || '').replace(/[\[\]]/g, '').trim();
+  const span = first && lastT && first !== lastT ? `${first} — ${lastT}` : (first || lastT || '');
+  const word = pts.length === 1 ? 'точка' : (pts.length < 5 ? 'точки' : 'точек');
+
+  return `<div class="hud-route-map" title="Маршрут за текущий отрезок истории">
+    <div class="hud-route-head">
+      <span class="hud-route-name">${escapeHtml(entityLabel)}</span>
+      <span class="hud-route-span">${span ? escapeHtml(span) + ' · ' : ''}${pts.length} ${word}</span>
+    </div>
+    <ol class="hud-route-strip">${rows}</ol>
+  </div>`;
 }
 
 export function buildSecretRingHTML(kCount, total) {
@@ -92,11 +116,16 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData) {
       return buildRouteMapHTML(routeArr, entityLabel);
   };
 
+  // Имя персонажа для подписей. Раньше маршрут его вычислял, а блок эмоций
+  // рядом писал жёстко «NPC» — в интерфейсе с именем игрока это выглядело
+  // как безымянный служебный ярлык. Считаем один раз на оба места.
+  const charLabel = (hudData && hudData.characters && hudData.characters[0]
+    && (hudData.characters[0]['Имя'] || hudData.characters[0].N)) || 'Персонаж';
+
   if (memoryData.route && (memoryData.route.user?.length > 0 || memoryData.route.char?.length > 0)) {
     let routeHtml = '';
     if (memoryData.route.user?.length > 0) routeHtml += buildRouteHTML(memoryData.route.user, getSafeUserName());
     if (memoryData.route.char?.length > 0) {
-      const charLabel = (hudData && hudData.characters && hudData.characters[0] && (hudData.characters[0]['Имя'] || hudData.characters[0].N)) || 'NPC';
       routeHtml += buildRouteHTML(memoryData.route.char, charLabel);
     }
     html += `<div class="hud-row full-width"><span class="hud-key">🗺️ Мини-карта маршрутов:</span> ${routeHtml}</div>`;
@@ -118,7 +147,7 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData) {
   if (memoryData.mood && (memoryData.mood.user?.current || memoryData.mood.char?.current || memoryData.mood.user?.history?.length > 0)) {
     let moodHtml = '';
     moodHtml += buildMoodHTML(memoryData.mood.user?.history, memoryData.mood.user?.current, getSafeUserName());
-    moodHtml += buildMoodHTML(memoryData.mood.char?.history, memoryData.mood.char?.current, 'NPC');
+    moodHtml += buildMoodHTML(memoryData.mood.char?.history, memoryData.mood.char?.current, charLabel);
     html += `<div class="hud-row full-width" style="overflow:hidden;"><span class="hud-key">🎭 Эмоции:</span> ${moodHtml}</div>`;
   }
 

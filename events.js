@@ -11,8 +11,8 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache } from './avatars.js?v=22.5.8';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.5.8';
+import { invalidateAvatarCache } from './avatars.js?v=22.7.1';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.7.1';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -146,12 +146,52 @@ export function initGlobalEvents(ctx) {
     // .hud-phone-chat-stage остаётся display:none, и тап по чату выглядит
     // как «телефон не реагирует». Список и сцена переписки взаимно
     // исключают друг друга — см. правила у [data-phone-view="messages"].
+    // Прочтение переписки. Эта часть жила в утраченных строках и не вернулась
+    // вместе с остальным: рендерер до сих пор кладёт data-chat-target именно
+    // ради неё (см. комментарий в render/phone.js), но снимать непрочитанное
+    // было некому — счётчики и уведомления висели после захода в чат.
+    const markChatRead = (view, body) => {
+      const emulator = view.closest('.hud-phone-emulator') || view;
+      const id = body && body.id;
+      if (!id) return;
+      // 1. Точки «не прочитано» у сообщений превращаются в двойную галочку.
+      body.querySelectorAll('.msg-status.unread-dot').forEach(dot => {
+        dot.classList.remove('unread-dot');
+        dot.classList.add('read');
+        dot.textContent = '✓✓';
+      });
+      // 2. Счётчик на строке чата в списке.
+      const row = emulator.querySelector(`.hud-phone-chat-row[data-chat-target="${CSS.escape(id)}"]`);
+      if (row) row.querySelectorAll('.hud-unread-badge').forEach(b => b.remove());
+      // 3. Карточка уведомления этого чата уходит со стопки.
+      emulator.querySelectorAll(`.hud-phone-notif[data-chat-target="${CSS.escape(id)}"]`).forEach(n => n.remove());
+      // 4. Пересчитываем остаток: сумма счётчиков оставшихся строк списка.
+      let left = 0;
+      emulator.querySelectorAll('.hud-phone-chat-row .hud-unread-badge').forEach(b => {
+        left += parseInt(b.textContent, 10) || 0;
+      });
+      const stack = emulator.querySelector('.hud-phone-notif-stack');
+      if (stack) {
+        const counter = stack.querySelector('.hud-phone-notif-count');
+        if (counter) counter.textContent = String(left);
+        // Стопка без карточек — пустая рамка, её быть не должно.
+        if (!stack.querySelector('.hud-phone-notif') || left === 0) stack.remove();
+        else stack.querySelector('.hud-phone-notif')?.classList.add('hud-phone-notif--first');
+      }
+      const appBadge = emulator.querySelector('.hud-phone-app[data-phone-app="messages"] .hud-unread-badge');
+      if (appBadge) {
+        if (left > 0) appBadge.textContent = String(left);
+        else appBadge.remove();
+      }
+    };
+
     const openChat = (view, body) => {
       if (!view) return;
       view.querySelectorAll('.hud-phone-subbody.active').forEach(b => b.classList.remove('active'));
       if (body) {
         body.classList.add('active');
         view.classList.add('is-chat-open');
+        markChatRead(view, body);
       } else {
         view.classList.remove('is-chat-open');
       }

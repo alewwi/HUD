@@ -19,7 +19,6 @@ export const defaultSettings = {
   enableDreams: true,
   enableUserBlock: true,
   enableMemory: true, // Включаем Память
-  enablePhoneSettings: true, // Настройки телефона сохраняются даже без эмулятора
   performanceMode: true, // Автоматическая оптимизация чатов от 200 сообщений
   hudsToKeep: 2,
   regenContextMessages: 6,
@@ -53,10 +52,11 @@ export const defaultSettings = {
   msgOutStart: '#2badde', msgOutEnd: '#a9789a', msgOutAlpha: 80,
 
   // --- ВНЕШНИЙ ВИД ТЕЛЕФОНА ---
-  // phoneThemeAuto: телефон наследует тему HUD (акцент, фон карточки, блюр,
-  // шрифт). Любая ручная правка телефонной настройки выключает флаг, иначе
-  // при следующем применении темы правку бы затёрло.
-  phoneThemeAuto: true,
+  // Телефон переделан в полноценную ОС, поэтому набор пересобран: убраны
+  // phoneThemeAuto, enablePhoneSettings и phoneShowLockNotifications —
+  // их не читал ни код, ни панель. Добавлены те, что относятся к ОС:
+  // радиус плиток приложений, цвет корпуса, свечение экрана и число
+  // карточек уведомлений на домашнем экране.
   phoneBgStart: '#0a0a0f', phoneBgEnd: '#12121a', phoneBgAlpha: 92,
   phoneAccent: '#de859f',
   phoneBlur: 14,
@@ -64,7 +64,10 @@ export const defaultSettings = {
   phoneFont: 'inherit',
   phoneFontSize: 13,
   phoneNotifAlpha: 94,
-  phoneShowLockNotifications: true,
+  phoneIconRadius: 15,
+  phoneFrameColor: '#16171d',
+  phoneScreenGlow: 35,
+  phoneNotifMax: 3,
   weatherBgColor: '#000000', weatherBgAlpha: 40, weatherBlur: 6, // Цвета погоды
 
   badgeColor: '#ff3b30',

@@ -7,9 +7,9 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=22.5.8';
-import { getSafeUserName, mapKey } from './utils.js?v=22.5.8';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=22.5.8';
+import { settings } from './settings.js?v=22.7.1';
+import { getSafeUserName, mapKey } from './utils.js?v=22.7.1';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=22.7.1';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -133,18 +133,33 @@ export function normalizeJSONData(parsed) {
   let chars = Array.isArray(parsed.characters) ? parsed.characters : (typeof parsed.characters === 'object' && parsed.characters !== null ? [parsed.characters] : []);
   chars = mergeCharacterRecords(chars);
   let world = parsed.world || {};
+  // Список участников осмыслен только для настоящей группы — троих и
+  // больше. Промт этого требует и прямо обещает, что короткие списки
+  // отбрасываются, но отбрасывать было некому: модель регулярно присылает
+  // одно-два имени, и в шапке переписки появлялась бессмысленная плашка
+  // «Участники: Аня». Отсекаем здесь, в нормализации, чтобы правило
+  // действовало сразу для всех потребителей — и для телефона, и для
+  // перехватов, — а не в каждом рендерере по отдельности.
+  const groupParticipants = (value) => {
+    const names = toStr(value)
+      .split(/[;,]/)
+      .map(s => s.trim())
+      .filter(s => s && !/^(нет|none|empty|n\/a|-|—)$/i.test(s));
+    return names.length >= 3 ? names.join('; ') : '';
+  };
+
   let chatsMap = {};
   if (typeof parsed.chatsMap === 'object' && parsed.chatsMap !== null) {
     for (const k of Object.keys(parsed.chatsMap)) {
       const c = parsed.chatsMap[k];
       if (!c || typeof c !== 'object') continue;
-      chatsMap[toStr(k)] = { owner: toStr(c.owner), participants: toStr(c.participants), messages: cleanArray(c.messages) };
+      chatsMap[toStr(k)] = { owner: toStr(c.owner), participants: groupParticipants(c.participants), messages: cleanArray(c.messages) };
     }
   }
   let interceptsParsed = [];
   if (Array.isArray(parsed.intercepts)) {
     interceptsParsed = parsed.intercepts.map(i => {
-      if (typeof i === 'object' && i !== null) return { target: toStr(i.target), chatName: toStr(i.chatName), participants: toStr(i.participants), messages: cleanArray(i.messages) }; return null;
+      if (typeof i === 'object' && i !== null) return { target: toStr(i.target), chatName: toStr(i.chatName), participants: groupParticipants(i.participants), messages: cleanArray(i.messages) }; return null;
     }).filter(Boolean);
   }
   let diaryParsed = [];

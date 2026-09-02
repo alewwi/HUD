@@ -37,6 +37,9 @@
 
     --scene-day-progress: 0;
     --scene-night-strength: 0;
+    /* Яркость окон отдельно от общей темноты: ночь и глубокая ночь одинаково
+       тёмные, но свет в домах после полуночи гасят. */
+    --window-glow: 0;
     --scene-golden-strength: 0;
     --scene-sunset-strength: 0;
     --scene-star-strength: 0;
@@ -48,6 +51,11 @@
     initial-value: 0;
 }
 @property --scene-night-strength {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 0;
+}
+@property --window-glow {
     syntax: "<number>";
     inherits: true;
     initial-value: 0;
@@ -410,14 +418,14 @@
     50%      { opacity: 1;    transform: rotate(45deg) scale(1.2); }
 }
 
-.phase-predawn { --sky-top: #17263f; --sky-mid: #4d4c78; --sky-bot: #d39a66; --scene-glow: rgba(255, 186, 125, 0.18); --scene-night-strength: 0.72; --scene-golden-strength: 0.15; --scene-sunset-strength: 0.08; --scene-star-strength: 0.42; }
-.phase-morning { --sky-top: #4f6d95; --sky-mid: #a9789a; --sky-bot: #f3b98f; --scene-glow: rgba(255, 190, 140, 0.22); --scene-night-strength: 0.18; --scene-golden-strength: 0.08; --scene-sunset-strength: 0.04; --scene-star-strength: 0.14; }
-.phase-day     { --sky-top: #2f6fc9; --sky-mid: #4fa3d8; --sky-bot: #bfe3f0; --scene-glow: rgba(255, 255, 255, 0.18); --scene-night-strength: 0; --scene-golden-strength: 0; --scene-sunset-strength: 0; --scene-star-strength: 0; }
-.phase-golden  { --sky-top: #2b3d6b; --sky-mid: #a35e6a; --sky-bot: #ef955f; --scene-glow: rgba(255, 196, 103, 0.22); --scene-night-strength: 0.16; --scene-golden-strength: 1; --scene-sunset-strength: 0.38; --scene-star-strength: 0.08; }
-.phase-sunset  { --sky-top: #2b173b; --sky-mid: #7b3057; --sky-bot: #ee7747; --scene-glow: rgba(255, 134, 92, 0.24); --scene-night-strength: 0.3; --scene-golden-strength: 0.7; --scene-sunset-strength: 1; --scene-star-strength: 0.12; }
-.phase-evening { --sky-top: #2b1b45; --sky-mid: #7a3860; --sky-bot: #e2703f; --scene-glow: rgba(255, 130, 90, 0.22); --scene-night-strength: 0.68; --scene-golden-strength: 0.24; --scene-sunset-strength: 0.42; --scene-star-strength: 0.4; }
-.phase-night   { --sky-top: #080b14; --sky-mid: #131a2b; --sky-bot: #1d2740; --scene-glow: rgba(222, 133, 159, 0.14); --scene-night-strength: 1; --scene-golden-strength: 0; --scene-sunset-strength: 0; --scene-star-strength: 1; }
-.phase-deep-night { --sky-top: #03070f; --sky-mid: #0c1220; --sky-bot: #12213b; --scene-glow: rgba(120, 140, 255, 0.08); --scene-night-strength: 1; --scene-golden-strength: 0; --scene-sunset-strength: 0; --scene-star-strength: 1; }
+.phase-predawn { --sky-top: #17263f; --sky-mid: #4d4c78; --sky-bot: #d39a66; --scene-glow: rgba(255, 186, 125, 0.18); --scene-night-strength: 0.72; --scene-golden-strength: 0.15; --scene-sunset-strength: 0.08; --scene-star-strength: 0.42; --window-glow: 0.3; }
+.phase-morning { --sky-top: #4f6d95; --sky-mid: #a9789a; --sky-bot: #f3b98f; --scene-glow: rgba(255, 190, 140, 0.22); --scene-night-strength: 0.18; --scene-golden-strength: 0.08; --scene-sunset-strength: 0.04; --scene-star-strength: 0.14; --window-glow: 0.12; }
+.phase-day     { --sky-top: #2f6fc9; --sky-mid: #4fa3d8; --sky-bot: #bfe3f0; --scene-glow: rgba(255, 255, 255, 0.18); --scene-night-strength: 0; --scene-golden-strength: 0; --scene-sunset-strength: 0; --scene-star-strength: 0; --window-glow: 0; }
+.phase-golden  { --sky-top: #2b3d6b; --sky-mid: #a35e6a; --sky-bot: #ef955f; --scene-glow: rgba(255, 196, 103, 0.22); --scene-night-strength: 0.16; --scene-golden-strength: 1; --scene-sunset-strength: 0.38; --scene-star-strength: 0.08; --window-glow: 0.18; }
+.phase-sunset  { --sky-top: #2b173b; --sky-mid: #7b3057; --sky-bot: #ee7747; --scene-glow: rgba(255, 134, 92, 0.24); --scene-night-strength: 0.3; --scene-golden-strength: 0.7; --scene-sunset-strength: 1; --scene-star-strength: 0.12; --window-glow: 0.55; }
+.phase-evening { --sky-top: #2b1b45; --sky-mid: #7a3860; --sky-bot: #e2703f; --scene-glow: rgba(255, 130, 90, 0.22); --scene-night-strength: 0.68; --scene-golden-strength: 0.24; --scene-sunset-strength: 0.42; --scene-star-strength: 0.4; --window-glow: 1.05; }
+.phase-night   { --sky-top: #080b14; --sky-mid: #131a2b; --sky-bot: #1d2740; --scene-glow: rgba(222, 133, 159, 0.14); --scene-night-strength: 1; --scene-golden-strength: 0; --scene-sunset-strength: 0; --scene-star-strength: 1; --window-glow: 1.3; }
+.phase-deep-night { --sky-top: #03070f; --sky-mid: #0c1220; --sky-bot: #12213b; --scene-glow: rgba(120, 140, 255, 0.08); --scene-night-strength: 1; --scene-golden-strength: 0; --scene-sunset-strength: 0; --scene-star-strength: 1; --window-glow: 0.5; }
 
 .phase-night .hud-fx-bg,
 .phase-deep-night .hud-fx-bg,
@@ -1028,10 +1036,29 @@
 .hud-snowman-ball.ball-bottom { bottom: 0;    width: 40px; height: 40px; }
 .hud-snowman-ball.ball-mid    { bottom: 34px; width: 30px; height: 30px; }
 .hud-snowman-ball.ball-head   { bottom: 58px; width: 22px; height: 22px; }
+/* Руки-ветки. Были тёмно-коричневыми (#5a4230) и на ночной сцене сливались
+   с фоном — казалось, что снеговик их потерял. Тон посветлее, тонкая светлая
+   обводка (снег на ветке) и по паре сучков на конце: теперь читаются и на
+   тёмном небе, и на белом шаре. */
+/* Руки — обычные тонкие веточки. Прежний вариант был толстым, со светлой
+   обводкой и крупными сучками у самого края: на глаз получались варежки,
+   а не ветки. Теперь 1.5px, ровный тон и два коротких отростка на самом
+   конце, направленных наружу. */
 .hud-snowman-arm {
-    position: absolute; bottom: 40px; width: 16px; height: 3px; border-radius: 2px;
-    background: #5a4230;
+    position: absolute; bottom: 41px; width: 20px; height: 1.5px; border-radius: 1px;
+    background: #7a5c40;
+    box-shadow: 0 .5px 1px rgba(0,0,0,.55);
 }
+.hud-snowman-arm::before,
+.hud-snowman-arm::after {
+    content: ''; position: absolute; width: 6px; height: 1.5px; border-radius: 1px;
+    background: #7a5c40;
+    box-shadow: 0 .5px 1px rgba(0,0,0,.5);
+}
+.hud-snowman-arm.arm-left::before  { left: -3px; top: -2.5px; transform: rotate(-34deg); transform-origin: right center; }
+.hud-snowman-arm.arm-left::after   { left: -3px; top: 2.5px;  transform: rotate(34deg);  transform-origin: right center; }
+.hud-snowman-arm.arm-right::before { right: -3px; top: -2.5px; transform: rotate(34deg);  transform-origin: left center; }
+.hud-snowman-arm.arm-right::after  { right: -3px; top: 2.5px;  transform: rotate(-34deg); transform-origin: left center; }
 .hud-snowman-arm.arm-left  { left: 1px;  transform-origin: right center; transform: rotate(18deg); }
 .hud-snowman-arm.arm-right { right: 1px; transform-origin: left center;  transform: rotate(-18deg); }
 .hud-snowman-hat-brim {
@@ -1785,6 +1812,62 @@
     position: relative; z-index: 1;
 }
 .hud-diary-about-label { font-weight: bold; color: var(--hud-text-muted); text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.5px; margin-right: 4px; font-family: sans-serif; font-style: normal;}
+
+/* --- Дневник: бумага ----------------------------------------------------
+   Запись выглядела как тёмный прямоугольник в линейку. Добавлено то, из чего
+   складывается ощущение настоящей тетради: зерно бумаги и виньетка по краям,
+   поле с проколами слева, загнутый уголок и буквица. Всё лежит отдельными
+   слоями под текстом (z-index 0), поэтому настроенческие фоны и кляксы
+   продолжают работать поверх без изменений. */
+.hud-diary-paper {
+  position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background:
+    radial-gradient(120% 90% at 50% 0%, rgba(255,246,224,.05), transparent 62%),
+    radial-gradient(60% 45% at 12% 100%, rgba(0,0,0,.24), transparent 70%),
+    radial-gradient(circle at 22% 34%, rgba(255,255,255,.022) 0 1px, transparent 1px),
+    radial-gradient(circle at 68% 71%, rgba(255,255,255,.02) 0 1px, transparent 1px),
+    radial-gradient(circle at 84% 18%, rgba(0,0,0,.05) 0 1px, transparent 1px);
+  background-size: auto, auto, 37px 41px, 53px 47px, 61px 59px;
+  mix-blend-mode: soft-light;
+  opacity: .9;
+}
+/* Поле и проколы: край листа, вырванного из тетради на кольцах. */
+.hud-diary-holes {
+  position: absolute; left: 0; top: 0; bottom: 0; width: 22px;
+  pointer-events: none; z-index: 0;
+  background:
+    linear-gradient(90deg, rgba(0,0,0,.22), transparent 78%),
+    radial-gradient(circle at 11px 22px,  rgba(0,0,0,.62) 0 3.1px, transparent 3.6px),
+    radial-gradient(circle at 11px 50%,   rgba(0,0,0,.62) 0 3.1px, transparent 3.6px),
+    radial-gradient(circle at 11px calc(100% - 22px), rgba(0,0,0,.62) 0 3.1px, transparent 3.6px);
+}
+/* Загнутый уголок: светлый треугольник и тень под ним. */
+.hud-diary-curl {
+  position: absolute; right: 0; bottom: 0; width: 26px; height: 26px;
+  pointer-events: none; z-index: 1;
+  background: linear-gradient(315deg, rgba(226,214,190,.30) 0%, rgba(160,148,128,.16) 46%, transparent 47%);
+  border-bottom-right-radius: 4px;
+  filter: drop-shadow(-3px -3px 5px rgba(0,0,0,.35));
+}
+/* Буквица: первая буква записи крупнее, как в рукописи. */
+.hud-diary-text::first-letter {
+  float: left;
+  font-size: 2.05em;
+  line-height: .78;
+  margin: 4px 7px 0 0;
+  color: var(--hud-accent);
+  font-style: normal;
+  text-shadow: 0 2px 6px rgba(0,0,0,.45);
+}
+/* Подпись автора — на просвет, будто вытиснена в бумаге. */
+.hud-diary-author { text-shadow: 0 1px 0 rgba(0,0,0,.45); }
+/* Стикер держится на кусочке скотча. */
+.hud-diary-sticker::after {
+  content: ''; position: absolute; left: 50%; top: -7px; transform: translateX(-50%) rotate(-4deg);
+  width: 26px; height: 11px; border-radius: 1px;
+  background: linear-gradient(180deg, rgba(255,255,255,.34), rgba(255,255,255,.14));
+  box-shadow: 0 1px 3px rgba(0,0,0,.25);
+}
 
 .hud-diary-entry.hud-diary-mood-sad {
     background: linear-gradient(180deg, rgba(19, 18, 25, 0.95), rgba(25, 20, 24, 0.95)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.06) 25px, rgba(255,255,255,0.06) 26px);
@@ -2884,6 +2967,90 @@
 
 /* Перехваты (Разделено от драмы) */
 .hud-phone-mockup.intercept-mode { border-color: var(--hud-intercept-bg) !important; box-shadow: inset 0 0 20px var(--hud-intercept-bg) !important; background: var(--hud-intercept-bg) !important; }
+/* --- Перехваты: оформление ------------------------------------------------
+   Панель перехватов почти ничем не отличалась от обычного телефона, хотя
+   смысл у неё другой — это чужая переписка, которую подслушивают. Ниже
+   несколько слоёв, которые дают этот смысл, и все они дешёвые: анимируются
+   только opacity и transform. */
+
+/* 1. Панель перехвата получает угловые скобки — рамка прицела. */
+.hud-phone-mockup.intercept-mode { position: relative; }
+.hud-phone-mockup.intercept-mode::before {
+  content: ''; position: absolute; inset: 5px; pointer-events: none; z-index: 4;
+  border: 1px solid transparent;
+  background:
+    linear-gradient(var(--hud-intercept-color, #ff4d4d) 0 0) 0 0 / 12px 1px no-repeat,
+    linear-gradient(var(--hud-intercept-color, #ff4d4d) 0 0) 0 0 / 1px 12px no-repeat,
+    linear-gradient(var(--hud-intercept-color, #ff4d4d) 0 0) 100% 0 / 12px 1px no-repeat,
+    linear-gradient(var(--hud-intercept-color, #ff4d4d) 0 0) 100% 0 / 1px 12px no-repeat,
+    linear-gradient(var(--hud-intercept-color, #ff4d4d) 0 0) 0 100% / 12px 1px no-repeat,
+    linear-gradient(var(--hud-intercept-color, #ff4d4d) 0 0) 0 100% / 1px 12px no-repeat,
+    linear-gradient(var(--hud-intercept-color, #ff4d4d) 0 0) 100% 100% / 12px 1px no-repeat,
+    linear-gradient(var(--hud-intercept-color, #ff4d4d) 0 0) 100% 100% / 1px 12px no-repeat;
+  opacity: .55;
+}
+
+/* 2. Луч сканирования: медленно проходит сверху вниз. */
+.hud-phone-mockup.intercept-mode::after {
+  content: ''; position: absolute; left: 0; right: 0; top: 0; height: 34%;
+  pointer-events: none; z-index: 3; border-radius: inherit;
+  background: linear-gradient(180deg, transparent 0%, rgba(255,77,77,.055) 55%, rgba(255,120,120,.11) 82%, transparent 100%);
+  animation: hud-intercept-scan 7.5s linear infinite;
+}
+@keyframes hud-intercept-scan {
+  0%   { transform: translateY(-40%); opacity: 0; }
+  12%  { opacity: 1; }
+  88%  { opacity: 1; }
+  100% { transform: translateY(320%); opacity: 0; }
+}
+
+/* 3. Шапка перехвата: строчная сетка развёртки поверх заголовка. */
+.hud-intercept-header { position: relative; overflow: hidden; }
+.hud-intercept-header::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(180deg, rgba(255,255,255,.05) 0 1px, transparent 1px 3px);
+  opacity: .5;
+}
+
+/* 4. Полоски уровня сигнала в шапке — три штриха, которые дышат по очереди. */
+.hud-intercept-header .hud-phone-options { position: relative; }
+.hud-intercept-header .hud-phone-options::after {
+  content: ''; position: absolute; right: 14px; bottom: 3px; width: 13px; height: 10px;
+  background:
+    linear-gradient(var(--hud-intercept-color, #ff4d4d) 0 0) 0 100% / 3px 40% no-repeat,
+    linear-gradient(var(--hud-intercept-color, #ff4d4d) 0 0) 50% 100% / 3px 70% no-repeat,
+    linear-gradient(var(--hud-intercept-color, #ff4d4d) 0 0) 100% 100% / 3px 100% no-repeat;
+  animation: hud-intercept-signal 2.6s ease-in-out infinite;
+}
+@keyframes hud-intercept-signal {
+  0%, 100% { opacity: .35; }
+  40%      { opacity: 1; }
+  70%      { opacity: .6; }
+}
+
+/* 5. Активная вкладка перехвата подсвечивается пульсом — идёт запись. */
+.hud-phone-subtab.intercept-tab.active {
+  animation: hud-intercept-rec 3.4s ease-in-out infinite;
+}
+@keyframes hud-intercept-rec {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,59,48,.34); }
+  50%      { box-shadow: 0 0 0 4px rgba(255,59,48,0); }
+}
+
+/* 6. Текст чужих сообщений слегка «проявляется» при открытии вкладки. */
+.hud-phone-subbody.active .hud-msg-bubble { animation: hud-intercept-decode .5s ease-out both; }
+@keyframes hud-intercept-decode {
+  from { opacity: 0; filter: blur(2.5px); }
+  to   { opacity: 1; filter: blur(0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-phone-mockup.intercept-mode::after,
+  .hud-intercept-header .hud-phone-options::after,
+  .hud-phone-subtab.intercept-tab.active,
+  .hud-phone-subbody.active .hud-msg-bubble { animation: none !important; }
+}
+
 .hud-tab.intercept-tab { color: var(--hud-intercept-color) !important; }
 .hud-tab.intercept-tab.active { border-color: var(--hud-intercept-color) !important; color: #fff !important; background: transparent !important; }
 .hud-phone-owner-label.intercept-status { color: var(--hud-intercept-color) !important; text-shadow: 0 0 5px var(--hud-intercept-bg) !important; }
@@ -3635,7 +3802,110 @@
     animation: hud-route-draw 1.6s linear infinite;
 }
 @keyframes hud-route-draw { to { stroke-dashoffset: -30; } }
+/* --- Маршрут: схема линии --------------------------------------------------
+   Прежняя кривая на сетке была нечитаемой: длинные названия обрезались,
+   действие показать было негде, а сама линия сообщала только «точек три».
+   Теперь маршрут разложен как схема линии метро — время, номер остановки,
+   место, что там произошло, и перегон с длительностью между остановками. */
+.hud-route-map {
+  background: linear-gradient(165deg, rgba(12,18,28,.9), rgba(8,12,20,.9));
+  border: 1px solid rgba(94,234,212,.16);
+  border-radius: 14px;
+  padding: 11px 13px 12px;
+  margin-top: 7px;
+}
+.hud-route-head {
+  display: flex; align-items: baseline; justify-content: space-between; gap: 10px;
+  margin-bottom: 9px; padding-bottom: 7px;
+  border-bottom: 1px dashed rgba(148,197,214,.18);
+}
+.hud-route-name { font-weight: 700; font-size: .92em; color: #99f6e4; letter-spacing: .2px; }
+.hud-route-span { font-size: .72em; font-family: monospace; color: rgba(190,205,220,.55); white-space: nowrap; }
+.hud-route-strip { list-style: none; margin: 0; padding: 0; }
+.hud-route-stop {
+  display: grid;
+  grid-template-columns: 44px 18px minmax(0, 1fr);
+  align-items: center; gap: 9px;
+}
+.hud-route-time {
+  font-family: monospace; font-size: .74em; letter-spacing: .4px;
+  color: rgba(190,205,220,.6); text-align: right;
+}
+/* Кружок с номером остановки. */
+.hud-route-pin {
+  position: relative; width: 18px; height: 18px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  background: #0f172a; border: 2px solid #5eead4;
+  box-shadow: 0 0 0 3px rgba(94,234,212,.10);
+}
+.hud-route-pin i {
+  font-style: normal; font-size: 9px; font-weight: 700; color: #99f6e4; line-height: 1;
+}
+.hud-route-info { min-width: 0; }
+.hud-route-info b {
+  display: block; font-size: .88em; color: #e6f6f3; font-weight: 600;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.hud-route-info small {
+  display: block; font-size: .74em; margin-top: 1px;
+  color: rgba(190,205,220,.55);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+/* Перегон: отрезок линии между остановками и время в пути. */
+.hud-route-leg {
+  display: grid; grid-template-columns: 44px 18px minmax(0, 1fr);
+  align-items: center; gap: 9px; min-height: 22px;
+}
+.hud-route-leg-line {
+  grid-column: 2; justify-self: center;
+  width: 2px; height: 100%; min-height: 20px; border-radius: 1px;
+  background: repeating-linear-gradient(180deg, #5eead4 0 5px, transparent 5px 9px);
+  opacity: .55;
+}
+.hud-route-leg-time {
+  grid-column: 3; font-size: .7em; font-family: monospace;
+  color: rgba(148,197,214,.45);
+}
+/* Текущая точка — акцентная, с пульсирующим ореолом. */
+.hud-route-stop.is-current .hud-route-pin {
+  background: var(--hud-accent, #de859f);
+  border-color: var(--hud-accent, #de859f);
+  box-shadow: 0 0 0 4px rgba(222,133,159,.18), 0 0 12px var(--hud-accent, #de859f);
+}
+.hud-route-stop.is-current .hud-route-pin i { color: #fff; }
+.hud-route-stop.is-current .hud-route-info b { color: #fff; }
+.hud-route-map.fx-active .hud-route-stop.is-current .hud-route-pin {
+  animation: hud-route-pulse 2.2s ease-in-out infinite;
+}
+@keyframes hud-route-pulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(222,133,159,.14), 0 0 10px var(--hud-accent, #de859f); }
+  50%      { box-shadow: 0 0 0 7px rgba(222,133,159,.05), 0 0 18px var(--hud-accent, #de859f); }
+}
+/* Стартовая точка — полая: видно, откуда путь начался. */
+.hud-route-stop.is-start .hud-route-pin { background: #0b1220; }
+@media (max-width: 480px) {
+  .hud-route-stop, .hud-route-leg { grid-template-columns: 38px 16px minmax(0, 1fr); gap: 7px; }
+  .hud-route-time { font-size: .7em; }
+}
+
 .hud-route-map-dot { fill: #99f6e4; stroke: #0f172a; stroke-width: 1; }
+/* Сетка под маршрутом: карта, а не пустой прямоугольник. */
+.hud-route-grid-line { stroke: rgba(148,197,214,.10); stroke-width: 1; }
+.hud-route-grid { pointer-events: none; }
+/* Стартовая точка — полая, конечная — с ореолом: видно направление пути. */
+.hud-route-map-dot.start { fill: #0f172a; stroke: #5eead4; stroke-width: 2; }
+.hud-route-map-halo { fill: var(--hud-accent, #de859f); opacity: .16; }
+.hud-route-map.fx-active .hud-route-map-halo { animation: hud-route-halo 2.4s ease-in-out infinite; }
+@keyframes hud-route-halo {
+  0%, 100% { opacity: .12; r: 8; }
+  50%      { opacity: .28; r: 11; }
+}
+/* Время под названием места — мелко и приглушённо, чтобы не спорить с ним. */
+.hud-route-map-time {
+  font-size: 8px; letter-spacing: .4px;
+  fill: rgba(190,205,220,.5);
+  font-family: monospace;
+}
 .hud-route-map-dot.current { fill: var(--hud-accent, #de859f); filter: drop-shadow(0 0 4px var(--hud-accent, #de859f)); }
 .hud-route-map-label {
     fill: #ccfbf1;
@@ -3953,7 +4223,7 @@
 .phase-night .hud-fx-bg { filter: brightness(0.62) saturate(0.88); transition: filter 1.2s ease; }
 .phase-night .hud-fx-season-scene { filter: brightness(0.58) saturate(0.78); }
 .phase-night .hud-fx-weather, .phase-night .hud-fx-cloud-cover, .phase-night .hud-fx-temp { filter: brightness(0.72); }
-.phase-night .hud-fx-celestial { filter: brightness(1.18) saturate(0.95); box-shadow: inset -9px -6px 0 0 rgba(20,25,45,0.55), 0 0 24px 7px rgba(210,220,255,0.42), 0 0 48px 14px rgba(180,200,255,0.14); }
+.phase-night .hud-fx-celestial { filter: brightness(1.05) saturate(0.95); box-shadow: inset -9px -6px 0 0 rgba(20,25,45,0.55), 0 0 24px 7px rgba(210,220,255,0.42), 0 0 48px 14px rgba(180,200,255,0.14); }
 .phase-night .hud-fx-stars { z-index: 6; opacity: 1; filter: brightness(1.55) saturate(1.08); }
 .phase-night .hud-fx-stars .hud-star2 { filter: brightness(1.45); box-shadow: 0 0 7px rgba(255,255,255,0.95), 0 0 14px rgba(180,210,255,0.42), 0 0 24px rgba(150,190,255,0.18); }
 .phase-night .hud-fx-fireflies { z-index: 7; }
@@ -4240,12 +4510,16 @@
 .season-winter .hud-window-pane { position:absolute; background:rgba(255,213,128,0); }
 .season-winter .hud-window-pane.p1 { left:0; top:48%; width:100%; height:2px; }
 .season-winter .hud-window-pane.p2 { left:48%; top:0; width:2px; height:100%; }
-.phase-night.season-winter .hud-winter-warm-window { opacity:1; animation:hud-window-flicker 7s ease-in-out infinite; animation-play-state:paused !important; }
+.phase-evening.season-winter .hud-winter-warm-window,
+.phase-night.season-winter .hud-winter-warm-window,
+.phase-deep-night.season-winter .hud-winter-warm-window { opacity:1; animation:hud-window-flicker 7s ease-in-out infinite; animation-play-state:paused !important; }
 .phase-night.season-winter .hud-winter-warm-window .hud-window-pane { background:rgba(255,220,145,.88); }
+/* Мерцание масштабируется той же --window-glow, иначе при включении анимации
+   окно тускнело: статический ореол был ярче кадров. */
 @keyframes hud-window-flicker {
-    0%,100% { box-shadow:0 0 0 1px rgba(12,13,16,.65), 0 0 16px rgba(255,210,120,.15); }
-    48% { box-shadow:0 0 0 1px rgba(12,13,16,.65), 0 0 24px rgba(255,210,120,.32); }
-    52% { box-shadow:0 0 0 1px rgba(12,13,16,.65), 0 0 10px rgba(255,210,120,.09); }
+    0%,100% { box-shadow:0 0 0 1px rgba(12,13,16,.65), 0 0 calc(16px * var(--window-glow,0)) rgba(255,214,132,.75), 0 0 calc(44px * var(--window-glow,0)) rgba(255,186,96,.42); }
+    48%     { box-shadow:0 0 0 1px rgba(12,13,16,.65), 0 0 calc(24px * var(--window-glow,0)) rgba(255,214,132,.9),  0 0 calc(60px * var(--window-glow,0)) rgba(255,186,96,.55); }
+    52%     { box-shadow:0 0 0 1px rgba(12,13,16,.65), 0 0 calc(12px * var(--window-glow,0)) rgba(255,214,132,.6),  0 0 calc(34px * var(--window-glow,0)) rgba(255,186,96,.3); }
 }
 .season-winter .hud-winter-chimney {
     position:absolute; left:67px; bottom:55px; width:14px; height:24px; z-index:2; pointer-events:none;
@@ -5012,17 +5286,50 @@
     #0b0e13;
 }
 
-/* Поиск — строки как история запросов в браузере. */
+/* Поиск — история запросов, как в браузере. Раньше строка была лиловой,
+   курсивной и с эмодзи-лупой в ::before; выглядело как стилизация, а не как
+   настоящий список. Теперь нейтральный фон, прямое начертание и штриховые
+   значки: часы слева, стрелка «подставить» справа. */
 .hud-phone-search-row {
-  position: relative; padding-left: 38px !important;
-  background: linear-gradient(160deg, rgba(199,155,255,.08), rgba(199,155,255,.02)) !important;
-  border-color: rgba(199,155,255,.16) !important;
-  font-style: italic;
+  position: relative;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 10px !important;
+  padding: 10px 11px !important;
+  background: rgba(255,255,255,.04) !important;
+  border-color: rgba(255,255,255,.085) !important;
+  font-style: normal !important;
 }
-.hud-phone-search-row::before {
-  content: '🔍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-  font-size: 13px; opacity: .75;
+.hud-phone-search-row::before { content: none !important; }
+.hud-g-query {
+  flex: 1; min-width: 0; font-size: 11px; line-height: 1.3;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  color: rgba(232,236,244,.9);
 }
+.hud-g-ico, .hud-g-arrow {
+  flex: 0 0 auto; fill: none; stroke: currentColor;
+  stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round;
+}
+.hud-g-ico { width: 15px; height: 15px; opacity: .55; }
+.hud-g-arrow { width: 14px; height: 14px; opacity: .35; }
+.hud-phone-search-row:hover .hud-g-arrow { opacity: .7; }
+/* Строка поиска: пилюля, как в браузере, с микрофоном и объективом справа. */
+.hud-google-bar {
+  display: flex; align-items: center; gap: 10px;
+}
+.hud-g-hint { flex: 1; min-width: 0; font-size: 11px; opacity: .55; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-g-tools { display: flex; gap: 10px; flex: 0 0 auto; }
+.hud-g-history h4 { opacity: .55; font-weight: 600; letter-spacing: .3px; }
+.hud-phone-empty-icon .hud-g-ico { width: 26px; height: 26px; opacity: .4; }
+/* Единый штриховой набор по всему телефону вместо эмодзи: они рисуются
+   системным шрифтом и на каждой ОС выглядят по-своему, из-за чего экран
+   читался как самоделка. Размер задаём по месту — плитка, заголовок, строка. */
+.hud-phone-app .hud-g-ico { width: 25px; height: 25px; opacity: .92; stroke-width: 1.6; }
+.hud-phone-app-title .hud-g-ico { width: 15px; height: 15px; opacity: .8; vertical-align: -2px; margin-right: 2px; }
+.hud-phone-notif-label .hud-g-ico { width: 13px; height: 13px; opacity: .8; vertical-align: -2px; margin-right: 3px; }
+.hud-phone-participants-list .hud-g-ico { width: 13px; height: 13px; opacity: .75; vertical-align: -2px; margin-right: 3px; }
+.hud-g-pin { display: inline-flex; align-items: center; }
+.hud-g-pin .hud-g-ico { width: 17px; height: 17px; opacity: .7; }
 
 /* Пустые экраны — не голая строка, а аккуратная заглушка. */
 .hud-phone-empty-app {
@@ -5053,17 +5360,47 @@
 .phase-night .hud-fx-celestial,
 .phase-deep-night .hud-fx-celestial,
 .phase-evening .hud-fx-celestial {
+  /* Кратер — это не просто тёмное пятно: у настоящего есть освещённый вал с
+     одной стороны и тень с другой. Поэтому каждый идёт двумя слоями — светлая
+     кромка сверху-слева, углубление под ней. Прежние кратеры были заданы
+     прозрачностью .18–.30 и вдобавок смывались засветкой brightness(1.18),
+     поэтому диск оставался плоским. */
   background:
-    radial-gradient(circle at 68% 74%, rgba(120,132,170,.30) 0 5px, transparent 6px),
-    radial-gradient(circle at 38% 60%, rgba(120,132,170,.26) 0 7px, transparent 8px),
-    radial-gradient(circle at 56% 32%, rgba(120,132,170,.22) 0 4px, transparent 5px),
-    radial-gradient(circle at 30% 34%, rgba(120,132,170,.18) 0 3px, transparent 4px),
-    radial-gradient(circle at 35% 35%, #fdfdfe 0%, #eef1fb 45%, #ccd4ec 100%) !important;
+    /* кромки кратеров */
+    radial-gradient(circle at 67% 73%, transparent 0 4.4px, rgba(255,255,255,.34) 4.6px 5.6px, transparent 6.1px),
+    radial-gradient(circle at 37% 59%, transparent 0 6.2px, rgba(255,255,255,.30) 6.4px 7.5px, transparent 8px),
+    radial-gradient(circle at 56% 31%, transparent 0 3.4px, rgba(255,255,255,.28) 3.6px 4.4px, transparent 4.9px),
+    radial-gradient(circle at 29% 33%, transparent 0 2.6px, rgba(255,255,255,.26) 2.8px 3.5px, transparent 3.9px),
+    radial-gradient(circle at 74% 44%, transparent 0 2.2px, rgba(255,255,255,.24) 2.4px 3px, transparent 3.4px),
+    radial-gradient(circle at 46% 80%, transparent 0 2.8px, rgba(255,255,255,.22) 3px 3.7px, transparent 4.1px),
+    /* углубления */
+    radial-gradient(circle at 68% 74%, rgba(96,106,142,.62) 0 4.6px, rgba(120,132,170,.24) 5.4px, transparent 6px),
+    radial-gradient(circle at 38% 60%, rgba(96,106,142,.55) 0 6.4px, rgba(120,132,170,.22) 7.4px, transparent 8px),
+    radial-gradient(circle at 57% 32%, rgba(96,106,142,.48) 0 3.6px, transparent 4.6px),
+    radial-gradient(circle at 30% 34%, rgba(96,106,142,.42) 0 2.8px, transparent 3.7px),
+    radial-gradient(circle at 75% 45%, rgba(96,106,142,.38) 0 2.4px, transparent 3.2px),
+    radial-gradient(circle at 47% 81%, rgba(96,106,142,.36) 0 3px, transparent 3.9px),
+    /* моря — крупные размытые пятна, дают неоднородность поверхности */
+    radial-gradient(ellipse 16px 12px at 60% 62%, rgba(108,120,158,.30), transparent 72%),
+    radial-gradient(ellipse 12px 15px at 33% 45%, rgba(108,120,158,.24), transparent 74%),
+    /* тело: к краю темнеет — это и даёт шар, а не блин */
+    radial-gradient(circle at 34% 31%, #ffffff 0%, #f2f5fd 30%, #d8e0f2 62%, #b3bed9 84%, #8e9ab8 100%) !important;
   box-shadow:
     0 0 22px rgba(198,214,255,.35),
     0 0 54px rgba(150,175,255,.22),
-    inset -6px -5px 14px rgba(90,102,140,.32),
-    inset 3px 3px 8px rgba(255,255,255,.5);
+    inset -7px -6px 16px rgba(58,68,102,.5),
+    inset 4px 4px 10px rgba(255,255,255,.55);
+}
+/* Терминатор отдельным слоем поверх кратеров: тень ложится и на них тоже,
+   иначе кратеры на тёмной стороне светятся как днём. */
+.phase-night .hud-fx-celestial::after,
+.phase-deep-night .hud-fx-celestial::after,
+.phase-evening .hud-fx-celestial::after {
+  content: '';
+  position: absolute; inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle at 32% 29%, transparent 38%, rgba(14,20,42,.30) 76%, rgba(10,15,34,.62) 100%);
 }
 /* Гало вокруг луны — отдельным слоем, чтобы не спорило с box-shadow. */
 .phase-night .hud-fx-celestial::before,
@@ -6091,16 +6428,32 @@
    Телефон: подключение настраиваемых переменных темы
    ========================================================================= */
 /* Значения по умолчанию — на случай, если applyThemeColors ещё не отработал. */
+/* Значения по умолчанию, которые пользовательская настройка может перебить.
+   Переменные объявлены НА эмуляторе, поэтому просто выставить их на :root
+   мало — объявление на элементе сильнее унаследованного. Отсюда пара
+   «--X: var(--X-user, значение по умолчанию)»: панель пишет *-user на :root,
+   а здесь остаётся запасной вариант. До 22.6.7 панель телефона писала
+   настройки в никуда — их никто не читал. */
 .hud-phone-emulator {
-  --hud-phone-bg: linear-gradient(160deg, rgba(10,10,15,.94), rgba(18,18,26,.94));
-  --hud-phone-accent: var(--hud-accent, #de859f);
-  --hud-phone-blur: 14px;
-  --hud-phone-font: inherit;
-  --hud-phone-font-size: 13px;
-  --hud-phone-radius: 15px;
-  --hud-phone-notif-alpha: .94;
+  --hud-phone-bg: var(--hud-phone-bg-user, linear-gradient(160deg, rgba(10,10,15,.94), rgba(18,18,26,.94)));
+  --hud-phone-accent: var(--hud-phone-accent-user, var(--hud-accent, #de859f));
+  --hud-phone-blur: var(--hud-phone-blur-user, 14px);
+  --hud-phone-font: var(--hud-phone-font-user, inherit);
+  --hud-phone-font-size: var(--hud-phone-font-size-user, 13px);
+  --hud-phone-radius: var(--hud-phone-radius-user, 15px);
+  --hud-phone-notif-alpha: var(--hud-phone-notif-alpha-user, .94);
+  --hud-phone-icon-radius: var(--hud-phone-icon-radius-user, 15px);
+  --hud-phone-frame: var(--hud-phone-frame-user, #16171d);
+  --hud-phone-screen-glow: var(--hud-phone-screen-glow-user, .35);
   font-family: var(--hud-phone-font);
+  border-color: var(--hud-phone-frame);
 }
+/* Настройки, которым нужен свой якорь. */
+.hud-phone-app-view { backdrop-filter: blur(var(--hud-phone-blur)) !important; -webkit-backdrop-filter: blur(var(--hud-phone-blur)) !important; }
+.hud-phone-app { border-radius: var(--hud-phone-icon-radius) !important; }
+.hud-phone-emulator .hud-msg-wrapper.incoming .hud-msg-bubble { border-radius: var(--hud-phone-radius) var(--hud-phone-radius) var(--hud-phone-radius) 4px; }
+.hud-phone-emulator .hud-msg-wrapper.outgoing .hud-msg-bubble { border-radius: var(--hud-phone-radius) var(--hud-phone-radius) 4px var(--hud-phone-radius); }
+.hud-phone-emulator .hud-phone-unlocked { box-shadow: inset 0 0 34px rgba(150,180,255,calc(var(--hud-phone-screen-glow) * .5)); }
 
 /* Фон экрана и стекло. */
 .hud-phone-home-screen,
@@ -6662,8 +7015,11 @@
 }
 
 /* Наметённые к стенам: домики и снеговик стоят по щиколотку в снегу. */
+/* Средние валы обязаны перекрываться. Раньше sd-mid1 кончался на 28%, а
+   sd-mid2 начинался на 31% — между ними зиял просвет ровно справа от
+   снеговика, и это читалось как «кусок сугроба с пустым местом». */
 .season-winter .hud-snowdrift.sd-mid1 {
-    left: 4%; bottom: 7.6%; width: 24%; height: 6.2%; z-index: 7;
+    left: 4%; bottom: 7.6%; width: 30%; height: 6.2%; z-index: 7;
     border-radius: 58% 42% 0 0 / 100% 100% 0 0;
 }
 .season-winter .hud-snowdrift.sd-mid2 {
@@ -6697,7 +7053,9 @@
 
 /* Снеговика поднимаем над средними сугробами, но оставляем под передним
    валом: получается, что он стоит в снегу, а не приклеен к полосе. */
-.season-winter .hud-snowman { z-index: 6; }
+/* Снеговик выше средних сугробов (z-index 7): при 6 вал sd-mid1 проходил
+   поверх фигуры и разрезал её пополам. */
+.season-winter .hud-snowman { z-index: 9; }
 
 /* Свой сугроб под снеговиком, в его собственных px-координатах (не %,
    как остальные — их размер гуляет с шириной карточки, а снеговик стоит
@@ -6707,9 +7065,15 @@
    заметная часть вала оказывалась чуть правее него отдельным «куском».
    Этот сугроб уже, ниже и всегда точно под ним — не зависит от того,
    насколько широкий передний вал дотягивается до края. */
+/* Сугроб точно по фигуре, и края растворены. Чёткая эллиптическая кромка
+   читалась как отдельный горб рядом со снеговиком, сколько его ни двигай;
+   с маской он сливается с соседними валами и остаётся просто наметённым
+   снегом у ног. */
 .season-winter .hud-snowdrift.sd-snowman {
-    left: -8px; width: 78px; height: 26px; z-index: 11;
+    left: -4px; width: 70px; height: 19px; z-index: 11;
     border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 78%, transparent 100%);
 }
 
 /* --- Свет в окнах ------------------------------------------------------ */
@@ -6722,8 +7086,8 @@
 .season-winter .hud-winter-warm-window { opacity: 1; }
 .season-winter .hud-winter-warm-window::before {
     content: ''; position: absolute; inset: 0;
-    background: radial-gradient(125% 135% at 50% 38%, #fff3d2 0%, #ffd88f 44%, #e2a052 100%);
-    opacity: var(--scene-night-strength, 0);
+    background: radial-gradient(125% 135% at 50% 38%, #fffaf0 0%, #ffe3a6 40%, #f0ad5c 100%);
+    opacity: min(1, var(--window-glow, 0));
     transition: opacity 1.6s ease;
 }
 /* Перекладины рамы — тёмные поверх горящего стекла. */
@@ -6732,16 +7096,19 @@
 .phase-deep-night.season-winter .hud-winter-warm-window .hud-window-pane { background: rgba(46,34,18,.82); }
 /* Ореол наружу — той же силы, что и свет. */
 .season-winter .hud-winter-warm-window {
+    /* Два ореола: тугой у рамы и широкий вокруг. Широкий нужен, чтобы окно
+       пробивалось сквозь снежную мглу — слой погоды лежит поверх пейзажа. */
     box-shadow: 0 0 0 1px rgba(12,13,16,.65),
-                0 0 calc(20px * var(--scene-night-strength, 0)) rgba(255,205,115,.55);
+                0 0 calc(16px * var(--window-glow, 0)) rgba(255,214,132,.75),
+                0 0 calc(44px * var(--window-glow, 0)) rgba(255,186,96,.42);
     transition: box-shadow 1.6s ease;
 }
 /* Тёплое пятно на сугробе под окном: свет из дома должен куда-то падать. */
 .season-winter .hud-winter-house::after {
     content: ''; position: absolute; left: 6px; bottom: -7px;
-    width: 52px; height: 13px; border-radius: 50%;
-    background: radial-gradient(ellipse, rgba(255,206,124,.42), transparent 70%);
-    opacity: var(--scene-night-strength, 0);
+    width: 62px; height: 16px; border-radius: 50%;
+    background: radial-gradient(ellipse, rgba(255,206,124,.55), transparent 72%);
+    opacity: min(1, var(--window-glow, 0));
     pointer-events: none;
     transition: opacity 1.6s ease;
 }
