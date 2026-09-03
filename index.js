@@ -1,18 +1,20 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.7.4';
-import { escapeHtml, getSafeUserName } from './utils.js?v=22.7.4';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.7.4';
-import { initGlobalEvents, initObserver, initTavernOSEvents } from './events.js?v=22.7.4';
-import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.7.4';
-import { buildDiaryHTML, hudHasMeaningfulDiary } from './render/diary.js?v=22.7.4';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.7.4';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.7.4';
-import { buildMemoryHTML } from './render/memory.js?v=22.7.4';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.7.4';
-import { hudHasRelations } from './render/relations-graph.js?v=22.7.4';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.7.4';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.7.4';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.19.1';
+import { escapeHtml, getSafeUserName } from './utils.js?v=22.19.1';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.19.1';
+import { initGlobalEvents, initObserver, initTavernOSEvents } from './events.js?v=22.19.1';
+import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.19.1';
+import { buildDiaryHTML, hudHasMeaningfulDiary } from './render/diary.js?v=22.19.1';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.19.1';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.19.1';
+import { buildMemoryHTML } from './render/memory.js?v=22.19.1';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.19.1';
+import { hudHasRelations } from './render/relations-graph.js?v=22.19.1';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.19.1';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.19.1';
+import { HUD_THEMES, applyThemeClass } from './themes.js?v=22.19.1';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.19.1';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -78,10 +80,12 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
 - 🧠 MEMORY SCOPE: memory.mood and memory.route track ONLY {{user}} and {{char}} as the main protagonists. If a protagonist is absent from the physical scene, do not invent a present-scene mood or route event for them; this does NOT erase their broader world state from messaging, schedules, relationships or other world-level structures. Mood history: MAX 12 recent points per protagonist. Route history: MAX 20 recent points per protagonist. Timeline: MAX 5 recent events of TODAY.
 - 🕸️ RELATION WEB (drives the Memory infographic): JS draws an SVG spiderweb from "Rel" fields. EVERY character in "characters" AND the "user" block MUST emit a complete Rel covering EVERY other named person who currently matters ({{user}}, {{char}}, scene NPCs, mentioned NPCs). Format EXACTLY "Name: how THIS person feels toward Name", separated by ;. Relationships MUST be bidirectional: if Аня has "Максим: ревнует", Максим MUST exist in "characters" with Rel containing "Аня: ...". Any NPC mentioned in anyone's Rel MUST also appear in "characters" with their own Rel. Never omit Rel and never write "empty" while other named people exist this turn.
 - 🧠 KNOWLEDGE BOUNDARIES: Every character knows only what they could plausibly know. Never leak another character's private thoughts, private conversations, intercepted messages or hidden plans into a different character's internal state without a believable information path.
-- 🛑 NSFW LIFECYCLE: Fields "W", "NSFW_Det", "SexRev", and user's "UW" MUST ONLY be active during intimacy, sex, or high arousal. Once the scene cools down, clear them by writing "empty". Do NOT leave old NSFW details active.
+- 🛑 NSFW LIFECYCLE: Fields "W", "NSFW_Det", "SexRev", and user's "UW" MUST ONLY be active during intimacy, sex, or high arousal. Once the scene cools down, clear them by writing "empty". Do NOT leave old NSFW details active. EXCEPTION — "Kink", "Fet", "NoGo" and "NoTurn" are STABLE character traits, not scene state: once known they stay filled every turn and are NEVER cleared when the scene cools down.
+- 🔗 KINK vs FETISH (never mix them): a KINK is a broad practice, scenario or dynamic — roleplay ("teacher and student", "doctor and patient"), BDSM (dominance/submission, bondage), toys, sensory play (temperature, tickling), power exchange. A FETISH is narrower: a specific object, material, body part or setting that is not erotic in itself but is required for arousal or strongly amplifies it — stockings, shoes, latex, leather, silk, feet, hair, neck, medical procedures. Rule of thumb: an ACTIVITY goes to "Kink", a THING (object, material, body part, setting) goes to "Fet". Consent and safety are assumed for everything listed in "Kink" and "Fet"; anything the character refuses belongs to "NoGo", anything that simply leaves them cold belongs to "NoTurn".
+- 🌦️ FORECAST & HOROSCOPE: "world.forecast" is a plain daily weather forecast for the settlement the scene is in, four rows — morning, day, evening, night — each formatted "Период | Погода | Температура | Короткая заметка". The weather field MUST contain one plain weather word so the interface can pick its icon: ясно, солнечно, облачно, пасмурно, дождь, ливень, морось, гроза, снег, метель, туман, ветрено. Keep it consistent with "scene.Погода" for the current part of the day, and let it drift naturally across the rest. "world.horoscope" is a full daily horoscope: ONE row for EVERY ONE of the 12 zodiac signs, formatted "Знак | что ждёт этот знак сегодня | тон", where тон is удача, неудача or ровно. Say plainly who gets lucky today, who runs into trouble and who had better stay home. "world.prediction" is one or two lines of general fortune closing the block. This whole block is light entertainment in the spirit of a newspaper back page — playful, superstitious, occasionally absurd. It is NEVER a directive: it MUST NOT command {{user}} or {{char}}, MUST NOT decide plot events, and nothing in the story is obliged to come true because the horoscope said so.
 - 📖 DIARY: The diary is PRIVATE IN-WORLD WRITING, not a scene summary or an AI report. Every entry MUST name its "author" — ALWAYS a character or NPC, NEVER {{user}} — and be written by that author in first person, containing only what they personally experienced, know, believe, remember, suspect or misunderstand. "text" is the author's own diary: their day, condition, emotions, inner conflict, decisions, memories, regrets, hopes, plans and self-talk — not a report about {{user}}. Every entry MUST also carry "aboutUser": a separate private first-person subsection where the SAME author says what they personally think and feel about {{user}} — attraction, anger, tenderness, resentment, fear, curiosity, observations, memories, wishes, doubts, unresolved questions. It is not omniscient analysis and not a second narrator; keep it apart from the general self-reflection and use "empty" if there is nothing meaningful this turn. Every entry SHOULD also carry a short "mood" (or "emotion") naming the writer's dominant tone — sadness, tears, anger, stress, panic, rush, relief, guilt, joy, calm, longing. It drives visual styling only, so keep it to one word or a short phrase.
 - ⚠️ FORMATTING: Use EXACTLY these short English keys. ESCAPE inner quotes like this: "He said \\"Hello\\".". ALWAYS use semicolons (;) for lists, NEVER slashes (/).
-- 🏷️ LABELED SUB-FIELDS (for "SexLast", "W" and "NSFW_Det"): every semicolon-separated item inside these three fields MUST be written as "Label: value", NOT as a bare value. Never output just the answer alone — always prefix it with its label and a colon. Example for "W": "Penis state: hard, throbbing; Fetishes active: none; Volume: loud, breathy moans and sharp slapping sounds; Smell: sweat and arousal; Traces: precum on the sheets; Arousal level: 9/10; Partner: Anna; Protection: none".
+- 🏷️ LABELED SUB-FIELDS (for "SexLast", "W", "Kink", "Fet", "NoGo", "NoTurn" and "NSFW_Det"): every item inside these fields MUST be written as "Label: value", NOT as a bare value, and items MUST be separated by a semicolon — NOT by a comma. A comma-separated list renders as one long unreadable pill instead of separate ones. Never output just the answer alone — always prefix it with its label and a colon. Example for "W": "Penis state: hard, throbbing; Volume: loud, breathy moans and sharp slapping sounds; Smell: sweat and arousal; Traces: precum on the sheets; Arousal level: 9/10; Partner: Anna; Protection: none".
 - 🔊 "Volume" DEFINITION: the "Volume" sub-field inside "W" describes SPECIFICALLY the loudness/intensity of the sounds being made during the act — moans, screams, whimpers, skin-slapping/spanking sounds, bed creaking, wet sounds, etc. It is NOT about music, TV, or ambient environment volume. Always phrase it as "Volume: <how loud/intense the sexual sounds are, and which sounds>".
 - 📦 CODE FENCE (CRITICAL): wrap the ENTIRE JSON object in a fenced code block using triple backticks with the "json" language tag, exactly as shown below. This is MANDATORY — it stops the chat's markdown renderer from corrupting underscores/asterisks/quotes inside the JSON. The opening \`\`\`json line goes immediately after [HUD], the closing \`\`\` line goes immediately before [/HUD]. Never omit the fence.
 
@@ -120,8 +124,12 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
    "SexLast": "[Last sex. MUST use format 'Date: ...; Partner: ...; Acts: ...; Ending: ...'. Separate by ;]",
    "SexCount": "[Lifetime number of sexual partners]",
    "SexReg": "[Sexual regularity/libido level]",
-   "W": "[DURING INTIMACY, EACH item as 'Label: value': 'Penis state: ...; Fetishes active: ...; Volume: ...; Smell: ...; Traces: ...; Arousal level: ...; Partner: ...; Protection: ...'. 'Volume' = intensity/loudness of sexual sounds (moans, slapping, etc), see rule above. Separate by ; ALWAYS update dynamically!]",
-   "NSFW_Det": "[AFTERMATH ONLY, EACH item as 'Label: value': 'Sensitivity: 1-10; Readiness for round 2: ...; Physical aftermath: ...; Emotional aftermath: ...'. Separate by ; to render as pills!]",
+   "W": "[DURING INTIMACY, EACH item as 'Label: value': 'Penis state: ...; Volume: ...; Smell: ...; Traces: ...; Arousal level: ...; Partner: ...; Protection: ...'. 'Volume' = intensity/loudness of sexual sounds (moans, slapping, etc), see rule above. Separate by ; ALWAYS update dynamically!]",
+   "Kink": "[STABLE TRAIT, keep filled across turns. Practices and scenarios this character enjoys or is drawn to — roleplay, BDSM, bondage, toys, sensory play, power exchange. EACH item as 'Label: value' where value says how willingly and how far they go: 'Ролевые игры: охотно, любит сценарий врач-пациент; Связывание: только сама сверху'. MINIMUM 2-4 items when known. Separate by ;]",
+   "Fet": "[STABLE TRAIT, keep filled across turns. NARROWER than a kink: specific objects, materials, body parts or settings that are not erotic in themselves but are required for arousal or strongly amplify it — stockings, latex, leather, silk, feet, hair, neck, medical settings. EACH item as 'Label: value': 'Чулки: обязательное условие; Шея: сильный триггер'. Separate by ;]",
+   "NoGo": "[STABLE TRAIT. Hard limits — what this character will NEVER do sexually under any circumstances. EACH item as 'Label: value' where value is the reason: 'Боль: панический страх; Втроём: не делится'. Separate by ;]",
+   "NoTurn": "[STABLE TRAIT. Turn-offs — not forbidden, simply kills arousal or leaves them cold. EACH item as 'Label: value': 'Спешка: сразу теряет настрой; Грубые слова: гасит'. Separate by ;]",
+   "NSFW_Det": "[AFTERMATH ONLY, EACH item as 'Label: value': 'Sensitivity: 1-10; Readiness for round 2: ...; Physical aftermath: ...; Emotional aftermath: ...'. Separate items by ; — NOT by a comma, or everything collapses into one pill!]",
    "SexRev": "[AFTERMATH ONLY: Full written review of the sex, like an Amazon review. End with a 5-star rating (e.g. Оценка: ★★★★☆). Write in full sentences. UPDATE REAL-TIME!]"
   }
  ]`;
@@ -244,6 +252,9 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
  "world": {
   "headlines": ["[Headline 1] | [Article text. UPDATE REAL-TIME!]", "[GENERATE N AMOUNT!]"],
   "rumors": ["[Rumor 1. UPDATE REAL-TIME!]", "[GENERATE N AMOUNT!]"],
+  "forecast": ["[Утро | weather word | +7°C | short note]", "[День | ... ]", "[Вечер | ... ]", "[Ночь | ... ]"],
+  "horoscope": ["[Овен | one-line prediction for today | удача]", "[GENERATE ALL 12 SIGNS!]"],
+  "prediction": ["[One or two lines of general fortune for the day]"],
   "ads": ["[Ad 1. UPDATE REAL-TIME!]", "[GENERATE N AMOUNT!]"]`;
       if (settings.showComments) {
         p += `,
@@ -435,6 +446,10 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
 
  function applyThemeColors() {
     const root = document.documentElement;
+    // Класс темы — источник украшений и цвета текста для светлых тем.
+    // Ставим его первым: остальные переменные пишутся инлайново в style
+    // элемента <html> и всё равно окажутся сильнее.
+    applyThemeClass(settings.themePreset);
     if (settings.accentColor) root.style.setProperty('--hud-accent', settings.accentColor);
     if (settings.glowColor) root.style.setProperty('--hud-purple-glow', hexToRgba(settings.glowColor, settings.glowAlpha !== undefined ? settings.glowAlpha : 40)); 
     
@@ -541,6 +556,17 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
     if (saved) { try { Object.assign(settings, JSON.parse(saved)); } catch (e) {} } 
     applyThemeColors(); 
   }
+  // Версию берём из ?v= собственного скрипта: раньше она была вписана в
+  // заголовок настроек руками и отставала на десяток выпусков.
+  function hudVersionLabel() {
+    try {
+      const tag = document.querySelector('script[src*="HUD/index.js"]');
+      const m = tag && tag.src.match(/[?&]v=([\d.]+)/);
+      if (m) return m[1];
+    } catch (e) {}
+    return '22+';
+  }
+
   function saveSettings() {
     try {
       localStorage.setItem('hud_settings', JSON.stringify(settings));
@@ -1035,6 +1061,14 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
         </div>
       </label>
       <div class="hud-theme-panel" id="theme-panel-${baseId}">
+        <div class="hud-theme-presets">
+          <div class="hud-theme-presets-title">Готовые темы</div>
+          <div class="hud-theme-presets-row">
+            ${HUD_THEMES.map(t => `<button type="button" class="hud-theme-preset${settings.themePreset === t.id ? ' active' : ''}" data-theme-preset="${t.id}" title="${escapeHtml(t.hint)}"><span>${t.icon}</span><small>${escapeHtml(t.label)}</small></button>`).join('')}
+            <button type="button" class="hud-theme-preset reset${settings.themePreset ? '' : ' active'}" data-theme-preset="" title="Вернуть стандартные цвета TavernOS"><span>↺</span><small>Сброс</small></button>
+          </div>
+          <div class="hud-theme-presets-note">Тема просто выставляет ползунки ниже — после неё всё можно править руками.</div>
+        </div>
         <details><summary>🎨 Общие цвета & Фоны</summary>
           <div class="hud-theme-grid">
             <div class="hud-theme-row"><label>Акцент:</label> <input type="color" class="hud-theme-color-input" data-key="accentColor" value="${settings.accentColor}"></div>
@@ -1183,7 +1217,7 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
         <div class="hud-fx-celestial"${celestialStyle}></div>
         <div class="hud-fx-cloud-cover"></div>
         <div class="hud-fx-season-scene"${sunVarsStyle}>${buildSeasonSceneHtml(seasonClass, { dew: dewActive, deepFreeze: !!freezeClass })}</div>
-        <div class="hud-fx-weather"><span class="hud-snow-layer snow-far"></span><span class="hud-snow-layer snow-mid"></span><span class="hud-snow-layer snow-near"></span></div>
+        <div class="hud-fx-weather"><span class="hud-rain-cloud rc-back"></span><span class="hud-rain-cloud rc-front"></span><span class="hud-snow-layer snow-far"></span><span class="hud-snow-layer snow-mid"></span><span class="hud-snow-layer snow-near"></span></div>
         <div class="hud-fx-frost"></div>
         <div class="hud-fx-temp"></div>
         <div class="hud-fx-overlay"></div>
@@ -1227,7 +1261,7 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
     if (hasPhone) {
       const uid = `phone-${baseId}`;
       tabsHtml += `<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📱 Телефон</div>`;
-      contentHtml += buildPhoneTabsHTML(data.chatsMap, uid, isFirst, getSafeUserName(), data.phone);
+      contentHtml += buildPhoneTabsHTML(data.chatsMap, uid, isFirst, getSafeUserName(), data.phone, data.scene && data.scene['Дата']);
       isFirst = false;
     }
 
@@ -2229,8 +2263,10 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
     wrapper.id = 'hud-settings-wrapper';
     wrapper.className = 'hud-settings-block';
     wrapper.innerHTML = `
-      <summary style="font-weight:bold; cursor:pointer; color:var(--hud-accent); outline: none;">📊 TavernOS v21.5.4</summary>
+      <summary style="font-weight:bold; cursor:pointer; color:var(--hud-accent); outline: none;">📊 TavernOS v${hudVersionLabel()}</summary>
       <div style="padding-top: 12px; display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+
+      <details class="hud-set-group"><summary>🧩 Блоки HUD</summary><div class="hud-set-body">
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;"><input type="checkbox" id="hud-auto-inject" ${settings.autoInject ? 'checked' : ''}> Сетевой перехват (Инжект промпта)</label>
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;"><input type="checkbox" id="hud-enable-phone" ${settings.enablePhone ? 'checked' : ''}> 📱 Личный телефон</label>
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;"><input type="checkbox" id="hud-enable-intercepts" ${settings.enableIntercepts ? 'checked' : ''}> 📡 Перехваты (Чужие телефоны)</label>
@@ -2242,9 +2278,21 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="При 200+ сообщениях отключает тяжёлую повторную обработку старых сообщений, замораживает их анимации/эффекты и обрабатывает HUD по мере прокрутки."><input type="checkbox" id="hud-performance-mode" ${settings.performanceMode ? 'checked' : ''}> ⚡ Performance Mode (200+ сообщений)</label>
         <div style="font-size:11px;opacity:.68;">Автоматически включается только в чатах от 200 сообщений. Старые блоки остаются функциональными и догружаются при прокрутке.</div>
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">📏 Максимальная высота Памяти: <input type="number" id="hud-memory-max-height" min="200" max="600" value="${settings.memoryMaxHeight}" style="width:70px; background:rgba(0,0,0,.3); border:1px solid var(--hud-border); color:#fff; padding:2px 4px; border-radius:4px;"> px</label>
-        <div style="border-top:1px solid var(--hud-border); margin:6px 0;"></div>
+      </div></details>
 
-        <div style="font-weight:700; color:var(--hud-accent);">📚 Лорбуки для ➕ / 🔄 HUD</div>
+      <details class="hud-set-group"><summary>🖼️ Аватарки персонажей</summary><div class="hud-set-body">
+        <div style="font-size:12px; opacity:.78;">Одна картинка — на любое число имён: впишите их через запятую, вместе с английским написанием. Аватарка встанет всюду, где сейчас кружок с инициалами: блок персонажей, чаты телефона, перехваты.</div>
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+          <button type="button" id="hud-ava-add" style="cursor:pointer;">➕ Добавить изображение</button>
+          <span id="hud-ava-status" style="font-size:11px; opacity:.75;"></span>
+        </div>
+        <div id="hud-ava-list" class="hud-ava-list"></div>
+        <div style="font-size:12px; opacity:.78; margin-top:2px;">Закреплённые аватарки — страховка на случай, когда картинка из чата достаётся не тому: если у {{char}} указаны имена, никто, кроме них, его фото уже не получит.</div>
+        <div id="hud-ava-pinned" class="hud-ava-list"></div>
+        <input type="file" id="hud-ava-file" accept="image/*" style="display:none">
+      </div></details>
+
+      <details class="hud-set-group"><summary>📚 Лорбуки и генерация</summary><div class="hud-set-body">
         <div style="font-size:12px; opacity:.78;">Выбери один или несколько. Их записи + описание карточки чара + Persona добавляются только в отдельный запрос создания/регенерации HUD. Обычный HUD-инжект не меняется.</div>
         <select id="hud-lorebooks" multiple size="6" style="width:100%; min-height:110px; background:rgba(0,0,0,.3); border:1px solid var(--hud-border); color:#fff; padding:4px; border-radius:5px;"></select>
         <div style="display:flex; gap:8px; align-items:center;">
@@ -2269,8 +2317,150 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
           </select>
           <span id="hud-regen-profile-refresh" title="Обновить список профилей" style="cursor:pointer;">🔄</span>
         </label>
+      </div></details>
+
       </div>`;
     container.appendChild(wrapper);
+
+    // --- Ручные аватарки ---------------------------------------------------
+    // Картинку ужимаем до квадрата 128px и кладём как JPEG data-URL. Настройки
+    // SillyTavern хранятся одним JSON-файлом, поэтому оригинал на несколько
+    // мегабайт туда класть нельзя — а для кружка аватарки 128px хватает с
+    // запасом (выходит около 6-10 КБ на картинку).
+    function hudShrinkImage(file, max = 128) {
+      return new Promise((resolve, reject) => {
+        if (!file || !/^image\//.test(file.type)) return reject(new Error('Это не изображение'));
+        if (file.size > 8 * 1024 * 1024) return reject(new Error('Файл больше 8 МБ'));
+        const fr = new FileReader();
+        fr.onerror = () => reject(new Error('Не удалось прочитать файл'));
+        fr.onload = () => {
+          const img = new Image();
+          img.onerror = () => reject(new Error('Не удалось открыть картинку'));
+          img.onload = () => {
+            try {
+              const side = Math.min(img.width, img.height);
+              const sx = (img.width - side) / 2, sy = (img.height - side) / 2;
+              const c = document.createElement('canvas');
+              c.width = c.height = max;
+              c.getContext('2d').drawImage(img, sx, sy, side, side, 0, 0, max, max);
+              resolve(c.toDataURL('image/jpeg', 0.82));
+            } catch (err) { reject(new Error('Не удалось обработать картинку')); }
+          };
+          img.src = fr.result;
+        };
+        fr.readAsDataURL(file);
+      });
+    }
+
+    // Аватарки участвуют в уже отрисованных HUD, поэтому после правки
+    // сбрасываем кэш и просим перерисовать блоки заново.
+    function refreshHudAvatars() {
+      invalidateAvatarCache();
+      refreshAvatarFaces();
+    }
+
+    function avaRow(entry, role) {
+      const img = role === 'char' ? settings.avatarCharImg : role === 'user' ? settings.avatarUserImg : entry.img;
+      const names = role === 'char' ? settings.avatarCharNames
+        : role === 'user' ? settings.avatarUserNames
+        : role === 'npc' ? entry.names : '';
+      const label = role === 'char' ? '{{char}}' : role === 'user' ? '{{user}}' : '';
+      const thumb = img
+        ? `<span class="hud-ava-thumb" style="background-image:url('${img}')"></span>`
+        : '<span class="hud-ava-thumb is-empty">?</span>';
+      const placeholder = role === 'char' ? 'Имена {{char}} через запятую'
+        : role === 'user' ? 'Имена {{user}} через запятую'
+        : 'Арес Бомонт, Ares Beaumont';
+      const nameField = `<input type="text" class="hud-ava-names" value="${escapeHtml(names || '')}" placeholder="${placeholder}">`;
+      return `<div class="hud-ava-row" data-ava-role="${role}" data-ava-id="${entry && entry.id ? escapeHtml(entry.id) : ''}">
+        ${label ? `<span class="hud-ava-tag">${label}</span>` : ''}
+        ${thumb}${nameField}
+        <button type="button" class="hud-ava-btn hud-ava-replace" title="Заменить картинку">🔄</button>
+        <button type="button" class="hud-ava-btn hud-ava-del" title="${role === 'npc' ? 'Удалить запись' : 'Убрать картинку'}">🗑️</button>
+      </div>`;
+    }
+
+    function renderAvatarRows() {
+      const list = document.getElementById('hud-ava-list');
+      const pinned = document.getElementById('hud-ava-pinned');
+      if (!list || !pinned) return;
+      const rows = Array.isArray(settings.avatarOverrides) ? settings.avatarOverrides : [];
+      list.innerHTML = rows.length
+        ? rows.map(e => avaRow(e, 'npc')).join('')
+        : '<div class="hud-ava-empty">Пока ни одной. Нажмите «Добавить изображение».</div>';
+      pinned.innerHTML = avaRow(null, 'char') + avaRow(null, 'user');
+    }
+
+    // Какую запись сейчас правим: null — создаём новую.
+    let avaTarget = null;
+    const avaFile = document.getElementById('hud-ava-file');
+    const avaStatus = document.getElementById('hud-ava-status');
+    const avaSay = (msg) => { if (avaStatus) avaStatus.textContent = msg || ''; };
+
+    if (avaFile) {
+      document.getElementById('hud-ava-add').addEventListener('click', () => {
+        avaTarget = { mode: 'new' };
+        avaFile.value = ''; avaFile.click();
+      });
+
+      avaFile.addEventListener('change', async (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file || !avaTarget) return;
+        avaSay('Обрабатываю…');
+        try {
+          const dataUrl = await hudShrinkImage(file);
+          if (avaTarget.mode === 'new') {
+            if (!Array.isArray(settings.avatarOverrides)) settings.avatarOverrides = [];
+            settings.avatarOverrides.push({ id: 'ava' + Date.now().toString(36), img: dataUrl, names: '' });
+          } else if (avaTarget.role === 'char') settings.avatarCharImg = dataUrl;
+          else if (avaTarget.role === 'user') settings.avatarUserImg = dataUrl;
+          else {
+            const row = (settings.avatarOverrides || []).find(r => r.id === avaTarget.id);
+            if (row) row.img = dataUrl;
+          }
+          saveSettings(); renderAvatarRows(); refreshHudAvatars();
+          avaSay('Готово, ' + Math.round(dataUrl.length / 1024) + ' КБ');
+        } catch (err) {
+          avaSay('');
+          showHudToast('error', 'Картинка не подошла', err.message || 'Не удалось обработать файл.');
+        }
+        avaTarget = null;
+      });
+    }
+
+    const avaHost = document.getElementById('hud-settings-wrapper');
+    if (avaHost) {
+      avaHost.addEventListener('click', (e) => {
+        const row = e.target.closest('.hud-ava-row');
+        if (!row) return;
+        const role = row.dataset.avaRole, id = row.dataset.avaId;
+        if (e.target.closest('.hud-ava-replace')) {
+          avaTarget = { mode: 'edit', role, id };
+          avaFile.value = ''; avaFile.click();
+          return;
+        }
+        if (e.target.closest('.hud-ava-del')) {
+          if (role === 'char') { settings.avatarCharImg = ''; settings.avatarCharNames = ''; }
+          else if (role === 'user') { settings.avatarUserImg = ''; settings.avatarUserNames = ''; }
+          else settings.avatarOverrides = (settings.avatarOverrides || []).filter(r => r.id !== id);
+          saveSettings(); renderAvatarRows(); refreshHudAvatars();
+          avaSay('');
+        }
+      });
+      avaHost.addEventListener('input', (e) => {
+        const field = e.target.closest('.hud-ava-names');
+        if (!field) return;
+        const row = field.closest('.hud-ava-row');
+        if (row.dataset.avaRole === 'char') settings.avatarCharNames = field.value;
+        else if (row.dataset.avaRole === 'user') settings.avatarUserNames = field.value;
+        else {
+          const entry = (settings.avatarOverrides || []).find(r => r.id === row.dataset.avaId);
+          if (entry) entry.names = field.value;
+        }
+        saveSettings(); refreshHudAvatars();
+      });
+    }
+    renderAvatarRows();
 
     const bgUrlInput = document.getElementById('hud-bg-url-input');
     const bgUploadBtn = document.getElementById('hud-bg-upload-btn');

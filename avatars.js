@@ -8,11 +8,63 @@
 // самое свежее упоминание имени), в длинном чате это дорогая операция, а вызывается она
 // на каждый рендер карточки HUD. Кэшируем результат и сбрасываем его только когда в чат
 // реально добавляются новые сообщения (см. invalidateAvatarCache()).
+// Ручные аватарки читаются прямо из настроек: модуль и так знает про DOM
+// и глобали SillyTavern, ещё одна зависимость ничего не усложняет.
+import { settings } from './settings.js?v=22.19.1';
+
 /** Палитра для плейсхолдеров аватарок: цвет выбирается по хэшу имени. */
 export const HUD_AVATAR_COLORS = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#22d3ee', '#a3e635'];
 
 let avatarUrlCache = {};
 export function invalidateAvatarCache() { avatarUrlCache = {}; }
+
+// --- Ручные аватарки -------------------------------------------------------
+// Нормализация имени для сравнения: регистр, ё/е и лишние пробелы не должны
+// мешать совпадению «Арес Бомонт» и «арес  бомонт».
+function normName(s) {
+  return String(s || '').toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim();
+}
+
+function namesOf(raw) {
+  return String(raw || '').split(/[,;\n]/).map(normName).filter(Boolean);
+}
+
+// Совпадением считаем полное равенство ИЛИ равенство по первому слову:
+// в чатах персонаж встречается и полным именем, и одним лишь именем.
+function nameMatches(target, list) {
+  const t = normName(target);
+  if (!t) return false;
+  const tFirst = t.split(' ')[0];
+  return list.some(nm => nm === t || nm.split(' ')[0] === tFirst);
+}
+
+// Имя закреплено за {{char}}? Тогда никакой другой персонаж не должен
+// получить его фото — и наоборот.
+export function isPinnedCharName(name) {
+  const list = namesOf(settings.avatarCharNames);
+  return list.length > 0 && nameMatches(name, list);
+}
+
+export function hasPinnedCharNames() {
+  return namesOf(settings.avatarCharNames).length > 0;
+}
+
+// URL вручную назначенной аватарки или null.
+export function isPinnedUserName(name) {
+  const list = namesOf(settings.avatarUserNames);
+  return list.length > 0 && nameMatches(name, list);
+}
+
+export function overrideAvatarUrl(name) {
+  if (settings.avatarUserImg && isPinnedUserName(name)) return settings.avatarUserImg;
+  if (settings.avatarCharImg && isPinnedCharName(name)) return settings.avatarCharImg;
+  const list = Array.isArray(settings.avatarOverrides) ? settings.avatarOverrides : [];
+  for (const entry of list) {
+    if (!entry || !entry.img) continue;
+    if (nameMatches(name, namesOf(entry.names))) return entry.img;
+  }
+  return null;
+}
 
 export function resolveAvatarUrl(characterName, isPrimary) {
   const searchName = (characterName || '').toLowerCase().trim();
@@ -29,6 +81,10 @@ export function resolveAvatarUrl(characterName, isPrimary) {
           }
       }
   }
+  // Если имена {{char}} закреплены вручную, а спрашивают не о нём —
+  // фолбэк «взять аватарку из последнего сообщения бота» пропускаем: именно
+  // он и приклеивал фото персонажа первому попавшемуся NPC.
+  if (isPrimary && hasPinnedCharNames() && !isPinnedCharName(characterName)) return null;
   if (isPrimary) {
       const botMsgs = Array.from(document.querySelectorAll('.mes:not([is_user="true"]):not([is_system="true"]) .avatar img'));
       if (botMsgs.length > 0) {
@@ -52,7 +108,60 @@ export function resolveAvatarUrl(characterName, isPrimary) {
   return { url: `/thumbnail?type=avatar&file=${encodeURIComponent(file)}`, thumbUrl: `/characters/${encodeURIComponent(file)}` };
 }
 
+// Обновление аватарок без перерисовки HUD.
+//
+// Перерисовать блок нельзя: при первом проходе исходный текст [HUD]...[/HUD]
+// заменяется готовой разметкой, и во второй раз разбирать уже нечего —
+// именно поэтому картинки менялись только после перезагрузки страницы.
+// Поэтому правим сами кружки: у каждого есть data-ava-name с именем и
+// data-ava-bg с исходной заливкой, так что вернуть всё назад тоже можно.
+function swapBigAvatar(el, name, url) {
+  const isImg = el.tagName === 'IMG';
+  if (url) {
+    if (isImg) { el.src = url; el.dataset.avaManual = '1'; return; }
+    const img = document.createElement('img');
+    img.className = el.className.replace('hud-avatar-placeholder', 'hud-avatar');
+    img.src = url; img.alt = 'avatar';
+    img.dataset.avaName = name; img.dataset.avaManual = '1';
+    el.replaceWith(img);
+    return;
+  }
+  // Ручную картинку убрали — возвращаем заглушку с инициалом.
+  if (isImg && el.dataset.avaManual === '1') {
+    const ph = document.createElement('div');
+    ph.className = el.className.replace('hud-avatar', 'hud-avatar-placeholder');
+    ph.dataset.avaName = name;
+    ph.textContent = '👤';
+    el.replaceWith(ph);
+  }
+}
+
+export function refreshAvatarFaces(root) {
+  const scope = root || document;
+  scope.querySelectorAll('[data-ava-name]').forEach(el => {
+    const name = el.getAttribute('data-ava-name') || '';
+    const url = el.getAttribute('data-ava-role') === 'user'
+      ? (settings.avatarUserImg || getUserAvatarUrl())
+      : overrideAvatarUrl(name);
+    if (el.tagName === 'IMG' || el.classList.contains('hud-avatar-placeholder')) {
+      swapBigAvatar(el, name, url);
+      return;
+    }
+    if (url) {
+      el.classList.add('has-img');
+      el.style.backgroundImage = "url('" + url + "')";
+    } else {
+      el.classList.remove('has-img');
+      el.style.backgroundImage = el.getAttribute('data-ava-bg') || 'none';
+    }
+  });
+}
+
 export function getAvatarUrl(characterName, isPrimary = false) {
+  // Ручная аватарка идёт раньше кэша: её меняют в настройках, и результат
+  // должен быть виден сразу, без перерисовки всего чата.
+  const manual = overrideAvatarUrl(characterName);
+  if (manual) return { url: manual, thumbUrl: manual };
   const searchName = (characterName || '').toLowerCase().trim();
   const cacheKey = searchName + '::' + (isPrimary ? '1' : '0');
   if (avatarUrlCache.hasOwnProperty(cacheKey)) return avatarUrlCache[cacheKey];
@@ -62,6 +171,8 @@ export function getAvatarUrl(characterName, isPrimary = false) {
 }
 
 export function getUserAvatarUrl() {
+  // Закреплённая вручную аватарка игрока перекрывает автоопределение.
+  if (settings.avatarUserImg) return settings.avatarUserImg;
   try {
       const selectors = ['#user_avatar_block .avatar.selected img', '#user_avatar_block .avatar_img.selected', '.selected_avatar img', '#avatar_img_me', '.mes[is_user="true"] .avatar img'];
       for (const sel of selectors) {

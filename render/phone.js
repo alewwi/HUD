@@ -3,10 +3,25 @@
 // Домен «Телефон»: вкладки чатов, переписки, счётчики непрочитанного,
 // участники. Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=22.7.4';
-import { settings } from '../settings.js?v=22.7.4';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.7.4';
-import { namesLikelySame } from '../names.js?v=22.7.4';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=22.19.1';
+import { settings } from '../settings.js?v=22.19.1';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.19.1';
+
+// Кружок собеседника. Если для имени назначена ручная аватарка, подставляем
+// её фоном прямо в существующий элемент: разметка и классы не меняются, а
+// буква прячется классом has-img. Иначе — прежний кружок с инициалом.
+// Буква остаётся в разметке всегда — при фотографии её прячет класс
+// has-img (color: transparent). Благодаря этому аватарку можно поменять
+// прямо на месте, не пересобирая блок: см. refreshAvatarFaces.
+function avaFace(name, cls, fallbackBg, inner) {
+  const url = overrideAvatarUrl(name);
+  const letter = String(name || '').trim().charAt(0).toUpperCase() || '?';
+  const bg = fallbackBg && fallbackBg !== 'transparent' ? fallbackBg : 'none';
+  return `<span class="${cls}${url ? ' has-img' : ''}" data-ava-name="${escapeHtml(String(name || ''))}` +
+    `" data-ava-bg="${escapeHtml(bg)}" style="background-image:${url ? `url('${url}')` : bg}"` +
+    `>${escapeHtml(letter)}${inner || ''}</span>`;
+}
+import { namesLikelySame } from '../names.js?v=22.19.1';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -128,7 +143,7 @@ function buildMessengerHTML(chatsMap, uid, mainCharName) {
     const isGroup = Boolean(chatObj.participants);
 
     chatList += `<button class="hud-phone-chat-row" data-chat-target="subchat-${uid}-${idx}">
-      <span class="hud-phone-chat-ava" style="background:linear-gradient(150deg, ${avaColor}, rgba(0,0,0,.55))">${escapeHtml(avaLetter)}${isGroup ? '<i class="hud-phone-chat-group">👥</i>' : ''}</span>
+      ${avaFace(displayChatName, 'hud-phone-chat-ava', `linear-gradient(150deg, ${avaColor}, rgba(0,0,0,.55))`, isGroup ? '<i class="hud-phone-chat-group">👥</i>' : '')}
       <span class="hud-phone-chat-meta">
         <b>${defeatWI(escapeHtml(displayChatName))}</b>
         <small>${preview ? escapeHtml(preview) : 'Нет сообщений'}</small>
@@ -183,7 +198,7 @@ function buildMessengerHTML(chatsMap, uid, mainCharName) {
             // ЛОВИМ УДАЛЕННОЕ (Рисуем кликабельный спойлер)
             if (isDeleted) { 
                 chatBodies += `<div class="hud-msg-wrapper ${isOutgoing ? 'outgoing' : 'incoming'}">
-                  ${!isOutgoing ? `<div class="hud-msg-avatar">${sender.charAt(0).toUpperCase()}</div>` : ''}
+                  ${!isOutgoing ? avaFace(sender, 'hud-msg-avatar', 'rgba(255,255,255,0.1)') : ''}
                   <div class="hud-msg-content" style="max-width: 100%;">
                     <span class="hud-msg-sender">${escapeHtml(sender)}</span>
                     <details class="hud-msg-deleted-details">
@@ -222,7 +237,7 @@ function buildMessengerHTML(chatsMap, uid, mainCharName) {
 
             // РИСУЕМ ФИНАЛЬНОЕ СООБЩЕНИЕ
             chatBodies += `<div class="hud-msg-wrapper ${isOutgoing ? 'outgoing' : 'incoming'}">
-              ${!isOutgoing ? `<div class="hud-msg-avatar">${sender.charAt(0).toUpperCase()}</div>` : ''}
+              ${!isOutgoing ? avaFace(sender, 'hud-msg-avatar', 'rgba(255,255,255,0.1)') : ''}
               <div class="hud-msg-content" style="max-width: 100%;">
                 <span class="hud-msg-sender">${escapeHtml(sender)}</span>
                 <div class="hud-msg-bubble">
@@ -251,7 +266,7 @@ function buildContactsApp(contacts) {
   return `<div class="hud-phone-contacts">` + contacts.map(c => {
     const name = c.name || 'Без имени';
     return `<div class="hud-phone-contact">
-      <div class="hud-phone-contact-avatar" style="background:linear-gradient(150deg, ${HUD_AVATAR_COLORS[hudHashSeed(name) % HUD_AVATAR_COLORS.length]}, rgba(0,0,0,.5))">${escapeHtml(name.trim().charAt(0).toUpperCase() || '?')}</div>
+      ${avaFace(name, 'hud-phone-contact-avatar', `linear-gradient(150deg, ${HUD_AVATAR_COLORS[hudHashSeed(name) % HUD_AVATAR_COLORS.length]}, rgba(0,0,0,.5))`)}
       <div><b>${defeatWI(escapeHtml(name))}</b>${c.note ? `<small>${escapeHtml(c.note)}</small>` : ''}</div>
     </div>`;
   }).join('') + `</div>`;
@@ -323,7 +338,7 @@ function buildSearchApp(search) {
 
 // --- Телефон целиком --------------------------------------------------------
 
-export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phoneData) {
+export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phoneData, sceneDate) {
   const phone = phoneData && typeof phoneData === 'object' ? phoneData : {};
   const chatCount = Object.keys(chatsMap || {}).length;
   // Владелец телефона. Приоритет: явное поле phone.owner → самый частый
@@ -441,7 +456,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
           const color = HUD_AVATAR_COLORS[hudHashSeed(n.title) % HUD_AVATAR_COLORS.length];
           const letter = n.title.trim().charAt(0).toUpperCase() || '?';
           return `<div class="hud-phone-notif${i === 0 ? " hud-phone-notif--first" : ""}" data-chat-target="${n.target}" style="--depth:${i}; --nc:${color}">
-            <span class="hud-phone-notif-ava">${escapeHtml(letter)}</span>
+            ${avaFace(n.title, 'hud-phone-notif-ava', 'transparent')}
             <span class="hud-phone-notif-body">
               <b>${defeatWI(escapeHtml(n.title))}${n.who ? `<em>${defeatWI(escapeHtml(n.who))}</em>` : ''}</b>
               <small>${n.text ? escapeHtml(n.text) : 'Новое сообщение'}</small>
@@ -459,11 +474,41 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
       <small></small>
     </div></div>`;
 
+  // Экран блокировки. Телефон открывается запертым: часы и дата по центру,
+  // под ними те же уведомления, что и на домашнем экране, внизу — язычок
+  // свайпа. Разблокировка живёт в events.js (жест тянут пальцем, поэтому
+  // это pointer-события, а не клик).
+  const statusGlyphs = '<span class="hud-phone-status-glyphs"><span class="hud-phone-sig"><i></i><i></i><i></i><i></i></span><span class="hud-phone-bat"></span></span>';
+  const lockDate = String(sceneDate || '').trim();
+  const lockNotifs = shown.length
+    ? shown.map(nn => `<div class="hud-phone-lock-notice${overrideAvatarUrl(nn.title) ? ' has-face' : ''}" data-chat-target="${nn.target}" role="button" tabindex="0">
+        ${overrideAvatarUrl(nn.title) ? avaFace(nn.title, 'hud-phone-lock-face', 'transparent') : ''}
+        <em>${escapeHtml(nn.time)}</em>
+        <span>${G_ICONS.chat} Сообщения</span>
+        <b>${defeatWI(escapeHtml(nn.title))}</b>
+        <small>${nn.text ? escapeHtml(nn.text) : 'Новое сообщение'}</small>
+      </div>`).join('')
+    : '<div class="hud-phone-lock-empty">Нет новых уведомлений</div>';
+
+  const lockScreen = `<div class="hud-phone-lockscreen" data-phone-uid="${uid}" role="button" tabindex="0"
+        aria-label="Экран блокировки. Проведите вверх, чтобы разблокировать">
+      <div class="hud-phone-statusline"><span>${escapeHtml(latestTime || '')}</span>${statusGlyphs}</div>
+      <div class="hud-phone-lock-time">${escapeHtml(latestTime || '--:--')}</div>
+      ${lockDate ? `<div class="hud-phone-lock-day">${defeatWI(escapeHtml(lockDate))}</div>` : ''}
+      <div class="hud-phone-lock-notifications">${lockNotifs}</div>
+      <div class="hud-phone-lock-swipe">
+        <span class="hud-phone-lock-arrow"></span>
+        <span class="hud-phone-lock-hint">Проведите вверх</span>
+        <span class="hud-phone-lock-bar"></span>
+      </div>
+    </div>`;
+
   return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}">
     <div class="hud-phone-shell">
       <span class="hud-phone-btn-side vol-up"></span><span class="hud-phone-btn-side vol-down"></span><span class="hud-phone-btn-side power"></span>
-    <div class="hud-phone-emulator unlocked" data-phone-uid="${uid}">
+    <div class="hud-phone-emulator" data-phone-uid="${uid}">
       <span class="hud-phone-glass"></span>
+      ${lockScreen}
       <div class="hud-phone-unlocked">
         <div class="hud-phone-top-status"><span>${escapeHtml(latestTime || "")}</span><span class="hud-phone-status-glyphs"><span class="hud-phone-sig"><i></i><i></i><i></i><i></i></span><span class="hud-phone-bat"></span></span></div>
         <div class="hud-phone-home-wrap">

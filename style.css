@@ -504,63 +504,145 @@
 }
 .weather-cloudy .hud-fx-celestial { transition: opacity 1.4s ease, filter 1.4s ease; }
 
-/* --- ДОЖДЬ И ТУЧИ: Мягкое пушистое облако и центрированные капли --- */
+/* --- ДОЖДЬ И ТУЧИ: две тучки по центру, дождь под ними --------------
+   Туча была одна и висела на left: 40px — то есть в абсолютных пикселях
+   от левого края. При любой ширине виджета она прижималась к краю, а
+   полоса дождя шла отдельно рядом. Теперь тучи — два самостоятельных
+   span'а внутри .hud-fx-weather, привязанных к середине (left: 50% плюс
+   отрицательный margin), а дождь центрируется под ними. Цвета вынесены
+   в переменные --rc-*, поэтому ночная и «ливневая» перекраска задаётся
+   одной строкой вместо копии всего box-shadow. ::before освободился. */
 .weather-rain .hud-fx-weather {
-    --rain-tilt: 10deg; --rain-dur: 2.2s; --cloud-dur: 6s;
+    --rain-tilt: 10deg; --rain-dur: 0.9s; --cloud-dur: 6s;
+    --rc-body: #e1e8f2; --rc-shade: #a0acc0; --rc-edge: #e1e8f2;
     background: linear-gradient(180deg, rgba(170,185,210,0.16) 0%, transparent 55%);
 }
-.weather-rain .hud-fx-weather::before {
-    content: ''; position: absolute; top: 12px; left: 40px; width: 50px; height: 14px; z-index: 2;
-    background: #e1e8f2;
-    border-radius: 20px;
-    box-shadow: 
-        -12px 6px 0 -1px #e1e8f2,
-        15px 4px 0 -2px #a0acc0,
-        -6px -8px 0 2px #e1e8f2,
-        8px -10px 0 3px #e1e8f2;
+.hud-rain-cloud { display: none; }
+.weather-rain .hud-rain-cloud {
+    display: block; position: absolute; left: 50%; z-index: 2; pointer-events: none;
+    width: var(--rc-w); height: calc(var(--rc-w) * .29);
+    border-radius: 999px;
+    background: var(--rc-body);
+    /* Комки облака заданы долями его ширины. Раньше смещения были в
+       пикселях, подобранных под тучу шириной 50px: стоило увеличить
+       облако — и оно вытягивалось в колбасу с мелкими наростами. */
+    box-shadow:
+        calc(var(--rc-w) * -.25) calc(var(--rc-w) *  .12) 0 calc(var(--rc-w) * -.02) var(--rc-body),
+        calc(var(--rc-w) *  .31) calc(var(--rc-w) *  .08) 0 calc(var(--rc-w) * -.04) var(--rc-shade),
+        calc(var(--rc-w) * -.12) calc(var(--rc-w) * -.17) 0 calc(var(--rc-w) *  .04) var(--rc-body),
+        calc(var(--rc-w) *  .17) calc(var(--rc-w) * -.21) 0 calc(var(--rc-w) *  .06) var(--rc-edge);
     filter: blur(1.5px) drop-shadow(0 4px 5px rgba(0,0,0,0.3));
-    animation: hud-cloud-drift calc(var(--cloud-dur) * var(--gust, 1)) ease-in-out infinite alternate;
+    animation-name: hud-cloud-drift;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    animation-play-state: paused;
 }
+/* Дальняя тучка: мельче, выше и бледнее — она задаёт глубину. */
+.weather-rain .hud-rain-cloud.rc-back {
+    --rc-w: 46px; top: 14px; margin-left: -64px;
+    --rc-drift: 3px; opacity: .62;
+    filter: blur(2.4px) drop-shadow(0 3px 4px rgba(0,0,0,0.22));
+    animation-duration: calc(var(--cloud-dur) * 1.45 * var(--gust, 1));
+}
+/* Ближняя тучка: основная, ниже и правее — пара смещена, а не симметрична. */
+.weather-rain .hud-rain-cloud.rc-front {
+    --rc-w: 62px; top: 22px; margin-left: 6px;
+    --rc-drift: 6px;
+    animation-duration: calc(var(--cloud-dur) * var(--gust, 1));
+    animation-delay: -1.7s;
+}
+/* Полоса дождя. Ширина подобрана так, чтобы после наклона (поворот
+   добавляет к полуширине высоту/2 * sin угла) капли не вылезали за
+   комки туч: 70 * cos10 + 50 * sin10 ≈ 78 при полуширине туч ≈ 80.
+   Верх полосы заходит под переднюю тучу, поэтому капли не появляются
+   из пустоты, а выпадают из облака. */
 .weather-rain .hud-fx-weather::after {
-    content: ''; position: absolute; top: 28px; left: 15px; width: 90px; height: 110px; z-index: 1;
-    background-image: radial-gradient(ellipse 2px 8px at 50% 50%, rgba(222, 233, 252, 0.7) 0%, transparent 100%);
-    background-size: 16px 32px;
+    content: ''; position: absolute; top: 36px; left: 50%; margin-left: -70px; width: 140px; height: 100px; z-index: 1;
+    /* Три плана капель вместо одной решётки из одинаковых точек:
+       ближние длинные росчерки, средние и мелкая водяная пыль. Планы
+       падают с разной скоростью — шаг каждого равен высоте его плитки,
+       поэтому стык незаметен, а решётка не читается. */
+    background-image:
+        radial-gradient(ellipse 1.1px 11px at 50% 58%, rgba(232,242,255,.92) 0%, rgba(232,242,255,.38) 52%, transparent 100%),
+        radial-gradient(ellipse .95px 8px at 50% 56%, rgba(214,230,252,.66) 0%, rgba(214,230,252,.22) 55%, transparent 100%),
+        radial-gradient(ellipse .8px 5.5px at 50% 54%, rgba(196,214,242,.44) 0%, transparent 100%);
+    background-size: 29px 96px, 23px 48px, 17px 32px;
+    background-position: 0 0, 11px 0, 5px 0;
     animation: hud-rain-fall calc(var(--rain-dur) * var(--gust, 1)) linear infinite;
     transform: rotate(calc(var(--rain-tilt) + var(--rain-tilt-extra, 0deg)));
-    -webkit-mask-image: linear-gradient(to bottom, black 6%, transparent 92%);
-            mask-image: linear-gradient(to bottom, black 6%, transparent 92%);
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.8) 0%, #000 24%, rgba(0,0,0,.5) 78%, transparent 100%);
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,.8) 0%, #000 24%, rgba(0,0,0,.5) 78%, transparent 100%);
 }
-@keyframes hud-cloud-drift { 0% { transform: translateX(0); } 100% { transform: translateX(6px); } }
-@keyframes hud-rain-fall { from { background-position: 0 0; } to { background-position: 0 32px; } }
+/* Обе тучки качаются вокруг своего места, а не уезжают вправо: так пара
+   не разъезжается и остаётся по центру. Размах у каждой свой. */
+@keyframes hud-cloud-drift {
+    0%   { transform: translateX(calc(-1 * var(--rc-drift, 6px))); }
+    100% { transform: translateX(var(--rc-drift, 6px)); }
+}
+@keyframes hud-rain-fall {
+    from { background-position: 0 0,    11px 0,    5px 0; }
+    to   { background-position: 0 96px, 11px 48px, 5px 32px; }
+}
 
-.weather-rain.weather-intensity-high .hud-fx-weather { background: linear-gradient(180deg, rgba(150,165,195,0.22) 0%, transparent 60%); }
-.weather-rain.weather-intensity-high .hud-fx-weather::before { 
-    background: #b8c4d6;
-    box-shadow: 
-        -12px 6px 0 -1px #b8c4d6,
-        15px 4px 0 -2px #8997ac,
-        -6px -8px 0 2px #b8c4d6,
-        8px -10px 0 3px #cdd7e5;
-    animation-duration: calc(3.5s * var(--gust, 1)); 
+.weather-rain.weather-intensity-high .hud-fx-weather {
+    --rc-body: #b8c4d6; --rc-shade: #8997ac; --rc-edge: #cdd7e5;
+    background: linear-gradient(180deg, rgba(150,165,195,0.22) 0%, transparent 60%);
 }
+/* Ливень: тучи крупнее, ниже и ходят быстрее. */
+.weather-rain.weather-intensity-high .hud-rain-cloud.rc-back {
+    --rc-w: 58px; top: 17px; margin-left: -85px; opacity: .78;
+    animation-duration: calc(5s * var(--gust, 1));
+}
+.weather-rain.weather-intensity-high .hud-rain-cloud.rc-front {
+    --rc-w: 78px; top: 24px; margin-left: 1px;
+    animation-duration: calc(3.5s * var(--gust, 1));
+}
+/* Ливень: капли длиннее, плотнее и заметно быстрее — 96px за полсекунды
+   против 96px за 0.9с у обычного дождя. Полуширина туч здесь ≈ 100,
+   полоса после наклона в 15° занимает ≈ 95 — снова в границах. */
 .weather-rain.weather-intensity-high .hud-fx-weather::after {
-    width: 90px; height: 140px; left: 10px; top: 30px;
-    background-image: radial-gradient(ellipse 2px 12px at 50% 50%, rgba(232, 241, 255, 0.85) 0%, transparent 100%);
-    background-size: 12px 24px;
-    animation: hud-rain-fall-heavy calc(1.1s * var(--gust, 1)) linear infinite;
+    width: 160px; height: 136px; margin-left: -80px; top: 42px;
+    background-image:
+        radial-gradient(ellipse 1.35px 16px at 50% 60%, rgba(240,248,255,.95) 0%, rgba(240,248,255,.45) 50%, transparent 100%),
+        radial-gradient(ellipse 1.1px 12px at 50% 58%, rgba(224,238,255,.72) 0%, rgba(224,238,255,.26) 55%, transparent 100%),
+        radial-gradient(ellipse .85px 8px at 50% 56%, rgba(206,224,250,.5) 0%, transparent 100%);
+    background-size: 21px 96px, 16px 64px, 12px 32px;
+    background-position: 0 0, 7px 0, 3px 0;
+    animation: hud-rain-fall-heavy calc(0.55s * var(--gust, 1)) linear infinite;
     transform: rotate(calc(15deg + var(--rain-tilt-extra, 0deg)));
     opacity: 0.95;
 }
-@keyframes hud-rain-fall-heavy { from { background-position: 0 0; } to { background-position: 0 24px; } }
+@keyframes hud-rain-fall-heavy {
+    from { background-position: 0 0,    7px 0,    3px 0; }
+    to   { background-position: 0 96px, 7px 64px, 3px 32px; }
+}
 
 .weather-rain.weather-intensity-low .hud-fx-weather { background: linear-gradient(180deg, rgba(190,200,220,0.1) 0%, transparent 45%); opacity: 0.7; }
+/* Морось: тучки мельче и стоят теснее. */
+.weather-rain.weather-intensity-low .hud-rain-cloud.rc-back {
+    --rc-w: 36px; top: 16px; margin-left: -46px; opacity: .5;
+}
+.weather-rain.weather-intensity-low .hud-rain-cloud.rc-front {
+    --rc-w: 48px; top: 22px; margin-left: 4px;
+}
+/* Морось: два плана коротких капель, редко и медленно. Собственные
+   ключевые кадры — у планов свои плитки, общий hud-rain-fall сдвинул бы
+   их на чужой шаг и стык поехал бы. */
 .weather-rain.weather-intensity-low .hud-fx-weather::after {
-    width: 70px; height: 100px; left: 20px; top: 30px;
-    background-image: radial-gradient(ellipse 1.5px 6px at 50% 50%, rgba(210, 224, 246, 0.5) 0%, transparent 100%);
-    background-size: 20px 40px;
-    animation: hud-rain-fall calc(4s * var(--gust, 1)) linear infinite;
+    width: 108px; height: 96px; margin-left: -54px; top: 34px;
+    background-image:
+        radial-gradient(ellipse .9px 6px at 50% 56%, rgba(216,231,252,.55) 0%, transparent 100%),
+        radial-gradient(ellipse .7px 4px at 50% 54%, rgba(198,216,244,.34) 0%, transparent 100%);
+    background-size: 34px 72px, 26px 48px;
+    background-position: 0 0, 13px 0;
+    animation: hud-rain-fall-low calc(2.4s * var(--gust, 1)) linear infinite;
     transform: rotate(calc(5deg + var(--rain-tilt-extra, 0deg)));
     opacity: 0.6;
+}
+@keyframes hud-rain-fall-low {
+    from { background-position: 0 0,    13px 0; }
+    to   { background-position: 0 72px, 13px 48px; }
 }
 
 /* Старая версия снега (плоская решётка из кружков, keyframes
@@ -784,6 +866,22 @@
 @keyframes hud-storm-clouds-drift {
     0% { transform: translateX(-4px); opacity: 0.85; }
     100% { transform: translateX(4px); opacity: 1; }
+}
+/* Гроза рисовала только тёмные тучи и молнию — воды в ней не было
+   совсем. Даём ей тот же ливневый дождь, наклонённый чуть сильнее. */
+.weather-storm .hud-fx-weather::after {
+    content: ''; position: absolute; top: 34px; left: 50%; margin-left: -96px;
+    width: 192px; height: 150px; z-index: 1; pointer-events: none;
+    background-image:
+        radial-gradient(ellipse 1.35px 17px at 50% 60%, rgba(226,238,255,.85) 0%, rgba(226,238,255,.4) 50%, transparent 100%),
+        radial-gradient(ellipse 1.1px 12px at 50% 58%, rgba(206,224,250,.62) 0%, rgba(206,224,250,.22) 55%, transparent 100%),
+        radial-gradient(ellipse .85px 8px at 50% 56%, rgba(190,210,240,.42) 0%, transparent 100%);
+    background-size: 23px 96px, 17px 64px, 13px 32px;
+    background-position: 0 0, 8px 0, 3px 0;
+    animation: hud-rain-fall-heavy calc(0.6s * var(--gust, 1)) linear infinite;
+    transform: rotate(calc(18deg + var(--rain-tilt-extra, 0deg)));
+    -webkit-mask-image: linear-gradient(to bottom, rgba(0,0,0,.75) 0%, #000 22%, rgba(0,0,0,.45) 76%, transparent 100%);
+            mask-image: linear-gradient(to bottom, rgba(0,0,0,.75) 0%, #000 22%, rgba(0,0,0,.45) 76%, transparent 100%);
 }
 .hud-fx-storm-flash { z-index: 3; background: #fff; opacity: 0; mix-blend-mode: overlay; }
 .weather-storm .hud-fx-storm-flash { animation: hud-lightning-flash 6.5s ease-in-out infinite; }
@@ -1557,14 +1655,15 @@
 
 @media (prefers-reduced-motion: reduce) {
     .hud-fx-celestial, .hud-fx-bg::before,
-    .hud-fx-weather, .hud-fx-weather::before, .hud-fx-weather::after,
+    .hud-fx-weather, .hud-fx-weather::before, .hud-fx-weather::after, .hud-rain-cloud,
     .hud-fx-season-scene, .hud-fx-season-scene *,
     .hud-fx-temp, .hud-fx-storm-flash, .hud-fx-cloud-cover,
     .hud-fx-lightning, .hud-fx-lightning *, .hud-fx-rainbow, .hud-fx-frost, .hud-fx-frost::before,
     .hud-breaking-marquee, .hud-breaking-label, .hud-ad-card, .hud-dream-moon, .hud-dream-bubble,
     .hud-phone-mockup.intercept-mode::after, .hud-phone-mockup.intercept-mode .hud-phone-subbody::after,
     .hud-phone-mockup.intercept-mode .hud-phone-statusbar::after, .hud-intercept-header .hud-phone-name,
-    .hud-route-stop.is-current .hud-route-pin { animation: none !important; }
+    .hud-route-stop.is-current .hud-route-pin,
+    .hud-diary-entry, .hud-diary-entry::after { animation: none !important; }
     .hud-fx-storm-flash { opacity: 0 !important; }
     .hud-fx-lightning { opacity: 0 !important; }
     .hud-dream-shard, .hud-dream-pane, .hud-dream-cracks path, .hud-dream-text, .hud-dream-meaning { transition: none !important; }
@@ -1655,6 +1754,77 @@
 .hud-row.nsfw { border-left: 4px solid var(--hud-nsfw-border); }
 .hud-nsfw-container { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: 6px; }
 .hud-nsfw-pill { background: rgba(158, 42, 63, 0.2); border: 1px solid rgba(158, 42, 63, 0.5); padding: 8px 12px; border-radius: 6px; font-size: 0.9em; color: var(--hud-text); line-height: 1.4; transition: all 0.2s ease; }
+/* --- Кинки, фетиши и границы -----------------------------------------
+   Четыре отдельных вида пилюль после блока NSFW. У каждого своя роль,
+   поэтому различаются не только цветом: у кинка звенья цепи по левому
+   краю, у фетиша шёлковый блик, у запрета перечёркнутая полоса, а то,
+   что не возбуждает, буквально выцветает. */
+.hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill {
+    position: relative; overflow: hidden;
+    padding: 8px 12px 8px 16px; border-radius: 6px;
+    font-size: 0.9em; color: var(--hud-text); line-height: 1.4;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+/* Кинк: практика, занятие. Звенья цепи по левому краю. */
+.hud-kink-pill {
+    background: rgba(126, 66, 190, 0.18);
+    border: 1px solid rgba(150, 92, 214, 0.5);
+}
+.hud-kink-pill::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+    background: repeating-linear-gradient(180deg,
+        rgba(186, 140, 240, 0.85) 0 5px, rgba(186, 140, 240, 0.18) 5px 9px);
+}
+/* Фетиш: конкретная вещь. Шёлковый блик наискось. */
+.hud-fetish-pill {
+    background: rgba(196, 58, 118, 0.17);
+    border: 1px solid rgba(226, 92, 150, 0.5);
+}
+.hud-fetish-pill::before {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(104deg, transparent 36%, rgba(255, 190, 216, 0.16) 48%, rgba(255,255,255,0.07) 52%, transparent 64%);
+}
+.hud-fetish-pill::after {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+    background: linear-gradient(180deg, rgba(255,166,200,0.85), rgba(196,58,118,0.45));
+}
+/* Никогда не сделает: жёсткая граница. Полоса перечёркнута. */
+.hud-nogo-pill {
+    background: rgba(120, 32, 38, 0.20);
+    border: 1px solid rgba(190, 66, 72, 0.55);
+}
+.hud-nogo-pill::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+    background:
+        repeating-linear-gradient(135deg, rgba(255,120,124,0.9) 0 2px, rgba(120,32,38,0.6) 2px 5px);
+}
+.hud-nogo-pill .hud-pill-label { text-decoration: line-through; text-decoration-thickness: 1px; text-decoration-color: rgba(255,140,144,0.7); }
+/* Не возбуждает: не запрет, а пустота. Пилюля выцветшая и холодная. */
+.hud-noturn-pill {
+    background: rgba(72, 84, 104, 0.16);
+    border: 1px solid rgba(120, 138, 166, 0.42);
+    filter: saturate(0.55);
+    opacity: 0.82;
+}
+.hud-noturn-pill::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
+    background: linear-gradient(180deg, rgba(160,178,206,0.55), rgba(160,178,206,0.10));
+}
+.hud-kink-pill .hud-pill-label   { color: #d3b0f5; }
+.hud-fetish-pill .hud-pill-label { color: #ffaacb; }
+.hud-nogo-pill .hud-pill-label   { color: #ff9a9e; }
+.hud-noturn-pill .hud-pill-label { color: #a9b6cb; }
+.hud-kink-pill:active   { border-color: rgba(186,140,240,0.9); box-shadow: 0 2px 10px rgba(126,66,190,0.5); }
+.hud-fetish-pill:active { border-color: rgba(255,166,200,0.9); box-shadow: 0 2px 10px rgba(196,58,118,0.5); }
+.hud-nogo-pill:active   { border-color: rgba(255,120,124,0.9); box-shadow: 0 2px 10px rgba(120,32,38,0.5); }
+.hud-noturn-pill:active { border-color: rgba(160,178,206,0.8); opacity: 1; }
+@media (hover: hover) {
+    .hud-kink-pill:hover   { border-color: rgba(186,140,240,0.9); box-shadow: 0 2px 10px rgba(126,66,190,0.45); background: rgba(126,66,190,0.28); }
+    .hud-fetish-pill:hover { border-color: rgba(255,166,200,0.9); box-shadow: 0 2px 10px rgba(196,58,118,0.45); background: rgba(196,58,118,0.27); }
+    .hud-nogo-pill:hover   { border-color: rgba(255,120,124,0.9); box-shadow: 0 2px 10px rgba(120,32,38,0.45); background: rgba(120,32,38,0.30); }
+    .hud-noturn-pill:hover { border-color: rgba(160,178,206,0.8); opacity: 1; filter: saturate(0.8); }
+}
+
 
 /* =========================================
    ТЕЛЕФОН, ПЕРЕХВАТЫ И УЧАСТНИКИ
@@ -1846,6 +2016,24 @@
     radial-gradient(circle at 11px 50%,   rgba(0,0,0,.62) 0 3.1px, transparent 3.6px),
     radial-gradient(circle at 11px calc(100% - 22px), rgba(0,0,0,.62) 0 3.1px, transparent 3.6px);
 }
+/* Складка: лист был сложен и распрямлён. Высота сгиба у каждой записи
+   своя — её считает buildDiaryPaper от того же seed, что и кляксы. */
+.hud-diary-crease {
+  position: absolute; left: 0; right: 0; height: 8px;
+  pointer-events: none; z-index: 0;
+  background: linear-gradient(180deg,
+      rgba(0,0,0,.30) 0%, rgba(0,0,0,.06) 44%,
+      rgba(255,255,255,.06) 58%, transparent 100%);
+}
+/* Кольцо от чашки. Остаётся не на каждой записи — иначе это уже не след,
+   а узор. */
+.hud-diary-ring {
+  position: absolute; pointer-events: none; z-index: 0;
+  border-radius: 50%;
+  border: 1.5px solid rgba(158, 110, 66, .30);
+  box-shadow: inset 0 0 8px rgba(158,110,66,.16), inset 0 0 0 3px rgba(158,110,66,.07), 0 0 7px rgba(158,110,66,.10);
+  opacity: .9;
+}
 /* Загнутый уголок: светлый треугольник и тень под ним. */
 .hud-diary-curl {
   position: absolute; right: 0; bottom: 0; width: 26px; height: 26px;
@@ -1897,6 +2085,9 @@
     border-left-color: #ff7b7b;
     clip-path: polygon(0 0, 100% 0, 100% 98%, 96% 100%, 92% 99%, 86% 100%, 81% 99%, 100% 100%, 0 100%);
     animation: hud-diary-shake 0.18s linear infinite alternate;
+    /* Тряслась постоянно и у каждой злой записи сразу — на телефоне это
+       заметно. Теперь как и везде: до тапа или наведения запись стоит. */
+    animation-play-state: paused;
     box-shadow: 0 6px 16px rgba(0,0,0,0.36), inset 0 0 18px rgba(255, 120, 120, 0.12);
 }
 .hud-diary-entry.hud-diary-mood-angry::after {
@@ -1938,6 +2129,546 @@
 .hud-diary-entry.hud-diary-mood-sad .hud-diary-sticker { background: rgba(191, 219, 255, 0.82); }
 .hud-diary-entry.hud-diary-mood-angry .hud-diary-sticker { background: rgba(255, 214, 191, 0.87); }
 .hud-diary-entry.hud-diary-mood-panic .hud-diary-sticker { background: rgba(255, 233, 160, 0.82); }
+
+/* --- Дневник: настроение записи -------------------------------------
+   Тем стало четырнадцать вместо четырёх. Каждая — это не просто другой
+   оттенок фона: меняются наклон листа, цвет поля, подложка и поведение
+   текста, чтобы записи различались с одного взгляда, а не по подписи.
+   Движение (дрожь, золотой блик) заморожено до тапа или наведения —
+   тот же уговор, что и во всём остальном HUD. */
+
+/* Вина: лист тяжёлый и придавленный, сверху лежит тень, на бумаге
+   расплылась и осталась несмытая клякса. */
+.hud-diary-entry.hud-diary-mood-guilt {
+    background: linear-gradient(180deg, rgba(26,21,19,0.96), rgba(18,15,14,0.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.05) 25px, rgba(255,255,255,0.05) 26px);
+    border-left-color: #8a5a44;
+    transform: rotate(0.3deg);
+    filter: saturate(0.85) brightness(0.94);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.45), inset 0 12px 20px -10px rgba(0,0,0,0.75), inset 0 0 18px rgba(120,70,45,0.10);
+}
+.hud-diary-entry.hud-diary-mood-guilt::before { background: rgba(138, 90, 68, 0.45); }
+.hud-diary-entry.hud-diary-mood-guilt::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(ellipse 34px 22px at 72% 62%, rgba(40,24,18,0.55), transparent 70%),
+        radial-gradient(ellipse 12px 9px at 62% 76%, rgba(40,24,18,0.40), transparent 72%),
+        radial-gradient(120% 60% at 50% 0%, rgba(0,0,0,0.35), transparent 60%);
+}
+.hud-diary-entry.hud-diary-mood-guilt .hud-diary-text,
+.hud-diary-entry.hud-diary-mood-guilt .hud-diary-about-user { filter: blur(0.2px); opacity: 0.92; }
+.hud-diary-entry.hud-diary-mood-guilt .hud-diary-sticker { background: rgba(198, 168, 148, 0.82); }
+
+/* Апатия: плоский обесцвеченный лист без тени. Ни наклона, ни бликов —
+   писать не хотелось. */
+.hud-diary-entry.hud-diary-mood-apathy {
+    background: linear-gradient(180deg, rgba(22,22,24,0.95), rgba(20,20,22,0.95)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.035) 25px, rgba(255,255,255,0.035) 26px);
+    border-left-color: #55575e;
+    filter: grayscale(0.72) brightness(0.86) contrast(0.94);
+    box-shadow: none;
+    opacity: 0.86;
+}
+.hud-diary-entry.hud-diary-mood-apathy::before { background: rgba(120, 124, 134, 0.30); }
+.hud-diary-entry.hud-diary-mood-apathy .hud-diary-text,
+.hud-diary-entry.hud-diary-mood-apathy .hud-diary-about-user { opacity: 0.78; letter-spacing: 0.2px; }
+.hud-diary-entry.hud-diary-mood-apathy .hud-diary-text::first-letter { color: var(--hud-text-muted); text-shadow: none; }
+.hud-diary-entry.hud-diary-mood-apathy .hud-diary-curl { opacity: 0.35; }
+.hud-diary-entry.hud-diary-mood-apathy .hud-diary-sticker { background: rgba(198, 200, 206, 0.70); }
+
+/* Скука: на полях машинально нарисованы спираль, штриховка и точки. */
+.hud-diary-entry.hud-diary-mood-bored {
+    background: linear-gradient(180deg, rgba(24,24,21,0.95), rgba(21,21,19,0.95)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.06) 25px, rgba(255,255,255,0.06) 26px);
+    border-left-color: #8b8557;
+    transform: rotate(-0.2deg);
+}
+.hud-diary-entry.hud-diary-mood-bored::before { background: rgba(139, 133, 87, 0.40); }
+.hud-diary-entry.hud-diary-mood-bored::after {
+    content: ''; position: absolute; left: 30px; bottom: 2px; width: 66px; height: 30px;
+    pointer-events: none; opacity: 0.42;
+    background:
+        repeating-conic-gradient(from 0deg at 20% 40%, rgba(200,196,150,0.5) 0 6deg, transparent 6deg 22deg),
+        repeating-linear-gradient(115deg, rgba(200,196,150,0.42) 0 1.4px, transparent 1.4px 7px),
+        radial-gradient(circle at 50% 50%, rgba(200,196,150,0.5) 0 1.3px, transparent 1.6px);
+    background-size: 24px 24px, 30px 16px, 11px 11px;
+    background-position: 0 2px, 30px 4px, 0 32px;
+    background-repeat: no-repeat, no-repeat, repeat-x;
+    -webkit-mask-image: radial-gradient(80% 80% at 50% 50%, #000 55%, transparent 100%);
+            mask-image: radial-gradient(80% 80% at 50% 50%, #000 55%, transparent 100%);
+}
+.hud-diary-entry.hud-diary-mood-bored .hud-diary-sticker { background: rgba(228, 224, 178, 0.82); }
+
+/* Радость: лист приподнят и тёплый, по бумаге разлит свет. */
+.hud-diary-entry.hud-diary-mood-joy {
+    background: linear-gradient(180deg, rgba(34,28,20,0.95), rgba(26,23,19,0.95)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,235,190,0.08) 25px, rgba(255,235,190,0.08) 26px);
+    border-left-color: #ffc46b;
+    transform: rotate(0.45deg) translateY(-1px);
+    filter: saturate(1.12) brightness(1.05);
+    box-shadow: 0 7px 20px rgba(0,0,0,0.30), inset 0 0 26px rgba(255,198,112,0.14);
+}
+.hud-diary-entry.hud-diary-mood-joy::before { background: rgba(255, 196, 107, 0.55); }
+.hud-diary-entry.hud-diary-mood-joy::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(circle at 84% 14%, rgba(255,214,142,0.22), transparent 26%),
+        radial-gradient(circle at 12% 88%, rgba(255,224,168,0.14), transparent 24%),
+        radial-gradient(circle at 46% 40%, rgba(255,236,196,0.07), transparent 40%);
+}
+.hud-diary-entry.hud-diary-mood-joy .hud-diary-text::first-letter { color: #ffce7d; text-shadow: 0 2px 8px rgba(255,190,100,0.40); }
+.hud-diary-entry.hud-diary-mood-joy .hud-diary-sticker { background: rgba(255, 232, 168, 0.92); }
+
+/* Облегчение: выдох. Лист выровнен, снизу поднимается светлая дымка. */
+.hud-diary-entry.hud-diary-mood-relief {
+    background: linear-gradient(180deg, rgba(18,25,24,0.95), rgba(20,26,25,0.95)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.055) 25px, rgba(255,255,255,0.055) 26px);
+    border-left-color: #7fd0b4;
+    transform: none;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.22), inset 0 -18px 26px -18px rgba(127,208,180,0.28);
+}
+.hud-diary-entry.hud-diary-mood-relief::before { background: rgba(127, 208, 180, 0.42); }
+.hud-diary-entry.hud-diary-mood-relief::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(180deg, transparent 40%, rgba(127,208,180,0.10) 100%);
+}
+.hud-diary-entry.hud-diary-mood-relief .hud-diary-text,
+.hud-diary-entry.hud-diary-mood-relief .hud-diary-about-user { text-shadow: 0 0 6px rgba(150, 220, 196, 0.16); }
+.hud-diary-entry.hud-diary-mood-relief .hud-diary-sticker { background: rgba(196, 236, 222, 0.85); }
+
+/* Спокойствие: ровный лист без наклона, сверху прохладный отсвет. */
+.hud-diary-entry.hud-diary-mood-neutral {
+    background: linear-gradient(180deg, rgba(23,23,29,0.95), rgba(20,20,26,0.95)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.06) 25px, rgba(255,255,255,0.06) 26px);
+    border-left-color: #7f8aa3;
+    transform: none;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.26);
+}
+.hud-diary-entry.hud-diary-mood-neutral::before { background: rgba(127, 138, 163, 0.38); }
+.hud-diary-entry.hud-diary-mood-neutral::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(180deg, rgba(190,205,230,0.05), transparent 46%);
+}
+
+/* Равнодушие: холодный лист с инеем по кромке. Почерк выпрямляется —
+   курсив уходит, буквы расставлены ровно и на расстоянии. */
+.hud-diary-entry.hud-diary-mood-cold {
+    background: linear-gradient(180deg, rgba(18,22,28,0.96), rgba(16,19,24,0.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(200,225,255,0.05) 25px, rgba(200,225,255,0.05) 26px);
+    border-left-color: #7fa8c8;
+    border-radius: 1px;
+    transform: none;
+    filter: saturate(0.55) contrast(1.06);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.40), inset 0 1px 0 rgba(190,225,255,0.16);
+}
+.hud-diary-entry.hud-diary-mood-cold::before { background: rgba(127, 168, 200, 0.42); }
+.hud-diary-entry.hud-diary-mood-cold::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        linear-gradient(180deg, rgba(198,226,255,0.16), transparent 22%),
+        radial-gradient(120% 42% at 50% 0%, rgba(198,226,255,0.07), transparent 70%),
+        linear-gradient(96deg, transparent 62%, rgba(198,226,255,0.05) 78%, transparent 92%);
+}
+.hud-diary-entry.hud-diary-mood-cold .hud-diary-text,
+.hud-diary-entry.hud-diary-mood-cold .hud-diary-about-user {
+    font-style: normal; letter-spacing: 0.35px; color: rgba(214, 228, 242, 0.90);
+}
+.hud-diary-entry.hud-diary-mood-cold .hud-diary-text::first-letter { color: #b9d6ee; text-shadow: none; }
+.hud-diary-entry.hud-diary-mood-cold .hud-diary-sticker { background: rgba(206, 226, 244, 0.80); }
+
+/* Презрение и ненависть: тёмно-багровый лист, наискось через запись
+   проходит резкий росчерк. */
+.hud-diary-entry.hud-diary-mood-contempt {
+    background: linear-gradient(180deg, rgba(26,14,17,0.97), rgba(17,11,13,0.97)), repeating-linear-gradient(transparent, transparent 24px, rgba(255,255,255,0.05) 24px, rgba(255,255,255,0.05) 25px);
+    border-left-color: #a51d3a;
+    transform: rotate(-0.5deg);
+    filter: contrast(1.08) saturate(0.90);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.45), inset 0 0 22px rgba(165,29,58,0.14);
+}
+.hud-diary-entry.hud-diary-mood-contempt::before { background: rgba(165, 29, 58, 0.60); }
+.hud-diary-entry.hud-diary-mood-contempt::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        linear-gradient(101deg, transparent calc(50% - 1px), rgba(214,96,118,0.34) 50%, transparent calc(50% + 1.2px)),
+        linear-gradient(101deg, transparent calc(64% - 1px), rgba(214,96,118,0.18) 64%, transparent calc(64% + 1px)),
+        radial-gradient(60% 90% at 100% 50%, rgba(120,16,36,0.28), transparent 72%);
+}
+.hud-diary-entry.hud-diary-mood-contempt .hud-diary-text,
+.hud-diary-entry.hud-diary-mood-contempt .hud-diary-about-user { letter-spacing: -0.1px; color: rgba(242, 220, 224, 0.94); }
+.hud-diary-entry.hud-diary-mood-contempt .hud-diary-sticker { background: rgba(226, 176, 186, 0.85); }
+
+/* Раздражение: тёплый лист и злая короткая штриховка в углу. */
+.hud-diary-entry.hud-diary-mood-irritation {
+    background: linear-gradient(180deg, rgba(30,23,17,0.96), rgba(23,18,14,0.96)), repeating-linear-gradient(transparent, transparent 24px, rgba(255,255,255,0.06) 24px, rgba(255,255,255,0.06) 25px);
+    border-left-color: #e08a3c;
+    transform: rotate(0.55deg);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.34), inset 0 0 16px rgba(224,138,60,0.10);
+}
+.hud-diary-entry.hud-diary-mood-irritation::before { background: rgba(224, 138, 60, 0.50); }
+.hud-diary-entry.hud-diary-mood-irritation::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        repeating-linear-gradient(72deg, rgba(240,170,96,0.26) 0 1.3px, transparent 1.3px 6px),
+        radial-gradient(circle at 92% 86%, rgba(240,150,70,0.14), transparent 34%);
+    background-size: 64px 38px, auto;
+    background-position: calc(100% - 6px) calc(100% - 4px), 0 0;
+    background-repeat: no-repeat;
+    -webkit-mask-image: radial-gradient(74% 74% at calc(100% - 38px) calc(100% - 22px), #000 40%, transparent 100%), linear-gradient(#000, #000);
+            mask-image: radial-gradient(74% 74% at calc(100% - 38px) calc(100% - 22px), #000 40%, transparent 100%), linear-gradient(#000, #000);
+    -webkit-mask-composite: source-in;
+            mask-composite: intersect;
+}
+.hud-diary-entry.hud-diary-mood-irritation .hud-diary-sticker { background: rgba(255, 208, 158, 0.88); }
+
+/* Нервозность: наколотые точки, неровные чёрточки и мелкая дрожь листа
+   (дрожь стоит на паузе до тапа или наведения). */
+.hud-diary-entry.hud-diary-mood-nervous {
+    background: linear-gradient(180deg, rgba(24,24,20,0.95), rgba(20,21,19,0.95)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.06) 25px, rgba(255,255,255,0.06) 26px);
+    border-left-color: #c9d15f;
+    box-shadow: 0 5px 14px rgba(0,0,0,0.30);
+    animation: hud-diary-jitter 2.6s ease-in-out infinite;
+    animation-play-state: paused;
+}
+.hud-diary-entry.hud-diary-mood-nervous::before { background: rgba(201, 209, 95, 0.45); }
+.hud-diary-entry.hud-diary-mood-nervous::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0.5;
+    background:
+        linear-gradient(96deg,  transparent 44%, rgba(214,222,132,0.50) 44% 56%, transparent 56%),
+        linear-gradient(84deg,  transparent 44%, rgba(214,222,132,0.42) 44% 56%, transparent 56%),
+        linear-gradient(100deg, transparent 44%, rgba(214,222,132,0.36) 44% 56%, transparent 56%),
+        radial-gradient(circle, rgba(214,222,132,0.50) 0 1.1px, transparent 1.4px),
+        radial-gradient(circle, rgba(214,222,132,0.40) 0 1px,   transparent 1.3px),
+        radial-gradient(circle, rgba(214,222,132,0.42) 0 1.2px, transparent 1.5px);
+    background-size: 4px 12px, 4px 9px, 4px 14px, 6px 6px, 6px 6px, 6px 6px;
+    background-position: 24% 24%, 37% 68%, 61% 33%, 15% 46%, 49% 18%, 73% 72%;
+    background-repeat: no-repeat;
+}
+@keyframes hud-diary-jitter {
+    0%, 100% { transform: translateX(0) rotate(0deg); }
+    12% { transform: translateX(-0.6px) rotate(-0.12deg); }
+    24% { transform: translateX(0.5px) rotate(0.10deg); }
+    36% { transform: translateX(-0.3px) rotate(0.06deg); }
+    48% { transform: translateX(0.6px) rotate(-0.08deg); }
+    60% { transform: translateX(0) rotate(0deg); }
+}
+.hud-diary-entry.hud-diary-mood-nervous .hud-diary-sticker { background: rgba(238, 242, 178, 0.85); }
+
+/* Триумф: золотая кромка и блик, идущий по листу — тоже до тапа стоит. */
+.hud-diary-entry.hud-diary-mood-triumph {
+    background: linear-gradient(180deg, rgba(35,29,16,0.96), rgba(24,21,14,0.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,225,150,0.08) 25px, rgba(255,225,150,0.08) 26px);
+    border-left-color: #e5b64b;
+    transform: rotate(-0.5deg) scale(1.004);
+    box-shadow: 0 8px 24px rgba(0,0,0,0.36), inset 0 0 30px rgba(229,182,75,0.16), 0 0 0 1px rgba(229,182,75,0.22);
+}
+.hud-diary-entry.hud-diary-mood-triumph::before { background: rgba(229, 182, 75, 0.65); }
+.hud-diary-entry.hud-diary-mood-triumph::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        linear-gradient(105deg, transparent 34%, rgba(255,232,168,0.20) 48%, rgba(255,255,255,0.10) 52%, transparent 66%),
+        radial-gradient(circle at 88% 12%, rgba(255,216,130,0.22), transparent 30%);
+    background-size: 260% 100%, auto;
+    background-position: 140% 0, 0 0;
+    background-repeat: no-repeat, no-repeat;
+    animation: hud-diary-gold 3.6s ease-in-out infinite;
+    animation-play-state: paused;
+}
+@keyframes hud-diary-gold {
+    0%   { background-position: 140% 0, 0 0; }
+    100% { background-position: -40% 0, 0 0; }
+}
+.hud-diary-entry.hud-diary-mood-triumph .hud-diary-text::first-letter { color: #f0c95f; text-shadow: 0 2px 10px rgba(240,200,90,0.45); }
+.hud-diary-entry.hud-diary-mood-triumph .hud-diary-sticker { background: rgba(255, 227, 150, 0.92); border-color: rgba(150, 110, 30, 0.50); }
+
+/* Похоть и желание: тёмный винный лист, жар поднимается снизу, строки
+   чуть плывут. */
+.hud-diary-entry.hud-diary-mood-lust {
+    background: linear-gradient(180deg, rgba(32,14,24,0.96), rgba(22,11,18,0.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,190,220,0.06) 25px, rgba(255,190,220,0.06) 26px);
+    border-left-color: #d9457f;
+    transform: rotate(0.35deg);
+    filter: saturate(1.18);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.38), inset 0 -22px 34px -22px rgba(217,69,127,0.42), inset 0 0 24px rgba(217,69,127,0.10);
+}
+.hud-diary-entry.hud-diary-mood-lust::before { background: rgba(217, 69, 127, 0.60); }
+.hud-diary-entry.hud-diary-mood-lust::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(58% 70% at 50% 108%, rgba(232,86,140,0.26), transparent 72%),
+        radial-gradient(circle at 26% 42%, rgba(255,138,178,0.10), transparent 40%);
+}
+.hud-diary-entry.hud-diary-mood-lust .hud-diary-text,
+.hud-diary-entry.hud-diary-mood-lust .hud-diary-about-user { filter: blur(0.18px); text-shadow: 0 0 7px rgba(255,120,170,0.22); }
+.hud-diary-entry.hud-diary-mood-lust .hud-diary-text::first-letter { color: #ff8ab4; text-shadow: 0 2px 10px rgba(230,80,140,0.45); }
+.hud-diary-entry.hud-diary-mood-lust .hud-diary-sticker { background: rgba(248, 186, 210, 0.88); }
+
+/* Любовь: тёплый розово-золотой ореол, лист чуть приподнят. Отличается
+   от радости мягкостью и цветом — там золото, здесь розовое тепло. */
+.hud-diary-entry.hud-diary-mood-love {
+    background: linear-gradient(180deg, rgba(46,28,34,0.95), rgba(35,23,28,0.95)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,214,224,0.10) 25px, rgba(255,214,224,0.10) 26px);
+    border-left-color: #ff9ab0;
+    transform: rotate(-0.4deg) translateY(-1px);
+    filter: saturate(1.10) brightness(1.06);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.30), inset 0 0 34px rgba(255,154,176,0.22);
+}
+.hud-diary-entry.hud-diary-mood-love::before { background: rgba(255, 154, 176, 0.55); }
+.hud-diary-entry.hud-diary-mood-love::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(circle at 78% 22%, rgba(255,196,206,0.28), transparent 34%),
+        radial-gradient(circle at 22% 78%, rgba(255,222,196,0.18), transparent 32%),
+        radial-gradient(80% 70% at 50% 55%, rgba(255,190,200,0.10), transparent 72%);
+}
+.hud-diary-entry.hud-diary-mood-love .hud-diary-text::first-letter { color: #ffb3c4; text-shadow: 0 2px 10px rgba(255,140,170,0.40); }
+.hud-diary-entry.hud-diary-mood-love .hud-diary-sticker { background: rgba(255, 214, 224, 0.90); }
+
+/* Смущение и стыд: по бумаге разлился румянец, лист чуть съёжился и
+   отвёрнут, уголок загнут сильнее — запись прячется. */
+.hud-diary-entry.hud-diary-mood-shame {
+    background: linear-gradient(180deg, rgba(28,23,21,0.96), rgba(21,17,16,0.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.05) 25px, rgba(255,255,255,0.05) 26px);
+    border-left-color: #ef8a63;
+    transform: rotate(0.8deg) scale(0.994);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.34), inset 0 0 20px rgba(226,114,91,0.12);
+}
+.hud-diary-entry.hud-diary-mood-shame::before { background: rgba(226, 114, 91, 0.50); }
+.hud-diary-entry.hud-diary-mood-shame::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(ellipse 52px 30px at 26% 62%, rgba(238,120,86,0.30), transparent 70%),
+        radial-gradient(ellipse 42px 24px at 72% 40%, rgba(238,120,86,0.22), transparent 70%),
+        radial-gradient(ellipse 26px 16px at 50% 90%, rgba(238,120,86,0.14), transparent 72%);
+}
+.hud-diary-entry.hud-diary-mood-shame .hud-diary-text,
+.hud-diary-entry.hud-diary-mood-shame .hud-diary-about-user { font-size: 0.9em; opacity: 0.93; }
+.hud-diary-entry.hud-diary-mood-shame .hud-diary-curl { width: 34px; height: 34px; }
+.hud-diary-entry.hud-diary-mood-shame .hud-diary-sticker { background: rgba(250, 200, 186, 0.85); }
+
+/* Одержимость: одно и то же выведено поверх снова и снова, а виньетка
+   стягивает лист к центру. Регулярность узора здесь как раз к месту —
+   это и есть навязчивость. */
+.hud-diary-entry.hud-diary-mood-obsession {
+    background: linear-gradient(180deg, rgba(22,14,26,0.97), rgba(15,10,18,0.97)), repeating-linear-gradient(transparent, transparent 23px, rgba(255,255,255,0.05) 23px, rgba(255,255,255,0.05) 24px);
+    border-left-color: #8e4fd0;
+    transform: rotate(-0.3deg);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.50), inset 0 0 40px rgba(0,0,0,0.55), inset 0 0 18px rgba(142,79,208,0.16);
+}
+.hud-diary-entry.hud-diary-mood-obsession::before { background: rgba(142, 79, 208, 0.60); }
+.hud-diary-entry.hud-diary-mood-obsession::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        repeating-linear-gradient(91deg, rgba(186,140,240,0.13) 0 1px, transparent 1px 5px),
+        repeating-linear-gradient(0deg, transparent 0 12px, rgba(186,140,240,0.10) 12px 13px),
+        radial-gradient(72% 72% at 50% 50%, transparent 38%, rgba(0,0,0,0.45) 100%);
+}
+.hud-diary-entry.hud-diary-mood-obsession .hud-diary-sticker { background: rgba(214, 186, 246, 0.85); }
+
+/* Зависимость: запись держится не на одном поле, а на двух, и по низу
+   тянутся две переплетённые нити. */
+.hud-diary-entry.hud-diary-mood-codependency {
+    background: linear-gradient(180deg, rgba(18,20,30,0.96), rgba(15,17,25,0.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.05) 25px, rgba(255,255,255,0.05) 26px);
+    border-left-color: #6f7fd6;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.34), inset 14px 0 22px -16px rgba(111,127,214,0.55);
+}
+.hud-diary-entry.hud-diary-mood-codependency::before {
+    background: rgba(111, 127, 214, 0.50);
+    box-shadow: 4px 0 0 rgba(111, 127, 214, 0.26);
+}
+.hud-diary-entry.hud-diary-mood-codependency::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        repeating-linear-gradient(90deg, rgba(158,176,255,0.42) 0 6px, transparent 6px 12px),
+        repeating-linear-gradient(90deg, transparent 0 6px, rgba(158,176,255,0.26) 6px 12px);
+    background-size: 100% 2.5px, 100% 2.5px;
+    background-position: 0 calc(100% - 8px), 0 calc(100% - 5px);
+    background-repeat: no-repeat;
+}
+.hud-diary-entry.hud-diary-mood-codependency .hud-diary-sticker { background: rgba(196, 206, 246, 0.82); }
+
+/* Ревность: зелень натекает справа, лист повёрнут вполоборота, правая
+   сторона в тени — взгляд искоса. */
+.hud-diary-entry.hud-diary-mood-jealousy {
+    background: linear-gradient(115deg, rgba(16,26,18,0.97), rgba(22,30,20,0.97) 62%, rgba(14,20,14,0.97)), repeating-linear-gradient(transparent, transparent 25px, rgba(190,255,200,0.05) 25px, rgba(190,255,200,0.05) 26px);
+    border-left-color: #5fbf72;
+    transform: rotate(-0.45deg) skewY(-0.3deg);
+    filter: saturate(1.10);
+    box-shadow: 0 5px 16px rgba(0,0,0,0.40), inset -26px 0 34px -26px rgba(0,0,0,0.75), inset 0 0 18px rgba(95,191,114,0.10);
+}
+.hud-diary-entry.hud-diary-mood-jealousy::before { background: rgba(95, 191, 114, 0.55); }
+.hud-diary-entry.hud-diary-mood-jealousy::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(70% 100% at 104% 50%, rgba(70,170,90,0.24), transparent 70%),
+        radial-gradient(circle at 34% 30%, rgba(140,220,150,0.08), transparent 34%);
+}
+.hud-diary-entry.hud-diary-mood-jealousy .hud-diary-text,
+.hud-diary-entry.hud-diary-mood-jealousy .hud-diary-about-user { letter-spacing: -0.05px; }
+.hud-diary-entry.hud-diary-mood-jealousy .hud-diary-sticker { background: rgba(196, 236, 200, 0.85); }
+
+/* Брезгливость: болезненная жёлто-зелёная бумага в липких разводах,
+   лист заметно отодвинут от читателя. */
+.hud-diary-entry.hud-diary-mood-disgust {
+    background: linear-gradient(180deg, rgba(24,26,16,0.96), rgba(19,20,14,0.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(220,235,150,0.05) 25px, rgba(220,235,150,0.05) 26px);
+    border-left-color: #9fb03c;
+    transform: rotate(1.1deg);
+    filter: saturate(0.86);
+    box-shadow: 0 5px 14px rgba(0,0,0,0.36);
+}
+.hud-diary-entry.hud-diary-mood-disgust::before { background: rgba(159, 176, 60, 0.50); }
+.hud-diary-entry.hud-diary-mood-disgust::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(ellipse 30px 16px at 24% 66%, rgba(150,170,60,0.22), transparent 72%),
+        radial-gradient(ellipse 22px 12px at 62% 34%, rgba(150,170,60,0.16), transparent 74%),
+        radial-gradient(ellipse 16px 10px at 82% 74%, rgba(150,170,60,0.13), transparent 74%);
+}
+.hud-diary-entry.hud-diary-mood-disgust .hud-diary-sticker { background: rgba(214, 224, 160, 0.82); }
+
+/* Разочарование: свет ушёл сверху вниз, краски выцвели, лист осел. */
+.hud-diary-entry.hud-diary-mood-disappointment {
+    background: linear-gradient(180deg, rgba(24,25,29,0.95), rgba(17,18,21,0.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.045) 25px, rgba(255,255,255,0.045) 26px);
+    border-left-color: #6b7686;
+    transform: rotate(0.7deg);
+    filter: saturate(0.62) brightness(0.92);
+    box-shadow: 0 3px 10px rgba(0,0,0,0.32), inset 0 -20px 26px -20px rgba(0,0,0,0.60);
+}
+.hud-diary-entry.hud-diary-mood-disappointment::before { background: rgba(107, 118, 134, 0.42); }
+.hud-diary-entry.hud-diary-mood-disappointment::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(180deg, rgba(200,214,236,0.07), transparent 38%, rgba(0,0,0,0.20) 100%);
+}
+.hud-diary-entry.hud-diary-mood-disappointment .hud-diary-text,
+.hud-diary-entry.hud-diary-mood-disappointment .hud-diary-about-user { opacity: 0.86; }
+.hud-diary-entry.hud-diary-mood-disappointment .hud-diary-text::first-letter { color: #8f9bab; text-shadow: none; }
+.hud-diary-entry.hud-diary-mood-disappointment .hud-diary-sticker { background: rgba(206, 212, 222, 0.75); }
+
+/* Осознание: по листу проходит светлая полоса, бумага чистая и ровная —
+   в отличие от спокойствия здесь есть направление, луч. */
+.hud-diary-entry.hud-diary-mood-realization {
+    background: linear-gradient(180deg, rgba(20,24,30,0.95), rgba(17,21,27,0.95)), repeating-linear-gradient(transparent, transparent 25px, rgba(210,232,255,0.06) 25px, rgba(210,232,255,0.06) 26px);
+    border-left-color: #6fc6f0;
+    transform: none;
+    box-shadow: 0 5px 16px rgba(0,0,0,0.28), inset 0 0 24px rgba(111,198,240,0.10);
+}
+.hud-diary-entry.hud-diary-mood-realization::before { background: rgba(111, 198, 240, 0.55); }
+.hud-diary-entry.hud-diary-mood-realization::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        linear-gradient(102deg, transparent 30%, rgba(190,232,255,0.16) 44%, rgba(255,255,255,0.09) 50%, transparent 64%),
+        radial-gradient(circle at 16% 20%, rgba(190,232,255,0.16), transparent 26%);
+}
+.hud-diary-entry.hud-diary-mood-realization .hud-diary-text::first-letter { color: #9adcff; text-shadow: 0 2px 10px rgba(120,200,245,0.40); }
+.hud-diary-entry.hud-diary-mood-realization .hud-diary-sticker { background: rgba(196, 228, 248, 0.88); }
+
+/* Крах: лист надломлен — по нему идёт трещина, низ оборван, тень тяжёлая.
+   Рваный край сделан clip-path'ом, как у ярости, но другой формы: там
+   лист дрожит, здесь он разрушен. */
+.hud-diary-entry.hud-diary-mood-collapse {
+    background: linear-gradient(180deg, rgba(18,17,19,0.97), rgba(11,11,12,0.97)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.04) 25px, rgba(255,255,255,0.04) 26px);
+    border-left-color: #7a5560;
+    transform: rotate(1.2deg) skewY(0.5deg);
+    filter: brightness(0.90) saturate(0.70);
+    box-shadow: 0 10px 26px rgba(0,0,0,0.55), inset 0 -16px 24px -16px rgba(0,0,0,0.80);
+    clip-path: polygon(0 0, 100% 0, 100% 92%, 88% 100%, 74% 93%, 61% 100%, 47% 94%, 33% 100%, 18% 93%, 0 100%);
+}
+.hud-diary-entry.hud-diary-mood-collapse::before { background: rgba(122, 85, 96, 0.55); }
+.hud-diary-entry.hud-diary-mood-collapse::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        linear-gradient(96deg, transparent calc(46% - 1px), rgba(0,0,0,0.75) 46%, rgba(150,110,124,0.30) calc(46% + 1px), transparent calc(46% + 2.5px)),
+        linear-gradient(70deg, transparent calc(70% - 1px), rgba(0,0,0,0.50) 70%, transparent calc(70% + 1.5px)),
+        radial-gradient(90% 70% at 50% 120%, rgba(0,0,0,0.45), transparent 70%);
+}
+.hud-diary-entry.hud-diary-mood-collapse .hud-diary-text,
+.hud-diary-entry.hud-diary-mood-collapse .hud-diary-about-user { opacity: 0.88; }
+.hud-diary-entry.hud-diary-mood-collapse .hud-diary-sticker { background: rgba(196, 178, 184, 0.72); transform: rotate(-14deg); }
+
+/* Преданность и защита: лист под охраной — по кромке идёт золотой обод,
+   и свет медленно обходит его по кругу. */
+.hud-diary-entry.hud-diary-mood-devotion {
+    background: linear-gradient(180deg, rgba(18,24,32,0.96), rgba(15,20,27,0.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(200,224,255,0.06) 25px, rgba(200,224,255,0.06) 26px);
+    border-left-color: #d8b24a;
+    transform: none;
+    box-shadow: 0 5px 16px rgba(0,0,0,0.34), inset 0 0 0 1px rgba(216,178,74,0.22), inset 0 0 26px rgba(216,178,74,0.10);
+}
+.hud-diary-entry.hud-diary-mood-devotion::before { background: rgba(216, 178, 74, 0.60); }
+.hud-diary-entry.hud-diary-mood-devotion::after {
+    content: ''; position: absolute; inset: 3px; pointer-events: none;
+    border: 1px solid rgba(216,178,74,0.32);
+    border-radius: 3px;
+    background:
+        linear-gradient(180deg, rgba(216,178,74,0.10), transparent 34%),
+        radial-gradient(60% 90% at 0% 50%, rgba(216,178,74,0.16), transparent 70%);
+    -webkit-mask-image: conic-gradient(from var(--dv-turn, 0turn), #000 0 6%, rgba(0,0,0,.30) 16%, rgba(0,0,0,.30) 84%, #000 100%);
+            mask-image: conic-gradient(from var(--dv-turn, 0turn), #000 0 6%, rgba(0,0,0,.30) 16%, rgba(0,0,0,.30) 84%, #000 100%);
+    animation: hud-diary-ward 7s linear infinite;
+    animation-play-state: paused;
+}
+@property --dv-turn { syntax: '<angle>'; inherits: false; initial-value: 0turn; }
+@keyframes hud-diary-ward { from { --dv-turn: 0turn; } to { --dv-turn: 1turn; } }
+.hud-diary-entry.hud-diary-mood-devotion .hud-diary-text::first-letter { color: #e8c565; text-shadow: 0 2px 9px rgba(216,178,74,0.40); }
+.hud-diary-entry.hud-diary-mood-devotion .hud-diary-sticker { background: rgba(240, 220, 168, 0.88); }
+
+/* Уют: круг лампового света, который еле заметно дышит, и вязаная кромка
+   пледа по нижнему краю. */
+.hud-diary-entry.hud-diary-mood-cozy {
+    background: linear-gradient(180deg, rgba(38,28,19,0.95), rgba(28,21,15,0.95)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,224,178,0.07) 25px, rgba(255,224,178,0.07) 26px);
+    border-left-color: #e6a95c;
+    transform: rotate(-0.25deg);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.32), inset 0 0 30px rgba(230,169,92,0.14);
+}
+.hud-diary-entry.hud-diary-mood-cozy::before { background: rgba(230, 169, 92, 0.55); }
+.hud-diary-entry.hud-diary-mood-cozy::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        radial-gradient(46% 78% at 78% 26%, rgba(255,206,138,0.22), transparent 70%),
+        repeating-linear-gradient(45deg, rgba(214,150,96,0.14) 0 3px, transparent 3px 6px),
+        repeating-linear-gradient(-45deg, rgba(214,150,96,0.14) 0 3px, transparent 3px 6px);
+    background-size: 100% 100%, 12px 12px, 12px 12px;
+    background-position: 0 0, 0 100%, 0 100%;
+    background-repeat: no-repeat, repeat-x, repeat-x;
+    animation: hud-diary-lamp 5.5s ease-in-out infinite alternate;
+    animation-play-state: paused;
+}
+@keyframes hud-diary-lamp { from { opacity: .78; } to { opacity: 1; } }
+.hud-diary-entry.hud-diary-mood-cozy .hud-diary-text::first-letter { color: #ffc98a; text-shadow: 0 2px 9px rgba(230,169,92,0.42); }
+.hud-diary-entry.hud-diary-mood-cozy .hud-diary-sticker { background: rgba(250, 218, 172, 0.90); }
+
+/* Покой: по листу очень медленно проходит ровная волна света. Ни наклона,
+   ни пятен — в отличие от спокойствия здесь именно неподвижность. */
+.hud-diary-entry.hud-diary-mood-peace {
+    background: linear-gradient(180deg, rgba(18,24,26,0.95), rgba(16,21,23,0.95)), repeating-linear-gradient(transparent, transparent 25px, rgba(210,238,240,0.05) 25px, rgba(210,238,240,0.05) 26px);
+    border-left-color: #78c2c0;
+    transform: none;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.24), inset 0 0 26px rgba(120,194,192,0.09);
+}
+.hud-diary-entry.hud-diary-mood-peace::before { background: rgba(120, 194, 192, 0.50); }
+.hud-diary-entry.hud-diary-mood-peace::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(180deg, transparent 0%, rgba(190,236,232,0.14) 42%, rgba(190,236,232,0.05) 58%, transparent 100%);
+    background-size: 100% 220%;
+    background-position: 0 -60%;
+    animation: hud-diary-breath 12s ease-in-out infinite alternate;
+    animation-play-state: paused;
+}
+@keyframes hud-diary-breath {
+    from { background-position: 0 -60%; }
+    to   { background-position: 0 160%; }
+}
+.hud-diary-entry.hud-diary-mood-peace .hud-diary-sticker { background: rgba(198, 234, 232, 0.85); }
+
+/* Отклик на прикосновение. Это transition, а не анимация: в фоне ничего
+   не крутится, а лист всё равно оживает под пальцем. Меняем opacity слоя
+   бумаги и размер завитка — трогать filter/transform нельзя, их задают
+   сами темы настроения и мы бы их затёрли. */
+.hud-diary-entry .hud-diary-curl { transition: width .25s ease, height .25s ease; }
+.hud-diary-entry .hud-diary-paper { transition: opacity .3s ease; }
+.hud-diary-entry.fx-active .hud-diary-curl { width: 40px; height: 40px; }
+.hud-diary-entry.fx-active .hud-diary-paper { opacity: .78; }
+@media (hover: hover) {
+    .hud-diary-entry:hover .hud-diary-curl { width: 40px; height: 40px; }
+    .hud-diary-entry:hover .hud-diary-paper { opacity: .78; }
+}
+
+/* Заморозка до тапа или наведения — как и у сцены, перехватов, маршрута.
+   Класс fx-active вешает обработчик в events.js. */
+.hud-diary-entry.fx-active { animation-play-state: running; }
+.hud-diary-entry.fx-active::after { animation-play-state: running; }
+@media (hover: hover) {
+    .hud-diary-entry:hover { animation-play-state: running; }
+    .hud-diary-entry:hover::after { animation-play-state: running; }
+}
+
 
 
 /* =========================================
@@ -2470,7 +3201,11 @@
         box-shadow: none;
     }
     .hud-fx-bg::before { display: none; }
-    .weather-rain .hud-fx-weather::before { filter: none; }
+    /* На узком экране снимаем drop-shadow (он тут и дорог, и не виден),
+       но лёгкое размытие оставляем — без него тучка распадается на
+       отдельные жёсткие кружки от box-shadow. */
+    .weather-rain .hud-rain-cloud { filter: blur(1px); }
+    .weather-rain .hud-rain-cloud.rc-back { filter: blur(1.6px); }
     .weather-fog .hud-fx-weather { animation-duration: calc(12s * var(--gust, 1)); }
     .weather-storm .hud-fx-storm-flash { animation-duration: 9s; }
 }
@@ -2583,9 +3318,12 @@
         margin: 0 !important;
     }
 
-    .weather-rain .hud-fx-weather::after { top: 28px; height: 105px; }
-    .weather-rain.weather-intensity-high .hud-fx-weather::after { top: 28px; height: 110px; }
-    .weather-rain.weather-intensity-low .hud-fx-weather::after { top: 28px; height: 100px; }
+    /* Полосы короче, но верх остаётся под тучей — иначе капли
+       появляются рядом с облаком, а не из него. */
+    .weather-rain .hud-fx-weather::after { top: 36px; height: 96px; }
+    .weather-rain.weather-intensity-high .hud-fx-weather::after { top: 42px; height: 128px; }
+    .weather-rain.weather-intensity-low .hud-fx-weather::after { top: 34px; height: 96px; }
+    .weather-storm .hud-fx-weather::after { top: 34px; height: 128px; }
 }
 
 .hud-os-card * { -webkit-tap-highlight-color: transparent; }
@@ -2743,26 +3481,19 @@
    ТЕМНЫЕ ОБЛАКА ДЛЯ ВЕЧЕРА И НОЧИ
    ========================================= */
 
-/* Затемняем облако для легкого и обычного дождя */
-.phase-evening.weather-rain .hud-fx-weather::before,
-.phase-night.weather-rain .hud-fx-weather::before {
-    background: #2a354b !important;
-    box-shadow: 
-        -12px 6px 0 -1px #2a354b,
-        15px 4px 0 -2px #1d2538,
-        -6px -8px 0 2px #2a354b,
-        8px -10px 0 3px #364259 !important;
+/* Затемняем тучи для лёгкого и обычного дождя. Копия box-shadow больше
+   не нужна — хватает трёх переменных. */
+.phase-evening.weather-rain .hud-fx-weather,
+.phase-night.weather-rain .hud-fx-weather,
+.phase-deep-night.weather-rain .hud-fx-weather {
+    --rc-body: #2a354b; --rc-shade: #1d2538; --rc-edge: #364259;
 }
 
-/* Затемняем тучу для сильного ливня */
-.phase-evening.weather-rain.weather-intensity-high .hud-fx-weather::before,
-.phase-night.weather-rain.weather-intensity-high .hud-fx-weather::before {
-    background: #1e2638 !important;
-    box-shadow: 
-        -12px 6px 0 -1px #1e2638,
-        15px 4px 0 -2px #151b29,
-        -6px -8px 0 2px #1e2638,
-        8px -10px 0 3px #263045 !important;
+/* Затемняем тучи для сильного ливня */
+.phase-evening.weather-rain.weather-intensity-high .hud-fx-weather,
+.phase-night.weather-rain.weather-intensity-high .hud-fx-weather,
+.phase-deep-night.weather-rain.weather-intensity-high .hud-fx-weather {
+    --rc-body: #1e2638; --rc-shade: #151b29; --rc-edge: #263045;
 }
 
 /* Затемняем сплошные облака при пасмурной погоде */
@@ -2836,6 +3567,11 @@
 .hud-vertical-container::-webkit-scrollbar { width: 4px; }
 .hud-vertical-container::-webkit-scrollbar-track { background: transparent; }
 .hud-vertical-container::-webkit-scrollbar-thumb { background: var(--hud-accent); border-radius: 4px; }
+/* Пилюли в списке не сжимаются. Контейнер — флекс-колонка с потолком
+   в 140px, а флекс-элементы по умолчанию ужимаются под него: при шести
+   и более пунктах пилюли сплющивались и текст обрезался сверху и снизу.
+   Длинный список должен прокручиваться, а не плющиться. */
+.hud-vertical-container > * { flex-shrink: 0; }
 
 /* Инвентарь теперь оборачивает элементы, но скроллится строго вниз, если их много */
 .hud-inventory-grid {
@@ -3277,8 +4013,68 @@
 .hud-phone-unlock { margin-top:auto; border:0; color:#fff; background:rgba(255,255,255,.11); border:1px solid rgba(255,255,255,.16); border-radius:22px; padding:10px 18px; cursor:pointer; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); }
 .hud-phone-unlock:hover { background:rgba(255,255,255,.18); }
 .hud-phone-unlocked { display:none; flex-direction:column; }
-.hud-phone-emulator.unlocked .hud-phone-lockscreen { display:none; }
 .hud-phone-emulator.unlocked .hud-phone-unlocked { display:flex; }
+
+/* --- Экран блокировки: тянется за пальцем и уезжает вверх -------------
+   Раньше он просто прятался через display:none, поэтому анимировать уход
+   было нечем. Теперь это отдельный слой поверх домашнего экрана: во время
+   жеста он смещается на --lock-drag, а после разблокировки уезжает за
+   верхний край. Домашний экран всё это время лежит под ним готовым. */
+.hud-phone-lockscreen {
+  position:absolute; inset:0; z-index:30; box-sizing:border-box;
+  background:var(--hud-phone-bg);
+  /* Свой цвет текста: подсказка свайпа наследовала цвет страницы и на
+     тёмном экране оказывалась чёрной по чёрному. */
+  color:rgba(255,255,255,.92);
+  transform:translateY(calc(-1 * var(--lock-drag, 0px)));
+  transition:transform .34s cubic-bezier(.22,.9,.3,1), opacity .34s ease, visibility 0s linear .34s;
+}
+.hud-phone-lockscreen.is-dragging { transition:none; }
+.hud-phone-emulator.unlocked .hud-phone-lockscreen {
+  transform:translateY(-102%); opacity:0; visibility:hidden; pointer-events:none;
+}
+.hud-phone-lock-time { font-variant-numeric:tabular-nums; }
+/* Список уведомлений прокручивается: пять карточек в экран не влезают,
+   а обрезать их молча — терять то, ради чего экран блокировки и нужен.
+   Сами карточки не сжимаются, иначе текст в них обрезало бы. */
+.hud-phone-lock-notifications { flex:0 1 auto; min-height:0; overflow-y:auto; scrollbar-width:none; }
+.hud-phone-lock-notifications::-webkit-scrollbar { width:0; height:0; }
+.hud-phone-lock-notifications > * { flex-shrink:0; }
+.hud-phone-lock-empty { margin-top:10px; font-size:11px; opacity:.42; }
+/* Время в углу карточки. В прежней вёрстке оно было float-ом с отрицательным
+   margin — при другом порядке элементов такой приём вылезает за карточку,
+   поэтому ставим его абсолютно и освобождаем под него поле справа. */
+.hud-phone-lock-notice { position:relative; padding-right:46px; cursor:pointer; transition:transform .16s ease, background .16s ease; }
+.hud-phone-lock-notice em { position:absolute; right:12px; top:10px; float:none; margin:0; }
+.hud-phone-lock-notice:hover { background:rgba(22,26,36,.6); transform:translateY(-1px); }
+.hud-phone-lock-notice .hud-g-ico { width:11px; height:11px; vertical-align:-1px; margin-right:3px; }
+/* Язычок свайпа. touch-action: none стоит только здесь: если запретить
+   прокрутку на всём экране блокировки, палец не сможет пролистать чат,
+   начав движение с телефона. */
+.hud-phone-lock-swipe {
+  margin-top:auto; padding:24px 0 6px; width:100%;
+  display:flex; flex-direction:column; align-items:center; gap:9px;
+  cursor:grab; touch-action:none; user-select:none;
+}
+.hud-phone-lock-swipe:active { cursor:grabbing; }
+.hud-phone-lock-arrow {
+  width:11px; height:11px;
+  border-left:2px solid rgba(255,255,255,.75); border-top:2px solid rgba(255,255,255,.75);
+  transform:rotate(45deg);
+  animation:hud-lock-arrow 2.4s ease-in-out infinite;
+}
+.hud-phone-lock-hint { font-size:11px; opacity:.6; letter-spacing:.02em; }
+.hud-phone-lock-bar { width:108px; height:4px; border-radius:4px; background:rgba(255,255,255,.5); }
+/* Стрелка ходит вверх по повёрнутой оси: после rotate(45deg) сдвиг
+   (-3,-3) даёт ровно вертикальное движение вверх примерно на 4px. */
+@keyframes hud-lock-arrow {
+  0%, 100% { transform:rotate(45deg) translate(0, 0); opacity:.45; }
+  50%      { transform:rotate(45deg) translate(-3px, -3px); opacity:1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-phone-lock-arrow { animation:none !important; }
+  .hud-phone-lockscreen { transition:none !important; }
+}
 .hud-phone-top-status { padding:8px 16px 5px; }
 .hud-phone-home-wrap { flex:1; min-height:0; overflow:hidden; position:relative; }
 .hud-phone-home-screen { min-height:540px; padding:22px 18px 70px; }
@@ -5674,8 +6470,16 @@
 }
 /* Заморозка до тапа: общее правило про .hud-fx-weather до вложенных
    планов не дотягивалось. */
-.hud-fx-weather .hud-snow-layer { animation-play-state: paused !important; }
-.hud-scene-widget.fx-active .hud-fx-weather .hud-snow-layer { animation-play-state: running !important; }
+.hud-fx-weather .hud-snow-layer,
+.hud-fx-weather .hud-rain-cloud { animation-play-state: paused !important; }
+.hud-scene-widget.fx-active .hud-fx-weather .hud-snow-layer,
+.hud-scene-widget.fx-active .hud-fx-weather .hud-rain-cloud { animation-play-state: running !important; }
+/* Наведение будит тучи и снег заодно с остальной сценой: общее правило
+   про :hover до вложенных span'ов не дотягивалось. */
+@media (hover: hover) {
+    .hud-scene-widget:hover .hud-fx-weather .hud-snow-layer,
+    .hud-scene-widget:hover .hud-fx-weather .hud-rain-cloud { animation-play-state: running !important; }
+}
 
 /* Дальний план: мелкая, приглушённая крупа — только для глубины. */
 .weather-snow .hud-snow-layer.snow-far {
@@ -7240,4 +8044,1027 @@
 }
 .season-winter .hud-winter-house.h3 .hud-winter-house-roof {
     background: linear-gradient(160deg, #59606a 0%, #343a43 56%, #232830 100%);
+}
+
+/* =========================================================================
+   ГОТОВЫЕ ТЕМЫ ОФОРМЛЕНИЯ (см. themes.js)
+   -------------------------------------------------------------------------
+   Цвета тема раскладывает по обычным настройкам — здесь только то, чего в
+   настройках нет и быть не должно: украшения и цвет текста.
+
+   Про цвет текста. --hud-text наследуется из темы SillyTavern и почти
+   всегда светлый. Для «Каваи» и «Средневековья» фон карточки светлый, и
+   светлый текст на нём исчезал бы, а отдельной настройки цвета текста в
+   кастомизации нет. Поэтому светлые темы задают его сами.
+
+   Про украшения. Все они статичны: градиенты, глифы и один SVG. Ни одной
+   анимации — HUD и без того тяжёлый на телефоне.
+
+   Слой ::after у .hud-os-card — это градиент карточки. Украшение
+   подмешиваем первым слоем к нему же, а не новым элементом: и ::before, и
+   ::after у карточки уже заняты (картинка и градиент).
+   ========================================================================= */
+
+.hud-theme-presets { padding: 10px 12px 12px; border-bottom: 1px solid var(--hud-border); }
+.hud-theme-presets-title { font-size: .8em; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--hud-accent); margin-bottom: 8px; }
+.hud-theme-presets-row { display: flex; flex-wrap: wrap; gap: 6px; }
+.hud-theme-preset {
+  flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 3px;
+  min-width: 64px; padding: 7px 8px; cursor: pointer;
+  background: rgba(0,0,0,.25); color: var(--hud-text);
+  border: 1px solid var(--hud-border); border-radius: 9px;
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+.hud-theme-preset span { font-size: 17px; line-height: 1; }
+.hud-theme-preset small { font-size: 9.5px; opacity: .82; white-space: nowrap; }
+.hud-theme-preset:hover { background: rgba(255,255,255,.08); transform: translateY(-1px); }
+.hud-theme-preset.active { border-color: var(--hud-accent); background: rgba(255,255,255,.1); box-shadow: 0 0 0 1px var(--hud-accent) inset; }
+.hud-theme-presets-note { margin-top: 8px; font-size: 10px; opacity: .6; line-height: 1.35; }
+
+/* --- Каваи -------------------------------------------------------------- */
+.hud-theme-kawaii {
+  --hud-text: #4a2338;
+  --hud-text-muted: rgba(74,35,56,.62);
+  --hud-border: rgba(190,100,150,.26);
+  --hud-radius: 18px;
+}
+/* Розовая зайка над каждым блоком. Своя картинка, а не 🐰: эмодзи рисуется
+   шрифтом системы и розовым не бывает. */
+.hud-theme-kawaii .hud-key::after,
+.hud-theme-kawaii .hud-key-label::after {
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 16 16'%3E%3Cg fill='%23f78fc0'%3E%3Cellipse cx='5.6' cy='4.4' rx='1.4' ry='3.5'/%3E%3Cellipse cx='10.4' cy='4.4' rx='1.4' ry='3.5'/%3E%3Ccircle cx='8' cy='11' r='4.3'/%3E%3C/g%3E%3Cg fill='%23fff'%3E%3Ccircle cx='6.5' cy='10.3' r='.75'/%3E%3Ccircle cx='9.5' cy='10.3' r='.75'/%3E%3C/g%3E%3C/svg%3E");
+  margin-left: 5px; vertical-align: -2px;
+}
+/* Кружевной уголок из точек. */
+.hud-theme-kawaii .hud-os-card::after {
+  background:
+    radial-gradient(circle at 6px 6px, rgba(255,140,190,.5) 0 2.4px, transparent 3px) top right / 18px 18px repeat-x,
+    var(--hud-bg);
+}
+.hud-theme-kawaii .hud-key-item { border-left-color: #ff9fc9; }
+
+/* --- Dark Academia ------------------------------------------------------ */
+.hud-theme-academia { --hud-radius: 6px; }
+.hud-theme-academia .hud-key::after,
+.hud-theme-academia .hud-key-label::after { content: ' \2766\FE0E'; margin-left: 4px; font-size: .95em; }
+/* Кофейное кольцо в углу и корешки книг вдоль нижнего края. */
+.hud-theme-academia .hud-os-card::after {
+  background:
+    radial-gradient(circle at 92% 16px, transparent 0 12px, rgba(120,80,40,.22) 12px 14px, transparent 15px) no-repeat,
+    repeating-linear-gradient(90deg,
+      rgba(120,80,40,.16) 0 7px, transparent 7px 9px,
+      rgba(90,60,30,.2) 9px 14px, transparent 14px 17px) bottom left / 100% 9px repeat-x,
+    var(--hud-bg);
+}
+
+/* --- Vamp --------------------------------------------------------------- */
+.hud-theme-vamp { --hud-radius: 14px; }
+.hud-theme-vamp .hud-key::after,
+.hud-theme-vamp .hud-key-label::after { content: ' †'; margin-left: 4px; font-size: 1.05em; }
+/* Капли крови стекают с верхней кромки карточки. */
+.hud-theme-vamp .hud-os-card::after {
+  background:
+    radial-gradient(ellipse 5px 11px at 14% 0, rgba(160,12,30,.85) 0 62%, transparent 100%) no-repeat,
+    radial-gradient(ellipse 4px 18px at 31% 0, rgba(140,10,26,.75) 0 60%, transparent 100%) no-repeat,
+    radial-gradient(ellipse 6px 8px at 58% 0, rgba(170,14,34,.8) 0 64%, transparent 100%) no-repeat,
+    radial-gradient(ellipse 4px 14px at 79% 0, rgba(140,10,26,.7) 0 60%, transparent 100%) no-repeat,
+    var(--hud-bg);
+}
+/* Клыки: два острия под шапкой карточки. */
+.hud-theme-vamp .hud-os-topbar {
+  border-bottom: 0;
+  background-image:
+    linear-gradient(135deg, transparent 49%, rgba(255,240,240,.5) 50%, transparent 58%),
+    linear-gradient(225deg, transparent 49%, rgba(255,240,240,.5) 50%, transparent 58%);
+  background-size: 9px 7px, 9px 7px;
+  background-position: calc(50% - 7px) 100%, calc(50% + 7px) 100%;
+  background-repeat: no-repeat, no-repeat;
+}
+
+/* --- Киберпанк ---------------------------------------------------------- */
+.hud-theme-cyberpunk { --hud-radius: 4px; }
+.hud-theme-cyberpunk .hud-key::after,
+.hud-theme-cyberpunk .hud-key-label::after { content: '>_ '; font-family: 'Courier New', monospace; color: #2de2ff; }
+/* Развёртка ЭЛТ плюс угловые скобки терминала. */
+.hud-theme-cyberpunk .hud-os-card::after {
+  background:
+    repeating-linear-gradient(180deg, rgba(45,226,255,.055) 0 1px, transparent 1px 3px),
+    linear-gradient(90deg, #2de2ff 0 14px, transparent 14px) top left / 100% 2px no-repeat,
+    linear-gradient(90deg, transparent calc(100% - 14px), #ff2d6f calc(100% - 14px)) bottom left / 100% 2px no-repeat,
+    var(--hud-bg);
+}
+.hud-theme-cyberpunk .hud-key-item { border-left-color: #2de2ff; }
+
+/* --- Нуар --------------------------------------------------------------- */
+.hud-theme-noir { --hud-radius: 2px; }
+.hud-theme-noir .hud-key::after,
+.hud-theme-noir .hud-key-label::after { content: ' ◐'; margin-left: 4px; font-size: .95em; }
+/* Свет сквозь жалюзи наискось — единственная фактура, которая нужна нуару. */
+.hud-theme-noir .hud-os-card::after {
+  background:
+    repeating-linear-gradient(172deg,
+      rgba(255,255,255,.055) 0 6px, transparent 6px 19px) top right / 62% 130% no-repeat,
+    var(--hud-bg);
+}
+.hud-theme-noir .hud-os-topbar { border-bottom: 2px solid rgba(255,255,255,.22); }
+
+/* --- Средневековье ------------------------------------------------------ */
+.hud-theme-medieval {
+  --hud-text: #3a2c15;
+  --hud-text-muted: rgba(58,44,21,.66);
+  --hud-border: rgba(120,95,45,.32);
+  --hud-radius: 5px;
+}
+.hud-theme-medieval .hud-key::after,
+.hud-theme-medieval .hud-key-label::after { content: ' \2694\FE0E'; margin-left: 4px; font-size: .95em; }
+/* Серебряный клинок вдоль левого поля и золотая кайма сверху. */
+.hud-theme-medieval .hud-os-card::after {
+  background:
+    linear-gradient(90deg, rgba(210,215,225,.75) 0 2px, rgba(150,158,170,.5) 2px 4px, transparent 4px) left top / 4px 100% no-repeat,
+    linear-gradient(90deg, transparent, rgba(201,162,39,.75), transparent) top left / 100% 3px no-repeat,
+    var(--hud-bg);
+}
+.hud-theme-medieval .hud-key-item { border-left-color: #8a6a1f; }
+
+/* --- Криминал / Мафия ---------------------------------------------------
+   Держится подчёркнуто иначе, чем Vamp: там вино и мягкое свечение, здесь
+   чистая чернь, алый и прямые углы. Опознавательный знак — жёлтая лента
+   оцепления наискось в правом верхнем углу. */
+.hud-theme-mafia { --hud-radius: 3px; }
+.hud-theme-mafia .hud-key::after,
+.hud-theme-mafia .hud-key-label::after { content: ' \2716\FE0E'; margin-left: 4px; font-size: .9em; }
+.hud-theme-mafia .hud-os-card::after {
+  background:
+    repeating-linear-gradient(-38deg,
+      #f2c400 0 11px, #101010 11px 22px) top right / 190px 22px no-repeat,
+    var(--hud-bg);
+}
+.hud-theme-mafia .hud-os-topbar { border-bottom: 2px solid #d92b2b; }
+.hud-theme-mafia .hud-key-item { border-left-color: #d92b2b; border-radius: 0; }
+.hud-theme-mafia .hud-key-block { border-radius: 3px; }
+
+/* =========================================================================
+   МИР: ПРОГНОЗ ПОГОДЫ И ГОРОСКОП
+   -------------------------------------------------------------------------
+   Прогноз намеренно сделан «как в погодном приложении»: штриховые иконки,
+   ровный ряд, ни свечения, ни анимации. Атмосферу отыгрывает виджет сцены,
+   а здесь нужна читаемая сводка.
+   ========================================================================= */
+.hud-forecast-row {
+  display: flex; gap: 8px; margin-top: 8px;
+  overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin;
+}
+.hud-forecast-row::-webkit-scrollbar { height: 4px; }
+.hud-forecast-row::-webkit-scrollbar-thumb { background: var(--hud-accent); border-radius: 3px; }
+.hud-forecast-cell {
+  flex: 1 0 76px; min-width: 76px;
+  display: flex; flex-direction: column; align-items: center; gap: 5px;
+  padding: 10px 8px 9px;
+  background: var(--hud-card-inner-bg);
+  border: 1px solid var(--hud-border); border-radius: 10px;
+  text-align: center;
+}
+.hud-forecast-period { font-size: .72em; text-transform: uppercase; letter-spacing: .06em; opacity: .7; }
+.hud-forecast-icon { display: block; line-height: 0; color: var(--hud-accent); }
+.hud-fc-ico {
+  width: 30px; height: 30px; display: block;
+  fill: none; stroke: currentColor; stroke-width: 1.5;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+/* Солнце заливаем — контурный круг читается как облако. */
+.hud-forecast-icon.w-clear .hud-fc-ico circle { fill: currentColor; }
+.hud-forecast-icon.w-storm .hud-fc-ico path:last-child { fill: currentColor; stroke: none; }
+.hud-forecast-temp { font-size: 1.05em; font-weight: 700; font-variant-numeric: tabular-nums; }
+.hud-forecast-desc { font-size: .78em; opacity: .82; line-height: 1.25; }
+.hud-forecast-note {
+  margin-top: 7px; font-size: .82em; opacity: .72; line-height: 1.4;
+  padding-left: 10px; border-left: 2px solid var(--hud-accent);
+}
+
+/* --- Гороскоп ----------------------------------------------------------- */
+.hud-horo-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 6px; margin-top: 8px;
+}
+.hud-horo-card {
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 8px 10px;
+  background: var(--hud-card-inner-bg);
+  border: 1px solid var(--hud-border);
+  border-left: 3px solid var(--hud-accent);
+  border-radius: 8px;
+}
+.hud-horo-sign {
+  display: flex; align-items: center; gap: 6px;
+  font-size: .82em; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+  color: var(--hud-accent);
+}
+.hud-horo-sign i { font-style: normal; font-size: 1.35em; line-height: 1; opacity: .9; }
+.hud-horo-text { font-size: .88em; line-height: 1.4; opacity: .92; }
+/* Тон дня: удача, неудача, ровный день. Цвет только на полоске слева —
+   заливать карточку целиком было бы слишком громко для шуточного блока. */
+.hud-horo-card.tone-luck { border-left-color: #3fbf7f; }
+.hud-horo-card.tone-luck .hud-horo-sign { color: #3fbf7f; }
+.hud-horo-card.tone-bad { border-left-color: #e0563f; }
+.hud-horo-card.tone-bad .hud-horo-sign { color: #e0563f; }
+.hud-horo-card.tone-flat { border-left-color: rgba(255,255,255,.28); }
+.hud-horo-prediction {
+  margin-top: 9px; padding: 10px 12px;
+  border: 1px dashed var(--hud-border); border-radius: 9px;
+  background: rgba(0,0,0,.14);
+}
+.hud-horo-prediction-label {
+  display: block; font-size: .72em; text-transform: uppercase; letter-spacing: .08em;
+  color: var(--hud-accent); margin-bottom: 4px;
+}
+.hud-horo-prediction p { margin: 0 0 4px; font-size: .9em; line-height: 1.45; font-style: italic; }
+.hud-horo-prediction p:last-child { margin-bottom: 0; }
+.hud-horo-disclaimer { margin-top: 7px; font-size: .72em; opacity: .45; }
+
+@media (max-width: 600px) {
+  .hud-horo-grid { grid-template-columns: 1fr 1fr; }
+  .hud-forecast-cell { flex-basis: 68px; min-width: 68px; padding: 8px 6px; }
+  .hud-fc-ico { width: 26px; height: 26px; }
+}
+@media (max-width: 380px) {
+  .hud-horo-grid { grid-template-columns: 1fr; }
+}
+
+/* =========================================================================
+   РУЧНЫЕ АВАТАРКИ
+   -------------------------------------------------------------------------
+   Кружки с инициалами и кружки с фотографией — один и тот же элемент. Когда
+   для имени назначена картинка, к нему добавляется has-img: фон становится
+   фотографией, а буква прячется. Так не пришлось разводить две вёрстки в
+   пяти местах (список чатов, сообщения, контакты, уведомления, перехваты).
+   ========================================================================= */
+.hud-phone-chat-ava.has-img,
+.hud-phone-contact-avatar.has-img,
+.hud-phone-notif-ava.has-img,
+.hud-msg-avatar.has-img,
+.hud-phone-lock-face.has-img {
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  color: transparent;
+  text-shadow: none;
+}
+/* Значок группы поверх фотографии всё равно должен читаться. */
+.hud-phone-chat-ava.has-img .hud-phone-chat-group { color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
+
+/* Аватарка в карточке уведомления на экране блокировки. */
+.hud-phone-lock-notice.has-face { padding-left: 46px; }
+.hud-phone-lock-face {
+  position: absolute; left: 10px; top: 11px;
+  width: 28px; height: 28px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+  border: 1px solid rgba(255,255,255,.16);
+}
+
+/* --- Список аватарок в настройках расширения ---------------------------- */
+.hud-ava-list { display: flex; flex-direction: column; gap: 6px; }
+.hud-ava-row {
+  display: flex; align-items: center; gap: 7px;
+  padding: 6px; border: 1px solid var(--hud-border); border-radius: 7px;
+  background: rgba(0,0,0,.2);
+}
+.hud-ava-tag {
+  flex: 0 0 auto; font-size: 10px; font-weight: 700; letter-spacing: .02em;
+  color: var(--hud-accent); min-width: 58px;
+}
+.hud-ava-thumb {
+  flex: 0 0 34px; width: 34px; height: 34px; border-radius: 50%;
+  background-size: cover; background-position: center;
+  border: 1px solid var(--hud-border);
+  display: flex; align-items: center; justify-content: center;
+}
+.hud-ava-thumb.is-empty { background: rgba(255,255,255,.07); font-size: 14px; opacity: .5; }
+.hud-ava-names {
+  flex: 1 1 auto; min-width: 0;
+  background: rgba(0,0,0,.35); border: 1px solid var(--hud-border);
+  color: #fff; border-radius: 5px; padding: 4px 6px; font-size: 12px;
+}
+.hud-ava-fixed { flex: 1 1 auto; font-size: 12px; opacity: .7; }
+.hud-ava-btn {
+  flex: 0 0 auto; cursor: pointer; background: rgba(255,255,255,.06);
+  border: 1px solid var(--hud-border); border-radius: 5px;
+  padding: 3px 6px; font-size: 12px; line-height: 1;
+}
+.hud-ava-btn:hover { background: rgba(255,255,255,.14); }
+.hud-ava-empty { font-size: 12px; opacity: .55; padding: 6px 2px; }
+
+/* =========================================================================
+   НАСТРОЙКИ РАСШИРЕНИЯ: СВОРАЧИВАЕМЫЕ РАЗДЕЛЫ
+   Раньше всё висело одним списком и шумело. Теперь три раздела, каждый
+   раскрывается по нажатию на заголовок.
+   ========================================================================= */
+.hud-set-group { border: 1px solid var(--hud-border); border-radius: 8px; background: rgba(0,0,0,.16); }
+.hud-set-group + .hud-set-group { margin-top: 6px; }
+.hud-set-group > summary {
+  cursor: pointer; outline: none; list-style: none;
+  padding: 8px 10px; font-weight: 700; font-size: 13px;
+  color: var(--hud-accent); display: flex; align-items: center; gap: 6px;
+  border-radius: 8px;
+}
+.hud-set-group > summary::-webkit-details-marker { display: none; }
+.hud-set-group > summary::after {
+  content: '▸'; margin-left: auto; opacity: .6; transition: transform .18s ease;
+}
+.hud-set-group[open] > summary::after { transform: rotate(90deg); }
+.hud-set-group > summary:hover { background: rgba(255,255,255,.05); }
+.hud-set-body {
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 4px 10px 10px;
+  border-top: 1px solid var(--hud-border);
+}
+
+/* =========================================================================
+   ТЕМЫ: ДОПОЛНИТЕЛЬНЫЕ ЗНАКИ
+   Места в карточке много, поэтому у каждой темы теперь три опознавательных
+   знака вместо одного: у логотипа, у заголовков разделов «Мира» и у
+   заголовков полей. Все — обычные глифы, без картинок и анимации.
+   ========================================================================= */
+.hud-os-logo::after, .hud-world-title::after { font-size: .92em; opacity: .72; }
+
+.hud-theme-kawaii  .hud-os-logo::after { content: ' (•ω•)'; letter-spacing: 0; }
+.hud-theme-academia .hud-os-logo::after { content: ' \2767\FE0E'; }
+.hud-theme-vamp    .hud-os-logo::after { content: ' ‡'; }
+.hud-theme-cyberpunk .hud-os-logo::after { content: ' ▮'; color: #2de2ff; }
+.hud-theme-noir    .hud-os-logo::after { content: ' ▨'; }
+.hud-theme-medieval .hud-os-logo::after { content: ' \2720\FE0E'; }
+.hud-theme-mafia   .hud-os-logo::after { content: ' \2297'; }
+
+.hud-theme-kawaii  .hud-world-title::after { content: ' \273F\FE0E'; }
+.hud-theme-academia .hud-world-title::after { content: ' ¶'; }
+.hud-theme-vamp    .hud-world-title::after { content: ' \2619\FE0E'; }
+.hud-theme-cyberpunk .hud-world-title::after { content: ' ⌁'; color: #2de2ff; }
+.hud-theme-noir    .hud-world-title::after { content: ' \25E7'; }
+.hud-theme-medieval .hud-world-title::after { content: ' \2756'; }
+
+/* Активная вкладка получает цвет темы, а не общий акцент. */
+.hud-theme-cyberpunk .hud-tab.active { box-shadow: inset 0 -2px 0 #2de2ff; }
+.hud-theme-vamp .hud-tab.active { box-shadow: inset 0 -2px 0 #c31f38; }
+.hud-theme-mafia .hud-tab.active { box-shadow: inset 0 -2px 0 #d92b2b; border-radius: 0; }
+.hud-theme-medieval .hud-tab.active { box-shadow: inset 0 -2px 0 #c9a227; }
+.hud-theme-noir .hud-tab.active { box-shadow: inset 0 -2px 0 rgba(255,255,255,.6); }
+.hud-theme-kawaii .hud-tab.active { box-shadow: inset 0 -2px 0 #e0568f; }
+.hud-theme-academia .hud-tab.active { box-shadow: inset 0 -2px 0 #c9a227; }
+
+/* Дневник тоже отзывается на тему: у бумаги свой оттенок кромки. */
+.hud-theme-kawaii .hud-diary-entry { border-left-color: #ff8fc0; }
+.hud-theme-academia .hud-diary-entry { border-left-color: #a9782f; }
+.hud-theme-vamp .hud-diary-entry { border-left-color: #8e1327; }
+.hud-theme-cyberpunk .hud-diary-entry { border-left-color: #2de2ff; }
+.hud-theme-noir .hud-diary-entry { border-left-color: #bdbdbd; }
+.hud-theme-medieval .hud-diary-entry { border-left-color: #8a6a1f; }
+.hud-theme-mafia .hud-diary-entry { border-left-color: #d92b2b; border-radius: 0; }
+
+/* =========================================================================
+   СВЕТЛЫЕ ТЕМЫ: ВНУТРЕННИЕ БЛОКИ
+   -------------------------------------------------------------------------
+   «Каваи» и «Средневековье» светлые, но десятки внутренних поверхностей —
+   экран телефона, лист дневника, газета, доска объявлений, панель
+   кастомизации — крашены жёстко заданным почти чёрным. Настройками их не
+   достать: там нет таких полей. Поэтому здесь один общий блок, который
+   переводит эти поверхности на светлую бумагу и возвращает тёмные чернила
+   тексту, у которого цвет тоже прописан наглухо.
+
+   Две переменные на тему: --lt-paper (карточка) и --lt-ink (текст).
+   Полноэкранные подложки становятся прозрачными — под ними и так лежит
+   фон темы, второй слой только грязнил бы цвет.
+   ========================================================================= */
+.hud-theme-kawaii {
+  --lt-paper: rgba(255,255,255,.58);
+  --lt-paper-2: rgba(255,255,255,.34);
+  --lt-ink: #4a2338;
+  --lt-ink-soft: rgba(74,35,56,.62);
+  --lt-line: rgba(190,100,150,.24);
+  --lt-solid: #ffe6f2;
+}
+.hud-theme-medieval {
+  --lt-paper: rgba(255,252,240,.62);
+  --lt-paper-2: rgba(255,252,240,.36);
+  --lt-ink: #3a2c15;
+  --lt-ink-soft: rgba(58,44,21,.64);
+  --lt-line: rgba(120,95,45,.3);
+  --lt-solid: #efe3c6;
+}
+
+/* --- Полноэкранные подложки: убираем тёмный слой совсем --- */
+/* Прозрачным можно делать только то, что лежит В ПОТОКЕ. Экран приложения
+   абсолютный и накрывает домашний: без своей подложки сквозь него
+   просвечивали иконки и уведомления. Ему нужен фон телефона. */
+:is(.hud-theme-kawaii, .hud-theme-medieval) :is(
+  .hud-phone-emulator, .hud-phone-home-screen,
+  .hud-phone-chat-area, .hud-phone-chat-list, .hud-phone-bottom-bar
+) { background: transparent !important; }
+:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-phone-app-view {
+  /* Плотная подложка под градиентом: сам градиент темы полупрозрачный
+     (это её настройка), и сквозь него просвечивали иконки домашнего. */
+  background-color: var(--lt-solid) !important;
+  background-image: var(--hud-phone-bg) !important;
+}
+
+/* --- Карточки: светлая бумага вместо чёрного --- */
+:is(.hud-theme-kawaii, .hud-theme-medieval) :is(
+  .hud-phone-notif, .hud-phone-notif-stack, .hud-phone-lock-notice,
+  .hud-phone-note, .hud-phone-section, .hud-phone-participants-list,
+  .hud-phone-contact, .hud-phone-chat-row, .hud-phone-search-row,
+  .hud-phone-map, .hud-phone-map-card, .hud-phone-photo-placeholder,
+  .hud-diary-entry, .hud-world-section, .hud-world-section-ads,
+  .hud-theme-panel, .hud-phone-mockup
+) {
+  background: var(--lt-paper) !important;
+  color: var(--lt-ink);
+  border-color: var(--lt-line);
+}
+
+/* Шапка приложения на телефоне — чуть плотнее бумаги, чтобы отделяться. */
+:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-phone-app-title {
+  background: var(--lt-paper-2) !important;
+  color: var(--lt-ink);
+  border-bottom: 1px solid var(--lt-line);
+}
+
+/* --- Текст, у которого цвет прописан наглухо белым --- */
+:is(.hud-theme-kawaii, .hud-theme-medieval) :is(
+  .hud-phone-top-status, .hud-phone-statusline, .hud-phone-app small,
+  .hud-phone-lock-time, .hud-phone-lock-day, .hud-phone-lock-hint,
+  .hud-phone-notif-body b, .hud-phone-notif-label, .hud-phone-chat-meta b,
+  .hud-phone-note b, .hud-phone-contact b, .hud-msg-bubble, .hud-msg-sender,
+  .hud-phone-app-owner, .hud-phone-search-row, .hud-g-query,
+  .hud-diary-text, .hud-diary-about-user, .hud-phone-lockscreen
+) { color: var(--lt-ink) !important; }
+
+:is(.hud-theme-kawaii, .hud-theme-medieval) :is(
+  .hud-phone-notif-body small, .hud-phone-chat-meta small, .hud-phone-note small,
+  .hud-phone-contact small, .hud-phone-lock-notice small, .hud-phone-lock-notice span,
+  .hud-msg-time, .hud-phone-notif-meta, .hud-phone-lock-empty
+) { color: var(--lt-ink-soft) !important; }
+
+/* Полоска «домой» и разделители — тёмные штрихи по светлому. */
+:is(.hud-theme-kawaii, .hud-theme-medieval) :is(.hud-phone-home-btn, .hud-phone-lock-bar) {
+  background: var(--lt-ink-soft) !important;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-phone-lock-arrow {
+  border-color: var(--lt-ink-soft) !important;
+}
+/* Иконки-глифы нарисованы currentColor — им хватает цвета текста. */
+:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-g-ico { color: var(--lt-ink); }
+
+/* Стекло поверх экрана и корпус: блик на светлом выглядит грязью. */
+:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-phone-glass { opacity: .25; }
+:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-phone-emulator::after { display: none; }
+
+/* Исходящие пузыри остаются цветными, входящие становятся бумажными. */
+:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-msg-wrapper.incoming .hud-msg-bubble {
+  background: var(--lt-paper) !important;
+  border: 1px solid var(--lt-line);
+}
+
+/* Газета: тёмная «бумага» на светлой теме противоречит сама себе. */
+:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-news-article,
+:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-world-list li,
+:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-comment {
+  background: var(--lt-paper-2) !important;
+  color: var(--lt-ink);
+}
+
+/* Дневник: слои бумаги рассчитаны на тёмный лист, на светлом они мажут. */
+:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-diary-paper { opacity: .22; }
+:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-diary-holes { opacity: .35; }
+
+/* --- Светлые темы: остатки светлого текста и кружков ---------------------
+   Найдено замером контраста на собранном телефоне: эти надписи имели
+   жёстко заданный светлый цвет и на бумаге пропадали. */
+:is(.hud-theme-kawaii, .hud-theme-medieval) :is(
+  .hud-phone-notif-body em, .hud-phone-notif em, .hud-phone-inputfield,
+  .hud-phone-empty-line, .hud-phone-empty small, .hud-g-hint, .hud-g-query,
+  .hud-phone-app-title, .hud-phone-note-date, .hud-phone-search-head
+) { color: var(--lt-ink-soft) !important; }
+:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-phone-inputfield::placeholder { color: var(--lt-ink-soft); }
+:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-phone-send { color: #fff !important; }
+
+/* Кружки-инициалы: на бумаге белая буква по бледной заливке исчезала.
+   Даём им насыщенную подложку темы — буква снова белая по цвету. */
+:is(.hud-theme-kawaii, .hud-theme-medieval) :is(
+  .hud-phone-notif-ava, .hud-phone-chat-ava, .hud-phone-contact-avatar, .hud-msg-avatar
+):not(.has-img) {
+  background-color: var(--hud-accent) !important;
+  color: #fff !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,.35);
+}
+
+/* =========================================================================
+   ТЕМЫ: ФИРМЕННЫЙ ЗНАК КАЖДОЙ
+   -------------------------------------------------------------------------
+   У каждой темы свой приём, который больше нигде не повторяется: сердечки
+   в списках, поля тетради, свечной отблеск, угловые скобки, зерно плёнки,
+   восковая печать, пулевое отверстие. Все — статичные градиенты и глифы,
+   ни одной анимации: HUD и так тяжёлый на телефоне.
+
+   Ложатся на .hud-os-wrapper::after — свободный слой поверх содержимого
+   карточки: ::before и ::after самой карточки заняты картинкой и фоном.
+   ========================================================================= */
+.hud-os-wrapper { position: relative; }
+:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-vamp, .hud-theme-cyberpunk,
+    .hud-theme-noir, .hud-theme-medieval, .hud-theme-mafia) .hud-os-wrapper::after {
+  content: ''; position: absolute; pointer-events: none; z-index: 2;
+}
+
+/* Каваи — сердечки вместо маркеров в списках. */
+.hud-theme-kawaii .hud-key-item { position: relative; padding-left: 22px; }
+.hud-theme-kawaii .hud-key-item::before {
+  content: '♡'; position: absolute; left: 8px; top: 6px;
+  color: #ff7fb6; font-size: .95em; line-height: 1.4;
+}
+.hud-theme-kawaii .hud-os-wrapper::after { display: none; }
+
+/* Dark Academia — поля тетради: двойная линия слева по всей карточке. */
+/* Поле тетради живёт на странице, а не на всей карточке: на обёртке оно
+   начиналось от самого верха и перечёркивало виджет погоды и часы.
+   .hud-tab-content — это и есть «лист», под вкладками. */
+.hud-theme-academia .hud-tab-content { position: relative; }
+.hud-theme-academia .hud-tab-content::after {
+  content: ''; position: absolute; pointer-events: none; z-index: 0;
+  left: 12px; top: 0; bottom: 0; width: 5px;
+  background: linear-gradient(90deg,
+    rgba(163,58,42,.32) 0 1px, transparent 1px 3px, rgba(163,58,42,.18) 3px 4px, transparent 4px);
+}
+.hud-theme-academia .hud-os-wrapper::after { display: none; }
+
+/* Vamp — отблеск свечи сверху по центру. */
+.hud-theme-vamp .hud-os-wrapper::after {
+  left: 0; right: 0; top: 0; height: 120px;
+  background: radial-gradient(60% 100% at 50% 0%, rgba(255,150,90,.13), transparent 70%);
+}
+
+/* Киберпанк — угловые скобки терминала у каждого блока полей. */
+.hud-theme-cyberpunk .hud-key-block { position: relative; }
+.hud-theme-cyberpunk .hud-key-block::before,
+.hud-theme-cyberpunk .hud-key-block::after {
+  content: ''; position: absolute; width: 9px; height: 9px; pointer-events: none;
+  border-color: #2de2ff; border-style: solid;
+}
+.hud-theme-cyberpunk .hud-key-block::before { left: -1px; top: -1px; border-width: 1px 0 0 1px; }
+.hud-theme-cyberpunk .hud-key-block::after { right: -1px; bottom: -1px; border-width: 0 1px 1px 0; }
+.hud-theme-cyberpunk .hud-os-wrapper::after { display: none; }
+
+/* Нуар — зерно плёнки поверх всей карточки. */
+.hud-theme-noir .hud-os-wrapper::after {
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 17% 29%, rgba(255,255,255,.05) 0 .6px, transparent .7px),
+    radial-gradient(circle at 63% 71%, rgba(0,0,0,.14) 0 .7px, transparent .8px),
+    radial-gradient(circle at 84% 13%, rgba(255,255,255,.04) 0 .5px, transparent .6px);
+  background-size: 23px 19px, 31px 27px, 17px 29px;
+  opacity: .75;
+}
+
+/* Средневековье — восковая печать в нижнем правом углу. */
+.hud-theme-medieval .hud-os-wrapper::after {
+  right: 14px; bottom: 12px; width: 34px; height: 34px; border-radius: 50%;
+  background:
+    radial-gradient(circle at 38% 34%, rgba(255,255,255,.4), transparent 46%),
+    radial-gradient(circle at 50% 50%, #9a2d1f 0 64%, #7a2317 66%, transparent 70%);
+  box-shadow: 0 2px 5px rgba(0,0,0,.32);
+}
+
+/* Криминал — пулевое отверстие с трещинами. */
+.hud-theme-mafia .hud-os-wrapper::after {
+  right: 20px; top: 14px; width: 20px; height: 20px;
+  background:
+    radial-gradient(circle at 50% 50%, #000 0 3.2px, rgba(0,0,0,.55) 3.6px 5px, transparent 5.4px),
+    conic-gradient(from 12deg,
+      transparent 0 3deg, rgba(0,0,0,.3) 3deg 4.5deg, transparent 4.5deg 62deg,
+      rgba(0,0,0,.26) 62deg 63.5deg, transparent 63.5deg 143deg,
+      rgba(0,0,0,.3) 143deg 144.5deg, transparent 144.5deg 221deg,
+      rgba(0,0,0,.24) 221deg 222.5deg, transparent 222.5deg 300deg,
+      rgba(0,0,0,.28) 300deg 301.5deg, transparent 301.5deg);
+}
+
+/* Знак «Мира» у Криминала был тем же револьвером, что у Нуара, — развели. */
+.hud-theme-mafia .hud-world-title::after { content: ' \2317'; }
+
+/* =========================================================================
+   ТЕМЫ: ПОЧЕРК ЗАГОЛОВКОВ И ОТДЕЛКА БЛОКОВ
+   -------------------------------------------------------------------------
+   Знаки и украшения у тем уже разные, но набор текста везде был одинаковый.
+   Здесь каждой теме задан свой почерк заголовков и своя отделка блока полей.
+   Приёмы не повторяются: капитель, разрядка, хроматическое двоение,
+   прописные, буквица, штамп. Всё статично.
+   ========================================================================= */
+
+/* --- Каваи: мягкие пузырьковые блоки и розовая подсветка --- */
+.hud-theme-kawaii :is(.hud-key-block, .hud-key-item) { border-radius: 16px; }
+.hud-theme-kawaii .hud-key-item { border-left-width: 4px; }
+.hud-theme-kawaii .hud-key-item:hover {
+  background: rgba(255,143,192,.14);
+  box-shadow: 0 2px 10px rgba(224,86,143,.18);
+}
+.hud-theme-kawaii :is(.hud-key, .hud-key-label) { letter-spacing: .04em; }
+
+/* --- Dark Academia: капитель и латунная линейка под заголовком --- */
+.hud-theme-academia :is(.hud-key, .hud-key-label) {
+  font-variant: small-caps; text-transform: none;
+  letter-spacing: .07em; font-weight: 600;
+}
+.hud-theme-academia .hud-key-label {
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(201,162,39,.28);
+}
+
+/* --- Vamp: разрядка, винная тень и внутренняя виньетка карточки --- */
+.hud-theme-vamp :is(.hud-key, .hud-key-label) {
+  letter-spacing: .18em; font-weight: 600;
+  text-shadow: 0 0 8px rgba(195,31,56,.45);
+}
+.hud-theme-vamp .hud-os-card {
+  box-shadow: inset 0 0 44px rgba(90,8,20,.5), var(--hud-shadow);
+}
+
+/* --- Киберпанк: хроматическое двоение и табличные цифры --- */
+.hud-theme-cyberpunk :is(.hud-key, .hud-key-label) {
+  text-shadow: -1px 0 rgba(255,45,111,.5), 1px 0 rgba(45,226,255,.5);
+  letter-spacing: .06em;
+}
+.hud-theme-cyberpunk .hud-os-card { font-variant-numeric: tabular-nums; }
+.hud-theme-cyberpunk .hud-key-item { border-left-width: 1px; padding-left: 12px; }
+
+/* --- Нуар: прописные вплотную и жёсткий свет из угла --- */
+.hud-theme-noir :is(.hud-key, .hud-key-label) {
+  text-transform: uppercase; letter-spacing: .01em; font-weight: 500;
+}
+.hud-theme-noir .hud-key-block {
+  background-image: linear-gradient(118deg, rgba(255,255,255,.07), transparent 42%);
+}
+
+/* --- Средневековье: буквица и золотая линейка --- */
+.hud-theme-medieval .hud-key-item::first-letter {
+  font-size: 1.35em; font-weight: 700; color: #8a6a1f;
+}
+.hud-theme-medieval .hud-key-block {
+  border-top: 2px solid rgba(201,162,39,.4);
+  border-bottom: 1px solid rgba(201,162,39,.25);
+}
+
+/* --- Криминал: прописные с красной засечкой и штамп на блоке --- */
+.hud-theme-mafia :is(.hud-key, .hud-key-label) {
+  text-transform: uppercase; letter-spacing: .1em; font-weight: 700;
+  padding-left: 8px; border-left: 3px solid #d92b2b;
+}
+.hud-theme-mafia .hud-key-block {
+  border: 1px solid rgba(217,43,43,.35);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.5);
+}
+
+/* =========================================================================
+   ПРИЁМЫ, ПОДСМОТРЕННЫЕ В ТЕМАХ SILLYTAVERN
+   -------------------------------------------------------------------------
+   Заимствованы только приёмы, не чужой код и не чужие картинки: у тех тем
+   вся графика прибита ссылками на сторонние хостинги (iili.io, postimg.cc),
+   а две из них помечены «禁商禁二传» — без коммерции и перезаливки. Всё
+   ниже нарисовано своими градиентами.
+
+   1. Подписи пустых состояний как переменные — из «Тёрн и Иней · Лаванда»,
+      где так заданы --thinking-label и --empty-text. Каждая тема теперь
+      говорит своим голосом там, где раньше была одна общая фраза.
+   2. Срезанные углы через clip-path — из «Красненький неон».
+   3. Плетение бумаги из четырёх скрещенных градиентов — из «Pink scroll».
+   4. Вёрстка по ширине и волнистое подчёркивание — из «top secret».
+   ========================================================================= */
+
+/* --- 1. Пустые состояния говорят голосом темы ---------------------------
+   Оригинальный текст глушим нулевым кеглем и печатаем свой из переменной:
+   так строка остаётся в разметке для чтения с экрана, а тема получает
+   собственную реплику. Без темы всё работает как прежде. */
+:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-vamp, .hud-theme-cyberpunk,
+    .hud-theme-noir, .hud-theme-medieval, .hud-theme-mafia)
+  :is(.hud-world-empty, .hud-diary-empty) { font-size: 0; }
+:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-vamp, .hud-theme-cyberpunk,
+    .hud-theme-noir, .hud-theme-medieval, .hud-theme-mafia)
+  :is(.hud-world-empty, .hud-diary-empty)::after {
+  display: block; font-size: 13px; line-height: 1.5;
+}
+.hud-theme-kawaii .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
+.hud-theme-kawaii .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
+.hud-theme-academia .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
+.hud-theme-academia .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
+.hud-theme-vamp .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
+.hud-theme-vamp .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
+.hud-theme-cyberpunk .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
+.hud-theme-cyberpunk .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
+.hud-theme-noir .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
+.hud-theme-noir .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
+.hud-theme-medieval .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
+.hud-theme-medieval .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
+.hud-theme-mafia .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
+.hud-theme-mafia .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
+
+.hud-theme-kawaii {
+  --th-empty-world: 'Сегодня в городе тихо-тихо.';
+  --th-empty-diary: 'Дневник ещё чистенький.';
+}
+.hud-theme-academia {
+  --th-empty-world: 'Архив за этот день пуст.';
+  --th-empty-diary: 'Ни одной записи. Чернила не тронуты.';
+}
+.hud-theme-vamp {
+  --th-empty-world: 'Город молчит. Значит, ещё не проснулся.';
+  --th-empty-diary: 'Страницы пусты. Пока.';
+}
+.hud-theme-cyberpunk {
+  --th-empty-world: '// NO SIGNAL — данных за период нет';
+  --th-empty-diary: '// LOG EMPTY';
+}
+.hud-theme-noir {
+  --th-empty-world: 'Ни зацепок, ни свидетелей.';
+  --th-empty-diary: 'Записей нет. Дело не открывали.';
+}
+.hud-theme-medieval {
+  --th-empty-world: 'Вестей из города не приходило.';
+  --th-empty-diary: 'Летопись пока не начата.';
+}
+.hud-theme-mafia {
+  --th-empty-world: 'По городу — ничего. Тишина дороже.';
+  --th-empty-diary: 'Записей нет. И правильно.';
+}
+
+/* --- 2. Киберпанк: срезанные углы строк ---------------------------------
+   Скос по диагонали вместо скругления. Левую полосу пришлось перенести из
+   border-left во внутреннюю тень: clip-path режет и рамку тоже, а тень
+   рисуется внутри и срез ей идёт. */
+.hud-theme-cyberpunk .hud-key-item {
+  clip-path: polygon(7px 0, 100% 0, 100% calc(100% - 7px), calc(100% - 7px) 100%, 0 100%, 0 7px);
+  border-left: none !important;
+  box-shadow: inset 2px 0 0 #2de2ff;
+  border-radius: 0;
+}
+
+/* --- 3. Светлые темы: плетение бумаги ------------------------------------
+   Четыре градиента под 135/225/45/315° на сетке 7px дают тканую фактуру
+   без единой картинки. Поверх ложится обычный фон блока. */
+.hud-theme-kawaii .hud-key-block {
+  background-image:
+    linear-gradient(135deg, rgba(224,86,143,.05) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(224,86,143,.05) 25%, transparent 25%),
+    linear-gradient(45deg,  rgba(224,86,143,.05) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(224,86,143,.05) 25%, transparent 25%);
+  background-size: 7px 7px;
+}
+.hud-theme-medieval .hud-key-block {
+  background-image:
+    linear-gradient(135deg, rgba(120,95,45,.07) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(120,95,45,.07) 25%, transparent 25%),
+    linear-gradient(45deg,  rgba(120,95,45,.07) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(120,95,45,.07) 25%, transparent 25%);
+  background-size: 7px 7px;
+}
+
+/* --- 4. Нуар: вёрстка по ширине; Vamp: волнистый курсив ------------------
+   Выключка по формату — приём газетной и комиксной полосы. Волнистая
+   черта под курсивом читается как подчёркнутое от руки. */
+.hud-theme-noir :is(.hud-diary-text, .hud-diary-about-user, .article-text) {
+  text-align: justify;
+  hyphens: auto;
+}
+.hud-theme-vamp :is(.hud-diary-text, .hud-key-item) em,
+.hud-theme-vamp :is(.hud-diary-text, .hud-key-item) i {
+  text-decoration: underline wavy rgba(195,31,56,.55);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+/* =========================================================================
+   ПРОГНОЗ, ГОРОСКОП И ПРЕДСКАЗАНИЕ: ЭФФЕКТЫ
+   -------------------------------------------------------------------------
+   Всё движение спит до касания или наведения — как у сцены и перехватов.
+   По умолчанию animation-play-state: paused, запускает его класс fx-active
+   (его вешает клик в events.js) либо :hover на устройствах с курсором.
+   Статика — подложки, свечение, шкала температуры — видна всегда.
+   ========================================================================= */
+
+/* ---------- Прогноз: живут только иконки ----------
+   Фоновый слой погоды в ячейке убран совсем: на тёмной карточке решётка
+   из точек читалась как грязь, а не как снег. Вся выразительность ушла в
+   саму иконку — она разбита на именованные части (солнце, лучи, туча,
+   капли, молния, снежинки, полосы тумана, порывы), и каждая часть живёт
+   своей жизнью. Движение только через transform и opacity: это считает
+   композитор, перерисовки нет. */
+.hud-forecast-cell { position: relative; isolation: isolate; }
+.hud-forecast-cell::after {
+  /* Тонкая рамка-подсветка: проявляется под курсором и после тапа. */
+  content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  border-radius: inherit; border: 1px solid transparent;
+  transition: border-color .25s ease, box-shadow .25s ease;
+}
+.hud-world-section-forecast.fx-active .hud-forecast-cell::after {
+  border-color: color-mix(in srgb, var(--hud-accent) 45%, transparent);
+  box-shadow: 0 0 12px -4px var(--hud-accent);
+}
+
+/* Части иконки двигаются относительно себя, а не холста SVG. */
+.hud-fc-ico .ic-sun, .hud-fc-ico .ic-rays, .hud-fc-ico .ic-cloud,
+.hud-fc-ico .ic-drop, .hud-fc-ico .ic-bolt, .hud-fc-ico .ic-flake,
+.hud-fc-ico .ic-fogline, .hud-fc-ico .ic-gust {
+  transform-box: fill-box; transform-origin: center;
+  animation-play-state: paused;
+}
+
+/* Каждой погоде свой оттенок свечения. Статично, всегда видно. */
+.hud-forecast-icon.w-clear  { color: #ffc45c; filter: drop-shadow(0 0 6px rgba(255,196,92,.45)); }
+.hud-forecast-icon.w-cloudy { color: #c3cfe0; filter: drop-shadow(0 0 5px rgba(195,207,224,.3)); }
+.hud-forecast-icon.w-rain   { color: #8fc2f2; filter: drop-shadow(0 0 5px rgba(143,194,242,.35)); }
+.hud-forecast-icon.w-storm  { color: #a99cf0; filter: drop-shadow(0 0 6px rgba(169,156,240,.45)); }
+.hud-forecast-icon.w-snow   { color: #dbe8f7; filter: drop-shadow(0 0 6px rgba(219,232,247,.4)); }
+.hud-forecast-icon.w-fog    { color: #b6c2d2; filter: drop-shadow(0 0 5px rgba(182,194,210,.28)); }
+.hud-forecast-icon.w-wind   { color: #9fd8cf; filter: drop-shadow(0 0 5px rgba(159,216,207,.32)); }
+
+/* Ясно: лучи медленно обходят круг, само солнце дышит. */
+.hud-fc-ico .ic-rays { animation: hud-ic-spin 24s linear infinite; }
+.hud-fc-ico .ic-sun  { animation: hud-ic-sun 3.6s ease-in-out infinite alternate; }
+@keyframes hud-ic-spin { to { transform: rotate(360deg); } }
+@keyframes hud-ic-sun  { from { transform: scale(.92); opacity: .8; } to { transform: scale(1.06); opacity: 1; } }
+
+/* Туча чуть покачивается — общая деталь дождя, снега, грозы и тумана. */
+.hud-fc-ico .ic-cloud { animation: hud-ic-cloud 5.2s ease-in-out infinite alternate; }
+@keyframes hud-ic-cloud { from { transform: translateX(-.7px); } to { transform: translateX(.7px); } }
+
+/* Дождь: капли срываются по очереди. */
+.hud-fc-ico .ic-drop { animation: hud-ic-drop 1.25s ease-in infinite; }
+.hud-fc-ico .ic-drop.d2 { animation-delay: -.42s; }
+.hud-fc-ico .ic-drop.d3 { animation-delay: -.84s; }
+@keyframes hud-ic-drop {
+  0%   { transform: translateY(-2.5px); opacity: 0; }
+  22%  { opacity: 1; }
+  78%  { opacity: 1; }
+  100% { transform: translateY(3.5px); opacity: 0; }
+}
+
+/* Гроза: молния вспыхивает рывками, туча вздрагивает в такт. */
+.hud-fc-ico .ic-bolt { fill: currentColor; stroke: none; animation: hud-ic-bolt 3.4s ease-in-out infinite; }
+@keyframes hud-ic-bolt {
+  0%, 62%, 100% { opacity: .35; }
+  66% { opacity: 1; }
+  70% { opacity: .4; }
+  74% { opacity: 1; }
+  80% { opacity: .35; }
+}
+
+/* Снег: хлопья опускаются и подтаивают, слегка поворачиваясь. */
+.hud-fc-ico .ic-flake { animation: hud-ic-flake 3.2s linear infinite; }
+.hud-fc-ico .ic-flake.f2 { animation-delay: -1.6s; }
+@keyframes hud-ic-flake {
+  0%   { transform: translateY(-2px) rotate(-25deg); opacity: 0; }
+  25%  { opacity: 1; }
+  75%  { opacity: 1; }
+  100% { transform: translateY(3px) rotate(25deg); opacity: 0; }
+}
+
+/* Туман: две полосы ползут навстречу друг другу. */
+.hud-fc-ico .ic-fogline { animation: hud-ic-fog 4.6s ease-in-out infinite alternate; }
+.hud-fc-ico .ic-fogline.l2 { animation-direction: alternate-reverse; animation-duration: 5.8s; }
+@keyframes hud-ic-fog {
+  from { transform: translateX(-1.6px); opacity: .45; }
+  to   { transform: translateX(1.6px); opacity: 1; }
+}
+
+/* Ветер: порывы проносятся слева направо один за другим. */
+.hud-fc-ico .ic-gust { animation: hud-ic-gust 2.4s ease-in-out infinite; }
+.hud-fc-ico .ic-gust.g2 { animation-delay: -.8s; }
+.hud-fc-ico .ic-gust.g3 { animation-delay: -1.6s; }
+@keyframes hud-ic-gust {
+  0%   { transform: translateX(-2.5px); opacity: .25; }
+  40%  { opacity: 1; }
+  100% { transform: translateX(2.5px); opacity: .25; }
+}
+
+/* Шкала температуры: холод синий, тепло янтарное. --t считает рендер. */
+.hud-fc-bar {
+  display: block; width: 78%; height: 3px; margin: 1px auto 0;
+  border-radius: 2px;
+  background: #7f93b4;
+  background: linear-gradient(90deg,
+    color-mix(in oklab, #4aa8ff, #ff8a3d calc(var(--t, .5) * 100%)),
+    color-mix(in oklab, #2f7fd0, #e0651f calc(var(--t, .5) * 100%)));
+  opacity: .85;
+}
+
+/* ---------- Гороскоп ---------- */
+.hud-world-section-horo { position: relative; overflow: hidden; }
+.hud-world-section-horo > *:not(.hud-horo-stars) { position: relative; z-index: 1; }
+/* Звёздное поле: три плана точек, видны всегда, мерцают только после тапа. */
+.hud-horo-stars {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    radial-gradient(circle 1px at 12% 18%, rgba(255,255,255,.55) 0 60%, transparent 100%),
+    radial-gradient(circle .8px at 68% 12%, rgba(255,255,255,.4) 0 60%, transparent 100%),
+    radial-gradient(circle 1.2px at 84% 44%, rgba(255,255,255,.5) 0 60%, transparent 100%),
+    radial-gradient(circle .9px at 32% 72%, rgba(255,255,255,.36) 0 60%, transparent 100%),
+    radial-gradient(circle 1px at 54% 88%, rgba(255,255,255,.44) 0 60%, transparent 100%);
+  background-size: 190px 150px, 145px 120px, 210px 170px, 165px 135px, 125px 105px;
+  opacity: .5;
+  animation: hud-horo-twinkle 4.2s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+@keyframes hud-horo-twinkle { from { opacity: .28; } to { opacity: .8; } }
+
+/* Полоса под подпись тона зарезервирована всегда: она выезжает поверх
+   карточки, и без запаса последняя строка текста оказывалась под ней. */
+.hud-horo-card { position: relative; overflow: hidden; padding-bottom: 20px;
+  transition: transform .2s ease, box-shadow .2s ease; }
+.hud-horo-sign i {
+  display: inline-block;
+  animation: hud-horo-pulse 3.4s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+@keyframes hud-horo-pulse {
+  from { transform: scale(1); opacity: .75; }
+  to   { transform: scale(1.16); opacity: 1; }
+}
+/* Подпись тона выезжает снизу и лежит поверх карточки уголком. */
+.hud-horo-tone {
+  position: absolute; right: 0; bottom: 0;
+  padding: 1px 7px 2px;
+  font-size: .66em; letter-spacing: .06em; text-transform: uppercase;
+  border-radius: 7px 0 0 0;
+  transform: translateY(110%);
+  transition: transform .28s cubic-bezier(.22,.9,.3,1);
+  color: #0d0d12;
+}
+.hud-horo-card.tone-luck .hud-horo-tone { background: #3fbf7f; }
+.hud-horo-card.tone-bad  .hud-horo-tone { background: #e0563f; color: #fff; }
+.hud-horo-card.tone-flat .hud-horo-tone { background: rgba(255,255,255,.55); }
+.hud-world-section-horo.fx-active .hud-horo-tone { transform: translateY(0); }
+.hud-world-section-horo.fx-active .hud-horo-card.tone-luck { box-shadow: 0 0 16px -6px #3fbf7f; }
+.hud-world-section-horo.fx-active .hud-horo-card.tone-bad  { box-shadow: 0 0 16px -6px #e0563f; }
+
+/* ---------- Предсказание: хрустальный шар ---------- */
+.hud-horo-prediction { position: relative; overflow: hidden; }
+.hud-horo-orb {
+  position: absolute; right: -26px; top: -30px; width: 120px; height: 120px;
+  pointer-events: none; border-radius: 50%;
+  background:
+    radial-gradient(circle at 38% 34%, rgba(255,255,255,.22), transparent 46%),
+    radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--hud-accent) 34%, transparent), transparent 68%);
+  filter: blur(1px);
+  animation: hud-orb-glow 6.5s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+@keyframes hud-orb-glow {
+  from { opacity: .45; transform: scale(.94); }
+  to   { opacity: .9;  transform: scale(1.06); }
+}
+/* Буквица у первой строки предсказания. */
+.hud-horo-prediction p:first-of-type::first-letter {
+  float: left; font-size: 2.1em; line-height: .82;
+  margin: 3px 7px 0 0; font-style: normal; font-weight: 700;
+  color: var(--hud-accent);
+  text-shadow: 0 2px 8px color-mix(in srgb, var(--hud-accent) 45%, transparent);
+}
+/* Блик пробегает по блоку предсказания — только после касания. */
+.hud-horo-prediction::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(105deg, transparent 42%, rgba(255,255,255,.16) 50%, transparent 58%);
+  background-size: 260% 100%;
+  animation: hud-orb-sheen 7s ease-in-out infinite;
+  animation-play-state: paused;
+}
+@keyframes hud-orb-sheen {
+  0%, 62% { background-position: 130% 0; }
+  100%    { background-position: -30% 0; }
+}
+
+/* ---------- Заморозка и запуск ---------- */
+.hud-world-section-forecast, .hud-world-section-horo { cursor: pointer; }
+.hud-world-section-forecast .hud-fc-ico > *,
+.hud-world-section-horo .hud-horo-stars,
+.hud-world-section-horo .hud-horo-sign i,
+.hud-world-section-horo .hud-horo-orb,
+.hud-world-section-horo .hud-horo-prediction::after { animation-play-state: paused !important; }
+
+.hud-world-section-forecast.fx-active .hud-fc-ico > *,
+.hud-world-section-horo.fx-active .hud-horo-stars,
+.hud-world-section-horo.fx-active .hud-horo-sign i,
+.hud-world-section-horo.fx-active .hud-horo-orb,
+.hud-world-section-horo.fx-active .hud-horo-prediction::after { animation-play-state: running !important; }
+
+@media (hover: hover) {
+  .hud-world-section-forecast:hover .hud-fc-ico > *,
+  .hud-world-section-horo:hover .hud-horo-stars,
+  .hud-world-section-horo:hover .hud-horo-sign i,
+  .hud-world-section-horo:hover .hud-horo-orb,
+  .hud-world-section-horo:hover .hud-horo-prediction::after { animation-play-state: running !important; }
+  .hud-forecast-cell:hover { transform: translateY(-2px); }
+  .hud-horo-card:hover { transform: translateY(-2px); }
+  .hud-world-section-horo:hover .hud-horo-tone { transform: translateY(0); }
+}
+.hud-forecast-cell { transition: transform .2s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-fc-ico > *,
+  .hud-horo-stars, .hud-horo-sign i, .hud-horo-orb,
+  .hud-horo-prediction::after { animation: none !important; }
+  .hud-horo-tone { transition: none !important; }
 }

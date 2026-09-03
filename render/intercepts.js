@@ -3,7 +3,19 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHasMeaningfulValue } from '../utils.js?v=22.7.4';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue } from '../utils.js?v=22.19.1';
+import { overrideAvatarUrl } from '../avatars.js?v=22.19.1';
+
+// Кружок отправителя в перехвате: ручная аватарка фоном либо инициал.
+// Разметка и классы прежние — картинку прячет за собой класс has-img.
+function interceptFace(sender) {
+  const url = overrideAvatarUrl(sender);
+  const letter = String(sender || '').trim().charAt(0).toUpperCase() || '?';
+  return '<div class="hud-msg-avatar hud-intercept-avatar' + (url ? ' has-img' : '') +
+    '" data-ava-name="' + escapeHtml(String(sender || '')) + '" data-ava-bg="none"' +
+    (url ? ' style="background-image:url(\'' + url + '\')"' : '') +
+    '>' + escapeHtml(letter) + '</div>';
+}
 
 export function buildInterceptsHTML(interceptsData, uid, isChecked) {
   let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-phone-mockup intercept-mode">`;
@@ -82,7 +94,7 @@ export function buildInterceptsHTML(interceptsData, uid, isChecked) {
           ? `<div class="hud-voice-player"><div class="hud-voice-btn">▶</div><div class="hud-voice-line"></div><span class="hud-voice-time">${escapeHtml(voiceDur)}</span></div>${message ? `<details class="hud-voice-details"><summary>Расшифровка</summary><div class="hud-voice-text">${escapeHtml(message)}</div></details>` : ''}`
           : `<div class="hud-msg-text" style="word-break: break-word;">${escapeHtml(message)}</div>`;
 
-        chatBodies += `<div class="hud-msg-wrapper ${isOutgoing ? 'outgoing' : 'incoming'}">${!isOutgoing ? `<div class="hud-msg-avatar hud-intercept-avatar">${sender.charAt(0).toUpperCase()}</div>` : ''}<div class="hud-msg-content" style="max-width: 100%;"><span class="hud-msg-sender">${escapeHtml(sender)}</span><div class="hud-msg-bubble">${msgInner}${msgTime ? `<div class="hud-msg-meta" style="display: flex; justify-content: flex-end; align-items: center; gap: 4px; font-size: 0.75em; opacity: 0.6; margin-top: 4px;"><span class="hud-msg-time">${escapeHtml(msgTime)}</span></div>` : ''}</div></div></div>`;
+        chatBodies += `<div class="hud-msg-wrapper ${isOutgoing ? 'outgoing' : 'incoming'}">${!isOutgoing ? interceptFace(sender) : ''}<div class="hud-msg-content" style="max-width: 100%;"><span class="hud-msg-sender">${escapeHtml(sender)}</span><div class="hud-msg-bubble">${msgInner}${msgTime ? `<div class="hud-msg-meta" style="display: flex; justify-content: flex-end; align-items: center; gap: 4px; font-size: 0.75em; opacity: 0.6; margin-top: 4px;"><span class="hud-msg-time">${escapeHtml(msgTime)}</span></div>` : ''}</div></div></div>`;
       });
     }
     chatBodies += `</div><div class="hud-phone-input-bar hud-intercept-input"><span class="hud-phone-attach hud-intercept-icon">⚠</span><div class="hud-phone-inputfield placeholder hud-intercept-icon">ACCESS DENIED - READ ONLY</div></div></div>`;

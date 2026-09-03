@@ -9,6 +9,9 @@
 // поле "js" читается как строка.
 
 export const defaultSettings = {
+  // Выбранная готовая тема оформления (см. themes.js). Пустая строка —
+  // ручные настройки пользователя, ни одна тема не выбрана.
+  themePreset: '',
   autoInject: true,
   useCards: true,
   showComments: true,
@@ -25,6 +28,16 @@ export const defaultSettings = {
   regenProfileId: '',
   hudMaxTokens: 8192,
   hudLorebooks: [],
+
+  // --- РУЧНЫЕ АВАТАРКИ ---
+  // avatarOverrides: [{ id, img, names }] — одна картинка на несколько имён
+  // ("Арес Бомонт, Ares Beaumont"). Ищется раньше любой автоматики.
+  // avatarChar* и avatarUser* — страховка: SillyTavern отдаёт аватарку
+  // персонажа по последнему сообщению бота, и если первым в блоке оказался
+  // NPC, ему доставалось фото {{char}}. Закреплённые имена это исключают.
+  avatarOverrides: [],
+  avatarCharImg: '', avatarCharNames: '',
+  avatarUserImg: '', avatarUserNames: '',
 
   // --- ГЛАССМОРФИЗМ И ФОН ---
   backdropBlur: 8,

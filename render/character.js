@@ -4,10 +4,24 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey } from '../utils.js?v=22.7.4';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.7.4';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey } from '../utils.js?v=22.19.1';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.19.1';
 
-const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс'];
+const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает'];
+
+// Порядок строк в карточке. Раньше он зависел от того, в каком порядке
+// модель перечислила поля, и «Кинк» мог оказаться где угодно. Ключи, не
+// попавшие в список, дописываются после в исходном порядке.
+const FIELD_ORDER = ['Имя', 'Возраст', 'Одежда', 'Внешность', 'Роль', 'Тело', 'Физиология', 'Здоровье',
+  'Место', 'Мысли', 'Ключ', 'Ожидание vs Реальность', 'Скрытый подтекст', 'Инвентарь', 'Цели',
+  'Расписание', 'Отношения', 'Общие воспоминания', 'Флаг-монитор', 'Статус', 'Социальное разоблачение',
+  'Глубина конфликта', 'Ревность', 'Конфликт', 'Сновидение',
+  'Последний секс', 'Количество партнеров', 'Регулярность секса',
+  'NSFW', 'Кинк', 'Фетиш', 'Никогда не сделает', 'Не возбуждает', 'Детализация NSFW', 'Отзыв о сексе'];
+const orderFields = (obj) => {
+  const rest = Object.keys(obj).filter(k => !FIELD_ORDER.includes(k));
+  return [...FIELD_ORDER.filter(k => k in obj), ...rest].map(k => [k, obj[k]]);
+};
 const DRAMA_KEYS = ['ревность', 'конфликт', 'глубина конфликта'];
 const TRUNCATE_KEYS = ['мысли', 'физиология'];
 
@@ -29,7 +43,8 @@ export function buildUserHTML(userData, uid, isChecked) {
   if (!userData || Object.keys(userData).length === 0) return '';
   const personaName = getSafeUserName();
   const avatarUrl = getUserAvatarUrl();
-  const avatarHtml = avatarUrl ? `<img src="${avatarUrl}" class="hud-avatar hud-avatar-user" alt="avatar" onerror="this.outerHTML='<div class=&quot;hud-avatar-placeholder hud-avatar-user&quot;></div>'">` : `<div class="hud-avatar-placeholder hud-avatar-user"></div>`;
+  const avaTag = ` data-ava-name="${escapeHtml(personaName)}" data-ava-role="user"`;
+  const avatarHtml = avatarUrl ? `<img src="${avatarUrl}" class="hud-avatar hud-avatar-user" alt="avatar"${avaTag} onerror="this.outerHTML='<div class=&quot;hud-avatar-placeholder hud-avatar-user&quot;></div>'">` : `<div class="hud-avatar-placeholder hud-avatar-user"${avaTag}></div>`;
 
   const order = ['A', 'C', 'Ap', 'H', 'Rel', 'L', 'UW'];
   let rows = '';
@@ -57,17 +72,19 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
   if (!charData || Object.keys(charData).length === 0) return '';
   const charName = charData['Имя'] || 'Unknown NPC';
   const avatar = getAvatarUrl(charName, isPrimary);
-  const avatarHtml = avatar ? `<img src="${avatar.url}" data-hud-fallback="${avatar.thumbUrl}" class="hud-avatar" alt="avatar" onerror="if(!this.dataset.hudTried && this.dataset.hudFallback){this.dataset.hudTried='1'; this.src=this.dataset.hudFallback;} else {this.outerHTML='<div class=&quot;hud-avatar-placeholder&quot;>👤</div>';}">` : `<div class="hud-avatar-placeholder">👤</div>`;
+  const avaTag = ` data-ava-name="${escapeHtml(charName)}"`;
+  const avatarHtml = avatar ? `<img src="${avatar.url}" data-hud-fallback="${avatar.thumbUrl}" class="hud-avatar" alt="avatar"${avaTag} onerror="if(!this.dataset.hudTried && this.dataset.hudFallback){this.dataset.hudTried='1'; this.src=this.dataset.hudFallback;} else {this.outerHTML='<div class=&quot;hud-avatar-placeholder&quot;>👤</div>';}">` : `<div class="hud-avatar-placeholder"${avaTag}>👤</div>`;
 
   let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-header"><div class="hud-header-info">${avatarHtml}<div class="hud-header-text"><span class="hud-title">${escapeHtml(charName)}</span></div></div></div><div class="hud-body">`;
 
-  for (const [key, value] of Object.entries(charData)) {
+  for (const [key, value] of orderFields(charData)) {
     const lowerKey = key.toLowerCase();
     if (lowerKey === 'имя') continue; 
     if (value === null || value === undefined || value === '' || String(value).toLowerCase() === 'empty' || String(value).toLowerCase() === 'none') continue;
     let rowClass = FULL_WIDTH_KEYS.some(k => lowerKey.includes(k)) ? 'hud-row full-width' : 'hud-row';
     if (DRAMA_KEYS.some(k => lowerKey.includes(k))) rowClass += ' drama-alert';
-    if (lowerKey.includes('nsfw') || lowerKey.includes('секс') || lowerKey.includes('партнеров')) rowClass += ' nsfw';
+    if (lowerKey.includes('nsfw') || lowerKey.includes('секс') || lowerKey.includes('партнеров')
+        || lowerKey === 'кинк' || lowerKey === 'фетиш' || lowerKey === 'никогда не сделает' || lowerKey === 'не возбуждает') rowClass += ' nsfw';
 
     let icon = '';
     if (lowerKey === 'возраст') icon = '⏳ '; else if (lowerKey === 'одежда') icon = '👕 ';
@@ -82,7 +99,9 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
     else if (lowerKey === 'конфликт') icon = '⚔️ '; else if (lowerKey === 'последний секс') icon = '🛏️ ';
     else if (lowerKey === 'количество партнеров') icon = '👥 '; else if (lowerKey === 'регулярность секса') icon = '📈 ';
     else if (lowerKey === 'отзыв о сексе') icon = '📝 '; else if (lowerKey.includes('детализация nsfw')) icon = '🔥 ';
-    else if (lowerKey === 'nsfw') icon = '🔞 ';
+    else if (lowerKey === 'nsfw') icon = '🔞 '; else if (lowerKey === 'кинк') icon = '🔗 ';
+    else if (lowerKey === 'фетиш') icon = '🎀 '; else if (lowerKey === 'никогда не сделает') icon = '⛔ ';
+    else if (lowerKey === 'не возбуждает') icon = '🧊 ';
 
     let valueClass = TRUNCATE_KEYS.some(k => lowerKey.includes(k)) ? 'hud-value hud-truncate' : 'hud-value';
 
@@ -92,7 +111,14 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
     } else if (lowerKey === 'инвентарь') {
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-inventory-grid">${buildPillList(value, 'hud-inventory-pill')}</div></div>`;
     } else if (lowerKey === 'nsfw' || lowerKey === 'детализация nsfw' || lowerKey === 'последний секс') {
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-nsfw-pill')}</div></div>`;
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-nsfw-pill', true)}</div></div>`;
+    } else if (lowerKey === 'кинк' || lowerKey === 'фетиш' || lowerKey === 'никогда не сделает' || lowerKey === 'не возбуждает') {
+      // Каждый пункт — своя пилюля даже без явного разделителя: это списки,
+      // а не связный текст, склеивать их обратно нельзя.
+      const pillClass = lowerKey === 'кинк' ? 'hud-kink-pill'
+        : lowerKey === 'фетиш' ? 'hud-fetish-pill'
+        : lowerKey === 'никогда не сделает' ? 'hud-nogo-pill' : 'hud-noturn-pill';
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, pillClass, true)}</div></div>`;
     } else if (lowerKey === 'расписание') {
       const items = String(value).split(String(value).includes(';') ? /;/ : /(?:\.\s+(?=[А-ЯA-ZА-ЯЁ])|\n)/)
         .filter(i => i.trim().length > 0).map(i => {

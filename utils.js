@@ -63,6 +63,31 @@ const EXPLICIT_SPLIT_RE = /[;\uFF1B\u061B\n]+/;
 
 const PILL_LABEL_RE = /^([\p{L}\p{M}\p{N}\s/(),.'’\u2019-]{2,80}?)(:|\uFF1A|—|–|\s-)\s*(.*)$/u;
 
+// Ищем зачины «Метка: » и режем строку перед каждым из них. Возвращает
+// null, если меток меньше двух — тогда работает прежняя эвристика по «. ».
+const LABEL_START_RE = /(?:^|[,.;]\s+|\s+[\u2014\u2013]\s+)([\p{L}\p{M}][\p{L}\p{M}\p{N}\s/()'\u2019-]{1,40}?)\s*[:\uFF1A]\s/gu;
+function splitByLabels(text) {
+    const cuts = [];
+    LABEL_START_RE.lastIndex = 0;
+    let m;
+    while ((m = LABEL_START_RE.exec(text)) !== null) {
+        cuts.push(m.index + m[0].indexOf(m[1]));
+        // Следующий поиск начинаем сразу после двоеточия, иначе значение
+        // с собственным двоеточием внутри съело бы соседнюю метку.
+        LABEL_START_RE.lastIndex = m.index + m[0].length;
+    }
+    if (cuts.length < 2) return null;
+    const parts = [];
+    if (cuts[0] > 0) {
+        const head = text.slice(0, cuts[0]).trim();
+        if (head) parts.push(head);
+    }
+    for (let i = 0; i < cuts.length; i++) {
+        parts.push(text.slice(cuts[i], i + 1 < cuts.length ? cuts[i + 1] : undefined));
+    }
+    return parts.map(p => p.replace(/[\s,;.]+$/, '').trim()).filter(Boolean);
+}
+
 export function buildPillList(value, pillClass, forceSeparate = false) {
     const raw = String(value);
     // Явный разделитель — воля автора: каждый кусок становится отдельной
@@ -72,14 +97,22 @@ export function buildPillList(value, pillClass, forceSeparate = false) {
     // Разбиение по «. » — эвристика для сплошного текста, и только там
     // куски можно склеивать обратно в одно предложение.
     const explicit = EXPLICIT_SPLIT_RE.test(raw);
-    const rawChunks = (explicit ? raw.split(EXPLICIT_SPLIT_RE) : raw.split('. '))
+    // Явного разделителя может не быть: модель перечисляет пункты через
+    // запятую («Sensitivity: 8, Readiness: high, ...»), и вся строка
+    // склеивалась в одну длинную пилюлю — так вело себя поле
+    // «Детализация NSFW». Если «;» нет, но в тексте два и больше зачинов
+    // вида «Метка: », режем прямо перед метками. Куски при этом уже
+    // разделены автором по смыслу, поэтому склеивать их обратно нельзя.
+    const byLabel = explicit ? null : splitByLabels(raw);
+    const separated = explicit || !!byLabel;
+    const rawChunks = (explicit ? raw.split(EXPLICIT_SPLIT_RE) : (byLabel || raw.split('. ')))
         .map(i => i.trim()).filter(i => i);
 
     const items = [];
     for (const chunk of rawChunks) {
         const match = chunk.match(PILL_LABEL_RE);
         if (match) { items.push({ label: match[1].trim(), sep: match[2], text: match[3] }); }
-        else if (items.length > 0 && !forceSeparate && !explicit) {
+        else if (items.length > 0 && !forceSeparate && !separated) {
             // Продолжение предыдущего предложения — дописываем в ту же пилюлю.
             items[items.length - 1].text += '. ' + chunk;
         }
@@ -130,6 +163,10 @@ export function mapKey(k) {
     'nsfw det':'Детализация NSFW','nsfw_det':'Детализация NSFW','детализация nsfw':'Детализация NSFW','nsfw details':'Детализация NSFW',
     'sexrev':'Отзыв о сексе','отзыв о сексе':'Отзыв о сексе','sex review':'Отзыв о сексе',
     'w':'NSFW','nsfw':'NSFW',
+    'kink':'Кинк','кинк':'Кинк','kinks':'Кинк','кинки':'Кинк',
+    'fet':'Фетиш','фетиш':'Фетиш','fetish':'Фетиш','fetishes':'Фетиш','фетиши':'Фетиш',
+    'nogo':'Никогда не сделает','никогда не сделает':'Никогда не сделает','no go':'Никогда не сделает','hard limits':'Никогда не сделает','limits':'Никогда не сделает','hardlimits':'Никогда не сделает',
+    'noturn':'Не возбуждает','не возбуждает':'Не возбуждает','turn offs':'Не возбуждает','turnoffs':'Не возбуждает','turn off':'Не возбуждает','antikinks':'Не возбуждает','anti kinks':'Не возбуждает',
     'dr':'Сновидение','сновидение':'Сновидение','dream':'Сновидение','dreams':'Сновидение',
     'uw':'NSFW (Юзер)','nsfw (юзер)':'NSFW (Юзер)','nsfw (user)':'NSFW (Юзер)','user nsfw':'NSFW (Юзер)'
   };

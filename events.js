@@ -11,14 +11,24 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache } from './avatars.js?v=22.7.4';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.7.4';
+import { invalidateAvatarCache } from './avatars.js?v=22.19.1';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.19.1';
+import { getTheme, HUD_THEMES } from './themes.js?v=22.19.1';
+import { settings, defaultSettings } from './settings.js?v=22.19.1';
+import { getWorldVotes } from './render/world.js?v=22.19.1';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
 
 export function initGlobalEvents(ctx) {
-  const { settings, saveSettings, applyThemeColors, showHudToast, getWorldVotes } = ctx;
+  // settings и getWorldVotes раньше брались из ctx, но index.js их туда не
+  // клал: обе ссылки молча оставались undefined. Внутри обработчика клика
+  // (он async) исключение превращалось в проглоченный отказ промиса — ни
+  // ошибки в консоли, ни реакции на нажатие. Из-за этого не работали разом
+  // выбор темы, ВСЕ ползунки кастомизации, загрузка фона и голосование за
+  // новости. settings по своей природе общий живой объект (см. settings.js),
+  // а getWorldVotes живёт в домене «Мир» — берём их импортом, а не через ctx.
+  const { saveSettings, applyThemeColors, showHudToast } = ctx;
   if (window.hudEventsInitialized) return;
   window.hudEventsInitialized = true;
 
@@ -81,6 +91,45 @@ export function initGlobalEvents(ctx) {
       const card = themeBtn.closest('.hud-os-card');
       const panel = card.querySelector('.hud-theme-panel');
       if (panel) panel.classList.toggle('active');
+      return;
+    }
+
+    // Готовая тема оформления. Тема не отдельный режим, а пресет: она
+    // раскладывает значения по обычным настройкам, поэтому после неё любой
+    // ползунок остаётся рабочим. Панель целиком не перерисовываем —
+    // обновляем поля на месте, иначе открытые вкладки схлопнулись бы.
+    const presetBtn = e.target.closest('.hud-theme-preset');
+    if (presetBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const theme = getTheme(presetBtn.dataset.themePreset || '');
+      // Сначала возвращаем заводские значения всех ключей, которые вообще
+      // трогают темы: иначе прошлая тема оставила бы после себя хвосты —
+      // например, шрифт от «Киберпанка» в «Средневековье».
+      const touched = new Set();
+      HUD_THEMES.forEach(t => Object.keys(t.vars).forEach(k => touched.add(k)));
+      touched.forEach(k => { if (defaultSettings[k] !== undefined) settings[k] = defaultSettings[k]; });
+      if (theme) Object.assign(settings, theme.vars);
+      settings.themePreset = theme ? theme.id : '';
+      saveSettings();
+      applyThemeColors();
+
+      // Подтягиваем видимые поля во всех открытых панелях под новые значения.
+      document.querySelectorAll('.hud-theme-color-input, .hud-theme-range-input, .hud-theme-select-input').forEach(inp => {
+        const k = inp.dataset.key;
+        if (!k || settings[k] === undefined) return;
+        inp.value = settings[k];
+        const label = inp.nextElementSibling;
+        if (label && label.tagName === 'SPAN') {
+          label.textContent = /Alpha$|Opacity$|Scale$|OffsetY$/.test(k) ? settings[k] + '%'
+            : /Blur$|Radius$|Size$/.test(k) ? settings[k] + 'px' : settings[k];
+        }
+      });
+      document.querySelectorAll('.hud-theme-preset').forEach(b => {
+        b.classList.toggle('active', (b.dataset.themePreset || '') === settings.themePreset);
+      });
+      showHudToast('success', theme ? theme.label : 'Стандартная тема',
+        theme ? theme.hint : 'Цвета вернулись к исходным.');
       return;
     }
 
@@ -250,14 +299,19 @@ export function initGlobalEvents(ctx) {
     // Строка списка чатов и карточка уведомления открывают конкретную
     // переписку: id её тела совпадает с data-chat-target. Уведомление лежит
     // на домашнем экране, поэтому сначала поднимаем само приложение.
-    const chatRow = e.target.closest('.hud-phone-chat-row, .hud-phone-notif');
+    const chatRow = e.target.closest('.hud-phone-chat-row, .hud-phone-notif, .hud-phone-lock-notice');
     if (chatRow && chatRow.dataset.chatTarget) {
       e.preventDefault();
       const emulator = chatRow.closest('.hud-phone-emulator');
       const stack = chatRow.closest('.hud-phone-notif-stack');
+      // Уведомление с экрана блокировки: сначала снимаем замок, потом
+      // открываем переписку — как на настоящем телефоне. Своей стопки у
+      // него нет, поэтому приложение известно заранее: «Сообщения».
+      const fromLock = chatRow.classList.contains('hud-phone-lock-notice');
+      if (fromLock && emulator) emulator.classList.add('unlocked');
       let view = chatRow.closest('.hud-phone-app-view');
-      if (emulator && stack) {
-        const appId = stack.dataset.phoneApp;
+      if (emulator && (stack || fromLock)) {
+        const appId = stack ? stack.dataset.phoneApp : 'messages';
         emulator.querySelectorAll('.hud-phone-app-view').forEach(v => {
           v.classList.toggle('active', v.dataset.phoneView === appId);
         });
@@ -412,7 +466,7 @@ export function initGlobalEvents(ctx) {
       return;
     }
 
-    const fxHost = e.target.closest('.hud-ad-card, .hud-breaking-news, .hud-dream-moon, .hud-route-map, .hud-phone-mockup.intercept-mode');
+    const fxHost = e.target.closest('.hud-ad-card, .hud-breaking-news, .hud-dream-moon, .hud-route-map, .hud-phone-mockup.intercept-mode, .hud-diary-entry, .hud-world-section-forecast, .hud-world-section-horo');
     if (fxHost) {
       fxHost.classList.toggle('fx-active');
       return;
@@ -426,6 +480,57 @@ export function initGlobalEvents(ctx) {
   }, true); 
 
   // ОБРАБОТЧИК ПОЛЗУНКОВ ЦВЕТА И ТЕМЫ
+  // --- Экран блокировки: разблокировка свайпом вверх --------------------
+  // Жест ведут пальцем, поэтому слушаем pointer-события. Простой тап
+  // телефон не открывает: иначе замок не имел бы смысла. Тап по карточке
+  // уведомления разблокирует и открывает чат — это делает click-хендлер.
+  const LOCK_UNLOCK_PX = 64;  // сколько нужно протянуть
+  const LOCK_SLOP_PX = 8;     // до этого движение считается тапом
+  document.addEventListener('pointerdown', function (e) {
+    const lock = e.target.closest('.hud-phone-lockscreen');
+    if (!lock || lock.dataset.dragging === '1') return;
+    const emulator = lock.closest('.hud-phone-emulator');
+    if (!emulator || emulator.classList.contains('unlocked')) return;
+    const startY = e.clientY, startedAt = Date.now();
+    let dy = 0;
+    lock.dataset.dragging = '1';
+    try { lock.setPointerCapture(e.pointerId); } catch (err) {}
+
+    const onMove = (ev) => {
+      dy = startY - ev.clientY;
+      if (dy <= LOCK_SLOP_PX) return;
+      lock.classList.add('is-dragging');
+      // Тянем экран за пальцем, но не дальше его собственной высоты.
+      lock.style.setProperty('--lock-drag', Math.min(dy, lock.offsetHeight) + 'px');
+    };
+    const finish = () => {
+      lock.removeEventListener('pointermove', onMove);
+      lock.removeEventListener('pointerup', finish);
+      lock.removeEventListener('pointercancel', finish);
+      delete lock.dataset.dragging;
+      try { lock.releasePointerCapture(e.pointerId); } catch (err) {}
+      lock.classList.remove('is-dragging');
+      lock.style.removeProperty('--lock-drag');
+      // Либо протянули далеко, либо коротко и резко смахнули.
+      const flick = (Date.now() - startedAt) < 260 && dy > 24;
+      if (dy > LOCK_UNLOCK_PX || flick) emulator.classList.add('unlocked');
+    };
+    lock.addEventListener('pointermove', onMove);
+    lock.addEventListener('pointerup', finish);
+    lock.addEventListener('pointercancel', finish);
+  });
+
+  // Клавиатура: Enter или пробел на экране блокировки снимают замок.
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+    const lock = e.target.closest && e.target.closest('.hud-phone-lockscreen');
+    if (!lock || e.target.closest('.hud-phone-lock-notice')) return;
+    const emulator = lock.closest('.hud-phone-emulator');
+    if (!emulator) return;
+    e.preventDefault();
+    emulator.classList.add('unlocked');
+  });
+
   document.body.addEventListener('input', function(e) {
     const themeInput = e.target.closest('.hud-theme-color-input, .hud-theme-range-input, .hud-theme-select-input, .hud-theme-text-input');
     if (themeInput) {
