@@ -22,7 +22,7 @@ export function normalizeNameText(name) {
     .replace(/ё/g, 'е');
 }
 
-export function transliterateCyrillic(name) {
+function transliterateCyrillic(name) {
   const src = normalizeNameText(name);
   const table = {
     'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ж':'zh','з':'z','и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'shch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya'
@@ -70,12 +70,12 @@ export function namePhoneticLatin(name) {
   return s;
 }
 
-export function nameConsonantSignature(name) {
+function nameConsonantSignature(name) {
   const s = namePhoneticLatin(name);
   return s.replace(/[aeiouy]+/g, '');
 }
 
-export function nameVariants(name) {
+function nameVariants(name) {
   const raw = normalizeNameText(name);
   if (!raw) return new Set();
   const translit = nameLettersOnly(raw);
@@ -87,7 +87,7 @@ export function nameVariants(name) {
   return new Set([raw.replace(/[^a-zа-я0-9]+/gi, ''), translit, phonetic, consonants, squashed, tokenTranslit].filter(Boolean));
 }
 
-export function levenshtein(a, b) {
+function levenshtein(a, b) {
   if (a === b) return 0;
   if (!a) return b.length;
   if (!b) return a.length;

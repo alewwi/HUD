@@ -12,6 +12,11 @@ export const defaultSettings = {
   // Выбранная готовая тема оформления (см. themes.js). Пустая строка —
   // ручные настройки пользователя, ни одна тема не выбрана.
   themePreset: '',
+  // Правки поверх готовой темы, отдельно на каждую: id темы → изменённые
+  // поля. Так «Каваи» помнит свою подстройку, а «Vamp» — свою.
+  themeEdits: {},
+  // Тема, собранная пользователем целиком: { label, icon, vars }.
+  customTheme: null,
   autoInject: true,
   useCards: true,
   showComments: true,
@@ -46,6 +51,14 @@ export const defaultSettings = {
   bgOffsetY: 50,
   bgOpacity: 80,
 
+  // Цвет текста. Пустая строка — брать из темы SillyTavern, как было
+  // всегда. Раньше настройки для него не существовало вовсе, и светлым
+  // темам приходилось прописывать чернила прямо в CSS.
+  textColor: '', textMutedColor: '',
+
+  // Тип стекла карточек: frosted | clear | tinted | liquid | iridescent.
+  glassType: 'frosted',
+
   // --- ЦВЕТА И ПРОЗРАЧНОСТЬ ---
   accentColor: '#de859f',
   glowColor: '#8c5ad2', glowAlpha: 40,
@@ -59,6 +72,10 @@ export const defaultSettings = {
   tabsBg: '#000000', tabsAlpha: 15,
 
   sceneOverlayColor: '#000000', sceneOverlayAlpha: 0,
+  // Сила ночного затемнения сцены в процентах. 100 — как было заложено,
+  // 0 — сцена вообще не притемняется. По умолчанию 80: три слоя затемнения
+  // перемножаются, и полная сила съедала пейзаж.
+  sceneDarkness: 55,
   sceneTextColor: '#ffffff',
   // --- НАСТРОЙКИ ТЕЛЕФОНА (сохранены для темы/будущего эмулятора; сам эмулятор отключён) ---
   msgInBg: '#ffffff', msgInAlpha: 15,
@@ -101,7 +118,7 @@ export const defaultSettings = {
 // Свежая копия дефолтов. Копия, а не сам объект: loadSettings() мутирует
 // результат через Object.assign, а hudLorebooks — массив, который иначе
 // оказался бы общим с defaultSettings.
-export function createDefaultSettings() {
+function createDefaultSettings() {
   return structuredClone(defaultSettings);
 }
 

@@ -7,9 +7,9 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=22.19.1';
-import { getSafeUserName, mapKey } from './utils.js?v=22.19.1';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=22.19.1';
+import { settings } from './settings.js?v=22.51.0';
+import { getSafeUserName, mapKey } from './utils.js?v=22.51.0';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=22.51.0';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -19,7 +19,7 @@ const HUD_SCENE_DEFAULTS = { T:'empty', Wth:'empty', Dt:'empty', Atm:'empty', Md
 const HUD_MEMORY_DEFAULTS = { timeline:[], mood:{ user:{current:'empty',history:[]}, char:{current:'empty',history:[]} }, route:{user:[],char:[]}, important:[], secrets:[] };
 const HUD_WORLD_DEFAULTS = { headlines:[], rumors:[], forecast:[], horoscope:[], prediction:[], ads:[], comments:[] };
 const cloneSchemaDefault = v => Array.isArray(v) ? [] : (v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k,x]) => [k,cloneSchemaDefault(x)])) : v);
-export function fillMissingObjectFields(obj, defaults) {
+function fillMissingObjectFields(obj, defaults) {
   // Canonicalize aliases BEFORE applying defaults. Otherwise a model that emits
   // display-language keys (e.g. "Время") gets a second alias key (e.g. "T")
   // added by the defaults, and the later key-mapping pass can overwrite the
@@ -43,7 +43,7 @@ export function fillMissingObjectFields(obj, defaults) {
   }
   return out;
 }
-export function fillMemoryFields(obj, defaults) {
+function fillMemoryFields(obj, defaults) {
   const out = {};
   if (obj && typeof obj === 'object' && !Array.isArray(obj)) {
     for (const [key, value] of Object.entries(obj)) {
@@ -63,7 +63,7 @@ export function fillMemoryFields(obj, defaults) {
   return out;
 }
 
-export function fillMoodActorFields(obj, defaults) {
+function fillMoodActorFields(obj, defaults) {
   const out = {};
   if (typeof obj === 'string') {
     out.current = obj;
@@ -83,7 +83,7 @@ export function fillMoodActorFields(obj, defaults) {
   return out;
 }
 
-export function normalizeHUDSchema(parsed) {
+function normalizeHUDSchema(parsed) {
   const root = (parsed && typeof parsed === 'object') ? parsed : {};
   root.scene = fillMissingObjectFields(root.scene, HUD_SCENE_DEFAULTS);
   root.characters = Array.isArray(root.characters) ? root.characters.map(c => fillMissingObjectFields(c, HUD_CHARACTER_DEFAULTS)) : [];

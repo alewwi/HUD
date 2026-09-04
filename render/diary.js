@@ -6,7 +6,7 @@
 // index.js импортирует отсюда только buildDiaryHTML и hudHasMeaningfulDiary —
 // остальное экспортируется для тестов и внутренних нужд домена.
 
-import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=22.19.1';
+import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=22.51.0';
 
 // Дневник: словарь эмоциональных синонимов. Раньше всё сводилось к
 // четырём темам (sad / angry / panic / neutral) — «скука», «презрение»,
@@ -19,7 +19,7 @@ import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=22.19.1';
 // выше широких («злость», «грусть»), иначе широкая перехватит их первой.
 // Поэтому «стыд» живёт в shame, а не в guilt, «отвращение» — в disgust,
 // а не в contempt: слово должно быть ровно в одном списке.
-export function normalizeDiaryMood(value) {
+function normalizeDiaryMood(value) {
   const raw = String(value ?? '')
     .toLowerCase()
     .replace(/[ё]/g, 'е')
@@ -142,11 +142,11 @@ export function normalizeDiaryMood(value) {
   return 'neutral';
 }
 
-export function renderDiaryText(value) {
+function renderDiaryText(value) {
   return escapeHtml(String(value ?? '')).replace(/~~(.*?)~~/g, '<s>$1</s>');
 }
 
-export function getDiaryStickerText(author) {
+function getDiaryStickerText(author) {
   const safe = String(author ?? '').trim();
   if (!safe || safe === 'empty' || safe === 'none') return 'N';
   const parts = safe.split(/\s+/).filter(Boolean);
@@ -159,7 +159,7 @@ export function getDiaryStickerText(author) {
 // записей, поэтому все листы были одинаковыми. Теперь складка, кольцо от
 // чашки и наклон завитка считаются от того же seed, что и кляксы: лист
 // каждой записи свой, но при перерисовке не прыгает.
-export function buildDiaryPaper(seed) {
+function buildDiaryPaper(seed) {
   const n = Array.from(String(seed || '')).reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
   const creaseTop = 30 + (n % 34);
   const hasRing = (n % 3) !== 0;
@@ -176,7 +176,7 @@ export function buildDiaryPaper(seed) {
     + '<span class="hud-diary-curl"></span>';
 }
 
-export function buildDiaryStains(seed) {
+function buildDiaryStains(seed) {
   const stableSeed = Array.from(String(seed || '')).reduce((acc, ch) => acc + ch.charCodeAt(0), 0);
   return Array.from({ length: 3 }, (_, i) => {
     const left = 6 + ((stableSeed + i * 23) % 76);

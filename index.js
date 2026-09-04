@@ -1,20 +1,20 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.19.1';
-import { escapeHtml, getSafeUserName } from './utils.js?v=22.19.1';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.19.1';
-import { initGlobalEvents, initObserver, initTavernOSEvents } from './events.js?v=22.19.1';
-import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.19.1';
-import { buildDiaryHTML, hudHasMeaningfulDiary } from './render/diary.js?v=22.19.1';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.19.1';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.19.1';
-import { buildMemoryHTML } from './render/memory.js?v=22.19.1';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.19.1';
-import { hudHasRelations } from './render/relations-graph.js?v=22.19.1';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.19.1';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.19.1';
-import { HUD_THEMES, applyThemeClass } from './themes.js?v=22.19.1';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.19.1';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.51.0';
+import { escapeHtml, getSafeUserName } from './utils.js?v=22.51.0';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.51.0';
+import { initGlobalEvents, initObserver, initTavernOSEvents } from './events.js?v=22.51.0';
+import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.51.0';
+import { buildDiaryHTML, hudHasMeaningfulDiary } from './render/diary.js?v=22.51.0';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.51.0';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.51.0';
+import { buildMemoryHTML } from './render/memory.js?v=22.51.0';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.51.0';
+import { hudHasRelations } from './render/relations-graph.js?v=22.51.0';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.51.0';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.51.0';
+import { applyThemeClass, presetRowHTML } from './themes.js?v=22.51.0';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.51.0';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -23,6 +23,23 @@ import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.19.
 
 
   let lastSceneWeather = '';
+  // Сообщение, для которого сейчас собирается HUD. Нужно, чтобы дотянуться
+  // до предыдущего и узнать, какая там была погода.
+  let renderTargetMes = null;
+
+  // Погода ближайшего сообщения выше по чату, у которого она записана.
+  function previousMessageWeather() {
+    let el = renderTargetMes && renderTargetMes.previousElementSibling;
+    while (el) {
+      if (el.classList && el.classList.contains('mes') && el.dataset.hudWeather) return el.dataset.hudWeather;
+      el = el.previousElementSibling;
+    }
+    // Мы внутри сообщения, а выше по чату дождя никто не записал — значит его
+    // и не было. Глобальный lastSceneWeather здесь брать нельзя: он хранит
+    // погоду последней отрисовки в любом месте чата, и от него лужа
+    // «прилипала» к сухим ходам навсегда.
+    return renderTargetMes ? '' : lastSceneWeather;
+  }
   let cachedChatContainer = null;
 
   // Типы генераций SillyTavern, для которых HUD-инструкции инжектить НЕЛЬЗЯ:
@@ -83,6 +100,7 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
 - 🛑 NSFW LIFECYCLE: Fields "W", "NSFW_Det", "SexRev", and user's "UW" MUST ONLY be active during intimacy, sex, or high arousal. Once the scene cools down, clear them by writing "empty". Do NOT leave old NSFW details active. EXCEPTION — "Kink", "Fet", "NoGo" and "NoTurn" are STABLE character traits, not scene state: once known they stay filled every turn and are NEVER cleared when the scene cools down.
 - 🔗 KINK vs FETISH (never mix them): a KINK is a broad practice, scenario or dynamic — roleplay ("teacher and student", "doctor and patient"), BDSM (dominance/submission, bondage), toys, sensory play (temperature, tickling), power exchange. A FETISH is narrower: a specific object, material, body part or setting that is not erotic in itself but is required for arousal or strongly amplifies it — stockings, shoes, latex, leather, silk, feet, hair, neck, medical procedures. Rule of thumb: an ACTIVITY goes to "Kink", a THING (object, material, body part, setting) goes to "Fet". Consent and safety are assumed for everything listed in "Kink" and "Fet"; anything the character refuses belongs to "NoGo", anything that simply leaves them cold belongs to "NoTurn".
 - 🌦️ FORECAST & HOROSCOPE: "world.forecast" is a plain daily weather forecast for the settlement the scene is in, four rows — morning, day, evening, night — each formatted "Период | Погода | Температура | Короткая заметка". The weather field MUST contain one plain weather word so the interface can pick its icon: ясно, солнечно, облачно, пасмурно, дождь, ливень, морось, гроза, снег, метель, туман, ветрено. Keep it consistent with "scene.Погода" for the current part of the day, and let it drift naturally across the rest. "world.horoscope" is a full daily horoscope: ONE row for EVERY ONE of the 12 zodiac signs, formatted "Знак | что ждёт этот знак сегодня | тон", where тон is удача, неудача or ровно. Say plainly who gets lucky today, who runs into trouble and who had better stay home. "world.prediction" is one or two lines of general fortune closing the block. This whole block is light entertainment in the spirit of a newspaper back page — playful, superstitious, occasionally absurd. It is NEVER a directive: it MUST NOT command {{user}} or {{char}}, MUST NOT decide plot events, and nothing in the story is obliged to come true because the horoscope said so.
+- 👁️ HIDDEN SUBTEXT ("D"): NOT a second thoughts field and NOT a summary of feelings. It is a concrete ACTION the character performs RIGHT NOW, alongside whatever the scene openly shows, that gives away something they are not saying. It does NOT have to contradict them — it only has to be unspoken. It may be deliberate and hidden from the people present, an involuntary tell the character does not control, an ordinary gesture whose real reason they would deny even to themselves, or behaviour that quietly undercuts what they just claimed — any of these, whichever the moment actually supports. Draw it from THIS scene: the act must fit where the character is, what is within reach and what they are doing this turn. Write the visible act and what it gives away in one line, so the reading follows from the behaviour and not from a named emotion. Do NOT manufacture a hidden layer where there is none: if the character is doing exactly what they appear to be doing, use "empty".
 - 📖 DIARY: The diary is PRIVATE IN-WORLD WRITING, not a scene summary or an AI report. Every entry MUST name its "author" — ALWAYS a character or NPC, NEVER {{user}} — and be written by that author in first person, containing only what they personally experienced, know, believe, remember, suspect or misunderstand. "text" is the author's own diary: their day, condition, emotions, inner conflict, decisions, memories, regrets, hopes, plans and self-talk — not a report about {{user}}. Every entry MUST also carry "aboutUser": a separate private first-person subsection where the SAME author says what they personally think and feel about {{user}} — attraction, anger, tenderness, resentment, fear, curiosity, observations, memories, wishes, doubts, unresolved questions. It is not omniscient analysis and not a second narrator; keep it apart from the general self-reflection and use "empty" if there is nothing meaningful this turn. Every entry SHOULD also carry a short "mood" (or "emotion") naming the writer's dominant tone — sadness, tears, anger, stress, panic, rush, relief, guilt, joy, calm, longing. It drives visual styling only, so keep it to one word or a short phrase.
 - ⚠️ FORMATTING: Use EXACTLY these short English keys. ESCAPE inner quotes like this: "He said \\"Hello\\".". ALWAYS use semicolons (;) for lists, NEVER slashes (/).
 - 🏷️ LABELED SUB-FIELDS (for "SexLast", "W", "Kink", "Fet", "NoGo", "NoTurn" and "NSFW_Det"): every item inside these fields MUST be written as "Label: value", NOT as a bare value, and items MUST be separated by a semicolon — NOT by a comma. A comma-separated list renders as one long unreadable pill instead of separate ones. Never output just the answer alone — always prefix it with its label and a colon. Example for "W": "Penis state: hard, throbbing; Volume: loud, breathy moans and sharp slapping sounds; Smell: sweat and arousal; Traces: precum on the sheets; Arousal level: 9/10; Partner: Anna; Protection: none".
@@ -111,7 +129,7 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
    "Th": "[Immediate thought. UPDATE REAL-TIME!]",
    "K": "[Brief contextual thoughts. Use ANY fitting emojis. MINIMUM 3-5 ENTRIES. Separate by ; UPDATE REAL-TIME!]",
    "Exp": "[Expectation vs Reality: What NPC expects to happen next vs what will actually happen. UPDATE REAL-TIME!]",
-   "D": "[Hidden subtext/actions revealing true emotions. UPDATE REAL-TIME!]",
+   "D": "[A concealed, unconscious or unspoken action the character performs right now, and what it gives away. UPDATE REAL-TIME!]",
    "I": "[Inventory items. Format EXACTLY as 'Item: condition'. Separate by ;]",
    "G": "[Goals in 3 strict categories: 1. Right now, 2. Near future, 3. Long-term. Format exactly as: 'Сейчас: [goal]; Скоро: [goal]; Будущее: [goal]'. UPDATE REAL-TIME!]",
    "S": "[Upcoming schedule. MUST include time (exact like '14:30' or approx like 'Вечер') for EACH item! Format: 'Time - Event'; Separate by ; UPDATE REAL-TIME!]",
@@ -446,6 +464,17 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
 
  function applyThemeColors() {
     const root = document.documentElement;
+    // Цвет текста: пустое значение снимает переопределение, и HUD снова
+    // наследует цвет темы SillyTavern.
+    if (settings.textColor) root.style.setProperty('--hud-text', settings.textColor);
+    else root.style.removeProperty('--hud-text');
+    if (settings.textMutedColor) root.style.setProperty('--hud-text-muted', settings.textMutedColor);
+    else root.style.removeProperty('--hud-text-muted');
+
+    // Тип стекла живёт классом на <html>, как и тема.
+    ['frosted','clear','tinted','liquid','iridescent'].forEach(g => root.classList.remove('hud-glass-' + g));
+    root.classList.add('hud-glass-' + (settings.glassType || 'frosted'));
+
     // Класс темы — источник украшений и цвета текста для светлых тем.
     // Ставим его первым: остальные переменные пишутся инлайново в style
     // элемента <html> и всё равно окажутся сильнее.
@@ -480,6 +509,10 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
     // Новые настройки погоды
     if (settings.weatherBgColor) root.style.setProperty('--hud-weather-bg', hexToRgba(settings.weatherBgColor, settings.weatherBgAlpha !== undefined ? settings.weatherBgAlpha : 40));
     if (settings.weatherBlur !== undefined) root.style.setProperty('--hud-weather-blur', settings.weatherBlur + 'px');
+    // Множитель для всех слоёв ночного затемнения сцены.
+    if (settings.sceneDarkness !== undefined) {
+      root.style.setProperty('--scene-dark-k', (Number(settings.sceneDarkness) / 100).toFixed(2));
+    }
 
     if (settings.nsfwColor) {
         root.style.setProperty('--hud-nsfw-border', settings.nsfwColor);
@@ -1006,8 +1039,16 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
     else if (dLow.match(/осен|сентябр|октябр|ноябр|sep|oct|nov|\.09\.|\.10\.|\.11\./)) seasonClass = 'season-autumn';
 
     let dustyClass = (tempClass === 'temp-hot' && seasonClass === 'season-summer' && (wClass === 'weather-clear' || wClass === 'weather-wind')) ? 'weather-dusty' : '';
-    let rainbowClass = (wClass === 'weather-clear' && (lastSceneWeather === 'weather-rain' || lastSceneWeather === 'weather-storm')) ? 'weather-rainbow' : '';
-    if (wRaw) lastSceneWeather = wClass;
+    const prevWeather = previousMessageWeather();
+    let rainbowClass = (wClass === 'weather-clear' && (prevWeather === 'weather-rain' || prevWeather === 'weather-storm')) ? 'weather-rainbow' : '';
+    // Мокрая земля: дождь идёт сейчас либо шёл в прошлом сообщении. Лужа
+    // держится ровно один ход и высыхает — отсюда и «после дождя».
+    const isWet = (w) => w === 'weather-rain' || w === 'weather-storm';
+    const wetClass = (isWet(wClass) || isWet(prevWeather)) ? 'scene-wet' : '';
+    if (wRaw) {
+      lastSceneWeather = wClass;
+      if (renderTargetMes) renderTargetMes.dataset.hudWeather = wClass;
+    }
 
     let dewActive = phaseClass === 'phase-morning' && (wClass === 'weather-clear' || wClass === 'weather-cloudy') && (seasonClass === 'season-spring' || seasonClass === 'season-summer');
 
@@ -1063,11 +1104,56 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
       <div class="hud-theme-panel" id="theme-panel-${baseId}">
         <div class="hud-theme-presets">
           <div class="hud-theme-presets-title">Готовые темы</div>
-          <div class="hud-theme-presets-row">
-            ${HUD_THEMES.map(t => `<button type="button" class="hud-theme-preset${settings.themePreset === t.id ? ' active' : ''}" data-theme-preset="${t.id}" title="${escapeHtml(t.hint)}"><span>${t.icon}</span><small>${escapeHtml(t.label)}</small></button>`).join('')}
-            <button type="button" class="hud-theme-preset reset${settings.themePreset ? '' : ' active'}" data-theme-preset="" title="Вернуть стандартные цвета TavernOS"><span>↺</span><small>Сброс</small></button>
-          </div>
+          <div class="hud-theme-presets-row">${presetRowHTML(settings.themePreset)}</div>
           <div class="hud-theme-presets-note">Тема просто выставляет ползунки ниже — после неё всё можно править руками.</div>
+          <div class="hud-theme-acts">
+            <button type="button" class="hud-theme-act" data-theme-act="save" title="Запомнить текущие ползунки для выбранной темы">💾 Запомнить правки</button>
+            <button type="button" class="hud-theme-act" data-theme-act="revert" title="Вернуть теме её исходные значения">↺ Вернуть тему</button>
+            <button type="button" class="hud-theme-act own" data-theme-act="mine" title="Сохранить текущие настройки отдельной темой «Своя»">★ Сохранить свою тему</button>
+            ${settings.customTheme ? '<button type="button" class="hud-theme-act danger" data-theme-act="forget" title="Удалить сохранённую свою тему">✕ Удалить свою</button>' : ''}
+          </div>
+        </div>
+        <div class="hud-theme-system">
+          <div class="hud-theme-presets-title">Система цветов</div>
+          <div class="hud-theme-roles">
+            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="accentColor" value="${settings.accentColor}"><span>Основной</span></label>
+            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="cardBgStart" value="${settings.cardBgStart}"><span>Поверхность</span></label>
+            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="infoBlockBgStart" value="${settings.infoBlockBgStart}"><span>Стекло</span></label>
+            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="textColor" value="${settings.textColor || '#e6e6ee'}"><span>Текст</span></label>
+            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="textMutedColor" value="${settings.textMutedColor || '#9aa0ae'}"><span>Приглушённый</span></label>
+            <button type="button" class="hud-role hud-role-clear" data-theme-act="cleartext" title="Вернуть цвет текста из темы SillyTavern"><span class="hud-role-x">⌫</span><span>Цвет текста<br>по умолчанию</span></button>
+            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="dramaColor" value="${settings.dramaColor}"><span>Тревога</span></label>
+            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="memoryAccent" value="${settings.memoryAccent}"><span>Память</span></label>
+          </div>
+          <div class="hud-theme-row hud-glass-row">
+            <label>Стекло:</label>
+            <select class="hud-theme-select-input" data-key="glassType">
+              <option value="frosted"${settings.glassType === 'frosted' ? ' selected' : ''}>Матовое</option>
+              <option value="clear"${settings.glassType === 'clear' ? ' selected' : ''}>Прозрачное</option>
+              <option value="tinted"${settings.glassType === 'tinted' ? ' selected' : ''}>Тонированное</option>
+              <option value="liquid"${settings.glassType === 'liquid' ? ' selected' : ''}>Жидкое</option>
+              <option value="iridescent"${settings.glassType === 'iridescent' ? ' selected' : ''}>Перламутр</option>
+            </select>
+          </div>
+          <div class="hud-theme-presets-title" style="margin-top:10px">Живой просмотр</div>
+          <div class="hud-theme-preview">
+            <div class="hud-os-card">
+              <div class="hud-os-topbar"><div class="hud-os-topbar-left"><span class="hud-os-logo">TavernOS</span></div></div>
+              <div class="hud-os-wrapper">
+                <div class="hud-tab-content active">
+                  <div class="hud-key-block">
+                    <div class="hud-key-label">Настроение</div>
+                    <div class="hud-key-list">
+                      <div class="hud-key-item">Спокойна, но настороже</div>
+                      <div class="hud-key-item">Ждёт ответа</div>
+                    </div>
+                  </div>
+                  <div class="hud-row"><div class="hud-key">Локация</div><div>Старый мост</div></div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="hud-theme-presets-note">Просмотр живой: он собран из тех же блоков, что и настоящий HUD, и меняется вместе с ползунками.</div>
         </div>
         <details><summary>🎨 Общие цвета & Фоны</summary>
           <div class="hud-theme-grid">
@@ -1085,7 +1171,9 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
             <div class="hud-theme-row"><label>Фон (Картинка):</label> 
               <div class="hud-theme-flex">
                 <input type="text" class="hud-theme-text-input" data-key="bgImage" value="${settings.bgImage}" placeholder="URL..." style="width: 80px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 2px 4px; font-size: 0.9em;">
+                <button type="button" class="hud-bg-upload-btn" title="Выбрать картинку из папки">📁</button>
                 <input type="file" class="hud-bg-upload-file" accept="image/*" style="display:none;">
+                <button type="button" class="hud-bg-clear-btn" title="Убрать фоновую картинку">✕</button>
               </div>
             </div>
             <!-- КОНЕЦ НОВОГО БЛОКА -->
@@ -1137,6 +1225,7 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
             <div class="hud-theme-row"><label>Цвет текста:</label> <input type="color" class="hud-theme-color-input" data-key="sceneTextColor" value="${settings.sceneTextColor}"></div>
             <div class="hud-theme-row"><label>Фон плашек:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="weatherBgColor" value="${settings.weatherBgColor}"><input type="range" class="hud-theme-range-input" data-key="weatherBgAlpha" min="0" max="100" value="${settings.weatherBgAlpha}"></div></div>
             <div class="hud-theme-row"><label>Блюр плашек:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="weatherBlur" min="0" max="30" value="${settings.weatherBlur}"> <span style="font-size:0.8em;opacity:0.7">${settings.weatherBlur}px</span></div></div>
+            <div class="hud-theme-row" title="Насколько сильно вечер и ночь притемняют виджет погоды — и в покое, и после касания. 0 — не притемнять вовсе, 100 — исходная сила."><label>Затемнение сцены:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="sceneDarkness" min="0" max="150" value="${settings.sceneDarkness}"> <span style="font-size:0.8em;opacity:0.7">${settings.sceneDarkness}%</span></div></div>
           </div>
         </details>
         <details><summary>📡 Перехваты</summary>
@@ -1207,7 +1296,7 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
       for (let i = 1; i <= 6; i++) fireflies += `<span class="hud-firefly ff${i}"></span>`;
 
       html += `
-      <div class="hud-scene-widget ${phaseClass} ${wClass} ${wIntensity} ${windClass} ${tempClass} ${freezeClass} ${seasonClass} ${dustyClass} ${rainbowClass}"${sceneStyle} title="Нажмите для анимации">
+      <div class="hud-scene-widget ${phaseClass} ${wClass} ${wIntensity} ${windClass} ${tempClass} ${freezeClass} ${seasonClass} ${dustyClass} ${rainbowClass} ${wetClass}"${sceneStyle} title="Нажмите для анимации">
         <div class="hud-fx-bg"></div>
         <div class="hud-fx-stars">${stars}</div>
         <div class="hud-fx-fireflies">${fireflies}</div>
@@ -1261,7 +1350,7 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
     if (hasPhone) {
       const uid = `phone-${baseId}`;
       tabsHtml += `<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📱 Телефон</div>`;
-      contentHtml += buildPhoneTabsHTML(data.chatsMap, uid, isFirst, getSafeUserName(), data.phone, data.scene && data.scene['Дата']);
+      contentHtml += buildPhoneTabsHTML(data.chatsMap, uid, isFirst, getSafeUserName(), data.phone, data.scene && data.scene['Дата'], tRaw);
       isFirst = false;
     }
 
@@ -1466,7 +1555,9 @@ The HUD block MUST contain ONLY a VALID JSON object. It MUST start exactly with 
     if (parsedHudBlocks.length) {
       parsedHudBlocks.sort((a, b) => b.score - a.score || a.index - b.index);
       const selected = parsedHudBlocks[0];
+      renderTargetMes = messageElement;
       rendered = renderHUD(selected.data);
+      renderTargetMes = null;
 
       if (rendered) {
         for (let i = hudBlocks.length - 1; i >= 0; i--) {

@@ -7,8 +7,8 @@
 // settings.showComments напрямую из замыкания index.js. Теперь флаг
 // приходит четвёртым аргументом — модуль не знает про глобальные настройки.
 
-import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=22.19.1';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.19.1';
+import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=22.51.0';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.51.0';
 
 // --- Прогноз погоды -------------------------------------------------------
 // Иконки нарисованы штрихами по currentColor: они должны читаться как в
@@ -37,18 +37,18 @@ const W_RULES = [
 
 // Температура из строки вида «+7°C», «-3°», «9». Нужна не для показа, а
 // чтобы покрасить шкалу под числом: холод синий, тепло янтарное.
-export function parseTempC(raw) {
+function parseTempC(raw) {
   const m = String(raw || '').replace(',', '.').match(/-?\d+(?:\.\d+)?/);
   return m ? parseFloat(m[0]) : null;
 }
 
 // Доля тепла от 0 до 1 в диапазоне -25…+35 °C.
-export function tempWarmth(t) {
+function tempWarmth(t) {
   if (t === null || !isFinite(t)) return null;
   return Math.max(0, Math.min(1, (t + 25) / 60));
 }
 
-export function forecastLook(text) {
+function forecastLook(text) {
   const s = String(text || '');
   for (const [re, icon, label] of W_RULES) if (re.test(s)) return { icon, label };
   return { icon: 'cloudy', label: '' };
@@ -56,7 +56,7 @@ export function forecastLook(text) {
 
 // Строка прогноза: «Период | Погода | Температура | Заметка».
 // Разбор снисходительный: чего нет — того нет, блок всё равно соберётся.
-export function parseForecastRow(raw) {
+function parseForecastRow(raw) {
   const parts = String(raw || '').split('|').map(s => s.trim());
   const period = parts[0] || '';
   const weather = parts[1] || '';
@@ -79,14 +79,14 @@ const ZODIAC = [
   [/козерог|capricorn/i, '♑︎'], [/водоле|aquarius/i, '♒︎'], [/рыб[ыа]|pisces/i, '♓︎'],
 ];
 
-export function zodiacGlyph(sign) {
+function zodiacGlyph(sign) {
   const s = String(sign || '');
   for (const [re, glyph] of ZODIAC) if (re.test(s)) return glyph;
   return '✦';
 }
 
 // Тон дня: третьим полем строки либо по ключевым словам самого текста.
-export function horoscopeTone(toneField, text) {
+function horoscopeTone(toneField, text) {
   const s = (String(toneField || '') + ' ' + String(text || '')).toLowerCase();
   if (/неудач|беда|провал|ссор|опасн|лучше остат|не выход|потер|риск|плохо|bad|unlucky/.test(s)) return 'bad';
   if (/удач|повез|везёт|везет|успех|выигр|подар|встреч|шанс|good|lucky/.test(s)) return 'luck';
@@ -95,9 +95,9 @@ export function horoscopeTone(toneField, text) {
 
 // Подпись тона дня. Появляется на карточке только после касания —
 // до него карточка остаётся спокойной.
-export const TONE_LABEL = { luck: 'Повезёт', bad: 'Поберегитесь', flat: 'Ровный день' };
+const TONE_LABEL = { luck: 'Повезёт', bad: 'Поберегитесь', flat: 'Ровный день' };
 
-export function parseHoroscopeRow(raw) {
+function parseHoroscopeRow(raw) {
   const parts = String(raw || '').split('|').map(s => s.trim());
   const sign = parts[0] || '';
   const text = parts[1] || '';
@@ -120,7 +120,7 @@ export function getWorldVotes(key) {
   return worldVoteState[key];
 }
 
-export function parseWorldComment(raw) {
+function parseWorldComment(raw) {
   const text = String(raw || '').trim();
   const m = text.match(/^([^:]{1,48}):\s*([\s\S]*)$/);
   if (m && m[2].trim()) return { name: m[1].trim(), text: m[2].trim() };

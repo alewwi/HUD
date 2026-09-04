@@ -4,8 +4,8 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey } from '../utils.js?v=22.19.1';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.19.1';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey } from '../utils.js?v=22.51.0';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.51.0';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает'];
 
@@ -25,7 +25,7 @@ const orderFields = (obj) => {
 const DRAMA_KEYS = ['ревность', 'конфликт', 'глубина конфликта'];
 const TRUNCATE_KEYS = ['мысли', 'физиология'];
 
-export function formatKeyValue(text) {
+function formatKeyValue(text) {
   if (typeof Intl === 'undefined' || !Intl.Segmenter) return escapeHtml(text);
   const parts = Array.from(new Intl.Segmenter('en', { granularity: 'grapheme' }).segment(text)).map(seg => ({ type: seg.segment.match(/\p{Emoji}/u) ? 'emoji' : 'text', value: seg.segment }));
   let html = '', currentText = '';

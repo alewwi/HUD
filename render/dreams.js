@@ -3,15 +3,15 @@
 // Домен «Сны»: пузыри, треснувшее стекло и записи сновидений.
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=22.19.1';
+import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=22.51.0';
 
-export function buildDreamBubblesHtml() {
+function buildDreamBubblesHtml() {
   let bubbles = '';
   for (let i = 1; i <= 5; i++) bubbles += `<span class="hud-dream-bubble b${i}"></span>`;
   return `<div class="hud-dream-haze"></div><div class="hud-dream-bubbles">${bubbles}</div>`;
 }
 
-export function buildDreamGlassHtml() {
+function buildDreamGlassHtml() {
   return `<div class="hud-dream-glass" aria-hidden="true">
     <div class="hud-dream-pane"></div>
     <svg class="hud-dream-cracks" viewBox="0 0 100 100" preserveAspectRatio="none">

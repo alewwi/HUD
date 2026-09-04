@@ -231,9 +231,7 @@
     min-width: 280px;
     font-family: inherit;
 }
-.hud-toast.hide {
-    animation: hud-toast-slide-up 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; /* Новая анимация */
-}
+
 .hud-toast.hide {
     animation: hud-toast-slide-out 0.4s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
@@ -259,10 +257,6 @@
     0% { transform: translateY(-120%); opacity: 0; }
     100% { transform: translateY(0); opacity: 1; }
 }
-@keyframes hud-toast-slide-up {
-    0% { transform: translateY(0); opacity: 1; }
-    100% { transform: translateY(-120%); opacity: 0; }
-}
 
 /* =========================================
    ВИДЖЕТ ПОГОДЫ И ВРЕМЕНИ (Ambient Scene)
@@ -283,13 +277,12 @@
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -1px 0 rgba(0,0,0,0.3);
     transition: box-shadow 0.3s ease;
 }
-.hud-scene-widget::before {
-    content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
-    background: linear-gradient(180deg,
-        rgba(8, 12, 22, calc(var(--scene-night-strength) * 0.44)),
-        rgba(12, 18, 32, calc(var(--scene-night-strength) * 0.72)) 100%);
-    opacity: 1;
-}
+/* Здесь было второе объявление .hud-scene-widget::before с ночным
+   градиентом. Ниже по файлу тот же псевдоэлемент переопределяется плоской
+   заливкой «неактивной» сцены, поэтому градиент не рисовался никогда.
+   Удалено, чтобы правки не уходили в пустоту: за затемнение по времени
+   суток отвечает .hud-fx-overlay, за приглушение до касания — правило
+   «ПОГОДА — ПЛАВНОЕ ЗАТЕМНЕНИЕ БЕЗ ВСПЫШКИ». */
 .hud-scene-widget::after {
     content: ''; position: absolute; left: 0; right: 0; bottom: 0; height: 1px; z-index: 5;
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent);
@@ -308,8 +301,13 @@
 .hud-fx-cloud-cover { z-index: var(--scene-layer, 2); }
 
 /* ЗАМОРОЗКА АНИМАЦИЙ ДО КЛИКА/НАВЕДЕНИЯ */
-.hud-fx-weather, .hud-fx-season-scene, .hud-fx-temp, .hud-fx-storm-flash, .hud-fx-cloud-cover,
-.hud-fx-lightning, .hud-fx-rainbow, .hud-fx-frost { opacity: 0.12; transition: opacity 0.8s ease; }
+.hud-fx-weather,
+.hud-fx-temp,
+.hud-fx-storm-flash,
+.hud-fx-cloud-cover,
+.hud-fx-lightning,
+.hud-fx-rainbow,
+.hud-fx-frost { opacity: 0.12; transition: opacity 0.8s ease; }
 .hud-fx-weather, .hud-fx-weather::before, .hud-fx-weather::after { animation-play-state: paused !important; }
 .hud-fx-season-scene, .hud-fx-season-scene * { animation-play-state: paused !important; }
 .hud-fx-temp { animation-play-state: paused !important; }
@@ -321,16 +319,7 @@
 .hud-fx-frost, .hud-fx-frost::before { animation-play-state: paused !important; }
 
 /* АКТИВАЦИЯ (Клик/тап) */
-.hud-scene-widget.fx-active .hud-fx-weather,
-.hud-scene-widget.fx-active .hud-fx-season-scene,
-.hud-scene-widget.fx-active .hud-fx-temp,
-.hud-scene-widget.fx-active .hud-fx-storm-flash,
-.hud-scene-widget.fx-active .hud-fx-cloud-cover,
-.hud-scene-widget.fx-active .hud-fx-lightning,
-.hud-scene-widget.fx-active .hud-fx-rainbow,
-.hud-scene-widget.fx-active .hud-fx-frost {
-    opacity: 0.85;
-}
+
 .hud-scene-widget.fx-active .hud-fx-weather,
 .hud-scene-widget.fx-active .hud-fx-weather::before,
 .hud-scene-widget.fx-active .hud-fx-weather::after,
@@ -398,10 +387,7 @@
     position: absolute; inset: 0; opacity: calc(var(--scene-star-strength, 0) * 0.85); pointer-events: none;
     transition: opacity 1.1s ease;
 }
-.phase-night .hud-fx-stars,
-.phase-deep-night .hud-fx-stars {
-    filter: brightness(1.35) saturate(1.05);
-}
+
 .hud-star2 {
     position: absolute;
     background: radial-gradient(circle, rgba(255,255,255,0.95), rgba(255,255,255,0.4) 70%, transparent);
@@ -427,17 +413,16 @@
 .phase-night   { --sky-top: #080b14; --sky-mid: #131a2b; --sky-bot: #1d2740; --scene-glow: rgba(222, 133, 159, 0.14); --scene-night-strength: 1; --scene-golden-strength: 0; --scene-sunset-strength: 0; --scene-star-strength: 1; --window-glow: 1.3; }
 .phase-deep-night { --sky-top: #03070f; --sky-mid: #0c1220; --sky-bot: #12213b; --scene-glow: rgba(120, 140, 255, 0.08); --scene-night-strength: 1; --scene-golden-strength: 0; --scene-sunset-strength: 0; --scene-star-strength: 1; --window-glow: 0.5; }
 
-.phase-night .hud-fx-bg,
 .phase-deep-night .hud-fx-bg,
 .phase-evening .hud-fx-bg { filter: brightness(0.82) saturate(0.88); transition: filter 1.2s ease; }
 .phase-night .hud-fx-season-scene,
 .phase-deep-night .hud-fx-season-scene,
 .phase-sunset .hud-fx-season-scene { filter: brightness(0.72) saturate(0.78); transition: filter 1.1s ease; }
-.phase-night .hud-fx-stars,
-.phase-deep-night .hud-fx-stars { z-index: 6; filter: brightness(1.35) saturate(1.05); }
+.phase-deep-night .hud-fx-stars { z-index: 0; filter: brightness(1.35) saturate(1.05); }
 
 .hud-fx-celestial {
-    position: absolute; z-index: 1; right: auto;
+    /* z-index задаётся выше через var(--cel-layer, 1) — не дублировать здесь. */
+    position: absolute; right: auto;
     left: var(--cel-x, auto); top: var(--cel-y, 14px);
     width: 54px; height: 54px; margin-left: -27px; margin-top: -27px;
     border-radius: 50%;
@@ -447,12 +432,7 @@
 }
 .hud-fx-celestial:not([style*="--cel-x"]) { left: auto; right: 26px; top: 14px; margin: 0; }
 @keyframes hud-celestial-float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-.phase-night .hud-fx-celestial,
-.phase-deep-night .hud-fx-celestial,
-.phase-evening .hud-fx-celestial {
-    background: radial-gradient(circle at 35% 35%, #fdfdfe 0%, #eef1fb 45%, #cfd7ee 100%);
-    box-shadow: inset -9px -6px 0 0 rgba(20, 25, 45, 0.55), 0 0 20px 4px rgba(210, 220, 255, 0.3);
-}
+
 .phase-golden .hud-fx-celestial,
 .phase-sunset .hud-fx-celestial {
     background: radial-gradient(circle, #fff6d0 0%, #ffbd66 45%, rgba(255,150,70,0) 72%);
@@ -465,14 +445,16 @@
 }
 
 /* 3. ПОГОДНЫЕ ЭФФЕКТЫ */
-.weather-clear .hud-fx-weather { background: radial-gradient(60% 40% at 70% 15%, rgba(255,255,255,0.1), transparent 70%); }
+.weather-clear .hud-fx-weather { background: radial-gradient(60% 40% at var(--cel-x, 70%) var(--cel-y, 15%), rgba(255,255,255,0.1), transparent 70%); }
 .weather-clear .hud-fx-celestial { animation: hud-celestial-float 7s ease-in-out infinite, hud-sun-glare 5s ease-in-out infinite; }
 @keyframes hud-sun-glare {
     0%, 100% { box-shadow: 0 0 30px 6px rgba(255, 190, 90, 0.32); }
     50% { box-shadow: 0 0 46px 14px rgba(255, 220, 140, 0.55), 0 0 70px 26px rgba(255, 240, 180, 0.22); }
 }
 .weather-clear .hud-fx-weather::before {
-    content: ''; position: absolute; top: 8px; right: 20px; width: 70px; height: 70px; z-index: 1;
+    content: ''; position: absolute; z-index: 1;
+    left: var(--cel-x, auto); top: var(--cel-y, 8px); right: auto;
+    width: 70px; height: 70px; margin-left: -35px; margin-top: -35px;
     background: conic-gradient(from 0deg, transparent 0deg, rgba(255,255,220,0.35) 4deg, transparent 8deg,
         transparent 40deg, rgba(255,255,220,0.25) 44deg, transparent 48deg,
         transparent 100deg, rgba(255,255,220,0.3) 104deg, transparent 108deg,
@@ -482,9 +464,13 @@
     mix-blend-mode: screen;
 }
 @keyframes hud-sun-rays-spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+/* Без часов во времени светило стоит в углу — лучи туда же, без сдвига на центр. */
+.hud-scene-widget:not([style*="--cel-x"]).weather-clear .hud-fx-weather::before {
+    left: auto; right: 20px; top: 8px; margin-left: 0; margin-top: 0;
+}
 
 .weather-cloudy .hud-fx-weather { background: linear-gradient(180deg, rgba(190,200,215,0.16) 0%, transparent 60%); }
-.hud-fx-cloud-cover { z-index: 2; opacity: 0.12; }
+.hud-fx-cloud-cover { opacity: 0.12; } /* z-index — через var(--scene-layer, 2) выше */
 .weather-cloudy .hud-fx-cloud-cover {
     background:
         radial-gradient(46% 70% at 30% 55%, rgba(215,220,230,0.85), transparent 72%),
@@ -656,54 +642,9 @@
    слой из трёх одинаковых кружков — он и дёргался. Плотность метели
    теперь задают планы снега, см. «--- СНЕГ ---». */
 
-/* Метель: мягкая густая дымка */
-/* Дымка метели. Раньше это был прогон background-position на 400%
-   ширины за 3 секунды — перерисовка всего слоя каждый кадр и заметное
-   мельтешение. Метели хватает спокойной вуали, которая чуть дышит:
-   меняется только opacity, а её композитор считает даром. */
-.weather-snow.weather-intensity-high .hud-fx-weather::before {
-    content: ''; position: absolute; inset: 0; z-index: 1;
-    background:
-      linear-gradient(107deg, rgba(230,236,248,.05) 0%, rgba(255,255,255,.19) 46%, rgba(230,236,248,.05) 100%),
-      linear-gradient(180deg, rgba(226,238,255,.10) 0%, transparent 62%);
-    animation-name: hud-blizzard-haze;
-    animation-duration: 6.5s;
-    animation-timing-function: ease-in-out;
-    animation-iteration-count: infinite;
-    animation-direction: alternate;
-}
-@keyframes hud-blizzard-haze {
-    from { opacity: .55; }
-    to   { opacity: 1; }
-}
-
-/* Метель: горизонтальные снежные вихри вместо грубых палок */
-/* Косые вихри позёмки. Движение переведено на transform: прежний
-   прогон background-position на 80px за секунду перерисовывал весь слой
-   каждый кадр — отсюда и рывки. Сдвиг равен ровно одной плитке, поэтому
-   петля незаметна; запас по краям закрывает уехавший угол.
-   Обе плитки приведены к одному размеру, иначе одним трансформом их
-   бесшовно не сдвинуть. */
-.weather-snow.weather-intensity-high .hud-fx-weather::after {
-    content: ''; position: absolute; inset: -30%; z-index: 2;
-    background-image:
-        radial-gradient(ellipse 20px 1.5px at 50% 50%, rgba(255,255,255,.62) 0%, transparent 100%),
-        radial-gradient(ellipse 35px 2px  at 50% 50%, rgba(255,255,255,.34) 0%, transparent 100%);
-    background-size: 96px 48px;
-    background-position: 0 0, 48px 26px;
-    transform: rotate(15deg) scale(1.2) translate3d(0, 0, 0);
-    will-change: transform;
-    animation-name: hud-blizzard-drift;
-    animation-duration: 1.15s;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-    -webkit-mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
-            mask-image: linear-gradient(to bottom, transparent 0%, black 15%, black 85%, transparent 100%);
-}
-@keyframes hud-blizzard-drift {
-    from { transform: rotate(15deg) scale(1.2) translate3d(0, 0, 0); }
-    to   { transform: rotate(15deg) scale(1.2) translate3d(96px, 48px, 0); }
-}
+/* Первая реализация метели (дымка + вихри позёмки) удалена в 22.45.0:
+   она была целиком перекрыта поздним блоком ниже, включая оба @keyframes
+   с теми же именами. */
 
 .weather-fog .hud-fx-weather {
     background: linear-gradient(to top, rgba(230,235,245,0.3), transparent 65%),
@@ -977,31 +918,8 @@
 /* 5. ВРЕМЕНА ГОДА */
 .hud-fx-season-scene { position: absolute; inset: 0; overflow: hidden; opacity: 0; transition: opacity 0.8s ease; }
 .season-autumn .hud-fx-season-scene,
-.season-spring .hud-fx-season-scene,
 .season-summer .hud-fx-season-scene,
 .season-winter .hud-fx-season-scene { opacity: 0.9; }
-
-.hud-tree { position: absolute; left: 14px; bottom: 0; width: 70px; height: 100%; z-index: 3; }
-.hud-tree-trunk {
-    position: absolute; left: 10px; bottom: 0; width: 8px; height: 46px;
-    background: linear-gradient(90deg, #3a2a20, #5a4230 55%, #3a2a20);
-    border-radius: 2px 2px 0 0;
-}
-.hud-tree-branch {
-    position: absolute; left: 13px; bottom: 40px; width: 3px; height: 26px;
-    background: linear-gradient(180deg, #4a362640, #4a3626);
-    border-radius: 2px; transform-origin: bottom center;
-}
-.hud-tree-branch.b1 { transform: rotate(-28deg) translateX(-2px); height: 24px; }
-.hud-tree-branch.b2 { transform: rotate(16deg); height: 30px; }
-.hud-tree-branch.b3 { transform: rotate(46deg) translateX(3px); height: 20px; bottom: 46px; }
-.hud-tree-canopy {
-    position: absolute; border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, rgba(200,110,55,0.55), rgba(140,70,35,0.3) 65%, transparent 78%);
-}
-.hud-tree-canopy.c1 { left: 0px;  bottom: 60px; width: 34px; height: 28px; }
-.hud-tree-canopy.c2 { left: 22px; bottom: 74px; width: 26px; height: 22px; opacity: 0.75; }
-.hud-tree-canopy.c3 { left: 8px;  bottom: 82px; width: 20px; height: 16px; opacity: 0.55; }
 
 .hud-meadow {
     position: absolute; left: -6%; right: -6%; bottom: 0; height: 26%;
@@ -1267,13 +1185,16 @@
 }
 .hud-burrow-mound {
     position:absolute; left:0; bottom:0; width:58px; height:22px; border-radius:50% 50% 18% 18% / 75% 75% 25% 25%;
-    background:radial-gradient(ellipse at 50% 55%, rgba(119,83,43,.95), rgba(77,53,29,.96) 72%, rgba(50,35,20,.9));
-    box-shadow:0 2px 4px rgba(25,15,8,.28);
+    background:
+        radial-gradient(7px 3px at 22% 30%, rgba(168,126,72,.5) 0 70%, transparent 72%),
+        radial-gradient(6px 3px at 74% 38%, rgba(158,116,66,.45) 0 70%, transparent 72%),
+        radial-gradient(ellipse at 50% 42%, rgba(146,105,58,.97), rgba(104,73,40,.97) 66%, rgba(72,50,28,.94));
+    box-shadow:0 2px 4px rgba(25,15,8,.28), inset 0 1px 0 rgba(206,166,110,.35);
 }
 .hud-burrow-hole {
-    position:absolute; left:8px; bottom:1px; width:42px; height:17px; border-radius:50% 50% 45% 45%;
-    background:radial-gradient(ellipse at 50% 55%, #100d09 0%, #1b130c 55%, #392719 100%);
-    box-shadow:inset 0 2px 4px rgba(0,0,0,.65);
+    position:absolute; left:14px; bottom:1px; width:30px; height:13px; border-radius:50% 50% 45% 45%;
+    background:radial-gradient(ellipse at 50% 62%, #241a10 0%, #332415 52%, #4a3420 100%);
+    box-shadow:inset 0 2px 3px rgba(0,0,0,.5), 0 -1px 0 rgba(196,156,102,.45);
     z-index:2;
 }
 .hud-tree-apples { position:absolute; inset:0; pointer-events:none; z-index:3; }
@@ -1434,11 +1355,17 @@
     100% { transform: translate(6px, -30px) scale(2.2); opacity: 0; }
 }
 
+/* Весенняя крона собрана так же: силуэт задан маской, внутри — молодая
+   мелкая листва тремя планами. Прежний вариант был кругом с тремя
+   тенями-кляксами и читался как леденец. */
 .hud-bg-tree-spring .hud-bg-tree-canopy {
-    position: absolute; left: 50%; top: 8%; width: 62px; height: 54px; transform: translateX(-50%);
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, rgba(145,215,105,0.9), rgba(65,145,62,0.68) 62%, transparent 76%);
-    box-shadow: 18px 12px 0 -4px rgba(95,175,72,0.62), -17px 20px 0 -5px rgba(110,190,78,0.58), 5px -10px 0 -6px rgba(150,215,105,0.52);
+    /* Высота была в пикселях — крона не росла вместе с деревом и висела
+       шапочкой на макушке. Теперь в долях, как у осени. */
+    position: absolute; left: 50%; top: -2%; width: 104px; height: 76%; transform: translateX(-50%);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 62'%3E%3Cellipse cx='24' cy='22' rx='18.4' ry='13.8' fill='%23285c28'/%3E%3Cellipse cx='48' cy='15' rx='22.1' ry='15.6' fill='%23285c28'/%3E%3Cellipse cx='70' cy='24' rx='17.5' ry='12.9' fill='%23285c28'/%3E%3Cellipse cx='34' cy='40' rx='16.6' ry='12.0' fill='%23285c28'/%3E%3Cellipse cx='62' cy='42' rx='15.6' ry='11.0' fill='%23285c28'/%3E%3Cellipse cx='37.5' cy='11.8' rx='1.4' ry='0.9' fill='%23b0e27e' opacity='0.55' transform='rotate(24 37.5 11.8)'/%3E%3Cellipse cx='14.6' cy='25.9' rx='1.4' ry='0.9' fill='%23b0e27e' opacity='0.56' transform='rotate(-89 14.6 25.9)'/%3E%3Cellipse cx='42.0' cy='50.4' rx='1.5' ry='1.1' fill='%234a9444' opacity='0.56' transform='rotate(-26 42.0 50.4)'/%3E%3Cellipse cx='73.7' cy='18.2' rx='1.5' ry='1.1' fill='%2370ba56' opacity='0.56' transform='rotate(49 73.7 18.2)'/%3E%3Cellipse cx='21.9' cy='37.4' rx='1.5' ry='0.9' fill='%235fa84a' opacity='0.57' transform='rotate(53 21.9 37.4)'/%3E%3Cellipse cx='25.9' cy='44.1' rx='1.5' ry='1.1' fill='%235fa84a' opacity='0.57' transform='rotate(82 25.9 44.1)'/%3E%3Cellipse cx='23.7' cy='24.8' rx='1.5' ry='1.2' fill='%238ace62' opacity='0.57' transform='rotate(-70 23.7 24.8)'/%3E%3Cellipse cx='38.5' cy='27.2' rx='1.5' ry='1.1' fill='%2370ba56' opacity='0.58' transform='rotate(39 38.5 27.2)'/%3E%3Cellipse cx='39.9' cy='18.5' rx='1.5' ry='1.0' fill='%2370ba56' opacity='0.58' transform='rotate(-71 39.9 18.5)'/%3E%3Cellipse cx='23.8' cy='11.7' rx='1.6' ry='1.0' fill='%238ace62' opacity='0.58' transform='rotate(58 23.8 11.7)'/%3E%3Cellipse cx='25.9' cy='11.0' rx='1.6' ry='1.1' fill='%238ace62' opacity='0.59' transform='rotate(-26 25.9 11.0)'/%3E%3Cellipse cx='63.1' cy='12.6' rx='1.6' ry='1.0' fill='%235fa84a' opacity='0.59' transform='rotate(89 63.1 12.6)'/%3E%3Cellipse cx='76.3' cy='11.9' rx='1.6' ry='1.0' fill='%2370ba56' opacity='0.60' transform='rotate(16 76.3 11.9)'/%3E%3Cellipse cx='20.2' cy='23.5' rx='1.6' ry='1.1' fill='%23b0e27e' opacity='0.60' transform='rotate(-54 20.2 23.5)'/%3E%3Cellipse cx='74.5' cy='34.7' rx='1.7' ry='1.2' fill='%235fa84a' opacity='0.61' transform='rotate(8 74.5 34.7)'/%3E%3Cellipse cx='30.2' cy='41.5' rx='1.7' ry='1.3' fill='%2370ba56' opacity='0.61' transform='rotate(-57 30.2 41.5)'/%3E%3Cellipse cx='35.7' cy='9.8' rx='1.7' ry='1.2' fill='%23b0e27e' opacity='0.61' transform='rotate(-4 35.7 9.8)'/%3E%3Cellipse cx='72.8' cy='45.1' rx='1.7' ry='1.2' fill='%234a9444' opacity='0.61' transform='rotate(-52 72.8 45.1)'/%3E%3Cellipse cx='19.4' cy='30.4' rx='1.7' ry='1.2' fill='%238ace62' opacity='0.62' transform='rotate(-56 19.4 30.4)'/%3E%3Cellipse cx='33.7' cy='38.2' rx='1.7' ry='1.4' fill='%235fa84a' opacity='0.62' transform='rotate(0 33.7 38.2)'/%3E%3Cellipse cx='46.1' cy='18.0' rx='1.7' ry='1.3' fill='%238ace62' opacity='0.62' transform='rotate(-17 46.1 18.0)'/%3E%3Cellipse cx='86.9' cy='28.3' rx='1.8' ry='1.4' fill='%234a9444' opacity='0.63' transform='rotate(59 86.9 28.3)'/%3E%3Cellipse cx='14.1' cy='31.4' rx='1.8' ry='1.3' fill='%2370ba56' opacity='0.63' transform='rotate(3 14.1 31.4)'/%3E%3Cellipse cx='62.1' cy='5.0' rx='1.8' ry='1.3' fill='%2370ba56' opacity='0.63' transform='rotate(64 62.1 5.0)'/%3E%3Cellipse cx='20.4' cy='34.1' rx='1.8' ry='1.2' fill='%2370ba56' opacity='0.63' transform='rotate(12 20.4 34.1)'/%3E%3Cellipse cx='62.6' cy='23.1' rx='1.8' ry='1.3' fill='%235fa84a' opacity='0.63' transform='rotate(46 62.6 23.1)'/%3E%3Cellipse cx='10.8' cy='26.9' rx='1.8' ry='1.4' fill='%238ace62' opacity='0.64' transform='rotate(32 10.8 26.9)'/%3E%3Cellipse cx='34.4' cy='30.2' rx='1.8' ry='1.4' fill='%238ace62' opacity='0.64' transform='rotate(43 34.4 30.2)'/%3E%3Cellipse cx='47.3' cy='23.4' rx='1.9' ry='1.3' fill='%235fa84a' opacity='0.65' transform='rotate(25 47.3 23.4)'/%3E%3Cellipse cx='36.9' cy='5.9' rx='1.9' ry='1.3' fill='%238ace62' opacity='0.65' transform='rotate(1 36.9 5.9)'/%3E%3Cellipse cx='68.0' cy='50.0' rx='1.9' ry='1.2' fill='%233d8038' opacity='0.65' transform='rotate(62 68.0 50.0)'/%3E%3Cellipse cx='43.3' cy='32.3' rx='1.9' ry='1.2' fill='%235fa84a' opacity='0.65' transform='rotate(-4 43.3 32.3)'/%3E%3Cellipse cx='35.2' cy='24.3' rx='1.9' ry='1.3' fill='%2370ba56' opacity='0.66' transform='rotate(30 35.2 24.3)'/%3E%3Cellipse cx='63.3' cy='12.1' rx='1.9' ry='1.3' fill='%238ace62' opacity='0.66' transform='rotate(25 63.3 12.1)'/%3E%3Cellipse cx='24.6' cy='11.6' rx='1.9' ry='1.5' fill='%238ace62' opacity='0.67' transform='rotate(-72 24.6 11.6)'/%3E%3Cellipse cx='67.1' cy='38.3' rx='2.0' ry='1.2' fill='%234a9444' opacity='0.67' transform='rotate(-70 67.1 38.3)'/%3E%3Cellipse cx='81.0' cy='17.2' rx='2.0' ry='1.3' fill='%234a9444' opacity='0.67' transform='rotate(-15 81.0 17.2)'/%3E%3Cellipse cx='29.4' cy='8.4' rx='2.0' ry='1.6' fill='%23b0e27e' opacity='0.67' transform='rotate(51 29.4 8.4)'/%3E%3Cellipse cx='21.9' cy='7.6' rx='2.0' ry='1.3' fill='%23ccf096' opacity='0.67' transform='rotate(-11 21.9 7.6)'/%3E%3Cellipse cx='69.0' cy='45.5' rx='2.0' ry='1.5' fill='%234a9444' opacity='0.67' transform='rotate(59 69.0 45.5)'/%3E%3Cellipse cx='24.7' cy='38.8' rx='2.0' ry='1.2' fill='%235fa84a' opacity='0.68' transform='rotate(-45 24.7 38.8)'/%3E%3Cellipse cx='42.4' cy='15.8' rx='2.0' ry='1.3' fill='%238ace62' opacity='0.68' transform='rotate(75 42.4 15.8)'/%3E%3Cellipse cx='62.4' cy='31.5' rx='2.0' ry='1.6' fill='%235fa84a' opacity='0.69' transform='rotate(16 62.4 31.5)'/%3E%3Cellipse cx='77.3' cy='41.4' rx='2.0' ry='1.5' fill='%233d8038' opacity='0.69' transform='rotate(16 77.3 41.4)'/%3E%3Cellipse cx='51.0' cy='27.2' rx='2.1' ry='1.3' fill='%2370ba56' opacity='0.69' transform='rotate(4 51.0 27.2)'/%3E%3Cellipse cx='74.5' cy='14.4' rx='2.1' ry='1.6' fill='%235fa84a' opacity='0.69' transform='rotate(6 74.5 14.4)'/%3E%3Cellipse cx='36.4' cy='16.0' rx='2.1' ry='1.4' fill='%238ace62' opacity='0.69' transform='rotate(-30 36.4 16.0)'/%3E%3Cellipse cx='56.5' cy='49.2' rx='2.1' ry='1.4' fill='%234a9444' opacity='0.69' transform='rotate(-45 56.5 49.2)'/%3E%3Cellipse cx='76.0' cy='43.7' rx='2.1' ry='1.5' fill='%233d8038' opacity='0.70' transform='rotate(-24 76.0 43.7)'/%3E%3Cellipse cx='80.4' cy='17.6' rx='2.1' ry='1.5' fill='%2370ba56' opacity='0.70' transform='rotate(-38 80.4 17.6)'/%3E%3Cellipse cx='72.0' cy='22.3' rx='2.1' ry='1.7' fill='%2370ba56' opacity='0.71' transform='rotate(84 72.0 22.3)'/%3E%3Cellipse cx='50.8' cy='26.5' rx='2.2' ry='1.4' fill='%2370ba56' opacity='0.71' transform='rotate(-52 50.8 26.5)'/%3E%3Cellipse cx='57.1' cy='15.4' rx='2.2' ry='1.6' fill='%2370ba56' opacity='0.71' transform='rotate(87 57.1 15.4)'/%3E%3Cellipse cx='39.4' cy='15.3' rx='2.2' ry='1.7' fill='%238ace62' opacity='0.71' transform='rotate(-55 39.4 15.3)'/%3E%3Cellipse cx='24.7' cy='27.7' rx='2.2' ry='1.5' fill='%238ace62' opacity='0.72' transform='rotate(35 24.7 27.7)'/%3E%3Cellipse cx='49.6' cy='7.5' rx='2.2' ry='1.5' fill='%23b0e27e' opacity='0.73' transform='rotate(18 49.6 7.5)'/%3E%3Cellipse cx='44.2' cy='32.7' rx='2.2' ry='1.7' fill='%235fa84a' opacity='0.73' transform='rotate(33 44.2 32.7)'/%3E%3Cellipse cx='31.6' cy='4.2' rx='2.3' ry='1.5' fill='%23b0e27e' opacity='0.73' transform='rotate(14 31.6 4.2)'/%3E%3Cellipse cx='37.1' cy='13.3' rx='2.3' ry='1.5' fill='%238ace62' opacity='0.74' transform='rotate(25 37.1 13.3)'/%3E%3Cellipse cx='38.0' cy='29.3' rx='2.3' ry='1.7' fill='%2370ba56' opacity='0.75' transform='rotate(60 38.0 29.3)'/%3E%3Cellipse cx='30.6' cy='44.0' rx='2.3' ry='1.8' fill='%235fa84a' opacity='0.75' transform='rotate(1 30.6 44.0)'/%3E%3Cellipse cx='15.0' cy='23.8' rx='2.4' ry='1.8' fill='%23b0e27e' opacity='0.76' transform='rotate(69 15.0 23.8)'/%3E%3Cellipse cx='56.6' cy='9.5' rx='2.4' ry='1.9' fill='%2370ba56' opacity='0.76' transform='rotate(33 56.6 9.5)'/%3E%3Cellipse cx='17.5' cy='34.7' rx='2.4' ry='1.7' fill='%2370ba56' opacity='0.76' transform='rotate(27 17.5 34.7)'/%3E%3Cellipse cx='62.4' cy='52.7' rx='2.4' ry='1.5' fill='%233d8038' opacity='0.77' transform='rotate(44 62.4 52.7)'/%3E%3Cellipse cx='38.7' cy='13.5' rx='2.5' ry='2.0' fill='%238ace62' opacity='0.78' transform='rotate(11 38.7 13.5)'/%3E%3Cellipse cx='21.8' cy='14.2' rx='2.5' ry='1.7' fill='%238ace62' opacity='0.78' transform='rotate(-41 21.8 14.2)'/%3E%3Cellipse cx='76.9' cy='30.6' rx='2.5' ry='1.5' fill='%235fa84a' opacity='0.79' transform='rotate(-1 76.9 30.6)'/%3E%3Cellipse cx='32.0' cy='34.6' rx='2.5' ry='1.8' fill='%2370ba56' opacity='0.79' transform='rotate(-27 32.0 34.6)'/%3E%3Cellipse cx='35.5' cy='16.7' rx='2.5' ry='1.9' fill='%238ace62' opacity='0.79' transform='rotate(89 35.5 16.7)'/%3E%3Cellipse cx='69.5' cy='46.3' rx='2.5' ry='1.8' fill='%233d8038' opacity='0.79' transform='rotate(81 69.5 46.3)'/%3E%3Cellipse cx='60.3' cy='8.0' rx='2.5' ry='1.7' fill='%2370ba56' opacity='0.79' transform='rotate(-89 60.3 8.0)'/%3E%3Cellipse cx='59.1' cy='10.3' rx='2.6' ry='1.9' fill='%238ace62' opacity='0.81' transform='rotate(61 59.1 10.3)'/%3E%3Cellipse cx='49.2' cy='2.4' rx='2.6' ry='1.9' fill='%23b0e27e' opacity='0.81' transform='rotate(77 49.2 2.4)'/%3E%3Cellipse cx='62.5' cy='12.8' rx='2.6' ry='2.0' fill='%235fa84a' opacity='0.81' transform='rotate(14 62.5 12.8)'/%3E%3Cellipse cx='27.4' cy='36.9' rx='2.7' ry='1.7' fill='%235fa84a' opacity='0.82' transform='rotate(-13 27.4 36.9)'/%3E%3Cellipse cx='63.9' cy='50.7' rx='2.7' ry='2.0' fill='%233d8038' opacity='0.82' transform='rotate(-9 63.9 50.7)'/%3E%3Cellipse cx='16.1' cy='17.3' rx='2.7' ry='2.1' fill='%23b0e27e' opacity='0.82' transform='rotate(-62 16.1 17.3)'/%3E%3Cellipse cx='59.0' cy='51.1' rx='2.7' ry='1.9' fill='%233d8038' opacity='0.82' transform='rotate(-3 59.0 51.1)'/%3E%3Cellipse cx='66.0' cy='21.7' rx='2.7' ry='1.8' fill='%2370ba56' opacity='0.82' transform='rotate(-73 66.0 21.7)'/%3E%3Cellipse cx='37.7' cy='47.9' rx='2.7' ry='1.8' fill='%235fa84a' opacity='0.83' transform='rotate(-85 37.7 47.9)'/%3E%3Cellipse cx='53.4' cy='5.1' rx='2.7' ry='2.0' fill='%2370ba56' opacity='0.83' transform='rotate(13 53.4 5.1)'/%3E%3Cellipse cx='42.4' cy='28.1' rx='2.8' ry='2.2' fill='%2370ba56' opacity='0.84' transform='rotate(-76 42.4 28.1)'/%3E%3Cellipse cx='14.7' cy='27.0' rx='2.8' ry='2.0' fill='%238ace62' opacity='0.85' transform='rotate(16 14.7 27.0)'/%3E%3Cellipse cx='17.8' cy='12.8' rx='2.8' ry='1.9' fill='%23b0e27e' opacity='0.86' transform='rotate(5 17.8 12.8)'/%3E%3Cellipse cx='22.4' cy='33.5' rx='2.8' ry='2.0' fill='%2370ba56' opacity='0.86' transform='rotate(8 22.4 33.5)'/%3E%3Cellipse cx='54.8' cy='43.6' rx='2.8' ry='1.7' fill='%234a9444' opacity='0.86' transform='rotate(37 54.8 43.6)'/%3E%3Cellipse cx='47.6' cy='6.4' rx='2.9' ry='2.2' fill='%238ace62' opacity='0.86' transform='rotate(6 47.6 6.4)'/%3E%3Cellipse cx='51.5' cy='5.9' rx='2.9' ry='2.2' fill='%23b0e27e' opacity='0.87' transform='rotate(-49 51.5 5.9)'/%3E%3Cellipse cx='42.0' cy='12.1' rx='2.9' ry='2.1' fill='%238ace62' opacity='0.87' transform='rotate(-54 42.0 12.1)'/%3E%3Cellipse cx='32.4' cy='23.5' rx='2.9' ry='2.1' fill='%238ace62' opacity='0.87' transform='rotate(-7 32.4 23.5)'/%3E%3Cellipse cx='25.9' cy='24.3' rx='2.9' ry='2.2' fill='%238ace62' opacity='0.88' transform='rotate(35 25.9 24.3)'/%3E%3Cellipse cx='58.4' cy='21.2' rx='2.9' ry='2.3' fill='%2370ba56' opacity='0.88' transform='rotate(74 58.4 21.2)'/%3E%3Cellipse cx='46.2' cy='31.6' rx='2.9' ry='2.3' fill='%2370ba56' opacity='0.88' transform='rotate(62 46.2 31.6)'/%3E%3Cellipse cx='13.5' cy='13.4' rx='2.9' ry='2.1' fill='%238ace62' opacity='0.88' transform='rotate(18 13.5 13.4)'/%3E%3Cellipse cx='48.2' cy='36.6' rx='3.0' ry='2.1' fill='%235fa84a' opacity='0.88' transform='rotate(21 48.2 36.6)'/%3E%3Cellipse cx='68.6' cy='45.8' rx='3.0' ry='2.3' fill='%234a9444' opacity='0.89' transform='rotate(76 68.6 45.8)'/%3E%3Cellipse cx='60.7' cy='20.6' rx='3.1' ry='2.3' fill='%235fa84a' opacity='0.91' transform='rotate(-41 60.7 20.6)'/%3E%3Cellipse cx='72.6' cy='37.9' rx='3.1' ry='2.0' fill='%234a9444' opacity='0.91' transform='rotate(-27 72.6 37.9)'/%3E%3Cellipse cx='36.5' cy='41.7' rx='3.1' ry='2.2' fill='%235fa84a' opacity='0.92' transform='rotate(32 36.5 41.7)'/%3E%3Cellipse cx='24.3' cy='35.4' rx='3.2' ry='2.4' fill='%235fa84a' opacity='0.93' transform='rotate(-44 24.3 35.4)'/%3E%3Cellipse cx='42.6' cy='15.3' rx='3.2' ry='2.2' fill='%238ace62' opacity='0.93' transform='rotate(-3 42.6 15.3)'/%3E%3Cellipse cx='42.7' cy='16.5' rx='3.2' ry='2.2' fill='%238ace62' opacity='0.93' transform='rotate(-63 42.7 16.5)'/%3E%3Cellipse cx='69.6' cy='37.8' rx='3.2' ry='1.9' fill='%234a9444' opacity='0.93' transform='rotate(46 69.6 37.8)'/%3E%3Cellipse cx='50.9' cy='43.8' rx='3.2' ry='2.5' fill='%235fa84a' opacity='0.93' transform='rotate(-46 50.9 43.8)'/%3E%3Cellipse cx='44.8' cy='45.9' rx='3.2' ry='2.2' fill='%235fa84a' opacity='0.93' transform='rotate(47 44.8 45.9)'/%3E%3Cellipse cx='65.6' cy='3.5' rx='3.2' ry='2.5' fill='%2370ba56' opacity='0.94' transform='rotate(-46 65.6 3.5)'/%3E%3Cellipse cx='20.8' cy='42.6' rx='3.2' ry='2.4' fill='%235fa84a' opacity='0.94' transform='rotate(-30 20.8 42.6)'/%3E%3Cellipse cx='58.5' cy='38.5' rx='3.2' ry='2.5' fill='%235fa84a' opacity='0.94' transform='rotate(-45 58.5 38.5)'/%3E%3Cellipse cx='75.4' cy='23.2' rx='3.3' ry='2.4' fill='%234a9444' opacity='0.96' transform='rotate(-10 75.4 23.2)'/%3E%3Cellipse cx='52.2' cy='27.5' rx='3.3' ry='2.1' fill='%2370ba56' opacity='0.96' transform='rotate(35 52.2 27.5)'/%3E%3Cellipse cx='53.5' cy='49.2' rx='3.3' ry='2.2' fill='%233d8038' opacity='0.96' transform='rotate(-84 53.5 49.2)'/%3E%3Cellipse cx='25.0' cy='18.0' rx='3.3' ry='2.3' fill='%238ace62' opacity='0.96' transform='rotate(16 25.0 18.0)'/%3E%3Cellipse cx='51.9' cy='10.8' rx='3.3' ry='2.3' fill='%238ace62' opacity='0.96' transform='rotate(-65 51.9 10.8)'/%3E%3Cellipse cx='67.0' cy='53.0' rx='3.3' ry='2.3' fill='%234a9444' opacity='0.97' transform='rotate(-60 67.0 53.0)'/%3E%3Cellipse cx='31.1' cy='52.8' rx='3.3' ry='2.7' fill='%235fa84a' opacity='0.97' transform='rotate(-24 31.1 52.8)'/%3E%3Cellipse cx='87.0' cy='18.3' rx='3.3' ry='2.6' fill='%235fa84a' opacity='0.97' transform='rotate(-72 87.0 18.3)'/%3E%3Cellipse cx='28.5' cy='25.6' rx='3.4' ry='2.2' fill='%238ace62' opacity='0.97' transform='rotate(-15 28.5 25.6)'/%3E%3Cellipse cx='58.4' cy='14.8' rx='3.4' ry='2.6' fill='%2370ba56' opacity='0.97' transform='rotate(90 58.4 14.8)'/%3E%3Cellipse cx='21.3' cy='29.4' rx='3.4' ry='2.3' fill='%2370ba56' opacity='0.97' transform='rotate(16 21.3 29.4)'/%3E%3Cellipse cx='20.1' cy='10.3' rx='3.4' ry='2.5' fill='%23b0e27e' opacity='0.98' transform='rotate(63 20.1 10.3)'/%3E%3Cellipse cx='61.5' cy='52.1' rx='3.4' ry='2.6' fill='%234a9444' opacity='0.98' transform='rotate(-12 61.5 52.1)'/%3E%3Cellipse cx='60.5' cy='42.7' rx='3.4' ry='2.6' fill='%235fa84a' opacity='0.98' transform='rotate(24 60.5 42.7)'/%3E%3Cellipse cx='66.6' cy='51.9' rx='3.4' ry='2.7' fill='%233d8038' opacity='0.98' transform='rotate(62 66.6 51.9)'/%3E%3Cellipse cx='25.0' cy='32.6' rx='3.4' ry='2.3' fill='%238ace62' opacity='0.98' transform='rotate(73 25.0 32.6)'/%3E%3Cellipse cx='26.8' cy='46.9' rx='3.4' ry='2.6' fill='%235fa84a' opacity='0.98' transform='rotate(-72 26.8 46.9)'/%3E%3Cellipse cx='50.6' cy='43.9' rx='3.4' ry='2.4' fill='%235fa84a' opacity='0.98' transform='rotate(61 50.6 43.9)'/%3E%3Cellipse cx='34.5' cy='45.4' rx='3.5' ry='2.1' fill='%235fa84a' opacity='0.99' transform='rotate(71 34.5 45.4)'/%3E%3Cellipse cx='25.3' cy='12.2' rx='3.5' ry='2.1' fill='%238ace62' opacity='0.99' transform='rotate(32 25.3 12.2)'/%3E%3Cellipse cx='67.4' cy='18.6' rx='3.5' ry='2.5' fill='%2370ba56' opacity='0.99' transform='rotate(59 67.4 18.6)'/%3E%3C/svg%3E");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: translateX(-50%) rotate(-2deg);
 }
 .hud-bg-nest {
     position: absolute; left: 42%; top: 24%; width: 24px; height: 12px;
@@ -1641,7 +1568,6 @@
     display: inline-flex; align-items: center; gap: 6px;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
 }
-.hud-mood-item { border-color: rgba(222, 133, 159, 0.4); }
 
 .hud-scene-atm {
     font-size: 0.92em; font-style: italic; color: #ffffff; text-align: center;
@@ -1733,7 +1659,6 @@
 .hud-schedule-time { font-family: monospace; font-weight: bold; color: var(--hud-accent); font-size: 0.95em; min-width: 45px; flex-shrink: 0; margin-top: 2px; }
 .hud-schedule-event { color: var(--hud-text); font-size: 0.9em; line-height: 1.4; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; width: 100%; border: 1px solid var(--hud-border); transition: all 0.2s ease; }
 
-.hud-detail-container { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: 6px; }
 .hud-detail-pill { background: rgba(0, 0, 0, 0.2); border: 1px solid var(--hud-border); padding: 8px 12px; border-radius: 6px; font-size: 0.9em; color: var(--hud-text); line-height: 1.4; transition: all 0.2s ease; cursor: pointer; }
 
 /* Горизонтальный скролл для ключей */
@@ -1746,13 +1671,11 @@
 .hud-key-list { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: 4px; }
 .hud-key-item { background: rgba(0, 0, 0, 0.15); padding: 6px 10px; border-radius: 6px; border-left: 3px solid var(--hud-accent); display: flex; align-items: flex-start; gap: 8px; line-height: 1.4; font-size: 0.9em; transition: all 0.2s ease; cursor: pointer; }
 
-.hud-inventory-container { display: flex; flex-wrap: wrap; gap: 6px; width: 100%; margin-top: 2px; }
 .hud-inventory-pill { background: rgba(0, 0, 0, 0.2); border: 1px solid var(--hud-border); padding: 3px 10px; border-radius: 6px; font-size: 0.9em; color: var(--hud-text); white-space: nowrap; transition: all 0.2s ease; cursor: default; }
 
 /* Пульсация NSFW-полей задаётся ниже через nsfwPulseDynamic (использует --hud-nsfw-bg),
    которая идёт позже в файле и потому и так побеждала в каскаде — здесь оставляем только border. */
-.hud-row.nsfw { border-left: 4px solid var(--hud-nsfw-border); }
-.hud-nsfw-container { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: 6px; }
+
 .hud-nsfw-pill { background: rgba(158, 42, 63, 0.2); border: 1px solid rgba(158, 42, 63, 0.5); padding: 8px 12px; border-radius: 6px; font-size: 0.9em; color: var(--hud-text); line-height: 1.4; transition: all 0.2s ease; }
 /* --- Кинки, фетиши и границы -----------------------------------------
    Четыре отдельных вида пилюль после блока NSFW. У каждого своя роль,
@@ -1825,7 +1748,6 @@
     .hud-noturn-pill:hover { border-color: rgba(160,178,206,0.8); opacity: 1; filter: saturate(0.8); }
 }
 
-
 /* =========================================
    ТЕЛЕФОН, ПЕРЕХВАТЫ И УЧАСТНИКИ
    ========================================= */
@@ -1851,7 +1773,6 @@
 
 .hud-phone-status-icons { display: flex; gap: 4px; }
 .hud-phone-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid rgba(255, 255, 255, 0.05); z-index: 10; position: relative;}
-.hud-phone-back { color: var(--hud-accent); font-size: 1.2em; cursor: pointer; }
 
 /* Выпадающий список участников */
 .hud-phone-title-group { display: flex; flex-direction: column; align-items: center; }
@@ -2669,8 +2590,6 @@
     .hud-diary-entry:hover::after { animation-play-state: running; }
 }
 
-
-
 /* =========================================
    МИР (Газетная верстка и Доска объявлений)
    ========================================= */
@@ -3153,7 +3072,7 @@
     .hud-detail-pill:hover { border-color: var(--hud-accent); box-shadow: 0 2px 8px var(--hud-purple-glow); background: rgba(255, 255, 255, 0.05); transform: translateX(2px); }
     .hud-key-item:hover { background: rgba(255, 255, 255, 0.05); box-shadow: 0 2px 8px var(--hud-purple-glow); }
     .hud-inventory-pill:hover { background: rgba(255, 255, 255, 0.1); border-color: var(--hud-accent); box-shadow: 0 2px 6px var(--hud-purple-glow); color: #fff; }
-    .hud-nsfw-pill:hover { border-color: var(--hud-nsfw-border); box-shadow: 0 2px 10px rgba(158, 42, 63, 0.5); background: rgba(158, 42, 63, 0.35); }
+    
     .hud-news-article:hover { background: rgba(255,255,255,0.05); border-color: rgba(100, 180, 255, 0.4); box-shadow: 0 2px 10px rgba(100, 180, 255, 0.2); }
     .hud-world-list li:hover { background: rgba(255,255,255,0.05); border-color: rgba(100, 180, 255, 0.3); box-shadow: 0 2px 8px rgba(100, 180, 255, 0.1); transform: translateX(2px); }
     .hud-news-vote:hover { border-color: rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); color: #fff; }
@@ -3258,23 +3177,55 @@
     animation: none !important;
 }
 
+/* Старые карточки раньше выбрасывали все слои сцены через display:none.
+   От погоды оставался плоский прямоугольник неба с часами поверх — это
+   читается как поломка, а не как «архив»: пейзаж, светило и осадки просто
+   исчезали. Дорогим в старых карточках было движение, а не картинка,
+   поэтому теперь гасим только анимации, а мир оставляем на месте.
+   Приглушение и так даёт .hud-historical .hud-scene-widget: обесцвечивание
+   и снижение яркости. */
 .hud-historical .hud-fx-celestial,
+.hud-historical .hud-fx-celestial::before,
+.hud-historical .hud-fx-celestial::after,
 .hud-historical .hud-fx-weather,
+.hud-historical .hud-fx-weather::before,
+.hud-historical .hud-fx-weather::after,
+.hud-historical .hud-fx-weather *,
 .hud-historical .hud-fx-season-scene,
+.hud-historical .hud-fx-season-scene *,
+.hud-historical .hud-fx-season-scene *::before,
+.hud-historical .hud-fx-season-scene *::after,
 .hud-historical .hud-fx-temp,
 .hud-historical .hud-fx-storm-flash,
 .hud-historical .hud-fx-cloud-cover,
+.hud-historical .hud-fx-cloud-cover::before,
+.hud-historical .hud-fx-cloud-cover::after,
 .hud-historical .hud-fx-lightning,
+.hud-historical .hud-fx-lightning *,
 .hud-historical .hud-fx-rainbow,
-.hud-historical .hud-fx-frost {
-    display: none !important;
-    animation: none !important;
+.hud-historical .hud-fx-frost,
+.hud-historical .hud-fx-frost::before {
+    animation-play-state: paused !important;
+}
+/* Молнию и вспышку грозы в архиве всё же прячем: они существуют только
+   вспышкой, а застывшая молния посреди старой сцены выглядит кляксой. */
+.hud-historical .hud-fx-lightning,
+.hud-historical .hud-fx-storm-flash {
+    opacity: 0 !important;
 }
 
 .hud-historical .hud-scene-widget {
     padding: 10px 16px !important;
-    filter: grayscale(40%) opacity(0.7) !important;
-    pointer-events: none !important;
+    /* Было grayscale(40%) opacity(0.7). Прозрачность в фильтре гасит весь
+       виджет разом, и сквозь него проступало то, что лежит под карточкой —
+       у пользователей с фоновой картинкой это размытая на 8px картинка,
+       и сцена выглядела мыльной независимо от темы. Приглушаем яркостью
+       и обесцвечиванием: архивная карточка по-прежнему тусклее свежей, но
+       остаётся непрозрачной. */
+    filter: grayscale(38%) brightness(0.9) !important;
+    /* Тап по архивной сцене должен работать: иначе она видима, но мертва. */
+    pointer-events: auto !important;
+    cursor: pointer;
 }
 
 .hud-historical .hud-time-colon {
@@ -3343,12 +3294,6 @@
 .hud-comment:active { background: rgba(255,255,255,0.1); transform: translateX(4px); box-shadow: 0 2px 8px var(--hud-purple-glow); border-color: #fff; transition: 0.1s; }
 .hud-dream-entry:active { background: rgba(20, 184, 166, 0.15); box-shadow: 0 0 15px rgba(45, 212, 191, 0.2); }
 
-.hud-phone-mockup.intercept-mode {
-    border-color: rgba(255, 50, 50, 0.3);
-    box-shadow: inset 0 0 20px rgba(255, 0, 0, 0.1);
-}
-.hud-tab.intercept-tab { color: #ff4d4d; }
-.hud-tab.intercept-tab.active { color: #fff; background: transparent; border-color: #ff4d4d; }
 /* Старая версия снега (плоская решётка из кружков, keyframes
    hud-snow-fall) удалена в 22.4.0 — её перебивал блок ниже, но она
    продолжала спорить за animation-play-state. См. «--- СНЕГ ---». */
@@ -3517,43 +3462,16 @@
    ========================================= */
 
 /* Вертикальный скролл для длинных списков (Отношения, Мысли, Пилюли) */
-.hud-vertical-container {
-    display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: 6px;
-    max-height: 140px; overflow-y: auto; overflow-x: hidden; padding-right: 4px;
-}
-.hud-vertical-container::-webkit-scrollbar { width: 4px; }
-.hud-vertical-container::-webkit-scrollbar-track { background: transparent; }
-.hud-vertical-container::-webkit-scrollbar-thumb { background: var(--hud-accent); border-radius: 4px; }
 
 /* Инвентарь теперь оборачивает элементы, но скроллится вниз, если их много */
-.hud-inventory-grid { flex-direction: row; flex-wrap: wrap; align-content: flex-start; }
 
 /* Красные уведомления-бейджики на вкладках телефонов и перехватов */
-.hud-unread-badge {
-    display: inline-block; background: #ff3b30; color: #fff; border-radius: 10px;
-    padding: 2px 6px; font-size: 0.85em; font-weight: bold; margin-left: 6px;
-    box-shadow: 0 0 5px rgba(255, 59, 48, 0.6); line-height: 1; vertical-align: middle;
-}
 
 /* Красивые желтые звездочки для оценки секса */
-.hud-stars-rating {
-    color: #f4d35e; text-shadow: 0 0 5px rgba(244, 211, 94, 0.5);
-    font-size: 1.2em; letter-spacing: 2px;
-}
-.hud-sex-rev { line-height: 1.5; font-style: italic; }
 
 /* Кастомный блок: Глубина конфликта (Красный цвет, подчеркивает опасность) */
-.hud-conflict-pill {
-    background: rgba(255, 59, 48, 0.15); border-left: 3px solid #ff3b30;
-    padding: 6px 10px; border-radius: 4px; font-size: 0.9em; color: var(--hud-text);
-}
 
 /* Кастомный блок: Ожидание vs Реальность (Двуцветный градиент и рамка) */
-.hud-exp-reality {
-    background: linear-gradient(135deg, rgba(222, 133, 159, 0.1), rgba(140, 90, 210, 0.1));
-    border: 1px dashed var(--hud-accent); padding: 10px; border-radius: 8px;
-    font-style: italic; color: #e2e8f0; line-height: 1.5; margin-top: 6px;
-}
 
 /* =========================================
    UI АПДЕЙТ: Скроллы, Бейджи, Звезды, Конфликты
@@ -3574,13 +3492,6 @@
 .hud-vertical-container > * { flex-shrink: 0; }
 
 /* Инвентарь теперь оборачивает элементы, но скроллится строго вниз, если их много */
-.hud-inventory-grid {
-    display: flex; flex-direction: row; flex-wrap: wrap; align-content: flex-start; gap: 6px;
-    width: 100%; max-height: 160px; overflow-y: auto; overflow-x: hidden; padding-right: 4px; margin-top: 6px;
-}
-.hud-inventory-grid::-webkit-scrollbar { width: 4px; }
-.hud-inventory-grid::-webkit-scrollbar-track { background: transparent; }
-.hud-inventory-grid::-webkit-scrollbar-thumb { background: var(--hud-accent); border-radius: 4px; }
 
 /* Красные уведомления-бейджики на вкладках телефонов и перехватов */
 .hud-unread-badge {
@@ -3652,18 +3563,6 @@
     font-size: 0.85em;
     color: var(--hud-text-muted);
 }
-.hud-theme-panel.active { display: grid; animation: fadeIn 0.3s ease; }
-.hud-theme-row { 
-    display: flex; align-items: center; justify-content: space-between; 
-    background: rgba(0,0,0,0.3); padding: 6px 10px 6px 14px; 
-    border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); 
-}
-.hud-theme-color-input {
-    -webkit-appearance: none; border: none; width: 28px; height: 28px; 
-    border-radius: 6px; cursor: pointer; background: none; padding: 0;
-}
-.hud-theme-color-input::-webkit-color-swatch-wrapper { padding: 0; }
-.hud-theme-color-input::-webkit-color-swatch { border: 1px solid rgba(255,255,255,0.3); border-radius: 6px; box-shadow: 0 0 5px rgba(0,0,0,0.5); }
 
 /* =========================================
    РАСШИРЕННАЯ КАСТОМИЗАЦИЯ И ИСПРАВЛЕНИЕ СЕТКИ (v20.5)
@@ -4010,8 +3909,7 @@
 .hud-phone-lock-notice b { display:block; font-size:12px; margin-top:2px; }
 .hud-phone-lock-notice small { display:block; font-size:11px; opacity:.8; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .hud-phone-lock-notice em { float:right; margin-top:-14px; font-size:9px; opacity:.5; font-style:normal; }
-.hud-phone-unlock { margin-top:auto; border:0; color:#fff; background:rgba(255,255,255,.11); border:1px solid rgba(255,255,255,.16); border-radius:22px; padding:10px 18px; cursor:pointer; backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); }
-.hud-phone-unlock:hover { background:rgba(255,255,255,.18); }
+
 .hud-phone-unlocked { display:none; flex-direction:column; }
 .hud-phone-emulator.unlocked .hud-phone-unlocked { display:flex; }
 
@@ -4097,26 +3995,19 @@
 .hud-phone-bottom-bar { position:absolute; bottom:0; left:0; right:0; height:46px; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.3); border-top:1px solid rgba(255,255,255,.08); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); z-index:50; }
 .hud-phone-home-btn { width:42px; height:28px; border-radius:15px; border:0; background:rgba(255,255,255,.12); color:#fff; cursor:pointer; }
 .hud-phone-chat-list { display:flex; gap:7px; overflow-x:auto; padding-bottom:8px; margin-bottom:8px; }
-.hud-phone-chat-launch { min-width:105px; text-align:left; border:1px solid rgba(255,255,255,.1); background:rgba(255,255,255,.06); color:#fff; border-radius:12px; padding:7px; cursor:pointer; }
-.hud-phone-chat-launch.active { border-color:var(--hud-accent); background:rgba(255,255,255,.12); }
-.hud-phone-chat-launch span,.hud-phone-chat-launch small { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.hud-phone-chat-launch span { font-weight:700; font-size:11px; }
-.hud-phone-chat-launch small { font-size:9px; opacity:.55; margin-top:3px; }
-.hud-phone-chat-view { display:none; }
-.hud-phone-chat-view.active { display:block; }
-.hud-phone-chat-window { border:1px solid rgba(255,255,255,.08); border-radius:16px; overflow:hidden; background:rgba(0,0,0,.18); }
-.hud-phone-chat-head { padding:9px 11px; border-bottom:1px solid rgba(255,255,255,.07); display:flex; flex-direction:column; }
-.hud-phone-chat-head small { opacity:.5; font-size:9px; }
-.hud-phone-chat-window .hud-phone-chat-area { min-height:350px; max-height:390px; }
+
 .hud-phone-section { margin-bottom:14px; }
 .hud-phone-section h4 { margin:4px 0 8px; font-size:11px; text-transform:uppercase; letter-spacing:.08em; opacity:.55; }
-.hud-phone-call-row,.hud-phone-contact,.hud-phone-map-row,.hud-phone-search-row { display:flex; gap:9px; align-items:center; padding:9px; margin-bottom:6px; border:1px solid rgba(255,255,255,.08); border-radius:12px; background:rgba(255,255,255,.045); }
-.hud-phone-call-row > div,.hud-phone-contact > div,.hud-phone-map-row > div,.hud-phone-search-row { min-width:0; flex:1; }
-.hud-phone-call-row b,.hud-phone-contact b,.hud-phone-map-row b { display:block; font-size:11px; }
-.hud-phone-call-row small,.hud-phone-contact small,.hud-phone-map-row small,.hud-phone-search-row small { display:block; font-size:9px; opacity:.5; margin-top:2px; }
-.hud-phone-call-row > span:last-child { font-size:8px; opacity:.5; }
-.hud-phone-call-icon { width:28px; height:28px; display:flex; align-items:center; justify-content:center; border-radius:50%; background:rgba(72,210,140,.12); color:#67e8a2; }
-.hud-phone-call-icon.missed { background:rgba(255,59,48,.13); color:#ff6f66; }
+.hud-phone-contact,
+.hud-phone-map-row,
+.hud-phone-search-row { display:flex; gap:9px; align-items:center; padding:9px; margin-bottom:6px; border:1px solid rgba(255,255,255,.08); border-radius:12px; background:rgba(255,255,255,.045); }
+.hud-phone-contact > div,
+.hud-phone-map-row > div,
+.hud-phone-search-row { min-width:0; flex:1; }
+.hud-phone-contact b,
+.hud-phone-map-row b { display:block; font-size:11px; }
+.hud-phone-search-row small { display:block; font-size:9px; opacity:.5; margin-top:2px; }
+
 .hud-phone-contacts { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
 .hud-phone-contact { margin:0; flex-direction:column; align-items:flex-start; }
 .hud-phone-contacts > .hud-phone-contact { align-self:stretch; }
@@ -4128,34 +4019,23 @@
 .hud-phone-contact b { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%; }
 .hud-phone-map-row > span { font-size:20px; }
 .hud-google-bar { padding:10px 12px; border-radius:20px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.07); margin-bottom:10px; color:rgba(255,255,255,.65); }
-.hud-phone-search-row { flex-direction:column; align-items:flex-start; }
-.hud-phone-news-list details,.hud-phone-news-chip { margin-bottom:7px; padding:9px 10px; border-radius:11px; border:1px solid rgba(255,255,255,.08); background:rgba(255,255,255,.045); }
-.hud-phone-news-list summary { cursor:pointer; font-size:11px; font-weight:700; }
-.hud-phone-news-list p { font-size:10px; line-height:1.45; opacity:.75; }
-.hud-phone-news-chip { font-size:10px; opacity:.75; }
-.hud-phone-note { padding:11px; margin-bottom:8px; border-radius:13px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.08); }
+
 .hud-phone-note small { opacity:.5; }
 .hud-phone-note p { margin:6px 0; font-size:11px; line-height:1.45; }
 .hud-phone-note footer { font-size:9px; opacity:.55; border-top:1px dashed rgba(255,255,255,.12); padding-top:5px; }
-.hud-phone-gallery-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; }
-.hud-phone-photo-card { overflow:hidden; border:1px solid rgba(255,255,255,.1); border-radius:13px; background:rgba(255,255,255,.045); }
+
 .hud-phone-photo-card summary { position:relative; cursor:pointer; list-style:none; min-height:125px; }
 .hud-phone-photo-card summary::-webkit-details-marker { display:none; }
 .hud-phone-photo-card summary img,.hud-phone-photo-placeholder { display:block; width:100%; height:125px; object-fit:cover; background:linear-gradient(135deg,rgba(255,255,255,.08),rgba(0,0,0,.25)); }
-.hud-phone-photo-placeholder { display:flex; align-items:center; justify-content:center; font-size:28px; }
-.hud-phone-photo-time { position:absolute; bottom:6px; right:6px; padding:2px 5px; border-radius:7px; background:rgba(0,0,0,.6); font-size:8px; }
-.hud-phone-photo-info { padding:8px; font-size:9px; line-height:1.4; }
-.hud-phone-photo-info b,.hud-phone-photo-info div,.hud-phone-photo-info small,.hud-phone-photo-info em { display:block; }
+
+.hud-phone-photo-info div,
+.hud-phone-photo-info small { display:block; }
 .hud-phone-photo-info small { margin-top:5px; opacity:.6; }
 .hud-phone-photo-info em { margin-top:5px; color:var(--hud-accent); font-style:normal; }
 .hud-phone-empty-app { min-height:330px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; opacity:.65; gap:6px; }
-.hud-phone-empty-icon { font-size:42px; opacity:.55; }
+
 .hud-phone-empty-line { padding:14px; text-align:center; opacity:.5; font-size:10px; }
-.hud-settings-gallery-item { min-width:0; border:1px solid var(--hud-border); border-radius:8px; padding:5px; background:rgba(0,0,0,.25); overflow:hidden; }
-.hud-settings-gallery-item div { height:80px; display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,.05); border-radius:5px; overflow:hidden; }
-.hud-settings-gallery-item img { width:100%; height:100%; object-fit:cover; }
-.hud-settings-gallery-item small,.hud-settings-gallery-item b,.hud-settings-gallery-item span { display:block; font-size:9px; margin-top:3px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-.hud-settings-gallery-item span { opacity:.6; }
+
 @media (max-width:600px) {
   .hud-phone-emulator { min-height:560px; border-width:5px; border-radius:28px; }
   .hud-phone-lockscreen,.hud-phone-unlocked { min-height:560px; }
@@ -4177,7 +4057,6 @@
   --hud-memory-glow: rgba(140,90,210,.28);
   --hud-memory-blur: 8px;
 }
-
 
 /* Mobile stability: avoid expensive animation/blur effects when the user/device requests reduced motion. */
 @media (prefers-reduced-motion: reduce) {
@@ -4212,12 +4091,6 @@
 
 /* Memory: explicit empty-state for the "Не знают" list. Do not use the
    generic `.hidden` class here because SillyTavern/theme CSS may hide it. */
-.hud-memory-secret-person.is-empty {
-  opacity: .55;
-  font-style: italic;
-  background: rgba(255,255,255,.025);
-}
-
 
 /* =========================================
    ИСПРАВЛЕНИЯ ВЕРСТКИ (ПК И СЕКРЕТЫ)
@@ -4235,17 +4108,10 @@
 .hud-timeline-content { color: var(--hud-text); font-size: 0.9em; line-height: 1.4; background: rgba(0,0,0,0.15); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--hud-border); }
 
 /* Дизайн: МАРШРУТЫ (Карта перемещений) */
-.hud-route-group { margin-bottom: 12px; background: rgba(0,0,0,0.15); border-radius: 8px; padding: 12px; border: 1px solid rgba(255,255,255,0.05); }
+
 .hud-route-name { font-weight: bold; color: var(--hud-accent); margin-bottom: 10px; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.5px; }
-.hud-route-path { display: flex; flex-direction: column; gap: 0; }
-.hud-route-node { display: flex; align-items: stretch; gap: 12px; position: relative; }
-.hud-route-node:not(:last-child)::after { content: ''; position: absolute; left: 5px; top: 18px; bottom: -8px; width: 2px; background: rgba(255,255,255,0.1); }
-.hud-route-node::before { content: ''; flex-shrink: 0; width: 12px; height: 12px; border-radius: 50%; background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.5); margin-top: 6px; z-index: 2; position: relative; }
-.hud-route-node.current::before { background: var(--hud-accent); border-color: #fff; box-shadow: 0 0 8px var(--hud-accent); }
+
 .hud-route-info { padding-bottom: 12px; display: flex; flex-direction: column; }
-.hud-route-time { font-family: monospace; color: var(--hud-text-muted); font-size: 0.8em; }
-.hud-route-place { font-weight: bold; font-size: 0.95em; color: #fff; }
-.hud-route-action { font-size: 0.85em; color: var(--hud-accent); font-style: italic; margin-top: 4px; }
 
 /* Дизайн: ЭМОЦИИ (Горизонтальные чипы с прокруткой) */
 .hud-mood-group { margin-bottom: 12px; width: 100%; }
@@ -4273,9 +4139,6 @@
 .stat-known { color: #2dd4bf; background: rgba(45,212,191,0.15); }
 .stat-suspected { color: #f4d35e; background: rgba(244,211,94,0.15); }
 .stat-unknown { color: #ff4d4d; background: rgba(255,77,77,0.15); }
-
-.hud-secret-spread { margin-top: 12px; font-size: 0.85em; color: var(--hud-text-muted); font-family: monospace; letter-spacing: 1px; }
-.hud-secret-bar { color: var(--hud-accent); margin: 0 6px; letter-spacing: 2px; }
 
 .hud-secret-body { border-top: 1px solid rgba(255,255,255,0.05); padding: 16px; background: rgba(0,0,0,0.2); }
 .hud-secret-title { font-size: 1.05em; color: #fff; line-height: 1.5; font-weight: normal; margin-bottom: 16px; padding-bottom: 12px; border-bottom: 1px dashed rgba(255,255,255,0.1); }
@@ -4387,13 +4250,7 @@
         linear-gradient(90deg, rgba(255,255,255,.022) 1px, transparent 1px);
     background-size: auto, 28px 28px, 28px 28px;
 }
-.hud-rel-svg {
-    display: block;
-    width: 100%;
-    height: 100%;
-    overflow: visible;
-    touch-action: manipulation;
-}
+
 .hud-rel-orbit {
     stroke: rgba(196,181,253,.07);
     stroke-width: 1;
@@ -4449,12 +4306,7 @@
     pointer-events: none;
     transition: opacity .2s ease, fill .2s ease;
 }
-.hud-rel-edge-badge { opacity: .98; pointer-events: all; cursor: pointer; }
-.hud-rel-edge-dot {
-    fill: rgba(12,14,24,.92);
-    stroke: rgba(255,255,255,.14);
-    stroke-width: 1;
-}
+
 .hud-rel-edge-dot.hud-rel-love { stroke: #ff74b5; }
 .hud-rel-edge-dot.hud-rel-friend { stroke: #62d9c7; }
 .hud-rel-edge-dot.hud-rel-hostile { stroke: #ff6b6b; }
@@ -4621,8 +4473,7 @@
 }
 .hud-rel-graph.is-expanded .hud-rel-graph-close { display: inline-flex; }
 .hud-rel-graph.is-expanded .hud-rel-toolbar { padding-right: 48px; }
-.hud-rel-graph.is-expanded .hud-rel-stage { min-height: 500px; }
-.hud-rel-graph.is-expanded .hud-rel-svg { transform: scale(var(--hud-rel-zoom,1)); transform-origin: center center; transition: transform .18s ease; }
+
 .hud-rel-graph-backdrop {
     position: fixed;
     inset: 0;
@@ -4640,10 +4491,10 @@
     .hud-rel-bottom { grid-template-columns: 1fr; }
     .hud-rel-inspector { min-height: 46px; }
     .hud-rel-inspector { display: block; }
-    .hud-rel-stage { min-height: 310px; }
+    
     .hud-rel-heading strong { font-size: 11px; }
     .hud-rel-heading small { font-size: 8px; }
-    .hud-rel-graph.is-expanded { width: min(95vw, 560px); }
+    
     .hud-rel-graph.is-expanded .hud-rel-stage { min-height: 330px; }
 }
 
@@ -4656,30 +4507,7 @@
     border: 1px solid rgba(255,255,255,0.08);
     cursor: pointer;
 }
-.hud-route-svg { display: block; width: 100%; height: auto; }
-.hud-route-map-bg {
-    fill: rgba(15, 23, 42, 0.55);
-    stroke: rgba(94, 234, 212, 0.22);
-    stroke-width: 1;
-}
-.hud-route-map-line-static {
-    stroke: rgba(94, 234, 212, 0.28);
-    stroke-width: 2.2;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-}
-.hud-route-map-line {
-    stroke: #5eead4;
-    stroke-width: 2.4;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-    stroke-dasharray: 8 7;
-    stroke-dashoffset: 0;
-}
-.hud-route-map.fx-active .hud-route-map-line {
-    animation: hud-route-draw 1.6s linear infinite;
-}
-@keyframes hud-route-draw { to { stroke-dashoffset: -30; } }
+
 /* --- Маршрут: схема линии --------------------------------------------------
    Прежняя кривая на сетке была нечитаемой: длинные названия обрезались,
    действие показать было негде, а сама линия сообщала только «точек три».
@@ -4771,33 +4599,11 @@
   .hud-route-time { font-size: .7em; }
 }
 
-.hud-route-map-dot { fill: #99f6e4; stroke: #0f172a; stroke-width: 1; }
 /* Сетка под маршрутом: карта, а не пустой прямоугольник. */
-.hud-route-grid-line { stroke: rgba(148,197,214,.10); stroke-width: 1; }
-.hud-route-grid { pointer-events: none; }
+
 /* Стартовая точка — полая, конечная — с ореолом: видно направление пути. */
-.hud-route-map-dot.start { fill: #0f172a; stroke: #5eead4; stroke-width: 2; }
-.hud-route-map-halo { fill: var(--hud-accent, #de859f); opacity: .16; }
-.hud-route-map.fx-active .hud-route-map-halo { animation: hud-route-halo 2.4s ease-in-out infinite; }
-@keyframes hud-route-halo {
-  0%, 100% { opacity: .12; r: 8; }
-  50%      { opacity: .28; r: 11; }
-}
+
 /* Время под названием места — мелко и приглушённо, чтобы не спорить с ним. */
-.hud-route-map-time {
-  font-size: 8px; letter-spacing: .4px;
-  fill: rgba(190,205,220,.5);
-  font-family: monospace;
-}
-.hud-route-map-dot.current { fill: var(--hud-accent, #de859f); filter: drop-shadow(0 0 4px var(--hud-accent, #de859f)); }
-.hud-route-map-label {
-    fill: #ccfbf1;
-    font-size: 7.5px;
-    font-family: inherit;
-    paint-order: stroke;
-    stroke: rgba(8, 20, 32, 0.8);
-    stroke-width: 2.2px;
-}
 
 .hud-secret-spread {
     display: flex;
@@ -4852,14 +4658,13 @@
 @media (max-width: 600px) {
   /* Не даём длинным словам/именам раздвигать карточку за экран. */
   .hud-timeline-container,
-  .hud-route-group,
-  .hud-mood-group,
-  .hud-secret-details,
-  .hud-secret-body,
-  .hud-secret-cols,
-  .hud-secret-col,
-  .hud-secret-person,
-  .hud-secret-psource {
+.hud-mood-group,
+.hud-secret-details,
+.hud-secret-body,
+.hud-secret-cols,
+.hud-secret-col,
+.hud-secret-person,
+.hud-secret-psource {
     min-width: 0;
     max-width: 100%;
     box-sizing: border-box;
@@ -4891,10 +4696,7 @@
     overflow-wrap: anywhere;
   }
 
-  .hud-secret-bar {
-    white-space: nowrap;
-    letter-spacing: 1px;
-  }
+  
 
   .hud-secret-body {
     padding: 12px;
@@ -4921,9 +4723,7 @@
   }
 
   /* Маршруты: название места/действие тоже не могут вылезти за экран. */
-  .hud-route-info,
-  .hud-route-place,
-  .hud-route-action {
+  .hud-route-info {
     min-width: 0;
     overflow-wrap: anywhere;
     word-break: break-word;
@@ -4968,11 +4768,8 @@
     padding: 10px;
   }
 
-  .hud-route-group {
-    padding: 9px;
-  }
+  
 }
-
 
 /* Участники: безопасное отображение на узких экранах */
 .hud-phone-participants-list {
@@ -5044,7 +4841,9 @@
     inset: 0;
     z-index: 8;
     pointer-events: none;
-    background: rgba(0, 0, 0, 0.28);
+    /* Сила берётся из настройки «Затемнение сцены»: это главный слой,
+       который гасит виджет, пока по нему не нажали. */
+    background: rgba(0, 0, 0, calc(0.28 * var(--scene-dark-k, 1)));
     opacity: 1;
     transition: opacity 0.6s ease;
 }
@@ -5101,13 +4900,12 @@
     }
 }
 
-
 /* TAVERNOS NIGHT SEASON ENHANCEMENT */
 .phase-night .hud-fx-bg { filter: brightness(0.62) saturate(0.88); transition: filter 1.2s ease; }
 .phase-night .hud-fx-season-scene { filter: brightness(0.58) saturate(0.78); }
 .phase-night .hud-fx-weather, .phase-night .hud-fx-cloud-cover, .phase-night .hud-fx-temp { filter: brightness(0.72); }
 .phase-night .hud-fx-celestial { filter: brightness(1.05) saturate(0.95); box-shadow: inset -9px -6px 0 0 rgba(20,25,45,0.55), 0 0 24px 7px rgba(210,220,255,0.42), 0 0 48px 14px rgba(180,200,255,0.14); }
-.phase-night .hud-fx-stars { z-index: 6; opacity: 1; filter: brightness(1.55) saturate(1.08); }
+.phase-night .hud-fx-stars { z-index: 0; opacity: 1; filter: brightness(1.55) saturate(1.08); }
 .phase-night .hud-fx-stars .hud-star2 { filter: brightness(1.45); box-shadow: 0 0 7px rgba(255,255,255,0.95), 0 0 14px rgba(180,210,255,0.42), 0 0 24px rgba(150,190,255,0.18); }
 .phase-night .hud-fx-fireflies { z-index: 7; }
 .phase-night .hud-fx-fireflies .hud-firefly { filter: brightness(1.35); }
@@ -5126,24 +4924,25 @@
 .hud-bg-tree.bt3 { left:62%; height:76%; transform:scale(0.94); opacity:0.66; }
 .hud-bg-tree.bt4 { right:0; height:86%; transform:scale(1.12); opacity:0.76; }
 .hud-bg-tree-autumn-foliage {
-    position:absolute; left:50%; top:18%; width:82px; height:58%; transform:translateX(-50%);
-    pointer-events:none; z-index:2; opacity:.82;
-    background:
-      radial-gradient(34px 24px at 22% 24%, rgba(154,82,35,.72) 0 58%, transparent 60%),
-      radial-gradient(40px 28px at 52% 18%, rgba(116,87,37,.62) 0 58%, transparent 60%),
-      radial-gradient(34px 24px at 78% 31%, rgba(167,94,38,.68) 0 58%, transparent 60%),
-      radial-gradient(32px 23px at 36% 46%, rgba(118,79,34,.58) 0 58%, transparent 60%),
-      radial-gradient(30px 22px at 68% 51%, rgba(145,81,31,.58) 0 58%, transparent 60%);
-    filter:saturate(.9);
+    /* Крона накрывает верхушку: ствол идёт до 28% сверху, поэтому начинаем
+       выше него и оставляем запас по ширине — ветки уходят за габарит
+       дерева, и листва должна их догонять. */
+    position:absolute; left:50%; top:-2%; width:108px; height:78%; transform:translateX(-50%);
+    pointer-events:none; z-index:2; opacity:.88;
+    /* Три плана листьев: крупные ближе, мелкие и бледные — в глубине. */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 62'%3E%3Cellipse cx='24' cy='22' rx='18.4' ry='13.8' fill='%234a2a10'/%3E%3Cellipse cx='48' cy='15' rx='22.1' ry='15.6' fill='%234a2a10'/%3E%3Cellipse cx='70' cy='24' rx='17.5' ry='12.9' fill='%234a2a10'/%3E%3Cellipse cx='34' cy='40' rx='16.6' ry='12.0' fill='%234a2a10'/%3E%3Cellipse cx='62' cy='42' rx='15.6' ry='11.0' fill='%234a2a10'/%3E%3Cellipse cx='36.7' cy='37.1' rx='1.4' ry='0.9' fill='%23b0602a' opacity='0.55' transform='rotate(41 36.7 37.1)'/%3E%3Cellipse cx='36.9' cy='29.8' rx='1.4' ry='1.0' fill='%23b0602a' opacity='0.55' transform='rotate(-44 36.9 29.8)'/%3E%3Cellipse cx='87.2' cy='21.4' rx='1.5' ry='1.1' fill='%23b0602a' opacity='0.56' transform='rotate(-79 87.2 21.4)'/%3E%3Cellipse cx='38.4' cy='24.7' rx='1.5' ry='1.1' fill='%23c66e2c' opacity='0.56' transform='rotate(20 38.4 24.7)'/%3E%3Cellipse cx='21.0' cy='38.7' rx='1.5' ry='1.0' fill='%23b0602a' opacity='0.56' transform='rotate(-76 21.0 38.7)'/%3E%3Cellipse cx='33.8' cy='42.6' rx='1.5' ry='1.2' fill='%23a8551f' opacity='0.56' transform='rotate(-17 33.8 42.6)'/%3E%3Cellipse cx='49.3' cy='21.0' rx='1.5' ry='0.9' fill='%23c66e2c' opacity='0.57' transform='rotate(89 49.3 21.0)'/%3E%3Cellipse cx='59.7' cy='25.3' rx='1.5' ry='1.1' fill='%23b0602a' opacity='0.57' transform='rotate(28 59.7 25.3)'/%3E%3Cellipse cx='37.5' cy='13.5' rx='1.5' ry='1.0' fill='%23c66e2c' opacity='0.57' transform='rotate(18 37.5 13.5)'/%3E%3Cellipse cx='20.3' cy='32.7' rx='1.5' ry='1.0' fill='%23b0602a' opacity='0.58' transform='rotate(35 20.3 32.7)'/%3E%3Cellipse cx='62.2' cy='8.7' rx='1.6' ry='1.1' fill='%23b0602a' opacity='0.58' transform='rotate(-11 62.2 8.7)'/%3E%3Cellipse cx='78.2' cy='13.6' rx='1.6' ry='1.1' fill='%23b0602a' opacity='0.58' transform='rotate(49 78.2 13.6)'/%3E%3Cellipse cx='23.2' cy='39.8' rx='1.6' ry='1.0' fill='%23c66e2c' opacity='0.59' transform='rotate(-13 23.2 39.8)'/%3E%3Cellipse cx='47.1' cy='41.4' rx='1.6' ry='1.1' fill='%23a8551f' opacity='0.59' transform='rotate(89 47.1 41.4)'/%3E%3Cellipse cx='19.3' cy='42.1' rx='1.6' ry='1.0' fill='%23c66e2c' opacity='0.60' transform='rotate(-28 19.3 42.1)'/%3E%3Cellipse cx='11.3' cy='20.5' rx='1.7' ry='1.3' fill='%23e09640' opacity='0.62' transform='rotate(-77 11.3 20.5)'/%3E%3Cellipse cx='59.7' cy='10.6' rx='1.7' ry='1.4' fill='%23c66e2c' opacity='0.62' transform='rotate(71 59.7 10.6)'/%3E%3Cellipse cx='79.6' cy='25.3' rx='1.8' ry='1.2' fill='%23b0602a' opacity='0.63' transform='rotate(-89 79.6 25.3)'/%3E%3Cellipse cx='45.3' cy='19.9' rx='1.8' ry='1.3' fill='%23b0602a' opacity='0.63' transform='rotate(-60 45.3 19.9)'/%3E%3Cellipse cx='75.6' cy='23.6' rx='1.8' ry='1.1' fill='%23a8551f' opacity='0.63' transform='rotate(-52 75.6 23.6)'/%3E%3Cellipse cx='19.0' cy='26.7' rx='1.8' ry='1.3' fill='%23c66e2c' opacity='0.63' transform='rotate(23 19.0 26.7)'/%3E%3Cellipse cx='22.0' cy='21.4' rx='1.8' ry='1.3' fill='%23c66e2c' opacity='0.63' transform='rotate(69 22.0 21.4)'/%3E%3Cellipse cx='30.9' cy='44.2' rx='1.8' ry='1.4' fill='%23b0602a' opacity='0.64' transform='rotate(-15 30.9 44.2)'/%3E%3Cellipse cx='39.6' cy='15.2' rx='1.8' ry='1.3' fill='%23c66e2c' opacity='0.64' transform='rotate(-20 39.6 15.2)'/%3E%3Cellipse cx='45.6' cy='7.7' rx='1.9' ry='1.1' fill='%23e09640' opacity='0.65' transform='rotate(-87 45.6 7.7)'/%3E%3Cellipse cx='82.7' cy='33.1' rx='1.9' ry='1.2' fill='%238a4e20' opacity='0.65' transform='rotate(15 82.7 33.1)'/%3E%3Cellipse cx='32.4' cy='36.2' rx='1.9' ry='1.2' fill='%23b0602a' opacity='0.66' transform='rotate(-52 32.4 36.2)'/%3E%3Cellipse cx='85.9' cy='25.9' rx='1.9' ry='1.4' fill='%23a8551f' opacity='0.66' transform='rotate(47 85.9 25.9)'/%3E%3Cellipse cx='5.0' cy='23.9' rx='1.9' ry='1.5' fill='%23c66e2c' opacity='0.67' transform='rotate(60 5.0 23.9)'/%3E%3Cellipse cx='64.5' cy='32.9' rx='2.0' ry='1.6' fill='%23b0602a' opacity='0.67' transform='rotate(1 64.5 32.9)'/%3E%3Cellipse cx='55.4' cy='4.9' rx='2.0' ry='1.5' fill='%23e09640' opacity='0.68' transform='rotate(-47 55.4 4.9)'/%3E%3Cellipse cx='70.1' cy='39.5' rx='2.0' ry='1.6' fill='%238a4e20' opacity='0.68' transform='rotate(19 70.1 39.5)'/%3E%3Cellipse cx='20.0' cy='26.3' rx='2.0' ry='1.5' fill='%23e09640' opacity='0.68' transform='rotate(47 20.0 26.3)'/%3E%3Cellipse cx='43.7' cy='16.2' rx='2.0' ry='1.5' fill='%23c66e2c' opacity='0.68' transform='rotate(-61 43.7 16.2)'/%3E%3Cellipse cx='46.1' cy='2.7' rx='2.0' ry='1.4' fill='%23e09640' opacity='0.68' transform='rotate(-80 46.1 2.7)'/%3E%3Cellipse cx='56.8' cy='50.0' rx='2.1' ry='1.3' fill='%238a4e20' opacity='0.69' transform='rotate(-8 56.8 50.0)'/%3E%3Cellipse cx='45.4' cy='4.0' rx='2.1' ry='1.4' fill='%23e09640' opacity='0.69' transform='rotate(7 45.4 4.0)'/%3E%3Cellipse cx='41.6' cy='51.7' rx='2.1' ry='1.4' fill='%238a4e20' opacity='0.70' transform='rotate(-82 41.6 51.7)'/%3E%3Cellipse cx='33.5' cy='16.6' rx='2.1' ry='1.5' fill='%23c66e2c' opacity='0.70' transform='rotate(-3 33.5 16.6)'/%3E%3Cellipse cx='80.8' cy='17.2' rx='2.1' ry='1.3' fill='%23b0602a' opacity='0.70' transform='rotate(-23 80.8 17.2)'/%3E%3Cellipse cx='66.1' cy='24.6' rx='2.1' ry='1.3' fill='%23b0602a' opacity='0.70' transform='rotate(-71 66.1 24.6)'/%3E%3Cellipse cx='74.0' cy='35.9' rx='2.1' ry='1.6' fill='%23a8551f' opacity='0.71' transform='rotate(59 74.0 35.9)'/%3E%3Cellipse cx='35.2' cy='39.2' rx='2.1' ry='1.6' fill='%23b0602a' opacity='0.71' transform='rotate(-15 35.2 39.2)'/%3E%3Cellipse cx='29.5' cy='8.8' rx='2.2' ry='1.7' fill='%23e09640' opacity='0.73' transform='rotate(-35 29.5 8.8)'/%3E%3Cellipse cx='52.8' cy='10.1' rx='2.2' ry='1.5' fill='%23c66e2c' opacity='0.73' transform='rotate(-40 52.8 10.1)'/%3E%3Cellipse cx='13.9' cy='26.6' rx='2.2' ry='1.6' fill='%23c66e2c' opacity='0.73' transform='rotate(89 13.9 26.6)'/%3E%3Cellipse cx='78.5' cy='24.4' rx='2.2' ry='1.5' fill='%23a8551f' opacity='0.73' transform='rotate(-36 78.5 24.4)'/%3E%3Cellipse cx='59.7' cy='4.7' rx='2.2' ry='1.8' fill='%23c66e2c' opacity='0.73' transform='rotate(-76 59.7 4.7)'/%3E%3Cellipse cx='72.1' cy='29.5' rx='2.2' ry='1.8' fill='%238a4e20' opacity='0.73' transform='rotate(-57 72.1 29.5)'/%3E%3Cellipse cx='61.0' cy='37.5' rx='2.3' ry='1.6' fill='%23b0602a' opacity='0.73' transform='rotate(25 61.0 37.5)'/%3E%3Cellipse cx='52.2' cy='42.1' rx='2.3' ry='1.8' fill='%23a8551f' opacity='0.74' transform='rotate(79 52.2 42.1)'/%3E%3Cellipse cx='27.2' cy='17.9' rx='2.3' ry='1.7' fill='%23c66e2c' opacity='0.74' transform='rotate(-2 27.2 17.9)'/%3E%3Cellipse cx='67.4' cy='50.5' rx='2.3' ry='1.8' fill='%238a4e20' opacity='0.75' transform='rotate(52 67.4 50.5)'/%3E%3Cellipse cx='64.6' cy='33.5' rx='2.3' ry='1.8' fill='%23b0602a' opacity='0.75' transform='rotate(43 64.6 33.5)'/%3E%3Cellipse cx='26.5' cy='15.3' rx='2.4' ry='1.8' fill='%23c66e2c' opacity='0.76' transform='rotate(-2 26.5 15.3)'/%3E%3Cellipse cx='17.0' cy='13.5' rx='2.4' ry='1.8' fill='%23e09640' opacity='0.76' transform='rotate(71 17.0 13.5)'/%3E%3Cellipse cx='34.4' cy='53.0' rx='2.4' ry='1.9' fill='%23a8551f' opacity='0.77' transform='rotate(-22 34.4 53.0)'/%3E%3Cellipse cx='80.5' cy='20.2' rx='2.5' ry='1.7' fill='%23a8551f' opacity='0.78' transform='rotate(74 80.5 20.2)'/%3E%3Cellipse cx='86.0' cy='20.2' rx='2.5' ry='1.9' fill='%23a8551f' opacity='0.78' transform='rotate(-68 86.0 20.2)'/%3E%3Cellipse cx='39.4' cy='7.4' rx='2.5' ry='1.7' fill='%23c66e2c' opacity='0.79' transform='rotate(43 39.4 7.4)'/%3E%3Cellipse cx='84.8' cy='32.3' rx='2.5' ry='1.5' fill='%23a8551f' opacity='0.79' transform='rotate(36 84.8 32.3)'/%3E%3Cellipse cx='73.1' cy='33.2' rx='2.5' ry='2.0' fill='%23a8551f' opacity='0.79' transform='rotate(-35 73.1 33.2)'/%3E%3Cellipse cx='31.2' cy='34.4' rx='2.5' ry='1.5' fill='%23c66e2c' opacity='0.79' transform='rotate(-68 31.2 34.4)'/%3E%3Cellipse cx='23.9' cy='50.1' rx='2.6' ry='2.0' fill='%23b0602a' opacity='0.80' transform='rotate(-10 23.9 50.1)'/%3E%3Cellipse cx='47.8' cy='21.8' rx='2.6' ry='2.0' fill='%23c66e2c' opacity='0.80' transform='rotate(-49 47.8 21.8)'/%3E%3Cellipse cx='51.1' cy='24.4' rx='2.6' ry='1.8' fill='%23b0602a' opacity='0.81' transform='rotate(-85 51.1 24.4)'/%3E%3Cellipse cx='76.3' cy='17.1' rx='2.6' ry='2.0' fill='%23a8551f' opacity='0.81' transform='rotate(-57 76.3 17.1)'/%3E%3Cellipse cx='53.0' cy='28.1' rx='2.6' ry='1.7' fill='%23b0602a' opacity='0.82' transform='rotate(-76 53.0 28.1)'/%3E%3Cellipse cx='51.9' cy='34.5' rx='2.6' ry='2.0' fill='%23a8551f' opacity='0.82' transform='rotate(-45 51.9 34.5)'/%3E%3Cellipse cx='13.6' cy='34.8' rx='2.7' ry='1.8' fill='%23b0602a' opacity='0.82' transform='rotate(71 13.6 34.8)'/%3E%3Cellipse cx='6.0' cy='23.0' rx='2.7' ry='1.8' fill='%23c66e2c' opacity='0.82' transform='rotate(-58 6.0 23.0)'/%3E%3Cellipse cx='15.8' cy='11.6' rx='2.7' ry='1.8' fill='%23c66e2c' opacity='0.83' transform='rotate(-45 15.8 11.6)'/%3E%3Cellipse cx='37.9' cy='22.9' rx='2.7' ry='2.1' fill='%23c66e2c' opacity='0.84' transform='rotate(74 37.9 22.9)'/%3E%3Cellipse cx='76.4' cy='22.0' rx='2.8' ry='2.2' fill='%23b0602a' opacity='0.84' transform='rotate(-54 76.4 22.0)'/%3E%3Cellipse cx='53.8' cy='29.3' rx='2.8' ry='1.7' fill='%23a8551f' opacity='0.85' transform='rotate(10 53.8 29.3)'/%3E%3Cellipse cx='32.6' cy='7.1' rx='2.8' ry='1.7' fill='%23e09640' opacity='0.85' transform='rotate(-46 32.6 7.1)'/%3E%3Cellipse cx='54.2' cy='34.5' rx='2.8' ry='1.8' fill='%23b0602a' opacity='0.85' transform='rotate(72 54.2 34.5)'/%3E%3Cellipse cx='18.3' cy='29.6' rx='2.8' ry='2.1' fill='%23b0602a' opacity='0.85' transform='rotate(61 18.3 29.6)'/%3E%3Cellipse cx='45.4' cy='24.0' rx='2.8' ry='2.0' fill='%23b0602a' opacity='0.86' transform='rotate(68 45.4 24.0)'/%3E%3Cellipse cx='67.2' cy='38.3' rx='2.9' ry='2.0' fill='%238a4e20' opacity='0.86' transform='rotate(2 67.2 38.3)'/%3E%3Cellipse cx='7.6' cy='14.3' rx='2.9' ry='2.0' fill='%23f0b25c' opacity='0.87' transform='rotate(36 7.6 14.3)'/%3E%3Cellipse cx='57.1' cy='21.8' rx='2.9' ry='2.1' fill='%23c66e2c' opacity='0.88' transform='rotate(-3 57.1 21.8)'/%3E%3Cellipse cx='34.2' cy='9.5' rx='2.9' ry='2.2' fill='%23c66e2c' opacity='0.88' transform='rotate(44 34.2 9.5)'/%3E%3Cellipse cx='26.1' cy='14.1' rx='3.0' ry='2.1' fill='%23e09640' opacity='0.89' transform='rotate(-65 26.1 14.1)'/%3E%3Cellipse cx='62.3' cy='3.3' rx='3.0' ry='2.2' fill='%23c66e2c' opacity='0.89' transform='rotate(-34 62.3 3.3)'/%3E%3Cellipse cx='54.1' cy='1.1' rx='3.0' ry='2.3' fill='%23e09640' opacity='0.89' transform='rotate(17 54.1 1.1)'/%3E%3Cellipse cx='72.2' cy='10.7' rx='3.0' ry='2.1' fill='%23c66e2c' opacity='0.89' transform='rotate(-64 72.2 10.7)'/%3E%3Cellipse cx='37.9' cy='11.1' rx='3.0' ry='2.2' fill='%23e09640' opacity='0.89' transform='rotate(28 37.9 11.1)'/%3E%3Cellipse cx='58.0' cy='2.0' rx='3.0' ry='1.8' fill='%23e09640' opacity='0.90' transform='rotate(-71 58.0 2.0)'/%3E%3Cellipse cx='61.1' cy='12.0' rx='3.0' ry='2.4' fill='%23b0602a' opacity='0.90' transform='rotate(-85 61.1 12.0)'/%3E%3Cellipse cx='66.6' cy='11.9' rx='3.1' ry='2.4' fill='%23c66e2c' opacity='0.90' transform='rotate(37 66.6 11.9)'/%3E%3Cellipse cx='25.5' cy='20.7' rx='3.1' ry='2.3' fill='%23c66e2c' opacity='0.91' transform='rotate(-36 25.5 20.7)'/%3E%3Cellipse cx='53.0' cy='10.1' rx='3.1' ry='2.5' fill='%23c66e2c' opacity='0.91' transform='rotate(70 53.0 10.1)'/%3E%3Cellipse cx='58.2' cy='19.2' rx='3.1' ry='1.9' fill='%23c66e2c' opacity='0.91' transform='rotate(-44 58.2 19.2)'/%3E%3Cellipse cx='33.5' cy='47.7' rx='3.1' ry='2.1' fill='%23b0602a' opacity='0.92' transform='rotate(58 33.5 47.7)'/%3E%3Cellipse cx='56.0' cy='7.7' rx='3.1' ry='1.9' fill='%23b0602a' opacity='0.92' transform='rotate(-37 56.0 7.7)'/%3E%3Cellipse cx='47.8' cy='13.7' rx='3.1' ry='2.1' fill='%23c66e2c' opacity='0.92' transform='rotate(29 47.8 13.7)'/%3E%3Cellipse cx='41.5' cy='37.7' rx='3.1' ry='2.3' fill='%23a8551f' opacity='0.92' transform='rotate(22 41.5 37.7)'/%3E%3Cellipse cx='78.4' cy='14.6' rx='3.1' ry='2.4' fill='%23c66e2c' opacity='0.92' transform='rotate(50 78.4 14.6)'/%3E%3Cellipse cx='45.7' cy='25.0' rx='3.2' ry='2.3' fill='%23c66e2c' opacity='0.93' transform='rotate(3 45.7 25.0)'/%3E%3Cellipse cx='43.0' cy='6.8' rx='3.2' ry='2.1' fill='%23c66e2c' opacity='0.93' transform='rotate(-56 43.0 6.8)'/%3E%3Cellipse cx='17.3' cy='37.6' rx='3.2' ry='2.0' fill='%23b0602a' opacity='0.93' transform='rotate(54 17.3 37.6)'/%3E%3Cellipse cx='37.7' cy='48.1' rx='3.2' ry='2.4' fill='%23a8551f' opacity='0.94' transform='rotate(-89 37.7 48.1)'/%3E%3Cellipse cx='29.2' cy='10.0' rx='3.2' ry='2.6' fill='%23e09640' opacity='0.94' transform='rotate(4 29.2 10.0)'/%3E%3Cellipse cx='48.4' cy='5.4' rx='3.2' ry='2.3' fill='%23c66e2c' opacity='0.94' transform='rotate(5 48.4 5.4)'/%3E%3Cellipse cx='17.0' cy='38.9' rx='3.2' ry='2.0' fill='%23c66e2c' opacity='0.94' transform='rotate(-34 17.0 38.9)'/%3E%3Cellipse cx='36.2' cy='36.3' rx='3.2' ry='1.9' fill='%23b0602a' opacity='0.94' transform='rotate(-84 36.2 36.3)'/%3E%3Cellipse cx='42.4' cy='36.7' rx='3.2' ry='2.4' fill='%23b0602a' opacity='0.94' transform='rotate(0 42.4 36.7)'/%3E%3Cellipse cx='44.4' cy='29.4' rx='3.2' ry='2.4' fill='%23c66e2c' opacity='0.95' transform='rotate(-88 44.4 29.4)'/%3E%3Cellipse cx='18.9' cy='21.7' rx='3.3' ry='2.0' fill='%23c66e2c' opacity='0.95' transform='rotate(-21 18.9 21.7)'/%3E%3Cellipse cx='51.2' cy='7.2' rx='3.3' ry='2.4' fill='%23c66e2c' opacity='0.95' transform='rotate(12 51.2 7.2)'/%3E%3Cellipse cx='35.4' cy='25.1' rx='3.3' ry='2.1' fill='%23c66e2c' opacity='0.95' transform='rotate(-29 35.4 25.1)'/%3E%3Cellipse cx='35.2' cy='47.9' rx='3.3' ry='2.5' fill='%23b0602a' opacity='0.95' transform='rotate(88 35.2 47.9)'/%3E%3Cellipse cx='38.4' cy='6.8' rx='3.3' ry='2.3' fill='%23e09640' opacity='0.96' transform='rotate(-7 38.4 6.8)'/%3E%3Cellipse cx='16.4' cy='32.8' rx='3.3' ry='2.2' fill='%23c66e2c' opacity='0.96' transform='rotate(-65 16.4 32.8)'/%3E%3Cellipse cx='59.3' cy='15.1' rx='3.3' ry='2.1' fill='%23c66e2c' opacity='0.96' transform='rotate(16 59.3 15.1)'/%3E%3Cellipse cx='25.7' cy='17.9' rx='3.4' ry='2.7' fill='%23e09640' opacity='0.97' transform='rotate(12 25.7 17.9)'/%3E%3Cellipse cx='55.2' cy='25.6' rx='3.4' ry='2.7' fill='%23b0602a' opacity='0.99' transform='rotate(-71 55.2 25.6)'/%3E%3Cellipse cx='54.8' cy='22.0' rx='3.4' ry='2.5' fill='%23c66e2c' opacity='0.99' transform='rotate(-6 54.8 22.0)'/%3E%3Cellipse cx='67.8' cy='17.2' rx='3.5' ry='2.2' fill='%23b0602a' opacity='0.99' transform='rotate(84 67.8 17.2)'/%3E%3C/svg%3E");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: translateX(-50%) rotate(-3deg);
+    filter: saturate(.95) drop-shadow(1px 3px 2px rgba(28,16,6,.42));
 }
+/* Яблоня: листва гуще и теплее — планы плотнее и на тон ярче. */
 .hud-bg-tree-autumn-foliage.foliage-2 {
     opacity:.95;
-    background:
-      radial-gradient(38px 26px at 20% 24%, rgba(166,91,38,.82) 0 58%, transparent 60%),
-      radial-gradient(44px 30px at 50% 18%, rgba(126,91,38,.72) 0 58%, transparent 60%),
-      radial-gradient(38px 27px at 79% 28%, rgba(182,101,42,.78) 0 58%, transparent 60%),
-      radial-gradient(34px 24px at 34% 47%, rgba(132,82,33,.66) 0 58%, transparent 60%),
-      radial-gradient(34px 23px at 69% 50%, rgba(158,90,34,.68) 0 58%, transparent 60%);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 90 62'%3E%3Cellipse cx='24' cy='22' rx='18.4' ry='13.8' fill='%23533011'/%3E%3Cellipse cx='48' cy='15' rx='22.1' ry='15.6' fill='%23533011'/%3E%3Cellipse cx='70' cy='24' rx='17.5' ry='12.9' fill='%23533011'/%3E%3Cellipse cx='34' cy='40' rx='16.6' ry='12.0' fill='%23533011'/%3E%3Cellipse cx='62' cy='42' rx='15.6' ry='11.0' fill='%23533011'/%3E%3Cellipse cx='40.1' cy='2.8' rx='1.4' ry='1.1' fill='%23c66e2c' opacity='0.55' transform='rotate(16 40.1 2.8)'/%3E%3Cellipse cx='30.3' cy='21.0' rx='1.4' ry='1.0' fill='%23c66e2c' opacity='0.55' transform='rotate(-13 30.3 21.0)'/%3E%3Cellipse cx='78.2' cy='35.5' rx='1.4' ry='0.9' fill='%238a4e20' opacity='0.55' transform='rotate(16 78.2 35.5)'/%3E%3Cellipse cx='57.6' cy='19.9' rx='1.4' ry='1.1' fill='%23c66e2c' opacity='0.56' transform='rotate(-47 57.6 19.9)'/%3E%3Cellipse cx='39.5' cy='27.8' rx='1.4' ry='1.0' fill='%23b0602a' opacity='0.56' transform='rotate(-82 39.5 27.8)'/%3E%3Cellipse cx='83.3' cy='18.2' rx='1.4' ry='1.1' fill='%23b0602a' opacity='0.56' transform='rotate(-64 83.3 18.2)'/%3E%3Cellipse cx='51.5' cy='31.1' rx='1.4' ry='1.1' fill='%23b0602a' opacity='0.56' transform='rotate(4 51.5 31.1)'/%3E%3Cellipse cx='15.5' cy='14.2' rx='1.4' ry='1.0' fill='%23e09640' opacity='0.56' transform='rotate(34 15.5 14.2)'/%3E%3Cellipse cx='45.7' cy='18.2' rx='1.5' ry='0.9' fill='%23b0602a' opacity='0.56' transform='rotate(75 45.7 18.2)'/%3E%3Cellipse cx='51.7' cy='0.1' rx='1.5' ry='1.1' fill='%23e09640' opacity='0.56' transform='rotate(-53 51.7 0.1)'/%3E%3Cellipse cx='10.0' cy='30.4' rx='1.5' ry='1.0' fill='%23c66e2c' opacity='0.57' transform='rotate(-78 10.0 30.4)'/%3E%3Cellipse cx='21.8' cy='29.4' rx='1.5' ry='0.9' fill='%23c66e2c' opacity='0.57' transform='rotate(60 21.8 29.4)'/%3E%3Cellipse cx='44.8' cy='30.5' rx='1.5' ry='0.9' fill='%23b0602a' opacity='0.57' transform='rotate(55 44.8 30.5)'/%3E%3Cellipse cx='69.1' cy='16.4' rx='1.5' ry='1.1' fill='%23b0602a' opacity='0.58' transform='rotate(77 69.1 16.4)'/%3E%3Cellipse cx='70.1' cy='44.9' rx='1.5' ry='1.1' fill='%238a4e20' opacity='0.58' transform='rotate(43 70.1 44.9)'/%3E%3Cellipse cx='36.4' cy='12.2' rx='1.5' ry='1.1' fill='%23e09640' opacity='0.58' transform='rotate(-68 36.4 12.2)'/%3E%3Cellipse cx='21.4' cy='48.4' rx='1.5' ry='1.0' fill='%23b0602a' opacity='0.58' transform='rotate(-11 21.4 48.4)'/%3E%3Cellipse cx='36.4' cy='3.1' rx='1.6' ry='1.2' fill='%23e09640' opacity='0.58' transform='rotate(-79 36.4 3.1)'/%3E%3Cellipse cx='53.1' cy='4.3' rx='1.6' ry='1.2' fill='%23c66e2c' opacity='0.59' transform='rotate(-69 53.1 4.3)'/%3E%3Cellipse cx='66.4' cy='8.2' rx='1.6' ry='1.0' fill='%23c66e2c' opacity='0.59' transform='rotate(-48 66.4 8.2)'/%3E%3Cellipse cx='58.6' cy='30.4' rx='1.6' ry='1.2' fill='%23b0602a' opacity='0.59' transform='rotate(38 58.6 30.4)'/%3E%3Cellipse cx='46.8' cy='16.8' rx='1.6' ry='1.1' fill='%23c66e2c' opacity='0.59' transform='rotate(62 46.8 16.8)'/%3E%3Cellipse cx='53.2' cy='7.5' rx='1.6' ry='1.2' fill='%23c66e2c' opacity='0.59' transform='rotate(87 53.2 7.5)'/%3E%3Cellipse cx='71.5' cy='46.6' rx='1.6' ry='1.3' fill='%238a4e20' opacity='0.59' transform='rotate(-51 71.5 46.6)'/%3E%3Cellipse cx='79.8' cy='13.5' rx='1.6' ry='1.0' fill='%23b0602a' opacity='0.59' transform='rotate(-14 79.8 13.5)'/%3E%3Cellipse cx='16.6' cy='21.8' rx='1.6' ry='1.0' fill='%23c66e2c' opacity='0.59' transform='rotate(70 16.6 21.8)'/%3E%3Cellipse cx='40.8' cy='20.0' rx='1.6' ry='1.1' fill='%23c66e2c' opacity='0.60' transform='rotate(-67 40.8 20.0)'/%3E%3Cellipse cx='50.3' cy='27.0' rx='1.6' ry='1.2' fill='%23a8551f' opacity='0.60' transform='rotate(32 50.3 27.0)'/%3E%3Cellipse cx='43.5' cy='19.1' rx='1.6' ry='1.0' fill='%23c66e2c' opacity='0.60' transform='rotate(48 43.5 19.1)'/%3E%3Cellipse cx='42.2' cy='7.4' rx='1.6' ry='1.1' fill='%23e09640' opacity='0.60' transform='rotate(-77 42.2 7.4)'/%3E%3Cellipse cx='30.4' cy='49.6' rx='1.6' ry='1.0' fill='%23b0602a' opacity='0.60' transform='rotate(33 30.4 49.6)'/%3E%3Cellipse cx='39.9' cy='41.0' rx='1.6' ry='1.1' fill='%23b0602a' opacity='0.60' transform='rotate(-81 39.9 41.0)'/%3E%3Cellipse cx='28.2' cy='44.5' rx='1.7' ry='1.1' fill='%23b0602a' opacity='0.61' transform='rotate(75 28.2 44.5)'/%3E%3Cellipse cx='9.7' cy='30.1' rx='1.7' ry='1.2' fill='%23c66e2c' opacity='0.62' transform='rotate(3 9.7 30.1)'/%3E%3Cellipse cx='68.1' cy='8.1' rx='1.7' ry='1.2' fill='%23b0602a' opacity='0.62' transform='rotate(-87 68.1 8.1)'/%3E%3Cellipse cx='25.0' cy='9.6' rx='1.7' ry='1.1' fill='%23f0b25c' opacity='0.62' transform='rotate(66 25.0 9.6)'/%3E%3Cellipse cx='19.8' cy='26.1' rx='1.7' ry='1.3' fill='%23c66e2c' opacity='0.62' transform='rotate(15 19.8 26.1)'/%3E%3Cellipse cx='57.9' cy='45.6' rx='1.7' ry='1.3' fill='%238a4e20' opacity='0.62' transform='rotate(7 57.9 45.6)'/%3E%3Cellipse cx='88.7' cy='21.6' rx='1.8' ry='1.1' fill='%23a8551f' opacity='0.63' transform='rotate(47 88.7 21.6)'/%3E%3Cellipse cx='20.1' cy='7.5' rx='1.8' ry='1.3' fill='%23e09640' opacity='0.63' transform='rotate(-62 20.1 7.5)'/%3E%3Cellipse cx='31.2' cy='16.5' rx='1.8' ry='1.3' fill='%23c66e2c' opacity='0.63' transform='rotate(23 31.2 16.5)'/%3E%3Cellipse cx='22.6' cy='30.1' rx='1.8' ry='1.4' fill='%23c66e2c' opacity='0.63' transform='rotate(69 22.6 30.1)'/%3E%3Cellipse cx='64.0' cy='4.9' rx='1.8' ry='1.4' fill='%23c66e2c' opacity='0.64' transform='rotate(5 64.0 4.9)'/%3E%3Cellipse cx='36.8' cy='9.5' rx='1.8' ry='1.3' fill='%23e09640' opacity='0.64' transform='rotate(-71 36.8 9.5)'/%3E%3Cellipse cx='23.5' cy='42.8' rx='1.8' ry='1.3' fill='%23b0602a' opacity='0.64' transform='rotate(87 23.5 42.8)'/%3E%3Cellipse cx='61.9' cy='10.8' rx='1.9' ry='1.5' fill='%23b0602a' opacity='0.65' transform='rotate(36 61.9 10.8)'/%3E%3Cellipse cx='20.8' cy='43.1' rx='1.9' ry='1.1' fill='%23a8551f' opacity='0.65' transform='rotate(28 20.8 43.1)'/%3E%3Cellipse cx='60.7' cy='12.4' rx='1.9' ry='1.3' fill='%23c66e2c' opacity='0.65' transform='rotate(77 60.7 12.4)'/%3E%3Cellipse cx='64.5' cy='24.5' rx='1.9' ry='1.5' fill='%23a8551f' opacity='0.66' transform='rotate(-49 64.5 24.5)'/%3E%3Cellipse cx='68.9' cy='40.1' rx='1.9' ry='1.2' fill='%238a4e20' opacity='0.66' transform='rotate(23 68.9 40.1)'/%3E%3Cellipse cx='35.4' cy='7.3' rx='1.9' ry='1.2' fill='%23c66e2c' opacity='0.67' transform='rotate(49 35.4 7.3)'/%3E%3Cellipse cx='37.0' cy='48.6' rx='2.0' ry='1.2' fill='%23b0602a' opacity='0.67' transform='rotate(-79 37.0 48.6)'/%3E%3Cellipse cx='18.7' cy='39.6' rx='2.0' ry='1.3' fill='%23c66e2c' opacity='0.67' transform='rotate(75 18.7 39.6)'/%3E%3Cellipse cx='26.2' cy='36.1' rx='2.0' ry='1.3' fill='%23c66e2c' opacity='0.67' transform='rotate(-11 26.2 36.1)'/%3E%3Cellipse cx='46.6' cy='3.3' rx='2.0' ry='1.2' fill='%23e09640' opacity='0.68' transform='rotate(12 46.6 3.3)'/%3E%3Cellipse cx='75.8' cy='28.9' rx='2.0' ry='1.6' fill='%238a4e20' opacity='0.68' transform='rotate(79 75.8 28.9)'/%3E%3Cellipse cx='67.9' cy='36.2' rx='2.1' ry='1.4' fill='%23b0602a' opacity='0.69' transform='rotate(-85 67.9 36.2)'/%3E%3Cellipse cx='71.2' cy='45.6' rx='2.1' ry='1.3' fill='%23a8551f' opacity='0.69' transform='rotate(-70 71.2 45.6)'/%3E%3Cellipse cx='78.8' cy='40.8' rx='2.1' ry='1.2' fill='%238a4e20' opacity='0.69' transform='rotate(-73 78.8 40.8)'/%3E%3Cellipse cx='37.0' cy='49.4' rx='2.1' ry='1.3' fill='%238a4e20' opacity='0.69' transform='rotate(-50 37.0 49.4)'/%3E%3Cellipse cx='41.6' cy='10.8' rx='2.1' ry='1.3' fill='%23e09640' opacity='0.69' transform='rotate(-21 41.6 10.8)'/%3E%3Cellipse cx='24.7' cy='30.0' rx='2.1' ry='1.4' fill='%23b0602a' opacity='0.69' transform='rotate(-38 24.7 30.0)'/%3E%3Cellipse cx='45.5' cy='27.4' rx='2.1' ry='1.5' fill='%23b0602a' opacity='0.70' transform='rotate(27 45.5 27.4)'/%3E%3Cellipse cx='82.8' cy='31.0' rx='2.1' ry='1.3' fill='%23a8551f' opacity='0.70' transform='rotate(85 82.8 31.0)'/%3E%3Cellipse cx='63.4' cy='40.0' rx='2.1' ry='1.4' fill='%23a8551f' opacity='0.71' transform='rotate(-65 63.4 40.0)'/%3E%3Cellipse cx='26.9' cy='40.5' rx='2.2' ry='1.6' fill='%23b0602a' opacity='0.71' transform='rotate(19 26.9 40.5)'/%3E%3Cellipse cx='37.5' cy='22.8' rx='2.2' ry='1.4' fill='%23e09640' opacity='0.72' transform='rotate(-47 37.5 22.8)'/%3E%3Cellipse cx='9.1' cy='18.7' rx='2.2' ry='1.6' fill='%23f0b25c' opacity='0.73' transform='rotate(-29 9.1 18.7)'/%3E%3Cellipse cx='7.7' cy='28.2' rx='2.2' ry='1.5' fill='%23c66e2c' opacity='0.73' transform='rotate(3 7.7 28.2)'/%3E%3Cellipse cx='26.9' cy='46.8' rx='2.3' ry='1.6' fill='%23a8551f' opacity='0.73' transform='rotate(-56 26.9 46.8)'/%3E%3Cellipse cx='41.3' cy='23.0' rx='2.3' ry='1.7' fill='%23b0602a' opacity='0.73' transform='rotate(-71 41.3 23.0)'/%3E%3Cellipse cx='33.6' cy='50.1' rx='2.3' ry='1.7' fill='%23a8551f' opacity='0.73' transform='rotate(-15 33.6 50.1)'/%3E%3Cellipse cx='64.1' cy='4.8' rx='2.3' ry='1.5' fill='%23c66e2c' opacity='0.74' transform='rotate(-72 64.1 4.8)'/%3E%3Cellipse cx='19.8' cy='16.7' rx='2.3' ry='1.7' fill='%23e09640' opacity='0.74' transform='rotate(-51 19.8 16.7)'/%3E%3Cellipse cx='36.5' cy='5.8' rx='2.3' ry='1.6' fill='%23e09640' opacity='0.74' transform='rotate(-39 36.5 5.8)'/%3E%3Cellipse cx='15.5' cy='11.4' rx='2.3' ry='1.7' fill='%23e09640' opacity='0.75' transform='rotate(-63 15.5 11.4)'/%3E%3Cellipse cx='27.5' cy='44.0' rx='2.3' ry='1.5' fill='%23a8551f' opacity='0.75' transform='rotate(8 27.5 44.0)'/%3E%3Cellipse cx='14.9' cy='17.7' rx='2.4' ry='1.6' fill='%23c66e2c' opacity='0.76' transform='rotate(25 14.9 17.7)'/%3E%3Cellipse cx='48.6' cy='37.3' rx='2.4' ry='1.9' fill='%23b0602a' opacity='0.76' transform='rotate(63 48.6 37.3)'/%3E%3Cellipse cx='69.2' cy='49.4' rx='2.4' ry='1.5' fill='%238a4e20' opacity='0.76' transform='rotate(9 69.2 49.4)'/%3E%3Cellipse cx='28.3' cy='8.4' rx='2.4' ry='1.7' fill='%23c66e2c' opacity='0.76' transform='rotate(5 28.3 8.4)'/%3E%3Cellipse cx='34.6' cy='47.0' rx='2.4' ry='1.9' fill='%23a8551f' opacity='0.77' transform='rotate(-15 34.6 47.0)'/%3E%3Cellipse cx='63.7' cy='24.9' rx='2.4' ry='1.8' fill='%23a8551f' opacity='0.77' transform='rotate(28 63.7 24.9)'/%3E%3Cellipse cx='72.6' cy='50.9' rx='2.5' ry='1.5' fill='%236d3c17' opacity='0.78' transform='rotate(61 72.6 50.9)'/%3E%3Cellipse cx='24.7' cy='37.3' rx='2.5' ry='1.6' fill='%23b0602a' opacity='0.79' transform='rotate(40 24.7 37.3)'/%3E%3Cellipse cx='43.9' cy='16.6' rx='2.5' ry='1.5' fill='%23c66e2c' opacity='0.79' transform='rotate(51 43.9 16.6)'/%3E%3Cellipse cx='55.6' cy='14.4' rx='2.5' ry='1.8' fill='%23b0602a' opacity='0.79' transform='rotate(-41 55.6 14.4)'/%3E%3Cellipse cx='40.3' cy='27.3' rx='2.5' ry='1.8' fill='%23b0602a' opacity='0.79' transform='rotate(-42 40.3 27.3)'/%3E%3Cellipse cx='76.5' cy='34.8' rx='2.5' ry='2.0' fill='%238a4e20' opacity='0.79' transform='rotate(-78 76.5 34.8)'/%3E%3Cellipse cx='33.4' cy='18.1' rx='2.5' ry='2.0' fill='%23c66e2c' opacity='0.80' transform='rotate(-80 33.4 18.1)'/%3E%3Cellipse cx='69.4' cy='33.2' rx='2.6' ry='1.6' fill='%23a8551f' opacity='0.80' transform='rotate(-36 69.4 33.2)'/%3E%3Cellipse cx='66.0' cy='34.8' rx='2.6' ry='1.7' fill='%238a4e20' opacity='0.80' transform='rotate(9 66.0 34.8)'/%3E%3Cellipse cx='42.8' cy='38.9' rx='2.6' ry='1.9' fill='%23b0602a' opacity='0.80' transform='rotate(-76 42.8 38.9)'/%3E%3Cellipse cx='18.6' cy='13.9' rx='2.6' ry='1.7' fill='%23f0b25c' opacity='0.81' transform='rotate(73 18.6 13.9)'/%3E%3Cellipse cx='28.5' cy='44.4' rx='2.6' ry='1.7' fill='%23b0602a' opacity='0.81' transform='rotate(18 28.5 44.4)'/%3E%3Cellipse cx='87.4' cy='24.8' rx='2.6' ry='1.8' fill='%23a8551f' opacity='0.81' transform='rotate(-11 87.4 24.8)'/%3E%3Cellipse cx='63.3' cy='27.7' rx='2.6' ry='1.7' fill='%23b0602a' opacity='0.82' transform='rotate(-23 63.3 27.7)'/%3E%3Cellipse cx='47.3' cy='2.1' rx='2.6' ry='1.8' fill='%23e09640' opacity='0.82' transform='rotate(38 47.3 2.1)'/%3E%3Cellipse cx='27.7' cy='7.2' rx='2.6' ry='1.9' fill='%23f0b25c' opacity='0.82' transform='rotate(0 27.7 7.2)'/%3E%3Cellipse cx='57.6' cy='2.1' rx='2.7' ry='1.7' fill='%23c66e2c' opacity='0.82' transform='rotate(77 57.6 2.1)'/%3E%3Cellipse cx='68.5' cy='43.2' rx='2.7' ry='1.7' fill='%238a4e20' opacity='0.83' transform='rotate(65 68.5 43.2)'/%3E%3Cellipse cx='73.5' cy='40.3' rx='2.7' ry='2.0' fill='%23a8551f' opacity='0.84' transform='rotate(32 73.5 40.3)'/%3E%3Cellipse cx='20.2' cy='40.2' rx='2.8' ry='2.0' fill='%23b0602a' opacity='0.84' transform='rotate(-70 20.2 40.2)'/%3E%3Cellipse cx='9.0' cy='28.3' rx='2.8' ry='2.0' fill='%23e09640' opacity='0.85' transform='rotate(21 9.0 28.3)'/%3E%3Cellipse cx='85.0' cy='32.5' rx='2.8' ry='1.9' fill='%23a8551f' opacity='0.85' transform='rotate(89 85.0 32.5)'/%3E%3Cellipse cx='75.0' cy='15.5' rx='2.8' ry='2.2' fill='%23b0602a' opacity='0.85' transform='rotate(54 75.0 15.5)'/%3E%3Cellipse cx='46.9' cy='17.7' rx='2.8' ry='1.7' fill='%23c66e2c' opacity='0.85' transform='rotate(-38 46.9 17.7)'/%3E%3Cellipse cx='51.7' cy='8.6' rx='2.8' ry='1.8' fill='%23e09640' opacity='0.85' transform='rotate(-87 51.7 8.6)'/%3E%3Cellipse cx='18.2' cy='40.7' rx='2.8' ry='2.2' fill='%23c66e2c' opacity='0.85' transform='rotate(53 18.2 40.7)'/%3E%3Cellipse cx='71.3' cy='12.5' rx='2.8' ry='2.1' fill='%23c66e2c' opacity='0.86' transform='rotate(71 71.3 12.5)'/%3E%3Cellipse cx='47.8' cy='43.2' rx='2.9' ry='1.8' fill='%23a8551f' opacity='0.86' transform='rotate(-73 47.8 43.2)'/%3E%3Cellipse cx='60.4' cy='43.9' rx='2.9' ry='1.8' fill='%23a8551f' opacity='0.86' transform='rotate(-33 60.4 43.9)'/%3E%3Cellipse cx='22.8' cy='12.4' rx='2.9' ry='1.7' fill='%23e09640' opacity='0.87' transform='rotate(-28 22.8 12.4)'/%3E%3Cellipse cx='64.4' cy='47.7' rx='2.9' ry='2.3' fill='%23a8551f' opacity='0.87' transform='rotate(84 64.4 47.7)'/%3E%3Cellipse cx='65.0' cy='20.8' rx='2.9' ry='2.0' fill='%23b0602a' opacity='0.87' transform='rotate(7 65.0 20.8)'/%3E%3Cellipse cx='66.4' cy='44.4' rx='2.9' ry='1.9' fill='%23a8551f' opacity='0.87' transform='rotate(30 66.4 44.4)'/%3E%3Cellipse cx='22.5' cy='22.3' rx='2.9' ry='1.9' fill='%23c66e2c' opacity='0.87' transform='rotate(8 22.5 22.3)'/%3E%3Cellipse cx='30.3' cy='12.9' rx='2.9' ry='1.8' fill='%23e09640' opacity='0.87' transform='rotate(-54 30.3 12.9)'/%3E%3Cellipse cx='6.5' cy='16.3' rx='2.9' ry='2.0' fill='%23e09640' opacity='0.88' transform='rotate(74 6.5 16.3)'/%3E%3Cellipse cx='66.2' cy='52.6' rx='2.9' ry='1.8' fill='%238a4e20' opacity='0.88' transform='rotate(35 66.2 52.6)'/%3E%3Cellipse cx='65.0' cy='35.9' rx='2.9' ry='2.0' fill='%23a8551f' opacity='0.88' transform='rotate(20 65.0 35.9)'/%3E%3Cellipse cx='57.7' cy='38.9' rx='2.9' ry='2.1' fill='%23a8551f' opacity='0.88' transform='rotate(2 57.7 38.9)'/%3E%3Cellipse cx='40.3' cy='29.4' rx='2.9' ry='2.1' fill='%23c66e2c' opacity='0.88' transform='rotate(-17 40.3 29.4)'/%3E%3Cellipse cx='43.9' cy='4.4' rx='3.0' ry='2.0' fill='%23e09640' opacity='0.88' transform='rotate(-31 43.9 4.4)'/%3E%3Cellipse cx='70.2' cy='45.7' rx='3.0' ry='2.3' fill='%23a8551f' opacity='0.89' transform='rotate(-88 70.2 45.7)'/%3E%3Cellipse cx='34.1' cy='13.2' rx='3.0' ry='2.2' fill='%23e09640' opacity='0.89' transform='rotate(62 34.1 13.2)'/%3E%3Cellipse cx='10.1' cy='21.6' rx='3.0' ry='1.9' fill='%23c66e2c' opacity='0.90' transform='rotate(-14 10.1 21.6)'/%3E%3Cellipse cx='54.6' cy='38.1' rx='3.0' ry='1.9' fill='%23a8551f' opacity='0.90' transform='rotate(-16 54.6 38.1)'/%3E%3Cellipse cx='30.3' cy='10.1' rx='3.0' ry='2.4' fill='%23e09640' opacity='0.90' transform='rotate(-2 30.3 10.1)'/%3E%3Cellipse cx='28.8' cy='18.2' rx='3.1' ry='2.1' fill='%23e09640' opacity='0.91' transform='rotate(1 28.8 18.2)'/%3E%3Cellipse cx='79.0' cy='30.6' rx='3.1' ry='2.0' fill='%23a8551f' opacity='0.91' transform='rotate(-65 79.0 30.6)'/%3E%3Cellipse cx='38.4' cy='40.3' rx='3.1' ry='2.3' fill='%23b0602a' opacity='0.91' transform='rotate(14 38.4 40.3)'/%3E%3Cellipse cx='61.9' cy='28.4' rx='3.1' ry='2.4' fill='%23b0602a' opacity='0.91' transform='rotate(-2 61.9 28.4)'/%3E%3Cellipse cx='82.5' cy='13.8' rx='3.1' ry='2.1' fill='%23b0602a' opacity='0.92' transform='rotate(-45 82.5 13.8)'/%3E%3Cellipse cx='30.8' cy='48.2' rx='3.1' ry='2.5' fill='%23b0602a' opacity='0.92' transform='rotate(-6 30.8 48.2)'/%3E%3Cellipse cx='21.9' cy='33.4' rx='3.1' ry='2.4' fill='%23c66e2c' opacity='0.92' transform='rotate(52 21.9 33.4)'/%3E%3Cellipse cx='63.1' cy='32.0' rx='3.1' ry='2.0' fill='%23a8551f' opacity='0.92' transform='rotate(80 63.1 32.0)'/%3E%3Cellipse cx='71.5' cy='14.5' rx='3.1' ry='1.9' fill='%23b0602a' opacity='0.92' transform='rotate(69 71.5 14.5)'/%3E%3Cellipse cx='34.6' cy='10.9' rx='3.1' ry='2.0' fill='%23e09640' opacity='0.92' transform='rotate(-17 34.6 10.9)'/%3E%3Cellipse cx='82.6' cy='31.0' rx='3.1' ry='2.0' fill='%238a4e20' opacity='0.92' transform='rotate(-66 82.6 31.0)'/%3E%3Cellipse cx='48.6' cy='23.3' rx='3.2' ry='2.1' fill='%23b0602a' opacity='0.93' transform='rotate(-27 48.6 23.3)'/%3E%3Cellipse cx='17.5' cy='23.2' rx='3.2' ry='2.0' fill='%23e09640' opacity='0.94' transform='rotate(49 17.5 23.2)'/%3E%3Cellipse cx='67.3' cy='48.0' rx='3.2' ry='2.0' fill='%238a4e20' opacity='0.94' transform='rotate(59 67.3 48.0)'/%3E%3Cellipse cx='29.6' cy='37.1' rx='3.2' ry='2.5' fill='%23b0602a' opacity='0.94' transform='rotate(80 29.6 37.1)'/%3E%3Cellipse cx='8.7' cy='31.4' rx='3.2' ry='2.0' fill='%23c66e2c' opacity='0.94' transform='rotate(49 8.7 31.4)'/%3E%3Cellipse cx='31.8' cy='43.9' rx='3.2' ry='2.3' fill='%23b0602a' opacity='0.94' transform='rotate(79 31.8 43.9)'/%3E%3Cellipse cx='30.1' cy='49.3' rx='3.3' ry='2.4' fill='%23a8551f' opacity='0.95' transform='rotate(-81 30.1 49.3)'/%3E%3Cellipse cx='21.2' cy='18.9' rx='3.3' ry='2.1' fill='%23e09640' opacity='0.95' transform='rotate(-3 21.2 18.9)'/%3E%3Cellipse cx='58.7' cy='11.5' rx='3.3' ry='2.3' fill='%23c66e2c' opacity='0.95' transform='rotate(73 58.7 11.5)'/%3E%3Cellipse cx='76.9' cy='23.0' rx='3.3' ry='2.0' fill='%23b0602a' opacity='0.95' transform='rotate(-75 76.9 23.0)'/%3E%3Cellipse cx='37.8' cy='17.1' rx='3.3' ry='2.6' fill='%23b0602a' opacity='0.95' transform='rotate(-64 37.8 17.1)'/%3E%3Cellipse cx='36.4' cy='48.4' rx='3.3' ry='2.2' fill='%23b0602a' opacity='0.96' transform='rotate(-28 36.4 48.4)'/%3E%3Cellipse cx='52.5' cy='42.6' rx='3.3' ry='2.6' fill='%23a8551f' opacity='0.96' transform='rotate(59 52.5 42.6)'/%3E%3Cellipse cx='60.6' cy='46.0' rx='3.3' ry='2.2' fill='%23a8551f' opacity='0.96' transform='rotate(-55 60.6 46.0)'/%3E%3Cellipse cx='51.7' cy='47.0' rx='3.3' ry='2.1' fill='%238a4e20' opacity='0.96' transform='rotate(-49 51.7 47.0)'/%3E%3Cellipse cx='23.4' cy='29.4' rx='3.3' ry='2.2' fill='%23c66e2c' opacity='0.96' transform='rotate(25 23.4 29.4)'/%3E%3Cellipse cx='30.2' cy='14.9' rx='3.3' ry='2.3' fill='%23e09640' opacity='0.97' transform='rotate(-36 30.2 14.9)'/%3E%3Cellipse cx='58.4' cy='43.2' rx='3.3' ry='2.3' fill='%238a4e20' opacity='0.97' transform='rotate(26 58.4 43.2)'/%3E%3Cellipse cx='56.8' cy='24.4' rx='3.4' ry='2.2' fill='%23b0602a' opacity='0.97' transform='rotate(90 56.8 24.4)'/%3E%3Cellipse cx='51.0' cy='19.9' rx='3.4' ry='2.2' fill='%23c66e2c' opacity='0.97' transform='rotate(40 51.0 19.9)'/%3E%3Cellipse cx='68.1' cy='16.3' rx='3.4' ry='2.6' fill='%23b0602a' opacity='0.97' transform='rotate(23 68.1 16.3)'/%3E%3Cellipse cx='42.2' cy='23.7' rx='3.4' ry='2.3' fill='%23c66e2c' opacity='0.97' transform='rotate(-26 42.2 23.7)'/%3E%3Cellipse cx='38.6' cy='36.9' rx='3.4' ry='2.2' fill='%23a8551f' opacity='0.97' transform='rotate(88 38.6 36.9)'/%3E%3Cellipse cx='28.4' cy='8.5' rx='3.4' ry='2.5' fill='%23e09640' opacity='0.98' transform='rotate(-81 28.4 8.5)'/%3E%3Cellipse cx='68.3' cy='28.7' rx='3.4' ry='2.3' fill='%23a8551f' opacity='0.98' transform='rotate(-60 68.3 28.7)'/%3E%3Cellipse cx='67.5' cy='9.4' rx='3.4' ry='2.4' fill='%23c66e2c' opacity='0.98' transform='rotate(70 67.5 9.4)'/%3E%3Cellipse cx='26.3' cy='17.1' rx='3.4' ry='2.7' fill='%23e09640' opacity='0.98' transform='rotate(-19 26.3 17.1)'/%3E%3Cellipse cx='32.6' cy='20.6' rx='3.4' ry='2.3' fill='%23c66e2c' opacity='0.98' transform='rotate(-12 32.6 20.6)'/%3E%3Cellipse cx='36.3' cy='52.6' rx='3.4' ry='2.4' fill='%23a8551f' opacity='0.98' transform='rotate(11 36.3 52.6)'/%3E%3Cellipse cx='59.4' cy='3.1' rx='3.4' ry='2.6' fill='%23e09640' opacity='0.99' transform='rotate(-19 59.4 3.1)'/%3E%3C/svg%3E");
+    background-size: 100% 100%;
+    background-repeat: no-repeat;
+    transform: translateX(-50%) rotate(2deg);
 }
 .hud-bg-tree-autumn-foliage.foliage-3 { opacity:.72; }
 .hud-bg-tree-autumn-foliage.foliage-1,
@@ -5396,7 +5195,7 @@
 .phase-evening.season-winter .hud-winter-warm-window,
 .phase-night.season-winter .hud-winter-warm-window,
 .phase-deep-night.season-winter .hud-winter-warm-window { opacity:1; animation:hud-window-flicker 7s ease-in-out infinite; animation-play-state:paused !important; }
-.phase-night.season-winter .hud-winter-warm-window .hud-window-pane { background:rgba(255,220,145,.88); }
+
 /* Мерцание масштабируется той же --window-glow, иначе при включении анимации
    окно тускнело: статический ореол был ярче кадров. */
 @keyframes hud-window-flicker {
@@ -5547,8 +5346,6 @@
     100% { opacity:0; transform:translate(36px,-34px) scale(1.9); }
 }
 
-
-
 /* TavernOS: expanded relationship graph is portaled to <body>. */
 .hud-rel-graph.is-expanded {
     margin: 0;
@@ -5567,10 +5364,6 @@
 .hud-rel-edge-label { paint-order: stroke; }
 
 /* v16: mutual relation arrows are intentionally separate, parallel tracks. */
-.hud-rel-edge[data-rel-bidir="true"] { stroke-width: 2.1; }
-.hud-rel-edge-hit[data-rel-bidir="true"] { stroke-width: 26px; }
-.hud-rel-edge-label[data-rel-bidir="true"] { font-size: 9.5px; }
-
 
 /* TavernOS relation graph refresh: viewport-safe, symmetric layout and cleaner
    relation badges. Coordinates are generated in index.js; CSS only controls how
@@ -5703,8 +5496,6 @@
   font-size: .82em;
   overflow-wrap: anywhere;
 }
-
-
 
 /* v21.6: Memory must not inherit the compact .hud-body 8.5em cap. */
 .hud-memory-body.hud-memory-scroll {
@@ -5907,7 +5698,6 @@
 .hud-phone-back:active { transform: scale(.88); }
 
 /* Пузыри: мягче края и чуть больше глубины. */
-.hud-phone-app-view .hud-msg-bubble { box-shadow: 0 2px 10px rgba(0,0,0,.28); }
 
 /* Владелец устройства — подписью в заголовке приложения. Раньше он стоял
    в верхней плашке телефона и спорил с владельцем открытого чата. */
@@ -5982,9 +5772,6 @@
   background: linear-gradient(180deg, #2a2c34, #15161b);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.16);
 }
-.hud-phone-btn-side.vol-up   { left: -12px; top: 112px; height: 42px; }
-.hud-phone-btn-side.vol-down { left: -12px; top: 162px; height: 42px; }
-.hud-phone-btn-side.power    { right: -12px; top: 132px; height: 62px; }
 
 /* Индикатор «домой» вместо плоской кнопки. */
 .hud-phone-home-btn {
@@ -6030,8 +5817,7 @@
   position: relative;
   box-shadow: 0 3px 12px rgba(0,0,0,.38), inset 0 1px 0 rgba(255,255,255,.07);
 }
-.hud-phone-app-view .hud-msg-wrapper.incoming .hud-msg-bubble { border-radius: 15px 15px 15px 4px; }
-.hud-phone-app-view .hud-msg-wrapper.outgoing .hud-msg-bubble { border-radius: 15px 15px 4px 15px; }
+
 .hud-phone-app-view .hud-msg-avatar {
   box-shadow: 0 2px 7px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.18);
   font-weight: 700;
@@ -6065,10 +5851,7 @@
   background: rgba(255,255,255,.07);
   transition: background .15s ease, transform .12s ease;
 }
-.hud-phone-app-view .hud-phone-send {
-  background: linear-gradient(145deg, var(--hud-accent), color-mix(in srgb, var(--hud-accent) 45%, #6d4ad0));
-  box-shadow: 0 3px 10px color-mix(in srgb, var(--hud-accent) 42%, transparent);
-}
+
 .hud-phone-app-view .hud-phone-attach:hover,
 .hud-phone-app-view .hud-phone-send:hover { transform: scale(1.08); }
 
@@ -6110,7 +5893,7 @@
   transform: translateY(-2px);
   border-color: color-mix(in srgb, var(--hud-accent) 40%, transparent) !important;
 }
-.hud-phone-contact-avatar { box-shadow: 0 3px 10px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.2); }
+
 .hud-phone-contact small { display: block; opacity: .55; font-size: .78em; margin-top: 3px; line-height: 1.35; }
 
 /* Галерея — «снимок» получает свой оттенок через --shot из JS. */
@@ -6306,24 +6089,32 @@
 /* Ночью сцена уходит в холодную синеву, к глубокой ночи — сильнее. */
 .hud-fx-overlay { transition: background 1.6s ease, backdrop-filter 1.6s ease; }
 .phase-evening .hud-fx-overlay {
-  background: linear-gradient(180deg, rgba(12,16,34,.20), rgba(6,9,22,.34));
+  background: linear-gradient(180deg,
+    rgba(12,16,34, calc(.20 * var(--scene-dark-k, 1))),
+    rgba(6,9,22, calc(.34 * var(--scene-dark-k, 1))));
 }
 .phase-night .hud-fx-overlay {
   background:
     radial-gradient(120% 90% at 50% 0%, rgba(24,32,68,.16), transparent 60%),
-    linear-gradient(180deg, rgba(8,11,26,.40), rgba(4,6,16,.56));
+    linear-gradient(180deg,
+      rgba(8,11,26, calc(.40 * var(--scene-dark-k, 1))),
+      rgba(4,6,16, calc(.56 * var(--scene-dark-k, 1))));
 }
 .phase-deep-night .hud-fx-overlay {
   background:
     radial-gradient(120% 90% at 50% 0%, rgba(20,26,58,.20), transparent 58%),
-    linear-gradient(180deg, rgba(5,7,18,.56), rgba(2,3,10,.72));
+    linear-gradient(180deg,
+      rgba(5,7,18, calc(.56 * var(--scene-dark-k, 1))),
+      rgba(2,3,10, calc(.72 * var(--scene-dark-k, 1))));
 }
 /* Чистое небо ночью — свет луны чуть подсвечивает верх сцены. */
 .phase-night.weather-clear .hud-fx-overlay,
 .phase-deep-night.weather-clear .hud-fx-overlay {
   background-image:
     radial-gradient(80% 55% at var(--cel-x, 78%) var(--cel-y, 16%), rgba(170,195,255,.14), transparent 62%),
-    linear-gradient(180deg, rgba(6,9,22,.48), rgba(3,4,12,.66));
+    linear-gradient(180deg,
+      rgba(6,9,22, calc(.48 * var(--scene-dark-k, 1))),
+      rgba(3,4,12, calc(.66 * var(--scene-dark-k, 1))));
 }
 
 /* --- СНЕГ --------------------------------------------------------------- */
@@ -7119,15 +6910,7 @@
 .hud-rel-graph.is-focused .hud-rel-edge.is-flowing { opacity: 1; }
 
 @media (hover: hover) and (pointer: fine) {
-  .hud-rel-edge-hit:hover + .hud-rel-edge,
-  .hud-rel-edge:hover {
-    stroke-dasharray: 5 7;
-    animation-name: hud-rel-flow;
-    animation-duration: 1.1s;
-    animation-timing-function: linear;
-    animation-iteration-count: infinite;
-    animation-play-state: running;
-  }
+  
 }
 
 /* =========================================================================
@@ -7159,12 +6942,11 @@
    ========================================================================= */
 /* Свёрнутое состояние: карточки наезжают друг на друга отрицательным
    отступом, видны только верхние кромки задних. Отменяем прежний gap. */
-.hud-phone-notif-stack { gap: 0; }
+
 /* Порядок наложения: верхняя карточка выше задних.
    Отступы, масштаб и переходы заданы ниже, в едином блоке анимации, —
    здесь их намеренно нет, чтобы правила не спорили между собой. */
 .hud-phone-notif { z-index: calc(10 - var(--depth)); }
-.hud-phone-notif { opacity: calc(1 - var(--depth) * .12); }
 
 /* Раскрытое состояние: карточки разъезжаются в полноценный список.
    Класс вешается по клику — на телефоне hover недоступен. */
@@ -7216,14 +6998,8 @@
 /* Раскладка стопки (наложение/раскрытие) задаётся инлайном из events.js —
    здесь оставлен только флекс-контейнер. Прежний grid-вариант укладывал все
    карточки в одну ячейку, из-за чего отступы в раскрытом виде не работали. */
-.hud-phone-notif-stack { display: flex; flex-direction: column; gap: 0; }
 
 /* Раскрытая стопка — обычный столбец с промежутками. */
-.hud-phone-notif-stack.is-open {
-  display: flex;
-  flex-direction: column;
-  gap: 7px;
-}
 
 /* =========================================================================
    Уведомления: внешний вид
@@ -7472,7 +7248,7 @@
 
   /* Переписка: чуть плотнее поля, чтобы текст не жался в колонку. */
   .hud-phone-app-view { padding: 8px 8px 46px; }
-  .hud-phone-app-view .hud-msg-wrapper { max-width: 94%; }
+  
   .hud-phone-chat-row { grid-template-columns: 36px minmax(0,1fr) auto; gap: 8px; padding: 7px 6px; }
   .hud-phone-chat-ava { width: 36px; height: 36px; flex: 0 0 36px; font-size: 15px; }
 
@@ -7533,7 +7309,6 @@
   .hud-phone-app-view .hud-msg-bubble { padding: 7px 10px; }
   .hud-phone-app-view .hud-msg-avatar { width: 22px; height: 22px; flex: 0 0 22px; font-size: 10px; }
 }
-
 
 /* =========================================================================
    Свёрнутая стопка уведомлений: верхняя карточка полностью непрозрачна
@@ -8345,7 +8120,7 @@
   background: rgba(0,0,0,.35); border: 1px solid var(--hud-border);
   color: #fff; border-radius: 5px; padding: 4px 6px; font-size: 12px;
 }
-.hud-ava-fixed { flex: 1 1 auto; font-size: 12px; opacity: .7; }
+
 .hud-ava-btn {
   flex: 0 0 auto; cursor: pointer; background: rgba(255,255,255,.06);
   border: 1px solid var(--hud-border); border-radius: 5px;
@@ -8455,11 +8230,11 @@
 /* Прозрачным можно делать только то, что лежит В ПОТОКЕ. Экран приложения
    абсолютный и накрывает домашний: без своей подложки сквозь него
    просвечивали иконки и уведомления. Ему нужен фон телефона. */
-:is(.hud-theme-kawaii, .hud-theme-medieval) :is(
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(
   .hud-phone-emulator, .hud-phone-home-screen,
   .hud-phone-chat-area, .hud-phone-chat-list, .hud-phone-bottom-bar
 ) { background: transparent !important; }
-:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-phone-app-view {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-phone-app-view {
   /* Плотная подложка под градиентом: сам градиент темы полупрозрачный
      (это её настройка), и сквозь него просвечивали иконки домашнего. */
   background-color: var(--lt-solid) !important;
@@ -8467,28 +8242,21 @@
 }
 
 /* --- Карточки: светлая бумага вместо чёрного --- */
-:is(.hud-theme-kawaii, .hud-theme-medieval) :is(
-  .hud-phone-notif, .hud-phone-notif-stack, .hud-phone-lock-notice,
-  .hud-phone-note, .hud-phone-section, .hud-phone-participants-list,
-  .hud-phone-contact, .hud-phone-chat-row, .hud-phone-search-row,
-  .hud-phone-map, .hud-phone-map-card, .hud-phone-photo-placeholder,
-  .hud-diary-entry, .hud-world-section, .hud-world-section-ads,
-  .hud-theme-panel, .hud-phone-mockup
-) {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(.hud-phone-notif, .hud-phone-notif-stack, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-section, .hud-phone-participants-list, .hud-phone-contact, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-photo-placeholder, .hud-diary-entry, .hud-world-section, .hud-world-section-ads, .hud-theme-panel, .hud-phone-mockup) {
   background: var(--lt-paper) !important;
   color: var(--lt-ink);
   border-color: var(--lt-line);
 }
 
 /* Шапка приложения на телефоне — чуть плотнее бумаги, чтобы отделяться. */
-:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-phone-app-title {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-phone-app-title {
   background: var(--lt-paper-2) !important;
   color: var(--lt-ink);
   border-bottom: 1px solid var(--lt-line);
 }
 
 /* --- Текст, у которого цвет прописан наглухо белым --- */
-:is(.hud-theme-kawaii, .hud-theme-medieval) :is(
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(
   .hud-phone-top-status, .hud-phone-statusline, .hud-phone-app small,
   .hud-phone-lock-time, .hud-phone-lock-day, .hud-phone-lock-hint,
   .hud-phone-notif-body b, .hud-phone-notif-label, .hud-phone-chat-meta b,
@@ -8497,58 +8265,54 @@
   .hud-diary-text, .hud-diary-about-user, .hud-phone-lockscreen
 ) { color: var(--lt-ink) !important; }
 
-:is(.hud-theme-kawaii, .hud-theme-medieval) :is(
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(
   .hud-phone-notif-body small, .hud-phone-chat-meta small, .hud-phone-note small,
   .hud-phone-contact small, .hud-phone-lock-notice small, .hud-phone-lock-notice span,
   .hud-msg-time, .hud-phone-notif-meta, .hud-phone-lock-empty
 ) { color: var(--lt-ink-soft) !important; }
 
 /* Полоска «домой» и разделители — тёмные штрихи по светлому. */
-:is(.hud-theme-kawaii, .hud-theme-medieval) :is(.hud-phone-home-btn, .hud-phone-lock-bar) {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(.hud-phone-home-btn, .hud-phone-lock-bar) {
   background: var(--lt-ink-soft) !important;
 }
-:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-phone-lock-arrow {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-phone-lock-arrow {
   border-color: var(--lt-ink-soft) !important;
 }
 /* Иконки-глифы нарисованы currentColor — им хватает цвета текста. */
-:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-g-ico { color: var(--lt-ink); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-g-ico { color: var(--lt-ink); }
 
 /* Стекло поверх экрана и корпус: блик на светлом выглядит грязью. */
-:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-phone-glass { opacity: .25; }
-:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-phone-emulator::after { display: none; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-phone-glass { opacity: .25; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-phone-emulator::after { display: none; }
 
 /* Исходящие пузыри остаются цветными, входящие становятся бумажными. */
-:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-msg-wrapper.incoming .hud-msg-bubble {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-msg-wrapper.incoming .hud-msg-bubble {
   background: var(--lt-paper) !important;
   border: 1px solid var(--lt-line);
 }
 
 /* Газета: тёмная «бумага» на светлой теме противоречит сама себе. */
-:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-news-article,
-:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-world-list li,
-:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-comment {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-news-article,
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-world-list li,
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-comment {
   background: var(--lt-paper-2) !important;
   color: var(--lt-ink);
 }
 
 /* Дневник: слои бумаги рассчитаны на тёмный лист, на светлом они мажут. */
-:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-diary-paper { opacity: .22; }
-:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-diary-holes { opacity: .35; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-diary-paper { opacity: .22; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-diary-holes { opacity: .35; }
 
 /* --- Светлые темы: остатки светлого текста и кружков ---------------------
    Найдено замером контраста на собранном телефоне: эти надписи имели
    жёстко заданный светлый цвет и на бумаге пропадали. */
-:is(.hud-theme-kawaii, .hud-theme-medieval) :is(
-  .hud-phone-notif-body em, .hud-phone-notif em, .hud-phone-inputfield,
-  .hud-phone-empty-line, .hud-phone-empty small, .hud-g-hint, .hud-g-query,
-  .hud-phone-app-title, .hud-phone-note-date, .hud-phone-search-head
-) { color: var(--lt-ink-soft) !important; }
-:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-phone-inputfield::placeholder { color: var(--lt-ink-soft); }
-:is(.hud-theme-kawaii, .hud-theme-medieval) .hud-phone-send { color: #fff !important; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(.hud-phone-notif-body em, .hud-phone-notif em, .hud-phone-inputfield, .hud-phone-empty-line, .hud-phone-empty small, .hud-g-hint, .hud-g-query, .hud-phone-app-title) { color: var(--lt-ink-soft) !important; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-phone-inputfield::placeholder { color: var(--lt-ink-soft); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-phone-send { color: #fff !important; }
 
 /* Кружки-инициалы: на бумаге белая буква по бледной заливке исчезала.
    Даём им насыщенную подложку темы — буква снова белая по цвету. */
-:is(.hud-theme-kawaii, .hud-theme-medieval) :is(
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(
   .hud-phone-notif-ava, .hud-phone-chat-ava, .hud-phone-contact-avatar, .hud-msg-avatar
 ):not(.has-img) {
   background-color: var(--hud-accent) !important;
@@ -8569,7 +8333,8 @@
    ========================================================================= */
 .hud-os-wrapper { position: relative; }
 :is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-vamp, .hud-theme-cyberpunk,
-    .hud-theme-noir, .hud-theme-medieval, .hud-theme-mafia) .hud-os-wrapper::after {
+    .hud-theme-noir, .hud-theme-medieval, .hud-theme-mafia,
+    .hud-theme-web1, .hud-theme-cottage, .hud-theme-ice, .hud-theme-ocean) .hud-os-wrapper::after {
   content: ''; position: absolute; pointer-events: none; z-index: 2;
 }
 
@@ -8592,7 +8357,6 @@
   background: linear-gradient(90deg,
     rgba(163,58,42,.32) 0 1px, transparent 1px 3px, rgba(163,58,42,.18) 3px 4px, transparent 4px);
 }
-.hud-theme-academia .hud-os-wrapper::after { display: none; }
 
 /* Vamp — отблеск свечи сверху по центру. */
 .hud-theme-vamp .hud-os-wrapper::after {
@@ -8941,14 +8705,19 @@
 }
 
 /* Шкала температуры: холод синий, тепло янтарное. --t считает рендер. */
-.hud-fc-bar {
+/* Шкала берёт цвет не смешиванием, а выборкой из готовой ленты: лента
+   втрое шире полоски и сдвигается на --t. Ни color-mix, ни прохода по
+   кругу оттенков — только background-position, который понимают все.
+   Селектор с двумя классами, чтобы ничьё одиночное правило не перебило. */
+.hud-forecast-cell .hud-fc-bar {
   display: block; width: 78%; height: 3px; margin: 1px auto 0;
   border-radius: 2px;
-  background: #7f93b4;
-  background: linear-gradient(90deg,
-    color-mix(in oklab, #4aa8ff, #ff8a3d calc(var(--t, .5) * 100%)),
-    color-mix(in oklab, #2f7fd0, #e0651f calc(var(--t, .5) * 100%)));
-  opacity: .85;
+  background-color: transparent;
+  background-image: linear-gradient(90deg, #4aa8ff 0%, #57c9d6 32%, #ffd166 68%, #ff7a3d 100%);
+  background-size: 300% 100%;
+  background-repeat: no-repeat;
+  background-position: calc(var(--t, .5) * 100%) 50%;
+  opacity: .9;
 }
 
 /* ---------- Гороскоп ---------- */
@@ -9068,3 +8837,1339 @@
   .hud-horo-prediction::after { animation: none !important; }
   .hud-horo-tone { transition: none !important; }
 }
+
+/* =========================================================================
+   КНОПКИ ДЕЙСТВИЙ НАД ТЕМОЙ
+   ========================================================================= */
+.hud-theme-acts { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.hud-theme-act {
+  cursor: pointer; font-size: 10.5px; line-height: 1.2;
+  padding: 5px 9px; border-radius: 7px;
+  background: rgba(0,0,0,.28); color: var(--hud-text);
+  border: 1px solid var(--hud-border);
+  transition: background .18s ease, border-color .18s ease, transform .18s ease;
+}
+.hud-theme-act:hover { background: rgba(255,255,255,.1); transform: translateY(-1px); }
+.hud-theme-act.own { border-color: color-mix(in srgb, var(--hud-accent) 55%, transparent); }
+.hud-theme-act.danger { border-color: rgba(224,86,63,.5); }
+.hud-theme-preset.own { border-style: dashed; }
+.hud-bg-upload-btn, .hud-bg-clear-btn {
+  cursor: pointer; border: 1px solid var(--hud-border); border-radius: 5px;
+  background: rgba(255,255,255,.07); color: var(--hud-text);
+  padding: 2px 6px; font-size: 12px; line-height: 1.2;
+}
+.hud-bg-upload-btn:hover, .hud-bg-clear-btn:hover { background: rgba(255,255,255,.16); }
+
+/* =========================================================================
+   ТЕЛЕФОН: КОНТАКТЫ, КАРТЫ, ГАЛЕРЕЯ
+   -------------------------------------------------------------------------
+   Три экрана выглядели как простые списки. Здесь им добавлен вид готового
+   приложения: кольца у аватарок и шеврон в контактах, подложка-карта с
+   маршрутной нитью в местах, «плёночные» кадры с виньеткой в галерее.
+   Всё статично, движение — только переходы под курсором.
+   ========================================================================= */
+
+/* --- Контакты --- */
+.hud-phone-contacts { display: flex; flex-direction: column; gap: 2px; }
+.hud-phone-contact {
+  position: relative; padding: 8px 26px 8px 8px; border-radius: 12px;
+  transition: background .18s ease, transform .18s ease;
+}
+.hud-phone-contact + .hud-phone-contact::before {
+  /* Разделитель начинается после аватарки, как в телефонной книге. */
+  content: ''; position: absolute; left: 46px; right: 10px; top: 0;
+  height: 1px; background: rgba(255,255,255,.08);
+}
+.hud-phone-contact::after {
+  content: ''; position: absolute; right: 12px; top: 50%;
+  width: 6px; height: 6px; margin-top: -3px;
+  border-right: 1.5px solid currentColor; border-top: 1.5px solid currentColor;
+  transform: rotate(45deg); opacity: .35;
+  transition: transform .18s ease, opacity .18s ease;
+}
+.hud-phone-contact:hover { background: rgba(255,255,255,.06); }
+.hud-phone-contact:hover::after { opacity: .7; transform: rotate(45deg) translate(1.5px, -1.5px); }
+.hud-phone-contact-avatar {
+  box-shadow: 0 0 0 2px rgba(255,255,255,.1), 0 3px 8px rgba(0,0,0,.3);
+}
+.hud-phone-contact b { display: block; letter-spacing: .01em; }
+.hud-phone-contact small { display: block; opacity: .6; font-size: .84em; margin-top: 1px; }
+
+/* --- Карты --- */
+.hud-phone-app-view[data-phone-view="maps"] .hud-phone-section {
+  position: relative; overflow: hidden; border-radius: 14px; padding: 10px 10px 12px;
+}
+/* Подложка: миллиметровая сетка и мягкое пятно «застройки». */
+.hud-phone-app-view[data-phone-view="maps"] .hud-phone-section::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; z-index: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.045) 1px, transparent 1px),
+    radial-gradient(60% 45% at 78% 22%, rgba(127,224,192,.09), transparent 70%),
+    radial-gradient(50% 40% at 18% 76%, rgba(140,170,255,.07), transparent 72%);
+  background-size: 22px 22px, 22px 22px, auto, auto;
+}
+.hud-phone-map-row {
+  position: relative; z-index: 1;
+  display: flex; align-items: flex-start; gap: 9px;
+  padding: 9px 8px; border-radius: 10px;
+  transition: background .18s ease;
+}
+.hud-phone-map-row:hover { background: rgba(255,255,255,.05); }
+/* Маршрутная нить между точками. */
+.hud-phone-map-row + .hud-phone-map-row::before {
+  content: ''; position: absolute; left: 17px; top: -10px; height: 12px;
+  border-left: 2px dotted color-mix(in srgb, var(--hud-phone-accent, #7cc0ff) 55%, transparent);
+}
+.hud-phone-map-row .hud-g-pin {
+  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: color-mix(in srgb, var(--hud-phone-accent, #7cc0ff) 22%, transparent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--hud-phone-accent, #7cc0ff) 12%, transparent);
+  color: var(--hud-phone-accent, #7cc0ff);
+}
+.hud-phone-map-row b { display: block; }
+.hud-phone-map-row small { display: block; opacity: .62; font-size: .84em; margin-top: 2px; }
+
+/* --- Галерея --- */
+.hud-phone-gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+.hud-phone-photo-card {
+  border-radius: 12px; overflow: hidden;
+  border: 1px solid rgba(255,255,255,.1);
+  background: rgba(0,0,0,.22);
+}
+.hud-phone-photo-card > summary {
+  position: relative; list-style: none; cursor: pointer; display: block;
+}
+.hud-phone-photo-card > summary::-webkit-details-marker { display: none; }
+.hud-phone-photo-placeholder {
+  position: relative; aspect-ratio: 4 / 3; width: 100%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 20px;
+  /* Кадр, а не серый квадрат: цвет снимка плюс виньетка по углам. */
+  background:
+    radial-gradient(120% 90% at 30% 22%, color-mix(in srgb, var(--shot, #666) 55%, transparent), transparent 68%),
+    radial-gradient(90% 80% at 78% 84%, rgba(0,0,0,.42), transparent 70%),
+    linear-gradient(160deg, color-mix(in srgb, var(--shot, #666) 34%, #10121a), #0b0d13);
+  transition: transform .3s ease, filter .3s ease;
+}
+.hud-phone-photo-card:hover .hud-phone-photo-placeholder { transform: scale(1.04); filter: brightness(1.1); }
+/* Уголок плёнки и подпись времени поверх кадра. */
+.hud-phone-photo-placeholder::after {
+  content: ''; position: absolute; left: 0; top: 0; width: 100%; height: 100%;
+  pointer-events: none;
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,.5) 0 3px, transparent 3px 9px) left / 7px 100% no-repeat,
+    repeating-linear-gradient(90deg, rgba(0,0,0,.5) 0 3px, transparent 3px 9px) right / 7px 100% no-repeat;
+  opacity: .5;
+}
+.hud-phone-photo-time {
+  position: absolute; right: 6px; bottom: 6px; z-index: 2;
+  font-size: 9.5px; padding: 1px 6px; border-radius: 6px;
+  background: rgba(0,0,0,.55); color: #fff; letter-spacing: .03em;
+}
+.hud-phone-photo-info { padding: 8px 9px 9px; font-size: 11.5px; line-height: 1.4; }
+.hud-phone-photo-info b { display: block; margin-bottom: 2px; }
+.hud-phone-photo-info em { display: block; opacity: .55; font-style: normal; font-size: .9em; margin-top: 3px; }
+.hud-phone-photo-card[open] > summary .hud-phone-photo-placeholder { filter: brightness(.85); }
+
+/* =========================================================================
+   ТЕМЫ КАК ОТДЕЛЬНЫЕ МИРЫ
+   -------------------------------------------------------------------------
+   У каждой темы теперь второй декоративный слой — .hud-os-wrapper::before.
+   Он статичен: на телефоне ничего не крутится. Движение включается только
+   там, где есть курсор (@media hover), и только под наведением на карточку:
+   так на мобильном не появляется ни одного лишнего кадра.
+   ========================================================================= */
+.hud-os-wrapper::before {
+  content: ''; position: absolute; inset: 0; z-index: 0;
+  pointer-events: none; opacity: 0;
+}
+:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-vamp, .hud-theme-cyberpunk,
+    .hud-theme-noir, .hud-theme-medieval, .hud-theme-mafia, .hud-theme-fantasy)
+  .hud-os-wrapper::before { opacity: 1; }
+
+/* Каваи: пастельные облака и блёстки. */
+.hud-theme-kawaii .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(38% 22% at 14% 8%, rgba(255,210,232,.5), transparent 72%),
+    radial-gradient(30% 18% at 82% 5%, rgba(255,224,240,.42), transparent 74%),
+    radial-gradient(circle 1.6px at 26% 34%, rgba(255,255,255,.85) 0 60%, transparent 100%),
+    radial-gradient(circle 1.2px at 64% 58%, rgba(255,235,246,.8) 0 60%, transparent 100%),
+    radial-gradient(circle 1.8px at 88% 78%, rgba(255,255,255,.7) 0 60%, transparent 100%);
+  background-size: auto, auto, 130px 110px, 95px 85px, 160px 140px;
+  animation: hud-th-sparkle 3.8s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+@keyframes hud-th-sparkle { from { opacity: .55; } to { opacity: 1; } }
+
+/* Academia: бумажное зерно, пыль и чернильное пятно. */
+.hud-theme-academia .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(circle 22px at 88% 86%, rgba(30,22,12,.3), transparent 70%),
+    radial-gradient(circle .8px at 18% 26%, rgba(255,240,210,.16) 0 60%, transparent 100%),
+    radial-gradient(circle .6px at 62% 52%, rgba(255,240,210,.12) 0 60%, transparent 100%),
+    radial-gradient(circle .7px at 84% 18%, rgba(0,0,0,.2) 0 60%, transparent 100%);
+  background-size: auto, 41px 37px, 29px 33px, 53px 47px;
+}
+
+/* Vamp: летучие мыши и винное пятно. */
+.hud-theme-vamp .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(ellipse 3px 1.4px at 20% 14%, rgba(20,4,8,.85) 0 70%, transparent 100%),
+    radial-gradient(ellipse 2.4px 1.1px at 30% 9%, rgba(20,4,8,.7) 0 70%, transparent 100%),
+    radial-gradient(ellipse 2px 1px at 26% 20%, rgba(20,4,8,.6) 0 70%, transparent 100%),
+    radial-gradient(circle 26px at 92% 88%, rgba(105,10,26,.28), transparent 68%);
+}
+
+/* Киберпанк: сетка HUD и глитч-полоса. */
+.hud-theme-cyberpunk .hud-os-wrapper::before {
+  background-image:
+    linear-gradient(rgba(45,226,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45,226,255,.05) 1px, transparent 1px),
+    linear-gradient(180deg, transparent 0, rgba(255,45,111,.16) 2px, transparent 4px);
+  background-size: 26px 26px, 26px 26px, 100% 100%;
+  background-position: 0 0, 0 0, 0 30%;
+  animation: hud-th-glitch 5.5s steps(1, end) infinite;
+  animation-play-state: paused;
+}
+@keyframes hud-th-glitch {
+  0%, 100% { background-position: 0 0, 0 0, 0 18%; }
+  22% { background-position: 0 0, 0 0, 0 62%; }
+  24% { background-position: 0 0, 0 0, 0 30%; }
+  61% { background-position: 0 0, 0 0, 0 84%; }
+  63% { background-position: 0 0, 0 0, 0 46%; }
+}
+
+/* Нуар: дымок сигареты у верхнего края. */
+.hud-theme-noir .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(34% 26% at 76% 6%, rgba(255,255,255,.075), transparent 74%),
+    radial-gradient(22% 18% at 66% 16%, rgba(255,255,255,.05), transparent 76%);
+}
+
+/* Средневековье: волокна пергамента. */
+.hud-theme-medieval .hud-os-wrapper::before {
+  background-image:
+    repeating-linear-gradient(96deg, rgba(120,95,45,.05) 0 1px, transparent 1px 9px),
+    repeating-linear-gradient(6deg, rgba(120,95,45,.035) 0 1px, transparent 1px 13px);
+}
+
+/* Криминал: смазанный отпечаток пальца в углу. */
+.hud-theme-mafia .hud-os-wrapper::before {
+  background-image:
+    repeating-radial-gradient(circle at 88% 16%, rgba(217,43,43,.16) 0 1px, transparent 1px 4px);
+  background-size: 70px 70px;
+  background-repeat: no-repeat;
+}
+
+/* Фэнтези: руны по краю, магические частицы и светлячки. */
+.hud-theme-fantasy .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(circle 1.6px at 22% 30%, rgba(224,168,74,.9) 0 55%, transparent 100%),
+    radial-gradient(circle 1.2px at 70% 62%, rgba(127,224,192,.8) 0 55%, transparent 100%),
+    radial-gradient(circle 2px at 86% 22%, rgba(154,107,255,.7) 0 55%, transparent 100%),
+    radial-gradient(45% 32% at 12% 92%, rgba(127,224,192,.09), transparent 74%);
+  background-size: 120px 100px, 88px 76px, 150px 130px, auto;
+  animation: hud-th-motes 6.5s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+@keyframes hud-th-motes {
+  from { background-position: 0 0, 0 0, 0 0, 0 0; opacity: .6; }
+  to   { background-position: 6px -10px, -8px 8px, 4px -6px, 0 0; opacity: 1; }
+}
+
+/* Знаки темы «Фэнтези» — свои, ни с одной другой не совпадают. */
+.hud-theme-fantasy .hud-key::after,
+.hud-theme-fantasy .hud-key-label::after { content: ' \16DC'; margin-left: 4px; font-size: .95em; }
+.hud-theme-fantasy .hud-os-logo::after { content: ' \2727'; }
+.hud-theme-fantasy .hud-world-title::after { content: ' \274B'; }
+.hud-theme-fantasy { --hud-radius: 12px; }
+/* Карточка: светящаяся руническая кайма сверху и мшистый низ. */
+.hud-theme-fantasy .hud-os-card::after {
+  background:
+    linear-gradient(90deg, transparent, rgba(127,224,192,.5), rgba(154,107,255,.4), transparent) top left / 100% 2px no-repeat,
+    radial-gradient(70% 40% at 50% 100%, rgba(127,224,192,.1), transparent 72%),
+    var(--hud-bg);
+}
+/* Фирменный знак: рунический круг в нижнем правом углу. */
+.hud-theme-fantasy .hud-os-wrapper::after {
+  right: 16px; bottom: 14px; width: 30px; height: 30px; border-radius: 50%;
+  border: 1px solid rgba(127,224,192,.45);
+  box-shadow: inset 0 0 0 3px rgba(154,107,255,.14), 0 0 12px -4px rgba(127,224,192,.6);
+  background:
+    conic-gradient(from 0deg,
+      transparent 0 12deg, rgba(224,168,74,.5) 12deg 15deg, transparent 15deg 72deg,
+      rgba(127,224,192,.45) 72deg 75deg, transparent 75deg 144deg,
+      rgba(154,107,255,.45) 144deg 147deg, transparent 147deg 216deg,
+      rgba(224,168,74,.4) 216deg 219deg, transparent 219deg 288deg,
+      rgba(127,224,192,.4) 288deg 291deg, transparent 291deg);
+}
+.hud-theme-fantasy .hud-key-item { border-left-color: #7fe0c0; }
+.hud-theme-fantasy .hud-diary-entry { border-left-color: #9a6bff; }
+.hud-theme-fantasy .hud-tab.active { box-shadow: inset 0 -2px 0 #7fe0c0; }
+.hud-theme-fantasy :is(.hud-key, .hud-key-label) {
+  letter-spacing: .09em;
+  text-shadow: 0 0 10px rgba(127,224,192,.35);
+}
+.hud-theme-fantasy .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
+.hud-theme-fantasy .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
+.hud-theme-fantasy :is(.hud-world-empty, .hud-diary-empty) { font-size: 0; }
+.hud-theme-fantasy :is(.hud-world-empty, .hud-diary-empty)::after { display: block; font-size: 13px; line-height: 1.5; }
+.hud-theme-fantasy {
+  --th-empty-world: 'Вести ещё в пути — ворон не долетел.';
+  --th-empty-diary: 'Свиток чист. Перо ждёт.';
+}
+
+/* Движение декора — только там, где есть курсор, и только под наведением.
+   На телефоне эти слои остаются картинкой и не стоят ни кадра. */
+@media (hover: hover) {
+  
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-os-wrapper::before { animation: none !important; }
+}
+
+/* =========================================================================
+   ТЕМЫ: ТРЕТИЙ СЛОЙ — ТО, ЧЕГО НЕ ХВАТАЛО
+   -------------------------------------------------------------------------
+   Первый слой — украшение карточки (.hud-os-card::after), второй — мир темы
+   (.hud-os-wrapper::before), третий — здесь, на .hud-tab-content::before:
+   наклейки, стопка страниц, свечи, неоновые трубки, дым.
+
+   Слой лежит под содержимым: сам он позиционирован, поэтому прямым детям
+   вкладки поднят z-index — иначе положенный сверху фон перекрыл бы текст.
+   Движение снова только под курсором: на телефоне слой остаётся картинкой.
+   ========================================================================= */
+:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-vamp, .hud-theme-cyberpunk,
+    .hud-theme-noir, .hud-theme-medieval, .hud-theme-mafia, .hud-theme-fantasy,
+    .hud-theme-web1, .hud-theme-cottage, .hud-theme-ice, .hud-theme-ocean)
+  .hud-tab-content { position: relative; }
+:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-vamp, .hud-theme-cyberpunk,
+    .hud-theme-noir, .hud-theme-medieval, .hud-theme-mafia, .hud-theme-fantasy,
+    .hud-theme-web1, .hud-theme-cottage, .hud-theme-ice, .hud-theme-ocean)
+  .hud-tab-content > * { position: relative; z-index: 1; }
+:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-vamp, .hud-theme-cyberpunk,
+    .hud-theme-fantasy,
+    .hud-theme-web1, .hud-theme-cottage, .hud-theme-ice, .hud-theme-ocean) .hud-tab-content::before {
+  content: ''; position: absolute; inset: 0; z-index: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  animation-play-state: paused !important;
+}
+
+/* --- Каваи: наклейки, приклеенные по углам ------------------------------
+   Три картинки-стикера: сердечко, звёздочка и облачко на белых карточках,
+   каждая под своим углом. Рисованные, а не эмодзи: эмодзи берутся из
+   системного шрифта и пастельными не бывают. */
+.hud-theme-kawaii .hud-tab-content::before {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg transform='rotate(-9 15 15)'%3E%3Crect x='4' y='4' width='22' height='22' rx='6' fill='%23fffafd' opacity='.9'/%3E%3Cpath d='M15 22s-6-4-6-7.7A3.4 3.4 0 0 1 15 12a3.4 3.4 0 0 1 6 2.3C21 18 15 22 15 22z' fill='%23ff8fc0'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='27' height='27' viewBox='0 0 27 27'%3E%3Cg transform='rotate(13 13.5 13.5)'%3E%3Crect x='3.5' y='3.5' width='20' height='20' rx='5.5' fill='%23fffafd' opacity='.88'/%3E%3Cpath d='m13.5 7 2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L6.3 12.3l5-.7z' fill='%23a8e6cf'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cg transform='rotate(-5 14 14)'%3E%3Crect x='4' y='4' width='20' height='20' rx='6' fill='%23fffafd' opacity='.86'/%3E%3Cpath d='M9 18.5h10a3.2 3.2 0 0 0 .2-6.4 4.6 4.6 0 0 0-8.8 1A2.8 2.8 0 0 0 9 18.5z' fill='%23c9b8ff'/%3E%3C/g%3E%3C/svg%3E");
+  background-position: right 8px top 6px, left 10px bottom 12px, right 26px bottom 8px;
+  filter: drop-shadow(0 3px 5px rgba(180,90,140,.22));
+  opacity: .9;
+  animation: hud-th-bob 5.4s ease-in-out infinite alternate;
+}
+@keyframes hud-th-bob {
+  from { background-position: right 8px top 6px, left 10px bottom 12px, right 26px bottom 8px; }
+  to   { background-position: right 11px top 9px, left 13px bottom 9px, right 23px bottom 11px; }
+}
+
+/* --- Academia: стопка страниц справа и рваный нижний край --------------- */
+.hud-theme-academia .hud-tab-content::before {
+  background-image:
+    linear-gradient(rgba(232,217,184,.2), rgba(232,217,184,.2)),
+    linear-gradient(rgba(232,217,184,.14), rgba(232,217,184,.14)),
+    linear-gradient(rgba(232,217,184,.09), rgba(232,217,184,.09)),
+    repeating-linear-gradient(135deg,
+      rgba(232,217,184,.13) 0 4px, transparent 4px 8px);
+  background-size: 1px calc(100% - 18px), 1px calc(100% - 32px), 1px calc(100% - 46px), 100% 5px;
+  background-position: right 4px top 9px, right 8px top 16px, right 12px top 23px, left bottom;
+}
+
+/* --- Vamp: две свечи по верхним углам ----------------------------------
+   Свеча = столбик воска, огонёк над ним и тёплое пятно вокруг. Огонёк
+   подрагивает вместе со всем слоем: отдельного элемента под него нет, а
+   заводить ради этого лишний узел в каждой карточке дороже, чем эффект. */
+.hud-theme-vamp .hud-tab-content::before {
+  background-image:
+    radial-gradient(circle 20px at 50% 50%, rgba(255,168,60,.16), transparent 70%),
+    radial-gradient(ellipse 3px 6px at 50% 50%, rgba(255,226,150,.95), rgba(255,132,30,.55) 52%, transparent 100%),
+    linear-gradient(rgba(238,224,202,.5), rgba(214,196,168,.5)),
+    radial-gradient(circle 18px at 50% 50%, rgba(255,168,60,.13), transparent 70%),
+    radial-gradient(ellipse 2.6px 5.2px at 50% 50%, rgba(255,226,150,.85), rgba(255,132,30,.5) 52%, transparent 100%),
+    linear-gradient(rgba(238,224,202,.42), rgba(214,196,168,.42));
+  background-size:
+    42px 42px, 9px 14px, 4px 22px,
+    38px 38px, 8px 12px, 3.4px 18px;
+  background-position:
+    left 14px top 12px, left 24px top 6px, left 25px top 18px,
+    right 16px top 16px, right 26px top 12px, right 27px top 22px;
+  animation: hud-th-candle 2.6s ease-in-out infinite alternate;
+}
+@keyframes hud-th-candle { from { opacity: .78; } to { opacity: 1; } }
+
+/* --- Киберпанк: неоновые трубки сверху и снизу -------------------------- */
+.hud-theme-cyberpunk .hud-tab-content::before {
+  background-image:
+    linear-gradient(90deg, transparent, #2de2ff 18%, #b06bff 50%, #ff2d6f 82%, transparent),
+    radial-gradient(70% 100% at 50% 0%, rgba(45,226,255,.2), transparent 72%),
+    linear-gradient(90deg, transparent, #ff2d6f 18%, #b06bff 50%, #2de2ff 82%, transparent),
+    radial-gradient(70% 100% at 50% 100%, rgba(255,45,111,.16), transparent 72%);
+  background-size: 100% 1.5px, 100% 16px, 100% 1.5px, 100% 14px;
+  background-position: left top, left top, left bottom, left bottom;
+  opacity: .8;
+}
+/* Мерцающая надпись — отдельно от слоя: гаснуть должен именно текст. */
+.hud-theme-cyberpunk .hud-os-logo {
+  animation: hud-th-flicker 4.6s steps(1, end) infinite;
+  animation-play-state: paused;
+}
+@keyframes hud-th-flicker {
+  0%, 38%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(45,226,255,.5); }
+  39% { opacity: .35; text-shadow: none; }
+  40% { opacity: 1; text-shadow: 0 0 14px rgba(45,226,255,.75); }
+  67% { opacity: 1; }
+  68% { opacity: .5; text-shadow: none; }
+  69% { opacity: 1; text-shadow: 0 0 8px rgba(45,226,255,.5); }
+}
+
+/* --- Фэнтези: дым поднимается снизу ------------------------------------- */
+.hud-theme-fantasy .hud-tab-content::before {
+  background-image:
+    radial-gradient(30% 42% at 20% 108%, rgba(180,220,210,.13), transparent 72%),
+    radial-gradient(24% 36% at 58% 112%, rgba(154,107,255,.11), transparent 74%),
+    radial-gradient(20% 30% at 86% 106%, rgba(127,224,192,.1), transparent 76%);
+  animation: hud-th-smoke 9s ease-in-out infinite alternate;
+}
+@keyframes hud-th-smoke {
+  from { background-position: 0 0, 0 0, 0 0; opacity: .7; }
+  to   { background-position: 8px -14px, -10px -18px, 6px -12px; opacity: 1; }
+}
+
+/* Движение третьего слоя — только под курсором, как и у второго. */
+@media (hover: hover) {
+  .hud-os-card:hover .hud-tab-content::before { animation-play-state: running !important; }
+  .hud-theme-cyberpunk .hud-os-card:hover .hud-os-logo { animation-play-state: running; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-tab-content::before, .hud-theme-cyberpunk .hud-os-logo { animation: none !important; }
+}
+
+/* =========================================================================
+   ЧЕТЫРЕ НОВЫЕ ВСЕЛЕННЫЕ
+   -------------------------------------------------------------------------
+   Web 1.0, Коттеджкор, Лёд и Глубина. Слои те же, что у остальных тем:
+   украшение карточки, мир на .hud-os-wrapper, подпись на его ::after и
+   третий слой на .hud-tab-content::before. Всё нарисовано градиентами и
+   своими SVG, движение спит до наведения.
+   ========================================================================= */
+
+/* ======================= Web 1.0 ======================= */
+.hud-theme-web1 {
+  --hud-radius: 0;
+  --lt-paper: rgba(255,255,255,.94); --lt-paper-2: rgba(255,255,255,.72);
+  --lt-ink: #000; --lt-ink-soft: rgba(0,0,0,.6);
+  --lt-line: #808080; --lt-solid: #c0c0c0;
+  --hud-text: #000; --hud-text-muted: rgba(0,0,0,.6);
+  --hud-border: #808080;
+}
+/* Фаска как у окон девяносто пятого: светлые рёбра сверху-слева,
+   тёмные снизу-справа. Четыре внутренние тени вместо рамки. */
+.hud-theme-web1 :is(.hud-os-card, .hud-key-block, .hud-key-item,
+  .hud-world-section, .hud-forecast-cell, .hud-horo-card, .hud-diary-entry) {
+  border-radius: 0 !important;
+  box-shadow: inset 1px 1px #fff, inset -1px -1px #0a0a0a,
+              inset 2px 2px #dfdfdf, inset -2px -2px #808080 !important;
+}
+.hud-theme-web1 :is(.hud-os-topbar, .hud-os-logo) { color: #fff; }
+.hud-theme-web1 .hud-os-logo { text-shadow: 1px 1px 0 #000; letter-spacing: 0; }
+.hud-theme-web1 .hud-os-logo::after {
+  content: ' \2605 WELCOME \2605'; opacity: 1; color: #ffe94a;
+  font-family: 'Courier New', monospace; font-weight: 700;
+  animation: hud-w1-blink 1.2s steps(1, end) infinite;
+  animation-play-state: paused;
+}
+@keyframes hud-w1-blink { 0%, 58% { opacity: 1; } 59%, 100% { opacity: .18; } }
+.hud-theme-web1 .hud-key::after,
+.hud-theme-web1 .hud-key-label::after { content: ' \2593'; margin-left: 4px; }
+.hud-theme-web1 .hud-world-title::after {
+  content: ' <NEW!>'; color: #d00000; font-family: 'Courier New', monospace; opacity: 1;
+}
+/* Обои в клеточку — как тайл на старой странице. */
+.hud-theme-web1 .hud-tab-content::before {
+  background-image:
+    radial-gradient(circle 1px at 4px 4px, rgba(0,0,128,.14) 0 60%, transparent 100%),
+    linear-gradient(90deg, rgba(0,128,128,.05) 0 1px, transparent 1px),
+    linear-gradient(0deg, rgba(0,128,128,.05) 0 1px, transparent 1px);
+  background-size: 16px 16px, 16px 16px, 16px 16px;
+  background-repeat: repeat;
+  opacity: .8;
+}
+/* Нижняя панель навигации и счётчик гостей. */
+.hud-theme-web1 .hud-tab-content { padding-bottom: 24px !important; }
+.hud-theme-web1 .hud-tab-content::after {
+  content: '[ HOME ]   [ GUESTBOOK ]   [ LINKS ]        guest #001728';
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 0;
+  padding: 4px 6px 3px; text-align: center;
+  font: 700 10px/1.2 'Courier New', monospace; letter-spacing: .05em;
+  color: #0000cc; background: rgba(255,255,255,.72);
+  border-top: 1px solid #808080;
+  pointer-events: none;
+}
+/* Лента «идут работы» в углу. */
+.hud-theme-web1 .hud-os-wrapper::after {
+  content: 'UNDER CONSTRUCTION';
+  right: 8px; top: 6px; padding: 2px 7px;
+  font: 700 9px/1.3 'Courier New', monospace; letter-spacing: .08em; color: #1a1a1a;
+  background: repeating-linear-gradient(-45deg, #ffd400 0 7px, #1a1a1a 7px 14px);
+  background-size: 200% 100%;
+  text-shadow: 0 0 3px #ffd400, 0 0 4px #ffd400;
+  animation: hud-w1-tape 2.6s linear infinite;
+  animation-play-state: paused;
+}
+@keyframes hud-w1-tape { to { background-position: 39.6px 0; } }
+
+/* ======================= Коттеджкор ======================= */
+.hud-theme-cottage {
+  --hud-radius: 10px;
+  --lt-paper: rgba(255,253,246,.62); --lt-paper-2: rgba(255,253,246,.4);
+  --lt-ink: #4a4034; --lt-ink-soft: rgba(74,64,52,.62);
+  --lt-line: rgba(140,120,80,.3); --lt-solid: #f5efe0;
+  --hud-text: #4a4034;
+  --hud-text-muted: rgba(74,64,52,.62);
+  --hud-border: rgba(140,120,80,.32);
+}
+.hud-theme-cottage .hud-key::after,
+.hud-theme-cottage .hud-key-label::after { content: ' \2741'; margin-left: 4px; font-size: .95em; }
+.hud-theme-cottage .hud-os-logo::after { content: ' \2698'; }
+.hud-theme-cottage .hud-world-title::after { content: ' \2618'; }
+/* Льняное переплетение: нити в двух направлениях. */
+.hud-theme-cottage .hud-os-card::after {
+  background:
+    repeating-linear-gradient(90deg, rgba(140,120,80,.045) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(0deg, rgba(140,120,80,.045) 0 1px, transparent 1px 4px),
+    var(--hud-bg);
+}
+/* Подписи от руки: заголовки полей крупнее и тоньше. */
+.hud-theme-cottage :is(.hud-key, .hud-key-label) {
+  font-family: 'Amatic SC', cursive; font-size: 1.24em;
+  letter-spacing: .05em; text-transform: none; font-weight: 700;
+}
+/* Засушенная веточка в углу. */
+.hud-theme-cottage .hud-os-wrapper::after {
+  right: 10px; bottom: 8px; width: 40px; height: 50px; opacity: .5;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='50' viewBox='0 0 40 50'%3E%3Cg stroke='%238a7a52' stroke-width='1.2' fill='none' stroke-linecap='round'%3E%3Cpath d='M20 48V10'/%3E%3Cpath d='M20 34c-6-2-9-7-9-12'/%3E%3Cpath d='M20 27c6-2 9-7 9-12'/%3E%3Cpath d='M20 41c-5-1.6-7.5-6-7.5-10'/%3E%3C/g%3E%3Cg fill='%23c9a0a8'%3E%3Cellipse cx='20' cy='8' rx='3' ry='4.4'/%3E%3Cellipse cx='11' cy='21' rx='2.2' ry='3.2'/%3E%3Cellipse cx='29' cy='14.5' rx='2.2' ry='3.2'/%3E%3C/g%3E%3C/svg%3E") no-repeat center / contain;
+}
+/* Грибы вдоль нижнего края — три штуки разного размера. */
+.hud-theme-cottage .hud-tab-content::before {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='22' viewBox='0 0 20 22'%3E%3Cpath d='M7.4 13h5.2v5.8a2.6 2.6 0 0 1-5.2 0z' fill='%23efe4cb'/%3E%3Cpath d='M10 2.6c4.3 0 7.6 3.6 7.6 6.9 0 1.9-1.5 2.8-3.2 2.8H5.6c-1.7 0-3.2-.9-3.2-2.8 0-3.3 3.3-6.9 7.6-6.9z' fill='%23b8543f'/%3E%3Ccircle cx='6.6' cy='8' r='1.1' fill='%23fdf6e8'/%3E%3Ccircle cx='12.2' cy='6.9' r='.9' fill='%23fdf6e8'/%3E%3Ccircle cx='14.2' cy='9.6' r='.8' fill='%23fdf6e8'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='16' viewBox='0 0 14 16'%3E%3Cpath d='M5.2 9.4h3.6v4.2a1.8 1.8 0 0 1-3.6 0z' fill='%23efe4cb'/%3E%3Cpath d='M7 1.8c3 0 5.3 2.6 5.3 4.9 0 1.4-1 2-2.2 2H3.9c-1.2 0-2.2-.6-2.2-2 0-2.3 2.3-4.9 5.3-4.9z' fill='%23c98a5e'/%3E%3Ccircle cx='4.9' cy='5.6' r='.8' fill='%23fdf6e8'/%3E%3Ccircle cx='8.8' cy='5' r='.6' fill='%23fdf6e8'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='13' viewBox='0 0 11 13'%3E%3Cpath d='M4.1 7.6h2.8v3.4a1.4 1.4 0 0 1-2.8 0z' fill='%23efe4cb'/%3E%3Cpath d='M5.5 1.4c2.4 0 4.2 2 4.2 3.9 0 1.1-.8 1.6-1.7 1.6H3c-.9 0-1.7-.5-1.7-1.6 0-1.9 1.8-3.9 4.2-3.9z' fill='%239a7f52'/%3E%3C/svg%3E");
+  background-position: left 14px bottom 2px, left 44px bottom 3px, right 34px bottom 2px;
+  opacity: .85;
+}
+
+/* ======================= Лёд ======================= */
+.hud-theme-ice { --hud-radius: 14px; }
+.hud-theme-ice .hud-key::after,
+.hud-theme-ice .hud-key-label::after { content: ' \2744\FE0E'; margin-left: 4px; font-size: .95em; }
+.hud-theme-ice .hud-os-logo::after { content: ' \2745'; }
+.hud-theme-ice .hud-world-title::after { content: ' \2746'; }
+/* Иней наползает из трёх углов. */
+.hud-theme-ice .hud-os-card::after {
+  background:
+    radial-gradient(52% 62% at 0% 0%, rgba(200,240,255,.17), transparent 70%),
+    radial-gradient(46% 54% at 100% 0%, rgba(200,240,255,.13), transparent 70%),
+    radial-gradient(40% 46% at 100% 100%, rgba(200,240,255,.1), transparent 70%),
+    var(--hud-bg);
+}
+/* Преломление: узкая радужная кромка по левому краю. */
+.hud-theme-ice .hud-os-wrapper::before {
+  content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: linear-gradient(180deg, transparent 6%, rgba(255,120,200,.16) 26%,
+    rgba(120,200,255,.2) 48%, rgba(160,255,220,.16) 66%, transparent 92%);
+  background-size: 2px 100%; background-repeat: no-repeat; background-position: left 5px top;
+}
+/* Ледяная кромка блока: зубчатый низ. */
+.hud-theme-ice .hud-key-block {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 6px),
+    88% 100%, 76% calc(100% - 6px), 64% 100%, 52% calc(100% - 6px),
+    40% 100%, 28% calc(100% - 6px), 16% 100%, 4% calc(100% - 6px), 0 100%);
+  padding-bottom: 16px;
+}
+/* Кристаллы: три снежинки разного размера. */
+.hud-theme-ice .hud-tab-content::before {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Cg stroke='%23cdeffa' stroke-width='1' stroke-linecap='round' opacity='.75'%3E%3Cpath d='M11 2v18M3.2 6.5l15.6 9M3.2 15.5l15.6-9'/%3E%3Cpath d='M11 5.6 8.6 3.6M11 5.6l2.4-2M11 16.4l-2.4 2M11 16.4l2.4 2'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 15 15'%3E%3Cg stroke='%23bfeeff' stroke-width='.9' stroke-linecap='round' opacity='.6'%3E%3Cpath d='M7.5 1.5v12M2.2 4.5l10.6 6M2.2 10.5l10.6-6'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 11 11'%3E%3Cg stroke='%23e6f8ff' stroke-width='.8' stroke-linecap='round' opacity='.5'%3E%3Cpath d='M5.5 1v9M1.6 3.2l7.8 4.6M1.6 7.8l7.8-4.6'/%3E%3C/g%3E%3C/svg%3E");
+  background-position: right 12px top 8px, left 16px bottom 14px, right 46px bottom 10px;
+  animation: hud-ice-glint 6.5s ease-in-out infinite alternate;
+}
+@keyframes hud-ice-glint { from { opacity: .55; } to { opacity: 1; } }
+/* Ледяная искра в углу. */
+.hud-theme-ice .hud-os-wrapper::after {
+  right: 14px; top: 10px; width: 26px; height: 26px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(230,250,255,.9) 0 1.2px, transparent 1.6px),
+    linear-gradient(0deg, transparent 46%, rgba(200,240,255,.55) 50%, transparent 54%),
+    linear-gradient(90deg, transparent 46%, rgba(200,240,255,.55) 50%, transparent 54%),
+    linear-gradient(45deg, transparent 47%, rgba(200,240,255,.35) 50%, transparent 53%),
+    linear-gradient(-45deg, transparent 47%, rgba(200,240,255,.35) 50%, transparent 53%);
+}
+
+/* ======================= Глубина ======================= */
+.hud-theme-ocean { --hud-radius: 16px; }
+.hud-theme-ocean .hud-key::after,
+.hud-theme-ocean .hud-key-label::after { content: ' \2248'; margin-left: 4px; }
+.hud-theme-ocean .hud-os-logo::after { content: ' \223F'; }
+.hud-theme-ocean .hud-world-title::after { content: ' \224B'; }
+/* Каустика: пересекающиеся светлые нити, как блики на дне. */
+.hud-theme-ocean .hud-os-card::after {
+  background:
+    repeating-linear-gradient(24deg, rgba(120,230,255,.05) 0 2px, transparent 2px 17px),
+    repeating-linear-gradient(-32deg, rgba(120,230,255,.04) 0 2px, transparent 2px 23px),
+    var(--hud-bg);
+}
+/* Лучи света падают сверху под небольшим наклоном. */
+.hud-theme-ocean .hud-os-wrapper::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    linear-gradient(170deg, rgba(150,240,255,.09) 0 5px, transparent 5px 42px),
+    linear-gradient(176deg, rgba(150,240,255,.06) 0 3px, transparent 3px 58px);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 78%);
+          mask-image: linear-gradient(180deg, #000 0%, transparent 78%);
+  animation: hud-oc-rays 13s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+@keyframes hud-oc-rays {
+  from { background-position: 0 0, 0 0; opacity: .7; }
+  to   { background-position: 16px 0, -12px 0; opacity: 1; }
+}
+/* Пузырьки поднимаются со дна. */
+.hud-theme-ocean .hud-tab-content::before {
+  background-image:
+    radial-gradient(circle 3px at 50% 50%, rgba(190,245,255,.4) 0 52%, rgba(190,245,255,.14) 58%, transparent 62%),
+    radial-gradient(circle 2px at 50% 50%, rgba(190,245,255,.32) 0 52%, transparent 60%),
+    radial-gradient(circle 4px at 50% 50%, rgba(190,245,255,.22) 0 52%, transparent 60%);
+  background-size: 58px 92px, 41px 68px, 77px 116px;
+  background-repeat: repeat;
+  animation: hud-oc-bubbles 14s linear infinite;
+}
+@keyframes hud-oc-bubbles {
+  from { background-position: 0 0, 0 0, 0 0; }
+  to   { background-position: 5px -92px, -7px -68px, 4px -116px; }
+}
+/* Медленная волна по нижнему краю. */
+.hud-theme-ocean .hud-os-wrapper::after {
+  left: 0; right: 0; bottom: 0; height: 12px;
+  background:
+    radial-gradient(ellipse 26px 8px at 50% 100%, rgba(79,216,200,.16), transparent 70%);
+  background-size: 52px 12px; background-repeat: repeat-x;
+  animation: hud-oc-wave 9s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+@keyframes hud-oc-wave { from { background-position: 0 0; } to { background-position: 52px 0; } }
+
+/* Движение новых тем — как у всех: только под курсором. */
+@media (hover: hover) {
+  .hud-os-card:hover .hud-os-logo::after,
+  .hud-os-card:hover .hud-os-wrapper::after,
+  .hud-os-card:hover .hud-os-wrapper::before { animation-play-state: running !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-os-logo::after, .hud-os-wrapper::after, .hud-os-wrapper::before { animation: none !important; }
+}
+
+/* =========================================================================
+   СИСТЕМА ЦВЕТОВ, ЖИВОЙ ПРОСМОТР И СТЕКЛО
+   ========================================================================= */
+
+/* --- Система цветов: семь ролей вместо россыпи полей ------------------- */
+.hud-theme-system { padding: 10px 12px 12px; border-bottom: 1px solid var(--hud-border); }
+.hud-theme-roles {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+  gap: 7px; margin-bottom: 9px;
+}
+.hud-role {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  cursor: pointer; font-size: 10px; text-align: center; line-height: 1.2;
+}
+.hud-role input[type="color"] {
+  width: 100%; height: 26px; padding: 0; cursor: pointer;
+  border: 1px solid var(--hud-border); border-radius: 7px; background: transparent;
+}
+.hud-role span { opacity: .78; }
+.hud-glass-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.hud-glass-row select { flex: 1; }
+
+/* --- Живой просмотр ----------------------------------------------------
+   Собран из настоящих классов HUD, а не из макета: значит показывает и
+   украшения выбранной темы, и тип стекла, и цвет текста — всё сразу и без
+   единой строчки JS, потому что переменные общие. */
+.hud-theme-preview {
+  border: 1px solid var(--hud-border); border-radius: 10px;
+  padding: 8px; background: rgba(0,0,0,.18);
+  max-height: 190px; overflow: hidden;
+  pointer-events: none; /* просмотр не кликается: он витрина, а не пульт */
+}
+.hud-theme-preview .hud-os-card { margin: 0; font-size: 11px; }
+.hud-theme-preview .hud-tabs-header::after,
+.hud-theme-preview .hud-os-wrapper::after,
+.hud-theme-preview .hud-os-wrapper::before,
+.hud-theme-preview .hud-tab-content::before,
+.hud-theme-preview .hud-tab-content::after { display: none !important; }
+.hud-theme-preview .hud-os-topbar { padding: 6px 10px; }
+.hud-theme-preview .hud-os-logo { font-size: 12px; }
+.hud-theme-preview .hud-os-wrapper {
+  display: block !important; max-height: none !important;
+  overflow: visible !important; opacity: 1 !important; padding: 8px 10px 10px;
+}
+.hud-theme-preview .hud-tab-content { display: block; }
+.hud-theme-preview .hud-key-block { padding: 7px 9px; }
+.hud-theme-preview .hud-key-item { padding: 4px 8px; font-size: 11px; }
+.hud-theme-preview .hud-row { margin-top: 6px; }
+
+/* --- Стекло ------------------------------------------------------------
+   Стекло — это не один backdrop-filter, а набор слоёв: верхний блик,
+   внутреннее свечение, глубина под карточкой, кромка и сила размытия.
+   Каждый тип задаёт их по-своему; сами правила ниже общие.
+   Слои сделаны тенями, а не фоном: фон у карточек занят украшениями тем,
+   и добавляться туда — значит ломать их при каждой смене темы. */
+:root {
+  --glass-rim: rgba(255,255,255,.2);
+  --glass-inner: rgba(255,255,255,.05);
+  --glass-inner-size: 26px;
+  --glass-depth: 0 8px 30px rgba(0,0,0,.3);
+  --glass-edge: transparent;
+  --glass-blur-k: 1;
+}
+.hud-glass-frosted {
+  --glass-rim: rgba(255,255,255,.22);
+  --glass-inner: rgba(255,255,255,.07);
+  --glass-inner-size: 30px;
+  --glass-blur-k: 1.15;
+}
+.hud-glass-clear {
+  --glass-rim: rgba(255,255,255,.34);
+  --glass-inner: rgba(255,255,255,.02);
+  --glass-inner-size: 14px;
+  --glass-depth: 0 4px 16px rgba(0,0,0,.22);
+  --glass-blur-k: .3;
+}
+.hud-glass-tinted {
+  --glass-rim: color-mix(in srgb, var(--hud-accent) 55%, #ffffff);
+  --glass-inner: color-mix(in srgb, var(--hud-accent) 16%, transparent);
+  --glass-inner-size: 34px;
+  --glass-blur-k: 1;
+}
+/* Жидкое: широкий мягкий блик и глубокая тень — стекло кажется налитым. */
+.hud-glass-liquid {
+  --glass-rim: rgba(255,255,255,.4);
+  --glass-inner: rgba(255,255,255,.1);
+  --glass-inner-size: 54px;
+  --glass-depth: 0 14px 44px rgba(0,0,0,.4);
+  --glass-blur-k: 1.5;
+}
+/* Перламутр: кромка двух цветов — холодная сверху, тёплая снизу. */
+.hud-glass-iridescent {
+  --glass-rim: rgba(190,235,255,.42);
+  --glass-inner: rgba(255,255,255,.06);
+  --glass-inner-size: 32px;
+  --glass-edge: rgba(255,170,220,.3);
+  --glass-blur-k: 1.2;
+}
+
+/* Кромка карточки и внутренний блик. Тень карточки не трогаем: у Vamp там
+   своя виньетка, и перебивать её значило бы отнять у темы её же приём. */
+.hud-os-card { border-top-color: var(--glass-rim); }
+.hud-key-block,
+.hud-forecast-cell,
+.hud-horo-card {
+  box-shadow:
+    inset 0 1px 0 var(--glass-rim),
+    inset 0 -1px 0 var(--glass-edge),
+    inset 0 0 var(--glass-inner-size) var(--glass-inner);
+}
+.hud-glass-liquid .hud-os-card { box-shadow: var(--glass-depth), inset 0 1px 0 var(--glass-rim); }
+.hud-glass-iridescent .hud-os-card { border-bottom: 1px solid var(--glass-edge); }
+/* Сила размытия у стекла своя: прозрачное почти не мылит, жидкое мылит сильно. */
+.hud-os-card::after {
+  backdrop-filter: blur(calc(var(--hud-blur-intensity, 8px) * var(--glass-blur-k, 1)));
+  -webkit-backdrop-filter: blur(calc(var(--hud-blur-intensity, 8px) * var(--glass-blur-k, 1)));
+}
+
+/* Кнопка сброса цвета текста стоит в той же сетке ролей. */
+.hud-role-clear { border: 1px dashed var(--hud-border); border-radius: 7px; background: rgba(0,0,0,.2);
+  color: var(--hud-text); cursor: pointer; padding: 3px 4px; font-size: 9px; line-height: 1.15; }
+.hud-role-clear:hover { background: rgba(255,255,255,.07); border-color: var(--hud-accent); }
+.hud-role-x { font-size: 14px; opacity: .8; }
+
+/* =========================================================================
+   DARK ACADEMIA: ИНТЕРФЕЙС КАК ПРЕДМЕТ
+   -------------------------------------------------------------------------
+   Не «коричневая тема», а книга на столе: закладка свешивается из-под
+   шапки, у страницы есть номер, у полей — чернильное подчёркивание и
+   пометки на полях, между разделами лежит засушенный цветок, а на блоке
+   стоит выцветший штамп. Всё рисуется градиентами и глифами, ни одной
+   картинки и ни одной постоянной анимации.
+   ========================================================================= */
+
+/* Закладка: лента свешивается из-под шапки карточки. */
+.hud-theme-academia .hud-tabs-header { position: relative; }
+.hud-theme-academia .hud-tabs-header::after {
+  content: ''; position: absolute; right: 14px; top: 0;
+  width: 12px; height: 26px; z-index: 3; pointer-events: none;
+  background: linear-gradient(180deg, #8c2f22, #6d2318);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 72%, 0 100%);
+  box-shadow: 0 2px 5px rgba(0,0,0,.4);
+}
+
+/* Номер страницы внизу разворота. Слот освободился, когда поле тетради
+   переехало на .hud-tab-content — теперь он снова при деле. */
+.hud-theme-academia .hud-os-wrapper::after {
+  display: block;
+  content: '— XLVII —';
+  left: 0; right: 0; bottom: 4px; top: auto;
+  text-align: center;
+  font-size: 10px; letter-spacing: .18em;
+  color: rgba(201,162,39,.5);
+  background: none;
+}
+
+/* Чернильное подчёркивание заголовка: линия неровная, как от пера. */
+.hud-theme-academia .hud-key-label {
+  background-image:
+    linear-gradient(90deg, rgba(163,58,42,.55) 0 38%, rgba(163,58,42,.28) 38% 62%, rgba(163,58,42,.5) 62% 100%);
+  background-size: 100% 1.5px;
+  background-position: left bottom 1px;
+  background-repeat: no-repeat;
+  padding-bottom: 5px;
+}
+
+/* Уголок страницы у каждого блока полей. */
+.hud-theme-academia .hud-key-block {
+  position: relative;
+  background-image:
+    linear-gradient(225deg, rgba(232,217,184,.16) 0 9px, transparent 9px);
+  background-repeat: no-repeat;
+  background-position: right top;
+}
+
+/* Выцветший штамп в углу блока. */
+.hud-theme-academia .hud-key-block::after {
+  content: ''; position: absolute; right: 9px; bottom: 7px;
+  width: 30px; height: 30px; border-radius: 50%; pointer-events: none;
+  border: 1.5px solid rgba(163,58,42,.3);
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 8px, rgba(163,58,42,.16) 8px 9.5px, transparent 9.5px),
+    linear-gradient(28deg, transparent 46%, rgba(163,58,42,.22) 46% 54%, transparent 54%);
+  transform: rotate(-13deg);
+  opacity: .75;
+}
+
+/* Пометка на полях у каждой строки — «nota bene» от руки. */
+.hud-theme-academia .hud-key-item { position: relative; padding-left: 26px; }
+.hud-theme-academia .hud-key-item::before {
+  content: 'nb.'; position: absolute; left: 8px; top: 6px;
+  font-size: .72em; font-style: italic; letter-spacing: .02em;
+  color: rgba(201,162,39,.62);
+}
+
+/* Засушенный цветок лежит между разделами. Виден только там, где блоки
+   идут подряд: это разделитель, а не украшение каждого блока. */
+.hud-theme-academia .hud-key-block + .hud-key-block { margin-top: 20px; }
+.hud-theme-academia .hud-key-block + .hud-key-block::before {
+  content: ''; position: absolute; left: 50%; top: -17px;
+  width: 34px; height: 14px; margin-left: -17px; pointer-events: none;
+  background:
+    radial-gradient(circle 2.6px at 50% 3px, rgba(196,150,120,.6) 0 60%, transparent 100%),
+    radial-gradient(circle 2.2px at 34% 6px, rgba(176,132,104,.5) 0 60%, transparent 100%),
+    radial-gradient(circle 2.2px at 66% 6px, rgba(176,132,104,.5) 0 60%, transparent 100%),
+    radial-gradient(circle 1.8px at 42% 10px, rgba(150,140,96,.45) 0 60%, transparent 100%),
+    radial-gradient(circle 1.8px at 58% 10px, rgba(150,140,96,.45) 0 60%, transparent 100%),
+    linear-gradient(rgba(122,116,80,.5), rgba(122,116,80,.5));
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 1px 9px;
+  background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 50% 5px;
+  background-repeat: no-repeat;
+  transform: rotate(-6deg);
+}
+
+/* =========================================================================
+   СВЕТЛЫЕ ТЕМЫ: ТЕКСТ СЦЕНЫ И УНАСЛЕДОВАННАЯ ТЕНЬ
+   -------------------------------------------------------------------------
+   Часы, дата, плашки погоды и строка атмосферы написаны белым и подсвечены
+   белым же ореолом — так задумано для тёмного ночного неба. На светлой теме
+   небо пастельное (фон карточки просвечивает сквозь полупрозрачные слои),
+   и белое по светлому выглядит расплывшимся. Сколько ни убирай блюр, не
+   поможет: размывает не блюр, а свечение под буквами.
+
+   Вторая половина беды — тень текста, которую вся страница наследует из
+   темы SillyTavern (в её настройках это shadow_color и shadow_width). На
+   тёмном интерфейсе светлая тень читается как лёгкое сияние, а под тёмными
+   буквами HUD превращается в грязь. Гасим её на карточке: элементы со
+   своей тенью её сохранят, остальные перестанут наследовать чужую.
+   ========================================================================= */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage)
+  :is(.hud-os-card, .hud-scene-widget) { text-shadow: none; }
+
+/* Часы и дата — тёмными чернилами, с тонким светлым бликом снизу вместо
+   тёмного ореола: он отделяет цифры от пастельного неба, не размазывая. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-time-display {
+  /* Цвет не трогаем: у часов своя настройка clockColor, и она главнее.
+     Убираем только белое свечение — из-за него цифры и расплывались. */
+  text-shadow: 0 1px 0 rgba(255,255,255,.65);
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-date-display {
+  color: var(--lt-ink-soft);
+  text-shadow: none;
+}
+
+/* Плашки погоды, настроения и атмосферы: тёмная подложка на светлом небе
+   выглядела кляксой. Делаем их бумажными, а текст — чернильным. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage)
+  :is(.hud-weather-item, .hud-mood-item, .hud-scene-atm) {
+  background: var(--lt-paper) !important;
+  color: var(--lt-ink) !important;
+  border-color: var(--lt-line) !important;
+  text-shadow: none !important;
+  box-shadow: 0 2px 8px rgba(90,50,70,.12), inset 0 1px 0 rgba(255,255,255,.5);
+}
+
+/* Блок с часами тоже сидит на светлом — его тёмная подложка ни к чему. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-scene-time-group {
+  background: var(--lt-paper);
+  border-color: var(--lt-line);
+  box-shadow: 0 2px 8px rgba(90,50,70,.12);
+}
+
+/* =========================================================================
+   СЦЕНЕ — СВОЁ НЕПРОЗРАЧНОЕ НЕБО
+   -------------------------------------------------------------------------
+   Слой .hud-fx-bg рисует небо с прозрачностью 0.52…0.80 (она считается от
+   времени суток), а у самого виджета фона не было вовсе. Значит сквозь небо
+   всегда просвечивал фон карточки — то есть цвет выбранной темы. На светлых
+   темах пергамент и розовый забивали сцену в молоко, на тёмных темнота её
+   съедала: погода выглядела «мыльной» или пропадала совсем.
+
+   Теперь виджет сам красит небо теми же переменными и непрозрачно. Слой
+   .hud-fx-bg остаётся сверху: он добавляет закатное свечение и плавно
+   переливается при смене времени суток, но подмешивать в сцену цвет темы
+   ему больше нечего.
+   ========================================================================= */
+.hud-scene-widget {
+  background:
+    linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 55%, var(--sky-bot) 100%);
+}
+
+/* =========================================================================
+   ОСЕНЬ И ВЕСНА: ГОРИЗОНТ И МЕЛОЧЬ ПОД НОГАМИ
+   -------------------------------------------------------------------------
+   У зимы горизонт занимают лес, деревня и пруд, у лета — своя мелочь. Осень
+   и весна рядом с ними выглядели пустым скатом земли и пустым небом. Здесь
+   добавлены дальний лес по горизонту и подножный слой: палая листва с
+   грибами осенью, кочки травы и лужа весной.
+
+   Всё статично: ни одной анимации, только градиенты. Слои лежат под
+   деревьями (z-index 1) и не перехватывают нажатия.
+   ========================================================================= */
+.hud-far-treeline {
+  position: absolute; left: -2%; right: -2%; bottom: 2%; height: 29%;
+  z-index: 1; pointer-events: none;
+}
+/* Осенний лес: округлые кроны тёплых тонов, разной высоты и плотности. */
+.season-autumn .hud-far-treeline {
+  opacity: .62;
+  background:
+    radial-gradient(26px 15px at 4% 62%,  rgba(104,64,32,.95) 0 72%, transparent 74%),
+    radial-gradient(34px 20px at 13% 62%, rgba(126,76,36,.9)  0 72%, transparent 74%),
+    radial-gradient(22px 13px at 22% 62%, rgba(96,58,30,.95)  0 72%, transparent 74%),
+    radial-gradient(38px 22px at 33% 62%, rgba(134,84,40,.88) 0 72%, transparent 74%),
+    radial-gradient(24px 14px at 44% 62%, rgba(100,62,32,.92) 0 72%, transparent 74%),
+    radial-gradient(32px 19px at 55% 62%, rgba(120,72,34,.9)  0 72%, transparent 74%),
+    radial-gradient(26px 16px at 66% 62%, rgba(108,66,32,.92) 0 72%, transparent 74%),
+    radial-gradient(36px 21px at 78% 62%, rgba(130,80,38,.88) 0 72%, transparent 74%),
+    radial-gradient(24px 14px at 89% 62%, rgba(98,60,30,.94)  0 72%, transparent 74%),
+    radial-gradient(30px 18px at 98% 62%, rgba(116,70,34,.9)  0 72%, transparent 74%),
+    linear-gradient(rgba(112,70,34,.9), rgba(112,70,34,.9)) 0 100% / 100% 40% no-repeat;
+}
+/* Весенний: те же кроны, но молодой зеленью и легче. */
+.season-spring .hud-far-treeline {
+  opacity: .58;
+  background:
+    radial-gradient(26px 15px at 5% 62%,  rgba(58,110,54,.95) 0 72%, transparent 74%),
+    radial-gradient(34px 20px at 15% 62%, rgba(72,128,62,.9)  0 72%, transparent 74%),
+    radial-gradient(22px 13px at 24% 62%, rgba(52,102,50,.95) 0 72%, transparent 74%),
+    radial-gradient(38px 22px at 35% 62%, rgba(78,136,66,.88) 0 72%, transparent 74%),
+    radial-gradient(24px 14px at 46% 62%, rgba(56,108,52,.92) 0 72%, transparent 74%),
+    radial-gradient(32px 19px at 57% 62%, rgba(68,122,58,.9)  0 72%, transparent 74%),
+    radial-gradient(26px 16px at 68% 62%, rgba(60,112,54,.92) 0 72%, transparent 74%),
+    radial-gradient(36px 21px at 80% 62%, rgba(74,130,62,.88) 0 72%, transparent 74%),
+    radial-gradient(24px 14px at 92% 62%, rgba(54,104,50,.94) 0 72%, transparent 74%),
+    linear-gradient(rgba(64,116,56,.9), rgba(64,116,56,.9)) 0 100% / 100% 40% no-repeat;
+}
+
+/* --- Осень: палая листва и грибы ---------------------------------------- */
+.hud-autumn-litter { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.hud-ground-leaf {
+  position: absolute; width: 5px; height: 3.5px;
+  border-radius: 0 65% 0 65%;
+  opacity: .72;
+}
+.hud-ground-leaf.gl1 { left: 9%;  bottom: 7.6%; background: #b8622a; transform: rotate(18deg); }
+.hud-ground-leaf.gl2 { left: 21%; bottom: 7.5%;  background: #96481f; transform: rotate(-32deg); }
+.hud-ground-leaf.gl3 { left: 37%; bottom: 12.2%; background: #cf7a34; transform: rotate(64deg); }
+.hud-ground-leaf.gl4 { left: 52%; bottom: 8%;  background: #a8551f; transform: rotate(-12deg); }
+.hud-ground-leaf.gl5 { left: 66%; bottom: 13.5%; background: #c46a2c; transform: rotate(41deg); }
+.hud-ground-leaf.gl6 { left: 79%; bottom: 8.5%; background: #8f4a1e; transform: rotate(-55deg); }
+.hud-ground-leaf.gl7 { left: 91%; bottom: 8%; background: #d98a3d; transform: rotate(7deg); }
+/* Гриб: шляпка и ножка двумя градиентами на одном элементе. */
+.hud-mushroom {
+  position: absolute; width: 9px; height: 9px; pointer-events: none;
+  background:
+    radial-gradient(5px 3.6px at 50% 40%, #a63b28 0 72%, transparent 74%),
+    linear-gradient(#e8dcc6, #cdbfa4);
+  background-size: 100% 100%, 2.6px 5px;
+  background-position: 0 0, 50% 100%;
+  background-repeat: no-repeat, no-repeat;
+}
+.hud-mushroom.m1 { left: 15%; bottom: 9%; transform: scale(.9); }
+.hud-mushroom.m2 { left: 17.5%; bottom: 7.2%; transform: scale(.66); }
+.hud-mushroom.m3 { left: 73%; bottom: 11%; transform: scale(.8); }
+
+/* --- Весна: кочки травы и лужа ------------------------------------------ */
+.hud-grass { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.hud-grass-tuft {
+  position: absolute; width: 11px; height: 9px;
+  background:
+    linear-gradient(82deg,  transparent 0 44%, rgba(96,168,74,.9) 44% 52%, transparent 52%),
+    linear-gradient(98deg,  transparent 0 44%, rgba(118,190,86,.85) 44% 52%, transparent 52%),
+    linear-gradient(90deg,  transparent 0 45%, rgba(78,148,62,.9) 45% 53%, transparent 53%);
+  background-size: 100% 100%, 100% 78%, 100% 88%;
+  background-position: 0 100%, 3px 100%, -3px 100%;
+  background-repeat: no-repeat;
+}
+.hud-grass-tuft.gt1 { left: 7%;  bottom: 7.4%; }
+.hud-grass-tuft.gt2 { left: 24%; bottom: 7.7%;  transform: scale(.82); }
+.hud-grass-tuft.gt3 { left: 41%; bottom: 13.8%; transform: scale(1.1); }
+.hud-grass-tuft.gt4 { left: 58%; bottom: 8%;  transform: scale(.9); }
+.hud-grass-tuft.gt5 { left: 76%; bottom: 11.8%; transform: scale(1.05); }
+.hud-grass-tuft.gt6 { left: 92%; bottom: 6.6%; transform: scale(.78); }
+/* Лужа после весеннего дождя: небо в ней отражается светлой полосой. */
+.hud-spring-puddle {
+  position: absolute; left: 30%; bottom: 6%; width: 74px; height: 13px;
+  z-index: 2; pointer-events: none; border-radius: 50%;
+  background:
+    linear-gradient(180deg, rgba(190,225,240,.5), rgba(120,175,205,.35)),
+    radial-gradient(60% 40% at 38% 34%, rgba(255,255,255,.5), transparent 70%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.4);
+  opacity: .7;
+}
+
+/* =========================================================================
+   ОСЕНЬ И ВЕСНА: ДАЛЬНИЙ ПЛАН И ЛУЖА ПОСЛЕ ДОЖДЯ
+   ========================================================================= */
+
+/* Дальние холмы за лесом — третий план, он и даёт глубину. */
+.hud-far-hills {
+  position: absolute; left: -4%; right: -4%; bottom: 2%; height: 35%;
+  z-index: 0; pointer-events: none;
+}
+.season-autumn .hud-far-hills {
+  opacity: .3;
+  background:
+    radial-gradient(120px 46px at 18% 63%, rgba(122,96,72,.9) 0 78%, transparent 80%),
+    radial-gradient(150px 56px at 52% 63%, rgba(108,86,66,.85) 0 78%, transparent 80%),
+    radial-gradient(130px 48px at 86% 63%, rgba(118,92,70,.88) 0 78%, transparent 80%),
+    linear-gradient(rgba(112,88,68,.88), rgba(112,88,68,.88)) 0 100% / 100% 38% no-repeat;
+}
+.season-spring .hud-far-hills {
+  opacity: .28;
+  background:
+    radial-gradient(120px 46px at 16% 63%, rgba(96,132,88,.9) 0 78%, transparent 80%),
+    radial-gradient(150px 56px at 50% 63%, rgba(84,120,80,.85) 0 78%, transparent 80%),
+    radial-gradient(130px 48px at 88% 63%, rgba(92,128,84,.88) 0 78%, transparent 80%),
+    linear-gradient(rgba(90,126,84,.88), rgba(90,126,84,.88)) 0 100% / 100% 38% no-repeat;
+}
+
+/* Лужа только в дождь и один ход после него: класс scene-wet ставит
+   рендер, сверяясь с погодой предыдущего сообщения. */
+.hud-spring-puddle { display: none; }
+.scene-wet .hud-spring-puddle { display: block; }
+
+/* Осень: сухая трава и упавшее бревно. */
+.hud-dry-tuft {
+  position: absolute; width: 10px; height: 8px; z-index: 3; pointer-events: none;
+  background:
+    linear-gradient(84deg, transparent 0 44%, rgba(150,122,74,.85) 44% 52%, transparent 52%),
+    linear-gradient(96deg, transparent 0 44%, rgba(176,146,90,.8) 44% 52%, transparent 52%),
+    linear-gradient(90deg, transparent 0 45%, rgba(128,104,62,.85) 45% 53%, transparent 53%);
+  background-size: 100% 100%, 100% 76%, 100% 86%;
+  background-position: 0 100%, 3px 100%, -3px 100%;
+  background-repeat: no-repeat;
+}
+.hud-dry-tuft.dt1 { left: 4%;  bottom: 7%; transform: scale(.9); }
+.hud-dry-tuft.dt2 { left: 29%; bottom: 8.2%; }
+.hud-dry-tuft.dt3 { left: 46%; bottom: 12.9%; transform: scale(1.05); }
+.hud-dry-tuft.dt4 { left: 62%; bottom: 8.6%; transform: scale(.85); }
+.hud-dry-tuft.dt5 { left: 87%; bottom: 8.4%; transform: scale(.95); }
+/* Бревно: ствол с торцом и тенью под ним. */
+.hud-fallen-log {
+  position: absolute; left: 55%; bottom: 9%; width: 44px; height: 8px;
+  z-index: 3; pointer-events: none; border-radius: 4px;
+  background:
+    radial-gradient(5px 4px at 6% 50%, #6b4a2c 0 72%, transparent 74%),
+    linear-gradient(180deg, #7d5a36 0 42%, #5c4026 42% 100%);
+  box-shadow: 0 2px 4px rgba(20,12,6,.34);
+  transform: rotate(-2deg);
+}
+
+/* Весна: отцветшие одуванчики. */
+.hud-dandelion {
+  position: absolute; width: 9px; height: 14px; z-index: 3; pointer-events: none;
+  background:
+    radial-gradient(circle 4px at 50% 22%, rgba(238,244,230,.72) 0 62%, transparent 66%),
+    linear-gradient(rgba(110,158,84,.9), rgba(110,158,84,.9));
+  background-size: 100% 100%, 1.2px 8px;
+  background-position: 0 0, 50% 100%;
+  background-repeat: no-repeat;
+}
+.hud-dandelion.dn1 { left: 13%; bottom: 7.4%; transform: scale(.9); }
+.hud-dandelion.dn2 { left: 35%; bottom: 12.6%; }
+.hud-dandelion.dn3 { left: 67%; bottom: 8.5%; transform: scale(.85); }
+.hud-dandelion.dn4 { left: 84%; bottom: 8.6%; transform: scale(.95); }
+
+/* =========================================================================
+   ОСЕНЬ И ВЕСНА: ЛИЧНЫЕ ПРИМЕТЫ СЕЗОНА
+   Всё стоит ниже кромки земли в своей колонке — дуга проверена замером.
+   Статика, ни одной анимации.
+   ========================================================================= */
+
+/* --- Осень: изгородь, жёлуди, ворона на суку --- */
+.hud-fence { position: absolute; left: 4%; bottom: 6.5%; width: 74px; height: 17px; z-index: 3; pointer-events: none; }
+.hud-fence-rail {
+  position: absolute; left: 0; width: 100%; height: 2.6px; border-radius: 2px;
+  background: linear-gradient(180deg, rgba(164,128,82,.96) 0 40%, rgba(72,50,30,.96) 42% 100%);
+  box-shadow: 0 1px 2px rgba(18,10,4,.45);
+}
+.hud-fence-rail.r1 { top: 4px; }
+.hud-fence-rail.r2 { top: 10px; }
+.hud-fence-post {
+  position: absolute; bottom: 0; width: 3.4px; height: 100%; border-radius: 1px 1px 0 0;
+  background: linear-gradient(90deg, rgba(58,40,24,.96), rgba(150,116,74,.96) 45%, rgba(50,34,20,.96));
+  box-shadow: 0 1px 2px rgba(18,10,4,.4);
+}
+.hud-fence-post.p1 { left: 2px; }
+.hud-fence-post.p2 { left: 35px; }
+.hud-fence-post.p3 { left: 68px; }
+
+.hud-acorn {
+  position: absolute; width: 5px; height: 6px; z-index: 3; pointer-events: none;
+  background:
+    radial-gradient(3px 2px at 50% 22%, #6b4a2a 0 72%, transparent 74%),
+    radial-gradient(2.4px 3px at 50% 72%, #c08b4e 0 74%, transparent 76%);
+  background-repeat: no-repeat;
+}
+.hud-acorn.ac1 { left: 27%; bottom: 8%; transform: rotate(12deg); }
+.hud-acorn.ac2 { left: 43%; bottom: 11.4%; transform: rotate(-20deg); }
+.hud-acorn.ac3 { left: 69%; bottom: 9.6%; transform: rotate(6deg); }
+
+/* Ворона на суку: силуэт из тела, головы и хвоста. */
+.hud-crow {
+  position: absolute; left: 62%; bottom: 46%; width: 13px; height: 8px;
+  z-index: 4; pointer-events: none;
+  background:
+    radial-gradient(6px 3.4px at 42% 60%, #14161c 0 76%, transparent 78%),
+    radial-gradient(2.6px 2.6px at 74% 26%, #14161c 0 76%, transparent 78%),
+    linear-gradient(114deg, transparent 0 46%, #14161c 46% 56%, transparent 56%);
+  background-size: 100% 100%, 100% 100%, 7px 5px;
+  background-position: 0 0, 0 0, 0 100%;
+  background-repeat: no-repeat;
+  opacity: .82;
+}
+
+/* --- Весна: цветущий куст, улитка, ростки --- */
+.hud-blossom-shrub { position: absolute; left: 82%; bottom: 6%; width: 34px; height: 22px; z-index: 3; pointer-events: none; }
+.hud-shrub-body {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(13px 9px at 26% 70%, rgba(74,132,66,.92) 0 74%, transparent 76%),
+    radial-gradient(15px 11px at 58% 52%, rgba(88,148,74,.9) 0 74%, transparent 76%),
+    radial-gradient(11px 8px at 84% 74%, rgba(66,122,60,.92) 0 74%, transparent 76%);
+}
+.hud-shrub-bloom {
+  position: absolute; width: 4px; height: 4px; border-radius: 50%;
+  background: radial-gradient(circle at 36% 32%, #fff0f6, #f2a8c8 72%);
+  box-shadow: 0 0 2px rgba(242,168,200,.6);
+}
+.hud-shrub-bloom.b1 { left: 6px;  top: 8px; }
+.hud-shrub-bloom.b2 { left: 17px; top: 3px; }
+.hud-shrub-bloom.b3 { left: 25px; top: 10px; }
+
+.hud-snail {
+  position: absolute; left: 47%; bottom: 7.2%; width: 10px; height: 7px;
+  z-index: 3; pointer-events: none;
+  background:
+    radial-gradient(3.4px 3.4px at 62% 44%, #b8894a 0 62%, #8c6435 64% 76%, transparent 78%),
+    radial-gradient(2.6px 1.6px at 20% 82%, #cdb08a 0 74%, transparent 76%);
+  background-repeat: no-repeat;
+  opacity: .9;
+}
+/* Проростки: две семядоли на тонком стебле. */
+.hud-sprout {
+  position: absolute; width: 8px; height: 9px; z-index: 3; pointer-events: none;
+  background:
+    radial-gradient(3px 2px at 18% 30%, rgba(132,204,96,.95) 0 74%, transparent 76%),
+    radial-gradient(3px 2px at 82% 30%, rgba(112,186,86,.95) 0 74%, transparent 76%),
+    linear-gradient(rgba(96,160,74,.9), rgba(96,160,74,.9));
+  background-size: 100% 100%, 100% 100%, 1.2px 6px;
+  background-position: 0 0, 0 0, 50% 100%;
+  background-repeat: no-repeat;
+}
+.hud-sprout.sp1 { left: 18%; bottom: 8.2%; }
+.hud-sprout.sp2 { left: 61%; bottom: 11.6%; transform: scale(.85); }
+
+/* =========================================================================
+   ЕЩЁ ПРИМЕТЫ СЕЗОНА: осенний пень и паутина, весенний скворечник и лягушка
+   Всё сидит ниже кромки земли в своей колонке; ни одной анимации.
+   ========================================================================= */
+
+/* --- Осень: пень со срезом и мхом --- */
+.hud-stump {
+  position: absolute; left: 41%; bottom: 7.4%; width: 18px; height: 15px;
+  z-index: 3; pointer-events: none;
+}
+.hud-stump-side {
+  position: absolute; left: 0; bottom: 0; width: 100%; height: 11px; border-radius: 2px 2px 3px 3px;
+  background: linear-gradient(90deg, rgba(70,48,28,.97), rgba(122,88,52,.97) 42%, rgba(62,42,24,.97));
+  box-shadow: 0 2px 3px rgba(20,12,6,.36);
+}
+/* Срез: концентрические кольца — то, по чему пень и узнаётся. */
+.hud-stump-top {
+  position: absolute; left: -1px; top: 0; width: 20px; height: 7px; border-radius: 50%;
+  background:
+    radial-gradient(closest-side, transparent 0 22%, rgba(112,78,44,.9) 24% 30%, transparent 32% 46%, rgba(112,78,44,.75) 48% 53%, transparent 55%),
+    radial-gradient(closest-side, rgba(178,136,84,.98), rgba(146,108,64,.98));
+  box-shadow: inset 0 0 0 1px rgba(84,58,34,.7);
+}
+.hud-stump-moss {
+  position: absolute; left: 0; bottom: 1px; width: 8px; height: 5px; border-radius: 50% 40% 40% 50%;
+  background: radial-gradient(closest-side, rgba(96,140,70,.85), rgba(70,110,52,.7));
+}
+
+/* --- Осень: паутина в развилке --- */
+.hud-cobweb {
+  /* Угол сети приходится ровно на основание веток дерева-родителя (там же,
+     где начинаются br1/br2), и сеть свисает вниз-вправо, как и висит настоящая.
+     top:58% — это и есть bottom:42%, только считая от верха: так угол SVG
+     попадает в развилку, а не оказывается на высоту сети выше неё. */
+  position: absolute; left: 50%; top: 58%; width: 19px; height: 17px;
+  z-index: 4; pointer-events: none; opacity: .8;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke='%23e8f0f8' stroke-width='.75' stroke-linecap='round'%3E%3Cpath d='M1 1 L23 3.4 M1 1 L20.5 11.5 M1 1 L13 19.5 M1 1 L3.6 23'/%3E%3Cpath d='M7.6 1.7 Q5.4 5.2 2.2 6.9'/%3E%3Cpath d='M13.8 2.4 Q9.2 9.6 3 13.3'/%3E%3Cpath d='M20 3 Q13.4 14.2 3.9 19.8'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+/* --- Весна: скворечник на стволе --- */
+.hud-birdhouse {
+  position: absolute; left: 68%; bottom: 31%; width: 15px; height: 18px;
+  z-index: 5; pointer-events: none;
+}
+.hud-birdhouse-body {
+  position: absolute; left: 1px; bottom: 0; width: 13px; height: 13px; border-radius: 1px;
+  background: linear-gradient(90deg, rgba(122,88,52,.97), rgba(164,124,76,.97) 45%, rgba(106,76,44,.97));
+  box-shadow: 0 1px 2px rgba(20,12,6,.4);
+}
+.hud-birdhouse-roof {
+  position: absolute; left: -1px; top: 0; width: 17px; height: 6px;
+  background: linear-gradient(180deg, rgba(96,66,38,.98), rgba(66,44,26,.98));
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.hud-birdhouse-hole {
+  position: absolute; left: 5px; top: 8px; width: 5px; height: 5px; border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #2b1e12, #16100a);
+  box-shadow: 0 -1px 0 rgba(206,166,110,.35);
+  overflow: hidden;
+}
+/* Птица: сидит в темноте летка и время от времени выглядывает наружу.
+   Заморозка до касания достаётся ей от общего правила на .hud-fx-season-scene *. */
+.hud-birdhouse-bird {
+  position: absolute; left: .3px; top: .4px; width: 4.4px; height: 4.4px; border-radius: 50%;
+  background:
+    radial-gradient(1.1px .9px at 88% 52%, #e8963c 0 70%, transparent 72%),
+    radial-gradient(.9px .9px at 34% 34%, #150e06 0 62%, transparent 64%),
+    radial-gradient(circle at 40% 30%, #f4d493, #cb9750 68%, #a4742d);
+  transform: translateY(5px);
+  animation: hud-birdhouse-peek 9s ease-in-out infinite;
+}
+@keyframes hud-birdhouse-peek {
+  0%, 46%   { transform: translateY(5px); }
+  54%, 78%  { transform: translateY(0); }
+  86%, 100% { transform: translateY(5px); }
+}
+.hud-birdhouse-perch {
+  position: absolute; left: 6px; top: 14px; width: 3px; height: 1.6px; border-radius: 1px;
+  background: rgba(74,50,28,.95);
+}
+
+/* --- Весна: лягушка у лужи, только по мокрому --- */
+.hud-frog { display: none; }
+.scene-wet .hud-frog {
+  display: block;
+  position: absolute; left: 45.5%; bottom: 6.4%; width: 11px; height: 8px;
+  z-index: 4; pointer-events: none;
+}
+.hud-frog-body {
+  position: absolute; left: 0; bottom: 0; width: 11px; height: 6px; border-radius: 50% 50% 42% 42%;
+  background: radial-gradient(70% 90% at 40% 26%, rgba(126,186,84,.98), rgba(74,132,54,.98) 70%, rgba(52,100,40,.98));
+  box-shadow: 0 1px 2px rgba(16,32,12,.35);
+}
+.hud-frog-eye {
+  position: absolute; top: 0; width: 3px; height: 3px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 34%, #dff0c8 0 42%, #1d2a14 44%);
+}
+.hud-frog-eye.e1 { left: 2px; }
+.hud-frog-eye.e2 { left: 6px; }
+.hud-frog-leg {
+  position: absolute; left: 8px; bottom: 0; width: 4px; height: 2.4px; border-radius: 0 50% 50% 0;
+  background: rgba(70,126,52,.95);
+}
+
+/* =========================================================================
+   ВЕСНА: ЦВЕТЫ — ПЕРЕДНИЙ ПЛАН
+   Клумба шла без z-index, то есть «авто», а трава, куст, ростки и улитка
+   стоят на z-index 3 — и рисовались ПОВЕРХ цветов. Плюс вся сезонная сцена
+   идёт группой с opacity .9, из-за чего сквозь лепестки просвечивало небо:
+   групповую прозрачность ребёнок перебить не может, поэтому снимаем её с
+   весенней сцены и возвращаем на сам луг, который для этого и был задуман.
+   ========================================================================= */
+.season-spring .hud-fx-season-scene { opacity: 1; }
+.season-spring .hud-meadow { opacity: .92; }
+
+.hud-flowerbed { z-index: 7; }
+.hud-flower { filter: drop-shadow(0 1px 1.5px rgba(24,40,18,.38)); }
+/* Пчёлы и бабочка летят ближе всех — им над цветами. */
+.hud-butterfly, .hud-bee { z-index: 8; }
+.hud-pollen { z-index: 8; }
+
+/* =========================================================================
+   ГЛУБИНА КАДРА: ЧТО ПЕРЕД ЧЕМ
+   Замер стопки в точке светила показал две ошибки порядка.
+
+   1. Осадки (.hud-fx-weather) шли с z-index 0 — то есть ПОД солнцем и луной
+      (z 1) и под пейзажем (z 2). Дождь и снег — самое близкое к зрителю, что
+      есть в кадре, и падать они должны перед деревьями и перед светилом.
+   2. Звёзды ночью поднимали на z-index 6 — выше и луны, и всего пейзажа.
+      Звезда, нарисованная поверх луны и поверх крон, — самое далёкое поверх
+      самого близкого. Опускаем их на самое дно неба, сразу над фоном.
+
+   Итоговый порядок: фон 0 → звёзды 0 → светило 1 → пейзаж и облачный покров 2
+   → осадки 3 → иней и градусник → молния → затемнение 9.
+   ========================================================================= */
+.weather-rain .hud-fx-weather,
+.weather-storm .hud-fx-weather,
+.weather-hail .hud-fx-weather { z-index: 3; }

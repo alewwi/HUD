@@ -10,7 +10,7 @@
 // реально добавляются новые сообщения (см. invalidateAvatarCache()).
 // Ручные аватарки читаются прямо из настроек: модуль и так знает про DOM
 // и глобали SillyTavern, ещё одна зависимость ничего не усложняет.
-import { settings } from './settings.js?v=22.19.1';
+import { settings } from './settings.js?v=22.51.0';
 
 /** Палитра для плейсхолдеров аватарок: цвет выбирается по хэшу имени. */
 export const HUD_AVATAR_COLORS = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#22d3ee', '#a3e635'];
@@ -40,17 +40,17 @@ function nameMatches(target, list) {
 
 // Имя закреплено за {{char}}? Тогда никакой другой персонаж не должен
 // получить его фото — и наоборот.
-export function isPinnedCharName(name) {
+function isPinnedCharName(name) {
   const list = namesOf(settings.avatarCharNames);
   return list.length > 0 && nameMatches(name, list);
 }
 
-export function hasPinnedCharNames() {
+function hasPinnedCharNames() {
   return namesOf(settings.avatarCharNames).length > 0;
 }
 
 // URL вручную назначенной аватарки или null.
-export function isPinnedUserName(name) {
+function isPinnedUserName(name) {
   const list = namesOf(settings.avatarUserNames);
   return list.length > 0 && nameMatches(name, list);
 }
@@ -66,7 +66,7 @@ export function overrideAvatarUrl(name) {
   return null;
 }
 
-export function resolveAvatarUrl(characterName, isPrimary) {
+function resolveAvatarUrl(characterName, isPrimary) {
   const searchName = (characterName || '').toLowerCase().trim();
   if (searchName) {
       const allMes = Array.from(document.querySelectorAll('.mes'));

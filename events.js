@@ -11,11 +11,11 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache } from './avatars.js?v=22.19.1';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.19.1';
-import { getTheme, HUD_THEMES } from './themes.js?v=22.19.1';
-import { settings, defaultSettings } from './settings.js?v=22.19.1';
-import { getWorldVotes } from './render/world.js?v=22.19.1';
+import { invalidateAvatarCache } from './avatars.js?v=22.51.0';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.51.0';
+import { getTheme, themeVars, presetRowHTML, THEME_KEYS } from './themes.js?v=22.51.0';
+import { settings, defaultSettings } from './settings.js?v=22.51.0';
+import { getWorldVotes } from './render/world.js?v=22.51.0';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -73,16 +73,19 @@ export function initGlobalEvents(ctx) {
       return;
     }
 
-    const loreTip = e.target.closest('.hud-lore-tooltip');
-    if (loreTip) {
+    // Убрать фон: то же, что стереть ссылку руками, только одним нажатием.
+    const bgClear = e.target.closest('.hud-bg-clear-btn');
+    if (bgClear) {
       e.preventDefault();
       e.stopPropagation();
-      const wasOpen = loreTip.classList.contains('tooltip-open');
-      document.querySelectorAll('.hud-lore-tooltip.tooltip-open').forEach(el => { if (el !== loreTip) el.classList.remove('tooltip-open'); });
-      loreTip.classList.toggle('tooltip-open', !wasOpen);
+      settings.bgImage = '';
+      saveSettings();
+      applyThemeColors();
+      document.querySelectorAll('.hud-theme-text-input[data-key="bgImage"]').forEach(inp => { inp.value = ''; });
+      showHudToast('success', 'Фон убран', 'Картинка карточки отключена.');
       return;
     }
-    document.querySelectorAll('.hud-lore-tooltip.tooltip-open').forEach(el => el.classList.remove('tooltip-open'));
+
 
     const themeBtn = e.target.closest('.hud-theme-btn');
     if (themeBtn) {
@@ -94,6 +97,76 @@ export function initGlobalEvents(ctx) {
       return;
     }
 
+    // Действия над темой: запомнить правки, вернуть исходное, сохранить
+    // свою. Правки живут отдельно на каждую тему, поэтому подстройка
+    // «Каваи» не перепишет подстройку «Vamp».
+    const actBtn = e.target.closest('[data-theme-act]');
+    if (actBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const act = actBtn.dataset.themeAct;
+      // Обнулить цвет текста — вернуть наследование из темы SillyTavern.
+      if (act === 'cleartext') {
+        settings.textColor = ''; settings.textMutedColor = '';
+        saveSettings(); applyThemeColors();
+        showHudToast('success', 'Цвет текста сброшен', 'HUD снова берёт цвет из темы SillyTavern.');
+        return;
+      }
+      const id = settings.themePreset || '';
+      const snapshot = () => {
+        const out = {};
+        THEME_KEYS.forEach(k => { if (settings[k] !== undefined) out[k] = settings[k]; });
+        return out;
+      };
+
+      if (act === 'save') {
+        if (!id) { showHudToast('error', 'Тема не выбрана', 'Сначала выберите тему — правки запоминаются для неё.'); return; }
+        // Храним только то, что реально отличается от самой темы: так
+        // сохранённое остаётся правкой, а не полной копией.
+        const base = (getTheme(id) || { vars: {} }).vars;
+        const diff = {};
+        THEME_KEYS.forEach(k => {
+          if (settings[k] === undefined) return;
+          if (String(settings[k]) !== String(base[k])) diff[k] = settings[k];
+        });
+        if (!settings.themeEdits || typeof settings.themeEdits !== 'object') settings.themeEdits = {};
+        settings.themeEdits[id] = diff;
+        saveSettings();
+        showHudToast('success', 'Правки запомнены',
+          Object.keys(diff).length + ' изменённых полей сохранено для этой темы.');
+        return;
+      }
+
+      if (act === 'revert') {
+        if (!id) { showHudToast('error', 'Тема не выбрана', 'Возвращать нечего.'); return; }
+        if (settings.themeEdits) delete settings.themeEdits[id];
+        THEME_KEYS.forEach(k => { if (defaultSettings[k] !== undefined) settings[k] = defaultSettings[k]; });
+        const base = themeVars(id);
+        if (base) Object.assign(settings, base);
+        saveSettings(); applyThemeColors(); syncThemeInputs();
+        showHudToast('success', 'Тема возвращена', 'Исходные значения на месте.');
+        return;
+      }
+
+      if (act === 'mine') {
+        settings.customTheme = { label: 'Своя', icon: '★', vars: snapshot() };
+        settings.themePreset = 'custom';
+        saveSettings(); applyThemeColors(); redrawPresets();
+        showHudToast('success', 'Своя тема сохранена', 'Теперь она стоит в ряду рядом с готовыми.');
+        return;
+      }
+
+      if (act === 'forget') {
+        settings.customTheme = null;
+        if (settings.themeEdits) delete settings.themeEdits.custom;
+        if (settings.themePreset === 'custom') settings.themePreset = '';
+        saveSettings(); applyThemeColors(); redrawPresets();
+        showHudToast('success', 'Своя тема удалена', 'Ряд тем вернулся к готовым.');
+        return;
+      }
+      return;
+    }
+
     // Готовая тема оформления. Тема не отдельный режим, а пресет: она
     // раскладывает значения по обычным настройкам, поэтому после неё любой
     // ползунок остаётся рабочим. Панель целиком не перерисовываем —
@@ -102,29 +175,19 @@ export function initGlobalEvents(ctx) {
     if (presetBtn) {
       e.preventDefault();
       e.stopPropagation();
-      const theme = getTheme(presetBtn.dataset.themePreset || '');
+      const id = presetBtn.dataset.themePreset || '';
+      const theme = getTheme(id);
       // Сначала возвращаем заводские значения всех ключей, которые вообще
       // трогают темы: иначе прошлая тема оставила бы после себя хвосты —
       // например, шрифт от «Киберпанка» в «Средневековье».
-      const touched = new Set();
-      HUD_THEMES.forEach(t => Object.keys(t.vars).forEach(k => touched.add(k)));
-      touched.forEach(k => { if (defaultSettings[k] !== undefined) settings[k] = defaultSettings[k]; });
-      if (theme) Object.assign(settings, theme.vars);
+      THEME_KEYS.forEach(k => { if (defaultSettings[k] !== undefined) settings[k] = defaultSettings[k]; });
+      // Значения темы вместе с правками пользователя поверх неё.
+      if (theme) Object.assign(settings, themeVars(id));
       settings.themePreset = theme ? theme.id : '';
       saveSettings();
       applyThemeColors();
 
-      // Подтягиваем видимые поля во всех открытых панелях под новые значения.
-      document.querySelectorAll('.hud-theme-color-input, .hud-theme-range-input, .hud-theme-select-input').forEach(inp => {
-        const k = inp.dataset.key;
-        if (!k || settings[k] === undefined) return;
-        inp.value = settings[k];
-        const label = inp.nextElementSibling;
-        if (label && label.tagName === 'SPAN') {
-          label.textContent = /Alpha$|Opacity$|Scale$|OffsetY$/.test(k) ? settings[k] + '%'
-            : /Blur$|Radius$|Size$/.test(k) ? settings[k] + 'px' : settings[k];
-        }
-      });
+      syncThemeInputs();
       document.querySelectorAll('.hud-theme-preset').forEach(b => {
         b.classList.toggle('active', (b.dataset.themePreset || '') === settings.themePreset);
       });
@@ -480,6 +543,36 @@ export function initGlobalEvents(ctx) {
   }, true); 
 
   // ОБРАБОТЧИК ПОЛЗУНКОВ ЦВЕТА И ТЕМЫ
+  // Поля кастомизации подтягиваются к текущим настройкам. Панель целиком
+  // не перерисовываем — открытые вкладки схлопнулись бы.
+  function syncThemeInputs() {
+    document.querySelectorAll('.hud-theme-color-input, .hud-theme-range-input, .hud-theme-select-input').forEach(inp => {
+      const k = inp.dataset.key;
+      if (!k || settings[k] === undefined) return;
+      inp.value = settings[k];
+      const label = inp.nextElementSibling;
+      if (label && label.tagName === 'SPAN') {
+        label.textContent = /Alpha$|Opacity$|Scale$|OffsetY$/.test(k) ? settings[k] + '%'
+          : /Blur$|Radius$|Size$/.test(k) ? settings[k] + 'px' : settings[k];
+      }
+    });
+  }
+
+  // Ряд пресетов пересобираем, когда появляется или исчезает своя тема.
+  function redrawPresets() {
+    document.querySelectorAll('.hud-theme-presets-row').forEach(row => {
+      row.innerHTML = presetRowHTML(settings.themePreset);
+    });
+    document.querySelectorAll('.hud-theme-acts').forEach(box => {
+      const has = box.querySelector('[data-theme-act="forget"]');
+      if (settings.customTheme && !has) {
+        box.insertAdjacentHTML('beforeend',
+          '<button type="button" class="hud-theme-act danger" data-theme-act="forget" title="Удалить сохранённую свою тему">✕ Удалить свою</button>');
+      } else if (!settings.customTheme && has) has.remove();
+    });
+    syncThemeInputs();
+  }
+
   // --- Экран блокировки: разблокировка свайпом вверх --------------------
   // Жест ведут пальцем, поэтому слушаем pointer-события. Простой тап
   // телефон не открывает: иначе замок не имел бы смысла. Тап по карточке

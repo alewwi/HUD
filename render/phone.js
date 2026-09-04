@@ -3,9 +3,9 @@
 // Домен «Телефон»: вкладки чатов, переписки, счётчики непрочитанного,
 // участники. Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=22.19.1';
-import { settings } from '../settings.js?v=22.19.1';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.19.1';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=22.51.0';
+import { settings } from '../settings.js?v=22.51.0';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.51.0';
 
 // Кружок собеседника. Если для имени назначена ручная аватарка, подставляем
 // её фоном прямо в существующий элемент: разметка и классы не меняются, а
@@ -21,7 +21,7 @@ function avaFace(name, cls, fallbackBg, inner) {
     `" data-ava-bg="${escapeHtml(bg)}" style="background-image:${url ? `url('${url}')` : bg}"` +
     `>${escapeHtml(letter)}${inner || ''}</span>`;
 }
-import { namesLikelySame } from '../names.js?v=22.19.1';
+import { namesLikelySame } from '../names.js?v=22.51.0';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -338,7 +338,7 @@ function buildSearchApp(search) {
 
 // --- Телефон целиком --------------------------------------------------------
 
-export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phoneData, sceneDate) {
+export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phoneData, sceneDate, sceneTime) {
   const phone = phoneData && typeof phoneData === 'object' ? phoneData : {};
   const chatCount = Object.keys(chatsMap || {}).length;
   // Владелец телефона. Приоритет: явное поле phone.owner → самый частый
@@ -358,15 +358,21 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   const messenger = buildMessengerHTML(chatsMap, uid, phoneOwner);
 
 
-  // Время в строке состояния берём из самого свежего сообщения — телефон
-  // показывает время сцены, а не системные часы браузера.
-  let latestTime = '';
-  Object.values(chatsMap || {}).forEach(c => {
-    (Array.isArray(c && c.messages) ? c.messages : []).forEach(m => {
-      const t = String(m).match(/\b\d{1,2}:\d{2}\b/);
-      if (t) latestTime = t[0];
+  // Часы телефона — те же, что на плашке погоды: одно время сцены на весь HUD.
+  // Прежде здесь брали последнюю встреченную метку из переписок, а порядок
+  // обхода чатов произвольный — на экране оказывалось время случайного
+  // сообщения. Переписки оставляем запасным вариантом: если во «Времени» сцены
+  // часов нет, лучше показать хоть что-то осмысленное, чем «--:--».
+  const sceneClock = String(sceneTime || '').match(/\b\d{1,2}:\d{2}\b/);
+  let latestTime = sceneClock ? sceneClock[0] : '';
+  if (!latestTime) {
+    Object.values(chatsMap || {}).forEach(c => {
+      (Array.isArray(c && c.messages) ? c.messages : []).forEach(m => {
+        const t = String(m).match(/\b\d{1,2}:\d{2}\b/);
+        if (t) latestTime = t[0];
+      });
     });
-  });
+  }
 
   // Значок непрочитанного на иконке «Сообщения».
   let unread = 0;

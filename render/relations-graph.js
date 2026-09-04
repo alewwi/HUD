@@ -7,11 +7,11 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName } from '../utils.js?v=22.19.1';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.19.1';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=22.19.1';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName } from '../utils.js?v=22.51.0';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.51.0';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=22.51.0';
 
-export function hudRelField(obj) {
+function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
   for (const key of ['Отношения','отношения','Rel','rel','Relationship','relationship','Relationships','relationships','Relation','relation','Связи','связи','Связь','связь','Feelings','feelings','Чувства','чувства']) {
     if (Object.prototype.hasOwnProperty.call(obj, key) && hudFilled(obj[key])) return obj[key];
@@ -19,7 +19,7 @@ export function hudRelField(obj) {
   return '';
 }
 
-export function parseRelationList(raw) {
+function parseRelationList(raw) {
   if (!hudFilled(raw)) return [];
   const source = String(raw)
     .replace(/[•●▪◦]/g, ';')
@@ -71,12 +71,12 @@ export function mergeCharacterRecords(characters) {
   return merged;
 }
 
-export function nameIdentityKey(name) {
+function nameIdentityKey(name) {
   const s = namePhoneticLatin(name);
   return s || nameLettersOnly(name) || normalizeNameText(name);
 }
 
-export function collectRelationGraph(hudData) {
+function collectRelationGraph(hudData) {
   const nodes = [];
   const byKey = new Map();
   const resolveExisting = (label) => {
@@ -135,18 +135,13 @@ export function hudHasRelations(hudData) {
   return (hudData.characters || []).some(c => parseRelationList(hudRelField(c)).length);
 }
 
-export function quadPoint(p0, p1, p2, t) {
-  const u = 1 - t;
-  return { x: u * u * p0.x + 2 * u * t * p1.x + t * t * p2.x, y: u * u * p0.y + 2 * u * t * p1.y + t * t * p2.y };
-}
-
-export function shortenToward(from, to, pad) {
+function shortenToward(from, to, pad) {
   const dx = to.x - from.x, dy = to.y - from.y;
   const len = Math.hypot(dx, dy) || 1;
   return { x: to.x - dx / len * pad, y: to.y - dy / len * pad };
 }
 
-export function wrapRelationLabel(label, maxCharsPerLine) {
+function wrapRelationLabel(label, maxCharsPerLine) {
   const raw = String(label || '').trim();
   if (!raw) return [''];
   const limit = Math.max(10, Number(maxCharsPerLine) || 18);
@@ -179,7 +174,7 @@ export function wrapRelationLabel(label, maxCharsPerLine) {
   return lines.length ? lines.slice(0, 3) : [''];
 }
 
-export function classifyRelationVisual(label) {
+function classifyRelationVisual(label) {
   const s = String(label || '').toLowerCase().replace(/ё/g, 'е');
   const groups = [
     ['love', /люб|влюб|обожа|страст|симпат|привязан|романт|любов|love|adore|romance|crush|attract|fond|cherish|desire/],
@@ -195,7 +190,7 @@ export function classifyRelationVisual(label) {
   return 'other';
 }
 
-export function relationVisualMeta(type) {
+function relationVisualMeta(type) {
   const meta = {
     love:       { icon: '♥', label: 'Романтика' },
     friend:     { icon: '✦', label: 'Дружба / доверие' },
@@ -210,7 +205,7 @@ export function relationVisualMeta(type) {
   return meta[type] || meta.other;
 }
 
-export function relNodeRoleClass(node) {
+function relNodeRoleClass(node) {
   if (node.isUser) return 'is-user';
   if (node.isPrimary) return 'is-primary';
   return 'is-secondary';
@@ -390,7 +385,7 @@ export function buildRelGraphHTML(hudData, uid) {
   return `<div class="hud-row full-width"><div class="hud-rel-shell">${svg}<div class="hud-rel-bottom"><div class="hud-rel-legend">${legend}</div><div class="hud-rel-inspector"><div class="hud-rel-inspector-main">Выбери персонажа или связь</div><div class="hud-rel-inspector-sub">Клик по узлу подсветит его окружение</div></div></div></div></div></div>`;
 }
 
-export function updateRelGraphInspector(graphEl) {
+function updateRelGraphInspector(graphEl) {
   if (!graphEl) return;
   const main = graphEl.querySelector('.hud-rel-inspector-main');
   const sub = graphEl.querySelector('.hud-rel-inspector-sub');
@@ -525,7 +520,7 @@ export function applyRelGraphFocus(graphEl, focusNodeId, focusEdgeKey, focusType
 // оказался на экране, и сдвигаем на разницу до центра вьюпорта. Заодно
 // вычисляем масштаб предка (нарисованная ширина / вёрстанная), иначе под
 // scale() пиксельный сдвиг был бы неверным.
-export function centerExpandedRelGraph(graphEl) {
+function centerExpandedRelGraph(graphEl) {
   if (!graphEl || !graphEl.classList.contains('is-expanded')) return;
   const zoom = graphEl.dataset.zoom || '1';
   const set = (prop, value) => graphEl.style.setProperty(prop, value, 'important');

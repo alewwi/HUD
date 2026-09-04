@@ -6,10 +6,10 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, hudHashSeed } from '../utils.js?v=22.19.1';
-import { buildRelGraphHTML } from './relations-graph.js?v=22.19.1';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, hudHashSeed } from '../utils.js?v=22.51.0';
+import { buildRelGraphHTML } from './relations-graph.js?v=22.51.0';
 
-export function parseRoutePoint(item) {
+function parseRoutePoint(item) {
   const parts = String(item).split(/[-—–]/).map(s => s.trim());
   const time = parts[0] || '';
   const place = parts[1] || '';
@@ -25,7 +25,7 @@ function routeMinutes(time) {
   return Number(m[1]) * 60 + Number(m[2]);
 }
 
-export function buildRouteMapHTML(routeArr, entityLabel) {
+function buildRouteMapHTML(routeArr, entityLabel) {
   if (!routeArr || routeArr.length === 0) return '';
   const pts = routeArr.map(parseRoutePoint);
   // Схема маршрута вместо кривой на сетке. Кривая была нечитаемой: длинные
@@ -70,7 +70,7 @@ export function buildRouteMapHTML(routeArr, entityLabel) {
   </div>`;
 }
 
-export function buildSecretRingHTML(kCount, total) {
+function buildSecretRingHTML(kCount, total) {
   const pct = total > 0 ? Math.round((kCount / total) * 100) : 0;
   return `<div class="hud-secret-spread">
     <svg class="hud-secret-ring" viewBox="0 0 36 36" aria-hidden="true">

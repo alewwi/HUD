@@ -7,11 +7,9 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=22.19.1';
+import { normalizeJSONData } from './schema.js?v=22.51.0';
 
-export function parseLegacyHUD(content) { return { scene: {}, characters: [], user: {}, memory: { timeline: [], mood: { user: { current: '', history: [] }, char: { current: '', history: [] } }, route: { user: [], char: [] }, important: [], secrets: [] }, intercepts: [], dreams: [], diary: [], world: { headlines: [], rumors: [], ads: [], comments: [] } }; }
-
-export function decodeHighlightedHudHtml(input) {
+function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';
   let text = input;
 
@@ -69,7 +67,7 @@ export function decodeHighlightedHudHtml(input) {
     .trim();
 }
 
-export function extractBalancedJsonCandidates(text) {
+function extractBalancedJsonCandidates(text) {
   const candidates = [];
   if (typeof text !== 'string' || !text) return candidates;
 
@@ -121,7 +119,7 @@ export function setHudRepairDiagnostic(patch = {}) {
 // Converts the two common non-JSON dialects only as a LAST resort:
 //   {foo: 'bar'} -> {"foo": "bar"}
 // It is scanner-based so apostrophes inside normal JSON strings are not touched.
-export function repairCommonJsonDialect(jsonStr) {
+function repairCommonJsonDialect(jsonStr) {
   let source = String(jsonStr || '').trim();
   if (!source) return source;
 
@@ -206,7 +204,7 @@ export function repairCommonJsonDialect(jsonStr) {
 // emit literal newlines/tabs (e.g. a long field split across lines). Normalize
 // only control characters that occur INSIDE a JSON string; never alter normal
 // whitespace between tokens or content outside strings.
-export function repairHudJsonControlChars(jsonStr) {
+function repairHudJsonControlChars(jsonStr) {
   const source = String(jsonStr || '');
   let out = '';
   let inString = false;
@@ -259,7 +257,7 @@ export function repairHudJsonControlChars(jsonStr) {
   return out;
 }
 
-export function repairHudJsonStructural(jsonStr) {
+function repairHudJsonStructural(jsonStr) {
   const source = String(jsonStr || '');
   const variants = [];
   const seen = new Set();
@@ -341,7 +339,7 @@ export function repairHudJsonStructural(jsonStr) {
 // Uses a small JSON-aware scanner so escaped quotes (\\") do not get mistaken
 // for the end of the string. It only appends a quote; structural closure is
 // delegated to the existing truncated-JSON repair.
-export function repairHudJsonUnterminatedString(input) {
+function repairHudJsonUnterminatedString(input) {
   const source = String(input || '');
   if (!source) return null;
 
@@ -410,7 +408,7 @@ export function scoreHudJsonCandidate(parsed) {
   return score;
 }
 
-export function tryParseHudJsonCandidate(candidate) {
+function tryParseHudJsonCandidate(candidate) {
   const raw = String(candidate || '');
   const controlSafe = repairHudJsonControlChars(raw);
   const stateful = repairHudJsonUnterminatedString(controlSafe);
@@ -453,8 +451,7 @@ export function tryParseHudJsonCandidate(candidate) {
   return { parsed: null, mode: null, text: null, error: lastError };
 }
 
-
-export function repairHudJsonSyntax(jsonStr) {
+function repairHudJsonSyntax(jsonStr) {
   let repaired = String(jsonStr || '');
   repaired = repaired.replace(/^\uFEFF/, '').trim();
   // Remove JS-style comments only when they are on their own line; do not
@@ -464,8 +461,7 @@ export function repairHudJsonSyntax(jsonStr) {
   return repaired;
 }
 
-
-export function repairTruncatedHudJson(jsonStr) {
+function repairTruncatedHudJson(jsonStr) {
   let s = repairHudJsonSyntax(jsonStr).trim();
   if (!s) return s;
   // Remove a terminal backslash that escapes a character which never arrived.
