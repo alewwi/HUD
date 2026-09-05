@@ -9,6 +9,20 @@
 // поле "js" читается как строка.
 
 export const defaultSettings = {
+  // Вкладки, кроме открытой, собираются не сразу, а при первом переключении.
+  lazyTabs: true,
+  // Сколько собранных HUD-карточек держать в DOM. 0 — не ограничивать.
+  hudCardLimit: 0,
+  // Приложения телефона по отдельности. Выключенное не просится у модели и
+  // не показывается на домашнем экране.
+  phoneAppMessages: true,
+  phoneAppContacts: true,
+  phoneAppWallet: true,
+  phoneAppCalendar: true,
+  phoneAppGallery: true,
+  phoneAppNotes: true,
+  phoneAppMaps: true,
+  phoneAppSearch: true,
   // Выбранная готовая тема оформления (см. themes.js). Пустая строка —
   // ручные настройки пользователя, ни одна тема не выбрана.
   themePreset: '',

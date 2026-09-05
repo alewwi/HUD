@@ -4,8 +4,9 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey } from '../utils.js?v=22.51.0';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.51.0';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue } from '../utils.js?v=22.70.10';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.70.10';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.70.10';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает'];
 
@@ -51,7 +52,8 @@ export function buildUserHTML(userData, uid, isChecked) {
   order.forEach(shortKey => {
     const label = mapKey(shortKey); let value = null;
     for (const [k, v] of Object.entries(userData)) { if (k === shortKey || k.toLowerCase() === label.toLowerCase()) { value = v; break; } }
-    if (!value || String(value).toLowerCase() === 'empty' || String(value).toLowerCase() === 'none') return;
+    value = flattenFieldValue(value);
+    if (!value || value.toLowerCase() === 'empty' || value.toLowerCase() === 'none') return;
     
     let rowClass = 'hud-row hud-user-row';
     if (label.toLowerCase().includes('nsfw')) rowClass += ' full-width nsfw';
@@ -77,10 +79,14 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
 
   let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-header"><div class="hud-header-info">${avatarHtml}<div class="hud-header-text"><span class="hud-title">${escapeHtml(charName)}</span></div></div></div><div class="hud-body">`;
 
-  for (const [key, value] of orderFields(charData)) {
+  for (const [key, rawValue] of orderFields(charData)) {
     const lowerKey = key.toLowerCase();
-    if (lowerKey === 'имя') continue; 
-    if (value === null || value === undefined || value === '' || String(value).toLowerCase() === 'empty' || String(value).toLowerCase() === 'none') continue;
+    if (lowerKey === 'имя') continue;
+    // Объект или массив здесь — обычное дело: схема просит строку «Метка:
+    // значение; ...», а модель нередко отдаёт ту же структуру объектом.
+    // Разворачиваем сразу, чтобы ниже по коду везде была строка.
+    const value = flattenFieldValue(rawValue);
+    if (!value || value.toLowerCase() === 'empty' || value.toLowerCase() === 'none') continue;
     let rowClass = FULL_WIDTH_KEYS.some(k => lowerKey.includes(k)) ? 'hud-row full-width' : 'hud-row';
     if (DRAMA_KEYS.some(k => lowerKey.includes(k))) rowClass += ' drama-alert';
     if (lowerKey.includes('nsfw') || lowerKey.includes('секс') || lowerKey.includes('партнеров')
@@ -132,7 +138,18 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-conflict-pill')}</div></div>`;
     } else if (lowerKey === 'отзыв о сексе') {
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <span class="${valueClass} hud-sex-rev">${applyTooltips(String(value)).replace(/([★☆]+)/g, '<span class="hud-stars-rating">$1</span>')}</span></div>`;
-    } else if (lowerKey === 'отношения' || lowerKey === 'цели' || lowerKey === 'ревность' || lowerKey === 'общие воспоминания' || lowerKey === 'флаг-монитор') {
+    } else if (lowerKey === 'общие воспоминания') {
+      // Общее воспоминание — готовая запись для Lorebook: у неё есть и факт,
+      // и участник, чьё имя станет ключом активации.
+      const items = value.split(';').map(x => x.trim()).filter(Boolean);
+      const memHtml = items.map(item => {
+        const isNew = isNewLoreItem(item);
+        return `<div class="hud-detail-pill hud-lore-item${isNew ? ' is-new' : ''}">` +
+          `<span class="hud-lore-text">${escapeHtml(item)}</span>` +
+          loreButtonHTML(item, [charName], isNew) + `</div>`;
+      }).join('');
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${memHtml}</div></div>`;
+    } else if (lowerKey === 'отношения' || lowerKey === 'цели' || lowerKey === 'ревность' || lowerKey === 'флаг-монитор') {
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill', (lowerKey === 'общие воспоминания' || lowerKey === 'флаг-монитор'))}</div></div>`;
     } else {
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <span class="${valueClass}">${applyTooltips(String(value))}</span></div>`;

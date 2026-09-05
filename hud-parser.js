@@ -7,7 +7,7 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=22.51.0';
+import { normalizeJSONData } from './schema.js?v=22.70.10';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';

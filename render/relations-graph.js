@@ -7,9 +7,9 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName } from '../utils.js?v=22.51.0';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.51.0';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=22.51.0';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName } from '../utils.js?v=22.70.10';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.70.10';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=22.70.10';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -539,7 +539,9 @@ function centerExpandedRelGraph(graphEl) {
 
   set('left', ((viewW / 2 - probe.left) / s) + 'px');
   set('top', ((viewH / 2 - probe.top) / s) + 'px');
-  set('transform', 'translate(-50%, -50%) scale(' + zoom + ')');
+  // Панель не масштабируем: зум и панорама живут на svg внутри неё.
+  void zoom;
+  set('transform', 'translate(-50%, -50%)');
 
   const backdrop = document.querySelector('.hud-rel-graph-backdrop');
   if (backdrop) {

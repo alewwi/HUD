@@ -7,9 +7,9 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=22.51.0';
-import { getSafeUserName, mapKey } from './utils.js?v=22.51.0';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=22.51.0';
+import { settings } from './settings.js?v=22.70.10';
+import { getSafeUserName, mapKey } from './utils.js?v=22.70.10';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=22.70.10';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -287,6 +287,15 @@ export function normalizeJSONData(parsed) {
     notes:    phoneSection(rawPhone.notes,    ['title', 'time', 'text', 'footer']),
     maps:     phoneSection(rawPhone.maps,     ['place', 'note']),
     search:   cleanArray(rawPhone.search),
+    // Кошелёк: баланс и валюта строками, движения по счёту — списком.
+    // Карты телефон рисует сам, модель их не выдумывает.
+    wallet: (() => {
+      const w = (rawPhone.wallet && typeof rawPhone.wallet === 'object' && !Array.isArray(rawPhone.wallet)) ? rawPhone.wallet : {};
+      const tx = phoneSection(w.transactions, ['title', 'amount', 'time', 'note']);
+      const balance = toStr(w.balance), currency = toStr(w.currency);
+      return (balance || currency || tx.length) ? { balance, currency, transactions: tx } : null;
+    })(),
+    calendar: phoneSection(rawPhone.calendar, ['date', 'title', 'kind', 'time']),
   };
 
   return {

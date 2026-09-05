@@ -3,9 +3,9 @@
 // Домен «Телефон»: вкладки чатов, переписки, счётчики непрочитанного,
 // участники. Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=22.51.0';
-import { settings } from '../settings.js?v=22.51.0';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.51.0';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=22.70.10';
+import { settings } from '../settings.js?v=22.70.10';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.70.10';
 
 // Кружок собеседника. Если для имени назначена ручная аватарка, подставляем
 // её фоном прямо в существующий элемент: разметка и классы не меняются, а
@@ -13,6 +13,23 @@ import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.51.0';
 // Буква остаётся в разметке всегда — при фотографии её прячет класс
 // has-img (color: transparent). Благодаря этому аватарку можно поменять
 // прямо на месте, не пересобирая блок: см. refreshAvatarFaces.
+// Время сообщения живёт в отдельном поле после «|», а если полей нет — в
+// самом хвосте строки, перед отметкой о доставке. Искать первое попавшееся
+// «ч:мм» по всему сообщению нельзя: во фразе «Приезжай к 8:00 … | 22:02»
+// первым найдётся 8:00 из текста письма, а не время отправки.
+function msgTimeOf(raw) {
+  const s = String(raw || '');
+  const ONLY_TIME = /^(?:Вчера|Сегодня|Завтра)?[,\s]*\d{1,2}:\d{2}$/i;
+  const parts = s.split('|').map(x => x.trim());
+  if (parts.length > 1) {
+    const field = parts.slice(1).find(x => ONLY_TIME.test(x));
+    if (field) return (field.match(/\d{1,2}:\d{2}/) || [''])[0];
+  }
+  // Полей нет — смотрим хвост: «…текст 22:02 ✓».
+  const tail = s.match(/(?:\b(?:Вчера|Сегодня|Завтра)[,\s]*)?\b(\d{1,2}:\d{2})\s*(?:✓+|read|unread|доставлен[а-я]*|прочитан[а-я]*|отправлен[а-я]*|draft|черновик)?\s*$/i);
+  return tail ? tail[1] : '';
+}
+
 function avaFace(name, cls, fallbackBg, inner) {
   const url = overrideAvatarUrl(name);
   const letter = String(name || '').trim().charAt(0).toUpperCase() || '?';
@@ -21,7 +38,7 @@ function avaFace(name, cls, fallbackBg, inner) {
     `" data-ava-bg="${escapeHtml(bg)}" style="background-image:${url ? `url('${url}')` : bg}"` +
     `>${escapeHtml(letter)}${inner || ''}</span>`;
 }
-import { namesLikelySame } from '../names.js?v=22.51.0';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=22.70.10';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -118,10 +135,12 @@ function buildMessengerHTML(chatsMap, uid, mainCharName) {
     }
     if (!displayChatName) displayChatName = 'Без названия';
 
-    let latestTime = '12:00', unreadCount = 0;
+    // Пустая строка честнее выдуманного «12:00»: если во всех сообщениях
+    // времени нет, лучше не показывать никакого, чем неверное.
+    let latestTime = '', unreadCount = 0;
     if (Array.isArray(chatObj.messages)) {
       chatObj.messages.forEach(m => {
-        let timeMatch = m.match(/\b\d{1,2}:\d{2}\b/); if (timeMatch) latestTime = timeMatch[0];
+        const t = msgTimeOf(m); if (t) latestTime = t;
         if (/unread|не прочитан/i.test(m.replace(/\[удалено\]|\[черновик\]/gi, ''))) unreadCount++;
       });
     }
@@ -135,6 +154,8 @@ function buildMessengerHTML(chatsMap, uid, mainCharName) {
       const mm = p.match(/^([^:-]+)(?:\s*(?:->|→)\s*([^:]+))?:\s*(.*)$/);
       if (mm) p = mm[3];
       p = p.replace(/\[(?:VOICE|ГОЛОС)_?\d{0,2}:?\d{0,2}\]/gi, '🎤 Голосовое сообщение')
+           .replace(/\[(?:PHOTO|ФОТО|IMG|СНИМОК)\s*:?\s*([^\]]*)\]/gi, (mm, d) => '📷 Фото' + (d.trim() ? ': ' + d.trim() : ''))
+           .replace(/\[(?:CALL|ЗВОНОК)\s*:?\s*([^\]]*)\]/gi, (mm, b) => /пропущ|missed/i.test(b) ? '📞 Пропущенный звонок' : '📞 Звонок')
            .replace(/\[удалено\]|\[черновик\]|✓+/gi, '').trim();
       preview = p.length > 46 ? p.slice(0, 45) + '…' : p;
     }
@@ -220,6 +241,24 @@ function buildMessengerHTML(chatsMap, uid, mainCharName) {
           statusHtml = '<span class="msg-status unread-dot"></span>';
         }
 
+        // === ЛОВИМ ЗВОНОК ===
+        // Звонок — это событие, а не реплика: рисуем строкой во всю ширину,
+        // со стрелкой направления и итогом. Пропущенный подсвечен.
+        const call = parseCall(message);
+        if (call) {
+            const dir = call.dir || (isOutgoing ? 'out' : 'in');
+            const note = message.replace(call.tag, '').trim();
+            chatBodies += `<div class="hud-call-row is-${call.outcome} dir-${dir}">
+              <span class="hud-call-ico">${call.outcome === 'missed' ? G_ICONS.callMiss : dir === 'out' ? G_ICONS.callOut : G_ICONS.callIn}</span>
+              <span class="hud-call-body">
+                <b>${dir === 'out' ? 'Исходящий' : 'Входящий'} — ${escapeHtml(CALL_WORD[call.outcome])}</b>
+                <small>${defeatWI(escapeHtml(sender))}${call.dur ? ' · ' + escapeHtml(call.dur) : ''}${note ? ' · ' + defeatWI(escapeHtml(note)) : ''}</small>
+              </span>
+              ${msgTime ? `<span class="hud-call-time">${escapeHtml(msgTime)}</span>` : ''}
+            </div>`;
+            return;
+        }
+
         // === ЛОВИМ ГОЛОСОВЫЕ СООБЩЕНИЯ ===
             let isVoice = false;
             let voiceDur = "";
@@ -230,8 +269,20 @@ function buildMessengerHTML(chatsMap, uid, mainCharName) {
                 message = message.replace(voiceMatch[0], '').trim(); // Вырезаем тег из текста
             }
 
-            // СОБИРАЕМ ВНУТРЕННОСТИ ПУЗЫРЯ (Текст или Плеер)
-            let msgInner = isVoice 
+            // === ЛОВИМ ФОТО ===
+            // Настоящей картинки у нас нет и быть не может — рисуем плитку с
+            // подписью. Цвет плитки выводим из подписи, чтобы разные снимки
+            // отличались друг от друга и не выглядели одной заглушкой.
+            const photo = parsePhoto(message);
+            if (photo) message = message.replace(photo.tag, '').trim();
+
+            // СОБИРАЕМ ВНУТРЕННОСТИ ПУЗЫРЯ (Текст, Плеер или Снимок)
+            let msgInner = photo
+                ? `<div class="hud-msg-photo" style="--shot: ${HUD_AVATAR_COLORS[hudHashSeed(photo.desc || 'photo') % HUD_AVATAR_COLORS.length]}">
+                     <span class="hud-msg-photo-frame">${G_ICONS.image}</span>
+                     ${photo.desc ? `<span class="hud-msg-photo-cap">${defeatWI(escapeHtml(photo.desc))}</span>` : ''}
+                   </div>${message ? `<div class="hud-msg-text" style="word-break: break-word;">${escapeHtml(message)}</div>` : ''}`
+                : isVoice 
                 ? `<div class="hud-voice-player"><div class="hud-voice-btn">▶</div><div class="hud-voice-line"></div><span class="hud-voice-time">${voiceDur}</span></div><details class="hud-voice-details"><summary>Расшифровка</summary><div class="hud-voice-text">${escapeHtml(message)}</div></details>`
                 : `<div class="hud-msg-text" style="word-break: break-word;">${escapeHtml(message)}</div>`;
 
@@ -253,9 +304,232 @@ function buildMessengerHTML(chatsMap, uid, mainCharName) {
   return chatList + `</div>` + `<div class="hud-phone-chat-stage">` + chatBodies + `</div>`;
 }
 
+// --- Кошелёк ----------------------------------------------------------------
+// Баланс и движения по счёту приходят от модели. Карты телефон рисует сам и
+// всегда одинаково для одного владельца: и система, и последние цифры, и срок
+// выведены из его имени. Так карта не «перевыпускается» каждый ход, но и не
+// требует от модели придумывать номера, в которых она всё равно путается.
+
+// Мелкий детерминированный генератор: одно и то же имя — одни и те же карты.
+function walletRng(seed) {
+  let a = (seed >>> 0) || 1;
+  return () => {
+    a += 0x6D2B79F5; a >>>= 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return (((t ^ (t >>> 14)) >>> 0) / 4294967296);
+  };
+}
+
+// Имя на карте печатают латиницей заглавными — как в жизни. Кириллица
+// транслитерируется, латиница остаётся как есть, макрос {{char}} к этому
+// моменту уже заменён на настоящее имя.
+function cardHolder(owner) {
+  const raw = String(owner || '').replace(/\{\{[^}]*\}\}/g, ' ').trim();
+  if (!raw) return 'CARD HOLDER';
+  const latin = /[а-яё]/i.test(raw) ? transliterateCyrillic(raw) : raw;
+  const words = String(latin).toUpperCase().replace(/[^A-Z\s-]/g, ' ').split(/\s+/).filter(Boolean);
+  return words.slice(0, 3).join(' ') || 'CARD HOLDER';
+}
+
+const CARD_SYSTEMS = [
+  { name: 'VISA',       tone: 'visa' },
+  { name: 'MASTERCARD', tone: 'mc' },
+  { name: 'МИР',        tone: 'mir' },
+  { name: 'UNION',      tone: 'union' },
+];
+
+function walletCards(owner) {
+  const rnd = walletRng(hudHashSeed(String(owner || 'owner')) + 7);
+  const count = rnd() < 0.45 ? 2 : 1;
+  const cards = [];
+  const used = new Set();
+  for (let i = 0; i < count; i++) {
+    let si = Math.floor(rnd() * CARD_SYSTEMS.length);
+    while (used.has(si) && used.size < CARD_SYSTEMS.length) si = (si + 1) % CARD_SYSTEMS.length;
+    used.add(si);
+    const sys = CARD_SYSTEMS[si];
+    const last4 = String(1000 + Math.floor(rnd() * 9000));
+    const mm = String(1 + Math.floor(rnd() * 12)).padStart(2, '0');
+    const yy = String(26 + Math.floor(rnd() * 6));
+    cards.push({ system: sys.name, tone: sys.tone, last4, expiry: mm + '/' + yy });
+  }
+  return cards;
+}
+
+// «18400» → «18 400». Пробелы неразрывные, иначе число ломается по строкам.
+function money(v) {
+  const raw = String(v == null ? '' : v).trim();
+  const m = raw.match(/^([+-]?)\s*(\d+)([.,]\d+)?/);
+  if (!m) return raw;
+  const groups = m[2].replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
+  return m[1] + groups + (m[3] ? m[3].replace(',', '.') : '');
+}
+
+function buildWalletApp(wallet, owner) {
+  const w = wallet || {};
+  const tx = Array.isArray(w.transactions) ? w.transactions : [];
+  if (!w.balance && !tx.length) return emptyApp(G_ICONS.card, 'Счёт пока не заведён');
+  const holder = cardHolder(owner);
+  const cards = walletCards(owner).map(c => `
+    <div class="hud-wallet-card tone-${c.tone}">
+      <span class="hud-wallet-sys">${escapeHtml(c.system)}</span>
+      <span class="hud-wallet-chip"></span>
+      <span class="hud-wallet-num">•••• •••• •••• ${escapeHtml(c.last4)}</span>
+      <span class="hud-wallet-holder">${escapeHtml(holder)}</span>
+      <span class="hud-wallet-exp">${escapeHtml(c.expiry)}</span>
+    </div>`).join('');
+
+  const rows = tx.map(t => {
+    const amount = String(t.amount || '').trim();
+    const minus = /^-/.test(amount);
+    return `<div class="hud-wallet-tx ${minus ? 'is-out' : 'is-in'}">
+      <span class="hud-wallet-tx-title">${defeatWI(escapeHtml(t.title || 'Операция'))}${t.note ? `<small>${escapeHtml(t.note)}</small>` : ''}</span>
+      <span class="hud-wallet-tx-side">
+        <b>${escapeHtml(money(amount))}</b>
+        ${t.time ? `<small>${escapeHtml(t.time)}</small>` : ''}
+      </span>
+    </div>`;
+  }).join('');
+
+  return `<div class="hud-wallet">
+    <div class="hud-wallet-balance">
+      <small>Баланс счёта</small>
+      <b>${escapeHtml(money(w.balance))}${w.currency ? ` <i>${escapeHtml(w.currency)}</i>` : ''}</b>
+      <em>${escapeHtml(holder)}</em>
+    </div>
+    <div class="hud-wallet-cards">${cards}</div>
+    ${rows ? `<div class="hud-wallet-tx-head">Операции</div><div class="hud-wallet-tx-list">${rows}</div>`
+            : '<div class="hud-wallet-tx-head">Операций пока не было</div>'}
+  </div>`;
+}
+
+// --- Календарь --------------------------------------------------------------
+const MONTHS_RU = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
+const MONTHS_NOM = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
+
+// Дата сцены приходит в разном виде: «16.01.2025», «16.01», «ЧЕТВЕРГ, 16
+// ЯНВАРЯ 2025». Разбираем все три.
+function parseDayMonth(str) {
+  const s = String(str || '').toLowerCase();
+  let m = s.match(/(\d{1,2})\s*[.\/-]\s*(\d{1,2})(?:\s*[.\/-]\s*(\d{2,4}))?/);
+  if (m) {
+    const y = m[3] ? (m[3].length === 2 ? 2000 + +m[3] : +m[3]) : null;
+    return { d: +m[1], mo: +m[2], y };
+  }
+  m = s.match(/(\d{1,2})\s+([а-яё]+)(?:\s+(\d{4}))?/);
+  if (m) {
+    const idx = MONTHS_RU.findIndex(name => m[2].startsWith(name.slice(0, 4)));
+    if (idx >= 0) return { d: +m[1], mo: idx + 1, y: m[3] ? +m[3] : null };
+  }
+  return null;
+}
+
+function buildCalendarApp(events, characters, sceneDate) {
+  const list = [];
+  (Array.isArray(events) ? events : []).forEach(e => {
+    const dm = parseDayMonth(e.date);
+    if (!dm) return;
+    const kind = String(e.kind || '').toLowerCase();
+    list.push({ ...dm, title: e.title || '', time: e.time || '',
+      kind: /birth|день рожд/.test(kind) ? 'birthday' : /holiday|праздн|фестив/.test(kind) ? 'holiday' : 'event' });
+  });
+
+  // Расписание персонажей: пункты со временем чч:мм ложатся на дату сцены.
+  const today = parseDayMonth(sceneDate);
+  if (today) {
+    (Array.isArray(characters) ? characters : []).forEach(ch => {
+      const raw = ch && (ch['Расписание'] || ch['расписание']);
+      if (!raw) return;
+      String(raw).split(/[;\n]/).map(x => x.trim()).filter(Boolean).forEach(item => {
+        const t = item.match(/\b(\d{1,2}:\d{2})\b/);
+        if (!t) return;
+        const title = item.replace(t[0], '').replace(/^[\s—–\-:.]+|[\s—–\-:.]+$/g, '') || 'Дело';
+        const who = ch['Имя'] ? String(ch['Имя']).split(' ')[0] + ': ' : '';
+        list.push({ d: today.d, mo: today.mo, y: today.y, title: who + title, time: t[1], kind: 'plan' });
+      });
+    });
+  }
+
+  const base = today || (list.length ? { d: list[0].d, mo: list[0].mo, y: list[0].y } : null);
+  if (!base) return emptyApp(G_ICONS.cal, 'В календаре пока пусто');
+  const year = base.y || new Date().getFullYear();
+  const month = base.mo;
+
+  // События этого месяца, разложенные по числам.
+  const byDay = new Map();
+  list.forEach(e => {
+    if (e.mo !== month) return;
+    if (e.y && base.y && e.y !== base.y) return;
+    if (!byDay.has(e.d)) byDay.set(e.d, []);
+    byDay.get(e.d).push(e);
+  });
+
+  const daysInMonth = new Date(year, month, 0).getDate();
+  // getDay(): 0 — воскресенье. Неделя начинается с понедельника.
+  const shift = (new Date(year, month - 1, 1).getDay() + 6) % 7;
+  let cells = '';
+  for (let i = 0; i < shift; i++) cells += '<span class="hud-cal-day is-empty"></span>';
+  for (let d = 1; d <= daysInMonth; d++) {
+    const evs = byDay.get(d) || [];
+    const kinds = [...new Set(evs.map(e => e.kind))];
+    const dots = kinds.map(k => `<i class="hud-cal-dot k-${k}"></i>`).join('');
+    const isToday = today && today.d === d;
+    cells += `<span class="hud-cal-day${isToday ? ' is-today' : ''}${evs.length ? ' has-ev' : ''}"${evs.length ? ` title="${escapeHtml(evs.map(e => (e.time ? e.time + ' ' : '') + e.title).join(' · '))}"` : ''}>
+      <b>${d}</b>${dots ? `<span class="hud-cal-dots">${dots}</span>` : ''}</span>`;
+  }
+
+  const agenda = [...byDay.keys()].sort((a, b) => a - b).map(d => {
+    const evs = byDay.get(d).slice().sort((a, b) => String(a.time).localeCompare(String(b.time)));
+    return `<div class="hud-cal-row${today && today.d === d ? ' is-today' : ''}">
+      <span class="hud-cal-row-day">${d} ${MONTHS_RU[month - 1]}</span>
+      <span class="hud-cal-row-items">${evs.map(e =>
+        `<span class="hud-cal-item k-${e.kind}">${e.time ? `<b>${escapeHtml(e.time)}</b> ` : ''}${defeatWI(escapeHtml(e.title))}</span>`).join('')}</span>
+    </div>`;
+  }).join('');
+
+  return `<div class="hud-cal">
+    <div class="hud-cal-head">${MONTHS_NOM[month - 1]} ${year}</div>
+    <div class="hud-cal-week"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>
+    <div class="hud-cal-grid">${cells}</div>
+    ${agenda ? `<div class="hud-cal-agenda">${agenda}</div>` : '<div class="hud-cal-agenda hud-cal-empty">На этот месяц записей нет</div>'}
+  </div>`;
+}
+
 // --- Экраны приложений ------------------------------------------------------
 // Каждый билдер получает свой кусок data.phone и возвращает внутренности
 // .hud-phone-app-view. Пустая секция отдаёт '' — вызывающий подставит заглушку.
+
+// Звонок: [CALL: исходящий, принят, 4:12]. Порядок слов внутри не важен —
+// разбираем по смыслу, а не по позиции: модели путают порядок постоянно.
+function parseCall(text) {
+  const m = String(text || '').match(/\[(?:CALL|ЗВОНОК)\s*:?\s*([^\]]*)\]/i);
+  if (!m) return null;
+  const body = m[1].toLowerCase();
+  const dur = (body.match(/\b(\d{1,2}:\d{2})\b/) || [])[1] || '';
+  let outcome = 'answered';
+  if (/пропущ|missed|no answer|без ответа/.test(body)) outcome = 'missed';
+  else if (/отклон|сброш|declined|rejected|отказ/.test(body)) outcome = 'declined';
+  // Направление берём из текста, если оно там есть; иначе решит отправитель.
+  let dir = null;
+  if (/входящ|incoming|in\b/.test(body)) dir = 'in';
+  else if (/исходящ|outgoing|out\b/.test(body)) dir = 'out';
+  return { tag: m[0], dir, outcome, dur };
+}
+
+// Фото: [PHOTO: что на снимке] или [ФОТО: ...]. Подпись остаётся подписью.
+function parsePhoto(text) {
+  const m = String(text || '').match(/\[(?:PHOTO|ФОТО|IMG|СНИМОК)\s*:?\s*([^\]]*)\]/i);
+  if (!m) return null;
+  return { tag: m[0], desc: (m[1] || '').trim() };
+}
+
+const CALL_WORD = {
+  answered: 'Разговор состоялся',
+  declined: 'Звонок отклонён',
+  missed:   'Пропущенный звонок',
+};
 
 function emptyApp(icon, text) {
   return `<div class="hud-phone-empty-app"><div class="hud-phone-empty-icon">${icon}</div><div class="hud-phone-empty-line">${escapeHtml(text)}</div></div>`;
@@ -322,6 +596,11 @@ const G_ICONS = {
   image: '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.4" y="5" width="17.2" height="14" rx="2.4"/><circle cx="9" cy="10" r="1.7"/><path d="m4.6 17.4 4.6-4.3 3.3 3 2.7-2.3 4.2 3.6"/></svg>',
   note:  '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.6h8.4L19 8.2v12.2H6z"/><path d="M14.2 3.7v4.6h4.6"/><path d="M9 12.6h6M9 16h4.4"/></svg>',
   map:   '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m3.6 6.4 5.4-2.2 6 2.2 5.4-2.2v13.4l-5.4 2.2-6-2.2-5.4 2.2z"/><path d="M9 4.2v13.4M15 6.4v13.4"/></svg>',
+  callOut: '<svg class="hud-call-svg" viewBox="0 0 24 24" aria-hidden="true"><path class="hud-call-hs" d="M6.4 3.6c.7-.6 1.8-.4 2.3.4l1.5 2.2c.4.6.3 1.4-.2 1.9l-.8.8c-.2.2-.3.5-.1.8.8 1.4 2 2.6 3.4 3.4.3.2.6.1.8-.1l.8-.8c.5-.5 1.3-.6 1.9-.2l2.2 1.5c.8.5 1 1.6.4 2.3l-1 1.1c-.7.8-1.9 1.1-2.9.7-4.6-1.7-8.2-5.3-9.9-9.9-.4-1-.1-2.2.7-2.9z"/><path class="hud-call-ar" d="M15.6 8.4 20.4 3.6"/><path class="hud-call-ar" d="M16.8 3.6h3.6v3.6"/></svg>',
+  callIn:  '<svg class="hud-call-svg" viewBox="0 0 24 24" aria-hidden="true"><path class="hud-call-hs" d="M6.4 3.6c.7-.6 1.8-.4 2.3.4l1.5 2.2c.4.6.3 1.4-.2 1.9l-.8.8c-.2.2-.3.5-.1.8.8 1.4 2 2.6 3.4 3.4.3.2.6.1.8-.1l.8-.8c.5-.5 1.3-.6 1.9-.2l2.2 1.5c.8.5 1 1.6.4 2.3l-1 1.1c-.7.8-1.9 1.1-2.9.7-4.6-1.7-8.2-5.3-9.9-9.9-.4-1-.1-2.2.7-2.9z"/><path class="hud-call-ar" d="M20.4 3.6 15.6 8.4"/><path class="hud-call-ar" d="M19.2 8.4h-3.6V4.8"/></svg>',
+  callMiss:'<svg class="hud-call-svg" viewBox="0 0 24 24" aria-hidden="true"><path class="hud-call-hs" d="M6.4 3.6c.7-.6 1.8-.4 2.3.4l1.5 2.2c.4.6.3 1.4-.2 1.9l-.8.8c-.2.2-.3.5-.1.8.8 1.4 2 2.6 3.4 3.4.3.2.6.1.8-.1l.8-.8c.5-.5 1.3-.6 1.9-.2l2.2 1.5c.8.5 1 1.6.4 2.3l-1 1.1c-.7.8-1.9 1.1-2.9.7-4.6-1.7-8.2-5.3-9.9-9.9-.4-1-.1-2.2.7-2.9z"/><path class="hud-call-ar" d="M15.6 3.6 20.4 8.4"/><path class="hud-call-ar" d="M20.4 3.6 15.6 8.4"/></svg>',
+  card:  '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.6" y="5.4" width="18.8" height="13.2" rx="2.4"/><path d="M2.6 10h18.8"/><path d="M6 14.6h3.4"/></svg>',
+  cal:   '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.4" y="5.2" width="17.2" height="15.4" rx="2.2"/><path d="M3.4 10h17.2"/><path d="M8 3.4v3.6M16 3.4v3.6"/></svg>',
   pin:   '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6.4-6 6.4-11a6.4 6.4 0 1 0-12.8 0c0 5 6.4 11 6.4 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>',
   phone: '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.4" y="2.8" width="11.2" height="18.4" rx="2.6"/><path d="M10.6 18.4h2.8"/></svg>'
 };
@@ -338,7 +617,7 @@ function buildSearchApp(search) {
 
 // --- Телефон целиком --------------------------------------------------------
 
-export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phoneData, sceneDate, sceneTime) {
+export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phoneData, sceneDate, sceneTime, characters) {
   const phone = phoneData && typeof phoneData === 'object' ? phoneData : {};
   const chatCount = Object.keys(chatsMap || {}).length;
   // Владелец телефона. Приоритет: явное поле phone.owner → самый частый
@@ -368,8 +647,8 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   if (!latestTime) {
     Object.values(chatsMap || {}).forEach(c => {
       (Array.isArray(c && c.messages) ? c.messages : []).forEach(m => {
-        const t = String(m).match(/\b\d{1,2}:\d{2}\b/);
-        if (t) latestTime = t[0];
+        const t = msgTimeOf(m);
+        if (t) latestTime = t;
       });
     });
   }
@@ -382,15 +661,22 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
     });
   });
 
+  // Каждое приложение можно выключить в настройках. Выключенное не строится
+  // вовсе: ни плитки на домашнем экране, ни экрана под ней. Настройка задана
+  // от обратного (!== false), чтобы старые сохранённые настройки, где этих
+  // ключей ещё нет, вели себя как «всё включено».
+  const on = (key) => settings[key] !== false;
   const apps = [
-    { id: 'messages', icon: G_ICONS.chat, label: 'Сообщения', badge: unread,
+    on('phoneAppMessages') && { id: 'messages', icon: G_ICONS.chat, label: 'Сообщения', badge: unread,
       body: messenger || emptyApp(G_ICONS.chat, 'В текущем повествовании нет переписок') },
-    { id: 'contacts', icon: G_ICONS.person, label: 'Контакты',  body: buildContactsApp(phone.contacts) },
-    { id: 'gallery',  icon: G_ICONS.image, label: 'Галерея',   body: buildGalleryApp(phone.gallery) },
-    { id: 'notes',    icon: G_ICONS.note, label: 'Заметки',   body: buildNotesApp(phone.notes) },
-    { id: 'maps',     icon: G_ICONS.map, label: 'Карты',     body: buildMapsApp(phone.maps) },
-    { id: 'search',   icon: G_ICONS.glass, label: 'Поиск',     body: buildSearchApp(phone.search) },
-  ];
+    on('phoneAppContacts') && { id: 'contacts', icon: G_ICONS.person, label: 'Контакты',  body: buildContactsApp(phone.contacts) },
+    on('phoneAppWallet') && { id: 'wallet',   icon: G_ICONS.card, label: 'Кошелёк',   body: buildWalletApp(phone.wallet, phoneOwner) },
+    on('phoneAppCalendar') && { id: 'calendar', icon: G_ICONS.cal, label: 'Календарь', body: buildCalendarApp(phone.calendar, characters, sceneDate) },
+    on('phoneAppGallery') && { id: 'gallery',  icon: G_ICONS.image, label: 'Галерея',   body: buildGalleryApp(phone.gallery) },
+    on('phoneAppNotes') && { id: 'notes',    icon: G_ICONS.note, label: 'Заметки',   body: buildNotesApp(phone.notes) },
+    on('phoneAppMaps') && { id: 'maps',     icon: G_ICONS.map, label: 'Карты',     body: buildMapsApp(phone.maps) },
+    on('phoneAppSearch') && { id: 'search',   icon: G_ICONS.glass, label: 'Поиск',     body: buildSearchApp(phone.search) },
+  ].filter(Boolean);
 
   const grid = apps.map(a => `<button class="hud-phone-app" data-phone-app="${a.id}" data-phone-uid="${uid}">
     <span>${a.icon}${a.badge ? `<i class="hud-unread-badge">${a.badge}</i>` : ''}</span>
@@ -405,8 +691,11 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   // Стопка уведомлений на домашнем экране: карточка на каждый чат с
   // непрочитанным, новые сверху, задние выглядывают со сдвигом и уменьшением.
   // Данные те же, что в списке чатов: аватарка по хэшу имени, название, превью.
+  // Без модуля «Сообщения» переписок на телефоне нет вовсе: ни стопки на
+  // домашнем экране, ни строк на экране блокировки. Иначе уведомление вело бы
+  // в экран, которого больше не существует.
   const notifItems = [];
-  Object.keys(chatsMap || {}).forEach((rawName, chatIdx) => {
+  (on('phoneAppMessages') ? Object.keys(chatsMap || {}) : []).forEach((rawName, chatIdx) => {
     const c = chatsMap[rawName] || {};
     const msgs = Array.isArray(c.messages) ? c.messages : [];
     let unreadHere = 0, lastTime = '', lastText = '', lastSender = '';
@@ -452,11 +741,11 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   const shown = notifItems.slice(0, MAX_NOTIF);
   const hiddenCount = notifItems.length - shown.length;
 
-  const notice = notifItems.length
+  const notice = !on('phoneAppMessages') ? ''
+    : notifItems.length
     ? `<div class="hud-phone-notif-stack" data-phone-app="messages" data-phone-uid="${uid}" role="button" tabindex="0">
         <div class="hud-phone-notif-head">
           <span class="hud-phone-notif-label">${G_ICONS.chat} Сообщения</span>
-          <span class="hud-phone-notif-count">${unread}</span>
         </div>
         ${shown.map((n, i) => {
           const color = HUD_AVATAR_COLORS[hudHashSeed(n.title) % HUD_AVATAR_COLORS.length];
@@ -469,7 +758,6 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
             </span>
             <span class="hud-phone-notif-meta">
               <em>${escapeHtml(n.time)}</em>
-              ${n.count > 1 ? `<i>${n.count}</i>` : ''}
             </span>
           </div>`;
         }).join('')}

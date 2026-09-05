@@ -6,8 +6,9 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, hudHashSeed } from '../utils.js?v=22.51.0';
-import { buildRelGraphHTML } from './relations-graph.js?v=22.51.0';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, hudHashSeed } from '../utils.js?v=22.70.10';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.70.10';
+import { buildRelGraphHTML } from './relations-graph.js?v=22.70.10';
 
 function parseRoutePoint(item) {
   const parts = String(item).split(/[-—–]/).map(s => s.trim());
@@ -152,7 +153,15 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData) {
   }
 
   if (Array.isArray(memoryData.important) && memoryData.important.length > 0) {
-    html += `<div class="hud-row full-width"><span class="hud-key">❗ Важное:</span> <div class="hud-vertical-container">${buildPillList(memoryData.important.join('; '), 'hud-detail-pill drama-alert')}</div></div>`;
+    // Каждый пункт можно унести в Lorebook: это ровно тот сорт фактов, что
+    // должен пережить откат чата и остаться в мире.
+    const importantHtml = memoryData.important.map(item => {
+      const isNew = isNewLoreItem(item);
+      return `<div class="hud-detail-pill drama-alert hud-lore-item${isNew ? ' is-new' : ''}">` +
+        `<span class="hud-lore-text">${escapeHtml(String(item))}</span>` +
+        loreButtonHTML(item, [], isNew) + `</div>`;
+    }).join('');
+    html += `<div class="hud-row full-width"><span class="hud-key">❗ Важное:</span> <div class="hud-vertical-container">${importantHtml}</div></div>`;
   }
   if (Array.isArray(memoryData.recently_learned) && memoryData.recently_learned.length > 0) {
     html += `<div class="hud-row full-width"><span class="hud-key">💡 Недавно узнали:</span> <div class="hud-vertical-container">${buildPillList(memoryData.recently_learned.join('; '), 'hud-detail-pill')}</div></div>`;
@@ -189,6 +198,27 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData) {
            ? unawareArr.map(u => `<div class="hud-secret-person unaware"><span class="hud-secret-pname">✖ ${escapeHtml(u.name || u)}</span></div>`).join('')
            : '';
 
+       // Текст для Lorebook: факт, круг посвящённых с их пояснениями и те,
+       // кто не в курсе. Пояснение к имени («откуда узнал») — самое ценное
+       // в секрете после самого факта, без него запись пересказывает половину.
+       const loreLines = [String(s.fact || '').trim()];
+       if (knowsArr.length) {
+         loreLines.push('Знают: ' + knowsArr.map(k => {
+           const nm = String((k && k.name) || k || '').trim();
+           const src = String((k && k.source) || '').trim();
+           return src ? nm + ' (' + src + ')' : nm;
+         }).filter(Boolean).join('; '));
+       } else {
+         loreLines.push('Знают: никто');
+       }
+       if (unawareArr.length) {
+         loreLines.push('Не знают: ' + unawareArr.map(u => String((u && u.name) || u || '').trim()).filter(Boolean).join('; '));
+       }
+       if (lvlText) loreLines.push('Уровень: ' + lvlText.replace(/^[^\s]+\s/, ''));
+       const loreContent = loreLines.join('\n');
+       // Ключи — все, кто в этом секрете замешан: и знающие, и незнающие.
+       const loreKeys = [...knowsArr, ...unawareArr].map(x => String((x && x.name) || x || '').trim()).filter(Boolean);
+
        return `
        <details class="hud-secret-details">
           <summary class="hud-secret-summary ${lvlClass}">
@@ -199,7 +229,10 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData) {
               ${spreadText}
           </summary>
           <div class="hud-secret-body">
-              <div class="hud-secret-title">${escapeHtml(s.fact)}</div>
+              <div class="hud-secret-head-row">
+                <div class="hud-secret-title">${escapeHtml(s.fact)}</div>
+                ${loreButtonHTML(loreContent, loreKeys, isNewLoreItem(s.fact))}
+              </div>
               <div class="hud-secret-cols">
                   <div class="hud-secret-col">
                       <div class="hud-secret-col-title">В КУРСЕ:</div>

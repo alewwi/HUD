@@ -6,6 +6,31 @@
 /** Экранирование через DOM: браузер сам решает, что считать опасным. */
 export function escapeHtml(str) { if (!str) return ''; const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
 
+// Схема ждёт строку «Метка: значение; ...», но модель нередко отдаёт объект
+// или массив объектов. Прямой String() на таком значении даёт «[object
+// Object]» — именно так NSFW и превращался в мусор при полностью корректном
+// JSON. Разворачиваем в ту же строку с метками: дальше её разберут как обычно.
+export function flattenFieldValue(value, depth = 0) {
+  if (value === null || value === undefined) return '';
+  if (typeof value === 'string') return value;
+  if (typeof value !== 'object') return String(value);
+  // Верхний уровень задаёт пилюли: «Метка: значение», через «;». Всё, что
+  // глубже, — уже начинка одной пилюли, там свои разделители, иначе вложенный
+  // объект расщепился бы на отдельные пилюли и потерял бы имя родителя.
+  const pairSep = depth === 0 ? '; ' : ', ';
+  const kv = depth === 0 ? ': ' : ' — ';
+  if (Array.isArray(value)) {
+    return value.map(v => flattenFieldValue(v, depth)).map(s => s.trim()).filter(Boolean).join(pairSep);
+  }
+  return Object.entries(value)
+    .map(([k, v]) => {
+      const inner = flattenFieldValue(v, depth + 1).trim();
+      return inner ? k + kv + inner : '';
+    })
+    .filter(Boolean)
+    .join(pairSep);
+}
+
 // A value is considered renderable only when it contains actual content.
 // Keep the old tab-visibility contract: empty/none/empty-like payloads do not
 // create a whole top-level tab.
@@ -89,7 +114,7 @@ function splitByLabels(text) {
 }
 
 export function buildPillList(value, pillClass, forceSeparate = false) {
-    const raw = String(value);
+    const raw = flattenFieldValue(value);
     // Явный разделитель — воля автора: каждый кусок становится отдельной
     // пилюлей, даже если метку в нём распознать не удалось. Кроме обычной
     // «;» ловим её полноширинный и арабский варианты: модель иногда
@@ -155,6 +180,7 @@ export function mapKey(k) {
     'mem':'Общие воспоминания','общие воспоминания':'Общие воспоминания','memories':'Общие воспоминания','shared memories':'Общие воспоминания',
     'flag':'Флаг-монитор','флаг-монитор':'Флаг-монитор','flag-monitor':'Флаг-монитор','flags':'Флаг-монитор',
     'st':'Статус','статус':'Статус','status':'Статус',
+    'jls':'Ревность','ревность':'Ревность','jealousy':'Ревность','jealous':'Ревность',
     'exo':'Социальное разоблачение','социальное разоблачение':'Социальное разоблачение','social exposure':'Социальное разоблачение',
     'x':'Глубина конфликта','глубина конфликта':'Глубина конфликта','conflict depth':'Глубина конфликта','conflict':'Глубина конфликта',
     'sexlast':'Последний секс','последний секс':'Последний секс','last sex':'Последний секс',

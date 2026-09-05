@@ -11,11 +11,11 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache } from './avatars.js?v=22.51.0';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.51.0';
-import { getTheme, themeVars, presetRowHTML, THEME_KEYS } from './themes.js?v=22.51.0';
-import { settings, defaultSettings } from './settings.js?v=22.51.0';
-import { getWorldVotes } from './render/world.js?v=22.51.0';
+import { invalidateAvatarCache } from './avatars.js?v=22.70.10';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.70.10';
+import { getTheme, themeVars, presetRowHTML, THEME_KEYS } from './themes.js?v=22.70.10';
+import { settings, defaultSettings } from './settings.js?v=22.70.10';
+import { getWorldVotes } from './render/world.js?v=22.70.10';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -221,6 +221,16 @@ export function initGlobalEvents(ctx) {
       return;
     }
 
+    const remember = e.target.closest('.hud-remember');
+    if (remember) {
+      e.preventDefault();
+      e.stopPropagation();
+      if (ctx.openLoreDialog) {
+        ctx.openLoreDialog(remember.dataset.loreText || '', remember.dataset.loreKeys || '');
+      }
+      return;
+    }
+
     const tab = e.target.closest('.hud-tab');
     if (tab) {
       e.preventDefault();
@@ -228,7 +238,12 @@ export function initGlobalEvents(ctx) {
       parent.querySelectorAll('.hud-tab').forEach(t => t.classList.remove('active'));
       parent.querySelectorAll('.hud-tab-content').forEach(c => c.classList.remove('active'));
       tab.classList.add('active');
-      parent.querySelector(`#${tab.dataset.target}`).classList.add('active');
+      // Отложенная вкладка собирается здесь — при первом открытии.
+      let target = parent.querySelector(`#${tab.dataset.target}`);
+      if (target && target.classList.contains('hud-tab-lazy') && ctx.renderLazyTab) {
+        target = ctx.renderLazyTab(target);
+      }
+      if (target) target.classList.add('active');
       return;
     }
 
@@ -431,6 +446,8 @@ export function initGlobalEvents(ctx) {
 
     const relGraph = e.target.closest('.hud-rel-graph');
     if (relGraph) {
+      // Хвост перетаскивания: браузер всё равно шлёт click после отпускания.
+      if (relGraph.dataset.relDragged) { delete relGraph.dataset.relDragged; return; }
       const clickedNode = e.target.closest('.hud-rel-node');
       const clickedEdge = e.target.closest('.hud-rel-edge, .hud-rel-edge-hit, .hud-rel-edge-badge');
       const clickedLabel = e.target.closest('.hud-rel-edge-label');
@@ -476,11 +493,78 @@ export function initGlobalEvents(ctx) {
 
       relGraph.dataset.zoom = '1';
       relGraph.style.setProperty('--hud-rel-zoom', '1');
+      relGraph.dataset.panX = '0';
+      relGraph.dataset.panY = '0';
+      relGraph.style.setProperty('--hud-rel-pan-x', '0px');
+      relGraph.style.setProperty('--hud-rel-pan-y', '0px');
       relGraph.classList.toggle('fx-active', true);
       setRelGraphExpandedState(relGraph, true);
 
       if (!relGraph.dataset.relZoomBound) {
         relGraph.dataset.relZoomBound = '1';
+
+        // --- ПЕРЕТАСКИВАНИЕ ---------------------------------------------
+        // Ставим на сцену, а не на всю панель: заголовок и кнопка закрытия
+        // должны остаться обычными кнопками. Сдвиг держим в переменных, а не
+        // в transform, чтобы он не спорил с масштабом.
+        const stage = relGraph.querySelector('.hud-rel-stage');
+        let drag = null;
+        const setPan = (x, y) => {
+          relGraph.dataset.panX = String(x);
+          relGraph.dataset.panY = String(y);
+          relGraph.style.setProperty('--hud-rel-pan-x', x + 'px');
+          relGraph.style.setProperty('--hud-rel-pan-y', y + 'px');
+        };
+        const cancelPan = () => {
+          if (!drag) return;
+          try { stage.releasePointerCapture(drag.id); } catch (err) {}
+          stage.classList.remove('is-panning');
+          drag = null;
+        };
+        relGraph.hudCancelPan = cancelPan;
+
+        if (stage) {
+          stage.addEventListener('pointerdown', (ev) => {
+            if (!relGraph.classList.contains('is-expanded')) return;
+            if (ev.button !== undefined && ev.button > 0) return;
+            // По узлам и подписям тянуть нельзя — это клики по деталям.
+            if (ev.target.closest('.hud-rel-node, .hud-rel-edge-badge, .hud-rel-edge-label, .hud-rel-legend-item, .hud-rel-graph-close')) return;
+            drag = {
+              id: ev.pointerId, x: ev.clientX, y: ev.clientY, moved: 0,
+              baseX: Number(relGraph.dataset.panX || 0),
+              baseY: Number(relGraph.dataset.panY || 0),
+            };
+            try { stage.setPointerCapture(ev.pointerId); } catch (err) {}
+            stage.classList.add('is-panning');
+          });
+
+          stage.addEventListener('pointermove', (ev) => {
+            if (!drag || ev.pointerId !== drag.id) return;
+            const dx = ev.clientX - drag.x, dy = ev.clientY - drag.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist > drag.moved) drag.moved = dist;
+            setPan(drag.baseX + dx, drag.baseY + dy);
+          });
+
+          const endDrag = (ev) => {
+            if (!drag || (ev && ev.pointerId !== drag.id)) return;
+            // Протащили больше пары пикселей — это не клик: гасим следующий,
+            // иначе он снимет выделение с узла сразу после перетаскивания.
+            if (drag.moved > 4) relGraph.dataset.relDragged = '1';
+            cancelPan();
+          };
+          stage.addEventListener('pointerup', endDrag);
+          stage.addEventListener('pointercancel', endDrag);
+
+          // Двойной щелчок по пустому месту — вернуть масштаб и центр.
+          stage.addEventListener('dblclick', (ev) => {
+            if (ev.target.closest('.hud-rel-node, .hud-rel-edge-badge, .hud-rel-edge-label')) return;
+            relGraph.dataset.zoom = '1';
+            relGraph.style.setProperty('--hud-rel-zoom', '1');
+            setPan(0, 0);
+          });
+        }
+
         relGraph.addEventListener('wheel', (wheelEvent) => {
           if (!relGraph.classList.contains('is-expanded')) return;
           wheelEvent.preventDefault();
@@ -494,6 +578,7 @@ export function initGlobalEvents(ctx) {
         let pinchStart = null;
         relGraph.addEventListener('touchstart', (touchEvent) => {
           if (touchEvent.touches.length === 2 && relGraph.classList.contains('is-expanded')) {
+            if (relGraph.hudCancelPan) relGraph.hudCancelPan();
             const dx = touchEvent.touches[0].clientX - touchEvent.touches[1].clientX;
             const dy = touchEvent.touches[0].clientY - touchEvent.touches[1].clientY;
             pinchStart = Math.hypot(dx, dy);
