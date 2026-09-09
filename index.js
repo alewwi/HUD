@@ -1,21 +1,21 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.70.10';
-import { escapeHtml, getSafeUserName } from './utils.js?v=22.70.10';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.70.10';
-import { initGlobalEvents, initObserver, initTavernOSEvents } from './events.js?v=22.70.10';
-import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.70.10';
-import { buildDiaryHTML, hudHasMeaningfulDiary } from './render/diary.js?v=22.70.10';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.70.10';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.70.10';
-import { buildMemoryHTML } from './render/memory.js?v=22.70.10';
-import { buildLoreEntry, loreAlreadyHas } from './lore.js?v=22.70.10';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.70.10';
-import { hudHasRelations } from './render/relations-graph.js?v=22.70.10';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.70.10';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.70.10';
-import { applyThemeClass, presetRowHTML } from './themes.js?v=22.70.10';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.70.10';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.73.10';
+import { escapeHtml, getSafeUserName } from './utils.js?v=22.73.10';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.73.10';
+import { initGlobalEvents, initObserver, initTavernOSEvents } from './events.js?v=22.73.10';
+import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.73.10';
+import { buildDiaryHTML, hudHasMeaningfulDiary } from './render/diary.js?v=22.73.10';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.73.10';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.73.10';
+import { buildMemoryHTML } from './render/memory.js?v=22.73.10';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.73.10';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.73.10';
+import { hudHasRelations } from './render/relations-graph.js?v=22.73.10';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.73.10';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.73.10';
+import { applyThemeClass, presetRowHTML } from './themes.js?v=22.73.10';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.73.10';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -246,6 +246,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
      "[Sender] -> [Recipient]: [Message] | [Time] | [Read/Unread/Deleted/Draft]",
      "VOICE: prefix the text with [VOICE_M:SS], e.g. '[Sender] -> [Recipient]: [VOICE_0:42] Перезвони мне | 21:40 | Unread'. Use it when someone would record audio rather than type — walking, crying, in a hurry.",
      "PHOTO: prefix with [PHOTO: what is in the shot], e.g. '[Sender] -> [Recipient]: [PHOTO: селфи в примерочной, новое платье] Ну как? | 18:20'. Text after the tag is the caption.",
+     "VIDEO: same idea for a clip — [VIDEO_M:SS: what happens on screen], e.g. '[Sender] -> [Recipient]: [VIDEO_0:23: снимает на бегу, кричит и смеётся] Смотри! | 18:22'. Duration is optional. Use it when the moment only makes sense in motion.",
      "CALL: a call is an EVENT, not a line — '[Sender] -> [Recipient]: [CALL: входящий, пропущен]' or '[CALL: исходящий, принят, 4:12]'. Direction входящий/исходящий as seen from the owner; outcome принят/отклонён/пропущен; duration only when answered. Text after the tag becomes a short note.",
      "No upper limit on chats or on messages inside a chat."
     ]
@@ -1814,9 +1815,53 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
           mes.classList.remove('hud-perf-older');
           restoreEvictedCard(mes);
           safeProcessMessage(mes);
+          // Пока карточка на экране, её высота настоящая — запоминаем на
+          // будущее, для заглушки. Меряем в следующем кадре: сразу после
+          // разбора вёрстка ещё не устоялась.
+          // Двойной кадр: первый отдаёт вёрстку браузеру, и только после
+          // отрисовки content-visibility перестаёт отдавать заявленную высоту
+          // вместо настоящей.
+          requestAnimationFrame(() => requestAnimationFrame(() => {
+            const text = mes.querySelector('.mes_text');
+            const card = mes.querySelector('.hud-os-card');
+            if (!text || !card) return;
+            // У карточки, отрисовку которой браузер пропустил по
+            // content-visibility, высота не настоящая, а заявленная в
+            // contain-intrinsic-size. Такую запоминать нельзя: заглушка выходит
+            // втрое выше карточки и раздувает прокрутку. Отличаем по самой
+            // высоте — она совпадает с заявленной с точностью до рамки.
+            // checkVisibility здесь бесполезен: он отвечает про «нужна ли
+            // пользователю», а не про «пересчитана ли вёрстка», и говорит «да»
+            // ещё до пересчёта.
+            const карточка = card.getBoundingClientRect();
+            // Только когда карточка по-настоящему в окне: наблюдатель зовёт
+            // нас за полтора экрана до края, а там высота ещё заявленная.
+            if (карточка.bottom <= 0 || карточка.top >= (window.innerHeight || 0)) return;
+            const заявлено = parseFloat((getComputedStyle(card).containIntrinsicSize || '').split(/\s+/).pop()) || 0;
+            if (заявлено && Math.abs(карточка.height - заявлено) <= 3) return;
+            const h = Math.round(text.getBoundingClientRect().height);
+            if (h > 40) {
+              mes.__hudCardHeight = h;
+              typicalCardHeight = h;
+              // Типовую высоту знают и заглушки без своего замера, и ещё не
+              // отрисованные карточки — через переменную на контейнере чата.
+              // Зашитое число не годится: карточки в разных чатах разной
+              // высоты, и промах в триста пикселей на две сотни свёрнутых
+              // сообщений раздувал ленту и рвал прокрутку.
+              const box = mes.closest('#chat') || cachedChatContainer;
+              if (box) box.style.setProperty('--hud-card-h', h + 'px');
+            }
+          }));
         } else {
           mes.classList.remove('hud-perf-visible');
-          if (isPerformanceModeActive(container)) mes.classList.add('hud-perf-older');
+          if (isPerformanceModeActive(container)) {
+            mes.classList.add('hud-perf-older');
+            // Виртуализация: карточка уехала дальше полутора экранов (столько
+            // даёт rootMargin) — разбираем её обратно в исходный текст. В DOM
+            // остаётся заглушка той же высоты, и при возврате карточка
+            // собирается заново из mes.__hudSource.
+            if (settings.virtualizeCards !== false) collapseCard(mes, true);
+          }
         }
       }
     }, {
@@ -1836,6 +1881,40 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
   // Оставляем в DOM только N последних карточек. Лишние — самые старые, то
   // есть первые сверху — сворачиваем до тонкой полоски. Текст сообщения при
   // этом не теряется: он лежит на элементе и вернётся при следующем показе.
+  // Типовая высота карточки в этом чате. Заглушка без собственного замера
+  // берёт её, иначе свёртка двух сотен карточек укорачивает ленту на десятки
+  // тысяч пикселей и прокрутка прыгает. Стартовое значение — то же, что
+  // объявлено в contain-intrinsic-size: столько браузер и так отводит
+  // неотрисованной карточке, поэтому свёртка выходит нейтральной по высоте.
+  let typicalCardHeight = 480;
+
+  // Свернуть карточку в заглушку. Высоту заглушки задаём по фактической
+  // высоте карточки: при прокрутке вверх без этого лента схлопывается под
+  // курсором и уезжает на сотни пикселей.
+  function collapseCard(mes, keepHeight) {
+    if (!mes || mes.dataset.hudEvicted) return false;
+    if (isMessageBeingEdited(mes)) return false;
+    const textElement = mes.querySelector('.mes_text');
+    if (!textElement || !mes.__hudSource || !mes.querySelector('.hud-os-card')) return false;
+    // Высоту берём запомненную — ту, что была у карточки, пока она была на
+    // экране. Мерить прямо сейчас нельзя: сворачиваем мы именно ушедшую за
+    // край карточку, а у неё из-за content-visibility работает не настоящая
+    // высота, а заявленная contain-intrinsic-size. Заглушка тогда выходила
+    // втрое выше самой карточки и раздувала прокрутку.
+    // Без своего замера высоту заглушке даёт переменная --hud-card-h из CSS:
+    // так уже расставленные заглушки поправятся, как только чат сообщит
+    // настоящую высоту карточки.
+    const height = keepHeight ? Number(mes.__hudCardHeight || 0) : 0;
+    textElement.innerHTML = '<div class="hud-evicted" title="Карточка свёрнута ради скорости. Прокрутите к ней — соберётся заново.">HUD свёрнут</div>';
+    if (height > 40) {
+      const holder = textElement.querySelector('.hud-evicted');
+      if (holder) holder.style.minHeight = height + 'px';
+    }
+    mes.dataset.hudEvicted = '1';
+    delete mes.dataset.hudProcessed;
+    return true;
+  }
+
   function enforceCardLimit() {
     const limit = Number(settings.hudCardLimit) || 0;
     if (limit <= 0) return;
@@ -1845,14 +1924,9 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       mes => !mes.dataset.hudEvicted && mes.querySelector('.hud-os-card'));
     const extra = live.length - limit;
     if (extra <= 0) return;
-    for (let i = 0; i < extra; i++) {
-      const mes = live[i];
-      const textElement = mes.querySelector('.mes_text');
-      if (!textElement || !mes.__hudSource) continue;
-      textElement.innerHTML = '<div class="hud-evicted" title="Карточка свёрнута ради скорости. Прокрутите к ней — соберётся заново.">HUD свёрнут</div>';
-      mes.dataset.hudEvicted = '1';
-      delete mes.dataset.hudProcessed;
-    }
+    // Лимит срезает самые старые карточки — они далеко вверху, и держать их
+    // высоту незачем: прокрутку это только удлинит.
+    for (let i = 0; i < extra; i++) collapseCard(live[i], false);
   }
 
   // Обратная операция: вернуть исходник и собрать карточку заново.
@@ -1899,11 +1973,26 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
 
   const processingMessages = new WeakSet();
   function safeProcessMessage(messageElement) {
-    if (!messageElement || isMessageBeingEdited(messageElement) || processingMessages.has(messageElement)) return;
+    if (!messageElement || isMessageBeingEdited(messageElement)) return;
+    // Пока сообщение разбирается, повторный вызов раньше просто пропадал. Это
+    // и ломало возврат свёрнутой карточки: IntersectionObserver возвращал
+    // исходник и просил собрать карточку, а разбор в этот момент ещё шёл с
+    // прошлого раза — просьба терялась, и сообщение оставалось голым текстом.
+    // Запоминаем её и повторяем один раз, когда текущий разбор закончится.
+    if (processingMessages.has(messageElement)) {
+      messageElement.__hudReprocess = true;
+      return;
+    }
     processingMessages.add(messageElement);
     Promise.resolve(processMessage(messageElement))
       .catch(error => console.error('HUD Manager: processMessage failed', error))
-      .finally(() => processingMessages.delete(messageElement));
+      .finally(() => {
+        processingMessages.delete(messageElement);
+        if (messageElement.__hudReprocess) {
+          delete messageElement.__hudReprocess;
+          if (messageElement.isConnected) safeProcessMessage(messageElement);
+        }
+      });
   }
 
   function replaceHudBlockInText(source, newHudText) {
@@ -2458,6 +2547,11 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       <summary style="font-weight:bold; cursor:pointer; color:var(--hud-accent); outline: none;">📊 TavernOS v${hudVersionLabel()}</summary>
       <div style="padding-top: 12px; display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
 
+      <div class="hud-set-tools">
+        <button type="button" id="hud-open-archive" class="hud-set-tool-btn">🗄 Архив HUD</button>
+        <span class="hud-set-tool-note">Сводка по всей истории чата: как менялись секреты и отношения, сколько прошло дней, где что происходило.</span>
+      </div>
+
       <details class="hud-set-group"><summary>🧩 Блоки HUD</summary><div class="hud-set-body">
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;"><input type="checkbox" id="hud-auto-inject" ${settings.autoInject ? 'checked' : ''}> Сетевой перехват (Инжект промпта)</label>
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;"><input type="checkbox" id="hud-enable-phone" ${settings.enablePhone ? 'checked' : ''}> 📱 Личный телефон</label>
@@ -2479,6 +2573,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Отдельный блок {{user}}: одежда, внешность, здоровье, отношения, локация."><input type="checkbox" id="hud-enable-user" ${settings.enableUserBlock ? 'checked' : ''}> {{user}} — блок игрока</label>
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Таймлайн, настроение двух главных персонажей, маршруты и секреты"><input type="checkbox" id="hud-enable-memory" ${settings.enableMemory ? 'checked' : ''}> 🧠 Память (события, настроение, маршрут, секреты)</label>
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="При 200+ сообщениях отключает тяжёлую повторную обработку старых сообщений, замораживает их анимации/эффекты и обрабатывает HUD по мере прокрутки."><input type="checkbox" id="hud-performance-mode" ${settings.performanceMode ? 'checked' : ''}> ⚡ Performance Mode (200+ сообщений)</label>
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Внутри Performance Mode: карточка, уехавшая дальше полутора экранов от края, разбирается обратно в текст, а на её месте остаётся заглушка той же высоты. При возвращении карточка собирается заново. В DOM живут только те карточки, что рядом с экраном."><input type="checkbox" id="hud-virtualize" ${settings.virtualizeCards !== false ? 'checked' : ''}> 🪟 Держать в DOM только карточки рядом с экраном</label>
         <div style="font-size:11px;opacity:.68;">Автоматически включается только в чатах от 200 сообщений. Старые блоки остаются функциональными и догружаются при прокрутке.</div>
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Собирается только открытая вкладка. Остальные (Телефон, Память, Мир и так далее) строятся в тот момент, когда вы на них переключаетесь, и дальше остаются готовыми. Заметно легче на карточках с большим HUD."><input type="checkbox" id="hud-lazy-tabs" ${settings.lazyTabs !== false ? 'checked' : ''}> 🗂️ Ленивая загрузка вкладок</label>
         <div class="hud-set-note">
@@ -2522,6 +2617,9 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         </label>
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Сколько последних сообщений отправлять модели при нажатии на 🔄 (регенерация HUD). 0 = отправлять всю историю чата до этого сообщения.">
           ⚡ При регене HUD слать последние <input type="number" id="hud-regen-context" min="0" max="50" value="${settings.regenContextMessages}" style="width: 40px; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;"> сообщ.
+        </label>
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Сколько последних сообщений чата уходит модели, когда она пишет запись лорбука по кнопке «Написать моделью» в окне «Запомнить». Больше сообщений — точнее контекст, но дороже запрос. 0 = без контекста сцены, только сам факт.">
+          📚 В запись лорбука слать последние <input type="number" id="hud-lore-context" min="0" max="50" value="${settings.loreContextMessages}" style="width: 40px; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;"> сообщ.
         </label>
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Позволяет перегенерировать HUD (🔄) через ДРУГОЙ сохранённый профиль подключения">
           🧠 Профиль для регена HUD:
@@ -2743,6 +2841,18 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       setupPerformanceObserver();
       processAllMessages();
     });
+    document.getElementById('hud-open-archive').addEventListener('click', async () => {
+      // Модуль архива грузим по требованию: он нужен раз в сессию, а тянет
+      // за собой окно и вёрстку отчёта. Версию пишем литералом — её
+      // подменяет bump-version.cjs, как и во всех остальных импортах.
+      try {
+        const mod = await import('./render/archive.js?v=22.73.10');
+        mod.openArchiveDialog();
+      } catch (e) {
+        console.error('[TavernOS HUD] Архив не открылся:', e);
+        alert('Не удалось открыть архив: ' + (e && e.message ? e.message : e));
+      }
+    });
     document.querySelectorAll('[data-phone-app-key]').forEach(box => {
       box.addEventListener('change', (e) => {
         settings[e.target.dataset.phoneAppKey] = e.target.checked;
@@ -2786,6 +2896,23 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       let val = parseInt(e.target.value);
       if (isNaN(val) || val < 0) val = 0; if (val > 50) val = 50;
       settings.regenContextMessages = val; e.target.value = val; saveSettings();
+    });
+
+    document.getElementById('hud-virtualize').addEventListener('change', (e) => {
+      settings.virtualizeCards = e.target.checked;
+      saveSettings();
+      // Выключили — возвращаем всё свёрнутое обратно, иначе заглушки останутся
+      // висеть до перезагрузки страницы.
+      if (!e.target.checked && cachedChatContainer) {
+        cachedChatContainer.querySelectorAll('.mes[data-hud-evicted]').forEach(mes => {
+          if (restoreEvictedCard(mes)) safeProcessMessage(mes);
+        });
+      }
+    });
+    document.getElementById('hud-lore-context').addEventListener('change', (e) => {
+      let val = parseInt(e.target.value, 10);
+      if (isNaN(val) || val < 0) val = 0; if (val > 50) val = 50;
+      settings.loreContextMessages = val; e.target.value = val; saveSettings();
     });
 
     populateRegenProfileSelect();
@@ -2969,26 +3096,77 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
   // активации можно поправить руками: без них запись в World Info никогда не
   // сработает, а угадать их автоматически получается не всегда.
   let loreDialogOpen = false;
+  // Модуль World Info самого SillyTavern. Раньше мы писали файл книги напрямую
+  // через /api/worldinfo/edit, и это была тихая потеря данных: у ST есть свой
+  // кэш книг (worldInfoCache), наша запись в него не попадала, редактор
+  // показывал старое содержимое, а следующее сохранение со стороны ST
+  // возвращало файл к своей копии — вместе с исчезновением наших записей.
+  let worldInfoModulePromise = null;
+  function getWorldInfoModule() {
+    if (!worldInfoModulePromise) {
+      // Без ?v=: это модуль SillyTavern, и любой хвост в пути даёт вторую его
+      // копию — с собственным кэшем книг, мимо которого мы и писали.
+      worldInfoModulePromise = import('../../../world-info.js').catch((e) => {
+        console.debug('[TavernOS HUD] Модуль World Info недоступен, работаем через HTTP:', e);
+        return null;
+      });
+    }
+    return worldInfoModulePromise;
+  }
+
+  // Чтение книги: через ST, если получится, иначе прямым запросом.
+  async function readLorebookForWrite(name) {
+    const wi = await getWorldInfoModule();
+    if (wi && typeof wi.loadWorldInfo === 'function') {
+      try {
+        const data = await wi.loadWorldInfo(name);
+        if (data && typeof data === 'object' && data.entries) return data;
+      } catch (e) { console.debug('[TavernOS HUD] loadWorldInfo не сработал:', e); }
+    }
+    return await loadHudLorebook(name);
+  }
+
+  // Запись книги. saveWorldInfo обновляет и файл, и кэш ST, а reloadEditor
+  // перерисовывает открытую панель World Info — иначе новая запись появлялась
+  // только после перезагрузки страницы.
+  async function writeLorebook(name, book) {
+    const wi = await getWorldInfoModule();
+    if (wi && typeof wi.saveWorldInfo === 'function') {
+      await wi.saveWorldInfo(name, book, true);
+      try { if (typeof wi.reloadEditor === 'function') wi.reloadEditor(name); } catch (_) {}
+      return 'st';
+    }
+    const res = await fetch('/api/worldinfo/edit', {
+      method: 'POST', headers: getStRequestHeadersSafe(),
+      body: JSON.stringify({ name, data: book }), cache: 'no-cache',
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    return 'http';
+  }
+
   async function openLoreDialog(text, keys) {
     if (loreDialogOpen) return;
     loreDialogOpen = true;
-    const close = () => { loreDialogOpen = false; overlay.remove(); };
 
     const overlay = document.createElement('div');
     overlay.className = 'hud-modal-overlay';
     overlay.innerHTML = `
-      <div class="hud-modal" role="dialog" aria-modal="true" aria-label="Запомнить в Lorebook">
+      <div class="hud-modal hud-lore-modal" role="dialog" aria-modal="true" aria-label="Запомнить в Lorebook">
         <div class="hud-modal-head">✚ Запомнить навсегда</div>
         <div class="hud-modal-body">
+          <label class="hud-modal-label">Заголовок <i>под ним запись видно в списке World Info</i></label>
+          <input type="text" class="hud-modal-title">
           <label class="hud-modal-label">Что записываем</label>
-          <textarea class="hud-modal-text" rows="4"></textarea>
+          <textarea class="hud-modal-text" rows="5"></textarea>
           <label class="hud-modal-label">Ключи активации <i>через запятую — по ним запись всплывёт в контексте</i></label>
           <input type="text" class="hud-modal-keys">
           <label class="hud-modal-label">В какую книгу</label>
           <select class="hud-modal-book"><option value="">Загружаю список…</option></select>
-          <div class="hud-modal-note">Запись добавится в конец книги и останется там навсегда — откат чата её не тронет. Существующие записи не меняются.</div>
+          <div class="hud-modal-note">Сейчас в полях — сухая выжимка из HUD. Можно записать как есть, а можно попросить модель дописать связный текст с контекстом сцены, заголовок и ключи — она прочитает последние сообщения чата.</div>
+          <div class="hud-modal-note hud-lore-genstate" hidden></div>
         </div>
         <div class="hud-modal-foot">
+          <button type="button" class="hud-modal-btn gen">✎ Написать моделью</button>
           <button type="button" class="hud-modal-btn cancel">Отмена</button>
           <button type="button" class="hud-modal-btn save" disabled>Записать</button>
         </div>
@@ -2996,13 +3174,84 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     document.body.appendChild(overlay);
 
     const $ = (s) => overlay.querySelector(s);
+    const close = () => { loreDialogOpen = false; overlay.remove(); document.removeEventListener('keydown', поКлавише); };
+    const поКлавише = (e) => { if (e.key === 'Escape') close(); };
+    document.addEventListener('keydown', поКлавише);
+
     $('.hud-modal-text').value = String(text || '');
     $('.hud-modal-keys').value = String(keys || '');
+    // Заголовок по умолчанию — первый ключ: это почти всегда имя, о ком запись.
+    $('.hud-modal-title').value = String(keys || '').split(',')[0].trim();
 
     const select = $('.hud-modal-book');
-    const saveBtn = $('.hud-modal-save') || overlay.querySelector('.hud-modal-btn.save');
+    const saveBtn = $('.hud-modal-btn.save');
+    const genBtn = $('.hud-modal-btn.gen');
     overlay.addEventListener('click', (e) => { if (e.target === overlay) close(); });
-    overlay.querySelector('.hud-modal-btn.cancel').addEventListener('click', close);
+    $('.hud-modal-btn.cancel').addEventListener('click', close);
+
+    // --- Написать моделью ---
+    genBtn.addEventListener('click', async () => {
+      const факт = $('.hud-modal-text').value.trim();
+      if (!факт) { showHudToast('error', 'Нечего описывать', 'Сначала впишите факт.'); return; }
+      const ctx = getStContextSafe();
+      if (!ctx || typeof ctx.generateRaw !== 'function') {
+        showHudToast('error', 'Модель недоступна', 'SillyTavern не отдал функцию генерации.');
+        return;
+      }
+      const состояние = $('.hud-lore-genstate');
+      genBtn.disabled = true; saveBtn.disabled = true;
+      const прежде = genBtn.textContent;
+      genBtn.textContent = 'Пишу…';
+      состояние.hidden = false;
+      // Счётчик секунд — не украшение: запрос уходит на чужой сервер и может
+      // висеть минутами, а окно без признаков жизни выглядит зависшим.
+      let секунд = 0;
+      состояние.textContent = 'Запрос ушёл модели. Ответ подставится в поля — его можно править перед записью.';
+      const тик = setInterval(() => {
+        секунд++;
+        состояние.textContent = 'Модель пишет… ' + секунд + ' с. Ответ подставится в поля — его можно будет править.';
+      }, 1000);
+      try {
+        const сколько = Math.max(0, Math.min(50, Number(settings.loreContextMessages ?? 10)));
+        const chat = Array.isArray(ctx.chat) ? ctx.chat : [];
+        const хвост = сколько ? chat.slice(-сколько) : [];
+        const сообщения = хвост.map(m => ({
+          name: String(m && m.name || ''),
+          text: stripHudBlock(String(m && m.mes || '')),
+        })).filter(m => m.text);
+        const имена = getMainProtagonistNames(ctx);
+        const prompt = buildLoreGenPrompt({
+          fact: факт,
+          keys: $('.hud-modal-keys').value.split(',').map(k => k.trim()).filter(Boolean),
+          messages: сообщения,
+          userName: имена.user, charName: имена.char,
+        });
+        // ST не даёт отменить свой запрос, но ждать его вечно тоже нельзя:
+        // без ограничения окно навсегда остаётся с заблокированными кнопками.
+        const ЖДЁМ_МС = 180000;
+        const raw = await Promise.race([
+          ctx.generateRaw({
+            prompt,
+            systemPrompt: 'You are a precise assistant maintaining a lorebook for an ongoing story. Mature fictional content is expected. Answer only in the requested format.',
+          }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('модель молчит дольше ' + (ЖДЁМ_МС / 1000) + ' с')), ЖДЁМ_МС)),
+        ]);
+        const ответ = parseLoreGenResponse(raw);
+        if (!ответ) throw new Error('модель ответила не JSON-ом');
+        $('.hud-modal-text').value = ответ.content;
+        if (ответ.title) $('.hud-modal-title').value = ответ.title;
+        if (ответ.keys.length) $('.hud-modal-keys').value = ответ.keys.join(', ');
+        состояние.textContent = 'Готово. Проверьте текст и ключи — записывается то, что в полях.';
+      } catch (e) {
+        console.error('[TavernOS HUD] Генерация записи не удалась:', e);
+        состояние.textContent = 'Модель не ответила как надо: ' + (e && e.message ? e.message : e) + '. Поля не тронуты — можно записать как есть.';
+        showHudToast('error', 'Не сгенерировалось', 'Поля остались прежними.');
+      } finally {
+        clearInterval(тик);
+        genBtn.disabled = false; genBtn.textContent = прежде;
+        saveBtn.disabled = !select.value;
+      }
+    });
 
     let books = [];
     try { books = await getAvailableHudLorebooks(); } catch (_) {}
@@ -3017,14 +3266,15 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     saveBtn.addEventListener('click', async () => {
       const bookName = select.value;
       const content = $('.hud-modal-text').value.trim();
+      const title = $('.hud-modal-title').value.trim();
       const keyList = $('.hud-modal-keys').value.split(',').map(k => k.trim()).filter(Boolean);
       if (!bookName || !content) { showHudToast('error', 'Нечего записывать', 'Заполните текст и выберите книгу.'); return; }
       if (!keyList.length) { showHudToast('error', 'Нет ключей активации', 'Без ключей запись никогда не сработает.'); return; }
 
-      saveBtn.disabled = true; saveBtn.textContent = 'Записываю…';
+      saveBtn.disabled = true; genBtn.disabled = true; saveBtn.textContent = 'Записываю…';
       try {
         // 1. Читаем книгу целиком. Не прочитали — не пишем.
-        const book = await loadHudLorebook(bookName);
+        const book = await readLorebookForWrite(bookName);
         if (!book || typeof book !== 'object' || !book.entries || typeof book.entries !== 'object') {
           throw new Error('книга не прочиталась');
         }
@@ -3032,25 +3282,29 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
           showHudToast('info', 'Уже записано', 'Такая запись в этой книге уже есть.');
           close(); return;
         }
-        // 2. Дописываем запись, ничего не трогая вокруг.
-        const uids = Object.values(book.entries).map(e => Number(e && e.uid)).filter(v => Number.isFinite(v));
-        const uid = uids.length ? Math.max(...uids) + 1 : 0;
+        // 2. Дописываем запись, ничего не трогая вокруг. uid ищем не только
+        // среди значений, но и среди ключей: у книг, правленных руками, они
+        // расходятся, а совпавший uid затирает чужую запись.
+        const числа = [];
+        for (const [k, e] of Object.entries(book.entries)) {
+          const a = Number(k), b = Number(e && e.uid);
+          if (Number.isFinite(a)) числа.push(a);
+          if (Number.isFinite(b)) числа.push(b);
+        }
+        const uid = числа.length ? Math.max(...числа) + 1 : 0;
         const idxs = Object.values(book.entries).map(e => Number(e && e.displayIndex)).filter(v => Number.isFinite(v));
         const displayIndex = idxs.length ? Math.max(...idxs) + 1 : 0;
-        book.entries[String(uid)] = buildLoreEntry(uid, displayIndex, keyList, content, 'HUD: ' + keyList[0]);
+        book.entries[String(uid)] = buildLoreEntry(uid, displayIndex, keyList, content, title || ('HUD: ' + keyList[0]));
 
-        // 3. Отдаём обратно целиком — другого способа у этого API нет.
-        const res = await fetch('/api/worldinfo/edit', {
-          method: 'POST', headers: getStRequestHeadersSafe(),
-          body: JSON.stringify({ name: bookName, data: book }), cache: 'no-cache',
-        });
-        if (!res.ok) throw new Error('HTTP ' + res.status);
-        showHudToast('success', 'Записано в Lorebook', `«${bookName}» — ключи: ${keyList.join(', ')}`);
+        // 3. Сохраняем через ST, чтобы книга и её кэш остались в согласии.
+        const как = await writeLorebook(bookName, book);
+        showHudToast('success', 'Записано в Lorebook', `«${bookName}» — ключи: ${keyList.join(', ')}`
+          + (как === 'http' ? ' (обновите страницу, чтобы увидеть в World Info)' : ''));
         close();
       } catch (e) {
         console.error('[TavernOS HUD] Запись в Lorebook не удалась:', e);
         showHudToast('error', 'Не записалось', 'Книга осталась нетронутой. Подробности в консоли.');
-        saveBtn.disabled = false; saveBtn.textContent = 'Записать';
+        saveBtn.disabled = false; genBtn.disabled = false; saveBtn.textContent = 'Записать';
       }
     });
   }
@@ -3078,6 +3332,10 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       return placeholder;
     }
   }
+
+  // Точка входа в окно «Запомнить» снаружи карточки: удобно дёрнуть из
+  // консоли и проверить окно, не дожидаясь подходящего сообщения в чате.
+  window.HUD.openLoreDialog = (text, keys) => openLoreDialog(text, keys);
 
   const eventsCtx = {
     openLoreDialog,

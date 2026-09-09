@@ -3,9 +3,9 @@
 // Домен «Телефон»: вкладки чатов, переписки, счётчики непрочитанного,
 // участники. Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=22.70.10';
-import { settings } from '../settings.js?v=22.70.10';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.70.10';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=22.73.10';
+import { settings } from '../settings.js?v=22.73.10';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.73.10';
 
 // Кружок собеседника. Если для имени назначена ручная аватарка, подставляем
 // её фоном прямо в существующий элемент: разметка и классы не меняются, а
@@ -38,7 +38,7 @@ function avaFace(name, cls, fallbackBg, inner) {
     `" data-ava-bg="${escapeHtml(bg)}" style="background-image:${url ? `url('${url}')` : bg}"` +
     `>${escapeHtml(letter)}${inner || ''}</span>`;
 }
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=22.70.10';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=22.73.10';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -154,6 +154,7 @@ function buildMessengerHTML(chatsMap, uid, mainCharName) {
       const mm = p.match(/^([^:-]+)(?:\s*(?:->|→)\s*([^:]+))?:\s*(.*)$/);
       if (mm) p = mm[3];
       p = p.replace(/\[(?:VOICE|ГОЛОС)_?\d{0,2}:?\d{0,2}\]/gi, '🎤 Голосовое сообщение')
+           .replace(/\[(?:VIDEO|ВИДЕО|VID|РОЛИК)[ _]?\d{0,2}:?\d{0,2}\s*:?\s*([^\]]*)\]/gi, (mm, d) => '🎬 Видео' + (d.trim() ? ': ' + d.trim() : ''))
            .replace(/\[(?:PHOTO|ФОТО|IMG|СНИМОК)\s*:?\s*([^\]]*)\]/gi, (mm, d) => '📷 Фото' + (d.trim() ? ': ' + d.trim() : ''))
            .replace(/\[(?:CALL|ЗВОНОК)\s*:?\s*([^\]]*)\]/gi, (mm, b) => /пропущ|missed/i.test(b) ? '📞 Пропущенный звонок' : '📞 Звонок')
            .replace(/\[удалено\]|\[черновик\]|✓+/gi, '').trim();
@@ -276,11 +277,29 @@ function buildMessengerHTML(chatsMap, uid, mainCharName) {
             const photo = parsePhoto(message);
             if (photo) message = message.replace(photo.tag, '').trim();
 
+            // === ЛОВИМ ВИДЕО ===
+            const video = !photo ? parseVideo(message) : null;
+            if (video) message = message.replace(video.tag, '').trim();
+
             // СОБИРАЕМ ВНУТРЕННОСТИ ПУЗЫРЯ (Текст, Плеер или Снимок)
             let msgInner = photo
-                ? `<div class="hud-msg-photo" style="--shot: ${HUD_AVATAR_COLORS[hudHashSeed(photo.desc || 'photo') % HUD_AVATAR_COLORS.length]}">
+                ? `<div class="hud-msg-photo hud-msg-media" role="button" tabindex="0" data-media="photo"
+                        data-media-desc="${escapeHtml(photo.desc)}"
+                        title="Открыть описание снимка"
+                        style="--shot: ${HUD_AVATAR_COLORS[hudHashSeed(photo.desc || 'photo') % HUD_AVATAR_COLORS.length]}">
                      <span class="hud-msg-photo-frame">${G_ICONS.image}</span>
                      ${photo.desc ? `<span class="hud-msg-photo-cap">${defeatWI(escapeHtml(photo.desc))}</span>` : ''}
+                   </div>${message ? `<div class="hud-msg-text" style="word-break: break-word;">${escapeHtml(message)}</div>` : ''}`
+                : video
+                ? `<div class="hud-msg-photo hud-msg-video hud-msg-media" role="button" tabindex="0" data-media="video"
+                        data-media-desc="${escapeHtml(video.desc)}" data-media-dur="${escapeHtml(video.dur)}"
+                        title="Открыть описание ролика"
+                        style="--shot: ${HUD_AVATAR_COLORS[hudHashSeed(video.desc || 'video') % HUD_AVATAR_COLORS.length]}">
+                     <span class="hud-msg-photo-frame">
+                       <span class="hud-msg-video-play" aria-hidden="true"></span>
+                       ${video.dur ? `<span class="hud-msg-video-dur">${escapeHtml(video.dur)}</span>` : ''}
+                     </span>
+                     ${video.desc ? `<span class="hud-msg-photo-cap">${defeatWI(escapeHtml(video.desc))}</span>` : ''}
                    </div>${message ? `<div class="hud-msg-text" style="word-break: break-word;">${escapeHtml(message)}</div>` : ''}`
                 : isVoice 
                 ? `<div class="hud-voice-player"><div class="hud-voice-btn">▶</div><div class="hud-voice-line"></div><span class="hud-voice-time">${voiceDur}</span></div><details class="hud-voice-details"><summary>Расшифровка</summary><div class="hud-voice-text">${escapeHtml(message)}</div></details>`
@@ -525,6 +544,15 @@ function parsePhoto(text) {
   return { tag: m[0], desc: (m[1] || '').trim() };
 }
 
+// Видео: [VIDEO: что в кадре] или [ВИДЕО: ...]. Длительность необязательна и
+// пишется как [VIDEO_1:24: ...] — тем же способом, что у голосовых, чтобы
+// модели не пришлось запоминать второй формат.
+function parseVideo(text) {
+  const m = String(text || '').match(/\[(?:VIDEO|ВИДЕО|VID|РОЛИК)[ _]?(\d{1,2}:\d{2})?\s*:?\s*([^\]]*)\]/i);
+  if (!m) return null;
+  return { tag: m[0], dur: (m[1] || '').trim(), desc: (m[2] || '').trim() };
+}
+
 const CALL_WORD = {
   answered: 'Разговор состоялся',
   declined: 'Звонок отклонён',
@@ -602,7 +630,10 @@ const G_ICONS = {
   card:  '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.6" y="5.4" width="18.8" height="13.2" rx="2.4"/><path d="M2.6 10h18.8"/><path d="M6 14.6h3.4"/></svg>',
   cal:   '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.4" y="5.2" width="17.2" height="15.4" rx="2.2"/><path d="M3.4 10h17.2"/><path d="M8 3.4v3.6M16 3.4v3.6"/></svg>',
   pin:   '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6.4-6 6.4-11a6.4 6.4 0 1 0-12.8 0c0 5 6.4 11 6.4 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>',
-  phone: '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.4" y="2.8" width="11.2" height="18.4" rx="2.6"/><path d="M10.6 18.4h2.8"/></svg>'
+  phone: '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.4" y="2.8" width="11.2" height="18.4" rx="2.6"/><path d="M10.6 18.4h2.8"/></svg>',
+  // Видеокамера: корпус и объектив-клин сбоку — тот же силуэт, что у значка
+  // видео в мессенджерах, поэтому читается сразу и без подписи.
+  video: '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.8" y="6.4" width="12.8" height="11.2" rx="2.4"/><path d="m15.6 12 5.6-3.4v6.8z"/></svg>'
 };
 
 function buildSearchApp(search) {
@@ -715,7 +746,8 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
       let body = s.split('|')[0].replace(/^(?:M|Msg|Сообщение|Chat|Чат):\s*/i, '').trim();
       const mm = body.match(/^([^:-]+)(?:\s*(?:->|→)\s*([^:]+))?:\s*(.*)$/);
       if (mm) body = mm[3];
-      lastText = body.replace(/\[(?:VOICE|ГОЛОС)_?\d{0,2}:?\d{0,2}\]/gi, '🎤 Голосовое сообщение')
+      lastText = body.replace(/\[(?:VIDEO|ВИДЕО|VID|РОЛИК)[ _]?\d{0,2}:?\d{0,2}\s*:?\s*[^\]]*\]/gi, '🎬 Видео')
+                     .replace(/\[(?:VOICE|ГОЛОС)_?\d{0,2}:?\d{0,2}\]/gi, '🎤 Голосовое сообщение')
                      .replace(/\[удалено\]|\[черновик\]|✓+/gi, '').trim();
       break;
     }
@@ -814,4 +846,47 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
     </div>
     </div>
   </div>`;
+}
+
+// --- Просмотр вложения -------------------------------------------------------
+//
+// Настоящего файла у нас нет — есть описание, которое написала модель. По клику
+// показываем его целиком: в пузыре подпись обрезана двумя строками, а в ней
+// нередко и есть весь смысл кадра.
+
+export function openPhoneMediaViewer(tile) {
+  if (!tile || document.querySelector('.hud-media-overlay')) return;
+  const вид = tile.dataset.media === 'video' ? 'video' : 'photo';
+  const описание = tile.dataset.mediaDesc || '';
+  const длительность = tile.dataset.mediaDur || '';
+
+  // Отправителя и время берём из пузыря рядом: в описании их нет, а понять,
+  // чей это кадр и когда он пришёл, обычно важнее самого описания.
+  const пузырь = tile.closest('.hud-msg-content');
+  const отправитель = пузырь ? (пузырь.querySelector('.hud-msg-sender') || {}).textContent || '' : '';
+  const время = пузырь ? (пузырь.querySelector('.hud-msg-time') || {}).textContent || '' : '';
+
+  const overlay = document.createElement('div');
+  overlay.className = 'hud-modal-overlay hud-media-overlay';
+  overlay.innerHTML = `
+    <div class="hud-media-view" role="dialog" aria-modal="true" aria-label="${вид === 'video' ? 'Описание ролика' : 'Описание снимка'}">
+      <div class="hud-media-art${вид === 'video' ? ' is-video' : ''}" style="--shot: ${tile.style.getPropertyValue('--shot') || '#4a5570'}">
+        ${вид === 'video'
+          ? '<span class="hud-msg-video-play" aria-hidden="true"></span>'
+          : G_ICONS.image}
+        ${длительность ? `<span class="hud-msg-video-dur">${escapeHtml(длительность)}</span>` : ''}
+      </div>
+      <div class="hud-media-body">
+        <div class="hud-media-kind">${вид === 'video' ? '🎬 Видео' : '📷 Снимок'}${отправитель ? ' · ' + escapeHtml(отправитель.trim()) : ''}${время ? ' · ' + escapeHtml(время.trim()) : ''}</div>
+        <div class="hud-media-desc">${описание ? defeatWI(escapeHtml(описание)) : 'Описание не приложено.'}</div>
+      </div>
+      <div class="hud-modal-foot"><button type="button" class="hud-modal-btn cancel">Закрыть</button></div>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const закрыть = () => { overlay.remove(); document.removeEventListener('keydown', поКлавише); };
+  const поКлавише = (e) => { if (e.key === 'Escape') закрыть(); };
+  document.addEventListener('keydown', поКлавише);
+  overlay.addEventListener('click', (e) => { if (e.target === overlay) закрыть(); });
+  overlay.querySelector('.cancel').addEventListener('click', закрыть);
 }

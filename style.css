@@ -10730,13 +10730,15 @@
 /* Окно поверх страницы. Своего модального окна в расширении не было —
    заводим одно, общего вида, чтобы следующие тоже брали его. */
 .hud-modal-overlay {
-  position: fixed; inset: 0; z-index: 100000;
+  position: fixed; top: 0; left: 0; z-index: 100000;
+  width: 100vw; height: 100vh; height: 100dvh;
   display: flex; align-items: center; justify-content: center; padding: 16px;
+  overflow: auto;
   background: rgba(6, 6, 10, .62);
   backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
 }
 .hud-modal {
-  width: min(460px, 100%); max-height: 88vh; overflow: auto;
+  width: min(460px, 100%); max-height: 88vh; max-height: calc(100dvh - 32px); overflow: hidden;
   display: flex; flex-direction: column;
   border-radius: 14px; color: var(--hud-text, #e6e6ee);
   background: var(--hud-bg, linear-gradient(135deg, #1b1b24, #12121a));
@@ -10748,10 +10750,13 @@
   font-weight: 700; font-size: 13px; line-height: 1.3; font-family: inherit;
   border-bottom: 1px solid var(--hud-border, rgba(255,255,255,.12));
 }
-.hud-modal-body { display: flex; flex-direction: column; gap: 4px; padding: 12px 16px; }
+.hud-modal-body {
+  display: flex; flex-direction: column; gap: 4px; padding: 12px 16px;
+  min-height: 0; overflow: auto;
+}
 .hud-modal-label { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; opacity: .55; margin-top: 6px; }
 .hud-modal-label i { font-style: normal; text-transform: none; letter-spacing: 0; opacity: .8; }
-.hud-modal-text, .hud-modal-keys, .hud-modal-book {
+.hud-modal-text, .hud-modal-keys, .hud-modal-book, .hud-modal-title {
   width: 100%; box-sizing: border-box;
   padding: 7px 9px; border-radius: 8px; font: inherit; font-size: 12.5px;
   color: var(--hud-text, #e6e6ee);
@@ -10765,6 +10770,24 @@
 }
 .hud-modal-foot {
   display: flex; justify-content: flex-end; gap: 8px; padding: 10px 16px 14px;
+  flex-wrap: wrap;
+}
+.hud-modal-btn.gen { margin-right: auto; }
+.hud-modal-btn.gen:not(:disabled) {
+  background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 18%, transparent);
+  border-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 45%, transparent);
+}
+/* Строка состояния генерации: пишет, что происходит и что поля можно править. */
+.hud-lore-genstate { border-left-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 70%, #ffffff); }
+
+/* На узком экране кнопки в ряд не помещаются: раскладываем в столбец, а
+   «Записать» ставим первой — за ней тянутся чаще всего. */
+@media (max-width: 520px) {
+  .hud-modal-overlay { padding: 8px; align-items: flex-start; }
+  .hud-modal { max-height: calc(100dvh - 16px); }
+  .hud-modal-foot { flex-direction: column-reverse; }
+  .hud-modal-foot .hud-modal-btn { width: 100%; padding: 10px 14px; }
+  .hud-modal-btn.gen { margin-right: 0; }
 }
 .hud-modal-btn {
   padding: 7px 14px; border-radius: 8px; cursor: pointer;
@@ -10788,3 +10811,287 @@
 .hud-set-apps label {
   display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12.5px;
 }
+
+/* =========================================================================
+   Архив HUD — окно сводки по истории чата
+   ========================================================================= */
+
+/* Кнопка вызова в панели настроек. */
+.hud-set-tools { display: flex; align-items: flex-start; gap: 10px; margin: 2px 0 8px; }
+.hud-set-tool-btn {
+  flex: 0 0 auto; cursor: pointer;
+  padding: 7px 12px; border-radius: 8px;
+  font-size: 12.5px; font-weight: 600; font-family: inherit; line-height: 1.2;
+  color: var(--hud-text, #e6e6ee);
+  background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 22%, transparent);
+  border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 55%, transparent);
+  transition: background .15s ease;
+}
+.hud-set-tool-btn:hover { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 34%, transparent); }
+.hud-set-tool-note { font-size: 11.5px; line-height: 1.45; color: var(--hud-text-muted, rgba(226,232,240,.66)); }
+
+/* Окно шире обычной модалки: в отчёте длинные цепочки статусов. */
+.hud-arc-modal { width: min(860px, 100%); max-height: 92vh; }
+.hud-arc-modal .hud-modal-head small { font-weight: 400; opacity: .6; margin-left: 8px; letter-spacing: 0; }
+
+.hud-arc-controls { padding: 10px 16px; border-bottom: 1px solid var(--hud-border, rgba(255,255,255,.12)); }
+.hud-arc-range { display: flex; align-items: center; gap: 12px; font-size: 12px; flex-wrap: wrap; }
+.hud-arc-range label { display: flex; align-items: center; gap: 5px; }
+.hud-arc-range input {
+  width: 78px; padding: 4px 6px; border-radius: 6px; font-family: inherit; font-size: 12px;
+  color: inherit; background: rgba(0,0,0,.25);
+  border: 1px solid var(--hud-border, rgba(255,255,255,.16));
+}
+.hud-arc-total { margin-left: auto; opacity: .6; }
+/* Два ползунка: один задаёт начало отрезка, другой конец. */
+.hud-arc-sliders { display: grid; gap: 4px; margin: 8px 0 6px; }
+.hud-arc-sliders input { width: 100%; accent-color: var(--hud-accent, #8c5ad2); }
+.hud-arc-quick { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.hud-arc-quick button {
+  cursor: pointer; padding: 5px 10px; border-radius: 7px;
+  font-size: 11.5px; font-family: inherit; color: inherit;
+  background: rgba(255,255,255,.06); border: 1px solid var(--hud-border, rgba(255,255,255,.14));
+}
+.hud-arc-quick button:hover { background: rgba(255,255,255,.12); }
+.hud-arc-quick .hud-arc-run {
+  margin-left: auto; font-weight: 700; padding: 6px 16px;
+  background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 30%, transparent);
+  border-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 60%, transparent);
+}
+.hud-arc-quick .hud-arc-run:disabled { opacity: .5; cursor: default; }
+
+.hud-arc-progress { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 11px; opacity: .8; }
+.hud-arc-progress > div {
+  flex: 1; height: 5px; border-radius: 3px; overflow: hidden;
+  background: rgba(255,255,255,.1);
+}
+.hud-arc-bar { width: 0; height: 100%; background: var(--hud-accent, #8c5ad2); transition: width .12s linear; }
+
+/* Свой display перебивает атрибут hidden: без этой строки полоса прогресса
+   и вкладки оставались на экране, хотя код их прятал. */
+.hud-arc-tabs[hidden], .hud-arc-progress[hidden] { display: none; }
+
+.hud-arc-tabs {
+  display: flex; align-items: center; gap: 4px; padding: 8px 16px 0; flex-wrap: wrap;
+  border-bottom: 1px solid var(--hud-border, rgba(255,255,255,.12));
+}
+.hud-arc-tabs button {
+  cursor: pointer; padding: 6px 12px; border-radius: 8px 8px 0 0;
+  font-size: 12px; font-family: inherit; color: inherit;
+  background: transparent; border: 1px solid transparent; border-bottom: none;
+}
+.hud-arc-tabs button:hover { background: rgba(255,255,255,.06); }
+.hud-arc-tabs button.active {
+  background: rgba(255,255,255,.08);
+  border-color: var(--hud-border, rgba(255,255,255,.14));
+  color: var(--hud-accent, #8c5ad2); font-weight: 700;
+}
+.hud-arc-search {
+  margin-left: auto; margin-bottom: 6px; width: 190px;
+  padding: 5px 9px; border-radius: 7px; font-family: inherit; font-size: 12px;
+  color: inherit; background: rgba(0,0,0,.25);
+  border: 1px solid var(--hud-border, rgba(255,255,255,.16));
+}
+
+.hud-arc-body { flex: 1; min-height: 220px; max-height: 58vh; overflow: auto; padding: 12px 16px; }
+.hud-arc-empty { padding: 28px 10px; text-align: center; font-size: 12.5px; opacity: .55; }
+.hud-arc-note {
+  font-size: 12px; line-height: 1.5; margin-bottom: 10px; padding: 8px 10px;
+  border-radius: 0 7px 7px 0; background: rgba(0,0,0,.18);
+  border-left: 2px solid var(--hud-accent, #8c5ad2);
+}
+
+.hud-arc-card {
+  margin-bottom: 10px; padding: 10px 12px; border-radius: 10px;
+  background: rgba(255,255,255,.045);
+  border: 1px solid var(--hud-border, rgba(255,255,255,.1));
+}
+.hud-arc-card-head { display: flex; align-items: center; gap: 7px; font-size: 13px; margin-bottom: 7px; }
+.hud-arc-card-head b { font-weight: 700; }
+.hud-arc-tag {
+  margin-left: auto; padding: 2px 7px; border-radius: 999px;
+  font-size: 10px; letter-spacing: .03em; opacity: .75;
+  background: rgba(255,255,255,.08);
+}
+.hud-arc-row { display: flex; gap: 10px; align-items: baseline; padding: 3px 0; font-size: 12px; }
+.hud-arc-row > label { flex: 0 0 92px; opacity: .55; font-size: 11px; }
+.hud-arc-row > div { flex: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+.hud-arc-foot { margin-top: 6px; font-size: 10.5px; opacity: .5; }
+
+/* Цепочка «было — стало». Стрелки между звеньями — отдельные элементы,
+   чтобы цепочка переносилась по строкам вместе с ними. */
+.hud-arc-path { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+.hud-arc-path i { font-style: normal; opacity: .35; }
+.hud-arc-status {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 999px; font-size: 11.5px;
+  background: rgba(255,255,255,.07); border: 1px solid var(--hud-border, rgba(255,255,255,.1));
+}
+.hud-arc-who {
+  display: inline-flex; align-items: baseline; gap: 4px;
+  padding: 2px 8px; border-radius: 999px; font-size: 11.5px;
+  background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 34%, transparent);
+}
+.hud-arc-who em { font-style: normal; opacity: .6; font-size: 10.5px; }
+.hud-arc-who small { opacity: .55; font-size: 10px; }
+.hud-arc-who.is-out { background: rgba(255,255,255,.05); border-color: var(--hud-border, rgba(255,255,255,.12)); opacity: .75; }
+.hud-arc-who.is-none { background: transparent; border-style: dashed; opacity: .5; }
+
+/* Ссылка на сообщение. Кнопка, а не span: по ней кликают, и клавиатура
+   должна её находить. */
+.hud-arc-ref {
+  cursor: pointer; padding: 0 4px; border-radius: 5px;
+  font-size: 10.5px; font-family: inherit; font-weight: 600;
+  color: var(--hud-accent, #8c5ad2);
+  background: transparent; border: 1px solid transparent;
+}
+.hud-arc-ref:hover { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 18%, transparent); }
+.hud-arc-ref.is-missing { color: #e0685f; border-color: rgba(224,104,95,.5); }
+
+.hud-arc-timeline { position: relative; padding-left: 12px; }
+.hud-arc-timeline::before {
+  content: ''; position: absolute; left: 3px; top: 6px; bottom: 6px;
+  width: 1px; background: var(--hud-border, rgba(255,255,255,.16));
+}
+.hud-arc-event { position: relative; display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 12.5px; }
+.hud-arc-dot {
+  position: absolute; left: -12px; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--hud-accent, #8c5ad2);
+}
+.hud-arc-event.is-place .hud-arc-dot { background: rgba(255,255,255,.35); }
+.hud-arc-when { flex: 1; }
+
+.hud-arc-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.hud-arc-tile {
+  padding: 10px 12px; border-radius: 10px; text-align: center;
+  background: rgba(255,255,255,.045);
+  border: 1px solid var(--hud-border, rgba(255,255,255,.1));
+}
+.hud-arc-tile b { display: block; font-size: 22px; line-height: 1.1; font-weight: 700; color: var(--hud-accent, #8c5ad2); }
+.hud-arc-tile span { display: block; margin-top: 3px; font-size: 11px; opacity: .7; }
+.hud-arc-tile small { display: block; margin-top: 2px; font-size: 10px; opacity: .45; }
+
+.hud-arc-meta { margin-right: auto; font-size: 11px; opacity: .6; }
+.hud-arc-meta button {
+  cursor: pointer; font: inherit; font-size: 11px; padding: 0;
+  color: var(--hud-accent, #8c5ad2); background: none; border: none; text-decoration: underline;
+}
+
+/* Подсветка сообщения, к которому перешли из отчёта. */
+.mes.hud-arc-flash { animation: hud-arc-flash 1.5s ease; }
+@keyframes hud-arc-flash {
+  0%, 100% { box-shadow: none; }
+  20%, 60% { box-shadow: inset 0 0 0 2px var(--hud-accent, #8c5ad2); }
+}
+
+@media (max-width: 600px) {
+  .hud-arc-row { flex-direction: column; gap: 3px; }
+  .hud-arc-row > label { flex: none; }
+  .hud-arc-search { width: 100%; margin-left: 0; }
+  .hud-arc-body { max-height: 52vh; }
+}
+
+/* =========================================================================
+   Оптимизация отрисовки
+   ========================================================================= */
+
+/* Браузер не рисует то, что за экраном. Карточка и без того `overflow: hidden`,
+   поэтому containment ничего нового не обрезает. `auto` в contain-intrinsic-size
+   запоминает последнюю измеренную высоту — полоса прокрутки не прыгает, когда
+   карточка уходит за край и возвращается. Число 480px — только для тех, что
+   ещё ни разу не рисовались. */
+.hud-os-card {
+  content-visibility: auto;
+  /* Высота общая для чата: её измеряет JS по первой же отрисованной карточке
+     и кладёт в --hud-card-h. Пока измерения нет — 480px как середина. */
+  contain-intrinsic-size: auto var(--hud-card-h, 480px);
+}
+
+/* Карточка, которую сейчас разворачивают поверх ленты (граф отношений уезжает
+   в body, а вот телефон и модалки живут внутри), не должна пропускать кадры:
+   при content-visibility анимация за пределами экрана останавливается. */
+.hud-os-card:has(.hud-rel-graph.is-expanded),
+.hud-os-card:has(.hud-modal-overlay) {
+  content-visibility: visible;
+}
+
+/* Заглушка свёрнутой карточки. Высоту ей задаёт JS — по фактической высоте
+   карточки, чтобы при прокрутке вверх лента не схлопывалась под курсором. */
+.hud-evicted {
+  display: flex; align-items: center; justify-content: center;
+  /* Заглушка занимает столько же, сколько занимала карточка. Через переменную,
+     а не инлайновым числом: уже расставленные заглушки поправятся сами, как
+     только чат сообщит настоящую высоту. */
+  min-height: var(--hud-card-h, 480px);
+}
+
+/* =========================================================================
+   Телефон: вложения — снимок и ролик
+   ========================================================================= */
+
+/* Плитка кликабельна: подпись в пузыре обрезана двумя строками, а полное
+   описание открывается отдельным окном. */
+.hud-msg-media { cursor: pointer; }
+.hud-msg-media:focus-visible { outline: 2px solid var(--hud-accent, #8c5ad2); outline-offset: 2px; border-radius: 10px; }
+.hud-msg-media:hover .hud-msg-photo-frame { filter: brightness(1.12); }
+.hud-msg-photo-frame { position: relative; transition: filter .15s ease; }
+.hud-msg-photo-cap {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+
+/* Кнопка воспроизведения: белый круг с треугольником внутри — тот же силуэт,
+   что в любом плеере, поэтому ролик не спутать со снимком. */
+.hud-msg-video-play {
+  width: 42px; height: 42px; border-radius: 50%;
+  background: rgba(255,255,255,.92);
+  box-shadow: 0 4px 14px rgba(0,0,0,.45);
+  display: flex; align-items: center; justify-content: center;
+}
+.hud-msg-video-play::after {
+  content: ''; margin-left: 3px;
+  border-style: solid; border-width: 8px 0 8px 13px;
+  border-color: transparent transparent transparent #14151c;
+}
+.hud-msg-video-dur {
+  position: absolute; right: 6px; bottom: 6px;
+  padding: 1px 6px; border-radius: 4px;
+  font-size: 10px; font-weight: 600; letter-spacing: .02em; color: #fff;
+  background: rgba(0,0,0,.62);
+}
+/* Полоска киноплёнки по краям кадра — сразу читается как видео. */
+.hud-msg-video .hud-msg-photo-frame {
+  min-height: 118px;
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,.55) 0 6px, transparent 6px 14px) top / 100% 7px no-repeat,
+    repeating-linear-gradient(90deg, rgba(0,0,0,.55) 0 6px, transparent 6px 14px) bottom / 100% 7px no-repeat,
+    linear-gradient(150deg, var(--shot, #4a5570), rgba(0, 0, 0, .6));
+}
+
+/* Окно с описанием вложения. */
+.hud-media-view {
+  width: min(420px, 100%); max-height: calc(100dvh - 32px);
+  display: flex; flex-direction: column; overflow: hidden;
+  border-radius: 14px; color: var(--hud-text, #e6e6ee);
+  background: var(--hud-bg, linear-gradient(135deg, #1b1b24, #12121a));
+  border: 1px solid var(--hud-border, rgba(255,255,255,.14));
+  box-shadow: 0 18px 48px rgba(0,0,0,.55);
+}
+.hud-media-art {
+  position: relative; min-height: 168px;
+  display: flex; align-items: center; justify-content: center;
+  background: linear-gradient(150deg, var(--shot, #4a5570), rgba(0,0,0,.6));
+}
+.hud-media-art .hud-g-ico { width: 42px; height: 42px; opacity: .5; }
+.hud-media-art.is-video {
+  background:
+    repeating-linear-gradient(90deg, rgba(0,0,0,.55) 0 8px, transparent 8px 18px) top / 100% 9px no-repeat,
+    repeating-linear-gradient(90deg, rgba(0,0,0,.55) 0 8px, transparent 8px 18px) bottom / 100% 9px no-repeat,
+    linear-gradient(150deg, var(--shot, #4a5570), rgba(0,0,0,.6));
+}
+.hud-media-body { padding: 12px 16px; overflow: auto; }
+.hud-media-kind {
+  font-size: 10.5px; letter-spacing: .07em; text-transform: uppercase;
+  opacity: .55; margin-bottom: 6px;
+}
+.hud-media-desc { font-size: 13px; line-height: 1.55; }

@@ -7,9 +7,9 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName } from '../utils.js?v=22.70.10';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.70.10';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=22.70.10';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName } from '../utils.js?v=22.73.10';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.73.10';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=22.73.10';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -19,7 +19,7 @@ function hudRelField(obj) {
   return '';
 }
 
-function parseRelationList(raw) {
+export function parseRelationList(raw) {
   if (!hudFilled(raw)) return [];
   const source = String(raw)
     .replace(/[•●▪◦]/g, ';')

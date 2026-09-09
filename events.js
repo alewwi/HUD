@@ -11,14 +11,35 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache } from './avatars.js?v=22.70.10';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.70.10';
-import { getTheme, themeVars, presetRowHTML, THEME_KEYS } from './themes.js?v=22.70.10';
-import { settings, defaultSettings } from './settings.js?v=22.70.10';
-import { getWorldVotes } from './render/world.js?v=22.70.10';
+import { invalidateAvatarCache } from './avatars.js?v=22.73.10';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.73.10';
+import { openPhoneMediaViewer } from './render/phone.js?v=22.73.10';
+import { getTheme, themeVars, presetRowHTML, THEME_KEYS } from './themes.js?v=22.73.10';
+import { settings, defaultSettings } from './settings.js?v=22.73.10';
+import { getWorldVotes } from './render/world.js?v=22.73.10';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
+
+// Накопитель между срабатываниями наблюдателя. Пока модель печатает ответ,
+// characterData-мутации идут десятками в секунду, и раньше на каждый кадр
+// уходил полный разбор сообщения — результат тот же, работа настоящая.
+// Копим задетые сообщения и разбираем их пачкой: после короткой тишины, но
+// не реже потолка, иначе во время непрерывного стрима разбор не случится
+// вообще и карточка не появится, пока модель не замолчит.
+const ЖДУЩИЕ = new Set();
+let разборТаймер = 0;
+let разборНачат = 0;
+let аватаркиМенялись = false;
+const РАЗБОР_ТИШИНА = 120;
+const РАЗБОР_ПОТОЛОК = 600;
+
+function отменитьРазбор() {
+  if (разборТаймер) { clearTimeout(разборТаймер); разборТаймер = 0; }
+  разборНачат = 0;
+  ЖДУЩИЕ.clear();
+  аватаркиМенялись = false;
+}
 
 export function initGlobalEvents(ctx) {
   // settings и getWorldVotes раньше брались из ctx, но index.js их туда не
@@ -323,6 +344,15 @@ export function initGlobalEvents(ctx) {
         view.classList.remove('is-chat-open');
       }
     };
+
+    // Вложение в переписке: снимок или ролик. Настоящего файла нет — по клику
+    // показываем описание, которое написала модель.
+    const media = e.target.closest('.hud-msg-media');
+    if (media) {
+      e.preventDefault();
+      openPhoneMediaViewer(media);
+      return;
+    }
 
     const participantsToggle = e.target.closest('.hud-phone-title-group');
     if (participantsToggle && participantsToggle.querySelector('.hud-phone-participants-list')) {
@@ -739,6 +769,9 @@ export function initObserver(ctx, chatContainer) {
           schedulePerformanceRefresh, getPerformanceObserver } = ctx;
   if (observer) {
     observer.disconnect();
+    // Копилка привязана к прежнему контейнеру: её содержимое больше не имеет
+    // смысла, а отложенный разбор дёрнул бы отсоединённые узлы.
+    отменитьРазбор();
   }
 
   observer = new MutationObserver((mutations) => {
@@ -779,13 +812,18 @@ export function initObserver(ctx, chatContainer) {
     }
 
     if (!touchedMessages.size) return;
-    if (avatarChanged) invalidateAvatarCache();
+    touchedMessages.forEach(mes => ЖДУЩИЕ.add(mes));
+    if (avatarChanged) аватаркиМенялись = true;
 
-    // Не запускаем processMessage десятки раз подряд
-    // на одной пачке DOM-изменений.
-    requestAnimationFrame(() => {
+    const разобрать = () => {
+      разборТаймер = 0;
+      разборНачат = 0;
+      const пачка = [...ЖДУЩИЕ];
+      ЖДУЩИЕ.clear();
+      if (аватаркиМенялись) { invalidateAvatarCache(); аватаркиМенялись = false; }
+
       const performanceActive = isPerformanceModeActive(chatContainer);
-      touchedMessages.forEach(mes => {
+      пачка.forEach(mes => {
         if (!mes.isConnected) return;
         // В Performance Mode старые сообщения не гоняем через полный процессор на каждую
         // внутреннюю мутацию. IntersectionObserver обработает их, когда они приблизятся к экрану.
@@ -794,7 +832,14 @@ export function initObserver(ctx, chatContainer) {
       });
       if (performanceActive) refreshPerformanceMessageClasses();
       schedulePerformanceRefresh();
-    });
+    };
+
+    const сейчас = Date.now();
+    if (!разборНачат) разборНачат = сейчас;
+    if (разборТаймер) clearTimeout(разборТаймер);
+    // Ждём тишины, но если поток мутаций не прекращается — разбираем по потолку.
+    const осталось = Math.max(0, РАЗБОР_ПОТОЛОК - (сейчас - разборНачат));
+    разборТаймер = setTimeout(разобрать, Math.min(РАЗБОР_ТИШИНА, осталось));
   });
 
   observer.observe(chatContainer, {
@@ -804,6 +849,16 @@ export function initObserver(ctx, chatContainer) {
     characterDataOldValue: false
   });
 }
+
+// Плитка вложения объявлена role="button" — значит обязана открываться и
+// с клавиатуры, иначе роль обещает то, чего нет.
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const media = e.target && e.target.closest && e.target.closest('.hud-msg-media');
+  if (!media) return;
+  e.preventDefault();
+  openPhoneMediaViewer(media);
+});
 
 export function initTavernOSEvents(ctx) {
   const { safeProcessMessage, getChatContainer } = ctx;

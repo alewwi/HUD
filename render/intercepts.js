@@ -3,8 +3,8 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHasMeaningfulValue } from '../utils.js?v=22.70.10';
-import { overrideAvatarUrl } from '../avatars.js?v=22.70.10';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue } from '../utils.js?v=22.73.10';
+import { overrideAvatarUrl } from '../avatars.js?v=22.73.10';
 
 // Кружок отправителя в перехвате: ручная аватарка фоном либо инициал.
 // Разметка и классы прежние — картинку прячет за собой класс has-img.
@@ -17,6 +17,31 @@ function interceptFace(sender) {
     '>' + escapeHtml(letter) + '</div>';
 }
 
+// Кто участвует в перехваченной переписке. Модель поле participants почти
+// никогда не присылает — а строки сообщений всегда вида «А -> Б: текст»,
+// то есть состав известен и без неё. Раньше без этого поля шапка просто
+// переставала быть кнопкой: нажимать было не на что.
+export function interceptParticipants(intercept) {
+  const явные = String((intercept && intercept.participants) || '')
+    .split(/[;,]/).map(v => v.trim()).filter(Boolean);
+  if (явные.length >= 2) return явные.join('; ');
+
+  const имена = [];
+  const добавить = (raw) => {
+    const v = String(raw || '').replace(/\[[^\]]*\]/g, '').trim();
+    if (!v || v.length > 40 || /^unknown$/i.test(v)) return;
+    if (!имена.some(x => x.toLowerCase() === v.toLowerCase())) имена.push(v);
+  };
+  for (const raw of (Array.isArray(intercept && intercept.messages) ? intercept.messages : [])) {
+    const первая = String(raw || '').split('|')[0];
+    const m = первая.match(/^\s*([^:]+?)\s*(?:->|→)\s*([^:]+?)\s*:/);
+    if (m) { добавить(m[1]); добавить(m[2]); continue; }
+    const один = первая.match(/^\s*([^:]{1,40}?)\s*:/);
+    if (один) добавить(один[1]);
+  }
+  return имена.length >= 2 ? имена.join('; ') : '';
+}
+
 export function buildInterceptsHTML(interceptsData, uid, isChecked) {
   let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-phone-mockup intercept-mode">`;
   if (!interceptsData || interceptsData.length === 0) {
@@ -26,6 +51,8 @@ export function buildInterceptsHTML(interceptsData, uid, isChecked) {
   let chatBodies = ``;
 
   interceptsData.forEach((intercept, idx) => {
+    // Состав переписки: из поля модели, а если его нет — из самих сообщений.
+    const состав = interceptParticipants(intercept);
     let targetName = (intercept.target || 'Unknown').replace(/<[^>]+>/g, '').trim(), chatName = (intercept.chatName || 'Chat').replace(/<[^>]+>/g, '').trim();
     // Для перехвата показываем именно контакт, а не владельца телефона.
     // Направление сообщений ниже не меняем: target по-прежнему определяет владельца.
@@ -60,7 +87,7 @@ export function buildInterceptsHTML(interceptsData, uid, isChecked) {
       <div class="hud-phone-statusbar"><span class="hud-phone-time">${escapeHtml(latestTime)}</span><span class="hud-phone-owner-label intercept-status">📡 ПЕРЕХВАТ (${escapeHtml(targetName)})</span><div class="hud-phone-status-icons"><span class="hud-intercept-icon">⚠</span></div></div>
       <div class="hud-phone-header hud-intercept-header">
         <span class="hud-phone-back hud-intercept-icon">⟨</span>
-        <div class="hud-phone-title-group" ${intercept.participants ? 'style="cursor:pointer;" title="Нажми, чтобы увидеть участников"' : ''}><span class="hud-phone-name">${defeatWI(escapeHtml(chatName))} ${intercept.participants ? '<span style="font-size:0.8em; opacity:0.7;">▾</span>' : ''}</span>${intercept.participants ? `<div class="hud-phone-participants-list">👥 Участники: ${escapeHtml(intercept.participants)}</div>` : ''}</div>
+        <div class="hud-phone-title-group" ${состав ? 'style="cursor:pointer;" title="Нажми, чтобы увидеть участников"' : ''}><span class="hud-phone-name">${defeatWI(escapeHtml(chatName))} ${состав ? '<span style="font-size:0.8em; opacity:0.7;">▾</span>' : ''}</span>${состав ? `<div class="hud-phone-participants-list">👥 Участники: ${escapeHtml(состав)}</div>` : ''}</div>
         <span class="hud-phone-options hud-intercept-icon">⋮</span>
       </div>
       <div class="hud-phone-chat-area">`;

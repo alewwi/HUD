@@ -6,7 +6,7 @@
 // какие ключи активации у неё будут и как выглядит запись в формате World Info.
 // Сеть и диалог выбора книги живут в index.js: там есть контекст SillyTavern.
 
-import { escapeHtml } from './utils.js?v=22.70.10';
+import { escapeHtml } from './utils.js?v=22.73.10';
 
 // Уже виденные записи за эту сессию. Карточки отрисовываются сверху вниз,
 // поэтому первая встреча текста и есть его появление в истории. Ключ —
@@ -133,4 +133,101 @@ export function loreAlreadyHas(book, content) {
   if (!target) return false;
   const entries = (book && book.entries) || {};
   return Object.values(entries).some(e => norm(e && e.content) === target);
+}
+
+// --- Генерация записи моделью -----------------------------------------------
+//
+// Кнопка «Сгенерировать» просит модель дописать к сухому факту заголовок,
+// ключи активации и связный текст с контекстом. Ответ модели разбирается
+// здесь же: запрос и разбор должны меняться вместе, иначе первая же правка
+// формата ломает вторую половину.
+
+// Убираем из текста сообщения наш собственный блок [HUD]: в контексте нужна
+// проза, а не JSON, который мы сами и сгенерировали ходом раньше.
+export function stripHudBlock(text) {
+  return String(text || '').replace(
+    /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)[\s\S]*?(?:(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)|$)/gi, '').trim();
+}
+
+// Запрос к модели. Пишем по-английски: инструкции модели держатся лучше, а
+// язык самой записи задаём отдельным требованием — по языку истории.
+export function buildLoreGenPrompt({ fact, keys, messages, userName, charName }) {
+  // Сообщения приходят из чата как есть — с разметкой, картинками и кнопками
+  // интерфейса. Модели нужна проза: теги режем, пробелы схлопываем.
+  const проза = (t) => String(t || '')
+    .replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/&nbsp;/gi, ' ')
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim();
+
+  const контекст = (Array.isArray(messages) ? messages : [])
+    .map(m => ({ name: m.name || '?', text: проза(m.text).slice(0, 900) }))
+    .filter(m => m.text)
+    .map(m => `${m.name}: ${m.text}`)
+    .join('\n\n');
+
+  // Блоки собираем списком и склеиваем пустой строкой: слипшиеся секции модель
+  // читает как один абзац и путает факт с контекстом.
+  const блоки = [
+    'Write ONE permanent World Info (lorebook) entry for an ongoing roleplay.',
+    'FACT TO RECORD (this is the point of the entry, do not contradict it):\n' + String(fact || '').trim(),
+    keys && keys.length ? 'NAMES ALREADY INVOLVED: ' + keys.join(', ') : '',
+    userName || charName ? `PROTAGONISTS: user = ${userName || '?'}, character = ${charName || '?'}` : '',
+    контекст ? 'RECENT STORY (oldest first, newest last):\n' + контекст : '',
+    [
+      'Answer with ONE JSON object and nothing else — no prose, no code fence:',
+      '{',
+      '  "title": "short entry name, 2-5 words, no quotes",',
+      '  "keys": ["word", "word"],',
+      '  "content": "the entry text"',
+      '}',
+    ].join('\n'),
+    [
+      'Rules:',
+      '- Write "title" and "content" in the language of the story above.',
+      '- "content": 2-5 sentences. State what happened, who is involved, who knows and who does not, and why it matters later. No spoilers about the future, no advice to the writer.',
+      '- "keys": 3-6 activation words that literally occur in the story text — names, places, objects. No generic words like "секрет" or "he". No {{macros}}.',
+      '- Invent nothing that is not in the fact or the story above.',
+    ].join('\n'),
+  ].filter(Boolean);
+
+  return блоки.join('\n\n');
+}
+
+// Разбор ответа. Модель почти всегда добавляет что-то вокруг JSON — кодовый
+// забор, извинения, рассуждения. Ищем первый сбалансированный объект.
+export function parseLoreGenResponse(raw) {
+  const text = String(raw || '').replace(/<think[\s\S]*?<\/think>/gi, '');
+  const start = text.indexOf('{');
+  if (start < 0) return null;
+  let depth = 0, inStr = false, esc = false, end = -1;
+  for (let i = start; i < text.length; i++) {
+    const ch = text[i];
+    if (esc) { esc = false; continue; }
+    if (ch === '\\') { esc = true; continue; }
+    if (ch === '"') { inStr = !inStr; continue; }
+    if (inStr) continue;
+    if (ch === '{') depth++;
+    else if (ch === '}') { depth--; if (!depth) { end = i; break; } }
+  }
+  if (end < 0) return null;
+  let parsed;
+  try { parsed = JSON.parse(text.slice(start, end + 1)); } catch (_) { return null; }
+  if (!parsed || typeof parsed !== 'object') return null;
+
+  const content = String(parsed.content ?? parsed.text ?? '').trim();
+  if (!content) return null;
+  const title = String(parsed.title ?? parsed.name ?? '').trim().replace(/^["'«»]+|["'«»]+$/g, '');
+  const keysRaw = Array.isArray(parsed.keys) ? parsed.keys
+    : String(parsed.keys ?? parsed.keywords ?? '').split(/[;,]/);
+  const keys = [];
+  for (const k of keysRaw) {
+    const v = String(k || '').trim().replace(/^["'«]+|["'»]+$/g, '');
+    // Макросы ключом не работают: в тексте сообщения их нет.
+    if (v.length < 2 || /\{\{.*\}\}/.test(v)) continue;
+    if (!keys.some(x => x.toLowerCase() === v.toLowerCase())) keys.push(v);
+  }
+  return { title, keys: keys.slice(0, 8), content };
 }

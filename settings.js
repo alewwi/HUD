@@ -42,8 +42,14 @@ export const defaultSettings = {
   enableUserBlock: true,
   enableMemory: true, // Включаем Память
   performanceMode: true, // Автоматическая оптимизация чатов от 200 сообщений
+  // В Performance Mode карточка, уехавшая дальше полутора экранов, сворачивается
+  // в заглушку своей высоты и собирается заново при возвращении.
+  virtualizeCards: true,
   hudsToKeep: 2,
   regenContextMessages: 6,
+  // Сколько последних сообщений уходит модели, когда она пишет запись
+  // лорбука по кнопке «Написать моделью». 0 — вообще без контекста сцены.
+  loreContextMessages: 10,
   regenProfileId: '',
   hudMaxTokens: 8192,
   hudLorebooks: [],
