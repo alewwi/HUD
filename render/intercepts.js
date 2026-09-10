@@ -3,8 +3,8 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHasMeaningfulValue } from '../utils.js?v=22.73.10';
-import { overrideAvatarUrl } from '../avatars.js?v=22.73.10';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue } from '../utils.js?v=22.73.12';
+import { overrideAvatarUrl } from '../avatars.js?v=22.73.12';
 
 // Кружок отправителя в перехвате: ручная аватарка фоном либо инициал.
 // Разметка и классы прежние — картинку прячет за собой класс has-img.

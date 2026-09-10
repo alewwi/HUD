@@ -4,6 +4,19 @@
 // граф отношений, память). Вынесено из index.js без изменения поведения.
 
 /** Экранирование через DOM: браузер сам решает, что считать опасным. */
+// Не выпускать касания наружу. SillyTavern ловит свайпы на уровне document
+// (библиотека swiped-events) и переключает по ним вариант ответа. Внутри
+// наших окон и карточек горизонтальное движение пальцем — это прокрутка
+// вкладок или перетаскивание ползунка, а не «покажи другой ответ».
+export function guardTouchSwipe(el) {
+  if (!el || el.dataset.swipeGuard === 'true') return el;
+  ['touchstart', 'touchmove', 'touchend', 'touchcancel'].forEach(type => {
+    el.addEventListener(type, e => e.stopPropagation(), { passive: true });
+  });
+  el.dataset.swipeGuard = 'true';
+  return el;
+}
+
 export function escapeHtml(str) { if (!str) return ''; const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
 
 // Схема ждёт строку «Метка: значение; ...», но модель нередко отдаёт объект

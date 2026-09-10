@@ -7,9 +7,9 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=22.73.10';
-import { getSafeUserName, mapKey } from './utils.js?v=22.73.10';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=22.73.10';
+import { settings } from './settings.js?v=22.73.12';
+import { getSafeUserName, mapKey } from './utils.js?v=22.73.12';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=22.73.12';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.

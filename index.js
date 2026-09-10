@@ -1,21 +1,21 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.73.10';
-import { escapeHtml, getSafeUserName } from './utils.js?v=22.73.10';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.73.10';
-import { initGlobalEvents, initObserver, initTavernOSEvents } from './events.js?v=22.73.10';
-import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.73.10';
-import { buildDiaryHTML, hudHasMeaningfulDiary } from './render/diary.js?v=22.73.10';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.73.10';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.73.10';
-import { buildMemoryHTML } from './render/memory.js?v=22.73.10';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.73.10';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.73.10';
-import { hudHasRelations } from './render/relations-graph.js?v=22.73.10';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.73.10';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.73.10';
-import { applyThemeClass, presetRowHTML } from './themes.js?v=22.73.10';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.73.10';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.73.12';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=22.73.12';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.73.12';
+import { initGlobalEvents, initObserver, initTavernOSEvents } from './events.js?v=22.73.12';
+import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.73.12';
+import { buildDiaryHTML, hudHasMeaningfulDiary } from './render/diary.js?v=22.73.12';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.73.12';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.73.12';
+import { buildMemoryHTML } from './render/memory.js?v=22.73.12';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.73.12';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.73.12';
+import { hudHasRelations } from './render/relations-graph.js?v=22.73.12';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.73.12';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.73.12';
+import { applyThemeClass, presetRowHTML } from './themes.js?v=22.73.12';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.73.12';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -2846,7 +2846,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=22.73.10');
+        const mod = await import('./render/archive.js?v=22.73.12');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -3172,6 +3172,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         </div>
       </div>`;
     document.body.appendChild(overlay);
+    guardTouchSwipe(overlay);
 
     const $ = (s) => overlay.querySelector(s);
     const close = () => { loreDialogOpen = false; overlay.remove(); document.removeEventListener('keydown', поКлавише); };

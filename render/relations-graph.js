@@ -7,9 +7,9 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName } from '../utils.js?v=22.73.10';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.73.10';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=22.73.10';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe } from '../utils.js?v=22.73.12';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.73.12';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=22.73.12';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -611,6 +611,10 @@ export function setRelGraphExpandedState(graphEl, expanded) {
     if (graphEl.parentNode !== document.body) {
       document.body.appendChild(graphEl);
     }
+    // В body граф выходит из-под защиты карточки: перетаскивание и щипок
+    // иначе читались бы как свайп сообщения.
+    guardTouchSwipe(graphEl);
+    if (backdrop) guardTouchSwipe(backdrop);
 
     backdrop.classList.add('visible');
 

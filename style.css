@@ -3530,8 +3530,19 @@
 .hud-phone-subtabs { align-items: center; }
 .hud-phone-subtab { display: inline-flex; align-items: center; justify-content: center; height: fit-content; }
 
-/* Блокировка свайпов ST внутри карточки */
-.no-swipe { touch-action: pan-y; overscroll-behavior-x: none; }
+/* Блокировка свайпов ST внутри карточки.
+
+   Раньше здесь стояло touch-action: pan-y — «разрешено только вертикальное
+   протягивание». Свайпы SillyTavern это не останавливало (их ловит библиотека
+   на уровне document, а не браузерный жест), зато запрещало пальцу листать
+   наши же горизонтальные полосы: вкладки карточки и подвкладки переписок на
+   телефоне прокрутить было нельзя, до дальних вкладок не добраться.
+
+   Настоящая защита — обработчики touch с stopPropagation на самой карточке
+   (см. index.js): выше карточки касание не уходит, и ST его не видит. */
+.no-swipe { overscroll-behavior-x: none; }
+/* Полосы вкладок листаются пальцем по горизонтали. */
+.hud-tabs-header, .hud-phone-subtabs { touch-action: pan-x; }
 
 /* Нейтрализуем авто-подсветку Lorebook от SillyTavern, чтобы не ломались вкладки */
 .hud-os-card .world_info, .hud-os-card .ch_name,

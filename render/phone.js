@@ -3,9 +3,9 @@
 // Домен «Телефон»: вкладки чатов, переписки, счётчики непрочитанного,
 // участники. Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=22.73.10';
-import { settings } from '../settings.js?v=22.73.10';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.73.10';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe } from '../utils.js?v=22.73.12';
+import { settings } from '../settings.js?v=22.73.12';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.73.12';
 
 // Кружок собеседника. Если для имени назначена ручная аватарка, подставляем
 // её фоном прямо в существующий элемент: разметка и классы не меняются, а
@@ -38,7 +38,7 @@ function avaFace(name, cls, fallbackBg, inner) {
     `" data-ava-bg="${escapeHtml(bg)}" style="background-image:${url ? `url('${url}')` : bg}"` +
     `>${escapeHtml(letter)}${inner || ''}</span>`;
 }
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=22.73.10';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=22.73.12';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -883,6 +883,7 @@ export function openPhoneMediaViewer(tile) {
       <div class="hud-modal-foot"><button type="button" class="hud-modal-btn cancel">Закрыть</button></div>
     </div>`;
   document.body.appendChild(overlay);
+  guardTouchSwipe(overlay);
 
   const закрыть = () => { overlay.remove(); document.removeEventListener('keydown', поКлавише); };
   const поКлавише = (e) => { if (e.key === 'Escape') закрыть(); };

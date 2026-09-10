@@ -6,8 +6,8 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml } from '../utils.js?v=22.73.10';
-import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=22.73.10';
+import { escapeHtml, guardTouchSwipe } from '../utils.js?v=22.73.12';
+import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=22.73.12';
 
 let окноОткрыто = false;
 
@@ -189,6 +189,7 @@ export function openArchiveDialog() {
       </div>
     </div>`;
   document.body.appendChild(overlay);
+  guardTouchSwipe(overlay);
 
   const $ = (s) => overlay.querySelector(s);
   const тело = $('.hud-arc-body');

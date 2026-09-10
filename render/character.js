@@ -4,9 +4,9 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue } from '../utils.js?v=22.73.10';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.73.10';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.73.10';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue } from '../utils.js?v=22.73.12';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.73.12';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.73.12';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает'];
 
