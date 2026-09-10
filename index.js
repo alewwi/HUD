@@ -1,21 +1,22 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.73.12';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=22.73.12';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.73.12';
-import { initGlobalEvents, initObserver, initTavernOSEvents } from './events.js?v=22.73.12';
-import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.73.12';
-import { buildDiaryHTML, hudHasMeaningfulDiary } from './render/diary.js?v=22.73.12';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.73.12';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.73.12';
-import { buildMemoryHTML } from './render/memory.js?v=22.73.12';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.73.12';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.73.12';
-import { hudHasRelations } from './render/relations-graph.js?v=22.73.12';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.73.12';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.73.12';
-import { applyThemeClass, presetRowHTML } from './themes.js?v=22.73.12';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.73.12';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.82.1';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=22.82.1';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.82.1';
+import { initGlobalEvents, initObserver, initTavernOSEvents } from './events.js?v=22.82.1';
+import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.82.1';
+import { mergeCarryOver } from './render/carryover.js?v=22.82.1';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.82.1';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.82.1';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.82.1';
+import { buildMemoryHTML } from './render/memory.js?v=22.82.1';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.82.1';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.82.1';
+import { hudHasRelations } from './render/relations-graph.js?v=22.82.1';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.82.1';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.82.1';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.82.1';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.82.1';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -28,6 +29,9 @@ import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.73.
   // Кладём их сюда, а processMessage сразу после вставки переносит на элемент
   // карточки. Между этими двумя шагами ничего не происходит.
   let lastLazyThunks = null;
+  // baseId последней собранной карточки: нужен, чтобы подпись разметки не
+  // зависела от случайных идентификаторов.
+  let lastRenderBaseId = null;
   // Сообщение, для которого сейчас собирается HUD. Нужно, чтобы дотянуться
   // до предыдущего и узнать, какая там была погода.
   let renderTargetMes = null;
@@ -103,7 +107,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
 - 🧠 MEMORY SCOPE: mood and route track ONLY {{user}} and {{char}}. If one is absent from the scene, emit empty for them rather than inventing off-screen tracking. Memory labels must use their real names, never "Вы", "User" or "главный персонаж".
 - 🕸️ RELATION WEB: every character AND the user block must emit Rel covering every other named person who matters now. Format exactly "Имя: как ЭТОТ человек относится к нему", separated by ;. Bidirectional: if A lists B, B must exist in "characters" with A in their Rel. Anyone named inside any Rel must also appear in "characters". Never omit Rel or write "empty" while other named people exist.
 - 🧠 KNOWLEDGE BOUNDARIES: each character knows only what they plausibly could. Never leak another's private thoughts, messages or plans without a believable path.
-- 🛑 NSFW LIFECYCLE: "W", "NSFW_Det", "SexRev" and the user's "UW" are active ONLY during intimacy or high arousal; once the scene cools down set them to "empty". EXCEPTION: "Kink", "Fet", "NoGo", "NoTurn" are stable traits — once known they stay filled every turn.
+- 🛑 NSFW LIFECYCLE: "W", "NSFW_Det", "SexRev", "SceneState", "BodyMap", "Aftercare", "bodyDiary" and the user's "UW" are active ONLY during intimacy or high arousal; once the scene cools down set them to "empty". EXCEPTION: "Kink", "Fet", "NoGo", "NoTurn" are stable traits — once known they stay filled every turn.
 - 🔗 KINK vs FETISH: a KINK is an ACTIVITY — practice, scenario, dynamic (roleplay, BDSM, bondage, toys, sensory play, power exchange). A FETISH is a THING — object, material, body part or setting required for arousal or strongly amplifying it (stockings, latex, leather, feet, hair, neck, medical settings). Activity → "Kink", thing → "Fet". Refusals go to "NoGo", things that simply leave them cold go to "NoTurn".
 - 🌦️ FORECAST & HOROSCOPE: "forecast" is four rows — утро, день, вечер, ночь — as "Период | Погода | Температура | Короткая заметка", where the weather word is one of: ясно, солнечно, облачно, пасмурно, дождь, ливень, морось, гроза, снег, метель, туман, ветрено. Keep it consistent with scene.Wth for the current part of the day. "horoscope" is one row per each of the 12 signs: "Знак | что ждёт сегодня | тон", тон = удача, неудача or ровно. "prediction" closes the block with a line or two. This block is newspaper-back-page entertainment: playful, superstitious, never a directive, and nothing in the story must come true because of it.
 - 👁️ HIDDEN SUBTEXT ("D"): not a second thoughts field. It is a concrete ACTION performed right now, alongside what the scene openly shows, that gives away something unsaid. It need not contradict the character — only be unspoken: a deliberate concealed act, an involuntary tell, an ordinary gesture whose real reason they would deny, or behaviour undercutting what they just claimed. Draw it from THIS scene and from what is within reach. Write the visible act and what it reveals in one line. If nothing is hidden, use "empty".
@@ -149,12 +153,18 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
    "SexLast": "[Last sex as 'Дата: ...; Партнёр: ...; Что было: ...; Финал: ...']",
    "SexCount": "[Lifetime number of partners]",
    "SexReg": "[Sexual regularity/libido]",
+   "Lines": "[3-5 of this character's most characteristic lines from the recent story, quoted verbatim, each in «» and separated by ;. Pick the ones that show HOW they speak — rhythm, slang, cruelty, tenderness — not what happened. Skip the field if the character has not spoken yet.]",
+   "Trust": "[Trust toward each other named character, 0-100, as 'Имя: число': 'Софи: 82; Ричард: 9'. Not the same as Rel: one can love and not trust. Only characters this one actually knows. Separate by ;]",
+   "Fears": "[What this character is afraid of RIGHT NOW, each as 'Страх: насколько': 'Потерять Софи: сильно; Отец узнает: постоянно'. Fears of this scene, not lifelong phobias unless they surfaced. Separate by ;]",
+   "SceneState": "[DURING INTIMACY ONLY, otherwise 'empty'. Where the scene is right now — exactly one of: foreplay, act, climax, aftercare, afterglow]",
+   "BodyMap": "[DURING INTIMACY. Sensitivity map of THIS character's body, each zone as 'Зона: 0-10': 'Шея: 9; Бёдра: 7; Поясница: 4'. Only zones the story actually touched or named. Separate by ;]",
    "W": "[DURING INTIMACY. Each as 'Метка: значение': 'Penis state: ...; Volume: ...; Smell: ...; Traces: ...; Arousal level: ...; Partner: ...; Protection: ...'. Separate by ;]",
    "Kink": "[STABLE TRAIT, keep filled. Activities the character enjoys, each as 'Метка: насколько охотно и как далеко': 'Ролевые игры: охотно, любит сценарий врач-пациент; Связывание: только сама сверху'. 2+ items when known, no upper limit; separate by ;]",
    "Fet": "[STABLE TRAIT. Specific objects, materials, body parts or settings needed for arousal, each as 'Метка: значение': 'Чулки: обязательное условие; Шея: сильный триггер'. 2+ items when known, no upper limit; separate by ;]",
    "NoGo": "[STABLE TRAIT. Hard limits, each as 'Метка: причина': 'Боль: панический страх; Втроём: не делится'. No upper limit; separate by ;]",
    "NoTurn": "[STABLE TRAIT. Turn-offs — not forbidden, just kills arousal: 'Спешка: сразу теряет настрой'. No upper limit; separate by ;]",
    "NSFW_Det": "[AFTERMATH ONLY. Each as 'Метка: значение': 'Sensitivity: ...; Readiness for round 2: ...; Physical aftermath: ...; Emotional aftermath: ...'. Separate by ;]",
+   "Aftercare": "[AFTERMATH ONLY. What this character needs now that it is over — touch, water, silence, words, or nothing at all. One short phrase, e.g. 'Молча обнять и не говорить' or 'Ничего не нужно, хочет остаться одна']",
    "SexRev": "[AFTERMATH ONLY: a written review of the sex in full sentences, ending with a 5-star rating, e.g. 'Оценка: ★★★★☆']"
   }
  ]`;
@@ -283,6 +293,14 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
    "text": "[First-person private entry about the author's own day, state, emotions, doubts, decisions. 4-7 sentences minimum. Never an omniscient narrator.]",
    "aboutUser": "[Private first-person subsection about {{user}} only: what the author feels, wants, fears, notices, remembers. 'empty' if nothing meaningful this turn.]",
    "mood": "[One short dominant mood word: sadness, stress, anger, panic, calm, relief, guilt, longing, joy]"
+  }
+ ],
+ "bodyDiary": [
+  {
+   "author": "[Character name — NEVER {{user}}]",
+   "time": "[Date/time]",
+   "text": "[DURING OR RIGHT AFTER INTIMACY ONLY. First-person entry about the body: what it wanted, what it got, where it still burns, what surprised it, what it is ashamed of. Frank, physical, no euphemisms. 3-6 sentences. Outside intimacy leave this array empty.]",
+   "mood": "[One word: желание, стыд, нежность, опустошение, триумф, тревога]"
   }
  ]`;
     }
@@ -926,6 +944,9 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     if (data.characters.length === 0 && (!data.intercepts || data.intercepts.length === 0) && data.diary.length === 0 && data.dreams.length === 0 && Object.values(data.world || {}).every(v => !v || !v.length) && Object.keys(data.scene).length === 0 && Object.keys(data.user || {}).length === 0 && !hasMemory && !hasPhone) return '';
 
     const baseId = Date.now() + '-' + Math.random().toString(36).slice(2);
+    // Идентификаторы у каждой сборки свои. Чтобы можно было сравнить две
+    // разметки по существу, запоминаем, каким был baseId в этот раз.
+    lastRenderBaseId = baseId;
     let osSubtitleHtml = '', mainCharName = '';
     if (data.characters.length > 0) mainCharName = data.characters[0]['Имя'] || '';
 
@@ -1138,11 +1159,16 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
           <div class="hud-theme-presets-title">Готовые темы</div>
           <div class="hud-theme-presets-row">${presetRowHTML(settings.themePreset)}</div>
           <div class="hud-theme-presets-note">Тема просто выставляет ползунки ниже — после неё всё можно править руками.</div>
+          <div class="hud-theme-packs">
+            ${THEME_CATEGORIES.map(c => `<label title="Показывать темы набора «${c.label}»"><input type="checkbox" data-theme-pack="${c.id}" ${(settings.themePacks && settings.themePacks[c.id] === false) ? '' : 'checked'}> ${c.label}</label>`).join('')}
+          </div>
           <div class="hud-theme-acts">
             <button type="button" class="hud-theme-act" data-theme-act="save" title="Запомнить текущие ползунки для выбранной темы">💾 Запомнить правки</button>
             <button type="button" class="hud-theme-act" data-theme-act="revert" title="Вернуть теме её исходные значения">↺ Вернуть тему</button>
             <button type="button" class="hud-theme-act own" data-theme-act="mine" title="Сохранить текущие настройки отдельной темой «Своя»">★ Сохранить свою тему</button>
             ${settings.customTheme ? '<button type="button" class="hud-theme-act danger" data-theme-act="forget" title="Удалить сохранённую свою тему">✕ Удалить свою</button>' : ''}
+            <button type="button" class="hud-theme-act" data-theme-act="export" title="Сохранить текущую тему в файл — его можно переслать">⭳ Файл темы</button>
+            <button type="button" class="hud-theme-act" data-theme-act="import" title="Загрузить тему из файла">⭱ Из файла</button>
           </div>
         </div>
         <div class="hud-theme-system">
@@ -1433,6 +1459,14 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         uid, (active) => buildDiaryHTML(data.diary, uid, active));
     }
 
+    // Дневник тела появляется сам, когда в нём есть записи: модель пишет их
+    // только во время близости и сразу после, вне сцены вкладки просто нет.
+    if (hudHasMeaningfulBodyDiary(data.bodyDiary) && settings.enableDiary) {
+      const uid = `bodydiary-${baseId}`;
+      addTab(`<div class="hud-tab hud-body-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🕯 Дневник тела</div>`,
+        uid, (active) => buildBodyDiaryHTML(data.bodyDiary, uid, active));
+    }
+
     if (hudHasMeaningfulDreams(data.dreams) && settings.enableDreams) {
       const uid = `dream-${baseId}`;
       addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🌙 Сны</div>`,
@@ -1453,7 +1487,11 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
 
   function freezeOldHUDs() {
     const scope = cachedChatContainer || document;
-    const allCards = scope.querySelectorAll('.hud-os-card');
+    // Живой просмотр в панели тем — такая же карточка по разметке, но не
+    // сообщение. Если считать и её, настоящая карточка перестаёт быть
+    // последней и каждый раз сворачивается как «старая».
+    const allCards = Array.from(scope.querySelectorAll('.hud-os-card'))
+      .filter(card => !card.closest('.hud-theme-preview'));
     if (allCards.length > 0) {
       for (let i = 0; i < allCards.length - 1; i++) {
         if (allCards[i].dataset.userExpanded === 'true') continue; // пользователь сам раскрыл — не трогаем
@@ -1600,14 +1638,37 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     let hasChanges = false;
     let newHtml = innerHtml;
     let rendered = '';
+    // Подпись нужна и ниже, за пределами разбора блоков, — объявляем здесь.
+    let подпись = '';
     if (parsedHudBlocks.length) {
       parsedHudBlocks.sort((a, b) => b.score - a.score || a.index - b.index);
       const selected = parsedHudBlocks[0];
       renderTargetMes = messageElement;
-      rendered = renderHUD(selected.data);
+      // Списки из прошлых ходов возвращаем на экран перед отрисовкой:
+      // модель роняет их каждый ход, а пользователю нужна цельная картина.
+      // В сохранённый текст и в запрос к модели это не попадает.
+      rendered = renderHUD(mergeCarryOver(selected.data, messageElement));
       renderTargetMes = null;
 
-      if (rendered) {
+      // Если карточка на месте и разметка вышла ровно та же, пересобирать
+      // нечего: убираем сырой блок, который ST вернул в текст, и оставляем
+      // живую карточку со всем её состоянием.
+      const прежняяКарточка = textElement.querySelector('.hud-os-card');
+      подпись = hudRenderSignature(rendered, lastRenderBaseId);
+      const разметкаТаЖе = !!прежняяКарточка && hasCloseTag
+        && !!messageElement.__hudRenderSig
+        && messageElement.__hudRenderSig === подпись;
+
+      if (rendered && разметкаТаЖе) {
+        // Заготовки отложенных вкладок принадлежат новой разметке, а она не
+        // понадобилась: у живой карточки свои, снятые при её сборке.
+        lastLazyThunks = null;
+        stripRawHudKeepCard(textElement);
+        messageElement.__hudSource = innerHtml;
+        if (hasCloseTag || !isLastMes || hudBlocks.length > 1) {
+          messageElement.dataset.hudProcessed = 'true';
+        }
+      } else if (rendered) {
         for (let i = hudBlocks.length - 1; i >= 0; i--) {
           const block = hudBlocks[i];
           const replacement = i === selected.index ? rendered : '';
@@ -1628,9 +1689,20 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     if (hasChanges) {
       // Исходный текст с блоком [HUD] нужен, чтобы карточку можно было
       // выбросить из DOM и собрать заново, когда до неё снова долистают.
-      if (!messageElement.__hudSource) messageElement.__hudSource = innerHtml;
+      // Исходник сообщения нужен виртуализации: свёрнутую карточку она
+      // собирает заново именно из него. Раньше он записывался один раз и
+      // после смены варианта ответа (свайпа) оставался от прежнего варианта —
+      // прокрутил ленту туда-обратно и получил чужой HUD. Обновляем каждый
+      // раз: сюда попадают только проходы, где в тексте есть сырой [HUD].
+      messageElement.__hudSource = innerHtml;
+      // Подпись разметки: по ней следующий проход поймёт, что пересобирать
+      // нечего и карточку можно оставить в покое.
+      messageElement.__hudRenderSig = подпись;
       const normalized = normalizeHudDisplayDom(messageElement, textElement, rendered);
       if (!normalized) textElement.innerHTML = newHtml;
+      // Карточка новая, а открыта в ней должна остаться та же вкладка, что
+      // и до пересборки.
+      applyCardUiState(messageElement);
       textElement.querySelectorAll('.hud-regen-btn').forEach(bindHudRegenButton);
       freezeOldHUDs();
 
@@ -1655,6 +1727,19 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       lastLazyThunks = null;
     }
 
+    // Свайп-жест ST начинается там, где палец коснулся первым, и цель до конца
+    // жеста не меняется. Защиты одной карточки поэтому мало: палец, опущенный
+    // на поля сообщения рядом с ней — на отступ, на строку прозы над карточкой, —
+    // уже вне защиты, и прокрутка HUD оборачивается сменой варианта ответа.
+    // Закрываем сообщение целиком: кнопки-стрелки ◀ ▶ под сообщением остаются,
+    // а случайные подмены прекращаются.
+    if (textElement.querySelector('.hud-os-card') && textElement.dataset.touchFixed !== 'true') {
+      ['touchstart', 'touchmove', 'touchend', 'touchcancel'].forEach(type => {
+        textElement.addEventListener(type, e => e.stopPropagation(), { passive: true });
+      });
+      textElement.dataset.touchFixed = 'true';
+    }
+
     textElement.querySelectorAll('.hud-os-card').forEach(card => {
         if (!card.dataset.touchFixed) {
             card.addEventListener('touchstart', e => e.stopPropagation(), {passive: true});
@@ -1673,6 +1758,175 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
             bar.dataset.swipeGuardBound = 'true';
         });
     });
+  }
+
+  /* ---------------------------------------------------------------------
+     СОСТОЯНИЕ КАРТОЧКИ ПЕРЕЖИВАЕТ ПЕРЕСБОРКУ
+     ---------------------------------------------------------------------
+     Читаем и возвращаем по видимым признакам, а не по внутренним
+     идентификаторам: те при пересборке выдаются заново и никуда не ведут.
+     Вкладку узнаём по подписи, секрет — по заголовку, экран телефона — по
+     имени приложения. */
+
+  const надписьУзла = (el) => (el ? (el.textContent || '').trim().replace(/\s+/g, ' ') : '');
+
+  // Пока возвращаем состояние, собственные клики в запись попадать не
+  // должны: иначе восстановление перезапишет то, что восстанавливает.
+  let возвращаемСостояние = false;
+
+  // Подпись разметки: та же карточка, собранная дважды, отличается только
+  // идентификаторами. Вычёркиваем их — остаётся содержимое.
+  function hudRenderSignature(html, baseId) {
+    if (typeof html !== 'string') return '';
+    return baseId ? html.split(baseId).join('#') : html;
+  }
+
+  function readCardUiState(mes) {
+    const card = mes && mes.querySelector('.hud-os-card');
+    if (!card) return null;
+    const активная = card.querySelector('.hud-tab.active');
+    const свёртка = card.querySelector('.hud-toggle-input');
+    const экран = card.querySelector('.hud-phone-app-view.active');
+    const подвкладка = card.querySelector('.hud-phone-subtab.active');
+    return {
+      вкладка: активная ? надписьУзла(активная) : null,
+      свёрнута: свёртка ? !!свёртка.checked : null,
+      раскрыты: Array.from(card.querySelectorAll('details[open]'))
+        .map(d => надписьУзла(d.querySelector('summary'))).filter(Boolean),
+      секреты: Array.from(card.querySelectorAll('.hud-memory-secret.is-open'))
+        .map(sec => надписьУзла(sec.querySelector('[data-secret-toggle]'))).filter(Boolean),
+      экран: экран ? экран.getAttribute('data-phone-view') : null,
+      подвкладка: подвкладка ? надписьУзла(подвкладка) : null,
+    };
+  }
+
+  function applyCardUiState(mes) {
+    const состояние = mes && mes.__hudUiState;
+    const card = mes && mes.querySelector('.hud-os-card');
+    if (!состояние || !card) return;
+    возвращаемСостояние = true;
+    try {
+      if (состояние.свёрнута !== null) {
+        const свёртка = card.querySelector('.hud-toggle-input');
+        if (свёртка) свёртка.checked = состояние.свёрнута;
+      }
+      // Вкладку возвращаем кликом: отложенные вкладки собираются именно при
+      // открытии, руками класс ставить нельзя — содержимое останется пустым.
+      if (состояние.вкладка) {
+        const цель = Array.from(card.querySelectorAll('.hud-tab'))
+          .find(t => надписьУзла(t) === состояние.вкладка);
+        if (цель && !цель.classList.contains('active')) цель.click();
+      }
+      if (состояние.раскрыты.length) {
+        card.querySelectorAll('details').forEach(d => {
+          if (состояние.раскрыты.includes(надписьУзла(d.querySelector('summary')))) d.open = true;
+        });
+      }
+      if (состояние.секреты.length) {
+        card.querySelectorAll('[data-secret-toggle]').forEach(btn => {
+          if (!состояние.секреты.includes(надписьУзла(btn))) return;
+          const тело = document.getElementById(btn.getAttribute('data-secret-toggle'));
+          if (тело && тело.hidden) btn.click();
+        });
+      }
+      // Телефон лежит внутри своей вкладки, поэтому только после неё.
+      if (состояние.экран) {
+        const иконка = card.querySelector('.hud-phone-app[data-phone-app="' + cssEscapeValue(состояние.экран) + '"]');
+        if (иконка) иконка.click();
+      }
+      if (состояние.подвкладка) {
+        const п = Array.from(card.querySelectorAll('.hud-phone-subtab'))
+          .find(t => надписьУзла(t) === состояние.подвкладка);
+        if (п && !п.classList.contains('active')) п.click();
+      }
+    } catch (err) {
+      console.debug('[TavernOS HUD] состояние карточки вернуть не удалось:', err);
+    } finally {
+      возвращаемСостояние = false;
+    }
+  }
+
+  function cssEscapeValue(v) {
+    return (window.CSS && CSS.escape) ? CSS.escape(v) : String(v).replace(/["\\]/g, String.raw`\  // Remove duplicate HUD cards/raw HUD markup from the *displayed DOM only*.`);
+  }
+
+  // Одна запись на все действия внутри карточки: снимаем состояние после
+  // того, как отработали обработчики вкладок, секретов и телефона.
+  document.addEventListener('click', (e) => {
+    if (возвращаемСостояние) return;
+    const card = e.target && e.target.closest && e.target.closest('.hud-os-card');
+    if (!card) return;
+    const mes = card.closest('.mes');
+    if (!mes) return;
+    setTimeout(() => { if (mes.isConnected) mes.__hudUiState = readCardUiState(mes); }, 0);
+  });
+  // Раскрытие <details> бывает и с клавиатуры — клика там может не быть.
+  document.addEventListener('toggle', (e) => {
+    if (возвращаемСостояние) return;
+    const card = e.target && e.target.closest && e.target.closest('.hud-os-card');
+    if (!card) return;
+    const mes = card.closest('.mes');
+    if (mes) mes.__hudUiState = readCardUiState(mes);
+  }, true);
+
+  // Убирает сырой блок [HUD] из текста, не трогая уже собранную карточку.
+  // Только при наличии закрывающего тега: без него регулярка ест всё до
+  // конца строки и унесла бы карточку вместе с блоком.
+  function stripRawHudKeepCard(textElement) {
+    let убрано = false;
+    // Блоков может оказаться несколько; потолок — чтобы неудачная разметка
+    // не увела в бесконечный круг.
+    for (let попытка = 0; попытка < 4; попытка++) {
+      if (!вырезатьОдинСыройБлок(textElement)) break;
+      убрано = true;
+    }
+    return убрано;
+  }
+
+  // Ищет [HUD]…[/HUD] среди текста ВНЕ карточки и удаляет ровно этот кусок.
+  // Внутрь карточки не заглядываем: там разметка, а не исходник, и любые
+  // совпадения были бы ложными.
+  function вырезатьОдинСыройБлок(textElement) {
+    const обход = document.createTreeWalker(textElement, NodeFilter.SHOW_TEXT, {
+      acceptNode: (node) => (node.parentElement && node.parentElement.closest
+        && node.parentElement.closest('.hud-os-card'))
+        ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+    });
+    const куски = [];
+    let позиция = 0;
+    let узел;
+    while ((узел = обход.nextNode())) {
+      const значение = узел.nodeValue || '';
+      куски.push({ узел, начало: позиция, конец: позиция + значение.length });
+      позиция += значение.length;
+    }
+    if (!куски.length) return false;
+
+    const текст = куски.map(k => k.узел.nodeValue || '').join('');
+    const открыт = текст.match(/(?:\[|<)\s*HUD\s*(?:\]|>)/i);
+    if (!открыт) return false;
+    const закрыт = текст.slice(открыт.index).match(/(?:\[|<)\s*\/\s*HUD\s*(?:\]|>)/i);
+    if (!закрыт) return false;
+    const от = открыт.index;
+    const до = открыт.index + закрыт.index + закрыт[0].length;
+
+    const найти = (поз) => куски.find(k => поз >= k.начало && поз <= k.конец) || куски[куски.length - 1];
+    const а = найти(от);
+    const б = найти(до);
+    if (!а || !б) return false;
+
+    const отрезок = document.createRange();
+    отрезок.setStart(а.узел, Math.max(0, от - а.начало));
+    отрезок.setEnd(б.узел, Math.max(0, до - б.начало));
+
+    // Ради этого всё и затевалось: карточка не должна попасть под нож.
+    const карточки = textElement.querySelectorAll('.hud-os-card');
+    for (const карточка of карточки) {
+      if (отрезок.intersectsNode(карточка)) { отрезок.detach && отрезок.detach(); return false; }
+    }
+
+    отрезок.deleteContents();
+    return true;
   }
 
   // Remove duplicate HUD cards/raw HUD markup from the *displayed DOM only*.
@@ -2574,6 +2828,12 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Таймлайн, настроение двух главных персонажей, маршруты и секреты"><input type="checkbox" id="hud-enable-memory" ${settings.enableMemory ? 'checked' : ''}> 🧠 Память (события, настроение, маршрут, секреты)</label>
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="При 200+ сообщениях отключает тяжёлую повторную обработку старых сообщений, замораживает их анимации/эффекты и обрабатывает HUD по мере прокрутки."><input type="checkbox" id="hud-performance-mode" ${settings.performanceMode ? 'checked' : ''}> ⚡ Performance Mode (200+ сообщений)</label>
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Внутри Performance Mode: карточка, уехавшая дальше полутора экранов от края, разбирается обратно в текст, а на её месте остаётся заглушка той же высоты. При возвращении карточка собирается заново. В DOM живут только те карточки, что рядом с экраном."><input type="checkbox" id="hud-virtualize" ${settings.virtualizeCards !== false ? 'checked' : ''}> 🪟 Держать в DOM только карточки рядом с экраном</label>
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Переписки, секреты, важное, заметки, календарь и новости из прошлых ходов остаются на экране, даже если модель перестала их повторять. Работает только на отрисовке: в запрос к модели не уходит ни одного лишнего символа."><input type="checkbox" id="hud-carry-over" ${settings.carryOver !== false ? 'checked' : ''}> 🧷 Держать списки из прошлых ходов</label>
+        <div class="hud-set-apps">
+          <label title="Сколько предыдущих ходов просматривать. Больше — дольше собирается карточка.">Ходов назад: <input type="number" id="hud-carry-turns" min="0" max="200" value="${settings.carryTurns}" style="width:52px; background:rgba(0,0,0,0.3); border:1px solid var(--hud-border); color:#fff; padding:2px 4px; border-radius:4px;"></label>
+          <label title="Предел длины каждого списка: секретов, заметок, событий календаря и прочего.">Записей в списке: <input type="number" id="hud-carry-items" min="1" max="200" value="${settings.carryMaxItems}" style="width:52px; background:rgba(0,0,0,0.3); border:1px solid var(--hud-border); color:#fff; padding:2px 4px; border-radius:4px;"></label>
+          <label title="Предел длины одной переписки в телефоне и в перехватах.">Сообщений в чате: <input type="number" id="hud-carry-msgs" min="1" max="500" value="${settings.carryMaxMessages}" style="width:52px; background:rgba(0,0,0,0.3); border:1px solid var(--hud-border); color:#fff; padding:2px 4px; border-radius:4px;"></label>
+        </div>
         <div style="font-size:11px;opacity:.68;">Автоматически включается только в чатах от 200 сообщений. Старые блоки остаются функциональными и догружаются при прокрутке.</div>
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Собирается только открытая вкладка. Остальные (Телефон, Память, Мир и так далее) строятся в тот момент, когда вы на них переключаетесь, и дальше остаются готовыми. Заметно легче на карточках с большим HUD."><input type="checkbox" id="hud-lazy-tabs" ${settings.lazyTabs !== false ? 'checked' : ''}> 🗂️ Ленивая загрузка вкладок</label>
         <div class="hud-set-note">
@@ -2846,7 +3106,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=22.73.12');
+        const mod = await import('./render/archive.js?v=22.82.1');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -2898,6 +3158,22 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       settings.regenContextMessages = val; e.target.value = val; saveSettings();
     });
 
+    document.getElementById('hud-carry-over').addEventListener('change', (e) => {
+      settings.carryOver = e.target.checked;
+      saveSettings();
+      processAllMessages();
+    });
+    const числоваяНастройка = (id, ключ, мин, макс) => {
+      document.getElementById(id).addEventListener('change', (e) => {
+        let v = parseInt(e.target.value, 10);
+        if (isNaN(v) || v < мин) v = мин; if (v > макс) v = макс;
+        settings[ключ] = v; e.target.value = v; saveSettings();
+        processAllMessages();
+      });
+    };
+    числоваяНастройка('hud-carry-turns', 'carryTurns', 0, 200);
+    числоваяНастройка('hud-carry-items', 'carryMaxItems', 1, 200);
+    числоваяНастройка('hud-carry-msgs', 'carryMaxMessages', 1, 500);
     document.getElementById('hud-virtualize').addEventListener('change', (e) => {
       settings.virtualizeCards = e.target.checked;
       saveSettings();

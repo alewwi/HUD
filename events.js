@@ -11,12 +11,12 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache } from './avatars.js?v=22.73.12';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.73.12';
-import { openPhoneMediaViewer } from './render/phone.js?v=22.73.12';
-import { getTheme, themeVars, presetRowHTML, THEME_KEYS } from './themes.js?v=22.73.12';
-import { settings, defaultSettings } from './settings.js?v=22.73.12';
-import { getWorldVotes } from './render/world.js?v=22.73.12';
+import { invalidateAvatarCache } from './avatars.js?v=22.82.1';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.82.1';
+import { openPhoneMediaViewer } from './render/phone.js?v=22.82.1';
+import { getTheme, themeVars, presetRowHTML, THEME_KEYS , themeSnapshot, parseThemeFile } from './themes.js?v=22.82.1';
+import { settings, defaultSettings } from './settings.js?v=22.82.1';
+import { getWorldVotes } from './render/world.js?v=22.82.1';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -50,6 +50,22 @@ export function initGlobalEvents(ctx) {
   // новости. settings по своей природе общий живой объект (см. settings.js),
   // а getWorldVotes живёт в домене «Мир» — берём их импортом, а не через ctx.
   const { saveSettings, applyThemeColors, showHudToast } = ctx;
+
+  // Наборы тем. Панель живёт внутри карточки HUD, а карточки появляются,
+  // сворачиваются и пересобираются — привязываться к самим полям бессмысленно,
+  // слушаем документ. И только отсюда: saveSettings приходит с ctx.
+  document.addEventListener('change', (e) => {
+    const box = e.target && e.target.closest && e.target.closest('[data-theme-pack]');
+    if (!box) return;
+    if (!settings.themePacks || typeof settings.themePacks !== 'object') settings.themePacks = {};
+    settings.themePacks[box.dataset.themePack] = box.checked;
+    saveSettings();
+    // Перерисовываем только ряд пресетов: панель целиком трогать нельзя, иначе
+    // схлопнутся открытые вкладки настроек.
+    document.querySelectorAll('.hud-theme-presets-row').forEach(row => {
+      row.innerHTML = presetRowHTML(settings.themePreset);
+    });
+  });
   if (window.hudEventsInitialized) return;
   window.hudEventsInitialized = true;
 
@@ -174,6 +190,48 @@ export function initGlobalEvents(ctx) {
         settings.themePreset = 'custom';
         saveSettings(); applyThemeColors(); redrawPresets();
         showHudToast('success', 'Своя тема сохранена', 'Теперь она стоит в ряду рядом с готовыми.');
+        return;
+      }
+
+      // Выгрузка темы файлом. Отдаём то, что сейчас выставлено ползунками, —
+      // включая ручные правки поверх пресета: пересылают обычно именно их.
+      if (act === 'export') {
+        const выбранная = getTheme(id);
+        const снимок = themeSnapshot(выбранная ? выбранная.label : 'Тема TavernOS');
+        const blob = new Blob([JSON.stringify(снимок, null, 2)], { type: 'application/json' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'tavernos-тема-' + (id || 'своя') + '.json';
+        document.body.appendChild(a); a.click(); a.remove();
+        setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+        showHudToast('success', 'Тема сохранена в файл', 'Его можно переслать — он читаемый и правится руками.');
+        return;
+      }
+
+      // Загрузка чужого файла. Разбор в themes.js берёт только знакомые поля:
+      // тема не должна становиться способом положить в настройки что угодно.
+      if (act === 'import') {
+        const поле = document.createElement('input');
+        поле.type = 'file';
+        поле.accept = 'application/json,.json';
+        поле.addEventListener('change', async () => {
+          const файл = поле.files && поле.files[0];
+          if (!файл) return;
+          try {
+            const тема = parseThemeFile(await файл.text());
+            if (!тема) { showHudToast('error', 'Не похоже на тему', 'В файле не нашлось ни одного знакомого поля.'); return; }
+            settings.customTheme = { label: тема.label, icon: тема.icon, vars: тема.vars };
+            settings.themePreset = 'custom';
+            if (settings.themeEdits) delete settings.themeEdits.custom;
+            Object.assign(settings, тема.vars);
+            saveSettings(); applyThemeColors(); redrawPresets(); syncThemeInputs();
+            showHudToast('success', 'Тема загружена', тема.label + ' — ' + Object.keys(тема.vars).length + ' полей.');
+          } catch (err) {
+            console.error('[TavernOS HUD] Тема не прочиталась:', err);
+            showHudToast('error', 'Файл не прочитался', 'Подробности в консоли.');
+          }
+        });
+        поле.click();
         return;
       }
 

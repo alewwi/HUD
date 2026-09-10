@@ -7,9 +7,9 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=22.73.12';
-import { getSafeUserName, mapKey } from './utils.js?v=22.73.12';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=22.73.12';
+import { settings } from './settings.js?v=22.82.1';
+import { getSafeUserName, mapKey } from './utils.js?v=22.82.1';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=22.82.1';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -177,6 +177,20 @@ export function normalizeJSONData(parsed) {
       return null;
     }).filter(Boolean);
   }
+  // Дневник тела — те же записи, что и в обычном дневнике, но про близость.
+  // Разбираем отдельным списком: у него своя вкладка и своё оформление.
+  let bodyDiaryParsed = [];
+  if (Array.isArray(parsed.bodyDiary)) {
+    bodyDiaryParsed = parsed.bodyDiary.map(d => {
+      if (typeof d === 'string') return { author: '', time: '', text: d, mood: '' };
+      if (d && typeof d === 'object') return {
+        author: toStr(d.author), time: toStr(d.time),
+        text: toStr(d.text), mood: toStr(d.mood || d.emotion || ''),
+      };
+      return null;
+    }).filter(d => d && valid(d.text));
+  }
+
   let dreamsParsed = [];
   if (Array.isArray(parsed.dreams)) {
     dreamsParsed = parsed.dreams.map(d => {
@@ -299,7 +313,7 @@ export function normalizeJSONData(parsed) {
   };
 
   return {
-    scene: mapKeys(parsed.scene), characters: chars.map(mapKeys), user: mapKeys(parsed.user), memory: memoryParsed, chatsMap: chatsMap, phone: phoneParsed, intercepts: interceptsParsed, diary: diaryParsed, dreams: dreamsParsed,
+    scene: mapKeys(parsed.scene), characters: chars.map(mapKeys), user: mapKeys(parsed.user), memory: memoryParsed, chatsMap: chatsMap, phone: phoneParsed, intercepts: interceptsParsed, diary: diaryParsed, bodyDiary: bodyDiaryParsed, dreams: dreamsParsed,
     world: { headlines: cleanArray(world.headlines), rumors: cleanArray(world.rumors),
              forecast: cleanArray(world.forecast), horoscope: cleanArray(world.horoscope),
              prediction: cleanArray(world.prediction),

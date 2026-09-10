@@ -8255,11 +8255,11 @@
 /* Прозрачным можно делать только то, что лежит В ПОТОКЕ. Экран приложения
    абсолютный и накрывает домашний: без своей подложки сквозь него
    просвечивали иконки и уведомления. Ему нужен фон телефона. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
   .hud-phone-emulator, .hud-phone-home-screen,
   .hud-phone-chat-area, .hud-phone-chat-list, .hud-phone-bottom-bar
 ) { background: transparent !important; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-phone-app-view {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-app-view {
   /* Плотная подложка под градиентом: сам градиент темы полупрозрачный
      (это её настройка), и сквозь него просвечивали иконки домашнего. */
   background-color: var(--lt-solid) !important;
@@ -8267,21 +8267,21 @@
 }
 
 /* --- Карточки: светлая бумага вместо чёрного --- */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(.hud-phone-notif, .hud-phone-notif-stack, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-section, .hud-phone-participants-list, .hud-phone-contact, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-photo-placeholder, .hud-diary-entry, .hud-world-section, .hud-world-section-ads, .hud-theme-panel, .hud-phone-mockup) {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-phone-notif, .hud-phone-notif-stack, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-section, .hud-phone-participants-list, .hud-phone-contact, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-photo-placeholder, .hud-diary-entry, .hud-world-section, .hud-world-section-ads, .hud-theme-panel, .hud-phone-mockup) {
   background: var(--lt-paper) !important;
   color: var(--lt-ink);
   border-color: var(--lt-line);
 }
 
 /* Шапка приложения на телефоне — чуть плотнее бумаги, чтобы отделяться. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-phone-app-title {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-app-title {
   background: var(--lt-paper-2) !important;
   color: var(--lt-ink);
   border-bottom: 1px solid var(--lt-line);
 }
 
 /* --- Текст, у которого цвет прописан наглухо белым --- */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
   .hud-phone-top-status, .hud-phone-statusline, .hud-phone-app small,
   .hud-phone-lock-time, .hud-phone-lock-day, .hud-phone-lock-hint,
   .hud-phone-notif-body b, .hud-phone-notif-label, .hud-phone-chat-meta b,
@@ -8290,54 +8290,54 @@
   .hud-diary-text, .hud-diary-about-user, .hud-phone-lockscreen
 ) { color: var(--lt-ink) !important; }
 
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
   .hud-phone-notif-body small, .hud-phone-chat-meta small, .hud-phone-note small,
   .hud-phone-contact small, .hud-phone-lock-notice small, .hud-phone-lock-notice span,
   .hud-msg-time, .hud-phone-notif-meta, .hud-phone-lock-empty
 ) { color: var(--lt-ink-soft) !important; }
 
 /* Полоска «домой» и разделители — тёмные штрихи по светлому. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(.hud-phone-home-btn, .hud-phone-lock-bar) {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-phone-home-btn, .hud-phone-lock-bar) {
   background: var(--lt-ink-soft) !important;
 }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-phone-lock-arrow {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-lock-arrow {
   border-color: var(--lt-ink-soft) !important;
 }
 /* Иконки-глифы нарисованы currentColor — им хватает цвета текста. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-g-ico { color: var(--lt-ink); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-g-ico { color: var(--lt-ink); }
 
 /* Стекло поверх экрана и корпус: блик на светлом выглядит грязью. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-phone-glass { opacity: .25; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-phone-emulator::after { display: none; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-glass { opacity: .25; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-emulator::after { display: none; }
 
 /* Исходящие пузыри остаются цветными, входящие становятся бумажными. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-msg-wrapper.incoming .hud-msg-bubble {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-msg-wrapper.incoming .hud-msg-bubble {
   background: var(--lt-paper) !important;
   border: 1px solid var(--lt-line);
 }
 
 /* Газета: тёмная «бумага» на светлой теме противоречит сама себе. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-news-article,
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-world-list li,
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-comment {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-news-article,
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-world-list li,
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-comment {
   background: var(--lt-paper-2) !important;
   color: var(--lt-ink);
 }
 
 /* Дневник: слои бумаги рассчитаны на тёмный лист, на светлом они мажут. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-diary-paper { opacity: .22; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-diary-holes { opacity: .35; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-diary-paper { opacity: .22; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-diary-holes { opacity: .35; }
 
 /* --- Светлые темы: остатки светлого текста и кружков ---------------------
    Найдено замером контраста на собранном телефоне: эти надписи имели
    жёстко заданный светлый цвет и на бумаге пропадали. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(.hud-phone-notif-body em, .hud-phone-notif em, .hud-phone-inputfield, .hud-phone-empty-line, .hud-phone-empty small, .hud-g-hint, .hud-g-query, .hud-phone-app-title) { color: var(--lt-ink-soft) !important; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-phone-inputfield::placeholder { color: var(--lt-ink-soft); }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-phone-send { color: #fff !important; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-phone-notif-body em, .hud-phone-notif em, .hud-phone-inputfield, .hud-phone-empty-line, .hud-phone-empty small, .hud-g-hint, .hud-g-query, .hud-phone-app-title) { color: var(--lt-ink-soft) !important; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-inputfield::placeholder { color: var(--lt-ink-soft); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-send { color: #fff !important; }
 
 /* Кружки-инициалы: на бумаге белая буква по бледной заливке исчезала.
    Даём им насыщенную подложку темы — буква снова белая по цвету. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
   .hud-phone-notif-ava, .hud-phone-chat-ava, .hud-phone-contact-avatar, .hud-msg-avatar
 ):not(.has-img) {
   background-color: var(--hud-accent) !important;
@@ -9746,24 +9746,24 @@
    буквами HUD превращается в грязь. Гасим её на карточке: элементы со
    своей тенью её сохранят, остальные перестанут наследовать чужую.
    ========================================================================= */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage)
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate)
   :is(.hud-os-card, .hud-scene-widget) { text-shadow: none; }
 
 /* Часы и дата — тёмными чернилами, с тонким светлым бликом снизу вместо
    тёмного ореола: он отделяет цифры от пастельного неба, не размазывая. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-time-display {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-time-display {
   /* Цвет не трогаем: у часов своя настройка clockColor, и она главнее.
      Убираем только белое свечение — из-за него цифры и расплывались. */
   text-shadow: 0 1px 0 rgba(255,255,255,.65);
 }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-date-display {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-date-display {
   color: var(--lt-ink-soft);
   text-shadow: none;
 }
 
 /* Плашки погоды, настроения и атмосферы: тёмная подложка на светлом небе
    выглядела кляксой. Делаем их бумажными, а текст — чернильным. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage)
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate)
   :is(.hud-weather-item, .hud-mood-item, .hud-scene-atm) {
   background: var(--lt-paper) !important;
   color: var(--lt-ink) !important;
@@ -9773,7 +9773,7 @@
 }
 
 /* Блок с часами тоже сидит на светлом — его тёмная подложка ни к чему. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-scene-time-group {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-scene-time-group {
   background: var(--lt-paper);
   border-color: var(--lt-line);
   box-shadow: 0 2px 8px rgba(90,50,70,.12);
@@ -10220,7 +10220,7 @@
    ========================================================================= */
 
 /* --- Поверхности --- */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
   .hud-dream-container, .hud-dream-entry, .hud-dream-pane,
   .hud-route-map, .hud-route-strip, .hud-ads-grid, .hud-ad-card,
   .hud-breaking-news, .hud-timeline-content, .hud-key-item,
@@ -10233,21 +10233,21 @@
 }
 
 /* Аватар-заглушка была тёмным кружком с тёмной фигурой внутри. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-avatar-placeholder {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-avatar-placeholder {
   background: var(--lt-paper-2) !important;
   color: var(--lt-ink) !important;
   border-color: var(--lt-line) !important;
 }
 
 /* Точка маршрута — тёмный кружок на светлой карте. Оставляем ей акцент. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-route-pin {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-route-pin {
   background: var(--lt-paper) !important;
   color: var(--lt-ink) !important;
   border-color: var(--hud-accent, var(--lt-line)) !important;
 }
 
 /* --- Текст, который был белым или светился белым --- */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
   .hud-world-title, .hud-news-headline, .hud-secret-title, .hud-secret-col-title,
   .hud-route-name, .hud-breaking-item, .hud-dream-text, .hud-key-text,
   .hud-timeline-content, .hud-pill-label, .hud-mood-chip, .hud-horo-sign,
@@ -10258,7 +10258,7 @@
 }
 
 /* Второстепенное — теми же чернилами, но вполсилы. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
   .hud-news-vote, .hud-news-stats, .hud-news-vote-n, .hud-diary-time,
   .hud-route-time, .hud-route-leg-time, .hud-secret-lvl, .hud-horo-disclaimer,
   .hud-mood-history, .hud-comment-text
@@ -10269,7 +10269,7 @@
 
 /* Лента BREAKING: сама плашка стала бумагой, красной остаётся только метка —
    на светлом она и так кричит достаточно. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-breaking-label {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-breaking-label {
   color: #fff !important;
 }
 
@@ -10281,34 +10281,34 @@
    бумажной — и весь этот текст исчезает. Возвращаем ему чернила темы, а
    подложкам — бумагу. Скоупим по .hud-memory-body, чтобы общий .hud-row в
    других блоках остался при своём.                                        */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-memory-body,
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-memory-body :is(
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-memory-body,
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-memory-body :is(
   .hud-row, .hud-vertical-container, .hud-timeline-container, .hud-timeline-item,
   .hud-mood-group, .hud-mood-current, .hud-mood-chip-val, .hud-secret-person
 ) {
   color: var(--lt-ink) !important;
 }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) .hud-memory-body :is(
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-memory-body :is(
   .hud-route-span, .hud-secret-stat, .hud-mood-history
 ) {
   color: var(--lt-ink-soft) !important;
 }
 
 /* Подложки, залитые чёрным на четверть: на светлом это грязь, а не глубина. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
   .hud-news-vote, .hud-mood-chip, .hud-phone-subtabs, .hud-phone-statusbar
 ) {
   background: var(--lt-paper-2) !important;
 }
 
 /* Бегущая строка и луна снов были рассчитаны на тёмный фон. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
   .hud-breaking-marquee, .hud-breaking-seq, .hud-dream-moon
 ) {
   color: var(--lt-ink) !important;
   text-shadow: none !important;
 }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage) :is(
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
   .hud-phone-statusbar, .hud-phone-time
 ) {
   color: var(--lt-ink-soft) !important;
@@ -11106,3 +11106,887 @@
   opacity: .55; margin-bottom: 6px;
 }
 .hud-media-desc { font-size: 13px; line-height: 1.55; }
+
+/* =========================================================================
+   Граф отношений: цвета новых типов связей
+
+   Родство разведено по ролям (родитель, ребёнок, брат/сестра) оттенками
+   синего — той же семьи, что и общая «Семья». Иерархия — бронза и зелень:
+   служебная вертикаль и учебная. Долг — золото, запретное — резкий пурпур,
+   чтобы не спутать с романтикой, подельник — фиолетовый, общая группа —
+   бирюза.
+   ========================================================================= */
+.hud-rel-marker.hud-rel-parent { fill: #6f9bff; }
+.hud-rel-marker.hud-rel-child { fill: #a9c8ff; }
+.hud-rel-marker.hud-rel-sibling { fill: #7fd4ff; }
+.hud-rel-marker.hud-rel-boss { fill: #e0a458; }
+.hud-rel-marker.hud-rel-subordinate { fill: #c8b78a; }
+.hud-rel-marker.hud-rel-mentor { fill: #a8e063; }
+.hud-rel-marker.hud-rel-student { fill: #d4f08a; }
+.hud-rel-marker.hud-rel-debt { fill: #e8c04a; }
+.hud-rel-marker.hud-rel-forbidden { fill: #ff3d8f; }
+.hud-rel-marker.hud-rel-accomplice { fill: #9b7bea; }
+.hud-rel-marker.hud-rel-group { fill: #5fc9d6; }
+.hud-rel-edge.hud-rel-parent { stroke: rgba(111,155,255,.78); }
+.hud-rel-edge.hud-rel-child { stroke: rgba(169,200,255,.78); }
+.hud-rel-edge.hud-rel-sibling { stroke: rgba(127,212,255,.78); }
+.hud-rel-edge.hud-rel-boss { stroke: rgba(224,164,88,.78); }
+.hud-rel-edge.hud-rel-subordinate { stroke: rgba(200,183,138,.78); }
+.hud-rel-edge.hud-rel-mentor { stroke: rgba(168,224,99,.78); }
+.hud-rel-edge.hud-rel-student { stroke: rgba(212,240,138,.78); }
+.hud-rel-edge.hud-rel-debt { stroke: rgba(232,192,74,.78); }
+.hud-rel-edge.hud-rel-forbidden { stroke: rgba(255,61,143,.78); }
+.hud-rel-edge.hud-rel-accomplice { stroke: rgba(155,123,234,.78); }
+.hud-rel-edge.hud-rel-group { stroke: rgba(95,201,214,.78); }
+.hud-rel-edge-dot.hud-rel-parent { stroke: #6f9bff; }
+.hud-rel-edge-dot.hud-rel-child { stroke: #a9c8ff; }
+.hud-rel-edge-dot.hud-rel-sibling { stroke: #7fd4ff; }
+.hud-rel-edge-dot.hud-rel-boss { stroke: #e0a458; }
+.hud-rel-edge-dot.hud-rel-subordinate { stroke: #c8b78a; }
+.hud-rel-edge-dot.hud-rel-mentor { stroke: #a8e063; }
+.hud-rel-edge-dot.hud-rel-student { stroke: #d4f08a; }
+.hud-rel-edge-dot.hud-rel-debt { stroke: #e8c04a; }
+.hud-rel-edge-dot.hud-rel-forbidden { stroke: #ff3d8f; }
+.hud-rel-edge-dot.hud-rel-accomplice { stroke: #9b7bea; }
+.hud-rel-edge-dot.hud-rel-group { stroke: #5fc9d6; }
+.hud-rel-legend-dot.hud-rel-parent { background: #6f9bff; }
+.hud-rel-legend-dot.hud-rel-child { background: #a9c8ff; }
+.hud-rel-legend-dot.hud-rel-sibling { background: #7fd4ff; }
+.hud-rel-legend-dot.hud-rel-boss { background: #e0a458; }
+.hud-rel-legend-dot.hud-rel-subordinate { background: #c8b78a; }
+.hud-rel-legend-dot.hud-rel-mentor { background: #a8e063; }
+.hud-rel-legend-dot.hud-rel-student { background: #d4f08a; }
+.hud-rel-legend-dot.hud-rel-debt { background: #e8c04a; }
+.hud-rel-legend-dot.hud-rel-forbidden { background: #ff3d8f; }
+.hud-rel-legend-dot.hud-rel-accomplice { background: #9b7bea; }
+.hud-rel-legend-dot.hud-rel-group { background: #5fc9d6; }
+
+/* =========================================================================
+   NSFW: фаза близости, карта тела, дневник тела
+   ========================================================================= */
+
+/* Пять шагов сцены. Пройденные приглушены, текущий горит — так видно не
+   только «где мы», но и «сколько уже позади». */
+.hud-phase-step {
+  display: inline-block; padding: 3px 9px; border-radius: 999px;
+  font-size: 11px; letter-spacing: .02em; white-space: nowrap;
+  color: var(--hud-text-muted, rgba(226,232,240,.5));
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--hud-border, rgba(255,255,255,.12));
+}
+.hud-phase-step.is-past { opacity: .55; }
+.hud-phase-step.is-now {
+  color: #fff; font-weight: 700;
+  background: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 34%, transparent);
+  border-color: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 60%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 30%, transparent);
+}
+.hud-phase-sep {
+  display: inline-block; width: 14px; height: 1px; margin: 0 2px 3px;
+  background: var(--hud-border, rgba(255,255,255,.2));
+}
+
+/* Карта чувствительности: зона, шкала, число. Шкала важнее числа — глазом
+   сравниваются полоски, а не цифры. */
+.hud-bodymap { display: flex; flex-wrap: wrap; gap: 6px 10px; }
+.hud-zone {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 9px; border-radius: 8px; font-size: 11.5px;
+  background: rgba(255,255,255,.05);
+  border: 1px solid var(--hud-border, rgba(255,255,255,.12));
+}
+.hud-zone b { font-weight: 600; }
+.hud-zone em { font-style: normal; opacity: .6; font-size: 10.5px; }
+.hud-zone-bar {
+  display: inline-block; width: 54px; height: 5px; border-radius: 3px;
+  background: rgba(255,255,255,.10); overflow: hidden;
+}
+.hud-zone-bar > i {
+  display: block; height: 100%; border-radius: 3px;
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 45%, transparent),
+    var(--hud-nsfw-color, #d9548a));
+}
+
+/* Дневник тела: та же бумага, но тёмная, и вместо чернильных пятен — воск. */
+.hud-body-diary .hud-diary-entry.hud-body-entry {
+  position: relative;
+  background: linear-gradient(160deg, #241a20, #161014);
+  border: 1px solid rgba(217,84,138,.22);
+  box-shadow: inset 0 0 40px rgba(0,0,0,.55), 0 8px 24px rgba(0,0,0,.4);
+  color: #e8dde2;
+}
+.hud-body-diary .hud-diary-text { color: #e8dde2; }
+.hud-body-diary .hud-diary-time,
+.hud-body-diary .hud-diary-author { color: rgba(232,221,226,.62); }
+/* Капля воска: пятно с потёком вниз. Цвет — тёплый сургуч. */
+.hud-wax {
+  position: absolute; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #c8455f, #7d1f31 70%);
+  box-shadow: 0 1px 3px rgba(0,0,0,.5);
+  pointer-events: none; opacity: .5;
+}
+.hud-wax::after {
+  content: ''; position: absolute; left: 50%; top: 60%;
+  width: 34%; height: var(--tail, 14px); transform: translateX(-50%);
+  border-radius: 0 0 50% 50%;
+  background: linear-gradient(180deg, #a63348, rgba(125,31,49,0));
+}
+.hud-body-mood {
+  margin-top: 6px; font-size: 10.5px; letter-spacing: .06em;
+  text-transform: uppercase; opacity: .55;
+}
+/* Вкладка дневника тела — с оттенком NSFW, чтобы не перепутать с обычной. */
+.hud-tab.hud-body-tab.active { color: var(--hud-nsfw-color, #d9548a); }
+
+/* --- Доверие, страхи, характерные реплики --------------------------------- */
+
+/* Шкала доверия делит цвет по уровню: красное — не доверяет, зелёное — верит.
+   Одной длины полоски мало: взгляд считывает цвет быстрее длины. */
+.hud-trustmap .hud-zone.is-low .hud-zone-bar > i { background: linear-gradient(90deg, rgba(224,104,95,.5), #e0685f); }
+.hud-trustmap .hud-zone.is-mid .hud-zone-bar > i { background: linear-gradient(90deg, rgba(240,195,106,.5), #f0c36a); }
+.hud-trustmap .hud-zone.is-high .hud-zone-bar > i { background: linear-gradient(90deg, rgba(98,217,199,.5), #62d9c7); }
+.hud-trustmap .hud-zone-bar { width: 64px; }
+
+.hud-fears { display: flex; flex-wrap: wrap; gap: 6px 8px; }
+.hud-fear {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 3px 10px 3px 6px; border-radius: 999px; font-size: 11.5px;
+  background: rgba(224,104,95,.10);
+  border: 1px solid rgba(224,104,95,.28);
+}
+.hud-fear-ico { font-size: 13px; line-height: 1; }
+.hud-fear b { font-weight: 600; }
+.hud-fear em { font-style: normal; opacity: .6; font-size: 10.5px; }
+
+/* Реплика — цитата: кавычка слева и наклон, чтобы её не путали с описанием. */
+.hud-lines { display: flex; flex-direction: column; gap: 5px; }
+.hud-line-quote {
+  position: relative; padding: 4px 10px 4px 22px;
+  font-size: 12px; line-height: 1.45; font-style: italic;
+  border-radius: 0 8px 8px 0;
+  background: rgba(255,255,255,.04);
+  border-left: 2px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 55%, transparent);
+}
+.hud-line-quote::before {
+  content: '«'; position: absolute; left: 7px; top: 2px;
+  font-size: 15px; font-style: normal; opacity: .45;
+}
+
+/* =========================================================================
+   Дневник: следы на бумаге по настроению записи
+
+   У самой записи ::before и ::after заняты полем и кляксами, поэтому следы
+   живут отдельным слоем .hud-diary-damage — ему достаются оба псевдоэлемента.
+   ========================================================================= */
+.hud-diary-damage {
+  position: absolute; inset: 0; pointer-events: none;
+  border-radius: inherit; overflow: hidden;
+}
+
+/* Злость — загнутый уголок: страницу комкали. Треугольник в углу плюс тень
+   от изгиба, чтобы загиб читался объёмным, а не наклейкой. */
+.hud-diary-entry.hud-diary-mood-angry .hud-diary-damage::before {
+  content: ''; position: absolute; right: 0; bottom: 0;
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, transparent 50%, rgba(28,18,18,.96) 50%);
+  box-shadow: -3px -3px 8px rgba(0,0,0,.45);
+}
+.hud-diary-entry.hud-diary-mood-angry .hud-diary-damage::after {
+  content: ''; position: absolute; right: 0; bottom: 0;
+  width: 34px; height: 34px;
+  background: linear-gradient(315deg, rgba(255,255,255,.10) 0 48%, transparent 50%);
+}
+
+/* Паника — потёки: чернила поплыли сверху вниз неровными полосами. */
+.hud-diary-entry.hud-diary-mood-panic .hud-diary-damage::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    linear-gradient(180deg, rgba(160,140,190,.30) 0, rgba(160,140,190,0) 38%) 12% 0 / 3px 46% no-repeat,
+    linear-gradient(180deg, rgba(160,140,190,.24) 0, rgba(160,140,190,0) 30%) 27% 0 / 2px 34% no-repeat,
+    linear-gradient(180deg, rgba(160,140,190,.34) 0, rgba(160,140,190,0) 52%) 61% 0 / 4px 62% no-repeat,
+    linear-gradient(180deg, rgba(160,140,190,.20) 0, rgba(160,140,190,0) 26%) 78% 0 / 2px 30% no-repeat,
+    linear-gradient(180deg, rgba(160,140,190,.28) 0, rgba(160,140,190,0) 40%) 90% 0 / 3px 44% no-repeat;
+  filter: blur(.4px);
+}
+/* Капля на конце самого длинного потёка. */
+.hud-diary-entry.hud-diary-mood-panic .hud-diary-damage::after {
+  content: ''; position: absolute; left: 61%; top: 58%;
+  width: 6px; height: 8px; border-radius: 50% 50% 60% 60%;
+  background: rgba(160,140,190,.42); filter: blur(.5px);
+}
+
+/* Грусть — пятна от слёз: мокрая бумага светлеет в центре и темнеет по
+   кромке, где вода собралась и высохла. */
+.hud-diary-entry.hud-diary-mood-sad .hud-diary-damage::before {
+  content: ''; position: absolute; inset: 0;
+  background:
+    radial-gradient(ellipse 16px 13px at 22% 34%, rgba(190,220,255,.20) 0 55%, rgba(150,190,235,.28) 62%, transparent 70%),
+    radial-gradient(ellipse 11px 9px at 68% 58%, rgba(190,220,255,.18) 0 55%, rgba(150,190,235,.24) 63%, transparent 72%),
+    radial-gradient(ellipse 13px 11px at 44% 78%, rgba(190,220,255,.16) 0 55%, rgba(150,190,235,.22) 62%, transparent 70%);
+}
+/* Дорожка от одной слезы: вода стекла и оставила след. */
+.hud-diary-entry.hud-diary-mood-sad .hud-diary-damage::after {
+  content: ''; position: absolute; left: 22%; top: 36%;
+  width: 3px; height: 26px;
+  background: linear-gradient(180deg, rgba(190,220,255,.22), rgba(190,220,255,0));
+  filter: blur(.4px);
+}
+
+/* =========================================================================
+   Новые темы: чернила светлых тем и характерные приметы
+
+   Светлым темам нужен свой набор --lt-*: по нему группа правил выше делает
+   подложки прозрачными, а текст — тёмным. Без него светлая тема получает
+   тёмные плашки, и светлый текст ложится на светлый фон.
+   ========================================================================= */
+.hud-theme-solarpunk {
+  --lt-paper: rgba(255,255,255,.66);
+  --lt-paper-2: rgba(255,255,255,.40);
+  --lt-ink: #1f3a2a;
+  --lt-ink-soft: rgba(31,58,42,.62);
+  --lt-line: rgba(46,158,107,.26);
+  --lt-solid: #eafaef;
+}
+.hud-theme-japan {
+  --lt-paper: rgba(255,253,247,.64);
+  --lt-paper-2: rgba(255,253,247,.38);
+  --lt-ink: #2e2622;
+  --lt-ink-soft: rgba(46,38,34,.62);
+  --lt-line: rgba(120,90,80,.26);
+  --lt-solid: #f7f0e2;
+}
+.hud-theme-egypt {
+  --lt-paper: rgba(253,246,228,.64);
+  --lt-paper-2: rgba(253,246,228,.38);
+  --lt-ink: #3a2c14;
+  --lt-ink-soft: rgba(58,44,20,.64);
+  --lt-line: rgba(160,130,50,.30);
+  --lt-solid: #f4e9cc;
+}
+.hud-theme-western {
+  --lt-paper: rgba(251,242,228,.64);
+  --lt-paper-2: rgba(251,242,228,.38);
+  --lt-ink: #3b2a1c;
+  --lt-ink-soft: rgba(59,42,28,.62);
+  --lt-line: rgba(140,100,60,.28);
+  --lt-solid: #f0e2cc;
+}
+.hud-theme-pirate {
+  --lt-paper: rgba(251,241,221,.64);
+  --lt-paper-2: rgba(251,241,221,.38);
+  --lt-ink: #33261a;
+  --lt-ink-soft: rgba(51,38,26,.62);
+  --lt-line: rgba(130,95,50,.30);
+  --lt-solid: #eee0c6;
+}
+
+/* --- Приметы тем ---------------------------------------------------------
+   Каждой теме — одна-две узнаваемые черты, а не полный набор украшений:
+   фактура карточки, подпись у логотипа и цвет активной вкладки. Так тема
+   узнаётся с первого взгляда и не начинает спорить с содержимым. */
+
+/* Стимпанк: клёпаная латунь по верхней кромке. */
+.hud-theme-steampunk .hud-os-card {
+  border-top-color: rgba(214,155,74,.5);
+}
+.hud-theme-steampunk .hud-os-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(90deg, rgba(214,155,74,.16) 0 2px, transparent 2px 26px) top / 100% 3px no-repeat;
+}
+.hud-theme-steampunk .hud-os-logo::after { content: ' \2699'; }
+.hud-theme-steampunk .hud-tab.active { box-shadow: inset 0 -2px 0 #d69b4a; }
+
+/* Дизельпанк: предупредительная косая штриховка. */
+.hud-theme-dieselpunk .hud-os-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(45deg, rgba(224,184,58,.22) 0 6px, rgba(0,0,0,0) 6px 12px) top / 100% 4px no-repeat;
+}
+.hud-theme-dieselpunk .hud-os-logo::after { content: ' \26ED'; }
+.hud-theme-dieselpunk .hud-tab.active { box-shadow: inset 0 -2px 0 #e0b83a; }
+
+/* Солярпанк: стеклянный блик через карточку. */
+.hud-theme-solarpunk .hud-os-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, rgba(255,255,255,.42) 0 12%, transparent 34%);
+}
+.hud-theme-solarpunk .hud-os-logo::after { content: ' \2618'; }
+.hud-theme-solarpunk .hud-tab.active { box-shadow: inset 0 -2px 0 #2e9e6b; }
+
+/* Биопанк: влажный органический отблеск, будто под плёнкой. */
+.hud-theme-biopunk .hud-os-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(120% 60% at 20% 0%, rgba(143,227,106,.14), transparent 60%),
+              radial-gradient(90% 50% at 90% 100%, rgba(255,107,168,.12), transparent 60%);
+}
+.hud-theme-biopunk .hud-os-logo::after { content: ' \2609'; }
+.hud-theme-biopunk .hud-tab.active { box-shadow: inset 0 -2px 0 #8fe36a; }
+
+/* Космоопера: звёздная пыль по карточке. */
+.hud-theme-spaceopera .hud-os-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(1px 1px at 12% 22%, rgba(255,255,255,.7), transparent 60%),
+    radial-gradient(1px 1px at 78% 14%, rgba(255,255,255,.5), transparent 60%),
+    radial-gradient(1.5px 1.5px at 46% 8%, rgba(190,214,255,.6), transparent 60%),
+    radial-gradient(1px 1px at 88% 62%, rgba(255,255,255,.45), transparent 60%);
+}
+.hud-theme-spaceopera .hud-os-logo::after { content: ' \2727'; }
+.hud-theme-spaceopera .hud-tab.active { box-shadow: inset 0 -2px 0 #7db8ff; }
+
+/* Феодальная Япония: красная печать в углу карточки. */
+.hud-theme-japan .hud-os-card::after {
+  content: ''; position: absolute; right: 10px; top: 8px; pointer-events: none;
+  width: 16px; height: 16px; border-radius: 3px;
+  background: rgba(179,64,63,.72);
+  box-shadow: inset 0 0 0 2px rgba(255,253,247,.7);
+}
+.hud-theme-japan .hud-os-logo::after { content: ' \82B1'; }
+.hud-theme-japan .hud-tab.active { box-shadow: inset 0 -2px 0 #b3403f; }
+
+/* Египет: золотая насечка по нижней кромке. */
+.hud-theme-egypt .hud-os-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(90deg, rgba(201,162,39,.28) 0 8px, transparent 8px 16px) bottom / 100% 2px no-repeat;
+}
+.hud-theme-egypt .hud-os-logo::after { content: ' \2600'; }
+.hud-theme-egypt .hud-tab.active { box-shadow: inset 0 -2px 0 #c9a227; }
+
+/* Вестерн: волокна выгоревшего дерева. */
+.hud-theme-western .hud-os-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background: repeating-linear-gradient(180deg, rgba(120,80,40,.06) 0 3px, transparent 3px 9px);
+}
+.hud-theme-western .hud-os-logo::after { content: ' \2736'; }
+.hud-theme-western .hud-tab.active { box-shadow: inset 0 -2px 0 #b06a2c; }
+
+/* Пираты: обожжённый край пергамента. */
+.hud-theme-pirate .hud-os-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(120% 40% at 50% 100%, rgba(120,70,20,.16), transparent 60%),
+              radial-gradient(80% 30% at 0% 0%, rgba(120,70,20,.12), transparent 60%);
+}
+.hud-theme-pirate .hud-os-logo::after { content: ' \2620'; }
+.hud-theme-pirate .hud-tab.active { box-shadow: inset 0 -2px 0 #8a5a2a; }
+
+/* Ведьмовство: восковой отсвет снизу, как от свечи на столе. */
+.hud-theme-witch .hud-os-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(90% 46% at 50% 108%, rgba(200,168,106,.20), transparent 62%);
+}
+.hud-theme-witch .hud-os-logo::after { content: ' \1F56F'; }
+.hud-theme-witch .hud-tab.active { box-shadow: inset 0 -2px 0 #c8a86a; }
+
+/* Вуду: болотная зелень по краям. */
+.hud-theme-voodoo .hud-os-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(70% 40% at 0% 50%, rgba(46,90,58,.22), transparent 60%),
+              radial-gradient(70% 40% at 100% 50%, rgba(46,90,58,.18), transparent 60%);
+}
+.hud-theme-voodoo .hud-os-logo::after { content: ' \2625'; }
+.hud-theme-voodoo .hud-tab.active { box-shadow: inset 0 -2px 0 #c2543a; }
+
+/* Космохоррор: аварийная полоса сверху — тот самый красный отсвет. */
+.hud-theme-spacehorror .hud-os-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(224,58,58,.20), transparent 18%);
+}
+.hud-theme-spacehorror .hud-os-logo::after { content: ' \26A0'; }
+.hud-theme-spacehorror .hud-tab.active { box-shadow: inset 0 -2px 0 #e03a3a; }
+
+
+/* =========================================================================
+   ДВЕНАДЦАТЬ НОВЫХ ТЕМ: ПОЛНЫЙ НАБОР ПРИМЕТ
+   -------------------------------------------------------------------------
+   Раньше у новых тем была одна черта на всю тему — фактура карточки. Рядом
+   со старыми, у которых по пять значков разделов, свои обои и фирменный
+   знак, они выглядели недоделанными. Здесь новые темы получают тот же набор
+   и ровно в тех же местах:
+
+     .hud-header::after        — значок справа от имени персонажа
+     .hud-body::after          — крупный водяной знак под текстом
+     .hud-world-section::after — значок в углу блока мира
+     .hud-memory-body::before  — водяной знак в блоке памяти
+     .hud-os-topbar::after     — орнамент на верхней панели
+     .hud-os-wrapper::before   — обои: фактура на всю карточку
+     .hud-os-wrapper::after    — фирменный знак, у каждой темы свой приём
+
+   Рисунки — инлайновые SVG в data-URI: ни одного внешнего запроса.
+   Движение включается только под курсором, как у старых тем.
+   ========================================================================= */
+
+/* Обои и фирменный знак включаются по списку — как у старых тем. */
+:is(.hud-theme-steampunk, .hud-theme-dieselpunk, .hud-theme-solarpunk, .hud-theme-biopunk,
+    .hud-theme-spaceopera, .hud-theme-spacehorror, .hud-theme-japan, .hud-theme-egypt,
+    .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo)
+  .hud-os-wrapper::before { opacity: 1; }
+:is(.hud-theme-steampunk, .hud-theme-dieselpunk, .hud-theme-solarpunk, .hud-theme-biopunk,
+    .hud-theme-spaceopera, .hud-theme-spacehorror, .hud-theme-japan, .hud-theme-egypt,
+    .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo)
+  .hud-os-wrapper::after {
+  content: ''; position: absolute; pointer-events: none; z-index: 2;
+}
+
+/* Пустые состояния — своим голосом, как у старых тем. */
+:is(.hud-theme-steampunk, .hud-theme-dieselpunk, .hud-theme-solarpunk, .hud-theme-biopunk,
+    .hud-theme-spaceopera, .hud-theme-spacehorror, .hud-theme-japan, .hud-theme-egypt,
+    .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo)
+  :is(.hud-world-empty, .hud-diary-empty) { font-size: 0; }
+:is(.hud-theme-steampunk, .hud-theme-dieselpunk, .hud-theme-solarpunk, .hud-theme-biopunk,
+    .hud-theme-spaceopera, .hud-theme-spacehorror, .hud-theme-japan, .hud-theme-egypt,
+    .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo)
+  :is(.hud-world-empty, .hud-diary-empty)::after {
+  display: block; font-size: 13px; line-height: 1.5;
+}
+.hud-theme-steampunk   .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-steampunk   .hud-diary-empty::after { content: var(--th-empty-diary); }
+.hud-theme-dieselpunk  .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-dieselpunk  .hud-diary-empty::after { content: var(--th-empty-diary); }
+.hud-theme-solarpunk   .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-solarpunk   .hud-diary-empty::after { content: var(--th-empty-diary); }
+.hud-theme-biopunk     .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-biopunk     .hud-diary-empty::after { content: var(--th-empty-diary); }
+.hud-theme-spaceopera  .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-spaceopera  .hud-diary-empty::after { content: var(--th-empty-diary); }
+.hud-theme-spacehorror .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-spacehorror .hud-diary-empty::after { content: var(--th-empty-diary); }
+.hud-theme-japan       .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-japan       .hud-diary-empty::after { content: var(--th-empty-diary); }
+.hud-theme-egypt       .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-egypt       .hud-diary-empty::after { content: var(--th-empty-diary); }
+.hud-theme-western     .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-western     .hud-diary-empty::after { content: var(--th-empty-diary); }
+.hud-theme-pirate      .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-pirate      .hud-diary-empty::after { content: var(--th-empty-diary); }
+.hud-theme-witch       .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-witch       .hud-diary-empty::after { content: var(--th-empty-diary); }
+.hud-theme-voodoo      .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-voodoo      .hud-diary-empty::after { content: var(--th-empty-diary); }
+
+/* --- Стимпанк: латунь, пар, заклёпки ------------------------------------ */
+.hud-theme-steampunk .hud-header::after        { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d69b4a' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='3.2'/%3E%3Ccircle cx='12' cy='12' r='7.4' opacity='.45'/%3E%3Cpath d='M12 2.4v3M12 18.6v3M2.4 12h3M18.6 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1'/%3E%3C/svg%3E"); }
+.hud-theme-steampunk .hud-body::after          { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d69b4a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='10.5' r='6.8'/%3E%3Ccircle cx='12' cy='10.5' r='4.6' opacity='.4'/%3E%3Cpath d='M12 10.5l3.8-3.2'/%3E%3Ccircle cx='12' cy='10.5' r='.9' fill='%23d69b4a' stroke='none'/%3E%3Cpath d='M7.4 16.6L6 20.4M16.6 16.6L18 20.4'/%3E%3C/svg%3E"); }
+.hud-theme-steampunk .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d69b4a' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='4.4'/%3E%3Cpath d='M12 3.2v4.4M12 16.4V20.8M3.2 12h4.4M16.4 12H20.8'/%3E%3C/svg%3E"); }
+.hud-theme-steampunk .hud-memory-body::before  { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d69b4a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='7.4' cy='7.8' r='3'/%3E%3Ccircle cx='15.8' cy='14.4' r='4.2'/%3E%3Cpath d='M7.4 3.6v1.2M7.4 10.8V12M3.2 7.8h1.2M10.4 7.8h1.2'/%3E%3Cpath d='M15.8 9.2v1.3M15.8 18.3v1.3M10.4 14.4h1.3M20.1 14.4h1.3'/%3E%3C/svg%3E"); }
+.hud-theme-steampunk .hud-os-topbar::after     { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d69b4a' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 8h7.4l2.4 3.4H22M2 16.4h5.6l2.4-3.4'/%3E%3Ccircle cx='9.4' cy='8' r='.8' fill='%23d69b4a' stroke='none'/%3E%3Ccircle cx='7.6' cy='16.4' r='.8' fill='%23d69b4a' stroke='none'/%3E%3Ccircle cx='19.6' cy='11.4' r='.8' fill='%23d69b4a' stroke='none'/%3E%3C/svg%3E"); }
+/* Обои: сетка заклёпок и струйка пара из-под верхней кромки. */
+.hud-theme-steampunk .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(circle 1.5px at 50% 50%, rgba(214,155,74,.22) 0 60%, transparent 100%),
+    radial-gradient(34% 20% at 78% 4%, rgba(232,207,160,.13), transparent 74%),
+    radial-gradient(22% 14% at 68% 12%, rgba(232,207,160,.09), transparent 76%);
+  background-size: 34px 34px, auto, auto;
+  animation: hud-th-steam 7s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+@keyframes hud-th-steam {
+  from { background-position: 0 0, 74% 4%, 66% 12%; }
+  to   { background-position: 0 0, 82% 1%, 71% 8%; }
+}
+/* Фирменный знак: полоса заклёпок по левому полю, как на клёпаном кожухе. */
+.hud-theme-steampunk .hud-os-wrapper::after {
+  left: 4px; top: 0; bottom: 0; width: 8px;
+  background-image:
+    linear-gradient(90deg, rgba(214,155,74,.30) 0 1px, transparent 1px),
+    radial-gradient(circle 2px at 4px 11px, rgba(214,155,74,.55) 0 55%, rgba(90,58,20,.5) 60%, transparent 100%);
+  background-size: 100% 100%, 8px 26px;
+  background-repeat: no-repeat, repeat-y;
+}
+.hud-theme-steampunk :is(.hud-key, .hud-key-label)::after { content: ' \25C9'; margin-left: 4px; font-size: .85em; opacity: .8; }
+.hud-theme-steampunk .hud-world-title::after { content: ' \2699\FE0E'; }
+.hud-theme-steampunk .hud-key-item { border-left-color: #d69b4a; }
+.hud-theme-steampunk .hud-diary-entry { border-left-color: #8a5a1e; }
+.hud-theme-steampunk {
+  --hud-radius: 4px;
+  --th-empty-world: 'Котёл остыл — вестей не приходило.';
+  --th-empty-diary: 'Журнал ещё не начат.';
+}
+
+/* --- Дизельпанк: воронёная сталь и предупредительная жёлтая -------------- */
+.hud-theme-dieselpunk .hud-header::after        { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0b83a' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='8.4' y='3' width='7.2' height='6.4' rx='1'/%3E%3Cpath d='M12 9.4v5.2'/%3E%3Cpath d='M9 14.6h6l-1.4 6.4h-3.2z'/%3E%3Cpath d='M10.2 5.4h3.6' opacity='.6'/%3E%3C/svg%3E"); }
+.hud-theme-dieselpunk .hud-body::after          { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0b83a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='6' y='4' width='12' height='16' rx='1.6'/%3E%3Cpath d='M6 8.4h12M6 15.6h12' opacity='.6'/%3E%3Cellipse cx='12' cy='4' rx='6' ry='1.4'/%3E%3Ccircle cx='12' cy='12' r='2' opacity='.5'/%3E%3C/svg%3E"); }
+.hud-theme-dieselpunk .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0b83a' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='1.6'/%3E%3Cpath d='M12 10.4c-1-3.4-.4-6.4 1-6.4s2 3-1 6.4z'/%3E%3Cpath d='M13.4 12.8c3.2-1.2 6-.4 5.4 1s-3.6 1.2-5.4-1z'/%3E%3Cpath d='M10.6 12.8c-3.2-1.2-6-.4-5.4 1s3.6 1.2 5.4-1z'/%3E%3C/svg%3E"); }
+.hud-theme-dieselpunk .hud-memory-body::before  { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0b83a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17.4 4.6a3.6 3.6 0 00-4.8 4.6L4.6 17.2a1.6 1.6 0 002.2 2.2l8-8a3.6 3.6 0 004.6-4.8l-2.2 2.2-2.2-.6-.6-2.2z'/%3E%3C/svg%3E"); }
+.hud-theme-dieselpunk .hud-os-topbar::after     { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0b83a' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 16l4-8 4 8M9 16l4-8 4 8M16 16l4-8 4 8' opacity='.75'/%3E%3C/svg%3E"); }
+/* Обои: клёпаный лист стали и масляное пятно в углу. */
+.hud-theme-dieselpunk .hud-os-wrapper::before {
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 5px),
+    radial-gradient(circle 1.4px at 6px 6px, rgba(255,255,255,.10) 0 55%, transparent 100%),
+    radial-gradient(circle 30px at 90% 88%, rgba(20,16,8,.42), transparent 68%);
+  background-size: auto, 44px 44px, auto;
+}
+/* Фирменный знак: жёлтая лента опасности наискось в правом верхнем углу. */
+.hud-theme-dieselpunk .hud-os-wrapper::after {
+  right: -34px; top: 12px; width: 132px; height: 18px;
+  transform: rotate(38deg);
+  background: repeating-linear-gradient(45deg, rgba(224,184,58,.68) 0 9px, rgba(30,33,36,.85) 9px 18px);
+  box-shadow: 0 1px 3px rgba(0,0,0,.4);
+  opacity: .5;
+}
+.hud-theme-dieselpunk :is(.hud-key, .hud-key-label)::after { content: ' \25B0'; margin-left: 4px; font-size: .75em; opacity: .75; }
+.hud-theme-dieselpunk .hud-world-title::after { content: ' \26ED'; }
+.hud-theme-dieselpunk .hud-key-item { border-left-color: #e0b83a; }
+.hud-theme-dieselpunk .hud-diary-entry { border-left-color: #b08a20; }
+.hud-theme-dieselpunk {
+  --hud-radius: 2px;
+  --th-empty-world: 'Сводок нет. Топливо на нуле.';
+  --th-empty-diary: 'Бортовой журнал пуст.';
+}
+
+/* --- Солярпанк: стекло, зелень и высокое солнце -------------------------- */
+.hud-theme-solarpunk .hud-header::after        { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232e9e6b' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='11' r='4'/%3E%3Cpath d='M12 3.4v1.8M12 16.8v1.8M3.4 11h1.8M18.8 11h1.8M6 5l1.3 1.3M16.7 15.7L18 17M18 5l-1.3 1.3M7.3 15.7L6 17' opacity='.7'/%3E%3Cpath d='M12 20.6c0-2.6 1.8-4.4 4.4-4.4 0 2.6-1.8 4.4-4.4 4.4z'/%3E%3C/svg%3E"); }
+.hud-theme-solarpunk .hud-body::after          { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232e9e6b' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='6' width='18' height='10' rx='1'/%3E%3Cpath d='M3 9.4h18M3 12.8h18M9 6v10M15 6v10' opacity='.55'/%3E%3Cpath d='M12 16v5M12 18.4c-2.4 0-3.6-1.4-3.6-3.2 2 0 3.6 1.2 3.6 3.2z'/%3E%3C/svg%3E"); }
+.hud-theme-solarpunk .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232e9e6b' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21v-8'/%3E%3Cpath d='M12 13c0-3.4 2.2-5.6 5.6-5.6C17.6 10.8 15.4 13 12 13z'/%3E%3Cpath d='M12 15.4c-3 0-5-2-5-5 3 0 5 2 5 5z'/%3E%3C/svg%3E"); }
+.hud-theme-solarpunk .hud-memory-body::before  { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232e9e6b' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='2.4'/%3E%3Cpath d='M12 9.6c0-3 1.4-4.6 3-4.6 0 3-1.4 4.6-3 4.6zM12 14.4c0 3-1.4 4.6-3 4.6 0-3 1.4-4.6 3-4.6z'/%3E%3Cpath d='M9.6 12c-3 0-4.6-1.4-4.6-3 3 0 4.6 1.4 4.6 3zM14.4 12c3 0 4.6 1.4 4.6 3-3 0-4.6-1.4-4.6-3z'/%3E%3C/svg%3E"); }
+.hud-theme-solarpunk .hud-os-topbar::after     { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232e9e6b' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='19' cy='7.4' r='2.4' opacity='.7'/%3E%3Cpath d='M1 17c2.6-4 5-4 7 0 2-4.6 4.4-4.6 6.4 0 1.6-3 3.2-3 4.6 0'/%3E%3C/svg%3E"); }
+/* Обои: тень листвы сверху и косой солнечный луч через карточку. */
+.hud-theme-solarpunk .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(28% 16% at 10% 4%, rgba(46,158,107,.16), transparent 72%),
+    radial-gradient(20% 12% at 26% 9%, rgba(46,158,107,.12), transparent 74%),
+    radial-gradient(24% 14% at 88% 6%, rgba(46,158,107,.10), transparent 74%),
+    linear-gradient(112deg, transparent 30%, rgba(255,246,200,.26) 40%, transparent 52%);
+  animation: hud-th-sunray 11s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+@keyframes hud-th-sunray {
+  from { background-position: 0 0, 0 0, 0 0, -22% 0; }
+  to   { background-position: 0 0, 0 0, 0 0, 26% 0; }
+}
+/* Фирменный знак: живая изгородь по нижнему краю карточки. */
+.hud-theme-solarpunk .hud-os-wrapper::after {
+  left: 0; right: 0; bottom: 0; height: 22px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 22' fill='none' stroke='%232e9e6b' stroke-width='1.1' stroke-linecap='round'%3E%3Cpath d='M0 18c14-6 26 2 40-4s26 4 40-2 26 4 40-2'/%3E%3Cpath d='M14 15c-1-3 0-5 1.6-5 .6 2-.2 4-1.6 5zM40 12c-1.4-2.6-.8-4.8.8-5 1 1.8.6 4-.8 5zM68 15c-1-3 0-5 1.6-5 .6 2-.2 4-1.6 5zM96 12c-1.4-2.6-.8-4.8.8-5 1 1.8.6 4-.8 5z'/%3E%3C/svg%3E");
+  background-repeat: repeat-x; background-size: 120px 22px;
+  opacity: .5;
+}
+.hud-theme-solarpunk :is(.hud-key, .hud-key-label)::after { content: ' \2767'; margin-left: 4px; font-size: .9em; opacity: .7; }
+.hud-theme-solarpunk .hud-world-title::after { content: ' \2618'; }
+.hud-theme-solarpunk .hud-key-item { border-left-color: #2e9e6b; }
+.hud-theme-solarpunk .hud-diary-entry { border-left-color: #2e9e6b; }
+.hud-theme-solarpunk {
+  --hud-radius: 12px;
+  --th-empty-world: 'В саду сегодня тихо.';
+  --th-empty-diary: 'Страница ещё зелёная.';
+}
+
+/* --- Биопанк: влажная органика и кислотная зелень ------------------------ */
+.hud-theme-biopunk .hud-header::after        { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fe36a' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 3c0 5 10 5 10 9s-10 4-10 9M17 3c0 5-10 5-10 9s10 4 10 9'/%3E%3Cpath d='M8.4 7h7.2M8.4 17h7.2M7.6 12h8.8' opacity='.55'/%3E%3C/svg%3E"); }
+.hud-theme-biopunk .hud-body::after          { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fe36a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.4'/%3E%3Ccircle cx='9.4' cy='10' r='2'/%3E%3Ccircle cx='15' cy='13.6' r='2.6'/%3E%3Ccircle cx='11' cy='16' r='1.3'/%3E%3Cpath d='M4 12h16' opacity='.35'/%3E%3C/svg%3E"); }
+.hud-theme-biopunk .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fe36a' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='10' r='3.2'/%3E%3Cpath d='M12.2 10H20M20 10l-2.4-2.2M20 10l-2.4 2.2'/%3E%3Cpath d='M6.6 7.4L4 5M6.6 12.6L4 15M9 6.8V4'/%3E%3C/svg%3E"); }
+.hud-theme-biopunk .hud-memory-body::before  { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fe36a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 3h6M10 3v11.4a3.4 3.4 0 004 0V3'/%3E%3Cpath d='M9.6 12.4c1.4 1 3.4 1 4.8 0' opacity='.6'/%3E%3Cpath d='M10 15.4a3.4 3.4 0 004 0v3.2a2 2 0 01-4 0z'/%3E%3C/svg%3E"); }
+.hud-theme-biopunk .hud-os-topbar::after     { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fe36a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 13h5l1.6-5 2.6 9 2.4-7 1.8 3H23'/%3E%3C/svg%3E"); }
+/* Обои: клеточные пузыри под плёнкой, медленно всплывают. */
+.hud-theme-biopunk .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(circle 5px at 18% 78%, rgba(143,227,106,.13) 0 62%, transparent 100%),
+    radial-gradient(circle 3px at 62% 62%, rgba(143,227,106,.11) 0 62%, transparent 100%),
+    radial-gradient(circle 7px at 84% 84%, rgba(255,107,168,.10) 0 62%, transparent 100%),
+    radial-gradient(circle 4px at 40% 30%, rgba(143,227,106,.08) 0 62%, transparent 100%);
+  background-size: 150px 130px, 110px 96px, 190px 160px, 130px 110px;
+  animation: hud-th-bubbles 14s linear infinite;
+  animation-play-state: paused;
+}
+@keyframes hud-th-bubbles {
+  from { background-position: 0 0, 0 0, 0 0, 0 0; }
+  to   { background-position: 0 -130px, 0 -96px, 0 -160px, 0 -110px; }
+}
+/* Фирменный знак: подтёки слизи из-под верхней кромки. */
+.hud-theme-biopunk .hud-os-wrapper::after {
+  left: 0; right: 0; top: 0; height: 34px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 34' fill='%238fe36a' fill-opacity='.30'%3E%3Cpath d='M0 0h120v6c-8 0-8 9-14 9s-6-6-12-6-5 13-11 13-6-13-12-13-7 8-13 8-6-8-12-8-7 5-13 5-6-5-12-5-6 4-9 4z'/%3E%3C/svg%3E");
+  background-repeat: repeat-x; background-size: 120px 34px;
+}
+.hud-theme-biopunk :is(.hud-key, .hud-key-label)::after { content: ' \274B'; margin-left: 4px; font-size: .8em; opacity: .75; }
+.hud-theme-biopunk .hud-world-title::after { content: ' \2609'; }
+.hud-theme-biopunk .hud-key-item { border-left-color: #8fe36a; }
+.hud-theme-biopunk .hud-diary-entry { border-left-color: #3c7a2a; }
+.hud-theme-biopunk {
+  --hud-radius: 14px;
+  --th-empty-world: 'Культура ещё не выросла.';
+  --th-empty-diary: 'Образцов пока не брали.';
+}
+
+/* --- Космоопера: кольца, звёзды и тёплый синий ---------------------------- */
+.hud-theme-spaceopera .hud-header::after        { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237db8ff' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='11' r='5.4'/%3E%3Cellipse cx='12' cy='11' rx='10.4' ry='3.2' transform='rotate(-18 12 11)' opacity='.7'/%3E%3C/svg%3E"); }
+.hud-theme-spaceopera .hud-body::after          { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237db8ff' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2.6c2.6 3 4 7 4 11.4l-4 3.4-4-3.4C8 9.6 9.4 5.6 12 2.6z'/%3E%3Ccircle cx='12' cy='9.4' r='1.8'/%3E%3Cpath d='M8 12.4L4.4 16l2.6.6M16 12.4L19.6 16l-2.6.6'/%3E%3Cpath d='M10.6 18.4L12 21.6l1.4-3.2'/%3E%3C/svg%3E"); }
+.hud-theme-spaceopera .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237db8ff' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 17l4-9 5 4 3-7 4 5'/%3E%3Ccircle cx='4' cy='17' r='1.2' fill='%237db8ff'/%3E%3Ccircle cx='8' cy='8' r='1.2' fill='%237db8ff'/%3E%3Ccircle cx='13' cy='12' r='1.2' fill='%237db8ff'/%3E%3Ccircle cx='16' cy='5' r='1.2' fill='%237db8ff'/%3E%3Ccircle cx='20' cy='10' r='1.2' fill='%237db8ff'/%3E%3C/svg%3E"); }
+.hud-theme-spaceopera .hud-memory-body::before  { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237db8ff' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='16.6' cy='7.4' r='3'/%3E%3Cpath d='M14.4 9.6L3.4 20.6M13 8.4L4 14M15.8 11L10 20' opacity='.7'/%3E%3C/svg%3E"); }
+.hud-theme-spaceopera .hud-os-topbar::after     { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237db8ff' stroke-width='1' stroke-linecap='round'%3E%3Cpath d='M2 18c4-9 10-13 20-14' opacity='.8'/%3E%3Cpath d='M2 21c5-7 11-10 20-11' opacity='.5'/%3E%3Ccircle cx='9' cy='11.4' r='1.4' fill='%237db8ff' stroke='none'/%3E%3C/svg%3E"); }
+/* Обои: туманность и звёздная пыль, медленно плывущая. */
+.hud-theme-spaceopera .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(46% 30% at 18% 16%, rgba(90,58,224,.24), transparent 74%),
+    radial-gradient(38% 24% at 86% 74%, rgba(125,184,255,.16), transparent 76%),
+    radial-gradient(circle 1.1px at 22% 34%, rgba(255,255,255,.75) 0 60%, transparent 100%),
+    radial-gradient(circle .9px at 68% 18%, rgba(200,220,255,.6) 0 60%, transparent 100%),
+    radial-gradient(circle 1.3px at 44% 82%, rgba(255,255,255,.55) 0 60%, transparent 100%);
+  background-size: auto, auto, 120px 100px, 90px 76px, 160px 132px;
+  animation: hud-th-drift 22s linear infinite;
+  animation-play-state: paused;
+}
+@keyframes hud-th-drift {
+  from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
+  to   { background-position: 0 0, 0 0, 120px 0, -90px 0, 160px 0; }
+}
+/* Фирменный знак: край планетного кольца в правом нижнем углу. */
+.hud-theme-spaceopera .hud-os-wrapper::after {
+  right: -30px; bottom: -30px; width: 130px; height: 130px;
+  border-radius: 50%;
+  border: 1px solid rgba(125,184,255,.30);
+  box-shadow: inset 0 0 0 9px rgba(125,184,255,.07), 0 0 22px rgba(90,58,224,.20);
+}
+.hud-theme-spaceopera :is(.hud-key, .hud-key-label)::after { content: ' \2727'; margin-left: 4px; font-size: .85em; opacity: .8; }
+.hud-theme-spaceopera .hud-world-title::after { content: ' \2727'; }
+.hud-theme-spaceopera .hud-key-item { border-left-color: #7db8ff; }
+.hud-theme-spaceopera .hud-diary-entry { border-left-color: #5a3ae0; }
+.hud-theme-spaceopera {
+  --hud-radius: 10px;
+  --th-empty-world: 'В этом секторе пусто.';
+  --th-empty-diary: 'Бортовой журнал чист.';
+}
+
+/* --- Космохоррор: темнота, аварийный красный и следы ---------------------- */
+.hud-theme-spacehorror .hud-header::after        { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e03a3a' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3.4c4.4 0 7.4 3 7.4 7.2 0 3-1 5-3 6.6H7.6c-2-1.6-3-3.6-3-6.6 0-4.2 3-7.2 7.4-7.2z'/%3E%3Cpath d='M8 9.4c1.6-1.4 4-1.6 6-.6' opacity='.75'/%3E%3Cpath d='M13.6 4.6l-2.2 5 2.6 1.4-3 4.4' opacity='.85'/%3E%3C/svg%3E"); }
+.hud-theme-spacehorror .hud-body::after          { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e03a3a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3c3.4 0 5.6 3.4 5.6 8s-2.2 10-5.6 10-5.6-5.4-5.6-10S8.6 3 12 3z'/%3E%3Cpath d='M9.4 10.4c1.6 1.4 3.6 1.4 5.2 0M9 14.6c2 1.6 4 1.6 6 0' opacity='.6'/%3E%3C/svg%3E"); }
+.hud-theme-spacehorror .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e03a3a' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9.4 20h5.2l-.8-8h-3.6z'/%3E%3Ccircle cx='12' cy='8.4' r='2.6'/%3E%3Cpath d='M6.6 4.6a7.6 7.6 0 000 7.6M17.4 4.6a7.6 7.6 0 010 7.6' opacity='.6'/%3E%3C/svg%3E"); }
+.hud-theme-spacehorror .hud-memory-body::before  { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e03a3a' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M5 3.4c1.6 5 2.4 11 2 17.2M10 2.6c1.6 5 2.4 11.4 2 18M15 3.4c1.6 5 2.4 11 2 17.2' opacity='.8'/%3E%3C/svg%3E"); }
+.hud-theme-spacehorror .hud-os-topbar::after     { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e03a3a'%3E%3Crect x='1' y='9' width='4' height='6' opacity='.75'/%3E%3Crect x='7' y='9' width='4' height='6' opacity='.55'/%3E%3Crect x='13' y='9' width='4' height='6' opacity='.35'/%3E%3Crect x='19' y='9' width='4' height='6' opacity='.2'/%3E%3C/svg%3E"); }
+/* Обои: темнота сжимается к краям, по центру тревожный отсвет. */
+.hud-theme-spacehorror .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(120% 90% at 50% 50%, transparent 42%, rgba(0,0,0,.55) 100%),
+    radial-gradient(60% 34% at 50% 0%, rgba(224,58,58,.16), transparent 72%);
+}
+/* Фирменный знак: аварийная кромка, которая дышит под курсором. */
+.hud-theme-spacehorror .hud-os-wrapper::after {
+  inset: 0;
+  box-shadow: inset 0 0 0 1px rgba(224,58,58,.28), inset 0 0 26px rgba(224,58,58,.16);
+  animation: hud-th-alarm 3.4s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+@keyframes hud-th-alarm {
+  from { box-shadow: inset 0 0 0 1px rgba(224,58,58,.16), inset 0 0 14px rgba(224,58,58,.08); }
+  to   { box-shadow: inset 0 0 0 1px rgba(224,58,58,.42), inset 0 0 34px rgba(224,58,58,.24); }
+}
+.hud-theme-spacehorror :is(.hud-key, .hud-key-label)::after { content: ' \26A0\FE0E'; margin-left: 4px; font-size: .8em; opacity: .8; }
+.hud-theme-spacehorror .hud-world-title::after { content: ' \26A0\FE0E'; }
+.hud-theme-spacehorror .hud-key-item { border-left-color: #e03a3a; }
+.hud-theme-spacehorror .hud-diary-entry { border-left-color: #7a1414; }
+.hud-theme-spacehorror {
+  --hud-radius: 3px;
+  --th-empty-world: 'Связь потеряна. Данных нет.';
+  --th-empty-diary: 'Записи стёрты.';
+}
+
+/* --- Феодальная Япония: бумага, тушь и киноварь --------------------------- */
+.hud-theme-japan .hud-header::after        { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b3403f' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M3 5.4c6-1.2 12-1.2 18 0'/%3E%3Cpath d='M4.4 8.4h15.2'/%3E%3Cpath d='M7 8.4V20M17 8.4V20'/%3E%3C/svg%3E"); }
+.hud-theme-japan .hud-body::after          { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b3403f' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20.4L2.6 11a13.2 13.2 0 0118.8 0z'/%3E%3Cpath d='M12 20.4V9M7.4 15.8l4.6-6.8M16.6 15.8L12 9' opacity='.6'/%3E%3Ccircle cx='12' cy='20.4' r='1.1'/%3E%3C/svg%3E"); }
+.hud-theme-japan .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b3403f' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20h16M6 20V9.4M18 20V9.4'/%3E%3Cpath d='M3 9.4h18L12 3.4z'/%3E%3Cpath d='M5 13.4h14M5 16.6h14' opacity='.55'/%3E%3C/svg%3E"); }
+.hud-theme-japan .hud-memory-body::before  { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b3403f' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M14 3.4c-3.4 0-6 2.6-6 6 0 4.4 4.6 6.6 4.6 11.2'/%3E%3Cpath d='M8 9.4H3.6M8 9.4l-2.6-2.6M8 9.4l-2.6 2.6' opacity='.7'/%3E%3Ccircle cx='16.4' cy='7' r='.9' fill='%23b3403f'/%3E%3C/svg%3E"); }
+.hud-theme-japan .hud-os-topbar::after     { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b3403f' stroke-width='1' stroke-linecap='round'%3E%3Cpath d='M1 16c5-4 11-6 22-7'/%3E%3Ccircle cx='6' cy='13.4' r='1.6' fill='%23b3403f' fill-opacity='.5'/%3E%3Ccircle cx='12' cy='11.4' r='1.3' fill='%23b3403f' fill-opacity='.4'/%3E%3Ccircle cx='18' cy='10' r='1.6' fill='%23b3403f' fill-opacity='.5'/%3E%3C/svg%3E"); }
+/* Обои: волокно бумаги васи и редкие лепестки. */
+.hud-theme-japan .hud-os-wrapper::before {
+  background-image:
+    repeating-linear-gradient(92deg, rgba(120,90,80,.05) 0 1px, transparent 1px 11px),
+    repeating-linear-gradient(2deg, rgba(120,90,80,.035) 0 1px, transparent 1px 15px),
+    radial-gradient(ellipse 3px 2px at 22% 26%, rgba(232,184,176,.55) 0 60%, transparent 100%),
+    radial-gradient(ellipse 2.4px 1.6px at 74% 62%, rgba(232,184,176,.45) 0 60%, transparent 100%);
+  background-size: auto, auto, 140px 120px, 180px 150px;
+}
+/* Фирменный знак: мазок туши в нижнем левом углу. */
+.hud-theme-japan .hud-os-wrapper::after {
+  left: 10px; bottom: 8px; width: 54px; height: 46px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 54 46' fill='none' stroke='%232e2622' stroke-opacity='.30' stroke-linecap='round'%3E%3Cpath d='M8 34c6-16 16-24 30-26' stroke-width='5'/%3E%3Cpath d='M14 40c10-6 20-8 30-6' stroke-width='3'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-size: contain;
+}
+.hud-theme-japan :is(.hud-key, .hud-key-label)::after { content: ' \2740'; margin-left: 4px; font-size: .85em; opacity: .7; }
+.hud-theme-japan .hud-world-title::after { content: ' \82B1'; }
+.hud-theme-japan .hud-key-item { border-left-color: #b3403f; }
+.hud-theme-japan .hud-diary-entry { border-left-color: #b3403f; }
+.hud-theme-japan {
+  --hud-radius: 2px;
+  --th-empty-world: 'В саду сегодня тишина.';
+  --th-empty-diary: 'Свиток ещё чист.';
+}
+
+/* --- Египет: папирус, золото и охра --------------------------------------- */
+.hud-theme-egypt .hud-header::after        { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9a227' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.6 11c3-3.6 6.4-5.4 10-5.4S19.6 7.4 21.4 11c-2.6 3-6 4.6-9.4 4.6S5.4 14 2.6 11z'/%3E%3Ccircle cx='12' cy='11' r='2.4'/%3E%3Cpath d='M12 15.6v4M9.4 19.6c1.6-1.4 3.6-1.4 5.2 0' opacity='.7'/%3E%3C/svg%3E"); }
+.hud-theme-egypt .hud-body::after          { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9a227' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3.4L21.6 20H2.4z'/%3E%3Cpath d='M12 3.4V20M12 20L4.6 15.4M12 20l7.4-4.6' opacity='.5'/%3E%3C/svg%3E"); }
+.hud-theme-egypt .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9a227' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cellipse cx='12' cy='13.4' rx='4.4' ry='6'/%3E%3Ccircle cx='12' cy='5.6' r='2.2'/%3E%3Cpath d='M7.6 9.4L3.4 7M16.4 9.4L20.6 7M7.6 14L3 14.6M16.4 14l4.6.6M8.4 18l-3 3M15.6 18l3 3'/%3E%3C/svg%3E"); }
+.hud-theme-egypt .hud-memory-body::before  { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9a227' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cellipse cx='12' cy='6.6' rx='3.4' ry='4'/%3E%3Cpath d='M12 10.6V21M7 13.4h10'/%3E%3C/svg%3E"); }
+.hud-theme-egypt .hud-os-topbar::after     { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9a227' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 6h20M2 18h20' opacity='.5'/%3E%3Cpath d='M4 9.4v5.2M7 9.4l2 5.2 2-5.2M13 14.6V9.4h2.6v5.2M18 9.4v5.2h2.4'/%3E%3C/svg%3E"); }
+/* Обои: волокно папируса и песчаная пыль. */
+.hud-theme-egypt .hud-os-wrapper::before {
+  background-image:
+    repeating-linear-gradient(90deg, rgba(160,130,50,.055) 0 1px, transparent 1px 8px),
+    repeating-linear-gradient(0deg, rgba(160,130,50,.045) 0 1px, transparent 1px 8px),
+    radial-gradient(circle 40px at 88% 88%, rgba(201,162,39,.12), transparent 70%);
+}
+/* Фирменный знак: картуш в правом нижнем углу. */
+.hud-theme-egypt .hud-os-wrapper::after {
+  right: 12px; bottom: 10px; width: 30px; height: 62px;
+  border: 1.5px solid rgba(201,162,39,.42);
+  border-radius: 15px;
+  background-image: linear-gradient(180deg, transparent 0 12%, rgba(201,162,39,.20) 12% 14%, transparent 14% 32%, rgba(201,162,39,.16) 32% 34%, transparent 34% 56%, rgba(201,162,39,.20) 56% 58%, transparent 58%);
+}
+.hud-theme-egypt :is(.hud-key, .hud-key-label)::after { content: ' \2625'; margin-left: 4px; font-size: .85em; opacity: .75; }
+.hud-theme-egypt .hud-world-title::after { content: ' \2600\FE0E'; }
+.hud-theme-egypt .hud-key-item { border-left-color: #c9a227; }
+.hud-theme-egypt .hud-diary-entry { border-left-color: #a07a18; }
+.hud-theme-egypt {
+  --hud-radius: 3px;
+  --th-empty-world: 'Писец сегодня не приходил.';
+  --th-empty-diary: 'Папирус ещё чист.';
+}
+
+/* --- Вестерн: выгоревшее дерево, пыль и жесть ----------------------------- */
+.hud-theme-western .hud-header::after        { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b06a2c' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2.6l2.2 4.6 5 .4-3.6 3.4 1.2 5-4.8-2.6-4.8 2.6 1.2-5L4.8 7.6l5-.4z'/%3E%3Ccircle cx='12' cy='10.4' r='1.8'/%3E%3C/svg%3E"); }
+.hud-theme-western .hud-body::after          { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b06a2c' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21V6.6a2.6 2.6 0 015.2 0V12a2 2 0 01-4 0'/%3E%3Cpath d='M12 14a2 2 0 01-4 0V9.4a2.6 2.6 0 00-2.6 2.6'/%3E%3Cpath d='M9 21h6' opacity='.6'/%3E%3C/svg%3E"); }
+.hud-theme-western .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b06a2c' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 19.4V12a5 5 0 0110 0v7.4'/%3E%3Cpath d='M7 19.4h2.6M14.4 19.4H17' opacity='.7'/%3E%3C/svg%3E"); }
+.hud-theme-western .hud-memory-body::before  { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b06a2c' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4.6' y='3' width='14.8' height='18' rx='1'/%3E%3Cpath d='M7.4 6.6h9.2' /%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M7.4 17.6h9.2' opacity='.6'/%3E%3C/svg%3E"); }
+.hud-theme-western .hud-os-topbar::after     { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b06a2c' stroke-width='1.1' stroke-linecap='round'%3E%3Cpath d='M2 8h20M2 14h20' opacity='.6'/%3E%3Cpath d='M5 4.4V19M12 4.4V19M19 4.4V19'/%3E%3C/svg%3E"); }
+/* Обои: волокно доски и пыль, поднятая с дороги. */
+.hud-theme-western .hud-os-wrapper::before {
+  background-image:
+    repeating-linear-gradient(180deg, rgba(120,80,40,.055) 0 2px, transparent 2px 9px),
+    radial-gradient(60% 26% at 50% 100%, rgba(176,106,44,.14), transparent 72%),
+    radial-gradient(circle .8px at 30% 40%, rgba(120,80,40,.10) 0 60%, transparent 100%);
+  background-size: auto, auto, 46px 40px;
+}
+/* Фирменный знак: витой канат по нижнему краю. */
+.hud-theme-western .hud-os-wrapper::after {
+  left: 0; right: 0; bottom: 0; height: 9px;
+  background-image: repeating-linear-gradient(58deg, rgba(176,106,44,.42) 0 3px, rgba(176,106,44,.10) 3px 7px);
+  opacity: .55;
+}
+.hud-theme-western :is(.hud-key, .hud-key-label)::after { content: ' \2736'; margin-left: 4px; font-size: .8em; opacity: .75; }
+.hud-theme-western .hud-world-title::after { content: ' \2736'; }
+.hud-theme-western .hud-key-item { border-left-color: #b06a2c; }
+.hud-theme-western .hud-diary-entry { border-left-color: #8a4f1c; }
+.hud-theme-western {
+  --hud-radius: 4px;
+  --th-empty-world: 'В городе сегодня тихо.';
+  --th-empty-diary: 'Ни строчки за день.';
+}
+
+/* --- Пираты: карта, канат и солёная вода ---------------------------------- */
+.hud-theme-pirate .hud-header::after        { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a5a2a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='4.4'/%3E%3Ccircle cx='12' cy='12' r='1.6'/%3E%3Cpath d='M12 1.6v6M12 16.4v6M1.6 12h6M16.4 12h6M4.6 4.6l4.2 4.2M15.2 15.2l4.2 4.2M19.4 4.6l-4.2 4.2M8.8 15.2l-4.2 4.2'/%3E%3C/svg%3E"); }
+.hud-theme-pirate .hud-body::after          { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a5a2a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='9' width='18' height='11' rx='1.4'/%3E%3Cpath d='M3 12.6h18' opacity='.6'/%3E%3Cpath d='M3.6 9c1.6-3 4.6-4.6 8.4-4.6S18.8 6 20.4 9'/%3E%3Crect x='10.4' y='12.6' width='3.2' height='4' rx='.8'/%3E%3C/svg%3E"); }
+.hud-theme-pirate .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a5a2a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.6'/%3E%3Cpath d='M15.6 8.4l-2 5.2-5.2 2 2-5.2z'/%3E%3Cpath d='M12 3.4v2M12 18.6v2M3.4 12h2M18.6 12h2' opacity='.6'/%3E%3C/svg%3E"); }
+.hud-theme-pirate .hud-memory-body::before  { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a5a2a' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='4.6' r='2'/%3E%3Cpath d='M12 6.6V21'/%3E%3Cpath d='M8 9.4h8' opacity='.7'/%3E%3Cpath d='M4.6 14.4c0 4 3.4 6.6 7.4 6.6s7.4-2.6 7.4-6.6'/%3E%3C/svg%3E"); }
+.hud-theme-pirate .hud-os-topbar::after     { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a5a2a' stroke-width='1.1' stroke-linecap='round'%3E%3Cpath d='M1 15c3-3 5-3 8 0s5 3 8 0 5-3 7 0'/%3E%3Cpath d='M1 19c3-3 5-3 8 0s5 3 8 0 5-3 7 0' opacity='.5'/%3E%3C/svg%3E"); }
+/* Обои: сетка морской карты и пятна воды на бумаге. */
+.hud-theme-pirate .hud-os-wrapper::before {
+  background-image:
+    repeating-linear-gradient(0deg, rgba(130,95,50,.05) 0 1px, transparent 1px 26px),
+    repeating-linear-gradient(90deg, rgba(130,95,50,.05) 0 1px, transparent 1px 26px),
+    radial-gradient(circle 26px at 16% 78%, rgba(120,70,20,.11), transparent 70%),
+    radial-gradient(circle 34px at 86% 22%, rgba(120,70,20,.09), transparent 70%);
+}
+/* Фирменный знак: крестик «здесь копать» в правом нижнем углу. */
+.hud-theme-pirate .hud-os-wrapper::after {
+  right: 16px; bottom: 14px; width: 30px; height: 30px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30' fill='none' stroke='%238a5a2a' stroke-opacity='.55' stroke-width='3' stroke-linecap='round'%3E%3Cpath d='M6 6l18 18M24 6L6 24'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-size: contain;
+}
+.hud-theme-pirate :is(.hud-key, .hud-key-label)::after { content: ' \2693'; margin-left: 4px; font-size: .8em; opacity: .7; }
+.hud-theme-pirate .hud-world-title::after { content: ' \2620'; }
+.hud-theme-pirate .hud-key-item { border-left-color: #8a5a2a; }
+.hud-theme-pirate .hud-diary-entry { border-left-color: #6a4318; }
+.hud-theme-pirate {
+  --hud-radius: 5px;
+  --th-empty-world: 'Карта пока пуста.';
+  --th-empty-diary: 'Судовой журнал чист.';
+}
+
+/* --- Ведьмовство: воск, травы и лунный круг ------------------------------- */
+.hud-theme-witch .hud-header::after        { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a86a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.6'/%3E%3Cpath d='M12 3.4l2.4 5.2 5.6.6-4.2 3.8 1.2 5.6-5-2.8-5 2.8 1.2-5.6L4 9.2l5.6-.6z'/%3E%3C/svg%3E"); }
+.hud-theme-witch .hud-body::after          { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a86a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.4 11h15.2c0 5-3.4 8.6-7.6 8.6S4.4 16 4.4 11z'/%3E%3Cpath d='M3 11h18' /%3E%3Cpath d='M8.6 8c-.6-2 .4-3.4 1.4-3.4M13 8c-.8-2.4.6-4 1.8-4' opacity='.6'/%3E%3C/svg%3E"); }
+.hud-theme-witch .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a86a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21V9'/%3E%3Cpath d='M12 9c-2.6-1.6-4-4-4-6.4 2.6 0 4 2.2 4 6.4zM12 11.4c2.4-1.6 4.4-1.6 6 0-1.6 2-3.6 2-6 0z'/%3E%3Cpath d='M9 18.6h6' opacity='.7'/%3E%3C/svg%3E"); }
+.hud-theme-witch .hud-memory-body::before  { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a86a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='10' r='6'/%3E%3Cpath d='M9.4 7.6c.8-1.2 2-1.8 3.4-1.8' opacity='.7'/%3E%3Cpath d='M7 20.4c1.6-2 3-3 5-3s3.4 1 5 3z'/%3E%3C/svg%3E"); }
+.hud-theme-witch .hud-os-topbar::after     { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a86a' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='9' width='3.4' height='11'/%3E%3Crect x='10.4' y='6' width='3.4' height='14'/%3E%3Crect x='17.8' y='11' width='3.4' height='9'/%3E%3Cpath d='M4.7 9V6.6M12.1 6V3.4M19.5 11V8.6'/%3E%3C/svg%3E"); }
+/* Обои: свечной отсвет снизу и медленно тлеющие пылинки. */
+.hud-theme-witch .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(80% 40% at 50% 106%, rgba(200,168,106,.20), transparent 66%),
+    radial-gradient(circle 1.3px at 24% 62%, rgba(200,168,106,.55) 0 60%, transparent 100%),
+    radial-gradient(circle 1px at 72% 38%, rgba(200,168,106,.42) 0 60%, transparent 100%),
+    radial-gradient(circle 1.6px at 52% 18%, rgba(106,74,138,.40) 0 60%, transparent 100%);
+  background-size: auto, 120px 104px, 96px 84px, 150px 128px;
+  animation: hud-th-embers 9s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+@keyframes hud-th-embers {
+  from { background-position: 0 0, 0 0, 0 0, 0 0; }
+  to   { background-position: 0 0, 0 -34px, 0 -26px, 0 -44px; }
+}
+/* Фирменный знак: рунный круг в правом нижнем углу. */
+.hud-theme-witch .hud-os-wrapper::after {
+  right: 14px; bottom: 12px; width: 44px; height: 44px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44' fill='none' stroke='%23c8a86a' stroke-opacity='.42' stroke-width='1' stroke-linecap='round'%3E%3Ccircle cx='22' cy='22' r='20'/%3E%3Ccircle cx='22' cy='22' r='15'/%3E%3Cpath d='M22 7l13 22H9z'/%3E%3Cpath d='M22 2v5M22 37v5M2 22h5M37 22h5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-size: contain;
+}
+.hud-theme-witch :is(.hud-key, .hud-key-label)::after { content: ' \2726'; margin-left: 4px; font-size: .8em; opacity: .75; }
+.hud-theme-witch .hud-world-title::after { content: ' \263E'; }
+.hud-theme-witch .hud-key-item { border-left-color: #c8a86a; }
+.hud-theme-witch .hud-diary-entry { border-left-color: #6a4a8a; }
+.hud-theme-witch {
+  --hud-radius: 7px;
+  --th-empty-world: 'Круг сегодня не чертили.';
+  --th-empty-diary: 'Гримуар ещё чист.';
+}
+
+/* --- Вуду: болото, кость и красная охра ----------------------------------- */
+.hud-theme-voodoo .hud-header::after        { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c2543a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2.6V21M3.4 9h17.2'/%3E%3Ccircle cx='12' cy='9' r='3.4'/%3E%3Cpath d='M6.6 5.4l2.6 2.6M17.4 5.4l-2.6 2.6M6.6 20.6l3-4.4M17.4 20.6l-3-4.4' opacity='.7'/%3E%3C/svg%3E"); }
+.hud-theme-voodoo .hud-body::after          { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c2543a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='5' r='2.6'/%3E%3Cpath d='M12 7.6v8M6.6 11h10.8M9.4 21l2.6-5.4L14.6 21'/%3E%3Cpath d='M4 9.4l4 4M20 9.4l-4 4' opacity='.55'/%3E%3C/svg%3E"); }
+.hud-theme-voodoo .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c2543a' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 19c4 0 4-4 8-4s4 4 8 4'/%3E%3Cpath d='M20 19c0-4-4-4-4-8s3-6 3-6'/%3E%3Ccircle cx='19.4' cy='4.6' r='.9' fill='%23c2543a'/%3E%3C/svg%3E"); }
+.hud-theme-voodoo .hud-memory-body::before  { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c2543a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 4.6c-1.6 0-2.6 1-2.6 2.4S6.4 9.4 8 9.4l8 5c1.6 0 2.6 1 2.6 2.4S17.6 19.4 16 19.4'/%3E%3Ccircle cx='5.6' cy='6' r='1.6'/%3E%3Ccircle cx='18.4' cy='18' r='1.6'/%3E%3C/svg%3E"); }
+.hud-theme-voodoo .hud-os-topbar::after     { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c2543a' stroke-width='1' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 20c0-6 1.4-10 3.4-13M7.4 7c2 3 2.4 8 1.6 13' opacity='.8'/%3E%3Cpath d='M14 20c0-6 1.4-10 3.4-13M17.4 7c2 3 2.4 8 1.6 13' opacity='.55'/%3E%3C/svg%3E"); }
+/* Обои: болотная дымка от краёв и пятна мха. */
+.hud-theme-voodoo .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(50% 34% at 0% 46%, rgba(46,90,58,.24), transparent 72%),
+    radial-gradient(50% 34% at 100% 54%, rgba(46,90,58,.20), transparent 72%),
+    radial-gradient(circle 8px at 28% 82%, rgba(46,90,58,.13), transparent 68%),
+    radial-gradient(circle 6px at 72% 24%, rgba(46,90,58,.10), transparent 68%);
+  background-size: auto, auto, 180px 150px, 140px 120px;
+}
+/* Фирменный знак: веве перекрёстка в левом нижнем углу. */
+.hud-theme-voodoo .hud-os-wrapper::after {
+  left: 12px; bottom: 12px; width: 40px; height: 40px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40' fill='none' stroke='%23c2543a' stroke-opacity='.45' stroke-width='1.2' stroke-linecap='round'%3E%3Cpath d='M20 2v36M2 20h36'/%3E%3Cpath d='M12 12c4 2 4 6 0 8M28 12c-4 2-4 6 0 8M12 28c4-2 4-6 0-8M28 28c-4-2-4-6 0-8'/%3E%3Ccircle cx='20' cy='20' r='3'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-size: contain;
+}
+.hud-theme-voodoo :is(.hud-key, .hud-key-label)::after { content: ' \2756'; margin-left: 4px; font-size: .8em; opacity: .75; }
+.hud-theme-voodoo .hud-world-title::after { content: ' \2625'; }
+.hud-theme-voodoo .hud-key-item { border-left-color: #c2543a; }
+.hud-theme-voodoo .hud-diary-entry { border-left-color: #2e5a3a; }
+.hud-theme-voodoo {
+  --hud-radius: 6px;
+  --th-empty-world: 'Духи сегодня молчат.';
+  --th-empty-diary: 'Ни знака за день.';
+}
+
+/* Пять новых тем светлые, и общий блок «светлые темы: поверхности» гасит у
+   них цветную кромку строк заодно с тёмными подложками. Кромку возвращаем
+   отдельно: полоска в два с половиной пикселя чтению не мешает, а тему делает
+   узнаваемой с первого взгляда. */
+.hud-theme-solarpunk .hud-key-item { border-left-color: #2e9e6b !important; }
+.hud-theme-japan     .hud-key-item { border-left-color: #b3403f !important; }
+.hud-theme-egypt     .hud-key-item { border-left-color: #c9a227 !important; }
+.hud-theme-western   .hud-key-item { border-left-color: #b06a2c !important; }
+.hud-theme-pirate    .hud-key-item { border-left-color: #8a5a2a !important; }
+
+/* Наборы тем: галочки категорий над рядом пресетов. Двадцать четыре темы
+   в одном ряду не листаются — ненужные наборы прячутся целиком. */
+.hud-theme-packs {
+  display: flex; flex-wrap: wrap; gap: 4px 12px;
+  margin: 6px 0 2px; font-size: 11.5px;
+}
+.hud-theme-packs label {
+  display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
+  opacity: .82;
+}
+.hud-theme-packs label:hover { opacity: 1; }
