@@ -1,22 +1,24 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.82.1';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=22.82.1';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.82.1';
-import { initGlobalEvents, initObserver, initTavernOSEvents } from './events.js?v=22.82.1';
-import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.82.1';
-import { mergeCarryOver } from './render/carryover.js?v=22.82.1';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.82.1';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.82.1';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.82.1';
-import { buildMemoryHTML } from './render/memory.js?v=22.82.1';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.82.1';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.82.1';
-import { hudHasRelations } from './render/relations-graph.js?v=22.82.1';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.82.1';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.82.1';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.82.1';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.82.1';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.88.3';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=22.88.3';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.88.3';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions } from './events.js?v=22.88.3';
+import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.88.3';
+import { mergeCarryOver } from './render/carryover.js?v=22.88.3';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.88.3';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.88.3';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.88.3';
+import { buildMemoryHTML } from './render/memory.js?v=22.88.3';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.88.3';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.88.3';
+import { hudHasRelations } from './render/relations-graph.js?v=22.88.3';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.88.3';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.88.3';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.88.3';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks } from './help.js?v=22.88.3';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.88.3';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=22.88.3';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -258,6 +260,9 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
      "PHOTO: prefix with [PHOTO: what is in the shot], e.g. '[Sender] -> [Recipient]: [PHOTO: селфи в примерочной, новое платье] Ну как? | 18:20'. Text after the tag is the caption.",
      "VIDEO: same idea for a clip — [VIDEO_M:SS: what happens on screen], e.g. '[Sender] -> [Recipient]: [VIDEO_0:23: снимает на бегу, кричит и смеётся] Смотри! | 18:22'. Duration is optional. Use it when the moment only makes sense in motion.",
      "CALL: a call is an EVENT, not a line — '[Sender] -> [Recipient]: [CALL: входящий, пропущен]' or '[CALL: исходящий, принят, 4:12]'. Direction входящий/исходящий as seen from the owner; outcome принят/отклонён/пропущен; duration only when answered. Text after the tag becomes a short note.",
+     "REPLY: quoting an earlier line — [REPLY: Who :: what they said], e.g. '[Sender] -> [Recipient]: [REPLY: Лена :: Ты придёшь?] Да, буду к восьми | 20:01'. The name before :: is optional. Separator is ::, never |, because | already splits the line into text, time and status.",
+     "FORWARD: a message passed on from someone else — [FWD: who it came from], e.g. '[Sender] -> [Recipient]: [FWD: Отдел кадров] Совещание переносится | 20:03'.",
+     "POLL: a poll inside the chat — [POLL: Question ;; Option = Voter, Voter ;; Option with no votes], e.g. '[Sender] -> [Recipient]: [POLL: Куда идём в пятницу? ;; Кафе = Лена, Петя ;; Кино = Мира ;; Никуда] | 20:05'. List the voters by name; percentages are calculated for you, so never write them yourself. Separator is ;;, never |.",
      "No upper limit on chats or on messages inside a chat."
     ]
    }
@@ -278,7 +283,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
    "participants": "[ONLY for a group; omit for private chats]",
    "messages": [
     "[Sender] -> [Recipient]: [Msg] | [Time] | [Read/Unread/Deleted/Draft]",
-    "The [VOICE_M:SS], [PHOTO: ...] and [CALL: ...] tags work here too. No upper limit on intercepts or messages."
+    "The [VOICE_M:SS], [PHOTO: ...], [VIDEO: ...], [CALL: ...], [REPLY: ... :: ...], [FWD: ...] and [POLL: ... ;; ...] tags all work here too. No upper limit on intercepts or messages."
    ]
   }
  ]`;
@@ -927,6 +932,17 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     return html;
   }
 
+  // Словарь справки и вся её разметка живут в help.js.
+
+  // Значок справки внутри вкладки. Отдельная кнопка, а не подсказка
+  // браузера: подсказки браузера не открываются пальцем.
+  function значокСправки(вид) {
+    if (settings.showHints === false || !TAB_HELP[вид]) return '';
+    return `<span class="hud-help-mark" data-tab-help="${вид}" role="button" tabindex="0"`
+      + ` aria-label="Что это за вкладка" title="Что это за вкладка">?</span>`;
+  }
+
+
   function renderHUD(data) {
     if (!data || Object.keys(data).length === 0) return '';
     const hasMemory = Boolean(data.memory && (
@@ -1408,7 +1424,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     data.characters.forEach((char, index) => {
       const uid = `char-${index}-${baseId}`;
       const name = char['Имя'] || `NPC ${index+1}`;
-      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">👤 ${escapeHtml(name.split(' ')[0])}</div>`,
+      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">👤 ${escapeHtml(name.split(' ')[0])}${значокСправки('character')}</div>`,
         uid, (active) => buildCharacterHTML(char, uid, active, index === 0));
     });
 
@@ -1419,21 +1435,21 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       const userTabHtml = buildUserHTML(data.user, uid, isFirst);
       if (userTabHtml) {
         const personaName = getSafeUserName();
-        addTab(`<div class="hud-tab hud-user-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">👤 ${escapeHtml(personaName.split(' ')[0])}</div>`,
+        addTab(`<div class="hud-tab hud-user-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">👤 ${escapeHtml(personaName.split(' ')[0])}${значокСправки('user')}</div>`,
           uid, (active) => active ? userTabHtml : buildUserHTML(data.user, uid, false));
       }
     }
 
     if (hasPhone) {
       const uid = `phone-${baseId}`;
-      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📱 Телефон</div>`,
+      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📱 Телефон${значокСправки('phone')}</div>`,
         uid, (active) => buildPhoneTabsHTML(data.chatsMap, uid, active, getSafeUserName(), data.phone, data.scene && data.scene['Дата'], tRaw, data.characters));
     }
 
     // === ВСТАВЛЯЕМ ВКЛАДКУ ПАМЯТИ СЮДА ===
     if (settings.enableMemory && hasMemory) {
       const uid = `memory-${baseId}`;
-      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🧠 Память</div>`, uid, (active) => {
+      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🧠 Память${значокСправки('memory')}</div>`, uid, (active) => {
         try {
           return buildMemoryHTML(data.memory || {}, uid, active, data);
         } catch (e) {
@@ -1449,13 +1465,13 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     // "empty", "none" and "пусто" must not create an otherwise blank tab.
     if (hudHasMeaningfulIntercepts(data.intercepts) && settings.enableIntercepts) {
       const uid = `intercept-${baseId}`;
-      addTab(`<div class="hud-tab intercept-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📡 Перехваты</div>`,
+      addTab(`<div class="hud-tab intercept-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📡 Перехваты${значокСправки('intercepts')}</div>`,
         uid, (active) => buildInterceptsHTML(data.intercepts, uid, active));
     }
 
     if (hudHasMeaningfulDiary(data.diary) && settings.enableDiary) {
       const uid = `diary-${baseId}`;
-      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📖 Дневник</div>`,
+      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📖 Дневник${значокСправки('diary')}</div>`,
         uid, (active) => buildDiaryHTML(data.diary, uid, active));
     }
 
@@ -1463,23 +1479,23 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     // только во время близости и сразу после, вне сцены вкладки просто нет.
     if (hudHasMeaningfulBodyDiary(data.bodyDiary) && settings.enableDiary) {
       const uid = `bodydiary-${baseId}`;
-      addTab(`<div class="hud-tab hud-body-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🕯 Дневник тела</div>`,
+      addTab(`<div class="hud-tab hud-body-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🕯 Дневник тела${значокСправки('bodyDiary')}</div>`,
         uid, (active) => buildBodyDiaryHTML(data.bodyDiary, uid, active));
     }
 
     if (hudHasMeaningfulDreams(data.dreams) && settings.enableDreams) {
       const uid = `dream-${baseId}`;
-      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🌙 Сны</div>`,
+      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🌙 Сны${значокСправки('dreams')}</div>`,
         uid, (active) => buildDreamHTML(data.dreams, uid, active));
     }
 
     if (hudHasMeaningfulWorld(data.world) && settings.enableWorld) {
       const uid = `world-${baseId}`;
-      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🌍 Мир</div>`,
+      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🌍 Мир${значокСправки('world')}</div>`,
         uid, (active) => buildWorldHTML(data.world, uid, active, settings.showComments));
     }
 
-    html += tabsHtml + `</div><div class="hud-tabs-body">` + contentHtml + `</div></div></div>`;
+    html += tabsHtml + `</div><div class="hud-tab-hint" hidden></div><div class="hud-tabs-body">` + contentHtml + `</div></div></div>`;
     // Заберёт processMessage сразу после вставки разметки: см. lastLazyThunks.
     lastLazyThunks = Object.keys(lazyThunks).length ? lazyThunks : null;
     return html;
@@ -1636,6 +1652,8 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     }
 
     let hasChanges = false;
+    // Возврат состояния ждёт, пока на карточку лягут заготовки вкладок.
+    let возвращатьПослеСборки = false;
     let newHtml = innerHtml;
     let rendered = '';
     // Подпись нужна и ниже, за пределами разбора блоков, — объявляем здесь.
@@ -1701,8 +1719,10 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       const normalized = normalizeHudDisplayDom(messageElement, textElement, rendered);
       if (!normalized) textElement.innerHTML = newHtml;
       // Карточка новая, а открыта в ней должна остаться та же вкладка, что
-      // и до пересборки.
-      applyCardUiState(messageElement);
+      // и до пересборки. Но не прямо сейчас: возврат открывает вкладку
+      // кликом, а отложенные вкладки собираются из заготовок, которые лягут
+      // на карточку несколькими строками ниже.
+      возвращатьПослеСборки = true;
       textElement.querySelectorAll('.hud-regen-btn').forEach(bindHudRegenButton);
       freezeOldHUDs();
 
@@ -1727,18 +1747,25 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       lastLazyThunks = null;
     }
 
-    // Свайп-жест ST начинается там, где палец коснулся первым, и цель до конца
-    // жеста не меняется. Защиты одной карточки поэтому мало: палец, опущенный
-    // на поля сообщения рядом с ней — на отступ, на строку прозы над карточкой, —
-    // уже вне защиты, и прокрутка HUD оборачивается сменой варианта ответа.
-    // Закрываем сообщение целиком: кнопки-стрелки ◀ ▶ под сообщением остаются,
-    // а случайные подмены прекращаются.
-    if (textElement.querySelector('.hud-os-card') && textElement.dataset.touchFixed !== 'true') {
-      ['touchstart', 'touchmove', 'touchend', 'touchcancel'].forEach(type => {
-        textElement.addEventListener(type, e => e.stopPropagation(), { passive: true });
-      });
-      textElement.dataset.touchFixed = 'true';
+    // Теперь заготовки на месте — можно открывать ту вкладку, что была
+    // открыта до пересборки: её содержимое соберётся как надо.
+    if (возвращатьПослеСборки) applyCardUiState(messageElement);
+
+    // Пометки-реакции живут отдельно от текста сообщения и в разметке не
+    // сохраняются: возвращаем их на пузыри после каждой сборки.
+    if (hasChanges) refreshReactions(textElement);
+
+    // Вопросики у полей навешиваем по готовому дереву: так словарь можно
+    // пополнять, не трогая полтора десятка сборщиков разметки.
+    if (hasChanges) {
+      if (settings.showHints === false) removeHelpMarks(textElement);
+      else attachHelpMarks(textElement);
     }
+
+    // Защита от свайпа стоит только на самой карточке. Раньше она
+    // закрывала сообщение целиком, и смена варианта ответа переставала
+    // работать на обычной прозе, где мешать было нечему. Карточке защита
+    // нужна — по ней листают вкладки и переписки, — а тексту нет.
 
     textElement.querySelectorAll('.hud-os-card').forEach(card => {
         if (!card.dataset.touchFixed) {
@@ -2831,6 +2858,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Таймлайн, настроение двух главных персонажей, маршруты и секреты"><input type="checkbox" id="hud-enable-memory" ${settings.enableMemory ? 'checked' : ''}> 🧠 Память (события, настроение, маршрут, секреты)</label>
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="При 200+ сообщениях отключает тяжёлую повторную обработку старых сообщений, замораживает их анимации/эффекты и обрабатывает HUD по мере прокрутки."><input type="checkbox" id="hud-performance-mode" ${settings.performanceMode ? 'checked' : ''}> ⚡ Performance Mode (200+ сообщений)</label>
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Внутри Performance Mode: карточка, уехавшая дальше полутора экранов от края, разбирается обратно в текст, а на её месте остаётся заглушка той же высоты. При возвращении карточка собирается заново. В DOM живут только те карточки, что рядом с экраном."><input type="checkbox" id="hud-virtualize" ${settings.virtualizeCards !== false ? 'checked' : ''}> 🪟 Держать в DOM только карточки рядом с экраном</label>
+        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Рядом с названием вкладки и рядом со знакомыми полями появляется маленький вопросик. По нажатию разворачивается объяснение: за что отвечает, почему показалось и как читать."><input type="checkbox" id="hud-show-hints" ${settings.showHints !== false ? 'checked' : ''}> ❔ Показывать пояснения</label>
         <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Переписки, секреты, важное, заметки, календарь и новости из прошлых ходов остаются на экране, даже если модель перестала их повторять. Работает только на отрисовке: в запрос к модели не уходит ни одного лишнего символа."><input type="checkbox" id="hud-carry-over" ${settings.carryOver !== false ? 'checked' : ''}> 🧷 Держать списки из прошлых ходов</label>
         <div class="hud-set-apps">
           <label title="Сколько предыдущих ходов просматривать. Больше — дольше собирается карточка.">Ходов назад: <input type="number" id="hud-carry-turns" min="0" max="200" value="${settings.carryTurns}" style="width:52px; background:rgba(0,0,0,0.3); border:1px solid var(--hud-border); color:#fff; padding:2px 4px; border-radius:4px;"></label>
@@ -2893,8 +2921,46 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         </label>
       </div></details>
 
+      <details class="hud-set-group"><summary>🧹 Обслуживание</summary><div class="hud-set-body">
+        <div style="font-size:12px; opacity:.78;">Отчёты «Архива HUD» лежат в браузере и разбираются заново только после изменения чата. Если их накопилось много или они начали мешать — уберите.</div>
+        <div class="hud-set-apps" style="align-items:center;">
+          <span id="hud-cache-usage" style="font-size:12px; opacity:.78;">считаю…</span>
+          <button type="button" id="hud-clear-cache" class="hud-theme-act danger" title="Убрать отчёты архива и пометки-реакции. Настройки, темы и аватарки останутся.">🧹 Почистить кэш</button>
+        </div>
+      </div></details>
+
       </div>`;
     container.appendChild(wrapper);
+
+    // --- Обслуживание -------------------------------------------------------
+    // Размер считаем лениво: лезть в IndexedDB на каждой отрисовке настроек
+    // незачем, а пока считается — показываем «считаю…».
+    const показатьОбъём = () => {
+      const метка = document.getElementById('hud-cache-usage');
+      if (!метка) return;
+      cacheUsage().then(({ записей, байт }) => {
+        if (!метка.isConnected) return;
+        метка.textContent = записей
+          ? `отчётов: ${записей} · примерно ${(байт / 1048576).toFixed(байт > 1048576 ? 1 : 2)} МБ`
+          : 'кэш пуст';
+      }).catch(() => { метка.textContent = 'размер посчитать не удалось'; });
+    };
+    показатьОбъём();
+    document.getElementById('hud-clear-cache').addEventListener('click', async (e) => {
+      const кнопка = e.currentTarget;
+      кнопка.disabled = true;
+      try {
+        const убрано = await clearCache();
+        clearReactions();
+        showHudToast('success', 'Кэш очищен', убрано ? `Убрано отчётов: ${убрано}. Пометки-реакции тоже сняты.` : 'Отчётов не было. Пометки-реакции сняты.');
+      } catch (err) {
+        console.error('[TavernOS HUD] очистка кэша не удалась:', err);
+        showHudToast('error', 'Очистить не вышло', 'Подробности в консоли.');
+      } finally {
+        кнопка.disabled = false;
+        показатьОбъём();
+      }
+    });
 
     // --- Ручные аватарки ---------------------------------------------------
     // Картинку ужимаем до квадрата 128px и кладём как JPEG data-URL. Настройки
@@ -2917,7 +2983,13 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
               const c = document.createElement('canvas');
               c.width = c.height = max;
               c.getContext('2d').drawImage(img, sx, sy, side, side, 0, 0, max, max);
-              resolve(c.toDataURL('image/jpeg', 0.82));
+              // WebP при том же качестве весит примерно на треть меньше
+              // JPEG, а настройки SillyTavern — один общий JSON-файл, и
+              // каждая аватарка лежит в нём как data-URL. Если браузер WebP
+              // не умеет, toDataURL молча отдаёт PNG — это видно по началу
+              // строки, и тогда откатываемся на JPEG.
+              const webp = c.toDataURL('image/webp', 0.82);
+              resolve(webp.startsWith('data:image/webp') ? webp : c.toDataURL('image/jpeg', 0.82));
             } catch (err) { reject(new Error('Не удалось обработать картинку')); }
           };
           img.src = fr.result;
@@ -3109,7 +3181,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=22.82.1');
+        const mod = await import('./render/archive.js?v=22.88.3');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -3161,6 +3233,26 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       settings.regenContextMessages = val; e.target.value = val; saveSettings();
     });
 
+    // Пояснения включаются и выключаются на лету: перерисовывать карточки
+    // ради галочки незачем, вопросики навешиваются и снимаются по месту.
+    document.getElementById('hud-show-hints').addEventListener('change', (e) => {
+      settings.showHints = e.target.checked;
+      saveSettings();
+      const чат = cachedChatContainer || document.getElementById('chat') || document;
+      if (settings.showHints) {
+        чат.querySelectorAll('.mes_text').forEach(t => attachHelpMarks(t));
+        // Вопросики вкладок живут в разметке, поэтому их вернёт только
+        // пересборка. Снимаем признак обработки и просим разобрать заново.
+        чат.querySelectorAll('.mes').forEach(m => { if (m.__hudSource && !m.querySelector('.hud-help-mark[data-tab-help]')) {
+          const t = m.querySelector('.mes_text');
+          if (t) { t.innerHTML = m.__hudSource; delete m.dataset.hudProcessed; safeProcessMessage(m); }
+        } });
+      } else {
+        чат.querySelectorAll('.mes_text').forEach(t => removeHelpMarks(t));
+        чат.querySelectorAll('.hud-help-mark[data-tab-help]').forEach(з => з.remove());
+        чат.querySelectorAll('.hud-tab-hint').forEach(п => { п.hidden = true; п.classList.remove('is-open'); });
+      }
+    });
     document.getElementById('hud-carry-over').addEventListener('change', (e) => {
       settings.carryOver = e.target.checked;
       saveSettings();
@@ -3595,7 +3687,11 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
   function renderLazyTab(placeholder) {
     if (!placeholder || !placeholder.classList.contains('hud-tab-lazy')) return placeholder;
     const card = placeholder.closest('.hud-os-card');
-    const thunk = card && card.__hudLazy && card.__hudLazy[placeholder.id];
+    // Заготовки кладутся на карточку сразу после вставки разметки. Если их
+    // ещё нет вовсе, значит нас позвали слишком рано: признак отложенности
+    // не снимаем, иначе вкладка останется пустой навсегда.
+    if (!card || !card.__hudLazy) return placeholder;
+    const thunk = card.__hudLazy[placeholder.id];
     if (!thunk) { placeholder.classList.remove('hud-tab-lazy'); return placeholder; }
     try {
       const box = document.createElement('div');
@@ -3628,6 +3724,11 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     applyThemeColors,
     showHudToast,
     safeProcessMessage,
+    // Мини-гайд: словари и сборка разметки лежат в help.js.
+    tabHelp: TAB_HELP,
+    findTermHelp,
+    buildHintHTML,
+    attachHelpMarks: (корень) => { if (settings.showHints !== false) attachHelpMarks(корень); },
     isPerformanceModeActive,
     refreshPerformanceMessageClasses,
     schedulePerformanceRefresh,

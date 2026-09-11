@@ -14,9 +14,9 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=22.82.1';
-import { normalizeJSONData } from '../schema.js?v=22.82.1';
-import { settings } from '../settings.js?v=22.82.1';
+import { parseHUDComplex } from '../hud-parser.js?v=22.88.3';
+import { normalizeJSONData } from '../schema.js?v=22.88.3';
+import { settings } from '../settings.js?v=22.88.3';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -141,10 +141,9 @@ function наложить(накоплено, ход, предел, предел
   out.phone.calendar = склеитьОбъекты(out.phone.calendar, тел.calendar, x => текст(x.date) + '|' + текст(x.title), предел);
   out.phone.search = склеитьСтроки(out.phone.search, тел.search, предел);
 
-  const мир = ход.world || {};
-  for (const поле of ['headlines', 'rumors', 'ads', 'comments']) {
-    out.world[поле] = склеитьСтроки(out.world[поле], мир[поле], предел);
-  }
+  // Мир сюда не попадает намеренно: новости, слухи, объявления и
+  // комментарии — это сегодняшняя сводка, а не память. Склеенные за
+  // двадцать ходов, они превращались в ленту из разных дней.
   return out;
 }
 
@@ -178,7 +177,6 @@ export function mergeCarryOver(data, messageElement) {
     chatsMap: {}, intercepts: [],
     memory: { timeline: [], important: [], secrets: [] },
     phone: { contacts: [], notes: [], gallery: [], maps: [], calendar: [], search: [] },
-    world: { headlines: [], rumors: [], ads: [], comments: [] },
   };
 
   const начало = Math.max(0, индекс - ходов);
@@ -208,10 +206,7 @@ export function mergeCarryOver(data, messageElement) {
   for (const поле of ['contacts', 'notes', 'gallery', 'maps', 'calendar', 'search']) {
     if (накоплено.phone[поле].length) итог.phone[поле] = накоплено.phone[поле];
   }
-  итог.world = { ...(data.world || {}) };
-  for (const поле of ['headlines', 'rumors', 'ads', 'comments']) {
-    if (накоплено.world[поле].length) итог.world[поле] = накоплено.world[поле];
-  }
+  // Мир остаётся таким, каким его прислал текущий ход.
   return итог;
 }
 

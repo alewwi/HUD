@@ -51,6 +51,8 @@ export const defaultSettings = {
   // Наборы тем: какие категории показывать в ряду пресетов. Пустой объект —
   // показывать все.
   themePacks: {},
+  // Мини-гайд: вопросики у вкладок и у знакомых полей.
+  showHints: true,
   carryOver: true,
   carryTurns: 20,        // на сколько ходов назад заглядывать
   carryMaxItems: 30,     // не длиннее скольких записей держать список
@@ -149,7 +151,13 @@ export const defaultSettings = {
 // результат через Object.assign, а hudLorebooks — массив, который иначе
 // оказался бы общим с defaultSettings.
 function createDefaultSettings() {
-  return structuredClone(defaultSettings);
+  // structuredClone появился не во всех браузерах, которыми открывают
+  // SillyTavern с телефона. Настройки — простые данные без функций и
+  // ссылок по кругу, поэтому обход через JSON здесь равноценен.
+  if (typeof structuredClone === 'function') {
+    try { return structuredClone(defaultSettings); } catch (_) { /* ниже */ }
+  }
+  return JSON.parse(JSON.stringify(defaultSettings));
 }
 
 export function hexToRgba(hex, alpha) {

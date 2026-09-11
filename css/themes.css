@@ -1,0 +1,2009 @@
+/* themes.css — часть стилей TavernOS HUD.
+   Темы: палитры, обои, фирменные знаки, приметы каждой темы, светлые темы и наборы.
+
+   Подключается из style.css через @import. Порядок подключения менять
+   нельзя: каскад здесь держится на нём. */
+/* =========================================================================
+   ТЕМЫ КАК ОТДЕЛЬНЫЕ МИРЫ
+   -------------------------------------------------------------------------
+   У каждой темы теперь второй декоративный слой — .hud-os-wrapper::before.
+   Он статичен: на телефоне ничего не крутится. Движение включается только
+   там, где есть курсор (@media hover), и только под наведением на карточку:
+   так на мобильном не появляется ни одного лишнего кадра.
+   ========================================================================= */
+.hud-os-wrapper::before {
+  content: ''; position: absolute; inset: 0; z-index: 0;
+  pointer-events: none; opacity: 0;
+}
+:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-vamp, .hud-theme-cyberpunk,
+    .hud-theme-noir, .hud-theme-medieval, .hud-theme-mafia, .hud-theme-fantasy)
+  .hud-os-wrapper::before { opacity: 1; }
+
+/* Каваи: пастельные облака и блёстки. */
+.hud-theme-kawaii .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(38% 22% at 14% 8%, rgba(255,210,232,.5), transparent 72%),
+    radial-gradient(30% 18% at 82% 5%, rgba(255,224,240,.42), transparent 74%),
+    radial-gradient(circle 1.6px at 26% 34%, rgba(255,255,255,.85) 0 60%, transparent 100%),
+    radial-gradient(circle 1.2px at 64% 58%, rgba(255,235,246,.8) 0 60%, transparent 100%),
+    radial-gradient(circle 1.8px at 88% 78%, rgba(255,255,255,.7) 0 60%, transparent 100%);
+  background-size: auto, auto, 130px 110px, 95px 85px, 160px 140px;
+  animation: hud-th-sparkle 3.8s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+@keyframes hud-th-sparkle { from { opacity: .55; } to { opacity: 1; } }
+
+/* Academia: бумажное зерно, пыль и чернильное пятно. */
+.hud-theme-academia .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(circle 22px at 88% 86%, rgba(30,22,12,.3), transparent 70%),
+    radial-gradient(circle .8px at 18% 26%, rgba(255,240,210,.16) 0 60%, transparent 100%),
+    radial-gradient(circle .6px at 62% 52%, rgba(255,240,210,.12) 0 60%, transparent 100%),
+    radial-gradient(circle .7px at 84% 18%, rgba(0,0,0,.2) 0 60%, transparent 100%);
+  background-size: auto, 41px 37px, 29px 33px, 53px 47px;
+}
+
+/* Vamp: летучие мыши и винное пятно. */
+.hud-theme-vamp .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(ellipse 3px 1.4px at 20% 14%, rgba(20,4,8,.85) 0 70%, transparent 100%),
+    radial-gradient(ellipse 2.4px 1.1px at 30% 9%, rgba(20,4,8,.7) 0 70%, transparent 100%),
+    radial-gradient(ellipse 2px 1px at 26% 20%, rgba(20,4,8,.6) 0 70%, transparent 100%),
+    radial-gradient(circle 26px at 92% 88%, rgba(105,10,26,.28), transparent 68%);
+}
+
+/* Киберпанк: сетка HUD и глитч-полоса. */
+.hud-theme-cyberpunk .hud-os-wrapper::before {
+  background-image:
+    linear-gradient(rgba(45,226,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45,226,255,.05) 1px, transparent 1px),
+    linear-gradient(180deg, transparent 0, rgba(255,45,111,.16) 2px, transparent 4px);
+  background-size: 26px 26px, 26px 26px, 100% 100%;
+  background-position: 0 0, 0 0, 0 30%;
+  animation: hud-th-glitch 5.5s steps(1, end) infinite;
+  animation-play-state: paused;
+}
+@keyframes hud-th-glitch {
+  0%, 100% { background-position: 0 0, 0 0, 0 18%; }
+  22% { background-position: 0 0, 0 0, 0 62%; }
+  24% { background-position: 0 0, 0 0, 0 30%; }
+  61% { background-position: 0 0, 0 0, 0 84%; }
+  63% { background-position: 0 0, 0 0, 0 46%; }
+}
+
+/* Нуар: дымок сигареты у верхнего края. */
+.hud-theme-noir .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(34% 26% at 76% 6%, rgba(255,255,255,.075), transparent 74%),
+    radial-gradient(22% 18% at 66% 16%, rgba(255,255,255,.05), transparent 76%);
+}
+
+/* Средневековье: волокна пергамента. */
+.hud-theme-medieval .hud-os-wrapper::before {
+  background-image:
+    repeating-linear-gradient(96deg, rgba(120,95,45,.05) 0 1px, transparent 1px 9px),
+    repeating-linear-gradient(6deg, rgba(120,95,45,.035) 0 1px, transparent 1px 13px);
+}
+
+/* Криминал: смазанный отпечаток пальца в углу. */
+.hud-theme-mafia .hud-os-wrapper::before {
+  background-image:
+    repeating-radial-gradient(circle at 88% 16%, rgba(217,43,43,.16) 0 1px, transparent 1px 4px);
+  background-size: 70px 70px;
+  background-repeat: no-repeat;
+}
+
+/* Фэнтези: руны по краю, магические частицы и светлячки. */
+.hud-theme-fantasy .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(circle 1.6px at 22% 30%, rgba(224,168,74,.9) 0 55%, transparent 100%),
+    radial-gradient(circle 1.2px at 70% 62%, rgba(127,224,192,.8) 0 55%, transparent 100%),
+    radial-gradient(circle 2px at 86% 22%, rgba(154,107,255,.7) 0 55%, transparent 100%),
+    radial-gradient(45% 32% at 12% 92%, rgba(127,224,192,.09), transparent 74%);
+  background-size: 120px 100px, 88px 76px, 150px 130px, auto;
+  animation: hud-th-motes 6.5s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+@keyframes hud-th-motes {
+  from { background-position: 0 0, 0 0, 0 0, 0 0; opacity: .6; }
+  to   { background-position: 6px -10px, -8px 8px, 4px -6px, 0 0; opacity: 1; }
+}
+
+/* Знаки темы «Фэнтези» — свои, ни с одной другой не совпадают. */
+.hud-theme-fantasy .hud-key::after,
+.hud-theme-fantasy .hud-key-label::after { content: ' \16DC'; margin-left: 4px; font-size: .95em; }
+.hud-theme-fantasy .hud-os-logo::after { content: ' \2727'; }
+.hud-theme-fantasy .hud-world-title::after { content: ' \274B'; }
+.hud-theme-fantasy { --hud-radius: 12px; }
+/* Карточка: светящаяся руническая кайма сверху и мшистый низ. */
+.hud-theme-fantasy .hud-os-card::after {
+  background:
+    linear-gradient(90deg, transparent, rgba(127,224,192,.5), rgba(154,107,255,.4), transparent) top left / 100% 2px no-repeat,
+    radial-gradient(70% 40% at 50% 100%, rgba(127,224,192,.1), transparent 72%),
+    var(--hud-bg);
+}
+/* Фирменный знак: рунический круг в нижнем правом углу. */
+.hud-theme-fantasy .hud-os-wrapper::after {
+  right: 16px; bottom: 14px; width: 30px; height: 30px; border-radius: 50%;
+  border: 1px solid rgba(127,224,192,.45);
+  box-shadow: inset 0 0 0 3px rgba(154,107,255,.14), 0 0 12px -4px rgba(127,224,192,.6);
+  background:
+    conic-gradient(from 0deg,
+      transparent 0 12deg, rgba(224,168,74,.5) 12deg 15deg, transparent 15deg 72deg,
+      rgba(127,224,192,.45) 72deg 75deg, transparent 75deg 144deg,
+      rgba(154,107,255,.45) 144deg 147deg, transparent 147deg 216deg,
+      rgba(224,168,74,.4) 216deg 219deg, transparent 219deg 288deg,
+      rgba(127,224,192,.4) 288deg 291deg, transparent 291deg);
+}
+.hud-theme-fantasy .hud-key-item { border-left-color: #7fe0c0; }
+.hud-theme-fantasy .hud-diary-entry { border-left-color: #9a6bff; }
+.hud-theme-fantasy .hud-tab.active { box-shadow: inset 0 -2px 0 #7fe0c0; }
+.hud-theme-fantasy :is(.hud-key, .hud-key-label) {
+  letter-spacing: .09em;
+  text-shadow: 0 0 10px rgba(127,224,192,.35);
+}
+.hud-theme-fantasy .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
+.hud-theme-fantasy .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
+.hud-theme-fantasy :is(.hud-world-empty, .hud-diary-empty) { font-size: 0; }
+.hud-theme-fantasy :is(.hud-world-empty, .hud-diary-empty)::after { display: block; font-size: 13px; line-height: 1.5; }
+.hud-theme-fantasy {
+  --th-empty-world: 'Вести ещё в пути — ворон не долетел.';
+  --th-empty-diary: 'Свиток чист. Перо ждёт.';
+}
+
+/* Движение декора — только там, где есть курсор, и только под наведением.
+   На телефоне эти слои остаются картинкой и не стоят ни кадра. */
+@media (hover: hover) {
+  
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-os-wrapper::before { animation: none !important; }
+}
+
+/* =========================================================================
+   ТЕМЫ: ТРЕТИЙ СЛОЙ — ТО, ЧЕГО НЕ ХВАТАЛО
+   -------------------------------------------------------------------------
+   Первый слой — украшение карточки (.hud-os-card::after), второй — мир темы
+   (.hud-os-wrapper::before), третий — здесь, на .hud-tab-content::before:
+   наклейки, стопка страниц, свечи, неоновые трубки, дым.
+
+   Слой лежит под содержимым: сам он позиционирован, поэтому прямым детям
+   вкладки поднят z-index — иначе положенный сверху фон перекрыл бы текст.
+   Движение снова только под курсором: на телефоне слой остаётся картинкой.
+   ========================================================================= */
+:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-vamp, .hud-theme-cyberpunk,
+    .hud-theme-noir, .hud-theme-medieval, .hud-theme-mafia, .hud-theme-fantasy,
+    .hud-theme-web1, .hud-theme-cottage, .hud-theme-ice, .hud-theme-ocean)
+  .hud-tab-content { position: relative; }
+:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-vamp, .hud-theme-cyberpunk,
+    .hud-theme-noir, .hud-theme-medieval, .hud-theme-mafia, .hud-theme-fantasy,
+    .hud-theme-web1, .hud-theme-cottage, .hud-theme-ice, .hud-theme-ocean)
+  .hud-tab-content > * { position: relative; z-index: 1; }
+:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-vamp, .hud-theme-cyberpunk,
+    .hud-theme-fantasy,
+    .hud-theme-web1, .hud-theme-cottage, .hud-theme-ice, .hud-theme-ocean) .hud-tab-content::before {
+  content: ''; position: absolute; inset: 0; z-index: 0;
+  pointer-events: none;
+  background-repeat: no-repeat;
+  animation-play-state: paused !important;
+}
+
+/* --- Каваи: наклейки, приклеенные по углам ------------------------------
+   Три картинки-стикера: сердечко, звёздочка и облачко на белых карточках,
+   каждая под своим углом. Рисованные, а не эмодзи: эмодзи берутся из
+   системного шрифта и пастельными не бывают. */
+.hud-theme-kawaii .hud-tab-content::before {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg transform='rotate(-9 15 15)'%3E%3Crect x='4' y='4' width='22' height='22' rx='6' fill='%23fffafd' opacity='.9'/%3E%3Cpath d='M15 22s-6-4-6-7.7A3.4 3.4 0 0 1 15 12a3.4 3.4 0 0 1 6 2.3C21 18 15 22 15 22z' fill='%23ff8fc0'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='27' height='27' viewBox='0 0 27 27'%3E%3Cg transform='rotate(13 13.5 13.5)'%3E%3Crect x='3.5' y='3.5' width='20' height='20' rx='5.5' fill='%23fffafd' opacity='.88'/%3E%3Cpath d='m13.5 7 2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L6.3 12.3l5-.7z' fill='%23a8e6cf'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cg transform='rotate(-5 14 14)'%3E%3Crect x='4' y='4' width='20' height='20' rx='6' fill='%23fffafd' opacity='.86'/%3E%3Cpath d='M9 18.5h10a3.2 3.2 0 0 0 .2-6.4 4.6 4.6 0 0 0-8.8 1A2.8 2.8 0 0 0 9 18.5z' fill='%23c9b8ff'/%3E%3C/g%3E%3C/svg%3E");
+  background-position: right 8px top 6px, left 10px bottom 12px, right 26px bottom 8px;
+  filter: drop-shadow(0 3px 5px rgba(180,90,140,.22));
+  opacity: .9;
+  animation: hud-th-bob 5.4s ease-in-out infinite alternate;
+}
+@keyframes hud-th-bob {
+  from { background-position: right 8px top 6px, left 10px bottom 12px, right 26px bottom 8px; }
+  to   { background-position: right 11px top 9px, left 13px bottom 9px, right 23px bottom 11px; }
+}
+
+/* --- Academia: стопка страниц справа и рваный нижний край --------------- */
+.hud-theme-academia .hud-tab-content::before {
+  background-image:
+    linear-gradient(rgba(232,217,184,.2), rgba(232,217,184,.2)),
+    linear-gradient(rgba(232,217,184,.14), rgba(232,217,184,.14)),
+    linear-gradient(rgba(232,217,184,.09), rgba(232,217,184,.09)),
+    repeating-linear-gradient(135deg,
+      rgba(232,217,184,.13) 0 4px, transparent 4px 8px);
+  background-size: 1px calc(100% - 18px), 1px calc(100% - 32px), 1px calc(100% - 46px), 100% 5px;
+  background-position: right 4px top 9px, right 8px top 16px, right 12px top 23px, left bottom;
+}
+
+/* --- Vamp: две свечи по верхним углам ----------------------------------
+   Свеча = столбик воска, огонёк над ним и тёплое пятно вокруг. Огонёк
+   подрагивает вместе со всем слоем: отдельного элемента под него нет, а
+   заводить ради этого лишний узел в каждой карточке дороже, чем эффект. */
+.hud-theme-vamp .hud-tab-content::before {
+  background-image:
+    radial-gradient(circle 20px at 50% 50%, rgba(255,168,60,.16), transparent 70%),
+    radial-gradient(ellipse 3px 6px at 50% 50%, rgba(255,226,150,.95), rgba(255,132,30,.55) 52%, transparent 100%),
+    linear-gradient(rgba(238,224,202,.5), rgba(214,196,168,.5)),
+    radial-gradient(circle 18px at 50% 50%, rgba(255,168,60,.13), transparent 70%),
+    radial-gradient(ellipse 2.6px 5.2px at 50% 50%, rgba(255,226,150,.85), rgba(255,132,30,.5) 52%, transparent 100%),
+    linear-gradient(rgba(238,224,202,.42), rgba(214,196,168,.42));
+  background-size:
+    42px 42px, 9px 14px, 4px 22px,
+    38px 38px, 8px 12px, 3.4px 18px;
+  background-position:
+    left 14px top 12px, left 24px top 6px, left 25px top 18px,
+    right 16px top 16px, right 26px top 12px, right 27px top 22px;
+  animation: hud-th-candle 2.6s ease-in-out infinite alternate;
+}
+@keyframes hud-th-candle { from { opacity: .78; } to { opacity: 1; } }
+
+/* --- Киберпанк: неоновые трубки сверху и снизу -------------------------- */
+.hud-theme-cyberpunk .hud-tab-content::before {
+  background-image:
+    linear-gradient(90deg, transparent, #2de2ff 18%, #b06bff 50%, #ff2d6f 82%, transparent),
+    radial-gradient(70% 100% at 50% 0%, rgba(45,226,255,.2), transparent 72%),
+    linear-gradient(90deg, transparent, #ff2d6f 18%, #b06bff 50%, #2de2ff 82%, transparent),
+    radial-gradient(70% 100% at 50% 100%, rgba(255,45,111,.16), transparent 72%);
+  background-size: 100% 1.5px, 100% 16px, 100% 1.5px, 100% 14px;
+  background-position: left top, left top, left bottom, left bottom;
+  opacity: .8;
+}
+/* Мерцающая надпись — отдельно от слоя: гаснуть должен именно текст. */
+.hud-theme-cyberpunk .hud-os-logo {
+  animation: hud-th-flicker 4.6s steps(1, end) infinite;
+  animation-play-state: paused;
+}
+@keyframes hud-th-flicker {
+  0%, 38%, 100% { opacity: 1; text-shadow: 0 0 8px rgba(45,226,255,.5); }
+  39% { opacity: .35; text-shadow: none; }
+  40% { opacity: 1; text-shadow: 0 0 14px rgba(45,226,255,.75); }
+  67% { opacity: 1; }
+  68% { opacity: .5; text-shadow: none; }
+  69% { opacity: 1; text-shadow: 0 0 8px rgba(45,226,255,.5); }
+}
+
+/* --- Фэнтези: дым поднимается снизу ------------------------------------- */
+.hud-theme-fantasy .hud-tab-content::before {
+  background-image:
+    radial-gradient(30% 42% at 20% 108%, rgba(180,220,210,.13), transparent 72%),
+    radial-gradient(24% 36% at 58% 112%, rgba(154,107,255,.11), transparent 74%),
+    radial-gradient(20% 30% at 86% 106%, rgba(127,224,192,.1), transparent 76%);
+  animation: hud-th-smoke 9s ease-in-out infinite alternate;
+}
+@keyframes hud-th-smoke {
+  from { background-position: 0 0, 0 0, 0 0; opacity: .7; }
+  to   { background-position: 8px -14px, -10px -18px, 6px -12px; opacity: 1; }
+}
+
+/* Движение третьего слоя — только под курсором, как и у второго. */
+@media (hover: hover) {
+  .hud-os-card:hover .hud-tab-content::before { animation-play-state: running !important; }
+  .hud-theme-cyberpunk .hud-os-card:hover .hud-os-logo { animation-play-state: running; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-tab-content::before, .hud-theme-cyberpunk .hud-os-logo { animation: none !important; }
+}
+
+/* =========================================================================
+   ЧЕТЫРЕ НОВЫЕ ВСЕЛЕННЫЕ
+   -------------------------------------------------------------------------
+   Web 1.0, Коттеджкор, Лёд и Глубина. Слои те же, что у остальных тем:
+   украшение карточки, мир на .hud-os-wrapper, подпись на его ::after и
+   третий слой на .hud-tab-content::before. Всё нарисовано градиентами и
+   своими SVG, движение спит до наведения.
+   ========================================================================= */
+
+/* ======================= Web 1.0 ======================= */
+.hud-theme-web1 {
+  --hud-radius: 0;
+  --lt-paper: rgba(255,255,255,.94); --lt-paper-2: rgba(255,255,255,.72);
+  --lt-ink: #000; --lt-ink-soft: rgba(0,0,0,.6);
+  --lt-line: #808080; --lt-solid: #c0c0c0;
+  --hud-text: #000; --hud-text-muted: rgba(0,0,0,.6);
+  --hud-border: #808080;
+}
+/* Фаска как у окон девяносто пятого: светлые рёбра сверху-слева,
+   тёмные снизу-справа. Четыре внутренние тени вместо рамки. */
+.hud-theme-web1 :is(.hud-os-card, .hud-key-block, .hud-key-item,
+  .hud-world-section, .hud-forecast-cell, .hud-horo-card, .hud-diary-entry) {
+  border-radius: 0 !important;
+  box-shadow: inset 1px 1px #fff, inset -1px -1px #0a0a0a,
+              inset 2px 2px #dfdfdf, inset -2px -2px #808080 !important;
+}
+.hud-theme-web1 :is(.hud-os-topbar, .hud-os-logo) { color: #fff; }
+.hud-theme-web1 .hud-os-logo { text-shadow: 1px 1px 0 #000; letter-spacing: 0; }
+.hud-theme-web1 .hud-os-logo::after {
+  content: ' \2605 WELCOME \2605'; opacity: 1; color: #ffe94a;
+  font-family: 'Courier New', monospace; font-weight: 700;
+  animation: hud-w1-blink 1.2s steps(1, end) infinite;
+  animation-play-state: paused;
+}
+@keyframes hud-w1-blink { 0%, 58% { opacity: 1; } 59%, 100% { opacity: .18; } }
+.hud-theme-web1 .hud-key::after,
+.hud-theme-web1 .hud-key-label::after { content: ' \2593'; margin-left: 4px; }
+.hud-theme-web1 .hud-world-title::after {
+  content: ' <NEW!>'; color: #d00000; font-family: 'Courier New', monospace; opacity: 1;
+}
+/* Обои в клеточку — как тайл на старой странице. */
+.hud-theme-web1 .hud-tab-content::before {
+  background-image:
+    radial-gradient(circle 1px at 4px 4px, rgba(0,0,128,.14) 0 60%, transparent 100%),
+    linear-gradient(90deg, rgba(0,128,128,.05) 0 1px, transparent 1px),
+    linear-gradient(0deg, rgba(0,128,128,.05) 0 1px, transparent 1px);
+  background-size: 16px 16px, 16px 16px, 16px 16px;
+  background-repeat: repeat;
+  opacity: .8;
+}
+/* Нижняя панель навигации и счётчик гостей. */
+.hud-theme-web1 .hud-tab-content { padding-bottom: 24px !important; }
+.hud-theme-web1 .hud-tab-content::after {
+  content: '[ HOME ]   [ GUESTBOOK ]   [ LINKS ]        guest #001728';
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 0;
+  padding: 4px 6px 3px; text-align: center;
+  font: 700 10px/1.2 'Courier New', monospace; letter-spacing: .05em;
+  color: #0000cc; background: rgba(255,255,255,.72);
+  border-top: 1px solid #808080;
+  pointer-events: none;
+}
+/* Лента «идут работы». Висит на строке вкладок, а не на самой карточке:
+   вверху карточки стоит виджет погоды, и лента перекрывала ему угол. Вкладки
+   идут сразу под погодой — лента остаётся наверху и никому не мешает. */
+.hud-theme-web1 .hud-os-wrapper::after { display: none; }
+.hud-theme-web1 .hud-tabs-header { position: relative; }
+.hud-theme-web1 .hud-tabs-header::after {
+  content: 'UNDER CONSTRUCTION';
+  position: absolute; pointer-events: none; z-index: 3;
+  right: 8px; top: 6px; padding: 2px 7px;
+  font: 700 9px/1.3 'Courier New', monospace; letter-spacing: .08em; color: #1a1a1a;
+  background: repeating-linear-gradient(-45deg, #ffd400 0 7px, #1a1a1a 7px 14px);
+  background-size: 200% 100%;
+  text-shadow: 0 0 3px #ffd400, 0 0 4px #ffd400;
+  animation: hud-w1-tape 2.6s linear infinite;
+  animation-play-state: paused;
+}
+@keyframes hud-w1-tape { to { background-position: 39.6px 0; } }
+
+/* ======================= Коттеджкор ======================= */
+.hud-theme-cottage {
+  --hud-radius: 10px;
+  --lt-paper: rgba(255,253,246,.62); --lt-paper-2: rgba(255,253,246,.4);
+  --lt-ink: #4a4034; --lt-ink-soft: rgba(74,64,52,.62);
+  --lt-line: rgba(140,120,80,.3); --lt-solid: #f5efe0;
+  --hud-text: #4a4034;
+  --hud-text-muted: rgba(74,64,52,.62);
+  --hud-border: rgba(140,120,80,.32);
+}
+.hud-theme-cottage .hud-key::after,
+.hud-theme-cottage .hud-key-label::after { content: ' \2741'; margin-left: 4px; font-size: .95em; }
+.hud-theme-cottage .hud-os-logo::after { content: ' \2698'; }
+.hud-theme-cottage .hud-world-title::after { content: ' \2618'; }
+/* Льняное переплетение: нити в двух направлениях. */
+.hud-theme-cottage .hud-os-card::after {
+  background:
+    repeating-linear-gradient(90deg, rgba(140,120,80,.045) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(0deg, rgba(140,120,80,.045) 0 1px, transparent 1px 4px),
+    var(--hud-bg);
+}
+/* Подписи от руки: заголовки полей крупнее и тоньше. */
+.hud-theme-cottage :is(.hud-key, .hud-key-label) {
+  font-family: 'Amatic SC', cursive; font-size: 1.24em;
+  letter-spacing: .05em; text-transform: none; font-weight: 700;
+}
+/* Засушенная веточка в углу. */
+.hud-theme-cottage .hud-os-wrapper::after {
+  right: 10px; bottom: 8px; width: 40px; height: 50px; opacity: .5;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='50' viewBox='0 0 40 50'%3E%3Cg stroke='%238a7a52' stroke-width='1.2' fill='none' stroke-linecap='round'%3E%3Cpath d='M20 48V10'/%3E%3Cpath d='M20 34c-6-2-9-7-9-12'/%3E%3Cpath d='M20 27c6-2 9-7 9-12'/%3E%3Cpath d='M20 41c-5-1.6-7.5-6-7.5-10'/%3E%3C/g%3E%3Cg fill='%23c9a0a8'%3E%3Cellipse cx='20' cy='8' rx='3' ry='4.4'/%3E%3Cellipse cx='11' cy='21' rx='2.2' ry='3.2'/%3E%3Cellipse cx='29' cy='14.5' rx='2.2' ry='3.2'/%3E%3C/g%3E%3C/svg%3E") no-repeat center / contain;
+}
+/* Грибы вдоль нижнего края — три штуки разного размера. */
+.hud-theme-cottage .hud-tab-content::before {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='22' viewBox='0 0 20 22'%3E%3Cpath d='M7.4 13h5.2v5.8a2.6 2.6 0 0 1-5.2 0z' fill='%23efe4cb'/%3E%3Cpath d='M10 2.6c4.3 0 7.6 3.6 7.6 6.9 0 1.9-1.5 2.8-3.2 2.8H5.6c-1.7 0-3.2-.9-3.2-2.8 0-3.3 3.3-6.9 7.6-6.9z' fill='%23b8543f'/%3E%3Ccircle cx='6.6' cy='8' r='1.1' fill='%23fdf6e8'/%3E%3Ccircle cx='12.2' cy='6.9' r='.9' fill='%23fdf6e8'/%3E%3Ccircle cx='14.2' cy='9.6' r='.8' fill='%23fdf6e8'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='16' viewBox='0 0 14 16'%3E%3Cpath d='M5.2 9.4h3.6v4.2a1.8 1.8 0 0 1-3.6 0z' fill='%23efe4cb'/%3E%3Cpath d='M7 1.8c3 0 5.3 2.6 5.3 4.9 0 1.4-1 2-2.2 2H3.9c-1.2 0-2.2-.6-2.2-2 0-2.3 2.3-4.9 5.3-4.9z' fill='%23c98a5e'/%3E%3Ccircle cx='4.9' cy='5.6' r='.8' fill='%23fdf6e8'/%3E%3Ccircle cx='8.8' cy='5' r='.6' fill='%23fdf6e8'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='13' viewBox='0 0 11 13'%3E%3Cpath d='M4.1 7.6h2.8v3.4a1.4 1.4 0 0 1-2.8 0z' fill='%23efe4cb'/%3E%3Cpath d='M5.5 1.4c2.4 0 4.2 2 4.2 3.9 0 1.1-.8 1.6-1.7 1.6H3c-.9 0-1.7-.5-1.7-1.6 0-1.9 1.8-3.9 4.2-3.9z' fill='%239a7f52'/%3E%3C/svg%3E");
+  background-position: left 14px bottom 2px, left 44px bottom 3px, right 34px bottom 2px;
+  opacity: .85;
+}
+
+/* ======================= Лёд ======================= */
+.hud-theme-ice { --hud-radius: 14px; }
+.hud-theme-ice .hud-key::after,
+.hud-theme-ice .hud-key-label::after { content: ' \2744\FE0E'; margin-left: 4px; font-size: .95em; }
+.hud-theme-ice .hud-os-logo::after { content: ' \2745'; }
+.hud-theme-ice .hud-world-title::after { content: ' \2746'; }
+/* Иней наползает из трёх углов. */
+.hud-theme-ice .hud-os-card::after {
+  background:
+    radial-gradient(52% 62% at 0% 0%, rgba(200,240,255,.17), transparent 70%),
+    radial-gradient(46% 54% at 100% 0%, rgba(200,240,255,.13), transparent 70%),
+    radial-gradient(40% 46% at 100% 100%, rgba(200,240,255,.1), transparent 70%),
+    var(--hud-bg);
+}
+/* Преломление: узкая радужная кромка по левому краю. */
+.hud-theme-ice .hud-os-wrapper::before {
+  content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: linear-gradient(180deg, transparent 6%, rgba(255,120,200,.16) 26%,
+    rgba(120,200,255,.2) 48%, rgba(160,255,220,.16) 66%, transparent 92%);
+  background-size: 2px 100%; background-repeat: no-repeat; background-position: left 5px top;
+}
+/* Ледяная кромка блока: зубчатый низ. */
+.hud-theme-ice .hud-key-block {
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 6px),
+    88% 100%, 76% calc(100% - 6px), 64% 100%, 52% calc(100% - 6px),
+    40% 100%, 28% calc(100% - 6px), 16% 100%, 4% calc(100% - 6px), 0 100%);
+  padding-bottom: 16px;
+}
+/* Кристаллы: три снежинки разного размера. */
+.hud-theme-ice .hud-tab-content::before {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Cg stroke='%23cdeffa' stroke-width='1' stroke-linecap='round' opacity='.75'%3E%3Cpath d='M11 2v18M3.2 6.5l15.6 9M3.2 15.5l15.6-9'/%3E%3Cpath d='M11 5.6 8.6 3.6M11 5.6l2.4-2M11 16.4l-2.4 2M11 16.4l2.4 2'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 15 15'%3E%3Cg stroke='%23bfeeff' stroke-width='.9' stroke-linecap='round' opacity='.6'%3E%3Cpath d='M7.5 1.5v12M2.2 4.5l10.6 6M2.2 10.5l10.6-6'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 11 11'%3E%3Cg stroke='%23e6f8ff' stroke-width='.8' stroke-linecap='round' opacity='.5'%3E%3Cpath d='M5.5 1v9M1.6 3.2l7.8 4.6M1.6 7.8l7.8-4.6'/%3E%3C/g%3E%3C/svg%3E");
+  background-position: right 12px top 8px, left 16px bottom 14px, right 46px bottom 10px;
+  animation: hud-ice-glint 6.5s ease-in-out infinite alternate;
+}
+@keyframes hud-ice-glint { from { opacity: .55; } to { opacity: 1; } }
+/* Ледяная искра в углу. */
+.hud-theme-ice .hud-os-wrapper::after {
+  /* Тоже вниз: на своём прежнем месте искра лежала на виджете погоды. */
+  right: 14px; bottom: 12px; width: 26px; height: 26px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(230,250,255,.9) 0 1.2px, transparent 1.6px),
+    linear-gradient(0deg, transparent 46%, rgba(200,240,255,.55) 50%, transparent 54%),
+    linear-gradient(90deg, transparent 46%, rgba(200,240,255,.55) 50%, transparent 54%),
+    linear-gradient(45deg, transparent 47%, rgba(200,240,255,.35) 50%, transparent 53%),
+    linear-gradient(-45deg, transparent 47%, rgba(200,240,255,.35) 50%, transparent 53%);
+}
+
+/* ======================= Глубина ======================= */
+.hud-theme-ocean { --hud-radius: 16px; }
+.hud-theme-ocean .hud-key::after,
+.hud-theme-ocean .hud-key-label::after { content: ' \2248'; margin-left: 4px; }
+.hud-theme-ocean .hud-os-logo::after { content: ' \223F'; }
+.hud-theme-ocean .hud-world-title::after { content: ' \224B'; }
+/* Каустика: пересекающиеся светлые нити, как блики на дне. */
+.hud-theme-ocean .hud-os-card::after {
+  background:
+    repeating-linear-gradient(24deg, rgba(120,230,255,.05) 0 2px, transparent 2px 17px),
+    repeating-linear-gradient(-32deg, rgba(120,230,255,.04) 0 2px, transparent 2px 23px),
+    var(--hud-bg);
+}
+/* Лучи света падают сверху под небольшим наклоном. */
+.hud-theme-ocean .hud-os-wrapper::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    linear-gradient(170deg, rgba(150,240,255,.09) 0 5px, transparent 5px 42px),
+    linear-gradient(176deg, rgba(150,240,255,.06) 0 3px, transparent 3px 58px);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 78%);
+          mask-image: linear-gradient(180deg, #000 0%, transparent 78%);
+  animation: hud-oc-rays 13s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+@keyframes hud-oc-rays {
+  from { background-position: 0 0, 0 0; opacity: .7; }
+  to   { background-position: 16px 0, -12px 0; opacity: 1; }
+}
+/* Пузырьки поднимаются со дна. */
+.hud-theme-ocean .hud-tab-content::before {
+  background-image:
+    radial-gradient(circle 3px at 50% 50%, rgba(190,245,255,.4) 0 52%, rgba(190,245,255,.14) 58%, transparent 62%),
+    radial-gradient(circle 2px at 50% 50%, rgba(190,245,255,.32) 0 52%, transparent 60%),
+    radial-gradient(circle 4px at 50% 50%, rgba(190,245,255,.22) 0 52%, transparent 60%);
+  background-size: 58px 92px, 41px 68px, 77px 116px;
+  background-repeat: repeat;
+  animation: hud-oc-bubbles 14s linear infinite;
+}
+@keyframes hud-oc-bubbles {
+  from { background-position: 0 0, 0 0, 0 0; }
+  to   { background-position: 5px -92px, -7px -68px, 4px -116px; }
+}
+/* Медленная волна по нижнему краю. */
+.hud-theme-ocean .hud-os-wrapper::after {
+  left: 0; right: 0; bottom: 0; height: 12px;
+  background:
+    radial-gradient(ellipse 26px 8px at 50% 100%, rgba(79,216,200,.16), transparent 70%);
+  background-size: 52px 12px; background-repeat: repeat-x;
+  animation: hud-oc-wave 9s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+@keyframes hud-oc-wave { from { background-position: 0 0; } to { background-position: 52px 0; } }
+
+/* Движение новых тем — как у всех: только под курсором. */
+@media (hover: hover) {
+  .hud-os-card:hover .hud-os-logo::after,
+  .hud-os-card:hover .hud-os-wrapper::after,
+  .hud-os-card:hover .hud-os-wrapper::before { animation-play-state: running !important; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-os-logo::after, .hud-os-wrapper::after, .hud-os-wrapper::before { animation: none !important; }
+}
+
+/* =========================================================================
+   СИСТЕМА ЦВЕТОВ, ЖИВОЙ ПРОСМОТР И СТЕКЛО
+   ========================================================================= */
+
+/* --- Система цветов: семь ролей вместо россыпи полей ------------------- */
+.hud-theme-system { padding: 10px 12px 12px; border-bottom: 1px solid var(--hud-border); }
+.hud-theme-roles {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(78px, 1fr));
+  gap: 7px; margin-bottom: 9px;
+}
+.hud-role {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  cursor: pointer; font-size: 10px; text-align: center; line-height: 1.2;
+}
+.hud-role input[type="color"] {
+  width: 100%; height: 26px; padding: 0; cursor: pointer;
+  border: 1px solid var(--hud-border); border-radius: 7px; background: transparent;
+}
+.hud-role span { opacity: .78; }
+.hud-glass-row { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+.hud-glass-row select { flex: 1; }
+
+/* --- Живой просмотр ----------------------------------------------------
+   Собран из настоящих классов HUD, а не из макета: значит показывает и
+   украшения выбранной темы, и тип стекла, и цвет текста — всё сразу и без
+   единой строчки JS, потому что переменные общие. */
+.hud-theme-preview {
+  border: 1px solid var(--hud-border); border-radius: 10px;
+  padding: 8px; background: rgba(0,0,0,.18);
+  max-height: 190px; overflow: hidden;
+  pointer-events: none; /* просмотр не кликается: он витрина, а не пульт */
+}
+.hud-theme-preview .hud-os-card { margin: 0; font-size: 11px; }
+.hud-theme-preview .hud-tabs-header::after,
+.hud-theme-preview .hud-os-wrapper::after,
+.hud-theme-preview .hud-os-wrapper::before,
+.hud-theme-preview .hud-tab-content::before,
+.hud-theme-preview .hud-tab-content::after { display: none !important; }
+.hud-theme-preview .hud-os-topbar { padding: 6px 10px; }
+.hud-theme-preview .hud-os-logo { font-size: 12px; }
+.hud-theme-preview .hud-os-wrapper {
+  display: block !important; max-height: none !important;
+  overflow: visible !important; opacity: 1 !important; padding: 8px 10px 10px;
+}
+.hud-theme-preview .hud-tab-content { display: block; }
+.hud-theme-preview .hud-key-block { padding: 7px 9px; }
+.hud-theme-preview .hud-key-item { padding: 4px 8px; font-size: 11px; }
+.hud-theme-preview .hud-row { margin-top: 6px; }
+
+/* --- Стекло ------------------------------------------------------------
+   Стекло — это не один backdrop-filter, а набор слоёв: верхний блик,
+   внутреннее свечение, глубина под карточкой, кромка и сила размытия.
+   Каждый тип задаёт их по-своему; сами правила ниже общие.
+   Слои сделаны тенями, а не фоном: фон у карточек занят украшениями тем,
+   и добавляться туда — значит ломать их при каждой смене темы. */
+:root {
+  --glass-rim: rgba(255,255,255,.2);
+  --glass-inner: rgba(255,255,255,.05);
+  --glass-inner-size: 26px;
+  --glass-depth: 0 8px 30px rgba(0,0,0,.3);
+  --glass-edge: transparent;
+  --glass-blur-k: 1;
+}
+.hud-glass-frosted {
+  --glass-rim: rgba(255,255,255,.22);
+  --glass-inner: rgba(255,255,255,.07);
+  --glass-inner-size: 30px;
+  --glass-blur-k: 1.15;
+}
+.hud-glass-clear {
+  --glass-rim: rgba(255,255,255,.34);
+  --glass-inner: rgba(255,255,255,.02);
+  --glass-inner-size: 14px;
+  --glass-depth: 0 4px 16px rgba(0,0,0,.22);
+  --glass-blur-k: .3;
+}
+.hud-glass-tinted {
+  --glass-rim: color-mix(in srgb, var(--hud-accent) 55%, #ffffff);
+  --glass-inner: color-mix(in srgb, var(--hud-accent) 16%, transparent);
+  --glass-inner-size: 34px;
+  --glass-blur-k: 1;
+}
+/* Жидкое: широкий мягкий блик и глубокая тень — стекло кажется налитым. */
+.hud-glass-liquid {
+  --glass-rim: rgba(255,255,255,.4);
+  --glass-inner: rgba(255,255,255,.1);
+  --glass-inner-size: 54px;
+  --glass-depth: 0 14px 44px rgba(0,0,0,.4);
+  --glass-blur-k: 1.5;
+}
+/* Перламутр: кромка двух цветов — холодная сверху, тёплая снизу. */
+.hud-glass-iridescent {
+  --glass-rim: rgba(190,235,255,.42);
+  --glass-inner: rgba(255,255,255,.06);
+  --glass-inner-size: 32px;
+  --glass-edge: rgba(255,170,220,.3);
+  --glass-blur-k: 1.2;
+}
+
+/* Кромка карточки и внутренний блик. Тень карточки не трогаем: у Vamp там
+   своя виньетка, и перебивать её значило бы отнять у темы её же приём. */
+.hud-os-card { border-top-color: var(--glass-rim); }
+.hud-key-block,
+.hud-forecast-cell,
+.hud-horo-card {
+  box-shadow:
+    inset 0 1px 0 var(--glass-rim),
+    inset 0 -1px 0 var(--glass-edge),
+    inset 0 0 var(--glass-inner-size) var(--glass-inner);
+}
+.hud-glass-liquid .hud-os-card { box-shadow: var(--glass-depth), inset 0 1px 0 var(--glass-rim); }
+.hud-glass-iridescent .hud-os-card { border-bottom: 1px solid var(--glass-edge); }
+/* Сила размытия у стекла своя: прозрачное почти не мылит, жидкое мылит сильно. */
+.hud-os-card::after {
+  backdrop-filter: blur(calc(var(--hud-blur-intensity, 8px) * var(--glass-blur-k, 1)));
+  -webkit-backdrop-filter: blur(calc(var(--hud-blur-intensity, 8px) * var(--glass-blur-k, 1)));
+}
+
+/* Кнопка сброса цвета текста стоит в той же сетке ролей. */
+.hud-role-clear { border: 1px dashed var(--hud-border); border-radius: 7px; background: rgba(0,0,0,.2);
+  color: var(--hud-text); cursor: pointer; padding: 3px 4px; font-size: 9px; line-height: 1.15; }
+.hud-role-clear:hover { background: rgba(255,255,255,.07); border-color: var(--hud-accent); }
+.hud-role-x { font-size: 14px; opacity: .8; }
+
+/* =========================================================================
+   DARK ACADEMIA: ИНТЕРФЕЙС КАК ПРЕДМЕТ
+   -------------------------------------------------------------------------
+   Не «коричневая тема», а книга на столе: закладка свешивается из-под
+   шапки, у страницы есть номер, у полей — чернильное подчёркивание и
+   пометки на полях, между разделами лежит засушенный цветок, а на блоке
+   стоит выцветший штамп. Всё рисуется градиентами и глифами, ни одной
+   картинки и ни одной постоянной анимации.
+   ========================================================================= */
+
+/* Закладка: лента свешивается из-под шапки карточки. */
+.hud-theme-academia .hud-tabs-header { position: relative; }
+.hud-theme-academia .hud-tabs-header::after {
+  content: ''; position: absolute; right: 14px; top: 0;
+  width: 12px; height: 26px; z-index: 3; pointer-events: none;
+  background: linear-gradient(180deg, #8c2f22, #6d2318);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 72%, 0 100%);
+  box-shadow: 0 2px 5px rgba(0,0,0,.4);
+}
+
+/* Номер страницы внизу разворота. Слот освободился, когда поле тетради
+   переехало на .hud-tab-content — теперь он снова при деле. */
+.hud-theme-academia .hud-os-wrapper::after {
+  display: block;
+  content: '— XLVII —';
+  left: 0; right: 0; bottom: 4px; top: auto;
+  text-align: center;
+  font-size: 10px; letter-spacing: .18em;
+  color: rgba(201,162,39,.5);
+  background: none;
+}
+
+/* Чернильное подчёркивание заголовка: линия неровная, как от пера. */
+.hud-theme-academia .hud-key-label {
+  background-image:
+    linear-gradient(90deg, rgba(163,58,42,.55) 0 38%, rgba(163,58,42,.28) 38% 62%, rgba(163,58,42,.5) 62% 100%);
+  background-size: 100% 1.5px;
+  background-position: left bottom 1px;
+  background-repeat: no-repeat;
+  padding-bottom: 5px;
+}
+
+/* Уголок страницы у каждого блока полей. */
+.hud-theme-academia .hud-key-block {
+  position: relative;
+  background-image:
+    linear-gradient(225deg, rgba(232,217,184,.16) 0 9px, transparent 9px);
+  background-repeat: no-repeat;
+  background-position: right top;
+}
+
+/* Выцветший штамп в углу блока. */
+.hud-theme-academia .hud-key-block::after {
+  content: ''; position: absolute; right: 9px; bottom: 7px;
+  width: 30px; height: 30px; border-radius: 50%; pointer-events: none;
+  border: 1.5px solid rgba(163,58,42,.3);
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 8px, rgba(163,58,42,.16) 8px 9.5px, transparent 9.5px),
+    linear-gradient(28deg, transparent 46%, rgba(163,58,42,.22) 46% 54%, transparent 54%);
+  transform: rotate(-13deg);
+  opacity: .75;
+}
+
+/* Пометка на полях у каждой строки — «nota bene» от руки. */
+.hud-theme-academia .hud-key-item { position: relative; padding-left: 26px; }
+.hud-theme-academia .hud-key-item::before {
+  content: 'nb.'; position: absolute; left: 8px; top: 6px;
+  font-size: .72em; font-style: italic; letter-spacing: .02em;
+  color: rgba(201,162,39,.62);
+}
+
+/* Засушенный цветок лежит между разделами. Виден только там, где блоки
+   идут подряд: это разделитель, а не украшение каждого блока. */
+.hud-theme-academia .hud-key-block + .hud-key-block { margin-top: 20px; }
+.hud-theme-academia .hud-key-block + .hud-key-block::before {
+  content: ''; position: absolute; left: 50%; top: -17px;
+  width: 34px; height: 14px; margin-left: -17px; pointer-events: none;
+  background:
+    radial-gradient(circle 2.6px at 50% 3px, rgba(196,150,120,.6) 0 60%, transparent 100%),
+    radial-gradient(circle 2.2px at 34% 6px, rgba(176,132,104,.5) 0 60%, transparent 100%),
+    radial-gradient(circle 2.2px at 66% 6px, rgba(176,132,104,.5) 0 60%, transparent 100%),
+    radial-gradient(circle 1.8px at 42% 10px, rgba(150,140,96,.45) 0 60%, transparent 100%),
+    radial-gradient(circle 1.8px at 58% 10px, rgba(150,140,96,.45) 0 60%, transparent 100%),
+    linear-gradient(rgba(122,116,80,.5), rgba(122,116,80,.5));
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 1px 9px;
+  background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 50% 5px;
+  background-repeat: no-repeat;
+  transform: rotate(-6deg);
+}
+
+/* =========================================================================
+   СВЕТЛЫЕ ТЕМЫ: ТЕКСТ СЦЕНЫ И УНАСЛЕДОВАННАЯ ТЕНЬ
+   -------------------------------------------------------------------------
+   Часы, дата, плашки погоды и строка атмосферы написаны белым и подсвечены
+   белым же ореолом — так задумано для тёмного ночного неба. На светлой теме
+   небо пастельное (фон карточки просвечивает сквозь полупрозрачные слои),
+   и белое по светлому выглядит расплывшимся. Сколько ни убирай блюр, не
+   поможет: размывает не блюр, а свечение под буквами.
+
+   Вторая половина беды — тень текста, которую вся страница наследует из
+   темы SillyTavern (в её настройках это shadow_color и shadow_width). На
+   тёмном интерфейсе светлая тень читается как лёгкое сияние, а под тёмными
+   буквами HUD превращается в грязь. Гасим её на карточке: элементы со
+   своей тенью её сохранят, остальные перестанут наследовать чужую.
+   ========================================================================= */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate)
+  :is(.hud-os-card, .hud-scene-widget) { text-shadow: none; }
+
+/* Часы и дата — тёмными чернилами, с тонким светлым бликом снизу вместо
+   тёмного ореола: он отделяет цифры от пастельного неба, не размазывая. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-time-display {
+  /* Цвет не трогаем: у часов своя настройка clockColor, и она главнее.
+     Убираем только белое свечение — из-за него цифры и расплывались. */
+  text-shadow: 0 1px 0 rgba(255,255,255,.65);
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-date-display {
+  color: var(--lt-ink-soft);
+  text-shadow: none;
+}
+
+/* Плашки погоды, настроения и атмосферы: тёмная подложка на светлом небе
+   выглядела кляксой. Делаем их бумажными, а текст — чернильным. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate)
+  :is(.hud-weather-item, .hud-mood-item, .hud-scene-atm) {
+  background: var(--lt-paper) !important;
+  color: var(--lt-ink) !important;
+  border-color: var(--lt-line) !important;
+  text-shadow: none !important;
+  box-shadow: 0 2px 8px rgba(90,50,70,.12), inset 0 1px 0 rgba(255,255,255,.5);
+}
+
+/* Блок с часами тоже сидит на светлом — его тёмная подложка ни к чему. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-scene-time-group {
+  background: var(--lt-paper);
+  border-color: var(--lt-line);
+  box-shadow: 0 2px 8px rgba(90,50,70,.12);
+}
+
+/* =========================================================================
+   СЦЕНЕ — СВОЁ НЕПРОЗРАЧНОЕ НЕБО
+   -------------------------------------------------------------------------
+   Слой .hud-fx-bg рисует небо с прозрачностью 0.52…0.80 (она считается от
+   времени суток), а у самого виджета фона не было вовсе. Значит сквозь небо
+   всегда просвечивал фон карточки — то есть цвет выбранной темы. На светлых
+   темах пергамент и розовый забивали сцену в молоко, на тёмных темнота её
+   съедала: погода выглядела «мыльной» или пропадала совсем.
+
+   Теперь виджет сам красит небо теми же переменными и непрозрачно. Слой
+   .hud-fx-bg остаётся сверху: он добавляет закатное свечение и плавно
+   переливается при смене времени суток, но подмешивать в сцену цвет темы
+   ему больше нечего.
+   ========================================================================= */
+.hud-scene-widget {
+  background:
+    linear-gradient(180deg, var(--sky-top) 0%, var(--sky-mid) 55%, var(--sky-bot) 100%);
+}
+
+/* =========================================================================
+   ОСЕНЬ И ВЕСНА: ГОРИЗОНТ И МЕЛОЧЬ ПОД НОГАМИ
+   -------------------------------------------------------------------------
+   У зимы горизонт занимают лес, деревня и пруд, у лета — своя мелочь. Осень
+   и весна рядом с ними выглядели пустым скатом земли и пустым небом. Здесь
+   добавлены дальний лес по горизонту и подножный слой: палая листва с
+   грибами осенью, кочки травы и лужа весной.
+
+   Всё статично: ни одной анимации, только градиенты. Слои лежат под
+   деревьями (z-index 1) и не перехватывают нажатия.
+   ========================================================================= */
+.hud-far-treeline {
+  position: absolute; left: -2%; right: -2%; bottom: 2%; height: 29%;
+  z-index: 1; pointer-events: none;
+}
+/* Осенний лес: округлые кроны тёплых тонов, разной высоты и плотности. */
+.season-autumn .hud-far-treeline {
+  opacity: .62;
+  background:
+    radial-gradient(26px 15px at 4% 62%,  rgba(104,64,32,.95) 0 72%, transparent 74%),
+    radial-gradient(34px 20px at 13% 62%, rgba(126,76,36,.9)  0 72%, transparent 74%),
+    radial-gradient(22px 13px at 22% 62%, rgba(96,58,30,.95)  0 72%, transparent 74%),
+    radial-gradient(38px 22px at 33% 62%, rgba(134,84,40,.88) 0 72%, transparent 74%),
+    radial-gradient(24px 14px at 44% 62%, rgba(100,62,32,.92) 0 72%, transparent 74%),
+    radial-gradient(32px 19px at 55% 62%, rgba(120,72,34,.9)  0 72%, transparent 74%),
+    radial-gradient(26px 16px at 66% 62%, rgba(108,66,32,.92) 0 72%, transparent 74%),
+    radial-gradient(36px 21px at 78% 62%, rgba(130,80,38,.88) 0 72%, transparent 74%),
+    radial-gradient(24px 14px at 89% 62%, rgba(98,60,30,.94)  0 72%, transparent 74%),
+    radial-gradient(30px 18px at 98% 62%, rgba(116,70,34,.9)  0 72%, transparent 74%),
+    linear-gradient(rgba(112,70,34,.9), rgba(112,70,34,.9)) 0 100% / 100% 40% no-repeat;
+}
+/* Весенний: те же кроны, но молодой зеленью и легче. */
+.season-spring .hud-far-treeline {
+  opacity: .58;
+  background:
+    radial-gradient(26px 15px at 5% 62%,  rgba(58,110,54,.95) 0 72%, transparent 74%),
+    radial-gradient(34px 20px at 15% 62%, rgba(72,128,62,.9)  0 72%, transparent 74%),
+    radial-gradient(22px 13px at 24% 62%, rgba(52,102,50,.95) 0 72%, transparent 74%),
+    radial-gradient(38px 22px at 35% 62%, rgba(78,136,66,.88) 0 72%, transparent 74%),
+    radial-gradient(24px 14px at 46% 62%, rgba(56,108,52,.92) 0 72%, transparent 74%),
+    radial-gradient(32px 19px at 57% 62%, rgba(68,122,58,.9)  0 72%, transparent 74%),
+    radial-gradient(26px 16px at 68% 62%, rgba(60,112,54,.92) 0 72%, transparent 74%),
+    radial-gradient(36px 21px at 80% 62%, rgba(74,130,62,.88) 0 72%, transparent 74%),
+    radial-gradient(24px 14px at 92% 62%, rgba(54,104,50,.94) 0 72%, transparent 74%),
+    linear-gradient(rgba(64,116,56,.9), rgba(64,116,56,.9)) 0 100% / 100% 40% no-repeat;
+}
+
+/* --- Осень: палая листва и грибы ---------------------------------------- */
+.hud-autumn-litter { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.hud-ground-leaf {
+  position: absolute; width: 5px; height: 3.5px;
+  border-radius: 0 65% 0 65%;
+  opacity: .72;
+}
+.hud-ground-leaf.gl1 { left: 9%;  bottom: 7.6%; background: #b8622a; transform: rotate(18deg); }
+.hud-ground-leaf.gl2 { left: 21%; bottom: 7.5%;  background: #96481f; transform: rotate(-32deg); }
+.hud-ground-leaf.gl3 { left: 37%; bottom: 12.2%; background: #cf7a34; transform: rotate(64deg); }
+.hud-ground-leaf.gl4 { left: 52%; bottom: 8%;  background: #a8551f; transform: rotate(-12deg); }
+.hud-ground-leaf.gl5 { left: 66%; bottom: 13.5%; background: #c46a2c; transform: rotate(41deg); }
+.hud-ground-leaf.gl6 { left: 79%; bottom: 8.5%; background: #8f4a1e; transform: rotate(-55deg); }
+.hud-ground-leaf.gl7 { left: 91%; bottom: 8%; background: #d98a3d; transform: rotate(7deg); }
+/* Гриб: шляпка и ножка двумя градиентами на одном элементе. */
+.hud-mushroom {
+  position: absolute; width: 9px; height: 9px; pointer-events: none;
+  background:
+    radial-gradient(5px 3.6px at 50% 40%, #a63b28 0 72%, transparent 74%),
+    linear-gradient(#e8dcc6, #cdbfa4);
+  background-size: 100% 100%, 2.6px 5px;
+  background-position: 0 0, 50% 100%;
+  background-repeat: no-repeat, no-repeat;
+}
+.hud-mushroom.m1 { left: 15%; bottom: 9%; transform: scale(.9); }
+.hud-mushroom.m2 { left: 17.5%; bottom: 7.2%; transform: scale(.66); }
+.hud-mushroom.m3 { left: 73%; bottom: 11%; transform: scale(.8); }
+
+/* --- Весна: кочки травы и лужа ------------------------------------------ */
+.hud-grass { position: absolute; inset: 0; z-index: 3; pointer-events: none; }
+.hud-grass-tuft {
+  position: absolute; width: 11px; height: 9px;
+  background:
+    linear-gradient(82deg,  transparent 0 44%, rgba(96,168,74,.9) 44% 52%, transparent 52%),
+    linear-gradient(98deg,  transparent 0 44%, rgba(118,190,86,.85) 44% 52%, transparent 52%),
+    linear-gradient(90deg,  transparent 0 45%, rgba(78,148,62,.9) 45% 53%, transparent 53%);
+  background-size: 100% 100%, 100% 78%, 100% 88%;
+  background-position: 0 100%, 3px 100%, -3px 100%;
+  background-repeat: no-repeat;
+}
+.hud-grass-tuft.gt1 { left: 7%;  bottom: 7.4%; }
+.hud-grass-tuft.gt2 { left: 24%; bottom: 7.7%;  transform: scale(.82); }
+.hud-grass-tuft.gt3 { left: 41%; bottom: 13.8%; transform: scale(1.1); }
+.hud-grass-tuft.gt4 { left: 58%; bottom: 8%;  transform: scale(.9); }
+.hud-grass-tuft.gt5 { left: 76%; bottom: 11.8%; transform: scale(1.05); }
+.hud-grass-tuft.gt6 { left: 92%; bottom: 6.6%; transform: scale(.78); }
+/* Лужа после весеннего дождя: небо в ней отражается светлой полосой. */
+.hud-spring-puddle {
+  position: absolute; left: 30%; bottom: 6%; width: 74px; height: 13px;
+  z-index: 2; pointer-events: none; border-radius: 50%;
+  background:
+    linear-gradient(180deg, rgba(190,225,240,.5), rgba(120,175,205,.35)),
+    radial-gradient(60% 40% at 38% 34%, rgba(255,255,255,.5), transparent 70%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.4);
+  opacity: .7;
+}
+
+/* =========================================================================
+   ОСЕНЬ И ВЕСНА: ДАЛЬНИЙ ПЛАН И ЛУЖА ПОСЛЕ ДОЖДЯ
+   ========================================================================= */
+
+/* Дальние холмы за лесом — третий план, он и даёт глубину. */
+.hud-far-hills {
+  position: absolute; left: -4%; right: -4%; bottom: 2%; height: 35%;
+  z-index: 0; pointer-events: none;
+}
+.season-autumn .hud-far-hills {
+  opacity: .3;
+  background:
+    radial-gradient(120px 46px at 18% 63%, rgba(122,96,72,.9) 0 78%, transparent 80%),
+    radial-gradient(150px 56px at 52% 63%, rgba(108,86,66,.85) 0 78%, transparent 80%),
+    radial-gradient(130px 48px at 86% 63%, rgba(118,92,70,.88) 0 78%, transparent 80%),
+    linear-gradient(rgba(112,88,68,.88), rgba(112,88,68,.88)) 0 100% / 100% 38% no-repeat;
+}
+.season-spring .hud-far-hills {
+  opacity: .28;
+  background:
+    radial-gradient(120px 46px at 16% 63%, rgba(96,132,88,.9) 0 78%, transparent 80%),
+    radial-gradient(150px 56px at 50% 63%, rgba(84,120,80,.85) 0 78%, transparent 80%),
+    radial-gradient(130px 48px at 88% 63%, rgba(92,128,84,.88) 0 78%, transparent 80%),
+    linear-gradient(rgba(90,126,84,.88), rgba(90,126,84,.88)) 0 100% / 100% 38% no-repeat;
+}
+
+/* Лужа только в дождь и один ход после него: класс scene-wet ставит
+   рендер, сверяясь с погодой предыдущего сообщения. */
+.hud-spring-puddle { display: none; }
+.scene-wet .hud-spring-puddle { display: block; }
+
+/* Осень: сухая трава и упавшее бревно. */
+.hud-dry-tuft {
+  position: absolute; width: 10px; height: 8px; z-index: 3; pointer-events: none;
+  background:
+    linear-gradient(84deg, transparent 0 44%, rgba(150,122,74,.85) 44% 52%, transparent 52%),
+    linear-gradient(96deg, transparent 0 44%, rgba(176,146,90,.8) 44% 52%, transparent 52%),
+    linear-gradient(90deg, transparent 0 45%, rgba(128,104,62,.85) 45% 53%, transparent 53%);
+  background-size: 100% 100%, 100% 76%, 100% 86%;
+  background-position: 0 100%, 3px 100%, -3px 100%;
+  background-repeat: no-repeat;
+}
+.hud-dry-tuft.dt1 { left: 4%;  bottom: 7%; transform: scale(.9); }
+.hud-dry-tuft.dt2 { left: 29%; bottom: 8.2%; }
+.hud-dry-tuft.dt3 { left: 46%; bottom: 12.9%; transform: scale(1.05); }
+.hud-dry-tuft.dt4 { left: 62%; bottom: 8.6%; transform: scale(.85); }
+.hud-dry-tuft.dt5 { left: 87%; bottom: 8.4%; transform: scale(.95); }
+/* Бревно: ствол с торцом и тенью под ним. */
+.hud-fallen-log {
+  position: absolute; left: 55%; bottom: 9%; width: 44px; height: 8px;
+  z-index: 3; pointer-events: none; border-radius: 4px;
+  background:
+    radial-gradient(5px 4px at 6% 50%, #6b4a2c 0 72%, transparent 74%),
+    linear-gradient(180deg, #7d5a36 0 42%, #5c4026 42% 100%);
+  box-shadow: 0 2px 4px rgba(20,12,6,.34);
+  transform: rotate(-2deg);
+}
+
+/* Весна: отцветшие одуванчики. */
+.hud-dandelion {
+  position: absolute; width: 9px; height: 14px; z-index: 3; pointer-events: none;
+  background:
+    radial-gradient(circle 4px at 50% 22%, rgba(238,244,230,.72) 0 62%, transparent 66%),
+    linear-gradient(rgba(110,158,84,.9), rgba(110,158,84,.9));
+  background-size: 100% 100%, 1.2px 8px;
+  background-position: 0 0, 50% 100%;
+  background-repeat: no-repeat;
+}
+.hud-dandelion.dn1 { left: 13%; bottom: 7.4%; transform: scale(.9); }
+.hud-dandelion.dn2 { left: 35%; bottom: 12.6%; }
+.hud-dandelion.dn3 { left: 67%; bottom: 8.5%; transform: scale(.85); }
+.hud-dandelion.dn4 { left: 84%; bottom: 8.6%; transform: scale(.95); }
+
+/* =========================================================================
+   ОСЕНЬ И ВЕСНА: ЛИЧНЫЕ ПРИМЕТЫ СЕЗОНА
+   Всё стоит ниже кромки земли в своей колонке — дуга проверена замером.
+   Статика, ни одной анимации.
+   ========================================================================= */
+
+/* --- Осень: изгородь, жёлуди, ворона на суку --- */
+.hud-fence { position: absolute; left: 4%; bottom: 6.5%; width: 74px; height: 17px; z-index: 3; pointer-events: none; }
+.hud-fence-rail {
+  position: absolute; left: 0; width: 100%; height: 2.6px; border-radius: 2px;
+  background: linear-gradient(180deg, rgba(164,128,82,.96) 0 40%, rgba(72,50,30,.96) 42% 100%);
+  box-shadow: 0 1px 2px rgba(18,10,4,.45);
+}
+.hud-fence-rail.r1 { top: 4px; }
+.hud-fence-rail.r2 { top: 10px; }
+.hud-fence-post {
+  position: absolute; bottom: 0; width: 3.4px; height: 100%; border-radius: 1px 1px 0 0;
+  background: linear-gradient(90deg, rgba(58,40,24,.96), rgba(150,116,74,.96) 45%, rgba(50,34,20,.96));
+  box-shadow: 0 1px 2px rgba(18,10,4,.4);
+}
+.hud-fence-post.p1 { left: 2px; }
+.hud-fence-post.p2 { left: 35px; }
+.hud-fence-post.p3 { left: 68px; }
+
+.hud-acorn {
+  position: absolute; width: 5px; height: 6px; z-index: 3; pointer-events: none;
+  background:
+    radial-gradient(3px 2px at 50% 22%, #6b4a2a 0 72%, transparent 74%),
+    radial-gradient(2.4px 3px at 50% 72%, #c08b4e 0 74%, transparent 76%);
+  background-repeat: no-repeat;
+}
+.hud-acorn.ac1 { left: 27%; bottom: 8%; transform: rotate(12deg); }
+.hud-acorn.ac2 { left: 43%; bottom: 11.4%; transform: rotate(-20deg); }
+.hud-acorn.ac3 { left: 69%; bottom: 9.6%; transform: rotate(6deg); }
+
+/* Ворона на суку: силуэт из тела, головы и хвоста. */
+.hud-crow {
+  position: absolute; left: 62%; bottom: 46%; width: 13px; height: 8px;
+  z-index: 4; pointer-events: none;
+  background:
+    radial-gradient(6px 3.4px at 42% 60%, #14161c 0 76%, transparent 78%),
+    radial-gradient(2.6px 2.6px at 74% 26%, #14161c 0 76%, transparent 78%),
+    linear-gradient(114deg, transparent 0 46%, #14161c 46% 56%, transparent 56%);
+  background-size: 100% 100%, 100% 100%, 7px 5px;
+  background-position: 0 0, 0 0, 0 100%;
+  background-repeat: no-repeat;
+  opacity: .82;
+}
+
+/* --- Весна: цветущий куст, улитка, ростки --- */
+.hud-blossom-shrub { position: absolute; left: 82%; bottom: 6%; width: 34px; height: 22px; z-index: 3; pointer-events: none; }
+.hud-shrub-body {
+  position: absolute; inset: 0;
+  background:
+    radial-gradient(13px 9px at 26% 70%, rgba(74,132,66,.92) 0 74%, transparent 76%),
+    radial-gradient(15px 11px at 58% 52%, rgba(88,148,74,.9) 0 74%, transparent 76%),
+    radial-gradient(11px 8px at 84% 74%, rgba(66,122,60,.92) 0 74%, transparent 76%);
+}
+.hud-shrub-bloom {
+  position: absolute; width: 4px; height: 4px; border-radius: 50%;
+  background: radial-gradient(circle at 36% 32%, #fff0f6, #f2a8c8 72%);
+  box-shadow: 0 0 2px rgba(242,168,200,.6);
+}
+.hud-shrub-bloom.b1 { left: 6px;  top: 8px; }
+.hud-shrub-bloom.b2 { left: 17px; top: 3px; }
+.hud-shrub-bloom.b3 { left: 25px; top: 10px; }
+
+.hud-snail {
+  position: absolute; left: 47%; bottom: 7.2%; width: 10px; height: 7px;
+  z-index: 3; pointer-events: none;
+  background:
+    radial-gradient(3.4px 3.4px at 62% 44%, #b8894a 0 62%, #8c6435 64% 76%, transparent 78%),
+    radial-gradient(2.6px 1.6px at 20% 82%, #cdb08a 0 74%, transparent 76%);
+  background-repeat: no-repeat;
+  opacity: .9;
+}
+/* Проростки: две семядоли на тонком стебле. */
+.hud-sprout {
+  position: absolute; width: 8px; height: 9px; z-index: 3; pointer-events: none;
+  background:
+    radial-gradient(3px 2px at 18% 30%, rgba(132,204,96,.95) 0 74%, transparent 76%),
+    radial-gradient(3px 2px at 82% 30%, rgba(112,186,86,.95) 0 74%, transparent 76%),
+    linear-gradient(rgba(96,160,74,.9), rgba(96,160,74,.9));
+  background-size: 100% 100%, 100% 100%, 1.2px 6px;
+  background-position: 0 0, 0 0, 50% 100%;
+  background-repeat: no-repeat;
+}
+.hud-sprout.sp1 { left: 18%; bottom: 8.2%; }
+.hud-sprout.sp2 { left: 61%; bottom: 11.6%; transform: scale(.85); }
+
+/* =========================================================================
+   ЕЩЁ ПРИМЕТЫ СЕЗОНА: осенний пень и паутина, весенний скворечник и лягушка
+   Всё сидит ниже кромки земли в своей колонке; ни одной анимации.
+   ========================================================================= */
+
+/* --- Осень: пень со срезом и мхом --- */
+.hud-stump {
+  position: absolute; left: 41%; bottom: 7.4%; width: 18px; height: 15px;
+  z-index: 3; pointer-events: none;
+}
+.hud-stump-side {
+  position: absolute; left: 0; bottom: 0; width: 100%; height: 11px; border-radius: 2px 2px 3px 3px;
+  background: linear-gradient(90deg, rgba(70,48,28,.97), rgba(122,88,52,.97) 42%, rgba(62,42,24,.97));
+  box-shadow: 0 2px 3px rgba(20,12,6,.36);
+}
+/* Срез: концентрические кольца — то, по чему пень и узнаётся. */
+.hud-stump-top {
+  position: absolute; left: -1px; top: 0; width: 20px; height: 7px; border-radius: 50%;
+  background:
+    radial-gradient(closest-side, transparent 0 22%, rgba(112,78,44,.9) 24% 30%, transparent 32% 46%, rgba(112,78,44,.75) 48% 53%, transparent 55%),
+    radial-gradient(closest-side, rgba(178,136,84,.98), rgba(146,108,64,.98));
+  box-shadow: inset 0 0 0 1px rgba(84,58,34,.7);
+}
+.hud-stump-moss {
+  position: absolute; left: 0; bottom: 1px; width: 8px; height: 5px; border-radius: 50% 40% 40% 50%;
+  background: radial-gradient(closest-side, rgba(96,140,70,.85), rgba(70,110,52,.7));
+}
+
+/* --- Осень: паутина в развилке --- */
+.hud-cobweb {
+  /* Угол сети приходится ровно на основание веток дерева-родителя (там же,
+     где начинаются br1/br2), и сеть свисает вниз-вправо, как и висит настоящая.
+     top:58% — это и есть bottom:42%, только считая от верха: так угол SVG
+     попадает в развилку, а не оказывается на высоту сети выше неё. */
+  position: absolute; left: 50%; top: 58%; width: 19px; height: 17px;
+  z-index: 4; pointer-events: none; opacity: .8;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cg fill='none' stroke='%23e8f0f8' stroke-width='.75' stroke-linecap='round'%3E%3Cpath d='M1 1 L23 3.4 M1 1 L20.5 11.5 M1 1 L13 19.5 M1 1 L3.6 23'/%3E%3Cpath d='M7.6 1.7 Q5.4 5.2 2.2 6.9'/%3E%3Cpath d='M13.8 2.4 Q9.2 9.6 3 13.3'/%3E%3Cpath d='M20 3 Q13.4 14.2 3.9 19.8'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+}
+
+/* --- Весна: скворечник на стволе --- */
+.hud-birdhouse {
+  position: absolute; left: 68%; bottom: 31%; width: 15px; height: 18px;
+  z-index: 5; pointer-events: none;
+}
+.hud-birdhouse-body {
+  position: absolute; left: 1px; bottom: 0; width: 13px; height: 13px; border-radius: 1px;
+  background: linear-gradient(90deg, rgba(122,88,52,.97), rgba(164,124,76,.97) 45%, rgba(106,76,44,.97));
+  box-shadow: 0 1px 2px rgba(20,12,6,.4);
+}
+.hud-birdhouse-roof {
+  position: absolute; left: -1px; top: 0; width: 17px; height: 6px;
+  background: linear-gradient(180deg, rgba(96,66,38,.98), rgba(66,44,26,.98));
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.hud-birdhouse-hole {
+  position: absolute; left: 5px; top: 8px; width: 5px; height: 5px; border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #2b1e12, #16100a);
+  box-shadow: 0 -1px 0 rgba(206,166,110,.35);
+  overflow: hidden;
+}
+/* Птица: сидит в темноте летка и время от времени выглядывает наружу.
+   Заморозка до касания достаётся ей от общего правила на .hud-fx-season-scene *. */
+.hud-birdhouse-bird {
+  position: absolute; left: .3px; top: .4px; width: 4.4px; height: 4.4px; border-radius: 50%;
+  background:
+    radial-gradient(1.1px .9px at 88% 52%, #e8963c 0 70%, transparent 72%),
+    radial-gradient(.9px .9px at 34% 34%, #150e06 0 62%, transparent 64%),
+    radial-gradient(circle at 40% 30%, #f4d493, #cb9750 68%, #a4742d);
+  transform: translateY(5px);
+  animation: hud-birdhouse-peek 9s ease-in-out infinite;
+}
+@keyframes hud-birdhouse-peek {
+  0%, 46%   { transform: translateY(5px); }
+  54%, 78%  { transform: translateY(0); }
+  86%, 100% { transform: translateY(5px); }
+}
+.hud-birdhouse-perch {
+  position: absolute; left: 6px; top: 14px; width: 3px; height: 1.6px; border-radius: 1px;
+  background: rgba(74,50,28,.95);
+}
+
+/* --- Весна: лягушка у лужи, только по мокрому --- */
+.hud-frog { display: none; }
+.scene-wet .hud-frog {
+  display: block;
+  position: absolute; left: 45.5%; bottom: 6.4%; width: 11px; height: 8px;
+  z-index: 4; pointer-events: none;
+}
+.hud-frog-body {
+  position: absolute; left: 0; bottom: 0; width: 11px; height: 6px; border-radius: 50% 50% 42% 42%;
+  background: radial-gradient(70% 90% at 40% 26%, rgba(126,186,84,.98), rgba(74,132,54,.98) 70%, rgba(52,100,40,.98));
+  box-shadow: 0 1px 2px rgba(16,32,12,.35);
+}
+.hud-frog-eye {
+  position: absolute; top: 0; width: 3px; height: 3px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 34%, #dff0c8 0 42%, #1d2a14 44%);
+}
+.hud-frog-eye.e1 { left: 2px; }
+.hud-frog-eye.e2 { left: 6px; }
+.hud-frog-leg {
+  position: absolute; left: 8px; bottom: 0; width: 4px; height: 2.4px; border-radius: 0 50% 50% 0;
+  background: rgba(70,126,52,.95);
+}
+
+/* =========================================================================
+   ВЕСНА: ЦВЕТЫ — ПЕРЕДНИЙ ПЛАН
+   Клумба шла без z-index, то есть «авто», а трава, куст, ростки и улитка
+   стоят на z-index 3 — и рисовались ПОВЕРХ цветов. Плюс вся сезонная сцена
+   идёт группой с opacity .9, из-за чего сквозь лепестки просвечивало небо:
+   групповую прозрачность ребёнок перебить не может, поэтому снимаем её с
+   весенней сцены и возвращаем на сам луг, который для этого и был задуман.
+   ========================================================================= */
+.season-spring .hud-fx-season-scene { opacity: 1; }
+.season-spring .hud-meadow { opacity: .92; }
+
+.hud-flowerbed { z-index: 7; }
+.hud-flower { filter: drop-shadow(0 1px 1.5px rgba(24,40,18,.38)); }
+/* Пчёлы и бабочка летят ближе всех — им над цветами. */
+.hud-butterfly, .hud-bee { z-index: 8; }
+.hud-pollen { z-index: 8; }
+
+/* =========================================================================
+   ГЛУБИНА КАДРА: ЧТО ПЕРЕД ЧЕМ
+   Замер стопки в точке светила показал две ошибки порядка.
+
+   1. Осадки (.hud-fx-weather) шли с z-index 0 — то есть ПОД солнцем и луной
+      (z 1) и под пейзажем (z 2). Дождь и снег — самое близкое к зрителю, что
+      есть в кадре, и падать они должны перед деревьями и перед светилом.
+   2. Звёзды ночью поднимали на z-index 6 — выше и луны, и всего пейзажа.
+      Звезда, нарисованная поверх луны и поверх крон, — самое далёкое поверх
+      самого близкого. Опускаем их на самое дно неба, сразу над фоном.
+
+   Итоговый порядок: фон 0 → звёзды 0 → светило 1 → пейзаж и облачный покров 2
+   → осадки 3 → иней и градусник → молния → затемнение 9.
+   ========================================================================= */
+.weather-rain .hud-fx-weather,
+.weather-storm .hud-fx-weather,
+.weather-hail .hud-fx-weather { z-index: 3; }
+
+
+/* =========================================================================
+   СВЕТЛЫЕ ТЕМЫ: БЛОКИ, КОТОРЫЕ ОСТАВАЛИСЬ ТЁМНЫМИ
+   Замер по четырём светлым темам показал, что часть блоков рисуется
+   собственным тёмным градиентом и про тему ничего не знает: сны, мини-карта
+   маршрутов, лента BREAKING, сетка объявлений. На розовой или бумажной
+   карточке это читалось как провалы, а тёмные чернила поверх них исчезали
+   вовсе — отсюда и жалоба на «чёрный текст».
+   Переводим их на ту же бумагу и те же чернила, что и остальные карточки.
+   Акцент никуда не девается: он остаётся в рамках, метках и значках, так что
+   блоки не теряют лицо, а просто перестают быть дырами в светлом.
+   ========================================================================= */
+
+/* --- Поверхности --- */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
+  .hud-dream-container, .hud-dream-entry, .hud-dream-pane,
+  .hud-route-map, .hud-route-strip, .hud-ads-grid, .hud-ad-card,
+  .hud-breaking-news, .hud-timeline-content, .hud-key-item,
+  .hud-detail-pill, .hud-inventory-pill, .hud-secret-body, .hud-secret-details
+) {
+  background: var(--lt-paper) !important;
+  background-image: none !important;
+  color: var(--lt-ink) !important;
+  border-color: var(--lt-line) !important;
+}
+
+/* Аватар-заглушка была тёмным кружком с тёмной фигурой внутри. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-avatar-placeholder {
+  background: var(--lt-paper-2) !important;
+  color: var(--lt-ink) !important;
+  border-color: var(--lt-line) !important;
+}
+
+/* Точка маршрута — тёмный кружок на светлой карте. Оставляем ей акцент. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-route-pin {
+  background: var(--lt-paper) !important;
+  color: var(--lt-ink) !important;
+  border-color: var(--hud-accent, var(--lt-line)) !important;
+}
+
+/* --- Текст, который был белым или светился белым --- */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
+  .hud-world-title, .hud-news-headline, .hud-secret-title, .hud-secret-col-title,
+  .hud-route-name, .hud-breaking-item, .hud-dream-text, .hud-key-text,
+  .hud-timeline-content, .hud-pill-label, .hud-mood-chip, .hud-horo-sign,
+  .hud-forecast-desc, .hud-ad-card
+) {
+  color: var(--lt-ink) !important;
+  text-shadow: none !important;
+}
+
+/* Второстепенное — теми же чернилами, но вполсилы. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
+  .hud-news-vote, .hud-news-stats, .hud-news-vote-n, .hud-diary-time,
+  .hud-route-time, .hud-route-leg-time, .hud-secret-lvl, .hud-horo-disclaimer,
+  .hud-mood-history, .hud-comment-text
+) {
+  color: var(--lt-ink-soft) !important;
+  text-shadow: none !important;
+}
+
+/* Лента BREAKING: сама плашка стала бумагой, красной остаётся только метка —
+   на светлом она и так кричит достаточно. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-breaking-label {
+  color: #fff !important;
+}
+
+
+/* --- Светлые темы: блок памяти и мелочь, оставшаяся от тёмной палитры -----
+   Панель памяти написана под тёмную подложку: текст в ней бледно-серый
+   (rgba(226,232,240,.78)), а чипы настроения и кнопки голосования залиты
+   чёрным на четверть. На светлой теме сама панель становится розовой или
+   бумажной — и весь этот текст исчезает. Возвращаем ему чернила темы, а
+   подложкам — бумагу. Скоупим по .hud-memory-body, чтобы общий .hud-row в
+   других блоках остался при своём.                                        */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-memory-body,
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-memory-body :is(
+  .hud-row, .hud-vertical-container, .hud-timeline-container, .hud-timeline-item,
+  .hud-mood-group, .hud-mood-current, .hud-mood-chip-val, .hud-secret-person
+) {
+  color: var(--lt-ink) !important;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-memory-body :is(
+  .hud-route-span, .hud-secret-stat, .hud-mood-history
+) {
+  color: var(--lt-ink-soft) !important;
+}
+
+/* Подложки, залитые чёрным на четверть: на светлом это грязь, а не глубина. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
+  .hud-news-vote, .hud-mood-chip, .hud-phone-subtabs, .hud-phone-statusbar
+) {
+  background: var(--lt-paper-2) !important;
+}
+
+/* Бегущая строка и луна снов были рассчитаны на тёмный фон. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
+  .hud-breaking-marquee, .hud-breaking-seq, .hud-dream-moon
+) {
+  color: var(--lt-ink) !important;
+  text-shadow: none !important;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
+  .hud-phone-statusbar, .hud-phone-time
+) {
+  color: var(--lt-ink-soft) !important;
+}
+
+
+/* =========================================================================
+   ГРАФ ОТНОШЕНИЙ: ПЕРЕТАСКИВАНИЕ И МАСШТАБ
+   Раньше зум висел разом на панели и на svg внутри — множители
+   перемножались, окно уползало, а сдвинуть содержимое было нечем.
+   Теперь панель — неподвижное окно, а ездит и приближается только граф.
+   ========================================================================= */
+.hud-rel-graph.is-expanded {
+  transform: translate(-50%, -50%) !important;
+}
+.hud-rel-graph.is-expanded .hud-rel-stage {
+  overflow: hidden;
+  cursor: grab;
+  /* Без этого браузер забирает жест себе и вместо графа едет страница. */
+  touch-action: none;
+}
+.hud-rel-graph.is-expanded .hud-rel-stage.is-panning { cursor: grabbing; }
+.hud-rel-graph.is-expanded .hud-rel-svg {
+  transform: translate(var(--hud-rel-pan-x, 0px), var(--hud-rel-pan-y, 0px))
+             scale(var(--hud-rel-zoom, 1)) !important;
+  transform-origin: center center;
+  transition: transform .18s ease;
+  will-change: transform;
+}
+/* Пока тянут — без сглаживания, иначе граф отстаёт от пальца. */
+.hud-rel-graph.is-expanded .hud-rel-stage.is-panning .hud-rel-svg {
+  transition: none !important;
+}
+
+
+/* =========================================================================
+   УКРАШЕНИЯ ТЕМ: ПЯТЬ НОВЫХ МЕСТ
+   Свободного места в карточке хватает: справа от имени персонажа, под
+   последней строкой тела, в углах блоков мира и памяти, на правом краю
+   верхней панели. Все пять якорятся в углы и стоят под pointer-events:none —
+   перекрыть текст они не могут physically.
+   Рисунки — инлайновые SVG в data-URI: ни одного внешнего запроса.
+   ========================================================================= */
+.hud-header { position: relative; }
+.hud-header::after {
+  content: ''; position: absolute; right: 12px; top: 50%;
+  transform: translateY(-50%);
+  width: 34px; height: 34px; pointer-events: none; opacity: .42;
+  background-repeat: no-repeat; background-position: center; background-size: contain;
+  transition: opacity .3s ease, transform .3s ease;
+}
+.hud-os-card:hover .hud-header::after { opacity: .68; transform: translateY(-50%) scale(1.06); }
+
+/* Каваи, Vamp и Лёд прикалывают собственную наклейку в тот же правый верхний
+   угол (сердечко 30x30 на right 8px, свеча 38x38 на right 16px и кристалл
+   22x22 на right 12px — слои .hud-tab-content::before). Общий значок шапки
+   стоял на right 12px и ложился прямо на неё; у Льда выходила снежинка
+   поверх снежинки.
+   Отодвигаем значок шапки левее наклейки, оставляя между ними по 12px
+   воздуха. Оба знака остаются на месте, просто рядом, а не друг на друге. */
+.hud-theme-kawaii .hud-header::after { right: 50px; }
+.hud-theme-vamp   .hud-header::after { right: 66px; }
+.hud-theme-ice    .hud-header::after { right: 46px; }
+/* Чтобы длинное имя не забежало под уехавший значок. */
+:is(.hud-theme-kawaii, .hud-theme-vamp, .hud-theme-ice) .hud-header-text { padding-right: 92px; }
+
+.hud-body { position: relative; }
+.hud-body::after {
+  content: ''; position: absolute; right: 10px; bottom: 8px;
+  width: 62px; height: 62px; pointer-events: none; opacity: .16; z-index: 0;
+  background-repeat: no-repeat; background-position: center; background-size: contain;
+}
+
+.hud-world-section { position: relative; }
+.hud-world-section::after {
+  content: ''; position: absolute; right: 10px; top: 8px;
+  width: 24px; height: 24px; pointer-events: none; opacity: .34;
+  background-repeat: no-repeat; background-position: center; background-size: contain;
+}
+
+.hud-memory-body { position: relative; }
+.hud-memory-body::before {
+  content: ''; position: absolute; right: 12px; bottom: 10px;
+  width: 54px; height: 54px; pointer-events: none; opacity: .15; z-index: 0;
+  background-repeat: no-repeat; background-position: center; background-size: contain;
+}
+
+.hud-os-topbar { position: relative; }
+.hud-os-topbar::after {
+  content: ''; position: absolute; right: 46px; top: 50%;
+  transform: translateY(-50%);
+  width: 46px; height: 20px; pointer-events: none; opacity: .3;
+  background-repeat: no-repeat; background-position: right center; background-size: contain;
+}
+
+/* ---- Каваи — банты, лапки и спящий котик ---- */
+.hud-theme-kawaii .hud-header::after       { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0568f' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 12c-3-3-7-3-7 0s4 3 7 0zM12 12c3-3 7-3 7 0s-4 3-7 0z'/%3E%3Ccircle cx='12' cy='12' r='1.6'/%3E%3Cpath d='M10 14l-2 5M14 14l2 5'/%3E%3C/svg%3E"); }
+.hud-theme-kawaii .hud-body::after         { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0568f' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 16c0-3 2-5 5-5h6c3 0 5 2 5 5v2H4z'/%3E%3Cpath d='M7 11c-1-2 0-4 1-4s2 2 1 4M16 11c-1-2 0-4 1-4s2 2 1 4'/%3E%3Cpath d='M10 15h.01M14 15h.01M11 17.5c.7.6 1.3.6 2 0'/%3E%3C/svg%3E"); }
+.hud-theme-kawaii .hud-world-section::after{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e0568f' stroke='none'%3E%3Cpath d='M12 20s-7-4.4-7-9.2C5 8 7 6.4 9 6.4c1.3 0 2.4.7 3 1.8.6-1.1 1.7-1.8 3-1.8 2 0 4 1.6 4 4.4C19 15.6 12 20 12 20z' opacity='.75'/%3E%3C/svg%3E"); }
+.hud-theme-kawaii .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0568f' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M6 8l1.2 2.4L9.6 11.6 7.2 12.8 6 15.2 4.8 12.8 2.4 11.6 4.8 10.4z'/%3E%3Cpath d='M16 5l.9 1.8 1.8.9-1.8.9L16 10.4l-.9-1.8-1.8-.9 1.8-.9z'/%3E%3Cpath d='M17 15l.7 1.4 1.4.7-1.4.7-.7 1.4-.7-1.4-1.4-.7 1.4-.7z'/%3E%3C/svg%3E"); }
+.hud-theme-kawaii .hud-os-topbar::after    { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0568f' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Ccircle cx='6' cy='9' r='1.6'/%3E%3Ccircle cx='10' cy='6' r='1.6'/%3E%3Ccircle cx='14' cy='6' r='1.6'/%3E%3Ccircle cx='18' cy='9' r='1.6'/%3E%3Cellipse cx='12' cy='14' rx='4.4' ry='3.4'/%3E%3C/svg%3E"); }
+
+/* ---- Dark Academia — перо, книга, лавр ---- */
+.hud-theme-academia .hud-header::after       { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a97a' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 20c6-1 12-6 15-15-6 1-11 5-13 10z'/%3E%3Cpath d='M6 18c3-3 6-6 8-9'/%3E%3C/svg%3E"); }
+.hud-theme-academia .hud-body::after         { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a97a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 7c-2-1.6-5-2-7-1.6v11c2-.4 5 0 7 1.6 2-1.6 5-2 7-1.6v-11c-2-.4-5 0-7 1.6z'/%3E%3Cpath d='M12 7v11'/%3E%3C/svg%3E"); }
+.hud-theme-academia .hud-world-section::after{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a97a' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 19c-3-2-5-6-5-10M12 19c3-2 5-6 5-10'/%3E%3Cpath d='M9 12c-1.4-.6-2.4-2-2.4-3.4M9 15c-1.4-.6-2.4-2-2.4-3.4M15 12c1.4-.6 2.4-2 2.4-3.4M15 15c1.4-.6 2.4-2 2.4-3.4'/%3E%3C/svg%3E"); }
+.hud-theme-academia .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a97a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M8 6h8v3l-2 2v6a2 2 0 01-4 0v-6l-2-2z'/%3E%3Cpath d='M9.6 12.4h4.8'/%3E%3C/svg%3E"); }
+.hud-theme-academia .hud-os-topbar::after    { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a97a' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 6h16M4 9h11M4 12h16M4 15h9'/%3E%3C/svg%3E"); }
+
+/* ---- Vamp — мышь, кубок, роза ---- */
+.hud-theme-vamp .hud-header::after       { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a3324b' stroke='none'%3E%3Cpath d='M2 10c2-2 3 0 4-2 1 3 3 4 6 4s5-1 6-4c1 2 2 0 4 2-2 1-3 3-3 5-2-1-4-1-7 1-3-2-5-2-7-1 0-2-1-4-3-5z' opacity='.85'/%3E%3C/svg%3E"); }
+.hud-theme-vamp .hud-body::after         { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a3324b' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M8 5h8l-1 5a3 3 0 01-6 0z'/%3E%3Cpath d='M12 13v5M9.5 18h5'/%3E%3C/svg%3E"); }
+.hud-theme-vamp .hud-world-section::after{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a3324b' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 6c2.4 0 4 1.6 4 3.6 0 2.6-2.4 3.4-4 5.4-1.6-2-4-2.8-4-5.4C8 7.6 9.6 6 12 6z'/%3E%3Cpath d='M12 15v4M10 17.5c1.4-.4 2.6-.4 4 0'/%3E%3C/svg%3E"); }
+.hud-theme-vamp .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a3324b' stroke='none'%3E%3Cpath d='M12 4c2.6 3.6 5 6.4 5 9.2A5 5 0 0112 18a5 5 0 01-5-4.8C7 10.4 9.4 7.6 12 4z' opacity='.8'/%3E%3C/svg%3E"); }
+.hud-theme-vamp .hud-os-topbar::after    { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a3324b' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 4v16M7 9h10'/%3E%3Cpath d='M4 20c2-2 4-3 8-3s6 1 8 3'/%3E%3C/svg%3E"); }
+
+/* ---- Киберпанк — чип, схема, штрихкод ---- */
+.hud-theme-cyberpunk .hud-header::after       { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300e5ff' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Crect x='7' y='7' width='10' height='10' rx='1.5'/%3E%3Cpath d='M10 4v3M14 4v3M10 17v3M14 17v3M4 10h3M4 14h3M17 10h3M17 14h3'/%3E%3C/svg%3E"); }
+.hud-theme-cyberpunk .hud-body::after         { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300e5ff' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M3 12h4l2-4 3 8 2-5 2 3h5'/%3E%3Ccircle cx='7' cy='12' r='1'/%3E%3Ccircle cx='17' cy='14' r='1'/%3E%3C/svg%3E"); }
+.hud-theme-cyberpunk .hud-world-section::after{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300e5ff' stroke='none'%3E%3Crect x='4' y='5' width='1.6' height='14' opacity='.9'/%3E%3Crect x='7' y='5' width='.9' height='14' opacity='.7'/%3E%3Crect x='9.4' y='5' width='2.2' height='14' opacity='.85'/%3E%3Crect x='13' y='5' width='.9' height='14' opacity='.6'/%3E%3Crect x='15.4' y='5' width='1.6' height='14' opacity='.8'/%3E%3Crect x='18.4' y='5' width='1' height='14' opacity='.55'/%3E%3C/svg%3E"); }
+.hud-theme-cyberpunk .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300e5ff' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 8h6l2 3 2-6 2 9 2-4h2'/%3E%3Cpath d='M4 17h16' opacity='.5'/%3E%3C/svg%3E"); }
+.hud-theme-cyberpunk .hud-os-topbar::after    { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300e5ff' stroke-width='1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M3 7h7l2 2h9M3 12h5l2-2h11M3 17h9l2 2h7'/%3E%3C/svg%3E"); }
+
+/* ---- Нуар — шляпа, жалюзи, лупа ---- */
+.hud-theme-noir .hud-header::after       { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23d8d8d8' stroke='none'%3E%3Cpath d='M8 12c-.6-4 .4-6 4-6s4.6 2 4 6c2.6.6 4 1.6 4 2.6 0 1.4-3.6 2.4-8 2.4S4 16 4 14.6c0-1 1.4-2 4-2.6z' opacity='.75'/%3E%3C/svg%3E"); }
+.hud-theme-noir .hud-body::after         { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23d8d8d8' stroke='none'%3E%3Crect x='3' y='5' width='18' height='1.6' opacity='.5'/%3E%3Crect x='3' y='9' width='18' height='1.6' opacity='.4'/%3E%3Crect x='3' y='13' width='18' height='1.6' opacity='.3'/%3E%3Crect x='3' y='17' width='18' height='1.6' opacity='.2'/%3E%3C/svg%3E"); }
+.hud-theme-noir .hud-world-section::after{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d8d8d8' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round' %3E%3Ccircle cx='10.5' cy='10.5' r='5'/%3E%3Cpath d='M14.4 14.4L20 20'/%3E%3C/svg%3E"); }
+.hud-theme-noir .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d8d8d8' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M6 17c1-6 3-9 6-9s4 2 4 4'/%3E%3Cpath d='M16 12c1.6 0 2.6 1 2.6 2.2 0 1.4-1.4 2-2.6 1.2'/%3E%3Cpath d='M5 19c2 .6 4 .6 6 0'/%3E%3C/svg%3E"); }
+.hud-theme-noir .hud-os-topbar::after    { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23d8d8d8' stroke='none'%3E%3Ccircle cx='5' cy='12' r='.9' opacity='.6'/%3E%3Ccircle cx='9' cy='9' r='.6' opacity='.45'/%3E%3Ccircle cx='13' cy='14' r='.8' opacity='.5'/%3E%3Ccircle cx='17' cy='10' r='.5' opacity='.4'/%3E%3Ccircle cx='20' cy='15' r='.7' opacity='.35'/%3E%3C/svg%3E"); }
+
+/* ---- Средневековье — щит, печать, лилия ---- */
+.hud-theme-medieval .hud-header::after       { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a6a1f' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 4l7 2.4v6c0 4-3 6.6-7 7.6-4-1-7-3.6-7-7.6v-6z'/%3E%3Cpath d='M12 8v8M8.6 11.4h6.8'/%3E%3C/svg%3E"); }
+.hud-theme-medieval .hud-body::after         { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a6a1f' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M6 5h9l3 3v11H6z'/%3E%3Cpath d='M15 5v3h3'/%3E%3Ccircle cx='12' cy='14' r='2.6'/%3E%3Cpath d='M12 11.4v5.2M9.4 14h5.2'/%3E%3C/svg%3E"); }
+.hud-theme-medieval .hud-world-section::after{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a6a1f' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 4c1.6 2.6 1.6 4.6 0 6-1.6-1.4-1.6-3.4 0-6z'/%3E%3Cpath d='M12 10c3 0 5 1.6 5 4s-2 6-5 6-5-3.6-5-6 2-4 5-4z'/%3E%3Cpath d='M6 12h12'/%3E%3C/svg%3E"); }
+.hud-theme-medieval .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a6a1f' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Ccircle cx='7' cy='8' r='2.4'/%3E%3Ccircle cx='13' cy='12' r='2.4'/%3E%3Ccircle cx='19' cy='16' r='2.4'/%3E%3Cpath d='M8.8 9.6l2.4 1.2M14.8 13.6l2.4 1.2'/%3E%3C/svg%3E"); }
+.hud-theme-medieval .hud-os-topbar::after    { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a6a1f' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 5h16v9l-8 5-8-5z'/%3E%3Cpath d='M9 5v5M15 5v5'/%3E%3C/svg%3E"); }
+
+/* ---- Криминал — масть, гильза, силуэт ---- */
+.hud-theme-mafia .hud-header::after       { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c9a227' stroke='none'%3E%3Cpath d='M12 4l5 5.4c1.6 1.8 1 4.6-1.4 5.2-1.2.3-2.4-.2-3-1.2L12 20h-1l.4-6.6c-.6 1-1.8 1.5-3 1.2-2.4-.6-3-3.4-1.4-5.2z' opacity='.85'/%3E%3C/svg%3E"); }
+.hud-theme-mafia .hud-body::after         { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9a227' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Crect x='9' y='5' width='6' height='12' rx='2.4'/%3E%3Cpath d='M9 9h6M9 13h6'/%3E%3Cpath d='M10.5 17v2.5h3V17'/%3E%3C/svg%3E"); }
+.hud-theme-mafia .hud-world-section::after{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9a227' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round' %3E%3Ccircle cx='12' cy='8' r='3'/%3E%3Cpath d='M5 20c1-4 3.6-6 7-6s6 2 7 6'/%3E%3C/svg%3E"); }
+.hud-theme-mafia .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9a227' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 19l4-6 3 3 4-7 3 5 2-3'/%3E%3Ccircle cx='8' cy='13' r='1'/%3E%3Ccircle cx='15' cy='9' r='1'/%3E%3C/svg%3E"); }
+.hud-theme-mafia .hud-os-topbar::after    { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c9a227' stroke='none'%3E%3Crect x='3' y='4' width='.8' height='16' opacity='.5'/%3E%3Crect x='7' y='4' width='.8' height='16' opacity='.4'/%3E%3Crect x='11' y='4' width='.8' height='16' opacity='.5'/%3E%3Crect x='15' y='4' width='.8' height='16' opacity='.4'/%3E%3Crect x='19' y='4' width='.8' height='16' opacity='.5'/%3E%3C/svg%3E"); }
+
+/* ---- Фэнтези — руна, кристалл, лоза ---- */
+.hud-theme-fantasy .hud-header::after       { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a78bfa' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 3l2.6 5.6 6 .9-4.3 4.3 1 6-5.3-2.9-5.3 2.9 1-6L3.4 9.5l6-.9z'/%3E%3C/svg%3E"); }
+.hud-theme-fantasy .hud-body::after         { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a78bfa' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 3l5 5-5 13-5-13z'/%3E%3Cpath d='M7 8h10M12 3v18'/%3E%3C/svg%3E"); }
+.hud-theme-fantasy .hud-world-section::after{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a78bfa' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 20V8'/%3E%3Cpath d='M12 14c-3 0-5-2-5-5 3 0 5 2 5 5zM12 11c3 0 5-2 5-5-3 0-5 2-5 5z'/%3E%3C/svg%3E"); }
+.hud-theme-fantasy .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a78bfa' stroke-width='1' stroke-linecap='round' stroke-linejoin='round' %3E%3Ccircle cx='6' cy='7' r='1.2'/%3E%3Ccircle cx='13' cy='5' r='.9'/%3E%3Ccircle cx='18' cy='10' r='1.1'/%3E%3Ccircle cx='9' cy='14' r='1'/%3E%3Ccircle cx='16' cy='18' r='1.2'/%3E%3Cpath d='M6 7l7-2 5 5-9 4z' opacity='.55'/%3E%3C/svg%3E"); }
+.hud-theme-fantasy .hud-os-topbar::after    { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a78bfa' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 12h3l2-5 3 10 3-8 2 3h3'/%3E%3C/svg%3E"); }
+
+/* ---- Web 1.0 — «под стройкой», счётчик посещений ---- */
+.hud-theme-web1 .hud-header::after       { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000080' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Crect x='3' y='6' width='18' height='12' rx='1'/%3E%3Cpath d='M3 15l5-4 3 2.4 4-4 6 5.6'/%3E%3Ccircle cx='8' cy='10' r='1.4'/%3E%3C/svg%3E"); }
+.hud-theme-web1 .hud-body::after         { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000080' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 19h16L12 5z'/%3E%3Cpath d='M12 10v4M12 16.4h.01'/%3E%3C/svg%3E"); }
+.hud-theme-web1 .hud-world-section::after{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23000080' stroke='none'%3E%3Crect x='3' y='8' width='4' height='8'/%3E%3Crect x='8.5' y='8' width='4' height='8' opacity='.75'/%3E%3Crect x='14' y='8' width='4' height='8' opacity='.55'/%3E%3Crect x='19.5' y='8' width='1.5' height='8' opacity='.4'/%3E%3C/svg%3E"); }
+.hud-theme-web1 .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000080' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Crect x='3' y='5' width='18' height='14'/%3E%3Cpath d='M3 9h18M9 9v10M15 9v10'/%3E%3C/svg%3E"); }
+.hud-theme-web1 .hud-os-topbar::after    { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000080' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 8h16M4 12h16M4 16h10'/%3E%3Cpath d='M18 15l2 1.6-2 1.6z' fill='%23000080'/%3E%3C/svg%3E"); }
+
+/* ---- Коттеджкор — гриб, банка варенья, колосок ---- */
+.hud-theme-cottage .hud-header::after       { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a8c4a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 11c0-4 3.6-6.6 8-6.6S20 7 20 11z'/%3E%3Cpath d='M10 11v5.4a2 2 0 004 0V11'/%3E%3Ccircle cx='9' cy='8' r='1'/%3E%3Ccircle cx='14.5' cy='7.4' r='.8'/%3E%3C/svg%3E"); }
+.hud-theme-cottage .hud-body::after         { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a8c4a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M8 6h8l-1 3h-6z'/%3E%3Cpath d='M7 9h10v9a2 2 0 01-2 2H9a2 2 0 01-2-2z'/%3E%3Cpath d='M9.4 13c1.6 1 3.6 1 5.2 0'/%3E%3C/svg%3E"); }
+.hud-theme-cottage .hud-world-section::after{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a8c4a' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 20V7'/%3E%3Cpath d='M12 9c-2 0-3.4-1.2-3.4-3C10.6 6 12 7.2 12 9zM12 9c2 0 3.4-1.2 3.4-3C13.4 6 12 7.2 12 9z'/%3E%3Cpath d='M12 13c-2 0-3.4-1.2-3.4-3C10.6 10 12 11.2 12 13zM12 13c2 0 3.4-1.2 3.4-3C13.4 10 12 11.2 12 13z'/%3E%3C/svg%3E"); }
+.hud-theme-cottage .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a8c4a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M3 8l3 3 3-3 3 3 3-3 3 3 3-3' opacity='.75'/%3E%3Cpath d='M3 16l3-3 3 3 3-3 3 3 3-3 3 3' opacity='.55'/%3E%3C/svg%3E"); }
+.hud-theme-cottage .hud-os-topbar::after    { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a8c4a' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M3 5h18'/%3E%3Cpath d='M5 5l2.5 5L10 5M10 5l2.5 5L15 5M15 5l2.5 5L20 5'/%3E%3C/svg%3E"); }
+
+/* ---- Лёд — кристалл, сосульки, иней ---- */
+.hud-theme-ice .hud-header::after       { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bfeeff' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9'/%3E%3Cpath d='M12 6.6L9.6 4.4M12 6.6l2.4-2.2M12 17.4l-2.4 2.2M12 17.4l2.4 2.2'/%3E%3C/svg%3E"); }
+.hud-theme-ice .hud-body::after         { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bfeeff' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 5h16'/%3E%3Cpath d='M7 5l1.2 7L9 5M12 5l1 9 1-9M17 5l1.2 6L19 5'/%3E%3C/svg%3E"); }
+.hud-theme-ice .hud-world-section::after{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bfeeff' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 4v16'/%3E%3Cpath d='M12 8l-4-2M12 8l4-2M12 13l-5-2.5M12 13l5-2.5M12 18l-3.5-1.8M12 18l3.5-1.8'/%3E%3C/svg%3E"); }
+.hud-theme-ice .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bfeeff' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Ccircle cx='8' cy='9' r='3.4'/%3E%3Ccircle cx='16' cy='14' r='2.4'/%3E%3Cpath d='M6.4 7.2a3.4 3.4 0 011.4-1' opacity='.8'/%3E%3C/svg%3E"); }
+.hud-theme-ice .hud-os-topbar::after    { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bfeeff' stroke-width='1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M3 12h18'/%3E%3Cpath d='M6 12l-1.6-2M6 12l-1.6 2M12 12l-1.6-2M12 12l-1.6 2M18 12l-1.6-2M18 12l-1.6 2'/%3E%3C/svg%3E"); }
+
+/* ---- Глубина — раковина, водоросли, пузыри ---- */
+.hud-theme-ocean .hud-header::after       { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235ec8d8' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 20c-4.4 0-8-3.4-8-7.6S7.6 4 12 4s8 4.2 8 8.4S16.4 20 12 20z'/%3E%3Cpath d='M12 20V4M12 20c-2-3-3-6-3-8.6M12 20c2-3 3-6 3-8.6'/%3E%3C/svg%3E"); }
+.hud-theme-ocean .hud-body::after         { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235ec8d8' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M8 20c0-5 1-9 3-12M8 20c-2-3-3-7-2-11'/%3E%3Cpath d='M16 20c0-4 .6-7 2-9'/%3E%3Cpath d='M11 11c1.6-.6 2.6-1.6 3-3M9.6 15c1.6-.6 2.6-1.6 3-3'/%3E%3C/svg%3E"); }
+.hud-theme-ocean .hud-world-section::after{ background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235ec8d8' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Ccircle cx='8' cy='16' r='2.6'/%3E%3Ccircle cx='14' cy='10' r='1.8'/%3E%3Ccircle cx='18' cy='5.5' r='1.2'/%3E%3Cpath d='M6.6 14.6a2.6 2.6 0 011-.8' opacity='.8'/%3E%3C/svg%3E"); }
+.hud-theme-ocean .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235ec8d8' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M3 9c2-2 4-2 6 0s4 2 6 0 4-2 6 0' opacity='.85'/%3E%3Cpath d='M3 14c2-2 4-2 6 0s4 2 6 0 4-2 6 0' opacity='.6'/%3E%3Cpath d='M3 19c2-2 4-2 6 0s4 2 6 0 4-2 6 0' opacity='.4'/%3E%3C/svg%3E"); }
+.hud-theme-ocean .hud-os-topbar::after    { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235ec8d8' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M3 12c1.6-2.4 3.2-2.4 4.8 0s3.2 2.4 4.8 0 3.2-2.4 4.8 0 3.2 2.4 4.8 0'/%3E%3C/svg%3E"); }
+
+/* =========================================================================
+   ПРОИЗВОДИТЕЛЬНОСТЬ: ПОЯСНЕНИЕ В НАСТРОЙКАХ И СВЁРНУТАЯ КАРТОЧКА
+   ========================================================================= */
+
+/* Развёрнутое пояснение к настройке — не подсказка при наведении, а текст,
+   который видно сразу: настройка меняет поведение DOM, и вслепую её включать
+   не стоит. */
+.hud-set-note {
+  font-size: 11.5px; line-height: 1.5;
+  color: var(--hud-text-muted, rgba(226,232,240,.66));
+  background: rgba(0, 0, 0, .18);
+  border-left: 2px solid var(--hud-accent, #8c5ad2);
+  border-radius: 0 6px 6px 0;
+  padding: 8px 10px; margin: 2px 0 4px;
+}
+.hud-set-note b { color: var(--hud-text, inherit); font-weight: 700; }
+
+/* Место свёрнутой карточки. Тонкая полоска, чтобы сообщение не схлопнулось
+   в ноль и прокрутка не прыгала. */
+.hud-evicted {
+  font-weight: 600; font-size: 10px; line-height: 1.6; font-family: inherit;
+  letter-spacing: .08em; text-transform: uppercase;
+  color: var(--hud-text-muted, rgba(226,232,240,.4));
+  border: 1px dashed var(--hud-border, rgba(255,255,255,.14));
+  border-radius: 8px; padding: 6px 10px; margin: 4px 0;
+  opacity: .55; cursor: default; user-select: none;
+}
+
+
+/* =========================================================================
+   ТЕЛЕФОН: КОШЕЛЁК И КАЛЕНДАРЬ
+   Оба экрана живут внутри .hud-phone-app-view и подчиняются его теме:
+   цвета берём из переменных HUD, ничего не прибиваем гвоздями.
+   ========================================================================= */
+
+/* --- Кошелёк --- */
+.hud-wallet { display: flex; flex-direction: column; gap: 10px; padding: 8px 10px 12px; }
+
+.hud-wallet-balance {
+  display: flex; flex-direction: column; gap: 2px;
+  padding: 10px 12px; border-radius: 12px;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid var(--hud-border, rgba(255,255,255,.12));
+}
+.hud-wallet-balance small { font-size: 10px; letter-spacing: .1em; text-transform: uppercase; opacity: .6; }
+.hud-wallet-balance b { font-size: 24px; font-weight: 800; line-height: 1.2; letter-spacing: .01em; }
+.hud-wallet-balance b i { font-size: 15px; font-weight: 600; font-style: normal; opacity: .7; }
+.hud-wallet-balance em { font-size: 10.5px; font-style: normal; opacity: .5; letter-spacing: .08em; }
+
+/* Карты. Полоса прокручивается вбок, если их две. */
+.hud-wallet-cards { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding-bottom: 2px; }
+.hud-wallet-cards::-webkit-scrollbar { display: none; }
+.hud-wallet-card {
+  position: relative; flex: 0 0 auto;
+  width: 190px; height: 112px; border-radius: 12px; padding: 10px 12px;
+  color: #f2f4f8; overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, .35);
+  background: linear-gradient(140deg, #2b3550, #141a2a);
+}
+/* Блик поперёк карты — то, из-за чего пластик читается пластиком. */
+.hud-wallet-card::after {
+  content: ''; position: absolute; inset: -40% -10% auto -10%; height: 120%;
+  background: linear-gradient(112deg, transparent 44%, rgba(255,255,255,.10) 50%, transparent 56%);
+  pointer-events: none;
+}
+.hud-wallet-card.tone-visa  { background: linear-gradient(140deg, #1b3f8f, #0b1734); }
+.hud-wallet-card.tone-mc    { background: linear-gradient(140deg, #7a2a1c, #2a0d08); }
+.hud-wallet-card.tone-mir   { background: linear-gradient(140deg, #12603a, #05241a); }
+.hud-wallet-card.tone-union { background: linear-gradient(140deg, #4a2a6b, #1a0d2a); }
+
+.hud-wallet-sys { position: absolute; right: 12px; top: 10px; font: 800 12px/1 sans-serif; letter-spacing: .14em; opacity: .92; }
+.hud-wallet-chip {
+  position: absolute; left: 12px; top: 34px; width: 26px; height: 19px; border-radius: 4px;
+  background: linear-gradient(150deg, #f0d68a, #b9902f);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
+}
+.hud-wallet-chip::before, .hud-wallet-chip::after {
+  content: ''; position: absolute; left: 3px; right: 3px; height: 1px; background: rgba(0,0,0,.28);
+}
+.hud-wallet-chip::before { top: 6px; } .hud-wallet-chip::after { top: 12px; }
+.hud-wallet-num { position: absolute; left: 12px; right: 12px; top: 62px; font: 600 13px/1 monospace; letter-spacing: .06em; opacity: .95; }
+.hud-wallet-holder { position: absolute; left: 12px; bottom: 10px; font: 700 9.5px/1 sans-serif; letter-spacing: .12em; opacity: .82; }
+.hud-wallet-exp { position: absolute; right: 12px; bottom: 10px; font: 600 9.5px/1 monospace; letter-spacing: .08em; opacity: .7; }
+
+.hud-wallet-tx-head { font-size: 10px; letter-spacing: .12em; text-transform: uppercase; opacity: .55; margin-top: 2px; }
+.hud-wallet-tx-list { display: flex; flex-direction: column; }
+.hud-wallet-tx {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 10px;
+  padding: 8px 2px; border-bottom: 1px solid var(--hud-border, rgba(255,255,255,.08));
+}
+.hud-wallet-tx:last-child { border-bottom: 0; }
+.hud-wallet-tx-title { display: flex; flex-direction: column; gap: 2px; font-size: 12.5px; min-width: 0; }
+.hud-wallet-tx-title small { font-size: 10.5px; opacity: .55; }
+.hud-wallet-tx-side { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; white-space: nowrap; }
+.hud-wallet-tx-side b { font-size: 13px; font-weight: 700; }
+.hud-wallet-tx-side small { font-size: 10px; opacity: .5; }
+/* Приход и расход различаются цветом суммы, а не фоном строки: список из
+   двадцати цветных плашек читать невозможно. */
+.hud-wallet-tx.is-out .hud-wallet-tx-side b { color: #ef8a7a; }
+.hud-wallet-tx.is-in  .hud-wallet-tx-side b { color: #7fd4a2; }
+
+/* --- Календарь --- */
+.hud-cal { display: flex; flex-direction: column; gap: 8px; padding: 8px 10px 12px; }
+.hud-cal-head { font-size: 13px; font-weight: 700; letter-spacing: .04em; text-align: center; }
+.hud-cal-week, .hud-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+.hud-cal-week span { font-size: 9.5px; text-align: center; opacity: .45; letter-spacing: .06em; text-transform: uppercase; }
+
+.hud-cal-day {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 2px; min-height: 30px; border-radius: 8px; font-size: 11.5px;
+  background: rgba(255, 255, 255, .04);
+}
+.hud-cal-day.is-empty { background: none; }
+.hud-cal-day b { font-weight: 600; opacity: .82; }
+.hud-cal-day.has-ev b { opacity: 1; font-weight: 700; }
+.hud-cal-day.is-today {
+  background: var(--hud-accent, #8c5ad2);
+  color: #fff; box-shadow: 0 0 0 1px rgba(255,255,255,.18) inset;
+}
+.hud-cal-day.is-today b { opacity: 1; }
+
+.hud-cal-dots { display: flex; gap: 2px; }
+.hud-cal-dot { width: 4px; height: 4px; border-radius: 50%; display: block; }
+.hud-cal-dot.k-birthday { background: #ff9ec8; }
+.hud-cal-dot.k-holiday  { background: #ffd166; }
+.hud-cal-dot.k-event    { background: #7fd4ff; }
+.hud-cal-dot.k-plan     { background: #9ad39a; }
+
+.hud-cal-agenda { display: flex; flex-direction: column; gap: 6px; margin-top: 2px; }
+.hud-cal-empty { font-size: 11px; opacity: .5; text-align: center; padding: 6px 0; }
+.hud-cal-row { display: flex; gap: 8px; align-items: baseline; font-size: 11.5px; }
+.hud-cal-row.is-today .hud-cal-row-day { color: var(--hud-accent, #8c5ad2); font-weight: 700; }
+.hud-cal-row-day { flex: 0 0 74px; opacity: .6; font-size: 10.5px; letter-spacing: .04em; }
+.hud-cal-row-items { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.hud-cal-item { position: relative; padding-left: 10px; line-height: 1.35; }
+.hud-cal-item::before {
+  content: ''; position: absolute; left: 0; top: .5em; width: 4px; height: 4px; border-radius: 50%;
+  background: currentColor; opacity: .8;
+}
+.hud-cal-item b { font-weight: 700; opacity: .8; }
+.hud-cal-item.k-birthday { color: #ff9ec8; }
+.hud-cal-item.k-holiday  { color: #ffd166; }
+.hud-cal-item.k-event    { color: #7fd4ff; }
+.hud-cal-item.k-plan     { color: inherit; }
+
+/* =========================================================================
+   ТЕЛЕФОН: СНИМКИ И ЗВОНКИ В ПЕРЕПИСКЕ
+   ========================================================================= */
+
+/* Снимок в пузыре. Картинки у нас нет — есть плитка, чей цвет выведен из
+   подписи, поэтому разные фото выглядят по-разному, а не одной заглушкой. */
+.hud-msg-photo { display: flex; flex-direction: column; gap: 4px; margin-bottom: 4px; }
+.hud-msg-photo-frame {
+  display: flex; align-items: center; justify-content: center;
+  width: 100%; min-height: 92px; border-radius: 10px;
+  background: linear-gradient(150deg, var(--shot, #4a5570), rgba(0, 0, 0, .55));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
+}
+.hud-msg-photo-frame .hud-g-ico { width: 26px; height: 26px; opacity: .55; }
+.hud-msg-photo-cap { font-size: 11px; line-height: 1.35; opacity: .72; font-style: italic; }
+
+/* Строка звонка. Во всю ширину, без пузыря: в мессенджере звонок — событие,
+   а не реплика, и выглядеть должен иначе. */
+.hud-call-row {
+  display: flex; align-items: center; gap: 8px;
+  margin: 4px 0; padding: 7px 10px; border-radius: 10px;
+  background: rgba(255, 255, 255, .05);
+  border: 1px solid var(--hud-border, rgba(255, 255, 255, .1));
+}
+.hud-call-body { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
+.hud-call-body b { font-size: 11.5px; font-weight: 700; }
+.hud-call-body small { font-size: 10px; opacity: .6; }
+.hud-call-time { font-size: 10px; opacity: .5; white-space: nowrap; }
+
+/* Кружок со значком звонка. Сама трубка и стрелка — SVG (см. G_ICONS):
+   уголками из border-ов трубка не рисуется, получается кривой крючок. */
+.hud-call-ico {
+  display: flex; align-items: center; justify-content: center;
+  flex: 0 0 auto; width: 24px; height: 24px; border-radius: 50%;
+  background: rgba(255, 255, 255, .08);
+}
+.hud-call-svg { width: 15px; height: 15px; display: block; }
+/* Трубка залита цветом строки, стрелка нарисована линией поверх. */
+.hud-call-hs { fill: currentColor; stroke: none; }
+.hud-call-ar {
+  fill: none; stroke: currentColor; stroke-width: 1.9;
+  stroke-linecap: round; stroke-linejoin: round;
+}
+
+.hud-call-row.is-answered { color: #7fd4a2; }
+.hud-call-row.is-declined { color: #e0a86a; }
+.hud-call-row.is-missed {
+  color: #ef8a7a;
+  border-color: rgba(239, 138, 122, .38);
+  background: rgba(239, 138, 122, .08);
+}
+/* Текст внутри строки — обычного цвета: цветом отмечаем только сам факт. */
+.hud-call-body b, .hud-call-body small, .hud-call-time { color: var(--hud-text, inherit); }
+.hud-call-row.is-missed .hud-call-body b { color: #ef8a7a; }
+
+/* =========================================================================
+   «ЗАПОМНИТЬ»: КНОПКА У ЗАПИСИ И ОКНО ВЫБОРА КНИГИ
+   ========================================================================= */
+
+/* Строка записи, к которой прицеплена кнопка. Кнопка справа и не мешает
+   тексту переноситься. */
+.hud-lore-item {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+}
+.hud-lore-text { flex: 1; min-width: 0; }
+
+/* Кнопка тихая и маленькая. Рамки нет вовсе: у записи и так есть своя, вторая
+   рядом читалась как отдельный элемент управления и перетягивала внимание с
+   текста. В покое — только плюс вполсилы, подпись выезжает при наведении на
+   саму запись. Список из двадцати ярких кнопок читать невозможно. */
+.hud-remember {
+  flex: 0 0 auto; display: inline-flex; align-items: center; gap: 3px;
+  padding: 1px 4px; border-radius: 6px; cursor: pointer;
+  font-weight: 600; font-size: 9px; line-height: 1.5; font-family: inherit;
+  letter-spacing: .02em;
+  color: var(--hud-text-muted, rgba(226,232,240,.55));
+  background: transparent; border: 0;
+  opacity: .5;
+  transition: color .18s ease, background .18s ease, opacity .18s ease;
+}
+.hud-remember-ico { font-size: 10px; line-height: 1; }
+.hud-remember-cap { max-width: 0; overflow: hidden; white-space: nowrap; transition: max-width .22s ease; }
+/* Подпись показываем, когда мышь на самой записи, — тогда понятно, к чему
+   относится кнопка. */
+.hud-lore-item:hover .hud-remember,
+.hud-secret-head-row:hover .hud-remember { opacity: 1; }
+.hud-lore-item:hover .hud-remember-cap,
+.hud-secret-head-row:hover .hud-remember-cap,
+.hud-remember:focus-visible .hud-remember-cap { max-width: 80px; }
+.hud-remember:hover {
+  opacity: 1;
+  color: var(--hud-accent, #8c5ad2);
+  background: rgba(140, 90, 210, .12);
+}
+/* Запись, встретившаяся впервые: плюс окрашен акцентом, но размер и тишина
+   те же — метка, а не кнопка-приглашение. */
+.hud-remember.is-new { color: var(--hud-accent, #8c5ad2); opacity: .8; }
+
+/* Заголовок секрета и кнопка — одной строкой: кнопка уходит к правому краю
+   и больше не разрывает блок отдельной строкой посреди текста. */
+.hud-secret-head-row {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+}
+.hud-secret-head-row .hud-secret-title { flex: 1; min-width: 0; }
+
+/* Окно поверх страницы. Своего модального окна в расширении не было —
+   заводим одно, общего вида, чтобы следующие тоже брали его. */
+.hud-modal-overlay {
+  position: fixed; top: 0; left: 0; z-index: 100000;
+  width: 100vw; height: 100vh; height: 100dvh;
+  display: flex; align-items: center; justify-content: center; padding: 16px;
+  overflow: auto;
+  background: rgba(6, 6, 10, .62);
+  backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px);
+}
+.hud-modal {
+  width: min(460px, 100%); max-height: 88vh; max-height: calc(100dvh - 32px); overflow: hidden;
+  display: flex; flex-direction: column;
+  border-radius: 14px; color: var(--hud-text, #e6e6ee);
+  background: var(--hud-bg, linear-gradient(135deg, #1b1b24, #12121a));
+  border: 1px solid var(--hud-border, rgba(255,255,255,.14));
+  box-shadow: 0 18px 48px rgba(0, 0, 0, .55);
+}
+.hud-modal-head {
+  padding: 12px 16px; letter-spacing: .04em;
+  font-weight: 700; font-size: 13px; line-height: 1.3; font-family: inherit;
+  border-bottom: 1px solid var(--hud-border, rgba(255,255,255,.12));
+}
+.hud-modal-body {
+  display: flex; flex-direction: column; gap: 4px; padding: 12px 16px;
+  min-height: 0; overflow: auto;
+}
+.hud-modal-label { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; opacity: .55; margin-top: 6px; }
+.hud-modal-label i { font-style: normal; text-transform: none; letter-spacing: 0; opacity: .8; }
+.hud-modal-text, .hud-modal-keys, .hud-modal-book, .hud-modal-title {
+  width: 100%; box-sizing: border-box;
+  padding: 7px 9px; border-radius: 8px; font: inherit; font-size: 12.5px;
+  color: var(--hud-text, #e6e6ee);
+  background: rgba(0, 0, 0, .28);
+  border: 1px solid var(--hud-border, rgba(255,255,255,.14));
+}
+.hud-modal-text { resize: vertical; line-height: 1.45; }
+.hud-modal-note {
+  margin-top: 10px; font-size: 11px; line-height: 1.5; opacity: .6;
+  border-left: 2px solid var(--hud-accent, #8c5ad2); padding-left: 8px;
+}
+.hud-modal-foot {
+  display: flex; justify-content: flex-end; gap: 8px; padding: 10px 16px 14px;
+  flex-wrap: wrap;
+}
+.hud-modal-btn.gen { margin-right: auto; }
+.hud-modal-btn.gen:not(:disabled) {
+  background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 18%, transparent);
+  border-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 45%, transparent);
+}
+/* Строка состояния генерации: пишет, что происходит и что поля можно править. */
+.hud-lore-genstate { border-left-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 70%, #ffffff); }
+
+/* На узком экране кнопки в ряд не помещаются: раскладываем в столбец, а
+   «Записать» ставим первой — за ней тянутся чаще всего. */
+@media (max-width: 520px) {
+  .hud-modal-overlay { padding: 8px; align-items: flex-start; }
+  .hud-modal { max-height: calc(100dvh - 16px); }
+  .hud-modal-foot { flex-direction: column-reverse; }
+  .hud-modal-foot .hud-modal-btn { width: 100%; padding: 10px 14px; }
+  .hud-modal-btn.gen { margin-right: 0; }
+}
+.hud-modal-btn {
+  padding: 7px 14px; border-radius: 8px; cursor: pointer;
+  font-weight: 600; font-size: 12px; line-height: 1; font-family: inherit;
+  color: var(--hud-text, #e6e6ee);
+  background: rgba(255, 255, 255, .07);
+  border: 1px solid var(--hud-border, rgba(255,255,255,.14));
+}
+.hud-modal-btn.save {
+  background: var(--hud-accent, #8c5ad2); border-color: transparent; color: #fff;
+}
+.hud-modal-btn:disabled { opacity: .45; cursor: default; }
+.hud-modal-btn:not(:disabled):hover { filter: brightness(1.12); }
+
+/* Сетка галочек по приложениям телефона: в две колонки, чтобы восемь строк
+   не растягивали панель настроек. */
+.hud-set-apps {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px;
+  margin: 2px 0 4px; padding-left: 4px;
+}
+.hud-set-apps label {
+  display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12.5px;
+}
+
+/* =========================================================================
+   Архив HUD — окно сводки по истории чата
+   ========================================================================= */
+
+/* Кнопка вызова в панели настроек. */
+.hud-set-tools { display: flex; align-items: flex-start; gap: 10px; margin: 2px 0 8px; }
+.hud-set-tool-btn {
+  flex: 0 0 auto; cursor: pointer;
+  padding: 7px 12px; border-radius: 8px;
+  font-size: 12.5px; font-weight: 600; font-family: inherit; line-height: 1.2;
+  color: var(--hud-text, #e6e6ee);
+  background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 22%, transparent);
+  border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 55%, transparent);
+  transition: background .15s ease;
+}
+.hud-set-tool-btn:hover { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 34%, transparent); }
+.hud-set-tool-note { font-size: 11.5px; line-height: 1.45; color: var(--hud-text-muted, rgba(226,232,240,.66)); }
+
+/* Окно шире обычной модалки: в отчёте длинные цепочки статусов. */
+.hud-arc-modal { width: min(860px, 100%); max-height: 92vh; }
+.hud-arc-modal .hud-modal-head small { font-weight: 400; opacity: .6; margin-left: 8px; letter-spacing: 0; }
+
+.hud-arc-controls { padding: 10px 16px; border-bottom: 1px solid var(--hud-border, rgba(255,255,255,.12)); }
+.hud-arc-range { display: flex; align-items: center; gap: 12px; font-size: 12px; flex-wrap: wrap; }
+.hud-arc-range label { display: flex; align-items: center; gap: 5px; }
+.hud-arc-range input {
+  width: 78px; padding: 4px 6px; border-radius: 6px; font-family: inherit; font-size: 12px;
+  color: inherit; background: rgba(0,0,0,.25);
+  border: 1px solid var(--hud-border, rgba(255,255,255,.16));
+}
+.hud-arc-total { margin-left: auto; opacity: .6; }
+/* Два ползунка: один задаёт начало отрезка, другой конец. */
+.hud-arc-sliders { display: grid; gap: 4px; margin: 8px 0 6px; }
+.hud-arc-sliders input { width: 100%; accent-color: var(--hud-accent, #8c5ad2); }
+.hud-arc-quick { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.hud-arc-quick button {
+  cursor: pointer; padding: 5px 10px; border-radius: 7px;
+  font-size: 11.5px; font-family: inherit; color: inherit;
+  background: rgba(255,255,255,.06); border: 1px solid var(--hud-border, rgba(255,255,255,.14));
+}
+.hud-arc-quick button:hover { background: rgba(255,255,255,.12); }
+.hud-arc-quick .hud-arc-run {
+  margin-left: auto; font-weight: 700; padding: 6px 16px;
+  background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 30%, transparent);
+  border-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 60%, transparent);
+}
+.hud-arc-quick .hud-arc-run:disabled { opacity: .5; cursor: default; }
+
+.hud-arc-progress { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 11px; opacity: .8; }
+.hud-arc-progress > div {
+  flex: 1; height: 5px; border-radius: 3px; overflow: hidden;
+  background: rgba(255,255,255,.1);
+}
+.hud-arc-bar { width: 0; height: 100%; background: var(--hud-accent, #8c5ad2); transition: width .12s linear; }
+
+/* Свой display перебивает атрибут hidden: без этой строки полоса прогресса
+   и вкладки оставались на экране, хотя код их прятал. */
+.hud-arc-tabs[hidden], .hud-arc-progress[hidden] { display: none; }
+
+.hud-arc-tabs {
+  display: flex; align-items: center; gap: 4px; padding: 8px 16px 0; flex-wrap: wrap;
+  border-bottom: 1px solid var(--hud-border, rgba(255,255,255,.12));
+}
+.hud-arc-tabs button {
+  cursor: pointer; padding: 6px 12px; border-radius: 8px 8px 0 0;
+  font-size: 12px; font-family: inherit; color: inherit;
+  background: transparent; border: 1px solid transparent; border-bottom: none;
+}
+.hud-arc-tabs button:hover { background: rgba(255,255,255,.06); }
+.hud-arc-tabs button.active {
+  background: rgba(255,255,255,.08);
+  border-color: var(--hud-border, rgba(255,255,255,.14));
+  color: var(--hud-accent, #8c5ad2); font-weight: 700;
+}
+.hud-arc-search {
+  margin-left: auto; margin-bottom: 6px; width: 190px;
+  padding: 5px 9px; border-radius: 7px; font-family: inherit; font-size: 12px;
+  color: inherit; background: rgba(0,0,0,.25);
+  border: 1px solid var(--hud-border, rgba(255,255,255,.16));
+}
+
+.hud-arc-body { flex: 1; min-height: 220px; max-height: 58vh; overflow: auto; padding: 12px 16px; }
+.hud-arc-empty { padding: 28px 10px; text-align: center; font-size: 12.5px; opacity: .55; }
+.hud-arc-note {
+  font-size: 12px; line-height: 1.5; margin-bottom: 10px; padding: 8px 10px;
+  border-radius: 0 7px 7px 0; background: rgba(0,0,0,.18);
+  border-left: 2px solid var(--hud-accent, #8c5ad2);
+}
+
+.hud-arc-card {
+  margin-bottom: 10px; padding: 10px 12px; border-radius: 10px;
+  background: rgba(255,255,255,.045);
+  border: 1px solid var(--hud-border, rgba(255,255,255,.1));
+}
+.hud-arc-card-head { display: flex; align-items: center; gap: 7px; font-size: 13px; margin-bottom: 7px; }
+.hud-arc-card-head b { font-weight: 700; }
+.hud-arc-tag {
+  margin-left: auto; padding: 2px 7px; border-radius: 999px;
+  font-size: 10px; letter-spacing: .03em; opacity: .75;
+  background: rgba(255,255,255,.08);
+}
+.hud-arc-row { display: flex; gap: 10px; align-items: baseline; padding: 3px 0; font-size: 12px; }
+.hud-arc-row > label { flex: 0 0 92px; opacity: .55; font-size: 11px; }
+.hud-arc-row > div { flex: 1; display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+.hud-arc-foot { margin-top: 6px; font-size: 10.5px; opacity: .5; }
+
+/* Цепочка «было — стало». Стрелки между звеньями — отдельные элементы,
+   чтобы цепочка переносилась по строкам вместе с ними. */
+.hud-arc-path { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+.hud-arc-path i { font-style: normal; opacity: .35; }
+.hud-arc-status {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 999px; font-size: 11.5px;
+  background: rgba(255,255,255,.07); border: 1px solid var(--hud-border, rgba(255,255,255,.1));
+}
+.hud-arc-who {
+  display: inline-flex; align-items: baseline; gap: 4px;
+  padding: 2px 8px; border-radius: 999px; font-size: 11.5px;
+  background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 16%, transparent);
+  border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 34%, transparent);
+}
+.hud-arc-who em { font-style: normal; opacity: .6; font-size: 10.5px; }
+.hud-arc-who small { opacity: .55; font-size: 10px; }
+.hud-arc-who.is-out { background: rgba(255,255,255,.05); border-color: var(--hud-border, rgba(255,255,255,.12)); opacity: .75; }
+.hud-arc-who.is-none { background: transparent; border-style: dashed; opacity: .5; }
+
+/* Ссылка на сообщение. Кнопка, а не span: по ней кликают, и клавиатура
+   должна её находить. */
+.hud-arc-ref {
+  cursor: pointer; padding: 0 4px; border-radius: 5px;
+  font-size: 10.5px; font-family: inherit; font-weight: 600;
+  color: var(--hud-accent, #8c5ad2);
+  background: transparent; border: 1px solid transparent;
+}
+.hud-arc-ref:hover { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 18%, transparent); }
+.hud-arc-ref.is-missing { color: #e0685f; border-color: rgba(224,104,95,.5); }
+
+.hud-arc-timeline { position: relative; padding-left: 12px; }
+.hud-arc-timeline::before {
+  content: ''; position: absolute; left: 3px; top: 6px; bottom: 6px;
+  width: 1px; background: var(--hud-border, rgba(255,255,255,.16));
+}
+.hud-arc-event { position: relative; display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 12.5px; }
+.hud-arc-dot {
+  position: absolute; left: -12px; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--hud-accent, #8c5ad2);
+}
+.hud-arc-event.is-place .hud-arc-dot { background: rgba(255,255,255,.35); }
+.hud-arc-when { flex: 1; }
+
+.hud-arc-tiles { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; margin-bottom: 12px; }
+.hud-arc-tile {
+  padding: 10px 12px; border-radius: 10px; text-align: center;
+  background: rgba(255,255,255,.045);
+  border: 1px solid var(--hud-border, rgba(255,255,255,.1));
+}
+.hud-arc-tile b { display: block; font-size: 22px; line-height: 1.1; font-weight: 700; color: var(--hud-accent, #8c5ad2); }
+.hud-arc-tile span { display: block; margin-top: 3px; font-size: 11px; opacity: .7; }
+.hud-arc-tile small { display: block; margin-top: 2px; font-size: 10px; opacity: .45; }
+
+.hud-arc-meta { margin-right: auto; font-size: 11px; opacity: .6; }
+.hud-arc-meta button {
+  cursor: pointer; font: inherit; font-size: 11px; padding: 0;
+  color: var(--hud-accent, #8c5ad2); background: none; border: none; text-decoration: underline;
+}
+
+/* Подсветка сообщения, к которому перешли из отчёта. */
+.mes.hud-arc-flash { animation: hud-arc-flash 1.5s ease; }
+@keyframes hud-arc-flash {
+  0%, 100% { box-shadow: none; }
+  20%, 60% { box-shadow: inset 0 0 0 2px var(--hud-accent, #8c5ad2); }
+}
+
+@media (max-width: 600px) {
+  .hud-arc-row { flex-direction: column; gap: 3px; }
+  .hud-arc-row > label { flex: none; }
+  .hud-arc-search { width: 100%; margin-left: 0; }
+  .hud-arc-body { max-height: 52vh; }
+}
+

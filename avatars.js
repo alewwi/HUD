@@ -10,13 +10,13 @@
 // реально добавляются новые сообщения (см. invalidateAvatarCache()).
 // Ручные аватарки читаются прямо из настроек: модуль и так знает про DOM
 // и глобали SillyTavern, ещё одна зависимость ничего не усложняет.
-import { settings } from './settings.js?v=22.82.1';
+import { settings } from './settings.js?v=22.88.3';
 
 /** Палитра для плейсхолдеров аватарок: цвет выбирается по хэшу имени. */
 export const HUD_AVATAR_COLORS = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#22d3ee', '#a3e635'];
 
 let avatarUrlCache = {};
-export function invalidateAvatarCache() { avatarUrlCache = {}; }
+export function invalidateAvatarCache() { avatarUrlCache = {}; кэшМиниатюр.clear(); }
 
 // --- Ручные аватарки -------------------------------------------------------
 // Нормализация имени для сравнения: регистр, ё/е и лишние пробелы не должны
@@ -104,9 +104,26 @@ function resolveAvatarUrl(characterName, isPrimary) {
 
   let file = char.avatar;
   if (file.startsWith('http') || file.startsWith('data:')) return { url: file, thumbUrl: file };
-  if (typeof window.getThumbnailUrl === 'function') return { url: window.getThumbnailUrl('avatar', file), thumbUrl: `/characters/${encodeURIComponent(file)}` };
-  return { url: `/thumbnail?type=avatar&file=${encodeURIComponent(file)}`, thumbUrl: `/characters/${encodeURIComponent(file)}` };
+  return адресМиниатюры(file);
 }
+
+// Адрес миниатюры зависит только от имени файла, а спрашивают его на
+// каждый пузырь в мессенджере и на каждую строку в списке контактов.
+// Считаем один раз на файл.
+const кэшМиниатюр = new Map();
+function адресМиниатюры(file) {
+  const готовое = кэшМиниатюр.get(file);
+  if (готовое) return готовое;
+  const пара = {
+    url: (typeof window.getThumbnailUrl === 'function')
+      ? window.getThumbnailUrl('avatar', file)
+      : `/thumbnail?type=avatar&file=${encodeURIComponent(file)}`,
+    thumbUrl: `/characters/${encodeURIComponent(file)}`,
+  };
+  кэшМиниатюр.set(file, пара);
+  return пара;
+}
+
 
 // Обновление аватарок без перерисовки HUD.
 //

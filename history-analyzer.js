@@ -11,11 +11,12 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=22.82.1';
-import { normalizeJSONData } from './schema.js?v=22.82.1';
-import { parseRelationList } from './render/relations-graph.js?v=22.82.1';
-import { nameLettersOnly, namePhoneticLatin } from './names.js?v=22.82.1';
-import { hudFilled } from './utils.js?v=22.82.1';
+import { parseHUDComplex } from './hud-parser.js?v=22.88.3';
+import { normalizeJSONData } from './schema.js?v=22.88.3';
+import { parseRelationList } from './render/relations-graph.js?v=22.88.3';
+import { nameLettersOnly, namePhoneticLatin } from './names.js?v=22.88.3';
+import { hudFilled } from './utils.js?v=22.88.3';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=22.88.3';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -217,6 +218,16 @@ export function parseSceneDate(raw) {
  * Обработка идёт кусками, чтобы длинный чат не вешал вкладку: между кусками
  * отдаём управление браузеру и сообщаем прогресс.
  */
+// Уступить время браузеру между кусками разбора. requestIdleCallback ждёт
+// настоящего простоя, поэтому прокрутка и ввод во время долгого анализа не
+// дёргаются; таймаут не даёт зависнуть, если простоя всё нет.
+function передышка() {
+  return new Promise(готово => {
+    if (typeof requestIdleCallback === 'function') requestIdleCallback(() => готово(), { timeout: 120 });
+    else setTimeout(готово, 0);
+  });
+}
+
 export async function analyzeChat(startIndex, endIndex, options = {}) {
   const chat = getChatMessages();
   const total = chat.length;
@@ -242,7 +253,7 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
   for (let i = from; i <= to; i++) {
     if (i > from && (i - from) % КУСОК === 0) {
       if (onProgress) onProgress(i - from, to - from + 1);
-      await new Promise(r => setTimeout(r, 0));
+      await передышка();
       if (shouldStop()) return null;
     }
     const raw = текст(chat[i] && (chat[i].mes ?? ''));
@@ -345,37 +356,24 @@ function ключКэша(from, to) {
   return ПРЕФИКС + id + '_' + from + '_' + to;
 }
 
-export function readCache(from, to) {
-  try {
-    const raw = localStorage.getItem(ключКэша(from, to));
-    if (!raw) return null;
-    const payload = JSON.parse(raw);
-    if (!payload || !payload.report) return null;
-    payload.stale = payload.signature !== chatSignature();
-    return payload;
-  } catch (_) { return null; }
+export async function readCache(from, to) {
+  const payload = await readEntry(ключКэша(from, to));
+  if (!payload || !payload.report) return null;
+  payload.stale = payload.signature !== chatSignature();
+  return payload;
 }
 
-export function writeCache(from, to, report) {
-  try {
-    localStorage.setItem(ключКэша(from, to), JSON.stringify({
-      signature: chatSignature(), savedAt: new Date().toISOString(), report,
-    }));
-    return true;
-  } catch (_) {
-    // Квота localStorage кончилась — не повод ронять анализ: отчёт уже готов
-    // и показан, кэш здесь только ускоряет повтор.
-    return false;
-  }
+export async function writeCache(from, to, report) {
+  // Не поместилось — не повод ронять анализ: отчёт уже готов и показан,
+  // кэш здесь только ускоряет повтор.
+  return writeEntry(ключКэша(from, to), {
+    signature: chatSignature(), savedAt: new Date().toISOString(), report,
+  });
 }
 
-// Чистка старых записей архива — на случай, когда квота уже забита.
-export function clearCache() {
-  const убрать = [];
-  for (let i = 0; i < localStorage.length; i++) {
-    const k = localStorage.key(i);
-    if (k && k.startsWith(ПРЕФИКС)) убрать.push(k);
-  }
-  убрать.forEach(k => { try { localStorage.removeItem(k); } catch (_) {} });
-  return убрать.length;
-}
+// Чистка архива целиком — и в IndexedDB, и в том, что осталось от
+// localStorage у прошлых версий.
+export function clearCache() { return clearAll(); }
+
+// Сколько места занято архивом. Нужно кнопке очистки в настройках.
+export function cacheUsage() { return usage(); }

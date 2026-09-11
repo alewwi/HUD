@@ -20,6 +20,13 @@
 const fs = require('fs'), path = require('path');
 const v = process.argv[2];
 if (!v) { console.error('usage: node bump-version.cjs <version>'); process.exit(1); }
+// Версия уходит и в манифест, и в хвосты ?v= у полусотни импортов.
+// Опечатка вроде «22.83» или «v22.83.0» разъедется по всему проекту и
+// вылезет потом загадочным «модуль не тот». Проверяем сразу.
+if (!/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(v)) {
+  console.error('Версия должна быть вида X.Y.Z (можно с суффиксом через дефис), а не «' + v + '». Ничего не изменено.');
+  process.exit(1);
+}
 
 const files = [];
 (function walk(dir) {
@@ -52,6 +59,19 @@ for (const f of files) {
       return `${a}${spec}?v=${v}${z}`;
     });
   if (out !== src) pending.push({ file: f, text: out });
+}
+
+// Стили разрезаны на части и подключаются из style.css через @import.
+// Манифест ставит хвост ?v= только самому style.css, поэтому части нужно
+// пометить здесь — иначе браузер оставит их в кэше и после обновления.
+{
+  const cssPath = path.join(__dirname, 'style.css');
+  if (fs.existsSync(cssPath)) {
+    const src = fs.readFileSync(cssPath, 'utf8');
+    const out = src.replace(/(@import\s+url\(['\"])([^'\"?]+\.css)(\?v=[^'\"]*)?(['\"]\))/g,
+      (_m, a, spec, _q, z) => `${a}${spec}?v=${v}${z}`);
+    if (out !== src) pending.push({ file: cssPath, text: out });
+  }
 }
 
 const mPath = path.join(__dirname, 'manifest.json');
@@ -95,4 +115,27 @@ try {
 let touched = 0;
 for (const s of staged) { fs.renameSync(s.tmp, s.file); touched++; }
 
-console.log(`версия ${v}: обновлено файлов — ${touched} (включая manifest.json)`);
+// Сверяем то, что получилось на диске: манифест и хвосты ?v= должны
+// совпадать до единого. Расхождение здесь — это браузер, который тянет
+// половину модулей из старого кэша.
+const проверка = JSON.parse(fs.readFileSync(mPath, 'utf8'));
+const беды = [];
+if (проверка.version !== v) беды.push('manifest.version = ' + проверка.version);
+if (проверка.js !== 'index.js?v=' + v) беды.push('manifest.js = ' + проверка.js);
+if (проверка.css !== 'style.css?v=' + v) беды.push('manifest.css = ' + проверка.css);
+const чужие = new Set();
+// Проверяем и модули, и оглавление стилей: разъехаться может и то, и то.
+const проверяемые = files.concat([path.join(__dirname, 'style.css')].filter(p => fs.existsSync(p)));
+for (const f of проверяемые) {
+  const текст = fs.readFileSync(f, 'utf8');
+  for (const m2 of текст.matchAll(/\?v=(\d+\.\d+\.\d+[0-9A-Za-z.-]*)/g)) {
+    if (m2[1] !== v) чужие.add(path.basename(f) + ' → ' + m2[1]);
+  }
+}
+if (чужие.size) беды.push('чужие версии в импортах: ' + [...чужие].join(', '));
+if (беды.length) {
+  console.error('Версии разъехались:\n  ' + беды.join('\n  '));
+  process.exit(1);
+}
+
+console.log(`версия ${v}: обновлено файлов — ${touched} (включая manifest.json), версии сходятся`);

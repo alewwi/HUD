@@ -11,12 +11,12 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache } from './avatars.js?v=22.82.1';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.82.1';
-import { openPhoneMediaViewer } from './render/phone.js?v=22.82.1';
-import { getTheme, themeVars, presetRowHTML, THEME_KEYS , themeSnapshot, parseThemeFile } from './themes.js?v=22.82.1';
-import { settings, defaultSettings } from './settings.js?v=22.82.1';
-import { getWorldVotes } from './render/world.js?v=22.82.1';
+import { invalidateAvatarCache } from './avatars.js?v=22.88.3';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.88.3';
+import { openPhoneMediaViewer } from './render/phone.js?v=22.88.3';
+import { getTheme, themeVars, presetRowHTML, THEME_KEYS , themeSnapshot, parseThemeFile } from './themes.js?v=22.88.3';
+import { settings, defaultSettings } from './settings.js?v=22.88.3';
+import { getWorldVotes } from './render/world.js?v=22.88.3';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -39,6 +39,104 @@ function отменитьРазбор() {
   разборНачат = 0;
   ЖДУЩИЕ.clear();
   аватаркиМенялись = false;
+}
+
+/* ---------------------------------------------------------------------
+   МИНИ-ГАЙД: РАЗВОРОТ ПОДСКАЗКИ
+   ---------------------------------------------------------------------
+   Подсказка вкладки живёт в готовом месте под полосой вкладок, подсказка
+   поля создаётся рядом со строкой, к которой относится. Разворот плавный:
+   у обёртки меняется grid-template-rows с 0fr на 1fr, и высота не нужна
+   заранее — браузер считает её сам. */
+function подсказкаДляЗначка(значок, ctx) {
+  const вид = значок.getAttribute('data-tab-help');
+  if (вид) return { ключ: 'tab:' + вид, статья: ctx.tabHelp && ctx.tabHelp[вид] };
+  const поле = значок.getAttribute('data-term-help');
+  if (поле && ctx.findTermHelp) {
+    // Заголовок берём с самой подписи, а не из ключа: там он уже в нужном
+    // виде, со значком и заглавной буквой.
+    const подпись = значок.parentElement;
+    const текст = подпись ? подпись.textContent.replace('?', '') : поле;
+    return { ключ: 'term:' + поле, статья: ctx.findTermHelp(текст) };
+  }
+  return { ключ: '', статья: null };
+}
+
+// Куда положить подсказку. У вкладки — готовая полоса под полосой вкладок.
+// У поля — сразу после строки, в которой это поле сидит.
+function местоПодсказки(значок) {
+  if (значок.hasAttribute('data-tab-help')) {
+    const обёртка = значок.closest('.hud-os-wrapper');
+    return обёртка && обёртка.querySelector('.hud-tab-hint');
+  }
+  const строка = значок.closest('.hud-row, .hud-key-block, .hud-world-section, .hud-memory-secret')
+    || значок.parentElement;
+  if (!строка || !строка.parentElement) return null;
+  let место = строка.nextElementSibling;
+  if (!место || !место.classList.contains('hud-hint')) {
+    место = document.createElement('div');
+    место.className = 'hud-hint';
+    место.hidden = true;
+    строка.parentElement.insertBefore(место, строка.nextSibling);
+  }
+  return место;
+}
+
+// Плавность держится на замере: max-height нельзя анимировать от нуля до
+// auto, поэтому высоту содержимого считаем сами. После разворота ставим
+// none, чтобы подсказка могла подрасти, если вёрстка вокруг изменится.
+function развернуть(место) {
+  место.hidden = false;
+  место.style.maxHeight = '0px';
+  // Кадр между показом и целевой высотой: без него переход стартует уже
+  // из открытого состояния и получается рывок.
+  requestAnimationFrame(() => {
+    место.style.maxHeight = место.scrollHeight + 'px';
+    место.classList.add('is-open');
+    setTimeout(() => {
+      if (место.classList.contains('is-open')) место.style.maxHeight = 'none';
+    }, 260);
+  });
+}
+
+function закрытьПодсказку(место) {
+  if (!место) return;
+  if (!место.classList.contains('is-open')) { место.hidden = true; return; }
+  // От none анимировать нечего: сначала возвращаем измеримую высоту.
+  место.style.maxHeight = место.scrollHeight + 'px';
+  requestAnimationFrame(() => {
+    место.classList.remove('is-open');
+    место.style.maxHeight = '0px';
+  });
+  // Прячем не сразу: пусть доиграет схлопывание, иначе рывок вернётся,
+  // только в обратную сторону.
+  setTimeout(() => { if (!место.classList.contains('is-open')) место.hidden = true; }, 260);
+}
+
+function переключитьПодсказку(значок, ctx) {
+  const { ключ, статья } = подсказкаДляЗначка(значок, ctx);
+  if (!статья) return;
+  const место = местоПодсказки(значок);
+  if (!место) return;
+  const карточка = значок.closest('.hud-os-card') || document;
+
+  // Повторное нажатие по тому же вопросику закрывает подсказку.
+  if (место.classList.contains('is-open') && место.dataset.helpKey === ключ) {
+    закрытьПодсказку(место);
+    значок.classList.remove('is-open');
+    return;
+  }
+
+  // Открыта может быть только одна: две подсказки сразу читаются как сбой.
+  карточка.querySelectorAll('.hud-hint.is-open, .hud-tab-hint.is-open').forEach(п => {
+    if (п !== место) закрытьПодсказку(п);
+  });
+  карточка.querySelectorAll('.hud-help-mark.is-open').forEach(з => з.classList.remove('is-open'));
+
+  место.dataset.helpKey = ключ;
+  место.innerHTML = ctx.buildHintHTML(статья);
+  развернуть(место);
+  значок.classList.add('is-open');
 }
 
 export function initGlobalEvents(ctx) {
@@ -310,6 +408,16 @@ export function initGlobalEvents(ctx) {
       return;
     }
 
+    // Вопросик: и у вкладки, и у поля. Стоит выше обработчика вкладок —
+    // у вкладки он лежит внутри неё, и иначе нажатие переключало бы вкладку.
+    const вопросик = e.target.closest('.hud-help-mark');
+    if (вопросик) {
+      e.preventDefault();
+      e.stopPropagation();
+      переключитьПодсказку(вопросик, ctx);
+      return;
+    }
+
     const tab = e.target.closest('.hud-tab');
     if (tab) {
       e.preventDefault();
@@ -321,6 +429,10 @@ export function initGlobalEvents(ctx) {
       let target = parent.querySelector(`#${tab.dataset.target}`);
       if (target && target.classList.contains('hud-tab-lazy') && ctx.renderLazyTab) {
         target = ctx.renderLazyTab(target);
+        // Содержимое вкладки только что появилось: возвращаем пометки и
+        // вопросики, которых в свежей разметке нет.
+        refreshReactions(target);
+        if (ctx.attachHelpMarks) ctx.attachHelpMarks(target);
       }
       if (target) target.classList.add('active');
       return;
@@ -398,6 +510,9 @@ export function initGlobalEvents(ctx) {
         body.classList.add('active');
         view.classList.add('is-chat-open');
         markChatRead(view, body);
+        // Пузыри этой переписки появились только сейчас: пометки, которые
+        // человек ставил раньше, в разметке не хранятся.
+        refreshReactions(body);
       } else {
         view.classList.remove('is-chat-open');
       }
@@ -822,6 +937,163 @@ export function initGlobalEvents(ctx) {
 
 }
 
+/* ---------------------------------------------------------------------
+   РЕАКЦИИ НА СООБЩЕНИЯ В МЕССЕНДЖЕРЕ
+   ---------------------------------------------------------------------
+   Пометки ставит человек, а не модель, поэтому они не попадают ни в текст
+   сообщения, ни в запрос. Ключ — отпечаток самого сообщения: карточка
+   пересобирается по многу раз, и привязываться к её узлам бессмысленно. */
+const НАБОР_РЕАКЦИЙ = ['❤️', '😂', '😮', '😢', '😡', '👍', '👎', '🔥'];
+const КЛЮЧ_РЕАКЦИЙ = 'hud_reactions';
+let реакции = null;
+
+function загрузитьРеакции() {
+  if (реакции) return реакции;
+  try { реакции = JSON.parse(localStorage.getItem(КЛЮЧ_РЕАКЦИЙ) || '{}') || {}; }
+  catch (_) { реакции = {}; }
+  return реакции;
+}
+
+function сохранитьРеакции() {
+  try { localStorage.setItem(КЛЮЧ_РЕАКЦИЙ, JSON.stringify(реакции || {})); }
+  catch (err) { console.debug('[TavernOS HUD] реакции не сохранились:', err); }
+}
+
+// Отпечаток пузыря. Ключ ставится при сборке из исходной строки сообщения
+// и потому не зависит ни от пересборки карточки, ни от того, что на пузырь
+// уже навесили пометку. Считать по textContent нельзя: поставленная
+// пометка тут же попадала бы в собственный отпечаток.
+function отпечатокПузыря(пузырь) {
+  const ключ = пузырь && пузырь.dataset ? пузырь.dataset.msgKey : '';
+  if (!ключ) return '';
+  // Один и тот же текст может встретиться в разных переписках, поэтому к
+  // ключу добавляем имя чата.
+  const чат = пузырь.closest('.hud-phone-app-view, .hud-phone-mockup, .hud-intercept-card');
+  const имя = чат && чат.querySelector('.hud-phone-name, .hud-intercept-chat-name');
+  const подпись = имя ? (имя.textContent || '').trim() : '';
+  return подпись ? подпись + '\u0000' + ключ : ключ;
+}
+
+// Рисуем пометки под пузырём. Вызывается и после установки, и при разборе
+// свежесобранной карточки.
+function показатьРеакции(пузырь) {
+  const ключ = отпечатокПузыря(пузырь);
+  if (!ключ) return;
+  const список = загрузитьРеакции()[ключ] || [];
+  let полка = пузырь.querySelector(':scope > .hud-msg-reactions');
+  if (!список.length) { if (полка) полка.remove(); return; }
+  if (!полка) {
+    полка = document.createElement('div');
+    полка.className = 'hud-msg-reactions';
+    пузырь.appendChild(полка);
+  }
+  полка.innerHTML = список.map(з =>
+    `<span class="hud-msg-reaction" data-reaction="${з}" role="button" tabindex="0" title="Убрать">${з}</span>`
+  ).join('');
+}
+
+export function refreshReactions(корень) {
+  if (!корень || !корень.querySelectorAll) return;
+  корень.querySelectorAll('.hud-msg-bubble').forEach(показатьРеакции);
+}
+
+function открытьПалитру(пузырь) {
+  document.querySelectorAll('.hud-reaction-palette').forEach(п => п.remove());
+  const палитра = document.createElement('div');
+  палитра.className = 'hud-reaction-palette';
+  палитра.innerHTML = НАБОР_РЕАКЦИЙ.map(з =>
+    `<button type="button" class="hud-reaction-pick" data-pick="${з}">${з}</button>`
+  ).join('');
+  пузырь.appendChild(палитра);
+  // Закрываем по первому же нажатию мимо палитры.
+  const закрыть = (e) => {
+    if (палитра.contains(e.target)) return;
+    палитра.remove();
+    document.removeEventListener('pointerdown', закрыть, true);
+  };
+  setTimeout(() => document.addEventListener('pointerdown', закрыть, true), 0);
+}
+
+// Долгое нажатие пальцем и правая кнопка мышью — два пути к одному и тому
+// же. Считаем долгим полсекунды без заметного сдвига: иначе палитра
+// открывалась бы посреди прокрутки.
+let держим = 0, началоКасания = null;
+
+// Слежку за движением включаем только на время долгого нажатия и тут же
+// снимаем. Держать её на документе постоянно — значит вызывать обработчик
+// на каждое движение мыши по всей странице, а нужна она полсекунды.
+function бросить() {
+  clearTimeout(держим); держим = 0; началоКасания = null;
+  document.removeEventListener('pointermove', наДвижении);
+  document.removeEventListener('pointerup', бросить);
+  document.removeEventListener('pointercancel', бросить);
+}
+function наДвижении(e) {
+  if (!началоКасания) return;
+  // Небольшой сдвиг — это дрожь пальца, заметный — прокрутка: тогда
+  // палитру не открываем.
+  if (Math.abs(e.clientX - началоКасания.x) > 8 || Math.abs(e.clientY - началоКасания.y) > 8) бросить();
+}
+document.addEventListener('pointerdown', (e) => {
+  const пузырь = e.target.closest && e.target.closest('.hud-msg-bubble');
+  if (!пузырь) return;
+  if (e.target.closest('.hud-reaction-palette, .hud-msg-reaction, .hud-msg-media')) return;
+  началоКасания = { x: e.clientX, y: e.clientY };
+  clearTimeout(держим);
+  держим = setTimeout(() => { открытьПалитру(пузырь); бросить(); }, 500);
+  document.addEventListener('pointermove', наДвижении);
+  document.addEventListener('pointerup', бросить);
+  document.addEventListener('pointercancel', бросить);
+});
+document.addEventListener('contextmenu', (e) => {
+  const пузырь = e.target.closest && e.target.closest('.hud-msg-bubble');
+  if (!пузырь) return;
+  e.preventDefault();
+  открытьПалитру(пузырь);
+});
+
+document.addEventListener('click', (e) => {
+  // Выбор из палитры.
+  const выбор = e.target.closest && e.target.closest('.hud-reaction-pick');
+  if (выбор) {
+    e.preventDefault(); e.stopPropagation();
+    const пузырь = выбор.closest('.hud-msg-bubble');
+    const ключ = пузырь && отпечатокПузыря(пузырь);
+    if (ключ) {
+      const всё = загрузитьРеакции();
+      const список = всё[ключ] || [];
+      const знак = выбор.dataset.pick;
+      всё[ключ] = список.includes(знак) ? список.filter(з => з !== знак) : список.concat(знак);
+      if (!всё[ключ].length) delete всё[ключ];
+      сохранитьРеакции();
+      показатьРеакции(пузырь);
+    }
+    выбор.closest('.hud-reaction-palette')?.remove();
+    return;
+  }
+  // Нажатие по уже поставленной пометке убирает её.
+  const пометка = e.target.closest && e.target.closest('.hud-msg-reaction');
+  if (пометка) {
+    e.preventDefault(); e.stopPropagation();
+    const пузырь = пометка.closest('.hud-msg-bubble');
+    const ключ = пузырь && отпечатокПузыря(пузырь);
+    if (ключ) {
+      const всё = загрузитьРеакции();
+      всё[ключ] = (всё[ключ] || []).filter(з => з !== пометка.dataset.reaction);
+      if (!всё[ключ].length) delete всё[ключ];
+      сохранитьРеакции();
+      показатьРеакции(пузырь);
+    }
+  }
+}, true);
+
+// Реакции живут отдельно от чата, и забыть их нужно уметь отдельно.
+export function clearReactions() {
+  реакции = {};
+  try { localStorage.removeItem(КЛЮЧ_РЕАКЦИЙ); } catch (_) {}
+  document.querySelectorAll('.hud-msg-reactions').forEach(п => п.remove());
+}
+
 export function initObserver(ctx, chatContainer) {
   const { safeProcessMessage, isPerformanceModeActive, refreshPerformanceMessageClasses,
           schedulePerformanceRefresh, getPerformanceObserver } = ctx;
@@ -907,6 +1179,16 @@ export function initObserver(ctx, chatContainer) {
     characterDataOldValue: false
   });
 }
+
+// Вопросик у вкладки тоже объявлен role="button": Enter и пробел должны
+// его открывать.
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const вопросик = e.target && e.target.closest && e.target.closest('.hud-help-mark');
+  if (!вопросик) return;
+  e.preventDefault();
+  вопросик.click();
+});
 
 // Плитка вложения объявлена role="button" — значит обязана открываться и
 // с клавиатуры, иначе роль обещает то, чего нет.

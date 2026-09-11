@@ -7,7 +7,7 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=22.82.1';
+import { normalizeJSONData } from './schema.js?v=22.88.3';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';
@@ -565,6 +565,117 @@ export function repairGeneratedHudBlock(aiText) {
   }
 }
 
+/* --- YAML как запасной вариант -------------------------------------------
+   Поддерживаем ровно то, что встречается в ответах: отображения по
+   отступам, списки через дефис, скаляры в кавычках и без. Якоря, ссылки,
+   блочные скаляры и потоковый синтаксис сознательно не поддерживаем: они
+   в ответах не появляются, а разбор бы усложнили втрое. */
+function yamlScalar(сырое) {
+  const s = String(сырое == null ? '' : сырое).trim();
+  if (!s) return '';
+  const первый = s[0];
+  if ((первый === '"' || первый === "'") && s.length > 1 && s[s.length - 1] === первый) {
+    const тело = s.slice(1, -1);
+    return первый === '"' ? тело.replace(/\\n/g, '\n').replace(/\\"/g, '"') : тело;
+  }
+  if (s === 'null' || s === '~') return null;
+  if (s === 'true') return true;
+  if (s === 'false') return false;
+  // Числами делаем только то, что целиком число: «21:47» и «+18°C» должны
+  // остаться строками.
+  if (/^-?\d+(?:\.\d+)?$/.test(s)) return Number(s);
+  return s;
+}
+
+function yamlLines(текст) {
+  const out = [];
+  for (const сырая of String(текст || '').split(/\r?\n/)) {
+    // Комментарий целой строкой убираем; хвостовые не трогаем — решётка
+    // легко встречается внутри текста.
+    if (/^\s*#/.test(сырая)) continue;
+    if (!сырая.trim()) continue;
+    if (/^\s*(---|\.\.\.)\s*$/.test(сырая)) continue;
+    const отступ = сырая.match(/^\s*/)[0].replace(/\t/g, '  ').length;
+    out.push({ отступ, текст: сырая.trim() });
+  }
+  return out;
+}
+
+// Обёртка: разбирает YAML и сразу проверяет, похоже ли это на HUD. Иначе
+// любой список из двух строк объявлялся бы удачным разбором.
+function пробаYaml(текст) {
+  let разобрано = null;
+  try { разобрано = parseSimpleYaml(текст); } catch (_) { return null; }
+  if (!разобрано || typeof разобрано !== 'object' || Array.isArray(разобрано)) return null;
+  if (scoreHudJsonCandidate(разобрано) <= 0) return null;
+  setHudRepairDiagnostic({ repaired: true, mode: 'yaml' });
+  return разобрано;
+}
+
+export function parseSimpleYaml(текст) {
+  const строки = yamlLines(текст);
+  if (!строки.length) return null;
+  let i = 0;
+
+  // Разбираем один уровень: всё, что глубже указанного отступа.
+  const уровень = (минОтступ) => {
+    // Что это — список или отображение — решает первая же строка уровня.
+    const списком = строки[i] && строки[i].текст.startsWith('- ');
+    const узел = списком ? [] : {};
+    while (i < строки.length && строки[i].отступ >= минОтступ) {
+      const { отступ, текст: стр } = строки[i];
+      if (отступ > минОтступ && узел && !Array.isArray(узел) && !Object.keys(узел).length) {
+        // Съехавший отступ у первой же строки — выравниваем по ней.
+        return уровень(отступ);
+      }
+      if (отступ > минОтступ) break;
+
+      if (стр.startsWith('- ') || стр === '-') {
+        if (!Array.isArray(узел)) break;
+        const хвост = стр === '-' ? '' : стр.slice(2).trim();
+        i++;
+        const пара = хвост.match(/^([^:]+):\s*(.*)$/);
+        if (пара) {
+          // «- ключ: значение» — начало объекта внутри списка. Его
+          // остальные поля идут следующими строками с большим отступом.
+          const объект = {};
+          объект[пара[1].trim()] = пара[2].trim() ? yamlScalar(пара[2]) : (строки[i] && строки[i].отступ > отступ ? уровень(строки[i].отступ) : '');
+          while (i < строки.length && строки[i].отступ > отступ && !строки[i].текст.startsWith('- ')) {
+            const вложПара = строки[i].текст.match(/^([^:]+):\s*(.*)$/);
+            if (!вложПара) { i++; continue; }
+            const глубже = строки[i].отступ;
+            i++;
+            объект[вложПара[1].trim()] = вложПара[2].trim()
+              ? yamlScalar(вложПара[2])
+              : (строки[i] && строки[i].отступ > глубже ? уровень(строки[i].отступ) : '');
+          }
+          узел.push(объект);
+        } else if (хвост) {
+          узел.push(yamlScalar(хвост));
+        } else if (строки[i] && строки[i].отступ > отступ) {
+          узел.push(уровень(строки[i].отступ));
+        }
+        continue;
+      }
+
+      const пара = стр.match(/^([^:]+):\s*(.*)$/);
+      if (!пара) { i++; continue; }
+      if (Array.isArray(узел)) break;
+      const ключ = пара[1].trim().replace(/^["']|["']$/g, '');
+      const значение = пара[2].trim();
+      i++;
+      if (значение) { узел[ключ] = yamlScalar(значение); continue; }
+      узел[ключ] = (i < строки.length && строки[i].отступ > отступ) ? уровень(строки[i].отступ) : '';
+    }
+    return узел;
+  };
+
+  const итог = уровень(строки[0].отступ);
+  // Пустой объект — значит на самом деле это был не YAML.
+  if (!итог || typeof итог !== 'object' || (!Array.isArray(итог) && !Object.keys(итог).length)) return null;
+  return итог;
+}
+
 export function parseHUDComplex(contentEncoded) {
   const decoded = decodeHighlightedHudHtml(contentEncoded);
   const candidates = extractBalancedJsonCandidates(decoded);
@@ -573,6 +684,9 @@ export function parseHUDComplex(contentEncoded) {
     if (firstBrace >= 0) candidates.push(decoded.slice(firstBrace));
   }
   if (!candidates.length) {
+    // Фигурных скобок нет вовсе — возможно, модель ответила YAML.
+    const yaml = пробаYaml(decoded);
+    if (yaml) return yaml;
     setHudRepairDiagnostic({ repaired: false, mode: 'no-candidate' });
     throw new Error('HUD JSON parse failed: no JSON object found');
   }

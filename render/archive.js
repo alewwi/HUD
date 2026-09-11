@@ -6,8 +6,8 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe } from '../utils.js?v=22.82.1';
-import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=22.82.1';
+import { escapeHtml, guardTouchSwipe } from '../utils.js?v=22.88.3';
+import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=22.88.3';
 
 let окноОткрыто = false;
 
@@ -279,7 +279,7 @@ export function openArchiveDialog() {
     const [a, b] = диапазон();
 
     if (изКэша !== false) {
-      const кэш = readCache(a, b);
+      const кэш = await readCache(a, b);
       if (кэш && !кэш.stale) {
         отчёт = кэш.report;
         мета.innerHTML = `из кэша от ${new Date(кэш.savedAt).toLocaleString()} · <button type="button" class="hud-arc-again">пересчитать</button>`;
@@ -317,7 +317,7 @@ export function openArchiveDialog() {
     $('.hud-arc-run').disabled = false;
     if (!отчёт) return; // окно закрыли во время разбора
 
-    const сохранён = writeCache(a, b, отчёт);
+    const сохранён = await writeCache(a, b, отчёт);
     мета.textContent = `сообщений с HUD: ${отчёт.stats.withHud} из ${отчёт.stats.totalMessages}`
       + (отчёт.stats.brokenHud ? ` · битых: ${отчёт.stats.brokenHud}` : '')
       + (сохранён ? '' : ' · кэш не поместился');
