@@ -3,9 +3,9 @@
 // Домен «Телефон»: вкладки чатов, переписки, счётчики непрочитанного,
 // участники. Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe } from '../utils.js?v=22.73.12';
-import { settings } from '../settings.js?v=22.73.12';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.73.12';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe } from '../utils.js?v=22.82.1';
+import { settings } from '../settings.js?v=22.82.1';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.82.1';
 
 // Кружок собеседника. Если для имени назначена ручная аватарка, подставляем
 // её фоном прямо в существующий элемент: разметка и классы не меняются, а
@@ -38,7 +38,7 @@ function avaFace(name, cls, fallbackBg, inner) {
     `" data-ava-bg="${escapeHtml(bg)}" style="background-image:${url ? `url('${url}')` : bg}"` +
     `>${escapeHtml(letter)}${inner || ''}</span>`;
 }
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=22.73.12';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=22.82.1';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -242,68 +242,12 @@ function buildMessengerHTML(chatsMap, uid, mainCharName) {
           statusHtml = '<span class="msg-status unread-dot"></span>';
         }
 
-        // === ЛОВИМ ЗВОНОК ===
-        // Звонок — это событие, а не реплика: рисуем строкой во всю ширину,
-        // со стрелкой направления и итогом. Пропущенный подсвечен.
-        const call = parseCall(message);
-        if (call) {
-            const dir = call.dir || (isOutgoing ? 'out' : 'in');
-            const note = message.replace(call.tag, '').trim();
-            chatBodies += `<div class="hud-call-row is-${call.outcome} dir-${dir}">
-              <span class="hud-call-ico">${call.outcome === 'missed' ? G_ICONS.callMiss : dir === 'out' ? G_ICONS.callOut : G_ICONS.callIn}</span>
-              <span class="hud-call-body">
-                <b>${dir === 'out' ? 'Исходящий' : 'Входящий'} — ${escapeHtml(CALL_WORD[call.outcome])}</b>
-                <small>${defeatWI(escapeHtml(sender))}${call.dur ? ' · ' + escapeHtml(call.dur) : ''}${note ? ' · ' + defeatWI(escapeHtml(note)) : ''}</small>
-              </span>
-              ${msgTime ? `<span class="hud-call-time">${escapeHtml(msgTime)}</span>` : ''}
-            </div>`;
-            return;
-        }
+        // Звонок — событие, а не реплика: строка во всю ширину вместо пузыря.
+        const callRow = buildCallRow(message, { sender, time: msgTime, outgoing: isOutgoing });
+        if (callRow) { chatBodies += callRow; return; }
 
-        // === ЛОВИМ ГОЛОСОВЫЕ СООБЩЕНИЯ ===
-            let isVoice = false;
-            let voiceDur = "";
-            let voiceMatch = message.match(/\[(?:VOICE|ГОЛОС)_?(\d{1,2}:\d{2})?\]/i);
-            if (voiceMatch) {
-                isVoice = true;
-                voiceDur = voiceMatch[1] || "0:15"; // Берем длину аудио или ставим 15 сек по умолчанию
-                message = message.replace(voiceMatch[0], '').trim(); // Вырезаем тег из текста
-            }
-
-            // === ЛОВИМ ФОТО ===
-            // Настоящей картинки у нас нет и быть не может — рисуем плитку с
-            // подписью. Цвет плитки выводим из подписи, чтобы разные снимки
-            // отличались друг от друга и не выглядели одной заглушкой.
-            const photo = parsePhoto(message);
-            if (photo) message = message.replace(photo.tag, '').trim();
-
-            // === ЛОВИМ ВИДЕО ===
-            const video = !photo ? parseVideo(message) : null;
-            if (video) message = message.replace(video.tag, '').trim();
-
-            // СОБИРАЕМ ВНУТРЕННОСТИ ПУЗЫРЯ (Текст, Плеер или Снимок)
-            let msgInner = photo
-                ? `<div class="hud-msg-photo hud-msg-media" role="button" tabindex="0" data-media="photo"
-                        data-media-desc="${escapeHtml(photo.desc)}"
-                        title="Открыть описание снимка"
-                        style="--shot: ${HUD_AVATAR_COLORS[hudHashSeed(photo.desc || 'photo') % HUD_AVATAR_COLORS.length]}">
-                     <span class="hud-msg-photo-frame">${G_ICONS.image}</span>
-                     ${photo.desc ? `<span class="hud-msg-photo-cap">${defeatWI(escapeHtml(photo.desc))}</span>` : ''}
-                   </div>${message ? `<div class="hud-msg-text" style="word-break: break-word;">${escapeHtml(message)}</div>` : ''}`
-                : video
-                ? `<div class="hud-msg-photo hud-msg-video hud-msg-media" role="button" tabindex="0" data-media="video"
-                        data-media-desc="${escapeHtml(video.desc)}" data-media-dur="${escapeHtml(video.dur)}"
-                        title="Открыть описание ролика"
-                        style="--shot: ${HUD_AVATAR_COLORS[hudHashSeed(video.desc || 'video') % HUD_AVATAR_COLORS.length]}">
-                     <span class="hud-msg-photo-frame">
-                       <span class="hud-msg-video-play" aria-hidden="true"></span>
-                       ${video.dur ? `<span class="hud-msg-video-dur">${escapeHtml(video.dur)}</span>` : ''}
-                     </span>
-                     ${video.desc ? `<span class="hud-msg-photo-cap">${defeatWI(escapeHtml(video.desc))}</span>` : ''}
-                   </div>${message ? `<div class="hud-msg-text" style="word-break: break-word;">${escapeHtml(message)}</div>` : ''}`
-                : isVoice 
-                ? `<div class="hud-voice-player"><div class="hud-voice-btn">▶</div><div class="hud-voice-line"></div><span class="hud-voice-time">${voiceDur}</span></div><details class="hud-voice-details"><summary>Расшифровка</summary><div class="hud-voice-text">${escapeHtml(message)}</div></details>`
-                : `<div class="hud-msg-text" style="word-break: break-word;">${escapeHtml(message)}</div>`;
+        // Вложения в пузыре собирает общий сборщик — он же работает в перехватах.
+            const msgInner = buildBubbleInner(message);
 
             // РИСУЕМ ФИНАЛЬНОЕ СООБЩЕНИЕ
             chatBodies += `<div class="hud-msg-wrapper ${isOutgoing ? 'outgoing' : 'incoming'}">
@@ -551,6 +495,79 @@ function parseVideo(text) {
   const m = String(text || '').match(/\[(?:VIDEO|ВИДЕО|VID|РОЛИК)[ _]?(\d{1,2}:\d{2})?\s*:?\s*([^\]]*)\]/i);
   if (!m) return null;
   return { tag: m[0], dur: (m[1] || '').trim(), desc: (m[2] || '').trim() };
+}
+
+// Внутренности пузыря: снимок, ролик, голосовое или просто текст.
+// Один сборщик на оба мессенджера — личный телефон и перехваты. Раньше разбор
+// жил прямо в цикле телефона, и в перехватах снимки с роликами оставались
+// сырым тегом [PHOTO: ...] посреди текста.
+export function buildBubbleInner(rawMessage) {
+  let message = String(rawMessage || '');
+
+  // Голосовое: [VOICE_M:SS]. Длительность необязательна.
+  let isVoice = false, voiceDur = '';
+  const voiceMatch = message.match(/\[(?:VOICE|ГОЛОС)_?(\d{1,2}:\d{2})?\]/i);
+  if (voiceMatch) {
+    isVoice = true;
+    voiceDur = voiceMatch[1] || '0:15';
+    message = message.replace(voiceMatch[0], '').trim();
+  }
+
+  // Снимок. Настоящей картинки у нас нет и быть не может — рисуем плитку с
+  // подписью. Цвет выводим из подписи, чтобы разные снимки отличались друг
+  // от друга, а не выглядели одной заглушкой.
+  const photo = parsePhoto(message);
+  if (photo) message = message.replace(photo.tag, '').trim();
+
+  // Ролик — то же самое плюс кнопка воспроизведения и длительность.
+  const video = !photo ? parseVideo(message) : null;
+  if (video) message = message.replace(video.tag, '').trim();
+
+  const подпись = message ? `<div class="hud-msg-text" style="word-break: break-word;">${escapeHtml(message)}</div>` : '';
+  const цвет = (seed) => HUD_AVATAR_COLORS[hudHashSeed(seed) % HUD_AVATAR_COLORS.length];
+
+  if (photo) {
+    return `<div class="hud-msg-photo hud-msg-media" role="button" tabindex="0" data-media="photo"
+              data-media-desc="${escapeHtml(photo.desc)}"
+              title="Открыть описание снимка"
+              style="--shot: ${цвет(photo.desc || 'photo')}">
+           <span class="hud-msg-photo-frame">${G_ICONS.image}</span>
+           ${photo.desc ? `<span class="hud-msg-photo-cap">${defeatWI(escapeHtml(photo.desc))}</span>` : ''}
+         </div>${подпись}`;
+  }
+  if (video) {
+    return `<div class="hud-msg-photo hud-msg-video hud-msg-media" role="button" tabindex="0" data-media="video"
+              data-media-desc="${escapeHtml(video.desc)}" data-media-dur="${escapeHtml(video.dur)}"
+              title="Открыть описание ролика"
+              style="--shot: ${цвет(video.desc || 'video')}">
+           <span class="hud-msg-photo-frame">
+             <span class="hud-msg-video-play" aria-hidden="true"></span>
+             ${video.dur ? `<span class="hud-msg-video-dur">${escapeHtml(video.dur)}</span>` : ''}
+           </span>
+           ${video.desc ? `<span class="hud-msg-photo-cap">${defeatWI(escapeHtml(video.desc))}</span>` : ''}
+         </div>${подпись}`;
+  }
+  if (isVoice) {
+    return `<div class="hud-voice-player"><div class="hud-voice-btn">▶</div><div class="hud-voice-line"></div><span class="hud-voice-time">${escapeHtml(voiceDur)}</span></div>` +
+      (message ? `<details class="hud-voice-details"><summary>Расшифровка</summary><div class="hud-voice-text">${escapeHtml(message)}</div></details>` : '');
+  }
+  return `<div class="hud-msg-text" style="word-break: break-word;">${escapeHtml(message)}</div>`;
+}
+
+// Звонок как событие во всю ширину: одна строка и в телефоне, и в перехватах.
+export function buildCallRow(rawMessage, { sender = '', time = '', outgoing = false } = {}) {
+  const call = parseCall(rawMessage);
+  if (!call) return '';
+  const dir = call.dir || (outgoing ? 'out' : 'in');
+  const note = String(rawMessage || '').replace(call.tag, '').trim();
+  return `<div class="hud-call-row is-${call.outcome} dir-${dir}">
+      <span class="hud-call-ico">${call.outcome === 'missed' ? G_ICONS.callMiss : dir === 'out' ? G_ICONS.callOut : G_ICONS.callIn}</span>
+      <span class="hud-call-body">
+        <b>${dir === 'out' ? 'Исходящий' : 'Входящий'} — ${escapeHtml(CALL_WORD[call.outcome])}</b>
+        <small>${defeatWI(escapeHtml(sender))}${call.dur ? ' · ' + escapeHtml(call.dur) : ''}${note ? ' · ' + defeatWI(escapeHtml(note)) : ''}</small>
+      </span>
+      ${time ? `<span class="hud-call-time">${escapeHtml(time)}</span>` : ''}
+    </div>`;
 }
 
 const CALL_WORD = {

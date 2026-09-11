@@ -7,9 +7,9 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe } from '../utils.js?v=22.73.12';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.73.12';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=22.73.12';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe } from '../utils.js?v=22.82.1';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.82.1';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=22.82.1';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -176,14 +176,34 @@ function wrapRelationLabel(label, maxCharsPerLine) {
 
 function classifyRelationVisual(label) {
   const s = String(label || '').toLowerCase().replace(/ё/g, 'е');
+  // Порядок значим: возвращается первое совпадение. Частное — раньше общего.
   const groups = [
+    // Запретное — раньше романтики: «любовница» не должна попасть в «любовь».
+    ['forbidden', /любовниц|любовник|интрижк|тайн(ая|ый) (связ|роман|любов)|скрыт(ая|ую|ой) любов|запрет|измен|адюльт|affair|mistress|lover on the side|forbidden|secret love|adultery/],
+    // Подельник — соучастие в чём-то незаконном, не дружба.
+    ['accomplice', /подельник|сообщник|соучастн|подруч|accomplice|partner in crime|henchman/],
+    // Долг — денежный, кровный или «обязан жизнью».
+    ['debt', /должен|должна|долг|обязан|обязана|расплат|kredit|кредит|debt|owes|indebted|blood debt|life debt/],
+    // Родство по ролям. Родитель и ребёнок разведены: стрелка в графе
+    // направленная, и «отец → сын» должен читаться иначе, чем «сын → отец».
+    ['parent', /отец|отц|мать|матер|мам|пап|родител|опекун|отчим|мачех|усыновител|приёмн(ый|ая) (отец|мать)|father|mother|parent|guardian|stepfather|stepmother|foster parent/],
+    ['child', /сын|доч|дочер|падчериц|пасынок|подопечн|воспитанник|воспитанниц|child|son|daughter|stepdaughter|stepson|ward/],
+    ['sibling', /брат|сестр|близнец|sibling|brother|sister|twin/],
+    // Иерархия: служебная и учебная.
+    ['boss', /начальник|руководител|командир|босс|шеф|хозяин|наниматель|работодател|boss|chief|commander|employer|superior/],
+    ['subordinate', /подчинённ|подчиненн|подчин|сотрудник|работник|помощник|секретар|subordinate|employee|assistant|underling/],
+    ['mentor', /учител|наставник|ментор|тренер|мастер|профессор|mentor|teacher|coach|master|professor/],
+    ['student', /ученик|ученица|студент|стажёр|стажер|падаван|apprentice|student|trainee|pupil/],
+    // Общая принадлежность: группа, класс, курс, отряд.
+    ['group', /член |одногруппник|одноклассник|однокурсник|сокурсник|сослуживец|соратник|коллега по|состоит в|входит в|banda|member of|classmate|teammate|squadmate|fellow/],
     ['love', /люб|влюб|обожа|страст|симпат|привязан|романт|любов|love|adore|romance|crush|attract|fond|cherish|desire/],
     ['friend', /друж|довер|уважа|товариш|союз|прият|дружел|friend|trust|respect|ally|allies|support|close/],
     ['hostile', /ненав|вражд|презир|ярост|злост|ненавист|hate|hatred|enemy|hostile|loathe|disgust|rage|enmity/],
     ['jealous', /ревн|завист|собствен|jealous|envy|possessive/],
     ['fear', /страх|боит|опас|пуга|тревог|fear|afraid|scared|threat|anxious|uneasy/],
     ['suspicious', /подоз|насторож|невер|сомне|suspicious|doubt|distrust|wary|skeptic/],
-    ['family', /семь|родн|мать|отец|сын|доч|брат|сестр|муж|жен|family|mother|father|son|daughter|brother|sister|husband|wife/],
+    // Семья вообще — запасной вариант, если роль не названа: «родня», «муж».
+    ['family', /семь|родн|муж|жен|супруг|племянн|тёт|тет|дяд|дед|бабуш|кузен|кузин|family|husband|wife|spouse|cousin|uncle|aunt|nephew|niece|grandmother|grandfather/],
     ['neutral', /нейтр|коллег|знаком|делов|рабоч|формаль|нейтрал|neutral|colleague|acquaint|professional|formal/]
   ];
   for (const [type, rx] of groups) if (rx.test(s)) return type;
@@ -199,6 +219,17 @@ function relationVisualMeta(type) {
     fear:       { icon: '!', label: 'Страх' },
     suspicious: { icon: '?', label: 'Подозрение' },
     family:     { icon: '⌂', label: 'Семья' },
+    parent:     { icon: '↑', label: 'Родитель' },
+    child:      { icon: '↓', label: 'Ребёнок' },
+    sibling:    { icon: '⇄', label: 'Брат / сестра' },
+    boss:       { icon: '▲', label: 'Начальство' },
+    subordinate:{ icon: '▼', label: 'Подчинение' },
+    mentor:     { icon: '✎', label: 'Наставник' },
+    student:    { icon: '✐', label: 'Ученик' },
+    debt:       { icon: '⚖', label: 'Долг' },
+    forbidden:  { icon: '⌘', label: 'Запретное' },
+    accomplice: { icon: '⚑', label: 'Подельник' },
+    group:      { icon: '⬡', label: 'Общая группа' },
     neutral:    { icon: '•', label: 'Нейтральное' },
     other:      { icon: '·', label: 'Другое' }
   };
@@ -265,7 +296,8 @@ export function buildRelGraphHTML(hudData, uid) {
   const graphId = `hud-rel-graph-${uid}`.replace(/[^a-zA-Z0-9_-]/g, '');
   const escId = value => String(value || '').replace(/[^a-zA-Z0-9_-]/g, '');
 
-  const markerTypes = ['love','friend','hostile','jealous','fear','suspicious','family','neutral','other'];
+  const markerTypes = ['love','friend','hostile','jealous','fear','suspicious','family','parent','child','sibling',
+    'boss','subordinate','mentor','student','debt','forbidden','accomplice','group','neutral','other'];
   let svg = `<div class="hud-rel-graph" data-rel-graph-id="${graphId}" title="Нажмите на персонажа или связь для подробностей">
     <div class="hud-rel-toolbar">
       <div class="hud-rel-heading"><span class="hud-rel-heading-icon">🕸</span><div><strong>Граф отношений</strong><small>${nodes.length} персонажей · ${edges.length} связей</small></div></div>
@@ -376,7 +408,13 @@ export function buildRelGraphHTML(hudData, uid) {
   // the controls must travel with the graph instead of staying behind in Memory.
   svg += `</svg></div>`;
 
-  const legendTypes = ['love','friend','hostile','jealous','fear','suspicious','family','other'];
+  // Типов теперь два десятка, и списком «все подряд» легенда занимала бы
+  // пол-экрана. Показываем только те, что действительно есть в этом графе,
+  // в привычном порядке.
+  const порядокТипов = ['love','forbidden','friend','group','family','parent','child','sibling',
+    'boss','subordinate','mentor','student','debt','accomplice','jealous','fear','suspicious','hostile','neutral','other'];
+  const встречаются = new Set(edges.map(e => classifyRelationVisual(e.label || e.rel || '')));
+  const legendTypes = порядокТипов.filter(t => встречаются.has(t));
   const legend = legendTypes.map(type => {
     const meta = relationVisualMeta(type);
     return `<button type="button" class="hud-rel-legend-item" data-rel-filter="${type}" title="Показать только связи: ${escapeHtml(meta.label)}"><i class="hud-rel-legend-dot hud-rel-${type}"></i><span>${escapeHtml(meta.label)}</span></button>`;

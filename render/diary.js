@@ -6,7 +6,7 @@
 // index.js импортирует отсюда только buildDiaryHTML и hudHasMeaningfulDiary —
 // остальное экспортируется для тестов и внутренних нужд домена.
 
-import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=22.73.12';
+import { escapeHtml, hudHasMeaningfulValue, hudHashSeed } from '../utils.js?v=22.82.1';
 
 // Дневник: словарь эмоциональных синонимов. Раньше всё сводилось к
 // четырём темам (sad / angry / panic / neutral) — «скука», «презрение»,
@@ -207,13 +207,13 @@ export function buildDiaryHTML(diaryData, uid, isChecked) {
     if (typeof entry === 'string') {
       let parts = entry.split('|'); let time = parts[0].trim(); let text = parts.length > 1 ? parts.slice(1).join('|').trim() : '';
       if (!text) { text = time; time = 'Скрытая запись'; }
-      html += `<div class="hud-diary-entry hud-diary-mood-${moodKey}">${paper}${sticker}${stains}<div class="hud-diary-time">${escapeHtml(time)}</div><div class="hud-diary-text">${renderDiaryText(text)}</div></div>`;
+      html += `<div class="hud-diary-entry hud-diary-mood-${moodKey}">${paper}${sticker}${stains}<span class="hud-diary-damage" aria-hidden="true"></span><div class="hud-diary-time">${escapeHtml(time)}</div><div class="hud-diary-text">${renderDiaryText(text)}</div></div>`;
     } else {
       const author = entry && entry.author && entry.author.toLowerCase() !== 'none' && entry.author.toLowerCase() !== 'empty' ? entry.author : '';
       const time = entry && entry.time ? entry.time : 'Скрытая запись';
       const aboutUser = entry && entry.aboutUser && entry.aboutUser.toLowerCase() !== 'none' && entry.aboutUser.toLowerCase() !== 'empty' ? entry.aboutUser : '';
       const text = entry && entry.text ? entry.text : '';
-      html += `<div class="hud-diary-entry hud-diary-mood-${moodKey}">${paper}${sticker}${stains}${author ? `<div class="hud-diary-author">${escapeHtml(author)}</div>` : ''}<div class="hud-diary-time">${escapeHtml(time)}</div><div class="hud-diary-text">${renderDiaryText(text)}</div>${aboutUser ? `<div class="hud-diary-about-user"><span class="hud-diary-about-label">О ней:</span> ${renderDiaryText(aboutUser)}</div>` : ''}</div>`;
+      html += `<div class="hud-diary-entry hud-diary-mood-${moodKey}">${paper}${sticker}${stains}<span class="hud-diary-damage" aria-hidden="true"></span>${author ? `<div class="hud-diary-author">${escapeHtml(author)}</div>` : ''}<div class="hud-diary-time">${escapeHtml(time)}</div><div class="hud-diary-text">${renderDiaryText(text)}</div>${aboutUser ? `<div class="hud-diary-about-user"><span class="hud-diary-about-label">О ней:</span> ${renderDiaryText(aboutUser)}</div>` : ''}</div>`;
     }
   });
   return html + `</div></div>`;
@@ -225,4 +225,51 @@ export function hudHasMeaningfulDiary(items) {
     if (!i || typeof i !== 'object') return false;
     return hudHasMeaningfulValue(i.text) || hudHasMeaningfulValue(i.aboutUser);
   });
+}
+
+// --- Дневник тела ----------------------------------------------------------
+//
+// Отдельная вкладка для записей о близости. Тот же почерк, другая бумага:
+// тёмная, с каплями воска вместо чернильных пятен. Разделение не
+// косметическое — обычный дневник читают ради сюжета, этот ради тела, и
+// мешать их в одной ленте значит терять и то, и другое.
+
+// Капли воска. Позиция и размер выведены из текста записи, поэтому у одной
+// и той же записи капли всегда на одном месте.
+function buildWaxDrops(seed) {
+  const base = hudHashSeed(String(seed || ""));
+  const count = 2 + (base % 3);
+  return Array.from({ length: count }, (_, i) => {
+    const s = base + i * 977;
+    const left = 6 + (s % 84);
+    const top = 8 + ((s >> 3) % 74);
+    const size = 9 + ((s >> 6) % 13);
+    const tail = 10 + ((s >> 9) % 22);
+    return `<span class="hud-wax" style="left:${left}%; top:${top}%; width:${size}px; height:${size}px; --tail:${tail}px;"></span>`;
+  }).join("");
+}
+
+export function buildBodyDiaryHTML(items, uid, isChecked) {
+  let html = `<div class="hud-tab-content ${isChecked ? "active" : ""}" id="content-${uid}"><div class="hud-diary-container hud-body-diary">`;
+  if (!Array.isArray(items) || !items.length) {
+    return html + `<div class="hud-diary-empty">Записей пока нет.</div></div></div>`;
+  }
+  items.forEach(entry => {
+    const e = (entry && typeof entry === "object") ? entry : { text: String(entry || "") };
+    const seed = `${e.author || ""}|${e.time || ""}|${e.text || ""}`;
+    const author = e.author && !/^(none|empty)$/i.test(e.author) ? e.author : "";
+    const time = e.time && !/^(none|empty)$/i.test(e.time) ? e.time : "";
+    const mood = e.mood && !/^(none|empty)$/i.test(e.mood) ? e.mood : "";
+    html += `<div class="hud-diary-entry hud-body-entry">${buildWaxDrops(seed)}` +
+      (author ? `<div class="hud-diary-author">${escapeHtml(author)}</div>` : "") +
+      (time ? `<div class="hud-diary-time">${escapeHtml(time)}</div>` : "") +
+      `<div class="hud-diary-text">${renderDiaryText(e.text || "")}</div>` +
+      (mood ? `<div class="hud-body-mood">${escapeHtml(mood)}</div>` : "") +
+      `</div>`;
+  });
+  return html + `</div></div>`;
+}
+
+export function hudHasMeaningfulBodyDiary(items) {
+  return Array.isArray(items) && items.some(i => i && hudHasMeaningfulValue(typeof i === "string" ? i : i.text));
 }

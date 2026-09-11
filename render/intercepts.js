@@ -3,8 +3,12 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHasMeaningfulValue } from '../utils.js?v=22.73.12';
-import { overrideAvatarUrl } from '../avatars.js?v=22.73.12';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue } from '../utils.js?v=22.82.1';
+import { overrideAvatarUrl } from '../avatars.js?v=22.82.1';
+// Снимки, ролики, голосовые и звонки собирает тот же код, что и в личном
+// телефоне. Своя копия разбора здесь означала бы, что новый формат от модели
+// в одном мессенджере работает, а в другом остаётся сырым тегом в тексте.
+import { buildBubbleInner, buildCallRow } from './phone.js?v=22.82.1';
 
 // Кружок отправителя в перехвате: ручная аватарка фоном либо инициал.
 // Разметка и классы прежние — картинку прячет за собой класс has-img.
@@ -103,23 +107,20 @@ export function buildInterceptsHTML(interceptsData, uid, isChecked) {
           if (fallbackMatch) { mainPart = fallbackMatch[1].trim(); msgTime = fallbackMatch[2].trim(); }
         }
         mainPart = mainPart.replace(/\[удалено\]|\[черновик\]|✓+/gi, '').trim();
-        let sender = "Unknown", message = mainPart, match = mainPart.match(/^([^:-]+)(?:\s*(?:->|→)\s*([^:]+))?:\s*(.*)$/);
+        // Дефис — часть фамилии («Ченнинг-Уинтроп»), исключать его из имени
+        // нельзя: такая строка не разбиралась вовсе, отправитель оставался
+        // «Unknown», а вся строка «А -> Б: текст» уезжала в пузырь как есть.
+        let sender = "Unknown", message = mainPart;
+        const match = mainPart.match(/^([^:]+?)(?:\s*(?:->|→)\s*([^:]+?))?\s*:\s*([\s\S]*)$/);
         if (match) { sender = match[1].trim(); message = match[3].trim(); }
 
         let isOutgoing = (targetName && sender.toLowerCase().includes(targetName.toLowerCase().split(' ')[0]));
 
-        // === ГОЛОСОВЫЕ СООБЩЕНИЯ ===
-        // Тот же тег [VOICE_M:SS] / [ГОЛОС_M:SS], что и в личном телефоне.
-        let isVoice = false, voiceDur = '';
-        const voiceMatch = message.match(/\[(?:VOICE|ГОЛОС)_?(\d{1,2}:\d{2})?\]/i);
-        if (voiceMatch) {
-          isVoice = true;
-          voiceDur = voiceMatch[1] || '0:15';
-          message = message.replace(voiceMatch[0], '').trim();
-        }
-        const msgInner = isVoice
-          ? `<div class="hud-voice-player"><div class="hud-voice-btn">▶</div><div class="hud-voice-line"></div><span class="hud-voice-time">${escapeHtml(voiceDur)}</span></div>${message ? `<details class="hud-voice-details"><summary>Расшифровка</summary><div class="hud-voice-text">${escapeHtml(message)}</div></details>` : ''}`
-          : `<div class="hud-msg-text" style="word-break: break-word;">${escapeHtml(message)}</div>`;
+        // Звонок рисуем событием во всю ширину — как в личном телефоне.
+        const callRow = buildCallRow(message, { sender, time: msgTime, outgoing: isOutgoing });
+        if (callRow) { chatBodies += callRow; return; }
+
+        const msgInner = buildBubbleInner(message);
 
         chatBodies += `<div class="hud-msg-wrapper ${isOutgoing ? 'outgoing' : 'incoming'}">${!isOutgoing ? interceptFace(sender) : ''}<div class="hud-msg-content" style="max-width: 100%;"><span class="hud-msg-sender">${escapeHtml(sender)}</span><div class="hud-msg-bubble">${msgInner}${msgTime ? `<div class="hud-msg-meta" style="display: flex; justify-content: flex-end; align-items: center; gap: 4px; font-size: 0.75em; opacity: 0.6; margin-top: 4px;"><span class="hud-msg-time">${escapeHtml(msgTime)}</span></div>` : ''}</div></div></div>`;
       });

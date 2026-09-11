@@ -1847,7 +1847,10 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
   }
 
   function cssEscapeValue(v) {
-    return (window.CSS && CSS.escape) ? CSS.escape(v) : String(v).replace(/["\\]/g, String.raw`\  // Remove duplicate HUD cards/raw HUD markup from the *displayed DOM only*.`);
+    if (window.CSS && CSS.escape) return CSS.escape(v);
+    // Запасная ветка на случай очень старого браузера: экранируем то, что
+    // ломает селектор по атрибуту.
+    return String(v).replace(/['"\]\\]/g, (знак) => '\\' + знак);
   }
 
   // Одна запись на все действия внутри карточки: снимаем состояние после

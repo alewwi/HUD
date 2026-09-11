@@ -4,9 +4,9 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue } from '../utils.js?v=22.73.12';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.73.12';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.73.12';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue } from '../utils.js?v=22.82.1';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.82.1';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.82.1';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает'];
 
@@ -15,10 +15,102 @@ const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реал
 // попавшие в список, дописываются после в исходном порядке.
 const FIELD_ORDER = ['Имя', 'Возраст', 'Одежда', 'Внешность', 'Роль', 'Тело', 'Физиология', 'Здоровье',
   'Место', 'Мысли', 'Ключ', 'Ожидание vs Реальность', 'Скрытый подтекст', 'Инвентарь', 'Цели',
-  'Расписание', 'Отношения', 'Общие воспоминания', 'Флаг-монитор', 'Статус', 'Социальное разоблачение',
+  'Расписание', 'Отношения', 'Доверие', 'Страхи', 'Реплики', 'Общие воспоминания', 'Флаг-монитор', 'Статус', 'Социальное разоблачение',
   'Глубина конфликта', 'Ревность', 'Конфликт', 'Сновидение',
   'Последний секс', 'Количество партнеров', 'Регулярность секса',
-  'NSFW', 'Кинк', 'Фетиш', 'Никогда не сделает', 'Не возбуждает', 'Детализация NSFW', 'Отзыв о сексе'];
+  'Фаза близости', 'NSFW', 'Карта тела', 'Кинк', 'Фетиш', 'Никогда не сделает', 'Не возбуждает',
+  'Детализация NSFW', 'Забота после', 'Отзыв о сексе'];
+// Доверие: то же устройство, что у карты тела, но шкала 0-100 и свой цвет.
+// Доверие и отношение — разные вещи: любить и не доверять можно одновременно,
+// поэтому шкала отдельная, а не строка внутри «Отношений».
+function buildTrustMap(value) {
+  return String(value || '').split(/[;\n]/).map(кусок => {
+    const m = кусок.match(/^\s*([^:]+):\s*(.+)$/);
+    if (!m) return кусок.trim() ? `<span class="hud-zone"><b>${escapeHtml(кусок.trim())}</b></span>` : '';
+    const кто = m[1].trim();
+    const сырое = m[2].trim();
+    const число = parseFloat(сырое.replace(',', '.'));
+    if (!Number.isFinite(число)) return `<span class="hud-zone"><b>${escapeHtml(кто)}</b><em>${escapeHtml(сырое)}</em></span>`;
+    const доля = Math.max(0, Math.min(100, число));
+    // Низкое доверие красим тревожно, высокое — спокойно: цвет несёт смысл,
+    // иначе шкала читается только по длине полоски.
+    const уровень = доля >= 66 ? 'is-high' : (доля >= 33 ? 'is-mid' : 'is-low');
+    return `<span class="hud-zone ${уровень}" title="${escapeHtml(кто)}: ${escapeHtml(сырое)}"><b>${escapeHtml(кто)}</b><i class="hud-zone-bar"><i style="width:${доля}%"></i></i><em>${Math.round(доля)}</em></span>`;
+  }).filter(Boolean).join('');
+}
+
+// Страхи: значок подбираем по смыслу, чтобы список читался с одного взгляда.
+// Ничего не подошло — общий значок, выдумывать соответствие не нужно.
+const ЗНАЧКИ_СТРАХА = [
+  [/смерт|умер|гибел|убь|death|die/i, '💀'],
+  [/потер|уйдёт|уйдет|брос|один|одинок|lose|abandon/i, '💔'],
+  [/узна|раскро|разоблач|правд|expose|truth/i, '🕵'],
+  [/отец|мать|семь|родн|father|mother|family/i, '🏚'],
+  [/темн|ночь|dark/i, '🌑'],
+  [/боль|пытк|удар|pain|hurt/i, '🩸'],
+  [/высот|паден|height|fall/i, '🕳'],
+  [/вод|утон|water|drown/i, '🌊'],
+  [/огон|пожар|fire|burn/i, '🔥'],
+  [/тюрьм|клетк|запер|cage|prison/i, '🔒'],
+];
+function buildFears(value) {
+  return String(value || '').split(/[;\n]/).map(кусок => {
+    const s = кусок.trim();
+    if (!s) return '';
+    const m = s.match(/^([^:]+):\s*(.+)$/);
+    const что = m ? m[1].trim() : s;
+    const сколько = m ? m[2].trim() : '';
+    const пара = ЗНАЧКИ_СТРАХА.find(([rx]) => rx.test(что));
+    const значок = пара ? пара[1] : '😨';
+    const хвост = сколько ? `<em>${escapeHtml(сколько)}</em>` : '';
+    return `<span class="hud-fear"><span class="hud-fear-ico" aria-hidden="true">${значок}</span><b>${escapeHtml(что)}</b>${хвост}</span>`;
+  }).filter(Boolean).join('');
+}
+
+// Характерные реплики: цитаты, а не пересказ. Кавычки модель ставит сама,
+// лишние снимаем — кавычку рисует стиль.
+function buildLines(value) {
+  return String(value || '').split(/[;\n]/).map(кусок => {
+    const s = кусок.trim().replace(/^[«"'`]+|[»"'`]+$/g, '').trim();
+    return s ? `<span class="hud-line-quote">${escapeHtml(s)}</span>` : '';
+  }).filter(Boolean).join('');
+}
+
+// Фаза близости: пять шагов, текущий подсвечен, пройденные приглушены.
+const ФАЗЫ = [
+  ['foreplay', 'Прелюдия', /foreplay|прелюд|ласк/i],
+  ['act', 'Близость', /^act$|акт|близост|секс|intercourse/i],
+  ['climax', 'Пик', /climax|оргазм|пик|разрядк/i],
+  ['aftercare', 'Забота', /aftercare|забот|уход/i],
+  ['afterglow', 'После', /afterglow|послевкус|истом|после/i],
+];
+function buildScenePhase(value) {
+  const s = String(value || '');
+  const текущая = ФАЗЫ.findIndex(([, , rx]) => rx.test(s));
+  if (текущая < 0) return `<span class="hud-nsfw-pill">${escapeHtml(s)}</span>`;
+  return ФАЗЫ.map(([id, подпись], i) => {
+    const состояние = i < текущая ? ' is-past' : (i === текущая ? ' is-now' : '');
+    return `<span class="hud-phase-step${состояние}" data-phase="${id}">${escapeHtml(подпись)}</span>`;
+  }).join('<i class="hud-phase-sep"></i>');
+}
+
+// Карта чувствительности: «Зона: 0-10». Значение вне шкалы не выдумываем —
+// показываем как есть, без полоски.
+function buildBodyMap(value) {
+  return String(value || '').split(/[;\n]/).map(кусок => {
+    const m = кусок.match(/^\s*([^:]+):\s*(.+)$/);
+    if (!m) return кусок.trim() ? `<span class="hud-zone"><b>${escapeHtml(кусок.trim())}</b></span>` : '';
+    const зона = m[1].trim();
+    const сырое = m[2].trim();
+    const число = parseFloat(сырое.replace(',', '.'));
+    if (!Number.isFinite(число)) {
+      return `<span class="hud-zone"><b>${escapeHtml(зона)}</b><em>${escapeHtml(сырое)}</em></span>`;
+    }
+    const доля = Math.max(0, Math.min(10, число)) * 10;
+    return `<span class="hud-zone" title="${escapeHtml(зона)}: ${escapeHtml(сырое)}"><b>${escapeHtml(зона)}</b><i class="hud-zone-bar"><i style="width:${доля}%"></i></i><em>${Math.round(число)}</em></span>`;
+  }).filter(Boolean).join('');
+}
+
 const orderFields = (obj) => {
   const rest = Object.keys(obj).filter(k => !FIELD_ORDER.includes(k));
   return [...FIELD_ORDER.filter(k => k in obj), ...rest].map(k => [k, obj[k]]);
@@ -108,10 +200,27 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
     else if (lowerKey === 'nsfw') icon = '🔞 '; else if (lowerKey === 'кинк') icon = '🔗 ';
     else if (lowerKey === 'фетиш') icon = '🎀 '; else if (lowerKey === 'никогда не сделает') icon = '⛔ ';
     else if (lowerKey === 'не возбуждает') icon = '🧊 ';
+    else if (lowerKey === 'фаза близости') icon = '🌡️ '; else if (lowerKey === 'карта тела') icon = '🫦 ';
+    else if (lowerKey === 'забота после') icon = '🫂 ';
+    else if (lowerKey === 'доверие') icon = '🤍 '; else if (lowerKey === 'страхи') icon = '😨 ';
+    else if (lowerKey === 'реплики') icon = '💬 ';
 
     let valueClass = TRUNCATE_KEYS.some(k => lowerKey.includes(k)) ? 'hud-value hud-truncate' : 'hud-value';
 
-    if (lowerKey === 'ключ') {
+    if (lowerKey === 'доверие') {
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-bodymap hud-trustmap">${buildTrustMap(value)}</div></div>`;
+    } else if (lowerKey === 'страхи') {
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-fears">${buildFears(value)}</div></div>`;
+    } else if (lowerKey === 'реплики') {
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-lines">${buildLines(value)}</div></div>`;
+    } else if (lowerKey === 'фаза близости') {
+      // Пять шагов сцены полосой: видно, где мы сейчас и что уже позади.
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div>${buildScenePhase(value)}</div></div>`;
+    } else if (lowerKey === 'карта тела') {
+      // Зона и её чувствительность от нуля до десяти — шкалой, а не числом:
+      // «Шея: 9» рядом с «Поясница: 4» читается взглядом, а не чтением.
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-bodymap">${buildBodyMap(value)}</div></div>`;
+    } else if (lowerKey === 'ключ') {
       const items = String(value).split(';').filter(i => i.trim().length > 0).map(i => `<div class="hud-key-item">${formatKeyValue(i.trim())}</div>`).join('');
       html += `<div class="hud-key-block full-width"><span class="hud-key-label">${escapeHtml(key)}:</span> <div class="hud-vertical-container hud-key-list">${items}</div></div>`;
     } else if (lowerKey === 'инвентарь') {
