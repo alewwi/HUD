@@ -11,12 +11,12 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=22.90.3';
-import { normalizeJSONData } from './schema.js?v=22.90.3';
-import { parseRelationList } from './render/relations-graph.js?v=22.90.3';
-import { nameLettersOnly, namePhoneticLatin } from './names.js?v=22.90.3';
-import { hudFilled } from './utils.js?v=22.90.3';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=22.90.3';
+import { parseHUDComplex } from './hud-parser.js?v=22.98.0';
+import { normalizeJSONData } from './schema.js?v=22.98.0';
+import { parseRelationList } from './render/relations-graph.js?v=22.98.0';
+import { nameLettersOnly, namePhoneticLatin } from './names.js?v=22.98.0';
+import { hudFilled } from './utils.js?v=22.98.0';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=22.98.0';
 
 // --- Мелкие помощники --------------------------------------------------------
 

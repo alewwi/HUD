@@ -1,24 +1,24 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.90.3';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=22.90.3';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.90.3';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions } from './events.js?v=22.90.3';
-import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.90.3';
-import { mergeCarryOver } from './render/carryover.js?v=22.90.3';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.90.3';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.90.3';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.90.3';
-import { buildMemoryHTML } from './render/memory.js?v=22.90.3';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.90.3';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.90.3';
-import { hudHasRelations } from './render/relations-graph.js?v=22.90.3';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.90.3';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.90.3';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.90.3';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks } from './help.js?v=22.90.3';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.90.3';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=22.90.3';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.98.0';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=22.98.0';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.98.0';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions } from './events.js?v=22.98.0';
+import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.98.0';
+import { mergeCarryOver } from './render/carryover.js?v=22.98.0';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.98.0';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.98.0';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.98.0';
+import { buildMemoryHTML } from './render/memory.js?v=22.98.0';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.98.0';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.98.0';
+import { hudHasRelations } from './render/relations-graph.js?v=22.98.0';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.98.0';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.98.0';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.98.0';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks } from './help.js?v=22.98.0';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.98.0';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=22.98.0';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -115,8 +115,8 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
 - 👁️ HIDDEN SUBTEXT ("D"): not a second thoughts field. It is a concrete ACTION performed right now, alongside what the scene openly shows, that gives away something unsaid. It need not contradict the character — only be unspoken: a deliberate concealed act, an involuntary tell, an ordinary gesture whose real reason they would deny, or behaviour undercutting what they just claimed. Draw it from THIS scene and from what is within reach. Write the visible act and what it reveals in one line. If nothing is hidden, use "empty".
 - 📖 DIARY: private in-world writing, not a scene summary. "author" is always a character, NEVER {{user}}, and writes in first person about their own day, state, doubts and decisions. "aboutUser" is a separate first-person subsection about {{user}} only — feelings, wishes, fears, observations; "empty" if there is nothing this turn. "mood" is one short word driving the visual style.
 - ⚠️ FORMATTING: use exactly these short English keys. Escape inner quotes: "He said \\"Hello\\".". Use semicolons for lists, never slashes.
-- 🏷️ LABELED SUB-FIELDS ("SexLast", "W", "Kink", "Fet", "NoGo", "NoTurn", "NSFW_Det"): every item is written "Метка: значение", separated by SEMICOLONS, never commas — a comma-separated list collapses into one unreadable pill. Never output a bare value without its label.
-- 🔊 "Volume" inside "W" means the loudness of the sounds made during the act — moans, whimpers, skin slapping, bed creaking. Not music, not ambient noise.
+- 🏷️ LABELED SUB-FIELDS ("SexLast", "W", "Kink", "Fet", "NoGo", "NoTurn", "NSFW_Det"): every item is written "Метка: значение", separated by SEMICOLONS, never commas — a comma-separated list collapses into one unreadable pill. Never output a bare value without its label. Labels are ALWAYS in Russian, like the rest of the HUD: 'Партнёр', never 'Partner'; 'Громкость', never 'Volume'.
+- 🔊 "Громкость" inside "W" means the loudness of the sounds made during the act — moans, whimpers, skin slapping, bed creaking. Not music, not ambient noise.
 - 📦 CODE FENCE (MANDATORY): wrap the whole JSON in a fenced block with the "json" tag — the opening line right after [HUD], the closing one right before [/HUD]. It stops markdown from corrupting the JSON.
 
 [HUD]
@@ -162,12 +162,12 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
    "Fears": "[What this character is afraid of RIGHT NOW, each as 'Страх: насколько': 'Потерять Софи: сильно; Отец узнает: постоянно'. Fears of this scene, not lifelong phobias unless they surfaced. Separate by ;]",
    "SceneState": "[DURING INTIMACY ONLY, otherwise 'empty'. Where the scene is right now — exactly one of: foreplay, act, climax, aftercare, afterglow]",
    "BodyMap": "[DURING INTIMACY. Sensitivity map of THIS character's body, each zone as 'Зона: 0-10': 'Шея: 9; Бёдра: 7; Поясница: 4'. Only zones the story actually touched or named. Separate by ;]",
-   "W": "[DURING INTIMACY. Each as 'Метка: значение': 'Penis state: ...; Volume: ...; Smell: ...; Traces: ...; Arousal level: ...; Partner: ...; Protection: ...'. Separate by ;]",
+   "W": "[DURING INTIMACY. Each as 'Метка: значение', labels in Russian: 'Состояние члена: ...; Громкость: ...; Запах: ...; Следы: ...; Возбуждение: ...; Партнёр: ...; Защита: ...'. Separate by ;]",
    "Kink": "[STABLE TRAIT, keep filled. Activities the character enjoys, each as 'Метка: насколько охотно и как далеко': 'Ролевые игры: охотно, любит сценарий врач-пациент; Связывание: только сама сверху'. 2+ items when known, no upper limit; separate by ;]",
    "Fet": "[STABLE TRAIT. Specific objects, materials, body parts or settings needed for arousal, each as 'Метка: значение': 'Чулки: обязательное условие; Шея: сильный триггер'. 2+ items when known, no upper limit; separate by ;]",
    "NoGo": "[STABLE TRAIT. Hard limits, each as 'Метка: причина': 'Боль: панический страх; Втроём: не делится'. No upper limit; separate by ;]",
    "NoTurn": "[STABLE TRAIT. Turn-offs — not forbidden, just kills arousal: 'Спешка: сразу теряет настрой'. No upper limit; separate by ;]",
-   "NSFW_Det": "[AFTERMATH ONLY. Each as 'Метка: значение': 'Sensitivity: ...; Readiness for round 2: ...; Physical aftermath: ...; Emotional aftermath: ...'. Separate by ;]",
+   "NSFW_Det": "[AFTERMATH ONLY. Each as 'Метка: значение', labels in Russian: 'Чувствительность: ...; Готовность ко второму разу: ...; Тело после: ...; Чувства после: ...'. Separate by ;]",
    "Aftercare": "[AFTERMATH ONLY. What this character needs now that it is over — touch, water, silence, words, or nothing at all. One short phrase, e.g. 'Молча обнять и не говорить' or 'Ничего не нужно, хочет остаться одна']",
    "SexRev": "[AFTERMATH ONLY: a written review of the sex in full sentences, ending with a 5-star rating, e.g. 'Оценка: ★★★★☆']"
   }
@@ -574,6 +574,9 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     if (settings.nsfwColor) {
         root.style.setProperty('--hud-nsfw-border', settings.nsfwColor);
         root.style.setProperty('--hud-nsfw-bg', hexToRgba(settings.nsfwColor, settings.nsfwBgAlpha !== undefined ? settings.nsfwBgAlpha : 20));
+        // Тот же цвет, но пригодный для смешивания: стили закрытой части
+        // строят из него и кромку, и свечение, и подпись.
+        root.style.setProperty('--hud-nsfw-color', settings.nsfwColor);
     }
     if (settings.dramaColor) {
         root.style.setProperty('--hud-drama-border', settings.dramaColor);
@@ -1314,6 +1317,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
           <div class="hud-theme-grid">
             <div class="hud-theme-row"><label>Цвет Драмы:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="dramaColor" value="${settings.dramaColor}"><input type="range" class="hud-theme-range-input" data-key="dramaBgAlpha" min="0" max="100" value="${settings.dramaBgAlpha}"></div></div>
             <div class="hud-theme-row"><label>Цвет NSFW:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="nsfwColor" value="${settings.nsfwColor}"><input type="range" class="hud-theme-range-input" data-key="nsfwBgAlpha" min="0" max="100" value="${settings.nsfwBgAlpha}"></div></div>
+
           </div>
         </details>
         <details><summary>✍️ Шрифты & Размеры</summary>
@@ -1631,6 +1635,19 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     const stalePlaceholder = textElement.querySelector('.hud-missing-placeholder');
     if (stalePlaceholder) stalePlaceholder.remove();
 
+    // Пометка о свёрнутой карточке стоит на сообщении, а заглушка лежит
+    // внутри текста. Другое расширение перерисовывает текст целиком —
+    // заглушка пропадает, пометка остаётся, и возврат карточки потом
+    // затирает весь текст снимком, снятым до чужой дописки.
+    if (messageElement.dataset.hudEvicted && !textElement.querySelector('.hud-evicted')) {
+      delete messageElement.dataset.hudEvicted;
+    }
+
+    // Сторож идёт до всех ранних выходов: сломанная карточка живёт как раз
+    // в состоянии «карточка есть, сырого блока нет», из которого разбор
+    // выходит сразу.
+    if (проверитьКарточку(messageElement, textElement)) return;
+
     let innerHtml = textElement.innerHTML;
 
     // Если карточка уже есть и исходного [HUD] в DOM больше нет — всё уже обработано.
@@ -1673,6 +1690,17 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     const естьЗакрытый = hudBlocks.some(б => б.closed);
     if (!hudBlocks.length) {
       maybeInjectMissingHudButton(messageElement, textElement);
+      return;
+    }
+
+    // Карточка уже собрана, а в тексте нашёлся только незакрытый обрывок —
+    // значит это упоминание метки в чужой дописке, а не блок. Настоящий
+    // блок давно заменён карточкой, и закрывающей метки в тексте уже нет.
+    // Пересобирать по такому обрывку нельзя: карточка выйдет пустой.
+    const живаяКарточка = Array.from(textElement.querySelectorAll('.hud-os-card'))
+      .filter(c => !c.closest('.hud-theme-preview'))[0];
+    if (живаяКарточка && !естьЗакрытый) {
+      lastLazyThunks = null;
       return;
     }
 
@@ -1834,6 +1862,37 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
             bar.dataset.swipeGuardBound = 'true';
         });
     });
+  }
+
+  /* Сторож пустой карточки.
+     Карточка на месте, а внутри ни вкладок, ни строк — либо вкладки есть,
+     а заготовок к ним не осталось, и при переключении они откроются
+     пустыми. Раньше это лечил только свайп. Собираем заново из блока,
+     который запомнили при первой сборке. Две неудачные попытки подряд —
+     и отступаем: значит, дело не в пересборке, и крутиться по кругу
+     незачем. Удачная сборка счётчик обнуляет. */
+  const ПОТОЛОК_ПОЧИНОК = 2;
+  function проверитьКарточку(messageElement, textElement) {
+    const card = Array.from(textElement.querySelectorAll('.hud-os-card'))
+      .filter(c => !c.closest('.hud-theme-preview'))[0];
+    if (!card) return false;
+    const пусто = !card.querySelector('.hud-tab, .hud-row, .hud-scene-widget');
+    const вкладкиБезЗаготовок = !!card.querySelector('.hud-tab-lazy') && !card.__hudLazy;
+    // Карточка целая — забываем прошлые починки: следующая поломка
+    // должна лечиться с чистого листа.
+    if (!пусто && !вкладкиБезЗаготовок) { messageElement.__hudRepaired = 0; return false; }
+    if ((messageElement.__hudRepaired || 0) >= ПОТОЛОК_ПОЧИНОК) return false;
+    const блок = messageElement.__hudBlock;
+    if (!блок) return false;
+    console.warn('[TavernOS HUD] карточка вышла пустой — собираю заново', {
+      messageId: messageElement.getAttribute('mesid'),
+      пусто, вкладкиБезЗаготовок,
+    });
+    messageElement.__hudRepaired = (messageElement.__hudRepaired || 0) + 1;
+    card.outerHTML = блок;
+    delete messageElement.__hudRenderSig;
+    safeProcessMessage(messageElement);
+    return true;
   }
 
   /* ---------------------------------------------------------------------
@@ -3257,7 +3316,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=22.90.3');
+        const mod = await import('./render/archive.js?v=22.98.0');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -3686,9 +3745,18 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         ]);
         const ответ = parseLoreGenResponse(raw);
         if (!ответ) throw new Error('модель ответила не JSON-ом');
-        $('.hud-modal-text').value = ответ.content;
+        const поле = $('.hud-modal-text');
+        поле.value = ответ.content;
+        // Ответ модели длиннее исходной выжимки: растягиваем поле под него,
+        // но не выше половины окна — иначе кнопки уезжают за край экрана.
+        поле.style.height = 'auto';
+        поле.style.height = Math.min(поле.scrollHeight, Math.round(window.innerHeight * 0.5)) + 'px';
         if (ответ.title) $('.hud-modal-title').value = ответ.title;
         if (ответ.keys.length) $('.hud-modal-keys').value = ответ.keys.join(', ');
+        // Показываем начало записи: после генерации взгляд должен падать
+        // на текст, а не на строку состояния под ним.
+        поле.scrollTop = 0;
+        поле.scrollIntoView({ block: 'nearest' });
         состояние.textContent = 'Готово. Проверьте текст и ключи — записывается то, что в полях.';
       } catch (e) {
         console.error('[TavernOS HUD] Генерация записи не удалась:', e);

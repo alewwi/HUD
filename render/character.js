@@ -4,9 +4,9 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue } from '../utils.js?v=22.90.3';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.90.3';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.90.3';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue } from '../utils.js?v=22.98.0';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.98.0';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.98.0';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает'];
 
@@ -140,6 +140,52 @@ function buildBodyMap(value) {
   }).filter(Boolean).join('');
 }
 
+/* Значок поля. Одна таблица на обе вкладки — и персонажа, и «Ты»: раньше
+   лесенка из «иначе если» жила внутри сборщика карточки персонажа, и
+   вкладка «Ты» осталась без значков вовсе. */
+const ЗНАЧКИ_ПОЛЕЙ = {
+  'возраст': '⏳', 'одежда': '👕', 'роль': '🎭', 'место': '📍',
+  'цели': '🎯', 'инвентарь': '🎒', 'статус': '📌', 'тело': '🧍',
+  'внешность': '🪞', 'здоровье': '🩺',
+  'мысли': '💭', 'ожидание vs реальность': '🔮',
+  'общие воспоминания': '🎞️', 'флаг-монитор': '🚩',
+  'социальное разоблачение': '👁️', 'физиология': '🩸',
+  'скрытый подтекст': '👁️‍🗨️', 'детали': '👁️‍🗨️',
+  'отношения': '🤝', 'ревность': '💔', 'конфликт': '⚔️',
+  'последний секс': '🛏️', 'количество партнеров': '👥',
+  'регулярность секса': '📈', 'отзыв о сексе': '📝',
+  'nsfw': '🔞', 'кинк': '🔗', 'фетиш': '🎀',
+  'никогда не сделает': '⛔', 'не возбуждает': '🧊',
+  'фаза близости': '🌡️', 'карта тела': '🫦', 'забота после': '🫂',
+  'доверие': '🤍', 'страхи': '😨', 'реплики': '💬',
+  'расписание': '🗓️', 'глубина конфликта': '⚔️', 'ключ': '🔑',
+};
+
+// Надпись поля на экране. Канонические имена «NSFW» и «Детализация NSFW»
+// остаются внутри — по ним карточка решает, как строить строку, — а
+// показываем их по смыслу из промта: одно пишется во время близости,
+// другое после.
+const НАДПИСИ_ПОЛЕЙ = {
+  'nsfw': 'В близости', 'nsfw (юзер)': 'В близости',
+  'детализация nsfw': 'После близости',
+};
+function надписьПоля(ключ) {
+  return НАДПИСИ_ПОЛЕЙ[String(ключ || '').trim().toLowerCase()] || ключ;
+}
+
+// Возвращает значок с пробелом — ровно в том виде, в каком его клеили
+// к подписи раньше. «Детализация NSFW» приходит с приставкой, поэтому
+// её ловим отдельно, по вхождению.
+function значокПоля(нижнийКлюч) {
+  // Значок в своём элементе: в закрытой части карточки он сидит в
+  // медальоне. Везде ещё у элемента нет оформления, и вид прежний.
+  const обернуть = (з) => '<i class="hud-key-ico" aria-hidden="true">' + з + '</i> ';
+  const точный = ЗНАЧКИ_ПОЛЕЙ[нижнийКлюч];
+  if (точный) return обернуть(точный);
+  if (нижнийКлюч.includes('детализация nsfw')) return обернуть('🔥');
+  return '';
+}
+
 const orderFields = (obj) => {
   const rest = Object.keys(obj).filter(k => !FIELD_ORDER.includes(k));
   return [...FIELD_ORDER.filter(k => k in obj), ...rest].map(k => [k, obj[k]]);
@@ -179,12 +225,15 @@ export function buildUserHTML(userData, uid, isChecked) {
     let rowClass = 'hud-row hud-user-row';
     if (label.toLowerCase().includes('nsfw')) rowClass += ' full-width nsfw';
 
+    // Значок берём из той же таблицы, что и карточка персонажа: поля
+    // здесь те же самые, и разнобой бросался бы в глаза при переключении.
+    const значок = значокПоля(label.toLowerCase());
     if (label.toLowerCase() === 'отношения') {
-      rows += `<div class="${rowClass}"><span class="hud-key">${escapeHtml(label)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill')}</div></div>`;
+      rows += `<div class="${rowClass}"><span class="hud-key">${значок}${escapeHtml(label)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill', false, 'отношения')}</div></div>`;
     } else if (label.toLowerCase().includes('nsfw')) {
-      rows += `<div class="${rowClass}"><span class="hud-key">🔞 ${escapeHtml(label)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-nsfw-pill')}</div></div>`;
+      rows += `<div class="${rowClass}"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true">🔞</i> ${escapeHtml(надписьПоля(label))}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-nsfw-pill')}</div></div>`;
     } else {
-      rows += `<div class="${rowClass}"><span class="hud-key">${escapeHtml(label)}:</span> <span class="hud-value">${applyTooltips(String(value))}</span></div>`;
+      rows += `<div class="${rowClass}"><span class="hud-key">${значок}${escapeHtml(label)}:</span> <span class="hud-value">${applyTooltips(String(value))}</span></div>`;
     }
   });
   if (!rows) return '';
@@ -211,28 +260,13 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
     let rowClass = FULL_WIDTH_KEYS.some(k => lowerKey.includes(k)) ? 'hud-row full-width' : 'hud-row';
     if (DRAMA_KEYS.some(k => lowerKey.includes(k))) rowClass += ' drama-alert';
     if (lowerKey.includes('nsfw') || lowerKey.includes('секс') || lowerKey.includes('партнеров')
-        || lowerKey === 'кинк' || lowerKey === 'фетиш' || lowerKey === 'никогда не сделает' || lowerKey === 'не возбуждает') rowClass += ' nsfw';
+        || lowerKey === 'кинк' || lowerKey === 'фетиш' || lowerKey === 'никогда не сделает' || lowerKey === 'не возбуждает'
+        // Фаза близости, карта тела и забота после по смыслу лежат там же,
+        // а оформления закрытой части не получали — блок распадался на две
+        // половины с разным видом.
+        || lowerKey === 'фаза близости' || lowerKey === 'карта тела' || lowerKey === 'забота после') rowClass += ' nsfw';
 
-    let icon = '';
-    if (lowerKey === 'возраст') icon = '⏳ '; else if (lowerKey === 'одежда') icon = '👕 ';
-    else if (lowerKey === 'роль') icon = '🎭 '; else if (lowerKey === 'место') icon = '📍 ';
-    else if (lowerKey === 'цели') icon = '🎯 '; else if (lowerKey === 'инвентарь') icon = '🎒 ';
-    else if (lowerKey === 'статус') icon = '📌 '; else if (lowerKey === 'тело') icon = '🧍 ';
-    else if (lowerKey === 'мысли') icon = '💭 '; else if (lowerKey === 'ожидание vs реальность') icon = '🔮 ';
-    else if (lowerKey === 'общие воспоминания') icon = '🎞️ '; else if (lowerKey === 'флаг-монитор') icon = '🚩 ';
-    else if (lowerKey === 'социальное разоблачение') icon = '👁️ '; else if (lowerKey === 'физиология') icon = '🩸 ';
-    else if (lowerKey === 'скрытый подтекст' || lowerKey === 'детали') icon = '👁️‍🗨️ ';
-    else if (lowerKey === 'отношения') icon = '🤝 '; else if (lowerKey === 'ревность') icon = '💔 ';
-    else if (lowerKey === 'конфликт') icon = '⚔️ '; else if (lowerKey === 'последний секс') icon = '🛏️ ';
-    else if (lowerKey === 'количество партнеров') icon = '👥 '; else if (lowerKey === 'регулярность секса') icon = '📈 ';
-    else if (lowerKey === 'отзыв о сексе') icon = '📝 '; else if (lowerKey.includes('детализация nsfw')) icon = '🔥 ';
-    else if (lowerKey === 'nsfw') icon = '🔞 '; else if (lowerKey === 'кинк') icon = '🔗 ';
-    else if (lowerKey === 'фетиш') icon = '🎀 '; else if (lowerKey === 'никогда не сделает') icon = '⛔ ';
-    else if (lowerKey === 'не возбуждает') icon = '🧊 ';
-    else if (lowerKey === 'фаза близости') icon = '🌡️ '; else if (lowerKey === 'карта тела') icon = '🫦 ';
-    else if (lowerKey === 'забота после') icon = '🫂 ';
-    else if (lowerKey === 'доверие') icon = '🤍 '; else if (lowerKey === 'страхи') icon = '😨 ';
-    else if (lowerKey === 'реплики') icon = '💬 ';
+    const icon = значокПоля(lowerKey);
 
     let valueClass = TRUNCATE_KEYS.some(k => lowerKey.includes(k)) ? 'hud-value hud-truncate' : 'hud-value';
 
@@ -255,7 +289,7 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
     } else if (lowerKey === 'инвентарь') {
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-inventory-grid">${buildPillList(value, 'hud-inventory-pill')}</div></div>`;
     } else if (lowerKey === 'nsfw' || lowerKey === 'детализация nsfw' || lowerKey === 'последний секс') {
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-nsfw-pill', true)}</div></div>`;
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(надписьПоля(key))}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-nsfw-pill', true)}</div></div>`;
     } else if (lowerKey === 'кинк' || lowerKey === 'фетиш' || lowerKey === 'никогда не сделает' || lowerKey === 'не возбуждает') {
       // Каждый пункт — своя пилюля даже без явного разделителя: это списки,
       // а не связный текст, склеивать их обратно нельзя.
@@ -288,7 +322,7 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       }).join('');
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${memHtml}</div></div>`;
     } else if (lowerKey === 'отношения' || lowerKey === 'цели' || lowerKey === 'ревность' || lowerKey === 'флаг-монитор') {
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill', (lowerKey === 'общие воспоминания' || lowerKey === 'флаг-монитор'))}</div></div>`;
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill', (lowerKey === 'общие воспоминания' || lowerKey === 'флаг-монитор'), lowerKey)}</div></div>`;
     } else {
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <span class="${valueClass}">${applyTooltips(String(value))}</span></div>`;
     }

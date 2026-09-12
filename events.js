@@ -11,12 +11,12 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache } from './avatars.js?v=22.90.3';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.90.3';
-import { openPhoneMediaViewer } from './render/phone.js?v=22.90.3';
-import { getTheme, themeVars, presetRowHTML, THEME_KEYS , themeSnapshot, parseThemeFile } from './themes.js?v=22.90.3';
-import { settings, defaultSettings } from './settings.js?v=22.90.3';
-import { getWorldVotes } from './render/world.js?v=22.90.3';
+import { invalidateAvatarCache } from './avatars.js?v=22.98.0';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.98.0';
+import { openPhoneMediaViewer } from './render/phone.js?v=22.98.0';
+import { getTheme, themeVars, presetRowHTML, THEME_KEYS , themeSnapshot, parseThemeFile } from './themes.js?v=22.98.0';
+import { settings, defaultSettings } from './settings.js?v=22.98.0';
+import { getWorldVotes } from './render/world.js?v=22.98.0';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -955,7 +955,10 @@ export function initGlobalEvents(ctx) {
         
         let displayVal = themeInput.nextElementSibling;
         if (displayVal && displayVal.tagName === 'SPAN') {
-            displayVal.textContent = themeInput.value + 'px';
+            // Единица зависит от ключа: раньше всем подписям дописывалось
+            // «px», и процент свечения показывался как «55px».
+            displayVal.textContent = themeInput.value
+              + (/Alpha$|Opacity$|Scale$|Darkness$/.test(varKey) ? '%' : 'px');
         }
         
         document.querySelectorAll(`[data-key="${varKey}"]`).forEach(inp => {

@@ -1769,6 +1769,11 @@
   display: flex; flex-direction: column; gap: 4px; padding: 12px 16px;
   min-height: 0; overflow: auto;
 }
+/* Элементы flex по умолчанию сжимаются, и когда содержимое переставало
+   влезать в высоту окна, браузер отбирал высоту у текстового поля —
+   поле «Что записываем» превращалось в одну строку. Не помещается —
+   пусть тело прокручивается, для этого у него и стоит overflow. */
+.hud-modal-body > * { flex: 0 0 auto; }
 .hud-modal-label { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; opacity: .55; margin-top: 6px; }
 .hud-modal-label i { font-style: normal; text-transform: none; letter-spacing: 0; opacity: .8; }
 .hud-modal-text, .hud-modal-keys, .hud-modal-book, .hud-modal-title {
@@ -1778,7 +1783,10 @@
   background: rgba(0, 0, 0, .28);
   border: 1px solid var(--hud-border, rgba(255,255,255,.14));
 }
-.hud-modal-text { resize: vertical; line-height: 1.45; }
+/* Нижняя граница высоты: даже при короткой записи поле остаётся полем, а
+   не строкой. Верхней нет — после «Написать моделью» поле подстраивается
+   под ответ, чтобы его было видно целиком. */
+.hud-modal-text { resize: vertical; line-height: 1.45; min-height: 7.4em; }
 .hud-modal-note {
   margin-top: 10px; font-size: 11px; line-height: 1.5; opacity: .6;
   border-left: 2px solid var(--hud-accent, #8c5ad2); padding-left: 8px;
