@@ -4,9 +4,9 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue } from '../utils.js?v=22.88.3';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.88.3';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.88.3';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue } from '../utils.js?v=22.90.3';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.90.3';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.90.3';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает'];
 
@@ -35,7 +35,10 @@ function buildTrustMap(value) {
     // Низкое доверие красим тревожно, высокое — спокойно: цвет несёт смысл,
     // иначе шкала читается только по длине полоски.
     const уровень = доля >= 66 ? 'is-high' : (доля >= 33 ? 'is-mid' : 'is-low');
-    return `<span class="hud-zone ${уровень}" title="${escapeHtml(кто)}: ${escapeHtml(сырое)}"><b>${escapeHtml(кто)}</b><i class="hud-zone-bar"><i style="width:${доля}%"></i></i><em>${Math.round(доля)}</em></span>`;
+    return `<span class="hud-zone ${уровень}" title="${escapeHtml(кто)}: ${escapeHtml(сырое)}">`
+      + `<b class="hud-zone-name">${escapeHtml(кто)}</b>`
+      + `<i class="hud-zone-bar"><i style="width:${доля}%"></i></i>`
+      + `<em class="hud-zone-val">${Math.round(доля)}</em></span>`;
   }).filter(Boolean).join('');
 }
 
@@ -53,6 +56,15 @@ const ЗНАЧКИ_СТРАХА = [
   [/огон|пожар|fire|burn/i, '🔥'],
   [/тюрьм|клетк|запер|cage|prison/i, '🔒'],
 ];
+// Сила страха словами. Порядок важен: «очень сильно» должно попасть в
+// верхнюю ступень раньше, чем в среднюю по слову «сильно».
+const СИЛА_СТРАХА = [
+  [/пани[кч]|ужас|жутк|смертельн|невыносим|парализ|до\s*дрож/i, 'is-panic', 3],
+  [/постоянн|очень\s+сильн|глубок|сильн|остро|не\s*отпускает/i, 'is-high', 3],
+  [/средн|заметн|иногда|порой|时|периодич|временам/i, 'is-mid', 2],
+  [/изредк|слаб|редк|немног|чуть|фонов/i, 'is-low', 1],
+];
+
 function buildFears(value) {
   return String(value || '').split(/[;\n]/).map(кусок => {
     const s = кусок.trim();
@@ -62,8 +74,20 @@ function buildFears(value) {
     const сколько = m ? m[2].trim() : '';
     const пара = ЗНАЧКИ_СТРАХА.find(([rx]) => rx.test(что));
     const значок = пара ? пара[1] : '😨';
+    // Ступень ищем по слову силы. Не узнали слово — считаем средним: это
+    // честнее, чем показать паникой или почти ничем.
+    const ступень = сколько ? (СИЛА_СТРАХА.find(([rx]) => rx.test(сколько)) || [null, 'is-mid', 2]) : null;
+    const класс = ступень ? ' ' + ступень[1] : '';
+    const точек = ступень ? ступень[2] : 0;
+    const точки = точек
+      ? `<i class="hud-fear-dots" aria-hidden="true">`
+        + [1,2,3].map(i => `<i${i <= точек ? ' class="on"' : ''}></i>`).join('')
+        + `</i>`
+      : '';
     const хвост = сколько ? `<em>${escapeHtml(сколько)}</em>` : '';
-    return `<span class="hud-fear"><span class="hud-fear-ico" aria-hidden="true">${значок}</span><b>${escapeHtml(что)}</b>${хвост}</span>`;
+    return `<span class="hud-fear${класс}"${сколько ? ` title="${escapeHtml(что)}: ${escapeHtml(сколько)}"` : ''}>`
+      + `<span class="hud-fear-ico" aria-hidden="true">${значок}</span>`
+      + `<b>${escapeHtml(что)}</b>${хвост}${точки}</span>`;
   }).filter(Boolean).join('');
 }
 
@@ -107,7 +131,12 @@ function buildBodyMap(value) {
       return `<span class="hud-zone"><b>${escapeHtml(зона)}</b><em>${escapeHtml(сырое)}</em></span>`;
     }
     const доля = Math.max(0, Math.min(10, число)) * 10;
-    return `<span class="hud-zone" title="${escapeHtml(зона)}: ${escapeHtml(сырое)}"><b>${escapeHtml(зона)}</b><i class="hud-zone-bar"><i style="width:${доля}%"></i></i><em>${Math.round(число)}</em></span>`;
+    // Ступень та же, что у доверия: цвет читается быстрее длины полоски.
+    const уровень = доля >= 66 ? 'is-high' : (доля >= 33 ? 'is-mid' : 'is-low');
+    return `<span class="hud-zone ${уровень}" title="${escapeHtml(зона)}: ${escapeHtml(сырое)}">`
+      + `<b class="hud-zone-name">${escapeHtml(зона)}</b>`
+      + `<i class="hud-zone-bar"><i style="width:${доля}%"></i></i>`
+      + `<em class="hud-zone-val">${Math.round(число)}</em></span>`;
   }).filter(Boolean).join('');
 }
 

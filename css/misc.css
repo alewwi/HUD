@@ -197,27 +197,60 @@
   background: var(--hud-border, rgba(255,255,255,.2));
 }
 
-/* Карта чувствительности: зона, шкала, число. Шкала важнее числа — глазом
-   сравниваются полоски, а не цифры. */
-.hud-bodymap { display: flex; flex-wrap: wrap; gap: 6px 10px; }
-.hud-zone {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 3px 9px; border-radius: 8px; font-size: 11.5px;
-  background: rgba(255,255,255,.05);
-  border: 1px solid var(--hud-border, rgba(255,255,255,.12));
+/* Карта чувствительности и шкала доверия.
+   Строки выстроены в сетку, а внутри строки — три колонки: имя, шкала,
+   число. Общая вертикаль важнее компактности: пока полоски начинались на
+   разной высоте, сравнить два значения глазом было нельзя. */
+.hud-bodymap {
+  display: grid; gap: 5px 10px;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
 }
-.hud-zone b { font-weight: 600; }
-.hud-zone em { font-style: normal; opacity: .6; font-size: 10.5px; }
+.hud-zone {
+  display: grid; align-items: center; gap: 8px;
+  grid-template-columns: minmax(0, 1fr) 58px 22px;
+  padding: 5px 9px 5px 8px; border-radius: 8px; font-size: 11.5px;
+  background: rgba(255,255,255,.045);
+  border: 1px solid var(--hud-border, rgba(255,255,255,.12));
+  /* Полоска уровня слева: ступень видна раньше, чем взгляд дойдёт до шкалы. */
+  border-left: 2px solid var(--уровень, rgba(255,255,255,.18));
+  transition: background-color .18s ease, border-color .18s ease;
+}
+.hud-zone:hover { background: rgba(255,255,255,.075); }
+/* Имя переносится, а не обрезается: «Поясница» и «Ричард» одинаково важны. */
+.hud-zone-name, .hud-zone b {
+  font-weight: 600; min-width: 0;
+  overflow-wrap: anywhere; line-height: 1.25;
+}
+/* Число — в своей колонке и моноширинно: столбец читается сверху вниз. */
+.hud-zone-val, .hud-zone em {
+  font-style: normal; font-size: 11px; font-weight: 700;
+  text-align: right; font-variant-numeric: tabular-nums;
+  color: var(--уровень, var(--hud-text-muted, rgba(226,232,240,.6)));
+}
+/* Строка без числа: имя занимает всю ширину, пустых колонок не остаётся. */
+.hud-zone:not(:has(.hud-zone-bar)) { grid-template-columns: minmax(0, 1fr) auto; }
 .hud-zone-bar {
-  display: inline-block; width: 54px; height: 5px; border-radius: 3px;
-  background: rgba(255,255,255,.10); overflow: hidden;
+  display: block; height: 6px; border-radius: 3px;
+  background:
+    /* Засечки на четвертях: без них полоска — просто длина без масштаба. */
+    repeating-linear-gradient(90deg,
+      transparent 0 calc(25% - 1px), rgba(255,255,255,.16) calc(25% - 1px) 25%),
+    rgba(255,255,255,.10);
+  overflow: hidden;
 }
 .hud-zone-bar > i {
   display: block; height: 100%; border-radius: 3px;
   background: linear-gradient(90deg,
-    color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 45%, transparent),
-    var(--hud-nsfw-color, #d9548a));
+    color-mix(in srgb, var(--уровень, var(--hud-nsfw-color, #d9548a)) 40%, transparent),
+    var(--уровень, var(--hud-nsfw-color, #d9548a)));
+  box-shadow: 0 0 8px color-mix(in srgb, var(--уровень, var(--hud-nsfw-color, #d9548a)) 35%, transparent);
+  transition: width .4s cubic-bezier(.22,.9,.3,1);
 }
+/* Ступени. Один набор цветов на карту тела и на доверие: значения там
+   разные, а язык цвета должен быть один. */
+.hud-zone.is-low  { --уровень: #e0685f; }
+.hud-zone.is-mid  { --уровень: #f0c36a; }
+.hud-zone.is-high { --уровень: #62d9c7; }
 
 /* Дневник тела: та же бумага, но тёмная, и вместо чернильных пятен — воск. */
 .hud-body-diary .hud-diary-entry.hud-body-entry {
@@ -252,23 +285,49 @@
 
 /* --- Доверие, страхи, характерные реплики --------------------------------- */
 
-/* Шкала доверия делит цвет по уровню: красное — не доверяет, зелёное — верит.
-   Одной длины полоски мало: взгляд считывает цвет быстрее длины. */
-.hud-trustmap .hud-zone.is-low .hud-zone-bar > i { background: linear-gradient(90deg, rgba(224,104,95,.5), #e0685f); }
-.hud-trustmap .hud-zone.is-mid .hud-zone-bar > i { background: linear-gradient(90deg, rgba(240,195,106,.5), #f0c36a); }
-.hud-trustmap .hud-zone.is-high .hud-zone-bar > i { background: linear-gradient(90deg, rgba(98,217,199,.5), #62d9c7); }
-.hud-trustmap .hud-zone-bar { width: 64px; }
+/* Шкала доверия: красное — не доверяет, зелёное — верит. Цвет живёт в
+   переменной уровня выше, здесь только ширина колонки под число до ста. */
+.hud-trustmap .hud-zone { grid-template-columns: minmax(0, 1fr) 64px 26px; }
 
-.hud-fears { display: flex; flex-wrap: wrap; gap: 6px 8px; }
+/* Страхи. Раньше вся разница между «панически» и «изредка» была в сером
+   слове сбоку — на глаз они читались одинаково. Теперь силу страха несут
+   цвет плитки и три точки, а слово осталось для точности. */
+.hud-fears { display: flex; flex-wrap: wrap; gap: 7px 8px; }
 .hud-fear {
-  display: inline-flex; align-items: center; gap: 6px;
-  padding: 3px 10px 3px 6px; border-radius: 999px; font-size: 11.5px;
-  background: rgba(224,104,95,.10);
-  border: 1px solid rgba(224,104,95,.28);
+  display: inline-flex; align-items: center; gap: 7px;
+  padding: 4px 11px 4px 7px; border-radius: 999px; font-size: 11.5px;
+  background: color-mix(in srgb, var(--страх, #e0685f) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--страх, #e0685f) 32%, transparent);
+  transition: background-color .18s ease, border-color .18s ease;
 }
-.hud-fear-ico { font-size: 13px; line-height: 1; }
+.hud-fear:hover { background: color-mix(in srgb, var(--страх, #e0685f) 20%, transparent); }
+.hud-fear-ico { font-size: 13px; line-height: 1; flex: 0 0 auto; }
 .hud-fear b { font-weight: 600; }
-.hud-fear em { font-style: normal; opacity: .6; font-size: 10.5px; }
+.hud-fear em {
+  font-style: normal; font-size: 10px; letter-spacing: .02em;
+  padding: 1px 6px; border-radius: 999px;
+  background: color-mix(in srgb, var(--страх, #e0685f) 22%, transparent);
+  color: color-mix(in srgb, var(--страх, #e0685f) 70%, #fff);
+}
+/* Три точки: сколько горит — такая и сила. Читается даже там, где цвет
+   съеден темой или плохим экраном. */
+.hud-fear-dots { display: inline-flex; gap: 2px; flex: 0 0 auto; margin-left: 1px; }
+.hud-fear-dots > i {
+  width: 4px; height: 4px; border-radius: 50%;
+  background: currentColor; opacity: .22;
+}
+.hud-fear-dots > i.on { background: var(--страх, #e0685f); opacity: 1; }
+/* Ступени силы. Паника отличается от сильного не цветом, а тем, что
+   плитка перестаёт быть тихой: рамка ярче и появляется свечение. */
+.hud-fear.is-low   { --страх: #8fa6b8; }
+.hud-fear.is-mid   { --страх: #f0c36a; }
+.hud-fear.is-high  { --страх: #e0685f; }
+.hud-fear.is-panic {
+  --страх: #ff5a6e;
+  border-color: color-mix(in srgb, #ff5a6e 55%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, #ff5a6e 22%, transparent);
+}
+.hud-fear.is-panic b { font-weight: 700; }
 
 /* Реплика — цитата: кавычка слева и наклон, чтобы её не путали с описанием. */
 .hud-lines { display: flex; flex-direction: column; gap: 5px; }
@@ -1112,4 +1171,51 @@
 }
 .hud-phone-app-title .hud-phone-back {
   flex: 0 0 auto; margin-right: 2px;
+}
+
+
+/* =========================================================================
+   ШКАЛЫ, СТРАХИ И ПЛИТКИ NSFW НА СВЕТЛЫХ ТЕМАХ
+   -------------------------------------------------------------------------
+   Эти блоки появились позже общего перевода светлых тем на бумагу, поэтому
+   в его список не попали и остались со светлым текстом тёмной темы — на
+   бумаге он исчезал. Замер показал яркость текста 0.76 при почти белой
+   подложке.
+   Заодно меняем цвета ступеней: бирюзовый и жёлтый читаются на чёрном, но
+   не на бумаге. Смысл цвета сохраняется, меняется только светлота.
+   ========================================================================= */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-zone, .hud-zone-name, .hud-fear, .hud-fear b, .hud-line-quote) {
+  color: var(--lt-ink) !important;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-zone, .hud-fear, .hud-line-quote) {
+  background: var(--lt-paper-2) !important;
+  border-color: var(--lt-line) !important;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-zone-bar {
+  background:
+    repeating-linear-gradient(90deg,
+      transparent 0 calc(25% - 1px), rgba(0,0,0,.14) calc(25% - 1px) 25%),
+    rgba(0,0,0,.10) !important;
+}
+/* Ступени в тёмных оттенках: на бумаге они и различимы, и не кричат. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-zone.is-low  { --уровень: #b3402f; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-zone.is-mid  { --уровень: #9a7212; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-zone.is-high { --уровень: #17806d; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-fear.is-low   { --страх: #5c6b78; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-fear.is-mid   { --страх: #9a7212; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-fear.is-high  { --страх: #b3402f; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-fear.is-panic { --страх: #c02033; }
+/* Левая кромка строки и цвет числа берут ступень из переменной, поэтому
+   отдельных правил им не нужно — достаточно подменённых цветов выше. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-fear em {
+  color: color-mix(in srgb, var(--страх, #b3402f) 85%, #000) !important;
+}
+/* Плитка NSFW на бумаге: вместо винной заливки — светлая с тёмной кромкой. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-nsfw-pill {
+  background: var(--lt-paper-2) !important;
+  border-color: rgba(158,42,63,.45) !important;
+  color: var(--lt-ink) !important;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-nsfw-pill .hud-pill-label {
+  color: #8c2440 !important; opacity: 1;
 }

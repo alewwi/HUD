@@ -7,13 +7,17 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=22.88.3';
-import { getSafeUserName, mapKey } from './utils.js?v=22.88.3';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=22.88.3';
+import { settings } from './settings.js?v=22.90.3';
+import { getSafeUserName, mapKey } from './utils.js?v=22.90.3';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=22.90.3';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
-const HUD_CHARACTER_DEFAULTS = { N:'empty', A:'empty', C:'empty', R:'empty', B:'empty', Ph:'empty', L:'empty', Th:'empty', K:'empty', Exp:'empty', D:'empty', I:'empty', G:'empty', S:'empty', Rel:'empty', Mem:'empty', Flag:'empty', St:'empty', Exo:'empty', X:'empty', SexLast:'empty', SexCount:'empty', SexReg:'empty', W:'empty', Kink:'empty', Fet:'empty', NoGo:'empty', NoTurn:'empty', NSFW_Det:'empty', SexRev:'empty' };
+// Набор обязан совпадать с тем, что просит промт в index.js: схема
+// подставляет 'empty' всему, чего модель не прислала, и именно это обещано
+// строкой «SCHEMA FIXED ... never drop a key». Отрисовка значение 'empty'
+// пропускает, поэтому лишних строк в карточке от этого не появляется.
+const HUD_CHARACTER_DEFAULTS = { N:'empty', A:'empty', C:'empty', Ap:'empty', R:'empty', B:'empty', H:'empty', Ph:'empty', L:'empty', Th:'empty', K:'empty', Exp:'empty', D:'empty', I:'empty', G:'empty', S:'empty', Rel:'empty', Mem:'empty', Flag:'empty', Jls:'empty', St:'empty', Exo:'empty', X:'empty', SexLast:'empty', SexCount:'empty', SexReg:'empty', Lines:'empty', Trust:'empty', Fears:'empty', SceneState:'empty', BodyMap:'empty', W:'empty', Kink:'empty', Fet:'empty', NoGo:'empty', NoTurn:'empty', NSFW_Det:'empty', Aftercare:'empty', SexRev:'empty' };
 const HUD_USER_DEFAULTS = { A:'empty', C:'empty', Ap:'empty', H:'empty', Rel:'empty', L:'empty', UW:'empty' };
 const HUD_SCENE_DEFAULTS = { T:'empty', Wth:'empty', Dt:'empty', Atm:'empty', Md:'empty' };
 const HUD_MEMORY_DEFAULTS = { timeline:[], mood:{ user:{current:'empty',history:[]}, char:{current:'empty',history:[]} }, route:{user:[],char:[]}, important:[], secrets:[] };

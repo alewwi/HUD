@@ -11,12 +11,12 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache } from './avatars.js?v=22.88.3';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.88.3';
-import { openPhoneMediaViewer } from './render/phone.js?v=22.88.3';
-import { getTheme, themeVars, presetRowHTML, THEME_KEYS , themeSnapshot, parseThemeFile } from './themes.js?v=22.88.3';
-import { settings, defaultSettings } from './settings.js?v=22.88.3';
-import { getWorldVotes } from './render/world.js?v=22.88.3';
+import { invalidateAvatarCache } from './avatars.js?v=22.90.3';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.90.3';
+import { openPhoneMediaViewer } from './render/phone.js?v=22.90.3';
+import { getTheme, themeVars, presetRowHTML, THEME_KEYS , themeSnapshot, parseThemeFile } from './themes.js?v=22.90.3';
+import { settings, defaultSettings } from './settings.js?v=22.90.3';
+import { getWorldVotes } from './render/world.js?v=22.90.3';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -55,8 +55,10 @@ function подсказкаДляЗначка(значок, ctx) {
   if (поле && ctx.findTermHelp) {
     // Заголовок берём с самой подписи, а не из ключа: там он уже в нужном
     // виде, со значком и заглавной буквой.
+    // Сам знак нарисован псевдоэлементом, в textContent его нет — чистить
+    // подпись не от чего.
     const подпись = значок.parentElement;
-    const текст = подпись ? подпись.textContent.replace('?', '') : поле;
+    const текст = подпись ? подпись.textContent : поле;
     return { ключ: 'term:' + поле, статья: ctx.findTermHelp(текст) };
   }
   return { ключ: '', статья: null };
@@ -85,29 +87,56 @@ function местоПодсказки(значок) {
 // Плавность держится на замере: max-height нельзя анимировать от нуля до
 // auto, поэтому высоту содержимого считаем сами. После разворота ставим
 // none, чтобы подсказка могла подрасти, если вёрстка вокруг изменится.
+// Показать развёрнутую подсказку целиком, подкрутив ближайший
+// прокручиваемый контейнер. Страницу и ленту чата не трогаем: их
+// самовольный сдвиг увёл бы карточку из-под пальца.
+function показатьЦеликом(место) {
+  let узел = место.parentElement;
+  while (узел && узел !== document.body) {
+    const s = getComputedStyle(узел);
+    if (/(auto|scroll)/.test(s.overflowY) && узел.scrollHeight > узел.clientHeight + 1) {
+      const rк = узел.getBoundingClientRect();
+      const rп = место.getBoundingClientRect();
+      const ниже = rп.bottom - rк.bottom;
+      const выше = rк.top - rп.top;
+      // Вниз крутим не дальше, чем до верхней кромки подсказки: иначе её
+      // начало уедет вверх за край, и читать придётся с середины.
+      if (ниже > 0) узел.scrollTop += Math.min(ниже + 8, Math.max(0, rп.top - rк.top));
+      else if (выше > 0) узел.scrollTop -= выше + 8;
+      return;
+    }
+    узел = узел.parentElement;
+  }
+}
+
 function развернуть(место) {
   место.hidden = false;
   место.style.maxHeight = '0px';
-  // Кадр между показом и целевой высотой: без него переход стартует уже
-  // из открытого состояния и получается рывок.
-  requestAnimationFrame(() => {
-    место.style.maxHeight = место.scrollHeight + 'px';
-    место.classList.add('is-open');
-    setTimeout(() => {
-      if (место.classList.contains('is-open')) место.style.maxHeight = 'none';
-    }, 260);
-  });
+  // Принудительный пересчёт вёрстки: браузер обязан заметить нулевую
+  // высоту как начальную, иначе переход стартует уже из открытого
+  // состояния. Раньше для этого ждали кадр, но кадра можно и не
+  // дождаться — чтение offsetHeight делает то же самое и сразу.
+  void место.offsetHeight;
+  место.style.maxHeight = место.scrollHeight + 'px';
+  место.classList.add('is-open');
+  // После разворота снимаем потолок, чтобы подсказка могла подрасти,
+  // если вёрстка вокруг изменится, и показываем её целиком.
+  setTimeout(() => {
+    if (!место.classList.contains('is-open')) return;
+    место.style.maxHeight = 'none';
+    показатьЦеликом(место);
+  }, 260);
 }
 
 function закрытьПодсказку(место) {
   if (!место) return;
   if (!место.classList.contains('is-open')) { место.hidden = true; return; }
-  // От none анимировать нечего: сначала возвращаем измеримую высоту.
+  // От none анимировать нечего: сначала возвращаем измеримую высоту и
+  // даём браузеру её зафиксировать.
   место.style.maxHeight = место.scrollHeight + 'px';
-  requestAnimationFrame(() => {
-    место.classList.remove('is-open');
-    место.style.maxHeight = '0px';
-  });
+  void место.offsetHeight;
+  место.classList.remove('is-open');
+  место.style.maxHeight = '0px';
   // Прячем не сразу: пусть доиграет схлопывание, иначе рывок вернётся,
   // только в обратную сторону.
   setTimeout(() => { if (!место.classList.contains('is-open')) место.hidden = true; }, 260);
@@ -935,6 +964,29 @@ export function initGlobalEvents(ctx) {
     }
   });
 
+}
+
+/* ---------------------------------------------------------------------
+   СВАЙП ПО КАРТОЧКЕ НЕ МЕНЯЕТ ВАРИАНТ ОТВЕТА
+   ---------------------------------------------------------------------
+   Библиотека свайпов рождает своё событие от узла, где палец коснулся, и
+   оно всплывает к document, где его ждёт SillyTavern. Гасить касания
+   мало: при горизонтальной прокрутке полосы вкладок touchmove доходит не
+   всегда, а событие свайпа рождается всё равно.
+   Поэтому ловим его само — в фазе погружения, раньше обработчика
+   SillyTavern на том же document. Начался жест внутри карточки — гасим.
+   Проза не задета: там жест начинается вне карточки, и свайп работает. */
+const СОБЫТИЯ_СВАЙПА = ['swiped', 'swiped-left', 'swiped-right', 'swiped-up', 'swiped-down'];
+for (const тип of СОБЫТИЯ_СВАЙПА) {
+  document.addEventListener(тип, (e) => {
+    const узел = e.target;
+    if (!узел || !узел.closest) return;
+    // Карточка целиком: полоса вкладок, подвкладки телефона, переписка,
+    // граф — всё, что листается пальцем внутри.
+    if (!узел.closest('.hud-os-card, .hud-rel-graph, .hud-modal-overlay, .hud-arc-window')) return;
+    e.stopPropagation();
+    e.stopImmediatePropagation();
+  }, true);
 }
 
 /* ---------------------------------------------------------------------

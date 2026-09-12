@@ -1,24 +1,24 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.88.3';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=22.88.3';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.88.3';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions } from './events.js?v=22.88.3';
-import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.88.3';
-import { mergeCarryOver } from './render/carryover.js?v=22.88.3';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.88.3';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.88.3';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.88.3';
-import { buildMemoryHTML } from './render/memory.js?v=22.88.3';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.88.3';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.88.3';
-import { hudHasRelations } from './render/relations-graph.js?v=22.88.3';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.88.3';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.88.3';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.88.3';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks } from './help.js?v=22.88.3';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.88.3';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=22.88.3';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.90.3';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=22.90.3';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.90.3';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions } from './events.js?v=22.90.3';
+import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.90.3';
+import { mergeCarryOver } from './render/carryover.js?v=22.90.3';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.90.3';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.90.3';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.90.3';
+import { buildMemoryHTML } from './render/memory.js?v=22.90.3';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.90.3';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.90.3';
+import { hudHasRelations } from './render/relations-graph.js?v=22.90.3';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.90.3';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.90.3';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.90.3';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks } from './help.js?v=22.90.3';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.90.3';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=22.90.3';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -134,8 +134,10 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
    "N": "[Original name, exactly as on the card]",
    "A": "[Age, DD.MM.YYYY]",
    "C": "[Current attire]",
+   "Ap": "[Looks: build, height, hair, eyes, distinguishing marks. The lasting description, repeated turn to turn; it changes only from injury, exhaustion or time.]",
    "R": "[Role/job]",
    "B": "[Physical/mental state]",
+   "H": "[Wounds, pain, illness, stamina. Fill it when something is actually wrong; otherwise 'empty'.]",
    "Ph": "[Physiology/arousal]",
    "L": "[Exact location]",
    "Th": "[Immediate thought]",
@@ -939,7 +941,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
   function значокСправки(вид) {
     if (settings.showHints === false || !TAB_HELP[вид]) return '';
     return `<span class="hud-help-mark" data-tab-help="${вид}" role="button" tabindex="0"`
-      + ` aria-label="Что это за вкладка" title="Что это за вкладка">?</span>`;
+      + ` aria-label="Что это за вкладка" title="Что это за вкладка"></span>`;
   }
 
 
@@ -1585,6 +1587,42 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     return true;
   }
 
+  /* Границы блоков [HUD]…[/HUD] в строке.
+     Каждую закрывающую метку соединяем с БЛИЖАЙШЕЙ открывающей перед ней,
+     а не с первой в тексте. Иначе упоминание [HUD] в <thinking> или <plan>
+     утаскивает в блок всю прозу до настоящего блока — карточка выходит
+     правильной, а текст ответа исчезает.
+     Незакрытую метку считаем блоком только когда закрытых нет вовсе: это
+     значит, что модель ещё печатает и закрывающая просто не дошла. */
+  const HUD_ОТКР = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)/ig;
+  const HUD_ЗАКР = /(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)/ig;
+
+  function найтиБлокиHud(текст, разрешитьНезакрытый = true) {
+    const s = String(текст || '');
+    const откр = [], закр = [];
+    HUD_ОТКР.lastIndex = 0; HUD_ЗАКР.lastIndex = 0;
+    for (let m; (m = HUD_ОТКР.exec(s)) !== null; ) откр.push({ от: m.index, до: m.index + m[0].length });
+    for (let m; (m = HUD_ЗАКР.exec(s)) !== null; ) закр.push({ от: m.index, до: m.index + m[0].length });
+
+    const блоки = [];
+    let занятоДо = -1;
+    for (const з of закр) {
+      let о = null;
+      for (const k of откр) {
+        if (k.до > з.от) break;
+        if (k.от > занятоДо) о = k;
+      }
+      if (!о) continue;
+      блоки.push({ from: о.от, to: з.до, contentFrom: о.до, contentTo: з.от, closed: true });
+      занятоДо = з.до;
+    }
+    if (!блоки.length && разрешитьНезакрытый && откр.length) {
+      const о = откр[откр.length - 1];
+      блоки.push({ from: о.от, to: s.length, contentFrom: о.до, contentTo: s.length, closed: false });
+    }
+    return блоки;
+  }
+
   async function processMessage(messageElement) {
     const _mesid = messageElement.getAttribute('mesid');
     const textElement = messageElement.querySelector('.mes_text');
@@ -1621,16 +1659,21 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     const isLastMes = messageElement === lastMes || messageElement === secondLastMes;
     const hasCloseTag = closeTagRegex.test(innerHtml);
 
-    const extractRegex = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)([\s\S]*?)(?:(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)|$)/ig;
-    const hudBlocks = [];
-    let hudMatch;
-    while ((hudMatch = extractRegex.exec(innerHtml)) !== null) {
-      hudBlocks.push({
-        full: hudMatch[0],
-        content: hudMatch[1] || '',
-        index: hudMatch.index,
-      });
-      if (hudMatch[0] === '') extractRegex.lastIndex++;
+    // Метки ищем по отдельности и соединяем в пары сами. Регулярка «от
+    // открывающей до ближайшей закрывающей» берёт открывающую первую по
+    // тексту, а она вполне может оказаться упоминанием внутри <thinking>
+    // или <plan> — и тогда в блок попадает вся проза между упоминанием и
+    // настоящим блоком. Ближайшая пара такого не допускает.
+    const hudBlocks = найтиБлокиHud(innerHtml).map(б => ({
+      full: innerHtml.slice(б.from, б.to),
+      content: innerHtml.slice(б.contentFrom, б.contentTo),
+      index: б.from,
+      closed: б.closed,
+    }));
+    const естьЗакрытый = hudBlocks.some(б => б.closed);
+    if (!hudBlocks.length) {
+      maybeInjectMissingHudButton(messageElement, textElement);
+      return;
     }
 
     const parsedHudBlocks = [];
@@ -1654,6 +1697,8 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     let hasChanges = false;
     // Возврат состояния ждёт, пока на карточку лягут заготовки вкладок.
     let возвращатьПослеСборки = false;
+    // Какой из блоков пошёл в карточку: его же вернём после сворачивания.
+    let selectedIndexForRestore = -1;
     let newHtml = innerHtml;
     let rendered = '';
     // Подпись нужна и ниже, за пределами разбора блоков, — объявляем здесь.
@@ -1672,6 +1717,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       // нечего: убираем сырой блок, который ST вернул в текст, и оставляем
       // живую карточку со всем её состоянием.
       const прежняяКарточка = textElement.querySelector('.hud-os-card');
+      selectedIndexForRestore = selected.index;
       подпись = hudRenderSignature(rendered, lastRenderBaseId);
       const разметкаТаЖе = !!прежняяКарточка && hasCloseTag
         && !!messageElement.__hudRenderSig
@@ -1713,10 +1759,13 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       // прокрутил ленту туда-обратно и получил чужой HUD. Обновляем каждый
       // раз: сюда попадают только проходы, где в тексте есть сырой [HUD].
       messageElement.__hudSource = innerHtml;
+      // Сам блок, из которого собрана карточка. Нужен, чтобы вернуть её
+      // на место после сворачивания, не трогая остальной текст.
+      messageElement.__hudBlock = (hudBlocks[selectedIndexForRestore] || {}).full || '';
       // Подпись разметки: по ней следующий проход поймёт, что пересобирать
       // нечего и карточку можно оставить в покое.
       messageElement.__hudRenderSig = подпись;
-      const normalized = normalizeHudDisplayDom(messageElement, textElement, rendered);
+      const normalized = normalizeHudDisplayDom(messageElement, textElement, rendered, естьЗакрытый);
       if (!normalized) textElement.innerHTML = newHtml;
       // Карточка новая, а открыта в ней должна остаться та же вкладка, что
       // и до пересборки. Но не прямо сейчас: возврат открывает вкладку
@@ -1963,7 +2012,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
   // The saved message/swipe data is intentionally untouched. This is a safety
   // net for ST re-renders where the same active swipe can briefly be painted
   // twice (or once as a rendered card and once as the original fenced JSON).
-  function normalizeHudDisplayDom(messageElement, textElement, renderedHtml) {
+  function normalizeHudDisplayDom(messageElement, textElement, renderedHtml, толькоЗакрытые) {
     if (!messageElement || !textElement) return false;
 
     // A previous pass may already have produced a card while ST subsequently
@@ -1973,13 +2022,11 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     textElement.querySelectorAll('.hud-os-card').forEach(card => card.remove());
 
     let html = textElement.innerHTML || '';
-    const hudRegex = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)[\s\S]*?(?:(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)|$)/ig;
-    const matches = [];
-    let m;
-    while ((m = hudRegex.exec(html)) !== null) {
-      matches.push({ index: m.index, length: m[0].length });
-      if (m[0] === '') hudRegex.lastIndex++;
-    }
+    // Тот же поиск пар, что и при разборе: первая открывающая в тексте
+    // вполне может оказаться упоминанием внутри <plan>, и замена «от неё до
+    // ближайшей закрывающей» унесла бы всю прозу между ними.
+    const matches = найтиБлокиHud(html, !толькоЗакрытые)
+      .map(б => ({ index: б.from, length: б.to - б.from }));
 
     // If the HTML-level regex sees raw HUD blocks, replace ALL of them with
     // exactly one rendered card. This is deliberately independent of parsing
@@ -2010,12 +2057,20 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       flat.push({ node: n, start: flat.length ? flat[flat.length - 1].end : 0, end: (flat.length ? flat[flat.length - 1].end : 0) + value.length });
     }
     const fullText = flat.map(x => x.node.nodeValue || '').join('');
-    const open = /(?:\[|<)\s*HUD\s*(?:\]|>)/i;
+    // И здесь пара должна быть ближайшей: закрывающую берём первую, а
+    // открывающую — последнюю перед ней.
     const close = /(?:\[|<)\s*\/\s*HUD\s*(?:\]|>)/i;
-    const openMatch = fullText.match(open);
+    const closeMatch = fullText.match(close);
+    const openAll = /(?:\[|<)\s*HUD\s*(?:\]|>)/ig;
+    let openMatch = null;
+    if (closeMatch) {
+      for (let m2; (m2 = openAll.exec(fullText)) !== null; ) {
+        if (m2.index + m2[0].length > closeMatch.index) break;
+        openMatch = m2;
+      }
+    }
     if (openMatch) {
-      const closeMatch = fullText.match(close);
-      if (closeMatch && closeMatch.index >= openMatch.index) {
+      {
         const startPos = openMatch.index;
         const endPos = closeMatch.index + closeMatch[0].length;
         const locate = (pos) => flat.find(x => pos >= x.start && pos <= x.end) || flat[flat.length - 1];
@@ -2189,11 +2244,19 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     // так уже расставленные заглушки поправятся, как только чат сообщит
     // настоящую высоту карточки.
     const height = keepHeight ? Number(mes.__hudCardHeight || 0) : 0;
-    textElement.innerHTML = '<div class="hud-evicted" title="Карточка свёрнута ради скорости. Прокрутите к ней — соберётся заново.">HUD свёрнут</div>';
-    if (height > 40) {
-      const holder = textElement.querySelector('.hud-evicted');
-      if (holder) holder.style.minHeight = height + 'px';
-    }
+    // Сворачиваем саму карточку, а не весь текст сообщения. Раньше заглушка
+    // занимала место всего .mes_text, и проза вокруг карточки исчезала
+    // вместе с ней — в старых сообщениях от ответа оставалась одна строчка
+    // «HUD свёрнут».
+    const карточка = Array.from(textElement.querySelectorAll('.hud-os-card'))
+      .filter(c => !c.closest('.hud-theme-preview'))[0];
+    if (!карточка) return false;
+    const заглушка = document.createElement('div');
+    заглушка.className = 'hud-evicted';
+    заглушка.title = 'Карточка свёрнута ради скорости. Прокрутите к ней — соберётся заново.';
+    заглушка.textContent = 'HUD свёрнут';
+    if (height > 40) заглушка.style.minHeight = height + 'px';
+    карточка.replaceWith(заглушка);
     mes.dataset.hudEvicted = '1';
     delete mes.dataset.hudProcessed;
     return true;
@@ -2217,7 +2280,20 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
   function restoreEvictedCard(mes) {
     if (!mes || !mes.dataset.hudEvicted) return false;
     const textElement = mes.querySelector('.mes_text');
-    if (!textElement || !mes.__hudSource) { delete mes.dataset.hudEvicted; return false; }
+    if (!textElement) { delete mes.dataset.hudEvicted; return false; }
+    const заглушка = textElement.querySelector('.hud-evicted');
+    // Обычный путь: на месте заглушки возвращаем сам блок, а весь текст
+    // вокруг остаётся нетронутым — вместе со всем, что дописали другие
+    // расширения после нашей отрисовки.
+    if (заглушка && mes.__hudBlock) {
+      заглушка.outerHTML = mes.__hudBlock;
+      delete mes.dataset.hudEvicted;
+      delete mes.dataset.hudProcessed;
+      return true;
+    }
+    // Запасной путь для сообщений, свёрнутых прошлыми версиями: у них
+    // отдельного блока не запомнено, только исходник целиком.
+    if (!mes.__hudSource) { delete mes.dataset.hudEvicted; return false; }
     textElement.innerHTML = mes.__hudSource;
     delete mes.dataset.hudEvicted;
     delete mes.dataset.hudProcessed;
@@ -3181,7 +3257,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=22.88.3');
+        const mod = await import('./render/archive.js?v=22.90.3');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);
