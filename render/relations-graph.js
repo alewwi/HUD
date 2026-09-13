@@ -7,9 +7,11 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe } from '../utils.js?v=22.99.4';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.4';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=22.99.4';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe } from '../utils.js?v=22.99.22';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.22';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=22.99.22';
+import { buildFamilyTree } from './family-tree.js?v=22.99.22';
+import { settings } from '../settings.js?v=22.99.22';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -296,11 +298,20 @@ export function buildRelGraphHTML(hudData, uid) {
   const graphId = `hud-rel-graph-${uid}`.replace(/[^a-zA-Z0-9_-]/g, '');
   const escId = value => String(value || '').replace(/[^a-zA-Z0-9_-]/g, '');
 
+  // Генеалогическое дерево — второй вид того же графа. Появляется, только
+  // когда в «Отношениях» нашлось родство.
+  let семья = null;
+  if (settings.enableFamilyTree !== false) {
+    try { семья = buildFamilyTree(nodes, edges, markerBase); }
+    catch (err) { console.warn('[TavernOS HUD] Family tree render failed:', err); семья = null; }
+  }
+
   const markerTypes = ['love','friend','hostile','jealous','fear','suspicious','family','parent','child','sibling',
     'boss','subordinate','mentor','student','debt','forbidden','accomplice','group','neutral','other'];
   let svg = `<div class="hud-rel-graph" data-rel-graph-id="${graphId}" title="Нажмите на персонажа или связь для подробностей">
     <div class="hud-rel-toolbar">
       <div class="hud-rel-heading"><span class="hud-rel-heading-icon">🕸</span><div><strong>Граф отношений</strong><small>${nodes.length} персонажей · ${edges.length} связей</small></div></div>
+      ${семья ? `<div class="hud-rel-modes" role="tablist" aria-label="Вид графа"><button type="button" class="hud-rel-mode is-active" data-rel-mode="graph" role="tab" aria-selected="true">🕸 Связи</button><button type="button" class="hud-rel-mode" data-rel-mode="family" role="tab" aria-selected="false">🌳 Семья</button></div>` : ''}
       <button class="hud-rel-graph-close" type="button" aria-label="Закрыть граф отношений">✕</button>
     </div>
     <div class="hud-rel-stage">
@@ -407,6 +418,7 @@ export function buildRelGraphHTML(hudData, uid) {
   // This is important when the graph is portaled to <body> in expanded mode:
   // the controls must travel with the graph instead of staying behind in Memory.
   svg += `</svg></div>`;
+  if (семья) svg += `<div class="hud-family-stage">${семья.svg}</div>`;
 
   // Типов теперь два десятка, и списком «все подряд» легенда занимала бы
   // пол-экрана. Показываем только те, что действительно есть в этом графе,
@@ -436,8 +448,10 @@ function updateRelGraphInspector(graphEl) {
   if (focusEdge) {
     const edge = graphEl.querySelector(`.hud-rel-edge[data-edge-key=\"${CSS.escape(focusEdge)}\"]`);
     const label = graphEl.querySelector(`.hud-rel-edge-label[data-edge-key=\"${CSS.escape(focusEdge)}\"]`);
-    const from = edge?.dataset.edgeFrom || 'Персонаж';
-    const to = edge?.dataset.edgeTo || 'Персонаж';
+    // В data-edge-from лежит служебный ключ узла («tristankingsley»), а не имя.
+    const имяУзла = (id) => graphEl.querySelector(`.hud-rel-node[data-node-id="${CSS.escape(id)}"]`)?.dataset.nodeName || id;
+    const from = edge?.dataset.edgeFrom ? имяУзла(edge.dataset.edgeFrom) : 'Персонаж';
+    const to = edge?.dataset.edgeTo ? имяУзла(edge.dataset.edgeTo) : 'Персонаж';
     const relationText = edge?.dataset.edgeLabel || label?.textContent.trim() || 'Выбранная связь';
     main.textContent = `${from} → ${to}`;
     sub.textContent = relationText || 'Выбранная связь';

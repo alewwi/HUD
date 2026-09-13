@@ -4,16 +4,20 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue } from '../utils.js?v=22.99.4';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.4';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.99.4';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=22.99.22';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.22';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.99.22';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=22.99.22';
+import { settings } from '../settings.js?v=22.99.22';
+import { namesLikelySame } from '../names.js?v=22.99.22';
+import { parseRelationList } from './relations-graph.js?v=22.99.22';
 
-const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает'];
+const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность'];
 
 // Порядок строк в карточке. Раньше он зависел от того, в каком порядке
 // модель перечислила поля, и «Кинк» мог оказаться где угодно. Ключи, не
 // попавшие в список, дописываются после в исходном порядке.
-const FIELD_ORDER = ['Имя', 'Возраст', 'Одежда', 'Внешность', 'Роль', 'Тело', 'Физиология', 'Здоровье',
+const FIELD_ORDER = ['Имя', 'Возраст', 'Одежда', 'Внешность', 'Роль', 'Тело', 'Физиология', 'Здоровье', 'Болезни и травмы', 'Беременность',
   'Место', 'Мысли', 'Ключ', 'Ожидание vs Реальность', 'Скрытый подтекст', 'Инвентарь', 'Цели',
   'Расписание', 'Отношения', 'Доверие', 'Страхи', 'Реплики', 'Общие воспоминания', 'Флаг-монитор', 'Статус', 'Социальное разоблачение',
   'Глубина конфликта', 'Ревность', 'Конфликт', 'Сновидение',
@@ -24,7 +28,7 @@ const FIELD_ORDER = ['Имя', 'Возраст', 'Одежда', 'Внешнос
 // Доверие и отношение — разные вещи: любить и не доверять можно одновременно,
 // поэтому шкала отдельная, а не строка внутри «Отношений».
 function buildTrustMap(value) {
-  return String(value || '').split(/[;\n]/).map(кусок => {
+  return разбитьСписок(value).map(кусок => {
     const m = кусок.match(/^\s*([^:]+):\s*(.+)$/);
     if (!m) return кусок.trim() ? `<span class="hud-zone"><b>${escapeHtml(кусок.trim())}</b></span>` : '';
     const кто = m[1].trim();
@@ -66,12 +70,14 @@ const СИЛА_СТРАХА = [
 ];
 
 function buildFears(value) {
-  return String(value || '').split(/[;\n]/).map(кусок => {
+  return разбитьСписок(value).map(кусок => {
     const s = кусок.trim();
     if (!s) return '';
     const m = s.match(/^([^:]+):\s*(.+)$/);
     const что = m ? m[1].trim() : s;
-    const сколько = m ? m[2].trim() : '';
+    // Силу модель пишет кодом (low, mid, high, panic): на экран — словом, и
+    // ступень дальше ищется по этому слову.
+    const сколько = m ? силаСтраха(m[2].trim()) : '';
     const пара = ЗНАЧКИ_СТРАХА.find(([rx]) => rx.test(что));
     const значок = пара ? пара[1] : '😨';
     // Ступень ищем по слову силы. Не узнали слово — считаем средним: это
@@ -121,7 +127,7 @@ function buildScenePhase(value) {
 // Карта чувствительности: «Зона: 0-10». Значение вне шкалы не выдумываем —
 // показываем как есть, без полоски.
 function buildBodyMap(value) {
-  return String(value || '').split(/[;\n]/).map(кусок => {
+  return разбитьСписок(value).map(кусок => {
     const m = кусок.match(/^\s*([^:]+):\s*(.+)$/);
     if (!m) return кусок.trim() ? `<span class="hud-zone"><b>${escapeHtml(кусок.trim())}</b></span>` : '';
     const зона = m[1].trim();
@@ -146,7 +152,7 @@ function buildBodyMap(value) {
 const ЗНАЧКИ_ПОЛЕЙ = {
   'возраст': '⏳', 'одежда': '👕', 'роль': '🎭', 'место': '📍',
   'цели': '🎯', 'инвентарь': '🎒', 'статус': '📌', 'тело': '🧍',
-  'внешность': '🪞', 'здоровье': '🩺',
+  'внешность': '🪞', 'здоровье': '🩺', 'болезни и травмы': '🩹', 'беременность': '🤰',
   'мысли': '💭', 'ожидание vs реальность': '🔮',
   'общие воспоминания': '🎞️', 'флаг-монитор': '🚩',
   'социальное разоблачение': '👁️', 'физиология': '🩸',
@@ -224,19 +230,102 @@ function formatKeyValue(text) {
   return html;
 }
 
-export function buildUserHTML(userData, uid, isChecked) {
+// «код: значение; …» → объект по русским названиям меток в нижнем регистре.
+// Кусок без метки считаем названием: «перелом руки» без nm — тоже болезнь.
+function поМеткам(текст) {
+  const out = {};
+  String(текст || '').split(/[;\n]/).forEach(часть => {
+    const m = часть.match(/^\s*([^:：]{1,40})[:：]\s*(.*)$/);
+    if (!m) { if (часть.trim() && !out['что это']) out['что это'] = часть.trim(); return; }
+    out[перевестиМетку(m[1]).toLowerCase()] = m[2].trim();
+  });
+  return out;
+}
+
+const строкаПодписи = (подпись, текст) => текст
+  ? `<div class="hud-ill-row"><span>${escapeHtml(подпись)}</span><p>${applyTooltips(текст)}</p></div>`
+  : '';
+
+// Болезни и травмы: одна группа на состояние, группы через «|». Стадия
+// окрашивает кромку, выздоровление — шкалой, симптомы и лечение строками.
+function buildIllness(value) {
+  return String(value || '').split(/\s*\|\s*|\n{2,}/).map(группа => {
+    if (!группа.trim()) return '';
+    const п = поМеткам(группа);
+    const стадия = стадияБолезни(п['стадия']);
+    const число = parseFloat(String(п['выздоровление'] || '').replace(',', '.'));
+    const доля = Number.isFinite(число) ? Math.max(0, Math.min(100, число)) : null;
+    return `<div class="hud-ill${стадия.ключ ? ' is-' + стадия.ключ : ''}">`
+      + `<div class="hud-ill-head"><b>${escapeHtml(п['что это'] || 'Состояние')}</b>${стадия.текст ? `<em class="hud-ill-stage">${escapeHtml(стадия.текст)}</em>` : ''}</div>`
+      + (доля !== null ? `<div class="hud-ill-meter" title="Выздоровление ${Math.round(доля)}%"><i style="width:${доля}%"></i><small>${Math.round(доля)}%</small></div>` : '')
+      + строкаПодписи('Симптомы', п['симптомы'])
+      + строкаПодписи('Лечение', п['лечение'])
+      + `</div>`;
+  }).filter(Boolean).join('');
+}
+
+// Беременность: срок шкалой на сорок недель с засечками триместров.
+function buildPregnancy(value) {
+  const п = поМеткам(value);
+  const неделя = parseInt(String(п['неделя'] || '').replace(/[^\d]/g, ''), 10);
+  const н = Number.isFinite(неделя) && неделя > 0 ? Math.min(неделя, 42) : null;
+  const триместр = н === null ? '' : н < 14 ? 'I триместр' : н < 28 ? 'II триместр' : 'III триместр';
+  return `<div class="hud-prg">`
+    + `<div class="hud-prg-head"><span class="hud-prg-ico" aria-hidden="true">🤰</span><b>${н === null ? 'Срок не назван' : н + '-я неделя'}</b>`
+    + `${триместр ? `<em>${триместр}</em>` : ''}${п['роды'] ? `<small>роды: ${escapeHtml(п['роды'])}</small>` : ''}</div>`
+    + (н !== null ? `<div class="hud-prg-meter" title="${н} из 40 недель"><i style="width:${Math.min(100, н / 40 * 100).toFixed(1)}%"></i><s style="left:32.5%"></s><s style="left:67.5%"></s></div>` : '')
+    + строкаПодписи('Отец', п['отец'])
+    + строкаПодписи('Симптомы', п['симптомы'])
+    + строкаПодписи('Кто знает', п['кто знает'])
+    + строкаПодписи('Как проходит', п['как проходит'])
+    + `</div>`;
+}
+
+// Что о вас думают: отношение каждого персонажа к игроку из его «Отношений»
+// и число из «Доверия». Модели ничего дописывать не нужно — сводка
+// собирается из того, что уже есть в карточках.
+export function buildPerceptionHTML(characters) {
+  const игрок = getSafeUserName();
+  if (!игрок) return '';
+  const карточки = (Array.isArray(characters) ? characters : []).map(c => {
+    if (!c || typeof c !== 'object' || !c['Имя']) return null;
+    const отношение = parseRelationList(flattenFieldValue(c['Отношения'])).find(r => namesLikelySame(r.target, игрок));
+    const запись = parseRelationList(flattenFieldValue(c['Доверие'])).find(r => namesLikelySame(r.target, игрок));
+    const число = запись ? parseFloat(String(запись.rel).replace(',', '.')) : NaN;
+    const доверие = Number.isFinite(число) ? Math.max(0, Math.min(100, число)) : null;
+    if (!отношение && доверие === null) return null;
+    return { имя: String(c['Имя']), текст: отношение ? отношение.rel : '', доверие };
+  }).filter(Boolean);
+  if (!карточки.length) return '';
+  const список = карточки.map(к => {
+    const адрес = лицоСобеседника(к.имя);
+    const буквы = к.имя.trim().split(/\s+/).map(w => w.charAt(0)).slice(0, 2).join('').toUpperCase();
+    const уровень = к.доверие === null ? '' : к.доверие >= 66 ? ' is-high' : к.доверие >= 33 ? ' is-mid' : ' is-low';
+    const картинка = адрес
+      ? `<img src="${escapeHtml(String(адрес)).replace(/"/g, '&quot;')}" alt="" loading="lazy" onerror="this.parentNode.classList.remove('has-img');this.remove()">`
+      : '';
+    return `<div class="hud-perc${уровень}">`
+      + `<i class="hud-perc-face${адрес ? ' has-img' : ''}" aria-hidden="true">${escapeHtml(буквы)}${картинка}</i>`
+      + `<div class="hud-perc-body"><b>${escapeHtml(к.имя)}</b>${к.текст ? `<p>${applyTooltips(к.текст)}</p>` : ''}`
+      + (к.доверие !== null ? `<div class="hud-perc-trust" title="Доверие ${Math.round(к.доверие)} из 100"><span>доверие</span><i><i style="width:${к.доверие}%"></i></i><em>${Math.round(к.доверие)}</em></div>` : '')
+      + `</div></div>`;
+  }).join('');
+  return `<div class="hud-row full-width hud-perception"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>👁</span></i> Что о тебе думают:</span><div class="hud-perc-list">${список}</div></div>`;
+}
+
+export function buildUserHTML(userData, uid, isChecked, characters) {
   if (!userData || Object.keys(userData).length === 0) return '';
   const personaName = getSafeUserName();
   const avatarUrl = getUserAvatarUrl();
   const avaTag = ` data-ava-name="${escapeHtml(personaName)}" data-ava-role="user"`;
   const avatarHtml = avatarUrl ? `<img src="${avatarUrl}" class="hud-avatar hud-avatar-user" alt="avatar"${avaTag} onerror="this.outerHTML='<div class=&quot;hud-avatar-placeholder hud-avatar-user&quot;></div>'">` : `<div class="hud-avatar-placeholder hud-avatar-user"${avaTag}></div>`;
 
-  const order = ['A', 'C', 'Ap', 'H', 'Rel', 'L', 'UW'];
+  const order = ['A', 'C', 'Ap', 'H', 'Ill', 'Prg', 'Rel', 'L', 'UW'];
   let rows = '';
   order.forEach(shortKey => {
     const label = mapKey(shortKey); let value = null;
     for (const [k, v] of Object.entries(userData)) { if (k === shortKey || k.toLowerCase() === label.toLowerCase()) { value = v; break; } }
-    value = flattenFieldValue(value);
+    value = снятьЗаглушки(flattenFieldValue(value));
     if (!value || value.toLowerCase() === 'empty' || value.toLowerCase() === 'none') return;
     
     let rowClass = 'hud-row hud-user-row';
@@ -249,12 +338,17 @@ export function buildUserHTML(userData, uid, isChecked) {
       rows += `<div class="${rowClass}"><span class="hud-key">${значок}${escapeHtml(label)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill', false, 'отношения', лицоСобеседника)}</div></div>`;
     } else if (label.toLowerCase().includes('nsfw')) {
       rows += `<div class="${rowClass}"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>🔞</span></i> ${escapeHtml(надписьПоля(label))}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-nsfw-pill')}</div></div>`;
+    } else if (label.toLowerCase() === 'болезни и травмы') {
+      rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}${escapeHtml(label)}:</span> <div class="hud-ill-list">${buildIllness(value)}</div></div>`;
+    } else if (label.toLowerCase() === 'беременность') {
+      rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${buildPregnancy(value)}</div>`;
     } else {
       rows += `<div class="${rowClass}"><span class="hud-key">${значок}${escapeHtml(label)}:</span> <span class="hud-value">${applyTooltips(String(value))}</span></div>`;
     }
   });
-  if (!rows) return '';
-  return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-header hud-user-header"><div class="hud-header-info">${avatarHtml}<div class="hud-header-text"><span class="hud-title">${escapeHtml(personaName)}</span></div></div></div><div class="hud-body hud-user-body">${rows}</div></div>`;
+  const восприятие = settings.enablePerception !== false ? buildPerceptionHTML(characters) : '';
+  if (!rows && !восприятие) return '';
+  return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-header hud-user-header"><div class="hud-header-info">${avatarHtml}<div class="hud-header-text"><span class="hud-title">${escapeHtml(personaName)}</span></div></div></div><div class="hud-body hud-user-body">${восприятие}${rows}</div></div>`;
 }
 
 export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
@@ -272,7 +366,7 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
     // Объект или массив здесь — обычное дело: схема просит строку «Метка:
     // значение; ...», а модель нередко отдаёт ту же структуру объектом.
     // Разворачиваем сразу, чтобы ниже по коду везде была строка.
-    const value = flattenFieldValue(rawValue);
+    const value = снятьЗаглушки(flattenFieldValue(rawValue));
     if (!value || value.toLowerCase() === 'empty' || value.toLowerCase() === 'none') continue;
     let rowClass = FULL_WIDTH_KEYS.some(k => lowerKey.includes(k)) ? 'hud-row full-width' : 'hud-row';
     if (DRAMA_KEYS.some(k => lowerKey.includes(k))) rowClass += ' drama-alert';
@@ -300,6 +394,10 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       // Зона и её чувствительность от нуля до десяти — шкалой, а не числом:
       // «Шея: 9» рядом с «Поясница: 4» читается взглядом, а не чтением.
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-bodymap">${buildBodyMap(value)}</div></div>`;
+    } else if (lowerKey === 'болезни и травмы') {
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-ill-list">${buildIllness(value)}</div></div>`;
+    } else if (lowerKey === 'беременность') {
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${buildPregnancy(value)}</div>`;
     } else if (lowerKey === 'ключ') {
       const items = String(value).split(';').filter(i => i.trim().length > 0).map(i => `<div class="hud-key-item">${formatKeyValue(i.trim())}</div>`).join('');
       html += `<div class="hud-key-block full-width"><span class="hud-key-label">${escapeHtml(key)}:</span> <div class="hud-vertical-container hud-key-list">${items}</div></div>`;

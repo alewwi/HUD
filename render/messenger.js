@@ -6,12 +6,12 @@
 // Вынесено из phone.js: тот разросся до девятисот строк и держал в себе
 // разом мессенджер, кошелёк, календарь и сборку самого аппарата.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=22.99.4';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.4';
-import { G_ICONS } from './icons.js?v=22.99.4';
-import { buildBubbleInner, buildCallRow, msgKey } from './msg-parts.js?v=22.99.4';
-import { avaFace, msgTimeOf, collectCounterparts } from './phone-common.js?v=22.99.4';
-import { namesLikelySame } from '../names.js?v=22.99.4';
+import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=22.99.22';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.22';
+import { G_ICONS } from './icons.js?v=22.99.22';
+import { buildBubbleInner, buildCallRow, msgKey } from './msg-parts.js?v=22.99.22';
+import { avaFace, msgTimeOf, collectCounterparts } from './phone-common.js?v=22.99.22';
+import { namesLikelySame } from '../names.js?v=22.99.22';
 
 export function buildMessengerHTML(chatsMap, uid, mainCharName) {
   const chatKeys = Object.keys(chatsMap || {});
@@ -32,7 +32,7 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName) {
     // Обрезаем дичь от ИИ в названиях.
     // Если название имеет вид «Владелец → Контакт», показываем только контакт.
     // Это влияет ТОЛЬКО на подпись чата/контакта, не на разбор и направление сообщений.
-    let displayChatName = rawChatName.replace(/<[^>]+>/g, '').trim();
+    let displayChatName = sanitizeText(rawChatName).trim();
     let dashIndex = displayChatName.indexOf(' — ');
     if (dashIndex === -1) dashIndex = displayChatName.indexOf(' - ');
     if (dashIndex > 0) displayChatName = displayChatName.substring(0, dashIndex).trim();

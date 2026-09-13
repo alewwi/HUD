@@ -11,12 +11,12 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache } from './avatars.js?v=22.99.4';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.99.4';
-import { openPhoneMediaViewer } from './render/phone.js?v=22.99.4';
-import { getTheme, themeVars, presetRowHTML, THEME_KEYS , themeSnapshot, parseThemeFile } from './themes.js?v=22.99.4';
-import { settings, defaultSettings } from './settings.js?v=22.99.4';
-import { getWorldVotes } from './render/world.js?v=22.99.4';
+import { invalidateAvatarCache } from './avatars.js?v=22.99.22';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.99.22';
+import { openPhoneMediaViewer } from './render/phone.js?v=22.99.22';
+import { getTheme, themeVars, presetRowHTML, THEME_KEYS , themeSnapshot, parseThemeFile } from './themes.js?v=22.99.22';
+import { settings, defaultSettings } from './settings.js?v=22.99.22';
+import { getWorldVotes } from './render/world.js?v=22.99.22';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -680,6 +680,20 @@ export function initGlobalEvents(ctx) {
     if (relGraph) {
       // Хвост перетаскивания: браузер всё равно шлёт click после отпускания.
       if (relGraph.dataset.relDragged) { delete relGraph.dataset.relDragged; return; }
+      // «Связи / Семья»: вид меняется на месте и граф не раскрывает.
+      const modeBtn = e.target.closest('.hud-rel-mode');
+      if (modeBtn) {
+        e.preventDefault();
+        const mode = modeBtn.dataset.relMode === 'family' ? 'family' : 'graph';
+        relGraph.dataset.relMode = mode;
+        relGraph.querySelectorAll('.hud-rel-mode').forEach(b => {
+          const on = b === modeBtn;
+          b.classList.toggle('is-active', on);
+          b.setAttribute('aria-selected', on ? 'true' : 'false');
+        });
+        if (mode === 'family') applyRelGraphFocus(relGraph, '', '', '');
+        return;
+      }
       const clickedNode = e.target.closest('.hud-rel-node');
       const clickedEdge = e.target.closest('.hud-rel-edge, .hud-rel-edge-hit, .hud-rel-edge-badge');
       const clickedLabel = e.target.closest('.hud-rel-edge-label');
@@ -799,6 +813,8 @@ export function initGlobalEvents(ctx) {
 
         relGraph.addEventListener('wheel', (wheelEvent) => {
           if (!relGraph.classList.contains('is-expanded')) return;
+          // В дереве колесо прокручивает сцену: масштаб там не используется.
+          if (relGraph.dataset.relMode === 'family') return;
           wheelEvent.preventDefault();
           const current = Number(relGraph.dataset.zoom || 1);
           const delta = wheelEvent.deltaY > 0 ? -0.12 : 0.12;

@@ -6,9 +6,10 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=22.99.4';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.4';
-import { buildRelGraphHTML } from './relations-graph.js?v=22.99.4';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=22.99.22';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.22';
+import { buildRelGraphHTML } from './relations-graph.js?v=22.99.22';
+import { статусРужья } from '../codes.js?v=22.99.22';
 
 function parseRoutePoint(item) {
   const parts = String(item).split(/[-—–]/).map(s => s.trim());
@@ -82,9 +83,11 @@ function buildSecretRingHTML(kCount, total) {
   </div>`;
 }
 
-export function buildMemoryHTML(memoryData, uid, isChecked, hudData) {
+export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {}) {
   if (!memoryData || typeof memoryData !== 'object') memoryData = {};
   let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-memory-body hud-memory-scroll" style="grid-template-columns: 1fr;">`;
+  // Сводка «что о тебе думают» живёт во вкладке игрока; когда той нет — здесь.
+  if (extra && extra.perception) html += extra.perception;
 
   // Граф отношений — изолирован от остальных блоков памяти.
   // Любая неожиданная ошибка в данных Rel/узла не должна прерывать рендер
@@ -168,6 +171,26 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData) {
   }
   if (Array.isArray(memoryData.unknown) && memoryData.unknown.length > 0) {
     html += `<div class="hud-row full-width"><span class="hud-key">❓ Чего герои не знают:</span> <div class="hud-vertical-container">${buildPillList(memoryData.unknown.join('; '), 'hud-detail-pill')}</div></div>`;
+  }
+
+  // Ружья Чехова: незакрытые нити. Строка «завязка | к кому относится | статус».
+  if (Array.isArray(memoryData.guns) && memoryData.guns.length > 0) {
+    const ружья = memoryData.guns.map(строка => {
+      const [завязка = '', кто = '', статусСырой = ''] = String(строка).split('|').map(s => s.trim());
+      if (!завязка) return '';
+      const с = статусРужья(статусСырой);
+      const значок = с.ключ === 'fired' ? '💥' : с.ключ === 'building' ? '⏳' : '🔫';
+      // В Lorebook — завязка, с кем связана и где нить сейчас. Ключи — имена из
+      // «к кому относится»: по ним запись всплывёт, когда нить снова в сцене.
+      const ключи = кто.split(/[;,]|\s+и\s+/).map(x => x.trim()).filter(Boolean);
+      const запись = [завязка, кто ? 'Связано с: ' + кто : '', 'Статус: ' + с.текст].filter(Boolean).join('\n');
+      const новое = isNewLoreItem(завязка);
+      return `<div class="hud-gun is-${с.ключ} hud-lore-item${новое ? ' is-new' : ''}"><span class="hud-gun-ico" aria-hidden="true">${значок}</span>`
+        + `<div class="hud-gun-body"><p>${applyTooltips(завязка)}</p>${кто ? `<small>${escapeHtml(кто)}</small>` : ''}</div>`
+        + `<em class="hud-gun-status">${escapeHtml(с.текст)}</em>`
+        + loreButtonHTML(запись, ключи, новое) + `</div>`;
+    }).filter(Boolean).join('');
+    if (ружья) html += `<div class="hud-row full-width"><span class="hud-key">🔫 Ружья Чехова:</span> <div class="hud-guns">${ружья}</div></div>`;
   }
 
   // 4. СЕКРЕТЫ (Кастомный скрытый спойлер + Уровни)

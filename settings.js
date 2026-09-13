@@ -41,6 +41,19 @@ export const defaultSettings = {
   enableDreams: true,
   enableUserBlock: true,
   enableMemory: true, // Включаем Память
+  // Спутники, болезни и травмы, беременность и ружья Чехова просятся у модели;
+  // сводка «что о тебе думают» считается из карточек и в промт не идёт.
+  enableCompanions: true,
+  enableIllness: true,
+  enablePregnancy: true,
+  enableGuns: true,
+  enablePerception: true,
+  // Генеалогическое дерево в графе отношений: считается из родства в Rl.
+  enableFamilyTree: true,
+  // Кнопка «❓» на карточке: вопросы о сюжете, ответ не пишется в чат.
+  enableAssistant: true,
+  // Сколько последних сообщений читает модель, отвечая на вопрос.
+  assistantContextMessages: 12,
   performanceMode: true, // Автоматическая оптимизация чатов от 200 сообщений
   // В Performance Mode карточка, уехавшая дальше полутора экранов, сворачивается
   // в заглушку своей высоты и собирается заново при возвращении.

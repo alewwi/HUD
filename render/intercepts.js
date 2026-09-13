@@ -3,12 +3,12 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHasMeaningfulValue } from '../utils.js?v=22.99.4';
-import { overrideAvatarUrl } from '../avatars.js?v=22.99.4';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText } from '../utils.js?v=22.99.22';
+import { overrideAvatarUrl } from '../avatars.js?v=22.99.22';
 // Снимки, ролики, голосовые и звонки собирает тот же код, что и в личном
 // телефоне. Своя копия разбора здесь означала бы, что новый формат от модели
 // в одном мессенджере работает, а в другом остаётся сырым тегом в тексте.
-import { buildBubbleInner, msgKey, buildCallRow } from './msg-parts.js?v=22.99.4';
+import { buildBubbleInner, msgKey, buildCallRow } from './msg-parts.js?v=22.99.22';
 
 // Кружок отправителя в перехвате: ручная аватарка фоном либо инициал.
 // Разметка и классы прежние — картинку прячет за собой класс has-img.
@@ -57,7 +57,7 @@ export function buildInterceptsHTML(interceptsData, uid, isChecked) {
   interceptsData.forEach((intercept, idx) => {
     // Состав переписки: из поля модели, а если его нет — из самих сообщений.
     const состав = interceptParticipants(intercept);
-    let targetName = (intercept.target || 'Unknown').replace(/<[^>]+>/g, '').trim(), chatName = (intercept.chatName || 'Chat').replace(/<[^>]+>/g, '').trim();
+    let targetName = sanitizeText(intercept.target || 'Unknown').trim(), chatName = sanitizeText(intercept.chatName || 'Chat').trim();
     // Для перехвата показываем именно контакт, а не владельца телефона.
     // Направление сообщений ниже не меняем: target по-прежнему определяет владельца.
     const interceptArrowParts = chatName.split(/\s*(?:→|->|←|↔|↔︎)\s*/).map(s => s.trim()).filter(Boolean);

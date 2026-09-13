@@ -14,9 +14,10 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=22.99.4';
-import { normalizeJSONData } from '../schema.js?v=22.99.4';
-import { settings } from '../settings.js?v=22.99.4';
+import { parseHUDComplex } from '../hud-parser.js?v=22.99.22';
+import { normalizeJSONData } from '../schema.js?v=22.99.22';
+import { settings } from '../settings.js?v=22.99.22';
+import { статусРужья } from '../codes.js?v=22.99.22';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -169,6 +170,26 @@ function склеитьПерехваты(старое, новое, предел
   return порядок.slice(-предел).map(k => карта.get(k));
 }
 
+// Ружья Чехова: строка «завязка | к кому относится | статус», опознаём по
+// завязке. Свежий ход обновляет статус. Выстрелившее в прошлых ходах дальше
+// не переносится: нить закрыта, а в архиве её история остаётся.
+function склеитьРужья(старое, новое, предел) {
+  const ключРужья = (s) => ключ(String(s).split('|')[0]);
+  const карта = new Map();
+  for (const s of старое || []) {
+    if (статусРужья(String(s).split('|')[2] || '').ключ === 'fired') continue;
+    const k = ключРужья(s);
+    if (k) карта.set(k, s);
+  }
+  for (const s of новое || []) {
+    const k = ключРужья(s);
+    if (!k) continue;
+    карта.delete(k);
+    карта.set(k, s);
+  }
+  return [...карта.values()].slice(-предел);
+}
+
 // Один ход поверх накопленного.
 function наложить(накоплено, ход, предел, пределСообщений) {
   const out = накоплено;
@@ -179,6 +200,7 @@ function наложить(накоплено, ход, предел, предел
   out.memory.timeline = склеитьСтроки(out.memory.timeline, пам.timeline, предел);
   out.memory.important = склеитьСтроки(out.memory.important, пам.important, предел);
   out.memory.secrets = склеитьОбъекты(out.memory.secrets, пам.secrets, s => s.fact, предел);
+  out.memory.guns = склеитьРужья(out.memory.guns, пам.guns, предел);
 
   const тел = ход.phone || {};
   out.phone.contacts = склеитьОбъекты(out.phone.contacts, тел.contacts, c => c.name || c['Имя'], предел);
@@ -222,7 +244,7 @@ export function mergeCarryOver(data, messageElement) {
   // Накопитель начинаем пустым и катим по ходам от старых к текущему.
   const накоплено = {
     chatsMap: {}, intercepts: [],
-    memory: { timeline: [], important: [], secrets: [] },
+    memory: { timeline: [], important: [], secrets: [], guns: [] },
     phone: { contacts: [], notes: [], gallery: [], maps: [], calendar: [], search: [] },
   };
 
@@ -246,7 +268,7 @@ export function mergeCarryOver(data, messageElement) {
   if (накоплено.intercepts.length) итог.intercepts = накоплено.intercepts;
 
   итог.memory = { ...(data.memory || {}) };
-  for (const поле of ['timeline', 'important', 'secrets']) {
+  for (const поле of ['timeline', 'important', 'secrets', 'guns']) {
     if (накоплено.memory[поле].length) итог.memory[поле] = накоплено.memory[поле];
   }
   итог.phone = { ...(data.phone || {}) };

@@ -7,9 +7,10 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=22.99.4';
-import { getSafeUserName, mapKey } from './utils.js?v=22.99.4';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=22.99.4';
+import { settings } from './settings.js?v=22.99.22';
+import { getSafeUserName, mapKey } from './utils.js?v=22.99.22';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=22.99.22';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=22.99.22';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -20,7 +21,7 @@ import { mergeCharacterRecords } from './render/relations-graph.js?v=22.99.4';
 const HUD_CHARACTER_DEFAULTS = { N:'empty', A:'empty', C:'empty', Ap:'empty', R:'empty', B:'empty', H:'empty', Ph:'empty', L:'empty', Th:'empty', K:'empty', Exp:'empty', D:'empty', I:'empty', G:'empty', S:'empty', Rel:'empty', Mem:'empty', Flag:'empty', Jls:'empty', St:'empty', Exo:'empty', X:'empty', SexLast:'empty', SexCount:'empty', SexReg:'empty', Lines:'empty', Trust:'empty', Fears:'empty', SceneState:'empty', BodyMap:'empty', W:'empty', Kink:'empty', Fet:'empty', NoGo:'empty', NoTurn:'empty', NSFW_Det:'empty', Aftercare:'empty', SexRev:'empty' };
 const HUD_USER_DEFAULTS = { A:'empty', C:'empty', Ap:'empty', H:'empty', Rel:'empty', L:'empty', UW:'empty' };
 const HUD_SCENE_DEFAULTS = { T:'empty', Wth:'empty', Dt:'empty', Atm:'empty', Md:'empty' };
-const HUD_MEMORY_DEFAULTS = { timeline:[], mood:{ user:{current:'empty',history:[]}, char:{current:'empty',history:[]} }, route:{user:[],char:[]}, important:[], secrets:[] };
+const HUD_MEMORY_DEFAULTS = { timeline:[], mood:{ user:{current:'empty',history:[]}, char:{current:'empty',history:[]} }, route:{user:[],char:[]}, important:[], secrets:[], guns:[] };
 const HUD_WORLD_DEFAULTS = { headlines:[], rumors:[], forecast:[], horoscope:[], prediction:[], ads:[], comments:[] };
 const cloneSchemaDefault = v => Array.isArray(v) ? [] : (v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k,x]) => [k,cloneSchemaDefault(x)])) : v);
 function fillMissingObjectFields(obj, defaults) {
@@ -58,6 +59,7 @@ function fillMemoryFields(obj, defaults) {
       else if (n === 'route' || n === 'маршрут' || n === 'маршруты') canonicalKey = 'route';
       else if (n === 'important' || n === 'важное') canonicalKey = 'important';
       else if (n === 'secrets' || n === 'секреты') canonicalKey = 'secrets';
+      else if (n === 'guns' || n === 'ружья' || n === 'ружья чехова') canonicalKey = 'guns';
       if (!(canonicalKey in out) || key === canonicalKey) out[canonicalKey] = value;
     }
   }
@@ -89,6 +91,9 @@ function fillMoodActorFields(obj, defaults) {
 
 function normalizeHUDSchema(parsed) {
   const root = (parsed && typeof parsed === 'object') ? parsed : {};
+  // Модель пишет разделы короткими кодами (chats, taps, log, tx…). Разворачиваем
+  // их первыми, чтобы дальше работать с привычными названиями.
+  развернутьКоды(root);
   root.scene = fillMissingObjectFields(root.scene, HUD_SCENE_DEFAULTS);
   root.characters = Array.isArray(root.characters) ? root.characters.map(c => fillMissingObjectFields(c, HUD_CHARACTER_DEFAULTS)) : [];
   if (settings.enableUserBlock) root.user = fillMissingObjectFields(root.user, HUD_USER_DEFAULTS);
@@ -157,13 +162,15 @@ export function normalizeJSONData(parsed) {
     for (const k of Object.keys(parsed.chatsMap)) {
       const c = parsed.chatsMap[k];
       if (!c || typeof c !== 'object') continue;
-      chatsMap[toStr(k)] = { owner: toStr(c.owner), participants: groupParticipants(c.participants), messages: cleanArray(c.messages) };
+      // Статус (ur, dl…) и исход звонка приходят кодами — разворачиваем в слова,
+      // которые ищут переписка и уведомления.
+      chatsMap[toStr(k)] = { owner: toStr(c.owner), participants: groupParticipants(c.participants), messages: cleanArray(c.messages).map(строкаСообщения) };
     }
   }
   let interceptsParsed = [];
   if (Array.isArray(parsed.intercepts)) {
     interceptsParsed = parsed.intercepts.map(i => {
-      if (typeof i === 'object' && i !== null) return { target: toStr(i.target), chatName: toStr(i.chatName), participants: groupParticipants(i.participants), messages: cleanArray(i.messages) }; return null;
+      if (typeof i === 'object' && i !== null) return { target: toStr(i.target), chatName: toStr(i.chatName), participants: groupParticipants(i.participants), messages: cleanArray(i.messages).map(строкаСообщения) }; return null;
     }).filter(Boolean);
   }
   let diaryParsed = [];
@@ -175,8 +182,8 @@ export function normalizeJSONData(parsed) {
         time: toStr(d.time),
         text: toStr(d.text),
         aboutUser: toStr(d.aboutUser),
-        mood: toStr(d.mood || d.emotion || ''),
-        emotion: toStr(d.emotion || d.mood || '')
+        mood: настроениеДневника(toStr(d.mood || d.emotion || '')),
+        emotion: настроениеДневника(toStr(d.emotion || d.mood || ''))
       };
       return null;
     }).filter(Boolean);
@@ -189,7 +196,7 @@ export function normalizeJSONData(parsed) {
       if (typeof d === 'string') return { author: '', time: '', text: d, mood: '' };
       if (d && typeof d === 'object') return {
         author: toStr(d.author), time: toStr(d.time),
-        text: toStr(d.text), mood: toStr(d.mood || d.emotion || ''),
+        text: toStr(d.text), mood: настроениеТела(toStr(d.mood || d.emotion || '')),
       };
       return null;
     }).filter(d => d && valid(d.text));
@@ -203,11 +210,24 @@ export function normalizeJSONData(parsed) {
     }).filter(d => d !== null);
   }
 
+  // Спутники: животные, фамильяры, дроны. Строка вместо объекта — одно имя.
+  const companionsParsed = (Array.isArray(parsed.companions) ? parsed.companions : [])
+    .map(p => {
+      if (typeof p === 'string') return { name: toStr(p), species: '', owner: '', mood: '', condition: '', diet: '', bond: '', skills: '', note: '' };
+      if (!p || typeof p !== 'object') return null;
+      const поле = (k) => toStr(Array.isArray(p[k]) ? p[k].join('; ') : p[k]);
+      return { name: поле('name'), species: поле('species'), owner: поле('owner'), mood: поле('mood'),
+        condition: поле('condition'), diet: поле('diet'), bond: поле('bond'), skills: поле('skills'), note: поле('note') };
+    })
+    .filter(p => p && valid(p.name));
+
   // === ПАРСЕР ПАМЯТИ ===
-  let memoryParsed = { timeline: [], mood: { user: { current: '', history: [] }, char: { current: '', history: [] } }, route: { user: [], char: [] }, important: [], secrets: [] };
+  let memoryParsed = { timeline: [], mood: { user: { current: '', history: [] }, char: { current: '', history: [] } }, route: { user: [], char: [] }, important: [], secrets: [], guns: [] };
   if (parsed.memory && typeof parsed.memory === 'object') {
       memoryParsed.timeline = cleanArray(parsed.memory.timeline).slice(-5);
       memoryParsed.important = typeof parsed.memory.important === 'string' ? parsed.memory.important.split(';').map(s=>s.trim()).filter(Boolean) : cleanArray(parsed.memory.important);
+      // Ружья Чехова: строка «завязка | к кому относится | статус».
+      memoryParsed.guns = cleanArray(parsed.memory.guns).filter(valid);
       const rawMood = parsed.memory.mood;
       if (rawMood && typeof rawMood === 'object' && !Array.isArray(rawMood)) {
           const extractActorMood = (value) => {
@@ -241,13 +261,16 @@ export function normalizeJSONData(parsed) {
           memoryParsed.mood.char.current = shared;
       }
       if (parsed.memory.route && typeof parsed.memory.route === 'object') {
-          memoryParsed.route.user = cleanArray(parsed.memory.route.user).slice(-20);
-          memoryParsed.route.char = cleanArray(parsed.memory.route.char).slice(-20);
+          // Действие в конце строки модель пишет кодом (arr, left…). Переводим
+          // здесь, а не в отрисовке: перенос прошлых ходов сравнивает строки, и
+          // «прибытие» и «arr» у одной точки не должны стать двумя остановками.
+          memoryParsed.route.user = cleanArray(parsed.memory.route.user).slice(-20).map(строкаМаршрута);
+          memoryParsed.route.char = cleanArray(parsed.memory.route.char).slice(-20).map(строкаМаршрута);
       }
       if (Array.isArray(parsed.memory.secrets)) {
           memoryParsed.secrets = parsed.memory.secrets.map(s => {
               if (!s || typeof s !== 'object') return null;
-              const status = toStr(s.status || s.state || 'unknown').toLowerCase();
+              const status = огласкаСекрета(toStr(s.status || s.state || 'unknown')).toLowerCase();
               if (s.revealed === true || /^(revealed|раскрыт|раскрыто|known_to_all)$/.test(status)) return null;
               const splitNames = (value) => {
                   if (Array.isArray(value)) return value.flatMap(x => {
@@ -281,7 +304,7 @@ export function normalizeJSONData(parsed) {
                   const knownSet = new Set(knows.map(k => k.name.toLowerCase()));
                   hidden = activeNames.filter(n => !knownSet.has(n.toLowerCase()));
               }
-              return { fact: toStr(s.fact), level: toStr(s.level || 'medium').toLowerCase(), status, knows, hidden };
+              return { fact: toStr(s.fact), level: уровеньСекрета(toStr(s.level || 'medium')).toLowerCase(), status, knows, hidden };
           }).filter(s => s && valid(s.fact));
       }
   }
@@ -313,13 +336,15 @@ export function normalizeJSONData(parsed) {
       const balance = toStr(w.balance), currency = toStr(w.currency);
       return (balance || currency || tx.length) ? { balance, currency, transactions: tx } : null;
     })(),
-    calendar: phoneSection(rawPhone.calendar, ['date', 'title', 'kind', 'time']),
+    calendar: phoneSection(rawPhone.calendar, ['date', 'title', 'kind', 'time']).map(с => ({ ...с, kind: видСобытия(с.kind) })),
   };
 
   return {
-    scene: mapKeys(parsed.scene), characters: chars.map(mapKeys), user: mapKeys(parsed.user), memory: memoryParsed, chatsMap: chatsMap, phone: phoneParsed, intercepts: interceptsParsed, diary: diaryParsed, bodyDiary: bodyDiaryParsed, dreams: dreamsParsed,
+    // Фаза близости приходит кодом (fp, cx…); шкала фаз узнаёт полные слова.
+    scene: mapKeys(parsed.scene), characters: chars.map(mapKeys).map(c => { if (c['Фаза близости']) c['Фаза близости'] = фазаБлизости(c['Фаза близости']); return c; }), user: mapKeys(parsed.user), memory: memoryParsed, chatsMap: chatsMap, phone: phoneParsed, intercepts: interceptsParsed, diary: diaryParsed, bodyDiary: bodyDiaryParsed, dreams: dreamsParsed, companions: companionsParsed,
     world: { headlines: cleanArray(world.headlines), rumors: cleanArray(world.rumors),
-             forecast: cleanArray(world.forecast), horoscope: cleanArray(world.horoscope),
+             // Период, погода, знак и тон приходят кодами — на экран по-русски.
+             forecast: cleanArray(world.forecast).map(строкаПрогноза), horoscope: cleanArray(world.horoscope).map(строкаГороскопа),
              prediction: cleanArray(world.prediction),
              ads: cleanArray(world.ads), comments: cleanArray(world.comments) }
   };

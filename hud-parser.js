@@ -7,7 +7,7 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=22.99.4';
+import { normalizeJSONData } from './schema.js?v=22.99.22';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';
@@ -38,9 +38,11 @@ function decodeHighlightedHudHtml(input) {
   // JSON characters and HTML entities are preserved/decoded.
   if (/[<][a-z!/][^>]*>/i.test(text)) {
     try {
-      const holder = document.createElement('div');
-      holder.innerHTML = text;
-      text = holder.textContent || holder.innerText || '';
+      // DOMParser, а не innerHTML отстёгнутого div: там <img onerror> из
+      // ответа модели срабатывал бы прямо при разборе. В документе DOMParser
+      // скрипты и загрузки не выполняются.
+      const doc = new DOMParser().parseFromString('<!doctype html><body>' + text, 'text/html');
+      text = (doc.body && doc.body.textContent) || '';
     } catch (e) {
       text = text.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '');
     }
@@ -369,6 +371,34 @@ function repairHudJsonUnterminatedString(input) {
   return source + '"';
 }
 
+// Неэкранированные кавычки внутри строки: «он сказал "нет" и ушёл». JSON
+// закрывал строку на первой же такой кавычке, разбор ломался, а починка
+// обрезала текст — цитата в дневнике обрывалась на полуслове. Кавычка
+// закрывает строку, только если за ней идёт то, что в JSON может стоять
+// после строки: запятая перед следующим значением, скобка, двоеточие ключа.
+function repairHudJsonInnerQuotes(jsonStr) {
+  const s = String(jsonStr || '');
+  let out = '', inString = false, escaped = false;
+  for (let i = 0; i < s.length; i++) {
+    const ch = s[i];
+    if (!inString) { out += ch; if (ch === '"') inString = true; continue; }
+    if (escaped) { out += ch; escaped = false; continue; }
+    if (ch === '\\') { out += ch; escaped = true; continue; }
+    if (ch !== '"') { out += ch; continue; }
+    let j = i + 1;
+    while (j < s.length && /\s/.test(s[j])) j++;
+    const next = s[j];
+    let closes = next === undefined || next === '}' || next === ']' || next === ':' || next === '"';
+    if (next === ',') {
+      let k = j + 1;
+      while (k < s.length && /\s/.test(s[k])) k++;
+      closes = k >= s.length || /^(?:["{\[\]}\-\d]|true|false|null)/.test(s.slice(k, k + 5));
+    }
+    if (closes) { out += ch; inString = false; } else out += '\\"';
+  }
+  return out;
+}
+
 export function scoreHudJsonCandidate(parsed) {
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return -Infinity;
 
@@ -378,16 +408,17 @@ export function scoreHudJsonCandidate(parsed) {
   // A model response can contain several valid JSON objects. Only one of
   // them is the HUD payload; prefer the object whose top-level shape matches
   // the HUD schema instead of blindly taking the first parseable object.
-  if (has('scene', 'сцена', 'Scene')) score += 12;
-  if (has('characters', 'character', 'персонажи', 'Characters')) score += 12;
-  if (has('user', 'пользователь', 'User')) score += 7;
-  if (has('intercepts', 'перехваты')) score += 3;
-  if (has('diary', 'дневник')) score += 3;
-  if (has('dreams', 'dream', 'сны', 'сновидения')) score += 3;
-  if (has('world', 'мир')) score += 3;
+  // Короткие коды корня (sc, cs, us…) — то, что модель пишет по промту.
+  if (has('scene', 'сцена', 'Scene', 'sc')) score += 12;
+  if (has('characters', 'character', 'персонажи', 'Characters', 'cs')) score += 12;
+  if (has('user', 'пользователь', 'User', 'us')) score += 7;
+  if (has('intercepts', 'перехваты', 'tp', 'taps')) score += 3;
+  if (has('diary', 'дневник', 'dy')) score += 3;
+  if (has('dreams', 'dream', 'сны', 'сновидения', 'dr')) score += 3;
+  if (has('world', 'мир', 'wd')) score += 3;
 
-  const scene = parsed.scene ?? parsed['сцена'] ?? parsed.Scene;
-  const chars = parsed.characters ?? parsed.character ?? parsed['персонажи'] ?? parsed.Characters;
+  const scene = parsed.scene ?? parsed['сцена'] ?? parsed.Scene ?? parsed.sc;
+  const chars = parsed.characters ?? parsed.character ?? parsed['персонажи'] ?? parsed.Characters ?? parsed.cs;
   if (scene && typeof scene === 'object' && !Array.isArray(scene)) score += 4;
   if (Array.isArray(chars)) score += 4;
   else if (chars && typeof chars === 'object') score += 2;
@@ -404,6 +435,8 @@ function tryParseHudJsonCandidate(candidate) {
   const attempts = [
     { text: raw, mode: 'direct' },
     { text: controlSafe, mode: 'control-chars' },
+    { text: repairHudJsonInnerQuotes(controlSafe), mode: 'inner-quotes' },
+    { text: repairHudJsonSyntax(repairHudJsonInnerQuotes(controlSafe)), mode: 'inner-quotes+syntax' },
 
     // New state-aware path: close only an actually open JSON string first,
     // then let the existing truncation repair close arrays/objects.

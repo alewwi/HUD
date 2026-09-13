@@ -3,6 +3,8 @@
 // Мелкие утилиты, общие для всех доменов HUD (дневник, мир, сны, телефон,
 // граф отношений, память). Вынесено из index.js без изменения поведения.
 
+import { МЕТКИ } from './codes.js?v=22.99.22';
+
 /** Экранирование через DOM: браузер сам решает, что считать опасным. */
 // Не выпускать касания наружу. SillyTavern ловит свайпы на уровне document
 // (библиотека swiped-events) и переключает по ним вариант ответа. Внутри
@@ -15,6 +17,36 @@ export function guardTouchSwipe(el) {
   });
   el.dataset.swipeGuard = 'true';
   return el;
+}
+
+// Текст без разметки. Разбирает DOMParser: в его документе скрипты не
+// запускаются и картинки не грузятся, а вот у innerHTML отстёгнутого div
+// <img onerror> срабатывает. Регулярка replace(/<[^>]+>/g, '') ломалась на
+// «>» внутри атрибута и пропускала недописанный тег.
+export function sanitizeText(value) {
+  const s = value === null || value === undefined ? '' : String(value);
+  if (!/[<&]/.test(s)) return s;
+  try {
+    const doc = new DOMParser().parseFromString('<!doctype html><body>' + s.replace(/<br\s*\/?>/gi, '\n'), 'text/html');
+    return (doc.body && doc.body.textContent) || '';
+  } catch (_) {
+    return s.replace(/<[^>]*>?/g, '');
+  }
+}
+
+// Модель иногда переписывает заглушки формата буквально: «fear: Софи узнает —
+// strength: high» вместо «Софи узнает: high». Снимаем слова-заглушки и
+// оставляем то, что должно было стоять на их месте.
+const ЗАГЛУШКА_МЕТКИ = /^\s*(?:fear|name|item|thing|limit|activity|zone|label|code|страх|предмет|метка)\s*[:：]\s*(?=\S)/i;
+const ЗАГЛУШКА_ЗНАЧЕНИЯ = /\s*(?:[—–-]\s*|,\s*|\(\s*)?\b(?:strength|condition|attitude|role|reason|number|value|effect|сила)\s*[:：]\s*/gi;
+export function снятьЗаглушки(value) {
+  const s = value === null || value === undefined ? '' : String(value);
+  if (!/\b(?:fear|name|item|thing|limit|activity|zone|label|code|strength|condition|attitude|role|reason|number|value|effect|страх|предмет|метка|сила)\s*[:：]/i.test(s)) return s;
+  return s.split(/(\s*[;\n]\s*)/).map(кусок => {
+    if (/^\s*[;\n]\s*$/.test(кусок)) return кусок;
+    const безМетки = кусок.replace(ЗАГЛУШКА_МЕТКИ, '');
+    return безМетки.replace(ЗАГЛУШКА_ЗНАЧЕНИЯ, ': ').replace(/:\s*:\s*/g, ': ').replace(/^\s*:\s*/, '').replace(/\)\s*$/, (м) => (безМетки.includes('(') && !безМетки.replace(ЗАГЛУШКА_ЗНАЧЕНИЯ, ': ').includes('(') ? '' : м));
+  }).join('');
 }
 
 export function escapeHtml(str) { if (!str) return ''; const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
@@ -151,9 +183,12 @@ const ПЕРЕВОД_МЕТОК = {
   'mood': 'Настроение', 'desire level': 'Желание', 'lubrication': 'Смазка', 'wetness': 'Смазка',
   'orgasm': 'Оргазм', 'stamina': 'Выносливость', 'consent': 'Согласие',
 };
-function перевестиМетку(метка) {
+// Сначала короткие коды из промта (vol, round2, now…), потом английские
+// слова, которые модель писала по старым примерам.
+export function перевестиМетку(метка) {
   const чистая = String(метка || '').trim();
-  return ПЕРЕВОД_МЕТОК[чистая.toLowerCase().replace(/\s+/g, ' ')] || чистая;
+  const ключ = чистая.toLowerCase().replace(/\s+/g, ' ');
+  return МЕТКИ[ключ] || ПЕРЕВОД_МЕТОК[ключ] || чистая;
 }
 
 // Значки к меткам, которые повторяются из карточки в карточку. Только
@@ -183,6 +218,7 @@ const ЗНАЧКИ_МЕТОК = {
   // рядом с переведённой соседкой со значком.
   'уровень возбуждения': '💓', 'уровень желания': '💗', 'состояние пениса': '🍆',
   'предохранение': '🛡', 'готовность ко 2 раунду': '🔁', 'окончание': '💧',
+  'лобок/волосы': '🌿', 'анатомия': '🌸', 'грудь/соски': '🍒',
   'физические последствия': '🫧', 'эмоциональные последствия': '💭',
 };
 
@@ -201,6 +237,13 @@ function инициалы(имя) {
 
 // лицоПоИмени — необязательная функция «имя → адрес аватарки или null». Нужна
 // списку отношений: сами утилиты об аватарках ничего не знают.
+// Пункты списка разделяет только «;» (и её полноширинный и арабский
+// варианты) или перевод строки. Запятая — нет: ею модель уточняет внутри
+// одного пункта («опекун, заменил отца»).
+export function разбитьСписок(текст) {
+  return String(текст ?? '').split(/[;\uFF1B\u061B\n]+/);
+}
+
 export function buildPillList(value, pillClass, forceSeparate = false, вид = '', лицоПоИмени = null) {
     const raw = flattenFieldValue(value);
     // Явный разделитель — воля автора: каждый кусок становится отдельной
@@ -218,13 +261,22 @@ export function buildPillList(value, pillClass, forceSeparate = false, вид = 
     // разделены автором по смыслу, поэтому склеивать их обратно нельзя.
     const byLabel = explicit ? null : splitByLabels(raw);
     const separated = explicit || !!byLabel;
-    const rawChunks = (explicit ? raw.split(EXPLICIT_SPLIT_RE) : (byLabel || raw.split('. ')))
+    const rawChunks = (explicit ? разбитьСписок(raw) : (byLabel || raw.split('. ')))
         .map(i => i.trim()).filter(i => i);
 
     const items = [];
     for (const chunk of rawChunks) {
         const match = chunk.match(PILL_LABEL_RE);
-        if (match) { items.push({ label: перевестиМетку(match[1]), sep: match[2], text: match[3] }); }
+        // В «Отношениях» метка — это имя: переводить его как код нельзя,
+        // человек по имени Date остался бы «Датой».
+        if (match) { items.push({ label: вид === 'отношения' ? match[1].trim() : перевестиМетку(match[1]), sep: match[2], text: match[3] }); }
+        else if (items.length > 0 && items[items.length - 1].label && /(?:kink|fetish|nogo|noturn)-pill/.test(pillClass)
+            && chunk.split(/\s+/).length <= 4 && !/[.!?…]$/.test(chunk)) {
+            // «Жёсткий секс: да, предпочитает доминирование; охотно» — «насколько
+            // охотно» модель отделила «;» от своей метки. Без метки такой хвост
+            // стоял отдельной непонятной плиткой; возвращаем его на место.
+            items[items.length - 1].text += ', ' + chunk;
+        }
         else if (items.length > 0 && !forceSeparate && !separated) {
             // Продолжение предыдущего предложения — дописываем в ту же пилюлю.
             items[items.length - 1].text += '. ' + chunk;
@@ -299,6 +351,15 @@ export function mapKey(k) {
   const raw = String(k ?? '').trim();
   const n = raw.toLowerCase().replace(/[ё]/g, 'е').replace(/[\s_-]+/g, ' ');
   const map = {
+    // Коды в две буквы из промта. Названия полей ниже — прежние написания.
+    'wt':'Погода','at':'Атмосфера','ex':'Ожидание vs Реальность','rl':'Отношения','mm':'Общие воспоминания',
+    'fl':'Флаг-монитор','jl':'Ревность','eo':'Социальное разоблачение','sl':'Последний секс',
+    'sc':'Количество партнеров','sr':'Регулярность секса','ln':'Реплики','tr':'Доверие','fr':'Страхи',
+    'ss':'Фаза близости','bm':'Карта тела','kn':'Кинк','ft':'Фетиш','ng':'Никогда не сделает',
+    'nt':'Не возбуждает','nd':'Детализация NSFW','ac':'Забота после','sv':'Отзыв о сексе',
+    // Секс-поля с приставкой Sx: без неё SC совпадал с кодом сцены sc.
+    'sxl':'Последний секс','sxc':'Количество партнеров','sxr':'Регулярность секса','sxv':'Отзыв о сексе',
+    'ill':'Болезни и травмы','болезни и травмы':'Болезни и травмы','prg':'Беременность','беременность':'Беременность',
     't':'Время','время':'Время','time':'Время',
     'wth':'Погода','погода':'Погода','weather':'Погода',
     'dt':'Дата','дата':'Дата','date':'Дата',

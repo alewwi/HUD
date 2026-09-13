@@ -11,12 +11,14 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=22.99.4';
-import { normalizeJSONData } from './schema.js?v=22.99.4';
-import { parseRelationList } from './render/relations-graph.js?v=22.99.4';
-import { nameLettersOnly, namePhoneticLatin } from './names.js?v=22.99.4';
-import { hudFilled } from './utils.js?v=22.99.4';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=22.99.4';
+import { parseHUDComplex } from './hud-parser.js?v=22.99.22';
+import { normalizeJSONData } from './schema.js?v=22.99.22';
+import { parseRelationList } from './render/relations-graph.js?v=22.99.22';
+import { nameLettersOnly, namePhoneticLatin } from './names.js?v=22.99.22';
+import { hudFilled, getSafeUserName } from './utils.js?v=22.99.22';
+import { createDashboard } from './chat-stats.js?v=22.99.22';
+import { статусРужья } from './codes.js?v=22.99.22';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=22.99.22';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -156,6 +158,29 @@ function собратьОтношения(накоп, data, at) {
   }
 }
 
+// Ружья Чехова — как секреты: одна нить живёт десятки ходов, и важно, когда
+// она появилась, когда стала назревать и когда выстрелила.
+function собратьРужья(накоп, data, at) {
+  const ружья = (data.memory && Array.isArray(data.memory.guns)) ? data.memory.guns : [];
+  for (const строка of ружья) {
+    const [завязка = '', кто = '', статус = ''] = String(строка).split('|').map(текст);
+    const key = ключФакта(завязка);
+    if (!key) continue;
+    let item = накоп.get(key);
+    if (!item) {
+      item = { setup: завязка, tiedTo: кто, firstSeen: at, lastSeen: at, statusHistory: [] };
+      накоп.set(key, item);
+    }
+    item.lastSeen = at;
+    // Формулировку берём самую полную, связь — свежую.
+    if (завязка.length > item.setup.length) item.setup = завязка;
+    if (кто) item.tiedTo = кто;
+    const s = статусРужья(статус).ключ;
+    const прошлый = item.statusHistory[item.statusHistory.length - 1];
+    if (!прошлый || прошлый.status !== s) item.statusHistory.push({ status: s, at });
+  }
+}
+
 // Хронология сцены: дата, время, место. Записываем только моменты смены —
 // это и есть скелет сюжета.
 function собратьСцену(состояние, data, at) {
@@ -246,6 +271,10 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
   const сцена = { dates: [], locations: [], последняяДата: '', последнееМесто: '' };
   const персонажи = new Map();
   const погода = new Map();
+  const ружья = new Map();
+
+  // Дашборд считает все сообщения, а не только с HUD, — в этом же проходе.
+  const дашборд = createDashboard({ userName: getSafeUserName() });
 
   let сОбработанным = 0;
   let битых = 0;
@@ -257,8 +286,10 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
       if (shouldStop()) return null;
     }
     const raw = текст(chat[i] && (chat[i].mes ?? ''));
-    if (!raw || !extractHudBlock(raw)) continue;
-    const data = разобрать(chat[i]);
+    const естьHud = !!raw && !!extractHudBlock(raw);
+    const data = естьHud ? разобрать(chat[i]) : null;
+    дашборд.add(chat[i], data, i);
+    if (!естьHud) continue;
     if (!data) { битых++; continue; }
     сОбработанным++;
 
@@ -266,6 +297,7 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
     собратьОтношения(отношения, data, i);
     собратьСцену(сцена, data, i);
     собратьНастроения(настроения, data, i);
+    собратьРужья(ружья, data, i);
 
     const имена = [];
     if (data.user && значимо(data.user['Имя'])) имена.push(текст(data.user['Имя']));
@@ -293,6 +325,8 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
     return s;
   }).sort((a, b) => a.firstSeen - b.firstSeen);
 
+  const ружьяМассив = [...ружья.values()].sort((a, b) => a.firstSeen - b.firstSeen);
+
   const отношенияОбъект = {};
   let пар = 0;
   for (const ветка of отношения.values()) {
@@ -312,6 +346,8 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
     dates: сцена.dates,
     locations: сцена.locations,
     moods: настроенияМассив,
+    dashboard: дашборд.finish(),
+    guns: ружьяМассив,
     stats: {
       totalMessages: to - from + 1,
       withHud: сОбработанным,
@@ -326,6 +362,8 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
       secretsTotal: секретыМассив.length,
       secretsRevealedToSomeone: секретыМассив.filter(s => s.knows.length).length,
       relationPairs: пар,
+      gunsTotal: ружьяМассив.length,
+      gunsFired: ружьяМассив.filter(g => g.statusHistory.some(h => h.status === 'fired')).length,
       weather: [...погода.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => ({ kind: k, times: v })),
     },
   };
