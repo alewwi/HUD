@@ -8,7 +8,7 @@
 // attachHelpMarks уже по готовому дереву. Так словарь можно пополнять, не
 // трогая ни один из полутора десятков сборщиков разметки.
 
-import { escapeHtml } from './utils.js?v=22.98.0';
+import { escapeHtml } from './utils.js?v=22.99.4';
 
 /* --- Вкладки --------------------------------------------------------------
    Ключ — вид вкладки, а не подпись: подписи персонажей меняются от чата к
@@ -205,6 +205,73 @@ function значок(вид, ключ) {
    своими именами и объяснять нечего, а вопросик у каждой строки переписки
    только мешал бы. */
 const ПОДПИСИ = '.hud-key, .hud-key-label, .hud-world-title, .hud-section-title, .hud-memory-title';
+
+/* --- Центровка глифов в кружках ------------------------------------------
+   Грид и абсолютное позиционирование центрируют строчную коробку глифа, а
+   не его чернила. Меряем чернила холстом на самом устройстве — у телефона
+   свои шрифты, и поправка, снятая на компьютере, там мимо.
+   Смещение центра чернил от центра коробки, в долях кегля:
+     x = (правый край чернил − левый край чернил − ширина знака) / 2
+     y = (ascent − descent + низ чернил − верх чернил) / 2
+   Высота строки в разности сокращается, поэтому формула годится и для
+   line-height: 1, и для normal. */
+const кэшЧернил = new Map();
+let холст = null;
+function смещениеГлифа(знак, стиль) {
+  const ключ = знак + '|' + стиль.fontStyle + '|' + стиль.fontWeight + '|' + стиль.fontFamily;
+  if (кэшЧернил.has(ключ)) return кэшЧернил.get(ключ);
+  let итог = null;
+  try {
+    if (!холст) холст = document.createElement('canvas').getContext('2d');
+    // Меряем крупно: на мелком кегле границы чернил округляются до пикселя.
+    холст.font = `${стиль.fontStyle} ${стиль.fontWeight} 100px ${стиль.fontFamily}`;
+    const м = холст.measureText(знак);
+    if (м && (м.actualBoundingBoxAscent || м.actualBoundingBoxDescent) && м.fontBoundingBoxAscent !== undefined) {
+      итог = {
+        x: ((м.actualBoundingBoxRight - м.actualBoundingBoxLeft) - м.width) / 200,
+        y: ((м.fontBoundingBoxAscent - м.fontBoundingBoxDescent) + (м.actualBoundingBoxDescent - м.actualBoundingBoxAscent)) / 200,
+      };
+    }
+  } catch (_) { итог = null; }
+  кэшЧернил.set(ключ, итог);
+  return итог;
+}
+
+// Поправка для «?» одна на документ: шрифт у знака свой и не зависит от
+// темы, а в долях кегля она годится и для компьютера, и для телефона.
+let поправкаВопросика = false;
+function поправитьВопросики() {
+  if (поправкаВопросика) return;
+  const проба = document.createElement('span');
+  проба.className = 'hud-help-mark';
+  проба.style.cssText = 'position:absolute;visibility:hidden;left:-9999px;top:0';
+  document.body.appendChild(проба);
+  try {
+    const с = смещениеГлифа('?', getComputedStyle(проба, '::before'));
+    if (с) {
+      document.documentElement.style.setProperty('--hud-help-dx', с.x.toFixed(4) + 'em');
+      document.documentElement.style.setProperty('--hud-help-dy', с.y.toFixed(4) + 'em');
+      поправкаВопросика = true;
+    }
+  } finally { проба.remove(); }
+}
+
+// Эмодзи в медальонах закрытой части: поправка своя на каждый знак.
+export function centerFieldIcons(корень) {
+  if (typeof document === 'undefined') return;
+  поправитьВопросики();
+  if (!корень || !корень.querySelectorAll) return;
+  корень.querySelectorAll('.hud-row.nsfw > .hud-key .hud-key-ico > span').forEach(глиф => {
+    const знак = (глиф.textContent || '').trim();
+    if (!знак) return;
+    const стиль = getComputedStyle(глиф);
+    const с = смещениеГлифа(знак, стиль);
+    if (!с) return;
+    const кегль = parseFloat(стиль.fontSize) || 11;
+    глиф.style.setProperty('--ico-dx', (с.x * кегль).toFixed(2) + 'px');
+    глиф.style.setProperty('--ico-dy', (с.y * кегль).toFixed(2) + 'px');
+  });
+}
 
 export function attachHelpMarks(корень) {
   if (!корень || !корень.querySelectorAll) return 0;

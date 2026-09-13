@@ -1661,10 +1661,11 @@
 .hud-help-mark::before {
   content: '?';
   position: absolute; left: 50%; top: 50%;
-  /* Коробку центрируем, а потом поднимаем на 0.06em: у «?» нет нижнего
-     выносного элемента, и в строчной коробке чернила лежат ниже её
-     середины. Величина замерена по растеризации, а не подобрана на глаз. */
-  transform: translate(-50%, calc(-50% - 0.06em));
+  /* Коробку центрируем, а потом сдвигаем на смещение чернил от её центра.
+     Смещение меряет help.js холстом на самом устройстве: у телефона свои
+     шрифты, и число, снятое на компьютере, там мимо. Пока замера нет —
+     прежняя поправка 0.06em вверх. */
+  transform: translate(calc(-50% - var(--hud-help-dx, 0em)), calc(-50% - var(--hud-help-dy, 0.06em)));
   line-height: 1; font-size: inherit; font-weight: inherit;
   /* Шрифт берём тот, у которого знак заведомо есть и не съезжает: у
      декоративных шрифтов тем он часто нарисован выше базовой линии. */
@@ -1788,26 +1789,7 @@
 
 .hud-inventory-pill { background: rgba(0, 0, 0, 0.2); border: 1px solid var(--hud-border); padding: 3px 10px; border-radius: 6px; font-size: 0.9em; color: var(--hud-text); white-space: nowrap; transition: all 0.2s ease; cursor: default; }
 
-/* Пульсация NSFW-полей задаётся ниже через nsfwPulseDynamic (использует --hud-nsfw-bg),
-   которая идёт позже в файле и потому и так побеждала в каскаде — здесь оставляем только border. */
-
-/* Метка сверху, значение под ней. Одной строкой через двоеточие это на
-   узком экране переносилось посреди метки, и плитки сливались в кашу. */
-.hud-nsfw-pill {
-  background: rgba(158, 42, 63, 0.2);
-  border: 1px solid rgba(158, 42, 63, 0.5);
-  border-left-width: 3px;
-  padding: 7px 12px; border-radius: 8px;
-  font-size: 0.9em; color: var(--hud-text); line-height: 1.45;
-  transition: background-color .2s ease, border-color .2s ease;
-}
-.hud-nsfw-pill .hud-pill-label {
-  display: block; margin-bottom: 2px;
-  font-size: 9.5px; font-weight: 700; letter-spacing: .07em;
-  text-transform: uppercase;
-  color: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 78%, #fff);
-  opacity: .9;
-}
+/* Плитки NSFW и их подписи — в misc.css, раздел «NSFW — весь блок». */
 /* --- Кинки, фетиши и границы -----------------------------------------
    Четыре отдельных вида пилюль после блока NSFW. У каждого своя роль,
    поэтому различаются не только цветом: у кинка звенья цепи по левому
@@ -3303,7 +3285,8 @@
 /* =========================================
    ЗАМОРОЗКА ИСТОРИИ (History Freeze)
    ========================================= */
-.hud-historical .hud-os-card {
+/* Класс hud-historical ставится на саму карточку. */
+.hud-os-card.hud-historical {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
     box-shadow: none !important;
@@ -3428,7 +3411,6 @@
 .hud-detail-pill:active { border-color: var(--hud-accent); box-shadow: 0 2px 8px var(--hud-purple-glow); background: rgba(255, 255, 255, 0.05); transform: translateX(2px); transition: 0.1s; }
 .hud-key-item:active { background: rgba(255, 255, 255, 0.05); box-shadow: 0 2px 8px var(--hud-purple-glow); transition: 0.1s; }
 .hud-inventory-pill:active { background: rgba(255, 255, 255, 0.1); border-color: var(--hud-accent); box-shadow: 0 2px 6px var(--hud-purple-glow); color: #fff; transition: 0.1s; }
-.hud-nsfw-pill:active { border-color: var(--hud-nsfw-border); box-shadow: 0 2px 10px rgba(158, 42, 63, 0.5); background: rgba(158, 42, 63, 0.35); transition: 0.1s; }
 .hud-news-article:active { background: rgba(255,255,255,0.05); border-color: rgba(100, 180, 255, 0.4); box-shadow: 0 2px 10px rgba(100, 180, 255, 0.2); }
 .hud-world-list li:active { background: rgba(255,255,255,0.05); border-color: rgba(100, 180, 255, 0.3); box-shadow: 0 2px 8px rgba(100, 180, 255, 0.1); transform: translateX(2px); transition: 0.1s; }
 .hud-news-vote:active { transform: scale(0.96); }
@@ -3924,30 +3906,6 @@
 .hud-tab.intercept-tab { color: var(--hud-intercept-color) !important; }
 .hud-tab.intercept-tab.active { border-color: var(--hud-intercept-color) !important; color: #fff !important; background: transparent !important; }
 .hud-phone-owner-label.intercept-status { color: var(--hud-intercept-color) !important; text-shadow: 0 0 5px var(--hud-intercept-bg) !important; }
-
-/* Пилюли NSFW и пульсация */
-.hud-nsfw-pill { background: var(--hud-nsfw-bg) !important; border: 1px solid var(--hud-nsfw-border) !important; }
-
-@keyframes nsfwPulseDynamic {
-    0% { border-left-color: var(--hud-border); background: var(--hud-card-inner-bg); box-shadow: inset 0 0 0 transparent; }
-    50% { border-left-color: var(--hud-nsfw-border); background: var(--hud-nsfw-bg); box-shadow: inset 4px 0 15px var(--hud-nsfw-bg); }
-    100% { border-left-color: var(--hud-border); background: var(--hud-card-inner-bg); box-shadow: inset 0 0 0 transparent; }
-}
-.hud-row.nsfw { 
-    border-left: 4px solid var(--hud-nsfw-border) !important; 
-    animation: nsfwPulseDynamic 2.5s infinite ease-in-out !important; 
-}
-
-.hud-row.nsfw { border-left: 4px solid var(--hud-nsfw-border) !important; background: var(--hud-nsfw-bg) !important; animation: nsfwPulseDynamic 2.5s infinite ease-in-out !important; }
-
-@media (hover: hover) {
-    .hud-nsfw-pill:hover { 
-        border-color: var(--hud-nsfw-border) !important; 
-        box-shadow: 0 2px 10px var(--hud-nsfw-bg) !important; 
-        background: var(--hud-nsfw-bg) !important; 
-        filter: brightness(1.2); 
-    }
-}
 
 /* =========================================
    ИСПРАВЛЕННАЯ ПАНЕЛЬ НАСТРОЕК (МЕНЮ)

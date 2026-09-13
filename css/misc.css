@@ -1343,33 +1343,7 @@
   border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 32%, transparent);
 }
 
-/* =========================================================================
-   ПЛИТКИ NSFW: БЛИК И ГЛУБИНА
-   -------------------------------------------------------------------------
-   Соседи по семейству давно различаются на ощупь: у кинка цепь по кромке,
-   у фетиша шёлковый блик, у запрета перечёркнутая полоса. Плитки NSFW
-   оставались ровной винной заливкой. Даём им косой блик и глубину, не
-   трогая смысл: цвет у семейства общий и должен таким остаться.
-   ========================================================================= */
-.hud-nsfw-pill {
-  position: relative; overflow: hidden;
-  background:
-    linear-gradient(104deg, transparent 34%, rgba(255,190,216,.10) 47%,
-      rgba(255,255,255,.05) 52%, transparent 66%),
-    linear-gradient(180deg, rgba(158,42,63,.26), rgba(158,42,63,.15));
-}
-/* Кромка слева светлее заливки: плитка перестаёт сливаться с соседней. */
-.hud-nsfw-pill { border-left-color: rgba(226,92,150,.75); }
-@media (hover: hover) {
-  .hud-nsfw-pill:hover { border-left-color: rgba(255,166,200,.95); }
-}
-/* Плитка без метки — сплошной текст, ей левая кромка ни о чём не говорит. */
-.hud-nsfw-pill:not(:has(.hud-pill-label)) { border-left-width: 1px; }
-
-/* --- То же на бумажных темах --------------------------------------------- */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-nsfw-pill {
-  background: var(--lt-paper-2) !important;
-}
+/* --- Значок, доля и количество на бумажных темах ------------------------ */
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-pill-meter { background: rgba(0,0,0,.10) !important; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-pill-count {
   color: #8c2440 !important;
@@ -1377,7 +1351,6 @@
   border-color: rgba(140,36,64,.28) !important;
 }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-pill-ico { opacity: 1; }
-
 
 /* =========================================================================
    ОБЩИЙ ОБЪЁМ И ОТКЛИК ВСЕМ ПИЛЮЛЯМ
@@ -1395,8 +1368,6 @@
     inset 0 1px 0 rgba(255,255,255,.07),
     inset 0 -1px 0 rgba(0,0,0,.18),
     0 1px 3px rgba(0,0,0,.28);
-  transition: transform .18s ease, box-shadow .18s ease,
-              border-color .18s ease, background-color .18s ease;
 }
 
 /* Корешок: вертикальная полоса, гаснущая книзу. Цвет — из переменной, её
@@ -1409,14 +1380,13 @@
   pointer-events: none;
 }
 
-/* Блик: узкая светлая полоса, проходящая по плитке при наведении.
-   В покое стоит за левым краем и ничего не стоит. */
+/* Отсвет: узкая светлая полоса поперёк плитки, видна только при наведении.
+   Проезжать по плитке ей нельзя: переходы внутри карточки не проигрываются. */
 :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill)::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(104deg,
     transparent 38%, rgba(255,255,255,.13) 50%, transparent 62%);
-  transform: translateX(-130%);
-  transition: transform .6s cubic-bezier(.4,0,.2,1);
+  opacity: 0;
 }
 @media (hover: hover) {
   :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill):hover {
@@ -1425,7 +1395,7 @@
       inset 0 1px 0 rgba(255,255,255,.12),
       0 5px 14px rgba(0,0,0,.38);
   }
-  :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill):hover::after { transform: translateX(130%); }
+  :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill):hover::after { opacity: 1; }
 }
 /* На пальце наведения нет — отклик даём на нажатие. */
 :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill):active { transform: translateY(0) scale(.995); }
@@ -1434,7 +1404,7 @@
    плитки NSFW берут розовый семейства. */
 .hud-conflict-pill  { --кромка: #ff3b30; }
 .hud-inventory-pill { --кромка: #7f8aa0; }
-.hud-nsfw-pill      { --кромка: #e25c96; border-left-width: 1px; }
+.hud-nsfw-pill      { --кромка: #e25c96; }
 
 /* Отношения: корешок и лёгкий налёт фона берут цвет человека — тот же,
    что у кружка с инициалами. Один человек читается одним цветом всюду. */
@@ -1503,49 +1473,49 @@
 }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill)::before { box-shadow: none; }
 
-/* --- Срезанный угол у плиток NSFW ----------------------------------------
-   Так помечают закрытые документы. Отделяет блок от остального списка
-   сильнее любой заливки, а три других угла остаются скруглёнными. */
-.hud-nsfw-pill {
-  clip-path: polygon(0 0, calc(100% - 11px) 0, 100% 11px, 100% 100%, 0 100%);
-}
+/* --- Без переходов -------------------------------------------------------
+   У карточки content-visibility: auto, и браузер не двигает время
+   переходов внутри неё: замерено, они висят с временем 0. Переходы из
+   base.css у этих плиток гасим, иначе значения застревают на старых. */
+:is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill) { transition: none !important; }
 
 
 /* =========================================================================
-   БЛОК NSFW ЦЕЛИКОМ
+   NSFW — ВЕСЬ БЛОК
    -------------------------------------------------------------------------
-   Строка-контейнер, её заголовок, все пять видов плиток, фаза близости и
-   звёзды отзыва. Правила из base.css местами объявлены через !important,
-   поэтому здесь оно тоже стоит — иначе фактура не доходит до экрана.
+   Строка-контейнер, заголовок, пять видов плиток, фаза близости, карта
+   тела, звёзды отзыва. Раньше это были три слоя, один поверх другого, и
+   правила в base.css; здесь собрано то, что действительно работает.
+   Всё статично: внутри карточки браузер не двигает ни анимации, ни
+   переходы. Местами нужен !important — им объявлены правила ниже по
+   каскаду, которые иначе не перебить.
    ========================================================================= */
 
-/* --- Строка-контейнер ----------------------------------------------------
-   Пульс убран: его ключевые кадры перекрашивали фон и левую кромку
-   целиком, и никакая фактура на строке не держалась. Внутри карточки он
-   к тому же ненадёжен — у неё content-visibility: auto, и анимации в
-   таком поддереве браузер не крутит. Фон строки описан ниже, в разделе
-   «NSFW: базовый вид». */
+/* --- Без переходов -------------------------------------------------------
+   Замерено: после смены значений у строки висели переходы с временем 0,
+   цвет рамки оставался прежним. Без перехода значение применяется сразу. */
+:is(.hud-row.nsfw, .hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-phase-step),
+:is(.hud-row.nsfw, .hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-phase-step)::before,
+:is(.hud-row.nsfw, .hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-phase-step)::after {
+  transition: none !important;
+}
+
+/* --- Строка: скругление и левая кромка ----------------------------------- */
 .hud-row.nsfw {
-  animation: none !important;
   border-radius: 10px !important;
   border-left: 3px solid var(--hud-nsfw-border, #9e2a3f) !important;
 }
 
-/* --- Заголовок строки ----------------------------------------------------
-   Розовый тон и градиентная линия под подписью: видно, где начинается
-   закрытая часть карточки, ещё до того как прочитано само слово. */
-.hud-row.nsfw > .hud-key {
-  color: #ffa8c6;
-  text-shadow: 0 0 10px rgba(226,92,150,.30);
-  align-self: stretch;
-  padding-bottom: 5px; margin-bottom: 3px;
-  background: linear-gradient(90deg, rgba(226,92,150,.65), rgba(226,92,150,0) 72%)
-    bottom left / 100% 1px no-repeat;
+/* --- Плитки NSFW: срезанный угол ----------------------------------------
+   Так помечают закрытые документы; три других угла остаются скруглёнными. */
+.hud-nsfw-pill {
+  clip-path: polygon(0 0, calc(100% - 11px) 0, 100% 11px, 100% 100%, 0 100%);
 }
 
 /* --- Кинк, фетиш, запрет, «не возбуждает» --------------------------------
-   Свои фактуры у них уже есть и они им идут. Добавляем то, чего не было:
-   объём, срезанный угол как у остальных плиток NSFW и свечение полосы. */
+   Свои фактуры у них в base.css. Здесь — объём, срезанный угол, свечение
+   полосы и отклик. Полосу кинк, запрет и «не возбуждает» рисуют в ::before,
+   фетиш — в ::after: у него ::before занят шёлковым бликом. */
 :is(.hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill) {
   border-radius: 10px;
   clip-path: polygon(0 0, calc(100% - 11px) 0, 100% 11px, 100% 100%, 0 100%);
@@ -1553,11 +1523,7 @@
     inset 0 1px 0 rgba(255,255,255,.07),
     inset 0 -1px 0 rgba(0,0,0,.18),
     0 1px 3px rgba(0,0,0,.28);
-  transition: transform .18s ease, box-shadow .18s ease,
-              border-color .2s ease, background .2s ease;
 }
-/* Полосу по левому краю кинк, запрет и «не возбуждает» рисуют в ::before,
-   а фетиш — в ::after: у него ::before занят шёлковым бликом. */
 .hud-kink-pill::before   { box-shadow: 3px 0 12px -2px rgba(186,140,240,.55); }
 .hud-nogo-pill::before   { box-shadow: 3px 0 12px -2px rgba(255,120,124,.55); }
 .hud-noturn-pill::before { box-shadow: 3px 0 12px -2px rgba(160,178,206,.35); }
@@ -1567,27 +1533,8 @@
 }
 :is(.hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill):active { transform: translateY(0) scale(.995); }
 
-/* --- Плитки NSFW: вернуть косой блик -------------------------------------
-   Фон плиткам задаётся в base.css через !important, и блик, добавленный
-   ходом раньше, этим правилом затирался. Собираем оба слоя здесь. */
-.hud-nsfw-pill {
-  background:
-    linear-gradient(104deg, transparent 34%, rgba(255,190,216,.11) 47%,
-      rgba(255,255,255,.05) 52%, transparent 66%),
-    linear-gradient(180deg, rgba(158,42,63,.30), rgba(158,42,63,.17)) !important;
-  border: 1px solid rgba(226,92,150,.45) !important;
-}
-@media (hover: hover) {
-  .hud-nsfw-pill:hover {
-    border-color: rgba(255,166,200,.85) !important;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 5px 14px rgba(0,0,0,.38) !important;
-    filter: none;
-  }
-}
-
-/* --- Фаза близости: дорожка вместо цепочки кружков -----------------------
-   Пройденный участок залит, текущий шаг горит и поднят, будущее
-   приглушено. Видно не только «где мы», но и «сколько позади». */
+/* --- Фаза близости: дорожка ----------------------------------------------
+   Пройденный участок залит, текущий шаг горит и поднят, будущее приглушено. */
 .hud-phase-step.is-past {
   opacity: 1;
   color: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 55%, #ffffff);
@@ -1600,17 +1547,13 @@
     0 0 14px color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 45%, transparent),
     inset 0 1px 0 rgba(255,255,255,.22);
 }
-/* Чёрточка после пройденного шага — часть залитого участка. */
 .hud-phase-step.is-past + .hud-phase-sep {
   height: 2px; border-radius: 1px;
   background: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 50%, transparent);
 }
-/* Будущие шаги не должны спорить с текущим. */
 .hud-phase-step:not(.is-now):not(.is-past) { opacity: .6; }
 
-/* --- Звёзды отзыва -------------------------------------------------------
-   Плоский жёлтый заливаем градиентом и даём ореол: оценка перестаёт быть
-   строкой символов и становится знаком. */
+/* --- Звёзды отзыва: градиент вместо плоского жёлтого -------------------- */
 .hud-stars-rating {
   background: linear-gradient(180deg, #ffeeb0, #e8a92b);
   -webkit-background-clip: text; background-clip: text;
@@ -1618,28 +1561,8 @@
   filter: drop-shadow(0 0 6px rgba(244,211,94,.45));
 }
 
-/* --- То же на бумажных темах --------------------------------------------- */
-/* Бумажная версия строки описана в разделе «NSFW: базовый вид». */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.nsfw > .hud-key {
-  color: #8c2440 !important; text-shadow: none;
-  background: linear-gradient(90deg, rgba(140,36,64,.55), rgba(140,36,64,0) 72%)
-    bottom left / 100% 1px no-repeat;
-}
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill) {
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.55), 0 1px 2px rgba(40,30,20,.12);
-}
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-kink-pill, .hud-nogo-pill, .hud-noturn-pill)::before,
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-fetish-pill::after { box-shadow: none; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-stars-rating { filter: none; }
-
-
-/* Кинк, фетиш, запрет и «не возбуждает» на бумажных темах. В общий список
-   светлых поверхностей они не входили: на «Японии» текст плитки оставался
-   светлым при бумажной подложке, замер дал яркость 0.76. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill) {
-  background: var(--lt-paper-2) !important;
-  color: var(--lt-ink) !important;
-}
+/* --- Кинк, фетиш, запрет, «не возбуждает» на бумажных темах ------------- */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill) { color: var(--lt-ink) !important; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-kink-pill   { border-color: rgba(91,47,140,.40) !important; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-fetish-pill { border-color: rgba(160,42,99,.40) !important; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-nogo-pill   { border-color: rgba(165,42,42,.40) !important; }
@@ -1648,38 +1571,10 @@
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-fetish-pill .hud-pill-label { color: #a02a63 !important; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-nogo-pill   .hud-pill-label { color: #a52a2a !important; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-noturn-pill .hud-pill-label { color: #4a5663 !important; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-kink-pill, .hud-nogo-pill, .hud-noturn-pill)::before,
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-fetish-pill::after { box-shadow: none; }
 /* Шёлковый блик фетиша на бумаге не читается и только мутит заливку. */
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-fetish-pill::before { background: none; }
-
-
-/* =========================================================================
-   БЕЗ ПЕРЕХОДОВ ВНУТРИ КАРТОЧКИ
-   -------------------------------------------------------------------------
-   У карточки content-visibility: auto, и браузер не двигает время ни
-   анимаций, ни переходов внутри неё. Замерено: после смены обличья у строки
-   висели пять переходов с временем 0 — цвет рамки оставался от прежнего
-   обличья, штриховка не выключалась. Без перехода значение применяется
-   сразу.
-   ========================================================================= */
-:is(.hud-row.nsfw, .hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-phase-step),
-:is(.hud-row.nsfw, .hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-phase-step)::before,
-:is(.hud-row.nsfw, .hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-phase-step)::after {
-  transition: none !important;
-}
-
-/* Блик семейства плиток должен был проехать по плитке переходом и по той
-   же причине не показывался вовсе. Делаем его статичным отсветом: при
-   наведении он просто появляется посередине. */
-:is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill)::after {
-  transition: none !important;
-  transform: none !important;
-  opacity: 0;
-}
-@media (hover: hover) {
-  :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill):hover::after { opacity: 1; }
-}
-:is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill) { transition: none !important; }
-
 
 /* =========================================================================
    NSFW: БАЗОВЫЙ ВИД
@@ -1743,6 +1638,8 @@
 .hud-row.nsfw > .hud-key {
   color: #ffb3d0;
   letter-spacing: .06em;
+  align-self: stretch;
+  padding-bottom: 5px; margin-bottom: 3px;
   text-shadow: 0 0 12px rgba(226,92,150,.5), 0 1px 0 rgba(0,0,0,.35);
   padding-left: 14px;
   background:
@@ -1757,6 +1654,8 @@
 /* Плитки NSFW: лёгкое стекло. Заливка едва тонирует, сверху отражение и
    шёлковый отлив, верхний край кромки ярче боковых, вокруг ореол. */
 .hud-nsfw-pill {
+  padding-top: 7px; padding-right: 12px; padding-bottom: 7px;
+  font-size: 0.9em; line-height: 1.45;
   background-color: transparent !important;
   background:
     linear-gradient(180deg, rgba(255,235,244,.11) 0, rgba(255,235,244,0) 46%),
@@ -1778,6 +1677,7 @@
   width: max-content; max-width: 100%;
   padding: 1px 9px 1px 7px; margin-bottom: 5px;
   border-radius: 999px;
+  font-weight: 700; letter-spacing: .07em; text-transform: uppercase; opacity: .9;
   color: #ffc2da;
   text-shadow: 0 0 8px rgba(226,92,150,.45);
   background: linear-gradient(90deg, rgba(226,92,150,.30), rgba(226,92,150,.08));
@@ -1940,6 +1840,7 @@
       linear-gradient(180deg, rgba(170,40,80,.16), rgba(110,22,50,.09)) !important;
     border-color: rgba(255,170,205,.42) !important;
     border-top-color: rgba(255,215,232,.62) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 5px 14px rgba(0,0,0,.38) !important;
   }
 }
 
@@ -1996,6 +1897,13 @@
     inset 0 1px 0 rgba(255,255,255,.28),
     0 0 0 1px rgba(255,160,200,.36),
     0 0 10px -2px rgba(226,92,150,.65);
+}
+
+/* Эмодзи в медальоне сдвигается на смещение своих чернил, измеренное
+   help.js на устройстве. Трансформация не трогает ни кружок, ни строку. */
+.hud-row.nsfw > .hud-key .hud-key-ico > span {
+  display: block; line-height: 1;
+  transform: translate(calc(var(--ico-dx, 0px) * -1), calc(var(--ico-dy, 0px) * -1));
 }
 
 /* Простые значения — в стеклянных плашках. */
@@ -2076,3 +1984,28 @@
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.nsfw .hud-phase-step.is-past::before { background: rgba(140,36,64,.6); }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.nsfw .hud-phase-step.is-now::before { background: #8c2440; box-shadow: 0 0 0 2px rgba(140,36,64,.25); }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.nsfw .hud-pill-meter::before { box-shadow: none; }
+
+
+/* =========================================================================
+   АВАТАРКИ В ОТНОШЕНИЯХ И КАПС ПОМЕЛЬЧЕ
+   ========================================================================= */
+/* Картинка ложится поверх инициалов и обрезается кругом. */
+.hud-pill-face { overflow: hidden; }
+.hud-pill-face img {
+  position: absolute; inset: 0; width: 100%; height: 100%;
+  object-fit: cover; border-radius: 50%;
+}
+.hud-pill-face.has-img {
+  color: transparent;
+  border-color: hsl(var(--тон, 0) 55% 58%);
+  box-shadow: 0 0 8px -2px hsl(var(--тон, 0) 60% 55% / .6);
+}
+
+/* Подписи капсом на ступень мельче. Прописные буквы читаются крупнее
+   строчных того же кегля, и рядом с обычным текстом они кричали. Метки
+   плиток по-прежнему следуют настройке «Размер заголовков». */
+.hud-key, .hud-key-label { font-size: .78em; letter-spacing: .04em; }
+.hud-pill-label {
+  font-size: calc(var(--hud-font-size-headers, 13px) * .84) !important;
+  letter-spacing: .03em;
+}

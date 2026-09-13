@@ -4,9 +4,9 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue } from '../utils.js?v=22.98.0';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.98.0';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.98.0';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue } from '../utils.js?v=22.99.4';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.4';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.99.4';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает'];
 
@@ -179,11 +179,28 @@ function надписьПоля(ключ) {
 function значокПоля(нижнийКлюч) {
   // Значок в своём элементе: в закрытой части карточки он сидит в
   // медальоне. Везде ещё у элемента нет оформления, и вид прежний.
-  const обернуть = (з) => '<i class="hud-key-ico" aria-hidden="true">' + з + '</i> ';
+  // Внутренний span нужен центровке: его сдвигают трансформацией, а сам
+  // кружок и строка вокруг остаются на месте.
+  const обернуть = (з) => '<i class="hud-key-ico" aria-hidden="true"><span>' + з + '</span></i> ';
   const точный = ЗНАЧКИ_ПОЛЕЙ[нижнийКлюч];
   if (точный) return обернуть(точный);
   if (нижнийКлюч.includes('детализация nsfw')) return обернуть('🔥');
   return '';
+}
+
+// Лицо собеседника в списке отношений: та же аватарка, что у шапки карточки
+// персонажа. Если имя совпадает с именем игрока — аватарка игрока.
+const нормИмя = (s) => String(s || '').toLowerCase().replace(/ё/g, 'е')
+  .replace(/[^\p{L}\p{N}\s]/gu, ' ').replace(/\s+/g, ' ').trim();
+function лицоСобеседника(имя) {
+  const кто = нормИмя(имя);
+  if (!кто) return null;
+  const игрок = нормИмя(getSafeUserName());
+  if (игрок && игрок !== 'user' && (кто === игрок || кто.split(' ')[0] === игрок.split(' ')[0])) {
+    return getUserAvatarUrl() || null;
+  }
+  const найдено = getAvatarUrl(имя, false);
+  return найдено && найдено.url ? найдено.url : null;
 }
 
 const orderFields = (obj) => {
@@ -229,9 +246,9 @@ export function buildUserHTML(userData, uid, isChecked) {
     // здесь те же самые, и разнобой бросался бы в глаза при переключении.
     const значок = значокПоля(label.toLowerCase());
     if (label.toLowerCase() === 'отношения') {
-      rows += `<div class="${rowClass}"><span class="hud-key">${значок}${escapeHtml(label)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill', false, 'отношения')}</div></div>`;
+      rows += `<div class="${rowClass}"><span class="hud-key">${значок}${escapeHtml(label)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill', false, 'отношения', лицоСобеседника)}</div></div>`;
     } else if (label.toLowerCase().includes('nsfw')) {
-      rows += `<div class="${rowClass}"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true">🔞</i> ${escapeHtml(надписьПоля(label))}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-nsfw-pill')}</div></div>`;
+      rows += `<div class="${rowClass}"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>🔞</span></i> ${escapeHtml(надписьПоля(label))}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-nsfw-pill')}</div></div>`;
     } else {
       rows += `<div class="${rowClass}"><span class="hud-key">${значок}${escapeHtml(label)}:</span> <span class="hud-value">${applyTooltips(String(value))}</span></div>`;
     }
@@ -322,7 +339,7 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       }).join('');
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${memHtml}</div></div>`;
     } else if (lowerKey === 'отношения' || lowerKey === 'цели' || lowerKey === 'ревность' || lowerKey === 'флаг-монитор') {
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill', (lowerKey === 'общие воспоминания' || lowerKey === 'флаг-монитор'), lowerKey)}</div></div>`;
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill', (lowerKey === 'общие воспоминания' || lowerKey === 'флаг-монитор'), lowerKey, лицоСобеседника)}</div></div>`;
     } else {
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <span class="${valueClass}">${applyTooltips(String(value))}</span></div>`;
     }

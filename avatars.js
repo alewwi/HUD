@@ -10,7 +10,7 @@
 // реально добавляются новые сообщения (см. invalidateAvatarCache()).
 // Ручные аватарки читаются прямо из настроек: модуль и так знает про DOM
 // и глобали SillyTavern, ещё одна зависимость ничего не усложняет.
-import { settings } from './settings.js?v=22.98.0';
+import { settings } from './settings.js?v=22.99.4';
 
 /** Палитра для плейсхолдеров аватарок: цвет выбирается по хэшу имени. */
 export const HUD_AVATAR_COLORS = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316', '#22d3ee', '#a3e635'];
@@ -66,13 +66,56 @@ export function overrideAvatarUrl(name) {
   return null;
 }
 
+// Слова имени без регистра, ё/е, знаков препинания и лишних пробелов.
+// Однобуквенные слова («K.») не считаем: по ним ничего не опознать.
+function словаИмени(s) {
+  return normName(s).replace(/[^\p{L}\p{N}\s]/gu, ' ').split(/\s+/).filter(w => w.length > 1);
+}
+
+// Данные SillyTavern. В текущих версиях карточки и номер выбранной лежат в
+// getContext(), а глобальных window.characters и window.this_chid нет —
+// на них поиск аватарки по имени и не находил ничего. Глобальные оставлены
+// запасным вариантом для старых сборок.
+function контекстST() {
+  try {
+    const ctx = window.SillyTavern && window.SillyTavern.getContext && window.SillyTavern.getContext();
+    if (ctx) return ctx;
+  } catch (_) {}
+  return null;
+}
+function карточкиST() {
+  const ctx = контекстST();
+  if (ctx && Array.isArray(ctx.characters)) return ctx.characters;
+  return Array.isArray(window.characters) ? window.characters : null;
+}
+function номерКарточкиST() {
+  const ctx = контекстST();
+  if (ctx && ctx.characterId !== undefined && ctx.characterId !== null) return ctx.characterId;
+  return window.this_chid;
+}
+// Имя автора сообщения. В разметке оно в .name_text и в атрибуте ch_name;
+// .mes_name — прежнее название, его оставляем на всякий случай.
+function имяАвтора(mes) {
+  const узел = mes.querySelector('.name_text, .mes_name');
+  return (узел && узел.textContent) || mes.getAttribute('ch_name') || '';
+}
+
 function resolveAvatarUrl(characterName, isPrimary) {
   const searchName = (characterName || '').toLowerCase().trim();
+  // Все слова имени должны найтись среди слов другого имени. Прежняя
+  // проверка по одному первому слову для «THE REGENTS Tristan Kingsley»
+  // сводилась к «the» и приклеивала чужую аватарку.
+  const слова = словаИмени(characterName);
+  const всеСловаЕсть = (другое) => {
+    if (!слова.length) return false;
+    const там = new Set(словаИмени(другое));
+    return слова.every(w => там.has(w));
+  };
   if (searchName) {
       const allMes = Array.from(document.querySelectorAll('.mes'));
       for (let i = allMes.length - 1; i >= 0; i--) {
-          const mes = allMes[i]; const nameEl = mes.querySelector('.mes_name');
-          if (nameEl && nameEl.textContent.trim().toLowerCase().includes(searchName.split(' ')[0])) {
+          const mes = allMes[i];
+          if (всеСловаЕсть(имяАвтора(mes))) {
               const img = mes.querySelector('.avatar img, .avatar_img');
               if (img) {
                   const src = img.src || (img.style && img.style.backgroundImage ? img.style.backgroundImage.replace(/url\(['"]?|['"]?\)/g, '') : null);
@@ -92,14 +135,14 @@ function resolveAvatarUrl(characterName, isPrimary) {
           if (lastBotMsg && lastBotMsg.src && !lastBotMsg.src.includes('undefined') && !lastBotMsg.src.includes('none')) return { url: lastBotMsg.src, thumbUrl: lastBotMsg.src };
       }
   }
-  if (!window.characters || !Array.isArray(window.characters)) return null;
-  let char = window.characters.find(c => c.name && c.name.toLowerCase().trim() === searchName);
-  if (!char) char = window.characters.find(c => c.name && c.name.toLowerCase().includes(searchName));
-  if (!char && searchName.length > 2) {
-      const firstWord = searchName.split(' ')[0].replace(/[^a-zа-яё]/gi, '');
-      if (firstWord) char = window.characters.find(c => c.name && c.name.toLowerCase().includes(firstWord));
-  }
-  if (!char && isPrimary && window.this_chid !== undefined) char = window.characters[window.this_chid];
+  const карточки = карточкиST();
+  if (!карточки) return null;
+  const целое = словаИмени(characterName).join(' ');
+  let char = карточки.find(c => c.name && словаИмени(c.name).join(' ') === целое);
+  if (!char && целое) char = карточки.find(c => c.name && словаИмени(c.name).join(' ').includes(целое));
+  if (!char) char = карточки.find(c => c.name && всеСловаЕсть(c.name));
+  const номер = номерКарточкиST();
+  if (!char && isPrimary && номер !== undefined && номер !== null) char = карточки[номер];
   if (!char || !char.avatar || char.avatar === 'none') return null;
 
   let file = char.avatar;

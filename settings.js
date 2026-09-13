@@ -32,7 +32,7 @@ export const defaultSettings = {
   // Тема, собранная пользователем целиком: { label, icon, vars }.
   customTheme: null,
   autoInject: true,
-  useCards: true,
+
   showComments: true,
   enablePhone: true,
   enableIntercepts: true,

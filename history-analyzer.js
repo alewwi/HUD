@@ -11,12 +11,12 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=22.98.0';
-import { normalizeJSONData } from './schema.js?v=22.98.0';
-import { parseRelationList } from './render/relations-graph.js?v=22.98.0';
-import { nameLettersOnly, namePhoneticLatin } from './names.js?v=22.98.0';
-import { hudFilled } from './utils.js?v=22.98.0';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=22.98.0';
+import { parseHUDComplex } from './hud-parser.js?v=22.99.4';
+import { normalizeJSONData } from './schema.js?v=22.99.4';
+import { parseRelationList } from './render/relations-graph.js?v=22.99.4';
+import { nameLettersOnly, namePhoneticLatin } from './names.js?v=22.99.4';
+import { hudFilled } from './utils.js?v=22.99.4';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=22.99.4';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -352,7 +352,18 @@ function ключКэша(from, to) {
     const ctx = window.SillyTavern && window.SillyTavern.getContext && window.SillyTavern.getContext();
     id = текст(ctx && (ctx.chatId || ctx.getCurrentChatId && ctx.getCurrentChatId()));
   } catch (_) {}
-  if (!id) id = текст(window.this_chid) + '/' + текст(window.characters && window.this_chid !== undefined && window.characters[window.this_chid] && window.characters[window.this_chid].name);
+  if (!id) {
+    // Запасной ключ: номер и имя карточки. Берём из getContext() — глобальных
+    // window.this_chid и window.characters в текущем SillyTavern нет.
+    let номер, имя;
+    try {
+      const ctx = window.SillyTavern && window.SillyTavern.getContext && window.SillyTavern.getContext();
+      номер = ctx && ctx.characterId !== undefined ? ctx.characterId : window.this_chid;
+      const список = ctx && Array.isArray(ctx.characters) ? ctx.characters : window.characters;
+      имя = список && номер !== undefined && список[номер] && список[номер].name;
+    } catch (_) {}
+    id = текст(номер) + '/' + текст(имя);
+  }
   return ПРЕФИКС + id + '_' + from + '_' + to;
 }
 

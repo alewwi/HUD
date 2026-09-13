@@ -7,7 +7,7 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=22.98.0';
+import { normalizeJSONData } from './schema.js?v=22.99.4';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';
@@ -101,21 +101,8 @@ function extractBalancedJsonCandidates(text) {
 }
 
 // ---------------------------------------------------------------------------
-// HUD DIAGNOSTICS / SAFE JSON REPAIR
+// SAFE JSON REPAIR
 // ---------------------------------------------------------------------------
-export function setHudRepairDiagnostic(patch = {}) {
-  const previous = window.__tavernOSHudRepairDiagnostic || {};
-  window.__tavernOSHudRepairDiagnostic = {
-    repaired: false,
-    mode: 'none',
-    timestamp: Date.now(),
-    ...previous,
-    ...patch,
-    timestamp: Date.now(),
-  };
-  return window.__tavernOSHudRepairDiagnostic;
-}
-
 // Converts the two common non-JSON dialects only as a LAST resort:
 //   {foo: 'bar'} -> {"foo": "bar"}
 // It is scanner-based so apostrophes inside normal JSON strings are not touched.
@@ -516,17 +503,11 @@ export function repairGeneratedHudBlock(aiText) {
   const source = String(aiText || '');
   const match = source.match(/(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)([\s\S]*?)(?:(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)|$)/i);
   if (!match) {
-    setHudRepairDiagnostic({ repaired: false, mode: 'missing-hud' });
     throw new Error('Не удалось найти HUD в ответе ИИ. Попробуйте еще раз.');
   }
   const rawInner = match[1] || '';
   try {
     const parsed = parseHUDComplex(rawInner);
-    const diag = window.__tavernOSHudRepairDiagnostic || {};
-    // Preserve already-valid output byte-for-byte; canonicalize only when a repair was needed.
-    if (diag.repaired) {
-      return `[HUD]\n\`\`\`json\n${JSON.stringify(parsed, null, 2)}\n\`\`\`\n[/HUD]`;
-    }
     return `[HUD]\n\`\`\`json\n${JSON.stringify(parsed, null, 2)}\n\`\`\`\n[/HUD]`;
   } catch (initialError) {
     const decoded = decodeHighlightedHudHtml(rawInner);
@@ -547,20 +528,9 @@ export function repairGeneratedHudBlock(aiText) {
     if (parsedCandidates.length) {
       parsedCandidates.sort((a, b) => b.score - a.score || a.index - b.index);
       const selected = parsedCandidates[0];
-      const repaired = selected.mode !== 'direct';
-      setHudRepairDiagnostic({
-        repaired,
-        mode: selected.mode,
-        error: null,
-        candidateCount: candidates.length,
-        parsedCandidateCount: parsedCandidates.length,
-        selectedCandidate: selected.index,
-        selectedScore: selected.score,
-      });
-      console.debug('[TavernOS HUD] HUD JSON repair result', window.__tavernOSHudRepairDiagnostic);
+      console.debug('[TavernOS HUD] HUD JSON repair result', { mode: selected.mode, candidates: candidates.length });
       return `[HUD]\n\`\`\`json\n${JSON.stringify(selected.parsed, null, 2)}\n\`\`\`\n[/HUD]`;
     }
-    setHudRepairDiagnostic({ repaired: false, mode: 'failed', error: lastError?.message || 'invalid JSON', errorPosition: lastError?.message?.match(/position (\d+)/)?.[1] ? Number(lastError.message.match(/position (\d+)/)[1]) : null });
     throw new Error('HUD JSON repair failed: ' + (lastError?.message || 'invalid JSON'));
   }
 }
@@ -608,7 +578,6 @@ function пробаYaml(текст) {
   try { разобрано = parseSimpleYaml(текст); } catch (_) { return null; }
   if (!разобрано || typeof разобрано !== 'object' || Array.isArray(разобрано)) return null;
   if (scoreHudJsonCandidate(разобрано) <= 0) return null;
-  setHudRepairDiagnostic({ repaired: true, mode: 'yaml' });
   return разобрано;
 }
 
@@ -687,7 +656,6 @@ export function parseHUDComplex(contentEncoded) {
     // Фигурных скобок нет вовсе — возможно, модель ответила YAML.
     const yaml = пробаYaml(decoded);
     if (yaml) return yaml;
-    setHudRepairDiagnostic({ repaired: false, mode: 'no-candidate' });
     throw new Error('HUD JSON parse failed: no JSON object found');
   }
 
@@ -715,15 +683,6 @@ export function parseHUDComplex(contentEncoded) {
     parsedCandidates.sort((a, b) => b.score - a.score || a.index - b.index);
     const selected = parsedCandidates[0];
     const repaired = selected.mode !== 'direct';
-    setHudRepairDiagnostic({
-      repaired,
-      mode: selected.mode,
-      error: null,
-      candidateCount: candidates.length,
-      parsedCandidateCount: parsedCandidates.length,
-      selectedCandidate: selected.index,
-      selectedScore: selected.score,
-    });
 
     if (parsedCandidates.length > 1) {
       console.debug('[TavernOS HUD] Multiple JSON candidates detected; selected HUD-shaped candidate', {
@@ -734,12 +693,11 @@ export function parseHUDComplex(contentEncoded) {
         scores: parsedCandidates.map(item => ({ index: item.index, score: item.score, mode: item.mode })),
       });
     }
-    if (repaired) console.debug('[TavernOS HUD] HUD JSON repaired', window.__tavernOSHudRepairDiagnostic);
+    if (repaired) console.debug('[TavernOS HUD] HUD JSON repaired', { mode: selected.mode, candidates: candidates.length });
     return normalizeJSONData(selected.parsed);
   }
 
   const preview = decoded.slice(0, 500).replace(/\n/g, '\\n');
-  setHudRepairDiagnostic({ repaired: false, mode: 'failed', error: lastError?.message || 'invalid JSON', candidateCount: candidates.length });
   console.error('[TavernOS HUD] All HUD JSON candidates failed', {
     candidates: candidates.length,
     preview,

@@ -7,9 +7,9 @@
 // жил в phone.js, и в перехватах теги оставались сырым текстом посреди
 // сообщения просто потому, что до них не доходили руки.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=22.98.0';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.98.0';
-import { G_ICONS } from './icons.js?v=22.98.0';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=22.99.4';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.4';
+import { G_ICONS } from './icons.js?v=22.99.4';
 
 // Звонок: [CALL: исходящий, принят, 4:12]. Порядок слов внутри не важен —
 // разбираем по смыслу, а не по позиции: модели путают порядок постоянно.

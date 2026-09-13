@@ -11,12 +11,12 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache } from './avatars.js?v=22.98.0';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.98.0';
-import { openPhoneMediaViewer } from './render/phone.js?v=22.98.0';
-import { getTheme, themeVars, presetRowHTML, THEME_KEYS , themeSnapshot, parseThemeFile } from './themes.js?v=22.98.0';
-import { settings, defaultSettings } from './settings.js?v=22.98.0';
-import { getWorldVotes } from './render/world.js?v=22.98.0';
+import { invalidateAvatarCache } from './avatars.js?v=22.99.4';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.99.4';
+import { openPhoneMediaViewer } from './render/phone.js?v=22.99.4';
+import { getTheme, themeVars, presetRowHTML, THEME_KEYS , themeSnapshot, parseThemeFile } from './themes.js?v=22.99.4';
+import { settings, defaultSettings } from './settings.js?v=22.99.4';
+import { getWorldVotes } from './render/world.js?v=22.99.4';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -1284,7 +1284,6 @@ try {
 
       if (!mes) return;
 
-      mes.removeAttribute('data-hud-processed');
       requestAnimationFrame(() => {
         if (mes.isConnected) safeProcessMessage(mes);
       });

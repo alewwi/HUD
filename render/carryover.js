@@ -14,9 +14,9 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=22.98.0';
-import { normalizeJSONData } from '../schema.js?v=22.98.0';
-import { settings } from '../settings.js?v=22.98.0';
+import { parseHUDComplex } from '../hud-parser.js?v=22.99.4';
+import { normalizeJSONData } from '../schema.js?v=22.99.4';
+import { settings } from '../settings.js?v=22.99.4';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -25,14 +25,19 @@ const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').repla
 // а SillyTavern иногда успевает заэкранировать.
 const БЛОК = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)[\s\S]*?(?:(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)|$)/i;
 
-// Разобранные ходы. Ключ включает длину текста: правка сообщения меняет длину,
-// и кэш обновится сам.
+// Разобранные ходы. Ключ — длина и хэш всего текста: любая правка сообщения
+// даёт новый ключ, и кэш обновится сам.
 const кэш = new Map();
 
 function разобратьХод(mes) {
   const raw = текст(mes && mes.mes);
   if (!raw) return null;
-  const k = raw.length + ':' + raw.slice(-60);
+  // Ключ — хэш всего текста: хвост в шестьдесят знаков совпадал у правок,
+  // сделанных в середине блока без изменения длины, и кэш отдавал старый
+  // разбор.
+  let хэш = 0;
+  for (let i = 0; i < raw.length; i++) хэш = ((хэш << 5) - хэш + raw.charCodeAt(i)) | 0;
+  const k = raw.length + ':' + хэш;
   if (кэш.has(k)) return кэш.get(k);
   let результат = null;
   const блок = raw.match(БЛОК);
@@ -250,9 +255,4 @@ export function mergeCarryOver(data, messageElement) {
   }
   // Мир остаётся таким, каким его прислал текущий ход.
   return итог;
-}
-
-// Сбросить кэш разобранных ходов — например, при смене чата.
-export function resetCarryOverCache() {
-  кэш.clear();
 }

@@ -199,7 +199,9 @@ function инициалы(имя) {
   return (части[0][0] + части[1][0]).toUpperCase();
 }
 
-export function buildPillList(value, pillClass, forceSeparate = false, вид = '') {
+// лицоПоИмени — необязательная функция «имя → адрес аватарки или null». Нужна
+// списку отношений: сами утилиты об аватарках ничего не знают.
+export function buildPillList(value, pillClass, forceSeparate = false, вид = '', лицоПоИмени = null) {
     const raw = flattenFieldValue(value);
     // Явный разделитель — воля автора: каждый кусок становится отдельной
     // пилюлей, даже если метку в нём распознать не удалось. Кроме обычной
@@ -246,8 +248,16 @@ export function buildPillList(value, pillClass, forceSeparate = false, вид = 
             const тон = hudHashSeed(item.label) % 360;
             классы += ' has-face';
             стиль += '--тон:' + тон + ';';
-            передМеткой = `<i class="hud-pill-face" aria-hidden="true">`
-              + `${escapeHtml(инициалы(item.label))}</i>`;
+            // Аватарка ложится поверх инициалов. Не загрузилась — картинка
+            // убирает себя, и снова видны инициалы.
+            let адрес = null;
+            try { адрес = typeof лицоПоИмени === 'function' ? лицоПоИмени(item.label) : null; } catch (_) { адрес = null; }
+            const картинка = адрес
+              ? `<img src="${escapeHtml(String(адрес)).replace(/"/g, '&quot;')}" alt="" loading="lazy"`
+                + ` onerror="this.parentNode.classList.remove('has-img');this.remove()">`
+              : '';
+            передМеткой = `<i class="hud-pill-face${адрес ? ' has-img' : ''}" aria-hidden="true">`
+              + `${escapeHtml(инициалы(item.label))}${картинка}</i>`;
         }
         // Значок знакомой метки. Ставим перед подписью, саму подпись не
         // трогаем: кто читает, а не сканирует, ничего не теряет.

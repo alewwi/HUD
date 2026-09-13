@@ -1,24 +1,24 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.98.0';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=22.98.0';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate, setHudRepairDiagnostic } from './hud-parser.js?v=22.98.0';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions } from './events.js?v=22.98.0';
-import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.98.0';
-import { mergeCarryOver } from './render/carryover.js?v=22.98.0';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.98.0';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.98.0';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.98.0';
-import { buildMemoryHTML } from './render/memory.js?v=22.98.0';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.98.0';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.98.0';
-import { hudHasRelations } from './render/relations-graph.js?v=22.98.0';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.98.0';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.98.0';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.98.0';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks } from './help.js?v=22.98.0';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.98.0';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=22.98.0';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.4';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=22.99.4';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.4';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions } from './events.js?v=22.99.4';
+import { buildUserHTML, buildCharacterHTML } from './render/character.js?v=22.99.4';
+import { mergeCarryOver } from './render/carryover.js?v=22.99.4';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.4';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.4';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.4';
+import { buildMemoryHTML } from './render/memory.js?v=22.99.4';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.4';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.4';
+import { hudHasRelations } from './render/relations-graph.js?v=22.99.4';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.4';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.4';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.4';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.4';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.4';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.4';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -77,19 +77,7 @@ import { clearCache, cacheUsage } from './history-analyzer.js?v=22.98.0';
     if (pendingGenTypes.length > 20) pendingGenTypes.splice(0, pendingGenTypes.length - 20);
   };
 
-  // Возвращает последние два .mes без полного сканирования DOM (document.querySelectorAll('.mes')
-  // по всему чату — O(n) на каждый вызов — было узким местом на телефонах в длинных чатах,
-  // особенно во время стриминга ответа, когда processMessage() дёргается десятки раз в секунду).
-  function getLastTwoMes() {
-    const container = cachedChatContainer || document.querySelector('#chat') || document.querySelector('#chat-container');
-    if (!container) return [null, null];
-    let last = container.lastElementChild;
-    while (last && !last.classList.contains('mes')) last = last.previousElementSibling;
-    let prev = last ? last.previousElementSibling : null;
-    while (prev && !prev.classList.contains('mes')) prev = prev.previousElementSibling;
-    return [last, prev];
-  }
-   
+
 
   function buildDynamicPrompt() {
     let p = `\n\n<system_note>
@@ -339,11 +327,6 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     }
 
     p += `\n}\n\`\`\`\n[/HUD]\n</system_note>`;
-
-    if (settings.useCards && typeof window.characters !== 'undefined' && window.this_chid !== undefined) {
-      const char = window.characters[window.this_chid];
-      if (char && char.personality) p += `\n\nPlaying as ${char.name}.`;
-    }
     return p;
   }
 
@@ -1628,7 +1611,6 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
   }
 
   async function processMessage(messageElement) {
-    const _mesid = messageElement.getAttribute('mesid');
     const textElement = messageElement.querySelector('.mes_text');
     if (!textElement) { return; }
 
@@ -1672,8 +1654,6 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       return;
     }
 
-    const [lastMes, secondLastMes] = getLastTwoMes();
-    const isLastMes = messageElement === lastMes || messageElement === secondLastMes;
     const hasCloseTag = closeTagRegex.test(innerHtml);
 
     // Метки ищем по отдельности и соединяем в пары сами. Регулярка «от
@@ -1757,9 +1737,6 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         lastLazyThunks = null;
         stripRawHudKeepCard(textElement);
         messageElement.__hudSource = innerHtml;
-        if (hasCloseTag || !isLastMes || hudBlocks.length > 1) {
-          messageElement.dataset.hudProcessed = 'true';
-        }
       } else if (rendered) {
         for (let i = hudBlocks.length - 1; i >= 0; i--) {
           const block = hudBlocks[i];
@@ -1768,13 +1745,6 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         }
         hasChanges = newHtml !== innerHtml;
 
-        setHudRepairDiagnostic({
-          ...(window.__tavernOSHudRepairDiagnostic || {}),
-          multiHudBlocks: hudBlocks.length,
-          parsedHudBlocks: parsedHudBlocks.length,
-          selectedHudBlock: selected.index,
-          selectedHudScore: selected.score,
-        });
       }
     }
 
@@ -1803,15 +1773,6 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       textElement.querySelectorAll('.hud-regen-btn').forEach(bindHudRegenButton);
       freezeOldHUDs();
 
-      if (hasCloseTag || !isLastMes || hudBlocks.length > 1) {
-        messageElement.dataset.hudProcessed = 'true';
-      }
-
-      setHudRepairDiagnostic({
-        ...(window.__tavernOSHudRepairDiagnostic || {}),
-        displayNormalized: normalized,
-        displayHudCards: textElement.querySelectorAll('.hud-os-card').length,
-      });
     }
 
     textElement.querySelectorAll('.hud-regen-btn').forEach(bindHudRegenButton);
@@ -1837,6 +1798,8 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     if (hasChanges) {
       if (settings.showHints === false) removeHelpMarks(textElement);
       else attachHelpMarks(textElement);
+      // Эмодзи в медальонах центрируем по чернилам — независимо от пояснений.
+      centerFieldIcons(textElement);
     }
 
     // Защита от свайпа стоит только на самой карточке. Раньше она
@@ -2317,7 +2280,6 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     if (height > 40) заглушка.style.minHeight = height + 'px';
     карточка.replaceWith(заглушка);
     mes.dataset.hudEvicted = '1';
-    delete mes.dataset.hudProcessed;
     return true;
   }
 
@@ -2347,7 +2309,6 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     if (заглушка && mes.__hudBlock) {
       заглушка.outerHTML = mes.__hudBlock;
       delete mes.dataset.hudEvicted;
-      delete mes.dataset.hudProcessed;
       return true;
     }
     // Запасной путь для сообщений, свёрнутых прошлыми версиями: у них
@@ -2355,7 +2316,6 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     if (!mes.__hudSource) { delete mes.dataset.hudEvicted; return false; }
     textElement.innerHTML = mes.__hudSource;
     delete mes.dataset.hudEvicted;
-    delete mes.dataset.hudProcessed;
     return true;
   }
 
@@ -2897,7 +2857,6 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
                 requestAnimationFrame(() => {
                     const freshMesEl = document.querySelector(`.mes[mesid="${mesId}"]`) || mesEl;
                     if (freshMesEl && freshMesEl.isConnected) {
-                        freshMesEl.removeAttribute('data-hud-processed');
                         safeProcessMessage(freshMesEl);
                     }
                 });
@@ -3243,57 +3202,6 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     }
     renderAvatarRows();
 
-    const bgUrlInput = document.getElementById('hud-bg-url-input');
-    const bgUploadBtn = document.getElementById('hud-bg-upload-btn');
-    const bgUploadFile = document.getElementById('hud-bg-upload-file');
-	
-
-    if (bgUrlInput && bgUploadBtn && bgUploadFile) {
-        // 1. Загрузка через URL
-        bgUrlInput.addEventListener('change', (e) => {
-            const url = e.target.value.trim();
-            if (!url) {
-                settings.bgImage = ''; saveSettings(); applyThemeColors(); return;
-            }
-            showHudToast('loading', 'Проверка...', 'Пытаемся загрузить картинку...');
-            const img = new Image();
-            img.onload = () => {
-                settings.bgImage = url; saveSettings(); applyThemeColors();
-                showHudToast('success', 'Фон загружен', 'Картинка по ссылке успешно установлена.');
-            };
-            img.onerror = () => {
-                showHudToast('error', 'Ошибка ссылки', 'Не удалось загрузить! Сайт заблокировал доступ (CORS) или ссылка битая.');
-                e.target.value = settings.bgImage; // Откатываем текст обратно
-            };
-            img.src = url;
-        });
-
-        // 2. Загрузка из локальной галереи
-        bgUploadBtn.addEventListener('click', () => bgUploadFile.click());
-        bgUploadFile.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (!file) return;
-            
-            // Защита от переполнения памяти браузера (~3 МБ)
-            if (file.size > 3 * 1024 * 1024) {
-                showHudToast('error', 'Слишком большой файл', 'Выберите картинку до 3 МБ, иначе настройки сломаются.');
-                return;
-            }
-
-            const reader = new FileReader();
-            reader.onload = (ev) => {
-                const base64 = ev.target.result;
-                settings.bgImage = base64;
-                bgUrlInput.value = '(Локальный файл)';
-                saveSettings();
-                applyThemeColors();
-                showHudToast('success', 'Фон загружен', 'Ваша картинка успешно установлена.');
-            };
-            reader.readAsDataURL(file);
-        });
-    }
-    // === КОНЕЦ ЛОГИКИ ФОНА ===
-
     document.getElementById('hud-auto-inject').addEventListener('change', (e) => { settings.autoInject = e.target.checked; saveSettings(); });
     document.getElementById('hud-enable-phone').addEventListener('change', (e) => { settings.enablePhone = e.target.checked; saveSettings(); });
     document.getElementById('hud-enable-intercepts').addEventListener('change', (e) => { settings.enableIntercepts = e.target.checked; saveSettings(); });
@@ -3316,7 +3224,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=22.98.0');
+        const mod = await import('./render/archive.js?v=22.99.4');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -3377,10 +3285,10 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       if (settings.showHints) {
         чат.querySelectorAll('.mes_text').forEach(t => attachHelpMarks(t));
         // Вопросики вкладок живут в разметке, поэтому их вернёт только
-        // пересборка. Снимаем признак обработки и просим разобрать заново.
+        // пересборка. Просим разобрать заново.
         чат.querySelectorAll('.mes').forEach(m => { if (m.__hudSource && !m.querySelector('.hud-help-mark[data-tab-help]')) {
           const t = m.querySelector('.mes_text');
-          if (t) { t.innerHTML = m.__hudSource; delete m.dataset.hudProcessed; safeProcessMessage(m); }
+          if (t) { t.innerHTML = m.__hudSource; safeProcessMessage(m); }
         } });
       } else {
         чат.querySelectorAll('.mes_text').forEach(t => removeHelpMarks(t));
@@ -3563,7 +3471,6 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
                         return;
                     }
 
-                    freshMesEl.removeAttribute('data-hud-processed');
                     safeProcessMessage(freshMesEl);
 
                     const createBtn = freshMesEl.querySelector('.hud-create-btn');
@@ -3872,7 +3779,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     tabHelp: TAB_HELP,
     findTermHelp,
     buildHintHTML,
-    attachHelpMarks: (корень) => { if (settings.showHints !== false) attachHelpMarks(корень); },
+    attachHelpMarks: (корень) => { if (settings.showHints !== false) attachHelpMarks(корень); centerFieldIcons(корень); },
     isPerformanceModeActive,
     refreshPerformanceMessageClasses,
     schedulePerformanceRefresh,
