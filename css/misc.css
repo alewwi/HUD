@@ -2257,3 +2257,44 @@
 }
 .hud-pet-mood { flex: 0 1 auto; max-width: 100%; white-space: normal; overflow-wrap: break-word; line-height: 1.35; }
 .hud-pet-row p, .hud-pet-owner { overflow-wrap: break-word; }
+
+
+/* --- Телефон: стекло у старых карточек ----------------------------------
+   Размытие фона живёт на .hud-os-card::after, а заморозка истории снимала
+   его только с самой карточки. Каждая старая карточка в кадре продолжала
+   мылить фон, и прокрутка на телефоне пересчитывала размытие всех сразу. */
+.hud-os-card.hud-historical::before,
+.hud-os-card.hud-historical::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+
+/* --- Настройки расширения: подгруппы ------------------------------------
+   Подгруппа — такой же раскрывающийся блок, как группа, только внутри неё:
+   мельче заголовок, светлее фон, без лишнего воздуха. */
+.hud-set-group.hud-set-sub { background: rgba(255,255,255,.025); border-radius: 7px; }
+.hud-set-group.hud-set-sub > summary { font-size: 12.5px; padding-top: 7px; padding-bottom: 7px; }
+.hud-set-body > .hud-set-sub { margin-top: 4px; }
+.hud-set-check { display: flex; align-items: center; gap: 10px; cursor: pointer; flex-wrap: wrap; }
+.hud-set-num { background: rgba(0,0,0,.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px; }
+
+/* Галочка и подпись в одну строку: без обёртки подпись на узкой панели
+   уезжала целиком на следующую строку, а галочка оставалась одна. */
+.hud-set-check > input[type="checkbox"] { flex: none; margin: 0; }
+.hud-set-check > span { flex: 1 1 0; min-width: 0; }
+
+
+/* --- Сцена на телефоне -------------------------------------------------
+   Плашки времени, погоды и атмосферы стоят столбиком и занимали почти всю
+   высоту сцены: пейзаж — снеговик, деревня, пляж, деревья — прятался под
+   плашкой атмосферы, а солнце и луна — за часами. */
+@media screen and (max-width: 600px) {
+  /* Полоса пейзажа под плашками. Декорации привязаны к низу сцены, поэтому
+     лишний отступ снизу открывает их, ничего не сдвигая. */
+  .hud-scene-widget { padding-bottom: 64px !important; }
+  /* Атмосфера — по ширине текста, а не во всю сцену. */
+  .hud-scene-atm { width: auto; max-width: 100%; align-self: center; padding: 8px 14px; }
+  /* Светило идёт по боковым полосам неба и не прячется за часами. */
+  .hud-fx-celestial[style*="--cel-xm"] { left: var(--cel-xm) !important; }
+}

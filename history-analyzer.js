@@ -11,14 +11,14 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=22.99.22';
-import { normalizeJSONData } from './schema.js?v=22.99.22';
-import { parseRelationList } from './render/relations-graph.js?v=22.99.22';
-import { nameLettersOnly, namePhoneticLatin } from './names.js?v=22.99.22';
-import { hudFilled, getSafeUserName } from './utils.js?v=22.99.22';
-import { createDashboard } from './chat-stats.js?v=22.99.22';
-import { статусРужья } from './codes.js?v=22.99.22';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=22.99.22';
+import { parseHUDComplex } from './hud-parser.js?v=22.99.30';
+import { normalizeJSONData } from './schema.js?v=22.99.30';
+import { parseRelationList } from './render/relations-graph.js?v=22.99.30';
+import { nameLettersOnly, namePhoneticLatin } from './names.js?v=22.99.30';
+import { hudFilled, getSafeUserName } from './utils.js?v=22.99.30';
+import { createDashboard } from './chat-stats.js?v=22.99.30';
+import { статусРужья } from './codes.js?v=22.99.30';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=22.99.30';
 
 // --- Мелкие помощники --------------------------------------------------------
 

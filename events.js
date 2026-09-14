@@ -11,12 +11,12 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache } from './avatars.js?v=22.99.22';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.99.22';
-import { openPhoneMediaViewer } from './render/phone.js?v=22.99.22';
-import { getTheme, themeVars, presetRowHTML, THEME_KEYS , themeSnapshot, parseThemeFile } from './themes.js?v=22.99.22';
-import { settings, defaultSettings } from './settings.js?v=22.99.22';
-import { getWorldVotes } from './render/world.js?v=22.99.22';
+import { invalidateAvatarCache } from './avatars.js?v=22.99.30';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.99.30';
+import { openPhoneMediaViewer } from './render/phone.js?v=22.99.30';
+import { getTheme, themeVars, presetRowHTML, THEME_KEYS , themeSnapshot, parseThemeFile } from './themes.js?v=22.99.30';
+import { settings, defaultSettings } from './settings.js?v=22.99.30';
+import { getWorldVotes } from './render/world.js?v=22.99.30';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -195,6 +195,15 @@ export function initGlobalEvents(ctx) {
   });
   if (window.hudEventsInitialized) return;
   window.hudEventsInitialized = true;
+  // Облегчённая карточка пропускала правки темы, пока лежала вне документа:
+  // после возврата подтягиваем её поля к текущим настройкам.
+  синхронизацияТемы = () => {
+    syncThemeInputs();
+    redrawPresets();
+    document.querySelectorAll('[data-theme-pack]').forEach(box => {
+      box.checked = !(settings.themePacks && settings.themePacks[box.dataset.themePack] === false);
+    });
+  };
 
   document.body.addEventListener('change', function(e) {
     const toggle = e.target.closest('.hud-toggle-input');
@@ -1321,3 +1330,65 @@ try {
   // Lifecycle events are optional; the normal message processing still works without them.
 }
 }
+
+
+/* ---------------------------------------------------------------------
+   ОБЛЕГЧЕНИЕ СТАРЫХ КАРТОЧЕК
+   ---------------------------------------------------------------------
+   Свёрнутая старая карточка показывает одну полосу заголовка, а внутри
+   держала всё: панель настроек темы и сцену со вкладками — около тысячи
+   узлов. В длинном чате это больше половины всей ленты, и телефон
+   пересчитывал стили и вёрстку этих невидимых узлов при каждом изменении.
+
+   Облегчаем: панель темы и содержимое уходят из документа, на их месте
+   остаются метки-комментарии. Узлы не уничтожаются — живут на карточке
+   вместе со своими обработчиками и состоянием и возвращаются при первом
+   касании карточки, раньше, чем сработает клик по заголовку. */
+
+let синхронизацияТемы = null;
+const ЛЁГКИЕ_ЧАСТИ = ':scope > .hud-theme-panel, :scope > .hud-os-wrapper';
+
+export function облегчитьКарточку(card) {
+  if (!card || card.__hudLight || !card.isConnected) return false;
+  if (card.closest('.hud-theme-preview')) return false;
+  if (!card.classList.contains('hud-historical') || card.dataset.userExpanded === 'true') return false;
+  const свёртка = card.querySelector(':scope > .hud-toggle-input');
+  if (!свёртка || свёртка.checked) return false;
+  // Открытая панель темы, фокус внутри или развёрнутый граф — карточкой
+  // пользуются прямо сейчас.
+  if (card.querySelector(':scope > .hud-theme-panel.active')) return false;
+  if (document.activeElement && card.contains(document.activeElement)) return false;
+  if (card.querySelector('.hud-rel-graph.is-expanded, .hud-modal-overlay')) return false;
+  const части = Array.from(card.querySelectorAll(ЛЁГКИЕ_ЧАСТИ));
+  if (!части.length) return false;
+  card.__hudLight = части.map(узел => {
+    const метка = document.createComment('hud-light');
+    узел.replaceWith(метка);
+    return { метка, узел };
+  });
+  return true;
+}
+
+export function вернутьКарточку(card) {
+  const части = card && card.__hudLight;
+  if (!части) return false;
+  delete card.__hudLight;
+  for (const { метка, узел } of части) {
+    if (метка.parentNode) метка.replaceWith(узел);
+    else card.appendChild(узел);
+  }
+  if (синхронизацияТемы) {
+    try { синхронизацияТемы(); } catch (e) { console.warn('[TavernOS HUD] тема после облегчения:', e); }
+  }
+  return true;
+}
+
+// Возврат при любом обращении к карточке. Фаза захвата: карточка должна
+// собраться до того, как свои обработчики полезут в её содержимое.
+function вернутьПоСобытию(e) {
+  const card = e.target && e.target.closest && e.target.closest('.hud-os-card');
+  if (card && card.__hudLight) вернутьКарточку(card);
+}
+['pointerdown', 'click', 'keydown', 'focusin', 'touchstart'].forEach(тип => {
+  document.addEventListener(тип, вернутьПоСобытию, { capture: true, passive: true });
+});

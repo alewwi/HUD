@@ -9,10 +9,10 @@
 // флаг window.__tavernOSHudSkipInject: без него перехват запросов в index.js
 // вшил бы в вопрос HUD-инструкцию, и модель ответила бы HUD-блоком.
 
-import { escapeHtml, guardTouchSwipe } from '../utils.js?v=22.99.22';
-import { settings } from '../settings.js?v=22.99.22';
-import { parseHUDComplex } from '../hud-parser.js?v=22.99.22';
-import { extractHudBlock } from '../history-analyzer.js?v=22.99.22';
+import { escapeHtml, guardTouchSwipe } from '../utils.js?v=22.99.30';
+import { settings } from '../settings.js?v=22.99.30';
+import { parseHUDComplex } from '../hud-parser.js?v=22.99.30';
+import { extractHudBlock } from '../history-analyzer.js?v=22.99.30';
 
 const HUD_БЛОК = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)[\s\S]*?(?:(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)|$)/gi;
 const ЖДЁМ_МС = 180000;

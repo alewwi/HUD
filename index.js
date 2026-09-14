@@ -1,26 +1,26 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.22';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=22.99.22';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.22';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions } from './events.js?v=22.99.22';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.22';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.22';
-import { openAssistantDialog } from './render/assistant.js?v=22.99.22';
-import { mergeCarryOver } from './render/carryover.js?v=22.99.22';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.22';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.22';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.22';
-import { buildMemoryHTML } from './render/memory.js?v=22.99.22';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.22';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.22';
-import { hudHasRelations } from './render/relations-graph.js?v=22.99.22';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.22';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.22';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.22';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.22';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.22';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.22';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.30';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=22.99.30';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.30';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=22.99.30';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.30';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.30';
+import { openAssistantDialog } from './render/assistant.js?v=22.99.30';
+import { mergeCarryOver } from './render/carryover.js?v=22.99.30';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.30';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.30';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.30';
+import { buildMemoryHTML } from './render/memory.js?v=22.99.30';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.30';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.30';
+import { hudHasRelations } from './render/relations-graph.js?v=22.99.30';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.30';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.30';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.30';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.30';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.30';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.30';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -1152,8 +1152,11 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     let seasonClass = '';
     let dLow = (dRaw + ' ' + wRaw + ' ' + tRaw).toLowerCase(); 
     if (dLow.match(/зим|декабр|январ|феврал|dec|jan|feb|\.12\.|\.01\.|\.02\.|снег|снеж|метел|вьюг|мороз|буран/)) seasonClass = 'season-winter';
-    else if (dLow.match(/весн|март|апрел|май|mar|apr|may|\.03\.|\.04\.|\.05\./)) seasonClass = 'season-spring';
-    else if (dLow.match(/лет|июн|июл|август|jun|jul|aug|\.06\.|\.07\.|\.08\./)) seasonClass = 'season-summer';
+    // «мая» — родительный падеж, в датах он почти всегда: «3 мая». Раньше
+    // искали только «май», и весь май оставался без пейзажа.
+    else if (dLow.match(/весн|март|апрел|ма[йя]|mar|apr|may|\.03\.|\.04\.|\.05\./)) seasonClass = 'season-spring';
+    // «Лето» — отдельным словом: голое «лет» ловило «20 лет», «полетели».
+    else if (dLow.match(/(?:^|[^а-яё])лет(?:о|а|ом|е|н)|июн|июл|август|jun|jul|aug|\.06\.|\.07\.|\.08\./)) seasonClass = 'season-summer';
     else if (dLow.match(/осен|сентябр|октябр|ноябр|sep|oct|nov|\.09\.|\.10\.|\.11\./)) seasonClass = 'season-autumn';
 
     let dustyClass = (tempClass === 'temp-hot' && seasonClass === 'season-summer' && (wClass === 'weather-clear' || wClass === 'weather-wind')) ? 'weather-dusty' : '';
@@ -1192,7 +1195,12 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       // дальше любого дерева, поэтому пересечение должно его скрывать, а не
       // наоборот. Раньше слой переключался только у горизонта (cy > 62), и
       // днём солнце рисовалось поверх крон.
-      celestialStyle = ` style="--cel-x:${cx.toFixed(1)}%;--cel-y:${cy.toFixed(1)}%;--cel-layer:1;--scene-layer:2;"`;
+      // На телефоне плашки стоят столбиком по центру, и светило посреди неба
+      // всегда пряталось за часами. Там оно идёт по боковым полосам: до
+      // полудня слева (8–16%), после — справа (84–92%). Шире нельзя: у края
+      // полосы светило уходит за рамку сцены, у середины — под часы.
+      const cxm = cx < 50 ? 8 + (cx - 6) / 44 * 8 : 84 + (cx - 50) / 40 * 8;
+      celestialStyle = ` style="--cel-x:${cx.toFixed(1)}%;--cel-xm:${cxm.toFixed(1)}%;--cel-y:${cy.toFixed(1)}%;--cel-layer:1;--scene-layer:2;"`;
       sunVarsStyle = ` style="--sun-h:${p.toFixed(3)};--sun-alt:${Math.max(0, Math.sin(p * Math.PI)).toFixed(3)};"`;
       // --cel-x/--cel-y дублируем на виджет: лунная дорожка и солнечные блики
       // на воде — потомки .hud-fx-season-scene, а не светила, и до его
@@ -1402,7 +1410,9 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       if (dateStr && timePhase) dateStr += ` • ${timePhase}`;
       else if (!dateStr && timePhase) dateStr = timePhase;
 
-      let atmStr = data.scene['Атмосфера'] ? `«${escapeHtml(data.scene['Атмосфера'])}»` : '';
+      // Схема подставляет 'empty' всему, чего модель не прислала: такое
+      // значение — не текст, плашку с ним не показываем.
+      let atmStr = hudHasMeaningfulValue(data.scene['Атмосфера']) ? `«${escapeHtml(data.scene['Атмосфера'])}»` : '';
 
       let stars = '';
       const starDot = (cls, l, t, sz, dur, delay) => `<span class="hud-star2 dot ${cls}" style="left:${l}%;top:${t}%;width:${sz}px;height:${sz}px;animation-duration:${dur}s;animation-delay:${delay}s;"></span>`;
@@ -1441,8 +1451,8 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
             ${dateStr ? `<div class="hud-date-display">${dateStr}</div>` : ''}
           </div>
           <div class="hud-scene-weather-group">
-            ${data.scene['Погода'] ? `<div class="hud-weather-item">${escapeHtml(data.scene['Погода'])}</div>` : ''}
-            ${data.scene['Настроение'] ? `<div class="hud-mood-item">${escapeHtml(data.scene['Настроение'])}</div>` : ''}
+            ${hudHasMeaningfulValue(data.scene['Погода']) ? `<div class="hud-weather-item">${escapeHtml(data.scene['Погода'])}</div>` : ''}
+            ${hudHasMeaningfulValue(data.scene['Настроение']) ? `<div class="hud-mood-item">${escapeHtml(data.scene['Настроение'])}</div>` : ''}
           </div>
         </div>
         ${atmStr ? `<div class="hud-scene-atm">${atmStr}</div>` : ''}
@@ -1578,8 +1588,30 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
           if (checkbox) checkbox.checked = false; 
         }
       }
-      allCards[allCards.length - 1].classList.remove('hud-historical');
+      const текущая = allCards[allCards.length - 1];
+      текущая.classList.remove('hud-historical');
+      // Карточка снова стала последней (например, удалили ответ) — ей нужно
+      // всё содержимое.
+      вернутьКарточку(текущая);
     }
+    запланироватьОблегчение();
+  }
+
+  // Облегчаем не сразу: сразу после сборки на карточку ещё возвращают
+  // открытую вкладку и навешивают пояснения — им нужно содержимое на месте.
+  // Одна отложенная пачка на все карточки, в свободную минуту браузера.
+  let облегчениеТаймер = 0;
+  function запланироватьОблегчение() {
+    if (settings.lightenOldCards === false) return;
+    clearTimeout(облегчениеТаймер);
+    облегчениеТаймер = setTimeout(() => {
+      const пачка = () => {
+        const scope = cachedChatContainer || document;
+        scope.querySelectorAll('.hud-os-card.hud-historical').forEach(облегчитьКарточку);
+      };
+      if (typeof requestIdleCallback === 'function') requestIdleCallback(пачка, { timeout: 2000 });
+      else пачка();
+    }, 1500);
   }
 
   function maybeInjectMissingHudButton(messageElement, textElement) {
@@ -1686,8 +1718,19 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     const textElement = messageElement.querySelector('.mes_text');
     if (!textElement) { return; }
 
-    const stalePlaceholder = textElement.querySelector('.hud-missing-placeholder');
-    if (stalePlaceholder) stalePlaceholder.remove();
+    // Кнопку «Создать HUD» убираем, только когда HUD в сообщении правда
+    // появился. Раньше она снималась на каждом проходе и тут же вставлялась
+    // обратно ниже: обе правки будили наблюдатель, тот снова звал разбор, и
+    // каждое сообщение без HUD крутилось по кругу несколько раз в секунду.
+    // В длинном чате это десятки разборов больших сообщений в секунду
+    // в полном покое — на телефоне лента вставала колом.
+    const убратьКнопкуСоздания = () => {
+      const кнопка = textElement.querySelector('.hud-missing-placeholder');
+      if (кнопка) кнопка.remove();
+    };
+    if (textElement.querySelector('.hud-os-card') || /(?:\[|<)\s*HUD\s*(?:\]|>)/i.test(textElement.textContent || '')) {
+      убратьКнопкуСоздания();
+    }
 
     // Пометка о свёрнутой карточке стоит на сообщении, а заглушка лежит
     // внутри текста. Другое расширение перерисовывает текст целиком —
@@ -1717,6 +1760,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     // Recovery path for ST swipe/save timing:
     if (!/(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)/i.test(innerHtml)) {
       if (recoverHudFromActiveSwipe(messageElement, textElement)) {
+        убратьКнопкуСоздания();
         innerHtml = textElement.innerHTML;
       }
     }
@@ -1914,6 +1958,8 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     const card = Array.from(textElement.querySelectorAll('.hud-os-card'))
       .filter(c => !c.closest('.hud-theme-preview'))[0];
     if (!card) return false;
+    // Облегчённая карточка пуста нарочно: её содержимое лежит на ней самой.
+    if (card.__hudLight) return false;
     const пусто = !card.querySelector('.hud-tab, .hud-row, .hud-scene-widget');
     const вкладкиБезЗаготовок = !!card.querySelector('.hud-tab-lazy') && !card.__hudLazy;
     // Карточка целая — забываем прошлые починки: следующая поломка
@@ -1957,6 +2003,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
   function readCardUiState(mes) {
     const card = mes && mes.querySelector('.hud-os-card');
     if (!card) return null;
+    вернутьКарточку(card);
     const активная = card.querySelector('.hud-tab.active');
     const свёртка = card.querySelector('.hud-toggle-input');
     const экран = card.querySelector('.hud-phone-app-view.active');
@@ -1977,6 +2024,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     const состояние = mes && mes.__hudUiState;
     const card = mes && mes.querySelector('.hud-os-card');
     if (!состояние || !card) return;
+    вернутьКарточку(card);
     возвращаемСостояние = true;
     try {
       if (состояние.свёрнута !== null) {
@@ -2205,10 +2253,13 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
   const PERFORMANCE_ACTIVE_WINDOW = 80;
   let performanceIntersectionObserver = null;
   let performanceScrollRaf = 0;
+  let застрявшиеТаймер = 0;
 
   function isPerformanceModeActive(container = cachedChatContainer) {
     if (!settings.performanceMode || !container) return false;
-    return container.querySelectorAll('.mes').length >= PERFORMANCE_MESSAGE_THRESHOLD;
+    // Живая коллекция: браузер держит её сам, а querySelectorAll на каждый
+    // кадр прокрутки и на каждую запись наблюдателя собирал сотни узлов заново.
+    return container.getElementsByClassName('mes').length >= PERFORMANCE_MESSAGE_THRESHOLD;
   }
 
   function updatePerformanceMode() {
@@ -2285,7 +2336,13 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
               // высоты, и промах в триста пикселей на две сотни свёрнутых
               // сообщений раздувал ленту и рвал прокрутку.
               const box = mes.closest('#chat') || cachedChatContainer;
-              if (box) box.style.setProperty('--hud-card-h', h + 'px');
+              // Переменная стоит на всём чате: каждая её смена пересчитывает
+              // стили всей ленты. На телефоне это было по пересчёту на каждую
+              // карточку, въехавшую в кадр, — меняем только при заметной разнице.
+              if (box && Math.abs(h - заявленнаяВысота) > 60) {
+                заявленнаяВысота = h;
+                box.style.setProperty('--hud-card-h', h + 'px');
+              }
             }
           }));
         } else {
@@ -2323,6 +2380,8 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
   // объявлено в contain-intrinsic-size: столько браузер и так отводит
   // неотрисованной карточке, поэтому свёртка выходит нейтральной по высоте.
   let typicalCardHeight = 480;
+  // Последнее значение, записанное в --hud-card-h.
+  let заявленнаяВысота = 480;
 
   function живаяКарточка(textElement) {
     return Array.from(textElement.querySelectorAll('.hud-os-card'))
@@ -2471,7 +2530,11 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     performanceScrollRaf = requestAnimationFrame(() => {
       performanceScrollRaf = 0;
       enforceCardLimit();
-      вернутьЗастрявшие();
+      // Семь проб elementFromPoint на каждый кадр прокрутки заставляли
+      // телефон пересчитывать вёрстку посреди инерции. Застрявшая карточка
+      // никуда не денется — проверяем, когда палец отпустил ленту.
+      clearTimeout(застрявшиеТаймер);
+      застрявшиеТаймер = setTimeout(вернутьЗастрявшие, 200);
       const wasActive = cachedChatContainer?.classList.contains('hud-performance-mode');
       const active = updatePerformanceMode();
       if (active && !wasActive) setupPerformanceObserver();
@@ -3088,6 +3151,16 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     const wrapper = document.createElement('details');
     wrapper.id = 'hud-settings-wrapper';
     wrapper.className = 'hud-settings-block';
+    // Разметка строится из мелких кирпичиков: одна строка на галочку и одна
+    // на числовое поле. Идентификаторы прежние — обработчики ниже их и ищут.
+    const галка = (id, включено, текст, пояснение = '') =>
+      '<label class="hud-set-check"' + (пояснение ? ' title="' + пояснение + '"' : '') + '><input type="checkbox" id="' + id + '" ' + (включено ? 'checked' : '') + '><span>' + текст + '</span></label>';
+    const число = (id, мин, макс, значение, ширина = 52, шаг = '') =>
+      '<input type="number" id="' + id + '" min="' + мин + '" max="' + макс + '"' + (шаг ? ' step="' + шаг + '"' : '') + ' value="' + значение + '" class="hud-set-num" style="width:' + ширина + 'px">';
+    const группа = (заголовок, тело) => '<details class="hud-set-group"><summary>' + заголовок + '</summary><div class="hud-set-body">' + тело + '</div></details>';
+    const подгруппа = (заголовок, тело) => '<details class="hud-set-group hud-set-sub"><summary>' + заголовок + '</summary><div class="hud-set-body">' + тело + '</div></details>';
+    const заметка = (текст) => '<div class="hud-set-note">' + текст + '</div>';
+
     wrapper.innerHTML = `
       <summary style="font-weight:bold; cursor:pointer; color:var(--hud-accent); outline: none;">📊 TavernOS v${hudVersionLabel()}</summary>
       <div style="padding-top: 12px; display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
@@ -3097,57 +3170,74 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         <span class="hud-set-tool-note">Сводка по всей истории чата: как менялись секреты и отношения, сколько прошло дней, где что происходило.</span>
       </div>
 
-      <details class="hud-set-group"><summary>🧩 Блоки HUD</summary><div class="hud-set-body">
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;"><input type="checkbox" id="hud-auto-inject" ${settings.autoInject ? 'checked' : ''}> Сетевой перехват (Инжект промпта)</label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;"><input type="checkbox" id="hud-enable-phone" ${settings.enablePhone ? 'checked' : ''}> 📱 Личный телефон</label>
-        <div class="hud-set-note">
-          Экраны телефона можно включать по одному. Выключенный не просится у модели и не занимает места
-          в запросе — весь телефон целиком стоит около 800 токенов на каждый ход, и половина из них уходит
-          на экраны, которыми вы, возможно, не пользуетесь.
-        </div>
-        <div class="hud-set-apps">
-          ${[['phoneAppMessages','💬 Сообщения'],['phoneAppContacts','👤 Контакты'],['phoneAppWallet','💳 Кошелёк'],
-             ['phoneAppCalendar','📅 Календарь'],['phoneAppGallery','🖼️ Галерея'],['phoneAppNotes','📝 Заметки'],
-             ['phoneAppMaps','🗺️ Карты'],['phoneAppSearch','🔍 Поиск']]
-            .map(([k, label]) => `<label><input type="checkbox" data-phone-app-key="${k}" ${settings[k] !== false ? 'checked' : ''}> ${label}</label>`).join('')}
-        </div>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;"><input type="checkbox" id="hud-enable-intercepts" ${settings.enableIntercepts ? 'checked' : ''}> 📡 Перехваты (Чужие телефоны)</label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;"><input type="checkbox" id="hud-enable-diary" ${settings.enableDiary ? 'checked' : ''}> 📖 Дневник</label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;"><input type="checkbox" id="hud-enable-dreams" ${settings.enableDreams ? 'checked' : ''}> 🌙 Сновидения</label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;"><input type="checkbox" id="hud-enable-world" ${settings.enableWorld ? 'checked' : ''}> 🌍 Мир (Новости, слухи)</label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Отдельный блок {{user}}: одежда, внешность, здоровье, отношения, локация."><input type="checkbox" id="hud-enable-user" ${settings.enableUserBlock ? 'checked' : ''}> {{user}} — блок игрока</label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Таймлайн, настроение двух главных персонажей, маршруты и секреты"><input type="checkbox" id="hud-enable-memory" ${settings.enableMemory ? 'checked' : ''}> 🧠 Память (события, настроение, маршрут, секреты)</label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Незакрытые сюжетные нити во вкладке памяти: обещания, угрозы, намёки, загадки. Просится у модели."><input type="checkbox" id="hud-enable-guns" ${settings.enableGuns !== false ? 'checked' : ''}> 🔫 Ружья Чехова</label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Болезни и травмы со стадией, симптомами, лечением и шкалой выздоровления — у персонажей и у игрока. Просится у модели, пишется только когда есть."><input type="checkbox" id="hud-enable-illness" ${settings.enableIllness !== false ? 'checked' : ''}> 🩹 Болезни и травмы</label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Срок, триместр, симптомы и дата родов у того, кто беременен. Просится у модели, пишется только когда есть."><input type="checkbox" id="hud-enable-pregnancy" ${settings.enablePregnancy !== false ? 'checked' : ''}> 🤰 Беременность</label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Животные, фамильяры, дроны: настроение, состояние, рацион, привязанность. Своя вкладка, появляется, только когда спутники есть."><input type="checkbox" id="hud-enable-companions" ${settings.enableCompanions !== false ? 'checked' : ''}> 🐾 Спутники</label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Как к вам относится каждый персонаж и насколько доверяет. Считается из карточек, модель ничего не дописывает."><input type="checkbox" id="hud-enable-perception" ${settings.enablePerception !== false ? 'checked' : ''}> 👁 Что о тебе думают</label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Вторым видом в графе отношений: родители, дети, супруги, братья и сёстры по родству из «Отношений». Появляется, только когда родство есть."><input type="checkbox" id="hud-enable-familytree" ${settings.enableFamilyTree !== false ? 'checked' : ''}> 🌳 Генеалогическое дерево</label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Кнопка ❓ на карточке: вопрос о сюжете, модель отвечает по HUD и последним сообщениям. Каждый вопрос — отдельный запрос к модели; в чат ничего не пишется."><input type="checkbox" id="hud-enable-assistant" ${settings.enableAssistant !== false ? 'checked' : ''}> ❓ Спросить про сюжет</label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="При 200+ сообщениях отключает тяжёлую повторную обработку старых сообщений, замораживает их анимации/эффекты и обрабатывает HUD по мере прокрутки."><input type="checkbox" id="hud-performance-mode" ${settings.performanceMode ? 'checked' : ''}> ⚡ Performance Mode (200+ сообщений)</label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Внутри Performance Mode: карточка, уехавшая дальше полутора экранов от края, разбирается обратно в текст, а на её месте остаётся заглушка той же высоты. При возвращении карточка собирается заново. В DOM живут только те карточки, что рядом с экраном."><input type="checkbox" id="hud-virtualize" ${settings.virtualizeCards !== false ? 'checked' : ''}> 🪟 Держать в DOM только карточки рядом с экраном</label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Рядом с названием вкладки и рядом со знакомыми полями появляется маленький вопросик. По нажатию разворачивается объяснение: за что отвечает, почему показалось и как читать."><input type="checkbox" id="hud-show-hints" ${settings.showHints !== false ? 'checked' : ''}> ❔ Показывать пояснения</label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Переписки, секреты, важное, заметки, календарь и новости из прошлых ходов остаются на экране, даже если модель перестала их повторять. Работает только на отрисовке: в запрос к модели не уходит ни одного лишнего символа."><input type="checkbox" id="hud-carry-over" ${settings.carryOver !== false ? 'checked' : ''}> 🧷 Держать списки из прошлых ходов</label>
-        <div class="hud-set-apps">
-          <label title="Сколько предыдущих ходов просматривать. Больше — дольше собирается карточка.">Ходов назад: <input type="number" id="hud-carry-turns" min="0" max="200" value="${settings.carryTurns}" style="width:52px; background:rgba(0,0,0,0.3); border:1px solid var(--hud-border); color:#fff; padding:2px 4px; border-radius:4px;"></label>
-          <label title="Предел длины каждого списка: секретов, заметок, событий календаря и прочего.">Записей в списке: <input type="number" id="hud-carry-items" min="1" max="200" value="${settings.carryMaxItems}" style="width:52px; background:rgba(0,0,0,0.3); border:1px solid var(--hud-border); color:#fff; padding:2px 4px; border-radius:4px;"></label>
-          <label title="Предел длины одной переписки в телефоне и в перехватах.">Сообщений в чате: <input type="number" id="hud-carry-msgs" min="1" max="500" value="${settings.carryMaxMessages}" style="width:52px; background:rgba(0,0,0,0.3); border:1px solid var(--hud-border); color:#fff; padding:2px 4px; border-radius:4px;"></label>
-        </div>
-        <div style="font-size:11px;opacity:.68;">Автоматически включается только в чатах от 200 сообщений. Старые блоки остаются функциональными и догружаются при прокрутке.</div>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Собирается только открытая вкладка. Остальные (Телефон, Память, Мир и так далее) строятся в тот момент, когда вы на них переключаетесь, и дальше остаются готовыми. Заметно легче на карточках с большим HUD."><input type="checkbox" id="hud-lazy-tabs" ${settings.lazyTabs !== false ? 'checked' : ''}> 🗂️ Ленивая загрузка вкладок</label>
-        <div class="hud-set-note">
-          <b>Лимит карточек в DOM.</b> Каждая собранная карточка HUD — это сотни элементов страницы.
-          В длинной переписке их набираются тысячи, и браузер начинает тормозить даже там, где вы просто листаете текст.
-          Если вписать сюда число, в памяти останутся только последние N карточек, а <b>самые старые</b> (те, что вверху)
-          свернутся до тонкой полоски. Текст сообщения при этом никуда не денется: как только вы долистаете до такого
-          сообщения обратно, карточка соберётся заново сама.
-          <br>0 — ограничение выключено, ведём себя как раньше.
-        </div>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">🧹 Держать в памяти карточек: <input type="number" id="hud-card-limit" min="0" max="2000" step="10" value="${settings.hudCardLimit || 0}" style="width:80px; background:rgba(0,0,0,.3); border:1px solid var(--hud-border); color:#fff; padding:2px 4px; border-radius:4px;"> шт.</label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;">📏 Максимальная высота Памяти: <input type="number" id="hud-memory-max-height" min="200" max="600" value="${settings.memoryMaxHeight}" style="width:70px; background:rgba(0,0,0,.3); border:1px solid var(--hud-border); color:#fff; padding:2px 4px; border-radius:4px;"> px</label>
-      </div></details>
+      ${группа('🧩 Блоки HUD', `
+        ${галка('hud-auto-inject', settings.autoInject, '🔌 Сетевой перехват (инжект промпта)', 'Схема HUD добавляется в каждый запрос к модели. Без этого модель HUD не пишет.')}
+        ${галка('hud-enable-user', settings.enableUserBlock, '👤 {{user}} — блок игрока', 'Отдельный блок {{user}}: одежда, внешность, здоровье, отношения, локация.')}
 
-      <details class="hud-set-group"><summary>🖼️ Аватарки персонажей</summary><div class="hud-set-body">
+        ${подгруппа('📱 Телефон', `
+          ${галка('hud-enable-phone', settings.enablePhone, '📱 Личный телефон')}
+          ${заметка('Экраны телефона можно включать по одному. Выключенный не просится у модели и не занимает места в запросе — весь телефон целиком стоит около 800 токенов на каждый ход, и половина из них уходит на экраны, которыми вы, возможно, не пользуетесь.')}
+          <div class="hud-set-apps">
+            ${[['phoneAppMessages','💬 Сообщения'],['phoneAppContacts','👤 Контакты'],['phoneAppWallet','💳 Кошелёк'],
+               ['phoneAppCalendar','📅 Календарь'],['phoneAppGallery','🖼️ Галерея'],['phoneAppNotes','📝 Заметки'],
+               ['phoneAppMaps','🗺️ Карты'],['phoneAppSearch','🔍 Поиск']]
+              .map(([k, label]) => `<label><input type="checkbox" data-phone-app-key="${k}" ${settings[k] !== false ? 'checked' : ''}> ${label}</label>`).join('')}
+          </div>
+          ${галка('hud-enable-intercepts', settings.enableIntercepts, '📡 Перехваты (чужие телефоны)')}
+        `)}
+
+        ${подгруппа('🧠 Память', `
+          ${галка('hud-enable-memory', settings.enableMemory, '🧠 Память (события, настроение, маршрут, секреты)', 'Таймлайн, настроение двух главных персонажей, маршруты и секреты')}
+          ${галка('hud-enable-guns', settings.enableGuns !== false, '🔫 Ружья Чехова', 'Незакрытые сюжетные нити во вкладке памяти: обещания, угрозы, намёки, загадки. Просится у модели.')}
+          <label class="hud-set-check">📏 Максимальная высота Памяти: ${число('hud-memory-max-height', 200, 600, settings.memoryMaxHeight, 70)} px</label>
+        `)}
+
+        ${подгруппа('👤 Персонажи', `
+          ${галка('hud-enable-illness', settings.enableIllness !== false, '🩹 Болезни и травмы', 'Болезни и травмы со стадией, симптомами, лечением и шкалой выздоровления — у персонажей и у игрока. Просится у модели, пишется только когда есть.')}
+          ${галка('hud-enable-pregnancy', settings.enablePregnancy !== false, '🤰 Беременность', 'Срок, триместр, симптомы и дата родов у того, кто беременен. Просится у модели, пишется только когда есть.')}
+          ${галка('hud-enable-perception', settings.enablePerception !== false, '👁 Что о тебе думают', 'Как к вам относится каждый персонаж и насколько доверяет. Считается из карточек, модель ничего не дописывает.')}
+          ${галка('hud-enable-familytree', settings.enableFamilyTree !== false, '🌳 Генеалогическое дерево', 'Вторым видом в графе отношений: родители, дети, супруги, братья и сёстры по родству из «Отношений». Появляется, только когда родство есть.')}
+          ${галка('hud-enable-companions', settings.enableCompanions !== false, '🐾 Спутники', 'Животные, фамильяры, дроны: настроение, состояние, рацион, привязанность. Своя вкладка, появляется, только когда спутники есть.')}
+        `)}
+
+        ${подгруппа('📖 Дневник, сны и мир', `
+          ${галка('hud-enable-diary', settings.enableDiary, '📖 Дневник')}
+          ${галка('hud-enable-dreams', settings.enableDreams, '🌙 Сновидения')}
+          ${галка('hud-enable-world', settings.enableWorld, '🌍 Мир (новости, слухи)')}
+        `)}
+      `)}
+
+      ${группа('✨ Отображение', `
+        ${галка('hud-show-hints', settings.showHints !== false, '❔ Показывать пояснения', 'Рядом с названием вкладки и рядом со знакомыми полями появляется маленький вопросик. По нажатию разворачивается объяснение: за что отвечает, почему показалось и как читать.')}
+        ${галка('hud-enable-assistant', settings.enableAssistant !== false, '❓ Кнопка «Спросить про сюжет»', 'Кнопка ❓ на карточке: вопрос о сюжете, модель отвечает по HUD и последним сообщениям. Каждый вопрос — отдельный запрос к модели; в чат ничего не пишется.')}
+
+        ${подгруппа('🧷 Списки из прошлых ходов', `
+          ${галка('hud-carry-over', settings.carryOver !== false, '🧷 Держать списки из прошлых ходов', 'Переписки, секреты, важное, заметки, календарь и новости из прошлых ходов остаются на экране, даже если модель перестала их повторять. Работает только на отрисовке: в запрос к модели не уходит ни одного лишнего символа.')}
+          <div class="hud-set-apps">
+            <label title="Сколько предыдущих ходов просматривать. Больше — дольше собирается карточка.">Ходов назад: ${число('hud-carry-turns', 0, 200, settings.carryTurns)}</label>
+            <label title="Предел длины каждого списка: секретов, заметок, событий календаря и прочего.">Записей в списке: ${число('hud-carry-items', 1, 200, settings.carryMaxItems)}</label>
+            <label title="Предел длины одной переписки в телефоне и в перехватах.">Сообщений в чате: ${число('hud-carry-msgs', 1, 500, settings.carryMaxMessages)}</label>
+          </div>
+        `)}
+      `)}
+
+      ${группа('⚡ Производительность', `
+        ${галка('hud-lighten-old', settings.lightenOldCards !== false, '🪶 Облегчать старые свёрнутые карточки', 'У старой свёрнутой карточки в странице остаётся только заголовок. Панель темы и содержимое откладываются и возвращаются при первом касании карточки. Заметно легче в длинных чатах, особенно на телефоне.')}
+        ${галка('hud-lazy-tabs', settings.lazyTabs !== false, '🗂️ Ленивая загрузка вкладок', 'Собирается только открытая вкладка. Остальные (Телефон, Память, Мир и так далее) строятся в тот момент, когда вы на них переключаетесь, и дальше остаются готовыми. Заметно легче на карточках с большим HUD.')}
+
+        ${подгруппа('📜 Длинные чаты (200+ сообщений)', `
+          ${галка('hud-performance-mode', settings.performanceMode, '⚡ Performance Mode', 'При 200+ сообщениях отключает тяжёлую повторную обработку старых сообщений, замораживает их анимации/эффекты и обрабатывает HUD по мере прокрутки.')}
+          ${галка('hud-virtualize', settings.virtualizeCards !== false, '🪟 Держать в DOM только карточки рядом с экраном', 'Внутри Performance Mode: карточка, уехавшая дальше полутора экранов от края, разбирается обратно в текст, а на её месте остаётся заглушка той же высоты. При возвращении карточка собирается заново.')}
+          ${заметка('Включается само только в чатах от 200 сообщений на странице. Старые блоки остаются рабочими и догружаются при прокрутке.')}
+        `)}
+
+        ${подгруппа('🧹 Лимит карточек', `
+          ${заметка('Каждая собранная карточка HUD — это сотни элементов страницы. Если вписать число, в памяти останутся только последние N карточек, а <b>самые старые</b> свернутся до тонкой полоски. Текст сообщения никуда не денется: долистаете до него — карточка соберётся заново.<br>0 — ограничение выключено.')}
+          <label class="hud-set-check">🧹 Держать в памяти карточек: ${число('hud-card-limit', 0, 2000, settings.hudCardLimit || 0, 80, 10)} шт.</label>
+        `)}
+      `)}
+
+      ${группа('🖼️ Аватарки персонажей', `
         <div style="font-size:12px; opacity:.78;">Одна картинка — на любое число имён: впишите их через запятую, вместе с английским написанием. Аватарка встанет всюду, где сейчас кружок с инициалами: блок персонажей, чаты телефона, перехваты.</div>
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
           <button type="button" id="hud-ava-add" style="cursor:pointer;">➕ Добавить изображение</button>
@@ -3157,45 +3247,39 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         <div style="font-size:12px; opacity:.78; margin-top:2px;">Закреплённые аватарки — страховка на случай, когда картинка из чата достаётся не тому: если у {{char}} указаны имена, никто, кроме них, его фото уже не получит.</div>
         <div id="hud-ava-pinned" class="hud-ava-list"></div>
         <input type="file" id="hud-ava-file" accept="image/*" style="display:none">
-      </div></details>
+      `)}
 
-      <details class="hud-set-group"><summary>📚 Лорбуки и генерация</summary><div class="hud-set-body">
+      ${группа('📚 Лорбуки', `
         <div style="font-size:12px; opacity:.78;">Выбери один или несколько. Их записи + описание карточки чара + Persona добавляются только в отдельный запрос создания/регенерации HUD. Обычный HUD-инжект не меняется.</div>
         <select id="hud-lorebooks" multiple size="6" style="width:100%; min-height:110px; background:rgba(0,0,0,.3); border:1px solid var(--hud-border); color:#fff; padding:4px; border-radius:5px;"></select>
-        <div style="display:flex; gap:8px; align-items:center;">
+        <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
           <button type="button" id="hud-lorebooks-refresh" style="cursor:pointer;">🔄 Обновить список</button>
           <button type="button" id="hud-lorebooks-clear" style="cursor:pointer;">Очистить выбор</button>
           <span id="hud-lorebooks-status" style="font-size:11px; opacity:.75;"></span>
         </div>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Отдельный лимит токенов только для запроса создания/регенерации HUD.">
-          🧠 Лимит токенов HUD: <input type="number" id="hud-max-tokens" min="256" max="32768" value="${settings.hudMaxTokens}" style="width:70px; background:rgba(0,0,0,.3); border:1px solid var(--hud-border); color:#fff; padding:2px 4px; border-radius:4px;">
-        </label>
-        <div style="border-top: 1px solid var(--hud-border); margin: 6px 0;"></div>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Оставляет сводку [HUD_SUMMARY] вместо старых блоков. Если ставишь 2 — то 2 последних будут полными HUD, а все что старше превратятся в сводку памяти. 0 = даже самый свежий HUD будет сжат в сводку (модель не увидит полный JSON последнего состояния — не рекомендуется).">
-          💾 Сколько развернутых HUD оставлять: <input type="number" id="hud-keep-count" min="0" max="10" value="${settings.hudsToKeep}" style="width: 40px; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;">
-        </label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Сколько последних сообщений отправлять модели при нажатии на 🔄 (регенерация HUD). 0 = отправлять всю историю чата до этого сообщения.">
-          ⚡ При регене HUD слать последние <input type="number" id="hud-regen-context" min="0" max="50" value="${settings.regenContextMessages}" style="width: 40px; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;"> сообщ.
-        </label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Сколько последних сообщений чата уходит модели, когда она пишет запись лорбука по кнопке «Написать моделью» в окне «Запомнить». Больше сообщений — точнее контекст, но дороже запрос. 0 = без контекста сцены, только сам факт.">
-          📚 В запись лорбука слать последние <input type="number" id="hud-lore-context" min="0" max="50" value="${settings.loreContextMessages}" style="width: 40px; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;"> сообщ.
-        </label>
-        <label style="display:flex; align-items:center; gap:10px; cursor:pointer;" title="Позволяет перегенерировать HUD (🔄) через ДРУГОЙ сохранённый профиль подключения">
+        <label class="hud-set-check" title="Сколько последних сообщений чата уходит модели, когда она пишет запись лорбука по кнопке «Написать моделью» в окне «Запомнить». Больше сообщений — точнее контекст, но дороже запрос. 0 = без контекста сцены, только сам факт.">📚 В запись лорбука слать последние ${число('hud-lore-context', 0, 50, settings.loreContextMessages, 40)} сообщ.</label>
+      `)}
+
+      ${группа('🤖 Генерация', `
+        <label class="hud-set-check" title="Отдельный лимит токенов только для запроса создания/регенерации HUD.">🧠 Лимит токенов HUD: ${число('hud-max-tokens', 256, 32768, settings.hudMaxTokens, 70)}</label>
+        <label class="hud-set-check" title="Оставляет сводку [HUD_SUMMARY] вместо старых блоков. Если ставишь 2 — то 2 последних будут полными HUD, а все что старше превратятся в сводку памяти. 0 = даже самый свежий HUD будет сжат в сводку (модель не увидит полный JSON последнего состояния — не рекомендуется).">💾 Сколько развернутых HUD оставлять: ${число('hud-keep-count', 0, 10, settings.hudsToKeep, 40)}</label>
+        <label class="hud-set-check" title="Сколько последних сообщений отправлять модели при нажатии на 🔄 (регенерация HUD). 0 = отправлять всю историю чата до этого сообщения.">⚡ При регене HUD слать последние ${число('hud-regen-context', 0, 50, settings.regenContextMessages, 40)} сообщ.</label>
+        <label class="hud-set-check" title="Позволяет перегенерировать HUD (🔄) через ДРУГОЙ сохранённый профиль подключения">
           🧠 Профиль для регена HUD:
-          <select id="hud-regen-profile" style="flex:1; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;">
+          <select id="hud-regen-profile" style="flex:1; min-width:0; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;">
             <option value="">Основной (текущий активный)</option>
           </select>
           <span id="hud-regen-profile-refresh" title="Обновить список профилей" style="cursor:pointer;">🔄</span>
         </label>
-      </div></details>
+      `)}
 
-      <details class="hud-set-group"><summary>🧹 Обслуживание</summary><div class="hud-set-body">
+      ${группа('🧹 Обслуживание', `
         <div style="font-size:12px; opacity:.78;">Отчёты «Архива HUD» лежат в браузере и разбираются заново только после изменения чата. Если их накопилось много или они начали мешать — уберите.</div>
         <div class="hud-set-apps" style="align-items:center;">
           <span id="hud-cache-usage" style="font-size:12px; opacity:.78;">считаю…</span>
           <button type="button" id="hud-clear-cache" class="hud-theme-act danger" title="Убрать отчёты архива и пометки-реакции. Настройки, темы и аватарки останутся.">🧹 Почистить кэш</button>
         </div>
-      </div></details>
+      `)}
 
       </div>`;
     container.appendChild(wrapper);
@@ -3403,7 +3487,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=22.99.22');
+        const mod = await import('./render/archive.js?v=22.99.30');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -3417,6 +3501,15 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       });
     });
     document.getElementById('hud-lazy-tabs').addEventListener('change', (e) => { settings.lazyTabs = e.target.checked; saveSettings(); });
+    // Выключили облегчение — возвращаем содержимое всем карточкам сразу,
+    // включили — облегчаем старые, как после обычной отрисовки.
+    document.getElementById('hud-lighten-old').addEventListener('change', (e) => {
+      settings.lightenOldCards = e.target.checked;
+      saveSettings();
+      const scope = cachedChatContainer || document;
+      if (e.target.checked) запланироватьОблегчение();
+      else scope.querySelectorAll('.hud-os-card').forEach(card => вернутьКарточку(card));
+    });
     document.getElementById('hud-card-limit').addEventListener('change', (e) => {
       let v = parseInt(e.target.value, 10); if (isNaN(v) || v < 0) v = 0;
       v = Math.min(2000, v);
