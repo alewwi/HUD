@@ -2298,3 +2298,1422 @@
   /* Светило идёт по боковым полосам неба и не прячется за часами. */
   .hud-fx-celestial[style*="--cel-xm"] { left: var(--cel-xm) !important; }
 }
+
+
+/* --- Близость: полоса сцены --------------------------------------------- */
+.hud-scene-strip-wrap { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
+.hud-scene-strip { display: flex; flex-wrap: wrap; gap: 6px; }
+.hud-scene-chip {
+  display: inline-flex; align-items: center; gap: 5px; max-width: 100%;
+  font-size: 11.5px; line-height: 1.3; padding: 3px 10px; border-radius: 999px;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); color: var(--hud-text, #e6e6ee);
+}
+.hud-scene-chip i { font-style: normal; }
+.hud-scene-chip b { font-weight: 650; }
+
+/* --- Защита: статусный цвет всегда вместе со значком и словом ---------- */
+.hud-prot {
+  --st: #898781; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px;
+  padding: 7px 10px; border-radius: 10px; background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.1); border-left: 3px solid var(--st);
+}
+.hud-prot.is-good { --st: #0ca30c; }
+.hud-prot.is-serious { --st: #ec835a; }
+.hud-prot.is-critical { --st: #d03b3b; }
+.hud-prot-ico {
+  font-style: normal; width: 18px; height: 18px; border-radius: 50%; display: inline-grid; place-items: center;
+  font-size: 11px; font-weight: 700; background: var(--st); color: #111;
+}
+.hud-prot b { font-weight: 650; }
+.hud-prot em { font-style: normal; font-size: 11px; color: var(--hud-text-muted, #c3c2b7); }
+.hud-prot-note { flex-basis: 100%; font-size: 12px; color: var(--hud-text-muted, #c3c2b7); }
+
+/* --- Готовность к оргазму: шкала, дорожка того же тона ----------------- */
+.hud-org { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.hud-org-head { display: flex; align-items: baseline; gap: 8px; }
+.hud-org-head b { font-size: 17px; font-weight: 650; }
+.hud-org-head em { font-style: normal; font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); }
+.hud-org-meter { height: 6px; border-radius: 999px; overflow: hidden; background: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 18%, transparent); }
+.hud-org-meter > i { display: block; height: 100%; border-radius: 999px; background: var(--hud-nsfw-color, #d9548a); }
+.hud-org p { margin: 0; font-size: 12px; color: var(--hud-text-muted, #c3c2b7); }
+
+/* --- Пульс, дыхание, температура: три плитки со своими шкалами -------- */
+.hud-vitals { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
+.hud-vit {
+  display: flex; flex-direction: column; gap: 3px; min-width: 0; padding: 8px 10px; border-radius: 10px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1);
+}
+.hud-vit-label { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--hud-text-muted, #898781); }
+.hud-vit-value b { font-size: 18px; font-weight: 650; }
+.hud-vit-value small { margin-left: 4px; font-size: 10.5px; color: var(--hud-text-muted, #898781); }
+.hud-vit-spark { width: 72px; height: 22px; overflow: visible; }
+.hud-vit-spark polyline { fill: none; stroke: #898781; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.hud-vit-spark circle { fill: var(--hud-nsfw-color, #d9548a); stroke: #16161d; stroke-width: 2; }
+.hud-vit-flag { font-size: 10.5px; color: #ec835a; }
+.hud-vit em { font-style: normal; font-size: 11px; color: var(--hud-text-muted, #c3c2b7); }
+.hud-vit-beat { width: 8px; height: 8px; border-radius: 50%; background: var(--hud-nsfw-color, #d9548a); animation: hud-vit-beat var(--beat, 1s) ease-out infinite; }
+@keyframes hud-vit-beat {
+  0% { transform: scale(1); opacity: 1; }
+  18% { transform: scale(1.45); opacity: 1; }
+  40%, 100% { transform: scale(1); opacity: .7; }
+}
+.hud-historical .hud-vit-beat { animation: none; }
+@media (prefers-reduced-motion: reduce) { .hud-vit-beat { animation: none; } }
+
+/* --- Облако звуков: громкость — размером и насыщенностью -------------- */
+.hud-sounds { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.hud-sound {
+  font-size: calc(11px + var(--г, 5) * 1.1px); font-weight: calc(400 + var(--г, 5) * 30);
+  opacity: calc(.55 + var(--г, 5) * .045); line-height: 1.25; color: var(--hud-text, #e6e6ee);
+}
+
+/* --- Тепловая карта тела ------------------------------------------------ */
+.hud-heat { --heat: #d55181; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-start; }
+.hud-heat-figure { flex: 0 1 230px; min-width: 180px; display: flex; flex-direction: column; gap: 6px; }
+.hud-heat-svg { width: 100%; height: auto; display: block; }
+.hud-heat-svg .z-base { fill: rgba(255,255,255,.05); stroke: rgba(255,255,255,.22); stroke-width: .7; }
+.hud-heat-svg .z-heat { fill: var(--heat); stroke: none; }
+.hud-heat-svg .z-heat.is-peak { stroke: #fff; stroke-width: .9; }
+.hud-heat-svg .z-heat:hover { stroke: #fff; stroke-width: 1.2; }
+.hud-heat-svg .z-mark circle { fill: #16161d; stroke: rgba(255,255,255,.6); stroke-width: .6; }
+.hud-heat-svg .z-mark text { font-size: 6px; text-anchor: middle; dominant-baseline: central; }
+.hud-heat-svg .z-side { font-size: 7px; fill: #898781; text-anchor: middle; }
+.hud-heat-scale { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--hud-text-muted, #898781); }
+.hud-heat-scale i { flex: 1; height: 6px; border-radius: 999px; background: linear-gradient(90deg, color-mix(in srgb, var(--heat) 16%, transparent), var(--heat)); }
+.hud-heat-list { flex: 1 1 180px; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
+.hud-heat-row { display: grid; grid-template-columns: minmax(0, 1fr) 54px 18px; column-gap: 8px; align-items: center; font-size: 12px; }
+.hud-heat-row b { font-weight: 600; overflow-wrap: anywhere; }
+.hud-heat-row em { font-style: normal; text-align: right; font-variant-numeric: tabular-nums; }
+.hud-heat-row small { grid-column: 1 / -1; font-size: 10.5px; color: var(--hud-text-muted, #c3c2b7); }
+.hud-heat-row small:empty { display: none; }
+.hud-heat-bar { height: 5px; border-radius: 999px; overflow: hidden; background: color-mix(in srgb, var(--heat) 18%, transparent); }
+.hud-heat-bar > i { display: block; height: 100%; border-radius: 999px; background: var(--heat); }
+
+/* --- Следы на теле с таймером ------------------------------------------ */
+.hud-marks { display: flex; flex-direction: column; gap: 6px; }
+.hud-mark {
+  display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: 8px;
+  padding: 6px 10px; border-radius: 10px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1);
+}
+.hud-mark-ico { font-style: normal; font-size: 16px; text-align: center; }
+.hud-mark-body { display: flex; flex-direction: column; min-width: 0; }
+.hud-mark-body b { font-weight: 600; font-size: 12.5px; }
+.hud-mark-body span { font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); }
+.hud-mark-timer { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; min-width: 64px; }
+.hud-mark-timer small { font-size: 10.5px; color: var(--hud-text-muted, #c3c2b7); white-space: nowrap; }
+.hud-mark-meter { width: 64px; height: 4px; border-radius: 999px; overflow: hidden; background: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 18%, transparent); }
+.hud-mark-meter > i { display: block; height: 100%; border-radius: 999px; background: var(--hud-nsfw-color, #d9548a); }
+
+/* --- Менструальный цикл: кольцо фаз ------------------------------------- */
+.hud-cycle {
+  display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-radius: 12px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1);
+}
+.hud-cycle-top { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.hud-cycle-ring { width: 118px; height: 118px; flex: none; }
+.hud-cycle-ring .c-arc { fill: none; stroke-width: 9; opacity: .5; }
+.hud-cycle-ring .c-arc.is-now { stroke-width: 13; opacity: 1; }
+.hud-cycle-ring .c-marker { fill: #fff; stroke: #16161d; stroke-width: 2; }
+.hud-cycle-ring .c-day { font-size: 26px; font-weight: 650; text-anchor: middle; fill: var(--hud-text, #e6e6ee); }
+.hud-cycle-ring .c-sub { font-size: 9.5px; text-anchor: middle; fill: #898781; }
+.hud-cycle-side { flex: 1 1 150px; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.hud-cycle-phase { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.hud-cycle-phase b { font-size: 14px; font-weight: 650; }
+.hud-cycle-late { font-style: normal; display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #ec835a; }
+.hud-cycle-late i {
+  font-style: normal; width: 14px; height: 14px; border-radius: 50%; display: inline-grid; place-items: center;
+  font-size: 9px; font-weight: 700; background: #ec835a; color: #111;
+}
+.hud-cycle-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
+.hud-cycle-legend li { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 7px; align-items: center; font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); }
+.hud-cycle-legend li.is-now { color: var(--hud-text, #e6e6ee); font-weight: 600; }
+.hud-cycle-legend i { width: 10px; height: 10px; border-radius: 3px; }
+.hud-cycle-legend small { font-size: 10.5px; color: #898781; font-variant-numeric: tabular-nums; }
+.hud-cycle-row { display: grid; grid-template-columns: 118px minmax(0, 1fr); gap: 8px; font-size: 12px; }
+.hud-cycle-row span { color: var(--hud-text-muted, #898781); }
+.hud-cycle-row p { margin: 0; }
+.hud-cycle-row.is-late span { color: #ec835a; }
+.hud-cycle-tips { margin: 2px 0 0; padding-left: 18px; font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); display: flex; flex-direction: column; gap: 2px; }
+@media (max-width: 480px) { .hud-cycle-row { grid-template-columns: 1fr; gap: 0; } }
+
+/* --- Мир: экономика, афиша, городские службы --------------------------- */
+.hud-eco-list { display: flex; flex-direction: column; }
+.hud-eco-row {
+  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(64px, auto); gap: 10px; align-items: baseline;
+  padding: 5px 2px; border-bottom: 1px solid rgba(255,255,255,.07); font-size: 12.5px;
+}
+.hud-eco-row:last-child { border-bottom: 0; }
+.hud-eco-name { color: var(--hud-text-muted, #c3c2b7); }
+.hud-eco-val { font-weight: 650; font-variant-numeric: tabular-nums; text-align: right; }
+.hud-eco-chg { font-style: normal; font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); text-align: right; white-space: nowrap; }
+.hud-eco-chg i { font-style: normal; margin-right: 3px; font-size: 9px; }
+.hud-eco-row.is-note { grid-template-columns: 1fr; color: var(--hud-text-muted, #c3c2b7); }
+.hud-afisha-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.hud-afisha-card {
+  display: flex; flex-direction: column; gap: 3px; padding: 8px 10px; border-radius: 10px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); min-width: 0;
+}
+.hud-afisha-kind { font-size: 10.5px; color: var(--hud-text-muted, #898781); display: flex; gap: 5px; align-items: center; text-transform: uppercase; letter-spacing: .04em; }
+.hud-afisha-kind i { font-style: normal; font-size: 13px; }
+.hud-afisha-title { font-size: 13px; font-weight: 650; overflow-wrap: anywhere; }
+.hud-afisha-when { font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); }
+.hud-city-list { display: flex; flex-direction: column; gap: 6px; }
+.hud-city-row {
+  display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 10px; align-items: baseline;
+  padding: 6px 10px; border-radius: 9px; background: rgba(255,255,255,.035); border-left: 3px solid rgba(255,255,255,.14);
+}
+.hud-city-row.is-emergency { border-left-color: #d03b3b; background: rgba(208,59,59,.08); }
+.hud-city-kind { font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); display: flex; gap: 6px; align-items: center; }
+.hud-city-kind i { font-style: normal; }
+.hud-city-row p { margin: 0; font-size: 12.5px; }
+@media (max-width: 480px) { .hud-city-row { grid-template-columns: 1fr; gap: 2px; } }
+
+
+/* Плитки пульса на узкой карточке — по две в ряд, а не столбцом. */
+.hud-vitals { grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); }
+.hud-vit { padding: 7px 8px; }
+
+/* --- Ассистент: что увидит модель и ответ с разметкой ------------------ */
+.hud-ask-ctx { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 8px; }
+.hud-ask-toggle, .hud-ask-num, .hud-ask-info {
+  display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; line-height: 1.3;
+  padding: 3px 9px; border-radius: 999px; border: 1px solid rgba(255,255,255,.14);
+  background: rgba(255,255,255,.04); color: inherit;
+}
+.hud-ask-toggle { cursor: pointer; opacity: .55; transition: opacity .15s ease, background .15s ease; }
+.hud-ask-toggle[aria-pressed="true"] {
+  opacity: 1;
+  border-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 60%, transparent);
+  background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 20%, transparent);
+}
+.hud-ask-info { opacity: .8; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-ask-num input {
+  width: 42px; background: rgba(0,0,0,.3); border: 1px solid rgba(255,255,255,.15); color: inherit;
+  border-radius: 4px; padding: 0 3px; font-size: 11.5px;
+}
+.hud-ask-a p { margin: 0 0 6px; }
+.hud-ask-a p:last-child { margin-bottom: 0; }
+.hud-ask-a ul { margin: 0 0 6px; padding-left: 18px; }
+.hud-ask-a li { margin: 2px 0; }
+
+
+/* =========================================================================
+   НОВЫЕ БЛОКИ — КРАСОТА
+   Только статичные средства: градиенты, свечения, формы. Цвета — от темы
+   (--hud-nsfw-color, --hud-accent), чтобы блоки жили в любой теме.
+   ========================================================================= */
+.hud-body, .hud-user-body { --nsfw: var(--hud-nsfw-color, #d9548a); }
+
+/* --- Полоса сцены: пилюли с медальонами -------------------------------- */
+.hud-scene-strip { gap: 7px; }
+.hud-scene-chip {
+  position: relative; padding: 3px 11px 3px 3px; gap: 7px; font-size: 12px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--nsfw) 16%, rgba(255,255,255,.04)), rgba(255,255,255,.02));
+  border: 1px solid color-mix(in srgb, var(--nsfw) 34%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 2px 10px color-mix(in srgb, var(--nsfw) 12%, transparent);
+}
+.hud-scene-chip > i:first-child {
+  width: 22px; height: 22px; border-radius: 50%; display: inline-grid; place-items: center; font-size: 12px; flex: none;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--nsfw) 60%, #fff 10%), color-mix(in srgb, var(--nsfw) 30%, #120c14));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--nsfw) 45%, transparent), 0 0 10px color-mix(in srgb, var(--nsfw) 35%, transparent);
+}
+.hud-scene-chip b { color: color-mix(in srgb, var(--nsfw) 35%, #fff); }
+.hud-round-dots { display: inline-flex; gap: 3px; margin-left: 2px; }
+.hud-round-dots i { width: 6px; height: 6px; border-radius: 50%; background: color-mix(in srgb, var(--nsfw) 55%, transparent); }
+.hud-round-dots i.is-now { background: var(--nsfw); box-shadow: 0 0 6px var(--nsfw); }
+
+/* --- Защита: щит ---------------------------------------------------------- */
+.hud-prot {
+  display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; column-gap: 10px; row-gap: 6px; align-items: center;
+  padding: 10px 12px; border-radius: 14px; border-left-width: 1px;
+  background:
+    radial-gradient(120% 140% at 0% 50%, color-mix(in srgb, var(--st) 22%, transparent), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
+  border: 1px solid color-mix(in srgb, var(--st) 45%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 4px 16px color-mix(in srgb, var(--st) 14%, transparent);
+}
+.hud-prot-ico { width: 40px; height: 40px; border-radius: 12px; background: color-mix(in srgb, var(--st) 18%, transparent); display: grid; place-items: center; }
+.hud-prot-ico svg { width: 30px; height: 30px; overflow: visible; }
+.hud-prot-ico .sh { fill: color-mix(in srgb, var(--st) 30%, #0e0b10); stroke: var(--st); stroke-width: 1.4; stroke-linejoin: round; }
+.hud-prot-ico .mk { fill: none; stroke: #fff; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.hud-prot-text { display: flex; flex-direction: column; min-width: 0; }
+.hud-prot-kicker { font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--hud-text-muted, #898781); }
+.hud-prot b { font-size: 15px; }
+.hud-prot em {
+  font-style: normal; font-size: 10.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase;
+  padding: 3px 9px; border-radius: 999px; color: #fff; background: color-mix(in srgb, var(--st) 55%, transparent);
+  border: 1px solid color-mix(in srgb, var(--st) 80%, transparent);
+}
+.hud-prot-note { grid-column: 1 / -1; padding-top: 6px; border-top: 1px dashed rgba(255,255,255,.12); }
+
+/* --- Готовность к оргазму: шкала с отметками и светящимся концом ------- */
+.hud-org-head b {
+  font-size: 22px; line-height: 1;
+  background: linear-gradient(90deg, #fff, color-mix(in srgb, var(--nsfw) 60%, #fff));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hud-org.is-edge .hud-org-head em { color: color-mix(in srgb, var(--nsfw) 50%, #fff); font-weight: 600; }
+.hud-org-meter {
+  position: relative; height: 10px; overflow: visible;
+  background: linear-gradient(90deg, rgba(255,255,255,.05), color-mix(in srgb, var(--nsfw) 16%, transparent));
+  box-shadow: inset 0 1px 2px rgba(0,0,0,.45);
+}
+.hud-org-meter > i {
+  position: relative;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--nsfw) 35%, #3a1830), var(--nsfw) 70%, color-mix(in srgb, var(--nsfw) 40%, #fff));
+  box-shadow: 0 0 12px color-mix(in srgb, var(--nsfw) 55%, transparent);
+}
+.hud-org-meter > i::after {
+  content: ''; position: absolute; right: -5px; top: 50%; width: 14px; height: 14px; border-radius: 50%; transform: translateY(-50%);
+  background: radial-gradient(circle, #fff 0 30%, var(--nsfw) 60%, transparent 72%);
+  box-shadow: 0 0 12px var(--nsfw);
+}
+.hud-org-meter > s { position: absolute; top: -3px; bottom: -3px; width: 1px; background: rgba(255,255,255,.35); text-decoration: none; }
+.hud-org-scale { display: flex; justify-content: space-between; font-size: 9.5px; color: var(--hud-text-muted, #898781); letter-spacing: .04em; }
+
+/* --- Пульс, дыхание, температура --------------------------------------- */
+.hud-vit { position: relative; overflow: hidden; border-radius: 12px; padding: 9px 10px 8px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--vc) 14%, rgba(255,255,255,.03)), rgba(255,255,255,.02) 70%);
+  border: 1px solid color-mix(in srgb, var(--vc) 30%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07);
+}
+.hud-vit.is-pulse { --vc: #ff5f8f; }
+.hud-vit.is-breath { --vc: #4cc3d9; }
+.hud-vit.is-temp { --vc: #f0a44b; }
+.hud-vit::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 2px; background: linear-gradient(90deg, transparent, var(--vc), transparent); opacity: .8; }
+.hud-vit-deco { position: absolute; left: 0; right: 0; bottom: 6px; width: 100%; height: 26px; opacity: .16; pointer-events: none; }
+.hud-vit-deco path { fill: none; stroke: var(--vc); stroke-width: 2; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.hud-vit > *:not(.hud-vit-deco) { position: relative; }
+.hud-vit-ico { width: 18px; height: 18px; border-radius: 6px; display: inline-grid; place-items: center; background: color-mix(in srgb, var(--vc) 22%, transparent); }
+.hud-vit-ico svg { width: 13px; height: 13px; fill: none; stroke: var(--vc); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.hud-vit.is-pulse .hud-vit-ico svg { fill: var(--vc); stroke: none; }
+.hud-vit-value b { font-size: 21px; letter-spacing: -.01em; text-shadow: 0 0 14px color-mix(in srgb, var(--vc) 45%, transparent); }
+.hud-vit-beat { background: var(--vc); box-shadow: 0 0 8px var(--vc); width: 6px; height: 6px; }
+.hud-vit-spark polyline { stroke: var(--vc); opacity: .85; }
+.hud-vit-spark .area { fill: var(--vc); opacity: .14; stroke: none; }
+.hud-vit-spark circle { fill: #fff; stroke: var(--vc); stroke-width: 2; }
+.hud-vit-gauge {
+  position: relative; display: block; height: 5px; border-radius: 999px; margin: 2px 0 1px;
+  background: linear-gradient(90deg, #4c9be8 0%, #3cc38a 30%, #3cc38a 36%, #f0c24b 55%, #f08a4b 75%, #e0485a 100%);
+  opacity: .9;
+}
+.hud-vit-gauge > i { position: absolute; top: 50%; width: 10px; height: 10px; margin-left: -5px; border-radius: 50%; transform: translateY(-50%); background: #fff; box-shadow: 0 0 0 2px #16161d, 0 0 8px rgba(255,255,255,.6); }
+
+/* --- Облако звуков: слова с эквалайзером ------------------------------- */
+.hud-sounds { gap: 6px 8px; align-items: center; }
+.hud-sound {
+  display: inline-flex; align-items: center; gap: 6px; opacity: 1; line-height: 1.2;
+  padding: calc(3px + var(--г, 5) * .25px) calc(8px + var(--г, 5) * .5px);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--nsfw) calc(6% + var(--г, 5) * 2.4%), rgba(255,255,255,.03));
+  border: 1px solid color-mix(in srgb, var(--nsfw) calc(12% + var(--г, 5) * 4%), transparent);
+  box-shadow: 0 0 calc(var(--г, 5) * 1.2px) color-mix(in srgb, var(--nsfw) 30%, transparent);
+}
+.hud-sound b { font-weight: inherit; opacity: calc(.62 + var(--г, 5) * .038); }
+.hud-sound-eq { display: inline-flex; align-items: flex-end; gap: 1.5px; height: 12px; }
+.hud-sound-eq i { width: 2.5px; border-radius: 2px; background: color-mix(in srgb, var(--nsfw) 60%, #fff); }
+.hud-sound-eq i:nth-child(1) { height: calc(20% + var(--г, 5) * 5%); }
+.hud-sound-eq i:nth-child(2) { height: calc(35% + var(--г, 5) * 6.5%); }
+.hud-sound-eq i:nth-child(3) { height: calc(15% + var(--г, 5) * 4%); }
+.hud-sound-eq i:nth-child(4) { height: calc(28% + var(--г, 5) * 5.5%); }
+
+/* --- Тепловая карта: силуэт-тепловизор --------------------------------- */
+.hud-heat { --heat: var(--nsfw); gap: 12px 16px; }
+.hud-heat-figure {
+  padding: 8px 8px 6px; border-radius: 14px;
+  background: radial-gradient(90% 70% at 50% 40%, color-mix(in srgb, var(--heat) 12%, #120d16), #0c0a0f 80%);
+  border: 1px solid color-mix(in srgb, var(--heat) 25%, rgba(255,255,255,.08));
+  box-shadow: inset 0 0 30px rgba(0,0,0,.5), 0 6px 20px rgba(0,0,0,.25);
+}
+.hud-heat-svg .z-rim > * { fill: color-mix(in srgb, var(--heat) 25%, rgba(255,255,255,.2)); stroke: color-mix(in srgb, var(--heat) 35%, rgba(255,255,255,.25)); stroke-width: 2.2; stroke-linejoin: round; }
+.hud-heat-svg .b0 { stop-color: #3a2c44; }
+.hud-heat-svg .b1 { stop-color: #19141f; }
+.hud-heat-svg .scan { fill: rgba(255,255,255,.045); }
+.hud-heat-svg .z-detail path { fill: none; stroke: rgba(255,255,255,.12); stroke-width: .7; stroke-linecap: round; }
+.hud-heat-svg .s0 { stop-color: #fff5fa; stop-opacity: 1; }
+.hud-heat-svg .s1 { stop-color: color-mix(in srgb, var(--heat) 55%, #ffd2e4); stop-opacity: .95; }
+.hud-heat-svg .s2 { stop-color: var(--heat); stop-opacity: .5; }
+.hud-heat-svg .s3 { stop-color: var(--heat); stop-opacity: 0; }
+.hud-heat-svg .z-heat { mix-blend-mode: screen; stroke: none; }
+.hud-heat-svg .z-heat.is-peak, .hud-heat-svg .z-heat:hover { stroke: none; }
+.hud-heat-svg .z-mark .z-mark-halo { fill: color-mix(in srgb, var(--heat) 30%, transparent); stroke: none; }
+.hud-heat-svg .z-mark circle:not(.z-mark-halo) { fill: #140f17; stroke: color-mix(in srgb, var(--heat) 70%, #fff); stroke-width: .8; }
+.hud-heat-svg .z-mark text { font-size: 6.2px; }
+.hud-heat-svg .z-side { font-size: 6.5px; letter-spacing: .14em; text-transform: uppercase; fill: rgba(255,255,255,.4); }
+.hud-heat-scale i { height: 5px; background: linear-gradient(90deg, #19141f, color-mix(in srgb, var(--heat) 70%, #19141f), var(--heat), #fff0f6); box-shadow: 0 0 8px color-mix(in srgb, var(--heat) 30%, transparent); }
+.hud-heat-list { gap: 7px; }
+.hud-heat-row { grid-template-columns: 10px minmax(0, 1fr) 54px 18px; column-gap: 8px; padding: 4px 6px; border-radius: 8px; background: rgba(255,255,255,.025); }
+.hud-heat-row.is-peak { background: color-mix(in srgb, var(--heat) 12%, transparent); box-shadow: inset 2px 0 0 var(--heat); }
+.hud-heat-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--heat); opacity: calc(.25 + var(--v, 0) * .75); box-shadow: 0 0 calc(var(--v, 0) * 10px) var(--heat); }
+.hud-heat-row small { grid-column: 2 / -1; }
+.hud-heat-row.is-peak .hud-heat-trend { color: color-mix(in srgb, var(--heat) 55%, #fff); font-weight: 600; }
+.hud-heat-bar { height: 6px; background: rgba(255,255,255,.06); }
+.hud-heat-bar > i { background: linear-gradient(90deg, color-mix(in srgb, var(--heat) 45%, #1a1320), var(--heat)); box-shadow: 0 0 6px color-mix(in srgb, var(--heat) 40%, transparent); }
+
+/* --- Следы на теле: карточки с кольцом отсчёта -------------------------- */
+.hud-mark { --mk: #d9548a; grid-template-columns: 34px minmax(0, 1fr) auto; padding: 8px 10px; border-radius: 12px;
+  background: linear-gradient(120deg, color-mix(in srgb, var(--mk) 14%, rgba(255,255,255,.03)), rgba(255,255,255,.02) 60%);
+  border: 1px solid color-mix(in srgb, var(--mk) 30%, transparent);
+}
+.hud-mark.is-hickey { --mk: #c85bb0; }
+.hud-mark.is-bite { --mk: #e0566b; }
+.hud-mark.is-scratch { --mk: #ef7f9a; }
+.hud-mark.is-bruise { --mk: #8d74e0; }
+.hud-mark.is-redness { --mk: #ef6c4a; }
+.hud-mark.is-ache { --mk: #d9a441; }
+.hud-mark-ico {
+  width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center; font-size: 17px;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--mk) 45%, transparent), color-mix(in srgb, var(--mk) 15%, #0f0b12));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--mk) 50%, transparent), 0 0 12px color-mix(in srgb, var(--mk) 30%, transparent);
+}
+.hud-mark-timer { flex-direction: row; align-items: center; gap: 6px; min-width: 0; }
+.hud-mark-ring { width: 34px; height: 34px; flex: none; }
+.hud-mark-ring .t { fill: none; stroke: rgba(255,255,255,.09); stroke-width: 3; }
+.hud-mark-ring .v { fill: none; stroke: var(--mk); stroke-width: 3; stroke-linecap: round; }
+.hud-mark-ring text { font-size: 11px; font-weight: 700; text-anchor: middle; dominant-baseline: central; fill: var(--hud-text, #e6e6ee); }
+.hud-mark-timer small { font-size: 10px; }
+
+/* --- Цикл: засечки, свечение фазы, значки ------------------------------- */
+.hud-cycle { --phase: #9085e9; border-radius: 16px; padding: 12px 14px;
+  background:
+    radial-gradient(70% 90% at 0% 0%, color-mix(in srgb, var(--phase) 16%, transparent), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015));
+  border: 1px solid color-mix(in srgb, var(--phase) 30%, rgba(255,255,255,.08));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 6px 22px rgba(0,0,0,.2);
+}
+.hud-cycle.is-late { --phase: #ec835a; }
+.hud-cycle-ring { width: 128px; height: 128px; }
+.hud-cycle-ring .d0 { stop-color: color-mix(in srgb, var(--phase) 22%, #1a1520); }
+.hud-cycle-ring .d1 { stop-color: #0f0c13; }
+.hud-cycle-ring .c-disc { stroke: rgba(255,255,255,.06); stroke-width: 1; }
+.hud-cycle-ring .c-tick { fill: rgba(255,255,255,.22); }
+.hud-cycle-ring .c-tick.is-today { fill: #fff; }
+.hud-cycle-ring .c-glow { fill: none; stroke-width: 22; opacity: .16; }
+.hud-cycle-ring .c-arc { stroke-linecap: butt; }
+.hud-cycle-ring .c-halo { fill: rgba(255,255,255,.18); }
+.hud-cycle-ring .c-marker { stroke-width: 2.5; }
+.hud-cycle-ring .c-day { font-size: 30px; font-weight: 700; letter-spacing: -.02em; }
+.hud-cycle-ring .c-sub { font-size: 8.5px; letter-spacing: .08em; text-transform: uppercase; }
+.hud-cycle-phase b { font-size: 16px; color: color-mix(in srgb, var(--phase) 40%, #fff); }
+.hud-cycle-badges { display: flex; flex-wrap: wrap; gap: 5px; }
+.hud-cycle-badge {
+  display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; padding: 2px 8px; border-radius: 999px;
+  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); color: var(--hud-text, #e6e6ee);
+}
+.hud-cycle-badge i { font-style: normal; }
+.hud-cycle-badge.is-fertile { background: rgba(201,133,0,.16); border-color: rgba(201,133,0,.5); }
+.hud-cycle-badge.is-pms { background: rgba(144,133,233,.16); border-color: rgba(144,133,233,.5); }
+.hud-cycle-legend li i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: 0 0 6px color-mix(in srgb, var(--c) 60%, transparent); }
+.hud-cycle-legend li.is-now { padding: 1px 6px; margin: 0 -6px; border-radius: 6px; background: color-mix(in srgb, var(--phase) 14%, transparent); }
+.hud-cycle-row { padding-top: 6px; border-top: 1px solid rgba(255,255,255,.07); }
+.hud-cycle-tips { list-style: none; padding: 8px 10px; margin-top: 4px; border-radius: 10px; background: rgba(0,0,0,.2); gap: 4px; }
+.hud-cycle-tips li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 6px; align-items: start; }
+.hud-cycle-tips li i { font-style: normal; font-size: 12px; line-height: 1.4; text-align: center; }
+
+/* --- Мир: биржевая сводка ----------------------------------------------- */
+.hud-eco-row { grid-template-columns: 26px auto minmax(12px, 1fr) auto minmax(64px, auto); gap: 8px; padding: 7px 2px; border-bottom: 1px dashed rgba(255,255,255,.12); }
+.hud-eco-ico {
+  width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 12px; font-weight: 700;
+  font-family: Georgia, serif; color: #1e1e1e; background: radial-gradient(circle at 35% 30%, #fff, #cfc8b8);
+  box-shadow: 0 1px 3px rgba(0,0,0,.5);
+}
+.hud-eco-name { font-family: Georgia, serif; color: var(--hud-text, #e6e6ee); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud-eco-dots { align-self: end; margin-bottom: 5px; border-bottom: 2px dotted rgba(255,255,255,.18); }
+.hud-eco-val { font-family: 'Courier New', ui-monospace, monospace; font-size: 13.5px; letter-spacing: .02em; }
+.hud-eco-chg { padding: 1px 7px; border-radius: 4px; background: rgba(255,255,255,.06); font-family: 'Courier New', ui-monospace, monospace; }
+.hud-eco-chg.is-up i, .hud-eco-chg.is-down i { font-size: 8px; }
+@media (max-width: 480px) {
+  .hud-eco-row { grid-template-columns: 26px minmax(0, 1fr) auto; row-gap: 2px; }
+  .hud-eco-dots { display: none; }
+  .hud-eco-chg { grid-column: 2 / -1; justify-self: start; }
+}
+
+/* --- Мир: афиша билетами ------------------------------------------------- */
+.hud-afisha-grid { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+.hud-afisha-card {
+  --tk: #e0b96a; flex-direction: row; gap: 0; padding: 0; border: 0; border-radius: 8px; overflow: hidden; min-height: 76px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--tk) 22%, #2a2520), #1a1714);
+  box-shadow: 0 4px 14px rgba(0,0,0,.35), inset 0 0 0 1px color-mix(in srgb, var(--tk) 40%, transparent);
+  /* Вырезы билета на линии отрыва — две маски, каждая на свою половину высоты. */
+  -webkit-mask: radial-gradient(circle 7px at 62px 0, transparent 97%, #000) top / 100% 51% no-repeat,
+                radial-gradient(circle 7px at 62px 100%, transparent 97%, #000) bottom / 100% 51% no-repeat;
+          mask: radial-gradient(circle 7px at 62px 0, transparent 97%, #000) top / 100% 51% no-repeat,
+                radial-gradient(circle 7px at 62px 100%, transparent 97%, #000) bottom / 100% 51% no-repeat;
+}
+.hud-afisha-card.is-cinema { --tk: #e0566b; }
+.hud-afisha-card.is-theatre { --tk: #c9a14a; }
+.hud-afisha-card.is-concert { --tk: #8d74e0; }
+.hud-afisha-card.is-exhibition { --tk: #4cc3d9; }
+.hud-afisha-card.is-festival { --tk: #f08a4b; }
+.hud-afisha-card.is-sport { --tk: #3cc38a; }
+.hud-afisha-card.is-club { --tk: #e05fc8; }
+.hud-afisha-card.is-street { --tk: #f0c24b; }
+.hud-afisha-stub {
+  width: 62px; flex: none; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; padding: 6px 4px;
+  background: color-mix(in srgb, var(--tk) 32%, #1a1714); border-right: 2px dashed rgba(0,0,0,.45);
+}
+.hud-afisha-stub > i { font-style: normal; font-size: 22px; filter: drop-shadow(0 2px 3px rgba(0,0,0,.4)); }
+.hud-afisha-kind { font-size: 8.5px; letter-spacing: .1em; color: #fff; opacity: .85; text-align: center; line-height: 1.1; }
+.hud-afisha-main { position: relative; flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; padding: 9px 12px 18px; }
+.hud-afisha-title { font-family: Georgia, serif; font-size: 14.5px; font-weight: 700; color: #fff; }
+.hud-afisha-when { font-size: 11px; color: color-mix(in srgb, var(--tk) 45%, #fff); }
+.hud-afisha-admit { position: absolute; right: 10px; bottom: 5px; font-size: 7.5px; letter-spacing: .22em; color: color-mix(in srgb, var(--tk) 60%, #fff); opacity: .55; font-family: 'Courier New', monospace; }
+
+/* --- Мир: сводка происшествий ------------------------------------------ */
+.hud-city-row { grid-template-columns: 150px minmax(0, 1fr); padding: 8px 12px; border-radius: 4px; border-left: 4px solid rgba(255,255,255,.3); background: rgba(255,255,255,.04); }
+.hud-city-row.is-traffic { border-left-color: #f0a44b; }
+.hud-city-row.is-roads { border-left-color: #cfc8b8; }
+.hud-city-row.is-transport { border-left-color: #4c9be8; }
+.hud-city-row.is-utilities { border-left-color: #3cc38a; }
+.hud-city-row.is-police { border-left-color: #7c8cf0; }
+.hud-city-row.is-emergency { border-left-color: #d03b3b; background: linear-gradient(90deg, rgba(208,59,59,.22), rgba(208,59,59,.05)); box-shadow: inset 0 0 0 1px rgba(208,59,59,.3); }
+.hud-city-kind { font-family: Georgia, serif; font-weight: 700; color: var(--hud-text, #e6e6ee); flex-wrap: wrap; }
+.hud-city-kind > i { width: 24px; height: 24px; border-radius: 6px; display: inline-grid; place-items: center; background: rgba(0,0,0,.25); }
+.hud-city-stamp {
+  font-family: 'Courier New', monospace; font-size: 9px; letter-spacing: .14em; text-transform: uppercase; color: #ff6b6b;
+  border: 1.5px solid #ff6b6b; border-radius: 3px; padding: 0 4px; transform: rotate(-6deg);
+}
+.hud-city-pips { display: flex; gap: 2px; margin-top: 5px; }
+.hud-city-pips i { width: 12px; height: 5px; border-radius: 2px; background: rgba(255,255,255,.1); }
+.hud-city-pips i.on { background: #3cc38a; }
+.hud-city-pips i.on.mid { background: #f0c24b; }
+.hud-city-pips i.on.hi { background: #e0485a; }
+
+/* --- Ассистент: чат пузырями --------------------------------------------- */
+.hud-ask-modal .hud-modal-head { display: flex; align-items: center; gap: 10px; }
+.hud-ask-orb {
+  width: 30px; height: 30px; border-radius: 50%; flex: none;
+  background: radial-gradient(circle at 35% 30%, #fff 0 8%, color-mix(in srgb, var(--hud-accent, #8c5ad2) 70%, #fff) 20%, var(--hud-accent, #8c5ad2) 55%, #1a1024 100%);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--hud-accent, #8c5ad2) 60%, transparent);
+  animation: hud-ask-orb 4s ease-in-out infinite;
+}
+@keyframes hud-ask-orb { 50% { box-shadow: 0 0 26px color-mix(in srgb, var(--hud-accent, #8c5ad2) 80%, transparent); } }
+.hud-ask-title { display: flex; flex-direction: column; }
+.hud-ask-log { gap: 10px; padding: 2px; }
+.hud-ask-q, .hud-ask-a { position: relative; max-width: 88%; padding: 9px 12px; line-height: 1.5; font-size: 13px; }
+.hud-ask-q {
+  border-radius: 16px 16px 4px 16px; color: #fff;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--hud-accent, #8c5ad2) 75%, #fff 5%), color-mix(in srgb, var(--hud-accent, #8c5ad2) 55%, #1a1024));
+  box-shadow: 0 4px 14px color-mix(in srgb, var(--hud-accent, #8c5ad2) 30%, transparent);
+}
+.hud-ask-a {
+  margin-left: 34px; border-radius: 16px 16px 16px 4px;
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 4px 14px rgba(0,0,0,.2);
+}
+.hud-ask-a::before {
+  content: '✦'; position: absolute; left: -34px; bottom: 0; width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 12px; color: #fff;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--hud-accent, #8c5ad2) 70%, #fff), var(--hud-accent, #8c5ad2) 60%, #1a1024);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--hud-accent, #8c5ad2) 45%, transparent);
+}
+.hud-ask-a b { color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 35%, #fff); }
+.hud-ask-a.is-wait { font-style: normal; opacity: 1; display: flex; align-items: center; gap: 8px; }
+.hud-ask-a.is-error { background: rgba(208,59,59,.12); }
+.hud-ask-typing { display: inline-flex; gap: 4px; }
+.hud-ask-typing i { width: 6px; height: 6px; border-radius: 50%; background: var(--hud-accent, #8c5ad2); animation: hud-ask-typing 1.2s ease-in-out infinite; }
+.hud-ask-typing i:nth-child(2) { animation-delay: .15s; }
+.hud-ask-typing i:nth-child(3) { animation-delay: .3s; }
+@keyframes hud-ask-typing { 0%, 60%, 100% { transform: translateY(0); opacity: .45; } 30% { transform: translateY(-4px); opacity: 1; } }
+.hud-ask-wait-text { font-size: 12px; opacity: .7; }
+.hud-ask-chip {
+  border-radius: 999px; padding: 4px 11px; font-size: 12px;
+  background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 10%, rgba(255,255,255,.03));
+  border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 35%, transparent);
+}
+.hud-ask-chip::before { content: '✦ '; opacity: .7; }
+.hud-ask-ctx { padding: 7px; border-radius: 12px; background: rgba(0,0,0,.2); border: 1px solid rgba(255,255,255,.06); }
+@media (prefers-reduced-motion: reduce) { .hud-ask-orb, .hud-ask-typing i { animation: none; } }
+
+/* Плитки показателей — на всю ширину строки: иначе строка ужимает их по
+   содержимому, и три плитки встают столбиком в половину ширины. */
+.hud-row > .hud-vitals, .hud-row > .hud-heat, .hud-row > .hud-marks, .hud-row > .hud-sounds, .hud-row > .hud-org, .hud-row > .hud-prot, .hud-row > .hud-cycle { flex: 1 1 100%; width: 100%; min-width: 0; box-sizing: border-box; }
+.hud-vitals { grid-template-columns: repeat(auto-fit, minmax(92px, 1fr)); }
+
+/* =========================================================================
+   НОВЫЕ ПЛАШКИ — УКРАШЕНИЯ
+   Блики, градиентные рамки, водяные знаки из значков, орнаментальные
+   акценты. Всё статичное и лёгкое: без размытия и фильтров.
+   ========================================================================= */
+
+/* Общий блик сверху: мягкая полоска света по верхней кромке. */
+:is(.hud-scene-chip, .hud-sound, .hud-cycle-badge, .hud-mark, .hud-heat-row, .hud-city-row, .hud-prot, .hud-vit, .hud-afisha-main, .hud-eco-chg) {
+  position: relative;
+}
+:is(.hud-scene-chip, .hud-sound, .hud-cycle-badge, .hud-mark, .hud-prot)::before {
+  content: ''; position: absolute; left: 10%; right: 10%; top: 0; height: 45%; border-radius: inherit; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255,255,255,.14), rgba(255,255,255,0));
+}
+.hud-vit::before { z-index: 1; }
+
+/* --- Полоса сцены: градиентные рамки и разделитель-орнамент ------------ */
+.hud-scene-chip {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--nsfw) 18%, #150f18), #120d14) padding-box,
+    linear-gradient(120deg, color-mix(in srgb, var(--nsfw) 85%, #fff), color-mix(in srgb, var(--nsfw) 15%, transparent) 45%, color-mix(in srgb, var(--nsfw) 70%, #fff)) border-box;
+}
+.hud-scene-chip.is-round { padding-right: 9px; }
+.hud-scene-strip { position: relative; padding-left: 14px; }
+.hud-scene-strip::before {
+  content: '❦'; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  font-size: 11px; color: color-mix(in srgb, var(--nsfw) 70%, #fff); opacity: .55;
+}
+
+/* --- Защита: узор предупреждения, блеск, звёздочка ----------------------- */
+.hud-prot.is-critical {
+  background:
+    repeating-linear-gradient(-45deg, rgba(208,59,59,.10) 0 7px, transparent 7px 14px),
+    radial-gradient(120% 140% at 0% 50%, rgba(208,59,59,.22), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
+}
+.hud-prot.is-serious {
+  background:
+    repeating-linear-gradient(-45deg, rgba(236,131,90,.08) 0 7px, transparent 7px 14px),
+    radial-gradient(120% 140% at 0% 50%, rgba(236,131,90,.2), transparent 60%),
+    linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.015));
+}
+.hud-prot::after {
+  content: '✦'; position: absolute; right: 10px; bottom: 6px; font-size: 10px; pointer-events: none;
+  color: var(--st); opacity: .45;
+}
+.hud-prot-ico { position: relative; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--st) 45%, transparent), 0 0 14px color-mix(in srgb, var(--st) 28%, transparent); }
+.hud-prot em { box-shadow: 0 0 10px color-mix(in srgb, var(--st) 40%, transparent), inset 0 1px 0 rgba(255,255,255,.25); }
+
+/* --- Оргазм: засечки по 10% и искра на конце ---------------------------- */
+.hud-org-meter::before {
+  content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 1;
+  background: repeating-linear-gradient(90deg, transparent 0 calc(10% - 1px), rgba(0,0,0,.35) calc(10% - 1px) 10%);
+}
+.hud-org.is-edge .hud-org-head b::after { content: ' ✧'; font-size: 13px; -webkit-text-fill-color: color-mix(in srgb, var(--nsfw) 60%, #fff); }
+
+/* --- Показатели: водяной знак-значок и уголки ------------------------------ */
+.hud-vit::after {
+  position: absolute; right: -4px; top: -6px; font-size: 42px; line-height: 1; opacity: .07; pointer-events: none;
+  color: var(--vc);
+}
+.hud-vit.is-pulse::after { content: '♥'; }
+.hud-vit.is-breath::after { content: '≋'; }
+.hud-vit.is-temp::after { content: '℃'; font-size: 34px; top: -2px; }
+.hud-vit-value b { position: relative; }
+
+/* --- Звуки: градиентные рамки, звёздочка у громких --------------------- */
+.hud-sound {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--nsfw) calc(8% + var(--г, 5) * 2.2%), #140f17), #120d14) padding-box,
+    linear-gradient(110deg, color-mix(in srgb, var(--nsfw) calc(30% + var(--г, 5) * 6%), #fff 8%), transparent 55%, color-mix(in srgb, var(--nsfw) calc(20% + var(--г, 5) * 5%), transparent)) border-box;
+}
+.hud-sound[style*="--г:8"]::after, .hud-sound[style*="--г:9"]::after, .hud-sound[style*="--г:10"]::after {
+  content: '✦'; position: absolute; right: -3px; top: -5px; font-size: 10px; color: color-mix(in srgb, var(--nsfw) 50%, #fff);
+  text-shadow: 0 0 6px var(--nsfw);
+}
+
+/* --- Карта тела: рамка-«прицел» и пик с огоньком ------------------------- */
+.hud-heat-figure { position: relative; }
+.hud-heat-figure::before, .hud-heat-figure::after {
+  content: ''; position: absolute; width: 14px; height: 14px; pointer-events: none;
+  border-color: color-mix(in srgb, var(--heat) 70%, #fff); opacity: .55;
+}
+.hud-heat-figure::before { left: 6px; top: 6px; border-left: 1.5px solid; border-top: 1.5px solid; border-radius: 4px 0 0 0; }
+.hud-heat-figure::after { right: 6px; bottom: 30px; border-right: 1.5px solid; border-bottom: 1.5px solid; border-radius: 0 0 4px 0; }
+.hud-heat-row.is-peak {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(90deg, color-mix(in srgb, var(--heat) 16%, #140f17), #120d14) padding-box,
+    linear-gradient(90deg, var(--heat), transparent 70%) border-box;
+}
+.hud-heat-row.is-peak b::after { content: ' 🔥'; font-size: 11px; }
+.hud-heat-row.is-rising .hud-heat-trend { color: #7fd8a8; }
+.hud-heat-row.is-fading .hud-heat-trend { color: #9fb4d8; }
+.hud-heat-row.is-lingering .hud-heat-trend { color: #d8b77f; }
+
+/* --- Следы: водяной знак и строчка-«стежок» ----------------------------- */
+.hud-mark { overflow: hidden; }
+.hud-mark::after {
+  content: attr(data-ico); position: absolute; right: 64px; top: 50%; transform: translateY(-50%) rotate(-12deg);
+  font-size: 44px; opacity: .06; pointer-events: none; filter: grayscale(.2);
+}
+.hud-mark-ico { position: relative; }
+.hud-mark-ico::after {
+  content: ''; position: absolute; inset: -4px; border-radius: 50%; pointer-events: none;
+  border: 1px dashed color-mix(in srgb, var(--mk) 55%, transparent);
+}
+.hud-mark-ring .v { filter: none; }
+.hud-mark-ring .t { stroke-dasharray: 2 2.6; }
+
+/* --- Цикл: градиентные значки и орнамент ------------------------------------ */
+.hud-cycle-badge {
+  border: 1px solid transparent;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.07), rgba(255,255,255,.02)) padding-box,
+    linear-gradient(120deg, color-mix(in srgb, var(--phase) 80%, #fff), transparent 60%, color-mix(in srgb, var(--phase) 60%, transparent)) border-box;
+}
+.hud-cycle-badge.is-fertile {
+  background:
+    linear-gradient(135deg, rgba(201,133,0,.2), rgba(201,133,0,.06)) padding-box,
+    linear-gradient(120deg, #f0c24b, transparent 60%, #c98500) border-box;
+}
+.hud-cycle-badge.is-pms {
+  background:
+    linear-gradient(135deg, rgba(144,133,233,.2), rgba(144,133,233,.06)) padding-box,
+    linear-gradient(120deg, #b4abf5, transparent 60%, #9085e9) border-box;
+}
+.hud-cycle-phase b::before { content: '❀ '; font-weight: 400; opacity: .7; }
+.hud-cycle-tips { position: relative; border: 1px solid rgba(255,255,255,.05); }
+.hud-cycle-tips::before {
+  content: '✿'; position: absolute; right: 10px; top: 6px; font-size: 16px; opacity: .18; color: var(--phase);
+}
+
+/* --- Мир: водяные знаки, зебра, штампы ----------------------------------- */
+.hud-eco-row { position: relative; }
+.hud-eco-row:nth-child(even) { background: linear-gradient(90deg, rgba(255,255,255,.03), transparent 80%); }
+.hud-eco-chg.is-up { box-shadow: inset 0 -1px 0 rgba(60,195,138,.5); }
+.hud-eco-chg.is-down { box-shadow: inset 0 -1px 0 rgba(224,72,90,.5); }
+.hud-eco-ico { box-shadow: 0 1px 3px rgba(0,0,0,.5), inset 0 0 0 2px rgba(0,0,0,.08), inset 0 -2px 0 rgba(0,0,0,.12); }
+
+.hud-afisha-main::after {
+  content: attr(data-ico); position: absolute; right: 8px; top: 50%; transform: translateY(-58%) rotate(8deg);
+  font-size: 40px; opacity: .08; pointer-events: none;
+}
+.hud-afisha-title::before { content: '★ '; font-size: 10px; vertical-align: 2px; color: color-mix(in srgb, var(--tk) 70%, #fff); }
+.hud-afisha-stub { background-image: radial-gradient(circle at 50% 0, rgba(255,255,255,.14), transparent 60%); }
+
+.hud-city-row { overflow: hidden; }
+.hud-city-row::after {
+  content: attr(data-ico); position: absolute; right: 10px; top: 50%; transform: translateY(-50%) rotate(-8deg);
+  font-size: 40px; opacity: .07; pointer-events: none;
+}
+.hud-city-kind {
+  --ck: rgba(255,255,255,.3);
+  align-self: center; padding: 3px 10px 3px 3px; border-radius: 999px; border: 1px solid transparent;
+  background:
+    linear-gradient(135deg, rgba(255,255,255,.06), rgba(0,0,0,.2)) padding-box,
+    linear-gradient(120deg, var(--ck), transparent 65%) border-box;
+}
+.hud-city-row.is-traffic .hud-city-kind { --ck: #f0a44b; }
+.hud-city-row.is-roads .hud-city-kind { --ck: #cfc8b8; }
+.hud-city-row.is-weather .hud-city-kind { --ck: #6fb7e8; }
+.hud-city-row.is-transport .hud-city-kind { --ck: #4c9be8; }
+.hud-city-row.is-repairs .hud-city-kind { --ck: #f0c24b; }
+.hud-city-row.is-utilities .hud-city-kind { --ck: #3cc38a; }
+.hud-city-row.is-police .hud-city-kind { --ck: #7c8cf0; }
+.hud-city-row.is-health .hud-city-kind { --ck: #e57fa0; }
+.hud-city-row.is-protest .hud-city-kind { --ck: #d78a5a; }
+.hud-city-row.is-emergency .hud-city-kind { --ck: #ff6b6b; }
+.hud-city-row.is-weather { border-left-color: #6fb7e8; }
+.hud-city-row.is-repairs { border-left-color: #f0c24b; background-image: repeating-linear-gradient(-45deg, rgba(240,194,75,.05) 0 8px, transparent 8px 16px); }
+.hud-city-row.is-health { border-left-color: #e57fa0; }
+.hud-city-row.is-protest { border-left-color: #d78a5a; }
+.hud-city-kind > i { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ck) 60%, transparent), 0 0 10px color-mix(in srgb, var(--ck) 30%, transparent); }
+.hud-city-row p { position: relative; z-index: 1; }
+
+
+/* --- Следы на теле как часть трекера здоровья ---------------------------
+   Строка живёт рядом с болезнями и травмами и видна после акта: как след
+   выглядит сейчас, насколько зажил, сколько осталось по времени сюжета. */
+.hud-mark { row-gap: 6px; }
+.hud-mark-look {
+  grid-column: 2 / -1; margin: -2px 0 0; font-size: 12px; line-height: 1.4; font-style: italic;
+  color: var(--hud-text-muted, #c3c2b7); position: relative; z-index: 1;
+}
+.hud-mark-heal { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 8px; position: relative; z-index: 1; }
+.hud-mark-heal-track { display: block; height: 5px; border-radius: 999px; overflow: hidden; background: rgba(255,255,255,.08); box-shadow: inset 0 1px 2px rgba(0,0,0,.4); }
+.hud-mark-heal-track > i { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--mk), #58c18a); box-shadow: 0 0 6px rgba(88,193,138,.35); }
+.hud-mark-heal small { font-size: 10px; color: #7fd8a8; white-space: nowrap; letter-spacing: .02em; }
+.hud-mark.is-memory { border-style: dashed; }
+.hud-mark-memory {
+  grid-column: 1 / -1; justify-self: start; font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase;
+  padding: 1px 8px; border-radius: 999px; color: var(--hud-text-muted, #c3c2b7); border: 1px dashed rgba(255,255,255,.22);
+  position: relative; z-index: 1;
+}
+.hud-mark-memory::before { content: '⟲ '; }
+.hud-mark-timer small { white-space: nowrap; }
+
+
+/* --- NSFW: подробные описания -------------------------------------------
+   Модель теперь пишет не слово, а целое описание: поза, звуки и зоны карты
+   тела получают место под текст, не ломая свои пилюли и строки. */
+.hud-scene-chip.is-pose { flex: 1 1 100%; border-radius: 14px; align-items: flex-start; padding-top: 4px; padding-bottom: 4px; }
+.hud-scene-chip.is-pose > span { min-width: 0; overflow-wrap: anywhere; line-height: 1.45; padding-top: 2px; }
+.hud-sound.has-desc { flex: 1 1 100%; flex-wrap: wrap; border-radius: 12px; row-gap: 3px; }
+.hud-sound-desc {
+  flex: 1 1 100%; padding-left: 18px; font-size: 11.5px; font-weight: 400; line-height: 1.4;
+  color: var(--hud-text-muted, #c3c2b7); overflow-wrap: anywhere;
+}
+.hud-heat-desc {
+  grid-column: 2 / -1; font-size: 11.5px; line-height: 1.4; font-style: italic;
+  color: var(--hud-text-muted, #c3c2b7); overflow-wrap: anywhere;
+}
+
+
+/* =========================================================================
+   ПЛАШКИ МИРА ПРОЗРАЧНЫЕ, ДВИЖЕНИЕ ТОЛЬКО ПО НАВЕДЕНИЮ И КАСАНИЮ
+   -------------------------------------------------------------------------
+   Секции мира лежат на той же полупрозрачной подложке, что строки карточки.
+   Всё движение ждёт: под курсором его запускает :hover, на телефоне —
+   касание (класс fx-tap вешает events.js на несколько секунд), касание по
+   карточке оживляет и тему (fx-live).
+   Характер движения — минимализм: медленно, плавно, без рывков и поворотов.
+   Любая пилюля под курсором всплывает одинаково: на 3px за 0,6 с с мягкой
+   тенью. Прежние резкие подъёмы и сдвиги вбок у отдельных плиток сведены к
+   этому же движению — переход задан с !important, иначе старое
+   «transition: all .2s» делало подъём рывком.
+   ========================================================================= */
+.hud-world-container .hud-world-section { background: var(--hud-card-inner-bg, rgba(0,0,0,.15)); }
+.hud-world-container .hud-world-section-ads { background: rgba(10,10,18,.28); }
+.hud-world-container .hud-ads-grid { background: radial-gradient(ellipse at center, rgba(20,10,40,.22), rgba(0,0,0,.14)); box-shadow: inset 0 0 18px rgba(0,0,0,.3); }
+.hud-world-container .hud-ad-card { background: rgba(0,0,0,.2); }
+.hud-world-container .hud-breaking-news { background: rgba(18,8,8,.3); }
+.hud-world-container .hud-afisha-card { background: linear-gradient(135deg, color-mix(in srgb, var(--tk) 16%, transparent), rgba(0,0,0,.12)); }
+.hud-world-container .hud-afisha-stub { background-color: color-mix(in srgb, var(--tk) 24%, transparent); }
+
+/* Точка пульса и стрелка экрана блокировки ждут наведения или касания. */
+.hud-vit-beat, .hud-phone-lock-arrow { animation-play-state: paused !important; }
+.hud-vit.fx-tap .hud-vit-beat, .hud-os-card.fx-live .hud-vit-beat,
+.hud-phone-lockscreen.fx-tap .hud-phone-lock-arrow, .hud-os-card.fx-live .hud-phone-lock-arrow { animation-play-state: running !important; }
+@media (hover: hover) {
+  .hud-vit:hover .hud-vit-beat, .hud-phone-lockscreen:hover .hud-phone-lock-arrow { animation-play-state: running !important; }
+}
+@keyframes hud-vit-beat { 0%, 100% { transform: scale(1); opacity: .7; } 35% { transform: scale(1.22); opacity: 1; } 70% { transform: scale(1.04); opacity: .85; } }
+
+/* Темы на телефоне: касание по карточке запускает их слои на несколько секунд. */
+.hud-os-card.fx-live .hud-os-wrapper::before,
+.hud-os-card.fx-live .hud-os-wrapper::after,
+.hud-os-card.fx-live .hud-tab-content::before,
+.hud-os-card.fx-live .hud-os-logo,
+.hud-os-card.fx-live .hud-os-logo::after,
+.hud-os-card.fx-live .hud-tabs-header::after,
+.hud-os-card.fx-live .hud-birdhouse-bird { animation-play-state: running !important; }
+
+/* --- Погода сворачивается в строку ----------------------------------------
+   Кнопка в углу сцены. В свёрнутом виде остаются только время, дата и
+   погода; пейзаж, небесные слои, настроение и атмосфера скрыты. Выбор
+   помнится на этом устройстве и действует на все карточки сразу. */
+.hud-scene-fold {
+  all: unset; box-sizing: border-box;
+  position: absolute; right: 8px; bottom: 8px; z-index: 12;
+  width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center; cursor: pointer; pointer-events: auto;
+  color: #fff; background: rgba(0,0,0,.35); border: 1px solid rgba(255,255,255,.18);
+  -webkit-backdrop-filter: blur(4px); backdrop-filter: blur(4px);
+  opacity: .72;
+  transition: opacity .4s ease, background-color .4s ease, top .5s cubic-bezier(.22,.8,.26,1), bottom .5s cubic-bezier(.22,.8,.26,1);
+}
+.hud-scene-fold i {
+  display: block; width: 7px; height: 7px;
+  border-left: 2px solid currentColor; border-top: 2px solid currentColor;
+  transform: translateY(2px) rotate(45deg);
+  transition: transform .6s cubic-bezier(.22,.8,.26,1);
+}
+.hud-scene-fold:focus-visible { outline: 2px solid var(--hud-accent, #8c5ad2); outline-offset: 2px; opacity: 1; }
+@media (hover: hover) { .hud-scene-fold:hover { opacity: 1; background: rgba(0,0,0,.55); } }
+.hud-scene-widget.is-compact {
+  padding: 8px 44px 8px 10px !important; gap: 6px; cursor: default;
+}
+.hud-scene-widget.is-compact > :is(.hud-fx-stars, .hud-fx-fireflies, .hud-fx-storm-flash, .hud-fx-lightning, .hud-fx-rainbow,
+  .hud-fx-celestial, .hud-fx-cloud-cover, .hud-fx-season-scene, .hud-fx-weather, .hud-fx-frost, .hud-fx-temp, .hud-scene-atm),
+.hud-scene-widget.is-compact .hud-mood-item { display: none !important; }
+.hud-scene-widget.is-compact { min-height: 0 !important; }
+/* На телефоне плашки сцены стоят столбиком и сцена держит высоту 150px —
+   в свёрнутом виде это отменяем: одна полоса, погода справа. */
+.hud-scene-widget.is-compact .hud-scene-top {
+  flex-direction: row !important; flex-wrap: wrap; justify-content: space-between; align-items: center;
+  gap: 6px 8px; text-align: left;
+}
+.hud-scene-widget.is-compact .hud-scene-time-group { flex: 0 1 auto; min-width: 0; width: auto; }
+.hud-scene-widget.is-compact .hud-scene-weather-group { flex: 0 1 auto; width: auto !important; max-width: 100% !important; justify-content: flex-end; margin-left: auto; }
+.hud-scene-widget.is-compact .hud-scene-time-group {
+  flex-direction: row; flex-wrap: wrap; align-items: baseline; column-gap: 10px; row-gap: 0;
+  padding: 5px 12px; border-radius: 12px;
+}
+.hud-scene-widget.is-compact .hud-time-display { font-size: 1.4em !important; }
+.hud-scene-widget.is-compact .hud-date-display { margin-top: 0; font-size: .7em; }
+.hud-scene-widget.is-compact .hud-weather-item { padding: 4px 10px; font-size: .78em; }
+.hud-scene-widget.is-compact .hud-scene-fold { bottom: calc(50% - 13px); }
+.hud-scene-widget.is-compact .hud-scene-fold i { transform: translateY(-2px) rotate(225deg); }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-scene-widget.is-folding .hud-scene-top,
+  .hud-scene-widget.is-folding .hud-scene-atm { animation: hud-mo-fold-in .6s cubic-bezier(.22,.8,.26,1); }
+}
+
+/* Подготовка: плавные переходы, точки опоры, строчные элементы под transform. */
+.hud-key-ico > span, .hud-eco-chg i { display: inline-block; }
+:is(.hud-row:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns)), .hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row) { transition: transform .6s cubic-bezier(.22,.8,.26,1), filter .6s cubic-bezier(.22,.8,.26,1), background-color .4s ease, border-color .4s ease, box-shadow .4s ease, color .4s ease, opacity .4s ease !important; }
+:is(.hud-key-ico > span, .hud-emoji, .hud-fear-ico, .hud-prg-ico, .hud-scene-chip > i:first-child, .hud-prot-ico, .hud-vit-ico, .hud-mark-ico, .hud-eco-ico, .hud-city-kind > i, .hud-secret-lock, .hud-perc-face, .hud-pill-face, .hud-timeline-time, .hud-schedule-time, .hud-news-headline) { transition: transform .7s cubic-bezier(.22,.8,.26,1), color .5s ease; }
+.hud-org-meter > i, .hud-heat-bar > i, .hud-mark-heal-track > i, .hud-ill-meter > i, .hud-prg-meter > i, .hud-zone-bar > i { transform-origin: left center; }
+.hud-sound-eq i { transform-origin: center bottom; }
+.hud-heat-svg .z-heat, .hud-heat-svg .z-mark-halo, .hud-cycle-ring .c-halo, .hud-fam-spouse-mark, .hud-vit-spark circle, .hud-prot-ico svg { transform-box: fill-box; transform-origin: center; }
+.hud-afisha-main::before {
+  content: ''; position: absolute; inset: 0; pointer-events: none; opacity: 0; transform: translateX(-100%);
+  background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,.12) 50%, transparent 70%);
+}
+.hud-nsfw-list.is-act .hud-nsfw-pill::after { transition: opacity .6s ease; }
+/* После акта отсвет — не полоса, а мягкое сиреневое свечение от корешка. */
+.hud-nsfw-list.is-after .hud-nsfw-pill::after {
+  background: radial-gradient(120% 90% at 0% 50%, rgba(170,140,230,.22), transparent 60%);
+  transition: opacity .8s ease;
+}
+.hud-gun-status, .hud-eco-val, .hud-afisha-admit, .hud-mood-current { will-change: auto; }
+/* Последний секс: отсвет — тёплая дымка поперёк, она проходит сверху вниз. */
+.hud-nsfw-list.is-last .hud-nsfw-pill::after { background: linear-gradient(180deg, transparent 0%, rgba(255,214,170,.14) 50%, transparent 100%); }
+.hud-row.nsfw-reg .hud-key-ico > span { transform-origin: 50% 90%; }
+.hud-vit-deco { transform-origin: center; }
+
+@media (prefers-reduced-motion: no-preference) {
+  @media (hover: hover) {
+    :is(.hud-row:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns)), .hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row):hover { transform: translateY(-3px) !important; filter: drop-shadow(0 7px 10px rgba(0,0,0,.38)) drop-shadow(0 0 0 transparent); z-index: 2; }
+    :is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-scene-chip, .hud-phase-step, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-row.nsfw:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns))):hover { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite; }
+    .hud-row:hover .hud-key-ico > span { transform: scale(1.1); }
+    .hud-key-item:hover .hud-emoji { transform: scale(1.1); }
+    .hud-fear:hover .hud-fear-ico { transform: scale(1.1); }
+    .hud-prg:hover .hud-prg-ico { transform: scale(1.1); }
+    .hud-scene-chip:hover > i:first-child { transform: scale(1.1); }
+    .hud-prot:hover .hud-prot-ico { transform: scale(1.1); }
+    .hud-vit:hover .hud-vit-ico { transform: scale(1.1); }
+    .hud-mark:hover .hud-mark-ico { transform: scale(1.1); }
+    .hud-eco-row:hover .hud-eco-ico { transform: scale(1.1); }
+    .hud-city-row:hover .hud-city-kind > i { transform: scale(1.1); }
+    .hud-secret-summary:hover .hud-secret-lock { transform: scale(1.1); }
+    .hud-perc:hover .hud-perc-face { transform: scale(1.1); }
+    .hud-detail-pill:hover .hud-pill-face { transform: scale(1.1); }
+    .hud-timeline-item:hover .hud-timeline-time { transform: translateX(3px); }
+    .hud-schedule-item:hover .hud-schedule-time { transform: translateX(3px); }
+    .hud-news-article:hover .hud-news-headline { color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 55%, #fff); }
+    .hud-ill:hover .hud-ill-meter > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1); }
+    .hud-prg:hover .hud-prg-meter > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1); }
+    .hud-zone:hover .hud-zone-bar > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1); }
+    .hud-org:hover .hud-org-meter > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1); }
+    .hud-heat-row:hover .hud-heat-bar > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1); }
+    .hud-mark:hover .hud-mark-heal-track > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1); }
+    .hud-nsfw-list.is-act .hud-nsfw-pill:hover::before { animation: hud-mo-spine 1.8s ease-in-out infinite; }
+    .hud-nsfw-list.is-act .hud-nsfw-pill:hover::after { opacity: 1; animation: hud-mo-heat-sheen 3.4s ease-in-out infinite; }
+    .hud-nsfw-list.is-act .hud-nsfw-pill:hover .hud-pill-label { animation: hud-mo-warm 2.6s ease-in-out infinite alternate; }
+    .hud-nsfw-list.is-after .hud-nsfw-pill:hover::before { animation: hud-mo-cool 4.4s ease-in-out infinite alternate; }
+    .hud-nsfw-list.is-after .hud-nsfw-pill:hover::after { opacity: 1; animation: hud-mo-afterglow 4.4s ease-in-out infinite alternate; }
+    .hud-nsfw-list.is-after .hud-nsfw-pill:hover .hud-pill-label { animation: hud-mo-drift 4.4s ease-in-out infinite alternate; }
+    .hud-vit:hover .hud-vit-deco path { animation: hud-mi-draw-300 2.6s ease-in-out; }
+    .hud-vit:hover .hud-vit-spark polyline { animation: hud-mi-draw-200 2s ease-in-out; }
+    .hud-vit:hover .hud-vit-gauge > i { animation: hud-mi-gauge 1.6s cubic-bezier(.22,.8,.26,1); }
+    .hud-prot:hover .hud-prot-ico .mk { animation: hud-mi-draw-40 1.6s ease-in-out .2s both; }
+    .hud-sound:hover .hud-sound-eq i:nth-child(1) { animation: hud-mi-eq 1.1s ease-in-out 0s infinite alternate; }
+    .hud-sound:hover .hud-sound-eq i:nth-child(2) { animation: hud-mi-eq 0.9s ease-in-out 0.25s infinite alternate; }
+    .hud-sound:hover .hud-sound-eq i:nth-child(3) { animation: hud-mi-eq 1.3s ease-in-out 0.1s infinite alternate; }
+    .hud-sound:hover .hud-sound-eq i:nth-child(4) { animation: hud-mi-eq 1s ease-in-out 0.4s infinite alternate; }
+    .hud-scene-chip.is-round:hover .hud-round-dots i:nth-child(1) { animation: hud-mi-glow 2.4s ease-in-out 0.0s infinite; }
+    .hud-scene-chip.is-round:hover .hud-round-dots i:nth-child(2) { animation: hud-mi-glow 2.4s ease-in-out 0.3s infinite; }
+    .hud-scene-chip.is-round:hover .hud-round-dots i:nth-child(3) { animation: hud-mi-glow 2.4s ease-in-out 0.6s infinite; }
+    .hud-scene-chip.is-round:hover .hud-round-dots i:nth-child(4) { animation: hud-mi-glow 2.4s ease-in-out 0.9s infinite; }
+    .hud-scene-chip.is-round:hover .hud-round-dots i:nth-child(5) { animation: hud-mi-glow 2.4s ease-in-out 1.2s infinite; }
+    .hud-heat:hover .hud-heat-svg .z-heat { animation: hud-mi-breathe 3.2s ease-in-out infinite alternate; }
+    .hud-heat:hover .hud-heat-svg .z-mark-halo { animation: hud-mi-ping 2.8s cubic-bezier(.2,.6,.3,1) infinite; }
+    .hud-mark:hover .hud-mark-ring { animation: hud-mi-ring 1.8s cubic-bezier(.22,.8,.26,1); }
+    .hud-row:hover .hud-stars-rating { animation: hud-mi-shimmer 2.6s ease-in-out infinite alternate; }
+    .hud-cycle:hover .hud-cycle-ring { animation: hud-mi-ring 2s cubic-bezier(.22,.8,.26,1); }
+    .hud-cycle:hover .hud-cycle-ring .c-halo { animation: hud-mi-ping 2.8s cubic-bezier(.2,.6,.3,1) infinite; }
+    .hud-cycle:hover .hud-cycle-ring .c-glow { animation: hud-mo-phase 3.6s ease-in-out infinite alternate; }
+    .hud-cycle:hover .hud-cycle-ring .c-day { animation: hud-mo-fade 1.4s ease-out; }
+    .hud-cycle:hover .hud-cycle-legend li:nth-child(1) { animation: hud-mo-rise .9s ease-out 0.00s both; }
+    .hud-cycle:hover .hud-cycle-legend li:nth-child(2) { animation: hud-mo-rise .9s ease-out 0.14s both; }
+    .hud-cycle:hover .hud-cycle-legend li:nth-child(3) { animation: hud-mo-rise .9s ease-out 0.28s both; }
+    .hud-cycle:hover .hud-cycle-legend li:nth-child(4) { animation: hud-mo-rise .9s ease-out 0.42s both; }
+    .hud-cycle:hover .hud-cycle-tips li:nth-child(1) { animation: hud-mo-rise .9s ease-out 0.00s both; }
+    .hud-cycle:hover .hud-cycle-tips li:nth-child(2) { animation: hud-mo-rise .9s ease-out 0.16s both; }
+    .hud-cycle:hover .hud-cycle-tips li:nth-child(3) { animation: hud-mo-rise .9s ease-out 0.32s both; }
+    .hud-cycle:hover .hud-cycle-tips li:nth-child(4) { animation: hud-mo-rise .9s ease-out 0.48s both; }
+    .hud-cycle:hover .hud-cycle-tips li:nth-child(5) { animation: hud-mo-rise .9s ease-out 0.64s both; }
+    .hud-route-map:hover .hud-route-leg-line { animation: hud-mo-route-flow 1.8s linear infinite; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(1) { animation: hud-mo-rise .8s ease-out 0.00s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(2) { animation: hud-mo-rise .8s ease-out 0.07s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(3) { animation: hud-mo-rise .8s ease-out 0.14s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(4) { animation: hud-mo-rise .8s ease-out 0.21s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(5) { animation: hud-mo-rise .8s ease-out 0.28s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(6) { animation: hud-mo-rise .8s ease-out 0.35s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(7) { animation: hud-mo-rise .8s ease-out 0.42s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(8) { animation: hud-mo-rise .8s ease-out 0.49s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(9) { animation: hud-mo-rise .8s ease-out 0.56s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(10) { animation: hud-mo-rise .8s ease-out 0.63s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(11) { animation: hud-mo-rise .8s ease-out 0.70s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(12) { animation: hud-mo-rise .8s ease-out 0.77s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(13) { animation: hud-mo-rise .8s ease-out 0.84s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(14) { animation: hud-mo-rise .8s ease-out 0.91s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(15) { animation: hud-mo-rise .8s ease-out 0.98s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(16) { animation: hud-mo-rise .8s ease-out 1.05s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(17) { animation: hud-mo-rise .8s ease-out 1.12s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(18) { animation: hud-mo-rise .8s ease-out 1.19s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(19) { animation: hud-mo-rise .8s ease-out 1.26s both; }
+    .hud-route-map:hover .hud-route-strip > li:nth-child(20) { animation: hud-mo-rise .8s ease-out 1.33s both; }
+    .hud-mood-group:hover .hud-mood-current { animation: hud-mo-mood 3s ease-in-out infinite alternate; }
+    .hud-mood-group:hover .hud-mood-history > .hud-mood-chip:nth-child(1) { animation: hud-mo-rise .8s ease-out 0.00s both; }
+    .hud-mood-group:hover .hud-mood-history > .hud-mood-chip:nth-child(2) { animation: hud-mo-rise .8s ease-out 0.10s both; }
+    .hud-mood-group:hover .hud-mood-history > .hud-mood-chip:nth-child(3) { animation: hud-mo-rise .8s ease-out 0.20s both; }
+    .hud-mood-group:hover .hud-mood-history > .hud-mood-chip:nth-child(4) { animation: hud-mo-rise .8s ease-out 0.30s both; }
+    .hud-mood-group:hover .hud-mood-history > .hud-mood-chip:nth-child(5) { animation: hud-mo-rise .8s ease-out 0.40s both; }
+    .hud-mood-group:hover .hud-mood-history > .hud-mood-chip:nth-child(6) { animation: hud-mo-rise .8s ease-out 0.50s both; }
+    .hud-mood-group:hover .hud-mood-history > .hud-mood-chip:nth-child(7) { animation: hud-mo-rise .8s ease-out 0.60s both; }
+    .hud-mood-group:hover .hud-mood-history > .hud-mood-chip:nth-child(8) { animation: hud-mo-rise .8s ease-out 0.70s both; }
+    .hud-mood-group:hover .hud-mood-history > .hud-mood-chip:nth-child(9) { animation: hud-mo-rise .8s ease-out 0.80s both; }
+    .hud-mood-group:hover .hud-mood-history > .hud-mood-chip:nth-child(10) { animation: hud-mo-rise .8s ease-out 0.90s both; }
+    .hud-mood-group:hover .hud-mood-history > .hud-mood-chip:nth-child(11) { animation: hud-mo-rise .8s ease-out 1.00s both; }
+    .hud-mood-group:hover .hud-mood-history > .hud-mood-chip:nth-child(12) { animation: hud-mo-rise .8s ease-out 1.10s both; }
+    .hud-gun.is-open:hover .hud-gun-ico { animation: hud-mo-aim 2.8s ease-in-out infinite alternate; }
+    .hud-gun.is-open:hover .hud-gun-status { animation: hud-mo-breathe-op 2.8s ease-in-out infinite alternate; }
+    .hud-gun.is-building:hover .hud-gun-status { animation: hud-mo-charge 2.2s ease-in-out infinite alternate; }
+    .hud-gun.is-building:hover .hud-gun-ico { animation: hud-mo-breathe-op 2.2s ease-in-out infinite alternate; }
+    .hud-gun.is-fired:hover .hud-gun-ico { animation: hud-mo-smoke 3.2s ease-out infinite; }
+    .hud-eco-row:hover .hud-eco-chg.is-up i { animation: hud-mi-drift-up 1.8s ease-in-out infinite alternate; }
+    .hud-eco-row:hover .hud-eco-chg.is-down i { animation: hud-mi-drift-down 1.8s ease-in-out infinite alternate; }
+    .hud-eco-row:hover .hud-eco-dots { animation: hud-mo-leader 1.8s ease-in-out infinite alternate; }
+    .hud-eco-row:hover .hud-eco-val { animation: hud-mo-ticker 2.4s ease-in-out infinite alternate; }
+    .hud-afisha-card:hover .hud-afisha-main::before { animation: hud-mi-shine 2.2s ease-in-out; }
+    .hud-afisha-card:hover .hud-afisha-main::after { animation: hud-mo-watermark-a 3.4s ease-in-out infinite alternate; }
+    .hud-afisha-card:hover .hud-afisha-stub > i { animation: hud-mi-float 2.6s ease-in-out infinite alternate; }
+    .hud-afisha-card:hover .hud-afisha-admit { animation: hud-mo-admit 2.4s ease-in-out infinite alternate; }
+    .hud-city-row:hover::after { animation: hud-mo-watermark-c 3.4s ease-in-out infinite alternate; }
+    .hud-city-row:hover .hud-city-kind { animation: hud-mo-kind 2.8s ease-in-out infinite alternate; }
+    .hud-city-row.is-emergency:hover { animation: hud-mi-alarm 2.6s ease-in-out infinite alternate; }
+    .hud-city-row.is-traffic:hover .hud-city-pips i:nth-child(1) { animation: hud-mi-pip .8s ease-out 0.00s both; }
+    .hud-city-row.is-traffic:hover .hud-city-pips i:nth-child(2) { animation: hud-mi-pip .8s ease-out 0.08s both; }
+    .hud-city-row.is-traffic:hover .hud-city-pips i:nth-child(3) { animation: hud-mi-pip .8s ease-out 0.16s both; }
+    .hud-city-row.is-traffic:hover .hud-city-pips i:nth-child(4) { animation: hud-mi-pip .8s ease-out 0.24s both; }
+    .hud-city-row.is-traffic:hover .hud-city-pips i:nth-child(5) { animation: hud-mi-pip .8s ease-out 0.32s both; }
+    .hud-city-row.is-traffic:hover .hud-city-pips i:nth-child(6) { animation: hud-mi-pip .8s ease-out 0.40s both; }
+    .hud-city-row.is-traffic:hover .hud-city-pips i:nth-child(7) { animation: hud-mi-pip .8s ease-out 0.48s both; }
+    .hud-city-row.is-traffic:hover .hud-city-pips i:nth-child(8) { animation: hud-mi-pip .8s ease-out 0.56s both; }
+    .hud-city-row.is-traffic:hover .hud-city-pips i:nth-child(9) { animation: hud-mi-pip .8s ease-out 0.64s both; }
+    .hud-city-row.is-traffic:hover .hud-city-pips i:nth-child(10) { animation: hud-mi-pip .8s ease-out 0.72s both; }
+    .hud-secret-summary:hover .hud-secret-ring { animation: hud-mi-ring 1.8s cubic-bezier(.22,.8,.26,1); }
+    .hud-pet:hover .hud-pet-ava { animation: hud-mi-float 2.8s ease-in-out infinite alternate; }
+    .hud-fam-svg:hover .hud-fam-spouse-mark { animation: hud-mi-heart 2.8s ease-in-out infinite; }
+    .hud-scene-strip-wrap:hover .hud-phase-step:nth-child(1) { animation: hud-mo-appear .9s ease-out 0.00s both; }
+    .hud-scene-strip-wrap:hover .hud-phase-step:nth-child(2) { animation: hud-mo-appear .9s ease-out 0.12s both; }
+    .hud-scene-strip-wrap:hover .hud-phase-step:nth-child(3) { animation: hud-mo-appear .9s ease-out 0.24s both; }
+    .hud-scene-strip-wrap:hover .hud-phase-step:nth-child(4) { animation: hud-mo-appear .9s ease-out 0.36s both; }
+    .hud-scene-strip-wrap:hover .hud-phase-step:nth-child(5) { animation: hud-mo-appear .9s ease-out 0.48s both; }
+    .hud-scene-strip-wrap:hover .hud-phase-step:nth-child(6) { animation: hud-mo-appear .9s ease-out 0.60s both; }
+    .hud-scene-strip-wrap:hover .hud-phase-step:nth-child(7) { animation: hud-mo-appear .9s ease-out 0.72s both; }
+    .hud-scene-strip-wrap:hover .hud-phase-step:nth-child(8) { animation: hud-mo-appear .9s ease-out 0.84s both; }
+    .hud-scene-strip-wrap:hover .hud-phase-step:nth-child(9) { animation: hud-mo-appear .9s ease-out 0.96s both; }
+    .hud-scene-strip-wrap:hover .hud-phase-step.is-now { animation: hud-mo-now 2.8s ease-in-out infinite alternate; }
+    .hud-scene-strip-wrap:hover .hud-phase-step.is-past + .hud-phase-sep { animation: hud-mi-fill 1.4s cubic-bezier(.22,.8,.26,1) both; }
+    .hud-scene-chip.is-pose:hover > i:first-child { animation: hud-mo-sway 3.6s ease-in-out infinite; }
+    .hud-scene-chip.is-time:hover > i:first-child { animation: hud-mo-clock 8s linear infinite; }
+    .hud-prot:hover::after { animation: hud-mo-star 4.4s ease-in-out infinite; }
+    .hud-prot:hover em { animation: hud-mo-status 2.6s ease-in-out infinite alternate; }
+    .hud-prot.is-critical:hover,
+    .hud-prot.is-serious:hover { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite, hud-mo-stripes 4s linear infinite !important; }
+    .hud-org:hover .hud-org-meter > i::after { animation: hud-mo-spark 1.8s ease-in-out infinite; }
+    .hud-org:hover .hud-org-scale span:nth-child(1) { animation: hud-mo-appear .9s ease-out 0.00s both; }
+    .hud-org:hover .hud-org-scale span:nth-child(2) { animation: hud-mo-appear .9s ease-out 0.25s both; }
+    .hud-org:hover .hud-org-scale span:nth-child(3) { animation: hud-mo-appear .9s ease-out 0.50s both; }
+    .hud-org.is-edge:hover .hud-org-meter > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1), hud-mo-edge 1.8s ease-in-out 1.6s infinite alternate; }
+    .hud-org.is-edge:hover .hud-org-head b::after { animation: hud-mi-shimmer 1.6s ease-in-out infinite alternate; }
+    .hud-vit.is-pulse:hover::after { animation: hud-mo-heartmark 1.6s ease-in-out infinite; }
+    .hud-vit.is-breath:hover::after { animation: hud-mo-breathmark 3.6s ease-in-out infinite alternate; }
+    .hud-vit.is-temp:hover::after { animation: hud-mo-tempmark 3.6s ease-in-out infinite alternate; }
+    .hud-vit:hover::before { animation: hud-mo-topline 2.8s ease-in-out infinite alternate; }
+    .hud-vit.is-breath:hover .hud-vit-deco { animation: hud-mo-lungs 3.6s ease-in-out infinite alternate; }
+    .hud-sound[style*="--г:8"]:hover::after,
+    .hud-sound[style*="--г:9"]:hover::after,
+    .hud-sound[style*="--г:10"]:hover::after { animation: hud-mo-star 4s ease-in-out infinite; }
+    .hud-sound[style*="--г:8"]:hover b,
+    .hud-sound[style*="--г:9"]:hover b,
+    .hud-sound[style*="--г:10"]:hover b { animation: hud-mo-loud 1.8s ease-in-out infinite alternate; }
+    .hud-heat:hover .hud-heat-svg .z-rim { animation: hud-mo-rim 3s ease-in-out infinite alternate; }
+    .hud-heat:hover .hud-heat-figure::before { animation: hud-mo-corner 2.6s ease-in-out infinite alternate; }
+    .hud-heat:hover .hud-heat-figure::after { animation: hud-mo-corner 2.6s ease-in-out 1.3s infinite alternate; }
+    .hud-heat:hover .hud-heat-row.is-peak .hud-heat-dot { animation: hud-mo-dotglow 2.2s ease-in-out infinite alternate; }
+    .hud-heat:hover .hud-heat-row.is-rising .hud-heat-trend { animation: hud-mi-drift-up 2s ease-in-out infinite alternate; }
+    .hud-heat:hover .hud-heat-row.is-fading .hud-heat-trend { animation: hud-mi-drift-down 2s ease-in-out infinite alternate; }
+    .hud-heat:hover .hud-heat-row.is-lingering .hud-heat-trend { animation: hud-mo-breathe-op 3s ease-in-out infinite alternate; }
+    .hud-kink-pill:hover::before { animation: hud-mo-chain 3.6s linear infinite; }
+    .hud-kink-pill:hover .hud-pill-label { animation: hud-mo-violet 2.8s ease-in-out infinite alternate; }
+    .hud-fetish-pill:hover::before { animation: hud-mo-silk 3.6s ease-in-out infinite; }
+    .hud-fetish-pill:hover .hud-pill-label { animation: hud-mo-rose 2.8s ease-in-out infinite alternate; }
+    .hud-nogo-pill:hover .hud-pill-label { animation: hud-mo-strike 2.4s ease-in-out infinite alternate; }
+    .hud-nogo-pill:hover::before { animation: hud-mo-bar-red 2.4s ease-in-out infinite alternate; }
+    .hud-noturn-pill:hover .hud-pill-label { animation: hud-mo-dim 4s ease-in-out infinite alternate; }
+    .hud-noturn-pill:hover::before { animation: hud-mo-cool 4s ease-in-out infinite alternate; }
+    .hud-nsfw-list.is-last .hud-nsfw-pill:hover::after { opacity: 1; animation: hud-mo-memory 3.8s ease-in-out infinite; }
+    .hud-nsfw-list.is-last .hud-nsfw-pill:hover .hud-pill-label { animation: hud-mo-sepia 3.8s ease-in-out infinite alternate; }
+    .hud-row.nsfw-care:hover { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite, hud-mo-embrace 4s ease-in-out infinite alternate !important; }
+    .hud-row.nsfw-care:hover .hud-key-ico > span { animation: hud-mo-hug 3s ease-in-out infinite; }
+    .hud-row.nsfw-reg:hover .hud-key-ico > span { animation: hud-mo-metronome 3s ease-in-out infinite; }
+    .hud-row.nsfw-count:hover .hud-value { animation: hud-mo-count 2.6s ease-in-out infinite alternate; }
+    .hud-row.nsfw-review:hover .hud-stars-rating { animation: hud-mo-stars 2.4s ease-in-out infinite alternate; }
+    .hud-row.nsfw-review:hover .hud-sex-rev { animation: hud-mo-review 3.4s ease-in-out infinite alternate; }
+  }
+  :is(.hud-row:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns)), .hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row).fx-tap { transform: translateY(-3px) !important; filter: drop-shadow(0 7px 10px rgba(0,0,0,.38)) drop-shadow(0 0 0 transparent); z-index: 2; }
+  :is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-scene-chip, .hud-phase-step, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-row.nsfw:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns))).fx-tap { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite; }
+  .hud-row.fx-tap .hud-key-ico > span { transform: scale(1.1); }
+  .hud-key-item.fx-tap .hud-emoji { transform: scale(1.1); }
+  .hud-fear.fx-tap .hud-fear-ico { transform: scale(1.1); }
+  .hud-prg.fx-tap .hud-prg-ico { transform: scale(1.1); }
+  .hud-scene-chip.fx-tap > i:first-child { transform: scale(1.1); }
+  .hud-prot.fx-tap .hud-prot-ico { transform: scale(1.1); }
+  .hud-vit.fx-tap .hud-vit-ico { transform: scale(1.1); }
+  .hud-mark.fx-tap .hud-mark-ico { transform: scale(1.1); }
+  .hud-eco-row.fx-tap .hud-eco-ico { transform: scale(1.1); }
+  .hud-city-row.fx-tap .hud-city-kind > i { transform: scale(1.1); }
+  .hud-secret-summary.fx-tap .hud-secret-lock { transform: scale(1.1); }
+  .hud-perc.fx-tap .hud-perc-face { transform: scale(1.1); }
+  .hud-detail-pill.fx-tap .hud-pill-face { transform: scale(1.1); }
+  .hud-timeline-item.fx-tap .hud-timeline-time { transform: translateX(3px); }
+  .hud-schedule-item.fx-tap .hud-schedule-time { transform: translateX(3px); }
+  .hud-news-article.fx-tap .hud-news-headline { color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 55%, #fff); }
+  .hud-ill.fx-tap .hud-ill-meter > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1); }
+  .hud-prg.fx-tap .hud-prg-meter > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1); }
+  .hud-zone.fx-tap .hud-zone-bar > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1); }
+  .hud-org.fx-tap .hud-org-meter > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1); }
+  .hud-heat-row.fx-tap .hud-heat-bar > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1); }
+  .hud-mark.fx-tap .hud-mark-heal-track > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1); }
+  .hud-nsfw-list.is-act .hud-nsfw-pill.fx-tap::before { animation: hud-mo-spine 1.8s ease-in-out infinite; }
+  .hud-nsfw-list.is-act .hud-nsfw-pill.fx-tap::after { opacity: 1; animation: hud-mo-heat-sheen 3.4s ease-in-out infinite; }
+  .hud-nsfw-list.is-act .hud-nsfw-pill.fx-tap .hud-pill-label { animation: hud-mo-warm 2.6s ease-in-out infinite alternate; }
+  .hud-nsfw-list.is-after .hud-nsfw-pill.fx-tap::before { animation: hud-mo-cool 4.4s ease-in-out infinite alternate; }
+  .hud-nsfw-list.is-after .hud-nsfw-pill.fx-tap::after { opacity: 1; animation: hud-mo-afterglow 4.4s ease-in-out infinite alternate; }
+  .hud-nsfw-list.is-after .hud-nsfw-pill.fx-tap .hud-pill-label { animation: hud-mo-drift 4.4s ease-in-out infinite alternate; }
+  .hud-vit.fx-tap .hud-vit-deco path { animation: hud-mi-draw-300 2.6s ease-in-out; }
+  .hud-vit.fx-tap .hud-vit-spark polyline { animation: hud-mi-draw-200 2s ease-in-out; }
+  .hud-vit.fx-tap .hud-vit-gauge > i { animation: hud-mi-gauge 1.6s cubic-bezier(.22,.8,.26,1); }
+  .hud-prot.fx-tap .hud-prot-ico .mk { animation: hud-mi-draw-40 1.6s ease-in-out .2s both; }
+  .hud-sound.fx-tap .hud-sound-eq i:nth-child(1) { animation: hud-mi-eq 1.1s ease-in-out 0s infinite alternate; }
+  .hud-sound.fx-tap .hud-sound-eq i:nth-child(2) { animation: hud-mi-eq 0.9s ease-in-out 0.25s infinite alternate; }
+  .hud-sound.fx-tap .hud-sound-eq i:nth-child(3) { animation: hud-mi-eq 1.3s ease-in-out 0.1s infinite alternate; }
+  .hud-sound.fx-tap .hud-sound-eq i:nth-child(4) { animation: hud-mi-eq 1s ease-in-out 0.4s infinite alternate; }
+  .hud-scene-chip.is-round.fx-tap .hud-round-dots i:nth-child(1) { animation: hud-mi-glow 2.4s ease-in-out 0.0s infinite; }
+  .hud-scene-chip.is-round.fx-tap .hud-round-dots i:nth-child(2) { animation: hud-mi-glow 2.4s ease-in-out 0.3s infinite; }
+  .hud-scene-chip.is-round.fx-tap .hud-round-dots i:nth-child(3) { animation: hud-mi-glow 2.4s ease-in-out 0.6s infinite; }
+  .hud-scene-chip.is-round.fx-tap .hud-round-dots i:nth-child(4) { animation: hud-mi-glow 2.4s ease-in-out 0.9s infinite; }
+  .hud-scene-chip.is-round.fx-tap .hud-round-dots i:nth-child(5) { animation: hud-mi-glow 2.4s ease-in-out 1.2s infinite; }
+  .hud-heat.fx-tap .hud-heat-svg .z-heat { animation: hud-mi-breathe 3.2s ease-in-out infinite alternate; }
+  .hud-heat.fx-tap .hud-heat-svg .z-mark-halo { animation: hud-mi-ping 2.8s cubic-bezier(.2,.6,.3,1) infinite; }
+  .hud-mark.fx-tap .hud-mark-ring { animation: hud-mi-ring 1.8s cubic-bezier(.22,.8,.26,1); }
+  .hud-row.fx-tap .hud-stars-rating { animation: hud-mi-shimmer 2.6s ease-in-out infinite alternate; }
+  .hud-cycle.fx-tap .hud-cycle-ring { animation: hud-mi-ring 2s cubic-bezier(.22,.8,.26,1); }
+  .hud-cycle.fx-tap .hud-cycle-ring .c-halo { animation: hud-mi-ping 2.8s cubic-bezier(.2,.6,.3,1) infinite; }
+  .hud-cycle.fx-tap .hud-cycle-ring .c-glow { animation: hud-mo-phase 3.6s ease-in-out infinite alternate; }
+  .hud-cycle.fx-tap .hud-cycle-ring .c-day { animation: hud-mo-fade 1.4s ease-out; }
+  .hud-cycle.fx-tap .hud-cycle-legend li:nth-child(1) { animation: hud-mo-rise .9s ease-out 0.00s both; }
+  .hud-cycle.fx-tap .hud-cycle-legend li:nth-child(2) { animation: hud-mo-rise .9s ease-out 0.14s both; }
+  .hud-cycle.fx-tap .hud-cycle-legend li:nth-child(3) { animation: hud-mo-rise .9s ease-out 0.28s both; }
+  .hud-cycle.fx-tap .hud-cycle-legend li:nth-child(4) { animation: hud-mo-rise .9s ease-out 0.42s both; }
+  .hud-cycle.fx-tap .hud-cycle-tips li:nth-child(1) { animation: hud-mo-rise .9s ease-out 0.00s both; }
+  .hud-cycle.fx-tap .hud-cycle-tips li:nth-child(2) { animation: hud-mo-rise .9s ease-out 0.16s both; }
+  .hud-cycle.fx-tap .hud-cycle-tips li:nth-child(3) { animation: hud-mo-rise .9s ease-out 0.32s both; }
+  .hud-cycle.fx-tap .hud-cycle-tips li:nth-child(4) { animation: hud-mo-rise .9s ease-out 0.48s both; }
+  .hud-cycle.fx-tap .hud-cycle-tips li:nth-child(5) { animation: hud-mo-rise .9s ease-out 0.64s both; }
+  .hud-route-map.fx-active .hud-route-leg-line { animation: hud-mo-route-flow 1.8s linear infinite; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(1) { animation: hud-mo-rise .8s ease-out 0.00s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(2) { animation: hud-mo-rise .8s ease-out 0.07s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(3) { animation: hud-mo-rise .8s ease-out 0.14s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(4) { animation: hud-mo-rise .8s ease-out 0.21s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(5) { animation: hud-mo-rise .8s ease-out 0.28s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(6) { animation: hud-mo-rise .8s ease-out 0.35s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(7) { animation: hud-mo-rise .8s ease-out 0.42s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(8) { animation: hud-mo-rise .8s ease-out 0.49s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(9) { animation: hud-mo-rise .8s ease-out 0.56s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(10) { animation: hud-mo-rise .8s ease-out 0.63s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(11) { animation: hud-mo-rise .8s ease-out 0.70s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(12) { animation: hud-mo-rise .8s ease-out 0.77s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(13) { animation: hud-mo-rise .8s ease-out 0.84s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(14) { animation: hud-mo-rise .8s ease-out 0.91s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(15) { animation: hud-mo-rise .8s ease-out 0.98s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(16) { animation: hud-mo-rise .8s ease-out 1.05s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(17) { animation: hud-mo-rise .8s ease-out 1.12s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(18) { animation: hud-mo-rise .8s ease-out 1.19s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(19) { animation: hud-mo-rise .8s ease-out 1.26s both; }
+  .hud-route-map.fx-active .hud-route-strip > li:nth-child(20) { animation: hud-mo-rise .8s ease-out 1.33s both; }
+  .hud-mood-group.fx-tap .hud-mood-current { animation: hud-mo-mood 3s ease-in-out infinite alternate; }
+  .hud-mood-group.fx-tap .hud-mood-history > .hud-mood-chip:nth-child(1) { animation: hud-mo-rise .8s ease-out 0.00s both; }
+  .hud-mood-group.fx-tap .hud-mood-history > .hud-mood-chip:nth-child(2) { animation: hud-mo-rise .8s ease-out 0.10s both; }
+  .hud-mood-group.fx-tap .hud-mood-history > .hud-mood-chip:nth-child(3) { animation: hud-mo-rise .8s ease-out 0.20s both; }
+  .hud-mood-group.fx-tap .hud-mood-history > .hud-mood-chip:nth-child(4) { animation: hud-mo-rise .8s ease-out 0.30s both; }
+  .hud-mood-group.fx-tap .hud-mood-history > .hud-mood-chip:nth-child(5) { animation: hud-mo-rise .8s ease-out 0.40s both; }
+  .hud-mood-group.fx-tap .hud-mood-history > .hud-mood-chip:nth-child(6) { animation: hud-mo-rise .8s ease-out 0.50s both; }
+  .hud-mood-group.fx-tap .hud-mood-history > .hud-mood-chip:nth-child(7) { animation: hud-mo-rise .8s ease-out 0.60s both; }
+  .hud-mood-group.fx-tap .hud-mood-history > .hud-mood-chip:nth-child(8) { animation: hud-mo-rise .8s ease-out 0.70s both; }
+  .hud-mood-group.fx-tap .hud-mood-history > .hud-mood-chip:nth-child(9) { animation: hud-mo-rise .8s ease-out 0.80s both; }
+  .hud-mood-group.fx-tap .hud-mood-history > .hud-mood-chip:nth-child(10) { animation: hud-mo-rise .8s ease-out 0.90s both; }
+  .hud-mood-group.fx-tap .hud-mood-history > .hud-mood-chip:nth-child(11) { animation: hud-mo-rise .8s ease-out 1.00s both; }
+  .hud-mood-group.fx-tap .hud-mood-history > .hud-mood-chip:nth-child(12) { animation: hud-mo-rise .8s ease-out 1.10s both; }
+  .hud-gun.is-open.fx-tap .hud-gun-ico { animation: hud-mo-aim 2.8s ease-in-out infinite alternate; }
+  .hud-gun.is-open.fx-tap .hud-gun-status { animation: hud-mo-breathe-op 2.8s ease-in-out infinite alternate; }
+  .hud-gun.is-building.fx-tap .hud-gun-status { animation: hud-mo-charge 2.2s ease-in-out infinite alternate; }
+  .hud-gun.is-building.fx-tap .hud-gun-ico { animation: hud-mo-breathe-op 2.2s ease-in-out infinite alternate; }
+  .hud-gun.is-fired.fx-tap .hud-gun-ico { animation: hud-mo-smoke 3.2s ease-out infinite; }
+  .hud-eco-row.fx-tap .hud-eco-chg.is-up i { animation: hud-mi-drift-up 1.8s ease-in-out infinite alternate; }
+  .hud-eco-row.fx-tap .hud-eco-chg.is-down i { animation: hud-mi-drift-down 1.8s ease-in-out infinite alternate; }
+  .hud-eco-row.fx-tap .hud-eco-dots { animation: hud-mo-leader 1.8s ease-in-out infinite alternate; }
+  .hud-eco-row.fx-tap .hud-eco-val { animation: hud-mo-ticker 2.4s ease-in-out infinite alternate; }
+  .hud-afisha-card.fx-tap .hud-afisha-main::before { animation: hud-mi-shine 2.2s ease-in-out; }
+  .hud-afisha-card.fx-tap .hud-afisha-main::after { animation: hud-mo-watermark-a 3.4s ease-in-out infinite alternate; }
+  .hud-afisha-card.fx-tap .hud-afisha-stub > i { animation: hud-mi-float 2.6s ease-in-out infinite alternate; }
+  .hud-afisha-card.fx-tap .hud-afisha-admit { animation: hud-mo-admit 2.4s ease-in-out infinite alternate; }
+  .hud-city-row.fx-tap::after { animation: hud-mo-watermark-c 3.4s ease-in-out infinite alternate; }
+  .hud-city-row.fx-tap .hud-city-kind { animation: hud-mo-kind 2.8s ease-in-out infinite alternate; }
+  .hud-city-row.is-emergency.fx-tap { animation: hud-mi-alarm 2.6s ease-in-out infinite alternate; }
+  .hud-city-row.is-traffic.fx-tap .hud-city-pips i:nth-child(1) { animation: hud-mi-pip .8s ease-out 0.00s both; }
+  .hud-city-row.is-traffic.fx-tap .hud-city-pips i:nth-child(2) { animation: hud-mi-pip .8s ease-out 0.08s both; }
+  .hud-city-row.is-traffic.fx-tap .hud-city-pips i:nth-child(3) { animation: hud-mi-pip .8s ease-out 0.16s both; }
+  .hud-city-row.is-traffic.fx-tap .hud-city-pips i:nth-child(4) { animation: hud-mi-pip .8s ease-out 0.24s both; }
+  .hud-city-row.is-traffic.fx-tap .hud-city-pips i:nth-child(5) { animation: hud-mi-pip .8s ease-out 0.32s both; }
+  .hud-city-row.is-traffic.fx-tap .hud-city-pips i:nth-child(6) { animation: hud-mi-pip .8s ease-out 0.40s both; }
+  .hud-city-row.is-traffic.fx-tap .hud-city-pips i:nth-child(7) { animation: hud-mi-pip .8s ease-out 0.48s both; }
+  .hud-city-row.is-traffic.fx-tap .hud-city-pips i:nth-child(8) { animation: hud-mi-pip .8s ease-out 0.56s both; }
+  .hud-city-row.is-traffic.fx-tap .hud-city-pips i:nth-child(9) { animation: hud-mi-pip .8s ease-out 0.64s both; }
+  .hud-city-row.is-traffic.fx-tap .hud-city-pips i:nth-child(10) { animation: hud-mi-pip .8s ease-out 0.72s both; }
+  .hud-secret-summary.fx-tap .hud-secret-ring { animation: hud-mi-ring 1.8s cubic-bezier(.22,.8,.26,1); }
+  .hud-pet.fx-tap .hud-pet-ava { animation: hud-mi-float 2.8s ease-in-out infinite alternate; }
+  .hud-fam-svg.fx-tap .hud-fam-spouse-mark { animation: hud-mi-heart 2.8s ease-in-out infinite; }
+  .hud-scene-strip-wrap.fx-tap .hud-phase-step:nth-child(1) { animation: hud-mo-appear .9s ease-out 0.00s both; }
+  .hud-scene-strip-wrap.fx-tap .hud-phase-step:nth-child(2) { animation: hud-mo-appear .9s ease-out 0.12s both; }
+  .hud-scene-strip-wrap.fx-tap .hud-phase-step:nth-child(3) { animation: hud-mo-appear .9s ease-out 0.24s both; }
+  .hud-scene-strip-wrap.fx-tap .hud-phase-step:nth-child(4) { animation: hud-mo-appear .9s ease-out 0.36s both; }
+  .hud-scene-strip-wrap.fx-tap .hud-phase-step:nth-child(5) { animation: hud-mo-appear .9s ease-out 0.48s both; }
+  .hud-scene-strip-wrap.fx-tap .hud-phase-step:nth-child(6) { animation: hud-mo-appear .9s ease-out 0.60s both; }
+  .hud-scene-strip-wrap.fx-tap .hud-phase-step:nth-child(7) { animation: hud-mo-appear .9s ease-out 0.72s both; }
+  .hud-scene-strip-wrap.fx-tap .hud-phase-step:nth-child(8) { animation: hud-mo-appear .9s ease-out 0.84s both; }
+  .hud-scene-strip-wrap.fx-tap .hud-phase-step:nth-child(9) { animation: hud-mo-appear .9s ease-out 0.96s both; }
+  .hud-scene-strip-wrap.fx-tap .hud-phase-step.is-now { animation: hud-mo-now 2.8s ease-in-out infinite alternate; }
+  .hud-scene-strip-wrap.fx-tap .hud-phase-step.is-past + .hud-phase-sep { animation: hud-mi-fill 1.4s cubic-bezier(.22,.8,.26,1) both; }
+  .hud-scene-chip.is-pose.fx-tap > i:first-child { animation: hud-mo-sway 3.6s ease-in-out infinite; }
+  .hud-scene-chip.is-time.fx-tap > i:first-child { animation: hud-mo-clock 8s linear infinite; }
+  .hud-prot.fx-tap::after { animation: hud-mo-star 4.4s ease-in-out infinite; }
+  .hud-prot.fx-tap em { animation: hud-mo-status 2.6s ease-in-out infinite alternate; }
+  .hud-prot.is-critical.fx-tap,
+    .hud-prot.is-serious.fx-tap { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite, hud-mo-stripes 4s linear infinite !important; }
+  .hud-org.fx-tap .hud-org-meter > i::after { animation: hud-mo-spark 1.8s ease-in-out infinite; }
+  .hud-org.fx-tap .hud-org-scale span:nth-child(1) { animation: hud-mo-appear .9s ease-out 0.00s both; }
+  .hud-org.fx-tap .hud-org-scale span:nth-child(2) { animation: hud-mo-appear .9s ease-out 0.25s both; }
+  .hud-org.fx-tap .hud-org-scale span:nth-child(3) { animation: hud-mo-appear .9s ease-out 0.50s both; }
+  .hud-org.is-edge.fx-tap .hud-org-meter > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1), hud-mo-edge 1.8s ease-in-out 1.6s infinite alternate; }
+  .hud-org.is-edge.fx-tap .hud-org-head b::after { animation: hud-mi-shimmer 1.6s ease-in-out infinite alternate; }
+  .hud-vit.is-pulse.fx-tap::after { animation: hud-mo-heartmark 1.6s ease-in-out infinite; }
+  .hud-vit.is-breath.fx-tap::after { animation: hud-mo-breathmark 3.6s ease-in-out infinite alternate; }
+  .hud-vit.is-temp.fx-tap::after { animation: hud-mo-tempmark 3.6s ease-in-out infinite alternate; }
+  .hud-vit.fx-tap::before { animation: hud-mo-topline 2.8s ease-in-out infinite alternate; }
+  .hud-vit.is-breath.fx-tap .hud-vit-deco { animation: hud-mo-lungs 3.6s ease-in-out infinite alternate; }
+  .hud-sound[style*="--г:8"].fx-tap::after,
+    .hud-sound[style*="--г:9"].fx-tap::after,
+    .hud-sound[style*="--г:10"].fx-tap::after { animation: hud-mo-star 4s ease-in-out infinite; }
+  .hud-sound[style*="--г:8"].fx-tap b,
+    .hud-sound[style*="--г:9"].fx-tap b,
+    .hud-sound[style*="--г:10"].fx-tap b { animation: hud-mo-loud 1.8s ease-in-out infinite alternate; }
+  .hud-heat.fx-tap .hud-heat-svg .z-rim { animation: hud-mo-rim 3s ease-in-out infinite alternate; }
+  .hud-heat.fx-tap .hud-heat-figure::before { animation: hud-mo-corner 2.6s ease-in-out infinite alternate; }
+  .hud-heat.fx-tap .hud-heat-figure::after { animation: hud-mo-corner 2.6s ease-in-out 1.3s infinite alternate; }
+  .hud-heat.fx-tap .hud-heat-row.is-peak .hud-heat-dot { animation: hud-mo-dotglow 2.2s ease-in-out infinite alternate; }
+  .hud-heat.fx-tap .hud-heat-row.is-rising .hud-heat-trend { animation: hud-mi-drift-up 2s ease-in-out infinite alternate; }
+  .hud-heat.fx-tap .hud-heat-row.is-fading .hud-heat-trend { animation: hud-mi-drift-down 2s ease-in-out infinite alternate; }
+  .hud-heat.fx-tap .hud-heat-row.is-lingering .hud-heat-trend { animation: hud-mo-breathe-op 3s ease-in-out infinite alternate; }
+  .hud-kink-pill.fx-tap::before { animation: hud-mo-chain 3.6s linear infinite; }
+  .hud-kink-pill.fx-tap .hud-pill-label { animation: hud-mo-violet 2.8s ease-in-out infinite alternate; }
+  .hud-fetish-pill.fx-tap::before { animation: hud-mo-silk 3.6s ease-in-out infinite; }
+  .hud-fetish-pill.fx-tap .hud-pill-label { animation: hud-mo-rose 2.8s ease-in-out infinite alternate; }
+  .hud-nogo-pill.fx-tap .hud-pill-label { animation: hud-mo-strike 2.4s ease-in-out infinite alternate; }
+  .hud-nogo-pill.fx-tap::before { animation: hud-mo-bar-red 2.4s ease-in-out infinite alternate; }
+  .hud-noturn-pill.fx-tap .hud-pill-label { animation: hud-mo-dim 4s ease-in-out infinite alternate; }
+  .hud-noturn-pill.fx-tap::before { animation: hud-mo-cool 4s ease-in-out infinite alternate; }
+  .hud-nsfw-list.is-last .hud-nsfw-pill.fx-tap::after { opacity: 1; animation: hud-mo-memory 3.8s ease-in-out infinite; }
+  .hud-nsfw-list.is-last .hud-nsfw-pill.fx-tap .hud-pill-label { animation: hud-mo-sepia 3.8s ease-in-out infinite alternate; }
+  .hud-row.nsfw-care.fx-tap { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite, hud-mo-embrace 4s ease-in-out infinite alternate !important; }
+  .hud-row.nsfw-care.fx-tap .hud-key-ico > span { animation: hud-mo-hug 3s ease-in-out infinite; }
+  .hud-row.nsfw-reg.fx-tap .hud-key-ico > span { animation: hud-mo-metronome 3s ease-in-out infinite; }
+  .hud-row.nsfw-count.fx-tap .hud-value { animation: hud-mo-count 2.6s ease-in-out infinite alternate; }
+  .hud-row.nsfw-review.fx-tap .hud-stars-rating { animation: hud-mo-stars 2.4s ease-in-out infinite alternate; }
+  .hud-row.nsfw-review.fx-tap .hud-sex-rev { animation: hud-mo-review 3.4s ease-in-out infinite alternate; }
+}
+
+@keyframes hud-soft-nsfw {
+  0%, 100% { filter: drop-shadow(0 7px 10px rgba(0,0,0,.38)) drop-shadow(0 0 0 transparent); }
+  50% { filter: drop-shadow(0 7px 10px rgba(0,0,0,.38)) drop-shadow(0 0 8px color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 50%, transparent)); }
+}
+@keyframes hud-mi-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes hud-mi-draw-40 { from { stroke-dasharray: 40; stroke-dashoffset: 40; } to { stroke-dasharray: 40; stroke-dashoffset: 0; } }
+@keyframes hud-mi-draw-200 { from { stroke-dasharray: 200; stroke-dashoffset: 200; } to { stroke-dasharray: 200; stroke-dashoffset: 0; } }
+@keyframes hud-mi-draw-300 { from { stroke-dasharray: 300; stroke-dashoffset: 300; } to { stroke-dasharray: 300; stroke-dashoffset: 0; } }
+@keyframes hud-mi-gauge { from { transform: translate(-18px, -50%); opacity: 0; } to { transform: translate(0, -50%); opacity: 1; } }
+@keyframes hud-mi-eq { from { transform: scaleY(.45); } to { transform: scaleY(1); } }
+@keyframes hud-mi-glow { 0%, 100% { opacity: .5; } 50% { opacity: 1; } }
+@keyframes hud-mi-breathe { from { transform: scale(.97); } to { transform: scale(1.06); } }
+@keyframes hud-mi-ping { 0% { transform: scale(1); opacity: .6; } 100% { transform: scale(1.6); opacity: 0; } }
+@keyframes hud-mi-ring { from { transform: rotate(-35deg); opacity: .5; } to { transform: none; opacity: 1; } }
+@keyframes hud-mi-shimmer { from { opacity: 1; } to { opacity: .55; } }
+@keyframes hud-mi-drift-up { from { transform: translateY(1px); } to { transform: translateY(-2px); } }
+@keyframes hud-mi-drift-down { from { transform: translateY(-1px); } to { transform: translateY(2px); } }
+@keyframes hud-mi-shine { from { opacity: 1; transform: translateX(-100%); } to { opacity: 1; transform: translateX(100%); } }
+@keyframes hud-mi-alarm {
+  from { box-shadow: inset 0 0 0 1px rgba(208,59,59,.3); }
+  to { box-shadow: inset 0 0 0 1px rgba(208,59,59,.55), 0 0 16px -4px rgba(208,59,59,.55); }
+}
+@keyframes hud-mi-pip { from { opacity: .15; } to { opacity: 1; } }
+@keyframes hud-mi-float { from { transform: translateY(0); } to { transform: translateY(-3px); } }
+@keyframes hud-mi-heart { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
+
+/* NSFW во время акта */
+@keyframes hud-mo-spine {
+  0%, 100% { opacity: .75; box-shadow: 0 0 0 transparent; }
+  30% { opacity: 1; box-shadow: 0 0 10px 1px color-mix(in srgb, var(--кромка, #e25c96) 70%, transparent); }
+  55% { opacity: .85; box-shadow: 0 0 4px color-mix(in srgb, var(--кромка, #e25c96) 40%, transparent); }
+}
+@keyframes hud-mo-heat-sheen {
+  0% { transform: translateX(-70%); opacity: 0; }
+  25%, 75% { opacity: 1; }
+  100% { transform: translateX(70%); opacity: 0; }
+}
+@keyframes hud-mo-warm { to { color: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 45%, #fff); } }
+/* NSFW после акта */
+@keyframes hud-mo-cool { from { opacity: .9; } to { opacity: .35; } }
+@keyframes hud-mo-afterglow { from { opacity: .25; } to { opacity: 1; } }
+@keyframes hud-mo-drift { from { opacity: 1; } to { opacity: .72; } }
+/* Цикл, маршрут, эмоции */
+@keyframes hud-mo-phase { from { opacity: .35; } to { opacity: .9; } }
+@keyframes hud-mo-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes hud-mo-rise { from { opacity: .35; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes hud-mo-route-flow { from { background-position: 0 0; } to { background-position: 0 9px; } }
+@keyframes hud-mo-mood {
+  from { text-shadow: 0 0 0 transparent; }
+  to { text-shadow: 0 0 10px color-mix(in srgb, var(--hud-accent, #8c5ad2) 70%, transparent); }
+}
+/* Ружья Чехова */
+@keyframes hud-mo-aim { from { transform: translateX(0); } to { transform: translateX(-2px); } }
+@keyframes hud-mo-breathe-op { from { opacity: .6; } to { opacity: 1; } }
+@keyframes hud-mo-charge {
+  from { box-shadow: 0 0 0 transparent; }
+  to { box-shadow: 0 0 10px -2px color-mix(in srgb, var(--gun, #ff8a3d) 80%, transparent); }
+}
+@keyframes hud-mo-smoke { 0% { opacity: .85; transform: none; } 70% { opacity: .45; transform: translateY(-2px); } 100% { opacity: .85; transform: none; } }
+/* Мир */
+@keyframes hud-mo-leader { from { opacity: .35; } to { opacity: 1; } }
+@keyframes hud-mo-ticker { from { text-shadow: 0 0 0 transparent; } to { text-shadow: 0 0 8px rgba(255,255,255,.35); } }
+@keyframes hud-mo-watermark-a {
+  from { transform: translateY(-58%) rotate(8deg) scale(1); opacity: .08; }
+  to { transform: translateY(-62%) rotate(4deg) scale(1.1); opacity: .16; }
+}
+@keyframes hud-mo-watermark-c {
+  from { transform: translateY(-50%) rotate(-8deg) scale(1); opacity: .07; }
+  to { transform: translateY(-54%) rotate(-4deg) scale(1.1); opacity: .15; }
+}
+@keyframes hud-mo-admit { from { opacity: .45; } to { opacity: .95; } }
+@keyframes hud-mo-kind {
+  from { filter: drop-shadow(0 0 0 transparent); }
+  to { filter: drop-shadow(0 0 6px color-mix(in srgb, var(--ck, #fff) 55%, transparent)); }
+}
+@keyframes hud-mo-fold-in { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+/* Уникальные NSFW */
+@keyframes hud-mo-appear { from { opacity: .2; } }
+@keyframes hud-mo-now {
+  from { box-shadow: 0 0 14px color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 45%, transparent), inset 0 1px 0 rgba(255,255,255,.22); }
+  to { box-shadow: 0 0 22px color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 75%, transparent), inset 0 1px 0 rgba(255,255,255,.3); }
+}
+@keyframes hud-mo-sway { 0%, 100% { transform: none; } 25% { transform: rotate(-7deg); } 75% { transform: rotate(7deg); } }
+@keyframes hud-mo-clock { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+@keyframes hud-mo-star { 0%, 100% { transform: rotate(0) scale(1); opacity: .45; } 50% { transform: rotate(90deg) scale(1.35); opacity: 1; } }
+@keyframes hud-mo-status {
+  from { box-shadow: 0 0 10px color-mix(in srgb, var(--st) 40%, transparent), inset 0 1px 0 rgba(255,255,255,.25); }
+  to { box-shadow: 0 0 18px color-mix(in srgb, var(--st) 75%, transparent), inset 0 1px 0 rgba(255,255,255,.35); }
+}
+@keyframes hud-mo-stripes { from { background-position: 0 0, 0 0, 0 0; } to { background-position: 39.6px 0, 0 0, 0 0; } }
+@keyframes hud-mo-spark { 0%, 100% { transform: translateY(-50%) scale(1); opacity: .85; } 50% { transform: translateY(-50%) scale(1.4); opacity: 1; } }
+@keyframes hud-mo-edge { from { filter: brightness(1); } to { filter: brightness(1.3); } }
+@keyframes hud-mo-heartmark { 0%, 60%, 100% { transform: scale(1); opacity: .07; } 20% { transform: scale(1.18); opacity: .17; } 40% { transform: scale(1.05); opacity: .1; } }
+@keyframes hud-mo-breathmark { from { transform: translateX(0); opacity: .07; } to { transform: translateX(-8px); opacity: .15; } }
+@keyframes hud-mo-tempmark { from { transform: translateY(0); opacity: .06; } to { transform: translateY(-5px); opacity: .15; } }
+@keyframes hud-mo-topline { from { transform: scaleX(.35); opacity: .5; } to { transform: scaleX(1); opacity: 1; } }
+@keyframes hud-mo-lungs { from { transform: scaleY(.65); } to { transform: scaleY(1.25); } }
+@keyframes hud-mo-loud { from { text-shadow: 0 0 0 transparent; } to { text-shadow: 0 0 10px color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 80%, transparent); } }
+@keyframes hud-mo-rim { from { opacity: .7; } to { opacity: 1; } }
+@keyframes hud-mo-corner { from { opacity: .35; } to { opacity: 1; } }
+@keyframes hud-mo-dotglow { from { box-shadow: 0 0 4px var(--heat); } to { box-shadow: 0 0 14px 2px var(--heat); } }
+@keyframes hud-mo-chain { from { background-position: 0 0; } to { background-position: 0 18px; } }
+@keyframes hud-mo-violet { to { text-shadow: 0 0 9px rgba(186,140,240,.85); } }
+@keyframes hud-mo-silk { 0% { transform: translateX(-55%); opacity: .35; } 50% { opacity: 1; } 100% { transform: translateX(55%); opacity: .35; } }
+@keyframes hud-mo-rose { to { text-shadow: 0 0 9px rgba(255,166,200,.85); } }
+@keyframes hud-mo-strike { from { text-decoration-color: rgba(255,140,144,.35); } to { text-decoration-color: rgba(255,80,88,1); } }
+@keyframes hud-mo-bar-red { from { box-shadow: 3px 0 10px -3px rgba(255,120,124,.3); } to { box-shadow: 3px 0 16px 0 rgba(255,90,96,.85); } }
+@keyframes hud-mo-dim { from { opacity: 1; } to { opacity: .5; } }
+@keyframes hud-mo-memory { from { transform: translateY(-100%); } to { transform: translateY(100%); } }
+@keyframes hud-mo-sepia { to { color: #e8c9a0; } }
+@keyframes hud-mo-embrace { from { box-shadow: inset 0 0 0 0 transparent; } to { box-shadow: inset 0 0 26px -10px rgba(255,190,215,.5); } }
+@keyframes hud-mo-hug { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.16); } }
+@keyframes hud-mo-metronome { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-10deg); } 75% { transform: rotate(10deg); } }
+@keyframes hud-mo-count { from { text-shadow: 0 0 0 transparent; } to { text-shadow: 0 0 10px color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 70%, transparent); } }
+@keyframes hud-mo-stars {
+  from { filter: drop-shadow(0 0 6px rgba(244,211,94,.45)) drop-shadow(0 0 10px rgba(226,92,150,.35)); }
+  to { filter: drop-shadow(0 0 10px rgba(244,211,94,.85)) drop-shadow(0 0 16px rgba(226,92,150,.6)); }
+}
+@keyframes hud-mo-review {
+  from { box-shadow: inset 3px 0 0 rgba(255,160,200,.6), inset 0 1px 0 rgba(255,255,255,.06), -4px 0 12px -8px rgba(226,92,150,.6); }
+  to { box-shadow: inset 3px 0 0 rgba(255,185,218,1), inset 0 1px 0 rgba(255,255,255,.1), -4px 0 18px -5px rgba(226,92,150,.9); }
+}
+
+/* Городские службы: строка переносится, а не сжимается. Сетка 150px + остаток
+   из оформления стояла позже мобильного правила и перебивала его: на узкой
+   карточке текст сжимался в столбик по букве. Теперь подпись держит свою
+   ширину, текст занимает остаток и уходит под подпись, когда места мало. */
+.hud-world-container .hud-city-row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.hud-world-container .hud-city-kind { flex: 0 0 auto; max-width: 100%; }
+.hud-world-container .hud-city-row p { flex: 1 1 180px; min-width: 0; overflow-wrap: anywhere; }
+
+/* Спрятанные старые карточки: заглушка остаётся в разметке якорем — по ней
+   карточку можно вернуть, выключив настройку, — но на экране её нет. */
+.hud-hide-old-cards .mes[data-hud-evicted="hidden"] .hud-evicted { display: none !important; }
+
+/* Цвета новых видов следов: кольцо, рамка и шкала заживления берут --mk. */
+.hud-mark.is-lip { --mk: #e25d7a; }
+.hud-mark.is-lipstick { --mk: #d6457a; }
+.hud-mark.is-graze { --mk: #d98a5a; }
+.hud-mark.is-cut { --mk: #d23b4a; }
+.hud-mark.is-burn { --mk: #f08a3c; }
+.hud-mark.is-swelling { --mk: #c9a24a; }
+.hud-mark.is-neck { --mk: #9b6fd6; }
+.hud-mark.is-grip { --mk: #b9788f; }
+.hud-mark.is-rope { --mk: #b58a5a; }
+.hud-mark.is-fluid { --mk: #9ccfe8; }
+.hud-mark.is-scar { --mk: #b3a6a0; }
+
+/* --- Тучи дождя: отдельный слой над плашками --------------------------------
+   Раньше тучи лежали внутри слоя дождя (слой 3), а часы и плашка погоды —
+   слоем 10 ровно над ними: на ПК тучи уходили под плашку погоды, на телефоне
+   под часы, а ночью сквозь тёмное стекло не просвечивали вовсе. Дождь шёл
+   из ниоткуда. Теперь тучи — свой слой поверх плашек, прижатый к верхней
+   кромке сцены, где плашек нет; струи начинаются прямо под ними. */
+.hud-fx-clouds { position: absolute; inset: 0; z-index: 11; pointer-events: none; }
+.weather-rain .hud-fx-clouds { --rc-body: #e1e8f2; --rc-shade: #a0acc0; --rc-edge: #e1e8f2; --cloud-dur: 6s; opacity: .92; }
+.weather-rain.weather-intensity-high .hud-fx-clouds { --rc-body: #b8c4d6; --rc-shade: #8997ac; --rc-edge: #cdd7e5; }
+.weather-rain.weather-intensity-low .hud-fx-clouds { opacity: .75; }
+/* Верх туч — в пустой полосе над плашками; комки уходят за кромку сцены. */
+.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-back { top: -4px; }
+.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-front { top: 3px; }
+.weather-rain.weather-intensity-high .hud-fx-clouds .hud-rain-cloud.rc-back { top: -2px; }
+.weather-rain.weather-intensity-high .hud-fx-clouds .hud-rain-cloud.rc-front { top: 4px; }
+.weather-rain.weather-intensity-low .hud-fx-clouds .hud-rain-cloud.rc-back { top: -3px; }
+.weather-rain.weather-intensity-low .hud-fx-clouds .hud-rain-cloud.rc-front { top: 3px; }
+/* Струи выпадают из туч, а не из середины неба. */
+.weather-rain .hud-fx-weather::after { top: 16px; }
+.weather-rain.weather-intensity-high .hud-fx-weather::after { top: 20px; }
+.weather-rain.weather-intensity-low .hud-fx-weather::after { top: 14px; }
+/* Над затемнением сцены тучи светились бы ночью — приглушаем, как слой дождя. */
+.phase-evening .hud-fx-clouds, .phase-sunset .hud-fx-clouds { filter: brightness(.85); }
+.phase-night .hud-fx-clouds, .phase-predawn .hud-fx-clouds { filter: brightness(.72); }
+.phase-deep-night .hud-fx-clouds { filter: brightness(.6); }
+/* Покачивание — только после касания или под курсором, как у всей погоды. */
+.hud-fx-clouds .hud-rain-cloud { animation-play-state: paused !important; }
+.hud-scene-widget.fx-active .hud-fx-clouds .hud-rain-cloud { animation-play-state: running !important; }
+@media (hover: hover) { .hud-scene-widget:hover .hud-fx-clouds .hud-rain-cloud { animation-play-state: running !important; } }
+.hud-scene-widget.is-compact > .hud-fx-clouds { display: none !important; }
+
+/* Значок болезни или травмы: медальон в цвет стадии. */
+.hud-ill-head { align-items: center; }
+.hud-ill-ico {
+  flex: none; width: 24px; height: 24px; border-radius: 50%; display: inline-grid; place-items: center;
+  font-style: normal; font-size: 13px; line-height: 1;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--ill, #8f9bb0) 45%, #fff 8%), color-mix(in srgb, var(--ill, #8f9bb0) 22%, #120c14));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--ill, #8f9bb0) 50%, transparent), 0 0 10px color-mix(in srgb, var(--ill, #8f9bb0) 30%, transparent);
+  transition: transform .7s cubic-bezier(.22,.8,.26,1);
+}
+@media (prefers-reduced-motion: no-preference) {
+  @media (hover: hover) { .hud-ill:hover .hud-ill-ico { transform: scale(1.1); } }
+  .hud-ill.fx-tap .hud-ill-ico { transform: scale(1.1); }
+}

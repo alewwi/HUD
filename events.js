@@ -11,12 +11,12 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache } from './avatars.js?v=22.99.30';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.99.30';
-import { openPhoneMediaViewer } from './render/phone.js?v=22.99.30';
-import { getTheme, themeVars, presetRowHTML, THEME_KEYS , themeSnapshot, parseThemeFile } from './themes.js?v=22.99.30';
-import { settings, defaultSettings } from './settings.js?v=22.99.30';
-import { getWorldVotes } from './render/world.js?v=22.99.30';
+import { invalidateAvatarCache } from './avatars.js?v=22.99.52';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.99.52';
+import { openPhoneMediaViewer } from './render/phone.js?v=22.99.52';
+import { getTheme, themeVars, presetRowHTML, THEME_KEYS , themeSnapshot, parseThemeFile } from './themes.js?v=22.99.52';
+import { settings, defaultSettings } from './settings.js?v=22.99.52';
+import { getWorldVotes } from './render/world.js?v=22.99.52';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -877,8 +877,30 @@ export function initGlobalEvents(ctx) {
       return;
     }
 
+    // Свернуть или развернуть погоду. Выбор общий для всех карточек и
+    // помнится на устройстве; свёрнутая сцена по клику не оживает.
+    const складка = e.target.closest('.hud-scene-fold');
+    if (складка) {
+      e.preventDefault();
+      const свернуть = !складка.closest('.hud-scene-widget').classList.contains('is-compact');
+      try { localStorage.setItem('hud-scene-compact', свернуть ? '1' : '0'); } catch (err) { /* хранилище недоступно */ }
+      document.querySelectorAll('.hud-scene-widget').forEach(сцена => {
+        сцена.classList.toggle('is-compact', свернуть);
+        сцена.classList.remove('fx-active');
+        сцена.classList.add('is-folding');
+        setTimeout(() => сцена.classList.remove('is-folding'), 700);
+        const кнопка = сцена.querySelector('.hud-scene-fold');
+        if (кнопка) {
+          const подпись = свернуть ? 'Развернуть погоду' : 'Свернуть погоду';
+          кнопка.title = подпись; кнопка.setAttribute('aria-label', подпись);
+          кнопка.setAttribute('aria-expanded', свернуть ? 'false' : 'true');
+        }
+      });
+      return;
+    }
+
     const widget = e.target.closest('.hud-scene-widget');
-    if (widget) {
+    if (widget && !widget.classList.contains('is-compact')) {
       widget.classList.toggle('fx-active');
     }
 
@@ -1392,3 +1414,30 @@ function вернутьПоСобытию(e) {
 ['pointerdown', 'click', 'keydown', 'focusin', 'touchstart'].forEach(тип => {
   document.addEventListener(тип, вернутьПоСобытию, { capture: true, passive: true });
 });
+
+
+// --- Движение по касанию -----------------------------------------------------
+// Украшения карточки стоят на месте, пока их не тронуть. Под курсором их
+// запускает :hover, на телефоне наведения нет — поэтому касание вешает на
+// ближайший оживающий элемент класс fx-tap на пару секунд (повторное касание
+// перезапускает движение), а на саму карточку — fx-live, чтобы ожили и слои
+// темы. Обработчик пассивный и ничего не отменяет: клики живут как раньше.
+const ОЖИВАЮТ_ПО_КАСАНИЮ = ".hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-row, .hud-heat, .hud-cycle, .hud-secret-summary, .hud-fam-svg, .hud-phone-app, .hud-phone-lockscreen, .hud-mood-group, .hud-scene-strip-wrap";
+const таймерыОживления = new WeakMap();
+function оживить(элемент, класс, мс) {
+  clearTimeout(таймерыОживления.get(элемент));
+  if (класс === 'fx-tap' && элемент.classList.contains(класс)) {
+    элемент.classList.remove(класс);
+    void элемент.offsetWidth;
+  }
+  элемент.classList.add(класс);
+  таймерыОживления.set(элемент, setTimeout(() => элемент.classList.remove(класс), мс));
+}
+document.addEventListener('pointerup', (e) => {
+  const карточка = e.target.closest && e.target.closest('.hud-os-card');
+  if (!карточка) return;
+  const цель = e.target.closest(ОЖИВАЮТ_ПО_КАСАНИЮ);
+  if (цель && карточка.contains(цель)) оживить(цель, 'fx-tap', 3600);
+  if (e.pointerType && e.pointerType !== 'mouse') оживить(карточка, 'fx-live', 9000);
+}, { passive: true });
+

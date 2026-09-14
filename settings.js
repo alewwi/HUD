@@ -13,6 +13,9 @@ export const defaultSettings = {
   lazyTabs: true,
   // Сколько собранных HUD-карточек держать в DOM. 0 — не ограничивать.
   hudCardLimit: 0,
+  // Карточки сверх лимита прятать совсем: без полоски «HUD свёрнут»,
+  // и при прокрутке они не собираются. Блок [HUD] в сообщении остаётся.
+  hideOldCards: false,
   // Приложения телефона по отдельности. Выключенное не просится у модели и
   // не показывается на домашнем экране.
   phoneAppMessages: true,
@@ -52,8 +55,24 @@ export const defaultSettings = {
   enableFamilyTree: true,
   // Кнопка «❓» на карточке: вопросы о сюжете, ответ не пишется в чат.
   enableAssistant: true,
+  enableMenstruation: true,
+  enableIntimacyExtras: true,
+  enableHeatMap: true,
+  enableEconomy: true,
+  enableEvents: true,
+  enableCity: true,
   // Сколько последних сообщений читает модель, отвечая на вопрос.
   assistantContextMessages: 12,
+  // Что ассистент видит, через какую модель спрашивает и каким промптом.
+  assistantIncludeHud: true,
+  assistantIncludeNote: true,
+  assistantIncludeCard: true,
+  assistantIncludePersona: true,
+  assistantLorebooks: [],
+  assistantLoreAll: false,
+  assistantProfileId: '',
+  assistantMaxTokens: 1500,
+  assistantSystemPrompt: '',
   performanceMode: true, // Автоматическая оптимизация чатов от 200 сообщений
   // В Performance Mode карточка, уехавшая дальше полутора экранов, сворачивается
   // в заглушку своей высоты и собирается заново при возвращении.

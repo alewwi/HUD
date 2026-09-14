@@ -14,17 +14,18 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=22.99.30';
-import { normalizeJSONData } from '../schema.js?v=22.99.30';
-import { settings } from '../settings.js?v=22.99.30';
-import { статусРужья } from '../codes.js?v=22.99.30';
+import { parseHUDComplex } from '../hud-parser.js?v=22.99.52';
+import { normalizeJSONData } from '../schema.js?v=22.99.52';
+import { settings } from '../settings.js?v=22.99.52';
+import { статусРужья } from '../codes.js?v=22.99.52';
+import { hudBlockRe } from '../hud-block.js?v=22.99.52';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
 
 // Тот же набор написаний [HUD], что и везде: модель шлёт то скобки, то угловые,
 // а SillyTavern иногда успевает заэкранировать.
-const БЛОК = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)[\s\S]*?(?:(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)|$)/i;
+const БЛОК = hudBlockRe('i');
 
 // Разобранные ходы. Ключ — длина и хэш всего текста: любая правка сообщения
 // даёт новый ключ, и кэш обновится сам.
@@ -278,3 +279,7 @@ export function mergeCarryOver(data, messageElement) {
   // Мир остаётся таким, каким его прислал текущий ход.
   return итог;
 }
+
+
+// Разбор хода нужен и истории близости: таймеру следов и графикам пульса.
+export { разобратьХод };

@@ -9,9 +9,10 @@
 // Текст сообщения здесь только считается, на экран не выводится, поэтому
 // разметку режем регуляркой — DOM на тысячу сообщений не нужен.
 
-import { hudFilled } from './utils.js?v=22.99.30';
+import { hudFilled } from './utils.js?v=22.99.52';
 
-const HUD_БЛОК = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)[\s\S]*?(?:(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)|$)/gi;
+import { hudBlockRe } from './hud-block.js?v=22.99.52';
+const HUD_БЛОК = hudBlockRe('gi');
 // Служебные вставки других расширений и размышления модели — не проза.
 const СЛУЖЕБНОЕ = /<(think|thinking|plan|comics|img|script|style|details|summary)\b[^>]*>[\s\S]*?<\/\1>/gi;
 
@@ -34,7 +35,14 @@ const СТОП = new Set((
   'опять сейчас здесь которые который которая которое которых просто чуть немного наконец свою своих твой твоя твои мой моя мои наш ваш будто ' +
   'словно почти совсем вдруг ничего никто нибудь чего чему кого кому зачем почему пока тоже этих этими этому самый самая самое сама сам сами ' +
   'that this with have from they them their there what when your will would could should been were into then than just like about more some ' +
-  'only over also very which while where because after before still even back down each other such here does doing said'
+  'only over also very which while where because after before still even back down each other such here does doing said ' +
+  // Короткие служебные слова. В пары идут слова от трёх букв, и «and the»,
+  // «she was», «она его» занимали весь топ частых фраз. Обрывки сокращений
+  // (didn, wasn) остаются от разбиения «didn't» на слова.
+  'the and you for but not her his she him was are had has can all out one our who get got did yes how its may say see too now off own why let way any new two ' +
+  'know going something really want think right look make says tell much many those these being having again around through against without ' +
+  'between under upon every never always maybe yeah okay well might must shall cannot didn doesn isn wasn aren weren won wouldn couldn shouldn haven hasn hadn ' +
+  'был мне нас вас ему ней них том тем раз нет для как это при про над под без ним нём нем его всё она они мой моя наш ваш тот той там тут вот уже ещё'
 ).split(/\s+/));
 
 const МЕСЯЦЫ_EN = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];

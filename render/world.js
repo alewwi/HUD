@@ -7,8 +7,9 @@
 // settings.showComments напрямую из замыкания index.js. Теперь флаг
 // приходит четвёртым аргументом — модуль не знает про глобальные настройки.
 
-import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=22.99.30';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.30';
+import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=22.99.52';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.52';
+import { buildEconomyHTML, buildEventsHTML, buildCityHTML } from './world-city.js?v=22.99.52';
 
 // --- Прогноз погоды -------------------------------------------------------
 // Иконки нарисованы штрихами по currentColor: они должны читаться как в
@@ -162,6 +163,9 @@ export function buildWorldHTML(worldData, uid, isChecked, showComments) {
     html += `</ul></div>`;
   }
   // Прогноз погоды — после новостей и слухов, перед объявлениями.
+  // Экономика и городские службы — сразу за слухами: это та же лента города.
+  html += buildEconomyHTML(worldData.economy) + buildCityHTML(worldData.city);
+
   if (worldData.forecast && worldData.forecast.length > 0) {
     html += `<div class="hud-world-section hud-world-section-forecast" title="Нажмите для анимации"><div class="hud-world-title">🌦️ Прогноз погоды</div><div class="hud-forecast-row">`;
     const notes = [];
@@ -209,6 +213,8 @@ export function buildWorldHTML(worldData, uid, isChecked, showComments) {
     }
     html += `<div class="hud-horo-disclaimer">Развлечения ради. Звёзды ни за что не отвечают.</div></div>`;
   }
+
+  html += buildEventsHTML(worldData.events);
 
   if (worldData.ads && worldData.ads.length > 0) {
     html += `<div class="hud-world-section hud-world-section-ads"><div class="hud-world-title">📌 Доска объявлений</div><div class="hud-ads-grid">`;

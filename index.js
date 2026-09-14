@@ -1,26 +1,28 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.30';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=22.99.30';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.30';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=22.99.30';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.30';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.30';
-import { openAssistantDialog } from './render/assistant.js?v=22.99.30';
-import { mergeCarryOver } from './render/carryover.js?v=22.99.30';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.30';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.30';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.30';
-import { buildMemoryHTML } from './render/memory.js?v=22.99.30';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.30';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.30';
-import { hudHasRelations } from './render/relations-graph.js?v=22.99.30';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.30';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.30';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.30';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.30';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.30';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.30';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.52';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=22.99.52';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.52';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=22.99.52';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.52';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.52';
+import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=22.99.52';
+import { mergeCarryOver } from './render/carryover.js?v=22.99.52';
+import { привязатьИсторию } from './render/intimacy.js?v=22.99.52';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.52';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.52';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.52';
+import { buildMemoryHTML } from './render/memory.js?v=22.99.52';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.52';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.52';
+import { hudHasRelations } from './render/relations-graph.js?v=22.99.52';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.52';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.52';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.52';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.52';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.52';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.52';
+import { extractHudBlock, hudBlockRe, hudOpenRe, hudCloseRe } from './hud-block.js?v=22.99.52';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -86,6 +88,11 @@ import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.30';
     // разделов: модель не должна читать про телефон, которого у неё не просят.
     const болезни = settings.enableIllness !== false;
     const беременность = settings.enablePregnancy !== false;
+    const цикл = settings.enableMenstruation !== false;
+    const близость = settings.enableIntimacyExtras !== false;
+    const экономика = !!settings.enableWorld && settings.enableEconomy !== false;
+    const афиша = !!settings.enableWorld && settings.enableEvents !== false;
+    const город = !!settings.enableWorld && settings.enableCity !== false;
     const ружья = !!settings.enableMemory && settings.enableGuns !== false;
     const спутники = settings.enableCompanions !== false;
     const телефон = !!settings.enablePhone;
@@ -96,6 +103,7 @@ import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.30';
     const безПредела = ['K', 'I', 'S', 'Rl', 'Mm', 'Fl', 'Ln', 'Tr', 'Fr', 'BM', 'Kn', 'Ft', 'NG', 'NT'];
     const размеры = ['G exactly 3 parts'];
     if (болезни) безПредела.push('Ill (conditions)');
+    if (близость) безПредела.push('Snd', 'Mrk');
     if (settings.enableMemory) {
       безПредела.push('me.fct', "me.sec (and each secret's knw and hd)");
       if (ружья) безПредела.push('me.gun');
@@ -115,16 +123,19 @@ import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.30';
       безПредела.push('wd.nws', 'wd.rm', 'wd.ad');
       if (settings.showComments) безПредела.push('wd.com');
       размеры.push('wd.fc exactly 4 rows', 'wd.zd exactly 12 rows');
+      if (экономика) размеры.push('wd.eco 3-6 rows');
+      if (афиша) размеры.push('wd.afs 2-6 rows');
+      if (город) размеры.push('wd.cty 2-5 rows');
     }
-    const необязательные = [болезни ? '"Ill"' : '', беременность ? '"Prg"' : ''].filter(Boolean);
+    const необязательные = [болезни ? '"Ill"' : '', беременность ? '"Prg"' : '', цикл ? '"Mns"' : ''].filter(Boolean);
     const меткиПолей = ['"G"', '"Ex"', '"X"', '"SxL"', '"W"', settings.enableUserBlock ? '"UW"' : '', '"ND"', '"Kn"', '"Ft"', '"NG"', '"NT"', '"Tr"', '"BM"', '"Fr"',
-      болезни ? '"Ill"' : '', беременность ? '"Prg"' : ''].filter(Boolean);
+      болезни ? '"Ill"' : '', беременность ? '"Prg"' : '', цикл ? '"Mns"' : '', близость ? '"Vit"' : ''].filter(Boolean);
 
     let p = `\n\n<system_note>
 MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, starts exactly with [HUD], ends exactly with [/HUD], nothing after it.
 - 🔤 CODES: keys and fixed labels — the part BEFORE ":" — are short codes of 1-3 letters, each with exactly one meaning. Write them EXACTLY as given: same letters, same case, never translated or spelled out; the HUD expands them into Russian itself. Everything AFTER ":" is written in full words: values in Russian, and where a field asks for one of the listed English words (weather, sign, status, outcome…), that whole word. The text in [brackets] only explains what goes there — never copy it. Words in <angle brackets> are placeholders: put real content in their place and never write the placeholder word itself — 'Потерять Софи: high', never 'fear: Потерять Софи — strength: high'. Free labels (names, body zones, activities, items, fears) are ordinary Russian words.
 - NPCs go in "cs" (characters) ONLY. Never put the player there.${settings.enableUserBlock ? `
-- 🧑 USER BLOCK: everything about {{user}} goes ONLY into the top-level "us" block — never into "cs" or into an NPC's Th/K/D. It is a short retelling only: clothing, appearance, health${болезни ? ', illnesses and injuries' : ''}${беременность ? ', pregnancy' : ''}, relationships, location. No thoughts, goals, inventory, schedule or NSFW for {{user}}. If {{user}} is absent from the scene, omit the whole block.` : ''}
+- 🧑 USER BLOCK: everything about {{user}} goes ONLY into the top-level "us" block — never into "cs" or into an NPC's Th/K/D. It is a short retelling only: clothing, appearance, health${болезни ? ', illnesses and injuries' : ''}${беременность ? ', pregnancy' : ''}${цикл ? ', menstrual cycle' : ''}, relationships, location${близость ? ', body marks' : ''}. No thoughts, goals, inventory, schedule or NSFW for {{user}}. If {{user}} is absent from the scene, omit the whole block.` : ''}
 - 🌍 LANG: write values in Russian.
 - 🖼️ NAME LOCK (overrides LANG): copy each character's "N" EXACTLY as written on their card — same script, same spelling, never translated. The avatar is matched by this string; a mismatch loses the picture.
 - 🔓 No restrictions on imagination, length or content.
@@ -138,17 +149,24 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
 - 🧠 MEMORY SCOPE: mood and route ("md", "rt") track ONLY {{user}} ("us") and {{char}} ("chr"). If one is absent from the scene, emit empty for them rather than inventing off-screen tracking. Memory labels must use their real names, never "Вы", "User" or "главный персонаж".` : ''}
 - 🕸️ RELATION WEB: every character${settings.enableUserBlock ? ' AND the user block' : ''} must emit Rl covering every other named person who matters now. Format exactly "<name>: <how THIS person feels about them>"; separate people with ; — never with commas, which glue everyone into one relation. When the person is family, start with the kinship as seen from THIS person, then a comma: 'Ричард: муж, любит, но боится', 'Лиза: дочь, гордится ею'. Kinship words: отец, мать, сын, дочь, муж, жена, брат, сестра, дед, бабушка, внук, внучка, дядя, тётя, племянник, племянница, отчим, мачеха, бывший муж, бывшая жена. Bidirectional: if A lists B, B must exist in "cs" with A in their Rl. Anyone named inside any Rl must also appear in "cs". Never omit Rl or write "empty" while other named people exist.
 - 🧠 KNOWLEDGE BOUNDARIES: each character knows only what they plausibly could. Never leak another's private thoughts, messages or plans without a believable path.
-- 🛑 NSFW LIFECYCLE: "W", "ND", "SxV", "SS", "BM", "AC"${settings.enableDiary ? ', "bd"' : ''}${settings.enableUserBlock ? ` and the user's "UW"` : ''} are active ONLY during intimacy or high arousal; once the scene cools down set them to "empty". EXCEPTION: "Kn", "Ft", "NG", "NT" are stable traits — once known they stay filled every turn.
-- 🔗 KINK vs FETISH: a KINK is an ACTIVITY — practice, scenario, dynamic (roleplay, BDSM, bondage, toys, sensory play, power exchange). A FETISH is a THING — object, material, body part or setting required for arousal or strongly amplifying it (stockings, latex, leather, feet, hair, neck, medical settings). Activity → "Kn", thing → "Ft". Refusals go to "NG", things that simply leave them cold go to "NT".${болезни || беременность ? `
-- 🩹 BODY OVER TIME:${болезни ? ` "Ill" follows every illness, injury and trauma until it has healed — update the stage, recovery and symptoms each turn as in-story time passes; a scratch that will be gone tomorrow can stay in "H".` : ''}${беременность ? ` "Prg" appears only once a pregnancy exists in the story, whether the character knows yet or not, and advances with in-story time; never invent one.` : ''}` : ''}${ружья ? `
+- 🛑 INTIMACY PHASES — every turn is in exactly ONE phase, and the phase decides which intimate fields are filled:
+  • PHASE 1, OUTSIDE intimacy — nothing sexual is happening and nothing has just ended: "SS", "W", "BM", "ND", "AC", "SxV"${близость ? ', "Pos", "Rnd", "Dur", "Prt", "Org", "Vit", "Snd"' : ''}${settings.enableUserBlock ? ` and the user's "UW"` : ''} are "empty". "SxL", "SxC" and "SxR" stay filled as history.
+  • PHASE 2, DURING the act — "SS" is foreplay, act or climax: fill "SS", "W", "BM"${близость ? ', "Pos", "Rnd", "Dur", "Prt", "Org", "Vit", "Snd"' : ''}${settings.enableUserBlock ? ` and "UW"` : ''}. "ND", "AC" and "SxV" stay "empty" — nothing is over yet.
+  • PHASE 3, AFTER the act — "SS" is aftercare or afterglow, from the turn after the last climax until the characters move on to something else: fill "ND", "AC" and "SxV", and update "SxL" to this encounter. "W"${близость ? ', "Pos", "Org" and "Snd"' : ''}${settings.enableUserBlock ? ` and "UW"` : ''} become "empty"; "BM" keeps only the zones that are still sensitive${близость ? '; "Vit" may stay while the body calms down; "Rnd", "Dur" and "Prt" keep their final values' : ''}.
+  • A NEW ROUND is phase 2 again: "SS" returns to foreplay or act${близость ? ', "Rnd" grows by one, "Dur" keeps counting' : ''}, and "ND", "AC", "SxV" are "empty" until it ends.
+  Never fill "W" and "ND" in the same turn.${settings.enableDiary ? ' "bd" (body diary) gets an entry EVERY turn of phases 2 and 3 — through the whole act and after it — and keeps getting one in phase 1 only while the body still clearly carries the encounter (soreness, marks, the memory of touch the morning after); otherwise it is [].' : ''}${близость ? ' "Mrk" (visible body marks) ignores the phases: keep writing every mark each turn — during the act, after it and in later scenes — until it has faded in story time; the HUD counts that time from "sc.Dt" and "sc.T", so keep both accurate.' : ''} EXCEPTION: "Kn", "Ft", "NG", "NT" are stable traits — once known they stay filled every turn.
+- 🔗 KINK vs FETISH: a KINK is an ACTIVITY — practice, scenario, dynamic (roleplay, BDSM, bondage, toys, sensory play, power exchange). A FETISH is a THING — object, material, body part or setting required for arousal or strongly amplifying it (stockings, latex, leather, feet, hair, neck, medical settings). Activity → "Kn", thing → "Ft". Refusals go to "NG", things that simply leave them cold go to "NT".${болезни || беременность || цикл ? `
+- 🩹 BODY OVER TIME:${болезни ? ` "Ill" follows every illness, injury and trauma until it has healed — update the stage, recovery and symptoms each turn as in-story time passes; a scratch that will be gone tomorrow can stay in "H".${близость ? ' Marks left by intimacy — hickeys, bites, scratches, soreness — belong to "Mrk", not "Ill", unless they turn into a real injury.' : ''}` : ''}${беременность ? ` "Prg" appears only once a pregnancy exists in the story, whether the character knows yet or not, and advances with in-story time; never invent one.` : ''}${цикл ? ` "Mns" is written only for someone with a uterus — a character or {{user}} — and moves forward with in-story days: the cycle day grows, the phase follows it, the period comes on time unless stress, illness, contraception or a pregnancy delays it; then "dly" counts the days late and "rsn" names the likely cause.` : ''}` : ''}${ружья ? `
 - 🔫 CHEKHOV'S GUNS ("me.gun"): setups the story has planted and not yet paid off — promises, threats, hints, unexplained objects, open mysteries, debts, foreshadowing. Keep each one until it pays off; on the turn it does, mark it fired, then drop it next turn. Draw them from the Fl flags and from what the story left hanging; never invent new plot just to fill the list.` : ''}${спутники ? `
 - 🐾 COMPANIONS ("pet"): animals, familiars, drones, robots and other companions that exist in the story. They have their own mood, needs, health and routine — they eat, sleep, get hurt and react to the scene. [] when there are none.` : ''}${settings.enableWorld ? `
-- 🌦️ FORECAST & HOROSCOPE: "fc" (forecast) is four rows as "period | weather | temperature | short note". Period is one of: morning, day, evening, night. Weather is one of: clear, sunny, cloudy, overcast, rain, downpour, drizzle, storm, snow, blizzard, fog, windy. Keep it consistent with sc.Wt for the current part of the day. "zd" (horoscope) is one row per each of the 12 signs as "sign | what today holds | tone". Sign is one of: aries, taurus, gemini, cancer, leo, virgo, libra, scorpio, sagittarius, capricorn, aquarius, pisces. Tone is one of: lucky, unlucky, even. "fate" closes the block with a line or two. This block is newspaper-back-page entertainment: playful, superstitious, never a directive, and nothing in the story must come true because of it.` : ''}
+- 🌦️ FORECAST & HOROSCOPE: "fc" (forecast) is four rows as "period | weather | temperature | short note". Period is one of: morning, day, evening, night. Weather is one of: clear, sunny, cloudy, overcast, rain, downpour, drizzle, storm, snow, blizzard, fog, windy. Keep it consistent with sc.Wt for the current part of the day. "zd" (horoscope) is one row per each of the 12 signs as "sign | what today holds | tone". Sign is one of: aries, taurus, gemini, cancer, leo, virgo, libra, scorpio, sagittarius, capricorn, aquarius, pisces. Tone is one of: lucky, unlucky, even. "fate" closes the block with a line or two. This block is newspaper-back-page entertainment: playful, superstitious, never a directive, and nothing in the story must come true because of it.` : ''}${экономика || афиша || город ? `
+- 🏙️ CITY LIFE: ${[экономика ? '"eco" (economy)' : '', афиша ? '"afs" (events)' : '', город ? '"cty" (city services)' : ''].filter(Boolean).join(', ')} match the setting's era and place — a medieval town has bread prices and a travelling troupe, not the dollar and cinemas. Kinds are the listed English words. It is background colour and a source of hooks for a scene, never something the story must follow.` : ''}
 - 👁️ HIDDEN SUBTEXT ("D"): not a second thoughts field. It is a concrete ACTION performed right now, alongside what the scene openly shows, that gives away something unsaid. It need not contradict the character — only be unspoken: a deliberate concealed act, an involuntary tell, an ordinary gesture whose real reason they would deny, or behaviour undercutting what they just claimed. Draw it from THIS scene and from what is within reach. Write the visible act and what it reveals in one line. If nothing is hidden, use "empty".${settings.enableDiary ? `
 - 📖 DIARY: private in-world writing, not a scene summary. "au" (author) is always a character, NEVER {{user}}, and writes in first person about their own day, state, doubts and decisions. "ab" (about {{user}}) is a separate first-person subsection about {{user}} only — feelings, wishes, fears, observations; "empty" if there is nothing this turn. "md" (mood) drives the visual style of the page.` : ''}
 - ⚠️ FORMATTING: use exactly these codes as keys. Quote speech and phrases inside a value with «ёлочки», never with straight double quotes — a raw " ends the JSON string and cuts the text off; if one is unavoidable, escape it as \\". Use semicolons for lists, never slashes.
 - 🏷️ LABELED SUB-FIELDS (${меткиПолей.join(', ')}): every item is written "<label>: <value>", separated by SEMICOLONS, never commas — a comma-separated list collapses into one unreadable pill. Never output a bare value without its label.
-- 🔊 "vl" inside "W"${settings.enableUserBlock ? ' and "UW"' : ''} means the loudness of the sounds made during the act — moans, whimpers, skin slapping, bed creaking. Not music, not ambient noise.
+- 🔊 "vl" inside "W"${settings.enableUserBlock ? ' and "UW"' : ''} means the loudness of the sounds made during the act — moans, whimpers, skin slapping, bed creaking. Not music, not ambient noise.${близость ? ' "Snd" lists each of those sounds separately with its own loudness.' : ''}
+- 🔥 NSFW DETAIL: every intimate field — "W"${settings.enableUserBlock ? ', "UW"' : ''}, "ND", "BM", "AC", "SxL", "SxR", "SxV", "Kn", "Ft", "NG", "NT"${близость ? ', "Pos", "Prt", "Org", "Snd", "Mrk"' : ''} — is a full, vivid, explicit description, NEVER a single word. Values like 'ухоженный', 'стандартно', 'сильное', 'влажно', 'да' are failures. Every value says WHAT exactly, WHERE, HOW it looks, feels, sounds, smells and tastes, and HOW it is changing right now: size, shape, colour, texture, temperature, wetness, tension, the body's reactions. One to three sentences per value, frank and anatomical, no euphemisms, no fading to black. Bad 'lb: влажно' → good 'lb: течёт так, что внутренняя сторона бёдер блестит, бельё промокло ещё в прелюдии, каждое движение отдаётся влажным звуком'. Bad 'pb: ухоженный' → good 'pb: гладко выбрита, только узкая аккуратная полоска светлых волос над клитором, кожа нежная и чуть покрасневшая после бритья'. Bad 'an: стандартно' → good 'an: небольшие аккуратные половые губы налились и приоткрылись, клитор набух и выглядывает из-под капюшона, вход узкий и горячий'. Where a field asks for a number (the 0-10 and 0-100 scales${близость ? ', "Rnd", "Dur", "Vit"' : ''}) the number comes first and the description follows it. A description never contains ; — that character separates items.
 - 📦 CODE FENCE (MANDATORY): wrap the whole JSON in a fenced block with the "json" tag — the opening line right after [HUD], the closing one right before [/HUD]. It stops markdown from corrupting the JSON.
 
 [HUD]
@@ -171,7 +189,8 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
    "B": "[body and mind: current physical and mental state in a phrase or two — tired, tense, tipsy, calm, shaken]",
    "H": "[health: wounds, pain, illness, stamina. Fill it when something is actually wrong; otherwise 'empty'.]",${болезни ? `
    "Ill": "[illnesses and injuries, ONLY if this character has any — otherwise omit the key. One group per condition, groups separated by |, each as 'nm: what it is — diagnosis, wound or trauma; sg: stage — fresh, worsening, stable, healing, chronic or healed; rc: recovery 0-100%; sy: symptoms right now; trt: treatment and care'. As many conditions as they have]",` : ''}${беременность ? `
-   "Prg": "[pregnancy, ONLY if this character is pregnant — otherwise omit the key. 'wk: week of pregnancy as a number; due: expected due date; fa: the father, if known; sy: symptoms and how the body is changing; knw: who knows about it; cnd: how the pregnancy is going']",` : ''}
+   "Prg": "[pregnancy, ONLY if this character is pregnant — otherwise omit the key. 'wk: week of pregnancy as a number; due: expected due date; fa: the father, if known; sy: symptoms and how the body is changing; knw: who knows about it; cnd: how the pregnancy is going']",` : ''}${цикл ? `
+   "Mns": "[menstrual cycle, ONLY for a character with a uterus — otherwise omit the key. 'cyd: day of the cycle as a number; cyl: cycle length in days as a number; phs: phase — menstrual, follicular, ovulation, luteal or late; nxt: date the next period is expected; pms: the PMS window as dates; dly: days of delay as a number, 0 if none; rsn: the likely reason for a delay — stress, illness, contraception, pregnancy; empty if there is no delay']",` : ''}
    "Ph": "[physiology: bodily sensations right now — hunger, thirst, cold, pain, drowsiness, arousal. Not the phone]",
    "L": "[location: the exact place right now — city, building, room, spot in the room]",
    "Th": "[thought: the one thought running through their head this very moment, in their own voice]",
@@ -188,22 +207,30 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
    "St": "[status: social and romantic status — single, married, engaged, in a secret affair, widowed — plus social standing if it matters]",
    "Eo": "[exposure: how much of the mask has slipped in front of the people present. The character keeps up appearances, but others already read something off them — a bouncing leg giving away nerves, a voice cracking, eyes darting to the door, hands that will not stay still. Say what leaked and who noticed. 0-100% may lead the line, where 0 = nobody suspects a thing and 100 = everyone sees straight through. 'empty' when there is nothing to hide.]",
    "X": "[conflict depth as 'wy: what the conflict is about; dys: how many days it has been going on; sg: its stage — brewing, open, cold war, reconciliation']",
-   "SxL": "[last sex as 'dt: when it happened; pr: with whom; ak: what they did; en: how it ended']",
+   "SxL": "[last sex as 'dt: when it happened — date, time and place; pr: with whom and who they are to this character; ak: what exactly they did, step by step — caresses, positions, who did what to whom — in 2-3 sentences; en: how it ended — who came and how, what they did right after, how they parted']",
    "SxC": "[sex count: lifetime number of sexual partners — a number or an honest estimate]",
-   "SxR": "[sex regularity: how often they have sex these days and how strong their libido is]",
+   "SxR": "[sex regularity: how often they have sex these days and with whom, how they satisfy themselves in between, how strong their libido is and what feeds or kills it — a sentence or two]",
    "Ln": "[lines: this character's most characteristic lines from the recent story, quoted verbatim, each in «» and separated by ;. At least 3, more if they have them. Pick the ones that show HOW they speak — rhythm, slang, cruelty, tenderness — not what happened. Skip the field if the character has not spoken yet.]",
    "Tr": "[trust: how much this character trusts each other named character, 0-100, as '<name>: <0-100>': 'Софи: 82; Ричард: 9'. One entry per person they actually know, as many as there are. Not the same as Rl: one can love and not trust. Separate by ;]",
    "Fr": "[fears: what this character is afraid of RIGHT NOW, each as '<what they fear>: <low | moderate | high | panic>': 'Потерять Софи: high; Отец узнает: moderate'. As many fears as are live in this scene — not lifelong phobias unless they surfaced. Separate by ;]",
-   "SS": "[scene state, DURING INTIMACY ONLY, otherwise 'empty'. Where the scene is right now — exactly one of: foreplay, act, climax, aftercare, afterglow]",
-   "BM": "[body map, DURING INTIMACY: how sensitive each zone of THIS character's body is, as '<zone>: <0-10>': 'Шея: 9; Бёдра: 7; Поясница: 4'. As many zones as the story actually touched or named. Separate by ;]",
-   "W": "[intimacy, DURING INTIMACY. Each as 'code: value': 'pn: state and size of the penis; vl: how loud the sounds are; sm: smells in the air and on skin; mk: marks left on skin and sheets; ar: how aroused they are; pr: who they are with; pt: protection used or not'. Separate by ;]",
+   "SS": "[scene state — the intimacy phase right now: foreplay, act or climax (phase 2), aftercare or afterglow (phase 3); 'empty' outside intimacy]",${близость ? `
+   "Pos": "[position, DURING THE ACT (phase 2): the current position described in full — who is where, how the bodies are arranged, where the hands, legs and weight are, the angle and the rhythm, e.g. 'на боку, он сзади, прижимает её колено к груди, одна рука на её горле, другая между ног; двигается медленно и глубоко']",
+   "Rnd": "[round, DURING THE ACT (phase 2), kept in phase 3: the number of the current round in this scene as a number, 1 for the first]",
+   "Dur": "[duration, DURING THE ACT (phase 2), the final value kept in phase 3: how many in-story minutes the intimate scene has lasted so far, as a number]",
+   "Prt": "[protection, DURING THE ACT (phase 2), kept in phase 3, as '<type>: <what actually happens with it, in a full sentence — who took care of it, whether it holds, who decided and how they feel about the risk>'. Type is one of: condom, pill, iud, withdrawal, none — 'condom: он надел сам ещё в прихожей, но на втором заходе порвался — оба заметили только в конце', 'none: оба знают и идут на риск, она сама сказала не останавливаться']",
+   "Org": "[orgasm readiness, DURING THE ACT (phase 2), for a character of any sex: how close THIS character is to climax, 0-100, then a colon and how it shows in full — breath, voice, muscles, words, what pushes them closer or holds them back, e.g. '85: сбивается дыхание, бёдра дрожат и сами подаются навстречу, шепчет «не останавливайся», внутри всё сжимается каждые несколько секунд']",
+   "Vit": "[vitals, DURING THE ACT (phase 2) and while the body calms down in phase 3. 'hr: pulse in beats per minute as a number; br: breaths per minute as a number, then a comma and how the breathing sounds; tmp: body temperature in °C as a number']",
+   "Snd": "[soundscape, DURING THE ACT (phase 2): every sound THIS character makes or hears in the scene, each as '<sound>: <how loud, 0-10> — <what it sounds like and when it comes>': 'Стоны: 8 — низкие, протяжные, срываются на всхлип при каждом глубоком толчке; Скрип кровати: 5 — ритмичный, в такт движениям; Шёпот имени: 3 — сбивчивый, прямо в ухо'. As many sounds as there are; separate by ;]",` : ''}
+   "BM": "[body map, DURING THE ACT (phase 2), and in phase 3 only for the zones that are still sensitive: how sensitive each zone of THIS character's body is, as '<zone>: <0-10>${близость ? ' <trend>' : ''} — <what is happening to that zone and how it feels>'${близость ? `. Trend is one of: rising, peak, fading, lingering — lingering is followed by the hours the zone stays sensitive, e.g. 'lingering 3h'. 'Шея: 9 peak — его губы и зубы, кожа горит, от каждого касания мурашки бегут до поясницы; Бёдра: 6 rising — дрожат и раскрываются под его ладонью; Грудь: 4 lingering 2h — соски ноют и твердеют даже от ткани'` : `: 'Шея: 9 — горит от его губ; Бёдра: 7 — дрожат под ладонью; Поясница: 4 — ноет, когда он прижимает к себе'`}. Zones are ordinary Russian words for parts of the body; as many as the story actually touched or named. Separate by ;]",
+   "W": "[intimacy, DURING THE ACT ONLY (phase 2) — 'empty' before it starts and once it is over. Each as 'code: value', every value a full vivid description, never a word: 'ar: how aroused they are and how it shows on the body; tch: where and how they touch and are touched right now — hands, mouth, pressure, rhythm; rct: how the body reacts — flush, trembling, arching, clenching, goosebumps, sweat; fac: face, eyes and lips — the expression, where they look, what they bite or whisper; pn: for someone with a penis — erection, size, shape, colour, how sensitive it is and what is being done to it; lb: for someone with a vagina — how wet, swollen and open, what it feels inside; ch: breasts and nipples — shape, hardness, how they react; flu: wetness, sweat, saliva, semen — where it is and how much; vl: how loud the sounds are and what they are; sm: smells in the air and on skin; ${близость ? '' : 'mk: marks left on skin and sheets; '}pr: who they are with and what they are to each other in this moment${близость ? '' : '; pt: protection used or not'}'. Skip a code only when it does not apply to this body. Separate by ;]",
    "Kn": "[kinks, STABLE TRAIT, keep filled. Activities the character enjoys, each as '<activity>: <how willingly>, <how far>' — the whole description stays inside that one item, never split off with ;: 'Ролевые игры: охотно, любит сценарий врач-пациент; Связывание: только сама сверху'. 2+ items when known, as many as are known — no upper limit; separate by ;]",
    "Ft": "[fetishes, STABLE TRAIT. Specific objects, materials, body parts or settings needed for arousal, each as '<thing>: <its role>': 'Чулки: обязательное условие; Шея: сильный триггер'. 2+ items when known, as many as are known — no upper limit; separate by ;]",
    "NG": "[no-go, STABLE TRAIT. Hard limits they will never cross, each as '<limit>: <reason>': 'Боль: панический страх; Втроём: не делится'. As many as are known — no upper limit; separate by ;]",
    "NT": "[not a turn-on, STABLE TRAIT. Turn-offs — not forbidden, it just kills arousal, each as '<thing>: <effect>': 'Спешка: сразу теряет настрой'. As many as are known — no upper limit; separate by ;]",
-   "ND": "[after intimacy, AFTERMATH ONLY. Each as 'code: value': 'se: how sensitive the body is now; r2: readiness for a second round; bo: how the body feels afterwards; fe: feelings and thoughts afterwards'. Separate by ;]",
-   "AC": "[aftercare, AFTERMATH ONLY. What this character needs now that it is over — touch, water, silence, words, or nothing at all. One short phrase, e.g. 'Молча обнять и не говорить' or 'Ничего не нужно, хочет остаться одна']",
-   "SxV": "[sex review, AFTERMATH ONLY: a written review of the sex in full sentences — what worked, what did not, how it felt — ending with a 5-star rating like ★★★★☆]"
+   "ND": "[after intimacy, AFTER THE ACT ONLY (phase 3) — 'empty' while the act is still going. Each as 'code: value', every value a full description: 'se: how sensitive the body is now — which places flinch from a touch and which still crave it; bo: how the body feels afterwards — weakness, trembling legs, heaviness, warmth, wetness, soreness, in detail${близость ? ' (lasting visible marks go to Mrk)' : ''}; r2: readiness for the next round — how soon, what it would take, what the body and the mind say; fe: feelings and thoughts afterwards, in two or three sentences${близость ? ' — emotions only' : ''}'. Separate by ;]",${близость ? `
+   "Mrk": "[visible body marks and physical aftermath, from the moment they appear until they fade in story time — also after the act and in later scenes: hickeys, bites, scratches, nail marks, bruises, redness, soreness, a feeling of heaviness. Each as '<what>: <where on the body> — <how it looks and feels now> | <how long it takes to fade from its appearance, in hours or days: 12h, 3d>': 'Засос: шея слева — наливается фиолетовым, ноет при касании | 5d; Следы ногтей: спина — красные полосы | 2d; Тяжесть: низ живота — тянет при ходьбе | 10h'. The fade time is set once, when the mark appears; the look and feel change as it heals. Only the body here, no feelings. 'empty' when there are none; separate by ;]",` : ''}
+   "AC": "[aftercare, AFTER THE ACT ONLY (phase 3). What this character needs now that it is over — touch, water, silence, words, or nothing at all. Describe it in full, two or three sentences — what exactly, from whom, why it matters right now and what would hurt instead, e.g. 'Молча обнять, укрыть одеялом и не говорить ни слова: любые слова сейчас разрушат ощущение. Если он сразу встанет и уйдёт в душ, почувствует себя использованной']",
+   "SxV": "[sex review, AFTER THE ACT ONLY (phase 3), once the encounter has ended: a detailed written review of the sex in 4-6 full sentences in this character's own voice — what exactly worked and what did not, the best and the most awkward moment, how the body and the heart felt, what they want to repeat or never do again — ending with a 5-star rating like ★★★★☆]"
   }
  ]`;
 
@@ -215,10 +242,12 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
   "Ap": "[appearance: physical appearance only — build, height, hair, eyes, marks]",
   "H": "[health: physical state only — wounds, pain, illness, stamina]",${болезни ? `
   "Ill": "[illnesses and injuries of {{user}}, ONLY if there are any — otherwise omit the key. Same format as for characters: groups separated by |, each 'nm: what it is; sg: fresh, worsening, stable, healing, chronic or healed; rc: recovery 0-100%; sy: symptoms; trt: treatment']",` : ''}${беременность ? `
-  "Prg": "[pregnancy of {{user}}, ONLY if {{user}} is pregnant — otherwise omit the key. 'wk: week as a number; due: expected due date; fa: the father, if known; sy: symptoms; knw: who knows; cnd: how it is going']",` : ''}
+  "Prg": "[pregnancy of {{user}}, ONLY if {{user}} is pregnant — otherwise omit the key. 'wk: week as a number; due: expected due date; fa: the father, if known; sy: symptoms; knw: who knows; cnd: how it is going']",` : ''}${цикл ? `
+  "Mns": "[menstrual cycle of {{user}}, ONLY if {{user}} has a uterus — otherwise omit the key. Same format as for characters: 'cyd: day; cyl: length; phs: menstrual, follicular, ovulation, luteal or late; nxt: next period; pms: PMS window; dly: days late; rsn: reason for a delay']",` : ''}
   "Rl": "[relationships: how {{user}} feels about EVERY other relevant named person, each as '<name>: <attitude>'; for family start with the kinship and a comma. As many people as matter — no upper limit. Bidirectional with their Rl; separate by ;]",
-  "L": "[location: the exact place {{user}} is right now]",
-  "UW": "[user intimacy, DURING INTIMACY ONLY. Each as 'code: value': 'ar: how aroused; ds: how strong the desire is; rdy: how ready the body is; pb: pubic hair; an: anatomy details; lb: how wet; ch: breasts and nipples; vl: how loud the sounds are; mk: marks on skin; r2: readiness for a second round'. Set to 'empty' when the scene ends; separate by ;]"
+  "L": "[location: the exact place {{user}} is right now]",${близость ? `
+  "Mrk": "[visible body marks on {{user}} — same format and rules as for characters, tracked after the act too: '<what>: <where> — <how it looks and feels now> | <fade time: 12h, 3d>'; 'empty' when there are none]",` : ''}
+  "UW": "[user intimacy, DURING THE ACT ONLY (phase 2). Each as 'code: value', every value a full vivid description, never a word: 'ar: how aroused and how it shows; ds: how strong the desire is and for what exactly; rdy: how ready the body is and what is still missing; tch: where and how {{user}} touches and is touched right now; rct: how the body reacts — flush, trembling, arching, clenching, goosebumps, sweat; fac: face, eyes and lips; pb: pubic hair — how it is groomed, its shape and feel; an: anatomy in detail — shape, size, colour, how it changes with arousal; lb: how wet — where, how much, how it sounds and feels; ch: breasts and nipples — shape, size, hardness, sensitivity; flu: wetness, sweat, saliva, semen — where and how much; vl: how loud the sounds are and what they are${близость ? '' : '; mk: marks on skin; r2: readiness for the next round'}'. Skip a code only when it does not apply to this body. Set to 'empty' when the scene ends; separate by ;]"
  }`;
     }
 
@@ -344,7 +373,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
   {
    "au": "[author: the character's name — NEVER {{user}}; one object per entry]",
    "tm": "[time: date and time of the entry]",
-   "tx": "[body diary text, DURING OR RIGHT AFTER INTIMACY ONLY. A first-person entry about the body: what it wanted, what it got, where it still burns, what surprised it, what it is ashamed of. Frank, physical, no euphemisms. 3-6 sentences. Outside intimacy leave this array empty.]",
+   "tx": "[body diary text, written EVERY turn during the act (foreplay, act, climax) and after it (aftercare, afterglow, and the following hours while the body still carries the encounter). A first-person entry about the body at THIS moment of the scene: during — what it wants, what it gets, where it burns; after — what aches, what lingers, which marks it finds, what surprised it, what it is ashamed of. Frank, physical, no euphemisms. 3-6 sentences. Otherwise leave this array empty.]",
    "md": "[mood: one word — desire, shame, tenderness, emptiness, triumph or anxiety]"
   }
  ]`;
@@ -374,7 +403,10 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
   "rm": ["[rumor: what people whisper about, true or not]", "rumors: one line per rumor — no upper limit"],
   "fc": ["[morning | clear | +7°C | short note]", "[day | ... ]", "[evening | ... ]", "[night | ... ]"],
   "zd": ["[aries | what today holds for the sign | lucky]", "horoscope: ALL 12 SIGNS, one line each"],
-  "fate": ["[a line or two of general fortune for the day]"],
+  "fate": ["[a line or two of general fortune for the day]"],${экономика ? `
+  "eco": ["[item | value | change since yesterday, e.g. 'Доллар | 92,4 ₽ | +0,3' or 'Хлеб | 64 ₽ | подорожал' or 'Средняя зарплата | 78 000 ₽ | без изменений']", "economy: currency rates, prices and wages of this setting, one line each"],` : ''}${афиша ? `
+  "afs": ["[kind | title | where and when]", "events: what is on today; kind is one of: cinema, theatre, concert, exhibition, festival, sport, club, street, lecture"],` : ''}${город ? `
+  "cty": ["[kind | what is happening]", "city services: kind is one of: traffic, roads, weather, transport, repairs, emergency, utilities, police, health, protest"],` : ''}
   "ad": ["[classified ad: short, in the voice of whoever posted it]", "ads: one line per ad — no upper limit"]`;
       if (settings.showComments) {
         p += `,
@@ -473,7 +505,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
             parsedBody.messages.forEach((msg, mIdx) => {
               if (typeof msg.content === 'string') {
                 // ВАЖНО: Регулярка объявляется ВНУТРИ цикла, чтобы ее lastIndex сбрасывался для каждого сообщения
-                const regexLocal = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)([\s\S]*?)(?:(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)|$)/ig;
+                const regexLocal = hudBlockRe('ig', true);
                 let match;
                 while ((match = regexLocal.exec(msg.content)) !== null) {
                   allMatches.push({ mIdx, index: match.index, length: match[0].length });
@@ -497,7 +529,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
           // 2. Формат Text Completions (учитываем единую строку prompt)
           else if (parsedBody.prompt && typeof parsedBody.prompt === 'string') {
             let allMatches = [];
-            const regexLocal = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)([\s\S]*?)(?:(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)|$)/ig;
+            const regexLocal = hudBlockRe('ig', true);
             let match;
             while ((match = regexLocal.exec(parsedBody.prompt)) !== null) {
               allMatches.push({ index: match.index, length: match[0].length });
@@ -574,6 +606,8 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     // Тип стекла живёт классом на <html>, как и тема.
     ['frosted','clear','tinted','liquid','iridescent'].forEach(g => root.classList.remove('hud-glass-' + g));
     root.classList.add('hud-glass-' + (settings.glassType || 'frosted'));
+    // Старые карточки сверх лимита можно прятать совсем — без полоски «HUD свёрнут».
+    root.classList.toggle('hud-hide-old-cards', settings.hideOldCards === true);
 
     // Класс темы — источник украшений и цвета текста для светлых тем.
     // Ставим его первым: остальные переменные пишутся инлайново в style
@@ -1019,7 +1053,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     let phaseClass = 'phase-night'; 
     let phaseLow = (tRaw || '').toLowerCase();
     
-    let hourMatch = tRaw.match(/(\d{1,2}):\d{2}/);
+    let hourMatch = tRaw.match(/(\d{1,2}):(\d{2})/);
     if (hourMatch) {
       const hour = parseInt(hourMatch[1], 10);
       const minute = parseInt(hourMatch[2], 10) || 0;
@@ -1034,14 +1068,16 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       else if (totalMinutes < 1200) phaseClass = 'phase-sunset';
       else if (totalMinutes < 1320) phaseClass = 'phase-evening';
       else phaseClass = 'phase-night';
-    } else if (/\bпредрассвет|\bpredawn|\bdawn\b/.test(phaseLow)) phaseClass = 'phase-predawn';
-    else if (/\bутр\w*|\bmorn\w*/.test(phaseLow)) phaseClass = 'phase-morning';
-    else if (/\bдень\b|\bдн[ёе]м\b|\bday\b/.test(phaseLow)) phaseClass = 'phase-day';
-    else if (/\bзолот\w*|\bgolden\b/.test(phaseLow)) phaseClass = 'phase-golden';
-    else if (/\bзакат|\bsunset|\bсолнц\w*\s*за/.test(phaseLow)) phaseClass = 'phase-sunset';
-    else if (/\bвечер\w*|\beven\w*|\bnightfall\b/.test(phaseLow)) phaseClass = 'phase-evening';
-    else if (/\bглубок\w*\s*ноч\w*|\bdeep\s*night\b/.test(phaseLow)) phaseClass = 'phase-deep-night';
-    else if (/\bноч\w*|\bnight\b/.test(phaseLow)) phaseClass = 'phase-night';
+    } else if (/(?<![\p{L}])предрассвет|\bpredawn|\bdawn\b/u.test(phaseLow)) phaseClass = 'phase-predawn';
+    // Русские слова ищем с начала слова через (?<![\p{L}]): \b в JS знает только
+    // латиницу, и «утро», «вечер», «ночь» без часов не распознавались.
+    else if (/(?<![\p{L}])утр|\bmorn/u.test(phaseLow)) phaseClass = 'phase-morning';
+    else if (/(?<![\p{L}])(?:день|дн[ёе]м|полдень|полдн)(?![\p{L}])|\bday\b|\bnoon\b/u.test(phaseLow)) phaseClass = 'phase-day';
+    else if (/(?<![\p{L}])золот|\bgolden\b/u.test(phaseLow)) phaseClass = 'phase-golden';
+    else if (/(?<![\p{L}])(?:закат|солнц\p{L}*\s*за)|\bsunset/u.test(phaseLow)) phaseClass = 'phase-sunset';
+    else if (/(?<![\p{L}])вечер|\beven|\bnightfall\b/u.test(phaseLow)) phaseClass = 'phase-evening';
+    else if (/(?<![\p{L}])глубок\p{L}*\s*ноч|\bdeep\s*night\b/u.test(phaseLow)) phaseClass = 'phase-deep-night';
+    else if (/(?<![\p{L}])ноч|\bnight\b/u.test(phaseLow)) phaseClass = 'phase-night';
 
     let wClass = 'weather-clear', wLow = wRaw.toLowerCase(), wIntensity = '';
     // СИЛА явления — отдельная ось, общая для всей погоды: «сильный»
@@ -1050,8 +1086,11 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     // внутри него. Раньше усилители были вписаны прямо в списки явлений,
     // и «сильная метель» подменялась метелью вместо того, чтобы стать
     // на ступень выше.
-    const wStrong = /сильн|мощн|свиреп|яростн|беш|лют|дик|жутк|страшн|густ|плотн|валит|стеной|обильн|интенсивн|непрогляд|heavy|strong|intense|fierce/;
-    const wWeak   = /слаб|лёгк|легк|небольш|редк|порош|мелк|изредка|чуть|перв|light|flurr/;
+    // Слова ищем с начала слова: иначе «дик» ловился в «медике», «густ» —
+    // в «августовском», «лют» — в «абсолютном», «лив» — в «заливе».
+    const сНачала = (s) => new RegExp('(?<![\\p{L}])(?:' + s + ')', 'u');
+    const wStrong = сНачала('сильн|мощн|свиреп|яростн|беш|лют|дик|жутк|страшн|густ|плотн|валит|стеной|обильн|интенсивн|непрогляд|heavy|strong|intense|fierce');
+    const wWeak   = сНачала('слаб|лёгк|легк|небольш|редк|порош|мелк|изредка|чуть|перв|light|flurr');
 
     // Описание погоды — перечисление: «Сильный снегопад, −7°C, лёгкий ветер».
     // Модификатор относится к СВОЕЙ части, а не ко всей строке. Пока мы
@@ -1067,9 +1106,9 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     // плотность, только быстрее. Слабый ветер не подгоняет ничего, поэтому
     // «лёгкий ветер», «ветер утих», штиль и прямо указанная скорость до
     // 3 м/с сюда не попадают.
-    const windRe   = /ветер|ветр|шквал|порыв|сквозняк|дует|wind|gust|squall|breeze/;
-    const windCalm = /слаб|лёгк|легк|тих|утих|стих|ул[её]гся|безветр|штил|едва|слегка|чуть|light|calm/;
-    const windHard = /сильн|шквал|штормов|порыв|ураган|бешен|рв[ёе]т|завыва|воет|гуд|strong|gust|squall|gale/;
+    const windRe   = сНачала('ветер|ветр|шквал|порыв|сквозняк|дует|wind|gust|squall|breeze');
+    const windCalm = сНачала('слаб|лёгк|легк|тих|утих|стих|ул[её]гся|безветр|штил|едва|слегка|чуть|light|calm');
+    const windHard = сНачала('сильн|шквал|штормов|порыв|ураган|бешен|рв[ёе]т|завыва|воет|гуд|strong|gust|squall|gale');
     const windParts = partsWith(windRe);
     let windSpeed = null;
     for (const part of windParts) {
@@ -1082,11 +1121,12 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         ? 'weather-windy-strong' : 'weather-windy';
     }
     
-    if (wLow.match(/гроз|молни|шторм|thunder|storm/)) {
+    // «штормовой ветер» — ветер, «snowstorm» — снег; грозой они не считаются.
+    if (сНачала('гроз|молни|шторм(?!ов)|thunder|storm').test(wLow)) {
       wClass = 'weather-storm';
-    } else if (wLow.match(/град|hail/)) {
+    } else if (сНачала('град(?!ус)|hail').test(wLow)) {
       wClass = 'weather-hail';
-    } else if (wLow.match(/снег|снеж|snow|метел|вьюг|blizzard|буран|пург|мет[её]т|позёмк|поземк|порош|flurr/)) {
+    } else if (сНачала('снег|снеж|snow|метел|вьюг|blizzard|буран|пург|мет[её]т|позёмк|поземк|порош|flurr').test(wLow)) {
       wClass = 'weather-snow';
       // «Метель» и «снежная буря» — разные по ощущению вещи, не синонимы:
       // метель — это ветер несёт снег, буря/буран — уже совсем плохая
@@ -1122,25 +1162,32 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         // Снег валит сверху вниз, ветра нет — густой снегопад, не метель.
         wIntensity = 'weather-intensity-heavy';
       }
-    } else if (wLow.match(/дожд|лив|rain|морос|drizzle/)) {
+    } else if (сНачала('дожд|лив|проливн|rain|shower|морос|drizzle').test(wLow)) {
       wClass = 'weather-rain';
-      if (wLow.match(/лив|проливн/) || wStrong.test(wLow)) wIntensity = 'weather-intensity-high';
-      else if (wLow.match(/морос|drizzle/) || wWeak.test(wLow)) wIntensity = 'weather-intensity-low';
+      // Сила дождя — только из частей про дождь, как у снега: «сильный ветер,
+      // мелкий дождь» раньше давал ливень из-за чужого «сильный».
+      const rainParts = partsWith(сНачала('дожд|лив|проливн|rain|shower|морос|drizzle'));
+      const rp = rainParts.length ? rainParts : wParts;
+      if (anyOf(rp, сНачала('лив|проливн')) || anyOf(rp, wStrong)) wIntensity = 'weather-intensity-high';
+      else if (anyOf(rp, сНачала('морос|drizzle')) || anyOf(rp, wWeak)) wIntensity = 'weather-intensity-low';
     } else if (wLow.match(/облач|пасмур|cloud|overcast/)) {
       wClass = 'weather-cloudy';
-    } else if (wLow.match(/ветер|ветр|шквал|wind|squall|ураган|бур/)) {
+    } else if (сНачала('ветер|ветр|шквал|wind|squall|ураган|бур').test(wLow)) {
       wClass = 'weather-wind';
       // «Шквалистый» и «шквал» раньше не ловились ни здесь, ни в силе:
       // фраза попадала в ветер только из-за слова «ветер» и оставалась
       // обычной, поэтому шквалистый ветер выглядел как штиль.
-      if (wLow.match(/штормов|шквал|порыв|ураган|бур|gust|squall/) || wStrong.test(wLow)) wIntensity = 'weather-intensity-high';
-    } else if (wLow.match(/туман|fog|дымк/)) {
+      const wp = windParts.length ? windParts : wParts;
+      if (anyOf(wp, сНачала('штормов|шквал|порыв|ураган|бур|gust|squall')) || anyOf(wp, wStrong)) wIntensity = 'weather-intensity-high';
+    } else if (сНачала('туман|fog|дымк').test(wLow)) {
       wClass = 'weather-fog';
-    } else if (wLow.match(/ясн|солнеч|clear|sunny/)) {
+    } else if (сНачала('ясн|солнеч|clear|sunny').test(wLow)) {
       wClass = 'weather-clear';
     }
 
-    let tempClass = '', freezeClass = '', tempMatch = wRaw.match(/([-+\u2212]?\d+)/);
+    // Температура — число при «°» или «градус»; первое число строки могло
+    // оказаться скоростью ветра («ветер 5 м/с, +20°C»).
+    let tempClass = '', freezeClass = '', tempMatch = wRaw.match(/([-+\u2212]?\d+)(?:[.,]\d+)?\s*(?:°|℃|градус)/i) || wRaw.match(/([-+\u2212]?\d+)/);
     if (tempMatch) {
       let tempStr = tempMatch[1].replace('\u2212', '-');
       let tempVal = parseInt(tempStr, 10);
@@ -1150,8 +1197,26 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     }
 
     let seasonClass = '';
+    // Сезон — прежде всего по месяцу в дате. Слова погоды («шум майского
+    // ливня» при дате 01.06) раньше перебивали месяц, и летняя сцена
+    // рисовалась весенней. По словам решаем, только если месяца в дате нет.
+    const месяцИзДаты = (() => {
+      const d = String(dRaw || '').toLowerCase();
+      let m = d.match(/(?<!\d)(\d{1,2})[./](\d{1,2})[./]\d{2,4}(?!\d)/);
+      if (m && +m[2] >= 1 && +m[2] <= 12) return +m[2];
+      m = d.match(/(?<!\d)\d{4}-(\d{1,2})-\d{1,2}(?!\d)/);
+      if (m && +m[1] >= 1 && +m[1] <= 12) return +m[1];
+      const имена = [/январ|(?<![\p{L}])jan/u, /феврал|(?<![\p{L}])feb/u, /(?<![\p{L}])март|(?<![\p{L}])mar(?:ch)?(?![\p{L}])/u, /апрел|(?<![\p{L}])apr/u,
+        /(?<![\p{L}])ма[йя](?![\p{L}])|(?<![\p{L}])may(?![\p{L}])/u, /июн|(?<![\p{L}])jun/u, /июл|(?<![\p{L}])jul/u, /август|(?<![\p{L}])aug/u,
+        /сентябр|(?<![\p{L}])sep/u, /октябр|(?<![\p{L}])oct/u, /ноябр|(?<![\p{L}])nov/u, /декабр|(?<![\p{L}])dec/u];
+      const i = имена.findIndex(rx => rx.test(d));
+      return i >= 0 ? i + 1 : null;
+    })();
+    if (месяцИзДаты) seasonClass = ['season-winter', 'season-winter', 'season-spring', 'season-spring', 'season-spring', 'season-summer',
+      'season-summer', 'season-summer', 'season-autumn', 'season-autumn', 'season-autumn', 'season-winter'][месяцИзДаты - 1];
     let dLow = (dRaw + ' ' + wRaw + ' ' + tRaw).toLowerCase(); 
-    if (dLow.match(/зим|декабр|январ|феврал|dec|jan|feb|\.12\.|\.01\.|\.02\.|снег|снеж|метел|вьюг|мороз|буран/)) seasonClass = 'season-winter';
+    if (seasonClass) { /* сезон уже взят из даты */ }
+    else if (dLow.match(/зим|декабр|январ|феврал|dec|jan|feb|\.12\.|\.01\.|\.02\.|снег|снеж|метел|вьюг|мороз|буран/)) seasonClass = 'season-winter';
     // «мая» — родительный падеж, в датах он почти всегда: «3 мая». Раньше
     // искали только «май», и весь май оставался без пейзажа.
     else if (dLow.match(/весн|март|апрел|ма[йя]|mar|apr|may|\.03\.|\.04\.|\.05\./)) seasonClass = 'season-spring';
@@ -1159,7 +1224,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     else if (dLow.match(/(?:^|[^а-яё])лет(?:о|а|ом|е|н)|июн|июл|август|jun|jul|aug|\.06\.|\.07\.|\.08\./)) seasonClass = 'season-summer';
     else if (dLow.match(/осен|сентябр|октябр|ноябр|sep|oct|nov|\.09\.|\.10\.|\.11\./)) seasonClass = 'season-autumn';
 
-    let dustyClass = (tempClass === 'temp-hot' && seasonClass === 'season-summer' && (wClass === 'weather-clear' || wClass === 'weather-wind')) ? 'weather-dusty' : '';
+    let dustyClass = (tempClass.split(' ').includes('temp-hot') && seasonClass === 'season-summer' && (wClass === 'weather-clear' || wClass === 'weather-wind')) ? 'weather-dusty' : '';
     const prevWeather = previousMessageWeather();
     let rainbowClass = (wClass === 'weather-clear' && (prevWeather === 'weather-rain' || prevWeather === 'weather-storm')) ? 'weather-rainbow' : '';
     // Мокрая земля: дождь идёт сейчас либо шёл в прошлом сообщении. Лужа
@@ -1430,8 +1495,12 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       let fireflies = '';
       for (let i = 1; i <= 6; i++) fireflies += `<span class="hud-firefly ff${i}"></span>`;
 
+      // Погоду можно свернуть в строку «время · дата · погода». Выбор помнится
+      // на устройстве и действует на все карточки, поэтому читаем его при сборке.
+      let сценаСвёрнута = false;
+      try { сценаСвёрнута = localStorage.getItem('hud-scene-compact') === '1'; } catch (e) { /* хранилище недоступно */ }
       html += `
-      <div class="hud-scene-widget ${phaseClass} ${wClass} ${wIntensity} ${windClass} ${tempClass} ${freezeClass} ${seasonClass} ${dustyClass} ${rainbowClass} ${wetClass}"${sceneStyle} title="Нажмите для анимации">
+      <div class="hud-scene-widget ${phaseClass} ${wClass} ${wIntensity} ${windClass} ${tempClass} ${freezeClass} ${seasonClass} ${dustyClass} ${rainbowClass} ${wetClass}${сценаСвёрнута ? ' is-compact' : ''}"${sceneStyle} title="Нажмите для анимации">
         <div class="hud-fx-bg"></div>
         <div class="hud-fx-stars">${stars}</div>
         <div class="hud-fx-fireflies">${fireflies}</div>
@@ -1441,7 +1510,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         <div class="hud-fx-celestial"${celestialStyle}></div>
         <div class="hud-fx-cloud-cover"></div>
         <div class="hud-fx-season-scene"${sunVarsStyle}>${buildSeasonSceneHtml(seasonClass, { dew: dewActive, deepFreeze: !!freezeClass })}</div>
-        <div class="hud-fx-weather"><span class="hud-rain-cloud rc-back"></span><span class="hud-rain-cloud rc-front"></span><span class="hud-snow-layer snow-far"></span><span class="hud-snow-layer snow-mid"></span><span class="hud-snow-layer snow-near"></span></div>
+        <div class="hud-fx-weather"><span class="hud-snow-layer snow-far"></span><span class="hud-snow-layer snow-mid"></span><span class="hud-snow-layer snow-near"></span></div>
         <div class="hud-fx-frost"></div>
         <div class="hud-fx-temp"></div>
         <div class="hud-fx-overlay"></div>
@@ -1456,6 +1525,8 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
           </div>
         </div>
         ${atmStr ? `<div class="hud-scene-atm">${atmStr}</div>` : ''}
+        <div class="hud-fx-clouds" aria-hidden="true"><span class="hud-rain-cloud rc-back"></span><span class="hud-rain-cloud rc-front"></span></div>
+        <button type="button" class="hud-scene-fold" title="${сценаСвёрнута ? 'Развернуть погоду' : 'Свернуть погоду'}" aria-label="${сценаСвёрнута ? 'Развернуть погоду' : 'Свернуть погоду'}" aria-expanded="${сценаСвёрнута ? 'false' : 'true'}"><i aria-hidden="true"></i></button>
       </div>`;
     }
      
@@ -1661,13 +1732,13 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     const activeSwipe = message.swipes[activeIndex];
     if (typeof activeSwipe !== 'string') return false;
     const hudBlock = extractHudBlock(activeSwipe);
-    if (!hudBlock || !/(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)/i.test(hudBlock)) return false;
+    if (!hudBlock || !hudOpenRe('i').test(hudBlock)) return false;
 
     // ST иногда после saveReply держит HUD в swipes[current] раньше, чем он
     // попадает в message.mes/DOM. Восстанавливаем только отображаемый текст:
     // саму механику вставки/обновления HUD не меняем.
     const currentHtml = textElement.innerHTML || '';
-    if (/(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)/i.test(currentHtml)) return false;
+    if (hudOpenRe('i').test(currentHtml)) return false;
 
     const node = document.createTextNode('\n\n' + hudBlock);
     textElement.appendChild(node);
@@ -1685,8 +1756,8 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
      правильной, а текст ответа исчезает.
      Незакрытую метку считаем блоком только когда закрытых нет вовсе: это
      значит, что модель ещё печатает и закрывающая просто не дошла. */
-  const HUD_ОТКР = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)/ig;
-  const HUD_ЗАКР = /(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)/ig;
+  const HUD_ОТКР = hudOpenRe('ig');
+  const HUD_ЗАКР = hudCloseRe('ig');
 
   function найтиБлокиHud(текст, разрешитьНезакрытый = true) {
     const s = String(текст || '');
@@ -1742,6 +1813,11 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     // Обратный случай: карточку уже собрали заново, а заглушка осталась
     // рядом — в сообщении висят и «HUD свёрнут», и живая карточка.
     убратьЛишниеЗаглушки(messageElement, textElement);
+    // Карточка свёрнута в заглушку — разбирать нечего. Без этого разбор не
+    // находил [HUD] в разметке, доставал блок из свайпа и собирал карточку
+    // обратно, а спрятанная старая карточка возвращалась на экран. Вернуть
+    // карточку — дело заглушки и наблюдателя прокрутки: они снимают пометку.
+    if (messageElement.dataset.hudEvicted && textElement.querySelector('.hud-evicted')) return;
 
     // Сторож идёт до всех ранних выходов: сломанная карточка живёт как раз
     // в состоянии «карточка есть, сырого блока нет», из которого разбор
@@ -1754,19 +1830,19 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     // Если ST снова дорисовал исходный [HUD] рядом с карточкой, НЕ выходим:
     // нормализатор ниже должен удалить сырой блок и оставить одну карточку.
     const hasRenderedCard = innerHtml.includes('hud-os-card');
-    const hasRawHudSource = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)/i.test(innerHtml);
+    const hasRawHudSource = hudOpenRe('i').test(innerHtml);
     if (hasRenderedCard && !hasRawHudSource) return;
 
     // Recovery path for ST swipe/save timing:
-    if (!/(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)/i.test(innerHtml)) {
+    if (!hudOpenRe('i').test(innerHtml)) {
       if (recoverHudFromActiveSwipe(messageElement, textElement)) {
         убратьКнопкуСоздания();
         innerHtml = textElement.innerHTML;
       }
     }
 
-    const openTagRegex = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)/i;
-    const closeTagRegex = /(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)/i;
+    const openTagRegex = hudOpenRe('i');
+    const closeTagRegex = hudCloseRe('i');
 
     if (!openTagRegex.test(innerHtml)) {
       maybeInjectMissingHudButton(messageElement, textElement);
@@ -1837,7 +1913,11 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       // Списки из прошлых ходов возвращаем на экран перед отрисовкой:
       // модель роняет их каждый ход, а пользователю нужна цельная картина.
       // В сохранённый текст и в запрос к модели это не попадает.
-      rendered = renderHUD(mergeCarryOver(selected.data, messageElement));
+      const данныеХода = mergeCarryOver(selected.data, messageElement);
+      // Таймеры следов и графики пульса смотрят в прошлые ходы — лениво,
+      // только когда вкладка с ними действительно собирается.
+      привязатьИсторию(данныеХода, Number(messageElement.getAttribute('mesid')));
+      rendered = renderHUD(данныеХода);
       renderTargetMes = null;
 
       // Если карточка на месте и разметка вышла ровно та же, пересобирать
@@ -2433,12 +2513,13 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
   // Свернуть карточку в заглушку. Высоту заглушки задаём по фактической
   // высоте карточки: при прокрутке вверх без этого лента схлопывается под
   // курсором и уезжает на сотни пикселей.
-  function collapseCard(mes, keepHeight) {
+  function collapseCard(mes, keepHeight, спрятать = false) {
     if (!mes || mes.dataset.hudEvicted) return false;
     if (isMessageBeingEdited(mes)) return false;
     // Видимую карточку не сворачиваем никогда: обратно она бы не собралась,
     // потому что сообщение не покидает экран и наблюдателю не о чем сообщать.
-    if (наЭкране(mes)) return false;
+    // Спрятанная карточка обратно не собирается, поэтому видимость ей не помеха.
+    if (!спрятать && наЭкране(mes)) return false;
     const textElement = mes.querySelector('.mes_text');
     if (!textElement || !mes.__hudSource || !mes.querySelector('.hud-os-card')) return false;
     // Высоту берём запомненную — ту, что была у карточки, пока она была на
@@ -2474,7 +2555,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     заглушка.addEventListener('keydown', развернуть);
     if (height > 40) заглушка.style.minHeight = height + 'px';
     карточка.replaceWith(заглушка);
-    mes.dataset.hudEvicted = '1';
+    mes.dataset.hudEvicted = спрятать ? 'hidden' : '1';
     return true;
   }
 
@@ -2492,13 +2573,18 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     // Кандидаты — только вдали от экрана: листая вверх, читают как раз самые
     // старые карточки, и свернуть их на глазах нельзя.
     const запас = Math.round((window.innerHeight || 800) * 1.5);
-    const кандидаты = live.filter(mes => !наЭкране(mes, запас));
-    for (let i = 0; i < extra && i < кандидаты.length; i++) collapseCard(кандидаты[i], false);
+    // «Прятать совсем»: старые карточки убираем сразу, даже на экране, —
+    // они не возвращаются, и заглушки не видно. Живыми остаются последние N.
+    const спрятать = settings.hideOldCards === true;
+    const кандидаты = спрятать ? live : live.filter(mes => !наЭкране(mes, запас));
+    for (let i = 0; i < extra && i < кандидаты.length; i++) collapseCard(кандидаты[i], false, спрятать);
   }
 
   // Обратная операция: вернуть исходник и собрать карточку заново.
   function restoreEvictedCard(mes) {
     if (!mes || !mes.dataset.hudEvicted) return false;
+    // Спрятанную старую карточку не возвращаем, пока включено «прятать совсем».
+    if (mes.dataset.hudEvicted === 'hidden' && settings.hideOldCards === true) return false;
     const textElement = mes.querySelector('.mes_text');
     if (!textElement) { delete mes.dataset.hudEvicted; return false; }
     if (убратьЛишниеЗаглушки(mes, textElement)) return false;
@@ -2587,7 +2673,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
 
   function replaceHudBlockInText(source, newHudText) {
     if (typeof source !== 'string') return source;
-    const hudRegex = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)[\s\S]*?(?:(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)|$)/i;
+    const hudRegex = hudBlockRe('i');
     if (hudRegex.test(source)) return source.replace(hudRegex, newHudText);
     return source.trimEnd() + '\n\n' + newHudText;
   }
@@ -2604,7 +2690,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     // чтобы updateMessageBlock() не вернул старую версию без HUD.
     if (message.extra && typeof message.extra.display_text === 'string') {
       const displayText = message.extra.display_text;
-      const hudRegex = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)/i;
+      const hudRegex = hudOpenRe('i');
       const newHud = extractHudBlock(newText);
 
       if (hudRegex.test(displayText)) {
@@ -2613,12 +2699,6 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         message.extra.display_text = displayText.trimEnd() + '\n\n' + newHud;
       }
     }
-  }
-
-  function extractHudBlock(text) {
-    if (typeof text !== 'string') return '';
-    const match = text.match(/(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)[\s\S]*?(?:(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)|$)/i);
-    return match ? match[0] : text;
   }
 
   function getMessageUpdateFunction(stContext) {
@@ -2663,7 +2743,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         try {
             const mesId = mesEl.getAttribute('mesid');
             const textElement = mesEl.querySelector('.mes_text');
-            const extractRegex = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)([\s\S]*?)(?:(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)|$)/ig;
+            const extractRegex = hudBlockRe('ig', true);
             
             let stContext = null;
             if (typeof window.SillyTavern !== 'undefined' && typeof window.SillyTavern.getContext === 'function') {
@@ -2925,7 +3005,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
             // which can fail BEFORE the API request is even sent.
             if (!hudSummaryEligibleMessages.has(msg)) return;
             if (typeof msg.content === 'string') {
-                const regexLocal = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)([\s\S]*?)(?:(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)|$)/ig;
+                const regexLocal = hudBlockRe('ig', true);
                 let match;
                 while ((match = regexLocal.exec(msg.content)) !== null) {
                     allMatchesRegen.push({ mIdx, index: match.index, length: match[0].length });
@@ -3106,6 +3186,39 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
   }
 
   // Кнопка «❓»: окно вопросов о сюжете. Ответ модели в чат не пишется.
+  // Лорбуки для ассистента: записи, сработавшие по ключам на вопросе и
+  // последних сообщениях, либо книги целиком — как выбрано в настройках.
+  async function лорбукиДляАссистента(names, scanText, все) {
+    const stContext = getStContextSafe();
+    const out = [];
+    for (const name of (Array.isArray(names) ? names : []).filter(Boolean)) {
+      const data = await loadHudLorebook(name);
+      const entries = data && Array.isArray(data.entries) ? data.entries
+        : (data && data.entries && typeof data.entries === 'object' ? Object.values(data.entries) : []);
+      const тексты = entries
+        .filter(entry => все ? true : hudLoreEntryActivates(entry, scanText, stContext))
+        .map(normalizeHudLoreEntry)
+        .filter(Boolean);
+      if (тексты.length) out.push({ name, entries: тексты });
+    }
+    return out;
+  }
+
+  // Профили подключения: сначала те, что Connection Manager умеет
+  // использовать, иначе весь сохранённый список.
+  function списокПрофилей() {
+    const ctx = getStContextSafe();
+    const служба = ctx && ctx.ConnectionManagerRequestService;
+    try {
+      if (служба && typeof служба.getSupportedProfiles === 'function') {
+        const p = служба.getSupportedProfiles();
+        if (Array.isArray(p) && p.length) return p;
+      }
+    } catch (_) { /* ниже запасной путь */ }
+    const cm = ctx && ctx.extensionSettings && ctx.extensionSettings.connectionManager;
+    return cm && Array.isArray(cm.profiles) ? cm.profiles : [];
+  }
+
   function bindHudAskButton(btn) {
     if (!btn || btn.dataset.hudClickBound === 'true') return;
     btn.dataset.hudClickBound = 'true';
@@ -3115,7 +3228,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       if (e.stopImmediatePropagation) e.stopImmediatePropagation();
       const mes = btn.closest('.mes');
       const id = mes ? Number(mes.getAttribute('mesid')) : NaN;
-      openAssistantDialog({ mesId: Number.isInteger(id) ? id : null });
+      openAssistantDialog({ mesId: Number.isInteger(id) ? id : null, лорбуки: лорбукиДляАссистента, сохранить: saveSettings, профили: списокПрофилей });
     };
     btn.addEventListener('click', открыть, true);
     btn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') открыть(e); });
@@ -3195,21 +3308,30 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         ${подгруппа('👤 Персонажи', `
           ${галка('hud-enable-illness', settings.enableIllness !== false, '🩹 Болезни и травмы', 'Болезни и травмы со стадией, симптомами, лечением и шкалой выздоровления — у персонажей и у игрока. Просится у модели, пишется только когда есть.')}
           ${галка('hud-enable-pregnancy', settings.enablePregnancy !== false, '🤰 Беременность', 'Срок, триместр, симптомы и дата родов у того, кто беременен. Просится у модели, пишется только когда есть.')}
+          ${галка('hud-enable-menstruation', settings.enableMenstruation !== false, '🌸 Менструальный цикл', 'День цикла, фаза, ожидаемые месячные, окно ПМС и задержка — кольцом, с советами по фазе. Только у тех, у кого есть матка, в том числе у игрока.')}
           ${галка('hud-enable-perception', settings.enablePerception !== false, '👁 Что о тебе думают', 'Как к вам относится каждый персонаж и насколько доверяет. Считается из карточек, модель ничего не дописывает.')}
           ${галка('hud-enable-familytree', settings.enableFamilyTree !== false, '🌳 Генеалогическое дерево', 'Вторым видом в графе отношений: родители, дети, супруги, братья и сёстры по родству из «Отношений». Появляется, только когда родство есть.')}
           ${галка('hud-enable-companions', settings.enableCompanions !== false, '🐾 Спутники', 'Животные, фамильяры, дроны: настроение, состояние, рацион, привязанность. Своя вкладка, появляется, только когда спутники есть.')}
+        `)}
+
+        ${подгруппа('🔞 Близость', `
+          ${галка('hud-enable-intimacy-extras', settings.enableIntimacyExtras !== false, '🔞 Подробности сцены', 'Поза, раунд, длительность, защита, готовность к оргазму, пульс, дыхание и температура, звуки, следы на теле с таймером. Просится у модели только во время близости.')}
+          ${галка('hud-enable-heatmap', settings.enableHeatMap !== false, '🫦 Карта тела картинкой', 'Чувствительность зон — заливкой на силуэте спереди и сзади, со следами на теле. Выключено — прежний список зон со шкалами.')}
         `)}
 
         ${подгруппа('📖 Дневник, сны и мир', `
           ${галка('hud-enable-diary', settings.enableDiary, '📖 Дневник')}
           ${галка('hud-enable-dreams', settings.enableDreams, '🌙 Сновидения')}
           ${галка('hud-enable-world', settings.enableWorld, '🌍 Мир (новости, слухи)')}
+          ${галка('hud-enable-economy', settings.enableEconomy !== false, '💹 Экономика', 'Курсы валют, цены и зарплаты мира — по строке на каждое.')}
+          ${галка('hud-enable-events', settings.enableEvents !== false, '🎭 Афиша', 'Что идёт в кино, театре, на концертах и на улице — готовые зацепки для сцены.')}
+          ${галка('hud-enable-city', settings.enableCity !== false, '🏛 Городские службы', 'Пробки, дороги, транспорт, коммунальные службы и ЧП.')}
         `)}
       `)}
 
       ${группа('✨ Отображение', `
         ${галка('hud-show-hints', settings.showHints !== false, '❔ Показывать пояснения', 'Рядом с названием вкладки и рядом со знакомыми полями появляется маленький вопросик. По нажатию разворачивается объяснение: за что отвечает, почему показалось и как читать.')}
-        ${галка('hud-enable-assistant', settings.enableAssistant !== false, '❓ Кнопка «Спросить про сюжет»', 'Кнопка ❓ на карточке: вопрос о сюжете, модель отвечает по HUD и последним сообщениям. Каждый вопрос — отдельный запрос к модели; в чат ничего не пишется.')}
+
 
         ${подгруппа('🧷 Списки из прошлых ходов', `
           ${галка('hud-carry-over', settings.carryOver !== false, '🧷 Держать списки из прошлых ходов', 'Переписки, секреты, важное, заметки, календарь и новости из прошлых ходов остаются на экране, даже если модель перестала их повторять. Работает только на отрисовке: в запрос к модели не уходит ни одного лишнего символа.')}
@@ -3234,6 +3356,8 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         ${подгруппа('🧹 Лимит карточек', `
           ${заметка('Каждая собранная карточка HUD — это сотни элементов страницы. Если вписать число, в памяти останутся только последние N карточек, а <b>самые старые</b> свернутся до тонкой полоски. Текст сообщения никуда не денется: долистаете до него — карточка соберётся заново.<br>0 — ограничение выключено.')}
           <label class="hud-set-check">🧹 Держать в памяти карточек: ${число('hud-card-limit', 0, 2000, settings.hudCardLimit || 0, 80, 10)} шт.</label>
+          ${галка('hud-hide-old-cards', settings.hideOldCards === true, '🙈 Прятать старые карточки совсем', 'Карточки сверх лимита пропадают без следа: без полоски «HUD свёрнут», и при прокрутке они не собираются. Прячется только HUD — текст сообщения на месте, а сам блок [HUD] в сообщении не трогается, модель его по-прежнему видит. Работает, когда лимит больше нуля.')}
+          ${заметка('🙈 Со включённой галкой старые карточки сверх лимита исчезают целиком — остаётся только текст сообщения. Сам HUD в сообщении не удаляется: модель его видит, а выключив галку, карточки можно вернуть.')}
         `)}
       `)}
 
@@ -3271,6 +3395,36 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
           </select>
           <span id="hud-regen-profile-refresh" title="Обновить список профилей" style="cursor:pointer;">🔄</span>
         </label>
+      `)}
+
+      ${группа('❓ Ассистент', `
+        ${галка('hud-enable-assistant', settings.enableAssistant !== false, '❓ Кнопка «Спросить про сюжет»', 'Кнопка ❓ на карточке открывает окно вопросов о сюжете. Каждый вопрос — отдельный запрос к модели; в чат ничего не пишется.')}
+        ${заметка('Помощник к истории и HUD: объясняет, почему персонажи ведут себя так, что скрывают и что может случиться дальше. Отвечает по тому, что вы ему дадите ниже: больше контекста — точнее ответ, но дороже запрос.')}
+
+        ${подгруппа('📥 Что видит ассистент', `
+          <label class="hud-set-check">💬 Последних сообщений: ${число('hud-ask-messages', 0, 60, settings.assistantContextMessages ?? 12, 52)}</label>
+          ${галка('hud-ask-hud', settings.assistantIncludeHud !== false, '📊 HUD сообщения', 'Снимок состояния истории: мысли, скрытый подтекст, отношения, доверие, страхи, секреты, ружья Чехова.')}
+          ${галка('hud-ask-note', settings.assistantIncludeNote !== false, '📝 Заметки автора', 'То, что вписано в Author’s Note этого чата.')}
+          ${галка('hud-ask-card', settings.assistantIncludeCard !== false, '🎭 Карточка персонажа', 'Описание, характер и сценарий из карточки.')}
+          ${галка('hud-ask-persona', settings.assistantIncludePersona !== false, '👤 Персона игрока', 'Описание вашей персоны.')}
+          ${заметка('Лорбуки ассистента — отдельно от лорбуков перегенерации HUD. Можно выбрать несколько.')}
+          <select id="hud-ask-lorebooks" multiple size="5" style="width:100%; min-height:96px; background:rgba(0,0,0,.3); border:1px solid var(--hud-border); color:#fff; padding:4px; border-radius:5px;"></select>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <button type="button" id="hud-ask-refresh" style="cursor:pointer;">🔄 Обновить списки</button>
+            <span id="hud-ask-lorebooks-status" style="font-size:11px; opacity:.75;"></span>
+          </div>
+          ${галка('hud-ask-lore-all', settings.assistantLoreAll === true, '📚 Все записи выбранных лорбуков', 'Выключено — только записи, чьи ключи встречаются в вопросе и в последних сообщениях, как в самой таверне.')}
+        `)}
+
+        ${подгруппа('🧠 Модель и промпт', `
+          <label class="hud-set-check" title="Через какой профиль подключения задавать вопросы. Можно взять модель подешевле, чем для самой истории.">🧠 Профиль:
+            <select id="hud-ask-profile" style="flex:1; min-width:0; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;"><option value="">Модель чата (текущее подключение)</option></select>
+          </label>
+          <label class="hud-set-check">📏 Лимит ответа: ${число('hud-ask-tokens', 256, 16000, settings.assistantMaxTokens ?? 1500, 70)} токенов</label>
+          ${заметка('Системный промпт ассистента. Правьте под себя; кнопка ниже возвращает встроенный.')}
+          <textarea id="hud-ask-system" rows="8" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,.3); border:1px solid var(--hud-border); color:#fff; padding:6px; border-radius:5px; font-size:12px; resize:vertical;">${escapeHtml(settings.assistantSystemPrompt || ПРОМПТ_АССИСТЕНТА)}</textarea>
+          <button type="button" id="hud-ask-system-reset" class="hud-theme-act" style="align-self:flex-start;">↺ Вернуть встроенный</button>
+        `)}
       `)}
 
       ${группа('🧹 Обслуживание', `
@@ -3467,7 +3621,9 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     document.getElementById('hud-enable-dreams').addEventListener('change', (e) => { settings.enableDreams = e.target.checked; saveSettings(); });
     document.getElementById('hud-enable-world').addEventListener('change', (e) => { settings.enableWorld = e.target.checked; saveSettings(); });
     [['hud-enable-guns', 'enableGuns'], ['hud-enable-illness', 'enableIllness'], ['hud-enable-pregnancy', 'enablePregnancy'],
-     ['hud-enable-companions', 'enableCompanions'], ['hud-enable-perception', 'enablePerception'], ['hud-enable-familytree', 'enableFamilyTree'], ['hud-enable-assistant', 'enableAssistant']].forEach(([id, ключ]) => {
+     ['hud-enable-companions', 'enableCompanions'], ['hud-enable-perception', 'enablePerception'], ['hud-enable-familytree', 'enableFamilyTree'], ['hud-enable-assistant', 'enableAssistant'],
+     ['hud-enable-menstruation', 'enableMenstruation'], ['hud-enable-intimacy-extras', 'enableIntimacyExtras'], ['hud-enable-heatmap', 'enableHeatMap'],
+     ['hud-enable-economy', 'enableEconomy'], ['hud-enable-events', 'enableEvents'], ['hud-enable-city', 'enableCity']].forEach(([id, ключ]) => {
       const поле = document.getElementById(id);
       if (поле) поле.addEventListener('change', (e) => { settings[ключ] = e.target.checked; saveSettings(); });
     });
@@ -3487,7 +3643,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=22.99.30');
+        const mod = await import('./render/archive.js?v=22.99.52');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -3516,6 +3672,19 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       // Слишком маленький лимит свернул бы карточку прямо под курсором.
       if (v > 0 && v < 5) v = 5;
       settings.hudCardLimit = v; e.target.value = v; saveSettings(); enforceCardLimit();
+    });
+    document.getElementById('hud-hide-old-cards').addEventListener('change', (e) => {
+      settings.hideOldCards = e.target.checked;
+      saveSettings();
+      document.documentElement.classList.toggle('hud-hide-old-cards', settings.hideOldCards);
+      if (settings.hideOldCards) { enforceCardLimit(); return; }
+      // Выключили — спрятанные карточки снова обычные свёрнутые: полоска
+      // видна, при прокрутке собираются, а те, что на экране, — сразу.
+      if (!cachedChatContainer) return;
+      cachedChatContainer.querySelectorAll('.mes[data-hud-evicted="hidden"]').forEach(mes => {
+        mes.dataset.hudEvicted = '1';
+        if (наЭкране(mes) && restoreEvictedCard(mes)) safeProcessMessage(mes);
+      });
     });
     document.getElementById('hud-memory-max-height').addEventListener('change', (e) => { let v=parseInt(e.target.value,10); if(isNaN(v)) v=300; v=Math.max(200,Math.min(600,v)); settings.memoryMaxHeight=v; e.target.value=v; saveSettings(); applyThemeColors(); });
     
@@ -3607,6 +3776,36 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       settings.regenProfileId = e.target.value || '';
       saveSettings();
     });
+
+    // --- Ассистент ---------------------------------------------------------
+    populateAssistantSelects();
+    document.getElementById('hud-ask-refresh').addEventListener('click', populateAssistantSelects);
+    [['hud-ask-hud', 'assistantIncludeHud'], ['hud-ask-note', 'assistantIncludeNote'], ['hud-ask-card', 'assistantIncludeCard'],
+     ['hud-ask-persona', 'assistantIncludePersona'], ['hud-ask-lore-all', 'assistantLoreAll']].forEach(([id, ключ]) => {
+      document.getElementById(id).addEventListener('change', (e) => { settings[ключ] = e.target.checked; saveSettings(); });
+    });
+    [['hud-ask-messages', 'assistantContextMessages', 0, 60], ['hud-ask-tokens', 'assistantMaxTokens', 256, 16000]].forEach(([id, ключ, мин, макс]) => {
+      document.getElementById(id).addEventListener('change', (e) => {
+        let v = parseInt(e.target.value, 10);
+        if (!Number.isFinite(v) || v < мин) v = мин; if (v > макс) v = макс;
+        settings[ключ] = v; e.target.value = v; saveSettings();
+      });
+    });
+    document.getElementById('hud-ask-lorebooks').addEventListener('change', (e) => {
+      settings.assistantLorebooks = Array.from(e.target.selectedOptions).map(o => o.value);
+      saveSettings(); статусЛорбуковАссистента();
+    });
+    document.getElementById('hud-ask-profile').addEventListener('change', (e) => { settings.assistantProfileId = e.target.value || ''; saveSettings(); });
+    const системныйПромпт = document.getElementById('hud-ask-system');
+    // Совпадает со встроенным — храним пустым: обновление расширения тогда
+    // подтянет новый встроенный промпт, а не застрянет на старой копии.
+    системныйПромпт.addEventListener('change', () => {
+      settings.assistantSystemPrompt = системныйПромпт.value.trim() === ПРОМПТ_АССИСТЕНТА.trim() ? '' : системныйПромпт.value;
+      saveSettings();
+    });
+    document.getElementById('hud-ask-system-reset').addEventListener('click', () => {
+      системныйПромпт.value = ПРОМПТ_АССИСТЕНТА; settings.assistantSystemPrompt = ''; saveSettings();
+    });
   }
 
 
@@ -3632,6 +3831,36 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     if (!status) return;
     const count = Array.isArray(settings.hudLorebooks) ? settings.hudLorebooks.length : 0;
     status.textContent = count ? `Выбрано: ${count}` : 'Ничего не выбрано';
+  }
+
+  // Выпадающие списки ассистента: свой профиль подключения и свои лорбуки.
+  async function populateAssistantSelects() {
+    const профиль = document.getElementById('hud-ask-profile');
+    if (профиль) {
+      const профили = списокПрофилей();
+      const было = settings.assistantProfileId || '';
+      профиль.innerHTML = '<option value="">Модель чата (текущее подключение)</option>';
+      профили.forEach(p => { const o = document.createElement('option'); o.value = p.id; o.textContent = p.name || p.id; профиль.appendChild(o); });
+      профиль.value = профили.some(p => p.id === было) ? было : '';
+      if (профиль.value !== было) { settings.assistantProfileId = профиль.value; saveSettings(); }
+    }
+    const книги = document.getElementById('hud-ask-lorebooks');
+    if (книги) {
+      const было = new Set(Array.isArray(settings.assistantLorebooks) ? settings.assistantLorebooks : []);
+      const имена = await getAvailableHudLorebooks();
+      книги.innerHTML = '';
+      имена.forEach(n => { const o = document.createElement('option'); o.value = n; o.textContent = n; o.selected = было.has(n); книги.appendChild(o); });
+      settings.assistantLorebooks = имена.filter(n => было.has(n));
+      saveSettings();
+      статусЛорбуковАссистента();
+    }
+  }
+
+  function статусЛорбуковАссистента() {
+    const метка = document.getElementById('hud-ask-lorebooks-status');
+    if (!метка) return;
+    const n = Array.isArray(settings.assistantLorebooks) ? settings.assistantLorebooks.length : 0;
+    метка.textContent = n ? `Выбрано: ${n}` : 'Не выбрано';
   }
 
   function populateRegenProfileSelect() {

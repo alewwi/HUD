@@ -7,7 +7,8 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=22.99.30';
+import { normalizeJSONData } from './schema.js?v=22.99.52';
+import { hudBlockRe } from './hud-block.js?v=22.99.52';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';
@@ -109,53 +110,17 @@ function extractBalancedJsonCandidates(text) {
 //   {foo: 'bar'} -> {"foo": "bar"}
 // It is scanner-based so apostrophes inside normal JSON strings are not touched.
 function repairCommonJsonDialect(jsonStr) {
-  let source = String(jsonStr || '').trim();
+  const source = String(jsonStr || '').trim();
   if (!source) return source;
 
-  // First quote unquoted object keys outside strings.
+  // Один проход: ключи без кавычек получают кавычки, строки в одинарных
+  // кавычках становятся JSON-строками. Раньше это были два прохода по всей
+  // строке, и поиск ключа после каждой «{» и «,» копировал весь хвост.
+  const КЛЮЧ = /\s*([A-Za-z_$][A-Za-z0-9_$-]*)\s*:/y;
   let out = '';
   let inDouble = false;
   let inSingle = false;
   let escaped = false;
-  for (let i = 0; i < source.length; i++) {
-    const ch = source[i];
-    if (inDouble) {
-      out += ch;
-      if (escaped) { escaped = false; continue; }
-      if (ch === '\\') escaped = true;
-      else if (ch === '"') inDouble = false;
-      continue;
-    }
-    if (inSingle) {
-      out += ch;
-      if (escaped) { escaped = false; continue; }
-      if (ch === '\\') escaped = true;
-      else if (ch === "'") inSingle = false;
-      continue;
-    }
-    if (ch === '"') { inDouble = true; out += ch; continue; }
-    if (ch === "'") { inSingle = true; out += ch; continue; }
-    if (ch === '{' || ch === ',') {
-      let j = i + 1;
-      while (/\s/.test(source[j] || '')) j++;
-      const keyMatch = source.slice(j).match(/^([A-Za-z_$][A-Za-z0-9_$-]*)\s*:/);
-      if (keyMatch) {
-        out += ch + source.slice(i + 1, j) + '"' + keyMatch[1] + '"';
-        i = j + keyMatch[0].length - 1;
-        out += ':';
-        continue;
-      }
-    }
-    out += ch;
-  }
-
-  // Convert single-quoted strings to JSON strings. This is deliberately a
-  // separate pass and only runs if a single quote remains outside a double string.
-  source = out;
-  out = '';
-  inDouble = false;
-  inSingle = false;
-  escaped = false;
   for (let i = 0; i < source.length; i++) {
     const ch = source[i];
     if (inDouble) {
@@ -183,6 +148,15 @@ function repairCommonJsonDialect(jsonStr) {
     }
     if (ch === '"') { inDouble = true; out += ch; continue; }
     if (ch === "'") { inSingle = true; out += '"'; continue; }
+    if (ch === '{' || ch === ',') {
+      КЛЮЧ.lastIndex = i + 1;
+      const m = КЛЮЧ.exec(source);
+      if (m) {
+        out += ch + source.slice(i + 1, i + 1 + m[0].indexOf(m[1])) + '"' + m[1] + '":';
+        i += m[0].length;
+        continue;
+      }
+    }
     out += ch;
   }
   if (inSingle) out += '"';
@@ -378,23 +352,53 @@ function repairHudJsonUnterminatedString(input) {
 // после строки: запятая перед следующим значением, скобка, двоеточие ключа.
 function repairHudJsonInnerQuotes(jsonStr) {
   const s = String(jsonStr || '');
-  let out = '', inString = false, escaped = false;
+  // Кавычка закрывает строку, только если после неё по правилам JSON строка
+  // действительно может кончиться. Раньше закрытием считались и кавычка перед
+  // двоеточием, скобкой или другой кавычкой — и цитата в самом конце фразы
+  // («сказал "стоп"»), перед двоеточием или скобкой ломала разбор. Запасная
+  // починка потом обрезала текст: первая кавычка оставалась, второй не было.
+  // Теперь учитываем, ключ это или значение и в объекте мы или в массиве.
+  let out = '', inString = false, escaped = false, ключ = false;
+  const стек = [];
+  let последний = '';
+  const значимый = (j) => { while (j < s.length && /\s/.test(s[j])) j++; return j; };
+  const можноЗакрыть = (i) => {
+    const j = значимый(i + 1);
+    const next = s[j];
+    // Ключ объекта кончается только перед двоеточием.
+    if (ключ) return next === ':';
+    if (next === undefined) return true;
+    const верх = стек[стек.length - 1];
+    if (next === '}' || next === ']') {
+      if ((next === '}' && верх !== '{') || (next === ']' && верх !== '[')) return false;
+      const k = значимый(j + 1);
+      return k >= s.length || /[,}\]`]/.test(s[k]);
+    }
+    if (next === ',') {
+      const k = значимый(j + 1);
+      if (k >= s.length) return true;
+      // В объекте после запятой идёт следующий ключ: «"имя":».
+      if (верх === '{') return s[k] === '}' || /^"[^"\\\n]{0,60}"\s*:/.test(s.slice(k, k + 70));
+      return /^(?:["{\[\]\-\d]|true|false|null)/.test(s.slice(k, k + 5));
+    }
+    return false;
+  };
   for (let i = 0; i < s.length; i++) {
     const ch = s[i];
-    if (!inString) { out += ch; if (ch === '"') inString = true; continue; }
+    if (!inString) {
+      out += ch;
+      if (ch === '"') {
+        inString = true;
+        ключ = стек[стек.length - 1] === '{' && (последний === '{' || последний === ',');
+      } else if (ch === '{' || ch === '[') { стек.push(ch); последний = ch; }
+      else if (ch === '}' || ch === ']') { стек.pop(); последний = ch; }
+      else if (!/\s/.test(ch)) последний = ch;
+      continue;
+    }
     if (escaped) { out += ch; escaped = false; continue; }
     if (ch === '\\') { out += ch; escaped = true; continue; }
     if (ch !== '"') { out += ch; continue; }
-    let j = i + 1;
-    while (j < s.length && /\s/.test(s[j])) j++;
-    const next = s[j];
-    let closes = next === undefined || next === '}' || next === ']' || next === ':' || next === '"';
-    if (next === ',') {
-      let k = j + 1;
-      while (k < s.length && /\s/.test(s[k])) k++;
-      closes = k >= s.length || /^(?:["{\[\]}\-\d]|true|false|null)/.test(s.slice(k, k + 5));
-    }
-    if (closes) { out += ch; inString = false; } else out += '\\"';
+    if (можноЗакрыть(i)) { out += ch; inString = false; последний = '"'; } else out += '\\"';
   }
   return out;
 }
@@ -534,7 +538,7 @@ function repairTruncatedHudJson(jsonStr) {
 
 export function repairGeneratedHudBlock(aiText) {
   const source = String(aiText || '');
-  const match = source.match(/(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)([\s\S]*?)(?:(?:\[|&lt;|<|&#91;)\s*(?:\/|&#47;|\\)\s*HUD\s*(?:\]|&gt;|>|&#93;)|$)/i);
+  const match = source.match(hudBlockRe('i', true));
   if (!match) {
     throw new Error('Не удалось найти HUD в ответе ИИ. Попробуйте еще раз.');
   }

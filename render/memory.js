@@ -6,10 +6,10 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=22.99.30';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.30';
-import { buildRelGraphHTML } from './relations-graph.js?v=22.99.30';
-import { статусРужья } from '../codes.js?v=22.99.30';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=22.99.52';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.52';
+import { buildRelGraphHTML } from './relations-graph.js?v=22.99.52';
+import { статусРужья } from '../codes.js?v=22.99.52';
 
 function parseRoutePoint(item) {
   const parts = String(item).split(/[-—–]/).map(s => s.trim());
@@ -73,13 +73,13 @@ function buildRouteMapHTML(routeArr, entityLabel) {
 }
 
 function buildSecretRingHTML(kCount, total) {
-  const pct = total > 0 ? Math.round((kCount / total) * 100) : 0;
+  const pct = total > 0 ? Math.max(0, Math.min(100, Math.round((kCount / total) * 100))) : 0;
   return `<div class="hud-secret-spread">
     <svg class="hud-secret-ring" viewBox="0 0 36 36" aria-hidden="true">
       <circle class="hud-secret-ring-bg" cx="18" cy="18" r="15.5" pathLength="100"/>
       <circle class="hud-secret-ring-fg" cx="18" cy="18" r="15.5" pathLength="100" stroke-dasharray="${pct} 100" transform="rotate(-90 18 18)"/>
     </svg>
-    <div class="hud-secret-spread-meta"><span>KNOWLEDGE</span><b>${kCount} / ${total}</b><small>${pct}%</small></div>
+    <div class="hud-secret-spread-meta"><span>ЗНАЮТ</span><b>${kCount} / ${total}</b><small>${pct}%</small></div>
   </div>`;
 }
 
@@ -197,23 +197,39 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
   if (Array.isArray(memoryData.secrets) && memoryData.secrets.length > 0) {
     let secHtml = memoryData.secrets.map(s => {
        let lvlStr = String(s.level || '').toLowerCase();
-       let lvlText = '🔒 SECRET'; let lvlClass = 'lvl-secret';
-       if(lvlStr.includes('high')) { lvlText = '🔐 HIGHLY SECRET'; lvlClass = 'lvl-high'; }
-       if(lvlStr.includes('crit')) { lvlText = '☠ CLASSIFIED'; lvlClass = 'lvl-critical'; }
+       let lvlText = '🔒 СЕКРЕТ'; let lvlClass = 'lvl-secret';
+       if(lvlStr.includes('high')) { lvlText = '🔐 СТРОГО СЕКРЕТНО'; lvlClass = 'lvl-high'; }
+       if(lvlStr.includes('crit')) { lvlText = '☠ ОСОБОЙ ВАЖНОСТИ'; lvlClass = 'lvl-critical'; }
 
        let statStr = String(s.status || '').toLowerCase();
-       let statText = '🔴 UNKNOWN'; let statClass = 'stat-unknown';
-       if(statStr.includes('suspect')) { statText = '🟡 SUSPECTED'; statClass = 'stat-suspected'; }
-       if(statStr.includes('part') || statStr.includes('known')) { statText = '🟢 KNOWN'; statClass = 'stat-known'; }
+       let statText = '🔴 НЕ РАСКРЫТ'; let statClass = 'stat-unknown';
+       // «unknown» содержит «known»: проверяем его первым, иначе нераскрытый
+       // секрет показывался известным.
+       if (!/unknown|неизвест/.test(statStr)) {
+         if (/suspect|подозр/.test(statStr)) { statText = '🟡 ПОДОЗРЕВАЮТ'; statClass = 'stat-suspected'; }
+         else if (/part|частич/.test(statStr)) { statText = '🟠 ЧАСТИЧНО'; statClass = 'stat-known'; }
+         else if (/known|извест/.test(statStr)) { statText = '🟢 ИЗВЕСТЕН'; statClass = 'stat-known'; }
+       }
 
-       let kCount = Array.isArray(s.knows) ? s.knows.length : (s.knows && s.knows !== 'none' ? 1 : 0);
        const unawareValue = s.unaware ?? s.hidden;
-       let uCount = Array.isArray(unawareValue) ? unawareValue.length : (unawareValue && unawareValue !== 'none' ? 1 : 0);
+       const имяЧеловека = (x) => String((x && typeof x === 'object' ? (x.name || x.who) : x) || '').trim();
+       const пустое = (n) => !n || /^(none|empty|null|нет|никто|-|—)$/i.test(n);
+       // Каждого считаем один раз; знающий не может быть и в неведении.
+       const уникальные = (список, исключить) => {
+         const было = new Set(исключить);
+         return список.filter(x => { const n = имяЧеловека(x).toLowerCase(); if (пустое(n) || было.has(n)) return false; было.add(n); return true; });
+       };
+       const списком = (v) => (Array.isArray(v) ? v : (v ? [v] : []));
+       const знающие = уникальные(списком(s.knows), []);
+       const знают = знающие.map(x => имяЧеловека(x).toLowerCase());
+       const незнающие = уникальные(списком(unawareValue), знают);
+       let kCount = знающие.length;
+       let uCount = незнающие.length;
        let total = kCount + uCount;
        let spreadText = total > 0 ? buildSecretRingHTML(kCount, total) : '';
 
-       let knowsArr = Array.isArray(s.knows) ? s.knows : [];
-       let unawareArr = Array.isArray(unawareValue) ? unawareValue : [];
+       let knowsArr = знающие.filter(x => x && typeof x === 'object' || Array.isArray(s.knows));
+       let unawareArr = незнающие;
        let knowsHtml = knowsArr.length > 0
            ? knowsArr.map(k => `<div class="hud-secret-person"><span class="hud-secret-pname">✔ ${escapeHtml(k.name || k)}</span> ${k.source ? `<span class="hud-secret-psource">${escapeHtml(k.source)}</span>` : ''}</div>`).join('')
            : '<div class="hud-secret-person" style="opacity:0.6;">Никто не знает</div>';

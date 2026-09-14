@@ -7,10 +7,10 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=22.99.30';
-import { getSafeUserName, mapKey } from './utils.js?v=22.99.30';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=22.99.30';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=22.99.30';
+import { settings } from './settings.js?v=22.99.52';
+import { getSafeUserName, mapKey } from './utils.js?v=22.99.52';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=22.99.52';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=22.99.52';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -22,7 +22,7 @@ const HUD_CHARACTER_DEFAULTS = { N:'empty', A:'empty', C:'empty', Ap:'empty', R:
 const HUD_USER_DEFAULTS = { A:'empty', C:'empty', Ap:'empty', H:'empty', Rel:'empty', L:'empty', UW:'empty' };
 const HUD_SCENE_DEFAULTS = { T:'empty', Wth:'empty', Dt:'empty', Atm:'empty', Md:'empty' };
 const HUD_MEMORY_DEFAULTS = { timeline:[], mood:{ user:{current:'empty',history:[]}, char:{current:'empty',history:[]} }, route:{user:[],char:[]}, important:[], secrets:[], guns:[] };
-const HUD_WORLD_DEFAULTS = { headlines:[], rumors:[], forecast:[], horoscope:[], prediction:[], ads:[], comments:[] };
+const HUD_WORLD_DEFAULTS = { headlines:[], rumors:[], forecast:[], horoscope:[], prediction:[], ads:[], comments:[], economy:[], events:[], city:[] };
 const cloneSchemaDefault = v => Array.isArray(v) ? [] : (v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k,x]) => [k,cloneSchemaDefault(x)])) : v);
 function fillMissingObjectFields(obj, defaults) {
   // Canonicalize aliases BEFORE applying defaults. Otherwise a model that emits
@@ -304,7 +304,12 @@ export function normalizeJSONData(parsed) {
                   const knownSet = new Set(knows.map(k => k.name.toLowerCase()));
                   hidden = activeNames.filter(n => !knownSet.has(n.toLowerCase()));
               }
-              return { fact: toStr(s.fact), level: уровеньСекрета(toStr(s.level || 'medium')).toLowerCase(), status, knows, hidden };
+              // Один человек — один раз, и знающий не бывает в неведении: модель
+              // повторяет имя и вписывает посвящённого в оба списка.
+              const видели = new Set();
+              const knowsUniq = knows.filter(k => { const n = k.name.toLowerCase(); if (видели.has(n)) return false; видели.add(n); return true; });
+              const hiddenUniq = hidden.filter(n => { const x = n.toLowerCase(); if (видели.has(x)) return false; видели.add(x); return true; });
+              return { fact: toStr(s.fact), level: уровеньСекрета(toStr(s.level || 'medium')).toLowerCase(), status, knows: knowsUniq, hidden: hiddenUniq };
           }).filter(s => s && valid(s.fact));
       }
   }
@@ -346,6 +351,7 @@ export function normalizeJSONData(parsed) {
              // Период, погода, знак и тон приходят кодами — на экран по-русски.
              forecast: cleanArray(world.forecast).map(строкаПрогноза), horoscope: cleanArray(world.horoscope).map(строкаГороскопа),
              prediction: cleanArray(world.prediction),
-             ads: cleanArray(world.ads), comments: cleanArray(world.comments) }
+             ads: cleanArray(world.ads), comments: cleanArray(world.comments),
+             economy: cleanArray(world.economy), events: cleanArray(world.events), city: cleanArray(world.city) }
   };
 }

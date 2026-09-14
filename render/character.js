@@ -4,25 +4,28 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=22.99.30';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.30';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.99.30';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=22.99.30';
-import { settings } from '../settings.js?v=22.99.30';
-import { namesLikelySame } from '../names.js?v=22.99.30';
-import { parseRelationList } from './relations-graph.js?v=22.99.30';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=22.99.52';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.52';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.99.52';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=22.99.52';
+import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildMarks, buildCycle, трендПоРусски } from './intimacy.js?v=22.99.52';
+import { settings } from '../settings.js?v=22.99.52';
+import { namesLikelySame } from '../names.js?v=22.99.52';
+import { parseRelationList } from './relations-graph.js?v=22.99.52';
 
-const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность'];
+const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
+  'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле'];
 
 // Порядок строк в карточке. Раньше он зависел от того, в каком порядке
 // модель перечислила поля, и «Кинк» мог оказаться где угодно. Ключи, не
 // попавшие в список, дописываются после в исходном порядке.
-const FIELD_ORDER = ['Имя', 'Возраст', 'Одежда', 'Внешность', 'Роль', 'Тело', 'Физиология', 'Здоровье', 'Болезни и травмы', 'Беременность',
+const FIELD_ORDER = ['Имя', 'Возраст', 'Одежда', 'Внешность', 'Роль', 'Тело', 'Физиология', 'Здоровье', 'Болезни и травмы', 'Следы на теле', 'Беременность', 'Цикл',
   'Место', 'Мысли', 'Ключ', 'Ожидание vs Реальность', 'Скрытый подтекст', 'Инвентарь', 'Цели',
   'Расписание', 'Отношения', 'Доверие', 'Страхи', 'Реплики', 'Общие воспоминания', 'Флаг-монитор', 'Статус', 'Социальное разоблачение',
   'Глубина конфликта', 'Ревность', 'Конфликт', 'Сновидение',
   'Последний секс', 'Количество партнеров', 'Регулярность секса',
-  'Фаза близости', 'NSFW', 'Карта тела', 'Кинк', 'Фетиш', 'Никогда не сделает', 'Не возбуждает',
+  'Фаза близости', 'Поза', 'Раунд', 'Длительность', 'Защита', 'NSFW', 'Готовность к оргазму', 'Жизненные показатели', 'Звуки', 'Карта тела',
+  'Кинк', 'Фетиш', 'Никогда не сделает', 'Не возбуждает',
   'Детализация NSFW', 'Забота после', 'Отзыв о сексе'];
 // Доверие: то же устройство, что у карты тела, но шкала 0-100 и свой цвет.
 // Доверие и отношение — разные вещи: любить и не доверять можно одновременно,
@@ -134,12 +137,12 @@ function buildBodyMap(value) {
     const сырое = m[2].trim();
     const число = parseFloat(сырое.replace(',', '.'));
     if (!Number.isFinite(число)) {
-      return `<span class="hud-zone"><b>${escapeHtml(зона)}</b><em>${escapeHtml(сырое)}</em></span>`;
+      return `<span class="hud-zone"><b>${escapeHtml(зона)}</b><em>${escapeHtml(трендПоРусски(сырое))}</em></span>`;
     }
     const доля = Math.max(0, Math.min(10, число)) * 10;
     // Ступень та же, что у доверия: цвет читается быстрее длины полоски.
     const уровень = доля >= 66 ? 'is-high' : (доля >= 33 ? 'is-mid' : 'is-low');
-    return `<span class="hud-zone ${уровень}" title="${escapeHtml(зона)}: ${escapeHtml(сырое)}">`
+    return `<span class="hud-zone ${уровень}" title="${escapeHtml(зона)}: ${escapeHtml(трендПоРусски(сырое))}">`
       + `<b class="hud-zone-name">${escapeHtml(зона)}</b>`
       + `<i class="hud-zone-bar"><i style="width:${доля}%"></i></i>`
       + `<em class="hud-zone-val">${Math.round(число)}</em></span>`;
@@ -162,7 +165,8 @@ const ЗНАЧКИ_ПОЛЕЙ = {
   'регулярность секса': '📈', 'отзыв о сексе': '📝',
   'nsfw': '🔞', 'кинк': '🔗', 'фетиш': '🎀',
   'никогда не сделает': '⛔', 'не возбуждает': '🧊',
-  'фаза близости': '🌡️', 'карта тела': '🫦', 'забота после': '🫂',
+  'фаза близости': '🌡️', 'карта тела': '💗', 'забота после': '🫂',
+  'защита': '🛡️', 'готовность к оргазму': '💥', 'жизненные показатели': '💓', 'звуки': '🔊', 'следы на теле': '💋', 'цикл': '🌸',
   'доверие': '🤍', 'страхи': '😨', 'реплики': '💬',
   'расписание': '🗓️', 'глубина конфликта': '⚔️', 'ключ': '🔑',
 };
@@ -248,6 +252,42 @@ const строкаПодписи = (подпись, текст) => текст
 
 // Болезни и травмы: одна группа на состояние, группы через «|». Стадия
 // окрашивает кромку, выздоровление — шкалой, симптомы и лечение строками.
+// Значок болезни или травмы. Смотрим название, а если оно общее
+// («Состояние», «Последствия») — и симптомы. Порядок важен: узкие виды
+// раньше широких, иначе «ножевая рана» станет просто «раной».
+const ВИДЫ_БОЛЕЗНЕЙ = [
+  [/перелом|трещин[аы] (?:в )?кост|fractur/i, '🦴'],
+  [/вывих|растяж|связк|мениск|sprain|dislocat/i, '🩼'],
+  [/огнестрел|пулев|(?<![\p{L}])выстрел|gunshot|bullet/iu, '💥'],
+  [/сотрясен|черепн|травм\p{L}* голов|concussion/iu, '🤕'],
+  [/ож[оё]г|(?<![\p{L}])burn/iu, '🔥'],
+  [/ножев|колот|резан|порез|рассеч|(?<![\p{L}])ран[аыуе]?(?![\p{L}])|кровотеч|stab|(?<![\p{L}])cut(?![\p{L}])|wound|bleed/iu, '🩸'],
+  [/ушиб|синяк|гематом|bruise/i, '🟣'],
+  [/ссадин|царап|abrasion|scratch/i, '🩹'],
+  [/шрам|рубц|scar/i, '〽️'],
+  [/отравлен|интоксик|передоз|poison|overdose/i, '🧪'],
+  [/аллерг|allerg/i, '🤧'],
+  [/пневмон|бронхит|астм|л[её]гк\p{L}* (?:болезн|воспал)|pneumon|asthma/iu, '🫁'],
+  [/простуд|орви|грипп|насморк|кашел|кашл|ангин|(?<![\p{L}])cold(?![\p{L}])|(?<![\p{L}])flu(?![\p{L}])|cough/iu, '🤒'],
+  [/лихорад|температур|(?<![\p{L}])жар(?![\p{L}])|озноб|fever/iu, '🌡️'],
+  [/сердц|инфаркт|аритм|давлени|тахикард|heart/i, '❤️‍🩹'],
+  [/мигрен|головн\p{L}* бол|headache|migraine/iu, '🧠'],
+  [/тревож|паническ|депресс|птср|ptsd|психолог|бессонниц|кошмар|anxiety|depress|insomnia|trauma/i, '🫥'],
+  [/желуд|гастрит|тошнот|рвот|кишеч|диаре|nausea|stomach/i, '🤢'],
+  [/(?<![\p{L}])зуб|tooth/iu, '🦷'],
+  [/глаз|зрени|(?<![\p{L}])eye/iu, '👁️'],
+  [/инфекц|вирус|бактер|сепсис|воспален|нагноен|infect|virus|sepsis/i, '🦠'],
+  [/диабет|инсулин|diabet/i, '💉'],
+  [/похмел|hangover/i, '🍷'],
+  [/истощ|переутом|усталост|обезвож|exhaust|dehydrat/i, '🪫'],
+  [/ломк|зависимост|withdraw|addict/i, '🌀'],
+];
+function значокБолезни(название, симптомы) {
+  const вид = ВИДЫ_БОЛЕЗНЕЙ.find(([rx]) => rx.test(String(название || '')))
+    || ВИДЫ_БОЛЕЗНЕЙ.find(([rx]) => rx.test(String(симптомы || '')));
+  return вид ? вид[1] : '🩺';
+}
+
 function buildIllness(value) {
   return String(value || '').split(/\s*\|\s*|\n{2,}/).map(группа => {
     if (!группа.trim()) return '';
@@ -256,7 +296,7 @@ function buildIllness(value) {
     const число = parseFloat(String(п['выздоровление'] || '').replace(',', '.'));
     const доля = Number.isFinite(число) ? Math.max(0, Math.min(100, число)) : null;
     return `<div class="hud-ill${стадия.ключ ? ' is-' + стадия.ключ : ''}">`
-      + `<div class="hud-ill-head"><b>${escapeHtml(п['что это'] || 'Состояние')}</b>${стадия.текст ? `<em class="hud-ill-stage">${escapeHtml(стадия.текст)}</em>` : ''}</div>`
+      + `<div class="hud-ill-head"><i class="hud-ill-ico" aria-hidden="true">${значокБолезни(п['что это'], п['симптомы'])}</i><b>${escapeHtml(п['что это'] || 'Состояние')}</b>${стадия.текст ? `<em class="hud-ill-stage">${escapeHtml(стадия.текст)}</em>` : ''}</div>`
       + (доля !== null ? `<div class="hud-ill-meter" title="Выздоровление ${Math.round(доля)}%"><i style="width:${доля}%"></i><small>${Math.round(доля)}%</small></div>` : '')
       + строкаПодписи('Симптомы', п['симптомы'])
       + строкаПодписи('Лечение', п['лечение'])
@@ -320,13 +360,13 @@ export function buildUserHTML(userData, uid, isChecked, characters) {
   const avaTag = ` data-ava-name="${escapeHtml(personaName)}" data-ava-role="user"`;
   const avatarHtml = avatarUrl ? `<img src="${avatarUrl}" class="hud-avatar hud-avatar-user" alt="avatar"${avaTag} onerror="this.outerHTML='<div class=&quot;hud-avatar-placeholder hud-avatar-user&quot;></div>'">` : `<div class="hud-avatar-placeholder hud-avatar-user"${avaTag}></div>`;
 
-  const order = ['A', 'C', 'Ap', 'H', 'Ill', 'Prg', 'Rel', 'L', 'UW'];
+  const order = ['A', 'C', 'Ap', 'H', 'Ill', 'Mrk', 'Prg', 'Mns', 'Rel', 'L', 'UW'];
   let rows = '';
   order.forEach(shortKey => {
     const label = mapKey(shortKey); let value = null;
     for (const [k, v] of Object.entries(userData)) { if (k === shortKey || k.toLowerCase() === label.toLowerCase()) { value = v; break; } }
     value = снятьЗаглушки(flattenFieldValue(value));
-    if (!value || value.toLowerCase() === 'empty' || value.toLowerCase() === 'none') return;
+    if ((!value || value.toLowerCase() === 'empty' || value.toLowerCase() === 'none') && shortKey !== 'Mrk') return;
     
     let rowClass = 'hud-row hud-user-row';
     if (label.toLowerCase().includes('nsfw')) rowClass += ' full-width nsfw';
@@ -337,9 +377,14 @@ export function buildUserHTML(userData, uid, isChecked, characters) {
     if (label.toLowerCase() === 'отношения') {
       rows += `<div class="${rowClass}"><span class="hud-key">${значок}${escapeHtml(label)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill', false, 'отношения', лицоСобеседника)}</div></div>`;
     } else if (label.toLowerCase().includes('nsfw')) {
-      rows += `<div class="${rowClass}"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>🔞</span></i> ${escapeHtml(надписьПоля(label))}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-nsfw-pill')}</div></div>`;
+      rows += `<div class="${rowClass}"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>🔞</span></i> ${escapeHtml(надписьПоля(label))}:</span> <div class="hud-vertical-container hud-nsfw-list is-act">${buildPillList(value, 'hud-nsfw-pill')}</div></div>`;
     } else if (label.toLowerCase() === 'болезни и травмы') {
       rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}${escapeHtml(label)}:</span> <div class="hud-ill-list">${buildIllness(value)}</div></div>`;
+    } else if (label.toLowerCase() === 'цикл') {
+      rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}Менструальный цикл:</span> ${buildCycle(value)}</div>`;
+    } else if (label.toLowerCase() === 'следы на теле') {
+      const следы = buildMarks(value, userData);
+      if (следы) rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${следы}</div>`;
     } else if (label.toLowerCase() === 'беременность') {
       rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${buildPregnancy(value)}</div>`;
     } else {
@@ -360,14 +405,19 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
 
   let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-header"><div class="hud-header-info">${avatarHtml}<div class="hud-header-text"><span class="hud-title">${escapeHtml(charName)}</span></div></div></div><div class="hud-body">`;
 
-  for (const [key, rawValue] of orderFields(charData)) {
+  // Фаза, поза, раунд и длительность рисуются одной полосой — один раз.
+  let сценаПоказана = false;
+  // Следы на теле отслеживаются и после акта: строку проверяем, даже если
+  // модель в этом ходу их не упомянула, — активные найдутся в прошлых ходах.
+  const поляКарточки = 'Следы на теле' in charData ? charData : { ...charData, 'Следы на теле': '' };
+  for (const [key, rawValue] of orderFields(поляКарточки)) {
     const lowerKey = key.toLowerCase();
     if (lowerKey === 'имя') continue;
     // Объект или массив здесь — обычное дело: схема просит строку «Метка:
     // значение; ...», а модель нередко отдаёт ту же структуру объектом.
     // Разворачиваем сразу, чтобы ниже по коду везде была строка.
     const value = снятьЗаглушки(flattenFieldValue(rawValue));
-    if (!value || value.toLowerCase() === 'empty' || value.toLowerCase() === 'none') continue;
+    if ((!value || value.toLowerCase() === 'empty' || value.toLowerCase() === 'none') && lowerKey !== 'следы на теле') continue;
     let rowClass = FULL_WIDTH_KEYS.some(k => lowerKey.includes(k)) ? 'hud-row full-width' : 'hud-row';
     if (DRAMA_KEYS.some(k => lowerKey.includes(k))) rowClass += ' drama-alert';
     if (lowerKey.includes('nsfw') || lowerKey.includes('секс') || lowerKey.includes('партнеров')
@@ -375,7 +425,16 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
         // Фаза близости, карта тела и забота после по смыслу лежат там же,
         // а оформления закрытой части не получали — блок распадался на две
         // половины с разным видом.
-        || lowerKey === 'фаза близости' || lowerKey === 'карта тела' || lowerKey === 'забота после') rowClass += ' nsfw';
+        || lowerKey === 'фаза близости' || lowerKey === 'карта тела' || lowerKey === 'забота после'
+        || ['поза', 'раунд', 'длительность', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки'].includes(lowerKey)) rowClass += ' nsfw';
+    // Своя пометка у каждого NSFW-поля: у забот, регулярности, отзыва и
+    // остальных — собственное движение при наведении.
+    if (rowClass.includes(' nsfw')) rowClass += ' nsfw-' + ({
+      'последний секс': 'last', 'количество партнеров': 'count', 'регулярность секса': 'reg', 'забота после': 'care',
+      'отзыв о сексе': 'review', 'фаза близости': 'phase', 'карта тела': 'body', 'кинк': 'kink', 'фетиш': 'fetish',
+      'никогда не сделает': 'nogo', 'не возбуждает': 'noturn', 'nsfw': 'act', 'детализация nsfw': 'after', 'поза': 'pose',
+      'раунд': 'round', 'длительность': 'dur', 'защита': 'prot', 'готовность к оргазму': 'org', 'жизненные показатели': 'vit', 'звуки': 'snd',
+    }[lowerKey] || 'other');
 
     const icon = значокПоля(lowerKey);
 
@@ -387,13 +446,36 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-fears">${buildFears(value)}</div></div>`;
     } else if (lowerKey === 'реплики') {
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-lines">${buildLines(value)}</div></div>`;
-    } else if (lowerKey === 'фаза близости') {
-      // Пять шагов сцены полосой: видно, где мы сейчас и что уже позади.
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div>${buildScenePhase(value)}</div></div>`;
+    } else if (lowerKey === 'фаза близости' || lowerKey === 'поза' || lowerKey === 'раунд' || lowerKey === 'длительность') {
+      // Пять шагов сцены полосой, а под ними — поза, раунд и сколько длится:
+      // видно, где мы сейчас, как, в который раз и как долго.
+      if (!сценаПоказана) {
+        сценаПоказана = true;
+        const фаза = снятьЗаглушки(flattenFieldValue(charData['Фаза близости']));
+        const шаги = фаза && !/^(empty|none)$/i.test(фаза.trim()) ? `<div>${buildScenePhase(фаза)}</div>` : '';
+        html += `<div class="${rowClass} full-width"><span class="hud-key">${значокПоля('фаза близости')}Фаза близости:</span> <div class="hud-scene-strip-wrap">${шаги}${buildSceneStrip(charData)}</div></div>`;
+      }
+    } else if (lowerKey === 'защита') {
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${buildProtection(value)}</div>`;
+    } else if (lowerKey === 'готовность к оргазму') {
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${buildOrgasm(value)}</div>`;
+    } else if (lowerKey === 'жизненные показатели') {
+      const плитки = buildVitals(value, charData);
+      if (плитки) html += `<div class="${rowClass}"><span class="hud-key">${icon}Пульс, дыхание, температура:</span> ${плитки}</div>`;
+    } else if (lowerKey === 'звуки') {
+      const облако = buildSounds(value);
+      if (облако) html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${облако}</div>`;
+    } else if (lowerKey === 'следы на теле') {
+      // Сошедшие следы не показываем — строка может и не появиться.
+      const следы = buildMarks(value, charData);
+      if (следы) html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${следы}</div>`;
+    } else if (lowerKey === 'цикл') {
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}Менструальный цикл:</span> ${buildCycle(value)}</div>`;
     } else if (lowerKey === 'карта тела') {
-      // Зона и её чувствительность от нуля до десяти — шкалой, а не числом:
-      // «Шея: 9» рядом с «Поясница: 4» читается взглядом, а не чтением.
-      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-bodymap">${buildBodyMap(value)}</div></div>`;
+      // Картинкой: силуэт спереди и сзади, зоны залиты по силе, на них — следы.
+      // Выключено в настройках — прежний список зон со шкалами.
+      const карта = settings.enableHeatMap !== false ? buildHeatMap(value, charData) : '';
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${карта || `<div class="hud-bodymap">${buildBodyMap(value)}</div>`}</div>`;
     } else if (lowerKey === 'болезни и травмы') {
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-ill-list">${buildIllness(value)}</div></div>`;
     } else if (lowerKey === 'беременность') {
@@ -404,7 +486,7 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
     } else if (lowerKey === 'инвентарь') {
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-inventory-grid">${buildPillList(value, 'hud-inventory-pill')}</div></div>`;
     } else if (lowerKey === 'nsfw' || lowerKey === 'детализация nsfw' || lowerKey === 'последний секс') {
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(надписьПоля(key))}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-nsfw-pill', true)}</div></div>`;
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(надписьПоля(key))}:</span> <div class="hud-vertical-container hud-nsfw-list is-${lowerKey === 'nsfw' ? 'act' : lowerKey === 'детализация nsfw' ? 'after' : 'last'}">${buildPillList(value, 'hud-nsfw-pill', true)}</div></div>`;
     } else if (lowerKey === 'кинк' || lowerKey === 'фетиш' || lowerKey === 'никогда не сделает' || lowerKey === 'не возбуждает') {
       // Каждый пункт — своя пилюля даже без явного разделителя: это списки,
       // а не связный текст, склеивать их обратно нельзя.
