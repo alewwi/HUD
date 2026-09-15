@@ -1726,7 +1726,7 @@
 
 .hud-tabs-body { border-top: 1px solid var(--hud-accent); padding: 12px; position: relative; z-index: 1; }
 
-.hud-tab-content { display: none; animation: fadeIn 0.3s ease; }
+.hud-tab-content { display: none; animation: hud-fade-in 0.3s ease; }
 .hud-tab-content.active { display: block; }
 
 .hud-header-info { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
@@ -1898,7 +1898,7 @@
     position: absolute; top: 100%; left: 50%; transform: translateX(-50%); z-index: 20;
     white-space: nowrap; max-width: 90%; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
 }
-.hud-phone-participants-list.active { display: block; animation: fadeIn 0.2s ease; }
+.hud-phone-participants-list.active { display: block; animation: hud-fade-in 0.2s ease; }
 
 .hud-phone-options { color: var(--hud-accent); font-size: 1.2em; font-weight: bold; cursor: pointer; }
 .hud-phone-chat-area { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
@@ -1929,7 +1929,7 @@
 .hud-msg-deleted-text { 
     font-size: 0.85em; color: rgba(255, 255, 255, 0.7); font-family: monospace; 
     border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 6px; 
-    animation: fadeIn 0.3s ease;
+    animation: hud-fade-in 0.3s ease;
 }
 /* Черновик — то, что персонаж написал и не отправил. Обрывать его
    многоточием бессмысленно: несказанное там и интересно. Показываем
@@ -3922,7 +3922,7 @@
     font-size: 0.85em;
     color: var(--hud-text-muted);
 }
-.hud-theme-panel.active { display: flex; animation: fadeIn 0.3s ease; }
+.hud-theme-panel.active { display: flex; animation: hud-fade-in 0.3s ease; }
 .hud-theme-panel details { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
 .hud-theme-panel summary { font-weight: bold; cursor: pointer; padding-bottom: 6px; color: #fff; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 8px; outline: none; }
 .hud-theme-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; }
@@ -3973,7 +3973,7 @@
 .hud-voice-text {
     font-size: 0.9em; margin-top: 6px; padding-top: 6px;
     border-top: 1px dashed rgba(255, 255, 255, 0.15); font-style: italic;
-    color: rgba(255, 255, 255, 0.8); animation: fadeIn 0.3s ease;
+    color: rgba(255, 255, 255, 0.8); animation: hud-fade-in 0.3s ease;
 }
 /* --- НАСТРОЙКИ ФОНА ПОГОДЫ И ШРИФТА ДНЕВНИКА --- */
 .hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-scene-atm {
@@ -4097,7 +4097,7 @@
 .hud-phone-app:hover > span { transform:translateY(-2px) scale(1.04); background:rgba(255,255,255,.19); }
 .hud-phone-app small { font-size:10px; opacity:.85; }
 .hud-phone-app-view { display:none; position:absolute; inset:0; padding:10px 12px 55px; overflow:auto; background:rgba(5,7,12,.48); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
-.hud-phone-app-view.active { display:block; animation:fadeIn .18s ease; }
+.hud-phone-app-view.active { display:block; animation:hud-fade-in .18s ease; }
 .hud-phone-app-title { font-weight:700; font-size:16px; padding:4px 2px 12px; position:sticky; top:0; z-index:4; background:linear-gradient(rgba(7,8,13,.8),rgba(7,8,13,0)); }
 /* Нижняя панель обязана быть выше экрана приложения (z-index:40):
    home-wrap не создаёт своего контекста наложения, поэтому панель и

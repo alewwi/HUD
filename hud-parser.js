@@ -7,8 +7,8 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=22.99.52';
-import { hudBlockRe } from './hud-block.js?v=22.99.52';
+import { normalizeJSONData } from './schema.js?v=22.99.54';
+import { hudBlockRe } from './hud-block.js?v=22.99.54';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';
@@ -490,7 +490,6 @@ function repairTruncatedHudJson(jsonStr) {
   if (!s) return s;
   // Remove a terminal backslash that escapes a character which never arrived.
   let inString = false, escaped = false, stack = [];
-  let lastSafe = s.length;
   for (let i = 0; i < s.length; i++) {
     const ch = s[i];
     if (inString) {

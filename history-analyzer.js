@@ -11,14 +11,14 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=22.99.52';
-import { normalizeJSONData } from './schema.js?v=22.99.52';
-import { parseRelationList } from './render/relations-graph.js?v=22.99.52';
-import { nameLettersOnly, namePhoneticLatin } from './names.js?v=22.99.52';
-import { hudFilled, getSafeUserName } from './utils.js?v=22.99.52';
-import { createDashboard } from './chat-stats.js?v=22.99.52';
-import { статусРужья } from './codes.js?v=22.99.52';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=22.99.52';
+import { parseHUDComplex } from './hud-parser.js?v=22.99.54';
+import { normalizeJSONData } from './schema.js?v=22.99.54';
+import { parseRelationList } from './render/relations-graph.js?v=22.99.54';
+import { nameLettersOnly, namePhoneticLatin } from './names.js?v=22.99.54';
+import { hudFilled, getSafeUserName } from './utils.js?v=22.99.54';
+import { createDashboard } from './chat-stats.js?v=22.99.54';
+import { статусРужья } from './codes.js?v=22.99.54';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=22.99.54';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -49,7 +49,7 @@ function ключФакта(fact) {
 // Извлечение блока [HUD] из текста сообщения. Тот же набор написаний, что и в
 // index.js: модель иногда шлёт < > вместо скобок, а ST успевает заэкранировать.
 // Поиск блока — общий, в hud-block.js. Экспорт оставлен: его берут отсюда.
-import { extractHudBlock } from './hud-block.js?v=22.99.52';
+import { extractHudBlock } from './hud-block.js?v=22.99.54';
 export { extractHudBlock };
 
 // Массив сообщений текущего чата.

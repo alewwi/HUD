@@ -2352,11 +2352,6 @@
 .hud-vit-flag { font-size: 10.5px; color: #ec835a; }
 .hud-vit em { font-style: normal; font-size: 11px; color: var(--hud-text-muted, #c3c2b7); }
 .hud-vit-beat { width: 8px; height: 8px; border-radius: 50%; background: var(--hud-nsfw-color, #d9548a); animation: hud-vit-beat var(--beat, 1s) ease-out infinite; }
-@keyframes hud-vit-beat {
-  0% { transform: scale(1); opacity: 1; }
-  18% { transform: scale(1.45); opacity: 1; }
-  40%, 100% { transform: scale(1); opacity: .7; }
-}
 .hud-historical .hud-vit-beat { animation: none; }
 @media (prefers-reduced-motion: reduce) { .hud-vit-beat { animation: none; } }
 
@@ -2371,7 +2366,6 @@
 .hud-heat { --heat: #d55181; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-start; }
 .hud-heat-figure { flex: 0 1 230px; min-width: 180px; display: flex; flex-direction: column; gap: 6px; }
 .hud-heat-svg { width: 100%; height: auto; display: block; }
-.hud-heat-svg .z-base { fill: rgba(255,255,255,.05); stroke: rgba(255,255,255,.22); stroke-width: .7; }
 .hud-heat-svg .z-heat { fill: var(--heat); stroke: none; }
 .hud-heat-svg .z-heat.is-peak { stroke: #fff; stroke-width: .9; }
 .hud-heat-svg .z-heat:hover { stroke: #fff; stroke-width: 1.2; }
@@ -3716,4 +3710,64 @@
 @media (prefers-reduced-motion: no-preference) {
   @media (hover: hover) { .hud-ill:hover .hud-ill-ico { transform: scale(1.1); } }
   .hud-ill.fx-tap .hud-ill-ico { transform: scale(1.1); }
+}
+
+/* Появление вкладок, панелей и приложений. Раньше ссылались на fadeIn,
+   которой нет ни у расширения, ни у SillyTavern, — появление было рывком. */
+@keyframes hud-fade-in { from { opacity: 0; } to { opacity: 1; } }
+/* Уведомление уходит вверх. Кадры hud-toast-slide-out были удалены, а класс
+   hide на них ссылался — уведомление исчезало без анимации. */
+@keyframes hud-toast-slide-out { from { transform: translateY(0); opacity: 1; } to { transform: translateY(-120%); opacity: 0; } }
+/* Сообщения вида «Уже записано»: у типа info не было своего цвета. */
+.hud-toast.info { border-left: 4px solid #8ab4ff; }
+.hud-toast.info .hud-toast-icon { color: #8ab4ff; }
+
+/* =========================================================================
+   ТЕЛЕФОН: ПАЛЕЦ, А НЕ КУРСОР
+   -------------------------------------------------------------------------
+   Проверено в эмуляции телефона 375×812. Кнопки в 16–26px мимо пальца
+   промахиваются; «Запомнить» на телефоне была почти прозрачной, а подпись
+   открывалась только наведением, которого нет; подписи в 7,5–9,8px не
+   читались. Правила действуют только на сенсорных экранах.
+   ========================================================================= */
+@media (pointer: coarse) {
+  /* Зона нажатия шире кнопки: невидимое поле вокруг, вёрстка не сдвигается. */
+  .hud-regen-btn, .hud-phone-back, .hud-remember, .hud-news-vote, .hud-rel-legend-item { position: relative; }
+  .hud-regen-btn::after, .hud-phone-back::after, .hud-scene-fold::after {
+    content: ''; position: absolute; inset: -8px; border-radius: 50%;
+  }
+  .hud-remember::after { content: ''; position: absolute; inset: -10px -6px; }
+  .hud-news-vote::after, .hud-rel-legend-item::after { content: ''; position: absolute; inset: -6px -2px; }
+
+  /* Подписи не мельче 10px. Где размер задан долей родителя — берём большее. */
+  .hud-os-card .hud-key { font-size: max(10.5px, .85em); }
+  .hud-os-card :is(.hud-remember, .hud-prot-kicker, .hud-org-scale, .hud-city-stamp, .hud-secret-lvl, .hud-secret-stat,
+    .hud-phone-time, .hud-msg-time, .hud-rel-legend-item, .hud-rel-inspector-sub) { font-size: 10px; }
+  .hud-os-card .hud-rel-heading small, .hud-os-card .hud-secret-spread-meta small { font-size: 10px; }
+  .hud-os-card .hud-rel-inspector-main { font-size: 10.5px; }
+  .hud-os-card .hud-afisha-kind { font-size: 9.5px; }
+  .hud-os-card .hud-horo-tone { font-size: max(10px, .66em); }
+  .hud-os-card .hud-breaking-label { font-size: max(10px, .68em); }
+  .hud-os-card .hud-route-span { font-size: max(10px, .72em); }
+  .hud-os-card .hud-route-time, .hud-os-card .hud-route-leg-time { font-size: max(10px, .7em); }
+  .hud-os-card .hud-route-info small { font-size: max(10px, .74em); }
+  .hud-os-card .hud-mood-chip-time, .hud-os-card .hud-secret-col-title { font-size: max(10px, .75em); }
+  .hud-os-card .hud-secret-psource { font-size: max(10px, .85em); }
+  .hud-os-card .hud-phone-owner-label { font-size: max(10px, .95em); }
+  .hud-os-card .hud-msg-sender { font-size: max(10px, .65em); }
+
+  /* Окна (архив, ассистент, «Запомнить»): кнопки и поля под палец. */
+  .hud-modal :is(button, select, input:not([type="range"]):not([type="checkbox"]):not([type="radio"])) { min-height: 34px; }
+}
+@media (hover: none) {
+  /* Без курсора кнопку видно всегда; подпись открывает касание записи
+     или раскрытый секрет. */
+  .hud-remember { opacity: .85; }
+  .hud-lore-item.fx-tap .hud-remember-cap,
+  .hud-secret-details[open] .hud-remember-cap { max-width: 80px; }
+  .hud-secret-details[open] .hud-remember { opacity: 1; }
+  /* То, что на компьютере проявляется под курсором, на телефоне видно сразу. */
+  .hud-voice-details summary { opacity: .85; }
+  .hud-phone-search-row .hud-g-arrow { opacity: .6; }
+  .hud-theme-packs label { opacity: 1; }
 }

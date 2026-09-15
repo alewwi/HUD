@@ -7,10 +7,10 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=22.99.52';
-import { getSafeUserName, mapKey } from './utils.js?v=22.99.52';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=22.99.52';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=22.99.52';
+import { settings } from './settings.js?v=22.99.54';
+import { mapKey } from './utils.js?v=22.99.54';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=22.99.54';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=22.99.54';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -114,9 +114,19 @@ function normalizeHUDSchema(parsed) {
 
 export function normalizeJSONData(parsed) {
   parsed = normalizeHUDSchema(parsed);
-  const userName = getSafeUserName();
-  const charName = window.name2 || 'Char';
-  const toStr = (v) => v === null || v === undefined ? '' : String(v);
+  // Строка для экрана. Модель присылает заглушки («empty», «none») там, где
+  // сказать нечего, а схема сама подставляет «empty» недостающим полям — на
+  // экран такое слово попадать не должно: «Эмоции: Софи: empty», пустые
+  // новости с голосованием. Объект или массив вместо строки разворачиваем
+  // в текст — иначе на экране оказывалось «[object Object]».
+  const ЗАГЛУШКА = /^(?:empty|none|null|undefined|n\/a)$/i;
+  const toStr = (v) => {
+    if (v === null || v === undefined) return '';
+    if (Array.isArray(v)) return v.map(toStr).filter(Boolean).join('; ');
+    if (typeof v === 'object') return Object.values(v).map(toStr).filter(Boolean).join('; ');
+    const s = String(v);
+    return ЗАГЛУШКА.test(s.trim()) ? '' : s;
+  };
   // Local safety predicate used by Memory normalization. Keep it here because
   // the parser must not depend on a renderer-scoped helper.
   const valid = (v) => v !== null && v !== undefined && String(v).trim() !== '' && !/^(empty|none)$/i.test(String(v).trim());
@@ -137,7 +147,7 @@ export function normalizeJSONData(parsed) {
     return res;
   };
   const toArr = (v) => Array.isArray(v) ? v.map(toStr) : (v ? [toStr(v)] : []);
-  const cleanArray = (arr) => { return toArr(arr).filter(item => { let lower = item.toLowerCase(); return !lower.includes('generate unlimited') && !lower.includes('n amount') && !lower.includes('generate at least'); }); };
+  const cleanArray = (arr) => { return toArr(arr).filter(item => { if (!item || !item.trim()) return false; let lower = item.toLowerCase(); return !lower.includes('generate unlimited') && !lower.includes('n amount') && !lower.includes('generate at least'); }); };
 
   let chars = Array.isArray(parsed.characters) ? parsed.characters : (typeof parsed.characters === 'object' && parsed.characters !== null ? [parsed.characters] : []);
   chars = mergeCharacterRecords(chars);
@@ -171,12 +181,12 @@ export function normalizeJSONData(parsed) {
   if (Array.isArray(parsed.intercepts)) {
     interceptsParsed = parsed.intercepts.map(i => {
       if (typeof i === 'object' && i !== null) return { target: toStr(i.target), chatName: toStr(i.chatName), participants: groupParticipants(i.participants), messages: cleanArray(i.messages).map(строкаСообщения) }; return null;
-    }).filter(Boolean);
+    }).filter(i => i && (i.messages.length || valid(i.target) || valid(i.chatName)));
   }
   let diaryParsed = [];
   if (Array.isArray(parsed.diary)) {
     diaryParsed = parsed.diary.map(d => {
-      if (typeof d === 'string') return { author:'', time:'', text:d, aboutUser:'', mood:'', emotion:'' };
+      if (typeof d === 'string') return { author:'', time:'', text:toStr(d), aboutUser:'', mood:'', emotion:'' };
       if (typeof d === 'object' && d !== null) return {
         author: toStr(d.author),
         time: toStr(d.time),
@@ -186,7 +196,7 @@ export function normalizeJSONData(parsed) {
         emotion: настроениеДневника(toStr(d.emotion || d.mood || ''))
       };
       return null;
-    }).filter(Boolean);
+    }).filter(d => d && (valid(d.text) || valid(d.aboutUser)));
   }
   // Дневник тела — те же записи, что и в обычном дневнике, но про близость.
   // Разбираем отдельным списком: у него своя вкладка и своё оформление.
@@ -205,9 +215,9 @@ export function normalizeJSONData(parsed) {
   let dreamsParsed = [];
   if (Array.isArray(parsed.dreams)) {
     dreamsParsed = parsed.dreams.map(d => {
-      if (typeof d === 'string') return { text: d, meaning: '' }; 
+      if (typeof d === 'string') return { text: toStr(d), meaning: '' }; 
       if (typeof d === 'object' && d !== null) return { text: toStr(d.text), meaning: toStr(d.meaning) }; return null;
-    }).filter(d => d !== null);
+    }).filter(d => d !== null && valid(d.text));
   }
 
   // Спутники: животные, фамильяры, дроны. Строка вместо объекта — одно имя.

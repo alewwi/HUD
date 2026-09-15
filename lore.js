@@ -6,7 +6,7 @@
 // какие ключи активации у неё будут и как выглядит запись в формате World Info.
 // Сеть и диалог выбора книги живут в index.js: там есть контекст SillyTavern.
 
-import { escapeHtml } from './utils.js?v=22.99.52';
+import { escapeHtml } from './utils.js?v=22.99.54';
 
 // Уже виденные записи за эту сессию. Карточки отрисовываются сверху вниз,
 // поэтому первая встреча текста и есть его появление в истории. Ключ —
@@ -25,8 +25,8 @@ export function isNewLoreItem(text) {
   return true;
 }
 
-import { namePhoneticLatin, формыИмени } from './names.js?v=22.99.52';
-import { hudBlockRe } from './hud-block.js?v=22.99.52';
+import { namePhoneticLatin, формыИмени } from './names.js?v=22.99.54';
+import { hudBlockRe } from './hud-block.js?v=22.99.54';
 
 // Служебные слова, которые в ключи активации не годятся: они встречаются
 // в каждом втором сообщении и запись срабатывала бы постоянно.

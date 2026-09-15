@@ -6,15 +6,15 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText } from '../utils.js?v=22.99.52';
-import { settings } from '../settings.js?v=22.99.52';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.99.52';
-import { G_ICONS } from './icons.js?v=22.99.52';
-import { buildMessengerHTML } from './messenger.js?v=22.99.52';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=22.99.52';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText } from '../utils.js?v=22.99.54';
+import { settings } from '../settings.js?v=22.99.54';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.99.54';
+import { G_ICONS } from './icons.js?v=22.99.54';
+import { buildMessengerHTML } from './messenger.js?v=22.99.54';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=22.99.54';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=22.99.52';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=22.99.54';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -417,7 +417,6 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
         </div>
         ${shown.map((n, i) => {
           const color = HUD_AVATAR_COLORS[hudHashSeed(n.title) % HUD_AVATAR_COLORS.length];
-          const letter = n.title.trim().charAt(0).toUpperCase() || '?';
           return `<div class="hud-phone-notif${i === 0 ? " hud-phone-notif--first" : ""}" data-chat-target="${n.target}" style="--depth:${i}; --nc:${color}">
             ${avaFace(n.title, 'hud-phone-notif-ava', 'transparent')}
             <span class="hud-phone-notif-body">

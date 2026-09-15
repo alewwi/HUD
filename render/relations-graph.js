@@ -7,11 +7,11 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe } from '../utils.js?v=22.99.52';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.52';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=22.99.52';
-import { buildFamilyTree } from './family-tree.js?v=22.99.52';
-import { settings } from '../settings.js?v=22.99.52';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe } from '../utils.js?v=22.99.54';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.54';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=22.99.54';
+import { buildFamilyTree } from './family-tree.js?v=22.99.54';
+import { settings } from '../settings.js?v=22.99.54';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -344,10 +344,9 @@ export function buildRelGraphHTML(hudData, uid) {
     const dx0 = b.x - a.x, dy0 = b.y - a.y;
     const len0 = Math.hypot(dx0, dy0) || 1;
     const perp = { x: -dy0 / len0, y: dx0 / len0 };
-    const sign = e.from < e.to ? 1 : -1;
   
   // 1. Смещаем координаты старта и конца по перпендикуляру для двусторонних связей
-  // 1. Убираем sign. Вектор perp сам разнесет встречные линии в разные стороны.
+  // Вектор perp сам разносит встречные линии в разные стороны.
   const offset = bidirectional ? 14 : 0; 
   const aShifted = { x: a.x + perp.x * offset, y: a.y + perp.y * offset };
   const bShifted = { x: b.x + perp.x * offset, y: b.y + perp.y * offset };
