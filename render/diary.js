@@ -6,7 +6,7 @@
 // index.js импортирует отсюда только buildDiaryHTML и hudHasMeaningfulDiary —
 // остальное экспортируется для тестов и внутренних нужд домена.
 
-import { escapeHtml, hudHasMeaningfulValue, hudHashSeed } from '../utils.js?v=22.99.54';
+import { escapeHtml, hudHasMeaningfulValue, hudHashSeed } from '../utils.js?v=22.99.58';
 
 // Дневник: словарь эмоциональных синонимов. Раньше всё сводилось к
 // четырём темам (sad / angry / panic / neutral) — «скука», «презрение»,
