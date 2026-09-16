@@ -3771,3 +3771,28 @@
   .hud-phone-search-row .hud-g-arrow { opacity: .6; }
   .hud-theme-packs label { opacity: 1; }
 }
+
+/* =========================================================================
+   ЗДОРОВЬЕ: ОДИН ТРЕКЕР
+   -------------------------------------------------------------------------
+   Фраза о самочувствии, болезни и следы в одной строке «Здоровье». Травма,
+   которую модель записала и в болезни, и в следы, — одна карточка следа со
+   стадией, симптомами и лечением.
+   ========================================================================= */
+.hud-row > .hud-health { flex: 1 1 100%; width: 100%; min-width: 0; box-sizing: border-box; }
+.hud-health { display: flex; flex-direction: column; gap: 8px; }
+.hud-health-note { margin: 0; line-height: 1.45; }
+.hud-health > .hud-marks, .hud-health > .hud-ill-list { width: 100%; }
+.hud-mark-stage {
+  display: inline-block; vertical-align: 1px; margin-left: 7px; padding: 0 7px; border-radius: 999px;
+  border: 1px solid currentColor; font-style: normal; font-weight: 600; font-size: 10px;
+  text-transform: uppercase; letter-spacing: .06em; color: #e3a54a; white-space: nowrap;
+}
+.hud-mark-stage.is-fresh { color: #e0566b; }
+.hud-mark-stage.is-worsening { color: #ff4d4d; }
+.hud-mark-stage.is-stable { color: #e3a54a; }
+.hud-mark-stage.is-healing { color: #58c18a; }
+.hud-mark-stage.is-chronic { color: #9a8ad8; }
+.hud-mark-stage.is-healed { color: #6fb7e8; }
+.hud-mark-rows { grid-column: 1 / -1; position: relative; z-index: 1; }
+.hud-mark-rows .hud-ill-row:first-child { margin-top: 0; }

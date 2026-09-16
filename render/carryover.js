@@ -14,11 +14,12 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=22.99.58';
-import { normalizeJSONData } from '../schema.js?v=22.99.58';
-import { settings } from '../settings.js?v=22.99.58';
-import { статусРужья } from '../codes.js?v=22.99.58';
-import { hudBlockRe } from '../hud-block.js?v=22.99.58';
+import { parseHUDComplex } from '../hud-parser.js?v=22.99.70';
+import { normalizeJSONData } from '../schema.js?v=22.99.70';
+import { settings } from '../settings.js?v=22.99.70';
+import { статусРужья } from '../codes.js?v=22.99.70';
+import { hudBlockRe } from '../hud-block.js?v=22.99.70';
+import { namesLikelySame } from '../names.js?v=22.99.70';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -280,6 +281,81 @@ export function mergeCarryOver(data, messageElement) {
   return итог;
 }
 
+
+// --- Устойчивые черты ---------------------------------------------------------
+//
+// Вне интимной сцены промт не просит у модели кинки, фетиши, запреты и историю
+// секса — это самая тяжёлая часть инструкции, а меняется она редко. На экране
+// эти строки не должны пропадать: берём последнее известное значение из прошлых
+// ходов того же персонажа. Глубже обычного переноса — черты живут долго, — но
+// сообщения без этих ключей отсеиваем простой проверкой текста, без разбора.
+
+const УСТОЙЧИВЫЕ = ['Кинк', 'Фетиш', 'Никогда не сделает', 'Не возбуждает', 'Последний секс', 'Количество партнеров', 'Регулярность секса'];
+const ЕСТЬ_ЧЕРТЫ = /"(?:Kn|Ft|NG|NT|SxL|SxC|SxR|Kink|Fet|NoGo|NoTurn|SexLast|SexCount|SexReg)"|Кинк|Фетиш|Никогда не сделает|Не возбуждает|Последний секс|Количество партнеров|Регулярность секса/;
+const ГЛУБИНА_ЧЕРТ = 300;
+const пустоЗначение = (v) => { const s = текст(Array.isArray(v) ? v.join('; ') : v); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
+const чертыПоХэшу = new Map();
+
+function чертыХода(mes) {
+  const raw = текст(mes && mes.mes);
+  if (!raw || !ЕСТЬ_ЧЕРТЫ.test(raw)) return null;
+  let хэш = 0;
+  for (let i = 0; i < raw.length; i++) хэш = ((хэш << 5) - хэш + raw.charCodeAt(i)) | 0;
+  const k = raw.length + ':' + хэш;
+  if (чертыПоХэшу.has(k)) return чертыПоХэшу.get(k);
+  let out = null;
+  const блок = raw.match(БЛОК);
+  if (блок) {
+    try {
+      const d = parseHUDComplex(блок[0]);
+      out = (Array.isArray(d.characters) ? d.characters : []).map(c => ({
+        имя: текст(c && c['Имя']),
+        поля: Object.fromEntries(УСТОЙЧИВЫЕ.filter(п => c && !пустоЗначение(c[п])).map(п => [п, c[п]])),
+      })).filter(x => x.имя && Object.keys(x.поля).length);
+      if (!out.length) out = null;
+    } catch (_) { out = null; }
+  }
+  // Храним только черты — это строки, память не растёт заметно.
+  if (чертыПоХэшу.size > 3000) чертыПоХэшу.clear();
+  чертыПоХэшу.set(k, out);
+  return out;
+}
+
+/**
+ * Возвращает на экран устойчивые черты, которых нет в текущем ходе. Новый
+ * объект; исходный не меняется.
+ */
+export function вернутьЧерты(data, messageElement) {
+  if (!data || !Array.isArray(data.characters) || !data.characters.length) return data;
+  const индекс = Number(messageElement && messageElement.getAttribute('mesid'));
+  if (!Number.isInteger(индекс) || индекс <= 0) return data;
+  let chat = null;
+  try {
+    const ctx = window.SillyTavern && window.SillyTavern.getContext && window.SillyTavern.getContext();
+    chat = ctx && Array.isArray(ctx.chat) ? ctx.chat : (Array.isArray(window.chat) ? window.chat : null);
+  } catch (_) { chat = Array.isArray(window.chat) ? window.chat : null; }
+  if (!chat) return data;
+
+  const нужно = data.characters
+    .map((c, i) => ({ i, имя: текст(c && c['Имя']), поля: УСТОЙЧИВЫЕ.filter(п => c && пустоЗначение(c[п])), найдено: {} }))
+    .filter(x => x.имя && x.поля.length);
+  if (!нужно.length) return data;
+
+  for (let j = Math.min(индекс, chat.length) - 1; j >= 0 && j >= индекс - ГЛУБИНА_ЧЕРТ; j--) {
+    const ход = чертыХода(chat[j]);
+    if (!ход) continue;
+    for (const x of нужно) {
+      const запись = ход.find(з => namesLikelySame(з.имя, x.имя));
+      if (!запись) continue;
+      for (const п of x.поля) if (!(п in x.найдено) && запись.поля[п] !== undefined) x.найдено[п] = запись.поля[п];
+    }
+    if (нужно.every(x => x.поля.every(п => п in x.найдено))) break;
+  }
+  if (!нужно.some(x => Object.keys(x.найдено).length)) return data;
+  const characters = data.characters.slice();
+  for (const x of нужно) if (Object.keys(x.найдено).length) characters[x.i] = { ...characters[x.i], ...x.найдено };
+  return { ...data, characters };
+}
 
 // Разбор хода нужен и истории близости: таймеру следов и графикам пульса.
 export { разобратьХод };

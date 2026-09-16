@@ -4,14 +4,15 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=22.99.58';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.58';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.99.58';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=22.99.58';
-import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildMarks, buildCycle, трендПоРусски } from './intimacy.js?v=22.99.58';
-import { settings } from '../settings.js?v=22.99.58';
-import { namesLikelySame } from '../names.js?v=22.99.58';
-import { parseRelationList } from './relations-graph.js?v=22.99.58';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=22.99.70';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.70';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.99.70';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=22.99.70';
+import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
+  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову } from './intimacy.js?v=22.99.70';
+import { settings } from '../settings.js?v=22.99.70';
+import { namesLikelySame } from '../names.js?v=22.99.70';
+import { parseRelationList } from './relations-graph.js?v=22.99.70';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле'];
@@ -289,20 +290,122 @@ function значокБолезни(название, симптомы) {
   return вид ? вид[1] : '🩺';
 }
 
-function buildIllness(value) {
-  return String(value || '').split(/\s*\|\s*|\n{2,}/).map(группа => {
-    if (!группа.trim()) return '';
+const пустоеПоле = (v) => { const s = String(v ?? '').trim(); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
+
+// Поле объекта по любому из имён: в карточке — русские названия, в сыром
+// ходе игрока бывает и короткий код.
+function полеОбъекта(о, ...имена) {
+  if (!о || typeof о !== 'object') return '';
+  const низ = имена.map(и => и.toLowerCase());
+  const ключ = Object.keys(о).find(k => низ.includes(k.toLowerCase()));
+  const v = ключ ? снятьЗаглушки(flattenFieldValue(о[ключ])) : '';
+  return пустоеПоле(v) ? '' : v;
+}
+
+// «nm: …; sg: …; rc: …» — формат болезни. Модель кладёт его и в «Здоровье»:
+// тогда это та же болезнь не в том поле, а не текст для показа с кодами.
+const МЕТКИ_БОЛЕЗНИ = new Set(['что это', 'стадия', 'выздоровление', 'симптомы', 'лечение']);
+function вФорматеБолезни(текст) {
+  const найдено = new Set();
+  String(текст || '').split(/[;|\n]/).forEach(часть => {
+    const m = часть.match(/^\s*([^:：]{1,40})[:：]/);
+    const метка = m ? перевестиМетку(m[1]).toLowerCase() : '';
+    if (МЕТКИ_БОЛЕЗНИ.has(метка)) найдено.add(метка);
+  });
+  return найдено.size >= 2;
+}
+
+function разобратьБолезни(текст) {
+  return String(текст || '').split(/\s*\|\s*|\n{2,}/).map(группа => {
+    if (пустоеПоле(группа)) return null;
     const п = поМеткам(группа);
-    const стадия = стадияБолезни(п['стадия']);
+    const что = п['что это'] || 'Состояние';
     const число = parseFloat(String(п['выздоровление'] || '').replace(',', '.'));
-    const доля = Number.isFinite(число) ? Math.max(0, Math.min(100, число)) : null;
-    return `<div class="hud-ill${стадия.ключ ? ' is-' + стадия.ключ : ''}">`
-      + `<div class="hud-ill-head"><i class="hud-ill-ico" aria-hidden="true">${значокБолезни(п['что это'], п['симптомы'])}</i><b>${escapeHtml(п['что это'] || 'Состояние')}</b>${стадия.текст ? `<em class="hud-ill-stage">${escapeHtml(стадия.текст)}</em>` : ''}</div>`
-      + (доля !== null ? `<div class="hud-ill-meter" title="Выздоровление ${Math.round(доля)}%"><i style="width:${доля}%"></i><small>${Math.round(доля)}%</small></div>` : '')
-      + строкаПодписи('Симптомы', п['симптомы'])
-      + строкаПодписи('Лечение', п['лечение'])
-      + `</div>`;
-  }).filter(Boolean).join('');
+    return {
+      что, где: '', как: '', стадия: стадияБолезни(п['стадия']),
+      выздоровление: Number.isFinite(число) ? Math.max(0, Math.min(100, число)) : null,
+      симптомы: п['симптомы'] || '', лечение: п['лечение'] || '',
+      вид: видСледа(что).вид, значок: значокБолезни(что, п['симптомы']),
+      зона: зонаПоСлову(что) || зонаПоСлову(п['симптомы']),
+    };
+  }).filter(Boolean);
+}
+
+// Болезни и травмы хода: из своего поля и из «Здоровья», если там тот же
+// формат. Одна травма в обоих полях — одна запись, недостающее дописываем.
+function болезниВладельца(о) {
+  const здоровье = полеОбъекта(о, 'Здоровье', 'H');
+  const изЗдоровья = вФорматеБолезни(здоровье);
+  const список = [];
+  for (const б of [...разобратьБолезни(полеОбъекта(о, 'Болезни и травмы', 'Ill')), ...(изЗдоровья ? разобратьБолезни(здоровье) : [])]) {
+    const было = список.find(x => тотЖеВред(x, б));
+    if (!было) { список.push(б); continue; }
+    if (!было.симптомы) было.симптомы = б.симптомы;
+    if (!было.лечение) было.лечение = б.лечение;
+    if (!было.стадия.текст) было.стадия = б.стадия;
+    if (было.выздоровление === null) было.выздоровление = б.выздоровление;
+  }
+  return { текст: изЗдоровья ? '' : здоровье, список };
+}
+
+function карточкаБолезни(б) {
+  const доля = б.выздоровление;
+  return `<div class="hud-ill${б.стадия.ключ ? ' is-' + б.стадия.ключ : ''}">`
+    + `<div class="hud-ill-head"><i class="hud-ill-ico" aria-hidden="true">${б.значок}</i><b>${escapeHtml(б.что)}</b>${б.стадия.текст ? `<em class="hud-ill-stage">${escapeHtml(б.стадия.текст)}</em>` : ''}</div>`
+    + (доля !== null ? `<div class="hud-ill-meter" title="Выздоровление ${Math.round(доля)}%"><i style="width:${доля}%"></i><small>${Math.round(доля)}%</small></div>` : '')
+    + строкаПодписи('Симптомы', б.симптомы)
+    + строкаПодписи('Лечение', б.лечение)
+    + `</div>`;
+}
+
+/* Здоровье, болезни и следы — один трекер без повторов.
+   Одна травма приходит сразу из трёх мест: модель пишет её в «Здоровье» или
+   «Болезни и травмы», в «Следы на теле», а HUD ещё и помнит след из прошлых
+   ходов под старым названием. Сливаем в одну карточку.
+   Заживление: срок следа отсчитываем по времени сюжета от самого раннего
+   появления травмы в ЛЮБОМ из полей — это точнее процента, который модель
+   пишет от хода к ходу. Процент модели берём, когда срока нет, дата сцены не
+   распознана или срок уже вышел, а модель всё ещё пишет травму — значит,
+   срок занизили.
+   Вне близости следы показываются внутри «Здоровья»; во время сцены — своей
+   строкой «Следы на теле», как часть закрытой части. */
+function собратьЗдоровье(о, вБлизости) {
+  const { текст, список: болезни } = болезниВладельца(о);
+  const следы = активныеСледы(полеОбъекта(о, 'Следы на теле', 'Mrk'), о);
+  const момент = моментВладельца(о);
+  const прошлое = историяВладельца(о);
+  const одиночные = [];
+  for (const б of болезни) {
+    const i = следы.findIndex(с => тотЖеВред(с, б));
+    if (i < 0) { одиночные.push(б); continue; }
+    const с = следы[i];
+    let начало = с.начало ?? null;
+    for (const х of прошлое) {
+      const там = болезниВладельца(х.данные).список.some(p => тотЖеВред(p, б))
+        || разобратьСледы(полеОбъекта(х.данные, 'Следы на теле', 'Mrk')).some(p => тотЖеВред(p, с));
+      if (!там) break;
+      if (Number.isFinite(х.момент) && (начало === null || х.момент < начало)) начало = х.момент;
+    }
+    const слитый = { ...с, изПамяти: false, стадия: б.стадия, симптомы: б.симптомы, лечение: б.лечение, выздоровление: б.выздоровление };
+    if (с.срокЧасов && момент !== null && начало !== null) {
+      const осталось = с.срокЧасов - Math.max(0, (момент - начало) / 3600000);
+      if (осталось > 0) слитый.осталосьЧ = осталось;
+      else Object.assign(слитый, { срокЧасов: null, осталосьЧ: null, осталось: null });
+    }
+    следы[i] = слитый;
+  }
+  const списокСледов = следы.length ? `<div class="hud-marks">${следы.map(карточкаСледа).join('')}</div>` : '';
+  const карточки = (одиночные.length ? `<div class="hud-ill-list">${одиночные.map(карточкаБолезни).join('')}</div>` : '')
+    + (вБлизости ? '' : списокСледов);
+  return { текст, карточки, следы: вБлизости ? списокСледов : '' };
+}
+
+// Строка «Здоровье»: одна фраза — как раньше, с карточками — во всю ширину.
+function строкаЗдоровья(з, класс, значок) {
+  if (!з.текст && !з.карточки) return '';
+  if (!з.карточки) return `<div class="${класс}"><span class="hud-key">${значок}Здоровье:</span> <span class="hud-value">${applyTooltips(з.текст)}</span></div>`;
+  return `<div class="${класс} full-width"><span class="hud-key">${значок}Здоровье:</span> <div class="hud-health">`
+    + (з.текст ? `<p class="hud-health-note">${applyTooltips(з.текст)}</p>` : '') + з.карточки + `</div></div>`;
 }
 
 // Беременность: срок шкалой на сорок недель с засечками триместров.
@@ -363,29 +466,33 @@ export function buildUserHTML(userData, uid, isChecked, characters) {
 
   const order = ['A', 'C', 'Ap', 'H', 'Ill', 'Mrk', 'Prg', 'Mns', 'Rel', 'L', 'UW'];
   let rows = '';
+  // Близость идёт, если у игрока заполнена своя NSFW-строка или у кого-то в
+  // сцене есть фаза. Тогда следы — своей строкой, иначе — внутри «Здоровья».
+  const вБлизости = Object.entries(userData).some(([k, v]) => (k === 'UW' || k.toLowerCase().includes('nsfw')) && !пустоеПоле(снятьЗаглушки(flattenFieldValue(v))))
+    || (Array.isArray(characters) ? characters : []).some(c => c && !пустоеПоле(полеОбъекта(c, 'Фаза близости', 'SS')));
+  let здоровье = null, здоровьеПоказано = false;
   order.forEach(shortKey => {
     const label = mapKey(shortKey); let value = null;
     for (const [k, v] of Object.entries(userData)) { if (k === shortKey || k.toLowerCase() === label.toLowerCase()) { value = v; break; } }
     value = снятьЗаглушки(flattenFieldValue(value));
     if ((!value || value.toLowerCase() === 'empty' || value.toLowerCase() === 'none') && shortKey !== 'Mrk') return;
-    
+
     let rowClass = 'hud-row hud-user-row';
     if (label.toLowerCase().includes('nsfw')) rowClass += ' full-width nsfw';
 
     // Значок берём из той же таблицы, что и карточка персонажа: поля
     // здесь те же самые, и разнобой бросался бы в глаза при переключении.
     const значок = значокПоля(label.toLowerCase());
-    if (label.toLowerCase() === 'отношения') {
+    if (shortKey === 'H' || shortKey === 'Ill' || shortKey === 'Mrk') {
+      if (!здоровье) здоровье = собратьЗдоровье(userData, вБлизости);
+      if (!здоровьеПоказано) { здоровьеПоказано = true; rows += строкаЗдоровья(здоровье, rowClass, значокПоля('здоровье')); }
+      if (shortKey === 'Mrk' && здоровье.следы) rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${здоровье.следы}</div>`;
+    } else if (label.toLowerCase() === 'отношения') {
       rows += `<div class="${rowClass}"><span class="hud-key">${значок}${escapeHtml(label)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill', false, 'отношения', лицоСобеседника)}</div></div>`;
     } else if (label.toLowerCase().includes('nsfw')) {
       rows += `<div class="${rowClass}"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>🔞</span></i> ${escapeHtml(надписьПоля(label))}:</span> <div class="hud-vertical-container hud-nsfw-list is-act">${buildPillList(value, 'hud-nsfw-pill')}</div></div>`;
-    } else if (label.toLowerCase() === 'болезни и травмы') {
-      rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}${escapeHtml(label)}:</span> <div class="hud-ill-list">${buildIllness(value)}</div></div>`;
     } else if (label.toLowerCase() === 'цикл') {
       rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}Менструальный цикл:</span> ${buildCycle(value)}</div>`;
-    } else if (label.toLowerCase() === 'следы на теле') {
-      const следы = buildMarks(value, userData);
-      if (следы) rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${следы}</div>`;
     } else if (label.toLowerCase() === 'беременность') {
       rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${buildPregnancy(value)}</div>`;
     } else {
@@ -408,6 +515,9 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
 
   // Фаза, поза, раунд и длительность рисуются одной полосой — один раз.
   let сценаПоказана = false;
+  // Здоровье, болезни и следы — один трекер, собирается один раз.
+  const вБлизости = !пустоеПоле(полеОбъекта(charData, 'Фаза близости', 'SS'));
+  let здоровье = null, здоровьеПоказано = false;
   // Следы на теле отслеживаются и после акта: строку проверяем, даже если
   // модель в этом ходу их не упомянула, — активные найдутся в прошлых ходах.
   const поляКарточки = 'Следы на теле' in charData ? charData : { ...charData, 'Следы на теле': '' };
@@ -466,10 +576,11 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
     } else if (lowerKey === 'звуки') {
       const облако = buildSounds(value);
       if (облако) html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${облако}</div>`;
-    } else if (lowerKey === 'следы на теле') {
+    } else if (lowerKey === 'здоровье' || lowerKey === 'болезни и травмы' || lowerKey === 'следы на теле') {
       // Сошедшие следы не показываем — строка может и не появиться.
-      const следы = buildMarks(value, charData);
-      if (следы) html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${следы}</div>`;
+      if (!здоровье) здоровье = собратьЗдоровье(charData, вБлизости);
+      if (!здоровьеПоказано) { здоровьеПоказано = true; html += строкаЗдоровья(здоровье, rowClass.replace(' full-width', ''), значокПоля('здоровье')); }
+      if (lowerKey === 'следы на теле' && здоровье.следы) html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${здоровье.следы}</div>`;
     } else if (lowerKey === 'цикл') {
       html += `<div class="${rowClass}"><span class="hud-key">${icon}Менструальный цикл:</span> ${buildCycle(value)}</div>`;
     } else if (lowerKey === 'карта тела') {
@@ -477,8 +588,6 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       // Выключено в настройках — прежний список зон со шкалами.
       const карта = settings.enableHeatMap !== false ? buildHeatMap(value, charData) : '';
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${карта || `<div class="hud-bodymap">${buildBodyMap(value)}</div>`}</div>`;
-    } else if (lowerKey === 'болезни и травмы') {
-      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-ill-list">${buildIllness(value)}</div></div>`;
     } else if (lowerKey === 'беременность') {
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${buildPregnancy(value)}</div>`;
     } else if (lowerKey === 'ключ') {

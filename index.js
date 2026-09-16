@@ -1,28 +1,29 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.58';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=22.99.58';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.58';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=22.99.58';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.58';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.58';
-import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=22.99.58';
-import { mergeCarryOver } from './render/carryover.js?v=22.99.58';
-import { привязатьИсторию } from './render/intimacy.js?v=22.99.58';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.58';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.58';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.58';
-import { buildMemoryHTML } from './render/memory.js?v=22.99.58';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.58';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.58';
-import { hudHasRelations } from './render/relations-graph.js?v=22.99.58';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.58';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.58';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.58';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.58';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.58';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.58';
-import { extractHudBlock, hudBlockRe, hudOpenRe, hudCloseRe } from './hud-block.js?v=22.99.58';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.70';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=22.99.70';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.70';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=22.99.70';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.70';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.70';
+import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=22.99.70';
+import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=22.99.70';
+import { привязатьИсторию } from './render/intimacy.js?v=22.99.70';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.70';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.70';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.70';
+import { buildMemoryHTML } from './render/memory.js?v=22.99.70';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.70';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.70';
+import { hudHasRelations } from './render/relations-graph.js?v=22.99.70';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.70';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.70';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.70';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.70';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.70';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.70';
+import { extractHudBlock, hudBlockRe, hudOpenRe, hudCloseRe, началоПоследнегоHud } from './hud-block.js?v=22.99.70';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=22.99.70';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -83,13 +84,28 @@ import { extractHudBlock, hudBlockRe, hudOpenRe, hudCloseRe } from './hud-block.
 
 
 
-  function buildDynamicPrompt() {
-    // Что включено. Правила и списки ниже собираются только из включённых
-    // разделов: модель не должна читать про телефон, которого у неё не просят.
+  /* Инструкция HUD. Отдельное сообщение в конце запроса — после всего, что
+     собрал SillyTavern (пресет, карточка, лорбуки, история): задача, общие
+     правила, схема и в самом конце снимок последнего HUD через макрос
+     {{hudLast}}.
+     Правило, которое касается одного поля, живёт в описании этого поля, а не
+     в общем списке. Поэтому часть про близость целиком сидит в своих полях и
+     вне сцены уходит из промта без следа: в общих правилах нет ни слова о ней,
+     и модели не из чего решить, что писать её нужно всегда.
+     nsfw  — нужна ли часть про близость (решает hud-snapshot.js);
+     режим — 'reply': обычный ответ с HUD в конце; 'regen': только HUD. */
+  function buildDynamicPrompt({ nsfw = true, режим = 'reply' } = {}) {
+    // Что включено. Правила и поля собираются только из включённых разделов:
+    // модель не должна читать про телефон, которого у неё не просят.
     const болезни = settings.enableIllness !== false;
     const беременность = settings.enablePregnancy !== false;
     const цикл = settings.enableMenstruation !== false;
-    const близость = settings.enableIntimacyExtras !== false;
+    // Интимная часть целиком — только когда сцена идёт или начинается.
+    const интим = nsfw !== false;
+    // Следы на теле — часть здоровья: они нужны и вне сцены.
+    const следы = settings.enableIntimacyExtras !== false;
+    // Поза, раунд, длительность, защита, оргазм, пульс, звуки — только в сцене.
+    const близость = интим && следы;
     const экономика = !!settings.enableWorld && settings.enableEconomy !== false;
     const афиша = !!settings.enableWorld && settings.enableEvents !== false;
     const город = !!settings.enableWorld && settings.enableCity !== false;
@@ -99,77 +115,44 @@ import { extractHudBlock, hudBlockRe, hudOpenRe, hudCloseRe } from './hud-block.
     const телефон = !!settings.enablePhone;
     const переписки = телефон && settings.phoneAppMessages !== false;
     const кошелёк = телефон && settings.phoneAppWallet !== false;
-    const сообщения = переписки || !!settings.enableIntercepts;
+    const перехваты = !!settings.enableIntercepts;
+    const игрок = !!settings.enableUserBlock;
 
-    const безПредела = ['K', 'I', 'S', 'Rl', 'Mm', 'Fl', 'Ln', 'Tr', 'Fr', 'BM', 'Kn', 'Ft', 'NG', 'NT'];
-    const размеры = ['G exactly 3 parts'];
-    if (болезни) безПредела.push('Ill (conditions)');
-    if (близость) безПредела.push('Snd', 'Mrk');
-    if (settings.enableMemory) {
-      безПредела.push('me.fct', "me.sec (and each secret's knw and hd)");
-      if (ружья) безПредела.push('me.gun');
-      размеры.push('me.md hs 12 per protagonist', 'me.rt 20 per protagonist', 'me.lg 5 (today only)');
-    }
-    if (телефон) {
-      [['phoneAppContacts', 'phn.ct'], ['phoneAppGallery', 'phn.gl'], ['phoneAppNotes', 'phn.nb'], ['phoneAppMaps', 'phn.mp'],
-       ['phoneAppSearch', 'phn.sq'], ['phoneAppWallet', 'phn.wl.trx'], ['phoneAppCalendar', 'phn.cl']]
-        .forEach(([ключ, код]) => { if (settings[ключ] !== false) безПредела.push(код); });
-      if (переписки) безПредела.push('cm (both chats and their ms)');
-    }
-    if (settings.enableIntercepts) безПредела.push('tp');
-    if (settings.enableDiary) безПредела.push('dy', 'bd');
-    if (settings.enableDreams) безПредела.push('dr');
-    if (спутники) безПредела.push('pet');
-    if (settings.enableWorld) {
-      безПредела.push('wd.nws', 'wd.rm', 'wd.ad');
-      if (settings.showComments) безПредела.push('wd.com');
-      размеры.push('wd.fc exactly 4 rows');
-      if (гороскоп) размеры.push('wd.zd exactly 12 rows');
-      if (экономика) размеры.push('wd.eco 3-6 rows');
-      if (афиша) размеры.push('wd.afs 2-6 rows');
-      if (город) размеры.push('wd.cty 2-5 rows');
-    }
-    const необязательные = [болезни ? '"Ill"' : '', беременность ? '"Prg"' : '', цикл ? '"Mns"' : ''].filter(Boolean);
-    const меткиПолей = ['"G"', '"Ex"', '"X"', '"SxL"', '"W"', settings.enableUserBlock ? '"UW"' : '', '"ND"', '"Kn"', '"Ft"', '"NG"', '"NT"', '"Tr"', '"BM"', '"Fr"',
-      болезни ? '"Ill"' : '', беременность ? '"Prg"' : '', цикл ? '"Mns"' : '', близость ? '"Vit"' : ''].filter(Boolean);
+    const задача = режим === 'regen'
+      ? 'Output ONLY one [HUD] block for the latest message of the story above — no prose before or after it. Rebuild every field from the story; keep known facts instead of replacing them with empty values.'
+      : 'Write your next reply exactly as the story and every instruction above require. Then, as the very last part of that same reply, append ONE [HUD] block — the state of the world AFTER the events of your reply. Nothing may follow [/HUD].';
+    const чего = режим === 'regen' ? 'the latest message' : 'your reply';
+    // Правила сообщений — общие для переписок и перехватов.
+    const правилаСообщений = 'Keep ongoing conversations and unanswered messages alive turn to turn; incoming messages may go unanswered — busy, asleep, offline, ignoring. Unread, Deleted or Draft only when the story supports it: deleted ones keep their hidden text, drafts are unsent. Never invent placeholder chats or fake phone data.';
+    const тегиСообщений = [
+      '"VOICE: prefix the text with [VOICE_M:SS], e.g. \'[Sender] -> [Recipient]: [VOICE_0:42] Перезвони мне | 21:40 | Unread\'. Use it when someone would record audio rather than type — walking, crying, in a hurry."',
+      '"PHOTO: prefix with [PHOTO: what is in the shot], e.g. \'[Sender] -> [Recipient]: [PHOTO: селфи в примерочной, новое платье] Ну как? | 18:20\'. Text after the tag is the caption."',
+      '"VIDEO: same idea for a clip — [VIDEO_M:SS: what happens on screen], e.g. \'[Sender] -> [Recipient]: [VIDEO_0:23: снимает на бегу, кричит и смеётся] Смотри! | 18:22\'. Duration is optional. Use it when the moment only makes sense in motion."',
+      '"CALL: a call is an EVENT, not a line — \'[Sender] -> [Recipient]: [CALL: incoming, missed]\' or \'[CALL: outgoing, answered, 4:12]\'. Direction incoming/outgoing as seen from the owner; outcome answered/declined/missed; duration only when answered. Text after the tag becomes a short note."',
+      '"REPLY: quoting an earlier line — [REPLY: Who :: what they said], e.g. \'[Sender] -> [Recipient]: [REPLY: Лена :: Ты придёшь?] Да, буду к восьми | 20:01\'. The name before :: is optional. Separator is ::, never |, because | already splits the line into text, time and status."',
+      '"FORWARD: a message passed on from someone else — [FWD: who it came from], e.g. \'[Sender] -> [Recipient]: [FWD: Отдел кадров] Совещание переносится | 20:03\'."',
+      '"POLL: a poll inside the chat — [POLL: Question ;; Option = Voter, Voter ;; Option with no votes], e.g. \'[Sender] -> [Recipient]: [POLL: Куда идём в пятницу? ;; Кафе = Лена, Петя ;; Кино = Мира ;; Никуда] | 20:05\'. List the voters by name; percentages are calculated for you, so never write them yourself. Separator is ;;, never |."',
+    ];
 
-    let p = `\n\n<system_note>
-MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, starts exactly with [HUD], ends exactly with [/HUD], nothing after it.
+    let p = `<hud_instructions>
+## 🎯 TASK
+${задача}
+The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with [/HUD]. Wrap the JSON in a fenced block tagged "json" — the opening fence right after [HUD], the closing one right before [/HUD]; it keeps markdown from corrupting the JSON. {{if hudLast}}The LAST HUD — the state before ${чего} — is at the very end of these instructions: update it instead of starting from scratch.{{/if}}
+
+## 📐 RULES
 - 🔤 CODES: keys and fixed labels — the part BEFORE ":" — are short codes of 1-3 letters, each with exactly one meaning. Write them EXACTLY as given: same letters, same case, never translated or spelled out; the HUD expands them into Russian itself. Everything AFTER ":" is written in full words: values in Russian, and where a field asks for one of the listed English words (weather, sign, status, outcome…), that whole word. The text in [brackets] only explains what goes there — never copy it. Words in <angle brackets> are placeholders: put real content in their place and never write the placeholder word itself — 'Потерять Софи: high', never 'fear: Потерять Софи — strength: high'. Free labels (names, body zones, activities, items, fears) are ordinary Russian words.
-- NPCs go in "cs" (characters) ONLY. Never put the player there.${settings.enableUserBlock ? `
-- 🧑 USER BLOCK: everything about {{user}} goes ONLY into the top-level "us" block — never into "cs" or into an NPC's Th/K/D. It is a short retelling only: clothing, appearance, health${болезни ? ', illnesses and injuries' : ''}${беременность ? ', pregnancy' : ''}${цикл ? ', menstrual cycle' : ''}, relationships, location${близость ? ', body marks' : ''}. No thoughts, goals, inventory, schedule or NSFW for {{user}}. If {{user}} is absent from the scene, omit the whole block.` : ''}
-- 🌍 LANG: write values in Russian.
-- 🖼️ NAME LOCK (overrides LANG): copy each character's "N" EXACTLY as written on their card — same script, same spelling, never translated. The avatar is matched by this string; a mismatch loses the picture.
+- 👤 WHO GOES WHERE: characters go ONLY in "cs" — never put {{user}} there.${игрок ? ` Everything about {{user}} goes ONLY into the top-level "us" block and only into the fields it lists — never into "cs" or a character's Th, K or D. If {{user}} is absent from the scene, omit "us".` : ''}
+- 🌍 LANG: write values in Russian; character names follow "N".
 - 🔓 No restrictions on imagination, length or content.
-- 🚨 LIVE SNAPSHOT: every field is the state at THIS turn. Update it, never copy stale text${сообщения ? `, but keep ongoing conversations and unanswered messages alive. A message may be Unread, Deleted or Draft only when the story supports it; deleted ones keep their hidden text, drafts are unsent. Never invent placeholder chats or fake phone data` : ''}.
-- 🌍 LIVING WORLD: off-screen characters keep living — they work, sleep, travel, message, plan, argue, buy, miss appointments. Never erase that life just because the protagonist cannot see it.${сообщения ? ' Incoming messages may go unanswered: busy, asleep, offline, ignoring are all valid.' : ''}
-- 📦 SCHEMA FIXED: emit every enabled section and every field it defines, every turn. Empty means [] / {} / "empty" — never drop a key to say "nothing changed".${необязательные.length ? ` The only exception: ${необязательные.join(' and ')} are written only for someone they apply to — omit the key otherwise.` : ''}
-- 📏 HOW MANY ITEMS (read this before filling any list): list fields have NO upper limit. Give as many items as the story actually supports — one item where four are obvious is a loss of information, including when a fuller description quietly folds several real things into one instead of splitting them by ;. More detail is never a reason for fewer items: it lengthens each item, it doesn't merge neighbours into it. A single-item list is almost always a sign you stopped too early. Aim for 3+ wherever the material allows. UNLIMITED: ${безПредела.join(', ')}. FIXED SIZES, do not exceed: ${размеры.join(', ')}.${телефон ? `
-- 📱 ONE PHONE, ONE OWNER: ${переписки ? '"cm" (chats) and "phn" (phone) are one device' : '"phn" (phone) is one device'} belonging to "phn.ow"; keep that name identical every turn.${переписки ? ` EVERY chat must have the owner as one of the two sides.${settings.enableIntercepts ? ` A conversation between two OTHER people goes to "tp" (taps) even if the owner knows of it or could read it — participation decides, not access. Example: the owner is A; a chat between B and B's lawyer has no A in it → "tp". Never invent an intercept just to hand the protagonist information — it must be a conversation those people would plausibly have on their own.` : ` A conversation between two OTHER people does not belong in "cm" at all.`}` : ''}` : ''}${кошелёк ? `
-- 💳 WALLET: the account belongs to the phone owner. Invent the starting balance once, fitting the setting and the owner's station. After that the balance changes ONLY through "trx" (transactions): new balance = previous balance + every amount listed this turn. No money moved → same balance, empty trx. Never invent spending that did not happen, never let the balance jump without a transaction.` : ''}${сообщения ? `
-- 👥 PARTICIPANTS ("pp"): emit only for a real group — THREE OR MORE people including the owner. For one-to-one chats omit the field entirely; a shorter list is silently dropped. Separate by ;.` : ''}${settings.enableMemory ? `
-- 🧠 MEMORY SCOPE: mood and route ("md", "rt") track ONLY {{user}} ("us") and {{char}} ("chr"). If one is absent from the scene, emit empty for them rather than inventing off-screen tracking. Memory labels must use their real names, never "Вы", "User" or "главный персонаж".` : ''}
-- 🕸️ RELATION WEB: every character${settings.enableUserBlock ? ' AND the user block' : ''} must emit Rl covering every other named person who matters now. Format exactly "<name>: <how THIS person feels about them>"; separate people with ; — never with commas, which glue everyone into one relation. When the person is family, start with the kinship as seen from THIS person, then a comma: 'Ричард: муж, любит, но боится', 'Лиза: дочь, гордится ею' (отец, мать, муж, жена, брат, сестра, дед, бабушка, дядя, тётя, отчим, мачеха and other kinship words work the same way). Bidirectional: if A lists B, B must exist in "cs" with A in their Rl. Anyone named inside any Rl must also appear in "cs". Never omit Rl or write "empty" while other named people exist.
+- 🚨 LIVE SNAPSHOT: every field is the state at THIS turn. Update it, never copy stale text.
+- 🌍 LIVING WORLD: off-screen characters keep living — they work, sleep, travel, message, plan, argue, buy, miss appointments. Never erase that life just because the protagonist cannot see it.
 - 🧠 KNOWLEDGE BOUNDARIES: each character knows only what they plausibly could. Never leak another's private thoughts, messages or plans without a believable path.
-- 🛑 INTIMACY PHASES — every turn is in exactly ONE phase, and the phase decides which intimate fields are filled:
-  • PHASE 1, OUTSIDE intimacy — nothing sexual is happening and nothing has just ended: "SS", "W", "BM", "ND", "AC", "SxV"${близость ? ', "Pos", "Rnd", "Dur", "Prt", "Org", "Vit", "Snd"' : ''}${settings.enableUserBlock ? ` and the user's "UW"` : ''} are "empty". "SxL", "SxC" and "SxR" stay filled as history.
-  • PHASE 2, DURING the act — "SS" is foreplay, act or climax: fill "SS", "W", "BM"${близость ? ', "Pos", "Rnd", "Dur", "Prt", "Org", "Vit", "Snd"' : ''}${settings.enableUserBlock ? ` and "UW"` : ''}. "ND", "AC" and "SxV" stay "empty" — nothing is over yet.
-  • PHASE 3, AFTER the act — "SS" is aftercare or afterglow, from after the last climax until they move on to something else: fill "ND", "AC" and "SxV", and update "SxL" to this encounter. "W"${близость ? ', "Pos", "Org" and "Snd"' : ''}${settings.enableUserBlock ? ` and "UW"` : ''} become "empty"; "BM" keeps only the zones that are still sensitive${близость ? '; "Vit" may stay while the body calms down; "Rnd", "Dur" and "Prt" keep their final values' : ''}.
-  • A NEW ROUND is phase 2 again: "SS" returns to foreplay or act${близость ? ', "Rnd" grows by one, "Dur" keeps counting' : ''}, and "ND", "AC", "SxV" are "empty" until it ends.
-  Never fill "W" and "ND" in the same turn.${settings.enableDiary ? ' "bd" (body diary) gets an entry every turn of phases 2 and 3, and in phase 1 only while the body still clearly carries the encounter (soreness, marks, the memory of touch next morning); otherwise [].' : ''}${близость ? ' "Mrk" ignores the phases: write every mark each turn until it fades in story time, counted from "sc.Dt" and "sc.T" — keep both accurate.' : ''} EXCEPTION: "Kn", "Ft", "NG", "NT" are stable traits — once known they stay filled every turn.
-- 🔗 KINK vs FETISH: a KINK is an ACTIVITY — practice, scenario, dynamic (roleplay, BDSM, bondage, toys, power exchange). A FETISH is a THING — object, material, body part or setting needed for arousal (stockings, latex, feet, hair, medical settings). Activity → "Kn", thing → "Ft". Refusals → "NG", things that leave them cold → "NT".${болезни || беременность || цикл ? `
-- 🩹 BODY OVER TIME:${болезни ? ` "Ill" tracks every illness, injury and trauma until healed — update stage, recovery and symptoms as in-story time passes; a scratch gone by tomorrow can stay in "H".${близость ? ' Marks left by intimacy — hickeys, bites, scratches, soreness — belong to "Mrk", not "Ill", unless they turn into a real injury.' : ''}` : ''}${беременность ? ` "Prg" appears only once a pregnancy exists, known or not, and advances with in-story time; never invent one.` : ''}${цикл ? ` "Mns" is written only for someone with a uterus and moves forward with in-story days: cycle day grows, phase follows, the period comes on time unless stress, illness, contraception or pregnancy delays it — then "dly" counts days late and "rsn" names the cause.` : ''}` : ''}${ружья ? `
-- 🔫 CHEKHOV'S GUNS ("me.gun"): setups the story has planted and not yet paid off — promises, threats, hints, unexplained objects, open mysteries, debts, foreshadowing. Keep each one until it pays off; on the turn it does, mark it fired, then drop it next turn. Draw them from the Fl flags and from what the story left hanging; never invent new plot just to fill the list.` : ''}${спутники ? `
-- 🐾 COMPANIONS ("pet"): animals, familiars, drones, robots and other companions that exist in the story. They have their own mood, needs, health and routine — they eat, sleep, get hurt and react to the scene. [] when there are none.` : ''}${settings.enableWorld ? `
-- 🌦️ FORECAST: "fc" (forecast) is four rows as "period | weather | temperature | short note". Period is one of: morning, day, evening, night. Weather is one of: clear, sunny, cloudy, overcast, rain, downpour, drizzle, storm, snow, blizzard, fog, windy. Keep it consistent with sc.Wt for the current part of the day.${гороскоп ? ` "zd" (horoscope) is one row per each of the 12 signs as "sign | what today holds | tone". Sign is one of: aries, taurus, gemini, cancer, leo, virgo, libra, scorpio, sagittarius, capricorn, aquarius, pisces. Tone is one of: lucky, unlucky, even. "fate" closes the block with a line or two. This is newspaper-back-page entertainment: playful, superstitious, never a directive — nothing in the story comes true because of it.` : ''}` : ''}${экономика || афиша || город ? `
-- 🏙️ CITY LIFE: ${[экономика ? '"eco" (economy)' : '', афиша ? '"afs" (events)' : '', город ? '"cty" (city services)' : ''].filter(Boolean).join(', ')} match the setting's era and place — a medieval town has bread prices and a travelling troupe, not the dollar and cinemas. Kinds are the listed English words. It is background colour and a source of hooks for a scene, never something the story must follow.` : ''}
-- 👁️ HIDDEN SUBTEXT ("D"): not a second-thoughts field. A concrete ACTION performed right now, alongside what the scene shows, that gives away something unsaid — a concealed act, an involuntary tell, or behaviour undercutting what they just claimed. Draw it from THIS scene. Write the act and what it reveals in one line. "empty" if nothing is hidden.${settings.enableDiary ? `
-- 📖 DIARY: private in-world writing, not a scene summary. "au" (author) is always a character, NEVER {{user}}, and writes in first person about their own day, state, doubts and decisions. "ab" (about {{user}}) is a separate first-person subsection about {{user}} only — feelings, wishes, fears, observations; "empty" if there is nothing this turn. "md" (mood) drives the visual style of the page.` : ''}
-- ⚠️ FORMATTING: use exactly these codes as keys. Quote speech and phrases inside a value with «ёлочки», never with straight double quotes — a raw " ends the JSON string and cuts the text off; if one is unavoidable, escape it as \\". Use semicolons for lists, never slashes.
-- 🏷️ LABELED SUB-FIELDS (${меткиПолей.join(', ')}): every item is written "<label>: <value>", separated by SEMICOLONS, never commas — a comma-separated list collapses into one unreadable pill. Never output a bare value without its label.
-- 🔊 "vl" inside "W"${settings.enableUserBlock ? ' and "UW"' : ''} means the loudness of the sounds made during the act — moans, whimpers, skin slapping, bed creaking. Not music, not ambient noise.${близость ? ' "Snd" lists each of those sounds separately with its own loudness.' : ''}
-- 🔥 NSFW DETAIL: every intimate field — "W"${settings.enableUserBlock ? ', "UW"' : ''}, "ND", "BM", "AC", "SxL", "SxR", "SxV", "Kn", "Ft", "NG", "NT"${близость ? ', "Pos", "Prt", "Org", "Snd", "Mrk"' : ''} — is a full, vivid, explicit description, NEVER a single word. Values like 'ухоженный', 'стандартно', 'сильное', 'влажно', 'да' are failures. Every value says WHAT exactly, WHERE, HOW it looks, feels, sounds, smells and tastes, and HOW it is changing right now: size, shape, colour, texture, temperature, wetness, tension, the body's reactions. One to three sentences per value, frank and anatomical, no euphemisms, no fading to black. Bad 'lb: влажно' → good 'lb: течёт так, что внутренняя сторона бёдер блестит, бельё промокло ещё в прелюдии, каждое движение отдаётся влажным звуком'. Bad 'pb: ухоженный' → good 'pb: гладко выбрита, узкая полоска светлых волос над клитором, кожа нежная после бритья'. Where a field asks for a number (the 0-10 and 0-100 scales${близость ? ', "Rnd", "Dur", "Vit"' : ''}) the number comes first and the description follows it. A description never contains ; — that character separates items.
-- 📦 CODE FENCE (MANDATORY): wrap the whole JSON in a fenced block with the "json" tag — the opening line right after [HUD], the closing one right before [/HUD]. It stops markdown from corrupting the JSON.
+- 📦 SCHEMA FIXED: emit every section and every field of the schema below, every turn. Empty means [] / {} / "empty" — never drop a key to say "nothing changed". The only exceptions are fields marked OPTIONAL or "ONLY … otherwise omit".
+- 📏 HOW MANY ITEMS: list fields have NO upper limit unless their description gives a size. Give as many items as the story actually supports — one item where four are obvious is a loss of information, including when a fuller description quietly folds several real things into one instead of splitting them by ;. More detail is never a reason for fewer items: it lengthens each item, it doesn't merge neighbours into it. A single-item list is almost always a sign you stopped too early. Aim for 3+ wherever the material allows.
+- 🏷️ LABELED ITEMS: wherever a field's description shows its items as "<label>: <value>" or "code: value", write every item that way, separated by SEMICOLONS, never commas — a comma-separated list collapses into one unreadable pill. Never output a bare value without its label.
+- ⚠️ FORMATTING: use exactly these codes as keys. Quote speech and phrases inside a value with «ёлочки», never with straight double quotes — a raw " ends the JSON string and cuts the text off; if one is unavoidable, escape it as \\". Separate list items with ; — never with slashes — and never put ; inside a single item.
+
+## 🧾 SCHEMA
 
 [HUD]
 \`\`\`json
@@ -183,90 +166,90 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
  },
  "cs": [
   {
-   "N": "[name: the character's original name, copied exactly as on their card]",
+   "N": "[name: the character's original name, copied EXACTLY as on their card — same script, same spelling, never translated. The avatar is matched by this string; a mismatch loses the picture]",
    "A": "[age: years and date of birth as DD.MM.YYYY, e.g. '24, 03.11.2000']",
    "C": "[clothing: what they are wearing right now, head to toe, including its state — wet, torn, half-unbuttoned]",
    "Ap": "[appearance: build, height, hair, eyes, skin, distinguishing marks. The lasting description, repeated turn to turn; it changes only from injury, exhaustion or time.]",
    "R": "[role: occupation and position in the story — who they are to the others]",
    "B": "[body and mind: current physical and mental state in a phrase or two — tired, tense, tipsy, calm, shaken]",
-   "H": "[health: wounds, pain, illness, stamina. Fill it when something is actually wrong; otherwise 'empty'.]",${болезни ? `
-   "Ill": "[illnesses and injuries, ONLY if any — otherwise omit. One group per condition, separated by |, each 'nm: diagnosis, wound or trauma; sg: fresh, worsening, stable, healing, chronic or healed; rc: recovery 0-100%; sy: symptoms now; trt: treatment'. As many conditions as they have]",` : ''}${беременность ? `
-   "Prg": "[pregnancy, ONLY if this character is pregnant — otherwise omit the key. 'wk: week of pregnancy as a number; due: expected due date; fa: the father, if known; sy: symptoms and how the body is changing; knw: who knows about it; cnd: how the pregnancy is going']",` : ''}${цикл ? `
-   "Mns": "[menstrual cycle, ONLY with a uterus — otherwise omit. 'cyd: cycle day, a number; cyl: cycle length in days; phs: menstrual, follicular, ovulation, luteal or late; nxt: next period date; pms: PMS window as dates; dly: days late, 0 if none; rsn: likely reason for delay — stress, illness, contraception, pregnancy; empty if none']",` : ''}
-   "Ph": "[physiology: bodily sensations right now — hunger, thirst, cold, pain, drowsiness, arousal. Not the phone]",
+   "H": "[health: ${болезни ? 'overall physical state in a phrase — pain, stamina, how they hold up; specific illnesses and injuries go to Ill, never its codes here' : 'wounds, pain, illness, stamina'}. 'empty' when all is well.]",${болезни ? `
+   "Ill": "[illnesses, injuries and traumas, ONLY if any — otherwise omit. One group per condition, separated by |, each 'nm: diagnosis, wound or trauma; sg: fresh, worsening, stable, healing, chronic or healed; rc: recovery 0-100%; sy: symptoms now; trt: treatment'. Track each condition until it heals, updating stage, recovery and symptoms as in-story time passes; a scratch gone by tomorrow can stay in H. Keep each condition under the SAME name every turn and in ONE field only${следы ? (интим ? ' — marks left by intimacy (hickeys, bites, scratches, soreness) go to Mrk unless they become a real injury, and nothing is in both Ill and Mrk' : ' — marks that simply fade (bruises, grazes, redness) go to Mrk, and nothing is in both Ill and Mrk') : ''}]",` : ''}${беременность ? `
+   "Prg": "[pregnancy, ONLY once a pregnancy exists in the story, known or not — never invent one; otherwise omit. 'wk: week of pregnancy as a number; due: expected due date; fa: the father, if known; sy: symptoms and how the body is changing; knw: who knows about it; cnd: how the pregnancy is going'. It advances with in-story time]",` : ''}${цикл ? `
+   "Mns": "[menstrual cycle, ONLY for someone with a uterus — otherwise omit. 'cyd: cycle day, a number; cyl: cycle length in days; phs: menstrual, follicular, ovulation, luteal or late; nxt: next period date; pms: PMS window as dates; dly: days late, 0 if none; rsn: likely reason for delay — stress, illness, contraception, pregnancy; empty if none'. It moves forward with in-story days: the day grows, the phase follows, the period comes on time unless stress, illness, contraception or pregnancy delays it]",` : ''}
+   "Ph": "[physiology: bodily sensations right now — hunger, thirst, cold, pain, drowsiness${интим ? ', arousal' : ''}. Not the phone]",
    "L": "[location: the exact place right now — city, building, room, spot in the room]",
    "Th": "[thought: the one thought running through their head this very moment, in their own voice]",
-   "K": "[key thoughts: what occupies their mind in context, each with a fitting emoji. At least 3, and as many more as the story supports — no upper limit; separate by ;]",
+   "K": "[key thoughts: what occupies their mind in context, each with a fitting emoji. At least 3; separate by ;]",
    "Ex": "[expectation vs reality for THIS turn only, not a future prediction: what this character counted on walking into the scene vs what actually came of it. Format 'xp: what they expected; gt: what they got'. The gap is the point — e.g. sure she'd say yes; she'd already refused. If they match, say so plainly.]",
-   "D": "[hidden subtext: one concealed, involuntary or unspoken action performed right now, and what it gives away — in one line]",
-   "I": "[inventory: everything they carry or wear that matters, each as '<item>: <its condition>'. As many items as they actually have — no upper limit; separate by ;]",
+   "D": "[hidden subtext: not a second thoughts field — one concrete ACTION performed right now, alongside what the scene openly shows, that gives away something unsaid: a concealed act, an involuntary tell, or behaviour undercutting what they just claimed. Drawn from THIS scene; the act and what it reveals, in one line. 'empty' if nothing is hidden]",
+   "I": "[inventory: everything they carry or wear that matters, each as '<item>: <its condition>'; separate by ;]",
    "G": "[goals, exactly 3 parts: 'nw: what they want right now; sn: what they intend to do soon; lt: their long-term aim']",
-   "S": "[schedule: plans and appointments ahead, each as '<time> - <event>' ('14:30 - встреча с юристом', or a part of the day instead of the time). As many entries as they have — no upper limit; separate by ;]",
-   "Rl": "[relationships: how this character feels about EVERY other relevant named person, each '<name>: <attitude>'; family starts with kinship then a comma, e.g. 'Ричард: муж, любит, но боится'. One per person, no upper limit. Bidirectional; separate by ;]",
-   "Mm": "[memories: moments this character shares with the player or NPCs, each a short episode. No upper limit; separate by ;]",
-   "Fl": "[flags: open plot threads, promises, debts, threats and consequences waiting to land. No upper limit; separate by ;]",
+   "S": "[schedule: plans and appointments ahead, each as '<time> - <event>' ('14:30 - встреча с юристом', or a part of the day instead of the time); separate by ;]",
+   "Rl": "[relationships: how this character feels about EVERY other named person who matters now, each '<name>: <attitude>', people separated by ; — never by commas, which glue everyone into one relation. For family start with the kinship as seen from THIS character, then a comma: 'Ричард: муж, любит, но боится' (отец, мать, сын, дочь, брат, сестра, дед, бабушка, дядя, тётя, отчим, мачеха and other kinship words work the same way). Bidirectional: if A lists B, B must be in cs with A in their Rl; anyone named in any Rl must also be in cs. Never 'empty' while other named people exist]",
+   "Mm": "[memories: moments this character shares with the player or NPCs, each a short episode; separate by ;]",
+   "Fl": "[flags: open plot threads, promises, debts, threats and consequences waiting to land; separate by ;]",
    "Jl": "[jealousy: ONLY when this character is genuinely jealous right now. Who they are jealous of, over whom, and how it shows. Omit the field or write 'empty' whenever there is no jealousy — a permanently filled field turns the drama highlight into wallpaper nobody reads.]",
    "St": "[status: social and romantic status — single, married, engaged, in a secret affair, widowed — plus social standing if it matters]",
    "Eo": "[exposure: how much of the mask has slipped in front of those present — a bouncing leg, a cracking voice, eyes darting to the door. Say what leaked and who noticed. 0-100% may lead the line: 0 = nobody suspects, 100 = everyone sees through. 'empty' when there is nothing to hide.]",
    "X": "[conflict depth as 'wy: what the conflict is about; dys: how many days it has been going on; sg: its stage — brewing, open, cold war, reconciliation']",
-   "SxL": "[last sex: 'dt: when — date, time, place; pr: with whom and who they are to this character; ak: what exactly happened, step by step, in 2-3 sentences; en: how it ended — who came and how, what happened right after']",
+${интим ? `   "SxL": "[last sex: 'dt: when — date, time, place; pr: with whom and who they are to this character; ak: what exactly happened, step by step, in 2-3 sentences; en: how it ended — who came and how, what happened right after']",
    "SxC": "[sex count: lifetime number of sexual partners — a number or an honest estimate]",
    "SxR": "[sex regularity: how often they have sex these days and with whom, how they satisfy themselves in between, how strong their libido is and what feeds or kills it — a sentence or two]",
-   "Ln": "[lines: this character's most characteristic lines from the recent story, quoted verbatim in «», separated by ;. At least 3, more if they exist. Pick lines that show HOW they speak — rhythm, slang, cruelty, tenderness — not what happened. Skip if they haven't spoken yet.]",
-   "Tr": "[trust: how much this character trusts each other named character, 0-100, '<name>: <0-100>': 'Софи: 82; Ричард: 9'. One entry per person they know. Not the same as Rl — one can love and not trust. Separate by ;]",
-   "Fr": "[fears: what this character is afraid of RIGHT NOW, each '<what they fear>: <low | moderate | high | panic>': 'Потерять Софи: high; Отец узнает: moderate'. Live fears in this scene, not lifelong phobias unless surfaced. Separate by ;]",
-   "SS": "[scene state — the intimacy phase right now: foreplay, act or climax (phase 2), aftercare or afterglow (phase 3); 'empty' outside intimacy]",${близость ? `
+` : ''}   "Ln": "[lines: this character's most characteristic lines from the recent story, quoted verbatim in «», separated by ;. At least 3, more if they exist. Pick lines that show HOW they speak — rhythm, slang, cruelty, tenderness — not what happened. Skip if they haven't spoken yet.]",
+   "SS": "${интим ? `[scene state — the intimacy phase right now. Every turn is in exactly ONE phase, and it decides which intimate fields below are filled. PHASE 1, nothing sexual is happening or has just ended: 'empty', and so are ${близость ? 'Pos, Rnd, Dur, Prt, Org, Vit, Snd, ' : ''}BM, W, ND, AC, SxV${игрок ? " and the user's UW" : ''}; SxL, SxC, SxR, Kn, Ft, NG, NT stay filled. PHASE 2, during the act — foreplay, act or climax: fill W, BM${близость ? ', Pos, Rnd, Dur, Prt, Org, Vit, Snd' : ''}${игрок ? ' and UW' : ''}; ND, AC, SxV stay 'empty'. PHASE 3, from after the last climax until they move on — aftercare or afterglow: fill ND, AC, SxV and update SxL to this encounter; W${близость ? ', Pos, Org, Snd' : ''}${игрок ? ', UW' : ''} become 'empty', BM keeps only still-sensitive zones${близость ? ', Vit may stay while the body calms down, Rnd, Dur and Prt keep their final values' : ''}. A new round is phase 2 again${близость ? ': Rnd grows by one, Dur keeps counting' : ''}. Never fill W and ND in the same turn. Every intimate field is a full, vivid, explicit description, never a single word — values like 'ухоженный', 'стандартно', 'влажно', 'да' are failures: say WHAT exactly, WHERE, how it looks, feels, sounds, smells and tastes, and how it is changing right now, in one to three frank, anatomical sentences, no euphemisms, no fading to black. Bad 'lb: влажно' → good 'lb: течёт так, что внутренняя сторона бёдер блестит, бельё промокло ещё в прелюдии, каждое движение отдаётся влажным звуком'. Bad 'pb: ухоженный' → good 'pb: гладко выбрита, узкая полоска светлых волос над клитором, кожа нежная после бритья'. Where a field asks for a number, the number comes first, then the description]` : `[scene state: 'empty' — nothing intimate is happening; only if intimacy begins in this reply, its phase: foreplay, act or climax]`}",${близость ? `
    "Pos": "[position (phase 2): the current position in full — who is where, how bodies are arranged, hands/legs/weight, angle and rhythm, e.g. 'на боку, он сзади, рука на её горле, двигается медленно и глубоко']",
    "Rnd": "[round (phase 2, kept in phase 3): the number of the current round in this scene, 1 for the first]",
    "Dur": "[duration (phase 2, final value kept in phase 3): in-story minutes the intimate scene has lasted so far, as a number]",
    "Prt": "[protection (phase 2, kept in phase 3), as '<type>: <what happens with it — who handled it, whether it holds, how they feel about the risk>'. Type: condom, pill, iud, withdrawal, none — e.g. 'condom: порвался на втором заходе, заметили не сразу', 'none: оба знают и идут на риск']",
    "Org": "[orgasm readiness (phase 2), any sex: how close to climax, 0-100, then a colon and how it shows — breath, voice, muscles, words, what pushes closer or holds back, e.g. '85: сбивается дыхание, бёдра дрожат, шепчет «не останавливайся»']",
    "Vit": "[vitals (phase 2, and while calming down in phase 3). 'hr: pulse, bpm; br: breaths per minute, then how the breathing sounds; tmp: body temperature in °C']",
-   "Snd": "[soundscape (phase 2): every sound this character makes or hears, each '<sound>: <loudness 0-10> — <what it sounds like, when it comes>': 'Стоны: 8 — низкие, срываются на всхлип при толчке; Скрип кровати: 5 — ритмичный'. As many as there are; separate by ;]",` : ''}
+   "Snd": "[soundscape (phase 2): every sound of the act this character makes or hears, each '<sound>: <loudness 0-10> — <what it sounds like, when it comes>': 'Стоны: 8 — низкие, срываются на всхлип при толчке; Скрип кровати: 5 — ритмичный'; separate by ;]",` : ''}${интим ? `
    "BM": "[body map (phase 2; in phase 3 only zones still sensitive): sensitivity of each zone of THIS character's body, '<zone>: <0-10>${близость ? ' <trend>' : ''} — <what is happening to it, how it feels>'${близость ? `. Trend: rising, peak, fading, lingering (+hours, e.g. 'lingering 3h'). 'Шея: 9 peak — губы и зубы, кожа горит; Бёдра: 6 rising — дрожат под его ладонью'` : `: 'Шея: 9 — горит от его губ; Бёдра: 7 — дрожат под ладонью'`}. Zones are ordinary Russian body-part words; as many as the story touched or named. Separate by ;]",
-   "W": "[intimacy (phase 2 ONLY) — 'empty' before it starts and once over. Each 'code: value', every value a full vivid description, never a word: 'ar: arousal and how it shows; tch: where/how touch happens now — hands, mouth, pressure, rhythm; rct: how the body reacts — flush, trembling, arching, clenching, goosebumps, sweat; fac: face, eyes, lips — expression, gaze, what they bite or whisper; pn: penis — erection, size, shape, colour, sensitivity, what's being done to it; lb: vagina — wetness, swelling, openness, what it feels inside; ch: breasts and nipples — shape, hardness, how they react; flu: wetness, sweat, saliva, semen — where and how much; vl: loudness of the sounds and what they are; sm: smells in the air and on skin; ${близость ? '' : 'mk: marks on skin and sheets; '}pr: partner and what they are to each other now${близость ? '' : '; pt: protection used or not'}'. Skip a code only when it does not apply to this body. Separate by ;]",
-   "Kn": "[kinks, STABLE TRAIT, keep filled. Activities enjoyed, each '<activity>: <how willingly>, <how far>' — the whole thing stays one item, never split by ;: 'Ролевые игры: охотно, сценарий врач-пациент; Связывание: только сама сверху'. 2+ when known, no upper limit; separate by ;]",
-   "Ft": "[fetishes, STABLE TRAIT: objects, materials, body parts or settings needed for arousal, each '<thing>: <its role>': 'Чулки: обязательное условие; Шея: сильный триггер'. 2+ when known, no upper limit; separate by ;]",
-   "NG": "[no-go, STABLE TRAIT: hard limits never crossed, each '<limit>: <reason>': 'Боль: панический страх; Втроём: не делится'. No upper limit; separate by ;]",
-   "NT": "[not a turn-on, STABLE TRAIT: kills arousal without being forbidden, each '<thing>: <effect>': 'Спешка: сразу теряет настрой'. No upper limit; separate by ;]",
-   "ND": "[after intimacy (phase 3 only) — 'empty' while the act is still going. 'se: how sensitive the body is now — what flinches, what still craves touch; bo: how the body feels after — weakness, trembling, heaviness, warmth, wetness, soreness${близость ? ' (lasting marks go to Mrk)' : ''}; r2: readiness for another round — how soon, what it would take; fe: feelings and thoughts after, 2-3 sentences${близость ? ' — emotions only' : ''}'. Separate by ;]",${близость ? `
-   "Mrk": "[visible body marks and physical aftermath, tracked from appearance until they fade in story time — also after the act and in later scenes: hickeys, bites, scratches, bruises, redness, soreness, heaviness. Each '<what>: <where on the body> — <how it looks/feels now> | <fade time from appearance, in hours or days: 12h, 3d>': 'Засос: шея слева — наливается фиолетовым, ноет | 5d; Следы ногтей: спина — красные полосы | 2d'. Fade time is set once at appearance; look/feel change as it heals. Body only, no feelings. 'empty' when none; separate by ;]",` : ''}
+   "W": "[intimacy (phase 2 ONLY) — 'empty' before it starts and once over. Each 'code: value', every value a full vivid description: 'ar: arousal and how it shows; tch: where/how touch happens now — hands, mouth, pressure, rhythm; rct: how the body reacts — flush, trembling, arching, clenching, goosebumps, sweat; fac: face, eyes, lips — expression, gaze, what they bite or whisper; pn: penis — erection, size, shape, colour, sensitivity, what's being done to it; lb: vagina — wetness, swelling, openness, what it feels inside; ch: breasts and nipples — shape, hardness, how they react; flu: wetness, sweat, saliva, semen — where and how much; vl: how loud the sounds of the act are and what they are — moans, whimpers, skin slapping, bed creaking, never music or ambient noise; sm: smells in the air and on skin; ${близость ? '' : 'mk: marks on skin and sheets; '}pr: partner and what they are to each other now${близость ? '' : '; pt: protection used or not'}'. Skip a code only when it does not apply to this body. Separate by ;]",
+   "Kn": "[kinks, STABLE TRAIT — once known, keep filled every turn. ACTIVITIES: practice, scenario, dynamic (roleplay, BDSM, bondage, toys, power exchange); a thing needed for arousal goes to Ft. Each '<activity>: <how willingly>, <how far>' — the whole thing stays one item: 'Ролевые игры: охотно, сценарий врач-пациент; Связывание: только сама сверху'. 2+ when known; separate by ;]",
+   "Ft": "[fetishes, STABLE TRAIT: THINGS — objects, materials, body parts or settings needed for arousal (stockings, latex, feet, hair, medical settings), each '<thing>: <its role>': 'Чулки: обязательное условие; Шея: сильный триггер'. 2+ when known; separate by ;]",
+   "NG": "[no-go, STABLE TRAIT: refusals — hard limits never crossed, each '<limit>: <reason>': 'Боль: панический страх; Втроём: не делится'; separate by ;]",
+   "NT": "[not a turn-on, STABLE TRAIT: what leaves them cold — kills arousal without being forbidden, each '<thing>: <effect>': 'Спешка: сразу теряет настрой'; separate by ;]",
+   "ND": "[after intimacy (phase 3 only) — 'empty' while the act is still going. 'se: how sensitive the body is now — what flinches, what still craves touch; bo: how the body feels after — weakness, trembling, heaviness, warmth, wetness, soreness${близость ? ' (lasting marks go to Mrk)' : ''}; r2: readiness for another round — how soon, what it would take; fe: feelings and thoughts after, 2-3 sentences${близость ? ' — emotions only' : ''}'. Separate by ;]",
    "AC": "[aftercare (phase 3 only): what this character needs now it's over — touch, water, silence, words, or nothing. 2-3 sentences: what exactly, from whom, why it matters now, what would hurt instead, e.g. 'Молча обнять и не говорить ни слова — любые слова разрушат ощущение сейчас']",
-   "SxV": "[sex review (phase 3 only), once it has ended: 4-6 sentences in this character's own voice — what worked, what didn't, the best and most awkward moment, how body and heart felt, what to repeat or never again — ending with a rating like ★★★★☆]"
+   "SxV": "[sex review (phase 3 only), once it has ended: 4-6 sentences in this character's own voice — what worked, what didn't, the best and most awkward moment, how body and heart felt, what to repeat or never again — ending with a rating like ★★★★☆]",` : ''}${следы ? `
+   "Mrk": "[visible body marks and physical aftermath — ${интим ? 'hickeys, bites, scratches, bruises, redness, soreness, heaviness' : 'bruises, scratches, grazes, redness, soreness'} — written every turn from the moment they appear until they fade in story time${интим ? ', whatever the intimacy phase' : ''}. Each '<what>: <where on the body> — <how it looks/feels now> | <fade time from appearance, in hours or days: 12h, 3d>': ${интим ? `'Засос: шея слева — наливается фиолетовым, ноет | 5d; Следы ногтей: спина — красные полосы | 2d'` : `'Синяк: левое предплечье — желтеет по краям, ноет при нажатии | 5d; Ссадины: костяшки правой руки — подсохли корочкой | 2d'`}. The fade time is set once at appearance and counted from sc.Dt and sc.T — keep both accurate; the look and feel change as it heals. Body only, no feelings. 'empty' when none; separate by ;]",` : ''}
+   "Tr": "[trust: how much this character trusts each other named character, 0-100, '<name>: <0-100>': 'Софи: 82; Ричард: 9'. One entry per person they know. Not the same as Rl — one can love and not trust. Separate by ;]",
+   "Fr": "[fears: what this character is afraid of RIGHT NOW, each '<what they fear>: <low | moderate | high | panic>': 'Потерять Софи: high; Отец узнает: moderate'. Live fears in this scene, not lifelong phobias unless surfaced. Separate by ;]"
   }
  ]`;
 
-    if (settings.enableUserBlock) {
+    if (игрок) {
       p += `,
  "us": {
   "A": "[age: years and date of birth as DD.MM.YYYY]",
   "C": "[clothing: what {{user}} is wearing right now and its state]",
   "Ap": "[appearance: physical appearance only — build, height, hair, eyes, marks]",
-  "H": "[health: physical state only — wounds, pain, illness, stamina]",${болезни ? `
-  "Ill": "[illnesses and injuries of {{user}}, ONLY if any — otherwise omit. Same format as for characters: groups separated by |, each 'nm: what it is; sg: fresh, worsening, stable, healing, chronic or healed; rc: recovery 0-100%; sy: symptoms; trt: treatment']",` : ''}${беременность ? `
+  "H": "[health: ${болезни ? 'overall physical state in a phrase; illnesses and injuries go to Ill' : 'physical state only — wounds, pain, illness, stamina'}]",${болезни ? `
+  "Ill": "[illnesses and injuries of {{user}}, ONLY if any — otherwise omit. Same format and rules as for characters: groups separated by |, each 'nm: what it is; sg: fresh, worsening, stable, healing, chronic or healed; rc: recovery 0-100%; sy: symptoms; trt: treatment']",` : ''}${беременность ? `
   "Prg": "[pregnancy of {{user}}, ONLY if pregnant — otherwise omit. 'wk: week as a number; due: expected due date; fa: the father, if known; sy: symptoms; knw: who knows; cnd: how it is going']",` : ''}${цикл ? `
-  "Mns": "[menstrual cycle of {{user}}, ONLY with a uterus — otherwise omit. Same format as for characters: 'cyd: day; cyl: length; phs: menstrual, follicular, ovulation, luteal or late; nxt: next period; pms: PMS window; dly: days late; rsn: reason for delay']",` : ''}
-  "Rl": "[relationships: how {{user}} feels about EVERY other relevant named person, each as '<name>: <attitude>'; for family start with the kinship and a comma. As many people as matter — no upper limit. Bidirectional with their Rl; separate by ;]",
-  "L": "[location: the exact place {{user}} is right now]",${близость ? `
-  "Mrk": "[visible body marks on {{user}} — same format and rules as for characters, tracked after the act too: '<what>: <where> — <how it looks and feels now> | <fade time: 12h, 3d>'; 'empty' when there are none]",` : ''}
-  "UW": "[user intimacy (phase 2 ONLY). Each 'code: value', every value a full vivid description, never a word: 'ar: arousal and how it shows; ds: strength of desire and for what; rdy: how ready the body is, what's still missing; tch: where/how {{user}} touches and is touched now; rct: how the body reacts — flush, trembling, arching, clenching, goosebumps, sweat; fac: face, eyes, lips; pb: pubic hair — grooming, shape, feel; an: anatomy — shape, size, colour, how it changes with arousal; lb: wetness — where, how much, sound and feel; ch: breasts and nipples — shape, size, hardness, sensitivity; flu: wetness, sweat, saliva, semen — where and how much; vl: loudness of the sounds and what they are${близость ? '' : '; mk: marks on skin; r2: readiness for the next round'}'. Skip a code only when it does not apply to this body. 'empty' when the scene ends; separate by ;]"
+  "Mns": "[menstrual cycle of {{user}}, ONLY with a uterus — otherwise omit. Same format and rules as for characters: 'cyd: day; cyl: length; phs: menstrual, follicular, ovulation, luteal or late; nxt: next period; pms: PMS window; dly: days late; rsn: reason for delay']",` : ''}
+  "Rl": "[relationships: how {{user}} feels about EVERY other named person who matters now — same format and rules as for characters; bidirectional with their Rl; separate by ;]",
+${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and rules as for characters: '<what>: <where> — <how it looks and feels now> | <fade time: 12h, 3d>'; 'empty' when there are none]",
+` : ''}${интим ? `  "UW": "[user intimacy (phase 2 ONLY) — same phases and the same full, vivid descriptions as for characters. Each 'code: value': 'ar: arousal and how it shows; ds: strength of desire and for what; rdy: how ready the body is, what's still missing; tch: where/how {{user}} touches and is touched now; rct: how the body reacts — flush, trembling, arching, clenching, goosebumps, sweat; fac: face, eyes, lips; pb: pubic hair — grooming, shape, feel; an: anatomy — shape, size, colour, how it changes with arousal; lb: wetness — where, how much, sound and feel; ch: breasts and nipples — shape, size, hardness, sensitivity; flu: wetness, sweat, saliva, semen — where and how much; vl: how loud the sounds of the act are and what they are${близость ? '' : '; mk: marks on skin; r2: readiness for the next round'}'. Skip a code only when it does not apply to this body. 'empty' when the scene ends; separate by ;]",
+` : ''}  "L": "[location: the exact place {{user}} is right now]"
  }`;
     }
 
     if (settings.enableMemory) {
       p += `,
  "me": {
-  "lg": ["[HH:MM] - [an event of today]", "log: one line per event, up to 5, today only, chronological"],
+  "lg": ["[HH:MM] - [an event of today]", "log: one line per event, up to 5, today only, chronological; people by their real names, never 'Вы', 'User' or 'главный персонаж'"],
   "md": {
-   "us": {"nw": "[current mood of {{user}} in a word or two]", "hs": ["[HH:MM] - [mood at that time]", "history: a new line every time the mood shifts, up to 12"]},
+   "us": {"nw": "[current mood of {{user}} in a word or two — mood and route track ONLY {{user}} and {{char}}; 'empty' for whoever is absent from the scene]", "hs": ["[HH:MM] - [mood at that time]", "history: a new line every time the mood shifts, up to 12"]},
    "chr": {"nw": "[current mood of {{char}} in a word or two]", "hs": ["[HH:MM] - [mood at that time]", "history: a new line every time the mood shifts, up to 12"]}
   },
   "rt": {
-   "us": ["[HH:MM] - [place] - [arrived | left | stayed | moving]", "route: one line per movement, up to 20"],
-   "chr": ["[HH:MM] - [place] - [arrived | left | stayed | moving]", "route: one line per movement, up to 20"]
+   "us": ["[HH:MM] - [place] - [arrived | left | stayed | moving]", "route: one line per movement, up to 20; [] when absent from the scene"],
+   "chr": ["[HH:MM] - [place] - [arrived | left | stayed | moving]", "route: one line per movement, up to 20; [] when absent from the scene"]
   },
-  "fct": ["[fact: an important or newly learned fact, stated plainly]", "facts: as many lines as matter — no upper limit"],${ружья ? `
-  "gun": ["[the setup: a promise, threat, hint, unexplained object or open mystery] | [who or what it is tied to] | [open | building | fired]", "chekhov's guns: one line per unresolved thread, as many as are open — no upper limit"],` : ''}
+  "fct": ["[fact: an important or newly learned fact, stated plainly, people by their real names]", "facts: as many lines as matter"],${ружья ? `
+  "gun": ["[a setup the story planted and has not paid off — a promise, threat, hint, unexplained object, open mystery, debt or foreshadowing] | [who or what it is tied to] | [open | building | fired]", "chekhov's guns: one line per unresolved thread, drawn from the Fl flags and from what the story left hanging — never invent new plot to fill the list. Keep each one until it pays off; on that turn mark it fired, then drop it next turn"],` : ''}
   "sec": [
    {
     "f": "[fact: the secret itself, stated plainly]",
@@ -276,12 +259,11 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     "hd": ["[name of someone who does NOT know]"]
    }
   ]
-  - One object per secret, as many as the story holds — no upper limit; knw and hd take as many names as apply. Once a secret becomes known to everyone, DELETE the object instead of keeping it.
-  - If a protagonist is absent from the scene, emit empty mood and route for them.
+  - One object per secret, as many as the story holds; knw and hd take as many names as apply. Once a secret becomes known to everyone, DELETE the object instead of keeping it.
  }`;
     }
 
-    if (settings.enablePhone) {
+    if (телефон) {
       // Каждый экран телефона просится отдельно: выключенный не должен
       // занимать место в промте.
       const ph = [];
@@ -304,14 +286,14 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       if (settings.phoneAppSearch !== false) ph.push(`
    "sq": [
     "[a search query the character actually typed, verbatim — these reveal what they secretly worry about]",
-    "search: one line per query, as many as they typed — no upper limit"
+    "search: one line per query, as many as they typed"
    ]`);
-      if (settings.phoneAppWallet !== false) ph.push(`
+      if (кошелёк) ph.push(`
    "wl": {
-    "bl": "[balance: a plain number, no currency sign, e.g. '18400'. Invent it once, fitting the setting and owner's station; afterwards it's a running total — previous balance plus every amount in 'trx'. Never reset, round, or drift it without a transaction.]",
+    "bl": "[balance: a plain number, no currency sign, e.g. '18400'. The account belongs to the phone owner. Invent the starting balance once, fitting the setting and the owner's station; after that it changes ONLY through trx: new balance = previous balance + every amount listed this turn. No money moved → same balance, empty trx. Never reset or round it]",
     "cu": "[currency: whatever the setting uses — ₽, \$, €, кредиты, эдди, крышки. Same one every turn.]",
     "trx": [
-     {"ti": "[title: what it was for, as a bank would print it — 'Кофейня на углу', 'Перевод от [имя]', 'Аренда', 'Взятка портье'; one object per transaction, as many as happened]", "am": "[amount: a signed number, no currency sign — '-450', '+12000']", "tm": "[time: 'Сегодня, 14:30', 'Вчера', '12.10']", "nte": "[OPTIONAL note: one short line]"}
+     {"ti": "[title: what it was for, as a bank would print it — 'Кофейня на углу', 'Перевод от [имя]', 'Аренда', 'Взятка портье'; one object per transaction that actually happened — never invent spending]", "am": "[amount: a signed number, no currency sign — '-450', '+12000']", "tm": "[time: 'Сегодня, 14:30', 'Вчера', '12.10']", "nte": "[OPTIONAL note: one short line]"}
     ]
    }`);
       if (settings.phoneAppCalendar !== false) ph.push(`
@@ -320,41 +302,36 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
    ]`);
       // Сообщения — такой же модуль, как остальные: выключены, значит и
       // переписок у модели не просим.
-      if (settings.phoneAppMessages !== false) p += `,
-  "cm": {
-   "[contact or group name — one key per chat, as many chats as the phone has]": {
-    "ow": "[owner: ALWAYS {{char}} — this device belongs to {{char}}]",
-    "pp": "[participants: ONLY for a group of 3+; omit entirely for one-to-one]",
-    "ms": [
-     "[Sender] -> [Recipient]: [Message] | [Time] | [Read / Unread / Deleted / Draft]",
-     "VOICE: prefix the text with [VOICE_M:SS], e.g. '[Sender] -> [Recipient]: [VOICE_0:42] Перезвони мне | 21:40 | Unread'. Use it when someone would record audio rather than type — walking, crying, in a hurry.",
-     "PHOTO: prefix with [PHOTO: what is in the shot], e.g. '[Sender] -> [Recipient]: [PHOTO: селфи в примерочной, новое платье] Ну как? | 18:20'. Text after the tag is the caption.",
-     "VIDEO: same idea for a clip — [VIDEO_M:SS: what happens on screen], e.g. '[Sender] -> [Recipient]: [VIDEO_0:23: снимает на бегу, кричит и смеётся] Смотри! | 18:22'. Duration is optional. Use it when the moment only makes sense in motion.",
-     "CALL: a call is an EVENT, not a line — '[Sender] -> [Recipient]: [CALL: incoming, missed]' or '[CALL: outgoing, answered, 4:12]'. Direction incoming/outgoing as seen from the owner; outcome answered/declined/missed; duration only when answered. Text after the tag becomes a short note.",
-     "REPLY: quoting an earlier line — [REPLY: Who :: what they said], e.g. '[Sender] -> [Recipient]: [REPLY: Лена :: Ты придёшь?] Да, буду к восьми | 20:01'. The name before :: is optional. Separator is ::, never |, because | already splits the line into text, time and status.",
-     "FORWARD: a message passed on from someone else — [FWD: who it came from], e.g. '[Sender] -> [Recipient]: [FWD: Отдел кадров] Совещание переносится | 20:03'.",
-     "POLL: a poll inside the chat — [POLL: Question ;; Option = Voter, Voter ;; Option with no votes], e.g. '[Sender] -> [Recipient]: [POLL: Куда идём в пятницу? ;; Кафе = Лена, Петя ;; Кино = Мира ;; Никуда] | 20:05'. List the voters by name; percentages are calculated for you, so never write them yourself. Separator is ;;, never |.",
-     "One line per message, as many lines as the conversation has — no upper limit on chats or on messages inside a chat."
-    ]
-   }
-  }`;
+      if (переписки) p += `,
+ "cm": {
+  "[contact or group name — one key per chat, as many chats as the phone has]": {
+   "ow": "[owner: ALWAYS {{char}} — the same name as phn.ow; this device belongs to {{char}}, and EVERY chat has the owner as one of its sides. ${перехваты ? 'A conversation between two OTHER people is not a chat here — it goes to tp even if the owner knows of it or could read it: participation decides, not access' : 'A conversation between two OTHER people does not belong here at all'}]",
+   "pp": "[participants: ONLY for a real group — THREE or more people including the owner, separated by ;. Omit entirely for one-to-one; a shorter list is dropped]",
+   "ms": [
+    "[Sender] -> [Recipient]: [Message] | [Time] | [Read / Unread / Deleted / Draft]",
+    "${правилаСообщений}",
+    ${тегиСообщений.join(',\n    ')},
+    "One line per message, as many lines as the conversation has — no limit on chats or on messages inside a chat."
+   ]
+  }
+ }`;
       // Сам аппарат просим только если от него хоть что-то осталось.
       if (ph.length) p += `,
-  "phn": {
-   "ow": "[owner: ALWAYS {{char}} — everything below is {{char}}'s own]",` + ph.join(',') + `
-  }`;
+ "phn": {
+  "ow": "[owner: ALWAYS {{char}}, the same name every turn — everything below is {{char}}'s own]",` + ph.join(',') + `
+ }`;
     }
 
-    if (settings.enableIntercepts) {
+    if (перехваты) {
       p += `,
  "tp": [
   {
-   "tg": "[target: the NPC whose phone is intercepted; one object per intercepted chat, as many as there are]",
+   "tg": "[target: the NPC whose phone is intercepted — a conversation between people other than ${телефон ? 'the phone owner' : '{{char}}'}; one object per intercepted chat. Never invent an intercept just to hand the protagonist information — it must be a conversation those people would plausibly have on their own]",
    "cn": "[chat name: the NPC-to-NPC or group chat title]",
-   "pp": "[participants: ONLY for a group; omit for private chats]",
+   "pp": "[participants: ONLY for a group of 3+, separated by ;; omit for private chats]",
    "ms": [
     "[Sender] -> [Recipient]: [Msg] | [Time] | [Read / Unread / Deleted / Draft]",
-    "The [VOICE_M:SS], [PHOTO: ...], [VIDEO: ...], [CALL: ...], [REPLY: ... :: ...], [FWD: ...] and [POLL: ... ;; ...] tags all work here too. One line per message, as many as the conversation has — no upper limit on intercepts or messages."
+    "${правилаСообщений} The [VOICE_M:SS], [PHOTO: ...], [VIDEO: ...], [CALL: ...], [REPLY: ... :: ...], [FWD: ...] and [POLL: ... ;; ...] tags ${переписки ? 'described for cm ' : ''}work here too. One line per message, as many as the conversation has."
    ]
   }
  ]`;
@@ -364,21 +341,21 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       p += `,
  "dy": [
   {
-   "au": "[author: the character's name — NEVER {{user}}; one object per entry, as many characters as write today]",
+   "au": "[author: a character's name — NEVER {{user}}; one object per entry, as many characters as write today]",
    "tm": "[time: date and time of the entry]",
-   "tx": "[text: a first-person private entry about the author's own day, state, emotions, doubts, decisions. 4-7 sentences minimum, longer when the day was heavy. Never an omniscient narrator.]",
-   "ab": "[about {{user}}: a private first-person subsection about {{user}} only — what the author feels, wants, fears, notices, remembers. 'empty' if nothing meaningful this turn.]",
-   "md": "[mood: one English word for the dominant mood — sadness, stress, anger, panic, calm, relief, guilt, longing, joy, or another that fits better]"
+   "tx": "[text: private in-world writing, not a scene summary — a first-person entry about the author's own day, state, emotions, doubts, decisions. 4-7 sentences minimum, longer when the day was heavy. Never an omniscient narrator.]",
+   "ab": "[about {{user}}: a separate private first-person subsection about {{user}} only — what the author feels, wants, fears, notices, remembers. 'empty' if nothing meaningful this turn.]",
+   "md": "[mood: one English word for the dominant mood, which drives the page's visual style — sadness, stress, anger, panic, calm, relief, guilt, longing, joy, or another that fits better]"
   }
- ],
+ ]${интим ? `,
  "bd": [
   {
-   "au": "[author: the character's name — NEVER {{user}}; one object per entry]",
+   "au": "[author: a character's name — NEVER {{user}}; one object per entry]",
    "tm": "[time: date and time of the entry]",
-   "tx": "[body diary text, written EVERY turn during the act (foreplay, act, climax) and after it (aftercare, afterglow, and the following hours while the body still carries the encounter). A first-person entry about the body at THIS moment of the scene: during — what it wants, what it gets, where it burns; after — what aches, what lingers, which marks it finds, what surprised it, what it is ashamed of. Frank, physical, no euphemisms. 3-6 sentences. Otherwise leave this array empty.]",
+   "tx": "[body diary, written EVERY turn of intimacy phases 2 and 3, and in phase 1 only while the body still clearly carries the encounter (soreness, marks, the memory of touch next morning); otherwise leave this array empty. A first-person entry about the body at THIS moment of the scene: during — what it wants, what it gets, where it burns; after — what aches, what lingers, which marks it finds, what surprised it, what it is ashamed of. Frank, physical, no euphemisms. 3-6 sentences.]",
    "md": "[mood: one word — desire, shame, tenderness, emptiness, triumph or anxiety]"
   }
- ]`;
+ ]` : ''}`;
     }
 
     if (settings.enableDreams) {
@@ -394,40 +371,232 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     if (спутники) {
       p += `,
  "pet": [
-  {"n": "[name of the companion — an animal, familiar, drone, robot or other; one object per companion, as many as there are]", "sp": "[species or kind, e.g. 'рыжий кот', 'ворон-фамильяр', 'боевой дрон']", "ow": "[owner, or whom it is bound to]", "md": "[mood right now in a word or two]", "cnd": "[condition: health, injuries, tiredness, charge level]", "fd": "[diet: what it eats or runs on, and when it was last fed or charged]", "bnd": "[bond with the owner, 0-100]", "skl": "[OPTIONAL skills, tricks and quirks, separated by ;]", "nte": "[OPTIONAL what it is doing right now]"}
+  {"n": "[name of a companion that exists in the story — an animal, familiar, drone, robot or other; one object per companion, [] when there are none]", "sp": "[species or kind, e.g. 'рыжий кот', 'ворон-фамильяр', 'боевой дрон']", "ow": "[owner, or whom it is bound to]", "md": "[mood right now in a word or two]", "cnd": "[condition: health, injuries, tiredness, charge level]", "fd": "[diet: what it eats or runs on, and when it was last fed or charged — companions have their own needs and routine: they eat, sleep, get hurt and react to the scene]", "bnd": "[bond with the owner, 0-100]", "skl": "[OPTIONAL skills, tricks and quirks, separated by ;]", "nte": "[OPTIONAL what it is doing right now]"}
  ]`;
     }
 
     if (settings.enableWorld) {
+      const фон = 'matching the setting\'s era and place — a medieval town has bread prices and a travelling troupe, not the dollar and cinemas; background colour and a source of scene hooks, never something the story must follow';
       p += `,
  "wd": {
-  "nws": ["[headline] | [article text, 2-3 sentences]", "news: one line per article, as many as the world gives — no upper limit"],
-  "rm": ["[rumor: what people whisper about, true or not]", "rumors: one line per rumor — no upper limit"],
-  "fc": ["[morning | clear | +7°C | short note]", "[day | ... ]", "[evening | ... ]", "[night | ... ]"],${гороскоп ? `
-  "zd": ["[aries | what today holds for the sign | lucky]", "horoscope: ALL 12 SIGNS, one line each"],
-  "fate": ["[a line or two of general fortune for the day]"],` : ''}${экономика ? `
-  "eco": ["[item | value | change since yesterday, e.g. 'Доллар | 92,4 ₽ | +0,3' or 'Хлеб | 64 ₽ | подорожал' or 'Средняя зарплата | 78 000 ₽ | без изменений']", "economy: currency rates, prices and wages of this setting, one line each"],` : ''}${афиша ? `
-  "afs": ["[kind | title | where and when]", "events: what is on today; kind is one of: cinema, theatre, concert, exhibition, festival, sport, club, street, lecture"],` : ''}${город ? `
-  "cty": ["[kind | what is happening]", "city services: kind is one of: traffic, roads, weather, transport, repairs, emergency, utilities, police, health, protest"],` : ''}
-  "ad": ["[classified ad: short, in the voice of whoever posted it]", "ads: one line per ad — no upper limit"]`;
+  "nws": ["[headline] | [article text, 2-3 sentences]", "news: one line per article, as many as the world gives"],
+  "rm": ["[rumor: what people whisper about, true or not]", "rumors: one line per rumor"],
+  "fc": ["[morning | clear | +7°C | short note — exactly 4 rows as 'period | weather | temperature | short note'. Period is one of: morning, day, evening, night. Weather is one of: clear, sunny, cloudy, overcast, rain, downpour, drizzle, storm, snow, blizzard, fog, windy. Consistent with sc.Wt for the current part of the day]", "[day | ... ]", "[evening | ... ]", "[night | ... ]"],${гороскоп ? `
+  "zd": ["[aries | what today holds for the sign | lucky]", "horoscope: ALL 12 SIGNS, one row each. Sign is one of: aries, taurus, gemini, cancer, leo, virgo, libra, scorpio, sagittarius, capricorn, aquarius, pisces. Tone is one of: lucky, unlucky, even. Newspaper-back-page entertainment: playful, superstitious, never a directive — nothing in the story comes true because of it"],
+  "fate": ["[a line or two of general fortune for the day, closing the horoscope]"],` : ''}${экономика ? `
+  "eco": ["[item | value | change since yesterday, e.g. 'Доллар | 92,4 ₽ | +0,3' or 'Хлеб | 64 ₽ | подорожал' or 'Средняя зарплата | 78 000 ₽ | без изменений']", "economy: 3-6 rows of currency rates, prices and wages, ${фон}"],` : ''}${афиша ? `
+  "afs": ["[kind | title | where and when]", "events: 2-6 rows of what is on today, ${экономика ? 'fitting the era and place' : фон}; kind is one of: cinema, theatre, concert, exhibition, festival, sport, club, street, lecture"],` : ''}${город ? `
+  "cty": ["[kind | what is happening]", "city services: 2-5 rows, ${экономика || афиша ? 'fitting the era and place' : фон}; kind is one of: traffic, roads, weather, transport, repairs, emergency, utilities, police, health, protest"],` : ''}
+  "ad": ["[classified ad: short, in the voice of whoever posted it]", "ads: one line per ad"]`;
       if (settings.showComments) {
         p += `,
-  "com": ["[name: comment]", "comments: one line per comment, as many as the thread gets — no upper limit"]`;
+  "com": ["[name: comment]", "comments: one line per comment, as many as the thread gets"]`;
       }
       p += `\n }`;
     }
 
-    p += `\n}\n\`\`\`\n[/HUD]\n</system_note>`;
+    p += `\n}\n\`\`\`\n[/HUD]`;
+    // Снимок — макросом {{hudLast}}: блок исчезает целиком, когда прошлого HUD
+    // нет. Переносы строк снаружи {{if}}: движок ST срезает края содержимого.
+    // Канон — только для ответа: при перегенерации прозы нет, есть только HUD.
+    const канон = режим === 'regen' ? '' : `
+It is also canon for the prose of your reply: do not contradict it — what people wear, their injuries and health, who is where, relationships, who knows which secret (people in hd do NOT know it and must not act on it), open threads in gun.`;
+    p += `\n\n{{if hudLast}}## 📸 LAST HUD — the state before ${чего}
+Empty fields and the texts written fresh every turn (Th, Ex, D, diary, dreams, horoscope, comments) are left out to save space; the schema above still decides which fields you write.
+Codes: {{hudLastKeys}}
+\`\`\`json
+{{hudLast}}
+\`\`\`${канон}
+Update it to match ${чего}: keep what is still true, change what ${чего} changes, remove what has ended or faded, add what is new. Never copy it back unchanged when the story has moved on.{{/if}}`;
+    p += `\n</hud_instructions>`;
     return p;
   }
 
+  /* Сводка старого HUD для истории в запросе: [HUD_SUMMARY] … [/HUD_SUMMARY].
+     Регулярка находит у старых сообщений весь блок HUD и ставит на его место
+     эту строку — модель помнит, когда, где и что было, не читая полный JSON.
+     Одна функция и для ответа, и для перегенерации HUD. Игрок — по имени персоны.
+     Что внутри:
+       дата · время · погода (температура и первая фраза, без поэзии);
+       кто где — одинаковые места вместе;
+       Событие — последняя строка лога, если за ход она новая;
+       Новое — что сдвинулось с прошлого HUD: секрет сменил огласку, ружьё
+       выстрелило, появился факт. Не больше двух пунктов, каждый обрезан.
+     Возраст не пишем: он не меняется, а повторялся в каждой сводке.
+     прошлыйHud — текст предыдущего блока истории; без него «Нового» нет. */
+  const разборыСводки = new Map();
+  function разборДляСводки(текст) {
+    if (разборыСводки.has(текст)) return разборыСводки.get(текст);
+    let итог;
+    try { итог = { данные: parseHUDComplex(текст) }; } catch (ошибка) { итог = { ошибка }; }
+    if (разборыСводки.size > 60) разборыСводки.clear();
+    разборыСводки.set(текст, итог);
+    return итог;
+  }
+
+  function сводкаHUD(hudText, прошлыйHud = '') {
+    const разбор = разборДляСводки(hudText);
+    if (разбор.ошибка) throw разбор.ошибка;
+    const d = разбор.данные || {};
+    const прошлый = прошлыйHud ? (разборДляСводки(прошлыйHud).данные || null) : null;
+    const есть = (v) => v !== undefined && v !== null && String(v).trim() !== '' && !/^(empty|none|нет|—|-)$/i.test(String(v).trim());
+    const обрезать = (s, n) => {
+      const t = String(s).replace(/\s+/g, ' ').trim();
+      if (t.length <= n) return t;
+      const срез = t.slice(0, n);
+      const пробел = срез.lastIndexOf(' ');
+      return (пробел > n * 0.6 ? срез.slice(0, пробел) : срез).replace(/[\s,.;:—-]+$/, '') + '…';
+    };
+    const список = (v) => (Array.isArray(v) ? v : []).map(x => String(x ?? '')).filter(есть);
+    const имяИгрока = getSafeUserName() || 'User';
+
+    const части = [];
+    const сцена = d.scene || {};
+    const погода = есть(сцена['Погода'])
+      ? обрезать(String(сцена['Погода']).split(/[,;.]/).map(s => s.trim()).filter(Boolean).slice(0, 2).join(', '), 48)
+      : '';
+    const шапка = [сцена['Дата'], сцена['Время']].filter(есть).map(String).concat(погода ? [погода] : []).join(' · ');
+    if (шапка) части.push(шапка);
+
+    // Кто где. Места модель пишет от города вглубь: «Кембридж, усадьба Кейнов,
+    // спальня 3B у двери». Общее начало выносим один раз, у людей остаётся
+    // только своя точка: «Кембридж, усадьба Кейнов: Брэндон (коридор), Софи (ванная)».
+    const люди = [];
+    const безМеста = [];
+    const добавить = (имя, место) => {
+      if (!есть(имя)) return;
+      if (!есть(место)) { безМеста.push(String(имя)); return; }
+      const куски = String(место).split(/,\s*/).map(s => s.trim()).filter(Boolean);
+      const общее = куски.length > 2 ? куски.slice(0, 2).join(', ') : (куски.length === 2 ? куски[0] : '');
+      const своё = куски.slice(общее ? общее.split(', ').length : 0).join(', ');
+      люди.push({ имя: String(имя), общее, своё, целиком: куски.join(', ') });
+    };
+    (Array.isArray(d.characters) ? d.characters : []).forEach(c => { if (c) добавить(c['Имя'], c['Место']); });
+    if (d.user && Object.values(d.user).some(есть)) добавить(имяИгрока, d.user['Место']);
+    const группы = new Map();
+    люди.forEach(ч => { const k = ч.общее || ч.целиком; группы.set(k, [...(группы.get(k) || []), ч]); });
+    const кто = [...группы].map(([общее, состав]) => {
+      if (состав.length === 1) return `${состав[0].имя} — ${обрезать(состав[0].целиком, 60)}`;
+      const одинаково = состав.every(ч => ч.своё === состав[0].своё);
+      if (одинаково) return `${состав.map(ч => ч.имя).join(', ')} — ${обрезать(состав[0].целиком, 60)}`;
+      return `${обрезать(общее, 40)}: ${состав.map(ч => ч.своё ? `${ч.имя} (${обрезать(ч.своё, 30)})` : ч.имя).join(', ')}`;
+    }).concat(безМеста);
+    if (кто.length) части.push(кто.join('; '));
+
+    // Событие хода: последняя строка лога, если её не было в прошлом HUD.
+    const лог = список(d.memory?.timeline);
+    const прошлыйЛог = new Set(список(прошлый?.memory?.timeline));
+    const событие = лог.length ? лог[лог.length - 1] : '';
+    if (событие && !прошлыйЛог.has(событие)) части.push(`Событие: ${обрезать(событие, 140)}`);
+
+    // Новое с прошлого HUD. Без прошлого не с чем сравнивать — пропускаем,
+    // иначе первая сводка перечислила бы все факты истории разом.
+    if (прошлый) {
+      const новое = [];
+      const статусы = new Map((Array.isArray(прошлый.memory?.secrets) ? прошлый.memory.secrets : [])
+        .filter(с => с && есть(с.fact)).map(с => [String(с.fact).trim(), String(с.status ?? '').trim()]));
+      (Array.isArray(d.memory?.secrets) ? d.memory.secrets : []).forEach(с => {
+        if (!с || !есть(с.fact) || !есть(с.status)) return;
+        const было = статусы.get(String(с.fact).trim());
+        if (было !== undefined && было !== String(с.status).trim()) новое.push(`секрет «${обрезать(с.fact, 60)}» → ${String(с.status).trim()}`);
+      });
+      const выстрелил = (g) => /fired|сработал|выстрел/i.test(String(g).split('|')[2] || '');
+      const прошлыеВыстрелы = new Set(список(прошлый.memory?.guns).filter(выстрелил).map(g => g.split('|')[0].trim()));
+      список(d.memory?.guns).filter(выстрелил).map(g => g.split('|')[0].trim())
+        .filter(g => g && !прошлыеВыстрелы.has(g))
+        .forEach(g => новое.push(`сработало: ${обрезать(g, 70)}`));
+      // Факты сюда не берём: модель переписывает их каждый ход, и в сводку
+      // попадали мелочи вроде «манжета в чернилах».
+      if (новое.length) части.push(`Новое: ${новое.slice(0, 2).join('; ')}`);
+    }
+
+    return `[HUD_SUMMARY] ${части.join(' | ')} [/HUD_SUMMARY]`;
+  }
+
+  /* Макрос {{hudLast}} — снимок последнего HUD.
+     Во время нашей инструкции значение подставляет перехват запроса: он знает,
+     какой HUD последний именно в этом запросе (при свайпе заменяемый ответ в
+     запрос не попадает). В пресете или в своём промте макрос берёт последний
+     HUD чата — и при свайпе или перегенерации пропускает заменяемый ответ. */
+  let значениеМакросаHUD = null;
+  function значениеHudLast() {
+    if (значениеМакросаHUD !== null) return значениеМакросаHUD;
+    try {
+      const ctx = window.SillyTavern?.getContext?.();
+      const чат = Array.isArray(ctx?.chat) ? ctx.chat : [];
+      let конец = чат.length;
+      if (['swipe', 'regenerate'].includes(lastGenType) && конец && !чат[конец - 1]?.is_user) конец--;
+      for (let j = конец - 1; j >= 0; j--) {
+        const m = чат[j];
+        if (!m || m.is_user || m.is_system) continue;
+        const текстХода = m.swipes && m.swipes[m.swipe_id] !== undefined ? m.swipes[m.swipe_id] : m.mes;
+        const блок = extractHudBlock(String(текстХода || ''));
+        if (!блок) continue;
+        const объект = собратьСнимок(блок);
+        if (объект) return строкаСнимка(объект, решитьNSFW(объект, последниеТекстыЧата(чат, конец)));
+      }
+    } catch (_) {}
+    return '';
+  }
+
+  let макросHUDЗарегистрирован = false;
+  function зарегистрироватьМакросHUD() {
+    if (макросHUDЗарегистрирован) return;
+    const ctx = window.SillyTavern?.getContext?.();
+    if (!ctx) return;
+    const описание = 'TavernOS HUD: the last HUD of the chat as compact JSON with short codes — empty fields, fresh-every-turn texts (Th, Ex, D, diary, dreams…) and switched-off sections left out.';
+    try {
+      // Новый движок макросов (SillyTavern 1.13+) — с поддержкой {{if hudLast}}.
+      if (ctx.macros?.register && !ctx.macros.registry?.hasMacro?.('hudLast')) {
+        ctx.macros.register('hudLast', { category: ctx.macros.category?.CHAT, description: описание, handler: () => значениеHudLast() });
+        макросHUDЗарегистрирован = true;
+      }
+    } catch (e) { console.warn('[TavernOS HUD] Макрос hudLast: новый движок', e); }
+    try {
+      // Старый движок — на случай, если новый выключен в настройках ST.
+      if (typeof ctx.registerMacro === 'function' && !ctx.powerUserSettings?.experimental_macro_engine) {
+        ctx.registerMacro('hudLast', () => значениеHudLast(), описание);
+        макросHUDЗарегистрирован = true;
+      }
+    } catch (e) { console.warn('[TavernOS HUD] Макрос hudLast: старый движок', e); }
+  }
+
+  /* Раскрывает макросы инструкции: {{if hudLast}}…{{/if}}, {{hudLast}},
+     {{user}}, {{char}}. Сначала движком SillyTavern — так в тексте появляются
+     настоящие имена, — а если его нет или он вернул нераскрытое, своим
+     разбором по тем же правилам. */
+  function раскрытьИнструкцию(шаблон, снимок) {
+    const значение = снимок || '';
+    // Легенду кодов подставляем сами, до движка ST: она зависит от снимка
+    // именно этого запроса и вне нашей инструкции не нужна.
+    шаблон = шаблон.replace(/\{\{hudLastKeys\}\}/g, () => (значение ? легендаСнимка(значение) : ''));
+    try {
+      зарегистрироватьМакросHUD();
+      const ctx = window.SillyTavern?.getContext?.();
+      if (макросHUDЗарегистрирован && typeof ctx?.substituteParams === 'function') {
+        значениеМакросаHUD = значение;
+        const готово = ctx.substituteParams(шаблон);
+        if (typeof готово === 'string' && готово.includes('<hud_instructions>') && !/\{\{\s*(?:\/?if\b|hudLast\s*\}\})/.test(готово.replace(значение, ''))) return готово;
+      }
+    } catch (e) {
+      console.warn('[TavernOS HUD] Движок макросов не раскрыл инструкцию — свой разбор', e);
+    } finally {
+      значениеМакросаHUD = null;
+    }
+    return шаблон
+      .replace(/\{\{if hudLast\}\}([\s\S]*?)\{\{\/if\}\}/g, (_, тело) => (значение ? тело.trim() : ''))
+      .replace(/\{\{hudLast\}\}/g, () => значение);
+  }
 
   if (!window.__tavernOSFetchPatched) {
       window.__tavernOSFetchPatched = true;
 
       const originalFetch = window.fetch;
       window.fetch = async function(resource, options) {
-    if (settings.autoInject && options && options.method === 'POST' && options.body && typeof options.body === 'string') {
+    // Сводки старых HUD делаем и без «Сетевого перехвата»: полные HUD в истории
+    // стоят тысячи токенов, даже когда модель новых уже не пишет. Сама
+    // инструкция и снимок — только при включённом перехвате.
+    if (options && options.method === 'POST' && options.body && typeof options.body === 'string') {
       const urlStr = typeof resource === 'string' ? resource : (resource instanceof Request ? resource.url : '');
       const isImageRequest = /image|sdapi|draw|vision|dall-e/i.test(urlStr);
       if (window.__tavernOSHudRegenRequest === true) return originalFetch.apply(window, arguments);
@@ -467,39 +636,29 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
           if (hasImageParams || !hasTextParams) return originalFetch.apply(window, arguments);
 
           let hudsToKeep = parseInt(settings.hudsToKeep, 10);
-          if (isNaN(hudsToKeep) || hudsToKeep < 0) hudsToKeep = 2;
+          if (isNaN(hudsToKeep) || hudsToKeep < 0) hudsToKeep = defaultSettings.hudsToKeep ?? 1;
+          // Снимок последнего HUD уходит в конец инструкции и считается одним
+          // из развёрнутых: полными в истории остаётся на один меньше, а сам
+          // последний блок сжимается в обычную [HUD_SUMMARY] — ключевое
+          // остаётся на своём месте в истории, полный JSON не повторяется.
+          const инжект = !!settings.autoInject;
+          const снимокВключён = инжект && settings.hudSnapshot !== false && hudsToKeep > 0;
+          let объектСнимка = null;
 
-          // Единая функция для сборки текста саммари (добавлен Возраст)
-          const buildSummaryText = (hudText) => {
-              let parsedObj = parseHUDComplex(hudText);
-              let summaryStr = `[HUD_SUMMARY] `;
-              
-              if (parsedObj.scene && parsedObj.scene['Дата']) summaryStr += `Дата: ${parsedObj.scene['Дата']}. `;
-              if (parsedObj.scene && parsedObj.scene['Время']) summaryStr += `Время: ${parsedObj.scene['Время']}. `;
-              if (parsedObj.scene && parsedObj.scene['Погода']) summaryStr += `Погода: ${parsedObj.scene['Погода']}. `;
-              
-              let cSums = [];
-              if (parsedObj.characters) {
-                  parsedObj.characters.forEach(c => {
-                      if (c['Имя']) {
-                          let details = [];
-                          if (c['Возраст'] && String(c['Возраст']).toLowerCase() !== 'empty' && String(c['Возраст']).toLowerCase() !== 'none') details.push(`Возраст: ${c['Возраст']}`);
-                          if (c['Место'] && String(c['Место']).toLowerCase() !== 'empty' && String(c['Место']).toLowerCase() !== 'none') details.push(`Место: ${c['Место']}`);
-                          cSums.push(details.length > 0 ? `${c['Имя']} (${details.join(', ')})` : c['Имя']);
-                      }
-                  });
-              }
-              if (parsedObj.user) {
-                  let uDetails = [];
-                  if (parsedObj.user['Возраст'] && String(parsedObj.user['Возраст']).toLowerCase() !== 'empty' && String(parsedObj.user['Возраст']).toLowerCase() !== 'none') uDetails.push(`Возраст: ${parsedObj.user['Возраст']}`);
-                  if (parsedObj.user['Место'] && String(parsedObj.user['Место']).toLowerCase() !== 'empty' && String(parsedObj.user['Место']).toLowerCase() !== 'none') uDetails.push(`Место: ${parsedObj.user['Место']}`);
-                  if (uDetails.length > 0) cSums.push(`User (${uDetails.join(', ')})`);
-                  else if (Object.keys(parsedObj.user).length > 0) cSums.push(`User`);
-              }
-              if (cSums.length > 0) summaryStr += cSums.join('; ') + ` `;
-              
-              return summaryStr + `[/HUD_SUMMARY]`;
+
+          // Какие блоки сжать в сводку. Без снимка — всё, кроме последних
+          // hudsToKeep, как раньше. Со снимком последний блок тоже сжимается
+          // (он уходит в снимок), а полными остаются hudsToKeep − 1 перед ним.
+          const выбратьДляСводки = (найденные) => {
+            const естьСнимок = !!объектСнимка;
+            const конец = естьСнимок ? найденные.length - 1 : найденные.length;
+            const полных = естьСнимок ? hudsToKeep - 1 : hudsToKeep;
+            const начало = Math.max(0, конец - полных);
+            return найденные.filter((_, i) => i < начало || i >= конец);
           };
+          // Сводка не должна ронять весь запрос: блок, который не разобрался,
+          // остаётся в истории как есть.
+          const вСводку = (hudText, прошлый = '') => { try { return '\n' + сводкаHUD(hudText, прошлый) + '\n'; } catch (_) { return null; } };
 
           // 1. Формат Chat Completions (учитываем массив messages)
           if (parsedBody.messages && Array.isArray(parsedBody.messages)) {
@@ -515,19 +674,23 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
               }
             });
 
-            if (allMatches.length > hudsToKeep) {
-              let toSummarize = allMatches.slice(0, allMatches.length - hudsToKeep);
-              toSummarize.sort((a, b) => (a.mIdx !== b.mIdx ? b.mIdx - a.mIdx : b.index - a.index));
-              
-              toSummarize.forEach(rm => {
-                let content = parsedBody.messages[rm.mIdx].content;
-                let hudBlockText = content.substring(rm.index, rm.index + rm.length);
-                
-                parsedBody.messages[rm.mIdx].content = content.slice(0, rm.index) + '\n' + buildSummaryText(hudBlockText) + '\n' + content.slice(rm.index + rm.length);
-                modified = true;
-              });
+            if (снимокВключён && allMatches.length) {
+              const посл = allMatches[allMatches.length - 1];
+              объектСнимка = собратьСнимок(parsedBody.messages[посл.mIdx].content.substring(посл.index, посл.index + посл.length));
             }
-          } 
+            const toSummarize = выбратьДляСводки(allMatches);
+            toSummarize.sort((a, b) => (a.mIdx !== b.mIdx ? b.mIdx - a.mIdx : b.index - a.index));
+            // Прошлый блок читаем до замены: обходим с конца, и всё, что раньше
+            // текущего, ещё на месте.
+            const текстБлока = (m) => (m ? parsedBody.messages[m.mIdx].content.substring(m.index, m.index + m.length) : '');
+            toSummarize.forEach(rm => {
+              let content = parsedBody.messages[rm.mIdx].content;
+              const сводка = вСводку(content.substring(rm.index, rm.index + rm.length), текстБлока(allMatches[allMatches.indexOf(rm) - 1]));
+              if (сводка === null) return;
+              parsedBody.messages[rm.mIdx].content = content.slice(0, rm.index) + сводка + content.slice(rm.index + rm.length);
+              modified = true;
+            });
+          }
           // 2. Формат Text Completions (учитываем единую строку prompt)
           else if (parsedBody.prompt && typeof parsedBody.prompt === 'string') {
             let allMatches = [];
@@ -536,43 +699,65 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
             while ((match = regexLocal.exec(parsedBody.prompt)) !== null) {
               allMatches.push({ index: match.index, length: match[0].length });
             }
-            if (allMatches.length > hudsToKeep) {
-              let toSummarize = allMatches.slice(0, allMatches.length - hudsToKeep);
-              toSummarize.sort((a, b) => b.index - a.index);
-              
-              toSummarize.forEach(rm => {
-                let content = parsedBody.prompt;
-                let hudBlockText = content.substring(rm.index, rm.index + rm.length);
-                
-                parsedBody.prompt = content.slice(0, rm.index) + '\n' + buildSummaryText(hudBlockText) + '\n' + content.slice(rm.index + rm.length);
-                modified = true;
-              });
+            if (снимокВключён && allMatches.length) {
+              const посл = allMatches[allMatches.length - 1];
+              объектСнимка = собратьСнимок(parsedBody.prompt.substring(посл.index, посл.index + посл.length));
             }
+            const toSummarize = выбратьДляСводки(allMatches);
+            toSummarize.sort((a, b) => b.index - a.index);
+            toSummarize.forEach(rm => {
+              let content = parsedBody.prompt;
+              const прошлый = allMatches[allMatches.indexOf(rm) - 1];
+              const сводка = вСводку(content.substring(rm.index, rm.index + rm.length), прошлый ? content.substring(прошлый.index, прошлый.index + прошлый.length) : '');
+              if (сводка === null) return;
+              parsedBody.prompt = content.slice(0, rm.index) + сводка + content.slice(rm.index + rm.length);
+              modified = true;
+            });
           }
 
-          // Добавляем HUD-инструкцию, НЕ переписывая существующее assistant/model-сообщение.
-          // Это особенно важно для Swipe/Regen: у DeepSeek и некоторых OpenAI-compatible
-          // backend последний message может быть assistant/model. Раньше мы дописывали
-          // dynamicPrompt прямо туда, из-за чего штатный swipe-запрос превращался в
-          // provider-invalid payload. Для assistant/model создаём отдельное user-сообщение.
-          let dynamicPrompt = buildDynamicPrompt();
+          // Нужна ли часть про близость: идёт ли сцена по последнему HUD или
+          // начинается по словам последних сообщений чата. Тексты — из самого
+          // чата, а не из запроса: там же лежат вставки пресета.
+          if (инжект) {
+          let чатДляРешения = [];
+          try { const ctx = window.SillyTavern?.getContext?.(); чатДляРешения = Array.isArray(ctx?.chat) ? ctx.chat : []; } catch (_) { чатДляРешения = []; }
+          const nsfw = решитьNSFW(объектСнимка, последниеТекстыЧата(чатДляРешения));
+          const снимок = объектСнимка ? строкаСнимка(объектСнимка, nsfw) : '';
+          let dynamicPrompt = раскрытьИнструкцию(buildDynamicPrompt({ nsfw }), снимок);
+          window.__tavernOSHudPrompt = { nsfw, снимок: снимок.length, символов: dynamicPrompt.length, отдельно: settings.hudPromptSeparate !== false };
+          console.info('[TavernOS HUD] Инструкция HUD', window.__tavernOSHudPrompt);
+
           if (parsedBody.messages && Array.isArray(parsedBody.messages) && parsedBody.messages.length > 0) {
             const lastMsgIndex = parsedBody.messages.length - 1;
             const lastMsg = parsedBody.messages[lastMsgIndex];
             const lastRole = String(lastMsg?.role || '').toLowerCase();
-            if (lastRole === 'assistant' || lastRole === 'model') {
-              parsedBody.messages.push({ role: lastRole === 'model' ? 'user' : 'user', content: dynamicPrompt });
+            const ответПоследним = lastRole === 'assistant' || lastRole === 'model';
+            if (settings.hudPromptSeparate !== false) {
+              // Отдельное сообщение после всего, что собрал SillyTavern. Если
+              // последним стоит ответ ассистента (продолжение, префилл), он
+              // должен остаться последним — инструкция встаёт перед ним.
+              // Системная роль посреди диалога безопасна: сервер ST сам
+              // переводит её в пользовательскую для Claude, Gemini и других.
+              const инструкция = { role: 'system', content: dynamicPrompt };
+              if (ответПоследним) parsedBody.messages.splice(lastMsgIndex, 0, инструкция);
+              else parsedBody.messages.push(инструкция);
+            } else if (ответПоследним) {
+              // Прежний способ — дописать к последнему сообщению игрока. Ответ
+              // ассистента не трогаем: у DeepSeek и части OpenAI-совместимых
+              // бэкендов такой запрос становился недопустимым.
+              parsedBody.messages.push({ role: 'user', content: dynamicPrompt });
             } else if (typeof lastMsg.content === 'string') {
-              lastMsg.content += dynamicPrompt;
+              lastMsg.content += '\n\n' + dynamicPrompt;
             } else {
               parsedBody.messages.push({ role: 'user', content: dynamicPrompt });
             }
             modified = true;
           } else if (parsedBody.prompt && typeof parsedBody.prompt === 'string') {
-            parsedBody.prompt += dynamicPrompt;
+            parsedBody.prompt += '\n\n' + dynamicPrompt;
             modified = true;
           }
-          
+          } // инжект
+
           if (modified) {
             options.body = JSON.stringify(parsedBody);
           }
@@ -725,7 +910,14 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
 
   function loadSettings() { 
     const saved = localStorage.getItem('hud_settings'); 
-    if (saved) { try { Object.assign(settings, JSON.parse(saved)); } catch (e) {} } 
+    if (saved) { try { Object.assign(settings, JSON.parse(saved)); } catch (e) {} }
+    // Разовый переход: прежнее значение по умолчанию 2 → 1 (снимок заменяет
+    // полный HUD в истории). Своё значение, отличное от 2, не трогаем.
+    if (settings.hudsToKeepMigration !== 1) {
+      if (saved && Number(settings.hudsToKeep) === 2) settings.hudsToKeep = 1;
+      settings.hudsToKeepMigration = 1;
+      if (saved) { try { localStorage.setItem('hud_settings', JSON.stringify(settings)); } catch (_) {} }
+    }
     applyThemeColors(); 
   }
   // Версию берём из ?v= собственного скрипта: раньше она была вписана в
@@ -1915,7 +2107,8 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       // Списки из прошлых ходов возвращаем на экран перед отрисовкой:
       // модель роняет их каждый ход, а пользователю нужна цельная картина.
       // В сохранённый текст и в запрос к модели это не попадает.
-      const данныеХода = mergeCarryOver(selected.data, messageElement);
+      // Вне сцены модель не пишет кинки и историю секса — черты берём из прошлых ходов.
+      const данныеХода = вернутьЧерты(mergeCarryOver(selected.data, messageElement), messageElement);
       // Таймеры следов и графики пульса смотрят в прошлые ходы — лениво,
       // только когда вкладка с ними действительно собирается.
       привязатьИсторию(данныеХода, Number(messageElement.getAttribute('mesid')));
@@ -2924,7 +3117,24 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
             // model without the complete schema/field definitions and caused it to return
             // an all-empty HUD. Reuse the exact same dynamic HUD prompt as normal chat
             // generation, then add the Regen-specific instruction.
-            const strictBasePrompt = buildDynamicPrompt() + "\n\n<system_note>REGEN OVERRIDE (CRITICAL): Read the recent conversation below and produce a fresh, fully updated [HUD] block for the current state. Recalculate all fields from the available narrative and persistent context. Preserve continuity instead of replacing known facts with empty values. Output ONLY the HUD block and nothing else.</system_note>";
+            // Снимок — последний HUD до перегенерируемого сообщения; решение о
+            // близости — по нему и по самому сообщению, для которого пишем HUD.
+            let объектСнимкаРеген = null;
+            // Число развёрнутых читаем так же, как перехват запроса: нечитаемое
+            // значение — это значение по умолчанию, а не 0. Раньше здесь пустое поле
+            // выключало снимок, а в обычном ответе снимок был.
+            const развёрнутыхРеген = (() => { const n = parseInt(settings.hudsToKeep, 10); return isNaN(n) || n < 0 ? (defaultSettings.hudsToKeep ?? 1) : n; })();
+            if (settings.hudSnapshot !== false && развёрнутыхРеген > 0) {
+                for (let j = mesIdNum - 1; j >= 0 && !объектСнимкаРеген; j--) {
+                    const m = chatData[j];
+                    if (!m || m.is_user || m.is_system) continue;
+                    const текстХода = m.swipes && m.swipes[m.swipe_id] !== undefined ? m.swipes[m.swipe_id] : m.mes;
+                    const блок = extractHudBlock(String(текстХода || ''));
+                    if (блок) объектСнимкаРеген = собратьСнимок(блок);
+                }
+            }
+            const nsfwРеген = решитьNSFW(объектСнимкаРеген, последниеТекстыЧата(chatData, mesIdNum + 1));
+            const strictBasePrompt = раскрытьИнструкцию(buildDynamicPrompt({ nsfw: nsfwРеген, режим: 'regen' }), объектСнимкаРеген ? строкаСнимка(объектСнимкаРеген, nsfwРеген) : '');
 
             for (let i = startIndex; i <= mesIdNum; i++) {
             let msg = chatData[i];
@@ -2968,36 +3178,6 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         if (strictPromptMessage) strictPromptMessage.content = strictPrompt;
         else freshMessages.push({ role: regenRoleForBackend('user'), content: strictPrompt });
 
-        // --- ЛОГИКА САММАРИ ДЛЯ РЕГЕНЕРАЦИИ ---
-        const buildSummaryTextRegen = (hudText) => {
-            let parsedObj = parseHUDComplex(hudText);
-            let summaryStr = `[HUD_SUMMARY] `;
-            
-            if (parsedObj.scene && parsedObj.scene['Время']) summaryStr += `Время: ${parsedObj.scene['Время']}. `;
-            if (parsedObj.scene && parsedObj.scene['Погода']) summaryStr += `Погода: ${parsedObj.scene['Погода']}. `;
-            
-            let cSums = [];
-            if (parsedObj.characters) {
-                parsedObj.characters.forEach(c => {
-                    if (c['Имя']) {
-                        let details = [];
-                        if (c['Возраст'] && String(c['Возраст']).toLowerCase() !== 'empty' && String(c['Возраст']).toLowerCase() !== 'none') details.push(`Возраст: ${c['Возраст']}`);
-                        if (c['Место'] && String(c['Место']).toLowerCase() !== 'empty' && String(c['Место']).toLowerCase() !== 'none') details.push(`Место: ${c['Место']}`);
-                        cSums.push(details.length > 0 ? `${c['Имя']} (${details.join(', ')})` : c['Имя']);
-                    }
-                });
-            }
-            if (parsedObj.user) {
-                let uDetails = [];
-                if (parsedObj.user['Возраст'] && String(parsedObj.user['Возраст']).toLowerCase() !== 'empty' && String(parsedObj.user['Возраст']).toLowerCase() !== 'none') uDetails.push(`Возраст: ${parsedObj.user['Возраст']}`);
-                if (parsedObj.user['Место'] && String(parsedObj.user['Место']).toLowerCase() !== 'empty' && String(parsedObj.user['Место']).toLowerCase() !== 'none') uDetails.push(`Место: ${parsedObj.user['Место']}`);
-                if (uDetails.length > 0) cSums.push(`User (${uDetails.join(', ')})`);
-                else if (Object.keys(parsedObj.user).length > 0) cSums.push(`User`);
-            }
-            if (cSums.length > 0) summaryStr += cSums.join('; ') + ` `;
-            
-            return summaryStr + `[/HUD_SUMMARY]`;
-        };
 
         let allMatchesRegen = [];
         freshMessages.forEach((msg, mIdx) => {
@@ -3016,18 +3196,27 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         });
 
         let hudsToKeep = parseInt(settings.hudsToKeep, 10);
-        if (isNaN(hudsToKeep) || hudsToKeep < 0) hudsToKeep = 2;
+        if (isNaN(hudsToKeep) || hudsToKeep < 0) hudsToKeep = defaultSettings.hudsToKeep ?? 1;
         
-        if (allMatchesRegen.length > hudsToKeep) {
-            let toSummarize = allMatchesRegen.slice(0, allMatchesRegen.length - hudsToKeep);
+        {
+            // Со снимком последний блок истории сжимается в сводку (он уже в
+            // снимке), полными остаются hudsToKeep − 1 перед ним. Без снимка —
+            // последние hudsToKeep, как раньше.
+            const естьСнимок = !!объектСнимкаРеген && allMatchesRegen.length > 0;
+            const конец = естьСнимок ? allMatchesRegen.length - 1 : allMatchesRegen.length;
+            const начало = Math.max(0, конец - (естьСнимок ? hudsToKeep - 1 : hudsToKeep));
+            const toSummarize = allMatchesRegen.filter((_, i) => i < начало || i >= конец);
             // Сортируем с конца в начало, чтобы не сбить индексы при замене текста
             toSummarize.sort((a, b) => (a.mIdx !== b.mIdx ? b.mIdx - a.mIdx : b.index - a.index));
-            
+
             toSummarize.forEach(rm => {
                 let content = freshMessages[rm.mIdx].content;
                 let hudBlockText = content.substring(rm.index, rm.index + rm.length);
-                
-                freshMessages[rm.mIdx].content = content.slice(0, rm.index) + '\n' + buildSummaryTextRegen(hudBlockText) + '\n' + content.slice(rm.index + rm.length);
+                const прошлый = allMatchesRegen[allMatchesRegen.indexOf(rm) - 1];
+                const прошлыйТекст = прошлый ? freshMessages[прошлый.mIdx].content.substring(прошлый.index, прошлый.index + прошлый.length) : '';
+                let сводка;
+                try { сводка = сводкаHUD(hudBlockText, прошлыйТекст); } catch (_) { return; }
+                freshMessages[rm.mIdx].content = content.slice(0, rm.index) + '\n' + сводка + '\n' + content.slice(rm.index + rm.length);
             });
         }
 
@@ -3124,6 +3313,18 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
         }
 
             let newHudText = repairGeneratedHudBlock(aiText);
+            // Сохраняем HUD в кодах — тем же форматом, каким его пишет модель.
+            // Развёрнутые русские ключи в истории противоречили правилу «только
+            // коды» и учили модель обратному. Страховка: если разбор кодовой
+            // версии хоть в чём-то расходится с исправленной, оставляем её.
+            try {
+              const внутри = (String(aiText).match(hudBlockRe('i', true)) || [])[1];
+              const вКодах = внутри ? HUDвКодах(внутри) : null;
+              if (вКодах && Object.keys(вКодах).length) {
+                const кодами = '[HUD]\n```json\n' + JSON.stringify(вКодах, null, 2) + '\n```\n[/HUD]';
+                if (JSON.stringify(parseHUDComplex(кодами)) === JSON.stringify(parseHUDComplex(newHudText))) newHudText = кодами;
+              }
+            } catch (_) { /* остаётся исправленный блок */ }
 
             let updatedFullText = replaceHudBlockInText(oldText, newHudText);
 
@@ -3389,7 +3590,16 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
 
       ${группа('🤖 Генерация', `
         <label class="hud-set-check" title="Отдельный лимит токенов только для запроса создания/регенерации HUD.">🧠 Лимит токенов HUD: ${число('hud-max-tokens', 256, 32768, settings.hudMaxTokens, 70)}</label>
-        <label class="hud-set-check" title="Оставляет сводку [HUD_SUMMARY] вместо старых блоков. Если ставишь 2 — то 2 последних будут полными HUD, а все что старше превратятся в сводку памяти. 0 = даже самый свежий HUD будет сжат в сводку (модель не увидит полный JSON последнего состояния — не рекомендуется).">💾 Сколько развернутых HUD оставлять: ${число('hud-keep-count', 0, 10, settings.hudsToKeep, 40)}</label>
+        ${галка('hud-prompt-separate', settings.hudPromptSeparate !== false, '🧩 Инструкция HUD отдельным сообщением', 'Задача, правила, схема и снимок уходят последним сообщением — после пресета, карточки, лорбуков и истории. Выключите, если бэкенд не принимает системное сообщение в конце: тогда инструкция дописывается к последнему сообщению, как раньше.')}
+        ${галка('hud-snapshot', settings.hudSnapshot !== false, '📸 Снимок последнего HUD в конце инструкции', 'Последний HUD в коротких кодах, без пустых полей: модель обновляет его под новый ответ, а не собирает мир заново. Снимок считается одним из развёрнутых HUD: сам блок в истории сжимается в обычную [HUD_SUMMARY].')}
+        <label class="hud-set-check" title="Правила и поля близости — самая тяжёлая часть промта. «Авто»: только когда сцена идёт по последнему HUD или начинается по словам последних сообщений. Кинки, фетиши и история секса на экране не пропадают — HUD берёт их из прошлых ходов.">🔞 Часть про близость:
+          <select id="hud-nsfw-prompt" style="flex:1; min-width:0; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;">
+            <option value="auto"${(settings.nsfwPrompt || 'auto') === 'auto' ? ' selected' : ''}>Авто — когда сцена идёт</option>
+            <option value="always"${settings.nsfwPrompt === 'always' ? ' selected' : ''}>Всегда</option>
+            <option value="never"${settings.nsfwPrompt === 'never' ? ' selected' : ''}>Никогда</option>
+          </select>
+        </label>
+        <label class="hud-set-check" title="Сколько последних HUD модель видит полностью, остальные сжимаются в сводку [HUD_SUMMARY]. Снимок в конце инструкции считается одним из них: при 1 (рекомендуется) — только снимок, при 2 — снимок и один полный HUD в истории (+тысячи токенов). 0 = все HUD сжаты в сводку, снимка нет. Сводки работают и при выключенном сетевом перехвате.">💾 Сколько развернутых HUD оставлять: ${число('hud-keep-count', 0, 10, settings.hudsToKeep, 40)}</label>
         <label class="hud-set-check" title="Сколько последних сообщений отправлять модели при нажатии на 🔄 (регенерация HUD). 0 = отправлять всю историю чата до этого сообщения.">⚡ При регене HUD слать последние ${число('hud-regen-context', 0, 50, settings.regenContextMessages, 40)} сообщ.</label>
         <label class="hud-set-check" title="Позволяет перегенерировать HUD (🔄) через ДРУГОЙ сохранённый профиль подключения">
           🧠 Профиль для регена HUD:
@@ -3626,9 +3836,14 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     [['hud-enable-guns', 'enableGuns'], ['hud-enable-illness', 'enableIllness'], ['hud-enable-pregnancy', 'enablePregnancy'],
      ['hud-enable-companions', 'enableCompanions'], ['hud-enable-perception', 'enablePerception'], ['hud-enable-familytree', 'enableFamilyTree'], ['hud-enable-assistant', 'enableAssistant'],
      ['hud-enable-menstruation', 'enableMenstruation'], ['hud-enable-intimacy-extras', 'enableIntimacyExtras'], ['hud-enable-heatmap', 'enableHeatMap'],
-     ['hud-enable-economy', 'enableEconomy'], ['hud-enable-events', 'enableEvents'], ['hud-enable-city', 'enableCity'], ['hud-enable-horoscope', 'enableHoroscope']].forEach(([id, ключ]) => {
+     ['hud-enable-economy', 'enableEconomy'], ['hud-enable-events', 'enableEvents'], ['hud-enable-city', 'enableCity'], ['hud-enable-horoscope', 'enableHoroscope'],
+     ['hud-prompt-separate', 'hudPromptSeparate'], ['hud-snapshot', 'hudSnapshot']].forEach(([id, ключ]) => {
       const поле = document.getElementById(id);
       if (поле) поле.addEventListener('change', (e) => { settings[ключ] = e.target.checked; saveSettings(); });
+    });
+    document.getElementById('hud-nsfw-prompt')?.addEventListener('change', (e) => {
+      settings.nsfwPrompt = ['auto', 'always', 'never'].includes(e.target.value) ? e.target.value : 'auto';
+      saveSettings();
     });
     document.getElementById('hud-enable-user').addEventListener('change', (e) => { settings.enableUserBlock = e.target.checked; saveSettings(); });
     
@@ -3646,7 +3861,7 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=22.99.58');
+        const mod = await import('./render/archive.js?v=22.99.70');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -3930,14 +4145,15 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
 
             let oldText = targetMessage.swipes && targetMessage.swipe_id !== undefined ? targetMessage.swipes[targetMessage.swipe_id] : targetMessage.mes;
             
-            const brokenHudRegex = /(?:\[|&lt;|<|&#91;)\s*HUD\s*(?:\]|&gt;|>|&#93;)[\s\S]*$/i;
-            
-            if (!brokenHudRegex.test(oldText)) {
+            // Режем от ПОСЛЕДНЕГО настоящего [HUD], а не от первой метки: первой
+            // бывает упоминание в <plan>, и тогда уходил весь текст ответа.
+            const началоHud = началоПоследнегоHud(oldText);
+            if (началоHud < 0) {
                  showHudToast('error', 'Ошибка', 'Тег [HUD] не найден в последнем сообщении.');
                  return;
             }
 
-            let newText = oldText.replace(brokenHudRegex, '').trim();
+            let newText = String(oldText).slice(0, началоHud).trim();
             updateMessageDataForCurrentSwipe(targetMessage, newText);
                 try {
                     const postUpdateHud = extractHudBlock(newText);
@@ -4308,6 +4524,8 @@ MANDATORY: end EVERY response with a [HUD] block. It holds ONLY valid JSON, star
     cachedChatContainer = chatContainer;
     loadSettings(); 
     restoreLastTavernRequest();
+    // Макрос {{hudLast}} — и для нашей инструкции, и для пресетов.
+    зарегистрироватьМакросHUD();
     initGlobalEvents(eventsCtx);
     initTavernOSEvents(eventsCtx);	
     initWandButton(); // Наша новая кнопка!

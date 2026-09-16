@@ -7,8 +7,8 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=22.99.58';
-import { hudBlockRe } from './hud-block.js?v=22.99.58';
+import { normalizeJSONData } from './schema.js?v=22.99.70';
+import { hudBlockRe } from './hud-block.js?v=22.99.70';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';
@@ -681,7 +681,15 @@ export function parseSimpleYaml(текст) {
   return итог;
 }
 
+// Разобранный HUD и нормализованный для отрисовки.
 export function parseHUDComplex(contentEncoded) {
+  return normalizeJSONData(разобратьHUDСырой(contentEncoded));
+}
+
+// Сырой HUD: объект в том виде, в каком его написала модель, — с короткими
+// кодами и без подставленных схемой «empty». Нужен снимку последнего HUD в
+// инструкции: модель обновляет свой же формат, а не развёрнутую копию.
+export function разобратьHUDСырой(contentEncoded) {
   const decoded = decodeHighlightedHudHtml(contentEncoded);
   const candidates = extractBalancedJsonCandidates(decoded);
   if (!candidates.length) {
@@ -730,7 +738,7 @@ export function parseHUDComplex(contentEncoded) {
       });
     }
     if (repaired) console.debug('[TavernOS HUD] HUD JSON repaired', { mode: selected.mode, candidates: candidates.length });
-    return normalizeJSONData(selected.parsed);
+    return selected.parsed;
   }
 
   const preview = decoded.slice(0, 500).replace(/\n/g, '\\n');

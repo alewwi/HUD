@@ -6,12 +6,12 @@
 // Вынесено из phone.js: тот разросся до девятисот строк и держал в себе
 // разом мессенджер, кошелёк, календарь и сборку самого аппарата.
 
-import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=22.99.58';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.58';
-import { G_ICONS } from './icons.js?v=22.99.58';
-import { buildBubbleInner, buildCallRow, msgKey } from './msg-parts.js?v=22.99.58';
-import { avaFace, msgTimeOf, collectCounterparts } from './phone-common.js?v=22.99.58';
-import { namesLikelySame } from '../names.js?v=22.99.58';
+import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=22.99.70';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.70';
+import { G_ICONS } from './icons.js?v=22.99.70';
+import { buildBubbleInner, buildCallRow, msgKey } from './msg-parts.js?v=22.99.70';
+import { avaFace, msgTimeOf, collectCounterparts } from './phone-common.js?v=22.99.70';
+import { namesLikelySame } from '../names.js?v=22.99.70';
 
 export function buildMessengerHTML(chatsMap, uid, mainCharName) {
   const chatKeys = Object.keys(chatsMap || {});
