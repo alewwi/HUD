@@ -3796,3 +3796,212 @@
 .hud-mark-stage.is-healed { color: #6fb7e8; }
 .hud-mark-rows { grid-column: 1 / -1; position: relative; z-index: 1; }
 .hud-mark-rows .hud-ill-row:first-child { margin-top: 0; }
+
+
+/* =========================================================================
+   Виджет погоды: исправления внешнего вида (по снимкам всех сезонов,
+   погоды и времени суток на ПК и телефоне)
+   ========================================================================= */
+
+/* --- Ночью светило — луна, а не солнце ---------------------------------- */
+/* Правила ясной погоды не смотрели на время суток: солнечная пульсация
+   жёлтого свечения перебивала холодное сияние луны (анимация сильнее
+   обычного box-shadow), а вокруг луны крутились лучи-спицы. */
+:is(.phase-night, .phase-deep-night, .phase-evening, .phase-predawn).weather-clear .hud-fx-celestial {
+    animation: hud-celestial-float 7s ease-in-out infinite;
+}
+:is(.phase-night, .phase-deep-night, .phase-evening, .phase-predawn).weather-clear .hud-fx-weather::before {
+    content: none;
+}
+
+/* --- Жаркая пыль на своём слое ------------------------------------------ */
+/* Слой инея в покое держится на 12% — пыль на нём была бы не видна. */
+.weather-dusty .hud-fx-frost { opacity: .75; }
+
+/* --- Лунная дорожка ----------------------------------------------------- */
+/* Была полосой в треть ширины: на низкой полоске моря (ПК) читалась как
+   белая плита поперёк воды. Теперь узкий столб, расширяющийся к берегу,
+   с растушёванными краями. */
+.season-summer .hud-sea-moonpath {
+    width: 26%; margin-left: -13%;
+    clip-path: none;
+    /* Эллипс с центром у берега: к горизонту столб сужается, края мягкие. */
+    -webkit-mask-image: radial-gradient(50% 150% at 50% 100%, rgba(0,0,0,.95) 0%, rgba(0,0,0,.7) 40%, transparent 72%);
+    mask-image: radial-gradient(50% 150% at 50% 100%, rgba(0,0,0,.95) 0%, rgba(0,0,0,.7) 40%, transparent 72%);
+    filter: blur(1.5px);
+}
+
+/* --- Туман -------------------------------------------------------------- */
+/* Прежний туман был почти не отличим от ясной погоды. Добавляем пелену над
+   пейзажем: гуще у земли, реже к небу. Ночью она темнее и холоднее. */
+.weather-fog .hud-fx-overlay::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        linear-gradient(0deg, rgba(226,231,240,.62) 0%, rgba(226,231,240,.40) 34%, rgba(226,231,240,.16) 70%, rgba(226,231,240,.06) 100%),
+        radial-gradient(60% 24% at 30% 78%, rgba(236,240,247,.35), transparent 72%),
+        radial-gradient(50% 20% at 78% 62%, rgba(236,240,247,.28), transparent 72%);
+}
+:is(.phase-night, .phase-deep-night, .phase-evening, .phase-predawn).weather-fog .hud-fx-overlay::after {
+    background:
+        linear-gradient(0deg, rgba(120,132,156,.55) 0%, rgba(110,122,146,.34) 36%, rgba(96,108,132,.12) 72%, transparent 100%),
+        radial-gradient(60% 24% at 30% 78%, rgba(140,152,176,.30), transparent 72%);
+}
+:is(.phase-sunset, .phase-golden).weather-fog .hud-fx-overlay::after {
+    background:
+        linear-gradient(0deg, rgba(236,206,196,.55) 0%, rgba(232,204,196,.34) 36%, rgba(228,200,196,.12) 72%, transparent 100%),
+        radial-gradient(60% 24% at 30% 78%, rgba(242,216,206,.30), transparent 72%);
+}
+
+/* --- Тучи дождя целиком в кадре ---------------------------------------- */
+/* Верхние комки тучи поднимаются над её телом на ~0.21 ширины, а сама туча
+   стояла в 16-24px от верха: макушки срезались рамкой сцены. Опускаем тучу
+   на высоту комков — полоса дождя по-прежнему начинается внутри неё. */
+/* Класс повторён ради веса: правила ливня и мороси выше весят больше. */
+.hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-back { top: calc(var(--rc-w) * .24 + 6px); }
+.hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-front { top: calc(var(--rc-w) * .24 + 12px); }
+
+/* --- Лёгкий снег ---------------------------------------------------------- */
+/* В покое слабый снег рисовался на 0.6 × 0.68 ≈ 0.41 прозрачности, хлопья
+   в 1–1.7px растворялись, и «лёгкий снег» не отличался от ясной погоды.
+   Хлопьев столько же — редкий снег остаётся редким, но его видно. */
+.weather-snow.weather-intensity-low .hud-fx-weather { --snow-opacity: .9; }
+.weather-snow.weather-intensity-low:not(.fx-active) .hud-fx-weather { opacity: .9; }
+/* Хлопья были собраны в левом верхнем углу плитки — разносим по всей. */
+.weather-snow.weather-intensity-low .hud-snow-layer.snow-mid {
+  background-image:
+    radial-gradient(circle 2.3px, rgba(240,246,255,.95) 0 64%, transparent 100%),
+    radial-gradient(circle 1.8px, rgba(240,246,255,.85) 0 64%, transparent 100%),
+    radial-gradient(circle 2px,   rgba(240,246,255,.8)  0 64%, transparent 100%),
+    radial-gradient(circle 1.5px, rgba(240,246,255,.7)  0 64%, transparent 100%),
+    radial-gradient(circle 2.1px, rgba(240,246,255,.9)  0 64%, transparent 100%),
+    radial-gradient(circle 1.7px, rgba(240,246,255,.75) 0 64%, transparent 100%),
+    radial-gradient(circle 1.4px, rgba(240,246,255,.65) 0 64%, transparent 100%);
+  background-position: 0 0, 41% 17%, 19% 63%, 71% 44%, 86% 81%, 52% 91%, 33% 38%;
+}
+
+/* --- ПК: пейзаж не прячется под плашкой часов --------------------------- */
+/* Виджет на ПК был ниже плашки с часами (126px против 84px плашки), и всё
+   в левой трети сцены — снеговик и первый дом, волейбольная сетка и доска,
+   забор и дерево — стояло целиком под ней. Как и на телефоне, добавляем
+   полосу пейзажа под плашками: декорации привязаны к низу сцены и выходят
+   из-под плашки. Свёрнутая строка (is-compact) не меняется. */
+@media screen and (min-width: 601px) {
+    .hud-scene-widget { padding-bottom: 64px; }
+    /* Снеговик ростом выше полосы под плашкой: голова всё равно уходила под
+       часы. На ПК он стоит правее домов, у пруда, вместе со своим сугробом. */
+    .season-winter .hud-snowman { left: 45%; }
+    .season-winter .hud-snowdrift.sd-snowman {
+        left: calc(45% - 5px);
+        -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 74%, transparent 100%);
+                mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 74%, transparent 100%);
+    }
+}
+
+/* --- Телефон ------------------------------------------------------------- */
+@media screen and (max-width: 600px) {
+    /* Лунная дорожка и солнечные блики на воде идут за светилом, а оно на
+       телефоне стоит на боковой полосе (--cel-xm), а не на --cel-x. */
+    .season-summer .hud-sea { --cel-x: var(--cel-xm); }
+    /* Лучи ясного солнца — туда же, где само солнце на телефоне. */
+    .weather-clear .hud-fx-weather::before {
+        left: var(--cel-xm, var(--cel-x, auto));
+        top: calc(24% + var(--cel-y, 12px) * 0.62);
+        width: 56px; height: 56px; margin-left: -28px; margin-top: -28px;
+    }
+
+    /* Дождь и гроза шли узкой полосой по центру — ровно за плашками часов
+       и погоды, и на телефоне капель почти не было видно. Теперь дождь на
+       всю ширину, а тучи разведены по краям, мимо плашек. */
+    .weather-rain .hud-fx-weather::after,
+    .weather-rain.weather-intensity-high .hud-fx-weather::after,
+    .weather-rain.weather-intensity-low .hud-fx-weather::after,
+    .weather-storm .hud-fx-weather::after {
+        left: -14%; width: 128%; margin-left: 0;
+        top: 40px; height: calc(100% - 40px);
+    }
+    .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-back { left: 13%; margin-left: calc(var(--rc-w) * -.5); }
+    .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-front { left: 87%; margin-left: calc(var(--rc-w) * -.5); }
+}
+
+/* --- Сосульки держатся за карниз ----------------------------------------- */
+/* Сосульки висели прямо на верхней рамке сцены — держаться им было не за
+   что. Снежный карниз с неровной кромкой: сосульки растут из него. */
+.season-winter .hud-icicle-row::before {
+    content: ''; position: absolute; left: 0; right: 0; top: 0; height: 7px; pointer-events: none;
+    background:
+        radial-gradient(7px 4px at 7px 3px, #eaf2fb 97%, transparent 100%) 0 0 / 14px 7px repeat-x,
+        radial-gradient(9px 5px at 9px 3px, #e3edf8 97%, transparent 100%) 5px 0 / 23px 8px repeat-x,
+        linear-gradient(180deg, #fbfdff, #e8f1fa) 0 0 / 100% 3px no-repeat;
+    filter: drop-shadow(0 1px 1px rgba(110,150,190,.35));
+}
+
+/* --- Деревья без просвечивания ------------------------------------------ */
+/* Деревья были полупрозрачными (0.52–0.76), и сквозь стволы и кроны было
+   видно солнце, луну и облака. Теперь они плотные, а дальность передаёт
+   цвет: дальние светлее и блёклее, как в дымке. */
+.hud-scene-widget .hud-bg-tree,
+.hud-scene-widget .hud-bg-tree.bt1,
+.hud-scene-widget .hud-bg-tree.bt2,
+.hud-scene-widget .hud-bg-tree.bt3,
+.hud-scene-widget .hud-bg-tree.bt4 { opacity: 1; }
+.hud-scene-widget .hud-bg-tree-autumn-foliage,
+.hud-scene-widget .hud-bg-tree-autumn-foliage.foliage-1,
+.hud-scene-widget .hud-bg-tree-autumn-foliage.foliage-2,
+.hud-scene-widget .hud-bg-tree-autumn-foliage.foliage-3,
+.hud-scene-widget .hud-bg-tree-autumn-foliage.foliage-4 { opacity: 1; }
+.hud-scene-widget .hud-bg-tree-trunk { background: linear-gradient(90deg, #2a1d16, #4d3827, #261c16); }
+.hud-scene-widget .hud-bg-tree-branch { background: #3a2c20; }
+.hud-scene-widget .hud-bg-tree-winter .hud-bg-tree-trunk { background: linear-gradient(90deg, #3a3837, #625c54, #343231); }
+.season-winter .hud-bg-tree.bt1, .season-winter .hud-bg-tree.bt3 { filter: brightness(1.75) contrast(.5) saturate(.45); }
+.season-winter .hud-bg-tree.bt2 { filter: brightness(1.5) contrast(.6) saturate(.55); }
+.season-winter .hud-bg-tree.bt4 { filter: brightness(1.3) contrast(.72) saturate(.65); }
+:is(.season-spring, .season-autumn) .hud-bg-tree.bt1,
+:is(.season-spring, .season-autumn) .hud-bg-tree.bt3 { filter: brightness(1.14) contrast(.82) saturate(.78); }
+:is(.season-spring, .season-autumn) .hud-bg-tree.bt2 { filter: brightness(1.06) contrast(.92) saturate(.9); }
+
+/* --- Ветер качает деревья, зонт и флажок -------------------------------- */
+/* Раньше шквальный ветер рисовался только полосами в воздухе, а всё на земле
+   стояло неподвижно. Наклон задан отдельным свойством rotate, поэтому не
+   спорит с масштабом деревьев в transform. В покое дерево стоит в кадре
+   наклона — видно, что дует. */
+@keyframes hud-wind-lean        { 0%, 100% { rotate: -1.8deg; } 50% { rotate: .3deg; } }
+@keyframes hud-wind-lean-strong { 0%, 100% { rotate: -3.6deg; } 50% { rotate: -.8deg; } }
+:is(.weather-wind, .weather-windy) .hud-bg-tree { animation: hud-wind-lean 2.8s ease-in-out infinite; }
+:is(.weather-wind.weather-intensity-high, .weather-windy-strong) .hud-bg-tree { animation: hud-wind-lean-strong 1.8s ease-in-out infinite; }
+:is(.weather-wind, .weather-windy, .weather-windy-strong) .hud-bg-tree.bt2 { animation-delay: -.7s; }
+:is(.weather-wind, .weather-windy, .weather-windy-strong) .hud-bg-tree.bt3 { animation-delay: -1.3s; }
+:is(.weather-wind, .weather-windy, .weather-windy-strong) .hud-bg-tree.bt4 { animation-delay: -.4s; }
+:is(.weather-wind, .weather-windy, .weather-windy-strong) .hud-umbrella { rotate: -2deg; transform-origin: 50% 100%; }
+:is(.weather-wind, .weather-windy, .weather-windy-strong) :is(.hud-umbrella-canopy, .hud-umbrella-valance) { animation-duration: 1.7s; }
+:is(.weather-wind.weather-intensity-high, .weather-windy-strong) :is(.hud-umbrella-canopy, .hud-umbrella-valance) { animation-duration: 1.1s; }
+@keyframes hud-flag-flutter { 0%, 100% { transform: scaleX(1) skewY(0deg); } 50% { transform: scaleX(.82) skewY(7deg); } }
+.season-summer:is(.weather-wind, .weather-windy, .weather-windy-strong) .hud-sandcastle-flag::after {
+    transform-origin: 0 50%;
+    animation: hud-flag-flutter .45s ease-in-out infinite;
+}
+
+/* --- Дождь на ПК шире ----------------------------------------------------- */
+/* На широкой сцене дождь шёл узкой полосой 140px под двумя маленькими
+   тучками. Тучи крупнее и шире разнесены, полоса дождя — под ними. */
+@media screen and (min-width: 601px) {
+    .weather-rain .hud-fx-weather::after { width: 240px; margin-left: -120px; }
+    .weather-rain.weather-intensity-high .hud-fx-weather::after { width: 290px; margin-left: -145px; }
+    .weather-rain.weather-intensity-low .hud-fx-weather::after { width: 180px; margin-left: -90px; }
+    .weather-storm .hud-fx-weather::after { width: 330px; margin-left: -165px; }
+    .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-back { --rc-w: 72px; margin-left: -128px; }
+    .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-front { --rc-w: 94px; margin-left: -34px; }
+    .hud-scene-widget.weather-rain.weather-intensity-high .hud-fx-clouds .hud-rain-cloud.rc-back { --rc-w: 86px; margin-left: -150px; }
+    .hud-scene-widget.weather-rain.weather-intensity-high .hud-fx-clouds .hud-rain-cloud.rc-front { --rc-w: 112px; margin-left: -40px; }
+    .hud-scene-widget.weather-rain.weather-intensity-low .hud-fx-clouds .hud-rain-cloud.rc-back { --rc-w: 56px; margin-left: -96px; }
+    .hud-scene-widget.weather-rain.weather-intensity-low .hud-fx-clouds .hud-rain-cloud.rc-front { --rc-w: 70px; margin-left: -26px; }
+}
+
+/* --- Телефон: тучи не задевают плашку часов ------------------------------ */
+@media screen and (max-width: 600px) {
+    .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-back { --rc-w: 40px; left: 10%; }
+    .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-front { --rc-w: 52px; left: 90%; }
+    .hud-scene-widget.weather-rain.weather-intensity-high .hud-fx-clouds .hud-rain-cloud.rc-back { --rc-w: 50px; left: 10%; margin-left: calc(var(--rc-w) * -.5); }
+    .hud-scene-widget.weather-rain.weather-intensity-high .hud-fx-clouds .hud-rain-cloud.rc-front { --rc-w: 64px; left: 90%; margin-left: calc(var(--rc-w) * -.5); }
+    .hud-scene-widget.weather-rain.weather-intensity-low .hud-fx-clouds .hud-rain-cloud.rc-back { --rc-w: 34px; left: 10%; margin-left: calc(var(--rc-w) * -.5); }
+    .hud-scene-widget.weather-rain.weather-intensity-low .hud-fx-clouds .hud-rain-cloud.rc-front { --rc-w: 42px; left: 90%; margin-left: calc(var(--rc-w) * -.5); }
+}

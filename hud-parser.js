@@ -7,8 +7,8 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=22.99.70';
-import { hudBlockRe } from './hud-block.js?v=22.99.70';
+import { normalizeJSONData } from './schema.js?v=22.99.76';
+import { hudBlockRe } from './hud-block.js?v=22.99.76';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';
@@ -681,9 +681,23 @@ export function parseSimpleYaml(текст) {
   return итог;
 }
 
+// Метка снимка «<new this turn>», переписанная моделью дословно, — не
+// содержание: на экран её не пускаем, поле считается пустым.
+const МЕТКА_НОВОГО = /^\s*<\s*new this turn\b[^>]*>\s*$/i;
+function безМеток(v) {
+  if (Array.isArray(v)) return v.filter(x => !(typeof x === 'string' && МЕТКА_НОВОГО.test(x))).map(безМеток);
+  if (v && typeof v === 'object') {
+    for (const k of Object.keys(v)) {
+      if (typeof v[k] === 'string' && МЕТКА_НОВОГО.test(v[k])) v[k] = '';
+      else v[k] = безМеток(v[k]);
+    }
+  }
+  return v;
+}
+
 // Разобранный HUD и нормализованный для отрисовки.
 export function parseHUDComplex(contentEncoded) {
-  return normalizeJSONData(разобратьHUDСырой(contentEncoded));
+  return normalizeJSONData(безМеток(разобратьHUDСырой(contentEncoded)));
 }
 
 // Сырой HUD: объект в том виде, в каком его написала модель, — с короткими

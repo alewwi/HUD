@@ -899,8 +899,12 @@
 }
 @keyframes hud-rainbow-appear { 0% { opacity: 0; } 15% { opacity: 0.9; } 75% { opacity: 0.9; } 100% { opacity: 0; } }
 
-.weather-dusty .hud-fx-weather::before {
-    content: ''; position: absolute; inset: 0; z-index: 1;
+/* Пыль рисуется на слое инея: жара и мороз вместе не бывают. Раньше она
+   занимала .hud-fx-weather::before, а там же лучи ясного солнца (и полосы
+   ветра): inset: 0 не снимал их ширину 70px и отрицательные отступы, и в
+   углу сцены висела четверть тёмного круга, а лучи пропадали. */
+.weather-dusty .hud-fx-frost::before {
+    content: ''; position: absolute; inset: 0; z-index: 1; pointer-events: none;
     background: linear-gradient(0deg, rgba(214,183,120,0.22), transparent 55%);
     animation: hud-dust-drift 10s ease-in-out infinite alternate;
 }
@@ -947,9 +951,11 @@
 
 /* 5. ВРЕМЕНА ГОДА */
 .hud-fx-season-scene { position: absolute; inset: 0; overflow: hidden; opacity: 0; transition: opacity 0.8s ease; }
+/* Пейзаж непрозрачный: при 0.9 сквозь дома и деревья просвечивали
+   солнце и облака, и казалось, что они стоят перед пейзажем. */
 .season-autumn .hud-fx-season-scene,
 .season-summer .hud-fx-season-scene,
-.season-winter .hud-fx-season-scene { opacity: 0.9; }
+.season-winter .hud-fx-season-scene { opacity: 1; }
 
 .hud-meadow {
     position: absolute; left: -6%; right: -6%; bottom: 0; height: 26%;
@@ -3286,7 +3292,9 @@
     .hud-scene-widget:not(.fx-active) .hud-fx-storm-flash { opacity: 0 !important; }
     /* Сезонная декорация на телефоне видна и в покое: иначе от пейзажа
        остаётся пустое небо, пока по нему не тапнешь. */
-    .hud-scene-widget:not(.fx-active) .hud-fx-season-scene { opacity: 0.78; }
+    /* Непрозрачно, как и в движении: при 0.78 сквозь пейзаж было видно
+       светило и облака. */
+    .hud-scene-widget:not(.fx-active) .hud-fx-season-scene { opacity: 1; }
 }
 
 /* =========================================
@@ -5094,19 +5102,20 @@
     background:linear-gradient(0deg, rgba(255,244,208,.12), rgba(255,244,208,0));
     pointer-events:none;
 }
+/* Дальний остров — пологие холмы в дымке ровно на линии горизонта (верх
+   моря — 34% высоты). Был наклонённым (skewX) тёмным блином с торчащим
+   клином сверху и читался как сломанная тень. Цвет — холодный серо-голубой,
+   как всё далёкое над водой; края растворены. */
 .season-summer .hud-summer-distant-island {
-    position:absolute; left:62%; bottom:33%; width:27%; height:8%; z-index:1;
-    background:linear-gradient(160deg, rgba(42,66,81,.32), rgba(23,45,63,.15));
-    border-radius:50% 55% 8% 8%;
-    filter:blur(.4px);
-    transform:skewX(-12deg);
-    opacity:.65;
-}
-.season-summer .hud-summer-distant-island::after {
-    content:''; position:absolute; left:20%; bottom:76%; width:15%; height:48%;
-    border-radius:70% 40% 0 0;
-    background:rgba(37,64,50,.28);
-    transform:rotate(-12deg);
+    position:absolute; left:57%; bottom:34%; width:31%; height:5.5%; z-index:1;
+    background:
+        radial-gradient(58% 130% at 30% 100%, rgba(92,124,140,.9) 0 58%, rgba(92,124,140,0) 61%),
+        radial-gradient(42% 100% at 66% 100%, rgba(104,136,150,.85) 0 56%, rgba(104,136,150,0) 59%),
+        radial-gradient(26% 62% at 88% 100%, rgba(114,146,160,.8) 0 54%, rgba(114,146,160,0) 57%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
+    filter:blur(.7px);
+    opacity:.5;
 }
 .season-summer .hud-summer-heat-haze {
     position:absolute; left:18%; right:18%; bottom:28%; height:15%; z-index:4;
@@ -5121,58 +5130,50 @@
     100% { transform:translateX(3px) scaleY(1.1); opacity:.45; }
 }
 
-/* --- SUMMER: realistic dragonfly --- */
+/* --- SUMMER: стрекоза ---------------------------------------------------
+   SVG, вид сверху (разметка — render/scene.js). Прежняя стрекоза была
+   набрана из полосок и скошенных прямоугольников размером 24x18 и в покое не
+   была видна вовсе: кадр 0% её полёта стоял за левым краем с прозрачностью 0.
+   Теперь в покое она висит над водой, а по касанию облетает пляж: перелёт,
+   зависание, разворот и обратно. Крылья двух пар машут вразнобой. */
 .season-summer .hud-summer-dragonfly {
-    position:absolute; left:-10%; bottom:44%; width:24px; height:18px; z-index:12;
-    opacity:0; pointer-events:none;
-    animation:hud-dragonfly-pass 27s ease-in-out infinite;
+    position:absolute; left:30%; bottom:31%; width:46px; height:22px; z-index:12;
+    pointer-events:none;
+    animation:hud-dragonfly-patrol 22s ease-in-out infinite;
     animation-play-state:paused !important;
-    transform-origin:50% 50%;
-    filter:drop-shadow(0 1px 1px rgba(20,35,40,.18));
+    filter:drop-shadow(0 1px 1.5px rgba(10,30,40,.28));
 }
-.season-summer .hud-dragonfly-head {
-    position:absolute; left:19px; top:7px; width:4px; height:4px; border-radius:50%;
-    background:radial-gradient(circle at 35% 35%, #526f73 0%, #24383b 72%);
-    box-shadow:1px 0 0 rgba(120,165,170,.25);
-}
-.season-summer .hud-dragonfly-body {
-    position:absolute; left:9px; top:5px; width:12px; height:5px;
-    border-radius:55% 45% 50% 50%;
-    background:linear-gradient(90deg, #3e5558 0 16%, #9b8451 16% 28%, #394e50 28% 43%, #ae9259 43% 55%, #34494c 55% 72%, #a4874f 72% 84%, #304447 84% 100%);
-    transform:rotate(-8deg);
-}
-.season-summer .hud-dragonfly-body i {
-    position:absolute; top:0; width:1px; height:5px; background:rgba(28,40,42,.55);
-}
-.season-summer .hud-dragonfly-body i:nth-child(1){left:3px}.season-summer .hud-dragonfly-body i:nth-child(2){left:6px}.season-summer .hud-dragonfly-body i:nth-child(3){left:9px}
-.season-summer .hud-dragonfly-wing {
-    position:absolute; width:12px; height:5px;
-    border:1px solid rgba(170,225,232,.48);
-    background:linear-gradient(135deg, rgba(225,250,252,.42), rgba(130,195,205,.12));
-    border-radius:70% 20% 70% 20%;
-    box-shadow:inset 0 0 2px rgba(255,255,255,.35);
-    transform-origin:var(--wing-origin, 20% 50%);
-    animation:hud-dragonfly-wing-flap .14s ease-in-out infinite alternate;
+.season-summer .hud-df { display:block; width:100%; height:100%; overflow:visible; }
+.season-summer .hud-df-wings path { fill:rgba(222,243,252,.30); stroke:rgba(176,220,236,.85); stroke-width:.45; }
+.season-summer .hud-df-hind path:not(.hud-df-vein) { fill:rgba(214,238,250,.24); }
+.season-summer .hud-df-wings .hud-df-vein { fill:none; stroke:rgba(176,220,236,.55); stroke-width:.35; }
+.season-summer .hud-df-spot { fill:rgba(46,70,82,.7); }
+.season-summer .hud-df-abdomen { fill:#2a86a8; }
+.season-summer .hud-df-rings { fill:none; stroke:rgba(8,32,44,.55); stroke-width:.5; }
+.season-summer .hud-df-thorax { fill:#2f9a8a; }
+.season-summer .hud-df-head { fill:#1e4f5b; }
+.season-summer .hud-df-eye { fill:#7cdcea; }
+.season-summer .hud-df-wings {
+    transform-box:view-box; transform-origin:38px 14px;
+    animation:hud-df-flap .09s ease-in-out infinite alternate;
     animation-play-state:paused !important;
-    opacity:.82;
 }
-@keyframes hud-dragonfly-wing-flap {
-    from { transform:var(--wing-base-transform) scaleY(.62); opacity:.56; }
-    to   { transform:var(--wing-base-transform) scaleY(1.04); opacity:.96; }
+.season-summer .hud-df-hind { transform-origin:36px 14px; animation-delay:-.045s; }
+@keyframes hud-df-flap { from { transform:scaleY(1); } to { transform:scaleY(.42); } }
+/* Разворот — через scale по горизонтали: в середине он проходит через ноль,
+   и это читается как поворот в воздухе. */
+@keyframes hud-dragonfly-patrol {
+    0%   { left:30%; bottom:31%; rotate:-4deg; scale:1 1; }
+    16%  { left:44%; bottom:37%; rotate:5deg;  scale:1 1; }
+    30%  { left:52%; bottom:35%; rotate:-2deg; scale:1 1; }
+    40%  { left:53%; bottom:36%; rotate:2deg;  scale:1 1; }
+    46%  { left:54%; bottom:34%; rotate:0deg;  scale:-1 1; }
+    64%  { left:38%; bottom:29%; rotate:4deg;  scale:-1 1; }
+    76%  { left:24%; bottom:33%; rotate:-3deg; scale:-1 1; }
+    86%  { left:22%; bottom:32%; rotate:0deg;  scale:1 1; }
+    100% { left:30%; bottom:31%; rotate:-4deg; scale:1 1; }
 }
-.season-summer .hud-dragonfly-wing.wing1 { left:5px; top:1px; --wing-origin:100% 50%; --wing-base-transform:rotate(-24deg); }
-.season-summer .hud-dragonfly-wing.wing2 { left:8px; top:0; --wing-origin:0% 50%; --wing-base-transform:rotate(20deg) scaleX(-1); }
-.season-summer .hud-dragonfly-wing.wing3 { left:3px; top:9px; --wing-origin:100% 50%; --wing-base-transform:rotate(24deg) scaleY(-1); opacity:.9; }
-.season-summer .hud-dragonfly-wing.wing4 { left:9px; top:9px; --wing-origin:0% 50%; --wing-base-transform:rotate(-20deg) scale(-1,1); opacity:.9; }
-@keyframes hud-dragonfly-pass {
-    0%,8% { left:-10%; bottom:42%; opacity:0; transform:rotate(7deg) scale(.8); }
-    14% { opacity:1; }
-    28% { left:24%; bottom:50%; transform:rotate(-5deg) scale(.98); }
-    45% { left:46%; bottom:43%; transform:rotate(8deg) scale(1.03); }
-    60% { left:64%; bottom:51%; transform:rotate(-3deg) scale(.96); }
-    76% { left:84%; bottom:45%; transform:rotate(5deg) scale(1); }
-    88%,100% { left:110%; bottom:48%; opacity:0; }
-}
+@media (max-width:600px) { .season-summer .hud-summer-dragonfly { width:36px; height:17px; } }
 
 /* --- SUMMER: sandcastle --- */
 /* Замок стоит в песке (полоса песка — нижние 9%), а не на линии прибоя.
@@ -5320,12 +5321,11 @@
 .phase-night.season-winter .hud-winter-warm-window,
 .phase-deep-night.season-winter .hud-winter-warm-window { opacity:1; animation:hud-window-flicker 7s ease-in-out infinite; animation-play-state:paused !important; }
 
-/* Мерцание масштабируется той же --window-glow, иначе при включении анимации
-   окно тускнело: статический ореол был ярче кадров. */
+/* Мерцание — яркостью горящего стекла: огонь в доме чуть дышит. */
 @keyframes hud-window-flicker {
-    0%,100% { box-shadow:0 0 0 1px rgba(12,13,16,.65), 0 0 calc(16px * var(--window-glow,0)) rgba(255,214,132,.75), 0 0 calc(44px * var(--window-glow,0)) rgba(255,186,96,.42); }
-    48%     { box-shadow:0 0 0 1px rgba(12,13,16,.65), 0 0 calc(24px * var(--window-glow,0)) rgba(255,214,132,.9),  0 0 calc(60px * var(--window-glow,0)) rgba(255,186,96,.55); }
-    52%     { box-shadow:0 0 0 1px rgba(12,13,16,.65), 0 0 calc(12px * var(--window-glow,0)) rgba(255,214,132,.6),  0 0 calc(34px * var(--window-glow,0)) rgba(255,186,96,.3); }
+    0%,100% { filter: brightness(1); }
+    48%     { filter: brightness(1.12); }
+    52%     { filter: brightness(.9); }
 }
 .season-winter .hud-winter-chimney {
     position:absolute; left:67px; bottom:55px; width:14px; height:24px; z-index:2; pointer-events:none;
@@ -5420,10 +5420,10 @@
 .season-winter .hud-winter-smoke {
     animation-play-state:paused !important;
 }
-.season-summer .hud-dragonfly-wing { animation-play-state:paused !important; }
+.season-summer .hud-df-wings { animation-play-state:paused !important; }
 .hud-scene-widget.fx-active .hud-summer-heat-haze,
 .hud-scene-widget.fx-active .hud-summer-dragonfly,
-.hud-scene-widget.fx-active .hud-summer-dragonfly .hud-dragonfly-wing,
+.hud-scene-widget.fx-active .hud-summer-dragonfly .hud-df-wings,
 .hud-scene-widget.fx-active .hud-summer-cicada-sound,
 .hud-scene-widget.fx-active .hud-winter-aurora,
 .hud-scene-widget.fx-active .hud-winter-warm-window,
@@ -5433,6 +5433,7 @@
 @media (hover:hover) {
     .hud-scene-widget:hover .hud-summer-heat-haze,
     .hud-scene-widget:hover .hud-summer-dragonfly,
+    .hud-scene-widget:hover .hud-summer-dragonfly .hud-df-wings,
     .hud-scene-widget:hover .hud-summer-cicada-sound,
     .hud-scene-widget:hover .hud-winter-aurora,
     .hud-scene-widget:hover .hud-winter-warm-window,
@@ -5449,7 +5450,7 @@
     /* Дальний остров. Размеры в процентах от виджета, а на телефоне виджет
        узкий и высокий: остров сжимался в тёмный ком прямо под солнцем и
        читался как тень. Здесь он плоская полоса суши на самой линии горизонта. */
-    .season-summer .hud-summer-distant-island { left:46%; width:42%; bottom:34%; height:3.6%; opacity:.5; }
+    .season-summer .hud-summer-distant-island { left:50%; width:44%; bottom:34%; height:4%; opacity:.45; }
     .season-winter .hud-winter-frozen-pond { left:47%; width:50%; bottom:.7%; height:12%; }
     .season-winter .hud-winter-house { left:6.5%; bottom:8.5%; transform:scale(.88); transform-origin:left bottom; }
 }
@@ -6196,7 +6197,10 @@
    кратеры, мягкое гало и холодное свечение, усиливающееся к глубокой ночи. */
 .phase-night .hud-fx-celestial,
 .phase-deep-night .hud-fx-celestial,
-.phase-evening .hud-fx-celestial {
+.phase-evening .hud-fx-celestial,
+/* Предрассвет (05:00–06:00) — ещё луна. У фазы не было своего светила
+   вовсе: от него оставались одни солнечные лучи-спицы у горизонта. */
+.phase-predawn .hud-fx-celestial {
   /* Кратер — это не просто тёмное пятно: у настоящего есть освещённый вал с
      одной стороны и тень с другой. Поэтому каждый идёт двумя слоями — светлая
      кромка сверху-слева, углубление под ней. Прежние кратеры были заданы
@@ -6232,7 +6236,8 @@
    иначе кратеры на тёмной стороне светятся как днём. */
 .phase-night .hud-fx-celestial::after,
 .phase-deep-night .hud-fx-celestial::after,
-.phase-evening .hud-fx-celestial::after {
+.phase-evening .hud-fx-celestial::after,
+.phase-predawn .hud-fx-celestial::after {
   content: '';
   position: absolute; inset: 0;
   border-radius: 50%;
@@ -6242,7 +6247,8 @@
 /* Гало вокруг луны — отдельным слоем, чтобы не спорило с box-shadow. */
 .phase-night .hud-fx-celestial::before,
 .phase-deep-night .hud-fx-celestial::before,
-.phase-evening .hud-fx-celestial::before {
+.phase-evening .hud-fx-celestial::before,
+.phase-predawn .hud-fx-celestial::before {
   content: '';
   position: absolute; inset: -55%;
   border-radius: 50%;
@@ -7806,8 +7812,6 @@
 .season-winter .hud-winter-house.h3 .hud-winter-smoke.sm1 { animation-delay: 4.3s; }
 .phase-night.season-winter .hud-winter-house.h2 .hud-winter-warm-window { animation-duration: 9s; }
 .phase-night.season-winter .hud-winter-house.h3 .hud-winter-warm-window { animation-duration: 5.5s; }
-/* В дальнем доме окно горит слабее — оно дальше. */
-.phase-night.season-winter .hud-winter-house.h3 .hud-window-pane { background: rgba(255,220,145,.62); }
 
 /* --- Сугробы ----------------------------------------------------------- */
 .season-winter .hud-snowdrifts { position: absolute; inset: 0; pointer-events: none; }
@@ -7905,31 +7909,42 @@
 }
 
 /* --- Свет в окнах ------------------------------------------------------ */
-/* Было наоборот: при phase-night подсвечивались только перекладины рамы —
-   получался светящийся крест на тёмном стекле. И срабатывало это лишь для
-   класса phase-night: в глубокую ночь (phase-deep-night) свет не загорался
-   вовсе. Теперь светится само стекло, а сила света берётся из
-   --scene-night-strength, поэтому окна разгораются к сумеркам и гаснут на
-   рассвете сами, без привязки к именам фаз. */
-.season-winter .hud-winter-warm-window { opacity: 1; }
+/* Свет идёт ИЗ окна: горит само стекло — ярче к середине, темнее у рамы, —
+   а по стене вокруг расходится мягкое тёплое пятно, и немного света падает
+   на снег (::after дома). Рама и перекладины остаются тёмными.
+   Раньше --window-glow нигде не задавалась и всегда была 0: стекло не
+   загоралось, а ореол box-shadow вокруг рамы брал силу из темноты сцены —
+   светился контур окна вокруг тёмного стекла. */
+.phase-sunset     { --window-glow: .2; }
+.phase-evening    { --window-glow: .85; }
+.phase-night      { --window-glow: 1; }
+/* После полуночи часть окон гаснет — свет слабее. */
+.phase-deep-night { --window-glow: .55; }
+.phase-predawn    { --window-glow: .35; }
+
+.season-winter .hud-winter-warm-window {
+    opacity: 1;
+    box-shadow: 0 0 0 1px rgba(12,13,16,.65);
+}
+/* Стекло. */
 .season-winter .hud-winter-warm-window::before {
     content: ''; position: absolute; inset: 0;
-    background: radial-gradient(125% 135% at 50% 38%, #fffaf0 0%, #ffe3a6 40%, #f0ad5c 100%);
+    background: radial-gradient(115% 120% at 50% 45%, #fff7df 0%, #ffdc94 36%, #f4ad5a 76%, #cf7d34 100%);
+    box-shadow: inset 0 0 3px rgba(96,48,12,.55);
     opacity: min(1, var(--window-glow, 0));
     transition: opacity 1.6s ease;
 }
 /* Перекладины рамы — тёмные поверх горящего стекла. */
-.season-winter .hud-winter-warm-window .hud-window-pane { background: rgba(42,33,20,.62); }
-.phase-night.season-winter .hud-winter-warm-window .hud-window-pane,
-.phase-deep-night.season-winter .hud-winter-warm-window .hud-window-pane { background: rgba(46,34,18,.82); }
-/* Ореол наружу — той же силы, что и свет. */
-.season-winter .hud-winter-warm-window {
-    /* Два ореола: тугой у рамы и широкий вокруг. Широкий нужен, чтобы окно
-       пробивалось сквозь снежную мглу — слой погоды лежит поверх пейзажа. */
-    box-shadow: 0 0 0 1px rgba(12,13,16,.65),
-                0 0 calc(16px * var(--window-glow, 0)) rgba(255,214,132,.75),
-                0 0 calc(44px * var(--window-glow, 0)) rgba(255,186,96,.42);
-    transition: box-shadow 1.6s ease;
+.season-winter .hud-winter-warm-window .hud-window-pane { background: rgba(42,33,20,.7); }
+/* Свет на стене вокруг окна. Под окном по слоям (окно — 3), поверх стены и
+   двери; обрезан по стене, чтобы не светиться в воздухе. */
+.season-winter .hud-winter-house::before {
+    content: ''; position: absolute; left: -10px; bottom: 3px; width: 84px; height: 56px; z-index: 2;
+    pointer-events: none;
+    background: radial-gradient(closest-side, rgba(255,208,130,.72) 0%, rgba(255,188,100,.36) 42%, rgba(255,170,84,0) 100%);
+    clip-path: inset(13px 0 0 17px);
+    opacity: min(1, var(--window-glow, 0));
+    transition: opacity 1.6s ease;
 }
 /* Тёплое пятно на сугробе под окном: свет из дома должен куда-то падать. */
 .season-winter .hud-winter-house::after {
@@ -7940,21 +7955,15 @@
     pointer-events: none;
     transition: opacity 1.6s ease;
 }
+/* Дальний дом — дальше, свет в нём слабее. */
+.season-winter .hud-winter-house.h3 .hud-winter-warm-window::before,
+.season-winter .hud-winter-house.h3::before { opacity: calc(min(1, var(--window-glow, 0)) * .75); }
 
 /* Снеговик стоял ровно перед окном главного дома и закрывал его целиком:
    свет в окнах было видно только у двух дальних домов. Разводим их. */
 .season-winter .hud-snowman { left: 2px; }
 .season-winter .hud-winter-house.h1 { left: 15%; }
 
-/* Свечение окна в два слоя: близкий плотный ореол и дальний рассеянный.
-   Одного 20-пиксельного размытия не хватало — окно читалось как бежевый
-   квадратик, а не как источник света. */
-.season-winter .hud-winter-warm-window {
-    box-shadow:
-      0 0 0 1px rgba(12,13,16,.65),
-      0 0 calc(10px * var(--scene-night-strength, 0)) calc(2px * var(--scene-night-strength, 0)) rgba(255,214,138,.75),
-      0 0 calc(34px * var(--scene-night-strength, 0)) calc(8px * var(--scene-night-strength, 0)) rgba(255,183,86,.30);
-}
 
 /* Три одинаковых по цвету дома днём сливались в одно тёмное пятно.
    Разводим стены и крыши по тону: тёплый сруб, холодный камень, дальний

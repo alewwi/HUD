@@ -1,29 +1,30 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.70';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=22.99.70';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.70';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=22.99.70';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.70';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.70';
-import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=22.99.70';
-import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=22.99.70';
-import { привязатьИсторию } from './render/intimacy.js?v=22.99.70';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.70';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.70';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.70';
-import { buildMemoryHTML } from './render/memory.js?v=22.99.70';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.70';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.70';
-import { hudHasRelations } from './render/relations-graph.js?v=22.99.70';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.70';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.70';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.70';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.70';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.70';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.70';
-import { extractHudBlock, hudBlockRe, hudOpenRe, hudCloseRe, началоПоследнегоHud } from './hud-block.js?v=22.99.70';
-import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=22.99.70';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.76';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=22.99.76';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.76';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=22.99.76';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.76';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.76';
+import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=22.99.76';
+import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=22.99.76';
+import { привязатьИсторию } from './render/intimacy.js?v=22.99.76';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.76';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.76';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.76';
+import { buildMemoryHTML } from './render/memory.js?v=22.99.76';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.76';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.76';
+import { hudHasRelations } from './render/relations-graph.js?v=22.99.76';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.76';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.76';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.76';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.76';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.76';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.76';
+import { extractHudBlock, hudBlockRe, hudOpenRe, hudCloseRe, началоПоследнегоHud } from './hud-block.js?v=22.99.76';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=22.99.76';
+import { создатьПроверкуПолноты } from './hud-check.js?v=22.99.76';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -402,12 +403,12 @@ ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and ru
     const канон = режим === 'regen' ? '' : `
 It is also canon for the prose of your reply: do not contradict it — what people wear, their injuries and health, who is where, relationships, who knows which secret (people in hd do NOT know it and must not act on it), open threads in gun.`;
     p += `\n\n{{if hudLast}}## 📸 LAST HUD — the state before ${чего}
-Empty fields and the texts written fresh every turn (Th, Ex, D, diary, dreams, horoscope, comments) are left out to save space; the schema above still decides which fields you write.
+To save space, empty fields are left out, and the texts written fresh every turn (Th, Ex, D, diary, dreams, horoscope, comments) are cut down to "<new this turn>". That mark means the opposite of optional: the field is REQUIRED in your HUD, written anew and in full in the schema's format. The schema above, not this copy, decides which fields you write.
 Codes: {{hudLastKeys}}
 \`\`\`json
 {{hudLast}}
 \`\`\`${канон}
-Update it to match ${чего}: keep what is still true, change what ${чего} changes, remove what has ended or faded, add what is new. Never copy it back unchanged when the story has moved on.{{/if}}`;
+Update it to match ${чего}: keep what is still true, change what ${чего} changes, remove what has ended or faded, add what is new. Never copy it back unchanged when the story has moved on. Replace every "<new this turn>" with real content — never skip a field because it is short or missing above; however long the chat, the HUD is written in full every turn.{{/if}}`;
     p += `\n</hud_instructions>`;
     return p;
   }
@@ -544,7 +545,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     if (макросHUDЗарегистрирован) return;
     const ctx = window.SillyTavern?.getContext?.();
     if (!ctx) return;
-    const описание = 'TavernOS HUD: the last HUD of the chat as compact JSON with short codes — empty fields, fresh-every-turn texts (Th, Ex, D, diary, dreams…) and switched-off sections left out.';
+    const описание = 'TavernOS HUD: the last HUD of the chat as compact JSON with short codes — empty and switched-off fields left out, fresh-every-turn texts (Th, Ex, D, diary, dreams…) marked "<new this turn>".';
     try {
       // Новый движок макросов (SillyTavern 1.13+) — с поддержкой {{if hudLast}}.
       if (ctx.macros?.register && !ctx.macros.registry?.hasMacro?.('hudLast')) {
@@ -599,7 +600,16 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     if (options && options.method === 'POST' && options.body && typeof options.body === 'string') {
       const urlStr = typeof resource === 'string' ? resource : (resource instanceof Request ? resource.url : '');
       const isImageRequest = /image|sdapi|draw|vision|dall-e/i.test(urlStr);
-      if (window.__tavernOSHudRegenRequest === true) return originalFetch.apply(window, arguments);
+      // Инструкция HUD в запросе уже есть — это наш собственный запрос
+      // (перегенерация HUD, прямым fetch или через профиль Connection Manager)
+      // или запрос, прошедший перехват дважды. Отпускаем как есть: вторая
+      // инструкция дублировала бы всю схему, а её пример [HUD]…[/HUD] сканировался
+      // бы как блок истории. Проверка стоит ДО очереди типов генерации: чужой
+      // тип, записанный интерцептором для запроса SillyTavern, забирать нельзя.
+      // Раньше перегенерация ставила глобальный флаг на всё время ожидания
+      // ответа — и любая генерация ST в эти секунды уходила без инструкции.
+      // В JSON-теле угловые скобки не экранируются, так что ищем прямо в строке.
+      if (options.body.includes('<hud_instructions>')) return originalFetch.apply(window, arguments);
       // Свои служебные запросы (вопрос про сюжет, запись лорбука) HUD-инструкцию
       // не получают: иначе модель ответит HUD-блоком вместо ответа.
       if (window.__tavernOSHudSkipInject > 0) return originalFetch.apply(window, arguments);
@@ -639,8 +649,8 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
           if (isNaN(hudsToKeep) || hudsToKeep < 0) hudsToKeep = defaultSettings.hudsToKeep ?? 1;
           // Снимок последнего HUD уходит в конец инструкции и считается одним
           // из развёрнутых: полными в истории остаётся на один меньше, а сам
-          // последний блок сжимается в обычную [HUD_SUMMARY] — ключевое
-          // остаётся на своём месте в истории, полный JSON не повторяется.
+          // последний блок из истории вырезается — он переезжает в снимок и не
+          // повторяется. Более старые блоки сжимаются в [HUD_SUMMARY], как раньше.
           const инжект = !!settings.autoInject;
           const снимокВключён = инжект && settings.hudSnapshot !== false && hudsToKeep > 0;
           let объектСнимка = null;
@@ -659,6 +669,20 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
           // Сводка не должна ронять весь запрос: блок, который не разобрался,
           // остаётся в истории как есть.
           const вСводку = (hudText, прошлый = '') => { try { return '\n' + сводкаHUD(hudText, прошлый) + '\n'; } catch (_) { return null; } };
+          // Последний HUD уходит в снимок целиком — в истории на его месте не
+          // остаётся ничего, даже сводки: он не дублируется, а переезжает.
+          // Сообщение, от которого без HUD ничего бы не осталось, получает
+          // сводку: пустое сообщение часть бэкендов отвергает.
+          // Между текстом до и после остаётся тот же разделитель, что стоял
+          // после блока: в Text Completions перевод строки — часть шаблона.
+          const вырезать = (content, index, length) => {
+            const хвостДо = content.slice(0, index).match(/\s*$/)[0];
+            const головаПосле = content.slice(index + length).match(/^\s*/)[0];
+            const до = content.slice(0, index - хвостДо.length);
+            const после = content.slice(index + length + головаПосле.length);
+            const итог = до && после ? до + (головаПосле || хвостДо) + после : (до || после);
+            return итог.trim() ? итог : null;
+          };
 
           // 1. Формат Chat Completions (учитываем массив messages)
           if (parsedBody.messages && Array.isArray(parsedBody.messages)) {
@@ -683,8 +707,13 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             // Прошлый блок читаем до замены: обходим с конца, и всё, что раньше
             // текущего, ещё на месте.
             const текстБлока = (m) => (m ? parsedBody.messages[m.mIdx].content.substring(m.index, m.index + m.length) : '');
+            const вСнимке = объектСнимка ? allMatches[allMatches.length - 1] : null;
             toSummarize.forEach(rm => {
               let content = parsedBody.messages[rm.mIdx].content;
+              if (rm === вСнимке) {
+                const без = вырезать(content, rm.index, rm.length);
+                if (без !== null) { parsedBody.messages[rm.mIdx].content = без; modified = true; return; }
+              }
               const сводка = вСводку(content.substring(rm.index, rm.index + rm.length), текстБлока(allMatches[allMatches.indexOf(rm) - 1]));
               if (сводка === null) return;
               parsedBody.messages[rm.mIdx].content = content.slice(0, rm.index) + сводка + content.slice(rm.index + rm.length);
@@ -705,8 +734,13 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             }
             const toSummarize = выбратьДляСводки(allMatches);
             toSummarize.sort((a, b) => b.index - a.index);
+            const вСнимке = объектСнимка ? allMatches[allMatches.length - 1] : null;
             toSummarize.forEach(rm => {
               let content = parsedBody.prompt;
+              if (rm === вСнимке) {
+                const без = вырезать(content, rm.index, rm.length);
+                if (без !== null) { parsedBody.prompt = без; modified = true; return; }
+              }
               const прошлый = allMatches[allMatches.indexOf(rm) - 1];
               const сводка = вСводку(content.substring(rm.index, rm.index + rm.length), прошлый ? content.substring(прошлый.index, прошлый.index + прошлый.length) : '');
               if (сводка === null) return;
@@ -1244,9 +1278,35 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     if (data.characters.length > 0) mainCharName = data.characters[0]['Имя'] || '';
 
     let tRaw = data.scene['Время'] || '', wRaw = data.scene['Погода'] || '', dRaw = data.scene['Дата'] || '';
-    let phaseClass = 'phase-night'; 
+    let phaseClass = 'phase-night';
     let phaseLow = (tRaw || '').toLowerCase();
-    
+
+    // Месяц сцены — прежде всего по дате. Нужен и сезону (ниже), и солнцу:
+    // восход и закат зависят от месяца.
+    const месяцИзДаты = (() => {
+      const d = String(dRaw || '').toLowerCase();
+      let m = d.match(/(?<!\d)(\d{1,2})[./](\d{1,2})[./]\d{2,4}(?!\d)/);
+      if (m && +m[2] >= 1 && +m[2] <= 12) return +m[2];
+      m = d.match(/(?<!\d)\d{4}-(\d{1,2})-\d{1,2}(?!\d)/);
+      if (m && +m[1] >= 1 && +m[1] <= 12) return +m[1];
+      const имена = [/январ|(?<![\p{L}])jan/u, /феврал|(?<![\p{L}])feb/u, /(?<![\p{L}])март|(?<![\p{L}])mar(?:ch)?(?![\p{L}])/u, /апрел|(?<![\p{L}])apr/u,
+        /(?<![\p{L}])ма[йя](?![\p{L}])|(?<![\p{L}])may(?![\p{L}])/u, /июн|(?<![\p{L}])jun/u, /июл|(?<![\p{L}])jul/u, /август|(?<![\p{L}])aug/u,
+        /сентябр|(?<![\p{L}])sep/u, /октябр|(?<![\p{L}])oct/u, /ноябр|(?<![\p{L}])nov/u, /декабр|(?<![\p{L}])dec/u];
+      const i = имена.findIndex(rx => rx.test(d));
+      return i >= 0 ? i + 1 : null;
+    })();
+    // Восход и закат по месяцу — средние широты (~50° с. ш.), в минутах от
+    // полуночи. Раньше солнце всегда вставало в 6:00 и садилось в 20:00:
+    // 15 января в 18:40 оно ещё висело над горизонтом. Без месяца — прежние
+    // 6:00–20:00. Фазы суток считаются в долях светового дня, поэтому при
+    // 6:00–20:00 границы совпадают с прежними: утро до 10:00, день до 17:00,
+    // золотой час до 18:30, закат до 20:00, вечер до 22:00.
+    const ВОСХОД = [480, 450, 400, 345, 300, 280, 290, 330, 375, 420, 460, 485];
+    const ЗАКАТ  = [990, 1040, 1090, 1145, 1190, 1215, 1210, 1165, 1105, 1045, 990, 970];
+    const DAY_START = месяцИзДаты ? ВОСХОД[месяцИзДаты - 1] : 360;
+    const DAY_END = месяцИзДаты ? ЗАКАТ[месяцИзДаты - 1] : 1200;
+    const DAY_LEN = DAY_END - DAY_START;
+
     let hourMatch = tRaw.match(/(\d{1,2}):(\d{2})/);
     if (hourMatch) {
       const hour = parseInt(hourMatch[1], 10);
@@ -1254,13 +1314,13 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       const totalMinutes = hour * 60 + minute;
 
       if (totalMinutes < 120) phaseClass = 'phase-deep-night';
-      else if (totalMinutes < 300) phaseClass = 'phase-night';
-      else if (totalMinutes < 360) phaseClass = 'phase-predawn';
-      else if (totalMinutes < 600) phaseClass = 'phase-morning';
-      else if (totalMinutes < 1020) phaseClass = 'phase-day';
-      else if (totalMinutes < 1110) phaseClass = 'phase-golden';
-      else if (totalMinutes < 1200) phaseClass = 'phase-sunset';
-      else if (totalMinutes < 1320) phaseClass = 'phase-evening';
+      else if (totalMinutes < DAY_START - 60) phaseClass = 'phase-night';
+      else if (totalMinutes < DAY_START) phaseClass = 'phase-predawn';
+      else if (totalMinutes < DAY_START + DAY_LEN * 0.286) phaseClass = 'phase-morning';
+      else if (totalMinutes < DAY_START + DAY_LEN * 0.786) phaseClass = 'phase-day';
+      else if (totalMinutes < DAY_START + DAY_LEN * 0.893) phaseClass = 'phase-golden';
+      else if (totalMinutes < DAY_END) phaseClass = 'phase-sunset';
+      else if (totalMinutes < DAY_END + 120) phaseClass = 'phase-evening';
       else phaseClass = 'phase-night';
     } else if (/(?<![\p{L}])предрассвет|\bpredawn|\bdawn\b/u.test(phaseLow)) phaseClass = 'phase-predawn';
     // Русские слова ищем с начала слова через (?<![\p{L}]): \b в JS знает только
@@ -1394,18 +1454,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     // Сезон — прежде всего по месяцу в дате. Слова погоды («шум майского
     // ливня» при дате 01.06) раньше перебивали месяц, и летняя сцена
     // рисовалась весенней. По словам решаем, только если месяца в дате нет.
-    const месяцИзДаты = (() => {
-      const d = String(dRaw || '').toLowerCase();
-      let m = d.match(/(?<!\d)(\d{1,2})[./](\d{1,2})[./]\d{2,4}(?!\d)/);
-      if (m && +m[2] >= 1 && +m[2] <= 12) return +m[2];
-      m = d.match(/(?<!\d)\d{4}-(\d{1,2})-\d{1,2}(?!\d)/);
-      if (m && +m[1] >= 1 && +m[1] <= 12) return +m[1];
-      const имена = [/январ|(?<![\p{L}])jan/u, /феврал|(?<![\p{L}])feb/u, /(?<![\p{L}])март|(?<![\p{L}])mar(?:ch)?(?![\p{L}])/u, /апрел|(?<![\p{L}])apr/u,
-        /(?<![\p{L}])ма[йя](?![\p{L}])|(?<![\p{L}])may(?![\p{L}])/u, /июн|(?<![\p{L}])jun/u, /июл|(?<![\p{L}])jul/u, /август|(?<![\p{L}])aug/u,
-        /сентябр|(?<![\p{L}])sep/u, /октябр|(?<![\p{L}])oct/u, /ноябр|(?<![\p{L}])nov/u, /декабр|(?<![\p{L}])dec/u];
-      const i = имена.findIndex(rx => rx.test(d));
-      return i >= 0 ? i + 1 : null;
-    })();
+    // Месяц (месяцИзДаты) определён выше — вместе с восходом и закатом.
     if (месяцИзДаты) seasonClass = ['season-winter', 'season-winter', 'season-spring', 'season-spring', 'season-spring', 'season-summer',
       'season-summer', 'season-summer', 'season-autumn', 'season-autumn', 'season-autumn', 'season-winter'][месяцИзДаты - 1];
     let dLow = (dRaw + ' ' + wRaw + ' ' + tRaw).toLowerCase(); 
@@ -1435,7 +1484,8 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     let celestialStyle = '', sunVarsStyle = '', sceneStyle = '';
     if (hourMatch) {
       let hh = parseInt(hourMatch[1], 10), mmMatch = tRaw.match(/\d{1,2}:(\d{2})/), mm = mmMatch ? parseInt(mmMatch[1], 10) : 0, minutesOfDay = hh * 60 + mm;
-      const DAY_START = 6 * 60, DAY_END = 20 * 60; let p, cx, cy;
+      // DAY_START и DAY_END — восход и закат этого месяца (см. выше).
+      let p, cx, cy;
       if (minutesOfDay >= DAY_START && minutesOfDay <= DAY_END) p = (minutesOfDay - DAY_START) / (DAY_END - DAY_START);
       else p = (minutesOfDay > DAY_END ? (minutesOfDay - DAY_END) : (minutesOfDay + (1440 - DAY_END))) / (1440 - (DAY_END - DAY_START));
       cx = 6 + p * 84; cy = 76 - Math.sin(p * Math.PI) * 60;
@@ -1445,10 +1495,17 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
         if (value >= edge1) return 1;
         return (value - edge0) / (edge1 - edge0);
       };
-      const nightStrength = clamp(1 - smoothStep(minutesOfDay, 300, 660) + smoothStep(minutesOfDay, 1200, 1440), 0, 1);
-      const goldenStrength = clamp(1 - Math.abs(minutesOfDay - 17 * 60) / 90, 0, 1);
-      const sunsetStrength = clamp(1 - Math.abs(minutesOfDay - 18 * 60) / 90, 0, 1);
-      const starStrength = clamp(1 - smoothStep(minutesOfDay, 330, 720) + smoothStep(minutesOfDay, 1200, 1440), 0, 1);
+      // Ночь уходит к 08:00 и приходит с 19:30 до 22:00. Раньше вечерняя
+      // граница шла до полуночи: в 21:00 (фаза «вечер», тёмное небо) сила
+      // ночи была 0.25, и море с песком оставались дневными. А утром в 07:00
+      // она была 0.67 — вода темнела под светлым утренним небом.
+      // Все границы — от восхода и заката месяца; при 6:00–20:00 они те же,
+      // что были в часах: ночь 5:00–8:00 и 19:30–22:00, золото в 17:00,
+      // закат в 18:00, звёзды гаснут к 12:00 и зажигаются с 20:00.
+      const nightStrength = clamp(1 - smoothStep(minutesOfDay, DAY_START - 60, DAY_START + 120) + smoothStep(minutesOfDay, DAY_END - 30, DAY_END + 120), 0, 1);
+      const goldenStrength = clamp(1 - Math.abs(minutesOfDay - (DAY_END - 180)) / 90, 0, 1);
+      const sunsetStrength = clamp(1 - Math.abs(minutesOfDay - (DAY_END - 120)) / 90, 0, 1);
+      const starStrength = clamp(1 - smoothStep(minutesOfDay, DAY_START - 30, DAY_START + 360) + smoothStep(minutesOfDay, DAY_END, DAY_END + 240), 0, 1);
 
       // Светило всегда ЗА пейзажем, на любой высоте. Небесное тело физически
       // дальше любого дерева, поэтому пересечение должно его скрывать, а не
@@ -1464,7 +1521,9 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // --cel-x/--cel-y дублируем на виджет: лунная дорожка и солнечные блики
       // на воде — потомки .hud-fx-season-scene, а не светила, и до его
       // собственных переменных не дотягиваются.
-      sceneStyle = ` style="--cel-x:${cx.toFixed(1)}%;--cel-y:${cy.toFixed(1)}%;--scene-day-progress:${p.toFixed(3)};--scene-night-strength:${nightStrength.toFixed(3)};--scene-golden-strength:${goldenStrength.toFixed(3)};--scene-sunset-strength:${sunsetStrength.toFixed(3)};--scene-star-strength:${starStrength.toFixed(3)};"`;
+      // --cel-xm (положение светила на телефоне) тоже здесь: по нему на
+      // телефоне идут лунная дорожка и блики на воде.
+      sceneStyle = ` style="--cel-x:${cx.toFixed(1)}%;--cel-xm:${cxm.toFixed(1)}%;--cel-y:${cy.toFixed(1)}%;--scene-day-progress:${p.toFixed(3)};--scene-night-strength:${nightStrength.toFixed(3)};--scene-golden-strength:${goldenStrength.toFixed(3)};--scene-sunset-strength:${sunsetStrength.toFixed(3)};--scene-star-strength:${starStrength.toFixed(3)};"`;
     }
 
     if (Object.keys(data.scene).length > 0) {
@@ -1772,7 +1831,9 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     if (hasPhone) {
       const uid = `phone-${baseId}`;
       addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📱 Телефон${значокСправки('phone')}</div>`,
-        uid, (active) => buildPhoneTabsHTML(data.chatsMap, uid, active, getSafeUserName(), data.phone, data.scene && data.scene['Дата'], tRaw, data.characters));
+        // Последний запасной владелец телефона — персонаж, а не персона игрока:
+        // телефон по схеме всегда принадлежит персонажу.
+        uid, (active) => buildPhoneTabsHTML(data.chatsMap, uid, active, (Array.isArray(data.characters) && data.characters[0] && data.characters[0]['Имя']) || getMainProtagonistNames().char, data.phone, data.scene && data.scene['Дата'], tRaw, data.characters));
     }
 
     // === ВСТАВЛЯЕМ ВКЛАДКУ ПАМЯТИ СЮДА ===
@@ -3199,9 +3260,9 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
         if (isNaN(hudsToKeep) || hudsToKeep < 0) hudsToKeep = defaultSettings.hudsToKeep ?? 1;
         
         {
-            // Со снимком последний блок истории сжимается в сводку (он уже в
-            // снимке), полными остаются hudsToKeep − 1 перед ним. Без снимка —
-            // последние hudsToKeep, как раньше.
+            // Со снимком последний блок истории вырезается (он уже в снимке),
+            // полными остаются hudsToKeep − 1 перед ним, старше — сводки. Без
+            // снимка — полными последние hudsToKeep, как раньше.
             const естьСнимок = !!объектСнимкаРеген && allMatchesRegen.length > 0;
             const конец = естьСнимок ? allMatchesRegen.length - 1 : allMatchesRegen.length;
             const начало = Math.max(0, конец - (естьСнимок ? hudsToKeep - 1 : hudsToKeep));
@@ -3209,8 +3270,18 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             // Сортируем с конца в начало, чтобы не сбить индексы при замене текста
             toSummarize.sort((a, b) => (a.mIdx !== b.mIdx ? b.mIdx - a.mIdx : b.index - a.index));
 
+            // Последний блок истории уходит в снимок — из истории вырезаем целиком.
+            const вСнимке = естьСнимок ? allMatchesRegen[allMatchesRegen.length - 1] : null;
             toSummarize.forEach(rm => {
                 let content = freshMessages[rm.mIdx].content;
+                if (rm === вСнимке) {
+                    const хвостДо = content.slice(0, rm.index).match(/\s*$/)[0];
+                    const головаПосле = content.slice(rm.index + rm.length).match(/^\s*/)[0];
+                    const до = content.slice(0, rm.index - хвостДо.length);
+                    const после = content.slice(rm.index + rm.length + головаПосле.length);
+                    const без = до && после ? до + (головаПосле || хвостДо) + после : (до || после);
+                    if (без.trim()) { freshMessages[rm.mIdx].content = без; return; }
+                }
                 let hudBlockText = content.substring(rm.index, rm.index + rm.length);
                 const прошлый = allMatchesRegen[allMatchesRegen.indexOf(rm) - 1];
                 const прошлыйТекст = прошлый ? freshMessages[прошлый.mIdx].content.substring(прошлый.index, прошлый.index + прошлый.length) : '';
@@ -3293,13 +3364,9 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             else if (profileResult && profileResult.text) aiText = profileResult.text;
             else aiText = JSON.stringify(profileResult);
         } else {
-            let res;
-            window.__tavernOSHudRegenRequest = true;
-            try {
-                res = await fetch(requestUrl, { method: 'POST', headers: requestHeaders, cache: 'no-cache', body: JSON.stringify(hudRequestBody) });
-            } finally {
-                window.__tavernOSHudRegenRequest = false;
-            }
+            // Перехват узнаёт этот запрос по <hud_instructions> в теле и
+            // пропускает — глобальный флаг здесь больше не нужен.
+            const res = await fetch(requestUrl, { method: 'POST', headers: requestHeaders, cache: 'no-cache', body: JSON.stringify(hudRequestBody) });
             if (!res.ok) {
                 const apiError = await readHudApiError(res);
                 throw new Error(`API Error ${apiError.status}: ${apiError.message}`);
@@ -3591,7 +3658,14 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       ${группа('🤖 Генерация', `
         <label class="hud-set-check" title="Отдельный лимит токенов только для запроса создания/регенерации HUD.">🧠 Лимит токенов HUD: ${число('hud-max-tokens', 256, 32768, settings.hudMaxTokens, 70)}</label>
         ${галка('hud-prompt-separate', settings.hudPromptSeparate !== false, '🧩 Инструкция HUD отдельным сообщением', 'Задача, правила, схема и снимок уходят последним сообщением — после пресета, карточки, лорбуков и истории. Выключите, если бэкенд не принимает системное сообщение в конце: тогда инструкция дописывается к последнему сообщению, как раньше.')}
-        ${галка('hud-snapshot', settings.hudSnapshot !== false, '📸 Снимок последнего HUD в конце инструкции', 'Последний HUD в коротких кодах, без пустых полей: модель обновляет его под новый ответ, а не собирает мир заново. Снимок считается одним из развёрнутых HUD: сам блок в истории сжимается в обычную [HUD_SUMMARY].')}
+        ${галка('hud-snapshot', settings.hudSnapshot !== false, '📸 Снимок последнего HUD в конце инструкции', 'Последний HUD в коротких кодах, без пустых полей: модель обновляет его под новый ответ, а не собирает мир заново. Последний HUD не дублируется: из истории он вырезается и переезжает в снимок. Снимок считается одним из развёрнутых HUD.')}
+        <label class="hud-set-check" title="После ответа HUD проверяется на поля, которые схема требует каждый ход: мысли и «ожидание и реальность» каждого персонажа, дневник и гороскоп, если они включены. Условные поля (сны, дневник тела, подтекст, комментарии) не проверяются. Одна попытка на ответ; если вы сами остановили генерацию, проверки нет.">🩺 Неполный HUD:
+          <select id="hud-complete-check" style="flex:1; min-width:0; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;">
+            <option value="regen"${(settings.hudCompleteCheck || 'regen') === 'regen' ? ' selected' : ''}>Досоздавать перегенерацией</option>
+            <option value="warn"${settings.hudCompleteCheck === 'warn' ? ' selected' : ''}>Только предупреждать</option>
+            <option value="off"${settings.hudCompleteCheck === 'off' ? ' selected' : ''}>Не проверять</option>
+          </select>
+        </label>
         <label class="hud-set-check" title="Правила и поля близости — самая тяжёлая часть промта. «Авто»: только когда сцена идёт по последнему HUD или начинается по словам последних сообщений. Кинки, фетиши и история секса на экране не пропадают — HUD берёт их из прошлых ходов.">🔞 Часть про близость:
           <select id="hud-nsfw-prompt" style="flex:1; min-width:0; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;">
             <option value="auto"${(settings.nsfwPrompt || 'auto') === 'auto' ? ' selected' : ''}>Авто — когда сцена идёт</option>
@@ -3845,6 +3919,10 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       settings.nsfwPrompt = ['auto', 'always', 'never'].includes(e.target.value) ? e.target.value : 'auto';
       saveSettings();
     });
+    document.getElementById('hud-complete-check')?.addEventListener('change', (e) => {
+      settings.hudCompleteCheck = ['regen', 'warn', 'off'].includes(e.target.value) ? e.target.value : 'regen';
+      saveSettings();
+    });
     document.getElementById('hud-enable-user').addEventListener('change', (e) => { settings.enableUserBlock = e.target.checked; saveSettings(); });
     
     // === ВОТ СЮДА ВСТАВЛЯЕМ НАШУ НОВУЮ ГАЛОЧКУ ===
@@ -3861,7 +3939,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=22.99.70');
+        const mod = await import('./render/archive.js?v=22.99.76');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -4514,6 +4592,44 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     schedulePerformanceRefresh,
   };
 
+  /* Проверка полноты HUD после ответа (hud-check.js). Досоздание идёт через
+     ту же кнопку 🔄 / ➕, что и вручную: ждём, пока ST дорисует сообщение и
+     HUD соберёт кнопку, и нажимаем её обработчик. */
+  async function перегенерироватьHUDСообщения(id) {
+    for (let i = 0; i < 30; i++) {
+      const mes = document.querySelector(`.mes[mesid="${id}"]`);
+      if (mes) {
+        if (!mes.querySelector('.hud-regen-btn')) safeProcessMessage(mes);
+        const кнопка = mes.querySelector('.hud-regen-btn');
+        if (кнопка && !кнопка.classList.contains('hud-spinning')) {
+          await handleHudRegenButton(кнопка);
+          return true;
+        }
+      }
+      await new Promise(r => setTimeout(r, 200));
+    }
+    return false;
+  }
+
+  let проверкаПолноты = null;
+  function подключитьПроверкуПолноты() {
+    if (проверкаПолноты) return;
+    const ctx = window.SillyTavern?.getContext?.();
+    const es = ctx?.eventSource, et = ctx?.event_types;
+    if (!es || !et?.MESSAGE_RECEIVED) return;
+    проверкаПолноты = создатьПроверкуПолноты({
+      чат: () => window.SillyTavern?.getContext?.()?.chat || [],
+      ключЧата: () => { const c = window.SillyTavern?.getContext?.(); return String(c?.getCurrentChatId?.() ?? c?.chatId ?? ''); },
+      перегенерировать: перегенерироватьHUDСообщения,
+      сообщить: showHudToast,
+    });
+    if (et.GENERATION_STOPPED) es.on(et.GENERATION_STOPPED, () => проверкаПолноты.остановлено());
+    // Не ждём внутри обработчика: ST ждёт своих слушателей, прежде чем сохранить чат.
+    es.on(et.MESSAGE_RECEIVED, (messageId, type) => {
+      setTimeout(() => { проверкаПолноты.послеОтвета(messageId, type).catch(e => console.warn('[TavernOS HUD] Проверка полноты', e)); }, 800);
+    });
+  }
+
   let initRetries = 0;
   function initApp() {
     const chatContainer = document.querySelector('#chat') || document.querySelector('#chat-container');
@@ -4526,6 +4642,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     restoreLastTavernRequest();
     // Макрос {{hudLast}} — и для нашей инструкции, и для пресетов.
     зарегистрироватьМакросHUD();
+    подключитьПроверкуПолноты();
     initGlobalEvents(eventsCtx);
     initTavernOSEvents(eventsCtx);	
     initWandButton(); // Наша новая кнопка!
