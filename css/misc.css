@@ -3887,14 +3887,9 @@
    из-под плашки. Свёрнутая строка (is-compact) не меняется. */
 @media screen and (min-width: 601px) {
     .hud-scene-widget { padding-bottom: 64px; }
-    /* Снеговик ростом выше полосы под плашкой: голова всё равно уходила под
-       часы. На ПК он стоит правее домов, у пруда, вместе со своим сугробом. */
-    .season-winter .hud-snowman { left: 45%; }
-    .season-winter .hud-snowdrift.sd-snowman {
-        left: calc(45% - 5px);
-        -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 74%, transparent 100%);
-                mask-image: linear-gradient(90deg, transparent 0%, #000 22%, #000 74%, transparent 100%);
-    }
+    /* Снеговик остаётся у левого края — там его место в композиции.
+       Чтобы голова не уходила под плашку часов, он просто чуть ниже ростом. */
+    .season-winter .hud-snowman { transform: scale(.82); transform-origin: left bottom; }
 }
 
 /* --- Телефон ------------------------------------------------------------- */

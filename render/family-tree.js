@@ -8,9 +8,9 @@
 // Модуль не знает про граф отношений: получает готовые узлы и рёбра и отдаёт
 // SVG. Так нет круговой зависимости с relations-graph.js.
 
-import { escapeHtml, hudHashSeed, commentInitials } from '../utils.js?v=22.99.76';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.76';
-import { найтиПоИмени } from '../names.js?v=22.99.76';
+import { escapeHtml, hudHashSeed, commentInitials } from '../utils.js?v=22.99.79';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.79';
+import { найтиПоИмени } from '../names.js?v=22.99.79';
 
 // Кем «кому» приходится тому, у кого записано отношение. Ищем только в
 // первых словах: дальше идёт чувство, где «любит как сына» или «брат по

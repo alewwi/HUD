@@ -12,11 +12,11 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=22.99.76';
-import { mapKey } from './utils.js?v=22.99.76';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=22.99.76';
-import { разобратьHUDСырой } from './hud-parser.js?v=22.99.76';
-import { hudBlockRe } from './hud-block.js?v=22.99.76';
+import { settings } from './settings.js?v=22.99.79';
+import { mapKey } from './utils.js?v=22.99.79';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=22.99.79';
+import { разобратьHUDСырой } from './hud-parser.js?v=22.99.79';
+import { hudBlockRe } from './hud-block.js?v=22.99.79';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
