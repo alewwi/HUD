@@ -10,6 +10,29 @@ export function buildLightningSvg() {
   </svg>`;
 }
 
+/* Талый ручей с перспективой: у горизонта — тонкая нитка, к зрителю
+   расширяется и петляет. Плоская полоса одной ширины, пересекавшая луг
+   поперёк, наезжала на стволы и убивала глубину. Форма строится по
+   средней линии: каждой точке — своя ширина, берег чуть шире воды. */
+function ручейСПерспективой() {
+  const точки = 26, левый = [], правый = [], берегЛ = [], берегП = [], середина = [];
+  for (let i = 0; i <= точки; i++) {
+    const t = i / точки;                                   // 0 — даль, 1 — у зрителя
+    const y = t * 40;
+    const x = 50 + Math.sin(t * Math.PI * 2.3 + 0.5) * (6 + 16 * t);
+    const w = 0.7 + 8.5 * Math.pow(t, 1.5);               // половина ширины воды
+    const б = w + 0.6 + 1.6 * t;                           // половина ширины русла
+    левый.push(`${(x - w).toFixed(2)} ${y.toFixed(2)}`); правый.unshift(`${(x + w).toFixed(2)} ${y.toFixed(2)}`);
+    берегЛ.push(`${(x - б).toFixed(2)} ${y.toFixed(2)}`); берегП.unshift(`${(x + б).toFixed(2)} ${y.toFixed(2)}`);
+    середина.push(`${(x - w * 0.25).toFixed(2)} ${y.toFixed(2)}`);
+  }
+  const полоса = (a, b) => 'M' + a.join(' L') + ' L' + b.join(' L') + ' Z';
+  return '<svg class="hud-thaw-stream" viewBox="0 0 100 40" preserveAspectRatio="none" aria-hidden="true">'
+    + `<path class="bed" d="${полоса(берегЛ, берегП)}"/>`
+    + `<path class="water" d="${полоса(левый, правый)}"/>`
+    + `<path class="glint" d="M${середина.slice(6).join(' L')}"/></svg>`;
+}
+
 export function buildSeasonSceneHtml(seasonClass, extra) {
   extra = extra || {};
   if (seasonClass === 'season-autumn') {
@@ -49,17 +72,47 @@ export function buildSeasonSceneHtml(seasonClass, extra) {
     let pollen = '';
     for (let i = 1; i <= 4; i++) pollen += `<span class="hud-pollen d${i}"></span>`;
     let dew = extra.dew ? `<span class="hud-dew dw1"></span><span class="hud-dew dw2"></span><span class="hud-dew dw3"></span><span class="hud-dew dw4"></span>` : '';
+    // Весна по месяцам. Без даты — середина весны, как апрель.
+    const месяц = extra.month || 4;
+    const март = месяц === 3, апрель = месяц === 4, май = месяц === 5;
+    const конецМая = май && (extra.day || 0) >= 20;
+    // Скворечник живёт на стволе третьего дерева, а не в воздухе рядом с ним:
+    // в ветер дерево качается — и скворечник вместе с ним, как гнездо.
+    // Скворец носит в него веточки, пока строится гнездо (март-апрель).
+    const скворец = (март || апрель) ? `<span class="hud-starling"><i class="hud-starling-twig"></i></span>` : '';
+    const скворечник = `<span class="hud-birdhouse"><span class="hud-birdhouse-body"></span><span class="hud-birdhouse-roof"></span><span class="hud-birdhouse-hole"><span class="hud-birdhouse-bird"></span></span><span class="hud-birdhouse-perch"></span>${скворец}</span>`;
+    // Дятел стучит по стволу крайнего правого дерева.
+    const дятел = `<span class="hud-woodpecker"><i class="hud-woodpecker-head"></i><i class="hud-woodpecker-tail"></i></span>`;
     let backTrees = '';
     for (let i = 1; i <= 4; i++) {
+      // Вместо гнезда, висевшего в кроне (в марте, без листвы, — просто в
+      // воздухе), — дупло в стволе. В апреле-мае из него выглядывают птенцы.
       const nest = i === 2
-        ? `<span class="hud-bg-nest"><span class="hud-bg-chick c1"></span><span class="hud-bg-chick c2"></span></span>`
+        ? `<span class="hud-tree-hollow">${март ? '' : '<i class="hud-hollow-chick c1"></i><i class="hud-hollow-chick c2"></i>'}</span>`
         : '';
-      backTrees += `<span class="hud-bg-tree hud-bg-tree-spring bt${i}"><span class="hud-bg-tree-trunk"></span><span class="hud-bg-tree-branch br1"></span><span class="hud-bg-tree-branch br2"></span><span class="hud-bg-tree-branch br3"></span><span class="hud-bg-tree-canopy"></span>${nest}</span>`;
+      backTrees += `<span class="hud-bg-tree hud-bg-tree-spring bt${i}"><span class="hud-bg-tree-trunk"></span><span class="hud-bg-tree-branch br1"></span><span class="hud-bg-tree-branch br2"></span><span class="hud-bg-tree-branch br3"></span><span class="hud-bg-tree-canopy"></span>${nest}${i === 3 ? скворечник : ''}${i === 4 ? дятел : ''}</span>`;
     }
     // То же для весны: горизонт и трава, иначе луг читается пустым холмом.
     const tufts = Array.from({ length: 6 }, (_, i) => `<span class="hud-grass-tuft gt${i + 1}"></span>`).join('');
     const puffs = Array.from({ length: 4 }, (_, i) => `<span class="hud-dandelion dn${i + 1}"></span>`).join('');
-    return `<div class="hud-far-hills"></div><div class="hud-far-treeline"></div><div class="hud-meadow"></div><div class="hud-spring-puddle"></div><div class="hud-birdhouse"><span class="hud-birdhouse-body"></span><span class="hud-birdhouse-roof"></span><span class="hud-birdhouse-hole"><span class="hud-birdhouse-bird"></span></span><span class="hud-birdhouse-perch"></span></div><div class="hud-frog"><span class="hud-frog-body"></span><span class="hud-frog-eye e1"></span><span class="hud-frog-eye e2"></span><span class="hud-frog-leg"></span></div><div class="hud-blossom-shrub"><span class="hud-shrub-body"></span><span class="hud-shrub-bloom b1"></span><span class="hud-shrub-bloom b2"></span><span class="hud-shrub-bloom b3"></span></div><div class="hud-grass">${tufts}${puffs}<span class="hud-snail"></span><span class="hud-sprout sp1"></span><span class="hud-sprout sp2"></span></div><div class="hud-bg-trees">${backTrees}</div><div class="hud-flowerbed">${flowers}</div>${pollen}${dew}<div class="hud-butterfly"><span class="hud-butterfly-wing w-left"></span><span class="hud-butterfly-wing w-right"></span></div><div class="hud-bee bee1"><span class="hud-bee-wing"></span></div><div class="hud-bee bee2"><span class="hud-bee-wing"></span></div>`;
+    // Март: снег в тени, талый ручей, подснежники.
+    const мартовское = март
+      ? '<div class="hud-spring-snow s1"></div><div class="hud-spring-snow s2"></div><div class="hud-spring-snow s3"></div>'
+        + ручейСПерспективой()
+        + [1, 2, 3, 4].map(i => `<span class="hud-snowdrop sn${i}"></span>`).join('')
+      : '';
+    // Возвращаются перелётные птицы — клином, в сторону, обратную осенней стае.
+    const клин = (март || апрель)
+      ? `<div class="hud-spring-flock">${[1, 2, 3, 4, 5, 6, 7].map(i => `<i class="hud-vbird v${i}"></i>`).join('')}</div>` : '';
+    // Лепестки с цветущих деревьев — в апреле и в начале мая, по ветру.
+    const лепестки = (апрель || (май && !конецМая))
+      ? `<div class="hud-petal-fall-layer">${[1, 2, 3, 4, 5, 6, 7, 8].map(i => `<i class="hud-petal-fall pf${i}"></i>`).join('')}</div>` : '';
+    // Май: сирень; в конце мая одуванчики отцветают и летит пух.
+    const майское = май ? '<div class="hud-lilac"><span class="hud-lilac-bush"></span><span class="hud-lilac-cluster c1"></span><span class="hud-lilac-cluster c2"></span><span class="hud-lilac-cluster c3"></span><span class="hud-lilac-cluster c4"></span></div>' : '';
+    const пух = конецМая ? `<div class="hud-fluff-layer">${[1, 2, 3, 4, 5, 6].map(i => `<i class="hud-fluff fl${i}"></i>`).join('')}</div>` : '';
+    // Лейка у клумбы: сад поливают, когда уже есть что поливать.
+    const лейка = март ? '' : '<div class="hud-watering-can"><i class="hud-can-body"></i><i class="hud-can-spout"></i><i class="hud-can-handle"></i></div>';
+    return `<div class="hud-far-hills"></div><div class="hud-far-treeline"></div><div class="hud-meadow"></div><div class="hud-spring-puddle"></div>${мартовское}<div class="hud-frog"><span class="hud-frog-sac"></span><span class="hud-frog-body"></span><span class="hud-frog-eye e1"></span><span class="hud-frog-eye e2"></span><span class="hud-frog-leg"></span><i class="hud-frog-call c1"></i><i class="hud-frog-call c2"></i></div><div class="hud-blossom-shrub"><span class="hud-shrub-body"></span><span class="hud-shrub-bloom b1"></span><span class="hud-shrub-bloom b2"></span><span class="hud-shrub-bloom b3"></span></div>${майское}<div class="hud-grass">${tufts}${puffs}<span class="hud-snail"></span><span class="hud-sprout sp1"></span><span class="hud-sprout sp2"></span></div><div class="hud-bg-trees">${backTrees}</div>${клин}<div class="hud-flowerbed">${flowers}</div>${лейка}${pollen}${dew}${лепестки}${пух}<div class="hud-butterfly"><span class="hud-butterfly-wing w-left"></span><span class="hud-butterfly-wing w-right"></span></div><div class="hud-bee bee1"><span class="hud-bee-wing"></span></div><div class="hud-bee bee2"><span class="hud-bee-wing"></span></div>`;
   }
   if (seasonClass === 'season-summer') {
     // Стрекоза — вид сверху, как её узнают: две пары прозрачных крыльев в

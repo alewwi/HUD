@@ -1,30 +1,31 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.79';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=22.99.79';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.79';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=22.99.79';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.79';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.79';
-import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=22.99.79';
-import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=22.99.79';
-import { привязатьИсторию } from './render/intimacy.js?v=22.99.79';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.79';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.79';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.79';
-import { buildMemoryHTML } from './render/memory.js?v=22.99.79';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.79';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.79';
-import { hudHasRelations } from './render/relations-graph.js?v=22.99.79';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.79';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.79';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.79';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.79';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.79';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.79';
-import { extractHudBlock, hudBlockRe, hudOpenRe, hudCloseRe, началоПоследнегоHud } from './hud-block.js?v=22.99.79';
-import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=22.99.79';
-import { создатьПроверкуПолноты } from './hud-check.js?v=22.99.79';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.87';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=22.99.87';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.87';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=22.99.87';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.87';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.87';
+import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=22.99.87';
+import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=22.99.87';
+import { привязатьИсторию } from './render/intimacy.js?v=22.99.87';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.87';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.87';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.87';
+import { buildMemoryHTML } from './render/memory.js?v=22.99.87';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.87';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.87';
+import { hudHasRelations } from './render/relations-graph.js?v=22.99.87';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.87';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.87';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.87';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.87';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.87';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.87';
+import { extractHudBlock, hudBlockRe, hudOpenRe, hudCloseRe, началоПоследнегоHud } from './hud-block.js?v=22.99.87';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=22.99.87';
+import { создатьПроверкуПолноты } from './hud-check.js?v=22.99.87';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=22.99.87';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -206,7 +207,7 @@ ${интим ? `   "SxL": "[last sex: 'dt: when — date, time, place; pr: with 
    "Vit": "[vitals (phase 2, and while calming down in phase 3). 'hr: pulse, bpm; br: breaths per minute, then how the breathing sounds; tmp: body temperature in °C']",
    "Snd": "[soundscape (phase 2): every sound of the act this character makes or hears, each '<sound>: <loudness 0-10> — <what it sounds like, when it comes>': 'Стоны: 8 — низкие, срываются на всхлип при толчке; Скрип кровати: 5 — ритмичный'; separate by ;]",` : ''}${интим ? `
    "BM": "[body map (phase 2; in phase 3 only zones still sensitive): sensitivity of each zone of THIS character's body, '<zone>: <0-10>${близость ? ' <trend>' : ''} — <what is happening to it, how it feels>'${близость ? `. Trend: rising, peak, fading, lingering (+hours, e.g. 'lingering 3h'). 'Шея: 9 peak — губы и зубы, кожа горит; Бёдра: 6 rising — дрожат под его ладонью'` : `: 'Шея: 9 — горит от его губ; Бёдра: 7 — дрожат под ладонью'`}. Zones are ordinary Russian body-part words; as many as the story touched or named. Separate by ;]",
-   "W": "[intimacy (phase 2 ONLY) — 'empty' before it starts and once over. Each 'code: value', every value a full vivid description: 'ar: arousal and how it shows; tch: where/how touch happens now — hands, mouth, pressure, rhythm; rct: how the body reacts — flush, trembling, arching, clenching, goosebumps, sweat; fac: face, eyes, lips — expression, gaze, what they bite or whisper; pn: penis — erection, size, shape, colour, sensitivity, what's being done to it; lb: vagina — wetness, swelling, openness, what it feels inside; ch: breasts and nipples — shape, hardness, how they react; flu: wetness, sweat, saliva, semen — where and how much; vl: how loud the sounds of the act are and what they are — moans, whimpers, skin slapping, bed creaking, never music or ambient noise; sm: smells in the air and on skin; ${близость ? '' : 'mk: marks on skin and sheets; '}pr: partner and what they are to each other now${близость ? '' : '; pt: protection used or not'}'. Skip a code only when it does not apply to this body. Separate by ;]",
+   "W": "[intimacy (phase 2 ONLY) — 'empty' before it starts and once over. Each 'code: value', every value a full vivid description: 'ar: arousal and how it shows; tch: where/how touch happens now — hands, mouth, pressure, rhythm; rct: how the body reacts — flush, trembling, arching, clenching, goosebumps, sweat; fac: face, eyes, lips — expression, gaze, what they bite or whisper; pn: penis — erection, size, shape, colour, sensitivity, what's being done to it; lb: vagina — wetness, swelling, openness, what it feels inside; ch: breasts and nipples, women only — never for a man — shape, hardness, how they react; flu: wetness, sweat, saliva, semen — where and how much; vl: how loud the sounds of the act are and what they are — moans, whimpers, skin slapping, bed creaking, never music or ambient noise; sm: smells in the air and on skin; ${близость ? '' : 'mk: marks on skin and sheets; '}pr: partner and what they are to each other now${близость ? '' : '; pt: protection used or not'}'. Skip a code only when it does not apply to this body. Separate by ;]",
    "Kn": "[kinks, STABLE TRAIT — once known, keep filled every turn. ACTIVITIES: practice, scenario, dynamic (roleplay, BDSM, bondage, toys, power exchange); a thing needed for arousal goes to Ft. Each '<activity>: <how willingly>, <how far>' — the whole thing stays one item: 'Ролевые игры: охотно, сценарий врач-пациент; Связывание: только сама сверху'. 2+ when known; separate by ;]",
    "Ft": "[fetishes, STABLE TRAIT: THINGS — objects, materials, body parts or settings needed for arousal (stockings, latex, feet, hair, medical settings), each '<thing>: <its role>': 'Чулки: обязательное условие; Шея: сильный триггер'. 2+ when known; separate by ;]",
    "NG": "[no-go, STABLE TRAIT: refusals — hard limits never crossed, each '<limit>: <reason>': 'Боль: панический страх; Втроём: не делится'; separate by ;]",
@@ -226,13 +227,13 @@ ${интим ? `   "SxL": "[last sex: 'dt: when — date, time, place; pr: with 
   "A": "[age: years and date of birth as DD.MM.YYYY]",
   "C": "[clothing: what {{user}} is wearing right now and its state]",
   "Ap": "[appearance: physical appearance only — build, height, hair, eyes, marks]",
-  "H": "[health: ${болезни ? 'overall physical state in a phrase; illnesses and injuries go to Ill' : 'physical state only — wounds, pain, illness, stamina'}]",${болезни ? `
-  "Ill": "[illnesses and injuries of {{user}}, ONLY if any — otherwise omit. Same format and rules as for characters: groups separated by |, each 'nm: what it is; sg: fresh, worsening, stable, healing, chronic or healed; rc: recovery 0-100%; sy: symptoms; trt: treatment']",` : ''}${беременность ? `
+  "H": "[health: ${болезни ? 'overall physical state in a phrase; illnesses and injuries go to Ill, never repeated here' : 'physical state only — wounds, pain, illness, stamina'}]",${болезни ? `
+  "Ill": "[illnesses and injuries of {{user}}, ONLY if any — otherwise omit. Same format and rules as for characters: groups separated by |, each 'nm: what it is; sg: fresh, worsening, stable, healing, chronic or healed; rc: recovery 0-100%; sy: symptoms; trt: treatment'. Keep each condition under the SAME name every turn and in ONE field only${следы ? (интим ? ' — marks left by intimacy (hickeys, bites, scratches, soreness) go to Mrk unless they become a real injury, and nothing is in both Ill and Mrk' : ' — marks that simply fade (bruises, grazes, redness) go to Mrk, and nothing is in both Ill and Mrk') : ''}]",` : ''}${беременность ? `
   "Prg": "[pregnancy of {{user}}, ONLY if pregnant — otherwise omit. 'wk: week as a number; due: expected due date; fa: the father, if known; sy: symptoms; knw: who knows; cnd: how it is going']",` : ''}${цикл ? `
   "Mns": "[menstrual cycle of {{user}}, ONLY with a uterus — otherwise omit. Same format and rules as for characters: 'cyd: day; cyl: length; phs: menstrual, follicular, ovulation, luteal or late; nxt: next period; pms: PMS window; dly: days late; rsn: reason for delay']",` : ''}
   "Rl": "[relationships: how {{user}} feels about EVERY other named person who matters now — same format and rules as for characters; bidirectional with their Rl; separate by ;]",
-${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and rules as for characters: '<what>: <where> — <how it looks and feels now> | <fade time: 12h, 3d>'; 'empty' when there are none]",
-` : ''}${интим ? `  "UW": "[user intimacy (phase 2 ONLY) — same phases and the same full, vivid descriptions as for characters. Each 'code: value': 'ar: arousal and how it shows; ds: strength of desire and for what; rdy: how ready the body is, what's still missing; tch: where/how {{user}} touches and is touched now; rct: how the body reacts — flush, trembling, arching, clenching, goosebumps, sweat; fac: face, eyes, lips; pb: pubic hair — grooming, shape, feel; an: anatomy — shape, size, colour, how it changes with arousal; lb: wetness — where, how much, sound and feel; ch: breasts and nipples — shape, size, hardness, sensitivity; flu: wetness, sweat, saliva, semen — where and how much; vl: how loud the sounds of the act are and what they are${близость ? '' : '; mk: marks on skin; r2: readiness for the next round'}'. Skip a code only when it does not apply to this body. 'empty' when the scene ends; separate by ;]",
+${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and rules as for characters: '<what>: <where> — <how it looks and feels now> | <fade time: 12h, 3d>'; the same mark keeps the same name every turn and is never also in Ill; 'empty' when there are none]",
+` : ''}${интим ? `  "UW": "[user intimacy (phase 2 ONLY) — same phases and the same full, vivid descriptions as for characters. Each 'code: value': 'ar: arousal and how it shows; ds: strength of desire and for what; rdy: how ready the body is, what's still missing; tch: where/how {{user}} touches and is touched now; rct: how the body reacts — flush, trembling, arching, clenching, goosebumps, sweat; fac: face, eyes, lips; pb: pubic hair — grooming, shape, feel; an: anatomy — shape, size, colour, how it changes with arousal; lb: wetness — where, how much, sound and feel; ch: breasts and nipples, only if {{user}} is a woman — shape, size, hardness, sensitivity; flu: wetness, sweat, saliva, semen — where and how much; vl: how loud the sounds of the act are and what they are${близость ? '' : '; mk: marks on skin; r2: readiness for the next round'}'. Skip a code only when it does not apply to this body. 'empty' when the scene ends; separate by ;]",
 ` : ''}  "L": "[location: the exact place {{user}} is right now]"
  }`;
     }
@@ -952,7 +953,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       settings.hudsToKeepMigration = 1;
       if (saved) { try { localStorage.setItem('hud_settings', JSON.stringify(settings)); } catch (_) {} }
     }
-    applyThemeColors(); 
+    applyThemeColors(); обновитьПалитруГрупп(); следитьЗаТемой(); 
   }
   // Версию берём из ?v= собственного скрипта: раньше она была вписана в
   // заголовок настроек руками и отставала на десяток выпусков.
@@ -1431,7 +1432,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
         // Снег валит сверху вниз, ветра нет — густой снегопад, не метель.
         wIntensity = 'weather-intensity-heavy';
       }
-    } else if (сНачала('дожд|лив|проливн|rain|shower|морос|drizzle').test(wLow)) {
+    } else if (сНачала('дожд|лив|проливн|rain|shower|морос|drizzle').test(wLow.replace(/после\s+дожд\p{L}*|дожд\p{L}*\s+(?:прош|законч|стих|кончил|перестал)\p{L}*|after\s+(?:the\s+)?rain/giu, ' '))) {
       wClass = 'weather-rain';
       // Сила дождя — только из частей про дождь, как у снега: «сильный ветер,
       // мелкий дождь» раньше давал ливень из-за чужого «сильный».
@@ -1484,11 +1485,18 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
 
     let dustyClass = (tempClass.split(' ').includes('temp-hot') && seasonClass === 'season-summer' && (wClass === 'weather-clear' || wClass === 'weather-wind')) ? 'weather-dusty' : '';
     const prevWeather = previousMessageWeather();
-    let rainbowClass = (wClass === 'weather-clear' && (prevWeather === 'weather-rain' || prevWeather === 'weather-storm')) ? 'weather-rainbow' : '';
+    // Радуга: дождь закончился — по прошлому ходу или прямо по словам погоды
+    // («после дождя», «дождь прошёл», «слепой дождь», «проясняется»).
+    const послеДождя = /после\s+дожд|дожд\p{L}*\s+(?:прош|законч|стих|кончил)|слеп\p{L}*\s+дожд|проясня|радуг|after\s+(?:the\s+)?rain|rainbow/iu.test(String(wRaw || ''));
+    let rainbowClass = ((wClass === 'weather-clear' || wClass === 'weather-cloudy') && (prevWeather === 'weather-rain' || prevWeather === 'weather-storm' || послеДождя)
+      || (послеДождя && wClass !== 'weather-storm')) ? 'weather-rainbow' : '';
+    // Месяц — для весны: март, апрель и май выглядят по-разному (проталины,
+    // цветение, сирень и пух). Конец месяца — с 20-го числа.
+    const monthClass = месяцИзДаты ? `month-${месяцИзДаты}${числоИзДаты && числоИзДаты >= 20 ? ' month-late' : ''}` : '';
     // Мокрая земля: дождь идёт сейчас либо шёл в прошлом сообщении. Лужа
     // держится ровно один ход и высыхает — отсюда и «после дождя».
     const isWet = (w) => w === 'weather-rain' || w === 'weather-storm';
-    const wetClass = (isWet(wClass) || isWet(prevWeather)) ? 'scene-wet' : '';
+    const wetClass = (isWet(wClass) || isWet(prevWeather) || послеДождя) ? 'scene-wet' : '';
     if (wRaw) {
       lastSceneWeather = wClass;
       if (renderTargetMes) renderTargetMes.dataset.hudWeather = wClass;
@@ -1768,7 +1776,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       let сценаСвёрнута = false;
       try { сценаСвёрнута = localStorage.getItem('hud-scene-compact') === '1'; } catch (e) { /* хранилище недоступно */ }
       html += `
-      <div class="hud-scene-widget ${phaseClass} ${wClass} ${wIntensity} ${windClass} ${tempClass} ${freezeClass} ${seasonClass} ${dustyClass} ${rainbowClass} ${wetClass}${сценаСвёрнута ? ' is-compact' : ''}"${sceneStyle} title="Нажмите для анимации">
+      <div class="hud-scene-widget ${phaseClass} ${wClass} ${wIntensity} ${windClass} ${tempClass} ${freezeClass} ${seasonClass} ${dustyClass} ${rainbowClass} ${wetClass} ${monthClass}${сценаСвёрнута ? ' is-compact' : ''}"${sceneStyle} title="Нажмите для анимации">
         <div class="hud-fx-bg"></div>
         <div class="hud-fx-stars">${stars}</div>
         <div class="hud-fx-fireflies">${fireflies}</div>
@@ -1777,7 +1785,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
         <div class="hud-fx-rainbow"></div>
         <div class="hud-fx-celestial"${celestialStyle}></div>
         <div class="hud-fx-cloud-cover"></div>
-        <div class="hud-fx-season-scene"${sunVarsStyle}>${buildSeasonSceneHtml(seasonClass, { dew: dewActive, deepFreeze: !!freezeClass, newYear: новогодниеДни })}</div>
+        <div class="hud-fx-season-scene"${sunVarsStyle}>${buildSeasonSceneHtml(seasonClass, { dew: dewActive, deepFreeze: !!freezeClass, newYear: новогодниеДни, month: месяцИзДаты, day: числоИзДаты })}</div>
         <div class="hud-fx-weather"><span class="hud-snow-layer snow-far"></span><span class="hud-snow-layer snow-mid"></span><span class="hud-snow-layer snow-near"></span></div>
         <div class="hud-fx-frost"></div>
         <div class="hud-fx-temp"></div>
@@ -3955,7 +3963,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=22.99.79');
+        const mod = await import('./render/archive.js?v=22.99.87');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);

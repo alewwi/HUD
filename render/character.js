@@ -4,15 +4,15 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=22.99.79';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.79';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.99.79';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=22.99.79';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=22.99.87';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.87';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.99.87';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=22.99.87';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову } from './intimacy.js?v=22.99.79';
-import { settings } from '../settings.js?v=22.99.79';
-import { namesLikelySame } from '../names.js?v=22.99.79';
-import { parseRelationList } from './relations-graph.js?v=22.99.79';
+  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову } from './intimacy.js?v=22.99.87';
+import { settings } from '../settings.js?v=22.99.87';
+import { namesLikelySame } from '../names.js?v=22.99.87';
+import { parseRelationList } from './relations-graph.js?v=22.99.87';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле'];
@@ -219,6 +219,74 @@ const orderFields = (obj) => {
   return [...FIELD_ORDER.filter(k => k in obj), ...rest].map(k => [k, obj[k]]);
 };
 const DRAMA_KEYS = ['ревность', 'конфликт', 'глубина конфликта'];
+/* Смысловая группа строки: цвет корешка и подписи, лёгкий налёт и свой
+   значок-водяной знак (misc.css, «Карточка: группы строк»). Раньше все
+   строки были одинаковыми тёмными плашками с одинаковой подписью — понять,
+   о чём строка, можно было только прочитав её. NSFW-строки сюда не входят:
+   у них своё оформление. */
+const ВИД_СТРОКИ = {
+  'возраст': 'look', 'одежда': 'look', 'внешность': 'look', 'тело': 'look',
+  'физиология': 'vitals', 'здоровье': 'vitals', 'болезни и травмы': 'vitals', 'следы на теле': 'vitals', 'беременность': 'vitals', 'цикл': 'vitals',
+  'место': 'place',
+  'роль': 'standing', 'статус': 'standing',
+  'мысли': 'mind', 'скрытый подтекст': 'mind', 'ключ': 'mind', 'ожидание vs реальность': 'mind',
+  'сновидение': 'dream',
+  'цели': 'plans', 'расписание': 'plans',
+  'инвентарь': 'items',
+  'отношения': 'bonds', 'доверие': 'bonds', 'общие воспоминания': 'bonds', 'реплики': 'bonds',
+  'ревность': 'tension', 'конфликт': 'tension', 'глубина конфликта': 'tension',
+  'страхи': 'alarm', 'флаг-монитор': 'alarm', 'социальное разоблачение': 'alarm',
+};
+/* Своё поле — свой крой пилюль (misc.css, «Карточка: крой пилюль по полям»):
+   цели — стрелки-шаги, флаги — вымпелы, воспоминания — плёнка, реплики —
+   облачка речи, ключ — карточки с загнутым углом и т.д. */
+const ПОЛЕ_СТРОКИ = {
+  'отношения': 'relations', 'цели': 'goals', 'ревность': 'jealousy', 'флаг-монитор': 'flags',
+  'общие воспоминания': 'memories', 'реплики': 'lines', 'ключ': 'key', 'глубина конфликта': 'conflict',
+  'ожидание vs реальность': 'exp', 'инвентарь': 'inventory',
+  // Простые поля тоже получают свою подачу, а не одну и ту же плашку.
+  'возраст': 'age', 'одежда': 'clothes', 'внешность': 'looks', 'роль': 'role', 'тело': 'body',
+  'физиология': 'phys', 'здоровье': 'health', 'место': 'where', 'мысли': 'thoughts', 'статус': 'status',
+  'сновидение': 'dream', 'скрытый подтекст': 'subtext',
+};
+
+/* Подача значения простого поля. Возраст — крупной цифрой с датой рождения
+   под ней; одежда — списком, как чек; роль — главная строкой, остальное
+   мелким под ней; тело — тегами. Остальное — текстом, как раньше. Каждый
+   кусок проходит через applyTooltips, то есть экранируется. */
+function значениеПоля(ключ, значение, класс = 'hud-value') {
+  const текст = String(значение ?? '');
+  const части = () => разбитьСписок(текст).map(ч => ч.trim()).filter(Boolean);
+  if (ключ === 'возраст') {
+    const m = текст.match(/^\s*(\d{1,3})\s*(?:(?:лет|года?|y\.?o\.?)\s*)?[,;—–-]?\s*(.*)$/i);
+    if (m) return `<span class="${класс} hud-age"><b class="hud-age-num">${escapeHtml(m[1])}</b>`
+      + `${m[2] ? `<small class="hud-age-date">${applyTooltips(m[2])}</small>` : ''}</span>`;
+  }
+  if (ключ === 'одежда' || ключ === 'тело') {
+    const список = части();
+    if (список.length > 1) {
+      const вид = ключ === 'одежда' ? 'hud-list-clothes' : 'hud-list-body';
+      return `<span class="${класс} ${вид}">${список.map(ч => `<span>${applyTooltips(ч)}</span>`).join('')}</span>`;
+    }
+  }
+  if (ключ === 'роль') {
+    const список = части();
+    if (список.length > 1) {
+      return `<span class="${класс} hud-role-card"><b class="hud-role-main">${applyTooltips(список[0])}</b>`
+        + список.slice(1).map(ч => `<span class="hud-role-more">${applyTooltips(ч)}</span>`).join('') + `</span>`;
+    }
+  }
+  // Статус: первый пункт — главное состояние с горящим индикатором, остальные —
+  // короткими тегами под ним. Штамп капсом на длинном статусе читался плохо.
+  if (ключ === 'статус') {
+    const [главное, ...ещё] = части();
+    if (главное) return `<span class="${класс} hud-status"><b class="hud-status-main"><i class="hud-status-dot" aria-hidden="true"></i>${applyTooltips(главное)}</b>`
+      + (ещё.length ? `<span class="hud-status-tags">${ещё.map(ч => `<span>${applyTooltips(ч)}</span>`).join('')}</span>` : '') + `</span>`;
+  }
+  return `<span class="${класс}">${applyTooltips(текст)}</span>`;
+}
+const видСтроки = (ключ, класс) => (!/\bnsfw\b/.test(класс) && ВИД_СТРОКИ[ключ])
+  ? ' kind-' + ВИД_СТРОКИ[ключ] + (ПОЛЕ_СТРОКИ[ключ] ? ' f-' + ПОЛЕ_СТРОКИ[ключ] : '') : '';
 const TRUNCATE_KEYS = ['мысли', 'физиология'];
 
 function formatKeyValue(text) {
@@ -400,6 +468,36 @@ function собратьЗдоровье(о, вБлизости) {
   return { текст, карточки, следы: вБлизости ? списокСледов : '' };
 }
 
+/* «Грудь/Соски» — только у женщин. Пола в HUD нет, поэтому смотрим на само
+   тело, и только на его собственные строки: «член» в строке прикосновений
+   может быть партнёрским. Мужчина — есть «Состояние члена» (у персонажа)
+   или член в «Анатомии» (у {{user}} отдельной строки члена нет), и нет
+   признаков женского тела: цикла, беременности, вульвы в «Анатомии», а у
+   персонажа ещё и «Смазки» — в его схеме это влагалище. Если признаков
+   нет вовсе, оставляем как написала модель. */
+const МУЖСКОЕ = /(?<![\p{L}])(?:член|пенис|эрекц|мошонк|яич(?:к|ек)|стояк|penis|cock|erection|scrotum)/iu;
+const ЖЕНСКОЕ = /(?<![\p{L}])(?:клитор|влагалищ|вульв|вагин|половы\p{L}* губ|матк|pussy|vagina|vulva|clit)/iu;
+function частиПоМеткам(текст) {
+  return разбитьСписок(String(текст || '')).map(часть => {
+    const m = String(часть).match(/^\s*([^:：]{1,40})[:：]\s*([\s\S]*)$/);
+    return { часть, метка: m ? перевестиМетку(m[1].trim()).trim().toLowerCase() : '', текст: m ? m[2].trim() : String(часть) };
+  });
+}
+function мужскоеТело(о, части, этоИгрок) {
+  const есть = (метка) => части.some(ч => ч.метка === метка && !пустоеПоле(ч.текст));
+  const анатомия = части.filter(ч => ч.метка === 'анатомия').map(ч => ч.текст).join(' ');
+  const женское = ['Цикл', 'Mns', 'Беременность', 'Prg'].some(к => !пустоеПоле(снятьЗаглушки(flattenFieldValue(полеОбъекта(о, к)))))
+    || ЖЕНСКОЕ.test(анатомия) || (!этоИгрок && есть('смазка'));
+  return !женское && (есть('состояние члена') || МУЖСКОЕ.test(анатомия));
+}
+function безГрудиУМужчин(значение, о, этоИгрок = false) {
+  const текст = String(значение || '');
+  const части = частиПоМеткам(текст);
+  const грудь = (ч) => /^грудь(?:\/соски)?$/.test(ч.метка);
+  if (!части.some(грудь) || !мужскоеТело(о, части, этоИгрок)) return текст;
+  return части.filter(ч => !грудь(ч)).map(ч => ч.часть).join('; ');
+}
+
 // Строка «Здоровье»: одна фраза — как раньше, с карточками — во всю ширину.
 function строкаЗдоровья(з, класс, значок) {
   if (!з.текст && !з.карточки) return '';
@@ -479,6 +577,7 @@ export function buildUserHTML(userData, uid, isChecked, characters) {
 
     let rowClass = 'hud-row hud-user-row';
     if (label.toLowerCase().includes('nsfw')) rowClass += ' full-width nsfw';
+    rowClass += видСтроки(label.toLowerCase(), rowClass);
 
     // Значок берём из той же таблицы, что и карточка персонажа: поля
     // здесь те же самые, и разнобой бросался бы в глаза при переключении.
@@ -490,13 +589,13 @@ export function buildUserHTML(userData, uid, isChecked, characters) {
     } else if (label.toLowerCase() === 'отношения') {
       rows += `<div class="${rowClass}"><span class="hud-key">${значок}${escapeHtml(label)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill', false, 'отношения', лицоСобеседника)}</div></div>`;
     } else if (label.toLowerCase().includes('nsfw')) {
-      rows += `<div class="${rowClass}"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>🔞</span></i> ${escapeHtml(надписьПоля(label))}:</span> <div class="hud-vertical-container hud-nsfw-list is-act">${buildPillList(value, 'hud-nsfw-pill')}</div></div>`;
+      rows += `<div class="${rowClass}"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>🔞</span></i> ${escapeHtml(надписьПоля(label))}:</span> <div class="hud-vertical-container hud-nsfw-list is-act">${buildPillList(безГрудиУМужчин(value, userData, true), 'hud-nsfw-pill')}</div></div>`;
     } else if (label.toLowerCase() === 'цикл') {
       rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}Менструальный цикл:</span> ${buildCycle(value)}</div>`;
     } else if (label.toLowerCase() === 'беременность') {
       rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${buildPregnancy(value)}</div>`;
     } else {
-      rows += `<div class="${rowClass}"><span class="hud-key">${значок}${escapeHtml(label)}:</span> <span class="hud-value">${applyTooltips(String(value))}</span></div>`;
+      rows += `<div class="${rowClass}"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${значениеПоля(label.toLowerCase(), value, 'hud-value')}</div>`;
     }
   });
   const восприятие = settings.enablePerception !== false ? buildPerceptionHTML(characters) : '';
@@ -546,6 +645,7 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       'никогда не сделает': 'nogo', 'не возбуждает': 'noturn', 'nsfw': 'act', 'детализация nsfw': 'after', 'поза': 'pose',
       'раунд': 'round', 'длительность': 'dur', 'защита': 'prot', 'готовность к оргазму': 'org', 'жизненные показатели': 'vit', 'звуки': 'snd',
     }[lowerKey] || 'other');
+    rowClass += видСтроки(lowerKey, rowClass);
 
     const icon = значокПоля(lowerKey);
 
@@ -592,11 +692,11 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${buildPregnancy(value)}</div>`;
     } else if (lowerKey === 'ключ') {
       const items = String(value).split(';').filter(i => i.trim().length > 0).map(i => `<div class="hud-key-item">${formatKeyValue(i.trim())}</div>`).join('');
-      html += `<div class="hud-key-block full-width"><span class="hud-key-label">${escapeHtml(key)}:</span> <div class="hud-vertical-container hud-key-list">${items}</div></div>`;
+      html += `<div class="hud-key-block full-width kind-mind f-key"><span class="hud-key-label">${escapeHtml(key)}:</span> <div class="hud-vertical-container hud-key-list">${items}</div></div>`;
     } else if (lowerKey === 'инвентарь') {
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-inventory-grid">${buildPillList(value, 'hud-inventory-pill')}</div></div>`;
     } else if (lowerKey === 'nsfw' || lowerKey === 'детализация nsfw' || lowerKey === 'последний секс') {
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(надписьПоля(key))}:</span> <div class="hud-vertical-container hud-nsfw-list is-${lowerKey === 'nsfw' ? 'act' : lowerKey === 'детализация nsfw' ? 'after' : 'last'}">${buildPillList(value, 'hud-nsfw-pill', true)}</div></div>`;
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(надписьПоля(key))}:</span> <div class="hud-vertical-container hud-nsfw-list is-${lowerKey === 'nsfw' ? 'act' : lowerKey === 'детализация nsfw' ? 'after' : 'last'}">${buildPillList(lowerKey === 'последний секс' ? value : безГрудиУМужчин(value, charData), 'hud-nsfw-pill', true)}</div></div>`;
     } else if (lowerKey === 'кинк' || lowerKey === 'фетиш' || lowerKey === 'никогда не сделает' || lowerKey === 'не возбуждает') {
       // Каждый пункт — своя пилюля даже без явного разделителя: это списки,
       // а не связный текст, склеивать их обратно нельзя.
@@ -631,7 +731,7 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
     } else if (lowerKey === 'отношения' || lowerKey === 'цели' || lowerKey === 'ревность' || lowerKey === 'флаг-монитор') {
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill', (lowerKey === 'общие воспоминания' || lowerKey === 'флаг-монитор'), lowerKey, лицоСобеседника)}</div></div>`;
     } else {
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <span class="${valueClass}">${applyTooltips(String(value))}</span></div>`;
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${значениеПоля(lowerKey, value, valueClass)}</div>`;
     }
   }
   return html + `</div></div>`;

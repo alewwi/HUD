@@ -4000,3 +4000,839 @@
     .hud-scene-widget.weather-rain.weather-intensity-low .hud-fx-clouds .hud-rain-cloud.rc-back { --rc-w: 34px; left: 10%; margin-left: calc(var(--rc-w) * -.5); }
     .hud-scene-widget.weather-rain.weather-intensity-low .hud-fx-clouds .hud-rain-cloud.rc-front { --rc-w: 42px; left: 90%; margin-left: calc(var(--rc-w) * -.5); }
 }
+
+/* =========================================================================
+   ВЕСНА ПО МЕСЯЦАМ
+   Март — проталины, талый ручей, подснежники, голые деревья с почками.
+   Апрель — цветение и молодая листва, облетают лепестки.
+   Май — полная зелень, сирень, одуванчики; с 20-го — летит пух.
+   Класс месяца (month-3/4/5, month-late) ставит index.js на виджет.
+   Без даты весна выглядит как апрель.
+   Анимации, как и вся сцена, стоят до касания (.hud-fx-season-scene *).
+   ========================================================================= */
+
+/* --- Скворечник на стволе --------------------------------------------------
+   Раньше он был отдельным элементом сцены и висел рядом с деревом: в ветер
+   дерево наклонялось, а скворечник оставался на месте в воздухе. Теперь он
+   внутри дерева, как гнездо, и качается вместе с ним. Высота — под кроной:
+   крона стоит по центру своего блока (63% от земли), поэтому считаем от неё. */
+.hud-bg-tree .hud-birdhouse {
+  left: calc(50% - 7.5px); bottom: max(22%, calc(63% - 58px));
+  z-index: 3;
+}
+
+/* --- Скворец носит веточки в скворечник (март-апрель) --- */
+.season-spring .hud-starling {
+  position: absolute; left: -3px; top: 10px; width: 7px; height: 5px; z-index: 2;
+  border-radius: 60% 40% 50% 50%;
+  background: radial-gradient(circle at 68% 34%, #454b58, #16191f 72%);
+  opacity: 0;
+  animation: hud-starling-bring 11s ease-in-out infinite;
+}
+.season-spring .hud-starling::before {
+  content: ''; position: absolute; right: -2px; top: 1.6px; width: 2.6px; height: 1.2px;
+  border-radius: 1px; background: #e2bd3e;
+}
+.season-spring .hud-starling::after {
+  content: ''; position: absolute; left: 1px; top: -1px; width: 4px; height: 3px;
+  border-radius: 50% 50% 0 50%; background: #262a33;
+  transform-origin: 80% 100%; animation: hud-starling-wing .22s linear infinite alternate;
+}
+.hud-starling-twig {
+  position: absolute; right: -6px; top: 1.9px; width: 7px; height: 1px;
+  background: #6b4a2a; transform: rotate(-14deg); border-radius: 1px;
+}
+@keyframes hud-starling-bring {
+  0%       { transform: translate(-72px, -36px); opacity: 0; }
+  7%       { opacity: 1; }
+  30%, 44% { transform: translate(0, 0); opacity: 1; }
+  50%      { transform: translate(4px, -2px) scale(.6); opacity: 0; }
+  100%     { transform: translate(4px, -2px) scale(.6); opacity: 0; }
+}
+@keyframes hud-starling-wing { from { transform: rotate(-30deg); } to { transform: rotate(18deg); } }
+.season-spring:is(.phase-evening, .phase-night, .phase-deep-night) .hud-starling { display: none; }
+
+/* --- Дупло во втором дереве; в апреле-мае в нём птенцы --- */
+.season-spring .hud-tree-hollow {
+  position: absolute; left: calc(50% - 2.5px); bottom: max(21%, calc(63% - 64px));
+  width: 5px; height: 7px; z-index: 2; overflow: hidden;
+  border-radius: 50% 50% 45% 45% / 55% 55% 45% 45%;
+  background: radial-gradient(ellipse at 50% 40%, #0d0805 0 55%, #2a1c12 85%);
+  /* Наплыв коры вокруг дупла — светлее ствола. */
+  box-shadow: 0 0 0 1px rgba(128,98,66,.95), 0 0 0 1.8px rgba(40,28,18,.55);
+}
+.hud-hollow-chick {
+  position: absolute; bottom: -1px; width: 3px; height: 3px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 30%, #ecdcaa, #b99a5a 72%);
+  transform: translateY(3px);
+  animation: hud-chick-peek 5s ease-in-out infinite;
+}
+.hud-hollow-chick::after {
+  content: ''; position: absolute; left: 50%; top: -1.3px; width: 2px; height: 1.6px; margin-left: -1px;
+  background: #f0a030; clip-path: polygon(0 100%, 50% 0, 100% 100%);
+}
+/* Сдвиг по фазе: в покое один птенец выглянул, второй только поднимается. */
+.hud-hollow-chick.c1 { left: 0; animation-delay: -3.1s; }
+.hud-hollow-chick.c2 { left: 2px; animation-delay: -2.4s; }
+@keyframes hud-chick-peek {
+  0%, 38%, 100% { transform: translateY(3px); }
+  52%, 82%      { transform: translateY(0); }
+}
+
+/* --- Дятел на стволе крайнего дерева --- */
+.season-spring .hud-woodpecker {
+  position: absolute; left: calc(50% + 5px); bottom: max(16%, calc(63% - 74px));
+  width: 5px; height: 10px; z-index: 3;
+  border-radius: 3px 3px 2px 2px;
+  background: linear-gradient(180deg, #1c1c21 0 42%, #efece4 42% 60%, #1c1c21 60%);
+  opacity: calc(1 - var(--scene-night-strength, 0) * .9);
+}
+.hud-woodpecker-head {
+  position: absolute; left: 0; top: -4px; width: 5px; height: 5px; border-radius: 50%;
+  background: radial-gradient(circle at 62% 26%, #d52a2e 0 38%, #1c1c21 42%);
+  transform-origin: 70% 90%;
+  animation: hud-woodpecker-peck 2.8s ease-in-out infinite;
+}
+.hud-woodpecker-head::after {
+  content: ''; position: absolute; left: -3px; top: 2.2px; width: 3.4px; height: 1.1px;
+  background: #56493e; border-radius: 1px;
+}
+.hud-woodpecker-tail {
+  position: absolute; left: 1px; bottom: -3px; width: 3px; height: 4px;
+  background: #1c1c21; clip-path: polygon(0 0, 100% 0, 60% 100%);
+}
+@keyframes hud-woodpecker-peck {
+  0%, 58%, 100%     { transform: rotate(0); }
+  62%, 70%, 78%     { transform: rotate(-26deg); }
+  66%, 74%, 82%     { transform: rotate(0); }
+}
+
+/* --- Март ---------------------------------------------------------------- */
+/* Деревья ещё голые. Ограничения «лиственного» дерева снимаем: без листвы
+   ветки и должны быть видны целиком. Почки — на кончиках веток, а сама крона
+   еле заметной зеленоватой дымкой: так голые деревья и выглядят в конце
+   марта. Пунктир почек вдоль всей ветки читался новогодней гирляндой. */
+.season-spring.month-3 .hud-bg-tree-spring .hud-bg-tree-canopy {
+  opacity: .2; filter: blur(3px) saturate(.55) brightness(1.45) hue-rotate(-12deg);
+}
+.season-spring.month-3 .hud-bg-tree-spring .hud-bg-tree-branch { max-height: none; bottom: 42%; }
+.season-spring.month-3 .hud-bg-tree-spring .hud-bg-tree-branch.br3 { bottom: 48%; }
+.season-spring.month-3 .hud-bg-tree-spring .hud-bg-tree-branch::after { display: block; }
+.season-spring.month-3 .hud-bg-tree-spring .hud-bg-tree-branch::before {
+  content: ''; position: absolute; left: 50%; top: -3px; width: 4px; height: 5px; margin-left: -2px;
+  border-radius: 50% 50% 45% 45% / 62% 62% 38% 38%;
+  background: radial-gradient(circle at 40% 30%, #c6de8e, #74a040 72%);
+}
+/* Луг бурый, прошлогодний; цветов, пчёл и бабочек ещё нет. */
+.season-spring.month-3 .hud-meadow { filter: saturate(.42) hue-rotate(-26deg) brightness(.84); }
+.season-spring.month-3 .hud-grass { filter: saturate(.5) hue-rotate(-20deg); }
+.season-spring.month-3 .hud-far-treeline { filter: saturate(.5) brightness(.95); }
+.season-spring.month-3 :is(.hud-flowerbed, .hud-bee, .hud-butterfly, .hud-dandelion, .hud-pollen, .hud-shrub-bloom) { display: none; }
+
+/* Снег в тени у деревьев. */
+.season-spring .hud-spring-snow {
+  position: absolute; z-index: 3; pointer-events: none; height: 3.2%;
+  border-radius: 50%;
+  background:
+    radial-gradient(ellipse at 34% 46%, rgba(170,176,180,.5) 0 5%, transparent 9%),
+    radial-gradient(ellipse at 68% 58%, rgba(170,176,180,.45) 0 4%, transparent 8%),
+    radial-gradient(ellipse at 50% 40%, rgba(246,248,250,.96) 0 44%, rgba(216,224,232,.86) 70%, rgba(216,224,232,0) 100%);
+}
+.season-spring .hud-spring-snow.s1 { left: 0; bottom: 4%; width: 17%; }
+.season-spring .hud-spring-snow.s2 { left: 58%; bottom: 7.5%; width: 10%; height: 2.4%; }
+.season-spring .hud-spring-snow.s3 { left: 79%; bottom: 3%; width: 15%; }
+
+/* Талый ручей: русло, вода и бегущие по ней блики. */
+/* Ручей идёт от горизонта к зрителю между деревьями: у дали — нитка,
+   ближе — шире. Дальний конец растворяется в дымке луга. */
+.season-spring .hud-thaw-stream {
+  position: absolute; left: 36%; bottom: 0; width: 24%; height: 15%;
+  z-index: 3; overflow: visible; pointer-events: none;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0%, #000 22%);
+          mask-image: linear-gradient(180deg, transparent 0%, #000 22%);
+}
+.hud-thaw-stream .bed   { fill: rgba(78,60,40,.6); }
+.hud-thaw-stream .water { fill: #6aa8cb; }
+.hud-thaw-stream .glint {
+  fill: none; stroke-linecap: round; vector-effect: non-scaling-stroke;
+  stroke: rgba(255,255,255,.85); stroke-width: 1.1; stroke-dasharray: 4 18;
+  animation: hud-thaw-flow 3.2s linear infinite;
+}
+@keyframes hud-thaw-flow { to { stroke-dashoffset: -62; } }
+
+/* Подснежники: белые колокольчики на согнутых стебельках. */
+.season-spring .hud-snowdrop {
+  position: absolute; bottom: 7%; width: 7px; height: 11px; z-index: 4; pointer-events: none;
+}
+.season-spring .hud-snowdrop::before {
+  content: ''; position: absolute; left: 3px; bottom: 0; width: 3px; height: 10px;
+  border: 1.1px solid #5f9a4c; border-left: 0; border-bottom: 0; border-radius: 0 4px 0 0;
+}
+.season-spring .hud-snowdrop::after {
+  content: ''; position: absolute; left: 4px; top: 2px; width: 4px; height: 5px;
+  border-radius: 50% 50% 45% 45% / 62% 62% 38% 38%;
+  background: radial-gradient(circle at 40% 30%, #ffffff, #e2eaf0 80%);
+  box-shadow: 0 -1px 0 #5f9a4c;
+}
+.season-spring .hud-snowdrop.sn1 { left: 8%; }
+.season-spring .hud-snowdrop.sn2 { left: 16%; transform: scale(.85); }
+.season-spring .hud-snowdrop.sn3 { left: 47%; }
+.season-spring .hud-snowdrop.sn4 { left: 74%; transform: scale(.9); }
+
+/* --- Клин перелётных птиц (март-апрель): летит обратно, слева направо --- */
+.season-spring .hud-spring-flock {
+  position: absolute; top: 15%; left: -14%; width: 62px; height: 26px; z-index: 2;
+  pointer-events: none;
+  opacity: calc(1 - var(--scene-night-strength, 0));
+  animation: hud-flock-return 46s linear infinite;
+  /* Сцена стоит до касания: без сдвига клин замирал бы за левым краем. */
+  animation-delay: -19s;
+}
+@keyframes hud-flock-return { 0% { left: -14%; top: 17%; } 100% { left: 108%; top: 9%; } }
+.hud-vbird { position: absolute; width: 9px; height: 4px; animation: hud-vbird-flap .5s ease-in-out infinite alternate; }
+.hud-vbird::before, .hud-vbird::after {
+  content: ''; position: absolute; top: 0; width: 5px; height: 4px;
+  border-top: 1.4px solid rgba(38,46,58,.78); border-radius: 50% 50% 0 0;
+}
+.hud-vbird::before { left: 0; transform: rotate(-14deg); }
+.hud-vbird::after  { right: 0; transform: rotate(14deg); }
+@keyframes hud-vbird-flap { from { transform: scaleY(1); } to { transform: scaleY(.45); } }
+.hud-vbird.v1 { left: 53px; top: 11px; }
+.hud-vbird.v2 { left: 44px; top: 6px;  animation-delay: -.12s; }
+.hud-vbird.v3 { left: 44px; top: 16px; animation-delay: -.2s; }
+.hud-vbird.v4 { left: 35px; top: 2px;  animation-delay: -.33s; }
+.hud-vbird.v5 { left: 35px; top: 20px; animation-delay: -.07s; }
+.hud-vbird.v6 { left: 26px; top: -1px; animation-delay: -.41s; }
+.hud-vbird.v7 { left: 26px; top: 23px; animation-delay: -.26s; }
+
+/* --- Апрель: цветение ------------------------------------------------------
+   Два дерева в белом с розовым цвету, два — в молодой светлой листве. В
+   начале мая яблоня (третье дерево) ещё доцветает. */
+.season-spring.month-4 .hud-bg-tree-spring:is(.bt2, .bt3) .hud-bg-tree-canopy,
+.season-spring.month-5:not(.month-late) .hud-bg-tree-spring.bt3 .hud-bg-tree-canopy {
+  filter: hue-rotate(205deg) saturate(.5) brightness(1.8);
+}
+.season-spring.month-4 .hud-bg-tree-spring:is(.bt1, .bt4) .hud-bg-tree-canopy {
+  filter: hue-rotate(-16deg) saturate(1.15) brightness(1.32);
+}
+
+/* Облетающие лепестки: от двух цветущих деревьев, в ветер — быстрее и вбок. */
+.season-spring .hud-petal-fall-layer {
+  position: absolute; inset: 0; z-index: 6; pointer-events: none;
+  opacity: calc(1 - var(--scene-night-strength, 0) * .8);
+}
+.hud-petal-fall {
+  position: absolute; width: 4px; height: 3px; opacity: 0;
+  border-radius: 60% 40% 60% 40%;
+  background: radial-gradient(circle at 40% 35%, #fff7fa, #f2c0d2 72%);
+  animation: hud-petal-drift 9s linear infinite;
+}
+.hud-petal-fall.pf1 { left: 17%; top: 34%; animation-delay: 0s; }
+.hud-petal-fall.pf2 { left: 24%; top: 28%; animation-delay: -2.3s; animation-duration: 10.5s; }
+.hud-petal-fall.pf3 { left: 20%; top: 40%; animation-delay: -4.9s; }
+.hud-petal-fall.pf4 { left: 27%; top: 36%; animation-delay: -7.1s; animation-duration: 8.2s; }
+.hud-petal-fall.pf5 { left: 60%; top: 34%; animation-delay: -1.2s; animation-duration: 9.6s; }
+.hud-petal-fall.pf6 { left: 66%; top: 30%; animation-delay: -3.8s; }
+.hud-petal-fall.pf7 { left: 63%; top: 40%; animation-delay: -6.2s; animation-duration: 11s; }
+.hud-petal-fall.pf8 { left: 69%; top: 37%; animation-delay: -8.4s; }
+@keyframes hud-petal-drift {
+  0%   { transform: translate(0, 0) rotate(0); opacity: 0; }
+  10%  { opacity: .95; }
+  50%  { transform: translate(12px, 34px) rotate(160deg); }
+  85%  { opacity: .9; }
+  100% { transform: translate(30px, 82px) rotate(340deg); opacity: 0; }
+}
+.season-spring:is(.weather-wind, .weather-windy, .weather-windy-strong) .hud-petal-fall {
+  animation-name: hud-petal-wind; animation-duration: 4.6s;
+}
+@keyframes hud-petal-wind {
+  0%   { transform: translate(0, 0) rotate(0); opacity: 0; }
+  10%  { opacity: .95; }
+  100% { transform: translate(150px, 44px) rotate(520deg); opacity: 0; }
+}
+
+/* --- Май ----------------------------------------------------------------- */
+/* Сирень у левого края. */
+.season-spring .hud-lilac {
+  position: absolute; left: 1.5%; bottom: 5%; width: 40px; height: 32px; z-index: 4; pointer-events: none;
+}
+.hud-lilac-bush {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 20px;
+  border-radius: 50% 50% 40% 40% / 70% 70% 30% 30%;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,.12) 0 20%, transparent 40%),
+    radial-gradient(circle at 40% 40%, #62a055, #3d6e37 72%);
+}
+.hud-lilac-cluster {
+  position: absolute; width: 9px; height: 14px;
+  clip-path: polygon(50% 0, 100% 74%, 72% 100%, 28% 100%, 0 74%);
+  background:
+    radial-gradient(circle, rgba(236,214,250,.9) 0 1.1px, transparent 1.5px) 0 0 / 3px 3px,
+    linear-gradient(180deg, #c8a0e6, #9366c2);
+}
+.hud-lilac-cluster.c1 { left: 3px;  bottom: 11px; transform: rotate(-12deg); }
+.hud-lilac-cluster.c2 { left: 13px; bottom: 15px; height: 16px; }
+.hud-lilac-cluster.c3 { left: 23px; bottom: 12px; transform: rotate(8deg); }
+.hud-lilac-cluster.c4 {
+  left: 30px; bottom: 7px; transform: rotate(18deg);
+  background:
+    radial-gradient(circle, rgba(255,255,255,.95) 0 1.1px, transparent 1.5px) 0 0 / 3px 3px,
+    linear-gradient(180deg, #f3ecf8, #d6c6e6);
+}
+
+/* Одуванчики: в апреле и начале мая — жёлтые цветы, в конце мая — пух. */
+.season-spring:is(.month-4, .month-5:not(.month-late)) .hud-dandelion {
+  background:
+    radial-gradient(circle 3.4px at 50% 22%, #ffd93a 0 56%, #efb31e 70%, transparent 74%),
+    linear-gradient(rgba(110,158,84,.9), rgba(110,158,84,.9));
+  background-size: 100% 100%, 1.2px 8px;
+  background-position: 0 0, 50% 100%;
+  background-repeat: no-repeat;
+}
+.season-spring .hud-fluff-layer {
+  position: absolute; inset: 0; z-index: 6; pointer-events: none;
+  opacity: calc(1 - var(--scene-night-strength, 0) * .85);
+}
+.hud-fluff {
+  position: absolute; width: 5px; height: 5px; opacity: 0;
+  background: radial-gradient(circle, rgba(255,255,255,.96) 0 .9px, rgba(255,255,255,.4) 1.2px 2.3px, transparent 2.6px);
+  animation: hud-fluff-float 14s ease-in-out infinite;
+}
+.hud-fluff.fl1 { left: 13%; bottom: 13%; }
+.hud-fluff.fl2 { left: 35%; bottom: 18%; animation-delay: -3s; animation-duration: 16s; }
+.hud-fluff.fl3 { left: 67%; bottom: 14%; animation-delay: -6s; }
+.hud-fluff.fl4 { left: 84%; bottom: 14%; animation-delay: -9s; animation-duration: 12s; }
+.hud-fluff.fl5 { left: 36%; bottom: 16%; animation-delay: -11s; }
+.hud-fluff.fl6 { left: 14%; bottom: 12%; animation-delay: -7.5s; animation-duration: 15s; }
+@keyframes hud-fluff-float {
+  0%   { transform: translate(0, 0); opacity: 0; }
+  10%  { opacity: .9; }
+  55%  { transform: translate(40px, -46px); }
+  100% { transform: translate(92px, -74px); opacity: 0; }
+}
+.season-spring:is(.weather-wind, .weather-windy, .weather-windy-strong) .hud-fluff {
+  animation-name: hud-fluff-wind; animation-duration: 6s;
+}
+@keyframes hud-fluff-wind {
+  0%   { transform: translate(0, 0); opacity: 0; }
+  10%  { opacity: .9; }
+  100% { transform: translate(190px, -38px); opacity: 0; }
+}
+
+/* --- Лейка у клумбы --- */
+.season-spring .hud-watering-can {
+  position: absolute; left: 39%; bottom: 3.2%; width: 17px; height: 12px; z-index: 6; pointer-events: none;
+}
+.hud-can-body {
+  position: absolute; left: 3px; bottom: 0; width: 10px; height: 8px; border-radius: 2px 2px 1px 1px;
+  background: linear-gradient(90deg, #4d8cae, #80bad6 45%, #3c7591);
+  box-shadow: 0 1px 1px rgba(10,24,34,.35);
+}
+.hud-can-spout {
+  position: absolute; left: 12px; bottom: 4px; width: 7px; height: 1.6px;
+  background: #4d8cae; transform: rotate(-34deg); transform-origin: 0 50%; border-radius: 1px;
+}
+.hud-can-spout::after {
+  content: ''; position: absolute; right: -1.5px; top: -1.2px; width: 2.4px; height: 4px;
+  border-radius: 1px; background: #3c7591;
+}
+.hud-can-handle {
+  position: absolute; left: 4px; top: 0; width: 8px; height: 5px;
+  border: 1.4px solid #3c7591; border-bottom: 0; border-radius: 5px 5px 0 0;
+}
+
+/* --- Ночь: лягушачий хор (апрель-май) --------------------------------------
+   Лягушка выходит не только к луже после дождя, но и тёплой весенней ночью —
+   и поёт: раздувает горловой мешок, от неё расходятся звуковые дуги. */
+.season-spring:is(.month-4, .month-5):is(.phase-evening, .phase-night, .phase-deep-night) .hud-frog {
+  display: block;
+  position: absolute; left: 45.5%; bottom: 6.4%; width: 11px; height: 8px;
+  z-index: 4; pointer-events: none;
+}
+.hud-frog-sac {
+  position: absolute; left: 6px; top: 4px; width: 5px; height: 4px; z-index: 1; border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #f3f5d8, #cfd6a4);
+  transform: scale(.3); transform-origin: 30% 30%; opacity: 0;
+}
+.hud-frog-call {
+  position: absolute; right: -7px; top: -3px; width: 9px; height: 9px; border-radius: 50%;
+  border: 1px solid rgba(214,232,196,.7); border-left-color: transparent; border-bottom-color: transparent;
+  opacity: 0;
+}
+.season-spring:is(.phase-evening, .phase-night, .phase-deep-night) .hud-frog-sac { opacity: 1; animation: hud-frog-croak 2.4s ease-in-out infinite; }
+.season-spring:is(.phase-evening, .phase-night, .phase-deep-night) .hud-frog-call { animation: hud-frog-call 2.4s ease-out infinite; }
+.season-spring:is(.phase-evening, .phase-night, .phase-deep-night) .hud-frog-call.c2 { animation-delay: .35s; }
+@keyframes hud-frog-croak { 0%, 55%, 100% { transform: scale(.3); } 64%, 82% { transform: scale(1.05); } }
+@keyframes hud-frog-call {
+  0%, 60% { opacity: 0; transform: scale(.4); }
+  72%     { opacity: .85; }
+  100%    { opacity: 0; transform: scale(1.7); }
+}
+
+/* --- Светлячки ---------------------------------------------------------------
+   Правило в base.css искало класс фазы суток у РОДИТЕЛЯ виджета, а он стоит на
+   самом виджете, — светлячки не появлялись никогда. Теперь: летними вечерами
+   и ночами и в конце мая, в тихую погоду без дождя, как у всей сцены — после
+   касания. */
+.hud-scene-widget.fx-active:is(.phase-evening, .phase-night, .phase-deep-night):is(.season-summer, .season-spring.month-5.month-late):not(.weather-storm):not(.weather-rain):not(.weather-intensity-high) .hud-fx-fireflies {
+  opacity: 1;
+}
+
+
+/* =========================================================================
+   КАРТОЧКА: ГРУППЫ СТРОК
+   Раньше все строки карточки были одинаковыми тёмными плашками с одинаковой
+   розовой подписью, а пилюли — с одинаковым розовым корешком: понять, о чём
+   строка, можно было только прочитав её. Теперь у каждой смысловой группы
+   свой цвет (корешок строки, подпись, лёгкий налёт, корешки пилюль внутри)
+   и свой значок-водяной знак в углу. Цвета разнесены по кругу оттенков;
+   внешность и вещи — нейтральные (тёплый и холодный), чтобы не спорить с
+   цветными группами. Группу ставит render/character.js (ВИД_СТРОКИ).
+   NSFW-строки сюда не входят, эмодзи в подписях не трогаем.
+   Группы: look (внешность — вешалка); vitals (состояние тела — кардиограмма); place (место — метка и маршрут); standing (положение — медаль); mind (мысли — облачко); dream (сон — месяц и звезда); plans (планы — мишень); items (вещи — бирка); bonds (связи — сцепленные кольца); tension (напряжение — молния); alarm (тревога — знак внимания).
+   ========================================================================= */
+.kind-look { --kind: var(--hud-kind-look, #cbb9a3); }
+.kind-vitals { --kind: var(--hud-kind-vitals, #5fd68a); }
+.kind-place { --kind: var(--hud-kind-place, #3fd0c9); }
+.kind-standing { --kind: var(--hud-kind-standing, #6aaef5); }
+.kind-mind { --kind: var(--hud-kind-mind, #b594ff); }
+.kind-dream { --kind: var(--hud-kind-dream, #8f95ff); }
+.kind-plans { --kind: var(--hud-kind-plans, #f2c94c); }
+.kind-items { --kind: var(--hud-kind-items, #9fb0c6); }
+.kind-bonds { --kind: var(--hud-kind-bonds, #f27fc4); }
+.kind-tension { --kind: var(--hud-kind-tension, #ff9a4a); }
+.kind-alarm { --kind: var(--hud-kind-alarm, #ff5a5a); }
+
+.hud-row[class*=" kind-"], .hud-key-block[class*="kind-"] {
+  --kind-ink: var(--kind);
+  /* Пилюли внутри строки берут цвет корешка у своей группы, а всё, что в
+     строке красится акцентом темы (подписи пилюль, точки расписания,
+     «ожидал / вышло»), — цвет группы. */
+  --кромка: var(--kind);
+  --hud-accent: var(--kind-ink);
+}
+.hud-row[class*=" kind-"] { position: relative; isolation: isolate; }
+/* Корешок слева и налёт цвета группы от левого верхнего угла. Под текстом:
+   isolation держит z-index -1 внутри строки, над её собственным фоном. */
+.hud-row[class*=" kind-"]::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit;
+  background:
+    linear-gradient(90deg, var(--kind) 0 3px, transparent 3px),
+    linear-gradient(118deg, color-mix(in srgb, var(--kind) 13%, transparent) 0%, transparent 58%);
+}
+/* Значок группы — водяной знак в правом верхнем углу: там только короткая
+   подпись, длинный текст значение туда не доходит, и кнопки строки (плюсик
+   лорбука внизу справа) он не перекрывает. */
+.hud-row[class*=" kind-"]::after {
+  content: ''; position: absolute; right: 8px; top: 6px; width: 34px; height: 20px; z-index: -1;
+  pointer-events: none; opacity: .2;
+  background: var(--kind);
+  -webkit-mask: var(--kind-mark) no-repeat center / contain;
+          mask: var(--kind-mark) no-repeat center / contain;
+}
+.hud-row.kind-look { --kind-mark: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2040%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M20%207.5a2.6%202.6%200%201%201%202.6-2.6c0%201.4-2.6%202.2-2.6%203.8L5%2019h30L20%208.7%27%2F%3E%3C%2Fsvg%3E"); }
+.hud-row.kind-vitals { --kind-mark: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2040%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M1%2013h9l3-6%204%2013%204-17%204%2013%202-3h12%27%2F%3E%3C%2Fsvg%3E"); }
+.hud-row.kind-place { --kind-mark: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2040%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M30%203a6%206%200%200%201%206%206c0%205-6%2011-6%2011s-6-6-6-11a6%206%200%200%201%206-6z%27%2F%3E%3Ccircle%20cx%3D%2730%27%20cy%3D%279%27%20r%3D%271.8%27%2F%3E%3Cpath%20d%3D%27M2%2021c6-7%2012%201%2020-5%27%20stroke-dasharray%3D%272%203%27%2F%3E%3C%2Fsvg%3E"); }
+.hud-row.kind-standing { --kind-mark: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2040%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M14%202l6%209%206-9%27%2F%3E%3Ccircle%20cx%3D%2720%27%20cy%3D%2716%27%20r%3D%276%27%2F%3E%3Cpath%20d%3D%27M20%2013.5v5%27%2F%3E%3C%2Fsvg%3E"); }
+.hud-row.kind-mind { --kind-mark: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2040%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M14%2017h13a4.6%204.6%200%200%200%201-9%205.6%205.6%200%200%200-10.4-1.6A4.4%204.4%200%200%200%2014%2017z%27%2F%3E%3Ccircle%20cx%3D%279%27%20cy%3D%2719%27%20r%3D%271.8%27%2F%3E%3Ccircle%20cx%3D%274.5%27%20cy%3D%2721.5%27%20r%3D%271%27%2F%3E%3C%2Fsvg%3E"); }
+.hud-row.kind-dream { --kind-mark: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2040%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M27%203a9%209%200%201%200%209%2012%207%207%200%201%201-9-12z%27%2F%3E%3Cpath%20d%3D%27M9%205l1.3%202.7%202.9.4-2.1%202%20.5%202.9L9%2011.6l-2.6%201.4.5-2.9-2.1-2%202.9-.4z%27%2F%3E%3C%2Fsvg%3E"); }
+.hud-row.kind-plans { --kind-mark: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2040%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Ccircle%20cx%3D%2727%27%20cy%3D%2712%27%20r%3D%279%27%2F%3E%3Ccircle%20cx%3D%2727%27%20cy%3D%2712%27%20r%3D%274.6%27%2F%3E%3Cpath%20d%3D%27M3%2021l22-8%27%2F%3E%3Cpath%20d%3D%27M3%2021l1.2-4M3%2021l4-.8%27%2F%3E%3C%2Fsvg%3E"); }
+.hud-row.kind-items { --kind-mark: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2040%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M4%207h22l9%205-9%205H4z%27%2F%3E%3Ccircle%20cx%3D%279.5%27%20cy%3D%2712%27%20r%3D%271.8%27%2F%3E%3C%2Fsvg%3E"); }
+.hud-row.kind-bonds { --kind-mark: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2040%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Ccircle%20cx%3D%2715%27%20cy%3D%2712%27%20r%3D%277.5%27%2F%3E%3Ccircle%20cx%3D%2725%27%20cy%3D%2712%27%20r%3D%277.5%27%2F%3E%3C%2Fsvg%3E"); }
+.hud-row.kind-tension { --kind-mark: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2040%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M23%202L12%2014h7l-3%208%2012-13h-7z%27%2F%3E%3C%2Fsvg%3E"); }
+.hud-row.kind-alarm { --kind-mark: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2040%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M20%203l16%2018H4z%27%2F%3E%3Cpath%20d%3D%27M20%209.5v5.5%27%2F%3E%3Cpath%20d%3D%27M20%2018.2v.2%27%2F%3E%3C%2Fsvg%3E"); }
+
+.hud-row[class*=" kind-"] > .hud-key,
+.hud-key-block[class*="kind-"] > .hud-key-label { color: var(--kind-ink); }
+/* Ключ: у блока свои псевдоэлементы в темах cyberpunk и academia, поэтому
+   цвет группы — только у подписи и у корешков пунктов. */
+.hud-key-block.kind-mind .hud-key-item { border-left-color: var(--kind); }
+
+/* Мысли и сны звучат курсивом — внутренний голос, а не факт. */
+.hud-row:is(.kind-mind, .kind-dream) > .hud-value { font-style: italic; }
+/* Тревога: корешок штрихом, как лента оцепления. */
+.hud-row.kind-alarm::before {
+  background:
+    repeating-linear-gradient(180deg, var(--kind) 0 6px, transparent 6px 10px) 0 0 / 3px 100% no-repeat,
+    linear-gradient(118deg, color-mix(in srgb, var(--kind) 13%, transparent) 0%, transparent 58%);
+}
+/* Вещи: пилюли инвентаря — бирки с дырочкой и пунктирным краем. */
+.hud-row.kind-items .hud-inventory-pill {
+  --кромка: var(--kind);
+  border-style: dashed;
+  padding-left: 17px;
+  background-image: radial-gradient(circle at 8px 50%, rgba(0,0,0,.55) 0 2px, rgba(255,255,255,.2) 2.3px 2.9px, transparent 3.1px);
+}
+/* Флаг-монитор: у тревожных пунктов лёгкий красный налёт. */
+.hud-row.kind-alarm .hud-detail-pill {
+  background-image: linear-gradient(90deg, color-mix(in srgb, var(--kind) 12%, transparent) 0%, transparent 50%);
+}
+
+/* Светлые темы: подпись темнее, иначе светлый цвет группы теряется на бумаге. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-row[class*=" kind-"], .hud-key-block[class*="kind-"]) {
+  --kind-ink: color-mix(in srgb, var(--kind) 58%, #1d1a16);
+}
+/* Палитра из темы уже подобрана под светлую подложку (класс ставит palette.js):
+   второй раз подпись не затемняем. */
+.hud-kinds-light :is(.hud-row[class*=" kind-"], .hud-key-block[class*="kind-"]) {
+  --kind-ink: var(--kind);
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row[class*=" kind-"]::after { opacity: .28; }
+/* Нуар — только чёрное и белое: цвета групп гасим, различие остаётся за
+   значком, курсивом мыслей и штрихом тревоги. */
+.hud-theme-noir :is(.hud-row[class*=" kind-"], .hud-key-block[class*="kind-"]) { --kind: #d4d4d4; }
+
+/* =========================================================================
+   КАРТОЧКА: КРОЙ ПИЛЮЛЬ ПО ПОЛЯМ
+   Пилюли всех полей были одним и тем же тёмным прямоугольником с цветным
+   корешком — отличались только цветом. Теперь у каждого поля свой крой, по
+   смыслу: цели — стрелки-шаги, флаги — вымпелы, воспоминания — кадр плёнки,
+   реплики — облачка речи, ключ — карточки с загнутым углом, отношения —
+   визитки, ревность — рваный край, конфликт — раскол. Класс поля (f-*)
+   ставит render/character.js. NSFW не трогаем.
+   ========================================================================= */
+
+/* --- Флаг-монитор: вымпелы на древке ------------------------------------ */
+.hud-row.f-flags .hud-detail-pill {
+  border: 0; border-radius: 0; box-shadow: none;
+  padding: 7px 28px 7px 17px;
+  clip-path: polygon(0 0, 100% 0, calc(100% - 14px) 50%, 100% 100%, 0 100%);
+  background:
+    linear-gradient(90deg, var(--kind) 0 4px, transparent 4px),
+    repeating-linear-gradient(135deg, color-mix(in srgb, var(--kind) 22%, transparent) 0 5px, transparent 5px 10px) 4px 0 / 16px 100% no-repeat,
+    linear-gradient(90deg, color-mix(in srgb, var(--kind) 22%, transparent), color-mix(in srgb, var(--kind) 6%, transparent));
+}
+.hud-row.f-flags .hud-detail-pill::before { display: none; }
+
+/* --- Реплики: облачка речи, как в переписке ----------------------------- */
+.hud-row.f-lines .hud-lines { gap: 9px; align-self: stretch; width: 100%; }
+.hud-row.f-lines .hud-line-quote {
+  align-self: flex-start; max-width: 92%;
+  border: 0; border-radius: 14px 14px 14px 3px;
+  padding: 6px 13px 6px 25px;
+  background: color-mix(in srgb, var(--kind) 16%, rgba(255,255,255,.04));
+}
+.hud-row.f-lines .hud-line-quote::after {
+  content: ''; position: absolute; left: 0; bottom: -6px; width: 11px; height: 7px;
+  background: inherit; clip-path: polygon(0 0, 100% 0, 0 100%);
+}
+.hud-row.f-lines .hud-line-quote:nth-child(even) {
+  align-self: flex-end; border-radius: 14px 14px 3px 14px;
+}
+.hud-row.f-lines .hud-line-quote:nth-child(even)::after {
+  left: auto; right: 0; clip-path: polygon(0 0, 100% 0, 100% 100%);
+}
+
+/* --- Ключ: карточки-заметки с загнутым углом ----------------------------
+   Псевдоэлементы пункта заняты темами kawaii и academia — только фон. */
+.hud-key-block.f-key .hud-key-list { gap: 8px; }
+.hud-key-block.f-key .hud-key-item {
+  border-left: 0; border-radius: 3px;
+  padding: 7px 20px 7px 10px;
+  background:
+    linear-gradient(45deg, transparent calc(50% - .6px), rgba(0,0,0,.4) 50%, color-mix(in srgb, var(--kind) 55%, #ffffff 12%) calc(50% + .6px)) top right / 13px 13px no-repeat,
+    repeating-linear-gradient(180deg, transparent 0 17px, color-mix(in srgb, var(--kind) 14%, transparent) 17px 18px),
+    linear-gradient(180deg, color-mix(in srgb, var(--kind) 17%, transparent), color-mix(in srgb, var(--kind) 7%, transparent));
+  box-shadow: 0 2px 5px rgba(0,0,0,.25);
+}
+.hud-key-block.f-key .hud-key-item:nth-child(odd)  { transform: rotate(-.5deg); }
+.hud-key-block.f-key .hud-key-item:nth-child(even) { transform: rotate(.45deg); }
+
+/* --- Отношения: визитки с крупным лицом ---------------------------------- */
+.hud-row.f-relations .hud-detail-pill.has-face {
+  min-height: 46px; padding: 8px 13px 8px 52px;
+  border-radius: 23px 12px 12px 23px;
+  background:
+    radial-gradient(circle at 24px 50%, hsl(var(--тон, 0) 50% 45% / .3) 0 20px, transparent 25px),
+    linear-gradient(90deg, hsl(var(--тон, 0) 45% 30% / .26), transparent 62%);
+}
+.hud-row.f-relations .hud-detail-pill.has-face::before { display: none; }
+.hud-row.f-relations .hud-pill-face {
+  left: 8px; top: 50%; transform: translateY(-50%);
+  width: 32px; height: 32px; font-size: 11.5px;
+  box-shadow: 0 0 0 2px hsl(var(--тон, 0) 50% 45% / .45);
+}
+.hud-row.f-relations .hud-detail-pill.has-face .hud-pill-label {
+  display: block; margin-bottom: 1px; font-size: .8em; letter-spacing: .05em;
+}
+
+/* --- Ревность: рваный край и тлеющая кромка ------------------------------ */
+.hud-row.f-jealousy .hud-detail-pill {
+  border: 0; box-shadow: none; border-radius: 0 13px 13px 0;
+  padding: 8px 14px 8px 19px;
+  clip-path: polygon(7px 0, 100% 0, 100% 100%, 7px 100%, 0 88%, 7px 76%, 0 64%, 7px 52%, 0 40%, 7px 28%, 0 16%);
+  background:
+    linear-gradient(0deg, color-mix(in srgb, var(--kind) 70%, transparent) 0 2px, transparent 2px),
+    radial-gradient(90% 60% at 30% 100%, color-mix(in srgb, var(--kind) 26%, transparent), transparent 70%),
+    linear-gradient(90deg, color-mix(in srgb, var(--kind) 18%, transparent), transparent 75%);
+}
+.hud-row.f-jealousy .hud-detail-pill::before { display: none; }
+
+/* --- Глубина конфликта: диагональный раскол ------------------------------ */
+.hud-row.f-conflict .hud-conflict-pill {
+  border-radius: 2px;
+  background: linear-gradient(115deg,
+    color-mix(in srgb, #ff3b30 24%, transparent) 0 47%,
+    rgba(255,255,255,.14) 47% 49%,
+    color-mix(in srgb, var(--kind) 18%, transparent) 49%);
+}
+
+/* --- Ожидание vs Реальность: ожидание зачёркнуто, реальность — вывод ------ */
+.hud-row.f-exp .hud-exp-reality > :first-child {
+  opacity: .72;
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--kind) 70%, transparent);
+  text-decoration-thickness: 1.5px;
+}
+.hud-row.f-exp .hud-exp-reality > :nth-child(2) { margin-top: 3px; }
+.hud-row.f-exp .hud-exp-reality > :nth-child(2)::before {
+  content: '↳ '; color: var(--kind); font-style: normal; font-weight: 700;
+}
+
+/* Бумажные темы: плёнка остаётся тёмной (это плёнка), остальным крой тот же. */
+@media (prefers-reduced-motion: reduce) {
+  .hud-key-block.f-key .hud-key-item { transform: none !important; }
+}
+
+/* --- Крой пилюль на бумажных темах ---------------------------------------
+   Бумажные темы красят пилюли бумагой и снимают с них любой рисунок
+   (background-image: none !important) — плёнка, вымпелы, загнутые углы и
+   стрелки превращались в одинаковые белые плашки. Возвращаем мотивы поверх
+   бумаги; сама бумага остаётся нижним слоем. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.f-flags .hud-detail-pill {
+  background:
+    linear-gradient(90deg, var(--kind) 0 4px, transparent 4px),
+    repeating-linear-gradient(135deg, color-mix(in srgb, var(--kind) 30%, transparent) 0 5px, transparent 5px 10px) 4px 0 / 16px 100% no-repeat,
+    linear-gradient(90deg, color-mix(in srgb, var(--kind) 18%, transparent), color-mix(in srgb, var(--kind) 4%, transparent)),
+    var(--lt-paper) !important;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-key-block.f-key .hud-key-item {
+  background:
+    linear-gradient(45deg, transparent calc(50% - .6px), rgba(0,0,0,.28) 50%, color-mix(in srgb, var(--kind) 30%, #ffffff) calc(50% + .6px)) top right / 13px 13px no-repeat,
+    repeating-linear-gradient(180deg, transparent 0 17px, color-mix(in srgb, var(--kind) 20%, transparent) 17px 18px),
+    linear-gradient(180deg, color-mix(in srgb, var(--kind) 12%, transparent), transparent),
+    var(--lt-paper) !important;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.f-relations .hud-detail-pill.has-face {
+  background:
+    radial-gradient(circle at 24px 50%, hsl(var(--тон, 0) 50% 55% / .28) 0 20px, transparent 25px),
+    linear-gradient(90deg, hsl(var(--тон, 0) 45% 60% / .18), transparent 62%),
+    var(--lt-paper) !important;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.f-jealousy .hud-detail-pill {
+  background:
+    linear-gradient(0deg, color-mix(in srgb, var(--kind) 80%, transparent) 0 2px, transparent 2px),
+    linear-gradient(90deg, color-mix(in srgb, var(--kind) 20%, transparent), transparent 75%),
+    var(--lt-paper) !important;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.kind-items .hud-inventory-pill {
+  background:
+    radial-gradient(circle at 8px 50%, rgba(0,0,0,.35) 0 2px, transparent 2.4px),
+    var(--lt-paper) !important;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.f-lines .hud-line-quote {
+  background: color-mix(in srgb, var(--kind) 16%, var(--lt-paper-2)) !important;
+}
+
+/* =========================================================================
+   КАРТОЧКА: ПОДАЧА ПРОСТЫХ ПОЛЕЙ, ЦЕЛИ И ВОСПОМИНАНИЯ
+   Простые поля (возраст, одежда, роль…) оставались одной и той же плашкой
+   с текстом. Теперь у каждого своя подача: возраст — крупной цифрой, одежда —
+   списком-чеком, тело — тегами, роль — бейджем с шапкой, физиология — на
+   сетке кардиограммы, место — на «карте», мысли — облаком, статус —
+   штампом, сон — ночным небом, внешность — в рамке портрета, подтекст —
+   между строк линованной бумаги. Разметку даёт значениеПоля() в
+   render/character.js, класс поля (f-*) — там же.
+   ========================================================================= */
+
+/* --- Возраст: крупная цифра, дата рождения под ней ---------------------- */
+.hud-age { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.hud-age-num {
+  font-size: 2.15em; line-height: 1; font-weight: 800; letter-spacing: -.02em;
+  color: var(--kind-ink, var(--hud-accent));
+}
+.hud-age-date { font-size: .8em; opacity: .72; letter-spacing: .06em; }
+
+/* --- Одежда: список, как чек -------------------------------------------- */
+.hud-list-clothes { display: flex; flex-direction: column; width: 100%; }
+.hud-list-clothes > span {
+  position: relative; padding: 3px 0 3px 15px;
+  border-bottom: 1px dashed color-mix(in srgb, var(--kind, #999) 32%, transparent);
+}
+.hud-list-clothes > span:last-child { border-bottom: 0; }
+.hud-list-clothes > span::before {
+  content: ''; position: absolute; left: 2px; top: .72em; width: 5px; height: 5px;
+  border-radius: 50%; border: 1.4px solid var(--kind, var(--hud-accent));
+}
+
+/* --- Тело: теги-состояния ------------------------------------------------ */
+.hud-list-body { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 2px; }
+.hud-list-body > span {
+  padding: 2px 10px; border-radius: 999px; font-size: .92em; line-height: 1.45;
+  background: color-mix(in srgb, var(--kind, #999) 14%, transparent);
+  border: 1px solid color-mix(in srgb, var(--kind, #999) 32%, transparent);
+}
+
+/* --- Роль: бейдж с цветной шапкой ---------------------------------------- */
+.hud-row.f-role::before {
+  background:
+    linear-gradient(90deg, var(--kind) 0 3px, transparent 3px),
+    linear-gradient(180deg, color-mix(in srgb, var(--kind) 22%, transparent) 0 31px, color-mix(in srgb, var(--kind) 40%, transparent) 31px 32px, transparent 32px);
+}
+.hud-row.f-role > .hud-key { margin-bottom: 9px; }
+.hud-role-card { display: flex; flex-direction: column; gap: 3px; }
+.hud-role-main { font-size: 1.02em; font-weight: 700; }
+.hud-role-more { position: relative; padding-left: 13px; font-size: .88em; opacity: .82; }
+.hud-role-more::before { content: '▸'; position: absolute; left: 0; color: var(--kind); }
+
+/* --- Внешность: двойная рамка портрета ----------------------------------- */
+.hud-row.f-looks::before {
+  background: linear-gradient(118deg, color-mix(in srgb, var(--kind) 12%, transparent) 0%, transparent 58%);
+  box-shadow:
+    inset 0 0 0 4px transparent,
+    inset 0 0 0 5px color-mix(in srgb, var(--kind) 34%, transparent);
+}
+
+/* --- Физиология: миллиметровка кардиограммы ------------------------------ */
+.hud-row.f-phys::before {
+  background:
+    linear-gradient(90deg, var(--kind) 0 3px, transparent 3px),
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--kind) 10%, transparent) 0 1px, transparent 1px 8px),
+    repeating-linear-gradient(90deg, color-mix(in srgb, var(--kind) 10%, transparent) 0 1px, transparent 1px 8px);
+}
+
+/* --- Здоровье: медкарта с зажимом планшета ------------------------------- */
+.hud-row.f-health::before {
+  background:
+    linear-gradient(90deg, var(--kind) 0 3px, transparent 3px),
+    linear-gradient(color-mix(in srgb, var(--kind) 55%, transparent), color-mix(in srgb, var(--kind) 55%, transparent)) 50% 0 / 38px 5px no-repeat,
+    linear-gradient(118deg, color-mix(in srgb, var(--kind) 10%, transparent) 0%, transparent 58%);
+}
+
+/* --- Место: точечная сетка карты ------------------------------------------ */
+.hud-row.f-where::before {
+  background:
+    linear-gradient(90deg, var(--kind) 0 3px, transparent 3px),
+    radial-gradient(circle, color-mix(in srgb, var(--kind) 26%, transparent) 0 .8px, transparent 1.3px) 0 0 / 10px 10px,
+    linear-gradient(118deg, color-mix(in srgb, var(--kind) 10%, transparent) 0%, transparent 58%);
+}
+
+/* --- Мысли: облако с пузырьками ------------------------------------------ */
+.hud-row.f-thoughts { border-radius: 20px; padding-bottom: 19px; }
+.hud-row.f-thoughts::before {
+  background:
+    radial-gradient(circle at 15px calc(100% - 8px), color-mix(in srgb, var(--kind) 34%, transparent) 0 3px, transparent 3.6px),
+    radial-gradient(circle at 26px calc(100% - 13px), color-mix(in srgb, var(--kind) 26%, transparent) 0 4.5px, transparent 5.1px),
+    linear-gradient(118deg, color-mix(in srgb, var(--kind) 15%, transparent) 0%, transparent 62%);
+}
+
+/* --- Статус: табличка состояния -------------------------------------------
+   Главное состояние — с горящим индикатором, как «в сети», остальное —
+   тегами. Штамп капсом с двойной рамкой на длинном статусе превращался в
+   сплошную кричащую стену текста. */
+.hud-status { display: flex; flex-direction: column; gap: 7px; width: 100%; margin-top: 2px; }
+.hud-status-main {
+  display: flex; align-items: center; gap: 9px;
+  padding: 6px 12px 6px 10px; border-radius: 9px; font-weight: 700;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--kind) 20%, transparent), color-mix(in srgb, var(--kind) 5%, transparent));
+  border: 1px solid color-mix(in srgb, var(--kind) 34%, transparent);
+}
+.hud-status-dot {
+  flex: 0 0 auto; width: 8px; height: 8px; border-radius: 50%;
+  background: var(--kind);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--kind) 22%, transparent), 0 0 8px var(--kind);
+}
+.hud-status-tags { display: flex; flex-wrap: wrap; gap: 5px; padding-left: 4px; }
+.hud-status-tags > span {
+  position: relative; padding: 2px 9px 2px 17px; border-radius: 6px; font-size: .88em;
+  background: color-mix(in srgb, var(--kind) 9%, transparent);
+  border-left: 2px solid color-mix(in srgb, var(--kind) 55%, transparent);
+}
+.hud-status-tags > span::before {
+  content: '⤷'; position: absolute; left: 5px; top: 1px; font-size: .9em; opacity: .7; color: var(--kind);
+}
+
+/* --- Сон: ночное небо ----------------------------------------------------- */
+.hud-row.f-dream::before {
+  background:
+    radial-gradient(1.1px 1.1px at 18% 28%, rgba(255,255,255,.9) 50%, transparent 100%),
+    radial-gradient(1px 1px at 47% 18%, rgba(255,255,255,.75) 50%, transparent 100%),
+    radial-gradient(1.3px 1.3px at 71% 64%, rgba(255,255,255,.85) 50%, transparent 100%),
+    radial-gradient(1px 1px at 36% 78%, rgba(255,255,255,.6) 50%, transparent 100%),
+    radial-gradient(1px 1px at 88% 30%, rgba(255,255,255,.8) 50%, transparent 100%),
+    radial-gradient(1px 1px at 60% 42%, rgba(255,255,255,.55) 50%, transparent 100%),
+    linear-gradient(160deg, color-mix(in srgb, var(--kind) 30%, #0b0d22) 0%, color-mix(in srgb, var(--kind) 8%, transparent) 90%);
+}
+
+/* --- Скрытый подтекст: между строк -------------------------------------- */
+.hud-row.f-subtext::before {
+  background:
+    linear-gradient(90deg, var(--kind) 0 3px, transparent 3px),
+    repeating-linear-gradient(180deg, transparent 0 21px, color-mix(in srgb, var(--kind) 22%, transparent) 21px 22px);
+}
+
+/* --- Цели: карточки заданий с язычком горизонта ---------------------------
+   Сейчас — ближе к краю, скоро и потом — лесенкой вглубь; «потом» с
+   пунктиром: оно ещё не решено. */
+.hud-row.f-goals .hud-vertical-container { gap: 15px; padding-top: 10px; }
+.hud-row.f-goals .hud-detail-pill {
+  overflow: visible; box-shadow: none;
+  border-radius: 3px 10px 10px 10px;
+  border: 1px solid color-mix(in srgb, var(--кромка) 42%, transparent);
+  border-top: 2px solid var(--кромка);
+  padding: 13px 12px 8px 12px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--кромка) 15%, transparent), transparent 85%);
+}
+.hud-row.f-goals .hud-detail-pill::before { display: none; }
+.hud-row.f-goals .hud-detail-pill .hud-pill-label {
+  position: absolute; left: 9px; top: -10px;
+  padding: 1px 9px; border-radius: 6px 6px 6px 0;
+  font-size: .72em; letter-spacing: .09em; line-height: 1.6;
+  background: var(--кромка); color: #17120c !important;
+}
+.hud-row.f-goals .hud-detail-pill.is-soon  { margin-left: 10px; }
+.hud-row.f-goals .hud-detail-pill.is-later {
+  margin-left: 20px; border-style: dashed; border-top-style: solid;
+}
+
+/* --- Общие воспоминания: фотографии на скотче ----------------------------
+   Сепия, лёгкий наклон то в одну, то в другую сторону, полоска скотча. */
+.hud-row.f-memories .hud-vertical-container { gap: 15px; padding: 8px 4px 3px; }
+.hud-row.f-memories .hud-detail-pill {
+  overflow: visible; border-radius: 3px;
+  padding: 12px 32px 10px 14px; font-style: italic;
+  border: 1px solid rgba(232,216,191,.2);
+  background: linear-gradient(160deg, rgba(202,167,122,.2), rgba(138,106,72,.08));
+  box-shadow: 0 3px 9px rgba(0,0,0,.34);
+}
+.hud-row.f-memories .hud-detail-pill:nth-child(odd)  { transform: rotate(-.6deg); }
+.hud-row.f-memories .hud-detail-pill:nth-child(even) { transform: rotate(.5deg); }
+.hud-row.f-memories .hud-detail-pill::before {
+  display: block; content: ''; left: 50%; top: -7px; bottom: auto;
+  width: 48px; height: 14px; margin-left: -24px;
+  background: rgba(240,230,205,.32);
+  border-left: 1px dashed rgba(255,255,255,.3); border-right: 1px dashed rgba(255,255,255,.3);
+  box-shadow: 0 1px 2px rgba(0,0,0,.2);
+  transform: rotate(-3deg);
+}
+.hud-row.f-memories .hud-detail-pill:nth-child(even)::before { left: 26%; transform: rotate(4deg); }
+
+/* --- То же на бумажных темах --------------------------------------------- */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.f-goals .hud-detail-pill {
+  background: linear-gradient(180deg, color-mix(in srgb, var(--кромка) 16%, transparent), transparent 85%), var(--lt-paper) !important;
+  border-color: color-mix(in srgb, var(--кромка) 45%, transparent) !important;
+  border-top-color: var(--кромка) !important;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.f-memories .hud-detail-pill {
+  background: linear-gradient(160deg, rgba(202,167,122,.26), rgba(138,106,72,.1)), var(--lt-paper) !important;
+  box-shadow: 0 3px 8px rgba(60,40,20,.2) !important;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.f-memories .hud-detail-pill::before {
+  background: rgba(255,248,226,.85);
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.f-dream::before {
+  opacity: .55;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-row.f-memories .hud-detail-pill { transform: none !important; }
+}

@@ -887,17 +887,24 @@
 }
 
 .hud-fx-rainbow { z-index: 1; }
+/* Радуга — дуга, а не клин. Раньше её рисовал конусный градиент: цветные
+   полосы шли лучами от центра, и выходил узкий радужный сектор. Плюс
+   анимация была одноразовой — 8 секунд и гасла, а в покое сцена стоит на
+   нулевом кадре с прозрачностью 0, так что радугу почти не было видно.
+   Теперь кольцо радиальным градиентом (фиолетовый внутри, красный снаружи),
+   концы дуги растворяются, и она держится, пока погода «после дождя». */
 .weather-rainbow .hud-fx-rainbow {
-    background: conic-gradient(from 200deg at 50% 120%,
-        transparent 0deg, transparent 18deg,
-        rgba(255,90,90,0.35) 20deg, rgba(255,170,60,0.32) 23deg, rgba(255,235,80,0.3) 26deg,
-        rgba(110,220,120,0.3) 29deg, rgba(90,170,255,0.32) 32deg, rgba(160,110,255,0.32) 35deg,
-        transparent 37deg, transparent 360deg);
-    -webkit-mask-image: radial-gradient(80% 130% at 50% 120%, black 55%, transparent 62%);
-            mask-image: radial-gradient(80% 130% at 50% 120%, black 55%, transparent 62%);
-    animation: hud-rainbow-appear 8s ease-out 1;
+    background: radial-gradient(ellipse 64% 108% at 50% 118%,
+        transparent 0 71%,
+        rgba(150,100,240,.26) 73%, rgba(90,160,255,.3) 75.5%, rgba(100,210,120,.3) 78%,
+        rgba(255,232,90,.3) 80.5%, rgba(255,164,60,.3) 83%, rgba(250,86,86,.28) 85.5%,
+        transparent 88%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 4%, #000 26%, #000 64%, transparent 94%);
+            mask-image: linear-gradient(90deg, transparent 4%, #000 26%, #000 64%, transparent 94%);
+    filter: blur(1.2px);
+    animation: hud-rainbow-appear 7s ease-in-out infinite alternate;
 }
-@keyframes hud-rainbow-appear { 0% { opacity: 0; } 15% { opacity: 0.9; } 75% { opacity: 0.9; } 100% { opacity: 0; } }
+@keyframes hud-rainbow-appear { 0% { opacity: .78; } 100% { opacity: 1; } }
 
 /* Пыль рисуется на слое инея: жара и мороз вместе не бывают. Раньше она
    занимала .hud-fx-weather::before, а там же лучи ясного солнца (и полосы
@@ -3556,11 +3563,8 @@
 .hud-fx-fireflies * { animation-play-state: paused !important; }
 .hud-scene-widget.fx-active .hud-fx-fireflies * { animation-play-state: running !important; }
 
-/* Включаем светлячков только вечером/ночью, в спокойную погоду и НЕ зимой */
-.phase-night:not(.weather-storm):not(.weather-intensity-high):not(.season-winter) .hud-scene-widget.fx-active .hud-fx-fireflies,
-.phase-evening:not(.weather-storm):not(.weather-intensity-high):not(.season-winter) .hud-scene-widget.fx-active .hud-fx-fireflies {
-    opacity: 1;
-}
+/* Когда светлячки видны — см. misc.css, «Светлячки»: здесь стояло правило,
+   которое искало фазу суток у родителя виджета и не срабатывало никогда. */
 
 .hud-firefly {
     position: absolute; width: 3px; height: 3px; border-radius: 50%;
@@ -3599,8 +3603,9 @@
 
 /* Заставляем светлячков просыпаться при наведении мышки на компьютере */
 @media (hover: hover) {
-    .phase-night:not(.weather-storm):not(.weather-intensity-high):not(.season-winter) .hud-scene-widget:hover .hud-fx-fireflies,
-    .phase-evening:not(.weather-storm):not(.weather-intensity-high):not(.season-winter) .hud-scene-widget:hover .hud-fx-fireflies {
+    /* Фаза суток стоит на самом виджете, а не на его родителе: прежнее
+       правило не срабатывало никогда. Условия — как в misc.css, «Светлячки». */
+    .hud-scene-widget:hover:is(.phase-evening, .phase-night, .phase-deep-night):is(.season-summer, .season-spring.month-5.month-late):not(.weather-storm):not(.weather-rain):not(.weather-intensity-high) .hud-fx-fireflies {
         opacity: 1;
     }
     .hud-scene-widget:hover .hud-fx-fireflies * { 
@@ -3772,7 +3777,8 @@
 .hud-exp-reality {
     background: linear-gradient(135deg, rgba(222, 133, 159, 0.1), rgba(140, 90, 210, 0.1));
     border: 1px dashed var(--hud-accent); padding: 10px; border-radius: 8px;
-    font-style: italic; color: #e2e8f0; line-height: 1.5; margin-top: 6px;
+    /* Цвет текста — из темы: жёсткий светлый пропадал на бумажных темах. */
+    font-style: italic; color: var(--hud-text, #e2e8f0); line-height: 1.5; margin-top: 6px;
 }
 
 /* Центрируем вкладки телефона, чтобы они не растягивались */
@@ -5190,6 +5196,20 @@
 .hud-bg-tree-branch.br2::after { transform:rotate(30deg); bottom:58%; }
 .hud-bg-tree-branch.br3 { transform:rotate(52deg); height:25%; bottom:48%; }
 .hud-bg-tree-branch.br3::after { transform:rotate(-26deg); height:52%; }
+/* Лиственные деревья (весна, осень): ветки прячутся в кроне. Крона
+   фиксированной ширины (~104px), а ветки росли в процентах высоты дерева —
+   на высоком виджете они перерастали крону и торчали голыми палками.
+   Длину ограничиваем в пикселях, подветки убираем: в листве их не видно,
+   а наружу они вылезали первыми. */
+/* Крона — SVG с сохранением пропорций: на высоком дереве она не
+   растягивается, а стоит по центру своего блока (центр — 63% высоты от
+   земли, полувысота ~36px при ширине кроны ~104px). Поэтому и ветки
+   считаем от центра кроны, а не от доли ствола: иначе на высоком виджете
+   они оказывались под кроной голыми палками. */
+:is(.hud-bg-tree-spring, .hud-bg-tree-autumn) .hud-bg-tree-branch { max-height: 32px; bottom: calc(63% - 30px); }
+:is(.hud-bg-tree-spring, .hud-bg-tree-autumn) .hud-bg-tree-branch.br2 { max-height: 36px; bottom: calc(63% - 32px); }
+:is(.hud-bg-tree-spring, .hud-bg-tree-autumn) .hud-bg-tree-branch.br3 { max-height: 26px; bottom: calc(63% - 22px); }
+:is(.hud-bg-tree-spring, .hud-bg-tree-autumn) .hud-bg-tree-branch::after { display: none; }
 .hud-bg-tree.bt1 { left:2%; height:68%; transform:scale(0.82); opacity:0.62; }
 .hud-bg-tree.bt2 { left:20%; height:82%; transform:scale(1.05); opacity:0.72; }
 .hud-bg-tree.bt3 { left:62%; height:76%; transform:scale(0.94); opacity:0.66; }

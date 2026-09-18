@@ -17,7 +17,7 @@
 // Ключи в vars — те же, что в settings.js. Незнакомые ключи не пишем: их
 // applyThemeColors() всё равно не читает.
 
-import { settings } from './settings.js?v=22.99.79';
+import { settings } from './settings.js?v=22.99.87';
 
 const HUD_THEMES = [
   {
