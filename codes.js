@@ -25,6 +25,9 @@ const КОРЕНЬ = {
   sc: 'scene', cs: 'characters', us: 'user', me: 'memory', cm: 'chatsMap', phn: 'phone',
   tp: 'intercepts', dy: 'diary', bd: 'bodyDiary', dr: 'dreams', wd: 'world',
   pet: 'companions',
+  // Средневековье: шкатулка вместо телефона, письма вместо переписок,
+  // подслушанное вместо перехватов.
+  sm: 'satchel', lt: 'letters', ov: 'overheard',
   ph: 'phone', chats: 'chatsMap', taps: 'intercepts', bdiary: 'bodyDiary',
 };
 const ПАМЯТЬ = { lg: 'timeline', md: 'mood', rt: 'route', fct: 'important', sec: 'secrets', gun: 'guns', fc: 'important', sc: 'secrets', log: 'timeline', facts: 'important' };
@@ -46,6 +49,14 @@ const ПОЛЯ_ТЕЛЕФОНА = {
   maps: { pl: 'place', nte: 'note', nt: 'note' },
   calendar: { dt: 'date', ti: 'title', kd: 'kind', tm: 'time' },
 };
+const ШКАТУЛКА = { ow: 'owner', cl: 'calendar', wl: 'wallet', nb: 'notes', mp: 'maps', doc: 'documents', kp: 'keepsakes' };
+const ПОЛЯ_ШКАТУЛКИ = {
+  notes: ПОЛЯ_ТЕЛЕФОНА.notes, maps: ПОЛЯ_ТЕЛЕФОНА.maps, calendar: ПОЛЯ_ТЕЛЕФОНА.calendar,
+  documents: { ti: 'title', kd: 'kind', sl: 'seal', tx: 'text', st: 'status' },
+  keepsakes: { ti: 'title', dsc: 'desc', frm: 'from' },
+};
+const ПИСЬМО = { fr: 'from', to: 'to', tm: 'time', st: 'status', sl: 'seal', via: 'via', tx: 'text' };
+const ПОДСЛУШАННОЕ = { kd: 'kind', wh: 'where', how: 'how', tm: 'time', fr: 'from', to: 'to', sl: 'seal', ms: 'lines' };
 const КОШЕЛЁК = { bl: 'balance', cu: 'currency', trx: 'transactions', tx: 'transactions', bal: 'balance', cur: 'currency' };
 const ПЛАТЁЖ = { ti: 'title', am: 'amount', tm: 'time', nte: 'note', nt: 'note' };
 const ЗАПИСЬ = { au: 'author', tm: 'time', tx: 'text', ab: 'aboutUser', md: 'mood', about: 'aboutUser' };
@@ -61,13 +72,13 @@ const СПУТНИК = {
 };
 
 // Названия кодов разделов по уровням — для легенды снимка в инструкции.
-export const НАЗВАНИЯ_КОДОВ = { корень: КОРЕНЬ, память: ПАМЯТЬ, мир: МИР, секрет: СЕКРЕТ, знающий: ЗНАЮЩИЙ, двое: ДВОЕ, настроение: НАСТРОЕНИЕ, телефон: ТЕЛЕФОН, спутник: СПУТНИК };
+export const НАЗВАНИЯ_КОДОВ = { корень: КОРЕНЬ, память: ПАМЯТЬ, мир: МИР, секрет: СЕКРЕТ, знающий: ЗНАЮЩИЙ, двое: ДВОЕ, настроение: НАСТРОЕНИЕ, телефон: ТЕЛЕФОН, спутник: СПУТНИК, шкатулка: ШКАТУЛКА, письмо: ПИСЬМО, подслушанное: ПОДСЛУШАННОЕ };
 
 // Полный ключ, если он уже есть, главнее кода: смешанный ответ не теряет
 // значение, записанное полным названием.
 function переименовать(узел, словарь) {
   for (const [код, ключ] of Object.entries(словарь)) {
-    if (!Object.prototype.hasOwnProperty.call(узел, код)) continue;
+    if (код === ключ || !Object.prototype.hasOwnProperty.call(узел, код)) continue;
     if (узел[ключ] === undefined || узел[ключ] === null) узел[ключ] = узел[код];
     delete узел[код];
   }
@@ -78,8 +89,30 @@ const каждому = (список, словарь) => {
 
 // Разворачивает коды ключей на месте. Вызывается до нормализации схемы,
 // поэтому дальше код видит привычные названия.
+// Разделы верхнего уровня, которые модель порой по ошибке кладёт внутрь
+// памяти (не закрыла скобку «me» вовремя): дневники, мир, шкатулка, письма…
+// Внутри памяти они никому не видны — поднимаем на место. «sc» не трогаем:
+// в памяти это старое написание секретов.
+const ВЫШЕ_ПАМЯТИ = new Set(['cm', 'phn', 'tp', 'dy', 'bd', 'dr', 'wd', 'pet', 'sm', 'lt', 'ov', 'us', 'cs',
+  'chats', 'taps', 'bdiary', 'ph', 'chatsMap', 'phone', 'intercepts', 'diary', 'bodyDiary', 'dreams', 'world',
+  'companions', 'satchel', 'letters', 'overheard', 'characters', 'user']);
+const пустое = (v) => v === undefined || v === null || v === '' || (Array.isArray(v) && !v.length)
+  || (объект(v) && !Object.keys(v).length);
+function поднятьИзПамяти(к) {
+  const имя = объект(к.me) ? 'me' : объект(к.memory) ? 'memory' : '';
+  if (!имя) return;
+  const п = к[имя];
+  for (const ключ of Object.keys(п)) {
+    if (!ВЫШЕ_ПАМЯТИ.has(ключ)) continue;
+    // В корне уже есть настоящее значение — оно главнее.
+    if (пустое(к[ключ])) к[ключ] = п[ключ];
+    delete п[ключ];
+  }
+}
+
 export function развернутьКоды(к) {
   if (!объект(к)) return к;
+  поднятьИзПамяти(к);
   переименовать(к, КОРЕНЬ);
   const п = к.memory;
   if (объект(п)) {
@@ -104,6 +137,16 @@ export function развернутьКоды(к) {
       каждому(к.phone.wallet.transactions, ПЛАТЁЖ);
     }
   }
+  if (объект(к.satchel)) {
+    переименовать(к.satchel, ШКАТУЛКА);
+    for (const [раздел, словарь] of Object.entries(ПОЛЯ_ШКАТУЛКИ)) каждому(к.satchel[раздел], словарь);
+    if (объект(к.satchel.wallet)) {
+      переименовать(к.satchel.wallet, КОШЕЛЁК);
+      каждому(к.satchel.wallet.transactions, ПЛАТЁЖ);
+    }
+  }
+  каждому(к.letters, ПИСЬМО);
+  каждому(к.overheard, ПОДСЛУШАННОЕ);
   каждому(к.diary, ЗАПИСЬ);
   каждому(к.bodyDiary, ЗАПИСЬ);
   каждому(к.dreams, СОН);
@@ -127,6 +170,8 @@ const В_КОД = {
   секрет: обратный(СЕКРЕТ), знающий: обратный(ЗНАЮЩИЙ), переписка: обратный(ПЕРЕПИСКА), перехват: обратный(ПЕРЕХВАТ),
   телефон: обратный(ТЕЛЕФОН), кошелёк: обратный(КОШЕЛЁК), платёж: обратный(ПЛАТЁЖ), запись: обратный(ЗАПИСЬ),
   сон: обратный(СОН), мир: обратный(МИР), спутник: обратный(СПУТНИК),
+  шкатулка: обратный(ШКАТУЛКА), письмо: обратный(ПИСЬМО), подслушанное: обратный(ПОДСЛУШАННОЕ),
+  поляШкатулки: Object.fromEntries(Object.entries(ПОЛЯ_ШКАТУЛКИ).map(([раздел, с]) => [раздел, обратный(с)])),
   поляТелефона: Object.fromEntries(Object.entries(ПОЛЯ_ТЕЛЕФОНА).map(([раздел, с]) => [раздел, обратный(с)])),
 };
 
@@ -158,6 +203,16 @@ export function свернутьКоды(к) {
     }
     переименовать(к.phone, В_КОД.телефон);
   }
+  if (объект(к.satchel)) {
+    for (const [раздел, словарь] of Object.entries(В_КОД.поляШкатулки)) каждому(к.satchel[раздел], словарь);
+    if (объект(к.satchel.wallet)) {
+      каждому(к.satchel.wallet.transactions, В_КОД.платёж);
+      переименовать(к.satchel.wallet, В_КОД.кошелёк);
+    }
+    переименовать(к.satchel, В_КОД.шкатулка);
+  }
+  каждому(к.letters, В_КОД.письмо);
+  каждому(к.overheard, В_КОД.подслушанное);
   каждому(к.diary, В_КОД.запись);
   каждому(к.bodyDiary, В_КОД.запись);
   каждому(к.dreams, В_КОД.сон);

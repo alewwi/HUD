@@ -4,9 +4,9 @@
 // сообщения и сбор собеседников по строкам переписки. Лежит отдельно,
 // чтобы ни один из двух модулей не пришлось объявлять главным.
 
-import { escapeHtml } from '../utils.js?v=22.99.87';
-import { overrideAvatarUrl } from '../avatars.js?v=22.99.87';
-import { namesLikelySame } from '../names.js?v=22.99.87';
+import { escapeHtml } from '../utils.js?v=22.99.91';
+import { overrideAvatarUrl } from '../avatars.js?v=22.99.91';
+import { namesLikelySame } from '../names.js?v=22.99.91';
 
 // Обращения без адресата: такие имена в собеседники не годятся.
 const GENERIC_PARTY = /^(все|всем|all|everyone|группа|group|чат|chat|вы|you|user|я|me)$/i;

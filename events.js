@@ -11,12 +11,12 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache } from './avatars.js?v=22.99.87';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.99.87';
-import { openPhoneMediaViewer } from './render/phone.js?v=22.99.87';
-import { getTheme, themeVars, presetRowHTML, THEME_KEYS , themeSnapshot, parseThemeFile } from './themes.js?v=22.99.87';
-import { settings, defaultSettings } from './settings.js?v=22.99.87';
-import { getWorldVotes } from './render/world.js?v=22.99.87';
+import { invalidateAvatarCache } from './avatars.js?v=22.99.91';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=22.99.91';
+import { openPhoneMediaViewer } from './render/phone.js?v=22.99.91';
+import { getTheme, themeVars, presetRowHTML, THEME_KEYS , themeSnapshot, parseThemeFile } from './themes.js?v=22.99.91';
+import { settings, defaultSettings } from './settings.js?v=22.99.91';
+import { getWorldVotes } from './render/world.js?v=22.99.91';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;

@@ -1,31 +1,32 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.87';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=22.99.87';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.87';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=22.99.87';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.87';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.87';
-import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=22.99.87';
-import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=22.99.87';
-import { привязатьИсторию } from './render/intimacy.js?v=22.99.87';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.87';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.87';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.87';
-import { buildMemoryHTML } from './render/memory.js?v=22.99.87';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.87';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.87';
-import { hudHasRelations } from './render/relations-graph.js?v=22.99.87';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.87';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.87';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.87';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.87';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.87';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.87';
-import { extractHudBlock, hudBlockRe, hudOpenRe, hudCloseRe, началоПоследнегоHud } from './hud-block.js?v=22.99.87';
-import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=22.99.87';
-import { создатьПроверкуПолноты } from './hud-check.js?v=22.99.87';
-import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=22.99.87';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.91';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=22.99.91';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.91';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=22.99.91';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.91';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.91';
+import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=22.99.91';
+import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=22.99.91';
+import { привязатьИсторию } from './render/intimacy.js?v=22.99.91';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.91';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.91';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.91';
+import { buildMemoryHTML } from './render/memory.js?v=22.99.91';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.91';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.91';
+import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=22.99.91';
+import { hudHasRelations } from './render/relations-graph.js?v=22.99.91';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.91';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.91';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.91';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.91';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.91';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.91';
+import { extractHudBlock, hudBlockRe, hudOpenRe, hudCloseRe, началоПоследнегоHud } from './hud-block.js?v=22.99.91';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=22.99.91';
+import { создатьПроверкуПолноты } from './hud-check.js?v=22.99.91';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=22.99.91';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -114,10 +115,16 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     const гороскоп = !!settings.enableWorld && settings.enableHoroscope !== false;
     const ружья = !!settings.enableMemory && settings.enableGuns !== false;
     const спутники = settings.enableCompanions !== false;
-    const телефон = !!settings.enablePhone;
+    // Эпоха: в средневековье телефона и перехватов нет — вместо них шкатулка
+    // (письма, святцы, кошель, записи, карта, грамоты, памятки) и подслушанное.
+    const средневековье = settings.era === 'medieval';
+    const телефон = !средневековье && !!settings.enablePhone;
     const переписки = телефон && settings.phoneAppMessages !== false;
     const кошелёк = телефон && settings.phoneAppWallet !== false;
-    const перехваты = !!settings.enableIntercepts;
+    const перехваты = !средневековье && !!settings.enableIntercepts;
+    const шкатулка = средневековье && settings.enableCasket !== false;
+    const письма = шкатулка && settings.castAppLetters !== false;
+    const подслушка = средневековье && settings.enableOverheard !== false;
     const игрок = !!settings.enableUserBlock;
 
     const задача = режим === 'regen'
@@ -198,7 +205,7 @@ ${интим ? `   "SxL": "[last sex: 'dt: when — date, time, place; pr: with 
    "SxC": "[sex count: lifetime number of sexual partners — a number or an honest estimate]",
    "SxR": "[sex regularity: how often they have sex these days and with whom, how they satisfy themselves in between, how strong their libido is and what feeds or kills it — a sentence or two]",
 ` : ''}   "Ln": "[lines: this character's most characteristic lines from the recent story, quoted verbatim in «», separated by ;. At least 3, more if they exist. Pick lines that show HOW they speak — rhythm, slang, cruelty, tenderness — not what happened. Skip if they haven't spoken yet.]",
-   "SS": "${интим ? `[scene state — the intimacy phase right now. Every turn is in exactly ONE phase, and it decides which intimate fields below are filled. PHASE 1, nothing sexual is happening or has just ended: 'empty', and so are ${близость ? 'Pos, Rnd, Dur, Prt, Org, Vit, Snd, ' : ''}BM, W, ND, AC, SxV${игрок ? " and the user's UW" : ''}; SxL, SxC, SxR, Kn, Ft, NG, NT stay filled. PHASE 2, during the act — foreplay, act or climax: fill W, BM${близость ? ', Pos, Rnd, Dur, Prt, Org, Vit, Snd' : ''}${игрок ? ' and UW' : ''}; ND, AC, SxV stay 'empty'. PHASE 3, from after the last climax until they move on — aftercare or afterglow: fill ND, AC, SxV and update SxL to this encounter; W${близость ? ', Pos, Org, Snd' : ''}${игрок ? ', UW' : ''} become 'empty', BM keeps only still-sensitive zones${близость ? ', Vit may stay while the body calms down, Rnd, Dur and Prt keep their final values' : ''}. A new round is phase 2 again${близость ? ': Rnd grows by one, Dur keeps counting' : ''}. Never fill W and ND in the same turn. Every intimate field is a full, vivid, explicit description, never a single word — values like 'ухоженный', 'стандартно', 'влажно', 'да' are failures: say WHAT exactly, WHERE, how it looks, feels, sounds, smells and tastes, and how it is changing right now, in one to three frank, anatomical sentences, no euphemisms, no fading to black. Bad 'lb: влажно' → good 'lb: течёт так, что внутренняя сторона бёдер блестит, бельё промокло ещё в прелюдии, каждое движение отдаётся влажным звуком'. Bad 'pb: ухоженный' → good 'pb: гладко выбрита, узкая полоска светлых волос над клитором, кожа нежная после бритья'. Where a field asks for a number, the number comes first, then the description]` : `[scene state: 'empty' — nothing intimate is happening; only if intimacy begins in this reply, its phase: foreplay, act or climax]`}",${близость ? `
+   "SS": "${интим ? `[scene state — the intimacy phase right now. Every turn is in exactly ONE phase, and it decides which intimate fields below are filled. PHASE 1, nothing sexual is happening or has just ended: 'empty', and so are ${близость ? 'Pos, Rnd, Dur, Prt, Org, Vit, Snd, ' : ''}BM, W, ND, AC, SxV${игрок ? " and the user's UW" : ''}; SxL, SxC, SxR, Kn, Ft, NG, NT stay filled. PHASE 2, during the act — foreplay, act or climax: fill W, BM${близость ? ', Pos, Rnd, Dur, Prt, Org, Vit, Snd' : ''}${игрок ? ' and UW' : ''}; ND, AC, SxV stay 'empty'. PHASE 3, from after the last climax until they move on — aftercare or afterglow: fill ND, AC, SxV and update SxL to this encounter; W${близость ? ', Pos, Org, Snd' : ''}${игрок ? ', UW' : ''} become 'empty', BM keeps only still-sensitive zones${близость ? ', Vit may stay while the body calms down, Rnd, Dur and Prt keep their final values' : ''}. A new round is phase 2 again${близость ? ': Rnd grows by one, Dur keeps counting' : ''}. Write SS as the phase number AND its stage word, never the number alone: '2 — foreplay', '2 — act', '2 — climax', '3 — aftercare', '3 — afterglow'. Never fill W and ND in the same turn. Every intimate field is a full, vivid, explicit description, never a single word — values like 'ухоженный', 'стандартно', 'влажно', 'да' are failures: say WHAT exactly, WHERE, how it looks, feels, sounds, smells and tastes, and how it is changing right now, in one to three frank, anatomical sentences, no euphemisms, no fading to black. Bad 'lb: влажно' → good 'lb: течёт так, что внутренняя сторона бёдер блестит, бельё промокло ещё в прелюдии, каждое движение отдаётся влажным звуком'. Bad 'pb: ухоженный' → good 'pb: гладко выбрита, узкая полоска светлых волос над клитором, кожа нежная после бритья'. Where a field asks for a number, the number comes first, then the description]` : `[scene state: 'empty' — nothing intimate is happening; only if intimacy begins in this reply, its phase: foreplay, act or climax]`}",${близость ? `
    "Pos": "[position (phase 2): the current position in full — who is where, how bodies are arranged, hands/legs/weight, angle and rhythm, e.g. 'на боку, он сзади, рука на её горле, двигается медленно и глубоко']",
    "Rnd": "[round (phase 2, kept in phase 3): the number of the current round in this scene, 1 for the first]",
    "Dur": "[duration (phase 2, final value kept in phase 3): in-story minutes the intimate scene has lasted so far, as a number]",
@@ -336,6 +343,70 @@ ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and ru
     "${правилаСообщений} The [VOICE_M:SS], [PHOTO: ...], [VIDEO: ...], [CALL: ...], [REPLY: ... :: ...], [FWD: ...] and [POLL: ... ;; ...] tags ${переписки ? 'described for cm ' : ''}work here too. One line per message, as many as the conversation has."
    ]
   }
+ ]`;
+    }
+
+    if (шкатулка) {
+      // Шкатулка средневекового персонажа. Телефонов, сообщений, карт и
+      // переводов тут нет: письма с печатями, записи пером, монеты.
+      const sm = [];
+      if (settings.castAppCalendar !== false) sm.push(`
+   "cl": [
+    {"dt": "[date: '16.01' or '16.01.1347', the same date system as sc.Dt; one object per entry]", "ti": "[title: a feast, fair, tourney, saint's day, court day, wedding, execution, market day]", "kd": "[kind: birthday | holiday | event]", "tm": "[OPTIONAL time as people of the age tell it: 'к вечерне', 'на рассвете', 'в полдень']"}
+   ]`);
+      if (settings.castAppPurse !== false) sm.push(`
+   "wl": {
+    "bl": "[balance: the coins in the purse by denomination, e.g. '3 зол, 14 сер, 27 мед' (gold, silver, copper) or the setting's own coins. Invent it once to fit the owner's station; after that it changes ONLY through trx. Never reset it]",
+    "cu": "[currency: the realm's coinage — 'кроны', 'флорины', 'денье'. Same every turn]",
+    "trx": [
+     {"ti": "[what the coins went on or came from, as a steward would write in a ledger — 'Постой в «Хромом гусе»', 'Жалованье от лорда', 'Подкуп стражника'; only coins that really changed hands]", "am": "[amount, signed, with denomination — '-2 сер', '+1 зол']", "tm": "[when: 'Сегодня, к обедне', 'Вчера']", "nte": "[OPTIONAL note]"}
+    ]
+   }`);
+      if (settings.castAppNotes !== false) sm.push(`
+   "nb": [
+    {"ti": "[title of a written note — on parchment, a wax tablet, the margin of a psalter]", "tm": "[when written]", "tx": "[what the owner wrote in their own hand: lists, drafts, reckonings, prayers, suspicions]", "ftr": "[OPTIONAL last line]"}
+   ]`);
+      if (settings.castAppMap !== false) sm.push(`
+   "mp": [
+    {"pl": "[place the owner knows the way to or marked on their map — a town, a ford, an inn, a castle; one object per place, in the order of the road]", "nte": "[OPTIONAL: why it matters, days of travel, danger]"}
+   ]`);
+      if (settings.castAppDocs !== false) sm.push(`
+   "doc": [
+    {"ti": "[title of a document the owner carries — a charter, safe-conduct, writ, deed, marriage contract, debt note, warrant]", "kd": "[kind: charter | pass | debt | writ | contract | will | other]", "sl": "[whose seal is on it]", "tx": "[its substance in one or two sentences]", "st": "[status: valid | expired | forged | revoked]"}
+   ]`);
+      if (settings.castAppKeeps !== false) sm.push(`
+   "kp": [
+    {"ti": "[a keepsake the owner keeps close: a ring, a lock of hair, a pressed flower, a token from a tourney, a relic]", "dsc": "[what it looks like and what it means to them]", "frm": "[OPTIONAL: from whom]"}
+   ]`);
+      if (письма) p += `,
+ "lt": [
+  {
+   "fr": "[from: the sender]", "to": "[to: the recipient — {{char}} is one side of EVERY letter here]",
+   "tm": "[when written or received, in the setting's own terms]",
+   "st": "[status: sealed (received, not yet opened) | read | draft (unfinished, unsent) | sent | transit (a courier is carrying it now) | burned | hidden]",
+   "sl": "[the seal: whose, wax colour and sign — 'красный воск, вепрь дома Эштон']", "via": "[OPTIONAL: how it travels — courier, pigeon, a servant, left under a stone]",
+   "tx": "[the letter's text in the voice and manners of the age; a sealed one is still written in full]"
+  }
+  - One object per letter, as many as there are. There are no phones, texts or calls in this world — people write letters or send word.
+ ]`;
+      if (sm.length) p += `,
+ "sm": {
+  "ow": "[owner: ALWAYS {{char}} — this casket and everything in it belongs to {{char}}]",` + sm.join(',') + `
+ }`;
+    }
+
+    if (подслушка) {
+      p += `,
+ "ov": [
+  {
+   "kd": "[kind: talk (a conversation someone overheard) | letter (someone else's letter that was opened, read or stolen)]",
+   "wh": "[where: 'в конюшне за перегородкой', 'под окном трапезной']", "how": "[how it was heard or taken: through a wall crack, a servant's report, a seal lifted with a hot knife]",
+   "tm": "[when]", "fr": "[letter only: sender]", "to": "[letter only: recipient]", "sl": "[letter only: its seal]",
+   "ms": [
+    "[talk: 'Speaker: words' one line per utterance; mark words that were not heard as [неразборчиво]. letter: its lines of text]"
+   ]
+  }
+  - Other people's talk and letters that {{char}} is NOT part of — plots, bargains, confessions. Never invent one just to hand the protagonist information; it must be something those people would plausibly say or write on their own.
  ]`;
     }
 
@@ -1268,8 +1339,9 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     // (контакты, галерея, заметки, карты, история поиска).
     const phoneOsFilled = Boolean(data.phone && ['contacts','gallery','notes','maps','search']
       .some(k => Array.isArray(data.phone[k]) && data.phone[k].length > 0));
-    const hasPhone = Boolean(settings.enablePhone && ((data.chatsMap && Object.keys(data.chatsMap).length > 0) || phoneOsFilled));
-    if (data.characters.length === 0 && (!data.intercepts || data.intercepts.length === 0) && data.diary.length === 0 && data.dreams.length === 0 && Object.values(data.world || {}).every(v => !v || !v.length) && Object.keys(data.scene).length === 0 && Object.keys(data.user || {}).length === 0 && !hasMemory && !hasPhone) return '';
+    const средневековье = settings.era === 'medieval';
+    const hasPhone = Boolean(!средневековье && settings.enablePhone && ((data.chatsMap && Object.keys(data.chatsMap).length > 0) || phoneOsFilled));
+    if (data.characters.length === 0 && (!data.intercepts || data.intercepts.length === 0) && data.diary.length === 0 && data.dreams.length === 0 && Object.values(data.world || {}).every(v => !v || !v.length) && Object.keys(data.scene).length === 0 && Object.keys(data.user || {}).length === 0 && !hasMemory && !hasPhone && !hudHasCasket(data.satchel, data.letters) && !hudHasMeaningfulOverheard(data.overheard)) return '';
 
     const baseId = Date.now() + '-' + Math.random().toString(36).slice(2);
     // Идентификаторы у каждой сборки свои. Чтобы можно было сравнить две
@@ -1776,7 +1848,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       let сценаСвёрнута = false;
       try { сценаСвёрнута = localStorage.getItem('hud-scene-compact') === '1'; } catch (e) { /* хранилище недоступно */ }
       html += `
-      <div class="hud-scene-widget ${phaseClass} ${wClass} ${wIntensity} ${windClass} ${tempClass} ${freezeClass} ${seasonClass} ${dustyClass} ${rainbowClass} ${wetClass} ${monthClass}${сценаСвёрнута ? ' is-compact' : ''}"${sceneStyle} title="Нажмите для анимации">
+      <div class="hud-scene-widget ${phaseClass} ${wClass} ${wIntensity} ${windClass} ${tempClass} ${freezeClass} ${seasonClass} ${dustyClass} ${rainbowClass} ${wetClass} ${monthClass}${settings.era === 'medieval' ? ' era-medieval' : ''}${сценаСвёрнута ? ' is-compact' : ''}"${sceneStyle} title="Нажмите для анимации">
         <div class="hud-fx-bg"></div>
         <div class="hud-fx-stars">${stars}</div>
         <div class="hud-fx-fireflies">${fireflies}</div>
@@ -1852,6 +1924,13 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       }
     }
 
+    // Средневековье: шкатулка на месте телефона.
+    if (средневековье && settings.enableCasket !== false && hudHasCasket(data.satchel, data.letters)) {
+      const uid = `casket-${baseId}`;
+      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🗝️ Шкатулка${значокСправки('casket')}</div>`,
+        uid, (active) => buildCasketHTML(data.satchel, data.letters, uid, active, (Array.isArray(data.characters) && data.characters[0] && data.characters[0]['Имя']) || getMainProtagonistNames().char, data.scene && data.scene['Дата'], data.characters));
+    }
+
     if (hasPhone) {
       const uid = `phone-${baseId}`;
       addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📱 Телефон${значокСправки('phone')}</div>`,
@@ -1878,7 +1957,13 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     // Preserve the original visibility contract: a top-level tab appears only
     // when its section actually contains renderable data. Values such as
     // "empty", "none" and "пусто" must not create an otherwise blank tab.
-    if (hudHasMeaningfulIntercepts(data.intercepts) && settings.enableIntercepts) {
+    if (средневековье && settings.enableOverheard !== false && hudHasMeaningfulOverheard(data.overheard)) {
+      const uid = `overheard-${baseId}`;
+      addTab(`<div class="hud-tab intercept-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">👂 Подслушанное${значокСправки('overheard')}</div>`,
+        uid, (active) => buildOverheardHTML(data.overheard, uid, active));
+    }
+
+    if (!средневековье && hudHasMeaningfulIntercepts(data.intercepts) && settings.enableIntercepts) {
       const uid = `intercept-${baseId}`;
       addTab(`<div class="hud-tab intercept-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📡 Перехваты${значокСправки('intercepts')}</div>`,
         uid, (active) => buildInterceptsHTML(data.intercepts, uid, active));
@@ -3581,7 +3666,24 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
         ${галка('hud-auto-inject', settings.autoInject, '🔌 Сетевой перехват (инжект промпта)', 'Схема HUD добавляется в каждый запрос к модели. Без этого модель HUD не пишет.')}
         ${галка('hud-enable-user', settings.enableUserBlock, '👤 {{user}} — блок игрока', 'Отдельный блок {{user}}: одежда, внешность, здоровье, отношения, локация.')}
 
-        ${подгруппа('📱 Телефон', `
+        ${подгруппа('🕰 Эпоха: телефон или шкатулка', `
+          <label class="hud-set-check">Эпоха сеттинга:
+            <select id="hud-era" class="hud-theme-select-input">
+              <option value="modern" ${settings.era !== 'medieval' ? 'selected' : ''}>📱 Современность — телефон и перехваты</option>
+              <option value="medieval" ${settings.era === 'medieval' ? 'selected' : ''}>🗝️ Средневековье — шкатулка и подслушанное</option>
+            </select>
+          </label>
+          ${заметка('Работает только одна пара. В средневековье (любой век до телефонов) вместо телефона — шкатулка с письмами, святцами, кошелём, записями, картой, грамотами и памятками, а вместо перехватов — подслушанные разговоры и вскрытые чужие письма.')}
+          <div class="hud-era-block" data-era="medieval" ${settings.era === 'medieval' ? '' : 'hidden'}>
+          ${галка('hud-enable-casket', settings.enableCasket !== false, '🗝️ Шкатулка персонажа')}
+          <div class="hud-set-apps">
+            ${[['castAppLetters','✉️ Письма'],['castAppCalendar','📅 Святцы'],['castAppPurse','💰 Кошель'],
+               ['castAppNotes','🪶 Записи'],['castAppMap','🗺️ Карта'],['castAppDocs','📜 Грамоты'],['castAppKeeps','🎀 Памятки']]
+              .map(([k, label]) => `<label><input type="checkbox" data-phone-app-key="${k}" ${settings[k] !== false ? 'checked' : ''}> ${label}</label>`).join('')}
+          </div>
+          ${галка('hud-enable-overheard', settings.enableOverheard !== false, '👂 Подслушанное (чужие разговоры и письма)')}
+          </div>
+          <div class="hud-era-block" data-era="modern" ${settings.era === 'medieval' ? 'hidden' : ''}>
           ${галка('hud-enable-phone', settings.enablePhone, '📱 Личный телефон')}
           ${заметка('Экраны телефона можно включать по одному. Выключенный не просится у модели и не занимает места в запросе — весь телефон целиком стоит около 800 токенов на каждый ход, и половина из них уходит на экраны, которыми вы, возможно, не пользуетесь.')}
           <div class="hud-set-apps">
@@ -3591,6 +3693,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
               .map(([k, label]) => `<label><input type="checkbox" data-phone-app-key="${k}" ${settings[k] !== false ? 'checked' : ''}> ${label}</label>`).join('')}
           </div>
           ${галка('hud-enable-intercepts', settings.enableIntercepts, '📡 Перехваты (чужие телефоны)')}
+          </div>
         `)}
 
         ${подгруппа('🧠 Память', `
@@ -3928,6 +4031,14 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     document.getElementById('hud-auto-inject').addEventListener('change', (e) => { settings.autoInject = e.target.checked; saveSettings(); });
     document.getElementById('hud-enable-phone').addEventListener('change', (e) => { settings.enablePhone = e.target.checked; saveSettings(); });
     document.getElementById('hud-enable-intercepts').addEventListener('change', (e) => { settings.enableIntercepts = e.target.checked; saveSettings(); });
+    document.getElementById('hud-enable-casket').addEventListener('change', (e) => { settings.enableCasket = e.target.checked; saveSettings(); });
+    document.getElementById('hud-enable-overheard').addEventListener('change', (e) => { settings.enableOverheard = e.target.checked; saveSettings(); });
+    // Эпоха: показываем переключатели только своей пары.
+    document.getElementById('hud-era').addEventListener('change', (e) => {
+      settings.era = e.target.value === 'medieval' ? 'medieval' : 'modern';
+      document.querySelectorAll('.hud-era-block').forEach(b => { b.hidden = b.dataset.era !== settings.era; });
+      saveSettings();
+    });
     document.getElementById('hud-enable-diary').addEventListener('change', (e) => { settings.enableDiary = e.target.checked; saveSettings(); });
     document.getElementById('hud-enable-dreams').addEventListener('change', (e) => { settings.enableDreams = e.target.checked; saveSettings(); });
     document.getElementById('hud-enable-world').addEventListener('change', (e) => { settings.enableWorld = e.target.checked; saveSettings(); });
@@ -3963,7 +4074,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=22.99.87');
+        const mod = await import('./render/archive.js?v=22.99.91');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);

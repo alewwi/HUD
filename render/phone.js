@@ -6,15 +6,15 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText } from '../utils.js?v=22.99.87';
-import { settings } from '../settings.js?v=22.99.87';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.99.87';
-import { G_ICONS } from './icons.js?v=22.99.87';
-import { buildMessengerHTML } from './messenger.js?v=22.99.87';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=22.99.87';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText } from '../utils.js?v=22.99.91';
+import { settings } from '../settings.js?v=22.99.91';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.99.91';
+import { G_ICONS } from './icons.js?v=22.99.91';
+import { buildMessengerHTML } from './messenger.js?v=22.99.91';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=22.99.91';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=22.99.87';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=22.99.91';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -79,7 +79,7 @@ function walletCards(owner) {
 }
 
 // «18400» → «18 400». Пробелы неразрывные, иначе число ломается по строкам.
-function money(v) {
+export function money(v) {
   const raw = String(v == null ? '' : v).trim();
   const m = raw.match(/^([+-]?)\s*(\d+)([.,]\d+)?/);
   if (!m) return raw;
@@ -131,7 +131,7 @@ const MONTHS_NOM = ['Январь','Февраль','Март','Апрель','�
 
 // Дата сцены приходит в разном виде: «16.01.2025», «16.01», «ЧЕТВЕРГ, 16
 // ЯНВАРЯ 2025». Разбираем все три.
-function parseDayMonth(str) {
+export function parseDayMonth(str) {
   const s = String(str || '').toLowerCase();
   let m = s.match(/(\d{1,2})\s*[.\/-]\s*(\d{1,2})(?:\s*[.\/-]\s*(\d{2,4}))?/);
   if (m) {
@@ -146,7 +146,7 @@ function parseDayMonth(str) {
   return null;
 }
 
-function buildCalendarApp(events, characters, sceneDate) {
+export function buildCalendarApp(events, characters, sceneDate) {
   const list = [];
   (Array.isArray(events) ? events : []).forEach(e => {
     const dm = parseDayMonth(e.date);
@@ -221,7 +221,7 @@ function buildCalendarApp(events, characters, sceneDate) {
 // Каждый билдер получает свой кусок data.phone и возвращает внутренности
 // .hud-phone-app-view. Пустая секция отдаёт '' — вызывающий подставит заглушку.
 
-function emptyApp(icon, text) {
+export function emptyApp(icon, text) {
   return `<div class="hud-phone-empty-app"><div class="hud-phone-empty-icon">${icon}</div><div class="hud-phone-empty-line">${escapeHtml(text)}</div></div>`;
 }
 

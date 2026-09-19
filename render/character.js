@@ -4,15 +4,15 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=22.99.87';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.87';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.99.87';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=22.99.87';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=22.99.91';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.91';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.99.91';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=22.99.91';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову } from './intimacy.js?v=22.99.87';
-import { settings } from '../settings.js?v=22.99.87';
-import { namesLikelySame } from '../names.js?v=22.99.87';
-import { parseRelationList } from './relations-graph.js?v=22.99.87';
+  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову } from './intimacy.js?v=22.99.91';
+import { settings } from '../settings.js?v=22.99.91';
+import { namesLikelySame } from '../names.js?v=22.99.91';
+import { parseRelationList } from './relations-graph.js?v=22.99.91';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле'];
@@ -120,7 +120,16 @@ const ФАЗЫ = [
 ];
 function buildScenePhase(value) {
   const s = String(value || '');
-  const текущая = ФАЗЫ.findIndex(([, , rx]) => rx.test(s));
+  let текущая = ФАЗЫ.findIndex(([, , rx]) => rx.test(s));
+  // Промт описывает фазы номерами, и модель порой присылает голое «PHASE 3»
+  // или «2». Слова не нашлось — берём номер: 2 — близость, 3 — после.
+  // Фаза 1 — сцены нет, полоса не нужна.
+  if (текущая < 0) {
+    const номер = (s.match(/(?:phase|фаза)?\s*\b([123])\b/i) || [])[1];
+    if (номер === '1') return '';
+    if (номер === '2') текущая = 1;
+    if (номер === '3') текущая = 4;
+  }
   if (текущая < 0) return `<span class="hud-nsfw-pill">${escapeHtml(s)}</span>`;
   return ФАЗЫ.map(([id, подпись], i) => {
     const состояние = i < текущая ? ' is-past' : (i === текущая ? ' is-now' : '');
@@ -248,6 +257,8 @@ const ПОЛЕ_СТРОКИ = {
   'возраст': 'age', 'одежда': 'clothes', 'внешность': 'looks', 'роль': 'role', 'тело': 'body',
   'физиология': 'phys', 'здоровье': 'health', 'место': 'where', 'мысли': 'thoughts', 'статус': 'status',
   'сновидение': 'dream', 'скрытый подтекст': 'subtext',
+  'болезни и травмы': 'illness', 'следы на теле': 'marks', 'беременность': 'preg', 'цикл': 'cycle', 'расписание': 'schedule',
+  'доверие': 'trust', 'конфликт': 'clash', 'страхи': 'fears', 'социальное разоблачение': 'exposure',
 };
 
 /* Подача значения простого поля. Возраст — крупной цифрой с датой рождения
@@ -285,8 +296,14 @@ function значениеПоля(ключ, значение, класс = 'hud-
   }
   return `<span class="${класс}">${applyTooltips(текст)}</span>`;
 }
-const видСтроки = (ключ, класс) => (!/\bnsfw\b/.test(класс) && ВИД_СТРОКИ[ключ])
-  ? ' kind-' + ВИД_СТРОКИ[ключ] + (ПОЛЕ_СТРОКИ[ключ] ? ' f-' + ПОЛЕ_СТРОКИ[ключ] : '') : '';
+// Цвет из темы получают ВСЕ строки, кроме NSFW: поле, которого нет в
+// таблицах (новое, редкое, пришло под своим названием), попадает в «прочее»
+// и берёт один из шести запасных цветов палитры — по названию, чтобы из хода
+// в ход оставаться тем же.
+const запаснойЦвет = (ключ) => { let h = 0; for (const ch of String(ключ)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return 'x' + (h % 6 + 1); };
+const видСтроки = (ключ, класс) => /\bnsfw\b/.test(класс) ? ''
+  : ВИД_СТРОКИ[ключ] ? ' kind-' + ВИД_СТРОКИ[ключ] + (ПОЛЕ_СТРОКИ[ключ] ? ' f-' + ПОЛЕ_СТРОКИ[ключ] : '')
+  : ' kind-misc f-' + запаснойЦвет(ключ);
 const TRUNCATE_KEYS = ['мысли', 'физиология'];
 
 function formatKeyValue(text) {
@@ -552,7 +569,7 @@ export function buildPerceptionHTML(characters) {
       + (к.доверие !== null ? `<div class="hud-perc-trust" title="Доверие ${Math.round(к.доверие)} из 100"><span>доверие</span><i><i style="width:${к.доверие}%"></i></i><em>${Math.round(к.доверие)}</em></div>` : '')
       + `</div></div>`;
   }).join('');
-  return `<div class="hud-row full-width hud-perception"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>👁</span></i> Что о тебе думают:</span><div class="hud-perc-list">${список}</div></div>`;
+  return `<div class="hud-row full-width hud-perception kind-bonds f-perception"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>👁</span></i> Что о тебе думают:</span><div class="hud-perc-list">${список}</div></div>`;
 }
 
 export function buildUserHTML(userData, uid, isChecked, characters) {

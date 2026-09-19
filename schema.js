@@ -7,10 +7,10 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=22.99.87';
-import { mapKey } from './utils.js?v=22.99.87';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=22.99.87';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=22.99.87';
+import { settings } from './settings.js?v=22.99.91';
+import { mapKey } from './utils.js?v=22.99.91';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=22.99.91';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=22.99.91';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -354,9 +354,34 @@ export function normalizeJSONData(parsed) {
     calendar: phoneSection(rawPhone.calendar, ['date', 'title', 'kind', 'time']).map(с => ({ ...с, kind: видСобытия(с.kind) })),
   };
 
+  // Средневековая шкатулка: те же календарь, кошель, записи и карта, что у
+  // телефона, плюс грамоты и памятные вещи. Письма и подслушанное — отдельно.
+  const rawSatchel = (parsed.satchel && typeof parsed.satchel === 'object' && !Array.isArray(parsed.satchel)) ? parsed.satchel : {};
+  const satchelParsed = {
+    owner: toStr(rawSatchel.owner),
+    notes:     phoneSection(rawSatchel.notes,     ['title', 'time', 'text', 'footer']),
+    maps:      phoneSection(rawSatchel.maps,      ['place', 'note']),
+    documents: phoneSection(rawSatchel.documents, ['title', 'kind', 'seal', 'text', 'status']),
+    keepsakes: phoneSection(rawSatchel.keepsakes, ['title', 'desc', 'from']),
+    wallet: (() => {
+      const w = (rawSatchel.wallet && typeof rawSatchel.wallet === 'object' && !Array.isArray(rawSatchel.wallet)) ? rawSatchel.wallet : {};
+      const tx = phoneSection(w.transactions, ['title', 'amount', 'time', 'note']);
+      const balance = toStr(w.balance), currency = toStr(w.currency);
+      return (balance || currency || tx.length) ? { balance, currency, transactions: tx } : null;
+    })(),
+    calendar: phoneSection(rawSatchel.calendar, ['date', 'title', 'kind', 'time']).map(с => ({ ...с, kind: видСобытия(с.kind) })),
+  };
+  const lettersParsed = phoneSection(parsed.letters, ['text', 'from', 'to', 'time', 'status', 'seal', 'via'])
+    .filter(l => valid(l.text) || valid(l.from));
+  const overheardParsed = (Array.isArray(parsed.overheard) ? parsed.overheard : []).map(o => {
+    if (!o || typeof o !== 'object') return null;
+    return { kind: toStr(o.kind), where: toStr(o.where), how: toStr(o.how), time: toStr(o.time),
+      from: toStr(o.from), to: toStr(o.to), seal: toStr(o.seal), lines: cleanArray(o.lines) };
+  }).filter(o => o && (o.lines.length || valid(o.where)));
+
   return {
     // Фаза близости приходит кодом (fp, cx…); шкала фаз узнаёт полные слова.
-    scene: mapKeys(parsed.scene), characters: chars.map(mapKeys).map(c => { if (c['Фаза близости']) c['Фаза близости'] = фазаБлизости(c['Фаза близости']); return c; }), user: mapKeys(parsed.user), memory: memoryParsed, chatsMap: chatsMap, phone: phoneParsed, intercepts: interceptsParsed, diary: diaryParsed, bodyDiary: bodyDiaryParsed, dreams: dreamsParsed, companions: companionsParsed,
+    scene: mapKeys(parsed.scene), characters: chars.map(mapKeys).map(c => { if (c['Фаза близости']) c['Фаза близости'] = фазаБлизости(c['Фаза близости']); return c; }), user: mapKeys(parsed.user), memory: memoryParsed, chatsMap: chatsMap, phone: phoneParsed, intercepts: interceptsParsed, satchel: satchelParsed, letters: lettersParsed, overheard: overheardParsed, diary: diaryParsed, bodyDiary: bodyDiaryParsed, dreams: dreamsParsed, companions: companionsParsed,
     world: { headlines: cleanArray(world.headlines), rumors: cleanArray(world.rumors),
              // Период, погода, знак и тон приходят кодами — на экран по-русски.
              forecast: cleanArray(world.forecast).map(строкаПрогноза), horoscope: cleanArray(world.horoscope).map(строкаГороскопа),

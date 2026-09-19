@@ -12,11 +12,11 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=22.99.87';
-import { mapKey } from './utils.js?v=22.99.87';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=22.99.87';
-import { разобратьHUDСырой } from './hud-parser.js?v=22.99.87';
-import { hudBlockRe } from './hud-block.js?v=22.99.87';
+import { settings } from './settings.js?v=22.99.91';
+import { mapKey } from './utils.js?v=22.99.91';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=22.99.91';
+import { разобратьHUDСырой } from './hud-parser.js?v=22.99.91';
+import { hudBlockRe } from './hud-block.js?v=22.99.91';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -232,7 +232,7 @@ const НАЗВАНИЯ_ПОЛЕЙ = {
   Dur: 'duration', Prt: 'protection', Org: 'orgasm readiness', Vit: 'vitals', Snd: 'sounds', BM: 'body map', W: 'intimate state',
   Kn: 'kinks', Ft: 'fetishes', NG: 'never', NT: 'turn-offs', ND: 'intimate detail', AC: 'aftercare', UW: 'intimate state',
 };
-const НАЗВАНИЯ_РАЗДЕЛОВ = { us: '{{user}}', cm: 'chats', phn: 'phone', tp: 'intercepts', pet: 'companions' };
+const НАЗВАНИЯ_РАЗДЕЛОВ = { us: '{{user}}', cm: 'chats', phn: 'phone', tp: 'intercepts', pet: 'companions', sm: 'casket', lt: 'letters', ov: 'overheard' };
 const ПОЯСНЕНИЯ = { hd: 'does NOT know', knw: 'knows', stt: 'status', lv: 'level', f: 'fact', n: 'name', src: 'source' };
 
 export function легендаСнимка(строка) {

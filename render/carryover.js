@@ -14,12 +14,12 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=22.99.87';
-import { normalizeJSONData } from '../schema.js?v=22.99.87';
-import { settings } from '../settings.js?v=22.99.87';
-import { статусРужья } from '../codes.js?v=22.99.87';
-import { hudBlockRe } from '../hud-block.js?v=22.99.87';
-import { namesLikelySame } from '../names.js?v=22.99.87';
+import { parseHUDComplex } from '../hud-parser.js?v=22.99.91';
+import { normalizeJSONData } from '../schema.js?v=22.99.91';
+import { settings } from '../settings.js?v=22.99.91';
+import { статусРужья } from '../codes.js?v=22.99.91';
+import { hudBlockRe } from '../hud-block.js?v=22.99.91';
+import { namesLikelySame } from '../names.js?v=22.99.91';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -212,6 +212,15 @@ function наложить(накоплено, ход, предел, предел
   out.phone.calendar = склеитьОбъекты(out.phone.calendar, тел.calendar, x => текст(x.date) + '|' + текст(x.title), предел);
   out.phone.search = склеитьСтроки(out.phone.search, тел.search, предел);
 
+  // Средневековье: письма опознаём по отправителю, адресату и началу текста;
+  // свежий ход обновляет статус (было запечатано — стало прочитано).
+  out.letters = склеитьОбъекты(out.letters, ход.letters, x => текст(x.from) + '|' + текст(x.to) + '|' + текст(x.text).slice(0, 40), предел);
+  out.overheard = склеитьОбъекты(out.overheard, ход.overheard, x => текст(x.where) + '|' + текст((x.lines || [])[0]).slice(0, 40), предел);
+  const шк = ход.satchel || {};
+  for (const [поле, кл] of [['notes', x => x.title || x.text], ['maps', x => x.place], ['calendar', x => текст(x.date) + '|' + текст(x.title)], ['documents', x => x.title || x.text], ['keepsakes', x => x.title]]) {
+    out.satchel[поле] = склеитьОбъекты(out.satchel[поле], шк[поле], кл, предел);
+  }
+
   // Мир сюда не попадает намеренно: новости, слухи, объявления и
   // комментарии — это сегодняшняя сводка, а не память. Склеенные за
   // двадцать ходов, они превращались в ленту из разных дней.
@@ -248,6 +257,8 @@ export function mergeCarryOver(data, messageElement) {
     chatsMap: {}, intercepts: [],
     memory: { timeline: [], important: [], secrets: [], guns: [] },
     phone: { contacts: [], notes: [], gallery: [], maps: [], calendar: [], search: [] },
+    letters: [], overheard: [],
+    satchel: { notes: [], maps: [], calendar: [], documents: [], keepsakes: [] },
   };
 
   const начало = Math.max(0, индекс - ходов);
@@ -276,6 +287,12 @@ export function mergeCarryOver(data, messageElement) {
   итог.phone = { ...(data.phone || {}) };
   for (const поле of ['contacts', 'notes', 'gallery', 'maps', 'calendar', 'search']) {
     if (накоплено.phone[поле].length) итог.phone[поле] = накоплено.phone[поле];
+  }
+  if (накоплено.letters.length) итог.letters = накоплено.letters;
+  if (накоплено.overheard.length) итог.overheard = накоплено.overheard;
+  итог.satchel = { ...(data.satchel || {}) };
+  for (const поле of Object.keys(накоплено.satchel)) {
+    if (накоплено.satchel[поле].length) итог.satchel[поле] = накоплено.satchel[поле];
   }
   // Мир остаётся таким, каким его прислал текущий ход.
   return итог;

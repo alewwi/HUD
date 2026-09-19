@@ -26,6 +26,19 @@ export const defaultSettings = {
   phoneAppNotes: true,
   phoneAppMaps: true,
   phoneAppSearch: true,
+  // Эпоха снаряжения: 'modern' — телефон и перехваты, 'medieval' —
+  // шкатулка (письма, святцы, кошель, записи, карта, грамоты, памятки) и
+  // подслушанное. Вместе пары не работают: в средневековье телефонов нет.
+  era: 'modern',
+  enableCasket: true,
+  enableOverheard: true,
+  castAppLetters: true,
+  castAppCalendar: true,
+  castAppPurse: true,
+  castAppNotes: true,
+  castAppMap: true,
+  castAppDocs: true,
+  castAppKeeps: true,
   // Выбранная готовая тема оформления (см. themes.js). Пустая строка —
   // ручные настройки пользователя, ни одна тема не выбрана.
   themePreset: '',
