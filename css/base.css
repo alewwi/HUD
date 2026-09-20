@@ -1372,9 +1372,12 @@
     content:''; position:absolute; left:4px; top:-2px; width:3px; height:2px;
     border-radius:80% 0 80% 0; background:#557a3d; transform:rotate(-22deg);
 }
-.hud-tree-apple.a1 { left:15px; top:25%; }
-.hud-tree-apple.a2 { left:47px; top:33%; }
-.hud-tree-apple.a3 { left:31px; top:18%; }
+/* Доли кроны, а не пиксели дерева: яблоки сидят в гуще нарисованных
+   ветвей при любой ширине виджета. Точки выбраны внутри больших пятен
+   листвы (см. фон foliage-2). */
+.hud-tree-apple.a1 { left:31%; top:31%; }
+.hud-tree-apple.a2 { left:62%; top:62%; }
+.hud-tree-apple.a3 { left:45%; top:20%; }
 
 .hud-tree-leaves { position:absolute; inset:0; pointer-events:none; z-index:3; }
 .hud-tree-leaf {

@@ -10,6 +10,8 @@
 // "Майкл Смит", "Michael Smith" и т.п. Граф сначала собирает все реальные
 // имена, затем пытается сопоставить каждую ссылку с уже существующим узлом,
 // и только после этого создаёт новый узел.
+import { settings } from './settings.js?v=22.99.96';
+
 export function normalizeNameText(name) {
   return String(name ?? '')
     .normalize('NFKC')
@@ -87,6 +89,44 @@ function nameVariants(name) {
   return new Set([raw.replace(/[^a-zа-я0-9]+/gi, ''), translit, phonetic, consonants, squashed, tokenTranslit].filter(Boolean));
 }
 
+// --- Имена из настроек аватарок ---------------------------------------------
+// В настройках одна картинка задаётся списком написаний: «Тристан, Tristan,
+// Tristan Kingsley». Раз пользователь перечислил их вместе, это один человек —
+// и наоборот, имена из разных списков разводим, даже если буквы похожи.
+// Списки читаются заново, только когда настройки изменились.
+let подписьСписков = null, спискиАватарок = [];
+function группыАватарок() {
+  const сырые = [settings.avatarCharNames, settings.avatarUserNames]
+    .concat((Array.isArray(settings.avatarOverrides) ? settings.avatarOverrides : []).map(з => з && з.names));
+  const подпись = JSON.stringify(сырые);
+  if (подпись !== подписьСписков) {
+    подписьСписков = подпись;
+    спискиАватарок = сырые
+      .map(строка => String(строка || '').split(/[,;\n]/).map(н => normalizeNameText(н).toLowerCase()).filter(Boolean))
+      .filter(список => список.length > 0);
+  }
+  return спискиАватарок;
+}
+
+// true — пользователь назвал их одним человеком, false — разными,
+// null — в списках их нет, решать дальше по буквам.
+function поСпискамАватарок(A, B) {
+  let группы;
+  try { группы = группыАватарок(); } catch (_) { return null; }
+  if (!группы.length) return null;
+  // Имя из списка узнаём целиком или по первому слову: в переписке человек
+  // встречается и полным именем, и одним лишь именем.
+  const вСписке = (имя, список) => {
+    const н = имя.toLowerCase(), первое = н.split(' ')[0];
+    return список.some(x => x === н || x.split(' ')[0] === первое);
+  };
+  const гA = группы.filter(г => вСписке(A, г));
+  const гB = группы.filter(г => вСписке(B, г));
+  if (!гA.length || !гB.length) return null;
+  if (гA.some(г => гB.includes(г))) return true;
+  return false;
+}
+
 function levenshtein(a, b) {
   if (a === b) return 0;
   if (!a) return b.length;
@@ -113,6 +153,11 @@ export function namesLikelySame(a, b) {
   const A = normalizeNameText(a), B = normalizeNameText(b);
   if (!A || !B) return false;
   if (A === B) return true;
+  // Списки имён из настроек аватарок — прямое указание пользователя, и оно
+  // главнее любых догадок по буквам: перечисленные под одной картинкой имена
+  // сливаются, а имена под разными картинками остаются разными людьми.
+  const сказано = поСпискамАватарок(A, B);
+  if (сказано !== null) return сказано;
   if (nameVariants(A).has(nameVariants(B).values().next().value)) return true;
 
   const va = nameVariants(A), vb = nameVariants(B);

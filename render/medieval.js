@@ -12,11 +12,11 @@
 // Переключение разделов шкатулки — на радиокнопках и CSS, без скриптов:
 // карточка HUD перерисовывается целиком, и состояние не нужно восстанавливать.
 
-import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=22.99.93';
-import { settings } from '../settings.js?v=22.99.93';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.93';
-import { namesLikelySame } from '../names.js?v=22.99.93';
-import { buildCalendarApp, parseDayMonth } from './phone.js?v=22.99.93';
+import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=22.99.96';
+import { settings } from '../settings.js?v=22.99.96';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.96';
+import { namesLikelySame } from '../names.js?v=22.99.96';
+import { buildCalendarApp, parseDayMonth } from './phone.js?v=22.99.96';
 
 const т = (v) => defeatWI(escapeHtml(String(v ?? '')));
 

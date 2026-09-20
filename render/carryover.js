@@ -14,12 +14,13 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=22.99.93';
-import { normalizeJSONData } from '../schema.js?v=22.99.93';
-import { settings } from '../settings.js?v=22.99.93';
-import { статусРужья } from '../codes.js?v=22.99.93';
-import { hudBlockRe } from '../hud-block.js?v=22.99.93';
-import { namesLikelySame } from '../names.js?v=22.99.93';
+import { parseHUDComplex } from '../hud-parser.js?v=22.99.96';
+import { проставитьДень } from './msg-feed.js?v=22.99.96';
+import { normalizeJSONData } from '../schema.js?v=22.99.96';
+import { settings } from '../settings.js?v=22.99.96';
+import { статусРужья } from '../codes.js?v=22.99.96';
+import { hudBlockRe } from '../hud-block.js?v=22.99.96';
+import { namesLikelySame } from '../names.js?v=22.99.96';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -79,7 +80,9 @@ function разобратьСообщение(строка) {
   const m = главная.match(/^([^:-]+?)(?:\s*(?:->|→)\s*([^:]+))?:\s*([\s\S]*)$/);
   return {
     тело: ключ(m ? (m[3] || '') : главная),
-    время: текст(части[1]).replace(/[^0-9:]/g, ''),
+    // Только часы: у одного и того же сообщения в разных ходах дата
+    // проставляется разная (день первого появления), а часы те же.
+    время: (текст(части[1]).match(/\d{1,2}:\d{2}/) || [''])[0],
   };
 }
 
@@ -195,8 +198,16 @@ function склеитьРужья(старое, новое, предел) {
 // Один ход поверх накопленного.
 function наложить(накоплено, ход, предел, пределСообщений) {
   const out = накоплено;
-  out.chatsMap = склеитьЧаты(out.chatsMap, ход.chatsMap, предел, пределСообщений);
-  out.intercepts = склеитьПерехваты(out.intercepts, ход.intercepts, предел, пределСообщений);
+  // Сообщения прошлого хода датируются его собственным днём: «08:30» там
+  // значило тот день, а «вчера» отсчитывалось от него. Ход не трогаем —
+  // он лежит в кэше разбора, — а работаем с копиями.
+  const дата = (ход.scene && (ход.scene['Дата'] || ход.scene.Dt)) || '';
+  const сДатой = (msgs) => Array.isArray(msgs) ? msgs.map(m => проставитьДень(m, дата)) : msgs;
+  const чаты = {};
+  for (const [имя, чат] of Object.entries(ход.chatsMap || {})) чаты[имя] = { ...чат, messages: сДатой(чат && чат.messages) };
+  const перехваты = (ход.intercepts || []).map(п => ({ ...п, messages: сДатой(п && п.messages) }));
+  out.chatsMap = склеитьЧаты(out.chatsMap, чаты, предел, пределСообщений);
+  out.intercepts = склеитьПерехваты(out.intercepts, перехваты, предел, пределСообщений);
 
   const пам = ход.memory || {};
   out.memory.timeline = склеитьСтроки(out.memory.timeline, пам.timeline, предел);

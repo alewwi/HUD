@@ -4,15 +4,15 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=22.99.93';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.93';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.99.93';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=22.99.93';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=22.99.96';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.96';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.99.96';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=22.99.96';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову } from './intimacy.js?v=22.99.93';
-import { settings } from '../settings.js?v=22.99.93';
-import { namesLikelySame } from '../names.js?v=22.99.93';
-import { parseRelationList } from './relations-graph.js?v=22.99.93';
+  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову } from './intimacy.js?v=22.99.96';
+import { settings } from '../settings.js?v=22.99.96';
+import { namesLikelySame } from '../names.js?v=22.99.96';
+import { parseRelationList } from './relations-graph.js?v=22.99.96';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле'];

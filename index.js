@@ -1,32 +1,32 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.93';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=22.99.93';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.93';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=22.99.93';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.93';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.93';
-import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=22.99.93';
-import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=22.99.93';
-import { привязатьИсторию } from './render/intimacy.js?v=22.99.93';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.93';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.93';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.93';
-import { buildMemoryHTML } from './render/memory.js?v=22.99.93';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.93';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.93';
-import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=22.99.93';
-import { hudHasRelations } from './render/relations-graph.js?v=22.99.93';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.93';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.93';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.93';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.93';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.93';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.93';
-import { extractHudBlock, hudBlockRe, hudOpenRe, hudCloseRe, началоПоследнегоHud } from './hud-block.js?v=22.99.93';
-import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=22.99.93';
-import { создатьПроверкуПолноты } from './hud-check.js?v=22.99.93';
-import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=22.99.93';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.96';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=22.99.96';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.96';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=22.99.96';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.96';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.96';
+import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=22.99.96';
+import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=22.99.96';
+import { привязатьИсторию } from './render/intimacy.js?v=22.99.96';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.96';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.96';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.96';
+import { buildMemoryHTML } from './render/memory.js?v=22.99.96';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.96';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.96';
+import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=22.99.96';
+import { hudHasRelations } from './render/relations-graph.js?v=22.99.96';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.96';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.96';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.96';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.96';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.96';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.96';
+import { extractHudBlock, hudBlockRe, hudOpenRe, hudCloseRe, началоПоследнегоHud } from './hud-block.js?v=22.99.96';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=22.99.96';
+import { создатьПроверкуПолноты } from './hud-check.js?v=22.99.96';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=22.99.96';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -3760,7 +3760,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       `)}
 
       ${группа('🖼️ Аватарки персонажей', `
-        <div style="font-size:12px; opacity:.78;">Одна картинка — на любое число имён: впишите их через запятую, вместе с английским написанием. Аватарка встанет всюду, где сейчас кружок с инициалами: блок персонажей, чаты телефона, перехваты.</div>
+        <div style="font-size:12px; opacity:.78;">Одна картинка — на любое число имён: впишите их через запятую, вместе с английским написанием. Аватарка встанет всюду, где сейчас кружок с инициалами: блок персонажей, чаты телефона, перехваты. Заодно HUD запомнит, что это один человек: перечисленные вместе написания сливаются в графе отношений, в шапках чатов и при выборе стороны сообщений, а имена из разных списков считаются разными людьми.</div>
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
           <button type="button" id="hud-ava-add" style="cursor:pointer;">➕ Добавить изображение</button>
           <span id="hud-ava-status" style="font-size:11px; opacity:.75;"></span>
@@ -4074,7 +4074,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=22.99.93');
+        const mod = await import('./render/archive.js?v=22.99.96');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);

@@ -50,11 +50,14 @@ export function buildSeasonSceneHtml(seasonClass, extra) {
         : '';
       // Sparse autumn foliage: one lightweight CSS foliage layer per tree, not many DOM leaves.
       // The apple tree gets slightly denser foliage; leaf-fall trees remain visibly sparse.
-      const foliage = `<span class="hud-bg-tree-autumn-foliage foliage-${i}" aria-hidden="true"></span>`;
+      // Яблоки висят внутри самой кроны, а не в габарите дерева: габарит
+      // шире и выше листвы, и на узком экране верхнее яблоко оказывалось
+      // в воздухе над кроной.
+      const foliage = `<span class="hud-bg-tree-autumn-foliage foliage-${i}" aria-hidden="true">${apples}</span>`;
       // Паутина живёт в развилке первого дерева — как ребёнок, чтобы держаться
       // за ветки, а не за проценты виджета.
       const cobweb = i === 1 ? '<span class="hud-cobweb"></span>' : '';
-      backTrees += `<span class="hud-bg-tree hud-bg-tree-autumn bt${i}"><span class="hud-bg-tree-trunk"></span><span class="hud-bg-tree-branch br1"></span><span class="hud-bg-tree-branch br2"></span><span class="hud-bg-tree-branch br3"></span>${foliage}${cobweb}${apples}${fallingLeaves}</span>`;
+      backTrees += `<span class="hud-bg-tree hud-bg-tree-autumn bt${i}"><span class="hud-bg-tree-trunk"></span><span class="hud-bg-tree-branch br1"></span><span class="hud-bg-tree-branch br2"></span><span class="hud-bg-tree-branch br3"></span>${foliage}${cobweb}${fallingLeaves}</span>`;
     }
     const fallenApples = `<div class="hud-fallen-apples"><span class="hud-fallen-apple fa1"></span><span class="hud-fallen-apple fa2"></span><span class="hud-fallen-apple fa3"></span><span class="hud-fallen-apple fa4"></span><span class="hud-fallen-apple fa5"></span></div>`;
     // Дальний лес и мелочь под ногами: осенняя сцена была голой в сравнении
