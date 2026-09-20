@@ -5329,3 +5329,32 @@
 /* Маршрут в памяти: белые подписи на белой бумаге не читались. */
 :is(.hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-route-stop.is-current .hud-route-info b { color: var(--hud-text) !important; }
 :is(.hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-route-span, .hud-route-info small, .hud-route-info em) { color: var(--hud-text-muted, #6d5a64) !important; }
+
+/* =========================================================================
+   ЛЕНТА ПЕРЕПИСКИ: ДЕНЬ И ЧЕРНОВИК (render/msg-feed.js)
+   Перенос с прошлых ходов кладёт вчерашнее и сегодняшнее подряд. Плашка дня
+   разделяет их, как в настоящем мессенджере. Черновик в перехвате —
+   пузырь с пометкой: чужой недописанный текст жалко терять.
+   ========================================================================= */
+.hud-msg-day {
+  display: flex; align-items: center; gap: 8px; margin: 10px 2px 6px;
+  font-size: .72em; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--hud-text-muted, rgba(255,255,255,.55));
+}
+.hud-msg-day::before, .hud-msg-day::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--hud-accent, #8c5ad2) 28%, transparent), transparent);
+}
+.hud-msg-day span {
+  padding: 2px 10px; border-radius: 999px; white-space: nowrap;
+  background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 22%, transparent);
+}
+.hud-msg-wrapper.is-draft .hud-msg-bubble {
+  border: 1px dashed color-mix(in srgb, var(--hud-accent, #8c5ad2) 55%, transparent);
+  opacity: .85;
+}
+.hud-msg-draft-mark {
+  font-size: .72em; letter-spacing: .04em; margin-bottom: 3px; opacity: .8;
+  color: var(--hud-accent, #8c5ad2);
+}

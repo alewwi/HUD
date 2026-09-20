@@ -1,32 +1,32 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.91';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=22.99.91';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.91';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=22.99.91';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.91';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.91';
-import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=22.99.91';
-import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=22.99.91';
-import { привязатьИсторию } from './render/intimacy.js?v=22.99.91';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.91';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.91';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.91';
-import { buildMemoryHTML } from './render/memory.js?v=22.99.91';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.91';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.91';
-import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=22.99.91';
-import { hudHasRelations } from './render/relations-graph.js?v=22.99.91';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.91';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.91';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.91';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.91';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.91';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.91';
-import { extractHudBlock, hudBlockRe, hudOpenRe, hudCloseRe, началоПоследнегоHud } from './hud-block.js?v=22.99.91';
-import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=22.99.91';
-import { создатьПроверкуПолноты } from './hud-check.js?v=22.99.91';
-import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=22.99.91';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.93';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=22.99.93';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.93';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=22.99.93';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.93';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.93';
+import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=22.99.93';
+import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=22.99.93';
+import { привязатьИсторию } from './render/intimacy.js?v=22.99.93';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.93';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.93';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.93';
+import { buildMemoryHTML } from './render/memory.js?v=22.99.93';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.93';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.93';
+import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=22.99.93';
+import { hudHasRelations } from './render/relations-graph.js?v=22.99.93';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.93';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.93';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.93';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.93';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.93';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.93';
+import { extractHudBlock, hudBlockRe, hudOpenRe, hudCloseRe, началоПоследнегоHud } from './hud-block.js?v=22.99.93';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=22.99.93';
+import { создатьПроверкуПолноты } from './hud-check.js?v=22.99.93';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=22.99.93';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -132,7 +132,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
       : 'Write your next reply exactly as the story and every instruction above require. Then, as the very last part of that same reply, append ONE [HUD] block — the state of the world AFTER the events of your reply. Nothing may follow [/HUD].';
     const чего = режим === 'regen' ? 'the latest message' : 'your reply';
     // Правила сообщений — общие для переписок и перехватов.
-    const правилаСообщений = 'Keep ongoing conversations and unanswered messages alive turn to turn; incoming messages may go unanswered — busy, asleep, offline, ignoring. Unread, Deleted or Draft only when the story supports it: deleted ones keep their hidden text, drafts are unsent. Never invent placeholder chats or fake phone data.';
+    const правилаСообщений = 'Keep ongoing conversations and unanswered messages alive turn to turn; incoming messages may go unanswered — busy, asleep, offline, ignoring. Unread, Deleted or Draft only when the story supports it: deleted ones keep their hidden text, drafts are unsent. Never invent placeholder chats or fake phone data. The time field carries the day whenever the message is NOT from the day of sc.Dt: write it as «Вчера, 22:30», «Позавчера, 19:05» or with the date itself «12.10, 14:05»; a message from today needs the clock only. Keep the day written the same way on later turns, so a conversation that spans days stays sorted.';
     const тегиСообщений = [
       '"VOICE: prefix the text with [VOICE_M:SS], e.g. \'[Sender] -> [Recipient]: [VOICE_0:42] Перезвони мне | 21:40 | Unread\'. Use it when someone would record audio rather than type — walking, crying, in a hurry."',
       '"PHOTO: prefix with [PHOTO: what is in the shot], e.g. \'[Sender] -> [Recipient]: [PHOTO: селфи в примерочной, новое платье] Ну как? | 18:20\'. Text after the tag is the caption."',
@@ -1966,7 +1966,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     if (!средневековье && hudHasMeaningfulIntercepts(data.intercepts) && settings.enableIntercepts) {
       const uid = `intercept-${baseId}`;
       addTab(`<div class="hud-tab intercept-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📡 Перехваты${значокСправки('intercepts')}</div>`,
-        uid, (active) => buildInterceptsHTML(data.intercepts, uid, active));
+        uid, (active) => buildInterceptsHTML(data.intercepts, uid, active, data.scene && data.scene['Дата']));
     }
 
     if (hudHasMeaningfulDiary(data.diary) && settings.enableDiary) {
@@ -4074,7 +4074,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=22.99.91');
+        const mod = await import('./render/archive.js?v=22.99.93');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);

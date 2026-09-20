@@ -6,15 +6,16 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText } from '../utils.js?v=22.99.91';
-import { settings } from '../settings.js?v=22.99.91';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.99.91';
-import { G_ICONS } from './icons.js?v=22.99.91';
-import { buildMessengerHTML } from './messenger.js?v=22.99.91';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=22.99.91';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText } from '../utils.js?v=22.99.93';
+import { settings } from '../settings.js?v=22.99.93';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.99.93';
+import { G_ICONS } from './icons.js?v=22.99.93';
+import { buildMessengerHTML } from './messenger.js?v=22.99.93';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=22.99.93';
+import { сортироватьЧаты } from './msg-feed.js?v=22.99.93';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=22.99.91';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=22.99.93';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -286,6 +287,9 @@ function buildSearchApp(search) {
 
 export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phoneData, sceneDate, sceneTime, characters) {
   const phone = phoneData && typeof phoneData === 'object' ? phoneData : {};
+  // Переписки — от свежих к старым, как в любом мессенджере. Порядок задаём
+  // один раз здесь: по нему идут и список чатов, и стопка уведомлений.
+  chatsMap = сортироватьЧаты(chatsMap, sceneDate);
   const chatCount = Object.keys(chatsMap || {}).length;
   // Владелец телефона. Приоритет: явное поле phone.owner → самый частый
   // owner среди переписок → имя персоны как последний фолбэк.
@@ -301,7 +305,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   const phoneOwner = (phone.owner && !/^(empty|none)$/i.test(phone.owner) ? phone.owner : '') || topChatOwner || mainCharName || '';
 
   // Мессенджер собираем уже зная владельца: он задаёт и подпись, и сторону пузырей.
-  const messenger = buildMessengerHTML(chatsMap, uid, phoneOwner);
+  const messenger = buildMessengerHTML(chatsMap, uid, phoneOwner, sceneDate);
 
 
   // Часы телефона — те же, что на плашке погоды: одно время сцены на весь HUD.

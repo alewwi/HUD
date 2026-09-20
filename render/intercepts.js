@@ -3,12 +3,12 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText } from '../utils.js?v=22.99.91';
-import { overrideAvatarUrl } from '../avatars.js?v=22.99.91';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText } from '../utils.js?v=22.99.93';
+import { overrideAvatarUrl } from '../avatars.js?v=22.99.93';
 // Снимки, ролики, голосовые и звонки собирает тот же код, что и в личном
 // телефоне. Своя копия разбора здесь означала бы, что новый формат от модели
 // в одном мессенджере работает, а в другом остаётся сырым тегом в тексте.
-import { buildBubbleInner, msgKey, buildCallRow } from './msg-parts.js?v=22.99.91';
+import { собратьЛенту, моментПоследнего } from './msg-feed.js?v=22.99.93';
 
 // Кружок отправителя в перехвате: ручная аватарка фоном либо инициал.
 // Разметка и классы прежние — картинку прячет за собой класс has-img.
@@ -46,7 +46,7 @@ export function interceptParticipants(intercept) {
   return имена.length >= 2 ? имена.join('; ') : '';
 }
 
-export function buildInterceptsHTML(interceptsData, uid, isChecked) {
+export function buildInterceptsHTML(interceptsData, uid, isChecked, sceneDate) {
   let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-phone-mockup intercept-mode">`;
   if (!interceptsData || interceptsData.length === 0) {
     return html + `<div class="hud-phone-empty"><div class="hud-phone-empty-icon">📡</div><div>Нет перехватов</div><small>В текущем повествовании нет доступных скрытых разговоров.</small></div></div></div>`;
@@ -54,7 +54,9 @@ export function buildInterceptsHTML(interceptsData, uid, isChecked) {
   let chatTabsHeader = `<div class="hud-phone-subtabs">`;
   let chatBodies = ``;
 
-  interceptsData.forEach((intercept, idx) => {
+  // Перехваты тоже от свежих к старым: вчерашний разговор ниже сегодняшнего.
+  const порядок = interceptsData.slice().sort((a, b) => моментПоследнего(b && b.messages, sceneDate) - моментПоследнего(a && a.messages, sceneDate));
+  порядок.forEach((intercept, idx) => {
     // Состав переписки: из поля модели, а если его нет — из самих сообщений.
     const состав = interceptParticipants(intercept);
     let targetName = sanitizeText(intercept.target || 'Unknown').trim(), chatName = sanitizeText(intercept.chatName || 'Chat').trim();
@@ -96,35 +98,11 @@ export function buildInterceptsHTML(interceptsData, uid, isChecked) {
       </div>
       <div class="hud-phone-chat-area">`;
 
-    if (Array.isArray(intercept.messages)) {
-      intercept.messages.forEach(msgStr => {
-        if (!msgStr.trim()) return;
-        let parts = msgStr.replace(/^(?:M|Msg|Сообщение|Chat|Чат):\s*/i, '').trim().split('|').map(s => s.trim());
-        let mainPart = parts[0], msgTime = parts.length > 1 ? parts[1] : '';
-
-        if (parts.length === 1) {
-          const fallbackMatch = mainPart.match(/(.*?)\s*(?:\|?\s*)(\b(?:Вчера|Сегодня|Завтра)[,\s]*\d{1,2}:\d{2}|\b\d{1,2}:\d{2})/i);
-          if (fallbackMatch) { mainPart = fallbackMatch[1].trim(); msgTime = fallbackMatch[2].trim(); }
-        }
-        mainPart = mainPart.replace(/\[удалено\]|\[черновик\]|✓+/gi, '').trim();
-        // Дефис — часть фамилии («Ченнинг-Уинтроп»), исключать его из имени
-        // нельзя: такая строка не разбиралась вовсе, отправитель оставался
-        // «Unknown», а вся строка «А -> Б: текст» уезжала в пузырь как есть.
-        let sender = "Unknown", message = mainPart;
-        const match = mainPart.match(/^([^:]+?)(?:\s*(?:->|→)\s*([^:]+?))?\s*:\s*([\s\S]*)$/);
-        if (match) { sender = match[1].trim(); message = match[3].trim(); }
-
-        let isOutgoing = (targetName && sender.toLowerCase().includes(targetName.toLowerCase().split(' ')[0]));
-
-        // Звонок рисуем событием во всю ширину — как в личном телефоне.
-        const callRow = buildCallRow(message, { sender, time: msgTime, outgoing: isOutgoing });
-        if (callRow) { chatBodies += callRow; return; }
-
-        const msgInner = buildBubbleInner(message);
-
-        chatBodies += `<div class="hud-msg-wrapper ${isOutgoing ? 'outgoing' : 'incoming'}">${!isOutgoing ? interceptFace(sender) : ''}<div class="hud-msg-content" style="max-width: 100%;"><span class="hud-msg-sender">${escapeHtml(sender)}</span><div class="hud-msg-bubble" data-msg-key="${msgKey(message)}">${msgInner}${msgTime ? `<div class="hud-msg-meta" style="display: flex; justify-content: flex-end; align-items: center; gap: 4px; font-size: 0.75em; opacity: 0.6; margin-top: 4px;"><span class="hud-msg-time">${escapeHtml(msgTime)}</span></div>` : ''}</div></div></div>`;
-      });
-    }
+    // Та же лента, что и в личном телефоне (msg-feed.js): разделители дней,
+    // черновики, удалённые, отметки о прочтении, звонки и вложения. Своя
+    // копия разбора означала бы, что половина этого в перехватах не работает
+    // — так и было до 22.99.92.
+    chatBodies += собратьЛенту(intercept.messages, { owner: targetName, сцена: sceneDate, лицо: interceptFace }).html;
     chatBodies += `</div><div class="hud-phone-input-bar hud-intercept-input"><span class="hud-phone-attach hud-intercept-icon">⚠</span><div class="hud-phone-inputfield placeholder hud-intercept-icon">ACCESS DENIED - READ ONLY</div></div></div>`;
   });
   return html + chatTabsHeader + `</div>` + chatBodies + `</div></div>`;

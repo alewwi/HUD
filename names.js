@@ -128,8 +128,18 @@ export function namesLikelySame(a, b) {
   const ca = nameConsonantSignature(A), cb = nameConsonantSignature(B);
   if (ca && cb) {
     const dist = levenshtein(ca, cb);
-    const maxLen = Math.max(ca.length, cb.length);
-    if (dist <= 1 || (maxLen >= 5 && dist <= 2)) return true;
+    // Две правки прощаем только длинным подписям, и меряем по короткой из
+    // двух: у «утренний» (trnn) и «Тристан» (trstn) расстояние 2, и по
+    // длинной они сходили за одного человека — чужой чат подписывался
+    // именем владельца, а чужие реплики вставали справа.
+    const minLen = Math.min(ca.length, cb.length);
+    // Согласных мало, и по ним одному человеку легко сойти за другого:
+    // «Тристан» (trstn) и «Кристина» (krstn) отличаются одной буквой.
+    // Поэтому спрашиваем ещё и полное звучание: «Изольда» и «Isolde» по нему
+    // рядом (izolda / isolde), а Тристан с Кристиной — нет.
+    const полное = levenshtein(namePhoneticLatin(A), namePhoneticLatin(B));
+    if (полное > 2) return false;
+    if (dist <= 1 || (minLen >= 6 && dist <= 2)) return true;
   }
   return false;
 }
