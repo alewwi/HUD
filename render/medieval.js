@@ -12,11 +12,11 @@
 // Переключение разделов шкатулки — на радиокнопках и CSS, без скриптов:
 // карточка HUD перерисовывается целиком, и состояние не нужно восстанавливать.
 
-import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=22.99.96';
-import { settings } from '../settings.js?v=22.99.96';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.96';
-import { namesLikelySame } from '../names.js?v=22.99.96';
-import { buildCalendarApp, parseDayMonth } from './phone.js?v=22.99.96';
+import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=22.99.99';
+import { settings } from '../settings.js?v=22.99.99';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.99';
+import { namesLikelySame } from '../names.js?v=22.99.99';
+import { buildCalendarApp, parseDayMonth } from './phone.js?v=22.99.99';
 
 const т = (v) => defeatWI(escapeHtml(String(v ?? '')));
 
@@ -179,11 +179,13 @@ function buildAlmanac(events, characters, sceneDate) {
 function buildNotes(notes) {
   if (!notes || !notes.length) return пусто('🪶', 'Перо сухое — записей нет');
   return notes.map(n => {
-    const текст = String(n.text || '');
-    const буквица = текст.trim().charAt(0);
+    const текст = String(n.text || '').trim();
+    // Буквица — только из буквы: эмодзи (два кода UTF-16) charAt разрезал
+    // пополам, а кавычка или цифра в буквице смотрятся опечаткой.
+    const буквица = /^\p{L}/u.test(текст) ? Array.from(текст)[0] : '';
     return `<article class="hud-quill-note">
       <header><b>${т(n.title || 'Без заглавия')}</b>${n.time ? `<small>${т(n.time)}</small>` : ''}</header>
-      ${текст ? `<p>${буквица ? `<span class="hud-dropcap">${escapeHtml(буквица)}</span>` : ''}${т(текст.trim().slice(1))}</p>` : ''}
+      ${текст ? `<p>${буквица ? `<span class="hud-dropcap">${escapeHtml(буквица)}</span>` : ''}${т(текст.slice(буквица.length))}</p>` : ''}
       ${n.footer ? `<footer>${т(n.footer)}</footer>` : ''}
     </article>`;
   }).join('');
@@ -210,7 +212,7 @@ function buildMap(maps) {
   const сид = hudHashSeed(maps.map(m => m.place).join('|'));
   let горы = '', лес = '';
   for (let i = 0; i < 5; i++) {
-    const x = 20 + ((сид >> (i * 3)) % 280), y = 20 + ((сид >> (i * 2 + 1)) % 150);
+    const x = 20 + ((сид >>> (i * 3)) % 280), y = 20 + ((сид >>> (i * 2 + 1)) % 150);
     if (точки.some(p => Math.abs(p.x - x) < 26 && Math.abs(p.y - y) < 22)) continue;
     if (i % 2) горы += `<path d="M${x - 9} ${y + 6} L${x} ${y - 7} L${x + 9} ${y + 6} M${x - 2} ${y - 3} L${x + 3} ${y + 1}"/>`;
     else лес += `<path d="M${x} ${y + 6} v-4 M${x - 5} ${y + 2} l5 -9 l5 9 z M${x + 8} ${y + 7} v-3 M${x + 4} ${y + 4} l4 -7 l4 7 z"/>`;
@@ -348,7 +350,7 @@ export function buildOverheardHTML(items, uid, isChecked) {
         <div class="hud-ov-sheet">
           ${печать(цветВоска(o.seal, o.from), первая(o.from), 'is-broken is-lifted')}
           <div class="hud-ov-route">${o.from ? `От ${т(o.from)}` : ''}${o.to ? ` — к ${т(o.to)}` : ''}${o.seal ? `<small>${т(o.seal)}</small>` : ''}</div>
-          ${(o.lines || []).map(л => `<p>${реплика(л.replace(/^[^:]{1,40}:\s*/, '')).html}</p>`).join('')}
+          ${(o.lines || []).map(л => `<p>${реплика(String(л ?? '').replace(/^[^:]{1,40}:\s*/, '')).html}</p>`).join('')}
         </div>
       </article>`;
     }

@@ -8,9 +8,9 @@
 // Модуль не знает про граф отношений: получает готовые узлы и рёбра и отдаёт
 // SVG. Так нет круговой зависимости с relations-graph.js.
 
-import { escapeHtml, hudHashSeed, commentInitials } from '../utils.js?v=22.99.96';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.96';
-import { найтиПоИмени } from '../names.js?v=22.99.96';
+import { escapeHtml, hudHashSeed, commentInitials } from '../utils.js?v=22.99.99';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.99';
+import { найтиПоИмени } from '../names.js?v=22.99.99';
 
 // Кем «кому» приходится тому, у кого записано отношение. Ищем только в
 // первых словах: дальше идёт чувство, где «любит как сына» или «брат по
@@ -440,7 +440,7 @@ export function buildFamilyTree(nodes, edges, idBase) {
     карточки += `<g class="hud-fam-node${ч.isUser ? ' is-user' : ''}${ч.isPrimary ? ' is-primary' : ''}${ч.virtual ? ' is-unknown' : ''}" data-node-name="${escapeHtml(ч.name)}">`
       + `<title>${escapeHtml(ч.virtual ? 'Звено родства не названо' : ч.name)}</title>`
       + `<rect class="hud-fam-card" x="${f(p.x)}" y="${f(p.y)}" width="${W_УЗЛА}" height="${H_УЗЛА}" rx="14"/>`
-      + `<circle class="hud-fam-ava-bg" cx="${f(ax)}" cy="${f(ay)}" r="${r}" fill="${цвет}"/>`
+      + `<circle class="hud-fam-ava-bg" cx="${f(ax)}" cy="${f(ay)}" r="${r}" style="fill:${цвет}"/>`
       + `<text class="hud-fam-initials" x="${f(ax)}" y="${f(ay)}" text-anchor="middle" dominant-baseline="central">${escapeHtml(ч.virtual ? '?' : commentInitials(ч.name))}</text>`
       + (адрес ? `<clipPath id="${клип}"><circle cx="${f(ax)}" cy="${f(ay)}" r="${r - 1}"/></clipPath>`
         + `<image href="${escapeHtml(адрес).replace(/"/g, '&quot;')}" x="${f(ax - r + 1)}" y="${f(ay - r + 1)}" width="${(r - 1) * 2}" height="${(r - 1) * 2}" clip-path="url(#${клип})" preserveAspectRatio="xMidYMid slice"/>` : '')

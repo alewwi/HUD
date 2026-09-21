@@ -4,15 +4,15 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=22.99.96';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.96';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.99.96';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=22.99.96';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=22.99.99';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=22.99.99';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=22.99.99';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=22.99.99';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову } from './intimacy.js?v=22.99.96';
-import { settings } from '../settings.js?v=22.99.96';
-import { namesLikelySame } from '../names.js?v=22.99.96';
-import { parseRelationList } from './relations-graph.js?v=22.99.96';
+  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову } from './intimacy.js?v=22.99.99';
+import { settings } from '../settings.js?v=22.99.99';
+import { namesLikelySame } from '../names.js?v=22.99.99';
+import { parseRelationList } from './relations-graph.js?v=22.99.99';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле'];
@@ -301,6 +301,18 @@ function значениеПоля(ключ, значение, класс = 'hud-
 // и берёт один из шести запасных цветов палитры — по названию, чтобы из хода
 // в ход оставаться тем же.
 const запаснойЦвет = (ключ) => { let h = 0; for (const ch of String(ключ)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return 'x' + (h % 6 + 1); };
+// Защита и последняя близость для риска зачатия. У игрока этих полей нет —
+// их пишет карточка партнёра: берём у первого персонажа, где они есть.
+function контекстЗачатия(данные, партнёры = []) {
+  const поле = (о, к) => о && о[к] && !/^(empty|none)$/i.test(String(о[к]).trim()) ? String(о[к]) : '';
+  let защита = поле(данные, 'Защита'), секс = поле(данные, 'Последний секс');
+  for (const п of Array.isArray(партнёры) ? партнёры : []) {
+    if (!защита) защита = поле(п, 'Защита');
+    if (!секс) секс = поле(п, 'Последний секс');
+  }
+  return { защита, секс };
+}
+
 const видСтроки = (ключ, класс) => /\bnsfw\b/.test(класс) ? ''
   : ВИД_СТРОКИ[ключ] ? ' kind-' + ВИД_СТРОКИ[ключ] + (ПОЛЕ_СТРОКИ[ключ] ? ' f-' + ПОЛЕ_СТРОКИ[ключ] : '')
   : ' kind-misc f-' + запаснойЦвет(ключ);
@@ -608,7 +620,7 @@ export function buildUserHTML(userData, uid, isChecked, characters) {
     } else if (label.toLowerCase().includes('nsfw')) {
       rows += `<div class="${rowClass}"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>🔞</span></i> ${escapeHtml(надписьПоля(label))}:</span> <div class="hud-vertical-container hud-nsfw-list is-act">${buildPillList(безГрудиУМужчин(value, userData, true), 'hud-nsfw-pill')}</div></div>`;
     } else if (label.toLowerCase() === 'цикл') {
-      rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}Менструальный цикл:</span> ${buildCycle(value)}</div>`;
+      rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}Менструальный цикл:</span> ${buildCycle(value, { ...контекстЗачатия(userData, characters), кто: 'user' })}</div>`;
     } else if (label.toLowerCase() === 'беременность') {
       rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${buildPregnancy(value)}</div>`;
     } else {
@@ -699,7 +711,7 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       if (!здоровьеПоказано) { здоровьеПоказано = true; html += строкаЗдоровья(здоровье, rowClass.replace(' full-width', ''), значокПоля('здоровье')); }
       if (lowerKey === 'следы на теле' && здоровье.следы) html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${здоровье.следы}</div>`;
     } else if (lowerKey === 'цикл') {
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}Менструальный цикл:</span> ${buildCycle(value)}</div>`;
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}Менструальный цикл:</span> ${buildCycle(value, { ...контекстЗачатия(charData), кто: 'char:' + String(charData['Имя'] || '').trim() })}</div>`;
     } else if (lowerKey === 'карта тела') {
       // Картинкой: силуэт спереди и сзади, зоны залиты по силе, на них — следы.
       // Выключено в настройках — прежний список зон со шкалами.

@@ -1,32 +1,34 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.96';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=22.99.96';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.96';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=22.99.96';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.96';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.96';
-import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=22.99.96';
-import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=22.99.96';
-import { привязатьИсторию } from './render/intimacy.js?v=22.99.96';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.96';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.96';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.96';
-import { buildMemoryHTML } from './render/memory.js?v=22.99.96';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.96';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.96';
-import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=22.99.96';
-import { hudHasRelations } from './render/relations-graph.js?v=22.99.96';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.96';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.96';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.96';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.96';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.96';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.96';
-import { extractHudBlock, hudBlockRe, hudOpenRe, hudCloseRe, началоПоследнегоHud } from './hud-block.js?v=22.99.96';
-import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=22.99.96';
-import { создатьПроверкуПолноты } from './hud-check.js?v=22.99.96';
-import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=22.99.96';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.99';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=22.99.99';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.99';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=22.99.99';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.99';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.99';
+import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=22.99.99';
+import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=22.99.99';
+import { привязатьИсторию } from './render/intimacy.js?v=22.99.99';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.99';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.99';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.99';
+import { buildMemoryHTML } from './render/memory.js?v=22.99.99';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.99';
+import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.99';
+import { праздникиСцены } from './render/holidays.js?v=22.99.99';
+import { скрытыеФактыЗачатия } from './render/conception.js?v=22.99.99';
+import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=22.99.99';
+import { hudHasRelations } from './render/relations-graph.js?v=22.99.99';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.99';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.99';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.99';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.99';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.99';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.99';
+import { extractHudBlock, hudBlockRe, hudOpenRe, hudCloseRe, началоПоследнегоHud } from './hud-block.js?v=22.99.99';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=22.99.99';
+import { создатьПроверкуПолноты } from './hud-check.js?v=22.99.99';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=22.99.99';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -469,6 +471,10 @@ ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and ru
     }
 
     p += `\n}\n\`\`\`\n[/HUD]`;
+    // Скрытые факты: итог «кубика» зачатия. Знает автор, персонажи — нет,
+    // пока нет теста или признаков (render/conception.js).
+    if (беременность) p += скрытыеФактыЗачатия();
+
     // Снимок — макросом {{hudLast}}: блок исчезает целиком, когда прошлого HUD
     // нет. Переносы строк снаружи {{if}}: движок ST срезает края содержимого.
     // Канон — только для ответа: при перегенерации прозы нет, есть только HUD.
@@ -1388,6 +1394,12 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       if (m && +m[1] >= 1 && +m[1] <= 31) return +m[1];
       return null;
     })();
+    // Год — для Пасхи: её дата каждый год своя. Нет года — текущий.
+    const годИзДаты = (() => {
+      const d = String(dRaw || '');
+      const m = d.match(/(?<!\d)\d{1,2}[./]\d{1,2}[./](\d{4})(?!\d)/) || d.match(/(?<!\d)(\d{4})-\d{1,2}-\d{1,2}(?!\d)/) || d.match(/(?<!\d)(\d{4})(?!\d)/);
+      return m ? +m[1] : null;
+    })();
     const новогодниеДни = !!месяцИзДаты && !!числоИзДаты
       && ((месяцИзДаты === 12 && числоИзДаты >= 28) || (месяцИзДаты === 1 && числоИзДаты <= 13));
 
@@ -1857,7 +1869,8 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
         <div class="hud-fx-rainbow"></div>
         <div class="hud-fx-celestial"${celestialStyle}></div>
         <div class="hud-fx-cloud-cover"></div>
-        <div class="hud-fx-season-scene"${sunVarsStyle}>${buildSeasonSceneHtml(seasonClass, { dew: dewActive, deepFreeze: !!freezeClass, newYear: новогодниеДни, month: месяцИзДаты, day: числоИзДаты })}</div>
+        <div class="hud-fx-season-scene"${sunVarsStyle}>${buildSeasonSceneHtml(seasonClass, { dew: dewActive, deepFreeze: !!freezeClass, month: месяцИзДаты, day: числоИзДаты,
+          ...праздникиСцены({ число: числоИзДаты, месяц: месяцИзДаты, год: годИзДаты, ночь: /phase-(?:evening|night|deep-night|predawn)/.test(phaseClass) }), newYear: новогодниеДни })}</div>
         <div class="hud-fx-weather"><span class="hud-snow-layer snow-far"></span><span class="hud-snow-layer snow-mid"></span><span class="hud-snow-layer snow-near"></span></div>
         <div class="hud-fx-frost"></div>
         <div class="hud-fx-temp"></div>
@@ -4074,7 +4087,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=22.99.96');
+        const mod = await import('./render/archive.js?v=22.99.99');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);

@@ -7,11 +7,11 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe } from '../utils.js?v=22.99.96';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.96';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=22.99.96';
-import { buildFamilyTree } from './family-tree.js?v=22.99.96';
-import { settings } from '../settings.js?v=22.99.96';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe } from '../utils.js?v=22.99.99';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.99';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=22.99.99';
+import { buildFamilyTree } from './family-tree.js?v=22.99.99';
+import { settings } from '../settings.js?v=22.99.99';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -402,7 +402,7 @@ export function buildRelGraphHTML(hudData, uid) {
     const roleText = node.isUser ? 'YOU' : node.isPrimary ? '{{char}}' : 'NPC';
     svg += `<g class="hud-rel-node ${roleClass}" data-node-id="${escapeHtml(node.id)}" data-node-name="${escapeHtml(node.name)}">`;
     svg += `<circle class="hud-rel-node-halo" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r + 7}"/>`;
-    svg += `<circle class="hud-rel-node-bg" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}" fill="${color}"/>`;
+    svg += `<circle class="hud-rel-node-bg" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}" style="fill:${color}"/>`;
     svg += `<clipPath id="${clipId}"><circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r - 2}"/></clipPath>`;
     svg += `<text class="hud-rel-initials" x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" text-anchor="middle" dominant-baseline="central">${escapeHtml(commentInitials(node.name))}</text>`;
     if (url) svg += `<image href="${escapeHtml(url)}" x="${(p.x - r + 2).toFixed(1)}" y="${(p.y - r + 2).toFixed(1)}" width="${(r * 2 - 4).toFixed(1)}" height="${(r * 2 - 4).toFixed(1)}" clip-path="url(#${clipId})" preserveAspectRatio="xMidYMid slice"/>`;

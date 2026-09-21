@@ -5264,7 +5264,7 @@
    ставим то, что там было: перевёрнутую рыбацкую лодку и сеть на кольях.
    ========================================================================= */
 .hud-rowboat, .hud-fishnet { display: none; }
-.era-medieval :is(.hud-umbrella, .hud-volleyball-net, .hud-volleyball, .hud-surfboard, .hud-towel, .hud-towel-shadow, .hud-sandcastle-shovel, .hud-xmas-tree) { display: none !important; }
+.era-medieval :is(.hud-umbrella, .hud-volleyball-net, .hud-volleyball, .hud-surfboard, .hud-towel, .hud-towel-shadow, .hud-sandcastle-shovel, .hud-xmas-tree, .hud-pumpkins, .hud-fireworks) { display: none !important; }
 .era-medieval.season-summer .hud-rowboat {
   display: block; position: absolute; right: 22px; bottom: 2.4%; width: 96px; height: 30px; z-index: 7; pointer-events: none;
   filter: brightness(calc(1 - var(--scene-night-strength, 0) * .58)) saturate(calc(1 - var(--scene-night-strength, 0) * .55));
@@ -5400,3 +5400,271 @@
 .hud-row.f-flags, .hud-key-block.f-flags { --kind-mark: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2040%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M11%202.5v19%27%2F%3E%3Cpath%20d%3D%27M11%204.6h16l-3.4%204.4%203.4%204.4H11z%27%2F%3E%3C%2Fsvg%3E"); }
 .hud-row.f-exposure, .hud-key-block.f-exposure { --kind-mark: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2040%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M9%209.6l12-5v14.8l-12-5z%27%2F%3E%3Cpath%20d%3D%27M9%209.6H6.4v4.8H9%27%2F%3E%3Cpath%20d%3D%27M25.4%207.6c2.4%202.4%202.4%206.4%200%208.8M29.6%205c3.8%203.8%203.8%2010.2%200%2014%27%2F%3E%3C%2Fsvg%3E"); }
 .hud-row.kind-misc { --kind-mark: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2040%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.8%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M20%203l8%209-8%209-8-9z%27%2F%3E%3Cpath%20d%3D%27M20%208l3.5%204-3.5%204-3.5-4z%27%2F%3E%3C%2Fsvg%3E"); }
+
+/* =========================================================================
+   ОСЕННИЙ ОТЛЁТ: СТАЯ КЛИНОМ
+   Прежде пять птиц летели каждая сама по себе, с разными задержками, и небо
+   выглядело случайным разбросом. Теперь стая — один строй: вожак впереди,
+   два крыла клина тянутся назад, и весь клин плывёт через небо целиком.
+   Каждая птица слегка покачивается на месте (свойство translate, чтобы не
+   спорить с transform, которым задние сделаны мельче).
+   ========================================================================= */
+.season-autumn .hud-bird-flock {
+  inset: auto; top: 9%; left: 100%; width: 92px; height: 50px; z-index: 4; pointer-events: none;
+  animation: hud-flock-migrate 34s linear infinite;
+}
+.season-autumn .hud-bird-flock .hud-bird {
+  position: absolute; animation: hud-bird-bob 2.8s ease-in-out infinite !important; opacity: .82;
+}
+.season-autumn .hud-bird-flock .hud-bird.b1 { left: 0;    top: 21px; }
+.season-autumn .hud-bird-flock .hud-bird.b2 { left: 14px; top: 13px; animation-delay: .3s !important; }
+.season-autumn .hud-bird-flock .hud-bird.b3 { left: 14px; top: 29px; animation-delay: .5s !important; }
+.season-autumn .hud-bird-flock .hud-bird.b4 { left: 28px; top: 6px;  animation-delay: .8s !important; transform: scale(.9); }
+.season-autumn .hud-bird-flock .hud-bird.b5 { left: 28px; top: 36px; animation-delay: 1s !important;  transform: scale(.9); }
+.season-autumn .hud-bird-flock .hud-bird.b6 { left: 42px; top: -1px; animation-delay: 1.2s !important; transform: scale(.8); opacity: .7; }
+.season-autumn .hud-bird-flock .hud-bird.b7 { left: 42px; top: 43px; animation-delay: 1.5s !important; transform: scale(.8); opacity: .7; }
+.hud-bird.b6::before, .hud-bird.b6::after { animation-duration: .86s !important; animation-delay: .18s !important; }
+.hud-bird.b7::before, .hud-bird.b7::after { animation-duration: .74s !important; animation-delay: .4s !important; }
+@keyframes hud-flock-migrate {
+  0%   { left: 104%; translate: 0 0; }
+  100% { left: -30%; translate: 0 22px; }
+}
+@keyframes hud-bird-bob {
+  0%, 100% { translate: 0 0; }
+  50%      { translate: 0 -2px; }
+}
+/* Ночью журавли не летят. */
+:is(.phase-night, .phase-deep-night) .season-autumn .hud-bird-flock,
+.season-autumn:is(.phase-night, .phase-deep-night) .hud-bird-flock { display: none; }
+
+/* =========================================================================
+   ПРАЗДНИКИ (render/holidays.js решает, какой сегодня)
+   ========================================================================= */
+
+/* --- Хэллоуин: тыквы-фонари у ограды --------------------------------------- */
+.hud-pumpkins { position: absolute; left: 0; right: 0; bottom: 0; height: 30px; z-index: 13; pointer-events: none; }
+.hud-pumpkin {
+  position: absolute; bottom: 3px; width: 20px; height: 15px; border-radius: 48% 48% 44% 44% / 56% 56% 44% 44%;
+  background:
+    radial-gradient(ellipse 30% 90% at 22% 50%, rgba(120,40,0,.35), transparent 70%),
+    radial-gradient(ellipse 30% 90% at 78% 50%, rgba(120,40,0,.35), transparent 70%),
+    linear-gradient(90deg, transparent 47%, rgba(120,45,0,.45) 49% 51%, transparent 53%),
+    radial-gradient(circle at 40% 32%, #ffb347, #e8741a 60%, #9c4209 100%);
+  box-shadow: 0 2px 2px rgba(0,0,0,.3);
+}
+.hud-pumpkin.pk1 { left: calc(7% + 4px); }
+.hud-pumpkin.pk2 { left: calc(7% + 26px); width: 15px; height: 12px; }
+.hud-pumpkin.pk3 { left: 46%; width: 17px; height: 13px; }
+.hud-pumpkin-stem { position: absolute; left: 50%; top: -4px; width: 3px; height: 5px; margin-left: -1.5px; border-radius: 1px; background: #4c5a22; transform: rotate(8deg); }
+/* Резная рожица: глаза-треугольники и зубастый рот. Днём тёмная прорезь,
+   в сумерках внутри загорается свеча. */
+.hud-pumpkin-face {
+  position: absolute; inset: 22% 18% 16%;
+  background:
+    conic-gradient(from 150deg at 26% 34%, var(--pk-glow, #3a1500) 0 60deg, transparent 60deg) 0 0 / 100% 100% no-repeat,
+    conic-gradient(from 150deg at 74% 34%, var(--pk-glow, #3a1500) 0 60deg, transparent 60deg) 0 0 / 100% 100% no-repeat,
+    linear-gradient(var(--pk-glow, #3a1500), var(--pk-glow, #3a1500)) 50% 82% / 70% 22% no-repeat;
+  -webkit-mask: linear-gradient(#000 0 0) top / 100% 72% no-repeat, repeating-linear-gradient(90deg, #000 0 3px, transparent 3px 5px) bottom / 100% 28% no-repeat;
+          mask: linear-gradient(#000 0 0) top / 100% 72% no-repeat, repeating-linear-gradient(90deg, #000 0 3px, transparent 3px 5px) bottom / 100% 28% no-repeat;
+}
+:is(.phase-sunset, .phase-evening, .phase-night, .phase-deep-night, .phase-predawn) .hud-pumpkin-face,
+.hud-scene-widget:is(.phase-sunset, .phase-evening, .phase-night, .phase-deep-night, .phase-predawn) .hud-pumpkin-face {
+  --pk-glow: #ffd36b;
+  filter: drop-shadow(0 0 3px rgba(255,190,70,.95));
+  animation: hud-pumpkin-flicker 2.4s ease-in-out infinite;
+}
+:is(.phase-evening, .phase-night, .phase-deep-night) .hud-pumpkin,
+.hud-scene-widget:is(.phase-evening, .phase-night, .phase-deep-night) .hud-pumpkin { box-shadow: 0 2px 2px rgba(0,0,0,.3), 0 0 12px 2px rgba(255,150,40,.28); }
+@keyframes hud-pumpkin-flicker { 0%, 100% { opacity: 1; } 40% { opacity: .78; } 55% { opacity: .95; } 70% { opacity: .84; } }
+
+/* --- Пасха: крашеные яйца в траве и корзинка ------------------------------ */
+.hud-easter { position: absolute; left: 0; right: 0; bottom: 0; height: 26px; z-index: 13; pointer-events: none; }
+.hud-easter-egg {
+  position: absolute; bottom: 3px; width: 8px; height: 10px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
+  background: var(--egg, #e8577a);
+  box-shadow: inset -1.5px -1.5px 0 rgba(0,0,0,.18), 0 1px 1px rgba(0,0,0,.25);
+}
+.hud-easter-egg::after {
+  content: ''; position: absolute; left: 0; right: 0; top: 38%; height: 2px;
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.85) 0 2px, transparent 2px 3px);
+}
+.hud-easter-egg.eg1 { left: 12%; --egg: #e8577a; transform: rotate(-12deg); }
+.hud-easter-egg.eg2 { left: 23%; --egg: #57a8e8; transform: rotate(8deg); bottom: 6px; }
+.hud-easter-egg.eg3 { left: 41%; --egg: #f2c94c; transform: rotate(-4deg); }
+.hud-easter-egg.eg4 { left: 58%; --egg: #7ac96a; transform: rotate(14deg); bottom: 5px; }
+.hud-easter-egg.eg5 { left: 72%; --egg: #b07ae8; transform: rotate(-9deg); }
+.hud-easter-basket {
+  position: absolute; left: calc(30% + 4px); bottom: 2px; width: 28px; height: 13px;
+  border-radius: 2px 2px 12px 12px;
+  background: repeating-linear-gradient(90deg, #a86f33 0 3px, #8a5626 3px 5px), #9b6230;
+  box-shadow: inset 0 2px 0 rgba(255,220,160,.3), 0 1px 2px rgba(0,0,0,.35);
+}
+.hud-easter-basket::before {
+  content: ''; position: absolute; left: 3px; right: 3px; bottom: 8px; height: 14px;
+  border: 2px solid #8a5626; border-bottom: 0; border-radius: 14px 14px 0 0;
+}
+.hud-easter-basket .hud-easter-egg { bottom: 9px; width: 7px; height: 9px; }
+.hud-easter-basket .in1 { left: 3px; --egg: #e8577a; transform: rotate(-16deg); }
+.hud-easter-basket .in2 { left: 10px; --egg: #f2c94c; bottom: 10px; }
+.hud-easter-basket .in3 { left: 17px; --egg: #57a8e8; transform: rotate(14deg); }
+
+/* --- Новогодняя ночь: фейерверк ----------------------------------------------
+   Каждый залп: огонёк взлетает, вспыхивает кольцом искр и гаснет, оседая. */
+.hud-fireworks { position: absolute; inset: 0 0 38% 0; z-index: 7; pointer-events: none; overflow: hidden; mix-blend-mode: screen; }
+.hud-firework { position: absolute; bottom: 0; width: 2px; height: 100%; }
+.hud-firework.fw1 { left: 22%; --fw-top: 26%; --d: 0s; }
+.hud-firework.fw2 { left: 48%; --fw-top: 14%; --d: 1.4s; }
+.hud-firework.fw3 { left: 71%; --fw-top: 30%; --d: 2.6s; }
+.hud-firework.fw4 { left: 86%; --fw-top: 18%; --d: 3.7s; }
+.hud-firework-trail {
+  position: absolute; left: 0; bottom: 0; width: 2px; height: 16px; border-radius: 2px;
+  background: linear-gradient(to top, transparent, var(--fw));
+  animation: hud-fw-rise 4.8s cubic-bezier(.2,.7,.35,1) infinite; animation-delay: var(--d);
+  opacity: 0;
+}
+.hud-firework-burst {
+  position: absolute; left: 0; top: var(--fw-top); width: 3px; height: 3px; border-radius: 50%;
+  background: #fff6d8; transform: scale(0); opacity: 0;
+  animation: hud-fw-burst 4.8s ease-out infinite; animation-delay: var(--d);
+  filter: drop-shadow(0 0 3px var(--fw));
+}
+@keyframes hud-fw-rise {
+  0%   { bottom: 0; opacity: 0; }
+  4%   { opacity: 1; }
+  24%  { bottom: calc(100% - var(--fw-top) - 8px); opacity: 1; }
+  26%, 100% { bottom: calc(100% - var(--fw-top) - 8px); opacity: 0; }
+}
+@keyframes hud-fw-burst {
+  0%, 24% { transform: scale(0); opacity: 0; }
+  27%     { transform: scale(.35); opacity: 1; }
+  48%     { transform: scale(1) translateY(3px); opacity: .95; }
+  66%     { transform: scale(1.12) translateY(9px); opacity: 0; }
+  100%    { transform: scale(0); opacity: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hud-firework-trail { display: none; }
+  .hud-firework-burst { animation: none; transform: scale(1); opacity: .9; }
+  .season-autumn .hud-bird-flock { animation: none; left: 62%; }
+  .hud-pumpkin-face { animation: none !important; }
+}
+
+/* =========================================================================
+   ОТРАЖЕНИЯ В ВОДЕ
+   Пруд и лужа: внутри воды — перевёрнутая копия деревьев сцены
+   (render/scene.js, отражение()). Копия растянута до размера сцены и
+   сдвинута так, чтобы её координаты совпадали с настоящими деревьями, —
+   для этого водоём сообщает своё положение в долях сцены: --pl (левый
+   край), --pw (ширина), --ph (высота). Основания деревьев ложатся на
+   дальний берег, кроны уходят вниз, вода обрезает всё лишнее.
+   Море: остров и парус отражаются встроенным зеркалом браузера
+   (-webkit-box-reflect) — в Firefox его нет, там просто без отражения.
+   ========================================================================= */
+.season-winter .hud-winter-frozen-pond { --pl: 51; --pw: 46; --ph: 12.5; }
+/* Лужа — под деревом, иначе ей нечего отражать. */
+.hud-spring-puddle { --pl: 17; --pw: 14; --ph: 7; left: 17% !important; width: 14% !important; height: 7% !important; bottom: .6% !important; overflow: hidden; z-index: 6 !important;
+  /* Вода плотная: сквозь неё не должен просвечивать настоящий ствол, только отражение. */
+  opacity: 1 !important;
+  background: radial-gradient(60% 40% at 38% 30%, rgba(255,255,255,.35), transparent 70%), linear-gradient(180deg, #8fc0d4, #5d93ad) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5), 0 0 0 1px rgba(70,110,60,.35) !important; }
+@media (max-width: 700px) {
+  .season-winter .hud-winter-frozen-pond { --pl: 47; --pw: 50; --ph: 12; }
+}
+.hud-reflect { position: absolute; inset: 0; overflow: hidden; pointer-events: none; border-radius: inherit; z-index: 0; }
+.hud-reflect-world {
+  position: absolute; top: 0;
+  left: calc(var(--pl) / var(--pw) * -100%);
+  width: calc(100 / var(--pw) * 100%);
+  height: calc(100 / var(--ph) * 100%);
+  transform-origin: 0 0; transform: translateY(100%) scaleY(-1);
+}
+/* В отражении — только силуэт: ствол, ветви, крона. Скворечник, дятел,
+   листопад и прочая мелочь в воде не нужны. */
+.hud-reflect .hud-bg-tree > :not(.hud-bg-tree-trunk, .hud-bg-tree-branch, .hud-bg-tree-canopy, .hud-bg-tree-autumn-foliage) { display: none !important; }
+.hud-reflect .hud-bg-tree, .hud-reflect .hud-bg-tree * { animation: none !important; }
+/* Вода: отражение бледнее и мягче оригинала, тает к ближнему краю, по нему
+   бегут горизонтальные блики-рябь. */
+.hud-reflect-puddle { opacity: .42; filter: blur(.5px) saturate(.8);
+  -webkit-mask: linear-gradient(180deg, #000 10%, transparent 95%); mask: linear-gradient(180deg, #000 10%, transparent 95%); }
+.hud-reflect-puddle::after {
+  content: ''; position: absolute; inset: 0;
+  background: repeating-linear-gradient(180deg, rgba(255,255,255,.16) 0 1px, transparent 1px 3px);
+}
+/* Лёд: отражение смутное и голубоватое, как в матовом стекле. */
+.hud-reflect-ice { opacity: .5; filter: blur(.9px);
+  -webkit-mask: linear-gradient(180deg, #000 0%, transparent 80%); mask: linear-gradient(180deg, #000 0%, transparent 80%); }
+/* Зимой деревья высветлены под снег — на белом льду их отражение терялось.
+   В отражении они тёмные и голубоватые, как тень подо льдом. */
+.hud-reflect-ice .hud-bg-tree { filter: brightness(.5) saturate(.35) sepia(.2) hue-rotate(170deg) !important; }
+.season-winter .hud-winter-frozen-pond::before { z-index: 1; }
+.season-winter .hud-winter-frozen-pond::after { z-index: 2; }
+
+/* Море: остров и парус отражаются в воде под собой. */
+.season-summer .hud-summer-distant-island,
+.season-summer .hud-sailboat {
+  -webkit-box-reflect: below 0 linear-gradient(transparent 18%, rgba(0,0,0,.5));
+}
+
+/* =========================================================================
+   РИСК ЗАЧАТИЯ И ТЕСТ (render/intimacy.js, блокРиска, блокТеста)
+   Полоса риска по дню цикла с поправкой на защиту; если близость была —
+   кнопка теста. Сам бросок скрыт: он хранится в чате (render/conception.js).
+   При задержке остаётся одна кнопка теста.
+   ========================================================================= */
+.hud-conception {
+  margin-top: 10px; padding: 9px 11px 10px; border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--phase, var(--hud-accent)) 30%, transparent);
+  background: color-mix(in srgb, var(--phase, var(--hud-accent)) 8%, transparent);
+}
+.hud-conception-head { display: flex; justify-content: space-between; align-items: baseline; font-size: .86em; letter-spacing: .03em; }
+.hud-conception-head b { font-size: 1.35em; font-variant-numeric: tabular-nums; color: var(--phase, var(--hud-accent)); }
+.hud-conception-bar { display: block; height: 6px; margin: 6px 0 5px; border-radius: 6px; background: rgba(127,127,127,.2); overflow: hidden; }
+.hud-conception-bar > i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--phase, var(--hud-accent)) 55%, transparent), var(--phase, var(--hud-accent))); }
+.hud-conception.is-low  .hud-conception-bar > i { opacity: .55; }
+.hud-conception small { display: block; font-size: .78em; opacity: .75; }
+/* Тест на беременность: кнопка раскрывает тест-полоску. Контрольная линия
+   есть всегда, вторая — только при «+». Итог берётся из скрытого броска. */
+.hud-preg-test { margin-top: 9px; }
+.hud-preg-test > summary {
+  list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 12px; border-radius: 999px; font-size: .86em; user-select: none;
+  border: 1px solid color-mix(in srgb, var(--phase, var(--hud-accent)) 45%, transparent);
+  background: color-mix(in srgb, var(--phase, var(--hud-accent)) 14%, transparent);
+}
+.hud-preg-test > summary::-webkit-details-marker { display: none; }
+.hud-preg-test[open] > summary { opacity: .75; }
+.hud-test { display: flex; align-items: center; gap: 14px; margin-top: 10px; animation: hud-test-appear .9s ease-out both; }
+.hud-test-stick {
+  position: relative; width: 104px; height: 22px; border-radius: 11px; flex: 0 0 auto;
+  background: linear-gradient(180deg, #fbfbfd, #dcdde6); box-shadow: inset 0 -2px 0 rgba(0,0,0,.08), 0 2px 5px rgba(0,0,0,.3);
+}
+.hud-test-stick::before { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 28px; border-radius: 0 11px 11px 0; background: linear-gradient(180deg, color-mix(in srgb, var(--hud-accent, #8f7ae8) 55%, #fff), var(--hud-accent, #8f7ae8)); }
+.hud-conception.is-late { padding: 8px 11px; }
+.hud-conception.is-late .hud-preg-test { margin-top: 0; }
+.hud-test-window { position: absolute; left: 26px; top: 5px; width: 34px; height: 12px; border-radius: 3px; background: #f3f0f5; box-shadow: inset 0 1px 2px rgba(0,0,0,.2); }
+.hud-test-window b { position: absolute; top: 2px; bottom: 2px; width: 3px; border-radius: 1px; background: #d63b6b; }
+.hud-test-window .c-line { left: 9px; }
+.hud-test-window .t-line { left: 21px; animation: hud-test-line 1.6s ease-out both; }
+.hud-test-result strong { font-size: 1.6em; line-height: 1; color: var(--phase, var(--hud-accent)); }
+.hud-test.is-neg .hud-test-result strong { opacity: .7; }
+.hud-test-result p { margin: 2px 0 0; font-size: .86em; }
+@keyframes hud-test-appear { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: none; } }
+@keyframes hud-test-line { 0%, 35% { opacity: 0; } 100% { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .hud-test, .hud-test-window .t-line { animation: none; } }
+
+/* Кнопка голосового: белый треугольник на акценте терялся, когда акцент
+   светлый (золото «Академии», пастель «Каваи»). Притемняем подложку. */
+.hud-voice-btn { background: color-mix(in oklab, var(--hud-accent) 72%, #000); }
+
+/* Точка «идёт запись» в шапке перехвата. Стояла на фиксированном отступе
+   от центра строки, а надпись «ПЕРЕХВАТ (ИМЯ)» с длинным именем шире —
+   точка ложилась на первую букву. Теперь она часть самой надписи. */
+.hud-phone-mockup.intercept-mode .hud-phone-statusbar::after { content: none; }
+.hud-phone-mockup.intercept-mode .intercept-status { display: inline-flex; align-items: center; gap: 6px; min-width: 0; }
+.hud-phone-mockup.intercept-mode .intercept-status::before {
+  content: ''; flex: 0 0 auto; width: 5px; height: 5px; border-radius: 50%;
+  background: #ff3b30; box-shadow: 0 0 6px rgba(255,59,48,.9);
+  animation: hud-intercept-blink 1.7s steps(1, end) infinite paused;
+}
+.hud-phone-mockup.intercept-mode.fx-active .intercept-status::before { animation-play-state: running; }
+@media (hover: hover) { .hud-phone-mockup.intercept-mode:hover .intercept-status::before { animation-play-state: running; } }
+@media (prefers-reduced-motion: reduce) { .hud-phone-mockup.intercept-mode .intercept-status::before { animation: none; } }

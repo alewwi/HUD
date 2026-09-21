@@ -6,16 +6,16 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText } from '../utils.js?v=22.99.96';
-import { settings } from '../settings.js?v=22.99.96';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.99.96';
-import { G_ICONS } from './icons.js?v=22.99.96';
-import { buildMessengerHTML } from './messenger.js?v=22.99.96';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=22.99.96';
-import { сортироватьЧаты } from './msg-feed.js?v=22.99.96';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText } from '../utils.js?v=22.99.99';
+import { settings } from '../settings.js?v=22.99.99';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.99.99';
+import { G_ICONS } from './icons.js?v=22.99.99';
+import { buildMessengerHTML } from './messenger.js?v=22.99.99';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=22.99.99';
+import { сортироватьЧаты } from './msg-feed.js?v=22.99.99';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=22.99.96';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=22.99.99';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.

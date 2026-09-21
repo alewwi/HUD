@@ -33,11 +33,55 @@ function ручейСПерспективой() {
     + `<path class="glint" d="M${середина.slice(6).join(' L')}"/></svg>`;
 }
 
+// Сцена сезона и поверх неё — праздничное убранство: праздник от сезона не
+// зависит (снег может выпасть и на Хэллоуин).
 export function buildSeasonSceneHtml(seasonClass, extra) {
   extra = extra || {};
+  return сценаСезона(seasonClass, extra) + праздничное(extra);
+}
+
+// Тыквы, крашеные яйца, фейерверк. Какие праздники сегодня — решает
+// render/holidays.js по дате сцены.
+function праздничное(extra) {
+  let html = '';
+  if (extra.halloween) {
+    // Три тыквы-фонаря у ограды: у каждой своя резная рожица.
+    html += '<div class="hud-pumpkins" aria-hidden="true">'
+      + [1, 2, 3].map(i => `<span class="hud-pumpkin pk${i}"><i class="hud-pumpkin-stem"></i><i class="hud-pumpkin-face"></i></span>`).join('')
+      + '</div>';
+  }
+  if (extra.easter) {
+    const яйца = [1, 2, 3, 4, 5].map(i => `<span class="hud-easter-egg eg${i}"></span>`).join('');
+    html += `<div class="hud-easter" aria-hidden="true">${яйца}<span class="hud-easter-basket"><i class="hud-easter-egg in1"></i><i class="hud-easter-egg in2"></i><i class="hud-easter-egg in3"></i></span></div>`;
+  }
+  if (extra.fireworks) {
+    // Каждый залп — точка с кольцом искр из box-shadow: восемнадцать искр по
+    // кругу, у каждого залпа свой цвет и своё место в небе.
+    const ЦВЕТА = ['#ff5f7e', '#ffd166', '#7ae7ff', '#c79bff'];
+    const залпы = ЦВЕТА.map((цвет, i) => {
+      const искры = Array.from({ length: 18 }, (_, k) => {
+        const угол = (k / 18) * Math.PI * 2, r = 26 + (k % 3) * 4;
+        return `${Math.round(Math.cos(угол) * r)}px ${Math.round(Math.sin(угол) * r)}px 1.5px .8px ${k % 2 ? цвет : "#fff6d8"}`;
+      }).join(',');
+      return `<span class="hud-firework fw${i + 1}" style="--fw:${цвет}"><i class="hud-firework-trail"></i><i class="hud-firework-burst" style="box-shadow:${искры}"></i></span>`;
+    }).join('');
+    html += `<div class="hud-fireworks" aria-hidden="true">${залпы}</div>`;
+  }
+  return html;
+}
+
+// Отражение деревьев в воде: та же разметка деревьев, перевёрнутая вокруг
+// кромки воды и выровненная по координатам сцены (CSS считает сдвиг из
+// положения водоёма). Вода обрезает копию по своему контуру, поэтому
+// отражаются ровно те деревья, что стоят над ней.
+function отражение(деревья, вид) {
+  return `<div class="hud-reflect hud-reflect-${вид}" aria-hidden="true"><div class="hud-reflect-world"><div class="hud-bg-trees">${деревья}</div></div></div>`;
+}
+
+function сценаСезона(seasonClass, extra) {
   if (seasonClass === 'season-autumn') {
     let birds = '';
-    for (let i = 1; i <= 5; i++) birds += `<span class="hud-bird b${i}"></span>`;
+    for (let i = 1; i <= 7; i++) birds += `<span class="hud-bird b${i}"></span>`;
     // Autumn background: one apple tree (bt2), two leaf-fall trees (bt1/bt4),
     // one plain tree (bt3). This keeps the scene varied without animating every tree.
     let backTrees = '';
@@ -115,7 +159,7 @@ export function buildSeasonSceneHtml(seasonClass, extra) {
     const пух = конецМая ? `<div class="hud-fluff-layer">${[1, 2, 3, 4, 5, 6].map(i => `<i class="hud-fluff fl${i}"></i>`).join('')}</div>` : '';
     // Лейка у клумбы: сад поливают, когда уже есть что поливать.
     const лейка = март ? '' : '<div class="hud-watering-can"><i class="hud-can-body"></i><i class="hud-can-spout"></i><i class="hud-can-handle"></i></div>';
-    return `<div class="hud-far-hills"></div><div class="hud-far-treeline"></div><div class="hud-meadow"></div><div class="hud-spring-puddle"></div>${мартовское}<div class="hud-frog"><span class="hud-frog-sac"></span><span class="hud-frog-body"></span><span class="hud-frog-eye e1"></span><span class="hud-frog-eye e2"></span><span class="hud-frog-leg"></span><i class="hud-frog-call c1"></i><i class="hud-frog-call c2"></i></div><div class="hud-blossom-shrub"><span class="hud-shrub-body"></span><span class="hud-shrub-bloom b1"></span><span class="hud-shrub-bloom b2"></span><span class="hud-shrub-bloom b3"></span></div>${майское}<div class="hud-grass">${tufts}${puffs}<span class="hud-snail"></span><span class="hud-sprout sp1"></span><span class="hud-sprout sp2"></span></div><div class="hud-bg-trees">${backTrees}</div>${клин}<div class="hud-flowerbed">${flowers}</div>${лейка}${pollen}${dew}${лепестки}${пух}<div class="hud-butterfly"><span class="hud-butterfly-wing w-left"></span><span class="hud-butterfly-wing w-right"></span></div><div class="hud-bee bee1"><span class="hud-bee-wing"></span></div><div class="hud-bee bee2"><span class="hud-bee-wing"></span></div>`;
+    return `<div class="hud-far-hills"></div><div class="hud-far-treeline"></div><div class="hud-meadow"></div><div class="hud-spring-puddle">${отражение(backTrees, 'puddle')}</div>${мартовское}<div class="hud-frog"><span class="hud-frog-sac"></span><span class="hud-frog-body"></span><span class="hud-frog-eye e1"></span><span class="hud-frog-eye e2"></span><span class="hud-frog-leg"></span><i class="hud-frog-call c1"></i><i class="hud-frog-call c2"></i></div><div class="hud-blossom-shrub"><span class="hud-shrub-body"></span><span class="hud-shrub-bloom b1"></span><span class="hud-shrub-bloom b2"></span><span class="hud-shrub-bloom b3"></span></div>${майское}<div class="hud-grass">${tufts}${puffs}<span class="hud-snail"></span><span class="hud-sprout sp1"></span><span class="hud-sprout sp2"></span></div><div class="hud-bg-trees">${backTrees}</div>${клин}<div class="hud-flowerbed">${flowers}</div>${лейка}${pollen}${dew}${лепестки}${пух}<div class="hud-butterfly"><span class="hud-butterfly-wing w-left"></span><span class="hud-butterfly-wing w-right"></span></div><div class="hud-bee bee1"><span class="hud-bee-wing"></span></div><div class="hud-bee bee2"><span class="hud-bee-wing"></span></div>`;
   }
   if (seasonClass === 'season-summer') {
     // Стрекоза — вид сверху, как её узнают: две пары прозрачных крыльев в
@@ -187,7 +231,7 @@ export function buildSeasonSceneHtml(seasonClass, extra) {
     for (let i = 1; i <= 4; i++) {
       backTrees += `<span class="hud-bg-tree hud-bg-tree-winter bt${i}"><span class="hud-bg-tree-trunk"></span><span class="hud-bg-tree-branch br1"></span><span class="hud-bg-tree-branch br2"></span><span class="hud-bg-tree-branch br3"></span></span>`;
     }
-    return `<div class="hud-winter-distant-forest"></div><div class="hud-winter-aurora"></div>${village}<div class="hud-icicle-row">${icicles}</div><div class="hud-ground hud-ground-snow"></div><div class="hud-winter-frozen-pond"></div><div class="hud-bg-trees">${backTrees}</div>${drifts}${xmas}${sparkle}<div class="hud-snowman"><span class="hud-snowman-shadow"></span><span class="hud-snowman-arm arm-left"></span><span class="hud-snowman-arm arm-right"></span><span class="hud-snowman-ball ball-bottom"></span><span class="hud-snowman-ball ball-mid"></span><span class="hud-snowman-button btn1"></span><span class="hud-snowman-button btn2"></span><span class="hud-snowman-button btn3"></span><span class="hud-snowman-ball ball-head"></span><span class="hud-snowman-eye eye-left"></span><span class="hud-snowman-eye eye-right"></span><span class="hud-snowman-carrot"></span><span class="hud-snowman-mouth"><span class="hud-snowman-pebble p1"></span><span class="hud-snowman-pebble p2"></span><span class="hud-snowman-pebble p3"></span><span class="hud-snowman-pebble p4"></span><span class="hud-snowman-pebble p5"></span></span><span class="hud-snowman-hat-brim"></span><span class="hud-snowman-hat-top"></span></div>`;
+    return `<div class="hud-winter-distant-forest"></div><div class="hud-winter-aurora"></div>${village}<div class="hud-icicle-row">${icicles}</div><div class="hud-ground hud-ground-snow"></div><div class="hud-winter-frozen-pond">${отражение(backTrees, 'ice')}</div><div class="hud-bg-trees">${backTrees}</div>${drifts}${xmas}${sparkle}<div class="hud-snowman"><span class="hud-snowman-shadow"></span><span class="hud-snowman-arm arm-left"></span><span class="hud-snowman-arm arm-right"></span><span class="hud-snowman-ball ball-bottom"></span><span class="hud-snowman-ball ball-mid"></span><span class="hud-snowman-button btn1"></span><span class="hud-snowman-button btn2"></span><span class="hud-snowman-button btn3"></span><span class="hud-snowman-ball ball-head"></span><span class="hud-snowman-eye eye-left"></span><span class="hud-snowman-eye eye-right"></span><span class="hud-snowman-carrot"></span><span class="hud-snowman-mouth"><span class="hud-snowman-pebble p1"></span><span class="hud-snowman-pebble p2"></span><span class="hud-snowman-pebble p3"></span><span class="hud-snowman-pebble p4"></span><span class="hud-snowman-pebble p5"></span></span><span class="hud-snowman-hat-brim"></span><span class="hud-snowman-hat-top"></span></div>`;
   }
   return '';
 }
