@@ -11,12 +11,12 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache } from './avatars.js?v=23.0.2';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.0.2';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.0.2';
-import { getTheme, themeVars, presetRowHTML, THEME_KEYS , themeSnapshot, parseThemeFile } from './themes.js?v=23.0.2';
-import { settings, defaultSettings } from './settings.js?v=23.0.2';
-import { getWorldVotes } from './render/world.js?v=23.0.2';
+import { invalidateAvatarCache } from './avatars.js?v=23.3.4';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.3.4';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.3.4';
+import { getTheme, themeVars, presetRowHTML, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.3.4';
+import { settings, defaultSettings } from './settings.js?v=23.3.4';
+import { getWorldVotes } from './render/world.js?v=23.3.4';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -168,6 +168,49 @@ function переключитьПодсказку(значок, ctx) {
   значок.classList.add('is-open');
 }
 
+// --- «Шаг назад» в кастомизации --------------------------------------------
+// Перед каждой правкой (ползунок, цвет, тема, откат, файл) запоминаем все
+// настройки вида. Подряд идущие движения одного ползунка — один шаг, иначе
+// «назад» пришлось бы жать по разу на каждый пиксель. Так же возвращается
+// и тема, на которую переключились случайно, не запомнив правки прошлой.
+const историяВида = [];
+let последнийКлюч = '', последнийМомент = 0;
+function снимокВида() {
+  const о = { themePreset: settings.themePreset || '' };
+  КЛЮЧИ_ВИДА.forEach(k => { о[k] = settings[k]; });
+  return о;
+}
+function запомнитьШаг(ключ = '') {
+  const сейчас = Date.now();
+  if (ключ && ключ === последнийКлюч && сейчас - последнийМомент < 1500) { последнийМомент = сейчас; return; }
+  последнийКлюч = ключ; последнийМомент = сейчас;
+  историяВида.push(снимокВида());
+  if (историяВида.length > 60) историяВида.shift();
+}
+// Значения темы «как задумано»: заводские для всех ключей вида и сама тема
+// поверх — без пользовательских правок.
+function исходнаяТема(id) {
+  const о = {};
+  КЛЮЧИ_ВИДА.forEach(k => { if (defaultSettings[k] !== undefined) о[k] = defaultSettings[k]; });
+  const t = getTheme(id);
+  if (t) Object.assign(о, t.vars);
+  return о;
+}
+
+// Поля телефона, которые при наследовании берутся у HUD, и их значения.
+const НАСЛЕДУЕТ_ТЕЛЕФОН = ['phoneBgStart', 'phoneBgEnd', 'phoneBgAlpha', 'phoneAccent', 'phoneBlur', 'phoneFont', 'phoneFontSize'];
+function унаследованноеТелефоном() {
+  return {
+    phoneBgStart: settings.cardBgStart || '#0a0a0f',
+    phoneBgEnd: settings.cardBgEnd || '#12121a',
+    phoneBgAlpha: 92,
+    phoneAccent: settings.accentColor || '#de859f',
+    phoneBlur: settings.backdropBlur !== undefined ? Number(settings.backdropBlur) + 6 : 14,
+    phoneFont: settings.fontMain || 'inherit',
+    phoneFontSize: settings.fontSizeMain !== undefined ? Number(settings.fontSizeMain) - 1 : 13,
+  };
+}
+
 export function initGlobalEvents(ctx) {
   // settings и getWorldVotes раньше брались из ctx, но index.js их туда не
   // клал: обе ссылки молча оставались undefined. Внутри обработчика клика
@@ -264,9 +307,9 @@ export function initGlobalEvents(ctx) {
     if (themeBtn) {
       e.preventDefault();
       e.stopPropagation();
-      const card = themeBtn.closest('.hud-os-card');
-      const panel = card.querySelector('.hud-theme-panel');
-      if (panel) panel.classList.toggle('active');
+      // Кастомизация живёт в отдельном окне (index.js, открытьКастомизацию):
+      // слева настройки, справа живой HUD.
+      document.dispatchEvent(new CustomEvent('hud:customize'));
       return;
     }
 
@@ -280,6 +323,7 @@ export function initGlobalEvents(ctx) {
       const act = actBtn.dataset.themeAct;
       // Обнулить цвет текста — вернуть наследование из темы SillyTavern.
       if (act === 'cleartext') {
+        запомнитьШаг();
         settings.textColor = ''; settings.textMutedColor = '';
         saveSettings(); applyThemeColors();
         showHudToast('success', 'Цвет текста сброшен', 'HUD снова берёт цвет из темы SillyTavern.');
@@ -288,7 +332,7 @@ export function initGlobalEvents(ctx) {
       const id = settings.themePreset || '';
       const snapshot = () => {
         const out = {};
-        THEME_KEYS.forEach(k => { if (settings[k] !== undefined) out[k] = settings[k]; });
+        КЛЮЧИ_ВИДА.forEach(k => { if (settings[k] !== undefined) out[k] = settings[k]; });
         return out;
       };
 
@@ -296,9 +340,9 @@ export function initGlobalEvents(ctx) {
         if (!id) { showHudToast('error', 'Тема не выбрана', 'Сначала выберите тему — правки запоминаются для неё.'); return; }
         // Храним только то, что реально отличается от самой темы: так
         // сохранённое остаётся правкой, а не полной копией.
-        const base = (getTheme(id) || { vars: {} }).vars;
+        const base = исходнаяТема(id);
         const diff = {};
-        THEME_KEYS.forEach(k => {
+        КЛЮЧИ_ВИДА.forEach(k => {
           if (settings[k] === undefined) return;
           if (String(settings[k]) !== String(base[k])) diff[k] = settings[k];
         });
@@ -312,12 +356,11 @@ export function initGlobalEvents(ctx) {
 
       if (act === 'revert') {
         if (!id) { showHudToast('error', 'Тема не выбрана', 'Возвращать нечего.'); return; }
+        запомнитьШаг();
         if (settings.themeEdits) delete settings.themeEdits[id];
-        THEME_KEYS.forEach(k => { if (defaultSettings[k] !== undefined) settings[k] = defaultSettings[k]; });
-        const base = themeVars(id);
-        if (base) Object.assign(settings, base);
+        Object.assign(settings, исходнаяТема(id));
         saveSettings(); applyThemeColors(); syncThemeInputs();
-        showHudToast('success', 'Тема возвращена', 'Исходные значения на месте.');
+        showHudToast('success', 'Тема возвращена', 'Исходные значения на месте. «↶ Шаг назад» вернёт правки.');
         return;
       }
 
@@ -356,6 +399,7 @@ export function initGlobalEvents(ctx) {
           try {
             const тема = parseThemeFile(await файл.text());
             if (!тема) { showHudToast('error', 'Не похоже на тему', 'В файле не нашлось ни одного знакомого поля.'); return; }
+            запомнитьШаг();
             settings.customTheme = { label: тема.label, icon: тема.icon, vars: тема.vars };
             settings.themePreset = 'custom';
             if (settings.themeEdits) delete settings.themeEdits.custom;
@@ -368,6 +412,16 @@ export function initGlobalEvents(ctx) {
           }
         });
         поле.click();
+        return;
+      }
+
+      if (act === 'undo') {
+        const шаг = историяВида.pop();
+        последнийКлюч = '';
+        if (!шаг) { showHudToast('error', 'Отменять нечего', 'С начала сеанса правок вида не было.'); return; }
+        Object.assign(settings, шаг);
+        saveSettings(); applyThemeColors(); redrawPresets(); syncThemeInputs();
+        showHudToast('success', 'Шаг назад', историяВида.length ? 'Можно отменить ещё ' + историяВида.length + '.' : 'Это была первая правка сеанса.');
         return;
       }
 
@@ -392,6 +446,12 @@ export function initGlobalEvents(ctx) {
       e.stopPropagation();
       const id = presetBtn.dataset.themePreset || '';
       const theme = getTheme(id);
+      // Правки прошлой темы, которые не запомнили: предупредим, что их
+      // вернёт «Шаг назад», — молча они не пропадают.
+      const прошлая = settings.themePreset || '';
+      const незапомнено = прошлая && прошлая !== id && getTheme(прошлая)
+        && КЛЮЧИ_ВИДА.some(k => settings[k] !== undefined && String(settings[k]) !== String((themeVars(прошлая) || {})[k] ?? defaultSettings[k]));
+      запомнитьШаг();
       // Сначала возвращаем заводские значения всех ключей, которые вообще
       // трогают темы: иначе прошлая тема оставила бы после себя хвосты —
       // например, шрифт от «Киберпанка» в «Средневековье».
@@ -407,7 +467,8 @@ export function initGlobalEvents(ctx) {
         b.classList.toggle('active', (b.dataset.themePreset || '') === settings.themePreset);
       });
       showHudToast('success', theme ? theme.label : 'Стандартная тема',
-        theme ? theme.hint : 'Цвета вернулись к исходным.');
+        (theme ? theme.hint : 'Цвета вернулись к исходным.')
+        + (незапомнено ? ' Правки прошлой темы не запомнены — «↶ Шаг назад» вернёт их.' : ''));
       return;
     }
 
@@ -920,6 +981,7 @@ export function initGlobalEvents(ctx) {
           : /Blur$|Radius$|Size$/.test(k) ? settings[k] + 'px' : settings[k];
       }
     });
+    document.querySelectorAll('.hud-phone-theme-auto').forEach(c => { c.checked = settings.phoneThemeAuto !== false; });
   }
 
   // Ряд пресетов пересобираем, когда появляется или исчезает своя тема.
@@ -988,14 +1050,38 @@ export function initGlobalEvents(ctx) {
     emulator.classList.add('unlocked');
   });
 
+  document.body.addEventListener('change', (e) => {
+    const галка = e.target.closest && e.target.closest('.hud-phone-theme-auto');
+    if (!галка) return;
+    запомнитьШаг();
+    settings.phoneThemeAuto = галка.checked;
+    saveSettings(); applyThemeColors(); syncThemeInputs();
+  });
+
   document.body.addEventListener('input', function(e) {
     const themeInput = e.target.closest('.hud-theme-color-input, .hud-theme-range-input, .hud-theme-select-input, .hud-theme-text-input');
     if (themeInput) {
         const varKey = themeInput.dataset.key;
+        // Без ключа — не поле темы (например, «Эпоха» в настройках делит с
+        // ними класс): иначе в настройки писался ключ «undefined».
+        if (!varKey) return;
+        if (varKey === 'bgImage') return;
+        if (String(settings[varKey]) !== String(themeInput.value)) запомнитьШаг(varKey);
+        // Телефон наследовал тему HUD, а человек правит его фон, акцент,
+        // блюр или шрифт: наследование снимаем, но сначала переносим в свои
+        // поля то, что телефон показывал, — иначе остальные его настройки
+        // скакнули бы к старым сохранённым значениям.
+        // Значение читаем до синхронизации полей: она перепишет и это поле.
+        const новоеЗначение = themeInput.value;
+        if (НАСЛЕДУЕТ_ТЕЛЕФОН.includes(varKey) && settings.phoneThemeAuto !== false) {
+          Object.assign(settings, унаследованноеТелефоном());
+          settings.phoneThemeAuto = false;
+          settings[varKey] = новоеЗначение;
+          syncThemeInputs();
+          showHudToast('success', 'Телефон — своя тема', 'Наследование темы HUD снято, чтобы правка не пропадала. Вернуть — галочкой «Наследовать тему HUD».');
+        }
         
-        if (varKey === 'bgImage') return; 
-        
-        settings[varKey] = themeInput.value;
+        settings[varKey] = новоеЗначение;
         
         applyThemeColors(); 
         saveSettings();     

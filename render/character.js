@@ -4,15 +4,16 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=23.0.2';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.0.2';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.0.2';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=23.0.2';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=23.3.4';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.3.4';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.3.4';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=23.3.4';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову } from './intimacy.js?v=23.0.2';
-import { settings } from '../settings.js?v=23.0.2';
-import { namesLikelySame } from '../names.js?v=23.0.2';
-import { parseRelationList } from './relations-graph.js?v=23.0.2';
+  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову } from './intimacy.js?v=23.3.4';
+import { buildPregnancy } from './pregnancy.js?v=23.3.4';
+import { settings } from '../settings.js?v=23.3.4';
+import { namesLikelySame } from '../names.js?v=23.3.4';
+import { parseRelationList } from './relations-graph.js?v=23.3.4';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле'];
@@ -535,23 +536,6 @@ function строкаЗдоровья(з, класс, значок) {
     + (з.текст ? `<p class="hud-health-note">${applyTooltips(з.текст)}</p>` : '') + з.карточки + `</div></div>`;
 }
 
-// Беременность: срок шкалой на сорок недель с засечками триместров.
-function buildPregnancy(value) {
-  const п = поМеткам(value);
-  const неделя = parseInt(String(п['неделя'] || '').replace(/[^\d]/g, ''), 10);
-  const н = Number.isFinite(неделя) && неделя > 0 ? Math.min(неделя, 42) : null;
-  const триместр = н === null ? '' : н < 14 ? 'I триместр' : н < 28 ? 'II триместр' : 'III триместр';
-  return `<div class="hud-prg">`
-    + `<div class="hud-prg-head"><span class="hud-prg-ico" aria-hidden="true">🤰</span><b>${н === null ? 'Срок не назван' : н + '-я неделя'}</b>`
-    + `${триместр ? `<em>${триместр}</em>` : ''}${п['роды'] ? `<small>роды: ${escapeHtml(п['роды'])}</small>` : ''}</div>`
-    + (н !== null ? `<div class="hud-prg-meter" title="${н} из 40 недель"><i style="width:${Math.min(100, н / 40 * 100).toFixed(1)}%"></i><s style="left:32.5%"></s><s style="left:67.5%"></s></div>` : '')
-    + строкаПодписи('Отец', п['отец'])
-    + строкаПодписи('Симптомы', п['симптомы'])
-    + строкаПодписи('Кто знает', п['кто знает'])
-    + строкаПодписи('Как проходит', п['как проходит'])
-    + `</div>`;
-}
-
 // Что о вас думают: отношение каждого персонажа к игроку из его «Отношений»
 // и число из «Доверия». Модели ничего дописывать не нужно — сводка
 // собирается из того, что уже есть в карточках.
@@ -620,9 +604,9 @@ export function buildUserHTML(userData, uid, isChecked, characters) {
     } else if (label.toLowerCase().includes('nsfw')) {
       rows += `<div class="${rowClass}"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>🔞</span></i> ${escapeHtml(надписьПоля(label))}:</span> <div class="hud-vertical-container hud-nsfw-list is-act">${buildPillList(безГрудиУМужчин(value, userData, true), 'hud-nsfw-pill')}</div></div>`;
     } else if (label.toLowerCase() === 'цикл') {
-      rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}Менструальный цикл:</span> ${buildCycle(value, { ...контекстЗачатия(userData, characters), кто: 'user' })}</div>`;
+      rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}Менструальный цикл:</span> ${buildCycle(value, { ...контекстЗачатия(userData, characters), кто: 'user', сцена: userData && userData.__датаСцены })}</div>`;
     } else if (label.toLowerCase() === 'беременность') {
-      rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${buildPregnancy(value)}</div>`;
+      rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${buildPregnancy(value, { сцена: userData && userData.__датаСцены })}</div>`;
     } else {
       rows += `<div class="${rowClass}"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${значениеПоля(label.toLowerCase(), value, 'hud-value')}</div>`;
     }
@@ -711,14 +695,14 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       if (!здоровьеПоказано) { здоровьеПоказано = true; html += строкаЗдоровья(здоровье, rowClass.replace(' full-width', ''), значокПоля('здоровье')); }
       if (lowerKey === 'следы на теле' && здоровье.следы) html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${здоровье.следы}</div>`;
     } else if (lowerKey === 'цикл') {
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}Менструальный цикл:</span> ${buildCycle(value, { ...контекстЗачатия(charData), кто: 'char:' + String(charData['Имя'] || '').trim() })}</div>`;
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}Менструальный цикл:</span> ${buildCycle(value, { ...контекстЗачатия(charData), кто: 'char:' + String(charData['Имя'] || '').trim(), сцена: charData.__датаСцены })}</div>`;
     } else if (lowerKey === 'карта тела') {
       // Картинкой: силуэт спереди и сзади, зоны залиты по силе, на них — следы.
       // Выключено в настройках — прежний список зон со шкалами.
       const карта = settings.enableHeatMap !== false ? buildHeatMap(value, charData) : '';
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${карта || `<div class="hud-bodymap">${buildBodyMap(value)}</div>`}</div>`;
     } else if (lowerKey === 'беременность') {
-      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${buildPregnancy(value)}</div>`;
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${buildPregnancy(value, { сцена: charData.__датаСцены })}</div>`;
     } else if (lowerKey === 'ключ') {
       const items = String(value).split(';').filter(i => i.trim().length > 0).map(i => `<div class="hud-key-item">${formatKeyValue(i.trim())}</div>`).join('');
       html += `<div class="hud-key-block full-width kind-mind f-key"><span class="hud-key-label">${escapeHtml(key)}:</span> <div class="hud-vertical-container hud-key-list">${items}</div></div>`;

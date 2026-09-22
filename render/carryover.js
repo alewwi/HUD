@@ -14,13 +14,13 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.0.2';
-import { проставитьДень } from './msg-feed.js?v=23.0.2';
-import { normalizeJSONData } from '../schema.js?v=23.0.2';
-import { settings } from '../settings.js?v=23.0.2';
-import { статусРужья } from '../codes.js?v=23.0.2';
-import { extractHudBlock } from '../hud-block.js?v=23.0.2';
-import { namesLikelySame } from '../names.js?v=23.0.2';
+import { parseHUDComplex } from '../hud-parser.js?v=23.3.4';
+import { проставитьДень } from './msg-feed.js?v=23.3.4';
+import { normalizeJSONData } from '../schema.js?v=23.3.4';
+import { settings } from '../settings.js?v=23.3.4';
+import { статусРужья } from '../codes.js?v=23.3.4';
+import { extractHudBlock } from '../hud-block.js?v=23.3.4';
+import { namesLikelySame } from '../names.js?v=23.3.4';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');

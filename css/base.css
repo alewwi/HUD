@@ -6463,22 +6463,25 @@
 .phase-deep-night .hud-fx-celestial::before { animation-duration: 8s; }
 
 /* --- НОЧНОЕ ЗАТЕМНЕНИЕ --------------------------------------------------- */
-/* Ночью сцена уходит в холодную синеву, к глубокой ночи — сильнее. */
+/* Ночью сцена уходит в холодную синеву, к глубокой ночи — сильнее.
+   Фазы задают только background-image: цвет фона — это свой оттенок
+   сцены («Оверлей» в кастомизации), и градиент ложится поверх него.
+   Раньше сокращённое background стирало оттенок весь вечер и ночь. */
 .hud-fx-overlay { transition: background 1.6s ease, backdrop-filter 1.6s ease; }
 .phase-evening .hud-fx-overlay {
-  background: linear-gradient(180deg,
+  background-image: linear-gradient(180deg,
     rgba(12,16,34, calc(.20 * var(--scene-dark-k, 1))),
     rgba(6,9,22, calc(.34 * var(--scene-dark-k, 1))));
 }
 .phase-night .hud-fx-overlay {
-  background:
+  background-image:
     radial-gradient(120% 90% at 50% 0%, rgba(24,32,68,.16), transparent 60%),
     linear-gradient(180deg,
       rgba(8,11,26, calc(.40 * var(--scene-dark-k, 1))),
       rgba(4,6,16, calc(.56 * var(--scene-dark-k, 1))));
 }
 .phase-deep-night .hud-fx-overlay {
-  background:
+  background-image:
     radial-gradient(120% 90% at 50% 0%, rgba(20,26,58,.20), transparent 58%),
     linear-gradient(180deg,
       rgba(5,7,18, calc(.56 * var(--scene-dark-k, 1))),
@@ -8715,9 +8718,13 @@
    абсолютный и накрывает домашний: без своей подложки сквозь него
    просвечивали иконки и уведомления. Ему нужен фон телефона. */
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
-  .hud-phone-emulator, .hud-phone-home-screen,
+  .hud-phone-emulator,
   .hud-phone-chat-area, .hud-phone-chat-list, .hud-phone-bottom-bar
 ) { background: transparent !important; }
+/* Домашний экран — фон телефона из настроек («Фон экрана»). У светлых тем
+   он и так светлый; прозрачность глушила настройку, и фон экрана
+   на светлой теме было не поменять. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-home-screen { background: var(--hud-phone-bg) !important; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-app-view {
   /* Плотная подложка под градиентом: сам градиент темы полупрозрачный
      (это её настройка), и сквозь него просвечивали иконки домашнего. */
@@ -8771,7 +8778,9 @@
 
 /* Исходящие пузыри остаются цветными, входящие становятся бумажными. */
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-msg-wrapper.incoming .hud-msg-bubble {
-  background: var(--lt-paper) !important;
+  /* Цвет входящих — из настроек: у светлых тем он и так светлый (бумага),
+     а прибитая бумага глушила «Входящие сообщения». */
+  background: var(--hud-msg-in, var(--lt-paper)) !important;
   border: 1px solid var(--lt-line);
 }
 

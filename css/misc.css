@@ -5668,3 +5668,419 @@
 .hud-phone-mockup.intercept-mode.fx-active .intercept-status::before { animation-play-state: running; }
 @media (hover: hover) { .hud-phone-mockup.intercept-mode:hover .intercept-status::before { animation-play-state: running; } }
 @media (prefers-reduced-motion: reduce) { .hud-phone-mockup.intercept-mode .intercept-status::before { animation: none; } }
+
+/* =========================================================================
+   ЦИКЛ: ЦВЕТА ИЗ ТЕМЫ И СЕМЬ ВИДОВ (render/intimacy.js, ВИДЫ_ЦИКЛА)
+   Фазы — оттенки акцента HUD: месячные темнее, овуляция светлее,
+   фолликулярная приглушена, лютеиновая уведена в серость. Прежние жёсткие
+   зелёный, золотой и оранжевый (задержка) выбивались из любой темы.
+   ========================================================================= */
+.hud-cycle {
+  --cyc-a: var(--hud-accent, #c31f38);
+  --cyc-menstrual: color-mix(in oklab, var(--cyc-a) 76%, #000);
+  --cyc-follicular: color-mix(in oklab, var(--cyc-a) 36%, #2a1820);
+  --cyc-ovulation: color-mix(in oklab, var(--cyc-a) 80%, #fff);
+  --cyc-luteal: color-mix(in oklab, var(--cyc-a) 48%, #6f6470);
+  --cyc-fert: color-mix(in oklab, var(--cyc-a) 60%, #fff);
+  --cyc-shadow: rgba(10, 5, 8, .84);
+  --phase: var(--cyc-ovulation);
+}
+.hud-kinds-light .hud-cycle {
+  --cyc-follicular: color-mix(in oklab, var(--cyc-a) 26%, #fff);
+  --cyc-ovulation: color-mix(in oklab, var(--cyc-a) 88%, #fff);
+  --cyc-fert: color-mix(in oklab, var(--cyc-a) 75%, #000);
+  --cyc-shadow: rgba(255, 255, 255, .78);
+}
+.hud-cycle.is-late { --phase: var(--cyc-menstrual); }
+.hud-cycle-late, .hud-cycle-row.is-late span { color: var(--cyc-ovulation); }
+.hud-cycle-late i { background: var(--cyc-menstrual); }
+.hud-cycle-badge.is-fertile, .hud-cycle-badge.is-pms {
+  background: color-mix(in oklab, var(--cyc-a) 20%, transparent);
+  border-color: color-mix(in oklab, var(--cyc-a) 52%, transparent);
+}
+.hud-cycle-phase b { color: var(--cyc-ovulation); }
+.hud-kinds-light .hud-cycle-phase b { color: var(--cyc-menstrual); }
+
+/* Общее для новых видов */
+.hud-cyc { display: flex; flex-direction: column; gap: 8px; min-width: 0; width: 100%; align-self: stretch; align-items: stretch; flex-wrap: nowrap; box-sizing: border-box; text-align: left; }
+.hud-cyc-head { display: flex; justify-content: space-between; align-items: baseline; gap: 4px 10px; flex-wrap: wrap; }
+.hud-cyc-sub { font-size: .86em; color: var(--hud-text-muted, #b8a9ad); }
+.hud-cyc-legend { display: flex; flex-wrap: wrap; gap: 3px 12px; font-size: .82em; color: var(--hud-text-muted, #b8a9ad); }
+.hud-cyc-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.hud-cyc-legend span.is-now { color: var(--hud-text, #eee); font-weight: 600; }
+.hud-cyc-legend i { width: 9px; height: 9px; border-radius: 3px; flex: none; }
+.hud-cyc-legend small { opacity: .7; font-variant-numeric: tabular-nums; }
+.hud-cyc-legend.is-marks { margin-top: -4px; }
+
+/* Полоса дней */
+.hud-cyc-strip { display: grid; gap: 2px; align-items: end; height: 42px; }
+.hud-cyc-strip .d { height: 16px; border-radius: 4px; position: relative; min-width: 0; }
+.hud-cyc-strip .d.over { background: transparent; border: 1.5px dashed var(--cyc-menstrual); }
+.hud-cyc-strip .d.today { height: 38px; box-shadow: 0 0 0 2px var(--hud-text, #fff), 0 0 12px var(--cyc-ovulation); z-index: 1; }
+.hud-cyc-strip .d.today::after { content: attr(data-n); position: absolute; top: 4px; left: -6px; right: -6px; text-align: center; font: 700 11px/1 system-ui, sans-serif; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.hud-cyc-fert { display: grid; gap: 2px; margin-top: -4px; }
+.hud-cyc-fert span { height: 3px; border-radius: 2px; }
+.hud-cyc-fert span.on { background: var(--cyc-fert); }
+.hud-cyc-scale { position: relative; height: 12px; font-size: .74em; color: var(--hud-text-muted, #b8a9ad); margin-top: -4px; }
+.hud-cyc-scale span { position: absolute; transform: translateX(-50%); white-space: nowrap; }
+.hud-cyc-scale span:last-child { transform: translateX(-85%); }
+
+/* Календарь */
+.hud-cyc-cal { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; text-align: center; }
+.hud-cyc-cal .wd { font-size: .74em; font-weight: 400; color: var(--hud-text-muted, #b8a9ad); }
+.hud-cyc-cal .c { aspect-ratio: 1.15; border-radius: 7px; display: grid; place-items: center; font-size: .9em; color: #fff; position: relative; min-width: 0; }
+.hud-cyc-cal .c.k-follicular { color: var(--hud-text, #eee); }
+.hud-cyc-cal .c.pred { border: 1.5px dashed var(--cyc-menstrual); color: var(--hud-text-muted, #b8a9ad); }
+.hud-cyc-cal .c.over { border: 1.5px dashed var(--cyc-menstrual); color: var(--hud-text, #eee); background: color-mix(in oklab, var(--cyc-menstrual) 18%, transparent); }
+.hud-cyc-cal .c.today { outline: 2px solid var(--hud-text, #fff); outline-offset: 1px; font-weight: 700; box-shadow: 0 0 12px var(--cyc-ovulation); }
+.hud-cyc-cal .c.fert::after { content: ''; position: absolute; bottom: 3px; width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
+.hud-cyc-cal .c.empty { visibility: hidden; }
+
+/* Лунный диск */
+.hud-cyc.v-moon { display: grid; grid-template-columns: 124px minmax(0, 1fr); gap: 8px 14px; align-items: center; }
+.hud-cyc.v-moon > .hud-cycle-badges { grid-column: 1 / -1; }
+.hud-cyc-moon { width: 124px; height: 124px; display: block; }
+.hud-cyc-moon .m-shadow { fill: var(--cyc-shadow); }
+.hud-cyc-moon .m-rim { fill: none; stroke: var(--cyc-ovulation); stroke-opacity: .4; }
+.hud-cyc-moon .is-today { stroke: var(--hud-text, #fff); stroke-width: 1.2; }
+.hud-cyc-moon .m-day { font: 700 24px Georgia, serif; text-anchor: middle; fill: var(--hud-text, #fff); }
+.hud-cyc-moon .m-sub { font: 10px system-ui, sans-serif; text-anchor: middle; fill: var(--hud-text, #fff); opacity: .75; }
+.hud-cyc-moon-side { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
+.hud-cyc-stats { display: grid; gap: 4px; }
+.hud-cyc-stats div { display: flex; justify-content: space-between; gap: 8px; font-size: .88em; border-bottom: 1px solid rgba(127,127,127,.2); padding-bottom: 3px; }
+.hud-cyc-stats div span:first-child { color: var(--hud-text-muted, #b8a9ad); }
+
+/* Волна гормонов */
+.hud-cyc-horm { width: 100%; height: auto; display: block; overflow: visible; }
+.hud-cyc-horm path { fill: none; }
+.hud-cyc-horm .h-est { stroke: var(--cyc-ovulation); stroke-width: 2.4; }
+.hud-cyc-horm .h-prog { stroke: var(--cyc-luteal); stroke-width: 2.4; }
+.hud-cyc-horm .h-lh { stroke: var(--hud-text, #fff); stroke-width: 1.3; stroke-dasharray: 3 3; }
+.hud-cyc-horm .h-fsh { stroke: color-mix(in oklab, var(--cyc-a) 40%, #9a8f98); stroke-width: 1.4; }
+.hud-cyc-horm .h-base { stroke: rgba(127,127,127,.25); }
+.hud-cyc-horm .h-now { stroke: var(--hud-text, #fff); stroke-width: 1.5; }
+.hud-cyc-horm .h-dot { fill: var(--hud-text, #fff); }
+.hud-cyc-horm .h-lbl { font: 700 11px system-ui, sans-serif; fill: var(--hud-text, #fff); }
+.hud-cyc-legend.is-lines i { width: 14px; height: 0; border-radius: 0; border-top: 2px solid; background: none; }
+.hud-cyc-legend.is-lines i.h-est { border-color: var(--cyc-ovulation); }
+.hud-cyc-legend.is-lines i.h-prog { border-color: var(--cyc-luteal); }
+.hud-cyc-legend.is-lines i.h-lh { border-top-style: dashed; border-color: var(--hud-text, #fff); }
+.hud-cyc-legend.is-lines i.h-fsh { border-color: color-mix(in oklab, var(--cyc-a) 40%, #9a8f98); }
+.hud-cyc-tip { font-size: .9em; padding: 7px 10px; border-radius: 8px; background: color-mix(in oklab, var(--cyc-a) 12%, transparent); border-left: 3px solid var(--cyc-ovulation); }
+
+/* Капсула */
+.hud-cyc-caps { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 999px; background: color-mix(in oklab, var(--cyc-a) 10%, transparent); border: 1px solid color-mix(in oklab, var(--cyc-a) 30%, transparent); }
+.hud-cyc-caps .pill { flex: none; font-size: .88em; font-weight: 700; padding: 3px 10px; border-radius: 999px; background: var(--phase); color: #fff; white-space: nowrap; }
+.hud-cyc-caps .bar { flex: 1; height: 8px; border-radius: 999px; position: relative; min-width: 50px; }
+.hud-cyc-caps .fw { position: absolute; top: -4px; bottom: -4px; border: 1.5px solid var(--cyc-fert); border-radius: 6px; }
+.hud-cyc-caps .now { position: absolute; top: 50%; width: 14px; height: 14px; margin: -7px 0 0 -7px; border-radius: 50%; background: var(--hud-text, #fff); box-shadow: 0 0 0 3px rgba(0,0,0,.45), 0 0 10px var(--cyc-ovulation); }
+.hud-cyc-caps .num { flex: none; font: 700 13px/1 system-ui, sans-serif; font-variant-numeric: tabular-nums; }
+.hud-cyc-caps-sub { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: .84em; color: var(--hud-text-muted, #b8a9ad); padding: 0 8px; }
+
+/* Цветок */
+.hud-cyc.v-flower { display: grid; grid-template-columns: 140px minmax(0, 1fr); gap: 8px 12px; align-items: center; }
+.hud-cyc.v-flower > .hud-cycle-badges { grid-column: 1 / -1; }
+.hud-cyc-flower { width: 140px; height: 140px; display: block; }
+.hud-cyc-flower ellipse { opacity: .85; }
+.hud-cyc-flower ellipse.is-today { opacity: 1; stroke: var(--hud-text, #fff); stroke-width: 1.3; filter: drop-shadow(0 0 5px var(--cyc-ovulation)); }
+.hud-cyc-flower .f-core { fill: var(--cyc-shadow); stroke: var(--cyc-ovulation); stroke-width: 2; }
+.hud-cyc-flower .f-day { font: 700 17px Georgia, serif; text-anchor: middle; fill: var(--hud-text, #fff); }
+.hud-cyc-flower-side { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.hud-cyc-phases { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: .9em; }
+.hud-cyc-phases li { display: flex; gap: 8px; align-items: center; color: var(--hud-text-muted, #b8a9ad); }
+.hud-cyc-phases li.is-now { color: var(--hud-text, #eee); font-weight: 700; }
+.hud-cyc-phases i { width: 10px; height: 10px; border-radius: 50%; flex: none; }
+.hud-cyc-phases small { margin-left: auto; opacity: .7; font-weight: 400; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 380px) {
+  .hud-cyc.v-moon, .hud-cyc.v-flower { grid-template-columns: 1fr; justify-items: center; }
+  .hud-cyc-moon-side, .hud-cyc-flower-side { width: 100%; }
+}
+
+/* =========================================================================
+   ОКНО «КАСТОМИЗАЦИЯ» (index.js, открытьКастомизацию)
+   Слева — панель темы, справа — живой HUD. На телефоне HUD сверху, настройки
+   под ним: крутишь ползунок и сразу видишь карточку.
+   ========================================================================= */
+.hud-custom-overlay {
+  position: fixed; inset: 0; z-index: 10050; display: none;
+  align-items: center; justify-content: center; padding: 16px;
+  background: rgba(0, 0, 0, .6);
+}
+.hud-custom-overlay.is-open { display: flex; }
+html.hud-custom-open body { overflow: hidden; }
+.hud-custom-dialog {
+  width: min(1280px, 100%); height: min(92vh, 980px); display: flex; flex-direction: column;
+  background: var(--SmartThemeBlurTintColor, #14111a); color: var(--hud-text, #e6e6ee);
+  border: 1px solid color-mix(in oklab, var(--hud-accent, #c31f38) 40%, transparent);
+  border-radius: 16px; box-shadow: 0 24px 70px rgba(0, 0, 0, .6); overflow: hidden;
+}
+.hud-custom-head {
+  display: flex; align-items: center; gap: 10px; padding: 10px 14px; flex: none;
+  border-bottom: 1px solid rgba(127, 127, 127, .2);
+  background: color-mix(in oklab, var(--hud-accent, #c31f38) 10%, transparent);
+}
+.hud-custom-head b { font-size: 15px; }
+.hud-custom-source { flex: 1; min-width: 0; font-size: 12px; opacity: .7; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-custom-head button {
+  flex: none; min-width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 16px;
+  background: rgba(127, 127, 127, .15); color: inherit; border: 1px solid rgba(127, 127, 127, .3);
+}
+.hud-custom-head button:hover { background: color-mix(in oklab, var(--hud-accent, #c31f38) 25%, transparent); }
+.hud-custom-head button:focus-visible { outline: 2px solid var(--hud-accent, #c31f38); outline-offset: 2px; }
+.hud-custom-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(320px, 420px) minmax(0, 1fr); }
+.hud-custom-settings { min-height: 0; overflow-y: auto; border-right: 1px solid rgba(127, 127, 127, .2); overscroll-behavior: contain; }
+/* В окне панель — не всплывашка в карточке: без потолка по высоте и фона. */
+.hud-custom-settings .hud-theme-panel {
+  display: flex; flex-direction: column; max-height: none; overflow: visible;
+  background: transparent; border: 0; padding: 12px 14px 24px;
+}
+.hud-custom-settings .hud-custom-views { border-color: color-mix(in oklab, var(--hud-accent, #c31f38) 45%, transparent); }
+.hud-custom-preview { min-height: 0; overflow-y: auto; padding: 14px; overscroll-behavior: contain; }
+.hud-custom-preview-body { max-width: 760px; margin: 0 auto; }
+.hud-custom-preview-body .hud-os-card { margin: 0; }
+.hud-custom-error { padding: 14px; border-radius: 10px; background: rgba(127, 127, 127, .12); }
+
+@media (max-width: 800px) {
+  .hud-custom-overlay { padding: 0; }
+  .hud-custom-dialog { width: 100%; height: 100%; border-radius: 0; border: 0; }
+  .hud-custom-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 46%) minmax(0, 1fr); }
+  .hud-custom-dialog, .hud-custom-settings, .hud-custom-preview { min-width: 0; max-width: 100vw; }
+  .hud-custom-head { padding: 8px 10px; gap: 6px; }
+  .hud-custom-source { display: none; }
+  .hud-custom-head b { flex: 1; min-width: 0; }
+  .hud-custom-preview { order: -1; padding: 8px; border-bottom: 1px solid rgba(127, 127, 127, .25); }
+  .hud-custom-settings { border-right: 0; }
+  .hud-custom-settings .hud-theme-panel { padding: 10px 12px 28px; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hud-custom-overlay.is-open .hud-custom-dialog { animation: hud-fade-in .2s ease; }
+}
+
+/* Блюр стекла телефона — настройка «Блюр стекла» (или унаследованный от HUD).
+   Экран приложения непрозрачен и размывать там нечего (base.css), поэтому
+   ползунок раньше не делал ничего. Стеклом остаются уведомления, плашка на
+   экране блокировки, иконки и нижняя панель — им и отдаём блюр. */
+.hud-phone-emulator :is(.hud-phone-lock-notice, .hud-phone-app > span, .hud-phone-bottom-bar) {
+  backdrop-filter: blur(var(--hud-phone-blur)); -webkit-backdrop-filter: blur(var(--hud-phone-blur));
+}
+.hud-phone-emulator .hud-phone-notif {
+  backdrop-filter: blur(var(--hud-phone-blur)) saturate(1.2); -webkit-backdrop-filter: blur(var(--hud-phone-blur)) saturate(1.2);
+}
+
+/* =========================================================================
+   ТРЕКЕР БЕРЕМЕННОСТИ (render/pregnancy.js)
+   Цвета — из акцента темы, как у цикла. Прежние жёсткие розовый и
+   фиолетовый на полосе выбивались из тем.
+   ========================================================================= */
+.hud-prg {
+  --prg-a: var(--hud-accent, #c31f38);
+  --prg-1: color-mix(in oklab, var(--prg-a) 35%, #2a1820);
+  --prg-2: color-mix(in oklab, var(--prg-a) 60%, #6f6470);
+  --prg-3: color-mix(in oklab, var(--prg-a) 85%, #fff);
+  --prg-soft: color-mix(in oklab, var(--prg-a) 12%, transparent);
+  display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-radius: 14px; box-sizing: border-box; width: 100%; min-width: 0;
+  background: linear-gradient(180deg, var(--prg-soft), transparent 70%);
+  border: 1px solid color-mix(in oklab, var(--prg-a) 28%, transparent);
+}
+.hud-kinds-light .hud-prg { --prg-1: color-mix(in oklab, var(--prg-a) 22%, #fff); --prg-3: color-mix(in oklab, var(--prg-a) 90%, #000); }
+.hud-prg.is-risk { border-color: color-mix(in oklab, var(--hud-drama-border, #e0455f) 60%, transparent); }
+.hud-prg-head em { background: color-mix(in oklab, var(--prg-a) 22%, transparent); }
+.hud-prg-head b { font-size: 1.12em; }
+.hud-prg-count { font-size: .9em; color: var(--hud-text-muted, #b8a9ad); }
+.hud-prg-count.is-soon { color: var(--prg-3); font-weight: 600; }
+
+/* Шкала: подложка по триместрам, заливка до сегодня, засечки этапов. */
+.hud-prg-track { display: flex; flex-direction: column; gap: 3px; }
+.hud-prg .hud-prg-meter { position: relative; height: 12px; margin: 0; border-radius: 6px; background: rgba(127,127,127,.12); overflow: visible; }
+.hud-prg .hud-prg-meter > b { position: absolute; top: 0; bottom: 0; opacity: .35; }
+.hud-prg .hud-prg-meter > b.t1 { left: 0; background: var(--prg-1); border-radius: 6px 0 0 6px; }
+.hud-prg .hud-prg-meter > b.t2 { background: var(--prg-2); }
+.hud-prg .hud-prg-meter > b.t3 { background: var(--prg-3); border-radius: 0 6px 6px 0; }
+.hud-prg .hud-prg-meter > i { position: absolute; left: 0; top: 0; bottom: 0; display: block; border-radius: 6px; background: linear-gradient(90deg, var(--prg-1), var(--prg-2), var(--prg-3)); }
+.hud-prg .hud-prg-meter > s { position: absolute; top: -3px; bottom: -3px; width: 2px; margin-left: -1px; border-radius: 1px; background: rgba(127,127,127,.55); }
+.hud-prg .hud-prg-meter > s.is-past { background: var(--hud-text, #fff); opacity: .7; }
+.hud-prg .hud-prg-meter > em.now { position: absolute; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: var(--hud-text, #fff); box-shadow: 0 0 0 3px var(--prg-3), 0 0 10px var(--prg-3); }
+.hud-prg-tri { display: flex; font-size: .72em; letter-spacing: .08em; color: var(--hud-text-muted, #b8a9ad); }
+.hud-prg-tri span { text-align: center; flex: none; }
+.hud-prg-tri span:last-child { flex: 1; }
+
+/* Силуэт и «малыш сейчас». */
+.hud-prg-main { display: grid; grid-template-columns: 74px minmax(0, 1fr); gap: 12px; align-items: center; }
+/* Силуэт: мягкая заливка в цвете темы, живот подсвечен изнутри, рука
+   и волосы чуть темнее тела, малыш — едва заметная тень. */
+.hud-prg-belly { width: 74px; height: 146px; display: block; overflow: visible; }
+.hud-prg-belly .b-body, .hud-prg-belly .b-head { fill: color-mix(in oklab, var(--prg-a) 38%, var(--hud-text, #eee) 12%); }
+.hud-prg-belly .b-hair { fill: color-mix(in oklab, var(--prg-a) 55%, #000 25%); }
+.hud-prg-belly .b-glow { fill: color-mix(in oklab, var(--prg-3) 18%, transparent); filter: blur(4px); }
+.hud-prg-belly .b-baby { fill: color-mix(in oklab, var(--prg-a) 60%, #000 25%); opacity: .2; }
+.hud-prg-belly .b-arm { fill: none; stroke: color-mix(in oklab, var(--prg-a) 38%, var(--hud-text, #eee) 12%); stroke-width: 5.5; stroke-linecap: round; stroke-linejoin: round; filter: brightness(.9); }
+.hud-kinds-light .hud-prg-belly .b-arm { stroke: color-mix(in oklab, var(--prg-a) 38%, #fff); filter: none; }
+.hud-prg-belly .b-glow { filter: blur(3px); }
+.hud-kinds-light .hud-prg-belly .b-body, .hud-kinds-light .hud-prg-belly .b-head { fill: color-mix(in oklab, var(--prg-a) 30%, #fff); }
+.hud-prg-baby { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.hud-prg-size { display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+.hud-prg-size span { font-size: .84em; color: var(--hud-text-muted, #b8a9ad); }
+.hud-prg-size b { font-size: 1.08em; color: var(--prg-3); }
+.hud-prg-size small { font-size: .82em; color: var(--hud-text-muted, #b8a9ad); font-variant-numeric: tabular-nums; }
+.hud-prg-event { margin: 0; font-size: .92em; }
+.hud-prg-next { margin: 0; font-size: .84em; color: var(--hud-text-muted, #b8a9ad); }
+.hud-prg-next b { color: var(--hud-text, #eee); font-weight: 600; }
+
+/* Строки полей. */
+.hud-prg-row { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 8px; font-size: .9em; padding-top: 5px; border-top: 1px solid rgba(127,127,127,.14); }
+.hud-prg-row > span { color: var(--hud-text-muted, #b8a9ad); }
+.hud-prg-row > p { margin: 0; }
+.hud-prg-row.is-risk > p { color: var(--hud-drama-border, #e0455f); font-weight: 600; }
+.hud-prg-row.is-risk > p::before { content: '⚠ '; }
+.hud-prg-row.is-ok > p { color: var(--hud-text, #eee); }
+.hud-prg-row.is-ok > p::before { content: '✓ '; color: var(--prg-3); font-weight: 700; }
+@media (max-width: 480px) { .hud-prg-row { grid-template-columns: 1fr; gap: 0; } }
+
+.hud-prg-tips { list-style: none; margin: 2px 0 0; padding: 7px 10px; border-radius: 10px; background: rgba(0,0,0,.18); display: flex; flex-direction: column; gap: 3px; font-size: .84em; color: var(--hud-text-muted, #b8a9ad); }
+.hud-kinds-light .hud-prg-tips { background: rgba(0,0,0,.05); }
+.hud-prg-tips li { padding-left: 14px; position: relative; }
+.hud-prg-tips li::before { content: '•'; position: absolute; left: 2px; color: var(--prg-3); }
+.hud-prg-tips li.is-alarm { color: var(--hud-text, #eee); }
+.hud-prg-tips li.is-alarm::before { content: '!'; font-weight: 700; color: var(--hud-drama-border, #e0455f); }
+
+/* =========================================================================
+   ПРОШЛЫЕ ВЕРСИИ HUD И ОТМЕНА ГЕНЕРАЦИИ (index.js)
+   ========================================================================= */
+.hud-os-topbar-right { position: relative; }
+.hud-versions-btn {
+  display: inline-flex; align-items: center; gap: 2px; height: 24px; padding: 0 6px; border-radius: 6px;
+  font-size: 1.05em; line-height: 1; cursor: pointer; opacity: .6; transition: opacity .2s, background .2s;
+}
+.hud-versions-btn small { font-size: .62em; font-weight: 700; opacity: .85; }
+.hud-versions-btn:hover, .hud-versions-btn:focus-visible { opacity: 1; background: rgba(127, 127, 127, .15); outline: none; }
+.hud-versions-pop {
+  position: fixed; z-index: 10040; min-width: 220px; max-width: min(320px, calc(100vw - 16px)); max-height: 60vh; overflow-y: auto;
+  display: flex; flex-direction: column; gap: 4px; padding: 8px;
+  background: var(--SmartThemeBlurTintColor, #16121a); color: var(--hud-text, #eee);
+  border: 1px solid color-mix(in oklab, var(--hud-accent, #c31f38) 45%, transparent); border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .45); font-size: 12.5px; cursor: default;
+}
+.hud-versions-pop > b { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; opacity: .7; padding: 0 4px 2px; }
+.hud-versions-pop button {
+  display: flex; flex-direction: column; align-items: flex-start; gap: 1px; width: 100%; padding: 6px 8px; border-radius: 8px;
+  background: rgba(127, 127, 127, .08); color: inherit; border: 1px solid transparent; cursor: pointer; text-align: left; font: inherit;
+}
+.hud-versions-pop button:hover, .hud-versions-pop button:focus-visible {
+  border-color: color-mix(in oklab, var(--hud-accent, #c31f38) 55%, transparent);
+  background: color-mix(in oklab, var(--hud-accent, #c31f38) 14%, transparent); outline: none;
+}
+.hud-versions-pop button small { opacity: .65; font-size: 11px; }
+.hud-toast.loading, .hud-toast-cancel { pointer-events: auto; }
+.hud-toast-cancel {
+  align-self: flex-start; margin-top: 4px; padding: 3px 12px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 12px;
+  background: rgba(127, 127, 127, .18); color: inherit; border: 1px solid rgba(127, 127, 127, .4);
+}
+.hud-toast-cancel:hover { background: rgba(127, 127, 127, .3); }
+
+/* =========================================================================
+   ОСЕНЬ: ЯБЛОКИ И ЕЖИ
+   ========================================================================= */
+/* Яблоки на яблоне — в глубине крупных пятен листвы (центры пятен 1, 2 и 5
+   рисунка кроны), по центру яблока, а не по углу. Прежние точки стояли у
+   края пятен, и на узкой низкой кроне телефона яблоко висело в воздухе. */
+.hud-tree-apple.a1 { left: calc(30% - 3.5px); top: calc(43% - 3.5px); }
+.hud-tree-apple.a2 { left: calc(53% - 3.5px); top: calc(31% - 3.5px); }
+.hud-tree-apple.a3 { left: calc(67% - 3.5px); top: calc(66% - 3.5px); }
+
+/* Падение: старт в нижней части кроны (доля высоты сцены, а не пиксели —
+   на телефоне сцена ниже), разгон как у падающего тела, удар, короткий
+   отскок и откат с поворотом. Прежде яблоко проявлялось посреди полёта и
+   тормозило у самой земли — казалось, что оно зависает в воздухе. */
+/* Высота над низом — доля полосы земли (она 14% сцены): на низкой
+   широкой сцене яблоко не поднимается выше её кромки. */
+.hud-fallen-apples { top: 0; height: auto; }
+.hud-fallen-apple { animation-name: hud-apple-drop; animation-timing-function: linear; bottom: auto; }
+.hud-fallen-apple.fa1 { left: calc(20% + 24px); --ground: clamp(0px, calc((14% - 7px) * 0.45), 5px);  --from: 40%; }
+.hud-fallen-apple.fa2 { left: calc(20% + 36px); --ground: clamp(0px, calc((14% - 7px) * 0.1), 1px);  --from: 44%; }
+.hud-fallen-apple.fa3 { left: calc(20% + 50px); --ground: clamp(0px, calc((14% - 7px) * 0.6), 7px);  --from: 38%; }
+.hud-fallen-apple.fa4 { left: calc(20% + 30px); --ground: clamp(0px, calc((14% - 7px) * 0.85), 12px); --from: 42%; }
+.hud-fallen-apple.fa5 { left: calc(20% + 58px); --ground: clamp(0px, calc((14% - 7px) * 0.3), 3px);  --from: 36%; }
+@keyframes hud-apple-drop {
+  0%, 3%   { bottom: var(--from); opacity: 0; transform: rotate(0deg); }
+  3.2%     { bottom: var(--from); opacity: 1; transform: rotate(0deg); animation-timing-function: cubic-bezier(.55, 0, 1, .45); }
+  5.6%     { bottom: var(--ground); opacity: 1; transform: rotate(40deg); animation-timing-function: cubic-bezier(0, .55, .45, 1); }
+  6.4%     { bottom: calc(var(--ground) + 5px); transform: rotate(70deg); animation-timing-function: cubic-bezier(.55, 0, 1, .45); }
+  7.2%     { bottom: var(--ground); transform: rotate(95deg); animation-timing-function: cubic-bezier(0, .55, .45, 1); }
+  7.6%     { bottom: calc(var(--ground) + 1.5px); transform: translateX(1px) rotate(110deg); animation-timing-function: cubic-bezier(.55, 0, 1, .45); }
+  8%       { bottom: var(--ground); transform: translateX(2px) rotate(125deg); animation-timing-function: cubic-bezier(.2, .6, .4, 1); }
+  10.5%, 58% { bottom: var(--ground); opacity: 1; transform: translateX(6px) rotate(200deg); }
+  61%      { bottom: var(--ground); opacity: 0; transform: translateX(6px) rotate(200deg); }
+  76%      { bottom: var(--from); opacity: 0; transform: rotate(0deg); }
+  76.2%    { bottom: var(--from); opacity: 1; transform: rotate(0deg); animation-timing-function: cubic-bezier(.55, 0, 1, .45); }
+  78.6%    { bottom: var(--ground); transform: rotate(-40deg); animation-timing-function: cubic-bezier(0, .55, .45, 1); }
+  79.4%    { bottom: calc(var(--ground) + 4px); transform: rotate(-60deg); animation-timing-function: cubic-bezier(.55, 0, 1, .45); }
+  80.2%    { bottom: var(--ground); transform: rotate(-80deg); animation-timing-function: cubic-bezier(.2, .6, .4, 1); }
+  82%, 98% { bottom: var(--ground); opacity: 1; transform: translateX(-4px) rotate(-140deg); }
+  100%     { bottom: var(--ground); opacity: 0; transform: translateX(-4px) rotate(-140deg); }
+}
+@media (prefers-reduced-motion: reduce) { .hud-fallen-apple { animation: none; bottom: var(--ground); } }
+
+/* Ежи: рисунок в профиль — колючая спина с фактурой игл, мордочка из-под
+   игл, нос-пуговка, глаз с бликом, лапки. Раньше это были овал с
+   полосками и кружок. */
+.hud-hedgehog { width: 32px; height: 18px; }
+.hud-hedgehog-body, .hud-burrow-animal-body {
+  inset: 0; border-radius: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 36'%3E%3Cdefs%3E%3ClinearGradient id='m' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23c9a67a'/%3E%3Cstop offset='1' stop-color='%23866342'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cellipse cx='20' cy='33.3' rx='3.2' ry='2' fill='%232e2117'/%3E%3Cellipse cx='43' cy='33.5' rx='3' ry='1.9' fill='%232e2117'/%3E%3Cpath d='M7 27 C13 33 30 35 44 33.5 C50 32.8 54 31.5 56 30 L40 26 Z' fill='url(%23m)'/%3E%3Cpath d='M6.2 26.9 L1.9 29.9 L6.1 26.1 L6.0 25.2 L1.3 27.6 L6.0 24.4 L6.1 23.5 L1.0 25.3 L6.3 22.7 L6.6 21.9 L1.1 23.0 L6.9 21.0 L7.3 20.2 L1.7 20.7 L7.8 19.4 L8.4 18.6 L2.6 18.5 L9.0 17.9 L9.8 17.2 L3.9 16.4 L10.5 16.5 L11.4 15.8 L5.6 14.4 L12.3 15.2 L13.3 14.6 L7.6 12.5 L14.3 14.0 L15.4 13.5 L9.9 10.9 L16.5 13.1 L17.7 12.6 L12.5 9.4 L18.9 12.3 L20.1 11.9 L15.3 8.2 L21.4 11.6 L22.7 11.4 L18.3 7.3 L24.0 11.2 L25.3 11.1 L21.5 6.6 L26.7 11.0 L28.0 11.0 L24.7 6.1 L29.3 11.0 L30.7 11.1 L28.0 6.0 L32.0 11.2 L33.3 11.4 L31.3 6.1 L34.6 11.6 L35.9 11.9 L34.5 6.6 L37.1 12.3 L38.3 12.6 L37.7 7.3 L39.5 13.1 L40.6 13.5 L40.7 8.2 L41.7 14.0 L42.7 14.6 L43.5 9.4 L43.7 15.2 L44.6 15.8 L46.1 10.9 L45.5 16.5 L46.2 17.2 L48.4 12.5 L47.0 17.9 L47.6 18.6 L50.4 14.4 L48.2 19.4 L48.7 20.2 L52.1 16.4 L49.1 21.0 Q46 30 30 31 Q14 31 6 27 Z' fill='%233d2b1b'/%3E%3Cpath d='M21.4 24.9 L18.3 26.2' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M21.5 24.4 L18.2 25.6' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M21.8 23.6 L18.3 24.2' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M22.0 23.2 L18.5 23.6' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M22.7 22.5 L19.2 22.3' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M23.1 22.2 L19.6 21.7' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M24.1 21.6 L20.8 20.6' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M24.6 21.4 L21.5 20.1' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M25.8 21.0 L23.1 19.2' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M26.4 20.9 L23.9 18.9' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M27.8 20.8 L25.8 18.4' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M28.4 20.8 L26.8 18.3' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M29.7 20.9 L28.7 18.2' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M30.3 21.1 L29.7 18.3' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M31.5 21.5 L31.6 18.6' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M32.1 21.7 L32.5 18.9' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M33.0 22.3 L34.1 19.6' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M33.4 22.6 L34.8 20.0' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M34.1 23.3 L36.1 21.0' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M17.0 25.1 L13.7 26.8' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M17.2 23.7 L13.5 24.8' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M17.5 23.0 L13.7 23.7' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M18.4 21.6 L14.5 21.7' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M19.0 21.0 L15.1 20.8' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M20.5 19.9 L16.7 19.0' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M21.4 19.4 L17.8 18.3' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M23.4 18.7 L20.1 16.9' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M24.4 18.4 L21.4 16.4' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M26.7 18.1 L24.2 15.6' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M27.8 18.0 L25.7 15.4' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M30.1 18.1 L28.7 15.2' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M31.2 18.3 L30.2 15.3' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M33.3 18.9 L33.2 15.8' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M34.3 19.3 L34.5 16.2' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M36.0 20.2 L37.1 17.2' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M36.8 20.8 L38.2 17.9' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M38.0 22.0 L40.1 19.4' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M13.0 25.2 L9.5 27.0' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M13.3 23.1 L9.4 24.3' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M13.7 22.1 L9.6 22.9' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M15.1 20.2 L10.8 20.3' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M16.0 19.3 L11.8 19.1' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M18.1 17.8 L14.1 16.8' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M19.5 17.2 L15.6 15.8' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M22.3 16.2 L18.9 14.2' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M23.8 15.9 L20.7 13.6' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M27.0 15.5 L24.6 12.7' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M28.7 15.5 L26.6 12.5' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M31.9 15.8 L30.7 12.6' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M33.4 16.1 L32.7 12.8' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M36.3 17.1 L36.5 13.7' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M37.6 17.7 L38.3 14.4' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M39.9 19.2 L41.4 16.0' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M40.8 20.1 L42.7 17.1' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M9.5 24.6 L5.6 26.4' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M9.7 23.2 L5.6 24.6' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M10.8 20.7 L6.3 21.4' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M11.7 19.5 L7.2 19.7' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M14.0 17.3 L9.5 16.8' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M15.5 16.3 L11.2 15.4' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M18.8 14.8 L14.8 13.1' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M20.7 14.2 L17.0 12.1' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M24.6 13.4 L21.6 10.8' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M26.7 13.3 L24.1 10.3' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M30.8 13.4 L29.1 10.0' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M32.9 13.7 L31.7 10.2' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M36.7 14.6 L36.5 11.0' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M38.6 15.3 L38.8 11.7' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M41.6 17.1 L42.9 13.6' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M43.0 18.1 L44.7 14.8' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M45.0 20.4 L47.6 17.4' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M6.7 25.2 L2.7 27.3' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M7.1 22.2 L2.6 23.5' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M7.8 20.6 L3.2 21.4' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M9.9 17.8 L5.1 17.8' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M11.4 16.5 L6.7 16.0' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M14.8 14.3 L10.3 13.0' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M16.9 13.4 L12.7 11.7' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M21.3 12.1 L17.6 9.7' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M23.8 11.7 L20.5 8.9' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M28.5 11.4 L26.2 8.1' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M31.1 11.6 L29.3 8.1' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M35.8 12.4 L34.9 8.6' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M38.1 13.0 L37.8 9.3' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M42.1 14.8 L42.9 11.0' stroke='%23b8966a' stroke-width='0.8' stroke-linecap='round'/%3E%3Cpath d='M43.9 15.9 L45.3 12.3' stroke='%23221710' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M46.7 18.4 L49.0 15.1' stroke='%23866445' stroke-width='1' stroke-linecap='round'/%3E%3Cpath d='M41 21.5 C45 17.5 52 18.5 57 22.5 C59.5 24.3 61.5 26 62 27.4 C58.5 30.2 52.5 31.6 46.5 31.2 C42 30.6 39.5 26.5 41 21.5 Z' fill='url(%23m)'/%3E%3Cellipse cx='44.6' cy='20.6' rx='1.7' ry='1.9' fill='%236b4d31'/%3E%3Ccircle cx='50.8' cy='23.4' r='1.45' fill='%23100a06'/%3E%3Ccircle cx='51.3' cy='22.9' r='.45' fill='%23fff' opacity='.85'/%3E%3Cellipse cx='62' cy='27.3' rx='1.8' ry='1.5' fill='%23120b06'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  filter: drop-shadow(0 1px 1px rgba(20, 12, 5, .35));
+}
+.hud-hedgehog-spikes, .hud-hedgehog-face, .hud-burrow-animal-spines, .hud-burrow-animal-face { display: none; }
+/* Переваливается на ходу. */
+.hud-hedgehog-body { animation: hud-hedgehog-waddle .5s ease-in-out infinite alternate; transform-origin: 50% 100%; }
+@keyframes hud-hedgehog-waddle { from { transform: translateY(0) rotate(-1.5deg); } to { transform: translateY(-.8px) rotate(1.5deg); } }
+@media (prefers-reduced-motion: reduce) { .hud-hedgehog-body { animation: none; } }
+/* Наколоты на иглы: нижняя половина яблока утоплена в спину, а не висит над ней. */
+.hud-hedgehog-apple.ha1 { left: 8px; top: 2px; }
+.hud-hedgehog-apple.ha2 { left: 14px; top: 1px; }
+.hud-burrow-animal { width: 24px; height: 14px; left: 22px; }
+
+/* Нора: ежи заходят в тёмный проём и выходят из него, а не тают
+   посреди поляны. Вход — уменьшается (уходит вглубь), темнеет до цвета
+   проёма и только на последнем шаге, уже почти чёрный, исчезает. Выход —
+   наоборот, и прочь ёж идёт уже непрозрачным (раньше он полпути брёл
+   полупрозрачным). Ходок стоит перед холмиком, у самого центра проёма. */
+.hud-hedgehog, .season-autumn .hud-hedgehog { z-index: 13; }
+.hud-hedgehog { transform-origin: 50% 100%; animation-name: hud-hedgehog-trip; will-change: left, transform, opacity, filter; }
+.hud-burrow-animal { transform-origin: 50% 100%; animation-name: hud-burrow-peek; will-change: transform, opacity, filter; }
+@keyframes hud-hedgehog-trip {
+  0%, 14%  { left: 20%; transform: none; filter: none; opacity: 1; animation-timing-function: ease-in-out; }
+  50%, 51% { left: calc(86% - 45px); transform: none; filter: none; opacity: 1; animation-timing-function: ease-in; }
+  54%      { left: calc(86% - 45px); transform: translateY(2px) scale(.72); filter: brightness(.45); opacity: 1; }
+  56%, 67% { left: calc(86% - 45px); transform: translateY(3px) scale(.6); filter: brightness(.25); opacity: 0; }
+  67.1%    { left: calc(86% - 45px); transform: translateY(3px) scale(-.6, .6); filter: brightness(.25); opacity: 0; }
+  69%      { left: calc(86% - 45px); transform: translateY(2px) scale(-.72, .72); filter: brightness(.45); opacity: 1; animation-timing-function: ease-out; }
+  73%      { left: calc(86% - 45px); transform: scale(-1, 1); filter: none; opacity: 1; animation-timing-function: ease-in-out; }
+  96%      { left: 20%; transform: scale(-1, 1); filter: none; opacity: 1; }
+  100%     { left: 20%; transform: none; filter: none; opacity: 1; }
+}
+@keyframes hud-hedgehog-trip-mobile {
+  0%, 14%  { left: 20%; transform: none; filter: none; opacity: 1; animation-timing-function: ease-in-out; }
+  50%, 51% { left: calc(82% - 43px); transform: none; filter: none; opacity: 1; animation-timing-function: ease-in; }
+  54%      { left: calc(82% - 43px); transform: translateY(2px) scale(.72); filter: brightness(.45); opacity: 1; }
+  56%, 67% { left: calc(82% - 43px); transform: translateY(3px) scale(.6); filter: brightness(.25); opacity: 0; }
+  67.1%    { left: calc(82% - 43px); transform: translateY(3px) scale(-.6, .6); filter: brightness(.25); opacity: 0; }
+  69%      { left: calc(82% - 43px); transform: translateY(2px) scale(-.72, .72); filter: brightness(.45); opacity: 1; animation-timing-function: ease-out; }
+  73%      { left: calc(82% - 43px); transform: scale(-1, 1); filter: none; opacity: 1; animation-timing-function: ease-in-out; }
+  96%      { left: 20%; transform: scale(-1, 1); filter: none; opacity: 1; }
+  100%     { left: 20%; transform: none; filter: none; opacity: 1; }
+}
+/* Второй ёж сидит у норы, прячется перед приходом первого и после его
+   выхода сперва выглядывает, потом вылезает целиком. Начало и конец
+   круга совпадают — без скачка. */
+@keyframes hud-burrow-peek {
+  0%, 45%    { transform: none; filter: none; opacity: 1; animation-timing-function: ease-in; }
+  48%        { transform: translateY(2px) scale(.74); filter: brightness(.45); opacity: 1; }
+  50%, 74%   { transform: translateY(3px) scale(.6); filter: brightness(.25); opacity: 0; }
+  75.5%      { transform: translateY(2px) scale(.7); filter: brightness(.4); opacity: 1; animation-timing-function: ease-out; }
+  77%, 79%   { transform: translateY(1px) scale(.84); filter: brightness(.7); opacity: 1; animation-timing-function: ease-in-out; }
+  81%, 100%  { transform: none; filter: none; opacity: 1; }
+}
+@media (max-width: 600px) {
+  .season-autumn .hud-hedgehog { animation-name: hud-hedgehog-trip-mobile; }
+}

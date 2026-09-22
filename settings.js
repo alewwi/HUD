@@ -69,6 +69,9 @@ export const defaultSettings = {
   // Кнопка «❓» на карточке: вопросы о сюжете, ответ не пишется в чат.
   enableAssistant: true,
   enableMenstruation: true,
+  // Вид блока цикла: ring | strip | calendar | moon | hormones | capsule | flower
+  // (render/intimacy.js, ВИДЫ_ЦИКЛА). Меняется в окне «Кастомизация».
+  cycleView: 'ring',
   enableIntimacyExtras: true,
   enableHeatMap: true,
   enableEconomy: true,
@@ -179,10 +182,13 @@ export const defaultSettings = {
 
   // --- ВНЕШНИЙ ВИД ТЕЛЕФОНА ---
   // Телефон переделан в полноценную ОС, поэтому набор пересобран: убраны
-  // phoneThemeAuto, enablePhoneSettings и phoneShowLockNotifications —
-  // их не читал ни код, ни панель. Добавлены те, что относятся к ОС:
-  // радиус плиток приложений, цвет корпуса, свечение экрана и число
-  // карточек уведомлений на домашнем экране.
+  // enablePhoneSettings и phoneShowLockNotifications — их не читал ни код,
+  // ни панель. Добавлены те, что относятся к ОС: радиус плиток приложений,
+  // цвет корпуса, свечение экрана и число карточек уведомлений на домашнем
+  // экране.
+  // phoneThemeAuto — «Наследовать тему HUD»: фон, акцент, блюр и шрифт
+  // телефон берёт у HUD; правка любого из них галочку снимает (events.js).
+  phoneThemeAuto: true,
   phoneBgStart: '#0a0a0f', phoneBgEnd: '#12121a', phoneBgAlpha: 92,
   phoneAccent: '#de859f',
   phoneBlur: 14,

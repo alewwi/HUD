@@ -13,11 +13,12 @@
 // карточки ненадёжны — у неё content-visibility, и браузер может не
 // двигать их время.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.0.2';
-import { namesLikelySame } from '../names.js?v=23.0.2';
-import { разобратьХод } from './carryover.js?v=23.0.2';
-import { parseSceneDate } from '../history-analyzer.js?v=23.0.2';
-import { исходЗачатия } from './conception.js?v=23.0.2';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.3.4';
+import { namesLikelySame } from '../names.js?v=23.3.4';
+import { разобратьХод } from './carryover.js?v=23.3.4';
+import { parseSceneDate } from '../history-analyzer.js?v=23.3.4';
+import { исходЗачатия } from './conception.js?v=23.3.4';
+import { settings } from '../settings.js?v=23.3.4';
 
 const пусто = (v) => { const s = String(v ?? '').trim(); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
 const число = (s) => { const m = String(s ?? '').replace(/(\d),(\d)/g, '$1.$2').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };
@@ -656,15 +657,15 @@ export function карточкаСледа(с) {
 }
 
 /* --- Менструальный цикл ----------------------------------------------------
-   Кольцо из четырёх фаз с зазорами и подписями, засечки дней, метка —
-   текущий день. Цвета фаз проверены на различимость; у каждой дуги есть
-   подпись в легенде. */
+   Семь видов на выбор (ВИДЫ_ЦИКЛА ниже): кольцо, полоса дней, календарь,
+   лунный диск, волна гормонов, капсула, цветок. Цвета фаз — оттенки
+   акцента темы (--cyc-* в misc.css), у каждой фазы есть подпись. */
 
 const ФАЗЫ_ЦИКЛА = {
-  menstrual: { имя: 'Менструация', цвет: '#e66767', значок: '🫖', rx: /menstru|месячн|менстр|кровотеч/i },
-  follicular: { имя: 'Фолликулярная', цвет: '#199e70', значок: '🌱', rx: /follic|фоллик/i },
-  ovulation: { имя: 'Овуляция', цвет: '#c98500', значок: '🌼', rx: /ovul|овуляц/i },
-  luteal: { имя: 'Лютеиновая', цвет: '#9085e9', значок: '🌙', rx: /lute|лютеин/i },
+  menstrual: { имя: 'Менструация', значок: '🫖', rx: /menstru|месячн|менстр|кровотеч/i },
+  follicular: { имя: 'Фолликулярная', значок: '🌱', rx: /follic|фоллик/i },
+  ovulation: { имя: 'Овуляция', значок: '🌼', rx: /ovul|овуляц/i },
+  luteal: { имя: 'Лютеиновая', значок: '🌙', rx: /lute|лютеин/i },
 };
 
 const СОВЕТЫ = {
@@ -718,7 +719,8 @@ function бросок(ключ) {
  * «Защита» и «Последний секс». Бросок показываем, только если близость была.
  */
 export function рискЗачатия(день, L, фаза, контекст = {}) {
-  const ov = L - 14;
+  // Окно овуляции — из блока цикла, если он его сдвинул под слова модели.
+  const ov = Number.isFinite(контекст.ov) ? контекст.ov : L - 14;
   let шанс = ВНЕ_ОКНА;
   if (день) шанс = ШАНС_ПО_ДНЮ[String(день - ov)] ?? ВНЕ_ОКНА;
   else if (фаза === 'ovulation') шанс = .3;
@@ -755,25 +757,44 @@ function блокРиска(р, исход, была) {
     + тест + `</div>`;
 }
 
-export function buildCycle(value, контекст = {}) {
-  const п = метки(value);
-  const L = ограничить(Math.round(число(п['длина цикла'])) || 28, 21, 45);
-  const деньЧисло = Math.round(число(п['день цикла']));
-  const день = Number.isFinite(деньЧисло) && деньЧисло > 0 ? деньЧисло : null;
-  const задержка = Math.max(0, Math.round(число(п['задержка'])) || 0, день && день > L ? день - L : 0);
-  const pl = 5, ov = L - 14;
-  const отрезки = [['menstrual', 1, pl], ['follicular', pl + 1, ov - 2], ['ovulation', ov - 1, ov + 1], ['luteal', ov + 2, L]];
-  let фаза = Object.keys(ФАЗЫ_ЦИКЛА).find(k => ФАЗЫ_ЦИКЛА[k].rx.test(п['фаза'] || ''));
-  if (!фаза && день) фаза = (отрезки.find(([, a, b]) => день >= a && день <= b) || ['luteal'])[0];
-  const опоздание = задержка > 0 || /late|задерж/i.test(п['фаза'] || '');
-  const id = новыйId('cycle');
+// Виды блока цикла — настройка «Вид цикла» в кастомизации. Верх блока
+// (картинка, фаза, значки, легенда) у каждого свой; строки «Месячные»,
+// «ПМС», риск зачатия с тестом и советы ниже — общие.
+export const ВИДЫ_ЦИКЛА = {
+  ring: 'Кольцо',
+  strip: 'Полоса дней',
+  calendar: 'Календарь',
+  moon: 'Лунный диск',
+  hormones: 'Волна гормонов',
+  capsule: 'Капсула',
+  flower: 'Цветок',
+};
 
+// Цвет фазы — оттенок акцента темы (переменные --cyc-* в misc.css). Прежние
+// жёсткие зелёный и золотой выбивались из любой темы.
+const цветФазы = (k) => `var(--cyc-${k})`;
+
+// Дата сцены → { t: мс UTC, год: известен ли год }. «16.06» без года тоже
+// годится: даты покажем, а дни недели — нет.
+function датаСценыЦикла(строка) {
+  const s = String(строка || '');
+  if (!s.trim()) return null;
+  const ms = parseSceneDate(s);
+  if (ms !== null) return { t: ms, год: /\d{4}|\d{1,2}[./-]\d{1,2}[./-]\d{2}(?!\d)/.test(s) };
+  const m = s.match(/(\d{1,2})[./-](\d{1,2})(?![./-]?\d)/);
+  return m ? { t: Date.UTC(2001, +m[2] - 1, +m[1]), год: false } : null;
+}
+const дм = (ms) => { const t = new Date(ms); return String(t.getUTCDate()).padStart(2, '0') + '.' + String(t.getUTCMonth() + 1).padStart(2, '0'); };
+
+// --- Виды -------------------------------------------------------------------
+
+function видКольцо(В) {
+  const { L, день, фаза, опоздание, отрезки, id } = В;
   const Rr = 44, C = 2 * Math.PI * Rr, зазор = 2.5;
-  const дуга = (k, a, b, класс, ширина = '') => {
+  const дуга = (k, a, b, класс) => {
     const длина = Math.max(1, (b - a + 1) / L * C - зазор);
-    return `<circle class="${класс}" cx="60" cy="60" r="${Rr}" stroke="${ФАЗЫ_ЦИКЛА[k].цвет}"${ширина} stroke-dasharray="${длина.toFixed(2)} ${(C - длина).toFixed(2)}" stroke-dashoffset="${(-((a - 1) / L * C)).toFixed(2)}" transform="rotate(-90 60 60)">`;
+    return `<circle class="${класс}" cx="60" cy="60" r="${Rr}" style="stroke:${цветФазы(k)}" stroke-dasharray="${длина.toFixed(2)} ${(C - длина).toFixed(2)}" stroke-dashoffset="${(-((a - 1) / L * C)).toFixed(2)}" transform="rotate(-90 60 60)">`;
   };
-  // Свечение под текущей фазой — та же дуга шире и прозрачнее.
   const свечение = отрезки.filter(([k]) => k === фаза && !опоздание).map(([k, a, b]) => дуга(k, a, b, 'c-glow') + '</circle>').join('');
   const дуги = отрезки.map(([k, a, b]) => дуга(k, a, b, k === фаза ? 'c-arc is-now' : 'c-arc') + `<title>${ФАЗЫ_ЦИКЛА[k].имя}: дни ${a}–${b}</title></circle>`).join('');
   const засечки = Array.from({ length: L }, (_, i) => {
@@ -792,8 +813,164 @@ export function buildCycle(value, контекст = {}) {
   const кольцо = `<svg class="hud-cycle-ring" viewBox="0 0 120 120" role="img" aria-label="Менструальный цикл${день ? ': день ' + день + ' из ' + L : ''}">`
     + `<defs><radialGradient id="${id}-disc"><stop class="d0" offset="0"/><stop class="d1" offset="1"/></radialGradient></defs>`
     + `<circle class="c-disc" cx="60" cy="60" r="37" fill="url(#${id}-disc)"/>${засечки}${свечение}${дуги}${метка}${центрТекст}</svg>`;
+  const легенда = отрезки.map(([k, a, b]) => `<li class="${k === фаза ? 'is-now' : ''}"><i style="--c:${цветФазы(k)}" aria-hidden="true"></i><span>${ФАЗЫ_ЦИКЛА[k].имя}</span><small>${a === b ? a : a + '–' + b}</small></li>`).join('');
+  return `<div class="hud-cycle-top">${кольцо}<div class="hud-cycle-side">${В.фазаHtml}${В.значкиHtml}<ul class="hud-cycle-legend">${легенда}</ul></div></div>`;
+}
 
-  const легенда = отрезки.map(([k, a, b]) => `<li class="${k === фаза ? 'is-now' : ''}"><i style="--c:${ФАЗЫ_ЦИКЛА[k].цвет}" aria-hidden="true"></i><span>${ФАЗЫ_ЦИКЛА[k].имя}</span><small>${a === b ? a : a + '–' + b}</small></li>`).join('');
+// Шапка новых видов: фаза слева, день справа.
+const шапка = (В, хвост = '') => `<div class="hud-cyc-head">${В.фазаHtml}<span class="hud-cyc-sub">${В.день ? `день ${В.день} из ${В.L}` : `цикл ${В.L} дн.`}${хвост}</span></div>`;
+const легендаФаз = (В) => `<div class="hud-cyc-legend">${В.отрезки.map(([k, a, b]) => `<span class="${k === В.фаза ? 'is-now' : ''}"><i style="background:${цветФазы(k)}"></i>${ФАЗЫ_ЦИКЛА[k].имя}<small>${a === b ? a : a + '–' + b}</small></span>`).join('')}</div>`;
+const следующиеПодпись = (В) => В.следующие ? ` · следующие ${escapeHtml(В.следующие)}` : '';
+
+function видПолоса(В) {
+  const { L, день, фазаДня, фертилен } = В;
+  const всего = Math.max(L, день || 0);
+  let ячейки = '', окно = '';
+  for (let d = 1; d <= всего; d++) {
+    const сверх = d > L;
+    ячейки += `<span class="d${d === день ? ' today' : ''}${сверх ? ' over' : ''}" data-n="${d}" style="${сверх ? '' : 'background:' + цветФазы(фазаДня(d))}" title="День ${d}${сверх ? ': задержка' : ': ' + ФАЗЫ_ЦИКЛА[фазаДня(d)].имя}"></span>`;
+    окно += `<span${!сверх && фертилен(d) ? ' class="on"' : ''}></span>`;
+  }
+  const шкала = [1, 7, 14, 21, всего].filter((x, i, a) => a.indexOf(x) === i && x <= всего).map(x => `<span style="left:${((x - .5) / всего * 100).toFixed(1)}%">${x}</span>`).join('');
+  return `<div class="hud-cycle-top hud-cyc v-strip">${шапка(В, следующиеПодпись(В))}
+    <div class="hud-cyc-strip" style="grid-template-columns:repeat(${всего},1fr)">${ячейки}</div>
+    <div class="hud-cyc-fert" style="grid-template-columns:repeat(${всего},1fr)" title="Фертильное окно">${окно}</div>
+    <div class="hud-cyc-scale">${шкала}</div>${В.значкиHtml}${легендаФаз(В)}</div>`;
+}
+
+function видКалендарь(В) {
+  const { L, день, фазаДня, фертилен, дата, опоздание } = В;
+  const всего = Math.max(L, день || 0);
+  const прогноз = опоздание ? 0 : 5;
+  let клетки = '';
+  if (дата && дата.год) {
+    клетки += ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Вс'].map(w => `<b class="wd">${w}</b>`).join('');
+    const первый = new Date(дата.день(1));
+    for (let i = 0; i < (первый.getUTCDay() + 6) % 7; i++) клетки += '<span class="c empty"></span>';
+  }
+  const подпись = (d) => дата ? new Date(дата.день(d)).getUTCDate() : d;
+  for (let d = 1; d <= всего + прогноз; d++) {
+    const когда = дата ? дм(дата.день(d)) + ' · ' : '';
+    if (d > всего) { клетки += `<span class="c pred" title="${когда}прогноз месячных">${подпись(d)}</span>`; continue; }
+    if (d > L) { клетки += `<span class="c over${d === день ? ' today' : ''}" title="${когда}день ${d}: задержка">${подпись(d)}</span>`; continue; }
+    const k = фазаДня(d);
+    клетки += `<span class="c k-${k}${d === день ? ' today' : ''}${фертилен(d) ? ' fert' : ''}" style="background:${цветФазы(k)}" title="${когда}день ${d}: ${ФАЗЫ_ЦИКЛА[k].имя}">${подпись(d)}</span>`;
+  }
+  const сегодня = дата && день ? ` · сегодня ${дм(дата.день(день))}` : '';
+  return `<div class="hud-cycle-top hud-cyc v-calendar">${шапка(В, сегодня)}
+    <div class="hud-cyc-cal${дата && дата.год ? '' : ' no-week'}">${клетки}</div>
+    ${В.значкиHtml}${легендаФаз(В)}<div class="hud-cyc-legend is-marks"><span>• фертильные дни</span>${прогноз ? '<span>┅ прогноз месячных</span>' : ''}</div></div>`;
+}
+
+function видЛуна(В) {
+  const { L, день, фазаДня, id, дата, ov } = В;
+  const d0 = день ? Math.min(день, L) : 1;
+  const доля = (d0 - 1) / L, свет = (1 - Math.cos(доля * 2 * Math.PI)) / 2;
+  const R = 50, c = 64, сдвиг = (доля < .5 ? -1 : 1) * 2 * R * свет;
+  let метки = '';
+  for (let d = 1; d <= L; d++) {
+    const у = (d - .5) / L * 2 * Math.PI - Math.PI / 2;
+    метки += `<circle class="${d === день ? 'is-today' : ''}" cx="${(c + 60 * Math.cos(у)).toFixed(1)}" cy="${(c + 60 * Math.sin(у)).toFixed(1)}" r="${d === день ? 3.4 : 1.7}" style="fill:${цветФазы(фазаДня(d))}"/>`;
+  }
+  const луна = ['новолуние', 'растущий серп', 'растущая луна', 'почти полная', 'полнолуние', 'убывающая луна', 'убывающий серп', 'старый месяц'][Math.floor(доля * 8 + .5) % 8];
+  const строки = [
+    дата ? ['Были', дм(дата.день(1))] : null,
+    ['Фертильно', дата ? `${дм(дата.день(ov - 5))} – ${дм(дата.день(ov + 1))}` : `дни ${ov - 5}–${ov + 1}`],
+    В.следующие ? ['Следующие', escapeHtml(В.следующие)] : null,
+  ].filter(Boolean).map(([k, v]) => `<div><span>${k}</span><span>${v}</span></div>`).join('');
+  return `<div class="hud-cycle-top hud-cyc v-moon">
+    <svg class="hud-cyc-moon" viewBox="0 0 128 128" role="img" aria-label="Лунный диск цикла${день ? ': день ' + день + ' из ' + L : ''}">
+      <defs><radialGradient id="${id}-m" cx="40%" cy="38%"><stop offset="0" style="stop-color:var(--cyc-ovulation)"/><stop offset="1" style="stop-color:var(--cyc-menstrual)"/></radialGradient>
+      <clipPath id="${id}-mc"><circle cx="${c}" cy="${c}" r="${R}"/></clipPath></defs>
+      ${метки}<circle cx="${c}" cy="${c}" r="${R}" fill="url(#${id}-m)"/>
+      <circle class="m-shadow" cx="${(c + сдвиг).toFixed(1)}" cy="${c}" r="${R}" clip-path="url(#${id}-mc)"/>
+      <circle class="m-rim" cx="${c}" cy="${c}" r="${R}"/>
+      <text class="m-day" x="${c}" y="${c + 6}">${день || '—'}</text>${день ? `<text class="m-sub" x="${c}" y="${c + 20}">из ${L}</text>` : ''}
+    </svg>
+    <div class="hud-cyc-moon-side">${В.фазаHtml}<span class="hud-cyc-sub">луна цикла: ${луна}</span><div class="hud-cyc-stats">${строки}</div></div>
+    ${В.значкиHtml}</div>`;
+}
+
+const ПОЯСНЕНИЕ_ГОРМОНОВ = {
+  menstrual: 'Гормоны на минимуме: усталость, тянет к теплу и покою.',
+  follicular: 'Эстроген растёт: больше сил, лёгкости и интереса к людям.',
+  ovulation: 'Пик ЛГ и эстрогена: энергия, уверенность и влечение на максимуме.',
+  luteal: 'Правит прогестерон: спокойнее, но ближе к концу — раздражительность и тяга к сладкому.',
+  late: 'Цикл затянулся: прогестерон не уходит — стресс, болезнь или беременность.',
+};
+
+function видГормоны(В) {
+  const { L, день, фаза, опоздание, ov, отрезки } = В;
+  const W = 360, H = 150, top = 16, base = 116;
+  const x = d => 8 + (d - 1) / (L - 1) * (W - 16), y = v => base - v * (base - top);
+  const g = (d, mu, s) => Math.exp(-((d - mu) ** 2) / (2 * s * s));
+  const кривые = [
+    ['Эстроген', d => .15 + .85 * g(d, ov - 1.5, 2.6) + .4 * g(d, ov + 7, 3.2), 'h-est'],
+    ['Прогестерон', d => .05 + .9 * g(d, ov + 7, 3.4), 'h-prog'],
+    ['ЛГ', d => .06 + .94 * g(d, ov - .5, .9), 'h-lh'],
+    ['ФСГ', d => .12 + .3 * g(d, 3, 2.5) + .45 * g(d, ov - .5, 1), 'h-fsh'],
+  ];
+  const путь = f => { let p = ''; for (let d = 1; d <= L; d += .25) p += (p ? ' L' : 'M') + x(d).toFixed(1) + ' ' + y(f(d)).toFixed(1); return p; };
+  const полосы = отрезки.map(([k, a, b]) => `<rect x="${x(a - .5).toFixed(1)}" y="${base + 6}" width="${(x(b + .5) - x(a - .5)).toFixed(1)}" height="8" rx="2" style="fill:${цветФазы(k)}"/>`).join('');
+  const d0 = день ? Math.min(день, L) : null;
+  const сегодня = d0 ? `<line class="h-now" x1="${x(d0)}" x2="${x(d0)}" y1="${top - 6}" y2="${base + 14}"/><circle class="h-dot" cx="${x(d0)}" cy="${top - 6}" r="3.5"/><text class="h-lbl" x="${Math.min(x(d0) + 6, W - 64)}" y="${top}">сегодня</text>` : '';
+  return `<div class="hud-cycle-top hud-cyc v-hormones">${шапка(В)}
+    <svg class="hud-cyc-horm" viewBox="0 0 ${W} ${H}" role="img" aria-label="Уровни гормонов по дням цикла">
+      <line class="h-base" x1="8" x2="${W - 8}" y1="${base}" y2="${base}"/>
+      ${кривые.map(([имя, f, кл]) => `<path class="${кл}" d="${путь(f)}"><title>${имя}</title></path>`).join('')}${полосы}${сегодня}
+    </svg>
+    <div class="hud-cyc-legend is-lines">${кривые.map(([имя, , кл]) => `<span><i class="${кл}"></i>${имя}</span>`).join('')}</div>
+    <div class="hud-cyc-tip">${ПОЯСНЕНИЕ_ГОРМОНОВ[опоздание ? 'late' : фаза] || ''}</div>${В.значкиHtml}</div>`;
+}
+
+function видКапсула(В) {
+  const { L, день, фаза, опоздание, ov, отрезки } = В;
+  const pos = d => ((Math.min(d, L) - .5) / L * 100).toFixed(1) + '%';
+  const полоса = отрезки.map(([k, a, b]) => `${цветФазы(k)} ${((a - 1) / L * 100).toFixed(1)}% ${(b / L * 100).toFixed(1)}%`).join(', ');
+  const имя = опоздание ? 'Задержка' : (ФАЗЫ_ЦИКЛА[фаза] ? ФАЗЫ_ЦИКЛА[фаза].имя : 'Цикл');
+  return `<div class="hud-cycle-top hud-cyc v-capsule">
+    <div class="hud-cyc-caps"><span class="pill">${имя}</span>
+      <span class="bar" style="background:linear-gradient(90deg, ${полоса})"><span class="fw" style="left:calc(${pos(ov - 5)} - 5px);right:calc(100% - ${pos(ov + 1)} - 5px)"></span>${день ? `<span class="now" style="left:${pos(день)}"></span>` : ''}</span>
+      <span class="num">${день ? `${день}/${L}` : `—/${L}`}</span></div>
+    <div class="hud-cyc-caps-sub">${В.следующие ? `<span>следующие ${escapeHtml(В.следующие)}</span>` : '<span></span>'}<span>фертильно: дни ${ov - 5}–${ov + 1}</span></div>
+    ${В.значкиHtml}</div>`;
+}
+
+function видЦветок(В) {
+  const { L, день, фазаДня, отрезки, фаза } = В;
+  const c = 72;
+  let лепестки = '';
+  for (let d = 1; d <= L; d++) {
+    const угол = (d - .5) / L * 360 - 90, сег = d === Math.min(день || 0, L), len = сег ? 60 : 48, w = сег ? 9 : 5.5;
+    лепестки += `<ellipse class="${сег ? 'is-today' : ''}" cx="${c + len / 2 + 13}" cy="${c}" rx="${len / 2}" ry="${w}" transform="rotate(${угол.toFixed(1)} ${c} ${c})" style="fill:${цветФазы(фазаДня(d))}"><title>День ${d}: ${ФАЗЫ_ЦИКЛА[фазаДня(d)].имя}</title></ellipse>`;
+  }
+  const список = отрезки.map(([k, a, b]) => `<li class="${k === фаза ? 'is-now' : ''}"><i style="background:${цветФазы(k)}"></i>${ФАЗЫ_ЦИКЛА[k].имя}<small>${a === b ? a : a + '–' + b}</small></li>`).join('');
+  return `<div class="hud-cycle-top hud-cyc v-flower">
+    <svg class="hud-cyc-flower" viewBox="0 0 144 144" role="img" aria-label="Цветок цикла${день ? ': день ' + день + ' из ' + L : ''}">${лепестки}
+      <circle class="f-core" cx="${c}" cy="${c}" r="16"/><text class="f-day" x="${c}" y="${c + 6}">${день || '—'}</text></svg>
+    <div class="hud-cyc-flower-side">${В.фазаHtml}<ul class="hud-cyc-phases">${список}</ul>${В.следующие ? `<span class="hud-cyc-sub">следующие ${escapeHtml(В.следующие)}</span>` : ''}</div>
+    ${В.значкиHtml}</div>`;
+}
+
+const ВИДЫ = { ring: видКольцо, strip: видПолоса, calendar: видКалендарь, moon: видЛуна, hormones: видГормоны, capsule: видКапсула, flower: видЦветок };
+
+export function buildCycle(value, контекст = {}) {
+  const п = метки(value);
+  const L = ограничить(Math.round(число(п['длина цикла'])) || 28, 21, 45);
+  const деньЧисло = Math.round(число(п['день цикла']));
+  const день = Number.isFinite(деньЧисло) && деньЧисло > 0 ? деньЧисло : null;
+  const задержка = Math.max(0, Math.round(число(п['задержка'])) || 0, день && день > L ? день - L : 0);
+  let фаза = Object.keys(ФАЗЫ_ЦИКЛА).find(k => ФАЗЫ_ЦИКЛА[k].rx.test(п['фаза'] || ''));
+  // Модель назвала овуляцию, а по дню она выходит на пару дней позже или
+  // раньше: окно ставим на сегодня, чтобы картинка, значки и риск не спорили
+  // с подписью.
+  const pl = 5;
+  const ov = фаза === 'ovulation' && день && день <= L && Math.abs(день - (L - 14)) > 1 ? ограничить(день, pl + 3, L - 2) : L - 14;
+  const отрезки = [['menstrual', 1, pl], ['follicular', pl + 1, ov - 2], ['ovulation', ov - 1, ov + 1], ['luteal', ov + 2, L]];
+  const фазаДня = (d) => (отрезки.find(([, a, b]) => d >= a && d <= b) || ['luteal'])[0];
+  if (!фаза && день) фаза = фазаДня(Math.min(день, L));
+  const опоздание = задержка > 0 || /late|задерж/i.test(п['фаза'] || '');
+  const id = новыйId('cycle');
 
   // Значки состояния: фертильное окно, ПМС, сколько до месячных.
   const значки = [];
@@ -802,21 +979,29 @@ export function buildCycle(value, контекст = {}) {
   if (пмсСейчас) значки.push('<span class="hud-cycle-badge is-pms"><i aria-hidden="true">☁</i>окно ПМС</span>');
   if (день && !опоздание && день <= L) значки.push(`<span class="hud-cycle-badge"><i aria-hidden="true">🗓</i>до месячных ≈ ${L - день + 1} дн.</span>`);
 
+  const датаСцены = датаСценыЦикла(контекст.сцена);
+  const В = {
+    L, день, фаза, опоздание, задержка, ov, отрезки, фазаДня, id,
+    фертилен: (d) => d >= ov - 5 && d <= ov + 1,
+    дата: датаСцены && день ? { год: датаСцены.год, день: (d) => датаСцены.t + (d - день) * 864e5 } : null,
+    следующие: п['следующие месячные'] && !пусто(п['следующие месячные']) ? String(п['следующие месячные']).trim() : '',
+    фазаHtml: `<div class="hud-cycle-phase">${фаза || опоздание ? `<b>${опоздание ? 'Задержка' : ФАЗЫ_ЦИКЛА[фаза].имя}</b>` : '<b>Фаза не названа</b>'}${опоздание && задержка ? `<em class="hud-cycle-late"><i aria-hidden="true">!</i>${задержка} дн.</em>` : ''}</div>`,
+    значкиHtml: значки.length ? `<div class="hud-cycle-badges">${значки.join('')}</div>` : '',
+  };
+  const вид = ВИДЫ[контекст.вид || settings.cycleView] || видКольцо;
+
   const строка = (подпись, текст, класс = '') => текст && !пусто(текст) ? `<div class="hud-cycle-row${класс}"><span>${подпись}</span><p>${applyTooltips(текст)}</p></div>` : '';
   const ключСоветов = опоздание ? 'late' : фаза;
   const советы = (СОВЕТЫ[ключСоветов] || []).concat(пмсСейчас ? ['Окно ПМС: раздражительность и усталость — часть цикла, а не черта характера'] : []);
   const значокСоветов = опоздание ? '⏳' : (ФАЗЫ_ЦИКЛА[фаза] ? ФАЗЫ_ЦИКЛА[фаза].значок : '•');
 
-  return `<div class="hud-cycle${опоздание ? ' is-late' : ''}"${фаза && !опоздание ? ` style="--phase:${ФАЗЫ_ЦИКЛА[фаза].цвет}"` : ''}>`
-    + `<div class="hud-cycle-top">${кольцо}<div class="hud-cycle-side">`
-    + `<div class="hud-cycle-phase">${фаза ? `<b>${опоздание ? 'Задержка' : ФАЗЫ_ЦИКЛА[фаза].имя}</b>` : '<b>Фаза не названа</b>'}${опоздание && задержка ? `<em class="hud-cycle-late"><i aria-hidden="true">!</i>${задержка} дн.</em>` : ''}</div>`
-    + (значки.length ? `<div class="hud-cycle-badges">${значки.join('')}</div>` : '')
-    + `<ul class="hud-cycle-legend">${легенда}</ul></div></div>`
+  return `<div class="hud-cycle${опоздание ? ' is-late' : ''}"${фаза && !опоздание ? ` style="--phase:${цветФазы(фаза)}"` : ''}>`
+    + вид(В)
     + строка('Месячные', п['следующие месячные'])
     + строка('ПМС', п['пмс'])
     + (опоздание ? строка('Причина задержки', п['причина задержки'] || 'не названа', ' is-late') : '')
     + (() => {
-        const р = рискЗачатия(день, L, фаза, контекст);
+        const р = рискЗачатия(день, L, фаза, { ...контекст, ov });
         const исход = исходЗачатия(контекст.кто || 'char', р, контекст.секс);
         // При задержке риск считать уже не к чему, а тест нужен именно
         // сейчас: кнопка остаётся одна.

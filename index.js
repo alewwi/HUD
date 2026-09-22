@@ -1,34 +1,35 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=23.0.2';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=23.0.2';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.0.2';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.0.2';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.0.2';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.0.2';
-import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.0.2';
-import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=23.0.2';
-import { привязатьИсторию } from './render/intimacy.js?v=23.0.2';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.0.2';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.0.2';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.0.2';
-import { buildMemoryHTML } from './render/memory.js?v=23.0.2';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.0.2';
-import { buildPhoneTabsHTML } from './render/phone.js?v=23.0.2';
-import { праздникиСцены } from './render/holidays.js?v=23.0.2';
-import { скрытыеФактыЗачатия } from './render/conception.js?v=23.0.2';
-import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.0.2';
-import { hudHasRelations } from './render/relations-graph.js?v=23.0.2';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.0.2';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.0.2';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=23.0.2';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.0.2';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.0.2';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=23.0.2';
-import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.0.2';
-import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.0.2';
-import { создатьПроверкуПолноты } from './hud-check.js?v=23.0.2';
-import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.0.2';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=23.3.4';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=23.3.4';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.3.4';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.3.4';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.3.4';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.3.4';
+import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.3.4';
+import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=23.3.4';
+import { привязатьИсторию, ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.3.4';
+import { ПРИМЕР_HUD_ТЕКСТ } from './render/sample-hud.js?v=23.3.4';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.3.4';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.3.4';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.3.4';
+import { buildMemoryHTML } from './render/memory.js?v=23.3.4';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.3.4';
+import { buildPhoneTabsHTML } from './render/phone.js?v=23.3.4';
+import { праздникиСцены } from './render/holidays.js?v=23.3.4';
+import { скрытыеФактыЗачатия } from './render/conception.js?v=23.3.4';
+import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.3.4';
+import { hudHasRelations } from './render/relations-graph.js?v=23.3.4';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.3.4';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.3.4';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=23.3.4';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.3.4';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.3.4';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=23.3.4';
+import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.3.4';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.3.4';
+import { создатьПроверкуПолноты } from './hud-check.js?v=23.3.4';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.3.4';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -185,7 +186,7 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
    "B": "[body and mind: current physical and mental state in a phrase or two — tired, tense, tipsy, calm, shaken]",
    "H": "[health: ${болезни ? 'overall physical state in a phrase — pain, stamina, how they hold up; specific illnesses and injuries go to Ill, never its codes here' : 'wounds, pain, illness, stamina'}. 'empty' when all is well.]",${болезни ? `
    "Ill": "[illnesses, injuries and traumas, ONLY if any — otherwise omit. One group per condition, separated by |, each 'nm: diagnosis, wound or trauma; sg: fresh, worsening, stable, healing, chronic or healed; rc: recovery 0-100%; sy: symptoms now; trt: treatment'. Track each condition until it heals, updating stage, recovery and symptoms as in-story time passes; a scratch gone by tomorrow can stay in H. Keep each condition under the SAME name every turn and in ONE field only${следы ? (интим ? ' — marks left by intimacy (hickeys, bites, scratches, soreness) go to Mrk unless they become a real injury, and nothing is in both Ill and Mrk' : ' — marks that simply fade (bruises, grazes, redness) go to Mrk, and nothing is in both Ill and Mrk') : ''}]",` : ''}${беременность ? `
-   "Prg": "[pregnancy, ONLY once a pregnancy exists in the story, known or not — never invent one; otherwise omit. 'wk: week of pregnancy as a number; due: expected due date; fa: the father, if known; sy: symptoms and how the body is changing; knw: who knows about it; cnd: how the pregnancy is going'. It advances with in-story time]",` : ''}${цикл ? `
+   "Prg": "[pregnancy, ONLY once a pregnancy exists in the story, known or not — never invent one; otherwise omit. 'wk: week of pregnancy as a number; due: expected due date; fa: the father, if known; sy: symptoms and how the body is changing; knw: who knows about it; cnd: how the pregnancy is going; gnd: baby's sex once an ultrasound shows it (from ~18-20 wk), else omit; bnm: chosen name, if any; vis: next doctor's visit or test; crv: cravings and odd appetites'. It advances with in-story time]",` : ''}${цикл ? `
    "Mns": "[menstrual cycle, ONLY for someone with a uterus — otherwise omit. 'cyd: cycle day, a number; cyl: cycle length in days; phs: menstrual, follicular, ovulation, luteal or late; nxt: next period date; pms: PMS window as dates; dly: days late, 0 if none; rsn: likely reason for delay — stress, illness, contraception, pregnancy; empty if none'. It moves forward with in-story days: the day grows, the phase follows, the period comes on time unless stress, illness, contraception or pregnancy delays it]",` : ''}
    "Ph": "[physiology: bodily sensations right now — hunger, thirst, cold, pain, drowsiness${интим ? ', arousal' : ''}. Not the phone]",
    "L": "[location: the exact place right now — city, building, room, spot in the room]",
@@ -238,7 +239,7 @@ ${интим ? `   "SxL": "[last sex: 'dt: when — date, time, place; pr: with 
   "Ap": "[appearance: physical appearance only — build, height, hair, eyes, marks]",
   "H": "[health: ${болезни ? 'overall physical state in a phrase; illnesses and injuries go to Ill, never repeated here' : 'physical state only — wounds, pain, illness, stamina'}]",${болезни ? `
   "Ill": "[illnesses and injuries of {{user}}, ONLY if any — otherwise omit. Same format and rules as for characters: groups separated by |, each 'nm: what it is; sg: fresh, worsening, stable, healing, chronic or healed; rc: recovery 0-100%; sy: symptoms; trt: treatment'. Keep each condition under the SAME name every turn and in ONE field only${следы ? (интим ? ' — marks left by intimacy (hickeys, bites, scratches, soreness) go to Mrk unless they become a real injury, and nothing is in both Ill and Mrk' : ' — marks that simply fade (bruises, grazes, redness) go to Mrk, and nothing is in both Ill and Mrk') : ''}]",` : ''}${беременность ? `
-  "Prg": "[pregnancy of {{user}}, ONLY if pregnant — otherwise omit. 'wk: week as a number; due: expected due date; fa: the father, if known; sy: symptoms; knw: who knows; cnd: how it is going']",` : ''}${цикл ? `
+  "Prg": "[pregnancy of {{user}}, ONLY if pregnant — otherwise omit. 'wk: week as a number; due: expected due date; fa: the father, if known; sy: symptoms; knw: who knows; cnd: how it is going; gnd: baby's sex once an ultrasound shows it (from ~18-20 wk), else omit; bnm: chosen name, if any; vis: next doctor's visit or test; crv: cravings and odd appetites']",` : ''}${цикл ? `
   "Mns": "[menstrual cycle of {{user}}, ONLY with a uterus — otherwise omit. Same format and rules as for characters: 'cyd: day; cyl: length; phs: menstrual, follicular, ovulation, luteal or late; nxt: next period; pms: PMS window; dly: days late; rsn: reason for delay']",` : ''}
   "Rl": "[relationships: how {{user}} feels about EVERY other named person who matters now — same format and rules as for characters; bidirectional with their Rl; separate by ;]",
 ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and rules as for characters: '<what>: <where> — <how it looks and feels now> | <fade time: 12h, 3d>'; the same mark keeps the same name every turn and is never also in Ill; 'empty' when there are none]",
@@ -916,13 +917,37 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     // никто не применял, поэтому ни одна телефонная настройка не работала.
     // Пишем в *-user переменные: сами --hud-phone-* объявлены на эмуляторе и
     // подхватывают их как переопределение (см. style.css).
-    if (settings.phoneBgStart && settings.phoneBgEnd) root.style.setProperty('--hud-phone-bg-user',
-      `linear-gradient(160deg, ${hexToRgba(settings.phoneBgStart, settings.phoneBgAlpha)}, ${hexToRgba(settings.phoneBgEnd, settings.phoneBgAlpha)})`);
-    if (settings.phoneAccent) root.style.setProperty('--hud-phone-accent-user', settings.phoneAccent);
-    if (settings.phoneBlur !== undefined) root.style.setProperty('--hud-phone-blur-user', settings.phoneBlur + 'px');
+    // Фон, акцент, блюр, шрифт и его размер телефон берёт у HUD, пока стоит
+    // «Наследовать тему HUD» (phoneThemeAuto): так правка темы сразу видна и
+    // в телефоне. Правка любого из этих полей снимает галочку (events.js),
+    // и дальше действуют свои значения. Раньше свои значения писались
+    // всегда, а унаследованные — в переменные, которые эмулятор перекрывал:
+    // галочка ничего не делала.
+    const pAuto = settings.phoneThemeAuto !== false;
+    const pBgStart = pAuto ? (settings.cardBgStart || '#0a0a0f') : (settings.phoneBgStart || '#0a0a0f');
+    const pBgEnd   = pAuto ? (settings.cardBgEnd   || '#12121a') : (settings.phoneBgEnd   || '#12121a');
+    const pBgAlpha = pAuto ? 92 : (settings.phoneBgAlpha !== undefined ? settings.phoneBgAlpha : 92);
+    const pAccent  = pAuto ? (settings.accentColor || '#de859f') : (settings.phoneAccent || '#de859f');
+    const pBlur    = pAuto ? (settings.backdropBlur !== undefined ? Number(settings.backdropBlur) + 6 : 14)
+                           : (settings.phoneBlur !== undefined ? settings.phoneBlur : 14);
+    const pFont    = pAuto ? (settings.fontMain || 'inherit') : (settings.phoneFont || 'inherit');
+    const pFontSz  = pAuto ? (settings.fontSizeMain !== undefined ? Number(settings.fontSizeMain) - 1 : 13)
+                           : (settings.phoneFontSize !== undefined ? settings.phoneFontSize : 13);
+    root.style.setProperty('--hud-phone-bg-user', `linear-gradient(160deg, ${hexToRgba(pBgStart, pBgAlpha)}, ${hexToRgba(pBgEnd, pBgAlpha)})`);
+    root.style.setProperty('--hud-phone-accent-user', pAccent);
+    root.style.setProperty('--hud-phone-blur-user', pBlur + 'px');
+    root.style.setProperty('--hud-phone-font-user', pFont);
+    root.style.setProperty('--hud-phone-font-size-user', pFontSz + 'px');
+    root.classList.toggle('hud-phone-inherit', pAuto);
+    // Те же значения — и на корне: их читают элементы вне эмулятора.
+    root.style.setProperty('--hud-phone-bg', `linear-gradient(160deg, ${hexToRgba(pBgStart, pBgAlpha)}, ${hexToRgba(pBgEnd, pBgAlpha)})`);
+    root.style.setProperty('--hud-phone-accent', pAccent);
+    root.style.setProperty('--hud-phone-blur', pBlur + 'px');
+    root.style.setProperty('--hud-phone-font', pFont);
+    root.style.setProperty('--hud-phone-font-size', pFontSz + 'px');
+    root.style.setProperty('--hud-phone-radius', (settings.phoneBubbleRadius !== undefined ? settings.phoneBubbleRadius : 15) + 'px');
+    root.style.setProperty('--hud-phone-notif-alpha', String((settings.phoneNotifAlpha !== undefined ? settings.phoneNotifAlpha : 94) / 100));
     if (settings.phoneBubbleRadius !== undefined) root.style.setProperty('--hud-phone-radius-user', settings.phoneBubbleRadius + 'px');
-    if (settings.phoneFont) root.style.setProperty('--hud-phone-font-user', settings.phoneFont);
-    if (settings.phoneFontSize !== undefined) root.style.setProperty('--hud-phone-font-size-user', settings.phoneFontSize + 'px');
     if (settings.phoneNotifAlpha !== undefined) root.style.setProperty('--hud-phone-notif-alpha-user', (settings.phoneNotifAlpha / 100).toFixed(2));
     if (settings.phoneIconRadius !== undefined) root.style.setProperty('--hud-phone-icon-radius-user', settings.phoneIconRadius + 'px');
     if (settings.phoneFrameColor) root.style.setProperty('--hud-phone-frame-user', settings.phoneFrameColor);
@@ -965,29 +990,6 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
         root.style.setProperty('--hud-msg-out-end', hexToRgba(settings.msgOutEnd, settings.msgOutAlpha !== undefined ? settings.msgOutAlpha : 80));
     }
 
-    // --- ТЕЛЕФОН ---------------------------------------------------------
-    // При phoneThemeAuto телефон берёт цвета и шрифт у HUD, поэтому выглядит
-    // частью общей темы. Как только пользователь трогает любую телефонную
-    // настройку, флаг снимается (см. обработчик в events.js) и дальше
-    // используются его собственные значения — правку не затирает.
-    const pAuto = settings.phoneThemeAuto !== false;
-    const pBgStart = pAuto ? (settings.cardBgStart || '#0a0a0f') : (settings.phoneBgStart || '#0a0a0f');
-    const pBgEnd   = pAuto ? (settings.cardBgEnd   || '#12121a') : (settings.phoneBgEnd   || '#12121a');
-    const pBgAlpha = pAuto ? 92 : (settings.phoneBgAlpha !== undefined ? settings.phoneBgAlpha : 92);
-    const pAccent  = pAuto ? (settings.accentColor || '#de859f') : (settings.phoneAccent || '#de859f');
-    const pBlur    = pAuto ? (settings.backdropBlur !== undefined ? Number(settings.backdropBlur) + 6 : 14)
-                           : (settings.phoneBlur !== undefined ? settings.phoneBlur : 14);
-    const pFont    = pAuto ? (settings.fontMain || 'inherit') : (settings.phoneFont || 'inherit');
-    const pFontSz  = pAuto ? (settings.fontSizeMain !== undefined ? Number(settings.fontSizeMain) - 1 : 13)
-                           : (settings.phoneFontSize !== undefined ? settings.phoneFontSize : 13);
-
-    root.style.setProperty('--hud-phone-bg', `linear-gradient(160deg, ${hexToRgba(pBgStart, pBgAlpha)}, ${hexToRgba(pBgEnd, pBgAlpha)})`);
-    root.style.setProperty('--hud-phone-accent', pAccent);
-    root.style.setProperty('--hud-phone-blur', pBlur + 'px');
-    root.style.setProperty('--hud-phone-font', pFont);
-    root.style.setProperty('--hud-phone-font-size', pFontSz + 'px');
-    root.style.setProperty('--hud-phone-radius', (settings.phoneBubbleRadius !== undefined ? settings.phoneBubbleRadius : 15) + 'px');
-    root.style.setProperty('--hud-phone-notif-alpha', String((settings.phoneNotifAlpha !== undefined ? settings.phoneNotifAlpha : 94) / 100));
     if (settings.badgeColor) root.style.setProperty('--hud-badge-bg', settings.badgeColor);
     if (settings.clockColor) root.style.setProperty('--hud-clock-color', settings.clockColor);
     
@@ -1323,6 +1325,172 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
   }
 
 
+  // Панель кастомизации: темы, цвета, шрифты и вид блоков. Живёт в окне
+  // «Кастомизация» (настройки расширения или 🎨 на карточке), а не в каждой
+  // карточке: там она была скрытой копией на тысячу узлов в каждом ходе.
+  function разметкаПанелиТемы() {
+    return `
+        <details class="hud-custom-views" open><summary>🧩 Вид блоков</summary>
+          <div class="hud-theme-grid">
+            <div class="hud-theme-row"><label>Менструальный цикл:</label>
+              <select class="hud-theme-select-input hud-custom-rerender" data-key="cycleView">${Object.entries(ВИДЫ_ЦИКЛА).map(([k, имя]) => `<option value="${k}"${(settings.cycleView || 'ring') === k ? ' selected' : ''}>${имя}</option>`).join('')}</select>
+            </div>
+          </div>
+          <div class="hud-theme-presets-note">Вид блока цикла у персонажей и у игрока. Справа видно сразу; карточки в чате перерисуются, когда закроешь окно.</div>
+        </details>
+        <div class="hud-theme-presets">
+          <div class="hud-theme-presets-title">Готовые темы</div>
+          <div class="hud-theme-presets-row">${presetRowHTML(settings.themePreset)}</div>
+          <div class="hud-theme-presets-note">Тема просто выставляет ползунки ниже — после неё всё можно править руками.</div>
+          <div class="hud-theme-packs">
+            ${THEME_CATEGORIES.map(c => `<label title="Показывать темы набора «${c.label}»"><input type="checkbox" data-theme-pack="${c.id}" ${(settings.themePacks && settings.themePacks[c.id] === false) ? '' : 'checked'}> ${c.label}</label>`).join('')}
+          </div>
+          <div class="hud-theme-acts">
+            <button type="button" class="hud-theme-act" data-theme-act="save" title="Запомнить текущие ползунки для выбранной темы">💾 Запомнить правки</button>
+            <button type="button" class="hud-theme-act" data-theme-act="undo" title="Отменить последнюю правку: ползунок, цвет, смену темы или откат">↶ Шаг назад</button>
+            <button type="button" class="hud-theme-act" data-theme-act="revert" title="Вернуть теме её исходные значения">↺ Вернуть тему</button>
+            <button type="button" class="hud-theme-act own" data-theme-act="mine" title="Сохранить текущие настройки отдельной темой «Своя»">★ Сохранить свою тему</button>
+            ${settings.customTheme ? '<button type="button" class="hud-theme-act danger" data-theme-act="forget" title="Удалить сохранённую свою тему">✕ Удалить свою</button>' : ''}
+            <button type="button" class="hud-theme-act" data-theme-act="export" title="Сохранить текущую тему в файл — его можно переслать">⭳ Файл темы</button>
+            <button type="button" class="hud-theme-act" data-theme-act="import" title="Загрузить тему из файла">⭱ Из файла</button>
+          </div>
+        </div>
+        <div class="hud-theme-system">
+          <div class="hud-theme-presets-title">Система цветов</div>
+          <div class="hud-theme-roles">
+            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="accentColor" value="${settings.accentColor}"><span>Основной</span></label>
+            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="cardBgStart" value="${settings.cardBgStart}"><span>Поверхность</span></label>
+            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="infoBlockBgStart" value="${settings.infoBlockBgStart}"><span>Стекло</span></label>
+            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="textColor" value="${settings.textColor || '#e6e6ee'}"><span>Текст</span></label>
+            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="textMutedColor" value="${settings.textMutedColor || '#9aa0ae'}"><span>Приглушённый</span></label>
+            <button type="button" class="hud-role hud-role-clear" data-theme-act="cleartext" title="Вернуть цвет текста из темы SillyTavern"><span class="hud-role-x">⌫</span><span>Цвет текста<br>по умолчанию</span></button>
+            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="dramaColor" value="${settings.dramaColor}"><span>Тревога</span></label>
+            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="memoryAccent" value="${settings.memoryAccent}"><span>Память</span></label>
+          </div>
+          <div class="hud-theme-row hud-glass-row">
+            <label>Стекло:</label>
+            <select class="hud-theme-select-input" data-key="glassType">
+              <option value="frosted"${settings.glassType === 'frosted' ? ' selected' : ''}>Матовое</option>
+              <option value="clear"${settings.glassType === 'clear' ? ' selected' : ''}>Прозрачное</option>
+              <option value="tinted"${settings.glassType === 'tinted' ? ' selected' : ''}>Тонированное</option>
+              <option value="liquid"${settings.glassType === 'liquid' ? ' selected' : ''}>Жидкое</option>
+              <option value="iridescent"${settings.glassType === 'iridescent' ? ' selected' : ''}>Перламутр</option>
+            </select>
+          </div>
+        </div>
+        <details><summary>🎨 Общие цвета & Фоны</summary>
+          <div class="hud-theme-grid">
+            <div class="hud-theme-row"><label>Акцент:</label> <input type="color" class="hud-theme-color-input" data-key="accentColor" value="${settings.accentColor}"></div>
+            <div class="hud-theme-row"><label>Свечение:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="glowColor" value="${settings.glowColor}"><input type="range" class="hud-theme-range-input" data-key="glowAlpha" min="0" max="100" value="${settings.glowAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Фон (Старт):</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="cardBgStart" value="${settings.cardBgStart}"><input type="range" class="hud-theme-range-input" data-key="cardBgAlpha" min="0" max="100" value="${settings.cardBgAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Фон (Конец):</label> <input type="color" class="hud-theme-color-input" data-key="cardBgEnd" value="${settings.cardBgEnd}"></div>
+
+            <!-- БЛОК БЛЮРА И ВСТРОЕННОГО "РЕДАКТОРА" ФОНА -->
+            <div class="hud-theme-row"><label>Сила Блюра:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="backdropBlur" min="0" max="30" value="${settings.backdropBlur}"> <span style="font-size:0.8em;opacity:0.7">${settings.backdropBlur}px</span></div></div>
+            <div class="hud-theme-row"><label>Прозрачность фона:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="bgOpacity" min="0" max="100" value="${settings.bgOpacity}"> <span style="font-size:0.8em;opacity:0.7">${settings.bgOpacity}%</span></div></div>
+            <div class="hud-theme-row"><label>Масштаб картинки:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="bgScale" min="50" max="200" value="${settings.bgScale}"> <span style="font-size:0.8em;opacity:0.7">${settings.bgScale}%</span></div></div>
+            <div class="hud-theme-row"><label>Сдвиг (Вверх-Вниз):</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="bgOffsetY" min="0" max="100" value="${settings.bgOffsetY}"> <span style="font-size:0.8em;opacity:0.7">${settings.bgOffsetY}%</span></div></div>
+            
+            <div class="hud-theme-row"><label>Фон (Картинка):</label> 
+              <div class="hud-theme-flex">
+                <input type="text" class="hud-theme-text-input" data-key="bgImage" value="${settings.bgImage}" placeholder="URL..." style="width: 80px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 2px 4px; font-size: 0.9em;">
+                <button type="button" class="hud-bg-upload-btn" title="Выбрать картинку из папки">📁</button>
+                <input type="file" class="hud-bg-upload-file" accept="image/*" style="display:none;">
+                <button type="button" class="hud-bg-clear-btn" title="Убрать фоновую картинку">✕</button>
+              </div>
+            </div>
+            <!-- КОНЕЦ НОВОГО БЛОКА -->
+            
+            <div class="hud-theme-row"><label>Инфоблок (Старт):</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="infoBlockBgStart" value="${settings.infoBlockBgStart}"><input type="range" class="hud-theme-range-input" data-key="infoBlockBgAlpha" min="0" max="100" value="${settings.infoBlockBgAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Инфоблок (Конец):</label> <input type="color" class="hud-theme-color-input" data-key="infoBlockBgEnd" value="${settings.infoBlockBgEnd}"></div>
+          </div>
+        </details>
+        <details><summary>🧠 Память</summary>
+          <div class="hud-theme-grid">
+            <div class="hud-theme-row"><label>Фон (Старт):</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="memoryBgStart" value="${settings.memoryBgStart}"><input type="range" class="hud-theme-range-input" data-key="memoryBgAlpha" min="0" max="100" value="${settings.memoryBgAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Фон (Конец):</label> <input type="color" class="hud-theme-color-input" data-key="memoryBgEnd" value="${settings.memoryBgEnd}"></div>
+            <div class="hud-theme-row"><label>Акцент:</label> <input type="color" class="hud-theme-color-input" data-key="memoryAccent" value="${settings.memoryAccent}"></div>
+            <div class="hud-theme-row"><label>Свечение:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="memoryGlowAlpha" min="0" max="100" value="${settings.memoryGlowAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Блюр:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="memoryBlur" min="0" max="30" value="${settings.memoryBlur}"><span style="font-size:0.8em;opacity:0.7">${settings.memoryBlur}px</span></div></div>
+          </div>
+        </details>
+        <details><summary>📱 Телефон — настройки темы</summary>
+          <div class="hud-theme-grid">
+            <label class="hud-theme-row hud-phone-auto-row" style="grid-column:1/-1; display:flex; align-items:center; gap:8px; cursor:pointer;">
+              <input type="checkbox" class="hud-phone-theme-auto" ${settings.phoneThemeAuto !== false ? "checked" : ""}>
+              <span>Наследовать тему HUD</span>
+            </label>
+            <div style="font-size:10.5px;opacity:.55;grid-column:1/-1;margin:-4px 0 4px;">Пока включено, телефон берёт акцент, фон, блюр и шрифт у HUD. Любая правка ниже выключит наследование, чтобы её не затирало.</div>
+            <div class="hud-theme-row"><label>Фон экрана:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="phoneBgStart" value="${settings.phoneBgStart}"><input type="color" class="hud-theme-color-input" data-key="phoneBgEnd" value="${settings.phoneBgEnd}"><input type="range" class="hud-theme-range-input" data-key="phoneBgAlpha" min="0" max="100" value="${settings.phoneBgAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Акцент:</label> <input type="color" class="hud-theme-color-input" data-key="phoneAccent" value="${settings.phoneAccent}"></div>
+            <div class="hud-theme-row"><label>Блюр стекла:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneBlur" min="0" max="30" value="${settings.phoneBlur}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneBlur}px</span></div></div>
+            <div class="hud-theme-row"><label>Входящие сообщения:</label><div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="msgInBg" value="${settings.msgInBg}"><input type="range" class="hud-theme-range-input" data-key="msgInAlpha" min="0" max="100" value="${settings.msgInAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Исходящие сообщения:</label><div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="msgOutStart" value="${settings.msgOutStart}"><input type="color" class="hud-theme-color-input" data-key="msgOutEnd" value="${settings.msgOutEnd}"><input type="range" class="hud-theme-range-input" data-key="msgOutAlpha" min="0" max="100" value="${settings.msgOutAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Скругление пузырей:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneBubbleRadius" min="2" max="24" value="${settings.phoneBubbleRadius}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneBubbleRadius}px</span></div></div>
+            <div class="hud-theme-row"><label>Шрифт телефона:</label> <select class="hud-theme-select-input" data-key="phoneFont">${makeFontOptions(settings.phoneFont)}</select></div>
+            <div class="hud-theme-row"><label>Размер шрифта:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneFontSize" min="10" max="20" value="${settings.phoneFontSize}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneFontSize}px</span></div></div>
+            <div class="hud-theme-row"><label>Плотность уведомлений:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneNotifAlpha" min="40" max="100" value="${settings.phoneNotifAlpha}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneNotifAlpha}%</span></div></div>
+            <div class="hud-theme-row"><label>Скругление иконок:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneIconRadius" min="6" max="26" value="${settings.phoneIconRadius}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneIconRadius}px</span></div></div>
+            <div class="hud-theme-row"><label>Цвет корпуса:</label> <input type="color" class="hud-theme-color-input" data-key="phoneFrameColor" value="${settings.phoneFrameColor}"></div>
+            <div class="hud-theme-row"><label>Свечение экрана:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneScreenGlow" min="0" max="100" value="${settings.phoneScreenGlow}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneScreenGlow}%</span></div></div>
+            <div class="hud-theme-row"><label>Карточек уведомлений:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneNotifMax" min="1" max="5" value="${settings.phoneNotifMax}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneNotifMax}</span></div></div>
+          </div>
+        </details>
+        <details><summary>🗂️ Верхние плашки & Табы</summary>
+          <div class="hud-theme-grid">
+            <div class="hud-theme-row"><label>Верхняя панель:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="topBarBg" value="${settings.topBarBg}"><input type="range" class="hud-theme-range-input" data-key="topBarAlpha" min="0" max="100" value="${settings.topBarAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Фон вкладок (Табы):</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="tabsBg" value="${settings.tabsBg}"><input type="range" class="hud-theme-range-input" data-key="tabsAlpha" min="0" max="100" value="${settings.tabsAlpha}"></div></div>
+          </div>
+        </details>
+        <details><summary>🌤️ Виджет погоды</summary>
+          <div class="hud-theme-grid">
+            <div class="hud-theme-row"><label>Оверлей (Оттенок):</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="sceneOverlayColor" value="${settings.sceneOverlayColor}"><input type="range" class="hud-theme-range-input" data-key="sceneOverlayAlpha" min="0" max="100" value="${settings.sceneOverlayAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Цвет текста:</label> <input type="color" class="hud-theme-color-input" data-key="sceneTextColor" value="${settings.sceneTextColor}"></div>
+            <div class="hud-theme-row"><label>Фон плашек:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="weatherBgColor" value="${settings.weatherBgColor}"><input type="range" class="hud-theme-range-input" data-key="weatherBgAlpha" min="0" max="100" value="${settings.weatherBgAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Блюр плашек:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="weatherBlur" min="0" max="30" value="${settings.weatherBlur}"> <span style="font-size:0.8em;opacity:0.7">${settings.weatherBlur}px</span></div></div>
+            <div class="hud-theme-row" title="Насколько сильно вечер и ночь притемняют виджет погоды — и в покое, и после касания. 0 — не притемнять вовсе, 100 — исходная сила."><label>Затемнение сцены:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="sceneDarkness" min="0" max="150" value="${settings.sceneDarkness}"> <span style="font-size:0.8em;opacity:0.7">${settings.sceneDarkness}%</span></div></div>
+          </div>
+        </details>
+        <details><summary>📡 Перехваты</summary>
+          <div class="hud-theme-grid">
+            <div class="hud-theme-row"><label>Цвет Перехвата:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="interceptColor" value="${settings.interceptColor}"><input type="range" class="hud-theme-range-input" data-key="interceptBgAlpha" min="0" max="100" value="${settings.interceptBgAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Бейдж уведомл.:</label> <input type="color" class="hud-theme-color-input" data-key="badgeColor" value="${settings.badgeColor}"></div>
+          </div>
+        </details>
+        <details><summary>⚠️ Драма & NSFW</summary>
+          <div class="hud-theme-grid">
+            <div class="hud-theme-row"><label>Цвет Драмы:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="dramaColor" value="${settings.dramaColor}"><input type="range" class="hud-theme-range-input" data-key="dramaBgAlpha" min="0" max="100" value="${settings.dramaBgAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Цвет NSFW:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="nsfwColor" value="${settings.nsfwColor}"><input type="range" class="hud-theme-range-input" data-key="nsfwBgAlpha" min="0" max="100" value="${settings.nsfwBgAlpha}"></div></div>
+
+          </div>
+        </details>
+        <details><summary>✍️ Шрифты & Размеры</summary>
+          <div class="hud-theme-grid">
+            <div class="hud-theme-row"><label>Цвет часов:</label> <input type="color" class="hud-theme-color-input" data-key="clockColor" value="${settings.clockColor}"></div>
+            <div class="hud-theme-row"><label>Шрифт часов:</label>
+              <select class="hud-theme-select-input" data-key="fontClock">${makeFontOptions(settings.fontClock)}</select>
+            </div>
+            <div class="hud-theme-row"><label>Размер часов:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="fontSizeClock" min="20" max="60" value="${settings.fontSizeClock}"> <span style="font-size:0.8em;opacity:0.7">${settings.fontSizeClock}px</span></div></div>
+            
+            <div class="hud-theme-row"><label>Основной шрифт:</label>
+              <select class="hud-theme-select-input" data-key="fontMain">${makeFontOptions(settings.fontMain)}</select>
+            </div>
+            <div class="hud-theme-row"><label>Размер текста:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="fontSizeMain" min="10" max="22" value="${settings.fontSizeMain}"> <span style="font-size:0.8em;opacity:0.7">${settings.fontSizeMain}px</span></div></div>
+            
+            <div class="hud-theme-row"><label>Шрифт заголовков:</label>
+              <select class="hud-theme-select-input" data-key="fontHeaders">${makeFontOptions(settings.fontHeaders)}</select>
+            </div>
+            <div class="hud-theme-row"><label>Размер заголовков:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="fontSizeHeaders" min="10" max="20" value="${settings.fontSizeHeaders}"> <span style="font-size:0.8em;opacity:0.7">${settings.fontSizeHeaders}px</span></div></div>
+            
+            <div class="hud-theme-row"><label>Шрифт Дневника:</label>
+              <select class="hud-theme-select-input" data-key="fontDiary">${makeFontOptions(settings.fontDiary)}</select>
+            </div>
+          </div>
+		  <div class="hud-theme-row"><label>Размер Дневника:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="fontSizeDiary" min="12" max="30" value="${settings.fontSizeDiary}"> <span style="font-size:0.8em;opacity:0.7">${settings.fontSizeDiary}px</span></div></div>
+        </details>
+`;
+  }
+
   function renderHUD(data) {
     if (!data || Object.keys(data).length === 0) return '';
     const hasMemory = Boolean(data.memory && (
@@ -1349,6 +1517,11 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     if (data.characters.length > 0) mainCharName = data.characters[0]['Имя'] || '';
 
     let tRaw = data.scene['Время'] || '', wRaw = data.scene['Погода'] || '', dRaw = data.scene['Дата'] || '';
+    // Дата сцены нужна блоку цикла (календарь, лунный диск): кладём её
+    // персонажам и игроку скрытым полем — в JSON и в сравнения оно не попадает.
+    const датаДляЦикла = (о) => { if (о && typeof о === 'object') Object.defineProperty(о, '__датаСцены', { value: dRaw, configurable: true, writable: true, enumerable: false }); };
+    (Array.isArray(data.characters) ? data.characters : []).forEach(датаДляЦикла);
+    датаДляЦикла(data.user);
     let phaseClass = 'phase-night';
     let phaseLow = (tRaw || '').toLowerCase();
 
@@ -1639,182 +1812,11 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       <label class="hud-os-topbar" for="os-toggle-${baseId}">
         <div class="hud-os-topbar-left"><span class="hud-os-logo">TavernOS</span>${osSubtitleHtml}</div>
         <div class="hud-os-topbar-right">
-            <span class="hud-theme-btn" title="Настроить цвета темы">🎨</span>
             ${settings.enableAssistant !== false ? '<span class="hud-ask-btn" role="button" tabindex="0" title="Спросить про сюжет: модель ответит по HUD и последним сообщениям, в чат ничего не попадёт">❓</span>' : ''}
             <span class="hud-regen-btn" title="Перегенерировать только HUD">🔄</span>
             <span class="hud-toggle-indicator">▼</span>
         </div>
       </label>
-      <div class="hud-theme-panel" id="theme-panel-${baseId}">
-        <div class="hud-theme-presets">
-          <div class="hud-theme-presets-title">Готовые темы</div>
-          <div class="hud-theme-presets-row">${presetRowHTML(settings.themePreset)}</div>
-          <div class="hud-theme-presets-note">Тема просто выставляет ползунки ниже — после неё всё можно править руками.</div>
-          <div class="hud-theme-packs">
-            ${THEME_CATEGORIES.map(c => `<label title="Показывать темы набора «${c.label}»"><input type="checkbox" data-theme-pack="${c.id}" ${(settings.themePacks && settings.themePacks[c.id] === false) ? '' : 'checked'}> ${c.label}</label>`).join('')}
-          </div>
-          <div class="hud-theme-acts">
-            <button type="button" class="hud-theme-act" data-theme-act="save" title="Запомнить текущие ползунки для выбранной темы">💾 Запомнить правки</button>
-            <button type="button" class="hud-theme-act" data-theme-act="revert" title="Вернуть теме её исходные значения">↺ Вернуть тему</button>
-            <button type="button" class="hud-theme-act own" data-theme-act="mine" title="Сохранить текущие настройки отдельной темой «Своя»">★ Сохранить свою тему</button>
-            ${settings.customTheme ? '<button type="button" class="hud-theme-act danger" data-theme-act="forget" title="Удалить сохранённую свою тему">✕ Удалить свою</button>' : ''}
-            <button type="button" class="hud-theme-act" data-theme-act="export" title="Сохранить текущую тему в файл — его можно переслать">⭳ Файл темы</button>
-            <button type="button" class="hud-theme-act" data-theme-act="import" title="Загрузить тему из файла">⭱ Из файла</button>
-          </div>
-        </div>
-        <div class="hud-theme-system">
-          <div class="hud-theme-presets-title">Система цветов</div>
-          <div class="hud-theme-roles">
-            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="accentColor" value="${settings.accentColor}"><span>Основной</span></label>
-            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="cardBgStart" value="${settings.cardBgStart}"><span>Поверхность</span></label>
-            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="infoBlockBgStart" value="${settings.infoBlockBgStart}"><span>Стекло</span></label>
-            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="textColor" value="${settings.textColor || '#e6e6ee'}"><span>Текст</span></label>
-            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="textMutedColor" value="${settings.textMutedColor || '#9aa0ae'}"><span>Приглушённый</span></label>
-            <button type="button" class="hud-role hud-role-clear" data-theme-act="cleartext" title="Вернуть цвет текста из темы SillyTavern"><span class="hud-role-x">⌫</span><span>Цвет текста<br>по умолчанию</span></button>
-            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="dramaColor" value="${settings.dramaColor}"><span>Тревога</span></label>
-            <label class="hud-role"><input type="color" class="hud-theme-color-input" data-key="memoryAccent" value="${settings.memoryAccent}"><span>Память</span></label>
-          </div>
-          <div class="hud-theme-row hud-glass-row">
-            <label>Стекло:</label>
-            <select class="hud-theme-select-input" data-key="glassType">
-              <option value="frosted"${settings.glassType === 'frosted' ? ' selected' : ''}>Матовое</option>
-              <option value="clear"${settings.glassType === 'clear' ? ' selected' : ''}>Прозрачное</option>
-              <option value="tinted"${settings.glassType === 'tinted' ? ' selected' : ''}>Тонированное</option>
-              <option value="liquid"${settings.glassType === 'liquid' ? ' selected' : ''}>Жидкое</option>
-              <option value="iridescent"${settings.glassType === 'iridescent' ? ' selected' : ''}>Перламутр</option>
-            </select>
-          </div>
-          <div class="hud-theme-presets-title" style="margin-top:10px">Живой просмотр</div>
-          <div class="hud-theme-preview">
-            <div class="hud-os-card">
-              <div class="hud-os-topbar"><div class="hud-os-topbar-left"><span class="hud-os-logo">TavernOS</span></div></div>
-              <div class="hud-os-wrapper">
-                <div class="hud-tab-content active">
-                  <div class="hud-key-block">
-                    <div class="hud-key-label">Настроение</div>
-                    <div class="hud-key-list">
-                      <div class="hud-key-item">Спокойна, но настороже</div>
-                      <div class="hud-key-item">Ждёт ответа</div>
-                    </div>
-                  </div>
-                  <div class="hud-row"><div class="hud-key">Локация</div><div>Старый мост</div></div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="hud-theme-presets-note">Просмотр живой: он собран из тех же блоков, что и настоящий HUD, и меняется вместе с ползунками.</div>
-        </div>
-        <details><summary>🎨 Общие цвета & Фоны</summary>
-          <div class="hud-theme-grid">
-            <div class="hud-theme-row"><label>Акцент:</label> <input type="color" class="hud-theme-color-input" data-key="accentColor" value="${settings.accentColor}"></div>
-            <div class="hud-theme-row"><label>Свечение:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="glowColor" value="${settings.glowColor}"><input type="range" class="hud-theme-range-input" data-key="glowAlpha" min="0" max="100" value="${settings.glowAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Фон (Старт):</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="cardBgStart" value="${settings.cardBgStart}"><input type="range" class="hud-theme-range-input" data-key="cardBgAlpha" min="0" max="100" value="${settings.cardBgAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Фон (Конец):</label> <input type="color" class="hud-theme-color-input" data-key="cardBgEnd" value="${settings.cardBgEnd}"></div>
-
-            <!-- БЛОК БЛЮРА И ВСТРОЕННОГО "РЕДАКТОРА" ФОНА -->
-            <div class="hud-theme-row"><label>Сила Блюра:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="backdropBlur" min="0" max="30" value="${settings.backdropBlur}"> <span style="font-size:0.8em;opacity:0.7">${settings.backdropBlur}px</span></div></div>
-            <div class="hud-theme-row"><label>Прозрачность фона:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="bgOpacity" min="0" max="100" value="${settings.bgOpacity}"> <span style="font-size:0.8em;opacity:0.7">${settings.bgOpacity}%</span></div></div>
-            <div class="hud-theme-row"><label>Масштаб картинки:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="bgScale" min="50" max="200" value="${settings.bgScale}"> <span style="font-size:0.8em;opacity:0.7">${settings.bgScale}%</span></div></div>
-            <div class="hud-theme-row"><label>Сдвиг (Вверх-Вниз):</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="bgOffsetY" min="0" max="100" value="${settings.bgOffsetY}"> <span style="font-size:0.8em;opacity:0.7">${settings.bgOffsetY}%</span></div></div>
-            
-            <div class="hud-theme-row"><label>Фон (Картинка):</label> 
-              <div class="hud-theme-flex">
-                <input type="text" class="hud-theme-text-input" data-key="bgImage" value="${settings.bgImage}" placeholder="URL..." style="width: 80px; background: rgba(0,0,0,0.5); color: #fff; border: 1px solid rgba(255,255,255,0.2); border-radius: 4px; padding: 2px 4px; font-size: 0.9em;">
-                <button type="button" class="hud-bg-upload-btn" title="Выбрать картинку из папки">📁</button>
-                <input type="file" class="hud-bg-upload-file" accept="image/*" style="display:none;">
-                <button type="button" class="hud-bg-clear-btn" title="Убрать фоновую картинку">✕</button>
-              </div>
-            </div>
-            <!-- КОНЕЦ НОВОГО БЛОКА -->
-            
-            <div class="hud-theme-row"><label>Инфоблок (Старт):</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="infoBlockBgStart" value="${settings.infoBlockBgStart}"><input type="range" class="hud-theme-range-input" data-key="infoBlockBgAlpha" min="0" max="100" value="${settings.infoBlockBgAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Инфоблок (Конец):</label> <input type="color" class="hud-theme-color-input" data-key="infoBlockBgEnd" value="${settings.infoBlockBgEnd}"></div>
-          </div>
-        </details>
-        <details><summary>🧠 Память</summary>
-          <div class="hud-theme-grid">
-            <div class="hud-theme-row"><label>Фон (Старт):</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="memoryBgStart" value="${settings.memoryBgStart}"><input type="range" class="hud-theme-range-input" data-key="memoryBgAlpha" min="0" max="100" value="${settings.memoryBgAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Фон (Конец):</label> <input type="color" class="hud-theme-color-input" data-key="memoryBgEnd" value="${settings.memoryBgEnd}"></div>
-            <div class="hud-theme-row"><label>Акцент:</label> <input type="color" class="hud-theme-color-input" data-key="memoryAccent" value="${settings.memoryAccent}"></div>
-            <div class="hud-theme-row"><label>Свечение:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="memoryGlowAlpha" min="0" max="100" value="${settings.memoryGlowAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Блюр:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="memoryBlur" min="0" max="30" value="${settings.memoryBlur}"><span style="font-size:0.8em;opacity:0.7">${settings.memoryBlur}px</span></div></div>
-          </div>
-        </details>
-        <details><summary>📱 Телефон — настройки темы</summary>
-          <div class="hud-theme-grid">
-            <label class="hud-theme-row hud-phone-auto-row" style="grid-column:1/-1; display:flex; align-items:center; gap:8px; cursor:pointer;">
-              <input type="checkbox" class="hud-phone-theme-auto" ${settings.phoneThemeAuto !== false ? "checked" : ""}>
-              <span>Наследовать тему HUD</span>
-            </label>
-            <div style="font-size:10.5px;opacity:.55;grid-column:1/-1;margin:-4px 0 4px;">Пока включено, телефон берёт акцент, фон, блюр и шрифт у HUD. Любая правка ниже выключит наследование, чтобы её не затирало.</div>
-            <div class="hud-theme-row"><label>Фон экрана:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="phoneBgStart" value="${settings.phoneBgStart}"><input type="color" class="hud-theme-color-input" data-key="phoneBgEnd" value="${settings.phoneBgEnd}"><input type="range" class="hud-theme-range-input" data-key="phoneBgAlpha" min="0" max="100" value="${settings.phoneBgAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Акцент:</label> <input type="color" class="hud-theme-color-input" data-key="phoneAccent" value="${settings.phoneAccent}"></div>
-            <div class="hud-theme-row"><label>Блюр стекла:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneBlur" min="0" max="30" value="${settings.phoneBlur}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneBlur}px</span></div></div>
-            <div class="hud-theme-row"><label>Входящие сообщения:</label><div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="msgInBg" value="${settings.msgInBg}"><input type="range" class="hud-theme-range-input" data-key="msgInAlpha" min="0" max="100" value="${settings.msgInAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Исходящие сообщения:</label><div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="msgOutStart" value="${settings.msgOutStart}"><input type="color" class="hud-theme-color-input" data-key="msgOutEnd" value="${settings.msgOutEnd}"><input type="range" class="hud-theme-range-input" data-key="msgOutAlpha" min="0" max="100" value="${settings.msgOutAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Скругление пузырей:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneBubbleRadius" min="2" max="24" value="${settings.phoneBubbleRadius}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneBubbleRadius}px</span></div></div>
-            <div class="hud-theme-row"><label>Шрифт телефона:</label> <select class="hud-theme-select-input" data-key="phoneFont">${makeFontOptions(settings.phoneFont)}</select></div>
-            <div class="hud-theme-row"><label>Размер шрифта:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneFontSize" min="10" max="20" value="${settings.phoneFontSize}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneFontSize}px</span></div></div>
-            <div class="hud-theme-row"><label>Плотность уведомлений:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneNotifAlpha" min="40" max="100" value="${settings.phoneNotifAlpha}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneNotifAlpha}%</span></div></div>
-            <div class="hud-theme-row"><label>Скругление иконок:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneIconRadius" min="6" max="26" value="${settings.phoneIconRadius}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneIconRadius}px</span></div></div>
-            <div class="hud-theme-row"><label>Цвет корпуса:</label> <input type="color" class="hud-theme-color-input" data-key="phoneFrameColor" value="${settings.phoneFrameColor}"></div>
-            <div class="hud-theme-row"><label>Свечение экрана:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneScreenGlow" min="0" max="100" value="${settings.phoneScreenGlow}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneScreenGlow}%</span></div></div>
-            <div class="hud-theme-row"><label>Карточек уведомлений:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneNotifMax" min="1" max="5" value="${settings.phoneNotifMax}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneNotifMax}</span></div></div>
-          </div>
-        </details>
-        <details><summary>🗂️ Верхние плашки & Табы</summary>
-          <div class="hud-theme-grid">
-            <div class="hud-theme-row"><label>Верхняя панель:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="topBarBg" value="${settings.topBarBg}"><input type="range" class="hud-theme-range-input" data-key="topBarAlpha" min="0" max="100" value="${settings.topBarAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Фон вкладок (Табы):</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="tabsBg" value="${settings.tabsBg}"><input type="range" class="hud-theme-range-input" data-key="tabsAlpha" min="0" max="100" value="${settings.tabsAlpha}"></div></div>
-          </div>
-        </details>
-        <details><summary>🌤️ Виджет погоды</summary>
-          <div class="hud-theme-grid">
-            <div class="hud-theme-row"><label>Оверлей (Оттенок):</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="sceneOverlayColor" value="${settings.sceneOverlayColor}"><input type="range" class="hud-theme-range-input" data-key="sceneOverlayAlpha" min="0" max="100" value="${settings.sceneOverlayAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Цвет текста:</label> <input type="color" class="hud-theme-color-input" data-key="sceneTextColor" value="${settings.sceneTextColor}"></div>
-            <div class="hud-theme-row"><label>Фон плашек:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="weatherBgColor" value="${settings.weatherBgColor}"><input type="range" class="hud-theme-range-input" data-key="weatherBgAlpha" min="0" max="100" value="${settings.weatherBgAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Блюр плашек:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="weatherBlur" min="0" max="30" value="${settings.weatherBlur}"> <span style="font-size:0.8em;opacity:0.7">${settings.weatherBlur}px</span></div></div>
-            <div class="hud-theme-row" title="Насколько сильно вечер и ночь притемняют виджет погоды — и в покое, и после касания. 0 — не притемнять вовсе, 100 — исходная сила."><label>Затемнение сцены:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="sceneDarkness" min="0" max="150" value="${settings.sceneDarkness}"> <span style="font-size:0.8em;opacity:0.7">${settings.sceneDarkness}%</span></div></div>
-          </div>
-        </details>
-        <details><summary>📡 Перехваты</summary>
-          <div class="hud-theme-grid">
-            <div class="hud-theme-row"><label>Цвет Перехвата:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="interceptColor" value="${settings.interceptColor}"><input type="range" class="hud-theme-range-input" data-key="interceptBgAlpha" min="0" max="100" value="${settings.interceptBgAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Бейдж уведомл.:</label> <input type="color" class="hud-theme-color-input" data-key="badgeColor" value="${settings.badgeColor}"></div>
-          </div>
-        </details>
-        <details><summary>⚠️ Драма & NSFW</summary>
-          <div class="hud-theme-grid">
-            <div class="hud-theme-row"><label>Цвет Драмы:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="dramaColor" value="${settings.dramaColor}"><input type="range" class="hud-theme-range-input" data-key="dramaBgAlpha" min="0" max="100" value="${settings.dramaBgAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Цвет NSFW:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="nsfwColor" value="${settings.nsfwColor}"><input type="range" class="hud-theme-range-input" data-key="nsfwBgAlpha" min="0" max="100" value="${settings.nsfwBgAlpha}"></div></div>
-
-          </div>
-        </details>
-        <details><summary>✍️ Шрифты & Размеры</summary>
-          <div class="hud-theme-grid">
-            <div class="hud-theme-row"><label>Цвет часов:</label> <input type="color" class="hud-theme-color-input" data-key="clockColor" value="${settings.clockColor}"></div>
-            <div class="hud-theme-row"><label>Шрифт часов:</label>
-              <select class="hud-theme-select-input" data-key="fontClock">${makeFontOptions(settings.fontClock)}</select>
-            </div>
-            <div class="hud-theme-row"><label>Размер часов:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="fontSizeClock" min="20" max="60" value="${settings.fontSizeClock}"> <span style="font-size:0.8em;opacity:0.7">${settings.fontSizeClock}px</span></div></div>
-            
-            <div class="hud-theme-row"><label>Основной шрифт:</label>
-              <select class="hud-theme-select-input" data-key="fontMain">${makeFontOptions(settings.fontMain)}</select>
-            </div>
-            <div class="hud-theme-row"><label>Размер текста:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="fontSizeMain" min="10" max="22" value="${settings.fontSizeMain}"> <span style="font-size:0.8em;opacity:0.7">${settings.fontSizeMain}px</span></div></div>
-            
-            <div class="hud-theme-row"><label>Шрифт заголовков:</label>
-              <select class="hud-theme-select-input" data-key="fontHeaders">${makeFontOptions(settings.fontHeaders)}</select>
-            </div>
-            <div class="hud-theme-row"><label>Размер заголовков:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="fontSizeHeaders" min="10" max="20" value="${settings.fontSizeHeaders}"> <span style="font-size:0.8em;opacity:0.7">${settings.fontSizeHeaders}px</span></div></div>
-            
-            <div class="hud-theme-row"><label>Шрифт Дневника:</label>
-              <select class="hud-theme-select-input" data-key="fontDiary">${makeFontOptions(settings.fontDiary)}</select>
-            </div>
-          </div>
-		  <div class="hud-theme-row"><label>Размер Дневника:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="fontSizeDiary" min="12" max="30" value="${settings.fontSizeDiary}"> <span style="font-size:0.8em;opacity:0.7">${settings.fontSizeDiary}px</span></div></div>
-        </details>
-      </div>
       <div class="hud-os-wrapper">`;
 
     if (Object.keys(data.scene).length > 0) {
@@ -2374,6 +2376,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // на карточку несколькими строками ниже.
       возвращатьПослеСборки = true;
       textElement.querySelectorAll('.hud-regen-btn').forEach(bindHudRegenButton);
+    кнопкаВерсийHUD(messageElement, textElement);
       freezeOldHUDs();
 
     }
@@ -3143,9 +3146,25 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     return info;
   }
 
+  // Идущие генерации HUD: по номеру сообщения — чем их отменить.
+  const генерацииHUD = new Map();
+  function отменитьГенерациюHUD(mesId) {
+    const к = генерацииHUD.get(String(mesId));
+    if (к && !к.signal.aborted) к.abort();
+  }
+
   async function handleHudRegenButton(regenBtn) {
     if (!regenBtn) return;
-    if (regenBtn.classList.contains('hud-spinning')) return;
+    if (regenBtn.classList.contains('hud-spinning')) {
+      // Повторное нажатие отменяет. Одно касание мышью приходит дважды
+      // (pointerup и click) — первые 0,8 с второе событие не считаем отменой.
+      const начато = Number(regenBtn.dataset.hudStartedAt || 0);
+      if (Date.now() - начато > 800) {
+        const mes = regenBtn.closest('.mes');
+        if (mes) отменитьГенерациюHUD(mes.getAttribute('mesid'));
+      }
+      return;
+    }
 
         const isCreateBtn = regenBtn.classList.contains('hud-create-btn');
         const originalBtnContent = regenBtn.innerHTML;
@@ -3154,9 +3173,20 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             ? `<div style="display:flex; align-items:center; gap:6px;"><div class="hud-stars"><svg class="hud-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg><svg class="hud-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg><svg class="hud-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div> Создаю...</div>`
             : `<div class="hud-stars"><svg class="hud-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg><svg class="hud-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg><svg class="hud-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>`;
         regenBtn.classList.add('hud-spinning');
+        regenBtn.dataset.hudStartedAt = String(Date.now());
+        regenBtn.title = 'HUD генерируется — нажми ещё раз, чтобы отменить';
 
-        let loadingToast = showHudToast('loading', 'Загрузка', 'HUD генерируется. Подождите.');
         let mesEl = regenBtn.closest('.mes');
+        const отмена = new AbortController();
+        const ключГенерации = String(mesEl && mesEl.getAttribute('mesid'));
+        генерацииHUD.set(ключГенерации, отмена);
+        const отменено = () => отмена.signal.aborted;
+        let loadingToast = showHudToast('loading', 'Загрузка', 'HUD генерируется. Подождите.');
+        if (loadingToast) {
+          const место = loadingToast.querySelector('.hud-toast-content') || loadingToast;
+          место.insertAdjacentHTML('beforeend', '<button type="button" class="hud-toast-cancel">Отменить</button>');
+          место.querySelector('.hud-toast-cancel').addEventListener('click', (e) => { e.preventDefault(); e.stopPropagation(); отмена.abort(); });
+        }
 
         try {
             const mesId = mesEl.getAttribute('mesid');
@@ -3512,7 +3542,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
                 settings.regenProfileId,
                 freshMessages,
                 hudMaxTokens,
-                { stream: false, includePreset: false, includeInstruct: false }
+                { stream: false, includePreset: false, includeInstruct: false, signal: отмена.signal }
             );
             if (typeof profileResult === 'string') aiText = profileResult;
             else if (profileResult && profileResult.choices && profileResult.choices[0]) aiText = profileResult.choices[0].message ? profileResult.choices[0].message.content : profileResult.choices[0].text;
@@ -3523,7 +3553,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
         } else {
             // Перехват узнаёт этот запрос по <hud_instructions> в теле и
             // пропускает — глобальный флаг здесь больше не нужен.
-            const res = await fetch(requestUrl, { method: 'POST', headers: requestHeaders, cache: 'no-cache', body: JSON.stringify(hudRequestBody) });
+            const res = await fetch(requestUrl, { method: 'POST', headers: requestHeaders, cache: 'no-cache', body: JSON.stringify(hudRequestBody), signal: отмена.signal });
             if (!res.ok) {
                 const apiError = await readHudApiError(res);
                 throw new Error(`API Error ${apiError.status}: ${apiError.message}`);
@@ -3536,6 +3566,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             else aiText = JSON.stringify(data);
         }
 
+            if (отменено()) throw new DOMException('Отменено', 'AbortError');
             let newHudText = repairGeneratedHudBlock(aiText);
             // Сохраняем HUD в кодах — тем же форматом, каким его пишет модель.
             // Развёрнутые русские ключи в истории противоречили правилу «только
@@ -3552,6 +3583,9 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
 
             let updatedFullText = replaceHudBlockInText(oldText, newHudText);
 
+            // Прошлый HUD не теряется: он уходит в версии этого свайпа, и его
+            // можно вернуть кнопкой «↶» на карточке.
+            запомнитьВерсиюHUD(targetMessage, extractHudBlock(текстСообщенияЧата(targetMessage)), 'до перегенерации');
             updateMessageDataForCurrentSwipe(targetMessage, updatedFullText);
 
             const saveFn =
@@ -3599,8 +3633,11 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
                 loadingToast.classList.add('hide');
                 setTimeout(() => loadingToast.remove(), 400);
             }
-            showHudToast('error', 'Ошибка', 'Не удалось обновить HUD: ' + err.message);
+            if (отменено() || (err && err.name === 'AbortError')) showHudToast('success', 'Отменено', 'Генерация HUD остановлена, сообщение не изменилось.');
+            else showHudToast('error', 'Ошибка', 'Не удалось обновить HUD: ' + err.message);
         } finally {
+            if (генерацииHUD.get(ключГенерации) === отмена) генерацииHUD.delete(ключГенерации);
+            regenBtn.removeAttribute('title');
             if (regenBtn.isConnected) {
                 regenBtn.innerHTML = originalBtnContent;
                 regenBtn.classList.remove('hud-spinning');
@@ -3661,6 +3698,135 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     btn.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') открыть(e); });
   }
 
+  // --- Прошлые версии HUD ------------------------------------------------------
+  // Перегенерация кладёт прежний HUD в message.extra.hud_versions. extra у
+  // SillyTavern своё у каждого свайпа (при смене свайпа он переносится в
+  // swipe_info и обратно), так что и версии у каждого свайпа свои, и они
+  // сохраняются в файле чата. Возврат меняет местами: текущий HUD встаёт в
+  // версии, выбранный — в сообщение, так что вернуться можно и обратно.
+  const ВЕРСИЙ_HUD = 10;
+  function текстСообщенияЧата(message) {
+    const свайп = message && Array.isArray(message.swipes) ? message.swipes[message.swipe_id] : undefined;
+    return typeof свайп === 'string' ? свайп : String((message && message.mes) || '');
+  }
+  function версииHUD(message) {
+    const e = message && message.extra;
+    return e && Array.isArray(e.hud_versions) ? e.hud_versions.filter(v => v && typeof v.hud === 'string') : [];
+  }
+  function сохранитьВерсииHUD(message, список) {
+    if (!message) return;
+    if (!message.extra || typeof message.extra !== 'object') message.extra = {};
+    message.extra.hud_versions = список.slice(-ВЕРСИЙ_HUD);
+    const свайп = Array.isArray(message.swipe_info) && Number.isInteger(message.swipe_id) ? message.swipe_info[message.swipe_id] : null;
+    if (свайп && typeof свайп === 'object') {
+      if (!свайп.extra || typeof свайп.extra !== 'object') свайп.extra = {};
+      свайп.extra.hud_versions = message.extra.hud_versions;
+    }
+  }
+  function запомнитьВерсиюHUD(message, hud, подпись = '') {
+    if (!message || !hud) return;
+    const список = версииHUD(message).filter(v => v.hud !== hud);
+    список.push({ hud, when: Date.now(), note: подпись });
+    сохранитьВерсииHUD(message, список);
+  }
+  // Подпись версии: время и дата сцены из самого HUD.
+  function подписьВерсии(v) {
+    let сцена = '';
+    try {
+      const д = parseHUDComplex((hudБлоки(v.hud)[0] || {}).inner || v.hud);
+      const время = String((д.scene && д.scene['Время']) || '').split('|')[0].trim();
+      const дата = String((д.scene && д.scene['Дата']) || '').trim();
+      сцена = [время, дата].filter(Boolean).join(' · ');
+    } catch (_) { /* битый блок — без подписи сцены */ }
+    const t = new Date(v.when || 0);
+    const когда = isNaN(t) ? '' : String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0');
+    return { сцена: сцена || 'сцена не названа', когда, заметка: v.note || '' };
+  }
+
+  async function вернутьВерсиюHUD(messageElement, индекс) {
+    const ctx = getStContextSafe();
+    const id = Number(messageElement && messageElement.getAttribute('mesid'));
+    const message = ctx && Array.isArray(ctx.chat) && Number.isInteger(id) ? ctx.chat[id] : null;
+    if (!message) return;
+    const список = версииHUD(message);
+    const выбранная = список[индекс];
+    if (!выбранная) return;
+    const текст = текстСообщенияЧата(message);
+    const текущий = extractHudBlock(текст);
+    список.splice(индекс, 1);
+    if (текущий) список.push({ hud: текущий, when: Date.now(), note: 'до возврата' });
+    сохранитьВерсииHUD(message, список);
+    updateMessageDataForCurrentSwipe(message, replaceHudBlockInText(текст, выбранная.hud));
+    const обновить = getMessageUpdateFunction(ctx);
+    if (обновить) await Promise.resolve(обновить(id, message, { rerenderMessage: true }));
+    requestAnimationFrame(() => requestAnimationFrame(() => {
+      const fresh = document.querySelector(`.mes[mesid="${id}"]`);
+      if (fresh && fresh.isConnected) safeProcessMessage(fresh);
+    }));
+    const сохранить = (typeof ctx.saveChatConditional === 'function') ? ctx.saveChatConditional.bind(ctx)
+      : (typeof ctx.saveChat === 'function') ? ctx.saveChat.bind(ctx) : null;
+    if (сохранить) Promise.resolve(сохранить()).catch(e => showHudToast('error', 'Не сохранено', 'HUD возвращён, но не записан: ' + e.message));
+    showHudToast('success', 'HUD возвращён', 'Прежний HUD снова в сообщении. Текущий — в списке «↶», его тоже можно вернуть.');
+  }
+
+  // Кнопка «↶ N» в шапке карточки — только если версии есть.
+  function кнопкаВерсийHUD(messageElement, textElement) {
+    const ctx = getStContextSafe();
+    const id = Number(messageElement && messageElement.getAttribute('mesid'));
+    const message = ctx && Array.isArray(ctx.chat) && Number.isInteger(id) ? ctx.chat[id] : null;
+    const список = версииHUD(message);
+    textElement.querySelectorAll('.hud-os-card').forEach(card => {
+      if (card.closest('.hud-theme-preview')) return;
+      const место = card.querySelector(':scope > .hud-os-topbar .hud-os-topbar-right');
+      if (!место) return;
+      const было = место.querySelector('.hud-versions-btn');
+      if (!список.length) { if (было) было.remove(); return; }
+      if (было) { было.querySelector('small').textContent = список.length; return; }
+      const кнопка = document.createElement('span');
+      кнопка.className = 'hud-versions-btn';
+      кнопка.setAttribute('role', 'button');
+      кнопка.tabIndex = 0;
+      кнопка.title = 'Прошлые версии HUD — вернуть одну из них';
+      кнопка.innerHTML = '↶<small>' + список.length + '</small>';
+      const регенерация = место.querySelector('.hud-regen-btn');
+      место.insertBefore(кнопка, регенерация || место.firstChild);
+      const открыть = (e) => {
+        e.preventDefault(); e.stopPropagation();
+        if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+        // Список живёт в body с фиксированной позицией: карточка обрезает всё,
+        // что выходит за её край, и выпадающий список внутри шапки не был виден.
+        const открытое = document.querySelector('.hud-versions-pop');
+        if (открытое) { const тот = открытое.dataset.mes === String(id); открытое.remove(); if (тот) return; }
+        const свежие = версииHUD((getStContextSafe() || {}).chat ? getStContextSafe().chat[id] : null);
+        const окно = document.createElement('div');
+        окно.className = 'hud-versions-pop';
+        окно.dataset.mes = String(id);
+        окно.setAttribute('role', 'menu');
+        окно.innerHTML = '<b>Прошлые версии HUD</b>' + свежие.map((v, i) => ({ v, i })).reverse().map(({ v, i }) => {
+          const п = подписьВерсии(v);
+          return `<button type="button" role="menuitem" data-version="${i}"><span>${escapeHtml(п.сцена)}</span><small>${escapeHtml([п.когда, п.заметка].filter(Boolean).join(' · '))}</small></button>`;
+        }).join('');
+        окно.addEventListener('click', (ev) => {
+          ev.preventDefault(); ev.stopPropagation();
+          const пункт = ev.target.closest('[data-version]');
+          if (!пункт) return;
+          окно.remove();
+          void вернутьВерсиюHUD(messageElement, Number(пункт.dataset.version));
+        }, true);
+        document.body.appendChild(окно);
+        const р = кнопка.getBoundingClientRect();
+        окно.style.top = Math.min(р.bottom + 6, window.innerHeight - окно.offsetHeight - 8) + 'px';
+        окно.style.right = Math.max(8, window.innerWidth - р.right) + 'px';
+        // Клик мимо — закрыть.
+        setTimeout(() => document.addEventListener('click', function мимо(ev) {
+          if (!окно.contains(ev.target) && ev.target !== кнопка) { окно.remove(); document.removeEventListener('click', мимо, true); }
+        }, true), 0);
+      };
+      кнопка.addEventListener('click', открыть, true);
+      кнопка.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') открыть(e); });
+    });
+  }
+
   function bindHudRegenButton(regenBtn) {
     if (!regenBtn || regenBtn.dataset.hudClickBound === 'true') return;
     regenBtn.dataset.hudClickBound = 'true';
@@ -3684,6 +3850,112 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
   }
 
 
+  // --- Окно «Кастомизация» --------------------------------------------------
+  // Слева — панель темы (разметкаПанелиТемы), справа — живой HUD: последний
+  // из чата, а если его ещё нет — пример. Цвета и шрифты ложатся на всю
+  // страницу сразу (переменные на <html>), а смена вида блоков пересобирает
+  // правую карточку; карточки в чате перерисовываются, когда окно закрыто.
+  let видыМенялись = false;
+
+  function данныеДляПросмотра() {
+    const ctx = getStContextSafe();
+    const чат = ctx && Array.isArray(ctx.chat) ? ctx.chat : [];
+    for (let i = чат.length - 1; i >= 0; i--) {
+      const m = чат[i];
+      if (!m || m.is_user || m.is_system || typeof m.mes !== 'string') continue;
+      const блоки = hudБлоки(m.mes);
+      for (let j = блоки.length - 1; j >= 0; j--) {
+        try { return { данные: parseHUDComplex(блоки[j].inner), откуда: 'последний HUD из чата' }; } catch (_) { /* битый блок — ищем дальше */ }
+      }
+    }
+    const игрок = getSafeUserName() || 'Вы';
+    return { данные: parseHUDComplex(ПРИМЕР_HUD_ТЕКСТ.split('{{user}}').join(игрок)), откуда: 'пример — в чате ещё нет HUD' };
+  }
+
+  function собратьПросмотр(окно) {
+    const место = окно.querySelector('.hud-custom-preview-body');
+    const { данные, откуда } = данныеДляПросмотра();
+    let html = '';
+    try { html = renderHUD(данные); } catch (e) { html = `<div class="hud-custom-error">Не удалось собрать HUD: ${escapeHtml(e && e.message || String(e))}</div>`; }
+    // Отложенные вкладки собираются по клику — способы их собрать живут на
+    // самой карточке, как и в чате.
+    const лень = lastLazyThunks;
+    lastLazyThunks = null;
+    место.innerHTML = html;
+    const карточка = место.querySelector('.hud-os-card');
+    if (карточка) {
+      if (лень) карточка.__hudLazy = лень;
+      const свёртка = карточка.querySelector(':scope > .hud-toggle-input');
+      if (свёртка) свёртка.checked = true;
+    }
+    окно.querySelector('.hud-custom-source').textContent = откуда;
+  }
+
+  function перерисоватьКарточкиЧата() {
+    const ctx = getStContextSafe();
+    const обновить = getMessageUpdateFunction(ctx);
+    if (!ctx || !Array.isArray(ctx.chat) || !обновить) return;
+    document.querySelectorAll('#chat .mes').forEach(mes => {
+      if (!mes.querySelector('.hud-os-card')) return;
+      const id = Number(mes.getAttribute('mesid'));
+      if (!Number.isInteger(id) || !ctx.chat[id]) return;
+      try { обновить(id, ctx.chat[id]); } catch (_) { /* сообщение уже ушло из чата */ }
+    });
+  }
+
+  function закрытьКастомизацию() {
+    const окно = document.getElementById('hud-custom-modal');
+    if (!окно || !окно.classList.contains('is-open')) return;
+    окно.classList.remove('is-open');
+    document.documentElement.classList.remove('hud-custom-open');
+    // Правую карточку убираем: в ней тысяча узлов, а окно закрыто.
+    окно.querySelector('.hud-custom-preview-body').innerHTML = '';
+    if (видыМенялись) { видыМенялись = false; перерисоватьКарточкиЧата(); }
+  }
+
+  function открытьКастомизацию() {
+    let окно = document.getElementById('hud-custom-modal');
+    if (!окно) {
+      окно = document.createElement('div');
+      окно.id = 'hud-custom-modal';
+      окно.className = 'hud-custom-overlay';
+      окно.innerHTML = `<div class="hud-custom-dialog" role="dialog" aria-modal="true" aria-labelledby="hud-custom-title">
+        <header class="hud-custom-head">
+          <b id="hud-custom-title">🎨 Кастомизация HUD</b>
+          <span class="hud-custom-source"></span>
+          <button type="button" class="hud-custom-refresh" title="Взять свежий HUD из чата">↻</button>
+          <button type="button" class="hud-custom-close" aria-label="Закрыть">✕</button>
+        </header>
+        <div class="hud-custom-body">
+          <aside class="hud-custom-settings" aria-label="Настройки вида"><div class="hud-theme-panel active"></div></aside>
+          <section class="hud-custom-preview" aria-label="Просмотр HUD"><div class="hud-custom-preview-body mes_text"></div></section>
+        </div>
+      </div>`;
+      document.body.appendChild(окно);
+      окно.addEventListener('click', (e) => {
+        if (e.target === окно || e.target.closest('.hud-custom-close')) { закрытьКастомизацию(); return; }
+        if (e.target.closest('.hud-custom-refresh')) собратьПросмотр(окно);
+      });
+      // Вид блоков меняет саму разметку — правую карточку собираем заново.
+      // Значение в настройки к этому моменту уже записал общий обработчик
+      // полей темы (events.js: событие input приходит раньше change).
+      окно.addEventListener('change', (e) => {
+        if (!e.target.closest('.hud-custom-rerender')) return;
+        видыМенялись = true;
+        собратьПросмотр(окно);
+      });
+      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') закрытьКастомизацию(); });
+    }
+    // Панель пересобираем при каждом открытии: значения — из текущих настроек.
+    окно.querySelector('.hud-custom-settings .hud-theme-panel').innerHTML = разметкаПанелиТемы();
+    собратьПросмотр(окно);
+    окно.classList.add('is-open');
+    document.documentElement.classList.add('hud-custom-open');
+    окно.querySelector('.hud-custom-close').focus();
+  }
+  // 🎨 на любой карточке открывает это же окно (events.js шлёт событие).
+  document.addEventListener('hud:customize', () => открытьКастомизацию());
+
   function addSettingsUI() {
     if (document.getElementById('hud-settings-wrapper')) return;
     const container = document.getElementById('extensions_settings') || document.getElementById('rm_extensions_block') || document.body;
@@ -3706,6 +3978,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       <div style="padding-top: 12px; display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
 
       <div class="hud-set-tools">
+        <button type="button" id="hud-open-custom" class="hud-set-tool-btn">🎨 Кастомизация</button>
         <button type="button" id="hud-open-archive" class="hud-set-tool-btn">🗄 Архив HUD</button>
         <span class="hud-set-tool-note">Сводка по всей истории чата: как менялись секреты и отношения, сколько прошло дней, где что происходило.</span>
       </div>
@@ -4117,12 +4390,13 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       setupPerformanceObserver();
       processAllMessages();
     });
+    document.getElementById('hud-open-custom').addEventListener('click', () => открытьКастомизацию());
     document.getElementById('hud-open-archive').addEventListener('click', async () => {
       // Модуль архива грузим по требованию: он нужен раз в сессию, а тянет
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=23.0.2');
+        const mod = await import('./render/archive.js?v=23.3.4');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);

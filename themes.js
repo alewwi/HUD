@@ -17,7 +17,7 @@
 // Ключи в vars — те же, что в settings.js. Незнакомые ключи не пишем: их
 // applyThemeColors() всё равно не читает.
 
-import { settings } from './settings.js?v=23.0.2';
+import { settings } from './settings.js?v=23.3.4';
 
 const HUD_THEMES = [
   {
@@ -644,6 +644,16 @@ const HUD_THEME_IDS = HUD_THEMES.map(t => t.id);
 // снимка своей темы: перечислять руками — верный способ что-то забыть.
 export const THEME_KEYS = [...new Set(HUD_THEMES.flatMap(t => Object.keys(t.vars)))];
 
+// Всё, что настраивается в окне «Кастомизация», кроме картинки фона (она
+// личная и тяжёлая) и вида блоков (это не цвет). Готовые темы задают только
+// THEME_KEYS, а остальное — размеры шрифтов, блюр и шрифт телефона, яркость
+// ночной сцены — личные предпочтения. Раньше «Запомнить правки», «Своя тема»,
+// файл темы и откат видели только THEME_KEYS, и шестнадцать ползунков
+// не сохранялись и не откатывались вовсе.
+export const ЛИЧНЫЕ_КЛЮЧИ = ['bgOpacity', 'bgScale', 'bgOffsetY', 'phoneBlur', 'phoneFont', 'phoneFontSize', 'phoneNotifAlpha', 'phoneNotifMax',
+  'sceneTextColor', 'sceneDarkness', 'fontSizeClock', 'fontSizeMain', 'fontSizeHeaders', 'fontSizeDiary', 'phoneThemeAuto'].filter(k => !THEME_KEYS.includes(k));
+export const КЛЮЧИ_ВИДА = [...THEME_KEYS, ...ЛИЧНЫЕ_КЛЮЧИ];
+
 // Реестр вместе с сохранённой пользователем темой, если она есть.
 function allThemes() {
   const list = HUD_THEMES.slice();
@@ -696,7 +706,7 @@ export function presetRowHTML(activeId) {
 // простой и читаемый — его можно править руками и переслать кому угодно.
 export function themeSnapshot(label) {
   const vars = {};
-  for (const k of THEME_KEYS) if (settings[k] !== undefined) vars[k] = settings[k];
+  for (const k of КЛЮЧИ_ВИДА) if (settings[k] !== undefined) vars[k] = settings[k];
   return {
     format: 'tavernos-theme', version: 1,
     label: String(label || 'Своя тема'),
@@ -714,7 +724,7 @@ export function parseThemeFile(text) {
   if (!данные || typeof данные !== 'object') return null;
   const источник = данные.vars && typeof данные.vars === 'object' ? данные.vars : данные;
   const vars = {};
-  for (const k of THEME_KEYS) {
+  for (const k of КЛЮЧИ_ВИДА) {
     const v = источник[k];
     if (typeof v === 'string' && v.length <= 120) vars[k] = v;
     else if (typeof v === 'number' && Number.isFinite(v)) vars[k] = v;

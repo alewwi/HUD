@@ -6,8 +6,8 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe } from '../utils.js?v=23.0.2';
-import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.0.2';
+import { escapeHtml, guardTouchSwipe } from '../utils.js?v=23.3.4';
+import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.3.4';
 
 let окноОткрыто = false;
 

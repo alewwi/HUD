@@ -6,10 +6,10 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.0.2';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.0.2';
-import { buildRelGraphHTML } from './relations-graph.js?v=23.0.2';
-import { статусРужья } from '../codes.js?v=23.0.2';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.3.4';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.3.4';
+import { buildRelGraphHTML } from './relations-graph.js?v=23.3.4';
+import { статусРужья } from '../codes.js?v=23.3.4';
 
 function parseRoutePoint(item) {
   const parts = String(item).split(/[-—–]/).map(s => s.trim());
