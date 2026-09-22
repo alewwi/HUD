@@ -6,7 +6,7 @@
 // какие ключи активации у неё будут и как выглядит запись в формате World Info.
 // Сеть и диалог выбора книги живут в index.js: там есть контекст SillyTavern.
 
-import { escapeHtml } from './utils.js?v=22.99.99';
+import { escapeHtml } from './utils.js?v=23.0.2';
 
 // Уже виденные записи за эту сессию. Карточки отрисовываются сверху вниз,
 // поэтому первая встреча текста и есть его появление в истории. Ключ —
@@ -25,8 +25,8 @@ export function isNewLoreItem(text) {
   return true;
 }
 
-import { namePhoneticLatin, формыИмени } from './names.js?v=22.99.99';
-import { hudBlockRe } from './hud-block.js?v=22.99.99';
+import { namePhoneticLatin, формыИмени } from './names.js?v=23.0.2';
+import { заменитьHudБлоки } from './hud-block.js?v=23.0.2';
 
 // Служебные слова, которые в ключи активации не годятся: они встречаются
 // в каждом втором сообщении и запись срабатывала бы постоянно.
@@ -148,8 +148,7 @@ export function loreAlreadyHas(book, content) {
 // Убираем из текста сообщения наш собственный блок [HUD]: в контексте нужна
 // проза, а не JSON, который мы сами и сгенерировали ходом раньше.
 export function stripHudBlock(text) {
-  return String(text || '').replace(
-    hudBlockRe('gi'), '').trim();
+  return заменитьHudБлоки(String(text || ''), '').trim();
 }
 
 // Запрос к модели. Пишем по-английски: инструкции модели держатся лучше, а

@@ -11,12 +11,11 @@
 // флаг window.__tavernOSHudSkipInject: без него перехват запросов в index.js
 // вшил бы в вопрос HUD-инструкцию, и модель ответила бы HUD-блоком.
 
-import { escapeHtml, guardTouchSwipe } from '../utils.js?v=22.99.99';
-import { settings } from '../settings.js?v=22.99.99';
-import { parseHUDComplex } from '../hud-parser.js?v=22.99.99';
-import { extractHudBlock, hudBlockRe } from '../hud-block.js?v=22.99.99';
+import { escapeHtml, guardTouchSwipe } from '../utils.js?v=23.0.2';
+import { settings } from '../settings.js?v=23.0.2';
+import { parseHUDComplex } from '../hud-parser.js?v=23.0.2';
+import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.0.2';
 
-const HUD_БЛОК = hudBlockRe('gi');
 const ЖДЁМ_МС = 180000;
 
 export const ПРОМПТ_АССИСТЕНТА = `<role>
@@ -45,8 +44,7 @@ You are NOT {{char}}. You never speak, think or act for anyone in the story.
 
 // Проза сообщения для запроса: без HUD, без разметки и чужих служебных вставок.
 function проза(текст) {
-  return String(текст || '')
-    .replace(HUD_БЛОК, ' ')
+  return заменитьHudБлоки(String(текст || ''), ' ')
     .replace(/<(think|thinking|plan|comics|script|style)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/gi, ' ')
@@ -171,9 +169,8 @@ export function parseAssistantAnswer(raw) {
       || (Array.isArray(raw.content) ? raw.content.map(c => c && c.text || '').join('') : '')
       || (raw.choices && raw.choices[0] && (raw.choices[0].message?.content || raw.choices[0].text)) || '';
   }
-  return String(текст)
+  return заменитьHudБлоки(String(текст), '')
     .replace(/<think(?:ing)?\b[^>]*>[\s\S]*?<\/think(?:ing)?>/gi, '')
-    .replace(HUD_БЛОК, '')
     .trim();
 }
 

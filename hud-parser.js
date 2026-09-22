@@ -7,8 +7,8 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=22.99.99';
-import { hudBlockRe } from './hud-block.js?v=22.99.99';
+import { normalizeJSONData } from './schema.js?v=23.0.2';
+import { hudБлоки } from './hud-block.js?v=23.0.2';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';
@@ -43,9 +43,14 @@ function decodeHighlightedHudHtml(input) {
       // ответа модели срабатывал бы прямо при разборе. В документе DOMParser
       // скрипты и загрузки не выполняются.
       const doc = new DOMParser().parseFromString('<!doctype html><body>' + text, 'text/html');
+      // Стили и скрипты — не текст HUD. Регекс «только разметка» или чужое
+      // расширение вставляли <style>.pk-h{…}</style> прямо в отрисованный
+      // блок, и CSS попадал в строку JSON — в пузырь перехвата.
+      if (doc.body) doc.body.querySelectorAll('style, script, template, noscript').forEach(n => n.remove());
       text = (doc.body && doc.body.textContent) || '';
     } catch (e) {
-      text = text.replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '');
+      text = text.replace(/<(style|script|template|noscript)\b[^>]*>[\s\S]*?<\/\1>/gi, '')
+        .replace(/<br\s*\/?>/gi, '\n').replace(/<[^>]*>/g, '');
     }
   }
 
@@ -537,11 +542,12 @@ function repairTruncatedHudJson(jsonStr) {
 
 export function repairGeneratedHudBlock(aiText) {
   const source = String(aiText || '');
-  const match = source.match(hudBlockRe('i', true));
+  // Блок вне рассуждений: «[HUD]...[/HUD]» в <plan> ответа — не HUD.
+  const match = hudБлоки(source)[0];
   if (!match) {
     throw new Error('Не удалось найти HUD в ответе ИИ. Попробуйте еще раз.');
   }
-  const rawInner = match[1] || '';
+  const rawInner = match.inner || '';
   try {
     const parsed = parseHUDComplex(rawInner);
     return `[HUD]\n\`\`\`json\n${JSON.stringify(parsed, null, 2)}\n\`\`\`\n[/HUD]`;

@@ -3,12 +3,12 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText } from '../utils.js?v=22.99.99';
-import { overrideAvatarUrl } from '../avatars.js?v=22.99.99';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText } from '../utils.js?v=23.0.2';
+import { overrideAvatarUrl } from '../avatars.js?v=23.0.2';
 // Снимки, ролики, голосовые и звонки собирает тот же код, что и в личном
 // телефоне. Своя копия разбора здесь означала бы, что новый формат от модели
 // в одном мессенджере работает, а в другом остаётся сырым тегом в тексте.
-import { собратьЛенту, моментПоследнего } from './msg-feed.js?v=22.99.99';
+import { собратьЛенту, моментПоследнего } from './msg-feed.js?v=23.0.2';
 
 // Кружок отправителя в перехвате: ручная аватарка фоном либо инициал.
 // Разметка и классы прежние — картинку прячет за собой класс has-img.
@@ -56,6 +56,13 @@ export function buildInterceptsHTML(interceptsData, uid, isChecked, sceneDate) {
 
   // Перехваты тоже от свежих к старым: вчерашний разговор ниже сегодняшнего.
   const порядок = interceptsData.slice().sort((a, b) => моментПоследнего(b && b.messages, sceneDate) - моментПоследнего(a && a.messages, sceneDate));
+  // Несколько перехваченных переписок одного человека (свежая и перенесённая
+  // из прошлых ходов) давали одинаковые вкладки «👁️ Evangeline Rose Kane».
+  // Таким вкладкам дописываем собеседника: «Evangeline ↔ Ares».
+  const ключЦели = (i) => sanitizeText((i && i.target) || 'Unknown').trim().toLowerCase();
+  const целей = new Map();
+  порядок.forEach(i => целей.set(ключЦели(i), (целей.get(ключЦели(i)) || 0) + 1));
+  const первое = (имя) => String(имя || '').trim().split(/\s+/)[0] || '';
   порядок.forEach((intercept, idx) => {
     // Состав переписки: из поля модели, а если его нет — из самих сообщений.
     const состав = interceptParticipants(intercept);
@@ -83,11 +90,11 @@ export function buildInterceptsHTML(interceptsData, uid, isChecked, sceneDate) {
     if (Array.isArray(intercept.messages)) {
       intercept.messages.forEach(m => {
         let timeMatch = m.match(/\b\d{1,2}:\d{2}\b/); if (timeMatch) latestTime = timeMatch[0];
-        if (/unread|не прочитан/i.test(m.replace(/\[удалено\]|\[черновик\]/gi, ''))) unreadCount++;
+        if (/unread|не прочитан/i.test(m.replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]/gi, ''))) unreadCount++;
       });
     }
 
-    chatTabsHeader += `<button class="hud-phone-subtab intercept-tab ${idx === 0 ? 'active' : ''}" data-subtarget="subhack-${uid}-${idx}">👁️ ${defeatWI(escapeHtml(targetName))} ${unreadCount > 0 ? `<span class="hud-unread-badge">${unreadCount}</span>` : ''}</button>`;
+    chatTabsHeader += `<button class="hud-phone-subtab intercept-tab ${idx === 0 ? 'active' : ''}" data-subtarget="subhack-${uid}-${idx}">👁️ ${defeatWI(escapeHtml(целей.get(ключЦели(intercept)) > 1 && chatName && chatName !== 'Chat' ? первое(targetName) + ' ↔ ' + первое(chatName) : targetName))} ${unreadCount > 0 ? `<span class="hud-unread-badge">${unreadCount}</span>` : ''}</button>`;
 
     chatBodies += `<div class="hud-phone-subbody ${idx === 0 ? 'active' : ''}" id="subhack-${uid}-${idx}">
       <div class="hud-phone-statusbar"><span class="hud-phone-time">${escapeHtml(latestTime)}</span><span class="hud-phone-owner-label intercept-status">📡 ПЕРЕХВАТ (${escapeHtml(targetName)})</span><div class="hud-phone-status-icons"><span class="hud-intercept-icon">⚠</span></div></div>

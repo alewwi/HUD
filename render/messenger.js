@@ -6,12 +6,12 @@
 // Вынесено из phone.js: тот разросся до девятисот строк и держал в себе
 // разом мессенджер, кошелёк, календарь и сборку самого аппарата.
 
-import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=22.99.99';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=22.99.99';
-import { G_ICONS } from './icons.js?v=22.99.99';
-import { собратьЛенту } from './msg-feed.js?v=22.99.99';
-import { avaFace, msgTimeOf, collectCounterparts } from './phone-common.js?v=22.99.99';
-import { namesLikelySame } from '../names.js?v=22.99.99';
+import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.0.2';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.0.2';
+import { G_ICONS } from './icons.js?v=23.0.2';
+import { собратьЛенту } from './msg-feed.js?v=23.0.2';
+import { avaFace, msgTimeOf, collectCounterparts } from './phone-common.js?v=23.0.2';
+import { namesLikelySame } from '../names.js?v=23.0.2';
 
 export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate) {
   const chatKeys = Object.keys(chatsMap || {});
@@ -83,7 +83,7 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate) {
     if (Array.isArray(chatObj.messages)) {
       chatObj.messages.forEach(m => {
         const t = msgTimeOf(m); if (t) latestTime = t;
-        if (/unread|не прочитан/i.test(m.replace(/\[удалено\]|\[черновик\]/gi, ''))) unreadCount++;
+        if (/unread|не прочитан/i.test(m.replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]/gi, ''))) unreadCount++;
       });
     }
     
@@ -99,7 +99,7 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate) {
            .replace(/\[(?:VIDEO|ВИДЕО|VID|РОЛИК)[ _]?\d{0,2}:?\d{0,2}\s*:?\s*([^\]]*)\]/gi, (mm, d) => '🎬 Видео' + (d.trim() ? ': ' + d.trim() : ''))
            .replace(/\[(?:PHOTO|ФОТО|IMG|СНИМОК)\s*:?\s*([^\]]*)\]/gi, (mm, d) => '📷 Фото' + (d.trim() ? ': ' + d.trim() : ''))
            .replace(/\[(?:CALL|ЗВОНОК)\s*:?\s*([^\]]*)\]/gi, (mm, b) => /пропущ|missed/i.test(b) ? '📞 Пропущенный звонок' : '📞 Звонок')
-           .replace(/\[удалено\]|\[черновик\]|✓+/gi, '').trim();
+           .replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]|✓+/gi, '').trim();
       preview = p.length > 46 ? p.slice(0, 45) + '…' : p;
     }
     const avaColor = HUD_AVATAR_COLORS[hudHashSeed(displayChatName) % HUD_AVATAR_COLORS.length];

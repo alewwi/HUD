@@ -14,20 +14,17 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=22.99.99';
-import { проставитьДень } from './msg-feed.js?v=22.99.99';
-import { normalizeJSONData } from '../schema.js?v=22.99.99';
-import { settings } from '../settings.js?v=22.99.99';
-import { статусРужья } from '../codes.js?v=22.99.99';
-import { hudBlockRe } from '../hud-block.js?v=22.99.99';
-import { namesLikelySame } from '../names.js?v=22.99.99';
+import { parseHUDComplex } from '../hud-parser.js?v=23.0.2';
+import { проставитьДень } from './msg-feed.js?v=23.0.2';
+import { normalizeJSONData } from '../schema.js?v=23.0.2';
+import { settings } from '../settings.js?v=23.0.2';
+import { статусРужья } from '../codes.js?v=23.0.2';
+import { extractHudBlock } from '../hud-block.js?v=23.0.2';
+import { namesLikelySame } from '../names.js?v=23.0.2';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
 
-// Тот же набор написаний [HUD], что и везде: модель шлёт то скобки, то угловые,
-// а SillyTavern иногда успевает заэкранировать.
-const БЛОК = hudBlockRe('i');
 
 // Разобранные ходы. Ключ — длина и хэш всего текста: любая правка сообщения
 // даёт новый ключ, и кэш обновится сам.
@@ -44,9 +41,10 @@ function разобратьХод(mes) {
   const k = raw.length + ':' + хэш;
   if (кэш.has(k)) return кэш.get(k);
   let результат = null;
-  const блок = raw.match(БЛОК);
+  // Блок вне рассуждений модели: упоминание в <plan> не ход.
+  const блок = extractHudBlock(raw);
   if (блок) {
-    try { результат = normalizeJSONData(parseHUDComplex(блок[0])); } catch (_) { результат = null; }
+    try { результат = normalizeJSONData(parseHUDComplex(блок)); } catch (_) { результат = null; }
   }
   // Кэш не должен расти бесконечно: держим последние двести ходов.
   if (кэш.size > 200) кэш.clear();
@@ -332,10 +330,10 @@ function чертыХода(mes) {
   const k = raw.length + ':' + хэш;
   if (чертыПоХэшу.has(k)) return чертыПоХэшу.get(k);
   let out = null;
-  const блок = raw.match(БЛОК);
+  const блок = extractHudBlock(raw);
   if (блок) {
     try {
-      const d = parseHUDComplex(блок[0]);
+      const d = parseHUDComplex(блок);
       out = (Array.isArray(d.characters) ? d.characters : []).map(c => ({
         имя: текст(c && c['Имя']),
         поля: Object.fromEntries(УСТОЙЧИВЫЕ.filter(п => c && !пустоЗначение(c[п])).map(п => [п, c[п]])),

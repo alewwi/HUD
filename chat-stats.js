@@ -9,16 +9,15 @@
 // Текст сообщения здесь только считается, на экран не выводится, поэтому
 // разметку режем регуляркой — DOM на тысячу сообщений не нужен.
 
-import { hudFilled } from './utils.js?v=22.99.99';
+import { hudFilled } from './utils.js?v=23.0.2';
 
-import { hudBlockRe } from './hud-block.js?v=22.99.99';
-const HUD_БЛОК = hudBlockRe('gi');
+import { заменитьHudБлоки } from './hud-block.js?v=23.0.2';
+
 // Служебные вставки других расширений и размышления модели — не проза.
 const СЛУЖЕБНОЕ = /<(think|thinking|plan|comics|img|script|style|details|summary)\b[^>]*>[\s\S]*?<\/\1>/gi;
 
 export function чистыйТекст(raw) {
-  return String(raw || '')
-    .replace(HUD_БЛОК, ' ')
+  return заменитьHudБлоки(String(raw || ''), ' ')
     .replace(СЛУЖЕБНОЕ, ' ')
     .replace(/```[\s\S]*?```/g, ' ')
     .replace(/<[^>]*>/g, ' ')

@@ -6,16 +6,16 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText } from '../utils.js?v=22.99.99';
-import { settings } from '../settings.js?v=22.99.99';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=22.99.99';
-import { G_ICONS } from './icons.js?v=22.99.99';
-import { buildMessengerHTML } from './messenger.js?v=22.99.99';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=22.99.99';
-import { сортироватьЧаты } from './msg-feed.js?v=22.99.99';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText } from '../utils.js?v=23.0.2';
+import { settings } from '../settings.js?v=23.0.2';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.0.2';
+import { G_ICONS } from './icons.js?v=23.0.2';
+import { buildMessengerHTML } from './messenger.js?v=23.0.2';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.0.2';
+import { сортироватьЧаты } from './msg-feed.js?v=23.0.2';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=22.99.99';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.0.2';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -328,7 +328,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   let unread = 0;
   Object.values(chatsMap || {}).forEach(c => {
     (Array.isArray(c && c.messages) ? c.messages : []).forEach(m => {
-      if (/unread|не прочитан/i.test(String(m).replace(/\[удалено\]|\[черновик\]/gi, ''))) unread++;
+      if (/unread|не прочитан/i.test(String(m).replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]/gi, ''))) unread++;
     });
   });
 
@@ -372,7 +372,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
     let unreadHere = 0, lastTime = '', lastText = '', lastSender = '';
     msgs.forEach(m => {
       const s = String(m);
-      if (/unread|не прочитан/i.test(s.replace(/\[удалено\]|\[черновик\]/gi, ''))) unreadHere++;
+      if (/unread|не прочитан/i.test(s.replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]/gi, ''))) unreadHere++;
       const t = s.match(/\b\d{1,2}:\d{2}\b/); if (t) lastTime = t[0];
     });
     if (!unreadHere) return;
@@ -380,7 +380,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
     // Берём последнее непрочитанное — именно оно всплывает уведомлением.
     for (let i = msgs.length - 1; i >= 0; i--) {
       const s = String(msgs[i]);
-      if (!/unread|не прочитан/i.test(s.replace(/\[удалено\]|\[черновик\]/gi, ''))) continue;
+      if (!/unread|не прочитан/i.test(s.replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]/gi, ''))) continue;
       const parties = parseMsgParties(s);
       lastSender = parties.sender || '';
       let body = s.split('|')[0].replace(/^(?:M|Msg|Сообщение|Chat|Чат):\s*/i, '').trim();
@@ -388,7 +388,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
       if (mm) body = mm[3];
       lastText = body.replace(/\[(?:VIDEO|ВИДЕО|VID|РОЛИК)[ _]?\d{0,2}:?\d{0,2}\s*:?\s*[^\]]*\]/gi, '🎬 Видео')
                      .replace(/\[(?:VOICE|ГОЛОС)_?\d{0,2}:?\d{0,2}\]/gi, '🎤 Голосовое сообщение')
-                     .replace(/\[удалено\]|\[черновик\]|✓+/gi, '').trim();
+                     .replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]|✓+/gi, '').trim();
       break;
     }
 

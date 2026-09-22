@@ -1,34 +1,34 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=22.99.99';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=22.99.99';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=22.99.99';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=22.99.99';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=22.99.99';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=22.99.99';
-import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=22.99.99';
-import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=22.99.99';
-import { привязатьИсторию } from './render/intimacy.js?v=22.99.99';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=22.99.99';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=22.99.99';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=22.99.99';
-import { buildMemoryHTML } from './render/memory.js?v=22.99.99';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=22.99.99';
-import { buildPhoneTabsHTML } from './render/phone.js?v=22.99.99';
-import { праздникиСцены } from './render/holidays.js?v=22.99.99';
-import { скрытыеФактыЗачатия } from './render/conception.js?v=22.99.99';
-import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=22.99.99';
-import { hudHasRelations } from './render/relations-graph.js?v=22.99.99';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=22.99.99';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=22.99.99';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=22.99.99';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=22.99.99';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=22.99.99';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=22.99.99';
-import { extractHudBlock, hudBlockRe, hudOpenRe, hudCloseRe, началоПоследнегоHud } from './hud-block.js?v=22.99.99';
-import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=22.99.99';
-import { создатьПроверкуПолноты } from './hud-check.js?v=22.99.99';
-import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=22.99.99';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=23.0.2';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=23.0.2';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.0.2';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.0.2';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.0.2';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.0.2';
+import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.0.2';
+import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=23.0.2';
+import { привязатьИсторию } from './render/intimacy.js?v=23.0.2';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.0.2';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.0.2';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.0.2';
+import { buildMemoryHTML } from './render/memory.js?v=23.0.2';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.0.2';
+import { buildPhoneTabsHTML } from './render/phone.js?v=23.0.2';
+import { праздникиСцены } from './render/holidays.js?v=23.0.2';
+import { скрытыеФактыЗачатия } from './render/conception.js?v=23.0.2';
+import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.0.2';
+import { hudHasRelations } from './render/relations-graph.js?v=23.0.2';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.0.2';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.0.2';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=23.0.2';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.0.2';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.0.2';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=23.0.2';
+import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.0.2';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.0.2';
+import { создатьПроверкуПолноты } from './hud-check.js?v=23.0.2';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.0.2';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -767,12 +767,8 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             let allMatches = [];
             parsedBody.messages.forEach((msg, mIdx) => {
               if (typeof msg.content === 'string') {
-                // ВАЖНО: Регулярка объявляется ВНУТРИ цикла, чтобы ее lastIndex сбрасывался для каждого сообщения
-                const regexLocal = hudBlockRe('ig', true);
-                let match;
-                while ((match = regexLocal.exec(msg.content)) !== null) {
-                  allMatches.push({ mIdx, index: match.index, length: match[0].length });
-                }
+                // Блоки внутри <plan>/<thinking> не трогаем: это рассуждения модели.
+                for (const б of hudБлоки(msg.content)) allMatches.push({ mIdx, index: б.index, length: б.length });
               }
             });
 
@@ -801,11 +797,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
           // 2. Формат Text Completions (учитываем единую строку prompt)
           else if (parsedBody.prompt && typeof parsedBody.prompt === 'string') {
             let allMatches = [];
-            const regexLocal = hudBlockRe('ig', true);
-            let match;
-            while ((match = regexLocal.exec(parsedBody.prompt)) !== null) {
-              allMatches.push({ index: match.index, length: match[0].length });
-            }
+            for (const б of hudБлоки(parsedBody.prompt)) allMatches.push({ index: б.index, length: б.length });
             if (снимокВключён && allMatches.length) {
               const посл = allMatches[allMatches.length - 1];
               объектСнимка = собратьСнимок(parsedBody.prompt.substring(посл.index, посл.index + посл.length));
@@ -2115,7 +2107,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     // попадает в message.mes/DOM. Восстанавливаем только отображаемый текст:
     // саму механику вставки/обновления HUD не меняем.
     const currentHtml = textElement.innerHTML || '';
-    if (hudOpenRe('i').test(currentHtml)) return false;
+    if (естьHudБлок(currentHtml)) return false;
 
     const node = document.createTextNode('\n\n' + hudBlock);
     textElement.appendChild(node);
@@ -2124,6 +2116,20 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       messageId: messageElement.getAttribute('mesid')
     });
     return true;
+  }
+
+  // Исходный текст сообщения из чата (то, что написала модель), без правок
+  // отображения. Пусто, если сообщение не нашлось.
+  function исходныйТекстСообщения(messageElement) {
+    try {
+      const id = Number(messageElement && messageElement.getAttribute('mesid'));
+      const ctx = getStContextSafe();
+      const m = ctx && Array.isArray(ctx.chat) && Number.isInteger(id) ? ctx.chat[id] : null;
+      if (!m) return '';
+      if (typeof m.mes === 'string' && m.mes) return m.mes;
+      const свайп = Array.isArray(m.swipes) ? m.swipes[m.swipe_id] : undefined;
+      return typeof свайп === 'string' ? свайп : '';
+    } catch (_) { return ''; }
   }
 
   /* Границы блоков [HUD]…[/HUD] в строке.
@@ -2137,7 +2143,8 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
   const HUD_ЗАКР = hudCloseRe('ig');
 
   function найтиБлокиHud(текст, разрешитьНезакрытый = true) {
-    const s = String(текст || '');
+    // Индексы — по маске рассуждений: метки внутри <plan>/<thinking> не видны.
+    const s = маскаРассуждений(String(текст || ''));
     const откр = [], закр = [];
     HUD_ОТКР.lastIndex = 0; HUD_ЗАКР.lastIndex = 0;
     for (let m; (m = HUD_ОТКР.exec(s)) !== null; ) откр.push({ от: m.index, до: m.index + m[0].length });
@@ -2155,9 +2162,12 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       блоки.push({ from: о.от, to: з.до, contentFrom: о.до, contentTo: з.от, closed: true });
       занятоДо = з.до;
     }
+    // Незакрытая метка — блок, только если за ней сразу идут данные (код-блок,
+    // JSON). Одинокое упоминание в <plan> блоком не считаем: иначе от него до
+    // конца сообщения всё уходило в «карточку» и текст ответа пропадал.
     if (!блоки.length && разрешитьНезакрытый && откр.length) {
-      const о = откр[откр.length - 1];
-      блоки.push({ from: о.от, to: s.length, contentFrom: о.до, contentTo: s.length, closed: false });
+      const о = откр.slice().reverse().find(k => меткаСДанными(s.slice(k.до)));
+      if (о) блоки.push({ from: о.от, to: s.length, contentFrom: о.до, contentTo: s.length, closed: false });
     }
     return блоки;
   }
@@ -2176,7 +2186,8 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       const кнопка = textElement.querySelector('.hud-missing-placeholder');
       if (кнопка) кнопка.remove();
     };
-    if (textElement.querySelector('.hud-os-card') || /(?:\[|<)\s*HUD\s*(?:\]|>)/i.test(textElement.textContent || '')) {
+    // Упоминание «[HUD]» в <plan> блоком не считается — кнопка остаётся.
+    if (textElement.querySelector('.hud-os-card') || естьHudБлок(textElement.textContent || '')) {
       убратьКнопкуСоздания();
     }
 
@@ -2207,11 +2218,11 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     // Если ST снова дорисовал исходный [HUD] рядом с карточкой, НЕ выходим:
     // нормализатор ниже должен удалить сырой блок и оставить одну карточку.
     const hasRenderedCard = innerHtml.includes('hud-os-card');
-    const hasRawHudSource = hudOpenRe('i').test(innerHtml);
+    const hasRawHudSource = естьHudБлок(innerHtml);
     if (hasRenderedCard && !hasRawHudSource) return;
 
     // Recovery path for ST swipe/save timing:
-    if (!hudOpenRe('i').test(innerHtml)) {
+    if (!естьHudБлок(innerHtml)) {
       if (recoverHudFromActiveSwipe(messageElement, textElement)) {
         убратьКнопкуСоздания();
         innerHtml = textElement.innerHTML;
@@ -2221,12 +2232,14 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     const openTagRegex = hudOpenRe('i');
     const closeTagRegex = hudCloseRe('i');
 
-    if (!openTagRegex.test(innerHtml)) {
+    // Метки внутри рассуждений (<plan>, <thinking>) не в счёт.
+    const маскаHtml = маскаРассуждений(innerHtml);
+    if (!openTagRegex.test(маскаHtml)) {
       maybeInjectMissingHudButton(messageElement, textElement);
       return;
     }
 
-    const hasCloseTag = closeTagRegex.test(innerHtml);
+    const hasCloseTag = closeTagRegex.test(маскаHtml);
 
     // Метки ищем по отдельности и соединяем в пары сами. Регулярка «от
     // открывающей до ближайшей закрывающей» берёт открывающую первую по
@@ -2256,11 +2269,24 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       return;
     }
 
+    // Данные HUD берём из исходного текста сообщения в чате, а не из
+    // отрисованной разметки: её уже переписали регексы «только разметка» и
+    // чужие расширения — на телефоне в блок попадал <style>.pk-h{…}, и CSS
+    // оказывался в пузыре перехвата. Разметка — только запасной источник.
+    const исходные = hudБлоки(исходныйТекстСообщения(messageElement));
+    const изИсходника = (i) => {
+      if (!исходные.length) return null;
+      if (исходные.length === hudBlocks.length) return исходные[i].inner;
+      return i === hudBlocks.length - 1 ? исходные[исходные.length - 1].inner : null;
+    };
     const parsedHudBlocks = [];
     for (let index = 0; index < hudBlocks.length; index++) {
       const block = hudBlocks[index];
       try {
-        const data = parseHUDComplex(block.content);
+        let data = null;
+        const исходник = изИсходника(index);
+        if (исходник) { try { data = parseHUDComplex(исходник); } catch (_) { data = null; } }
+        if (!data) data = parseHUDComplex(block.content);
         parsedHudBlocks.push({
           index,
           data,
@@ -2571,7 +2597,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
   function вырезатьОдинСыройБлок(textElement) {
     const обход = document.createTreeWalker(textElement, NodeFilter.SHOW_TEXT, {
       acceptNode: (node) => (node.parentElement && node.parentElement.closest
-        && node.parentElement.closest('.hud-os-card'))
+        && node.parentElement.closest('.hud-os-card, ' + ТЕГИ_РАССУЖДЕНИЙ.join(', ')))
         ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
     });
     const куски = [];
@@ -2584,13 +2610,20 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     }
     if (!куски.length) return false;
 
-    const текст = куски.map(k => k.узел.nodeValue || '').join('');
-    const открыт = текст.match(/(?:\[|<)\s*HUD\s*(?:\]|>)/i);
-    if (!открыт) return false;
-    const закрыт = текст.slice(открыт.index).match(/(?:\[|<)\s*\/\s*HUD\s*(?:\]|>)/i);
+    const текст = маскаРассуждений(куски.map(k => k.узел.nodeValue || '').join(''));
+    // Пара — ближайшая: первая закрывающая и последняя открывающая перед ней.
+    // Первая открывающая в тексте бывает упоминанием в <plan> («except the
+    // [HUD] JSON block»), и тогда под нож шла вся проза до настоящего блока.
+    const закрыт = текст.match(/(?:\[|<)\s*\/\s*HUD\s*(?:\]|>)/i);
     if (!закрыт) return false;
+    let открыт = null;
+    for (const m of текст.matchAll(/(?:\[|<)\s*HUD\s*(?:\]|>)/ig)) {
+      if (m.index + m[0].length > закрыт.index) break;
+      открыт = m;
+    }
+    if (!открыт) return false;
     const от = открыт.index;
-    const до = открыт.index + закрыт.index + закрыт[0].length;
+    const до = закрыт.index + закрыт[0].length;
 
     const найти = (поз) => куски.find(k => поз >= k.начало && поз <= k.конец) || куски[куски.length - 1];
     const а = найти(от);
@@ -2649,7 +2682,11 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     // If the raw HUD survived because a markdown/highlight renderer split the
     // markers across DOM text nodes, use a DOM Range fallback. It removes the
     // entire marker-to-marker region without touching surrounding prose.
-    const walker = document.createTreeWalker(textElement, NodeFilter.SHOW_TEXT);
+    // Текст внутри элементов-рассуждений (<plan>, <thinking>) не смотрим.
+    const walker = document.createTreeWalker(textElement, NodeFilter.SHOW_TEXT, {
+      acceptNode: (n) => (n.parentElement && n.parentElement.closest && n.parentElement.closest(ТЕГИ_РАССУЖДЕНИЙ.join(', ')))
+        ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+    });
     const nodes = [];
     let node;
     while ((node = walker.nextNode())) nodes.push(node);
@@ -2659,7 +2696,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       const value = n.nodeValue || '';
       flat.push({ node: n, start: flat.length ? flat[flat.length - 1].end : 0, end: (flat.length ? flat[flat.length - 1].end : 0) + value.length });
     }
-    const fullText = flat.map(x => x.node.nodeValue || '').join('');
+    const fullText = маскаРассуждений(flat.map(x => x.node.nodeValue || '').join(''));
     // И здесь пара должна быть ближайшей: закрывающую берём первую, а
     // открывающую — последнюю перед ней.
     const close = /(?:\[|<)\s*\/\s*HUD\s*(?:\]|>)/i;
@@ -3051,14 +3088,18 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
 
   function replaceHudBlockInText(source, newHudText) {
     if (typeof source !== 'string') return source;
-    const hudRegex = hudBlockRe('i');
-    if (hudRegex.test(source)) return source.replace(hudRegex, newHudText);
+    // Первый настоящий блок вне рассуждений; упоминание в <plan> не трогаем.
+    const блок = hudБлоки(source)[0];
+    if (блок) return source.slice(0, блок.index) + newHudText + source.slice(блок.index + блок.length);
     return source.trimEnd() + '\n\n' + newHudText;
   }
 
   function updateMessageDataForCurrentSwipe(message, newText) {
     message.mes = newText;
-    if (Array.isArray(message.swipes) && message.swipe_id !== undefined) {
+    // Номер свайпа за концом списка (бывает в импортированных чатах) не
+    // трогаем: запись по нему завела бы лишний свайп без swipe_info.
+    if (Array.isArray(message.swipes) && Number.isInteger(message.swipe_id)
+        && message.swipe_id >= 0 && message.swipe_id < message.swipes.length) {
       message.swipes[message.swipe_id] = newText;
     }
 
@@ -3068,12 +3109,11 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     // чтобы updateMessageBlock() не вернул старую версию без HUD.
     if (message.extra && typeof message.extra.display_text === 'string') {
       const displayText = message.extra.display_text;
-      const hudRegex = hudOpenRe('i');
       const newHud = extractHudBlock(newText);
 
-      if (hudRegex.test(displayText)) {
+      if (естьHudБлок(displayText)) {
         message.extra.display_text = replaceHudBlockInText(displayText, newHud);
-      } else if (newHud && hudRegex.test(newHud)) {
+      } else if (newHud) {
         message.extra.display_text = displayText.trimEnd() + '\n\n' + newHud;
       }
     }
@@ -3121,7 +3161,6 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
         try {
             const mesId = mesEl.getAttribute('mesid');
             const textElement = mesEl.querySelector('.mes_text');
-            const extractRegex = hudBlockRe('ig', true);
             
             let stContext = null;
             if (typeof window.SillyTavern !== 'undefined' && typeof window.SillyTavern.getContext === 'function') {
@@ -3164,7 +3203,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
                     oldText = targetMessage.mes || '';
                 }
             }
-            oldText = oldText.replace(extractRegex, '').trim();
+            oldText = заменитьHudБлоки(oldText, '').trim();
 
             // Для старых сообщений в текущей вкладке может не существовать lastTavernRequest.
             // В таком случае берём живые настройки Chat Completion из ST вместо обращения
@@ -3327,7 +3366,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             
             if (i === mesIdNum) {
                 // У текущего сообщения вырезаем старый HUD полностью, так как будем генерировать новый
-                content = content.replace(extractRegex, '').trim();
+                content = заменитьHudБлоки(content, '').trim();
                 if (content.length > 0) {
                     const message = { role: regenRoleForBackend('assistant'), content: content };
                     freshMessages.push(message);
@@ -3370,11 +3409,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             // which can fail BEFORE the API request is even sent.
             if (!hudSummaryEligibleMessages.has(msg)) return;
             if (typeof msg.content === 'string') {
-                const regexLocal = hudBlockRe('ig', true);
-                let match;
-                while ((match = regexLocal.exec(msg.content)) !== null) {
-                    allMatchesRegen.push({ mIdx, index: match.index, length: match[0].length });
-                }
+                for (const б of hudБлоки(msg.content)) allMatchesRegen.push({ mIdx, index: б.index, length: б.length });
             }
         });
 
@@ -3507,7 +3542,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             // коды» и учили модель обратному. Страховка: если разбор кодовой
             // версии хоть в чём-то расходится с исправленной, оставляем её.
             try {
-              const внутри = (String(aiText).match(hudBlockRe('i', true)) || [])[1];
+              const внутри = (hudБлоки(String(aiText))[0] || {}).inner;
               const вКодах = внутри ? HUDвКодах(внутри) : null;
               if (вКодах && Object.keys(вКодах).length) {
                 const кодами = '[HUD]\n```json\n' + JSON.stringify(вКодах, null, 2) + '\n```\n[/HUD]';
@@ -4087,7 +4122,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=22.99.99');
+        const mod = await import('./render/archive.js?v=23.0.2');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -4369,39 +4404,34 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
                  return;
             }
 
-            let oldText = targetMessage.swipes && targetMessage.swipe_id !== undefined ? targetMessage.swipes[targetMessage.swipe_id] : targetMessage.mes;
-            
-            // Режем от ПОСЛЕДНЕГО настоящего [HUD], а не от первой метки: первой
-            // бывает упоминание в <plan>, и тогда уходил весь текст ответа.
-            const началоHud = началоПоследнегоHud(oldText);
-            if (началоHud < 0) {
-                 showHudToast('error', 'Ошибка', 'Тег [HUD] не найден в последнем сообщении.');
-                 return;
-            }
+            // Номер свайпа бывает за концом списка (импортированный чат, удалённый
+            // свайп) — тогда текст свайпа пустой, а показывается mes.
+            const текстСвайпа = Array.isArray(targetMessage.swipes) ? targetMessage.swipes[targetMessage.swipe_id] : undefined;
+            let oldText = typeof текстСвайпа === 'string' ? текстСвайпа : String(targetMessage.mes || '');
 
-            let newText = String(oldText).slice(0, началоHud).trim();
-            updateMessageDataForCurrentSwipe(targetMessage, newText);
-                try {
-                    const postUpdateHud = extractHudBlock(newText);
-                    console.info('[TavernOS HUD] HUD update:', {
-                        generated: true,
-                        wrapped: /^\[HUD\]\s*```json/i.test(newText),
-                        parse: !!postUpdateHud,
-                        repaired: false,
-                    });
-                } catch (diagError) {
-                    console.debug('[TavernOS HUD] HUD post-update diagnostic failed:', diagError);
+            // Вырезаем только сам последний настоящий блок [HUD]…[/HUD]. Упоминание
+            // метки в <plan> блоком не считается, а текст после блока (сводка
+            // [HUD_SUMMARY], комментарии, заметки) остаётся на месте. Блока нет —
+            // резать нечего: сразу создаём HUD, сообщение не трогаем.
+            const блокHud = последнийHudБлок(oldText);
+            if (блокHud) {
+                const до = oldText.slice(0, блокHud.index).trimEnd();
+                const после = oldText.slice(блокHud.index + блокHud.length).trimStart();
+                const newText = до && после ? до + '\n\n' + после : (до || после);
+                updateMessageDataForCurrentSwipe(targetMessage, newText);
+
+                const updateFn = getMessageUpdateFunction(stContext);
+                if (updateFn) {
+                    await Promise.resolve(updateFn(lastMesIndex, targetMessage, { rerenderMessage: true }));
                 }
 
-            const updateFn = getMessageUpdateFunction(stContext);
-            if (updateFn) {
-                await Promise.resolve(updateFn(lastMesIndex, targetMessage, { rerenderMessage: true }));
+                const saveFn = (stContext && typeof stContext.saveChatConditional === 'function') ? stContext.saveChatConditional.bind(stContext) : window.saveChatConditional;
+                if (saveFn) await saveFn();
+
+                showHudToast('success', 'Обрезано', 'Сломанный HUD удалён, текст ответа на месте. Запускаем регенерацию...');
+            } else {
+                showHudToast('success', 'HUD не найден', 'В сообщении нет блока [HUD] — текст не трогаем, создаём HUD.');
             }
-
-            const saveFn = (stContext && typeof stContext.saveChatConditional === 'function') ? stContext.saveChatConditional.bind(stContext) : window.saveChatConditional;
-            if (saveFn) await saveFn();
-
-            showHudToast('success', 'Обрезано', 'Сломанный код удален. Запускаем регенерацию...');
 
             // HUD только что удалён, поэтому кнопки 🔄 Regen больше нет.
             // После штатного updateMessageBlock() заново обрабатываем сообщение

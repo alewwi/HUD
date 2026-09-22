@@ -12,10 +12,10 @@
 // оказываются рядом вчерашнее «22:30» и сегодняшнее «08:30», и без подписи
 // «Вчера» это читается как один разговор подряд.
 
-import { escapeHtml, defeatWI } from '../utils.js?v=22.99.99';
-import { buildBubbleInner, buildCallRow, msgKey } from './msg-parts.js?v=22.99.99';
-import { avaFace } from './phone-common.js?v=22.99.99';
-import { namesLikelySame } from '../names.js?v=22.99.99';
+import { escapeHtml, defeatWI } from '../utils.js?v=23.0.2';
+import { buildBubbleInner, buildCallRow, msgKey } from './msg-parts.js?v=23.0.2';
+import { avaFace } from './phone-common.js?v=23.0.2';
+import { namesLikelySame } from '../names.js?v=23.0.2';
 
 const МЕСЯЦЫ_РОД = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 
@@ -180,9 +180,12 @@ export function разобратьСообщение(raw) {
     if (хвост) { тело = хвост[1].trim(); время = хвост[2].trim(); статус = (хвост[3] || '').trim(); }
   }
   const низ = (статус || '').toLowerCase();
-  const удалено = /delete|удален/.test(низ) || /\[удалено\]/i.test(тело);
-  const черновик = /draft|черновик/.test(низ) || /\[черновик\]/i.test(тело);
-  тело = тело.replace(/\[удалено\]|\[черновик\]|✓+/gi, '').trim();
+  // Метку модель пишет и в статусе («| Draft»), и прямо в тексте — по-русски
+  // или по-английски: «[DRAFT] Смени тон…». Английскую раньше не узнавали,
+  // и черновик приходил обычным отправленным пузырём с «[DRAFT]» в тексте.
+  const удалено = /delete|удален/.test(низ) || /\[\s*(?:удалено|deleted?)\s*\]/i.test(тело);
+  const черновик = /draft|черновик/.test(низ) || /\[\s*(?:черновик|draft)\s*\]/i.test(тело);
+  тело = тело.replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]\s*|✓+/gi, '').trim();
   let кто = 'Unknown', текст = тело;
   // Дефис — часть фамилии («Ченнинг-Уинтроп»), из имени его не исключаем.
   const m = тело.match(/^([^:]+?)(?:\s*(?:->|→)\s*([^:]+?))?\s*:\s*([\s\S]*)$/);
