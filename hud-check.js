@@ -9,9 +9,9 @@
 // честно бывает 'empty', комментариев может не быть вовсе. Ложная тревога
 // здесь стоит лишнего запроса к модели, поэтому лучше промолчать.
 
-import { settings } from './settings.js?v=23.3.4';
-import { extractHudBlock } from './hud-block.js?v=23.3.4';
-import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.3.4';
+import { settings } from './settings.js?v=23.4.6';
+import { extractHudBlock } from './hud-block.js?v=23.4.6';
+import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.4.6';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const МЕТКА = /<\s*new this turn\b[^>]*>/i;
@@ -39,7 +39,9 @@ export function чегоНеХватает(текстСообщения) {
     if (!заполнено(c.Th)) нет.push(`мысли (${имя})`);
     if (!заполнено(c.Ex)) нет.push(`ожидание и реальность (${имя})`);
   });
-  if (settings.enableDiary && !заполнено(к.dy)) нет.push('дневник');
+  // Дневник пишут присутствующие. Никого в cs нет — {{char}} вне сцены, и
+  // писать от его имени промт запрещает: пустой дневник тогда честный.
+  if (settings.enableDiary && (Array.isArray(к.cs) ? к.cs : []).some(объект) && !заполнено(к.dy)) нет.push('дневник');
   if (settings.enableWorld && settings.enableHoroscope !== false && !заполнено(к.wd && к.wd.zd)) нет.push('гороскоп');
   return нет;
 }

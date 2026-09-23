@@ -4,16 +4,16 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=23.3.4';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.3.4';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.3.4';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=23.3.4';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=23.4.6';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.4.6';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.4.6';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=23.4.6';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову } from './intimacy.js?v=23.3.4';
-import { buildPregnancy } from './pregnancy.js?v=23.3.4';
-import { settings } from '../settings.js?v=23.3.4';
-import { namesLikelySame } from '../names.js?v=23.3.4';
-import { parseRelationList } from './relations-graph.js?v=23.3.4';
+  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову } from './intimacy.js?v=23.4.6';
+import { buildPregnancy } from './pregnancy.js?v=23.4.6';
+import { settings } from '../settings.js?v=23.4.6';
+import { namesLikelySame } from '../names.js?v=23.4.6';
+import { parseRelationList } from './relations-graph.js?v=23.4.6';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле'];
@@ -119,6 +119,23 @@ const ФАЗЫ = [
   ['aftercare', 'Забота', /aftercare|забот|уход/i],
   ['afterglow', 'После', /afterglow|послевкус|истом|после/i],
 ];
+// «Сцена идёт» или «сцена закончилась» — для оформления строк близости.
+// Слово фазы главнее номера: «3 — aftercare» и просто «aftercare» — после.
+export function состояниеСцены(value) {
+  const s = String(value || '').trim();
+  if (!s || /^(empty|none|пусто)$/i.test(s)) return '';
+  const i = ФАЗЫ.findIndex(([, , rx]) => rx.test(s));
+  if (i >= 3) return 'after';
+  if (i >= 0) return 'live';
+  const номер = (s.match(/(?:phase|фаза)?\s*\b([123])\b/i) || [])[1];
+  return номер === '3' ? 'after' : номер === '2' ? 'live' : '';
+}
+function плашкаСцены(состояние) {
+  if (состояние === 'after') return '<span class="hud-scene-state is-after"><i aria-hidden="true">☾</i>Сцена закончилась</span>';
+  if (состояние === 'live') return '<span class="hud-scene-state is-live"><i aria-hidden="true"></i>Сцена идёт</span>';
+  return '';
+}
+
 function buildScenePhase(value) {
   const s = String(value || '');
   let текущая = ФАЗЫ.findIndex(([, , rx]) => rx.test(s));
@@ -620,7 +637,9 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
   if (!charData || Object.keys(charData).length === 0) return '';
   const charName = charData['Имя'] || 'Unknown NPC';
   const avatar = getAvatarUrl(charName, isPrimary);
-  const avaTag = ` data-ava-name="${escapeHtml(charName)}"`;
+  // data-ava-auto: аватарка найдена в Таверне сама — её можно обновить на
+  // месте, когда картинку персонажа поменяли (avatars.js, refreshAvatarFaces).
+  const avaTag = ` data-ava-name="${escapeHtml(charName)}" data-ava-auto="1" data-ava-primary="${isPrimary ? 1 : 0}"`;
   const avatarHtml = avatar ? `<img src="${avatar.url}" data-hud-fallback="${avatar.thumbUrl}" class="hud-avatar" alt="avatar"${avaTag} onerror="if(!this.dataset.hudTried && this.dataset.hudFallback){this.dataset.hudTried='1'; this.src=this.dataset.hudFallback;} else {this.outerHTML='<div class=&quot;hud-avatar-placeholder&quot;>👤</div>';}">` : `<div class="hud-avatar-placeholder"${avaTag}>👤</div>`;
 
   let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-header"><div class="hud-header-info">${avatarHtml}<div class="hud-header-text"><span class="hud-title">${escapeHtml(charName)}</span></div></div></div><div class="hud-body">`;
@@ -629,6 +648,8 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
   let сценаПоказана = false;
   // Здоровье, болезни и следы — один трекер, собирается один раз.
   const вБлизости = !пустоеПоле(полеОбъекта(charData, 'Фаза близости', 'SS'));
+  // В фазе 3 строки сцены приглушены и тёплые: видно, что всё уже позади.
+  const сцена = состояниеСцены(снятьЗаглушки(flattenFieldValue(полеОбъекта(charData, 'Фаза близости', 'SS'))));
   let здоровье = null, здоровьеПоказано = false;
   // Следы на теле отслеживаются и после акта: строку проверяем, даже если
   // модель в этом ходу их не упомянула, — активные найдутся в прошлых ходах.
@@ -658,6 +679,12 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       'никогда не сделает': 'nogo', 'не возбуждает': 'noturn', 'nsfw': 'act', 'детализация nsfw': 'after', 'поза': 'pose',
       'раунд': 'round', 'длительность': 'dur', 'защита': 'prot', 'готовность к оргазму': 'org', 'жизненные показатели': 'vit', 'звуки': 'snd',
     }[lowerKey] || 'other');
+    // Черты и история (кинки, партнёры, последний секс) от фазы не зависят.
+    const постоянное = ['кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'количество партнеров', 'регулярность секса', 'последний секс'];
+    if (rowClass.includes(' nsfw') && !постоянное.includes(lowerKey)) {
+      if (сцена === 'after' || ['детализация nsfw', 'забота после', 'отзыв о сексе'].includes(lowerKey)) rowClass += ' is-scene-after';
+      else if (сцена === 'live') rowClass += ' is-scene-live';
+    }
     rowClass += видСтроки(lowerKey, rowClass);
 
     const icon = значокПоля(lowerKey);
@@ -676,7 +703,7 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       if (!сценаПоказана) {
         сценаПоказана = true;
         const фаза = снятьЗаглушки(flattenFieldValue(charData['Фаза близости']));
-        const шаги = фаза && !/^(empty|none)$/i.test(фаза.trim()) ? `<div>${buildScenePhase(фаза)}</div>` : '';
+        const шаги = фаза && !/^(empty|none)$/i.test(фаза.trim()) ? `${плашкаСцены(сцена)}<div>${buildScenePhase(фаза)}</div>` : '';
         html += `<div class="${rowClass} full-width"><span class="hud-key">${значокПоля('фаза близости')}Фаза близости:</span> <div class="hud-scene-strip-wrap">${шаги}${buildSceneStrip(charData)}</div></div>`;
       }
     } else if (lowerKey === 'защита') {

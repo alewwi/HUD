@@ -11,12 +11,12 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache } from './avatars.js?v=23.3.4';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.3.4';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.3.4';
-import { getTheme, themeVars, presetRowHTML, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.3.4';
-import { settings, defaultSettings } from './settings.js?v=23.3.4';
-import { getWorldVotes } from './render/world.js?v=23.3.4';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.4.6';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.4.6';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.4.6';
+import { getTheme, themeVars, presetRowHTML, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.4.6';
+import { settings, defaultSettings } from './settings.js?v=23.4.6';
+import { getWorldVotes } from './render/world.js?v=23.4.6';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -1091,7 +1091,7 @@ export function initGlobalEvents(ctx) {
             // Единица зависит от ключа: раньше всем подписям дописывалось
             // «px», и процент свечения показывался как «55px».
             displayVal.textContent = themeInput.value
-              + (/Alpha$|Opacity$|Scale$|Darkness$/.test(varKey) ? '%' : 'px');
+              + (/Alpha$|Opacity$|Scale$|Darkness$|^glowSize$/.test(varKey) ? '%' : 'px');
         }
         
         document.querySelectorAll(`[data-key="${varKey}"]`).forEach(inp => {
@@ -1297,6 +1297,13 @@ export function initObserver(ctx, chatContainer) {
     let avatarChanged = false;
 
     for (const mutation of mutations) {
+      // Картинку персонажа или персоны поменяли: Таверна переставляет src у
+      // аватарок в чате. Сообщения пересобирать не нужно — только сбросить
+      // кэш адресов и поправить кружки в карточках HUD.
+      if (mutation.type === 'attributes') {
+        if (mutation.target.matches?.('.avatar img, .avatar_img') && !mutation.target.closest?.('.hud-os-card')) аватаркаЗаменена();
+        continue;
+      }
       // Изменился текст внутри сообщения.
       if (mutation.type === 'characterData') {
         const mes = mutation.target.parentElement?.closest?.('.mes');
@@ -1360,11 +1367,25 @@ export function initObserver(ctx, chatContainer) {
     разборТаймер = setTimeout(разобрать, Math.min(РАЗБОР_ТИШИНА, осталось));
   });
 
+  // Замен аватарок обычно несколько подряд (у каждого сообщения своя) —
+  // обновляем один раз, когда они закончились.
+  let таймерАватарок = 0;
+  function аватаркаЗаменена() {
+    clearTimeout(таймерАватарок);
+    таймерАватарок = setTimeout(() => {
+      invalidateAvatarCache();
+      refreshAvatarFaces(chatContainer);
+    }, 300);
+  }
+
   observer.observe(chatContainer, {
     childList: true,
     subtree: true,
     characterData: true,
-    characterDataOldValue: false
+    characterDataOldValue: false,
+    // Только src: стили и классы в чате меняются постоянно, их не слушаем.
+    attributes: true,
+    attributeFilter: ['src'],
   });
 }
 

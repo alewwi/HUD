@@ -3907,13 +3907,25 @@
     /* Дождь и гроза шли узкой полосой по центру — ровно за плашками часов
        и погоды, и на телефоне капель почти не было видно. Теперь дождь на
        всю ширину, а тучи разведены по краям, мимо плашек. */
+    /* Полосу не поворачиваем, а скашиваем. Поворот высокой полосы на всю
+       сцену наклонял и её верхний край: струи начинались с косой линии
+       посреди неба, «из ниоткуда», и шли почти наискосок (угол дождя плюс
+       ветер доходил до 35°). skewX наклоняет только капли — верх полосы
+       остаётся ровным у кромки сцены и плавно проявляется, будто дождь
+       идёт из туч над кадром. Ветер добавляет наклон, но не больше 24°. */
     .weather-rain .hud-fx-weather::after,
     .weather-rain.weather-intensity-high .hud-fx-weather::after,
     .weather-rain.weather-intensity-low .hud-fx-weather::after,
     .weather-storm .hud-fx-weather::after {
-        left: -14%; width: 128%; margin-left: 0;
-        top: 40px; height: calc(100% - 40px);
+        left: -30%; width: 160%; margin-left: 0;
+        top: 0; height: 100%;
+        transform: skewX(calc(-1 * min(24deg, var(--rain-lean, 8deg) + var(--rain-tilt-extra, 0deg) * .6)));
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%, rgba(0,0,0,.6) 78%, transparent 100%);
+                mask-image: linear-gradient(to bottom, transparent 0, #000 16%, rgba(0,0,0,.6) 78%, transparent 100%);
     }
+    .weather-rain.weather-intensity-high .hud-fx-weather::after { --rain-lean: 11deg; }
+    .weather-rain.weather-intensity-low .hud-fx-weather::after { --rain-lean: 4deg; }
+    .weather-storm .hud-fx-weather::after { --rain-lean: 13deg; }
     .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-back { left: 13%; margin-left: calc(var(--rc-w) * -.5); }
     .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-front { left: 87%; margin-left: calc(var(--rc-w) * -.5); }
 }
@@ -5981,12 +5993,22 @@ html.hud-custom-open body { overflow: hidden; }
 /* =========================================================================
    ОСЕНЬ: ЯБЛОКИ И ЕЖИ
    ========================================================================= */
-/* Яблоки на яблоне — в глубине крупных пятен листвы (центры пятен 1, 2 и 5
-   рисунка кроны), по центру яблока, а не по углу. Прежние точки стояли у
-   края пятен, и на узкой низкой кроне телефона яблоко висело в воздухе. */
-.hud-tree-apple.a1 { left: calc(30% - 3.5px); top: calc(43% - 3.5px); }
-.hud-tree-apple.a2 { left: calc(53% - 3.5px); top: calc(31% - 3.5px); }
-.hud-tree-apple.a3 { left: calc(67% - 3.5px); top: calc(66% - 3.5px); }
+/* Яблоки на яблоне привязаны к самой нарисованной кроне. Крона — SVG 90×62
+   в блоке листвы (108px шириной, 78% высоты дерева): на высоком дереве
+   картинка не растягивается, а стоит шапкой посередине блока. Слой яблок
+   лежал на весь блок, и на высокой сцене телефона яблоки съезжали из
+   шапки вниз по стволу. Теперь слой — ровно нарисованная крона: центр
+   блока, те же пропорции и размер «вписать». Слой лежит внутри блока
+   листвы, поэтому проценты — от него, а поворот задаёт сам блок. */
+.hud-bg-tree-autumn-foliage .hud-tree-apples {
+  inset: auto; left: 50%; top: 50%;
+  height: min(74.4px, 100%); width: auto; aspect-ratio: 90 / 62;
+  transform: translate(-50%, -50%);
+}
+/* Центры пятен листвы 1, 2 и 5 рисунка: (24,24), (48,17), (62,41) из 90×62. */
+.hud-tree-apple.a1 { left: calc(26.7% - 3.5px); top: calc(38% - 3.5px); }
+.hud-tree-apple.a2 { left: calc(53.3% - 3.5px); top: calc(27% - 3.5px); }
+.hud-tree-apple.a3 { left: calc(68.9% - 3.5px); top: calc(66% - 3.5px); }
 
 /* Падение: старт в нижней части кроны (доля высоты сцены, а не пиксели —
    на телефоне сцена ниже), разгон как у падающего тела, удар, короткий
@@ -5996,11 +6018,19 @@ html.hud-custom-open body { overflow: hidden; }
    широкой сцене яблоко не поднимается выше её кромки. */
 .hud-fallen-apples { top: 0; height: auto; }
 .hud-fallen-apple { animation-name: hud-apple-drop; animation-timing-function: linear; bottom: auto; }
-.hud-fallen-apple.fa1 { left: calc(20% + 24px); --ground: clamp(0px, calc((14% - 7px) * 0.45), 5px);  --from: 40%; }
-.hud-fallen-apple.fa2 { left: calc(20% + 36px); --ground: clamp(0px, calc((14% - 7px) * 0.1), 1px);  --from: 44%; }
-.hud-fallen-apple.fa3 { left: calc(20% + 50px); --ground: clamp(0px, calc((14% - 7px) * 0.6), 7px);  --from: 38%; }
-.hud-fallen-apple.fa4 { left: calc(20% + 30px); --ground: clamp(0px, calc((14% - 7px) * 0.85), 12px); --from: 42%; }
-.hud-fallen-apple.fa5 { left: calc(20% + 58px); --ground: clamp(0px, calc((14% - 7px) * 0.3), 3px);  --from: 36%; }
+/* Старт — нижняя часть кроны. Центр кроны на 54% высоты сцены от низа
+   (дерево 82% сцены × 1.05, центр кроны — 63% дерева от земли), низ
+   кроны на ~20–28px ниже центра: и на низкой сцене, и на высокой яблоко
+   отрывается от листвы, а не из воздуха под ней.
+   Задержки отрицательные: на паузе (сцена не в фокусе) анимация стоит на
+   нулевой секунде, и с положительной задержкой яблоко ещё не получило ни
+   одного кадра — оно стояло в верху сцены, в воздухе. Теперь в этот миг
+   все пять уже лежат на земле, а падают по очереди, раз в три секунды. */
+.hud-fallen-apple.fa1 { left: calc(20% + 24px); --ground: clamp(0px, calc((14% - 7px) * 0.45), 5px);  --from: calc(54% - 22px); animation-delay: -6s; }
+.hud-fallen-apple.fa2 { left: calc(20% + 36px); --ground: clamp(0px, calc((14% - 7px) * 0.1), 1px);  --from: calc(54% - 16px); animation-delay: -9s; }
+.hud-fallen-apple.fa3 { left: calc(20% + 50px); --ground: clamp(0px, calc((14% - 7px) * 0.6), 7px);  --from: calc(54% - 26px); animation-delay: -12s; }
+.hud-fallen-apple.fa4 { left: calc(20% + 30px); --ground: clamp(0px, calc((14% - 7px) * 0.85), 12px); --from: calc(54% - 19px); animation-delay: -15s; }
+.hud-fallen-apple.fa5 { left: calc(20% + 58px); --ground: clamp(0px, calc((14% - 7px) * 0.3), 3px);  --from: calc(54% - 28px); animation-delay: -18s; }
 @keyframes hud-apple-drop {
   0%, 3%   { bottom: var(--from); opacity: 0; transform: rotate(0deg); }
   3.2%     { bottom: var(--from); opacity: 1; transform: rotate(0deg); animation-timing-function: cubic-bezier(.55, 0, 1, .45); }
@@ -6083,4 +6113,346 @@ html.hud-custom-open body { overflow: hidden; }
 }
 @media (max-width: 600px) {
   .season-autumn .hud-hedgehog { animation-name: hud-hedgehog-trip-mobile; }
+}
+
+/* Раскрытый граф отношений уходит в body. Его слой (9998) был ниже окна
+   «Кастомизация» (10050), и в примере граф открывался под окном —
+   казалось, что он не открывается вовсе. */
+.hud-rel-graph-backdrop { z-index: 10060 !important; }
+.hud-rel-graph.is-expanded { z-index: 10061 !important; }
+.hud-voice-details.is-empty .hud-voice-text { opacity: .6; font-style: italic; }
+
+/* =========================================================================
+   БЛИЗОСТЬ: «СЦЕНА ИДЁТ» И «СЦЕНА ЗАКОНЧИЛАСЬ» (render/character.js)
+   В фазе 3 (забота, после) строки сцены теряют блёстки и яркую полосу:
+   тёплый приглушённый фон, мягкая тень, спокойная кромка. Постоянные черты
+   (кинки, партнёры, последний секс) не меняются — они вне сцены.
+   ========================================================================= */
+.hud-row.nsfw.is-scene-after, .hud-scene-state.is-after {
+  --after: color-mix(in oklab, var(--hud-nsfw-border, #9e2a3f) 45%, #c79d92);
+}
+.hud-row.nsfw.is-scene-after {
+  background-image: linear-gradient(160deg, color-mix(in oklab, var(--after) 27%, transparent), color-mix(in oklab, var(--after) 9%, transparent) 72%) !important;
+  background-size: 100% 100% !important;
+  border-left-color: color-mix(in oklab, var(--after) 75%, transparent) !important;
+  box-shadow: 0 10px 26px -14px color-mix(in oklab, var(--after) 65%, transparent), inset 0 0 0 1px color-mix(in oklab, var(--after) 16%, transparent) !important;
+  filter: saturate(.72);
+}
+.hud-row.nsfw.is-scene-after::before {
+  background: radial-gradient(90% 70% at 0% 110%, color-mix(in oklab, var(--after) 24%, transparent), transparent 65%) !important;
+}
+.hud-row.nsfw.is-scene-after .hud-phase-step.is-now {
+  color: inherit !important;
+  background: color-mix(in oklab, var(--after) 30%, transparent) !important;
+  border-color: color-mix(in oklab, var(--after) 55%, transparent) !important;
+  box-shadow: 0 0 10px color-mix(in oklab, var(--after) 30%, transparent) !important;
+}
+.hud-row.nsfw.is-scene-after .hud-phase-step.is-past { background: color-mix(in oklab, var(--after) 14%, transparent) !important; border-color: color-mix(in oklab, var(--after) 30%, transparent) !important; color: inherit !important; }
+.hud-row.nsfw.is-scene-after .hud-phase-step.is-past + .hud-phase-sep { background: color-mix(in oklab, var(--after) 55%, transparent) !important; }
+
+.hud-scene-state {
+  align-self: flex-start; display: inline-flex; align-items: center; gap: 6px;
+  padding: 2px 10px 2px 8px; border-radius: 999px;
+  font-size: 11px; font-weight: 600; letter-spacing: .03em; line-height: 1.5;
+}
+.hud-scene-state.is-live {
+  color: color-mix(in oklab, var(--hud-nsfw-color, #d9548a) 38%, #fff);
+  background: color-mix(in oklab, var(--hud-nsfw-color, #d9548a) 26%, transparent);
+  border: 1px solid color-mix(in oklab, var(--hud-nsfw-color, #d9548a) 45%, transparent);
+}
+.hud-scene-state.is-live i {
+  width: 7px; height: 7px; border-radius: 50%; background: var(--hud-nsfw-color, #d9548a);
+  animation: hud-scene-pulse 1.6s ease-out infinite;
+}
+@keyframes hud-scene-pulse {
+  0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--hud-nsfw-color, #d9548a) 65%, transparent); }
+  100% { box-shadow: 0 0 0 7px transparent; }
+}
+.hud-scene-state.is-after {
+  font-style: italic; font-weight: 500;
+  color: color-mix(in oklab, var(--after) 60%, var(--hud-text, #eee));
+  background: color-mix(in oklab, var(--after) 16%, transparent);
+  border: 1px solid color-mix(in oklab, var(--after) 35%, transparent);
+}
+.hud-scene-state.is-after i { font-style: normal; opacity: .85; }
+@media (prefers-reduced-motion: reduce) { .hud-scene-state.is-live i { animation: none; } }
+
+/* =========================================================================
+   ТЕЛЕФОН: «ПОГОДА», «ЗВОНКИ», «КАРТЫ» (render/phone-extra.js)
+   Цвета — только из акцента телефона: он наследует тему HUD.
+   ========================================================================= */
+
+/* --- Погода -------------------------------------------------------------- */
+.hud-wx { display: flex; flex-direction: column; gap: 12px; padding: 4px 2px 10px; }
+.hud-wx-now {
+  position: relative; overflow: hidden; padding: 16px 16px 14px; border-radius: 18px;
+  background:
+    radial-gradient(120% 90% at 100% 0%, color-mix(in oklab, var(--hud-phone-accent) calc(18% + var(--t, .5) * 22%), transparent), transparent 70%),
+    linear-gradient(165deg, color-mix(in oklab, var(--hud-phone-accent) 16%, rgba(255,255,255,.04)), rgba(0,0,0,.18));
+  border: 1px solid color-mix(in oklab, var(--hud-phone-accent) 26%, transparent);
+  box-shadow: 0 10px 26px -16px color-mix(in oklab, var(--hud-phone-accent) 70%, transparent);
+}
+.hud-wx-now.is-night {
+  background:
+    radial-gradient(120% 90% at 100% 0%, color-mix(in oklab, var(--hud-phone-accent) 16%, transparent), transparent 70%),
+    linear-gradient(165deg, rgba(20,22,40,.55), rgba(0,0,0,.35));
+}
+.hud-wx-place { display: flex; align-items: center; gap: 5px; font-size: .82em; opacity: .8; }
+.hud-wx-place .hud-g-ico { width: 13px; height: 13px; }
+.hud-wx-main { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-top: 4px; }
+.hud-wx-temp { font-size: 3.1em; font-weight: 200; line-height: 1; letter-spacing: -.04em; font-variant-numeric: tabular-nums; }
+.hud-wx-ico { color: var(--hud-phone-accent); line-height: 0; }
+.hud-wx-ico .hud-fc-ico { width: 54px; height: 54px; stroke-width: 1.2; }
+.hud-wx-now.w-clear:not(.is-night) .hud-wx-ico .ic-sun,
+.hud-wx-ico .ic-moon, .hud-wx-row-ico .ic-moon { fill: color-mix(in oklab, currentColor 35%, transparent); }
+.hud-wx-cond { font-size: 1.02em; font-weight: 600; margin-top: 2px; }
+.hud-wx-cond::first-letter { text-transform: uppercase; }
+.hud-wx-extra { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 8px; }
+.hud-wx-extra span {
+  font-size: .76em; padding: 2px 8px; border-radius: 999px;
+  background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.08);
+}
+.hud-wx-when { margin-top: 10px; font-size: .74em; opacity: .6; letter-spacing: .02em; }
+
+.hud-wx-fc { border-radius: 16px; padding: 6px 12px; background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.06); }
+.hud-wx-fc-title { font-size: .7em; text-transform: uppercase; letter-spacing: .08em; opacity: .55; padding: 6px 0 4px; }
+.hud-wx-row { display: grid; grid-template-columns: 56px 26px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 7px 0; }
+.hud-wx-row + .hud-wx-row { border-top: 1px solid rgba(255,255,255,.06); }
+.hud-wx-period { font-size: .8em; opacity: .75; }
+.hud-wx-period::first-letter { text-transform: uppercase; }
+.hud-wx-row-ico { color: var(--hud-phone-accent); line-height: 0; }
+.hud-wx-row-ico .hud-fc-ico { width: 22px; height: 22px; }
+.hud-wx-row-desc { font-size: .84em; min-width: 0; }
+.hud-wx-row-desc small { display: block; font-size: .86em; opacity: .55; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-wx-row-temp {
+  font-weight: 600; font-variant-numeric: tabular-nums; min-width: 40px; text-align: right;
+  color: color-mix(in oklab, var(--hud-phone-accent) calc(var(--t, .5) * 100%), currentColor);
+}
+
+/* --- Звонки ---------------------------------------------------------------- */
+.hud-calls { display: flex; flex-direction: column; }
+.hud-calls-tab-in { position: absolute; opacity: 0; pointer-events: none; }
+.hud-calls-tabs {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 3px; margin: 2px 2px 8px;
+  border-radius: 10px; background: rgba(255,255,255,.06);
+}
+.hud-calls-tabs label {
+  text-align: center; padding: 5px 0; border-radius: 8px; font-size: .8em; cursor: pointer; opacity: .7;
+}
+.hud-calls-tabs label i {
+  font-style: normal; font-size: .85em; padding: 0 6px; margin-left: 3px; border-radius: 999px;
+  background: color-mix(in oklab, var(--hud-phone-accent) 70%, transparent); color: #fff;
+}
+.hud-calls-tab-in.is-all:checked ~ .hud-calls-tabs label:first-child,
+.hud-calls-tab-in.is-miss:checked ~ .hud-calls-tabs label:last-child {
+  opacity: 1; font-weight: 600; background: rgba(255,255,255,.1); box-shadow: 0 1px 3px rgba(0,0,0,.25);
+}
+.hud-calls-tab-in.is-miss:checked ~ .hud-calls-list .hud-calls-row:not(.is-missed),
+.hud-calls-tab-in.is-miss:checked ~ .hud-calls-list .hud-calls-day { display: none; }
+.hud-calls-tab-in.is-miss:checked ~ .hud-calls-list .hud-calls-row.is-missed { display: grid; }
+.hud-calls-day { font-size: .7em; text-transform: uppercase; letter-spacing: .08em; opacity: .5; padding: 10px 6px 4px; }
+.hud-calls-row {
+  display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; align-items: center; gap: 10px;
+  padding: 7px 6px; border-radius: 12px;
+}
+.hud-calls-row + .hud-calls-row { border-top: 1px solid rgba(255,255,255,.05); }
+.hud-calls-ava {
+  width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-weight: 700; color: #fff; background-size: cover; background-position: center;
+}
+.hud-calls-ava.has-img { color: transparent; }
+.hud-calls-body { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.hud-calls-body b { font-size: .92em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-calls-body b em { font-style: normal; font-weight: 500; opacity: .7; }
+.hud-calls-row.is-missed .hud-calls-body b { color: color-mix(in oklab, var(--hud-phone-accent) 80%, #ff6b7a); }
+.hud-calls-body small { display: flex; align-items: center; gap: 4px; font-size: .76em; opacity: .65; }
+.hud-calls-ico { display: inline-flex; line-height: 0; }
+.hud-calls-ico .hud-call-svg { width: 13px; height: 13px; }
+.hud-calls-row.is-missed .hud-calls-ico { color: color-mix(in oklab, var(--hud-phone-accent) 80%, #ff6b7a); }
+.hud-calls-note { font-size: .74em; opacity: .5; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-calls-time { font-size: .74em; opacity: .55; font-variant-numeric: tabular-nums; }
+
+/* --- Карты ----------------------------------------------------------------- */
+.hud-map { display: flex; flex-direction: column; gap: 10px; }
+.hud-map-canvas {
+  position: relative; border-radius: 16px; overflow: hidden; aspect-ratio: 32 / 19;
+  border: 1px solid color-mix(in oklab, var(--hud-phone-accent) 22%, rgba(255,255,255,.08));
+  box-shadow: inset 0 0 30px rgba(0,0,0,.35);
+}
+.hud-map-svg { display: block; width: 100%; height: 100%; }
+.hud-map-land { fill: color-mix(in oklab, var(--hud-phone-accent) 6%, #1c1d24); }
+.hud-map-park { fill: color-mix(in oklab, var(--hud-phone-accent) 14%, #26322b); opacity: .8; }
+.hud-map-streets { fill: none; stroke: rgba(255,255,255,.11); stroke-width: 2.4; stroke-linecap: round; }
+.hud-map-river { fill: none; stroke: color-mix(in oklab, var(--hud-phone-accent) 20%, #3e5876); stroke-width: 9; stroke-linecap: round; opacity: .75; }
+.hud-map-route { fill: none; stroke: var(--hud-phone-accent); stroke-width: 1.8; stroke-dasharray: 4 4; opacity: .7; }
+.hud-map-drop { fill: var(--hud-phone-accent); stroke: rgba(0,0,0,.45); stroke-width: .8; }
+.hud-map-num { fill: #fff; font-size: 8px; font-weight: 700; text-anchor: middle; dominant-baseline: middle; }
+.hud-map-pin.is-here .hud-map-drop { fill: color-mix(in oklab, var(--hud-phone-accent) 60%, #fff); }
+.hud-map-dot { fill: var(--hud-phone-accent); stroke: #fff; stroke-width: 2; }
+.hud-map-pulse { fill: color-mix(in oklab, var(--hud-phone-accent) 35%, transparent); transform-box: fill-box; transform-origin: center; animation: hud-map-pulse 2.2s ease-out infinite; }
+@keyframes hud-map-pulse { from { transform: scale(.4); opacity: .9; } to { transform: scale(1.5); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .hud-map-pulse { animation: none; opacity: .4; } }
+.hud-map-list { display: flex; flex-direction: column; gap: 2px; }
+.hud-map-row { display: grid; grid-template-columns: 26px minmax(0, 1fr); align-items: center; gap: 10px; padding: 7px 6px; border-radius: 10px; }
+.hud-map-row b { display: block; font-size: .9em; }
+.hud-map-row small { display: block; font-size: .76em; opacity: .6; }
+.hud-map-badge {
+  width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+  font-size: .75em; font-weight: 700; color: #fff; background: var(--hud-phone-accent);
+}
+.hud-map-badge .hud-g-ico { width: 14px; height: 14px; }
+.hud-map-row.is-me .hud-map-badge { background: transparent; color: var(--hud-phone-accent); border: 1.5px solid var(--hud-phone-accent); }
+.hud-map-row.is-here { background: color-mix(in oklab, var(--hud-phone-accent) 12%, transparent); }
+@media (hover: hover) { .hud-map-row[data-pin]:hover { background: rgba(255,255,255,.06); } }
+.hud-map:has(.hud-map-row[data-pin="1"]:hover) .hud-map-pin[data-pin="1"],
+.hud-map:has(.hud-map-row[data-pin="2"]:hover) .hud-map-pin[data-pin="2"],
+.hud-map:has(.hud-map-row[data-pin="3"]:hover) .hud-map-pin[data-pin="3"],
+.hud-map:has(.hud-map-row[data-pin="4"]:hover) .hud-map-pin[data-pin="4"],
+.hud-map:has(.hud-map-row[data-pin="5"]:hover) .hud-map-pin[data-pin="5"],
+.hud-map:has(.hud-map-row[data-pin="6"]:hover) .hud-map-pin[data-pin="6"],
+.hud-map:has(.hud-map-row[data-pin="7"]:hover) .hud-map-pin[data-pin="7"],
+.hud-map:has(.hud-map-row[data-pin="8"]:hover) .hud-map-pin[data-pin="8"] { filter: drop-shadow(0 0 5px var(--hud-phone-accent)); }
+
+/* =========================================================================
+   СВЕЧЕНИЕ (Кастомизация → «Свечение», «Размах», «Дыхание», «На телефоне»)
+   Цвета — --hud-glow*, размах — множитель --hud-glow-r (index.js,
+   applyThemeColors). Широкие ореолы дополнительно умножаются на
+   --hud-glow-wide: на телефоне в режиме «Только рамка» он 0 — остаются
+   узкие светящиеся кромки, широкий свет не рисуется. Тени кладутся поверх
+   существующих, а не вместо них. NSFW-строки не трогаем.
+   ========================================================================= */
+:root {
+  --hud-glow: rgba(140, 90, 210, .4); --hud-glow-soft: rgba(140, 90, 210, .22); --hud-glow-strong: rgba(140, 90, 210, .64);
+  --hud-glow-r: 1; --hud-glow-wide: 1;
+  /* Ореол карточки живёт в её обычной тени: темы, которые пишут свою тень
+     через --hud-shadow, получают его тоже. */
+  --hud-glow-card: 0 0 0 1px var(--hud-glow-soft), 0 0 calc(5px * var(--hud-glow-r)) var(--hud-glow-strong),
+    0 0 calc(16px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow), 0 0 calc(40px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft);
+  --hud-shadow: var(--hud-glow-card), 0 8px 32px rgba(0, 0, 0, .15);
+}
+@media (max-width: 600px) {
+  html:not(.hud-glow-mobile-full) { --hud-glow-wide: 0; }
+  /* «Выключено»: свет прозрачный. !important у переменных сильнее
+     инлайновых значений, которые пишет applyThemeColors. */
+  html.hud-glow-mobile-off { --hud-glow: transparent !important; --hud-glow-soft: transparent !important; --hud-glow-strong: transparent !important; }
+  html.hud-glow-mobile-off.hud-glow-breath :is(.hud-time-display, .hud-title, .hud-avatar, .hud-avatar-placeholder, .hud-tabs-header .hud-tab.active, .hud-phone-lock-time) { animation: none !important; }
+  /* Плашки сцены на узком экране без внешних теней (base.css, ради
+     скорости) — в режиме рамки оставляем им только светящуюся кромку. */
+  html:not(.hud-glow-mobile-full) :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-scene-atm) { box-shadow: inset 0 0 0 1px var(--hud-glow-soft) !important; }
+}
+
+/* Карточка в «жидком стекле» — там тень своя. */
+html .hud-glass-liquid .hud-os-card { box-shadow: var(--hud-glow-card), var(--glass-depth), inset 0 1px 0 var(--glass-rim); }
+
+/* Шапка карточки и полоса вкладок: светящаяся кромка снизу. */
+.hud-os-topbar { box-shadow: 0 1px 0 var(--hud-glow-soft), 0 calc(8px * var(--hud-glow-r)) calc(18px * var(--hud-glow-r) * var(--hud-glow-wide)) calc(-12px * var(--hud-glow-r)) var(--hud-glow); }
+.hud-os-logo { text-shadow: 0 0 calc(3px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(10px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow); }
+.hud-os-topbar-right > * { filter: drop-shadow(0 0 calc(4px * var(--hud-glow-r)) var(--hud-glow-soft)); }
+
+/* Сцена: внутренний свет по краю, часы, дата, плашки. Слоями: узкий яркий
+   у самой цифры и широкие мягкие вокруг — один широкий слой растягивал
+   цвет в едва заметную дымку. */
+.hud-scene-widget { box-shadow: inset 0 0 calc(30px * var(--hud-glow-r) * var(--hud-glow-wide)) calc(-10px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow), inset 0 0 0 1px var(--hud-glow-soft); }
+.hud-time-display {
+  text-shadow: 0 2px 8px rgba(0, 0, 0, .9), 0 0 calc(2px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(7px * var(--hud-glow-r)) var(--hud-glow-strong),
+    0 0 calc(18px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow), 0 0 calc(40px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft);
+}
+.hud-scene-atm { text-shadow: 0 2px 6px rgba(0, 0, 0, .9), 0 0 calc(3px * var(--hud-glow-r)) var(--hud-glow), 0 0 calc(10px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft); }
+.hud-date-display { text-shadow: 0 2px 4px rgba(0, 0, 0, .9), 0 0 calc(4px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(12px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow); }
+:is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-scene-atm) {
+  box-shadow: 0 4px 14px rgba(0, 0, 0, .3), inset 0 0 0 1px var(--hud-glow-soft), 0 0 calc(14px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft);
+}
+
+/* Вкладки: активная светится целиком, у полосы — светящаяся линия. */
+.hud-tabs-header { box-shadow: 0 1px 0 var(--hud-glow-soft); }
+.hud-tabs-header .hud-tab.active {
+  filter: drop-shadow(0 0 calc(7px * var(--hud-glow-r)) var(--hud-glow));
+  text-shadow: 0 0 calc(3px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(10px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow);
+}
+
+/* Персонаж: аватарка кольцом света, имя — ореолом. */
+.hud-avatar, .hud-avatar-placeholder {
+  box-shadow: 0 0 0 calc(1.5px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(6px * var(--hud-glow-r)) var(--hud-glow-strong),
+    0 0 calc(16px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow), 0 0 calc(36px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft);
+}
+.hud-title {
+  text-shadow: 0 0 calc(1px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(5px * var(--hud-glow-r)) var(--hud-glow-strong),
+    0 0 calc(12px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow), 0 0 calc(26px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft);
+}
+
+/* Заголовки полей («ВОЗРАСТ:», «ОДЕЖДА:»): светится надпись; эмодзи-значок
+   без рамки. Киберпанк со своим двоением подписей и NSFW-строки — как были. */
+html:not(.hud-theme-cyberpunk) .hud-os-card :is(.hud-row:not(.nsfw) > .hud-key, .hud-key-block > .hud-key-label, .hud-world-title) {
+  text-shadow: 0 0 calc(2px * var(--hud-glow-r)) var(--hud-glow), 0 0 calc(7px * var(--hud-glow-r)) var(--hud-glow),
+    0 0 calc(16px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft);
+}
+
+/* Пилюли в строках: детали, инвентарь, ключевые мысли, конфликты.
+   drop-shadow, а не box-shadow: у части пилюль свои тени и своё
+   «без тени», и свет не должен их затирать. */
+.hud-os-card .hud-row:not(.nsfw) :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill),
+.hud-os-card .hud-key-block .hud-key-item {
+  filter: drop-shadow(0 0 calc(3px * var(--hud-glow-r)) var(--hud-glow)) drop-shadow(0 0 calc(9px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft));
+}
+
+/* Подписи прочих разделов — мягко, без силы селектора. */
+:where(.hud-os-card) :where(.hud-key, .hud-key-label) { text-shadow: 0 0 calc(2px * var(--hud-glow-r)) var(--hud-glow-soft), 0 0 calc(8px * var(--hud-glow-r)) var(--hud-glow-soft); }
+
+/* Шкалы — как неоновые трубки. */
+:is(.hud-ill-meter, .hud-org-meter, .hud-prg-meter, .hud-conception-bar, .hud-poll-bar, .hud-dash-bar-track, .hud-mark-heal-track, .hud-heat-bar, .hud-breaking-track, .hud-fc-bar) {
+  filter: drop-shadow(0 0 calc(4px * var(--hud-glow-r)) var(--hud-glow));
+}
+.hud-trustmap .hud-zone-bar > i, .hud-bodymap:not(.hud-row.nsfw *) .hud-zone-bar > i { box-shadow: 0 0 calc(8px * var(--hud-glow-r)) var(--hud-glow); }
+
+/* Телефон светится тем же цветом, что и HUD. Выключается в «Телефон —
+   настройки темы → Свечение телефона»: класс hud-phone-noglow на <html>
+   снимает весь свет ниже, корпус и экран остаются как были. */
+html:not(.hud-phone-noglow) .hud-phone-emulator { box-shadow: 0 26px 60px rgba(0, 0, 0, .62), 0 4px 14px rgba(0, 0, 0, .5), 0 0 0 1px var(--hud-glow-soft), 0 0 calc(8px * var(--hud-glow-r)) var(--hud-glow-soft), 0 0 calc(34px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft); }
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-app > span { filter: drop-shadow(0 0 calc(4px * var(--hud-glow-r)) var(--hud-glow)) drop-shadow(0 0 calc(10px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft)); }
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-app > small { text-shadow: 0 0 calc(5px * var(--hud-glow-r)) var(--hud-glow); }
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-lock-time {
+  text-shadow: 0 0 calc(2px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(8px * var(--hud-glow-r)) var(--hud-glow-strong),
+    0 0 calc(20px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow), 0 0 calc(44px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft);
+}
+html:not(.hud-phone-noglow) .hud-phone-emulator :is(.hud-phone-lock-day, .hud-phone-lock-hint, .hud-phone-top-status) { text-shadow: 0 0 calc(6px * var(--hud-glow-r)) var(--hud-glow); }
+/* Уведомления и строка «проведите вверх». */
+html:not(.hud-phone-noglow) .hud-phone-emulator :is(.hud-phone-notif, .hud-phone-lock-notice) { filter: drop-shadow(0 0 calc(5px * var(--hud-glow-r)) var(--hud-glow-soft)); }
+html:not(.hud-phone-noglow) .hud-phone-emulator :is(.hud-phone-lock-bar, .hud-phone-home-btn) { box-shadow: 0 0 calc(8px * var(--hud-glow-r)) var(--hud-glow); }
+/* Заголовок приложения, «назад», значки непрочитанного. */
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-app-title { text-shadow: 0 0 calc(3px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(10px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow); }
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-back { text-shadow: 0 0 calc(6px * var(--hud-glow-r)) var(--hud-glow-strong); }
+html:not(.hud-phone-noglow) .hud-phone-emulator :is(.hud-unread-badge, .hud-calls-tabs label i) { box-shadow: 0 0 calc(6px * var(--hud-glow-r)) var(--hud-glow-strong); }
+/* Переписки: лица в списке, пузыри, строка ввода. */
+html:not(.hud-phone-noglow) .hud-phone-emulator :is(.hud-phone-chat-ava, .hud-phone-contact-avatar, .hud-phone-notif-ava, .hud-calls-ava, .hud-map-badge) {
+  box-shadow: 0 0 0 1px var(--hud-glow-soft), 0 0 calc(8px * var(--hud-glow-r)) var(--hud-glow);
+}
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-msg-wrapper.outgoing .hud-msg-bubble { filter: drop-shadow(0 0 calc(5px * var(--hud-glow-r)) var(--hud-glow)); }
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-msg-wrapper.incoming .hud-msg-bubble { filter: drop-shadow(0 0 calc(4px * var(--hud-glow-r)) var(--hud-glow-soft)); }
+html:not(.hud-phone-noglow) .hud-phone-emulator :is(.hud-phone-input-bar, .hud-google-bar) { box-shadow: 0 0 0 1px var(--hud-glow-soft), 0 0 calc(8px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft); }
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-send { filter: drop-shadow(0 0 calc(5px * var(--hud-glow-r)) var(--hud-glow-strong)); }
+/* Приложения: погода, звонки, карта, заметки, кошелёк. */
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-wx-now { box-shadow: 0 10px 26px -16px color-mix(in oklab, var(--hud-phone-accent) 70%, transparent), 0 0 0 1px var(--hud-glow-soft), 0 0 calc(14px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft); }
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-wx-temp { text-shadow: 0 0 calc(3px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(16px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow); }
+html:not(.hud-phone-noglow) .hud-phone-emulator :is(.hud-wx-ico, .hud-wx-row-ico, .hud-calls-ico, .hud-map-pin, .hud-map-me) { filter: drop-shadow(0 0 calc(4px * var(--hud-glow-r)) var(--hud-glow)); }
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-map-canvas { box-shadow: inset 0 0 30px rgba(0, 0, 0, .35), 0 0 0 1px var(--hud-glow-soft), 0 0 calc(10px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft); }
+html:not(.hud-phone-noglow) .hud-phone-emulator :is(.hud-wx-fc, .hud-phone-note, .hud-cal) { box-shadow: 0 0 0 1px var(--hud-glow-soft), 0 0 calc(10px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft); }
+
+/* Дыхание: свет медленно разгорается и гаснет. Только на мелких узлах. */
+@keyframes hud-glow-breath {
+  0%, 100% { filter: drop-shadow(0 0 calc(2px * var(--hud-glow-r)) var(--hud-glow-soft)); }
+  50%      { filter: drop-shadow(0 0 calc(10px * var(--hud-glow-r)) var(--hud-glow-strong)) brightness(1.12); }
+}
+@keyframes hud-glow-breath-strong {
+  0%, 100% { filter: drop-shadow(0 0 calc(3px * var(--hud-glow-r)) var(--hud-glow)); }
+  50%      { filter: drop-shadow(0 0 calc(18px * var(--hud-glow-r)) var(--hud-glow-strong)) drop-shadow(0 0 calc(6px * var(--hud-glow-r)) var(--hud-glow-strong)) brightness(1.25); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  html.hud-glow-breath :is(.hud-time-display, .hud-title, .hud-avatar, .hud-avatar-placeholder, .hud-tabs-header .hud-tab.active),
+  html.hud-glow-breath:not(.hud-phone-noglow) .hud-phone-lock-time {
+    animation: hud-glow-breath 3.6s ease-in-out infinite;
+  }
+  html.hud-glow-breath.hud-glow-breath-strong :is(.hud-time-display, .hud-title, .hud-avatar, .hud-avatar-placeholder, .hud-tabs-header .hud-tab.active),
+  html.hud-glow-breath.hud-glow-breath-strong:not(.hud-phone-noglow) .hud-phone-lock-time {
+    animation-name: hud-glow-breath-strong;
+  }
 }

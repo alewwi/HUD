@@ -14,13 +14,14 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.3.4';
-import { проставитьДень } from './msg-feed.js?v=23.3.4';
-import { normalizeJSONData } from '../schema.js?v=23.3.4';
-import { settings } from '../settings.js?v=23.3.4';
-import { статусРужья } from '../codes.js?v=23.3.4';
-import { extractHudBlock } from '../hud-block.js?v=23.3.4';
-import { namesLikelySame } from '../names.js?v=23.3.4';
+import { parseHUDComplex } from '../hud-parser.js?v=23.4.6';
+import { проставитьДень } from './msg-feed.js?v=23.4.6';
+import { normalizeJSONData } from '../schema.js?v=23.4.6';
+import { settings } from '../settings.js?v=23.4.6';
+import { статусРужья } from '../codes.js?v=23.4.6';
+import { extractHudBlock } from '../hud-block.js?v=23.4.6';
+import { namesLikelySame } from '../names.js?v=23.4.6';
+import { звонкиИзЧатов } from './phone-extra.js?v=23.4.6';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -193,6 +194,20 @@ function склеитьРужья(старое, новое, предел) {
   return [...карта.values()].slice(-предел);
 }
 
+// Звонки: один и тот же звонок повторяется из хода в ход — опознаём по чату,
+// тексту и часам, оставляем самую раннюю запись.
+function склеитьЗвонки(старое, новое, предел) {
+  const out = [...(старое || [])];
+  const виден = new Set(out.map(з => ключ(з.чат) + '|' + JSON.stringify(разобратьСообщение(з.строка))));
+  for (const з of новое || []) {
+    const k = ключ(з.чат) + '|' + JSON.stringify(разобратьСообщение(з.строка));
+    if (виден.has(k)) continue;
+    виден.add(k);
+    out.push(з);
+  }
+  return out.slice(-предел);
+}
+
 // Один ход поверх накопленного.
 function наложить(накоплено, ход, предел, пределСообщений) {
   const out = накоплено;
@@ -220,6 +235,10 @@ function наложить(накоплено, ход, предел, предел
   out.phone.maps = склеитьОбъекты(out.phone.maps, тел.maps, x => x.place || x.title, предел);
   out.phone.calendar = склеитьОбъекты(out.phone.calendar, тел.calendar, x => текст(x.date) + '|' + текст(x.title), предел);
   out.phone.search = склеитьСтроки(out.phone.search, тел.search, предел);
+  // Журнал звонков: [CALL: …] из переписок каждого хода. Переписка держит
+  // последние N сообщений, и старые звонки из неё уходят, — журнал хранит
+  // их отдельно. Первое появление главнее: оно знает день точнее.
+  out.phone.callLog = склеитьЗвонки(out.phone.callLog, звонкиИзЧатов(чаты), Math.max(предел, 100));
 
   // Средневековье: письма опознаём по отправителю, адресату и началу текста;
   // свежий ход обновляет статус (было запечатано — стало прочитано).
@@ -265,7 +284,7 @@ export function mergeCarryOver(data, messageElement) {
   const накоплено = {
     chatsMap: {}, intercepts: [],
     memory: { timeline: [], important: [], secrets: [], guns: [] },
-    phone: { contacts: [], notes: [], gallery: [], maps: [], calendar: [], search: [] },
+    phone: { contacts: [], notes: [], gallery: [], maps: [], calendar: [], search: [], callLog: [] },
     letters: [], overheard: [],
     satchel: { notes: [], maps: [], calendar: [], documents: [], keepsakes: [] },
   };
@@ -294,7 +313,7 @@ export function mergeCarryOver(data, messageElement) {
     if (накоплено.memory[поле].length) итог.memory[поле] = накоплено.memory[поле];
   }
   итог.phone = { ...(data.phone || {}) };
-  for (const поле of ['contacts', 'notes', 'gallery', 'maps', 'calendar', 'search']) {
+  for (const поле of ['contacts', 'notes', 'gallery', 'maps', 'calendar', 'search', 'callLog']) {
     if (накоплено.phone[поле].length) итог.phone[поле] = накоплено.phone[поле];
   }
   if (накоплено.letters.length) итог.letters = накоплено.letters;

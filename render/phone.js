@@ -6,16 +6,17 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText } from '../utils.js?v=23.3.4';
-import { settings } from '../settings.js?v=23.3.4';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.3.4';
-import { G_ICONS } from './icons.js?v=23.3.4';
-import { buildMessengerHTML } from './messenger.js?v=23.3.4';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.3.4';
-import { сортироватьЧаты } from './msg-feed.js?v=23.3.4';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText } from '../utils.js?v=23.4.6';
+import { settings } from '../settings.js?v=23.4.6';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.4.6';
+import { G_ICONS } from './icons.js?v=23.4.6';
+import { buildMessengerHTML } from './messenger.js?v=23.4.6';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.4.6';
+import { сортироватьЧаты } from './msg-feed.js?v=23.4.6';
+import { buildWeatherApp, buildCallsApp, buildMapsApp } from './phone-extra.js?v=23.4.6';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.3.4';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.4.6';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -263,16 +264,6 @@ function buildNotesApp(notes) {
   </div>`).join('');
 }
 
-function buildMapsApp(maps) {
-  if (!maps || !maps.length) return emptyApp(G_ICONS.map, 'Нет сохранённых мест');
-  return `<div class="hud-phone-section">` + maps.map(m => `
-    <div class="hud-phone-map-row">
-      <span class="hud-g-pin">${G_ICONS.pin}</span>
-      <div><b>${escapeHtml(m.place || 'Место')}</b>${m.note ? `<small>${escapeHtml(m.note)}</small>` : ''}</div>
-    </div>`).join('') + `</div>`;
-}
-
-
 function buildSearchApp(search) {
   // Экран повторяет то, что видно в браузере при тапе по строке поиска:
   // сама строка, а под ней недавние запросы со значком часов и стрелкой
@@ -285,7 +276,8 @@ function buildSearchApp(search) {
 
 // --- Телефон целиком --------------------------------------------------------
 
-export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phoneData, sceneDate, sceneTime, characters) {
+// доп: { scene, world } — для «Погоды»; журнал звонков лежит в phone.callLog.
+export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phoneData, sceneDate, sceneTime, characters, доп = {}) {
   const phone = phoneData && typeof phoneData === 'object' ? phoneData : {};
   // Переписки — от свежих к старым, как в любом мессенджере. Порядок задаём
   // один раз здесь: по нему идут и список чатов, и стопка уведомлений.
@@ -337,7 +329,16 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   // от обратного (!== false), чтобы старые сохранённые настройки, где этих
   // ключей ещё нет, вели себя как «всё включено».
   const on = (key) => settings[key] !== false;
+  // Где сейчас владелец: для «Погоды» и отметки «Вы здесь» на карте.
+  const владелецКарточка = (Array.isArray(characters) ? characters : []).find(c => c && c['Имя'] && namesLikelySame(c['Имя'], phoneOwner));
+  const местоВладельца = владелецКарточка ? String(владелецКарточка['Место'] || '').trim() : '';
+  // Пропущенные сегодня — значком на «Звонках»; журнал считает их сам.
+  const экранЗвонков = on('phoneAppCalls') ? buildCallsApp(chatsMap, phone.callLog, phoneOwner, sceneDate, uid) : '';
+  const пропущенных = (экранЗвонков.match(/hud-calls-row is-missed/g) || []).length;
   const apps = [
+    on('phoneAppCalls') && { id: 'calls',    icon: G_ICONS.handset, label: 'Звонки', badge: пропущенных,
+      body: экранЗвонков },
+    on('phoneAppWeather') && { id: 'weather', icon: G_ICONS.weather, label: 'Погода', body: buildWeatherApp(доп.scene, доп.world, местоВладельца) },
     on('phoneAppMessages') && { id: 'messages', icon: G_ICONS.chat, label: 'Сообщения', badge: unread,
       body: messenger || emptyApp(G_ICONS.chat, 'В текущем повествовании нет переписок') },
     on('phoneAppContacts') && { id: 'contacts', icon: G_ICONS.person, label: 'Контакты',  body: buildContactsApp(phone.contacts) },
@@ -345,7 +346,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
     on('phoneAppCalendar') && { id: 'calendar', icon: G_ICONS.cal, label: 'Календарь', body: buildCalendarApp(phone.calendar, characters, sceneDate) },
     on('phoneAppGallery') && { id: 'gallery',  icon: G_ICONS.image, label: 'Галерея',   body: buildGalleryApp(phone.gallery) },
     on('phoneAppNotes') && { id: 'notes',    icon: G_ICONS.note, label: 'Заметки',   body: buildNotesApp(phone.notes) },
-    on('phoneAppMaps') && { id: 'maps',     icon: G_ICONS.map, label: 'Карты',     body: buildMapsApp(phone.maps) },
+    on('phoneAppMaps') && { id: 'maps',     icon: G_ICONS.map, label: 'Карты',     body: buildMapsApp(phone.maps, местоВладельца) },
     on('phoneAppSearch') && { id: 'search',   icon: G_ICONS.glass, label: 'Поиск',     body: buildSearchApp(phone.search) },
   ].filter(Boolean);
 

@@ -7,15 +7,15 @@
 // settings.showComments напрямую из замыкания index.js. Теперь флаг
 // приходит четвёртым аргументом — модуль не знает про глобальные настройки.
 
-import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.3.4';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.3.4';
-import { buildEconomyHTML, buildEventsHTML, buildCityHTML } from './world-city.js?v=23.3.4';
+import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.4.6';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.4.6';
+import { buildEconomyHTML, buildEventsHTML, buildCityHTML } from './world-city.js?v=23.4.6';
 
 // --- Прогноз погоды -------------------------------------------------------
 // Иконки нарисованы штрихами по currentColor: они должны читаться как в
 // обычном погодном приложении, без свечения и анимации — сцену оформляет
 // виджет погоды, а здесь нужна сводка, а не эффект.
-const W_ICONS = {
+export const W_ICONS = {
   clear:  '<svg viewBox="0 0 24 24" class="hud-fc-ico"><circle class="ic-sun" cx="12" cy="12" r="4.6"/><path class="ic-rays" d="M12 2.6v2.4M12 19v2.4M2.6 12H5M19 12h2.4M5.3 5.3l1.7 1.7M17 17l1.7 1.7M18.7 5.3L17 7M7 17l-1.7 1.7"/></svg>',
   cloudy: '<svg viewBox="0 0 24 24" class="hud-fc-ico"><path class="ic-cloud" d="M7.2 18h9.4a3.9 3.9 0 0 0 .3-7.8 5.6 5.6 0 0 0-10.8 1.2A3.4 3.4 0 0 0 7.2 18Z"/></svg>',
   rain:   '<svg viewBox="0 0 24 24" class="hud-fc-ico"><path class="ic-cloud" d="M7.4 14.4h9a3.6 3.6 0 0 0 .3-7.2 5.3 5.3 0 0 0-10.2 1.1 3.2 3.2 0 0 0 .9 6.1Z"/><path class="ic-drop d1" d="M9 17.4 8 20.4"/><path class="ic-drop d2" d="M12.4 17.4l-1 3"/><path class="ic-drop d3" d="M15.8 17.4l-1 3"/></svg>',
@@ -38,7 +38,7 @@ const W_RULES = [
 
 // Температура из строки вида «+7°C», «-3°», «9». Нужна не для показа, а
 // чтобы покрасить шкалу под числом: холод синий, тепло янтарное.
-function parseTempC(raw) {
+export function parseTempC(raw) {
   const m = String(raw || '').replace(',', '.').match(/-?\d+(?:\.\d+)?/);
   return m ? parseFloat(m[0]) : null;
 }
@@ -49,7 +49,7 @@ function tempWarmth(t) {
   return Math.max(0, Math.min(1, (t + 25) / 60));
 }
 
-function forecastLook(text) {
+export function forecastLook(text) {
   const s = String(text || '');
   for (const [re, icon, label] of W_RULES) if (re.test(s)) return { icon, label };
   return { icon: 'cloudy', label: '' };
@@ -57,7 +57,7 @@ function forecastLook(text) {
 
 // Строка прогноза: «Период | Погода | Температура | Заметка».
 // Разбор снисходительный: чего нет — того нет, блок всё равно соберётся.
-function parseForecastRow(raw) {
+export function parseForecastRow(raw) {
   const parts = String(raw || '').split('|').map(s => s.trim());
   const period = parts[0] || '';
   const weather = parts[1] || '';

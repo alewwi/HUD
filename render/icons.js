@@ -24,6 +24,9 @@ export const G_ICONS = {
   callMiss:'<svg class="hud-call-svg" viewBox="0 0 24 24" aria-hidden="true"><path class="hud-call-hs" d="M6.4 3.6c.7-.6 1.8-.4 2.3.4l1.5 2.2c.4.6.3 1.4-.2 1.9l-.8.8c-.2.2-.3.5-.1.8.8 1.4 2 2.6 3.4 3.4.3.2.6.1.8-.1l.8-.8c.5-.5 1.3-.6 1.9-.2l2.2 1.5c.8.5 1 1.6.4 2.3l-1 1.1c-.7.8-1.9 1.1-2.9.7-4.6-1.7-8.2-5.3-9.9-9.9-.4-1-.1-2.2.7-2.9z"/><path class="hud-call-ar" d="M15.6 3.6 20.4 8.4"/><path class="hud-call-ar" d="M20.4 3.6 15.6 8.4"/></svg>',
   card:  '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="2.6" y="5.4" width="18.8" height="13.2" rx="2.4"/><path d="M2.6 10h18.8"/><path d="M6 14.6h3.4"/></svg>',
   cal:   '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3.4" y="5.2" width="17.2" height="15.4" rx="2.2"/><path d="M3.4 10h17.2"/><path d="M8 3.4v3.6M16 3.4v3.6"/></svg>',
+  // «Погода» и «Звонки» на домашнем экране — тем же тонким штрихом.
+  weather: '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.6" r="3.4"/><path d="M9 2.6v1.2M3 8.6h1.2M4.8 4.4l.9.9M13.2 4.4l-.9.9"/><path d="M8.6 19.4h8.2a3.4 3.4 0 0 0 .2-6.8 4.8 4.8 0 0 0-9.2 1.2 2.8 2.8 0 0 0 .8 5.6Z"/></svg>',
+  handset: '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.8c.7-.6 1.7-.4 2.2.3l1.6 2.3c.4.6.3 1.4-.2 1.9l-1 1c.9 1.9 2.4 3.4 4.4 4.4l1-1c.5-.5 1.3-.6 1.9-.2l2.3 1.6c.7.5.9 1.5.3 2.2l-1.2 1.4c-.8.9-2.1 1.2-3.2.8C9.6 16.8 7.2 14.4 5.5 9.3c-.4-1.1-.1-2.4.8-3.2Z"/></svg>',
   pin:   '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6.4-6 6.4-11a6.4 6.4 0 1 0-12.8 0c0 5 6.4 11 6.4 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>',
   phone: '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.4" y="2.8" width="11.2" height="18.4" rx="2.6"/><path d="M10.6 18.4h2.8"/></svg>',
   // Видеокамера: корпус и объектив-клин сбоку — тот же силуэт, что у значка

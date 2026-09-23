@@ -26,6 +26,9 @@ export const defaultSettings = {
   phoneAppNotes: true,
   phoneAppMaps: true,
   phoneAppSearch: true,
+  // «Звонки» и «Погода» собираются из того, что уже есть в HUD, — в промт не идут.
+  phoneAppCalls: true,
+  phoneAppWeather: true,
   // Эпоха снаряжения: 'modern' — телефон и перехваты, 'medieval' —
   // шкатулка (письма, святцы, кошель, записи, карта, грамоты, памятки) и
   // подслушанное. Вместе пары не работают: в средневековье телефонов нет.
@@ -161,6 +164,12 @@ export const defaultSettings = {
   // --- ЦВЕТА И ПРОЗРАЧНОСТЬ ---
   accentColor: '#de859f',
   glowColor: '#8c5ad2', glowAlpha: 40,
+  // Размах свечения в процентах (радиусы всех ореолов) и «дыхание»: off, soft, strong.
+  glowSize: 100, glowBreath: 'off',
+  // Свечение на узком экране: frame — только рамки, full — как на компьютере.
+  glowMobile: 'frame',
+  // Свечение внутри эмулятора телефона: on или off.
+  phoneGlow: 'on',
 
   cardBgStart: '#0f0f14', cardBgEnd: '#0f0f14', cardBgAlpha: 15,
   infoBlockBgStart: '#000000', infoBlockBgEnd: '#000000', infoBlockBgAlpha: 15,

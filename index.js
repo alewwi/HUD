@@ -1,35 +1,35 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=23.3.4';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=23.3.4';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.3.4';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.3.4';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.3.4';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.3.4';
-import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.3.4';
-import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=23.3.4';
-import { привязатьИсторию, ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.3.4';
-import { ПРИМЕР_HUD_ТЕКСТ } from './render/sample-hud.js?v=23.3.4';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.3.4';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.3.4';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.3.4';
-import { buildMemoryHTML } from './render/memory.js?v=23.3.4';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.3.4';
-import { buildPhoneTabsHTML } from './render/phone.js?v=23.3.4';
-import { праздникиСцены } from './render/holidays.js?v=23.3.4';
-import { скрытыеФактыЗачатия } from './render/conception.js?v=23.3.4';
-import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.3.4';
-import { hudHasRelations } from './render/relations-graph.js?v=23.3.4';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.3.4';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.3.4';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=23.3.4';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.3.4';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.3.4';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=23.3.4';
-import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.3.4';
-import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.3.4';
-import { создатьПроверкуПолноты } from './hud-check.js?v=23.3.4';
-import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.3.4';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=23.4.6';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=23.4.6';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.4.6';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.4.6';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.4.6';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.4.6';
+import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.4.6';
+import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=23.4.6';
+import { привязатьИсторию, ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.4.6';
+import { ПРИМЕР_HUD_ТЕКСТ, БАЗОВЫЙ_HUD_ТЕКСТ } from './render/sample-hud.js?v=23.4.6';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.4.6';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.4.6';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.4.6';
+import { buildMemoryHTML } from './render/memory.js?v=23.4.6';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.4.6';
+import { buildPhoneTabsHTML } from './render/phone.js?v=23.4.6';
+import { праздникиСцены } from './render/holidays.js?v=23.4.6';
+import { скрытыеФактыЗачатия } from './render/conception.js?v=23.4.6';
+import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.4.6';
+import { hudHasRelations } from './render/relations-graph.js?v=23.4.6';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.4.6';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.4.6';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=23.4.6';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.4.6';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.4.6';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=23.4.6';
+import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.4.6';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.4.6';
+import { создатьПроверкуПолноты } from './hud-check.js?v=23.4.6';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.4.6';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -137,7 +137,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     // Правила сообщений — общие для переписок и перехватов.
     const правилаСообщений = 'Keep ongoing conversations and unanswered messages alive turn to turn; incoming messages may go unanswered — busy, asleep, offline, ignoring. Unread, Deleted or Draft only when the story supports it: deleted ones keep their hidden text, drafts are unsent. Never invent placeholder chats or fake phone data. The time field carries the day whenever the message is NOT from the day of sc.Dt: write it as «Вчера, 22:30», «Позавчера, 19:05» or with the date itself «12.10, 14:05»; a message from today needs the clock only. Keep the day written the same way on later turns, so a conversation that spans days stays sorted.';
     const тегиСообщений = [
-      '"VOICE: prefix the text with [VOICE_M:SS], e.g. \'[Sender] -> [Recipient]: [VOICE_0:42] Перезвони мне | 21:40 | Unread\'. Use it when someone would record audio rather than type — walking, crying, in a hurry."',
+      '"VOICE: prefix the text with [VOICE_M:SS], e.g. \'[Sender] -> [Recipient]: [VOICE_0:42] Перезвони мне | 21:40 | Unread\'. Use it when someone would record audio rather than type — walking, crying, in a hurry. The text after the tag is the transcript of what was said — always write it, never leave a voice message without words."',
       '"PHOTO: prefix with [PHOTO: what is in the shot], e.g. \'[Sender] -> [Recipient]: [PHOTO: селфи в примерочной, новое платье] Ну как? | 18:20\'. Text after the tag is the caption."',
       '"VIDEO: same idea for a clip — [VIDEO_M:SS: what happens on screen], e.g. \'[Sender] -> [Recipient]: [VIDEO_0:23: снимает на бегу, кричит и смеётся] Смотри! | 18:22\'. Duration is optional. Use it when the moment only makes sense in motion."',
       '"CALL: a call is an EVENT, not a line — \'[Sender] -> [Recipient]: [CALL: incoming, missed]\' or \'[CALL: outgoing, answered, 4:12]\'. Direction incoming/outgoing as seen from the owner; outcome answered/declined/missed; duration only when answered. Text after the tag becomes a short note."',
@@ -154,6 +154,7 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
 ## 📐 RULES
 - 🔤 CODES: keys and fixed labels — the part BEFORE ":" — are short codes of 1-3 letters, each with exactly one meaning. Write them EXACTLY as given: same letters, same case, never translated or spelled out; the HUD expands them into Russian itself. Everything AFTER ":" is written in full words: values in Russian, and where a field asks for one of the listed English words (weather, sign, status, outcome…), that whole word. The text in [brackets] only explains what goes there — never copy it. Words in <angle brackets> are placeholders: put real content in their place and never write the placeholder word itself — 'Потерять Софи: high', never 'fear: Потерять Софи — strength: high'. Free labels (names, body zones, activities, items, fears) are ordinary Russian words.
 - 👤 WHO GOES WHERE: characters go ONLY in "cs" — never put {{user}} there.${игрок ? ` Everything about {{user}} goes ONLY into the top-level "us" block and only into the fields it lists — never into "cs" or a character's Th, K or D. If {{user}} is absent from the scene, omit "us".` : ''}
+- 🚪 ABSENT MAIN CHARACTERS: {{char}} and {{user}} have no reserved seat in the HUD. When {{char}} is not in the scene — the story follows other people — leave {{char}} out of "cs" and write no diary, body diary or dream in {{char}}'s name this turn: nobody narrates events they did not witness. The same goes for {{user}}${игрок ? ' and "us"' : ''}. Fill every section only with those actually present or acting this turn; an empty list is correct, never a reason to pull an absent main character in.
 - 🌍 LANG: write values in Russian; character names follow "N".
 - 🔓 No restrictions on imagination, length or content.
 - 🚨 LIVE SNAPSHOT: every field is the state at THIS turn. Update it, never copy stale text.
@@ -197,7 +198,7 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
    "I": "[inventory: everything they carry or wear that matters, each as '<item>: <its condition>'; separate by ;]",
    "G": "[goals, exactly 3 parts: 'nw: what they want right now; sn: what they intend to do soon; lt: their long-term aim']",
    "S": "[schedule: plans and appointments ahead, each as '<time> - <event>' ('14:30 - встреча с юристом', or a part of the day instead of the time); separate by ;]",
-   "Rl": "[relationships: how this character feels about EVERY other named person who matters now, each '<name>: <attitude>', people separated by ; — never by commas, which glue everyone into one relation. For family start with the kinship as seen from THIS character, then a comma: 'Ричард: муж, любит, но боится' (отец, мать, сын, дочь, брат, сестра, дед, бабушка, дядя, тётя, отчим, мачеха and other kinship words work the same way). Bidirectional: if A lists B, B must be in cs with A in their Rl; anyone named in any Rl must also be in cs. Never 'empty' while other named people exist]",
+   "Rl": "[relationships: how this character feels about EVERY other named person who matters now, each '<name>: <attitude>', people separated by ; — never by commas, which glue everyone into one relation. For family start with the kinship as seen from THIS character, then a comma: 'Ричард: муж, любит, но боится' (отец, мать, сын, дочь, брат, сестра, дед, бабушка, дядя, тётя, отчим, мачеха and other kinship words work the same way). Bidirectional: if A lists B, B must be in cs with A in their Rl; anyone named in any Rl must also be in cs, except {{char}} or {{user}} while they are absent from the scene. Never 'empty' while other named people exist]",
    "Mm": "[memories: moments this character shares with the player or NPCs, each a short episode; separate by ;]",
    "Fl": "[flags: open plot threads, promises, debts, threats and consequences waiting to land; separate by ;]",
    "Jl": "[jealousy: ONLY when this character is genuinely jealous right now. Who they are jealous of, over whom, and how it shows. Omit the field or write 'empty' whenever there is no jealousy — a permanently filled field turns the drama highlight into wallpaper nobody reads.]",
@@ -417,7 +418,7 @@ ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and ru
       p += `,
  "dy": [
   {
-   "au": "[author: a character's name — NEVER {{user}}; one object per entry, as many characters as write today]",
+   "au": "[author: a character's name — NEVER {{user}}, and never someone absent from this turn's events; one object per entry, as many characters as write today]",
    "tm": "[time: date and time of the entry]",
    "tx": "[text: private in-world writing, not a scene summary — a first-person entry about the author's own day, state, emotions, doubts, decisions. 4-7 sentences minimum, longer when the day was heavy. Never an omniscient narrator.]",
    "ab": "[about {{user}}: a separate private first-person subsection about {{user}} only — what the author feels, wants, fears, notices, remembers. 'empty' if nothing meaningful this turn.]",
@@ -426,7 +427,7 @@ ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and ru
  ]${интим ? `,
  "bd": [
   {
-   "au": "[author: a character's name — NEVER {{user}}; one object per entry]",
+   "au": "[author: a character's name — NEVER {{user}}, and never someone absent from this turn's events; one object per entry]",
    "tm": "[time: date and time of the entry]",
    "tx": "[body diary, written EVERY turn of intimacy phases 2 and 3, and in phase 1 only while the body still clearly carries the encounter (soreness, marks, the memory of touch next morning); otherwise leave this array empty. A first-person entry about the body at THIS moment of the scene: during — what it wants, what it gets, where it burns; after — what aches, what lingers, which marks it finds, what surprised it, what it is ashamed of. Frank, physical, no euphemisms. 3-6 sentences.]",
    "md": "[mood: one word — desire, shame, tenderness, emptiness, triumph or anxiety]"
@@ -438,7 +439,7 @@ ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and ru
       p += `,
  "dr": [
   {
-   "tx": "[text: a vivid dream or nightmare — ONLY if sleeping or unconscious; one object per dream, as many as they had]",
+   "tx": "[text: a vivid dream or nightmare — ONLY if someone present in this turn is sleeping or unconscious, never an absent main character; one object per dream, as many as they had]",
    "mn": "[meaning: an interpretation of what the dream hides — fears, wishes, memories it stirs up]"
   }
  ]`;
@@ -906,7 +907,31 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     // элемента <html> и всё равно окажутся сильнее.
     applyThemeClass(settings.themePreset);
     if (settings.accentColor) root.style.setProperty('--hud-accent', settings.accentColor);
-    if (settings.glowColor) root.style.setProperty('--hud-purple-glow', hexToRgba(settings.glowColor, settings.glowAlpha !== undefined ? settings.glowAlpha : 40)); 
+    if (settings.glowColor) root.style.setProperty('--hud-purple-glow', hexToRgba(settings.glowColor, settings.glowAlpha !== undefined ? settings.glowAlpha : 40));
+    // Свечение карточки. Цвет и сила — «Свечение», размах — «Размах
+    // свечения»: радиусы всех ореолов умножаются на --hud-glow-r. Мягкий и
+    // яркий оттенки — от той же силы, чтобы один ползунок вёл всё сразу.
+    {
+      const цвет = settings.glowColor || '#8c5ad2';
+      const сила = Math.max(0, Math.min(100, Number(settings.glowAlpha ?? 40)));
+      const размах = Math.max(0, Math.min(3, Number(settings.glowSize ?? 100) / 100));
+      root.style.setProperty('--hud-glow', hexToRgba(цвет, сила));
+      root.style.setProperty('--hud-glow-soft', hexToRgba(цвет, сила * 0.55));
+      root.style.setProperty('--hud-glow-strong', hexToRgba(цвет, Math.min(100, сила * 1.6)));
+      root.style.setProperty('--hud-glow-r', String(размах));
+      // Ореол карточки и --hud-shadow собираются в CSS (misc.css, «СВЕЧЕНИЕ»)
+      // из этих же переменных: так режим телефона может снять широкий свет.
+      root.style.removeProperty('--hud-glow-card');
+      root.style.removeProperty('--hud-shadow');
+      const дыхание = ['soft', 'strong'].includes(settings.glowBreath) ? settings.glowBreath : '';
+      root.classList.toggle('hud-glow-breath', !!дыхание);
+      root.classList.toggle('hud-glow-breath-strong', дыхание === 'strong');
+      // На телефоне: «Полностью» — как на компьютере, иначе только рамки.
+      root.classList.toggle('hud-glow-mobile-full', settings.glowMobile === 'full');
+      root.classList.toggle('hud-glow-mobile-off', settings.glowMobile === 'off');
+      // Свечение внутри эмулятора телефона — свой выключатель.
+      root.classList.toggle('hud-phone-noglow', settings.phoneGlow === 'off');
+    }
     
     if (settings.cardBgStart && settings.cardBgEnd) root.style.setProperty('--hud-bg', `linear-gradient(135deg, ${hexToRgba(settings.cardBgStart, settings.cardBgAlpha)}, ${hexToRgba(settings.cardBgEnd, settings.cardBgAlpha)})`);
     if (settings.infoBlockBgStart && settings.infoBlockBgEnd) root.style.setProperty('--hud-card-inner-bg', `linear-gradient(135deg, ${hexToRgba(settings.infoBlockBgStart, settings.infoBlockBgAlpha)}, ${hexToRgba(settings.infoBlockBgEnd, settings.infoBlockBgAlpha)})`);
@@ -1382,6 +1407,9 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
           <div class="hud-theme-grid">
             <div class="hud-theme-row"><label>Акцент:</label> <input type="color" class="hud-theme-color-input" data-key="accentColor" value="${settings.accentColor}"></div>
             <div class="hud-theme-row"><label>Свечение:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="glowColor" value="${settings.glowColor}"><input type="range" class="hud-theme-range-input" data-key="glowAlpha" min="0" max="100" value="${settings.glowAlpha}"></div></div>
+            <div class="hud-theme-row" title="Насколько далеко расходится свет: ореол карточки, часы, имя, вкладки, аватарка, полоски, плашки, телефон"><label>Размах свечения:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="glowSize" min="0" max="250" step="5" value="${settings.glowSize ?? 100}"><span>${settings.glowSize ?? 100}%</span></div></div>
+            <div class="hud-theme-row" title="Свет медленно разгорается и гаснет — на часах, имени, аватарке и активной вкладке"><label>Дыхание свечения:</label> <select class="hud-theme-select-input" data-key="glowBreath"><option value="off"${!['soft', 'strong'].includes(settings.glowBreath) ? ' selected' : ''}>Нет</option><option value="soft"${settings.glowBreath === 'soft' ? ' selected' : ''}>Мягко</option><option value="strong"${settings.glowBreath === 'strong' ? ' selected' : ''}>Ярко</option></select></div>
+            <div class="hud-theme-row" title="На узком экране (до 600px): «Только рамка» — светятся края, надписи и значки, без широкого ореола вокруг; так легче для слабых телефонов. «Полностью» — как на компьютере. «Выключено» — без свечения совсем."><label>Свечение на телефоне:</label> <select class="hud-theme-select-input" data-key="glowMobile"><option value="frame"${settings.glowMobile !== 'full' ? ' selected' : ''}>Только рамка</option><option value="full"${settings.glowMobile === 'full' ? ' selected' : ''}>Полностью</option><option value="off"${settings.glowMobile === 'off' ? ' selected' : ''}>Выключено</option></select></div>
             <div class="hud-theme-row"><label>Фон (Старт):</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="cardBgStart" value="${settings.cardBgStart}"><input type="range" class="hud-theme-range-input" data-key="cardBgAlpha" min="0" max="100" value="${settings.cardBgAlpha}"></div></div>
             <div class="hud-theme-row"><label>Фон (Конец):</label> <input type="color" class="hud-theme-color-input" data-key="cardBgEnd" value="${settings.cardBgEnd}"></div>
 
@@ -1433,6 +1461,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             <div class="hud-theme-row"><label>Скругление иконок:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneIconRadius" min="6" max="26" value="${settings.phoneIconRadius}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneIconRadius}px</span></div></div>
             <div class="hud-theme-row"><label>Цвет корпуса:</label> <input type="color" class="hud-theme-color-input" data-key="phoneFrameColor" value="${settings.phoneFrameColor}"></div>
             <div class="hud-theme-row"><label>Свечение экрана:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneScreenGlow" min="0" max="100" value="${settings.phoneScreenGlow}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneScreenGlow}%</span></div></div>
+            <div class="hud-theme-row" title="Свет корпуса, значков, уведомлений, пузырей и приложений — тем же цветом, что «Свечение» HUD"><label>Свечение телефона:</label> <select class="hud-theme-select-input" data-key="phoneGlow"><option value="on"${settings.phoneGlow !== 'off' ? ' selected' : ''}>Включено</option><option value="off"${settings.phoneGlow === 'off' ? ' selected' : ''}>Выключено</option></select></div>
             <div class="hud-theme-row"><label>Карточек уведомлений:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneNotifMax" min="1" max="5" value="${settings.phoneNotifMax}"> <span style="font-size:0.8em;opacity:0.7">${settings.phoneNotifMax}</span></div></div>
           </div>
         </details>
@@ -1943,7 +1972,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📱 Телефон${значокСправки('phone')}</div>`,
         // Последний запасной владелец телефона — персонаж, а не персона игрока:
         // телефон по схеме всегда принадлежит персонажу.
-        uid, (active) => buildPhoneTabsHTML(data.chatsMap, uid, active, (Array.isArray(data.characters) && data.characters[0] && data.characters[0]['Имя']) || getMainProtagonistNames().char, data.phone, data.scene && data.scene['Дата'], tRaw, data.characters));
+        uid, (active) => buildPhoneTabsHTML(data.chatsMap, uid, active, (Array.isArray(data.characters) && data.characters[0] && data.characters[0]['Имя']) || getMainProtagonistNames().char, data.phone, data.scene && data.scene['Дата'], tRaw, data.characters, { scene: data.scene, world: data.world }));
     }
 
     // === ВСТАВЛЯЕМ ВКЛАДКУ ПАМЯТИ СЮДА ===
@@ -2331,7 +2360,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // живую карточку со всем её состоянием.
       const прежняяКарточка = textElement.querySelector('.hud-os-card');
       selectedIndexForRestore = selected.index;
-      подпись = hudRenderSignature(rendered, lastRenderBaseId);
+      подпись = hudRenderSignature(rendered, lastRenderBaseId, данныеХода);
       const разметкаТаЖе = !!прежняяКарточка && hasCloseTag
         && !!messageElement.__hudRenderSig
         && messageElement.__hudRenderSig === подпись;
@@ -2482,9 +2511,17 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
 
   // Подпись разметки: та же карточка, собранная дважды, отличается только
   // идентификаторами. Вычёркиваем их — остаётся содержимое.
-  function hudRenderSignature(html, baseId) {
-    if (typeof html !== 'string') return '';
-    return baseId ? html.split(baseId).join('#') : html;
+  // Подпись разметки без случайных идентификаторов сборки: две сборки одних
+  // данных дают одну подпись. Идентификатор заменяем только если его нет в
+  // самих данных: иначе совпавший кусок имени или текста тоже превратился бы
+  // в «#», и разные карточки могли бы получить одну подпись. Тогда подписи
+  // нет вовсе, и карточка просто пересобирается.
+  function hudRenderSignature(html, baseId, данные) {
+    if (typeof html !== 'string' || !baseId) return '';
+    let вДанных = true;
+    try { вДанных = JSON.stringify(данные ?? '').includes(baseId); } catch (_) { вДанных = true; }
+    if (вДанных) return '';
+    return html.split(baseId).join('#');
   }
 
   function readCardUiState(mes) {
@@ -3857,26 +3894,55 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
   // правую карточку; карточки в чате перерисовываются, когда окно закрыто.
   let видыМенялись = false;
 
-  function данныеДляПросмотра() {
-    const ctx = getStContextSafe();
+  // Что показать справа — по очереди: последний HUD из чата, большой
+  // пример, базовый пример. Если источник не разобрался или не собрался,
+  // берём следующий, чтобы окно открывалось и в чате без единого HUD.
+  function источникиПросмотра() {
+    const источники = [];
+    let ctx = null;
+    try { ctx = getStContextSafe(); } catch (_) { /* Таверна ещё не готова */ }
     const чат = ctx && Array.isArray(ctx.chat) ? ctx.chat : [];
-    for (let i = чат.length - 1; i >= 0; i--) {
+    let найдено = 0;
+    for (let i = чат.length - 1; i >= 0 && найдено < 3; i--) {
       const m = чат[i];
       if (!m || m.is_user || m.is_system || typeof m.mes !== 'string') continue;
-      const блоки = hudБлоки(m.mes);
-      for (let j = блоки.length - 1; j >= 0; j--) {
-        try { return { данные: parseHUDComplex(блоки[j].inner), откуда: 'последний HUD из чата' }; } catch (_) { /* битый блок — ищем дальше */ }
+      let блоки = [];
+      try { блоки = hudБлоки(m.mes); } catch (_) { continue; }
+      for (let j = блоки.length - 1; j >= 0 && найдено < 3; j--, найдено++) {
+        const текст = блоки[j].inner;
+        источники.push({ откуда: 'последний HUD из чата', данные: () => parseHUDComplex(текст) });
       }
     }
-    const игрок = getSafeUserName() || 'Вы';
-    return { данные: parseHUDComplex(ПРИМЕР_HUD_ТЕКСТ.split('{{user}}').join(игрок)), откуда: 'пример — в чате ещё нет HUD' };
+    let игрок = 'Вы';
+    try { игрок = getSafeUserName() || 'Вы'; } catch (_) { /* имя не критично */ }
+    const подставить = (т) => т.split('{{user}}').join(игрок);
+    источники.push({ откуда: 'пример — в чате ещё нет HUD', данные: () => parseHUDComplex(подставить(ПРИМЕР_HUD_ТЕКСТ)) });
+    источники.push({ откуда: 'базовый пример — в чате ещё нет HUD', данные: () => parseHUDComplex(подставить(БАЗОВЫЙ_HUD_ТЕКСТ)) });
+    return источники;
   }
 
   function собратьПросмотр(окно) {
     const место = окно.querySelector('.hud-custom-preview-body');
-    const { данные, откуда } = данныеДляПросмотра();
-    let html = '';
-    try { html = renderHUD(данные); } catch (e) { html = `<div class="hud-custom-error">Не удалось собрать HUD: ${escapeHtml(e && e.message || String(e))}</div>`; }
+    const ошибки = [];
+    let html = '', откуда = '';
+    for (const источник of источникиПросмотра()) {
+      try {
+        const данные = источник.данные();
+        if (!данные) throw new Error('пустой разбор');
+        lastLazyThunks = null;
+        const готово = renderHUD(данные);
+        if (!готово || !/hud-os-card/.test(готово)) throw new Error('карточка не собралась');
+        html = готово; откуда = источник.откуда;
+        break;
+      } catch (e) {
+        ошибки.push(источник.откуда + ': ' + (e && e.message || String(e)));
+        console.warn('[HUD] просмотр в «Кастомизации»:', источник.откуда, e);
+      }
+    }
+    if (!html) {
+      html = `<div class="hud-custom-error">Не удалось собрать HUD для просмотра. Настройки слева всё равно работают.<br><small>${escapeHtml(ошибки.join(' · '))}</small></div>`;
+      откуда = 'просмотр недоступен';
+    }
     // Отложенные вкладки собираются по клику — способы их собрать живут на
     // самой карточке, как и в чате.
     const лень = lastLazyThunks;
@@ -3908,6 +3974,14 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     if (!окно || !окно.classList.contains('is-open')) return;
     окно.classList.remove('is-open');
     document.documentElement.classList.remove('hud-custom-open');
+    // Раскрытый граф из примера живёт в body — убираем его вместе с окном.
+    document.querySelectorAll('.hud-rel-graph.is-expanded').forEach(г => {
+      const дом = г._hudRelHome && г._hudRelHome.parent;
+      if (дом && окно.contains(дом)) {
+        г.remove();
+        document.querySelectorAll('.hud-rel-graph-backdrop').forEach(ф => ф.classList.remove('visible'));
+      }
+    });
     // Правую карточку убираем: в ней тысяча узлов, а окно закрыто.
     окно.querySelector('.hud-custom-preview-body').innerHTML = '';
     if (видыМенялись) { видыМенялись = false; перерисоватьКарточкиЧата(); }
@@ -3944,13 +4018,24 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
         видыМенялись = true;
         собратьПросмотр(окно);
       });
-      document.addEventListener('keydown', (e) => { if (e.key === 'Escape') закрытьКастомизацию(); });
+      // Escape сперва закрывает то, что открыто поверх окна: граф, снимок, вопрос.
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && !document.querySelector('.hud-rel-graph.is-expanded, .hud-modal-overlay')) закрытьКастомизацию();
+      });
     }
-    // Панель пересобираем при каждом открытии: значения — из текущих настроек.
-    окно.querySelector('.hud-custom-settings .hud-theme-panel').innerHTML = разметкаПанелиТемы();
-    собратьПросмотр(окно);
     окно.classList.add('is-open');
     document.documentElement.classList.add('hud-custom-open');
+    // Панель пересобираем при каждом открытии: значения — из текущих настроек.
+    // Окно уже открыто: сбой панели или просмотра не делает кнопку «мёртвой».
+    const панель = окно.querySelector('.hud-custom-settings .hud-theme-panel');
+    try { панель.innerHTML = разметкаПанелиТемы(); } catch (e) {
+      console.error('[HUD] панель кастомизации:', e);
+      панель.innerHTML = `<div class="hud-custom-error">Панель не собралась: ${escapeHtml(e && e.message || String(e))}</div>`;
+    }
+    try { собратьПросмотр(окно); } catch (e) {
+      console.error('[HUD] просмотр кастомизации:', e);
+      окно.querySelector('.hud-custom-preview-body').innerHTML = `<div class="hud-custom-error">Просмотр не собрался: ${escapeHtml(e && e.message || String(e))}</div>`;
+    }
     окно.querySelector('.hud-custom-close').focus();
   }
   // 🎨 на любой карточке открывает это же окно (events.js шлёт событие).
@@ -4010,7 +4095,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
           <div class="hud-set-apps">
             ${[['phoneAppMessages','💬 Сообщения'],['phoneAppContacts','👤 Контакты'],['phoneAppWallet','💳 Кошелёк'],
                ['phoneAppCalendar','📅 Календарь'],['phoneAppGallery','🖼️ Галерея'],['phoneAppNotes','📝 Заметки'],
-               ['phoneAppMaps','🗺️ Карты'],['phoneAppSearch','🔍 Поиск']]
+               ['phoneAppMaps','🗺️ Карты'],['phoneAppSearch','🔍 Поиск'],['phoneAppCalls','📞 Звонки'],['phoneAppWeather','🌦️ Погода']]
               .map(([k, label]) => `<label><input type="checkbox" data-phone-app-key="${k}" ${settings[k] !== false ? 'checked' : ''}> ${label}</label>`).join('')}
           </div>
           ${галка('hud-enable-intercepts', settings.enableIntercepts, '📡 Перехваты (чужие телефоны)')}
@@ -4396,7 +4481,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=23.3.4');
+        const mod = await import('./render/archive.js?v=23.4.6');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);

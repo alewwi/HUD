@@ -10,7 +10,7 @@
 // реально добавляются новые сообщения (см. invalidateAvatarCache()).
 // Ручные аватарки читаются прямо из настроек: модуль и так знает про DOM
 // и глобали SillyTavern, ещё одна зависимость ничего не усложняет.
-import { settings } from './settings.js?v=23.3.4';
+import { settings } from './settings.js?v=23.4.6';
 
 /**
  * Палитра для плейсхолдеров аватарок: цвет выбирается по хэшу имени.
@@ -210,10 +210,18 @@ export function refreshAvatarFaces(root) {
   const scope = root || document;
   scope.querySelectorAll('[data-ava-name]').forEach(el => {
     const name = el.getAttribute('data-ava-name') || '';
-    const url = el.getAttribute('data-ava-role') === 'user'
+    let url = el.getAttribute('data-ava-role') === 'user'
       ? (settings.avatarUserImg || getUserAvatarUrl())
       : overrideAvatarUrl(name);
+    // Аватарка, которую HUD нашёл в Таверне сам (карточка персонажа,
+    // собеседник в журнале звонков), тоже обновляется: картинку персонажа
+    // могли поменять, пока карточка висит в чате.
+    if (!url && el.hasAttribute('data-ava-auto')) {
+      const найдено = getAvatarUrl(name, el.getAttribute('data-ava-primary') === '1');
+      url = найдено && найдено.url;
+    }
     if (el.tagName === 'IMG' || el.classList.contains('hud-avatar-placeholder')) {
+      if (el.tagName === 'IMG' && url && el.getAttribute('src') === url) return;
       swapBigAvatar(el, name, url);
       return;
     }
@@ -243,21 +251,47 @@ export function getAvatarUrl(characterName, isPrimary = false) {
 export function getUserAvatarUrl() {
   // Закреплённая вручную аватарка игрока перекрывает автоопределение.
   if (settings.avatarUserImg) return settings.avatarUserImg;
+  const годный = (src) => src && !src.includes('undefined') && !/(^|\/)none$/.test(src) ? src : null;
+  const изУзла = (el) => el && годный(el.src || (el.style && el.style.backgroundImage ? el.style.backgroundImage.replace(/url\(['"]?|['"]?\)/g, '') : ''));
   try {
-      const selectors = ['#user_avatar_block .avatar.selected img', '#user_avatar_block .avatar_img.selected', '.selected_avatar img', '#avatar_img_me', '.mes[is_user="true"] .avatar img'];
-      for (const sel of selectors) {
-          const el = document.querySelector(sel);
-          if (el) {
-              const src = el.src || (el.style && el.style.backgroundImage ? el.style.backgroundImage.replace(/url\(['"]?|['"]?\)/g, '') : null);
-              if (src && src !== '' && !src.includes('undefined') && !src.includes('none')) return src;
+      // 1. Выбранная персона в панели Таверны — самое точное, но разметка
+      //    панели меняется от версии к версии.
+      for (const sel of ['#user_avatar_block .avatar.selected img', '#user_avatar_block .avatar_img.selected', '.selected_avatar img', '#avatar_img_me']) {
+          const src = изУзла(document.querySelector(sel));
+          if (src) return src;
+      }
+      // 2. Контекст Таверны: от разметки не зависит.
+      const ctx = контекстST();
+      const миниатюра = (файл) => {
+          if (!файл || файл === 'none') return null;
+          if (/^(https?:|data:|\/)/.test(файл)) return файл;
+          const f = (ctx && typeof ctx.getThumbnailUrl === 'function') ? ctx.getThumbnailUrl : window.getThumbnailUrl;
+          return typeof f === 'function' ? f('persona', файл) : `/User Avatars/${encodeURIComponent(файл)}`;
+      };
+      if (ctx) {
+          // Будущие версии могут отдавать файл персоны прямо в контексте.
+          const прямо = миниатюра(ctx.user_avatar || ctx.userAvatar);
+          if (прямо) return прямо;
+          // Персоны: { 'файл.png': 'Имя' } — ищем ту, чьё имя сейчас у игрока.
+          const персоны = ctx.powerUserSettings && ctx.powerUserSettings.personas;
+          if (персоны && ctx.name1) {
+              const свои = Object.keys(персоны).filter(файл => String(персоны[файл]).trim() === String(ctx.name1).trim());
+              if (свои.length === 1) return миниатюра(свои[0]);
+          }
+          // Последнее сообщение игрока помнит аватарку, с которой было отправлено.
+          const чат = Array.isArray(ctx.chat) ? ctx.chat : [];
+          for (let i = чат.length - 1; i >= 0; i--) {
+              const m = чат[i];
+              if (m && m.is_user && годный(String(m.force_avatar || ''))) return m.force_avatar;
           }
       }
+      // 3. Старые сборки: глобальные переменные.
       let file = window.user_avatar;
       if (!file && typeof window.getUserAvatar === 'function') file = window.getUserAvatar();
-      if (file && file !== 'none') {
-          if (file.startsWith('http') || file.startsWith('data:')) return file;
-          if (typeof window.getThumbnailUrl === 'function') return window.getThumbnailUrl('user_avatar', file) || window.getThumbnailUrl('avatar', file);
-          return `/User Avatars/${encodeURIComponent(file)}`;
-      }
+      const старое = миниатюра(file);
+      if (старое) return старое;
+      // 4. Последнее, что видно в чате.
+      const src = изУзла(document.querySelector('.mes[is_user="true"] .avatar img'));
+      if (src) return src;
   } catch (e) {} return null;
 }

@@ -7,13 +7,13 @@
 // жил в phone.js, и в перехватах теги оставались сырым текстом посреди
 // сообщения просто потому, что до них не доходили руки.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.3.4';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.3.4';
-import { G_ICONS } from './icons.js?v=23.3.4';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.4.6';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.4.6';
+import { G_ICONS } from './icons.js?v=23.4.6';
 
 // Звонок: [CALL: исходящий, принят, 4:12]. Порядок слов внутри не важен —
 // разбираем по смыслу, а не по позиции: модели путают порядок постоянно.
-function parseCall(text) {
+export function parseCall(text) {
   const m = String(text || '').match(/\[(?:CALL|ЗВОНОК)\s*:?\s*([^\]]*)\]/i);
   if (!m) return null;
   const body = m[1].toLowerCase();
@@ -237,7 +237,11 @@ export function buildBubbleInner(rawMessage) {
     return шапка + `<div class="hud-voice-player"><div class="hud-voice-btn">▶</div>`
       + voiceWaveHTML(message || rawMessage, voiceDur)
       + `<span class="hud-voice-time">${escapeHtml(voiceDur)}</span></div>` +
-      (message ? `<details class="hud-voice-details"><summary>Расшифровка</summary><div class="hud-voice-text">${escapeHtml(message)}</div></details>` : '');
+      // Расшифровка есть у каждого голосового. Если модель не написала слов,
+      // так и говорим, а не прячем раскрывашку: иначе кажется, что сломалось.
+      (message
+        ? `<details class="hud-voice-details"><summary>Расшифровка</summary><div class="hud-voice-text">${escapeHtml(message)}</div></details>`
+        : `<details class="hud-voice-details is-empty"><summary>Расшифровка</summary><div class="hud-voice-text">Слов в этом голосовом модель не записала.</div></details>`);
   }
   return шапка + `<div class="hud-msg-text" style="word-break: break-word;">${escapeHtml(message)}</div>`;
 }
