@@ -567,7 +567,6 @@
 .hud-theme-spacehorror .hud-os-logo::after { content: ' \26A0'; }
 .hud-theme-spacehorror .hud-tab.active { box-shadow: inset 0 -2px 0 #e03a3a; }
 
-
 /* =========================================================================
    ДВЕНАДЦАТЬ НОВЫХ ТЕМ: ПОЛНЫЙ НАБОР ПРИМЕТ
    -------------------------------------------------------------------------
@@ -1064,7 +1063,6 @@
 }
 .hud-theme-packs label:hover { opacity: 1; }
 
-
 /* =========================================================================
    МЕССЕНДЖЕР: ЦИТАТА, ПЕРЕСЫЛКА, ОПРОС, РЕАКЦИИ, ОСЦИЛЛОГРАММА
    ========================================================================= */
@@ -1176,7 +1174,6 @@
   flex: 0 0 auto; margin-right: 2px;
 }
 
-
 /* =========================================================================
    ШКАЛЫ, СТРАХИ И ПЛИТКИ NSFW НА СВЕТЛЫХ ТЕМАХ
    -------------------------------------------------------------------------
@@ -1222,7 +1219,6 @@
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-nsfw-pill .hud-pill-label {
   color: #8c2440 !important; opacity: 1;
 }
-
 
 /* =========================================================================
    ПИЛЮЛИ: ГОРИЗОНТ ЦЕЛИ, ЛИЦО СОБЕСЕДНИКА, ЧИСЛО
@@ -1303,7 +1299,6 @@
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-detail-pill.is-now   { --срок: #c2710f; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-detail-pill.is-soon  { --срок: #1e5fa8; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-detail-pill.is-later { --срок: #8a94a3; }
-
 
 /* =========================================================================
    ЗНАЧОК МЕТКИ, ДОЛЯ ПОЛОСОЙ, КОЛИЧЕСТВО
@@ -1451,7 +1446,6 @@
     hsl(var(--тон, 0) 45% 45% / .14) 0%, transparent 46%) !important;
 }
 
-
 /* --- Цвет человека доходит до подписи ------------------------------------
    Кружок и корешок у человека уже свои, а имя оставалось общим розовым.
    Светлота фиксированная, меняется только тон: строки остаются одинаково
@@ -1481,7 +1475,6 @@
    переходов внутри неё: замерено, они висят с временем 0. Переходы из
    base.css у этих плиток гасим, иначе значения застревают на старых. */
 :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill) { transition: none !important; }
-
 
 /* =========================================================================
    NSFW — ВЕСЬ БЛОК
@@ -1818,7 +1811,6 @@
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.nsfw .hud-zone-bar { box-shadow: inset 0 0 0 1px rgba(158,42,63,.14); }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.nsfw .hud-zone-bar > i { box-shadow: none; }
 
-
 /* =========================================================================
    NSFW: СВЕТ СВЕЧИ, ОТСВЕТЫ, ПРОКРУТКА
    -------------------------------------------------------------------------
@@ -1880,7 +1872,6 @@
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.nsfw .hud-vertical-container { scrollbar-color: rgba(140,36,64,.5) transparent; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.nsfw .hud-vertical-container::-webkit-scrollbar-thumb { background: rgba(140,36,64,.5); }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.nsfw :is(.hud-zone-name, .hud-sex-rev) { color: var(--lt-ink) !important; }
-
 
 /* =========================================================================
    NSFW: МЕДАЛЬОНЫ, СТЕКЛЯННЫЕ ЗНАЧЕНИЯ, СИЯНИЕ
@@ -1987,7 +1978,6 @@
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.nsfw .hud-phase-step.is-past::before { background: rgba(140,36,64,.6); }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.nsfw .hud-phase-step.is-now::before { background: #8c2440; box-shadow: 0 0 0 2px rgba(140,36,64,.25); }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-row.nsfw .hud-pill-meter::before { box-shadow: none; }
-
 
 /* =========================================================================
    АВАТАРКИ В ОТНОШЕНИЯХ И КАПС ПОМЕЛЬЧЕ
@@ -2258,7 +2248,6 @@
 .hud-pet-mood { flex: 0 1 auto; max-width: 100%; white-space: normal; overflow-wrap: break-word; line-height: 1.35; }
 .hud-pet-row p, .hud-pet-owner { overflow-wrap: break-word; }
 
-
 /* --- Телефон: стекло у старых карточек ----------------------------------
    Размытие фона живёт на .hud-os-card::after, а заморозка истории снимала
    его только с самой карточки. Каждая старая карточка в кадре продолжала
@@ -2268,7 +2257,6 @@
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
 }
-
 
 /* --- Настройки расширения: подгруппы ------------------------------------
    Подгруппа — такой же раскрывающийся блок, как группа, только внутри неё:
@@ -2284,7 +2272,6 @@
 .hud-set-check > input[type="checkbox"] { flex: none; margin: 0; }
 .hud-set-check > span { flex: 1 1 0; min-width: 0; }
 
-
 /* --- Сцена на телефоне -------------------------------------------------
    Плашки времени, погоды и атмосферы стоят столбиком и занимали почти всю
    высоту сцены: пейзаж — снеговик, деревня, пляж, деревья — прятался под
@@ -2298,7 +2285,6 @@
   /* Светило идёт по боковым полосам неба и не прячется за часами. */
   .hud-fx-celestial[style*="--cel-xm"] { left: var(--cel-xm) !important; }
 }
-
 
 /* --- Близость: полоса сцены --------------------------------------------- */
 .hud-scene-strip-wrap { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
@@ -2395,8 +2381,6 @@
 .hud-mark-body span { font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); }
 .hud-mark-timer { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; min-width: 64px; }
 .hud-mark-timer small { font-size: 10.5px; color: var(--hud-text-muted, #c3c2b7); white-space: nowrap; }
-.hud-mark-meter { width: 64px; height: 4px; border-radius: 999px; overflow: hidden; background: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 18%, transparent); }
-.hud-mark-meter > i { display: block; height: 100%; border-radius: 999px; background: var(--hud-nsfw-color, #d9548a); }
 
 /* --- Менструальный цикл: кольцо фаз ------------------------------------- */
 .hud-cycle {
@@ -2462,7 +2446,6 @@
 .hud-city-row p { margin: 0; font-size: 12.5px; }
 @media (max-width: 480px) { .hud-city-row { grid-template-columns: 1fr; gap: 2px; } }
 
-
 /* Плитки пульса на узкой карточке — по две в ряд, а не столбцом. */
 .hud-vitals { grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); }
 .hud-vit { padding: 7px 8px; }
@@ -2489,7 +2472,6 @@
 .hud-ask-a p:last-child { margin-bottom: 0; }
 .hud-ask-a ul { margin: 0 0 6px; padding-left: 18px; }
 .hud-ask-a li { margin: 2px 0; }
-
 
 /* =========================================================================
    НОВЫЕ БЛОКИ — КРАСОТА
@@ -3002,7 +2984,6 @@
 .hud-city-kind > i { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ck) 60%, transparent), 0 0 10px color-mix(in srgb, var(--ck) 30%, transparent); }
 .hud-city-row p { position: relative; z-index: 1; }
 
-
 /* --- Следы на теле как часть трекера здоровья ---------------------------
    Строка живёт рядом с болезнями и травмами и видна после акта: как след
    выглядит сейчас, насколько зажил, сколько осталось по времени сюжета. */
@@ -3024,7 +3005,6 @@
 .hud-mark-memory::before { content: '⟲ '; }
 .hud-mark-timer small { white-space: nowrap; }
 
-
 /* --- NSFW: подробные описания -------------------------------------------
    Модель теперь пишет не слово, а целое описание: поза, звуки и зоны карты
    тела получают место под текст, не ломая свои пилюли и строки. */
@@ -3039,7 +3019,6 @@
   grid-column: 2 / -1; font-size: 11.5px; line-height: 1.4; font-style: italic;
   color: var(--hud-text-muted, #c3c2b7); overflow-wrap: anywhere;
 }
-
 
 /* =========================================================================
    ПЛАШКИ МИРА ПРОЗРАЧНЫЕ, ДВИЖЕНИЕ ТОЛЬКО ПО НАВЕДЕНИЮ И КАСАНИЮ
@@ -3797,7 +3776,6 @@
 .hud-mark-rows { grid-column: 1 / -1; position: relative; z-index: 1; }
 .hud-mark-rows .hud-ill-row:first-child { margin-top: 0; }
 
-
 /* =========================================================================
    Виджет погоды: исправления внешнего вида (по снимкам всех сезонов,
    погоды и времени суток на ПК и телефоне)
@@ -4389,7 +4367,6 @@
 .hud-scene-widget.fx-active:is(.phase-evening, .phase-night, .phase-deep-night):is(.season-summer, .season-spring.month-5.month-late):not(.weather-storm):not(.weather-rain):not(.weather-intensity-high) .hud-fx-fireflies {
   opacity: 1;
 }
-
 
 /* =========================================================================
    КАРТОЧКА: ГРУППЫ СТРОК
@@ -5814,8 +5791,14 @@
    Слева — панель темы, справа — живой HUD. На телефоне HUD сверху, настройки
    под ним: крутишь ползунок и сразу видишь карточку.
    ========================================================================= */
+/* Размер — от левого верхнего угла на весь экран, а не inset: 0. На
+   телефоне Таверна делает body фиксированным, а на <html> ставит
+   translateZ(0): <html> остаётся без содержимого в потоке, его высота —
+   ноль, и fixed-окно отсчитывается от него. С inset: 0 окно получало
+   нулевую высоту — открывалось, но его не было видно. */
 .hud-custom-overlay {
-  position: fixed; inset: 0; z-index: 10050; display: none;
+  position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh; z-index: 10050; display: none;
+  box-sizing: border-box;
   align-items: center; justify-content: center; padding: 16px;
   background: rgba(0, 0, 0, .6);
 }
@@ -5856,7 +5839,18 @@ html.hud-custom-open body { overflow: hidden; }
 @media (max-width: 800px) {
   .hud-custom-overlay { padding: 0; }
   .hud-custom-dialog { width: 100%; height: 100%; border-radius: 0; border: 0; }
-  .hud-custom-body { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 46%) minmax(0, 1fr); }
+  /* Сверху — HUD постоянной высоты от экрана, снизу — настройки, которые
+     листаются сами по себе: крутишь ползунок и видишь карточку. Прежде
+     делили сеткой в процентах, а процент строки считается от высоты сетки
+     внутри flex-колонки — мобильный браузер её не всегда знает, и тогда
+     HUD растягивался во всю длину, а настройкам не оставалось места. */
+  .hud-custom-body { display: flex; flex-direction: column; }
+  .hud-custom-preview { flex: 0 0 auto; height: 44vh; height: 44dvh; }
+  .hud-custom-settings {
+    flex: 1 1 0; min-height: 0; overflow-y: auto;
+    touch-action: pan-y; -webkit-overflow-scrolling: touch;
+  }
+  .hud-custom-preview { touch-action: pan-x pan-y; -webkit-overflow-scrolling: touch; }
   .hud-custom-dialog, .hud-custom-settings, .hud-custom-preview { min-width: 0; max-width: 100vw; }
   .hud-custom-head { padding: 8px 10px; gap: 6px; }
   .hud-custom-source { display: none; }
@@ -6233,23 +6227,32 @@ html.hud-custom-open body { overflow: hidden; }
 .hud-calls { display: flex; flex-direction: column; }
 .hud-calls-tab-in { position: absolute; opacity: 0; pointer-events: none; }
 .hud-calls-tabs {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 3px; padding: 3px; margin: 2px 2px 8px;
+  display: grid; grid-template-columns: .7fr 1fr 1fr 1fr; gap: 3px; padding: 3px; margin: 2px 2px 8px;
   border-radius: 10px; background: rgba(255,255,255,.06);
 }
 .hud-calls-tabs label {
-  text-align: center; padding: 5px 0; border-radius: 8px; font-size: .8em; cursor: pointer; opacity: .7;
+  display: flex; align-items: center; justify-content: center; gap: 2px; white-space: nowrap;
+  padding: 5px 2px; border-radius: 8px; font-size: .74em; cursor: pointer; opacity: .7;
 }
 .hud-calls-tabs label i {
-  font-style: normal; font-size: .85em; padding: 0 6px; margin-left: 3px; border-radius: 999px;
+  font-style: normal; font-size: .85em; padding: 0 5px; margin-left: 2px; border-radius: 999px;
   background: color-mix(in oklab, var(--hud-phone-accent) 70%, transparent); color: #fff;
 }
-.hud-calls-tab-in.is-all:checked ~ .hud-calls-tabs label:first-child,
-.hud-calls-tab-in.is-miss:checked ~ .hud-calls-tabs label:last-child {
-  opacity: 1; font-weight: 600; background: rgba(255,255,255,.1); box-shadow: 0 1px 3px rgba(0,0,0,.25);
+.hud-calls-tab-in.is-all:checked ~ .hud-calls-tabs .t-all,
+.hud-calls-tab-in.is-miss:checked ~ .hud-calls-tabs .t-miss,
+.hud-calls-tab-in.is-out:checked ~ .hud-calls-tabs .t-out,
+.hud-calls-tab-in.is-in:checked ~ .hud-calls-tabs .t-in {
+  opacity: 1; font-weight: 600; background: color-mix(in srgb, currentColor 12%, transparent); box-shadow: 0 1px 3px rgba(0,0,0,.25);
 }
-.hud-calls-tab-in.is-miss:checked ~ .hud-calls-list .hud-calls-row:not(.is-missed),
-.hud-calls-tab-in.is-miss:checked ~ .hud-calls-list .hud-calls-day { display: none; }
-.hud-calls-tab-in.is-miss:checked ~ .hud-calls-list .hud-calls-row.is-missed { display: grid; }
+.hud-calls-tab-in:focus-visible ~ .hud-calls-tabs { outline: 1px solid var(--hud-phone-accent); outline-offset: 1px; }
+/* Фильтр: прячем чужие строки и дни, где нужного вида нет. */
+.hud-calls-tab-in.is-miss:checked ~ .hud-calls-list :is(.hud-calls-row:not(.kind-miss), .hud-calls-daygrp:not(.has-miss)),
+.hud-calls-tab-in.is-out:checked ~ .hud-calls-list :is(.hud-calls-row:not(.kind-out), .hud-calls-daygrp:not(.has-out)),
+.hud-calls-tab-in.is-in:checked ~ .hud-calls-list :is(.hud-calls-row:not(.kind-in), .hud-calls-daygrp:not(.has-in)) { display: none; }
+.hud-calls-none { display: none; text-align: center; font-size: .8em; opacity: .55; padding: 18px 0; }
+.hud-calls.none-miss > .hud-calls-tab-in.is-miss:checked ~ .hud-calls-list .hud-calls-none,
+.hud-calls.none-out > .hud-calls-tab-in.is-out:checked ~ .hud-calls-list .hud-calls-none,
+.hud-calls.none-in > .hud-calls-tab-in.is-in:checked ~ .hud-calls-list .hud-calls-none { display: block; }
 .hud-calls-day { font-size: .7em; text-transform: uppercase; letter-spacing: .08em; opacity: .5; padding: 10px 6px 4px; }
 .hud-calls-row {
   display: grid; grid-template-columns: 38px minmax(0, 1fr) auto; align-items: center; gap: 10px;
@@ -6456,3 +6459,313 @@ html:not(.hud-phone-noglow) .hud-phone-emulator :is(.hud-wx-fc, .hud-phone-note,
     animation-name: hud-glow-breath-strong;
   }
 }
+
+/* Расписание: контейнер с отступом слева был шире строки на 16px — карточки
+   упирались в правый край. Колонка «когда» вмещает и «воскресенье 14:00». */
+.hud-schedule-container { box-sizing: border-box; }
+.hud-schedule-time { max-width: 9.5em; white-space: normal; line-height: 1.25; }
+
+/* Светлые («бумажные») темы: у этих плашек фон был тёмным полупрозрачным
+   и на бумаге выходил грязно-серым, а цифра дня цикла сливалась с тёмным
+   центром кольца. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-schedule-event { background: rgba(255, 255, 255, .55); border-color: color-mix(in srgb, var(--hud-accent) 25%, transparent); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-cycle-tips { background: rgba(255, 255, 255, .5); border-color: color-mix(in srgb, var(--hud-accent) 20%, transparent); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-cycle-ring .d0 { stop-color: color-mix(in srgb, var(--phase) 18%, #ffffff); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-cycle-ring .d1 { stop-color: color-mix(in srgb, var(--phase) 8%, #fbf4f6); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-cycle-ring .c-disc { stroke: color-mix(in srgb, var(--hud-accent) 25%, transparent); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-cycle-ring .c-sub { fill: var(--hud-text-muted, #7a4a63); }
+
+/* =========================================================================
+   КАРТА ТЕЛА: ВИД, СЛОИ, ИСТОРИЯ (render/intimacy.js, buildHeatMap)
+   ========================================================================= */
+.hud-heat-controls { flex: 1 1 100%; display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.hud-heat-views, .hud-heat-layers { display: flex; flex-wrap: wrap; gap: 4px; }
+.hud-heat-views { padding: 2px; border-radius: 9px; background: rgba(255, 255, 255, .05); }
+.hud-heat-btn {
+  font: inherit; font-size: 11px; line-height: 1.2; padding: 3px 9px; border-radius: 7px; cursor: pointer;
+  color: var(--hud-text-muted, #c3c2b7); background: transparent; border: 1px solid transparent;
+}
+.hud-heat-btn:hover, .hud-heat-btn:focus-visible { color: var(--hud-text, #eee); outline: none; }
+.hud-heat-views .hud-heat-btn.is-on { color: var(--hud-text, #eee); background: color-mix(in srgb, var(--heat) 26%, transparent); }
+.hud-heat-btn.is-layer { border-color: rgba(255, 255, 255, .12); }
+.hud-heat-btn.is-layer.is-on { color: var(--hud-text, #eee); border-color: color-mix(in srgb, var(--heat) 55%, transparent); background: color-mix(in srgb, var(--heat) 14%, transparent); }
+.hud-heat-btn.is-layer:not(.is-on) { opacity: .6; }
+
+/* История: виден один кадр пятен — текущий или выбранный ползунком. */
+.hud-heat-svg .z-frame { display: none; }
+.hud-heat-svg .z-frame.is-now { display: inline; }
+.hud-heat-time { display: flex; align-items: center; gap: 6px; font-size: 10.5px; color: var(--hud-text-muted, #c3c2b7); }
+.hud-heat-time input { flex: 1; min-width: 60px; accent-color: var(--heat); }
+.hud-heat-time b { font-weight: 600; color: var(--hud-text, #eee); white-space: nowrap; }
+
+/* Слои. */
+.hud-heat.hide-heat .z-heat-layer, .hud-heat.hide-heat .hud-heat-row { display: none; }
+.hud-heat.hide-marks .z-mark-layer { display: none; }
+.hud-heat.hide-organs .z-organ-layer, .hud-heat.hide-organs .hud-heat-organs { display: none; }
+.hud-heat.hide-cloth .z-cloth-layer, .hud-heat.hide-cloth .hud-heat-clothes { display: none; }
+
+/* Одежда: полупрозрачная ткань поверх силуэта; частично — пунктиром. */
+.hud-heat-svg .z-cloth {
+  fill: color-mix(in srgb, var(--hud-accent, #c31f38) 30%, rgba(160, 170, 190, .5));
+  fill-opacity: .72; stroke: color-mix(in srgb, var(--hud-accent, #c31f38) 55%, #fff); stroke-width: .8; stroke-opacity: .85;
+}
+.hud-heat-svg .z-cloth.is-half { fill-opacity: .38; stroke-dasharray: 2 1.6; }
+.hud-heat-svg .z-cloth.c-bra, .hud-heat-svg .z-cloth.c-panties, .hud-heat-svg .z-cloth.c-stockings { fill: color-mix(in srgb, var(--heat) 40%, #1a1320); }
+
+/* Ощущения: кольцо с точкой внутри тела. */
+.hud-heat-svg .z-organ-ring { fill: color-mix(in srgb, var(--hud-accent, #c31f38) 18%, transparent); stroke: color-mix(in srgb, var(--hud-accent, #c31f38) 60%, #fff); stroke-width: .8; stroke-dasharray: 2 1.4; }
+.hud-heat-svg .z-organ-core { fill: color-mix(in srgb, var(--hud-accent, #c31f38) 70%, #fff); }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-heat:hover .z-organ-ring { animation: hud-organ-pulse 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+}
+@keyframes hud-organ-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
+
+.hud-heat-organs, .hud-heat-clothes { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; padding-top: 6px; border-top: 1px solid rgba(255, 255, 255, .08); }
+.hud-heat-organ, .hud-heat-cloth { display: grid; grid-template-columns: auto auto minmax(0, 1fr); gap: 2px 8px; align-items: baseline; font-size: 12px; }
+.hud-heat-organ i { font-style: normal; color: color-mix(in srgb, var(--hud-accent, #c31f38) 70%, #fff); width: 14px; text-align: center; }
+.hud-heat-organ span, .hud-heat-cloth span { color: var(--hud-text-muted, #c3c2b7); }
+.hud-heat-cloth small { font-size: 10px; padding: 0 6px; border-radius: 999px; background: rgba(255, 255, 255, .08); }
+.hud-heat-cloth.is-half small { background: color-mix(in srgb, var(--heat) 22%, transparent); }
+.hud-heat-cloth.is-off { opacity: .6; }
+.hud-heat-cloth.is-off b { text-decoration: line-through; }
+
+/* =========================================================================
+   ПЛАШКИ СОСТОЯНИЯ НАД КАРТОЧКОЙ (render/character.js)
+   «Без сознания» с таймером; «Модификаторы сцены» во время близости.
+   ========================================================================= */
+.hud-state-plaque {
+  grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; padding: 9px 12px; margin-bottom: 8px;
+  border-radius: 12px; border: 1px solid color-mix(in srgb, var(--hud-accent, #c31f38) 45%, transparent);
+  background: linear-gradient(120deg, color-mix(in srgb, var(--hud-accent, #c31f38) 20%, transparent), color-mix(in srgb, var(--hud-accent, #c31f38) 6%, transparent));
+}
+.hud-state-plaque > i { font-style: normal; font-size: 20px; }
+.hud-state-plaque > div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.hud-state-plaque b { font-size: 13px; letter-spacing: .02em; }
+.hud-state-plaque small { font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); }
+.hud-state-timer {
+  font-size: 11.5px; font-weight: 700; font-variant-numeric: tabular-nums; white-space: nowrap; padding: 3px 9px; border-radius: 999px;
+  background: color-mix(in srgb, var(--hud-accent, #c31f38) 26%, transparent);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .hud-state-plaque.is-out > i { animation: hud-out-breath 3.2s ease-in-out infinite; }
+}
+@keyframes hud-out-breath { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
+
+.hud-scene-mods { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-bottom: 8px; }
+.hud-scene-mods-title { flex: 1 0 100%; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--hud-text-muted, #c3c2b7); }
+.hud-mod {
+  display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; padding: 3px 10px; border-radius: 999px;
+  background: color-mix(in srgb, currentColor 6%, transparent); border: 1px solid color-mix(in srgb, currentColor 14%, transparent);
+}
+.hud-mod i { font-style: normal; }
+.hud-mod.is-fertile { border-color: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 45%, transparent); background: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 14%, transparent); }
+.hud-mod.is-fertile.is-high { background: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 30%, transparent); }
+.hud-mod b { font-variant-numeric: tabular-nums; }
+.hud-ill-src { display: block; margin-top: 4px; font-size: 10.5px; color: var(--hud-text-muted, #c3c2b7); font-style: italic; }
+
+/* --- Здоровье (render/phone-extra.js, buildHealthApp) ------------------------ */
+.hud-hl { display: flex; flex-direction: column; gap: 10px; padding: 4px 2px 10px; }
+.hud-hl-tiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.hud-hl-tile, .hud-hl-card {
+  position: relative; border-radius: 16px; padding: 10px 12px;
+  background: linear-gradient(165deg, color-mix(in oklab, var(--hud-phone-accent) 14%, rgba(255,255,255,.04)), rgba(0,0,0,.14));
+  border: 1px solid color-mix(in oklab, var(--hud-phone-accent) 22%, transparent);
+}
+.hud-hl-tile { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.hud-hl-tile.is-steps { grid-column: 1 / -1; flex-direction: row; align-items: center; gap: 12px; }
+.hud-hl-kicker { display: flex; align-items: center; gap: 5px; font-size: .68em; text-transform: uppercase; letter-spacing: .08em; opacity: .7; }
+.hud-hl-val { display: flex; flex-direction: column; min-width: 0; }
+.hud-hl-val b { font-size: 1.5em; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.hud-hl-val small { font-size: .72em; opacity: .7; }
+.hud-hl-note { display: block; font-size: .7em; opacity: .6; margin-top: 2px; }
+.hud-hl-bar { display: block; height: 5px; border-radius: 99px; background: color-mix(in srgb, currentColor 12%, transparent); overflow: hidden; }
+.hud-hl-bar i { display: block; height: 100%; border-radius: inherit; background: color-mix(in oklab, var(--hud-phone-accent) 75%, #fff); }
+.hud-hl-ring { width: 64px; height: 64px; flex: none; }
+.hud-hl-ring .hl-ring-bg { fill: none; stroke: color-mix(in srgb, currentColor 12%, transparent); stroke-width: 7; }
+.hud-hl-ring .hl-ring { fill: none; stroke: var(--hud-phone-accent); stroke-width: 7; stroke-linecap: round; }
+.hud-hl-tile.is-pulse.is-high .hud-hl-val b { color: color-mix(in oklab, var(--hud-phone-accent) 60%, #fff); }
+.hud-hl-beat { font-style: normal; color: var(--hud-phone-accent); }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-hl-tile.is-pulse:hover .hud-hl-beat { display: inline-block; animation: hud-hl-beat .8s ease-in-out infinite; }
+}
+@keyframes hud-hl-beat { 0%, 100% { transform: scale(1); } 30% { transform: scale(1.3); } }
+
+.hud-hl-title { font-size: .72em; text-transform: uppercase; letter-spacing: .08em; opacity: .7; margin-bottom: 6px; }
+.hud-hl-chart { display: block; width: 100%; height: auto; overflow: visible; }
+.hud-hl-chart .hl-rest { fill: color-mix(in oklab, var(--hud-phone-accent) 8%, transparent); }
+.hud-hl-chart .hl-grid { stroke: color-mix(in srgb, currentColor 10%, transparent); stroke-width: 1; }
+.hud-hl-chart .hl-tick { fill: currentColor; opacity: .5; font-size: 8px; text-anchor: middle; }
+.hud-hl-chart .hl-tick.is-y { text-anchor: end; }
+.hud-hl-chart .hl-line { fill: none; stroke: var(--hud-phone-accent); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
+.hud-hl-chart .hl-hit { fill: transparent; cursor: default; }
+.hud-hl-chart .hl-dot { fill: var(--hud-phone-accent); stroke: color-mix(in srgb, currentColor 25%, transparent); stroke-width: 2; transition: r .15s; }
+.hud-hl-chart .hl-pt.is-scene .hl-dot { fill: color-mix(in oklab, var(--hud-phone-accent) 45%, #fff); }
+.hud-hl-chart .hl-pt:hover .hl-dot { r: 5.5; }
+.hud-hl-chart .hl-now { fill: currentColor; font-size: 9px; font-weight: 700; text-anchor: end; }
+.hud-hl-legend { display: flex; align-items: center; gap: 6px; font-size: .68em; opacity: .65; margin-top: 4px; }
+.hud-hl-legend i { width: 8px; height: 8px; border-radius: 50%; background: color-mix(in oklab, var(--hud-phone-accent) 45%, #fff); }
+
+.hud-hl-week { display: flex; align-items: flex-end; gap: 6px; height: 74px; }
+.hud-hl-day { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; gap: 3px; height: 100%; min-width: 0; }
+.hud-hl-day i { display: block; width: 100%; max-width: 22px; border-radius: 4px 4px 0 0; background: color-mix(in oklab, var(--hud-phone-accent) 45%, transparent); }
+.hud-hl-day.is-today i { background: var(--hud-phone-accent); }
+.hud-hl-day small { font-size: .62em; opacity: .6; }
+.hud-hl-day:hover i { filter: brightness(1.2); }
+
+.hud-hl-vitals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
+.hud-hl-vitals span { display: flex; flex-direction: column; align-items: center; padding: 5px 0; border-radius: 10px; background: color-mix(in srgb, currentColor 7%, transparent); }
+.hud-hl-vitals small { font-size: .62em; opacity: .6; text-transform: uppercase; letter-spacing: .06em; }
+.hud-hl-vitals b { font-size: 1.05em; font-variant-numeric: tabular-nums; }
+.hud-hl-zones { display: flex; flex-direction: column; gap: 4px; margin-bottom: 8px; }
+.hud-hl-zone { display: grid; grid-template-columns: 76px minmax(0, 1fr) 18px; align-items: center; gap: 8px; font-size: .76em; }
+.hud-hl-zone em { font-style: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-hl-zone i { display: block; height: 5px; border-radius: 99px; background: color-mix(in srgb, currentColor 12%, transparent); overflow: hidden; }
+.hud-hl-zone i b { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, color-mix(in oklab, var(--hud-phone-accent) 40%, transparent), var(--hud-phone-accent)); }
+.hud-hl-zone small { text-align: right; opacity: .7; font-variant-numeric: tabular-nums; }
+.hud-hl-ills { display: flex; flex-direction: column; gap: 4px; }
+.hud-hl-ill { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto auto; align-items: center; gap: 6px; font-size: .76em; }
+.hud-hl-ill i { font-style: normal; text-align: center; }
+.hud-hl-ill em { font-style: normal; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-hl-ill small { font-size: .85em; opacity: .6; }
+.hud-hl-ill b { font-variant-numeric: tabular-nums; font-weight: 600; }
+
+/* --- Погода в телефоне: свой цвет у каждой погоды, движение — по запросу ----
+   Те же оттенки, что у прогноза в «Мире». Иконки стоят, пока на карточку не
+   навели курсор или не нажали (на телефоне — нажатие, events.js, fx-active). */
+.hud-wx .w-clear  { --wx: #ffc45c; }
+.hud-wx .w-cloudy { --wx: #d2d6de; }
+.hud-wx .w-rain   { --wx: #6fb0f5; }
+.hud-wx .w-storm  { --wx: #b38cf8; }
+.hud-wx .w-snow   { --wx: #b8ecff; }
+.hud-wx .w-fog    { --wx: #8d97a8; }
+.hud-wx .w-wind   { --wx: #7fe0c4; }
+.hud-wx .is-night.w-clear, .hud-wx-row-ico:has(.ic-moon) { --wx: #d9dcff; }
+.hud-wx-now .hud-wx-ico, .hud-wx-row-ico { color: var(--wx, var(--hud-phone-accent)); }
+.hud-wx-now .hud-wx-ico { filter: drop-shadow(0 0 8px color-mix(in oklab, var(--wx, var(--hud-phone-accent)) 45%, transparent)); }
+.hud-wx .hud-fc-ico > * { animation-play-state: paused !important; }
+.hud-wx-now.fx-active .hud-fc-ico > *, .hud-wx-fc.fx-active .hud-fc-ico > * { animation-play-state: running !important; }
+@media (hover: hover) {
+  .hud-wx-now:hover .hud-fc-ico > *, .hud-wx-row:hover .hud-fc-ico > * { animation-play-state: running !important; }
+}
+.hud-wx-now, .hud-wx-fc { cursor: pointer; }
+
+/* --- Отложенные рисунки (render/lazy-svg.js) --------------------------------
+   Место под граф или карту тела, пока они не показались на экране. */
+.hud-lazy-svg { border-radius: 12px; background: color-mix(in srgb, currentColor 4%, transparent); }
+.hud-lazy-svg.is-lost { padding: 12px; font-size: .8em; opacity: .6; text-align: center; }
+
+/* --- Длинные списки памяти (render/long-list.js) -----------------------------
+   Ранние пункты ждут в <template>: не строятся и не рисуются, пока их не
+   попросили. content-visibility на пунктах не ставим — он обрезает точку
+   таймлайна и тени, вылезающие за пункт. */
+.hud-longlist { flex: 1 1 100%; width: 100%; min-width: 0; }
+.hud-more-btn {
+  display: block; width: 100%; margin: 0 0 8px; padding: 6px 10px; border-radius: 10px; cursor: pointer;
+  font: inherit; font-size: .8em; color: var(--hud-text-muted, #c3c2b7);
+  background: color-mix(in srgb, var(--hud-accent, #c31f38) 8%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--hud-accent, #c31f38) 35%, transparent);
+}
+.hud-more-btn:hover, .hud-more-btn:focus-visible { color: var(--hud-text, #eee); outline: none; background: color-mix(in srgb, var(--hud-accent, #c31f38) 16%, transparent); }
+.hud-more-btn b { font-weight: 700; margin-left: 4px; font-variant-numeric: tabular-nums; }
+
+/* --- Светлые темы: «Погода», «Звонки», «Здоровье» ---------------------------
+   Та же бумага, что у контактов и заметок (base.css, «Карточки: светлая
+   бумага»): на тёмном экране тёмный текст темы не читался. Погодные значки
+   светлых оттенков на бумаге пропадают — притемняем их, различие цветов
+   остаётся. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-wx-now, .hud-wx-fc, .hud-hl-tile, .hud-hl-card, .hud-calls-list, .hud-calls-tabs) {
+  background: var(--lt-paper) !important;
+  color: var(--lt-ink);
+  border-color: var(--lt-line);
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-calls-list { border-radius: 14px; padding: 2px 4px; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-calls-tab-in:checked ~ .hud-calls-tabs label) { box-shadow: none; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-wx-ico, .hud-wx-row-ico, .hud-forecast-icon) { filter: brightness(.62) saturate(1.5) !important; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-calls-row + .hud-calls-row, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-wx-row + .hud-wx-row { border-top-color: var(--lt-line); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-hl-tile.is-pulse.is-high .hud-hl-val b, .hud-calls-row.is-missed .hud-calls-body b, .hud-calls-row.is-missed .hud-calls-ico) {
+  color: color-mix(in oklab, var(--hud-phone-accent) 75%, #000);
+}
+
+/* =========================================================================
+   НЕЙТРАЛЬНЫЕ: БОЛЕЗНИ И ТРАВМЫ, СЛЕДЫ НА ТЕЛЕ, ФЕТИШ
+   К сцене близости они прямо не относятся и розового закрытой части не
+   носят. Общий тон — приглушённый текст темы с каплей акцента; стадии и виды
+   различаются лишь лёгким оттенком поверх него. :not(#_) поднимает вес
+   правил над светлыми темами и прежними цветами, не трогая разметку.
+   ========================================================================= */
+:is(.hud-row, .hud-key-block, .hud-mark, .hud-ill, .hud-fetish-pill, .hud-mark-stage):not(#_) {
+  --hud-neutral: color-mix(in oklab, var(--hud-text-muted, #b4b0bd) 78%, var(--hud-accent, #8c5ad2) 22%);
+}
+:is(.hud-row, .hud-key-block):is(.f-health, .f-illness, .f-marks, .f-fetish):not(#_) { --kind: var(--hud-neutral); }
+
+/* Болезни и травмы: стадия — оттенком, не светофором. */
+.hud-ill:not(#_) { --ill: var(--hud-neutral); }
+.hud-ill.is-fresh:not(#_)     { --ill: color-mix(in oklab, #e0566b 38%, var(--hud-neutral)); }
+.hud-ill.is-worsening:not(#_) { --ill: color-mix(in oklab, #e0566b 50%, var(--hud-neutral)); }
+.hud-ill.is-healing:not(#_)   { --ill: color-mix(in oklab, #58c18a 38%, var(--hud-neutral)); }
+.hud-ill.is-chronic:not(#_)   { --ill: color-mix(in oklab, #9a8ad8 35%, var(--hud-neutral)); }
+.hud-ill.is-healed:not(#_)    { --ill: color-mix(in oklab, #6fb7e8 35%, var(--hud-neutral)); }
+.hud-ill-meter:not(#_) i { background: linear-gradient(90deg, var(--ill), color-mix(in oklab, #58c18a 45%, var(--hud-neutral, #9aa))); }
+
+/* Следы на теле: вид — лёгким оттенком. */
+.hud-mark:not(#_) { --mk: var(--hud-neutral); }
+.hud-mark:not(#_):is(.is-hickey, .is-lip, .is-lipstick, .is-bite, .is-cut) { --mk: color-mix(in oklab, #d9548a 26%, var(--hud-neutral)); }
+.hud-mark:not(#_):is(.is-bruise, .is-neck, .is-grip) { --mk: color-mix(in oklab, #8d74e0 30%, var(--hud-neutral)); }
+.hud-mark:not(#_):is(.is-scratch, .is-graze, .is-redness, .is-burn, .is-swelling) { --mk: color-mix(in oklab, #d9548a 18%, var(--hud-neutral)); }
+.hud-mark:not(#_):is(.is-fluid) { --mk: color-mix(in oklab, #6fb7e8 30%, var(--hud-neutral)); }
+.hud-mark-heal-track:not(#_) > i { background: linear-gradient(90deg, var(--mk), color-mix(in oklab, #58c18a 45%, var(--hud-neutral, #9aa))); box-shadow: none; }
+.hud-mark-heal:not(#_) small { color: color-mix(in oklab, #58c18a 45%, var(--hud-neutral, #9aa)); }
+.hud-mark-stage:not(#_) { color: var(--hud-neutral); }
+.hud-mark-stage:not(#_):is(.is-fresh, .is-worsening) { color: color-mix(in oklab, #e0566b 45%, var(--hud-neutral)); }
+.hud-mark-stage:not(#_).is-healing { color: color-mix(in oklab, #58c18a 45%, var(--hud-neutral)); }
+
+/* Фетиш: та же фактура (шёлковый блик, полоса слева), но без розового. */
+.hud-fetish-pill:not(#_) {
+  background-color: color-mix(in oklab, var(--hud-neutral) 9%, transparent) !important;
+  border-color: color-mix(in oklab, var(--hud-neutral) 38%, transparent) !important;
+  border-top-color: color-mix(in oklab, var(--hud-neutral) 55%, transparent) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 2px 8px -2px rgba(0,0,0,.22) !important;
+}
+.hud-fetish-pill:not(#_)::before { background: linear-gradient(104deg, transparent 36%, color-mix(in oklab, var(--hud-neutral) 14%, transparent) 48%, transparent 64%) !important; }
+.hud-fetish-pill:not(#_)::after {
+  background: linear-gradient(180deg, color-mix(in oklab, var(--hud-neutral) 85%, transparent), color-mix(in oklab, var(--hud-neutral) 35%, transparent)) !important;
+  box-shadow: none !important;
+}
+.hud-fetish-pill:not(#_) .hud-pill-label {
+  color: var(--hud-text, #e6e6ee) !important;
+  background: linear-gradient(90deg, color-mix(in oklab, var(--hud-neutral) 22%, transparent), color-mix(in oklab, var(--hud-neutral) 6%, transparent)) !important;
+  border-color: color-mix(in oklab, var(--hud-neutral) 30%, transparent) !important;
+  animation: none !important;
+}
+@media (hover: hover) {
+  .hud-fetish-pill:not(#_):hover {
+    background-color: color-mix(in oklab, var(--hud-neutral) 15%, transparent) !important;
+    border-color: color-mix(in oklab, var(--hud-neutral) 60%, transparent) !important;
+  }
+}
+.hud-fetish-pill:not(#_):active { border-color: color-mix(in oklab, var(--hud-neutral) 60%, transparent) !important; }
+
+/* --- Цвета погоды: один набор для «Мира» и телефона ------------------------
+   Похожие погоды не совпадают: морось, дождь и ливень — от светлого синего к
+   густому; облачно, пасмурно и туман — светлый серый, сланцевый и сиреневый;
+   у переменной облачности солнце своего цвета. Прежние цвета выше (base.css
+   и «Погода в телефоне») перекрыты этим блоком. */
+:is(.hud-wx, .hud-world-section-forecast) .w-clear    { --wx: #ffc45c; }
+:is(.hud-wx, .hud-world-section-forecast) .w-partly   { --wx: #d9dde4; --wx-sun: #ffc45c; }
+:is(.hud-wx, .hud-world-section-forecast) .w-cloudy   { --wx: #c3cad6; }
+:is(.hud-wx, .hud-world-section-forecast) .w-overcast { --wx: #8492ad; }
+:is(.hud-wx, .hud-world-section-forecast) .w-fog      { --wx: #b4a6d6; }
+:is(.hud-wx, .hud-world-section-forecast) .w-drizzle  { --wx: #a9cbf7; }
+:is(.hud-wx, .hud-world-section-forecast) .w-rain     { --wx: #5fa2f2; }
+:is(.hud-wx, .hud-world-section-forecast) .w-shower   { --wx: #4a68ee; }
+:is(.hud-wx, .hud-world-section-forecast) .w-storm    { --wx: #b38cf8; }
+:is(.hud-wx, .hud-world-section-forecast) .w-snow     { --wx: #e4f3ff; }
+:is(.hud-wx, .hud-world-section-forecast) .w-wind     { --wx: #7fe0c4; }
+.hud-wx .is-night.w-clear { --wx: #d9dcff; }
+.hud-forecast-icon[class*="w-"] { color: var(--wx); filter: drop-shadow(0 0 5px color-mix(in srgb, var(--wx) 40%, transparent)); }
+:is(.hud-forecast-icon, .hud-wx-now, .hud-wx-row-ico).w-partly :is(.ic-sun, .ic-rays) { stroke: var(--wx-sun); }
+:is(.hud-forecast-icon, .hud-wx-now, .hud-wx-row-ico).w-partly .ic-sun { fill: color-mix(in srgb, var(--wx-sun) 45%, transparent); }
+:is(.hud-forecast-icon, .hud-wx-now, .hud-wx-row-ico).w-overcast .ic-cloud:first-child { opacity: .6; }
+/* Светлые темы: почти белый снег на бумаге становился серым и сливался с
+   «облачно» — даём ему ледяной оттенок. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-wx, .hud-world-section-forecast) .w-snow { --wx: #5aa9cf; }

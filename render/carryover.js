@@ -14,22 +14,94 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.4.6';
-import { проставитьДень } from './msg-feed.js?v=23.4.6';
-import { normalizeJSONData } from '../schema.js?v=23.4.6';
-import { settings } from '../settings.js?v=23.4.6';
-import { статусРужья } from '../codes.js?v=23.4.6';
-import { extractHudBlock } from '../hud-block.js?v=23.4.6';
-import { namesLikelySame } from '../names.js?v=23.4.6';
-import { звонкиИзЧатов } from './phone-extra.js?v=23.4.6';
+import { parseHUDComplex } from '../hud-parser.js?v=23.7.5';
+import { проставитьДень } from './msg-feed.js?v=23.7.5';
+import { normalizeJSONData } from '../schema.js?v=23.7.5';
+import { settings } from '../settings.js?v=23.7.5';
+import { статусРужья } from '../codes.js?v=23.7.5';
+import { extractHudBlock } from '../hud-block.js?v=23.7.5';
+import { namesLikelySame } from '../names.js?v=23.7.5';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.7.5';
+import { readParsed, writeParsed } from '../store.js?v=23.7.5';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
 
 
-// Разобранные ходы. Ключ — длина и хэш всего текста: любая правка сообщения
-// даёт новый ключ, и кэш обновится сам.
-const кэш = new Map();
+// Кэш разборов по хэшу текста: самый давно не нужный уходит первым (LRU), а
+// запись, которую не спрашивали дольше времени жизни, считается ушедшей —
+// так не держим в памяти ходы чата, из которого давно вышли. Раньше кэш на
+// двухсотом ходе очищался целиком, и следующая отрисовка разбирала все
+// двадцать прошлых ходов заново.
+export class КэшРазборов {
+  constructor(предел, жизньМс) { this.предел = предел; this.жизнь = жизньМс; this.записи = new Map(); }
+  // undefined — промах; null — закэшированное «здесь HUD нет».
+  взять(k, сейчас = Date.now()) {
+    const з = this.записи.get(k);
+    if (!з) return undefined;
+    this.записи.delete(k);
+    if (сейчас - з.t > this.жизнь) return undefined;
+    з.t = сейчас;
+    this.записи.set(k, з);
+    return з.v;
+  }
+  положить(k, v, сейчас = Date.now()) {
+    this.записи.delete(k);
+    this.записи.set(k, { v, t: сейчас });
+    while (this.записи.size > this.предел) this.записи.delete(this.записи.keys().next().value);
+    // Изредка вычищаем просроченное целиком, а не только при обращении.
+    if (Math.random() < 0.02) for (const [ключ, з] of this.записи) if (сейчас - з.t > this.жизнь) this.записи.delete(ключ);
+  }
+  get size() { return this.записи.size; }
+  очистить() { this.записи.clear(); }
+}
+const ЖИЗНЬ_КЭША = 20 * 60 * 1000;
+
+// Разобранные ходы. Ключ — отпечаток настроек, длина и хэш всего текста:
+// любая правка сообщения даёт новый ключ, и кэш обновится сам. Отпечаток
+// нужен потому, что разбор зависит от включённых разделов и прозвищ, а
+// разобранное теперь переживает перезагрузку (IndexedDB, store.js).
+const кэш = new КэшРазборов(400, ЖИЗНЬ_КЭША);
+const ВЕРСИЯ_РАЗБОРА = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
+
+function хэшСтроки(s) {
+  let хэш = 0;
+  for (let i = 0; i < s.length; i++) хэш = ((хэш << 5) - хэш + s.charCodeAt(i)) | 0;
+  return хэш;
+}
+
+// Настройки, от которых зависит разбор (schema.js, names.js). Их же получает
+// фоновый поток. Из подмен аватарок — только прозвища: картинки там бывают
+// мегабайтными строками.
+function настройкиРазбора() {
+  return {
+    enableUserBlock: settings.enableUserBlock, enableMemory: settings.enableMemory, enablePhone: settings.enablePhone,
+    enableIntercepts: settings.enableIntercepts, enableDiary: settings.enableDiary, enableDreams: settings.enableDreams,
+    enableWorld: settings.enableWorld, avatarCharNames: settings.avatarCharNames, avatarUserNames: settings.avatarUserNames,
+    avatarOverrides: (Array.isArray(settings.avatarOverrides) ? settings.avatarOverrides : []).map(з => ({ names: з && з.names })),
+  };
+}
+function именаТаверны() {
+  try {
+    const ctx = window.SillyTavern && window.SillyTavern.getContext && window.SillyTavern.getContext();
+    return { user: (ctx && ctx.name1) || '', char: (ctx && ctx.name2) || '' };
+  } catch (_) { return { user: '', char: '' }; }
+}
+function отпечаток() {
+  const и = именаТаверны();
+  return (хэшСтроки(ВЕРСИЯ_РАЗБОРА + JSON.stringify(настройкиРазбора()) + и.user + '|' + и.char) >>> 0).toString(36);
+}
+const ключХода = (raw, fp) => fp + ':' + raw.length + ':' + хэшСтроки(raw);
+
+// Разобранное в главном потоке тоже уходит в базу — пачкой, когда отрисовка
+// закончилась.
+const вБазу = [];
+let таймерБазы = 0;
+function запомнитьВБазе(k, d) {
+  if (typeof indexedDB === 'undefined') return;
+  вБазу.push([k, d]);
+  if (!таймерБазы) таймерБазы = setTimeout(() => { таймерБазы = 0; writeParsed(вБазу.splice(0)); }, 2000);
+}
 
 function разобратьХод(mes) {
   const raw = текст(mes && mes.mes);
@@ -37,20 +109,105 @@ function разобратьХод(mes) {
   // Ключ — хэш всего текста: хвост в шестьдесят знаков совпадал у правок,
   // сделанных в середине блока без изменения длины, и кэш отдавал старый
   // разбор.
-  let хэш = 0;
-  for (let i = 0; i < raw.length; i++) хэш = ((хэш << 5) - хэш + raw.charCodeAt(i)) | 0;
-  const k = raw.length + ':' + хэш;
-  if (кэш.has(k)) return кэш.get(k);
+  const k = ключХода(raw, отпечаток());
+  const было = кэш.взять(k);
+  if (было !== undefined) return было;
   let результат = null;
   // Блок вне рассуждений модели: упоминание в <plan> не ход.
   const блок = extractHudBlock(raw);
   if (блок) {
     try { результат = normalizeJSONData(parseHUDComplex(блок)); } catch (_) { результат = null; }
   }
-  // Кэш не должен расти бесконечно: держим последние двести ходов.
-  if (кэш.size > 200) кэш.clear();
-  кэш.set(k, результат);
+  кэш.положить(k, результат);
+  if (результат) запомнитьВБазе(k, результат);
   return результат;
+}
+
+// --- Фоновый прогрев истории --------------------------------------------------
+// При открытии чата прошлые ходы разбираем заранее: сперва берём сохранённое
+// в IndexedDB, недостающее отдаём в отдельный поток (parse-worker.js). Когда
+// карточке понадобится история, она найдёт всё в кэше, а не будет разбирать
+// двадцать ходов посреди отрисовки. Потока нет (старый браузер, запрет) —
+// ничего страшного: разбор в главном потоке работает как раньше.
+
+let поток = null, потокСломан = false, номерЗадания = 0;
+const ждут = new Map();
+
+function взятьПоток() {
+  if (поток || потокСломан) return поток;
+  try {
+    поток = new Worker(new URL('../parse-worker.js' + ВЕРСИЯ_РАЗБОРА, import.meta.url), { type: 'module' });
+    поток.onmessage = (e) => {
+      const ответ = e.data || {};
+      const ждёт = ждут.get(ответ.id);
+      if (ждёт) { ждут.delete(ответ.id); ждёт(ответ); }
+    };
+    поток.onerror = (e) => {
+      console.debug('[TavernOS HUD] фоновый разбор недоступен:', e && e.message);
+      потокСломан = true;
+      try { поток.terminate(); } catch (_) {}
+      поток = null;
+      ждут.forEach(ждёт => ждёт({ ошибка: 'поток' }));
+      ждут.clear();
+    };
+  } catch (_) { потокСломан = true; поток = null; }
+  return поток;
+}
+
+function разобратьВПотоке(тексты) {
+  const п = взятьПоток();
+  if (!п) return Promise.resolve(null);
+  const id = ++номерЗадания;
+  return new Promise((готово) => {
+    ждут.set(id, готово);
+    setTimeout(() => { if (ждут.delete(id)) готово({ ошибка: 'тишина' }); }, 20000);
+    п.postMessage({ id, настройки: настройкиРазбора(), имена: именаТаверны(), тексты });
+  });
+}
+
+const ПРОГРЕВ_ХОДОВ = 400;
+const ПАЧКА_ПОТОКА = 25;
+let очередьПрогрева = Promise.resolve();
+
+/** Разобрать прошлые ходы чата заранее. Возвращает, сколько ходов добавлено в кэш. */
+export function прогретьИсторию(chat) {
+  очередьПрогрева = очередьПрогрева.then(() => прогреть(chat)).catch((e) => { console.debug('[TavernOS HUD] прогрев истории:', e); return 0; });
+  return очередьПрогрева;
+}
+
+async function прогреть(chat) {
+  if (!Array.isArray(chat) || !chat.length || settings.carryOver === false) return 0;
+  const fp = отпечаток();
+  const кандидаты = [];
+  const было = new Set();
+  for (const mes of chat.slice(-ПРОГРЕВ_ХОДОВ)) {
+    const raw = текст(mes && mes.mes);
+    // Без «HUD» в тексте блока нет — такие ходы разбираются мгновенно и так.
+    if (!raw || !/hud/i.test(raw)) continue;
+    const k = ключХода(raw, fp);
+    if (было.has(k) || кэш.взять(k) !== undefined) continue;
+    было.add(k);
+    кандидаты.push([k, raw]);
+  }
+  if (!кандидаты.length) return 0;
+
+  const изБазы = await readParsed(кандидаты.map(([k]) => k));
+  изБазы.forEach((d, k) => кэш.положить(k, d));
+  let добавлено = изБазы.size;
+
+  const остались = кандидаты.filter(([k]) => !изБазы.has(k));
+  for (let i = 0; i < остались.length; i += ПАЧКА_ПОТОКА) {
+    const пачка = остались.slice(i, i + ПАЧКА_ПОТОКА);
+    // Пока ждали, отрисовка могла разобрать часть сама.
+    const нужно = пачка.filter(([k]) => кэш.взять(k) === undefined);
+    if (!нужно.length) continue;
+    const ответ = await разобратьВПотоке(нужно);
+    if (!ответ || ответ.ошибка || !Array.isArray(ответ.ответ)) break;
+    ответ.ответ.forEach(([k, d]) => { if (кэш.взять(k) === undefined) кэш.положить(k, d); });
+    writeParsed(ответ.ответ.filter(([, d]) => d));
+    добавлено += ответ.ответ.length;
+  }
+  return добавлено;
 }
 
 // --- Склейка списков ---------------------------------------------------------
@@ -239,6 +396,8 @@ function наложить(накоплено, ход, предел, предел
   // последние N сообщений, и старые звонки из неё уходят, — журнал хранит
   // их отдельно. Первое появление главнее: оно знает день точнее.
   out.phone.callLog = склеитьЗвонки(out.phone.callLog, звонкиИзЧатов(чаты), Math.max(предел, 100));
+  // Часы: сон, шаги и пульс каждого хода — из них «Здоровье» рисует день и неделю.
+  out.phone.healthLog = склеитьЗдоровье(out.phone.healthLog, записьЗдоровья(ход));
 
   // Средневековье: письма опознаём по отправителю, адресату и началу текста;
   // свежий ход обновляет статус (было запечатано — стало прочитано).
@@ -284,7 +443,7 @@ export function mergeCarryOver(data, messageElement) {
   const накоплено = {
     chatsMap: {}, intercepts: [],
     memory: { timeline: [], important: [], secrets: [], guns: [] },
-    phone: { contacts: [], notes: [], gallery: [], maps: [], calendar: [], search: [], callLog: [] },
+    phone: { contacts: [], notes: [], gallery: [], maps: [], calendar: [], search: [], callLog: [], healthLog: [] },
     letters: [], overheard: [],
     satchel: { notes: [], maps: [], calendar: [], documents: [], keepsakes: [] },
   };
@@ -313,7 +472,7 @@ export function mergeCarryOver(data, messageElement) {
     if (накоплено.memory[поле].length) итог.memory[поле] = накоплено.memory[поле];
   }
   итог.phone = { ...(data.phone || {}) };
-  for (const поле of ['contacts', 'notes', 'gallery', 'maps', 'calendar', 'search', 'callLog']) {
+  for (const поле of ['contacts', 'notes', 'gallery', 'maps', 'calendar', 'search', 'callLog', 'healthLog']) {
     if (накоплено.phone[поле].length) итог.phone[поле] = накоплено.phone[поле];
   }
   if (накоплено.letters.length) итог.letters = накоплено.letters;
@@ -339,7 +498,7 @@ const УСТОЙЧИВЫЕ = ['Кинк', 'Фетиш', 'Никогда не с�
 const ЕСТЬ_ЧЕРТЫ = /"(?:Kn|Ft|NG|NT|SxL|SxC|SxR|Kink|Fet|NoGo|NoTurn|SexLast|SexCount|SexReg)"|Кинк|Фетиш|Никогда не сделает|Не возбуждает|Последний секс|Количество партнеров|Регулярность секса/;
 const ГЛУБИНА_ЧЕРТ = 300;
 const пустоЗначение = (v) => { const s = текст(Array.isArray(v) ? v.join('; ') : v); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
-const чертыПоХэшу = new Map();
+const чертыПоХэшу = new КэшРазборов(3000, ЖИЗНЬ_КЭША);
 
 function чертыХода(mes) {
   const raw = текст(mes && mes.mes);
@@ -347,7 +506,8 @@ function чертыХода(mes) {
   let хэш = 0;
   for (let i = 0; i < raw.length; i++) хэш = ((хэш << 5) - хэш + raw.charCodeAt(i)) | 0;
   const k = raw.length + ':' + хэш;
-  if (чертыПоХэшу.has(k)) return чертыПоХэшу.get(k);
+  const было = чертыПоХэшу.взять(k);
+  if (было !== undefined) return было;
   let out = null;
   const блок = extractHudBlock(raw);
   if (блок) {
@@ -361,8 +521,7 @@ function чертыХода(mes) {
     } catch (_) { out = null; }
   }
   // Храним только черты — это строки, память не растёт заметно.
-  if (чертыПоХэшу.size > 3000) чертыПоХэшу.clear();
-  чертыПоХэшу.set(k, out);
+  чертыПоХэшу.положить(k, out);
   return out;
 }
 

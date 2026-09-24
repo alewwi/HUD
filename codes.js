@@ -39,7 +39,7 @@ const ЗНАЮЩИЙ = { n: 'name', src: 'source', sr: 'source' };
 const ПЕРЕПИСКА = { ow: 'owner', pp: 'participants', ms: 'messages', ppl: 'participants' };
 const ПЕРЕХВАТ = { tg: 'target', cn: 'chatName', pp: 'participants', ms: 'messages', ppl: 'participants', chat: 'chatName' };
 const ТЕЛЕФОН = {
-  ow: 'owner', ct: 'contacts', gl: 'gallery', nb: 'notes', mp: 'maps', sq: 'search', wl: 'wallet', cl: 'calendar',
+  ow: 'owner', ct: 'contacts', gl: 'gallery', nb: 'notes', mp: 'maps', sq: 'search', wl: 'wallet', cl: 'calendar', hl: 'health',
   pics: 'gallery', cal: 'calendar',
 };
 const ПОЛЯ_ТЕЛЕФОНА = {
@@ -57,6 +57,7 @@ const ПОЛЯ_ШКАТУЛКИ = {
 };
 const ПИСЬМО = { fr: 'from', to: 'to', tm: 'time', st: 'status', sl: 'seal', via: 'via', tx: 'text' };
 const ПОДСЛУШАННОЕ = { kd: 'kind', wh: 'where', how: 'how', tm: 'time', fr: 'from', to: 'to', sl: 'seal', ms: 'lines' };
+const ЗДОРОВЬЕ_ТЕЛ = { sl: 'sleep', st: 'steps', hr: 'pulse' };
 const КОШЕЛЁК = { bl: 'balance', cu: 'currency', trx: 'transactions', tx: 'transactions', bal: 'balance', cur: 'currency' };
 const ПЛАТЁЖ = { ti: 'title', am: 'amount', tm: 'time', nte: 'note', nt: 'note' };
 const ЗАПИСЬ = { au: 'author', tm: 'time', tx: 'text', ab: 'aboutUser', md: 'mood', about: 'aboutUser' };
@@ -136,6 +137,7 @@ export function развернутьКоды(к) {
       переименовать(к.phone.wallet, КОШЕЛЁК);
       каждому(к.phone.wallet.transactions, ПЛАТЁЖ);
     }
+    if (объект(к.phone.health)) переименовать(к.phone.health, ЗДОРОВЬЕ_ТЕЛ);
   }
   if (объект(к.satchel)) {
     переименовать(к.satchel, ШКАТУЛКА);
@@ -168,7 +170,7 @@ const обратный = (словарь) => {
 const В_КОД = {
   корень: обратный(КОРЕНЬ), память: обратный(ПАМЯТЬ), двое: обратный(ДВОЕ), настроение: обратный(НАСТРОЕНИЕ),
   секрет: обратный(СЕКРЕТ), знающий: обратный(ЗНАЮЩИЙ), переписка: обратный(ПЕРЕПИСКА), перехват: обратный(ПЕРЕХВАТ),
-  телефон: обратный(ТЕЛЕФОН), кошелёк: обратный(КОШЕЛЁК), платёж: обратный(ПЛАТЁЖ), запись: обратный(ЗАПИСЬ),
+  телефон: обратный(ТЕЛЕФОН), кошелёк: обратный(КОШЕЛЁК), здоровье: обратный(ЗДОРОВЬЕ_ТЕЛ), платёж: обратный(ПЛАТЁЖ), запись: обратный(ЗАПИСЬ),
   сон: обратный(СОН), мир: обратный(МИР), спутник: обратный(СПУТНИК),
   шкатулка: обратный(ШКАТУЛКА), письмо: обратный(ПИСЬМО), подслушанное: обратный(ПОДСЛУШАННОЕ),
   поляШкатулки: Object.fromEntries(Object.entries(ПОЛЯ_ШКАТУЛКИ).map(([раздел, с]) => [раздел, обратный(с)])),
@@ -201,6 +203,7 @@ export function свернутьКоды(к) {
       каждому(к.phone.wallet.transactions, В_КОД.платёж);
       переименовать(к.phone.wallet, В_КОД.кошелёк);
     }
+    if (объект(к.phone.health)) переименовать(к.phone.health, В_КОД.здоровье);
     переименовать(к.phone, В_КОД.телефон);
   }
   if (объект(к.satchel)) {

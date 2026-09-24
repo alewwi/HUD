@@ -14,7 +14,9 @@
 
 const БАЗА = 'tavernos-hud';
 const ХРАНИЛИЩЕ = 'archive';
-const ВЕРСИЯ = 1;
+// Разобранные ходы чата — кэш для истории карточек (render/carryover.js).
+const РАЗОБРАННЫЕ = 'parsed';
+const ВЕРСИЯ = 2;
 const ПРЕФИКС = 'hud_archive_';
 
 /* --- Сжатие ---------------------------------------------------------------
@@ -85,10 +87,19 @@ function открыть() {
     запрос.onupgradeneeded = () => {
       const db = запрос.result;
       if (!db.objectStoreNames.contains(ХРАНИЛИЩЕ)) db.createObjectStore(ХРАНИЛИЩЕ);
+      if (!db.objectStoreNames.contains(РАЗОБРАННЫЕ)) db.createObjectStore(РАЗОБРАННЫЕ);
     };
-    запрос.onsuccess = () => готово(запрос.result);
+    запрос.onsuccess = () => {
+      // Другая вкладка обновляет базу — уступаем, иначе она будет ждать нас.
+      запрос.result.onversionchange = () => { try { запрос.result.close(); } catch (_) {} открытие = null; };
+      готово(запрос.result);
+    };
     запрос.onerror = () => беда(запрос.error || new Error('IndexedDB не открылась'));
     запрос.onblocked = () => беда(new Error('IndexedDB заблокирована другой вкладкой'));
+    // Бывает, что база не отвечает вовсе — ни успеха, ни ошибки (встроенные
+    // браузеры, приватный режим). Тогда «Анализировать» в архиве ждало бы
+    // вечно. Через четыре секунды молчания работаем без неё.
+    setTimeout(() => беда(new Error('IndexedDB не ответила за 4 с')), 4000);
   }).catch((err) => {
     console.debug('[TavernOS HUD] IndexedDB недоступна, остаёмся на localStorage:', err && err.message);
     return null;
@@ -96,10 +107,10 @@ function открыть() {
   return открытие;
 }
 
-function сделка(режим) {
+function сделка(режим, имя = ХРАНИЛИЩЕ) {
   return открыть().then((db) => {
-    if (!db) return null;
-    return db.transaction(ХРАНИЛИЩЕ, режим).objectStore(ХРАНИЛИЩЕ);
+    if (!db || !db.objectStoreNames.contains(имя)) return null;
+    return db.transaction(имя, режим).objectStore(имя);
   });
 }
 
@@ -208,4 +219,43 @@ export async function usage() {
     байт += (localStorage.getItem(k) || '').length * 2;
   }
   return { записей, байт };
+}
+
+/* --- Разобранные ходы ------------------------------------------------------
+   Ключ — отпечаток настроек и версии плюс хэш текста сообщения: любая правка
+   текста, смена версии или включённых разделов дают новый ключ. Храним сам
+   объект (structured clone), без сжатия: читается быстро, а объём держим
+   пределом записей. Нет базы — молча ничего не делаем, разбор в памяти
+   работает и так. */
+
+const ПРЕДЕЛ_РАЗОБРАННЫХ = 1500;
+
+/** Достать разобранные ходы по ключам. Map: ключ → данные (null тоже ответ). */
+export async function readParsed(ключи) {
+  const out = new Map();
+  try {
+    const хранилище = await сделка('readonly', РАЗОБРАННЫЕ);
+    if (!хранилище || !ключи || !ключи.length) return out;
+    await Promise.all(ключи.map(k => обещание(хранилище.get(k)).then(з => { if (з !== undefined) out.set(k, з.d); }, () => {})));
+  } catch (err) {
+    console.debug('[TavernOS HUD] чтение разобранных ходов не удалось:', err && err.message);
+  }
+  return out;
+}
+
+/** Положить пачку [ключ, данные]. За пределом база очищается целиком — это кэш. */
+export async function writeParsed(пары) {
+  if (!пары || !пары.length) return false;
+  try {
+    const хранилище = await сделка('readwrite', РАЗОБРАННЫЕ);
+    if (!хранилище) return false;
+    const всего = await обещание(хранилище.count());
+    if (всего + пары.length > ПРЕДЕЛ_РАЗОБРАННЫХ) await обещание(хранилище.clear());
+    const t = Date.now();
+    await Promise.all(пары.map(([k, d]) => обещание(хранилище.put({ d, t }, k))));
+    return true;
+  } catch (err) {
+    console.debug('[TavernOS HUD] запись разобранных ходов не удалась:', err && err.message);
+    return false;
+  }
 }

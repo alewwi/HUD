@@ -7,11 +7,11 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe } from '../utils.js?v=23.4.6';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.4.6';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.4.6';
-import { buildFamilyTree } from './family-tree.js?v=23.4.6';
-import { settings } from '../settings.js?v=23.4.6';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe } from '../utils.js?v=23.7.5';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.7.5';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.7.5';
+import { buildFamilyTree } from './family-tree.js?v=23.7.5';
+import { settings } from '../settings.js?v=23.7.5';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -399,7 +399,9 @@ export function buildRelGraphHTML(hudData, uid) {
     }
     const short = node.name.length > 18 ? node.name.slice(0, 17) + '…' : node.name;
     const roleClass = relNodeRoleClass(node);
-    const roleText = node.isUser ? 'YOU' : node.isPrimary ? '{{char}}' : 'NPC';
+    // Подпись роли над узлом. Была английской, а у главного персонажа —
+    // сырой макрос «{{char}}» прямо на экране.
+    const roleText = node.isUser ? 'ТЫ' : node.isPrimary ? 'ГЕРОЙ' : 'НПС';
     svg += `<g class="hud-rel-node ${roleClass}" data-node-id="${escapeHtml(node.id)}" data-node-name="${escapeHtml(node.name)}">`;
     svg += `<circle class="hud-rel-node-halo" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r + 7}"/>`;
     svg += `<circle class="hud-rel-node-bg" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}" style="fill:${color}"/>`;

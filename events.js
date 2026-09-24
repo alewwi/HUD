@@ -11,12 +11,14 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.4.6';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.4.6';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.4.6';
-import { getTheme, themeVars, presetRowHTML, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.4.6';
-import { settings, defaultSettings } from './settings.js?v=23.4.6';
-import { getWorldVotes } from './render/world.js?v=23.4.6';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.7.5';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.7.5';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.7.5';
+import { getTheme, themeVars, presetRowHTML, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.7.5';
+import { settings, defaultSettings } from './settings.js?v=23.7.5';
+import { getWorldVotes } from './render/world.js?v=23.7.5';
+import { раскрытьПорцию } from './render/long-list.js?v=23.7.5';
+import { прогретьИсторию } from './render/carryover.js?v=23.7.5';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -932,7 +934,7 @@ export function initGlobalEvents(ctx) {
       return;
     }
 
-    const fxHost = e.target.closest('.hud-ad-card, .hud-breaking-news, .hud-dream-moon, .hud-route-map, .hud-phone-mockup.intercept-mode, .hud-diary-entry, .hud-world-section-forecast, .hud-world-section-horo');
+    const fxHost = e.target.closest('.hud-ad-card, .hud-breaking-news, .hud-dream-moon, .hud-route-map, .hud-phone-mockup.intercept-mode, .hud-diary-entry, .hud-world-section-forecast, .hud-world-section-horo, .hud-wx-now, .hud-wx-fc');
     if (fxHost) {
       fxHost.classList.toggle('fx-active');
       return;
@@ -1304,6 +1306,14 @@ export function initObserver(ctx, chatContainer) {
         if (mutation.target.matches?.('.avatar img, .avatar_img') && !mutation.target.closest?.('.hud-os-card')) аватаркаЗаменена();
         continue;
       }
+      // Правки внутри самой карточки — работа HUD: ленивая вкладка, рисунок,
+      // экран телефона, реакции. Разбирать из-за них сообщение незачем, а
+      // разбор начинается с innerHTML всего сообщения вместе с карточкой —
+      // сотни килобайт на каждый клик. Вставку карточки в текст (цель —
+      // .mes_text, не карточка) пропускаем дальше: на ней стоит сторож
+      // сломанных карточек.
+      const цель = mutation.target.nodeType === 1 ? mutation.target : mutation.target.parentElement;
+      if (цель && цель.closest?.('.hud-os-card, .hud-reaction-palette')) continue;
       // Изменился текст внутри сообщения.
       if (mutation.type === 'characterData') {
         const mes = mutation.target.parentElement?.closest?.('.mes');
@@ -1455,6 +1465,16 @@ try {
   if (eventTypes.CHARACTER_MESSAGE_RENDERED) {
     eventSource.on(eventTypes.CHARACTER_MESSAGE_RENDERED, (messageId) => rerenderMessage(messageId, 30));
   }
+
+  // Прошлые ходы нового чата разбираем в фоне (render/carryover.js): база,
+  // потом отдельный поток. Когда браузер свободен — не мешая печати ленты.
+  const прогрев = () => {
+    const пуск = () => { try { прогретьИсторию(window.SillyTavern?.getContext?.()?.chat); } catch (_) {} };
+    if (typeof window.requestIdleCallback === 'function') window.requestIdleCallback(пуск, { timeout: 1500 });
+    else setTimeout(пуск, 300);
+  };
+  if (eventTypes.CHAT_CHANGED) eventSource.on(eventTypes.CHAT_CHANGED, прогрев);
+  прогрев();
 } catch (_) {
   // Lifecycle events are optional; the normal message processing still works without them.
 }
@@ -1548,3 +1568,49 @@ document.addEventListener('pointerup', (e) => {
   if (e.pointerType && e.pointerType !== 'mouse') оживить(карточка, 'fx-live', 9000);
 }, { passive: true });
 
+
+// Карта тела: вид (оба, спереди, сзади, крупно), слои и ход истории. Карточку
+// не пересобираем — меняем viewBox рисунка и классы контейнера.
+document.addEventListener('click', (e) => {
+  const кнопка = e.target.closest('.hud-heat [data-heat-view], .hud-heat [data-heat-layer]');
+  if (!кнопка) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const карта = кнопка.closest('.hud-heat');
+  if (кнопка.dataset.heatView) {
+    const рисунок = карта.querySelector('.hud-heat-svg');
+    if (рисунок && кнопка.dataset.box) рисунок.setAttribute('viewBox', кнопка.dataset.box);
+    карта.dataset.view = кнопка.dataset.heatView;
+    карта.querySelectorAll('[data-heat-view]').forEach(b => {
+      const вкл = b === кнопка;
+      b.classList.toggle('is-on', вкл);
+      b.setAttribute('aria-pressed', String(вкл));
+    });
+    return;
+  }
+  const слой = кнопка.dataset.heatLayer;
+  const скрыт = карта.classList.toggle('hide-' + слой);
+  кнопка.classList.toggle('is-on', !скрыт);
+  кнопка.setAttribute('aria-pressed', String(!скрыт));
+}, true);
+
+document.addEventListener('input', (e) => {
+  const ползунок = e.target.closest && e.target.closest('.hud-heat [data-heat-time]');
+  if (!ползунок) return;
+  const карта = ползунок.closest('.hud-heat');
+  const кадр = String(ползунок.value);
+  карта.querySelectorAll('.z-frame').forEach(g => g.classList.toggle('is-now', g.dataset.frame === кадр));
+  let подписи = [];
+  try { подписи = JSON.parse(ползунок.dataset.labels || '[]'); } catch (_) {}
+  const подпись = карта.querySelector('.hud-heat-time-label');
+  if (подпись) подпись.textContent = подписи[+кадр] || '';
+});
+
+// Длинные списки памяти: «Показать ранние» достаёт одну порцию из <template>
+// (render/long-list.js). Раскрытым пунктам — те же пометки, что остальным.
+document.addEventListener('click', (e) => {
+  const кнопка = e.target.closest('.hud-longlist > .hud-more-btn');
+  if (!кнопка) return;
+  e.preventDefault(); e.stopPropagation();
+  раскрытьПорцию(кнопка).forEach(узел => refreshReactions(узел));
+}, true);

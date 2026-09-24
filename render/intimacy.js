@@ -13,12 +13,13 @@
 // карточки ненадёжны — у неё content-visibility, и браузер может не
 // двигать их время.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.4.6';
-import { namesLikelySame } from '../names.js?v=23.4.6';
-import { разобратьХод } from './carryover.js?v=23.4.6';
-import { parseSceneDate } from '../history-analyzer.js?v=23.4.6';
-import { исходЗачатия } from './conception.js?v=23.4.6';
-import { settings } from '../settings.js?v=23.4.6';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.7.5';
+import { namesLikelySame } from '../names.js?v=23.7.5';
+import { разобратьХод } from './carryover.js?v=23.7.5';
+import { parseSceneDate } from '../history-analyzer.js?v=23.7.5';
+import { исходЗачатия } from './conception.js?v=23.7.5';
+import { settings } from '../settings.js?v=23.7.5';
+import { ощущенияИзТекста, одеждаИзТекста, ОБЛАСТИ } from './body-layers.js?v=23.7.5';
 
 const пусто = (v) => { const s = String(v ?? '').trim(); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
 const число = (s) => { const m = String(s ?? '').replace(/(\d),(\d)/g, '$1.$2').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };
@@ -393,13 +394,44 @@ function разобратьЗону(кусок) {
   };
 }
 
-export function buildHeatMap(value, владелец) {
+// Карта тела: чувствительность, следы, внутренние ощущения и одежда слоями;
+// вид «оба / спереди / сзади / крупно»; история карты по прошлым ходам.
+// Слои, вид и ход переключают кнопки и ползунок (events.js) — классом на
+// .hud-heat и атрибутом viewBox у рисунка, без пересборки карточки.
+const ИСТОРИЯ_КАДРОВ = 6;
+const ВИДЫ_КАРТЫ = { both: '0 0 200 200', f: '3 0 96 200', b: '101 0 96 200' };
+
+export function зоныКарты(value) {
   const зоны = разбитьСписок(value).map(разобратьЗону).filter(з => з && з.имя);
-  if (!зоны.length) return '';
   const поId = new Map();
   зоны.forEach(з => { if (з.id && з.v !== null && (!поId.has(з.id) || поId.get(з.id).v < з.v)) поId.set(з.id, з); });
+  return { зоны, поId };
+}
+
+// Подпись кадра истории: «сейчас», «ход назад», «3 хода назад» и время сцены.
+function подписьКадра(назад, момент) {
+  const когда = назад === 0 ? 'сейчас' : назад === 1 ? 'ход назад' : назад + (назад < 5 ? ' хода' : ' ходов') + ' назад';
+  const время = момент && Number.isFinite(момент) ? new Date(момент).toISOString().slice(11, 16) : '';
+  return время ? когда + ' · ' + время : когда;
+}
+
+export function buildHeatMap(value, владелец) {
+  const { зоны, поId } = зоныКарты(value);
+  if (!зоны.length) return '';
   const следы = активныеСледы(поле(владелец, 'Следы на теле'), владелец).filter(с => с.зона);
+  const ощущения = ощущенияИзТекста(поле(владелец, 'Физиология'), поле(владелец, 'Тело'));
+  const одежда = одеждаИзТекста(поле(владелец, 'Одежда'));
   const id = новыйId('heat');
+
+  // Кадры истории: прошлые ходы этого персонажа с картой тела, от старого к
+  // новому, и последним — текущий ход.
+  const прошлые = история(владелец)
+    .map(х => ({ назад: х.назад, момент: х.момент, карта: зоныКарты(поле(х.данные, 'Карта тела')).поId }))
+    .filter(к => к.карта.size)
+    .slice(0, ИСТОРИЯ_КАДРОВ - 1)
+    .reverse();
+  const кадры = [...прошлые, { назад: 0, момент: typeof владелец?.__hudМомент === 'function' ? владелец.__hudМомент() : null, карта: поId }];
+  const сейчас = кадры.length - 1;
 
   const defs = `<defs>`
     + `<radialGradient id="${id}-hot"><stop class="s0" offset="0"/><stop class="s1" offset=".3"/><stop class="s2" offset=".68"/><stop class="s3" offset="1"/></radialGradient>`
@@ -407,15 +439,22 @@ export function buildHeatMap(value, владелец) {
     + `<pattern id="${id}-scan" width="4" height="3" patternUnits="userSpaceOnUse"><rect class="scan" width="4" height=".8"/></pattern>`
     + `<clipPath id="${id}-clip">${СИЛУЭТ}</clipPath></defs>`;
 
-  const сторона = (s) => {
-    let пятна = '';
-    for (const [зона, з] of поId) {
+  const пятнаКадра = (карта, s) => {
+    let out = '';
+    for (const [зона, з] of карта) {
       (ПЯТНА[зона] && ПЯТНА[зона][s] || []).forEach(([x, y, r]) => {
         const подсказка = `${з.имя}: ${Math.round(з.v)} из 10${з.трендТекст ? ' · ' + з.трендТекст : ''}${з.описание ? ' — ' + з.описание : ''}`;
         const радиус = r * (0.85 + 0.4 * з.v / 10);
-        пятна += `<circle class="z-heat${з.тренд ? ' is-' + з.тренд : ''}" cx="${x}" cy="${y}" r="${радиус.toFixed(1)}" fill="url(#${id}-hot)" style="opacity:${(0.32 + 0.68 * з.v / 10).toFixed(2)}"><title>${escapeHtml(подсказка)}</title></circle>`;
+        out += `<circle class="z-heat${з.тренд ? ' is-' + з.тренд : ''}" cx="${x}" cy="${y}" r="${радиус.toFixed(1)}" fill="url(#${id}-hot)" style="opacity:${(0.32 + 0.68 * з.v / 10).toFixed(2)}"><title>${escapeHtml(подсказка)}</title></circle>`;
       });
     }
+    return out;
+  };
+
+  const сторона = (s) => {
+    const кадрыСтороны = кадры.map((к, i) => `<g class="z-frame${i === сейчас ? ' is-now' : ''}" data-frame="${i}">${пятнаКадра(к.карта, s)}</g>`).join('');
+    const ткань = одежда.filter(в => в.состояние !== 'off' && ОБЛАСТИ[в.id])
+      .map(в => `<path class="z-cloth c-${в.id} is-${в.состояние}" d="${ОБЛАСТИ[в.id]}"><title>${escapeHtml(в.текст)}</title></path>`).join('');
     let метки_ = '';
     const занято = {};
     следы.forEach(с => {
@@ -428,25 +467,59 @@ export function buildHeatMap(value, владелец) {
       const x = x0 + n * 9;
       метки_ += `<g class="z-mark"><circle class="z-mark-halo" cx="${x}" cy="${y}" r="7.5"/><circle cx="${x}" cy="${y}" r="5.4"/><text x="${x}" y="${y + 0.5}">${с.значок}</text><title>${escapeHtml(с.что + (с.где ? ' — ' + с.где : ''))}</title></g>`;
     });
+    const органы = ощущения.filter(о => о.сторона === s).map(о => {
+      const точки = о.id === 'hands' ? [о.xy, [90 - о.xy[0], о.xy[1]]] : [о.xy];
+      return точки.map(([x, y]) => `<g class="z-organ o-${о.id}"><circle class="z-organ-ring" cx="${x}" cy="${y}" r="6.5"/><circle class="z-organ-core" cx="${x}" cy="${y}" r="2.6"/><title>${escapeHtml(о.имя + ': ' + о.куски.join('; '))}</title></g>`).join('');
+    }).join('');
     return `<g class="z-side-${s}" transform="translate(${СДВИГ[s]} 2)">`
       + `<g class="z-rim">${СИЛУЭТ}</g>`
       + `<g class="z-body" fill="url(#${id}-body)">${СИЛУЭТ}</g>`
       + `<g clip-path="url(#${id}-clip)"><rect width="90" height="190" fill="url(#${id}-scan)"/>`
-      + `<g class="z-detail">${ДЕТАЛИ[s].map(d => `<path d="${d}"/>`).join('')}</g>${пятна}</g>`
-      + метки_ + `</g>`;
+      + `<g class="z-detail">${ДЕТАЛИ[s].map(d => `<path d="${d}"/>`).join('')}</g>`
+      + `<g class="z-cloth-layer">${ткань}</g><g class="z-heat-layer">${кадрыСтороны}</g></g>`
+      + `<g class="z-organ-layer">${органы}</g><g class="z-mark-layer">${метки_}</g></g>`;
   };
 
-  const svg = `<svg class="hud-heat-svg" viewBox="0 0 200 200" role="img" aria-label="Карта чувствительности тела спереди и сзади">`
+  // «Крупно» — вокруг самой горячей зоны текущего хода.
+  const горячая = [...поId.entries()].sort((a, b) => b[1].v - a[1].v)[0];
+  let крупно = '';
+  if (горячая) {
+    const [зона] = горячая;
+    const s = ПЯТНА[зона] && ПЯТНА[зона].f ? 'f' : 'b';
+    const [x, y] = (ПЯТНА[зона] && ПЯТНА[зона][s] || [[45, 95]])[0];
+    const cx = x + СДВИГ[s], cy = y + 2;
+    const x0 = Math.max(0, Math.min(200 - 70, cx - 35)), y0 = Math.max(0, Math.min(200 - 70, cy - 35));
+    крупно = `${x0.toFixed(1)} ${y0.toFixed(1)} 70 70`;
+  }
+
+  const svg = `<svg class="hud-heat-svg" viewBox="${ВИДЫ_КАРТЫ.both}" role="img" aria-label="Карта чувствительности тела спереди и сзади">`
     + defs + сторона('f') + сторона('b')
     + `<text class="z-side" x="51" y="199">спереди</text><text class="z-side" x="149" y="199">сзади</text></svg>`;
+
+  const вид = (ключ, подпись, область) => `<button type="button" class="hud-heat-btn${ключ === 'both' ? ' is-on' : ''}" data-heat-view="${ключ}" data-box="${область}" aria-pressed="${ключ === 'both'}">${подпись}</button>`;
+  const слой = (ключ, подпись, вкл) => `<button type="button" class="hud-heat-btn is-layer${вкл ? ' is-on' : ''}" data-heat-layer="${ключ}" aria-pressed="${вкл}">${подпись}</button>`;
+  const панель = `<div class="hud-heat-controls">`
+    + `<div class="hud-heat-views" role="group" aria-label="Вид">${вид('both', 'Оба', ВИДЫ_КАРТЫ.both)}${вид('f', 'Спереди', ВИДЫ_КАРТЫ.f)}${вид('b', 'Сзади', ВИДЫ_КАРТЫ.b)}${крупно ? вид('close', 'Крупно', крупно) : ''}</div>`
+    + `<div class="hud-heat-layers" role="group" aria-label="Слои">${слой('heat', '🔥 Чувствительность', true)}`
+    + (следы.length ? слой('marks', '💋 Следы', true) : '')
+    + (ощущения.length ? слой('organs', '💓 Ощущения', true) : '')
+    + (одежда.length ? слой('cloth', '👗 Одежда', false) : '') + `</div></div>`;
+
+  const время = кадры.length > 1
+    ? `<div class="hud-heat-time"><span>как менялась</span><input type="range" min="0" max="${сейчас}" step="1" value="${сейчас}" data-heat-time aria-label="Ход"`
+      + ` data-labels="${escapeHtml(JSON.stringify(кадры.map(к => подписьКадра(к.назад, к.момент))))}"><b class="hud-heat-time-label">${escapeHtml(подписьКадра(0, кадры[сейчас].момент))}</b></div>`
+    : '';
 
   const описаниеЗоны = (з) => (з.описание ? `<span class="hud-heat-desc">${applyTooltips(з.описание)}</span>` : '');
   const строки = зоны.slice().sort((a, b) => (b.v ?? -1) - (a.v ?? -1)).map(з => з.v === null
     ? `<div class="hud-heat-row"><i class="hud-heat-dot" style="--v:0" aria-hidden="true"></i><b>${escapeHtml(з.имя)}</b>${описаниеЗоны(з)}</div>`
     : `<div class="hud-heat-row${з.тренд ? ' is-' + з.тренд : ''}"><i class="hud-heat-dot" style="--v:${(з.v / 10).toFixed(2)}" aria-hidden="true"></i><b>${escapeHtml(з.имя)}</b><i class="hud-heat-bar"><i style="width:${з.v * 10}%"></i></i><em>${Math.round(з.v)}</em><small class="hud-heat-trend">${escapeHtml(з.трендТекст)}</small>${описаниеЗоны(з)}</div>`
   ).join('');
+  const СОСТОЯНИЕ = { on: 'надето', half: 'частично', off: 'снято' };
+  const доп = (ощущения.length ? `<div class="hud-heat-organs">${ощущения.map(о => `<div class="hud-heat-organ o-${о.id}"><i aria-hidden="true">${о.значок}</i><b>${escapeHtml(о.имя)}</b><span>${applyTooltips(о.куски.join('; '))}</span></div>`).join('')}</div>` : '')
+    + (одежда.length ? `<div class="hud-heat-clothes">${одежда.map(в => `<div class="hud-heat-cloth is-${в.состояние}"><b>${escapeHtml(в.имя)}</b><small>${СОСТОЯНИЕ[в.состояние]}</small><span>${applyTooltips(в.текст)}</span></div>`).join('')}</div>` : '');
 
-  return `<div class="hud-heat"><div class="hud-heat-figure">${svg}<div class="hud-heat-scale" aria-hidden="true"><span>0</span><i></i><span>10</span></div></div><div class="hud-heat-list">${строки}</div></div>`;
+  return `<div class="hud-heat${одежда.length ? ' hide-cloth' : ''}">${панель}<div class="hud-heat-figure">${svg}<div class="hud-heat-scale" aria-hidden="true"><span>0</span><i></i><span>10</span></div>${время}</div><div class="hud-heat-list">${строки}${доп}</div></div>`;
 }
 
 /* --- Следы на теле --------------------------------------------------------
@@ -953,6 +1026,43 @@ function видЦветок(В) {
 }
 
 const ВИДЫ = { ring: видКольцо, strip: видПолоса, calendar: видКалендарь, moon: видЛуна, hormones: видГормоны, capsule: видКапсула, flower: видЦветок };
+
+// Цикл «сейчас» одним объектом: длина, день, фаза, окно овуляции, ПМС,
+// задержка. Та же логика, что у блока цикла, — для плашек сцены и шанса
+// зачатия в карточке партнёра.
+export function циклСейчас(value) {
+  if (пусто(value)) return null;
+  const п = метки(value);
+  const L = ограничить(Math.round(число(п['длина цикла'])) || 28, 21, 45);
+  const деньЧисло = Math.round(число(п['день цикла']));
+  const день = Number.isFinite(деньЧисло) && деньЧисло > 0 ? деньЧисло : null;
+  let фаза = Object.keys(ФАЗЫ_ЦИКЛА).find(k => ФАЗЫ_ЦИКЛА[k].rx.test(п['фаза'] || ''));
+  const ov = фаза === 'ovulation' && день && день <= L && Math.abs(день - (L - 14)) > 1 ? ограничить(день, 8, L - 2) : L - 14;
+  if (!фаза && день) {
+    const d = Math.min(день, L);
+    фаза = d <= 5 ? 'menstrual' : d <= ov - 2 ? 'follicular' : d <= ov + 1 ? 'ovulation' : 'luteal';
+  }
+  const задержка = Math.max(0, Math.round(число(п['задержка'])) || 0, день && день > L ? день - L : 0);
+  const опоздание = задержка > 0 || /late|задерж/i.test(п['фаза'] || '');
+  if (!фаза && !опоздание) return null;
+  return { L, день, фаза, ov, опоздание, пмс: фаза === 'luteal' && !!день && день >= L - 6 && !опоздание };
+}
+
+// Как фаза меняет сцену: либидо, чувствительность, настроение. Коротко —
+// это плашки над карточкой во время близости, а не справочник.
+const МОДИФИКАТОРЫ = {
+  menstrual: [['💧', 'месячные: тело чувствительнее, возможны спазмы и усталость']],
+  follicular: [['🌱', 'фолликулярная фаза: энергия растёт, влечение выше обычного']],
+  ovulation: [['🔥', 'овуляция: либидо на пике, кожа и голос ярче'], ['🌼', 'самый высокий шанс забеременеть']],
+  luteal: [['🌙', 'лютеиновая фаза: влечение спадает, грудь чувствительнее']],
+};
+export function модификаторыФазы(ц) {
+  if (!ц) return [];
+  if (ц.опоздание) return [['⏳', 'задержка: тревога — стоит сделать тест']];
+  const out = [...(МОДИФИКАТОРЫ[ц.фаза] || [])];
+  if (ц.пмс) out.push(['☁', 'ПМС: раздражительность, тяга к сладкому, грудь ноет']);
+  return out;
+}
 
 export function buildCycle(value, контекст = {}) {
   const п = метки(value);

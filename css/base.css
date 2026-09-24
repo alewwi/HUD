@@ -1535,23 +1535,7 @@
     background-repeat: no-repeat;
     transform: translateX(-50%) rotate(-2deg);
 }
-.hud-bg-nest {
-    position: absolute; left: 42%; top: 24%; width: 24px; height: 12px;
-    border-radius: 0 0 50% 50% / 0 0 70% 70%;
-    background: repeating-linear-gradient(100deg, #7a5a34 0 2px, #5c4526 2px 4px);
-    box-shadow: 0 2px 3px rgba(0,0,0,0.2);
-    transform: translateX(-50%);
-    z-index: 4;
-}
-.hud-bg-chick {
-    position: absolute; bottom: 5px; width: 7px; height: 7px; border-radius: 50%;
-    background: radial-gradient(circle at 35% 30%, #fff3c0, #f2c94c 75%);
-    animation: hud-chick-cheep 2.4s ease-in-out infinite;
-}
-.hud-bg-chick::after { content: ''; position: absolute; top: -2px; left: 2px; width: 0; height: 0; border-left: 2px solid transparent; border-right: 2px solid transparent; border-bottom: 3px solid #e8892c; }
-.hud-bg-chick.c1 { left: 4px; animation-delay: 0s; }
-.hud-bg-chick.c2 { left: 13px; animation-delay: 0.5s; }
-@keyframes hud-chick-cheep { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+
 .hud-butterfly {
     position: absolute; top: 40%; left: 10%; width: 12px; height: 10px;
     animation: hud-butterfly-zigzag 9s ease-in-out infinite;
@@ -4100,14 +4084,7 @@
     color: #fff; display: flex; align-items: center; justify-content: center;
     font-size: 0.8em; cursor: pointer; padding-left: 2px;
 }
-.hud-voice-line {
-    flex: 1; height: 4px; background: rgba(255, 255, 255, 0.2); border-radius: 2px;
-    position: relative; overflow: hidden;
-}
-.hud-voice-line::after {
-    content: ''; position: absolute; left: 0; top: 0; height: 100%; width: 35%;
-    background: var(--hud-accent); border-radius: 2px;
-}
+
 .hud-voice-time { font-size: 0.85em; opacity: 0.8; font-family: monospace; }
 .hud-voice-details { margin-top: 2px; }
 .hud-voice-details summary {
@@ -4254,14 +4231,9 @@
 
 .hud-phone-section { margin-bottom:14px; }
 .hud-phone-section h4 { margin:4px 0 8px; font-size:11px; text-transform:uppercase; letter-spacing:.08em; opacity:.55; }
-.hud-phone-contact,
-.hud-phone-map-row,
-.hud-phone-search-row { display:flex; gap:9px; align-items:center; padding:9px; margin-bottom:6px; border:1px solid rgba(255,255,255,.08); border-radius:12px; background:rgba(255,255,255,.045); }
-.hud-phone-contact > div,
-.hud-phone-map-row > div,
-.hud-phone-search-row { min-width:0; flex:1; }
-.hud-phone-contact b,
-.hud-phone-map-row b { display:block; font-size:11px; }
+.hud-phone-contact, .hud-phone-search-row { display:flex; gap:9px; align-items:center; padding:9px; margin-bottom:6px; border:1px solid rgba(255,255,255,.08); border-radius:12px; background:rgba(255,255,255,.045); }
+.hud-phone-contact>div, .hud-phone-search-row { min-width:0; flex:1; }
+.hud-phone-contact b { display:block; font-size:11px; }
 .hud-phone-search-row small { display:block; font-size:9px; opacity:.5; margin-top:2px; }
 
 .hud-phone-contacts { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
@@ -4273,7 +4245,7 @@
    по высоте карточки. Возвращаем ему фиксированный размер. */
 .hud-phone-contact > .hud-phone-contact-avatar { flex:0 0 30px; height:30px; max-height:30px; }
 .hud-phone-contact b { overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%; }
-.hud-phone-map-row > span { font-size:20px; }
+
 .hud-google-bar { padding:10px 12px; border-radius:20px; border:1px solid rgba(255,255,255,.12); background:rgba(255,255,255,.07); margin-bottom:10px; color:rgba(255,255,255,.65); }
 
 .hud-phone-note small { opacity:.5; }
@@ -4952,8 +4924,6 @@
     overflow-wrap: anywhere;
   }
 
-  
-
   .hud-secret-body {
     padding: 12px;
   }
@@ -5024,7 +4994,6 @@
     padding: 10px;
   }
 
-  
 }
 
 /* Участники: безопасное отображение на узких экранах */
@@ -5923,6 +5892,16 @@
 .hud-phone-app[data-phone-app="notes"]    > span { background: linear-gradient(160deg, #ffd76b, #d9a021); }
 .hud-phone-app[data-phone-app="maps"]     > span { background: linear-gradient(160deg, #57d6c4, #229c92); }
 .hud-phone-app[data-phone-app="search"]   > span { background: linear-gradient(160deg, #c79bff, #8250d6); }
+/* Приложения, появившиеся позже, раньше оставались серыми — все пятеро
+   одинаковые. У каждого свой тон, не совпадающий с соседями по сетке. */
+.hud-phone-app[data-phone-app="calls"]    > span { background: linear-gradient(160deg, #ff8a80, #d8404a); }
+.hud-phone-app[data-phone-app="weather"]  > span { background: linear-gradient(160deg, #6fdcff, #1b8fd0); }
+.hud-phone-app[data-phone-app="health"]   > span { background: linear-gradient(160deg, #ff8fc4, #d6467f); }
+.hud-phone-app[data-phone-app="wallet"]   > span { background: linear-gradient(160deg, #4b5266, #1b1e28); color: #ffd76b; }
+.hud-phone-app[data-phone-app="calendar"] > span { background: linear-gradient(160deg, #ffffff, #e4e6ee); color: #e0453a; }
+/* Светлые темы красят глифы чернилами — на тёмном кошельке они пропадали. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-app[data-phone-app="wallet"] .hud-g-ico { color: #ffd76b; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-app[data-phone-app="calendar"] .hud-g-ico { color: #e0453a; }
 .hud-phone-app small { text-shadow: 0 1px 3px rgba(0,0,0,.7); }
 
 /* Значок непрочитанного поверх иконки. */
@@ -6298,17 +6277,7 @@
 .hud-phone-note b { color: rgba(255,226,150,.95); }
 
 /* Карты — стилизованная подложка с сеткой улиц и булавкой. */
-.hud-phone-map-row {
-  position: relative; padding-left: 42px !important;
-  background:
-    linear-gradient(160deg, rgba(87,214,196,.08), rgba(87,214,196,.02)) !important;
-  border-color: rgba(87,214,196,.18) !important;
-}
-.hud-phone-map-row::before {
-  content: '📍'; position: absolute; left: 12px; top: 50%; transform: translateY(-50%);
-  font-size: 15px;
-  filter: drop-shadow(0 2px 4px rgba(0,0,0,.6));
-}
+
 .hud-phone-app-view[data-phone-view="maps"] .hud-phone-section {
   border-radius: 14px; padding: 10px;
   background:
@@ -6366,8 +6335,6 @@
 .hud-phone-app-title .hud-g-ico { width: 15px; height: 15px; opacity: .8; vertical-align: -2px; margin-right: 2px; }
 .hud-phone-notif-label .hud-g-ico { width: 13px; height: 13px; opacity: .8; vertical-align: -2px; margin-right: 3px; }
 .hud-phone-participants-list .hud-g-ico { width: 13px; height: 13px; opacity: .75; vertical-align: -2px; margin-right: 3px; }
-.hud-g-pin { display: inline-flex; align-items: center; }
-.hud-g-pin .hud-g-ico { width: 17px; height: 17px; opacity: .7; }
 
 /* Пустые экраны — не голая строка, а аккуратная заглушка. */
 .hud-phone-empty-app {
@@ -8289,7 +8256,6 @@
 .season-winter .hud-snowman { left: 2px; }
 .season-winter .hud-winter-house.h1 { left: 15%; }
 
-
 /* Три одинаковых по цвету дома днём сливались в одно тёмное пятно.
    Разводим стены и крыши по тону: тёплый сруб, холодный камень, дальний
    голубоватый. Силуэты сразу читаются по отдельности. */
@@ -9132,12 +9098,12 @@
 
 /* Каждой погоде свой оттенок свечения. Статично, всегда видно. */
 .hud-forecast-icon.w-clear  { color: #ffc45c; filter: drop-shadow(0 0 6px rgba(255,196,92,.45)); }
-.hud-forecast-icon.w-cloudy { color: #c3cfe0; filter: drop-shadow(0 0 5px rgba(195,207,224,.3)); }
-.hud-forecast-icon.w-rain   { color: #8fc2f2; filter: drop-shadow(0 0 5px rgba(143,194,242,.35)); }
-.hud-forecast-icon.w-storm  { color: #a99cf0; filter: drop-shadow(0 0 6px rgba(169,156,240,.45)); }
-.hud-forecast-icon.w-snow   { color: #dbe8f7; filter: drop-shadow(0 0 6px rgba(219,232,247,.4)); }
-.hud-forecast-icon.w-fog    { color: #b6c2d2; filter: drop-shadow(0 0 5px rgba(182,194,210,.28)); }
-.hud-forecast-icon.w-wind   { color: #9fd8cf; filter: drop-shadow(0 0 5px rgba(159,216,207,.32)); }
+.hud-forecast-icon.w-cloudy { color: #d2d6de; filter: drop-shadow(0 0 5px rgba(210,214,222,.3)); }
+.hud-forecast-icon.w-rain   { color: #6fb0f5; filter: drop-shadow(0 0 5px rgba(111,176,245,.4)); }
+.hud-forecast-icon.w-storm  { color: #b38cf8; filter: drop-shadow(0 0 6px rgba(179,140,248,.5)); }
+.hud-forecast-icon.w-snow   { color: #b8ecff; filter: drop-shadow(0 0 6px rgba(184,236,255,.45)); }
+.hud-forecast-icon.w-fog    { color: #8d97a8; filter: drop-shadow(0 0 4px rgba(141,151,168,.25)); }
+.hud-forecast-icon.w-wind   { color: #7fe0c4; filter: drop-shadow(0 0 5px rgba(127,224,196,.35)); }
 
 /* Ясно: лучи медленно обходят круг, само солнце дышит. */
 .hud-fc-ico .ic-rays { animation: hud-ic-spin 24s linear infinite; }
@@ -9403,27 +9369,8 @@
     radial-gradient(50% 40% at 18% 76%, rgba(140,170,255,.07), transparent 72%);
   background-size: 22px 22px, 22px 22px, auto, auto;
 }
-.hud-phone-map-row {
-  position: relative; z-index: 1;
-  display: flex; align-items: flex-start; gap: 9px;
-  padding: 9px 8px; border-radius: 10px;
-  transition: background .18s ease;
-}
-.hud-phone-map-row:hover { background: rgba(255,255,255,.05); }
+
 /* Маршрутная нить между точками. */
-.hud-phone-map-row + .hud-phone-map-row::before {
-  content: ''; position: absolute; left: 17px; top: -10px; height: 12px;
-  border-left: 2px dotted color-mix(in srgb, var(--hud-phone-accent, #7cc0ff) 55%, transparent);
-}
-.hud-phone-map-row .hud-g-pin {
-  flex: 0 0 auto; display: inline-flex; align-items: center; justify-content: center;
-  width: 20px; height: 20px; border-radius: 50%;
-  background: color-mix(in srgb, var(--hud-phone-accent, #7cc0ff) 22%, transparent);
-  box-shadow: 0 0 0 3px color-mix(in srgb, var(--hud-phone-accent, #7cc0ff) 12%, transparent);
-  color: var(--hud-phone-accent, #7cc0ff);
-}
-.hud-phone-map-row b { display: block; }
-.hud-phone-map-row small { display: block; opacity: .62; font-size: .84em; margin-top: 2px; }
 
 /* --- Галерея --- */
 .hud-phone-gallery-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }

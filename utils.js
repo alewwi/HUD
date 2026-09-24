@@ -3,8 +3,8 @@
 // Мелкие утилиты, общие для всех доменов HUD (дневник, мир, сны, телефон,
 // граф отношений, память). Вынесено из index.js без изменения поведения.
 
-import { МЕТКИ } from './codes.js?v=23.4.6';
-import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.4.6';
+import { МЕТКИ } from './codes.js?v=23.7.5';
+import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.7.5';
 
 /** Экранирование через DOM: браузер сам решает, что считать опасным. */
 // Не выпускать касания наружу. SillyTavern ловит свайпы на уровне document
@@ -52,7 +52,11 @@ export function снятьЗаглушки(value) {
   }).join('');
 }
 
-export function escapeHtml(str) { if (!str) return ''; const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+// Кавычки тоже: innerHTML текстового узла их не трогает, а результат часто
+// уходит в атрибут (title="…", data-labels="…") — первая же кавычка в тексте
+// обрывала атрибут.
+const СУЩНОСТИ = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+export function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>"']/g, з => СУЩНОСТИ[з]); }
 
 // Схема ждёт строку «Метка: значение; ...», но модель нередко отдаёт объект
 // или массив объектов. Прямой String() на таком значении даёт «[object
@@ -377,5 +381,8 @@ export function mapKey(k) {
 // имя из HUD как ключевое слово и активировать лорбук.
 export function defeatWI(text) {
     if (!text || typeof text !== 'string' || text.length < 2) return text;
-    return text.charAt(0) + '\u200B' + text.slice(1);
+    // \u0422\u0435\u043A\u0441\u0442 \u0443\u0436\u0435 \u044D\u043A\u0440\u0430\u043D\u0438\u0440\u043E\u0432\u0430\u043D \u0438 \u043D\u0430\u0447\u0438\u043D\u0430\u0435\u0442\u0441\u044F \u0441 \u0441\u0443\u0449\u043D\u043E\u0441\u0442\u0438 (&quot;\u2026) \u2014 \u0441\u0442\u0430\u0432\u0438\u043C
+    // \u043D\u0435\u0432\u0438\u0434\u0438\u043C\u044B\u0439 \u0437\u043D\u0430\u043A \u043F\u043E\u0441\u043B\u0435 \u043D\u0435\u0451, \u0430 \u043D\u0435 \u0432\u043D\u0443\u0442\u0440\u044C.
+    const \u0433\u043E\u043B\u043E\u0432\u0430 = (text.match(/^&(?:#\d+|#x[\da-f]+|[a-z]+);/i) || [text.charAt(0)])[0];
+    return \u0433\u043E\u043B\u043E\u0432\u0430 + '\u200B' + text.slice(\u0433\u043E\u043B\u043E\u0432\u0430.length);
 }

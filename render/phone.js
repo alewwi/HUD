@@ -6,17 +6,17 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText } from '../utils.js?v=23.4.6';
-import { settings } from '../settings.js?v=23.4.6';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.4.6';
-import { G_ICONS } from './icons.js?v=23.4.6';
-import { buildMessengerHTML } from './messenger.js?v=23.4.6';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.4.6';
-import { сортироватьЧаты } from './msg-feed.js?v=23.4.6';
-import { buildWeatherApp, buildCallsApp, buildMapsApp } from './phone-extra.js?v=23.4.6';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText } from '../utils.js?v=23.7.5';
+import { settings } from '../settings.js?v=23.7.5';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.7.5';
+import { G_ICONS } from './icons.js?v=23.7.5';
+import { buildMessengerHTML } from './messenger.js?v=23.7.5';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.7.5';
+import { сортироватьЧаты } from './msg-feed.js?v=23.7.5';
+import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.7.5';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.4.6';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.7.5';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -334,11 +334,12 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   const местоВладельца = владелецКарточка ? String(владелецКарточка['Место'] || '').trim() : '';
   // Пропущенные сегодня — значком на «Звонках»; журнал считает их сам.
   const экранЗвонков = on('phoneAppCalls') ? buildCallsApp(chatsMap, phone.callLog, phoneOwner, sceneDate, uid) : '';
-  const пропущенных = (экранЗвонков.match(/hud-calls-row is-missed/g) || []).length;
+  const пропущенных = (экранЗвонков.match(/hud-calls-row [^"]*kind-miss/g) || []).length;
   const apps = [
     on('phoneAppCalls') && { id: 'calls',    icon: G_ICONS.handset, label: 'Звонки', badge: пропущенных,
       body: экранЗвонков },
     on('phoneAppWeather') && { id: 'weather', icon: G_ICONS.weather, label: 'Погода', body: buildWeatherApp(доп.scene, доп.world, местоВладельца) },
+    on('phoneAppHealth') && { id: 'health', icon: G_ICONS.health, label: 'Здоровье', body: buildHealthApp(phone, доп.scene, characters, phoneOwner) },
     on('phoneAppMessages') && { id: 'messages', icon: G_ICONS.chat, label: 'Сообщения', badge: unread,
       body: messenger || emptyApp(G_ICONS.chat, 'В текущем повествовании нет переписок') },
     on('phoneAppContacts') && { id: 'contacts', icon: G_ICONS.person, label: 'Контакты',  body: buildContactsApp(phone.contacts) },

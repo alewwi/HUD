@@ -1,35 +1,35 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=23.4.6';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=23.4.6';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.4.6';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.4.6';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.4.6';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.4.6';
-import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.4.6';
-import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=23.4.6';
-import { привязатьИсторию, ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.4.6';
-import { ПРИМЕР_HUD_ТЕКСТ, БАЗОВЫЙ_HUD_ТЕКСТ } from './render/sample-hud.js?v=23.4.6';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.4.6';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.4.6';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.4.6';
-import { buildMemoryHTML } from './render/memory.js?v=23.4.6';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.4.6';
-import { buildPhoneTabsHTML } from './render/phone.js?v=23.4.6';
-import { праздникиСцены } from './render/holidays.js?v=23.4.6';
-import { скрытыеФактыЗачатия } from './render/conception.js?v=23.4.6';
-import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.4.6';
-import { hudHasRelations } from './render/relations-graph.js?v=23.4.6';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.4.6';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.4.6';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=23.4.6';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.4.6';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.4.6';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=23.4.6';
-import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.4.6';
-import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.4.6';
-import { создатьПроверкуПолноты } from './hud-check.js?v=23.4.6';
-import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.4.6';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=23.7.5';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=23.7.5';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.7.5';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.7.5';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.7.5';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.7.5';
+import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.7.5';
+import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=23.7.5';
+import { привязатьИсторию, ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.7.5';
+import { ПРИМЕР_HUD_ТЕКСТ, БАЗОВЫЙ_HUD_ТЕКСТ } from './render/sample-hud.js?v=23.7.5';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.7.5';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.7.5';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.7.5';
+import { buildMemoryHTML } from './render/memory.js?v=23.7.5';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.7.5';
+import { buildPhoneTabsHTML } from './render/phone.js?v=23.7.5';
+import { праздникиСцены } from './render/holidays.js?v=23.7.5';
+import { скрытыеФактыЗачатия } from './render/conception.js?v=23.7.5';
+import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.7.5';
+import { hudHasRelations } from './render/relations-graph.js?v=23.7.5';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.7.5';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.7.5';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=23.7.5';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.7.5';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.7.5';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=23.7.5';
+import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.7.5';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.7.5';
+import { создатьПроверкуПолноты } from './hud-check.js?v=23.7.5';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.7.5';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -309,6 +309,8 @@ ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and ru
      {"ti": "[title: what it was for, as a bank would print it — 'Кофейня на углу', 'Перевод от [имя]', 'Аренда', 'Взятка портье'; one object per transaction that actually happened — never invent spending]", "am": "[amount: a signed number, no currency sign — '-450', '+12000']", "tm": "[time: 'Сегодня, 14:30', 'Вчера', '12.10']", "nte": "[OPTIONAL note: one short line]"}
     ]
    }`);
+      if (settings.phoneAppHealth !== false) ph.push(`
+   "hl": {"sl": "[owner's sleep LAST night as a watch logs it: 'HH:MM–HH:MM', e.g. '00:40–07:10'; add one word if it was bad — 'прерывистый'. Same value all day; a new night → new value]", "st": "[steps TODAY: a plain number that only grows through the day — walking, stairs, errands add; sitting or lying adds nothing; starts from 0 on a new day]", "hr": "[pulse RIGHT NOW, bpm, a plain number: ~60–75 at rest, higher when walking, nervous or excited; if the owner's vitals are written this turn, the same pulse]"}`);
       if (settings.phoneAppCalendar !== false) ph.push(`
    "cl": [
     {"dt": "[date: '16.01' or '16.01.2025', the same date system as sc.Dt; one object per entry, as many as there are]", "ti": "[title: e.g. 'День рождения [имя]', 'Совет директоров', 'Фестиваль огней']", "kd": "[kind: birthday | holiday | event]", "tm": "[OPTIONAL time: HH:MM]"}
@@ -1542,8 +1544,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     // Идентификаторы у каждой сборки свои. Чтобы можно было сравнить две
     // разметки по существу, запоминаем, каким был baseId в этот раз.
     lastRenderBaseId = baseId;
-    let osSubtitleHtml = '', mainCharName = '';
-    if (data.characters.length > 0) mainCharName = data.characters[0]['Имя'] || '';
+    let osSubtitleHtml = '';
 
     let tRaw = data.scene['Время'] || '', wRaw = data.scene['Погода'] || '', dRaw = data.scene['Дата'] || '';
     // Дата сцены нужна блоку цикла (календарь, лунный диск): кладём её
@@ -1551,6 +1552,12 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     const датаДляЦикла = (о) => { if (о && typeof о === 'object') Object.defineProperty(о, '__датаСцены', { value: dRaw, configurable: true, writable: true, enumerable: false }); };
     (Array.isArray(data.characters) ? data.characters : []).forEach(датаДляЦикла);
     датаДляЦикла(data.user);
+    // Соседи по сцене — для шанса зачатия у партнёра в «Модификаторах сцены».
+    {
+      const люди = [...(Array.isArray(data.characters) ? data.characters : []).map(c => ({ имя: c && c['Имя'], данные: c })),
+        ...(data.user && typeof data.user === 'object' ? [{ имя: getSafeUserName(), данные: data.user }] : [])].filter(п => п.данные && typeof п.данные === 'object');
+      люди.forEach(п => Object.defineProperty(п.данные, '__соседи', { value: люди, configurable: true, writable: true, enumerable: false }));
+    }
     let phaseClass = 'phase-night';
     let phaseLow = (tRaw || '').toLowerCase();
 
@@ -1829,9 +1836,10 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
 
     if (Object.keys(data.scene).length > 0) {
       let subTags = [];
-      if (tRaw) subTags.push(`<span class="hud-preview-tag">🕒 ${escapeHtml(tRaw.split('|')[0].trim())}</span>`);
-      if (wRaw) subTags.push(`<span class="hud-preview-tag">🌤️ ${escapeHtml(wRaw)}</span>`);
-      if (dRaw) subTags.push(`<span class="hud-preview-tag">📅 ${escapeHtml(dRaw)}</span>`);
+      // «empty» в свёрнутой шапке — не значение: пустые поля не показываем.
+      if (hudHasMeaningfulValue(tRaw)) subTags.push(`<span class="hud-preview-tag">🕒 ${escapeHtml(tRaw.split('|')[0].trim())}</span>`);
+      if (hudHasMeaningfulValue(wRaw)) subTags.push(`<span class="hud-preview-tag">🌤️ ${escapeHtml(wRaw)}</span>`);
+      if (hudHasMeaningfulValue(dRaw)) subTags.push(`<span class="hud-preview-tag">📅 ${escapeHtml(dRaw)}</span>`);
       osSubtitleHtml = `<div class="hud-os-subtitle">${subTags.join('')}</div>`;
     }
 
@@ -2864,7 +2872,6 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             const h = Math.round(text.getBoundingClientRect().height);
             if (h > 40) {
               mes.__hudCardHeight = h;
-              typicalCardHeight = h;
               // Типовую высоту знают и заглушки без своего замера, и ещё не
               // отрисованные карточки — через переменную на контейнере чата.
               // Зашитое число не годится: карточки в разных чатах разной
@@ -2909,13 +2916,9 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
   // Оставляем в DOM только N последних карточек. Лишние — самые старые, то
   // есть первые сверху — сворачиваем до тонкой полоски. Текст сообщения при
   // этом не теряется: он лежит на элементе и вернётся при следующем показе.
-  // Типовая высота карточки в этом чате. Заглушка без собственного замера
-  // берёт её, иначе свёртка двух сотен карточек укорачивает ленту на десятки
-  // тысяч пикселей и прокрутка прыгает. Стартовое значение — то же, что
-  // объявлено в contain-intrinsic-size: столько браузер и так отводит
-  // неотрисованной карточке, поэтому свёртка выходит нейтральной по высоте.
-  let typicalCardHeight = 480;
-  // Последнее значение, записанное в --hud-card-h.
+  // Последнее значение, записанное в --hud-card-h: типовая высота карточки
+  // в этом чате для заглушек без своего замера. Старт — то же, что в
+  // contain-intrinsic-size, поэтому свёртка выходит нейтральной по высоте.
   let заявленнаяВысота = 480;
 
   function живаяКарточка(textElement) {
@@ -4006,6 +4009,9 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
         </div>
       </div>`;
       document.body.appendChild(окно);
+      // Свайп по ползунку или просмотру не должен листать варианты ответа
+      // Таверны: она ловит касания на всём документе.
+      guardTouchSwipe(окно);
       окно.addEventListener('click', (e) => {
         if (e.target === окно || e.target.closest('.hud-custom-close')) { закрытьКастомизацию(); return; }
         if (e.target.closest('.hud-custom-refresh')) собратьПросмотр(окно);
@@ -4095,7 +4101,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
           <div class="hud-set-apps">
             ${[['phoneAppMessages','💬 Сообщения'],['phoneAppContacts','👤 Контакты'],['phoneAppWallet','💳 Кошелёк'],
                ['phoneAppCalendar','📅 Календарь'],['phoneAppGallery','🖼️ Галерея'],['phoneAppNotes','📝 Заметки'],
-               ['phoneAppMaps','🗺️ Карты'],['phoneAppSearch','🔍 Поиск'],['phoneAppCalls','📞 Звонки'],['phoneAppWeather','🌦️ Погода']]
+               ['phoneAppMaps','🗺️ Карты'],['phoneAppSearch','🔍 Поиск'],['phoneAppCalls','📞 Звонки'],['phoneAppWeather','🌦️ Погода'],['phoneAppHealth','❤️ Здоровье']]
               .map(([k, label]) => `<label><input type="checkbox" data-phone-app-key="${k}" ${settings[k] !== false ? 'checked' : ''}> ${label}</label>`).join('')}
           </div>
           ${галка('hud-enable-intercepts', settings.enableIntercepts, '📡 Перехваты (чужие телефоны)')}
@@ -4481,7 +4487,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=23.4.6');
+        const mod = await import('./render/archive.js?v=23.7.5');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);

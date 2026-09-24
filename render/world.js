@@ -7,9 +7,9 @@
 // settings.showComments напрямую из замыкания index.js. Теперь флаг
 // приходит четвёртым аргументом — модуль не знает про глобальные настройки.
 
-import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.4.6';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.4.6';
-import { buildEconomyHTML, buildEventsHTML, buildCityHTML } from './world-city.js?v=23.4.6';
+import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.7.5';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.7.5';
+import { buildEconomyHTML, buildEventsHTML, buildCityHTML } from './world-city.js?v=23.7.5';
 
 // --- Прогноз погоды -------------------------------------------------------
 // Иконки нарисованы штрихами по currentColor: они должны читаться как в
@@ -23,17 +23,29 @@ export const W_ICONS = {
   fog:    '<svg viewBox="0 0 24 24" class="hud-fc-ico"><path class="ic-cloud" d="M7.4 12.6h9a3.6 3.6 0 0 0 .3-7.2 5.3 5.3 0 0 0-10.2 1.1 3.2 3.2 0 0 0 .9 6.1Z"/><path class="ic-fogline l1" d="M4.6 16h14.8"/><path class="ic-fogline l2" d="M6.6 19h10.8"/></svg>',
   wind:   '<svg viewBox="0 0 24 24" class="hud-fc-ico"><path class="ic-gust g1" d="M3.4 9.2h9.2a2.6 2.6 0 1 0-2.6-2.6"/><path class="ic-gust g2" d="M3.4 14h13a2.6 2.6 0 1 1-2.6 2.6"/><path class="ic-gust g3" d="M3.4 11.6h6.8"/></svg>',
   snow:   '<svg viewBox="0 0 24 24" class="hud-fc-ico"><path class="ic-cloud" d="M7.4 13.8h9a3.6 3.6 0 0 0 .3-7.2 5.3 5.3 0 0 0-10.2 1.1 3.2 3.2 0 0 0 .9 6.1Z"/><g class="ic-flake f1"><path d="M9 17.6v2.8M7.8 18.4l2.4 1.2M10.2 18.4l-2.4 1.2"/></g><g class="ic-flake f2"><path d="M15 17.6v2.8M13.8 18.4l2.4 1.2M16.2 18.4l-2.4 1.2"/></g></svg>',
+  // Морось — редкие короткие капли; ливень — косые длинные струи.
+  drizzle: '<svg viewBox="0 0 24 24" class="hud-fc-ico"><path class="ic-cloud" d="M7.4 14.4h9a3.6 3.6 0 0 0 .3-7.2 5.3 5.3 0 0 0-10.2 1.1 3.2 3.2 0 0 0 .9 6.1Z"/><path class="ic-drop d1" d="M9 17.8v.9"/><path class="ic-drop d2" d="M12.4 19.2v.9"/><path class="ic-drop d3" d="M15.8 17.8v.9"/></svg>',
+  shower: '<svg viewBox="0 0 24 24" class="hud-fc-ico"><path class="ic-cloud" d="M7.4 13.4h9a3.6 3.6 0 0 0 .3-7.2 5.3 5.3 0 0 0-10.2 1.1 3.2 3.2 0 0 0 .9 6.1Z"/><path class="ic-drop d1" d="M8.6 15.8 6.8 21"/><path class="ic-drop d2" d="M11.8 15.8 10 21"/><path class="ic-drop d3" d="M15 15.8 13.2 21"/><path class="ic-drop d1" d="M18.2 15.8 16.4 21"/></svg>',
+  // Переменная облачность — солнце выглядывает из-за облака.
+  partly: '<svg viewBox="0 0 24 24" class="hud-fc-ico"><circle class="ic-sun" cx="8.6" cy="8.4" r="3.2"/><path class="ic-rays" d="M8.6 2.6v1.4M2.8 8.4h1.4M4.5 4.3l1 1M12.7 4.3l-1 1"/><path class="ic-cloud" d="M9.4 19.4h8.2a3.4 3.4 0 0 0 .3-6.8 4.9 4.9 0 0 0-9.4 1 3 3 0 0 0 .9 5.8Z"/></svg>',
+  // Пасмурно — сплошные тучи в два слоя.
+  overcast: '<svg viewBox="0 0 24 24" class="hud-fc-ico"><path class="ic-cloud" d="M9.6 12.2a4.6 4.6 0 0 1 8.7-1.6 3.2 3.2 0 0 1 1.3 6.1"/><path class="ic-cloud" d="M5.8 19.4h9a3.6 3.6 0 0 0 .3-7.2 5.3 5.3 0 0 0-10.2 1.1 3.2 3.2 0 0 0 .9 6.1Z"/></svg>',
 };
 
-// Порядок важен: гроза содержит и дождь, туман бывает «облачным».
+// Порядок важен: гроза содержит и дождь, туман бывает «облачным», ливень и
+// морось — тоже дождь, но разный, а переменная облачность — не пасмурно.
 const W_RULES = [
-  [/гроз|молни|шторм|thunder|storm/i,                         'storm',  'Гроза'],
-  [/снег|снеж|метел|вьюг|пург|буран|snow|blizzard/i,          'snow',   'Снег'],
-  [/дожд|лив|морос|ненаст|rain|drizzle|shower/i,              'rain',   'Дождь'],
-  [/туман|дымк|мгл|fog|mist|haze/i,                            'fog',    'Туман'],
-  [/ветр|ветер|шквал|порыв|wind|gust|breeze/i,                 'wind',   'Ветрено'],
-  [/облач|пасмур|хмур|тучи|cloud|overcast/i,                   'cloudy', 'Облачно'],
-  [/ясн|солнеч|вёдр|ведр|clear|sunny|fair/i,                   'clear',  'Ясно'],
+  [/гроз|молни|шторм|thunder|storm/i,                                                  'storm',    'Гроза'],
+  [/снег|снеж|метел|вьюг|пург|буран|snow|blizzard/i,                                   'snow',     'Снег'],
+  [/ливен|ливн|проливн|сильн\S* дожд|downpour|heavy rain|shower/i,                      'shower',   'Ливень'],
+  [/морос|мелк\S* дожд|небольш\S* дожд|слаб\S* дожд|drizzle|light rain/i,             'drizzle',  'Морось'],
+  [/дожд|ненаст|rain/i,                                                                 'rain',     'Дождь'],
+  [/туман|дымк|мгл|fog|mist|haze/i,                                                     'fog',      'Туман'],
+  [/ветр|ветер|шквал|порыв|wind|gust|breeze/i,                                          'wind',     'Ветрено'],
+  [/переменн|прояснен|малооблачн|небольш\S* облачн|partly|mostly sunny|sun and cloud/i, 'partly',   'Переменная облачность'],
+  [/пасмур|хмур|тучи|сплошн\S* облачн|overcast|gloomy/i,                                'overcast', 'Пасмурно'],
+  [/облач|cloud/i,                                                                      'cloudy',   'Облачно'],
+  [/ясн|солнеч|вёдр|ведр|clear|sunny|fair/i,                                            'clear',    'Ясно'],
 ];
 
 // Температура из строки вида «+7°C», «-3°», «9». Нужна не для показа, а
@@ -234,7 +246,7 @@ export function buildWorldHTML(worldData, uid, isChecked, showComments) {
   if (headlineTitles.length > 0) {
     const seq = headlineTitles.map(t => `<span class="hud-breaking-item">${escapeHtml(t)}</span>`).join('<span class="hud-breaking-dot">◆</span>');
     const loop = `<span class="hud-breaking-seq">${seq}<span class="hud-breaking-dot">◆</span></span>`;
-    html += `<div class="hud-breaking-news" aria-hidden="true"><span class="hud-breaking-label">📺 BREAKING</span><div class="hud-breaking-track"><div class="hud-breaking-marquee">${loop}${loop}</div></div></div>`;
+    html += `<div class="hud-breaking-news" aria-hidden="true"><span class="hud-breaking-label">📺 СРОЧНО</span><div class="hud-breaking-track"><div class="hud-breaking-marquee">${loop}${loop}</div></div></div>`;
   }
   return html + `</div></div>`;
 }

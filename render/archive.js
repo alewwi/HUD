@@ -6,8 +6,8 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe } from '../utils.js?v=23.4.6';
-import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.4.6';
+import { escapeHtml, guardTouchSwipe } from '../utils.js?v=23.7.5';
+import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.7.5';
 
 let окноОткрыто = false;
 
@@ -353,7 +353,7 @@ export function openArchiveDialog() {
   overlay.className = 'hud-modal-overlay hud-arc-overlay';
   overlay.innerHTML = `
     <div class="hud-modal hud-arc-modal" role="dialog" aria-modal="true" aria-label="Архив HUD">
-      <div class="hud-modal-head">🗄 Архив HUD <small>сводка по сохранённым HUD-блокам</small></div>
+      <div class="hud-modal-head hud-arc-head"><span>🗄 Архив HUD <small>сводка по сохранённым HUD-блокам</small></span><button type="button" class="hud-arc-x" aria-label="Закрыть" title="Закрыть">✕</button></div>
       <div class="hud-arc-controls">
         <div class="hud-arc-range">
           <label>с <input type="number" class="hud-arc-from" min="0" max="${последний}" value="${начало}"></label>
@@ -406,6 +406,8 @@ export function openArchiveDialog() {
   document.addEventListener('keydown', поКлавише);
   overlay.addEventListener('click', (e) => { if (e.target === overlay) закрыть(); });
   $('.cancel').addEventListener('click', закрыть);
+  // Крестик в шапке: нижняя «Закрыть» на телефоне уходила за край экрана.
+  $('.hud-arc-x').addEventListener('click', закрыть);
 
   // --- Диапазон ---
   const поля = { from: $('.hud-arc-from'), to: $('.hud-arc-to'), sFrom: $('.hud-arc-slide-from'), sTo: $('.hud-arc-slide-to') };

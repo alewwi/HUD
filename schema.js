@@ -7,10 +7,10 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.4.6';
-import { mapKey } from './utils.js?v=23.4.6';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.4.6';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.4.6';
+import { settings } from './settings.js?v=23.7.5';
+import { mapKey } from './utils.js?v=23.7.5';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.7.5';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.7.5';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -352,6 +352,12 @@ export function normalizeJSONData(parsed) {
       return (balance || currency || tx.length) ? { balance, currency, transactions: tx } : null;
     })(),
     calendar: phoneSection(rawPhone.calendar, ['date', 'title', 'kind', 'time']).map(с => ({ ...с, kind: видСобытия(с.kind) })),
+    // Здоровье: сон прошлой ночи, шаги за день, пульс сейчас — строками.
+    health: (() => {
+      const h = (rawPhone.health && typeof rawPhone.health === 'object' && !Array.isArray(rawPhone.health)) ? rawPhone.health : {};
+      const sleep = toStr(h.sleep), steps = toStr(h.steps), pulse = toStr(h.pulse);
+      return (sleep || steps || pulse) ? { sleep, steps, pulse } : null;
+    })(),
   };
 
   // Средневековая шкатулка: те же календарь, кошель, записи и карта, что у

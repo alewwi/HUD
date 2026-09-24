@@ -6,10 +6,12 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.4.6';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.4.6';
-import { buildRelGraphHTML } from './relations-graph.js?v=23.4.6';
-import { статусРужья } from '../codes.js?v=23.4.6';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.7.5';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.7.5';
+import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.7.5';
+import { отложитьРисунок } from './lazy-svg.js?v=23.7.5';
+import { длинныйСписок } from './long-list.js?v=23.7.5';
+import { статусРужья } from '../codes.js?v=23.7.5';
 
 function parseRoutePoint(item) {
   const parts = String(item).split(/[-—–]/).map(s => s.trim());
@@ -92,8 +94,11 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
   // Граф отношений — изолирован от остальных блоков памяти.
   // Любая неожиданная ошибка в данных Rel/узла не должна прерывать рендер
   // таймлайна, маршрутов, эмоций, важных фактов и секретов ниже.
+  // Сам рисунок собирается, когда слот показался на экране (render/lazy-svg.js).
   try {
-    const relGraphHtml = buildRelGraphHTML(hudData || {}, uid);
+    const сломан = `<div class="hud-memory-relgraph-error" role="status">🕸 Граф отношений временно недоступен</div>`;
+    const граф = () => { try { return buildRelGraphHTML(hudData || {}, uid) || ''; } catch (e) { console.warn('[TavernOS HUD] Relationship graph render failed:', e); return сломан; } };
+    const relGraphHtml = hudHasRelations(hudData || {}) ? отложитьРисунок(uid + '-relgraph', граф, 320) : '';
     if (relGraphHtml) html += `<div class="hud-memory-relgraph-slot">${relGraphHtml}</div>`;
   } catch (e) {
     console.warn('[TavernOS HUD] Relationship graph render failed; continuing memory render:', e);
@@ -103,14 +108,14 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
   // 1. ТАЙМЛАЙН (Вертикальная линия)
   try {
   if (Array.isArray(memoryData.timeline) && memoryData.timeline.length > 0) {
-    let evHtml = memoryData.timeline.map(item => {
+    const пункты = memoryData.timeline.map(item => {
       let text = String(item).trim().replace(/\.$/, '');
       let timeMatch = text.match(/^\[?([\d]{1,2}\s*:\s*\d{2})\]?\s*[-—–:]?\s*(.*)$/);
       return timeMatch
           ? `<div class="hud-timeline-item"><div class="hud-timeline-time">${escapeHtml(timeMatch[1])}</div><div class="hud-timeline-content">${applyTooltips(timeMatch[2])}</div></div>`
           : `<div class="hud-timeline-item"><div class="hud-timeline-content">${applyTooltips(text)}</div></div>`;
-    }).join('');
-    html += `<div class="hud-row full-width"><span class="hud-key">⏳ Таймлайн:</span> <div class="hud-timeline-container">${evHtml}</div></div>`;
+    });
+    html += `<div class="hud-row full-width"><span class="hud-key">⏳ Таймлайн:</span> ${длинныйСписок(пункты, 'hud-timeline-container', 'ранние события')}</div>`;
   }
   } catch (e) { console.warn('[TavernOS HUD] Memory timeline render failed:', e); }
 
@@ -158,13 +163,13 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
   if (Array.isArray(memoryData.important) && memoryData.important.length > 0) {
     // Каждый пункт можно унести в Lorebook: это ровно тот сорт фактов, что
     // должен пережить откат чата и остаться в мире.
-    const importantHtml = memoryData.important.map(item => {
+    const важное = memoryData.important.map(item => {
       const isNew = isNewLoreItem(item);
       return `<div class="hud-detail-pill drama-alert hud-lore-item${isNew ? ' is-new' : ''}">` +
         `<span class="hud-lore-text">${escapeHtml(String(item))}</span>` +
         loreButtonHTML(item, [], isNew) + `</div>`;
-    }).join('');
-    html += `<div class="hud-row full-width"><span class="hud-key">❗ Важное:</span> <div class="hud-vertical-container">${importantHtml}</div></div>`;
+    });
+    html += `<div class="hud-row full-width"><span class="hud-key">❗ Важное:</span> ${длинныйСписок(важное, 'hud-vertical-container', 'ранние')}</div>`;
   }
   if (Array.isArray(memoryData.recently_learned) && memoryData.recently_learned.length > 0) {
     html += `<div class="hud-row full-width"><span class="hud-key">💡 Недавно узнали:</span> <div class="hud-vertical-container">${buildPillList(memoryData.recently_learned.join('; '), 'hud-detail-pill')}</div></div>`;

@@ -4,16 +4,17 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=23.4.6';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.4.6';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.4.6';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=23.4.6';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=23.7.5';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.7.5';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.7.5';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=23.7.5';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову } from './intimacy.js?v=23.4.6';
-import { buildPregnancy } from './pregnancy.js?v=23.4.6';
-import { settings } from '../settings.js?v=23.4.6';
-import { namesLikelySame } from '../names.js?v=23.4.6';
-import { parseRelationList } from './relations-graph.js?v=23.4.6';
+  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.7.5';
+import { buildPregnancy } from './pregnancy.js?v=23.7.5';
+import { settings } from '../settings.js?v=23.7.5';
+import { namesLikelySame } from '../names.js?v=23.7.5';
+import { parseRelationList } from './relations-graph.js?v=23.7.5';
+import { отложитьРисунок } from './lazy-svg.js?v=23.7.5';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле'];
@@ -263,6 +264,7 @@ const ВИД_СТРОКИ = {
   'отношения': 'bonds', 'доверие': 'bonds', 'общие воспоминания': 'bonds', 'реплики': 'bonds',
   'ревность': 'tension', 'конфликт': 'tension', 'глубина конфликта': 'tension',
   'страхи': 'alarm', 'флаг-монитор': 'alarm', 'социальное разоблачение': 'alarm',
+  'фетиш': 'misc',
 };
 /* Своё поле — свой крой пилюль (misc.css, «Карточка: крой пилюль по полям»):
    цели — стрелки-шаги, флаги — вымпелы, воспоминания — плёнка, реплики —
@@ -277,6 +279,7 @@ const ПОЛЕ_СТРОКИ = {
   'сновидение': 'dream', 'скрытый подтекст': 'subtext',
   'болезни и травмы': 'illness', 'следы на теле': 'marks', 'беременность': 'preg', 'цикл': 'cycle', 'расписание': 'schedule',
   'доверие': 'trust', 'конфликт': 'clash', 'страхи': 'fears', 'социальное разоблачение': 'exposure',
+  'фетиш': 'fetish',
 };
 
 /* Подача значения простого поля. Возраст — крупной цифрой с датой рождения
@@ -321,11 +324,19 @@ function значениеПоля(ключ, значение, класс = 'hud-
 const запаснойЦвет = (ключ) => { let h = 0; for (const ch of String(ключ)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return 'x' + (h % 6 + 1); };
 // Защита и последняя близость для риска зачатия. У игрока этих полей нет —
 // их пишет карточка партнёра: берём у первого персонажа, где они есть.
-function контекстЗачатия(данные, партнёры = []) {
+function контекстЗачатия(данные, партнёры = [], своёИмя = '') {
   const поле = (о, к) => о && о[к] && !/^(empty|none)$/i.test(String(о[к]).trim()) ? String(о[к]) : '';
   let защита = поле(данные, 'Защита'), секс = поле(данные, 'Последний секс');
-  for (const п of Array.isArray(партнёры) ? партнёры : []) {
-    if (!защита) защита = поле(п, 'Защита');
+  // У партнёра берём только общую защиту — презерватив, прерванный акт, её
+  // отсутствие. Таблетки, спираль, имплант защищают того, кто ими пользуется:
+  // прежде таблетки Лилиан снижали риск зачатия игрока до нуля.
+  const личная = /^\s*(?:pill|iud|implant|ring|patch|injection)\b|таблет|спирал|имплант|кольц|пластыр|укол/i;
+  // Партнёр — тот, в чьей близости упомянут сам человек, а не первый
+  // попавшийся персонаж со своей защитой.
+  const имя = String(своёИмя || '').trim().split(/\s+/)[0].toLowerCase();
+  const свой = (п) => !имя || [поле(п, 'Последний секс'), поле(п, 'NSFW'), поле(п, 'Детализация NSFW')].join(' ').toLowerCase().includes(имя);
+  for (const п of (Array.isArray(партнёры) ? партнёры : []).filter(свой)) {
+    if (!защита && !личная.test(поле(п, 'Защита'))) защита = поле(п, 'Защита');
     if (!секс) секс = поле(п, 'Последний секс');
   }
   return { защита, секс };
@@ -463,6 +474,15 @@ function болезниВладельца(о) {
   return { текст: изЗдоровья ? '' : здоровье, список };
 }
 
+// Коротко для приложения «Здоровье» в телефоне: что болит и насколько зажило.
+export function сводкаБолезней(о) {
+  return болезниВладельца(о).список.map(б => ({ что: б.что, значок: б.значок, стадия: б.стадия.текст || '', выздоровление: б.выздоровление }));
+}
+
+// Травма, а не след: по виду (порез, ожог) или по словам в описании.
+const ТРАВМА_СЛОВА = /(?<![\p{L}])(?:кров(?:ь|и|ью|оточ|отеч|ян|ав)|перелом|вывих|разрыв|надрыв|трещин|сотрясен|рассеч|глубок\p{L}* ран|ран(?:а|ы|у|ой)(?![\p{L}])|ранен|ожог|шов|швы|зашит)/iu;
+const ЭТО_ТРАВМА = (с) => ['cut', 'burn'].includes(с.вид) || ТРАВМА_СЛОВА.test([с.что, с.где, с.как].join(' '));
+
 function карточкаБолезни(б) {
   const доля = б.выздоровление;
   return `<div class="hud-ill${б.стадия.ключ ? ' is-' + б.стадия.ключ : ''}">`
@@ -470,6 +490,7 @@ function карточкаБолезни(б) {
     + (доля !== null ? `<div class="hud-ill-meter" title="Выздоровление ${Math.round(доля)}%"><i style="width:${доля}%"></i><small>${Math.round(доля)}%</small></div>` : '')
     + строкаПодписи('Симптомы', б.симптомы)
     + строкаПодписи('Лечение', б.лечение)
+    + (б.пометка ? `<small class="hud-ill-src">${escapeHtml(б.пометка)}</small>` : '')
     + `</div>`;
 }
 
@@ -508,6 +529,20 @@ function собратьЗдоровье(о, вБлизости) {
       else Object.assign(слитый, { срокЧасов: null, осталосьЧ: null, осталось: null });
     }
     следы[i] = слитый;
+  }
+  // Настоящая травма, записанная только следом (порез, ожог, кровь, разрыв),
+  // — это уже болезнь: она уходит в «Болезни и травмы» свежей, с пометкой.
+  // Засосы, укусы, царапины и синяки остаются следами.
+  for (let i = следы.length - 1; i >= 0; i--) {
+    const с = следы[i];
+    if (с.стадия || !ЭТО_ТРАВМА(с)) continue;
+    одиночные.push({
+      что: с.что, где: '', как: '', стадия: стадияБолезни('fresh'), выздоровление: null,
+      симптомы: [с.где, с.как].filter(Boolean).join(' — '), лечение: '',
+      вид: с.вид, значок: с.значок, зона: с.зона,
+      пометка: вБлизости ? 'появилась во время сцены' : 'из следов на теле',
+    });
+    следы.splice(i, 1);
   }
   const списокСледов = следы.length ? `<div class="hud-marks">${следы.map(карточкаСледа).join('')}</div>` : '';
   const карточки = (одиночные.length ? `<div class="hud-ill-list">${одиночные.map(карточкаБолезни).join('')}</div>` : '')
@@ -585,6 +620,106 @@ export function buildPerceptionHTML(characters) {
   return `<div class="hud-row full-width hud-perception kind-bonds f-perception"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>👁</span></i> Что о тебе думают:</span><div class="hud-perc-list">${список}</div></div>`;
 }
 
+/* --- Плашки состояния над карточкой ---------------------------------------
+   «Без сознания» с таймером и «Модификаторы сцены» во время близости: шанс
+   зачатия сейчас (свой и у партнёра) и как фаза цикла меняет сцену. Всё — из
+   уже написанных полей, модели ничего нового не пишут. */
+
+// Потеря сознания. Отрицания («чуть не отключилась», «едва не потеряла
+// сознание») не считаем; «очнулась», «пришла в себя» снимают плашку.
+const ПРОВАЛ = /(?<![\p{L}])(?:потерял\p{L}* сознани\p{L}*|без сознани\p{L}*|(?:упал\p{L}* )?в обморок\p{L}*|отключил(?:ась|ся|ись)|вырубил(?:ась|ся|ись)|в отключке|лишил\p{L}* чувств|без чувств|в беспамятств\p{L}*|в коме|кома(?![\p{L}]))/giu;
+const ОЧНУЛСЯ = /(?<![\p{L}])(?:очнул\p{L}*|приш[её]л\p{L}* в себя|пришла в себя|пришли в себя|приходит в себя)/iu;
+// «После обморока», «перед тем как отключилась», «вспоминает, как потеряла
+// сознание» — прошлое или страх, а не состояние сейчас. Само слово «обморок»
+// без «в» не считаем: так пишут о случившемся («решимость после обморока»).
+const НЕ_ПЕРЕД = /(?:(?<![\p{L}])не|чуть не|едва не|почти|чуть было не|вот-вот|боится|боялась|боялся|готова|готов|(?<![\p{L}])(?:после|перед|до|вместо)(?: того,? как| тог?о?,? как)?|вспомина\p{L}*,? как|помн\p{L}*,? как|как тогда|снова не)\s*$/iu;
+const ПОЛЯ_СОСТОЯНИЯ = [['Тело', 'B'], ['Здоровье', 'H'], ['Физиология', 'Ph'], ['Мысли', 'Th'], ['Болезни и травмы', 'Ill'], ['Скрытый подтекст', 'D']];
+
+export function безСознания(о) {
+  // Пробелы бывают «невидимыми» (U+2800, неразрывный) — для проверок они те же пробелы.
+  const текст = ПОЛЯ_СОСТОЯНИЯ.map(([к, код]) => полеОбъекта(о, к, код)).filter(Boolean).join(' ; ').replace(/[⠀   ]/g, ' ');
+  if (!текст || ОЧНУЛСЯ.test(текст)) return '';
+  for (const m of текст.matchAll(ПРОВАЛ)) {
+    if (НЕ_ПЕРЕД.test(текст.slice(Math.max(0, m.index - 30), m.index))) continue;
+    // Кусок вокруг совпадения — для подсказки: «потеряла сознание от удара».
+    const начало = Math.max(0, текст.lastIndexOf(';', m.index) + 1, текст.lastIndexOf(',', m.index) + 1);
+    const конецТочка = [текст.indexOf(';', m.index), текст.indexOf(',', m.index)].filter(i => i > 0);
+    return текст.slice(начало, конецТочка.length ? Math.min(...конецТочка) : текст.length).trim();
+  }
+  return '';
+}
+
+function минутыТекстом(м) {
+  const всего = Math.max(0, Math.round(м));
+  if (всего < 60) return всего + ' мин';
+  const ч = Math.floor(всего / 60), мин = всего % 60;
+  if (ч >= 48) return Math.floor(ч / 24) + ' дн.';
+  return ч + ' ч' + (мин ? ' ' + мин + ' мин' : '');
+}
+
+function плашкаБезСознания(о) {
+  const фраза = безСознания(о);
+  if (!фраза) return '';
+  // Таймер: с самого раннего хода подряд, где человек без сознания.
+  const сейчас = моментВладельца(о);
+  let начало = null, ходов = 0;
+  for (const х of историяВладельца(о)) {
+    if (!безСознания(х.данные)) break;
+    ходов++;
+    if (Number.isFinite(х.момент)) начало = х.момент;
+  }
+  const таймер = Number.isFinite(сейчас) && Number.isFinite(начало) && сейчас >= начало
+    ? 'уже ' + минутыТекстом((сейчас - начало) / 60000)
+    : ходов ? `${ходов + 1}-й ход` : 'с этого хода';
+  return `<div class="hud-state-plaque is-out" role="status"><i aria-hidden="true">💤</i>`
+    + `<div><b>Без сознания</b><small>${escapeHtml(фраза)}</small></div><span class="hud-state-timer">${escapeHtml(таймер)}</span></div>`;
+}
+
+// Шанс зачатия сейчас для человека с циклом. Таблетки и спираль — только его
+// собственные; у партнёра берётся лишь общая защита (презерватив, её нет).
+const ЛИЧНАЯ_ЗАЩИТА = /^\s*(?:pill|iud|implant|ring|patch|injection)\b|таблет|спирал|имплант|кольц|пластыр|укол/i;
+function шансСейчас(человек, партнёр) {
+  const ц = циклСейчас(полеОбъекта(человек, 'Цикл', 'Mns'));
+  if (!ц || ц.опоздание) return null;
+  const своя = полеОбъекта(человек, 'Защита', 'Prt');
+  const его = полеОбъекта(партнёр, 'Защита', 'Prt');
+  const защита = своя || (его && !ЛИЧНАЯ_ЗАЩИТА.test(его) ? его : '');
+  const р = рискЗачатия(ц.день, ц.L, ц.фаза, { ov: ц.ov, защита });
+  return { проц: Math.round(р.шанс * 100), защита: р.защита ? р.защита.имя : '', ц };
+}
+
+// Партнёр по сцене: чьё имя стоит в его близости — или его имя в чужой.
+const ПОЛЯ_БЛИЗОСТИ = [['Последний секс', 'SxL'], ['NSFW', 'W'], ['NSFW (Юзер)', 'UW'], ['Детализация NSFW', 'ND'], ['Поза', 'Pos']];
+const первоеСлово = (имя) => String(имя || '').trim().split(/\s+/)[0].toLowerCase();
+function упоминает(о, имя) {
+  const и = первоеСлово(имя);
+  return !!и && ПОЛЯ_БЛИЗОСТИ.map(([к, код]) => полеОбъекта(о, к, код)).join(' ').toLowerCase().includes(и);
+}
+
+function плашкаМодификаторов(о, имя) {
+  const фаза = полеОбъекта(о, 'Фаза близости', 'SS');
+  const вСцене = состояниеСцены(фаза) || !!полеОбъекта(о, 'NSFW (Юзер)', 'UW');
+  if (!вСцене) return '';
+  const пункты = [];
+  const свой = шансСейчас(о, null);
+  if (свой) {
+    пункты.push(`<span class="hud-mod is-fertile${свой.проц >= 20 ? ' is-high' : ''}" title="Шанс зачатия по дню цикла${свой.защита ? ' с учётом защиты: ' + escapeHtml(свой.защита) : ''}"><i aria-hidden="true">🌼</i>шанс зачатия сейчас <b>${свой.проц}%</b>${свой.защита ? ` · ${escapeHtml(свой.защита)}` : ''}</span>`);
+    for (const [значок, текст] of модификаторыФазы(свой.ц)) if (значок !== '🌼') пункты.push(`<span class="hud-mod"><i aria-hidden="true">${значок}</i>${escapeHtml(текст)}</span>`);
+  }
+  const соседи = (о.__соседи || []).filter(п => п && п.данные !== о);
+  for (const п of соседи) {
+    if (!упоминает(о, п.имя) && !упоминает(п.данные, имя)) continue;
+    const ш = шансСейчас(п.данные, о);
+    if (!ш) continue;
+    пункты.push(`<span class="hud-mod is-fertile is-partner${ш.проц >= 20 ? ' is-high' : ''}" title="Цикл партнёра по сцене"><i aria-hidden="true">🌼</i>${defeatWI(escapeHtml(первоеСлово(п.имя).replace(/^./, c => c.toUpperCase())))}: шанс зачатия <b>${ш.проц}%</b>${ш.защита ? ` · ${escapeHtml(ш.защита)}` : ''}</span>`);
+  }
+  return пункты.length ? `<div class="hud-scene-mods" role="group" aria-label="Модификаторы сцены"><span class="hud-scene-mods-title">Модификаторы сцены</span>${пункты.join('')}</div>` : '';
+}
+
+function плашкиСостояния(о, имя) {
+  return плашкаБезСознания(о) + плашкаМодификаторов(о, имя);
+}
+
 export function buildUserHTML(userData, uid, isChecked, characters) {
   if (!userData || Object.keys(userData).length === 0) return '';
   const personaName = getSafeUserName();
@@ -621,7 +756,7 @@ export function buildUserHTML(userData, uid, isChecked, characters) {
     } else if (label.toLowerCase().includes('nsfw')) {
       rows += `<div class="${rowClass}"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>🔞</span></i> ${escapeHtml(надписьПоля(label))}:</span> <div class="hud-vertical-container hud-nsfw-list is-act">${buildPillList(безГрудиУМужчин(value, userData, true), 'hud-nsfw-pill')}</div></div>`;
     } else if (label.toLowerCase() === 'цикл') {
-      rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}Менструальный цикл:</span> ${buildCycle(value, { ...контекстЗачатия(userData, characters), кто: 'user', сцена: userData && userData.__датаСцены })}</div>`;
+      rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}Менструальный цикл:</span> ${buildCycle(value, { ...контекстЗачатия(userData, characters, getSafeUserName()), кто: 'user', сцена: userData && userData.__датаСцены })}</div>`;
     } else if (label.toLowerCase() === 'беременность') {
       rows += `<div class="${rowClass} full-width"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${buildPregnancy(value, { сцена: userData && userData.__датаСцены })}</div>`;
     } else {
@@ -629,8 +764,9 @@ export function buildUserHTML(userData, uid, isChecked, characters) {
     }
   });
   const восприятие = settings.enablePerception !== false ? buildPerceptionHTML(characters) : '';
-  if (!rows && !восприятие) return '';
-  return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-header hud-user-header"><div class="hud-header-info">${avatarHtml}<div class="hud-header-text"><span class="hud-title">${escapeHtml(personaName)}</span></div></div></div><div class="hud-body hud-user-body">${восприятие}${rows}</div></div>`;
+  const плашки = плашкиСостояния(userData, personaName);
+  if (!rows && !восприятие && !плашки) return '';
+  return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-header hud-user-header"><div class="hud-header-info">${avatarHtml}<div class="hud-header-text"><span class="hud-title">${escapeHtml(personaName)}</span></div></div></div><div class="hud-body hud-user-body">${плашки}${восприятие}${rows}</div></div>`;
 }
 
 export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
@@ -643,13 +779,21 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
   const avatarHtml = avatar ? `<img src="${avatar.url}" data-hud-fallback="${avatar.thumbUrl}" class="hud-avatar" alt="avatar"${avaTag} onerror="if(!this.dataset.hudTried && this.dataset.hudFallback){this.dataset.hudTried='1'; this.src=this.dataset.hudFallback;} else {this.outerHTML='<div class=&quot;hud-avatar-placeholder&quot;>👤</div>';}">` : `<div class="hud-avatar-placeholder"${avaTag}>👤</div>`;
 
   let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-header"><div class="hud-header-info">${avatarHtml}<div class="hud-header-text"><span class="hud-title">${escapeHtml(charName)}</span></div></div></div><div class="hud-body">`;
+  html += плашкиСостояния(charData, charName);
 
   // Фаза, поза, раунд и длительность рисуются одной полосой — один раз.
   let сценаПоказана = false;
-  // Здоровье, болезни и следы — один трекер, собирается один раз.
-  const вБлизости = !пустоеПоле(полеОбъекта(charData, 'Фаза близости', 'SS'));
   // В фазе 3 строки сцены приглушены и тёплые: видно, что всё уже позади.
-  const сцена = состояниеСцены(снятьЗаглушки(flattenFieldValue(полеОбъекта(charData, 'Фаза близости', 'SS'))));
+  const фазаСырая = снятьЗаглушки(flattenFieldValue(полеОбъекта(charData, 'Фаза близости', 'SS')));
+  const сцена = состояниеСцены(фазаСырая);
+  // Здоровье, болезни и следы — один трекер, собирается один раз. «1 — empty»
+  // — это не близость: раньше любая непустая фаза считалась сценой.
+  const вБлизости = !!сцена;
+  // Модель прямо написала фазу 1 — сцены нет. Поля, которые по схеме живут
+  // только в фазах 2 и 3, в карточку не выводим, даже если модель их
+  // заполнила (так было, пока промт ошибочно просил близость вне сцены).
+  const фазаОдин = !сцена && /^\s*(?:(?:phase|фаза)\s*)?1(?![\d.,])/i.test(фазаСырая || '');
+  const ТОЛЬКО_В_СЦЕНЕ = ['фаза близости', 'поза', 'раунд', 'длительность', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'карта тела', 'nsfw', 'детализация nsfw', 'забота после', 'отзыв о сексе'];
   let здоровье = null, здоровьеПоказано = false;
   // Следы на теле отслеживаются и после акта: строку проверяем, даже если
   // модель в этом ходу их не упомянула, — активные найдутся в прошлых ходах.
@@ -657,6 +801,7 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
   for (const [key, rawValue] of orderFields(поляКарточки)) {
     const lowerKey = key.toLowerCase();
     if (lowerKey === 'имя') continue;
+    if (фазаОдин && ТОЛЬКО_В_СЦЕНЕ.includes(lowerKey)) continue;
     // Объект или массив здесь — обычное дело: схема просит строку «Метка:
     // значение; ...», а модель нередко отдаёт ту же структуру объектом.
     // Разворачиваем сразу, чтобы ниже по коду везде была строка.
@@ -665,7 +810,9 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
     let rowClass = FULL_WIDTH_KEYS.some(k => lowerKey.includes(k)) ? 'hud-row full-width' : 'hud-row';
     if (DRAMA_KEYS.some(k => lowerKey.includes(k))) rowClass += ' drama-alert';
     if (lowerKey.includes('nsfw') || lowerKey.includes('секс') || lowerKey.includes('партнеров')
-        || lowerKey === 'кинк' || lowerKey === 'фетиш' || lowerKey === 'никогда не сделает' || lowerKey === 'не возбуждает'
+        // Фетиш — не часть сцены, а черта: оформление у него нейтральное
+        // (misc.css, «Нейтральные: болезни, следы, фетиш»).
+        || lowerKey === 'кинк' || lowerKey === 'никогда не сделает' || lowerKey === 'не возбуждает'
         // Фаза близости, карта тела и забота после по смыслу лежат там же,
         // а оформления закрытой части не получали — блок распадался на две
         // половины с разным видом.
@@ -726,7 +873,8 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
     } else if (lowerKey === 'карта тела') {
       // Картинкой: силуэт спереди и сзади, зоны залиты по силе, на них — следы.
       // Выключено в настройках — прежний список зон со шкалами.
-      const карта = settings.enableHeatMap !== false ? buildHeatMap(value, charData) : '';
+      // Рисунок тяжёлый (кадры истории, слои) — собираем, когда строка на экране.
+      const карта = settings.enableHeatMap !== false ? отложитьРисунок(uid + '-heat', () => buildHeatMap(value, charData) || `<div class="hud-bodymap">${buildBodyMap(value)}</div>`, 300) : '';
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${карта || `<div class="hud-bodymap">${buildBodyMap(value)}</div>`}</div>`;
     } else if (lowerKey === 'беременность') {
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${buildPregnancy(value, { сцена: charData.__датаСцены })}</div>`;
@@ -745,16 +893,27 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
         : lowerKey === 'никогда не сделает' ? 'hud-nogo-pill' : 'hud-noturn-pill';
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, pillClass, true)}</div></div>`;
     } else if (lowerKey === 'расписание') {
-      const items = String(value).split(String(value).includes(';') ? /;/ : /(?:\.\s+(?=[А-ЯA-ZА-ЯЁ])|\n)/)
+      // Когда — отдельной колонкой. Промт разрешает и часы («14:30 - встреча»),
+      // и день или часть дня («пятница 10:00 - сдача», «суббота - сборка»):
+      // прежде колонка появлялась, только если строка начиналась с часов, и
+      // «пятница 10:00 - …» шла одним текстом.
+      const items = String(value).split(String(value).includes(';') ? /;/ : /(?:\.\s+(?=[А-ЯA-ZЁ])|\n)/)
         .filter(i => i.trim().length > 0).map(i => {
-          let text = i.trim().replace(/\.$/, ''); let timeMatch = text.match(/^([\d]{1,2}:\d{2})\s*[-—–:]?\s*(.*)$/);
-          return timeMatch ? `<div class="hud-schedule-item"><div class="hud-schedule-time">${escapeHtml(timeMatch[1])}</div><div class="hud-schedule-event">${applyTooltips(timeMatch[2])}</div></div>` : `<div class="hud-schedule-item"><div class="hud-schedule-event">${applyTooltips(text)}</div></div>`;
+          const text = i.trim().replace(/\.$/, '');
+          const m = text.match(/^(.{0,24}?\d{1,2}:\d{2})\s*[-—–:]?\s*(.+)$/) || text.match(/^([^-—–:;]{1,24}?)\s+[-—–]\s+(.+)$/);
+          return m ? `<div class="hud-schedule-item"><div class="hud-schedule-time">${escapeHtml(m[1].trim())}</div><div class="hud-schedule-event">${applyTooltips(m[2])}</div></div>` : `<div class="hud-schedule-item"><div class="hud-schedule-event">${applyTooltips(text)}</div></div>`;
         }).join('');
-      html += `<div class="${rowClass} full-width"><div class="hud-schedule-container">${items}</div></div>`;
+      // Подписи у строки не было — единственной среди полей персонажа.
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-schedule-container">${items}</div></div>`;
     } else if (lowerKey === 'ожидание vs реальность') {
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-exp-reality">${buildPillList(value, '')}</div></div>`;
     } else if (lowerKey === 'глубина конфликта') {
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-conflict-pill')}</div></div>`;
+      // Стадию промт просит английским словом (brewing, open, cold war,
+      // reconciliation) — на экран она выходила как есть, «cold war».
+      const ПО_РУССКИ = { brewing: 'назревает', open: 'открытый', 'cold war': 'холодная война', reconciliation: 'примирение' };
+      const поРусски = String(value).replace(/((?:^|;)\s*(?:sg|стадия)\s*[:：]\s*)(brewing|open|cold war|reconciliation)\s*(?=;|$)/gi,
+        (всё, перед, слово) => перед + ПО_РУССКИ[слово.toLowerCase()]);
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(поРусски, 'hud-conflict-pill')}</div></div>`;
     } else if (lowerKey === 'отзыв о сексе') {
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <span class="${valueClass} hud-sex-rev">${applyTooltips(String(value)).replace(/([★☆]+)/g, '<span class="hud-stars-rating">$1</span>')}</span></div>`;
     } else if (lowerKey === 'общие воспоминания') {
