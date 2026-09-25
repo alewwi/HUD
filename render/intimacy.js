@@ -13,13 +13,13 @@
 // карточки ненадёжны — у неё content-visibility, и браузер может не
 // двигать их время.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.7.5';
-import { namesLikelySame } from '../names.js?v=23.7.5';
-import { разобратьХод } from './carryover.js?v=23.7.5';
-import { parseSceneDate } from '../history-analyzer.js?v=23.7.5';
-import { исходЗачатия } from './conception.js?v=23.7.5';
-import { settings } from '../settings.js?v=23.7.5';
-import { ощущенияИзТекста, одеждаИзТекста, ОБЛАСТИ } from './body-layers.js?v=23.7.5';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.9.2';
+import { namesLikelySame } from '../names.js?v=23.9.2';
+import { разобратьХод } from './carryover.js?v=23.9.2';
+import { parseSceneDate } from '../history-analyzer.js?v=23.9.2';
+import { исходЗачатия } from './conception.js?v=23.9.2';
+import { settings } from '../settings.js?v=23.9.2';
+import { ощущенияИзТекста, одеждаИзТекста, ОБЛАСТИ } from './body-layers.js?v=23.9.2';
 
 const пусто = (v) => { const s = String(v ?? '').trim(); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
 const число = (s) => { const m = String(s ?? '').replace(/(\d),(\d)/g, '$1.$2').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };
@@ -260,7 +260,7 @@ export function buildSounds(value) {
    Плавный силуэт спереди и сзади; зоны светятся тепловыми пятнами одного
    тона — чем сильнее, тем ярче и шире. Пятна обрезаны по силуэту. */
 
-const ЗОНЫ = [
+export const ЗОНЫ = [
   ['groin', 'Пах', слово('пах|лоб[оа]?к|клитор|член|вагин|влагалищ|промежн|половы|интимн|киск')],
   ['nape', 'Шея сзади', слово('затыл|холк|шея сзади|задн\\p{L}* (?:\\p{L}+ )?ше')],
   ['lips', 'Губы', слово('губ|рот|рта')],
@@ -307,8 +307,9 @@ const ДЕТАЛИ = {
   b: ['M 45 38 L 45 88', 'M 33 50 Q 38 56 42 50', зеркало('M 33 50 Q 38 56 42 50'), 'M 36 91 Q 40 95 44 92', зеркало('M 36 91 Q 40 95 44 92')],
 };
 
-// Центры тепловых пятен: [x, y, радиус] для каждой стороны.
-const ПЯТНА = {
+// Центры тепловых пятен: [x, y, радиус] для каждой стороны. Их же берут
+// виды «точки» и «созвездие» (render/views.js).
+export const ПЯТНА = {
   head: { f: [[45, 15, 12]], b: [[45, 15, 12]] },
   lips: { f: [[45, 22.5, 5]] },
   ears: { f: [[34.5, 17, 4.5], [55.5, 17, 4.5]], b: [[34.5, 17, 4.5], [55.5, 17, 4.5]] },
@@ -415,7 +416,8 @@ function подписьКадра(назад, момент) {
   return время ? когда + ' · ' + время : когда;
 }
 
-export function buildHeatMap(value, владелец) {
+export function buildHeatMap(value, владелец, начальный = 'both') {
+  const старт = ВИДЫ_КАРТЫ[начальный] ? начальный : 'both';
   const { зоны, поId } = зоныКарты(value);
   if (!зоны.length) return '';
   const следы = активныеСледы(поле(владелец, 'Следы на теле'), владелец).filter(с => с.зона);
@@ -492,11 +494,11 @@ export function buildHeatMap(value, владелец) {
     крупно = `${x0.toFixed(1)} ${y0.toFixed(1)} 70 70`;
   }
 
-  const svg = `<svg class="hud-heat-svg" viewBox="${ВИДЫ_КАРТЫ.both}" role="img" aria-label="Карта чувствительности тела спереди и сзади">`
+  const svg = `<svg class="hud-heat-svg" viewBox="${ВИДЫ_КАРТЫ[старт]}" role="img" aria-label="Карта чувствительности тела спереди и сзади">`
     + defs + сторона('f') + сторона('b')
     + `<text class="z-side" x="51" y="199">спереди</text><text class="z-side" x="149" y="199">сзади</text></svg>`;
 
-  const вид = (ключ, подпись, область) => `<button type="button" class="hud-heat-btn${ключ === 'both' ? ' is-on' : ''}" data-heat-view="${ключ}" data-box="${область}" aria-pressed="${ключ === 'both'}">${подпись}</button>`;
+  const вид = (ключ, подпись, область) => `<button type="button" class="hud-heat-btn${ключ === старт ? ' is-on' : ''}" data-heat-view="${ключ}" data-box="${область}" aria-pressed="${ключ === старт}">${подпись}</button>`;
   const слой = (ключ, подпись, вкл) => `<button type="button" class="hud-heat-btn is-layer${вкл ? ' is-on' : ''}" data-heat-layer="${ключ}" aria-pressed="${вкл}">${подпись}</button>`;
   const панель = `<div class="hud-heat-controls">`
     + `<div class="hud-heat-views" role="group" aria-label="Вид">${вид('both', 'Оба', ВИДЫ_КАРТЫ.both)}${вид('f', 'Спереди', ВИДЫ_КАРТЫ.f)}${вид('b', 'Сзади', ВИДЫ_КАРТЫ.b)}${крупно ? вид('close', 'Крупно', крупно) : ''}</div>`

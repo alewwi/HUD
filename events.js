@@ -11,14 +11,14 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.7.5';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.7.5';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.7.5';
-import { getTheme, themeVars, presetRowHTML, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.7.5';
-import { settings, defaultSettings } from './settings.js?v=23.7.5';
-import { getWorldVotes } from './render/world.js?v=23.7.5';
-import { раскрытьПорцию } from './render/long-list.js?v=23.7.5';
-import { прогретьИсторию } from './render/carryover.js?v=23.7.5';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.9.2';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.9.2';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.9.2';
+import { getTheme, themeVars, presetRowHTML, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.9.2';
+import { settings, defaultSettings } from './settings.js?v=23.9.2';
+import { getWorldVotes } from './render/world.js?v=23.9.2';
+import { раскрытьПорцию } from './render/long-list.js?v=23.9.2';
+import { прогретьИсторию } from './render/carryover.js?v=23.9.2';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -1614,3 +1614,21 @@ document.addEventListener('click', (e) => {
   e.preventDefault(); e.stopPropagation();
   раскрытьПорцию(кнопка).forEach(узел => refreshReactions(узел));
 }, true);
+
+// Секреты в новых видах (render/views.js): текст открывается нажатием —
+// как спойлер в списке секретов.
+document.addEventListener('click', (e) => {
+  const тайна = e.target.closest && e.target.closest('.hud-v-spoil');
+  if (тайна) { тайна.classList.toggle('is-open'); return; }
+  // Виды блоков оживают по нажатию (на телефоне наведения нет) и
+  // замирают по второму — как погода в «Мире».
+  const вид = e.target.closest && e.target.closest('.hud-v');
+  if (вид && !e.target.closest('a, button, input, select, .hud-help-mark')) вид.classList.toggle('fx-active');
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Enter' && e.key !== ' ') return;
+  const тайна = e.target && e.target.closest && e.target.closest('.hud-v-spoil');
+  if (!тайна) return;
+  e.preventDefault();
+  тайна.classList.toggle('is-open');
+});

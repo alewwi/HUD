@@ -3,12 +3,12 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText } from '../utils.js?v=23.7.5';
-import { overrideAvatarUrl } from '../avatars.js?v=23.7.5';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText } from '../utils.js?v=23.9.2';
+import { overrideAvatarUrl } from '../avatars.js?v=23.9.2';
 // Снимки, ролики, голосовые и звонки собирает тот же код, что и в личном
 // телефоне. Своя копия разбора здесь означала бы, что новый формат от модели
 // в одном мессенджере работает, а в другом остаётся сырым тегом в тексте.
-import { собратьЛенту, моментПоследнего } from './msg-feed.js?v=23.7.5';
+import { собратьЛенту, моментПоследнего } from './msg-feed.js?v=23.9.2';
 
 // Кружок отправителя в перехвате: ручная аватарка фоном либо инициал.
 // Разметка и классы прежние — картинку прячет за собой класс has-img.

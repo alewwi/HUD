@@ -6,12 +6,13 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.7.5';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.7.5';
-import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.7.5';
-import { отложитьРисунок } from './lazy-svg.js?v=23.7.5';
-import { длинныйСписок } from './long-list.js?v=23.7.5';
-import { статусРужья } from '../codes.js?v=23.7.5';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.9.2';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.9.2';
+import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.9.2';
+import { отложитьРисунок } from './lazy-svg.js?v=23.9.2';
+import { длинныйСписок } from './long-list.js?v=23.9.2';
+import { видБлока, видМаршрута, видСекретов, видРужей } from './views.js?v=23.9.2';
+import { статусРужья } from '../codes.js?v=23.9.2';
 
 function parseRoutePoint(item) {
   const parts = String(item).split(/[-—–]/).map(s => s.trim());
@@ -122,7 +123,7 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
   // 2. МАРШРУТЫ (Связанные узлы пути)
   const buildRouteHTML = (routeArr, entityLabel) => {
       if (!routeArr || routeArr.length === 0) return '';
-      return buildRouteMapHTML(routeArr, entityLabel);
+      return видМаршрута(routeArr.map(parseRoutePoint), entityLabel, видБлока('routeView')) || buildRouteMapHTML(routeArr, entityLabel);
   };
 
   // Имя персонажа для подписей. Раньше маршрут его вычислял, а блок эмоций
@@ -179,7 +180,9 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
   }
 
   // Ружья Чехова: незакрытые нити. Строка «завязка | к кому относится | статус».
-  if (Array.isArray(memoryData.guns) && memoryData.guns.length > 0) {
+  const ружьяИначе = Array.isArray(memoryData.guns) && memoryData.guns.length ? видРужей(memoryData.guns, видБлока('gunsView')) : '';
+  if (ружьяИначе) html += `<div class="hud-row full-width"><span class="hud-key">🔫 Ружья Чехова:</span> ${ружьяИначе}</div>`;
+  else if (Array.isArray(memoryData.guns) && memoryData.guns.length > 0) {
     const ружья = memoryData.guns.map(строка => {
       const [завязка = '', кто = '', статусСырой = ''] = String(строка).split('|').map(s => s.trim());
       if (!завязка) return '';
@@ -199,7 +202,9 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
   }
 
   // 4. СЕКРЕТЫ (Кастомный скрытый спойлер + Уровни)
-  if (Array.isArray(memoryData.secrets) && memoryData.secrets.length > 0) {
+  const секретыИначе = Array.isArray(memoryData.secrets) && memoryData.secrets.length ? видСекретов(memoryData.secrets, видБлока('secretsView')) : '';
+  if (секретыИначе) html += `<div class="hud-row full-width"><span class="hud-key">🤫 Зашифрованные данные:</span> ${секретыИначе}</div>`;
+  else if (Array.isArray(memoryData.secrets) && memoryData.secrets.length > 0) {
     let secHtml = memoryData.secrets.map(s => {
        let lvlStr = String(s.level || '').toLowerCase();
        let lvlText = '🔒 СЕКРЕТ'; let lvlClass = 'lvl-secret';

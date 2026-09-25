@@ -6769,3 +6769,56 @@ html:not(.hud-phone-noglow) .hud-phone-emulator :is(.hud-wx-fc, .hud-phone-note,
 /* Светлые темы: почти белый снег на бумаге становился серым и сливался с
    «облачно» — даём ему ледяной оттенок. */
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-wx, .hud-world-section-forecast) .w-snow { --wx: #5aa9cf; }
+
+/* =========================================================================
+   ИМЯ ПЕРСОНАЖА: СВЕЧЕНИЕ БЕЗ ОБРЕЗКИ
+   Контейнер имени резал всё, что за его краем (overflow: hidden), и ореол
+   вокруг имени обрывался прямоугольником — на телефоне это было видно.
+   Длинное имя теперь переносится, а не прячется.
+   ========================================================================= */
+.hud-header-text { overflow: visible; min-width: 0; }
+.hud-header-text .hud-title { overflow-wrap: anywhere; }
+
+/* На телефоне вокруг всей карточки не светится: по краям экрана ореол
+   выглядел как цветные полосы. Внутри карточки свет остаётся. */
+@media (max-width: 600px) {
+  :root { --hud-glow-card: 0 0 0 0 transparent; }
+}
+
+/* =========================================================================
+   ВИД СЕКЦИЙ (Кастомизация → Вид блоков)
+   Один цвет — все секции цветом акцента, кроме NSFW. Без значков — нет
+   рисунка в углу секции и значков в подписях пилюль. Одинаковое
+   оформление — разметку упрощает render/character.js (без класса поля),
+   здесь снимаем остатки кроя групп.
+   ========================================================================= */
+/* Акцент берём на уровне карточки: внутри строки --hud-accent сам выводится
+   из --kind, и прямая ссылка замыкалась в круг — цвет пропадал совсем. */
+html.hud-pills-mono .hud-os-card { --hud-pill-mono: var(--hud-accent, #c31f38); }
+html.hud-pills-mono .hud-os-card :is(.hud-row, .hud-key-block):not(.nsfw) { --kind: var(--hud-pill-mono) !important; }
+html.hud-pills-mono .hud-os-card .hud-detail-pill:is(.is-now, .is-soon, .is-later) { --срок: var(--kind); --кромка: var(--kind); }
+html.hud-pills-mono .hud-os-card .hud-detail-pill:is(.is-now, .is-soon, .is-later) .hud-pill-label { color: inherit; }
+html.hud-pills-mono .hud-os-card .hud-detail-pill[style*="--тон-сдвиг"] { --тон-сдвиг: 0 !important; }
+html.hud-pills-mono .hud-os-card .hud-row:not(.nsfw) .hud-conflict-pill { border-left-color: var(--kind) !important; }
+
+html.hud-pills-noicons .hud-os-card .hud-row[class*=" kind-"]::after { display: none !important; }
+html.hud-pills-noicons .hud-os-card .hud-pill-ico { display: none !important; }
+
+html.hud-pills-plain .hud-os-card .hud-row.kind-alarm::before {
+  background:
+    linear-gradient(90deg, var(--kind) 0 3px, transparent 3px),
+    linear-gradient(118deg, color-mix(in srgb, var(--kind) 13%, transparent) 0%, transparent 58%);
+}
+html.hud-pills-plain .hud-os-card .hud-row.kind-items .hud-inventory-pill { border-style: solid; padding-left: 10px; background-image: none; }
+html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { background-image: none; }
+
+/* Пересборка просмотра в «Кастомизации»: новая карточка сразу на месте, а
+   старая лежит поверх и растворяется (index.js, собратьПросмотр). */
+.hud-custom-preview-body { position: relative; }
+.hud-custom-preview-body > .hud-swap-old {
+  position: absolute; top: 0; left: 0; right: 0; z-index: 2; pointer-events: none;
+  opacity: 1; transition: opacity .38s cubic-bezier(.4, 0, .2, 1);
+}
+.hud-custom-preview-body > .hud-swap-old.is-leaving { opacity: 0; }
+@media (prefers-reduced-motion: reduce) { .hud-custom-preview-body > .hud-swap-old { transition: none; } }
+.hud-custom-minimal { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }

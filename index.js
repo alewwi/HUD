@@ -1,35 +1,36 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=23.7.5';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=23.7.5';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.7.5';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.7.5';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.7.5';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.7.5';
-import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.7.5';
-import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=23.7.5';
-import { привязатьИсторию, ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.7.5';
-import { ПРИМЕР_HUD_ТЕКСТ, БАЗОВЫЙ_HUD_ТЕКСТ } from './render/sample-hud.js?v=23.7.5';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.7.5';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.7.5';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.7.5';
-import { buildMemoryHTML } from './render/memory.js?v=23.7.5';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.7.5';
-import { buildPhoneTabsHTML } from './render/phone.js?v=23.7.5';
-import { праздникиСцены } from './render/holidays.js?v=23.7.5';
-import { скрытыеФактыЗачатия } from './render/conception.js?v=23.7.5';
-import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.7.5';
-import { hudHasRelations } from './render/relations-graph.js?v=23.7.5';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.7.5';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.7.5';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=23.7.5';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.7.5';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.7.5';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=23.7.5';
-import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.7.5';
-import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.7.5';
-import { создатьПроверкуПолноты } from './hud-check.js?v=23.7.5';
-import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.7.5';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=23.9.2';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=23.9.2';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.9.2';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.9.2';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.9.2';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.9.2';
+import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.9.2';
+import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=23.9.2';
+import { привязатьИсторию, ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.9.2';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.9.2';
+import { ПРИМЕР_HUD_ТЕКСТ, БАЗОВЫЙ_HUD_ТЕКСТ } from './render/sample-hud.js?v=23.9.2';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.9.2';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.9.2';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.9.2';
+import { buildMemoryHTML } from './render/memory.js?v=23.9.2';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.9.2';
+import { buildPhoneTabsHTML } from './render/phone.js?v=23.9.2';
+import { праздникиСцены } from './render/holidays.js?v=23.9.2';
+import { скрытыеФактыЗачатия } from './render/conception.js?v=23.9.2';
+import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.9.2';
+import { hudHasRelations } from './render/relations-graph.js?v=23.9.2';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.9.2';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.9.2';
+import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=23.9.2';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.9.2';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.9.2';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=23.9.2';
+import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.9.2';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.9.2';
+import { создатьПроверкуПолноты } from './hud-check.js?v=23.9.2';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.9.2';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -934,6 +935,12 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // Свечение внутри эмулятора телефона — свой выключатель.
       root.classList.toggle('hud-phone-noglow', settings.phoneGlow === 'off');
     }
+    // Вид секций карточки (Кастомизация → Вид блоков): один цвет вместо
+    // цветов по смыслу, без угловых значков, одинаковый крой. Последнее
+    // меняет и разметку (render/character.js), класс — для остатков в CSS.
+    root.classList.toggle('hud-pills-mono', settings.pillColors === 'mono');
+    root.classList.toggle('hud-pills-noicons', settings.pillIcons === 'off');
+    root.classList.toggle('hud-pills-plain', settings.pillStyle === 'plain');
     
     if (settings.cardBgStart && settings.cardBgEnd) root.style.setProperty('--hud-bg', `linear-gradient(135deg, ${hexToRgba(settings.cardBgStart, settings.cardBgAlpha)}, ${hexToRgba(settings.cardBgEnd, settings.cardBgAlpha)})`);
     if (settings.infoBlockBgStart && settings.infoBlockBgEnd) root.style.setProperty('--hud-card-inner-bg', `linear-gradient(135deg, ${hexToRgba(settings.infoBlockBgStart, settings.infoBlockBgAlpha)}, ${hexToRgba(settings.infoBlockBgEnd, settings.infoBlockBgAlpha)})`);
@@ -1362,8 +1369,22 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             <div class="hud-theme-row"><label>Менструальный цикл:</label>
               <select class="hud-theme-select-input hud-custom-rerender" data-key="cycleView">${Object.entries(ВИДЫ_ЦИКЛА).map(([k, имя]) => `<option value="${k}"${(settings.cycleView || 'ring') === k ? ' selected' : ''}>${имя}</option>`).join('')}</select>
             </div>
+            <div class="hud-theme-row" title="«По смыслу» — у каждой секции карточки свой цвет из тонов темы. «Один цвет» — все секции цветом акцента; NSFW и детализация остаются своими."><label>Цвета секций:</label>
+              <select class="hud-theme-select-input" data-key="pillColors"><option value="smart"${settings.pillColors !== 'mono' ? ' selected' : ''}>По смыслу</option><option value="mono"${settings.pillColors === 'mono' ? ' selected' : ''}>Один цвет</option></select>
+            </div>
+            <div class="hud-theme-row" title="Рисунки в правом углу секций (песочные часы у возраста, молния у конфликта) и значки в подписях пилюль."><label>Значки секций:</label>
+              <select class="hud-theme-select-input" data-key="pillIcons"><option value="on"${settings.pillIcons !== 'off' ? ' selected' : ''}>Показывать</option><option value="off"${settings.pillIcons === 'off' ? ' selected' : ''}>Убрать</option></select>
+            </div>
+            <div class="hud-theme-row" title="«Своё у каждой» — у целей стрелки, у флагов вымпелы, у ключа загнутые углы, возраст крупной цифрой. «Одинаковое» — все секции и пилюли одним видом."><label>Оформление секций:</label>
+              <select class="hud-theme-select-input hud-custom-rerender" data-key="pillStyle"><option value="fields"${settings.pillStyle !== 'plain' ? ' selected' : ''}>Своё у каждой</option><option value="plain"${settings.pillStyle === 'plain' ? ' selected' : ''}>Одинаковое</option></select>
+            </div>
           </div>
-          <div class="hud-theme-presets-note">Вид блока цикла у персонажей и у игрока. Справа видно сразу; карточки в чате перерисуются, когда закроешь окно.</div>
+          ${[...new Set(ВИДЫ_БЛОКОВ.map(б => б.группа))].map(группа => `<div class="hud-custom-views-group"><div class="hud-custom-views-title">${группа}</div><div class="hud-theme-grid">`
+            + ВИДЫ_БЛОКОВ.filter(б => б.группа === группа).map(б => `<div class="hud-theme-row"><label>${б.поле}:</label>`
+              + `<select class="hud-theme-select-input hud-custom-rerender" data-key="${б.ключ}">${Object.entries(б.виды).map(([k, имя], i) => `<option value="${k}"${видБлока(б.ключ) === k ? ' selected' : ''}>${имя}${i ? '' : ' (как было)'}</option>`).join('')}</select></div>`).join('')
+            + `</div></div>`).join('')}
+          <div class="hud-theme-row hud-custom-minimal"><button type="button" class="hud-theme-act hud-custom-minimal-btn" title="Один цвет, без значков, одинаковое оформление">◻ Минимализм</button><button type="button" class="hud-theme-act hud-custom-rich-btn" title="Вернуть цвета по смыслу, значки и оформление полей">✦ Как было</button></div>
+          <div class="hud-theme-presets-note">Вид блока цикла и секций у персонажей и у игрока. Справа видно сразу; карточки в чате перерисуются, когда закроешь окно.</div>
         </details>
         <div class="hud-theme-presets">
           <div class="hud-theme-presets-title">Готовые темы</div>
@@ -3924,6 +3945,40 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     return источники;
   }
 
+  // Прокрутка блоков карточки по их месту в разметке: id при пересборке
+  // новые, а путь из классов и порядковых номеров остаётся тем же.
+  function путьУзла(узел, корень) {
+    const классы = (эл) => Array.from(эл.classList).filter(к => !/^(active|is-|fx-|hud-swap)/.test(к)).sort().join('.');
+    const части = [];
+    for (let у = узел; у && у !== корень; у = у.parentElement) {
+      const род = у.parentElement;
+      if (!род) break;
+      const свои = классы(у);
+      const братья = Array.from(род.children).filter(эл => эл.tagName === у.tagName && классы(эл) === свои);
+      части.unshift(у.tagName + '.' + свои + ':' + братья.indexOf(у));
+    }
+    return части.join('>');
+  }
+  function снятьПрокрутки(корень) {
+    return [корень, ...корень.querySelectorAll('*')]
+      .filter(эл => эл.scrollTop > 0 || эл.scrollLeft > 0)
+      .map(эл => [путьУзла(эл, корень), эл.scrollTop, эл.scrollLeft, эл.scrollHeight - эл.clientHeight]);
+  }
+  function вернутьПрокрутки(корень, снимок) {
+    if (!снимок || !снимок.length) return;
+    const нужно = new Map(снимок.map(([путь, сверху, слева, было]) => [путь, [сверху, слева, было]]));
+    for (const эл of [корень, ...корень.querySelectorAll('*')]) {
+      if (эл.scrollHeight <= эл.clientHeight && эл.scrollWidth <= эл.clientWidth) continue;
+      const з = нужно.get(путьУзла(эл, корень));
+      if (!з) continue;
+      // Высота изменилась (другое оформление секций) — держим ту же долю:
+      // была середина — остаётся середина.
+      const стало = эл.scrollHeight - эл.clientHeight;
+      эл.scrollTop = з[2] > 0 && Math.abs(стало - з[2]) > 2 ? Math.round(з[0] / з[2] * стало) : з[0];
+      эл.scrollLeft = з[1];
+    }
+  }
+
   function собратьПросмотр(окно) {
     const место = окно.querySelector('.hud-custom-preview-body');
     const ошибки = [];
@@ -3946,16 +4001,54 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       html = `<div class="hud-custom-error">Не удалось собрать HUD для просмотра. Настройки слева всё равно работают.<br><small>${escapeHtml(ошибки.join(' · '))}</small></div>`;
       откуда = 'просмотр недоступен';
     }
+    // Вид до пересборки: открытая вкладка, экран телефона, раскрытое и
+    // прокрутка — и окна, и каждого листающегося блока внутри карточки
+    // (у тела карточки своя прокрутка). Смена вида цикла или секций не
+    // должна отбрасывать к первой вкладке и к началу.
+    const прежняя = место.querySelector('.hud-os-card');
+    const состояние = прежняя ? readCardUiState(место) : null;
+    const внутри = прежняя ? снятьПрокрутки(прежняя) : [];
+    const снаружи = ['.hud-custom-preview', '.hud-custom-body', '.hud-custom-dialog', '.hud-custom-preview-body']
+      .map(с => окно.querySelector(с)).filter(Boolean).map(узел => [узел, узел.scrollTop]);
+    // Старая разметка остаётся поверх новой и растворяется: перекрёстный
+    // переход без «провала» яркости и без скачка высоты. Узлы не переносим —
+    // перенос сбросил бы их прокрутку, и старая карточка мигнула бы началом.
+    const старые = прежняя ? Array.from(место.children) : [];
+    старые.forEach(узел => {
+      узел.classList.add('hud-swap-old');
+      узел.setAttribute('aria-hidden', 'true');
+      узел.inert = true;
+    });
     // Отложенные вкладки собираются по клику — способы их собрать живут на
     // самой карточке, как и в чате.
     const лень = lastLazyThunks;
     lastLazyThunks = null;
-    место.innerHTML = html;
-    const карточка = место.querySelector('.hud-os-card');
+    if (старые.length) место.insertAdjacentHTML('afterbegin', html);
+    else место.innerHTML = html;
+    const карточка = место.querySelector('.hud-os-card:not(.hud-swap-old)');
     if (карточка) {
       if (лень) карточка.__hudLazy = лень;
       const свёртка = карточка.querySelector(':scope > .hud-toggle-input');
       if (свёртка) свёртка.checked = true;
+      if (состояние) {
+        место.__hudUiState = { ...состояние, свёрнута: true };
+        applyCardUiState(место);
+      }
+    }
+    const вернуть = () => {
+      if (карточка && карточка.isConnected) вернутьПрокрутки(карточка, внутри);
+      снаружи.forEach(([узел, сверху]) => { узел.scrollTop = сверху; });
+    };
+    вернуть();
+    if (старые.length) {
+      // Отложенные рисунки и шрифты меняют высоту в первые кадры —
+      // прокрутку ставим ещё раз, пока старая карточка растворяется.
+      requestAnimationFrame(() => {
+        вернуть();
+        старые.forEach(узел => узел.classList.add('is-leaving'));
+      });
+      setTimeout(вернуть, 180);
+      setTimeout(() => { старые.forEach(узел => узел.remove()); вернуть(); }, 420);
     }
     окно.querySelector('.hud-custom-source').textContent = откуда;
   }
@@ -4015,6 +4108,16 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       окно.addEventListener('click', (e) => {
         if (e.target === окно || e.target.closest('.hud-custom-close')) { закрытьКастомизацию(); return; }
         if (e.target.closest('.hud-custom-refresh')) собратьПросмотр(окно);
+        // «Минимализм» и «Как было»: три настройки вида секций разом.
+        const набор = e.target.closest('.hud-custom-minimal-btn') ? { pillColors: 'mono', pillIcons: 'off', pillStyle: 'plain' }
+          : e.target.closest('.hud-custom-rich-btn') ? { pillColors: 'smart', pillIcons: 'on', pillStyle: 'fields' } : null;
+        if (набор) {
+          Object.assign(settings, набор);
+          for (const [ключ, значение] of Object.entries(набор)) окно.querySelectorAll(`[data-key="${ключ}"]`).forEach(поле => { поле.value = значение; });
+          saveSettings(); applyThemeColors();
+          видыМенялись = true;
+          собратьПросмотр(окно);
+        }
       });
       // Вид блоков меняет саму разметку — правую карточку собираем заново.
       // Значение в настройки к этому моменту уже записал общий обработчик
@@ -4125,7 +4228,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
 
         ${подгруппа('🔞 Близость', `
           ${галка('hud-enable-intimacy-extras', settings.enableIntimacyExtras !== false, '🔞 Подробности сцены', 'Поза, раунд, длительность, защита, готовность к оргазму, пульс, дыхание и температура, звуки, следы на теле с таймером. Просится у модели только во время близости.')}
-          ${галка('hud-enable-heatmap', settings.enableHeatMap !== false, '🫦 Карта тела картинкой', 'Чувствительность зон — заливкой на силуэте спереди и сзади, со следами на теле. Выключено — прежний список зон со шкалами.')}
+          ${галка('hud-enable-heatmap', видБлока('bodyMapView') !== 'list', '🫦 Карта тела картинкой', 'Чувствительность зон — картинкой (вид выбирается в «Кастомизации» → «Вид блоков»: силуэт, точки, блоки, созвездие). Выключено — прежний список зон со шкалами.')}
         `)}
 
         ${подгруппа('📖 Дневник, сны и мир', `
@@ -4460,7 +4563,12 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
      ['hud-enable-economy', 'enableEconomy'], ['hud-enable-events', 'enableEvents'], ['hud-enable-city', 'enableCity'], ['hud-enable-horoscope', 'enableHoroscope'],
      ['hud-prompt-separate', 'hudPromptSeparate'], ['hud-snapshot', 'hudSnapshot']].forEach(([id, ключ]) => {
       const поле = document.getElementById(id);
-      if (поле) поле.addEventListener('change', (e) => { settings[ключ] = e.target.checked; saveSettings(); });
+      if (поле) поле.addEventListener('change', (e) => {
+        settings[ключ] = e.target.checked;
+        // Галка карты тела и вид блока — одна настройка с двух сторон.
+        if (ключ === 'enableHeatMap') settings.bodyMapView = e.target.checked ? (видБлока('bodyMapView') === 'list' ? 'both' : видБлока('bodyMapView')) : 'list';
+        saveSettings();
+      });
     });
     document.getElementById('hud-nsfw-prompt')?.addEventListener('change', (e) => {
       settings.nsfwPrompt = ['auto', 'always', 'never'].includes(e.target.value) ? e.target.value : 'auto';
@@ -4487,7 +4595,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=23.7.5');
+        const mod = await import('./render/archive.js?v=23.9.2');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);

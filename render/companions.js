@@ -4,7 +4,8 @@
 // каждого своё настроение, состояние, рацион и привязанность к хозяину.
 // Вкладка появляется, только когда в HUD есть хоть один спутник.
 
-import { escapeHtml, applyTooltips, hudHasMeaningfulValue } from '../utils.js?v=23.7.5';
+import { escapeHtml, applyTooltips, hudHasMeaningfulValue } from '../utils.js?v=23.9.2';
+import { видБлока, видПривязанности } from './views.js?v=23.9.2';
 
 // Значок по виду. Частное раньше общего: «ворон-фамильяр» — птица, а не дух.
 const ВИДЫ = [
@@ -52,7 +53,9 @@ export function buildCompanionsHTML(list, uid, isChecked) {
       + (есть(p.mood) ? `<em class="hud-pet-mood">${escapeHtml(p.mood)}</em>` : '')
       + `</div>`
       + (есть(p.owner) ? `<div class="hud-pet-owner">хозяин: <b>${escapeHtml(p.owner)}</b></div>` : '')
-      + (связь !== null
+      + (связь !== null && видПривязанности(связь, видБлока('bondView'))
+        ? видПривязанности(связь, видБлока('bondView'))
+        : связь !== null
         ? `<div class="hud-pet-bond" title="Привязанность ${Math.round(связь)} из 100"><span>привязанность</span><i><i style="width:${связь}%"></i></i><em>${Math.round(связь)}</em></div>`
         : '')
       + строка('🩺', 'Состояние', p.condition)

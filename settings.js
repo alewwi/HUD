@@ -76,6 +76,10 @@ export const defaultSettings = {
   // Вид блока цикла: ring | strip | calendar | moon | hormones | capsule | flower
   // (render/intimacy.js, ВИДЫ_ЦИКЛА). Меняется в окне «Кастомизация».
   cycleView: 'ring',
+  // Вид секций карточки: цвета по смыслу или один, угловые значки, крой полей.
+  pillColors: 'smart',
+  pillIcons: 'on',
+  pillStyle: 'fields',
   enableIntimacyExtras: true,
   enableHeatMap: true,
   enableEconomy: true,

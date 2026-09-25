@@ -303,6 +303,38 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
 }
 
 // ---------------------------------------------------------------------------
+группа('виды блоков: каждый вид собирается на полном примере');
+{
+  const V = await модуль('render/views.js');
+  const St = await модуль('settings.js');
+  const Ch = await модуль('render/character.js');
+  const M = await модуль('render/memory.js');
+  const Co = await модуль('render/companions.js');
+  const S = await модуль('render/sample-hud.js');
+  const д = Sch.normalizeJSONData(P.parseHUDComplex(S.ПРИМЕР_HUD_ТЕКСТ.split('{{user}}').join('Софи')));
+  const собрать = () => д.characters.map((c, i) => Ch.buildCharacterHTML(c, 'v' + i, true, i === 0)).join('')
+    + M.buildMemoryHTML(д.memory, 'vm', true, д) + Co.buildCompanionsHTML(д.companions, 'vp', true);
+  const сбои = [], пустые = [];
+  for (const б of V.ВИДЫ_БЛОКОВ) {
+    for (const вид of Object.keys(б.виды).slice(1)) {
+      St.settings[б.ключ] = вид;
+      try {
+        const h = собрать();
+        if (/undefined|NaN|\[object Object\]/.test(h)) сбои.push(б.ключ + ':' + вид);
+        if (!['front', 'list'].includes(вид) && !h.includes('hud-v-') && б.ключ !== 'bondView') пустые.push(б.ключ + ':' + вид);
+      } catch (e) { сбои.push(б.ключ + ':' + вид + ' ' + e.message); }
+    }
+    delete St.settings[б.ключ];
+  }
+  проверить('все виды собираются без ошибок, NaN и undefined', !сбои.length, сбои.join(', '));
+  проверить('новые виды дают свою разметку', !пустые.length, пустые.join(', '));
+  проверить('без выбора — прежний вид', V.видБлока('trustView') === 'bars' && V.видБлока('routeView') === 'list');
+  St.settings.enableHeatMap = false;
+  проверить('старая галка «карта картинкой» выключена — список', V.видБлока('bodyMapView') === 'list');
+  delete St.settings.enableHeatMap;
+}
+
+// ---------------------------------------------------------------------------
 группа('schema: нормализация');
 {
   const д = Sch.normalizeJSONData(P.parseHUDComplex(hud({ sc: { T: '10:00' }, cs: [{ N: 'Лилиан' }] })));

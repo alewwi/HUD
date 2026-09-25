@@ -4,17 +4,18 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=23.7.5';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.7.5';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.7.5';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=23.7.5';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=23.9.2';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.9.2';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.9.2';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=23.9.2';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.7.5';
-import { buildPregnancy } from './pregnancy.js?v=23.7.5';
-import { settings } from '../settings.js?v=23.7.5';
-import { namesLikelySame } from '../names.js?v=23.7.5';
-import { parseRelationList } from './relations-graph.js?v=23.7.5';
-import { отложитьРисунок } from './lazy-svg.js?v=23.7.5';
+  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.9.2';
+import { buildPregnancy } from './pregnancy.js?v=23.9.2';
+import { settings } from '../settings.js?v=23.9.2';
+import { namesLikelySame } from '../names.js?v=23.9.2';
+import { parseRelationList } from './relations-graph.js?v=23.9.2';
+import { отложитьРисунок } from './lazy-svg.js?v=23.9.2';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений } from './views.js?v=23.9.2';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле'];
@@ -288,6 +289,7 @@ const ПОЛЕ_СТРОКИ = {
    кусок проходит через applyTooltips, то есть экранируется. */
 function значениеПоля(ключ, значение, класс = 'hud-value') {
   const текст = String(значение ?? '');
+  if (простойВид()) return `<span class="${класс}">${applyTooltips(текст)}</span>`;
   const части = () => разбитьСписок(текст).map(ч => ч.trim()).filter(Boolean);
   if (ключ === 'возраст') {
     const m = текст.match(/^\s*(\d{1,3})\s*(?:(?:лет|года?|y\.?o\.?)\s*)?[,;—–-]?\s*(.*)$/i);
@@ -342,8 +344,11 @@ function контекстЗачатия(данные, партнёры = [], с�
   return { защита, секс };
 }
 
+// «Одинаковое оформление» (Кастомизация → Вид блоков): без класса поля f-*
+// строка не получает своего кроя, узора и подачи — остаётся цвет группы.
+const простойВид = () => settings.pillStyle === 'plain';
 const видСтроки = (ключ, класс) => /\bnsfw\b/.test(класс) ? ''
-  : ВИД_СТРОКИ[ключ] ? ' kind-' + ВИД_СТРОКИ[ключ] + (ПОЛЕ_СТРОКИ[ключ] ? ' f-' + ПОЛЕ_СТРОКИ[ключ] : '')
+  : ВИД_СТРОКИ[ключ] ? ' kind-' + ВИД_СТРОКИ[ключ] + (ПОЛЕ_СТРОКИ[ключ] && !простойВид() ? ' f-' + ПОЛЕ_СТРОКИ[ключ] : '')
   : ' kind-misc f-' + запаснойЦвет(ключ);
 const TRUNCATE_KEYS = ['мысли', 'физиология'];
 
@@ -839,9 +844,9 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
     let valueClass = TRUNCATE_KEYS.some(k => lowerKey.includes(k)) ? 'hud-value hud-truncate' : 'hud-value';
 
     if (lowerKey === 'доверие') {
-      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-bodymap hud-trustmap">${buildTrustMap(value)}</div></div>`;
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${видДоверия(value, видБлока('trustView')) || `<div class="hud-bodymap hud-trustmap">${buildTrustMap(value)}</div>`}</div>`;
     } else if (lowerKey === 'страхи') {
-      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-fears">${buildFears(value)}</div></div>`;
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${видСтрахов(value, видБлока('fearsView')) || `<div class="hud-fears">${buildFears(value)}</div>`}</div>`;
     } else if (lowerKey === 'реплики') {
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-lines">${buildLines(value)}</div></div>`;
     } else if (lowerKey === 'фаза близости' || lowerKey === 'поза' || lowerKey === 'раунд' || lowerKey === 'длительность') {
@@ -856,10 +861,10 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
     } else if (lowerKey === 'защита') {
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${buildProtection(value)}</div>`;
     } else if (lowerKey === 'готовность к оргазму') {
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${buildOrgasm(value)}</div>`;
+      html += `<div class="${rowClass}${видБлока('orgView') !== 'bar' ? ' full-width' : ''}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${видОргазма(value, видБлока('orgView')) || buildOrgasm(value)}</div>`;
     } else if (lowerKey === 'жизненные показатели') {
-      const плитки = buildVitals(value, charData);
-      if (плитки) html += `<div class="${rowClass}"><span class="hud-key">${icon}Пульс, дыхание, температура:</span> ${плитки}</div>`;
+      const плитки = видПоказателей(value, видБлока('vitalsView')) || buildVitals(value, charData);
+      if (плитки) html += `<div class="${rowClass}${видБлока('vitalsView') !== 'list' ? ' full-width' : ''}"><span class="hud-key">${icon}Пульс, дыхание, температура:</span> ${плитки}</div>`;
     } else if (lowerKey === 'звуки') {
       const облако = buildSounds(value);
       if (облако) html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${облако}</div>`;
@@ -874,15 +879,19 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       // Картинкой: силуэт спереди и сзади, зоны залиты по силе, на них — следы.
       // Выключено в настройках — прежний список зон со шкалами.
       // Рисунок тяжёлый (кадры истории, слои) — собираем, когда строка на экране.
-      const карта = settings.enableHeatMap !== false ? отложитьРисунок(uid + '-heat', () => buildHeatMap(value, charData) || `<div class="hud-bodymap">${buildBodyMap(value)}</div>`, 300) : '';
+      // Вид — Кастомизация → Вид блоков (render/views.js).
+      const видКарты = видБлока('bodyMapView');
+      const карта = видКарты === 'both' || видКарты === 'front'
+        ? отложитьРисунок(uid + '-heat', () => buildHeatMap(value, charData, видКарты === 'front' ? 'f' : 'both') || `<div class="hud-bodymap">${buildBodyMap(value)}</div>`, 300)
+        : видКарты === 'list' ? '' : видКартыТела(value, видКарты);
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${карта || `<div class="hud-bodymap">${buildBodyMap(value)}</div>`}</div>`;
     } else if (lowerKey === 'беременность') {
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${buildPregnancy(value, { сцена: charData.__датаСцены })}</div>`;
     } else if (lowerKey === 'ключ') {
       const items = String(value).split(';').filter(i => i.trim().length > 0).map(i => `<div class="hud-key-item">${formatKeyValue(i.trim())}</div>`).join('');
-      html += `<div class="hud-key-block full-width kind-mind f-key"><span class="hud-key-label">${escapeHtml(key)}:</span> <div class="hud-vertical-container hud-key-list">${items}</div></div>`;
+      html += `<div class="hud-key-block full-width kind-mind${простойВид() ? '' : ' f-key'}"><span class="hud-key-label">${escapeHtml(key)}:</span> <div class="hud-vertical-container hud-key-list">${items}</div></div>`;
     } else if (lowerKey === 'инвентарь') {
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-inventory-grid">${buildPillList(value, 'hud-inventory-pill')}</div></div>`;
+      html += `<div class="${rowClass}${видБлока('inventoryView') !== 'list' ? ' full-width' : ''}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${видИнвентаря(value, видБлока('inventoryView')) || `<div class="hud-inventory-grid">${buildPillList(value, 'hud-inventory-pill')}</div>`}</div>`;
     } else if (lowerKey === 'nsfw' || lowerKey === 'детализация nsfw' || lowerKey === 'последний секс') {
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(надписьПоля(key))}:</span> <div class="hud-vertical-container hud-nsfw-list is-${lowerKey === 'nsfw' ? 'act' : lowerKey === 'детализация nsfw' ? 'after' : 'last'}">${buildPillList(lowerKey === 'последний секс' ? value : безГрудиУМужчин(value, charData), 'hud-nsfw-pill', true)}</div></div>`;
     } else if (lowerKey === 'кинк' || lowerKey === 'фетиш' || lowerKey === 'никогда не сделает' || lowerKey === 'не возбуждает') {
@@ -891,7 +900,10 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       const pillClass = lowerKey === 'кинк' ? 'hud-kink-pill'
         : lowerKey === 'фетиш' ? 'hud-fetish-pill'
         : lowerKey === 'никогда не сделает' ? 'hud-nogo-pill' : 'hud-noturn-pill';
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, pillClass, true)}</div></div>`;
+      const иначе = lowerKey === 'кинк' || lowerKey === 'фетиш' ? видВлечений(value, видБлока('kinkView')) : '';
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${иначе || `<div class="hud-vertical-container">${buildPillList(value, pillClass, true)}</div>`}</div>`;
+    } else if (lowerKey === 'социальное разоблачение' && видРазоблачения(value, видБлока('exposureView'))) {
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${видРазоблачения(value, видБлока('exposureView'))}</div>`;
     } else if (lowerKey === 'расписание') {
       // Когда — отдельной колонкой. Промт разрешает и часы («14:30 - встреча»),
       // и день или часть дня («пятница 10:00 - сдача», «суббота - сборка»):
@@ -913,7 +925,7 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       const ПО_РУССКИ = { brewing: 'назревает', open: 'открытый', 'cold war': 'холодная война', reconciliation: 'примирение' };
       const поРусски = String(value).replace(/((?:^|;)\s*(?:sg|стадия)\s*[:：]\s*)(brewing|open|cold war|reconciliation)\s*(?=;|$)/gi,
         (всё, перед, слово) => перед + ПО_РУССКИ[слово.toLowerCase()]);
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(поРусски, 'hud-conflict-pill')}</div></div>`;
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(поРусски, простойВид() ? 'hud-detail-pill' : 'hud-conflict-pill')}</div></div>`;
     } else if (lowerKey === 'отзыв о сексе') {
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <span class="${valueClass} hud-sex-rev">${applyTooltips(String(value)).replace(/([★☆]+)/g, '<span class="hud-stars-rating">$1</span>')}</span></div>`;
     } else if (lowerKey === 'общие воспоминания') {
@@ -928,7 +940,7 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       }).join('');
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${memHtml}</div></div>`;
     } else if (lowerKey === 'отношения' || lowerKey === 'цели' || lowerKey === 'ревность' || lowerKey === 'флаг-монитор') {
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill', (lowerKey === 'общие воспоминания' || lowerKey === 'флаг-монитор'), lowerKey, лицоСобеседника)}</div></div>`;
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill', (lowerKey === 'общие воспоминания' || lowerKey === 'флаг-монитор'), простойВид() && lowerKey !== 'отношения' ? '' : lowerKey, лицоСобеседника)}</div></div>`;
     } else {
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${значениеПоля(lowerKey, value, valueClass)}</div>`;
     }
