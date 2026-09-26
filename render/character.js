@@ -4,18 +4,18 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=23.9.2';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.9.2';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.9.2';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=23.9.2';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=23.13.2';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.13.2';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.13.2';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=23.13.2';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.9.2';
-import { buildPregnancy } from './pregnancy.js?v=23.9.2';
-import { settings } from '../settings.js?v=23.9.2';
-import { namesLikelySame } from '../names.js?v=23.9.2';
-import { parseRelationList } from './relations-graph.js?v=23.9.2';
-import { отложитьРисунок } from './lazy-svg.js?v=23.9.2';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений } from './views.js?v=23.9.2';
+  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.13.2';
+import { buildPregnancy } from './pregnancy.js?v=23.13.2';
+import { settings } from '../settings.js?v=23.13.2';
+import { namesLikelySame } from '../names.js?v=23.13.2';
+import { parseRelationList } from './relations-graph.js?v=23.13.2';
+import { отложитьРисунок } from './lazy-svg.js?v=23.13.2';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.13.2';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле'];
@@ -900,7 +900,8 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       const pillClass = lowerKey === 'кинк' ? 'hud-kink-pill'
         : lowerKey === 'фетиш' ? 'hud-fetish-pill'
         : lowerKey === 'никогда не сделает' ? 'hud-nogo-pill' : 'hud-noturn-pill';
-      const иначе = lowerKey === 'кинк' || lowerKey === 'фетиш' ? видВлечений(value, видБлока('kinkView')) : '';
+      // Отказы рисуются тем же видом, что кинки и фетиши, но перечёркнутым.
+      const иначе = видВлечений(value, видБлока('kinkView'), lowerKey === 'никогда не сделает' ? 'never' : lowerKey === 'не возбуждает' ? 'noturn' : '');
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${иначе || `<div class="hud-vertical-container">${buildPillList(value, pillClass, true)}</div>`}</div>`;
     } else if (lowerKey === 'социальное разоблачение' && видРазоблачения(value, видБлока('exposureView'))) {
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${видРазоблачения(value, видБлока('exposureView'))}</div>`;
@@ -932,13 +933,14 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       // Общее воспоминание — готовая запись для Lorebook: у неё есть и факт,
       // и участник, чьё имя станет ключом активации.
       const items = value.split(';').map(x => x.trim()).filter(Boolean);
-      const memHtml = items.map(item => {
-        const isNew = isNewLoreItem(item);
-        return `<div class="hud-detail-pill hud-lore-item${isNew ? ' is-new' : ''}">` +
-          `<span class="hud-lore-text">${escapeHtml(item)}</span>` +
-          loreButtonHTML(item, [charName], isNew) + `</div>`;
-      }).join('');
-      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${memHtml}</div></div>`;
+      // «Новое» отмечается один раз на пункт — считаем до выбора вида.
+      const пункты = items.map(item => { const isNew = isNewLoreItem(item); return { текст: item, isNew, кнопка: loreButtonHTML(item, [charName], isNew) }; });
+      const memHtml = видВоспоминаний(пункты, видБлока('memoriesView')) || `<div class="hud-vertical-container">${пункты.map(п =>
+        `<div class="hud-detail-pill hud-lore-item${п.isNew ? ' is-new' : ''}">` +
+          `<span class="hud-lore-text">${escapeHtml(п.текст)}</span>` + п.кнопка + `</div>`).join('')}</div>`;
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${memHtml}</div>`;
+    } else if (lowerKey === 'ревность' && видРевности(value, видБлока('jealousyView'), charName)) {
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${видРевности(value, видБлока('jealousyView'), charName)}</div>`;
     } else if (lowerKey === 'отношения' || lowerKey === 'цели' || lowerKey === 'ревность' || lowerKey === 'флаг-монитор') {
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-vertical-container">${buildPillList(value, 'hud-detail-pill', (lowerKey === 'общие воспоминания' || lowerKey === 'флаг-монитор'), простойВид() && lowerKey !== 'отношения' ? '' : lowerKey, лицоСобеседника)}</div></div>`;
     } else {

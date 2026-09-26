@@ -10,7 +10,7 @@
 // реально добавляются новые сообщения (см. invalidateAvatarCache()).
 // Ручные аватарки читаются прямо из настроек: модуль и так знает про DOM
 // и глобали SillyTavern, ещё одна зависимость ничего не усложняет.
-import { settings } from './settings.js?v=23.9.2';
+import { settings } from './settings.js?v=23.13.2';
 
 /**
  * Палитра для плейсхолдеров аватарок: цвет выбирается по хэшу имени.
@@ -230,7 +230,9 @@ export function refreshAvatarFaces(root) {
       el.style.backgroundImage = "url('" + url + "')";
     } else {
       el.classList.remove('has-img');
-      el.style.backgroundImage = el.getAttribute('data-ava-bg') || 'none';
+      // Пустой data-ava-bg — заливку без картинки даёт CSS (кружки видов).
+      const фон = el.getAttribute('data-ava-bg');
+      el.style.backgroundImage = фон === '' ? '' : (фон || 'none');
     }
   });
 }

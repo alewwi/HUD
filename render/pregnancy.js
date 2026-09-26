@@ -9,8 +9,8 @@
 // силуэт живота и советы по триместру. Для этого модели не нужно писать ни
 // одного лишнего слова.
 
-import { escapeHtml, applyTooltips, перевестиМетку } from '../utils.js?v=23.9.2';
-import { parseSceneDate } from '../history-analyzer.js?v=23.9.2';
+import { escapeHtml, applyTooltips, перевестиМетку } from '../utils.js?v=23.13.2';
+import { parseSceneDate } from '../history-analyzer.js?v=23.13.2';
 
 // Размер малыша по неделям: сравнение, рост (до 20-й недели — от темени до
 // копчика, дальше — во весь рост) и вес. Средние значения, у живого

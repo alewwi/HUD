@@ -332,6 +332,28 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   St.settings.enableHeatMap = false;
   проверить('старая галка «карта картинкой» выключена — список', V.видБлока('bodyMapView') === 'list');
   delete St.settings.enableHeatMap;
+  St.settings.kinkView = 'iceberg'; St.settings.secretsView = 'iceberg';
+  проверить('сохранённый «айсберг» становится таро и сейфами', V.видБлока('kinkView') === 'tarot' && V.видБлока('secretsView') === 'vault');
+  delete St.settings.kinkView; delete St.settings.secretsView;
+  const нет = V.видВлечений('Боль: панический страх; Втроём: не делится', 'tarot', 'never');
+  проверить('«Никогда не сделает»: карты перевёрнуты, паника — пятёрка', (нет.match(/is-reversed/g) || []).length === 2 && /hud-v-tarot s5[^"]*is-reversed/.test(нет) && нет.includes('никогда'));
+  const мимо = V.видВлечений('Грубые слова: смешат', 'menu', 'noturn');
+  проверить('«Не возбуждает» в меню: «не по вкусу», без перчинок', мимо.includes('Не по вкусу') && мимо.includes('is-noturn') && !мимо.includes('is-on'));
+  const все = [V.видДоверия('Анна: 80', 'orbit'), V.видСтрахов('Темнота: high', 'dark'), V.видИнвентаря('телефон: в кармане; помада: в сумке', 'receipt'), V.видВлечений('Шея: сильно', 'groups')].join('');
+  проверить('в новых видах нет эмодзи', !/\p{Extended_Pictographic}/u.test(все.replace(/[♥◆★✕☽]/g, '')));
+  const рев = V.разобратьРевность('Ревнует Софи к коллеге Мире — та слишком часто пишет');
+  проверить('ревность: кого, к кому, как', рев.кого === 'Софи' && рев.кКому === 'коллеге Мире' && рев.деталь.startsWith('та слишком'), JSON.stringify(рев));
+  проверить('ревность: треугольник с тремя лицами', (V.видРевности('Ревнует Софи к коллеге Мире — пишет', 'triangle', 'Лилиан').match(/hud-v-sface/g) || []).length === 3);
+  const пп = [{ текст: 'ночь на крыше', кнопка: '<button class="hud-remember"></button>' }];
+  проверить('воспоминания и важное сохраняют кнопку «Запомнить»', ['polaroid', 'film', 'beads'].every(в => V.видВоспоминаний(пп, в).includes('hud-remember')) && ['scroll', 'notebook', 'bookmarks'].every(в => V.видВажного(пп, в).includes('hud-remember')));
+  const сек = V.видСекретов([{ fact: 'А', level: 'low', status: 'unknown' }, { fact: 'Б', level: 'low', status: 'part' }], 'envelopes');
+  проверить('конверты: целая печать без трещин, расколотая — две половинки', (сек.match(/class="crack"/g) || []).length === 0 && сек.includes('is-broken'));
+  проверить('в кастомизации виды идут как в карточке', V.ВИДЫ_БЛОКОВ.map(б => б.ключ).join() === 'inventoryView,trustView,fearsView,memoriesView,exposureView,jealousyView,orgView,vitalsView,bodyMapView,kinkView,routeView,importantView,gunsView,secretsView,bondView');
+  проверить('новые группы инвентаря: косметика', V.видИнвентаря('помада: в сумке', 'groups').includes('Косметика'));
+  const колода = V.видВлечений('Шёпот: мечтает втайне; Шея: обожает', 'tarot');
+  проверить('таро: тайное рубашкой вверх, явное открыто', (колода.match(/hud-v-tarot s\d is-hidden/g) || []).length === 1 && (колода.match(/class="hud-v-tarot /g) || []).length === 2, колода.slice(0, 200));
+  const сейфы = V.видСекретов([{ fact: 'А', level: 'crit', status: 'known' }, { fact: 'Б', level: 'low', status: 'unknown' }], 'vault');
+  проверить('сейф: болтов по грифу, открытый светит', (сейфы.match(/class="bolt"/g) || []).length === 16 && (сейфы.match(/class="light"/g) || []).length === 1);
 }
 
 // ---------------------------------------------------------------------------

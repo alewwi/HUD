@@ -13,13 +13,13 @@
 // карточки ненадёжны — у неё content-visibility, и браузер может не
 // двигать их время.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.9.2';
-import { namesLikelySame } from '../names.js?v=23.9.2';
-import { разобратьХод } from './carryover.js?v=23.9.2';
-import { parseSceneDate } from '../history-analyzer.js?v=23.9.2';
-import { исходЗачатия } from './conception.js?v=23.9.2';
-import { settings } from '../settings.js?v=23.9.2';
-import { ощущенияИзТекста, одеждаИзТекста, ОБЛАСТИ } from './body-layers.js?v=23.9.2';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.13.2';
+import { namesLikelySame } from '../names.js?v=23.13.2';
+import { разобратьХод } from './carryover.js?v=23.13.2';
+import { parseSceneDate } from '../history-analyzer.js?v=23.13.2';
+import { исходЗачатия } from './conception.js?v=23.13.2';
+import { settings } from '../settings.js?v=23.13.2';
+import { ощущенияИзТекста, одеждаИзТекста, ОБЛАСТИ } from './body-layers.js?v=23.13.2';
 
 const пусто = (v) => { const s = String(v ?? '').trim(); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
 const число = (s) => { const m = String(s ?? '').replace(/(\d),(\d)/g, '$1.$2').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };

@@ -6,13 +6,13 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.9.2';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.9.2';
-import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.9.2';
-import { отложитьРисунок } from './lazy-svg.js?v=23.9.2';
-import { длинныйСписок } from './long-list.js?v=23.9.2';
-import { видБлока, видМаршрута, видСекретов, видРужей } from './views.js?v=23.9.2';
-import { статусРужья } from '../codes.js?v=23.9.2';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.13.2';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.13.2';
+import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.13.2';
+import { отложитьРисунок } from './lazy-svg.js?v=23.13.2';
+import { длинныйСписок } from './long-list.js?v=23.13.2';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.13.2';
+import { статусРужья } from '../codes.js?v=23.13.2';
 
 function parseRoutePoint(item) {
   const parts = String(item).split(/[-—–]/).map(s => s.trim());
@@ -164,13 +164,10 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
   if (Array.isArray(memoryData.important) && memoryData.important.length > 0) {
     // Каждый пункт можно унести в Lorebook: это ровно тот сорт фактов, что
     // должен пережить откат чата и остаться в мире.
-    const важное = memoryData.important.map(item => {
-      const isNew = isNewLoreItem(item);
-      return `<div class="hud-detail-pill drama-alert hud-lore-item${isNew ? ' is-new' : ''}">` +
-        `<span class="hud-lore-text">${escapeHtml(String(item))}</span>` +
-        loreButtonHTML(item, [], isNew) + `</div>`;
-    });
-    html += `<div class="hud-row full-width"><span class="hud-key">❗ Важное:</span> ${длинныйСписок(важное, 'hud-vertical-container', 'ранние')}</div>`;
+    const пункты = memoryData.important.map(item => { const isNew = isNewLoreItem(item); return { текст: String(item), isNew, кнопка: loreButtonHTML(item, [], isNew) }; });
+    const важное = пункты.map(п => `<div class="hud-detail-pill drama-alert hud-lore-item${п.isNew ? ' is-new' : ''}">` +
+      `<span class="hud-lore-text">${escapeHtml(п.текст)}</span>` + п.кнопка + `</div>`);
+    html += `<div class="hud-row full-width"><span class="hud-key">❗ Важное:</span> ${видВажного(пункты, видБлока('importantView')) || длинныйСписок(важное, 'hud-vertical-container', 'ранние')}</div>`;
   }
   if (Array.isArray(memoryData.recently_learned) && memoryData.recently_learned.length > 0) {
     html += `<div class="hud-row full-width"><span class="hud-key">💡 Недавно узнали:</span> <div class="hud-vertical-container">${buildPillList(memoryData.recently_learned.join('; '), 'hud-detail-pill')}</div></div>`;
