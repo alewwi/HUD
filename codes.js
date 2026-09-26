@@ -155,6 +155,16 @@ export function развернутьКоды(к) {
   // Один спутник объектом, а не списком — тоже спутник.
   if (объект(к.companions)) к.companions = [к.companions];
   каждому(к.companions, СПУТНИК);
+  // Модель порой пишет у спутника свои ключи: «k»/«kind» вместо «sp»,
+  // «s»/«st» вместо «nte», «w»/«wt» — вес. Приводим к полям схемы, чтобы и
+  // карточка их показала, и в снимке прошлого HUD модель увидела коды
+  // инструкции, а не закрепляла свои.
+  (Array.isArray(к.companions) ? к.companions : []).forEach(п => {
+    if (!объект(п)) return;
+    for (const [из, в] of [['k', 'species'], ['kind', 'species'], ['type', 'species'], ['s', 'note'], ['st', 'note'], ['state', 'note'], ['status', 'note'], ['w', 'weight'], ['wt', 'weight']]) {
+      if (п[из] !== undefined && п[в] === undefined) { п[в] = п[из]; delete п[из]; }
+    }
+  });
   if (объект(к.world)) переименовать(к.world, МИР);
   return к;
 }

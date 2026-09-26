@@ -4,8 +4,8 @@
 // каждого своё настроение, состояние, рацион и привязанность к хозяину.
 // Вкладка появляется, только когда в HUD есть хоть один спутник.
 
-import { escapeHtml, applyTooltips, hudHasMeaningfulValue } from '../utils.js?v=23.13.4';
-import { видБлока, видПривязанности } from './views.js?v=23.13.4';
+import { escapeHtml, applyTooltips, hudHasMeaningfulValue } from '../utils.js?v=23.13.5';
+import { видБлока, видПривязанности } from './views.js?v=23.13.5';
 
 // Значок по виду. Частное раньше общего: «ворон-фамильяр» — птица, а не дух.
 const ВИДЫ = [
@@ -31,6 +31,9 @@ function значокВида(вид, имя) {
 }
 
 const есть = (v) => hudHasMeaningfulValue(v);
+
+// Подписи для полей, которых нет в инструкции, но модель их пишет.
+const ПОДПИСИ_ПОЛЕЙ = { age: 'Возраст', ag: 'Возраст', возраст: 'Возраст', color: 'Окрас', clr: 'Окрас', окрас: 'Окрас', sex: 'Пол', gender: 'Пол', пол: 'Пол', size: 'Размер', height: 'Рост', loc: 'Где', where: 'Где', где: 'Где', trait: 'Характер', chr: 'Характер', character: 'Характер', характер: 'Характер', fear: 'Боится', likes: 'Любит', dislikes: 'Не любит' };
 
 export function hudHasMeaningfulCompanions(list) {
   return Array.isArray(list) && list.some(p => p && есть(p.name));
@@ -62,6 +65,7 @@ export function buildCompanionsHTML(list, uid, isChecked) {
       + строка('🩺', 'Состояние', p.condition)
       + строка('🍖', 'Рацион', p.diet)
       + строка('📝', 'Сейчас', p.note)
+      + (Array.isArray(p.extra) ? p.extra.map(д => строка('•', ПОДПИСИ_ПОЛЕЙ[String(д.key).toLowerCase()] || д.key, д.value)).join('') : '')
       + (умения ? `<div class="hud-pet-skills">${умения}</div>` : '')
       + `</div>`;
   }).join('');

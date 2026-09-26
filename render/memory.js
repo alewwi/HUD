@@ -6,13 +6,13 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.13.4';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.13.4';
-import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.13.4';
-import { отложитьРисунок } from './lazy-svg.js?v=23.13.4';
-import { длинныйСписок } from './long-list.js?v=23.13.4';
-import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.13.4';
-import { статусРужья } from '../codes.js?v=23.13.4';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.13.5';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.13.5';
+import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.13.5';
+import { отложитьРисунок } from './lazy-svg.js?v=23.13.5';
+import { длинныйСписок } from './long-list.js?v=23.13.5';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.13.5';
+import { статусРужья } from '../codes.js?v=23.13.5';
 
 function parseRoutePoint(item) {
   const parts = String(item).split(/[-—–]/).map(s => s.trim());

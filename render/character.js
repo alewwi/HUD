@@ -4,18 +4,18 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=23.13.4';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.13.4';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.13.4';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=23.13.4';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=23.13.5';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.13.5';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.13.5';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=23.13.5';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.13.4';
-import { buildPregnancy } from './pregnancy.js?v=23.13.4';
-import { settings } from '../settings.js?v=23.13.4';
-import { namesLikelySame } from '../names.js?v=23.13.4';
-import { parseRelationList } from './relations-graph.js?v=23.13.4';
-import { отложитьРисунок } from './lazy-svg.js?v=23.13.4';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.13.4';
+  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.13.5';
+import { buildPregnancy } from './pregnancy.js?v=23.13.5';
+import { settings } from '../settings.js?v=23.13.5';
+import { namesLikelySame } from '../names.js?v=23.13.5';
+import { parseRelationList } from './relations-graph.js?v=23.13.5';
+import { отложитьРисунок } from './lazy-svg.js?v=23.13.5';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.13.5';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле'];

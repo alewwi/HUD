@@ -373,6 +373,12 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   проверить('дневник: абзацы с красной строки и зачёркивание', стр.includes('hud-diary-indent') && стр.includes('<s>зачёркнуто</s>'));
   const зверь = Sch.normalizeJSONData(P.parseHUDComplex(hud({ pet: [{ n: 'Шини', k: 'Черная рысь-меланист', w: '40 кг', s: 'на груди Софи, рычит на Тристана, голоден' }] }))).companions[0] || {};
   проверить('спутник с кодами не из инструкции (k, w, s) не теряет вид, вес и «сейчас»', зверь.name === 'Шини' && зверь.species === 'Черная рысь-меланист · 40 кг' && зверь.note.startsWith('на груди'), JSON.stringify(зверь));
+  const второй = hud({ pet: [{ n: 'Шини', sp: 'Черная рысь-меланист', wt: '40 кг', st: 'сытый, сидит у ног Софи, сканирует Тристана', окрас: 'чёрный' }] });
+  const зверь2 = Sch.normalizeJSONData(P.parseHUDComplex(второй)).companions[0] || {};
+  проверить('спутник с «wt» и «st»: вес в подписи, «st» — в «Сейчас», своё поле не теряется', зверь2.species === 'Черная рысь-меланист · 40 кг' && зверь2.note.startsWith('сытый') && (зверь2.extra || []).some(д => д.key === 'окрас') && зверь2.extra.length === 1, JSON.stringify(зверь2));
+  const Sn = await модуль('hud-snapshot.js');
+  const снимок = JSON.stringify(Sn.HUDвКодах(B.extractHudBlock(второй)) || {});
+  проверить('в снимке для модели у спутника коды инструкции (nte), а не её «st»', снимок.includes('"nte"') && !снимок.includes('"st":'), снимок.slice(0, 300));
   const пусто = Sch.normalizeJSONData({});
   проверить('пустой HUD не падает', Array.isArray(пусто.characters) && пусто.characters.length === 0);
 }
