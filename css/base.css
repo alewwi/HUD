@@ -9413,4 +9413,5 @@
 .hud-phone-photo-info b { display: block; margin-bottom: 2px; }
 .hud-phone-photo-info em { display: block; opacity: .55; font-style: normal; font-size: .9em; margin-top: 3px; }
 .hud-phone-photo-card[open] > summary .hud-phone-photo-placeholder { filter: brightness(.85); }
-
+/* Абзац в дневнике — с красной строки. */
+.hud-diary-indent { display: inline-block; width: 1.6em; }

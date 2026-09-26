@@ -9,9 +9,9 @@
 // честно бывает 'empty', комментариев может не быть вовсе. Ложная тревога
 // здесь стоит лишнего запроса к модели, поэтому лучше промолчать.
 
-import { settings } from './settings.js?v=23.13.3';
-import { extractHudBlock } from './hud-block.js?v=23.13.3';
-import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.13.3';
+import { settings } from './settings.js?v=23.13.4';
+import { extractHudBlock } from './hud-block.js?v=23.13.4';
+import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.13.4';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const МЕТКА = /<\s*new this turn\b[^>]*>/i;
@@ -42,6 +42,11 @@ export function чегоНеХватает(текстСообщения) {
   // Дневник пишут присутствующие. Никого в cs нет — {{char}} вне сцены, и
   // писать от его имени промт запрещает: пустой дневник тогда честный.
   if (settings.enableDiary && (Array.isArray(к.cs) ? к.cs : []).some(объект) && !заполнено(к.dy)) нет.push('дневник');
+  // Дневник — настоящая запись, а не мысль или заметка: короче ~220 знаков
+  // и меньше трёх предложений — это заметка. Порог мягкий, чтобы не гонять
+  // модель из-за записи чуть короче просимой.
+  const короткая = (т) => { const s = String(т || '').replace(/~~.*?~~/g, '').trim(); return s.length < 220 && (s.match(/[.!?…]+(?=\s|$)/g) || []).length < 3; };
+  if (settings.enableDiary && Array.isArray(к.dy) && к.dy.some(з => объект(з) && заполнено(з.tx) && короткая(з.tx))) нет.push('дневник (слишком короткий)');
   if (settings.enableWorld && settings.enableHoroscope !== false && !заполнено(к.wd && к.wd.zd)) нет.push('гороскоп');
   return нет;
 }

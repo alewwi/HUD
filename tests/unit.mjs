@@ -361,6 +361,16 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
 {
   const д = Sch.normalizeJSONData(P.parseHUDComplex(hud({ sc: { T: '10:00' }, cs: [{ N: 'Лилиан' }] })));
   проверить('нормализация даёт все разделы', Array.isArray(д.characters) && Array.isArray(д.diary) && Array.isArray(д.dreams) && д.memory && д.world && д.scene, Object.keys(д).join(' '));
+  const Ch = await модуль('hud-check.js');
+  const St2 = await модуль('settings.js');
+  St2.settings.enableDiary = true;
+  const сДневником = (tx) => hud({ cs: [{ N: 'Тристан', Th: 'мысль', Ex: 'ждал | вышло' }], dy: [{ au: 'Тристан', tm: 'ночь', tx }] });
+  проверить('дневник-заметка в одну мысль — «слишком короткий»', Ch.чегоНеХватает(сДневником('Она невыносима.')).includes('дневник (слишком короткий)'));
+  const запись = 'Сегодня всё пошло не так. Я собирался уехать ещё утром, но остался. Она плакала у меня на запястьях, и я не знал, куда деть руки.\nПотом она познакомила меня с рысью. Я стоял в дверях и не мог отвести глаз.';
+  проверить('полноценная запись проходит проверку', !Ch.чегоНеХватает(сДневником(запись)).some(x => x.startsWith('дневник')));
+  const D = await модуль('render/diary.js');
+  const стр = D.buildDiaryHTML([{ author: 'Тристан', time: 'ночь', text: 'Первый абзац.\\nВторой ~~зачёркнуто~~ абзац.' }], 'x', true);
+  проверить('дневник: абзацы с красной строки и зачёркивание', стр.includes('hud-diary-indent') && стр.includes('<s>зачёркнуто</s>'));
   const зверь = Sch.normalizeJSONData(P.parseHUDComplex(hud({ pet: [{ n: 'Шини', k: 'Черная рысь-меланист', w: '40 кг', s: 'на груди Софи, рычит на Тристана, голоден' }] }))).companions[0] || {};
   проверить('спутник с кодами не из инструкции (k, w, s) не теряет вид, вес и «сейчас»', зверь.name === 'Шини' && зверь.species === 'Черная рысь-меланист · 40 кг' && зверь.note.startsWith('на груди'), JSON.stringify(зверь));
   const пусто = Sch.normalizeJSONData({});

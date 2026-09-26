@@ -6,7 +6,7 @@
 // index.js импортирует отсюда только buildDiaryHTML и hudHasMeaningfulDiary —
 // остальное экспортируется для тестов и внутренних нужд домена.
 
-import { escapeHtml, hudHasMeaningfulValue, hudHashSeed } from '../utils.js?v=23.13.3';
+import { escapeHtml, hudHasMeaningfulValue, hudHashSeed } from '../utils.js?v=23.13.4';
 
 // Дневник: словарь эмоциональных синонимов. Раньше всё сводилось к
 // четырём темам (sad / angry / panic / neutral) — «скука», «презрение»,
@@ -142,8 +142,13 @@ function normalizeDiaryMood(value) {
   return 'neutral';
 }
 
+// Запись — как в настоящем дневнике: абзацы с красной строки (перенос
+// строки в тексте, в том числе написанный моделью буквально «\n»),
+// зачёркнутое — ~~так~~.
 function renderDiaryText(value) {
-  return escapeHtml(String(value ?? '')).replace(/~~(.*?)~~/g, '<s>$1</s>');
+  return String(value ?? '').replace(/\\n/g, '\n').split(/\n+/).map(s => s.trim()).filter(Boolean)
+    .map(абзац => escapeHtml(абзац).replace(/~~(.*?)~~/g, '<s>$1</s>'))
+    .join('<br><span class="hud-diary-indent" aria-hidden="true"></span>');
 }
 
 function getDiaryStickerText(author) {
