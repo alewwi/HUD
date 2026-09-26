@@ -7,10 +7,10 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.13.2';
-import { mapKey } from './utils.js?v=23.13.2';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.13.2';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.13.2';
+import { settings } from './settings.js?v=23.13.3';
+import { mapKey } from './utils.js?v=23.13.3';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.13.3';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.13.3';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -225,9 +225,16 @@ export function normalizeJSONData(parsed) {
     .map(p => {
       if (typeof p === 'string') return { name: toStr(p), species: '', owner: '', mood: '', condition: '', diet: '', bond: '', skills: '', note: '' };
       if (!p || typeof p !== 'object') return null;
-      const поле = (k) => toStr(Array.isArray(p[k]) ? p[k].join('; ') : p[k]);
-      return { name: поле('name'), species: поле('species'), owner: поле('owner'), mood: поле('mood'),
-        condition: поле('condition'), diet: поле('diet'), bond: поле('bond'), skills: поле('skills'), note: поле('note') };
+      const один = (k) => toStr(Array.isArray(p[k]) ? p[k].join('; ') : p[k]);
+      // Модель не всегда пишет коды из инструкции: «k» вместо «sp», «s» вместо
+      // «nte», «w» — вес. Берём первое непустое из синонимов, иначе спутник
+      // остаётся с одним именем.
+      const поле = (...ключи) => { for (const k of ключи) { const v = один(k); if (v && valid(v)) return v; } return ''; };
+      const вес = поле('weight', 'w', 'вес');
+      const вид = поле('species', 'kind', 'k', 'type', 'breed', 'вид', 'порода');
+      return { name: поле('name', 'n', 'имя'), species: [вид, вес].filter(Boolean).join(' · '), owner: поле('owner', 'o', 'master', 'хозяин'),
+        mood: поле('mood', 'm', 'настроение'), condition: поле('condition', 'health', 'h', 'hp', 'состояние', 'здоровье'), diet: поле('diet', 'food', 'f', 'рацион', 'еда'),
+        bond: поле('bond', 'b', 'loyalty', 'привязанность'), skills: поле('skills', 'sk', 'tricks', 'умения'), note: поле('note', 's', 'state', 'status', 'doing', 'now', 'сейчас') };
     })
     .filter(p => p && valid(p.name));
 

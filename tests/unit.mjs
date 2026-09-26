@@ -361,6 +361,8 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
 {
   const д = Sch.normalizeJSONData(P.parseHUDComplex(hud({ sc: { T: '10:00' }, cs: [{ N: 'Лилиан' }] })));
   проверить('нормализация даёт все разделы', Array.isArray(д.characters) && Array.isArray(д.diary) && Array.isArray(д.dreams) && д.memory && д.world && д.scene, Object.keys(д).join(' '));
+  const зверь = Sch.normalizeJSONData(P.parseHUDComplex(hud({ pet: [{ n: 'Шини', k: 'Черная рысь-меланист', w: '40 кг', s: 'на груди Софи, рычит на Тристана, голоден' }] }))).companions[0] || {};
+  проверить('спутник с кодами не из инструкции (k, w, s) не теряет вид, вес и «сейчас»', зверь.name === 'Шини' && зверь.species === 'Черная рысь-меланист · 40 кг' && зверь.note.startsWith('на груди'), JSON.stringify(зверь));
   const пусто = Sch.normalizeJSONData({});
   проверить('пустой HUD не падает', Array.isArray(пусто.characters) && пусто.characters.length === 0);
 }
