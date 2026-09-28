@@ -12,17 +12,17 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.13.5';
-import { mapKey } from './utils.js?v=23.13.5';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.13.5';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.13.5';
-import { заменитьHudБлоки } from './hud-block.js?v=23.13.5';
+import { settings } from './settings.js?v=23.14.1';
+import { mapKey } from './utils.js?v=23.14.1';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.14.1';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.14.1';
+import { заменитьHudБлоки } from './hud-block.js?v=23.14.1';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
 // Коды полей в том виде, в каком их просит промт.
-const ПОЛЯ_СЦЕНЫ = ['T', 'Wt', 'Dt', 'At', 'Md'];
-const ПОЛЯ_ПЕРСОНАЖА = ['N', 'A', 'C', 'Ap', 'R', 'B', 'H', 'Ill', 'Prg', 'Mns', 'Ph', 'L', 'Th', 'K', 'Ex', 'D', 'I', 'G', 'S', 'Rl', 'Mm', 'Fl',
+const ПОЛЯ_СЦЕНЫ = ['T', 'Wt', 'Dt', 'At', 'Md', 'Tw'];
+const ПОЛЯ_ПЕРСОНАЖА = ['N', 'A', 'C', 'Ap', 'R', 'B', 'H', 'Ill', 'Prg', 'Mns', 'Ph', 'Bs', 'L', 'Th', 'K', 'Ex', 'D', 'I', 'G', 'S', 'Rl', 'Mm', 'Fl',
   'Jl', 'St', 'Eo', 'X', 'SxL', 'SxC', 'SxR', 'Ln', 'Tr', 'Fr', 'SS', 'Pos', 'Rnd', 'Dur', 'Prt', 'Org', 'Vit', 'Snd', 'BM', 'W', 'Kn', 'Ft',
   'NG', 'NT', 'ND', 'Mrk', 'AC', 'SxV'];
 const ПОЛЯ_ИГРОКА = ['A', 'C', 'Ap', 'H', 'Ill', 'Prg', 'Mns', 'Rl', 'L', 'Mrk', 'UW'];
@@ -88,6 +88,9 @@ export function HUDвКодах(текстБлока) {
   if (!объект(сырой)) return null;
   const к = свернутьКоды(JSON.parse(JSON.stringify(сырой)));
   if (объект(к.sc)) к.sc = свернутьПоля(к.sc, КОДЫ_СЦЕНЫ);
+  // Поворот сюжета живёт один ход: в снимке для следующего хода его нет,
+  // иначе модель повторяла бы вчерашний поворот как новый.
+  if (объект(к.sc)) delete к.sc.Tw;
   if (объект(к.cs)) к.cs = [к.cs];
   if (Array.isArray(к.cs)) к.cs = к.cs.map(c => (объект(c) ? свернутьПоля(c, КОДЫ_ПЕРСОНАЖА) : c));
   if (объект(к.us)) к.us = свернутьПоля(к.us, КОДЫ_ИГРОКА);
@@ -222,7 +225,15 @@ export function строкаСнимка(снимок, nsfw) {
   if (!объект(снимок)) return '';
   const копия = JSON.parse(JSON.stringify(снимок));
   if (!nsfw) {
-    (Array.isArray(копия.cs) ? копия.cs : []).forEach(c => убрать(c, NSFW_ПЕРСОНАЖА));
+    // «Последний секс» вне сцены — когда, с кем и чем кончилось (защита и риск): схема просит эту
+    // часть и вне близости, чтобы запись не устаревала. Подробности остаются
+    // в карточке (render/carryover.js), в инструкцию вне сцены не идут.
+    const когдаИСКем = (v) => String(Array.isArray(v) ? v.join('; ') : v || '').split(';').map(s => s.trim()).filter(s => /^(dt|pr|en)\s*[:：]/i.test(s)).join('; ');
+    (Array.isArray(копия.cs) ? копия.cs : []).forEach(c => {
+      const коротко = объект(c) && settings.nsfwPrompt !== 'never' ? когдаИСКем(c.SxL) : '';
+      убрать(c, NSFW_ПЕРСОНАЖА);
+      if (коротко) c.SxL = коротко;
+    });
     убрать(копия.us, NSFW_ИГРОКА);
     delete копия.bd;
   }
@@ -242,7 +253,7 @@ const НАЗВАНИЯ_ПОЛЕЙ = {
   Prg: 'pregnancy', Mns: 'cycle', Ph: 'physiology', L: 'location', Th: 'thought', K: 'key thoughts', Ex: 'expectation vs reality',
   D: 'hidden subtext', I: 'inventory', G: 'goals', S: 'schedule', Rl: 'relationships', Mm: 'memories', Fl: 'flags', Jl: 'jealousy',
   St: 'status', Eo: 'exposure', X: 'conflict', Ln: 'lines', Tr: 'trust', Fr: 'fears', Mrk: 'body marks',
-  SxL: 'last sex', SxC: 'sex count', SxR: 'sex regularity', SxV: 'sex review', SS: 'scene phase', Pos: 'position', Rnd: 'round',
+  SxL: 'last encounter', SxC: 'sex count', SxR: 'sex regularity', SxV: 'sex review', SS: 'scene phase', Pos: 'position', Rnd: 'round',
   Dur: 'duration', Prt: 'protection', Org: 'orgasm readiness', Vit: 'vitals', Snd: 'sounds', BM: 'body map', W: 'intimate state',
   Kn: 'kinks', Ft: 'fetishes', NG: 'never', NT: 'turn-offs', ND: 'intimate detail', AC: 'aftercare', UW: 'intimate state',
 };

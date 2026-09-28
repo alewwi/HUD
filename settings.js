@@ -46,6 +46,8 @@ export const defaultSettings = {
   // Выбранная готовая тема оформления (см. themes.js). Пустая строка —
   // ручные настройки пользователя, ни одна тема не выбрана.
   themePreset: '',
+  // Палитра выбранной темы (themes.js, ПАЛИТРЫ). Пусто — основные цвета темы.
+  themePalette: '',
   // Правки поверх готовой темы, отдельно на каждую: id темы → изменённые
   // поля. Так «Каваи» помнит свою подстройку, а «Vamp» — свою.
   themeEdits: {},
@@ -80,6 +82,23 @@ export const defaultSettings = {
   pillColors: 'smart',
   pillIcons: 'on',
   pillStyle: 'fields',
+  // Стиль секций карточки (css/extras.css): '' — обычный; stickers — только
+  // на светлых темах; moonglass, ghost, news, win95, mac, bujo, glass, evidence.
+  sectionSkin: '',
+  // Форма портрета в шапке: auto — арка у «Вампира», круг у остальных.
+  avatarShape: 'auto',
+  // Шапка персонажа: classic — аватарка кружком, banner — полоса из аватарки.
+  headerStyle: 'classic',
+  // Титры в конце сцены: on | off.
+  sceneCredits: 'off',
+  // Фаза луны по игровой дате: плашка в погоде и тень на луне в небе.
+  moonPhase: true,
+  // «Глубина»: скрытый подтекст и «О ней» в дневнике открываются нажатием.
+  subtextVeil: true,
+  diaryVeil: true,
+  // Новые блоки промта: состояние тела у персонажей и поворот сюжета в сцене.
+  enableBodyState: true,
+  enableTwists: true,
   enableIntimacyExtras: true,
   enableHeatMap: true,
   enableEconomy: true,

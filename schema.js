@@ -7,10 +7,10 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.13.5';
-import { mapKey } from './utils.js?v=23.13.5';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.13.5';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.13.5';
+import { settings } from './settings.js?v=23.14.1';
+import { mapKey } from './utils.js?v=23.14.1';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.14.1';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.14.1';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -223,7 +223,7 @@ export function normalizeJSONData(parsed) {
   // Спутники: животные, фамильяры, дроны. Строка вместо объекта — одно имя.
   const companionsParsed = (Array.isArray(parsed.companions) ? parsed.companions : [])
     .map(p => {
-      if (typeof p === 'string') return { name: toStr(p), species: '', owner: '', mood: '', condition: '', diet: '', bond: '', skills: '', note: '', extra: [] };
+      if (typeof p === 'string') return { name: toStr(p), species: '', owner: '', mood: '', condition: '', diet: '', bond: '', skills: '', note: '', levels: '', extra: [] };
       if (!p || typeof p !== 'object') return null;
       const один = (k) => toStr(Array.isArray(p[k]) ? p[k].join('; ') : p[k]);
       // Модель не всегда пишет коды из инструкции: «k» вместо «sp», «s» вместо
@@ -237,6 +237,12 @@ export function normalizeJSONData(parsed) {
         mood: поле('mood', 'md', 'm', 'настроение'), condition: поле('condition', 'cnd', 'health', 'hlt', 'h', 'hp', 'состояние', 'здоровье'), diet: поле('diet', 'fd', 'food', 'f', 'рацион', 'еда'),
         bond: поле('bond', 'bnd', 'b', 'loyalty', 'привязанность'), skills: поле('skills', 'skl', 'sk', 'tricks', 'умения'),
         note: поле('note', 'nte', 'st', 'sts', 's', 'state', 'status', 'doing', 'now', 'act', 'сейчас') };
+      // Потребности 1-5 для тамагочи: строка «Сытость: 4; Энергия: 3» или объект.
+      const сырыеУровни = ['levels', 'lv', 'needs', 'потребности'].map(k => p[k]).find(v => v !== undefined && v !== null && v !== '');
+      ['levels', 'lv', 'needs', 'потребности'].forEach(k => взято.add(k));
+      спутник.levels = сырыеУровни && typeof сырыеУровни === 'object' && !Array.isArray(сырыеУровни)
+        ? Object.entries(сырыеУровни).map(([k, v]) => k + ': ' + toStr(v)).join('; ')
+        : toStr(Array.isArray(сырыеУровни) ? сырыеУровни.join('; ') : (сырыеУровни ?? ''));
       // Что осталось неузнанным — не выбрасываем: модель могла придумать своё
       // поле («возраст», «окрас»). Показываем строкой с тем ключом, что есть.
       // Нормализация бывает повторной — уже собранный список сохраняем.

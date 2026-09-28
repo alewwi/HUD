@@ -17,7 +17,7 @@
 // Ключи в vars — те же, что в settings.js. Незнакомые ключи не пишем: их
 // applyThemeColors() всё равно не читает.
 
-import { settings } from './settings.js?v=23.13.5';
+import { settings } from './settings.js?v=23.14.1';
 
 const HUD_THEMES = [
   {
@@ -626,6 +626,115 @@ const HUD_THEMES = [
   },
 ];
 
+// Палитры тем: другие цветовые решения той же темы. Палитра задаёт главные
+// цвета, остальные поля (стекло, память, телефон, сообщения, часы) выводятся
+// из них, чтобы от основной темы не оставались чужие оттенки.
+const ПАЛИТРЫ = {
+  vamp: [
+    { id: "cherry", label: "Вишня", from: "Cherry", vars: {accentColor: "#c9ba82", glowColor: "#6b0a10", cardBgStart: "#3a0508", cardBgEnd: "#170203", textColor: "#f6ecd2", textMutedColor: "#c9b98f", memoryAccent: "#c9ba82", phoneAccent: "#c9ba82", topBarBg: "#2a0306", tabsBg: "#1f0204"} },
+    { id: "raspberry", label: "Малина", from: "Розовый 2", vars: {accentColor: "#e75480", glowColor: "#e2d797", cardBgStart: "#721e1e", cardBgEnd: "#3a0c0c", textColor: "#fff3f6", textMutedColor: "#e9b9c6", memoryAccent: "#e75480", phoneAccent: "#e75480", topBarBg: "#5a1414", tabsBg: "#4a1010"} },
+  ],
+  academia: [
+    { id: "coffee", label: "Кофе", from: "Mira's Coffee", vars: {accentColor: "#b8a09a", glowColor: "#5a3a30", cardBgStart: "#2a1c1c", cardBgEnd: "#140c0c", textColor: "#efe4dc", textMutedColor: "#b8a39a", memoryAccent: "#a8928c", phoneAccent: "#a8928c", topBarBg: "#201515", tabsBg: "#1a1010"} },
+  ],
+  noir: [
+    { id: "roseash", label: "Пепел розы", from: "Viridian", vars: {accentColor: "#b69a99", glowColor: "#442224", cardBgStart: "#2a2324", cardBgEnd: "#161717", textColor: "#ece2e1", textMutedColor: "#a89090", memoryAccent: "#b69a99", phoneAccent: "#b69a99"} },
+  ],
+  mafia: [
+    { id: "blood", label: "Кровь", from: "ಠ益ಠ", vars: {accentColor: "#c0161b", glowColor: "#570d11", cardBgStart: "#1c0405", cardBgEnd: "#000000", textColor: "#f2e6e6", textMutedColor: "#b08a8a", memoryAccent: "#c0161b", phoneAccent: "#c0161b"} },
+  ],
+  cyberpunk: [
+    { id: "porsche", label: "Porsche", from: "Porsche", vars: {accentColor: "#8d8bff", glowColor: "#ffccdd", cardBgStart: "#0c0c10", cardBgEnd: "#000000", textColor: "#f4f2ff", textMutedColor: "#b4b2d8", memoryAccent: "#ffccdd", phoneAccent: "#8d8bff", topBarBg: "#0a0a0e", tabsBg: "#050507"} },
+    { id: "sunset", label: "Закат", from: "темка", vars: {accentColor: "#ff6031", glowColor: "#5395d5", cardBgStart: "#14243d", cardBgEnd: "#08111f", textColor: "#eef3fb", textMutedColor: "#9fb6d6", memoryAccent: "#5395d5", phoneAccent: "#ff6031", topBarBg: "#0f1c30", tabsBg: "#0a1526"} },
+  ],
+  ice: [
+    { id: "sky", label: "Небо", from: "Heaven", vars: {accentColor: "#e6c78d", glowColor: "#718a9f", cardBgStart: "#1b2530", cardBgEnd: "#0f161d", textColor: "#eef2f6", textMutedColor: "#a9b8c6", memoryAccent: "#e6c78d", phoneAccent: "#e6c78d"} },
+  ],
+  kawaii: [
+    { id: "vine", label: "Лоза", from: "Mira's Vine", vars: {accentColor: "#8a2f38", glowColor: "#eadade", cardBgStart: "#f5e9ec", cardBgEnd: "#e6d0d6", textColor: "#503232", textMutedColor: "#73484a", memoryAccent: "#572227", phoneAccent: "#572227", topBarBg: "#ecd9de", tabsBg: "#f3e6e9"} },
+  ],
+  western: [
+    { id: "waves", label: "Волны", from: "waves", vars: {accentColor: "#82746a", glowColor: "#d5b493", cardBgStart: "#f1e4d2", cardBgEnd: "#d9bf9f", textColor: "#221a10", textMutedColor: "#5e4e3e", memoryAccent: "#82746a", phoneAccent: "#82746a"} },
+  ],
+  medieval: [
+    { id: "newsprint", label: "Газетная бумага", from: "报纸", vars: {accentColor: "#8c7d6e", glowColor: "#c2b18d", cardBgStart: "#ebe7d8", cardBgEnd: "#d9d0bb", textColor: "#5a524c", textMutedColor: "#8c7d6e", memoryAccent: "#747e67", phoneAccent: "#8c7d6e", topBarBg: "#e6e0d3", tabsBg: "#efeadd"} },
+  ],
+  web1: [
+    { id: "bluescreen", label: "Синий экран", from: "Win95 · день", vars: {accentColor: "#000080", glowColor: "#7f9cff", cardBgStart: "#d8d8d8", cardBgEnd: "#c0c0c0", textColor: "#111111", textMutedColor: "#505050", memoryAccent: "#0c35a0", phoneAccent: "#000080", topBarBg: "#c0c0c0", tabsBg: "#d8d8d8"} },
+    { id: "topsecret", label: "Совершенно секретно", from: "top secret", vars: {accentColor: "#1e1e1e", glowColor: "#9a9a9a", cardBgStart: "#ffffff", cardBgEnd: "#ececec", textColor: "#000000", textMutedColor: "#555555", memoryAccent: "#808080", phoneAccent: "#1e1e1e", topBarBg: "#f5f5f5", tabsBg: "#ffffff"} },
+  ],
+  cottage: [
+    { id: "greenapple", label: "Зелёное яблоко", from: "Green", vars: {accentColor: "#4e8e71", glowColor: "#b95b79", cardBgStart: "#eefbee", cardBgEnd: "#d8f0d8", textColor: "#3f5a4c", textMutedColor: "#6c8a78", memoryAccent: "#b95b79", phoneAccent: "#4e8e71", topBarBg: "#dcf5dc", tabsBg: "#f0fbf0"} },
+    { id: "lavender", label: "Сумеречная лаванда", from: "Creame", vars: {accentColor: "#597cbc", glowColor: "#d8b0d0", cardBgStart: "#f1dde7", cardBgEnd: "#e1c3d6", textColor: "#403848", textMutedColor: "#6c5f78", memoryAccent: "#6890d8", phoneAccent: "#597cbc", topBarBg: "#e8c8d8", tabsBg: "#f3e4ec"} },
+  ],
+  solarpunk: [
+    { id: "sage", label: "Шалфей", from: "green interface", vars: {accentColor: "#798166", glowColor: "#d0d4c6", cardBgStart: "#f4f4ef", cardBgEnd: "#e2e5d8", textColor: "#444f37", textMutedColor: "#626a54", memoryAccent: "#9bc0a5", phoneAccent: "#798166", topBarBg: "#d2d6c6", tabsBg: "#eaebe2"} },
+  ],
+  japan: [
+    { id: "inkseal", label: "Тушь и сургуч", from: "laconic white", vars: {accentColor: "#8a4444", glowColor: "#b4b1b1", cardBgStart: "#f0f0ef", cardBgEnd: "#dcdcdc", textColor: "#38393b", textMutedColor: "#6b6767", memoryAccent: "#8a4444", phoneAccent: "#8a4444", topBarBg: "#e8e8e8", tabsBg: "#f2f2f2"} },
+    { id: "sakura", label: "Сакура", from: "Pink", vars: {accentColor: "#b05570", glowColor: "#9fe0c8", cardBgStart: "#fff0f5", cardBgEnd: "#ffdde5", textColor: "#7f5662", textMutedColor: "#a67a86", memoryAccent: "#5a786a", phoneAccent: "#b05570", topBarBg: "#ffe4ea", tabsBg: "#fff5f8"} },
+  ],
+  egypt: [
+    { id: "lapis", label: "Лазурь и янтарь", from: "到大地尽头", vars: {accentColor: "#7a3e05", glowColor: "#5a738c", cardBgStart: "#b7cbdb", cardBgEnd: "#94aec2", textColor: "#073e61", textMutedColor: "#3e5265", memoryAccent: "#02629e", phoneAccent: "#7a3e05", topBarBg: "#94aec2", tabsBg: "#a2b9cc"} },
+  ],
+  pirate: [
+    { id: "skygold", label: "Небо и золото", from: "Blue", vars: {accentColor: "#16766a", glowColor: "#ffe9a8", cardBgStart: "#eaf6ff", cardBgEnd: "#c9e7fb", textColor: "#36506a", textMutedColor: "#5f7d99", memoryAccent: "#8b7355", phoneAccent: "#16766a", topBarBg: "#d6eeff", tabsBg: "#eef8ff"} },
+  ],
+  fantasy: [
+    { id: "pinelights", label: "Хвоя и огни", from: "Wild New Year", vars: {accentColor: "#ffc482", glowColor: "#ff5f5f", cardBgStart: "#13210f", cardBgEnd: "#080d08", textColor: "#fee8c8", textMutedColor: "#d1a68a", memoryAccent: "#ff5e5e", phoneAccent: "#ffc482", topBarBg: "#0a0f0a", tabsBg: "#0d170d"} },
+    { id: "silvertemple", label: "Серебряный храм", from: "黑黑", vars: {accentColor: "#9a82cc", glowColor: "#63bdb8", cardBgStart: "#2a2729", cardBgEnd: "#131112", textColor: "#e6e6e6", textMutedColor: "#a8a6a7", memoryAccent: "#63bdb8", phoneAccent: "#9a82cc", topBarBg: "#131112", tabsBg: "#1b191a"} },
+  ],
+  ocean: [
+    { id: "abyss", label: "Бездна", from: "Bujo Abyssal", vars: {accentColor: "#94b4c1", glowColor: "#547792", cardBgStart: "#2a435c", cardBgEnd: "#182838", textColor: "#eae0cf", textMutedColor: "#94b4c1", memoryAccent: "#c9b48f", phoneAccent: "#94b4c1", topBarBg: "#213448", tabsBg: "#1b2b3c"} },
+    { id: "moonwater", label: "Лунная вода", from: "Moon", vars: {accentColor: "#92e5ff", glowColor: "#5772ff", cardBgStart: "#253c6b", cardBgEnd: "#071333", textColor: "#bad5ee", textMutedColor: "#8aa4cf", memoryAccent: "#c0e3f2", phoneAccent: "#92e5ff", topBarBg: "#0c1a3c", tabsBg: "#10204a"} },
+  ],
+  steampunk: [
+    { id: "sepia", label: "Сепия плёнки", from: "movie frame brown", vars: {accentColor: "#c9a959", glowColor: "#8b7355", cardBgStart: "#3a3028", cardBgEnd: "#221d18", textColor: "#d4c4a8", textMutedColor: "#a08c70", memoryAccent: "#5d8c7e", phoneAccent: "#c9a959", topBarBg: "#2a251f", tabsBg: "#2f2821"} },
+  ],
+  dieselpunk: [
+    { id: "retromac", label: "Ретро-Мак", from: "macRetro dark", vars: {accentColor: "#b1cede", glowColor: "#6784af", cardBgStart: "#2a2a2a", cardBgEnd: "#181818", textColor: "#adbbd2", textMutedColor: "#898eb7", memoryAccent: "#95cecb", phoneAccent: "#6784af", topBarBg: "#212121", tabsBg: "#1c1c1c"} },
+    { id: "evidence", label: "Кровь и улики", from: "Blood & Evidence", vars: {accentColor: "#d2b48c", glowColor: "#8b0000", cardBgStart: "#2a0a0a", cardBgEnd: "#050505", textColor: "#f4ece2", textMutedColor: "#a89480", memoryAccent: "#c83232", phoneAccent: "#d2b48c", topBarBg: "#0a0505", tabsBg: "#100808"} },
+  ],
+  biopunk: [
+    { id: "phosphor", label: "Фосфор", from: "macRetro satinnoch", vars: {accentColor: "#55a84c", glowColor: "#2f6b2a", cardBgStart: "#0e140e", cardBgEnd: "#050805", textColor: "#7fd06f", textMutedColor: "#4f8f47", memoryAccent: "#9be38e", phoneAccent: "#55a84c", topBarBg: "#080808", tabsBg: "#0a0f0a"} },
+  ],
+  spaceopera: [
+    { id: "neonwin", label: "Неоновые окна", from: "Win95 · ночь", vars: {accentColor: "#7dd3fc", glowColor: "#ff66c4", cardBgStart: "#141440", cardBgEnd: "#0a0a1e", textColor: "#e8f4ff", textMutedColor: "#a5c8e6", memoryAccent: "#ff66c4", phoneAccent: "#7dd3fc", topBarBg: "#0a0a1e", tabsBg: "#050510"} },
+  ],
+  witch: [
+    { id: "starshroom", label: "Звёздные грибы", from: "Starlight mushrooms", vars: {accentColor: "#c2a2db", glowColor: "#5ab0de", cardBgStart: "#141a24", cardBgEnd: "#0a0d12", textColor: "#bfd8fc", textMutedColor: "#8fa6c8", memoryAccent: "#c2a2db", phoneAccent: "#c2a2db", topBarBg: "#0a0d12", tabsBg: "#0c0f16"} },
+  ],
+  voodoo: [
+    { id: "bloodmoon", label: "Кровавая луна", from: "Red moon", vars: {accentColor: "#c01a1a", glowColor: "#4c0707", cardBgStart: "#1a0404", cardBgEnd: "#000000", textColor: "#e8d8d8", textMutedColor: "#a08080", memoryAccent: "#f3cfcf", phoneAccent: "#c01a1a", topBarBg: "#0a0000", tabsBg: "#050000"} },
+  ],
+  spacehorror: [
+    { id: "redwin", label: "Чёрно-красные окна", from: "Win95 · чёрно-красный", vars: {accentColor: "#ff5555", glowColor: "#550000", cardBgStart: "#303030", cardBgEnd: "#1a1a1a", textColor: "#e0e0e0", textMutedColor: "#b0a0a0", memoryAccent: "#ffcccc", phoneAccent: "#ff5555", topBarBg: "#2a2a2a", tabsBg: "#222222"} },
+  ],
+};
+
+const hexRgb = (h) => { const m = String(h || '').replace('#', ''); const n = parseInt(m.length === 3 ? m.replace(/./g, c => c + c) : m, 16); return [(n >> 16) & 255, (n >> 8) & 255, n & 255]; };
+const смесь = (a, b, доля) => { const x = hexRgb(a), y = hexRgb(b); return '#' + x.map((v, i) => Math.round(v + (y[i] - v) * доля).toString(16).padStart(2, '0')).join(''); };
+const яркость = (h) => { const [r, g, b] = hexRgb(h); return (0.299 * r + 0.587 * g + 0.114 * b) / 255; };
+export function палитрыТемы(id) { return ПАЛИТРЫ[id] || []; }
+export function развернутьПалитру(тема, п) {
+  const v = Object.assign({}, тема.vars);
+  if (!п) return v;
+  const з = п.vars, a = з.accentColor, bg1 = з.cardBgStart, bg2 = з.cardBgEnd, txt = з.textColor;
+  const светлая = яркость(bg1) > 0.6;
+  Object.assign(v, {
+    glowColor: з.glowColor || a,
+    infoBlockBgStart: светлая ? смесь(bg1, '#ffffff', 0.55) : смесь(bg1, txt, 0.06),
+    infoBlockBgEnd: светлая ? смесь(bg2, '#ffffff', 0.35) : смесь(bg2, txt, 0.04),
+    memoryBgStart: bg1, memoryBgEnd: bg2, memoryAccent: з.memoryAccent || a,
+    topBarBg: з.topBarBg || bg2, tabsBg: з.tabsBg || bg1,
+    phoneBgStart: bg1, phoneBgEnd: bg2, phoneAccent: з.phoneAccent || a, phoneFrameColor: смесь(bg2, a, 0.3),
+    msgInBg: светлая ? '#ffffff' : txt, msgOutStart: a, msgOutEnd: смесь(a, bg2, 0.4),
+    weatherBgColor: bg2, sceneOverlayColor: з.glowColor || a, badgeColor: a, interceptColor: a, clockColor: txt,
+  }, з);
+  return v;
+}
+export function ключПравок(id, пал) { return пал ? id + '@' + пал : id; }
+
 
 // Наборы тем. Пользователь может спрятать целые категории, чтобы ряд
 // пресетов не разрастался: двадцать с лишним кнопок листать неудобно.
@@ -672,11 +781,23 @@ export function getTheme(id) {
 }
 
 // Значения темы вместе с правками пользователя поверх неё.
-export function themeVars(id) {
+export function themeVars(id, пал = '') {
   const t = getTheme(id);
   if (!t) return null;
-  const edits = (settings.themeEdits && settings.themeEdits[id]) || {};
-  return Object.assign({}, t.vars, edits);
+  const п = пал ? палитрыТемы(id).find(x => x.id === пал) : null;
+  const edits = (settings.themeEdits && settings.themeEdits[ключПравок(id, п ? пал : '')]) || {};
+  return Object.assign(развернутьПалитру(t, п), edits);
+}
+
+// Ряд палитр выбранной темы. Пусто, если у темы палитр нет.
+export function paletteRowHTML(id, пал = '') {
+  const t = getTheme(id), список = палитрыТемы(id);
+  if (!t || !список.length) return '';
+  const кнопка = (pid, label, from, v) => `<button type="button" class="hud-theme-palette${(пал || '') === pid ? ' active' : ''}" data-theme-palette="${pid}"`
+    + ` title="${from ? 'Палитра из темы «' + String(from).replace(/"/g, '') + '»' : 'Цвета темы как задумано'}">`
+    + `<span class="hud-palette-sw">${[v.accentColor, v.glowColor, v.cardBgStart, v.textColor].map(c => `<i style="background:${c}"></i>`).join('')}</span><small>${label}</small></button>`;
+  return `<div class="hud-theme-presets-title">Палитры темы</div><div class="hud-theme-palettes-list">`
+    + кнопка('', 'Основная', '', t.vars) + список.map(p => кнопка(p.id, p.label, p.from, развернутьПалитру(t, p))).join('') + '</div>';
 }
 
 // Ряд кнопок пресетов. Живёт здесь, а не в index.js, потому что его

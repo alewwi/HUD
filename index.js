@@ -1,36 +1,37 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=23.13.5';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=23.13.5';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.13.5';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.13.5';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.13.5';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.13.5';
-import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.13.5';
-import { mergeCarryOver, вернутьЧерты } from './render/carryover.js?v=23.13.5';
-import { привязатьИсторию, ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.13.5';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.13.5';
-import { ПРИМЕР_HUD_ТЕКСТ, БАЗОВЫЙ_HUD_ТЕКСТ } from './render/sample-hud.js?v=23.13.5';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.13.5';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.13.5';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.13.5';
-import { buildMemoryHTML } from './render/memory.js?v=23.13.5';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.13.5';
-import { buildPhoneTabsHTML } from './render/phone.js?v=23.13.5';
-import { праздникиСцены } from './render/holidays.js?v=23.13.5';
-import { скрытыеФактыЗачатия } from './render/conception.js?v=23.13.5';
-import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.13.5';
-import { hudHasRelations } from './render/relations-graph.js?v=23.13.5';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.13.5';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.13.5';
-import { applyThemeClass, presetRowHTML, THEME_CATEGORIES } from './themes.js?v=23.13.5';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.13.5';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.13.5';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=23.13.5';
-import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.13.5';
-import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.13.5';
-import { создатьПроверкуПолноты } from './hud-check.js?v=23.13.5';
-import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.13.5';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=23.14.1';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=23.14.1';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.14.1';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.14.1';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.14.1';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.14.1';
+import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.14.1';
+import { mergeCarryOver, вернутьЧерты, сдвигиДоверия } from './render/carryover.js?v=23.14.1';
+import { привязатьИсторию, ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.14.1';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.14.1';
+import { ПРИМЕР_HUD_ТЕКСТ, БАЗОВЫЙ_HUD_ТЕКСТ } from './render/sample-hud.js?v=23.14.1';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.14.1';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.14.1';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.14.1';
+import { buildMemoryHTML } from './render/memory.js?v=23.14.1';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.14.1';
+import { buildPhoneTabsHTML } from './render/phone.js?v=23.14.1';
+import { праздникиСцены } from './render/holidays.js?v=23.14.1';
+import { скрытыеФактыЗачатия } from './render/conception.js?v=23.14.1';
+import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.14.1';
+import { hudHasRelations } from './render/relations-graph.js?v=23.14.1';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.14.1';
+import { чипЛуны, теньЛуны, титрыСцены, карточкаПоворота } from './render/extras.js?v=23.14.1';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.14.1';
+import { applyThemeClass, presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.14.1';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.14.1';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.14.1';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=23.14.1';
+import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.14.1';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.14.1';
+import { создатьПроверкуПолноты } from './hud-check.js?v=23.14.1';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.14.1';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -109,6 +110,10 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     const цикл = settings.enableMenstruation !== false;
     // Интимная часть целиком — только когда сцена идёт или начинается.
     const интим = nsfw !== false;
+    // «Последний секс» — факт биографии, а не сцена: вне близости в схеме
+    // остаётся его нейтральная часть (когда и с кем), иначе после сцены модель
+    // про него забывала, а карточка показывала запись трёхдневной давности.
+    const историяБлизости = !интим && settings.nsfwPrompt !== 'never';
     // Следы на теле — часть здоровья: они нужны и вне сцены.
     const следы = settings.enableIntimacyExtras !== false;
     // Поза, раунд, длительность, защита, оргазм, пульс, звуки — только в сцене.
@@ -119,6 +124,9 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     const гороскоп = !!settings.enableWorld && settings.enableHoroscope !== false;
     const ружья = !!settings.enableMemory && settings.enableGuns !== false;
     const спутники = settings.enableCompanions !== false;
+    // Состояние тела (Bs) у персонажей и поворот сюжета (sc.Tw).
+    const состояниеТела = settings.enableBodyState !== false;
+    const повороты = settings.enableTwists !== false;
     // Эпоха: в средневековье телефона и перехватов нет — вместо них шкатулка
     // (письма, святцы, кошель, записи, карта, грамоты, памятки) и подслушанное.
     const средневековье = settings.era === 'medieval';
@@ -176,7 +184,8 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
   "Wt": "[weather: conditions and temperature right now, e.g. 'мелкий дождь, +6°C, ветер с реки']",
   "Dt": "[date: day of the week and the full date with year, in the setting's own calendar]",
   "At": "[atmosphere: one short sensory phrase — a smell, sound or light that sets the scene]",
-  "Md": "[mood: the overall emotional tone of the scene in a few words]"
+  "Md": "[mood: the overall emotional tone of the scene in a few words]"${повороты ? `,
+  "Tw": "[plot twist, ONLY on the turn when something genuinely unexpected changes the course of the story — otherwise omit: 'ttl: a short title; hap: what happened, one sentence; hnt: where it may lead; ton: good, bad or neutral']"` : ''}
  },
  "cs": [
   {
@@ -191,7 +200,8 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
    "Prg": "[pregnancy, ONLY once a pregnancy exists in the story, known or not — never invent one; otherwise omit. 'wk: week of pregnancy as a number; due: expected due date; fa: the father, if known; sy: symptoms and how the body is changing; knw: who knows about it; cnd: how the pregnancy is going; gnd: baby's sex once an ultrasound shows it (from ~18-20 wk), else omit; bnm: chosen name, if any; vis: next doctor's visit or test; crv: cravings and odd appetites'. It advances with in-story time]",` : ''}${цикл ? `
    "Mns": "[menstrual cycle, ONLY for someone with a uterus — otherwise omit. 'cyd: cycle day, a number; cyl: cycle length in days; phs: menstrual, follicular, ovulation, luteal or late; nxt: next period date; pms: PMS window as dates; dly: days late, 0 if none; rsn: likely reason for delay — stress, illness, contraception, pregnancy; empty if none'. It moves forward with in-story days: the day grows, the phase follows, the period comes on time unless stress, illness, contraception or pregnancy delays it]",` : ''}
    "Ph": "[physiology: bodily sensations right now — hunger, thirst, cold, pain, drowsiness${интим ? ', arousal' : ''}. Not the phone]",
-   "L": "[location: the exact place right now — city, building, room, spot in the room]",
+${состояниеТела ? `   "Bs": "[body state, numbers 0-100 each followed by a word: 'eng: energy — a word; awk: alertness; sat: satiety; str: stress; slp: last night's sleep — hours and when they went to bed; dut: the work or study duty ahead and when'. The numbers follow the story: effort, hunger and sleepless hours lower them, food, rest and sleep restore them; stress rises with danger and conflict]",
+` : ''}   "L": "[location: the exact place right now — city, building, room, spot in the room]",
    "Th": "[thought: the one thought running through their head this very moment, in their own voice]",
    "K": "[key thoughts: what occupies their mind in context, each with a fitting emoji. At least 3; separate by ;]",
    "Ex": "[expectation vs reality for THIS turn only, not a future prediction: what this character counted on walking into the scene vs what actually came of it. Format 'xp: what they expected; gt: what they got'. The gap is the point — e.g. sure she'd say yes; she'd already refused. If they match, say so plainly.]",
@@ -206,11 +216,12 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
    "St": "[status: social and romantic status — single, married, engaged, in a secret affair, widowed — plus social standing if it matters]",
    "Eo": "[exposure: how much of the mask has slipped in front of those present — a bouncing leg, a cracking voice, eyes darting to the door. Say what leaked and who noticed. 0-100% may lead the line: 0 = nobody suspects, 100 = everyone sees through. 'empty' when there is nothing to hide.]",
    "X": "[conflict depth as 'wy: what the conflict is about; dys: how many days it has been going on; sg: its stage — brewing, open, cold war, reconciliation']",
-${интим ? `   "SxL": "[last sex: 'dt: when — date, time, place; pr: with whom and who they are to this character; ak: what exactly happened, step by step, in 2-3 sentences; en: how it ended — who came and how, what happened right after']",
+${интим ? `   "SxL": "[last sex: 'dt: when — date, time, place; pr: with whom and who they are to this character; ak: what exactly happened, step by step, in 2-3 sentences; en: how it ended — who came and how, and whether it was protected: a condom, pulled out in time, or finished inside with no protection (a pregnancy risk); what happened right after'. It always describes the MOST RECENT encounter: from phase 2 it already describes the one happening now (en: 'ещё не закончилось' until it ends), and the turn it ends it gets its ending. The date comes from the story's own calendar and time — never keep an older date once a newer encounter has happened, even one skipped past in a time jump]",
    "SxC": "[sex count: lifetime number of sexual partners — a number or an honest estimate]",
    "SxR": "[sex regularity: how often they have sex these days and with whom, how they satisfy themselves in between, how strong their libido is and what feeds or kills it — a sentence or two]",
+` : историяБлизости ? `   "SxL": "[the last night this character spent with someone: 'dt: date, time, place; pr: with whom and who they are to this character; en: how it ended, in calm neutral words — whether it was protected (a condom, pulled out in time, the pill) or finished inside with no protection, which leaves a pregnancy risk — and what happened right after'. Keep it as it is; the moment another such night happens in the story — on screen or skipped past in a time jump — rewrite it to that one with the story's own date. Never keep an older date after a newer night.]",
 ` : ''}   "Ln": "[lines: this character's most characteristic lines from the recent story, quoted verbatim in «», separated by ;. At least 3, more if they exist. Pick lines that show HOW they speak — rhythm, slang, cruelty, tenderness — not what happened. Skip if they haven't spoken yet.]",
-   "SS": "${интим ? `[scene state — the intimacy phase right now. Every turn is in exactly ONE phase, and it decides which intimate fields below are filled. PHASE 1, nothing sexual is happening or has just ended: 'empty', and so are ${близость ? 'Pos, Rnd, Dur, Prt, Org, Vit, Snd, ' : ''}BM, W, ND, AC, SxV${игрок ? " and the user's UW" : ''}; SxL, SxC, SxR, Kn, Ft, NG, NT stay filled. PHASE 2, during the act — foreplay, act or climax: fill W, BM${близость ? ', Pos, Rnd, Dur, Prt, Org, Vit, Snd' : ''}${игрок ? ' and UW' : ''}; ND, AC, SxV stay 'empty'. PHASE 3, from after the last climax until they move on — aftercare or afterglow: fill ND, AC, SxV and update SxL to this encounter; W${близость ? ', Pos, Org, Snd' : ''}${игрок ? ', UW' : ''} become 'empty', BM keeps only still-sensitive zones${близость ? ', Vit may stay while the body calms down, Rnd, Dur and Prt keep their final values' : ''}. A new round is phase 2 again${близость ? ': Rnd grows by one, Dur keeps counting' : ''}. Write SS as the phase number AND its stage word, never the number alone: '2 — foreplay', '2 — act', '2 — climax', '3 — aftercare', '3 — afterglow'. Never fill W and ND in the same turn. Every intimate field is a full, vivid, explicit description, never a single word — values like 'ухоженный', 'стандартно', 'влажно', 'да' are failures: say WHAT exactly, WHERE, how it looks, feels, sounds, smells and tastes, and how it is changing right now, in one to three frank, anatomical sentences, no euphemisms, no fading to black. Bad 'lb: влажно' → good 'lb: течёт так, что внутренняя сторона бёдер блестит, бельё промокло ещё в прелюдии, каждое движение отдаётся влажным звуком'. Bad 'pb: ухоженный' → good 'pb: гладко выбрита, узкая полоска светлых волос над клитором, кожа нежная после бритья'. Where a field asks for a number, the number comes first, then the description]` : `[scene state: 'empty' — nothing intimate is happening; only if intimacy begins in this reply, its phase: foreplay, act or climax]`}",${близость ? `
+   "SS": "${интим ? `[scene state — the intimacy phase right now. Every turn is in exactly ONE phase, and it decides which intimate fields below are filled. PHASE 1, nothing sexual is happening or has just ended: 'empty', and so are ${близость ? 'Pos, Rnd, Dur, Prt, Org, Vit, Snd, ' : ''}BM, W, ND, AC, SxV${игрок ? " and the user's UW" : ''}; SxC, SxR, Kn, Ft, NG, NT stay filled, and SxL keeps describing the most recent encounter — if one ended since the previous HUD, SxL describes THAT one now, with its date. PHASE 2, during the act — foreplay, act or climax: fill W, BM${близость ? ', Pos, Rnd, Dur, Prt, Org, Vit, Snd' : ''}${игрок ? ' and UW' : ''}; ND, AC, SxV stay 'empty'. PHASE 3, from after the last climax until they move on — aftercare or afterglow: fill ND, AC, SxV and update SxL to this encounter; W${близость ? ', Pos, Org, Snd' : ''}${игрок ? ', UW' : ''} become 'empty', BM keeps only still-sensitive zones${близость ? ', Vit may stay while the body calms down, Rnd, Dur and Prt keep their final values' : ''}. A new round is phase 2 again${близость ? ': Rnd grows by one, Dur keeps counting' : ''}. Write SS as the phase number AND its stage word, never the number alone: '2 — foreplay', '2 — act', '2 — climax', '3 — aftercare', '3 — afterglow'. Never fill W and ND in the same turn. Every intimate field is a full, vivid, explicit description, never a single word — values like 'ухоженный', 'стандартно', 'влажно', 'да' are failures: say WHAT exactly, WHERE, how it looks, feels, sounds, smells and tastes, and how it is changing right now, in one to three frank, anatomical sentences, no euphemisms, no fading to black. Bad 'lb: влажно' → good 'lb: течёт так, что внутренняя сторона бёдер блестит, бельё промокло ещё в прелюдии, каждое движение отдаётся влажным звуком'. Bad 'pb: ухоженный' → good 'pb: гладко выбрита, узкая полоска светлых волос над клитором, кожа нежная после бритья'. Where a field asks for a number, the number comes first, then the description]` : `[scene state: 'empty' — nothing intimate is happening; only if intimacy begins in this reply, its phase: foreplay, act or climax]`}",${близость ? `
    "Pos": "[position (phase 2): the current position in full — who is where, how bodies are arranged, hands/legs/weight, angle and rhythm, e.g. 'на боку, он сзади, рука на её горле, двигается медленно и глубоко']",
    "Rnd": "[round (phase 2, kept in phase 3): the number of the current round in this scene, 1 for the first]",
    "Dur": "[duration (phase 2, final value kept in phase 3): in-story minutes the intimate scene has lasted so far, as a number]",
@@ -423,7 +434,7 @@ ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and ru
   {
    "au": "[author: a character's name — NEVER {{user}}, and never someone absent from this turn's events; one object per entry, as many characters as write today]",
    "tm": "[time: date and time of the entry]",
-   "tx": "[text: a real diary entry the author sits down to write — never a single thought, a note or a one-line musing. 6-10 full sentences in 2-3 short paragraphs separated by a line break: what happened today told in their own words with concrete details (a place, words someone said, a small gesture they can't stop replaying); what they felt and why; what they doubt, regret, hope for or are ashamed of; what they decide to do next. Their own voice and habits of speech — they may address the diary, contradict themselves, cross a phrase out with ~~like this~~ or break off mid-thought. Longer when the day was heavy. Private writing about their own life, never a scene summary, never an omniscient narrator.]",
+   "tx": "[text: a real diary entry the author sits down to write — never a single thought, a note or a one-line musing. 6-10 full sentences in 2-3 short paragraphs separated by a line break: what happened today told in their own words with concrete details (a place, words someone said, a small gesture they can't stop replaying); what they felt and why; what they doubt, regret, hope for or are ashamed of; what they decide to do next. Their own voice and habits of speech — they may address the diary, contradict themselves, cross a phrase out with ~~like this~~, stress a word with **bold**, *italics* or __underline__ (sparingly) or break off mid-thought. Longer when the day was heavy. Private writing about their own life, never a scene summary, never an omniscient narrator.]",
    "ab": "[about {{user}}: a separate private first-person passage about {{user}} only, 2-4 full sentences — what the author feels, wants, fears, notices and remembers about them today, the things they would never say aloud. 'empty' if nothing meaningful this turn.]",
    "md": "[mood: one English word for the dominant mood, which drives the page's visual style — sadness, stress, anger, panic, calm, relief, guilt, longing, joy, or another that fits better]"
   }
@@ -451,7 +462,7 @@ ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and ru
     if (спутники) {
       p += `,
  "pet": [
-  {"n": "[name of a companion that exists in the story — an animal, familiar, drone, robot or other; one object per companion, [] when there are none]", "sp": "[species or kind, e.g. 'рыжий кот', 'ворон-фамильяр', 'боевой дрон']", "ow": "[owner, or whom it is bound to]", "md": "[mood right now in a word or two]", "cnd": "[condition: health, injuries, tiredness, charge level]", "fd": "[diet: what it eats or runs on, and when it was last fed or charged — companions have their own needs and routine: they eat, sleep, get hurt and react to the scene]", "bnd": "[bond with the owner, 0-100]", "skl": "[OPTIONAL skills, tricks and quirks, separated by ;]", "nte": "[OPTIONAL what it is doing right now]"}
+  {"n": "[name of a companion that exists in the story — an animal, familiar, drone, robot or other; one object per companion, [] when there are none]", "sp": "[species or kind, e.g. 'рыжий кот', 'ворон-фамильяр', 'боевой дрон']", "ow": "[owner, or whom it is bound to]", "md": "[mood right now in a word or two]", "cnd": "[condition: health, injuries, tiredness, charge level]", "fd": "[diet: what it eats or runs on, and when it was last fed or charged — companions have their own needs and routine: they eat, sleep, get hurt and react to the scene]", "bnd": "[bond with the owner, 0-100]", "skl": "[OPTIONAL skills, tricks and quirks, separated by ;]", "nte": "[OPTIONAL what it is doing right now]", "lv": "[OPTIONAL needs 0-5 each: 'sat: satiety; eng: energy; cln: cleanliness; joy: mood' — a machine instead 'chg: charge; fix: working order; joy: mood']"}
  ]`;
     }
 
@@ -941,6 +952,14 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     root.classList.toggle('hud-pills-mono', settings.pillColors === 'mono');
     root.classList.toggle('hud-pills-noicons', settings.pillIcons === 'off');
     root.classList.toggle('hud-pills-plain', settings.pillStyle === 'plain');
+    // Стиль секций, форма портрета, шапка-баннер (css/extras.css).
+    ['stickers', 'moonglass', 'ghost', 'news', 'win95', 'mac', 'bujo', 'glass', 'evidence'].forEach(s => root.classList.toggle('hud-skin-' + s, settings.sectionSkin === s));
+    root.classList.toggle('hud-ava-arch', settings.avatarShape === 'arch' || ((settings.avatarShape || 'auto') === 'auto' && settings.themePreset === 'vamp'));
+    root.classList.toggle('hud-head-banner', settings.headerStyle === 'banner');
+    // Фильтр рваного края для «Газеты» — один на страницу.
+    if (settings.sectionSkin === 'news' && !document.getElementById('hud-torn-filter')) {
+      document.body.insertAdjacentHTML('beforeend', '<svg id="hud-torn-filter" width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="hud-torn" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="4" seed="7"/><feDisplacementMap in="SourceGraphic" scale="7"/></filter></svg>');
+    }
     
     if (settings.cardBgStart && settings.cardBgEnd) root.style.setProperty('--hud-bg', `linear-gradient(135deg, ${hexToRgba(settings.cardBgStart, settings.cardBgAlpha)}, ${hexToRgba(settings.cardBgEnd, settings.cardBgAlpha)})`);
     if (settings.infoBlockBgStart && settings.infoBlockBgEnd) root.style.setProperty('--hud-card-inner-bg', `linear-gradient(135deg, ${hexToRgba(settings.infoBlockBgStart, settings.infoBlockBgAlpha)}, ${hexToRgba(settings.infoBlockBgEnd, settings.infoBlockBgAlpha)})`);
@@ -1362,6 +1381,14 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
   // Панель кастомизации: темы, цвета, шрифты и вид блоков. Живёт в окне
   // «Кастомизация» (настройки расширения или 🎨 на карточке), а не в каждой
   // карточке: там она была скрытой копией на тысячу узлов в каждом ходе.
+  // Строка-выпадашка кастомизации для одной настройки. Значения 'true' и
+  // 'false' записываются булевыми (events.js, hud-theme-select-input).
+  function выбор(ключ, подпись, пояснение, варианты) {
+    const сейчас = String(settings[ключ] ?? варианты[0][0]);
+    return `<div class="hud-theme-row" title="${пояснение}"><label>${подпись}:</label><select class="hud-theme-select-input hud-custom-rerender" data-key="${ключ}">`
+      + варианты.map(([v, имя]) => `<option value="${v}"${сейчас === v ? ' selected' : ''}>${имя}</option>`).join('') + '</select></div>';
+  }
+
   function разметкаПанелиТемы() {
     return `
         <details class="hud-custom-views" open><summary>🧩 Вид блоков</summary>
@@ -1375,12 +1402,20 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             <div class="hud-theme-row" title="«Своё у каждой» — у целей стрелки, у флагов вымпелы, у ключа загнутые углы, возраст крупной цифрой. «Одинаковое» — все секции и пилюли одним видом."><label>Оформление секций:</label>
               <select class="hud-theme-select-input hud-custom-rerender" data-key="pillStyle"><option value="fields"${settings.pillStyle !== 'plain' ? ' selected' : ''}>Своё у каждой</option><option value="plain"${settings.pillStyle === 'plain' ? ' selected' : ''}>Одинаковое</option></select>
             </div>
+            ${выбор('sectionSkin', 'Стиль секций', 'Как выглядят рамки секций. «Стикеры» есть только на светлых темах: на тёмных они не включаются.', [['', 'Обычный'], ['stickers', 'Стикеры (светлые темы)'], ['moonglass', 'Лунное стекло'], ['ghost', 'Призрачная буква'], ['news', 'Газета'], ['win95', 'Окна 95'], ['mac', 'Ретро-Мак'], ['bujo', 'Бортовой журнал'], ['glass', 'Стекло'], ['evidence', 'Улики']])}
+            ${выбор('avatarShape', 'Форма портрета', 'Аватарка в шапке персонажа. «Авто» — арка на теме «Вампир», круг на остальных.', [['auto', 'Авто'], ['circle', 'Круг'], ['arch', 'Арка']])}
+            ${выбор('headerStyle', 'Шапка персонажа', 'Баннер — аватарка растянута полосой над именем. Виджет погоды не трогает.', [['classic', 'Обычная'], ['banner', 'Баннер']])}
+            ${выбор('sceneCredits', 'Титры сцены', 'Под карточкой: «конец сцены», кто в ролях, место и время.', [['off', 'Нет'], ['on', 'Показывать']])}
+            ${выбор('moonPhase', 'Фаза луны', 'По игровой дате: плашка в погоде и тень на луне в небе.', [['true', 'Показывать'], ['false', 'Нет']])}
+            ${выбор('subtextVeil', 'Скрытый подтекст', 'Под «водой»: открывается нажатием.', [['true', 'Под водой'], ['false', 'Открыто']])}
+            ${выбор('diaryVeil', '«О ней» в дневнике', 'Под акварелью: открывается нажатием.', [['true', 'Под акварелью'], ['false', 'Открыто']])}
           </div>
           ${[...new Set(ВИДЫ_БЛОКОВ.map(б => б.группа))].map(группа => `<div class="hud-custom-views-group"><div class="hud-custom-views-title">${группа}</div><div class="hud-theme-grid">`
             // Цикл в карточке идёт раньше инвентаря — первым в «Персонаже».
-            + (группа === 'Персонаж' ? `<div class="hud-theme-row"><label>Менструальный цикл:</label><select class="hud-theme-select-input hud-custom-rerender" data-key="cycleView">${Object.entries(ВИДЫ_ЦИКЛА).map(([k, имя]) => `<option value="${k}"${(settings.cycleView || 'ring') === k ? ' selected' : ''}>${имя}</option>`).join('')}</select></div>` : '')
-            + ВИДЫ_БЛОКОВ.filter(б => б.группа === группа).map(б => `<div class="hud-theme-row"><label>${б.поле}:</label>`
-              + `<select class="hud-theme-select-input hud-custom-rerender" data-key="${б.ключ}">${Object.entries(б.виды).map(([k, имя], i) => `<option value="${k}"${видБлока(б.ключ) === k ? ' selected' : ''}>${имя}${i ? '' : ' (как было)'}</option>`).join('')}</select></div>`).join('')
+            + ВИДЫ_БЛОКОВ.filter(б => б.группа === группа).map((б, i, все) => `<div class="hud-theme-row"><label>${б.поле}:</label>`
+              + `<select class="hud-theme-select-input hud-custom-rerender" data-key="${б.ключ}">${Object.entries(б.виды).map(([k, имя], i) => `<option value="${k}"${видБлока(б.ключ) === k ? ' selected' : ''}>${имя}${i || б.новый ? '' : ' (как было)'}</option>`).join('')}</select></div>`
+              // Цикл в карточке идёт сразу после состояния тела, раньше инвентаря.
+              + (группа === 'Персонаж' && (б.ключ === 'bodyStateView' || (i === 0 && !все.some(x => x.ключ === 'bodyStateView'))) ? `<div class="hud-theme-row"><label>Менструальный цикл:</label><select class="hud-theme-select-input hud-custom-rerender" data-key="cycleView">${Object.entries(ВИДЫ_ЦИКЛА).map(([k, имя]) => `<option value="${k}"${(settings.cycleView || 'ring') === k ? ' selected' : ''}>${имя}</option>`).join('')}</select></div>` : '')).join('')
             + `</div></div>`).join('')}
           <div class="hud-theme-row hud-custom-minimal"><button type="button" class="hud-theme-act hud-custom-minimal-btn" title="Один цвет, без значков, одинаковое оформление">◻ Минимализм</button><button type="button" class="hud-theme-act hud-custom-rich-btn" title="Вернуть цвета по смыслу, значки и оформление полей">✦ Как было</button></div>
           <div class="hud-theme-presets-note">Вид блока цикла и секций у персонажей и у игрока. Справа видно сразу; карточки в чате перерисуются, когда закроешь окно.</div>
@@ -1388,6 +1423,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
         <div class="hud-theme-presets">
           <div class="hud-theme-presets-title">Готовые темы</div>
           <div class="hud-theme-presets-row">${presetRowHTML(settings.themePreset)}</div>
+          <div class="hud-theme-palettes-row">${paletteRowHTML(settings.themePreset, settings.themePalette)}</div>
           <div class="hud-theme-presets-note">Тема просто выставляет ползунки ниже — после неё всё можно править руками.</div>
           <div class="hud-theme-packs">
             ${THEME_CATEGORIES.map(c => `<label title="Показывать темы набора «${c.label}»"><input type="checkbox" data-theme-pack="${c.id}" ${(settings.themePacks && settings.themePacks[c.id] === false) ? '' : 'checked'}> ${c.label}</label>`).join('')}
@@ -1854,6 +1890,12 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       sceneStyle = ` style="--cel-x:${cx.toFixed(1)}%;--cel-xm:${cxm.toFixed(1)}%;--cel-y:${cy.toFixed(1)}%;--scene-day-progress:${p.toFixed(3)};--scene-night-strength:${nightStrength.toFixed(3)};--scene-golden-strength:${goldenStrength.toFixed(3)};--scene-sunset-strength:${sunsetStrength.toFixed(3)};--scene-star-strength:${starStrength.toFixed(3)};"`;
     }
 
+    // Фаза луны по игровой дате: тёмный серп на луне в небе сцены.
+    {
+      const тень = теньЛуны(dRaw);
+      if (тень) sceneStyle = sceneStyle ? sceneStyle.replace(/"$/, тень + '"') : ` style="${тень}"`;
+    }
+
     if (Object.keys(data.scene).length > 0) {
       let subTags = [];
       // «empty» в свёрнутой шапке — не значение: пустые поля не показываем.
@@ -1864,7 +1906,10 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     }
 
     // МЕГА-ПАНЕЛЬ НАСТРОЕК С НОВЫМИ ШРИФТАМИ И ВЕРТИКАЛЬНОЙ СЕТКОЙ
-    let html = `<div class="hud-os-card no-swipe">
+    // Строка «дата · время» для шапок персонажей (газета, журнал, баннер):
+    // переменная карточки, её читает content: var(--hud-dateline) в CSS.
+    const строкаДаты = [hudHasMeaningfulValue(dRaw) ? dRaw : '', hudHasMeaningfulValue(tRaw) ? String(tRaw).split('|')[0].trim() : ''].filter(Boolean).join(' · ').replace(/[\\'"<>\n]/g, ' ');
+    let html = `<div class="hud-os-card no-swipe"${строкаДаты ? ` style="--hud-dateline:'${строкаДаты}'"` : ''}>
       <input type="checkbox" class="hud-toggle-input" id="os-toggle-${baseId}">
       <label class="hud-os-topbar" for="os-toggle-${baseId}">
         <div class="hud-os-topbar-left"><span class="hud-os-logo">TavernOS</span>${osSubtitleHtml}</div>
@@ -1932,6 +1977,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             <div class="hud-time-display">${timeDisplay}</div>
             ${dateStr ? `<div class="hud-date-display">${dateStr}</div>` : ''}
           </div>
+          ${чипЛуны(dRaw)}
           <div class="hud-scene-weather-group">
             ${hudHasMeaningfulValue(data.scene['Погода']) ? `<div class="hud-weather-item">${escapeHtml(data.scene['Погода'])}</div>` : ''}
             ${hudHasMeaningfulValue(data.scene['Настроение']) ? `<div class="hud-mood-item">${escapeHtml(data.scene['Настроение'])}</div>` : ''}
@@ -1943,6 +1989,8 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       </div>`;
     }
      
+    // Поворот сюжета — над вкладками: он про всю сцену, а не про одного.
+    html += карточкаПоворота(data.scene && data.scene['Поворот сюжета']);
     html += `<div class="hud-tabs-header">`;
 
     let tabsHtml = '', contentHtml = '', isFirst = true;
@@ -2065,7 +2113,9 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
         uid, (active) => buildWorldHTML(data.world, uid, active, settings.showComments));
     }
 
-    html += tabsHtml + `</div><div class="hud-tab-hint" hidden></div><div class="hud-tabs-body">` + contentHtml + `</div></div></div>`;
+    const персонажи = Array.isArray(data.characters) ? data.characters : [];
+    const титры = титрыСцены({ имена: персонажи.map(c => c && c['Имя']), место: (персонажи[0] || {})['Место'] || '', время: hudHasMeaningfulValue(tRaw) ? String(tRaw).split('|')[0].trim() : '', дата: hudHasMeaningfulValue(dRaw) ? dRaw : '', игрок: data.user && Object.keys(data.user).length ? getSafeUserName() : '' });
+    html += tabsHtml + `</div><div class="hud-tab-hint" hidden></div><div class="hud-tabs-body">` + contentHtml + `</div>` + титры + `</div></div>`;
     // Заберёт processMessage сразу после вставки разметки: см. lastLazyThunks.
     lastLazyThunks = Object.keys(lazyThunks).length ? lazyThunks : null;
     return html;
@@ -2376,7 +2426,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // модель роняет их каждый ход, а пользователю нужна цельная картина.
       // В сохранённый текст и в запрос к модели это не попадает.
       // Вне сцены модель не пишет кинки и историю секса — черты берём из прошлых ходов.
-      const данныеХода = вернутьЧерты(mergeCarryOver(selected.data, messageElement), messageElement);
+      const данныеХода = сдвигиДоверия(вернутьЧерты(mergeCarryOver(selected.data, messageElement), messageElement), messageElement);
       // Таймеры следов и графики пульса смотрят в прошлые ходы — лениво,
       // только когда вкладка с ними действительно собирается.
       привязатьИсторию(данныеХода, Number(messageElement.getAttribute('mesid')));
@@ -4222,6 +4272,8 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
           ${галка('hud-enable-menstruation', settings.enableMenstruation !== false, '🌸 Менструальный цикл', 'День цикла, фаза, ожидаемые месячные, окно ПМС и задержка — кольцом, с советами по фазе. Только у тех, у кого есть матка, в том числе у игрока.')}
           ${галка('hud-enable-perception', settings.enablePerception !== false, '👁 Что о тебе думают', 'Как к вам относится каждый персонаж и насколько доверяет. Считается из карточек, модель ничего не дописывает.')}
           ${галка('hud-enable-familytree', settings.enableFamilyTree !== false, '🌳 Генеалогическое дерево', 'Вторым видом в графе отношений: родители, дети, супруги, братья и сёстры по родству из «Отношений». Появляется, только когда родство есть.')}
+          ${галка('hud-enable-bodystate', settings.enableBodyState !== false, '🔋 Состояние тела', 'Энергия, бодрость, сытость, стресс, сон и дела на завтра у каждого персонажа. Батарейки, колбы или строка — в «Вид блоков».')}
+          ${галка('hud-enable-twists', settings.enableTwists !== false, '🎟️ Повороты сюжета', 'Когда в сцене случается настоящий поворот, над вкладками появляется карточка: что случилось и куда может повести.')}
           ${галка('hud-enable-companions', settings.enableCompanions !== false, '🐾 Спутники', 'Животные, фамильяры, дроны: настроение, состояние, рацион, привязанность. Своя вкладка, появляется, только когда спутники есть.')}
         `)}
 
@@ -4557,7 +4609,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     document.getElementById('hud-enable-dreams').addEventListener('change', (e) => { settings.enableDreams = e.target.checked; saveSettings(); });
     document.getElementById('hud-enable-world').addEventListener('change', (e) => { settings.enableWorld = e.target.checked; saveSettings(); });
     [['hud-enable-guns', 'enableGuns'], ['hud-enable-illness', 'enableIllness'], ['hud-enable-pregnancy', 'enablePregnancy'],
-     ['hud-enable-companions', 'enableCompanions'], ['hud-enable-perception', 'enablePerception'], ['hud-enable-familytree', 'enableFamilyTree'], ['hud-enable-assistant', 'enableAssistant'],
+     ['hud-enable-companions', 'enableCompanions'], ['hud-enable-bodystate', 'enableBodyState'], ['hud-enable-twists', 'enableTwists'], ['hud-enable-perception', 'enablePerception'], ['hud-enable-familytree', 'enableFamilyTree'], ['hud-enable-assistant', 'enableAssistant'],
      ['hud-enable-menstruation', 'enableMenstruation'], ['hud-enable-intimacy-extras', 'enableIntimacyExtras'], ['hud-enable-heatmap', 'enableHeatMap'],
      ['hud-enable-economy', 'enableEconomy'], ['hud-enable-events', 'enableEvents'], ['hud-enable-city', 'enableCity'], ['hud-enable-horoscope', 'enableHoroscope'],
      ['hud-prompt-separate', 'hudPromptSeparate'], ['hud-snapshot', 'hudSnapshot']].forEach(([id, ключ]) => {
@@ -4594,7 +4646,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=23.13.5');
+        const mod = await import('./render/archive.js?v=23.14.1');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);

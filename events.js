@@ -11,14 +11,14 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.13.5';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.13.5';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.13.5';
-import { getTheme, themeVars, presetRowHTML, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.13.5';
-import { settings, defaultSettings } from './settings.js?v=23.13.5';
-import { getWorldVotes } from './render/world.js?v=23.13.5';
-import { раскрытьПорцию } from './render/long-list.js?v=23.13.5';
-import { прогретьИсторию } from './render/carryover.js?v=23.13.5';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.14.1';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.14.1';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.14.1';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.14.1';
+import { settings, defaultSettings } from './settings.js?v=23.14.1';
+import { getWorldVotes } from './render/world.js?v=23.14.1';
+import { раскрытьПорцию } from './render/long-list.js?v=23.14.1';
+import { прогретьИсторию } from './render/carryover.js?v=23.14.1';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -178,7 +178,7 @@ function переключитьПодсказку(значок, ctx) {
 const историяВида = [];
 let последнийКлюч = '', последнийМомент = 0;
 function снимокВида() {
-  const о = { themePreset: settings.themePreset || '' };
+  const о = { themePreset: settings.themePreset || '', themePalette: settings.themePalette || '' };
   КЛЮЧИ_ВИДА.forEach(k => { о[k] = settings[k]; });
   return о;
 }
@@ -191,11 +191,11 @@ function запомнитьШаг(ключ = '') {
 }
 // Значения темы «как задумано»: заводские для всех ключей вида и сама тема
 // поверх — без пользовательских правок.
-function исходнаяТема(id) {
+function исходнаяТема(id, пал = settings.themePalette || "") {
   const о = {};
   КЛЮЧИ_ВИДА.forEach(k => { if (defaultSettings[k] !== undefined) о[k] = defaultSettings[k]; });
   const t = getTheme(id);
-  if (t) Object.assign(о, t.vars);
+  if (t) Object.assign(о, развернутьПалитру(t, пал ? палитрыТемы(id).find(p => p.id === пал) : null));
   return о;
 }
 
@@ -349,7 +349,7 @@ export function initGlobalEvents(ctx) {
           if (String(settings[k]) !== String(base[k])) diff[k] = settings[k];
         });
         if (!settings.themeEdits || typeof settings.themeEdits !== 'object') settings.themeEdits = {};
-        settings.themeEdits[id] = diff;
+        settings.themeEdits[ключПравок(id, settings.themePalette)] = diff;
         saveSettings();
         showHudToast('success', 'Правки запомнены',
           Object.keys(diff).length + ' изменённых полей сохранено для этой темы.');
@@ -359,7 +359,7 @@ export function initGlobalEvents(ctx) {
       if (act === 'revert') {
         if (!id) { showHudToast('error', 'Тема не выбрана', 'Возвращать нечего.'); return; }
         запомнитьШаг();
-        if (settings.themeEdits) delete settings.themeEdits[id];
+        if (settings.themeEdits) delete settings.themeEdits[ключПравок(id, settings.themePalette)];
         Object.assign(settings, исходнаяТема(id));
         saveSettings(); applyThemeColors(); syncThemeInputs();
         showHudToast('success', 'Тема возвращена', 'Исходные значения на месте. «↶ Шаг назад» вернёт правки.');
@@ -368,7 +368,7 @@ export function initGlobalEvents(ctx) {
 
       if (act === 'mine') {
         settings.customTheme = { label: 'Своя', icon: '★', vars: snapshot() };
-        settings.themePreset = 'custom';
+        settings.themePreset = 'custom'; settings.themePalette = '';
         saveSettings(); applyThemeColors(); redrawPresets();
         showHudToast('success', 'Своя тема сохранена', 'Теперь она стоит в ряду рядом с готовыми.');
         return;
@@ -403,7 +403,7 @@ export function initGlobalEvents(ctx) {
             if (!тема) { showHudToast('error', 'Не похоже на тему', 'В файле не нашлось ни одного знакомого поля.'); return; }
             запомнитьШаг();
             settings.customTheme = { label: тема.label, icon: тема.icon, vars: тема.vars };
-            settings.themePreset = 'custom';
+            settings.themePreset = 'custom'; settings.themePalette = '';
             if (settings.themeEdits) delete settings.themeEdits.custom;
             Object.assign(settings, тема.vars);
             saveSettings(); applyThemeColors(); redrawPresets(); syncThemeInputs();
@@ -442,6 +442,27 @@ export function initGlobalEvents(ctx) {
     // раскладывает значения по обычным настройкам, поэтому после неё любой
     // ползунок остаётся рабочим. Панель целиком не перерисовываем —
     // обновляем поля на месте, иначе открытые вкладки схлопнулись бы.
+    // Палитра выбранной темы: те же ключи темы, другие цвета.
+    const palBtn = e.target.closest('.hud-theme-palette');
+    if (palBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const id = settings.themePreset || '';
+      const pid = palBtn.dataset.themePalette || '';
+      if (!getTheme(id)) return;
+      запомнитьШаг();
+      THEME_KEYS.forEach(k => { if (defaultSettings[k] !== undefined) settings[k] = defaultSettings[k]; });
+      Object.assign(settings, themeVars(id, pid));
+      settings.themePalette = pid;
+      saveSettings();
+      applyThemeColors();
+      syncThemeInputs();
+      redrawPalettes();
+      const п = палитрыТемы(id).find(x => x.id === pid);
+      showHudToast('success', п ? п.label : 'Основная палитра', п ? 'Палитра темы «' + getTheme(id).label + '».' : 'Цвета темы как задумано.');
+      return;
+    }
+
     const presetBtn = e.target.closest('.hud-theme-preset');
     if (presetBtn) {
       e.preventDefault();
@@ -452,7 +473,7 @@ export function initGlobalEvents(ctx) {
       // вернёт «Шаг назад», — молча они не пропадают.
       const прошлая = settings.themePreset || '';
       const незапомнено = прошлая && прошлая !== id && getTheme(прошлая)
-        && КЛЮЧИ_ВИДА.some(k => settings[k] !== undefined && String(settings[k]) !== String((themeVars(прошлая) || {})[k] ?? defaultSettings[k]));
+        && КЛЮЧИ_ВИДА.some(k => settings[k] !== undefined && String(settings[k]) !== String((themeVars(прошлая, settings.themePalette) || {})[k] ?? defaultSettings[k]));
       запомнитьШаг();
       // Сначала возвращаем заводские значения всех ключей, которые вообще
       // трогают темы: иначе прошлая тема оставила бы после себя хвосты —
@@ -461,8 +482,10 @@ export function initGlobalEvents(ctx) {
       // Значения темы вместе с правками пользователя поверх неё.
       if (theme) Object.assign(settings, themeVars(id));
       settings.themePreset = theme ? theme.id : '';
+      settings.themePalette = '';
       saveSettings();
       applyThemeColors();
+      redrawPalettes();
 
       syncThemeInputs();
       document.querySelectorAll('.hud-theme-preset').forEach(b => {
@@ -976,7 +999,7 @@ export function initGlobalEvents(ctx) {
     document.querySelectorAll('.hud-theme-color-input, .hud-theme-range-input, .hud-theme-select-input').forEach(inp => {
       const k = inp.dataset.key;
       if (!k || settings[k] === undefined) return;
-      inp.value = settings[k];
+      inp.value = String(settings[k]);
       const label = inp.nextElementSibling;
       if (label && label.tagName === 'SPAN') {
         label.textContent = /Alpha$|Opacity$|Scale$|OffsetY$/.test(k) ? settings[k] + '%'
@@ -987,10 +1010,16 @@ export function initGlobalEvents(ctx) {
   }
 
   // Ряд пресетов пересобираем, когда появляется или исчезает своя тема.
+  function redrawPalettes() {
+    document.querySelectorAll('.hud-theme-palettes-row').forEach(row => {
+      row.innerHTML = paletteRowHTML(settings.themePreset, settings.themePalette);
+    });
+  }
   function redrawPresets() {
     document.querySelectorAll('.hud-theme-presets-row').forEach(row => {
       row.innerHTML = presetRowHTML(settings.themePreset);
     });
+    redrawPalettes();
     document.querySelectorAll('.hud-theme-acts').forEach(box => {
       const has = box.querySelector('[data-theme-act="forget"]');
       if (settings.customTheme && !has) {
@@ -1068,13 +1097,14 @@ export function initGlobalEvents(ctx) {
         // ними класс): иначе в настройки писался ключ «undefined».
         if (!varKey) return;
         if (varKey === 'bgImage') return;
-        if (String(settings[varKey]) !== String(themeInput.value)) запомнитьШаг(varKey);
+        if (String(settings[varKey] ?? '') !== String(themeInput.value)) запомнитьШаг(varKey);
         // Телефон наследовал тему HUD, а человек правит его фон, акцент,
         // блюр или шрифт: наследование снимаем, но сначала переносим в свои
         // поля то, что телефон показывал, — иначе остальные его настройки
         // скакнули бы к старым сохранённым значениям.
         // Значение читаем до синхронизации полей: она перепишет и это поле.
-        const новоеЗначение = themeInput.value;
+        // Выпадашки «да/нет» (фаза луны, пелена) хранятся булевыми.
+        const новоеЗначение = themeInput.value === 'true' ? true : themeInput.value === 'false' ? false : themeInput.value;
         if (НАСЛЕДУЕТ_ТЕЛЕФОН.includes(varKey) && settings.phoneThemeAuto !== false) {
           Object.assign(settings, унаследованноеТелефоном());
           settings.phoneThemeAuto = false;
@@ -1627,6 +1657,9 @@ document.addEventListener('click', (e) => {
   // замирают по второму — как погода в «Мире».
   const вид = e.target.closest && e.target.closest('.hud-v, .hud-v-bond');
   if (вид && !e.target.closest('a, button, input, select, .hud-help-mark')) вид.classList.toggle('fx-active');
+  // Сдвиги доверия под строкой: на телефоне наведения нет — открываем нажатием.
+  const строка = e.target.closest && e.target.closest('.hud-row');
+  if (строка && строка.querySelector(':scope > .hud-trust-meta') && !e.target.closest('a, button, input, select, .hud-help-mark')) строка.classList.toggle('is-meta-open');
 });
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter' && e.key !== ' ') return;
@@ -1635,3 +1668,22 @@ document.addEventListener('keydown', (e) => {
   e.preventDefault();
   тайна.classList.toggle('is-open');
 });
+
+/* ---------------------------------------------------------------------
+   «ГЛУБИНА»: скрытый подтекст под водой и «О ней» под акварелью
+   ---------------------------------------------------------------------
+   Закрыто — текст размыт, поверх приглашение заглянуть. Нажатие или Enter
+   открывает и закрывает; состояние живёт до перерисовки карточки. */
+function переключитьПелену(e) {
+  const узел = e.target && e.target.closest && e.target.closest('.hud-deep, .hud-wash');
+  if (!узел) return;
+  if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+  // Ссылки и кнопки лора внутри текста работают как обычно.
+  if (e.target.closest('a, button, .hud-lore-btn')) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const закрыто = узел.classList.toggle('is-closed');
+  узел.setAttribute('aria-expanded', String(!закрыто));
+}
+document.addEventListener('click', переключитьПелену, true);
+document.addEventListener('keydown', переключитьПелену, true);
