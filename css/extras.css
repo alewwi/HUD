@@ -198,8 +198,14 @@
    ========================================================================= */
 :root.hud-ava-arch .hud-os-card .hud-header :is(.hud-avatar, .hud-avatar-placeholder) {
   width: 56px !important; height: 76px !important; border-radius: 28px 28px 3px 3px !important; object-fit: cover;
-  border: 2px solid color-mix(in srgb, var(--hud-accent) 55%, #c9ba82) !important; outline: 1px solid color-mix(in srgb, var(--hud-accent) 55%, #c9ba82); outline-offset: 3px;
-  box-shadow: 0 0 0 6px rgba(0,0,0,.3), 0 0 18px color-mix(in srgb, var(--hud-accent) 35%, transparent) !important; margin: 6px 6px 6px 6px; }
+  border: 2px solid var(--hud-ava-frame, var(--hud-accent)) !important; outline: 1px solid color-mix(in srgb, var(--hud-ava-frame, var(--hud-accent)) 70%, transparent); outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(0,0,0,.3), 0 0 18px color-mix(in srgb, var(--hud-ava-frame, var(--hud-glow, var(--hud-accent))) 45%, transparent) !important; margin: 6px 6px 6px 6px; }
+/* Рамка портрета: свой цвет из «Кастомизации» сильнее рамок тем.
+   Кадр — сдвиг и масштаб, как у обоев. */
+:root.hud-ava-custom .hud-os-card :is(.hud-avatar, .hud-avatar-placeholder) { border-color: var(--hud-ava-frame) !important; }
+:root.hud-ava-custom .hud-os-card .hud-avatar { box-shadow: 0 0 10px color-mix(in srgb, var(--hud-ava-frame) 55%, transparent); }
+.hud-os-card .hud-header .hud-avatar { object-fit: cover; object-position: var(--hud-ava-pos, 50% 50%); }
+@supports (object-view-box: inset(0%)) { .hud-os-card .hud-header .hud-avatar { object-view-box: var(--hud-ava-view, none); } }
 :root.hud-ava-arch .hud-os-card .hud-header-info { align-items: flex-end; }
 
 .hud-banner { display: none; }
@@ -247,7 +253,7 @@
    со свечением темы и их светлая «бумага» на светлых темах.
    ========================================================================= */
 .hud-moonchip {
-  display: grid; grid-template-columns: auto 1fr; gap: 2px 9px; align-items: center; align-self: flex-start; position: relative; z-index: 6;
+  display: grid; grid-template-columns: auto 1fr; gap: 2px 9px; align-items: center; justify-content: center; align-self: center; position: relative; z-index: 6;
   padding: 7px 12px 8px; border-radius: 14px; color: var(--hud-scene-text, #fff);
   background: var(--hud-weather-bg, linear-gradient(160deg, rgba(0,0,0,.5), rgba(0,0,0,.25)));
   backdrop-filter: blur(var(--hud-weather-blur, 6px)); -webkit-backdrop-filter: blur(var(--hud-weather-blur, 6px));
@@ -255,7 +261,7 @@
   box-shadow: 0 4px 14px rgba(0,0,0,.3), inset 0 0 0 1px var(--hud-glow-soft, rgba(255,255,255,.15)), 0 0 calc(14px * var(--hud-glow-r, 1) * var(--hud-glow-wide, 1)) var(--hud-glow-soft, transparent); }
 .hud-moonchip-big svg { width: 30px; height: 30px; display: block; filter: drop-shadow(0 0 7px rgba(244,236,208,.55)); }
 .hud-moonchip-txt b { display: block; font-size: .84em; color: inherit; text-shadow: 0 2px 4px rgba(0,0,0,.9), 0 0 calc(4px * var(--hud-glow-r, 1)) var(--hud-glow-strong, transparent); }
-.hud-moonchip-txt small { display: block; font-size: .66em; opacity: .8; color: inherit; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
+.hud-moonchip-txt small { display: block; font-size: .66em; line-height: 1.35; margin-top: 2px; opacity: .8; color: inherit; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
 .hud-moonchip-row { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 3px; margin-top: 5px; padding-top: 5px; border-top: 1px dashed color-mix(in srgb, currentColor 30%, transparent); }
 .hud-moonchip-row i { display: grid; place-items: center; width: 19px; height: 19px; border-radius: 50%; opacity: .5; }
 .hud-moonchip-row i.on { opacity: 1; box-shadow: 0 0 0 1.5px var(--hud-accent), 0 0 9px var(--hud-glow, rgba(244,236,208,.5)); }
@@ -268,7 +274,8 @@
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-moonchip svg path { fill: #c9a24a; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-moonchip svg circle { fill: rgba(0,0,0,.1); stroke: rgba(0,0,0,.25); }
 .hud-scene-widget.is-compact .hud-moonchip, .hud-historical .hud-moonchip { display: none; }
-@media (max-width: 600px) { .hud-moonchip-row { display: none; } .hud-moonchip { grid-template-columns: auto; } .hud-moonchip-txt small { display: none; } }
+/* На телефоне плашка та же, что на ПК (диск, подпись, ряд фаз), по центру сцены. */
+@media (max-width: 600px) { .hud-moonchip { margin-inline: auto; } .hud-moonchip-row i { width: 17px; height: 17px; } }
 /* Тень на луне в небе: терминатор ::after получает тёмный серп нужной ширины. */
 :is(.phase-night, .phase-deep-night, .phase-evening, .phase-predawn).hud-scene-widget[style*="--moon-dark"] .hud-fx-celestial::after {
   box-shadow: inset var(--moon-dark) 0 0 0 rgba(10,15,34,.86); }
@@ -343,7 +350,7 @@
    СОСТОЯНИЕ ТЕЛА
    ========================================================================= */
 .hud-bs { --a: var(--hud-accent); width: 100%; font-variant-numeric: tabular-nums; }
-.hud-bs-bat, .hud-bs-flasks { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; padding: 10px 12px; border-radius: 14px;
+.hud-bs-bat, .hud-bs-flasks { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-start; padding: 10px 12px; border-radius: 14px;
   background: linear-gradient(160deg, color-mix(in srgb, var(--a) 12%, rgba(255,255,255,.04)), color-mix(in srgb, var(--a) 4%, rgba(0,0,0,.25))); border: 1px solid color-mix(in srgb, var(--a) 28%, transparent); }
 .hud-bs-flasks { justify-content: space-around; }
 .hud-bs-cell { flex: 1 1 64px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; min-width: 58px; }
@@ -351,7 +358,7 @@
 .hud-bs-flasks .hud-bs-cell svg { width: 44px; height: 60px; }
 .hud-bs-cell b { font-size: 1.02em; font-weight: 800; }
 .hud-bs-cell small { font-size: .6em; letter-spacing: .1em; text-transform: uppercase; opacity: .72; }
-.hud-bs-cell em { font-style: normal; font-size: .7em; padding: 1px 7px; border-radius: 99px; background: color-mix(in srgb, var(--c) 22%, transparent); color: color-mix(in srgb, var(--c) 55%, var(--hud-text, #eee)); border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); }
+.hud-bs-cell em { font-style: normal; font-size: .7em; line-height: 1.25; padding: 1px 7px; border-radius: 99px; background: color-mix(in srgb, var(--c) 22%, transparent); color: color-mix(in srgb, var(--c) 55%, var(--hud-text, #eee)); border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); }
 .hud-bs .shell { fill: rgba(255,255,255,.06); stroke: color-mix(in srgb, var(--hud-text, #eee) 45%, transparent); stroke-width: 1.4; }
 .hud-bs .cap { fill: color-mix(in srgb, var(--hud-text, #eee) 45%, transparent); }
 .hud-bs .seg { stroke: rgba(0,0,0,.35); stroke-width: 1; }
@@ -437,7 +444,7 @@
 .hud-pet2-skills span::before { content: '✦ '; opacity: .7; }
 .hud-pet2-pad { height: 12px; }
 
-.hud-tama { --p: #e8883a; display: flex; gap: 12px; align-items: center; padding: 12px; border-radius: 18px; min-width: 0;
+.hud-tama { --p: #e8883a; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 12px; border-radius: 18px; min-width: 0;
   background: color-mix(in srgb, var(--p) 6%, rgba(0,0,0,.2)); border: 1px solid color-mix(in srgb, var(--p) 25%, transparent); }
 .hud-tama-dev { width: 118px; height: 136px; flex: none; filter: drop-shadow(0 10px 14px rgba(0,0,0,.45)); overflow: visible; }
 .hud-tama-stats { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; font-family: 'Courier New', monospace; }
@@ -450,6 +457,13 @@
 .hud-tama-px i { width: 9px; height: 9px; background: color-mix(in srgb, var(--c) 85%, #000); box-shadow: inset -2px -2px 0 rgba(0,0,0,.3), inset 2px 2px 0 rgba(255,255,255,.3); }
 .hud-tama-px i.off { background: rgba(255,255,255,.12); box-shadow: inset 1px 1px 0 rgba(0,0,0,.3); }
 .hud-tama-say { margin-top: 2px; padding: 5px 8px; border: 2px solid color-mix(in srgb, var(--hud-text, #eee) 45%, transparent); font-size: .74em; line-height: 1.35; }
+.hud-tama-stats { flex: 1 1 180px; }
+.hud-tama-info { flex: 1 1 100%; display: flex; flex-direction: column; gap: 3px; padding: 8px 10px; border-radius: 12px; font: .76em/1.4 "Courier New", monospace; background: color-mix(in srgb, var(--p) 8%, rgba(0,0,0,.18)); border: 1px dashed color-mix(in srgb, var(--p) 30%, transparent); }
+.hud-tama-info b { font-weight: 700; opacity: .75; }
+.hud-tama-skills { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 3px; }
+.hud-tama-skills i { font-style: normal; padding: 1px 8px; border: 1px solid color-mix(in srgb, var(--p) 45%, transparent); }
+.hud-tama-skills i::before { content: "+ "; opacity: .6; }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-tama-info { background: rgba(255,255,255,.5); }
 :root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-tama-px i.off { background: rgba(0,0,0,.1); }
 :root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-pet2-tile { background: rgba(255,255,255,.55); }
 :root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-pet2-bond path { fill: rgba(0,0,0,.12); }
@@ -470,3 +484,167 @@
 /* Плашка луны живёт в верхней строке сцены — её поднимаем над облаками. */
 .hud-scene-top:has(.hud-moonchip) { position: relative; z-index: 30; }
 
+/* На ПК плашка луны стоит ровно посередине сцены: часы и погода получают
+   равные крайние колонки. Когда места мало, колонки ужимаются до содержимого. */
+@media (min-width: 601px) {
+  .hud-scene-top:has(> .hud-moonchip) { display: grid; grid-template-columns: minmax(min-content, 1fr) auto minmax(min-content, 1fr); align-items: start; }
+  .hud-scene-top:has(> .hud-moonchip) > .hud-scene-time-group { justify-self: start; }
+  .hud-scene-top:has(> .hud-moonchip) > .hud-scene-weather-group { justify-self: end; max-width: 100%; }
+  .hud-scene-top > .hud-moonchip { align-self: center; }
+}
+
+/* =========================================================================
+   ЦВЕТ ЗАКРЫТОЙ ЧАСТИ (Кастомизация → «Цвет NSFW», у каждой темы свой)
+   Розовые оттенки NSFW-строк раньше были вписаны числами, и настройка
+   меняла только левую кромку. Теперь каждый оттенок строится от
+   --hud-nsfw-color: светлота прежняя, насыщенность в той же доле, сдвиг
+   тона сохранён. Браузер без относительных цветов переменных не получит
+   и возьмёт прежний розовый (запасное значение в var()).
+   ========================================================================= */
+@supports (color: oklch(from red l c h)) {
+  :root {
+    --nfx-1: oklch(from var(--hud-nsfw-color, #d9548a) 0.635 calc(c * 1.00) calc(h + 0.0));
+    --nfx-2: oklch(from var(--hud-nsfw-color, #d9548a) 0.472 calc(c * 0.87) calc(h + 17.0) / 0.45);
+    --nfx-3: oklch(from var(--hud-nsfw-color, #d9548a) 0.434 calc(c * 0.80) calc(h + 11.3));
+    --nfx-4: oklch(from var(--hud-nsfw-color, #d9548a) 0.661 calc(c * 1.01) calc(h - 2.0));
+    --nfx-5: oklch(from var(--hud-nsfw-color, #d9548a) 0.472 calc(c * 0.87) calc(h + 17.0));
+    --nfx-6: oklch(from var(--hud-nsfw-color, #d9548a) 0.830 calc(c * 0.62) calc(h - 4.7) / 0);
+    --nfx-7: oklch(from var(--hud-nsfw-color, #d9548a) 0.830 calc(c * 0.62) calc(h - 4.7) / 0.55);
+    --nfx-8: oklch(from var(--hud-nsfw-color, #d9548a) 0.907 calc(c * 0.32) calc(h - 5.8) / 0.9);
+    --nfx-9: oklch(from var(--hud-nsfw-color, #d9548a) 0.795 calc(c * 0.78) calc(h - 4.6) / 0.24);
+    --nfx-10: oklch(from var(--hud-nsfw-color, #d9548a) 0.795 calc(c * 0.78) calc(h - 4.6) / 0.08);
+    --nfx-11: oklch(from var(--hud-nsfw-color, #d9548a) 0.795 calc(c * 0.78) calc(h - 4.6) / 0);
+    --nfx-12: oklch(from var(--hud-nsfw-color, #d9548a) 0.746 calc(c * 1.00) calc(h - 1.5) / 0.16);
+    --nfx-13: oklch(from var(--hud-nsfw-color, #d9548a) 0.746 calc(c * 1.00) calc(h - 1.5) / 0);
+    --nfx-14: oklch(from var(--hud-nsfw-color, #d9548a) 0.661 calc(c * 1.01) calc(h - 2.0) / 0.15);
+    --nfx-15: oklch(from var(--hud-nsfw-color, #d9548a) 0.661 calc(c * 1.01) calc(h - 2.0) / 0);
+    --nfx-16: oklch(from var(--hud-nsfw-color, #d9548a) 0.451 calc(c * 0.87) calc(h + 11.9) / 0.13);
+    --nfx-17: oklch(from var(--hud-nsfw-color, #d9548a) 0.331 calc(c * 0.63) calc(h + 8.7) / 0.07);
+    --nfx-18: oklch(from var(--hud-nsfw-color, #d9548a) 0.661 calc(c * 1.01) calc(h - 2.0) / 0.55);
+    --nfx-19: oklch(from var(--hud-nsfw-color, #d9548a) 0.661 calc(c * 1.01) calc(h - 2.0) / 0.5);
+    --nfx-20: oklch(from var(--hud-nsfw-color, #d9548a) 0.888 calc(c * 0.40) calc(h - 8.4) / 0.9);
+    --nfx-21: oklch(from var(--hud-nsfw-color, #d9548a) 0.689 calc(c * 1.02) calc(h - 2.8) / 0.55);
+    --nfx-22: oklch(from var(--hud-nsfw-color, #d9548a) 0.813 calc(c * 0.70) calc(h - 4.7) / 0);
+    --nfx-23: oklch(from var(--hud-nsfw-color, #d9548a) 0.661 calc(c * 1.01) calc(h - 2.0) / 0.7);
+    --nfx-24: oklch(from var(--hud-nsfw-color, #d9548a) 0.661 calc(c * 1.01) calc(h - 2.0) / 0.6);
+    --nfx-25: oklch(from var(--hud-nsfw-color, #d9548a) 0.846 calc(c * 0.55) calc(h - 3.3));
+    --nfx-26: oklch(from var(--hud-nsfw-color, #d9548a) 0.909 calc(c * 0.31) calc(h - 5.0));
+    --nfx-27: oklch(from var(--hud-nsfw-color, #d9548a) 0.909 calc(c * 0.31) calc(h - 5.0) / 0);
+    --nfx-28: oklch(from var(--hud-nsfw-color, #d9548a) 0.813 calc(c * 0.70) calc(h - 4.7) / 0.9);
+    --nfx-29: oklch(from var(--hud-nsfw-color, #d9548a) 0.661 calc(c * 1.01) calc(h - 2.0) / 0.45);
+    --nfx-30: oklch(from var(--hud-nsfw-color, #d9548a) 0.868 calc(c * 0.47) calc(h - 4.9) / 0);
+    --nfx-31: oklch(from var(--hud-nsfw-color, #d9548a) 0.868 calc(c * 0.47) calc(h - 4.9) / 0.1);
+    --nfx-32: oklch(from var(--hud-nsfw-color, #d9548a) 0.495 calc(c * 0.96) calc(h + 9.7) / 0.13);
+    --nfx-33: oklch(from var(--hud-nsfw-color, #d9548a) 0.361 calc(c * 0.70) calc(h + 9.1) / 0.07);
+    --nfx-34: oklch(from var(--hud-nsfw-color, #d9548a) 0.795 calc(c * 0.78) calc(h - 4.6) / 0.28);
+    --nfx-35: oklch(from var(--hud-nsfw-color, #d9548a) 0.898 calc(c * 0.36) calc(h - 6.7) / 0.48);
+    --nfx-36: oklch(from var(--hud-nsfw-color, #d9548a) 0.876 calc(c * 0.44) calc(h - 4.7));
+    --nfx-37: oklch(from var(--hud-nsfw-color, #d9548a) 0.661 calc(c * 1.01) calc(h - 2.0) / 0.3);
+    --nfx-38: oklch(from var(--hud-nsfw-color, #d9548a) 0.661 calc(c * 1.01) calc(h - 2.0) / 0.08);
+    --nfx-39: oklch(from var(--hud-nsfw-color, #d9548a) 0.813 calc(c * 0.70) calc(h - 4.7) / 0.3);
+    --nfx-40: oklch(from var(--hud-nsfw-color, #d9548a) 0.903 calc(c * 0.33) calc(h - 4.7));
+    --nfx-41: oklch(from var(--hud-nsfw-color, #d9548a) 0.813 calc(c * 0.70) calc(h - 4.7) / 0.22);
+    --nfx-42: oklch(from var(--hud-nsfw-color, #d9548a) 0.661 calc(c * 1.01) calc(h - 2.0) / 0.1);
+    --nfx-43: oklch(from var(--hud-nsfw-color, #d9548a) 0.813 calc(c * 0.70) calc(h - 4.7) / 0.36);
+    --nfx-44: oklch(from var(--hud-nsfw-color, #d9548a) 0.746 calc(c * 1.00) calc(h - 1.5) / 0.55);
+    --nfx-45: oklch(from var(--hud-nsfw-color, #d9548a) 0.879 calc(c * 0.44) calc(h - 8.0) / 0.6);
+    --nfx-46: oklch(from var(--hud-nsfw-color, #d9548a) 0.813 calc(c * 0.70) calc(h - 4.7) / 0.16);
+    --nfx-47: oklch(from var(--hud-nsfw-color, #d9548a) 0.875 calc(c * 0.43) calc(h - 3.8));
+    --nfx-48: oklch(from var(--hud-nsfw-color, #d9548a) 0.705 calc(c * 1.17) calc(h + 2.3));
+    --nfx-49: oklch(from var(--hud-nsfw-color, #d9548a) 0.574 calc(c * 1.25) calc(h + 9.8));
+    --nfx-50: oklch(from var(--hud-nsfw-color, #d9548a) 0.705 calc(c * 1.17) calc(h + 2.3) / 0.55);
+    --nfx-51: oklch(from var(--hud-nsfw-color, #d9548a) 0.472 calc(c * 0.87) calc(h + 17.0) / 0);
+    --nfx-52: oklch(from var(--hud-nsfw-color, #d9548a) 0.472 calc(c * 0.87) calc(h + 17.0) / 0.35);
+    --nfx-53: oklch(from var(--hud-nsfw-color, #d9548a) 0.472 calc(c * 0.87) calc(h + 17.0) / 0.55);
+    --nfx-54: oklch(from var(--hud-nsfw-color, #d9548a) 0.472 calc(c * 0.87) calc(h + 17.0) / 0.07);
+    --nfx-55: oklch(from var(--hud-nsfw-color, #d9548a) 0.472 calc(c * 0.87) calc(h + 17.0) / 0.05);
+    --nfx-56: oklch(from var(--hud-nsfw-color, #d9548a) 0.472 calc(c * 0.87) calc(h + 17.0) / 0.02);
+    --nfx-57: oklch(from var(--hud-nsfw-color, #d9548a) 0.472 calc(c * 0.87) calc(h + 17.0) / 0.25);
+    --nfx-58: oklch(from var(--hud-nsfw-color, #d9548a) 0.434 calc(c * 0.80) calc(h + 11.3) / 0);
+    --nfx-59: oklch(from var(--hud-nsfw-color, #d9548a) 0.434 calc(c * 0.80) calc(h + 11.3) / 0.7);
+    --nfx-60: oklch(from var(--hud-nsfw-color, #d9548a) 0.472 calc(c * 0.87) calc(h + 17.0) / 0.3);
+    --nfx-61: oklch(from var(--hud-nsfw-color, #d9548a) 0.472 calc(c * 0.87) calc(h + 17.0) / 0.08);
+    --nfx-62: oklch(from var(--hud-nsfw-color, #d9548a) 0.472 calc(c * 0.87) calc(h + 17.0) / 0.28);
+    --nfx-63: oklch(from var(--hud-nsfw-color, #d9548a) 0.472 calc(c * 0.87) calc(h + 17.0) / 0.14);
+    --nfx-64: oklch(from var(--hud-nsfw-color, #d9548a) 0.879 calc(c * 0.44) calc(h - 8.0) / 0.18);
+    --nfx-65: oklch(from var(--hud-nsfw-color, #d9548a) 0.879 calc(c * 0.44) calc(h - 8.0) / 0);
+    --nfx-66: oklch(from var(--hud-nsfw-color, #d9548a) 0.495 calc(c * 0.96) calc(h + 9.7) / 0.16);
+    --nfx-67: oklch(from var(--hud-nsfw-color, #d9548a) 0.361 calc(c * 0.70) calc(h + 9.1) / 0.09);
+    --nfx-68: oklch(from var(--hud-nsfw-color, #d9548a) 0.830 calc(c * 0.62) calc(h - 4.7) / 0.42);
+    --nfx-69: oklch(from var(--hud-nsfw-color, #d9548a) 0.918 calc(c * 0.28) calc(h - 7.4) / 0.62);
+    --nfx-70: oklch(from var(--hud-nsfw-color, #d9548a) 0.813 calc(c * 0.70) calc(h - 4.7) / 0.55);
+    --nfx-71: oklch(from var(--hud-nsfw-color, #d9548a) 0.434 calc(c * 0.80) calc(h + 11.3) / 0.5);
+    --nfx-72: oklch(from var(--hud-nsfw-color, #d9548a) 0.924 calc(c * 0.26) calc(h - 7.9) / 0.38);
+    --nfx-73: oklch(from var(--hud-nsfw-color, #d9548a) 0.661 calc(c * 1.01) calc(h - 2.0) / 0.22);
+    --nfx-74: oklch(from var(--hud-nsfw-color, #d9548a) 0.447 calc(c * 0.82) calc(h - 4.3) / 0.18);
+    --nfx-75: oklch(from var(--hud-nsfw-color, #d9548a) 0.661 calc(c * 1.01) calc(h - 2.0) / 0.65);
+    --nfx-76: oklch(from var(--hud-nsfw-color, #d9548a) 0.813 calc(c * 0.70) calc(h - 4.7) / 0.035);
+    --nfx-77: oklch(from var(--hud-nsfw-color, #d9548a) 0.898 calc(c * 0.36) calc(h - 6.7) / 0.3);
+    --nfx-78: oklch(from var(--hud-nsfw-color, #d9548a) 0.661 calc(c * 1.01) calc(h - 2.0) / 0.11);
+    --nfx-79: oklch(from var(--hud-nsfw-color, #d9548a) 0.661 calc(c * 1.01) calc(h - 2.0) / 0.02);
+    --nfx-80: oklch(from var(--hud-nsfw-color, #d9548a) 0.813 calc(c * 0.70) calc(h - 4.7) / 0.6);
+    --nfx-81: oklch(from var(--hud-nsfw-color, #d9548a) 0.661 calc(c * 1.01) calc(h - 2.0) / 0.35);
+    --nfx-82: oklch(from var(--hud-nsfw-color, #d9548a) 0.813 calc(c * 0.70) calc(h - 4.7) / 0.03);
+    --nfx-83: oklch(from var(--hud-nsfw-color, #d9548a) 0.813 calc(c * 0.70) calc(h - 4.7) / 0.18);
+    --nfx-84: oklch(from var(--hud-nsfw-color, #d9548a) 0.813 calc(c * 0.70) calc(h - 4.7) / 0.14);
+    --nfx-85: oklch(from var(--hud-nsfw-color, #d9548a) 0.830 calc(c * 0.62) calc(h - 4.7) / 0.75);
+    --nfx-86: oklch(from var(--hud-nsfw-color, #d9548a) 0.813 calc(c * 0.70) calc(h - 4.7) / 0.45);
+    --nfx-87: oklch(from var(--hud-nsfw-color, #d9548a) 0.705 calc(c * 1.17) calc(h + 2.3) / 0.6);
+    --nfx-88: oklch(from var(--hud-nsfw-color, #d9548a) 0.472 calc(c * 0.87) calc(h + 17.0) / 0.1);
+    --nfx-89: oklch(from var(--hud-nsfw-color, #d9548a) 0.472 calc(c * 0.87) calc(h + 17.0) / 0.2);
+    --nfx-90: oklch(from var(--hud-nsfw-color, #d9548a) 0.472 calc(c * 0.87) calc(h + 17.0) / 0.01);
+    --nfx-91: oklch(from var(--hud-nsfw-color, #d9548a) 0.434 calc(c * 0.80) calc(h + 11.3) / 0.55);
+    --nfx-92: oklch(from var(--hud-nsfw-color, #d9548a) 0.434 calc(c * 0.80) calc(h + 11.3) / 0.6);
+    --nfx-93: oklch(from var(--hud-nsfw-color, #d9548a) 0.434 calc(c * 0.80) calc(h + 11.3) / 0.25);
+  }
+}
+
+/* =========================================================================
+   ПАЛИТРА ЦВЕТА (color-picker.js)
+   Окно поверх страницы: предпросмотр изменяемой плашки, полосы тона,
+   насыщенности и светлоты, HEX и образцы. На телефоне — снизу во всю ширину.
+   ========================================================================= */
+.hud-cp { position: fixed; inset: 0; z-index: 100000; display: flex; align-items: center; justify-content: center; padding: 12px; background: rgba(6, 5, 10, .45); }
+.hud-cp-panel { width: min(380px, 100%); max-height: calc(100vh - 24px); max-height: calc(100dvh - 24px); overflow: auto; display: flex; flex-direction: column; gap: 10px; padding: 14px;
+  border-radius: 16px; color: #eceaf2; font: 14px/1.35 system-ui, -apple-system, 'Segoe UI', sans-serif;
+  background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 10%, #16141c); border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 40%, transparent);
+  box-shadow: 0 20px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04) inset; }
+.hud-cp-head { display: flex; align-items: center; gap: 8px; }
+.hud-cp-head b { flex: 1; font-size: 1.02em; }
+.hud-cp-was, .hud-cp-now { width: 34px; height: 26px; border-radius: 8px; border: 1px solid rgba(255,255,255,.25); box-shadow: inset 0 0 0 2px rgba(0,0,0,.25); }
+.hud-cp-was { cursor: pointer; border-radius: 8px 0 0 8px; margin-right: -8px; opacity: .9; }
+.hud-cp-now { border-radius: 0 8px 8px 0; }
+.hud-cp-preview { position: relative; max-height: 240px; overflow: hidden; border-radius: 12px; padding: 6px; pointer-events: none;
+  background: repeating-conic-gradient(rgba(255,255,255,.04) 0 25%, transparent 0 50%) 0 0 / 14px 14px, #0e0d12; border: 1px dashed rgba(255,255,255,.14); }
+.hud-cp-preview::after { content: 'предпросмотр'; position: absolute; right: 8px; top: 6px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; opacity: .45; }
+.hud-cp-preview .hud-cp-card { margin: 0 !important; width: 100%; max-width: none; }
+.hud-cp-empty { margin: 14px 8px; font-size: .86em; opacity: .7; text-align: center; }
+.hud-cp-strip { display: flex; flex-direction: column; gap: 4px; font-size: .78em; opacity: .95; }
+.hud-cp-strip span { opacity: .75; letter-spacing: .04em; }
+.hud-cp-strip input[type=range] { -webkit-appearance: none; appearance: none; width: 100%; height: 18px; margin: 0; border-radius: 99px; outline: none; cursor: pointer;
+  border: 1px solid rgba(255,255,255,.2); box-shadow: inset 0 1px 3px rgba(0,0,0,.35); }
+.hud-cp-strip.is-h input { background: linear-gradient(90deg, #f00, #ff0 16.7%, #0f0 33.3%, #0ff 50%, #00f 66.7%, #f0f 83.3%, #f00); }
+.hud-cp-strip.is-s input { background: linear-gradient(90deg, hsl(var(--cp-h) 0% var(--cp-l)), hsl(var(--cp-h) 100% var(--cp-l))); }
+.hud-cp-strip.is-l input { background: linear-gradient(90deg, #000, hsl(var(--cp-h) var(--cp-s) 50%), #fff); }
+.hud-cp-strip input::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%; background: transparent; border: 3px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.5), 0 2px 6px rgba(0,0,0,.5); }
+.hud-cp-strip input::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: transparent; border: 3px solid #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.5), 0 2px 6px rgba(0,0,0,.5); }
+.hud-cp-strip input:focus-visible { box-shadow: 0 0 0 2px var(--hud-accent, #8c5ad2); }
+.hud-cp-row { display: flex; align-items: flex-start; gap: 10px; }
+.hud-cp-hex { width: 86px; flex: none; padding: 6px 8px; border-radius: 8px; border: 1px solid rgba(255,255,255,.2); background: rgba(0,0,0,.35); color: inherit; font: 13px 'Courier New', monospace; text-transform: lowercase; }
+.hud-cp-sw { display: flex; flex-wrap: wrap; gap: 6px; }
+.hud-cp-sw button { width: 24px; height: 24px; padding: 0; border-radius: 7px; cursor: pointer; background: var(--c); border: 1px solid rgba(255,255,255,.25); box-shadow: inset 0 0 0 2px rgba(0,0,0,.18); }
+.hud-cp-sw button.is-theme { border-radius: 50%; border-color: rgba(255,255,255,.55); }
+.hud-cp-sw button:hover, .hud-cp-sw button:focus-visible { transform: scale(1.12); outline: none; }
+.hud-cp-actions { display: flex; justify-content: flex-end; gap: 8px; }
+.hud-cp-actions button { padding: 7px 16px; border-radius: 9px; cursor: pointer; font: inherit; color: inherit; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.18); }
+.hud-cp-actions .hud-cp-ok { background: var(--hud-accent, #8c5ad2); border-color: transparent; color: #fff; font-weight: 700; }
+.hud-theme-auto-btn { padding: 2px 8px; border-radius: 6px; font-size: .78em; cursor: pointer; color: inherit; background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.18); }
+@media (max-width: 600px) {
+  .hud-cp { align-items: flex-end; padding: 8px; }
+  .hud-cp-panel { width: 100%; border-radius: 16px 16px 12px 12px; }
+  .hud-cp-preview { max-height: 200px; }
+}
+/* В окне палитры сцена узкая: плашки встают столбиком, как на телефоне. */
+.hud-cp-preview .hud-scene-top { display: flex !important; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
+.hud-cp-preview .hud-scene-weather-group { flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; max-width: 100%; }
+.hud-cp-preview .hud-scene-time-group { align-items: center; }

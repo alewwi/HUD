@@ -11,14 +11,15 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.14.1';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.14.1';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.14.1';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.14.1';
-import { settings, defaultSettings } from './settings.js?v=23.14.1';
-import { getWorldVotes } from './render/world.js?v=23.14.1';
-import { раскрытьПорцию } from './render/long-list.js?v=23.14.1';
-import { прогретьИсторию } from './render/carryover.js?v=23.14.1';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.15.0';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.15.0';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.15.0';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.15.0';
+import { settings, defaultSettings } from './settings.js?v=23.15.0';
+import { getWorldVotes } from './render/world.js?v=23.15.0';
+import { раскрытьПорцию } from './render/long-list.js?v=23.15.0';
+import { прогретьИсторию } from './render/carryover.js?v=23.15.0';
+import { подключитьПалитру } from './color-picker.js?v=23.15.0';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -214,6 +215,7 @@ function унаследованноеТелефоном() {
 }
 
 export function initGlobalEvents(ctx) {
+  подключитьПалитру();
   // settings и getWorldVotes раньше брались из ctx, но index.js их туда не
   // клал: обе ссылки молча оставались undefined. Внутри обработчика клика
   // (он async) исключение превращалось в проглоченный отказ промиса — ни
@@ -999,10 +1001,12 @@ export function initGlobalEvents(ctx) {
     document.querySelectorAll('.hud-theme-color-input, .hud-theme-range-input, .hud-theme-select-input').forEach(inp => {
       const k = inp.dataset.key;
       if (!k || settings[k] === undefined) return;
+      // Пустой цвет — «как в теме»: квадрат показывает цвет темы, а не чёрный.
+      if (inp.type === 'color' && !settings[k]) { inp.value = settings.accentColor || '#8c5ad2'; return; }
       inp.value = String(settings[k]);
       const label = inp.nextElementSibling;
       if (label && label.tagName === 'SPAN') {
-        label.textContent = /Alpha$|Opacity$|Scale$|OffsetY$/.test(k) ? settings[k] + '%'
+        label.textContent = /Alpha$|Opacity$|Scale$|Offset[XY]$/.test(k) ? settings[k] + '%'
           : /Blur$|Radius$|Size$/.test(k) ? settings[k] + 'px' : settings[k];
       }
     });
@@ -1089,6 +1093,17 @@ export function initGlobalEvents(ctx) {
     saveSettings(); applyThemeColors(); syncThemeInputs();
   });
 
+  // «Как в теме» у цветов, которые умеют быть пустыми (рамка портрета).
+  document.body.addEventListener('click', (e) => {
+    const кнопка = e.target.closest('.hud-theme-auto-btn');
+    if (!кнопка) return;
+    const ключ = кнопка.dataset.autoKey;
+    if (!ключ) return;
+    запомнитьШаг(ключ);
+    settings[ключ] = '';
+    saveSettings(); applyThemeColors(); syncThemeInputs();
+  });
+
   document.body.addEventListener('input', function(e) {
     const themeInput = e.target.closest('.hud-theme-color-input, .hud-theme-range-input, .hud-theme-select-input, .hud-theme-text-input');
     if (themeInput) {
@@ -1123,7 +1138,7 @@ export function initGlobalEvents(ctx) {
             // Единица зависит от ключа: раньше всем подписям дописывалось
             // «px», и процент свечения показывался как «55px».
             displayVal.textContent = themeInput.value
-              + (/Alpha$|Opacity$|Scale$|Darkness$|^glowSize$/.test(varKey) ? '%' : 'px');
+              + (/Alpha$|Opacity$|Scale$|Offset[XY]$|Darkness$|^glowSize$/.test(varKey) ? '%' : 'px');
         }
         
         document.querySelectorAll(`[data-key="${varKey}"]`).forEach(inp => {

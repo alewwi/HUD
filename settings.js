@@ -87,6 +87,9 @@ export const defaultSettings = {
   sectionSkin: '',
   // Форма портрета в шапке: auto — арка у «Вампира», круг у остальных.
   avatarShape: 'auto',
+  // Рамка портрета: пусто — цвет темы (акцент). Масштаб и сдвиг — как у
+  // обоев: кадрирование аватарки внутри рамки, в процентах.
+  avatarFrameColor: '', avatarScale: 100, avatarOffsetX: 50, avatarOffsetY: 50,
   // Шапка персонажа: classic — аватарка кружком, banner — полоса из аватарки.
   headerStyle: 'classic',
   // Титры в конце сцены: on | off.

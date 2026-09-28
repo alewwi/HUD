@@ -7,11 +7,11 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe } from '../utils.js?v=23.14.1';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.14.1';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.14.1';
-import { buildFamilyTree } from './family-tree.js?v=23.14.1';
-import { settings } from '../settings.js?v=23.14.1';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe } from '../utils.js?v=23.15.0';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.15.0';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.15.0';
+import { buildFamilyTree } from './family-tree.js?v=23.15.0';
+import { settings } from '../settings.js?v=23.15.0';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -360,7 +360,10 @@ export function buildRelGraphHTML(hudData, uid) {
   
   // 3. Строим прямую линию (L) и находим ее математическую середину для бейджа
   const d = `M ${start.x.toFixed(1)} ${start.y.toFixed(1)} L ${end.x.toFixed(1)} ${end.y.toFixed(1)}`;
-  const lp = { x: (start.x + end.x) / 2, y: (start.y + end.y) / 2 };
+  // Встречные связи (А→Б и Б→А) идут параллельно: значки у каждой ближе к
+  // своему началу, иначе оба значка и подписи ложатся в одну середину.
+  const t = bidirectional ? .36 : .5;
+  const lp = { x: start.x + (end.x - start.x) * t, y: start.y + (end.y - start.y) * t };
     const type = classifyRelationVisual(e.label);
     const meta = relationVisualMeta(type);
     // Directional key: A=>B and B=>A are distinct clickable relations.
@@ -372,9 +375,13 @@ export function buildRelGraphHTML(hudData, uid) {
     const labelLines = wrapRelationLabel(label, n >= 18 ? 16 : 22);
     const labelLineH = 11;
     // Блок поднимаем так, чтобы его низ остался там же, где была одиночная строка.
-    const labelBaseY = lp.y - 15 - (labelLines.length - 1) * labelLineH;
+    // У встречной связи подпись уходит на внешнюю сторону своей линии.
+    const lx = bidirectional ? lp.x + perp.x * (18 + labelLines.length * labelLineH / 2) : lp.x;
+    const labelBaseY = bidirectional
+      ? lp.y + perp.y * (18 + labelLines.length * labelLineH / 2) - (labelLines.length * labelLineH) / 2 + 8
+      : lp.y - 15 - (labelLines.length - 1) * labelLineH;
     const labelTspans = labelLines
-      .map((ln, li) => `<tspan x="${lp.x.toFixed(1)}" dy="${li === 0 ? 0 : labelLineH}">${escapeHtml(ln)}</tspan>`)
+      .map((ln, li) => `<tspan x="${lx.toFixed(1)}" dy="${li === 0 ? 0 : labelLineH}">${escapeHtml(ln)}</tspan>`)
       .join('');
     const markerId = `${markerBase}-arr-${type}`;
     // Wide invisible hit target sits directly under the visible line. This makes
@@ -383,7 +390,7 @@ export function buildRelGraphHTML(hudData, uid) {
     svg += `<path class="hud-rel-edge-hit" data-rel-type="${type}" data-edge-from="${escapeHtml(e.from)}" data-edge-to="${escapeHtml(e.to)}" data-edge-key="${escapeHtml(edgeKey)}" data-edge-direction="${escapeHtml(e.from)}=>${escapeHtml(e.to)}" data-edge-label="${escapeHtml(label)}" data-rel-bidir="${bidirectional ? 'true' : 'false'}" d="${d}"/>`;
     svg += `<path class="hud-rel-edge hud-rel-${type}" data-rel-type="${type}" data-edge-from="${escapeHtml(e.from)}" data-edge-to="${escapeHtml(e.to)}" data-edge-key="${escapeHtml(edgeKey)}" data-edge-direction="${escapeHtml(e.from)}=>${escapeHtml(e.to)}" data-edge-label="${escapeHtml(label)}" data-rel-bidir="${bidirectional ? 'true' : 'false'}" d="${d}" marker-end="url(#${markerId})"/>`;
     svg += `<g class="hud-rel-edge-badge" data-edge-from="${escapeHtml(e.from)}" data-edge-to="${escapeHtml(e.to)}" data-edge-key="${escapeHtml(edgeKey)}" data-edge-direction="${escapeHtml(e.from)}=>${escapeHtml(e.to)}" data-edge-label="${escapeHtml(label)}" data-rel-type="${type}" data-rel-bidir="${bidirectional ? 'true' : 'false'}"><circle cx="${lp.x.toFixed(1)}" cy="${lp.y.toFixed(1)}" r="10" class="hud-rel-edge-dot hud-rel-${type}"/><text x="${lp.x.toFixed(1)}" y="${(lp.y + 3.3).toFixed(1)}" text-anchor="middle">${meta.icon}</text></g>`;
-    svg += `<text class="hud-rel-edge-label" data-edge-from="${escapeHtml(e.from)}" data-edge-to="${escapeHtml(e.to)}" data-edge-key="${escapeHtml(edgeKey)}" data-edge-direction="${escapeHtml(e.from)}=>${escapeHtml(e.to)}" data-edge-label="${escapeHtml(label)}" data-rel-type="${type}" data-rel-bidir="${bidirectional ? 'true' : 'false'}" x="${lp.x.toFixed(1)}" y="${labelBaseY.toFixed(1)}" text-anchor="middle">${labelTspans}</text>`;
+    svg += `<text class="hud-rel-edge-label" data-edge-from="${escapeHtml(e.from)}" data-edge-to="${escapeHtml(e.to)}" data-edge-key="${escapeHtml(edgeKey)}" data-edge-direction="${escapeHtml(e.from)}=>${escapeHtml(e.to)}" data-edge-label="${escapeHtml(label)}" data-rel-type="${type}" data-rel-bidir="${bidirectional ? 'true' : 'false'}" x="${lx.toFixed(1)}" y="${labelBaseY.toFixed(1)}" text-anchor="middle">${labelTspans}</text>`;
   });
 
   nodes.forEach(node => {

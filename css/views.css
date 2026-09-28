@@ -951,7 +951,7 @@
 .hud-v-dark-one { position: relative; flex: 1 1 120px; max-width: 200px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; transform: translateY(var(--y)); }
 .hud-v-dark-one b { font-size: .84em; line-height: 1.3; color: #e8e2f2 !important; }
 .hud-v-dark-one small { font-size: .66em; letter-spacing: .1em; text-transform: uppercase; color: color-mix(in srgb, var(--v-acc) 50%, #fff) !important; opacity: .85; }
-.hud-v-eyes { width: calc(84px * var(--k)); height: calc(34px * var(--k)); overflow: visible; transform: rotate(var(--tilt)); }
+.hud-v-eyes { width: calc(84px * var(--k)); height: calc(34px * var(--k)); overflow: visible; transform: rotate(var(--tilt, 0deg)); }
 .hud-v-eyes .lid { fill: color-mix(in srgb, var(--v-acc) 55%, #ffd7a0); opacity: .9; filter: drop-shadow(0 0 4px var(--v-acc)) drop-shadow(0 0 10px var(--v-glow)); }
 .hud-v-eyes .iris { fill: #120b10; }
 .hud-v-eyes .slit { stroke: color-mix(in srgb, var(--v-acc) 30%, #fff); stroke-width: .9; stroke-linecap: round; opacity: .6; }
@@ -1552,3 +1552,22 @@
 .hud-v, .hud-v-bond { position: relative; z-index: 1; }
 /* Значок-отказ перед названием не должен отталкивать имя вправо. */
 .hud-v-kink-head b { flex: 1; min-width: 0; }
+
+/* =========================================================================
+   ПОЯСНЕНИЯ ВО ВСЕХ ВИДАХ
+   Виды блоков не должны терять то, что видно в прежнем: где лежит вещь,
+   откуда человек знает секрет, пометку «выше нормы» и слова модели к цифрам.
+   ========================================================================= */
+.hud-v-slot small { display: block; font-size: .6em; line-height: 1.2; opacity: .75; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow-wrap: anywhere; }
+.hud-v-chip small { font-size: .72em; font-weight: 400; opacity: .72; }
+.hud-v-chip small::before { content: '· '; }
+.hud-v-vit-nums .up, .hud-v-dial .up { font-style: normal; font-size: .66em; font-weight: 700; color: color-mix(in srgb, var(--v-acc) 45%, #ffb07a); white-space: nowrap; }
+.hud-v-dial .up { display: block; margin-top: 1px; }
+.hud-v-vit-notes { display: flex; flex-direction: column; gap: 2px; margin-top: 6px; flex-basis: 100%; }
+.hud-v-vit-notes .hud-v-note { margin: 0; }
+.hud-v-vit-notes .hud-v-note b { font-weight: 700; color: var(--v-ink-soft); }
+.hud-v-vit.is-dashboard > .hud-v-vit-notes { grid-column: 1 / -1; }
+.hud-v-people-lbl { flex-basis: 100%; font-size: .62em; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; opacity: .6; margin-top: 2px; }
+.hud-v-people-lbl.is-u { margin-top: 4px; }
+.hud-v-person small { font-size: .88em; font-style: italic; opacity: .72; }
+.hud-v-person small::before { content: '— '; }

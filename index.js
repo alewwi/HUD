@@ -1,37 +1,37 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings } from './settings.js?v=23.14.1';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=23.14.1';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.14.1';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.14.1';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.14.1';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.14.1';
-import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.14.1';
-import { mergeCarryOver, вернутьЧерты, сдвигиДоверия } from './render/carryover.js?v=23.14.1';
-import { привязатьИсторию, ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.14.1';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.14.1';
-import { ПРИМЕР_HUD_ТЕКСТ, БАЗОВЫЙ_HUD_ТЕКСТ } from './render/sample-hud.js?v=23.14.1';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.14.1';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.14.1';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.14.1';
-import { buildMemoryHTML } from './render/memory.js?v=23.14.1';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.14.1';
-import { buildPhoneTabsHTML } from './render/phone.js?v=23.14.1';
-import { праздникиСцены } from './render/holidays.js?v=23.14.1';
-import { скрытыеФактыЗачатия } from './render/conception.js?v=23.14.1';
-import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.14.1';
-import { hudHasRelations } from './render/relations-graph.js?v=23.14.1';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.14.1';
-import { чипЛуны, теньЛуны, титрыСцены, карточкаПоворота } from './render/extras.js?v=23.14.1';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.14.1';
-import { applyThemeClass, presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.14.1';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.14.1';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.14.1';
-import { clearCache, cacheUsage } from './history-analyzer.js?v=23.14.1';
-import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.14.1';
-import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.14.1';
-import { создатьПроверкуПолноты } from './hud-check.js?v=23.14.1';
-import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.14.1';
+import { hexToRgba, settings, defaultSettings } from './settings.js?v=23.15.0';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=23.15.0';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.15.0';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.15.0';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.15.0';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.15.0';
+import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.15.0';
+import { mergeCarryOver, вернутьЧерты, сдвигиДоверия } from './render/carryover.js?v=23.15.0';
+import { привязатьИсторию, ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.15.0';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.15.0';
+import { ПРИМЕР_HUD_ТЕКСТ, БАЗОВЫЙ_HUD_ТЕКСТ } from './render/sample-hud.js?v=23.15.0';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.15.0';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.15.0';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.15.0';
+import { buildMemoryHTML } from './render/memory.js?v=23.15.0';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.15.0';
+import { buildPhoneTabsHTML } from './render/phone.js?v=23.15.0';
+import { праздникиСцены } from './render/holidays.js?v=23.15.0';
+import { скрытыеФактыЗачатия } from './render/conception.js?v=23.15.0';
+import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.15.0';
+import { hudHasRelations } from './render/relations-graph.js?v=23.15.0';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.15.0';
+import { чипЛуны, теньЛуны, титрыСцены, карточкаПоворота } from './render/extras.js?v=23.15.0';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.15.0';
+import { applyThemeClass, presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.15.0';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.15.0';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.15.0';
+import { clearCache, cacheUsage } from './history-analyzer.js?v=23.15.0';
+import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.15.0';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.15.0';
+import { создатьПроверкуПолноты } from './hud-check.js?v=23.15.0';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.15.0';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -956,6 +956,18 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     ['stickers', 'moonglass', 'ghost', 'news', 'win95', 'mac', 'bujo', 'glass', 'evidence'].forEach(s => root.classList.toggle('hud-skin-' + s, settings.sectionSkin === s));
     root.classList.toggle('hud-ava-arch', settings.avatarShape === 'arch' || ((settings.avatarShape || 'auto') === 'auto' && settings.themePreset === 'vamp'));
     root.classList.toggle('hud-head-banner', settings.headerStyle === 'banner');
+    // Рамка и кадр портрета. Масштаб — через object-view-box (Chrome, Edge,
+    // Android); где его нет, работает только сдвиг (object-position).
+    const цветРамки = /^#[0-9a-f]{3,8}$/i.test(String(settings.avatarFrameColor || '')) ? settings.avatarFrameColor : '';
+    if (цветРамки) root.style.setProperty('--hud-ava-frame', цветРамки); else root.style.removeProperty('--hud-ava-frame');
+    root.classList.toggle('hud-ava-custom', !!цветРамки);
+    {
+      const ч = (v, d, a, b) => { const n = Number(v); return Number.isFinite(n) ? Math.min(b, Math.max(a, n)) : d; };
+      const x = ч(settings.avatarOffsetX, 50, 0, 100), y = ч(settings.avatarOffsetY, 50, 0, 100), z = ч(settings.avatarScale, 100, 100, 400);
+      const k = 1 - 100 / z;
+      root.style.setProperty('--hud-ava-pos', `${x}% ${y}%`);
+      root.style.setProperty('--hud-ava-view', k > 0 ? `inset(${(k * y).toFixed(2)}% ${(k * (100 - x)).toFixed(2)}% ${(k * (100 - y)).toFixed(2)}% ${(k * x).toFixed(2)}%)` : 'none');
+    }
     // Фильтр рваного края для «Газеты» — один на страницу.
     if (settings.sectionSkin === 'news' && !document.getElementById('hud-torn-filter')) {
       document.body.insertAdjacentHTML('beforeend', '<svg id="hud-torn-filter" width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="hud-torn" x="-2%" y="-2%" width="104%" height="104%"><feTurbulence type="fractalNoise" baseFrequency=".035" numOctaves="4" seed="7"/><feDisplacementMap in="SourceGraphic" scale="7"/></filter></svg>');
@@ -1404,6 +1416,10 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             </div>
             ${выбор('sectionSkin', 'Стиль секций', 'Как выглядят рамки секций. «Стикеры» есть только на светлых темах: на тёмных они не включаются.', [['', 'Обычный'], ['stickers', 'Стикеры (светлые темы)'], ['moonglass', 'Лунное стекло'], ['ghost', 'Призрачная буква'], ['news', 'Газета'], ['win95', 'Окна 95'], ['mac', 'Ретро-Мак'], ['bujo', 'Бортовой журнал'], ['glass', 'Стекло'], ['evidence', 'Улики']])}
             ${выбор('avatarShape', 'Форма портрета', 'Аватарка в шапке персонажа. «Авто» — арка на теме «Вампир», круг на остальных.', [['auto', 'Авто'], ['circle', 'Круг'], ['arch', 'Арка']])}
+            <div class="hud-theme-row" title="Пусто — цвет темы. Свой цвет — нажмите на квадрат."><label>Рамка портрета:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="avatarFrameColor" data-auto="accent" value="${settings.avatarFrameColor || settings.accentColor || '#8c5ad2'}"><button type="button" class="hud-theme-auto-btn" data-auto-key="avatarFrameColor" title="Вернуть цвет темы">как в теме</button></div></div>
+            <div class="hud-theme-row"><label>Масштаб портрета:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="avatarScale" min="100" max="300" value="${settings.avatarScale ?? 100}"> <span style="font-size:0.8em;opacity:0.7">${settings.avatarScale ?? 100}%</span></div></div>
+            <div class="hud-theme-row"><label>Портрет: влево-вправо</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="avatarOffsetX" min="0" max="100" value="${settings.avatarOffsetX ?? 50}"> <span style="font-size:0.8em;opacity:0.7">${settings.avatarOffsetX ?? 50}%</span></div></div>
+            <div class="hud-theme-row"><label>Портрет: вверх-вниз</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="avatarOffsetY" min="0" max="100" value="${settings.avatarOffsetY ?? 50}"> <span style="font-size:0.8em;opacity:0.7">${settings.avatarOffsetY ?? 50}%</span></div></div>
             ${выбор('headerStyle', 'Шапка персонажа', 'Баннер — аватарка растянута полосой над именем. Виджет погоды не трогает.', [['classic', 'Обычная'], ['banner', 'Баннер']])}
             ${выбор('sceneCredits', 'Титры сцены', 'Под карточкой: «конец сцены», кто в ролях, место и время.', [['off', 'Нет'], ['on', 'Показывать']])}
             ${выбор('moonPhase', 'Фаза луны', 'По игровой дате: плашка в погоде и тень на луне в небе.', [['true', 'Показывать'], ['false', 'Нет']])}
@@ -1660,16 +1676,33 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     const новогодниеДни = !!месяцИзДаты && !!числоИзДаты
       && ((месяцИзДаты === 12 && числоИзДаты >= 28) || (месяцИзДаты === 1 && числоИзДаты <= 13));
 
-    const DAY_START = месяцИзДаты ? ВОСХОД[месяцИзДаты - 1] : 360;
-    const DAY_END = месяцИзДаты ? ЗАКАТ[месяцИзДаты - 1] : 1200;
-    const DAY_LEN = DAY_END - DAY_START;
+    let DAY_START = месяцИзДаты ? ВОСХОД[месяцИзДаты - 1] : 360;
+    let DAY_END = месяцИзДаты ? ЗАКАТ[месяцИзДаты - 1] : 1200;
+    let DAY_LEN = DAY_END - DAY_START;
+
+    // Часть суток словом («день», «вечер») — модель знает, где идёт сцена:
+    // таблица восходов выше — для ~50° с. ш., а в тропиках в ноябре в 16:55
+    // ещё светло. Если слово и часы спорят о том, над горизонтом ли солнце,
+    // сначала берём обычные 6:00–20:00, а если и это не помогает — слово.
+    const фазаСловом = (() => {
+      if (/(?<![\p{L}])предрассвет|\bpredawn|\bdawn\b/u.test(phaseLow)) return 'phase-predawn';
+      if (/(?<![\p{L}])утр|\bmorn/u.test(phaseLow)) return 'phase-morning';
+      if (/(?<![\p{L}])(?:день|дн[ёе]м|полдень|полдн)(?![\p{L}])|\bday\b|\bnoon\b/u.test(phaseLow)) return 'phase-day';
+      if (/(?<![\p{L}])золот|\bgolden\b/u.test(phaseLow)) return 'phase-golden';
+      if (/(?<![\p{L}])(?:закат|солнц\p{L}*\s*за)|\bsunset/u.test(phaseLow)) return 'phase-sunset';
+      if (/(?<![\p{L}])вечер|\beven|\bnightfall\b/u.test(phaseLow)) return 'phase-evening';
+      if (/(?<![\p{L}])глубок\p{L}*\s*ноч|\bdeep\s*night\b/u.test(phaseLow)) return 'phase-deep-night';
+      if (/(?<![\p{L}])ноч|\bnight\b/u.test(phaseLow)) return 'phase-night';
+      return '';
+    })();
+    const солнцеВидно = (ф) => /phase-(?:morning|day|golden|sunset)/.test(ф);
 
     let hourMatch = tRaw.match(/(\d{1,2}):(\d{2})/);
     if (hourMatch) {
       const hour = parseInt(hourMatch[1], 10);
       const minute = parseInt(hourMatch[2], 10) || 0;
       const totalMinutes = hour * 60 + minute;
-
+      const поЧасам = () => {
       if (totalMinutes < 120) phaseClass = 'phase-deep-night';
       else if (totalMinutes < DAY_START - 60) phaseClass = 'phase-night';
       else if (totalMinutes < DAY_START) phaseClass = 'phase-predawn';
@@ -1679,6 +1712,13 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       else if (totalMinutes < DAY_END) phaseClass = 'phase-sunset';
       else if (totalMinutes < DAY_END + 120) phaseClass = 'phase-evening';
       else phaseClass = 'phase-night';
+      };
+      поЧасам();
+      if (фазаСловом && солнцеВидно(фазаСловом) !== солнцеВидно(phaseClass)) {
+        DAY_START = 360; DAY_END = 1200; DAY_LEN = DAY_END - DAY_START;
+        поЧасам();
+        if (солнцеВидно(фазаСловом) !== солнцеВидно(phaseClass)) phaseClass = фазаСловом;
+      }
     } else if (/(?<![\p{L}])предрассвет|\bpredawn|\bdawn\b/u.test(phaseLow)) phaseClass = 'phase-predawn';
     // Русские слова ищем с начала слова через (?<![\p{L}]): \b в JS знает только
     // латиницу, и «утро», «вечер», «ночь» без часов не распознавались.
@@ -4646,7 +4686,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=23.14.1');
+        const mod = await import('./render/archive.js?v=23.15.0');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);

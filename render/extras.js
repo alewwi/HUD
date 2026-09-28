@@ -4,8 +4,8 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=23.14.1';
-import { settings } from '../settings.js?v=23.14.1';
+import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=23.15.0';
+import { settings } from '../settings.js?v=23.15.0';
 
 const есть = (v) => hudHasMeaningfulValue(v) && !/^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -273,7 +273,15 @@ export function тамагочи(p, связь, связьHTML = '') {
   // Особый вид привязанности (сердца, лапа, жетон) — вместо пиксельной шкалы.
   if (связь !== null && !связьHTML) статы.push({ имя: 'Привязанность', ик: 'heart', c: '#ef5a8a', n: огр(Math.round(связь / 20), 0, 5) });
   const реплика = есть(p.note) ? '▸ ' + String(p.note) : есть(p.mood) ? '▸ ' + String(p.mood) : '';
+  // Всё, что есть в карточке, есть и здесь: хозяин, состояние, рацион,
+  // настроение (если «Сейчас» уже занято им), прочие поля и умения.
+  const строка = (подпись, текст) => есть(текст) ? `<span><b>${подпись}:</b> ${escapeHtml(String(текст))}</span>` : '';
+  const умения = есть(p.skills) ? String(p.skills).split(/[;\n]/).map(s => s.trim()).filter(Boolean) : [];
+  const сведения = строка('Хозяин', p.owner) + строка('Состояние', p.condition) + строка('Рацион', p.diet)
+    + (есть(p.note) ? строка('Настроение', p.mood) : '')
+    + (Array.isArray(p.extra) ? p.extra.map(д => строка(escapeHtml(д.key), д.value)).join('') : '');
+  const низ = (сведения || умения.length) ? `<div class="hud-tama-info">${сведения}${умения.length ? `<div class="hud-tama-skills">${умения.map(у => `<i>${escapeHtml(у)}</i>`).join('')}</div>` : ''}</div>` : '';
   return `<div class="hud-tama" style="--p:${тип.цвет}">${dev}<div class="hud-tama-stats"><b>${escapeHtml(p.name)}</b>${есть(p.species) ? `<small>${escapeHtml(p.species)}</small>` : ''}`
     + статы.map(s => `<div class="hud-tama-st" style="--c:${s.c}">${ик(s.ик, s.c)}<span>${s.имя}</span><span class="hud-tama-px">${Array.from({ length: 5 }, (_, i) => `<i${i < s.n ? '' : ' class="off"'}></i>`).join('')}</span></div>`).join('')
-    + (связьHTML || '') + (реплика ? `<div class="hud-tama-say">${escapeHtml(реплика)}</div>` : '') + `</div></div>`;
+    + (связьHTML || '') + (реплика ? `<div class="hud-tama-say">${escapeHtml(реплика)}</div>` : '') + `</div>${низ}</div>`;
 }

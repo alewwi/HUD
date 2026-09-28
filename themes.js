@@ -17,7 +17,7 @@
 // Ключи в vars — те же, что в settings.js. Незнакомые ключи не пишем: их
 // applyThemeColors() всё равно не читает.
 
-import { settings } from './settings.js?v=23.14.1';
+import { settings } from './settings.js?v=23.15.0';
 
 const HUD_THEMES = [
   {
@@ -760,7 +760,8 @@ export const THEME_KEYS = [...new Set(HUD_THEMES.flatMap(t => Object.keys(t.vars
 // файл темы и откат видели только THEME_KEYS, и шестнадцать ползунков
 // не сохранялись и не откатывались вовсе.
 export const ЛИЧНЫЕ_КЛЮЧИ = ['bgOpacity', 'bgScale', 'bgOffsetY', 'phoneBlur', 'phoneFont', 'phoneFontSize', 'phoneNotifAlpha', 'phoneNotifMax',
-  'sceneTextColor', 'sceneDarkness', 'fontSizeClock', 'fontSizeMain', 'fontSizeHeaders', 'fontSizeDiary', 'phoneThemeAuto', 'glowSize', 'glowBreath', 'glowMobile', 'phoneGlow'].filter(k => !THEME_KEYS.includes(k));
+  'sceneTextColor', 'sceneDarkness', 'fontSizeClock', 'fontSizeMain', 'fontSizeHeaders', 'fontSizeDiary', 'phoneThemeAuto', 'glowSize', 'glowBreath', 'glowMobile', 'phoneGlow',
+  'avatarFrameColor', 'avatarScale', 'avatarOffsetX', 'avatarOffsetY'].filter(k => !THEME_KEYS.includes(k));
 export const КЛЮЧИ_ВИДА = [...THEME_KEYS, ...ЛИЧНЫЕ_КЛЮЧИ];
 
 // Реестр вместе с сохранённой пользователем темой, если она есть.

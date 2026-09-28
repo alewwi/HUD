@@ -128,6 +128,10 @@
     filter: blur(var(--hud-blur-intensity, 8px)); /* Блюрим саму картинку */
     opacity: var(--hud-bg-opacity, 0.8);
     pointer-events: none;
+    /* Размытый слой мобильный Chrome выносит в отдельный слой отрисовки, и
+       скругление карточки его уже не обрезает: по углам торчали квадратные
+       края обоев. Обрезаем сам слой — по контуру карточки (он шире на 50px). */
+    clip-path: inset(50px round var(--hud-radius, 12px));
 }
 
 /* СЛОЙ 2: Градиент темы + Блюр фона самого чата (если нет картинки) */
@@ -137,6 +141,7 @@
     backdrop-filter: blur(var(--hud-blur-intensity, 8px));
     -webkit-backdrop-filter: blur(var(--hud-blur-intensity, 8px));
     pointer-events: none;
+    border-radius: inherit;
 }
 
 .hud-os-topbar, .hud-os-wrapper { position: relative; z-index: 1; }
@@ -1992,8 +1997,9 @@
 
 .hud-phone-subtab { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 6px; color: var(--hud-text-muted); font-size: 0.8em; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
 .hud-phone-subtab.active { background: var(--hud-accent); color: #fff; border-color: var(--hud-accent); font-weight: bold; }
-.hud-phone-subtab.intercept-tab { border-color: rgba(255, 50, 50, 0.4); color: #ff8a8a; }
-.hud-phone-subtab.intercept-tab.active { background: #9e2a3f; color: #fff; border-color: #ff3b30; }
+/* Цвет перехвата — из темы (--hud-intercept-color), как у вкладки «Перехваты». */
+.hud-phone-subtab.intercept-tab { border-color: color-mix(in srgb, var(--hud-intercept-color, #ff4d4d) 40%, transparent); color: color-mix(in srgb, var(--hud-intercept-color, #ff4d4d) 70%, var(--hud-text, #fff)); }
+.hud-phone-subtab.intercept-tab.active { background: color-mix(in srgb, var(--hud-intercept-color, #ff4d4d) 62%, #1a0a0e); color: #fff; border-color: var(--hud-intercept-color, #ff4d4d); }
 
 .hud-phone-subbody { display: none; flex-direction: column; height: calc(380px - 35px); }
 .hud-phone-subbody.active { display: flex; }
@@ -4104,6 +4110,14 @@
     -webkit-backdrop-filter: blur(var(--hud-weather-blur, 6px)) !important;
     border-color: rgba(255,255,255,0.1) !important;
 }
+/* «Быстрый интерфейс» SillyTavern (на новой установке включён сам) вешает на
+   body класс no-blur и снимает размытие со всего: body.no-blur * {
+   backdrop-filter: unset !important }. Блюр плашек сцены — свой ползунок
+   («Блюр плашек», 0 — без размытия), поэтому здесь он сильнее. */
+body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-scene-atm, .hud-moonchip) {
+    backdrop-filter: blur(var(--hud-weather-blur, 6px)) !important;
+    -webkit-backdrop-filter: blur(var(--hud-weather-blur, 6px)) !important;
+}
 .hud-diary-text, .hud-diary-about-user {
     font-size: var(--hud-font-size-diary, 16px) !important;
 }
@@ -4133,7 +4147,7 @@
 .hud-phone-unlocked { min-height:610px; position:relative; }
 .hud-phone-lockscreen { display:flex; flex-direction:column; align-items:center; padding:18px 18px 30px; text-align:center; }
 .hud-phone-statusline,
-.hud-phone-top-status { display:flex; justify-content:space-between; width:100%; font-size:11px; color:rgba(255,255,255,.82); }
+.hud-phone-top-status { display:flex; justify-content:space-between; width:100%; box-sizing:border-box; font-size:11px; color:rgba(255,255,255,.82); }
 .hud-phone-lock-time { margin-top:70px; font-size:72px; line-height:.95; font-weight:300; letter-spacing:-4px; color:#fff; text-shadow:0 4px 30px rgba(0,0,0,.4); }
 .hud-phone-lock-day { margin-top:8px; font-size:15px; color:rgba(255,255,255,.8); }
 .hud-phone-lock-notifications { width:100%; margin-top:34px; display:flex; flex-direction:column; gap:8px; }

@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.14.1';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.14.1';
-import { namesLikelySame } from '../names.js?v=23.14.1';
-import { силаСтраха, статусРужья } from '../codes.js?v=23.14.1';
-import { settings } from '../settings.js?v=23.14.1';
-import { зоныКарты, ПЯТНА, ЗОНЫ } from './intimacy.js?v=23.14.1';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.14.1';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.15.0';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.15.0';
+import { namesLikelySame } from '../names.js?v=23.15.0';
+import { силаСтраха, статусРужья } from '../codes.js?v=23.15.0';
+import { settings } from '../settings.js?v=23.15.0';
+import { зоныКарты, ПЯТНА, ЗОНЫ } from './intimacy.js?v=23.15.0';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.15.0';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -588,7 +588,9 @@ function разобратьВитал(value) {
     else if (/^(br|дыхание|breath)$/.test(к)) п.дыхание = m[2];
     else if (/^(tmp|temp|температура)$/.test(к)) п.т = m[2];
   });
-  return { пульс: число(п.пульс), дыхание: число(п.дыхание), т: число(п.т), описДыхания: String(п.дыхание || '').replace(/^\s*[\d.,]+\s*,?\s*/, '') };
+  const опис = (v) => String(v || '').replace(/^\s*[\d.,]+\s*(?:°\s*c|°|уд\/мин|в мин)?\s*[,;—–-]?\s*/i, '').trim();
+  return { пульс: число(п.пульс), дыхание: число(п.дыхание), т: число(п.т), описДыхания: опис(п.дыхание),
+    опис: { пульс: опис(п.пульс), дыхание: опис(п.дыхание), т: опис(п.т) } };
 }
 const ПРИБОРЫ = [
   { к: 'пульс', имя: 'Пульс', ед: 'уд/мин', lo: 40, hi: 200, норма: 100, цел: true, значок: '♥' },
@@ -602,7 +604,9 @@ export function видПоказателей(value, вид) {
   const есть = ПРИБОРЫ.filter(пр => Number.isFinite(в[пр.к]));
   if (!есть.length) return '';
   const доля = (пр) => огр((в[пр.к] - пр.lo) / (пр.hi - пр.lo), 0, 1);
-  const цифры = (класс = '') => `<div class="hud-v-vit-nums ${класс}">${есть.map((пр, i) => `<span class="r${i}${в[пр.к] > пр.норма ? ' is-up' : ''}"><i class="dot"></i><small>${пр.имя}</small><b>${показ(в[пр.к], пр)}</b><em>${пр.ед}</em></span>`).join('')}</div>`;
+  const цифры = (класс = '') => `<div class="hud-v-vit-nums ${класс}">${есть.map((пр, i) => `<span class="r${i}${в[пр.к] > пр.норма ? ' is-up' : ''}"><i class="dot"></i><small>${пр.имя}</small><b>${показ(в[пр.к], пр)}</b><em>${пр.ед}</em>${в[пр.к] > пр.норма ? '<i class="up">↑ выше нормы</i>' : ''}</span>`).join('')}</div>`;
+  // Пояснения модели к цифрам («частое, срывается на выдохе») — во всех видах, не только в плитках.
+  const заметки = () => { const с = есть.filter(пр => в.опис[пр.к] && !пусто(в.опис[пр.к])); return с.length ? `<div class="hud-v-vit-notes">${с.map(пр => `<p class="hud-v-note"><b>${пр.имя}:</b> ${applyTooltips(в.опис[пр.к])}</p>`).join('')}</div>` : ''; };
   const такт = Number.isFinite(в.пульс) ? (60 / огр(в.пульс, 30, 220)).toFixed(3) : '1';
   const id = новыйId('vit');
   if (вид === 'anatomy') {
@@ -615,7 +619,7 @@ export function видПоказателей(value, вид) {
       + `<path class="trachea" d="M60 4v18M60 22l-11 8M60 22l11 8"/>`
       + `<g class="lung is-l"><path fill="url(#${id}l)" d="M50 24c-12 2-26 16-28 42-1 12 3 20 11 20 10 0 17-6 19-14l1-40c0-5-1-8-3-8Z"/><path class="vein" d="M49 34c-5 4-9 10-12 18M48 46c-4 5-6 11-7 18"/></g>`
       + `<g class="lung is-r"><path fill="url(#${id}l)" d="M70 24c12 2 26 16 28 42 1 12-3 20-11 20-10 0-17-6-19-14l-1-40c0-5 1-8 3-8Z"/><path class="vein" d="M71 34c5 4 9 10 12 18M72 46c4 5 6 11 7 18"/></g>`
-      + `<g class="heart"><path fill="url(#${id}h)" transform="translate(47 52) scale(1.1)" d="${СЕРДЦЕ}"/></g></svg>${цифры('is-legend')}</div>`;
+      + `<g class="heart"><path fill="url(#${id}h)" transform="translate(47 52) scale(1.1)" d="${СЕРДЦЕ}"/></g></svg>${цифры('is-legend')}${заметки()}</div>`;
   }
   if (вид === 'dashboard') {
     return `<div class="hud-v hud-v-vit is-dashboard">${есть.map((пр, i) => {
@@ -627,8 +631,8 @@ export function видПоказателей(value, вид) {
         + `<defs><linearGradient id="${id}${i}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" class="s0"/><stop offset="1" class="s1"/></linearGradient></defs>`
         + `<path class="arc" d="${дуга(-120, 120)}"/><path class="val" stroke="url(#${id}${i})" d="${дуга(-120, -120 + Math.max(1, доля(пр) * 240))}"/><path class="hot" d="${дуга(-120 + нормаД * 240, 120)}"/>${деления}`
         + `<g transform="rotate(${угол.toFixed(1)} 30 32)"><path class="needle" d="M30 11 31.6 32h-3.2Z"/></g><circle class="hub" cx="30" cy="32" r="3.2"/><circle class="hub-in" cx="30" cy="32" r="1.3"/></svg>`
-        + `<b>${показ(в[пр.к], пр)}<small> ${пр.ед}</small></b><span>${пр.имя}</span></div>`;
-    }).join('')}</div>`;
+        + `<b>${показ(в[пр.к], пр)}<small> ${пр.ед}</small></b><span>${пр.имя}</span>${в[пр.к] > пр.норма ? '<i class="up">↑ выше нормы</i>' : ''}</div>`;
+    }).join('')}${заметки()}</div>`;
   }
   if (вид === 'ecg') {
     const удар = 'l5 0 2.5-9 4 20 3.5-15 2.5 4 7 0';
@@ -636,15 +640,15 @@ export function видПоказателей(value, вид) {
     return `<div class="hud-v hud-v-vit is-ecg" style="--beat:${такт}s"><div class="hud-v-monitor"><svg class="hud-v-ecg" viewBox="0 0 180 44" preserveAspectRatio="none" aria-hidden="true">`
       + `<defs><pattern id="${id}p" width="9" height="9" patternUnits="userSpaceOnUse"><path class="minor" d="M9 0V9H0"/></pattern><linearGradient id="${id}f" x1="0" y1="0" x2="1" y2="0"><stop offset="0" class="f0"/><stop offset=".85" class="f1"/><stop offset="1" class="f2"/></linearGradient></defs>`
       + `<rect width="180" height="44" fill="url(#${id}p)"/><g class="run"><path class="line" stroke="url(#${id}f)" d="${путь}"/></g></svg>`
-      + `<span class="hud-v-monitor-bpm"><i aria-hidden="true">♥</i>${Number.isFinite(в.пульс) ? Math.round(в.пульс) : '—'}</span></div>${цифры('is-row')}</div>`;
+      + `<span class="hud-v-monitor-bpm"><i aria-hidden="true">♥</i>${Number.isFinite(в.пульс) ? Math.round(в.пульс) : '—'}</span></div>${цифры('is-row')}${заметки()}</div>`;
   }
   if (вид === 'rings') {
     const кольца = есть.map((пр, i) => { const r = 27 - i * 7.5; const д = 2 * Math.PI * r; return `<circle class="track" cx="34" cy="34" r="${r}"/><circle class="val r${i}" cx="34" cy="34" r="${r}" stroke-dasharray="${(д * доля(пр)).toFixed(1)} ${д.toFixed(1)}" transform="rotate(-90 34 34)"><title>${пр.имя}: ${показ(в[пр.к], пр)} ${пр.ед}</title></circle>`; }).join('');
-    return `<div class="hud-v hud-v-vit is-rings"><svg class="hud-v-rings" viewBox="0 0 68 68" aria-hidden="true">${кольца}<text x="34" y="38">${Number.isFinite(в.пульс) ? Math.round(в.пульс) : ''}</text></svg>${цифры('is-legend')}</div>`;
+    return `<div class="hud-v hud-v-vit is-rings"><svg class="hud-v-rings" viewBox="0 0 68 68" aria-hidden="true">${кольца}<text x="34" y="38">${Number.isFinite(в.пульс) ? Math.round(в.пульс) : ''}</text></svg>${цифры('is-legend')}${заметки()}</div>`;
   }
   if (вид === 'pulse') {
     return `<div class="hud-v hud-v-vit is-pulse" style="--beat:${такт}s"><span class="hud-v-heartbeat" aria-hidden="true"><i class="echo"></i><i class="echo e2"></i><svg viewBox="0 0 24 24"><path d="${СЕРДЦЕ}"/></svg></span>`
-      + `<div class="hud-v-side">${цифры('is-row')}${в.описДыхания && !пусто(в.описДыхания) ? подпись(в.описДыхания) : ''}</div></div>`;
+      + `<div class="hud-v-side">${цифры('is-row')}${заметки()}</div></div>`;
   }
   return '';
 }
@@ -688,7 +692,7 @@ export function видИнвентаря(value, вид) {
   if (вид === 'grid') {
     // Слоты как в RPG: рамка по важности, пустые ячейки добивают ряд.
     const пустых = (4 - вещи.length % 4) % 4;
-    return `<div class="hud-v hud-v-inv is-grid">${вещи.map((в, i) => `<span class="hud-v-slot ${редкость(в, i)}" title="${титул(в)}"><i aria-hidden="true">${ико(в.значок)}</i><b>${escapeHtml(в.имя)}</b>${в.кол ? `<em>×${escapeHtml(в.кол)}</em>` : ''}</span>`).join('')}${'<span class="hud-v-slot is-empty" aria-hidden="true"></span>'.repeat(пустых)}</div>`;
+    return `<div class="hud-v hud-v-inv is-grid">${вещи.map((в, i) => `<span class="hud-v-slot ${редкость(в, i)}" title="${титул(в)}"><i aria-hidden="true">${ико(в.значок)}</i><b>${escapeHtml(в.имя)}</b>${в.текст ? `<small>${escapeHtml(в.текст)}</small>` : ''}${в.кол ? `<em>×${escapeHtml(в.кол)}</em>` : ''}</span>`).join('')}${'<span class="hud-v-slot is-empty" aria-hidden="true"></span>'.repeat(пустых)}</div>`;
   }
   if (вид === 'cards') {
     return `<div class="hud-v hud-v-inv is-cards">${вещи.map((в, i) => `<span class="hud-v-card hud-v-item ${редкость(в, i)}"><i class="badge" aria-hidden="true">${ико(в.значок)}</i><span><b>${escapeHtml(в.имя)}</b>${в.текст ? `<small>${applyTooltips(в.текст)}</small>` : ''}<span class="hud-v-tag">${escapeHtml(в.группа)}</span></span></span>`).join('')}</div>`;
@@ -703,7 +707,7 @@ export function видИнвентаря(value, вид) {
     // Важность: слова о ценности и порядок в списке — первое модель пишет
     // самым заметным. Три размера, чтобы разница читалась.
     const по = вещи.map((в, i) => ({ в, w: вес(в, i) })).sort((a, b) => b.w - a.w);
-    return `<div class="hud-v hud-v-inv is-weight">${по.map(({ в, w }) => `<span class="hud-v-chip ${w >= 2 ? 'w3' : w >= 1 ? 'w2' : 'w1'}" title="${титул(в)}"><i aria-hidden="true">${ико(в.значок)}</i>${escapeHtml(в.имя)}</span>`).join('')}</div>`;
+    return `<div class="hud-v hud-v-inv is-weight">${по.map(({ в, w }) => `<span class="hud-v-chip ${w >= 2 ? 'w3' : w >= 1 ? 'w2' : 'w1'}" title="${титул(в)}"><i aria-hidden="true">${ико(в.значок)}</i>${escapeHtml(в.имя)}${в.текст ? `<small>${escapeHtml(в.текст)}</small>` : ''}</span>`).join('')}</div>`;
   }
   if (вид === 'receipt') {
     // Опись: чековая лента — номер, вещь, точки до количества, код группы,
@@ -721,6 +725,8 @@ export function видИнвентаря(value, вид) {
 /* --- Секреты ---------------------------------------------------------------- */
 
 const имяЧеловека = (x) => String((x && typeof x === 'object' ? (x.name || x.who) : x) || '').trim();
+// Откуда человек знает секрет («подслушала», «догадалась сама») — самое ценное после факта.
+const откуда = (x) => String((x && typeof x === 'object' ? (x.source || x.how || '') : '') || '').trim();
 const нетИмени = (n) => !n || /^(none|empty|null|нет|никто|-|—)$/i.test(n);
 function разобратьСекрет(s) {
   const lv = String(s.level || '').toLowerCase();
@@ -728,10 +734,12 @@ function разобратьСекрет(s) {
   const st = String(s.status || '').toLowerCase();
   const огласка = /unknown|неизвест/.test(st) ? 0 : /suspect|подозр/.test(st) ? 1 : /part|частич/.test(st) ? 2 : /known|извест/.test(st) ? 3 : 0;
   const списком = (v) => Array.isArray(v) ? v : (v ? [v] : []);
-  const знают = списком(s.knows).map(имяЧеловека).filter(n => !нетИмени(n));
+  const знающие = списком(s.knows).filter(x => !нетИмени(имяЧеловека(x)));
+  const знают = знающие.map(имяЧеловека);
+  const источники = Object.fromEntries(знающие.map(x => [имяЧеловека(x), откуда(x)]));
   const знаютНиз = знают.map(n => n.toLowerCase());
   const неЗнают = списком(s.unaware ?? s.hidden).map(имяЧеловека).filter(n => !нетИмени(n) && !знаютНиз.includes(n.toLowerCase()));
-  return { факт: String(s.fact || '').trim(), уровень, огласка, знают, неЗнают };
+  return { факт: String(s.fact || '').trim(), уровень, огласка, знают, неЗнают, источники };
 }
 const ГРИФ = ['', 'СЕКРЕТНО', 'СТРОГО СЕКРЕТНО', 'ОСОБОЙ ВАЖНОСТИ'];
 const ОГЛАСКА = ['не раскрыт', 'подозревают', 'частично', 'известен'];
@@ -753,7 +761,7 @@ function сейф(с) {
     + `<g class="dial"><circle class="knob" cx="${C}" cy="${C}" r="9.5"/><g class="ticks">${риски}</g><path class="spokes" d="M${C} ${C - 15}V${C + 15}M${C - 13} ${C - 7.5}L${C + 13} ${C + 7.5}M${C - 13} ${C + 7.5}L${C + 13} ${C - 7.5}"/><circle class="hub" cx="${C}" cy="${C}" r="3"/></g></g>`
     + `<rect class="hinge" x="5" y="18" width="5" height="8" rx="1.5"/><rect class="hinge" x="5" y="42" width="5" height="8" rx="1.5"/></svg>`;
 }
-const люди = (имена, знают) => имена.map(n => `<span class="hud-v-person${знают ? ' is-k' : ''}" title="${escapeHtml(n)}: ${знают ? 'знает' : 'не знает'}">${лицо(n)}${escapeHtml(первое(n))}</span>`).join('');
+const люди = (имена, знают, источники = {}) => имена.map(n => `<span class="hud-v-person${знают ? ' is-k' : ''}" title="${escapeHtml(n)}: ${знают ? 'знает' : 'не знает'}">${лицо(n)}${escapeHtml(первое(n))}${знают && источники[n] ? `<small>${escapeHtml(источники[n])}</small>` : ''}</span>`).join('');
 
 // Сургучная печать: неровный восковой край (капля с наплывами), внутри —
 // ободок и выдавленный замок. Подозревают — тонкая трещина от края к
@@ -782,7 +790,9 @@ function печатьСургуча(огласка, id) {
 export function видСекретов(secrets, вид) {
   const все = (Array.isArray(secrets) ? secrets : []).map(разобратьСекрет).filter(с => с.факт);
   if (!все.length) return '';
-  const кто = (с) => `<div class="hud-v-people">${люди(с.знают, true)}${люди(с.неЗнают, false)}</div>`;
+  const кто = (с) => `<div class="hud-v-people">${с.знают.length ? `<span class="hud-v-people-lbl">в курсе</span>${люди(с.знают, true, с.источники)}` : '<span class="hud-v-people-lbl">никто не знает</span>'}`
+    + `${с.неЗнают.length ? `<span class="hud-v-people-lbl is-u">в неведении</span>${люди(с.неЗнают, false)}` : ''}</div>`;
+  const сИсточником = (n, с) => с.источники[n] ? `${n} (${с.источники[n]})` : n;
   if (вид === 'vault') {
     // Сейф: болтов по ободу — по грифу (4, 8, 12), дверца приоткрыта тем
     // шире, чем больше огласка, из щели светит. Лампа — огласка словом.
@@ -808,7 +818,7 @@ export function видСекретов(secrets, вид) {
   }
   if (вид === 'files') {
     return `<div class="hud-v hud-v-files">${все.map((с, i) => `<div class="hud-v-file l${с.уровень}" style="--r:${((hudHashSeed(с.факт) % 5) - 2) * 0.5}deg"><span class="hud-v-file-tab">ДЕЛО №${String(i + 1).padStart(3, '0')}</span><i class="clip" aria-hidden="true"></i><span class="hud-v-stamp">${ГРИФ[с.уровень]}</span>`
-      + `<b>${тайна(с.факт)}</b><span class="hud-v-file-status">статус: ${ОГЛАСКА[с.огласка]}</span><div class="hud-v-file-lines"><small>знают: ${с.знают.length ? escapeHtml(с.знают.join(', ')) : 'никто'}</small>${с.неЗнают.length ? `<small>не знают: ${escapeHtml(с.неЗнают.join(', '))}</small>` : ''}</div></div>`).join('')}</div>`;
+      + `<b>${тайна(с.факт)}</b><span class="hud-v-file-status">статус: ${ОГЛАСКА[с.огласка]}</span><div class="hud-v-file-lines"><small>в курсе: ${с.знают.length ? escapeHtml(с.знают.map(n => сИсточником(n, с)).join('; ')) : 'никто'}</small>${с.неЗнают.length ? `<small>в неведении: ${escapeHtml(с.неЗнают.join(', '))}</small>` : ''}</div></div>`).join('')}</div>`;
   }
   if (вид === 'web') {
     return `<div class="hud-v hud-v-webs">${все.map(с => {
@@ -831,7 +841,7 @@ export function видСекретов(secrets, вид) {
       const сегменты = (n, из, класс) => `<span class="hud-v-segments ${класс}" aria-hidden="true">${Array.from({ length: из }, (_, i) => `<i${i < n ? ' class="is-on"' : ''}></i>`).join('')}</span>`;
       return `<div class="hud-v-card hud-v-secbar l${с.уровень}"><b>${тайна(с.факт)}</b>`
         + `<div class="hud-v-meter"><small>${ико('lock')} гриф</small>${сегменты(с.уровень, 3, 'is-lvl')}<em>${ГРИФ[с.уровень].toLowerCase()}</em></div>`
-        + `<div class="hud-v-meter"><small>${ико('megaphone')} огласка</small><span class="hud-v-mini-bar is-spread"><i style="width:${доля}%"></i></span><em>${ОГЛАСКА[с.огласка]}${всего ? ` · ${с.знают.length}/${всего}` : ''}</em></div></div>`;
+        + `<div class="hud-v-meter"><small>${ико('megaphone')} огласка</small><span class="hud-v-mini-bar is-spread"><i style="width:${доля}%"></i></span><em>${ОГЛАСКА[с.огласка]}${всего ? ` · ${с.знают.length}/${всего}` : ''}</em></div>${кто(с)}</div>`;
     }).join('')}</div>`;
   }
   return '';
