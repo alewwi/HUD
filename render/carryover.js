@@ -14,15 +14,15 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.13.5';
-import { проставитьДень } from './msg-feed.js?v=23.13.5';
-import { normalizeJSONData } from '../schema.js?v=23.13.5';
-import { settings } from '../settings.js?v=23.13.5';
-import { статусРужья } from '../codes.js?v=23.13.5';
-import { extractHudBlock } from '../hud-block.js?v=23.13.5';
-import { namesLikelySame } from '../names.js?v=23.13.5';
-import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.13.5';
-import { readParsed, writeParsed } from '../store.js?v=23.13.5';
+import { parseHUDComplex } from '../hud-parser.js?v=23.14.1';
+import { проставитьДень } from './msg-feed.js?v=23.14.1';
+import { normalizeJSONData } from '../schema.js?v=23.14.1';
+import { settings } from '../settings.js?v=23.14.1';
+import { статусРужья } from '../codes.js?v=23.14.1';
+import { extractHudBlock } from '../hud-block.js?v=23.14.1';
+import { namesLikelySame } from '../names.js?v=23.14.1';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.14.1';
+import { readParsed, writeParsed } from '../store.js?v=23.14.1';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -497,6 +497,10 @@ export function mergeCarryOver(data, messageElement) {
 const УСТОЙЧИВЫЕ = ['Кинк', 'Фетиш', 'Никогда не сделает', 'Не возбуждает', 'Последний секс', 'Количество партнеров', 'Регулярность секса'];
 const ЕСТЬ_ЧЕРТЫ = /"(?:Kn|Ft|NG|NT|SxL|SxC|SxR|Kink|Fet|NoGo|NoTurn|SexLast|SexCount|SexReg)"|Кинк|Фетиш|Никогда не сделает|Не возбуждает|Последний секс|Количество партнеров|Регулярность секса/;
 const ГЛУБИНА_ЧЕРТ = 300;
+// «dt: …; pr: …; en: …» без «ak» — короткая запись вне сцены.
+const частиИстории = (v) => текст(Array.isArray(v) ? v.join('; ') : v).split(';').map(s => s.trim()).filter(Boolean);
+const короткаяИстория = (v) => { const ч = частиИстории(v); return ч.some(s => /^dt\s*[:：]/i.test(s)) && !ч.some(s => /^ak\s*[:：]/i.test(s)); };
+const датаИстории = (v) => { const dt = частиИстории(v).find(s => /^dt\s*[:：]/i.test(s)); return dt ? dt.replace(/^dt\s*[:：]\s*/i, '').toLowerCase().replace(/[\s,.]+/g, ' ').trim() : ''; };
 const пустоЗначение = (v) => { const s = текст(Array.isArray(v) ? v.join('; ') : v); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
 const чертыПоХэшу = new КэшРазборов(3000, ЖИЗНЬ_КЭША);
 
@@ -540,8 +544,11 @@ export function вернутьЧерты(data, messageElement) {
   } catch (_) { chat = Array.isArray(window.chat) ? window.chat : null; }
   if (!chat) return data;
 
+  // Вне сцены модель пишет «Последний секс» коротко — когда и с кем. Если
+  // дата та же, что у полной записи раньше, показываем полную; новая дата —
+  // значит, была новая встреча, и короткая запись правдивее старой.
   const нужно = data.characters
-    .map((c, i) => ({ i, имя: текст(c && c['Имя']), поля: УСТОЙЧИВЫЕ.filter(п => c && пустоЗначение(c[п])), найдено: {} }))
+    .map((c, i) => ({ i, имя: текст(c && c['Имя']), поля: УСТОЙЧИВЫЕ.filter(п => c && (пустоЗначение(c[п]) || (п === 'Последний секс' && короткаяИстория(c[п])))), найдено: {}, дата: c && датаИстории(c['Последний секс']) }))
     .filter(x => x.имя && x.поля.length);
   if (!нужно.length) return data;
 
@@ -551,15 +558,89 @@ export function вернутьЧерты(data, messageElement) {
     for (const x of нужно) {
       const запись = ход.find(з => namesLikelySame(з.имя, x.имя));
       if (!запись) continue;
-      for (const п of x.поля) if (!(п in x.найдено) && запись.поля[п] !== undefined) x.найдено[п] = запись.поля[п];
+      for (const п of x.поля) {
+        if (п in x.найдено || запись.поля[п] === undefined) continue;
+        // Короткую историю заменяем только полной записью о той же встрече.
+        if (п === 'Последний секс' && x.дата) {
+          if (короткаяИстория(запись.поля[п])) continue;
+          if (датаИстории(запись.поля[п]) !== x.дата) { x.найдено[п] = undefined; continue; }
+        }
+        x.найдено[п] = запись.поля[п];
+      }
     }
     if (нужно.every(x => x.поля.every(п => п in x.найдено))) break;
   }
   if (!нужно.some(x => Object.keys(x.найдено).length)) return data;
   const characters = data.characters.slice();
-  for (const x of нужно) if (Object.keys(x.найдено).length) characters[x.i] = { ...characters[x.i], ...x.найдено };
+  for (const x of нужно) {
+    const найдено = Object.fromEntries(Object.entries(x.найдено).filter(([, v]) => v !== undefined));
+    if (Object.keys(найдено).length) characters[x.i] = { ...characters[x.i], ...найдено };
+  }
   return { ...data, characters };
 }
 
 // Разбор хода нужен и истории близости: таймеру следов и графикам пульса.
 export { разобратьХод };
+
+// --- Сдвиги доверия ------------------------------------------------------------
+// Сколько доверие к каждому человеку сдвинулось за последний ход и когда
+// менялось в последний раз. Карточка показывает это мелкой строкой под
+// «Доверием», и только при наведении или нажатии (character.js).
+const ГЛУБИНА_ДОВЕРИЯ = 30;
+const разобратьДоверие = (v) => {
+  const о = {};
+  текст(Array.isArray(v) ? v.join('; ') : v).split(/[;\n]/).forEach(ч => {
+    const m = ч.match(/^\s*([^:：]{1,40})[:：]\s*(-?\d{1,3})/);
+    if (m) о[ключ(m[1])] = { имя: m[1].trim(), v: +m[2] };
+  });
+  return о;
+};
+export function сдвигиДоверия(data, messageElement) {
+  if (!data || !Array.isArray(data.characters) || !data.characters.length) return data;
+  const индекс = Number(messageElement && messageElement.getAttribute('mesid'));
+  if (!Number.isInteger(индекс) || индекс <= 0) return data;
+  let chat = null;
+  try {
+    const ctx = window.SillyTavern && window.SillyTavern.getContext && window.SillyTavern.getContext();
+    chat = ctx && Array.isArray(ctx.chat) ? ctx.chat : (Array.isArray(window.chat) ? window.chat : null);
+  } catch (_) { chat = Array.isArray(window.chat) ? window.chat : null; }
+  if (!chat) return data;
+  // Прошлые ходы с HUD, от ближнего к дальнему.
+  const прошлые = [];
+  for (let j = Math.min(индекс, chat.length) - 1; j >= 0 && прошлые.length < ГЛУБИНА_ДОВЕРИЯ; j--) {
+    const ход = разобратьХод(chat[j]);
+    if (ход && Array.isArray(ход.characters) && ход.characters.length) прошлые.push(ход);
+  }
+  if (!прошлые.length) return data;
+  let были = false;
+  const characters = data.characters.map(c => {
+    const сейчас = разобратьДоверие(c && c['Доверие']);
+    if (!Object.keys(сейчас).length) return c;
+    const имя = текст(c['Имя']);
+    const история = прошлые.map(ход => {
+      const з = ход.characters.find(x => namesLikelySame(текст(x && x['Имя']), имя));
+      return з ? разобратьДоверие(з['Доверие']) : null;
+    });
+    const сдвиги = {};
+    for (const [к, { имя: кто, v }] of Object.entries(сейчас)) {
+      const значения = история.map(h => (h && h[к] ? h[к].v : null));
+      const первое = значения.findIndex(x => x !== null);
+      if (первое < 0) continue;
+      const d = v - значения[первое];
+      // Ходов назад значение было другим: 0 — сдвинулось в этом ходу.
+      let назад = 0;
+      if (!d) {
+        const другое = значения.findIndex(x => x !== null && x !== v);
+        назад = другое < 0 ? -1 : другое;
+      }
+      сдвиги[кто] = { d, назад };
+    }
+    if (!Object.keys(сдвиги).length) return c;
+    были = true;
+    const копия = { ...c };
+    Object.defineProperty(копия, '__сдвигиДоверия', { value: сдвиги, enumerable: false, configurable: true });
+    if (c && c.__датаСцены !== undefined) Object.defineProperty(копия, '__датаСцены', { value: c.__датаСцены, enumerable: false, configurable: true, writable: true });
+    return копия;
+  });
+  return были ? { ...data, characters } : data;
+}

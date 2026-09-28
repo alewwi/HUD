@@ -7,17 +7,19 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.13.5';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.13.5';
-import { namesLikelySame } from '../names.js?v=23.13.5';
-import { силаСтраха, статусРужья } from '../codes.js?v=23.13.5';
-import { settings } from '../settings.js?v=23.13.5';
-import { зоныКарты, ПЯТНА, ЗОНЫ } from './intimacy.js?v=23.13.5';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.13.5';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.14.1';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.14.1';
+import { namesLikelySame } from '../names.js?v=23.14.1';
+import { силаСтраха, статусРужья } from '../codes.js?v=23.14.1';
+import { settings } from '../settings.js?v=23.14.1';
+import { зоныКарты, ПЯТНА, ЗОНЫ } from './intimacy.js?v=23.14.1';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.14.1';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
 export const ВИДЫ_БЛОКОВ = [
+  // Новые блоки (новый: true): у них нет «как было» — первый вид и есть основной.
+  { ключ: 'bodyStateView', группа: 'Персонаж', поле: 'Состояние тела', виды: { batteries: 'Батарейки', flasks: 'Колбы', chips: 'Строка' }, новый: true },
   { ключ: 'inventoryView', группа: 'Персонаж', поле: 'Инвентарь', виды: { list: 'Список', grid: 'Слоты', cards: 'Карточки', groups: 'По группам', weight: 'По важности', receipt: 'Опись' } },
   { ключ: 'trustView', группа: 'Персонаж', поле: 'Доверие', виды: { bars: 'Полоски', hearts: 'Сердца', shield: 'Щит', ring: 'Кольца', traffic: 'Светофор', spectrum: 'Спектр', orbit: 'Орбиты' } },
   { ключ: 'fearsView', группа: 'Персонаж', поле: 'Страхи', виды: { list: 'Список', thermometer: 'Термометры', skulls: 'Черепа', storm: 'Тучи', radar: 'Радар', dark: 'Во тьме' } },
@@ -32,6 +34,7 @@ export const ВИДЫ_БЛОКОВ = [
   { ключ: 'importantView', группа: 'Память', поле: 'Важное', виды: { list: 'Список', scroll: 'Свиток', notebook: 'Блокнот', bookmarks: 'Закладки' } },
   { ключ: 'gunsView', группа: 'Память', поле: 'Ружья Чехова', виды: { list: 'Список', board: 'Доска', timeline: 'Колонки', progress: 'Фитиль', cylinder: 'Барабан' } },
   { ключ: 'secretsView', группа: 'Память', поле: 'Секреты', виды: { list: 'Список', vault: 'Сейфы', files: 'Папки', web: 'Сеть', bars: 'Шкалы', envelopes: 'Конверты' } },
+  { ключ: 'petView', группа: 'Спутники', поле: 'Спутник', виды: { card: 'Карточка', tama: 'Тамагочи', classic: 'Прежний' }, новый: true },
   { ключ: 'bondView', группа: 'Спутники', поле: 'Привязанность', виды: { bars: 'Полоска', hearts: 'Сердца', paw: 'Лапа', tag: 'Жетон' } },
 ];
 

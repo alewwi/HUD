@@ -4763,7 +4763,7 @@
 /* --- Цели: карточки заданий с язычком горизонта ---------------------------
    Сейчас — ближе к краю, скоро и потом — лесенкой вглубь; «потом» с
    пунктиром: оно ещё не решено. */
-.hud-row.f-goals .hud-vertical-container { gap: 15px; padding-top: 10px; }
+.hud-row.f-goals .hud-vertical-container { gap: 15px; padding-top: 10px; max-height: 250px; }
 .hud-row.f-goals .hud-detail-pill {
   overflow: visible; box-shadow: none;
   border-radius: 3px 10px 10px 10px;
@@ -4786,7 +4786,7 @@
 
 /* --- Общие воспоминания: фотографии на скотче ----------------------------
    Сепия, лёгкий наклон то в одну, то в другую сторону, полоска скотча. */
-.hud-row.f-memories .hud-vertical-container { gap: 15px; padding: 8px 4px 3px; }
+.hud-row.f-memories .hud-vertical-container { gap: 15px; padding: 8px 4px 3px; max-height: 250px; }
 .hud-row.f-memories .hud-detail-pill {
   overflow: visible; border-radius: 3px;
   padding: 12px 32px 10px 14px; font-style: italic;

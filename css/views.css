@@ -1545,3 +1545,10 @@
   .hud-v-film .frame { animation: hud-v-flick 2.4s steps(1) infinite; }
 }
 @keyframes hud-v-perf { from { background-position: 0 5px, 0 calc(100% - 5px), 0 0; } to { background-position: -18px 5px, -18px calc(100% - 5px), 0 0; } }
+
+/* Виды лежат над рисунками-наклейками строки и карточки (бокал, книга,
+   значок в углу .hud-body::after): те позиционированы и иначе ложились
+   поверх меню, карт и конвертов. */
+.hud-v, .hud-v-bond { position: relative; z-index: 1; }
+/* Значок-отказ перед названием не должен отталкивать имя вправо. */
+.hud-v-kink-head b { flex: 1; min-width: 0; }

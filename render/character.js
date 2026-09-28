@@ -4,26 +4,27 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=23.13.5';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.13.5';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.13.5';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=23.13.5';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=23.14.1';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.14.1';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.14.1';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=23.14.1';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.13.5';
-import { buildPregnancy } from './pregnancy.js?v=23.13.5';
-import { settings } from '../settings.js?v=23.13.5';
-import { namesLikelySame } from '../names.js?v=23.13.5';
-import { parseRelationList } from './relations-graph.js?v=23.13.5';
-import { отложитьРисунок } from './lazy-svg.js?v=23.13.5';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.13.5';
+  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.14.1';
+import { buildPregnancy } from './pregnancy.js?v=23.14.1';
+import { settings } from '../settings.js?v=23.14.1';
+import { namesLikelySame } from '../names.js?v=23.14.1';
+import { видСостоянияТела } from './extras.js?v=23.14.1';
+import { parseRelationList } from './relations-graph.js?v=23.14.1';
+import { отложитьРисунок } from './lazy-svg.js?v=23.14.1';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.14.1';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
-  'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле'];
+  'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле', 'состояние тела'];
 
 // Порядок строк в карточке. Раньше он зависел от того, в каком порядке
 // модель перечислила поля, и «Кинк» мог оказаться где угодно. Ключи, не
 // попавшие в список, дописываются после в исходном порядке.
-const FIELD_ORDER = ['Имя', 'Возраст', 'Одежда', 'Внешность', 'Роль', 'Тело', 'Физиология', 'Здоровье', 'Болезни и травмы', 'Следы на теле', 'Беременность', 'Цикл',
+const FIELD_ORDER = ['Имя', 'Возраст', 'Одежда', 'Внешность', 'Роль', 'Тело', 'Физиология', 'Состояние тела', 'Здоровье', 'Болезни и травмы', 'Следы на теле', 'Беременность', 'Цикл',
   'Место', 'Мысли', 'Ключ', 'Ожидание vs Реальность', 'Скрытый подтекст', 'Инвентарь', 'Цели',
   'Расписание', 'Отношения', 'Доверие', 'Страхи', 'Реплики', 'Общие воспоминания', 'Флаг-монитор', 'Статус', 'Социальное разоблачение',
   'Глубина конфликта', 'Ревность', 'Конфликт', 'Сновидение',
@@ -188,7 +189,7 @@ const ЗНАЧКИ_ПОЛЕЙ = {
   'внешность': '🪞', 'здоровье': '🩺', 'болезни и травмы': '🩹', 'беременность': '🤰',
   'мысли': '💭', 'ожидание vs реальность': '🔮',
   'общие воспоминания': '🎞️', 'флаг-монитор': '🚩',
-  'социальное разоблачение': '👁️', 'физиология': '🩸',
+  'социальное разоблачение': '👁️', 'физиология': '🩸', 'состояние тела': '🔋',
   'скрытый подтекст': '👁️‍🗨️', 'детали': '👁️‍🗨️',
   'отношения': '🤝', 'ревность': '💔', 'конфликт': '⚔️',
   'последний секс': '🛏️', 'количество партнеров': '👥',
@@ -255,7 +256,7 @@ const DRAMA_KEYS = ['ревность', 'конфликт', 'глубина ко
    у них своё оформление. */
 const ВИД_СТРОКИ = {
   'возраст': 'look', 'одежда': 'look', 'внешность': 'look', 'тело': 'look',
-  'физиология': 'vitals', 'здоровье': 'vitals', 'болезни и травмы': 'vitals', 'следы на теле': 'vitals', 'беременность': 'vitals', 'цикл': 'vitals',
+  'физиология': 'vitals', 'состояние тела': 'vitals', 'здоровье': 'vitals', 'болезни и травмы': 'vitals', 'следы на теле': 'vitals', 'беременность': 'vitals', 'цикл': 'vitals',
   'место': 'place',
   'роль': 'standing', 'статус': 'standing',
   'мысли': 'mind', 'скрытый подтекст': 'mind', 'ключ': 'mind', 'ожидание vs реальность': 'mind',
@@ -326,7 +327,7 @@ function значениеПоля(ключ, значение, класс = 'hud-
 const запаснойЦвет = (ключ) => { let h = 0; for (const ch of String(ключ)) h = (h * 31 + ch.charCodeAt(0)) >>> 0; return 'x' + (h % 6 + 1); };
 // Защита и последняя близость для риска зачатия. У игрока этих полей нет —
 // их пишет карточка партнёра: берём у первого персонажа, где они есть.
-function контекстЗачатия(данные, партнёры = [], своёИмя = '') {
+export function контекстЗачатия(данные, партнёры = [], своёИмя = '') {
   const поле = (о, к) => о && о[к] && !/^(empty|none)$/i.test(String(о[к]).trim()) ? String(о[к]) : '';
   let защита = поле(данные, 'Защита'), секс = поле(данные, 'Последний секс');
   // У партнёра берём только общую защиту — презерватив, прерванный акт, её
@@ -340,6 +341,12 @@ function контекстЗачатия(данные, партнёры = [], с�
   for (const п of (Array.isArray(партнёры) ? партнёры : []).filter(свой)) {
     if (!защита && !личная.test(поле(п, 'Защита'))) защита = поле(п, 'Защита');
     if (!секс) секс = поле(п, 'Последний секс');
+  }
+  // «Защита» живёт только в сцене. После неё о защите говорит окончание
+  // последней близости: «в презерватив», «успел вытащить», «кончил внутрь».
+  if (!защита && секс) {
+    const окончание = секс.split(';').map(s => s.trim()).find(s => /^en\s*[:：]/i.test(s));
+    защита = окончание ? окончание.replace(/^en\s*[:：]\s*/i, '') : '';
   }
   return { защита, секс };
 }
@@ -783,7 +790,13 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
   const avaTag = ` data-ava-name="${escapeHtml(charName)}" data-ava-auto="1" data-ava-primary="${isPrimary ? 1 : 0}"`;
   const avatarHtml = avatar ? `<img src="${avatar.url}" data-hud-fallback="${avatar.thumbUrl}" class="hud-avatar" alt="avatar"${avaTag} onerror="if(!this.dataset.hudTried && this.dataset.hudFallback){this.dataset.hudTried='1'; this.src=this.dataset.hudFallback;} else {this.outerHTML='<div class=&quot;hud-avatar-placeholder&quot;>👤</div>';}">` : `<div class="hud-avatar-placeholder"${avaTag}>👤</div>`;
 
-  let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-header"><div class="hud-header-info">${avatarHtml}<div class="hud-header-text"><span class="hud-title">${escapeHtml(charName)}</span></div></div></div><div class="hud-body">`;
+  // Шапка: буква имени для стиля «Призрачная буква» (видна только в нём) и
+  // баннер из аватарки, когда в кастомизации выбрана шапка-баннер.
+  const буква = escapeHtml((String(charName).trim().match(/\p{L}/u) || ['?'])[0].toUpperCase());
+  const баннер = settings.headerStyle === 'banner'
+    ? `<div class="hud-banner"${avatar ? ` style="background-image:url('${String(avatar.url).replace(/'/g, '%27')}')"` : ''} aria-hidden="true"><span class="hud-banner-name">${escapeHtml(charName)}</span><span class="hud-banner-vert">${escapeHtml(String(charName).toUpperCase())}</span></div>`
+    : '';
+  let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-header${баннер ? ' has-banner' : ''}">${баннер}<i class="hud-ghost-letter" aria-hidden="true">${буква}</i><div class="hud-header-info">${avatarHtml}<div class="hud-header-text"><span class="hud-title">${escapeHtml(charName)}</span></div></div></div><div class="hud-body">`;
   html += плашкиСостояния(charData, charName);
 
   // Фаза, поза, раунд и длительность рисуются одной полосой — один раз.
@@ -843,8 +856,17 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
 
     let valueClass = TRUNCATE_KEYS.some(k => lowerKey.includes(k)) ? 'hud-value hud-truncate' : 'hud-value';
 
-    if (lowerKey === 'доверие') {
-      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${видДоверия(value, видБлока('trustView')) || `<div class="hud-bodymap hud-trustmap">${buildTrustMap(value)}</div>`}</div>`;
+    // Сдвиги доверия за ход — мелкой строкой, видны при наведении или нажатии.
+    const сдвиги = lowerKey === 'доверие' ? charData.__сдвигиДоверия : null;
+    const строкаСдвигов = сдвиги ? `<div class="hud-trust-meta">${Object.entries(сдвиги).map(([кто, с]) => `<span class="${с.d > 0 ? 'up' : с.d < 0 ? 'down' : ''}"><b>${escapeHtml(кто)}</b> ${с.d ? (с.d > 0 ? '▲ +' : '▼ ') + с.d + ' за ход' : с.назад > 0 ? 'без изменений ' + с.назад + ' ' + (с.назад % 10 === 1 && с.назад % 100 !== 11 ? 'ход' : [2, 3, 4].includes(с.назад % 10) && ![12, 13, 14].includes(с.назад % 100) ? 'хода' : 'ходов') : 'без изменений'}</span>`).join('')}</div>` : '';
+    const состояние = lowerKey === 'состояние тела' ? видСостоянияТела(value, видБлока('bodyStateView')) : '';
+    if (состояние) {
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${состояние}</div>`;
+    } else if (lowerKey === 'скрытый подтекст' && settings.subtextVeil !== false) {
+      // Подтекст спрятан под «водой»: открывается нажатием (events.js, .hud-veil).
+      html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-deep is-closed" role="button" tabindex="0" aria-expanded="false"><i class="hud-deep-caust"></i><i class="hud-deep-b" style="left:10%;top:70%;width:10px;height:10px"></i><i class="hud-deep-b" style="left:84%;top:30%;width:8px;height:8px"></i><i class="hud-deep-b" style="left:60%;top:82%;width:6px;height:6px"></i><p>${applyTooltips(value)}</p><span class="hud-veil"><svg viewBox="0 0 34 34" aria-hidden="true"><circle class="r" cx="17" cy="17" r="5"/><circle class="r" cx="17" cy="17" r="10" opacity=".6"/><circle class="r" cx="17" cy="17" r="15" opacity=".3"/></svg><span>Нажми, чтобы заглянуть глубже</span></span></div></div>`;
+    } else if (lowerKey === 'доверие') {
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${видДоверия(value, видБлока('trustView')) || `<div class="hud-bodymap hud-trustmap">${buildTrustMap(value)}</div>`}${строкаСдвигов}</div>`;
     } else if (lowerKey === 'страхи') {
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${видСтрахов(value, видБлока('fearsView')) || `<div class="hud-fears">${buildFears(value)}</div>`}</div>`;
     } else if (lowerKey === 'реплики') {

@@ -321,7 +321,8 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
       try {
         const h = собрать();
         if (/undefined|NaN|\[object Object\]/.test(h)) сбои.push(б.ключ + ':' + вид);
-        if (!['front', 'list'].includes(вид) && !h.includes('hud-v-') && б.ключ !== 'bondView') пустые.push(б.ключ + ':' + вид);
+        const своё = { petView: /hud-tama|hud-pet-head/, bodyStateView: /hud-bs-(?:flasks|chips)/ }[б.ключ];
+        if (!['front', 'list'].includes(вид) && !(своё ? своё.test(h) : h.includes('hud-v-')) && б.ключ !== 'bondView') пустые.push(б.ключ + ':' + вид);
       } catch (e) { сбои.push(б.ключ + ':' + вид + ' ' + e.message); }
     }
     delete St.settings[б.ключ];
@@ -348,7 +349,7 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   проверить('воспоминания и важное сохраняют кнопку «Запомнить»', ['polaroid', 'film', 'beads'].every(в => V.видВоспоминаний(пп, в).includes('hud-remember')) && ['scroll', 'notebook', 'bookmarks'].every(в => V.видВажного(пп, в).includes('hud-remember')));
   const сек = V.видСекретов([{ fact: 'А', level: 'low', status: 'unknown' }, { fact: 'Б', level: 'low', status: 'part' }], 'envelopes');
   проверить('конверты: целая печать без трещин, расколотая — две половинки', (сек.match(/class="crack"/g) || []).length === 0 && сек.includes('is-broken'));
-  проверить('в кастомизации виды идут как в карточке', V.ВИДЫ_БЛОКОВ.map(б => б.ключ).join() === 'inventoryView,trustView,fearsView,memoriesView,exposureView,jealousyView,orgView,vitalsView,bodyMapView,kinkView,routeView,importantView,gunsView,secretsView,bondView');
+  проверить('в кастомизации виды идут как в карточке', V.ВИДЫ_БЛОКОВ.map(б => б.ключ).join() === 'bodyStateView,inventoryView,trustView,fearsView,memoriesView,exposureView,jealousyView,orgView,vitalsView,bodyMapView,kinkView,routeView,importantView,gunsView,secretsView,petView,bondView');
   проверить('новые группы инвентаря: косметика', V.видИнвентаря('помада: в сумке', 'groups').includes('Косметика'));
   const колода = V.видВлечений('Шёпот: мечтает втайне; Шея: обожает', 'tarot');
   проверить('таро: тайное рубашкой вверх, явное открыто', (колода.match(/hud-v-tarot s\d is-hidden/g) || []).length === 1 && (колода.match(/class="hud-v-tarot /g) || []).length === 2, колода.slice(0, 200));
@@ -371,6 +372,29 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   const D = await модуль('render/diary.js');
   const стр = D.buildDiaryHTML([{ author: 'Тристан', time: 'ночь', text: 'Первый абзац.\\nВторой ~~зачёркнуто~~ абзац.' }], 'x', true);
   проверить('дневник: абзацы с красной строки и зачёркивание', стр.includes('hud-diary-indent') && стр.includes('<s>зачёркнуто</s>'));
+  {
+    // «Последний секс»: вне сцены модель пишет коротко (когда и с кем).
+    const Co = await модуль('render/carryover.js');
+    const полная = 'dt: 27.10, 23:10, спальня; pr: Тристан; ak: подробности; en: заснули вместе';
+    const ход = (sxl) => ({ mes: hud({ cs: [{ N: 'Софи', SxL: sxl }] }) });
+    const чат = [ход(полная), ход('dt: 27.10, 23:10, спальня; pr: Тристан')];
+    const было = globalThis.SillyTavern;
+    globalThis.SillyTavern = { getContext: () => ({ chat: чат }) };
+    const эл = { getAttribute: () => '1' };
+    const тот = Co.вернутьЧерты({ characters: [{ 'Имя': 'Софи', 'Последний секс': 'dt: 27.10, 23:10, спальня; pr: Тристан' }] }, эл);
+    проверить('последний секс: короткая запись той же ночи — карточка показывает полную', (тот.characters[0]['Последний секс'] || '').includes('ak: подробности'));
+    const новый = Co.вернутьЧерты({ characters: [{ 'Имя': 'Софи', 'Последний секс': 'dt: 28.10, 08:00, душ; pr: Тристан' }] }, эл);
+    проверить('последний секс: новая дата — показываем новую, не старую полную', новый.characters[0]['Последний секс'] === 'dt: 28.10, 08:00, душ; pr: Тристан');
+    globalThis.SillyTavern = было;
+    // После сцены поля «Защита» нет — риск считаем по окончанию.
+    const Chr = await модуль('render/character.js');
+    const I = await модуль('render/intimacy.js');
+    const защ = (en) => Chr.контекстЗачатия({ 'Последний секс': `dt: 27.10; pr: Тристан; ak: подробности; en: ${en}` }).защита;
+    проверить('риск после сцены: «в презерватив» — презерватив', (I.рискЗачатия(14, 28, 'ovulation', { защита: защ('кончил в презерватив, уснули') }).защита || {}).имя === 'презерватив');
+    проверить('риск после сцены: «успел вытащить» — прерванный акт', (I.рискЗачатия(14, 28, 'ovulation', { защита: защ('успел вытащить, потом душ') }).защита || {}).имя === 'прерванный акт');
+    проверить('риск после сцены: «кончил внутрь» — без защиты', (I.рискЗачатия(14, 28, 'ovulation', { защита: защ('кончил внутрь, без защиты') }).защита || {}).имя === 'без защиты');
+    проверить('поле «Защита» в сцене важнее окончания', Chr.контекстЗачатия({ 'Защита': 'condom', 'Последний секс': 'dt: 27.10; en: кончил внутрь' }).защита === 'condom');
+  }
   const зверь = Sch.normalizeJSONData(P.parseHUDComplex(hud({ pet: [{ n: 'Шини', k: 'Черная рысь-меланист', w: '40 кг', s: 'на груди Софи, рычит на Тристана, голоден' }] }))).companions[0] || {};
   проверить('спутник с кодами не из инструкции (k, w, s) не теряет вид, вес и «сейчас»', зверь.name === 'Шини' && зверь.species === 'Черная рысь-меланист · 40 кг' && зверь.note.startsWith('на груди'), JSON.stringify(зверь));
   const второй = hud({ pet: [{ n: 'Шини', sp: 'Черная рысь-меланист', wt: '40 кг', st: 'сытый, сидит у ног Софи, сканирует Тристана', окрас: 'чёрный' }] });
@@ -381,6 +405,57 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   проверить('в снимке для модели у спутника коды инструкции (nte), а не её «st»', снимок.includes('"nte"') && !снимок.includes('"st":'), снимок.slice(0, 300));
   const пусто = Sch.normalizeJSONData({});
   проверить('пустой HUD не падает', Array.isArray(пусто.characters) && пусто.characters.length === 0);
+}
+
+// ---------------------------------------------------------------------------
+группа('новое оформление: палитры, луна, состояние тела, повороты, спутники');
+{
+  const T = await модуль('themes.js');
+  const все = ['kawaii','academia','vamp','cyberpunk','noir','medieval','fantasy','mafia','web1','cottage','ice','ocean','steampunk','dieselpunk','solarpunk','biopunk','spaceopera','japan','egypt','western','pirate','witch','voodoo','spacehorror'];
+  const СВЕТЛЫЕ = ['kawaii','medieval','web1','cottage','solarpunk','japan','egypt','western','pirate'];
+  const hex = (h) => { const n = parseInt(String(h).slice(1), 16); return (0.299 * ((n >> 16) & 255) + 0.587 * ((n >> 8) & 255) + 0.114 * (n & 255)) / 255; };
+  const палитры = все.flatMap(id => T.палитрыТемы(id).map(p => [id, p]));
+  проверить('палитр 32, у каждой темы хотя бы одна', палитры.length === 32 && все.every(id => T.палитрыТемы(id).length), палитры.length + '');
+  проверить('id палитр внутри темы не повторяются', все.every(id => new Set(T.палитрыТемы(id).map(p => p.id)).size === T.палитрыТемы(id).length));
+  const несовпадение = палитры.filter(([id, p]) => СВЕТЛЫЕ.includes(id) !== (hex(p.vars.cardBgStart) > 0.6)).map(([id, p]) => id + ':' + p.id);
+  проверить('светлые палитры — у светлых тем, тёмные — у тёмных', !несовпадение.length, несовпадение.join(', '));
+  const нечитаемо = палитры.filter(([, p]) => Math.abs(hex(p.vars.textColor) - hex(p.vars.cardBgStart)) < 0.4).map(([id, p]) => id + ':' + p.id);
+  проверить('текст палитры контрастен фону', !нечитаемо.length, нечитаемо.join(', '));
+  const в = T.themeVars('vamp', 'cherry');
+  проверить('палитра выставляет свои цвета и выводит остальные', в.accentColor === '#c9ba82' && в.clockColor === '#f6ecd2' && в.phoneBgStart === '#3a0508' && в.fontMain === T.getTheme('vamp').vars.fontMain);
+  проверить('без палитры — основная тема', T.themeVars('vamp').accentColor === T.getTheme('vamp').vars.accentColor);
+  проверить('ряд палитр: «Основная» и все палитры темы', (T.paletteRowHTML('ocean', 'abyss').match(/data-theme-palette=/g) || []).length === 3 && T.paletteRowHTML('ocean', 'abyss').includes('data-theme-palette="abyss"') && T.paletteRowHTML('nope') === '');
+
+  const E = await модуль('render/extras.js');
+  проверить('17.10.2024 — полнолуние', (E.фазаЛуны('Четверг, 17.10.2024') || {}).имя === 'Полнолуние');
+  проверить('02.10.2024 — новолуние', (E.фазаЛуны('02.10.2024') || {}).имя === 'Новолуние');
+  проверить('дата чужого календаря — без луны', E.фазаЛуны('3-й день Жатвы') === null && E.чипЛуны('3-й день Жатвы') === '');
+  const тело = E.разобратьСостояниеТела('Энергия: 35 — на исходе; Бодрость: 20 — не выспалась; sat: 30 — голодна; Стресс: 80; Сон: 4 ч, легла в 03:20; Дела: отчёт в пятницу');
+  проверить('состояние тела: четыре шкалы, сон и дела', тело.шкалы.map(ш => ш.v).join() === '35,20,30,80' && тело.сон.startsWith('4 ч') && тело.дела.startsWith('отчёт'), JSON.stringify(тело));
+  проверить('состояние тела: батарейки, колбы и строка', ['batteries', 'flasks', 'chips'].every(вид => /hud-bs-(?:bat|flasks|chips)/.test(E.видСостоянияТела('Энергия: 35; Сон: 4 ч', вид))));
+  const пов = E.карточкаПоворота('Название: Звонок в три часа ночи; Что случилось: номер Виктории, тишина; Куда ведёт: она уже в городе; Тон: bad');
+  проверить('поворот сюжета: название, текст, куда ведёт, тон', пов.includes('is-bad') && пов.includes('Звонок в три часа ночи') && пов.includes('Куда может повести: она уже в городе'));
+  проверить('поворота нет — карточки нет', E.карточкаПоворота('empty') === '' && E.карточкаПоворота('') === '');
+  проверить('спутник: вид по названию', E.видСпутника('робот-пылесос') === 'robot' && E.видСпутника('рыжая кошка') === 'cat' && E.видСпутника('ворон-фамильяр') === 'bird');
+  const нужды = E.потребностиСпутника({ levels: 'Сытость: 4; Энергия: 3; Чистота: 5; Настроение: 1' }, false);
+  проверить('тамагочи: потребности из поля lv', нужды.map(н => н.n).join() === '4,3,5,1', JSON.stringify(нужды.map(н => н.n)));
+  проверить('тамагочи у машины: заряд и исправность', E.потребностиСпутника({ condition: 'заряд 40%' }, true).map(н => н.к).join() === 'charge,fix,mood' && E.потребностиСпутника({ condition: 'заряд 40%' }, true)[0].n === 2);
+  проверить('тамагочи и карточка собираются без undefined', !/undefined|NaN/.test(E.тамагочи({ name: 'Корица', species: 'кошка', mood: 'обижена' }, 80) + E.карточкаСпутника({ name: 'Жужа', species: 'робот' }, '🤖', null)));
+  const имп = Sch.normalizeJSONData(P.parseHUDComplex(hud({ pet: [{ n: 'Корица', sp: 'кошка', lv: { sat: 4, joy: 1 } }] }))).companions[0] || {};
+  проверить('поле lv у спутника разбирается и из объекта', имп.levels === 'sat: 4; joy: 1' && !(имп.extra || []).length, JSON.stringify(имп));
+
+  const D = await модуль('render/diary.js');
+  const запись = D.buildDiaryHTML([{ author: 'Л', time: 'ночь', text: '**жирно** *курсив* __важно__ ***всё сразу*** ~~нет~~ 2*3*4', aboutUser: 'тайна' }], 'x', true);
+  проверить('дневник: жирный, курсив, подчёркнутое, жирный курсив, зачёркнутое', запись.includes('<b>жирно</b>') && запись.includes('<i>курсив</i>') && запись.includes('<u>важно</u>') && запись.includes('<b><i>всё сразу</i></b>') && запись.includes('<s>нет</s>') && запись.includes('2*3*4'));
+  проверить('дневник: «О ней» под акварелью', запись.includes('hud-wash is-closed') && запись.includes('нажми, чтобы прочесть'));
+
+  const Co = await модуль('render/carryover.js');
+  const было = globalThis.SillyTavern;
+  const ход = (tr) => ({ mes: hud({ cs: [{ N: 'Лилиан', Tr: tr }] }) });
+  globalThis.SillyTavern = { getContext: () => ({ chat: [ход('Софи: 70; Марк: 40'), ход('Софи: 85; Марк: 40'), { mes: '' }] }) };
+  const сд = Co.сдвигиДоверия({ characters: [{ 'Имя': 'Лилиан', 'Доверие': 'Софи: 90; Марк: 40' }] }, { getAttribute: () => '2' }).characters[0].__сдвигиДоверия || {};
+  globalThis.SillyTavern = было;
+  проверить('сдвиги доверия: +5 за ход, у Марка без изменений', сд['Софи'] && сд['Софи'].d === 5 && сд['Марк'] && сд['Марк'].d === 0, JSON.stringify(сд));
 }
 
 console.log(`\nпроверок: ${всего}, провалов: ${провалы.length}`);

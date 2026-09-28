@@ -34,7 +34,10 @@ const коды = ['SxL', 'SxC', 'SxR', 'SxV', 'SS', 'Pos', 'Rnd', 'Dur', 'Prt', 
 const ключи = (p) => коды.filter(к => new RegExp('"' + к + '":').test(p));
 // SS остаётся заглушкой: «пусто; если близость начинается в этом ответе — фаза». По ней
 // со следующего хода включается полная часть.
-проверить('без сцены: из полей близости только заглушка SS', ключи(без).join() === 'SS' && без.includes(`"SS": "[scene state: 'empty'`), ключи(без).join(' '));
+// «Последний секс» — факт биографии: вне сцены остаётся его нейтральная часть
+// (когда и с кем), иначе после сцены запись устаревала.
+проверить('без сцены: из полей близости заглушка SS и короткий SxL (когда и с кем)', ключи(без).join() === 'SxL,SS' && без.includes(`"SS": "[scene state: 'empty'`) && !/"SxL": "[^"]*ak:/.test(без), ключи(без).join(' '));
+проверить('в сцене SxL описывает текущую встречу уже с фазы 2', /"SxL": "[^"]*from phase 2/.test(с) && с.includes('SxL describes THAT one now'));
 проверить('во время сцены: все поля близости на месте', ключи(с).length === коды.length, коды.filter(к => !ключи(с).includes(к)).join(' '));
 const слова = /\b(sex|sexual|orgasm|arous|penis|vagina|nipple|breast|semen|kink|fetish|hickey|climax|foreplay|aftercare|intimacy|intimate|erection|wetness|moan|thrust)\w*/gi;
 const безЗаглушки = без.replace(/"SS": "[^"]*"/, '').replace(/baby.s sex/g, '');
@@ -59,17 +62,28 @@ const hud = (cs, us) => ({ sc: { T: '10:00' }, cs, us });
 проверить('«соски» и «толчками» вместе — близость', Sn.решитьNSFW(hud([{ N: 'Лейла' }]), ['Он двигался толчками, пальцы сжали её соски.']));
 S.settings.nsfwPrompt = 'never';
 проверить('настройка «никогда» — выключено даже в сцене', !Sn.решитьNSFW(hud([{ N: 'Лилиан', SS: '2 — act' }]), []));
+проверить('настройка «никогда» — в схеме нет и короткого SxL', ключи(globalThis.__prompt({ nsfw: false })).join() === 'SS');
 S.settings.nsfwPrompt = 'auto';
 
 // Снимок прошлого HUD в инструкции тоже без интимных полей.
-const снимок = { sc: { T: '10:00' }, cs: [{ N: 'Лилиан', Th: 'Пора', Kn: 'Связывание', SxL: 'dt: вчера', Prt: 'pill' }], us: { A: '26', UW: 'ar' }, bd: [{ au: 'Лилиан', tx: 'тело' }] };
+const снимок = { sc: { T: '10:00' }, cs: [{ N: 'Лилиан', Th: 'Пора', Kn: 'Связывание', SxL: 'dt: вчера, 21:00, спальня; pr: Марк; ak: подробности; en: в презерватив, уснули вместе', Prt: 'pill' }], us: { A: '26', UW: 'ar' }, bd: [{ au: 'Лилиан', tx: 'тело' }] };
 const строка = Sn.строкаСнимка(снимок, false);
-проверить('снимок без сцены: без Kn, SxL, Prt, UW и дневника тела', !/"(Kn|SxL|Prt|UW|bd)"/.test(строка), строка);
+проверить('снимок без сцены: без Kn, Prt, UW и дневника тела', !/"(Kn|Prt|UW|bd)"/.test(строка), строка);
+проверить('снимок без сцены: SxL — когда, с кем и чем кончилось (защита), без подробностей', строка.includes('"SxL":"dt: вчера, 21:00, спальня; pr: Марк; en: в презерватив, уснули вместе"') && !/ak:/.test(строка), строка);
+проверить('вне сцены окончание просят нейтрально — про защиту и риск', /"SxL": "[^"]*en: how it ended, in calm neutral words[^"]*pregnancy risk/.test(без));
 проверить('снимок в сцене: интимные поля остаются', /"Kn"/.test(Sn.строкаСнимка(снимок, true)));
 
 // Скрытые факты зачатия — независимо от сцены. Вне сцены они не должны говорить о сексе.
 const хвост = без.slice(без.lastIndexOf('[/HUD]'));
 const слова2 = [...new Set((хвост.match(слова) || []).map(x => x.toLowerCase()))];
 проверить('хвост инструкции вне сцены (факты зачатия) без интимных слов', !слова2.length, слова2.join(' ') + ' :: ' + хвост.slice(0, 300));
+// Новые блоки: состояние тела, поворот сюжета, потребности спутника.
+Object.assign(S.settings, { enableBodyState: true, enableTwists: true, enableCompanions: true });
+const новое = globalThis.__prompt({ nsfw: false });
+проверить('состояние тела (Bs) и поворот (Tw) в схеме', /"Bs": "\[body state/.test(новое) && /"Tw": "\[plot twist, ONLY/.test(новое) && /"lv": "\[OPTIONAL needs/.test(новое));
+Object.assign(S.settings, { enableBodyState: false, enableTwists: false });
+const безНового = globalThis.__prompt({ nsfw: false });
+проверить('выключены — полей Bs и Tw нет', !/"Bs":/.test(безНового) && !/"Tw":/.test(безНового));
+Object.assign(S.settings, { enableBodyState: true, enableTwists: true });
 console.log(`\nпроверок: ${проб}, провалов: ${провалов}`);
 if (провалов) process.exitCode = 1;

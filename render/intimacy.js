@@ -13,13 +13,13 @@
 // карточки ненадёжны — у неё content-visibility, и браузер может не
 // двигать их время.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.13.5';
-import { namesLikelySame } from '../names.js?v=23.13.5';
-import { разобратьХод } from './carryover.js?v=23.13.5';
-import { parseSceneDate } from '../history-analyzer.js?v=23.13.5';
-import { исходЗачатия } from './conception.js?v=23.13.5';
-import { settings } from '../settings.js?v=23.13.5';
-import { ощущенияИзТекста, одеждаИзТекста, ОБЛАСТИ } from './body-layers.js?v=23.13.5';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.14.1';
+import { namesLikelySame } from '../names.js?v=23.14.1';
+import { разобратьХод } from './carryover.js?v=23.14.1';
+import { parseSceneDate } from '../history-analyzer.js?v=23.14.1';
+import { исходЗачатия } from './conception.js?v=23.14.1';
+import { settings } from '../settings.js?v=23.14.1';
+import { ощущенияИзТекста, одеждаИзТекста, ОБЛАСТИ } from './body-layers.js?v=23.14.1';
 
 const пусто = (v) => { const s = String(v ?? '').trim(); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
 const число = (s) => { const m = String(s ?? '').replace(/(\d),(\d)/g, '$1.$2').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };
@@ -769,7 +769,7 @@ const ЗАЩИТА_ЗАЧАТИЯ = [
   [/таблет|противозачат|(?<![а-яё])ок(?![а-яё])|гормональ|pill/i, .08, 'таблетки'],
   [/экстренн|постинор|plan b|morning.after/i, .2, 'экстренная контрацепция'],
   [/презерватив|кондом|condom/i, .15, 'презерватив'],
-  [/прерван|вынул|вытащил|кончил (?:на|снаружи)|withdraw|pull.out/i, .25, 'прерванный акт'],
+  [/прерван|вынул|вытащ|успел выйти|кончил (?:на|снаружи)|withdraw|pull(?:ed)?.out/i, .25, 'прерванный акт'],
   [/спермицид|свеч/i, .3, 'спермицид'],
 ];
 function защитаИз(текст) {

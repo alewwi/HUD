@@ -6,7 +6,8 @@
 // index.js импортирует отсюда только buildDiaryHTML и hudHasMeaningfulDiary —
 // остальное экспортируется для тестов и внутренних нужд домена.
 
-import { escapeHtml, hudHasMeaningfulValue, hudHashSeed } from '../utils.js?v=23.13.5';
+import { escapeHtml, hudHasMeaningfulValue, hudHashSeed } from '../utils.js?v=23.14.1';
+import { settings } from '../settings.js?v=23.14.1';
 
 // Дневник: словарь эмоциональных синонимов. Раньше всё сводилось к
 // четырём темам (sad / angry / panic / neutral) — «скука», «презрение»,
@@ -145,9 +146,20 @@ function normalizeDiaryMood(value) {
 // Запись — как в настоящем дневнике: абзацы с красной строки (перенос
 // строки в тексте, в том числе написанный моделью буквально «\n»),
 // зачёркнутое — ~~так~~.
+// Разметка записи: ***жирный курсив***, **жирный**, *курсив*, __подчёркнутое__,
+// ~~зачёркнутое~~. Текст уже экранирован — звёздочки и подчёркивания в нём свои.
+function разметкаДневника(s) {
+  return s
+    .replace(/\*\*\*(\S(?:.*?\S)?)\*\*\*/g, '<b><i>$1</i></b>')
+    .replace(/\*\*(\S(?:.*?\S)?)\*\*/g, '<b>$1</b>')
+    .replace(/__(\S(?:.*?\S)?)__/g, '<u>$1</u>')
+    .replace(/(^|[^*\p{L}\d])\*(\S(?:[^*]*?\S)?)\*(?![\p{L}\d*])/gu, '$1<i>$2</i>')
+    .replace(/~~(.*?)~~/g, '<s>$1</s>');
+}
+
 function renderDiaryText(value) {
   return String(value ?? '').replace(/\\n/g, '\n').split(/\n+/).map(s => s.trim()).filter(Boolean)
-    .map(абзац => escapeHtml(абзац).replace(/~~(.*?)~~/g, '<s>$1</s>'))
+    .map(абзац => разметкаДневника(escapeHtml(абзац)))
     .join('<br><span class="hud-diary-indent" aria-hidden="true"></span>');
 }
 
@@ -218,7 +230,9 @@ export function buildDiaryHTML(diaryData, uid, isChecked) {
       const time = entry && entry.time ? entry.time : 'Скрытая запись';
       const aboutUser = entry && entry.aboutUser && entry.aboutUser.toLowerCase() !== 'none' && entry.aboutUser.toLowerCase() !== 'empty' ? entry.aboutUser : '';
       const text = entry && entry.text ? entry.text : '';
-      html += `<div class="hud-diary-entry hud-diary-mood-${moodKey}">${paper}${sticker}${stains}<span class="hud-diary-damage" aria-hidden="true"></span>${author ? `<div class="hud-diary-author">${escapeHtml(author)}</div>` : ''}<div class="hud-diary-time">${escapeHtml(time)}</div><div class="hud-diary-text">${renderDiaryText(text)}</div>${aboutUser ? `<div class="hud-diary-about-user"><span class="hud-diary-about-label">О ней:</span> ${renderDiaryText(aboutUser)}</div>` : ''}</div>`;
+      html += `<div class="hud-diary-entry hud-diary-mood-${moodKey}">${paper}${sticker}${stains}<span class="hud-diary-damage" aria-hidden="true"></span>${author ? `<div class="hud-diary-author">${escapeHtml(author)}</div>` : ''}<div class="hud-diary-time">${escapeHtml(time)}</div><div class="hud-diary-text">${renderDiaryText(text)}</div>${aboutUser ? (settings.diaryVeil === false
+        ? `<div class="hud-diary-about-user"><span class="hud-diary-about-label">О ней:</span> ${renderDiaryText(aboutUser)}</div>`
+        : `<div class="hud-diary-about-user hud-wash is-closed" role="button" tabindex="0" aria-expanded="false"><span class="hud-diary-about-label">О ней:</span> <span class="hud-wash-text">${renderDiaryText(aboutUser)}</span><span class="hud-veil"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 3.5s6 6.4 6 10.5a6 6 0 0 1-12 0c0-4.1 6-10.5 6-10.5Z"/></svg>нажми, чтобы прочесть</span></span></div>`) : ''}</div>`;
     }
   });
   return html + `</div></div>`;

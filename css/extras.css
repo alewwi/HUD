@@ -1,0 +1,472 @@
+/* =========================================================================
+   НОВОЕ ОФОРМЛЕНИЕ: палитры тем, стили секций, шапка, луна, титры,
+   «глубина», состояние тела, поворот сюжета, спутники.
+
+   Светлые темы перечислены явно — так же, как в views.css: цвет «бумаги»,
+   чернил и теней у них свой, а переменная --hud-text наследуется из
+   SillyTavern и светлоту темы не выдаёт.
+   ========================================================================= */
+
+/* --- Палитры тем в кастомизации -------------------------------------------- */
+.hud-theme-palettes-row:empty { display: none; }
+.hud-theme-palettes-row { margin-top: 10px; }
+.hud-theme-palettes-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.hud-theme-palette {
+  display: flex; flex-direction: column; align-items: center; gap: 4px; min-width: 64px; padding: 6px 8px; cursor: pointer;
+  background: rgba(0,0,0,.22); color: var(--hud-text); border: 1px solid var(--hud-border); border-radius: 9px;
+  transition: border-color .18s ease, background .18s ease, transform .18s ease;
+}
+.hud-theme-palette:hover { background: rgba(255,255,255,.08); transform: translateY(-1px); }
+.hud-theme-palette.active { border-color: var(--hud-accent); box-shadow: 0 0 0 1px var(--hud-accent) inset; background: rgba(255,255,255,.1); }
+.hud-palette-sw { display: flex; gap: 2px; }
+.hud-palette-sw i { width: 11px; height: 14px; border-radius: 3px; border: 1px solid rgba(255,255,255,.28); }
+.hud-theme-palette small { font-size: 9.5px; opacity: .85; white-space: nowrap; }
+
+/* --- Галочки настроек под тему ---------------------------------------------- */
+:root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice, .hud-theme-ocean) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"] {
+  appearance: none !important; -webkit-appearance: none !important; width: 16px !important; height: 16px !important; margin: 0 4px 0 0 !important;
+  display: inline-grid !important; place-items: center; background: transparent !important; border: none !important; box-shadow: none !important; cursor: pointer; flex: none;
+}
+:root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice, .hud-theme-ocean) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]::before {
+  content: '' !important; display: block !important; box-shadow: none !important; transform: none !important; clip-path: none !important;
+}
+:root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]::before { content: '☆' !important; font-size: 15px; line-height: 1; color: #c9ba82; background: none !important; width: auto; height: auto; }
+:root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { content: '★' !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
+:root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]::before { content: '◎' !important; font-size: 16px; line-height: 1; color: #6b8a4e; background: none !important; width: auto; height: auto; }
+:root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { content: '◉' !important; }
+:root.hud-theme-ice :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]::before { width: 9px; height: 9px; border: 1.5px solid #bcd6ee; transform: rotate(45deg) !important; background: none !important; transition: all .2s ease; }
+:root.hud-theme-ice :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { width: 12px; height: 12px; border: none; border-radius: 50%; transform: none !important; background: radial-gradient(circle, #e6f4ff, #6fa8d8) !important; box-shadow: 0 0 8px #9fd0ff !important; }
+:root.hud-theme-ocean :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"] { border: 1px solid #94b4c1 !important; border-radius: 2px !important; width: 14px !important; height: 14px !important; }
+:root.hud-theme-ocean :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked { background: #0f1b27 !important; border-color: #0f1b27 !important; }
+:root.hud-theme-ocean :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { width: 10px; height: 10px; background: #eae0cf !important; clip-path: polygon(50% 0, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0 50%, 35% 35%) !important; }
+
+/* =========================================================================
+   СТИЛИ СЕКЦИЙ (Кастомизация → Вид блоков → Стиль секций)
+   ========================================================================= */
+:root:is(.hud-skin-moonglass, .hud-skin-news, .hud-skin-win95, .hud-skin-mac, .hud-skin-bujo, .hud-skin-glass, .hud-skin-evidence) .hud-os-card .hud-body > .hud-row::after,
+:root:is(:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate).hud-skin-stickers) .hud-os-card .hud-body > .hud-row::after,
+:root:is(.hud-skin-news, .hud-skin-win95, .hud-skin-mac, .hud-skin-bujo, .hud-skin-glass) .hud-os-card .hud-body > .hud-row::before,
+:root:is(:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate).hud-skin-stickers) .hud-os-card .hud-body > .hud-row::before { display: none !important; }
+
+/* --- «Стикеры»: только светлые темы ---------------------------------------- */
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate).hud-skin-stickers .hud-os-card {
+  --st-base: #ffffff; --st-b: color-mix(in srgb, var(--hud-text, #4a2338) 80%, var(--hud-accent)); }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate).hud-skin-stickers .hud-os-card .hud-body > .hud-row {
+  border: 2px solid var(--st-b) !important; border-radius: 12px !important; box-shadow: 4px 4px 0 var(--st-b) !important; background: color-mix(in srgb, var(--hud-accent) 9%, var(--st-base)) !important; margin: 0 4px 4px 0; }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate).hud-skin-stickers .hud-os-card .hud-body > .hud-row > .hud-key {
+  display: inline-block; padding: 3px 10px !important; margin: 0 0 8px; border: 2px solid var(--st-b); border-radius: 8px 8px 8px 0; background: color-mix(in srgb, var(--hud-accent) 32%, var(--st-base)); box-shadow: 2px 2px 0 var(--st-b); text-shadow: none !important; }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate).hud-skin-stickers .hud-os-card .hud-body > .hud-row :is(.hud-detail-pill, .hud-v-card, .hud-v-chip) {
+  border: 1.5px dashed var(--st-b) !important; box-shadow: 2px 2px 0 var(--st-b) !important; border-radius: 8px !important; background: color-mix(in srgb, var(--hud-accent) 5%, var(--st-base)) !important; }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate).hud-skin-stickers .hud-os-card .hud-header { border-bottom: 2px dashed var(--st-b) !important; }
+
+/* --- «Лунное стекло» ------------------------------------------------------- */
+:root.hud-skin-moonglass .hud-os-card .hud-body > .hud-row {
+  position: relative; overflow: visible; border-radius: 0 !important; background: linear-gradient(145deg, rgba(88,120,168,.20), rgba(61,82,122,.16)) !important; border: 1px solid rgba(224,235,255,.40) !important;
+  outline: 1px solid rgba(224,235,255,.18); outline-offset: 4px; margin: 6px 5px 12px !important; box-shadow: 0 8px 26px rgba(0,0,0,.35), inset 0 0 30px rgba(224,235,255,.06), inset 0 1px 0 rgba(255,255,255,.2) !important; }
+:root.hud-skin-moonglass .hud-os-card .hud-body > .hud-row::before {
+  content: '☽' !important; display: block !important; position: absolute; left: 20px; right: 20px; top: -13px; height: 12px; line-height: 12px; text-align: center; font-size: 11px;
+  color: rgba(224,235,255,.75); pointer-events: none; opacity: 1 !important; z-index: 1; background: none !important; border: none !important; }
+:root.hud-skin-moonglass .hud-os-card .hud-body > .hud-row:first-child::before { display: none !important; }
+:root.hud-skin-moonglass .hud-os-card .hud-body > .hud-row::after {
+  content: '°˖ ⋆ ☾' !important; display: block !important; position: absolute; top: 5px; right: 12px; left: auto; bottom: auto; width: auto; height: auto; font-size: 11px; letter-spacing: 3px;
+  color: rgba(224,235,255,.6); text-shadow: 0 0 8px rgba(224,235,255,.6); pointer-events: none; background: none !important; opacity: 1 !important; transform: none !important; }
+:root.hud-skin-moonglass .hud-os-card .hud-title { letter-spacing: 4px !important; padding: 3px 12px; border-top: 1px solid rgba(224,235,255,.35); border-bottom: 1px solid rgba(224,235,255,.35); width: fit-content; }
+:root.hud-skin-moonglass:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-os-card .hud-body > .hud-row {
+  background: linear-gradient(145deg, rgba(255,255,255,.7), rgba(210,222,245,.55)) !important; border-color: rgba(70,90,140,.35) !important; outline-color: rgba(70,90,140,.2); }
+:root.hud-skin-moonglass:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-os-card .hud-body > .hud-row::before, :root.hud-skin-moonglass:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-os-card .hud-body > .hud-row::after { color: rgba(60,80,130,.65) !important; }
+
+/* --- «Призрачная буква» ---------------------------------------------------- */
+.hud-ghost-letter { display: none; }
+:root.hud-skin-ghost .hud-os-card .hud-header { position: relative; overflow: hidden; }
+:root.hud-skin-ghost .hud-os-card .hud-ghost-letter {
+  display: block; position: absolute; right: 4%; top: 50%; transform: translateY(-50%); pointer-events: none; z-index: 0;
+  font: italic 700 120px/1 Georgia, 'Times New Roman', serif; color: var(--hud-accent); opacity: .18; }
+:root.hud-skin-ghost .hud-os-card .hud-header-info { position: relative; z-index: 1; }
+:root.hud-skin-ghost .hud-os-card .hud-header-text::after { content: var(--hud-dateline, ''); display: block; margin-top: 3px; font-size: .7em; letter-spacing: 3px; opacity: .75; }
+:root.hud-skin-ghost .hud-os-card .hud-body > .hud-row > .hud-key::before { content: '✦ '; display: inline-block; margin-right: 2px; color: var(--hud-accent); }
+@keyframes hud-ghost-flip { to { transform: perspective(400px) rotateY(360deg); } }
+:root.hud-skin-ghost .hud-os-card .hud-body > .hud-row:hover > .hud-key::before { animation: hud-ghost-flip 2.4s linear infinite; }
+
+/* --- «Газета» -------------------------------------------------------------- */
+:root.hud-skin-news .hud-os-card { --n-paper: color-mix(in srgb, var(--hud-accent) 5%, #26221e); --n-ink: #ece3d2; --n-rule: rgba(236,227,210,.7); --n-edge: rgba(0,0,0,.45); }
+:root.hud-skin-news:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-os-card { --n-paper: #efe9da; --n-ink: #3a332d; --n-rule: #5a524c; --n-edge: rgba(170,145,100,.55); }
+:root.hud-skin-news .hud-os-card .hud-body > .hud-row {
+  position: relative; isolation: isolate; overflow: visible; background: none !important; border: none !important; box-shadow: none !important; border-radius: 0 !important; padding: 12px 16px 14px !important; color: var(--n-ink); }
+:root.hud-skin-news .hud-os-card .hud-body > .hud-row::before {
+  content: '' !important; display: block !important; position: absolute; inset: 0; z-index: -1; background: var(--n-paper) !important; border: 1px solid color-mix(in srgb, var(--n-ink) 22%, transparent);
+  box-shadow: inset 0 0 36px var(--n-edge); filter: url(#hud-torn); opacity: 1 !important; transform: none !important; }
+:root.hud-skin-news .hud-os-card .hud-body > .hud-row > .hud-key {
+  display: block; align-self: stretch; text-align: center; font-family: Georgia, 'Times New Roman', serif !important; font-variant: small-caps; text-transform: none; letter-spacing: .12em;
+  font-size: 1em !important; color: var(--n-ink) !important; border-bottom: 3px double var(--n-rule); padding-bottom: 3px; margin-bottom: 8px; text-shadow: none !important; }
+:root.hud-skin-news .hud-os-card .hud-body > .hud-row :is(.hud-value, p, li) { font-family: Georgia, 'Times New Roman', serif; color: var(--n-ink); text-shadow: none !important; }
+:root.hud-skin-news .hud-os-card .hud-body > .hud-row :is(.hud-detail-pill, .hud-v-card, .hud-v-chip) { border-radius: 0 !important; border: 1px solid color-mix(in srgb, var(--n-ink) 30%, transparent) !important; box-shadow: none !important; }
+:root.hud-skin-news .hud-os-card .hud-title { font-family: Georgia, 'Times New Roman', serif !important; font-size: 1.6em; letter-spacing: .03em; }
+:root.hud-skin-news .hud-os-card .hud-header-text::after {
+  content: var(--hud-dateline, ''); display: block; margin-top: 4px; padding: 2px 0; border-top: 1px solid currentColor; border-bottom: 1px solid currentColor;
+  font: small-caps 11px Georgia, serif; letter-spacing: .12em; opacity: .7; }
+:root.hud-skin-news .hud-os-card .hud-body > .hud-row.kind-mind > .hud-value::first-letter { font-size: 2.3em; float: left; line-height: .9; margin: 2px 6px 0 0; font-weight: 700; }
+
+/* --- «Окна 95» ------------------------------------------------------------- */
+:root.hud-skin-win95 .hud-os-card {
+  --w-face: color-mix(in srgb, var(--hud-accent) 12%, #17171f); --w-hi: color-mix(in srgb, var(--hud-accent) 65%, #fff); --w-lo: #000; --w-t1: color-mix(in srgb, var(--hud-accent) 55%, #000);
+  --w-t2: var(--hud-accent); --w-field: #0c0c12; --w-ink: var(--hud-text, #e8e8f0); --w-tink: #fff;
+  --w-btns: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 14'%3E%3Cg fill='%232a2a36' stroke='%23000'%3E%3Crect x='.5' y='.5' width='15' height='13'/%3E%3Crect x='18.5' y='.5' width='15' height='13'/%3E%3Crect x='36.5' y='.5' width='15' height='13'/%3E%3C/g%3E%3Cg stroke='%23777' fill='none'%3E%3Cpath d='M1.5 12.5v-11h13M19.5 12.5v-11h13M37.5 12.5v-11h13'/%3E%3C/g%3E%3Cg stroke='%23ddd' stroke-width='1.6' fill='none'%3E%3Cpath d='M4 10.5h7'/%3E%3Crect x='22' y='3.5' width='8' height='7'/%3E%3Cpath d='M40.5 3.5l7 7M47.5 3.5l-7 7'/%3E%3C/g%3E%3C/svg%3E"); }
+:root.hud-skin-win95:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-os-card {
+  --w-face: #c0c0c0; --w-hi: #fff; --w-lo: #404040; --w-t1: #000080; --w-t2: #1084d0; --w-field: #fff; --w-ink: #111; --w-tink: #fff;
+  --w-btns: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 14'%3E%3Cg fill='%23c0c0c0' stroke='%23404040'%3E%3Crect x='.5' y='.5' width='15' height='13'/%3E%3Crect x='18.5' y='.5' width='15' height='13'/%3E%3Crect x='36.5' y='.5' width='15' height='13'/%3E%3C/g%3E%3Cg stroke='%23fff' fill='none'%3E%3Cpath d='M1.5 12.5v-11h13M19.5 12.5v-11h13M37.5 12.5v-11h13'/%3E%3C/g%3E%3Cg stroke='%23000' stroke-width='1.6' fill='none'%3E%3Cpath d='M4 10.5h7'/%3E%3Crect x='22' y='3.5' width='8' height='7'/%3E%3Cpath d='M40.5 3.5l7 7M47.5 3.5l-7 7'/%3E%3C/g%3E%3C/svg%3E"); }
+:root.hud-skin-win95 .hud-os-card .hud-body > .hud-row {
+  background: var(--w-face) !important; border: 2px solid !important; border-color: var(--w-hi) var(--w-lo) var(--w-lo) var(--w-hi) !important; border-radius: 0 !important;
+  box-shadow: 1px 1px 0 #000 !important; padding: 2px 8px 10px !important; color: var(--w-ink); }
+:root.hud-skin-win95 .hud-os-card .hud-body > .hud-row > .hud-key {
+  display: flex !important; align-items: center; gap: 6px; align-self: stretch; margin: 0 -6px 8px !important; padding: 3px 60px 3px 7px !important; position: relative;
+  background: linear-gradient(90deg, var(--w-t1), var(--w-t2)) !important; color: var(--w-tink) !important; font: bold 12px Tahoma, 'MS Sans Serif', Verdana, sans-serif !important;
+  text-transform: none !important; letter-spacing: 0 !important; border-radius: 0 !important; text-shadow: none !important; }
+:root.hud-skin-win95 .hud-os-card .hud-body > .hud-row > .hud-key::after {
+  content: '' !important; position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 52px; height: 14px; background: var(--w-btns) no-repeat !important; display: block !important; opacity: 1 !important; }
+:root.hud-skin-win95 .hud-os-card .hud-body > .hud-row :is(.hud-detail-pill, .hud-v-card, .hud-v-chip) {
+  background: var(--w-field) !important; border: 2px solid !important; border-color: var(--w-lo) var(--w-hi) var(--w-hi) var(--w-lo) !important; border-radius: 0 !important; box-shadow: none !important; }
+:root.hud-skin-win95 .hud-os-card .hud-body > .hud-row :is(.hud-value, p) { font-family: Tahoma, Verdana, sans-serif; text-shadow: none !important; }
+:root.hud-skin-win95 .hud-os-card .hud-header { background: var(--w-face); border: 2px solid; border-color: var(--w-hi) var(--w-lo) var(--w-lo) var(--w-hi); padding: 6px 8px 0; margin-bottom: 10px; }
+
+/* --- «Ретро-Мак» ----------------------------------------------------------- */
+:root.hud-skin-mac .hud-os-card { --m-line: var(--hud-accent); --m-bg: color-mix(in srgb, var(--hud-accent) 6%, #121214); }
+:root.hud-skin-mac:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-os-card {
+  --m-line: color-mix(in srgb, var(--hud-text, #333) 75%, var(--hud-accent)); --m-bg: #fbfaf7; }
+:root.hud-skin-mac .hud-os-card .hud-body > .hud-row {
+  background: var(--m-bg) !important; border: 1.5px solid var(--m-line) !important; border-radius: 0 !important; box-shadow: 4px 4px 0 var(--m-line) !important;
+  padding: 0 12px 12px !important; margin: 0 4px 6px 0; }
+:root.hud-skin-mac .hud-os-card .hud-body > .hud-row :is(.hud-key, .hud-value, p, li) { font-family: 'Courier New', Consolas, monospace !important; text-shadow: none !important; }
+:root.hud-skin-mac .hud-os-card .hud-body > .hud-row > .hud-key {
+  display: flex !important; align-items: center; gap: 8px; align-self: stretch; margin: 0 -12px 10px !important; padding: 4px 8px !important; border-bottom: 1.5px solid var(--m-line); border-radius: 0 !important;
+  background: none !important; color: var(--m-line) !important; letter-spacing: .06em; }
+:root.hud-skin-mac .hud-os-card .hud-body > .hud-row > .hud-key::before,
+:root.hud-skin-mac .hud-os-card .hud-body > .hud-row > .hud-key::after {
+  content: '' !important; display: block !important; flex: 1 1 12px; min-width: 12px; height: 11px; position: static !important; opacity: 1 !important; transform: none !important;
+  background: repeating-linear-gradient(180deg, var(--m-line) 0 1px, transparent 1px 3px) !important; }
+:root.hud-skin-mac .hud-os-card .hud-body > .hud-row > .hud-key::before {
+  flex: 0 0 34px; background: linear-gradient(var(--m-bg), var(--m-bg)) 9px 1px / 11px 9px no-repeat, linear-gradient(var(--m-line), var(--m-line)) 7px 0 / 15px 11px no-repeat,
+    linear-gradient(var(--m-bg), var(--m-bg)) 5px 0 / 19px 11px no-repeat, repeating-linear-gradient(180deg, var(--m-line) 0 1px, transparent 1px 3px) !important; }
+:root.hud-skin-mac .hud-os-card .hud-body > .hud-row :is(.hud-detail-pill, .hud-v-card, .hud-v-chip) {
+  border-radius: 0 !important; border: 1px solid color-mix(in srgb, var(--m-line) 60%, transparent) !important; box-shadow: 2px 2px 0 color-mix(in srgb, var(--m-line) 60%, transparent) !important; }
+
+/* --- «Бортовой журнал» ----------------------------------------------------- */
+:root.hud-skin-bujo .hud-os-card { --j-ink: #eae0cf; --j-tape: color-mix(in srgb, var(--hud-accent) 70%, #fff); --j-tape-ink: #13202e; --j-dot: color-mix(in srgb, var(--hud-accent) 30%, transparent); --j-bg: rgba(0,0,0,.18); }
+:root.hud-skin-bujo:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-os-card {
+  --j-ink: var(--hud-text, #3a332d); --j-tape: color-mix(in srgb, var(--hud-accent) 38%, #fff); --j-dot: color-mix(in srgb, var(--hud-text, #555) 22%, transparent); --j-bg: rgba(255,255,255,.35); }
+:root.hud-skin-bujo .hud-os-card .hud-body > .hud-row {
+  background: radial-gradient(circle, var(--j-dot) 1px, transparent 1.4px) 0 0 / 14px 14px, var(--j-bg) !important; border: 1.5px dashed color-mix(in srgb, var(--j-tape) 60%, transparent) !important;
+  border-radius: 3px !important; box-shadow: 4px 4px 0 rgba(0,0,0,.22) !important; padding: 8px 14px 14px !important; }
+:root.hud-skin-bujo .hud-os-card .hud-body > .hud-row > .hud-key {
+  display: inline-block; padding: 3px 18px !important; margin: 0 0 10px -4px; transform: rotate(-1.8deg); background: var(--j-tape) !important; color: var(--j-tape-ink) !important;
+  font-style: italic; font-weight: 700; font-family: 'Segoe Print', 'Comic Sans MS', cursive !important; border-radius: 0 !important; box-shadow: 0 2px 4px rgba(0,0,0,.3); text-shadow: none !important;
+  clip-path: polygon(0 8%, 4% 0, 8% 10%, 12% 0, 88% 0, 92% 10%, 96% 0, 100% 8%, 98% 50%, 100% 92%, 96% 100%, 92% 90%, 88% 100%, 12% 100%, 8% 90%, 4% 100%, 0 92%, 2% 50%); }
+:root.hud-skin-bujo .hud-os-card .hud-body > .hud-row:nth-child(even) > .hud-key { transform: rotate(1.4deg); }
+:root.hud-skin-bujo .hud-os-card .hud-body > .hud-row :is(.hud-detail-pill, .hud-v-card, .hud-v-chip) { border-radius: 2px !important; border: 1px dashed color-mix(in srgb, var(--j-tape) 45%, transparent) !important; box-shadow: 2px 2px 0 rgba(0,0,0,.2) !important; }
+:root.hud-skin-bujo .hud-os-card .hud-header :is(.hud-avatar, .hud-avatar-placeholder) { border-radius: 0 !important; transform: rotate(-6deg); outline: 1.5px dashed var(--j-ink); outline-offset: 4px; margin: 6px 8px 6px 4px; }
+:root.hud-skin-bujo .hud-os-card .hud-header-text::after { content: var(--hud-dateline, ''); display: block; margin-top: 3px; font: italic 11px 'Courier New', monospace; opacity: .75; }
+
+/* --- «Стекло» -------------------------------------------------------------- */
+:root.hud-skin-glass .hud-os-card .hud-body > .hud-row {
+  background: linear-gradient(135deg, rgba(255,255,255,.10), color-mix(in srgb, var(--hud-accent) 10%, rgba(255,255,255,.03))) !important; border: 1px solid color-mix(in srgb, var(--hud-accent) 40%, rgba(255,255,255,.4)) !important;
+  outline: 1px solid rgba(255,255,255,.28); outline-offset: 2px; border-radius: 14px !important; margin: 3px 3px 8px;
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--hud-accent) 22%, transparent), inset 0 1px 1px rgba(255,255,255,.35) !important; }
+:root.hud-skin-glass:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-os-card .hud-body > .hud-row {
+  background: linear-gradient(135deg, rgba(255,255,255,.78), color-mix(in srgb, var(--hud-accent) 14%, rgba(255,255,255,.45))) !important; outline-color: rgba(255,255,255,.9);
+  box-shadow: 0 6px 16px color-mix(in srgb, var(--hud-accent) 30%, transparent), inset 0 2px 3px #fff !important; }
+:root.hud-skin-glass .hud-os-card .hud-body > .hud-row > .hud-key {
+  display: inline-block; padding: 3px 12px !important; margin-bottom: 8px; border-radius: 99px !important; border: 1px solid color-mix(in srgb, var(--hud-accent) 40%, rgba(255,255,255,.5));
+  background: linear-gradient(180deg, rgba(255,255,255,.22), color-mix(in srgb, var(--hud-accent) 18%, transparent)) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.4); }
+:root.hud-skin-glass .hud-os-card .hud-body > .hud-row :is(.hud-detail-pill, .hud-v-card, .hud-v-chip) { border-radius: 10px !important; border: 1px solid rgba(255,255,255,.4) !important; box-shadow: inset 0 1px 1px rgba(255,255,255,.3) !important; }
+
+/* --- «Улики» --------------------------------------------------------------- */
+:root.hud-skin-evidence .hud-os-card .hud-body { counter-reset: hud-ev; }
+:root.hud-skin-evidence .hud-os-card .hud-body > .hud-row {
+  counter-increment: hud-ev; background: radial-gradient(circle, rgba(139,0,0,.18) 1px, transparent 1.5px) 0 0 / 18px 18px, rgba(10,4,4,.5) !important;
+  border: 3px double color-mix(in srgb, var(--hud-accent) 70%, #300) !important; border-radius: 4px !important; box-shadow: 0 4px 14px rgba(0,0,0,.5) !important; }
+:root.hud-skin-evidence:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-os-card .hud-body > .hud-row {
+  background: radial-gradient(circle, rgba(139,0,0,.12) 1px, transparent 1.5px) 0 0 / 18px 18px, rgba(255,255,255,.5) !important; box-shadow: 0 3px 10px rgba(0,0,0,.12) !important; }
+:root.hud-skin-evidence .hud-os-card .hud-body > .hud-row > .hud-key::before {
+  content: counter(hud-ev) !important; display: inline-grid !important; place-items: end center; width: 22px; height: 20px; margin-right: 8px; padding-bottom: 1px; vertical-align: -3px;
+  background: #e8c547 !important; color: #111 !important; font: 900 12px Arial, sans-serif !important; clip-path: polygon(22% 0, 78% 0, 100% 100%, 0 100%); position: static !important; opacity: 1 !important; }
+:root.hud-skin-evidence .hud-os-card .hud-header { position: relative; }
+:root.hud-skin-evidence .hud-os-card .hud-header::after {
+  content: 'ДЕЛО · СЕКРЕТНО' !important; position: absolute; right: 14px; top: 8px; left: auto; bottom: auto; width: auto; height: auto; transform: rotate(-8deg); padding: 3px 10px; border: 2.5px solid #c0161b;
+  color: #c0161b; font: 900 12px 'Courier New', monospace; letter-spacing: .1em; opacity: .85; background: none !important; pointer-events: none; display: block !important; }
+
+/* =========================================================================
+   ШАПКА ПЕРСОНАЖА: арка и баннер
+   ========================================================================= */
+:root.hud-ava-arch .hud-os-card .hud-header :is(.hud-avatar, .hud-avatar-placeholder) {
+  width: 56px !important; height: 76px !important; border-radius: 28px 28px 3px 3px !important; object-fit: cover;
+  border: 2px solid color-mix(in srgb, var(--hud-accent) 55%, #c9ba82) !important; outline: 1px solid color-mix(in srgb, var(--hud-accent) 55%, #c9ba82); outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(0,0,0,.3), 0 0 18px color-mix(in srgb, var(--hud-accent) 35%, transparent) !important; margin: 6px 6px 6px 6px; }
+:root.hud-ava-arch .hud-os-card .hud-header-info { align-items: flex-end; }
+
+.hud-banner { display: none; }
+.hud-header.has-banner { display: flex; flex-direction: column; align-items: stretch; }
+.hud-header.has-banner .hud-banner {
+  display: block; position: relative; height: 118px; margin: -2px -2px 0; background-size: cover; background-position: center 30%; border-radius: 12px 12px 0 0;
+  -webkit-mask-image: linear-gradient(to bottom, #000 62%, transparent), linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  -webkit-mask-composite: source-in; mask-image: linear-gradient(to bottom, #000 62%, transparent), linear-gradient(to right, transparent, #000 6%, #000 94%, transparent); mask-composite: intersect; }
+.hud-header.has-banner .hud-banner::after {
+  content: var(--hud-dateline, ''); position: absolute; top: 10px; right: 38px; padding: 3px 11px; border-radius: 99px; font-size: .78em; color: #fff;
+  background: rgba(20,16,36,.45); border: 1px solid rgba(255,255,255,.25); backdrop-filter: blur(4px); white-space: nowrap; }
+.hud-header.has-banner .hud-banner:not([style]) { background: linear-gradient(135deg, color-mix(in srgb, var(--hud-accent) 60%, #000), var(--hud-accent)); }
+.hud-banner-name { position: absolute; top: 10px; left: 14px; padding: 3px 12px; border-radius: 99px; font-size: .8em; font-weight: 700; color: #fff; background: rgba(20,16,36,.45); border: 1px solid rgba(255,255,255,.25); backdrop-filter: blur(4px); }
+.hud-banner-vert { position: absolute; right: 12px; top: 10px; writing-mode: vertical-rl; font: 9px/1 Georgia, serif; letter-spacing: .3em; color: rgba(255,255,255,.75); text-shadow: 0 1px 3px rgba(0,0,0,.6); max-height: 90px; overflow: hidden; }
+.hud-header.has-banner .hud-header-info { margin-top: -34px; padding-left: 12px; position: relative; z-index: 2; align-items: flex-end; }
+.hud-header.has-banner .hud-header-info :is(.hud-avatar, .hud-avatar-placeholder) { width: 60px; height: 60px; border-width: 3px; box-shadow: 0 4px 12px rgba(0,0,0,.45); }
+.hud-header.has-banner .hud-header-text { padding-bottom: 4px; }
+
+/* =========================================================================
+   ОБЩИЕ ЦВЕТА НОВЫХ БЛОКОВ — из темы
+   -------------------------------------------------------------------------
+   Поверхность, чернила и линия выводятся из акцента темы: на тёмной теме
+   поверхность тёмная, на светлой — светлая. Ни один новый блок не держит
+   своего «всегда тёмного» или «всегда светлого» фона.
+   ========================================================================= */
+.hud-os-card, .hud-custom-dialog {
+  --x-surf: color-mix(in srgb, var(--hud-accent) 14%, #0e0c13);
+  --x-surf2: color-mix(in srgb, var(--hud-accent) 5%, #07060a);
+  --x-ink: var(--hud-text, #ecebf2);
+  --x-ink-soft: color-mix(in srgb, var(--hud-text, #ecebf2) 72%, transparent);
+  --x-line: color-mix(in srgb, var(--hud-accent) 45%, transparent);
+  --x-veil: rgba(0,0,0,.55);
+}
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-os-card, .hud-custom-dialog) {
+  --x-surf: color-mix(in srgb, var(--hud-accent) 10%, #ffffff);
+  --x-surf2: color-mix(in srgb, var(--hud-accent) 20%, #fbf8f5);
+  --x-ink: var(--hud-text, #3a2a30);
+  --x-ink-soft: color-mix(in srgb, var(--hud-text, #3a2a30) 70%, transparent);
+  --x-line: color-mix(in srgb, var(--hud-accent) 40%, transparent);
+  --x-veil: rgba(255,255,255,.55);
+}
+
+/* =========================================================================
+   ФАЗА ЛУНЫ — плашка того же рода, что часы и погода: их фон, их рамка
+   со свечением темы и их светлая «бумага» на светлых темах.
+   ========================================================================= */
+.hud-moonchip {
+  display: grid; grid-template-columns: auto 1fr; gap: 2px 9px; align-items: center; align-self: flex-start; position: relative; z-index: 6;
+  padding: 7px 12px 8px; border-radius: 14px; color: var(--hud-scene-text, #fff);
+  background: var(--hud-weather-bg, linear-gradient(160deg, rgba(0,0,0,.5), rgba(0,0,0,.25)));
+  backdrop-filter: blur(var(--hud-weather-blur, 6px)); -webkit-backdrop-filter: blur(var(--hud-weather-blur, 6px));
+  border: 1px solid rgba(255,255,255,.1);
+  box-shadow: 0 4px 14px rgba(0,0,0,.3), inset 0 0 0 1px var(--hud-glow-soft, rgba(255,255,255,.15)), 0 0 calc(14px * var(--hud-glow-r, 1) * var(--hud-glow-wide, 1)) var(--hud-glow-soft, transparent); }
+.hud-moonchip-big svg { width: 30px; height: 30px; display: block; filter: drop-shadow(0 0 7px rgba(244,236,208,.55)); }
+.hud-moonchip-txt b { display: block; font-size: .84em; color: inherit; text-shadow: 0 2px 4px rgba(0,0,0,.9), 0 0 calc(4px * var(--hud-glow-r, 1)) var(--hud-glow-strong, transparent); }
+.hud-moonchip-txt small { display: block; font-size: .66em; opacity: .8; color: inherit; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
+.hud-moonchip-row { grid-column: 1 / -1; display: flex; justify-content: space-between; gap: 3px; margin-top: 5px; padding-top: 5px; border-top: 1px dashed color-mix(in srgb, currentColor 30%, transparent); }
+.hud-moonchip-row i { display: grid; place-items: center; width: 19px; height: 19px; border-radius: 50%; opacity: .5; }
+.hud-moonchip-row i.on { opacity: 1; box-shadow: 0 0 0 1.5px var(--hud-accent), 0 0 9px var(--hud-glow, rgba(244,236,208,.5)); }
+.hud-moonchip-row svg { width: 14px; height: 14px; display: block; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-moonchip {
+  background: var(--lt-paper, rgba(255,255,255,.6)); color: var(--lt-ink, #3a2a30); border-color: var(--lt-line, rgba(0,0,0,.15));
+  box-shadow: 0 2px 8px rgba(90,50,70,.12), inset 0 1px 0 rgba(255,255,255,.5); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-moonchip :is(b, small) { text-shadow: none; }
+/* Диск на светлой бумаге: светлая часть темнее, иначе сливается с бумагой. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-moonchip svg path { fill: #c9a24a; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-moonchip svg circle { fill: rgba(0,0,0,.1); stroke: rgba(0,0,0,.25); }
+.hud-scene-widget.is-compact .hud-moonchip, .hud-historical .hud-moonchip { display: none; }
+@media (max-width: 600px) { .hud-moonchip-row { display: none; } .hud-moonchip { grid-template-columns: auto; } .hud-moonchip-txt small { display: none; } }
+/* Тень на луне в небе: терминатор ::after получает тёмный серп нужной ширины. */
+:is(.phase-night, .phase-deep-night, .phase-evening, .phase-predawn).hud-scene-widget[style*="--moon-dark"] .hud-fx-celestial::after {
+  box-shadow: inset var(--moon-dark) 0 0 0 rgba(10,15,34,.86); }
+
+/* =========================================================================
+   ТИТРЫ СЦЕНЫ
+   ========================================================================= */
+.hud-credits { margin: 4px 12px 12px; padding: 16px 14px 12px; text-align: center; border-radius: 10px; color: var(--x-ink);
+  background: linear-gradient(180deg, var(--x-surf), var(--x-surf2)); border: 1px solid var(--x-line); box-shadow: inset 0 0 24px color-mix(in srgb, var(--x-surf2) 70%, transparent); }
+.hud-credits, .hud-credits * { text-shadow: none !important; }
+.hud-credits-end { font: italic 700 1.25em Georgia, serif; letter-spacing: .18em; text-transform: uppercase; margin-bottom: 10px; color: var(--hud-accent); }
+.hud-credits-cast { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 3px 12px; margin: 4px 0; font-family: Georgia, serif; }
+.hud-credits-cast span { width: 100%; font-size: .6em; letter-spacing: .3em; text-transform: uppercase; color: var(--x-ink-soft); }
+.hud-credits-cast b { font-weight: 400; font-size: .92em; color: var(--x-ink); }
+.hud-credits-foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 12px; padding-top: 9px; border-top: 1px solid var(--x-line);
+  font: 10px 'Courier New', monospace; letter-spacing: .12em; color: var(--x-ink-soft); }
+.hud-credits-inv { background: var(--x-ink); color: var(--x-surf2); padding: 1px 7px; font-weight: 700; }
+.hud-credits-code { display: flex; gap: 2px; height: 16px; opacity: .6; }
+.hud-credits-code i { display: block; background: currentColor; }
+.hud-historical .hud-credits { display: none; }
+
+/* =========================================================================
+   «ГЛУБИНА»: скрытый подтекст («вода» в цветах темы) и «О ней» в дневнике
+   ========================================================================= */
+.hud-deep { position: relative; align-self: stretch; min-height: 78px; padding: 12px 14px 14px; border-radius: 14px; overflow: hidden; cursor: pointer; color: var(--x-ink);
+  background: radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--hud-accent) 30%, var(--x-surf)), var(--x-surf2) 80%);
+  border: 1px solid var(--x-line); box-shadow: inset 0 0 26px color-mix(in srgb, var(--x-surf2) 80%, transparent); }
+.hud-deep, .hud-deep * { text-shadow: none !important; }
+.hud-deep p { margin: 0; font-style: italic; line-height: 1.5; color: var(--x-ink) !important; transition: filter .45s ease, opacity .45s ease; position: relative; z-index: 1; }
+.hud-deep-caust { position: absolute; inset: 0; pointer-events: none; opacity: .35;
+  background: radial-gradient(40% 18% at 30% 12%, color-mix(in srgb, var(--hud-accent) 45%, #fff), transparent 70%), radial-gradient(30% 14% at 70% 8%, color-mix(in srgb, var(--hud-accent) 30%, #fff), transparent 70%); }
+.hud-deep-b { position: absolute; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--x-ink) 40%, transparent); background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.35), transparent 60%); pointer-events: none; }
+.hud-deep .hud-veil { position: absolute; inset: 0; z-index: 2; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 5px; font-size: .78em; color: var(--x-ink);
+  background: radial-gradient(circle at 50% 60%, transparent, var(--x-veil)); }
+.hud-deep .hud-veil svg { width: 30px; height: 30px; }
+.hud-deep .hud-veil .r { fill: none; stroke: color-mix(in srgb, var(--hud-accent) 60%, var(--x-ink)); stroke-width: 1.2; }
+.hud-deep.is-closed p { filter: blur(6px); opacity: .55; user-select: none; }
+.hud-deep.is-closed .hud-veil { display: flex; }
+.hud-deep:hover .hud-veil .r { animation: hud-ripple 1.6s ease-out infinite; transform-origin: 17px 17px; }
+@keyframes hud-ripple { from { transform: scale(.6); opacity: 1; } to { transform: scale(1.25); opacity: 0; } }
+
+.hud-diary-about-user.hud-wash { position: relative; margin-top: 10px; padding: 10px 12px; border-radius: 12px; overflow: hidden; cursor: pointer;
+  background: radial-gradient(90% 120% at 20% 0%, color-mix(in srgb, var(--hud-accent) 28%, transparent), transparent 70%), radial-gradient(80% 100% at 90% 100%, color-mix(in srgb, var(--hud-accent) 22%, transparent), transparent 70%), color-mix(in srgb, var(--hud-accent) 8%, transparent);
+  border: 1px dashed color-mix(in srgb, var(--hud-accent) 50%, transparent); box-shadow: inset 0 0 18px color-mix(in srgb, var(--hud-accent) 15%, transparent); }
+.hud-wash > :not(.hud-veil) { display: inline; transition: filter .45s ease, opacity .45s ease; }
+.hud-wash > .hud-wash-text { display: inline-block; }
+.hud-wash .hud-veil { position: absolute; inset: 0; display: none; place-items: center; font-size: .8em; font-weight: 700;
+  background: radial-gradient(circle, transparent, color-mix(in srgb, var(--hud-accent) 25%, transparent)); }
+.hud-wash .hud-veil > span { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 99px; font-family: inherit;
+  background: color-mix(in srgb, var(--x-surf) 88%, transparent); color: var(--x-ink) !important; border: 1px solid var(--x-line); }
+.hud-wash .hud-veil svg { width: 16px; height: 16px; }
+.hud-wash.is-closed > :not(.hud-veil) { filter: blur(5px); opacity: .6; user-select: none; }
+.hud-wash.is-closed .hud-veil { display: grid; }
+
+/* --- Разметка в дневнике --------------------------------------------------- */
+.hud-diary-text b, .hud-diary-about-user b { display: inline; padding: 0 5px; border-top: 1px solid currentColor; border-bottom: 1px solid currentColor; font-weight: 800; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.hud-diary-text b::before, .hud-diary-text b::after { content: '◆'; font-size: .45em; vertical-align: middle; margin-right: 4px; opacity: .7; }
+.hud-diary-text b::after { margin: 0 0 0 4px; }
+.hud-diary-text i, .hud-diary-about-user i { padding: 0 5px 0 13px; position: relative; background: color-mix(in srgb, var(--hud-accent) 14%, transparent); border-left: 3px solid var(--hud-accent);
+  border-radius: 2px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.hud-diary-text i::before { content: '✦'; position: absolute; left: 2px; top: .1em; font-size: .55em; font-style: normal; color: var(--hud-accent); }
+.hud-diary-text s { padding: 0 3px; text-decoration-thickness: 2px; text-decoration-color: #b45f66; opacity: .85; }
+.hud-diary-text s::before { content: '× '; color: #b45f66; font-size: .8em; text-decoration: none; display: inline-block; }
+.hud-diary-text u { text-decoration: underline wavy color-mix(in srgb, var(--hud-accent) 80%, currentColor); text-underline-offset: 4px; }
+.hud-diary-text b:has(> i:only-child) { border: none; padding: 0; }
+.hud-diary-text b:has(> i:only-child)::before, .hud-diary-text b:has(> i:only-child)::after { content: none; }
+.hud-diary-text b > i:only-child { border: 1px solid rgba(242,217,139,.65); background: linear-gradient(135deg, rgba(120,95,30,.5), rgba(40,32,18,.55)); color: #f2d98b; padding: 0 7px; border-radius: 4px; }
+.hud-diary-text b > i:only-child::before { content: none; }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-diary-text b > i:only-child { color: #7a5812; border-color: rgba(160,120,30,.5); background: linear-gradient(135deg, rgba(242,217,139,.45), rgba(242,217,139,.2)); }
+
+/* =========================================================================
+   СОСТОЯНИЕ ТЕЛА
+   ========================================================================= */
+.hud-bs { --a: var(--hud-accent); width: 100%; font-variant-numeric: tabular-nums; }
+.hud-bs-bat, .hud-bs-flasks { display: flex; flex-wrap: wrap; gap: 10px; align-items: flex-end; padding: 10px 12px; border-radius: 14px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--a) 12%, rgba(255,255,255,.04)), color-mix(in srgb, var(--a) 4%, rgba(0,0,0,.25))); border: 1px solid color-mix(in srgb, var(--a) 28%, transparent); }
+.hud-bs-flasks { justify-content: space-around; }
+.hud-bs-cell { flex: 1 1 64px; display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; min-width: 58px; }
+.hud-bs-cell svg { width: 32px; height: 58px; overflow: visible; filter: drop-shadow(0 4px 6px rgba(0,0,0,.35)); }
+.hud-bs-flasks .hud-bs-cell svg { width: 44px; height: 60px; }
+.hud-bs-cell b { font-size: 1.02em; font-weight: 800; }
+.hud-bs-cell small { font-size: .6em; letter-spacing: .1em; text-transform: uppercase; opacity: .72; }
+.hud-bs-cell em { font-style: normal; font-size: .7em; padding: 1px 7px; border-radius: 99px; background: color-mix(in srgb, var(--c) 22%, transparent); color: color-mix(in srgb, var(--c) 55%, var(--hud-text, #eee)); border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); }
+.hud-bs .shell { fill: rgba(255,255,255,.06); stroke: color-mix(in srgb, var(--hud-text, #eee) 45%, transparent); stroke-width: 1.4; }
+.hud-bs .cap { fill: color-mix(in srgb, var(--hud-text, #eee) 45%, transparent); }
+.hud-bs .seg { stroke: rgba(0,0,0,.35); stroke-width: 1; }
+.hud-bs .glass { fill: rgba(255,255,255,.07); stroke: rgba(255,255,255,.55); stroke-width: 1.2; }
+.hud-bs .cork { fill: #9a7048; }
+.hud-bs .shine { fill: none; stroke: rgba(255,255,255,.5); stroke-width: 1.4; stroke-linecap: round; }
+.hud-bs .bub { fill: rgba(255,255,255,.7); }
+.hud-bs-side { flex: 1 1 150px; display: flex; flex-direction: column; gap: 8px; align-self: center; }
+.hud-bs-sleep { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: 12px; color: var(--x-ink);
+  background: linear-gradient(135deg, color-mix(in srgb, #7f8fe0 24%, var(--x-surf)), var(--x-surf2)); border: 1px solid color-mix(in srgb, #7f8fe0 35%, transparent); }
+.hud-bs-sleep, .hud-bs-sleep * { color: var(--x-ink) !important; text-shadow: none !important; }
+.hud-bs-sleep svg { width: 24px; height: 24px; flex: none; }
+.hud-bs-sleep b { display: block; font-size: .92em; }
+.hud-bs-sleep small { font-size: .66em; opacity: .75; }
+.hud-bs-work { font-size: .76em; opacity: .85; padding: 6px 10px; border-radius: 10px; border: 1px dashed color-mix(in srgb, var(--a) 40%, transparent); }
+.hud-bs-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.hud-bs-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px 4px 5px; border-radius: 99px; font-size: .84em;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--c) 22%, rgba(255,255,255,.05)), color-mix(in srgb, var(--c) 10%, rgba(0,0,0,.15))); border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
+.hud-bs-chip i { min-width: 21px; height: 21px; padding: 0 3px; border-radius: 99px; display: grid; place-items: center; font-style: normal; font-size: 11px; font-weight: 800; background: color-mix(in srgb, var(--c) 45%, #000); color: #fff; }
+.hud-bs-note { margin: 8px 0 0; font-size: .82em; opacity: .75; line-height: 1.45; }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-bs-bat, .hud-bs-flasks) {
+  background: linear-gradient(160deg, color-mix(in srgb, var(--a) 10%, #fff), color-mix(in srgb, var(--a) 5%, #fdf6f9)); }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-bs-cell em { color: color-mix(in srgb, var(--c) 70%, #000) !important; background: color-mix(in srgb, var(--c) 18%, #fff); }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-bs .shell { fill: rgba(255,255,255,.7); }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-bs .glass { fill: rgba(255,255,255,.5); stroke: rgba(80,80,110,.45); }
+
+/* =========================================================================
+   ПОВОРОТ СЮЖЕТА — поверхность темы, оттенок по тону: золото — хорошее,
+   акцент — тревожное, приглушённый акцент — неясное.
+   ========================================================================= */
+.hud-twist { --tw: color-mix(in srgb, var(--hud-accent) 70%, #8a8aa0); position: relative; margin: 10px 12px 4px; padding: 14px 16px 12px; border-radius: 14px; overflow: hidden; color: var(--x-ink);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--tw) 26%, var(--x-surf)), var(--x-surf2));
+  box-shadow: 0 12px 22px -12px rgba(0,0,0,.55), inset 0 0 0 1px color-mix(in srgb, var(--tw) 50%, transparent); }
+.hud-twist.is-good { --tw: #d4a13c; }
+.hud-twist.is-bad { --tw: var(--hud-accent); }
+.hud-twist, .hud-twist * { text-shadow: none !important; }
+.hud-twist :is(h5, p) { color: var(--x-ink) !important; }
+.hud-twist h5 svg { color: var(--tw); }
+.hud-twist-rib { position: absolute; right: -34px; top: 13px; transform: rotate(35deg); padding: 3px 40px; font-size: .56em; font-weight: 900; letter-spacing: .2em; background: var(--tw); color: #fff !important; }
+.hud-twist h5 { margin: 0 0 6px; padding-right: 70px; display: flex; align-items: center; gap: 8px; font-family: Georgia, serif; font-size: 1.08em; }
+.hud-twist h5 svg { width: 21px; height: 21px; flex: none; }
+.hud-twist p { margin: 0; line-height: 1.5; font-size: .9em; }
+.hud-twist-hint { display: block; margin-top: 9px; padding-top: 7px; border-top: 1px dashed var(--x-line); font-size: .8em; font-style: italic; color: var(--x-ink-soft) !important; }
+.hud-historical .hud-twist { display: none; }
+
+/* =========================================================================
+   СПУТНИК: карточка и тамагочи
+   ========================================================================= */
+.hud-body.hud-pets:is(.hud-pets-card, .hud-pets-tama) { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)) !important; gap: 14px; }
+.hud-body.hud-pets.hud-pets-tama { grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)) !important; }
+.hud-pet2 { --p: #e8883a; position: relative; border-radius: 18px; overflow: hidden; min-width: 0;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--p) 10%, rgba(255,255,255,.04)), color-mix(in srgb, var(--p) 4%, rgba(0,0,0,.28)));
+  border: 1px solid color-mix(in srgb, var(--p) 35%, transparent); box-shadow: 0 12px 22px -14px rgba(0,0,0,.8); }
+.hud-pet2-band { height: 54px; background: radial-gradient(circle at 12px 12px, rgba(255,255,255,.14) 0 3px, transparent 3.5px) 0 0 / 26px 22px, linear-gradient(120deg, color-mix(in srgb, var(--p) 75%, #000), color-mix(in srgb, var(--p) 45%, var(--hud-accent))); }
+.hud-pet2-top { display: flex; align-items: flex-end; gap: 12px; margin: -28px 14px 0; }
+.hud-pet2-ava { width: 60px; height: 60px; flex: none; border-radius: 50%; display: grid; place-items: center; font-size: 30px;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--p) 40%, #fff), color-mix(in srgb, var(--p) 70%, #000));
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--p) 18%, var(--x-surf)), 0 0 0 5px color-mix(in srgb, var(--p) 60%, transparent), 0 6px 14px rgba(0,0,0,.45); }
+.hud-pet2-nm { flex: 1; min-width: 0; padding-bottom: 3px; }
+.hud-pet2-nm b { display: block; font-size: 1.15em; font-family: Georgia, serif; }
+.hud-pet2-nm small { opacity: .75; font-size: .8em; }
+.hud-pet2-mood { position: absolute; top: 12px; right: 12px; margin: 0; padding: 3px 10px; color: #fff; backdrop-filter: blur(3px); border-radius: 99px; font-size: .72em; font-weight: 700; max-width: 62%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  background: color-mix(in srgb, var(--p) 45%, rgba(0,0,0,.35)); border: 1px solid color-mix(in srgb, var(--p) 45%, transparent); }
+.hud-pet2-own { display: flex; align-items: center; gap: 8px; margin: 10px 14px 0; font-size: .8em; opacity: .9; }
+.hud-pet2-own i { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 8px; font-weight: 800; color: #fff; background: var(--hud-accent); flex: none; }
+.hud-pet2-bondrow { margin: 10px 14px 0; }
+.hud-pet2-bondrow > .hud-pet-bond { margin-top: 0; }
+.hud-tama-stats > .hud-pet-bond { margin-top: 2px; }
+.hud-pet2-bond { display: flex; align-items: center; gap: 3px; margin-left: auto; }
+.hud-pet2-bond svg { width: 14px; height: 14px; }
+.hud-pet2-bond path { fill: rgba(255,255,255,.18); }
+.hud-pet2-bond path.on { fill: var(--p); }
+.hud-pet2-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px; margin: 12px 14px 0; }
+.hud-pet2-tile { padding: 8px 9px; border-radius: 12px; background: rgba(0,0,0,.18); border: 1px solid color-mix(in srgb, var(--p) 22%, transparent); min-width: 0; }
+.hud-pet2-tile span { display: flex; align-items: center; gap: 4px; font-size: .56em; font-weight: 800; letter-spacing: .04em; white-space: nowrap; text-transform: uppercase; opacity: .78; }
+.hud-pet2-tile svg { width: 13px; height: 13px; flex: none; }
+.hud-pet2-tile p { margin: 4px 0 0; font-size: .8em; line-height: 1.35; overflow-wrap: anywhere; }
+.hud-pet2-now { display: flex; gap: 8px; align-items: flex-start; margin: 10px 14px 0; padding: 8px 10px; border-radius: 12px; font-size: .84em; font-style: italic; background: color-mix(in srgb, var(--p) 12%, transparent); border-left: 3px solid var(--p); }
+.hud-pet2-now svg { width: 16px; height: 16px; flex: none; }
+.hud-pet2-extra { display: flex; flex-direction: column; gap: 3px; margin: 8px 14px 0; font-size: .8em; opacity: .9; }
+.hud-pet2-skills { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 14px 14px; }
+.hud-pet2-skills span { padding: 2px 10px; border-radius: 99px; font-size: .72em; background: linear-gradient(180deg, color-mix(in srgb, var(--p) 22%, rgba(255,255,255,.05)), color-mix(in srgb, var(--p) 8%, rgba(0,0,0,.1))); border: 1px solid color-mix(in srgb, var(--p) 40%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
+.hud-pet2-skills span::before { content: '✦ '; opacity: .7; }
+.hud-pet2-pad { height: 12px; }
+
+.hud-tama { --p: #e8883a; display: flex; gap: 12px; align-items: center; padding: 12px; border-radius: 18px; min-width: 0;
+  background: color-mix(in srgb, var(--p) 6%, rgba(0,0,0,.2)); border: 1px solid color-mix(in srgb, var(--p) 25%, transparent); }
+.hud-tama-dev { width: 118px; height: 136px; flex: none; filter: drop-shadow(0 10px 14px rgba(0,0,0,.45)); overflow: visible; }
+.hud-tama-stats { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; font-family: 'Courier New', monospace; }
+.hud-tama-stats > b { font-family: Georgia, serif; font-size: 1.05em; }
+.hud-tama-stats > small { font-size: .72em; opacity: .7; margin-top: -4px; }
+.hud-tama-st { display: grid; grid-template-columns: 15px minmax(0, 1fr) auto; gap: 6px; align-items: center; font-size: .76em; }
+.hud-tama-st > span:not(.hud-tama-px) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud-tama-st svg { width: 14px; height: 14px; }
+.hud-tama-px { display: inline-flex; gap: 2px; }
+.hud-tama-px i { width: 9px; height: 9px; background: color-mix(in srgb, var(--c) 85%, #000); box-shadow: inset -2px -2px 0 rgba(0,0,0,.3), inset 2px 2px 0 rgba(255,255,255,.3); }
+.hud-tama-px i.off { background: rgba(255,255,255,.12); box-shadow: inset 1px 1px 0 rgba(0,0,0,.3); }
+.hud-tama-say { margin-top: 2px; padding: 5px 8px; border: 2px solid color-mix(in srgb, var(--hud-text, #eee) 45%, transparent); font-size: .74em; line-height: 1.35; }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-tama-px i.off { background: rgba(0,0,0,.1); }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-pet2-tile { background: rgba(255,255,255,.55); }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-pet2-bond path { fill: rgba(0,0,0,.12); }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-pet2 { background: linear-gradient(180deg, color-mix(in srgb, var(--p) 12%, #fff), color-mix(in srgb, var(--p) 6%, #fdf9f6)); }
+
+/* =========================================================================
+   СДВИГИ ДОВЕРИЯ: видны при наведении или нажатии
+   ========================================================================= */
+.hud-trust-meta { display: flex; flex-wrap: wrap; gap: 5px; max-height: 0; opacity: 0; overflow: hidden; margin-top: 0; font: 11px 'Courier New', monospace; transition: max-height .3s ease, opacity .3s ease, margin-top .3s ease; }
+.hud-row:hover > .hud-trust-meta, .hud-row:focus-within > .hud-trust-meta, .hud-row.is-meta-open > .hud-trust-meta { max-height: 120px; opacity: .9; margin-top: 8px; }
+.hud-trust-meta span { padding: 1px 8px; border-radius: 99px; border: 1px solid color-mix(in srgb, var(--hud-text, #eee) 25%, transparent); white-space: nowrap; }
+.hud-trust-meta span b { font-weight: 700; }
+.hud-trust-meta .up { color: #8fd49a; border-color: rgba(143,212,154,.45); }
+.hud-trust-meta .down { color: #ef8a8a; border-color: rgba(239,138,138,.45); }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-trust-meta .up { color: #2f7a3c; }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-trust-meta .down { color: #a33a3a; }
+@media (prefers-reduced-motion: reduce) { .hud-trust-meta, .hud-deep p, .hud-wash > * { transition: none; } }
+/* Плашка луны живёт в верхней строке сцены — её поднимаем над облаками. */
+.hud-scene-top:has(.hud-moonchip) { position: relative; z-index: 30; }
+

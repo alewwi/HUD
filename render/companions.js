@@ -4,8 +4,9 @@
 // каждого своё настроение, состояние, рацион и привязанность к хозяину.
 // Вкладка появляется, только когда в HUD есть хоть один спутник.
 
-import { escapeHtml, applyTooltips, hudHasMeaningfulValue } from '../utils.js?v=23.13.5';
-import { видБлока, видПривязанности } from './views.js?v=23.13.5';
+import { escapeHtml, applyTooltips, hudHasMeaningfulValue } from '../utils.js?v=23.14.1';
+import { видБлока, видПривязанности } from './views.js?v=23.14.1';
+import { карточкаСпутника, тамагочи } from './extras.js?v=23.14.1';
 
 // Значок по виду. Частное раньше общего: «ворон-фамильяр» — птица, а не дух.
 const ВИДЫ = [
@@ -41,9 +42,17 @@ export function hudHasMeaningfulCompanions(list) {
 
 export function buildCompanionsHTML(list, uid, isChecked) {
   const спутники = (Array.isArray(list) ? list : []).filter(p => p && есть(p.name));
+  // Вид спутника: карточка (по умолчанию), тамагочи или прежний список строк.
+  const вид = видБлока('petView');
   const карточки = спутники.map(p => {
     const число = parseFloat(String(p.bond || '').replace(',', '.'));
     const связь = Number.isFinite(число) ? Math.max(0, Math.min(100, число)) : null;
+    // Привязанность — в выбранном виде («Вид блоков → Привязанность»), как и прежде.
+    const видСвязи = связь !== null ? видПривязанности(связь, видБлока('bondView')) : '';
+    const связьHTML = связь === null ? '' : видСвязи
+      || `<div class="hud-pet-bond" title="Привязанность ${Math.round(связь)} из 100"><span>привязанность</span><i><i style="width:${связь}%"></i></i><em>${Math.round(связь)}</em></div>`;
+    if (вид === 'tama') return тамагочи(p, связь, видСвязи);
+    if (вид === 'card') return карточкаСпутника(p, значокВида(p.species, p.name), связь, связьHTML);
     const строка = (значок, подпись, текст) => есть(текст)
       ? `<div class="hud-pet-row"><span>${значок} ${escapeHtml(подпись)}</span><p>${applyTooltips(String(текст))}</p></div>`
       : '';
@@ -70,5 +79,5 @@ export function buildCompanionsHTML(list, uid, isChecked) {
       + `</div>`;
   }).join('');
   return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}">`
-    + `<div class="hud-body hud-pets">${карточки || '<div class="hud-pet-empty">Спутников пока нет.</div>'}</div></div>`;
+    + `<div class="hud-body hud-pets hud-pets-${вид || 'card'}">${карточки || '<div class="hud-pet-empty">Спутников пока нет.</div>'}</div></div>`;
 }
