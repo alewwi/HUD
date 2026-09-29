@@ -13,7 +13,7 @@
 // Без IntersectionObserver (тесты в Node, очень старый браузер) и при
 // выключенной «Ленивой загрузке вкладок» рисунок собирается сразу.
 
-import { settings } from '../settings.js?v=23.15.0';
+import { settings } from '../settings.js?v=23.19.1';
 
 const ЗАГОТОВОК = 300;
 const заготовки = new Map();
@@ -60,11 +60,6 @@ export function собратьРисунок(заготовка) {
     заготовка.removeAttribute('aria-busy');
     заготовка.style.minHeight = '';
   }
-}
-
-export function собратьВсе(корень = document) {
-  if (!корень || typeof корень.querySelectorAll !== 'function') return;
-  корень.querySelectorAll('[data-lazy-svg]').forEach(собратьРисунок);
 }
 
 // Заготовка в документе забирает свою сборку себе: общий реестр ограничен,

@@ -90,8 +90,41 @@ export const defaultSettings = {
   // Рамка портрета: пусто — цвет темы (акцент). Масштаб и сдвиг — как у
   // обоев: кадрирование аватарки внутри рамки, в процентах.
   avatarFrameColor: '', avatarScale: 100, avatarOffsetX: 50, avatarOffsetY: 50,
-  // Шапка персонажа: classic — аватарка кружком, banner — полоса из аватарки.
+  // Шапка персонажа: classic — аватарка кружком, banner — полоса из аватарки,
+  // visit — визитка: полоса из обоев чата, круглый портрет по центру.
   headerStyle: 'classic',
+  // Профиль под именем: уровень, кем приходится игроку, три счётчика. on | off.
+  headerProfile: 'off',
+  // Имя персонажа: plain | outline (контур с медленным пульсом свечения).
+  nameStyle: 'plain',
+  // Мысли и реплики в скобках 「」, полосы старого экрана на мыслях,
+  // репликах и подтексте, светлее слишком тёмные заголовки на тёмных
+  // темах, подпись с именем в конце вкладки. Все — 'on' | 'off'.
+  thoughtBrackets: 'off', crtLines: 'off', lightHeadings: 'off', cardSignature: 'off',
+  // Своя картинка баннера и визитки: одна на всех персонажей, своя у игрока.
+  // Пусто — как было (аватарка у баннера, обои чата у визитки). Сдвиг — в %.
+  bannerCharImg: '', bannerCharOffsetX: 50, bannerCharOffsetY: 30,
+  bannerUserImg: '', bannerUserOffsetX: 50, bannerUserOffsetY: 30,
+  // Находки из тем (css/deco.css), 'on' | 'off': пластырь у «Здоровья», бант
+  // на активной вкладке, печать-ханко у имени, ноты у реплик, плашка
+  // «модель пишет HUD» при перегенерации, буквица у мыслей, имя столбиком
+  // у портрета, счёт дней сюжета под именем.
+  healthPlaster: 'off', tabBow: 'off', nameHanko: 'off', lineNotes: 'off', genIndicator: 'off',
+  dropCap: 'off', verticalName: 'off', dayCount: 'off',
+  // Сердечки и «+N за ход», когда доверие к игроку выросло; ползунок
+  // прокрутки и выделение текста цветом темы — у всех тем сразу.
+  trustHearts: 'on', themedScroll: 'on',
+  // Украшение портрета (css/deco.css): none — как было; theme — своё у
+  // каждой темы (index.js, РАМКА_ТЕМЫ); иначе id рамки из РАМКИ_ПОРТРЕТА.
+  avatarDeco: 'none',
+  // Картинка в углу шапки: off | theme | roses | plum | bridge | cat.
+  headerOrnament: 'off',
+  // Подписанные разделители между группами строк: off | line | butterfly |
+  // mountain | ripple (картинки перекрашены в цвет темы).
+  groupDividers: 'off',
+  // Бумага вместо зерна: состаренный лист, рваный низ плашек, сгибы
+  // письма и сургучная печать в шапке. Каждое — отдельно, 'on' | 'off'.
+  paperAged: 'off', paperTorn: 'off', paperFolds: 'off', waxSeal: 'off',
   // Титры в конце сцены: on | off.
   sceneCredits: 'off',
   // Фаза луны по игровой дате: плашка в погоде и тень на луне в небе.
@@ -285,3 +318,42 @@ export function hexToRgba(hex, alpha) {
 // Присваивать `settings = ...` нельзя — импортированная привязка только на чтение.
 // Меняй поля (`settings.foo = ...`) или Object.assign(settings, ...).
 export const settings = createDefaultSettings();
+
+// «Авто (по теме)» у украшений из тем (Кастомизация → Вид блоков): значение
+// берётся по выбранной теме. Тема не в списке — украшение выключено.
+// Строка из id — включено у этих тем; объект — своё значение у каждой.
+const ПО_ТЕМЕ = {
+  sectionSkin: { japan: 'double', academia: 'double', kawaii: 'notebook', cottage: 'notebook', noir: 'evidence', mafia: 'evidence', web1: 'win95', witch: 'moonglass', spaceopera: 'moonglass', ice: 'glass', ocean: 'glass' },
+  headerStyle: { kawaii: 'visit', cottage: 'visit' },
+  nameStyle: { vamp: 'outline', cyberpunk: 'outline', spacehorror: 'outline', voodoo: 'outline', kawaii: 'sheen', fantasy: 'sheen', ice: 'sheen', ocean: 'sheen', witch: 'sheen', spaceopera: 'sheen' },
+  groupDividers: { kawaii: 'butterfly', cottage: 'butterfly', solarpunk: 'butterfly', japan: 'medallion', ice: 'mountain', ocean: 'ripple', medieval: 'line', academia: 'line', fantasy: 'line', vamp: 'line', witch: 'line' },
+  headerProfile: 'kawaii web1 cyberpunk',
+  thoughtBrackets: 'japan',
+  crtLines: 'cyberpunk web1 spacehorror',
+  cardSignature: 'academia vamp fantasy witch cottage medieval',
+  paperAged: 'academia medieval western pirate steampunk cottage egypt',
+  paperTorn: 'medieval pirate western',
+  paperFolds: 'academia steampunk dieselpunk noir mafia',
+  waxSeal: 'academia vamp medieval fantasy cottage mafia witch',
+  nameHanko: 'japan',
+  verticalName: 'japan',
+  dayCount: 'vamp academia noir cyberpunk japan kawaii spaceopera spacehorror pirate witch',
+  tabBow: 'kawaii cottage',
+  lineNotes: 'kawaii vamp witch fantasy',
+  healthPlaster: 'kawaii cottage web1',
+  dropCap: 'academia medieval fantasy witch vamp cottage',
+};
+// У всех тем сразу: читаемые заголовки, сердечки, прокрутка, плашка генерации.
+const ВСЕМ_ТЕМАМ = { lightHeadings: 'on', trustHearts: 'on', themedScroll: 'on', genIndicator: 'on' };
+const ВЫКЛЮЧЕНО = { sectionSkin: '', headerStyle: 'classic', nameStyle: 'plain', groupDividers: 'off' };
+export function настройка(ключ) {
+  const v = settings[ключ];
+  if (v !== 'auto') return v;
+  if (ВСЕМ_ТЕМАМ[ключ]) return ВСЕМ_ТЕМАМ[ключ];
+  const тема = settings.themePreset || '';
+  const правило = ПО_ТЕМЕ[ключ];
+  if (typeof правило === 'string') return правило.split(' ').includes(тема) ? 'on' : 'off';
+  return (правило && правило[тема]) || (ключ in ВЫКЛЮЧЕНО ? ВЫКЛЮЧЕНО[ключ] : 'off');
+}
+// Ключи, у которых в Кастомизации есть «Авто (по теме)».
+export const КЛЮЧИ_АВТО = [...Object.keys(ПО_ТЕМЕ), ...Object.keys(ВСЕМ_ТЕМАМ)];

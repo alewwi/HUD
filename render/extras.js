@@ -4,8 +4,8 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=23.15.0';
-import { settings } from '../settings.js?v=23.15.0';
+import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=23.19.1';
+import { settings } from '../settings.js?v=23.19.1';
 
 const есть = (v) => hudHasMeaningfulValue(v) && !/^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -238,7 +238,6 @@ export function потребностиСпутника(p, механизм) {
   const набор = механизм ? ['charge', 'fix', 'mood'] : ['food', 'energy', 'clean', 'mood'];
   return набор.map(к => ({ ...ПОТРЕБНОСТИ.find(x => x.к === к), n: уровни[к] ?? угадать(к) }));
 }
-const СЕРДЦЕ = 'M12 20s-7.5-4.6-7.5-10.2A4.3 4.3 0 0 1 12 7.2a4.3 4.3 0 0 1 7.5 2.6C19.5 15.4 12 20 12 20Z';
 const инициалы = (имя) => String(имя || '?').trim().split(/\s+/).slice(0, 2).map(ч => ч.charAt(0).toUpperCase()).join('') || '?';
 export function карточкаСпутника(p, значок, связь, связьHTML = '') {
   const тип = СПРАЙТЫ[видСпутника(p.species, p.name)];

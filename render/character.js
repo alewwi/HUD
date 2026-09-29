@@ -4,19 +4,19 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=23.15.0';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.15.0';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.15.0';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=23.15.0';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=23.19.1';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.19.1';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.19.1';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=23.19.1';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.15.0';
-import { buildPregnancy } from './pregnancy.js?v=23.15.0';
-import { settings } from '../settings.js?v=23.15.0';
-import { namesLikelySame } from '../names.js?v=23.15.0';
-import { видСостоянияТела } from './extras.js?v=23.15.0';
-import { parseRelationList } from './relations-graph.js?v=23.15.0';
-import { отложитьРисунок } from './lazy-svg.js?v=23.15.0';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.15.0';
+  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.19.1';
+import { buildPregnancy } from './pregnancy.js?v=23.19.1';
+import { settings, настройка } from '../settings.js?v=23.19.1';
+import { namesLikelySame } from '../names.js?v=23.19.1';
+import { видСостоянияТела } from './extras.js?v=23.19.1';
+import { parseRelationList } from './relations-graph.js?v=23.19.1';
+import { отложитьРисунок } from './lazy-svg.js?v=23.19.1';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.19.1';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле', 'состояние тела'];
@@ -110,7 +110,9 @@ function buildFears(value) {
 function buildLines(value) {
   return String(value || '').split(/[;\n]/).map(кусок => {
     const s = кусок.trim().replace(/^[«"'`]+|[»"'`]+$/g, '').trim();
-    return s ? `<span class="hud-line-quote">${escapeHtml(s)}</span>` : '';
+    // Закрывающая скобка — отдельным узлом: ::after реплики занят хвостиком
+    // облачка, а скобки 「」 включаются в Кастомизации (css/deco.css).
+    return s ? `<span class="hud-line-quote">${escapeHtml(s)}<i class="hud-q-end" aria-hidden="true"></i></span>` : '';
   }).filter(Boolean).join('');
 }
 
@@ -349,6 +351,127 @@ export function контекстЗачатия(данные, партнёры = 
     защита = окончание ? окончание.replace(/^en\s*[:：]\s*/i, '') : '';
   }
   return { защита, секс };
+}
+
+// Портрет в обёртке: рамкам из «Украшения портрета» (css/deco.css) есть за
+// что зацепиться — внутренний слой для марки и плёнки, отдельный слой для
+// картинки, перекрашенной в цвет темы. Без рамки обе обёртки прозрачны
+// для вёрстки (display: contents), и шапка выглядит как раньше.
+function портретВРамке(ава, имя) {
+  const коротко = String(имя || '').trim().split(/\s+/)[0] || '';
+  return `<span class="hud-ava-wrap" data-name="${escapeHtml(коротко)}"><span class="hud-ava-in">${ава}</span><i class="hud-ava-deco" aria-hidden="true"></i></span>`;
+}
+// Сургуч и картинка в углу шапки: пустые узлы, видны только когда
+// включены (классы на <html>, css/deco.css) — без пересборки карточки.
+const УКРАШЕНИЯ_ШАПКИ = '<i class="hud-head-wax" aria-hidden="true"></i><i class="hud-head-orn" aria-hidden="true"></i>';
+// Лист бумаги поверх вкладки: состаренные края и сгибы письма.
+const СЛОЙ_БУМАГИ = '<i class="hud-paper" aria-hidden="true"></i>';
+// Подпись в конце вкладки (Кастомизация → «Мысли, заголовки, подпись»):
+// имя персонажа с виньетками. Узел есть всегда, виден по классу на <html>.
+const подписьВкладки = (имя) => `<div class="hud-sign" aria-hidden="true">⊹— ${escapeHtml(String(имя || '').trim())} —⊹</div>`;
+
+// Шапка-визитка: полоса из обоев чата над круглым портретом. Обои читаем
+// у самой Таверны (#bg_custom — фон этого чата, #bg1 — общий); нет обоев —
+// полосой становится аватарка.
+function обоиЧата() {
+  if (typeof document === 'undefined' || typeof getComputedStyle !== 'function') return '';
+  for (const id of ['bg_custom', 'bg1']) {
+    const узел = document.getElementById(id);
+    const фон = узел ? getComputedStyle(узел).backgroundImage : '';
+    if (фон && фон !== 'none' && /^url\(/.test(фон)) return фон;
+  }
+  return '';
+}
+function полосаВизитки(аватарка) {
+  const фон = обоиЧата() || (аватарка ? `url("${String(аватарка).replace(/"/g, '%22')}")` : '');
+  return `<div class="hud-visit-bg" aria-hidden="true"${фон ? ` style='background-image:${фон.replace(/'/g, '%27')}'` : ''}></div>`;
+}
+const словоЛет = (n) => n % 10 === 1 && n % 100 !== 11 ? 'год' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'года' : 'лет';
+// Подпись визитки: занятие (первая часть «Роли») и возраст.
+function подписьВизитки(данные) {
+  const роль = String(полеОбъекта(данные, 'Роль', 'R') || '').split(/[,;]/)[0].trim();
+  const годы = Number((String(полеОбъекта(данные, 'Возраст', 'A') || '').match(/^\s*(\d{1,3})/) || [])[1]);
+  const части = [роль.length > 40 ? роль.slice(0, 38) + '…' : роль, годы ? `${годы} ${словоЛет(годы)}` : ''].filter(Boolean);
+  return части.length ? `<span class="hud-visit-sub">${escapeHtml(части.join(' · '))}</span>` : '';
+}
+
+// Профиль под именем (как в соцсети): уровень по доверию к игроку, кем
+// персонаж приходится игроку, и три счётчика — доверие, общие воспоминания,
+// флаги. Всё из полей этого же HUD; чего нет — прочерк.
+function записьОбИгроке(строка) {
+  const игрок = getSafeUserName();
+  if (!игрок) return '';
+  for (const кусок of String(строка || '').split(/[;\n]/)) {
+    const m = кусок.match(/^\s*([^:：]{1,60})[:：]\s*(.+)$/);
+    if (m && namesLikelySame(m[1].trim(), игрок)) return m[2].trim();
+  }
+  return '';
+}
+function профильПерсонажа(данные) {
+  const доверие = Number((записьОбИгроке(полеОбъекта(данные, 'Доверие', 'Tr')).match(/-?\d{1,3}/) || [])[0]);
+  const естьДоверие = Number.isFinite(доверие);
+  const кто = записьОбИгроке(полеОбъекта(данные, 'Отношения', 'Rl')).split(/[,;—–]/)[0].trim();
+  const счёт = (поле) => String(поле || '').split(/[;\n]/).map(s => s.trim()).filter(Boolean).length;
+  const воспоминания = счёт(полеОбъекта(данные, 'Общие воспоминания', 'Mm'));
+  const флаги = счёт(полеОбъекта(данные, 'Флаг-монитор', 'Fl'));
+  const уровень = естьДоверие ? Math.min(5, Math.max(1, Math.ceil(доверие / 20))) : 0;
+  const значки = (уровень ? `<em class="hud-prof-lv" title="Уровень по доверию к игроку">ур. ${уровень}</em>` : '')
+    + (кто ? `<em class="hud-prof-pill">${escapeHtml(кто.length > 28 ? кто.slice(0, 26) + '…' : кто)}</em>` : '');
+  const ячейка = (ч, подпись) => `<span><b>${ч}</b><i>${подпись}</i></span>`;
+  return {
+    значки,
+    счётчики: `<div class="hud-prof-stats">${ячейка(естьДоверие ? доверие : '—', 'доверие')}${ячейка(воспоминания, 'воспоминаний')}${ячейка(флаги, 'флагов')}</div>`,
+  };
+}
+// Счёт дней сюжета под именем — своим словом у каждой темы.
+const СЛОВО_ДНЯ = { vamp: n => `Ночь ${n}-я`, witch: n => `Ночь ${n}-я`, academia: n => `Страница ${n}`, noir: n => `Дубль ${n}`,
+  cyberpunk: n => `Цикл ${String(n).padStart(3, '0')}`, spaceopera: n => `Сол ${n}`, spacehorror: n => `Сол ${n}`,
+  japan: n => `${n}-й день`, pirate: n => `${n}-й день в море`, kawaii: n => `День ${n} ♡` };
+const подписьДня = (n) => n > 0 ? `<span class="hud-day">${escapeHtml((СЛОВО_ДНЯ[settings.themePreset] || (x => `День ${x}`))(n))}</span>` : '';
+const букваИмени = (имя) => escapeHtml((String(имя || '').trim().match(/\p{L}/u) || ['?'])[0].toUpperCase());
+// Имя столбиком между портретом и текстом шапки (Кастомизация → «Имя столбиком»).
+const имяСтолбиком = (имя) => настройка('verticalName') === 'on'
+  ? `<span class="hud-vert-name" aria-hidden="true">${escapeHtml(String(имя || '').trim().split(/\s+/)[0])}</span>` : '';
+// Имя, ханко, значки профиля, день сюжета, подпись визитки и счётчики —
+// одной колонкой текста шапки. У игрока профиля нет: он не «приходится» сам себе.
+function текстШапки(имя, данные, игрок = false) {
+  const профиль = настройка('headerProfile') === 'on' && данные && !игрок ? профильПерсонажа(данные) : null;
+  const заголовок = `<span class="hud-title">${escapeHtml(имя)}</span>`;
+  const ханко = настройка('nameHanko') === 'on' ? `<span class="hud-hanko" aria-hidden="true">${букваИмени(имя)}</span>` : '';
+  const значки = ханко + (профиль && профиль.значки ? профиль.значки : '');
+  const строкаИмени = значки ? `<div class="hud-prof-namebar">${заголовок}${значки}</div>` : заголовок;
+  const день = настройка('dayCount') === 'on' && данные ? подписьДня(данные.__деньСюжета) : '';
+  const визитка = настройка('headerStyle') === 'visit' && данные ? подписьВизитки(данные) : '';
+  return `<div class="hud-header-text">${строкаИмени}${день}${визитка}${профиль ? профиль.счётчики : ''}</div>`;
+}
+
+// «♥ +N за ход» у доверия, когда доверие к игроку выросло в этом ходу.
+// Сердечки внутри вылетают под курсором или по нажатию (css/deco.css).
+function ростДоверия(сдвиги) {
+  if (настройка('trustHearts') === 'off' || !сдвиги) return '';
+  const игрок = getSafeUserName();
+  const найдено = игрок ? Object.entries(сдвиги).find(([кто]) => namesLikelySame(кто, игрок)) : null;
+  const d = найдено && найдено[1] ? Number(найдено[1].d) : 0;
+  if (!(d > 0)) return '';
+  return `<span class="hud-trust-up" title="Доверие к ${escapeHtml(игрок)} выросло за ход"><i aria-hidden="true">♥</i><i aria-hidden="true">♥</i><i aria-hidden="true">♥</i><i aria-hidden="true">♥</i><b>♥ +${d} за ход</b></span>`;
+}
+
+// Подписанные разделители между группами строк (Кастомизация → Портрет и
+// шапка). Группа — тот же kind-*, что красит корешок строки; NSFW-строки
+// без группы разделителей не получают и не сбивают счёт. Порядок полей
+// группы местами перемежает («Тело» идёт после «Роли»): подпись ставится
+// только на первое появление группы, иначе «Облик» висел бы дважды.
+const ИМЕНА_ГРУПП = { look: 'Облик', vitals: 'Тело', place: 'Место', standing: 'Положение', mind: 'Разум', dream: 'Сны',
+  plans: 'Планы', items: 'Вещи', bonds: 'Связи', tension: 'Драма', alarm: 'Тревоги', misc: 'Прочее' };
+function сРазделителями(html) {
+  if (!настройка('groupDividers') || настройка('groupDividers') === 'off') return html;
+  const были = new Set();
+  return html.replace(/<div class="(?:hud-row|hud-key-block)(?=[\s"])[^"]*?\bkind-([a-z]+)[^"]*"/g, (всё, вид) => {
+    const имя = ИМЕНА_ГРУПП[вид];
+    if (!имя || были.has(имя)) return всё;
+    были.add(имя);
+    return `<div class="hud-group-div hud-gd-${(были.size - 1) % 4}" aria-hidden="true"><span>${имя}</span></div>` + всё;
+  });
 }
 
 // «Одинаковое оформление» (Кастомизация → Вид блоков): без класса поля f-*
@@ -776,9 +899,14 @@ export function buildUserHTML(userData, uid, isChecked, characters) {
     }
   });
   const восприятие = settings.enablePerception !== false ? buildPerceptionHTML(characters) : '';
+  const визитка = настройка('headerStyle') === 'visit';
+  // Баннер игрока — как у персонажа: полоса из аватарки или своей картинки.
+  const баннерИгрока = настройка('headerStyle') === 'banner'
+    ? `<div class="hud-banner"${avatarUrl ? ` style="background-image:url('${String(avatarUrl).replace(/'/g, '%27')}')"` : ''} aria-hidden="true"><span class="hud-banner-name">${escapeHtml(personaName)}</span><span class="hud-banner-vert">${escapeHtml(String(personaName).toUpperCase())}</span></div>`
+    : '';
   const плашки = плашкиСостояния(userData, personaName);
   if (!rows && !восприятие && !плашки) return '';
-  return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-header hud-user-header"><div class="hud-header-info">${avatarHtml}<div class="hud-header-text"><span class="hud-title">${escapeHtml(personaName)}</span></div></div></div><div class="hud-body hud-user-body">${плашки}${восприятие}${rows}</div></div>`;
+  return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}">${СЛОЙ_БУМАГИ}<div class="hud-header hud-user-header${баннерИгрока ? ' has-banner' : визитка ? ' is-visit' : ''}">${баннерИгрока}${визитка ? полосаВизитки(avatarUrl) : ''}${УКРАШЕНИЯ_ШАПКИ}<div class="hud-header-info">${портретВРамке(avatarHtml, personaName)}${имяСтолбиком(personaName)}${текстШапки(personaName, userData, true)}</div></div><div class="hud-body hud-user-body">${плашки}${восприятие}${сРазделителями(rows)}${подписьВкладки(personaName)}</div></div>`;
 }
 
 export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
@@ -793,10 +921,11 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
   // Шапка: буква имени для стиля «Призрачная буква» (видна только в нём) и
   // баннер из аватарки, когда в кастомизации выбрана шапка-баннер.
   const буква = escapeHtml((String(charName).trim().match(/\p{L}/u) || ['?'])[0].toUpperCase());
-  const баннер = settings.headerStyle === 'banner'
+  const баннер = настройка('headerStyle') === 'banner'
     ? `<div class="hud-banner"${avatar ? ` style="background-image:url('${String(avatar.url).replace(/'/g, '%27')}')"` : ''} aria-hidden="true"><span class="hud-banner-name">${escapeHtml(charName)}</span><span class="hud-banner-vert">${escapeHtml(String(charName).toUpperCase())}</span></div>`
     : '';
-  let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-header${баннер ? ' has-banner' : ''}">${баннер}<i class="hud-ghost-letter" aria-hidden="true">${буква}</i><div class="hud-header-info">${avatarHtml}<div class="hud-header-text"><span class="hud-title">${escapeHtml(charName)}</span></div></div></div><div class="hud-body">`;
+  const визитка = настройка('headerStyle') === 'visit';
+  let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}">${СЛОЙ_БУМАГИ}<div class="hud-header${баннер ? ' has-banner' : визитка ? ' is-visit' : ''}">${баннер}${визитка ? полосаВизитки(avatar && avatar.url) : ''}<i class="hud-ghost-letter" aria-hidden="true">${буква}</i>${УКРАШЕНИЯ_ШАПКИ}<div class="hud-header-info">${портретВРамке(avatarHtml, charName)}${имяСтолбиком(charName)}${текстШапки(charName, charData)}</div></div><div class="hud-body">`;
   html += плашкиСостояния(charData, charName);
 
   // Фаза, поза, раунд и длительность рисуются одной полосой — один раз.
@@ -866,7 +995,7 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       // Подтекст спрятан под «водой»: открывается нажатием (events.js, .hud-veil).
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-deep is-closed" role="button" tabindex="0" aria-expanded="false"><i class="hud-deep-caust"></i><i class="hud-deep-b" style="left:10%;top:70%;width:10px;height:10px"></i><i class="hud-deep-b" style="left:84%;top:30%;width:8px;height:8px"></i><i class="hud-deep-b" style="left:60%;top:82%;width:6px;height:6px"></i><p>${applyTooltips(value)}</p><span class="hud-veil"><svg viewBox="0 0 34 34" aria-hidden="true"><circle class="r" cx="17" cy="17" r="5"/><circle class="r" cx="17" cy="17" r="10" opacity=".6"/><circle class="r" cx="17" cy="17" r="15" opacity=".3"/></svg><span>Нажми, чтобы заглянуть глубже</span></span></div></div>`;
     } else if (lowerKey === 'доверие') {
-      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${видДоверия(value, видБлока('trustView')) || `<div class="hud-bodymap hud-trustmap">${buildTrustMap(value)}</div>`}${строкаСдвигов}</div>`;
+      html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${ростДоверия(сдвиги)}${видДоверия(value, видБлока('trustView')) || `<div class="hud-bodymap hud-trustmap">${buildTrustMap(value)}</div>`}${строкаСдвигов}</div>`;
     } else if (lowerKey === 'страхи') {
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${видСтрахов(value, видБлока('fearsView')) || `<div class="hud-fears">${buildFears(value)}</div>`}</div>`;
     } else if (lowerKey === 'реплики') {
@@ -969,5 +1098,5 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       html += `<div class="${rowClass}"><span class="hud-key">${icon}${escapeHtml(key)}:</span> ${значениеПоля(lowerKey, value, valueClass)}</div>`;
     }
   }
-  return html + `</div></div>`;
+  return сРазделителями(html) + подписьВкладки(charName) + `</div></div>`;
 }

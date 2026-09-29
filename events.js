@@ -11,15 +11,16 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.15.0';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.15.0';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.15.0';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.15.0';
-import { settings, defaultSettings } from './settings.js?v=23.15.0';
-import { getWorldVotes } from './render/world.js?v=23.15.0';
-import { раскрытьПорцию } from './render/long-list.js?v=23.15.0';
-import { прогретьИсторию } from './render/carryover.js?v=23.15.0';
-import { подключитьПалитру } from './color-picker.js?v=23.15.0';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.19.1';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.19.1';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.19.1';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.19.1';
+import { settings, defaultSettings } from './settings.js?v=23.19.1';
+import { getWorldVotes } from './render/world.js?v=23.19.1';
+import { раскрытьПорцию } from './render/long-list.js?v=23.19.1';
+import { прогретьИсторию } from './render/carryover.js?v=23.19.1';
+import { подключитьПалитру } from './color-picker.js?v=23.19.1';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.19.1';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -216,6 +217,7 @@ function унаследованноеТелефоном() {
 
 export function initGlobalEvents(ctx) {
   подключитьПалитру();
+  подключитьЗаменуЭмодзи();
   // settings и getWorldVotes раньше брались из ctx, но index.js их туда не
   // клал: обе ссылки молча оставались undefined. Внутри обработчика клика
   // (он async) исключение превращалось в проглоченный отказ промиса — ни
@@ -290,6 +292,47 @@ export function initGlobalEvents(ctx) {
           };
           fileInput.click(); // Имитируем клик по скрытому инпуту
       }
+      return;
+    }
+
+    // Своя картинка баннера (персонажей или игрока): те же 📁 и ✕, что у фона,
+    // ключ настройки — в data-img-key.
+    const imgBtn = e.target.closest('.hud-img-upload-btn');
+    if (imgBtn) {
+      e.preventDefault();
+      e.stopPropagation();
+      const ключ = imgBtn.dataset.imgKey;
+      const поле = imgBtn.nextElementSibling;
+      if (!ключ || !поле || !поле.classList.contains('hud-img-upload-file')) return;
+      поле.onchange = (ev) => {
+        const file = ev.target.files[0];
+        поле.value = '';
+        if (!file) return;
+        if (file.size > 3 * 1024 * 1024) { showHudToast('error', 'Слишком большой файл', 'Выберите картинку до 3 МБ.'); return; }
+        const reader = new FileReader();
+        reader.onload = (readEv) => {
+          settings[ключ] = readEv.target.result;
+          saveSettings();
+          applyThemeColors();
+          document.querySelectorAll(`.hud-theme-text-input[data-key="${ключ}"]`).forEach(inp => { inp.value = '(Локальный файл)'; });
+          showHudToast('success', 'Картинка баннера', 'Установлена. Сдвиг — ползунками ниже.');
+        };
+        reader.readAsDataURL(file);
+      };
+      поле.click();
+      return;
+    }
+    const imgClear = e.target.closest('.hud-img-clear-btn');
+    if (imgClear) {
+      e.preventDefault();
+      e.stopPropagation();
+      const ключ = imgClear.dataset.imgKey;
+      if (!ключ) return;
+      settings[ключ] = '';
+      saveSettings();
+      applyThemeColors();
+      document.querySelectorAll(`.hud-theme-text-input[data-key="${ключ}"]`).forEach(inp => { inp.value = ''; });
+      showHudToast('success', 'Картинка баннера убрана', 'Снова как было: аватарка или обои чата.');
       return;
     }
 
@@ -488,6 +531,8 @@ export function initGlobalEvents(ctx) {
       saveSettings();
       applyThemeColors();
       redrawPalettes();
+      // Украшения на «Авто» с разметкой по теме пересобирает index.js.
+      document.dispatchEvent(new CustomEvent('hud-theme-changed'));
 
       syncThemeInputs();
       document.querySelectorAll('.hud-theme-preset').forEach(b => {
@@ -1112,6 +1157,8 @@ export function initGlobalEvents(ctx) {
         // ними класс): иначе в настройки писался ключ «undefined».
         if (!varKey) return;
         if (varKey === 'bgImage') return;
+        // «(Локальный файл)» — подпись загруженной картинки, а не ссылка.
+        if (themeInput.classList.contains('hud-theme-text-input') && themeInput.value === '(Локальный файл)') return;
         if (String(settings[varKey] ?? '') !== String(themeInput.value)) запомнитьШаг(varKey);
         // Телефон наследовал тему HUD, а человек правит его фон, акцент,
         // блюр или шрифт: наследование снимаем, но сначала переносим в свои
@@ -1672,6 +1719,19 @@ document.addEventListener('click', (e) => {
   // замирают по второму — как погода в «Мире».
   const вид = e.target.closest && e.target.closest('.hud-v, .hud-v-bond');
   if (вид && !e.target.closest('a, button, input, select, .hud-help-mark')) вид.classList.toggle('fx-active');
+  // «Дыхание» света (часы, имя, портрет, вкладка) — так же: нажал — дышит,
+  // нажал ещё — замерло там, где было (misc.css, animation-play-state).
+  const дышит = e.target.closest && e.target.closest('.hud-os-card :is(.hud-time-display, .hud-title, .hud-avatar, .hud-avatar-placeholder, .hud-tabs-header .hud-tab.active), .hud-phone-lock-time');
+  if (дышит && document.documentElement.classList.contains('hud-glow-breath')) дышит.classList.toggle('fx-breath');
+  // Фон темы: нажатие на сам фон (пустое место карточки) запускает его
+  // движение, повторное — останавливает на месте. Плашки фон не трогают.
+  const фон = e.target.closest && e.target.closest('.hud-os-card');
+  if (фон && e.target.matches('.hud-os-card, .hud-os-wrapper, .hud-tabs-body, .hud-tab-content, .hud-body, .hud-user-body, .hud-memory-body, .hud-memory-scroll, .hud-world-container, .hud-world-scroll, .hud-pets, .hud-header, .hud-header-info')) фон.classList.toggle('fx-bg');
+  // Украшения шапки (рамки портрета, имя, Сатурн) и плашка «модель пишет
+  // HUD» двигаются только под курсором или после нажатия: нажал — ожили,
+  // нажал ещё — замерли (css/deco.css, fx-deco).
+  const украшение = e.target.closest && e.target.closest('.hud-os-card .hud-header, .hud-os-card .hud-key-block, .hud-gen-ind');
+  if (украшение && !e.target.closest('a, button, input, select, .hud-help-mark')) украшение.classList.toggle('fx-deco');
   // Сдвиги доверия под строкой: на телефоне наведения нет — открываем нажатием.
   const строка = e.target.closest && e.target.closest('.hud-row');
   if (строка && строка.querySelector(':scope > .hud-trust-meta') && !e.target.closest('a, button, input, select, .hud-help-mark')) строка.classList.toggle('is-meta-open');
@@ -1702,3 +1762,25 @@ function переключитьПелену(e) {
 }
 document.addEventListener('click', переключитьПелену, true);
 document.addEventListener('keydown', переключитьПелену, true);
+
+// Разделы «Кастомизации» (details.hud-smooth) раскрываются и сворачиваются
+// плавно: высота едет от строки заголовка до содержимого. Без анимации —
+// если человек попросил систему меньше двигаться.
+document.addEventListener('click', (e) => {
+  const заголовок = e.target.closest && e.target.closest('details.hud-smooth > summary');
+  if (!заголовок) return;
+  const раздел = заголовок.parentElement;
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches || typeof раздел.animate !== 'function') return;
+  e.preventDefault();
+  if (раздел.__hudAnim) раздел.__hudAnim.cancel();
+  const открыть = !раздел.open;
+  const было = раздел.offsetHeight;
+  раздел.style.overflow = 'hidden';
+  if (открыть) раздел.open = true;
+  const рамка = раздел.offsetHeight - раздел.clientHeight;
+  const станет = открыть ? раздел.scrollHeight + рамка : заголовок.offsetHeight + рамка + (parseFloat(getComputedStyle(раздел).paddingTop) || 0) + (parseFloat(getComputedStyle(раздел).paddingBottom) || 0);
+  const ход = раздел.animate({ height: [было + 'px', станет + 'px'] }, { duration: Math.min(420, 180 + Math.abs(станет - было) * 0.35), easing: 'cubic-bezier(.22,.8,.3,1)' });
+  раздел.__hudAnim = ход;
+  ход.onfinish = () => { if (!открыть) раздел.open = false; раздел.style.overflow = ''; раздел.__hudAnim = null; };
+  ход.oncancel = () => { раздел.style.overflow = ''; };
+});

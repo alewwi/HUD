@@ -13,13 +13,13 @@
 // карточки ненадёжны — у неё content-visibility, и браузер может не
 // двигать их время.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.15.0';
-import { namesLikelySame } from '../names.js?v=23.15.0';
-import { разобратьХод } from './carryover.js?v=23.15.0';
-import { parseSceneDate } from '../history-analyzer.js?v=23.15.0';
-import { исходЗачатия } from './conception.js?v=23.15.0';
-import { settings } from '../settings.js?v=23.15.0';
-import { ощущенияИзТекста, одеждаИзТекста, ОБЛАСТИ } from './body-layers.js?v=23.15.0';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.19.1';
+import { namesLikelySame } from '../names.js?v=23.19.1';
+import { разобратьХод } from './carryover.js?v=23.19.1';
+import { parseSceneDate } from '../history-analyzer.js?v=23.19.1';
+import { исходЗачатия } from './conception.js?v=23.19.1';
+import { settings } from '../settings.js?v=23.19.1';
+import { ощущенияИзТекста, одеждаИзТекста, ОБЛАСТИ } from './body-layers.js?v=23.19.1';
 
 const пусто = (v) => { const s = String(v ?? '').trim(); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
 const число = (s) => { const m = String(s ?? '').replace(/(\d),(\d)/g, '$1.$2').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };
@@ -1089,7 +1089,7 @@ export function buildCycle(value, контекст = {}) {
   if (день && !опоздание && день >= ov - 5 && день <= ov + 1) значки.push('<span class="hud-cycle-badge is-fertile"><i aria-hidden="true">🌼</i>фертильное окно</span>');
   const пмсСейчас = фаза === 'luteal' && день && день >= L - 6 && !опоздание;
   if (пмсСейчас) значки.push('<span class="hud-cycle-badge is-pms"><i aria-hidden="true">☁</i>окно ПМС</span>');
-  if (день && !опоздание && день <= L) значки.push(`<span class="hud-cycle-badge"><i aria-hidden="true">🗓</i>до месячных ≈ ${L - день + 1} дн.</span>`);
+  if (день && !опоздание && день <= L) значки.push(`<span class="hud-cycle-badge"><i aria-hidden="true">🗓️</i>до месячных ≈ ${L - день + 1} дн.</span>`);
 
   const датаСцены = датаСценыЦикла(контекст.сцена);
   const В = {

@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.15.0';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.15.0';
-import { namesLikelySame } from '../names.js?v=23.15.0';
-import { силаСтраха, статусРужья } from '../codes.js?v=23.15.0';
-import { settings } from '../settings.js?v=23.15.0';
-import { зоныКарты, ПЯТНА, ЗОНЫ } from './intimacy.js?v=23.15.0';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.15.0';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.19.1';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.19.1';
+import { namesLikelySame } from '../names.js?v=23.19.1';
+import { силаСтраха, статусРужья } from '../codes.js?v=23.19.1';
+import { settings } from '../settings.js?v=23.19.1';
+import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.19.1';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.19.1';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -50,7 +50,6 @@ export function видБлока(ключ) {
   if (ключ === 'bodyMapView' && settings.enableHeatMap === false) return 'list';
   return Object.keys(б.виды)[0];
 }
-export const прежнийВид = (ключ) => видБлока(ключ) === Object.keys((ВИДЫ_БЛОКОВ.find(x => x.ключ === ключ) || { виды: { '': 1 } }).виды)[0];
 
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
