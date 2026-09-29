@@ -279,10 +279,11 @@
   to   { background-position: 8px -14px, -10px -18px, 6px -12px; opacity: 1; }
 }
 
-/* Движение третьего слоя — только под курсором, как и у второго. */
+/* Движение фона — только по нажатию на сам фон (класс fx-bg, events.js).
+   Логотип киберпанка оживает под курсором на нём самом. */
+.hud-os-card.fx-bg .hud-tab-content::before { animation-play-state: running !important; }
 @media (hover: hover) {
-  .hud-os-card:hover .hud-tab-content::before { animation-play-state: running !important; }
-  .hud-theme-cyberpunk .hud-os-card:hover .hud-os-logo { animation-play-state: running; }
+  .hud-theme-cyberpunk .hud-os-logo:hover { animation-play-state: running; }
 }
 @media (prefers-reduced-motion: reduce) {
   .hud-tab-content::before, .hud-theme-cyberpunk .hud-os-logo { animation: none !important; }
@@ -511,11 +512,12 @@
 }
 @keyframes hud-oc-wave { from { background-position: 0 0; } to { background-position: 52px 0; } }
 
-/* Движение новых тем — как у всех: только под курсором. */
+/* Фон новых тем — тоже по нажатию на сам фон; значок у логотипа — под
+   курсором на логотипе. */
+.hud-os-card.fx-bg .hud-os-wrapper::after,
+.hud-os-card.fx-bg .hud-os-wrapper::before { animation-play-state: running !important; }
 @media (hover: hover) {
-  .hud-os-card:hover .hud-os-logo::after,
-  .hud-os-card:hover .hud-os-wrapper::after,
-  .hud-os-card:hover .hud-os-wrapper::before { animation-play-state: running !important; }
+  .hud-os-logo:hover::after { animation-play-state: running !important; }
 }
 @media (prefers-reduced-motion: reduce) {
   .hud-os-logo::after, .hud-os-wrapper::after, .hud-os-wrapper::before { animation: none !important; }
