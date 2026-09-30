@@ -7,25 +7,42 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.23.0';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.23.0';
-import { namesLikelySame } from '../names.js?v=23.23.0';
-import { силаСтраха, статусРужья } from '../codes.js?v=23.23.0';
-import { settings } from '../settings.js?v=23.23.0';
-import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.23.0';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.23.0';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.24.0';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.24.0';
+import { namesLikelySame } from '../names.js?v=23.24.0';
+import { силаСтраха, статусРужья } from '../codes.js?v=23.24.0';
+import { settings } from '../settings.js?v=23.24.0';
+import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.24.0';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.24.0';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
 export const ВИДЫ_БЛОКОВ = [
-  // Новые блоки (новый: true): у них нет «как было» — первый вид и есть основной.
-  { ключ: 'bodyStateView', группа: 'Персонаж', поле: 'Состояние тела', виды: { batteries: 'Батарейки', flasks: 'Колбы', chips: 'Строка' }, новый: true },
-  { ключ: 'inventoryView', группа: 'Персонаж', поле: 'Инвентарь', виды: { list: 'Список', grid: 'Слоты', cards: 'Карточки', groups: 'По группам', weight: 'По важности', receipt: 'Опись' } },
-  { ключ: 'trustView', группа: 'Персонаж', поле: 'Доверие', виды: { bars: 'Полоски', hearts: 'Сердца', shield: 'Щит', ring: 'Кольца', traffic: 'Светофор', spectrum: 'Спектр', orbit: 'Орбиты' } },
-  { ключ: 'fearsView', группа: 'Персонаж', поле: 'Страхи', виды: { list: 'Список', thermometer: 'Термометры', skulls: 'Черепа', storm: 'Тучи', radar: 'Радар', dark: 'Во тьме' } },
-  { ключ: 'memoriesView', группа: 'Персонаж', поле: 'Общие воспоминания', виды: { list: 'Список', polaroid: 'Полароиды', film: 'Плёнка', beads: 'Бусины' } },
-  { ключ: 'exposureView', группа: 'Персонаж', поле: 'Разоблачение', виды: { text: 'Текст', bar: 'Шкала', mask: 'Маска', eye: 'Глаз', hourglass: 'Песочные часы' } },
-  { ключ: 'jealousyView', группа: 'Персонаж', поле: 'Ревность', виды: { text: 'Текст', triangle: 'Треугольник', thorns: 'Шипы', thought: 'Мысли' } },
+  // Группы — подгруппы «Кастомизации» в порядке строк карточки. Новые блоки
+  // (новый: true): у них нет «как было» — первый вид и есть основной.
+  { ключ: 'ageView', группа: 'Облик', поле: 'Возраст', виды: { classic: 'Крупная цифра', id: 'Удостоверение', zodiac: 'Знак зодиака', rings: 'Годовые кольца' } },
+  { ключ: 'clothesView', группа: 'Облик', поле: 'Одежда', виды: { classic: 'Текст', hanger: 'Вешалка', layers: 'Слои', tags: 'Бирки' } },
+  { ключ: 'looksView', группа: 'Облик', поле: 'Внешность', виды: { classic: 'Текст', traits: 'Черты', profile: 'Приметы', sketch: 'Набросок' } },
+  { ключ: 'roleView', группа: 'Облик', поле: 'Роль', виды: { classic: 'Карточка', badge: 'Пропуск', ribbon: 'Лента', stack: 'Визитка' } },
+  { ключ: 'bodyStateView', группа: 'Тело и здоровье', поле: 'Тело и состояние', виды: { batteries: 'Батарейки', flasks: 'Колбы', chips: 'Строка' }, новый: true },
+  { ключ: 'physView', группа: 'Тело и здоровье', поле: 'Физиология', виды: { classic: 'Текст', sensors: 'Датчики', bubbles: 'Пузырьки', readout: 'Монитор' } },
+  { ключ: 'healthView', группа: 'Тело и здоровье', поле: 'Здоровье', виды: { classic: 'Карточки', chart: 'Медкарта', compact: 'Кратко', kit: 'Аптечка' } },
+  { ключ: 'marksView', группа: 'Тело и здоровье', поле: 'Следы на теле', виды: { classic: 'Карточки', compact: 'Строки', badges: 'Значки', tags: 'Бирки' } },
+  { ключ: 'keyView', группа: 'Мысли и чувства', поле: 'Ключ', виды: { classic: 'Карточки', stickers: 'Стикеры', bullets: 'Бусины', headlines: 'Заголовки' } },
+  { ключ: 'expView', группа: 'Мысли и чувства', поле: 'Ожидание vs Реальность', виды: { classic: 'Как было', split: 'Две половины', photos: 'Два снимка', arrow: 'Поворот' } },
+  { ключ: 'fearsView', группа: 'Мысли и чувства', поле: 'Страхи', виды: { list: 'Список', thermometer: 'Термометры', skulls: 'Черепа', storm: 'Тучи', radar: 'Радар', dark: 'Во тьме' } },
+  { ключ: 'exposureView', группа: 'Мысли и чувства', поле: 'Разоблачение', виды: { text: 'Текст', bar: 'Шкала', mask: 'Маска', eye: 'Глаз', hourglass: 'Песочные часы' } },
+  { ключ: 'goalsView', группа: 'Планы и вещи', поле: 'Цели', виды: { classic: 'Ступени', ladder: 'Лестница', target: 'Мишень', road: 'Дорога' } },
+  { ключ: 'scheduleView', группа: 'Планы и вещи', поле: 'Расписание', виды: { classic: 'Лента', calendar: 'Календарь', planner: 'Ежедневник', tickets: 'Билеты' } },
+  { ключ: 'flagsView', группа: 'Планы и вещи', поле: 'Флаг-монитор', виды: { classic: 'Вымпелы', checklist: 'Чек-лист', pins: 'Доска', lamps: 'Лампы' } },
+  { ключ: 'inventoryView', группа: 'Планы и вещи', поле: 'Инвентарь', виды: { list: 'Список', grid: 'Слоты', cards: 'Карточки', groups: 'По группам', weight: 'По важности', receipt: 'Опись' } },
+  { ключ: 'placeView', группа: 'Место и речь', поле: 'Место', виды: { classic: 'Текст', crumbs: 'Путь', pin: 'Метка на карте', sign: 'Табличка' } },
+  { ключ: 'linesView', группа: 'Место и речь', поле: 'Реплики', виды: { classic: 'Облачка', quotes: 'Цитаты', script: 'Сценарий', subtitles: 'Субтитры' } },
+  { ключ: 'trustView', группа: 'Связи', поле: 'Доверие', виды: { bars: 'Полоски', hearts: 'Сердца', shield: 'Щит', ring: 'Кольца', traffic: 'Светофор', spectrum: 'Спектр', orbit: 'Орбиты' } },
+  { ключ: 'statusView', группа: 'Связи', поле: 'Статус', виды: { classic: 'Индикатор', badge: 'Бейдж', stamp: 'Штамп', toggles: 'Переключатели' } },
+  { ключ: 'conflictView', группа: 'Связи', поле: 'Глубина конфликта', виды: { classic: 'Плашки', stages: 'Стадии', counter: 'Счётчик дней', weather: 'Погода' } },
+  { ключ: 'jealousyView', группа: 'Связи', поле: 'Ревность', виды: { text: 'Текст', triangle: 'Треугольник', thorns: 'Шипы', thought: 'Мысли' } },
+  { ключ: 'memoriesView', группа: 'Связи', поле: 'Общие воспоминания', виды: { list: 'Список', polaroid: 'Полароиды', film: 'Плёнка', beads: 'Бусины' } },
   { ключ: 'orgView', группа: 'Близость', поле: 'Готовность к оргазму', виды: { bar: 'Шкала', ring: 'Кольцо', flame: 'Пламя', wave: 'Волна', pulse: 'Пульс', glass: 'Бокал' } },
   { ключ: 'vitalsView', группа: 'Близость', поле: 'Жизненные показатели', виды: { list: 'Плитки', dashboard: 'Циферблаты', ecg: 'Монитор ЭКГ', rings: 'Кольца', pulse: 'Сердце', anatomy: 'Анатомия' } },
   { ключ: 'bodyMapView', группа: 'Близость', поле: 'Карта тела', виды: { both: 'Спереди и сзади', front: 'Спереди', list: 'Список', dots: 'Точки', zones: 'Блоки', constellation: 'Созвездие', words: 'Облако слов' } },
@@ -96,6 +113,17 @@ function лицоSvg(имя, x, y, r, класс = '') {
     + `<circle class="ring" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${(r - .3).toFixed(1)}"/><title>${escapeHtml(имя)}</title></g>`;
 }
 
+// Сердца-сосуды: жидкость поднимается снизу, верх — волной; поверх блик.
+function сердцаСосуды(v, id, всего = 5) {
+  const шаг = 100 / всего;
+  return `<span class="hud-v-hearts is-glass" aria-hidden="true"><svg class="defs" width="0" height="0"><defs><linearGradient id="${id}l" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="l0"/><stop offset="1" class="l1"/></linearGradient></defs></svg>${Array.from({ length: всего }, (_, i) => {
+    const f = огр((v - i * шаг) / шаг, 0, 1), cid = id + 'c' + i, y = 21.4 - f * 16.8;
+    return `<svg viewBox="0 0 24 24" style="--i:${i}" class="${f >= 1 ? 'is-full' : f > 0 ? 'is-part' : ''}"><clipPath id="${cid}"><path d="${СЕРДЦЕ}"/></clipPath><path class="bg" d="${СЕРДЦЕ}"/>`
+      + (f > 0 ? `<g clip-path="url(#${cid})"><path class="liquid" fill="url(#${id}l)" d="M0 ${y.toFixed(1)}q3 -1.4 6 0t6 0 6 0 6 0 6 0V24H0Z"/></g>` : '')
+      + `<path class="rim" d="${СЕРДЦЕ}"/><path class="gl" d="M7.2 9.6a2.8 2.8 0 0 1 3-2"/></svg>`;
+  }).join('')}</span>`;
+}
+
 /* --- Доверие ---------------------------------------------------------------- */
 
 function разобратьДоверие(value) {
@@ -122,8 +150,16 @@ export function видДоверия(value, вид) {
     ? `<div class="hud-v-card"><div class="hud-v-who-line">${лицо(ч.кто)}<b>${escapeHtml(ч.кто)}</b></div><small>${escapeHtml(ч.сырое)}</small></div>`
     : тело(ч)).join('')}</div>`;
   if (вид === 'hearts') {
-    return карточки('is-hearts', ч => `<div class="hud-v-card ${ступень(ч.v)}" title="${escapeHtml(ч.кто)}: ${Math.round(ч.v)} из 100">`
-      + `<div class="hud-v-who-line">${лицо(ч.кто)}<b>${escapeHtml(ч.кто)}</b><em class="hud-v-num">${Math.round(ч.v)}</em></div>${сердца(ч.v)}</div>`);
+    // Сердца: стеклянные, наливаются снизу, как сосуд; большое сердце справа
+    // держит число. На пике — искры, на «глухо закрыт» сердце трескается.
+    return карточки('is-hearts', ч => {
+      const id = новыйId('ht');
+      return `<div class="hud-v-card hud-v-heartcard ${ступень(ч.v)}" style="${тон(ч.кто)}" title="${escapeHtml(ч.кто)}: ${Math.round(ч.v)} из 100 — ${словоДоверия(ч.v)}">`
+        + `<i class="hud-v-heart-mark" aria-hidden="true"></i>`
+        + `<div class="hud-v-who-line">${лицо(ч.кто)}<span class="hud-v-who-text"><b>${escapeHtml(ч.кто)}</b><small>${словоДоверия(ч.v)}</small></span>`
+        + `<span class="hud-v-bigheart" aria-hidden="true"><svg viewBox="0 0 24 24"><defs><linearGradient id="${id}b" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="b0"/><stop offset="1" class="b1"/></linearGradient></defs><path class="bh" fill="url(#${id}b)" d="${СЕРДЦЕ}"/>${ч.v < 20 ? '<path class="crack" d="M12 7.4 10.6 11l2.4 2-1.6 3.6"/>' : ''}<path class="gl" d="M7.2 9.6a2.8 2.8 0 0 1 3-2"/></svg><em>${Math.round(ч.v)}</em></span></div>`
+        + сердцаСосуды(ч.v, id) + (ч.v >= 85 ? '<i class="hud-v-sparks" aria-hidden="true"><s></s><s></s><s></s></i>' : '') + `</div>`;
+    });
   }
   if (вид === 'shield') {
     // Щит тем плотнее, чем меньше доверия: «открыт» — пустой контур,
@@ -232,23 +268,20 @@ export function видСтрахов(value, вид) {
     }).join('')}</div>`;
   }
   if (вид === 'dark') {
-    // Во тьме: у каждого страха — силуэт в тумане с горящими глазами.
-    // Сильнее страх — силуэт крупнее, ближе (ниже), глаза злее и ярче,
-    // брови сведены. Слабый — едва различим в глубине.
-    return `<div class="hud-v hud-v-fears is-dark"><div class="hud-v-dark"><i class="fog f1" aria-hidden="true"></i><i class="fog f2" aria-hidden="true"></i>${страхи.map((с, i) => {
-      const id = новыйId('dk'), k = .72 + с.сила * .09, злость = с.сила >= 4 ? 3.2 : с.сила >= 3 ? 1.6 : 0;
-      const глаз = (x) => `<g transform="translate(${x} 34)"><circle class="halo" r="8" fill="url(#${id}h)"/><path class="eyeball" fill="url(#${id}e)" d="M-5.4 0C-3.2-3.4 3.2-3.4 5.4 0 3.2 2.8-3.2 2.8-5.4 0Z"/><ellipse class="slit" rx=".95" ry="2.3"/>`
-        + (злость ? `<path class="brow" d="M${x < 50 ? -6 : 6} ${-4.6 - злость * .3}L${x < 50 ? 4.4 : -4.4} ${-3.4 + злость * .5}"/>` : '') + `</g>`;
-      return `<div class="hud-v-dark-one s${с.сила}" style="--k:${k.toFixed(2)};--y:${((5 - с.сила) * 6).toFixed(0)}px;--d:${(i * .6).toFixed(1)}s" title="${титул(с)}">`
-        + `<svg class="hud-v-shade" viewBox="0 0 100 78" aria-hidden="true"><defs>`
-        + `<linearGradient id="${id}s" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="s0"/><stop offset=".75" class="s1"/><stop offset="1" class="s2"/></linearGradient>`
-        + `<radialGradient id="${id}h"><stop offset="0" class="h0"/><stop offset="1" class="h1"/></radialGradient>`
-        + `<radialGradient id="${id}e" cx=".5" cy=".45" r=".6"><stop offset="0" class="e0"/><stop offset=".6" class="e1"/><stop offset="1" class="e2"/></radialGradient></defs>`
-        + `<path class="body" fill="url(#${id}s)" d="M50 16c-9.5 0-15.5 7.4-15.5 16.6 0 5 2 9.2 5.2 12.2C29 48 21 55 19 78h62c-2-23-10-30-20.7-33.2 3.2-3 5.2-7.2 5.2-12.2C65.5 23.4 59.5 16 50 16Z"/>`
-        + `<path class="rim" d="M36 26c2-6 7-9.6 14-9.6M64.6 28c1 3 1 6-.4 9"/>`
-        + `<g class="eyes">${глаз(43)}${глаз(57)}</g></svg>`
-        + `<b>${escapeHtml(с.что)}</b>${с.слово ? `<small>${escapeHtml(с.слово)}</small>` : ''}</div>`;
-    }).join('')}</div></div>`;
+    // Во тьме: над свечой — темнота, из неё смотрят глаза. Каждый страх —
+    // пара глаз: чем он сильнее, тем ближе к свету, крупнее и ярче.
+    // Слабый — едва тлеет где-то в глубине. Подписи — списком под сценой.
+    const n = страхи.length;
+    const пары = страхи.map((с, i) => {
+      const x = n === 1 ? 50 : 20 + i * 60 / (n - 1) + (i % 2 ? 2 : -2);
+      const y = 16 + (5 - с.сила) * -2 + с.сила * 9;
+      return `<span class="hud-v-gaze s${с.сила}" style="--x:${x.toFixed(1)}%;--y:${y.toFixed(0)}%;--k:${(.55 + с.сила * .15).toFixed(2)};--d:${(i * .9 + .3).toFixed(1)}s" title="${титул(с)}">`
+        + `<i class="mist" aria-hidden="true"></i><svg viewBox="0 0 44 14" aria-hidden="true"><path class="e" d="M2 7.5Q8 1 14.5 6.6Q8 11.5 2 7.5Z"/><path class="e" d="M42 7.5Q36 1 29.5 6.6Q36 11.5 42 7.5Z"/>`
+        + `<ellipse class="p" cx="9" cy="7" rx=".9" ry="2.4"/><ellipse class="p" cx="35" cy="7" rx=".9" ry="2.4"/></svg><b>${i + 1}</b></span>`;
+    }).join('');
+    const свеча = `<svg class="hud-v-candle" viewBox="0 0 24 40" aria-hidden="true"><path class="flame" d="M12 4c3 4.6 4.2 7.4 4.2 10a4.2 4.2 0 0 1-8.4 0C7.8 11.4 9 8.6 12 4Z"/><path class="core" d="M12 10c1.2 2 1.7 3.2 1.7 4.4a1.7 1.7 0 0 1-3.4 0c0-1.2.5-2.4 1.7-4.4Z"/><path class="wick" d="M12 17v3"/><rect class="wax" x="8" y="20" width="8" height="16" rx="1.5"/><path class="drip" d="M9.5 20v4.5a1 1 0 0 0 2 0V21"/><ellipse class="dish" cx="12" cy="37" rx="9" ry="2.4"/></svg>`;
+    return `<div class="hud-v hud-v-fears is-dark2"><div class="hud-v-night"><i class="glow" aria-hidden="true"></i>${пары}${свеча}</div>`
+      + `<ol class="hud-v-night-list">${страхи.map((с, i) => `<li class="s${с.сила}"><i class="n" aria-hidden="true">${i + 1}</i><span><b>${escapeHtml(с.что)}</b>${с.слово ? `<small>${escapeHtml(с.слово)}</small>` : ''}</span><span class="lvl" aria-label="${с.сила} из 5">${[1, 2, 3, 4, 5].map(k => `<s${k <= с.сила ? ' class="on"' : ''}></s>`).join('')}</span></li>`).join('')}</ol></div>`;
   }
   if (вид === 'radar') {
     // Экран радара: страхи — отметки. Чем сильнее страх, тем ближе он к
@@ -371,26 +404,37 @@ export function видРазоблачения(value, вид) {
       + трещины.filter((_, i) => v > 15 + i * 20).map(d => `<path class="crack-lip" d="${d}" transform="translate(.5 .4)"/><path class="crack" d="${d}"/>`).join('')
       + (v >= 90 ? '<path class="chip" d="M49.6 28L46.2 29.4L44.8 33L47.6 35.2L49 31.6Z"/><path class="shard" d="M50.5 41l2.6.8-.9 2.6-2.3-.9Z"/>' : '') + `</svg>`;
   } else if (вид === 'eye') {
-    // Живой глаз: белок с тенью от века, радужка с волокнами и тёмным
-    // ободком, два блика. Чем ближе правда, тем шире раскрыты веки.
-    const о = огр(v / 100, 0.12, 1), верх = 24 - 17 * о, низ = 24 + 11 * о;
-    const щель = `M6 24Q40 ${(верх * 2 - 24).toFixed(1)} 74 24Q40 ${(низ * 2 - 24).toFixed(1)} 6 24Z`;
-    const волокна = Array.from({ length: 28 }, (_, i) => { const a = i / 28 * Math.PI * 2, r1 = 4.2 + (i % 3) * .4, r2 = 10.4 - (i % 2) * 1.2; return `M${(40 + r1 * Math.cos(a)).toFixed(2)} ${(24 + r1 * Math.sin(a)).toFixed(2)}L${(40 + r2 * Math.cos(a)).toFixed(2)} ${(24 + r2 * Math.sin(a)).toFixed(2)}`; }).join('');
-    const ресницы = Array.from({ length: 9 }, (_, i) => { const t = .12 + i * .095, x = (1 - t) * (1 - t) * 6 + 2 * (1 - t) * t * 40 + t * t * 74, y = (1 - t) * (1 - t) * 24 + 2 * (1 - t) * t * (верх * 2 - 24) + t * t * 24, dx = (t - .5) * 7; return `M${x.toFixed(1)} ${y.toFixed(1)}q${(dx * .4).toFixed(1)} -4 ${dx.toFixed(1)} -${(5 + (1 - Math.abs(t - .5) * 2) * 2).toFixed(1)}`; }).join('');
-    рисунок = `<svg class="hud-v-eye" viewBox="0 0 80 48" aria-hidden="true"><defs>`
+    // Око в ореоле: чем ближе правда, тем шире открыт глаз, больше зрачок и
+    // больше горит лучей вокруг. Рядом — десять маленьких глаз: сколько из
+    // них уже открыты, столько «видящих».
+    const о = 0.18 + 0.82 * v / 100, верх = 40 - 24 * о, низ = 40 + 17 * о;
+    const щель = `M13 40Q40 ${(2 * верх - 40).toFixed(1)} 67 40Q40 ${(2 * низ - 40).toFixed(1)} 13 40Z`;
+    const лучей = 20, горит = Math.round(v / 100 * лучей);
+    const лучи = Array.from({ length: лучей }, (_, i) => {
+      const a = -Math.PI / 2 + i / лучей * Math.PI * 2, r1 = 33, r2 = i % 2 ? 36.5 : 38.5;
+      return `<path class="ray${i < горит ? ' is-on' : ''}" style="--i:${i}" d="M${(40 + r1 * Math.cos(a)).toFixed(1)} ${(40 + r1 * Math.sin(a)).toFixed(1)}L${(40 + r2 * Math.cos(a)).toFixed(1)} ${(40 + r2 * Math.sin(a)).toFixed(1)}"/>`;
+    }).join('');
+    const ресницы = [.25, .38, .5, .62, .75].map(t => { const x = (1 - t) ** 2 * 13 + 2 * (1 - t) * t * 40 + t * t * 67, y = (1 - t) ** 2 * 40 + 2 * (1 - t) * t * (2 * верх - 40) + t * t * 40; return `M${x.toFixed(1)} ${y.toFixed(1)}l${((t - .5) * 6).toFixed(1)} -4.2`; }).join('');
+    рисунок = `<svg class="hud-v-eye2" viewBox="0 0 80 80" aria-hidden="true"><defs>`
       + `<clipPath id="${id}c"><path d="${щель}"/></clipPath>`
-      + `<radialGradient id="${id}w" cx=".5" cy=".55" r=".6"><stop offset="0" class="w0"/><stop offset=".75" class="w1"/><stop offset="1" class="w2"/></radialGradient>`
-      + `<radialGradient id="${id}"><stop offset="0" class="i0"/><stop offset=".55" class="i1"/><stop offset=".92" class="i2"/><stop offset="1" class="i3"/></radialGradient>`
-      + `<linearGradient id="${id}l" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="l0"/><stop offset="1" class="l1"/></linearGradient>`
-      + `<radialGradient id="${id}k" cx=".5" cy=".4" r=".7"><stop offset="0" class="k0"/><stop offset="1" class="k1"/></radialGradient></defs>`
-      + `<ellipse class="socket" cx="40" cy="24" rx="38" ry="${(12 + 10 * о).toFixed(1)}" fill="url(#${id}k)"/>`
-      + `<g class="lidset"><g clip-path="url(#${id}c)"><rect x="0" y="0" width="80" height="48" fill="url(#${id}w)"/>`
-      + (v >= 60 ? '<path class="vein" d="M9 24q6-2 10 1M71 24q-6-3-10 0M12 28q5 0 8-2M68 20q-5 0-8 2"/>' : '')
-      + `<g class="look"><circle class="iris" cx="40" cy="24" r="10.6" fill="url(#${id})"/><path class="fibers" d="${волокна}"/><circle class="limbal" cx="40" cy="24" r="10.4"/>`
-      + `<circle class="pupil" cx="40" cy="24" r="${(3 + v / 100 * 2.6).toFixed(1)}"/><ellipse class="glint" cx="44" cy="19.6" rx="2.6" ry="2"/><circle class="glint2" cx="36.4" cy="28" r="1"/></g>`
-      + `<rect class="lidshade" x="0" y="${(верх - 3).toFixed(1)}" width="80" height="9" fill="url(#${id}l)"/></g>`
-      + `<path class="lashline" d="M6 24Q40 ${(верх * 2 - 24).toFixed(1)} 74 24"/><path class="lowline" d="M8 24.6Q40 ${(низ * 2 - 23).toFixed(1)} 72 24.6"/>`
-      + `<path class="crease" d="M10 21Q40 ${(2 * (верх - 5.5) - 21).toFixed(1)} 70 21"/><path class="lashes" d="${ресницы}"/></g></svg>`;
+      + `<radialGradient id="${id}h"><stop offset=".55" class="h0"/><stop offset="1" class="h1"/></radialGradient>`
+      + `<radialGradient id="${id}w" cx=".5" cy=".6" r=".7"><stop offset="0" class="w0"/><stop offset="1" class="w1"/></radialGradient>`
+      + `<radialGradient id="${id}i" cx=".45" cy=".4" r=".62"><stop offset="0" class="i0"/><stop offset=".6" class="i1"/><stop offset="1" class="i2"/></radialGradient></defs>`
+      + `<circle class="halo" cx="40" cy="40" r="34" fill="url(#${id}h)"/><circle class="orbit" cx="40" cy="40" r="30"/><g class="rays">${лучи}</g>`
+      + `<path class="lash" d="${ресницы}"/>`
+      + `<g clip-path="url(#${id}c)"><rect x="10" y="14" width="60" height="52" fill="url(#${id}w)"/>`
+      + `<g class="look"><circle class="iris" cx="40" cy="40" r="12.5" fill="url(#${id}i)"/><circle class="iris-ring" cx="40" cy="40" r="12.2"/><circle class="iris-in" cx="40" cy="40" r="8"/>`
+      + `<circle class="pupil" cx="40" cy="40" r="${(3.6 + v / 100 * 2.6).toFixed(1)}"/><circle class="glint" cx="44.2" cy="35.6" r="2.3"/><circle class="glint2" cx="36.6" cy="43.4" r=".9"/></g>`
+      + `<path class="lidshade" d="M10 ${(верх - 6).toFixed(1)}H70V${(верх + 5).toFixed(1)}Q40 ${(верх + 9).toFixed(1)} 10 ${(верх + 5).toFixed(1)}Z"/></g>`
+      + `<path class="lid" d="M13 40Q40 ${(2 * верх - 40).toFixed(1)} 67 40"/><path class="lid-low" d="M15 40.6Q40 ${(2 * низ - 39).toFixed(1)} 65 40.6"/>`
+      + `<path class="corner" d="M13 40l-3.4 1.2M67 40l3.4 1.2"/></svg>`;
+    // Свидетели: десять маленьких глаз, открыты — «видят».
+    const видят = Math.round(v / 10);
+    const свидетели = `<span class="hud-v-watchers" title="Замечают: ${видят} из 10">${Array.from({ length: 10 }, (_, i) => i < видят
+      ? `<svg viewBox="0 0 20 12" class="is-open" style="--i:${i}"><path class="al" d="M1 6Q10 -2 19 6Q10 14 1 6Z"/><circle cx="10" cy="6" r="2.7"/></svg>`
+      : `<svg viewBox="0 0 20 12" style="--i:${i}"><path class="cl" d="M2 5Q10 10.5 18 5M6 7.6l-1 2M10 8.4v2.2M14 7.6l1 2"/></svg>`).join('')}</span>`;
+    return `<div class="hud-v hud-v-expo is-eye${v >= 60 ? ' is-hot' : ''}" title="Разоблачение: ${v} из 100"><div class="hud-v-art">${рисунок}</div>`
+      + `<div class="hud-v-side">${голова}${свидетели}${подпись(текст)}</div></div>`;
   } else if (вид === 'hourglass') {
     // Песочные часы: наверху — то, что ещё скрыто, внизу — что уже вышло
     // наружу. Струйка бежит, пока тайна не раскрыта целиком.
