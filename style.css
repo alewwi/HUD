@@ -7,9 +7,9 @@
    @import обязан стоять раньше любых правил, поэтому в этом файле больше
    ничего и нет. */
 
-@import url('./css/base.css?v=23.19.1');
-@import url('./css/themes.css?v=23.19.1');
-@import url('./css/misc.css?v=23.19.1');
-@import url('./css/views.css?v=23.19.1');
-@import url('./css/extras.css?v=23.19.1');
-@import url('./css/deco.css?v=23.19.1');
+@import url('./css/base.css?v=23.23.0');
+@import url('./css/themes.css?v=23.23.0');
+@import url('./css/misc.css?v=23.23.0');
+@import url('./css/views.css?v=23.23.0');
+@import url('./css/extras.css?v=23.23.0');
+@import url('./css/deco.css?v=23.23.0');

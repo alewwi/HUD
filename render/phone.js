@@ -6,17 +6,17 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText } from '../utils.js?v=23.19.1';
-import { settings } from '../settings.js?v=23.19.1';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.19.1';
-import { G_ICONS } from './icons.js?v=23.19.1';
-import { buildMessengerHTML } from './messenger.js?v=23.19.1';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.19.1';
-import { сортироватьЧаты } from './msg-feed.js?v=23.19.1';
-import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.19.1';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.23.0';
+import { settings } from '../settings.js?v=23.23.0';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.23.0';
+import { G_ICONS } from './icons.js?v=23.23.0';
+import { buildMessengerHTML } from './messenger.js?v=23.23.0';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.23.0';
+import { сортироватьЧаты } from './msg-feed.js?v=23.23.0';
+import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.23.0';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.19.1';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.23.0';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -48,7 +48,7 @@ function walletRng(seed) {
 // транслитерируется, латиница остаётся как есть, макрос {{char}} к этому
 // моменту уже заменён на настоящее имя.
 function cardHolder(owner) {
-  const raw = String(owner || '').replace(/\{\{[^}]*\}\}/g, ' ').trim();
+  const raw = имяБезПриставки(String(owner || '').replace(/\{\{[^}]*\}\}/g, ' ').trim());
   if (!raw) return 'CARD HOLDER';
   const latin = /[а-яё]/i.test(raw) ? transliterateCyrillic(raw) : raw;
   const words = String(latin).toUpperCase().replace(/[^A-Z\s-]/g, ' ').split(/\s+/).filter(Boolean);
@@ -357,7 +357,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   </button>`).join('');
 
   const views = apps.map(a => `<div class="hud-phone-app-view" data-phone-view="${a.id}" data-phone-uid="${uid}">
-    <div class="hud-phone-app-title"><span class="hud-phone-back" role="button" tabindex="0" aria-label="Назад" title="Назад">⟨</span>${a.icon} ${escapeHtml(a.label)}<span class="hud-phone-app-owner">${escapeHtml(phoneOwner)}</span></div>
+    <div class="hud-phone-app-title"><span class="hud-phone-back" role="button" tabindex="0" aria-label="Назад" title="Назад">⟨</span>${a.icon} ${escapeHtml(a.label)}<span class="hud-phone-app-owner">${escapeHtml(имяБезПриставки(phoneOwner))}</span></div>
     ${a.body}
   </div>`).join('');
 

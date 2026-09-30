@@ -7,11 +7,11 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe } from '../utils.js?v=23.19.1';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.19.1';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.19.1';
-import { buildFamilyTree } from './family-tree.js?v=23.19.1';
-import { settings } from '../settings.js?v=23.19.1';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.23.0';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.23.0';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.23.0';
+import { buildFamilyTree } from './family-tree.js?v=23.23.0';
+import { settings } from '../settings.js?v=23.23.0';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -404,7 +404,8 @@ export function buildRelGraphHTML(hudData, uid) {
       const av = getAvatarUrl(node.name, node.isPrimary);
       url = (av && av.url) || '';
     }
-    const short = node.name.length > 18 ? node.name.slice(0, 17) + '…' : node.name;
+    const видимое = имяБезПриставки(node.name);
+    const short = видимое.length > 18 ? видимое.slice(0, 17) + '…' : видимое;
     const roleClass = relNodeRoleClass(node);
     // Подпись роли над узлом. Была английской, а у главного персонажа —
     // сырой макрос «{{char}}» прямо на экране.
@@ -413,7 +414,7 @@ export function buildRelGraphHTML(hudData, uid) {
     svg += `<circle class="hud-rel-node-halo" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r + 7}"/>`;
     svg += `<circle class="hud-rel-node-bg" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}" style="fill:${color}"/>`;
     svg += `<clipPath id="${clipId}"><circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r - 2}"/></clipPath>`;
-    svg += `<text class="hud-rel-initials" x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" text-anchor="middle" dominant-baseline="central">${escapeHtml(commentInitials(node.name))}</text>`;
+    svg += `<text class="hud-rel-initials" x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" text-anchor="middle" dominant-baseline="central">${escapeHtml(commentInitials(имяБезПриставки(node.name)))}</text>`;
     if (url) svg += `<image href="${escapeHtml(url)}" x="${(p.x - r + 2).toFixed(1)}" y="${(p.y - r + 2).toFixed(1)}" width="${(r * 2 - 4).toFixed(1)}" height="${(r * 2 - 4).toFixed(1)}" clip-path="url(#${clipId})" preserveAspectRatio="xMidYMid slice"/>`;
     svg += `<circle class="hud-rel-ring" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${r}" fill="none"/>`;
     svg += `<rect class="hud-rel-node-pill" x="${(p.x - 42).toFixed(1)}" y="${(p.y + r + 8).toFixed(1)}" width="84" height="22" rx="11"/>`;
@@ -633,6 +634,32 @@ function bindRelGraphViewportHook() {
   if (window.visualViewport) window.visualViewport.addEventListener('resize', recenter);
 }
 
+// На узком экране холст 1000×760 ужимается втрое, а узлы занимают его не
+// целиком. В раскрытом виде подрезаем viewBox по узлам и подписям — граф
+// крупнее; при закрытии возвращаем исходный.
+function подогнатьХолст(graphEl, раскрыт) {
+  const svg = graphEl.querySelector('.hud-rel-svg');
+  if (!svg) return;
+  if (!раскрыт || window.innerWidth > 680) {
+    if (svg.dataset.fullViewBox) { svg.setAttribute('viewBox', svg.dataset.fullViewBox); delete svg.dataset.fullViewBox; }
+    return;
+  }
+  const полный = svg.dataset.fullViewBox || svg.getAttribute('viewBox');
+  svg.setAttribute('viewBox', полный);
+  let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+  svg.querySelectorAll('.hud-rel-node-halo, .hud-rel-node text, text.hud-rel-edge-label').forEach(e => {
+    try { const b = e.getBBox(); if (!b.width && !b.height) return;
+      x0 = Math.min(x0, b.x); y0 = Math.min(y0, b.y); x1 = Math.max(x1, b.x + b.width); y1 = Math.max(y1, b.y + b.height); } catch (_) {}
+  });
+  if (!isFinite(x0)) return;
+  const [vx, vy, vw, vh] = String(полный).split(/[\s,]+/).map(Number);
+  const з = 18;
+  x0 = Math.max(vx, x0 - з); y0 = Math.max(vy, y0 - з); x1 = Math.min(vx + vw, x1 + з); y1 = Math.min(vy + vh, y1 + з);
+  if (x1 - x0 < 100 || y1 - y0 < 100) return;
+  svg.dataset.fullViewBox = полный;
+  svg.setAttribute('viewBox', `${x0.toFixed(1)} ${y0.toFixed(1)} ${(x1 - x0).toFixed(1)} ${(y1 - y0).toFixed(1)}`);
+}
+
 export function setRelGraphExpandedState(graphEl, expanded) {
   if (!graphEl) return;
 
@@ -677,6 +704,7 @@ export function setRelGraphExpandedState(graphEl, expanded) {
     if (backdrop) guardTouchSwipe(backdrop);
 
     backdrop.classList.add('visible');
+    подогнатьХолст(graphEl, true);
 
     // Считаем позицию после того, как элемент уже в body и получил размеры.
     bindRelGraphViewportHook();
@@ -692,6 +720,7 @@ export function setRelGraphExpandedState(graphEl, expanded) {
     delete graphEl._hudRelHome;
 
     graphEl.classList.remove('is-expanded');
+    подогнатьХолст(graphEl, false);
     // Снимаем измеренные координаты, иначе они останутся на свёрнутом графе.
     ['left', 'top', 'transform'].forEach(p => graphEl.style.removeProperty(p));
     graphEl.style.setProperty('--hud-rel-zoom', '1');

@@ -4,19 +4,21 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок } from '../utils.js?v=23.19.1';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.19.1';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.19.1';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=23.19.1';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.23.0';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.23.0';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.23.0';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=23.23.0';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.19.1';
-import { buildPregnancy } from './pregnancy.js?v=23.19.1';
-import { settings, настройка } from '../settings.js?v=23.19.1';
-import { namesLikelySame } from '../names.js?v=23.19.1';
-import { видСостоянияТела } from './extras.js?v=23.19.1';
-import { parseRelationList } from './relations-graph.js?v=23.19.1';
-import { отложитьРисунок } from './lazy-svg.js?v=23.19.1';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.19.1';
+  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.23.0';
+import { buildPregnancy } from './pregnancy.js?v=23.23.0';
+import { состояниеЗачатия } from './conception.js?v=23.23.0';
+import { parseSceneDate } from '../history-analyzer.js?v=23.23.0';
+import { settings, настройка } from '../settings.js?v=23.23.0';
+import { namesLikelySame } from '../names.js?v=23.23.0';
+import { видСостоянияТела } from './extras.js?v=23.23.0';
+import { parseRelationList } from './relations-graph.js?v=23.23.0';
+import { отложитьРисунок } from './lazy-svg.js?v=23.23.0';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.23.0';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле', 'состояние тела'];
@@ -358,14 +360,14 @@ export function контекстЗачатия(данные, партнёры = 
 // картинки, перекрашенной в цвет темы. Без рамки обе обёртки прозрачны
 // для вёрстки (display: contents), и шапка выглядит как раньше.
 function портретВРамке(ава, имя) {
-  const коротко = String(имя || '').trim().split(/\s+/)[0] || '';
+  const коротко = имяДляВкладки(имя);
   return `<span class="hud-ava-wrap" data-name="${escapeHtml(коротко)}"><span class="hud-ava-in">${ава}</span><i class="hud-ava-deco" aria-hidden="true"></i></span>`;
 }
 // Сургуч и картинка в углу шапки: пустые узлы, видны только когда
 // включены (классы на <html>, css/deco.css) — без пересборки карточки.
-const УКРАШЕНИЯ_ШАПКИ = '<i class="hud-head-wax" aria-hidden="true"></i><i class="hud-head-orn" aria-hidden="true"></i>';
+const УКРАШЕНИЯ_ШАПКИ = '<i class="hud-head-wax" aria-hidden="true"></i><i class="hud-head-orn" aria-hidden="true"></i><i class="hud-pendant" aria-hidden="true"></i><i class="hud-label-badge" aria-hidden="true"></i>';
 // Лист бумаги поверх вкладки: состаренные края и сгибы письма.
-const СЛОЙ_БУМАГИ = '<i class="hud-paper" aria-hidden="true"></i>';
+const СЛОЙ_БУМАГИ = '<i class="hud-paper" aria-hidden="true"></i><i class="hud-dragon" aria-hidden="true"></i>';
 // Подпись в конце вкладки (Кастомизация → «Мысли, заголовки, подпись»):
 // имя персонажа с виньетками. Узел есть всегда, виден по классу на <html>.
 const подписьВкладки = (имя) => `<div class="hud-sign" aria-hidden="true">⊹— ${escapeHtml(String(имя || '').trim())} —⊹</div>`;
@@ -436,7 +438,7 @@ const имяСтолбиком = (имя) => настройка('verticalName') 
 // одной колонкой текста шапки. У игрока профиля нет: он не «приходится» сам себе.
 function текстШапки(имя, данные, игрок = false) {
   const профиль = настройка('headerProfile') === 'on' && данные && !игрок ? профильПерсонажа(данные) : null;
-  const заголовок = `<span class="hud-title">${escapeHtml(имя)}</span>`;
+  const заголовок = `<span class="hud-title" title="${escapeHtml(имя)}">${escapeHtml(имяБезПриставки(имя))}</span>`;
   const ханко = настройка('nameHanko') === 'on' ? `<span class="hud-hanko" aria-hidden="true">${букваИмени(имя)}</span>` : '';
   const значки = ханко + (профиль && профиль.значки ? профиль.значки : '');
   const строкаИмени = значки ? `<div class="hud-prof-namebar">${заголовок}${значки}</div>` : заголовок;
@@ -831,6 +833,14 @@ function упоминает(о, имя) {
   return !!и && ПОЛЯ_БЛИЗОСТИ.map(([к, код]) => полеОбъекта(о, к, код)).join(' ').toLowerCase().includes(и);
 }
 
+// Карточка модификатора: значок в кружке, заголовок и пояснение, у шанса
+// зачатия — кольцо с процентом (заполнение ×3, как у полосы риска в цикле).
+function карточкаМода(класс, значок, заголовок, пояснение, проц = null, подсказка = '') {
+  const кольцо = проц === null ? '' : `<b class="hud-mod-val" style="--p:${Math.min(100, проц * 3)}"><span>${проц}%</span></b>`;
+  return `<span class="hud-mod${класс}"${подсказка ? ` title="${подсказка}"` : ''}><i class="hud-mod-ico" aria-hidden="true">${значок}</i>`
+    + `<span class="hud-mod-txt"><b>${заголовок}</b>${пояснение ? `<small>${пояснение}</small>` : ''}</span>${кольцо}</span>`;
+}
+
 function плашкаМодификаторов(о, имя) {
   const фаза = полеОбъекта(о, 'Фаза близости', 'SS');
   const вСцене = состояниеСцены(фаза) || !!полеОбъекта(о, 'NSFW (Юзер)', 'UW');
@@ -838,17 +848,37 @@ function плашкаМодификаторов(о, имя) {
   const пункты = [];
   const свой = шансСейчас(о, null);
   if (свой) {
-    пункты.push(`<span class="hud-mod is-fertile${свой.проц >= 20 ? ' is-high' : ''}" title="Шанс зачатия по дню цикла${свой.защита ? ' с учётом защиты: ' + escapeHtml(свой.защита) : ''}"><i aria-hidden="true">🌼</i>шанс зачатия сейчас <b>${свой.проц}%</b>${свой.защита ? ` · ${escapeHtml(свой.защита)}` : ''}</span>`);
-    for (const [значок, текст] of модификаторыФазы(свой.ц)) if (значок !== '🌼') пункты.push(`<span class="hud-mod"><i aria-hidden="true">${значок}</i>${escapeHtml(текст)}</span>`);
+    пункты.push(карточкаМода(` is-chance is-fertile${свой.проц >= 20 ? ' is-high' : ''}`, '🌼', 'Шанс зачатия', 'сейчас' + (свой.защита ? ' · ' + escapeHtml(свой.защита) : ''), свой.проц,
+      'Шанс зачатия по дню цикла' + (свой.защита ? ' с учётом защиты: ' + escapeHtml(свой.защита) : '')));
+    for (const [значок, текст] of модификаторыФазы(свой.ц)) {
+      if (значок === '🌼') continue;
+      const [голова, ...хвост] = String(текст).split(':');
+      пункты.push(карточкаМода(' is-phase', значок, escapeHtml(хвост.length ? голова.trim() : текст), escapeHtml(хвост.join(':').trim())));
+    }
   }
   const соседи = (о.__соседи || []).filter(п => п && п.данные !== о);
   for (const п of соседи) {
     if (!упоминает(о, п.имя) && !упоминает(п.данные, имя)) continue;
     const ш = шансСейчас(п.данные, о);
     if (!ш) continue;
-    пункты.push(`<span class="hud-mod is-fertile is-partner${ш.проц >= 20 ? ' is-high' : ''}" title="Цикл партнёра по сцене"><i aria-hidden="true">🌼</i>${defeatWI(escapeHtml(первоеСлово(п.имя).replace(/^./, c => c.toUpperCase())))}: шанс зачатия <b>${ш.проц}%</b>${ш.защита ? ` · ${escapeHtml(ш.защита)}` : ''}</span>`);
+    пункты.push(карточкаМода(` is-chance is-fertile is-partner${ш.проц >= 20 ? ' is-high' : ''}`, '🌼', defeatWI(escapeHtml(первоеСлово(п.имя).replace(/^./, c => c.toUpperCase()))),
+      'шанс зачатия' + (ш.защита ? ' · ' + escapeHtml(ш.защита) : ''), ш.проц, 'Цикл партнёра по сцене'));
   }
   return пункты.length ? `<div class="hud-scene-mods" role="group" aria-label="Модификаторы сцены"><span class="hud-scene-mods-title">Модификаторы сцены</span>${пункты.join('')}</div>` : '';
+}
+
+// Тест в HUD показал «+», а модель ещё не завела Prg: напоминание игроку.
+// Модели эта плашка не уходит — она про то, что знает только HUD.
+function плашкаБеременности(о) {
+  if (!пустоеПоле(снятьЗаглушки(flattenFieldValue(полеОбъекта(о, 'Беременность', 'Prg'))))) return '';
+  const с = состояниеЗачатия('user');
+  if (!с || !с.беременна || !с.проверено) return '';
+  const от = parseSceneDate(с.когда), до = parseSceneDate(о && о.__датаСцены);
+  const дней = от !== null && до !== null && до >= от ? Math.round((до - от) / 86400000) : null;
+  const срок = дней === null ? 'тест «+»' : дней ? `${дней} дн. с близости` : 'сегодня';
+  return `<div class="hud-state-plaque is-preg" role="status"><i aria-hidden="true">🤰</i>`
+    + `<div><b>Беременность</b><small>Тест в HUD положительный. Это напоминание для тебя — в сюжете пока никто не знает.</small></div>`
+    + `<span class="hud-state-timer">${escapeHtml(срок)}</span></div>`;
 }
 
 function плашкиСостояния(о, имя) {
@@ -904,7 +934,7 @@ export function buildUserHTML(userData, uid, isChecked, characters) {
   const баннерИгрока = настройка('headerStyle') === 'banner'
     ? `<div class="hud-banner"${avatarUrl ? ` style="background-image:url('${String(avatarUrl).replace(/'/g, '%27')}')"` : ''} aria-hidden="true"><span class="hud-banner-name">${escapeHtml(personaName)}</span><span class="hud-banner-vert">${escapeHtml(String(personaName).toUpperCase())}</span></div>`
     : '';
-  const плашки = плашкиСостояния(userData, personaName);
+  const плашки = плашкаБеременности(userData) + плашкиСостояния(userData, personaName);
   if (!rows && !восприятие && !плашки) return '';
   return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}">${СЛОЙ_БУМАГИ}<div class="hud-header hud-user-header${баннерИгрока ? ' has-banner' : визитка ? ' is-visit' : ''}">${баннерИгрока}${визитка ? полосаВизитки(avatarUrl) : ''}${УКРАШЕНИЯ_ШАПКИ}<div class="hud-header-info">${портретВРамке(avatarHtml, personaName)}${имяСтолбиком(personaName)}${текстШапки(personaName, userData, true)}</div></div><div class="hud-body hud-user-body">${плашки}${восприятие}${сРазделителями(rows)}${подписьВкладки(personaName)}</div></div>`;
 }
@@ -920,7 +950,7 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
 
   // Шапка: буква имени для стиля «Призрачная буква» (видна только в нём) и
   // баннер из аватарки, когда в кастомизации выбрана шапка-баннер.
-  const буква = escapeHtml((String(charName).trim().match(/\p{L}/u) || ['?'])[0].toUpperCase());
+  const буква = escapeHtml((имяБезПриставки(charName).match(/\p{L}/u) || ['?'])[0].toUpperCase());
   const баннер = настройка('headerStyle') === 'banner'
     ? `<div class="hud-banner"${avatar ? ` style="background-image:url('${String(avatar.url).replace(/'/g, '%27')}')"` : ''} aria-hidden="true"><span class="hud-banner-name">${escapeHtml(charName)}</span><span class="hud-banner-vert">${escapeHtml(String(charName).toUpperCase())}</span></div>`
     : '';

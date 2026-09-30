@@ -13,13 +13,13 @@
 // карточки ненадёжны — у неё content-visibility, и браузер может не
 // двигать их время.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.19.1';
-import { namesLikelySame } from '../names.js?v=23.19.1';
-import { разобратьХод } from './carryover.js?v=23.19.1';
-import { parseSceneDate } from '../history-analyzer.js?v=23.19.1';
-import { исходЗачатия } from './conception.js?v=23.19.1';
-import { settings } from '../settings.js?v=23.19.1';
-import { ощущенияИзТекста, одеждаИзТекста, ОБЛАСТИ } from './body-layers.js?v=23.19.1';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.23.0';
+import { namesLikelySame } from '../names.js?v=23.23.0';
+import { разобратьХод } from './carryover.js?v=23.23.0';
+import { parseSceneDate } from '../history-analyzer.js?v=23.23.0';
+import { исходЗачатия } from './conception.js?v=23.23.0';
+import { settings } from '../settings.js?v=23.23.0';
+import { ощущенияИзТекста, одеждаИзТекста, ОБЛАСТИ } from './body-layers.js?v=23.23.0';
 
 const пусто = (v) => { const s = String(v ?? '').trim(); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
 const число = (s) => { const m = String(s ?? '').replace(/(\d),(\d)/g, '$1.$2').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };
@@ -199,7 +199,7 @@ function искра(ряд) {
   const [x, y] = точки[точки.length - 1];
   const линия = точки.map(([a, b]) => a.toFixed(1) + ',' + b.toFixed(1)).join(' ');
   const заливка = `${точки[0][0].toFixed(1)},${H} ${линия} ${x.toFixed(1)},${H}`;
-  return `<svg class="hud-vit-spark" viewBox="0 0 ${W} ${H}" aria-hidden="true"><polygon class="area" points="${заливка}"/><polyline points="${линия}"/><circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="3"/></svg>`;
+  return `<svg class="hud-vit-spark" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" aria-hidden="true"><polygon class="area" points="${заливка}"/><polyline points="${линия}"/><path class="dot" d="M${x.toFixed(1)} ${y.toFixed(1)}h0"/><path class="dot-in" d="M${x.toFixed(1)} ${y.toFixed(1)}h0"/></svg>`;
 }
 
 export function buildVitals(value, владелец) {
@@ -813,12 +813,24 @@ export function рискЗачатия(день, L, фаза, контекст =
 // Полоса риска и кнопка «Сделать тест». Сам бросок кубика игроку не
 // показываем: итог хранится в чате (render/conception.js) и уходит модели
 // скрытым фактом. Тест — единственный способ подсмотреть, как у персонажа.
+// «✦ Изменить судьбу» переворачивает итог теста в любую сторону
+// (render/conception.js → изменитьСудьбу); после этого вместо неё —
+// «↺ Откатить». Раскрытие теста и клики ловит index.js: только раскрытый
+// тест отдаёт беременность модели.
+function кнопкаСудьбы(исход) {
+  if (!исход.можноСудьбу || !исход.кто) return '';
+  const данные = `data-kto="${escapeHtml(исход.кто)}" data-key="${escapeHtml(исход.ключ || '')}"`;
+  if (исход.судьба) return `<span class="hud-fate-note">✦\uFE0E Судьба изменена <button type="button" class="hud-fate-btn is-undo" data-hud-fate="undo" ${данные} title="Вернуть итог, который был до изменения судьбы">↺ Откатить</button></span>`;
+  return исход.беременна
+    ? `<button type="button" class="hud-fate-btn" data-hud-fate="neg" ${данные} title="Сделать тест отрицательным: беременности не будет, модель узнает только это">✦\uFE0E Изменить судьбу</button>`
+    : `<button type="button" class="hud-fate-btn" data-hud-fate="pos" ${данные} title="Сделать тест положительным: беременность будет, модель узнает только это">✦\uFE0E Изменить судьбу</button>`;
+}
 function блокТеста(исход, была) {
-  return (была || исход.беременна) ? `<details class="hud-preg-test">`
+  return (была || исход.беременна) ? `<details class="hud-preg-test"${исход.кто ? ` data-kto="${escapeHtml(исход.кто)}"` : ''}>`
     + `<summary><i aria-hidden="true">🧪</i>Сделать тест</summary>`
     + `<div class="hud-test ${исход.беременна ? 'is-pos' : 'is-neg'}">`
     + `<span class="hud-test-stick" aria-hidden="true"><i class="hud-test-window"><b class="c-line"></b>${исход.беременна ? '<b class="t-line"></b>' : ''}</i></span>`
-    + `<div class="hud-test-result"><strong>${исход.беременна ? '+' : '−'}</strong><p>${исход.беременна ? 'Получилось — беременность' : 'Не получилось'}</p></div>`
+    + `<div class="hud-test-result"><strong>${исход.беременна ? '+' : '−'}</strong><p>${исход.беременна ? 'Получилось — беременность' : 'Не получилось'}</p>${кнопкаСудьбы(исход)}</div>`
     + `</div></details>` : '';
 }
 function блокРиска(р, исход, была) {

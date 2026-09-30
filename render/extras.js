@@ -4,8 +4,8 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=23.19.1';
-import { settings } from '../settings.js?v=23.19.1';
+import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=23.23.0';
+import { settings } from '../settings.js?v=23.23.0';
 
 const есть = (v) => hudHasMeaningfulValue(v) && !/^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -62,7 +62,8 @@ export function теньЛуны(строкаДаты) {
   const ф = фазаЛуны(строкаДаты);
   if (!ф) return '';
   const тёмная = (1 - ф.свет / 100) * 54;
-  return `--moon-dark:${(ф.p < 0.5 ? 1 : -1) * Math.round(тёмная)}px;`;
+  // Освещённость 0..1: в новолуние луна в небе почти не видна, а не чёрный диск.
+  return `--moon-dark:${(ф.p < 0.5 ? 1 : -1) * Math.round(тёмная)}px;--moon-lit:${(ф.свет / 100).toFixed(2)};`;
 }
 
 // ---------------------------------------------------------------------------

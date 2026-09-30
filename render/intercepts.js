@@ -3,12 +3,12 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText } from '../utils.js?v=23.19.1';
-import { overrideAvatarUrl } from '../avatars.js?v=23.19.1';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки } from '../utils.js?v=23.23.0';
+import { overrideAvatarUrl } from '../avatars.js?v=23.23.0';
 // Снимки, ролики, голосовые и звонки собирает тот же код, что и в личном
 // телефоне. Своя копия разбора здесь означала бы, что новый формат от модели
 // в одном мессенджере работает, а в другом остаётся сырым тегом в тексте.
-import { собратьЛенту, моментПоследнего } from './msg-feed.js?v=23.19.1';
+import { собратьЛенту, моментПоследнего } from './msg-feed.js?v=23.23.0';
 
 // Кружок отправителя в перехвате: ручная аватарка фоном либо инициал.
 // Разметка и классы прежние — картинку прячет за собой класс has-img.
@@ -94,13 +94,13 @@ export function buildInterceptsHTML(interceptsData, uid, isChecked, sceneDate) {
       });
     }
 
-    chatTabsHeader += `<button class="hud-phone-subtab intercept-tab ${idx === 0 ? 'active' : ''}" data-subtarget="subhack-${uid}-${idx}">👁️ ${defeatWI(escapeHtml(целей.get(ключЦели(intercept)) > 1 && chatName && chatName !== 'Chat' ? первое(targetName) + ' ↔ ' + первое(chatName) : targetName))} ${unreadCount > 0 ? `<span class="hud-unread-badge">${unreadCount}</span>` : ''}</button>`;
+    chatTabsHeader += `<button class="hud-phone-subtab intercept-tab ${idx === 0 ? 'active' : ''}" data-subtarget="subhack-${uid}-${idx}">👁️ ${defeatWI(escapeHtml(целей.get(ключЦели(intercept)) > 1 && chatName && chatName !== 'Chat' ? первое(targetName) + ' ↔ ' + первое(chatName) : имяБезПриставки(targetName)))} ${unreadCount > 0 ? `<span class="hud-unread-badge">${unreadCount}</span>` : ''}</button>`;
 
     chatBodies += `<div class="hud-phone-subbody ${idx === 0 ? 'active' : ''}" id="subhack-${uid}-${idx}">
-      <div class="hud-phone-statusbar"><span class="hud-phone-time">${escapeHtml(latestTime)}</span><span class="hud-phone-owner-label intercept-status">📡 ПЕРЕХВАТ (${escapeHtml(targetName)})</span><div class="hud-phone-status-icons"><span class="hud-intercept-icon">⚠</span></div></div>
+      <div class="hud-phone-statusbar"><span class="hud-phone-time">${escapeHtml(latestTime)}</span><span class="hud-phone-owner-label intercept-status">📡 ПЕРЕХВАТ (${escapeHtml(имяБезПриставки(targetName))})</span><div class="hud-phone-status-icons"><span class="hud-intercept-icon">⚠</span></div></div>
       <div class="hud-phone-header hud-intercept-header">
         <span class="hud-phone-back hud-intercept-icon">⟨</span>
-        <div class="hud-phone-title-group" ${состав ? 'style="cursor:pointer;" title="Нажми, чтобы увидеть участников"' : ''}><span class="hud-phone-name">${defeatWI(escapeHtml(chatName))} ${состав ? '<span style="font-size:0.8em; opacity:0.7;">▾</span>' : ''}</span>${состав ? `<div class="hud-phone-participants-list">👥 Участники: ${escapeHtml(состав)}</div>` : ''}</div>
+        <div class="hud-phone-title-group" ${состав ? 'style="cursor:pointer;" title="Нажми, чтобы увидеть участников"' : ''}><span class="hud-phone-name">${defeatWI(escapeHtml(имяБезПриставки(chatName)))} ${состав ? '<span style="font-size:0.8em; opacity:0.7;">▾</span>' : ''}</span>${состав ? `<div class="hud-phone-participants-list">👥 Участники: ${escapeHtml(состав)}</div>` : ''}</div>
         <span class="hud-phone-options hud-intercept-icon">⋮</span>
       </div>
       <div class="hud-phone-chat-area">`;

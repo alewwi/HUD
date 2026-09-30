@@ -1,37 +1,37 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings, настройка, КЛЮЧИ_АВТО } from './settings.js?v=23.19.1';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue } from './utils.js?v=23.19.1';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.19.1';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.19.1';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.19.1';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.19.1';
-import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.19.1';
-import { mergeCarryOver, вернутьЧерты, сдвигиДоверия } from './render/carryover.js?v=23.19.1';
-import { привязатьИсторию, ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.19.1';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.19.1';
-import { ПРИМЕР_HUD_ТЕКСТ, БАЗОВЫЙ_HUD_ТЕКСТ } from './render/sample-hud.js?v=23.19.1';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.19.1';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.19.1';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.19.1';
-import { buildMemoryHTML } from './render/memory.js?v=23.19.1';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.19.1';
-import { buildPhoneTabsHTML } from './render/phone.js?v=23.19.1';
-import { праздникиСцены } from './render/holidays.js?v=23.19.1';
-import { скрытыеФактыЗачатия } from './render/conception.js?v=23.19.1';
-import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.19.1';
-import { hudHasRelations } from './render/relations-graph.js?v=23.19.1';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.19.1';
-import { чипЛуны, теньЛуны, титрыСцены, карточкаПоворота } from './render/extras.js?v=23.19.1';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.19.1';
-import { applyThemeClass, presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.19.1';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.19.1';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.19.1';
-import { clearCache, cacheUsage, getChatMessages, parseSceneDate } from './history-analyzer.js?v=23.19.1';
-import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.19.1';
-import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.19.1';
-import { создатьПроверкуПолноты } from './hud-check.js?v=23.19.1';
-import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.19.1';
+import { hexToRgba, settings, defaultSettings, настройка, КЛЮЧИ_АВТО, МИНИМАЛИЗМ } from './settings.js?v=23.23.0';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue, имяДляВкладки } from './utils.js?v=23.23.0';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.23.0';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.23.0';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.23.0';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.23.0';
+import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.23.0';
+import { mergeCarryOver, вернутьЧерты, сдвигиДоверия } from './render/carryover.js?v=23.23.0';
+import { привязатьИсторию, ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.23.0';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.23.0';
+import { ПРИМЕР_HUD_ТЕКСТ, БАЗОВЫЙ_HUD_ТЕКСТ } from './render/sample-hud.js?v=23.23.0';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.23.0';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.23.0';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.23.0';
+import { buildMemoryHTML } from './render/memory.js?v=23.23.0';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.23.0';
+import { buildPhoneTabsHTML } from './render/phone.js?v=23.23.0';
+import { праздникиСцены } from './render/holidays.js?v=23.23.0';
+import { скрытыеФактыЗачатия, изменитьСудьбу, откатитьСудьбу, отметитьТест } from './render/conception.js?v=23.23.0';
+import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.23.0';
+import { hudHasRelations } from './render/relations-graph.js?v=23.23.0';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.23.0';
+import { чипЛуны, теньЛуны, титрыСцены, карточкаПоворота } from './render/extras.js?v=23.23.0';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.23.0';
+import { applyThemeClass, presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.23.0';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.23.0';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.23.0';
+import { clearCache, cacheUsage, getChatMessages, parseSceneDate } from './history-analyzer.js?v=23.23.0';
+import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.23.0';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.23.0';
+import { создатьПроверкуПолноты } from './hud-check.js?v=23.23.0';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.23.0';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -910,12 +910,13 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
  const РАМКА_ТЕМЫ = { kawaii: 'rings', cottage: 'polaroid', academia: 'stamp', noir: 'film', mafia: 'archive', ocean: 'wreath',
    spaceopera: 'orbit', spacehorror: 'orbit', japan: 'lattice', web1: 'aero', cyberpunk: 'vinyl', witch: 'moon', fantasy: 'badge',
    vamp: 'roses', ice: 'lotus', steampunk: 'archive', dieselpunk: 'film', western: 'archive', pirate: 'stamp', egypt: 'lotus', voodoo: 'fan' };
- const УГЛЫ_ШАПКИ = [['roses', 'Розы и клинок'], ['plum', 'Арка со сливой'], ['bridge', 'Мостик и лотосы'], ['cat', 'Котик-наклейка'], ['saturn', 'Сатурн и звезда']];
- const УГОЛ_ТЕМЫ = { japan: 'plum', ocean: 'bridge', kawaii: 'cat', ice: 'bridge', cottage: 'cat', spaceopera: 'saturn', spacehorror: 'saturn' };
+ const УГЛЫ_ШАПКИ = [['roses', 'Розы и клинок'], ['redbranch', 'Ветка красных цветов'], ['plum', 'Арка со сливой'], ['bridge', 'Мостик и лотосы'], ['cat', 'Котик-наклейка'], ['saturn', 'Сатурн и звезда'], ['oni', 'Маска они в цветах'], ['hat', 'Ведьмина шляпа с луной']];
+ const УГОЛ_ТЕМЫ = { vamp: 'redbranch', japan: 'plum', ocean: 'bridge', kawaii: 'cat', ice: 'bridge', cottage: 'cat', spaceopera: 'saturn', spacehorror: 'saturn', voodoo: 'oni', witch: 'hat' };
  const РАЗДЕЛИТЕЛИ = [['line', 'Линия'], ['butterfly', 'Бабочки'], ['mountain', 'Горы'], ['ripple', 'Круги на воде'], ['medallion', 'Медальоны с иероглифами']];
  // Что включается простым классом на <html> (css/deco.css): ключ → класс.
  const КЛАССЫ_НАХОДОК = { healthPlaster: 'hud-plaster', tabBow: 'hud-tab-bow', lineNotes: 'hud-line-notes', dropCap: 'hud-drop-cap',
-   trustHearts: 'hud-trust-hearts', themedScroll: 'hud-themed-scroll' };
+   trustHearts: 'hud-trust-hearts', themedScroll: 'hud-themed-scroll', hangPendant: 'hud-hang-pendant', lineWave: 'hud-line-wave',
+   bgDragon: 'hud-bg-dragon', themedControls: 'hud-themed-controls' };
 
  // День сюжета: сколько дней прошло от первой даты сцены в чате. Ищем с
  // начала чата первый HUD с разборчивой датой и запоминаем, пока чат тот
@@ -1016,7 +1017,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     root.classList.toggle('hud-pills-noicons', settings.pillIcons === 'off');
     root.classList.toggle('hud-pills-plain', settings.pillStyle === 'plain');
     // Стиль секций, форма портрета, шапка-баннер (css/extras.css).
-    ['stickers', 'moonglass', 'ghost', 'news', 'win95', 'mac', 'bujo', 'glass', 'evidence', 'double', 'notebook'].forEach(s => root.classList.toggle('hud-skin-' + s, настройка('sectionSkin') === s));
+    ['stickers', 'moonglass', 'ghost', 'news', 'win95', 'mac', 'bujo', 'glass', 'evidence', 'double', 'notebook', 'label'].forEach(s => root.classList.toggle('hud-skin-' + s, настройка('sectionSkin') === s));
     // Имя контуром, скобки 「」, полосы экрана, светлые заголовки, подпись (css/deco.css).
     root.classList.toggle('hud-name-outline', настройка('nameStyle') === 'outline');
     root.classList.toggle('hud-brackets', настройка('thoughtBrackets') === 'on');
@@ -1024,6 +1025,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     root.classList.toggle('hud-light-heads', настройка('lightHeadings') === 'on');
     root.classList.toggle('hud-signature', настройка('cardSignature') === 'on');
     root.classList.toggle('hud-name-sheen', настройка('nameStyle') === 'sheen');
+    root.classList.toggle('hud-name-foil', настройка('nameStyle') === 'foil');
     for (const [ключ, класс] of Object.entries(КЛАССЫ_НАХОДОК)) root.classList.toggle(класс, настройка(ключ) === 'on');
     // Своя картинка баннера и визитки: у персонажей одна, у игрока своя.
     // Сдвиг — позиция картинки в полосе, как у обоев.
@@ -1514,7 +1516,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             <div class="hud-theme-row" title="«Своё у каждой» — у целей стрелки, у флагов вымпелы, у ключа загнутые углы, возраст крупной цифрой. «Одинаковое» — все секции и пилюли одним видом."><label>Оформление секций:</label>
               <select class="hud-theme-select-input hud-custom-rerender" data-key="pillStyle"><option value="fields"${settings.pillStyle !== 'plain' ? ' selected' : ''}>Своё у каждой</option><option value="plain"${settings.pillStyle === 'plain' ? ' selected' : ''}>Одинаковое</option></select>
             </div>
-            ${выбор('sectionSkin', 'Стиль секций', 'Как выглядят рамки секций. «Стикеры» есть только на светлых темах: на тёмных они не включаются.', [['', 'Обычный'], ['stickers', 'Стикеры (светлые темы)'], ['moonglass', 'Лунное стекло'], ['ghost', 'Призрачная буква'], ['news', 'Газета'], ['win95', 'Окна 95'], ['mac', 'Ретро-Мак'], ['bujo', 'Бортовой журнал'], ['glass', 'Стекло'], ['evidence', 'Улики'], ['double', 'Двойная тонкая рамка'], ['notebook', 'Тетрадь в клетку']])}
+            ${выбор('sectionSkin', 'Стиль секций', 'Как выглядят рамки секций. «Стикеры» есть только на светлых темах: на тёмных они не включаются.', [['', 'Обычный'], ['stickers', 'Стикеры (светлые темы)'], ['moonglass', 'Лунное стекло'], ['ghost', 'Призрачная буква'], ['news', 'Газета'], ['win95', 'Окна 95'], ['mac', 'Ретро-Мак'], ['bujo', 'Бортовой журнал'], ['glass', 'Стекло'], ['evidence', 'Улики'], ['double', 'Двойная тонкая рамка'], ['notebook', 'Тетрадь в клетку'], ['label', 'Этикетка']])}
           </div></details>
           <details class="hud-custom-sub hud-smooth"><summary>Портрет и шапка</summary>
           <div class="hud-theme-grid">
@@ -1525,10 +1527,11 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             <div class="hud-theme-row"><label>Портрет: вверх-вниз</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="avatarOffsetY" min="0" max="100" value="${settings.avatarOffsetY ?? 50}"> <span style="font-size:0.8em;opacity:0.7">${settings.avatarOffsetY ?? 50}%</span></div></div>
             ${выбор('headerStyle', 'Шапка персонажа', 'Баннер — аватарка растянута полосой над именем. Визитка — полоса из обоев чата, круглый портрет по центру, под именем занятие и возраст. Виджет погоды не трогает.', [['classic', 'Обычная'], ['banner', 'Баннер'], ['visit', 'Визитка']])}
             ${выбор('headerProfile', 'Профиль под именем', 'Как в соцсети: уровень по доверию к игроку, кем персонаж ему приходится, и три счётчика — доверие, общие воспоминания, флаги.', [['off', 'Нет'], ['on', 'Показывать']])}
-            ${выбор('nameStyle', 'Имя персонажа', 'Контур — буквы прозрачные, виден только контур цвета темы, свечение разгорается под курсором или по нажатию на шапку. Так же — подпись «Ключевого». Перелив — имя от цвета темы к цвету свечения, блик бежит под курсором или по нажатию.', [['plain', 'Обычное'], ['outline', 'Контур с пульсом'], ['sheen', 'Перелив']])}
+            ${выбор('nameStyle', 'Имя персонажа', 'Контур — буквы прозрачные, виден только контур цвета темы, свечение разгорается под курсором или по нажатию на шапку. Так же — подпись «Ключевого». Перелив — имя от цвета темы к цвету свечения, блик бежит под курсором или по нажатию.', [['plain', 'Обычное'], ['outline', 'Контур с пульсом'], ['sheen', 'Перелив'], ['foil', 'Фольга (тиснение)']])}
             ${выбор('nameHanko', 'Печать-ханко у имени', 'Квадратная печать цвета темы с первой буквой имени — рядом с именем, как подпись на свитке.', [['off', 'Нет'], ['on', 'Да']])}
             ${выбор('verticalName', 'Имя столбиком', 'Имя сверху вниз между портретом и строкой имени, как подпись на свитке.', [['off', 'Нет'], ['on', 'Да']])}
             ${выбор('dayCount', 'Счёт дней сюжета', 'Под именем — какой сейчас день сюжета, считая от первой даты сцены в чате. У каждой темы своё слово: «Ночь 14-я» у Вампира, «Страница 14» у Академии, «Дубль 14» у Нуара.', [['off', 'Нет'], ['on', 'Показывать']])}
+            ${выбор('hangPendant', 'Подвеска на шнуре', 'Нефритовая подвеска свисает сверху справа в шапке и качается под курсором или по нажатию на шапку.', [['off', 'Нет'], ['on', 'Да']])}
             ${выбор('tabBow', 'Бант на вкладке', 'Бант цвета темы на вкладке того, чью карточку смотришь.', [['off', 'Нет'], ['on', 'Да']])}
             ${[['Char', 'персонажей', 'Одна картинка на всех персонажей — для баннера и визитки. Пусто — как было: аватарка у баннера, обои чата у визитки.'], ['User', 'игрока', 'Своя картинка для шапки игрока — для баннера и визитки.']].map(([к, кого, пояснение]) => {
               const ключ = 'banner' + к, v = String(settings[ключ + 'Img'] || '');
@@ -1540,7 +1543,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
                 + ползунок('X', 'влево-вправо') + ползунок('Y', 'вверх-вниз');
             }).join('')}
             ${выбор('avatarDeco', 'Украшение портрета', 'Рамка вокруг аватарки, портрет крупнее. «По теме» — у каждой темы своя; картинки перекрашены в цвет темы (или в «Рамку портрета»). С шапкой-баннером не показывается.', [['none', 'Нет'], ['theme', 'Авто (по теме)'], ...РАМКИ_ПОРТРЕТА])}
-            ${выбор('headerOrnament', 'Картинка в углу шапки', 'Украшение справа в шапке персонажа вместо значка темы. «Авто» — есть у Японии, Океана, Каваи, Льда, Уюта и Космооперы.', [['off', 'Нет'], ['theme', 'Авто (по теме)'], ...УГЛЫ_ШАПКИ])}
+            ${выбор('headerOrnament', 'Картинка в углу шапки', 'Украшение справа в шапке персонажа вместо значка темы. «Авто» — есть у Вампира, Японии, Океана, Каваи, Льда, Уюта, Космооперы, Вуду и Ведьмы.', [['off', 'Нет'], ['theme', 'Авто (по теме)'], ...УГЛЫ_ШАПКИ])}
             ${выбор('groupDividers', 'Разделители групп', 'Между группами строк — подпись: Облик, Тело, Разум, Связи… Линия или картинка из тем в цвет темы.', [['off', 'Нет'], ...РАЗДЕЛИТЕЛИ])}
           </div></details>
           <details class="hud-custom-sub hud-smooth"><summary>Бумага и печать</summary>
@@ -1556,6 +1559,9 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
             ${выбор('crtLines', 'Полосы старого экрана', 'Бегущие строки развёртки и подсветка изнутри на мыслях, репликах и подтексте.', [['off', 'Нет'], ['on', 'Да']])}
             ${выбор('lightHeadings', 'Светлее тёмные заголовки', 'На тёмных темах слишком тёмные названия секций поднимаются до читаемой яркости, остальные не меняются.', [['off', 'Нет'], ['on', 'Да']])}
             ${выбор('cardSignature', 'Подпись внизу вкладки', 'Имя персонажа с виньетками в конце его вкладки, чуть наклонно, как роспись.', [['off', 'Нет'], ['on', 'Да']])}
+            ${выбор('lineWave', 'Волна под репликами', 'Реплики подчёркнуты волнистой линией цвета темы, как маркером.', [['off', 'Нет'], ['on', 'Да']])}
+            ${выбор('bgDragon', 'Дракон за плашками', 'Тонкий рисунок дракона цвета темы по центру вкладки, еле виден за плашками.', [['off', 'Нет'], ['on', 'Да']])}
+            ${выбор('themedControls', 'Галочки и ползунки по теме', 'В настройках и «Кастомизации» у каждой темы своя галочка (звёзды у Вампира, сердечки у Каваи, соты у Биопанка…) и свой ползунок.', [['on', 'Да'], ['off', 'Обычные']])}
             ${выбор('dropCap', 'Буквица у мыслей', 'Первая буква «Мыслей» и «Ключевого» крупная, с переливом цвета темы; текст обтекает её.', [['off', 'Нет'], ['on', 'Да']])}
             ${выбор('lineNotes', 'Ноты у реплик', 'Нота цвета темы в углу «Реплик» и маленькие нотки у каждой фразы (со скобками 「」 — только в углу).', [['off', 'Нет'], ['on', 'Да']])}
             ${выбор('healthPlaster', 'Пластырь у здоровья', 'Сердечко-пластырь в углу «Здоровья» и полоска пластыря на подписи, цвета темы.', [['off', 'Нет'], ['on', 'Да']])}
@@ -1577,7 +1583,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
               // Цикл в карточке идёт сразу после состояния тела, раньше инвентаря.
               + (группа === 'Персонаж' && (б.ключ === 'bodyStateView' || (i === 0 && !все.some(x => x.ключ === 'bodyStateView'))) ? `<div class="hud-theme-row"><label>Менструальный цикл:</label><select class="hud-theme-select-input hud-custom-rerender" data-key="cycleView">${Object.entries(ВИДЫ_ЦИКЛА).map(([k, имя]) => `<option value="${k}"${(settings.cycleView || 'ring') === k ? ' selected' : ''}>${имя}</option>`).join('')}</select></div>` : '')).join('')
             + `</div></details>`).join('')}
-          <div class="hud-theme-row hud-custom-minimal"><button type="button" class="hud-theme-act hud-custom-minimal-btn" title="Один цвет, без значков, одинаковое оформление">◻ Минимализм</button><button type="button" class="hud-theme-act hud-custom-rich-btn" title="Вернуть цвета по смыслу, значки и оформление полей">✦ Как было</button><button type="button" class="hud-theme-act hud-custom-auto-btn" title="Все украшения из тем — рамка, углы, разделители, бумага, имя, мелочи — на «Авто»: у каждой темы свои">✦ Всё по теме</button></div>
+          <div class="hud-theme-row hud-custom-minimal"><button type="button" class="hud-theme-act hud-custom-minimal-btn" title="Один цвет, без значков, одинаковое оформление — и без украшений из тем: рамок, картинок, разделителей, бумаги, печати, эффектов имени, мелочей, особых галочек">◻ Минимализм</button><button type="button" class="hud-theme-act hud-custom-rich-btn" title="Вернуть всё, как было до «Минимализма»: цвета по смыслу, значки, оформление полей и украшения">✦ Как было</button><button type="button" class="hud-theme-act hud-custom-auto-btn" title="Все украшения из тем — рамка, углы, разделители, бумага, имя, мелочи — на «Авто»: у каждой темы свои">✦ Всё по теме</button></div>
           <div class="hud-theme-presets-note">Вид блока цикла и секций у персонажей и у игрока. Справа видно сразу; карточки в чате перерисуются, когда закроешь окно.</div>
         </details>
         <div class="hud-theme-presets">
@@ -2013,7 +2019,10 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     else if (dLow.match(/(?:^|[^а-яё])лет(?:о|а|ом|е|н)|июн|июл|август|jun|jul|aug|\.06\.|\.07\.|\.08\./)) seasonClass = 'season-summer';
     else if (dLow.match(/осен|сентябр|октябр|ноябр|sep|oct|nov|\.09\.|\.10\.|\.11\./)) seasonClass = 'season-autumn';
 
-    let dustyClass = (tempClass.split(' ').includes('temp-hot') && seasonClass === 'season-summer' && (wClass === 'weather-clear' || wClass === 'weather-wind')) ? 'weather-dusty' : '';
+    // Пыль: жаркий летний ветер — или прямо названная пыльная/песчаная буря,
+    // самум, суховей (раньше они рисовались обычным ветром при любом сезоне).
+    let dustyClass = (сНачала('песчан|пыльн|пыль|sand|dust|самум|хамсин|сирокко|суховей').test(wLow)
+      || (tempClass.split(' ').includes('temp-hot') && seasonClass === 'season-summer' && (wClass === 'weather-clear' || wClass === 'weather-wind'))) ? 'weather-dusty' : '';
     const prevWeather = previousMessageWeather();
     // Радуга: дождь закончился — по прошлому ходу или прямо по словам погоды
     // («после дождя», «дождь прошёл», «слепой дождь», «проясняется»).
@@ -2206,7 +2215,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     data.characters.forEach((char, index) => {
       const uid = `char-${index}-${baseId}`;
       const name = char['Имя'] || `NPC ${index+1}`;
-      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">👤 ${escapeHtml(name.split(' ')[0])}${значокСправки('character')}</div>`,
+      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">👤 ${escapeHtml(имяДляВкладки(name))}${значокСправки('character')}</div>`,
         uid, (active) => buildCharacterHTML(char, uid, active, index === 0));
     });
 
@@ -2220,7 +2229,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       if (userTabHtml) {
         сводкаУИгрока = true;
         const personaName = getSafeUserName();
-        addTab(`<div class="hud-tab hud-user-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">👤 ${escapeHtml(personaName.split(' ')[0])}${значокСправки('user')}</div>`,
+        addTab(`<div class="hud-tab hud-user-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">👤 ${escapeHtml(имяДляВкладки(personaName))}${значокСправки('user')}</div>`,
           uid, (active) => active ? userTabHtml : buildUserHTML(data.user, uid, false, data.characters));
       }
     }
@@ -2770,7 +2779,14 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
      Вкладку узнаём по подписи, секрет — по заголовку, экран телефона — по
      имени приложения. */
 
-  const надписьУзла = (el) => (el ? (el.textContent || '').trim().replace(/\s+/g, ' ') : '');
+  // У тестов на беременность подпись одна на всех («Сделать тест») — ключ
+  // дополняем владельцем, иначе раскрытый тест {{user}} раскрывал бы после
+  // перерисовки и тест персонажа.
+  const надписьУзла = (el) => {
+    if (!el) return '';
+    const чей = el.closest && el.closest('details[data-kto]');
+    return (чей ? чей.dataset.kto + '|' : '') + (el.textContent || '').trim().replace(/\s+/g, ' ');
+  };
 
   // Пока возвращаем состояние, собственные клики в запись попадать не
   // должны: иначе восстановление перезапишет то, что восстанавливает.
@@ -2864,6 +2880,34 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     // ломает селектор по атрибуту.
     return String(v).replace(/['"\]\\]/g, (знак) => '\\' + знак);
   }
+
+  // «Изменить судьбу» в тесте на беременность: меняем исход в метаданных
+  // чата и перерисовываем все карточки — тест раскрыт и там, где нажали.
+  document.addEventListener('click', (e) => {
+    const кнопка = e.target && e.target.closest && e.target.closest('.hud-fate-btn[data-hud-fate]');
+    if (!кнопка) return;
+    e.preventDefault(); e.stopPropagation();
+    const { kto, key, hudFate } = кнопка.dataset;
+    const вышло = hudFate === 'undo' ? откатитьСудьбу(kto) : изменитьСудьбу(kto, key, hudFate === 'pos');
+    if (!вышло) return;
+    const mes = кнопка.closest('.mes');
+    if (mes) mes.__hudUiState = readCardUiState(mes);
+    перерисоватьКарточкиЧата();
+  });
+  // Игрок сам нажал «Сделать тест» — узнал итог. Только теперь беременность
+  // уходит модели, а у {{user}} появляется плашка-напоминание. Ловим именно
+  // клик: раскрытие при восстановлении состояния тестом не считается.
+  document.addEventListener('click', (e) => {
+    const надпись = e.target && e.target.closest && e.target.closest('details.hud-preg-test[data-kto] > summary');
+    if (!надпись) return;
+    const тест = надпись.parentElement;
+    setTimeout(() => {
+      if (!тест.open || !отметитьТест(тест.dataset.kto)) return;
+      const mes = тест.closest('.mes');
+      if (mes) mes.__hudUiState = readCardUiState(mes);
+      перерисоватьКарточкиЧата();
+    }, 0);
+  });
 
   // Одна запись на все действия внутри карточки: снимаем состояние после
   // того, как отработали обработчики вкладок, секретов и телефона.
@@ -4358,9 +4402,16 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       окно.addEventListener('click', (e) => {
         if (e.target === окно || e.target.closest('.hud-custom-close')) { закрытьКастомизацию(); return; }
         if (e.target.closest('.hud-custom-refresh')) собратьПросмотр(окно);
-        // «Минимализм» и «Как было»: три настройки вида секций разом.
-        const набор = e.target.closest('.hud-custom-minimal-btn') ? { pillColors: 'mono', pillIcons: 'off', pillStyle: 'plain' }
-          : e.target.closest('.hud-custom-rich-btn') ? { pillColors: 'smart', pillIcons: 'on', pillStyle: 'fields' }
+        // «Минимализм»: один цвет, без значков, одинаковый крой и ни одного
+        // украшения из тем. Что стояло до него, запоминаем (minimalBackup) —
+        // «Как было» возвращает именно это, а не заводские значения.
+        const минимализм = !!e.target.closest('.hud-custom-minimal-btn');
+        if (минимализм && !settings.minimalBackup) settings.minimalBackup = Object.fromEntries(Object.keys(МИНИМАЛИЗМ).map(к => [к, settings[к]]));
+        const как_было = e.target.closest('.hud-custom-rich-btn')
+          ? { pillColors: 'smart', pillIcons: 'on', pillStyle: 'fields', ...(settings.minimalBackup || {}) } : null;
+        if (как_было) delete settings.minimalBackup;
+        const набор = минимализм ? { ...МИНИМАЛИЗМ }
+          : как_было ? как_было
           : e.target.closest('.hud-custom-auto-btn') ? { ...Object.fromEntries(КЛЮЧИ_АВТО.map(к => [к, 'auto'])), avatarDeco: 'theme', headerOrnament: 'theme' } : null;
         if (набор) {
           Object.assign(settings, набор);
@@ -4848,7 +4899,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=23.19.1');
+        const mod = await import('./render/archive.js?v=23.23.0');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);

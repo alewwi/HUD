@@ -7,8 +7,8 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=23.19.1';
-import { hudБлоки } from './hud-block.js?v=23.19.1';
+import { normalizeJSONData } from './schema.js?v=23.23.0';
+import { hudБлоки } from './hud-block.js?v=23.23.0';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';
@@ -487,6 +487,11 @@ function repairHudJsonSyntax(jsonStr) {
   // touch comment-like content inside JSON strings.
   repaired = repaired.replace(/(^|\n)\s*\/\/[^\n]*/g, '$1');
   repaired = repaired.replace(/,\s*([}\]])/g, '$1');
+  // Лишняя точка после строки перед скобкой или запятой: «…Совпадение?". ]».
+  repaired = repaired.replace(/(?<!\\)"\s*[.;]+\s*(?=[,\]}])/g, '"');
+  // Пропущенная запятая между строками списка, стоящими на разных строках
+  // («"…"⏎"…"»): внутри строки JSON переноса быть не может, значит это два элемента.
+  repaired = repaired.replace(/(?<!\\)"([ \t]*\r?\n\s*)"/g, '",$1"');
   return repaired;
 }
 
@@ -701,6 +706,40 @@ function безМеток(v) {
   return v;
 }
 
+// Самый ранний формат HUD: секции «== SCENE ==», «== CHAR ==» и строки
+// «Ключ: значение», без JSON. Такие блоки остались в старых чатах, и карточка
+// у них не собиралась («All HUD JSON candidates failed»). Переводим в нынешние
+// коды: сцена, персонажи, переписки, дневник, мир.
+const СТАРЫЕ_КЛЮЧИ = { Wth: 'Wt', Atm: 'At', Rel: 'Rl', Mem: 'Mm', Flag: 'Fl', Exo: 'Eo', Exp: 'Ex' };
+export function разобратьСтарыйФормат(текст) {
+  const итог = {};
+  let секция = '', перс = null, чат = null;
+  const пусто = (v) => !v || /^(n\/a|none|empty|-|—)$/i.test(v.trim());
+  for (const строка of String(текст || '').split('\n')) {
+    const заголовок = строка.match(/^\s*==\s*([A-Z_ ]+?)\s*==\s*$/);
+    if (заголовок) { секция = заголовок[1].trim(); перс = null; чат = null; continue; }
+    const пара = строка.match(/^\s*([A-Za-z_]+)\s*:\s*(.*)$/);
+    if (!пара || пусто(пара[2])) continue;
+    const ключ = СТАРЫЕ_КЛЮЧИ[пара[1]] || пара[1], v = пара[2].trim();
+    if (секция === 'SCENE') (итог.sc ||= {})[ключ] = v;
+    else if (секция === 'CHAR') {
+      if (ключ === 'N' || !перс) { перс = {}; (итог.cs ||= []).push(перс); }
+      if (ключ !== 'NSFW_Det') перс[ключ] = v;
+    } else if (секция === 'CHATS') {
+      if (ключ === 'ChatID' || !чат) { чат = { ow: '', ms: [] }; (итог.cm ||= {})[ключ === 'ChatID' ? v : 'Чат'] = чат; }
+      if (ключ === 'O') чат.ow = v;
+      else if (ключ === 'M') чат.ms.push(v);
+    } else if (секция === 'DIARY' && ключ === 'E') {
+      const [когда, ...текстЗаписи] = v.split('|');
+      (итог.dy ||= []).push({ au: (итог.cs && итог.cs[0] && итог.cs[0].N) || '', tm: когда.trim(), tx: текстЗаписи.join('|').trim() });
+    } else if (секция === 'WORLD') {
+      const куда = { H: 'nws', Ru: 'rm', Ad: 'ad', Cm: 'com' }[ключ];
+      if (куда) ((итог.wd ||= {})[куда] ||= []).push(v);
+    }
+  }
+  return итог.sc || итог.cs ? итог : null;
+}
+
 // Разобранный HUD и нормализованный для отрисовки.
 export function parseHUDComplex(contentEncoded) {
   return normalizeJSONData(безМеток(разобратьHUDСырой(contentEncoded)));
@@ -711,6 +750,10 @@ export function parseHUDComplex(contentEncoded) {
 // инструкции: модель обновляет свой же формат, а не развёрнутую копию.
 export function разобратьHUDСырой(contentEncoded) {
   const decoded = decodeHighlightedHudHtml(contentEncoded);
+  if (/^\s*==\s*SCENE\s*==\s*$/m.test(decoded)) {
+    const старый = разобратьСтарыйФормат(decoded);
+    if (старый) return старый;
+  }
   const candidates = extractBalancedJsonCandidates(decoded);
   if (!candidates.length) {
     const firstBrace = decoded.indexOf('{');

@@ -114,6 +114,9 @@ export const defaultSettings = {
   // Сердечки и «+N за ход», когда доверие к игроку выросло; ползунок
   // прокрутки и выделение текста цветом темы — у всех тем сразу.
   trustHearts: 'on', themedScroll: 'on',
+  // Подвеска на шнуре в шапке, волна под репликами, дракон за плашками — 'on' | 'off';
+  // галочки и ползунки по теме в настройках — 'on' | 'off'.
+  hangPendant: 'off', lineWave: 'off', bgDragon: 'off', themedControls: 'on',
   // Украшение портрета (css/deco.css): none — как было; theme — своё у
   // каждой темы (index.js, РАМКА_ТЕМЫ); иначе id рамки из РАМКИ_ПОРТРЕТА.
   avatarDeco: 'none',
@@ -323,9 +326,9 @@ export const settings = createDefaultSettings();
 // берётся по выбранной теме. Тема не в списке — украшение выключено.
 // Строка из id — включено у этих тем; объект — своё значение у каждой.
 const ПО_ТЕМЕ = {
-  sectionSkin: { japan: 'double', academia: 'double', kawaii: 'notebook', cottage: 'notebook', noir: 'evidence', mafia: 'evidence', web1: 'win95', witch: 'moonglass', spaceopera: 'moonglass', ice: 'glass', ocean: 'glass' },
+  sectionSkin: { japan: 'double', academia: 'double', kawaii: 'notebook', cottage: 'notebook', noir: 'evidence', mafia: 'evidence', web1: 'label', witch: 'moonglass', spaceopera: 'moonglass', ice: 'glass', ocean: 'glass' },
   headerStyle: { kawaii: 'visit', cottage: 'visit' },
-  nameStyle: { vamp: 'outline', cyberpunk: 'outline', spacehorror: 'outline', voodoo: 'outline', kawaii: 'sheen', fantasy: 'sheen', ice: 'sheen', ocean: 'sheen', witch: 'sheen', spaceopera: 'sheen' },
+  nameStyle: { academia: 'foil', egypt: 'foil', mafia: 'foil', vamp: 'outline', cyberpunk: 'outline', spacehorror: 'outline', voodoo: 'outline', kawaii: 'sheen', fantasy: 'sheen', ice: 'sheen', ocean: 'sheen', witch: 'sheen', spaceopera: 'sheen' },
   groupDividers: { kawaii: 'butterfly', cottage: 'butterfly', solarpunk: 'butterfly', japan: 'medallion', ice: 'mountain', ocean: 'ripple', medieval: 'line', academia: 'line', fantasy: 'line', vamp: 'line', witch: 'line' },
   headerProfile: 'kawaii web1 cyberpunk',
   thoughtBrackets: 'japan',
@@ -342,9 +345,12 @@ const ПО_ТЕМЕ = {
   lineNotes: 'kawaii vamp witch fantasy',
   healthPlaster: 'kawaii cottage web1',
   dropCap: 'academia medieval fantasy witch vamp cottage',
+  hangPendant: 'japan',
+  lineWave: 'japan kawaii witch',
+  bgDragon: 'fantasy',
 };
 // У всех тем сразу: читаемые заголовки, сердечки, прокрутка, плашка генерации.
-const ВСЕМ_ТЕМАМ = { lightHeadings: 'on', trustHearts: 'on', themedScroll: 'on', genIndicator: 'on' };
+const ВСЕМ_ТЕМАМ = { lightHeadings: 'on', trustHearts: 'on', themedScroll: 'on', genIndicator: 'on', themedControls: 'on' };
 const ВЫКЛЮЧЕНО = { sectionSkin: '', headerStyle: 'classic', nameStyle: 'plain', groupDividers: 'off' };
 export function настройка(ключ) {
   const v = settings[ключ];
@@ -357,3 +363,11 @@ export function настройка(ключ) {
 }
 // Ключи, у которых в Кастомизации есть «Авто (по теме)».
 export const КЛЮЧИ_АВТО = [...Object.keys(ПО_ТЕМЕ), ...Object.keys(ВСЕМ_ТЕМАМ)];
+// «Минимализм» (Кастомизация → Вид блоков): все украшения из тем выключены —
+// рамки, картинки угла, разделители, бумага, печать, имя, визитка, мелочи,
+// галочки и ползунки по теме, светлые заголовки.
+export const МИНИМАЛИЗМ = {
+  pillColors: 'mono', pillIcons: 'off', pillStyle: 'plain',
+  avatarDeco: 'none', headerOrnament: 'off',
+  ...Object.fromEntries(КЛЮЧИ_АВТО.map(к => [к, к in ВЫКЛЮЧЕНО ? ВЫКЛЮЧЕНО[к] : 'off'])),
+};

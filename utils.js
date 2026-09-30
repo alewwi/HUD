@@ -3,8 +3,8 @@
 // Мелкие утилиты, общие для всех доменов HUD (дневник, мир, сны, телефон,
 // граф отношений, память). Вынесено из index.js без изменения поведения.
 
-import { МЕТКИ } from './codes.js?v=23.19.1';
-import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.19.1';
+import { МЕТКИ } from './codes.js?v=23.23.0';
+import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.23.0';
 
 /** Экранирование через DOM: браузер сам решает, что считать опасным. */
 // Не выпускать касания наружу. SillyTavern ловит свайпы на уровне document
@@ -56,6 +56,23 @@ export function снятьЗаглушки(value) {
 // уходит в атрибут (title="…", data-labels="…") — первая же кавычка в тексте
 // обрывала атрибут.
 const СУЩНОСТИ = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' };
+// Короткое имя для вкладки: первое слово, но без приставки карточки капсом
+// («THE REGENTS  Tristan Kingsley» → «Tristan»). Модель нередко пишет имя
+// ровно как у карточки в Таверне, и вкладка превращалась в «THE».
+// Имя без приставки карточки капсом: «THE REGENTS  Tristan Kingsley» →
+// «Tristan Kingsley». Для заголовка карточки и первой буквы.
+export function имяБезПриставки(имя) {
+  const слова = String(имя || '').trim().split(/\s+/).filter(Boolean);
+  let i = 0;
+  while (i < слова.length - 1 && /^[\p{Lu}\d'’&.-]{2,}$/u.test(слова[i]) && /\p{Ll}/u.test(слова.slice(i + 1).join(' '))) i++;
+  return слова.slice(i).join(' ');
+}
+export function имяДляВкладки(имя) {
+  const слова = String(имя || '').trim().split(/\s+/).filter(Boolean);
+  let i = 0;
+  while (i < слова.length - 1 && /^[\p{Lu}\d'’&.-]{2,}$/u.test(слова[i]) && /\p{Ll}/u.test(слова.slice(i + 1).join(' '))) i++;
+  return слова[i] || '';
+}
 export function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>"']/g, з => СУЩНОСТИ[з]); }
 
 // Схема ждёт строку «Метка: значение; ...», но модель нередко отдаёт объект

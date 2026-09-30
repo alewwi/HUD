@@ -12,7 +12,7 @@
 // переформулировка давала бы новый бросок — лишний шанс. Поэтому ключ —
 // время близости и партнёр, а первый бросок по этому ключу запоминается.
 
-import { namesLikelySame } from '../names.js?v=23.19.1';
+import { namesLikelySame } from '../names.js?v=23.23.0';
 
 const КЛЮЧ = 'tavernosHudConception';
 
@@ -23,9 +23,10 @@ function хранилище() {
   const ctx = контекстST();
   const мета = ctx && (ctx.chatMetadata || ctx.chat_metadata);
   if (!мета) return null;
-  if (!мета[КЛЮЧ] || typeof мета[КЛЮЧ] !== 'object') мета[КЛЮЧ] = { броски: {}, зачатие: {} };
+  if (!мета[КЛЮЧ] || typeof мета[КЛЮЧ] !== 'object') мета[КЛЮЧ] = { броски: {}, зачатие: {}, судьба: {} };
   мета[КЛЮЧ].броски ||= {};
   мета[КЛЮЧ].зачатие ||= {};
+  мета[КЛЮЧ].судьба ||= {};
   return мета[КЛЮЧ];
 }
 function сохранить() {
@@ -56,21 +57,25 @@ function своёИмя(х, кто) {
  * Итог близости для человека.
  * кто — стабильный идентификатор («char:Серафина», «user»); риск — результат
  * рискЗачатия() (render/intimacy.js) для этой близости; секс — текст поля.
- * Возвращает { беременна, когда, этаБлизость } — беременность «липкая»:
+ * Возвращает { беременна, когда, этаБлизость, … } — беременность «липкая»:
  * если зачатие уже было, новые близости её не отменяют.
  */
 export function исходЗачатия(кто, риск, секс) {
   const х = хранилище();
   кто = своёИмя(х, кто);
   const был = String(секс || '').trim() && !/^(empty|none|нет|не было)$/i.test(String(секс).trim());
-  let этаБлизость = null;
+  let этаБлизость = null, к = '';
   if (был && риск && риск.бросок) {
-    const к = кто + '|' + ключБлизости(секс);
+    к = кто + '|' + ключБлизости(секс);
     if (х) {
       if (!х.броски[к]) {
         const порог = Math.max(1, Math.round(риск.шанс * 100));
         х.броски[к] = { бросок: риск.бросок, порог, итог: риск.бросок <= порог, когда: String(секс).slice(0, 160), кто };
-        if (х.броски[к].итог && !х.зачатие[кто]) х.зачатие[кто] = { когда: х.броски[к].когда };
+        if (х.броски[к].итог && !х.зачатие[кто]) {
+          х.зачатие[кто] = { когда: х.броски[к].когда };
+          // Новое зачатие после «судьбы» — уже другая история: откатывать некуда.
+          delete х.судьба[кто];
+        }
         сохранить();
       }
       этаБлизость = х.броски[к];
@@ -81,30 +86,92 @@ export function исходЗачатия(кто, риск, секс) {
     }
   }
   const зачатие = х ? х.зачатие[кто] : (этаБлизость && этаБлизость.итог ? { когда: этаБлизость.когда } : null);
-  return { беременна: !!зачатие, когда: зачатие ? зачатие.когда : '', этаБлизость };
+  return { беременна: !!зачатие, когда: зачатие ? зачатие.когда : '', этаБлизость,
+    кто, ключ: к, проверено: !!(зачатие && зачатие.проверено), судьба: !!(х && х.судьба[кто]), можноСудьбу: !!х };
 }
 
 /**
- * Скрытые факты для инструкции модели. Знает автор, персонажи — нет.
- * Кого касается: всё, что лежит в метаданных чата.
+ * Что HUD знает о человеке сейчас — для плашки-напоминания игроку.
+ * { беременна, проверено, когда } или null, если метаданных нет.
+ */
+export function состояниеЗачатия(кто) {
+  const х = хранилище();
+  if (!х) return null;
+  const з = х.зачатие[своёИмя(х, кто)];
+  return { беременна: !!з, проверено: !!(з && з.проверено), когда: з ? з.когда : '' };
+}
+
+/**
+ * Игрок раскрыл тест. Только после этого беременность уходит модели:
+ * без нажатия на кнопку известие в промпт не попадает.
+ * true — если отметка новая (нужно перерисовать карточки).
+ */
+export function отметитьТест(кто) {
+  const х = хранилище();
+  if (!х || !кто) return false;
+  const з = х.зачатие[кто];
+  if (!з || з.проверено) return false;
+  з.проверено = true;
+  сохранить();
+  return true;
+}
+
+/**
+ * «Изменить судьбу»: игрок переворачивает итог теста в любую сторону.
+ * беременна=true — «−» становится «+», false — «+» становится «−».
+ * Прежний итог хранится только в х.судьба[кто] ради «Откатить» и модели
+ * не уходит: она видит лишь новое «беременна / не беременна».
+ */
+export function изменитьСудьбу(кто, ключ, беременна) {
+  const х = хранилище();
+  if (!х || !кто || х.судьба[кто]) return false;
+  const было = х.зачатие[кто] || null;
+  if (беременна === !!было) return false;
+  const б = х.броски[ключ];
+  х.судьба[кто] = { было, когда: (было && было.когда) || (б && б.когда) || '' };
+  if (беременна) х.зачатие[кто] = { когда: х.судьба[кто].когда, проверено: true };
+  else delete х.зачатие[кто];
+  сохранить();
+  return true;
+}
+
+// «Откатить»: вернуть итог, который был до изменения судьбы.
+export function откатитьСудьбу(кто) {
+  const х = хранилище();
+  if (!х || !кто || !х.судьба[кто]) return false;
+  const { было } = х.судьба[кто];
+  if (было) х.зачатие[кто] = было;
+  else delete х.зачатие[кто];
+  delete х.судьба[кто];
+  сохранить();
+  return true;
+}
+
+/**
+ * Скрытые факты для инструкции модели. Знает только HUD, персонажи — нет.
+ * Беременность уходит, только когда игрок сделал тест в HUD; прежние
+ * итоги до «изменения судьбы» не уходят вовсе.
  */
 export function скрытыеФактыЗачатия() {
   const х = хранилище();
   if (!х) return '';
   const имя = (кто) => кто === 'user' ? '{{user}}' : String(кто).replace(/^char:/, '');
+  const при = (когда) => когда ? ` (the encounter «${когда}»)` : '';
   const строки = [];
   for (const [кто, з] of Object.entries(х.зачатие || {})) {
-    строки.push(`${имя(кто)} CONCEIVED during the encounter «${з.когда}». Nobody in the story knows it. Let it unfold on its real schedule: no signs for about two weeks, then a late period, nausea, tender breasts, tiredness; only a pregnancy test or a doctor confirms it. Never hint at it in narration or thoughts before the characters find out. From the moment a test or a doctor confirms it, track it in Prg.`);
+    if (!з.проверено) continue;
+    строки.push(`${имя(кто)} IS PREGNANT${при(з.когда)}. Let it unfold on its real schedule: no signs for about two weeks, then a late period, nausea, tender breasts, tiredness; only a pregnancy test or a doctor in the story confirms it. Never hint at it in narration or thoughts before the characters find out. From the moment an in-story test or a doctor confirms it, track it in Prg.`);
   }
-  // Последняя близость без зачатия у тех, кто не беременен: чтобы модель не
-  // выдумала беременность сама.
-  const последние = {};
-  for (const б of Object.values(х.броски || {})) if (б && !б.итог && !(х.зачатие || {})[б.кто]) последние[б.кто] = б;
-  for (const б of Object.values(последние)) {
-    строки.push(`The encounter «${б.когда}» did NOT make ${имя(б.кто)} pregnant: if anyone worries, the period comes on time and a test is negative.`);
+  // Кто не беременен: чтобы модель не выдумала беременность сама. Судьба,
+  // повёрнутая в «−», говорит то же самое — без следа прежнего итога.
+  const нет = {};
+  for (const б of Object.values(х.броски || {})) if (б && !б.итог && !(х.зачатие || {})[б.кто]) нет[б.кто] = б.когда;
+  for (const [кто, с] of Object.entries(х.судьба || {})) if (!(х.зачатие || {})[кто]) нет[кто] = с.когда;
+  for (const [кто, когда] of Object.entries(нет)) {
+    строки.push(`${имя(кто)} is NOT pregnant${при(когда)}: if anyone worries, the period comes on time and a test is negative.`);
   }
   if (!строки.length) return '';
   return `\n\n## 🔒 HIDDEN STORY FACTS — for you as the author only
-These were decided by a dice roll and are final. The characters do NOT know them.
+Only the HUD knows these facts. The HUD is not the characters: nobody in the story knows them until they find out in the story itself (a test, a doctor, the body). The facts are final.
 - ${строки.join('\n- ')}`;
 }
