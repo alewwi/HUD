@@ -281,7 +281,7 @@
 @media (max-width: 600px) { .hud-moonchip { margin-inline: auto; } .hud-moonchip-row i { width: 17px; height: 17px; } }
 /* Тень на луне в небе: терминатор ::after получает тёмный серп нужной ширины. */
 :is(.phase-night, .phase-deep-night, .phase-evening, .phase-predawn).hud-scene-widget[style*="--moon-dark"] .hud-fx-celestial::after {
-  box-shadow: inset var(--moon-dark) 0 0 0 rgba(10,15,34,.86); }
+  box-shadow: inset var(--moon-dark) 0 0 0 rgba(10,15,34,.86); opacity: calc(.12 + .88 * min(1, var(--moon-lit, 1) * 2.5)); }
 
 /* =========================================================================
    ТИТРЫ СЦЕНЫ

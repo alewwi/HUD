@@ -6884,3 +6884,174 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 .hud-custom-preview-body > .hud-swap-old.is-leaving { opacity: 0; }
 @media (prefers-reduced-motion: reduce) { .hud-custom-preview-body > .hud-swap-old { transition: none; } }
 .hud-custom-minimal { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
+
+/* =========================================================================
+   ПРАВКИ ПО ПРОВЕРКЕ НА ЖИВОМ ЧАТЕ (23.21)
+   ========================================================================= */
+
+/* Часы сцены не переносятся: в узкой колонке «12:45» ломалось на «12:4 / 5»
+   (сетка с минимальными колонками по содержимому брала самое узкое место). */
+.hud-time-display { white-space: nowrap; }
+
+/* Шапка карточки на телефоне: при открытой карточке строка превью скрыта
+   прозрачностью, но занимала целую строку и сталкивала ❓ 🔄 ▲ вниз. */
+@media (max-width: 600px) {
+  .hud-toggle-input:checked ~ .hud-os-topbar .hud-os-subtitle { display: none; }
+  .hud-toggle-input:checked ~ .hud-os-topbar .hud-os-topbar-left { flex: 1 1 auto; }
+}
+
+/* Пульс, дыхание, температура: график тянется на всю плитку (раньше —
+   жёсткие 72px, на узком телефоне обрезался и оставлял пустую половину),
+   подписи не рвутся посреди слова («Температу / ра»). */
+.hud-vit-spark { width: 100%; height: 24px; }
+.hud-vit-spark polyline { vector-effect: non-scaling-stroke; }
+.hud-vit-spark .dot { fill: none; stroke: var(--vc, #d9548a); stroke-width: 7; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.hud-vit-spark .dot-in { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.hud-vit-label { white-space: nowrap; min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+/* Следы на теле: на узком экране таймер («сойдёт через 13 ч») уходит на
+   свою строку — он съедал ширину, и название сжималось в колонку по 2–3 буквы. */
+@media (max-width: 600px) {
+  .hud-mark { grid-template-columns: 34px minmax(0, 1fr) !important; }
+  .hud-mark > .hud-mark-timer { grid-column: 1 / -1; justify-content: flex-start; }
+}
+
+/* Бирки силы страха, «контрацепция», время в статусбаре перехватов —
+   короткие слова, которые рвались посреди на узком экране. */
+.hud-fear em, .hud-prot-kicker, .hud-phone-time { white-space: nowrap; }
+.hud-fear em { flex: none; }
+.hud-prot-kicker { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+
+/* На телефоне вложенная прокрутка в строках карточки (отношения, ключ, цели,
+   NSFW — 140px) без видимой полосы выглядела обрезанным краем: карточка
+   и так прокручивается целиком, поэтому списки раскрываем. */
+@media (max-width: 600px) {
+  .hud-os-card .hud-body :is(.hud-vertical-container, .hud-key-list) { max-height: none !important; overflow-y: visible !important; }
+}
+
+/* На узкой карточке (телефон до ~390px) плитки пульса, дыхания и
+   температуры встают столбиком: втроём в ряд подписи и графики не влезали. */
+.hud-row:has(> .hud-vitals) { container-type: inline-size; }
+@container (max-width: 340px) { .hud-row > .hud-vitals { grid-template-columns: 1fr !important; } }
+
+/* Спутники: плашка настроения стоит в цветной полосе выше имени — на
+   узкой карточке она заезжала на имя питомца. */
+.hud-pet2-band { height: 62px; }
+.hud-pet2-mood { top: 8px; }
+
+/* Таверна задаёт сообщениям word-break: break-word, и в карточке это
+   разрешало рвать слова где угодно: сетки и колонки сжимались по кускам
+   слов («напряжени / е», «ПРЕДРАССВЕТН / ЫЙ», «сил / ьно»). В карточке слова
+   рвутся, только если иначе не влезают. */
+.hud-os-card { word-break: normal; overflow-wrap: break-word; }
+
+/* Экран блокировки телефона: растянут на весь корпус (inset: 0), а общий
+   min-height 610px делал его выше внутренней части корпуса — низ со «свайпом
+   вверх» уходил под рамку на 10–18px. */
+.hud-phone-lockscreen { min-height: 0 !important; }
+
+/* Готовность к оргазму: число залито градиентом от белого — на светлых
+   темах оно сливалось с фоном. Там заливка от цвета NSFW к тёмному. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-org-head b {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--nsfw) 75%, #2a1020), color-mix(in srgb, var(--nsfw) 55%, #000));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-org.is-edge .hud-org-head em { color: color-mix(in srgb, var(--nsfw) 70%, #000); }
+
+/* «Здоровье» в телефоне на светлых темах: мелкие подписи («штиль») и легенда
+   графика оставались светлыми на бумажной плитке. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-hl-tile, .hud-hl-card) :is(small, .hud-hl-legend, .hud-hl-title) { color: var(--lt-ink-soft, var(--lt-ink)) !important; opacity: 1; }
+
+/* Светлые темы: подпись «Баланс счёта» и описания в прогнозе («штиль»)
+   оставались светлыми на бумаге кошелька и погоды. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-wallet-balance small, .hud-wallet-balance em, .hud-wx-row-desc small) { color: var(--lt-ink-soft, var(--lt-ink)) !important; opacity: 1; }
+/* Прогноз: подпись времени («Destination») не рвётся посреди слова —
+   колонка берёт ширину по слову, но не больше 88px, дальше многоточие. */
+.hud-wx-row { grid-template-columns: minmax(56px, max-content) 26px minmax(0, 1fr) auto; }
+.hud-wx-row > .hud-wx-period { max-width: 88px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+/* «Изменить судьбу» под тестом: тихая кнопка в цвет фазы, раскрывается
+   подсветкой только при наведении. */
+.hud-test-result { min-width: 0; }
+.hud-fate-btn {
+  margin-top: 6px; padding: 3px 10px; border-radius: 999px; cursor: pointer; font: inherit; font-size: .8em;
+  color: inherit; letter-spacing: .02em; white-space: nowrap;
+  border: 1px dashed color-mix(in srgb, var(--phase, var(--hud-accent)) 55%, transparent);
+  background: color-mix(in srgb, var(--phase, var(--hud-accent)) 8%, transparent);
+  transition: background .2s, box-shadow .2s, border-color .2s;
+}
+.hud-fate-btn:hover, .hud-fate-btn:focus-visible {
+  border-style: solid; background: color-mix(in srgb, var(--phase, var(--hud-accent)) 22%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--phase, var(--hud-accent)) 45%, transparent);
+}
+.hud-fate-note { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 4px; font-size: .78em; opacity: .85; }
+.hud-fate-note .hud-fate-btn { margin-top: 0; font-size: 1em; padding: 1px 8px; }
+
+/* Раскрытый граф на телефоне: холст 1000 единиц ужимается до ~380px
+   (×0.38), и подписи по 10 единиц выходили в 4px — не прочесть. На узком
+   экране подписи крупнее в единицах холста; остальное — щипком. */
+@media (max-width: 680px) {
+  .hud-rel-graph.is-expanded .hud-rel-name { font-size: 22px; }
+  .hud-rel-graph.is-expanded .hud-rel-role { font-size: 15px; }
+  .hud-rel-graph.is-expanded .hud-rel-initials { font-size: 19px; }
+  .hud-rel-graph.is-expanded .hud-rel-edge-label,
+  .hud-rel-graph.is-expanded .hud-rel-edge-label[data-rel-bidir="true"] { font-size: 17px; }
+}
+
+/* «Модификаторы сцены» — карточки вместо пилюль: значок в кружке,
+   заголовок с пояснением, шанс зачатия — кольцом. Цвет — от темы
+   (акцент, у шанса — NSFW-цвет); подсветка только при наведении. */
+.hud-scene-mods {
+  gap: 6px; padding: 9px 10px 10px; border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--hud-accent, #c31f38) 18%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--hud-accent, #c31f38) 9%, transparent), transparent 72%);
+}
+.hud-scene-mods-title { display: flex; align-items: center; gap: 8px; margin-bottom: 1px; }
+.hud-scene-mods-title::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--hud-accent, #c31f38) 55%, transparent), transparent);
+}
+.hud-scene-mods .hud-mod {
+  --m: var(--hud-accent, #c31f38);
+  flex: 1 1 190px; min-width: 0; display: flex; align-items: center; gap: 9px;
+  padding: 6px 8px 6px 6px; border-radius: 12px; font-size: 11.5px; line-height: 1.25;
+  border: 1px solid color-mix(in srgb, var(--m) 30%, transparent);
+  background: linear-gradient(120deg, color-mix(in srgb, var(--m) 14%, transparent), color-mix(in srgb, var(--m) 4%, transparent));
+  transition: background .25s, box-shadow .25s, border-color .25s;
+}
+.hud-scene-mods .hud-mod.is-fertile { --m: var(--hud-nsfw-color, #d9548a); }
+.hud-scene-mods .hud-mod.is-chance { flex-basis: 150px; }
+.hud-scene-mods .hud-mod:hover {
+  border-color: color-mix(in srgb, var(--m) 55%, transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--m) 28%, transparent);
+  background: linear-gradient(120deg, color-mix(in srgb, var(--m) 22%, transparent), color-mix(in srgb, var(--m) 7%, transparent));
+}
+.hud-mod-ico {
+  flex: 0 0 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 13px;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--m) 42%, transparent), color-mix(in srgb, var(--m) 10%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--m) 40%, transparent);
+}
+.hud-mod-txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
+.hud-mod-txt b { display: block; font-size: 12px; font-weight: 700; letter-spacing: .01em; }
+.hud-mod-txt b::first-letter { text-transform: uppercase; }
+.hud-mod-txt small { font-size: 10.5px; color: var(--hud-text-muted, #c3c2b7); overflow-wrap: break-word; }
+.hud-mod-val {
+  position: relative; flex: 0 0 38px; height: 38px; display: grid; place-items: center;
+  font-size: 10.5px; font-weight: 800; font-variant-numeric: tabular-nums;
+}
+.hud-mod-val::before {
+  content: ''; position: absolute; inset: 0; border-radius: 50%;
+  background: conic-gradient(var(--m) calc(var(--p, 0) * 1%), color-mix(in srgb, var(--m) 16%, transparent) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px));
+          mask: radial-gradient(farthest-side, transparent calc(100% - 4px), #000 calc(100% - 3.5px));
+}
+.hud-mod-val > span { position: relative; }
+.hud-scene-mods .hud-mod.is-high .hud-mod-val::before { filter: drop-shadow(0 0 3px var(--m)); }
+.hud-scene-mods .hud-mod.is-high .hud-mod-val { color: color-mix(in srgb, var(--m) 55%, currentColor); }
+
+/* Плашка-напоминание о беременности у {{user}} (до появления Prg). */
+.hud-state-plaque.is-preg {
+  border-color: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 50%, transparent);
+  background: linear-gradient(120deg, color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 20%, transparent), color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 5%, transparent));
+}
+.hud-state-plaque.is-preg .hud-state-timer { background: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 28%, transparent); }

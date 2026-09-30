@@ -702,3 +702,192 @@
 .hud-gen-ind:is(:hover, .fx-deco) i { animation-play-state: running !important; }
 /* «Дыхание» имени живёт своим выключателем (fx-breath) — его не трогаем. */
 :root.hud-glow-breath:is(.hud-name-outline, .hud-name-sheen) .hud-os-card .hud-header .hud-title.fx-breath { animation-play-state: running !important; }
+
+/* =========================================================================
+   НАХОДКИ ИЗ ДЕВЯТИ ТЕМ (23.20)
+   ========================================================================= */
+
+/* --- Картинки угла шапки: в своих цветах -------------------------------- */
+:root:is(.hud-orn-redbranch, .hud-orn-oni, .hud-orn-hat) .hud-os-card .hud-header:not(.has-banner) .hud-head-orn {
+  background: var(--deco-img) center / contain no-repeat !important; -webkit-mask: none !important; mask: none !important;
+}
+:root:is(.hud-orn-redbranch, .hud-orn-oni, .hud-orn-hat) .hud-os-card .hud-header:not(.has-banner) .hud-head-orn::after { content: none !important; }
+/* Ветка красных цветов («red youkai») — светлый контур, чтобы не тонула в тёмном. */
+:root.hud-orn-redbranch .hud-os-card .hud-header:not(.has-banner) .hud-head-orn {
+  --deco-img: url('../img/deco/orn-redbranch.webp'); width: 124px; height: 104px; top: -6px; right: -4px;
+  filter: drop-shadow(0 0 1px rgba(255, 232, 232, .7)) drop-shadow(0 0 5px rgba(255, 200, 200, .25));
+}
+:root.hud-orn-redbranch .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 120px !important; }
+/* Маска они в цветах («red youkai»). */
+:root.hud-orn-oni .hud-os-card .hud-header:not(.has-banner) .hud-head-orn {
+  --deco-img: url('../img/deco/orn-oni.webp'); width: 80px; height: 100px; top: -4px; filter: drop-shadow(0 3px 5px rgba(0,0,0,.5));
+}
+/* Ведьмина шляпа с луной («Titania-witch»). */
+:root.hud-orn-hat .hud-os-card .hud-header:not(.has-banner) .hud-head-orn {
+  --deco-img: url('../img/deco/orn-hat.webp'); width: 104px; height: 90px; top: 2px; rotate: -8deg; filter: drop-shadow(0 4px 6px rgba(0,0,0,.45));
+}
+@media (max-width: 600px) {
+  :root:is(.hud-orn-redbranch, .hud-orn-oni, .hud-orn-hat) .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 66px; height: 62px; }
+  :root.hud-orn-redbranch .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 62px !important; }
+}
+
+/* --- Подвеска на шнуре («Swallows»): качается под курсором или по нажатию - */
+.hud-pendant, .hud-label-badge, .hud-dragon { display: none; }
+:root.hud-hang-pendant .hud-os-card .hud-header:not(.has-banner) { position: relative; }
+:root.hud-hang-pendant .hud-os-card .hud-header:not(.has-banner) .hud-pendant {
+  display: block; position: absolute; right: 118px; top: -14px; width: 30px; height: 70px; z-index: 3; pointer-events: none; transform-origin: 50% 0;
+  background: url('../img/deco/pendant.webp') center top / contain no-repeat; filter: drop-shadow(0 3px 4px rgba(0,0,0,.28));
+  animation: hud-pendant-swing 2.6s ease-in-out infinite; animation-play-state: paused;
+}
+:root.hud-hang-pendant:not(.hud-orn-on) .hud-os-card .hud-header:not(.has-banner) .hud-pendant { right: 22px; }
+:root.hud-hang-pendant .hud-os-card .hud-header:not(.has-banner):is(:hover, .fx-deco) .hud-pendant { animation-play-state: running; }
+@keyframes hud-pendant-swing { 0%, 100% { rotate: 7deg; } 50% { rotate: -7deg; } }
+@media (max-width: 600px) { :root.hud-hang-pendant .hud-os-card .hud-header:not(.has-banner) .hud-pendant { right: 70px; width: 22px; height: 52px; } }
+
+/* --- Имя «фольгой» («Purple moon»): золотое тиснение с оттенком темы ------ */
+:root.hud-name-foil .hud-os-card .hud-header .hud-title {
+  font-style: italic;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--hud-accent) 50%, #fff) 0%, var(--hud-accent) 25%, #aa8b1c 50%, #fcf6ba 75%, #fff5dc 100%) !important;
+  -webkit-background-clip: text !important; background-clip: text !important; -webkit-text-fill-color: transparent !important; color: transparent !important;
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.45)); text-shadow: none !important;
+}
+
+/* --- Волна под репликами («LYNN») ---------------------------------------- */
+:root.hud-line-wave .hud-os-card .hud-line-quote {
+  text-decoration: underline wavy color-mix(in srgb, var(--hud-accent) 85%, #fff) 1.5px; text-underline-offset: 5px; text-decoration-skip-ink: none;
+}
+
+/* --- Дракон за плашками («K$SS ME, Derek») — по центру, еле виден -------- */
+:root.hud-bg-dragon .hud-os-card .hud-tab-content { position: relative; }
+:root.hud-bg-dragon .hud-os-card .hud-tab-content > .hud-dragon {
+  display: block; position: absolute !important; left: 50%; top: 50%; translate: -50% -50%; width: min(80%, 380px); aspect-ratio: 420 / 234;
+  z-index: 0 !important; pointer-events: none; opacity: .16; background: var(--hud-accent);
+  -webkit-mask: url('../img/deco/dragon.webp') center / contain no-repeat; mask: url('../img/deco/dragon.webp') center / contain no-repeat;
+}
+:root.hud-bg-dragon .hud-os-card .hud-tab-content > :not(.hud-dragon, .hud-paper) { position: relative; z-index: 1; }
+
+/* --- Стиль секций «Этикетка» («Dunnoreal») -------------------------------
+   Белые плашки, толстая чёрная рамка с тенью, подпись-бирка; наклейка
+   «CAUTION EXTREME HEAT» у физиологии и значок 製品 в шапке. */
+:root.hud-skin-label .hud-os-card .hud-body > :is(.hud-row, .hud-key-block) {
+  background: #fff !important; border: 2.5px solid #111 !important; border-radius: 0 !important; box-shadow: 3px 3px 0 #111 !important; color: #111;
+}
+:root.hud-skin-label .hud-os-card .hud-body > .hud-row::before { opacity: 0 !important; }
+:root.hud-skin-label .hud-os-card .hud-body > .hud-row > .hud-key,
+:root.hud-skin-label .hud-os-card .hud-body > .hud-key-block > .hud-key-label {
+  display: inline-block; background: #fff; border: 1.5px solid #111; padding: 3px 10px !important; color: #111 !important; margin: -2px 0 8px -2px; text-shadow: none !important;
+}
+:root.hud-skin-label .hud-os-card .hud-body > :is(.hud-row, .hud-key-block) :is(.hud-value, .hud-key-item) { color: #111 !important; }
+:root.hud-skin-label .hud-os-card .hud-row.f-phys { overflow: visible !important; }
+:root.hud-skin-label .hud-os-card .hud-row.f-phys::after {
+  -webkit-mask: none !important; mask: none !important; background: #fff url('../img/deco/label-caution.webp') center / 92% no-repeat !important;
+  width: 104px !important; height: 28px !important; opacity: 1 !important; top: -12px !important; right: 6px !important; rotate: 4deg; z-index: 3 !important; border: 1.5px solid #111;
+}
+:root.hud-skin-label .hud-os-card .hud-header:not(.has-banner) { position: relative; }
+:root.hud-skin-label:not(.hud-orn-on) .hud-os-card .hud-header:not(.has-banner)::after { visibility: hidden !important; }
+:root.hud-skin-label:not(.hud-orn-on) .hud-os-card .hud-header:not(.has-banner) .hud-label-badge {
+  display: block; position: absolute; right: 12px; top: 50%; translate: 0 -50%; width: 58px; height: 44px; z-index: 3; pointer-events: none; opacity: .9;
+  background: url('../img/deco/label-seihin.webp') center / contain no-repeat;
+}
+
+/* =========================================================================
+   ГАЛОЧКИ И ПОЛЗУНКИ ПО ТЕМЕ
+   В настройках расширения и «Кастомизации»: у каждой темы своя галочка
+   (выкл → вкл) и свой ползунок. Цвет — акцент темы. У Вампира, Уюта, Льда
+   и Глубины галочки свои (выше в extras.css) — им добавляется ползунок.
+   ========================================================================= */
+:root.hud-themed-controls:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-cyberpunk, .hud-theme-noir, .hud-theme-medieval, .hud-theme-fantasy, .hud-theme-mafia,
+    .hud-theme-steampunk, .hud-theme-dieselpunk, .hud-theme-solarpunk, .hud-theme-biopunk, .hud-theme-spaceopera, .hud-theme-japan, .hud-theme-egypt,
+    .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo, .hud-theme-spacehorror) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"] {
+  appearance: none !important; -webkit-appearance: none !important; width: auto !important; min-width: 16px; height: 16px !important; margin: 0 4px 0 0 !important;
+  display: inline-grid !important; place-items: center; background: transparent !important; border: none !important; box-shadow: none !important; cursor: pointer; flex: none;
+}
+:root.hud-themed-controls:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-cyberpunk, .hud-theme-noir, .hud-theme-medieval, .hud-theme-fantasy, .hud-theme-mafia,
+    .hud-theme-steampunk, .hud-theme-dieselpunk, .hud-theme-solarpunk, .hud-theme-biopunk, .hud-theme-spaceopera, .hud-theme-japan, .hud-theme-egypt,
+    .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo, .hud-theme-spacehorror) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]::before {
+  content: var(--cb-off) !important; display: block !important; width: auto !important; height: auto !important; background: none !important; border: none !important;
+  box-shadow: none !important; transform: none !important; clip-path: none !important; font: 16px/1 'Segoe UI Symbol', 'Segoe UI', sans-serif; color: var(--hud-accent);
+}
+:root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before {
+  content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
+}
+:root.hud-theme-kawaii      { --cb-off: '\2661\FE0E'; --cb-on: '\2665\FE0E'; }
+:root.hud-theme-academia    { --cb-off: '☐';   --cb-on: '☒'; }
+:root.hud-theme-cyberpunk   { --cb-off: '[ ]'; --cb-on: '[■]'; }
+:root.hud-theme-noir        { --cb-off: '○';   --cb-on: '●'; }
+:root.hud-theme-medieval    { --cb-off: '◇';   --cb-on: '◆'; }
+:root.hud-theme-fantasy     { --cb-off: '✧';   --cb-on: '✦'; }
+:root.hud-theme-mafia       { --cb-off: '○';   --cb-on: '✕'; }
+:root.hud-theme-steampunk   { --cb-off: '⚙\FE0E'; --cb-on: '⚙\FE0E'; }
+:root.hud-theme-dieselpunk  { --cb-off: '▫';   --cb-on: '▪'; }
+:root.hud-theme-solarpunk   { --cb-off: '❀';   --cb-on: '✿'; }
+:root.hud-theme-biopunk     { --cb-off: '⬡';   --cb-on: '⬢'; }
+:root.hud-theme-spaceopera  { --cb-off: '○';   --cb-on: '◉'; }
+:root.hud-theme-japan       { --cb-off: '〇';  --cb-on: '◉'; }
+:root.hud-theme-egypt       { --cb-off: '△';   --cb-on: '▲'; }
+:root.hud-theme-western     { --cb-off: '✩';   --cb-on: '✪'; }
+:root.hud-theme-pirate      { --cb-off: '○';   --cb-on: '✕'; }
+:root.hud-theme-witch       { --cb-off: '☾';   --cb-on: '☽'; }
+:root.hud-theme-voodoo      { --cb-off: '◌';   --cb-on: '⊕'; }
+:root.hud-theme-spacehorror { --cb-off: '◌';   --cb-on: '◉'; }
+:root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:not(:checked)::before { opacity: .45; }
+:root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { rotate: 22deg; }
+/* Web 1.0 — ящик как в Windows 95. */
+:root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"] {
+  appearance: none !important; -webkit-appearance: none !important; width: 14px !important; height: 14px !important; margin: 0 5px 0 0 !important; display: inline-grid !important; place-items: center;
+  background: #fff !important; border: none !important; border-radius: 0 !important; box-shadow: inset 1px 1px 0 #808080, inset -1px -1px 0 #dfdfdf, inset 2px 2px 0 #404040 !important; flex: none;
+}
+:root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]::before { content: '' !important; display: block !important; background: none !important; box-shadow: none !important; clip-path: none !important; }
+:root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { content: '' !important; width: 3px !important; height: 7px !important; margin-top: -2px;
+  border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
+
+/* Ползунки: дорожка и фигура-ползунок у каждой темы. */
+:root.hud-themed-controls[class*="hud-theme-"] :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="range"] {
+  -webkit-appearance: none; appearance: none; background: transparent !important; height: 22px; cursor: pointer; accent-color: var(--hud-accent);
+}
+:root.hud-themed-controls[class*="hud-theme-"] :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="range"]::-webkit-slider-runnable-track {
+  height: var(--trk-h, 2px); border-radius: 2px; background: var(--trk, color-mix(in srgb, var(--hud-accent) 45%, transparent)); box-shadow: var(--trk-glow, none);
+}
+:root.hud-themed-controls[class*="hud-theme-"] :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none; width: 18px; height: 18px; margin-top: calc(var(--trk-h, 2px) / 2 - 9px); border: none; border-radius: 0; box-shadow: none;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,.4));
+}
+:root.hud-themed-controls[class*="hud-theme-"] :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="range"]::-moz-range-track {
+  height: var(--trk-h, 2px); background: var(--trk, color-mix(in srgb, var(--hud-accent) 45%, transparent)); border: none;
+}
+:root.hud-themed-controls[class*="hud-theme-"] :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="range"]::-moz-range-thumb {
+  width: 18px; height: 18px; border: none; border-radius: 0;
+}
+
+/* Фигуры ползунков и дорожки по темам (сгенерировано). */
+:root.hud-theme-vamp { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%202l2.9%206.6%207.1.6-5.4%204.7%201.6%207L12%2017.3%205.8%2020.9l1.6-7L2%209.2l7.1-.6z'%2F%3E%3C%2Fsvg%3E");  }
+:root.hud-theme-kawaii { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%2021s-8-5.1-8-11a4.6%204.6%200%200%201%208-3%204.6%204.6%200%200%201%208%203c0%205.9-8%2011-8%2011z'%2F%3E%3C%2Fsvg%3E"); --trk: radial-gradient(circle, color-mix(in srgb, var(--hud-accent) 75%, transparent) 1.4px, transparent 1.9px) 0 50% / 8px 6px repeat-x; --trk-h: 6px; }
+:root.hud-theme-academia { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%201c2%202.5%202.5%205%200%208-2.5-3-2-5.5%200-8zM12%209v13M5%207c3%200%205%202.5%205%206-3%200-5.5-2-5-6zM19%207c-3%200-5%202.5-5%206%203%200%205.5-2%205-6zM7%2016h10'%20stroke%3D'black'%20stroke-width%3D'2'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E");  }
+:root.hud-theme-cyberpunk { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M14%201L4%2014h7l-2%209%2011-13h-7z'%2F%3E%3C%2Fsvg%3E"); --trk: var(--hud-accent); --trk-glow: 0 0 6px var(--hud-accent), 0 0 12px color-mix(in srgb, var(--hud-accent) 55%, transparent); }
+:root.hud-theme-noir { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Crect%20x%3D'3'%20y%3D'3'%20width%3D'18'%20height%3D'18'%20rx%3D'1'%2F%3E%3C%2Fsvg%3E"); --trk: repeating-linear-gradient(90deg, var(--hud-accent) 0 4px, transparent 4px 7px) top / 100% 2px no-repeat, repeating-linear-gradient(90deg, var(--hud-accent) 0 4px, transparent 4px 7px) bottom / 100% 2px no-repeat, color-mix(in srgb, var(--hud-accent) 18%, transparent); --trk-h: 8px; }
+:root.hud-theme-medieval { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%201c2%202.5%202.5%205%200%208-2.5-3-2-5.5%200-8zM12%209v13M5%207c3%200%205%202.5%205%206-3%200-5.5-2-5-6zM19%207c-3%200-5%202.5-5%206%203%200%205.5-2%205-6zM7%2016h10'%20stroke%3D'black'%20stroke-width%3D'2'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E"); --trk: repeating-linear-gradient(60deg, color-mix(in srgb, var(--hud-accent) 80%, #000) 0 2px, color-mix(in srgb, var(--hud-accent) 45%, #fff) 2px 4px); --trk-h: 4px; }
+:root.hud-theme-fantasy { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%201l5%207-5%2015-5-15zM12%201l-5%207h10z'%2F%3E%3C%2Fsvg%3E"); --trk: var(--hud-accent); --trk-glow: 0 0 6px var(--hud-accent), 0 0 12px color-mix(in srgb, var(--hud-accent) 55%, transparent); }
+:root.hud-theme-mafia { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Crect%20x%3D'3'%20y%3D'3'%20width%3D'18'%20height%3D'18'%20rx%3D'1'%2F%3E%3C%2Fsvg%3E");  }
+:root.hud-theme-web1 { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Crect%20x%3D'3'%20y%3D'3'%20width%3D'18'%20height%3D'18'%20rx%3D'1'%2F%3E%3C%2Fsvg%3E"); --trk: #fff; --trk-h: 4px; --trk-glow: inset 1px 1px 0 #808080, inset -1px -1px 0 #dfdfdf; }
+:root.hud-theme-cottage { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%202a3.5%203.5%200%200%201%203.4%204.4A3.5%203.5%200%200%201%2020.6%209%203.5%203.5%200%200%201%2018%2014.4a3.5%203.5%200%200%201-2.6%205.2A3.5%203.5%200%200%201%2012%2018a3.5%203.5%200%200%201-3.4%201.6A3.5%203.5%200%200%201%206%2014.4%203.5%203.5%200%200%201%203.4%209a3.5%203.5%200%200%201%205.2-2.6A3.5%203.5%200%200%201%2012%202z'%2F%3E%3C%2Fsvg%3E"); --trk: radial-gradient(circle, color-mix(in srgb, var(--hud-accent) 75%, transparent) 1.4px, transparent 1.9px) 0 50% / 8px 6px repeat-x; --trk-h: 6px; }
+:root.hud-theme-ice { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%201l2.6%208.4L23%2012l-8.4%202.6L12%2023l-2.6-8.4L1%2012l8.4-2.6z'%2F%3E%3C%2Fsvg%3E"); --trk: var(--hud-accent); --trk-glow: 0 0 6px var(--hud-accent), 0 0 12px color-mix(in srgb, var(--hud-accent) 55%, transparent); }
+:root.hud-theme-ocean { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%202s7%207.6%207%2012.5a7%207%200%200%201-14%200C5%209.6%2012%202%2012%202z'%2F%3E%3C%2Fsvg%3E"); --trk: radial-gradient(circle, color-mix(in srgb, var(--hud-accent) 75%, transparent) 1.4px, transparent 1.9px) 0 50% / 8px 6px repeat-x; --trk-h: 6px; }
+:root.hud-theme-steampunk { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M10.3%201h3.4l.6%203%202.3%201%202.6-1.7%202.4%202.4L19.9%208.3l1%202.3%203%20.6v3.4l-3%20.6-1%202.3%201.7%202.6-2.4%202.4-2.6-1.7-2.3%201-.6%203h-3.4l-.6-3-2.3-1-2.6%201.7-2.4-2.4%201.7-2.6-1-2.3-3-.6v-3.4l3-.6%201-2.3L3.7%205.7l2.4-2.4%202.6%201.7%202.3-1zM12%208a4%204%200%201%200%200%208%204%204%200%200%200%200-8z'%20fill-rule%3D'evenodd'%2F%3E%3C%2Fsvg%3E"); --trk: repeating-linear-gradient(60deg, color-mix(in srgb, var(--hud-accent) 80%, #000) 0 2px, color-mix(in srgb, var(--hud-accent) 45%, #fff) 2px 4px); --trk-h: 4px; }
+:root.hud-theme-dieselpunk { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Crect%20x%3D'2'%20y%3D'7'%20width%3D'20'%20height%3D'10'%20rx%3D'5'%2F%3E%3C%2Fsvg%3E");  }
+:root.hud-theme-solarpunk { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Ccircle%20cx%3D'12'%20cy%3D'12'%20r%3D'5'%2F%3E%3Cpath%20d%3D'M12%200v4M12%2020v4M0%2012h4M20%2012h4M3.5%203.5l2.8%202.8M17.7%2017.7l2.8%202.8M20.5%203.5l-2.8%202.8M6.3%2017.7l-2.8%202.8'%20stroke%3D'black'%20stroke-width%3D'2.4'%2F%3E%3C%2Fsvg%3E"); --trk: radial-gradient(circle, color-mix(in srgb, var(--hud-accent) 75%, transparent) 1.4px, transparent 1.9px) 0 50% / 8px 6px repeat-x; --trk-h: 6px; }
+:root.hud-theme-biopunk { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%201l9.5%205.5v11L12%2023l-9.5-5.5v-11z'%2F%3E%3C%2Fsvg%3E"); --trk: var(--hud-accent); --trk-glow: 0 0 6px var(--hud-accent), 0 0 12px color-mix(in srgb, var(--hud-accent) 55%, transparent); }
+:root.hud-theme-spaceopera { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Ccircle%20cx%3D'12'%20cy%3D'12'%20r%3D'9'%2F%3E%3Ccircle%20cx%3D'12'%20cy%3D'12'%20r%3D'4'%20fill%3D'white'%2F%3E%3C%2Fsvg%3E"); --trk: radial-gradient(circle, color-mix(in srgb, var(--hud-accent) 75%, transparent) 1.4px, transparent 1.9px) 0 50% / 8px 6px repeat-x; --trk-h: 6px; }
+:root.hud-theme-japan { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%202l2%205%203.5-2.5-1%205%205.5.5-4.5%203%203%204.5-5-1L12%2022l-2.5-5.5-5%201%203-4.5-4.5-3%205.5-.5-1-5L10%207z'%2F%3E%3C%2Fsvg%3E");  }
+:root.hud-theme-egypt { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%201a4.5%205.5%200%200%200-2%2010.4H4v3h6.5V23h3v-8.6H20v-3h-6A4.5%205.5%200%200%200%2012%201zm0%203a1.7%202.6%200%201%201%200%205.2A1.7%202.6%200%200%201%2012%204z'%20fill-rule%3D'evenodd'%2F%3E%3C%2Fsvg%3E");  }
+:root.hud-theme-western { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%202l2.9%206.6%207.1.6-5.4%204.7%201.6%207L12%2017.3%205.8%2020.9l1.6-7L2%209.2l7.1-.6z'%2F%3E%3C%2Fsvg%3E"); --trk: repeating-linear-gradient(60deg, color-mix(in srgb, var(--hud-accent) 80%, #000) 0 2px, color-mix(in srgb, var(--hud-accent) 45%, #fff) 2px 4px); --trk-h: 4px; }
+:root.hud-theme-pirate { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%202C6.5%202%203%205.8%203%2010.5c0%203%201.5%205%203.5%206V20h11v-3.5c2-1%203.5-3%203.5-6C21%205.8%2017.5%202%2012%202zM8.5%209.5a2%202%200%201%201%200%204%202%202%200%200%201%200-4zm7%200a2%202%200%201%201%200%204%202%202%200%200%201%200-4z'%20fill-rule%3D'evenodd'%2F%3E%3C%2Fsvg%3E"); --trk: repeating-linear-gradient(60deg, color-mix(in srgb, var(--hud-accent) 80%, #000) 0 2px, color-mix(in srgb, var(--hud-accent) 45%, #fff) 2px 4px); --trk-h: 4px; }
+:root.hud-theme-witch { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M15%202a10%2010%200%201%200%207%2017A8%208%200%200%201%2015%202z'%2F%3E%3Ccircle%20cx%3D'18'%20cy%3D'6'%20r%3D'1.5'%2F%3E%3C%2Fsvg%3E"); --trk: radial-gradient(circle, color-mix(in srgb, var(--hud-accent) 75%, transparent) 1.4px, transparent 1.9px) 0 50% / 8px 6px repeat-x; --trk-h: 6px; }
+:root.hud-theme-voodoo { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M1%2012s4-7%2011-7%2011%207%2011%207-4%207-11%207S1%2012%201%2012zm11-4a4%204%200%201%200%200%208%204%204%200%200%200%200-8z'%20fill-rule%3D'evenodd'%2F%3E%3C%2Fsvg%3E");  }
+:root.hud-theme-spacehorror { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cellipse%20cx%3D'12'%20cy%3D'14'%20rx%3D'11'%20ry%3D'4'%2F%3E%3Cpath%20d%3D'M6%2013a6%206%200%200%201%2012%200z'%2F%3E%3C%2Fsvg%3E"); --trk: var(--hud-accent); --trk-glow: 0 0 6px var(--hud-accent), 0 0 12px color-mix(in srgb, var(--hud-accent) 55%, transparent); }
+:root.hud-themed-controls[class*="hud-theme-"] :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="range"]::-webkit-slider-thumb {
+  background: var(--hud-accent) !important; -webkit-mask: var(--thumb) center / contain no-repeat; mask: var(--thumb) center / contain no-repeat;
+}
+:root.hud-themed-controls[class*="hud-theme-"] :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="range"]::-moz-range-thumb {
+  background: var(--hud-accent) !important; mask: var(--thumb) center / contain no-repeat;
+}
+:root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="range"]::-webkit-slider-thumb { background: #000080 !important; }
