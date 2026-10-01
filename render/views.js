@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.24.0';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.24.0';
-import { namesLikelySame } from '../names.js?v=23.24.0';
-import { силаСтраха, статусРужья } from '../codes.js?v=23.24.0';
-import { settings } from '../settings.js?v=23.24.0';
-import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.24.0';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.24.0';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.26.0';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.26.0';
+import { namesLikelySame } from '../names.js?v=23.26.0';
+import { силаСтраха, статусРужья } from '../codes.js?v=23.26.0';
+import { settings } from '../settings.js?v=23.26.0';
+import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.26.0';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.26.0';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -23,23 +23,23 @@ export const ВИДЫ_БЛОКОВ = [
   { ключ: 'ageView', группа: 'Облик', поле: 'Возраст', виды: { classic: 'Крупная цифра', id: 'Удостоверение', zodiac: 'Знак зодиака', rings: 'Годовые кольца' } },
   { ключ: 'clothesView', группа: 'Облик', поле: 'Одежда', виды: { classic: 'Текст', hanger: 'Вешалка', layers: 'Слои', tags: 'Бирки' } },
   { ключ: 'looksView', группа: 'Облик', поле: 'Внешность', виды: { classic: 'Текст', traits: 'Черты', profile: 'Приметы', sketch: 'Набросок' } },
-  { ключ: 'roleView', группа: 'Облик', поле: 'Роль', виды: { classic: 'Карточка', badge: 'Пропуск', ribbon: 'Лента', stack: 'Визитка' } },
+  { ключ: 'roleView', группа: 'Облик', поле: 'Роль', виды: { classic: 'Карточка', badge: 'Пропуск', ribbon: 'Орден', stack: 'Визитка' } },
   { ключ: 'bodyStateView', группа: 'Тело и здоровье', поле: 'Тело и состояние', виды: { batteries: 'Батарейки', flasks: 'Колбы', chips: 'Строка' }, новый: true },
   { ключ: 'physView', группа: 'Тело и здоровье', поле: 'Физиология', виды: { classic: 'Текст', sensors: 'Датчики', bubbles: 'Пузырьки', readout: 'Монитор' } },
   { ключ: 'healthView', группа: 'Тело и здоровье', поле: 'Здоровье', виды: { classic: 'Карточки', chart: 'Медкарта', compact: 'Кратко', kit: 'Аптечка' } },
-  { ключ: 'marksView', группа: 'Тело и здоровье', поле: 'Следы на теле', виды: { classic: 'Карточки', compact: 'Строки', badges: 'Значки', tags: 'Бирки' } },
-  { ключ: 'keyView', группа: 'Мысли и чувства', поле: 'Ключ', виды: { classic: 'Карточки', stickers: 'Стикеры', bullets: 'Бусины', headlines: 'Заголовки' } },
+  { ключ: 'marksView', группа: 'Тело и здоровье', поле: 'Следы на теле', виды: { classic: 'Карточки', compact: 'Строки', badges: 'Эмалевые значки', tags: 'Акварель' } },
+  { ключ: 'keyView', группа: 'Мысли и чувства', поле: 'Ключ', виды: { classic: 'Карточки', stickers: 'Стикеры', bullets: 'Бусы', headlines: 'Телеграммы' } },
   { ключ: 'expView', группа: 'Мысли и чувства', поле: 'Ожидание vs Реальность', виды: { classic: 'Как было', split: 'Две половины', photos: 'Два снимка', arrow: 'Поворот' } },
   { ключ: 'fearsView', группа: 'Мысли и чувства', поле: 'Страхи', виды: { list: 'Список', thermometer: 'Термометры', skulls: 'Черепа', storm: 'Тучи', radar: 'Радар', dark: 'Во тьме' } },
   { ключ: 'exposureView', группа: 'Мысли и чувства', поле: 'Разоблачение', виды: { text: 'Текст', bar: 'Шкала', mask: 'Маска', eye: 'Глаз', hourglass: 'Песочные часы' } },
   { ключ: 'goalsView', группа: 'Планы и вещи', поле: 'Цели', виды: { classic: 'Ступени', ladder: 'Лестница', target: 'Мишень', road: 'Дорога' } },
   { ключ: 'scheduleView', группа: 'Планы и вещи', поле: 'Расписание', виды: { classic: 'Лента', calendar: 'Календарь', planner: 'Ежедневник', tickets: 'Билеты' } },
-  { ключ: 'flagsView', группа: 'Планы и вещи', поле: 'Флаг-монитор', виды: { classic: 'Вымпелы', checklist: 'Чек-лист', pins: 'Доска', lamps: 'Лампы' } },
+  { ключ: 'flagsView', группа: 'Планы и вещи', поле: 'Флаг-монитор', виды: { classic: 'Вымпелы', checklist: 'Чек-лист', pins: 'Доска детектива', lamps: 'Закладки' } },
   { ключ: 'inventoryView', группа: 'Планы и вещи', поле: 'Инвентарь', виды: { list: 'Список', grid: 'Слоты', cards: 'Карточки', groups: 'По группам', weight: 'По важности', receipt: 'Опись' } },
-  { ключ: 'placeView', группа: 'Место и речь', поле: 'Место', виды: { classic: 'Текст', crumbs: 'Путь', pin: 'Метка на карте', sign: 'Табличка' } },
-  { ключ: 'linesView', группа: 'Место и речь', поле: 'Реплики', виды: { classic: 'Облачка', quotes: 'Цитаты', script: 'Сценарий', subtitles: 'Субтитры' } },
+  { ключ: 'placeView', группа: 'Место и речь', поле: 'Место', виды: { classic: 'Текст', crumbs: 'Линия метро', pin: 'Ключ с биркой', sign: 'Открытка' } },
+  { ключ: 'linesView', группа: 'Место и речь', поле: 'Реплики', виды: { classic: 'Облачка', quotes: 'Цитаты', script: 'Голосовые', subtitles: 'Субтитры' } },
   { ключ: 'trustView', группа: 'Связи', поле: 'Доверие', виды: { bars: 'Полоски', hearts: 'Сердца', shield: 'Щит', ring: 'Кольца', traffic: 'Светофор', spectrum: 'Спектр', orbit: 'Орбиты' } },
-  { ключ: 'statusView', группа: 'Связи', поле: 'Статус', виды: { classic: 'Индикатор', badge: 'Бейдж', stamp: 'Штамп', toggles: 'Переключатели' } },
+  { ключ: 'statusView', группа: 'Связи', поле: 'Статус', виды: { classic: 'Индикатор', badge: 'Профиль', stamp: 'Печать', toggles: 'Неон' } },
   { ключ: 'conflictView', группа: 'Связи', поле: 'Глубина конфликта', виды: { classic: 'Плашки', stages: 'Стадии', counter: 'Счётчик дней', weather: 'Погода' } },
   { ключ: 'jealousyView', группа: 'Связи', поле: 'Ревность', виды: { text: 'Текст', triangle: 'Треугольник', thorns: 'Шипы', thought: 'Мысли' } },
   { ключ: 'memoriesView', группа: 'Связи', поле: 'Общие воспоминания', виды: { list: 'Список', polaroid: 'Полароиды', film: 'Плёнка', beads: 'Бусины' } },

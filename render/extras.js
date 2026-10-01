@@ -4,8 +4,8 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=23.24.0';
-import { settings } from '../settings.js?v=23.24.0';
+import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=23.26.0';
+import { settings } from '../settings.js?v=23.26.0';
 
 const есть = (v) => hudHasMeaningfulValue(v) && !/^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -141,8 +141,8 @@ export function видСостоянияТела(value, вид) {
   const прочее = д.прочее.length ? `<p class="hud-bs-note">${escapeHtml(д.прочее.join('; '))}</p>` : '';
   if (вид === 'chips') {
     return `<div class="hud-bs hud-bs-chips">${д.шкалы.map(s => `<span class="hud-bs-chip" style="--c:${s.c}"><i>${s.v}</i>${s.имя}${s.слово ? `: <b>${escapeHtml(s.слово)}</b>` : ''}</span>`).join('')}`
-      + (д.сон ? `<span class="hud-bs-chip" style="--c:#8fa6ff"><i>☾</i>сон <b>${escapeHtml(д.сон)}</b></span>` : '')
-      + (д.дела ? `<span class="hud-bs-chip" style="--c:#b8a0e8"><i>✎</i><b>${escapeHtml(д.дела)}</b></span>` : '') + `</div>${прочее}`;
+      + (д.сон ? `<span class="hud-bs-chip" style="--c:color-mix(in srgb, var(--hud-accent) 55%, #8fa6ff)"><i>☾</i>сон <b>${escapeHtml(д.сон)}</b></span>` : '')
+      + (д.дела ? `<span class="hud-bs-chip" style="--c:color-mix(in srgb, var(--hud-accent) 55%, #b8a0e8)"><i>✎</i><b>${escapeHtml(д.дела)}</b></span>` : '') + `</div>${прочее}`;
   }
   const ячейки = д.шкалы.map(вид === 'flasks' ? колба : батарейка).join('');
   return `<div class="hud-bs ${вид === 'flasks' ? 'hud-bs-flasks' : 'hud-bs-bat'}">${ячейки}${бок}</div>${прочее}`;

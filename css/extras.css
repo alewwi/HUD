@@ -371,12 +371,12 @@
 .hud-bs .bub { fill: rgba(255,255,255,.7); }
 .hud-bs-side { flex: 1 1 150px; display: flex; flex-direction: column; gap: 8px; align-self: center; }
 .hud-bs-sleep { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: 12px; color: var(--x-ink);
-  background: linear-gradient(135deg, color-mix(in srgb, #7f8fe0 24%, var(--x-surf)), var(--x-surf2)); border: 1px solid color-mix(in srgb, #7f8fe0 35%, transparent); }
+  background: linear-gradient(135deg, color-mix(in srgb, var(--a) 16%, var(--x-surf)), color-mix(in srgb, var(--a) 6%, var(--x-surf2))); border: 1px solid color-mix(in srgb, var(--a) 35%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
 .hud-bs-sleep, .hud-bs-sleep * { color: var(--x-ink) !important; text-shadow: none !important; }
 .hud-bs-sleep svg { width: 24px; height: 24px; flex: none; }
 .hud-bs-sleep b { display: block; font-size: .92em; }
 .hud-bs-sleep small { font-size: .66em; opacity: .75; }
-.hud-bs-work { font-size: .76em; opacity: .85; padding: 6px 10px; border-radius: 10px; border: 1px dashed color-mix(in srgb, var(--a) 40%, transparent); }
+.hud-bs-work { font-size: .76em; padding: 6px 10px; border-radius: 10px; border: 1px dashed color-mix(in srgb, var(--a) 40%, transparent); background: color-mix(in srgb, var(--a) 5%, color-mix(in srgb, var(--x-surf) 70%, transparent)); }
 .hud-bs-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .hud-bs-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px 4px 5px; border-radius: 99px; font-size: .84em;
   background: linear-gradient(180deg, color-mix(in srgb, var(--c) 22%, rgba(255,255,255,.05)), color-mix(in srgb, var(--c) 10%, rgba(0,0,0,.15))); border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }

@@ -1,0 +1,144 @@
+/* =========================================================================
+   «Сердца» (доверие), «Глаз» (разоблачение), «Во тьме» (страхи) — render/views.js
+   ========================================================================= */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-v-heartcard, .hud-v-expo.is-eye, .hud-v-fears.is-dark2) {
+  --f-ink: color-mix(in srgb, var(--v-acc) 78%, #000);
+}
+.hud-v-heartcard, .hud-v-expo.is-eye, .hud-v-fears.is-dark2 { --f-ink: color-mix(in srgb, var(--v-acc) 42%, #fff); }
+/* =========================================================================
+   ДОВЕРИЕ «Сердца»: стеклянные сердца-сосуды, большое сердце с числом
+   ========================================================================= */
+.hud-v-trust.is-hearts { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+.hud-v-heartcard { overflow: hidden; }
+.hud-v-heart-mark {
+  position: absolute; right: -14px; bottom: -18px; width: 86px; height: 86px; pointer-events: none; opacity: .09;
+  background: var(--v-acc);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21s-8.2-5-8.2-11.1A4.8 4.8 0 0 1 12 7a4.8 4.8 0 0 1 8.2 2.9C20.2 16 12 21 12 21Z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 21s-8.2-5-8.2-11.1A4.8 4.8 0 0 1 12 7a4.8 4.8 0 0 1 8.2 2.9C20.2 16 12 21 12 21Z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.hud-v-heartcard .hud-v-who-text { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.hud-v-heartcard .hud-v-who-text b { font-size: .92em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-v-heartcard .hud-v-who-text small { font-size: .7em; letter-spacing: .08em; text-transform: uppercase; color: var(--f-ink, color-mix(in srgb, var(--v-acc) 45%, #fff)); opacity: .85; }
+.hud-v-bigheart { position: relative; flex: none; width: 40px; height: 40px; display: grid; place-items: center; }
+.hud-v-bigheart svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 3px 6px color-mix(in srgb, var(--v-acc) 50%, transparent)); }
+.hud-v-bigheart .b0 { stop-color: color-mix(in srgb, var(--v-acc) 55%, #fff); }
+.hud-v-bigheart .b1 { stop-color: color-mix(in srgb, var(--v-acc) 85%, #000); }
+.hud-v-bigheart .gl { fill: none; stroke: rgba(255,255,255,.75); stroke-width: 1.2; stroke-linecap: round; }
+.hud-v-bigheart .crack { fill: none; stroke: rgba(0,0,0,.55); stroke-width: 1; }
+.hud-v-heartcard.is-low .hud-v-bigheart svg { filter: grayscale(.6) drop-shadow(0 2px 4px rgba(0,0,0,.4)); }
+.hud-v-bigheart em { position: relative; margin-top: -2px; font-style: normal; font-weight: 800; font-size: .78em; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+.hud-v-trust.is-hearts .hud-v-hearts.is-glass { margin: 9px 0 0 37px; gap: 4px; }
+.hud-v-hearts.is-glass .defs { position: absolute; }
+.hud-v-hearts.is-glass svg { width: 21px; height: 21px; }
+.hud-v-hearts.is-glass .bg { fill: color-mix(in srgb, currentColor 7%, transparent); stroke: none; }
+.hud-v-hearts.is-glass .rim { fill: none; stroke: color-mix(in srgb, var(--v-acc) 45%, rgba(255,255,255,.25)); stroke-width: 1; }
+.hud-v-hearts.is-glass .l0 { stop-color: color-mix(in srgb, var(--v-acc) 55%, #fff); }
+.hud-v-hearts.is-glass .l1 { stop-color: var(--v-acc); }
+.hud-v-hearts.is-glass .gl { fill: none; stroke: rgba(255,255,255,.6); stroke-width: 1.1; stroke-linecap: round; }
+.hud-v-hearts.is-glass svg:is(.is-full, .is-part) { filter: drop-shadow(0 0 3px var(--v-glow)); }
+.hud-v-sparks { position: absolute; right: 52px; top: 8px; pointer-events: none; }
+.hud-v-sparks s { position: absolute; width: 4px; height: 4px; border-radius: 50%; background: #fff; box-shadow: 0 0 6px var(--v-acc), 0 0 2px #fff; opacity: 0; }
+.hud-v-sparks s:nth-child(1) { left: 0; top: 2px; } .hud-v-sparks s:nth-child(2) { left: 8px; top: -4px; width: 3px; height: 3px; } .hud-v-sparks s:nth-child(3) { left: -6px; top: 10px; width: 2.5px; height: 2.5px; }
+
+/* =========================================================================
+   РАЗОБЛАЧЕНИЕ «Глаз»: око в ореоле лучей и десять свидетелей
+   ========================================================================= */
+.hud-v-eye2 { width: 104px; height: 104px; overflow: visible; }
+.hud-v-eye2 .halo { opacity: .9; }
+.hud-v-eye2 .h0 { stop-color: color-mix(in srgb, var(--v-acc) 22%, transparent); }
+.hud-v-eye2 .h1 { stop-color: transparent; }
+.hud-v-eye2 .orbit { fill: none; stroke: color-mix(in srgb, var(--v-acc) 30%, transparent); stroke-width: .6; stroke-dasharray: 1.5 2.5; }
+.hud-v-eye2 .ray { stroke: color-mix(in srgb, currentColor 16%, transparent); stroke-width: 1.6; stroke-linecap: round; }
+.hud-v-eye2 .ray.is-on { stroke: var(--v-acc); filter: drop-shadow(0 0 2px var(--v-acc)); }
+.hud-v-eye2 .w0 { stop-color: color-mix(in srgb, var(--v-acc) 6%, #fbf7f4); }
+.hud-v-eye2 .w1 { stop-color: color-mix(in srgb, var(--v-acc) 22%, #cfc4c4); }
+.hud-v-eye2 .i0 { stop-color: color-mix(in srgb, var(--v-acc) 45%, #fff); }
+.hud-v-eye2 .i1 { stop-color: var(--v-acc); }
+.hud-v-eye2 .i2 { stop-color: color-mix(in srgb, var(--v-acc) 55%, #000); }
+.hud-v-eye2 .iris-ring { fill: none; stroke: color-mix(in srgb, var(--v-acc) 40%, #000); stroke-width: 1.2; }
+.hud-v-eye2 .iris-in { fill: none; stroke: color-mix(in srgb, var(--v-acc) 40%, #fff); stroke-width: .5; stroke-dasharray: .8 1.4; opacity: .7; }
+.hud-v-eye2 .pupil { fill: #0c0a0d; }
+.hud-v-eye2 .glint { fill: #fff; opacity: .95; }
+.hud-v-eye2 .glint2 { fill: #fff; opacity: .7; }
+.hud-v-eye2 .lidshade { fill: rgba(0,0,0,.28); }
+.hud-v-eye2 .lid { fill: none; stroke: color-mix(in srgb, var(--v-acc) 55%, #1a1015); stroke-width: 2.4; stroke-linecap: round; }
+.hud-v-eye2 .lid-low { fill: none; stroke: color-mix(in srgb, var(--v-acc) 40%, transparent); stroke-width: 1; stroke-linecap: round; }
+.hud-v-eye2 .lash, .hud-v-eye2 .corner { fill: none; stroke: color-mix(in srgb, var(--v-acc) 55%, #1a1015); stroke-width: 1.5; stroke-linecap: round; }
+.hud-v-watchers { display: flex; flex-wrap: wrap; gap: 4px; }
+.hud-v-watchers svg { width: 20px; height: 12px; overflow: visible; }
+.hud-v-watchers .al { fill: color-mix(in srgb, var(--v-acc) 12%, #f5efee); stroke: var(--v-acc); stroke-width: 1.1; }
+.hud-v-watchers svg.is-open circle { fill: var(--v-acc); }
+.hud-v-watchers .cl { fill: none; stroke: color-mix(in srgb, currentColor 35%, transparent); stroke-width: 1.1; stroke-linecap: round; }
+.hud-v-expo.is-eye .hud-v-side { gap: 8px; }
+
+/* =========================================================================
+   СТРАХИ «Во тьме»: глаза из темноты над свечой
+   ========================================================================= */
+.hud-v-fears.is-dark2 { display: flex; flex-direction: column; gap: 8px; }
+.hud-v-night {
+  position: relative; height: 170px; border-radius: 16px; overflow: hidden; isolation: isolate;
+  background: radial-gradient(ellipse 60% 55% at 50% 108%, color-mix(in srgb, #ffb347 26%, transparent), transparent 70%), radial-gradient(ellipse at 50% 0%, #0d0b12, #050407 70%);
+  box-shadow: inset 0 0 40px rgba(0,0,0,.9), 0 0 0 1px color-mix(in srgb, var(--v-acc) 22%, transparent);
+}
+.hud-v-night .glow { position: absolute; left: 50%; bottom: -60px; width: 220px; height: 160px; margin-left: -110px; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, #ffcf7a 30%, transparent), transparent); z-index: 0; }
+.hud-v-gaze { position: absolute; left: var(--x); top: var(--y); width: calc(58px * var(--k)); transform: translate(-50%, -50%); z-index: 1; }
+.hud-v-gaze .mist { position: absolute; inset: -60% -30%; border-radius: 50%; background: radial-gradient(closest-side, color-mix(in srgb, var(--v-acc) 22%, transparent), transparent); opacity: calc(.2 + var(--k) * .3); }
+.hud-v-gaze svg { position: relative; display: block; width: 100%; overflow: visible; }
+.hud-v-gaze .e { fill: color-mix(in srgb, var(--v-acc) 55%, #ffd36b); filter: drop-shadow(0 0 3px var(--v-acc)) drop-shadow(0 0 7px color-mix(in srgb, var(--v-acc) 70%, transparent)); transform-origin: center; transform-box: fill-box; }
+.hud-v-gaze .p { fill: #120608; }
+.hud-v-gaze.s1 { opacity: .35; } .hud-v-gaze.s2 { opacity: .55; } .hud-v-gaze.s3 { opacity: .75; }
+.hud-v-gaze.s5 .e { fill: color-mix(in srgb, var(--v-acc) 40%, #fff1b0); }
+.hud-v-gaze b { position: absolute; left: 50%; top: 100%; margin-top: 3px; transform: translateX(-50%); font-size: 9px; font-weight: 700; color: rgba(255,255,255,.35); }
+.hud-v-candle { position: absolute; left: 50%; bottom: 4px; width: 22px; height: 38px; margin-left: -11px; z-index: 2; overflow: visible; }
+.hud-v-candle .flame { fill: #ffb347; filter: drop-shadow(0 0 5px #ffb347) drop-shadow(0 0 12px #ff8a2a); transform-origin: 12px 17px; }
+.hud-v-candle .core { fill: #fff3c4; }
+.hud-v-candle .wick { stroke: #2a1a10; stroke-width: 1.2; }
+.hud-v-candle .wax { fill: #efe6d6; }
+.hud-v-candle .drip { fill: #fff8ea; }
+.hud-v-candle .dish { fill: #6d5a45; }
+.hud-v-night-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.hud-v-night-list li { display: flex; align-items: center; gap: 10px; padding: 6px 11px 6px 7px; border-radius: 11px; background: var(--v-surf); border: 1px solid var(--v-line); }
+.hud-v-night-list .n { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: .72em; font-weight: 800; color: #1a0c08; background: radial-gradient(circle at 35% 30%, #fff1b0, color-mix(in srgb, var(--v-acc) 60%, #ffd36b)); box-shadow: 0 0 8px color-mix(in srgb, var(--v-acc) 60%, transparent); }
+.hud-v-night-list li > span:not(.lvl) { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.hud-v-night-list b { font-size: .92em; }
+.hud-v-night-list small { font-size: .7em; letter-spacing: .1em; text-transform: uppercase; color: var(--f-ink, color-mix(in srgb, var(--v-acc) 45%, #fff)); }
+.hud-v-night-list .lvl { display: flex; gap: 3px; }
+.hud-v-night-list .lvl s { width: 6px; height: 12px; border-radius: 2px; background: color-mix(in srgb, currentColor 12%, transparent); }
+.hud-v-night-list .lvl s.on { background: var(--v-acc); box-shadow: 0 0 5px var(--v-glow); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .hud-v-hearts.is-glass svg:is(.is-full, .is-part) { animation: hud-v-beat 1.7s ease-in-out infinite; animation-delay: calc(var(--i, 0) * .14s); }
+  .hud-v-hearts.is-glass .liquid { animation: hud-f-wave 1.6s ease-in-out infinite; }
+  .hud-v-bigheart svg { animation: hud-v-beat 1.2s ease-in-out infinite; }
+  .hud-v-sparks s { animation: hud-f-spark 1.4s ease-in-out infinite; }
+  .hud-v-sparks s:nth-child(2) { animation-delay: .4s; } .hud-v-sparks s:nth-child(3) { animation-delay: .8s; }
+  .hud-v-eye2 .look { animation: hud-f-look 5s ease-in-out infinite; }
+  .hud-v-eye2 .ray.is-on { animation: hud-f-ray 1.6s ease-in-out infinite; animation-delay: calc(var(--i) * .07s); }
+  .hud-v-watchers svg { animation: hud-f-blinkeye 3.2s ease-in-out infinite; animation-delay: calc(var(--i) * .31s); transform-origin: center; }
+  .hud-v-gaze .e { animation: hud-f-blinkeye 4.4s ease-in-out infinite; animation-delay: var(--d); }
+  .hud-v-gaze { animation: hud-f-creep 5s ease-in-out infinite; animation-delay: var(--d); }
+  .hud-v-candle .flame { animation: hud-f-flame .9s ease-in-out infinite alternate; }
+  .hud-v-night .glow { animation: hud-v-lightflick 2.2s ease-in-out infinite; }
+}
+@keyframes hud-f-wave { 0%, 100% { transform: translateX(0); } 50% { transform: translateX(-3px); } }
+@keyframes hud-f-spark { 0%, 100% { transform: scale(.4); opacity: 0; } 50% { transform: scale(1.2); opacity: 1; } }
+@keyframes hud-f-look { 0%, 18%, 100% { transform: translate(0, 0); } 28%, 42% { transform: translate(-6px, 1px); } 55%, 70% { transform: translate(6px, 0); } }
+@keyframes hud-f-ray { 0%, 100% { opacity: 1; } 50% { opacity: .45; } }
+@keyframes hud-f-blinkeye { 0%, 88%, 100% { transform: scaleY(1); } 93% { transform: scaleY(.08); } }
+@keyframes hud-f-creep { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, calc(-50% + 4px)) scale(1.06); } }
+@keyframes hud-f-flame { from { transform: scale(1, 1) rotate(-2deg); } to { transform: scale(.92, 1.08) rotate(2deg); } }
+@media (max-width: 600px) { .hud-v-eye2 { width: 88px; height: 88px; } }
+
+/* =========================================================================
+   Бумажные предметы прежних видов (папки секретов, доска ружей): бумага
+   и пробка с оттенком темы; на тёмных темах приглушены, чтобы не светиться
+   белым пятном, на светлых — как есть.
+   ========================================================================= */
+.hud-v { --vp-mute: 12%; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-v { --vp-mute: 0%; }
+.hud-v-file { background: linear-gradient(175deg, color-mix(in srgb, color-mix(in srgb, var(--v-acc) 14%, #e3d4ad), #000 var(--vp-mute)), color-mix(in srgb, color-mix(in srgb, var(--v-acc) 16%, #cdb88a), #000 var(--vp-mute))); }
+.hud-v-file-tab { background: color-mix(in srgb, color-mix(in srgb, var(--v-acc) 14%, #e3d4ad), #000 var(--vp-mute)); }
+.hud-v-board { background-color: color-mix(in srgb, color-mix(in srgb, var(--v-acc) 18%, #8f6843), #000 var(--vp-mute)); }
+.hud-v-note-card { background: linear-gradient(175deg, color-mix(in srgb, color-mix(in srgb, var(--v-acc) 14%, #fff8cf), #000 var(--vp-mute)), color-mix(in srgb, color-mix(in srgb, var(--v-acc) 16%, #f5e9a8), #000 var(--vp-mute))); }
+.hud-v-note-card.is-building { background: linear-gradient(175deg, color-mix(in srgb, color-mix(in srgb, var(--v-acc) 14%, #ffe7cf), #000 var(--vp-mute)), color-mix(in srgb, color-mix(in srgb, var(--v-acc) 16%, #f9cf9f), #000 var(--vp-mute))); }
+.hud-v-note-card.is-fired { background: linear-gradient(175deg, color-mix(in srgb, color-mix(in srgb, var(--v-acc) 10%, #efefef), #000 var(--vp-mute)), color-mix(in srgb, color-mix(in srgb, var(--v-acc) 12%, #d8d8d8), #000 var(--vp-mute))); }
