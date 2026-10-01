@@ -289,33 +289,39 @@
 
 .hud-kid-grown { margin: 0; padding: 8px 12px; border-radius: 12px; font-size: .84em; background: var(--fam-inset); box-shadow: inset 0 0 0 1px var(--fam-line); }
 
-/* Движение — только под курсором или после касания (fx-tap от events.js;
-   у карточки и шапки касание ловит вложенная строка — отсюда :has). */
+/* Движение: анимация задана всегда, но стоит на паузе. Под курсором или
+   после нажатия (класс fx-on, events.js) — идёт; курсор ушёл или второе
+   нажатие — замирает на том же кадре, без рывка к началу. Первый кадр
+   каждой анимации совпадает с видом в покое. */
 @media (prefers-reduced-motion: no-preference) {
-  .hud-kid-card:is(:hover, .fx-tap, :has(.fx-tap)) > .deco { animation: hud-fam-wobble 1.8s ease-in-out infinite; }
-  .hud-kid-card:is(:hover, .fx-tap, :has(.fx-tap)) > .d1 { animation-delay: .3s; } .hud-kid-card:is(:hover, .fx-tap, :has(.fx-tap)) > .d2 { animation-delay: .6s; } .hud-kid-card:is(:hover, .fx-tap, :has(.fx-tap)) > .d3 { animation-delay: .9s; }
-  .hud-kid-card:is(:hover, .fx-tap, :has(.fx-tap)) > .bunting, .hud-kids-head:is(:hover, .fx-tap) .bunting { animation: hud-fam-sway 3s ease-in-out infinite; }
-  .hud-kids-head:is(:hover, .fx-tap) .hang { animation: hud-fam-swing 2.4s ease-in-out infinite; }
-  .hud-kids-head:is(:hover, .fx-tap) .h1 { animation-delay: .4s; } .hud-kids-head:is(:hover, .fx-tap) .h2 { animation-delay: .8s; } .hud-kids-head:is(:hover, .fx-tap) .h3 { animation-delay: 1.2s; }
-  .hud-kids-head:is(:hover, .fx-tap) .cloud { animation: hud-fam-drift 6s ease-in-out infinite alternate; }
-  .hud-kids-head:is(:hover, .fx-tap) .c1 { animation-duration: 8s; animation-direction: alternate-reverse; }
-  .hud-fetus:is(:hover, .fx-tap) .hud-fetus-baby .baby { animation: hud-fam-kick 1.6s ease-in-out infinite; transform-origin: 50% 50%; transform-box: fill-box; }
-  .hud-fetus:is(:hover, .fx-tap) .beat path { animation: hud-fam-beat 1.4s linear infinite; }
-  .hud-fetus:is(:hover, .fx-tap) .wombs::before { animation: hud-fam-glow 1.4s ease-in-out infinite; }
-  .hud-kid-care:is(:hover, .fx-tap) .ms-track .me { animation: hud-fam-hop 1.2s ease-in-out infinite; }
-  .hud-kid-care:is(:hover, .fx-tap) .ms-track .fill { animation: hud-mi-fill 1.4s cubic-bezier(.22,.8,.26,1); }
-  .hud-pp:is(:hover, .fx-tap) .breasts .drop { animation: hud-fam-drop 2.2s ease-in infinite; }
-  .hud-pp:is(:hover, .fx-tap) .breasts .d1 { animation-delay: .7s; } .hud-pp:is(:hover, .fx-tap) .breasts .d2 { animation-delay: 1.4s; }
-  .hud-pp:is(:hover, .fx-tap) .hud-pp-track .now { animation: hud-fam-glow 1.6s ease-in-out infinite; }
-  .hud-kid-chip:hover .toy svg { animation: hud-fam-swing 1.6s ease-in-out infinite; }
+  .hud-kid-card > .deco { animation: hud-fam-wobble 1.8s ease-in-out infinite; }
+  .hud-kid-card > .d1 { animation-delay: .3s; } .hud-kid-card > .d2 { animation-delay: .6s; } .hud-kid-card > .d3 { animation-delay: .9s; }
+  .hud-kid-card > .bunting, .hud-kids-head .bunting { animation: hud-fam-sway 3s ease-in-out infinite; }
+  .hud-kids-head .hang { animation: hud-fam-swing 2.4s ease-in-out infinite; }
+  .hud-kids-head .h1 { animation-delay: .4s; } .hud-kids-head .h2 { animation-delay: .8s; } .hud-kids-head .h3 { animation-delay: 1.2s; }
+  .hud-kids-head .cloud { animation: hud-fam-drift 7s ease-in-out infinite; } .hud-kids-head .c1 { animation-duration: 9s; animation-direction: reverse; }
+  .hud-fetus .hud-fetus-baby .baby { animation: hud-fam-kick 1.6s ease-in-out infinite; transform-origin: 50% 50%; transform-box: fill-box; }
+  .hud-fetus .beat path { animation: hud-fam-beat 1.4s linear infinite; }
+  .hud-fetus .wombs::before { animation: hud-fam-glow 1.4s ease-in-out infinite; }
+  .hud-kid-care .ms-track .me { animation: hud-fam-hop 1.2s ease-in-out infinite; }
+  .hud-pp .breasts .drop { animation: hud-fam-drop 2.2s ease-in infinite; }
+  .hud-pp .breasts .d1 { animation-delay: .7s; } .hud-pp .breasts .d2 { animation-delay: 1.4s; }
+  .hud-pp .hud-pp-track .now { animation: hud-fam-glow 1.6s ease-in-out infinite; }
+  .hud-kid-chip .toy svg { animation: hud-fam-swing 1.6s ease-in-out infinite; }
 }
+:is(.hud-kid-card > .deco, .hud-kid-card > .bunting, .hud-kids-head .bunting, .hud-kids-head .hang, .hud-kids-head .cloud, .hud-fetus-baby .baby, .hud-fetus .beat path,
+  .hud-kid-care .ms-track .me, .hud-pp .breasts .drop, .hud-pp-track .now, .hud-kid-chip .toy svg), .hud-fetus .wombs::before { animation-play-state: paused; }
+.hud-kid-card:is(:hover, .fx-on) > :is(.deco, .bunting), .hud-kids-head:is(:hover, .fx-on) :is(.bunting, .hang, .cloud),
+.hud-fetus:is(:hover, .fx-on) :is(.hud-fetus-baby .baby, .beat path), .hud-fetus:is(:hover, .fx-on) .wombs::before,
+.hud-kid-care:is(:hover, .fx-on) .ms-track .me, .hud-pp:is(:hover, .fx-on) :is(.breasts .drop, .hud-pp-track .now),
+.hud-kid-chip:is(:hover, .fx-on) .toy svg { animation-play-state: running !important; }
 @keyframes hud-fam-wobble { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4px; } }
 @keyframes hud-fam-swing { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(8deg); } 75% { transform: rotate(-8deg); } }
 @keyframes hud-fam-kick { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-8deg) scale(1.04); } }
 @keyframes hud-fam-sway { 0%, 100% { transform: rotate(0) scaleY(1); } 50% { transform: rotate(.6deg) scaleY(1.12); } }
-@keyframes hud-fam-drift { from { translate: -10px 0; } to { translate: 14px 2px; } }
-@keyframes hud-fam-beat { from { stroke-dashoffset: 100; } to { stroke-dashoffset: -100; } }
-@keyframes hud-fam-glow { 0%, 100% { opacity: .55; scale: 1; } 30% { opacity: 1; scale: 1.08; } }
+@keyframes hud-fam-drift { 0%, 100% { translate: 0 0; } 50% { translate: 18px 2px; } }
+@keyframes hud-fam-beat { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -200; } }
+@keyframes hud-fam-glow { 0%, 100% { scale: 1; filter: brightness(1); } 30% { scale: 1.08; filter: brightness(1.5); } }
 @keyframes hud-fam-hop { 0%, 100% { translate: -50% 0; } 40% { translate: -50% -5px; } }
 @keyframes hud-fam-drop { 0% { opacity: 0; translate: 0 0; } 15% { opacity: .95; } 100% { opacity: 0; translate: 0 16px; } }
 @media (max-width: 600px) {

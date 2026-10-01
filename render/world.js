@@ -7,9 +7,9 @@
 // settings.showComments напрямую из замыкания index.js. Теперь флаг
 // приходит четвёртым аргументом — модуль не знает про глобальные настройки.
 
-import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.28.1';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.28.1';
-import { buildEconomyHTML, buildEventsHTML, buildCityHTML } from './world-city.js?v=23.28.1';
+import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.30.1';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.30.1';
+import { buildEconomyHTML, buildEventsHTML, buildCityHTML } from './world-city.js?v=23.30.1';
 
 // --- Прогноз погоды -------------------------------------------------------
 // Иконки нарисованы штрихами по currentColor: они должны читаться как в

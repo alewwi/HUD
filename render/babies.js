@@ -14,12 +14,13 @@
 // Оформление — детское: у девочек бантики и куколки, у мальчиков машинки и
 // динозавры (css/family.css).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.28.1';
-import { parseSceneDate } from '../history-analyzer.js?v=23.28.1';
-import { settings } from '../settings.js?v=23.28.1';
-import { роды } from './conception.js?v=23.28.1';
-import { часовМежду } from './fertility.js?v=23.28.1';
-import { buildCharacterHTML } from './character.js?v=23.28.1';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.30.1';
+import { parseSceneDate } from '../history-analyzer.js?v=23.30.1';
+import { settings } from '../settings.js?v=23.30.1';
+import { роды } from './conception.js?v=23.30.1';
+import { часовМежду } from './fertility.js?v=23.30.1';
+import { buildCharacterHTML } from './character.js?v=23.30.1';
+import { видСемьи, видТрекера, видУхода, подсказкаВехи } from './family-views.js?v=23.30.1';
 
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const текст = (о, к) => снятьЗаглушки(flattenFieldValue(о && о[к]));
@@ -185,22 +186,30 @@ function дорожкаВех(вехи, д, значок) {
   const след = вехи.find(в => в.день > д);
   return `<div class="ms-track" style="--now:${x(д)}%" aria-hidden="true"><i class="rail"></i><i class="fill"></i>`
     + отметки.map(([день, т]) => `<i class="tick" style="left:${x(день)}%"></i><u style="left:${x(день)}%">${т}</u>`).join('')
-    + (след ? `<span class="flag" style="left:${x(след.день)}%" title="${escapeHtml(след.имя)} — ~${возрастСловами(след.день)}"></span>` : '')
+    + (след ? `<span class="flag" style="left:${x(след.день)}%" data-fam-tip="${escapeHtml(подсказкаВехи(след, д))}"></span>` : '')
     + `<b class="me">${иконка(значок)}</b></div>`;
 }
 
 function блокУхода(о, имя, д, время, вид) {
   if (д === null) return '';
-  const вехи = ВЕХИ.map(в => ({ имя: в[1], день: срокВехи(имя, в) })).sort((a, b) => a.день - b.день);
+  const вехи = ВЕХИ.map(в => ({ ключ: в[0], имя: в[1], день: срокВехи(имя, в) })).sort((a, b) => a.день - b.день);
   const сделано = вехи.filter(в => в.день <= д), впереди = вехи.filter(в => в.день > д);
   const след = впереди[0];
   const нуж = нужды(о, д, время);
   const игрушка = (ИГРУШКИ[вид] || ИГРУШКИ.baby);
+  // Другие виды (Кастомизация → Блоки: Семья) — render/family-views.js.
+  const видБлока = видСемьи('kidCareView');
+  if (видБлока !== 'classic') {
+    const н = текст(о, 'Нужды'), сп = часИзМетки(н, 'slp');
+    return `<div class="hud-row full-width hud-kid-care is-${вид} is-view-${видБлока}"><span class="hud-key">${иконка(игрушка[0][1], 'is-key')}Вехи и уход:</span>`
+      + видУхода(видБлока, { имя, вид, д, вехи, нужды: нуж, нормы: нормы(д, имя), игрушка: игрушка[0][1], время, интервал: интервалЕды(д),
+        ел: часИзМетки(н, 'fed'), спал: сп, спит: /спит|сон|asleep|sleep/i.test(сп) && !/не спит|проснул|awake/i.test(сп), подгузник: часИзМетки(н, 'dpr') }) + `</div>`;
+  }
   return `<div class="hud-row full-width hud-kid-care is-${вид}"><span class="hud-key">${иконка(игрушка[0][1], 'is-key')}Вехи и уход:</span>`
     + `<div class="hud-kid-care-body">`
     + (нуж.length ? `<div class="needs">${нуж.map(([тон, з, т]) => `<span class="need is-${тон}"><i aria-hidden="true">${з}</i>${escapeHtml(т)}</span>`).join('')}</div>` : '')
     + дорожкаВех(вехи, д, игрушка[0][1])
-    + `<div class="ms"><div class="ms-line">${сделано.slice(-3).map(в => `<span class="m is-done" title="${escapeHtml(в.имя)}"><i aria-hidden="true">✓</i>${escapeHtml(в.имя)}</span>`).join('')}`
+    + `<div class="ms"><div class="ms-line">${сделано.slice(-3).map(в => `<span class="m is-done" data-fam-tip="${escapeHtml(подсказкаВехи(в, д))}"><i aria-hidden="true">✓</i>${escapeHtml(в.имя)}</span>`).join('')}`
     + (след ? `<span class="m is-next"><i aria-hidden="true">${иконка(игрушка[1 % игрушка.length][1])}</i>${escapeHtml(след.имя)}<b>через ~${возрастСловами(след.день - д).replace('первый день', '1 день')}</b></span>` : '')
     + впереди.slice(1, 3).map(в => `<span class="m is-later">${escapeHtml(в.имя)}</span>`).join('') + `</div>`
     + `<small class="ms-count">позади ${сделано.length} из ${вехи.length} вех</small></div>`
@@ -210,7 +219,7 @@ function блокУхода(о, имя, д, время, вид) {
 
 /* --- Вкладка -------------------------------------------------------------------------- */
 
-const ПОЛЯ_МАЛЫША = ['Имя', 'Возраст', 'Одежда', 'Внешность', 'Роль', 'Тело', 'Здоровье', 'Болезни и травмы', 'Следы на теле', 'Место',
+const ПОЛЯ_МАЛЫША = ['Имя', 'Возраст', 'Одежда', 'Внешность', 'Роль', 'Тело', 'Состояние тела', 'Здоровье', 'Болезни и травмы', 'Следы на теле', 'Место',
   'Ключ', 'Инвентарь', 'Расписание', 'Отношения', 'Доверие', 'Страхи', 'Реплики'];
 
 // Возраст малыша в днях: по записи о родах (точно) или по полю «Возраст».
@@ -239,7 +248,13 @@ export function buildBabiesHTML(babies, uid, active, сцена = {}) {
   const малыши = дети.filter(р => !(р.д !== null && р.д >= порог));
 
   // Трекер наверху: у каждого — возраст, этап, ближайшая веха и что пора.
-  const трекер = `<div class="hud-kid-tracker">${малыши.map((р, i) => {
+  const видТрек = видСемьи('kidTrackerView');
+  const трекер = видТрек !== 'classic' ? видТрекера(видТрек, малыши.map((р, i) => ({
+    i, имя: р.имя, вид: р.вид, д: р.д, рожд: р.рожд, вкл: i === 0, игрушки: ИГРУШКИ[р.вид] || ИГРУШКИ.baby,
+    возраст: возрастТочно(р.д), этап: р.д === null ? '' : этап(р.д),
+    след: р.д === null ? '' : (ВЕХИ.map(в => ({ имя: в[1], день: срокВехи(р.имя, в) })).filter(в => в.день > р.д).sort((a, b) => a.день - b.день)[0] || {}).имя || '',
+    тревоги: нужды(р.о, р.д, время).filter(н => н[0] !== 'ok'),
+  }))) : `<div class="hud-kid-tracker">${малыши.map((р, i) => {
     const след = р.д === null ? null : ВЕХИ.map(в => ({ имя: в[1], день: срокВехи(р.имя, в) })).filter(в => в.день > р.д).sort((a, b) => a.день - b.день)[0];
     const нуж = нужды(р.о, р.д, время).filter(н => н[0] !== 'ok');
     const игрушки = ИГРУШКИ[р.вид] || ИГРУШКИ.baby;
@@ -257,7 +272,9 @@ export function buildBabiesHTML(babies, uid, active, сцена = {}) {
     for (const к of ПОЛЯ_МАЛЫША) if (р.о[к] !== undefined && !(к === 'Реплики' && !говорит(р.имя, р.д))) данные[к] = р.о[к];
     if (р.д !== null && (р.рожд && р.рожд.точно || !данные['Возраст'])) данные['Возраст'] = возрастТочно(р.д) + (р.рожд ? `, род. ${р.рожд.точно ? '' : '≈ '}${р.рожд.дата}` : '');
     const карта = buildCharacterHTML(данные, `${uid}-kid${i}`, true, false)
-      .replace(/^<div class="hud-tab-content[^"]*"[^>]*>/, `<div class="hud-kid-pane">`);
+      .replace(/^<div class="hud-tab-content[^"]*"[^>]*>/, `<div class="hud-kid-pane">`)
+      // У малыша в «Состоянии тела» не стресс, а капризы.
+      .replace(/<small>Стресс<\/small>/g, '<small>Капризы</small>').replace(/<\/i>Стресс(?=[:<])/g, '</i>Капризы');
     const игрушки = ИГРУШКИ[р.вид] || ИГРУШКИ.baby;
     return `<div class="hud-kid-card is-${р.вид}${i === 0 ? ' is-on' : ''}" data-kid-card="${i}"><i class="bunting" aria-hidden="true"></i>${игрушки.map(([, d], k) => иконка(d, 'deco d' + k)).join('')}${карта}</div>`;
   }).join('');

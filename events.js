@@ -11,16 +11,16 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.28.1';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.28.1';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.28.1';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.28.1';
-import { settings, defaultSettings } from './settings.js?v=23.28.1';
-import { getWorldVotes } from './render/world.js?v=23.28.1';
-import { раскрытьПорцию } from './render/long-list.js?v=23.28.1';
-import { прогретьИсторию } from './render/carryover.js?v=23.28.1';
-import { подключитьПалитру } from './color-picker.js?v=23.28.1';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.28.1';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.30.1';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.30.1';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.30.1';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.30.1';
+import { settings, defaultSettings } from './settings.js?v=23.30.1';
+import { getWorldVotes } from './render/world.js?v=23.30.1';
+import { раскрытьПорцию } from './render/long-list.js?v=23.30.1';
+import { прогретьИсторию } from './render/carryover.js?v=23.30.1';
+import { подключитьПалитру } from './color-picker.js?v=23.30.1';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.30.1';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -1641,7 +1641,7 @@ function вернутьПоСобытию(e) {
 // ближайший оживающий элемент класс fx-tap на пару секунд (повторное касание
 // перезапускает движение), а на саму карточку — fx-live, чтобы ожили и слои
 // темы. Обработчик пассивный и ничего не отменяет: клики живут как раньше.
-const ОЖИВАЮТ_ПО_КАСАНИЮ = ".hud-kid-card, .hud-kids-head, .hud-fetus, .hud-pp, .hud-kid-care, .hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-row, .hud-heat, .hud-cycle, .hud-secret-summary, .hud-fam-svg, .hud-phone-app, .hud-phone-lockscreen, .hud-mood-group, .hud-scene-strip-wrap";
+const ОЖИВАЮТ_ПО_КАСАНИЮ = ".hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-row, .hud-heat, .hud-cycle, .hud-secret-summary, .hud-fam-svg, .hud-phone-app, .hud-phone-lockscreen, .hud-mood-group, .hud-scene-strip-wrap";
 const таймерыОживления = new WeakMap();
 function оживить(элемент, класс, мс) {
   clearTimeout(таймерыОживления.get(элемент));
@@ -1706,6 +1706,43 @@ document.addEventListener('click', (e) => {
   e.preventDefault(); e.stopPropagation();
   раскрытьПорцию(кнопка).forEach(узел => refreshReactions(узел));
 }, true);
+
+// Семейные блоки (беременность, роды, «Детская»): нажатие включает движение,
+// второе — замораживает его на том же кадре (css/family.css, fx-on). Вложенные
+// блоки (вехи внутри карточки малыша) переключаются вместе.
+const СЕМЕЙНЫЕ = '.hud-fetus, .hud-pp, .hud-kids-head, .hud-kid-card, .hud-kid-care, .hud-kid-chip';
+document.addEventListener('click', (e) => {
+  const блок = e.target.closest && e.target.closest(СЕМЕЙНЫЕ);
+  if (!блок || e.target.closest('a, input, select, summary, .hud-help-mark, [data-hud-fetus], [data-hud-birth], [data-fam-tip]')) return;
+  const вкл = !блок.classList.contains('fx-on');
+  for (let у = блок; у && !у.classList.contains('hud-os-card'); у = у.parentElement) if (у.matches(СЕМЕЙНЫЕ)) у.classList.toggle('fx-on', вкл);
+});
+// Подсказка по нажатию (вехи, клетки, отметки на циферблате): на телефоне
+// нет наведения, а title не всплывает — показываем облачко рядом.
+let облачко = null, таймерОблачка = 0;
+function убратьОблачко() { clearTimeout(таймерОблачка); if (облачко) { облачко.remove(); облачко = null; } }
+document.addEventListener('click', (e) => {
+  const цель = e.target.closest && e.target.closest('[data-fam-tip]');
+  if (!цель) { if (облачко && !e.target.closest('.hud-fam-tip')) убратьОблачко(); return; }
+  const текст = цель.getAttribute('data-fam-tip');
+  const было = облачко && облачко.dataset.for === текст;
+  убратьОблачко();
+  if (было) return;
+  облачко = document.createElement('div');
+  облачко.className = 'hud-fam-tip';
+  облачко.dataset.for = текст;
+  облачко.textContent = текст;
+  (цель.closest('.hud-os-card') || document.body).appendChild(облачко);
+  const r = цель.getBoundingClientRect(), к = облачко.offsetParent ? облачко.offsetParent.getBoundingClientRect() : { left: 0, top: 0 };
+  const ш = облачко.offsetWidth, вк = облачко.offsetParent ? облачко.offsetParent.clientWidth : innerWidth;
+  const x = Math.max(4, Math.min(вк - ш - 4, r.left - к.left + r.width / 2 - ш / 2));
+  const внизу = r.top - облачко.offsetHeight - 10 < 0;
+  облачко.style.left = x + 'px';
+  облачко.style.top = (внизу ? r.bottom - к.top + 8 : r.top - к.top - облачко.offsetHeight - 8) + 'px';
+  облачко.style.setProperty('--arrow', (r.left - к.left + r.width / 2 - x) + 'px');
+  облачко.classList.toggle('is-below', внизу);
+  таймерОблачка = setTimeout(убратьОблачко, 3500);
+});
 
 // Секреты в новых видах (render/views.js): текст открывается нажатием —
 // как спойлер в списке секретов.

@@ -1,0 +1,402 @@
+/* =========================================================================
+   ВИДЫ СЕМЕЙНЫХ БЛОКОВ (render/family-views.js): Кастомизация → Блоки: Семья.
+   Цвета — от темы (--fam-* из family.css); движение — только под курсором
+   или после касания (fx-tap от events.js).
+   ========================================================================= */
+.hud-os-card {
+  --fam-paper: color-mix(in srgb, var(--fam-acc) 8%, rgba(255,255,255,.06));
+  --fam-hand: 'Segoe Print', 'Comic Sans MS', 'Bradley Hand', cursive;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-os-card {
+  --fam-paper: color-mix(in srgb, var(--fam-acc) 4%, #fffdf8);
+}
+.hud-fv .is-girl, .hud-ktv .is-girl { --c: var(--fam-girl); }
+.hud-fv .is-boy, .hud-ktv .is-boy { --c: var(--fam-boy); }
+.hud-fv .is-unknown { --c: var(--fam-baby); }
+
+/* ===================== МАЛЫШИ В ЖИВОТЕ ===================== */
+.hud-fetus.hud-fv { display: block; padding: 10px; background: var(--fam-inset); }
+.hud-fv .acts { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px; margin-top: 6px; }
+
+/* --- УЗИ-снимок: тёмный экран в рамке распечатки --- */
+.hud-fv-us .us-print { padding: 8px 8px 10px; border-radius: 6px; background: var(--fam-paper); box-shadow: 0 6px 14px -8px rgba(0,0,0,.6), inset 0 0 0 1px var(--fam-line); transform: rotate(-.6deg); }
+.hud-fv-us .us-screen { position: relative; border-radius: 3px; overflow: hidden; background: radial-gradient(circle at 50% 10%, color-mix(in srgb, var(--fam-acc) 10%, #181818), #050505 75%); }
+.hud-fv-us .us-scan { display: block; width: 100%; height: auto; }
+.hud-fv-us .g0 { stop-color: color-mix(in srgb, var(--fam-acc) 8%, #8a8a8a); }
+.hud-fv-us .g1 { stop-color: color-mix(in srgb, var(--fam-acc) 6%, #3c3c3c); }
+.hud-fv-us .g2 { stop-color: #151515; }
+.hud-fv-us .grain circle { fill: #e8e8e8; }
+.hud-fv-us .fan-edge { fill: none; stroke: rgba(255,255,255,.18); stroke-width: .6; }
+.hud-fv-us .sac { fill: #030303; opacity: .92; }
+.hud-fv-us .sac-rim { fill: none; stroke: #d8d8d8; stroke-width: 2.4; opacity: .55; filter: blur(1px); }
+.hud-fv-us .emb circle, .hud-fv-us .emb path:not(.limb) { fill: #dcdcdc; opacity: .88; }
+.hud-fv-us .emb .limb { fill: none; stroke: #dcdcdc; stroke-width: 2.4; stroke-linecap: round; opacity: .8; }
+.hud-fv-us .hb { fill: var(--c, #fff); opacity: .8; }
+.hud-fv-us .lbl { fill: rgba(255,255,255,.75); font: 700 9px ui-monospace, Consolas, monospace; }
+.hud-fv-us .scale path, .hud-fv-us .cross { stroke: rgba(255,255,255,.55); stroke-width: .8; fill: none; }
+.hud-fv-us .sweep { fill: rgba(255,255,255,.06); opacity: 0; }
+.hud-fv-us .us-corner { position: absolute; font: 600 .62em/1.35 ui-monospace, Consolas, monospace; color: rgba(235,235,235,.82); letter-spacing: .04em; text-shadow: 0 0 4px #000; }
+.hud-fv-us .tl { left: 6px; top: 5px; } .hud-fv-us .tr { right: 22px; top: 5px; text-align: right; } .hud-fv-us .bl { left: 6px; bottom: 5px; color: color-mix(in srgb, var(--fam-acc) 30%, #fff); }
+.hud-fv-us .us-caption { display: flex; flex-direction: column; gap: 5px; padding: 8px 2px 0; font-family: var(--fam-hand); }
+.hud-fv-us .us-caption .sex { font-size: .92em; }
+
+/* --- Гнездо --- */
+.hud-fv-nest { display: flex !important; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+.hud-fv-nest .nest { flex: 0 1 190px; min-width: 150px; height: auto; overflow: visible; }
+.hud-fv-nest .txt { flex: 1 1 170px; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
+.hud-fv-nest .kind { font: 700 1.15em var(--fam-hand); color: var(--fam-ink); }
+.hud-fv-nest .txt > small { font-size: .74em; color: color-mix(in srgb, currentColor 70%, transparent); }
+.hud-fv-nest .shadow { fill: rgba(0,0,0,.28); }
+.hud-fv-nest .bowl { fill: color-mix(in srgb, var(--fam-acc) 12%, #6a4426); }
+.hud-fv-nest .hollow { fill: color-mix(in srgb, var(--fam-acc) 10%, #2e1d10); }
+.hud-fv-nest .twigs path { fill: none; stroke-linecap: round; }
+.hud-fv-nest .t0 { stroke: color-mix(in srgb, var(--fam-acc) 12%, #8a5a34); } .hud-fv-nest .t1 { stroke: color-mix(in srgb, var(--fam-acc) 10%, #a8794a); } .hud-fv-nest .t2 { stroke: color-mix(in srgb, var(--fam-acc) 14%, #5c3a1e); }
+.hud-fv-nest .twigs.back path { opacity: .7; }
+.hud-fv-nest .egg { filter: drop-shadow(0 2px 2px rgba(0,0,0,.35)); }
+.hud-fv-nest .e0.is-girl { stop-color: color-mix(in srgb, var(--fam-girl) 35%, #fff); } .hud-fv-nest .e1.is-girl { stop-color: var(--fam-girl); }
+.hud-fv-nest .e0.is-boy { stop-color: color-mix(in srgb, var(--fam-boy) 35%, #fff); } .hud-fv-nest .e1.is-boy { stop-color: var(--fam-boy); }
+.hud-fv-nest .e0.is-unknown { stop-color: #fffaf0; } .hud-fv-nest .e1.is-unknown { stop-color: color-mix(in srgb, var(--fam-baby) 55%, #e8dcc4); }
+.hud-fv-nest .spk ellipse { fill: color-mix(in srgb, var(--c) 40%, #4a3020); opacity: .4; }
+.hud-fv-nest .hi { fill: #fff; opacity: .55; }
+.hud-fv-nest .leaf { fill: color-mix(in srgb, var(--fam-acc) 20%, #6a9a4a); stroke: color-mix(in srgb, var(--fam-acc) 20%, #3a6a2a); stroke-width: .8; }
+.hud-fv-nest .feather { fill: color-mix(in srgb, var(--fam-ink) 30%, #f2ece0); stroke: color-mix(in srgb, currentColor 40%, transparent); stroke-width: .7; opacity: .8; }
+
+/* --- Письмо аиста --- */
+.hud-fv-letter .lt-paper { position: relative; padding: 16px 16px 26px 18px; border-radius: 4px; font-family: var(--fam-hand); line-height: 1.55;
+  background: repeating-linear-gradient(180deg, transparent 0 23px, color-mix(in srgb, var(--fam-boy) 30%, transparent) 23px 24px) 0 46px / 100% 100% no-repeat, var(--fam-paper);
+  box-shadow: 0 8px 16px -10px rgba(0,0,0,.6), inset 0 0 0 1px var(--fam-line), inset 3px 0 0 color-mix(in srgb, var(--fam-girl) 50%, transparent); transform: rotate(.5deg); }
+.hud-fv-letter .lt-stamp { position: absolute; right: 12px; top: 10px; width: 54px; height: 62px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  background: linear-gradient(160deg, color-mix(in srgb, var(--fam-girl) 40%, #fff), color-mix(in srgb, var(--fam-boy) 40%, #fff)); color: #3a2a30;
+  -webkit-mask: radial-gradient(circle 3px at 3px 3px, transparent 98%, #000) -3px -3px / 8px 8px; mask: radial-gradient(circle 3px at 3px 3px, transparent 98%, #000) -3px -3px / 8px 8px;
+  transform: rotate(4deg); transition: transform .3s; }
+.hud-fv-letter .lt-stamp i { font-style: normal; font-size: 1.5em; }
+.hud-fv-letter .lt-stamp small { font: 700 .5em/1 Georgia, serif; letter-spacing: .08em; text-transform: uppercase; text-align: center; }
+.hud-fv-letter .lt-mark { position: absolute; right: 44px; top: 34px; width: 54px; height: 54px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  border: 1.5px solid color-mix(in srgb, var(--fam-acc) 60%, transparent); color: color-mix(in srgb, var(--fam-acc) 70%, currentColor); transform: rotate(-14deg); opacity: .75;
+  font-family: Georgia, serif; box-shadow: inset 0 0 0 3px transparent, inset 0 0 0 4px color-mix(in srgb, var(--fam-acc) 35%, transparent); }
+.hud-fv-letter .lt-mark b { font-size: .66em; letter-spacing: .14em; text-transform: uppercase; }
+.hud-fv-letter .lt-mark small { font-size: .6em; }
+.hud-fv-letter p { margin: 0; }
+.hud-fv-letter .lt-to { font-size: 1.05em; color: var(--fam-ink); padding-right: 96px; min-height: 2.2em; }
+.hud-fv-letter .lt-line { padding-right: 8px; }
+.hud-fv-letter .lt-line b { color: var(--fam-ink); }
+.hud-fv-letter .lt-line.is-small { font-size: .8em; color: color-mix(in srgb, currentColor 70%, transparent); }
+.hud-fv-letter .looks { margin-top: 4px; }
+.hud-fv-letter .lt-sign { text-align: right; margin-top: 6px !important; color: color-mix(in srgb, currentColor 75%, transparent); }
+.hud-fv-letter .lt-seal { position: absolute; left: 50%; bottom: -12px; width: 30px; height: 30px; margin-left: -15px; border-radius: 47% 53% 50% 50%;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--fam-acc) 40%, #ff8a9a), color-mix(in srgb, var(--fam-acc) 70%, #6a0a1a)); box-shadow: 0 3px 5px rgba(0,0,0,.35), inset 0 0 0 3px color-mix(in srgb, #000 15%, transparent); }
+.hud-fv-letter .lt-seal::after { content: '♥'; position: absolute; inset: 0; display: grid; place-items: center; font-size: 13px; color: color-mix(in srgb, #fff 55%, transparent); }
+.hud-fv-letter > .acts { margin-top: 20px; }
+
+/* ===================== ПОСЛЕ РОДОВ ===================== */
+.hud-ppv ul { list-style: none; margin: 0; padding: 0; }
+
+/* --- Дневник --- */
+.hud-ppv-journal { position: relative; padding: 14px 14px 14px 30px !important; font-family: var(--fam-hand);
+  background: linear-gradient(90deg, transparent 21px, color-mix(in srgb, #e05a6a 55%, transparent) 21px 22.5px, transparent 22.5px),
+    repeating-linear-gradient(180deg, transparent 0 25px, color-mix(in srgb, var(--fam-boy) 22%, transparent) 25px 26px), var(--fam-paper) !important; }
+.hud-ppv-journal .pj-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; }
+.hud-ppv-journal .pj-head b { font-size: 1.3em; color: var(--fam-ink); }
+.hud-ppv-journal .pj-head small { font-size: .78em; color: color-mix(in srgb, currentColor 70%, transparent); }
+.hud-ppv-journal .pj-cal { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; max-width: 300px; }
+.hud-ppv-journal .pj-cal > b { font: 700 .58em system-ui, sans-serif; text-align: center; letter-spacing: .06em; text-transform: uppercase; color: color-mix(in srgb, currentColor 55%, transparent); }
+.hud-ppv-journal .pj-cal > i { position: relative; font-style: normal; text-align: center; font-size: .72em; line-height: 22px; border-radius: 6px; color: color-mix(in srgb, currentColor 60%, transparent); }
+.hud-ppv-journal .pj-cal > i.is-past { color: color-mix(in srgb, currentColor 45%, transparent); }
+.hud-ppv-journal .pj-cal > i.is-past::after { content: ''; position: absolute; left: 22%; right: 22%; top: 50%; height: 1.6px; background: color-mix(in srgb, var(--fam-acc) 75%, transparent); transform: rotate(-35deg); border-radius: 2px; }
+.hud-ppv-journal .pj-cal > i.is-today { color: var(--fam-ink); font-weight: 700; box-shadow: 0 0 0 1.6px var(--fam-acc); border-radius: 50% 45% 55% 48%; transform: rotate(-4deg); }
+.hud-ppv-journal .pj-done { margin: 0; font-size: .85em; color: color-mix(in srgb, #4ac67a 70%, currentColor); }
+.hud-ppv-journal .pj-notes { display: flex; flex-direction: column; gap: 2px; }
+.hud-ppv-journal .pj-n { display: flex; flex-wrap: wrap; gap: 0 8px; line-height: 26px; }
+.hud-ppv-journal .pj-n span { color: var(--fam-ink); font-weight: 700; }
+.hud-ppv-journal .pj-n span::after { content: ':'; }
+.hud-ppv-journal .pj-n p { margin: 0; }
+.hud-ppv-journal .pj-sticky { align-self: flex-end; max-width: 240px; padding: 10px 12px 12px; font-size: .84em; line-height: 1.35; color: #3a3020;
+  background: linear-gradient(170deg, color-mix(in srgb, var(--fam-baby) 70%, #fff4b0), color-mix(in srgb, var(--fam-baby) 85%, #e8d070)); box-shadow: 0 8px 10px -8px rgba(0,0,0,.55); transform: rotate(1.6deg); clip-path: polygon(0 0, 100% 0, 100% 86%, 88% 100%, 0 100%); }
+.hud-ppv-journal .pj-sticky.is-back { background: linear-gradient(170deg, #d8f5d0, #a8e0a0); }
+
+/* --- Кольца --- */
+.hud-ppv-rings .pr-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.hud-ppv-rings .pr-rings { flex: none; width: 128px; height: 128px; }
+.hud-ppv-rings .trk { fill: none; stroke: color-mix(in srgb, currentColor 9%, transparent); stroke-width: 9; }
+.hud-ppv-rings .arc { fill: none; stroke-width: 9; stroke-linecap: round; filter: drop-shadow(0 0 3px color-mix(in srgb, var(--rc) 55%, transparent)); stroke: var(--rc); }
+.hud-ppv-rings .is-rec { --rc: var(--fam-acc); }
+.hud-ppv-rings .is-milk { --rc: color-mix(in srgb, var(--fam-baby) 50%, #fff3dc); }
+.hud-ppv-rings .is-cyc { --rc: var(--fam-girl); }
+.hud-ppv-rings .num { fill: var(--fam-ink); font: 700 26px var(--hud-font-title, Georgia, serif); text-anchor: middle; }
+.hud-ppv-rings .cap { fill: currentColor; opacity: .7; font-size: 9px; text-anchor: middle; letter-spacing: .1em; text-transform: uppercase; }
+.hud-ppv-rings .pr-legend { flex: 1 1 170px; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.hud-ppv-rings .pr-legend li { display: grid; grid-template-columns: 12px minmax(0, 1fr); column-gap: 8px; align-items: baseline; }
+.hud-ppv-rings .pr-legend li > i { width: 10px; height: 10px; border-radius: 50%; background: var(--rc); box-shadow: 0 0 6px var(--rc); align-self: center; }
+.hud-ppv-rings .pr-legend li > span { font-size: .72em; letter-spacing: .08em; text-transform: uppercase; color: color-mix(in srgb, currentColor 70%, transparent); }
+.hud-ppv-rings .pr-legend li > b { grid-column: 2; font-weight: 600; font-size: .9em; }
+.hud-ppv-rings .pr-title { display: flex !important; flex-direction: column; }
+.hud-ppv-rings .pr-title b { font: 700 1.05em var(--hud-font-title, Georgia, serif); color: var(--fam-ink); }
+.hud-ppv-rings .pr-title small { font-size: .76em; color: color-mix(in srgb, currentColor 70%, transparent); }
+.hud-ppv-rings .is-note { display: block !important; font-size: .78em; color: color-mix(in srgb, currentColor 72%, transparent); }
+.hud-ppv-rings .pr-rows { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 6px; }
+.hud-ppv-rings .pr-row { padding: 6px 10px; border-radius: 12px; background: color-mix(in srgb, var(--fam-acc) 7%, transparent); box-shadow: inset 0 0 0 1px var(--fam-line); }
+.hud-ppv-rings .pr-row span { display: block; font-size: .66em; letter-spacing: .1em; text-transform: uppercase; color: color-mix(in srgb, currentColor 65%, transparent); }
+.hud-ppv-rings .pr-row p { margin: 1px 0 0; font-size: .9em; }
+
+/* --- Бутылочки --- */
+.hud-ppv-bottles .pb-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 10px; }
+.hud-ppv-bottles .pb-head b { font: 700 1.05em var(--hud-font-title, Georgia, serif); color: var(--fam-ink); }
+.hud-ppv-bottles .pb-head small { font-size: .76em; color: color-mix(in srgb, currentColor 70%, transparent); }
+.hud-ppv-bottles .pb-line { position: relative; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); padding-top: 6px; }
+.hud-ppv-bottles .pb-line .rope { position: absolute; left: -4px; right: -4px; top: 8px; height: 10px; border-top: 1.5px solid color-mix(in srgb, currentColor 40%, transparent); border-radius: 0 0 50% 50% / 0 0 100% 100%; }
+.hud-ppv-bottles .pb-line > span { position: relative; display: flex; flex-direction: column; align-items: center; transform: rotate(calc((var(--i) - 2.5) * 2deg)); transform-origin: 50% 0; }
+.hud-ppv-bottles .pb-line > span::before { content: ''; width: 4px; height: 7px; border-radius: 1px; background: color-mix(in srgb, var(--fam-baby) 60%, #c89a5a); position: relative; z-index: 1; margin-bottom: -3px; }
+.hud-ppv-bottles .pb-line svg { width: 34px; height: 34px; fill: color-mix(in srgb, currentColor 5%, transparent); stroke: color-mix(in srgb, currentColor 35%, transparent); stroke-width: 1.2; stroke-linejoin: round; }
+.hud-ppv-bottles .pb-line .is-done svg { fill: color-mix(in srgb, var(--fam-acc) 55%, var(--fam-girl)); stroke: color-mix(in srgb, var(--fam-acc) 60%, #000); }
+.hud-ppv-bottles .pb-line .is-now svg { fill: color-mix(in srgb, var(--fam-baby) 60%, transparent); stroke: var(--fam-ink); stroke-dasharray: 2 2; }
+.hud-ppv-bottles .pb-line small { font-size: .62em; color: color-mix(in srgb, currentColor 65%, transparent); }
+.hud-ppv-bottles .pb-line .is-now small { color: var(--fam-ink); font-weight: 700; }
+.hud-ppv-bottles .pb-shelf { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 6px 10px; padding: 10px 12px 8px; border-radius: 14px;
+  background: linear-gradient(180deg, transparent calc(100% - 34px), color-mix(in srgb, var(--fam-acc) 14%, transparent) calc(100% - 34px)), color-mix(in srgb, var(--fam-acc) 5%, transparent); box-shadow: inset 0 0 0 1px var(--fam-line); }
+.hud-ppv-bottles .pb-bottle { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.hud-ppv-bottles .pb-bottle svg { width: 38px; height: 86px; filter: drop-shadow(0 4px 4px rgba(0,0,0,.3)); }
+.hud-ppv-bottles .pb-bottle.is-day svg { width: 46px; height: 104px; }
+.hud-ppv-bottles .nip { fill: color-mix(in srgb, var(--fam-baby) 50%, #e8b07a); }
+.hud-ppv-bottles .collar { fill: color-mix(in srgb, var(--fam-acc) 55%, var(--fam-girl)); }
+.hud-ppv-bottles .is-day .collar { fill: color-mix(in srgb, var(--fam-acc) 40%, var(--fam-boy)); }
+.hud-ppv-bottles .glass { fill: color-mix(in srgb, #fff 10%, transparent); stroke: color-mix(in srgb, currentColor 40%, transparent); stroke-width: 1.2; }
+.hud-ppv-bottles .milk { fill: color-mix(in srgb, #fffaf0 88%, var(--fam-acc)); }
+.hud-ppv-bottles .mark { stroke: color-mix(in srgb, currentColor 45%, transparent); stroke-width: 1; }
+.hud-ppv-bottles .shine { fill: #fff; opacity: .3; }
+.hud-ppv-bottles figcaption { display: flex; flex-direction: column; align-items: center; line-height: 1.15; }
+.hud-ppv-bottles figcaption b { font-size: .7em; letter-spacing: .06em; text-transform: uppercase; }
+.hud-ppv-bottles figcaption small { font-size: .7em; color: color-mix(in srgb, currentColor 70%, transparent); }
+.hud-ppv-bottles .pb-info { flex: 1 1 150px; min-width: 0; display: flex; flex-direction: column; gap: 4px; align-self: center; }
+.hud-ppv-bottles .pb-info b { color: var(--fam-ink); }
+.hud-ppv-bottles .pb-info > small { font-size: .78em; color: color-mix(in srgb, currentColor 70%, transparent); }
+.hud-ppv-bottles .pb-state { display: flex; flex-direction: column; padding: 4px 10px; border-radius: 10px; font-size: .82em; border-left: 3px solid var(--fam-acc); background: color-mix(in srgb, var(--fam-acc) 10%, transparent); }
+.hud-ppv-bottles .pb-state.is-soon { border-color: #f0a03a; background: color-mix(in srgb, #f0a03a 14%, transparent); }
+.hud-ppv-bottles .pb-state.is-hot { border-color: #e04848; background: color-mix(in srgb, #e04848 14%, transparent); }
+.hud-ppv-bottles .pb-state small { font-size: .88em; color: color-mix(in srgb, currentColor 70%, transparent); }
+.hud-ppv-bottles .pb-rows { display: flex; flex-direction: column; gap: 4px; }
+.hud-ppv-bottles .pb-row { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 8px; font-size: .9em; padding-bottom: 4px; border-bottom: 1px dashed var(--fam-line); }
+.hud-ppv-bottles .pb-row span { font-size: .74em; letter-spacing: .08em; text-transform: uppercase; color: color-mix(in srgb, currentColor 65%, transparent); padding-top: 2px; }
+.hud-ppv-bottles .pb-row p { margin: 0; }
+.hud-ppv-bottles .pb-cycle, .hud-ppv-bottles .pb-formula { margin: 0; font-size: .84em; padding: 6px 10px; border-radius: 10px; border: 1px dashed var(--fam-line); }
+.hud-ppv-bottles .pb-cycle.is-back { border-style: solid; }
+
+/* ===================== ТРЕКЕР «ДЕТСКОЙ» ===================== */
+.hud-ktv .hud-kid-chip { all: unset; box-sizing: border-box; cursor: pointer; position: relative; color: inherit; font: inherit; }
+.hud-ktv .hud-kid-chip:focus-visible { outline: 2px solid var(--fam-acc); outline-offset: 3px; }
+.hud-ktv .alerts { display: flex; gap: 4px; margin-top: 2px; }
+.hud-ktv .alerts i { font-style: normal; font-size: .8em; padding: 0 5px; border-radius: 999px; background: color-mix(in srgb, #f0a03a 30%, transparent); }
+.hud-ktv .alerts i.is-late { background: color-mix(in srgb, #e04848 35%, transparent); }
+.hud-ktv .born { font-size: .7em; color: color-mix(in srgb, currentColor 70%, transparent); }
+
+/* --- Полароиды на бечёвке --- */
+.hud-ktv.is-polaroid { position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: 14px 16px; padding: 14px 6px 4px; }
+.hud-ktv.is-polaroid .twine { position: absolute; left: 0; right: 0; top: 10px; height: 14px; border-top: 1.5px solid color-mix(in srgb, var(--fam-baby) 50%, #a07a4a); border-radius: 0 0 50% 50% / 0 0 100% 100%; pointer-events: none; }
+.hud-ktv .kp-card { --c: var(--fam-baby); width: 132px; padding: 8px 8px 10px; display: flex !important; flex-direction: column; align-items: center; gap: 2px; text-align: center;
+  background: var(--fam-paper); box-shadow: 0 8px 14px -8px rgba(0,0,0,.65), inset 0 0 0 1px var(--fam-line); transform: rotate(calc((var(--i) % 2 * 2 - 1) * 3deg)); transition: transform .3s, box-shadow .3s; }
+.hud-ktv .kp-card.is-girl { --c: var(--fam-girl); } .hud-ktv .kp-card.is-boy { --c: var(--fam-boy); }
+.hud-ktv .kp-card .pin { position: absolute; top: -9px; left: 50%; width: 10px; height: 20px; margin-left: -5px; border-radius: 3px; background: linear-gradient(90deg, color-mix(in srgb, var(--c) 60%, #c89a5a), color-mix(in srgb, var(--c) 40%, #8a6a3a)); box-shadow: 0 2px 3px rgba(0,0,0,.35); }
+.hud-ktv .kp-card .photo { position: relative; width: 100%; aspect-ratio: 1; display: grid; place-items: center; overflow: hidden; color: var(--c);
+  background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--c) 45%, #fff), color-mix(in srgb, var(--c) 35%, #1a1020) 120%); box-shadow: inset 0 0 18px rgba(0,0,0,.35); }
+.hud-ktv .kp-card .photo .big { width: 62%; height: 62%; color: #fff; fill: color-mix(in srgb, #fff 25%, transparent); stroke: #fff; stroke-width: 1.2; filter: drop-shadow(0 3px 5px rgba(0,0,0,.35)); }
+.hud-ktv .kp-card .photo .small { position: absolute; right: 8px; top: 8px; width: 20px; height: 20px; stroke: #fff; opacity: .7; }
+.hud-ktv .kp-card .photo em { position: absolute; left: 6px; bottom: 5px; font-style: normal; font-size: .6em; letter-spacing: .08em; text-transform: uppercase; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.5); }
+.hud-ktv .kp-card .name { margin-top: 4px; font: 700 1.05em var(--fam-hand); color: color-mix(in srgb, var(--c) 45%, var(--fam-ink)); }
+.hud-ktv .kp-card > small { font-size: .72em; }
+.hud-ktv .kp-card.is-on { transform: rotate(0) translateY(-3px); box-shadow: 0 12px 18px -8px rgba(0,0,0,.7), 0 0 0 2px var(--c); }
+
+/* --- Деревянные кубики --- */
+.hud-ktv.is-blocks { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr)); gap: 10px; }
+.hud-ktv .kb-item { --c: var(--fam-baby); display: flex !important; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 14px; background: color-mix(in srgb, var(--c) 7%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 30%, transparent); transition: box-shadow .25s; }
+.hud-ktv .kb-item.is-girl { --c: var(--fam-girl); } .hud-ktv .kb-item.is-boy { --c: var(--fam-boy); }
+.hud-ktv .kb-item.is-on { box-shadow: inset 0 0 0 2px var(--c), 0 6px 14px -8px color-mix(in srgb, var(--c) 80%, transparent); }
+.hud-ktv .kb-item .cube { flex: none; width: 66px; height: 66px; overflow: visible; filter: drop-shadow(0 5px 4px rgba(0,0,0,.35)); transition: transform .3s; }
+.hud-ktv .cube .top { fill: color-mix(in srgb, var(--c) 55%, #fff); }
+.hud-ktv .cube .left { fill: var(--c); }
+.hud-ktv .cube .right { fill: color-mix(in srgb, var(--c) 70%, #000); }
+.hud-ktv .cube .edge { fill: none; stroke: color-mix(in srgb, var(--c) 40%, #3a2410); stroke-width: 1; stroke-linejoin: round; opacity: .7; }
+.hud-ktv .cube .letter { fill: #fff; font: 900 24px Georgia, serif; text-anchor: middle; paint-order: stroke; stroke: color-mix(in srgb, var(--c) 60%, #000); stroke-width: 1.2; }
+.hud-ktv .cube .toy { fill: color-mix(in srgb, #fff 25%, transparent); stroke: #fff; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.hud-ktv .cube .dot { fill: color-mix(in srgb, var(--c) 40%, #fff); }
+.hud-ktv .kb-item .who { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.hud-ktv .kb-item .who b { font-size: 1em; }
+.hud-ktv .kb-item .who small { font-size: .74em; }
+.hud-ktv .kb-item .who em { font-style: normal; font-size: .72em; color: color-mix(in srgb, var(--c) 55%, currentColor); }
+
+/* --- Ростомер --- */
+.hud-ktv.is-growth { display: flex; flex-direction: column; gap: 4px; }
+.hud-ktv .kg-wall { position: relative; display: flex; gap: 8px; height: 200px; padding: 10px 10px 0; border-radius: 16px; overflow: hidden;
+  background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--fam-acc) 5%, transparent) 0 18px, transparent 18px 36px), var(--fam-inset); box-shadow: inset 0 0 0 1px var(--fam-line); }
+.hud-ktv .kg-ruler { position: relative; flex: none; width: 38px; margin-bottom: 48px; border-radius: 6px 6px 0 0;
+  background: repeating-linear-gradient(0deg, color-mix(in srgb, currentColor 35%, transparent) 0 1px, transparent 1px calc(100% / 12)), linear-gradient(90deg, color-mix(in srgb, var(--fam-baby) 55%, #e8c070), color-mix(in srgb, var(--fam-baby) 35%, #c89a4a)); }
+.hud-ktv .kg-ruler span { position: absolute; left: 0; right: 0; height: 0; border-top: 2px solid color-mix(in srgb, #3a2410 60%, transparent); }
+.hud-ktv .kg-ruler b { position: absolute; right: 3px; top: -13px; font: 700 .62em ui-monospace, Consolas, monospace; color: #3a2410; }
+.hud-ktv .kg-kids { flex: 1; display: flex; justify-content: space-around; gap: 6px; min-width: 0; }
+.hud-ktv .kg-kid { --c: var(--fam-baby); flex: 1 1 0; max-width: 120px; min-width: 0; display: flex !important; flex-direction: column; align-items: center; justify-content: flex-end; }
+.hud-ktv .kg-kid.is-girl { --c: var(--fam-girl); } .hud-ktv .kg-kid.is-boy { --c: var(--fam-boy); }
+.hud-ktv .kg-kid .bar { position: relative; width: 26px; height: calc((100% - 48px) * var(--h) / 100); min-height: 8px; border-radius: 13px 13px 4px 4px;
+  background: linear-gradient(180deg, var(--c), color-mix(in srgb, var(--c) 40%, transparent)); box-shadow: 0 0 10px color-mix(in srgb, var(--c) 40%, transparent); transition: height .5s; flex: none; }
+.hud-ktv .kg-kid { height: 100%; }
+.hud-ktv .kg-kid .head { position: absolute; left: 50%; top: -18px; width: 34px; height: 34px; margin-left: -17px; border-radius: 50%; display: grid; place-items: center; color: var(--c);
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 30%, #fff), color-mix(in srgb, var(--c) 25%, var(--fam-inset))); box-shadow: 0 0 0 2px var(--c), 0 4px 8px -3px rgba(0,0,0,.5); }
+.hud-ktv .kg-kid .head svg { width: 20px; height: 20px; }
+.hud-ktv .kg-kid .tag { position: absolute; left: 50%; top: -42px; translate: -50% 0; white-space: nowrap; font-size: .66em; padding: 1px 7px; border-radius: 999px; background: var(--fam-inset); box-shadow: inset 0 0 0 1px var(--fam-line); }
+.hud-ktv .kg-kid .who { height: 48px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-width: 0; }
+.hud-ktv .kg-kid .who b { font-size: .92em; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-ktv .kg-kid .who small { font-size: .66em; }
+.hud-ktv .kg-kid.is-on .head { box-shadow: 0 0 0 3px var(--c), 0 0 14px var(--c); }
+.hud-ktv .kg-kid.is-on .who b { color: color-mix(in srgb, var(--c) 50%, var(--fam-ink)); }
+.hud-ktv .kg-note { font-size: .66em; text-align: right; color: color-mix(in srgb, currentColor 60%, transparent); }
+
+/* ===================== ВЕХИ И УХОД ===================== */
+.hud-kid-care .kc-view { display: flex; flex-direction: column; gap: 10px; }
+.hud-kid-care .kc-needs { display: flex; flex-wrap: wrap; gap: 6px; }
+.hud-kid-care .kc-needs .need { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 6px; border-radius: 999px; font-size: .82em; background: color-mix(in srgb, var(--c) 14%, transparent); }
+.hud-kid-care .kc-needs .need i { font-style: normal; }
+.hud-kid-care .kc-needs .need.is-soon { background: color-mix(in srgb, #f0a03a 30%, transparent); }
+.hud-kid-care .kc-needs .need.is-late { background: color-mix(in srgb, #e04848 32%, transparent); }
+.hud-kid-care .kc-norms { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); gap: 2px 14px; }
+.hud-kid-care .kc-norms li { display: grid; grid-template-columns: 20px auto minmax(0, 1fr); gap: 6px; align-items: baseline; font-size: .84em; padding: 3px 0; border-bottom: 1px dotted color-mix(in srgb, var(--c) 40%, transparent); }
+.hud-kid-care .kc-norms li i { font-style: normal; }
+.hud-kid-care .kc-norms li b { font-size: .8em; letter-spacing: .06em; text-transform: uppercase; }
+
+/* --- Альбом наклеек --- */
+.hud-kid-care .ks-album { padding: 10px; border-radius: 14px; background: radial-gradient(circle, color-mix(in srgb, var(--c) 14%, transparent) 1px, transparent 1.5px) 0 0 / 12px 12px, var(--fam-paper); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 30%, transparent), 0 6px 12px -10px rgba(0,0,0,.6); }
+.hud-kid-care .ks-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.hud-kid-care .ks-head b { font: 700 1em var(--fam-hand); color: color-mix(in srgb, var(--c) 45%, var(--fam-ink)); }
+.hud-kid-care .ks-head small { font-size: .74em; color: color-mix(in srgb, currentColor 65%, transparent); }
+.hud-kid-care .ks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 10px 6px; }
+.hud-kid-care .ks-slot { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; cursor: help; }
+.hud-kid-care .ks-sticker { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 1.35em; transform: rotate(var(--tilt)); transition: transform .3s; }
+.hud-kid-care .ks-slot.is-done .ks-sticker { background: radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--c) 30%, #fff), var(--c) 75%); box-shadow: 0 0 0 3px #fff, 0 4px 6px rgba(0,0,0,.35); position: relative; }
+.hud-kid-care .ks-slot.is-done .ks-sticker::after { content: ''; position: absolute; right: -1px; bottom: 1px; width: 14px; height: 14px; border-radius: 0 0 50% 0; background: linear-gradient(135deg, transparent 50%, color-mix(in srgb, #fff 85%, var(--c)) 50%); box-shadow: -1px -1px 2px rgba(0,0,0,.2); }
+.hud-kid-care .ks-slot.is-next .ks-sticker { border: 2px dashed var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 12%, transparent); }
+.hud-kid-care .ks-slot.is-later .ks-sticker { border: 1.5px dashed color-mix(in srgb, currentColor 30%, transparent); color: color-mix(in srgb, currentColor 35%, transparent); font-size: 1em; font-weight: 700; }
+.hud-kid-care .ks-slot small { font-size: .66em; line-height: 1.2; }
+.hud-kid-care .ks-slot.is-later small { color: color-mix(in srgb, currentColor 55%, transparent); }
+.hud-kid-care .ks-slot b { font-size: .62em; font-weight: 700; color: color-mix(in srgb, var(--c) 55%, currentColor); }
+.hud-kid-care .ks-slot.is-later b { color: color-mix(in srgb, currentColor 50%, transparent); font-weight: 500; }
+
+/* --- Сутки на циферблате --- */
+.hud-kid-care .kk-top { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; }
+.hud-kid-care .kk-dial { flex: none; width: 150px; height: 150px; overflow: visible; }
+.hud-kid-care .kk-dial .face { fill: var(--fam-paper); stroke: color-mix(in srgb, var(--c) 50%, transparent); stroke-width: 2; }
+.hud-kid-care .kk-dial .night { fill: color-mix(in srgb, var(--fam-boy) 22%, transparent); }
+.hud-kid-care .kk-dial .ticks path { stroke: color-mix(in srgb, currentColor 45%, transparent); stroke-width: 1; stroke-linecap: round; }
+.hud-kid-care .kk-dial .nums text { fill: color-mix(in srgb, currentColor 75%, transparent); font: 700 8px system-ui, sans-serif; text-anchor: middle; }
+.hud-kid-care .kk-dial .gap { fill: none; stroke: var(--c); stroke-width: 3; stroke-dasharray: 2 3; stroke-linecap: round; opacity: .8; }
+.hud-kid-care .kk-dial .mk circle { fill: var(--fam-inset); stroke: var(--c); stroke-width: 1.2; }
+.hud-kid-care .kk-dial .mk.is-next circle { stroke-dasharray: 2 2; }
+.hud-kid-care .kk-dial .mk text { font-size: 8px; text-anchor: middle; }
+.hud-kid-care .kk-dial .hand { stroke: var(--fam-ink); stroke-width: 2.4; stroke-linecap: round; }
+.hud-kid-care .kk-dial .hub { fill: var(--c); stroke: var(--fam-ink); stroke-width: 1; }
+.hud-kid-care .kk-side { flex: 1 1 170px; min-width: 0; display: flex; flex-direction: column; gap: 8px; }
+.hud-kid-care .kk-now { font: 700 1.5em ui-monospace, Consolas, monospace; color: color-mix(in srgb, var(--c) 45%, var(--fam-ink)); letter-spacing: .04em; }
+.hud-kid-care .kk-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 3px; }
+.hud-kid-care .kk-legend li { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 6px; align-items: baseline; font-size: .84em; }
+.hud-kid-care .kk-legend li i { font-style: normal; }
+.hud-kid-care .kk-legend li span { color: color-mix(in srgb, currentColor 75%, transparent); }
+.hud-kid-care .kk-legend li b { font-family: ui-monospace, Consolas, monospace; }
+
+/* --- Настольная игра --- */
+.hud-kid-care .kb-board { position: relative; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); grid-template-rows: repeat(var(--rows), auto); gap: 6px; padding: 18px 10px 18px; border-radius: 16px;
+  background: repeating-conic-gradient(color-mix(in srgb, var(--c) 6%, transparent) 0 25%, transparent 0 50%) 0 0 / 20px 20px, var(--fam-paper); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c) 35%, transparent), 0 6px 12px -10px rgba(0,0,0,.6); }
+.hud-kid-care .kb-cell { position: relative; aspect-ratio: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 10px; cursor: help;
+  background: var(--fam-inset); box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--c) 30%, transparent), 0 2px 0 color-mix(in srgb, var(--c) 30%, transparent); }
+.hud-kid-care .kb-cell small { position: absolute; left: 4px; top: 2px; font-size: .56em; font-weight: 700; color: color-mix(in srgb, currentColor 55%, transparent); }
+.hud-kid-care .kb-cell i { font-style: normal; font-size: 1.15em; opacity: .45; filter: grayscale(.6); }
+.hud-kid-care .kb-cell.is-done { background: linear-gradient(160deg, color-mix(in srgb, var(--c) 45%, #fff), var(--c)); box-shadow: 0 2px 0 color-mix(in srgb, var(--c) 60%, #000); }
+.hud-kid-care .kb-cell.is-done i { opacity: 1; filter: none; }
+.hud-kid-care .kb-cell.is-done small { color: color-mix(in srgb, #000 60%, transparent); }
+.hud-kid-care .kb-cell.is-next { box-shadow: inset 0 0 0 2px var(--c), 0 0 12px color-mix(in srgb, var(--c) 45%, transparent); }
+.hud-kid-care .kb-cell.is-next i { opacity: .8; filter: none; }
+.hud-kid-care .kb-cell .token { position: absolute; right: -6px; top: -8px; width: 26px; height: 26px; border-radius: 50% 50% 45% 45%; display: grid; place-items: center; color: #fff;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 30%, #fff), color-mix(in srgb, var(--c) 70%, #000)); box-shadow: 0 4px 5px rgba(0,0,0,.4); z-index: 1; }
+.hud-kid-care .kb-cell .token svg { width: 16px; height: 16px; stroke: #fff; fill: color-mix(in srgb, #fff 20%, transparent); }
+.hud-kid-care .kb-start, .hud-kid-care .kb-finish { position: absolute; font-size: .62em; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; color: color-mix(in srgb, var(--c) 60%, currentColor); }
+.hud-kid-care .kb-start { left: 12px; top: 3px; } .hud-kid-care .kb-finish { right: 10px; bottom: 1px; font-size: .9em; }
+.hud-kid-care .kb-now { margin: 0; font-size: .86em; }
+.hud-kid-care .kb-now b { color: color-mix(in srgb, var(--c) 50%, var(--fam-ink)); }
+
+/* ===================== Движение =====================
+   Как у остальных семейных блоков: анимация задана всегда и стоит на паузе,
+   под курсором или после нажатия (fx-on) идёт, потом замирает на месте.
+   Первый кадр каждой анимации — вид в покое. */
+@media (prefers-reduced-motion: no-preference) {
+  .hud-fv-us .sweep { animation: hud-fv-sweep 2.4s linear infinite; }
+  .hud-fv-us .hb { animation: hud-fv-blink .9s ease-in-out infinite; }
+  .hud-fv-nest .egg { animation: hud-fv-wobble 1.6s ease-in-out infinite; animation-delay: calc(var(--i) * .35s); transform-box: fill-box; transform-origin: 50% 90%; }
+  .hud-fv-letter .lt-seal { animation: hud-fv-glint 1.8s ease-in-out infinite; }
+  .hud-ppv-rings .arc { animation: hud-fv-breathe 2s ease-in-out infinite; animation-delay: calc(var(--i) * .25s); }
+  .hud-ppv-bottles .pb-line > span { animation: hud-fv-sway 2.4s ease-in-out infinite; animation-delay: calc(var(--i) * .2s); }
+  .hud-ppv-bottles .milk { animation: hud-fv-slosh 1.6s ease-in-out infinite; }
+  .hud-ppv-journal .pj-cal > i.is-today { animation: hud-fv-pulse 1.4s ease-in-out infinite; }
+  .hud-ktv .kb-item .cube, .hud-ktv.is-growth .kg-kid .head, .hud-kid-care .kb-cell .token { animation: hud-fv-hop 1s ease-in-out infinite; }
+  .hud-kid-care .ks-slot.is-next .ks-sticker { animation: hud-fv-spin 6s linear infinite; }
+  .hud-kid-care .kk-dial .mk.is-next { animation: hud-fv-blink 1.4s ease-in-out infinite; }
+}
+:is(.hud-fv-us .sweep, .hud-fv-us .hb, .hud-fv-nest .egg, .hud-fv-letter .lt-seal, .hud-ppv-rings .arc, .hud-ppv-bottles .pb-line > span, .hud-ppv-bottles .milk,
+  .hud-ppv-journal .pj-cal > i.is-today, .hud-ktv .kb-item .cube, .hud-ktv .kg-kid .head, .hud-kid-care .kb-cell .token, .hud-kid-care .ks-slot.is-next .ks-sticker, .hud-kid-care .kk-dial .mk.is-next) { animation-play-state: paused; }
+.hud-fetus:is(:hover, .fx-on) :is(.sweep, .hb, .egg, .lt-seal), .hud-pp:is(:hover, .fx-on) :is(.arc, .pb-line > span, .milk, .pj-cal > i.is-today),
+.hud-kid-chip:is(:hover, .fx-on) :is(.cube, .head), .hud-kid-care:is(:hover, .fx-on) :is(.kb-cell .token, .ks-slot.is-next .ks-sticker, .kk-dial .mk.is-next) { animation-play-state: running !important; }
+.hud-fv-us .sweep { opacity: 0; transition: opacity .5s; }
+.hud-fetus:is(:hover, .fx-on) .hud-fv-us .sweep, .hud-fv-us:is(:hover, .fx-on) .sweep { opacity: 1; }
+.hud-ktv .kp-card:hover { transform: rotate(0) translateY(-4px) scale(1.03); }
+.hud-kid-care:is(:hover, .fx-on) .ks-slot.is-done .ks-sticker { transform: rotate(0) scale(1.06); }
+@keyframes hud-fv-sweep { from { transform: translateX(0); } to { transform: translateX(260px); } }
+@keyframes hud-fv-blink { 0%, 100% { opacity: .85; } 50% { opacity: .2; } }
+@keyframes hud-fv-wobble { 0%, 100% { rotate: 0deg; } 25% { rotate: -6deg; } 75% { rotate: 6deg; } }
+@keyframes hud-fv-glint { 0%, 100% { filter: brightness(1); } 50% { filter: brightness(1.35); } }
+@keyframes hud-fv-breathe { 0%, 100% { stroke-width: 9; } 50% { stroke-width: 11.5; } }
+@keyframes hud-fv-sway { 0%, 100% { rotate: 0deg; } 50% { rotate: 4deg; } }
+@keyframes hud-fv-slosh { 0%, 100% { translate: 0 0; } 50% { translate: -4px 0; } }
+@keyframes hud-fv-pulse { 0%, 100% { box-shadow: 0 0 0 1.6px var(--fam-acc); } 50% { box-shadow: 0 0 0 3px var(--fam-acc), 0 0 8px var(--fam-acc); } }
+@keyframes hud-fv-hop { 0%, 100% { translate: 0 0; } 40% { translate: 0 -5px; } }
+@keyframes hud-fv-spin { to { rotate: 360deg; } }
+
+/* ===================== Узкая карточка: поправки ===================== */
+/* Письмо: марка со штемпелем — справа в обтекании, текст идёт рядом; зубцы
+   марки — пунктирная обводка цвета бумаги (вырезы по краю, а не по всей марке). */
+.hud-fv-letter .lt-post { float: right; position: relative; width: 58px; height: 66px; margin: -4px -4px 6px 8px; }
+.hud-fv-letter .lt-stamp { position: absolute; inset: 0; right: auto; top: auto; width: 54px; height: 62px; -webkit-mask: none; mask: none;
+  outline: 4px dotted var(--fam-paper); outline-offset: -2px; box-shadow: 0 2px 4px rgba(0,0,0,.3); }
+.hud-fv-letter .lt-mark { right: auto; left: -30px; top: 30px; width: 48px; height: 48px; }
+.hud-fv-letter .lt-to { padding-right: 0; min-height: 0; }
+/* Бутылочки: без полосы-полки под инфо, у подписей уже колонка. */
+.hud-ppv-bottles .pb-shelf { background: color-mix(in srgb, var(--fam-acc) 5%, transparent); }
+.hud-ppv-bottles .pb-row { grid-template-columns: 92px minmax(0, 1fr); }
+/* Полароиды: по два в ряд даже на телефоне. */
+.hud-ktv .kp-card { width: clamp(104px, 44%, 140px); }
+/* Ростомер: место под цифру 100 сверху; значки «пора» — в углу, чтобы
+   подпись под столбиком не вырастала и не уходила под голову. */
+.hud-ktv .kg-wall { padding-top: 24px; height: 214px; }
+.hud-ktv .kg-kid .alerts { position: absolute; right: 0; top: 0; margin: 0; }
+/* Альбом: плотнее, дальние вехи — мелкими контурами. */
+.hud-kid-care .ks-grid { grid-template-columns: repeat(auto-fill, minmax(56px, 1fr)); gap: 8px 4px; }
+/* Подписи наклеек не наезжают друг на друга: длинное слово переносится. */
+.hud-kid-care .ks-slot { min-width: 0; }
+.hud-kid-care .ks-slot small { max-width: 100%; overflow-wrap: anywhere; hyphens: auto; }
+[data-fam-tip] { cursor: pointer; }
+/* Облачко по нажатию на веху или отметку (events.js). */
+.hud-fam-tip { position: absolute; z-index: 60; max-width: 230px; padding: 6px 10px; border-radius: 10px; font-size: 12px; line-height: 1.35; pointer-events: none;
+  color: var(--fam-ink); background: color-mix(in srgb, var(--fam-acc) 12%, var(--hud-card-bg, #1c1418)); box-shadow: 0 6px 16px -6px rgba(0,0,0,.6), inset 0 0 0 1px var(--fam-line);
+  animation: hud-fam-tip-in .2s ease-out; }
+.hud-fam-tip::after { content: ''; position: absolute; left: calc(var(--arrow, 50%) - 5px); bottom: -5px; width: 10px; height: 10px; rotate: 45deg; background: inherit; box-shadow: inset -1px -1px 0 var(--fam-line); }
+.hud-fam-tip.is-below::after { bottom: auto; top: -5px; box-shadow: inset 1px 1px 0 var(--fam-line); }
+@keyframes hud-fam-tip-in { from { opacity: 0; translate: 0 4px; } }
+
+/* Мелкие подписи в новых видах — без прозрачности от темы. */
+:is(.hud-fv, .hud-ppv, .hud-ktv, .kc-view) small { opacity: 1; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-fv, .hud-ppv, .hud-ktv, .kc-view) small:not(.us-corner small) {
+  color: var(--lt-ink-soft, #6a5a64) !important;
+}
+.hud-kid-care .ks-sticker { width: 40px; height: 40px; font-size: 1.15em; }
+.hud-kid-care .ks-slot.is-later .ks-sticker { width: 28px; height: 28px; font-size: .8em; }
+.hud-kid-care .ks-slot.is-later small { font-size: .6em; }
+
+/* Светлые темы: мелкие подписи — приглушённым цветом, без прозрачности. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-ktv .born, .hud-ktv .kg-note, .hud-ppv-rings .pr-legend li > span, .hud-ppv-bottles .pb-row span, .hud-kid-care .ks-head small, .hud-kid-care .ks-slot.is-later small) {
+  color: var(--lt-ink-soft, #6a5a64) !important;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-fam-tip {
+  background: color-mix(in srgb, var(--fam-acc) 8%, #fffaf6);
+}

@@ -4,24 +4,24 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.28.1';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.28.1';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.28.1';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=23.28.1';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.30.1';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.30.1';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.30.1';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=23.30.1';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.28.1';
-import { buildPregnancy } from './pregnancy.js?v=23.28.1';
-import { buildPostpartum } from './postpartum.js?v=23.28.1';
-import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды } from './conception.js?v=23.28.1';
-import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.28.1';
-import { parseSceneDate } from '../history-analyzer.js?v=23.28.1';
-import { settings, настройка } from '../settings.js?v=23.28.1';
-import { namesLikelySame } from '../names.js?v=23.28.1';
-import { видСостоянияТела } from './extras.js?v=23.28.1';
-import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ } from './views-fields.js?v=23.28.1';
-import { parseRelationList } from './relations-graph.js?v=23.28.1';
-import { отложитьРисунок } from './lazy-svg.js?v=23.28.1';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.28.1';
+  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.30.1';
+import { buildPregnancy } from './pregnancy.js?v=23.30.1';
+import { buildPostpartum } from './postpartum.js?v=23.30.1';
+import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды } from './conception.js?v=23.30.1';
+import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.30.1';
+import { parseSceneDate } from '../history-analyzer.js?v=23.30.1';
+import { settings, настройка } from '../settings.js?v=23.30.1';
+import { namesLikelySame } from '../names.js?v=23.30.1';
+import { видСостоянияТела } from './extras.js?v=23.30.1';
+import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ } from './views-fields.js?v=23.30.1';
+import { parseRelationList } from './relations-graph.js?v=23.30.1';
+import { отложитьРисунок } from './lazy-svg.js?v=23.30.1';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.30.1';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле', 'состояние тела'];
@@ -303,7 +303,10 @@ function значениеПоля(ключ, значение, класс = 'hud-
   if (простойВид()) return `<span class="${класс}">${applyTooltips(текст)}</span>`;
   const части = () => разбитьСписок(текст).map(ч => ч.trim()).filter(Boolean);
   if (ключ === 'возраст') {
-    const m = текст.match(/^\s*(\d{1,3})\s*(?:(?:лет|года?|y\.?o\.?)\s*)?[,;—–-]?\s*(.*)$/i);
+    // У малыша («1 год 2 мес. 6 дн.», «40 дней») единицу не срезаем —
+    // иначе под крупной цифрой оставалось «2 мес.» без «год».
+    const малыш = /^\s*\d{1,3}\s*(?:(?:год[а]?|лет)\s*\d{1,2}\s*)?(?:мес|нед|дн|день|сут)/i.test(текст);
+    const m = малыш ? текст.match(/^\s*(\d{1,3})\s*(.*)$/) : текст.match(/^\s*(\d{1,3})\s*(?:(?:лет|года?|y\.?o\.?)\s*)?[,;—–-]?\s*(.*)$/i);
     if (m) return `<span class="${класс} hud-age"><b class="hud-age-num">${escapeHtml(m[1])}</b>`
       + `${m[2] ? `<small class="hud-age-date">${applyTooltips(m[2])}</small>` : ''}</span>`;
   }

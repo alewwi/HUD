@@ -7,10 +7,11 @@
 // сколько нужно в сутки, наполненность груди по времени с кормления.
 // Оформление — css/family.css.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок } from '../utils.js?v=23.28.1';
-import { parseSceneDate } from '../history-analyzer.js?v=23.28.1';
-import { родыЧьи, словоПолов } from './conception.js?v=23.28.1';
-import { послеродовое, видКормления, часовМежду } from './fertility.js?v=23.28.1';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок } from '../utils.js?v=23.30.1';
+import { parseSceneDate } from '../history-analyzer.js?v=23.30.1';
+import { родыЧьи, словоПолов } from './conception.js?v=23.30.1';
+import { послеродовое, видКормления, часовМежду } from './fertility.js?v=23.30.1';
+import { видСемьи, видПослеродового } from './family-views.js?v=23.30.1';
 
 function метки(value) {
   const о = {};
@@ -55,6 +56,12 @@ export function buildPostpartum(value, { кто = '', сцена = '', врем�
   };
   const молоко = с && с.молоко;
   const вид = { breast: 'грудью', formula: 'смесью', mixed: 'грудь и смесь' }[кормление];
+  // Другие виды (Кастомизация → Блоки: Семья) — render/family-views.js.
+  const видБлока = видСемьи('postpartumView');
+  if (видБлока !== 'classic') {
+    const прошло = Number.isFinite(часы) ? (часы < 1 ? Math.round(часы * 60) + ' мин' : Math.floor(часы) + ' ч ' + Math.round((часы % 1) * 60) + ' мин') + ' с кормления' : '';
+    return видПослеродового(видБлока, { дней, с, молоко, кормление, видСлово: вид, прошло, грудь: п['грудь'], самочувствие: п['симптомы'], словоПолов: р && р.полы ? словоПолов(р.полы) : '' });
+  }
 
   return `<div class="hud-pp">`
     + `<div class="hud-pp-head"><span class="ico" aria-hidden="true">🤱</span><b>${дней === null ? 'После родов' : `${дней} ${скл(дней, 'день', 'дня', 'дней')} после родов`}</b>`

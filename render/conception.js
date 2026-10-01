@@ -12,15 +12,21 @@
 // переформулировка давала бы новый бросок — лишний шанс. Поэтому ключ —
 // время близости и партнёр, а первый бросок по этому ключу запоминается.
 
-import { namesLikelySame } from '../names.js?v=23.28.1';
-import { settings } from '../settings.js?v=23.28.1';
+import { namesLikelySame } from '../names.js?v=23.30.1';
+import { settings } from '../settings.js?v=23.30.1';
 
 const КЛЮЧ = 'tavernosHudConception';
 
 function контекстST() {
   try { return window.SillyTavern?.getContext?.() || null; } catch (_) { return null; }
 }
+// Пример в «Кастомизации» (в чате ещё нет HUD): пока открыт просмотр,
+// роды и беременность берутся из набора примера, а не из метаданных чата —
+// и ничего в чат не сохраняется.
+let примерСемьи = null;
+export function задатьПримерСемьи(набор) { примерСемьи = набор || null; }
 function хранилище() {
+  if (примерСемьи) return примерСемьи;
   const ctx = контекстST();
   const мета = ctx && (ctx.chatMetadata || ctx.chat_metadata);
   if (!мета) return null;
@@ -33,6 +39,7 @@ function хранилище() {
   return мета[КЛЮЧ];
 }
 function сохранить() {
+  if (примерСемьи) return;
   const ctx = контекстST();
   try { (ctx?.saveMetadataDebounced || ctx?.saveMetadata)?.call(ctx); } catch (_) {}
 }

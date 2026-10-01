@@ -9,9 +9,9 @@
 // честно бывает 'empty', комментариев может не быть вовсе. Ложная тревога
 // здесь стоит лишнего запроса к модели, поэтому лучше промолчать.
 
-import { settings } from './settings.js?v=23.28.1';
-import { extractHudBlock } from './hud-block.js?v=23.28.1';
-import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.28.1';
+import { settings } from './settings.js?v=23.30.1';
+import { extractHudBlock } from './hud-block.js?v=23.30.1';
+import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.30.1';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const МЕТКА = /<\s*new this turn\b[^>]*>/i;

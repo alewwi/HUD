@@ -6,9 +6,10 @@
 // тройня — и сочетания пола под каждый тип. «↺ Откатить» возвращает кубик.
 // Клики ловит index.js (data-hud-fetus). Оформление — css/family.css.
 
-import { escapeHtml } from '../utils.js?v=23.28.1';
-import { плодыОт, ТИПЫ_ПЛОДОВ, СОЧЕТАНИЯ, словоПолов } from './conception.js?v=23.28.1';
-import { наследование } from './fertility.js?v=23.28.1';
+import { escapeHtml } from '../utils.js?v=23.30.1';
+import { плодыОт, ТИПЫ_ПЛОДОВ, СОЧЕТАНИЯ, словоПолов } from './conception.js?v=23.30.1';
+import { наследование } from './fertility.js?v=23.30.1';
+import { видСемьи, видПлодов } from './family-views.js?v=23.30.1';
 
 // Малыш в плодном пузыре: свернувшийся эмбрион (голова, спинка дугой,
 // ручка у лица, ножки), пуповина, объём от градиента и блик.
@@ -38,7 +39,7 @@ const ОБРАЗЦЫ = { карие: '#7a4a2a', зелёные: '#5f9a5a', се�
  * полИзСюжета — пол, который модель уже написала (УЗИ было), тогда кубика нет.
  * мама/папа — тексты внешности, чтобы прикинуть глаза и волосы.
  */
-export function блокПлодов(кто, { вСюжете = false, полИзСюжета = '', мама = '', папа = '' } = {}) {
+export function блокПлодов(кто, { вСюжете = false, полИзСюжета = '', мама = '', папа = '', неделя = null } = {}) {
   const п = плодыОт(кто, { вСюжете });
   if (!п) return '';
   const данные = `data-kto="${escapeHtml(п.кто)}"`;
@@ -60,6 +61,9 @@ export function блокПлодов(кто, { вСюжете = false, полИ�
   const судьба = `<details class="hud-fetus-fate"><summary>✦︎ Изменить судьбу</summary><div class="opts"><small>сколько</small><div class="row">${Object.keys(ТИПЫ_ПЛОДОВ).map(кнопкаТипа).join('')}</div>`
     + (полСюжета ? '' : `<small>пол</small><div class="row">${СОЧЕТАНИЯ[п.тип].map(кнопкаПола).join('')}</div>`) + `</div></details>`;
   const откат = (п.судьбаТипа || п.судьбаПола) ? `<button type="button" class="hud-fetus-btn is-undo" data-hud-fetus="undo" ${данные} title="Вернуть то, что выпало на кубике">↺ Откатить</button>` : '';
+  // Другие виды (Кастомизация → Блоки: Семья) — render/family-views.js.
+  const вид = видСемьи('fetusView');
+  if (вид !== 'classic') return видПлодов(вид, { п, полы, кто: п.кто, неделя, подписьПола, строкаПохож, acts: судьба + откат });
   return `<div class="hud-fetus${п.число > 1 ? ' is-multi' : ''}"><div class="womb-row"><div class="wombs">${полы.map(значокМалыша).join('')}</div>`
     + `<svg class="beat" viewBox="0 0 64 14" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M0 7h16l2.4-4 3.6 9 3-11 2.6 9 1.8-3H64"/></svg></div>`
     + `<div class="txt"><b class="kind">${п.имяТипа}${п.судьбаТипа ? '<i class="fate-mark" title="Изменено судьбой">✦︎</i>' : ''}</b>${п.пояснение ? `<small>${п.пояснение}</small>` : ''}${подписьПола}${строкаПохож}`
