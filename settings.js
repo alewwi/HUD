@@ -68,6 +68,12 @@ export const defaultSettings = {
   enableCompanions: true,
   enableIllness: true,
   enablePregnancy: true,
+  // Роды и малыши: вкладка «Детская», послеродовой период; с какого возраста
+  // ребёнок уходит в обычные карточки; число и пол малышей — модели скрытым
+  // фактом ('hidden') или только игроку ('off').
+  enableBabies: true,
+  babyGraduateYears: 3,
+  babyFactsToModel: 'hidden',
   enableGuns: true,
   enablePerception: true,
   // Генеалогическое дерево в графе отношений: считается из родства в Rl.

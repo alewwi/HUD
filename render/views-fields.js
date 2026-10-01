@@ -12,8 +12,8 @@
 // Не разобрали данные — пустая строка, и поле рисуется по-старому.
 // Оформление — css/views-fields.css.
 
-import { escapeHtml, разбитьСписок } from '../utils.js?v=23.26.0';
-import { ико, ИКОНКИ } from './view-icons.js?v=23.26.0';
+import { escapeHtml, разбитьСписок } from '../utils.js?v=23.28.1';
+import { ико, ИКОНКИ } from './view-icons.js?v=23.28.1';
 
 const т = (s) => escapeHtml(String(s ?? '').trim());
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто|—|-)$/i.test(String(v).trim());
@@ -96,17 +96,23 @@ function разобратьВозраст(value) {
   const s = String(value).trim();
   const m = s.match(/^\s*(\d{1,3})(?!\d)/);
   if (!m) return null;
-  const n = +m[1];
-  const хвост = s.slice(m[0].length).replace(/^\s*(?:лет|года?|y\.?o\.?)?\s*[,;—–-]?\s*/i, '').trim();
+  let n = +m[1];
+  // Возраст малыша («40 дней», «1 год 2 мес. 5 дн., род. 07.09.2024»): слово
+  // возраста берём целиком, а не «N лет».
+  const мал = s.match(/^\s*((?:\d{1,3}\s*(?:год[а]?|лет|мес\.?|месяц\w*|нед\.?|недел\w*|дн\.?|дн\w*|день|сут\w*)\s*)+)/i);
+  const малыш = мал && /мес|нед|дн|день|сут/i.test(мал[1]);
+  const слово = малыш ? мал[1].trim() : `${n} ${годы(n)}`;
+  if (малыш) { const г = мал[1].match(/(\d+)\s*(?:год|лет)/i); n = г ? +г[1] : 0; }
+  const хвост = (малыш ? s.slice(мал[0].length).replace(/^\s*[,;—–-]?\s*(?:род\.?|родил\w*)?\s*/i, '') : s.slice(m[0].length).replace(/^\s*(?:лет|года?|y\.?o\.?)?\s*[,;—–-]?\s*/i, '')).trim();
   const д = хвост.match(/(\d{1,2})[./-](\d{1,2})(?:[./-](\d{2,4}))?/);
   const знак = д ? знакЗодиака(+д[1], огр(+д[2], 1, 12)) : null;
   const остаток = д ? хвост.replace(д[0], '').replace(/^[\s,;—–-]+|[\s,;—–-]+$/g, '') : '';
-  return { n, хвост, д, знак, остаток };
+  return { n, хвост, д, знак, остаток, слово, малыш };
 }
 function видВозраста(value, вид) {
   const в = разобратьВозраст(value);
   if (!в) return '';
-  const { n, хвост, д, знак, остаток } = в;
+  const { n, хвост, д, знак, остаток, слово, малыш } = в;
   if (вид === 'id') {
     // Удостоверение: гильош, голограмма, фото с печатью, машиночитаемая зона.
     const гильош = Array.from({ length: 7 }, (_, k) => {
@@ -120,7 +126,7 @@ function видВозраста(value, вид) {
     return обёртка('age', 'id', `<div class="pass"><svg class="guill" viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true">${гильош}</svg><i class="holo" aria-hidden="true"></i>`
       + `<div class="pass-head"><span>Удостоверение личности</span><svg class="emb" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="${ИКОНКИ.star}"/></svg></div>`
       + `<div class="pass-body"><span class="photo" aria-hidden="true"><svg viewBox="0 0 100 120"><path d="${БЮСТ}"/></svg><i class="seal"></i></span>`
-      + `<dl><div><dt>Возраст</dt><dd>${n} ${годы(n)}</dd></div>${д ? `<div><dt>Дата рождения</dt><dd>${т(д[0])}</dd></div>` : хвост ? `<div><dt>Примечание</dt><dd>${т(хвост)}</dd></div>` : ''}${знак ? `<div><dt>Знак</dt><dd>${знак[0]}</dd></div>` : ''}${остаток ? `<div><dt>Примечание</dt><dd>${т(остаток)}</dd></div>` : ''}</dl><i class="chip" aria-hidden="true"></i></div>`
+      + `<dl><div><dt>Возраст</dt><dd>${т(слово)}</dd></div>${д ? `<div><dt>Дата рождения</dt><dd>${т(д[0])}</dd></div>` : хвост ? `<div><dt>Примечание</dt><dd>${т(хвост)}</dd></div>` : ''}${знак ? `<div><dt>Знак</dt><dd>${знак[0]}</dd></div>` : ''}${остаток ? `<div><dt>Примечание</dt><dd>${т(остаток)}</dd></div>` : ''}</dl><i class="chip" aria-hidden="true"></i></div>`
       + `<code class="mrz" aria-hidden="true">${escapeHtml(мрз1)}<br>${escapeHtml(мрз2)}</code></div>`);
   }
   if (вид === 'zodiac') {
@@ -141,7 +147,7 @@ function видВозраста(value, вид) {
       + `<circle class="sky" cx="60" cy="60" r="57" fill="url(#${id})"/><g class="bg">${фон}</g>${кольцо}<circle class="rim" cx="60" cy="60" r="47"/><circle class="rim" cx="60" cy="60" r="57"/>${линии}${звёзды}</svg>`
       + `<span class="zod-text"><b class="glyph">${глиф}︎</b><strong>${имя}</strong><small>${СРОКИ_ЗНАКОВ[имя]}</small>`
       + `<span class="elem el-${эл}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${ИКОНКИ[знач] || знач}"/></svg>${стихия}</span>`
-      + `<em>${n} ${годы(n)}${д ? ' · ' + т(д[0]) : ''}</em>${остаток ? `<em>${т(остаток)}</em>` : ''}</span>`);
+      + `<em>${т(слово)}${д ? ' · ' + т(д[0]) : ''}</em>${остаток ? `<em>${т(остаток)}</em>` : ''}</span>`);
   }
   if (вид === 'rings') {
     // Срез дерева: по кольцу на год, кольца неровные и смещены, как у живого
@@ -159,7 +165,7 @@ function видВозраста(value, вид) {
     const кольца = Array.from({ length: колец }, (_, i) => кольцо(4 + (i + 1) * (38 / колец), i * .7 + r() * .4, 'yr' + (i % 5 === 4 ? ' is-5' : ''))).join('');
     return обёртка('age', 'rings', `<svg class="slice" viewBox="0 0 104 104" aria-hidden="true">${кольцо(49, 0, 'bark')}${кольцо(45, .3, 'wood')}${кольца}${кольцо(6, 1, 'heart')}`
       + `<path class="crack" d="M57 52 72 41l3 2 9-9M66 46l2 6"/><circle class="knot" cx="34" cy="64" r="2.4"/></svg>`
-      + `<span class="label"><i class="pin" aria-hidden="true"></i><b>${n}</b><small>${годы(n)} · ${колец === n ? `${n} ${n % 10 === 1 && n % 100 !== 11 ? 'кольцо' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'кольца' : 'колец'}` : 'кольца'}</small>${хвост ? `<em>${т(хвост)}</em>` : ''}</span>`);
+      + `<span class="label"><i class="pin" aria-hidden="true"></i>${малыш ? `<b>${т(слово.match(/^\d+/)[0])}</b><small>${т(слово.replace(/^\d+\s*/, ''))}</small>` : `<b>${n}</b><small>${годы(n)} · ${колец === n ? `${n} ${n % 10 === 1 && n % 100 !== 11 ? 'кольцо' : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? 'кольца' : 'колец'}` : 'кольца'}</small>`}${хвост ? `<em>${т(хвост)}</em>` : ''}</span>`);
   }
   return '';
 }

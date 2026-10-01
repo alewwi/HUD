@@ -24,7 +24,7 @@ const объект = (v) => v !== null && typeof v === 'object' && !Array.isArra
 const КОРЕНЬ = {
   sc: 'scene', cs: 'characters', us: 'user', me: 'memory', cm: 'chatsMap', phn: 'phone',
   tp: 'intercepts', dy: 'diary', bd: 'bodyDiary', dr: 'dreams', wd: 'world',
-  pet: 'companions',
+  pet: 'companions', bb: 'babies',
   // Средневековье: шкатулка вместо телефона, письма вместо переписок,
   // подслушанное вместо перехватов.
   sm: 'satchel', lt: 'letters', ov: 'overheard',
@@ -94,7 +94,7 @@ const каждому = (список, словарь) => {
 // памяти (не закрыла скобку «me» вовремя): дневники, мир, шкатулка, письма…
 // Внутри памяти они никому не видны — поднимаем на место. «sc» не трогаем:
 // в памяти это старое написание секретов.
-const ВЫШЕ_ПАМЯТИ = new Set(['cm', 'phn', 'tp', 'dy', 'bd', 'dr', 'wd', 'pet', 'sm', 'lt', 'ov', 'us', 'cs',
+const ВЫШЕ_ПАМЯТИ = new Set(['cm', 'phn', 'tp', 'dy', 'bd', 'dr', 'wd', 'pet', 'bb', 'babies', 'sm', 'lt', 'ov', 'us', 'cs',
   'chats', 'taps', 'bdiary', 'ph', 'chatsMap', 'phone', 'intercepts', 'diary', 'bodyDiary', 'dreams', 'world',
   'companions', 'satchel', 'letters', 'overheard', 'characters', 'user']);
 const пустое = (v) => v === undefined || v === null || v === '' || (Array.isArray(v) && !v.length)
@@ -265,6 +265,9 @@ export const МЕТКИ = {
   // Беременность (Prg)
   wk: 'Неделя', due: 'Роды', fa: 'Отец', knw: 'Кто знает', cnd: 'Как проходит',
   gnd: 'Пол ребёнка', bnm: 'Имя ребёнка', vis: 'Визит к врачу', crv: 'Тяга',
+  brn: 'Родила',
+  // После родов (Pp) и нужды малыша (Nds)
+  bf: 'Кормление', lfd: 'Последнее кормление', brs: 'Грудь', fed: 'Ел', dpr: 'Подгузник',
   // Состояние тела (Bs)
   eng: 'Энергия', awk: 'Бодрость', sat: 'Сытость', str: 'Стресс', slp: 'Сон', dut: 'Дела',
   // Поворот сюжета (sc.Tw)

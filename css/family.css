@@ -1,0 +1,344 @@
+/* =========================================================================
+   СЕМЬЯ: плодовитость, малыши в животе, после родов, «Детская»
+   (render/fertility.js, fetus.js, postpartum.js, babies.js).
+   Цвет — от темы; у девочек — розовый оттенок, у мальчиков — голубой,
+   оба смешаны с акцентом. Движение — только под курсором или по нажатию.
+   ========================================================================= */
+.hud-os-card {
+  --fam-acc: var(--hud-accent, #c31f38);
+  --fam-girl: color-mix(in srgb, var(--fam-acc) 35%, #ff8fc0);
+  --fam-boy: color-mix(in srgb, var(--fam-acc) 30%, #7ab8ff);
+  --fam-baby: color-mix(in srgb, var(--fam-acc) 35%, #ffd46a);
+  --fam-inset: color-mix(in srgb, var(--fam-acc) 10%, rgba(0,0,0,.4));
+  --fam-line: color-mix(in srgb, var(--fam-acc) 28%, transparent);
+  --fam-ink: color-mix(in srgb, var(--fam-acc) 40%, #fff);
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-os-card {
+  --fam-inset: color-mix(in srgb, var(--fam-acc) 5%, rgba(255,255,255,.85));
+  --fam-ink: color-mix(in srgb, var(--fam-acc) 78%, #000);
+}
+
+/* --- Цикл: причины сниженного шанса, кровотечение, сбой, попытки ---------- */
+.hud-fert-reasons { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+.hud-fert-reasons span { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px 2px 6px; border-radius: 999px; font-size: .74em;
+  background: var(--fam-inset); box-shadow: inset 0 0 0 1px var(--fam-line); }
+.hud-fert-reasons i { font-style: normal; font-weight: 800; color: var(--fam-ink); }
+.hud-fert-reasons b { font-weight: 800; color: var(--fam-ink); }
+.hud-fert-reasons .is-zero { box-shadow: inset 0 0 0 1px color-mix(in srgb, #e04848 55%, transparent); }
+.hud-fert-reasons .is-zero b, .hud-fert-reasons .is-zero i { color: color-mix(in srgb, #e04848 70%, currentColor); }
+.hud-flow { display: inline-flex; gap: 3px; margin-right: 8px; vertical-align: -2px; }
+.hud-flow s { width: 10px; height: 13px; background: color-mix(in srgb, currentColor 15%, transparent); clip-path: path('M5 0C5 0 0 6 0 8.6A5 5 0 0 0 10 8.6C10 6 5 0 5 0Z'); }
+.hud-flow s.on { background: linear-gradient(180deg, color-mix(in srgb, var(--fam-acc) 40%, #ff5a6a), color-mix(in srgb, var(--fam-acc) 50%, #a0101e)); }
+.hud-cycle-row.is-shift p, .hud-cycle-row.is-trying p { font-size: .9em; }
+.hud-cycle-row.is-trying.is-serious span { color: color-mix(in srgb, #e04848 70%, currentColor); }
+
+/* --- Малыши в животе ----------------------------------------------------- */
+.hud-fetus { position: relative; display: flex; align-items: center; gap: 14px; margin-top: 10px; padding: 12px 14px; border-radius: 16px; overflow: hidden;
+  background: radial-gradient(circle at 46px 50%, color-mix(in srgb, var(--fam-acc) 20%, transparent), transparent 70px), var(--fam-inset);
+  box-shadow: inset 0 0 0 1px var(--fam-line), inset 0 1px 0 color-mix(in srgb, #fff 7%, transparent); }
+.hud-fetus .womb-row { flex: none; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.hud-fetus .wombs { position: relative; display: flex; isolation: isolate; }
+.hud-fetus .wombs::before { content: ''; position: absolute; inset: -9px; z-index: -1; border-radius: 50%; opacity: .7;
+  background: radial-gradient(closest-side, color-mix(in srgb, var(--fam-acc) 35%, transparent), transparent); }
+.hud-fetus.is-multi .wombs > svg + svg { margin-left: -10px; }
+.hud-fetus .beat { width: 64px; height: 14px; overflow: visible; }
+.hud-fetus .beat path { fill: none; stroke: var(--fam-ink); stroke-width: 1.5; stroke-linejoin: round; stroke-linecap: round; stroke-dasharray: 100 100; opacity: .85;
+  filter: drop-shadow(0 0 2px color-mix(in srgb, var(--fam-acc) 70%, transparent)); vector-effect: non-scaling-stroke; }
+.hud-fetus-baby { --c: var(--fam-baby); width: 64px; height: 64px; overflow: visible; filter: drop-shadow(0 4px 6px rgba(0,0,0,.32)); }
+.hud-fetus.is-multi .hud-fetus-baby { width: 54px; height: 54px; }
+.hud-fetus-baby .s0 { stop-color: color-mix(in srgb, var(--c) 30%, #fff8f2); stop-opacity: .95; }
+.hud-fetus-baby .s1 { stop-color: color-mix(in srgb, var(--c) 55%, #f6c8b8); stop-opacity: .9; }
+.hud-fetus-baby .s2 { stop-color: color-mix(in srgb, var(--c) 70%, #6a2a3a); stop-opacity: .95; }
+.hud-fetus-baby .b0 { stop-color: #fff3ec; } .hud-fetus-baby .b1 { stop-color: color-mix(in srgb, var(--c) 30%, #f1b9a4); }
+.hud-fetus-baby .halo { fill: none; stroke: var(--c); stroke-width: 1; opacity: .35; stroke-dasharray: 2 3; }
+.hud-fetus-baby .rim { fill: none; stroke: color-mix(in srgb, var(--c) 60%, #fff); stroke-width: .8; opacity: .55; }
+.hud-fetus-baby .cord { fill: none; stroke: color-mix(in srgb, var(--c) 45%, #c87a8a); stroke-width: 1.6; stroke-linecap: round; opacity: .9; }
+.hud-fetus-baby .body, .hud-fetus-baby .head { stroke: color-mix(in srgb, var(--c) 40%, #b06a5c); stroke-width: .6; }
+.hud-fetus-baby .limb { fill: none; stroke: color-mix(in srgb, var(--c) 25%, #f6c8b4); stroke-width: 2.6; stroke-linecap: round; }
+.hud-fetus-baby .eye { fill: color-mix(in srgb, var(--c) 30%, #5a2a2a); opacity: .6; }
+.hud-fetus-baby .gloss { fill: #fff; opacity: .45; }
+.hud-fetus-baby.is-girl { --c: var(--fam-girl); } .hud-fetus-baby.is-boy { --c: var(--fam-boy); } .hud-fetus-baby.is-unknown { --c: var(--fam-baby); }
+.hud-fetus .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.hud-fetus .kind { font: 700 1.12em var(--hud-font-title, Georgia, serif); color: var(--fam-ink); letter-spacing: .02em; }
+.hud-fetus .txt > small { font-size: .74em; opacity: .75; }
+.hud-fetus .sex { font-size: .9em; }
+.hud-fetus .sex.is-story b { color: var(--fam-ink); }
+.hud-fetus .fate-mark { font-style: normal; margin-left: 5px; font-size: .8em; color: var(--fam-ink); }
+.hud-fetus .looks { display: flex; flex-direction: column; gap: 4px; margin-top: 2px; }
+.hud-fetus .looks-head { font-size: .64em; letter-spacing: .12em; text-transform: uppercase; color: color-mix(in srgb, currentColor 65%, transparent); }
+.hud-fetus .looks-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+.hud-fetus .looks-row > b { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; font-size: .7em; background: color-mix(in srgb, var(--fam-acc) 25%, transparent); }
+.hud-fetus .trait { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px 2px 4px; border-radius: 999px; font-size: .78em;
+  background: color-mix(in srgb, var(--fam-acc) 9%, transparent); box-shadow: inset 0 0 0 1px var(--fam-line); }
+.hud-fetus .trait > i { width: 14px; height: 14px; border-radius: 50%; flex: none; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.35), 0 1px 2px rgba(0,0,0,.35);
+  background: radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--sw) 55%, #fff), var(--sw) 60%); }
+.hud-fetus .trait.is-eye > i { background: radial-gradient(circle, #111 0 2px, transparent 2.5px), radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--sw) 55%, #fff), var(--sw) 70%); }
+.hud-fetus .trait small { font-weight: 700; font-size: .9em; color: var(--fam-ink); }
+.hud-fetus .acts { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px; margin-top: 3px; }
+.hud-fetus-btn { padding: 3px 10px; border-radius: 999px; font: inherit; font-size: .78em; cursor: pointer; color: inherit; white-space: nowrap;
+  border: 1px dashed color-mix(in srgb, var(--fam-acc) 55%, transparent); background: color-mix(in srgb, var(--fam-acc) 8%, transparent); transition: background .2s, box-shadow .2s; }
+.hud-fetus-btn:hover { border-style: solid; background: color-mix(in srgb, var(--fam-acc) 22%, transparent); box-shadow: 0 0 10px color-mix(in srgb, var(--fam-acc) 40%, transparent); }
+.hud-fetus-btn.is-on { border-style: solid; background: color-mix(in srgb, var(--fam-acc) 30%, transparent); font-weight: 700; }
+.hud-fetus-btn.is-roll { border-style: solid; align-self: flex-start; }
+.hud-fetus-fate > summary { list-style: none; cursor: pointer; display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .78em;
+  border: 1px dashed color-mix(in srgb, var(--fam-acc) 55%, transparent); background: color-mix(in srgb, var(--fam-acc) 8%, transparent); }
+.hud-fetus-fate > summary::-webkit-details-marker { display: none; }
+.hud-fetus-fate[open] > summary { border-style: solid; background: color-mix(in srgb, var(--fam-acc) 22%, transparent); }
+.hud-fetus-fate .opts { margin-top: 7px; display: flex; flex-direction: column; gap: 4px; }
+.hud-fetus-fate .opts small { font-size: .66em; letter-spacing: .12em; text-transform: uppercase; opacity: .7; }
+.hud-fetus-fate .row { display: flex; flex-wrap: wrap; gap: 5px; }
+.hud-preg-test .hud-fetus { margin-top: 12px; }
+
+/* --- Роды ------------------------------------------------------------------- */
+.hud-birth-row { margin-top: 10px; }
+.hud-birth-btn { padding: 6px 14px; border-radius: 999px; font: inherit; font-size: .84em; cursor: pointer; color: inherit;
+  border: 1px solid color-mix(in srgb, var(--fam-acc) 50%, transparent); background: linear-gradient(90deg, color-mix(in srgb, var(--fam-girl) 22%, transparent), color-mix(in srgb, var(--fam-boy) 22%, transparent)); transition: box-shadow .2s; }
+.hud-birth-btn:hover { box-shadow: 0 0 14px color-mix(in srgb, var(--fam-acc) 40%, transparent); }
+
+/* --- После родов ------------------------------------------------------------- */
+.hud-pp { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 14px; background: var(--fam-inset); box-shadow: inset 0 0 0 1px var(--fam-line); }
+.hud-pp-head { display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px 10px; }
+.hud-pp-head .ico { font-size: 1.3em; }
+.hud-pp-head b { font-size: 1.05em; color: var(--fam-ink); }
+.hud-pp-head em { font-style: normal; font-size: .78em; opacity: .8; }
+.hud-pp-head small { font-size: .74em; opacity: .7; }
+.hud-pp-track { position: relative; height: 18px; border-radius: 999px; background: color-mix(in srgb, currentColor 8%, transparent); overflow: hidden; }
+.hud-pp-track > i { position: absolute; left: 0; top: 0; bottom: 0; border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--fam-acc) 30%, transparent), var(--fam-acc)); }
+.hud-pp-track > s { position: absolute; top: 3px; bottom: 3px; width: 1px; background: color-mix(in srgb, currentColor 35%, transparent); }
+.hud-pp-track > span { position: relative; display: block; text-align: center; font-size: .66em; line-height: 18px; letter-spacing: .08em; text-transform: uppercase; }
+.hud-pp-row { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 8px; font-size: .9em; }
+.hud-pp-row > span { font-size: .78em; letter-spacing: .06em; text-transform: uppercase; opacity: .72; padding-top: 2px; }
+/* --- Молоко: объёмная грудь с уровнем внутри, шкала наполненности ------- */
+.hud-pp-milk { --milk-tone: var(--fam-acc); display: flex; flex-wrap: wrap; align-items: center; gap: 12px 16px; padding: 12px 14px; border-radius: 16px;
+  background: radial-gradient(circle at 18% 50%, color-mix(in srgb, var(--fam-acc) 16%, transparent), transparent 55%), color-mix(in srgb, var(--fam-acc) 5%, transparent);
+  box-shadow: inset 0 0 0 1px var(--fam-line), inset 0 1px 0 color-mix(in srgb, #fff 8%, transparent); }
+.hud-pp-milk.is-soon { --milk-tone: #f0a03a; } .hud-pp-milk.is-hot { --milk-tone: #e04848; }
+.hud-pp-milk .breasts { position: relative; flex: none; display: flex; gap: 4px; }
+.hud-pp-milk figure { margin: 0; display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.hud-pp-milk figcaption { font-size: .66em; letter-spacing: .06em; color: color-mix(in srgb, currentColor 70%, transparent); }
+.hud-pp-breast { width: 58px; height: 58px; overflow: visible; filter: drop-shadow(0 3px 4px rgba(0,0,0,.28)); }
+.hud-pp-breast.is-left { transform: scaleX(-1); }
+.hud-pp-breast .sk0 { stop-color: color-mix(in srgb, var(--fam-acc) 6%, #ffe9dc); }
+.hud-pp-breast .sk1 { stop-color: color-mix(in srgb, var(--fam-acc) 12%, #f0c7ae); }
+.hud-pp-breast .sk2 { stop-color: color-mix(in srgb, var(--fam-acc) 22%, #b98068); }
+.hud-pp-breast .ar0 { stop-color: color-mix(in srgb, var(--fam-acc) 20%, #d99484); }
+.hud-pp-breast .ar1 { stop-color: color-mix(in srgb, var(--fam-acc) 30%, #b0675a); }
+.hud-pp-breast .mk0 { stop-color: #fffdf7; stop-opacity: .42; }
+.hud-pp-breast .mk1 { stop-color: color-mix(in srgb, #fff2d6 85%, var(--fam-acc)); stop-opacity: .62; }
+.hud-pp-breast .under { fill: none; stroke: color-mix(in srgb, var(--fam-acc) 30%, #7a4030); stroke-width: 2.4; stroke-linecap: round; opacity: .28; }
+.hud-pp-breast .surf { fill: none; stroke: #fff; stroke-width: 1.2; opacity: .85; }
+.hud-pp-breast .rim { fill: none; stroke: color-mix(in srgb, var(--fam-acc) 35%, #9c6450); stroke-width: 1; opacity: .7; }
+.hud-pp-breast .areola { stroke: color-mix(in srgb, var(--fam-acc) 30%, #9a5446); stroke-width: .5; stroke-opacity: .5; }
+.hud-pp-breast .tip { fill: color-mix(in srgb, var(--fam-acc) 30%, #a85a4c); }
+.hud-pp-breast .tip-hi { fill: #fff; opacity: .6; }
+.hud-pp-breast .gloss { fill: #fff; opacity: .4; }
+.hud-pp-breast .shade { fill: #000; opacity: .22; }
+.hud-pp-milk .info { flex: 1 1 180px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.hud-pp-milk .info > b { display: flex; align-items: center; gap: 7px; font-size: 1.05em; color: var(--fam-ink); }
+.hud-pp-milk .info > b .ico { flex: none; width: 11px; height: 15px; background: linear-gradient(180deg, #fffdf7, color-mix(in srgb, #fff2d6 80%, var(--fam-acc)));
+  clip-path: path('M5.5 0C5.5 0 0 7 0 10A5.5 5.5 0 0 0 11 10C11 7 5.5 0 5.5 0Z'); filter: drop-shadow(0 0 3px color-mix(in srgb, var(--fam-acc) 60%, transparent)); }
+.hud-pp-milk .chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.hud-pp-milk .chips > span { padding: 2px 9px; border-radius: 999px; font-size: .76em; background: color-mix(in srgb, var(--fam-acc) 12%, transparent); box-shadow: inset 0 0 0 1px var(--fam-line); }
+.hud-pp-milk .fill-meter { display: flex; flex-direction: column; gap: 4px; }
+.hud-pp-milk .fill-meter .lbl { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 8px; font-size: .82em; }
+.hud-pp-milk .fill-meter .lbl b { color: color-mix(in srgb, var(--milk-tone) 55%, currentColor); }
+.hud-pp-milk .fill-meter .lbl small { font-size: .9em; color: color-mix(in srgb, currentColor 70%, transparent); }
+.hud-pp-milk .fill-meter > i { position: relative; height: 8px; border-radius: 8px; overflow: hidden; background: color-mix(in srgb, currentColor 10%, transparent); }
+.hud-pp-milk .fill-meter > i::before { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--v); border-radius: inherit;
+  background: linear-gradient(90deg, color-mix(in srgb, #fff8ea 70%, var(--milk-tone)), var(--milk-tone)); box-shadow: 0 0 8px color-mix(in srgb, var(--milk-tone) 50%, transparent); }
+.hud-pp-milk .drop { position: absolute; top: 46px; width: 6px; height: 8px; opacity: 0; pointer-events: none;
+  background: color-mix(in srgb, #fffaf0 85%, var(--fam-acc)); clip-path: path('M3 0C3 0 0 4.2 0 5.4A3 3 0 0 0 6 5.4C6 4.2 3 0 3 0Z'); }
+.hud-pp-milk .d0 { left: 26px; } .hud-pp-milk .d1 { left: 88px; } .hud-pp-milk .d2 { left: 33px; }
+.hud-pp-cycle { display: flex; align-items: center; gap: 8px; font-size: .84em; padding: 6px 10px; border-radius: 10px; border: 1px dashed var(--fam-line); }
+.hud-pp-cycle.is-back { border-style: solid; }
+
+/* =========================================================================
+   «ДЕТСКАЯ»: трекер, вкладки по именам, карточки с игрушками
+   ========================================================================= */
+.hud-kids { position: relative; display: flex; flex-direction: column; gap: 10px; padding: 4px 2px 8px; }
+/* Шапка: обои в горошек, облака, гирлянда флажков и мобиль на ниточках. */
+.hud-kids-head { position: relative; min-height: 74px; padding: 22px 16px 12px; border-radius: 18px; overflow: hidden;
+  background: radial-gradient(circle at 12% 30%, color-mix(in srgb, var(--fam-girl) 30%, transparent), transparent 40%), radial-gradient(circle at 88% 70%, color-mix(in srgb, var(--fam-boy) 30%, transparent), transparent 40%),
+    radial-gradient(circle, color-mix(in srgb, var(--fam-ink) 12%, transparent) 1.2px, transparent 1.6px) 0 0 / 14px 14px, var(--fam-inset);
+  box-shadow: inset 0 0 0 1px var(--fam-line), inset 0 -10px 18px -14px color-mix(in srgb, var(--fam-acc) 60%, transparent); }
+.hud-kids-head .title { position: relative; z-index: 1; display: flex; flex-direction: column; gap: 2px; padding-right: 128px; }
+.hud-kids-head b { font: 700 1.3em var(--hud-font-title, Georgia, serif); color: var(--fam-ink); letter-spacing: .04em; }
+.hud-kids-head small { font-size: .78em; }
+.hud-kids-head .cloud { position: absolute; width: 64px; height: 26px; opacity: .13; pointer-events: none;
+  background: radial-gradient(circle at 24% 70%, var(--fam-ink) 0 9px, transparent 9.5px), radial-gradient(circle at 48% 46%, var(--fam-ink) 0 12px, transparent 12.5px), radial-gradient(circle at 72% 66%, var(--fam-ink) 0 9px, transparent 9.5px), linear-gradient(var(--fam-ink), var(--fam-ink)) 50% 100% / 64% 9px no-repeat; }
+.hud-kids-head .c0 { left: 46%; top: 8px; } .hud-kids-head .c1 { left: 28%; bottom: -6px; transform: scale(.8); }
+.hud-kids-head .bunting { position: absolute; left: 8px; right: 150px; top: 0; height: 14px; }
+.hud-kids-head .mobile { position: absolute; right: 12px; top: 0; display: flex; gap: 10px; padding: 0 4px; }
+.hud-kids-head .mobile .bar { position: absolute; left: 0; right: 0; top: 5px; height: 2px; border-radius: 2px; background: color-mix(in srgb, var(--fam-ink) 45%, transparent); }
+.hud-kids-head .hang { position: relative; display: flex; flex-direction: column; align-items: center; transform-origin: 50% 5px; }
+.hud-kids-head .hang::before { content: ''; width: 1px; height: var(--len, 12px); margin-top: 5px; background: color-mix(in srgb, var(--fam-ink) 40%, transparent); }
+.hud-kids-head .hang svg { width: 21px; height: 21px; filter: drop-shadow(0 3px 3px rgba(0,0,0,.25)); }
+.hud-kids-head .h0 { --len: 10px; color: var(--fam-baby); } .hud-kids-head .h1 { --len: 24px; color: var(--fam-girl); }
+.hud-kids-head .h2 { --len: 15px; color: var(--fam-baby); } .hud-kids-head .h3 { --len: 28px; color: var(--fam-boy); }
+/* Гирлянда флажков: треугольники трёх цветов на ниточке. */
+.hud-kids .bunting { display: block; pointer-events: none; transform-origin: 50% 0;
+  background: linear-gradient(color-mix(in srgb, var(--fam-ink) 40%, transparent), color-mix(in srgb, var(--fam-ink) 40%, transparent)) 0 2px / 100% 1px no-repeat,
+    conic-gradient(from -45deg at 16.67% 100%, var(--fam-girl) 90deg, transparent 0) 0 3px / 66px 11px repeat-x,
+    conic-gradient(from -45deg at 50% 100%, var(--fam-baby) 90deg, transparent 0) 0 3px / 66px 11px repeat-x,
+    conic-gradient(from -45deg at 83.33% 100%, var(--fam-boy) 90deg, transparent 0) 0 3px / 66px 11px repeat-x; }
+
+.hud-kid-toy { width: 24px; height: 24px; fill: color-mix(in srgb, currentColor 18%, transparent); stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+
+/* Трекер: по фишке на малыша. */
+.hud-kid-tracker { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.hud-kid-chip { --c: var(--fam-baby); display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 16px; text-align: left; font: inherit; color: inherit; cursor: pointer;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--c) 22%, transparent), color-mix(in srgb, var(--c) 6%, transparent));
+  border: 1.5px dashed color-mix(in srgb, var(--c) 55%, transparent); transition: transform .25s, box-shadow .25s, border-style .2s; }
+.hud-kid-chip.is-girl { --c: var(--fam-girl); } .hud-kid-chip.is-boy { --c: var(--fam-boy); }
+.hud-kid-chip.is-on { border-style: solid; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 18%, transparent), 0 8px 14px -10px rgba(0,0,0,.6); }
+.hud-kid-chip:hover { transform: translateY(-2px); }
+.hud-kid-chip .toy { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: var(--c);
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 40%, transparent), color-mix(in srgb, var(--c) 12%, transparent)); }
+.hud-kid-chip .who { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
+.hud-kid-chip .who b { font-size: 1em; }
+.hud-kid-chip .who small { font-size: .74em; opacity: .8; }
+.hud-kid-chip .who em { font-style: normal; font-size: .74em; color: color-mix(in srgb, var(--c) 55%, currentColor); }
+.hud-kid-chip .alerts { display: flex; gap: 4px; margin-top: 2px; }
+.hud-kid-chip .alerts i { font-style: normal; font-size: .82em; padding: 0 5px; border-radius: 999px; background: color-mix(in srgb, #f0a03a 30%, transparent); }
+.hud-kid-chip .alerts i.is-late { background: color-mix(in srgb, #e04848 35%, transparent); }
+
+/* Вкладки по именам. */
+.hud-kid-tabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 2px; }
+.hud-kid-tab { --c: var(--fam-baby); padding: 6px 16px; border-radius: 14px 14px 4px 4px; font: inherit; font-weight: 700; cursor: pointer; color: inherit;
+  background: color-mix(in srgb, var(--c) 12%, transparent); border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); border-bottom-width: 3px; transition: background .2s; }
+.hud-kid-tab.is-girl { --c: var(--fam-girl); } .hud-kid-tab.is-boy { --c: var(--fam-boy); }
+.hud-kid-tab.is-on { background: color-mix(in srgb, var(--c) 30%, transparent); border-color: var(--c); }
+
+/* Карточка малыша: обычная карточка в детской рамке с игрушками. */
+.hud-kid-card { --c: var(--fam-baby); position: relative; display: none; padding: 10px; border-radius: 22px;
+  background: radial-gradient(circle, color-mix(in srgb, var(--c) 18%, transparent) 1.4px, transparent 1.8px) 0 0 / 18px 18px, color-mix(in srgb, var(--c) 6%, transparent);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--c) 35%, transparent); }
+.hud-kid-card.is-on { display: block; }
+.hud-kid-card.is-girl { --c: var(--fam-girl); } .hud-kid-card.is-boy { --c: var(--fam-boy); }
+.hud-kid-card > .deco { position: absolute; width: 38px; height: 38px; color: var(--c); opacity: .6; filter: drop-shadow(0 3px 4px rgba(0,0,0,.3)); z-index: 2; pointer-events: none; }
+.hud-kid-card > .d0 { right: 12px; top: 12px; transform: rotate(12deg); }
+.hud-kid-card > .d1 { left: -6px; top: 46%; transform: rotate(-14deg); }
+.hud-kid-card > .d2 { right: -6px; bottom: 18%; transform: rotate(10deg); }
+.hud-kid-card > .d3 { left: 18%; bottom: -8px; transform: rotate(-6deg); }
+.hud-kid-pane { display: block; position: relative; }
+.hud-kid-card .hud-header { border-radius: 16px; }
+.hud-kid-card .hud-row { border-radius: 14px; }
+
+/* Вехи и уход — над «Телом». */
+.hud-kid-care { --c: var(--fam-baby); }
+.hud-kid-care.is-girl { --c: var(--fam-girl); } .hud-kid-care.is-boy { --c: var(--fam-boy); }
+.hud-kid-care .hud-key .is-key { width: 16px; height: 16px; margin-right: 5px; vertical-align: -3px; color: var(--c); }
+.hud-kid-care-body { display: flex; flex-direction: column; gap: 10px; }
+.hud-kid-care .needs { display: flex; flex-wrap: wrap; gap: 6px; }
+.hud-kid-care .need { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px 4px 6px; border-radius: 999px; font-size: .84em; background: color-mix(in srgb, var(--c) 14%, transparent); }
+.hud-kid-care .need i { font-style: normal; }
+.hud-kid-care .need.is-soon { background: color-mix(in srgb, #f0a03a 30%, transparent); }
+.hud-kid-care .need.is-late { background: color-mix(in srgb, #e04848 32%, transparent); }
+.hud-kid-care .ms-line { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.hud-kid-care .m { display: inline-flex; align-items: center; gap: 5px; padding: 4px 10px; border-radius: 12px; font-size: .82em; }
+.hud-kid-care .m.is-done { opacity: .75; background: color-mix(in srgb, currentColor 6%, transparent); }
+.hud-kid-care .m.is-done i { font-style: normal; color: color-mix(in srgb, #4ac67a 80%, currentColor); font-weight: 800; }
+.hud-kid-care .m.is-next { font-size: .92em; font-weight: 700; background: color-mix(in srgb, var(--c) 24%, transparent); box-shadow: 0 0 0 2px color-mix(in srgb, var(--c) 35%, transparent); }
+.hud-kid-care .m.is-next i { display: grid; color: var(--c); }
+.hud-kid-care .m.is-next .hud-kid-toy { width: 18px; height: 18px; }
+.hud-kid-care .m.is-next b { font-weight: 600; font-size: .82em; opacity: .8; margin-left: 4px; }
+.hud-kid-care .m.is-later { opacity: .5; border: 1px dashed color-mix(in srgb, currentColor 30%, transparent); }
+.hud-kid-care .ms-count { display: block; margin-top: 4px; font-size: .72em; opacity: .7; }
+.hud-kid-care .norms { margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; }
+.hud-kid-care .norms > div { padding: 6px 10px; border-radius: 12px; background: color-mix(in srgb, var(--c) 9%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 25%, transparent); }
+.hud-kid-care .norms dt { font-size: .72em; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+.hud-kid-care .norms dt i { font-style: normal; margin-right: 5px; }
+.hud-kid-care .norms dd { margin: 2px 0 0; font-size: .88em; }
+/* Дорожка вех: рельс от рождения, точки вех, малыш на своём дне. */
+.hud-kid-care .ms-track { position: relative; height: 40px; margin: 2px 12px 0; }
+.hud-kid-care .ms-track .rail, .hud-kid-care .ms-track .fill { position: absolute; left: 0; top: 17px; height: 5px; border-radius: 5px; }
+.hud-kid-care .ms-track .fill { width: var(--now); transform-origin: 0 50%; background: linear-gradient(90deg, color-mix(in srgb, var(--c) 30%, transparent), var(--c)); box-shadow: 0 0 8px color-mix(in srgb, var(--c) 45%, transparent); }
+.hud-kid-care .ms-track .rail { right: 0; background: color-mix(in srgb, currentColor 12%, transparent); }
+.hud-kid-care .ms-track .tick { position: absolute; top: 14px; width: 2px; height: 11px; margin-left: -1px; border-radius: 1px; background: color-mix(in srgb, currentColor 35%, transparent); }
+/* Флажок ближайшей вехи: древко и треугольник цвета малыша. */
+.hud-kid-care .ms-track .flag { position: absolute; top: 2px; width: 2px; height: 20px; margin-left: -1px; border-radius: 1px; cursor: help; pointer-events: auto;
+  background: color-mix(in srgb, currentColor 55%, transparent); }
+.hud-kid-care .ms-track .flag::after { content: ''; position: absolute; left: 2px; top: 0; width: 13px; height: 10px; background: var(--c);
+  clip-path: polygon(0 0, 100% 50%, 0 100%); filter: drop-shadow(0 1px 1px rgba(0,0,0,.3)); }
+.hud-kid-care .ms-track u { position: absolute; top: 27px; translate: -50% 0; font-size: .62em; text-decoration: none; white-space: nowrap; color: color-mix(in srgb, currentColor 65%, transparent); }
+.hud-kid-care .ms-track .me { position: absolute; left: var(--now); top: 0; translate: -50% 0; display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; z-index: 1;
+  color: var(--c); background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 30%, var(--fam-inset)), var(--fam-inset)); box-shadow: 0 0 0 2px var(--c), 0 4px 8px -3px rgba(0,0,0,.5); }
+.hud-kid-care .ms-track .me .hud-kid-toy { width: 15px; height: 15px; }
+
+/* Фишка: кольцо — сколько прожито до «взрослой» карточки; дата рождения. */
+.hud-kid-chip .toy { position: relative; }
+.hud-kid-chip .toy::before { content: ''; position: absolute; inset: -4px; border-radius: 50%;
+  background: conic-gradient(var(--c) calc(var(--p, 0) * 1%), color-mix(in srgb, var(--c) 16%, transparent) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px)); mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px)); }
+.hud-kid-chip .who small.born { font-size: .7em; letter-spacing: .02em; }
+
+/* Карточка: строчка-«шов» по краю, флажки сверху, узор по полу. */
+.hud-kid-card::after { content: ''; position: absolute; inset: 5px; border-radius: 17px; pointer-events: none; border: 1.5px dashed color-mix(in srgb, var(--c) 50%, transparent); }
+.hud-kid-card > .bunting { height: 14px; margin: -4px 26px 6px; }
+.hud-kid-card.is-girl { background: radial-gradient(circle, color-mix(in srgb, var(--c) 22%, transparent) 1.6px, transparent 2px) 0 0 / 16px 16px,
+  repeating-linear-gradient(135deg, color-mix(in srgb, var(--c) 7%, transparent) 0 7px, transparent 7px 18px), color-mix(in srgb, var(--c) 6%, transparent); }
+.hud-kid-card.is-boy { background: repeating-linear-gradient(0deg, color-mix(in srgb, var(--c) 8%, transparent) 0 5px, transparent 5px 20px),
+  repeating-linear-gradient(90deg, color-mix(in srgb, var(--c) 8%, transparent) 0 5px, transparent 5px 20px), color-mix(in srgb, var(--c) 6%, transparent); }
+
+/* После родов: «сегодня» на шкале, недели, капли молока. */
+.hud-pp-track > .now { position: absolute; top: 3px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 2px var(--fam-acc), 0 0 8px var(--fam-acc); }
+.hud-pp-weeks { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 3px; margin-top: -4px; }
+.hud-pp-weeks span { text-align: center; font-size: .66em; padding: 2px 0; border-radius: 6px; white-space: nowrap; background: color-mix(in srgb, currentColor 5%, transparent); }
+.hud-pp-weeks .is-done { background: color-mix(in srgb, var(--fam-acc) 24%, transparent); }
+.hud-pp-weeks .is-now { font-weight: 800; box-shadow: inset 0 0 0 1.5px var(--fam-acc); }
+
+.hud-kid-grown { margin: 0; padding: 8px 12px; border-radius: 12px; font-size: .84em; background: var(--fam-inset); box-shadow: inset 0 0 0 1px var(--fam-line); }
+
+/* Движение — только под курсором или после касания (fx-tap от events.js;
+   у карточки и шапки касание ловит вложенная строка — отсюда :has). */
+@media (prefers-reduced-motion: no-preference) {
+  .hud-kid-card:is(:hover, .fx-tap, :has(.fx-tap)) > .deco { animation: hud-fam-wobble 1.8s ease-in-out infinite; }
+  .hud-kid-card:is(:hover, .fx-tap, :has(.fx-tap)) > .d1 { animation-delay: .3s; } .hud-kid-card:is(:hover, .fx-tap, :has(.fx-tap)) > .d2 { animation-delay: .6s; } .hud-kid-card:is(:hover, .fx-tap, :has(.fx-tap)) > .d3 { animation-delay: .9s; }
+  .hud-kid-card:is(:hover, .fx-tap, :has(.fx-tap)) > .bunting, .hud-kids-head:is(:hover, .fx-tap) .bunting { animation: hud-fam-sway 3s ease-in-out infinite; }
+  .hud-kids-head:is(:hover, .fx-tap) .hang { animation: hud-fam-swing 2.4s ease-in-out infinite; }
+  .hud-kids-head:is(:hover, .fx-tap) .h1 { animation-delay: .4s; } .hud-kids-head:is(:hover, .fx-tap) .h2 { animation-delay: .8s; } .hud-kids-head:is(:hover, .fx-tap) .h3 { animation-delay: 1.2s; }
+  .hud-kids-head:is(:hover, .fx-tap) .cloud { animation: hud-fam-drift 6s ease-in-out infinite alternate; }
+  .hud-kids-head:is(:hover, .fx-tap) .c1 { animation-duration: 8s; animation-direction: alternate-reverse; }
+  .hud-fetus:is(:hover, .fx-tap) .hud-fetus-baby .baby { animation: hud-fam-kick 1.6s ease-in-out infinite; transform-origin: 50% 50%; transform-box: fill-box; }
+  .hud-fetus:is(:hover, .fx-tap) .beat path { animation: hud-fam-beat 1.4s linear infinite; }
+  .hud-fetus:is(:hover, .fx-tap) .wombs::before { animation: hud-fam-glow 1.4s ease-in-out infinite; }
+  .hud-kid-care:is(:hover, .fx-tap) .ms-track .me { animation: hud-fam-hop 1.2s ease-in-out infinite; }
+  .hud-kid-care:is(:hover, .fx-tap) .ms-track .fill { animation: hud-mi-fill 1.4s cubic-bezier(.22,.8,.26,1); }
+  .hud-pp:is(:hover, .fx-tap) .breasts .drop { animation: hud-fam-drop 2.2s ease-in infinite; }
+  .hud-pp:is(:hover, .fx-tap) .breasts .d1 { animation-delay: .7s; } .hud-pp:is(:hover, .fx-tap) .breasts .d2 { animation-delay: 1.4s; }
+  .hud-pp:is(:hover, .fx-tap) .hud-pp-track .now { animation: hud-fam-glow 1.6s ease-in-out infinite; }
+  .hud-kid-chip:hover .toy svg { animation: hud-fam-swing 1.6s ease-in-out infinite; }
+}
+@keyframes hud-fam-wobble { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4px; } }
+@keyframes hud-fam-swing { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(8deg); } 75% { transform: rotate(-8deg); } }
+@keyframes hud-fam-kick { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-8deg) scale(1.04); } }
+@keyframes hud-fam-sway { 0%, 100% { transform: rotate(0) scaleY(1); } 50% { transform: rotate(.6deg) scaleY(1.12); } }
+@keyframes hud-fam-drift { from { translate: -10px 0; } to { translate: 14px 2px; } }
+@keyframes hud-fam-beat { from { stroke-dashoffset: 100; } to { stroke-dashoffset: -100; } }
+@keyframes hud-fam-glow { 0%, 100% { opacity: .55; scale: 1; } 30% { opacity: 1; scale: 1.08; } }
+@keyframes hud-fam-hop { 0%, 100% { translate: -50% 0; } 40% { translate: -50% -5px; } }
+@keyframes hud-fam-drop { 0% { opacity: 0; translate: 0 0; } 15% { opacity: .95; } 100% { opacity: 0; translate: 0 16px; } }
+@media (max-width: 600px) {
+  .hud-pp-row { grid-template-columns: 1fr; gap: 2px; }
+  .hud-kid-tracker { grid-template-columns: 1fr; }
+}
+
+/* Имя малыша — круглым почерком, как на бирке в роддоме. */
+.hud-kid-card .hud-header :is(.hud-char-name, .hud-name, h2, h3) { font-family: 'Segoe Print', 'Comic Sans MS', cursive !important; color: var(--c) !important; }
+.hud-kid-card .hud-avatar-placeholder, .hud-kid-card .hud-avatar { box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 55%, transparent) !important; }
+
+/* Узкий экран: малыши в животе — значки сверху, текст и кнопки под ними. */
+.hud-fetus { flex-wrap: wrap; }
+.hud-fetus .txt { flex: 1 1 180px; }
+.hud-fetus-fate .row { min-width: 0; }
+@media (max-width: 600px) {
+  .hud-fetus-btn { white-space: normal; }
+}
+/* Мелкие подписи — не прозрачностью, а приглушённым цветом: на светлых темах
+   прозрачность съедала текст. */
+:is(.hud-pp-head small, .hud-pp-head em, .hud-pp-milk .info small, .hud-kids-head small, .hud-kid-chip .who small, .hud-fetus .txt > small, .hud-kid-care .ms-count, .hud-pp-row > span) {
+  opacity: 1; color: color-mix(in srgb, currentColor 72%, transparent);
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-pp-head small, .hud-pp-head em, .hud-pp-milk .info small, .hud-kids-head small, .hud-kid-chip .who small, .hud-fetus .txt > small, .hud-fetus .looks-head, .hud-kid-care .ms-count, .hud-pp-row > span, .hud-fetus-fate .opts small) {
+  color: var(--lt-ink-soft, #6a5a64) !important; opacity: 1 !important;
+}

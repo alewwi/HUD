@@ -323,7 +323,7 @@
 /* ============================== ФИЗИОЛОГИЯ =============================== */
 
 /* Пульт датчиков */
-.hud-f-phys.is-sensors { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.hud-f-phys.is-sensors { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 180px), 1fr)); gap: 8px; }
 .hud-f-phys.is-sensors .tile {
   position: relative; display: grid; grid-template-columns: 40px minmax(0, 1fr); grid-template-rows: auto 18px; align-items: center; gap: 2px 8px; padding: 8px 10px 6px; border-radius: 12px;
   background: var(--f-inset); box-shadow: inset 0 0 0 1px var(--f-inset-line), inset 0 10px 18px -12px rgba(255,255,255,.1), var(--f-shadow);
@@ -333,7 +333,9 @@
 .hud-f-phys.is-sensors .trk { stroke: color-mix(in srgb, currentColor 12%, transparent); }
 .hud-f-phys.is-sensors .val { stroke: var(--t-acc); filter: drop-shadow(0 0 3px var(--t-acc)); }
 .hud-f-phys.is-sensors .ic { fill: none; stroke: var(--f-ink); stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; transform-origin: 12px 12px; transform: rotate(-135deg); }
-.hud-f-phys.is-sensors .txt { display: flex; align-items: baseline; justify-content: space-between; gap: 6px; min-width: 0; }
+.hud-f-phys.is-sensors .txt { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 6px; min-width: 0; }
+.hud-f-phys.is-sensors .txt b { min-width: 0; overflow-wrap: break-word; word-break: normal; }
+.hud-f-phys.is-sensors .tile { min-width: 0; }
 .hud-f-phys.is-sensors .txt b { font-weight: 600; font-size: .86em; line-height: 1.25; }
 .hud-f-phys.is-sensors .txt small { flex: none; font: 700 .64em var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: var(--f-ink); }
 .hud-f-phys.is-sensors .line { width: 100%; height: 18px; }

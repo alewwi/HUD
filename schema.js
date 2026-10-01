@@ -7,10 +7,10 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.26.0';
-import { mapKey } from './utils.js?v=23.26.0';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.26.0';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.26.0';
+import { settings } from './settings.js?v=23.28.1';
+import { mapKey } from './utils.js?v=23.28.1';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.28.1';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.28.1';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -408,6 +408,8 @@ export function normalizeJSONData(parsed) {
   return {
     // Фаза близости приходит кодом (fp, cx…); шкала фаз узнаёт полные слова.
     scene: mapKeys(parsed.scene), characters: chars.map(mapKeys).map(c => { if (c['Фаза близости']) c['Фаза близости'] = фазаБлизости(c['Фаза близости']); return c; }), user: mapKeys(parsed.user), memory: memoryParsed, chatsMap: chatsMap, phone: phoneParsed, intercepts: interceptsParsed, satchel: satchelParsed, letters: lettersParsed, overheard: overheardParsed, diary: diaryParsed, bodyDiary: bodyDiaryParsed, dreams: dreamsParsed, companions: companionsParsed,
+    // Малыши (bb): та же карточка, что у персонажа, только своё поле «Нужды».
+    babies: (Array.isArray(parsed.babies) ? parsed.babies : (parsed.babies && typeof parsed.babies === 'object' ? [parsed.babies] : [])).filter(b => b && typeof b === 'object').map(mapKeys).filter(b => b['Имя']),
     world: { headlines: cleanArray(world.headlines), rumors: cleanArray(world.rumors),
              // Период, погода, знак и тон приходят кодами — на экран по-русски.
              forecast: cleanArray(world.forecast).map(строкаПрогноза), horoscope: cleanArray(world.horoscope).map(строкаГороскопа),

@@ -11,16 +11,16 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.26.0';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.26.0';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.26.0';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.26.0';
-import { settings, defaultSettings } from './settings.js?v=23.26.0';
-import { getWorldVotes } from './render/world.js?v=23.26.0';
-import { раскрытьПорцию } from './render/long-list.js?v=23.26.0';
-import { прогретьИсторию } from './render/carryover.js?v=23.26.0';
-import { подключитьПалитру } from './color-picker.js?v=23.26.0';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.26.0';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.28.1';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.28.1';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.28.1';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.28.1';
+import { settings, defaultSettings } from './settings.js?v=23.28.1';
+import { getWorldVotes } from './render/world.js?v=23.28.1';
+import { раскрытьПорцию } from './render/long-list.js?v=23.28.1';
+import { прогретьИсторию } from './render/carryover.js?v=23.28.1';
+import { подключитьПалитру } from './color-picker.js?v=23.28.1';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.28.1';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -1641,7 +1641,7 @@ function вернутьПоСобытию(e) {
 // ближайший оживающий элемент класс fx-tap на пару секунд (повторное касание
 // перезапускает движение), а на саму карточку — fx-live, чтобы ожили и слои
 // темы. Обработчик пассивный и ничего не отменяет: клики живут как раньше.
-const ОЖИВАЮТ_ПО_КАСАНИЮ = ".hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-row, .hud-heat, .hud-cycle, .hud-secret-summary, .hud-fam-svg, .hud-phone-app, .hud-phone-lockscreen, .hud-mood-group, .hud-scene-strip-wrap";
+const ОЖИВАЮТ_ПО_КАСАНИЮ = ".hud-kid-card, .hud-kids-head, .hud-fetus, .hud-pp, .hud-kid-care, .hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-row, .hud-heat, .hud-cycle, .hud-secret-summary, .hud-fam-svg, .hud-phone-app, .hud-phone-lockscreen, .hud-mood-group, .hud-scene-strip-wrap";
 const таймерыОживления = new WeakMap();
 function оживить(элемент, класс, мс) {
   clearTimeout(таймерыОживления.get(элемент));

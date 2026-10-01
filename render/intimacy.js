@@ -13,13 +13,15 @@
 // карточки ненадёжны — у неё content-visibility, и браузер может не
 // двигать их время.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.26.0';
-import { namesLikelySame } from '../names.js?v=23.26.0';
-import { разобратьХод } from './carryover.js?v=23.26.0';
-import { parseSceneDate } from '../history-analyzer.js?v=23.26.0';
-import { исходЗачатия } from './conception.js?v=23.26.0';
-import { settings } from '../settings.js?v=23.26.0';
-import { ощущенияИзТекста, одеждаИзТекста, ОБЛАСТИ } from './body-layers.js?v=23.26.0';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.28.1';
+import { namesLikelySame } from '../names.js?v=23.28.1';
+import { разобратьХод } from './carryover.js?v=23.28.1';
+import { parseSceneDate } from '../history-analyzer.js?v=23.28.1';
+import { исходЗачатия } from './conception.js?v=23.28.1';
+import { блокПлодов } from './fetus.js?v=23.28.1';
+import { кровотечение } from './fertility.js?v=23.28.1';
+import { settings } from '../settings.js?v=23.28.1';
+import { ощущенияИзТекста, одеждаИзТекста, ОБЛАСТИ } from './body-layers.js?v=23.28.1';
 
 const пусто = (v) => { const s = String(v ?? '').trim(); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
 const число = (s) => { const m = String(s ?? '').replace(/(\d),(\d)/g, '$1.$2').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };
@@ -801,11 +803,13 @@ export function рискЗачатия(день, L, фаза, контекст =
   else if (фаза === 'ovulation') шанс = .3;
   else if (фаза === 'follicular') шанс = .08;
   const защита = защитаИз(контекст.защита);
-  const итог = шанс * (защита ? защита.доля : 1);
+  // Бесплодие, болезни, кормление грудью — во сколько раз меньше шанс.
+  const пл = контекст.плодовитость || null;
+  const итог = шанс * (защита ? защита.доля : 1) * (пл ? пл.доля : 1);
   const секс = String(контекст.секс || '').trim();
   const был = секс && !/^(empty|none|нет|не было)$/i.test(секс);
   return {
-    шанс: итог, базовый: шанс, защита,
+    шанс: итог, базовый: шанс, защита, причины: пл ? пл.причины : [],
     бросок: был ? бросок(секс + '|' + (день || фаза || '')) : null,
   };
 }
@@ -831,7 +835,7 @@ function блокТеста(исход, была) {
     + `<div class="hud-test ${исход.беременна ? 'is-pos' : 'is-neg'}">`
     + `<span class="hud-test-stick" aria-hidden="true"><i class="hud-test-window"><b class="c-line"></b>${исход.беременна ? '<b class="t-line"></b>' : ''}</i></span>`
     + `<div class="hud-test-result"><strong>${исход.беременна ? '+' : '−'}</strong><p>${исход.беременна ? 'Получилось — беременность' : 'Не получилось'}</p>${кнопкаСудьбы(исход)}</div>`
-    + `</div></details>` : '';
+    + `</div>${исход.беременна && исход.кто ? блокПлодов(исход.кто) : ''}</details>` : '';
 }
 function блокРиска(р, исход, была) {
   const проц = Math.round(р.шанс * 100);
@@ -841,6 +845,7 @@ function блокРиска(р, исход, была) {
     + `<div class="hud-conception-head"><span>Риск зачатия</span><b>${проц}%</b></div>`
     + `<i class="hud-conception-bar" aria-hidden="true"><i style="width:${Math.min(100, проц * 3)}%"></i></i>`
     + `<small>${р.защита ? `${escapeHtml(р.защита.имя)}: из ${Math.round(р.базовый * 100)}% остаётся ${проц}%` : `без защиты — ${Math.round(р.базовый * 100)}% в этот день цикла`}</small>`
+    + (р.причины && р.причины.length ? `<div class="hud-fert-reasons">${р.причины.map(п => `<span class="${п.доля === 0 ? 'is-zero' : ''}"><i aria-hidden="true">${п.доля === 0 ? '⊘' : '↓'}</i>${escapeHtml(п.имя)}<b>${п.доля === 0 ? 'зачатие невозможно' : '×' + String(п.доля).replace('.', ',')}</b></span>`).join('')}</div>` : '')
     + тест + `</div>`;
 }
 
@@ -1123,6 +1128,13 @@ export function buildCycle(value, контекст = {}) {
     + вид(В)
     + строка('Месячные', п['следующие месячные'])
     + строка('ПМС', п['пмс'])
+    + (() => {
+        // Сила кровотечения в дни месячных — каплями.
+        const кр = !опоздание && фаза === 'menstrual' && день ? кровотечение(день, pl) : null;
+        return кр ? `<div class="hud-cycle-row is-flow"><span>Кровотечение</span><p><i class="hud-flow" aria-hidden="true">${[1, 2, 3].map(k => `<s${k <= кр.капли ? ' class="on"' : ''}></s>`).join('')}</i>${кр.слово}</p></div>` : '';
+      })()
+    + (Array.isArray(контекст.сбой) && контекст.сбой.length ? `<div class="hud-cycle-row is-shift"><span>Сбой цикла</span><p>${контекст.сбой.map(escapeHtml).join('<br>')}</p></div>` : '')
+    + (контекст.пытаются ? `<div class="hud-cycle-row is-trying is-${контекст.пытаются.уровень}"><span>Пытаются</span><p>${escapeHtml(контекст.пытаются.текст)}</p></div>` : '')
     + (опоздание ? строка('Причина задержки', п['причина задержки'] || 'не названа', ' is-late') : '')
     + (() => {
         const р = рискЗачатия(день, L, фаза, { ...контекст, ov });

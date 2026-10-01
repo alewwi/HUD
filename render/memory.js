@@ -6,16 +6,17 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.26.0';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.26.0';
-import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.26.0';
-import { отложитьРисунок } from './lazy-svg.js?v=23.26.0';
-import { длинныйСписок } from './long-list.js?v=23.26.0';
-import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.26.0';
-import { статусРужья } from '../codes.js?v=23.26.0';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.28.1';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.28.1';
+import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.28.1';
+import { отложитьРисунок } from './lazy-svg.js?v=23.28.1';
+import { длинныйСписок } from './long-list.js?v=23.28.1';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.28.1';
+import { статусРужья } from '../codes.js?v=23.28.1';
 
 function parseRoutePoint(item) {
-  const parts = String(item).split(/[-—–]/).map(s => s.trim());
+  // Модель иногда ставит дату перед временем («09.11, 22:15») — дату отбрасываем.
+  const parts = String(item).replace(/^\s*\d{1,2}[./]\d{1,2}(?:[./]\d{2,4})?\s*,?\s*(?=\d{1,2}\s*:\s*\d{2})/, '').split(/\s*[—–]\s*|\s+-\s*|\s*-\s+|(?<=:\d\d)-/).map(s => s.trim());
   const time = parts[0] || '';
   const place = parts[1] || '';
   const action = parts.slice(2).join(' — ') || '';

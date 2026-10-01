@@ -1,37 +1,38 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings, настройка, КЛЮЧИ_АВТО, МИНИМАЛИЗМ } from './settings.js?v=23.26.0';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue, имяДляВкладки } from './utils.js?v=23.26.0';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.26.0';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.26.0';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.26.0';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.26.0';
-import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.26.0';
-import { mergeCarryOver, вернутьЧерты, сдвигиДоверия } from './render/carryover.js?v=23.26.0';
-import { привязатьИсторию, ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.26.0';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.26.0';
-import { ПРИМЕР_HUD_ТЕКСТ, БАЗОВЫЙ_HUD_ТЕКСТ } from './render/sample-hud.js?v=23.26.0';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.26.0';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.26.0';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.26.0';
-import { buildMemoryHTML } from './render/memory.js?v=23.26.0';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.26.0';
-import { buildPhoneTabsHTML } from './render/phone.js?v=23.26.0';
-import { праздникиСцены } from './render/holidays.js?v=23.26.0';
-import { скрытыеФактыЗачатия, изменитьСудьбу, откатитьСудьбу, отметитьТест } from './render/conception.js?v=23.26.0';
-import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.26.0';
-import { hudHasRelations } from './render/relations-graph.js?v=23.26.0';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.26.0';
-import { чипЛуны, теньЛуны, титрыСцены, карточкаПоворота } from './render/extras.js?v=23.26.0';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.26.0';
-import { applyThemeClass, presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.26.0';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.26.0';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.26.0';
-import { clearCache, cacheUsage, getChatMessages, parseSceneDate } from './history-analyzer.js?v=23.26.0';
-import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.26.0';
-import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.26.0';
-import { создатьПроверкуПолноты } from './hud-check.js?v=23.26.0';
-import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.26.0';
+import { hexToRgba, settings, defaultSettings, настройка, КЛЮЧИ_АВТО, МИНИМАЛИЗМ } from './settings.js?v=23.28.1';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue, имяДляВкладки } from './utils.js?v=23.28.1';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.28.1';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.28.1';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.28.1';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.28.1';
+import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.28.1';
+import { mergeCarryOver, вернутьЧерты, сдвигиДоверия } from './render/carryover.js?v=23.28.1';
+import { привязатьИсторию, ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.28.1';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.28.1';
+import { ПРИМЕР_HUD_ТЕКСТ, БАЗОВЫЙ_HUD_ТЕКСТ } from './render/sample-hud.js?v=23.28.1';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.28.1';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.28.1';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.28.1';
+import { buildMemoryHTML } from './render/memory.js?v=23.28.1';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.28.1';
+import { buildPhoneTabsHTML } from './render/phone.js?v=23.28.1';
+import { праздникиСцены } from './render/holidays.js?v=23.28.1';
+import { скрытыеФактыЗачатия, изменитьСудьбу, откатитьСудьбу, отметитьТест, узнатьПол, изменитьПлоды, откатитьПлоды, зарегистрироватьРоды, роды, естьЗачатия } from './render/conception.js?v=23.28.1';
+import { buildBabiesHTML, hudHasBabies } from './render/babies.js?v=23.28.1';
+import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.28.1';
+import { hudHasRelations } from './render/relations-graph.js?v=23.28.1';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.28.1';
+import { чипЛуны, теньЛуны, титрыСцены, карточкаПоворота } from './render/extras.js?v=23.28.1';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.28.1';
+import { applyThemeClass, presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.28.1';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.28.1';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.28.1';
+import { clearCache, cacheUsage, getChatMessages, parseSceneDate } from './history-analyzer.js?v=23.28.1';
+import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.28.1';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.28.1';
+import { создатьПроверкуПолноты } from './hud-check.js?v=23.28.1';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.28.1';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -107,6 +108,21 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     // модель не должна читать про телефон, которого у неё не просят.
     const болезни = settings.enableIllness !== false;
     const беременность = settings.enablePregnancy !== false;
+    // После родов промт беременности уступает место послеродовому периоду и
+    // трекеру малышей — замена, а не прибавка. Беременность остаётся, пока
+    // кто-то ещё беременен: HUD знает о зачатии или Prg есть в прошлом HUD.
+    const родыБыли = беременность && роды().length > 0;
+    const снимокТекст = родыБыли ? JSON.stringify(последнийСнимокОбъект() || {}) : '';
+    const prgВСнимке = /"Prg"\s*:\s*"(?!(?:empty|none)")(?![^"]*brn\s*:)/i.test(снимокТекст);
+    const беременностьВПромпт = беременность && (!родыБыли || естьЗачатия() || prgВСнимке);
+
+    const порогМалышей = Math.max(1, Number(settings.babyGraduateYears) || 3) * 365;
+    const датаСнимка = (() => { const m = снимокТекст.match(/"Dt"\s*:\s*"([^"]+)"/); return m ? parseSceneDate(m[1]) : null; })();
+    const возрастРодов = (р) => { const д = parseSceneDate(р.когда) ?? р.дата; return д !== null && д !== undefined && датаСнимка !== null ? (датаСнимка - д) / 864e5 : 0; };
+    const малышиВПромпт = родыБыли && settings.enableBabies !== false && роды().some(р => возрастРодов(р) < порогМалышей);
+    const выросли = родыБыли ? роды().filter(р => возрастРодов(р) >= порогМалышей) : [];
+    // Послеродовое — пока идёт восстановление и кормление: до двух лет с родов.
+    const послеродовоеВПромпт = родыБыли && роды().some(р => возрастРодов(р) < 730);
     const цикл = settings.enableMenstruation !== false;
     // Интимная часть целиком — только когда сцена идёт или начинается.
     const интим = nsfw !== false;
@@ -196,8 +212,9 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
    "R": "[role: occupation and position in the story — who they are to the others]",
    "B": "[body and mind: current physical and mental state in a phrase or two — tired, tense, tipsy, calm, shaken]",
    "H": "[health: ${болезни ? 'overall physical state in a phrase — pain, stamina, how they hold up; specific illnesses and injuries go to Ill, never its codes here' : 'wounds, pain, illness, stamina'}. 'empty' when all is well.]",${болезни ? `
-   "Ill": "[illnesses, injuries and traumas, ONLY if any — otherwise omit. One group per condition, separated by |, each 'nm: diagnosis, wound or trauma; sg: fresh, worsening, stable, healing, chronic or healed; rc: recovery 0-100%; sy: symptoms now; trt: treatment'. Track each condition until it heals, updating stage, recovery and symptoms as in-story time passes; a scratch gone by tomorrow can stay in H. Keep each condition under the SAME name every turn and in ONE field only${следы ? (интим ? ' — marks left by intimacy (hickeys, bites, scratches, soreness) go to Mrk unless they become a real injury, and nothing is in both Ill and Mrk' : ' — marks that simply fade (bruises, grazes, redness) go to Mrk, and nothing is in both Ill and Mrk') : ''}]",` : ''}${беременность ? `
-   "Prg": "[pregnancy, ONLY once a pregnancy exists in the story, known or not — never invent one; otherwise omit. 'wk: week of pregnancy as a number; due: expected due date; fa: the father, if known; sy: symptoms and how the body is changing; knw: who knows about it; cnd: how the pregnancy is going; gnd: baby's sex once an ultrasound shows it (from ~18-20 wk), else omit; bnm: chosen name, if any; vis: next doctor's visit or test; crv: cravings and odd appetites'. It advances with in-story time]",` : ''}${цикл ? `
+   "Ill": "[illnesses, injuries and traumas, ONLY if any — otherwise omit. One group per condition, separated by |, each 'nm: diagnosis, wound or trauma; sg: fresh, worsening, stable, healing, chronic or healed; rc: recovery 0-100%; sy: symptoms now; trt: treatment'. Track each condition until it heals, updating stage, recovery and symptoms as in-story time passes; a scratch gone by tomorrow can stay in H. Keep each condition under the SAME name every turn and in ONE field only${следы ? (интим ? ' — marks left by intimacy (hickeys, bites, scratches, soreness) go to Mrk unless they become a real injury, and nothing is in both Ill and Mrk' : ' — marks that simply fade (bruises, grazes, redness) go to Mrk, and nothing is in both Ill and Mrk') : ''}]",` : ''}${беременностьВПромпт ? `
+   "Prg": "[pregnancy, ONLY once a pregnancy exists in the story, known or not — never invent one; otherwise omit. 'wk: week of pregnancy as a number; due: expected due date; fa: the father, if known; sy: symptoms and how the body is changing; knw: who knows about it; cnd: how the pregnancy is going; gnd: baby's sex once an ultrasound shows it (from ~18-20 wk), else omit; bnm: chosen name, if any; vis: next doctor's visit or test; crv: cravings and odd appetites; brn: ONLY on the turn the baby is born — date and time of the birth; from the next turn drop Prg'. It advances with in-story time]",` : ''}${послеродовоеВПромпт ? `
+   "Pp": "[after childbirth, ONLY for a woman who has given birth in the story — otherwise omit. 'bf: breast, formula or mixed; lfd: time of the last breastfeed as HH:MM; brs: breasts — fullness, pain, leaking, nipples; sy: how she feels — healing, bleeding, tiredness, mood'. Keep it while she recovers and feeds]",` : ''}${цикл ? `
    "Mns": "[menstrual cycle, ONLY for someone with a uterus — otherwise omit. 'cyd: cycle day, a number; cyl: cycle length in days; phs: menstrual, follicular, ovulation, luteal or late; nxt: next period date; pms: PMS window as dates; dly: days late, 0 if none; rsn: likely reason for delay — stress, illness, contraception, pregnancy; empty if none'. It moves forward with in-story days: the day grows, the phase follows, the period comes on time unless stress, illness, contraception or pregnancy delays it]",` : ''}
    "Ph": "[physiology: bodily sensations right now — hunger, thirst, cold, pain, drowsiness${интим ? ', arousal' : ''}. Not the phone]",
 ${состояниеТела ? `   "Bs": "[body state, numbers 0-100 each followed by a word: 'eng: energy — a word; awk: alertness; sat: satiety; str: stress; slp: last night's sleep — hours and when they went to bed; dut: the work or study duty ahead and when'. The numbers follow the story: effort, hunger and sleepless hours lower them, food, rest and sleep restore them; stress rises with danger and conflict]",
@@ -251,8 +268,9 @@ ${интим ? `   "SxL": "[last sex: 'dt: when — date, time, place; pr: with 
   "C": "[clothing: what {{user}} is wearing right now and its state]",
   "Ap": "[appearance: physical appearance only — build, height, hair, eyes, marks]",
   "H": "[health: ${болезни ? 'overall physical state in a phrase; illnesses and injuries go to Ill, never repeated here' : 'physical state only — wounds, pain, illness, stamina'}]",${болезни ? `
-  "Ill": "[illnesses and injuries of {{user}}, ONLY if any — otherwise omit. Same format and rules as for characters: groups separated by |, each 'nm: what it is; sg: fresh, worsening, stable, healing, chronic or healed; rc: recovery 0-100%; sy: symptoms; trt: treatment'. Keep each condition under the SAME name every turn and in ONE field only${следы ? (интим ? ' — marks left by intimacy (hickeys, bites, scratches, soreness) go to Mrk unless they become a real injury, and nothing is in both Ill and Mrk' : ' — marks that simply fade (bruises, grazes, redness) go to Mrk, and nothing is in both Ill and Mrk') : ''}]",` : ''}${беременность ? `
-  "Prg": "[pregnancy of {{user}}, ONLY if pregnant — otherwise omit. 'wk: week as a number; due: expected due date; fa: the father, if known; sy: symptoms; knw: who knows; cnd: how it is going; gnd: baby's sex once an ultrasound shows it (from ~18-20 wk), else omit; bnm: chosen name, if any; vis: next doctor's visit or test; crv: cravings and odd appetites']",` : ''}${цикл ? `
+  "Ill": "[illnesses and injuries of {{user}}, ONLY if any — otherwise omit. Same format and rules as for characters: groups separated by |, each 'nm: what it is; sg: fresh, worsening, stable, healing, chronic or healed; rc: recovery 0-100%; sy: symptoms; trt: treatment'. Keep each condition under the SAME name every turn and in ONE field only${следы ? (интим ? ' — marks left by intimacy (hickeys, bites, scratches, soreness) go to Mrk unless they become a real injury, and nothing is in both Ill and Mrk' : ' — marks that simply fade (bruises, grazes, redness) go to Mrk, and nothing is in both Ill and Mrk') : ''}]",` : ''}${беременностьВПромпт ? `
+  "Prg": "[pregnancy of {{user}}, ONLY if pregnant — otherwise omit. 'wk: week as a number; due: expected due date; fa: the father, if known; sy: symptoms; knw: who knows; cnd: how it is going; gnd: baby's sex once an ultrasound shows it (from ~18-20 wk), else omit; bnm: chosen name, if any; vis: next doctor's visit or test; crv: cravings and odd appetites; brn: ONLY on the turn the baby is born — date and time']",` : ''}${послеродовоеВПромпт ? `
+  "Pp": "[after childbirth of {{user}}, ONLY if she has given birth — otherwise omit. Same format as for characters: 'bf: breast, formula or mixed; lfd: last breastfeed HH:MM; brs: breasts; sy: how she feels']",` : ''}${цикл ? `
   "Mns": "[menstrual cycle of {{user}}, ONLY with a uterus — otherwise omit. Same format and rules as for characters: 'cyd: day; cyl: length; phs: menstrual, follicular, ovulation, luteal or late; nxt: next period; pms: PMS window; dly: days late; rsn: reason for delay']",` : ''}
   "Rl": "[relationships: how {{user}} feels about EVERY other named person who matters now — same format and rules as for characters; bidirectional with their Rl; separate by ;]",
 ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and rules as for characters: '<what>: <where> — <how it looks and feels now> | <fade time: 12h, 3d>'; the same mark keeps the same name every turn and is never also in Ill; 'empty' when there are none]",
@@ -270,7 +288,7 @@ ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and ru
    "chr": {"nw": "[current mood of {{char}} in a word or two]", "hs": ["[HH:MM] - [mood at that time]", "history: a new line every time the mood shifts, up to 12"]}
   },
   "rt": {
-   "us": ["[HH:MM] - [place] - [arrived | left | stayed | moving]", "route: one line per movement, up to 20; [] when absent from the scene"],
+   "us": ["[HH:MM] - [place] - [arrived | left | stayed | moving]", "route: one line per movement, up to 20; [] when absent from the scene. Time only, no date. The place is in Russian words even when the story is set abroad: 'вход в Колдуэлл-холл', not 'Caldwell Hall entrance'"],
    "chr": ["[HH:MM] - [place] - [arrived | left | stayed | moving]", "route: one line per movement, up to 20; [] when absent from the scene"]
   },
   "fct": ["[fact: an important or newly learned fact, stated plainly, people by their real names]", "facts: as many lines as matter"],${ружья ? `
@@ -466,6 +484,13 @@ ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and ru
  ]`;
     }
 
+    if (малышиВПромпт) {
+      p += `,
+ "bb": [
+  {"N": "[the child's name — one object per child born in the story younger than ${Math.max(1, Number(settings.babyGraduateYears) || 3)} years; older children go to cs as regular characters]", "sx": "[boy or girl]", "A": "[age: days, weeks or months since birth, e.g. '12 дней', '3 месяца']", "C": "[what the child is wearing or wrapped in right now]", "Ap": "[appearance: size, hair, eyes, skin, marks — a baby's look changes month to month]", "R": "[who the child is to the family, e.g. 'дочь Софи и Тристана']", "B": "[body and mood right now in a phrase — sleepy, fussy, calm, giggling, teething]", "H": "[health in a phrase]", "Ill": "[illnesses, ONLY if any — same format as for characters]", "Mrk": "[visible marks, ONLY if any — rash, bruise, scratch, birthmark]", "Nds": "[needs: 'fed: time of the last feeding HH:MM and what — breast, bottle, purée; slp: asleep or awake and since when HH:MM; dpr: time of the last diaper change HH:MM']", "L": "[where the child is right now and with whom]", "K": "[what occupies the child right now — impressions, each with an emoji; at least 2; separate by ;]", "I": "[the child's things nearby — toys, pacifier, blanket — each '<item>: <state>'; separate by ;]", "S": "[the child's routine ahead — feeding, nap, bath, walk, doctor — each '<time> - <event>'; separate by ;]", "Rl": "[how the child reacts to each person — calms with whom, smiles at whom; '<name>: <reaction>'; separate by ;]", "Tr": "[attachment 0-100 to each person: '<name>: <0-100>'; separate by ;]", "Fr": "[fears, ONLY if any — loud noises, strangers, the dark: '<what>: <low | moderate | high | panic>']", "Ln": "[ONLY once the child really speaks — words or short phrases they say, in «», separated by ;. Omit before that]"}
+ ]`;
+    }
+
     if (settings.enableWorld) {
       const фон = 'matching the setting\'s era and place — a medieval town has bread prices and a travelling troupe, not the dollar and cinemas; background colour and a source of scene hooks, never something the story must follow';
       p += `,
@@ -490,6 +515,7 @@ ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and ru
     // Скрытые факты: итог «кубика» зачатия. Знает автор, персонажи — нет,
     // пока нет теста или признаков (render/conception.js).
     if (беременность) p += скрытыеФактыЗачатия();
+    if (выросли.length) p += `\n\n## 👶 GROWN CHILDREN\nChildren born${выросли.map(р => р.когда || 'earlier').join(', ')} are now older than ${Math.max(1, Number(settings.babyGraduateYears) || 3)} years: track them in cs as regular characters, never in bb.`;
 
     // Снимок — макросом {{hudLast}}: блок исчезает целиком, когда прошлого HUD
     // нет. Переносы строк снаружи {{if}}: движок ST срезает края содержимого.
@@ -632,6 +658,25 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       }
     } catch (_) {}
     return '';
+  }
+
+  // Для отладки и стенда: собрать инструкцию HUD без генерации.
+  try { window.__tavernosHudPrompt = (o) => buildDynamicPrompt(o); } catch (_) {}
+
+  // Прошлый HUD объектом (коды как в снимке) — для решений о составе промта.
+  function последнийСнимокОбъект() {
+    try {
+      const ctx = window.SillyTavern?.getContext?.();
+      const чат = Array.isArray(ctx?.chat) ? ctx.chat : [];
+      for (let j = чат.length - 1; j >= 0; j--) {
+        const m = чат[j];
+        if (!m || m.is_user || m.is_system) continue;
+        const текстХода = m.swipes && m.swipes[m.swipe_id] !== undefined ? m.swipes[m.swipe_id] : m.mes;
+        const блок = extractHudBlock(String(текстХода || ''));
+        if (блок) return собратьСнимок(блок);
+      }
+    } catch (_) {}
+    return null;
   }
 
   let макросHUDЗарегистрирован = false;
@@ -1780,7 +1825,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     let tRaw = data.scene['Время'] || '', wRaw = data.scene['Погода'] || '', dRaw = data.scene['Дата'] || '';
     // Дата сцены нужна блоку цикла (календарь, лунный диск): кладём её
     // персонажам и игроку скрытым полем — в JSON и в сравнения оно не попадает.
-    const датаДляЦикла = (о) => { if (о && typeof о === 'object') Object.defineProperty(о, '__датаСцены', { value: dRaw, configurable: true, writable: true, enumerable: false }); };
+    const датаДляЦикла = (о) => { if (о && typeof о === 'object') { Object.defineProperty(о, '__датаСцены', { value: dRaw, configurable: true, writable: true, enumerable: false }); Object.defineProperty(о, '__времяСцены', { value: tRaw, configurable: true, writable: true, enumerable: false }); } };
     (Array.isArray(data.characters) ? data.characters : []).forEach(датаДляЦикла);
     датаДляЦикла(data.user);
     // День сюжета — для «Счёта дней» под именем (считаем, только когда он включён).
@@ -2312,6 +2357,12 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       const uid = `pets-${baseId}`;
       addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🐾 Спутники</div>`,
         uid, (active) => buildCompanionsHTML(data.companions, uid, active));
+    }
+
+    if (settings.enableBabies !== false && hudHasBabies(data.babies)) {
+      const uid = `babies-${baseId}`;
+      addTab(`<div class="hud-tab hud-kids-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🍼 Детская</div>`,
+        uid, (active) => buildBabiesHTML(data.babies, uid, active, data.scene || {}));
     }
 
     if (hudHasMeaningfulWorld(data.world) && settings.enableWorld) {
@@ -2903,6 +2954,34 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     if (mes) mes.__hudUiState = readCardUiState(mes);
     перерисоватьКарточкиЧата();
   });
+  // Малыши в животе: «Узнать пол», «Изменить судьбу» (число, пол), «Откатить».
+  // Роды: «Роды состоялись». Вкладки детей в «Детской» — без перерисовки.
+  document.addEventListener('click', (e) => {
+    const цель = e.target && e.target.closest && e.target.closest('[data-hud-fetus], [data-hud-birth], .hud-kid-tab, .hud-kid-chip');
+    if (!цель || !цель.closest('.hud-os-card')) return;
+    e.preventDefault(); e.stopPropagation();
+    if (цель.matches('.hud-kid-tab, .hud-kid-chip')) {
+      const комната = цель.closest('.hud-kids');
+      const i = цель.dataset.kid;
+      комната.querySelectorAll('.hud-kid-tab, .hud-kid-chip').forEach(к => к.classList.toggle('is-on', к.dataset.kid === i));
+      комната.querySelectorAll('.hud-kid-card').forEach(к => к.classList.toggle('is-on', к.dataset.kidCard === i));
+      return;
+    }
+    const кто = цель.dataset.kto;
+    let вышло = false;
+    if (цель.dataset.hudBirth) {
+      const сцена = (() => { try { const ctx = getStContextSafe(); const чат = ctx && ctx.chat || []; for (let j = чат.length - 1; j >= 0; j--) { const м = чат[j]; if (м && !м.is_user) { const b = extractHudBlock(String(м.mes || '')); if (b) { const о = собратьСнимок(b); return о && о.sc && о.sc.Dt; } } } } catch (_) {} return ''; })();
+      вышло = зарегистрироватьРоды(кто, { когда: String(сцена || ''), дата: parseSceneDate(сцена) });
+    } else {
+      const д = цель.dataset.hudFetus;
+      вышло = д === 'roll' ? узнатьПол(кто) : д === 'undo' ? откатитьПлоды(кто) : изменитьПлоды(кто, д, цель.dataset.val);
+    }
+    if (!вышло) return;
+    const mes = цель.closest('.mes');
+    if (mes) mes.__hudUiState = readCardUiState(mes);
+    перерисоватьКарточкиЧата();
+  });
+
   // Игрок сам нажал «Сделать тест» — узнал итог. Только теперь беременность
   // уходит модели, а у {{user}} появляется плашка-напоминание. Ловим именно
   // клик: раскрытие при восстановлении состояния тестом не считается.
@@ -4531,6 +4610,9 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
         ${подгруппа('👤 Персонажи', `
           ${галка('hud-enable-illness', settings.enableIllness !== false, '🩹 Болезни и травмы', 'Болезни и травмы со стадией, симптомами, лечением и шкалой выздоровления — у персонажей и у игрока. Просится у модели, пишется только когда есть.')}
           ${галка('hud-enable-pregnancy', settings.enablePregnancy !== false, '🤰 Беременность', 'Срок, триместр, симптомы и дата родов у того, кто беременен. Просится у модели, пишется только когда есть.')}
+          ${галка('hud-enable-babies', settings.enableBabies !== false, '🍼 Роды и малыши', 'После родов промт беременности уходит, вместо него — послеродовой период (кормление, молоко) и вкладка «Детская»: вехи развития, нормы ухода и карточка каждого малыша.')}
+          <label class="hud-set-check" title="Когда ребёнок старше — он уходит из «Детской» в обычные карточки персонажей, с тем же промтом">🎓 Из «Детской» в карточки с ${число('hud-baby-years', 1, 12, Math.max(1, Number(settings.babyGraduateYears) || 3), 52)} лет</label>
+          <label class="hud-set-check" title="Число малышей и их пол (кубик или «изменить судьбу»): скрытым фактом для модели или только для тебя">👶 Число и пол малышей → модели: <select id="hud-baby-facts" class="hud-set-select"><option value="hidden"${settings.babyFactsToModel !== 'off' ? ' selected' : ''}>скрытым фактом</option><option value="off"${settings.babyFactsToModel === 'off' ? ' selected' : ''}>не отправлять — только для меня</option></select></label>
           ${галка('hud-enable-menstruation', settings.enableMenstruation !== false, '🌸 Менструальный цикл', 'День цикла, фаза, ожидаемые месячные, окно ПМС и задержка — кольцом, с советами по фазе. Только у тех, у кого есть матка, в том числе у игрока.')}
           ${галка('hud-enable-perception', settings.enablePerception !== false, '👁 Что о тебе думают', 'Как к вам относится каждый персонаж и насколько доверяет. Считается из карточек, модель ничего не дописывает.')}
           ${галка('hud-enable-familytree', settings.enableFamilyTree !== false, '🌳 Генеалогическое дерево', 'Вторым видом в графе отношений: родители, дети, супруги, братья и сёстры по родству из «Отношений». Появляется, только когда родство есть.')}
@@ -4870,7 +4952,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     document.getElementById('hud-enable-diary').addEventListener('change', (e) => { settings.enableDiary = e.target.checked; saveSettings(); });
     document.getElementById('hud-enable-dreams').addEventListener('change', (e) => { settings.enableDreams = e.target.checked; saveSettings(); });
     document.getElementById('hud-enable-world').addEventListener('change', (e) => { settings.enableWorld = e.target.checked; saveSettings(); });
-    [['hud-enable-guns', 'enableGuns'], ['hud-enable-illness', 'enableIllness'], ['hud-enable-pregnancy', 'enablePregnancy'],
+    [['hud-enable-guns', 'enableGuns'], ['hud-enable-illness', 'enableIllness'], ['hud-enable-pregnancy', 'enablePregnancy'], ['hud-enable-babies', 'enableBabies'],
      ['hud-enable-companions', 'enableCompanions'], ['hud-enable-bodystate', 'enableBodyState'], ['hud-enable-twists', 'enableTwists'], ['hud-enable-perception', 'enablePerception'], ['hud-enable-familytree', 'enableFamilyTree'], ['hud-enable-assistant', 'enableAssistant'],
      ['hud-enable-menstruation', 'enableMenstruation'], ['hud-enable-intimacy-extras', 'enableIntimacyExtras'], ['hud-enable-heatmap', 'enableHeatMap'],
      ['hud-enable-economy', 'enableEconomy'], ['hud-enable-events', 'enableEvents'], ['hud-enable-city', 'enableCity'], ['hud-enable-horoscope', 'enableHoroscope'],
@@ -4908,7 +4990,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=23.26.0');
+        const mod = await import('./render/archive.js?v=23.28.1');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -4951,6 +5033,8 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
         if (наЭкране(mes) && restoreEvictedCard(mes)) safeProcessMessage(mes);
       });
     });
+    document.getElementById('hud-baby-years')?.addEventListener('change', (e) => { let v = parseInt(e.target.value, 10); if (isNaN(v)) v = 3; v = Math.max(1, Math.min(12, v)); settings.babyGraduateYears = v; e.target.value = v; saveSettings(); });
+    document.getElementById('hud-baby-facts')?.addEventListener('change', (e) => { settings.babyFactsToModel = e.target.value === 'off' ? 'off' : 'hidden'; saveSettings(); });
     document.getElementById('hud-memory-max-height').addEventListener('change', (e) => { let v=parseInt(e.target.value,10); if(isNaN(v)) v=300; v=Math.max(200,Math.min(600,v)); settings.memoryMaxHeight=v; e.target.value=v; saveSettings(); applyThemeColors(); });
     
 
