@@ -1,0 +1,29 @@
+/* =========================================================================
+   ТЕЛЕФОН: длинные списки карточек — каруселью вбок.
+   «В близости» (возбуждение, желание, готовность, прикосновения…),
+   болезни и следы на теле на узком экране шли столбиком на несколько
+   экранов. Теперь карточки идут лентой: листаются пальцем, каждая
+   прилипает к краю, у правого края — затухание и краешек следующей
+   карточки: видно, что там есть ещё.
+   Сами карточки — компактнее: меньше отступы и шрифт.
+   Работает, только когда карточек две и больше.
+   ========================================================================= */
+@media (max-width: 600px) {
+  .hud-os-card :is(.hud-nsfw-list, .hud-ill-list, .hud-marks):has(> :nth-child(2)) {
+    display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: flex-start;
+    gap: 10px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+    padding: 2px 2px 10px !important; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--hud-accent, #c31f38) 45%, transparent) transparent;
+    -webkit-mask: linear-gradient(90deg, #000 calc(100% - 22px), transparent); mask: linear-gradient(90deg, #000 calc(100% - 22px), transparent);
+  }
+  .hud-os-card :is(.hud-nsfw-list, .hud-ill-list, .hud-marks):has(> :nth-child(2)) > * {
+    flex: 0 0 84% !important; max-width: 84% !important; min-width: 0; margin: 0 !important; scroll-snap-align: start; box-sizing: border-box;
+  }
+  /* Последняя карточка доходит до края — без затухания поверх неё. */
+  .hud-os-card :is(.hud-nsfw-list, .hud-ill-list, .hud-marks):has(> :nth-child(2)) > :last-child { margin-right: 18px !important; }
+  /* Компактнее: отступы и шрифт внутри карточек. */
+  .hud-os-card .hud-nsfw-pill { padding: 8px 11px !important; font-size: .9em; }
+  .hud-os-card .hud-nsfw-pill .hud-pill-label { font-size: .84em !important; padding: 2px 9px !important; }
+  .hud-os-card .hud-ill { padding: 9px 11px !important; }
+  .hud-os-card .hud-ill-head b { font-size: .95em; }
+  .hud-os-card .hud-ill-row { font-size: .88em; }
+}
