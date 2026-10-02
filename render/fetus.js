@@ -6,10 +6,10 @@
 // тройня — и сочетания пола под каждый тип. «↺ Откатить» возвращает кубик.
 // Клики ловит index.js (data-hud-fetus). Оформление — css/family.css.
 
-import { escapeHtml } from '../utils.js?v=23.30.1';
-import { плодыОт, ТИПЫ_ПЛОДОВ, СОЧЕТАНИЯ, словоПолов } from './conception.js?v=23.30.1';
-import { наследование } from './fertility.js?v=23.30.1';
-import { видСемьи, видПлодов } from './family-views.js?v=23.30.1';
+import { escapeHtml } from '../utils.js?v=23.31.0';
+import { плодыОт, ТИПЫ_ПЛОДОВ, СОЧЕТАНИЯ, словоПолов } from './conception.js?v=23.31.0';
+import { наследование } from './fertility.js?v=23.31.0';
+import { видСемьи, видПлодов } from './family-views.js?v=23.31.0';
 
 // Малыш в плодном пузыре: свернувшийся эмбрион (голова, спинка дугой,
 // ручка у лица, ножки), пуповина, объём от градиента и блик.
@@ -51,7 +51,7 @@ export function блокПлодов(кто, { вСюжете = false, полИ�
       ? `<span class="sex"><b>${escapeHtml(п.словоПолов)}</b>${п.судьбаПола ? '<i class="fate-mark" title="Изменено судьбой">✦︎</i>' : ''}</span>`
       : `<button type="button" class="hud-fetus-btn is-roll" data-hud-fetus="roll" ${данные} title="Бросить кубик на пол — увидишь только ты и HUD">🎲 Узнать пол</button>`;
   // Глаза и волосы — по одному прогнозу на малыша.
-  const похож = (мама || папа) ? полы.map((_, i) => наследование(мама, папа, п.кто + '|' + i)).filter(Boolean) : [];
+  const похож = [].concat(мама, папа).some(Boolean) ? полы.map((_, i) => наследование(мама, папа, п.кто + '|' + i)).filter(Boolean) : [];
   const черта = (ч, что, вид) => ч ? `<span class="trait is-${вид}"><i style="--sw:${ОБРАЗЦЫ[ч.имя] || '#999'}"></i>${ч.имя} ${что}<small>${ч.шанс}%</small></span>` : '';
   const строкаПохож = похож.length ? `<div class="looks"><small class="looks-head">на кого похож${п.число > 1 ? 'и' : ''}</small>${похож.map((н, i) => `<span class="looks-row">${п.число > 1 ? `<b>${i + 1}</b>` : ''}${черта(н.глаза, 'глаза', 'eye')}${черта(н.волосы, 'волосы', 'hair')}</span>`).join('')}</div>` : '';
   // Выбор судьбы: тип и сочетания пола под него.

@@ -4,24 +4,24 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.30.1';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.30.1';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.30.1';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=23.30.1';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.31.0';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.31.0';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.31.0';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=23.31.0';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.30.1';
-import { buildPregnancy } from './pregnancy.js?v=23.30.1';
-import { buildPostpartum } from './postpartum.js?v=23.30.1';
-import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды } from './conception.js?v=23.30.1';
-import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.30.1';
-import { parseSceneDate } from '../history-analyzer.js?v=23.30.1';
-import { settings, настройка } from '../settings.js?v=23.30.1';
-import { namesLikelySame } from '../names.js?v=23.30.1';
-import { видСостоянияТела } from './extras.js?v=23.30.1';
-import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ } from './views-fields.js?v=23.30.1';
-import { parseRelationList } from './relations-graph.js?v=23.30.1';
-import { отложитьРисунок } from './lazy-svg.js?v=23.30.1';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.30.1';
+  активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.31.0';
+import { buildPregnancy } from './pregnancy.js?v=23.31.0';
+import { buildPostpartum } from './postpartum.js?v=23.31.0';
+import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды } from './conception.js?v=23.31.0';
+import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.31.0';
+import { parseSceneDate } from '../history-analyzer.js?v=23.31.0';
+import { settings, настройка } from '../settings.js?v=23.31.0';
+import { namesLikelySame } from '../names.js?v=23.31.0';
+import { видСостоянияТела } from './extras.js?v=23.31.0';
+import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ } from './views-fields.js?v=23.31.0';
+import { parseRelationList } from './relations-graph.js?v=23.31.0';
+import { отложитьРисунок } from './lazy-svg.js?v=23.31.0';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.31.0';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле', 'состояние тела'];
@@ -378,14 +378,31 @@ export function плодовитостьЧеловека(данные, кто, �
 
 // Беременность: кто носит, внешность мамы и отца (для «на кого похож») и
 // отметка родов, когда модель пишет «brn» или «родила» в ходе беременности.
+// Описание из карточки персонажа в Таверне (или персоны игрока) — запасной
+// источник цвета глаз и волос, когда в HUD-внешности их нет.
+function описаниеИзКарточки(имя, игрок = false) {
+  try {
+    const ctx = window.SillyTavern?.getContext?.();
+    if (игрок) return String(ctx?.powerUserSettings?.persona_description || window.power_user?.persona_description || '');
+    const к = (ctx && Array.isArray(ctx.characters) ? ctx.characters : []).find(c => c && c.name && namesLikelySame(c.name, имя));
+    return к ? String(к.description || (к.data && к.data.description) || '') : '';
+  } catch (_) { return ''; }
+}
+
 export function контекстБеременности(данные, кто, value, людиВокруг = null) {
   const текст = String(value || '');
   const поле = (код) => (текст.match(new RegExp('(?:^|;)\\s*' + код + '\\s*[:：]\\s*([^;]+)', 'i')) || [])[1] || '';
   const отец = поле('fa').trim();
   const люди = людиВокруг || (данные && данные.__соседи) || [];
   const п = отец ? люди.find(ч => ч && ч.имя && namesLikelySame(ч.имя, отец.split(/[,(—–-]/)[0].trim())) : null;
-  const мама = снятьЗаглушки(flattenFieldValue(полеОбъекта(данные, 'Внешность', 'Ap')));
-  const папа = п ? снятьЗаглушки(flattenFieldValue(полеОбъекта(п.данные, 'Внешность', 'Ap'))) : '';
+  // Внешность для прогноза «на кого похож»: сначала «Внешность» из HUD, а
+  // если цвет глаз или волос там не назван — описание из карточки Таверны
+  // (у игрока — описание персоны).
+  const имяМамы = кто === 'user' ? getSafeUserName() : String(кто || '').replace(/^char:/, '');
+  const мама = [снятьЗаглушки(flattenFieldValue(полеОбъекта(данные, 'Внешность', 'Ap'))), описаниеИзКарточки(имяМамы, кто === 'user')].filter(Boolean);
+  const имяПапы = отец.split(/[,(—–]/)[0].trim();
+  const папаИгрок = !!имяПапы && namesLikelySame(getSafeUserName(), имяПапы);
+  const папа = [п ? снятьЗаглушки(flattenFieldValue(полеОбъекта(п.данные, 'Внешность', 'Ap'))) : '', имяПапы ? описаниеИзКарточки(имяПапы, папаИгрок) : ''].filter(Boolean);
   const родила = поле('brn').trim();
   const ход = поле('cnd');
   if (кто && (родила && !/^(empty|none|нет)$/i.test(родила) || /(?:^|\s)(?:родила|роды\s+(?:прошли|состоялись)|gave\s+birth|has\s+given\s+birth)/i.test(ход))) {

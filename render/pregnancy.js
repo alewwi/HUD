@@ -9,9 +9,9 @@
 // силуэт живота и советы по триместру. Для этого модели не нужно писать ни
 // одного лишнего слова.
 
-import { escapeHtml, applyTooltips, перевестиМетку } from '../utils.js?v=23.30.1';
-import { parseSceneDate } from '../history-analyzer.js?v=23.30.1';
-import { блокПлодов } from './fetus.js?v=23.30.1';
+import { escapeHtml, applyTooltips, перевестиМетку } from '../utils.js?v=23.31.0';
+import { parseSceneDate } from '../history-analyzer.js?v=23.31.0';
+import { блокПлодов } from './fetus.js?v=23.31.0';
 
 // Размер малыша по неделям: сравнение, рост (до 20-й недели — от темени до
 // копчика, дальше — во весь рост) и вес. Средние значения, у живого
@@ -202,6 +202,8 @@ export function buildPregnancy(value, контекст = {}) {
     + (роды !== null ? `<small>роды ${оценка ? '≈ ' : ''}${escapeHtml(вид('роды') && !оценка ? вид('роды') : дм(роды))}</small>` : '') + `</div>`
     + (отсчёт ? `<div class="hud-prg-count${/переношено|держать сумку|сегодня/.test(отсчёт) ? ' is-soon' : ''}">${escapeHtml(отсчёт)}</div>` : '')
     + шкала
+    // Всегда видно только срок и шкалу; остальное — по нажатию «Подробнее».
+    + `<details class="hud-prg-more"><summary><span class="open">Подробнее</span><span class="close">Свернуть</span></summary>`
     + (н !== null ? `<div class="hud-prg-main">${силуэт(н)}${малыш}</div>` : '')
     + строка('Малыш', малышИмя)
     // Сколько малышей и какого пола: кубик, «Узнать пол», «Изменить судьбу».
@@ -215,5 +217,5 @@ export function buildPregnancy(value, контекст = {}) {
     + строка('Родила', вид('родила'))
     + (контекст.кто && !вид('родила') ? `<div class="hud-birth-row"><button type="button" class="hud-birth-btn" data-hud-birth="1" data-kto="${escapeHtml(контекст.кто)}" title="Отметить роды: дальше HUD ведёт малышей и послеродовой период, а промт беременности уходит">👶 Роды состоялись</button></div>` : '')
     + (советы.length ? `<ul class="hud-prg-tips">${советы.map((с, i) => `<li${i === советы.length - 1 ? ' class="is-alarm"' : ''}>${escapeHtml(с)}</li>`).join('')}</ul>` : '')
-    + `</div>`;
+    + `</details></div>`;
 }
