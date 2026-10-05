@@ -3638,21 +3638,25 @@
 }
 
 /* Активация анимации капель (стекают вниз) при тапе */
-.hud-scene-widget.fx-active.temp-drops .hud-fx-temp::before {
+.hud-scene-widget:is(.fx-active, .fx-hold).temp-drops .hud-fx-temp::before {
     animation: hud-drip-1 12s ease-in-out infinite;
 }
-.hud-scene-widget.fx-active.temp-drops .hud-fx-temp::after {
+.hud-scene-widget.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on).temp-drops .hud-fx-temp::before { animation-play-state: paused !important; }
+.hud-scene-widget:is(.fx-active, .fx-hold).temp-drops .hud-fx-temp::after {
     animation: hud-drip-2 18s ease-in-out infinite 6s;
 }
+  .hud-scene-widget.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on).temp-drops .hud-fx-temp::after { animation-play-state: paused !important; }
 
 /* Активация при наведении мыши на ПК */
 @media (hover: hover) {
-    .hud-scene-widget:hover.temp-drops .hud-fx-temp::before {
+    .hud-scene-widget:is(:hover, .fx-hold).temp-drops .hud-fx-temp::before {
         animation: hud-drip-1 12s ease-in-out infinite;
     }
-    .hud-scene-widget:hover.temp-drops .hud-fx-temp::after {
+    .hud-scene-widget.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on).temp-drops .hud-fx-temp::before { animation-play-state: paused !important; }
+    .hud-scene-widget:is(:hover, .fx-hold).temp-drops .hud-fx-temp::after {
         animation: hud-drip-2 18s ease-in-out infinite 6s;
     }
+  .hud-scene-widget.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on).temp-drops .hud-fx-temp::after { animation-play-state: paused !important; }
 }
 
 /* Ключевые кадры: капли появляются из ниоткуда и плавно ползут вниз */

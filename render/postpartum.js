@@ -7,11 +7,11 @@
 // сколько нужно в сутки, наполненность груди по времени с кормления.
 // Оформление — css/family.css.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок } from '../utils.js?v=23.31.0';
-import { parseSceneDate } from '../history-analyzer.js?v=23.31.0';
-import { родыЧьи, словоПолов } from './conception.js?v=23.31.0';
-import { послеродовое, видКормления, часовМежду } from './fertility.js?v=23.31.0';
-import { видСемьи, видПослеродового } from './family-views.js?v=23.31.0';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок } from '../utils.js?v=23.36.1';
+import { parseSceneDate } from '../history-analyzer.js?v=23.36.1';
+import { родыЧьи, словоПолов, деньРодов } from './conception.js?v=23.36.1';
+import { послеродовое, видКормления, часовМежду } from './fertility.js?v=23.36.1';
+import { видСемьи, видПослеродового } from './family-views.js?v=23.36.1';
 
 function метки(value) {
   const о = {};
@@ -28,10 +28,12 @@ export function buildPostpartum(value, { кто = '', сцена = '', врем�
   const п = метки(value);
   const р = кто ? родыЧьи(кто) : null;
   const сценаMs = parseSceneDate(сцена);
-  const дата = р ? (parseSceneDate(р.когда) ?? р.дата) : null;
+  const дата = р ? деньРодов(р, сценаMs) : null;
   const дней = дата !== null && дата !== undefined && сценаMs !== null && сценаMs >= дата ? Math.round((сценаMs - дата) / 864e5) : null;
   const кормление = видКормления(п['кормление'] || value);
-  const часы = часовМежду(п['последнее кормление'], время);
+  // «Кормление планируется» — ещё не кормила: «lfd: 00:00» тогда не время, а заглушка.
+  const ещёНеКормила = /планир|ещё не|еще не|не кормил|not yet|planned/i.test(п['кормление'] || '');
+  const часы = ещёНеКормила ? NaN : часовМежду(п['последнее кормление'], время);
   const с = дней !== null ? послеродовое(дней, { кормление, часыСКормления: часы, детей: (р && р.число) || 1 }) : null;
   const строка = (подпись, текст, класс = '') => текст ? `<div class="hud-pp-row${класс}"><span>${escapeHtml(подпись)}</span><p>${applyTooltips(текст)}</p></div>` : '';
   // Грудь объёмом: каплевидная форма, свет сверху-слева и тень снизу, ареола
@@ -64,7 +66,7 @@ export function buildPostpartum(value, { кто = '', сцена = '', врем�
   }
 
   return `<div class="hud-pp">`
-    + `<div class="hud-pp-head"><span class="ico" aria-hidden="true">🤱</span><b>${дней === null ? 'После родов' : `${дней} ${скл(дней, 'день', 'дня', 'дней')} после родов`}</b>`
+    + `<div class="hud-pp-head"><span class="ico" aria-hidden="true">🤱</span><b>${дней === null ? 'После родов' : дней === 0 ? 'Роды сегодня' : `${дней} ${скл(дней, 'день', 'дня', 'дней')} после родов`}</b>`
     + (с ? `<em>${escapeHtml(с.этап)}</em>` : '') + (р && р.полы ? `<small>${escapeHtml(словоПолов(р.полы))}</small>` : '') + `</div>`
     + (с ? `<div class="hud-pp-track"><i style="width:${Math.min(100, дней / 42 * 100).toFixed(1)}%"></i><s style="left:${(10 / 42 * 100).toFixed(1)}%"></s><s style="left:${(25 / 42 * 100).toFixed(1)}%"></s><span>6 недель восстановления</span><b class="now" style="left:${Math.min(100, дней / 42 * 100).toFixed(1)}%" aria-hidden="true"></b></div>`
       + `<div class="hud-pp-weeks" aria-hidden="true">${[1, 2, 3, 4, 5, 6].map(н => `<span class="${дней >= н * 7 ? 'is-done' : дней >= (н - 1) * 7 ? 'is-now' : ''}">${н} нед</span>`).join('')}</div>` : '')

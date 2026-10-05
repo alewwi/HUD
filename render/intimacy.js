@@ -13,15 +13,16 @@
 // карточки ненадёжны — у неё content-visibility, и браузер может не
 // двигать их время.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.31.0';
-import { namesLikelySame } from '../names.js?v=23.31.0';
-import { разобратьХод } from './carryover.js?v=23.31.0';
-import { parseSceneDate } from '../history-analyzer.js?v=23.31.0';
-import { исходЗачатия } from './conception.js?v=23.31.0';
-import { блокПлодов } from './fetus.js?v=23.31.0';
-import { кровотечение } from './fertility.js?v=23.31.0';
-import { settings } from '../settings.js?v=23.31.0';
-import { ощущенияИзТекста, одеждаИзТекста, ОБЛАСТИ } from './body-layers.js?v=23.31.0';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.36.1';
+import { namesLikelySame } from '../names.js?v=23.36.1';
+import { разобратьХод } from './carryover.js?v=23.36.1';
+import { parseSceneDate } from '../history-analyzer.js?v=23.36.1';
+import { исходЗачатия } from './conception.js?v=23.36.1';
+import { блокПлодов } from './fetus.js?v=23.36.1';
+import { кровотечение } from './fertility.js?v=23.36.1';
+import { settings } from '../settings.js?v=23.36.1';
+import { одеждаПодробно, слойОдежды, темпИзТекста, блокТемпа, проникновенияИзТекста, меткиПроникновения, строкиПроникновения } from './scene-body.js?v=23.36.1';
+import { ощущенияИзТекста } from './body-layers.js?v=23.36.1';
 
 const пусто = (v) => { const s = String(v ?? '').trim(); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
 const число = (s) => { const m = String(s ?? '').replace(/(\d),(\d)/g, '$1.$2').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };
@@ -110,6 +111,9 @@ function форматМинут(м) {
   return ч + ' ч' + (мин ? ' ' + мин + ' мин' : '');
 }
 
+export function блокТемпаСцены(c) {
+  return блокТемпа(темпИзТекста(поле(c, 'Поза'), поле(c, 'NSFW'), поле(c, 'NSFW (Юзер)')));
+}
 export function buildSceneStrip(c) {
   const взять = (k) => { const v = поле(c, k); return пусто(v) ? '' : v; };
   const поза = взять('Поза'), раунд = взять('Раунд'), длит = взять('Длительность');
@@ -424,7 +428,11 @@ export function buildHeatMap(value, владелец, начальный = 'both
   if (!зоны.length) return '';
   const следы = активныеСледы(поле(владелец, 'Следы на теле'), владелец).filter(с => с.зона);
   const ощущения = ощущенияИзТекста(поле(владелец, 'Физиология'), поле(владелец, 'Тело'));
-  const одежда = одеждаИзТекста(поле(владелец, 'Одежда'));
+  // Одежда по фигуре, темп и проникновение — render/scene-body.js.
+  const одежда = одеждаПодробно(поле(владелец, 'Одежда'));
+  const текстыСцены = [поле(владелец, 'Поза'), поле(владелец, 'NSFW'), поле(владелец, 'NSFW (Юзер)')];
+  const темп = темпИзТекста(...текстыСцены);
+  const проникн = проникновенияИзТекста(...текстыСцены.slice(1), текстыСцены[0]);
   const id = новыйId('heat');
 
   // Кадры истории: прошлые ходы этого персонажа с картой тела, от старого к
@@ -457,8 +465,7 @@ export function buildHeatMap(value, владелец, начальный = 'both
 
   const сторона = (s) => {
     const кадрыСтороны = кадры.map((к, i) => `<g class="z-frame${i === сейчас ? ' is-now' : ''}" data-frame="${i}">${пятнаКадра(к.карта, s)}</g>`).join('');
-    const ткань = одежда.filter(в => в.состояние !== 'off' && ОБЛАСТИ[в.id])
-      .map(в => `<path class="z-cloth c-${в.id} is-${в.состояние}" d="${ОБЛАСТИ[в.id]}"><title>${escapeHtml(в.текст)}</title></path>`).join('');
+    const ткань = слойОдежды(одежда, s, id);
     let метки_ = '';
     const занято = {};
     следы.forEach(с => {
@@ -481,7 +488,7 @@ export function buildHeatMap(value, владелец, начальный = 'both
       + `<g clip-path="url(#${id}-clip)"><rect width="90" height="190" fill="url(#${id}-scan)"/>`
       + `<g class="z-detail">${ДЕТАЛИ[s].map(d => `<path d="${d}"/>`).join('')}</g>`
       + `<g class="z-cloth-layer">${ткань}</g><g class="z-heat-layer">${кадрыСтороны}</g></g>`
-      + `<g class="z-organ-layer">${органы}</g><g class="z-mark-layer">${метки_}</g></g>`;
+      + `<g class="z-organ-layer">${органы}</g><g class="z-mark-layer">${метки_}</g><g class="z-pen-layer">${меткиПроникновения(проникн, s, темп)}</g></g>`;
   };
 
   // «Крупно» — вокруг самой горячей зоны текущего хода.
@@ -507,7 +514,8 @@ export function buildHeatMap(value, владелец, начальный = 'both
     + `<div class="hud-heat-layers" role="group" aria-label="Слои">${слой('heat', '🔥 Чувствительность', true)}`
     + (следы.length ? слой('marks', '💋 Следы', true) : '')
     + (ощущения.length ? слой('organs', '💓 Ощущения', true) : '')
-    + (одежда.length ? слой('cloth', '👗 Одежда', false) : '') + `</div></div>`;
+    + (одежда.length ? слой('cloth', '👗 Одежда', true) : '')
+    + (проникн.length ? слой('pen', '◎ Проникновение', true) : '') + `</div></div>`;
 
   const время = кадры.length > 1
     ? `<div class="hud-heat-time"><span>как менялась</span><input type="range" min="0" max="${сейчас}" step="1" value="${сейчас}" data-heat-time aria-label="Ход"`
@@ -523,7 +531,7 @@ export function buildHeatMap(value, владелец, начальный = 'both
   const доп = (ощущения.length ? `<div class="hud-heat-organs">${ощущения.map(о => `<div class="hud-heat-organ o-${о.id}"><i aria-hidden="true">${о.значок}</i><b>${escapeHtml(о.имя)}</b><span>${applyTooltips(о.куски.join('; '))}</span></div>`).join('')}</div>` : '')
     + (одежда.length ? `<div class="hud-heat-clothes">${одежда.map(в => `<div class="hud-heat-cloth is-${в.состояние}"><b>${escapeHtml(в.имя)}</b><small>${СОСТОЯНИЕ[в.состояние]}</small><span>${applyTooltips(в.текст)}</span></div>`).join('')}</div>` : '');
 
-  return `<div class="hud-heat${одежда.length ? ' hide-cloth' : ''}">${панель}<div class="hud-heat-figure">${svg}<div class="hud-heat-scale" aria-hidden="true"><span>0</span><i></i><span>10</span></div>${время}</div><div class="hud-heat-list">${строки}${доп}</div></div>`;
+  return `<div class="hud-heat${одежда.голый ? ' is-nude' : ''}">${панель}<div class="hud-heat-figure">${svg}<div class="hud-heat-scale" aria-hidden="true"><span>0</span><i></i><span>10</span></div>${время}</div><div class="hud-heat-list">${строкиПроникновения(проникн, темп)}${строки}${доп}</div></div>`;
 }
 
 /* --- Следы на теле --------------------------------------------------------
@@ -767,7 +775,7 @@ const ЗАЩИТА_ЗАЧАТИЯ = [
   [/(?:без|не\s+(?:надел|использовал|взял|предохранял)[а-яё]*|забыл[а-яё]*(?:\s+про)?|\bno|\bwithout)\s+(?:a\s+)?(?:презерватив|кондом|резинк|защит|контрацеп|таблет|condom|protection)|unprotected|bareback/i, 1, 'без защиты'],
   [/пропуст[а-яё]*\s+(?:при[её]м\s+)?таблет|missed\s+(?:a\s+)?pill/i, .5, 'пропущенная таблетка'],
   [/без защит|не предохран|none|нет защит|кончил (?:в неё|внутрь)|в неё кончил/i, 1, 'без защиты'],
-  [/спирал|внутриматоч|iud|имплант/i, .02, 'спираль'],
+  [/спирал|внутриматоч|iud|имплант/i, .01, 'спираль'],
   [/таблет|противозачат|(?<![а-яё])ок(?![а-яё])|гормональ|pill/i, .08, 'таблетки'],
   [/экстренн|постинор|plan b|morning.after/i, .2, 'экстренная контрацепция'],
   [/презерватив|кондом|condom/i, .15, 'презерватив'],

@@ -8,7 +8,7 @@
 /* =========================================================================
    ДОВЕРИЕ «Сердца»: стеклянные сердца-сосуды, большое сердце с числом
    ========================================================================= */
-.hud-v-trust.is-hearts { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+.hud-v-trust.is-hearts { grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); }
 .hud-v-heartcard { overflow: hidden; }
 .hud-v-heart-mark {
   position: absolute; right: -14px; bottom: -18px; width: 86px; height: 86px; pointer-events: none; opacity: .09;

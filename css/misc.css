@@ -206,7 +206,7 @@
    разной высоте, сравнить два значения глазом было нельзя. */
 .hud-bodymap {
   display: grid; gap: 5px 10px;
-  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr));
 }
 .hud-zone {
   display: grid; align-items: center; gap: 8px;
@@ -2010,7 +2010,7 @@
    ========================================================================= */
 
 /* Что о тебе думают */
-.hud-perc-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; width: 100%; }
+.hud-perc-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 8px; width: 100%; }
 .hud-perc {
   display: flex; gap: 10px; align-items: flex-start; padding: 9px 10px; border-radius: 12px;
   background: rgba(255,255,255,.04); border: 1px solid var(--hud-border, rgba(255,255,255,.12));
@@ -2089,7 +2089,7 @@
 }
 
 /* Спутники */
-.hud-body.hud-pets { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.hud-body.hud-pets { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 10px; }
 .hud-pet { padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,.045); border: 1px solid var(--hud-border, rgba(255,255,255,.12)); }
 .hud-pet-head { display: flex; align-items: center; gap: 10px; }
 .hud-pet-ava {
@@ -2166,7 +2166,7 @@
 }
 .hud-dash-chip input { margin: 0; accent-color: #3987e5; }
 .hud-dash-chip.is-on { opacity: 1; background: rgba(57,135,229,.12); border-color: rgba(57,135,229,.45); }
-.hud-dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: 10px; align-items: start; }
+.hud-dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); gap: 10px; align-items: start; }
 .hud-dash-card { margin: 0; min-width: 0; }
 .hud-dash-grid .hud-arc-tiles { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); margin-bottom: 8px; }
 .hud-dash-grid .hud-arc-tile b { font-size: 19px; }
@@ -2426,7 +2426,7 @@
 .hud-eco-chg { font-style: normal; font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); text-align: right; white-space: nowrap; }
 .hud-eco-chg i { font-style: normal; margin-right: 3px; font-size: 9px; }
 .hud-eco-row.is-note { grid-template-columns: 1fr; color: var(--hud-text-muted, #c3c2b7); }
-.hud-afisha-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 8px; }
+.hud-afisha-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 8px; }
 .hud-afisha-card {
   display: flex; flex-direction: column; gap: 3px; padding: 8px 10px; border-radius: 10px;
   background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); min-width: 0;
@@ -2705,7 +2705,7 @@
 }
 
 /* --- Мир: афиша билетами ------------------------------------------------- */
-.hud-afisha-grid { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 10px; }
+.hud-afisha-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); gap: 10px; }
 .hud-afisha-card {
   --tk: #e0b96a; flex-direction: row; gap: 0; padding: 0; border: 0; border-radius: 8px; overflow: hidden; min-height: 76px;
   background: linear-gradient(135deg, color-mix(in srgb, var(--tk) 22%, #2a2520), #1a1714);
@@ -3142,7 +3142,8 @@
 @media (prefers-reduced-motion: no-preference) {
   @media (hover: hover) {
     :is(.hud-row:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns)), .hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row):hover { transform: translateY(-3px) !important; filter: drop-shadow(0 7px 10px rgba(0,0,0,.38)) drop-shadow(0 0 0 transparent); z-index: 2; }
-    :is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-scene-chip, .hud-phase-step, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-row.nsfw:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns))):hover { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite; }
+    :is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-scene-chip, .hud-phase-step, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-row.nsfw:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns))):is(:hover, .fx-hold) { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite; }
+  :is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-scene-chip, .hud-phase-step, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-row.nsfw:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns))).fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) { animation-play-state: paused !important; }
     .hud-row:hover .hud-key-ico > span { transform: scale(1.1); }
     .hud-key-item:hover .hud-emoji { transform: scale(1.1); }
     .hud-fear:hover .hud-fear-ico { transform: scale(1.1); }
@@ -3165,32 +3166,52 @@
     .hud-org:hover .hud-org-meter > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1); }
     .hud-heat-row:hover .hud-heat-bar > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1); }
     .hud-mark:hover .hud-mark-heal-track > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1); }
-    .hud-nsfw-list.is-act .hud-nsfw-pill:hover::before { animation: hud-mo-spine 1.8s ease-in-out infinite; }
-    .hud-nsfw-list.is-act .hud-nsfw-pill:hover::after { opacity: 1; animation: hud-mo-heat-sheen 3.4s ease-in-out infinite; }
-    .hud-nsfw-list.is-act .hud-nsfw-pill:hover .hud-pill-label { animation: hud-mo-warm 2.6s ease-in-out infinite alternate; }
-    .hud-nsfw-list.is-after .hud-nsfw-pill:hover::before { animation: hud-mo-cool 4.4s ease-in-out infinite alternate; }
-    .hud-nsfw-list.is-after .hud-nsfw-pill:hover::after { opacity: 1; animation: hud-mo-afterglow 4.4s ease-in-out infinite alternate; }
-    .hud-nsfw-list.is-after .hud-nsfw-pill:hover .hud-pill-label { animation: hud-mo-drift 4.4s ease-in-out infinite alternate; }
+    .hud-nsfw-list.is-act .hud-nsfw-pill:is(:hover, .fx-hold)::before { animation: hud-mo-spine 1.8s ease-in-out infinite; }
+  .hud-nsfw-list.is-act .hud-nsfw-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::before { animation-play-state: paused !important; }
+    .hud-nsfw-list.is-act .hud-nsfw-pill:is(:hover, .fx-hold)::after { opacity: 1; animation: hud-mo-heat-sheen 3.4s ease-in-out infinite; }
+  .hud-nsfw-list.is-act .hud-nsfw-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after { animation-play-state: paused !important; }
+    .hud-nsfw-list.is-act .hud-nsfw-pill:is(:hover, .fx-hold) .hud-pill-label { animation: hud-mo-warm 2.6s ease-in-out infinite alternate; }
+  .hud-nsfw-list.is-act .hud-nsfw-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-pill-label { animation-play-state: paused !important; }
+    .hud-nsfw-list.is-after .hud-nsfw-pill:is(:hover, .fx-hold)::before { animation: hud-mo-cool 4.4s ease-in-out infinite alternate; }
+  .hud-nsfw-list.is-after .hud-nsfw-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::before { animation-play-state: paused !important; }
+    .hud-nsfw-list.is-after .hud-nsfw-pill:is(:hover, .fx-hold)::after { opacity: 1; animation: hud-mo-afterglow 4.4s ease-in-out infinite alternate; }
+  .hud-nsfw-list.is-after .hud-nsfw-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after { animation-play-state: paused !important; }
+    .hud-nsfw-list.is-after .hud-nsfw-pill:is(:hover, .fx-hold) .hud-pill-label { animation: hud-mo-drift 4.4s ease-in-out infinite alternate; }
+  .hud-nsfw-list.is-after .hud-nsfw-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-pill-label { animation-play-state: paused !important; }
     .hud-vit:hover .hud-vit-deco path { animation: hud-mi-draw-300 2.6s ease-in-out; }
     .hud-vit:hover .hud-vit-spark polyline { animation: hud-mi-draw-200 2s ease-in-out; }
     .hud-vit:hover .hud-vit-gauge > i { animation: hud-mi-gauge 1.6s cubic-bezier(.22,.8,.26,1); }
     .hud-prot:hover .hud-prot-ico .mk { animation: hud-mi-draw-40 1.6s ease-in-out .2s both; }
-    .hud-sound:hover .hud-sound-eq i:nth-child(1) { animation: hud-mi-eq 1.1s ease-in-out 0s infinite alternate; }
-    .hud-sound:hover .hud-sound-eq i:nth-child(2) { animation: hud-mi-eq 0.9s ease-in-out 0.25s infinite alternate; }
-    .hud-sound:hover .hud-sound-eq i:nth-child(3) { animation: hud-mi-eq 1.3s ease-in-out 0.1s infinite alternate; }
-    .hud-sound:hover .hud-sound-eq i:nth-child(4) { animation: hud-mi-eq 1s ease-in-out 0.4s infinite alternate; }
-    .hud-scene-chip.is-round:hover .hud-round-dots i:nth-child(1) { animation: hud-mi-glow 2.4s ease-in-out 0.0s infinite; }
-    .hud-scene-chip.is-round:hover .hud-round-dots i:nth-child(2) { animation: hud-mi-glow 2.4s ease-in-out 0.3s infinite; }
-    .hud-scene-chip.is-round:hover .hud-round-dots i:nth-child(3) { animation: hud-mi-glow 2.4s ease-in-out 0.6s infinite; }
-    .hud-scene-chip.is-round:hover .hud-round-dots i:nth-child(4) { animation: hud-mi-glow 2.4s ease-in-out 0.9s infinite; }
-    .hud-scene-chip.is-round:hover .hud-round-dots i:nth-child(5) { animation: hud-mi-glow 2.4s ease-in-out 1.2s infinite; }
-    .hud-heat:hover .hud-heat-svg .z-heat { animation: hud-mi-breathe 3.2s ease-in-out infinite alternate; }
-    .hud-heat:hover .hud-heat-svg .z-mark-halo { animation: hud-mi-ping 2.8s cubic-bezier(.2,.6,.3,1) infinite; }
+    .hud-sound:is(:hover, .fx-hold) .hud-sound-eq i:nth-child(1) { animation: hud-mi-eq 1.1s ease-in-out 0s infinite alternate; }
+  .hud-sound.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-sound-eq i:nth-child(1) { animation-play-state: paused !important; }
+    .hud-sound:is(:hover, .fx-hold) .hud-sound-eq i:nth-child(2) { animation: hud-mi-eq 0.9s ease-in-out 0.25s infinite alternate; }
+  .hud-sound.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-sound-eq i:nth-child(2) { animation-play-state: paused !important; }
+    .hud-sound:is(:hover, .fx-hold) .hud-sound-eq i:nth-child(3) { animation: hud-mi-eq 1.3s ease-in-out 0.1s infinite alternate; }
+  .hud-sound.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-sound-eq i:nth-child(3) { animation-play-state: paused !important; }
+    .hud-sound:is(:hover, .fx-hold) .hud-sound-eq i:nth-child(4) { animation: hud-mi-eq 1s ease-in-out 0.4s infinite alternate; }
+  .hud-sound.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-sound-eq i:nth-child(4) { animation-play-state: paused !important; }
+    .hud-scene-chip.is-round:is(:hover, .fx-hold) .hud-round-dots i:nth-child(1) { animation: hud-mi-glow 2.4s ease-in-out 0.0s infinite; }
+  .hud-scene-chip.is-round.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-round-dots i:nth-child(1) { animation-play-state: paused !important; }
+    .hud-scene-chip.is-round:is(:hover, .fx-hold) .hud-round-dots i:nth-child(2) { animation: hud-mi-glow 2.4s ease-in-out 0.3s infinite; }
+  .hud-scene-chip.is-round.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-round-dots i:nth-child(2) { animation-play-state: paused !important; }
+    .hud-scene-chip.is-round:is(:hover, .fx-hold) .hud-round-dots i:nth-child(3) { animation: hud-mi-glow 2.4s ease-in-out 0.6s infinite; }
+  .hud-scene-chip.is-round.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-round-dots i:nth-child(3) { animation-play-state: paused !important; }
+    .hud-scene-chip.is-round:is(:hover, .fx-hold) .hud-round-dots i:nth-child(4) { animation: hud-mi-glow 2.4s ease-in-out 0.9s infinite; }
+  .hud-scene-chip.is-round.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-round-dots i:nth-child(4) { animation-play-state: paused !important; }
+    .hud-scene-chip.is-round:is(:hover, .fx-hold) .hud-round-dots i:nth-child(5) { animation: hud-mi-glow 2.4s ease-in-out 1.2s infinite; }
+  .hud-scene-chip.is-round.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-round-dots i:nth-child(5) { animation-play-state: paused !important; }
+    .hud-heat:is(:hover, .fx-hold) .hud-heat-svg .z-heat { animation: hud-mi-breathe 3.2s ease-in-out infinite alternate; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-heat-svg .z-heat { animation-play-state: paused !important; }
+    .hud-heat:is(:hover, .fx-hold) .hud-heat-svg .z-mark-halo { animation: hud-mi-ping 2.8s cubic-bezier(.2,.6,.3,1) infinite; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-heat-svg .z-mark-halo { animation-play-state: paused !important; }
     .hud-mark:hover .hud-mark-ring { animation: hud-mi-ring 1.8s cubic-bezier(.22,.8,.26,1); }
-    .hud-row:hover .hud-stars-rating { animation: hud-mi-shimmer 2.6s ease-in-out infinite alternate; }
+    .hud-row:is(:hover, .fx-hold) .hud-stars-rating { animation: hud-mi-shimmer 2.6s ease-in-out infinite alternate; }
+  .hud-row.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-stars-rating { animation-play-state: paused !important; }
     .hud-cycle:hover .hud-cycle-ring { animation: hud-mi-ring 2s cubic-bezier(.22,.8,.26,1); }
-    .hud-cycle:hover .hud-cycle-ring .c-halo { animation: hud-mi-ping 2.8s cubic-bezier(.2,.6,.3,1) infinite; }
-    .hud-cycle:hover .hud-cycle-ring .c-glow { animation: hud-mo-phase 3.6s ease-in-out infinite alternate; }
+    .hud-cycle:is(:hover, .fx-hold) .hud-cycle-ring .c-halo { animation: hud-mi-ping 2.8s cubic-bezier(.2,.6,.3,1) infinite; }
+  .hud-cycle.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-cycle-ring .c-halo { animation-play-state: paused !important; }
+    .hud-cycle:is(:hover, .fx-hold) .hud-cycle-ring .c-glow { animation: hud-mo-phase 3.6s ease-in-out infinite alternate; }
+  .hud-cycle.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-cycle-ring .c-glow { animation-play-state: paused !important; }
     .hud-cycle:hover .hud-cycle-ring .c-day { animation: hud-mo-fade 1.4s ease-out; }
     .hud-cycle:hover .hud-cycle-legend li:nth-child(1) { animation: hud-mo-rise .9s ease-out 0.00s both; }
     .hud-cycle:hover .hud-cycle-legend li:nth-child(2) { animation: hud-mo-rise .9s ease-out 0.14s both; }
@@ -3201,7 +3222,8 @@
     .hud-cycle:hover .hud-cycle-tips li:nth-child(3) { animation: hud-mo-rise .9s ease-out 0.32s both; }
     .hud-cycle:hover .hud-cycle-tips li:nth-child(4) { animation: hud-mo-rise .9s ease-out 0.48s both; }
     .hud-cycle:hover .hud-cycle-tips li:nth-child(5) { animation: hud-mo-rise .9s ease-out 0.64s both; }
-    .hud-route-map:hover .hud-route-leg-line { animation: hud-mo-route-flow 1.8s linear infinite; }
+    .hud-route-map:is(:hover, .fx-hold) .hud-route-leg-line { animation: hud-mo-route-flow 1.8s linear infinite; }
+  .hud-route-map.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-route-leg-line { animation-play-state: paused !important; }
     .hud-route-map:hover .hud-route-strip > li:nth-child(1) { animation: hud-mo-rise .8s ease-out 0.00s both; }
     .hud-route-map:hover .hud-route-strip > li:nth-child(2) { animation: hud-mo-rise .8s ease-out 0.07s both; }
     .hud-route-map:hover .hud-route-strip > li:nth-child(3) { animation: hud-mo-rise .8s ease-out 0.14s both; }
@@ -3222,7 +3244,8 @@
     .hud-route-map:hover .hud-route-strip > li:nth-child(18) { animation: hud-mo-rise .8s ease-out 1.19s both; }
     .hud-route-map:hover .hud-route-strip > li:nth-child(19) { animation: hud-mo-rise .8s ease-out 1.26s both; }
     .hud-route-map:hover .hud-route-strip > li:nth-child(20) { animation: hud-mo-rise .8s ease-out 1.33s both; }
-    .hud-mood-group:hover .hud-mood-current { animation: hud-mo-mood 3s ease-in-out infinite alternate; }
+    .hud-mood-group:is(:hover, .fx-hold) .hud-mood-current { animation: hud-mo-mood 3s ease-in-out infinite alternate; }
+  .hud-mood-group.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-mood-current { animation-play-state: paused !important; }
     .hud-mood-group:hover .hud-mood-history > .hud-mood-chip:nth-child(1) { animation: hud-mo-rise .8s ease-out 0.00s both; }
     .hud-mood-group:hover .hud-mood-history > .hud-mood-chip:nth-child(2) { animation: hud-mo-rise .8s ease-out 0.10s both; }
     .hud-mood-group:hover .hud-mood-history > .hud-mood-chip:nth-child(3) { animation: hud-mo-rise .8s ease-out 0.20s both; }
@@ -3235,22 +3258,37 @@
     .hud-mood-group:hover .hud-mood-history > .hud-mood-chip:nth-child(10) { animation: hud-mo-rise .8s ease-out 0.90s both; }
     .hud-mood-group:hover .hud-mood-history > .hud-mood-chip:nth-child(11) { animation: hud-mo-rise .8s ease-out 1.00s both; }
     .hud-mood-group:hover .hud-mood-history > .hud-mood-chip:nth-child(12) { animation: hud-mo-rise .8s ease-out 1.10s both; }
-    .hud-gun.is-open:hover .hud-gun-ico { animation: hud-mo-aim 2.8s ease-in-out infinite alternate; }
-    .hud-gun.is-open:hover .hud-gun-status { animation: hud-mo-breathe-op 2.8s ease-in-out infinite alternate; }
-    .hud-gun.is-building:hover .hud-gun-status { animation: hud-mo-charge 2.2s ease-in-out infinite alternate; }
-    .hud-gun.is-building:hover .hud-gun-ico { animation: hud-mo-breathe-op 2.2s ease-in-out infinite alternate; }
-    .hud-gun.is-fired:hover .hud-gun-ico { animation: hud-mo-smoke 3.2s ease-out infinite; }
-    .hud-eco-row:hover .hud-eco-chg.is-up i { animation: hud-mi-drift-up 1.8s ease-in-out infinite alternate; }
-    .hud-eco-row:hover .hud-eco-chg.is-down i { animation: hud-mi-drift-down 1.8s ease-in-out infinite alternate; }
-    .hud-eco-row:hover .hud-eco-dots { animation: hud-mo-leader 1.8s ease-in-out infinite alternate; }
-    .hud-eco-row:hover .hud-eco-val { animation: hud-mo-ticker 2.4s ease-in-out infinite alternate; }
+    .hud-gun.is-open:is(:hover, .fx-hold) .hud-gun-ico { animation: hud-mo-aim 2.8s ease-in-out infinite alternate; }
+  .hud-gun.is-open.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-gun-ico { animation-play-state: paused !important; }
+    .hud-gun.is-open:is(:hover, .fx-hold) .hud-gun-status { animation: hud-mo-breathe-op 2.8s ease-in-out infinite alternate; }
+  .hud-gun.is-open.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-gun-status { animation-play-state: paused !important; }
+    .hud-gun.is-building:is(:hover, .fx-hold) .hud-gun-status { animation: hud-mo-charge 2.2s ease-in-out infinite alternate; }
+  .hud-gun.is-building.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-gun-status { animation-play-state: paused !important; }
+    .hud-gun.is-building:is(:hover, .fx-hold) .hud-gun-ico { animation: hud-mo-breathe-op 2.2s ease-in-out infinite alternate; }
+  .hud-gun.is-building.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-gun-ico { animation-play-state: paused !important; }
+    .hud-gun.is-fired:is(:hover, .fx-hold) .hud-gun-ico { animation: hud-mo-smoke 3.2s ease-out infinite; }
+  .hud-gun.is-fired.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-gun-ico { animation-play-state: paused !important; }
+    .hud-eco-row:is(:hover, .fx-hold) .hud-eco-chg.is-up i { animation: hud-mi-drift-up 1.8s ease-in-out infinite alternate; }
+  .hud-eco-row.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-eco-chg.is-up i { animation-play-state: paused !important; }
+    .hud-eco-row:is(:hover, .fx-hold) .hud-eco-chg.is-down i { animation: hud-mi-drift-down 1.8s ease-in-out infinite alternate; }
+  .hud-eco-row.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-eco-chg.is-down i { animation-play-state: paused !important; }
+    .hud-eco-row:is(:hover, .fx-hold) .hud-eco-dots { animation: hud-mo-leader 1.8s ease-in-out infinite alternate; }
+  .hud-eco-row.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-eco-dots { animation-play-state: paused !important; }
+    .hud-eco-row:is(:hover, .fx-hold) .hud-eco-val { animation: hud-mo-ticker 2.4s ease-in-out infinite alternate; }
+  .hud-eco-row.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-eco-val { animation-play-state: paused !important; }
     .hud-afisha-card:hover .hud-afisha-main::before { animation: hud-mi-shine 2.2s ease-in-out; }
-    .hud-afisha-card:hover .hud-afisha-main::after { animation: hud-mo-watermark-a 3.4s ease-in-out infinite alternate; }
-    .hud-afisha-card:hover .hud-afisha-stub > i { animation: hud-mi-float 2.6s ease-in-out infinite alternate; }
-    .hud-afisha-card:hover .hud-afisha-admit { animation: hud-mo-admit 2.4s ease-in-out infinite alternate; }
-    .hud-city-row:hover::after { animation: hud-mo-watermark-c 3.4s ease-in-out infinite alternate; }
-    .hud-city-row:hover .hud-city-kind { animation: hud-mo-kind 2.8s ease-in-out infinite alternate; }
-    .hud-city-row.is-emergency:hover { animation: hud-mi-alarm 2.6s ease-in-out infinite alternate; }
+    .hud-afisha-card:is(:hover, .fx-hold) .hud-afisha-main::after { animation: hud-mo-watermark-a 3.4s ease-in-out infinite alternate; }
+  .hud-afisha-card.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-afisha-main::after { animation-play-state: paused !important; }
+    .hud-afisha-card:is(:hover, .fx-hold) .hud-afisha-stub > i { animation: hud-mi-float 2.6s ease-in-out infinite alternate; }
+  .hud-afisha-card.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-afisha-stub > i { animation-play-state: paused !important; }
+    .hud-afisha-card:is(:hover, .fx-hold) .hud-afisha-admit { animation: hud-mo-admit 2.4s ease-in-out infinite alternate; }
+  .hud-afisha-card.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-afisha-admit { animation-play-state: paused !important; }
+    .hud-city-row:is(:hover, .fx-hold)::after { animation: hud-mo-watermark-c 3.4s ease-in-out infinite alternate; }
+  .hud-city-row.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after { animation-play-state: paused !important; }
+    .hud-city-row:is(:hover, .fx-hold) .hud-city-kind { animation: hud-mo-kind 2.8s ease-in-out infinite alternate; }
+  .hud-city-row.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-city-kind { animation-play-state: paused !important; }
+    .hud-city-row.is-emergency:is(:hover, .fx-hold) { animation: hud-mi-alarm 2.6s ease-in-out infinite alternate; }
+  .hud-city-row.is-emergency.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) { animation-play-state: paused !important; }
     .hud-city-row.is-traffic:hover .hud-city-pips i:nth-child(1) { animation: hud-mi-pip .8s ease-out 0.00s both; }
     .hud-city-row.is-traffic:hover .hud-city-pips i:nth-child(2) { animation: hud-mi-pip .8s ease-out 0.08s both; }
     .hud-city-row.is-traffic:hover .hud-city-pips i:nth-child(3) { animation: hud-mi-pip .8s ease-out 0.16s both; }
@@ -3262,8 +3300,10 @@
     .hud-city-row.is-traffic:hover .hud-city-pips i:nth-child(9) { animation: hud-mi-pip .8s ease-out 0.64s both; }
     .hud-city-row.is-traffic:hover .hud-city-pips i:nth-child(10) { animation: hud-mi-pip .8s ease-out 0.72s both; }
     .hud-secret-summary:hover .hud-secret-ring { animation: hud-mi-ring 1.8s cubic-bezier(.22,.8,.26,1); }
-    .hud-pet:hover .hud-pet-ava { animation: hud-mi-float 2.8s ease-in-out infinite alternate; }
-    .hud-fam-svg:hover .hud-fam-spouse-mark { animation: hud-mi-heart 2.8s ease-in-out infinite; }
+    .hud-pet:is(:hover, .fx-hold) .hud-pet-ava { animation: hud-mi-float 2.8s ease-in-out infinite alternate; }
+  .hud-pet.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-pet-ava { animation-play-state: paused !important; }
+    .hud-fam-svg:is(:hover, .fx-hold) .hud-fam-spouse-mark { animation: hud-mi-heart 2.8s ease-in-out infinite; }
+  .hud-fam-svg.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-fam-spouse-mark { animation-play-state: paused !important; }
     .hud-scene-strip-wrap:hover .hud-phase-step:nth-child(1) { animation: hud-mo-appear .9s ease-out 0.00s both; }
     .hud-scene-strip-wrap:hover .hud-phase-step:nth-child(2) { animation: hud-mo-appear .9s ease-out 0.12s both; }
     .hud-scene-strip-wrap:hover .hud-phase-step:nth-child(3) { animation: hud-mo-appear .9s ease-out 0.24s both; }
@@ -3273,57 +3313,92 @@
     .hud-scene-strip-wrap:hover .hud-phase-step:nth-child(7) { animation: hud-mo-appear .9s ease-out 0.72s both; }
     .hud-scene-strip-wrap:hover .hud-phase-step:nth-child(8) { animation: hud-mo-appear .9s ease-out 0.84s both; }
     .hud-scene-strip-wrap:hover .hud-phase-step:nth-child(9) { animation: hud-mo-appear .9s ease-out 0.96s both; }
-    .hud-scene-strip-wrap:hover .hud-phase-step.is-now { animation: hud-mo-now 2.8s ease-in-out infinite alternate; }
+    .hud-scene-strip-wrap:is(:hover, .fx-hold) .hud-phase-step.is-now { animation: hud-mo-now 2.8s ease-in-out infinite alternate; }
+  .hud-scene-strip-wrap.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-phase-step.is-now { animation-play-state: paused !important; }
     .hud-scene-strip-wrap:hover .hud-phase-step.is-past + .hud-phase-sep { animation: hud-mi-fill 1.4s cubic-bezier(.22,.8,.26,1) both; }
-    .hud-scene-chip.is-pose:hover > i:first-child { animation: hud-mo-sway 3.6s ease-in-out infinite; }
-    .hud-scene-chip.is-time:hover > i:first-child { animation: hud-mo-clock 8s linear infinite; }
-    .hud-prot:hover::after { animation: hud-mo-star 4.4s ease-in-out infinite; }
-    .hud-prot:hover em { animation: hud-mo-status 2.6s ease-in-out infinite alternate; }
-    .hud-prot.is-critical:hover,
-    .hud-prot.is-serious:hover { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite, hud-mo-stripes 4s linear infinite !important; }
-    .hud-org:hover .hud-org-meter > i::after { animation: hud-mo-spark 1.8s ease-in-out infinite; }
+    .hud-scene-chip.is-pose:is(:hover, .fx-hold) > i:first-child { animation: hud-mo-sway 3.6s ease-in-out infinite; }
+  .hud-scene-chip.is-pose.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) > i:first-child { animation-play-state: paused !important; }
+    .hud-scene-chip.is-time:is(:hover, .fx-hold) > i:first-child { animation: hud-mo-clock 8s linear infinite; }
+  .hud-scene-chip.is-time.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) > i:first-child { animation-play-state: paused !important; }
+    .hud-prot:is(:hover, .fx-hold)::after { animation: hud-mo-star 4.4s ease-in-out infinite; }
+  .hud-prot.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after { animation-play-state: paused !important; }
+    .hud-prot:is(:hover, .fx-hold) em { animation: hud-mo-status 2.6s ease-in-out infinite alternate; }
+  .hud-prot.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) em { animation-play-state: paused !important; }
+    .hud-prot.is-critical:is(:hover, .fx-hold), .hud-prot.is-serious:is(:hover, .fx-hold) { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite, hud-mo-stripes 4s linear infinite !important; }
+  .hud-prot.is-critical.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on), .hud-prot.is-serious.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) { animation-play-state: paused !important; }
+    .hud-org:is(:hover, .fx-hold) .hud-org-meter > i::after { animation: hud-mo-spark 1.8s ease-in-out infinite; }
+  .hud-org.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-org-meter > i::after { animation-play-state: paused !important; }
     .hud-org:hover .hud-org-scale span:nth-child(1) { animation: hud-mo-appear .9s ease-out 0.00s both; }
     .hud-org:hover .hud-org-scale span:nth-child(2) { animation: hud-mo-appear .9s ease-out 0.25s both; }
     .hud-org:hover .hud-org-scale span:nth-child(3) { animation: hud-mo-appear .9s ease-out 0.50s both; }
-    .hud-org.is-edge:hover .hud-org-meter > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1), hud-mo-edge 1.8s ease-in-out 1.6s infinite alternate; }
-    .hud-org.is-edge:hover .hud-org-head b::after { animation: hud-mi-shimmer 1.6s ease-in-out infinite alternate; }
-    .hud-vit.is-pulse:hover::after { animation: hud-mo-heartmark 1.6s ease-in-out infinite; }
-    .hud-vit.is-breath:hover::after { animation: hud-mo-breathmark 3.6s ease-in-out infinite alternate; }
-    .hud-vit.is-temp:hover::after { animation: hud-mo-tempmark 3.6s ease-in-out infinite alternate; }
-    .hud-vit:hover::before { animation: hud-mo-topline 2.8s ease-in-out infinite alternate; }
-    .hud-vit.is-breath:hover .hud-vit-deco { animation: hud-mo-lungs 3.6s ease-in-out infinite alternate; }
-    .hud-sound[style*="--г:8"]:hover::after,
-    .hud-sound[style*="--г:9"]:hover::after,
-    .hud-sound[style*="--г:10"]:hover::after { animation: hud-mo-star 4s ease-in-out infinite; }
-    .hud-sound[style*="--г:8"]:hover b,
-    .hud-sound[style*="--г:9"]:hover b,
-    .hud-sound[style*="--г:10"]:hover b { animation: hud-mo-loud 1.8s ease-in-out infinite alternate; }
-    .hud-heat:hover .hud-heat-svg .z-rim { animation: hud-mo-rim 3s ease-in-out infinite alternate; }
-    .hud-heat:hover .hud-heat-figure::before { animation: hud-mo-corner 2.6s ease-in-out infinite alternate; }
-    .hud-heat:hover .hud-heat-figure::after { animation: hud-mo-corner 2.6s ease-in-out 1.3s infinite alternate; }
-    .hud-heat:hover .hud-heat-row.is-peak .hud-heat-dot { animation: hud-mo-dotglow 2.2s ease-in-out infinite alternate; }
-    .hud-heat:hover .hud-heat-row.is-rising .hud-heat-trend { animation: hud-mi-drift-up 2s ease-in-out infinite alternate; }
-    .hud-heat:hover .hud-heat-row.is-fading .hud-heat-trend { animation: hud-mi-drift-down 2s ease-in-out infinite alternate; }
-    .hud-heat:hover .hud-heat-row.is-lingering .hud-heat-trend { animation: hud-mo-breathe-op 3s ease-in-out infinite alternate; }
-    .hud-kink-pill:hover::before { animation: hud-mo-chain 3.6s linear infinite; }
-    .hud-kink-pill:hover .hud-pill-label { animation: hud-mo-violet 2.8s ease-in-out infinite alternate; }
-    .hud-fetish-pill:hover::before { animation: hud-mo-silk 3.6s ease-in-out infinite; }
-    .hud-fetish-pill:hover .hud-pill-label { animation: hud-mo-rose 2.8s ease-in-out infinite alternate; }
-    .hud-nogo-pill:hover .hud-pill-label { animation: hud-mo-strike 2.4s ease-in-out infinite alternate; }
-    .hud-nogo-pill:hover::before { animation: hud-mo-bar-red 2.4s ease-in-out infinite alternate; }
-    .hud-noturn-pill:hover .hud-pill-label { animation: hud-mo-dim 4s ease-in-out infinite alternate; }
-    .hud-noturn-pill:hover::before { animation: hud-mo-cool 4s ease-in-out infinite alternate; }
-    .hud-nsfw-list.is-last .hud-nsfw-pill:hover::after { opacity: 1; animation: hud-mo-memory 3.8s ease-in-out infinite; }
-    .hud-nsfw-list.is-last .hud-nsfw-pill:hover .hud-pill-label { animation: hud-mo-sepia 3.8s ease-in-out infinite alternate; }
-    .hud-row.nsfw-care:hover { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite, hud-mo-embrace 4s ease-in-out infinite alternate !important; }
-    .hud-row.nsfw-care:hover .hud-key-ico > span { animation: hud-mo-hug 3s ease-in-out infinite; }
-    .hud-row.nsfw-reg:hover .hud-key-ico > span { animation: hud-mo-metronome 3s ease-in-out infinite; }
-    .hud-row.nsfw-count:hover .hud-value { animation: hud-mo-count 2.6s ease-in-out infinite alternate; }
-    .hud-row.nsfw-review:hover .hud-stars-rating { animation: hud-mo-stars 2.4s ease-in-out infinite alternate; }
-    .hud-row.nsfw-review:hover .hud-sex-rev { animation: hud-mo-review 3.4s ease-in-out infinite alternate; }
+    .hud-org.is-edge:is(:hover, .fx-hold) .hud-org-meter > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1), hud-mo-edge 1.8s ease-in-out 1.6s infinite alternate; }
+  .hud-org.is-edge.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-org-meter > i { animation-play-state: paused !important; }
+    .hud-org.is-edge:is(:hover, .fx-hold) .hud-org-head b::after { animation: hud-mi-shimmer 1.6s ease-in-out infinite alternate; }
+  .hud-org.is-edge.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-org-head b::after { animation-play-state: paused !important; }
+    .hud-vit.is-pulse:is(:hover, .fx-hold)::after { animation: hud-mo-heartmark 1.6s ease-in-out infinite; }
+  .hud-vit.is-pulse.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after { animation-play-state: paused !important; }
+    .hud-vit.is-breath:is(:hover, .fx-hold)::after { animation: hud-mo-breathmark 3.6s ease-in-out infinite alternate; }
+  .hud-vit.is-breath.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after { animation-play-state: paused !important; }
+    .hud-vit.is-temp:is(:hover, .fx-hold)::after { animation: hud-mo-tempmark 3.6s ease-in-out infinite alternate; }
+  .hud-vit.is-temp.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after { animation-play-state: paused !important; }
+    .hud-vit:is(:hover, .fx-hold)::before { animation: hud-mo-topline 2.8s ease-in-out infinite alternate; }
+  .hud-vit.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::before { animation-play-state: paused !important; }
+    .hud-vit.is-breath:is(:hover, .fx-hold) .hud-vit-deco { animation: hud-mo-lungs 3.6s ease-in-out infinite alternate; }
+  .hud-vit.is-breath.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-vit-deco { animation-play-state: paused !important; }
+    .hud-sound[style*="--г:8"]:is(:hover, .fx-hold)::after, .hud-sound[style*="--г:9"]:is(:hover, .fx-hold)::after, .hud-sound[style*="--г:10"]:is(:hover, .fx-hold)::after { animation: hud-mo-star 4s ease-in-out infinite; }
+  .hud-sound[style*="--г:8"].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after, .hud-sound[style*="--г:9"].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after, .hud-sound[style*="--г:10"].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after { animation-play-state: paused !important; }
+    .hud-sound[style*="--г:8"]:is(:hover, .fx-hold) b, .hud-sound[style*="--г:9"]:is(:hover, .fx-hold) b, .hud-sound[style*="--г:10"]:is(:hover, .fx-hold) b { animation: hud-mo-loud 1.8s ease-in-out infinite alternate; }
+  .hud-sound[style*="--г:8"].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) b, .hud-sound[style*="--г:9"].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) b, .hud-sound[style*="--г:10"].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) b { animation-play-state: paused !important; }
+    .hud-heat:is(:hover, .fx-hold) .hud-heat-svg .z-rim { animation: hud-mo-rim 3s ease-in-out infinite alternate; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-heat-svg .z-rim { animation-play-state: paused !important; }
+    .hud-heat:is(:hover, .fx-hold) .hud-heat-figure::before { animation: hud-mo-corner 2.6s ease-in-out infinite alternate; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-heat-figure::before { animation-play-state: paused !important; }
+    .hud-heat:is(:hover, .fx-hold) .hud-heat-figure::after { animation: hud-mo-corner 2.6s ease-in-out 1.3s infinite alternate; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-heat-figure::after { animation-play-state: paused !important; }
+    .hud-heat:is(:hover, .fx-hold) .hud-heat-row.is-peak .hud-heat-dot { animation: hud-mo-dotglow 2.2s ease-in-out infinite alternate; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-heat-row.is-peak .hud-heat-dot { animation-play-state: paused !important; }
+    .hud-heat:is(:hover, .fx-hold) .hud-heat-row.is-rising .hud-heat-trend { animation: hud-mi-drift-up 2s ease-in-out infinite alternate; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-heat-row.is-rising .hud-heat-trend { animation-play-state: paused !important; }
+    .hud-heat:is(:hover, .fx-hold) .hud-heat-row.is-fading .hud-heat-trend { animation: hud-mi-drift-down 2s ease-in-out infinite alternate; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-heat-row.is-fading .hud-heat-trend { animation-play-state: paused !important; }
+    .hud-heat:is(:hover, .fx-hold) .hud-heat-row.is-lingering .hud-heat-trend { animation: hud-mo-breathe-op 3s ease-in-out infinite alternate; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-heat-row.is-lingering .hud-heat-trend { animation-play-state: paused !important; }
+    .hud-kink-pill:is(:hover, .fx-hold)::before { animation: hud-mo-chain 3.6s linear infinite; }
+  .hud-kink-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::before { animation-play-state: paused !important; }
+    .hud-kink-pill:is(:hover, .fx-hold) .hud-pill-label { animation: hud-mo-violet 2.8s ease-in-out infinite alternate; }
+  .hud-kink-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-pill-label { animation-play-state: paused !important; }
+    .hud-fetish-pill:is(:hover, .fx-hold)::before { animation: hud-mo-silk 3.6s ease-in-out infinite; }
+  .hud-fetish-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::before { animation-play-state: paused !important; }
+    .hud-fetish-pill:is(:hover, .fx-hold) .hud-pill-label { animation: hud-mo-rose 2.8s ease-in-out infinite alternate; }
+  .hud-fetish-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-pill-label { animation-play-state: paused !important; }
+    .hud-nogo-pill:is(:hover, .fx-hold) .hud-pill-label { animation: hud-mo-strike 2.4s ease-in-out infinite alternate; }
+  .hud-nogo-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-pill-label { animation-play-state: paused !important; }
+    .hud-nogo-pill:is(:hover, .fx-hold)::before { animation: hud-mo-bar-red 2.4s ease-in-out infinite alternate; }
+  .hud-nogo-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::before { animation-play-state: paused !important; }
+    .hud-noturn-pill:is(:hover, .fx-hold) .hud-pill-label { animation: hud-mo-dim 4s ease-in-out infinite alternate; }
+  .hud-noturn-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-pill-label { animation-play-state: paused !important; }
+    .hud-noturn-pill:is(:hover, .fx-hold)::before { animation: hud-mo-cool 4s ease-in-out infinite alternate; }
+  .hud-noturn-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::before { animation-play-state: paused !important; }
+    .hud-nsfw-list.is-last .hud-nsfw-pill:is(:hover, .fx-hold)::after { opacity: 1; animation: hud-mo-memory 3.8s ease-in-out infinite; }
+  .hud-nsfw-list.is-last .hud-nsfw-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after { animation-play-state: paused !important; }
+    .hud-nsfw-list.is-last .hud-nsfw-pill:is(:hover, .fx-hold) .hud-pill-label { animation: hud-mo-sepia 3.8s ease-in-out infinite alternate; }
+  .hud-nsfw-list.is-last .hud-nsfw-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-pill-label { animation-play-state: paused !important; }
+    .hud-row.nsfw-care:is(:hover, .fx-hold) { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite, hud-mo-embrace 4s ease-in-out infinite alternate !important; }
+  .hud-row.nsfw-care.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) { animation-play-state: paused !important; }
+    .hud-row.nsfw-care:is(:hover, .fx-hold) .hud-key-ico > span { animation: hud-mo-hug 3s ease-in-out infinite; }
+  .hud-row.nsfw-care.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-key-ico > span { animation-play-state: paused !important; }
+    .hud-row.nsfw-reg:is(:hover, .fx-hold) .hud-key-ico > span { animation: hud-mo-metronome 3s ease-in-out infinite; }
+  .hud-row.nsfw-reg.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-key-ico > span { animation-play-state: paused !important; }
+    .hud-row.nsfw-count:is(:hover, .fx-hold) .hud-value { animation: hud-mo-count 2.6s ease-in-out infinite alternate; }
+  .hud-row.nsfw-count.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-value { animation-play-state: paused !important; }
+    .hud-row.nsfw-review:is(:hover, .fx-hold) .hud-stars-rating { animation: hud-mo-stars 2.4s ease-in-out infinite alternate; }
+  .hud-row.nsfw-review.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-stars-rating { animation-play-state: paused !important; }
+    .hud-row.nsfw-review:is(:hover, .fx-hold) .hud-sex-rev { animation: hud-mo-review 3.4s ease-in-out infinite alternate; }
+  .hud-row.nsfw-review.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-sex-rev { animation-play-state: paused !important; }
   }
   :is(.hud-row:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns)), .hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row).fx-tap { transform: translateY(-3px) !important; filter: drop-shadow(0 7px 10px rgba(0,0,0,.38)) drop-shadow(0 0 0 transparent); z-index: 2; }
-  :is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-scene-chip, .hud-phase-step, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-row.nsfw:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns))).fx-tap { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite; }
+  :is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-scene-chip, .hud-phase-step, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-row.nsfw:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns))):is(.fx-tap, .fx-hold) { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite; }
+  :is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-scene-chip, .hud-phase-step, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-row.nsfw:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns))).fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) { animation-play-state: paused !important; }
   .hud-row.fx-tap .hud-key-ico > span { transform: scale(1.1); }
   .hud-key-item.fx-tap .hud-emoji { transform: scale(1.1); }
   .hud-fear.fx-tap .hud-fear-ico { transform: scale(1.1); }
@@ -3346,32 +3421,52 @@
   .hud-org.fx-tap .hud-org-meter > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1); }
   .hud-heat-row.fx-tap .hud-heat-bar > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1); }
   .hud-mark.fx-tap .hud-mark-heal-track > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1); }
-  .hud-nsfw-list.is-act .hud-nsfw-pill.fx-tap::before { animation: hud-mo-spine 1.8s ease-in-out infinite; }
-  .hud-nsfw-list.is-act .hud-nsfw-pill.fx-tap::after { opacity: 1; animation: hud-mo-heat-sheen 3.4s ease-in-out infinite; }
-  .hud-nsfw-list.is-act .hud-nsfw-pill.fx-tap .hud-pill-label { animation: hud-mo-warm 2.6s ease-in-out infinite alternate; }
-  .hud-nsfw-list.is-after .hud-nsfw-pill.fx-tap::before { animation: hud-mo-cool 4.4s ease-in-out infinite alternate; }
-  .hud-nsfw-list.is-after .hud-nsfw-pill.fx-tap::after { opacity: 1; animation: hud-mo-afterglow 4.4s ease-in-out infinite alternate; }
-  .hud-nsfw-list.is-after .hud-nsfw-pill.fx-tap .hud-pill-label { animation: hud-mo-drift 4.4s ease-in-out infinite alternate; }
+  .hud-nsfw-list.is-act .hud-nsfw-pill:is(.fx-tap, .fx-hold)::before { animation: hud-mo-spine 1.8s ease-in-out infinite; }
+  .hud-nsfw-list.is-act .hud-nsfw-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::before { animation-play-state: paused !important; }
+  .hud-nsfw-list.is-act .hud-nsfw-pill:is(.fx-tap, .fx-hold)::after { opacity: 1; animation: hud-mo-heat-sheen 3.4s ease-in-out infinite; }
+  .hud-nsfw-list.is-act .hud-nsfw-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after { animation-play-state: paused !important; }
+  .hud-nsfw-list.is-act .hud-nsfw-pill:is(.fx-tap, .fx-hold) .hud-pill-label { animation: hud-mo-warm 2.6s ease-in-out infinite alternate; }
+  .hud-nsfw-list.is-act .hud-nsfw-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-pill-label { animation-play-state: paused !important; }
+  .hud-nsfw-list.is-after .hud-nsfw-pill:is(.fx-tap, .fx-hold)::before { animation: hud-mo-cool 4.4s ease-in-out infinite alternate; }
+  .hud-nsfw-list.is-after .hud-nsfw-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::before { animation-play-state: paused !important; }
+  .hud-nsfw-list.is-after .hud-nsfw-pill:is(.fx-tap, .fx-hold)::after { opacity: 1; animation: hud-mo-afterglow 4.4s ease-in-out infinite alternate; }
+  .hud-nsfw-list.is-after .hud-nsfw-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after { animation-play-state: paused !important; }
+  .hud-nsfw-list.is-after .hud-nsfw-pill:is(.fx-tap, .fx-hold) .hud-pill-label { animation: hud-mo-drift 4.4s ease-in-out infinite alternate; }
+  .hud-nsfw-list.is-after .hud-nsfw-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-pill-label { animation-play-state: paused !important; }
   .hud-vit.fx-tap .hud-vit-deco path { animation: hud-mi-draw-300 2.6s ease-in-out; }
   .hud-vit.fx-tap .hud-vit-spark polyline { animation: hud-mi-draw-200 2s ease-in-out; }
   .hud-vit.fx-tap .hud-vit-gauge > i { animation: hud-mi-gauge 1.6s cubic-bezier(.22,.8,.26,1); }
   .hud-prot.fx-tap .hud-prot-ico .mk { animation: hud-mi-draw-40 1.6s ease-in-out .2s both; }
-  .hud-sound.fx-tap .hud-sound-eq i:nth-child(1) { animation: hud-mi-eq 1.1s ease-in-out 0s infinite alternate; }
-  .hud-sound.fx-tap .hud-sound-eq i:nth-child(2) { animation: hud-mi-eq 0.9s ease-in-out 0.25s infinite alternate; }
-  .hud-sound.fx-tap .hud-sound-eq i:nth-child(3) { animation: hud-mi-eq 1.3s ease-in-out 0.1s infinite alternate; }
-  .hud-sound.fx-tap .hud-sound-eq i:nth-child(4) { animation: hud-mi-eq 1s ease-in-out 0.4s infinite alternate; }
-  .hud-scene-chip.is-round.fx-tap .hud-round-dots i:nth-child(1) { animation: hud-mi-glow 2.4s ease-in-out 0.0s infinite; }
-  .hud-scene-chip.is-round.fx-tap .hud-round-dots i:nth-child(2) { animation: hud-mi-glow 2.4s ease-in-out 0.3s infinite; }
-  .hud-scene-chip.is-round.fx-tap .hud-round-dots i:nth-child(3) { animation: hud-mi-glow 2.4s ease-in-out 0.6s infinite; }
-  .hud-scene-chip.is-round.fx-tap .hud-round-dots i:nth-child(4) { animation: hud-mi-glow 2.4s ease-in-out 0.9s infinite; }
-  .hud-scene-chip.is-round.fx-tap .hud-round-dots i:nth-child(5) { animation: hud-mi-glow 2.4s ease-in-out 1.2s infinite; }
-  .hud-heat.fx-tap .hud-heat-svg .z-heat { animation: hud-mi-breathe 3.2s ease-in-out infinite alternate; }
-  .hud-heat.fx-tap .hud-heat-svg .z-mark-halo { animation: hud-mi-ping 2.8s cubic-bezier(.2,.6,.3,1) infinite; }
+  .hud-sound:is(.fx-tap, .fx-hold) .hud-sound-eq i:nth-child(1) { animation: hud-mi-eq 1.1s ease-in-out 0s infinite alternate; }
+  .hud-sound.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-sound-eq i:nth-child(1) { animation-play-state: paused !important; }
+  .hud-sound:is(.fx-tap, .fx-hold) .hud-sound-eq i:nth-child(2) { animation: hud-mi-eq 0.9s ease-in-out 0.25s infinite alternate; }
+  .hud-sound.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-sound-eq i:nth-child(2) { animation-play-state: paused !important; }
+  .hud-sound:is(.fx-tap, .fx-hold) .hud-sound-eq i:nth-child(3) { animation: hud-mi-eq 1.3s ease-in-out 0.1s infinite alternate; }
+  .hud-sound.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-sound-eq i:nth-child(3) { animation-play-state: paused !important; }
+  .hud-sound:is(.fx-tap, .fx-hold) .hud-sound-eq i:nth-child(4) { animation: hud-mi-eq 1s ease-in-out 0.4s infinite alternate; }
+  .hud-sound.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-sound-eq i:nth-child(4) { animation-play-state: paused !important; }
+  .hud-scene-chip.is-round:is(.fx-tap, .fx-hold) .hud-round-dots i:nth-child(1) { animation: hud-mi-glow 2.4s ease-in-out 0.0s infinite; }
+  .hud-scene-chip.is-round.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-round-dots i:nth-child(1) { animation-play-state: paused !important; }
+  .hud-scene-chip.is-round:is(.fx-tap, .fx-hold) .hud-round-dots i:nth-child(2) { animation: hud-mi-glow 2.4s ease-in-out 0.3s infinite; }
+  .hud-scene-chip.is-round.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-round-dots i:nth-child(2) { animation-play-state: paused !important; }
+  .hud-scene-chip.is-round:is(.fx-tap, .fx-hold) .hud-round-dots i:nth-child(3) { animation: hud-mi-glow 2.4s ease-in-out 0.6s infinite; }
+  .hud-scene-chip.is-round.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-round-dots i:nth-child(3) { animation-play-state: paused !important; }
+  .hud-scene-chip.is-round:is(.fx-tap, .fx-hold) .hud-round-dots i:nth-child(4) { animation: hud-mi-glow 2.4s ease-in-out 0.9s infinite; }
+  .hud-scene-chip.is-round.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-round-dots i:nth-child(4) { animation-play-state: paused !important; }
+  .hud-scene-chip.is-round:is(.fx-tap, .fx-hold) .hud-round-dots i:nth-child(5) { animation: hud-mi-glow 2.4s ease-in-out 1.2s infinite; }
+  .hud-scene-chip.is-round.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-round-dots i:nth-child(5) { animation-play-state: paused !important; }
+  .hud-heat:is(.fx-tap, .fx-hold) .hud-heat-svg .z-heat { animation: hud-mi-breathe 3.2s ease-in-out infinite alternate; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-heat-svg .z-heat { animation-play-state: paused !important; }
+  .hud-heat:is(.fx-tap, .fx-hold) .hud-heat-svg .z-mark-halo { animation: hud-mi-ping 2.8s cubic-bezier(.2,.6,.3,1) infinite; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-heat-svg .z-mark-halo { animation-play-state: paused !important; }
   .hud-mark.fx-tap .hud-mark-ring { animation: hud-mi-ring 1.8s cubic-bezier(.22,.8,.26,1); }
-  .hud-row.fx-tap .hud-stars-rating { animation: hud-mi-shimmer 2.6s ease-in-out infinite alternate; }
+  .hud-row:is(.fx-tap, .fx-hold) .hud-stars-rating { animation: hud-mi-shimmer 2.6s ease-in-out infinite alternate; }
+  .hud-row.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-stars-rating { animation-play-state: paused !important; }
   .hud-cycle.fx-tap .hud-cycle-ring { animation: hud-mi-ring 2s cubic-bezier(.22,.8,.26,1); }
-  .hud-cycle.fx-tap .hud-cycle-ring .c-halo { animation: hud-mi-ping 2.8s cubic-bezier(.2,.6,.3,1) infinite; }
-  .hud-cycle.fx-tap .hud-cycle-ring .c-glow { animation: hud-mo-phase 3.6s ease-in-out infinite alternate; }
+  .hud-cycle:is(.fx-tap, .fx-hold) .hud-cycle-ring .c-halo { animation: hud-mi-ping 2.8s cubic-bezier(.2,.6,.3,1) infinite; }
+  .hud-cycle.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-cycle-ring .c-halo { animation-play-state: paused !important; }
+  .hud-cycle:is(.fx-tap, .fx-hold) .hud-cycle-ring .c-glow { animation: hud-mo-phase 3.6s ease-in-out infinite alternate; }
+  .hud-cycle.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-cycle-ring .c-glow { animation-play-state: paused !important; }
   .hud-cycle.fx-tap .hud-cycle-ring .c-day { animation: hud-mo-fade 1.4s ease-out; }
   .hud-cycle.fx-tap .hud-cycle-legend li:nth-child(1) { animation: hud-mo-rise .9s ease-out 0.00s both; }
   .hud-cycle.fx-tap .hud-cycle-legend li:nth-child(2) { animation: hud-mo-rise .9s ease-out 0.14s both; }
@@ -3382,7 +3477,8 @@
   .hud-cycle.fx-tap .hud-cycle-tips li:nth-child(3) { animation: hud-mo-rise .9s ease-out 0.32s both; }
   .hud-cycle.fx-tap .hud-cycle-tips li:nth-child(4) { animation: hud-mo-rise .9s ease-out 0.48s both; }
   .hud-cycle.fx-tap .hud-cycle-tips li:nth-child(5) { animation: hud-mo-rise .9s ease-out 0.64s both; }
-  .hud-route-map.fx-active .hud-route-leg-line { animation: hud-mo-route-flow 1.8s linear infinite; }
+  .hud-route-map:is(.fx-active, .fx-hold) .hud-route-leg-line { animation: hud-mo-route-flow 1.8s linear infinite; }
+  .hud-route-map.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-route-leg-line { animation-play-state: paused !important; }
   .hud-route-map.fx-active .hud-route-strip > li:nth-child(1) { animation: hud-mo-rise .8s ease-out 0.00s both; }
   .hud-route-map.fx-active .hud-route-strip > li:nth-child(2) { animation: hud-mo-rise .8s ease-out 0.07s both; }
   .hud-route-map.fx-active .hud-route-strip > li:nth-child(3) { animation: hud-mo-rise .8s ease-out 0.14s both; }
@@ -3403,7 +3499,8 @@
   .hud-route-map.fx-active .hud-route-strip > li:nth-child(18) { animation: hud-mo-rise .8s ease-out 1.19s both; }
   .hud-route-map.fx-active .hud-route-strip > li:nth-child(19) { animation: hud-mo-rise .8s ease-out 1.26s both; }
   .hud-route-map.fx-active .hud-route-strip > li:nth-child(20) { animation: hud-mo-rise .8s ease-out 1.33s both; }
-  .hud-mood-group.fx-tap .hud-mood-current { animation: hud-mo-mood 3s ease-in-out infinite alternate; }
+  .hud-mood-group:is(.fx-tap, .fx-hold) .hud-mood-current { animation: hud-mo-mood 3s ease-in-out infinite alternate; }
+  .hud-mood-group.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-mood-current { animation-play-state: paused !important; }
   .hud-mood-group.fx-tap .hud-mood-history > .hud-mood-chip:nth-child(1) { animation: hud-mo-rise .8s ease-out 0.00s both; }
   .hud-mood-group.fx-tap .hud-mood-history > .hud-mood-chip:nth-child(2) { animation: hud-mo-rise .8s ease-out 0.10s both; }
   .hud-mood-group.fx-tap .hud-mood-history > .hud-mood-chip:nth-child(3) { animation: hud-mo-rise .8s ease-out 0.20s both; }
@@ -3416,22 +3513,37 @@
   .hud-mood-group.fx-tap .hud-mood-history > .hud-mood-chip:nth-child(10) { animation: hud-mo-rise .8s ease-out 0.90s both; }
   .hud-mood-group.fx-tap .hud-mood-history > .hud-mood-chip:nth-child(11) { animation: hud-mo-rise .8s ease-out 1.00s both; }
   .hud-mood-group.fx-tap .hud-mood-history > .hud-mood-chip:nth-child(12) { animation: hud-mo-rise .8s ease-out 1.10s both; }
-  .hud-gun.is-open.fx-tap .hud-gun-ico { animation: hud-mo-aim 2.8s ease-in-out infinite alternate; }
-  .hud-gun.is-open.fx-tap .hud-gun-status { animation: hud-mo-breathe-op 2.8s ease-in-out infinite alternate; }
-  .hud-gun.is-building.fx-tap .hud-gun-status { animation: hud-mo-charge 2.2s ease-in-out infinite alternate; }
-  .hud-gun.is-building.fx-tap .hud-gun-ico { animation: hud-mo-breathe-op 2.2s ease-in-out infinite alternate; }
-  .hud-gun.is-fired.fx-tap .hud-gun-ico { animation: hud-mo-smoke 3.2s ease-out infinite; }
-  .hud-eco-row.fx-tap .hud-eco-chg.is-up i { animation: hud-mi-drift-up 1.8s ease-in-out infinite alternate; }
-  .hud-eco-row.fx-tap .hud-eco-chg.is-down i { animation: hud-mi-drift-down 1.8s ease-in-out infinite alternate; }
-  .hud-eco-row.fx-tap .hud-eco-dots { animation: hud-mo-leader 1.8s ease-in-out infinite alternate; }
-  .hud-eco-row.fx-tap .hud-eco-val { animation: hud-mo-ticker 2.4s ease-in-out infinite alternate; }
+  .hud-gun.is-open:is(.fx-tap, .fx-hold) .hud-gun-ico { animation: hud-mo-aim 2.8s ease-in-out infinite alternate; }
+  .hud-gun.is-open.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-gun-ico { animation-play-state: paused !important; }
+  .hud-gun.is-open:is(.fx-tap, .fx-hold) .hud-gun-status { animation: hud-mo-breathe-op 2.8s ease-in-out infinite alternate; }
+  .hud-gun.is-open.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-gun-status { animation-play-state: paused !important; }
+  .hud-gun.is-building:is(.fx-tap, .fx-hold) .hud-gun-status { animation: hud-mo-charge 2.2s ease-in-out infinite alternate; }
+  .hud-gun.is-building.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-gun-status { animation-play-state: paused !important; }
+  .hud-gun.is-building:is(.fx-tap, .fx-hold) .hud-gun-ico { animation: hud-mo-breathe-op 2.2s ease-in-out infinite alternate; }
+  .hud-gun.is-building.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-gun-ico { animation-play-state: paused !important; }
+  .hud-gun.is-fired:is(.fx-tap, .fx-hold) .hud-gun-ico { animation: hud-mo-smoke 3.2s ease-out infinite; }
+  .hud-gun.is-fired.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-gun-ico { animation-play-state: paused !important; }
+  .hud-eco-row:is(.fx-tap, .fx-hold) .hud-eco-chg.is-up i { animation: hud-mi-drift-up 1.8s ease-in-out infinite alternate; }
+  .hud-eco-row.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-eco-chg.is-up i { animation-play-state: paused !important; }
+  .hud-eco-row:is(.fx-tap, .fx-hold) .hud-eco-chg.is-down i { animation: hud-mi-drift-down 1.8s ease-in-out infinite alternate; }
+  .hud-eco-row.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-eco-chg.is-down i { animation-play-state: paused !important; }
+  .hud-eco-row:is(.fx-tap, .fx-hold) .hud-eco-dots { animation: hud-mo-leader 1.8s ease-in-out infinite alternate; }
+  .hud-eco-row.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-eco-dots { animation-play-state: paused !important; }
+  .hud-eco-row:is(.fx-tap, .fx-hold) .hud-eco-val { animation: hud-mo-ticker 2.4s ease-in-out infinite alternate; }
+  .hud-eco-row.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-eco-val { animation-play-state: paused !important; }
   .hud-afisha-card.fx-tap .hud-afisha-main::before { animation: hud-mi-shine 2.2s ease-in-out; }
-  .hud-afisha-card.fx-tap .hud-afisha-main::after { animation: hud-mo-watermark-a 3.4s ease-in-out infinite alternate; }
-  .hud-afisha-card.fx-tap .hud-afisha-stub > i { animation: hud-mi-float 2.6s ease-in-out infinite alternate; }
-  .hud-afisha-card.fx-tap .hud-afisha-admit { animation: hud-mo-admit 2.4s ease-in-out infinite alternate; }
-  .hud-city-row.fx-tap::after { animation: hud-mo-watermark-c 3.4s ease-in-out infinite alternate; }
-  .hud-city-row.fx-tap .hud-city-kind { animation: hud-mo-kind 2.8s ease-in-out infinite alternate; }
-  .hud-city-row.is-emergency.fx-tap { animation: hud-mi-alarm 2.6s ease-in-out infinite alternate; }
+  .hud-afisha-card:is(.fx-tap, .fx-hold) .hud-afisha-main::after { animation: hud-mo-watermark-a 3.4s ease-in-out infinite alternate; }
+  .hud-afisha-card.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-afisha-main::after { animation-play-state: paused !important; }
+  .hud-afisha-card:is(.fx-tap, .fx-hold) .hud-afisha-stub > i { animation: hud-mi-float 2.6s ease-in-out infinite alternate; }
+  .hud-afisha-card.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-afisha-stub > i { animation-play-state: paused !important; }
+  .hud-afisha-card:is(.fx-tap, .fx-hold) .hud-afisha-admit { animation: hud-mo-admit 2.4s ease-in-out infinite alternate; }
+  .hud-afisha-card.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-afisha-admit { animation-play-state: paused !important; }
+  .hud-city-row:is(.fx-tap, .fx-hold)::after { animation: hud-mo-watermark-c 3.4s ease-in-out infinite alternate; }
+  .hud-city-row.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after { animation-play-state: paused !important; }
+  .hud-city-row:is(.fx-tap, .fx-hold) .hud-city-kind { animation: hud-mo-kind 2.8s ease-in-out infinite alternate; }
+  .hud-city-row.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-city-kind { animation-play-state: paused !important; }
+  .hud-city-row.is-emergency:is(.fx-tap, .fx-hold) { animation: hud-mi-alarm 2.6s ease-in-out infinite alternate; }
+  .hud-city-row.is-emergency.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) { animation-play-state: paused !important; }
   .hud-city-row.is-traffic.fx-tap .hud-city-pips i:nth-child(1) { animation: hud-mi-pip .8s ease-out 0.00s both; }
   .hud-city-row.is-traffic.fx-tap .hud-city-pips i:nth-child(2) { animation: hud-mi-pip .8s ease-out 0.08s both; }
   .hud-city-row.is-traffic.fx-tap .hud-city-pips i:nth-child(3) { animation: hud-mi-pip .8s ease-out 0.16s both; }
@@ -3443,8 +3555,10 @@
   .hud-city-row.is-traffic.fx-tap .hud-city-pips i:nth-child(9) { animation: hud-mi-pip .8s ease-out 0.64s both; }
   .hud-city-row.is-traffic.fx-tap .hud-city-pips i:nth-child(10) { animation: hud-mi-pip .8s ease-out 0.72s both; }
   .hud-secret-summary.fx-tap .hud-secret-ring { animation: hud-mi-ring 1.8s cubic-bezier(.22,.8,.26,1); }
-  .hud-pet.fx-tap .hud-pet-ava { animation: hud-mi-float 2.8s ease-in-out infinite alternate; }
-  .hud-fam-svg.fx-tap .hud-fam-spouse-mark { animation: hud-mi-heart 2.8s ease-in-out infinite; }
+  .hud-pet:is(.fx-tap, .fx-hold) .hud-pet-ava { animation: hud-mi-float 2.8s ease-in-out infinite alternate; }
+  .hud-pet.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-pet-ava { animation-play-state: paused !important; }
+  .hud-fam-svg:is(.fx-tap, .fx-hold) .hud-fam-spouse-mark { animation: hud-mi-heart 2.8s ease-in-out infinite; }
+  .hud-fam-svg.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-fam-spouse-mark { animation-play-state: paused !important; }
   .hud-scene-strip-wrap.fx-tap .hud-phase-step:nth-child(1) { animation: hud-mo-appear .9s ease-out 0.00s both; }
   .hud-scene-strip-wrap.fx-tap .hud-phase-step:nth-child(2) { animation: hud-mo-appear .9s ease-out 0.12s both; }
   .hud-scene-strip-wrap.fx-tap .hud-phase-step:nth-child(3) { animation: hud-mo-appear .9s ease-out 0.24s both; }
@@ -3454,54 +3568,88 @@
   .hud-scene-strip-wrap.fx-tap .hud-phase-step:nth-child(7) { animation: hud-mo-appear .9s ease-out 0.72s both; }
   .hud-scene-strip-wrap.fx-tap .hud-phase-step:nth-child(8) { animation: hud-mo-appear .9s ease-out 0.84s both; }
   .hud-scene-strip-wrap.fx-tap .hud-phase-step:nth-child(9) { animation: hud-mo-appear .9s ease-out 0.96s both; }
-  .hud-scene-strip-wrap.fx-tap .hud-phase-step.is-now { animation: hud-mo-now 2.8s ease-in-out infinite alternate; }
+  .hud-scene-strip-wrap:is(.fx-tap, .fx-hold) .hud-phase-step.is-now { animation: hud-mo-now 2.8s ease-in-out infinite alternate; }
+  .hud-scene-strip-wrap.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-phase-step.is-now { animation-play-state: paused !important; }
   .hud-scene-strip-wrap.fx-tap .hud-phase-step.is-past + .hud-phase-sep { animation: hud-mi-fill 1.4s cubic-bezier(.22,.8,.26,1) both; }
-  .hud-scene-chip.is-pose.fx-tap > i:first-child { animation: hud-mo-sway 3.6s ease-in-out infinite; }
-  .hud-scene-chip.is-time.fx-tap > i:first-child { animation: hud-mo-clock 8s linear infinite; }
-  .hud-prot.fx-tap::after { animation: hud-mo-star 4.4s ease-in-out infinite; }
-  .hud-prot.fx-tap em { animation: hud-mo-status 2.6s ease-in-out infinite alternate; }
-  .hud-prot.is-critical.fx-tap,
-    .hud-prot.is-serious.fx-tap { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite, hud-mo-stripes 4s linear infinite !important; }
-  .hud-org.fx-tap .hud-org-meter > i::after { animation: hud-mo-spark 1.8s ease-in-out infinite; }
+  .hud-scene-chip.is-pose:is(.fx-tap, .fx-hold) > i:first-child { animation: hud-mo-sway 3.6s ease-in-out infinite; }
+  .hud-scene-chip.is-pose.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) > i:first-child { animation-play-state: paused !important; }
+  .hud-scene-chip.is-time:is(.fx-tap, .fx-hold) > i:first-child { animation: hud-mo-clock 8s linear infinite; }
+  .hud-scene-chip.is-time.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) > i:first-child { animation-play-state: paused !important; }
+  .hud-prot:is(.fx-tap, .fx-hold)::after { animation: hud-mo-star 4.4s ease-in-out infinite; }
+  .hud-prot.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after { animation-play-state: paused !important; }
+  .hud-prot:is(.fx-tap, .fx-hold) em { animation: hud-mo-status 2.6s ease-in-out infinite alternate; }
+  .hud-prot.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) em { animation-play-state: paused !important; }
+  .hud-prot.is-critical:is(.fx-tap, .fx-hold), .hud-prot.is-serious:is(.fx-tap, .fx-hold) { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite, hud-mo-stripes 4s linear infinite !important; }
+  .hud-prot.is-critical.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on), .hud-prot.is-serious.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) { animation-play-state: paused !important; }
+  .hud-org:is(.fx-tap, .fx-hold) .hud-org-meter > i::after { animation: hud-mo-spark 1.8s ease-in-out infinite; }
+  .hud-org.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-org-meter > i::after { animation-play-state: paused !important; }
   .hud-org.fx-tap .hud-org-scale span:nth-child(1) { animation: hud-mo-appear .9s ease-out 0.00s both; }
   .hud-org.fx-tap .hud-org-scale span:nth-child(2) { animation: hud-mo-appear .9s ease-out 0.25s both; }
   .hud-org.fx-tap .hud-org-scale span:nth-child(3) { animation: hud-mo-appear .9s ease-out 0.50s both; }
-  .hud-org.is-edge.fx-tap .hud-org-meter > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1), hud-mo-edge 1.8s ease-in-out 1.6s infinite alternate; }
-  .hud-org.is-edge.fx-tap .hud-org-head b::after { animation: hud-mi-shimmer 1.6s ease-in-out infinite alternate; }
-  .hud-vit.is-pulse.fx-tap::after { animation: hud-mo-heartmark 1.6s ease-in-out infinite; }
-  .hud-vit.is-breath.fx-tap::after { animation: hud-mo-breathmark 3.6s ease-in-out infinite alternate; }
-  .hud-vit.is-temp.fx-tap::after { animation: hud-mo-tempmark 3.6s ease-in-out infinite alternate; }
-  .hud-vit.fx-tap::before { animation: hud-mo-topline 2.8s ease-in-out infinite alternate; }
-  .hud-vit.is-breath.fx-tap .hud-vit-deco { animation: hud-mo-lungs 3.6s ease-in-out infinite alternate; }
-  .hud-sound[style*="--г:8"].fx-tap::after,
-    .hud-sound[style*="--г:9"].fx-tap::after,
-    .hud-sound[style*="--г:10"].fx-tap::after { animation: hud-mo-star 4s ease-in-out infinite; }
-  .hud-sound[style*="--г:8"].fx-tap b,
-    .hud-sound[style*="--г:9"].fx-tap b,
-    .hud-sound[style*="--г:10"].fx-tap b { animation: hud-mo-loud 1.8s ease-in-out infinite alternate; }
-  .hud-heat.fx-tap .hud-heat-svg .z-rim { animation: hud-mo-rim 3s ease-in-out infinite alternate; }
-  .hud-heat.fx-tap .hud-heat-figure::before { animation: hud-mo-corner 2.6s ease-in-out infinite alternate; }
-  .hud-heat.fx-tap .hud-heat-figure::after { animation: hud-mo-corner 2.6s ease-in-out 1.3s infinite alternate; }
-  .hud-heat.fx-tap .hud-heat-row.is-peak .hud-heat-dot { animation: hud-mo-dotglow 2.2s ease-in-out infinite alternate; }
-  .hud-heat.fx-tap .hud-heat-row.is-rising .hud-heat-trend { animation: hud-mi-drift-up 2s ease-in-out infinite alternate; }
-  .hud-heat.fx-tap .hud-heat-row.is-fading .hud-heat-trend { animation: hud-mi-drift-down 2s ease-in-out infinite alternate; }
-  .hud-heat.fx-tap .hud-heat-row.is-lingering .hud-heat-trend { animation: hud-mo-breathe-op 3s ease-in-out infinite alternate; }
-  .hud-kink-pill.fx-tap::before { animation: hud-mo-chain 3.6s linear infinite; }
-  .hud-kink-pill.fx-tap .hud-pill-label { animation: hud-mo-violet 2.8s ease-in-out infinite alternate; }
-  .hud-fetish-pill.fx-tap::before { animation: hud-mo-silk 3.6s ease-in-out infinite; }
-  .hud-fetish-pill.fx-tap .hud-pill-label { animation: hud-mo-rose 2.8s ease-in-out infinite alternate; }
-  .hud-nogo-pill.fx-tap .hud-pill-label { animation: hud-mo-strike 2.4s ease-in-out infinite alternate; }
-  .hud-nogo-pill.fx-tap::before { animation: hud-mo-bar-red 2.4s ease-in-out infinite alternate; }
-  .hud-noturn-pill.fx-tap .hud-pill-label { animation: hud-mo-dim 4s ease-in-out infinite alternate; }
-  .hud-noturn-pill.fx-tap::before { animation: hud-mo-cool 4s ease-in-out infinite alternate; }
-  .hud-nsfw-list.is-last .hud-nsfw-pill.fx-tap::after { opacity: 1; animation: hud-mo-memory 3.8s ease-in-out infinite; }
-  .hud-nsfw-list.is-last .hud-nsfw-pill.fx-tap .hud-pill-label { animation: hud-mo-sepia 3.8s ease-in-out infinite alternate; }
-  .hud-row.nsfw-care.fx-tap { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite, hud-mo-embrace 4s ease-in-out infinite alternate !important; }
-  .hud-row.nsfw-care.fx-tap .hud-key-ico > span { animation: hud-mo-hug 3s ease-in-out infinite; }
-  .hud-row.nsfw-reg.fx-tap .hud-key-ico > span { animation: hud-mo-metronome 3s ease-in-out infinite; }
-  .hud-row.nsfw-count.fx-tap .hud-value { animation: hud-mo-count 2.6s ease-in-out infinite alternate; }
-  .hud-row.nsfw-review.fx-tap .hud-stars-rating { animation: hud-mo-stars 2.4s ease-in-out infinite alternate; }
-  .hud-row.nsfw-review.fx-tap .hud-sex-rev { animation: hud-mo-review 3.4s ease-in-out infinite alternate; }
+  .hud-org.is-edge:is(.fx-tap, .fx-hold) .hud-org-meter > i { animation: hud-mi-fill 1.6s cubic-bezier(.22,.8,.26,1), hud-mo-edge 1.8s ease-in-out 1.6s infinite alternate; }
+  .hud-org.is-edge.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-org-meter > i { animation-play-state: paused !important; }
+  .hud-org.is-edge:is(.fx-tap, .fx-hold) .hud-org-head b::after { animation: hud-mi-shimmer 1.6s ease-in-out infinite alternate; }
+  .hud-org.is-edge.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-org-head b::after { animation-play-state: paused !important; }
+  .hud-vit.is-pulse:is(.fx-tap, .fx-hold)::after { animation: hud-mo-heartmark 1.6s ease-in-out infinite; }
+  .hud-vit.is-pulse.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after { animation-play-state: paused !important; }
+  .hud-vit.is-breath:is(.fx-tap, .fx-hold)::after { animation: hud-mo-breathmark 3.6s ease-in-out infinite alternate; }
+  .hud-vit.is-breath.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after { animation-play-state: paused !important; }
+  .hud-vit.is-temp:is(.fx-tap, .fx-hold)::after { animation: hud-mo-tempmark 3.6s ease-in-out infinite alternate; }
+  .hud-vit.is-temp.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after { animation-play-state: paused !important; }
+  .hud-vit:is(.fx-tap, .fx-hold)::before { animation: hud-mo-topline 2.8s ease-in-out infinite alternate; }
+  .hud-vit.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::before { animation-play-state: paused !important; }
+  .hud-vit.is-breath:is(.fx-tap, .fx-hold) .hud-vit-deco { animation: hud-mo-lungs 3.6s ease-in-out infinite alternate; }
+  .hud-vit.is-breath.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-vit-deco { animation-play-state: paused !important; }
+  .hud-sound[style*="--г:8"]:is(.fx-tap, .fx-hold)::after, .hud-sound[style*="--г:9"]:is(.fx-tap, .fx-hold)::after, .hud-sound[style*="--г:10"]:is(.fx-tap, .fx-hold)::after { animation: hud-mo-star 4s ease-in-out infinite; }
+  .hud-sound[style*="--г:8"].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after, .hud-sound[style*="--г:9"].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after, .hud-sound[style*="--г:10"].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after { animation-play-state: paused !important; }
+  .hud-sound[style*="--г:8"]:is(.fx-tap, .fx-hold) b, .hud-sound[style*="--г:9"]:is(.fx-tap, .fx-hold) b, .hud-sound[style*="--г:10"]:is(.fx-tap, .fx-hold) b { animation: hud-mo-loud 1.8s ease-in-out infinite alternate; }
+  .hud-sound[style*="--г:8"].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) b, .hud-sound[style*="--г:9"].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) b, .hud-sound[style*="--г:10"].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) b { animation-play-state: paused !important; }
+  .hud-heat:is(.fx-tap, .fx-hold) .hud-heat-svg .z-rim { animation: hud-mo-rim 3s ease-in-out infinite alternate; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-heat-svg .z-rim { animation-play-state: paused !important; }
+  .hud-heat:is(.fx-tap, .fx-hold) .hud-heat-figure::before { animation: hud-mo-corner 2.6s ease-in-out infinite alternate; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-heat-figure::before { animation-play-state: paused !important; }
+  .hud-heat:is(.fx-tap, .fx-hold) .hud-heat-figure::after { animation: hud-mo-corner 2.6s ease-in-out 1.3s infinite alternate; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-heat-figure::after { animation-play-state: paused !important; }
+  .hud-heat:is(.fx-tap, .fx-hold) .hud-heat-row.is-peak .hud-heat-dot { animation: hud-mo-dotglow 2.2s ease-in-out infinite alternate; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-heat-row.is-peak .hud-heat-dot { animation-play-state: paused !important; }
+  .hud-heat:is(.fx-tap, .fx-hold) .hud-heat-row.is-rising .hud-heat-trend { animation: hud-mi-drift-up 2s ease-in-out infinite alternate; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-heat-row.is-rising .hud-heat-trend { animation-play-state: paused !important; }
+  .hud-heat:is(.fx-tap, .fx-hold) .hud-heat-row.is-fading .hud-heat-trend { animation: hud-mi-drift-down 2s ease-in-out infinite alternate; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-heat-row.is-fading .hud-heat-trend { animation-play-state: paused !important; }
+  .hud-heat:is(.fx-tap, .fx-hold) .hud-heat-row.is-lingering .hud-heat-trend { animation: hud-mo-breathe-op 3s ease-in-out infinite alternate; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-heat-row.is-lingering .hud-heat-trend { animation-play-state: paused !important; }
+  .hud-kink-pill:is(.fx-tap, .fx-hold)::before { animation: hud-mo-chain 3.6s linear infinite; }
+  .hud-kink-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::before { animation-play-state: paused !important; }
+  .hud-kink-pill:is(.fx-tap, .fx-hold) .hud-pill-label { animation: hud-mo-violet 2.8s ease-in-out infinite alternate; }
+  .hud-kink-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-pill-label { animation-play-state: paused !important; }
+  .hud-fetish-pill:is(.fx-tap, .fx-hold)::before { animation: hud-mo-silk 3.6s ease-in-out infinite; }
+  .hud-fetish-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::before { animation-play-state: paused !important; }
+  .hud-fetish-pill:is(.fx-tap, .fx-hold) .hud-pill-label { animation: hud-mo-rose 2.8s ease-in-out infinite alternate; }
+  .hud-fetish-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-pill-label { animation-play-state: paused !important; }
+  .hud-nogo-pill:is(.fx-tap, .fx-hold) .hud-pill-label { animation: hud-mo-strike 2.4s ease-in-out infinite alternate; }
+  .hud-nogo-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-pill-label { animation-play-state: paused !important; }
+  .hud-nogo-pill:is(.fx-tap, .fx-hold)::before { animation: hud-mo-bar-red 2.4s ease-in-out infinite alternate; }
+  .hud-nogo-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::before { animation-play-state: paused !important; }
+  .hud-noturn-pill:is(.fx-tap, .fx-hold) .hud-pill-label { animation: hud-mo-dim 4s ease-in-out infinite alternate; }
+  .hud-noturn-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-pill-label { animation-play-state: paused !important; }
+  .hud-noturn-pill:is(.fx-tap, .fx-hold)::before { animation: hud-mo-cool 4s ease-in-out infinite alternate; }
+  .hud-noturn-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::before { animation-play-state: paused !important; }
+  .hud-nsfw-list.is-last .hud-nsfw-pill:is(.fx-tap, .fx-hold)::after { opacity: 1; animation: hud-mo-memory 3.8s ease-in-out infinite; }
+  .hud-nsfw-list.is-last .hud-nsfw-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on)::after { animation-play-state: paused !important; }
+  .hud-nsfw-list.is-last .hud-nsfw-pill:is(.fx-tap, .fx-hold) .hud-pill-label { animation: hud-mo-sepia 3.8s ease-in-out infinite alternate; }
+  .hud-nsfw-list.is-last .hud-nsfw-pill.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-pill-label { animation-play-state: paused !important; }
+  .hud-row.nsfw-care:is(.fx-tap, .fx-hold) { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite, hud-mo-embrace 4s ease-in-out infinite alternate !important; }
+  .hud-row.nsfw-care.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) { animation-play-state: paused !important; }
+  .hud-row.nsfw-care:is(.fx-tap, .fx-hold) .hud-key-ico > span { animation: hud-mo-hug 3s ease-in-out infinite; }
+  .hud-row.nsfw-care.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-key-ico > span { animation-play-state: paused !important; }
+  .hud-row.nsfw-reg:is(.fx-tap, .fx-hold) .hud-key-ico > span { animation: hud-mo-metronome 3s ease-in-out infinite; }
+  .hud-row.nsfw-reg.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-key-ico > span { animation-play-state: paused !important; }
+  .hud-row.nsfw-count:is(.fx-tap, .fx-hold) .hud-value { animation: hud-mo-count 2.6s ease-in-out infinite alternate; }
+  .hud-row.nsfw-count.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-value { animation-play-state: paused !important; }
+  .hud-row.nsfw-review:is(.fx-tap, .fx-hold) .hud-stars-rating { animation: hud-mo-stars 2.4s ease-in-out infinite alternate; }
+  .hud-row.nsfw-review.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-stars-rating { animation-play-state: paused !important; }
+  .hud-row.nsfw-review:is(.fx-tap, .fx-hold) .hud-sex-rev { animation: hud-mo-review 3.4s ease-in-out infinite alternate; }
+  .hud-row.nsfw-review.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-sex-rev { animation-play-state: paused !important; }
 }
 
 @keyframes hud-soft-nsfw {
@@ -5831,7 +5979,7 @@ html.hud-custom-open body { overflow: hidden; }
 }
 .hud-custom-head button:hover { background: color-mix(in oklab, var(--hud-accent, #c31f38) 25%, transparent); }
 .hud-custom-head button:focus-visible { outline: 2px solid var(--hud-accent, #c31f38); outline-offset: 2px; }
-.hud-custom-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(320px, 420px) minmax(0, 1fr); }
+.hud-custom-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(min(100%, 320px), 420px) minmax(0, 1fr); }
 .hud-custom-settings { min-height: 0; overflow-y: auto; border-right: 1px solid rgba(127, 127, 127, .2); overscroll-behavior: contain; }
 /* В окне панель — не всплывашка в карточке: без потолка по высоте и фона. */
 .hud-custom-settings .hud-theme-panel {
@@ -6164,8 +6312,10 @@ html.hud-custom-open body { overflow: hidden; }
 }
 .hud-scene-state.is-live i {
   width: 7px; height: 7px; border-radius: 50%; background: var(--hud-nsfw-color, #d9548a);
-  animation: hud-scene-pulse 1.6s ease-out infinite;
+  animation: hud-scene-pulse 1.6s ease-out infinite; animation-play-state: paused;
 }
+/* Точка «сцена идёт» пульсирует только под курсором или после касания. */
+.hud-row:is(:hover, .fx-tap) .hud-scene-state.is-live i, .hud-scene-state.is-live:is(:hover, .fx-tap) i { animation-play-state: running; }
 @keyframes hud-scene-pulse {
   0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--hud-nsfw-color, #d9548a) 65%, transparent); }
   100% { box-shadow: 0 0 0 7px transparent; }
@@ -6573,7 +6723,8 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
 .hud-heat-svg .z-organ-ring { fill: color-mix(in srgb, var(--hud-accent, #c31f38) 18%, transparent); stroke: color-mix(in srgb, var(--hud-accent, #c31f38) 60%, #fff); stroke-width: .8; stroke-dasharray: 2 1.4; }
 .hud-heat-svg .z-organ-core { fill: color-mix(in srgb, var(--hud-accent, #c31f38) 70%, #fff); }
 @media (prefers-reduced-motion: no-preference) {
-  .hud-heat:hover .z-organ-ring { animation: hud-organ-pulse 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  .hud-heat:is(:hover, .fx-hold) .z-organ-ring { animation: hud-organ-pulse 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .z-organ-ring { animation-play-state: paused !important; }
 }
 @keyframes hud-organ-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
 
@@ -6643,7 +6794,8 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
 .hud-hl-tile.is-pulse.is-high .hud-hl-val b { color: color-mix(in oklab, var(--hud-phone-accent) 60%, #fff); }
 .hud-hl-beat { font-style: normal; color: var(--hud-phone-accent); }
 @media (prefers-reduced-motion: no-preference) {
-  .hud-hl-tile.is-pulse:hover .hud-hl-beat { display: inline-block; animation: hud-hl-beat .8s ease-in-out infinite; }
+  .hud-hl-tile.is-pulse:is(:hover, .fx-hold) .hud-hl-beat { display: inline-block; animation: hud-hl-beat .8s ease-in-out infinite; }
+  .hud-hl-tile.is-pulse.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-hl-beat { animation-play-state: paused !important; }
 }
 @keyframes hud-hl-beat { 0%, 100% { transform: scale(1); } 30% { transform: scale(1.3); } }
 

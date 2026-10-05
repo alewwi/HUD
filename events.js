@@ -11,16 +11,16 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.31.0';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.31.0';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.31.0';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.31.0';
-import { settings, defaultSettings } from './settings.js?v=23.31.0';
-import { getWorldVotes } from './render/world.js?v=23.31.0';
-import { раскрытьПорцию } from './render/long-list.js?v=23.31.0';
-import { прогретьИсторию } from './render/carryover.js?v=23.31.0';
-import { подключитьПалитру } from './color-picker.js?v=23.31.0';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.31.0';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.36.1';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.36.1';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.36.1';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.36.1';
+import { settings, defaultSettings } from './settings.js?v=23.36.1';
+import { getWorldVotes } from './render/world.js?v=23.36.1';
+import { раскрытьПорцию } from './render/long-list.js?v=23.36.1';
+import { прогретьИсторию } from './render/carryover.js?v=23.36.1';
+import { подключитьПалитру } from './color-picker.js?v=23.36.1';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.36.1';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -1641,17 +1641,31 @@ function вернутьПоСобытию(e) {
 // ближайший оживающий элемент класс fx-tap на пару секунд (повторное касание
 // перезапускает движение), а на саму карточку — fx-live, чтобы ожили и слои
 // темы. Обработчик пассивный и ничего не отменяет: клики живут как раньше.
-const ОЖИВАЮТ_ПО_КАСАНИЮ = ".hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-row, .hud-heat, .hud-cycle, .hud-secret-summary, .hud-fam-svg, .hud-phone-app, .hud-phone-lockscreen, .hud-mood-group, .hud-scene-strip-wrap";
+const ОЖИВАЮТ_ПО_КАСАНИЮ = ".hud-tempo, .hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-row, .hud-heat, .hud-cycle, .hud-secret-summary, .hud-fam-svg, .hud-phone-app, .hud-phone-lockscreen, .hud-mood-group, .hud-scene-strip-wrap";
 const таймерыОживления = new WeakMap();
+// fx-tap — переключатель: первое касание оживляет, второе замораживает
+// движение там, где оно было (css: .fx-hold без касания — на паузе).
+// fx-live (оживить всю карточку) — по-прежнему на время.
 function оживить(элемент, класс, мс) {
   clearTimeout(таймерыОживления.get(элемент));
-  if (класс === 'fx-tap' && элемент.classList.contains(класс)) {
-    элемент.classList.remove(класс);
-    void элемент.offsetWidth;
+  if (класс === 'fx-tap') {
+    элемент.classList.add('fx-hold');
+    элемент.classList.toggle('fx-tap');
+    return;
   }
   элемент.classList.add(класс);
   таймерыОживления.set(элемент, setTimeout(() => элемент.classList.remove(класс), мс));
 }
+// Метка «уже двигался»: с ней анимация остаётся назначенной и после того,
+// как курсор ушёл, — и замирает на месте, а не прыгает к началу. Ставим
+// всем предкам под курсором или пальцем внутри карточки.
+function пометитьДвижение(e) {
+  const карточка = e.target && e.target.closest && e.target.closest('.hud-os-card');
+  if (!карточка) return;
+  for (let у = e.target; у && у !== карточка.parentElement; у = у.parentElement) if (у.classList && !у.classList.contains('fx-hold')) у.classList.add('fx-hold');
+}
+document.addEventListener('pointerover', пометитьДвижение, { passive: true });
+document.addEventListener('pointerdown', пометитьДвижение, { passive: true });
 document.addEventListener('pointerup', (e) => {
   const карточка = e.target.closest && e.target.closest('.hud-os-card');
   if (!карточка) return;
@@ -1706,6 +1720,53 @@ document.addEventListener('click', (e) => {
   e.preventDefault(); e.stopPropagation();
   раскрытьПорцию(кнопка).forEach(узел => refreshReactions(узел));
 }, true);
+
+// Длинные списки карточек: видно три, остальное листается (css/compact.css).
+// На телефоне — вниз: высоту под три карточки меряем по месту, карточки
+// разной высоты. На широком экране списки столбиком идут вбок по три в ряд,
+// сетки и виды блоков — тоже вниз. Скрытые вкладки меряем, когда откроют.
+const СПИСКИ = '.hud-vertical-container, .hud-ill-list, .hud-marks, .hud-guns, .hud-v-vaults, .hud-v-envs, .hud-v-files, .hud-v-webs, .hud-v-secbars, .hud-v-inv.is-cards, .hud-v-inv.is-groups';
+const ВБОК = '.hud-vertical-container, .hud-ill-list, .hud-marks';
+function ужатьСписки() {
+  if (typeof window.matchMedia !== 'function' || !document.querySelectorAll) return;
+  const широкий = window.matchMedia('(min-width: 601px)').matches;
+  document.querySelectorAll(`.hud-os-card :is(${СПИСКИ})`).forEach(с => {
+    const дети = [...с.children].filter(x => x.nodeType === 1 && getComputedStyle(x).display !== 'none' && getComputedStyle(x).position !== 'absolute');
+    if (дети.length < 4) { if (с.classList.contains('is-capped') || с.classList.contains('is-capped-x')) { с.classList.remove('is-capped', 'is-capped-x', 'is-end'); с.style.maxHeight = ''; } return; }
+    if (широкий && с.matches(ВБОК)) {
+      if (!с.classList.contains('is-capped-x')) { с.classList.remove('is-capped'); с.style.maxHeight = ''; с.classList.add('is-capped-x'); }
+      return;
+    }
+    if (!с.offsetParent) return;
+    const ключ = дети.length + '|' + с.clientWidth;
+    if (с.classList.contains('is-capped') && с.dataset.cap === ключ) return;
+    с.classList.remove('is-capped-x');
+    с.classList.add('is-capped');
+    с.style.maxHeight = 'none';
+    const верх = с.getBoundingClientRect().top;
+    const низ = Math.max(...дети.slice(0, 3).map(x => x.getBoundingClientRect().bottom));
+    // Три карточки целиком и краешек четвёртой — видно, что дальше есть ещё.
+    с.style.maxHeight = Math.ceil(низ - верх + 34) + 'px';
+    с.dataset.cap = ключ;
+    с.classList.toggle('is-end', с.scrollHeight - с.clientHeight < 4);
+  });
+}
+let таймерСписков = 0;
+const ужатьПозже = (мс = 120) => { clearTimeout(таймерСписков); таймерСписков = setTimeout(ужатьСписки, мс); };
+if (typeof MutationObserver !== 'undefined') new MutationObserver((записи) => {
+  if (записи.some(з => [...з.addedNodes].some(у => у.nodeType === 1 && (у.matches?.('.hud-os-card, .hud-tab-content, .mes, .mes_text') || у.querySelector?.('.hud-os-card'))))) ужатьПозже();
+}).observe(document.body, { childList: true, subtree: true });
+document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('.hud-tab, .hud-kid-tab, .hud-kid-chip, summary, .hud-toggle-input, label')) ужатьПозже(80); }, true);
+document.addEventListener('toggle', () => ужатьПозже(60), true);
+if (typeof window.addEventListener === 'function') window.addEventListener('resize', () => ужатьПозже(200));
+// Долистал до конца — затухание у края убираем.
+document.addEventListener('scroll', (e) => {
+  const с = e.target;
+  if (!с || !с.classList || !(с.classList.contains('is-capped') || с.classList.contains('is-capped-x'))) return;
+  const конец = с.classList.contains('is-capped-x') ? с.scrollWidth - с.clientWidth - с.scrollLeft < 4 : с.scrollHeight - с.clientHeight - с.scrollTop < 4;
+  с.classList.toggle('is-end', конец);
+}, true);
+ужатьПозже(600);
 
 // Семейные блоки (беременность, роды, «Детская»): нажатие включает движение,
 // второе — замораживает его на том же кадре (css/family.css, fx-on). Вложенные

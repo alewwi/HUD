@@ -6,13 +6,13 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.31.0';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.31.0';
-import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.31.0';
-import { отложитьРисунок } from './lazy-svg.js?v=23.31.0';
-import { длинныйСписок } from './long-list.js?v=23.31.0';
-import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.31.0';
-import { статусРужья } from '../codes.js?v=23.31.0';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.36.1';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.36.1';
+import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.36.1';
+import { отложитьРисунок } from './lazy-svg.js?v=23.36.1';
+import { длинныйСписок } from './long-list.js?v=23.36.1';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.36.1';
+import { статусРужья } from '../codes.js?v=23.36.1';
 
 function parseRoutePoint(item) {
   // Модель иногда ставит дату перед временем («09.11, 22:15») — дату отбрасываем.
@@ -200,7 +200,28 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
   }
 
   // 4. СЕКРЕТЫ (Кастомный скрытый спойлер + Уровни)
-  const секретыИначе = Array.isArray(memoryData.secrets) && memoryData.secrets.length ? видСекретов(memoryData.secrets, видБлока('secretsView')) : '';
+  // Кнопка «в Лорбук» у каждого секрета — и в списке, и во всех видах:
+  // факт, кто знает (с пояснением, откуда), кто не в курсе, гриф. Пояснение
+  // к имени — самое ценное после факта, без него запись пересказывает половину.
+  const имяЧел = (x) => String((x && typeof x === 'object' ? (x.name || x.who) : x) || '').trim();
+  const пустоеИмя = (n) => !n || /^(none|empty|null|нет|никто|-|—)$/i.test(n);
+  const списком = (v) => (Array.isArray(v) ? v : (v ? [v] : []));
+  const кругСекрета = (сек) => {
+    const было = new Set();
+    const уник = (список) => список.filter(x => { const n = имяЧел(x).toLowerCase(); if (пустоеИмя(n) || было.has(n)) return false; было.add(n); return true; });
+    const знают = уник(списком(сек.knows));
+    return { знают, неЗнают: уник(списком(сек.unaware ?? сек.hidden)) };
+  };
+  const грифСекрета = (сек) => { const l = String(сек.level || '').toLowerCase(); return l.includes('crit') ? 'ОСОБОЙ ВАЖНОСТИ' : l.includes('high') ? 'СТРОГО СЕКРЕТНО' : 'СЕКРЕТ'; };
+  const кнопкаСекрета = (сек) => {
+    const { знают, неЗнают } = кругСекрета(сек);
+    const строки = [String(сек.fact || '').trim()];
+    строки.push('Знают: ' + (знают.length ? знают.map(k => { const nm = имяЧел(k), src = String((k && k.source) || '').trim(); return src ? nm + ' (' + src + ')' : nm; }).filter(Boolean).join('; ') : 'никто'));
+    if (неЗнают.length) строки.push('Не знают: ' + неЗнают.map(имяЧел).filter(Boolean).join('; '));
+    строки.push('Уровень: ' + грифСекрета(сек));
+    return loreButtonHTML(строки.join('\n'), [...знают, ...неЗнают].map(имяЧел).filter(Boolean), isNewLoreItem(сек.fact));
+  };
+  const секретыИначе = Array.isArray(memoryData.secrets) && memoryData.secrets.length ? видСекретов(memoryData.secrets, видБлока('secretsView'), memoryData.secrets.map(кнопкаСекрета)) : '';
   if (секретыИначе) html += `<div class="hud-row full-width"><span class="hud-key">🤫 Зашифрованные данные:</span> ${секретыИначе}</div>`;
   else if (Array.isArray(memoryData.secrets) && memoryData.secrets.length > 0) {
     let secHtml = memoryData.secrets.map(s => {
@@ -245,27 +266,6 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
            ? unawareArr.map(u => `<div class="hud-secret-person unaware"><span class="hud-secret-pname">✖ ${escapeHtml(u.name || u)}</span></div>`).join('')
            : '';
 
-       // Текст для Lorebook: факт, круг посвящённых с их пояснениями и те,
-       // кто не в курсе. Пояснение к имени («откуда узнал») — самое ценное
-       // в секрете после самого факта, без него запись пересказывает половину.
-       const loreLines = [String(s.fact || '').trim()];
-       if (knowsArr.length) {
-         loreLines.push('Знают: ' + knowsArr.map(k => {
-           const nm = String((k && k.name) || k || '').trim();
-           const src = String((k && k.source) || '').trim();
-           return src ? nm + ' (' + src + ')' : nm;
-         }).filter(Boolean).join('; '));
-       } else {
-         loreLines.push('Знают: никто');
-       }
-       if (unawareArr.length) {
-         loreLines.push('Не знают: ' + unawareArr.map(u => String((u && u.name) || u || '').trim()).filter(Boolean).join('; '));
-       }
-       if (lvlText) loreLines.push('Уровень: ' + lvlText.replace(/^[^\s]+\s/, ''));
-       const loreContent = loreLines.join('\n');
-       // Ключи — все, кто в этом секрете замешан: и знающие, и незнающие.
-       const loreKeys = [...knowsArr, ...unawareArr].map(x => String((x && x.name) || x || '').trim()).filter(Boolean);
-
        return `
        <details class="hud-secret-details">
           <summary class="hud-secret-summary ${lvlClass}">
@@ -278,7 +278,7 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
           <div class="hud-secret-body">
               <div class="hud-secret-head-row">
                 <div class="hud-secret-title">${escapeHtml(s.fact)}</div>
-                ${loreButtonHTML(loreContent, loreKeys, isNewLoreItem(s.fact))}
+                ${кнопкаСекрета(s)}
               </div>
               <div class="hud-secret-cols">
                   <div class="hud-secret-col">

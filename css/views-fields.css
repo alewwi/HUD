@@ -498,7 +498,7 @@
 /* ================================= КЛЮЧ =================================== */
 
 /* Стикеры */
-.hud-f-key.is-stickers { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 16px 12px; padding: 8px 4px 4px; }
+.hud-f-key.is-stickers { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 16px 12px; padding: 8px 4px 4px; }
 .hud-f-key.is-stickers .note {
   --pap: hsl(from var(--t-acc) calc(h + var(--h)) var(--f-tint-s) var(--f-tint-l));
   position: relative; padding: 18px 12px 14px; transform: rotate(var(--r)); color: var(--f-tint-ink); transition: transform .3s;
@@ -653,7 +653,7 @@
 .hud-f-goals.is-road .stop text { font: 800 8px sans-serif; fill: #fff; text-anchor: middle; }
 .hud-f-goals.is-road .stop .pole { stroke: #3a2a1c; stroke-width: 1.6; }
 .hud-f-goals.is-road .stop .banner { fill: #ffd34a; stroke: #b8862e; stroke-width: .6; }
-.hud-f-goals.is-road .legend { list-style: none; margin: 10px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 8px; }
+.hud-f-goals.is-road .legend { list-style: none; margin: 10px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 140px), 1fr)); gap: 8px; }
 .hud-f-goals.is-road .legend li { display: flex; align-items: flex-start; gap: 8px; font-size: .88em; }
 .hud-f-goals.is-road .legend b { flex: none; width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: .74em; color: #fff; background: var(--t-acc); }
 .hud-f-goals.is-road .legend li:last-child b { background: #ffd34a; color: #3a2a0a; }
@@ -904,7 +904,7 @@
 .hud-mkv-compact .hud-mark-ring { width: 24px; height: 24px; }
 
 /* Эмалевые значки */
-.hud-mkv-badges .hud-marks { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+.hud-mkv-badges .hud-marks { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(min(100%, 130px), 1fr)); gap: 12px; }
 .hud-mkv-badges .hud-mark { display: flex !important; flex-direction: column; align-items: center; text-align: center; gap: 5px; padding: 12px 8px 10px !important; border-radius: 16px !important; overflow: visible !important; background: var(--f-inset) !important; border: 1px solid var(--f-inset-line) !important; }
 .hud-mkv-badges .hud-mark-ico { font-size: 24px !important; width: 54px; height: 54px; display: grid !important; place-items: center; border-radius: 50%;
   background: radial-gradient(circle at 50% 50%, color-mix(in srgb, var(--mk) 65%, #fff) 0 52%, transparent 54%), conic-gradient(from 0deg, #f6e7a8, #b8862e, #fff2c0, #a0701e, #f6e7a8);
@@ -915,7 +915,7 @@
 .hud-mkv-badges .hud-mark-heal { width: 100%; }
 
 /* Акварель: след — размытым пятном своего цвета на бумаге темы */
-.hud-mkv-tags .hud-marks { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+.hud-mkv-tags .hud-marks { display: grid !important; grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr)); gap: 12px; }
 .hud-mkv-tags .hud-mark { position: relative; display: flex !important; flex-direction: column; align-items: flex-start; gap: 4px; padding: 14px 14px 12px !important; border-radius: 4px 14px 4px 14px !important;
   border: 0 !important; color: var(--f-paper-ink);
   background: radial-gradient(circle at 26% 30%, color-mix(in srgb, var(--mk) 50%, transparent) 0, color-mix(in srgb, var(--mk) 22%, transparent) 26%, transparent 52%), radial-gradient(ellipse at 72% 78%, color-mix(in srgb, var(--mk) 22%, transparent), transparent 45%), radial-gradient(rgba(127,127,127,.07) .7px, transparent 1px) 0 0 / 4px 4px, var(--f-paper) !important;

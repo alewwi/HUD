@@ -88,7 +88,8 @@
 :root.hud-skin-ghost .hud-os-card .hud-header-text::after { content: var(--hud-dateline, ''); display: block; margin-top: 3px; font-size: .7em; letter-spacing: 3px; opacity: .75; }
 :root.hud-skin-ghost .hud-os-card .hud-body > .hud-row > .hud-key::before { content: '✦ '; display: inline-block; margin-right: 2px; color: var(--hud-accent); }
 @keyframes hud-ghost-flip { to { transform: perspective(400px) rotateY(360deg); } }
-:root.hud-skin-ghost .hud-os-card .hud-body > .hud-row:hover > .hud-key::before { animation: hud-ghost-flip 2.4s linear infinite; }
+:root.hud-skin-ghost .hud-os-card .hud-body > .hud-row:is(:hover, .fx-hold) > .hud-key::before { animation: hud-ghost-flip 2.4s linear infinite; }
+:root.hud-skin-ghost .hud-os-card .hud-body > .hud-row.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) > .hud-key::before { animation-play-state: paused !important; }
 
 /* --- «Газета» -------------------------------------------------------------- */
 :root.hud-skin-news .hud-os-card { --n-paper: color-mix(in srgb, var(--hud-accent) 5%, #26221e); --n-ink: #ece3d2; --n-rule: rgba(236,227,210,.7); --n-edge: rgba(0,0,0,.45); }
@@ -317,7 +318,8 @@
 .hud-deep .hud-veil .r { fill: none; stroke: color-mix(in srgb, var(--hud-accent) 60%, var(--x-ink)); stroke-width: 1.2; }
 .hud-deep.is-closed p { filter: blur(6px); opacity: .55; user-select: none; }
 .hud-deep.is-closed .hud-veil { display: flex; }
-.hud-deep:hover .hud-veil .r { animation: hud-ripple 1.6s ease-out infinite; transform-origin: 17px 17px; }
+.hud-deep:is(:hover, .fx-hold) .hud-veil .r { animation: hud-ripple 1.6s ease-out infinite; transform-origin: 17px 17px; }
+  .hud-deep.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-veil .r { animation-play-state: paused !important; }
 @keyframes hud-ripple { from { transform: scale(.6); opacity: 1; } to { transform: scale(1.25); opacity: 0; } }
 
 .hud-diary-about-user.hud-wash { position: relative; margin-top: 10px; padding: 10px 12px; border-radius: 12px; overflow: hidden; cursor: pointer;

@@ -185,7 +185,7 @@
 .hud-kid-toy { width: 24px; height: 24px; fill: color-mix(in srgb, currentColor 18%, transparent); stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
 /* Трекер: по фишке на малыша. */
-.hud-kid-tracker { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 8px; }
+.hud-kid-tracker { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr)); gap: 8px; }
 .hud-kid-chip { --c: var(--fam-baby); display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 16px; text-align: left; font: inherit; color: inherit; cursor: pointer;
   background: linear-gradient(135deg, color-mix(in srgb, var(--c) 22%, transparent), color-mix(in srgb, var(--c) 6%, transparent));
   border: 1.5px dashed color-mix(in srgb, var(--c) 55%, transparent); transition: transform .25s, box-shadow .25s, border-style .2s; }
@@ -244,7 +244,7 @@
 .hud-kid-care .m.is-next b { font-weight: 600; font-size: .82em; opacity: .8; margin-left: 4px; }
 .hud-kid-care .m.is-later { opacity: .5; border: 1px dashed color-mix(in srgb, currentColor 30%, transparent); }
 .hud-kid-care .ms-count { display: block; margin-top: 4px; font-size: .72em; opacity: .7; }
-.hud-kid-care .norms { margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 6px; }
+.hud-kid-care .norms { margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); gap: 6px; }
 .hud-kid-care .norms > div { padding: 6px 10px; border-radius: 12px; background: color-mix(in srgb, var(--c) 9%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 25%, transparent); }
 .hud-kid-care .norms dt { font-size: .72em; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
 .hud-kid-care .norms dt i { font-style: normal; margin-right: 5px; }
@@ -358,3 +358,10 @@
 .hud-prg-more > summary:hover { background: color-mix(in srgb, var(--fam-acc) 14%, transparent); }
 .hud-prg-more:not([open]) .close, .hud-prg-more[open] .open { display: none; }
 .hud-prg-more[open] { display: flex; flex-direction: column; gap: 8px; }
+
+/* Цикл на паузе: беременность или после родов (character.js → циклНаПаузе). */
+.hud-cycle-pause { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-radius: 12px; background: var(--fam-inset); box-shadow: inset 0 0 0 1px var(--fam-line); }
+.hud-cycle-pause > i { font-style: normal; font-size: 1.3em; }
+.hud-cycle-pause span { display: flex; flex-direction: column; gap: 1px; }
+.hud-cycle-pause b { color: var(--fam-ink); }
+.hud-cycle-pause small { font-size: .8em; color: color-mix(in srgb, currentColor 72%, transparent); }

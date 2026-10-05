@@ -1,0 +1,116 @@
+/* =========================================================================
+   БЛИЗОСТЬ НА КАРТЕ ТЕЛА (render/scene-body.js): одежда по фигуре, темп,
+   отметки проникновения. Движение — только под курсором или после нажатия,
+   потом замирает на месте.
+   ========================================================================= */
+
+/* --- Одежда: цвет из описания, ткань и состояние ------------------------- */
+.hud-heat-svg .z-garment .body {
+  fill: var(--cl, #8a8f9c); fill-opacity: .92;
+  stroke: color-mix(in srgb, var(--cl, #8a8f9c) 55%, #9a9aa6); stroke-width: .55; stroke-linejoin: round;
+  filter: drop-shadow(0 .5px .6px rgba(0,0,0,.45));
+}
+.hud-heat-svg .z-garment .seam, .hud-heat-svg .z-garment .fold {
+  fill: none; stroke: color-mix(in srgb, var(--cl, #8a8f9c) 45%, #000); stroke-width: .55; stroke-linecap: round; opacity: .75;
+}
+.hud-heat-svg .z-garment .fold { stroke-width: .75; stroke: color-mix(in srgb, var(--cl, #8a8f9c) 60%, #000); }
+/* На тёмной ткани швы светлее, чтобы читались. */
+.hud-heat-svg .z-garment:is([style*="#1c1b21"], [style*="#1d1b22"], [style*="#1a1a1f"], [style*="#1a1716"], [style*="#241a18"], [style*="#2c2f38"], [style*="#2a2a30"], [style*="#26282f"]) :is(.seam, .fold) { stroke: color-mix(in srgb, var(--cl) 40%, #fff); opacity: .5; }
+.hud-heat-svg .z-garment .strap { fill: none; stroke: var(--cl, #8a8f9c); stroke-width: 1; stroke-linecap: round; }
+.hud-heat-svg .z-garment .band { fill: none; stroke: color-mix(in srgb, var(--cl, #8a8f9c) 60%, #fff); stroke-width: 1.4; opacity: .7; }
+.hud-heat-svg .z-garment .btn { fill: color-mix(in srgb, var(--cl, #8a8f9c) 55%, #999); stroke: rgba(0,0,0,.35); stroke-width: .2; }
+.hud-heat-svg .z-garment .btn.is-loose { opacity: .75; }
+/* Ткани. */
+.hud-heat-svg .z-garment.t-silk .body { fill-opacity: .86; stroke: color-mix(in srgb, var(--cl) 40%, #fff); stroke-width: .7; filter: drop-shadow(0 .5px .6px rgba(0,0,0,.4)) brightness(1.08); }
+.hud-heat-svg .z-garment.t-lace .body { fill-opacity: .55; stroke-dasharray: 1 .7; stroke-width: .7; }
+.hud-heat-svg .z-garment.t-sheer .body { fill-opacity: .38; }
+.hud-heat-svg .z-garment.t-leather .body { fill-opacity: .96; stroke: color-mix(in srgb, var(--cl) 50%, #fff); filter: drop-shadow(0 .5px .6px rgba(0,0,0,.5)) contrast(1.15); }
+.hud-heat-svg .z-garment.t-knit .body { stroke-dasharray: .9 .5; }
+/* Мокрая ткань липнет и просвечивает; порванная — неровный край. */
+.hud-heat-svg .z-garment.is-wet .body { fill-opacity: .6; filter: drop-shadow(0 .5px .6px rgba(0,0,0,.4)) saturate(.85) brightness(.9); }
+.hud-heat-svg .z-garment.is-torn .body { stroke-dasharray: 2.4 .9; }
+/* Голое тело: подсветка контура чуть теплее. */
+.hud-heat.is-nude .hud-heat-svg .z-rim { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--heat, #e0507a) 45%, transparent)); }
+
+/* --- Проникновение: отметка на зоне + подпись ------------------------------ */
+.hud-heat.hide-pen .z-pen-layer, .hud-heat.hide-pen .hud-pen-list { display: none; }
+.hud-heat-svg .z-pen { --pc: var(--hud-nsfw-color, #d9548a); }
+.hud-heat-svg .z-pen.p-fingers { --pc: #f0a94a; }
+.hud-heat-svg .z-pen.p-tongue { --pc: #ff7aa8; }
+.hud-heat-svg .z-pen.p-toy { --pc: #9b7bff; }
+.hud-heat-svg .z-pen-core { fill: var(--pc); stroke: #fff; stroke-width: .5; filter: drop-shadow(0 0 2px var(--pc)); }
+.hud-heat-svg .z-pen-tag rect { fill: rgba(14, 10, 16, .82); stroke: var(--pc); stroke-width: .4; }
+.hud-heat-svg .z-pen-tag text { fill: #fff; font-size: 5.4px; font-weight: 700; letter-spacing: .02em; }
+.hud-pen-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.hud-pen { --pc: var(--hud-nsfw-color, #d9548a); display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 7px; border-radius: 999px; font-size: .84em;
+  background: color-mix(in srgb, var(--pc) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pc) 45%, transparent); }
+.hud-pen.p-fingers { --pc: #f0a94a; } .hud-pen.p-tongue { --pc: #ff7aa8; } .hud-pen.p-toy { --pc: #9b7bff; }
+.hud-pen > i { width: 8px; height: 8px; border-radius: 50%; background: var(--pc); box-shadow: 0 0 6px var(--pc); }
+.hud-pen small { color: color-mix(in srgb, currentColor 70%, transparent); }
+
+/* --- Темп: шкала заполняется снизу вверх на каждый толчок ----------------- */
+.hud-tempo { --tc: var(--hud-nsfw-color, #d9548a); display: flex; align-items: stretch; gap: 14px; margin-top: 8px; padding: 10px 14px 10px 12px; border-radius: 14px;
+  background: radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--tc) 14%, transparent), transparent 60%), rgba(0,0,0,.18);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tc) 30%, transparent); }
+.hud-tempo.l0 { --tc: #8fa6c9; } .hud-tempo.l1 { --tc: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 50%, #c7a0ff); }
+.hud-tempo.l4 { --tc: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 60%, #ff3b3b); }
+.hud-tempo-tube { flex: none; display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.hud-tempo-tube .glass { position: relative; width: 26px; height: 92px; border-radius: 13px; overflow: hidden;
+  background: linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.1) 40%, rgba(255,255,255,.03)), rgba(0,0,0,.35);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tc) 45%, transparent), inset 0 -6px 10px rgba(0,0,0,.4); }
+.hud-tempo-tube .glass > s { position: absolute; left: 0; width: 7px; height: 1.5px; background: color-mix(in srgb, currentColor 30%, transparent); z-index: 2; }
+.hud-tempo-tube .fill { position: absolute; left: 0; right: 0; bottom: 0; height: 100%; transform-origin: 50% 100%; transform: scaleY(var(--depth, .72));
+  background: linear-gradient(0deg, color-mix(in srgb, var(--tc) 85%, #000), var(--tc) 55%, color-mix(in srgb, var(--tc) 55%, #fff));
+  box-shadow: 0 0 14px var(--tc); border-radius: 0 0 13px 13px; }
+/* Отметка глубины: до куда доходит толчок. */
+.hud-tempo-tube .peak { position: absolute; left: 3px; right: 3px; bottom: calc(var(--depth, .72) * 100%); height: 2px; border-radius: 2px; background: #fff; opacity: .75; box-shadow: 0 0 6px var(--tc); }
+.hud-tempo-tube small { font-size: .58em; letter-spacing: .08em; text-transform: uppercase; color: color-mix(in srgb, currentColor 55%, transparent); order: -1; }
+.hud-tempo-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 7px; }
+.hud-tempo-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.hud-tempo-head b { font-size: .72em; letter-spacing: .14em; text-transform: uppercase; color: color-mix(in srgb, var(--tc) 55%, #fff); }
+.hud-tempo-head .bpm { font-size: .8em; color: color-mix(in srgb, currentColor 72%, transparent); }
+.hud-tempo-head .bpm strong { font-size: 1.7em; font-weight: 800; color: color-mix(in srgb, var(--tc) 40%, #fff); margin-right: 4px; text-shadow: 0 0 10px color-mix(in srgb, var(--tc) 60%, transparent); }
+.hud-tempo .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.hud-tempo .chips i { font-style: normal; font-size: .78em; font-weight: 700; padding: 1px 9px; border-radius: 999px; background: color-mix(in srgb, var(--tc) 22%, transparent); }
+.hud-tempo-meter { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.hud-tempo-meter s { height: 5px; border-radius: 4px; background: color-mix(in srgb, currentColor 10%, transparent); text-decoration: none; }
+.hud-tempo-meter s.on { background: linear-gradient(90deg, color-mix(in srgb, var(--tc) 50%, transparent), var(--tc)); box-shadow: 0 0 6px color-mix(in srgb, var(--tc) 50%, transparent); }
+.hud-tempo-scale { display: flex; justify-content: space-between; font-size: .62em; letter-spacing: .06em; color: color-mix(in srgb, currentColor 55%, transparent); margin-top: -3px; }
+
+/* Отметка проникновения: точка и рядом маленькая шкала того же темпа. */
+.hud-heat-svg .z-pen-halo { fill: color-mix(in srgb, var(--pc) 22%, transparent); stroke: var(--pc); stroke-width: .6; stroke-dasharray: 1.6 1.2; }
+.hud-heat-svg .z-pen-tube { fill: rgba(10, 6, 12, .88); stroke: #fff; stroke-width: .6; stroke-opacity: .85; }
+.hud-heat-svg .z-pen-fill { fill: var(--pc); transform-box: fill-box; transform-origin: 50% 100%; transform: scaleY(var(--depth, .72)); filter: drop-shadow(0 0 1.5px var(--pc)); }
+
+/* --- Движение: задано всегда, стоит на паузе; идёт под курсором/по нажатию --- */
+@media (prefers-reduced-motion: no-preference) {
+  .hud-tempo-tube .fill, .hud-heat-svg .z-pen-fill { animation: hud-tempo-thrust var(--beat, 1s) cubic-bezier(.5, 0, .3, 1) infinite; }
+  .hud-tempo.is-ragged .hud-tempo-tube .fill, .hud-heat-svg .z-pen.is-ragged .z-pen-fill { animation-name: hud-tempo-ragged; }
+}
+:is(.hud-tempo-tube .fill, .hud-heat-svg .z-pen-fill) { animation-play-state: paused; }
+.hud-tempo:is(:hover, .fx-tap, .fx-on) .hud-tempo-tube .fill,
+.hud-heat:is(:hover, .fx-tap, .fx-on) .hud-heat-svg .z-pen-fill { animation-play-state: running; }
+.hud-tempo.l0 .hud-tempo-tube .fill, .hud-heat-svg .z-pen.is-still .z-pen-fill { animation: none; }
+/* Толчок: от глубины (вид в покое) шкала опадает и снова заполняется до глубины. */
+@keyframes hud-tempo-thrust {
+  0% { transform: scaleY(var(--depth, .72)); }
+  45% { transform: scaleY(calc(var(--depth, .72) * .18)); }
+  100% { transform: scaleY(var(--depth, .72)); }
+}
+/* Рвано: три толчка за цикл — разной силы и через неровные промежутки. */
+@keyframes hud-tempo-ragged {
+  0% { transform: scaleY(var(--depth, .72)); }
+  14% { transform: scaleY(calc(var(--depth, .72) * .2)); }
+  28% { transform: scaleY(calc(var(--depth, .72) * .7)); }
+  40% { transform: scaleY(calc(var(--depth, .72) * .3)); }
+  48% { transform: scaleY(calc(var(--depth, .72) * .55)); }
+  72% { transform: scaleY(calc(var(--depth, .72) * .12)); }
+  100% { transform: scaleY(var(--depth, .72)); }
+}
+
+/* Светлые темы. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-tempo { background: radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--tc) 14%, transparent), transparent 60%), rgba(255,255,255,.5); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-tempo-head b { color: color-mix(in srgb, var(--tc) 70%, #000); }
+
+/* Тёмная ткань на тёмном силуэте — светлый контур, чтобы вещь читалась. */
+.hud-heat-svg .z-garment:is([style*="#1c1b21"], [style*="#1d1b22"], [style*="#1a1a1f"], [style*="#1a1716"], [style*="#241a18"], [style*="#2c2f38"], [style*="#2a2a30"], [style*="#26282f"], [style*="#1b2550"], [style*="#3f424a"]) .body { stroke: color-mix(in srgb, var(--cl) 25%, #d4d4de); stroke-width: .75; stroke-opacity: .8; }

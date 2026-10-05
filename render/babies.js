@@ -14,13 +14,13 @@
 // Оформление — детское: у девочек бантики и куколки, у мальчиков машинки и
 // динозавры (css/family.css).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.31.0';
-import { parseSceneDate } from '../history-analyzer.js?v=23.31.0';
-import { settings } from '../settings.js?v=23.31.0';
-import { роды } from './conception.js?v=23.31.0';
-import { часовМежду } from './fertility.js?v=23.31.0';
-import { buildCharacterHTML } from './character.js?v=23.31.0';
-import { видСемьи, видТрекера, видУхода, подсказкаВехи } from './family-views.js?v=23.31.0';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.36.1';
+import { parseSceneDate } from '../history-analyzer.js?v=23.36.1';
+import { settings } from '../settings.js?v=23.36.1';
+import { роды, деньРодов, деньРожденияМалыша } from './conception.js?v=23.36.1';
+import { часовМежду } from './fertility.js?v=23.36.1';
+import { buildCharacterHTML } from './character.js?v=23.36.1';
+import { видСемьи, видТрекера, видУхода, подсказкаВехи } from './family-views.js?v=23.36.1';
 
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const текст = (о, к) => снятьЗаглушки(flattenFieldValue(о && о[к]));
@@ -35,7 +35,7 @@ const скл = (n, а, б, в) => { const x = Math.abs(n) % 100, y = x % 10; ret
 /* --- Возраст ----------------------------------------------------------------------- */
 
 // Из текста «12 дней», «3 недели», «4 месяца», «1 год 2 месяца».
-function днейИзТекста(т) {
+export function днейИзТекста(т) {
   const s = String(т || '').toLowerCase();
   let д = 0, нашли = false;
   const взять = (rx, k) => { const m = s.match(rx); if (m) { д += parseFloat(m[1].replace(',', '.')) * k; нашли = true; } };
@@ -132,7 +132,7 @@ function нужды(о, д, время) {
     out.push(осталось > .25 ? ['ok', '🍼', `покормить через ${вМинутах(осталось)}`] : осталось > -.5 ? ['soon', '🍼', 'пора кормить'] : ['late', '🍼', `голоден уже ${вМинутах(-осталось)}`]);
   }
   if (сп) {
-    const спит = /спит|сон|asleep|sleep/i.test(сп) && !/не спит|проснул|awake/i.test(сп);
+    const спит = /спит|сон|засыпа|дрем|уснул|asleep|sleep|dozing/i.test(сп) && !/не спит|проснул|awake/i.test(сп);
     const с = часовМежду(сп, время);
     if (!спит && Number.isFinite(с)) {
       const ок = окноБодрствования(д) - с;
@@ -203,7 +203,7 @@ function блокУхода(о, имя, д, время, вид) {
     const н = текст(о, 'Нужды'), сп = часИзМетки(н, 'slp');
     return `<div class="hud-row full-width hud-kid-care is-${вид} is-view-${видБлока}"><span class="hud-key">${иконка(игрушка[0][1], 'is-key')}Вехи и уход:</span>`
       + видУхода(видБлока, { имя, вид, д, вехи, нужды: нуж, нормы: нормы(д, имя), игрушка: игрушка[0][1], время, интервал: интервалЕды(д),
-        ел: часИзМетки(н, 'fed'), спал: сп, спит: /спит|сон|asleep|sleep/i.test(сп) && !/не спит|проснул|awake/i.test(сп), подгузник: часИзМетки(н, 'dpr') }) + `</div>`;
+        ел: часИзМетки(н, 'fed'), спал: сп, спит: /спит|сон|засыпа|дрем|уснул|asleep|sleep|dozing/i.test(сп) && !/не спит|проснул|awake/i.test(сп), подгузник: часИзМетки(н, 'dpr') }) + `</div>`;
   }
   return `<div class="hud-row full-width hud-kid-care is-${вид}"><span class="hud-key">${иконка(игрушка[0][1], 'is-key')}Вехи и уход:</span>`
     + `<div class="hud-kid-care-body">`
@@ -225,9 +225,16 @@ const ПОЛЯ_МАЛЫША = ['Имя', 'Возраст', 'Одежда', 'Вн
 // Возраст малыша в днях: по записи о родах (точно) или по полю «Возраст».
 function возрастДней(о, сценаMs, записи, i) {
   const запись = записи.length ? записи[Math.min(i, записи.length - 1)] : null;
-  const дата = запись ? (parseSceneDate(запись.когда) ?? запись.дата) : null;
+  const дата = запись ? деньРодов(запись, сценаMs) : null;
   if (дата !== null && дата !== undefined && сценаMs !== null && сценаMs >= дата) return { д: Math.round((сценаMs - дата) / 864e5), запись, точно: true };
-  return { д: днейИзТекста(текст(о, 'Возраст')), запись, точно: false };
+  // Роды не отмечены: возраст со слов модели — только в первый раз, дальше
+  // HUD считает сам от запомненного дня (модель иногда «прыгает» в числах).
+  const сТекста = днейИзТекста(текст(о, 'Возраст'));
+  if (сценаMs !== null) {
+    const день = деньРожденияМалыша(о['Имя'], сТекста !== null ? сценаMs - сТекста * 864e5 : null);
+    if (день !== null && день <= сценаMs) return { д: Math.round((сценаMs - день) / 864e5), запись, точно: false };
+  }
+  return { д: сТекста, запись, точно: false };
 }
 
 export function hudHasBabies(babies) {

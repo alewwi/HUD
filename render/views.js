@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.31.0';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.31.0';
-import { namesLikelySame } from '../names.js?v=23.31.0';
-import { силаСтраха, статусРужья } from '../codes.js?v=23.31.0';
-import { settings } from '../settings.js?v=23.31.0';
-import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.31.0';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.31.0';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.36.1';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.36.1';
+import { namesLikelySame } from '../names.js?v=23.36.1';
+import { силаСтраха, статусРужья } from '../codes.js?v=23.36.1';
+import { settings } from '../settings.js?v=23.36.1';
+import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.36.1';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.36.1';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -835,11 +835,12 @@ function печатьСургуча(огласка, id) {
     + `<g class="seal is-broken"><g transform="translate(-2.2 .6) rotate(-7 ${cx} ${cy})"><g clip-path="url(#${id}l)">${лицо}</g></g>`
     + `<g transform="translate(2.2 1.2) rotate(8 ${cx} ${cy})"><g clip-path="url(#${id}r)">${лицо}</g></g></g>`;
 }
-export function видСекретов(secrets, вид) {
-  const все = (Array.isArray(secrets) ? secrets : []).map(разобратьСекрет).filter(с => с.факт);
+// кнопки — по кнопке «в Лорбук» на секрет (memory.js), в том же порядке.
+export function видСекретов(secrets, вид, кнопки = []) {
+  const все = (Array.isArray(secrets) ? secrets : []).map((s, i) => ({ ...разобратьСекрет(s), кнопка: кнопки[i] || '' })).filter(с => с.факт);
   if (!все.length) return '';
   const кто = (с) => `<div class="hud-v-people">${с.знают.length ? `<span class="hud-v-people-lbl">в курсе</span>${люди(с.знают, true, с.источники)}` : '<span class="hud-v-people-lbl">никто не знает</span>'}`
-    + `${с.неЗнают.length ? `<span class="hud-v-people-lbl is-u">в неведении</span>${люди(с.неЗнают, false)}` : ''}</div>`;
+    + `${с.неЗнают.length ? `<span class="hud-v-people-lbl is-u">в неведении</span>${люди(с.неЗнают, false)}` : ''}</div>` + (с.кнопка ? `<div class="hud-v-lore">${с.кнопка}</div>` : '');
   const сИсточником = (n, с) => с.источники[n] ? `${n} (${с.источники[n]})` : n;
   if (вид === 'vault') {
     // Сейф: болтов по ободу — по грифу (4, 8, 12), дверца приоткрыта тем
@@ -866,7 +867,7 @@ export function видСекретов(secrets, вид) {
   }
   if (вид === 'files') {
     return `<div class="hud-v hud-v-files">${все.map((с, i) => `<div class="hud-v-file l${с.уровень}" style="--r:${((hudHashSeed(с.факт) % 5) - 2) * 0.5}deg"><span class="hud-v-file-tab">ДЕЛО №${String(i + 1).padStart(3, '0')}</span><i class="clip" aria-hidden="true"></i><span class="hud-v-stamp">${ГРИФ[с.уровень]}</span>`
-      + `<b>${тайна(с.факт)}</b><span class="hud-v-file-status">статус: ${ОГЛАСКА[с.огласка]}</span><div class="hud-v-file-lines"><small>в курсе: ${с.знают.length ? escapeHtml(с.знают.map(n => сИсточником(n, с)).join('; ')) : 'никто'}</small>${с.неЗнают.length ? `<small>в неведении: ${escapeHtml(с.неЗнают.join(', '))}</small>` : ''}</div></div>`).join('')}</div>`;
+      + `<b>${тайна(с.факт)}</b><span class="hud-v-file-status">статус: ${ОГЛАСКА[с.огласка]}</span><div class="hud-v-file-lines"><small>в курсе: ${с.знают.length ? escapeHtml(с.знают.map(n => сИсточником(n, с)).join('; ')) : 'никто'}</small>${с.неЗнают.length ? `<small>в неведении: ${escapeHtml(с.неЗнают.join(', '))}</small>` : ''}</div>${с.кнопка ? `<div class="hud-v-lore">${с.кнопка}</div>` : ''}</div>`).join('')}</div>`;
   }
   if (вид === 'web') {
     return `<div class="hud-v hud-v-webs">${все.map(с => {

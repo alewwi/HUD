@@ -12,8 +12,8 @@
 // переформулировка давала бы новый бросок — лишний шанс. Поэтому ключ —
 // время близости и партнёр, а первый бросок по этому ключу запоминается.
 
-import { namesLikelySame } from '../names.js?v=23.31.0';
-import { settings } from '../settings.js?v=23.31.0';
+import { namesLikelySame } from '../names.js?v=23.36.1';
+import { settings } from '../settings.js?v=23.36.1';
 
 const КЛЮЧ = 'tavernosHudConception';
 
@@ -35,6 +35,7 @@ function хранилище() {
   мета[КЛЮЧ].зачатие ||= {};
   мета[КЛЮЧ].судьба ||= {};
   мета[КЛЮЧ].плоды ||= {};
+  мета[КЛЮЧ].малыши ||= {};
   if (!Array.isArray(мета[КЛЮЧ].роды)) мета[КЛЮЧ].роды = [];
   return мета[КЛЮЧ];
 }
@@ -162,7 +163,7 @@ export function откатитьСудьбу(кто) {
  * Беременность уходит, только когда игрок сделал тест в HUD; прежние
  * итоги до «изменения судьбы» не уходят вовсе.
  */
-export function скрытыеФактыЗачатия() {
+export function скрытыеФактыЗачатия(сценаMs = null) {
   const х = хранилище();
   if (!х) return '';
   const имя = (кто) => кто === 'user' ? '{{user}}' : String(кто).replace(/^char:/, '');
@@ -170,14 +171,37 @@ export function скрытыеФактыЗачатия() {
   const строки = [];
   for (const [кто, з] of Object.entries(х.зачатие || {})) {
     if (!з.проверено) continue;
-    строки.push(`${имя(кто)} IS PREGNANT${при(з.когда)}. Let it unfold on its real schedule: no signs for about two weeks, then a late period, nausea, tender breasts, tiredness; only a pregnancy test or a doctor in the story confirms it. Never hint at it in narration or thoughts before the characters find out. From the moment an in-story test or a doctor confirms it, track it in Prg.`);
+    const зачMs = датаИзТекста(з.когда);
+    const срок = зачMs !== null && Number.isFinite(сценаMs) && сценаMs >= зачMs
+      ? ` Conceived on ${дм(зачMs)}: on the scene date it is week ${Math.floor(((сценаMs - зачMs) / ДЕНЬ_МС + 14) / 7) + 1} (counted from the last period, as doctors do), due date ${дм(зачMs + 266 * ДЕНЬ_МС)} — use exactly these numbers in Prg (wk, due).` : '';
+    строки.push(`${имя(кто)} IS PREGNANT${при(з.когда)}.${срок} Let it unfold on its real schedule: no signs for about two weeks, then a late period, nausea, tender breasts, tiredness; only a pregnancy test or a doctor in the story confirms it. Never hint at it in narration or thoughts before the characters find out. From the moment an in-story test or a doctor confirms it, track it in Prg.`);
+  }
+  // Срок по якорю: модель держит неделю и дату родов HUD, а не свою.
+  const беременныВСюжете = new Set();
+  if (Number.isFinite(сценаMs)) {
+    for (const [кто, б] of Object.entries(х.беременности || {})) {
+      if (!Number.isFinite(б.lmp) || (х.зачатие[кто] && !х.зачатие[кто].проверено)) continue;
+      // Уже родила после начала этого срока — беременность позади.
+      if (х.роды.some(р => р.кто === кто && (деньРодов(р) ?? 0) > б.lmp)) continue;
+      const нед = Math.floor((сценаMs - б.lmp) / 7 / ДЕНЬ_МС) + 1;
+      if (нед < 1 || нед > 44) continue;
+      беременныВСюжете.add(кто);
+      строки.push(`${имя(кто)}'s pregnancy, counted by the HUD from the last period (${дм(б.lmp)}): on the scene date of the last HUD it is week ${нед}, due date ${дм(б.lmp + 280 * ДЕНЬ_МС)}. In Prg write exactly this week (it grows by one every 7 in-story days) and this due date; twins and triplets are usually born at 35–37 weeks.`);
+    }
   }
   // Кто не беременен: чтобы модель не выдумала беременность сама. Судьба,
   // повёрнутая в «−», говорит то же самое — без следа прежнего итога.
   const нет = {};
   for (const б of Object.values(х.броски || {})) if (б && !б.итог && !(х.зачатие || {})[б.кто]) нет[б.кто] = б.когда;
   for (const [кто, с] of Object.entries(х.судьба || {})) if (!(х.зачатие || {})[кто]) нет[кто] = с.когда;
+  // Беременной в сюжете «не беременна» не пишем: кубик близостей во время
+  // беременности ничего не значит — второй раз забеременеть нельзя.
   for (const [кто, когда] of Object.entries(нет)) {
+    if (беременныВСюжете.has(кто)) continue;
+    // Кубик времён прошлой беременности после родов ничего не значит: про
+    // кормление и возвращение цикла модели говорит «После родов» (Pp).
+    const датаКубика = датаИзТекста(когда);
+    if (х.роды.some(р => р.кто === кто && (датаКубика === null || (деньРодов(р) ?? 0) >= датаКубика))) continue;
     строки.push(`${имя(кто)} is NOT pregnant${при(когда)}: if anyone worries, the period comes on time and a test is negative.`);
   }
   // Число и пол малышей — если игрок не выключил это в настройках.
@@ -261,7 +285,15 @@ function записьПлодов(х, кто, когда = '') {
  * вСюжете — беременность уже есть в истории (поле Prg): с этого момента
  * число и пол могут уходить модели скрытым фактом.
  */
-export function плодыОт(кто, { вСюжете = false } = {}) {
+// Что о числе малышей говорит сюжет (Prg): двойня, близнецы, тройня.
+export function типИзСюжета(текст) {
+  const s = String(текст || '').toLowerCase();
+  if (/тройн|triplet/.test(s)) return 'triplets';
+  if (/монохориал|однояйцев|близнец(?!.*разнояйц)|identical twin/.test(s)) return 'identical';
+  if (/двойн|двойняш|дихориал|разнояйцев|twins|fraternal/.test(s)) return 'fraternal';
+  return null;
+}
+export function плодыОт(кто, { вСюжете = false, изСюжета = '' } = {}) {
   const х = хранилище();
   if (!х || !кто) return null;
   кто = своёИмя(х, кто);
@@ -269,6 +301,8 @@ export function плодыОт(кто, { вСюжете = false } = {}) {
   if (!з && !вСюжете && !х.плоды[кто]) return null;
   const з2 = записьПлодов(х, кто, з && з.когда);
   if (вСюжете && !з2.вСюжете) { з2.вСюжете = true; сохранить(); }
+  const сюжет = типИзСюжета(изСюжета);
+  if (сюжет && сюжет !== з2.тип && !(з2.судьба && з2.судьба.тип)) { з2.тип = сюжет; з2.полы = null; з2.изСюжета = true; сохранить(); }
   const тип = (з2.судьба && з2.судьба.тип) || з2.тип;
   let полы = (з2.судьба && з2.судьба.полы) || з2.полы;
   if (полы && полы.length !== ТИПЫ_ПЛОДОВ[тип].число) полы = null;
@@ -333,9 +367,115 @@ export function зарегистрироватьРоды(кто, { когда = 
   delete х.зачатие[кто];
   delete х.судьба[кто];
   delete х.плоды[кто];
+  if (х.беременности) delete х.беременности[кто];
   сохранить();
   return true;
 }
+/* --- Даты ---------------------------------------------------------------------
+   Своя разборка даты (без history-analyzer — тот тянет схему по кругу):
+   «11.10.2024», «2024-10-11», «11.10» (год — из сцены). */
+const ДЕНЬ_МС = 864e5;
+const дм = (ms) => { const d = new Date(ms), z = (n) => String(n).padStart(2, '0'); return `${z(d.getUTCDate())}.${z(d.getUTCMonth() + 1)}.${d.getUTCFullYear()}`; };
+export function датаИзТекста(т, годСцены = null) {
+  const s = String(т || '');
+  let m = s.match(/(\d{4})[-./](\d{1,2})[-./](\d{1,2})/);
+  if (m) return Date.UTC(+m[1], +m[2] - 1, +m[3]);
+  m = s.match(/(\d{1,2})[-./](\d{1,2})[-./](\d{2,4})/);
+  if (m) { const y = +m[3]; return Date.UTC(y < 100 ? 2000 + y : y, +m[2] - 1, +m[1]); }
+  m = s.match(/(?:^|[^\d.])(\d{1,2})\.(\d{1,2})(?![.\d])/);
+  if (m && годСцены && +m[2] >= 1 && +m[2] <= 12) return Date.UTC(годСцены, +m[2] - 1, +m[1]);
+  return null;
+}
+// День родов: дата из записи, иначе — день, когда HUD их отметил.
+export function деньРодов(р, сценаMs = null) {
+  if (!р) return null;
+  const год = сценаMs !== null && сценаMs !== undefined ? new Date(сценаMs).getUTCFullYear() : null;
+  let д = датаИзТекста(р.когда, год);
+  // «03.10» без года, а сцена уже в январе — значит, прошлый год.
+  if (д !== null && сценаMs !== null && сценаMs !== undefined && д > сценаMs + ДЕНЬ_МС && !/\d{1,2}[-./]\d{1,2}[-./]\d{2,4}|\d{4}[-./]/.test(String(р.когда))) д = Date.UTC(год - 1, new Date(д).getUTCMonth(), new Date(д).getUTCDate());
+  return д ?? (Number.isFinite(р.дата) ? р.дата : null);
+}
+// Дата зачатия — из записи близости, в которой оно случилось.
+export function датаЗачатия(кто) {
+  const х = хранилище();
+  if (!х || !кто) return null;
+  const з = х.зачатие[своёИмя(х, кто)];
+  return з ? датаИзТекста(з.когда) : null;
+}
+// Малыш без записи о родах (роды не отметили): день рождения запоминаем,
+// когда HUD увидел его впервые, — дальше возраст считает сам, а не верит
+// каждому новому числу от модели.
+export function деньРожденияМалыша(имя, предложено) {
+  const х = хранилище();
+  const к = String(имя || '').trim().toLowerCase();
+  if (!х || !к) return предложено;
+  const было = (х.малыши ||= {})[к];
+  if (было && Number.isFinite(было.дата)) return было.дата;
+  if (!Number.isFinite(предложено)) return null;
+  х.малыши[к] = { дата: предложено };
+  сохранить();
+  return предложено;
+}
+/**
+ * Начало срока беременности (мс) — от него HUD считает неделю и дату родов.
+ * Порядок: дата зачатия из кубика (−14 дней) → запомненное раньше → первая
+ * запись модели (дата родов −280 дней, а если она спорит с неделей больше
+ * чем на три недели — сцена минус неделя). Неделя от модели сильно меньше
+ * запомненной — значит, новая беременность: якорь ставим заново.
+ */
+export function началоСрока(кто, { неделя = null, роды = null, сценаMs = null } = {}) {
+  const х = хранилище();
+  if (!х || !кто || !Number.isFinite(сценаMs)) return null;
+  кто = своёИмя(х, кто);
+  const зач = х.зачатие[кто] ? датаИзТекста(х.зачатие[кто].когда) : null;
+  const все = (х.беременности ||= {});
+  if (зач !== null) {
+    if (!все[кто] || все[кто].lmp !== зач - 14 * ДЕНЬ_МС) { все[кто] = { lmp: зач - 14 * ДЕНЬ_МС, от: 'зачатие' }; сохранить(); }
+    return все[кто].lmp;
+  }
+  const нед = Number.isFinite(неделя) && неделя > 0 ? неделя : null;
+  const было = все[кто];
+  if (было && Number.isFinite(было.lmp)) {
+    const поЯкорю = (сценаMs - было.lmp) / 7 / ДЕНЬ_МС + 1;
+    if (!(нед !== null && нед < поЯкорю - 8) && поЯкорю >= 0 && поЯкорю < 45) return было.lmp;
+  }
+  let lmp = null;
+  if (Number.isFinite(роды)) {
+    lmp = роды - 280 * ДЕНЬ_МС;
+    if (нед !== null && Math.abs((сценаMs - lmp) / 7 / ДЕНЬ_МС + 1 - нед) > 3) lmp = null;
+  }
+  // «N-я неделя» — середина N-й недели от начала срока.
+  if (lmp === null && нед !== null) lmp = сценаMs - (нед - 0.5) * 7 * ДЕНЬ_МС;
+  if (lmp === null) return null;
+  все[кто] = { lmp, от: 'модель' };
+  сохранить();
+  return lmp;
+}
+
+/**
+ * Поправка даты родов по сюжету: «истина» — день рождения из первого HUD с
+ * малышами (дата сцены минус их возраст). Запись, отличающаяся на сутки и
+ * больше, но не дальше двух месяцев (это те же роды), переписывается.
+ */
+export function поправитьРоды(истина) {
+  const х = хранилище();
+  if (!х || примерСемьи || !Number.isFinite(истина) || !х.роды.length) return false;
+  const р = х.роды.filter(р => { const д = деньРодов(р); return д === null || Math.abs(д - истина) < 60 * ДЕНЬ_МС; }).pop();
+  if (!р) return false;
+  const д = деньРодов(р);
+  if (д !== null && Math.abs(д - истина) < ДЕНЬ_МС) return false;
+  р.когда = дм(истина);
+  р.дата = истина;
+  р.сверено = true;
+  сохранить();
+  return true;
+}
+
+export function малышиБезРодов() {
+  const х = хранилище();
+  return х ? Object.entries(х.малыши || {}).map(([имя, з]) => ({ имя, дата: з.дата })) : [];
+}
+
 export function роды() {
   const х = хранилище();
   return х ? х.роды.slice() : [];

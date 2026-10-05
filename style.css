@@ -7,14 +7,15 @@
    @import обязан стоять раньше любых правил, поэтому в этом файле больше
    ничего и нет. */
 
-@import url('./css/base.css?v=23.31.0');
-@import url('./css/themes.css?v=23.31.0');
-@import url('./css/misc.css?v=23.31.0');
-@import url('./css/views.css?v=23.31.0');
-@import url('./css/views-fields.css?v=23.31.0');
-@import url('./css/views-trio.css?v=23.31.0');
-@import url('./css/family.css?v=23.31.0');
-@import url('./css/family-views.css?v=23.31.0');
-@import url('./css/extras.css?v=23.31.0');
-@import url('./css/deco.css?v=23.31.0');
-@import url('./css/compact.css?v=23.31.0');
+@import url('./css/base.css?v=23.36.1');
+@import url('./css/themes.css?v=23.36.1');
+@import url('./css/misc.css?v=23.36.1');
+@import url('./css/views.css?v=23.36.1');
+@import url('./css/views-fields.css?v=23.36.1');
+@import url('./css/views-trio.css?v=23.36.1');
+@import url('./css/family.css?v=23.36.1');
+@import url('./css/family-views.css?v=23.36.1');
+@import url('./css/extras.css?v=23.36.1');
+@import url('./css/deco.css?v=23.36.1');
+@import url('./css/scene-body.css?v=23.36.1');
+@import url('./css/compact.css?v=23.36.1');

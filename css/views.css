@@ -73,7 +73,7 @@
 
 /* --- Доверие --- */
 .hud-v-trust { display: grid; gap: 8px; }
-.hud-v-trust.is-hearts { grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); }
+.hud-v-trust.is-hearts { grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); }
 .hud-v-who-line { display: flex; align-items: center; gap: 9px; min-width: 0; }
 .hud-v-who-line b { flex: 1; min-width: 0; font-size: .92em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hud-v-trust.is-hearts .hud-v-hearts { margin: 8px 0 0 37px; }
@@ -104,7 +104,7 @@
   background: radial-gradient(circle at 32% 28%, hsl(from var(--v-acc) calc(h + var(--тон, 0)) s calc(l + 6)), hsl(from var(--v-acc) calc(h + var(--тон, 0)) s calc(l - 22)));
   box-shadow: 0 0 0 3px var(--hud-card-inner-bg, #1b1620), inset 0 2px 6px rgba(0,0,0,.35);
 }
-.hud-v-trust.is-traffic { grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); }
+.hud-v-trust.is-traffic { grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); }
 .hud-v-trust.is-traffic .hud-v-card { display: flex; align-items: center; gap: 12px; }
 .hud-v-lights { flex: none; display: flex; flex-direction: column; gap: 4px; padding: 5px; border-radius: 12px; background: linear-gradient(180deg, #2b2a31, #16151a); box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 3px 8px rgba(0,0,0,.5); }
 .hud-v-lights i { width: 11px; height: 11px; border-radius: 50%; opacity: .18; box-shadow: inset 0 -2px 3px rgba(0,0,0,.4); }
@@ -133,7 +133,7 @@
 
 /* --- Страхи --- */
 .hud-v-fears { display: grid; gap: 8px; }
-.hud-v-fears.is-thermo { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+.hud-v-fears.is-thermo { grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr)); }
 .hud-v-thermo { display: flex; align-items: center; gap: 14px; }
 .hud-v-thermo-glass { position: relative; flex: none; width: 24px; height: 76px; }
 .hud-v-thermo-glass::before { content: ''; position: absolute; left: 6px; top: 0; width: 12px; height: 62px; border-radius: 6px 6px 0 0; background: linear-gradient(90deg, rgba(255,255,255,.14), rgba(255,255,255,.03) 60%, rgba(255,255,255,.1)); box-shadow: inset 0 0 0 1px rgba(255,255,255,.2); }
@@ -148,7 +148,7 @@
 .hud-v-skulls { display: inline-flex; gap: 2px; padding: 4px 8px; border-radius: 99px; background: rgba(0,0,0,.25); box-shadow: inset 0 1px 3px rgba(0,0,0,.4); }
 .hud-v-skulls i { font-style: normal; font-size: 14px; filter: grayscale(1) brightness(.6); opacity: .25; }
 .hud-v-skulls i.is-on { filter: drop-shadow(0 0 4px var(--v-glow)); opacity: 1; }
-.hud-v-fears.is-storm { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); }
+.hud-v-fears.is-storm { grid-template-columns: repeat(auto-fill, minmax(min(100%, 130px), 1fr)); }
 .hud-v-storm { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
 .hud-v-storm .hud-v-tag { align-self: center; }
 .hud-v-storm svg { width: 64px; height: 60px; overflow: visible; filter: drop-shadow(0 5px 8px rgba(0,0,0,.45)); }
@@ -283,7 +283,7 @@
 .hud-v-bm-legend b { font-size: .88em; }
 .hud-v-bm-legend small { font-size: .72em; color: var(--v-ink-soft); }
 .hud-v-bm-legend em { font-style: normal; font-weight: 800; text-align: right; }
-.hud-v-bm.is-zones { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.hud-v-bm.is-zones { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 10px; }
 .hud-v-bm-area { display: flex; flex-direction: column; gap: 6px; padding: 10px; border-radius: 16px; background: linear-gradient(170deg, color-mix(in srgb, var(--v-acc) calc(6% + var(--h, 0) * 16%), transparent), transparent); border: 1px solid var(--v-line); }
 .hud-v-bm-area-head { display: flex; align-items: center; gap: 7px; font-size: .7em; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--v-ink-soft); }
 .hud-v-bm-area-head i { font-style: normal; font-size: 1.4em; }
@@ -374,7 +374,7 @@
 .hud-v-dial > span { font-size: .72em; letter-spacing: .08em; text-transform: uppercase; color: var(--v-ink-soft); }
 .hud-v-dial.is-up > b { color: color-mix(in srgb, var(--v-acc) 55%, #fff); }
 .hud-v-vit.is-ecg { display: flex; flex-direction: column; gap: 8px; }
-.hud-v-monitor { position: relative; border-radius: 14px; padding: 8px; background: radial-gradient(120% 100% at 50% 0%, #0f1a16, #060908); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--v-acc) 30%, rgba(90,255,180,.18)), inset 0 0 20px rgba(0,0,0,.8), 0 8px 18px -10px rgba(0,0,0,.8); overflow: hidden; }
+.hud-v-monitor { position: relative; flex: none; border-radius: 14px; padding: 8px; background: radial-gradient(120% 100% at 50% 0%, #0f1a16, #060908); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--v-acc) 30%, rgba(90,255,180,.18)), inset 0 0 20px rgba(0,0,0,.8), 0 8px 18px -10px rgba(0,0,0,.8); overflow: hidden; }
 .hud-v-ecg { display: block; width: 100%; height: 70px; }
 .hud-v-ecg .minor { fill: none; stroke: rgba(120,255,190,.07); stroke-width: .5; }
 .hud-v-ecg .line { fill: none; stroke-width: 1.7; stroke-linejoin: round; filter: drop-shadow(0 0 3px var(--v-acc)); }
@@ -410,14 +410,14 @@
 .hud-v-slot b { font-size: .72em; line-height: 1.15; font-weight: 700; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
 .hud-v-slot em { position: absolute; right: 6px; bottom: 4px; font-style: normal; font-size: .7em; font-weight: 800; text-shadow: 0 1px 2px #000; }
 @media (hover: hover) { .hud-v-slot:not(.is-empty):hover { transform: translateY(-3px) scale(1.03); } }
-.hud-v-inv.is-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 8px; }
+.hud-v-inv.is-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); gap: 8px; }
 .hud-v-item { display: flex; gap: 12px; align-items: flex-start; }
 .hud-v-item .badge { flex: none; width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-style: normal; font-size: 22px; background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--v-acc) 30%, rgba(255,255,255,.1)), rgba(0,0,0,.3)); box-shadow: inset 0 0 0 1px var(--v-line), 0 4px 8px rgba(0,0,0,.35); }
 .hud-v-item.r3 .badge { box-shadow: inset 0 0 0 1.5px color-mix(in srgb, #ffd08a 60%, var(--v-acc)), 0 0 12px -3px color-mix(in srgb, #ffd08a 60%, transparent); }
 .hud-v-item > span { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
 .hud-v-item b { font-size: .95em; }
 .hud-v-item small { font-size: .8em; color: var(--v-ink-soft); line-height: 1.35; }
-.hud-v-inv.is-groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.hud-v-inv.is-groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 8px; }
 .hud-v-group-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: .72em; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: color-mix(in srgb, var(--v-acc) 50%, #fff); }
 .hud-v-group-head i { font-style: normal; font-size: 1.5em; }
 .hud-v-group-head em { margin-left: auto; font-style: normal; padding: 0 7px; border-radius: 99px; background: color-mix(in srgb, var(--v-acc) 20%, transparent); }
@@ -441,7 +441,7 @@
 .hud-v-person:not(.is-k) { opacity: .55; }
 .hud-v-person:not(.is-k) .hud-v-face { filter: grayscale(1); box-shadow: 0 0 0 1px rgba(255,255,255,.2); }
 .hud-v-person:not(.is-k)::after { content: '✕'; font-size: .8em; color: #ef7b8a; }
-.hud-v-files { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 18px 12px; padding-top: 12px; }
+.hud-v-files { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 18px 12px; padding-top: 12px; }
 .hud-v-file { position: relative; padding: 18px 14px 12px; border-radius: 3px 12px 12px 12px; transform: rotate(var(--r, 0deg)); color: #2f2618; background: linear-gradient(175deg, #e3d4ad, #cdb88a); box-shadow: 0 1px 0 #f5ead0 inset, 0 8px 16px -6px rgba(0,0,0,.6), 3px 3px 0 -1px #b8a171; }
 .hud-v-file-tab { position: absolute; top: -13px; left: 0; padding: 3px 12px; border-radius: 7px 7px 0 0; font-size: .64em; font-weight: 800; letter-spacing: .08em; background: #e3d4ad; }
 .hud-v-file .clip { position: absolute; top: -6px; right: 28px; width: 10px; height: 26px; border: 2px solid #9aa1ab; border-radius: 6px; border-bottom-color: transparent; }
@@ -451,7 +451,7 @@
 .hud-v-file-status { display: inline-block; margin-top: 6px; font-size: .68em; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #7a5b2a; }
 .hud-v-file-lines { display: flex; flex-direction: column; margin-top: 4px; }
 .hud-v-file-lines small { font-size: .74em; color: #5d4a2c; }
-.hud-v-webs { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; }
+.hud-v-webs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 10px; }
 .hud-v-web { display: flex; flex-direction: column; gap: 6px; }
 .hud-v-web svg { width: 100%; height: auto; max-height: 130px; overflow: visible; }
 .hud-v-web path.k { fill: none; stroke: var(--v-acc); stroke-width: 1.4; filter: drop-shadow(0 0 2px var(--v-glow)); }
@@ -476,7 +476,7 @@
 
 /* Сейфы: сталь с шлифовкой, дверца на петлях, лампа огласки. Свой образ —
    тёмный в любой теме, поэтому и чернила свои. */
-.hud-v-vaults { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 10px; }
+.hud-v-vaults { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); gap: 10px; }
 .hud-v-vault {
   position: relative; display: flex; gap: 13px; align-items: flex-start; padding: 12px 14px 12px 12px; border-radius: 16px; color: #e6eaf0;
   background: repeating-linear-gradient(90deg, rgba(255,255,255,.028) 0 1px, transparent 1px 3px), radial-gradient(90% 120% at 0% 0%, color-mix(in srgb, var(--v-acc) 14%, transparent), transparent 60%), linear-gradient(160deg, #3a3f48, #1d2026 65%, #121417);
@@ -552,7 +552,7 @@
 
 /* --- Кинки и фетиши --- */
 .hud-v-kinks { display: grid; gap: 8px; }
-.hud-v-kinks.is-bars, .hud-v-kinks.is-stars { grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); }
+.hud-v-kinks.is-bars, .hud-v-kinks.is-stars { grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); }
 .hud-v-kink { display: flex; flex-direction: column; gap: 6px; }
 .hud-v-kink-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .hud-v-kink-head b { font-size: .95em; }
@@ -562,12 +562,12 @@
 .hud-v-stars { flex: none; white-space: nowrap; }
 .hud-v-stars i { font-style: normal; font-size: 16px; color: color-mix(in srgb, currentColor 16%, transparent); }
 .hud-v-stars i.is-on { color: color-mix(in srgb, var(--v-acc) 40%, #ffd08a); text-shadow: 0 0 6px var(--v-glow); }
-.hud-v-kinks.is-groups { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+.hud-v-kinks.is-groups { grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr)); }
 .hud-v-kinks.is-groups .hud-v-group { display: flex; flex-direction: column; gap: 6px; }
 
 /* Карты таро: лицо — тёмный бархат с золотой двойной рамкой, масть внизу,
    сила — римской цифрой и ромбами. Тайные лежат рубашкой вверх. */
-.hud-v-kinks.is-tarot { grid-template-columns: repeat(auto-fill, minmax(138px, 1fr)); gap: 14px 12px; padding: 4px 2px 6px; }
+.hud-v-kinks.is-tarot { grid-template-columns: repeat(auto-fill, minmax(min(100%, 138px), 1fr)); gap: 14px 12px; padding: 4px 2px 6px; }
 .hud-v-tarot { --gold: color-mix(in srgb, var(--v-acc) 28%, #e9c77b); position: relative; perspective: 800px; transform: rotate(var(--r, 0deg)); transition: transform .35s cubic-bezier(.2,.8,.2,1); outline: none; }
 .hud-v-tarot .inner { position: relative; display: block; height: 100%; transform-style: preserve-3d; transition: transform .75s cubic-bezier(.3,1.25,.5,1); }
 .hud-v-tarot.is-hidden { cursor: pointer; }
@@ -1032,7 +1032,7 @@
 @media (hover: hover) { .hud-v-ticket:hover { transform: rotate(0) translateY(-2px); } }
 
 /* Секреты → Конверты */
-.hud-v-envs { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.hud-v-envs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 12px; }
 .hud-v-env { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 12px 12px 14px; border-radius: 14px; background: var(--v-surf); border: 1px solid var(--v-line); transition: transform .25s ease; }
 @media (hover: hover) { .hud-v-env:hover { transform: translateY(-2px); } }
 .hud-v-envelope { width: 150px; height: auto; overflow: visible; filter: drop-shadow(0 6px 8px rgba(0,0,0,.45)); }
@@ -1278,14 +1278,14 @@
 .hud-v-notebook mark { display: inline; color: inherit; background: linear-gradient(100deg, transparent 0 1%, color-mix(in srgb, var(--v-acc) 30%, #ffe45c) 2% 97%, transparent 99%) 0 88% / 100% 48% no-repeat; box-decoration-break: clone; -webkit-box-decoration-break: clone; padding: 0 3px; }
 .hud-v-notebook:not(#_) :is(.line, .hud-lore-text, mark) { color: var(--v-ink-paper) !important; text-shadow: none !important; }
 /* Закладки */
-.hud-v-imp.is-bookmarks { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 12px; padding-top: 4px; }
+.hud-v-imp.is-bookmarks { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 12px; padding-top: 4px; }
 .hud-v-bookmark { display: flex; flex-direction: column; gap: 8px; padding: 14px 14px 12px 48px; min-height: 64px; }
 .hud-v-bookmark .ribbon { position: absolute; left: 12px; top: -5px; width: 24px; height: 44px; display: grid; place-items: start center; padding-top: 12px; font-style: normal; font-size: .72em; font-weight: 800; color: #fff;
   background: linear-gradient(180deg, hsl(from var(--v-acc) calc(h + var(--тон, 0)) s calc(l + 6)), hsl(from var(--v-acc) calc(h + var(--тон, 0)) s calc(l - 10)));
   -webkit-clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%); filter: drop-shadow(0 3px 3px rgba(0,0,0,.4)); }
 .hud-v-bookmark .hud-lore-text { font-size: .92em; line-height: 1.45; }
 /* Полароиды */
-.hud-v-mem.is-polaroid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 16px 12px; padding: 6px 2px; }
+.hud-v-mem.is-polaroid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr)); gap: 16px 12px; padding: 6px 2px; }
 .hud-v-polaroid { display: flex; flex-direction: column; gap: 8px; padding: 9px 9px 12px; background: var(--v-paper); transform: rotate(var(--r)); box-shadow: 0 10px 16px -8px rgba(0,0,0,.6); transition: transform .25s ease; }
 @media (hover: hover) { .hud-v-polaroid:hover { transform: rotate(0) scale(1.04); z-index: 1; } }
 .hud-v-polaroid .photo { position: relative; aspect-ratio: 4 / 3; display: grid; place-items: center; overflow: hidden; color: rgba(255,255,255,.85);
@@ -1571,3 +1571,14 @@
 .hud-v-people-lbl.is-u { margin-top: 4px; }
 .hud-v-person small { font-size: .88em; font-style: italic; opacity: .72; }
 .hud-v-person small::before { content: '— '; }
+
+/* Кнопка «в Лорбук» у секретов во всех видах (memory.js → видСекретов). */
+.hud-v-lore { display: flex; justify-content: flex-end; margin-top: 6px; position: relative; z-index: 1; }
+
+/* Цифры показателей на узком экране: плитка не шире строки, «↑ выше нормы»
+   переносится вниз, а не вылезает за правый край. */
+.hud-v-vit-nums > span { flex-wrap: wrap; max-width: 100%; min-width: 0; box-sizing: border-box; }
+@media (max-width: 600px) {
+  .hud-v-vit-nums:not(.is-legend) > span { flex: 1 1 100%; }
+  .hud-v-vit-nums .up { flex-basis: 100%; }
+}

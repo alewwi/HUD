@@ -1,26 +1,37 @@
 /* =========================================================================
-   ТЕЛЕФОН: длинные списки карточек — каруселью вбок.
-   «В близости» (возбуждение, желание, готовность, прикосновения…),
-   болезни и следы на теле на узком экране шли столбиком на несколько
-   экранов. Теперь карточки идут лентой: листаются пальцем, каждая
-   прилипает к краю, у правого края — затухание и краешек следующей
-   карточки: видно, что там есть ещё.
-   Сами карточки — компактнее: меньше отступы и шрифт.
-   Работает, только когда карточек две и больше.
+   ДЛИННЫЕ СПИСКИ — ВИДНО ТРИ, ОСТАЛЬНОЕ ЛИСТАЕТСЯ
+   Пилюли и карточки («В близости», болезни, следы, ключ, инвентарь,
+   секреты, ружья…) больше не разворачиваются на несколько экранов.
+   Классы ставит events.js (ужатьСписки), когда карточек четыре и больше:
+     • is-capped — листается вниз: высота ровно под три карточки плюс
+       краешек четвёртой, внизу затухание (на телефоне — всегда; на широком
+       экране — у сеток и видов блоков);
+     • is-capped-x — листается вбок: три карточки в ряд, справа краешек
+       следующей (широкий экран, списки столбиком).
+   Долистал до конца — затухание пропадает (is-end).
    ========================================================================= */
+.hud-os-card .is-capped {
+  overflow-y: auto !important; overflow-x: hidden !important; overscroll-behavior-y: auto; scroll-snap-type: y proximity;
+  padding-bottom: 22px !important; box-sizing: border-box;
+  scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--hud-accent, #c31f38) 45%, transparent) transparent;
+  -webkit-mask: linear-gradient(180deg, #000 calc(100% - 28px), transparent); mask: linear-gradient(180deg, #000 calc(100% - 28px), transparent);
+}
+.hud-os-card .is-capped > * { scroll-snap-align: start; }
+.hud-os-card .is-capped-x {
+  display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: flex-start;
+  gap: 10px; overflow-x: auto !important; overflow-y: hidden !important; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+  padding: 2px 2px 10px !important; box-sizing: border-box;
+  scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--hud-accent, #c31f38) 45%, transparent) transparent;
+  -webkit-mask: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
+}
+.hud-os-card .is-capped-x > * {
+  flex: 0 0 calc((100% - 20px) / 3.15) !important; max-width: calc((100% - 20px) / 3.15) !important; min-width: 0;
+  margin: 0 !important; scroll-snap-align: start; box-sizing: border-box;
+}
+.hud-os-card :is(.is-capped, .is-capped-x).is-end { -webkit-mask: none; mask: none; }
+
+/* Компактнее на телефоне: отступы и шрифт внутри карточек. */
 @media (max-width: 600px) {
-  .hud-os-card :is(.hud-nsfw-list, .hud-ill-list, .hud-marks):has(> :nth-child(2)) {
-    display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: flex-start;
-    gap: 10px; overflow-x: auto; overflow-y: hidden; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
-    padding: 2px 2px 10px !important; scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--hud-accent, #c31f38) 45%, transparent) transparent;
-    -webkit-mask: linear-gradient(90deg, #000 calc(100% - 22px), transparent); mask: linear-gradient(90deg, #000 calc(100% - 22px), transparent);
-  }
-  .hud-os-card :is(.hud-nsfw-list, .hud-ill-list, .hud-marks):has(> :nth-child(2)) > * {
-    flex: 0 0 84% !important; max-width: 84% !important; min-width: 0; margin: 0 !important; scroll-snap-align: start; box-sizing: border-box;
-  }
-  /* Последняя карточка доходит до края — без затухания поверх неё. */
-  .hud-os-card :is(.hud-nsfw-list, .hud-ill-list, .hud-marks):has(> :nth-child(2)) > :last-child { margin-right: 18px !important; }
-  /* Компактнее: отступы и шрифт внутри карточек. */
   .hud-os-card .hud-nsfw-pill { padding: 8px 11px !important; font-size: .9em; }
   .hud-os-card .hud-nsfw-pill .hud-pill-label { font-size: .84em !important; padding: 2px 9px !important; }
   .hud-os-card .hud-ill { padding: 9px 11px !important; }
