@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.36.1';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.36.1';
-import { namesLikelySame } from '../names.js?v=23.36.1';
-import { силаСтраха, статусРужья } from '../codes.js?v=23.36.1';
-import { settings } from '../settings.js?v=23.36.1';
-import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.36.1';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.36.1';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.44.2';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.44.2';
+import { namesLikelySame } from '../names.js?v=23.44.2';
+import { силаСтраха, статусРужья } from '../codes.js?v=23.44.2';
+import { settings } from '../settings.js?v=23.44.2';
+import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.44.2';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.44.2';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -46,6 +46,9 @@ export const ВИДЫ_БЛОКОВ = [
   { ключ: 'statusView', группа: 'Связи', поле: 'Статус', виды: { classic: 'Индикатор', badge: 'Профиль', stamp: 'Печать', toggles: 'Неон' } },
   { ключ: 'conflictView', группа: 'Связи', поле: 'Глубина конфликта', виды: { classic: 'Плашки', stages: 'Стадии', counter: 'Счётчик дней', weather: 'Погода' } },
   { ключ: 'jealousyView', группа: 'Связи', поле: 'Ревность', виды: { text: 'Текст', triangle: 'Треугольник', thorns: 'Шипы', thought: 'Мысли' } },
+  // X-ray — основной вид: рисует пенетрацию в разрезе и ходит в такт темпу.
+  // Без проникновения в тексте блок сам откатывается к шкале (scene-body.js).
+  { ключ: 'tempoView', группа: 'Близость', поле: 'Темп', виды: { xray: 'X-ray', tube: 'Шкала', metronome: 'Метроном', springs: 'Пружины', cradle: 'Маятник Ньютона' }, новый: true },
   { ключ: 'orgView', группа: 'Близость', поле: 'Готовность к оргазму', виды: { bar: 'Шкала', ring: 'Кольцо', flame: 'Пламя', wave: 'Волна', pulse: 'Пульс', glass: 'Бокал' } },
   { ключ: 'vitalsView', группа: 'Близость', поле: 'Жизненные показатели', виды: { list: 'Плитки', dashboard: 'Циферблаты', ecg: 'Монитор ЭКГ', rings: 'Кольца', pulse: 'Сердце', anatomy: 'Анатомия' } },
   { ключ: 'bodyMapView', группа: 'Близость', поле: 'Карта тела', виды: { both: 'Спереди и сзади', front: 'Спереди', list: 'Список', dots: 'Точки', zones: 'Блоки', constellation: 'Созвездие', words: 'Облако слов' } },

@@ -11,16 +11,16 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.36.1';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.36.1';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.36.1';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.36.1';
-import { settings, defaultSettings } from './settings.js?v=23.36.1';
-import { getWorldVotes } from './render/world.js?v=23.36.1';
-import { раскрытьПорцию } from './render/long-list.js?v=23.36.1';
-import { прогретьИсторию } from './render/carryover.js?v=23.36.1';
-import { подключитьПалитру } from './color-picker.js?v=23.36.1';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.36.1';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.44.2';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.44.2';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.44.2';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.44.2';
+import { settings, defaultSettings } from './settings.js?v=23.44.2';
+import { getWorldVotes } from './render/world.js?v=23.44.2';
+import { раскрытьПорцию } from './render/long-list.js?v=23.44.2';
+import { прогретьИсторию } from './render/carryover.js?v=23.44.2';
+import { подключитьПалитру } from './color-picker.js?v=23.44.2';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.44.2';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -833,7 +833,21 @@ export function initGlobalEvents(ctx) {
           b.classList.toggle('is-active', on);
           b.setAttribute('aria-selected', on ? 'true' : 'false');
         });
-        if (mode === 'family') applyRelGraphFocus(relGraph, '', '', '');
+        if (mode === 'family') {
+          applyRelGraphFocus(relGraph, '', '', '');
+          // Первый раз на узком экране — вписываем и встаём на «вы» или героя.
+          if (!relGraph.dataset.famZoom) семьяМасштаб(relGraph, 'start');
+          семьяЖесты(relGraph);
+        }
+        return;
+      }
+      // Масштаб дерева: мельче / вписать / крупнее.
+      const zoomBtn = e.target.closest('.hud-fam-zoom-btn');
+      if (zoomBtn) {
+        e.preventDefault();
+        const шаг = zoomBtn.dataset.famZoom;
+        const сейчас = Number(relGraph.dataset.famZoom || 1);
+        if (шаг === 'fit') семьяМасштаб(relGraph, 'fit'); else семьяЗум(relGraph, шаг === 'in' ? сейчас * 1.25 : сейчас / 1.25);
         return;
       }
       const clickedNode = e.target.closest('.hud-rel-node');
@@ -1641,6 +1655,98 @@ function вернутьПоСобытию(e) {
 // ближайший оживающий элемент класс fx-tap на пару секунд (повторное касание
 // перезапускает движение), а на саму карточку — fx-live, чтобы ожили и слои
 // темы. Обработчик пассивный и ничего не отменяет: клики живут как раньше.
+// Масштаб генеалогического дерева. Размер svg ставим сами (width/height в px),
+// сцена .hud-fam-scroll прокручивается. 'start' — вписать, но не мельче 0,6
+// (шрифт иначе нечитаем) и встать на «вас» или героя; 'fit' — вписать в ширину.
+const семьяПредел = (граф, окно, w0) => ({
+  мин: Math.min(.3, Math.max(.1, (окно.clientWidth - 12) / w0)), макс: 2,
+});
+function семьяРазмер(граф, z) {
+  const svg = граф.querySelector('.hud-fam-svg'), окно = граф.querySelector('.hud-fam-scroll');
+  if (!svg || !окно || !svg.viewBox || !svg.viewBox.baseVal) return null;
+  const { width: w0, height: h0 } = svg.viewBox.baseVal;
+  const { мин, макс } = семьяПредел(граф, окно, w0);
+  z = Math.min(макс, Math.max(мин, z));
+  граф.dataset.famZoom = String(z);
+  svg.style.width = Math.round(w0 * z) + 'px';
+  svg.style.height = Math.round(h0 * z) + 'px';
+  return { svg, окно, w0, h0, z };
+}
+// Масштаб с неподвижной точкой: то, что под пальцами или курсором, остаётся на месте.
+function семьяЗум(граф, z, clientX, clientY) {
+  const окно = граф.querySelector('.hud-fam-scroll');
+  if (!окно) return;
+  const было = Number(граф.dataset.famZoom || 1);
+  const r = окно.getBoundingClientRect();
+  const ax = (clientX ?? r.left + r.width / 2) - r.left, ay = (clientY ?? r.top + r.height / 2) - r.top;
+  const px = (окно.scrollLeft + ax) / было, py = (окно.scrollTop + ay) / было;
+  граф.dataset.famManual = '1';
+  const сейчас = семьяРазмер(граф, z);
+  if (!сейчас) return;
+  окно.scrollLeft = px * сейчас.z - ax;
+  окно.scrollTop = py * сейчас.z - ay;
+}
+function семьяМасштаб(граф, зум, центрировать = true) {
+  const окно = граф.querySelector('.hud-fam-scroll'), svg = граф.querySelector('.hud-fam-svg');
+  if (!окно || !svg || !svg.viewBox || !svg.viewBox.baseVal) return;
+  const w0 = svg.viewBox.baseVal.width;
+  const вмещает = Math.min(1, Math.max(.1, (окно.clientWidth - 12) / w0));
+  if (зум !== 'start') граф.dataset.famManual = '1';
+  const z = зум === 'fit' ? вмещает : зум === 'start' ? Math.max(.6, вмещает) : Number(зум);
+  const сейчас = семьяРазмер(граф, z);
+  if (!сейчас) return;
+  if (зум !== 'fit' && зум !== 'start' && !центрировать) return;
+  const цель = svg.querySelector('.hud-fam-node.is-user') || svg.querySelector('.hud-fam-node.is-primary');
+  if (зум === 'fit' || !цель) { окно.scrollLeft = 0; окно.scrollTop = 0; return; }
+  const b = цель.getBBox();
+  окно.scrollLeft = Math.max(0, (b.x + b.width / 2) * сейчас.z - окно.clientWidth / 2);
+  окно.scrollTop = Math.max(0, (b.y + b.height / 2) * сейчас.z - окно.clientHeight / 2);
+}
+// Жесты дерева: два пальца — масштаб, колесо — масштаб (в раскрытом графе, как
+// в «Связях»; вне его — только с Ctrl, чтобы колесо листало страницу),
+// двойное касание или щелчок по пустому месту — вписать / вернуть.
+function семьяЖесты(граф) {
+  const окно = граф.querySelector('.hud-fam-scroll');
+  if (!окно || окно.dataset.famBound) return;
+  окно.dataset.famBound = '1';
+  // Раскрыли граф на весь экран (или повернули телефон) — пока масштаб не трогали
+  // руками, вписываем заново: иначе в большом окне дерево осталось бы мелким.
+  if (typeof ResizeObserver === 'function') {
+    let ширина = окно.clientWidth;
+    new ResizeObserver(() => {
+      if (граф.dataset.famManual || Math.abs(окно.clientWidth - ширина) < 24 || !окно.clientWidth) return;
+      ширина = окно.clientWidth;
+      семьяМасштаб(граф, 'start');
+    }).observe(окно);
+  }
+  окно.addEventListener('wheel', (ev) => {
+    if (!(ev.ctrlKey || граф.classList.contains('is-expanded'))) return;
+    ev.preventDefault();
+    const шаг = Math.exp(-ev.deltaY * (ev.deltaMode === 1 ? .05 : .0016) * (ev.ctrlKey ? 1.5 : 1));
+    семьяЗум(граф, Number(граф.dataset.famZoom || 1) * шаг, ev.clientX, ev.clientY);
+  }, { passive: false });
+  let щипок = null;
+  const два = (t) => ({ d: Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY), x: (t[0].clientX + t[1].clientX) / 2, y: (t[0].clientY + t[1].clientY) / 2 });
+  окно.addEventListener('touchstart', (ev) => {
+    if (ev.touches.length === 2) { const g = два(ev.touches); щипок = { d: g.d, z: Number(граф.dataset.famZoom || 1) }; }
+  }, { passive: true });
+  окно.addEventListener('touchmove', (ev) => {
+    if (!щипок || ev.touches.length !== 2) return;
+    ev.preventDefault();
+    const g = два(ev.touches);
+    семьяЗум(граф, щипок.z * g.d / (щипок.d || 1), g.x, g.y);
+  }, { passive: false });
+  const конец = (ev) => { if (ev.touches.length < 2) щипок = null; };
+  окно.addEventListener('touchend', конец, { passive: true });
+  окно.addEventListener('touchcancel', конец, { passive: true });
+  окно.addEventListener('dblclick', (ev) => {
+    if (ev.target.closest('.hud-fam-node')) return;
+    const вмещает = (окно.clientWidth - 12) / (граф.querySelector('.hud-fam-svg').viewBox.baseVal.width);
+    const z = Number(граф.dataset.famZoom || 1);
+    семьяМасштаб(граф, Math.abs(z - Math.min(1, вмещает)) < .02 ? 1 : 'fit');
+  });
+}
+
 const ОЖИВАЮТ_ПО_КАСАНИЮ = ".hud-tempo, .hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-row, .hud-heat, .hud-cycle, .hud-secret-summary, .hud-fam-svg, .hud-phone-app, .hud-phone-lockscreen, .hud-mood-group, .hud-scene-strip-wrap";
 const таймерыОживления = new WeakMap();
 // fx-tap — переключатель: первое касание оживляет, второе замораживает

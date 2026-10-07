@@ -13,16 +13,16 @@
 // карточки ненадёжны — у неё content-visibility, и браузер может не
 // двигать их время.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.36.1';
-import { namesLikelySame } from '../names.js?v=23.36.1';
-import { разобратьХод } from './carryover.js?v=23.36.1';
-import { parseSceneDate } from '../history-analyzer.js?v=23.36.1';
-import { исходЗачатия } from './conception.js?v=23.36.1';
-import { блокПлодов } from './fetus.js?v=23.36.1';
-import { кровотечение } from './fertility.js?v=23.36.1';
-import { settings } from '../settings.js?v=23.36.1';
-import { одеждаПодробно, слойОдежды, темпИзТекста, блокТемпа, проникновенияИзТекста, меткиПроникновения, строкиПроникновения } from './scene-body.js?v=23.36.1';
-import { ощущенияИзТекста } from './body-layers.js?v=23.36.1';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.44.2';
+import { namesLikelySame } from '../names.js?v=23.44.2';
+import { разобратьХод } from './carryover.js?v=23.44.2';
+import { parseSceneDate } from '../history-analyzer.js?v=23.44.2';
+import { исходЗачатия } from './conception.js?v=23.44.2';
+import { блокПлодов } from './fetus.js?v=23.44.2';
+import { кровотечение } from './fertility.js?v=23.44.2';
+import { settings } from '../settings.js?v=23.44.2';
+import { одеждаПодробно, слойОдежды, темпИзТекста, блокТемпа, позаТела, полПерсонажа, проникновенияИзТекста, меткиПроникновения, строкиПроникновения, членИзТекста, семяИзТекста, влагаИзТекста } from './scene-body.js?v=23.44.2';
+import { ощущенияИзТекста } from './body-layers.js?v=23.44.2';
 
 const пусто = (v) => { const s = String(v ?? '').trim(); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
 const число = (s) => { const m = String(s ?? '').replace(/(\d),(\d)/g, '$1.$2').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };
@@ -112,7 +112,20 @@ function форматМинут(м) {
 }
 
 export function блокТемпаСцены(c) {
-  return блокТемпа(темпИзТекста(поле(c, 'Поза'), поле(c, 'NSFW'), поле(c, 'NSFW (Юзер)')));
+  // Вид «Тело»: поза из «Позы», пол — по самому персонажу. Вид «X-ray»:
+  // проникновения из «NSFW» и «Позы» — разрез с толчками.
+  const nsfw = поле(c, 'NSFW') || поле(c, 'NSFW (Юзер)');
+  const пол = полПерсонажа(nsfw, поле(c, 'Тело'), поле(c, 'Внешность'), поле(c, 'Роль'));
+  const проникн = проникновенияИзТекста(nsfw, поле(c, 'Поза'));
+  // Размер члена — из своего «NSFW» (pn:) или из «NSFW (Юзер)» (an:/pn:).
+  const член = членИзТекста(поле(c, 'NSFW'), поле(c, 'NSFW (Юзер)'));
+  // Кончили внутрь — x-ray показывает семя; толчков после этого может и не быть.
+  const семя = семяИзТекста(поле(c, 'NSFW'), поле(c, 'NSFW (Юзер)'), поле(c, 'Поза'), поле(c, 'Готовность к оргазму'));
+  let т = темпИзТекста(поле(c, 'Поза'), nsfw);
+  if (!т && семя && проникн.length) т = { уровень: 0, слово: 'замерли', вМинуту: 0, глубина: 'deep', рвано: false, сек: 0 };
+  // Влага у того, кого берут: «lb:» в своём «NSFW» или в «NSFW (Юзер)».
+  const влага = влагаИзТекста(поле(c, 'NSFW'), поле(c, 'NSFW (Юзер)'));
+  return блокТемпа(т, { поза: позаТела(поле(c, 'Поза'), пол), пол, текстПозы: поле(c, 'Поза'), проникн, член, семя, влага });
 }
 export function buildSceneStrip(c) {
   const взять = (k) => { const v = поле(c, k); return пусто(v) ? '' : v; };

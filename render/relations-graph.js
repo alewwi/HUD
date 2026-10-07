@@ -7,11 +7,11 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.36.1';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.36.1';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.36.1';
-import { buildFamilyTree } from './family-tree.js?v=23.36.1';
-import { settings } from '../settings.js?v=23.36.1';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.44.2';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.44.2';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.44.2';
+import { buildFamilyTree } from './family-tree.js?v=23.44.2';
+import { settings } from '../settings.js?v=23.44.2';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -427,7 +427,13 @@ export function buildRelGraphHTML(hudData, uid) {
   // This is important when the graph is portaled to <body> in expanded mode:
   // the controls must travel with the graph instead of staying behind in Memory.
   svg += `</svg></div>`;
-  if (семья) svg += `<div class="hud-family-stage">${семья.svg}</div>`;
+  // Дерево шире телефона: сверху — масштаб (мельче / вписать / крупнее), под
+  // ним — прокручиваемая сцена. Масштаб ставит events.js (семьяМасштаб).
+  if (семья) svg += `<div class="hud-family-stage"><div class="hud-fam-zoom" role="group" aria-label="Масштаб дерева">`
+    + `<button type="button" class="hud-fam-zoom-btn" data-fam-zoom="out" aria-label="Мельче">−</button>`
+    + `<button type="button" class="hud-fam-zoom-btn is-fit" data-fam-zoom="fit" aria-label="Вписать в ширину">Вписать</button>`
+    + `<button type="button" class="hud-fam-zoom-btn" data-fam-zoom="in" aria-label="Крупнее">+</button></div>`
+    + `<div class="hud-fam-scroll">${семья.svg}</div></div>`;
 
   // Типов теперь два десятка, и списком «все подряд» легенда занимала бы
   // пол-экрана. Показываем только те, что действительно есть в этом графе,

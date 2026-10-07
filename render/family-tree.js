@@ -8,9 +8,9 @@
 // Модуль не знает про граф отношений: получает готовые узлы и рёбра и отдаёт
 // SVG. Так нет круговой зависимости с relations-graph.js.
 
-import { escapeHtml, hudHashSeed, commentInitials } from '../utils.js?v=23.36.1';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.36.1';
-import { найтиПоИмени } from '../names.js?v=23.36.1';
+import { escapeHtml, hudHashSeed, commentInitials } from '../utils.js?v=23.44.2';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.44.2';
+import { найтиПоИмени } from '../names.js?v=23.44.2';
 
 // Кем «кому» приходится тому, у кого записано отношение. Ищем только в
 // первых словах: дальше идёт чувство, где «любит как сына» или «брат по
@@ -93,7 +93,8 @@ function узелПоИмени(люди, имя, кромеId) {
 }
 
 // Поле сверху шире: над верхней парой встаёт подпись «жена ⚭ муж».
-const W_УЗЛА = 136, H_УЗЛА = 58, ЗАЗОР_СУПРУГОВ = 28, ЗАЗОР = 26, ШАГ_РЯДА = 124, ПОЛЕ = 24;
+// W_БАЗА — минимальная ширина карточки; настоящая зависит от самого длинного имени.
+const W_БАЗА = 136, H_УЗЛА = 58, ЗАЗОР_СУПРУГОВ = 28, ЗАЗОР = 26, ШАГ_РЯДА = 140, ПОЛЕ = 24;
 
 // nodes: [{ id, name, isUser, isPrimary }], edges: [{ from, to, label }].
 // Возвращает null, если родства нет, иначе { svg, people, positions }.
@@ -292,6 +293,23 @@ export function buildFamilyTree(nodes, edges, idBase) {
     детскиеБлоки.forEach(б => { б.родитель = блок; блок.дети.push(б); });
   }
 
+  // --- Ширина карточки: растягивается под самое длинное имя и подпись ---
+  const подписьДля = (id) => {
+    const ч = люди.get(id);
+    const родня = [...люди.keys()].find(q => q !== id && !люди.get(q).hidden && словоРодства.has(пара(q, id)));
+    const через = родня ? `${словоРодства.get(пара(родня, id))} · ${String(люди.get(родня).name).split(/\s+/)[0]}` : '';
+    return ч.isUser ? 'это вы' : (ктоИгроку.get(id) || через || (ч.isPrimary ? 'персонаж' : ''));
+  };
+  const КОНЕЦ_ИМЕНИ = 36, КОНЕЦ_ПОДПИСИ = 28;
+  let симвИмя = 0, симвПодпись = 0;
+  for (const [id, ч] of люди) {
+    if (ч.hidden) continue;
+    симвИмя = Math.max(симвИмя, Math.min(ч.virtual ? 9 : String(ч.name).length, КОНЕЦ_ИМЕНИ));
+    симвПодпись = Math.max(симвПодпись, Math.min(подписьДля(id).length, КОНЕЦ_ПОДПИСИ));
+  }
+  // 10 — отступ, 38 — аватар, 9 — зазор, 16 — поле справа; 7,3 и 5,6 — px на знак жирного и мелкого шрифта.
+  const W_УЗЛА = Math.max(W_БАЗА, Math.ceil(10 + 38 + 9 + 16 + Math.max(симвИмя * 7.3, симвПодпись * 5.6)));
+
   // --- Раскладка: ширина поддерева и расстановка сверху вниз ---
   const ширинаСвоя = (б) => б.члены.length * W_УЗЛА + (б.члены.length - 1) * ЗАЗОР_СУПРУГОВ;
   const ширинаДетей = (б) => б.дети.reduce((s, д, i) => s + ширина(д) + (i ? ЗАЗОР : 0), 0);
@@ -389,7 +407,7 @@ export function buildFamilyTree(nodes, edges, idBase) {
         const сосед = д.find(b => b !== id && словоРодства.has(пара(b, id)));
         if (сосед) подпись = словоРодства.get(пара(сосед, id));
       }
-      if (подпись) метки += пилюля(p.x + W_УЗЛА / 2, (шинаY + p.y) / 2, подпись);
+      if (подпись) метки += пилюля(p.x + W_УЗЛА / 2, шинаY + 11, подпись);
     });
   });
   блоки.forEach(б => {
@@ -407,7 +425,7 @@ export function buildFamilyTree(nodes, edges, idBase) {
       // Недостающую сторону пары достраиваем по полу: «жена ⚭ …» → «жена ⚭ муж».
       const левый = левыйЗаписано || словоПоРоли('spouse', пол.get(a), правыйЗаписано);
       const правый = правыйЗаписано || словоПоРоли('spouse', пол.get(b), левыйЗаписано);
-      if (левыйЗаписано || правыйЗаписано) метки += пилюля((x1 + x2) / 2, pa.y - 12, `${левый || '…'} ${бывший ? '✕' : '⚭'} ${правый || '…'}`);
+      if (левыйЗаписано || правыйЗаписано) метки += пилюля((x1 + x2) / 2, pa.y - 10, `${левый || '…'} ${бывший ? '✕' : '⚭'} ${правый || '…'}`);
     }
   });
   кузены.forEach(([a, b]) => {
@@ -430,12 +448,12 @@ export function buildFamilyTree(nodes, edges, idBase) {
       try { адрес = ч.isUser ? (getUserAvatarUrl() || '') : ((getAvatarUrl(ч.name, ч.isPrimary) || {}).url || ''); } catch (_) { адрес = ''; }
     }
     const клип = `${основа}-fam-${номер++}`;
-    const имя = ч.virtual ? 'неизвестно' : (ч.name.length > 13 ? ч.name.slice(0, 12) + '…' : ч.name);
+    const имя = ч.virtual ? 'неизвестно' : (ч.name.length > КОНЕЦ_ИМЕНИ ? ч.name.slice(0, КОНЕЦ_ИМЕНИ - 1) + '…' : ч.name);
     // Под именем — кем человек приходится вам, а если не вам — кому-то в дереве.
     const родня = видимые.find(q => q !== id && словоРодства.has(пара(q, id)));
     const черезРодню = родня ? `${словоРодства.get(пара(родня, id))} · ${String(люди.get(родня).name).split(/\s+/)[0]}` : '';
     const подписьПолная = ч.isUser ? 'это вы' : (ктоИгроку.get(id) || черезРодню || (ч.isPrimary ? 'персонаж' : ''));
-    const подпись = подписьПолная.length > 18 ? подписьПолная.slice(0, 17) + '…' : подписьПолная;
+    const подпись = подписьПолная.length > КОНЕЦ_ПОДПИСИ ? подписьПолная.slice(0, КОНЕЦ_ПОДПИСИ - 1) + '…' : подписьПолная;
     const tx = ax + r + 9;
     карточки += `<g class="hud-fam-node${ч.isUser ? ' is-user' : ''}${ч.isPrimary ? ' is-primary' : ''}${ч.virtual ? ' is-unknown' : ''}" data-node-name="${escapeHtml(ч.name)}">`
       + `<title>${escapeHtml(ч.virtual ? 'Звено родства не названо' : ч.name)}</title>`

@@ -1,38 +1,38 @@
 // hud-manager/index.js (v21.5.5)
 
-import { hexToRgba, settings, defaultSettings, настройка, КЛЮЧИ_АВТО, МИНИМАЛИЗМ } from './settings.js?v=23.36.1';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue, имяДляВкладки } from './utils.js?v=23.36.1';
-import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.36.1';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.36.1';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.36.1';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.36.1';
-import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.36.1';
-import { mergeCarryOver, вернутьЧерты, сдвигиДоверия } from './render/carryover.js?v=23.36.1';
-import { привязатьИсторию, ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.36.1';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.36.1';
-import { ПРИМЕР_HUD_ТЕКСТ, БАЗОВЫЙ_HUD_ТЕКСТ, ПРИМЕР_СЕМЬИ } from './render/sample-hud.js?v=23.36.1';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.36.1';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.36.1';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.36.1';
-import { buildMemoryHTML } from './render/memory.js?v=23.36.1';
-import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.36.1';
-import { buildPhoneTabsHTML } from './render/phone.js?v=23.36.1';
-import { праздникиСцены } from './render/holidays.js?v=23.36.1';
-import { скрытыеФактыЗачатия, изменитьСудьбу, откатитьСудьбу, отметитьТест, узнатьПол, изменитьПлоды, откатитьПлоды, зарегистрироватьРоды, роды, естьЗачатия, задатьПримерСемьи, деньРодов, малышиБезРодов, поправитьРоды } from './render/conception.js?v=23.36.1';
-import { buildBabiesHTML, hudHasBabies, возрастТочно, днейИзТекста } from './render/babies.js?v=23.36.1';
-import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.36.1';
-import { hudHasRelations } from './render/relations-graph.js?v=23.36.1';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.36.1';
-import { чипЛуны, теньЛуны, титрыСцены, карточкаПоворота } from './render/extras.js?v=23.36.1';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.36.1';
-import { applyThemeClass, presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.36.1';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.36.1';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.36.1';
-import { clearCache, cacheUsage, getChatMessages, parseSceneDate } from './history-analyzer.js?v=23.36.1';
-import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.36.1';
-import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.36.1';
-import { создатьПроверкуПолноты } from './hud-check.js?v=23.36.1';
-import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.36.1';
+import { hexToRgba, settings, defaultSettings, настройка, КЛЮЧИ_АВТО, МИНИМАЛИЗМ } from './settings.js?v=23.44.2';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue, имяДляВкладки } from './utils.js?v=23.44.2';
+import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.44.2';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.44.2';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.44.2';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.44.2';
+import { openAssistantDialog, ПРОМПТ_АССИСТЕНТА } from './render/assistant.js?v=23.44.2';
+import { mergeCarryOver, вернутьЧерты, сдвигиДоверия } from './render/carryover.js?v=23.44.2';
+import { привязатьИсторию, ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.44.2';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.44.2';
+import { ПРИМЕР_HUD_ТЕКСТ, БАЗОВЫЙ_HUD_ТЕКСТ, ПРИМЕР_СЕМЬИ } from './render/sample-hud.js?v=23.44.2';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.44.2';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.44.2';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.44.2';
+import { buildMemoryHTML } from './render/memory.js?v=23.44.2';
+import { buildLoreEntry, loreAlreadyHas, buildLoreGenPrompt, parseLoreGenResponse, stripHudBlock } from './lore.js?v=23.44.2';
+import { buildPhoneTabsHTML } from './render/phone.js?v=23.44.2';
+import { праздникиСцены } from './render/holidays.js?v=23.44.2';
+import { скрытыеФактыЗачатия, изменитьСудьбу, откатитьСудьбу, отметитьТест, узнатьПол, изменитьПлоды, откатитьПлоды, зарегистрироватьРоды, роды, естьЗачатия, задатьПримерСемьи, деньРодов, малышиБезРодов, поправитьРоды } from './render/conception.js?v=23.44.2';
+import { buildBabiesHTML, hudHasBabies, возрастТочно, днейИзТекста } from './render/babies.js?v=23.44.2';
+import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.44.2';
+import { hudHasRelations } from './render/relations-graph.js?v=23.44.2';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.44.2';
+import { чипЛуны, теньЛуны, титрыСцены, карточкаПоворота } from './render/extras.js?v=23.44.2';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.44.2';
+import { applyThemeClass, presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.44.2';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.44.2';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.44.2';
+import { clearCache, cacheUsage, getChatMessages, parseSceneDate } from './history-analyzer.js?v=23.44.2';
+import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, заменитьHudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.44.2';
+import { собратьСнимок, строкаСнимка, решитьNSFW, последниеТекстыЧата, HUDвКодах, легендаСнимка } from './hud-snapshot.js?v=23.44.2';
+import { создатьПроверкуПолноты } from './hud-check.js?v=23.44.2';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.44.2';
 
 (function() {
   window.HUD = window.HUD || {};
@@ -496,7 +496,7 @@ ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and ru
       var возрастМалышей = точные.length ? `exact, the HUD counts it from the birth date: ${точные.join('; ')} (on the scene date of the last HUD; add the days that pass). Never invent another age or birthday` : "days, weeks or months since birth, e.g. '12 дней', '3 месяца'";
       p += `,
  "bb": [
-  {"N": "[the child's name — one object per child born in the story younger than ${Math.max(1, Number(settings.babyGraduateYears) || 3)} years; older children go to cs as regular characters]", "sx": "[boy or girl]", "A": "[age: ${возрастМалышей}]", "C": "[what the child is wearing or wrapped in right now]", "Ap": "[appearance: size, hair, eyes, skin, marks — a baby's look changes month to month]", "R": "[who the child is to the family, e.g. 'дочь Софи и Тристана']", "B": "[body and mood right now in a phrase — sleepy, fussy, calm, giggling, teething]",${состояниеТела ? ` "Bs": "[the baby's body state, numbers 0-100 each followed by a word: 'eng: energy; awk: alertness — drops toward the next nap; sat: satiety — 100 right after feeding, falls until the next one; str: fussiness — crying, colic, teething raise it; slp: last night's sleep — hours and how many wakings']",` : ''} "H": "[health in a phrase]", "Ill": "[illnesses, ONLY if any — same format as for characters]", "Mrk": "[visible marks, ONLY if any — rash, bruise, scratch, birthmark]", "Nds": "[needs: 'fed: time of the last feeding HH:MM and what — breast, bottle, purée; slp: asleep or awake and since when HH:MM; dpr: time of the last diaper change HH:MM']", "L": "[where the child is right now and with whom]", "K": "[what occupies the child right now — impressions, each with an emoji; at least 2; separate by ;]", "I": "[the child's things nearby — toys, pacifier, blanket — each '<item>: <state>'; separate by ;]", "S": "[the child's routine ahead — feeding, nap, bath, walk, doctor — each '<time> - <event>'; separate by ;]", "Rl": "[how the child reacts to each person — calms with whom, smiles at whom; '<name>: <reaction>'; separate by ;]", "Tr": "[attachment 0-100 to each person: '<name>: <0-100>'; separate by ;]", "Fr": "[fears, ONLY if any — loud noises, strangers, the dark: '<what>: <low | moderate | high | panic>']", "Ln": "[ONLY once the child really speaks — words or short phrases they say, in «», separated by ;. Omit before that]"}
+  {"N": "[the child's name — one object per child born in the story younger than ${Math.max(1, Number(settings.babyGraduateYears) || 3)} years; older children go to cs as regular characters]", "sx": "[boy or girl]", "A": "[age: ${возрастМалышей}]", "C": "[what the child is wearing or wrapped in right now]", "Ap": "[appearance: size, hair, eyes, skin, marks — a baby's look changes month to month]", "R": "[who the child is to the family, e.g. 'дочь Софи и Тристана']", "B": "[body and mood right now in a phrase — sleepy, fussy, calm, giggling, teething]",${состояниеТела ? ` "Bs": "[the baby's body state, numbers 0-100 each followed by a word: 'eng: energy; awk: alertness — drops toward the next nap; sat: satiety — 100 right after feeding, falls until the next one; str: fussiness — crying, colic, teething raise it; slp: last night's sleep — hours and how many wakings']",` : ''} "H": "[health in a phrase]", "Ill": "[illnesses, ONLY if any — same format as for characters]", "Mrk": "[visible marks, ONLY if any — rash, bruise, scratch, birthmark]", "Nds": "[needs: 'fed: time of the last feeding HH:MM and what — breast, bottle, purée; slp: asleep or awake and since when HH:MM; dpr: time of the last diaper change HH:MM']", "L": "[where the child is right now and with whom]", "Th": "[the baby's thought right now, in the baby's own voice and simple world. A newborn feels rather than thinks: warmth, hunger, mother's heartbeat, light and sounds. An older baby thinks in short, funny, childlike phrases. 1-2 sentences, first person, no adult vocabulary]", "K": "[what occupies the child right now — impressions, each with an emoji; at least 2; separate by ;]", "I": "[the child's things nearby — toys, pacifier, blanket — each '<item>: <state>'; separate by ;]", "S": "[the child's routine ahead — feeding, nap, bath, walk, doctor — each '<time> - <event>'; separate by ;]", "Rl": "[how the child reacts to each person — calms with whom, smiles at whom; '<name>: <reaction>'; separate by ;]", "Tr": "[attachment 0-100 to each person: '<name>: <0-100>'; separate by ;]", "Fr": "[fears, ONLY if any — loud noises, strangers, the dark: '<what>: <low | moderate | high | panic>']", "Ln": "[ONLY once the child really speaks — words or short phrases they say, in «», separated by ;. Omit before that]"}
  ]`;
     }
 
@@ -5030,7 +5030,7 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       // за собой окно и вёрстку отчёта. Версию пишем литералом — её
       // подменяет bump-version.cjs, как и во всех остальных импортах.
       try {
-        const mod = await import('./render/archive.js?v=23.36.1');
+        const mod = await import('./render/archive.js?v=23.44.2');
         mod.openArchiveDialog();
       } catch (e) {
         console.error('[TavernOS HUD] Архив не открылся:', e);

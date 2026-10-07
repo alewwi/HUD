@@ -1,0 +1,623 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+:root { --hud-nsfw-color: #d9548a; }
+body { background: #0d0b12; color: #cfc6dc; font: 14px/1.4 system-ui; margin: 0; padding: 18px; }
+﻿/* =========================================================================
+   БЛИЗОСТЬ НА КАРТЕ ТЕЛА (render/scene-body.js): одежда по фигуре, темп,
+   отметки проникновения и x-ray пенетрации в разрезе. Движение — только
+   под курсором или после нажатия, потом замирает на месте.
+   ========================================================================= */
+
+/* --- Одежда: цвет из описания, ткань и состояние ------------------------- */
+.hud-heat-svg .z-garment .body {
+  fill: var(--cl, #8a8f9c); fill-opacity: .92;
+  stroke: color-mix(in srgb, var(--cl, #8a8f9c) 55%, #9a9aa6); stroke-width: .55; stroke-linejoin: round;
+  filter: drop-shadow(0 .5px .6px rgba(0,0,0,.45));
+}
+.hud-heat-svg .z-garment .seam, .hud-heat-svg .z-garment .fold {
+  fill: none; stroke: color-mix(in srgb, var(--cl, #8a8f9c) 45%, #000); stroke-width: .55; stroke-linecap: round; opacity: .75;
+}
+.hud-heat-svg .z-garment .fold { stroke-width: .75; stroke: color-mix(in srgb, var(--cl, #8a8f9c) 60%, #000); }
+/* На тёмной ткани швы светлее, чтобы читались. */
+.hud-heat-svg .z-garment:is([style*="#1c1b21"], [style*="#1d1b22"], [style*="#1a1a1f"], [style*="#1a1716"], [style*="#241a18"], [style*="#2c2f38"], [style*="#2a2a30"], [style*="#26282f"]) :is(.seam, .fold) { stroke: color-mix(in srgb, var(--cl) 40%, #fff); opacity: .5; }
+.hud-heat-svg .z-garment .strap { fill: none; stroke: var(--cl, #8a8f9c); stroke-width: 1; stroke-linecap: round; }
+.hud-heat-svg .z-garment .band { fill: none; stroke: color-mix(in srgb, var(--cl, #8a8f9c) 60%, #fff); stroke-width: 1.4; opacity: .7; }
+.hud-heat-svg .z-garment .btn { fill: color-mix(in srgb, var(--cl, #8a8f9c) 55%, #999); stroke: rgba(0,0,0,.35); stroke-width: .2; }
+.hud-heat-svg .z-garment .btn.is-loose { opacity: .75; }
+/* Ткани. */
+.hud-heat-svg .z-garment.t-silk .body { fill-opacity: .86; stroke: color-mix(in srgb, var(--cl) 40%, #fff); stroke-width: .7; filter: drop-shadow(0 .5px .6px rgba(0,0,0,.4)) brightness(1.08); }
+.hud-heat-svg .z-garment.t-lace .body { fill-opacity: .55; stroke-dasharray: 1 .7; stroke-width: .7; }
+.hud-heat-svg .z-garment.t-sheer .body { fill-opacity: .38; }
+.hud-heat-svg .z-garment.t-leather .body { fill-opacity: .96; stroke: color-mix(in srgb, var(--cl) 50%, #fff); filter: drop-shadow(0 .5px .6px rgba(0,0,0,.5)) contrast(1.15); }
+.hud-heat-svg .z-garment.t-knit .body { stroke-dasharray: .9 .5; }
+/* Мокрая ткань липнет и просвечивает; порванная — неровный край. */
+.hud-heat-svg .z-garment.is-wet .body { fill-opacity: .6; filter: drop-shadow(0 .5px .6px rgba(0,0,0,.4)) saturate(.85) brightness(.9); }
+.hud-heat-svg .z-garment.is-torn .body { stroke-dasharray: 2.4 .9; }
+/* Голое тело: подсветка контура чуть теплее. */
+.hud-heat.is-nude .hud-heat-svg .z-rim { filter: drop-shadow(0 0 2px color-mix(in srgb, var(--heat, #e0507a) 45%, transparent)); }
+
+/* --- Проникновение: отметка на зоне + подпись ------------------------------ */
+.hud-heat.hide-pen .z-pen-layer, .hud-heat.hide-pen .hud-pen-list, .hud-heat.hide-pen .hud-xray { display: none; }
+.hud-heat-svg .z-pen { --pc: var(--hud-nsfw-color, #d9548a); }
+.hud-heat-svg .z-pen.p-fingers { --pc: #f0a94a; }
+.hud-heat-svg .z-pen.p-tongue { --pc: #ff7aa8; }
+.hud-heat-svg .z-pen.p-toy { --pc: #9b7bff; }
+.hud-heat-svg .z-pen-core { fill: var(--pc); stroke: #fff; stroke-width: .5; filter: drop-shadow(0 0 2px var(--pc)); }
+.hud-heat-svg .z-pen-tag rect { fill: rgba(14, 10, 16, .82); stroke: var(--pc); stroke-width: .4; }
+.hud-heat-svg .z-pen-tag text { fill: #fff; font-size: 5.4px; font-weight: 700; letter-spacing: .02em; }
+.hud-pen-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
+.hud-pen { --pc: var(--hud-nsfw-color, #d9548a); display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 7px; border-radius: 999px; font-size: .84em;
+  background: color-mix(in srgb, var(--pc) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pc) 45%, transparent); }
+.hud-pen.p-fingers { --pc: #f0a94a; } .hud-pen.p-tongue { --pc: #ff7aa8; } .hud-pen.p-toy { --pc: #9b7bff; }
+.hud-pen > i { width: 8px; height: 8px; border-radius: 50%; background: var(--pc); box-shadow: 0 0 6px var(--pc); }
+.hud-pen small { color: color-mix(in srgb, currentColor 70%, transparent); }
+
+/* --- Темп: виды (render/scene-body.js → блокТемпа) ------------------------
+   Один ритм на весь блок: --k — толчок (1 — до глубины, ~0 — назад), --sw —
+   качание (−1…1, период — два толчка). Дети считают от них свой сдвиг. */
+@property --k { syntax: '<number>'; inherits: true; initial-value: 1; }
+@property --sw { syntax: '<number>'; inherits: true; initial-value: -1; }
+.hud-tempo { --tc: var(--hud-nsfw-color, #d9548a); --k: 1; --sw: -1; display: flex; align-items: center; gap: 14px; margin-top: 8px; padding: 10px 14px 10px 12px; border-radius: 14px;
+  background: radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--tc) 14%, transparent), transparent 60%), rgba(0,0,0,.18);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tc) 30%, transparent); }
+.hud-tempo.l0 { --tc: #8fa6c9; } .hud-tempo.l1 { --tc: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 50%, #c7a0ff); }
+.hud-tempo.l4 { --tc: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 60%, #ff3b3b); }
+.hud-tempo-visual { flex: none; display: grid; place-items: center; }
+.hud-tempo-visual > svg { width: 104px; height: 104px; overflow: visible; filter: drop-shadow(0 6px 8px rgba(0,0,0,.35)); }
+.hud-tempo-info { flex: 1; min-width: 0; display: flex; flex-direction: column; justify-content: center; gap: 7px; }
+.hud-tempo-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.hud-tempo-head b { font-size: .72em; letter-spacing: .14em; text-transform: uppercase; color: color-mix(in srgb, var(--tc) 55%, #fff); }
+.hud-tempo-head .bpm { font-size: .8em; color: color-mix(in srgb, currentColor 72%, transparent); }
+.hud-tempo-head .bpm strong { font-size: 1.7em; font-weight: 800; color: color-mix(in srgb, var(--tc) 40%, #fff); margin-right: 4px; text-shadow: 0 0 10px color-mix(in srgb, var(--tc) 60%, transparent); }
+.hud-tempo .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.hud-tempo .chips i { font-style: normal; font-size: .78em; font-weight: 700; padding: 1px 9px; border-radius: 999px; background: color-mix(in srgb, var(--tc) 22%, transparent); }
+.hud-tempo-meter { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
+.hud-tempo-meter s { height: 5px; border-radius: 4px; background: color-mix(in srgb, currentColor 10%, transparent); text-decoration: none; }
+.hud-tempo-meter s.on { background: linear-gradient(90deg, color-mix(in srgb, var(--tc) 50%, transparent), var(--tc)); box-shadow: 0 0 6px color-mix(in srgb, var(--tc) 50%, transparent); }
+.hud-tempo-scale { display: flex; justify-content: space-between; font-size: .62em; letter-spacing: .06em; color: color-mix(in srgb, currentColor 55%, transparent); margin-top: -3px; }
+@media (max-width: 420px) { .hud-tempo-visual > svg { width: 84px; height: 84px; } }
+
+/* Шкала. */
+.hud-tempo-tube { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+.hud-tempo-tube .glass { position: relative; width: 26px; height: 92px; border-radius: 13px; overflow: hidden;
+  background: linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.1) 40%, rgba(255,255,255,.03)), rgba(0,0,0,.35);
+  box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--tc) 45%, transparent), inset 0 -6px 10px rgba(0,0,0,.4); }
+.hud-tempo-tube .glass > s { position: absolute; left: 0; width: 7px; height: 1.5px; background: color-mix(in srgb, currentColor 30%, transparent); z-index: 2; }
+.hud-tempo-tube .fill { position: absolute; left: 0; right: 0; bottom: 0; height: 100%; transform-origin: 50% 100%; transform: scaleY(calc(var(--depth, .72) * var(--k)));
+  background: linear-gradient(0deg, color-mix(in srgb, var(--tc) 85%, #000), var(--tc) 55%, color-mix(in srgb, var(--tc) 55%, #fff)); box-shadow: 0 0 14px var(--tc); }
+.hud-tempo-tube .peak { position: absolute; left: 3px; right: 3px; bottom: calc(var(--depth, .72) * 100%); height: 2px; border-radius: 2px; background: #fff; opacity: .75; box-shadow: 0 0 6px var(--tc); }
+.hud-tempo-tube small { font-size: .58em; letter-spacing: .08em; text-transform: uppercase; color: color-mix(in srgb, currentColor 55%, transparent); order: -1; }
+
+/* Тело: фигура-манекен в позе сцены, крупно. */
+.hud-tempo.is-body { flex-wrap: wrap; }
+.hud-tempo.is-body .hud-tempo-visual { flex: 1 1 260px; }
+.hud-tempo.is-body .hud-tempo-visual > svg { width: 100%; max-width: 340px; height: auto; aspect-ratio: 160 / 120; }
+.tv-body { --skin: color-mix(in srgb, var(--tc) 14%, #e9c3b2); --skin-d: color-mix(in srgb, var(--tc) 22%, #b98472); }
+.tv-body.is-m { --skin: color-mix(in srgb, var(--tc) 12%, #d6a68f); --skin-d: color-mix(in srgb, var(--tc) 20%, #9c6c58); }
+.tv-body .r0 { stop-color: color-mix(in srgb, var(--tc) 28%, #e8dcd8); } .tv-body .r1 { stop-color: color-mix(in srgb, var(--tc) 16%, #b9a9a6); }
+.tv-body .h0 { stop-color: var(--tc); stop-opacity: .55; } .tv-body .h1 { stop-color: var(--tc); stop-opacity: 0; }
+.tv-body .shadow { fill: rgba(0,0,0,.3); }
+.tv-body .wall { fill: color-mix(in srgb, var(--tc) 10%, #3a2e30); } .tv-body .wall-edge { stroke: rgba(255,255,255,.15); stroke-width: 1; }
+.tv-body .limb, .tv-body .neck { fill: none; stroke: var(--skin); stroke-linecap: round; }
+.tv-body .limb.far { stroke: var(--skin-d); }
+.tv-body :is(.chest, .pelvis), .tv-body .skull, .tv-body .bust { fill: var(--skin); }
+.tv-body .waist { fill: none; stroke: var(--skin); stroke-linecap: round; }
+.tv-body .chest, .tv-body .pelvis { stroke: var(--skin-d); stroke-width: .5; stroke-opacity: .6; }
+
+.tv-body .bust { stroke: var(--skin-d); stroke-width: .5; }
+.tv-body .hair { fill: color-mix(in srgb, var(--tc) 25%, #2b1a18); }
+.tv-body .glow { opacity: calc(.15 + (1 - var(--k)) * .85 * var(--depth, .72)); }
+.tv-body .move { transform-box: view-box; transform: rotate(calc((1 - var(--k)) * var(--amp, -8deg) * var(--depth, .72))); }
+
+/* Метроном: орех, латунь, кремовая шкала. */
+.tv-metronome .w0 { stop-color: #3d2116; } .tv-metronome .w1 { stop-color: #6e3d26; } .tv-metronome .w2 { stop-color: #2b160e; }
+.tv-metronome .p0 { stop-color: #f2e7cf; } .tv-metronome .p1 { stop-color: #d8c6a2; }
+.tv-metronome .m0 { stop-color: #8c6a2a; } .tv-metronome .m1 { stop-color: #f3d98b; } .tv-metronome .m2 { stop-color: #7a5a1e; }
+.tv-metronome .shadow { fill: rgba(0,0,0,.4); }
+.tv-metronome .bevel { fill: none; stroke: rgba(255,255,255,.18); stroke-width: .8; }
+.tv-metronome .ticks path { stroke: #6a4a2a; stroke-width: .8; }
+.tv-metronome .tip { fill: #f3d98b; }
+.tv-metronome .key { stroke: #5a3e14; stroke-width: .5; }
+.tv-metronome .pendulum { transform-box: view-box; transform-origin: 60px 100px; transform: rotate(calc(var(--sw) * 24deg * (.6 + var(--depth, .72) * .45))); }
+
+/* Пружины матраса. */
+.tv-springs .f0 { stop-color: color-mix(in srgb, var(--tc) 18%, #f4ece6); } .tv-springs .f1 { stop-color: color-mix(in srgb, var(--tc) 28%, #c9b8b0); }
+.tv-springs .b0 { stop-color: #5b4636; } .tv-springs .b1 { stop-color: #2e2219; }
+.tv-springs .coil { fill: none; stroke: #c9ced6; stroke-width: 2; stroke-linecap: round; filter: drop-shadow(0 1px 0 rgba(0,0,0,.4)); }
+.tv-springs .coil.back { stroke: #8a909a; stroke-width: 1.4; opacity: .7; }
+.tv-springs .tuft { fill: color-mix(in srgb, var(--tc) 40%, #7a6058); }
+.tv-springs .stitch { fill: none; stroke: color-mix(in srgb, var(--tc) 25%, #9a8880); stroke-width: .6; stroke-dasharray: 1.4 1.2; }
+.tv-springs .shadow { fill: rgba(0,0,0,.35); }
+.tv-springs .coils { transform-box: view-box; transform-origin: 60px 92px; transform: scaleY(calc(1 - (1 - var(--k)) * var(--depth, .72) * .5)); }
+.tv-springs .top { transform: translateY(calc((1 - var(--k)) * var(--depth, .72) * 23px)); }
+
+/* Маятник Ньютона: хром. */
+.tv-cradle .c0 { stop-color: #ffffff; } .tv-cradle .c1 { stop-color: #b8bec8; } .tv-cradle .c2 { stop-color: #3c4048; }
+.tv-cradle .r0 { stop-color: #2e2a30; } .tv-cradle .r1 { stop-color: #141216; }
+.tv-cradle .rail { fill: none; stroke: #c3c8d0; stroke-width: 2.2; stroke-linejoin: round; }
+.tv-cradle .rail.inner { stroke-width: .8; stroke: rgba(255,255,255,.4); }
+.tv-cradle .thread { fill: none; stroke: rgba(220, 225, 235, .55); stroke-width: .5; }
+.tv-cradle .glint { fill: #fff; opacity: .85; }
+.tv-cradle .shadow { fill: rgba(0,0,0,.4); }
+.tv-cradle .ball { transform-box: view-box; }
+.tv-cradle .b-left { transform-origin: 25.6px 18px; transform: rotate(calc(max(0, -1 * var(--sw)) * 34deg * var(--depth, .72))); }
+.tv-cradle .b-right { transform-origin: 94.4px 18px; transform: rotate(calc(min(0, -1 * var(--sw)) * 34deg * var(--depth, .72))); }
+
+/* Отметка проникновения на карте: точка и подпись, без движения. */
+.hud-heat-svg .z-pen-halo { fill: color-mix(in srgb, var(--pc) 22%, transparent); stroke: var(--pc); stroke-width: .6; stroke-dasharray: 1.6 1.2; }
+
+/* --- Движение: ритм на корне, на паузе; идёт под курсором/по нажатию ------- */
+@media (prefers-reduced-motion: no-preference) {
+  .hud-tempo { animation: hud-tk var(--beat, 1s) cubic-bezier(.5, 0, .3, 1) infinite, hud-tsw calc(var(--beat1, 1s) * 2) infinite; }
+  .hud-tempo.is-ragged { animation-name: hud-tk-ragged, hud-tsw-ragged; animation-duration: var(--beat, 3s), var(--beat, 3s); }
+}
+.hud-tempo { animation-play-state: paused, paused; }
+.hud-tempo:is(:hover, .fx-tap, .fx-on) { animation-play-state: running, running; }
+.hud-tempo.l0 { animation: none; }
+@keyframes hud-tk { 0% { --k: 1; } 45% { --k: .12; } 100% { --k: 1; } }
+@keyframes hud-tsw {
+  0% { --sw: -1; animation-timing-function: cubic-bezier(.45, 0, .55, 1); }
+  50% { --sw: 1; animation-timing-function: cubic-bezier(.45, 0, .55, 1); }
+  100% { --sw: -1; }
+}
+/* Рвано: три толчка разной силы через неровные промежутки. */
+@keyframes hud-tk-ragged {
+  0% { --k: 1; } 14% { --k: .15; } 28% { --k: .75; } 40% { --k: .3; } 48% { --k: .6; } 72% { --k: .08; } 100% { --k: 1; }
+}
+@keyframes hud-tsw-ragged {
+  0% { --sw: -1; } 14% { --sw: .9; } 28% { --sw: -.5; } 40% { --sw: .4; } 48% { --sw: -.3; } 72% { --sw: 1; } 100% { --sw: -1; }
+}
+
+/* Светлые темы. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-tempo { background: radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--tc) 14%, transparent), transparent 60%), rgba(255,255,255,.5); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-tempo-head b { color: color-mix(in srgb, var(--tc) 70%, #000); }
+
+/* Тёмная ткань на тёмном силуэте — светлый контур, чтобы вещь читалась. */
+.hud-heat-svg .z-garment:is([style*="#1c1b21"], [style*="#1d1b22"], [style*="#1a1a1f"], [style*="#1a1716"], [style*="#241a18"], [style*="#2c2f38"], [style*="#2a2a30"], [style*="#26282f"], [style*="#1b2550"], [style*="#3f424a"]) .body { stroke: color-mix(in srgb, var(--cl) 25%, #d4d4de); stroke-width: .75; stroke-opacity: .8; }
+
+
+/* Пульс отметки проникновения на карте — в такт темпу сцены. */
+.hud-heat-svg .z-pen-core { transform-box: fill-box; transform-origin: center; }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-heat-svg .z-pen-core { animation: hud-pen-pulse var(--pp, 1.4s) ease-in-out infinite; animation-play-state: paused; }
+  .hud-heat:is(:hover, .fx-tap, .fx-on) .z-pen-core { animation-play-state: running; }
+}
+@keyframes hud-pen-pulse { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.6); opacity: .8; } }
+
+﻿/* =========================================================================
+   РАЗРЕЗ ПЕНЕТРАЦИИ (render/xray.js)
+   Стиль артов: тело в тёплых тонах кожи, круглая вырезка с розово-красной
+   плотью, органы мягкими пятнами, инструмент внутри канала, влажный блеск.
+   Движение: --k — толчок (1 — до глубины, ~0 — назад), --depth — глубина,
+   --o — длина хода. Всё, что движется, считает сдвиг от них.
+   ========================================================================= */
+
+.hud-xray { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
+.hud-xray-row {
+  --pc: var(--hud-nsfw-color, #d9548a);
+  display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start;
+  padding: 10px 12px 12px; border-radius: 14px;
+  background: linear-gradient(180deg, rgba(24,15,19,.86), rgba(12,8,10,.9));
+  box-shadow: inset 0 0 0 1px rgba(226,175,160,.14), 0 8px 20px rgba(0,0,0,.4);
+}
+.hud-xray-row.p-fingers { --pc: #f0a94a; }
+.hud-xray-row.p-tongue { --pc: #ff7aa8; }
+.hud-xray-row.p-toy { --pc: #9b7bff; }
+.hud-xray-row.p-fist { --pc: #ff6b5e; }
+.hud-xray-visual { flex: none; line-height: 0; }
+
+/* --- Полотно ------------------------------------------------------------ */
+.xr-film {
+  display: block; width: 300px; max-width: 100%; height: auto; border-radius: 12px;
+  box-shadow: 0 0 0 1px rgba(226,175,160,.16), 0 10px 26px rgba(0,0,0,.55);
+  background: #150e12;
+}
+.xr-plate { fill: #150e12; }
+.xr-bg0 { stop-color: #2a1a22; } .xr-bg1 { stop-color: #1a1116; } .xr-bg2 { stop-color: #0c0809; }
+.xr-vig0 { stop-color: #000; stop-opacity: 0; } .xr-vig1 { stop-color: #000; stop-opacity: .5; }
+.xr-mark { fill: rgba(240,206,196,.34); font: 600 5.4px/1 ui-monospace, Consolas, monospace; letter-spacing: .14em; }
+
+/* --- Тело: тёплая кожа, тень на ягодице, румянец ------------------------ */
+.xr-sk0 { stop-color: #fbe0c6; } .xr-sk1 { stop-color: #efb894; } .xr-sk2 { stop-color: #d99a76; }
+/* Объём ягодиц: свет сверху-сбоку, тень к низу и наружу. */
+.xr-butt0 { stop-color: rgba(255,244,232,.75); } .xr-butt1 { stop-color: rgba(238,182,150,.22); } .xr-butt2 { stop-color: rgba(126,68,46,.55); }
+.xr-butt { stroke: rgba(180,120,94,.28); stroke-width: .7; }
+.xr-butt-shine { fill: #fff; opacity: .16; filter: blur(7px); }
+.xr-cleft { fill: none; stroke: #96543c; stroke-opacity: .6; stroke-width: 7; stroke-linecap: round; filter: blur(3px); }
+.xr-under-butt { fill: none; stroke: #a9694f; stroke-opacity: .35; stroke-width: 6; stroke-linecap: round; filter: blur(4px); }
+.xr-thigh { fill: rgba(226,170,142,.55); stroke: rgba(180,120,94,.2); stroke-width: .6; }
+.xr-stocking { fill: #2b2233; fill-opacity: .92; }
+.xr-stocking-lace { fill: none; stroke: #e3c3d4; stroke-opacity: .8; stroke-width: 1.6; }
+.xr-stocking-sheen { fill: none; stroke: #fff; stroke-opacity: .18; stroke-width: 3; filter: blur(3px); }
+.xr-window-glow { fill: #fff; opacity: .03; filter: blur(12px); }
+.xr-body-fill { fill-opacity: 1; }
+.xr-body-shade { fill: #b9795c; fill-opacity: .22; filter: blur(6px); }
+.xr-body-blush { fill: #e0705f; fill-opacity: .18; filter: blur(7px); }
+.xr-body-line { fill: none; stroke: #b06a52; stroke-opacity: .5; stroke-width: .9; }
+.xr-belly-line { fill: none; stroke: #c58567; stroke-opacity: .45; stroke-width: .8; }
+.xr-nose-line { fill: none; stroke: #c58567; stroke-opacity: .5; stroke-width: .8; }
+.hud-xray-row.is-giver .xr-body-fill { filter: brightness(.94); }
+
+/* --- Вырезка: слои среза и розово-красная плоть ------------------------- */
+.xr-fl0 { stop-color: #ec7288; } .xr-fl1 { stop-color: #c04a63; } .xr-fl2 { stop-color: #8d2b47; }
+.xr-cut-outer { fill: #f9e2cd; stroke: #dda98a; stroke-width: .8; }
+.xr-cut-depth { fill: none; stroke: #7a2038; stroke-opacity: .5; stroke-width: 7; filter: blur(5px); }
+.xr-cut-layer { fill: #e9a48f; stroke: #cf8975; stroke-width: .5; }
+.xr-cut-inner { stroke: #8d2f47; stroke-width: .6; }
+
+/* --- Органы: мягкие пятна с подсветкой края ----------------------------- */
+.xr-organ { stroke-width: 1; stroke-opacity: .95; }
+.xr-organ-edge { fill: none; stroke-opacity: .55; stroke-width: .8; }
+.xr-organ.xr-bladder { fill: #f4c96a; stroke: #cf9c3d; }
+.xr-organ.xr-uterus { fill: #f9d3de; stroke: #dd93ab; }
+.xr-organ.xr-uterus + .xr-organ-edge { stroke: #f2c3d3; }
+.xr-organ.xr-cervix { fill: #e77e97; stroke: #c25f7a; }
+.xr-organ.xr-ovary { fill: #edaec0; stroke: #cf8ba0; }
+.xr-organ.xr-clit, .xr-organ.xr-labia { fill: #e57c95; stroke: #c25f7a; }
+.xr-organ.xr-prostate, .xr-prostate { fill: #f0b0b8; stroke: #d18f9a; stroke-width: 1; }
+.xr-organ.xr-vesicle { fill: #f6ccd4; stroke: #dda3ae; }
+.xr-organ.xr-penis-root, .xr-organ.xr-scrotum { fill: #e8a98c; stroke: #cd8a6d; }
+.xr-organ.xr-tongue-mass { fill: #dd6272; stroke: #bd4a5f; }
+.xr-organ.xr-palate { fill: #e89aa4; stroke: #d1788a; }
+.xr-organ.xr-uvula { fill: #dd8090; stroke: #c76a7e; }
+.xr-organ.xr-pharynx { fill: #c44b62; stroke: #9e3a4e; }
+.xr-organ.xr-epiglottis { fill: #e8b0b6; stroke: #cf8f96; }
+.xr-organ.xr-trachea { fill: #e8b7b0; stroke: #cf9089; }
+.xr-organ.xr-lips { fill: #d9576b; stroke: #b84156; }
+.xr-organ.xr-jaw { fill: #e8a98c; stroke: #cd8a6d; }
+.xr-cavity { fill: none; stroke: #bd3a55; stroke-width: 1.3; stroke-linecap: round; }
+.xr-tube { fill: none; stroke: #f4c6d0; stroke-width: 1.1; stroke-linecap: round; stroke-opacity: .9; }
+.xr-cartilage path { fill: none; stroke: #cf9089; stroke-width: 1.1; }
+.xr-teeth { fill: none; stroke: #fdf6ee; stroke-width: 2.6; stroke-linecap: square; }
+
+/* --- Каналы: тёмно-розовый просвет и слизистая -------------------------- */
+.xr-canal-lumen { fill: #71182f; opacity: calc(.82 + var(--k, 1) * .18); }
+.xr-canal-wall { fill: none; stroke: #f2a7b8; stroke-width: 1.4; stroke-linecap: round; }
+.xr-canal.is-target .xr-canal-wall { stroke: #ffc3d2; stroke-width: 1.6; }
+.xr-canal.is-dim { opacity: .3; }
+.xr-canal.is-dim .xr-canal-wall { stroke: #d894a6; stroke-width: 1; }
+.xr-ruga { fill: none; stroke: #f7c6d2; stroke-width: .8; stroke-opacity: .85; }
+.xr-crease-butt { fill: none; stroke: #c07f61; stroke-opacity: .5; stroke-width: 1.4; stroke-linecap: round; stroke-dasharray: 0; }
+
+/* --- Инструмент: тёплое тело с бликом, у каждого свой тон -------------- */
+.xr-obj0 { stop-color: color-mix(in srgb, var(--pc) 8%, #ffe8d8); }
+.xr-obj1 { stop-color: color-mix(in srgb, var(--pc) 26%, #f2c1a2); }
+.xr-obj2 { stop-color: color-mix(in srgb, var(--pc) 48%, #cf8f74); }
+.xr-flesh { stroke: color-mix(in srgb, var(--pc) 30%, #b9745c); stroke-width: .6; }
+.xr-flesh-core { fill: #fff; fill-opacity: .14; }
+.xr-glabella { fill: #f6b0b8; stroke: #cf7c8b; stroke-width: .7; }
+.xr-corona-groove { fill: none; stroke: #b0655c; stroke-opacity: .55; stroke-width: 1; }
+.xr-glabella-shine { fill: #fff; fill-opacity: .3; }
+.xr-ridge, .xr-skin { fill: none; stroke: #b9745c; stroke-opacity: .45; stroke-width: .6; stroke-linecap: round; }
+.xr-uretra { fill: none; stroke: #b9745c; stroke-opacity: .7; stroke-width: .7; }
+.xr-shine { fill: none; stroke: #fff; stroke-opacity: .4; stroke-width: 1; stroke-linecap: round; }
+.xr-crease-finger, .xr-crease-hand { fill: none; stroke: #b9745c; stroke-opacity: .45; stroke-width: .6; }
+.xr-nail { fill: #f9e3d4; stroke: #c9947c; stroke-width: .4; }
+.xr-knuckle { fill: #d99a86; stroke: #b9745c; stroke-opacity: .4; stroke-width: .4; }
+/* Игрушка — силикон, своим цветом, не flesh. */
+.xr-toy0 { stop-color: #e6ccf7; } .xr-toy1 { stop-color: #b98ce0; } .xr-toy2 { stop-color: #8b5cbd; }
+.xr-toy, .xr-toy-tip { stroke: #7a4aa8; stroke-width: .6; }
+.xr-toy-shine { fill: none; stroke: #fff; stroke-opacity: .45; stroke-width: 1; }
+.xr-toy-band { fill: none; stroke: #7a4aa8; stroke-opacity: .5; stroke-width: .6; }
+.xr-toy-base { fill: none; stroke: #b98ce0; stroke-width: 1.6; }
+.xr-toy-base-in { fill: #e6ccf7; fill-opacity: .6; }
+.xr-toy-cord { fill: none; stroke: #b98ce0; stroke-width: 1; opacity: .9; }
+.xr-speed-line { fill: none; stroke: #fff; stroke-opacity: .22; stroke-width: .8; stroke-dasharray: 3 2.6; }
+
+/* Ход: объект идёт назад на (1 − --k) от глубины; призраки отстают сильнее. */
+.xr-move { transform: translateX(calc((1 - var(--k, 1)) * var(--depth, .72) * var(--o, 26px) * -1)); }
+.xr-ghost { opacity: .26; filter: blur(1.6px); }
+.xr-ghost.g1 { transform: translateX(calc((1 - var(--k, 1)) * var(--depth, .72) * var(--o, 26px) * -1 + 10px)); opacity: .3; }
+.xr-ghost.g2 { transform: translateX(calc((1 - var(--k, 1)) * var(--depth, .72) * var(--o, 26px) * -1 + 21px)); opacity: .14; }
+.xr-ghost .xr-shine, .xr-ghost .xr-speed-line { display: none; }
+
+/* --- Влага: лужица, потёки, капли --------------------------------------- */
+.xr-wet-pool { fill: #fdf7f2; fill-opacity: .45; }
+.xr-wet-drip { fill: #fdf7f2; fill-opacity: .5; }
+.xr-wet-drop { fill: #fff; fill-opacity: .65; }
+
+/* --- Шкала глубины ------------------------------------------------------ */
+.xr-depth-line { stroke: rgba(255,222,230,.28); stroke-width: .6; stroke-dasharray: 3 2.6; }
+.xr-tick { stroke: rgba(255,224,232,.4); stroke-width: .7; }
+.xr-tick.is-deep { stroke: #fff; stroke-width: 1.1; }
+.xr-depth-dot { fill: var(--pc); stroke: #fff; stroke-width: .5; filter: drop-shadow(0 0 3px var(--pc)); }
+.xr-depth-dot-in { fill: #fff; }
+.xr-depth-dot, .xr-depth-dot-in {
+  transform: translate(calc((1 - var(--k, 1)) * var(--depth, .72) * var(--dx, 0) * 1px), calc((1 - var(--k, 1)) * var(--depth, .72) * var(--dy, 0) * 1px));
+}
+
+/* --- Врезка хода -------------------------------------------------------- */
+.xr-stroke-plate { fill: rgba(22,11,16,.6); stroke: rgba(255,206,216,.22); stroke-width: .6; }
+.xr-stroke-line, .xr-stroke-head { fill: none; stroke: rgba(255,214,222,.6); stroke-width: .9; }
+.xr-stroke-label { fill: rgba(255,226,230,.8); font: 600 5.4px/1 ui-monospace, Consolas, monospace; text-anchor: middle; }
+/* Полость матки — тонкой линией, чтобы не перебивать форму органа. */
+.xr-cavity-uterus { fill: none; stroke: #cf5570; stroke-width: .9; stroke-opacity: .8; stroke-linecap: round; }
+
+/* --- Номера и выноски --------------------------------------------------- */
+.xr-tag-line { fill: none; stroke: rgba(255,222,230,.26); stroke-width: .5; stroke-dasharray: 2 2; }
+.xr-tag-dot { fill: #fff; stroke: rgba(120,40,60,.8); stroke-width: .7; }
+.xr-tag-chip { fill: rgba(30,13,19,.85); stroke: rgba(255,206,216,.85); stroke-width: .7; }
+.xr-tag-num { fill: #ffe9ee; font: 700 6.2px/1 ui-monospace, Consolas, monospace; text-anchor: middle; }
+
+/* --- Панель рядом ------------------------------------------------------- */
+.hud-xray-side { flex: 1 1 156px; min-width: 150px; display: flex; flex-direction: column; gap: 6px; }
+.hud-xray-cap { display: inline-flex; align-items: center; gap: 7px; align-self: flex-start; font-size: .84em; padding: 4px 11px 4px 8px; border-radius: 999px;
+  background: color-mix(in srgb, var(--pc) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pc) 45%, transparent); }
+.hud-xray-cap > i { width: 8px; height: 8px; border-radius: 50%; background: var(--pc); box-shadow: 0 0 7px var(--pc); }
+.hud-xray-cap b { font-weight: 800; }
+.hud-xray-cap em { font-style: normal; color: color-mix(in srgb, currentColor 70%, transparent); }
+.hud-xray-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.hud-xray-chips i { font-style: normal; font-size: .74em; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: color-mix(in srgb, var(--pc) 22%, transparent); }
+.hud-xray-speed { display: flex; align-items: baseline; gap: 6px; }
+.hud-xray-speed b { font-size: 1.5em; font-weight: 800; color: color-mix(in srgb, var(--pc) 45%, #fff); text-shadow: 0 0 10px color-mix(in srgb, var(--pc) 55%, transparent); }
+.hud-xray-speed span { font-size: .72em; letter-spacing: .04em; color: color-mix(in srgb, currentColor 62%, transparent); }
+.hud-xray-depth { display: flex; flex-direction: column; gap: 3px; }
+.hud-xray-depth-head { display: flex; align-items: baseline; gap: 6px; font-size: .74em; }
+.hud-xray-depth-head span { letter-spacing: .06em; text-transform: uppercase; color: color-mix(in srgb, currentColor 60%, transparent); }
+.hud-xray-depth-head b { font-size: 1.15em; font-weight: 800; color: color-mix(in srgb, var(--pc) 45%, #fff); }
+.hud-xray-depth-head em { font-style: normal; opacity: .6; }
+.hud-xray-depth-bar { position: relative; display: block; height: 8px; border-radius: 5px; overflow: hidden;
+  background: rgba(255,255,255,.08); box-shadow: inset 0 0 0 1px rgba(255,200,210,.2); }
+.hud-xray-depth-fill { position: absolute; inset: 0 auto 0 0; border-radius: 5px;
+  width: calc(var(--k, 1) * var(--depth, .72) * 100%);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--pc) 35%, transparent), var(--pc));
+  box-shadow: 0 0 9px var(--pc); }
+.xr-legend { list-style: none; margin: 2px 0 0; padding: 0; display: grid; gap: 1px; font-size: .74em; }
+.xr-legend li { display: flex; gap: 6px; align-items: baseline; opacity: .66; }
+.xr-legend li b { flex: none; min-width: 9px; color: rgba(255,216,224,.9); font-weight: 700; }
+.xr-legend li.is-target { opacity: 1; font-weight: 600; color: color-mix(in srgb, var(--pc) 35%, #fff); }
+.xr-legend li.is-target b { color: var(--pc); }
+
+/* --- Движение без темпа: собственный ритм под курсором ------------------ */
+@media (prefers-reduced-motion: no-preference) {
+  .hud-xray.is-standalone { animation: hud-tk var(--beat, 1.6s) cubic-bezier(.5, 0, .3, 1) infinite, hud-tsw calc(var(--beat1, 1.6s) * 2) infinite; }
+  .hud-xray.is-standalone.is-ragged { animation-name: hud-tk-ragged, hud-tsw-ragged; animation-duration: var(--beat, 3s), var(--beat, 3s); }
+}
+.hud-xray.is-standalone { animation-play-state: paused, paused; }
+.hud-xray.is-standalone:is(:hover, .fx-tap, .fx-on) { animation-play-state: running, running; }
+.hud-tempo.is-xray .hud-xray { margin-top: 0; }
+.hud-tempo.is-xray { flex-wrap: wrap; }
+.hud-tempo.is-xray .hud-tempo-visual { flex: 1 1 240px; display: block; }
+.hud-heat.hide-pen .hud-xray { display: none; }
+
+@media (max-width: 460px) {
+  .xr-film { width: 100%; }
+  .hud-xray-side { flex-basis: 100%; }
+}
+
+/* --- Промежность: лобок, губы, клитор, преддверие, уретра, анус ---------- */
+.xr-mons { fill: #e8b493; stroke: #bd8163; stroke-opacity: .6; stroke-width: .8; }
+.xr-labia-major { fill: #e5a189; stroke: #a45f47; stroke-opacity: .8; stroke-width: 1; }
+.xr-labia-major-in { fill: #f2c6ac; stroke: none; }
+.xr-labia-minor { fill: #e5839c; stroke: #b85c76; stroke-opacity: .95; stroke-width: 1; }
+.xr-vestibule { fill: #b83e58; stroke: #8e2a41; stroke-opacity: .9; stroke-width: .8; }
+.xr-clit { fill: #ee7a94; stroke: #bf546f; stroke-width: .8; }
+.xr-clit-hood { fill: none; stroke: #d59a86; stroke-width: 2.2; stroke-linecap: round; }
+.xr-clit-body { fill: none; stroke: #d1738c; stroke-width: 1.6; stroke-linecap: round; stroke-opacity: .8; }
+.xr-meatus { fill: none; stroke: #9c3348; stroke-width: .9; stroke-linecap: round; }
+.xr-introitus { fill: #8b2440; stroke: #ffc9d7; stroke-width: 1.3; }
+.xr-hymen { fill: none; stroke: #f6c0cf; stroke-width: 1; stroke-linecap: round; }
+.xr-perineum { fill: #e9b092; stroke: #bd8163; stroke-opacity: .65; stroke-width: .8; }
+.xr-raphe { fill: none; stroke: #c9856a; stroke-opacity: .5; stroke-width: .7; stroke-linecap: round; }
+.xr-anus-outer { fill: #b06a72; stroke: #8e4f5a; stroke-width: .7; }
+.xr-anus-inner { fill: #6d2f3c; stroke: #8e4f5a; stroke-opacity: .7; stroke-width: .5; }
+.xr-anus-ray { fill: none; stroke: #d99aa7; stroke-opacity: .55; stroke-width: .5; }
+.xr-fornix { fill: none; stroke: #e79cb0; stroke-width: .8; stroke-linecap: round; stroke-opacity: .85; }
+/* --- Мужская промежность ------------------------------------------------ */
+.xr-penis-own { fill: #e8a184; stroke: #c9825f; stroke-width: .7; }
+.xr-glabella-own { fill: #f0b0b8; stroke: #d98d99; stroke-width: .6; }
+.xr-uretra-own { fill: none; stroke: #b9745c; stroke-width: .7; stroke-linecap: round; }
+.xr-scrotum { fill: #e5a186; stroke: #c9825f; stroke-width: .7; }
+.xr-raphe-scrotum { fill: none; stroke: #b9745c; stroke-opacity: .55; stroke-width: .7; stroke-linecap: round; }
+.xr-testicle { fill: #d99a86; fill-opacity: .55; stroke: #c9825f; stroke-opacity: .6; stroke-width: .5; }
+/* --- Детали члена: венец, уздечка, крайняя плоть, вена ------------------- */
+.xr-corona { fill: none; stroke: #d98d99; stroke-width: 1; stroke-opacity: .85; }
+.xr-frenulum { fill: none; stroke: #c9825f; stroke-opacity: .6; stroke-width: .8; stroke-linecap: round; }
+.xr-foreskin { fill: none; stroke: #c9825f; stroke-opacity: .45; stroke-width: .7; stroke-linecap: round; }
+.xr-vein-line { fill: none; stroke: #b9745c; stroke-opacity: .4; stroke-width: .7; stroke-linecap: round; }
+/* --- Влажный блеск внутри канала ---------------------------------------- */
+.xr-sheen { fill: none; stroke: #fff; stroke-opacity: .22; stroke-width: 1.6; stroke-linecap: round; }
+/* Тень под входом: инструмент лежит в flesh, а не поверх картинки. */
+.xr-entry-shadow { fill: #5e1a2c; fill-opacity: .38; filter: blur(4px); }
+/* Приближение сцены: анатомия крупнее, номера с выносками — вне группы. */
+/* Приближение сделано кадром (viewBox фильма), а не transform: так анатомия не уезжает за край окна. */
+
+
+.xr-film { width: 760px !important; }
+.hud-xray-side { font-size: 15px; }
+</style></head><body>
+<div class="fx-on"><div class="hud-xray" style="--beat:0.8s;--beat1:0.8s;--depth:0.96;--o:26px"><div class="hud-xray-row p-penis k-anal"><div class="hud-xray-visual"><svg class="xr-film" viewBox="24 30 196 182" role="img" aria-label="Разрез: пенетрация внутри тела">
+  <defs>
+    <radialGradient id="zoom0-bg" cx=".46" cy=".42" r=".8">
+      <stop class="xr-bg0" offset="0"/><stop class="xr-bg1" offset=".62"/><stop class="xr-bg2" offset="1"/>
+    </radialGradient>
+    <radialGradient id="zoom0-butt" cx=".42" cy=".32" r=".78">
+      <stop class="xr-butt0" offset="0"/><stop class="xr-butt1" offset=".62"/><stop class="xr-butt2" offset="1"/>
+    </radialGradient>
+    <radialGradient id="zoom0-flesh" cx=".44" cy=".4" r=".66">
+      <stop class="xr-fl0" offset="0"/><stop class="xr-fl1" offset=".58"/><stop class="xr-fl2" offset="1"/>
+    </radialGradient>
+    <linearGradient id="zoom0-body" x1=".25" y1="0" x2=".75" y2="1">
+      <stop class="xr-sk0" offset="0"/><stop class="xr-sk1" offset=".5"/><stop class="xr-sk2" offset="1"/>
+    </linearGradient>
+    <linearGradient id="zoom0-obj" x1="0" y1="0" x2="0" y2="1">
+      <stop class="xr-obj0" offset="0"/><stop class="xr-obj1" offset=".45"/><stop class="xr-obj2" offset="1"/>
+    </linearGradient>
+    <linearGradient id="zoom0-toy" x1="0" y1="0" x2="0" y2="1">
+      <stop class="xr-toy0" offset="0"/><stop class="xr-toy1" offset=".5"/><stop class="xr-toy2" offset="1"/>
+    </linearGradient>
+    <clipPath id="zoom0-win"><ellipse cx="128" cy="100" rx="54" ry="54"/></clipPath>
+    <radialGradient id="zoom0-vig" cx=".5" cy=".5" r=".74">
+      <stop class="xr-vig0" offset="0"/><stop class="xr-vig1" offset="1"/>
+    </radialGradient>
+  </defs>
+  <rect class="xr-plate" x="0" y="0" width="240" height="210"/>
+  <rect class="xr-backdrop" x="0" y="0" width="240" height="210" fill="url(#zoom0-bg)"/>
+  <rect class="xr-vignette" x="0" y="0" width="240" height="210" fill="url(#zoom0-vig)"/>
+  <g class="xr-clinical"><g class="xr-zoom"><g class="xr-skin-body">
+    <path class="xr-body-fill" fill="url(#zoom0-body)" d="M54 28 Q36 58 30 96 Q24 134 30 168 Q36 194 32 210 L230 210 Q226 190 232 166 Q242 132 238 96 Q232 58 214 32 Q186 14 152 10 Q112 6 78 14 Q62 18 54 28 Z"/>
+    <g class="xr-buttock">
+      <path class="xr-butt" fill="url(#zoom0-butt)" d="M46 66 Q62 34 100 30 Q132 30 140 62 Q148 100 134 136 Q118 168 86 168 Q54 166 44 132 Q38 98 46 66 Z"/>
+      <ellipse class="xr-butt-shine" cx="78" cy="72" rx="20" ry="26" transform="rotate(-16 78 72)"/>
+    </g>
+    <g class="xr-buttock">
+      <path class="xr-butt" fill="url(#zoom0-butt)" d="M152 60 Q170 30 206 34 Q234 42 236 78 Q238 116 224 148 Q208 174 178 172 Q150 168 144 134 Q138 96 152 60 Z"/>
+      <ellipse class="xr-butt-shine" cx="196" cy="70" rx="20" ry="26" transform="rotate(14 196 70)"/>
+    </g>
+    <path class="xr-cleft" d="M132 34 Q126 78 128 118 Q130 152 134 178"/>
+    <path class="xr-under-butt" d="M34 172 Q86 190 130 176 Q176 192 232 168"/>
+    <g class="xr-thighs">
+      <path class="xr-stocking" d="M30 168 Q64 196 118 182 Q114 196 112 210 L32 210 Z"/>
+      <path class="xr-stocking" d="M144 180 Q192 196 232 166 Q236 190 232 210 L140 210 Z"/>
+      <path class="xr-stocking-lace" d="M30 168 Q64 196 118 182"/>
+      <path class="xr-stocking-lace" d="M144 180 Q192 196 232 166"/>
+      <path class="xr-stocking-sheen" d="M56 176 Q80 200 112 196"/>
+      <path class="xr-stocking-sheen" d="M164 186 Q196 202 226 180"/>
+    </g>
+    <path class="xr-body-line" d="M54 28 Q36 58 30 96 Q24 134 30 168 Q36 194 32 210 L230 210 Q226 190 232 166 Q242 132 238 96 Q232 58 214 32 Q186 14 152 10 Q112 6 78 14 Q62 18 54 28 Z"/>
+    <ellipse class="xr-window-glow" cx="128" cy="100" rx="72" ry="72"/>
+  </g><g class="xr-window">
+    <ellipse class="xr-cut-outer" cx="128" cy="100" rx="60" ry="60"/>
+    <ellipse class="xr-cut-layer" cx="128" cy="100" rx="57.4" ry="57.4"/>
+    <ellipse class="xr-cut-inner" cx="128" cy="100" rx="54" ry="54" fill="url(#zoom0-flesh)"/>
+    <ellipse class="xr-cut-depth" cx="128" cy="100" rx="51" ry="51"/>
+  </g><g clip-path="url(#zoom0-win)"><g class="xr-canal c-vag is-dim"><path class="xr-canal-lumen" d="M92.5 136.8 L96.9 132 L101.4 127.3 L105.9 122.6 L110.4 117.8 L114.8 113.1 L119.3 108.4 L123.8 103.6 L128.3 98.9 L132.7 94.2 L137.2 89.4 L142.8 94.6 L138.5 99.4 L134.1 104.3 L129.8 109.2 L125.5 114 L121.2 118.9 L116.8 123.8 L112.5 128.6 L108.2 133.5 L103.9 138.4 L99.5 143.2 Z"/></g><g class="xr-canal c-ana is-target"><path class="xr-canal-lumen" d="M123 144.7 L125.5 141.1 L128 137.5 L130.5 133.9 L133 130.3 L135.6 126.7 L138.1 123.1 L140.6 119.5 L143.1 115.9 L145.6 112.3 L148.1 108.7 L155.7 113.7 L153.4 117.4 L151.2 121.2 L148.9 124.9 L146.6 128.7 L144.4 132.5 L142.1 136.2 L139.8 140 L137.6 143.7 L135.3 147.5 L133 151.3 Z"/></g><g class="xr-organs">
+    <path class="xr-prostate" d="M143 120.8 Q145.2 121.6 146.8 123.3 Q148.4 124.9 149 127 Q149.6 129 149.1 131 Q148.5 132.9 147 134.2 Q145.5 135.4 143.3 135.7 Q141.2 136 139 135.2 Q136.8 134.4 135.2 132.7 Q133.6 131.1 133 129 Q132.4 127 132.9 125 Q133.5 123.1 135 121.8 Q136.5 120.6 138.7 120.3 Q140.8 120 143 120.8 Z"/>
+    <path class="xr-mons" d="M78.7 147.1 Q74.8 145.3 75.6 141.6 Q76.3 137.8 80.4 136.3 Q84.5 134.8 86.6 138.4 Q88.7 142.1 85.6 145.5 Q82.5 148.8 78.7 147.1 Z"/>
+    <path class="xr-penis-own" d="M82.8 136.7 Q78.6 138.2 77 134.1 Q75.4 129.9 75.1 124.4 Q74.8 118.8 77.1 114.7 Q79.5 110.7 82.7 110.1 Q85.9 109.6 88.7 113.9 Q91.5 118.2 91.5 122.7 Q91.6 127.1 89.2 131.1 Q86.9 135.2 82.8 136.7 Z"/>
+    <path class="xr-glabella-own" d="M81.1 109.6 Q78.9 108.4 79.9 105.8 Q80.9 103.2 84.1 103.4 Q87.2 103.7 88.2 106.3 Q89.2 109 86.3 109.9 Q83.4 110.8 81.1 109.6 Z"/>
+    <path class="xr-uretra-own" d="M85.2 104.5 L88.4 103.9"/>
+    <path class="xr-scrotum" d="M88 135.4 Q83.3 130.1 84.5 125.9 Q85.7 121.7 90.2 119.7 Q94.8 117.7 100.8 121.4 Q106.8 125.2 109.5 131.2 Q112.2 137.2 108.4 139.8 Q104.5 142.5 98.7 141.5 Q92.8 140.6 88 135.4 Z"/>
+    <path class="xr-raphe-scrotum" d="M88 130.9 Q97.7 129.2 103.6 125.8"/>
+    <path class="xr-testicle" d="M88.4 131.3 Q88.2 129.3 90.5 128.3 Q92.7 127.3 95.4 128.8 Q98 130.4 97.8 132.8 Q97.6 135.3 95.2 135.7 Q92.8 136.1 90.7 134.7 Q88.6 133.2 88.4 131.3 Z"/>
+    <path class="xr-testicle" d="M93.1 127.6 Q92.9 125.7 95.2 124.6 Q97.4 123.6 100.1 125.2 Q102.7 126.7 102.5 129.2 Q102.3 131.6 99.9 132.1 Q97.5 132.5 95.4 131 Q93.3 129.6 93.1 127.6 Z"/>
+    <path class="xr-perineum" d="M111 137 Q109.5 131.2 113.2 130.1 Q116.9 129.1 121.1 130.3 Q125.4 131.6 127.3 136.9 Q129.2 142.2 125.4 144.9 Q121.6 147.6 117 145.2 Q112.5 142.7 111 137 Z"/>
+    <path class="xr-raphe" d="M114.8 134.3 Q121.9 135.5 128.1 137.6"/>
+    <g class="xr-anus"><ellipse class="xr-anus-outer" cx="128" cy="148" rx="8.2" ry="6"/>
+      <ellipse class="xr-anus-inner" cx="128" cy="148" rx="4.2" ry="3"/>
+      <path class="xr-anus-ray" d="M132.4 148 L135.8 148"/><path class="xr-anus-ray" d="M131.4 150.1 L134 151.7"/><path class="xr-anus-ray" d="M128.8 151.2 L129.4 153.7"/><path class="xr-anus-ray" d="M125.8 150.8 L124.1 153"/><path class="xr-anus-ray" d="M123.9 149.1 L120.7 150"/><path class="xr-anus-ray" d="M123.9 146.9 L120.7 146"/><path class="xr-anus-ray" d="M125.8 145.2 L124.1 143"/><path class="xr-anus-ray" d="M128.8 144.8 L129.4 142.3"/><path class="xr-anus-ray" d="M131.4 145.9 L134 144.3"/></g>
+  </g><g class="xr-canal c-vag is-dim">
+    <path class="xr-canal-wall" d="M92.5 136.8 L96.9 132 L101.4 127.3 L105.9 122.6 L110.4 117.8 L114.8 113.1 L119.3 108.4 L123.8 103.6 L128.3 98.9 L132.7 94.2 L137.2 89.4"/><path class="xr-canal-wall" d="M99.5 143.2 L103.9 138.4 L108.2 133.5 L112.5 128.6 L116.8 123.8 L121.2 118.9 L125.5 114 L129.8 109.2 L134.1 104.3 L138.5 99.4 L142.8 94.6"/>
+    
+  </g><g class="xr-canal c-ana is-target">
+    <path class="xr-canal-wall" d="M123 144.7 L125.5 141.1 L128 137.5 L130.5 133.9 L133 130.3 L135.6 126.7 L138.1 123.1 L140.6 119.5 L143.1 115.9 L145.6 112.3 L148.1 108.7"/><path class="xr-canal-wall" d="M133 151.3 L135.3 147.5 L137.6 143.7 L139.8 140 L142.1 136.2 L144.4 132.5 L146.6 128.7 L148.9 124.9 L151.2 121.2 L153.4 117.4 L155.7 113.7"/>
+    <path class="xr-ruga" d="M128.7 139.7 Q130.7 143.9 135.3 144"/><path class="xr-ruga" d="M132.8 133.7 Q134.7 137.7 139.1 137.8"/><path class="xr-ruga" d="M137 127.7 Q138.7 131.6 143 131.5"/><path class="xr-ruga" d="M141.1 121.6 Q142.6 125.5 146.8 125.3"/><path class="xr-ruga" d="M145.2 115.6 Q146.6 119.3 150.6 119.1"/>
+  </g><path class="xr-sheen" d="M103 128.8 Q113.7 116.5 125.2 104.9"/><g class="xr-wet" transform="translate(95.3 143.8) rotate(-47.5)">
+    <path class="xr-wet-pool" d="M-22 4 Q-6 -6 15 2 Q26 8 12 14 Q-8 19 -22 12 Q-30 7 -22 4 Z"/>
+    <path class="xr-wet-drip" d="M-8 15 Q-11 26 -6 33 Q-2 36 1 31 Q2 21 0 15 Z"/>
+    <path class="xr-wet-drip" d="M11 13 Q10 24 14 29 Q18 31 19 25 Q19 17 16 13 Z"/>
+    <path class="xr-wet-drip" d="M-20 12 Q-23 20 -20 25 Q-17 26 -16 21 Q-16 15 -17 12 Z"/>
+    <circle class="xr-wet-drop" cx="-24" cy="20" r="2.4"/>
+    <circle class="xr-wet-drop" cx="22" cy="18" r="1.8"/>
+    <circle class="xr-wet-drop" cx="4" cy="38" r="1.6"/>
+  </g></g><ellipse class="xr-entry-shadow" cx="95.1" cy="141" rx="16" ry="9" transform="rotate(-47.5 95.1 141)"/><g transform="translate(128 148) rotate(-57)"><g class="xr-ghost g2"><path class="xr-flesh" fill="url(#zoom0-obj)" d="M-26 -7 Q-16 -8.8 -6 -8.4 Q12.2 -9.2 25 -8.8
+      Q26.5 -8.6 28 -9.4 Q31 -10 33 -8.6
+      Q37.4 -7.2 39.4 -3 Q40.6 0 39.4 3
+      Q37.4 7.2 33 8.6 Q31 10 28 9.4
+      Q26.5 8.6 25 8.8 Q12.2 9.2 -6 8.4 Q-16 8.8 -26 7 Q-29.5 0 -26 -7 Z"/>
+    <path class="xr-glabella" fill="url(#zoom0-obj)" d="M28.6 -7.4 Q32 -7.4 34.4 -6.2
+      Q38.6 -5 40.4 -2 Q41.4 0 40.4 2
+      Q38.6 5 34.4 6.2 Q32 7.4 28.6 7.4
+      Q31 3.4 31 0 Q31 -3.4 28.6 -7.4 Z"/>
+    <path class="xr-glabella-shine" d="M30 -5.2 Q34 -4.8 37.4 -3.2 Q34.4 -3.4 31.2 -3 Q30.2 -4 30 -5.2 Z"/>
+    <path class="xr-corona-groove" d="M27.2 -7.6 Q28.8 0 27.2 7.6"/>
+    <path class="xr-corona" d="M28 -7.9 Q29.6 0 28 7.9"/>
+    <path class="xr-frenulum" d="M29 7.2 Q33 8.6 37 5.6"/>
+    <path class="xr-foreskin" d="M22 -7.5 Q24.4 0 22 7.5"/>
+    <path class="xr-uretra" d="M38.6 -1.1 L41.2 0.2 M38.6 1.1 L41.2 -0.2"/>
+    <path class="xr-shine" d="M-30 -5.4 Q13.5 -6.6 23 -5.6"/>
+    <path class="xr-vein-line" d="M-26 -6.4 Q0 -7.6 19 -6.4"/>
+    <path class="xr-skin" d="M-36 -5.8 Q-24 -7.4 -10 -7 M-36 5.8 Q-24 7.4 -10 7"/>
+    <path class="xr-skin" d="M6.8 -7.6 Q14.9 -2.8 6.8 7.6"/></g></g><g transform="translate(128 148) rotate(-57)"><g class="xr-ghost g1"><path class="xr-flesh" fill="url(#zoom0-obj)" d="M-26 -7 Q-16 -8.8 -6 -8.4 Q12.2 -9.2 25 -8.8
+      Q26.5 -8.6 28 -9.4 Q31 -10 33 -8.6
+      Q37.4 -7.2 39.4 -3 Q40.6 0 39.4 3
+      Q37.4 7.2 33 8.6 Q31 10 28 9.4
+      Q26.5 8.6 25 8.8 Q12.2 9.2 -6 8.4 Q-16 8.8 -26 7 Q-29.5 0 -26 -7 Z"/>
+    <path class="xr-glabella" fill="url(#zoom0-obj)" d="M28.6 -7.4 Q32 -7.4 34.4 -6.2
+      Q38.6 -5 40.4 -2 Q41.4 0 40.4 2
+      Q38.6 5 34.4 6.2 Q32 7.4 28.6 7.4
+      Q31 3.4 31 0 Q31 -3.4 28.6 -7.4 Z"/>
+    <path class="xr-glabella-shine" d="M30 -5.2 Q34 -4.8 37.4 -3.2 Q34.4 -3.4 31.2 -3 Q30.2 -4 30 -5.2 Z"/>
+    <path class="xr-corona-groove" d="M27.2 -7.6 Q28.8 0 27.2 7.6"/>
+    <path class="xr-corona" d="M28 -7.9 Q29.6 0 28 7.9"/>
+    <path class="xr-frenulum" d="M29 7.2 Q33 8.6 37 5.6"/>
+    <path class="xr-foreskin" d="M22 -7.5 Q24.4 0 22 7.5"/>
+    <path class="xr-uretra" d="M38.6 -1.1 L41.2 0.2 M38.6 1.1 L41.2 -0.2"/>
+    <path class="xr-shine" d="M-30 -5.4 Q13.5 -6.6 23 -5.6"/>
+    <path class="xr-vein-line" d="M-26 -6.4 Q0 -7.6 19 -6.4"/>
+    <path class="xr-skin" d="M-36 -5.8 Q-24 -7.4 -10 -7 M-36 5.8 Q-24 7.4 -10 7"/>
+    <path class="xr-skin" d="M6.8 -7.6 Q14.9 -2.8 6.8 7.6"/></g></g><g class="xr-object p-penis" transform="translate(128 148) rotate(-57)">
+      <g class="xr-move">
+        <path class="xr-flesh" fill="url(#zoom0-obj)" d="M-26 -7 Q-16 -8.8 -6 -8.4 Q12.2 -9.2 25 -8.8
+      Q26.5 -8.6 28 -9.4 Q31 -10 33 -8.6
+      Q37.4 -7.2 39.4 -3 Q40.6 0 39.4 3
+      Q37.4 7.2 33 8.6 Q31 10 28 9.4
+      Q26.5 8.6 25 8.8 Q12.2 9.2 -6 8.4 Q-16 8.8 -26 7 Q-29.5 0 -26 -7 Z"/>
+    <path class="xr-glabella" fill="url(#zoom0-obj)" d="M28.6 -7.4 Q32 -7.4 34.4 -6.2
+      Q38.6 -5 40.4 -2 Q41.4 0 40.4 2
+      Q38.6 5 34.4 6.2 Q32 7.4 28.6 7.4
+      Q31 3.4 31 0 Q31 -3.4 28.6 -7.4 Z"/>
+    <path class="xr-glabella-shine" d="M30 -5.2 Q34 -4.8 37.4 -3.2 Q34.4 -3.4 31.2 -3 Q30.2 -4 30 -5.2 Z"/>
+    <path class="xr-corona-groove" d="M27.2 -7.6 Q28.8 0 27.2 7.6"/>
+    <path class="xr-corona" d="M28 -7.9 Q29.6 0 28 7.9"/>
+    <path class="xr-frenulum" d="M29 7.2 Q33 8.6 37 5.6"/>
+    <path class="xr-foreskin" d="M22 -7.5 Q24.4 0 22 7.5"/>
+    <path class="xr-uretra" d="M38.6 -1.1 L41.2 0.2 M38.6 1.1 L41.2 -0.2"/>
+    <path class="xr-shine" d="M-30 -5.4 Q13.5 -6.6 23 -5.6"/>
+    <path class="xr-vein-line" d="M-26 -6.4 Q0 -7.6 19 -6.4"/>
+    <path class="xr-skin" d="M-36 -5.8 Q-24 -7.4 -10 -7 M-36 5.8 Q-24 7.4 -10 7"/>
+    <path class="xr-skin" d="M6.8 -7.6 Q14.9 -2.8 6.8 7.6"/>
+        <path class="xr-speed-line" d="M-32 -9.6 L14 -10.2 M-36 9.6 L10 10.2"/>
+      </g>
+    </g><g class="xr-depth">
+    <path class="xr-depth-line" d="M117.9 141.5 L143.9 101.5"/>
+    <path class="xr-tick" d="M119.6 142.6 L116.3 140.4"/><path class="xr-tick" d="M126.1 132.6 L122.8 130.4"/><path class="xr-tick" d="M132.6 122.6 L129.3 120.4"/><path class="xr-tick" d="M139.1 112.6 L135.8 110.4"/><path class="xr-tick is-deep" d="M145.6 102.6 L142.3 100.4"/>
+    <circle class="xr-depth-dot" cx="143.9" cy="101.5" r="3.4" style="--dx:-26;--dy:40"/>
+    <circle class="xr-depth-dot-in" cx="143.9" cy="101.5" r="1.3" style="--dx:-26;--dy:40"/>
+  </g></g><g class="xr-stroke" transform="translate(40 26)">
+    <rect class="xr-stroke-plate" x="-10" y="-13" width="54" height="27" rx="7"/>
+    <path class="xr-stroke-line" d="M0 0 H34"/>
+    <path class="xr-stroke-head" d="M0 0 l4.4 -2.8 M0 0 l4.4 2.8"/>
+    <path class="xr-stroke-head" d="M34 0 l-4.4 -2.8 M34 0 l-4.4 2.8"/>
+    <text class="xr-stroke-label" x="17" y="9">ход ≈ 4,3 см</text>
+  </g></g>
+  <g class="xr-labels"><g class="xr-tag">
+    <path class="xr-tag-line" d="M72.5 144.9 L44 92"/>
+    <circle class="xr-tag-dot" cx="72.47984203718961" cy="144.93985520075717" r="1.1"/>
+    <circle class="xr-tag-chip" cx="44" cy="92" r="5.4"/>
+    <text class="xr-tag-num" x="44" y="94">1</text></g><g class="xr-tag">
+    <path class="xr-tag-line" d="M70.7 129.2 L44 70"/>
+    <circle class="xr-tag-dot" cx="70.67399235478072" cy="129.151159658549" r="1.1"/>
+    <circle class="xr-tag-chip" cx="44" cy="70" r="5.4"/>
+    <text class="xr-tag-num" x="44" y="72">2</text></g><g class="xr-tag">
+    <path class="xr-tag-line" d="M83.6 109.2 L204 84"/>
+    <circle class="xr-tag-dot" cx="83.56537579397776" cy="109.1682611444796" r="1.1"/>
+    <circle class="xr-tag-chip" cx="204" cy="84" r="5.4"/>
+    <text class="xr-tag-num" x="204" y="86">3</text></g><g class="xr-tag">
+    <path class="xr-tag-line" d="M92.4 126.1 L44 126"/>
+    <circle class="xr-tag-dot" cx="92.4341503175911" cy="126.13130445779186" r="1.1"/>
+    <circle class="xr-tag-chip" cx="44" cy="126" r="5.4"/>
+    <text class="xr-tag-num" x="44" y="128">4</text></g><g class="xr-tag">
+    <path class="xr-tag-line" d="M118 133.7 L204 138"/>
+    <circle class="xr-tag-dot" cx="118.0458496824089" cy="133.70869554220815" r="1.1"/>
+    <circle class="xr-tag-chip" cx="204" cy="138" r="5.4"/>
+    <text class="xr-tag-num" x="204" y="140">5</text></g><g class="xr-tag">
+    <path class="xr-tag-line" d="M128 148 L204 166"/>
+    <circle class="xr-tag-dot" cx="128" cy="148" r="1.1"/>
+    <circle class="xr-tag-chip" cx="204" cy="166" r="5.4"/>
+    <text class="xr-tag-num" x="204" y="168">6</text></g><g class="xr-tag">
+    <path class="xr-tag-line" d="M126.8 106.4 L204 190"/>
+    <circle class="xr-tag-dot" cx="126.8" cy="106.4" r="1.1"/>
+    <circle class="xr-tag-chip" cx="204" cy="190" r="5.4"/>
+    <text class="xr-tag-num" x="204" y="192">7</text></g><g class="xr-tag">
+    <path class="xr-tag-line" d="M140 83.1 L204 112"/>
+    <circle class="xr-tag-dot" cx="139.97707515879557" cy="83.14565222889591" r="1.1"/>
+    <circle class="xr-tag-chip" cx="204" cy="112" r="5.4"/>
+    <text class="xr-tag-num" x="204" y="114">8</text></g><g class="xr-tag">
+    <path class="xr-tag-line" d="M148.9 109 L44 168"/>
+    <circle class="xr-tag-dot" cx="148.86877452361335" cy="108.96304331331223" r="1.1"/>
+    <circle class="xr-tag-chip" cx="44" cy="168" r="5.4"/>
+    <text class="xr-tag-num" x="44" y="170">9</text></g></g>
+  <text class="xr-mark" x="34" y="205">РАЗРЕЗ · САГИТТАЛЬНЫЙ</text>
+</svg></div><div class="hud-xray-side"><div class="hud-xray-cap"><i aria-hidden="true"></i><b>член</b><em>— anal</em></div><div class="hud-xray-chips"><i>ритмично</i><i>до упора</i></div><div class="hud-xray-speed"><b>75</b><span>толчков в минуту</span></div><div class="hud-xray-depth"><div class="hud-xray-depth-head"><span>глубина</span><b>8,6 см</b><em>из 9</em></div><i class="hud-xray-depth-bar"><i class="hud-xray-depth-fill"></i></i></div><ol class="xr-legend"><li class=""><b>1</b>лобок</li><li class=""><b>2</b>свой член</li><li class=""><b>3</b>головка</li><li class=""><b>4</b>мошонка</li><li class=""><b>5</b>промежность</li><li class=""><b>6</b>анус</li><li class="is-target"><b>7</b>прямая кишка</li><li class=""><b>8</b>предстательная железа</li><li class=""><b>9</b>ягодица</li></ol></div></div></div></div>
+<script>if(location.search.includes('crop')){const s=document.querySelector('.xr-film');const p=new URLSearchParams(location.search).get('crop');if(s&&p)s.setAttribute('viewBox',p);}</script>
+</body></html>
