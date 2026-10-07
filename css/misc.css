@@ -2127,14 +2127,22 @@
 .hud-rel-mode:focus-visible { outline: 2px solid rgba(216,180,254,.7); outline-offset: 2px; }
 .hud-rel-graph.is-expanded .hud-rel-modes { margin-right: 6px; }
 
-.hud-family-stage {
-  display: none; overflow: auto; max-height: 520px; padding: 8px 6px 12px;
+.hud-family-stage { display: none; padding: 8px 6px 12px; }
+.hud-fam-scroll {
+  overflow: auto; max-height: 520px;
   -webkit-overflow-scrolling: touch; touch-action: pan-x pan-y; overscroll-behavior: contain;
 }
+.hud-fam-zoom { display: flex; justify-content: flex-end; gap: 4px; margin: 0 2px 6px; }
+.hud-fam-zoom-btn {
+  font: inherit; font-size: 12px; line-height: 1; min-width: 34px; min-height: 30px; padding: 0 10px; border-radius: 999px;
+  border: 1px solid rgba(255,255,255,.14); background: rgba(0,0,0,.22); color: inherit; cursor: pointer;
+}
+.hud-fam-zoom-btn:active { background: var(--hud-accent, #8c5ad2); color: #fff; }
+.hud-fam-zoom-btn:focus-visible { outline: 2px solid rgba(216,180,254,.7); outline-offset: 2px; }
 .hud-rel-graph[data-rel-mode="family"] .hud-family-stage { display: block; }
 .hud-rel-graph[data-rel-mode="family"] .hud-rel-stage,
 .hud-rel-graph[data-rel-mode="family"] .hud-rel-bottom { display: none; }
-.hud-rel-graph.is-expanded .hud-family-stage { max-height: min(70vh, 680px); }
+.hud-rel-graph.is-expanded .hud-fam-scroll { max-height: min(70vh, 680px); }
 
 .hud-fam-svg { display: block; margin: 0 auto; max-width: none; font-family: inherit; }
 .hud-fam-link { fill: none; stroke: rgba(196,181,253,.6); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }

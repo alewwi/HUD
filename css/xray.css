@@ -1,0 +1,503 @@
+/* =========================================================================
+   X-RAY ТЕКУЩЕЙ СЦЕНЫ (render/xray.js)
+   Шапка темпа, сагиттальный разрез в реальном масштабе (тот, кого берут, —
+   справа, тот, кто проникает, — слева), линейка в см и волна толчков.
+   Движение — от --k блока темпа (1 — на глубине, ~.1 — назад): --amp — ход
+   в px, --kp — момент, когда кончик задевает простату, --push — насколько
+   упор сдвигает шейку.
+   ========================================================================= */
+
+.hud-xray { --pc: var(--hud-nsfw-color, #d9548a); display: flex; flex-direction: column; gap: 8px; }
+
+/* --- Шапка темпа --------------------------------------------------------- */
+.hud-xray-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.hud-xray-head > b { font-size: .72em; letter-spacing: .14em; text-transform: uppercase; color: color-mix(in srgb, var(--tc, var(--pc)) 55%, #fff); }
+.hud-xray-head .bpm { font-size: .8em; color: color-mix(in srgb, currentColor 72%, transparent); }
+.hud-xray-head .bpm strong { font-size: 1.7em; font-weight: 800; margin-right: 4px; color: color-mix(in srgb, var(--tc, var(--pc)) 40%, #fff);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--tc, var(--pc)) 60%, transparent); }
+.hud-xray-head .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.hud-xray-head .chips i { font-style: normal; font-size: .76em; font-weight: 700; padding: 1px 9px; border-radius: 999px; background: color-mix(in srgb, var(--tc, var(--pc)) 22%, transparent); }
+
+/* --- Ряд: подпись и разрез ----------------------------------------------- */
+.hud-xray-row { --pc: var(--hud-nsfw-color, #d9548a); display: flex; flex-direction: column; gap: 5px; }
+.hud-xray-row.p-fingers { --pc: #f0a94a; }
+.hud-xray-row.p-tongue { --pc: #ff7aa8; }
+.hud-xray-row.p-toy { --pc: #9b7bff; }
+.hud-xray-row.p-fist { --pc: #ff6b5e; }
+.hud-xray-cap { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: .84em; }
+.hud-xray-cap > i { width: 8px; height: 8px; border-radius: 50%; background: var(--pc); box-shadow: 0 0 7px var(--pc); }
+.hud-xray-cap b { font-weight: 800; }
+.hud-xray-cap small { font-size: .86em; font-weight: 700; padding: 0 7px; border-radius: 999px; background: color-mix(in srgb, var(--pc) 20%, transparent); }
+.hud-xray-cap span { color: color-mix(in srgb, currentColor 75%, transparent); }
+.hud-xray-cap em { margin-left: auto; font-style: normal; font-weight: 700; font-size: .92em; color: color-mix(in srgb, var(--pc) 45%, #fff); }
+.hud-xray-visual { line-height: 0; }
+
+/* --- Полотно ------------------------------------------------------------- */
+.xr-film { display: block; width: 100%; max-width: 480px; height: auto; border-radius: 10px; background: #100a0e;
+  box-shadow: 0 0 0 1px rgba(226,175,160,.14), 0 8px 20px rgba(0,0,0,.45); }
+.xr-plate { fill: #100a0e; }
+
+/* Тот, кого берут: разрез — приглушённая плоть, по краю — кожа и жир. */
+.xr-b0 { stop-color: #b86a76; } .xr-b1 { stop-color: #94485a; } .xr-b2 { stop-color: #6a2c3e; }
+.xr-fat { fill: none; stroke: #f3d49a; stroke-opacity: .32; stroke-width: 9; }
+.xr-skin { fill: none; stroke: #f6d2b8; stroke-width: 2.4; stroke-linejoin: round; }
+.xr-crease-skin { fill: none; stroke: #a8604c; stroke-opacity: .45; stroke-width: 1.4; stroke-linecap: round; filter: blur(.6px); }
+
+/* Ориентиры внутри: кости, пузырь, матка, кишка, протоки. */
+.xr-bone { fill: #efe1c4; stroke: #c4ad86; stroke-width: .7; }
+.xr-uterus { fill: #d9788f; stroke: #f4b6c5; stroke-opacity: .65; stroke-width: .9; }
+.xr-prostate-body { fill: #e29aaa; stroke: #ffd2dc; stroke-opacity: .4; stroke-width: .9; }
+/* Светится, пока кончик за простатой, и вспыхивает на каждом толчке. */
+.xr-prostate-glow { fill: #ffe0ea; opacity: calc(clamp(0, (var(--k, 1) - var(--kp, 2)) * 5, 1) * (.25 + .7 * clamp(0, (var(--k, 1) - .7) * 3.3, 1))); filter: blur(4px); }
+.xr-palate { fill: #d47a90; stroke: #f6b8c8; stroke-opacity: .25; stroke-width: .7; filter: blur(.4px); }
+.xr-uvula { fill: #e47a92; stroke: #ffc4d2; stroke-width: .7; }
+.xr-tongue-mass { fill: #c24c64; stroke: none; }
+.xr-papillae-line { fill: none; stroke: #f09aae; stroke-opacity: .55; stroke-width: 1; stroke-dasharray: .6 2; stroke-linecap: round; }
+
+/* Канал: стенка слизистой, сомкнутая щель, складки. */
+.xr-wall { fill: #c86f85; stroke: none; filter: blur(.8px); }
+.xr-slit { fill: none; stroke: #5a1229; stroke-width: 2.2; stroke-linecap: round; }
+.xr-ruga { fill: none; stroke: #f6bccb; stroke-opacity: .55; stroke-width: .8; stroke-linecap: round; }
+/* Раскрытый канал вокруг того, что внутри: растянутая стенка и просвет. */
+.xr-stretch { fill: #cf7489; stroke: none; filter: blur(1px); }
+.xr-open { fill: #4a1324; filter: blur(.6px); }
+
+/* То, во что упираются. */
+.xr-cervix { fill: #d47891; stroke: #e9a2b3; stroke-opacity: .3; stroke-width: .8; filter: drop-shadow(-1px 0 3px rgba(90,20,40,.5)); }
+.xr-cervix-hi { fill: #fff; opacity: .16; filter: blur(2px); }
+.xr-os { fill: none; stroke: #8e2341; stroke-width: 1.4; stroke-linecap: round; }
+.xr-end { transform: translateX(calc(clamp(0, (var(--k, 1) - .9) * 10, 1) * var(--push, 0) * 1px)); }
+
+/* Вход и лицо снаружи. */
+.xr-minora { fill: #c96880; stroke: none; filter: blur(.35px); }
+.xr-minora-wet { fill: none; stroke: #fff; stroke-opacity: .14; stroke-width: 2.2; stroke-linecap: round; filter: blur(1.2px); }
+.xr-clit { stroke: none; filter: blur(.2px); }
+.xr-cl0 { stop-color: #ffd0da; } .xr-cl1 { stop-color: #e2738c; } .xr-cl2 { stop-color: #b44a64; }
+.xr-vestibule { stroke: none; }
+.xr-vs0 { stop-color: #c25e77; } .xr-vs1 { stop-color: #b0566c; stop-opacity: 0; }
+
+.xr-anus { fill: none; stroke: #8c4152; stroke-width: .8; stroke-linecap: round; }
+.xr-sphincter { fill: #96384f; opacity: .6; filter: blur(1.2px); }
+.xr-lip { fill: #cf5d70; stroke: #a8394e; stroke-opacity: .6; stroke-width: .6; }
+.xr-gline { fill: none; stroke: #b9735a; stroke-opacity: .55; stroke-width: .8; stroke-linecap: round; }
+
+/* --- Тот, кто проникает -------------------------------------------------- */
+.xr-s0 { stop-color: #f4caac; } .xr-s1 { stop-color: #e5aa8a; } .xr-s2 { stop-color: #c98566; }
+.xr-gskin { stroke: #a8654c; stroke-opacity: .35; stroke-width: .7; stroke-linejoin: round; }
+.xr-testis { fill: #b06a55; opacity: .4; filter: blur(2px); }
+.xr-hair { fill: none; stroke: #4a3026; stroke-opacity: .35; stroke-width: .6; stroke-linecap: round; }
+.xr-hair-shade { fill: #6b4434; opacity: .14; filter: blur(4px); }
+.xr-o0 { stop-color: #f6cdb2; } .xr-o1 { stop-color: #e9ae90; } .xr-o2 { stop-color: #b8735a; }
+.xr-shaft { stroke: none; }
+.xr-shaft-edge { fill: none; stroke: #9c5a45; stroke-opacity: .32; stroke-width: .8; filter: blur(.3px); }
+.xr-shaft-shade { fill: #8c4a3a; opacity: .18; filter: blur(1.6px); }
+.xr-glans { fill: #e48d9a; stroke: #b9606f; stroke-opacity: .5; stroke-width: .7; }
+.xr-glans-hi { fill: #fff; opacity: .28; filter: blur(1.6px); }
+.xr-corona { fill: none; stroke: #8c3e4a; stroke-opacity: .4; stroke-width: 1.8; filter: blur(.6px); }
+.xr-frenulum, .xr-fold { fill: none; stroke: #a85a52; stroke-opacity: .5; stroke-width: .8; stroke-linecap: round; }
+.xr-meatus { fill: none; stroke: #8c3a46; stroke-width: .8; stroke-linecap: round; }
+.xr-vein { fill: none; stroke: #9a6c86; stroke-opacity: .38; stroke-width: 2.2; stroke-linecap: round; filter: blur(.5px); }
+.xr-ridge-u { fill: none; stroke: #9c5a45; stroke-opacity: .16; stroke-width: 2; stroke-linecap: round; filter: blur(.8px); }
+.xr-gloss { fill: none; stroke: #fff; stroke-opacity: .3; stroke-width: 1.8; stroke-linecap: round; filter: blur(.9px); }
+.xr-gloss.is-soft { stroke-opacity: .22; stroke-width: 1.4; }
+.xr-hand { fill: #efbfa2; stroke: #a0614a; stroke-opacity: .55; stroke-width: .6; stroke-linejoin: round; }
+.xr-hand.is-back, .xr-finger.is-back .xr-hand { fill: #d9a185; }
+.xr-nail { fill: #fbe6d8; stroke: #c9947c; stroke-width: .45; }
+.xr-crease { fill: none; stroke: #a8684f; stroke-opacity: .4; stroke-width: .9; stroke-linecap: round; filter: blur(.4px); }
+.xr-toy, .xr-toy-ring { fill: #a77bd6; stroke: #6f42a0; stroke-width: .7; }
+.xr-toy-ring { fill: none; stroke-opacity: .6; }
+.xr-toy-gloss { fill: none; stroke: #fff; stroke-opacity: .38; stroke-width: 2.2; stroke-linecap: round; filter: blur(1px); }
+.xr-tongue { fill: #d65f76; stroke: none; }
+.xr-tongue-lit { fill: none; stroke: #ff9fb2; stroke-opacity: .32; stroke-linecap: round; filter: blur(2.4px); }
+.xr-tongue-dim { fill: none; stroke: #8e2a42; stroke-opacity: .34; stroke-linecap: round; filter: blur(2.4px); }
+.xr-tg0 { stop-color: #ea8295; } .xr-tg1 { stop-color: #d65f76; } .xr-tg2 { stop-color: #b3445c; }
+.xr-tongue-under { fill: none; stroke: #8e2f46; stroke-opacity: .45; stroke-width: 1.2; stroke-linecap: round; filter: blur(.4px); }
+.xr-tongue-tip-hi { fill: #fff; opacity: .3; filter: blur(.8px); }
+.xr-tongue-groove { fill: none; stroke: #9c3550; stroke-opacity: .4; stroke-width: 1.4; stroke-linecap: round; filter: blur(.5px); }
+.xr-papillae circle { fill: #f7aebd; opacity: .55; }
+
+/* Вспышка на кончике в момент толчка; сильнее, если упёрлись. */
+.xr-g0 { stop-color: #ffe4ec; stop-opacity: .5; } .xr-g1 { stop-color: #ffd0dc; stop-opacity: 0; }
+.xr-hit { opacity: 0; }
+:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-hit { opacity: calc(clamp(0, (var(--k, 1) - .82) * 5.5, 1) * var(--hit, .5)); }
+
+/* Ход: всё, что движется с кончиком, отходит назад на (1 − --k) × --amp. */
+.xr-move { transform: translateX(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px)); }
+
+/* --- Линейка ------------------------------------------------------------- */
+.xr-ruler-line { stroke: rgba(255,222,230,.4); stroke-width: .6; }
+.xr-tick { stroke: rgba(255,222,230,.45); stroke-width: .5; }
+.xr-tick.is-major { stroke: rgba(255,222,230,.8); stroke-width: .7; }
+.xr-num { fill: rgba(255,226,232,.7); font: 600 6px/1 ui-monospace, Consolas, monospace; text-anchor: middle; }
+.xr-target { stroke: #fff; stroke-opacity: .35; stroke-width: .6; stroke-dasharray: 2 2; }
+.xr-target-label { fill: #fff; fill-opacity: .85; font: 700 6.4px/1 ui-monospace, Consolas, monospace; }
+.xr-caret { fill: var(--pc); stroke: #fff; stroke-width: .5; filter: drop-shadow(0 0 2px var(--pc)); }
+.xr-end-label { fill: rgba(255,236,240,.62); font: 600 6px/1 system-ui, sans-serif; letter-spacing: .08em; text-anchor: middle; text-transform: uppercase; }
+
+/* --- Волна темпа --------------------------------------------------------- */
+.xr-wave { display: block; width: 100%; max-width: 480px; height: auto; }
+.xr-wave-base { stroke: rgba(255,222,230,.18); stroke-width: .6; }
+.xr-wave-beat { stroke: rgba(255,222,230,.14); stroke-width: .6; stroke-dasharray: 1.6 1.6; }
+.xr-wf0 { stop-color: var(--tc, var(--pc)); stop-opacity: .38; } .xr-wf1 { stop-color: var(--tc, var(--pc)); stop-opacity: 0; }
+.xr-wave-line { fill: none; stroke: color-mix(in srgb, var(--tc, var(--pc)) 70%, #fff); stroke-width: 1.3; stroke-linejoin: round; stroke-linecap: round; }
+.xr-wave-glow { fill: none; stroke: var(--tc, var(--pc)); stroke-width: 4; stroke-opacity: .35; filter: blur(2px); }
+.xr-wave-grid { stroke: rgba(255,222,230,.07); stroke-width: .5; }
+.xr-wave-peak { fill: #fff; stroke: var(--tc, var(--pc)); stroke-width: .8; opacity: .85; }
+.xr-wave-halo { fill: var(--tc, var(--pc)); opacity: calc(.15 + var(--k, 1) * .35); transform-box: fill-box; transform-origin: center; transform: translateY(calc((1 - var(--k, 1)) * var(--wy, 22px))) scale(calc(.6 + var(--k, 1) * .7)); filter: blur(1.5px); }
+.xr-wave-head { stroke: rgba(255,255,255,.3); stroke-width: .6; }
+.xr-wave-dot circle { fill: #fff; stroke: var(--tc, var(--pc)); stroke-width: 1; transform: translateY(calc((1 - var(--k, 1)) * var(--wy, 22px))); }
+.hud-xray.is-still .xr-wave-run { display: none; }
+
+@keyframes xr-run { from { transform: translateX(0); } to { transform: translateX(228px); } }
+@media (prefers-reduced-motion: no-preference) {
+  .xr-wave-run { animation: xr-run calc(var(--beat, 1s) * var(--reps, 2)) linear infinite; animation-play-state: paused; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-wave-run { animation-play-state: running; }
+  /* Без блока темпа (стенд, старые вызовы) — свой ровный ритм. */
+  .hud-xray.is-standalone { animation: hud-tk var(--beat, 1.6s) cubic-bezier(.5, 0, .3, 1) infinite; }
+  .hud-xray.is-standalone.is-ragged { animation-name: hud-tk-ragged; }
+}
+.hud-xray.is-standalone { animation-play-state: paused; }
+.hud-xray.is-standalone:is(:hover, .fx-tap, .fx-on) { animation-play-state: running; }
+
+/* В блоке темпа x-ray — вся картинка: без второй панели скорости. */
+.hud-tempo.is-xray { display: block; padding: 10px 12px 8px; }
+
+/* Светлые темы: шапка темнее, полотно остаётся тёмным. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-xray-head > b { color: color-mix(in srgb, var(--tc, var(--pc)) 70%, #000); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-xray-head .bpm strong { color: color-mix(in srgb, var(--tc, var(--pc)) 75%, #000); text-shadow: none; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-xray-cap em { color: color-mix(in srgb, var(--pc) 75%, #000); }
+
+/* --- Детали: губы вульвы, крестец ---------------------------------------- */
+.xr-majora { stroke: none; }
+.xr-vu0 { stop-color: #d99a82; } .xr-vu1 { stop-color: #cf8a7a; } .xr-vu2 { stop-color: #bf6f76; }
+.xr-majora-sh { fill: none; stroke: #a8565a; stroke-opacity: .2; stroke-width: 2; stroke-linecap: round; filter: blur(1px); }
+.xr-majora-hi { fill: none; stroke: #ffe6d6; stroke-opacity: .32; stroke-width: 2; stroke-linecap: round; filter: blur(1px); }
+.xr-minora-edge { fill: none; stroke: #a84a62; stroke-width: .9; stroke-linecap: round; }
+.xr-sacrum { fill: none; stroke: #dcc2a4; stroke-opacity: .55; stroke-width: 13; stroke-linecap: round; filter: blur(1.4px); }
+.xr-sacrum-core { fill: none; stroke: #c9a986; stroke-width: 6; stroke-linecap: round; opacity: .35; filter: blur(1.4px); }
+.xr-sacrum-seam { fill: none; stroke: #a8866a; stroke-opacity: .35; stroke-width: 1.6; stroke-linecap: round; filter: blur(.8px); }
+
+/* --- Стенка, которая обхватывает то, что внутри ------------------------- */
+.xr-w0 { stop-color: #a9536a; stop-opacity: 0; }
+.xr-w1 { stop-color: #ad586d; }
+.xr-w2 { stop-color: #bd6479; }
+.xr-w3 { stop-color: #c86f85; }
+.xr-ruffle { fill: #d47a91; stroke: #f0a8ba; stroke-opacity: .25; stroke-width: .4; }
+.xr-fold-deep { fill: #8c2c46; opacity: .3; filter: blur(1.2px); }
+.xr-fold-deep.is-shut { opacity: .26; }
+.xr-contact { fill: none; stroke: #6e1a30; stroke-width: 1.6; stroke-opacity: .45; filter: blur(.7px); }
+.xr-contact.is-front { stroke-width: 2; stroke-opacity: .4; }
+.xr-gleam { fill: none; stroke: #fff; stroke-opacity: .16; stroke-width: 1.2; stroke-linecap: round; filter: blur(.6px); }
+.xr-shut { fill: none; stroke: #6a1a2e; stroke-width: 1.5; stroke-opacity: .75; stroke-linecap: round; filter: blur(.4px); }
+.xr-wall.is-soft { fill: #b65f75; stroke: none; filter: blur(1.6px); }
+
+/* --- Голова и лицо — тёмные силуэты: важен только контур ----------------- */
+.xr-film.is-dark .xr-body { fill: #2a1d23; }
+.xr-film.is-dark .xr-skin { stroke: #8a6672; stroke-width: 1.3; }
+.xr-film.is-dark .xr-fat { display: none; }
+.xr-film.is-dark .xr-lip { fill: #7e3c4c; stroke: #a35466; }
+.xr-mouthwall { fill: #9c4a5e; }
+.xr-giver.is-shadow .xr-gskin { fill: #2a1d23; stroke: #8a6672; stroke-width: 1.3; stroke-opacity: 1; }
+.xr-mouth-shade { fill: #2a1d23; }
+.xr-tongue-lipshade { fill: none; stroke: #5a1828; stroke-opacity: .5; stroke-width: 5; filter: blur(2px); }
+
+/* --- Семя: кончили внутрь ------------------------------------------------- */
+.hud-xray-row.is-finish { --k: 1; }
+.hud-xray-cap small.is-cum { background: rgba(255,250,240,.16); color: #fff6ea; }
+.xr-cum-pool { fill: #fbf7ef; fill-opacity: .93; stroke: #fff; stroke-opacity: .7; stroke-width: .5; transform-origin: 0% 50% !important;
+  transform-box: fill-box; transform-origin: 100% 50%; filter: drop-shadow(0 0 2px rgba(255,255,255,.45)); }
+.xr-cum-drop { fill: #fffdf8; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.xr-cum-drip { fill: #fbf7ef; fill-opacity: .92; transform-box: fill-box; transform-origin: 50% 0; }
+@keyframes xr-fill { 0% { transform: scaleX(.04); opacity: .15; } 100% { transform: scaleX(1); opacity: 1; } }
+@keyframes xr-spurt { 0% { transform: translate(0, 0) scale(.5); opacity: 0; } 12% { opacity: 1; } 100% { transform: translate(var(--dx, 10px), var(--dy, 0px)) scale(1.25); opacity: 0; } }
+@keyframes xr-drip { 0% { transform: scaleY(0); } 100% { transform: scaleY(1); } }
+@keyframes xr-throb { 0%, 100% { filter: brightness(1); } 45% { filter: brightness(1.16) saturate(1.1); } }
+/* В покое — итог (лужа и капля у входа); под курсором — заново: головка
+   пульсирует, капли бьют, лужа растёт от глубины к входу. */
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-pool { animation: xr-pump 3.3s linear both; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-drop { animation: xr-spurt 1.1s ease-out var(--dl, 0s) infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-drip { animation: xr-drip 2.6s ease-in 2.4s both; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .is-finish .xr-glans { animation: xr-throb .55s ease-in-out infinite; }
+}
+
+/* --- Губа стенки поверх края, колено согнутого члена, потёк ---------------- */
+.xr-joint { stroke: none; }
+.is-finish .xr-hit { display: none; }
+.xr-cum-streak { fill: none; stroke: #fbf7ef; stroke-opacity: .9; stroke-width: 2.1; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+@keyframes xr-streak { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-streak { animation: xr-streak 2.2s ease-in 2s both; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-leak .xr-cum-drip { animation: xr-drip 1.4s ease-in 4s both; }
+}
+
+/* Член в горле сгибается по толчку: 0° на отходе, --bend° на глубине. */
+.xr-bend { transform: rotate(calc(var(--bend, 0) * clamp(0, (var(--k, 1) - var(--kb, 1)) * var(--kbs, 1), 1) * 1deg)); }
+/* Семя заливает шейку: канал и белая плёнка поверх. */
+.xr-cum-canal { fill: none; stroke: #fbf7ef; stroke-opacity: .95; stroke-width: 3.4; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 0; filter: drop-shadow(0 0 1.4px rgba(255,255,255,.6)); }
+@keyframes xr-canal { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
+@keyframes xr-glaze { 0% { opacity: 0; } 100% { opacity: 1; } }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-canal { animation: xr-canal-fill 3.3s linear .3s both; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-film { animation: xr-film 3.6s ease-out .6s both; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-jet { animation: xr-jet .55s ease-out var(--dl, 0s) 6 both; }
+}
+
+/* --- Красота: светотень, свет по коже, пульс темпа ------------------------ */
+.xr-gshade { fill: none; stroke: #8c4a36; stroke-opacity: .35; stroke-width: 14; filter: blur(5px); }
+.xr-glight { fill: #fff3e8; opacity: .22; filter: blur(9px); }
+.xr-shaft-hi { fill: none; stroke: #fff; stroke-opacity: .28; stroke-width: 3.2; stroke-linecap: round; filter: blur(1.4px); }
+.xr-skin-hi { fill: none; stroke: #fff2e6; stroke-opacity: .35; stroke-width: 1; filter: blur(.6px); }
+.xr-film.is-dark .xr-skin-hi { stroke-opacity: .12; }
+.xr-cervix-canal { fill: none; stroke: #9e3550; stroke-opacity: .4; stroke-width: 1.6; stroke-linecap: round; filter: blur(.5px); }
+/* Семя в горле и на языке. */
+.xr-cum-throat { fill: none; stroke: #fbf7ef; stroke-opacity: .92; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; filter: drop-shadow(0 0 2px rgba(255,255,255,.4)); }
+.xr-cum-tongue { fill: none; stroke: #fbf7ef; stroke-opacity: .8; stroke-width: 2.6; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-throat { animation: xr-streak 2.6s ease-out .4s both; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-tongue { animation: xr-streak 2.4s ease-out 2.2s both; }
+}
+/* Пульс в шапке — вспыхивает на каждом толчке. */
+.hud-xray-head { align-items: center; }
+.hud-xray-pulse { width: 9px; height: 9px; border-radius: 50%; align-self: center; background: var(--tc, var(--pc));
+  box-shadow: 0 0 calc(4px + var(--k, 1) * 10px) var(--tc, var(--pc)); transform: scale(calc(.55 + var(--k, 1) * .6)); opacity: calc(.45 + var(--k, 1) * .55); }
+.hud-xray.is-still .hud-xray-pulse { transform: none; opacity: .5; box-shadow: none; }
+
+/* --- Живое: губы тянутся за членом, клитор и головка набухают на ударе,
+   мошонка качается в такт. Всё от --k / --sw блока темпа. ---------------- */
+/* Губы, край ануса и губы рта не сдвигаются — тянутся от прикреплённого края:
+   на выходе вытягиваются наружу, на входе вдавливаются. */
+.xr-pull { transform-box: fill-box; transform-origin: 100% 50%; }
+.xr-pull.is-minor { transform: scaleX(calc(1 + (1 - var(--k, 1)) * .18 + clamp(0, -1 * var(--v, 0), 1) * (1 - var(--k, 1)) * .32 - clamp(0, var(--v, 0), 1) * .07)); }
+.xr-pull.is-lip { transform: scaleX(calc(1 + (1 - var(--k, 1)) * .05 + clamp(0, -1 * var(--v, 0), 1) * (1 - var(--k, 1)) * .1 - clamp(0, var(--v, 0), 1) * .03)); }
+.xr-lip-line { fill: none; stroke: #8a6672; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
+.xr-pull.is-major { transform: scaleX(calc(1 + (1 - var(--k, 1)) * .04 + clamp(0, -1 * var(--v, 0), 1) * (1 - var(--k, 1)) * .06)); }
+.xr-clit-g { transform-box: fill-box; transform-origin: center; }
+:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-clit-g { transform: scale(calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .14)); }
+:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-glans { filter: brightness(calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .07)); }
+
+/* --- Влага (lb:) — блеск, бусины, ниточки, капля, брызги. --wet 0…1. ------- */
+.hud-xray-cap small.is-wet { background: rgba(180,220,255,.14); color: #e6f3ff; }
+.xr-film.is-wet .xr-gleam { stroke-opacity: calc(.16 + var(--wet, 0) * .1); }
+.xr-film.is-wet .xr-ruffle { filter: brightness(calc(1 + var(--wet, 0) * .1)); }
+.xr-film.is-wet .xr-gloss { stroke-opacity: calc(.3 + var(--wet, 0) * .2); }
+.xr-film.is-wet .xr-minora-wet { stroke-opacity: calc(.14 + var(--wet, 0) * .14); }
+.xr-wet-coat { fill: none; stroke: #fff; stroke-opacity: calc(.06 + var(--wet, 0) * .22); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 22 7 36 10 14 6; filter: blur(1.3px); }
+.xr-wet-coat.is-low { stroke-opacity: calc(.04 + var(--wet, 0) * .12); stroke-dasharray: 20 12 40 8 9 6; }
+.xr-bead-hi { fill: #fff; opacity: .9; }
+.xr-bead { fill: #fff; fill-opacity: calc(.18 + var(--wet, 0) * .3); stroke: #fff; stroke-opacity: .35; stroke-width: .3; }
+/* Ниточки тянутся только на выходе и рвутся на входе. */
+.xr-strand { fill: none; stroke: #fff; stroke-width: .9; stroke-linecap: round; opacity: calc((1 - var(--k, 1)) * var(--wet, 0) * .26 * clamp(0, -1 * var(--v, 0), 1)); filter: blur(.7px); }
+/* Брызги — только пока идут толчки: в покое член стоит на глубине (--k = 1),
+   и брызги висели бы в воздухе. */
+.xr-splash { fill: #fff; opacity: 0;
+  transform: translate(calc(clamp(0, (var(--k, 1) - .9) * 10, 1) * var(--sx, 0)), calc(clamp(0, (var(--k, 1) - .9) * 10, 1) * var(--sy, 0))); }
+:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-splash { opacity: calc(clamp(0, (var(--k, 1) - .9) * 10, 1) * .85 * clamp(0, var(--v, 0) + .6, 1)); }
+.xr-wet-run { fill: none; stroke: #fff; stroke-opacity: calc(var(--wet, 0) * .26); stroke-width: 2.2; stroke-linecap: round; filter: blur(1px); }
+.xr-wet-drop { fill: #fff; opacity: calc(.25 + var(--wet, 0) * .5); }
+.xr-wet-drip { transform-box: fill-box; transform-origin: 50% 0; }
+/* Лубрикант — прозрачнее, с холодным бликом. */
+.xr-film.is-lube :is(.xr-bead, .xr-wet-drop) { fill: #e8f4ff; }
+.xr-film.is-lube .xr-wet-coat, .xr-film.is-lube .xr-wet-run, .xr-film.is-lube .xr-strand { stroke: #e8f4ff; }
+@keyframes xr-wet-fall { 0%, 55% { transform: translateY(0) scaleY(1); opacity: 1; } 85% { transform: translateY(9px) scaleY(1.25); opacity: .9; } 100% { transform: translateY(14px) scaleY(1.3); opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-wet-drop { animation: xr-wet-fall calc(var(--beat, 1s) * 3) ease-in infinite; transform-box: fill-box; }
+}
+
+/* Язык лижет: кончик ходит вверх-вниз в ритме темпа, поверх толчков. */
+.xr-lick { transform: rotate(-4deg); }
+@keyframes xr-lick { from { transform: rotate(-13deg); } to { transform: rotate(10deg); } }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-lick { animation: xr-lick calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
+}
+
+/* --- Рот: без тёмного просвета — стенки и язык прилегают к стволу. -------- */
+.xr-film.is-dark .xr-open { fill: #8e4054; filter: blur(.8px); }
+.xr-film.is-dark .xr-stretch { fill: #a8566a; }
+.xr-tongue-mass.is-tip { stroke: none; }
+.xr-lick.is-oral { transform: none; }
+@keyframes xr-lick-oral { from { transform: rotate(4deg); } to { transform: rotate(-7deg); } }
+
+/* --- Мошонка качается в такт и подпрыгивает на ударе; волна на ударе. ---- */
+.xr-scrotum-sh { fill: none; stroke: #8c4a36; stroke-opacity: .3; stroke-width: 6; filter: blur(2.4px); }
+.xr-rugae-skin { fill: none; stroke: #9c5a45; stroke-opacity: .12; stroke-width: .8; stroke-linecap: round; filter: blur(.4px); }
+.xr-gskin.is-scrotum, .xr-gskin.is-under, .xr-gskin.is-fill { stroke: none; }
+.xr-gskin-line { fill: none; stroke: #a8654c; stroke-opacity: .35; stroke-width: .7; stroke-linejoin: round; }
+.xr-ripple { fill: none; stroke: #ffd6e0; stroke-width: 3; opacity: 0; transform-box: fill-box; transform-origin: center; filter: blur(1.6px); }
+@keyframes xr-ripple { 0% { transform: scale(.7); opacity: 0; } 8% { transform: scale(.8); opacity: .3; } 45% { transform: scale(1.7); opacity: 0; } 100% { transform: scale(1.7); opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-lick.is-oral { animation: xr-lick-oral calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
+  /* Мошонка — плавно, от качания блока (--sw), с лёгким подскоком на ударе. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-sway { transform: rotate(calc(var(--sw, -1) * 5deg)) translateY(calc(clamp(0, (var(--k, 1) - .8) * 5, 1) * -1.6px)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-ripple { animation: xr-ripple var(--beat1, 1s) ease-out infinite; }
+}
+
+/* --- Ещё движение ---------------------------------------------------------- */
+/* Влажный блик скользит по стволу и игрушке. */
+.xr-sheen-run { fill: none; stroke: #fff; stroke-opacity: 0; stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 14 86; filter: blur(1.2px); }
+@keyframes xr-sheen { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+/* Вены наливаются на ударе. */
+/* Сфинктер сжимается, когда член выходит. */
+.xr-sphincter { transform-box: fill-box; transform-origin: 0 50%; }
+/* Шейка вздрагивает от удара. */
+@keyframes xr-wobble { 0% { transform: scale(1); } 8% { transform: scale(1.035, .975); } 30% { transform: scale(.985, 1.015); } 60%, 100% { transform: scale(1); } }
+.xr-cervix { transform-box: fill-box; transform-origin: 0 50%; }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-sheen-run { stroke-opacity: .32; animation: xr-sheen calc(var(--beat1, 1s) * 2) linear infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-vein { stroke-opacity: calc(.34 + clamp(0, (var(--k, 1) - .55) * 2.4, 1) * .26); stroke-width: calc(2.2px + clamp(0, (var(--k, 1) - .55) * 2.4, 1) * .8px); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-sphincter { transform: scaleY(calc(1 + (1 - var(--k, 1)) * .25)) scaleX(calc(1 - (1 - var(--k, 1)) * .08)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-cervix { animation: xr-wobble var(--beat1, 1s) ease-out infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-vestibule { filter: brightness(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .12)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-film.is-dark .xr-wall { filter: blur(.8px) brightness(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .1)); }
+}
+
+/* =========================================================================
+   ЖИВОЕ ТЕЛО — по 10 движений и деталей на каждый вид близости.
+   Всё — от --k (толчок) и --sw (качание) блока темпа, только пока идёт.
+   ========================================================================= */
+.xr-tendon { fill: none; stroke: #fff2e8; stroke-opacity: .18; stroke-width: 1.4; stroke-linecap: round; filter: blur(.6px); }
+.xr-flex { fill: none; stroke: #fff2e8; stroke-opacity: .14; stroke-width: 3; stroke-linecap: round; filter: blur(1.4px); }
+.xr-knuckle-hi { fill: none; stroke: #fff; stroke-opacity: 0; stroke-width: 1.4; stroke-linecap: round; filter: blur(.6px); }
+.xr-led { fill: #ffe3f8; opacity: .5; filter: drop-shadow(0 0 2px #ff9ae0); }
+.xr-vibe-ring { fill: none; stroke: #e8d4ff; stroke-width: 1.6; opacity: 0; transform-box: fill-box; transform-origin: center; filter: blur(1px); }
+.xr-flange { transform-box: fill-box; transform-origin: 100% 50%; }
+.xr-gspot { fill: #ffd0dc; opacity: calc(clamp(0, (var(--k, 1) - var(--kg, 2)) * 5, 1) * .5); filter: blur(3px); }
+.xr-bulge { fill: #ffd6e0; opacity: 0; filter: blur(4px); }
+.xr-anal-rim { fill: #c25e77; stroke: none; filter: blur(.3px); }
+.xr-peri { fill: none; stroke: #ffd0dc; stroke-opacity: 0; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 10 90; filter: blur(2px); }
+.xr-swallow { fill: none; stroke: #ffd0dc; stroke-opacity: 0; stroke-linecap: round; stroke-dasharray: 8 92; filter: blur(2.4px); }
+.xr-saliva { fill: none; stroke: #fff; stroke-width: .9; stroke-linecap: round; opacity: calc((1 - var(--k, 1)) * .24 * clamp(0, -1 * var(--v, 0), 1)); filter: blur(.7px); }
+.xr-drool .xr-wet-run { stroke-opacity: .16; }
+.xr-drool .xr-wet-drop { opacity: .45; }
+.xr-drool { transform-box: fill-box; transform-origin: 50% 0; }
+.xr-curl, .xr-thumb, .xr-twist, .xr-nod, .xr-uvula-sw, .xr-vibe { transform: none; }
+.xr-tongue-grp { transform-box: fill-box; transform-origin: 0 50%; }
+
+/* Большой палец трёт клитор — поворотом вокруг своего основания. */
+@keyframes xr-rub { from { transform: rotate(-3.5deg); } to { transform: rotate(3deg); } }
+@keyframes xr-buzz { from { transform: translateY(-.4px); } to { transform: translateY(.4px); } }
+@keyframes xr-led { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+@keyframes xr-tongue-roll { from { transform: scaleY(.94); } to { transform: scaleY(1.05); } }
+@keyframes xr-flick { from { transform: translateY(0) scale(1); } to { transform: translateY(-.7px) scale(1.08); } }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Общее для лона и ануса: стенки присасываются на отходе, кожа вспыхивает на ударе. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) :is(.xr-bumps, .xr-squeeze) { transform: scaleY(calc(1 - (1 - var(--k, 1)) * (.025 + clamp(0, -1 * var(--v, 0), 1) * .06))); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-skin-hi { stroke-opacity: calc(.35 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .3); }
+  /* Член: головка наливается, живот дающего напрягается. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-glans { filter: brightness(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .07)) saturate(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .35)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-gshade { stroke-opacity: calc(.35 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .25); }
+  /* Анал: перистальтика, своя мошонка у мужчины качается. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-peri { stroke-opacity: .22; animation: xr-sheen calc(var(--beat1, 1s) * 3) linear infinite reverse; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-own { transform: translateY(calc(var(--sw, -1) * 1.6px)); }
+  /* Игрушка: вибрация, волны от кончика, мигает индикатор, упор пружинит. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-vibe { animation: xr-buzz .07s linear infinite alternate; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-vibe-ring { animation: xr-ripple .45s ease-out infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-led { animation: xr-led .9s ease-in-out infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-flange { transform: scaleX(calc(1 - clamp(0, (var(--k, 1) - .8) * 5, 1) * .12)); }
+  /* Пальцы: манящее сгибание, большой палец трёт клитор, сухожилия, точка G. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-curl { transform: rotate(calc(var(--sw, -1) * -1.4deg)); }
+:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-thumb { animation: xr-rub calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-tendon { stroke-opacity: calc(.12 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .22); }
+  /* Кулак: проворот, костяшки, мышцы предплечья, живот выпирает, блик на костяшках. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-twist { transform: rotate(calc(var(--sw, -1) * 3deg)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-knuckles { transform: translateY(calc(var(--sw, -1) * .9px)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-flex { stroke-opacity: calc(.08 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .26); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-bulge { opacity: calc(clamp(0, (var(--k, 1) - .8) * 5, 1) * .4); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-knuckle-hi { stroke-opacity: calc(clamp(0, (var(--k, 1) - .8) * 5, 1) * .5); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row.p-fist .xr-minora { filter: blur(.35px) brightness(calc(1 + var(--k, 1) * .14)); }
+  /* Рот: язычок качается, глоток катится по горлу. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-uvula-sw { transform: rotate(calc(var(--sw, -1) * 9deg)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-drool { animation: xr-wet-fall calc(var(--beat1, 1s) * 4) ease-in infinite; }
+  /* Куни: голова покачивается, язык перекатывается, клитор вздрагивает в такт. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-nod { transform: rotate(calc(var(--sw, -1) * 1.8deg)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-tongue-grp:not(.is-oral) { animation: xr-tongue-roll calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row.p-tongue .xr-clit-g { animation: xr-flick calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row.p-tongue .xr-minora-wet { stroke-opacity: .3; }
+}
+
+/* --- Семя: толчками из головки, струями в зев, канал шейки заполняется ---- */
+.xr-cum-film { fill: #fbf7ef; fill-opacity: .4; transform-box: fill-box; transform-origin: center; }
+.xr-cum-jet { fill: none; stroke: #fffdf8; stroke-width: 1.2; stroke-linecap: round; stroke-dasharray: 18 82; stroke-dashoffset: 100; opacity: 0; filter: blur(.25px); }
+/* Лужа растёт толчками — в такт пульсации головки (.55 с). */
+@keyframes xr-pump { 0% { transform: scaleX(.05); } 8% { transform: scaleX(.28); } 17% { transform: scaleX(.32); } 25% { transform: scaleX(.52); } 33% { transform: scaleX(.55); } 42% { transform: scaleX(.72); } 50% { transform: scaleX(.75); } 58% { transform: scaleX(.88); } 67% { transform: scaleX(.9); } 83% { transform: scaleX(1); } 100% { transform: scaleX(1); } }
+@keyframes xr-canal-fill { 0% { stroke-dashoffset: 100; } 15% { stroke-dashoffset: 82; } 33% { stroke-dashoffset: 60; } 50% { stroke-dashoffset: 40; } 67% { stroke-dashoffset: 20; } 85%, 100% { stroke-dashoffset: 0; } }
+@keyframes xr-film { from { transform: scale(0); } to { transform: scale(1); } }
+@keyframes xr-jet { 0% { stroke-dashoffset: 100; opacity: 0; } 15% { opacity: .95; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+
+/* --- Влага: капля набухает, тянется, срывается; бусины поблёскивают ------- */
+@keyframes xr-wet-fall { 0% { transform: translateY(0) scale(.3); opacity: 0; } 20% { opacity: 1; } 55% { transform: translateY(0) scale(1, 1); } 72% { transform: translateY(2px) scale(.9, 1.4); } 86% { transform: translateY(12px) scale(.8, 1.2); opacity: .9; } 100% { transform: translateY(22px) scale(.7, 1.1); opacity: 0; } }
+@keyframes xr-twinkle { 0%, 100% { opacity: .9; } 50% { opacity: .35; } }
+@keyframes xr-coat { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -95; } }
+
+/* --- Бедро принимающего в тени — за плоскостью разреза, вместо чёрного ---- */
+.xr-bd0 { stop-color: #8c5450; stop-opacity: .96; } .xr-bd1 { stop-color: #5e3538; stop-opacity: .8; } .xr-bd2 { stop-color: #2a161c; stop-opacity: 0; }
+.xr-film.is-dark .xr-bd0 { stop-color: #3a272d; } .xr-film.is-dark .xr-bd1 { stop-color: #2c1e23; }
+.xr-entry-in { fill: #b85870; filter: blur(.6px); }
+.xr-entry-in.is-mouth { fill: #6e3242; }
+.xr-hips, .xr-wrist, .xr-thigh { transform: none; }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-bead-hi { animation: xr-twinkle 1.6s ease-in-out infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-wet-coat { animation: xr-coat calc(var(--beat1, 1s) * 3) linear infinite; }
+  /* Бёдра дающего качаются вокруг корня члена; кисть — от запястья; бедро
+     принимающего вздрагивает на ударе. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-hips { transform: rotate(calc(var(--sw, -1) * 2.4deg)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-wrist { transform: rotate(calc(var(--sw, -1) * .9deg)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-thigh { transform: translateX(calc(clamp(0, (var(--k, 1) - .8) * 5, 1) * 1.6px)) scaleY(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .015)); }
+}
+
+/* =========================================================================
+   ЕЩЁ ЖИЗНИ: ткани, румянец, пот, предсемя — всё от толчка (--k) и темпа
+   ========================================================================= */
+.xr-fl0 { stop-color: #ff7a9a; stop-opacity: .55; } .xr-fl1 { stop-color: #ff7a9a; stop-opacity: .2; } .xr-fl2 { stop-color: #ff7a9a; stop-opacity: 0; }
+.xr-flush { opacity: 0; filter: blur(3px); }
+.xr-sweat ellipse { fill: #fff; opacity: 0; filter: blur(.9px); }
+.xr-precum { fill: #fffaf4; opacity: 0; filter: blur(.7px); }
+.xr-os, .xr-cervix-canal { transform-box: fill-box; transform-origin: 0 50%; }
+.xr-film.is-wet .xr-minora { transform-box: fill-box; transform-origin: 100% 50%; transform: scaleX(calc(1 + var(--wet, 0) * .14)); }
+@keyframes xr-sweat { 0%, 100% { opacity: .1; transform: scale(.85); } 50% { opacity: .34; transform: scale(1.1); } }
+@media (prefers-reduced-motion: no-preference) {
+  /* Кожа у входа приливает: тем сильнее, чем влажнее, и вспыхивает на ударе. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-flush { opacity: calc(.34 + var(--wet, .3) * .2); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-flush { opacity: calc(.34 + var(--wet, .3) * .2 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .22); }
+  /* Мягкие ткани у входа сминаются на ударе и расправляются на отходе. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-fat { stroke-width: calc(9px + clamp(0, (var(--k, 1) - .8) * 5, 1) * 2.2px); stroke-opacity: calc(.32 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .08); }
+  /* Зев шейки приоткрывается на глубине. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-os { transform: scale(calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .4), calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * 1.3)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-cervix-hi { opacity: calc(.16 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .2); }
+  /* Малые губы набухают на ударе (чуть толще), клитор — следом. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-film.is-wet .xr-minora { transform: scaleX(calc(1 + var(--wet, 0) * .14 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .12)); }
+  /* Пот мерцает вразнобой. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-sweat ellipse { transform-box: fill-box; transform-origin: center; animation: xr-sweat calc(var(--beat1, 1s) * 3) ease-in-out infinite; animation-delay: calc(var(--i, 0) * -.43s); }
+  /* Капля предсемени набухает на глубине и тянется назад на отходе. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-film.is-wet .xr-precum { opacity: calc(var(--wet, 0) * clamp(0, (var(--k, 1) - .5) * 2, 1) * .55); transform: scale(calc(.7 + clamp(0, (var(--k, 1) - .5) * 2, 1) * .5)); transform-box: fill-box; transform-origin: 0 50%; }
+}
+
+/* =========================================================================
+   РОТ: язык и горло. Всё от толчка (--k) и скорости (--v): язык
+   прогибается под стволом и поднимается на отходе, кончик тянется за ним,
+   горло волнами идёт за стволом и сжимается на глубине, язычок поджимается.
+   ========================================================================= */
+.xr-grip { fill: none; stroke: #ffd0dc; stroke-opacity: 0; stroke-linecap: round; stroke-dasharray: 6 14; filter: blur(2.2px); }
+.xr-tongue-grp.is-oral { transform-box: fill-box; transform-origin: 100% 40%; }
+@keyframes xr-swallow-run { 0% { stroke-dashoffset: 100; stroke-opacity: 0; } 14% { stroke-opacity: .3; } 80% { stroke-opacity: .3; } 100% { stroke-dashoffset: 0; stroke-opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  /* Язык: ствол вдавливает его на входе, на отходе он выпрямляется и чуть приподнимается. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-tongue-grp.is-oral { translate: 0 calc(var(--k, 1) * 1.9px - clamp(0, -1 * var(--v, 0), 1) * (1 - var(--k, 1)) * 1.1px); scale: calc(1 + (1 - var(--k, 1)) * .012) calc(1 - var(--k, 1) * .055); }
+  /* Кончик языка тянется за стволом на отходе и возвращается на входе. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-lick.is-oral { translate: calc((1 - var(--k, 1)) * -3.4px) calc(clamp(0, -1 * var(--v, 0), 1) * -.9px); }
+  /* Глоток катится по горлу плавно: появляется, идёт, гаснет — без рывка на повторе. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-swallow { stroke-opacity: 0; animation: xr-swallow-run calc(var(--beat1, 1s) * 2) ease-in-out infinite; }
+  /* Горло идёт волнами за стволом и смыкается на глубине. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-grip { stroke-dashoffset: calc(var(--k, 1) * -20); stroke-opacity: calc(clamp(0, (var(--k, 1) - .15) * 1.7, 1) * .2); }
+  /* Язычок поджимается к нёбу на глубине. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-uvula-sw { translate: 0 calc(clamp(0, (var(--k, 1) - .7) * 3.3, 1) * -1.3px); }
+}
+
+/* --- Телефон: подписи крупнее — картинка там ~0,8 от натуральной -------------- */
+@media (max-width: 560px) {
+  .xr-num { font-size: 8px; transform: translateY(.8px); }
+  .xr-target-label { font-size: 8.6px; }
+  .xr-end-label { font-size: 7.8px; }
+  .xr-film { border-radius: 8px; }
+}
