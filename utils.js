@@ -67,6 +67,16 @@ export function имяБезПриставки(имя) {
   while (i < слова.length - 1 && /^[\p{Lu}\d'’&.-]{2,}$/u.test(слова[i]) && /\p{Ll}/u.test(слова.slice(i + 1).join(' '))) i++;
   return слова.slice(i).join(' ');
 }
+// Модель пишет {{char}} — Таверна подставляет имя карточки целиком, с
+// приставкой: «Партнёр: THE REGENTS  Tristan Kingsley». В тексте вкладки
+// (не в атрибутах — по ним ищутся аватарки и история) оставляем само имя.
+export function убратьПриставкуКарточки(html, полноеИмя) {
+  const полное = String(полноеИмя || '').trim();
+  const коротко = имяБезПриставки(полное);
+  if (!полное || коротко === полное) return html;
+  const слова = полное.split(/\s+/).map(с => escapeHtml(с).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'));
+  return String(html).replace(new RegExp(слова.join('\\s+') + '(?![^<]*>)', 'g'), escapeHtml(коротко));
+}
 export function имяДляВкладки(имя) {
   const слова = String(имя || '').trim().split(/\s+/).filter(Boolean);
   let i = 0;
@@ -137,7 +147,8 @@ export function hudHashSeed(str) {
 }
 
 export function commentInitials(name) {
-  const parts = String(name || 'А').split(/\s+/).filter(Boolean);
+  // Без приставки карточки: «THE REGENTS  Tristan Kingsley» — «TK», а не «TR».
+  const parts = имяБезПриставки(String(name || 'А')).split(/\s+/).filter(Boolean);
   if (parts.length >= 2) return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
   return String(name || 'А').slice(0, 2).toUpperCase();
 }

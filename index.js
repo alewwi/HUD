@@ -1,7 +1,7 @@
 // hud-manager/index.js (v21.5.5)
 
 import { hexToRgba, settings, defaultSettings, настройка, КЛЮЧИ_АВТО, МИНИМАЛИЗМ } from './settings.js?v=23.44.2';
-import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue, имяДляВкладки } from './utils.js?v=23.44.2';
+import { escapeHtml, getSafeUserName, guardTouchSwipe, hudHasMeaningfulValue, имяДляВкладки, имяБезПриставки, убратьПриставкуКарточки } from './utils.js?v=23.44.2';
 import { parseHUDComplex, repairGeneratedHudBlock, scoreHudJsonCandidate } from './hud-parser.js?v=23.44.2';
 import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, clearReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.44.2';
 import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.44.2';
@@ -210,7 +210,7 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
    "N": "[name: the character's original name, copied EXACTLY as on their card — same script, same spelling, never translated. The avatar is matched by this string; a mismatch loses the picture]",
    "A": "[age: years and date of birth as DD.MM.YYYY, e.g. '24, 03.11.2000']",
    "C": "[clothing: what they are wearing right now, head to toe, including its state — wet, torn, half-unbuttoned]",
-   "Ap": "[appearance: build, height, hair, eyes, skin, distinguishing marks. The lasting description, repeated turn to turn; it changes only from injury, exhaustion or time.]",
+   "Ap": "[appearance: begin with the body's gender as one letter — 'М' male, 'Ж' female — then a comma; then build, height, hair, eyes, skin, distinguishing marks. The lasting description, repeated turn to turn; it changes only from injury, exhaustion or time.]",
    "R": "[role: occupation and position in the story — who they are to the others]",
    "B": "[body and mind: current physical and mental state in a phrase or two — tired, tense, tipsy, calm, shaken]",
    "H": "[health: ${болезни ? 'overall physical state in a phrase — pain, stamina, how they hold up; specific illnesses and injuries go to Ill, never its codes here' : 'wounds, pain, illness, stamina'}. 'empty' when all is well.]",${болезни ? `
@@ -268,7 +268,7 @@ ${интим ? `   "SxL": "[last sex: 'dt: when — date, time, place; pr: with 
  "us": {
   "A": "[age: years and date of birth as DD.MM.YYYY]",
   "C": "[clothing: what {{user}} is wearing right now and its state]",
-  "Ap": "[appearance: physical appearance only — build, height, hair, eyes, marks]",
+  "Ap": "[appearance: begin with the body's gender as one letter — 'М' male, 'Ж' female — then a comma; then physical appearance only — build, height, hair, eyes, marks]",
   "H": "[health: ${болезни ? 'overall physical state in a phrase; illnesses and injuries go to Ill, never repeated here' : 'physical state only — wounds, pain, illness, stamina'}]",${болезни ? `
   "Ill": "[illnesses and injuries of {{user}}, ONLY if any — otherwise omit. Same format and rules as for characters: groups separated by |, each 'nm: what it is; sg: fresh, worsening, stable, healing, chronic or healed; rc: recovery 0-100%; sy: symptoms; trt: treatment'. Keep each condition under the SAME name every turn and in ONE field only${следы ? (интим ? ' — marks left by intimacy (hickeys, bites, scratches, soreness) go to Mrk unless they become a real injury, and nothing is in both Ill and Mrk' : ' — marks that simply fade (bruises, grazes, redness) go to Mrk, and nothing is in both Ill and Mrk') : ''}]",` : ''}${беременностьВПромпт ? `
   "Prg": "[pregnancy of {{user}}, ONLY if pregnant — otherwise omit. 'wk: week as a number; due: expected due date; fa: the father, if known; sy: symptoms; knw: who knows; cnd: how it is going; gnd: baby's sex once an ultrasound shows it (from ~18-20 wk), else omit; bnm: chosen name, if any; vis: next doctor's visit or test; crv: cravings and odd appetites; brn: ONLY on the turn the baby is born — date and time']",` : ''}${послеродовоеВПромпт ? `
@@ -2292,12 +2292,17 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
     // Единая точка добавления вкладки. build(active) отдаёт готовый блок
     // .hud-tab-content с нужным id; открытую вкладку строим сразу, остальные
     // откладываем и ставим пустышку с тем же id.
+    // Имена карточек с приставкой («THE REGENTS  Tristan Kingsley») в тексте
+    // вкладок — без неё, как в шапке.
+    const сПриставкой = [...new Set([(getStContextSafe() || {}).name2, ...(Array.isArray(data.characters) ? data.characters.map(c => c && c['Имя']) : [])]
+      .filter(н => typeof н === 'string' && н.trim() && имяБезПриставки(н) !== н.trim()))];
+    const чисто = (h) => сПриставкой.reduce((acc, н) => убратьПриставкуКарточки(acc, н), h);
     const addTab = (tabHtml, uid, build) => {
       tabsHtml += tabHtml;
       if (isFirst || !lazyOn) {
-        contentHtml += build(isFirst);
+        contentHtml += чисто(build(isFirst));
       } else {
-        lazyThunks['content-' + uid] = () => build(false);
+        lazyThunks['content-' + uid] = () => чисто(build(false));
         contentHtml += `<div class="hud-tab-content hud-tab-lazy" id="content-${uid}"></div>`;
       }
       isFirst = false;
