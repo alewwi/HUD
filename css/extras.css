@@ -22,7 +22,9 @@
 .hud-palette-sw i { width: 11px; height: 14px; border-radius: 3px; border: 1px solid rgba(255,255,255,.28); }
 .hud-theme-palette small { font-size: 9.5px; opacity: .85; white-space: nowrap; }
 
-/* --- Галочки настроек под тему ---------------------------------------------- */
+/* --- Галочки настроек под тему ----------------------------------------------
+   Выключено — пустая рамка, включено — знак темы в ней: звезда у Вампира,
+   точка у Уюта, капля льда у Льда, звезда-роза у Глубины. */
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice, .hud-theme-ocean) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"] {
   appearance: none !important; -webkit-appearance: none !important; width: 16px !important; height: 16px !important; margin: 0 4px 0 0 !important;
   display: inline-grid !important; place-items: center; background: transparent !important; border: none !important; box-shadow: none !important; cursor: pointer; flex: none;
@@ -30,12 +32,21 @@
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice, .hud-theme-ocean) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]::before {
   content: '' !important; display: block !important; box-shadow: none !important; transform: none !important; clip-path: none !important;
 }
-:root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]::before { content: '☆' !important; font-size: 15px; line-height: 1; color: #c9ba82; background: none !important; width: auto; height: auto; }
+:root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"] {
+  border: 1.5px solid var(--cb-frame) !important; border-radius: 4px !important; overflow: hidden; transition: border-color .2s, background-color .2s;
+}
+:root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked {
+  border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
+}
+:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: '★'; }
+:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: '●'; }
+:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: ''; }
+/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
+:root.hud-theme-ocean { --cb-on: ''; }
+:root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { content: '★' !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
-:root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]::before { content: '◎' !important; font-size: 16px; line-height: 1; color: #6b8a4e; background: none !important; width: auto; height: auto; }
-:root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { content: '◉' !important; }
-:root.hud-theme-ice :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]::before { width: 9px; height: 9px; border: 1.5px solid #bcd6ee; transform: rotate(45deg) !important; background: none !important; transition: all .2s ease; }
-:root.hud-theme-ice :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { width: 12px; height: 12px; border: none; border-radius: 50%; transform: none !important; background: radial-gradient(circle, #e6f4ff, #6fa8d8) !important; box-shadow: 0 0 8px #9fd0ff !important; }
+:root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { content: '●' !important; }
+:root.hud-theme-ice :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { width: 9px; height: 9px; border-radius: 50%; transform: none !important; background: radial-gradient(circle, #e6f4ff, #6fa8d8) !important; box-shadow: 0 0 8px #9fd0ff !important; }
 :root.hud-theme-ocean :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"] { border: 1px solid #94b4c1 !important; border-radius: 2px !important; width: 14px !important; height: 14px !important; }
 :root.hud-theme-ocean :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked { background: #0f1b27 !important; border-color: #0f1b27 !important; }
 :root.hud-theme-ocean :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { width: 10px; height: 10px; background: #eae0cf !important; clip-path: polygon(50% 0, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0 50%, 35% 35%) !important; }

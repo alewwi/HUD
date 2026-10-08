@@ -4005,10 +4005,12 @@
 .hud-phone-mockup.intercept-mode .hud-phone-statusbar::after,
 .hud-intercept-header .hud-phone-options::after,
 .hud-intercept-header .hud-phone-name,
-.hud-phone-mockup.intercept-mode .hud-phone-subtab.intercept-tab.active,
-.hud-phone-mockup.intercept-mode .hud-phone-subbody.active .hud-msg-bubble {
+.hud-phone-mockup.intercept-mode .hud-phone-subtab.intercept-tab.active {
   animation-play-state: paused;
 }
+/* «Проявление» текста — разовое и короткое: на паузе оно оставляло сообщения
+   прозрачными, пока не наведёшь курсор (а на телефоне — пока не коснёшься). */
+.hud-phone-mockup.intercept-mode .hud-phone-subbody.active .hud-msg-bubble { animation-play-state: running !important; }
 .hud-phone-mockup.intercept-mode.fx-active::after,
 .hud-phone-mockup.intercept-mode.fx-active .hud-phone-subbody::after,
 .hud-phone-mockup.intercept-mode.fx-active .hud-phone-statusbar::after,

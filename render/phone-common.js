@@ -63,7 +63,7 @@ export function collectCounterparts(messages, owner) {
 // Нужен и рендеру, и определению собеседника, поэтому вынесен наверх.
 export function parseMsgParties(msgStr) {
   const main = String(msgStr).split('|')[0].replace(/^(?:M|Msg|Сообщение|Chat|Чат):\s*/i, '').trim();
-  const m = main.match(/^([^:-]+?)(?:\s*(?:->|→)\s*([^:]+))?:\s*(.*)$/);
+  const m = main.match(/^([^:]+?)(?:\s*(?:->|→)\s*([^:]+))?:\s*(.*)$/);
   if (!m) return { sender: '', recipient: '' };
   return { sender: (m[1] || '').trim(), recipient: (m[2] || '').trim() };
 }

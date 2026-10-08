@@ -251,9 +251,11 @@ function лицоСобеседника(имя) {
   return найдено && найдено.url ? найдено.url : null;
 }
 
+// Метка пола «М,»/«Ж,» в начале «Внешности» — для HUD (одежда, поза), не для глаз.
+const безМеткиПола = (v) => typeof v === 'string' ? v.replace(/^\s*[МЖMF](?=$|[\s,.;:·—–-])[\s,.;:·—–-]*/u, '') : v;
 const orderFields = (obj) => {
   const rest = Object.keys(obj).filter(k => !FIELD_ORDER.includes(k));
-  return [...FIELD_ORDER.filter(k => k in obj), ...rest].map(k => [k, obj[k]]);
+  return [...FIELD_ORDER.filter(k => k in obj), ...rest].map(k => [k, k === 'Внешность' ? безМеткиПола(obj[k]) : obj[k]]);
 };
 const DRAMA_KEYS = ['ревность', 'конфликт', 'глубина конфликта'];
 /* Смысловая группа строки: цвет корешка и подписи, лёгкий налёт и свой
@@ -465,7 +467,8 @@ const УКРАШЕНИЯ_ШАПКИ = '<i class="hud-head-wax" aria-hidden="true
 const СЛОЙ_БУМАГИ = '<i class="hud-paper" aria-hidden="true"></i><i class="hud-dragon" aria-hidden="true"></i>';
 // Подпись в конце вкладки (Кастомизация → «Мысли, заголовки, подпись»):
 // имя персонажа с виньетками. Узел есть всегда, виден по классу на <html>.
-const подписьВкладки = (имя) => `<div class="hud-sign" aria-hidden="true">⊹— ${escapeHtml(String(имя || '').trim())} —⊹</div>`;
+// Как в шапке — без приставки карточки («THE REGENTS  Tristan Kingsley» → «Tristan Kingsley»).
+const подписьВкладки = (имя) => `<div class="hud-sign" aria-hidden="true">⊹— ${escapeHtml(имяБезПриставки(String(имя || '').trim()))} —⊹</div>`;
 
 // Шапка-визитка: полоса из обоев чата над круглым портретом. Обои читаем
 // у самой Таверны (#bg_custom — фон этого чата, #bg1 — общий); нет обоев —

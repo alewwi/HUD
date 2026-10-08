@@ -793,27 +793,33 @@
 /* =========================================================================
    ГАЛОЧКИ И ПОЛЗУНКИ ПО ТЕМЕ
    В настройках расширения и «Кастомизации»: у каждой темы своя галочка
-   (выкл → вкл) и свой ползунок. Цвет — акцент темы. У Вампира, Уюта, Льда
+   и свой ползунок. Выключено — пустая рамка, включено — знак темы в ней
+   (сердечко, ромб, звезда…). Цвет — акцент темы. У Вампира, Уюта, Льда
    и Глубины галочки свои (выше в extras.css) — им добавляется ползунок.
    ========================================================================= */
 :root.hud-themed-controls:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-cyberpunk, .hud-theme-noir, .hud-theme-medieval, .hud-theme-fantasy, .hud-theme-mafia,
     .hud-theme-steampunk, .hud-theme-dieselpunk, .hud-theme-solarpunk, .hud-theme-biopunk, .hud-theme-spaceopera, .hud-theme-japan, .hud-theme-egypt,
     .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo, .hud-theme-spacehorror) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"] {
-  appearance: none !important; -webkit-appearance: none !important; width: auto !important; min-width: 16px; height: 16px !important; margin: 0 4px 0 0 !important;
-  display: inline-grid !important; place-items: center; background: transparent !important; border: none !important; box-shadow: none !important; cursor: pointer; flex: none;
+  appearance: none !important; -webkit-appearance: none !important; width: 16px !important; min-width: 16px; height: 16px !important; margin: 0 4px 0 0 !important;
+  display: inline-grid !important; place-items: center; background: transparent !important; cursor: pointer; flex: none; overflow: hidden;
+  border: 1.5px solid color-mix(in srgb, var(--hud-accent) 55%, transparent) !important; border-radius: 4px !important; box-shadow: none !important; outline: none !important;
+  transition: border-color .2s, background-color .2s;
 }
 :root.hud-themed-controls:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-cyberpunk, .hud-theme-noir, .hud-theme-medieval, .hud-theme-fantasy, .hud-theme-mafia,
     .hud-theme-steampunk, .hud-theme-dieselpunk, .hud-theme-solarpunk, .hud-theme-biopunk, .hud-theme-spaceopera, .hud-theme-japan, .hud-theme-egypt,
     .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo, .hud-theme-spacehorror) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]::before {
-  content: var(--cb-off) !important; display: block !important; width: auto !important; height: auto !important; background: none !important; border: none !important;
-  box-shadow: none !important; transform: none !important; clip-path: none !important; font: 16px/1 'Segoe UI Symbol', 'Segoe UI', sans-serif; color: var(--hud-accent);
+  content: '' !important; display: block !important; width: auto !important; height: auto !important; background: none !important; border: none !important;
+  box-shadow: none !important; transform: none !important; clip-path: none !important; font: 12px/1 'Segoe UI Symbol', 'Segoe UI', sans-serif; color: var(--hud-accent);
+}
+:root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked {
+  border-color: var(--hud-accent) !important; background: color-mix(in srgb, var(--hud-accent) 14%, transparent) !important;
 }
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
 :root.hud-theme-kawaii      { --cb-off: '\2661\FE0E'; --cb-on: '\2665\FE0E'; }
 :root.hud-theme-academia    { --cb-off: '☐';   --cb-on: '☒'; }
-:root.hud-theme-cyberpunk   { --cb-off: '[ ]'; --cb-on: '[■]'; }
+:root.hud-theme-cyberpunk   { --cb-off: '[ ]'; --cb-on: '■'; }
 :root.hud-theme-noir        { --cb-off: '○';   --cb-on: '●'; }
 :root.hud-theme-medieval    { --cb-off: '◇';   --cb-on: '◆'; }
 :root.hud-theme-fantasy     { --cb-off: '✧';   --cb-on: '✦'; }
@@ -830,7 +836,6 @@
 :root.hud-theme-witch       { --cb-off: '☾';   --cb-on: '☽'; }
 :root.hud-theme-voodoo      { --cb-off: '◌';   --cb-on: '⊕'; }
 :root.hud-theme-spacehorror { --cb-off: '◌';   --cb-on: '◉'; }
-:root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:not(:checked)::before { opacity: .45; }
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"] {
@@ -891,3 +896,16 @@
   background: var(--hud-accent) !important; mask: var(--thumb) center / contain no-repeat;
 }
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="range"]::-webkit-slider-thumb { background: #000080 !important; }
+
+/* --- Сцена в узкой карточке --------------------------------------------------
+   Колонка чата Таверны бывает узкой и на ПК: окно широкое, а карточка — 380px.
+   Раскладка «как на телефоне» включалась только по ширине окна, и плашки
+   погоды справа уезжали за край. Теперь — по ширине самой сцены. */
+@container (max-width: 480px) {
+  .hud-scene-widget:not(.is-compact) :is(.hud-scene-top, .hud-scene-top:has(> .hud-moonchip)) { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+  .hud-scene-widget:not(.is-compact) .hud-scene-time-group { align-items: center; width: auto; justify-self: auto; }
+  .hud-scene-widget:not(.is-compact) :is(.hud-scene-weather-group, .hud-scene-top:has(> .hud-moonchip) > .hud-scene-weather-group) {
+    display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; width: 100%; max-width: 100%; gap: 6px; text-align: center; justify-self: auto;
+  }
+  .hud-scene-widget:not(.is-compact) :is(.hud-weather-item, .hud-mood-item) { white-space: normal; word-wrap: break-word; text-align: center; }
+}
