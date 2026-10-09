@@ -11,16 +11,16 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.44.2';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.44.2';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.44.2';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.44.2';
-import { settings, defaultSettings } from './settings.js?v=23.44.2';
-import { getWorldVotes } from './render/world.js?v=23.44.2';
-import { раскрытьПорцию } from './render/long-list.js?v=23.44.2';
-import { прогретьИсторию } from './render/carryover.js?v=23.44.2';
-import { подключитьПалитру } from './color-picker.js?v=23.44.2';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.44.2';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.46.0';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.46.0';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.46.0';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.46.0';
+import { settings, defaultSettings } from './settings.js?v=23.46.0';
+import { getWorldVotes } from './render/world.js?v=23.46.0';
+import { раскрытьПорцию } from './render/long-list.js?v=23.46.0';
+import { прогретьИсторию } from './render/carryover.js?v=23.46.0';
+import { подключитьПалитру } from './color-picker.js?v=23.46.0';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.46.0';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;

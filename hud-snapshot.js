@@ -12,11 +12,11 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.44.2';
-import { mapKey } from './utils.js?v=23.44.2';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.44.2';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.44.2';
-import { заменитьHudБлоки } from './hud-block.js?v=23.44.2';
+import { settings } from './settings.js?v=23.46.0';
+import { mapKey } from './utils.js?v=23.46.0';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.46.0';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.46.0';
+import { заменитьHudБлоки } from './hud-block.js?v=23.46.0';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -138,6 +138,7 @@ export function собратьСнимок(текстБлока) {
   else if (выкл('enableGuns')) убрать(к.me, ['gun']);
   if (!settings.enableUserBlock) delete к.us;
   if (выкл('enableCompanions')) delete к.pet;
+  if (выкл('enableCombat')) delete к.cb;
   if (!settings.enableWorld) delete к.wd;
   else {
     if (выкл('enableHoroscope')) убрать(к.wd, ['zd', 'fate']);
@@ -233,6 +234,26 @@ export function решитьNSFW(снимок, тексты) {
   if (режим === 'always') return true;
   if (режим === 'never') return false;
   return близостьВСнимке(снимок) || словаБлизости(тексты);
+}
+
+/* Бой в промте — только когда он нужен (combatPrompt: 'auto'): в прошлом HUD
+   бой не кончился, или в последних сообщениях опасность — выстрел, нож,
+   драка, погоня, — или свежая рана. В мирных ходах блок не стоит ничего. */
+const ОПАСНОСТЬ_СИЛЬНО = /(?<![\p{L}])(?:выстрел\p{L}*|стреля\p{L}*|напал\p{L}*|нападени\p{L}*|драк\p{L}*|дерут\p{L}*|погон\p{L}*|гонятся|засад\p{L}*|взрыв\p{L}*|перестрелк\p{L}*|атаков\p{L}*|бросился на|замахнул\p{L}*)/iu;
+const ОПАСНОСТЬ = /(?<![\p{L}])(?:пистолет\p{L}*|револьвер\p{L}*|винтовк\p{L}*|автомат(?![\p{L}])|ружь\p{L}*|нож(?:ом|и|а)?(?![\p{L}])|кинжал\p{L}*|клинок|меч(?:ом|а)?(?![\p{L}])|кастет\p{L}*|прицел\p{L}*|курок|граната|ранен\p{L}*|кулаком|удар(?:ил|ила|ом))/giu;
+export function решитьБой(снимок, тексты) {
+  if (settings.enableCombat === false) return false;
+  const режим = settings.combatPrompt || 'auto';
+  if (режим === 'always') return true;
+  if (режим === 'never') return false;
+  const cb = объект(снимок) ? снимок.cb : null;
+  if (объект(cb) && непусто(cb.st) && !/кончен|закончен|over/i.test(String(cb.st))) return true;
+  const весь = (Array.isArray(тексты) ? тексты : []).join('\n');
+  if (ОПАСНОСТЬ_СИЛЬНО.test(весь)) return true;
+  if (new Set((весь.match(ОПАСНОСТЬ) || []).map(w => w.toLowerCase().slice(0, 5))).size >= 2) return true;
+  // Свежая рана в прошлом HUD.
+  const люди = объект(снимок) ? [...(Array.isArray(снимок.cs) ? снимок.cs : []), снимок.us].filter(объект) : [];
+  return люди.some(c => /(?:^|;|\|)\s*sg\s*:\s*fresh/i.test(String(c.Ill || '')) && /пул|огнестр|ножев|порез|колот|перелом/i.test(String(c.Ill || '')));
 }
 
 // Строка снимка для промта: компактный JSON. Без близости — без её полей.

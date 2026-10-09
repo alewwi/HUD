@@ -7,10 +7,10 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.44.2';
-import { mapKey } from './utils.js?v=23.44.2';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.44.2';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.44.2';
+import { settings } from './settings.js?v=23.46.0';
+import { mapKey } from './utils.js?v=23.46.0';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.46.0';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.46.0';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -60,6 +60,7 @@ function fillMemoryFields(obj, defaults) {
       else if (n === 'important' || n === 'важное') canonicalKey = 'important';
       else if (n === 'secrets' || n === 'секреты') canonicalKey = 'secrets';
       else if (n === 'guns' || n === 'ружья' || n === 'ружья чехова') canonicalKey = 'guns';
+      else if (n === 'household' || n === 'быт') canonicalKey = 'household';
       if (!(canonicalKey in out) || key === canonicalKey) out[canonicalKey] = value;
     }
   }
@@ -258,6 +259,9 @@ export function normalizeJSONData(parsed) {
       memoryParsed.important = typeof parsed.memory.important === 'string' ? parsed.memory.important.split(';').map(s=>s.trim()).filter(Boolean) : cleanArray(parsed.memory.important);
       // Ружья Чехова: строка «завязка | к кому относится | статус».
       memoryParsed.guns = cleanArray(parsed.memory.guns).filter(valid);
+      // Быт хода (hk): «eat: …; wash: …» — строкой; render/life.js копит.
+      const быт = parsed.memory.household;
+      if (быт !== undefined && быт !== null) memoryParsed.household = Array.isArray(быт) ? cleanArray(быт).join('; ') : toStr(быт);
       const rawMood = parsed.memory.mood;
       if (rawMood && typeof rawMood === 'object' && !Array.isArray(rawMood)) {
           const extractActorMood = (value) => {
@@ -405,9 +409,17 @@ export function normalizeJSONData(parsed) {
       from: toStr(o.from), to: toStr(o.to), seal: toStr(o.seal), lines: cleanArray(o.lines) };
   }).filter(o => o && (o.lines.length || valid(o.where)));
 
+  // Бой (cb) — срез хода, строками; render/combat.js разбирает сам.
+  const боевой = (b) => {
+    if (!b || typeof b !== 'object' || Array.isArray(b)) return null;
+    const ДЛИННЫЕ = { stage: 'st', participants: 'pt', initiative: 'in', cover: 'cv', adrenaline: 'ad', nerve: 'nv', chase: 'ch' };
+    const out = {};
+    for (const [k, v] of Object.entries(b)) { const к = ДЛИННЫЕ[k] || k; if (['st', 'pt', 'in', 'cv', 'ad', 'nv', 'ch'].includes(к)) out[к] = Array.isArray(v) ? cleanArray(v).join(' | ') : toStr(v); }
+    return valid(out.st) || valid(out.pt) ? out : null;
+  };
   return {
     // Фаза близости приходит кодом (fp, cx…); шкала фаз узнаёт полные слова.
-    scene: mapKeys(parsed.scene), characters: chars.map(mapKeys).map(c => { if (c['Фаза близости']) c['Фаза близости'] = фазаБлизости(c['Фаза близости']); return c; }), user: mapKeys(parsed.user), memory: memoryParsed, chatsMap: chatsMap, phone: phoneParsed, intercepts: interceptsParsed, satchel: satchelParsed, letters: lettersParsed, overheard: overheardParsed, diary: diaryParsed, bodyDiary: bodyDiaryParsed, dreams: dreamsParsed, companions: companionsParsed,
+    scene: mapKeys(parsed.scene), characters: chars.map(mapKeys).map(c => { if (c['Фаза близости']) c['Фаза близости'] = фазаБлизости(c['Фаза близости']); return c; }), user: mapKeys(parsed.user), memory: memoryParsed, chatsMap: chatsMap, phone: phoneParsed, intercepts: interceptsParsed, satchel: satchelParsed, letters: lettersParsed, overheard: overheardParsed, diary: diaryParsed, bodyDiary: bodyDiaryParsed, dreams: dreamsParsed, companions: companionsParsed, combat: боевой(parsed.combat),
     // Малыши (bb): та же карточка, что у персонажа, только своё поле «Нужды».
     babies: (Array.isArray(parsed.babies) ? parsed.babies : (parsed.babies && typeof parsed.babies === 'object' ? [parsed.babies] : [])).filter(b => b && typeof b === 'object').map(mapKeys).filter(b => b['Имя']),
     world: { headlines: cleanArray(world.headlines), rumors: cleanArray(world.rumors),

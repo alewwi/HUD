@@ -14,15 +14,15 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.44.2';
-import { проставитьДень } from './msg-feed.js?v=23.44.2';
-import { normalizeJSONData } from '../schema.js?v=23.44.2';
-import { settings } from '../settings.js?v=23.44.2';
-import { статусРужья } from '../codes.js?v=23.44.2';
-import { extractHudBlock } from '../hud-block.js?v=23.44.2';
-import { namesLikelySame } from '../names.js?v=23.44.2';
-import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.44.2';
-import { readParsed, writeParsed } from '../store.js?v=23.44.2';
+import { parseHUDComplex } from '../hud-parser.js?v=23.46.0';
+import { проставитьДень } from './msg-feed.js?v=23.46.0';
+import { normalizeJSONData } from '../schema.js?v=23.46.0';
+import { settings } from '../settings.js?v=23.46.0';
+import { статусРужья } from '../codes.js?v=23.46.0';
+import { extractHudBlock } from '../hud-block.js?v=23.46.0';
+import { namesLikelySame } from '../names.js?v=23.46.0';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.46.0';
+import { readParsed, writeParsed } from '../store.js?v=23.46.0';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -102,6 +102,14 @@ function запомнитьВБазе(k, d) {
   вБазу.push([k, d]);
   if (!таймерБазы) таймерБазы = setTimeout(() => { таймерБазы = 0; writeParsed(вБазу.splice(0)); }, 2000);
 }
+
+// Разборы блоков HUD для сводок истории в запросе (index.js, сводкаHUD) —
+// в той же базе и с тем же отпечатком, что ходы: после перезагрузки страницы
+// первая генерация не разбирает заново десятки старых HUD. Приставка «с:» —
+// ключ блока, а не всего сообщения.
+export const ключБлокаСводки = (текст) => 'с:' + ключХода(String(текст || ''), отпечаток());
+export const достатьРазборыСводки = (ключи) => readParsed(ключи);
+export const запомнитьРазборСводки = (k, d) => запомнитьВБазе(k, d);
 
 function разобратьХод(mes) {
   const raw = текст(mes && mes.mes);

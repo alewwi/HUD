@@ -84,6 +84,41 @@ export const defaultSettings = {
   // Вид блока цикла: ring | strip | calendar | moon | hormones | capsule | flower
   // (render/intimacy.js, ВИДЫ_ЦИКЛА). Меняется в окне «Кастомизация».
   cycleView: 'ring',
+  // Полоса влечения под циклом: фон по фазе (считает HUD) и точки желания
+  // из близости (ds). 'off' | 'phase' | 'phase+actual'.
+  cycleLibido: 'phase+actual',
+  // Часы сцены: сколько шла близость и что за это время пропустили по
+  // расписанию. Сдвиг меньше sceneClockMin минут не показываем.
+  // Сетка «кто что знает» над секретами: 'auto' — от трёх секретов.
+  secretsGrid: 'auto',
+  // Быт (render/life.js): вкладка «Быт» и код hk в памяти. lifeToModel —
+  // видит ли модель итог: 'off' — только на экране, 'snapshot' — строкой при
+  // снимке, 'macro' — макросом {{hudByt}}, 'keys' — при снимке, но только
+  // части по темам последних сообщений (еда, сон, душ, одежда, деньги, дом). sleepNorm — норма сна, часов.
+  // Бельё (render/underwear.js): код Un в близости. По умолчанию выключено;
+  // показывается под покрывалом. Вид: 'set' — комплект, 'layer' — слоем.
+  // Словесная дуэль (render/duel.js): код Vd, только пока идёт спор.
+  enableVerbalDuel: true,
+  // Бой (render/combat.js): объект cb, только пока есть опасность.
+  // combatPrompt — 'auto' | 'always' | 'never', как nsfwPrompt.
+  enableCombat: true,
+  combatPrompt: 'auto',
+  enableUnderwear: false,
+  underwearView: 'set',
+  underwearVeil: true,
+  enableLife: true,
+  lifeToModel: 'off',
+  // Виды «Быта», дуэли и часов сцены (Кастомизация → Блоки, render/views.js).
+  lifeGaugeView: 'rings',
+  lifeDayView: 'strip',
+  wardrobeView: 'tags',
+  duelView: 'tug',
+  sceneClockView: 'chips',
+  sleepNorm: 8,
+  enableSceneClock: true,
+  // Темп и X-ray в фазе близости (render/intimacy.js, блокТемпаСцены).
+  enableTempo: true,
+  sceneClockMin: 15,
   // Вид секций карточки: цвета по смыслу или один, угловые значки, крой полей.
   pillColors: 'smart',
   pillIcons: 'on',
@@ -197,6 +232,8 @@ export const defaultSettings = {
   // Неполный HUD после ответа (нет мыслей, дневника, гороскопа): 'regen' —
   // досоздать перегенерацией HUD, 'warn' — только предупредить, 'off' — не проверять.
   hudCompleteCheck: 'regen',
+  // Противоречия хода с журналом быта (hud-check.js, проблемыОтвета) — туда же.
+  hudConsistencyCheck: false,
   regenContextMessages: 6,
   // Сколько последних сообщений уходит модели, когда она пишет запись
   // лорбука по кнопке «Написать моделью». 0 — вообще без контекста сцены.

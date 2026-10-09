@@ -4,8 +4,8 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=23.44.2';
-import { settings } from '../settings.js?v=23.44.2';
+import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=23.46.0';
+import { settings } from '../settings.js?v=23.46.0';
 
 const есть = (v) => hudHasMeaningfulValue(v) && !/^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));

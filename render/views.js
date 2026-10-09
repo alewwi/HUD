@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.44.2';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.44.2';
-import { namesLikelySame } from '../names.js?v=23.44.2';
-import { силаСтраха, статусРужья } from '../codes.js?v=23.44.2';
-import { settings } from '../settings.js?v=23.44.2';
-import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.44.2';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.44.2';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.46.0';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.46.0';
+import { namesLikelySame } from '../names.js?v=23.46.0';
+import { силаСтраха, статусРужья } from '../codes.js?v=23.46.0';
+import { settings } from '../settings.js?v=23.46.0';
+import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.46.0';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.46.0';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -45,9 +45,11 @@ export const ВИДЫ_БЛОКОВ = [
   { ключ: 'memoriesView', группа: 'Связи', поле: 'Общие воспоминания', виды: { list: 'Список', polaroid: 'Полароиды', film: 'Плёнка', beads: 'Бусины' } },
   { ключ: 'statusView', группа: 'Связи', поле: 'Статус', виды: { classic: 'Индикатор', badge: 'Профиль', stamp: 'Печать', toggles: 'Неон' } },
   { ключ: 'conflictView', группа: 'Связи', поле: 'Глубина конфликта', виды: { classic: 'Плашки', stages: 'Стадии', counter: 'Счётчик дней', weather: 'Погода' } },
+  { ключ: 'duelView', группа: 'Связи', поле: 'Словесная дуэль', виды: { tug: 'Канат', scales: 'Весы', chart: 'График по ходам' }, новый: true },
   { ключ: 'jealousyView', группа: 'Связи', поле: 'Ревность', виды: { text: 'Текст', triangle: 'Треугольник', thorns: 'Шипы', thought: 'Мысли' } },
   // X-ray — основной вид: рисует пенетрацию в разрезе и ходит в такт темпу.
   // Без проникновения в тексте блок сам откатывается к шкале (scene-body.js).
+  { ключ: 'sceneClockView', группа: 'Близость', поле: 'Часы сцены', виды: { chips: 'Плашки', dial: 'Циферблат', line: 'Линия времени' }, новый: true },
   { ключ: 'tempoView', группа: 'Близость', поле: 'Темп', виды: { xray: 'X-ray', tube: 'Шкала', metronome: 'Метроном', springs: 'Пружины', cradle: 'Маятник Ньютона' }, новый: true },
   { ключ: 'orgView', группа: 'Близость', поле: 'Готовность к оргазму', виды: { bar: 'Шкала', ring: 'Кольцо', flame: 'Пламя', wave: 'Волна', pulse: 'Пульс', glass: 'Бокал' } },
   { ключ: 'vitalsView', группа: 'Близость', поле: 'Жизненные показатели', виды: { list: 'Плитки', dashboard: 'Циферблаты', ecg: 'Монитор ЭКГ', rings: 'Кольца', pulse: 'Сердце', anatomy: 'Анатомия' } },
@@ -59,6 +61,9 @@ export const ВИДЫ_БЛОКОВ = [
   { ключ: 'importantView', группа: 'Память', поле: 'Важное', виды: { list: 'Список', scroll: 'Свиток', notebook: 'Блокнот', bookmarks: 'Закладки' } },
   { ключ: 'gunsView', группа: 'Память', поле: 'Ружья Чехова', виды: { list: 'Список', board: 'Доска', timeline: 'Колонки', progress: 'Фитиль', cylinder: 'Барабан' } },
   { ключ: 'secretsView', группа: 'Память', поле: 'Секреты', виды: { list: 'Список', vault: 'Сейфы', files: 'Папки', web: 'Сеть', bars: 'Шкалы', envelopes: 'Конверты' } },
+  { ключ: 'lifeGaugeView', группа: 'Быт', поле: 'Сводка', виды: { rings: 'Кольца', bars: 'Полоски', off: 'Скрыть' }, новый: true },
+  { ключ: 'lifeDayView', группа: 'Быт', поле: 'Сутки', виды: { strip: 'Лента', clock: 'Циферблат', off: 'Скрыть' }, новый: true },
+  { ключ: 'wardrobeView', группа: 'Быт', поле: 'Гардероб', виды: { tags: 'Бирки', rail: 'Вешалка', list: 'Список' }, новый: true },
   { ключ: 'petView', группа: 'Спутники', поле: 'Спутник', виды: { card: 'Карточка', tama: 'Тамагочи', classic: 'Прежний' }, новый: true },
   { ключ: 'bondView', группа: 'Спутники', поле: 'Привязанность', виды: { bars: 'Полоска', hearts: 'Сердца', paw: 'Лапа', tag: 'Жетон' } },
 ];

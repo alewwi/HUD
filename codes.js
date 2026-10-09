@@ -24,17 +24,17 @@ const объект = (v) => v !== null && typeof v === 'object' && !Array.isArra
 const КОРЕНЬ = {
   sc: 'scene', cs: 'characters', us: 'user', me: 'memory', cm: 'chatsMap', phn: 'phone',
   tp: 'intercepts', dy: 'diary', bd: 'bodyDiary', dr: 'dreams', wd: 'world',
-  pet: 'companions', bb: 'babies',
+  pet: 'companions', bb: 'babies', cb: 'combat',
   // Средневековье: шкатулка вместо телефона, письма вместо переписок,
   // подслушанное вместо перехватов.
   sm: 'satchel', lt: 'letters', ov: 'overheard',
   ph: 'phone', chats: 'chatsMap', taps: 'intercepts', bdiary: 'bodyDiary',
 };
-const ПАМЯТЬ = { lg: 'timeline', md: 'mood', rt: 'route', fct: 'important', sec: 'secrets', gun: 'guns', fc: 'important', sc: 'secrets', log: 'timeline', facts: 'important' };
+const ПАМЯТЬ = { lg: 'timeline', md: 'mood', rt: 'route', fct: 'important', sec: 'secrets', gun: 'guns', hk: 'household', fc: 'important', sc: 'secrets', log: 'timeline', facts: 'important' };
 // us — тот же юзер, что и в корне; chr, а не c: иначе совпадало с полем C (одежда).
 const ДВОЕ = { us: 'user', chr: 'char', u: 'user', c: 'char' };
 const НАСТРОЕНИЕ = { nw: 'current', hs: 'history', now: 'current', hist: 'history' };
-const СЕКРЕТ = { f: 'fact', lv: 'level', stt: 'status', knw: 'knows', hd: 'hidden', ss: 'status', kn: 'knows' };
+const СЕКРЕТ = { f: 'fact', lv: 'level', stt: 'status', knw: 'knows', hd: 'hidden', wrg: 'wrong', ss: 'status', kn: 'knows' };
 const ЗНАЮЩИЙ = { n: 'name', src: 'source', sr: 'source' };
 const ПЕРЕПИСКА = { ow: 'owner', pp: 'participants', ms: 'messages', ppl: 'participants' };
 const ПЕРЕХВАТ = { tg: 'target', cn: 'chatName', pp: 'participants', ms: 'messages', ppl: 'participants', chat: 'chatName' };
@@ -261,7 +261,7 @@ export const МЕТКИ = {
   // После близости (ND)
   se: 'Чувствительность', bo: 'Тело после', fe: 'Чувства после',
   // Болезни и травмы (Ill); стадия — та же sg, что у конфликта
-  nm: 'Что это', rc: 'Выздоровление', sy: 'Симптомы', trt: 'Лечение',
+  nm: 'Что это', rc: 'Выздоровление', sy: 'Симптомы', trt: 'Лечение', zn: 'Зона',
   // Беременность (Prg)
   wk: 'Неделя', due: 'Роды', fa: 'Отец', knw: 'Кто знает', cnd: 'Как проходит',
   gnd: 'Пол ребёнка', bnm: 'Имя ребёнка', vis: 'Визит к врачу', crv: 'Тяга',

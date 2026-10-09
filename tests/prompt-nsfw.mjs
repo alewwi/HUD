@@ -17,18 +17,18 @@ const чат = [];
 globalThis.SillyTavern = { getContext: () => ({ chat: чат, chatMetadata: {}, name1: 'Софи', name2: 'Тристан' }) };
 console.info = () => {}; console.warn = () => {}; console.debug = () => {};
 const v = JSON.parse(fs.readFileSync(ROOT + 'manifest.json', 'utf8')).version;
-const src = fs.readFileSync(ROOT + 'index.js', 'utf8');
-const TMP = ROOT + '__nsfw-tmp.js';
-fs.writeFileSync(TMP, src.replace('  function buildDynamicPrompt(', '  globalThis.__prompt = (o) => buildDynamicPrompt(o);\n  function buildDynamicPrompt('));
-try { await import('file:///' + TMP + '?v=' + v + '&t=' + Date.now()); } finally { fs.unlinkSync(TMP); }
+// Инструкция живёт в prompt.js и грузится из index.js через import():
+// собираем её тем же путём, что и в Таверне (window.__tavernosHudPrompt).
+await import('file:///' + ROOT + 'index.js?v=' + v + '&t=' + Date.now());
+globalThis.__prompt = window.__tavernosHudPrompt;
 const Sn = await import('file:///' + ROOT + 'hud-snapshot.js?v=' + v);
 const S = await import('file:///' + ROOT + 'settings.js?v=' + v);
 Object.assign(S.settings, { enableMemory: true, enablePhone: true, enableIntercepts: true, enableDiary: true, enableDreams: true, enableWorld: true, enableUserBlock: true });
 let проб = 0, провалов = 0;
 const проверить = (что, ок, подр = '') => { проб++; if (!ок) { провалов++; console.log('✗', что, String(подр).slice(0, 400)); } else console.log('✓', что); };
 
-const без = globalThis.__prompt({ nsfw: false });
-const с = globalThis.__prompt({ nsfw: true });
+const без = await globalThis.__prompt({ nsfw: false });
+const с = await globalThis.__prompt({ nsfw: true });
 // Коды полей близости не должны встречаться ключами схемы.
 const коды = ['SxL', 'SxC', 'SxR', 'SxV', 'SS', 'Pos', 'Rnd', 'Dur', 'Prt', 'Org', 'Vit', 'Snd', 'BM', 'W', 'Kn', 'Ft', 'NG', 'NT', 'ND', 'AC', 'UW', 'bd'];
 const ключи = (p) => коды.filter(к => new RegExp('"' + к + '":').test(p));
@@ -45,6 +45,12 @@ const найдено = [...new Set((безЗаглушки.match(слова) || 
 проверить('без сцены: в тексте инструкции нет интимных слов', !найдено.length, найдено.join(' '));
 проверить('с близостью инструкция длиннее', с.length > без.length + 3000, без.length + ' / ' + с.length);
 
+// Бой: блок cb — только когда нужен (решитьБой), зона ран в Ill — всегда.
+{
+  const сБоем = await globalThis.__prompt({ nsfw: false, бой: true });
+  const безБоя = await globalThis.__prompt({ nsfw: false });
+  проверить('бой: cb только когда нужен, зона ран — всегда', сБоем.includes('"cb": {') && !безБоя.includes('"cb": {') && безБоя.includes('zn: body zone'));
+}
 // Решение: когда включать.
 S.settings.nsfwPrompt = 'auto';
 const hud = (cs, us) => ({ sc: { T: '10:00' }, cs, us });
@@ -71,7 +77,7 @@ const hud = (cs, us) => ({ sc: { T: '10:00' }, cs, us });
 проверить('«влажно между ног» + «пальцы скользят» — близость', Sn.решитьNSFW(hud([{ N: 'Лилиан' }]), ['Влажно между ног, её пальцы скользят вниз.']));
 S.settings.nsfwPrompt = 'never';
 проверить('настройка «никогда» — выключено даже в сцене', !Sn.решитьNSFW(hud([{ N: 'Лилиан', SS: '2 — act' }]), []));
-проверить('настройка «никогда» — в схеме нет и короткого SxL', ключи(globalThis.__prompt({ nsfw: false })).join() === 'SS');
+проверить('настройка «никогда» — в схеме нет и короткого SxL', ключи(await globalThis.__prompt({ nsfw: false })).join() === 'SS');
 S.settings.nsfwPrompt = 'auto';
 
 // Снимок прошлого HUD в инструкции тоже без интимных полей.
@@ -88,10 +94,10 @@ const слова2 = [...new Set((хвост.match(слова) || []).map(x => x.
 проверить('хвост инструкции вне сцены (факты зачатия) без интимных слов', !слова2.length, слова2.join(' ') + ' :: ' + хвост.slice(0, 300));
 // Новые блоки: состояние тела, поворот сюжета, потребности спутника.
 Object.assign(S.settings, { enableBodyState: true, enableTwists: true, enableCompanions: true });
-const новое = globalThis.__prompt({ nsfw: false });
+const новое = await globalThis.__prompt({ nsfw: false });
 проверить('состояние тела (Bs) и поворот (Tw) в схеме', /"Bs": "\[body state/.test(новое) && /"Tw": "\[plot twist, ONLY/.test(новое) && /"lv": "\[OPTIONAL needs/.test(новое));
 Object.assign(S.settings, { enableBodyState: false, enableTwists: false });
-const безНового = globalThis.__prompt({ nsfw: false });
+const безНового = await globalThis.__prompt({ nsfw: false });
 проверить('выключены — полей Bs и Tw нет', !/"Bs":/.test(безНового) && !/"Tw":/.test(безНового));
 Object.assign(S.settings, { enableBodyState: true, enableTwists: true });
 console.log(`\nпроверок: ${проб}, провалов: ${провалов}`);

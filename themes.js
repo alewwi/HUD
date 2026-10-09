@@ -8,8 +8,9 @@
 //               выставил каждый ползунок руками. Поэтому после применения
 //               темы всё остаётся редактируемым: тема — это пресет, а не
 //               отдельный режим.
-//   2) класс  — hud-theme-<id> на <html>. За ним в style.css закреплены
-//               украшения (кофе и книги, капли крови, полицейская лента) и
+//   2) класс  — hud-theme-<id> на <html>. За ним закреплены украшения
+//               (кофе и книги, капли крови, полицейская лента) — они в
+//               css/themes/<id>.css, грузится только выбранная тема — и
 //               цвет текста для светлых тем: --hud-text наследуется из темы
 //               SillyTavern, и на пергаменте или розовом фоне светлый текст
 //               был бы нечитаем, а обычной настройки для него нет.
@@ -17,7 +18,7 @@
 // Ключи в vars — те же, что в settings.js. Незнакомые ключи не пишем: их
 // applyThemeColors() всё равно не читает.
 
-import { settings } from './settings.js?v=23.44.2';
+import { settings } from './settings.js?v=23.46.0';
 
 const HUD_THEMES = [
   {
@@ -859,11 +860,47 @@ export function parseThemeFile(text) {
   };
 }
 
+// Правила тем живут не в style.css, а в css/themes/<id>.css: грузится только
+// выбранная. Светлым ещё нужен общий слой css/themes/light.css — его
+// селекторы перечисляют эти же темы, новая светлая тема — в оба места.
+export const СВЕТЛЫЕ_ТЕМЫ = ['kawaii', 'medieval', 'web1', 'cottage', 'solarpunk', 'japan', 'egypt', 'western', 'pirate'];
+const ВЕРСИЯ_CSS = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
+const адресCSS = (имя) => new URL('./css/themes/' + имя + '.css' + ВЕРСИЯ_CSS, import.meta.url).href;
+const МЕТКА_CSS = 'data-hud-theme-css';
+
+// Файлы темы встают сразу за style.css расширения — там, где их правила
+// стояли в общем каскаде: пользовательский CSS Таверны и другие расширения
+// по-прежнему идут после и перебивают так же, как раньше. Старые файлы
+// снимаем, когда новые загрузились, — без мигания голой темой.
+function подключитьCSSТемы(id) {
+  const head = document.head;
+  if (!head) return;
+  const нужно = !id || !HUD_THEME_IDS.includes(id) ? [] : СВЕТЛЫЕ_ТЕМЫ.includes(id) ? ['light', id] : [id];
+  const есть = [...head.querySelectorAll(`link[${МЕТКА_CSS}]`)];
+  const уже = есть.filter(l => !l.dataset.hudThemeOld).map(l => l.getAttribute(МЕТКА_CSS));
+  if (уже.join() === нужно.join()) return;
+  есть.forEach(l => { l.dataset.hudThemeOld = '1'; });
+  const путьСтиля = new URL('./style.css', import.meta.url).pathname;
+  const свой = [...head.querySelectorAll('link[rel="stylesheet"]')].find(l => { try { return new URL(l.href).pathname === путьСтиля; } catch (_) { return false; } });
+  let после = есть.length ? есть[есть.length - 1] : свой;
+  const новые = нужно.map(имя => {
+    const l = document.createElement('link');
+    l.rel = 'stylesheet';
+    l.setAttribute(МЕТКА_CSS, имя);
+    l.href = адресCSS(имя);
+    if (после && после.parentNode === head) после.after(l); else head.appendChild(l);
+    после = l;
+    return new Promise(r => { l.onload = l.onerror = r; });
+  });
+  Promise.all(новые).then(() => есть.forEach(l => l.remove()));
+}
+
 // Класс темы вешаем на <html>: правила вида :root.hud-theme-medieval
 // перебивают обычный :root, где живут переменные HUD.
 export function applyThemeClass(id) {
   const root = document.documentElement;
   if (!root) return;
+  подключитьCSSТемы(id);
   HUD_THEME_IDS.forEach(t => root.classList.remove('hud-theme-' + t));
   if (id && HUD_THEME_IDS.includes(id)) root.classList.add('hud-theme-' + id);
 }

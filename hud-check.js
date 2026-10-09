@@ -9,9 +9,10 @@
 // честно бывает 'empty', комментариев может не быть вовсе. Ложная тревога
 // здесь стоит лишнего запроса к модели, поэтому лучше промолчать.
 
-import { settings } from './settings.js?v=23.44.2';
-import { extractHudBlock } from './hud-block.js?v=23.44.2';
-import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.44.2';
+import { settings } from './settings.js?v=23.46.0';
+import { extractHudBlock } from './hud-block.js?v=23.46.0';
+import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.46.0';
+import { противоречияБыта } from './render/life.js?v=23.46.0';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const МЕТКА = /<\s*new this turn\b[^>]*>/i;
@@ -48,6 +49,25 @@ export function чегоНеХватает(текстСообщения) {
   const короткая = (т) => { const s = String(т || '').replace(/~~.*?~~/g, '').trim(); return s.length < 220 && (s.match(/[.!?…]+(?=\s|$)/g) || []).length < 3; };
   if (settings.enableDiary && Array.isArray(к.dy) && к.dy.some(з => объект(з) && заполнено(з.tx) && короткая(з.tx))) нет.push('дневник (слишком короткий)');
   if (settings.enableWorld && settings.enableHoroscope !== false && !заполнено(к.wd && к.wd.zd)) нет.push('гороскоп');
+  // Бой: раз блок есть, этап и участники обязательны, остальное — нет.
+  if (settings.enableCombat !== false && объект(к.cb) && заполнено(к.cb)) {
+    if (!заполнено(к.cb.st)) нет.push('этап боя');
+    if (!заполнено(к.cb.pt)) нет.push('участники боя');
+  }
+  return нет;
+}
+
+/**
+ * Неполнота плюс противоречия с журналом быта (settings.hudConsistencyCheck,
+ * по умолчанию выключено): «сытость 80, а не ели 9 ч», «баланс сдвинулся без
+ * транзакций». Это не пропуск, а повод перепроверить — потому только по
+ * настройке.
+ */
+export function проблемыОтвета(сообщения, id, текстСообщения) {
+  const нет = чегоНеХватает(текстСообщения);
+  if (settings.hudConsistencyCheck === true && settings.enableLife !== false) {
+    try { нет.push(...противоречияБыта(сообщения, id)); } catch (_) { /* журнал не собрался — молчим */ }
+  }
   return нет;
 }
 
@@ -82,7 +102,7 @@ export function создатьПроверкуПолноты({ чат, ключ�
       const текст = m.swipes && m.swipes[m.swipe_id] !== undefined ? m.swipes[m.swipe_id] : m.mes;
       if (!String(текст || '').trim()) return 'пусто';
 
-      const нет = чегоНеХватает(текст);
+      const нет = проблемыОтвета(сообщения, id, текст);
       if (!нет.length) return 'полный';
 
       // Одна попытка на ответ: неполный результат перегенерации не зацикливаем.
@@ -104,7 +124,7 @@ export function создатьПроверкуПолноты({ чат, ключ�
       }
       const после = чат()[id];
       const текстПосле = после && (после.swipes && после.swipes[после.swipe_id] !== undefined ? после.swipes[после.swipe_id] : после.mes);
-      const осталось = чегоНеХватает(текстПосле);
+      const осталось = проблемыОтвета(чат(), id, текстПосле);
       if (осталось.length) сообщить('error', 'HUD всё ещё неполный', `Не хватает: ${осталось.slice(0, 4).join(', ')}. Можно нажать 🔄 ещё раз.`);
       return осталось.length ? 'починили не всё' : 'починили';
     },

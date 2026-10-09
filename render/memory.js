@@ -6,13 +6,14 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.44.2';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.44.2';
-import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.44.2';
-import { отложитьРисунок } from './lazy-svg.js?v=23.44.2';
-import { длинныйСписок } from './long-list.js?v=23.44.2';
-import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.44.2';
-import { статусРужья } from '../codes.js?v=23.44.2';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.46.0';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.46.0';
+import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.46.0';
+import { отложитьРисунок } from './lazy-svg.js?v=23.46.0';
+import { длинныйСписок } from './long-list.js?v=23.46.0';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.46.0';
+import { статусРужья } from '../codes.js?v=23.46.0';
+import { сеткаСекретов } from './secrets-grid.js?v=23.46.0';
 
 function parseRoutePoint(item) {
   // Модель иногда ставит дату перед временем («09.11, 22:15») — дату отбрасываем.
@@ -221,6 +222,9 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
     строки.push('Уровень: ' + грифСекрета(сек));
     return loreButtonHTML(строки.join('\n'), [...знают, ...неЗнают].map(имяЧел).filter(Boolean), isNewLoreItem(сек.fact));
   };
+  // Сетка «кто что знает» — над любым видом секретов (render/secrets-grid.js).
+  const сетка = сеткаСекретов(memoryData.secrets, hudData);
+  if (сетка) html += `<div class="hud-row full-width"><span class="hud-key">🗝 Кто что знает:</span> ${сетка}</div>`;
   const секретыИначе = Array.isArray(memoryData.secrets) && memoryData.secrets.length ? видСекретов(memoryData.secrets, видБлока('secretsView'), memoryData.secrets.map(кнопкаСекрета)) : '';
   if (секретыИначе) html += `<div class="hud-row full-width"><span class="hud-key">🤫 Зашифрованные данные:</span> ${секретыИначе}</div>`;
   else if (Array.isArray(memoryData.secrets) && memoryData.secrets.length > 0) {

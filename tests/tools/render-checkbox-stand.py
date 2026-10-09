@@ -18,9 +18,14 @@ body { margin: 0; background: #17131c; color: #eee; font: 13px system-ui; --hud-
 label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; opacity: .7; font-weight: 500; }"""
 темы = ['vamp', 'cottage', 'ice', 'ocean', 'kawaii', 'academia', 'cyberpunk', 'noir', 'medieval', 'fantasy', 'mafia', 'steampunk', 'dieselpunk',
         'solarpunk', 'biopunk', 'spaceopera', 'japan', 'egypt', 'western', 'pirate', 'witch', 'voodoo', 'spacehorror', 'web1']
+# Значки и рамки галочек (--cb-on, --cb-frame…) живут в файле темы:
+# css/themes/<тема>.css, грузится только выбранный.
+def знаки(т):
+    p = os.path.join(root, 'css', 'themes', т + '.css')
+    return '\n'.join(l for l in open(p, encoding='utf-8').read().splitlines() if '--cb-' in l) if os.path.exists(p) else ''
 кадры = []
 for т in темы:
-    doc = (f'<!doctype html><html class="hud-themed-controls hud-theme-{т}"><head><meta charset="utf-8"><style>{ст}\n{css}</style></head>'
+    doc = (f'<!doctype html><html class="hud-themed-controls hud-theme-{т}"><head><meta charset="utf-8"><style>{ст}\n{css}\n{знаки(т)}</style></head>'
            f'<body><div id="hud-settings-wrapper"><div class="row"><b>{т}</b><label><input type="checkbox"> выкл</label>'
            f'<label><input type="checkbox" checked> вкл</label><label><input type="checkbox"> выкл</label><label><input type="checkbox" checked> вкл</label></div></div></body></html>')
     кадры.append(f'<iframe srcdoc="{html.escape(doc, quote=True)}" style="width:420px;height:34px;border:0;display:block"></iframe>')

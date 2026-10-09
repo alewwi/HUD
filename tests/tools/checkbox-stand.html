@@ -22,11 +22,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -61,25 +60,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -90,7 +89,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;vamp&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-cottage&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;vamp&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-cottage&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -114,11 +114,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -153,25 +152,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -182,7 +181,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;cottage&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-ice&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;cottage&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-ice&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -206,11 +206,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -245,25 +244,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -274,7 +273,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;ice&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-ocean&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;ice&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-ocean&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -298,11 +298,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -337,25 +336,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -366,7 +365,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;ocean&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-kawaii&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;ocean&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-kawaii&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -390,11 +390,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -429,25 +428,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -458,7 +457,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;kawaii&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-academia&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-kawaii { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;kawaii&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-academia&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -482,11 +482,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -521,25 +520,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -550,7 +549,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;academia&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-cyberpunk&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-academia { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;academia&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-cyberpunk&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -574,11 +574,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -613,25 +612,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -642,7 +641,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;cyberpunk&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-noir&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-cyberpunk { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;cyberpunk&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-noir&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -666,11 +666,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -705,25 +704,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -734,7 +733,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;noir&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-medieval&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-noir { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;noir&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-medieval&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -758,11 +758,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -797,25 +796,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -826,7 +825,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;medieval&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-fantasy&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-medieval { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;medieval&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-fantasy&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -850,11 +850,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -889,25 +888,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -918,7 +917,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;fantasy&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-mafia&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-fantasy { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;fantasy&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-mafia&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -942,11 +942,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -981,25 +980,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -1010,7 +1009,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;mafia&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-steampunk&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-mafia { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;mafia&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-steampunk&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -1034,11 +1034,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -1073,25 +1072,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -1102,7 +1101,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;steampunk&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-dieselpunk&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-steampunk { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;steampunk&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-dieselpunk&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -1126,11 +1126,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -1165,25 +1164,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -1194,7 +1193,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;dieselpunk&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-solarpunk&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-dieselpunk { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;dieselpunk&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-solarpunk&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -1218,11 +1218,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -1257,25 +1256,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -1286,7 +1285,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;solarpunk&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-biopunk&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-solarpunk { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;solarpunk&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-biopunk&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -1310,11 +1310,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -1349,25 +1348,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -1378,7 +1377,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;biopunk&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-spaceopera&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-biopunk { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;biopunk&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-spaceopera&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -1402,11 +1402,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -1441,25 +1440,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -1470,7 +1469,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;spaceopera&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-japan&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-spaceopera { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;spaceopera&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-japan&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -1494,11 +1494,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -1533,25 +1532,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -1562,7 +1561,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;japan&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-egypt&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-japan { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;japan&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-egypt&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -1586,11 +1586,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -1625,25 +1624,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -1654,7 +1653,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;egypt&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-western&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-egypt { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;egypt&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-western&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -1678,11 +1678,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -1717,25 +1716,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -1746,7 +1745,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;western&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-pirate&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-western { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;western&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-pirate&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -1770,11 +1770,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -1809,25 +1808,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -1838,7 +1837,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;pirate&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-witch&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-pirate { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;pirate&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-witch&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -1862,11 +1862,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -1901,25 +1900,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -1930,7 +1929,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;witch&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-voodoo&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-witch { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;witch&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-voodoo&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -1954,11 +1954,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -1993,25 +1992,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -2022,7 +2021,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;voodoo&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-spacehorror&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-voodoo { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;voodoo&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-spacehorror&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -2046,11 +2046,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -2085,25 +2084,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -2114,7 +2113,8 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
 
-&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;spacehorror&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-web1&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
+
+:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;spacehorror&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe><iframe srcdoc="&lt;!doctype html&gt;&lt;html class=&quot;hud-themed-controls hud-theme-web1&quot;&gt;&lt;head&gt;&lt;meta charset=&quot;utf-8&quot;&gt;&lt;style&gt;input[type=&#x27;checkbox&#x27;] { -webkit-appearance: none; appearance: none; position: relative; width: 14px; height: 14px; overflow: hidden; border-radius: 3px;
  border: 1px solid #888; background-color: #ddd; cursor: pointer; display: grid; place-content: center; }
 input[type=&quot;checkbox&quot;]::before { content: &quot;&quot;; width: .65em; height: .65em; transform: scale(0); box-shadow: inset 1em 1em #222;
  clip-path: polygon(14% 44%, 0 65%, 50% 100%, 100% 16%, 80% 0%, 43% 62%); }
@@ -2138,11 +2138,10 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
-:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: &#x27;★&#x27;; }
-:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: &#x27;&#x27;; }
-/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
-:root.hud-theme-ocean { --cb-on: &#x27;&#x27;; }
+
+
+
+
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;★&#x27; !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;●&#x27; !important; }
@@ -2177,25 +2176,25 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: &#x27;\2661\FE0E&#x27;; --cb-on: &#x27;\2665\FE0E&#x27;; }
-:root.hud-theme-academia    { --cb-off: &#x27;☐&#x27;;   --cb-on: &#x27;☒&#x27;; }
-:root.hud-theme-cyberpunk   { --cb-off: &#x27;[ ]&#x27;; --cb-on: &#x27;■&#x27;; }
-:root.hud-theme-noir        { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;●&#x27;; }
-:root.hud-theme-medieval    { --cb-off: &#x27;◇&#x27;;   --cb-on: &#x27;◆&#x27;; }
-:root.hud-theme-fantasy     { --cb-off: &#x27;✧&#x27;;   --cb-on: &#x27;✦&#x27;; }
-:root.hud-theme-mafia       { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-steampunk   { --cb-off: &#x27;⚙\FE0E&#x27;; --cb-on: &#x27;⚙\FE0E&#x27;; }
-:root.hud-theme-dieselpunk  { --cb-off: &#x27;▫&#x27;;   --cb-on: &#x27;▪&#x27;; }
-:root.hud-theme-solarpunk   { --cb-off: &#x27;❀&#x27;;   --cb-on: &#x27;✿&#x27;; }
-:root.hud-theme-biopunk     { --cb-off: &#x27;⬡&#x27;;   --cb-on: &#x27;⬢&#x27;; }
-:root.hud-theme-spaceopera  { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-japan       { --cb-off: &#x27;〇&#x27;;  --cb-on: &#x27;◉&#x27;; }
-:root.hud-theme-egypt       { --cb-off: &#x27;△&#x27;;   --cb-on: &#x27;▲&#x27;; }
-:root.hud-theme-western     { --cb-off: &#x27;✩&#x27;;   --cb-on: &#x27;✪&#x27;; }
-:root.hud-theme-pirate      { --cb-off: &#x27;○&#x27;;   --cb-on: &#x27;✕&#x27;; }
-:root.hud-theme-witch       { --cb-off: &#x27;☾&#x27;;   --cb-on: &#x27;☽&#x27;; }
-:root.hud-theme-voodoo      { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;⊕&#x27;; }
-:root.hud-theme-spacehorror { --cb-off: &#x27;◌&#x27;;   --cb-on: &#x27;◉&#x27;; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;] {
@@ -2205,5 +2204,6 @@ label { display: inline-flex; align-items: center; gap: 4px; } b { width: 90px; 
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]::before { content: &#x27;&#x27; !important; display: block !important; background: none !important; box-shadow: none !important; clip-path: none !important; }
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type=&quot;checkbox&quot;]:checked::before { content: &#x27;&#x27; !important; width: 3px !important; height: 7px !important; margin-top: -2px;
   border: solid #000 !important; border-width: 0 2px 2px 0 !important; transform: rotate(45deg) !important; text-shadow: none; }
+
 
 &lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;hud-settings-wrapper&quot;&gt;&lt;div class=&quot;row&quot;&gt;&lt;b&gt;web1&lt;/b&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot;&gt; выкл&lt;/label&gt;&lt;label&gt;&lt;input type=&quot;checkbox&quot; checked&gt; вкл&lt;/label&gt;&lt;/div&gt;&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;" style="width:420px;height:34px;border:0;display:block"></iframe></body></html>
