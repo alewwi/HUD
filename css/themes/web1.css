@@ -1,0 +1,88 @@
+/* Тема «web1» — правила под :root.hud-theme-web1.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/themes.css --- */
+/* =========================================================================
+   ЧЕТЫРЕ НОВЫЕ ВСЕЛЕННЫЕ
+   -------------------------------------------------------------------------
+   Web 1.0, Коттеджкор, Лёд и Глубина. Слои те же, что у остальных тем:
+   украшение карточки, мир на .hud-os-wrapper, подпись на его ::after и
+   третий слой на .hud-tab-content::before. Всё нарисовано градиентами и
+   своими SVG, движение спит до наведения.
+   ========================================================================= */
+/* ======================= Web 1.0 ======================= */
+.hud-theme-web1 {
+  --hud-radius: 0;
+  --lt-paper: rgba(255,255,255,.94); --lt-paper-2: rgba(255,255,255,.72);
+  --lt-ink: #000; --lt-ink-soft: rgba(0,0,0,.6);
+  --lt-line: #808080; --lt-solid: #c0c0c0;
+  --hud-text: #000; --hud-text-muted: rgba(0,0,0,.6);
+  --hud-border: #808080;
+}
+.hud-theme-web1 :is(.hud-os-topbar, .hud-os-logo) { color: #fff; }
+.hud-theme-web1 .hud-os-logo { text-shadow: 1px 1px 0 #000; letter-spacing: 0; }
+.hud-theme-web1 .hud-os-logo::after {
+  content: ' \2605 WELCOME \2605'; opacity: 1; color: #ffe94a;
+  font-family: 'Courier New', monospace; font-weight: 700;
+  animation: hud-w1-blink 1.2s steps(1, end) infinite;
+  animation-play-state: paused;
+}
+.hud-theme-web1 .hud-key::after,
+.hud-theme-web1 .hud-key-label::after { content: ' \2593'; margin-left: 4px; }
+.hud-theme-web1 .hud-world-title::after {
+  content: ' <NEW!>'; color: #d00000; font-family: 'Courier New', monospace; opacity: 1;
+}
+/* Обои в клеточку — как тайл на старой странице. */
+.hud-theme-web1 .hud-tab-content::before {
+  background-image:
+    radial-gradient(circle 1px at 4px 4px, rgba(0,0,128,.14) 0 60%, transparent 100%),
+    linear-gradient(90deg, rgba(0,128,128,.05) 0 1px, transparent 1px),
+    linear-gradient(0deg, rgba(0,128,128,.05) 0 1px, transparent 1px);
+  background-size: 16px 16px, 16px 16px, 16px 16px;
+  background-repeat: repeat;
+  opacity: .8;
+}
+/* Нижняя панель навигации и счётчик гостей. */
+.hud-theme-web1 .hud-tab-content { padding-bottom: 24px !important; }
+.hud-theme-web1 .hud-tab-content::after {
+  content: '[ HOME ]   [ GUESTBOOK ]   [ LINKS ]        guest #001728';
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 0;
+  padding: 4px 6px 3px; text-align: center;
+  font: 700 10px/1.2 'Courier New', monospace; letter-spacing: .05em;
+  color: #0000cc; background: rgba(255,255,255,.72);
+  border-top: 1px solid #808080;
+  pointer-events: none;
+}
+/* Лента «идут работы». Висит на строке вкладок, а не на самой карточке:
+   вверху карточки стоит виджет погоды, и лента перекрывала ему угол. Вкладки
+   идут сразу под погодой — лента остаётся наверху и никому не мешает. */
+.hud-theme-web1 .hud-os-wrapper::after { display: none; }
+.hud-theme-web1 .hud-tabs-header { position: relative; }
+.hud-theme-web1 .hud-tabs-header::after {
+  content: 'UNDER CONSTRUCTION';
+  position: absolute; pointer-events: none; z-index: 3;
+  right: 8px; top: 6px; padding: 2px 7px;
+  font: 700 9px/1.3 'Courier New', monospace; letter-spacing: .08em; color: #1a1a1a;
+  background: repeating-linear-gradient(-45deg, #ffd400 0 7px, #1a1a1a 7px 14px);
+  background-size: 200% 100%;
+  text-shadow: 0 0 3px #ffd400, 0 0 4px #ffd400;
+  animation: hud-w1-tape 2.6s linear infinite;
+  animation-play-state: paused;
+}
+/* ---- Web 1.0 — «под стройкой», счётчик посещений ---- */
+.hud-theme-web1 .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000080' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Crect x='3' y='6' width='18' height='12' rx='1'/%3E%3Cpath d='M3 15l5-4 3 2.4 4-4 6 5.6'/%3E%3Ccircle cx='8' cy='10' r='1.4'/%3E%3C/svg%3E"); }
+.hud-theme-web1 .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000080' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 19h16L12 5z'/%3E%3Cpath d='M12 10v4M12 16.4h.01'/%3E%3C/svg%3E"); }
+.hud-theme-web1 .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23000080' stroke='none'%3E%3Crect x='3' y='8' width='4' height='8'/%3E%3Crect x='8.5' y='8' width='4' height='8' opacity='.75'/%3E%3Crect x='14' y='8' width='4' height='8' opacity='.55'/%3E%3Crect x='19.5' y='8' width='1.5' height='8' opacity='.4'/%3E%3C/svg%3E"); }
+.hud-theme-web1 .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000080' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Crect x='3' y='5' width='18' height='14'/%3E%3Cpath d='M3 9h18M9 9v10M15 9v10'/%3E%3C/svg%3E"); }
+.hud-theme-web1 .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000080' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 8h16M4 12h16M4 16h10'/%3E%3Cpath d='M18 15l2 1.6-2 1.6z' fill='%23000080'/%3E%3C/svg%3E"); }
+
+/* --- из css/deco.css --- */
+:root.hud-theme-web1 { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Crect%20x%3D'3'%20y%3D'3'%20width%3D'18'%20height%3D'18'%20rx%3D'1'%2F%3E%3C%2Fsvg%3E"); --trk: #fff; --trk-h: 4px; --trk-glow: inset 1px 1px 0 #808080, inset -1px -1px 0 #dfdfdf; }
+:root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="range"]::-webkit-slider-thumb { background: #000080 !important; }
+
+/* --- анимации темы --- */
+@keyframes hud-w1-blink { 0%, 58% { opacity: 1; } 59%, 100% { opacity: .18; } }
+@keyframes hud-w1-tape { to { background-position: 39.6px 0; } }

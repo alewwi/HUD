@@ -1,0 +1,67 @@
+/* Тема «noir» — правила под :root.hud-theme-noir.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/base.css --- */
+/* --- Нуар --------------------------------------------------------------- */
+.hud-theme-noir { --hud-radius: 2px; }
+.hud-theme-noir .hud-key::after,
+.hud-theme-noir .hud-key-label::after { content: ' ◐'; margin-left: 4px; font-size: .95em; }
+/* Свет сквозь жалюзи наискось — единственная фактура, которая нужна нуару. */
+.hud-theme-noir .hud-os-card::after {
+  background:
+    repeating-linear-gradient(172deg,
+      rgba(255,255,255,.055) 0 6px, transparent 6px 19px) top right / 62% 130% no-repeat,
+    var(--hud-bg);
+}
+.hud-theme-noir .hud-os-topbar { border-bottom: 2px solid rgba(255,255,255,.22); }
+.hud-theme-noir    .hud-os-logo::after { content: ' ▨'; }
+.hud-theme-noir    .hud-world-title::after { content: ' \25E7'; }
+.hud-theme-noir .hud-tab.active { box-shadow: inset 0 -2px 0 rgba(255,255,255,.6); }
+.hud-theme-noir .hud-diary-entry { border-left-color: #bdbdbd; }
+/* Нуар — зерно плёнки поверх всей карточки. */
+.hud-theme-noir .hud-os-wrapper::after {
+  inset: 0;
+  background-image:
+    radial-gradient(circle at 17% 29%, rgba(255,255,255,.05) 0 .6px, transparent .7px),
+    radial-gradient(circle at 63% 71%, rgba(0,0,0,.14) 0 .7px, transparent .8px),
+    radial-gradient(circle at 84% 13%, rgba(255,255,255,.04) 0 .5px, transparent .6px);
+  background-size: 23px 19px, 31px 27px, 17px 29px;
+  opacity: .75;
+}
+.hud-theme-noir .hud-key-block {
+  background-image: linear-gradient(118deg, rgba(255,255,255,.07), transparent 42%);
+}
+.hud-theme-noir .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
+.hud-theme-noir .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
+.hud-theme-noir {
+  --th-empty-world: 'Ни зацепок, ни свидетелей.';
+  --th-empty-diary: 'Записей нет. Дело не открывали.';
+}
+/* --- 4. Нуар: вёрстка по ширине; Vamp: волнистый курсив ------------------
+   Выключка по формату — приём газетной и комиксной полосы. Волнистая
+   черта под курсивом читается как подчёркнутое от руки. */
+.hud-theme-noir :is(.hud-diary-text, .hud-diary-about-user, .article-text) {
+  text-align: justify;
+  hyphens: auto;
+}
+
+/* --- из css/themes.css --- */
+/* Нуар: дымок сигареты у верхнего края. */
+.hud-theme-noir .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(34% 26% at 76% 6%, rgba(255,255,255,.075), transparent 74%),
+    radial-gradient(22% 18% at 66% 16%, rgba(255,255,255,.05), transparent 76%);
+}
+/* ---- Нуар — шляпа, жалюзи, лупа ---- */
+.hud-theme-noir .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23d8d8d8' stroke='none'%3E%3Cpath d='M8 12c-.6-4 .4-6 4-6s4.6 2 4 6c2.6.6 4 1.6 4 2.6 0 1.4-3.6 2.4-8 2.4S4 16 4 14.6c0-1 1.4-2 4-2.6z' opacity='.75'/%3E%3C/svg%3E"); }
+.hud-theme-noir .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23d8d8d8' stroke='none'%3E%3Crect x='3' y='5' width='18' height='1.6' opacity='.5'/%3E%3Crect x='3' y='9' width='18' height='1.6' opacity='.4'/%3E%3Crect x='3' y='13' width='18' height='1.6' opacity='.3'/%3E%3Crect x='3' y='17' width='18' height='1.6' opacity='.2'/%3E%3C/svg%3E"); }
+.hud-theme-noir .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d8d8d8' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round' %3E%3Ccircle cx='10.5' cy='10.5' r='5'/%3E%3Cpath d='M14.4 14.4L20 20'/%3E%3C/svg%3E"); }
+.hud-theme-noir .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d8d8d8' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M6 17c1-6 3-9 6-9s4 2 4 4'/%3E%3Cpath d='M16 12c1.6 0 2.6 1 2.6 2.2 0 1.4-1.4 2-2.6 1.2'/%3E%3Cpath d='M5 19c2 .6 4 .6 6 0'/%3E%3C/svg%3E"); }
+.hud-theme-noir .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23d8d8d8' stroke='none'%3E%3Ccircle cx='5' cy='12' r='.9' opacity='.6'/%3E%3Ccircle cx='9' cy='9' r='.6' opacity='.45'/%3E%3Ccircle cx='13' cy='14' r='.8' opacity='.5'/%3E%3Ccircle cx='17' cy='10' r='.5' opacity='.4'/%3E%3Ccircle cx='20' cy='15' r='.7' opacity='.35'/%3E%3C/svg%3E"); }
+
+/* --- из css/deco.css --- */
+:root.hud-theme-noir { --cb-off: '○';   --cb-on: '●'; }
+:root.hud-theme-noir { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Crect%20x%3D'3'%20y%3D'3'%20width%3D'18'%20height%3D'18'%20rx%3D'1'%2F%3E%3C%2Fsvg%3E"); --trk: repeating-linear-gradient(90deg, var(--hud-accent) 0 4px, transparent 4px 7px) top / 100% 2px no-repeat, repeating-linear-gradient(90deg, var(--hud-accent) 0 4px, transparent 4px 7px) bottom / 100% 2px no-repeat, color-mix(in srgb, var(--hud-accent) 18%, transparent); --trk-h: 8px; }

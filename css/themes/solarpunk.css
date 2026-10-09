@@ -1,0 +1,78 @@
+/* Тема «solarpunk» — правила под :root.hud-theme-solarpunk.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/misc.css --- */
+/* =========================================================================
+   Новые темы: чернила светлых тем и характерные приметы
+
+   Светлым темам нужен свой набор --lt-*: по нему группа правил выше делает
+   подложки прозрачными, а текст — тёмным. Без него светлая тема получает
+   тёмные плашки, и светлый текст ложится на светлый фон.
+   ========================================================================= */
+.hud-theme-solarpunk {
+  --lt-paper: rgba(255,255,255,.66);
+  --lt-paper-2: rgba(255,255,255,.40);
+  --lt-ink: #1f3a2a;
+  --lt-ink-soft: rgba(31,58,42,.62);
+  --lt-line: rgba(46,158,107,.26);
+  --lt-solid: #eafaef;
+}
+/* Солярпанк: стеклянный блик через карточку. */
+.hud-theme-solarpunk .hud-os-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(115deg, rgba(255,255,255,.42) 0 12%, transparent 34%);
+}
+.hud-theme-solarpunk .hud-os-logo::after { content: ' \2618'; }
+.hud-theme-solarpunk .hud-tab.active { box-shadow: inset 0 -2px 0 #2e9e6b; }
+.hud-theme-solarpunk   .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-solarpunk   .hud-diary-empty::after { content: var(--th-empty-diary); }
+/* --- Солярпанк: стекло, зелень и высокое солнце -------------------------- */
+.hud-theme-solarpunk .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232e9e6b' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='11' r='4'/%3E%3Cpath d='M12 3.4v1.8M12 16.8v1.8M3.4 11h1.8M18.8 11h1.8M6 5l1.3 1.3M16.7 15.7L18 17M18 5l-1.3 1.3M7.3 15.7L6 17' opacity='.7'/%3E%3Cpath d='M12 20.6c0-2.6 1.8-4.4 4.4-4.4 0 2.6-1.8 4.4-4.4 4.4z'/%3E%3C/svg%3E"); }
+.hud-theme-solarpunk .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232e9e6b' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='6' width='18' height='10' rx='1'/%3E%3Cpath d='M3 9.4h18M3 12.8h18M9 6v10M15 6v10' opacity='.55'/%3E%3Cpath d='M12 16v5M12 18.4c-2.4 0-3.6-1.4-3.6-3.2 2 0 3.6 1.2 3.6 3.2z'/%3E%3C/svg%3E"); }
+.hud-theme-solarpunk .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232e9e6b' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21v-8'/%3E%3Cpath d='M12 13c0-3.4 2.2-5.6 5.6-5.6C17.6 10.8 15.4 13 12 13z'/%3E%3Cpath d='M12 15.4c-3 0-5-2-5-5 3 0 5 2 5 5z'/%3E%3C/svg%3E"); }
+.hud-theme-solarpunk .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232e9e6b' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='2.4'/%3E%3Cpath d='M12 9.6c0-3 1.4-4.6 3-4.6 0 3-1.4 4.6-3 4.6zM12 14.4c0 3-1.4 4.6-3 4.6 0-3 1.4-4.6 3-4.6z'/%3E%3Cpath d='M9.6 12c-3 0-4.6-1.4-4.6-3 3 0 4.6 1.4 4.6 3zM14.4 12c3 0 4.6 1.4 4.6 3-3 0-4.6-1.4-4.6-3z'/%3E%3C/svg%3E"); }
+.hud-theme-solarpunk .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%232e9e6b' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='19' cy='7.4' r='2.4' opacity='.7'/%3E%3Cpath d='M1 17c2.6-4 5-4 7 0 2-4.6 4.4-4.6 6.4 0 1.6-3 3.2-3 4.6 0'/%3E%3C/svg%3E"); }
+/* Обои: тень листвы сверху и косой солнечный луч через карточку. */
+.hud-theme-solarpunk .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(28% 16% at 10% 4%, rgba(46,158,107,.16), transparent 72%),
+    radial-gradient(20% 12% at 26% 9%, rgba(46,158,107,.12), transparent 74%),
+    radial-gradient(24% 14% at 88% 6%, rgba(46,158,107,.10), transparent 74%),
+    linear-gradient(112deg, transparent 30%, rgba(255,246,200,.26) 40%, transparent 52%);
+  animation: hud-th-sunray 11s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+/* Фирменный знак: живая изгородь по нижнему краю карточки. */
+.hud-theme-solarpunk .hud-os-wrapper::after {
+  left: 0; right: 0; bottom: 0; height: 22px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 22' fill='none' stroke='%232e9e6b' stroke-width='1.1' stroke-linecap='round'%3E%3Cpath d='M0 18c14-6 26 2 40-4s26 4 40-2 26 4 40-2'/%3E%3Cpath d='M14 15c-1-3 0-5 1.6-5 .6 2-.2 4-1.6 5zM40 12c-1.4-2.6-.8-4.8.8-5 1 1.8.6 4-.8 5zM68 15c-1-3 0-5 1.6-5 .6 2-.2 4-1.6 5zM96 12c-1.4-2.6-.8-4.8.8-5 1 1.8.6 4-.8 5z'/%3E%3C/svg%3E");
+  background-repeat: repeat-x; background-size: 120px 22px;
+  opacity: .5;
+}
+.hud-theme-solarpunk :is(.hud-key, .hud-key-label)::after { content: ' \2767'; margin-left: 4px; font-size: .9em; opacity: .7; }
+.hud-theme-solarpunk .hud-world-title::after { content: ' \2618'; }
+.hud-theme-solarpunk .hud-key-item { border-left-color: #2e9e6b; }
+.hud-theme-solarpunk .hud-diary-entry { border-left-color: #2e9e6b; }
+.hud-theme-solarpunk {
+  --hud-radius: 12px;
+  --th-empty-world: 'В саду сегодня тихо.';
+  --th-empty-diary: 'Страница ещё зелёная.';
+}
+/* Пять новых тем светлые, и общий блок «светлые темы: поверхности» гасит у
+   них цветную кромку строк заодно с тёмными подложками. Кромку возвращаем
+   отдельно: полоска в два с половиной пикселя чтению не мешает, а тему делает
+   узнаваемой с первого взгляда. */
+.hud-theme-solarpunk .hud-key-item { border-left-color: #2e9e6b !important; }
+
+/* --- из css/deco.css --- */
+:root.hud-theme-solarpunk { --cb-off: '❀';   --cb-on: '✿'; }
+:root.hud-theme-solarpunk { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Ccircle%20cx%3D'12'%20cy%3D'12'%20r%3D'5'%2F%3E%3Cpath%20d%3D'M12%200v4M12%2020v4M0%2012h4M20%2012h4M3.5%203.5l2.8%202.8M17.7%2017.7l2.8%202.8M20.5%203.5l-2.8%202.8M6.3%2017.7l-2.8%202.8'%20stroke%3D'black'%20stroke-width%3D'2.4'%2F%3E%3C%2Fsvg%3E"); --trk: radial-gradient(circle, color-mix(in srgb, var(--hud-accent) 75%, transparent) 1.4px, transparent 1.9px) 0 50% / 8px 6px repeat-x; --trk-h: 6px; }
+
+/* --- анимации темы --- */
+@keyframes hud-th-sunray {
+  from { background-position: 0 0, 0 0, 0 0, -22% 0; }
+  to   { background-position: 0 0, 0 0, 0 0, 26% 0; }
+}

@@ -30,21 +30,7 @@
   --f-serif: Georgia, 'Times New Roman', serif;
   --f-mono: ui-monospace, Consolas, 'Courier New', monospace;
 }
-/* --- Светлые темы ------------------------------------------------------------ */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-f, .hud-hv, .hud-mkv) {
-  --f-ink: color-mix(in srgb, var(--t-acc) 78%, #000);
-  --f-inset: color-mix(in srgb, var(--t-acc) 5%, rgba(255,255,255,.86));
-  --f-inset-line: color-mix(in srgb, var(--t-acc) 24%, transparent);
-  --f-paper: color-mix(in srgb, var(--t-acc) 5%, #fffcf8);
-  --f-paper-2: color-mix(in srgb, var(--t-acc) 11%, #f6efe9);
-  --f-paper-ink: #2c2428;
-  --f-paper-soft: #7c6e74;
-  --f-paper-rule: color-mix(in srgb, var(--t-acc) 26%, transparent);
-  --f-paper-edge: rgba(0,0,0,.1);
-  --f-pen: color-mix(in srgb, var(--t-acc) 70%, #1e2a6a);
-  --f-tint-l: 82%; --f-tint-s: 70%; --f-tint-ink: #2c2428;
-  --f-shadow: 0 10px 18px -12px rgba(60,30,50,.45);
-}
+
 .hud-f { font-size: .95em; line-height: 1.4; }
 .hud-f small { color: var(--f-soft); }
 .hud-f p { margin: 0; }
@@ -491,9 +477,7 @@
 .hud-f-status.is-toggles .tube.sub { --neon: hsl(from color-mix(in srgb, var(--t-acc) 75%, #fff) calc(h + var(--h)) s l); font-size: .98em; }
 .hud-f-status.is-toggles .clip { position: absolute; top: -6px; width: 8px; height: 5px; border-radius: 2px; background: color-mix(in srgb, currentColor 40%, transparent); }
 .hud-f-status.is-toggles .clip.l { left: 18%; } .hud-f-status.is-toggles .clip.r { right: 18%; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-f-status.is-toggles .tube {
-  --neon: color-mix(in srgb, var(--t-acc) 85%, #000); color: color-mix(in srgb, var(--neon) 85%, #000);
-  text-shadow: 0 0 6px color-mix(in srgb, var(--neon) 55%, transparent), 0 0 16px color-mix(in srgb, var(--neon) 35%, transparent); }
+
 
 /* ================================= КЛЮЧ =================================== */
 
@@ -641,7 +625,7 @@
 
 /* Карта пути */
 .hud-f-goals.is-road { --land: color-mix(in srgb, var(--t-acc) 14%, #2b3a2a); --tree: #3f7a3a; --road: #5d5650; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-f-goals.is-road { --land: color-mix(in srgb, var(--t-acc) 12%, #d8eabd); --tree: #4f8a4a; --road: #7d746a; }
+
 .hud-f-goals.is-road .map { display: block; width: 100%; height: auto; max-height: 150px; filter: drop-shadow(0 8px 12px rgba(0,0,0,.35)); }
 .hud-f-goals.is-road .land { fill: var(--land); }
 .hud-f-goals.is-road .mount { fill: color-mix(in srgb, var(--land) 50%, #9aa49a); } .hud-f-goals.is-road .snow { fill: #fff; }
@@ -724,7 +708,7 @@
 
 /* Доска детектива */
 .hud-f-flags.is-pins { --cork: color-mix(in srgb, var(--t-acc) 18%, #6e4a2c); }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-f-flags.is-pins { --cork: color-mix(in srgb, var(--t-acc) 14%, #c99a66); }
+
 .hud-f-flags.is-pins .cork { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px 18px; padding: 18px 16px 16px; border-radius: 8px;
   background: radial-gradient(rgba(40,20,10,.4) .8px, transparent 1.2px) 0 0 / 5px 5px, radial-gradient(rgba(255,230,190,.2) .6px, transparent 1px) 2px 3px / 7px 7px, var(--cork);
   box-shadow: inset 0 0 0 6px color-mix(in srgb, var(--cork) 60%, #000), inset 0 0 24px rgba(0,0,0,.4); }
@@ -776,7 +760,7 @@
 
 /* Перекидной счётчик: на тёмных — тёмные карточки, на светлых — светлые */
 .hud-f-conflict.is-counter { display: flex; align-items: center; gap: 14px; --flip-a: color-mix(in srgb, var(--t-acc) 12%, #3a3a42); --flip-b: color-mix(in srgb, var(--t-acc) 12%, #222228); --flip-ink: #f2f2f4; --flip-bg: color-mix(in srgb, var(--t-acc) 8%, #121014); }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-f-conflict.is-counter { --flip-a: color-mix(in srgb, var(--t-acc) 4%, #ffffff); --flip-b: color-mix(in srgb, var(--t-acc) 8%, #eeeaec); --flip-ink: color-mix(in srgb, var(--t-acc) 60%, #241c22); --flip-bg: color-mix(in srgb, var(--t-acc) 14%, #e8dfe4); }
+
 .hud-f-conflict.is-counter .flip { flex: none; display: flex; align-items: center; gap: 4px; padding: 8px; border-radius: 10px; background: var(--flip-bg); box-shadow: inset 0 0 0 1px var(--f-inset-line), var(--f-shadow); perspective: 200px; }
 .hud-f-conflict.is-counter .digit { position: relative; width: 36px; height: 52px; font: 700 40px/52px var(--f-mono); color: var(--flip-ink); text-align: center; }
 .hud-f-conflict.is-counter .digit i { position: absolute; left: 0; right: 0; height: 50%; overflow: hidden; font-style: normal; }

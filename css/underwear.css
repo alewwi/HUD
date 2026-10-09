@@ -1,0 +1,40 @@
+/* Бельё (render/underwear.js). По умолчанию под покрывалом: <details>
+   открывается нажатием. Комплект — силуэты цветом из текста и бейджи
+   «для кого» и «в каком состоянии»; слоем — полоса кожа · бельё · одежда. */
+.hud-un-veil > summary {
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 999px; cursor: pointer; list-style: none;
+  font-size: 12px; color: var(--hud-text-muted, #c0bdc6); background: rgba(255,255,255,.05); border: 1px dashed rgba(255,255,255,.22);
+}
+.hud-un-veil > summary::-webkit-details-marker { display: none; }
+.hud-un-veil > summary i { font-style: normal; }
+.hud-un-veil[open] > summary { margin-bottom: 6px; opacity: .7; }
+.hud-un-card { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: center; }
+.hud-un-svg { width: 86px; height: auto; display: block; }
+.hud-un-text p { margin: 0 0 4px; font-size: 12.5px; }
+.hud-un-badges { display: flex; flex-wrap: wrap; gap: 5px; }
+.hud-un-for, .hud-un-state { padding: 2px 8px; border-radius: 999px; font-size: 11px; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.05); }
+.hud-un-for { border-color: color-mix(in srgb, var(--hud-accent, #d96a8a) 50%, transparent); background: color-mix(in srgb, var(--hud-accent, #d96a8a) 14%, transparent); }
+.hud-un-for.is-random { border-color: rgba(255,255,255,.16); background: rgba(255,255,255,.05); color: var(--hud-text-muted, #a8a5ad); }
+.hud-un-state.is-moved { border-color: #e0a45880; color: #f0c27a; }
+.hud-un-state.is-off, .hud-un-state.is-lost { border-color: #e46a6a80; color: #f29a9a; }
+.hud-un-layers { display: grid; grid-template-rows: repeat(3, auto); gap: 2px; width: 86px; font-size: 10.5px; text-align: center; }
+.hud-un-layers span { padding: 3px 0; border-radius: 4px; background: rgba(255,255,255,.06); color: var(--hud-text-muted, #a8a5ad); }
+.hud-un-layers .l-skin { order: 3; background: rgba(230,190,170,.18); }
+.hud-un-layers .l-un { order: 2; background: color-mix(in srgb, var(--un) 55%, transparent); color: #fff; }
+.hud-un-layers .l-un.is-moved { opacity: .6; } .hud-un-layers .l-un:is(.is-off, .is-lost) { opacity: .2; text-decoration: line-through; }
+.hud-un-layers .l-cloth { order: 1; }
+
+/* Оформление — языком видов блоков: стеклянная карточка, линейный замок на
+   покрывале, силуэт со свечением цвета комплекта. */
+.hud-un-veil > summary .hud-v-ico { width: 14px; height: 14px; color: color-mix(in srgb, var(--hud-accent, #d96a8a) 50%, var(--ink-hi, #fff)); }
+.hud-un-veil > summary { border-style: solid; border-color: color-mix(in srgb, var(--hud-accent, #d96a8a) 35%, transparent);
+  background: radial-gradient(120% 160% at 0% 50%, color-mix(in srgb, var(--hud-accent, #d96a8a) 18%, transparent), rgba(255,255,255,.03)); }
+.hud-un-card.hud-v-card { padding: 10px 12px; }
+.hud-un-svg { filter: drop-shadow(0 4px 8px rgba(0,0,0,.45)) drop-shadow(0 0 6px color-mix(in srgb, var(--hud-accent, #d96a8a) 30%, transparent)); }
+.hud-un-for, .hud-un-state { box-shadow: inset 0 1px 0 rgba(255,255,255,.08); font-weight: 600; }
+
+/* Светлые темы: состояния белья — тёмными тонами. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-un-state.is-moved { border-color: #b8862a; color: #8a5a12; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-un-state.is-off, .hud-un-state.is-lost) { border-color: #c0404a; color: #a82a34; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-un-for, .hud-un-state) { border-color: rgba(0,0,0,.18); background: rgba(0,0,0,.04); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-un-for:not(.is-random) { border-color: color-mix(in srgb, var(--hud-accent, #d96a8a) 55%, transparent); background: color-mix(in srgb, var(--hud-accent, #d96a8a) 14%, transparent); }

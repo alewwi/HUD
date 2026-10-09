@@ -525,9 +525,7 @@
    Узор и подпись: на тёмных темах светлее, на светлых темнее, оттенок
    тот же. Узор чуть крупнее. */
 .hud-group-div { --hud-div-ink: oklch(from var(--hud-deco-c) max(l, .76) max(c, .05) h); }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-group-div {
-  --hud-div-ink: oklch(from var(--hud-deco-c) min(l, .48) max(c, .05) h);
-}
+
 .hud-group-div span { color: var(--hud-div-ink) !important; background: color-mix(in srgb, var(--hud-div-ink) 13%, transparent); }
 .hud-group-div::before, .hud-group-div::after { background: linear-gradient(90deg, transparent, var(--hud-div-ink) 30%, var(--hud-div-ink) 70%, transparent); }
 :root:is(.hud-div-butterfly, .hud-div-mountain, .hud-div-ripple) .hud-group-div::after { background: var(--hud-div-ink) !important; height: 22px; }
@@ -817,25 +815,25 @@
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
-:root.hud-theme-kawaii      { --cb-off: '\2661\FE0E'; --cb-on: '\2665\FE0E'; }
-:root.hud-theme-academia    { --cb-off: '☐';   --cb-on: '☒'; }
-:root.hud-theme-cyberpunk   { --cb-off: '[ ]'; --cb-on: '■'; }
-:root.hud-theme-noir        { --cb-off: '○';   --cb-on: '●'; }
-:root.hud-theme-medieval    { --cb-off: '◇';   --cb-on: '◆'; }
-:root.hud-theme-fantasy     { --cb-off: '✧';   --cb-on: '✦'; }
-:root.hud-theme-mafia       { --cb-off: '○';   --cb-on: '✕'; }
-:root.hud-theme-steampunk   { --cb-off: '⚙\FE0E'; --cb-on: '⚙\FE0E'; }
-:root.hud-theme-dieselpunk  { --cb-off: '▫';   --cb-on: '▪'; }
-:root.hud-theme-solarpunk   { --cb-off: '❀';   --cb-on: '✿'; }
-:root.hud-theme-biopunk     { --cb-off: '⬡';   --cb-on: '⬢'; }
-:root.hud-theme-spaceopera  { --cb-off: '○';   --cb-on: '◉'; }
-:root.hud-theme-japan       { --cb-off: '〇';  --cb-on: '◉'; }
-:root.hud-theme-egypt       { --cb-off: '△';   --cb-on: '▲'; }
-:root.hud-theme-western     { --cb-off: '✩';   --cb-on: '✪'; }
-:root.hud-theme-pirate      { --cb-off: '○';   --cb-on: '✕'; }
-:root.hud-theme-witch       { --cb-off: '☾';   --cb-on: '☽'; }
-:root.hud-theme-voodoo      { --cb-off: '◌';   --cb-on: '⊕'; }
-:root.hud-theme-spacehorror { --cb-off: '◌';   --cb-on: '◉'; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"] {
@@ -864,38 +862,36 @@
   width: 18px; height: 18px; border: none; border-radius: 0;
 }
 
-/* Фигуры ползунков и дорожки по темам (сгенерировано). */
-:root.hud-theme-vamp { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%202l2.9%206.6%207.1.6-5.4%204.7%201.6%207L12%2017.3%205.8%2020.9l1.6-7L2%209.2l7.1-.6z'%2F%3E%3C%2Fsvg%3E");  }
-:root.hud-theme-kawaii { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%2021s-8-5.1-8-11a4.6%204.6%200%200%201%208-3%204.6%204.6%200%200%201%208%203c0%205.9-8%2011-8%2011z'%2F%3E%3C%2Fsvg%3E"); --trk: radial-gradient(circle, color-mix(in srgb, var(--hud-accent) 75%, transparent) 1.4px, transparent 1.9px) 0 50% / 8px 6px repeat-x; --trk-h: 6px; }
-:root.hud-theme-academia { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%201c2%202.5%202.5%205%200%208-2.5-3-2-5.5%200-8zM12%209v13M5%207c3%200%205%202.5%205%206-3%200-5.5-2-5-6zM19%207c-3%200-5%202.5-5%206%203%200%205.5-2%205-6zM7%2016h10'%20stroke%3D'black'%20stroke-width%3D'2'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E");  }
-:root.hud-theme-cyberpunk { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M14%201L4%2014h7l-2%209%2011-13h-7z'%2F%3E%3C%2Fsvg%3E"); --trk: var(--hud-accent); --trk-glow: 0 0 6px var(--hud-accent), 0 0 12px color-mix(in srgb, var(--hud-accent) 55%, transparent); }
-:root.hud-theme-noir { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Crect%20x%3D'3'%20y%3D'3'%20width%3D'18'%20height%3D'18'%20rx%3D'1'%2F%3E%3C%2Fsvg%3E"); --trk: repeating-linear-gradient(90deg, var(--hud-accent) 0 4px, transparent 4px 7px) top / 100% 2px no-repeat, repeating-linear-gradient(90deg, var(--hud-accent) 0 4px, transparent 4px 7px) bottom / 100% 2px no-repeat, color-mix(in srgb, var(--hud-accent) 18%, transparent); --trk-h: 8px; }
-:root.hud-theme-medieval { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%201c2%202.5%202.5%205%200%208-2.5-3-2-5.5%200-8zM12%209v13M5%207c3%200%205%202.5%205%206-3%200-5.5-2-5-6zM19%207c-3%200-5%202.5-5%206%203%200%205.5-2%205-6zM7%2016h10'%20stroke%3D'black'%20stroke-width%3D'2'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E"); --trk: repeating-linear-gradient(60deg, color-mix(in srgb, var(--hud-accent) 80%, #000) 0 2px, color-mix(in srgb, var(--hud-accent) 45%, #fff) 2px 4px); --trk-h: 4px; }
-:root.hud-theme-fantasy { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%201l5%207-5%2015-5-15zM12%201l-5%207h10z'%2F%3E%3C%2Fsvg%3E"); --trk: var(--hud-accent); --trk-glow: 0 0 6px var(--hud-accent), 0 0 12px color-mix(in srgb, var(--hud-accent) 55%, transparent); }
-:root.hud-theme-mafia { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Crect%20x%3D'3'%20y%3D'3'%20width%3D'18'%20height%3D'18'%20rx%3D'1'%2F%3E%3C%2Fsvg%3E");  }
-:root.hud-theme-web1 { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Crect%20x%3D'3'%20y%3D'3'%20width%3D'18'%20height%3D'18'%20rx%3D'1'%2F%3E%3C%2Fsvg%3E"); --trk: #fff; --trk-h: 4px; --trk-glow: inset 1px 1px 0 #808080, inset -1px -1px 0 #dfdfdf; }
-:root.hud-theme-cottage { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%202a3.5%203.5%200%200%201%203.4%204.4A3.5%203.5%200%200%201%2020.6%209%203.5%203.5%200%200%201%2018%2014.4a3.5%203.5%200%200%201-2.6%205.2A3.5%203.5%200%200%201%2012%2018a3.5%203.5%200%200%201-3.4%201.6A3.5%203.5%200%200%201%206%2014.4%203.5%203.5%200%200%201%203.4%209a3.5%203.5%200%200%201%205.2-2.6A3.5%203.5%200%200%201%2012%202z'%2F%3E%3C%2Fsvg%3E"); --trk: radial-gradient(circle, color-mix(in srgb, var(--hud-accent) 75%, transparent) 1.4px, transparent 1.9px) 0 50% / 8px 6px repeat-x; --trk-h: 6px; }
-:root.hud-theme-ice { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%201l2.6%208.4L23%2012l-8.4%202.6L12%2023l-2.6-8.4L1%2012l8.4-2.6z'%2F%3E%3C%2Fsvg%3E"); --trk: var(--hud-accent); --trk-glow: 0 0 6px var(--hud-accent), 0 0 12px color-mix(in srgb, var(--hud-accent) 55%, transparent); }
-:root.hud-theme-ocean { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%202s7%207.6%207%2012.5a7%207%200%200%201-14%200C5%209.6%2012%202%2012%202z'%2F%3E%3C%2Fsvg%3E"); --trk: radial-gradient(circle, color-mix(in srgb, var(--hud-accent) 75%, transparent) 1.4px, transparent 1.9px) 0 50% / 8px 6px repeat-x; --trk-h: 6px; }
-:root.hud-theme-steampunk { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M10.3%201h3.4l.6%203%202.3%201%202.6-1.7%202.4%202.4L19.9%208.3l1%202.3%203%20.6v3.4l-3%20.6-1%202.3%201.7%202.6-2.4%202.4-2.6-1.7-2.3%201-.6%203h-3.4l-.6-3-2.3-1-2.6%201.7-2.4-2.4%201.7-2.6-1-2.3-3-.6v-3.4l3-.6%201-2.3L3.7%205.7l2.4-2.4%202.6%201.7%202.3-1zM12%208a4%204%200%201%200%200%208%204%204%200%200%200%200-8z'%20fill-rule%3D'evenodd'%2F%3E%3C%2Fsvg%3E"); --trk: repeating-linear-gradient(60deg, color-mix(in srgb, var(--hud-accent) 80%, #000) 0 2px, color-mix(in srgb, var(--hud-accent) 45%, #fff) 2px 4px); --trk-h: 4px; }
-:root.hud-theme-dieselpunk { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Crect%20x%3D'2'%20y%3D'7'%20width%3D'20'%20height%3D'10'%20rx%3D'5'%2F%3E%3C%2Fsvg%3E");  }
-:root.hud-theme-solarpunk { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Ccircle%20cx%3D'12'%20cy%3D'12'%20r%3D'5'%2F%3E%3Cpath%20d%3D'M12%200v4M12%2020v4M0%2012h4M20%2012h4M3.5%203.5l2.8%202.8M17.7%2017.7l2.8%202.8M20.5%203.5l-2.8%202.8M6.3%2017.7l-2.8%202.8'%20stroke%3D'black'%20stroke-width%3D'2.4'%2F%3E%3C%2Fsvg%3E"); --trk: radial-gradient(circle, color-mix(in srgb, var(--hud-accent) 75%, transparent) 1.4px, transparent 1.9px) 0 50% / 8px 6px repeat-x; --trk-h: 6px; }
-:root.hud-theme-biopunk { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%201l9.5%205.5v11L12%2023l-9.5-5.5v-11z'%2F%3E%3C%2Fsvg%3E"); --trk: var(--hud-accent); --trk-glow: 0 0 6px var(--hud-accent), 0 0 12px color-mix(in srgb, var(--hud-accent) 55%, transparent); }
-:root.hud-theme-spaceopera { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Ccircle%20cx%3D'12'%20cy%3D'12'%20r%3D'9'%2F%3E%3Ccircle%20cx%3D'12'%20cy%3D'12'%20r%3D'4'%20fill%3D'white'%2F%3E%3C%2Fsvg%3E"); --trk: radial-gradient(circle, color-mix(in srgb, var(--hud-accent) 75%, transparent) 1.4px, transparent 1.9px) 0 50% / 8px 6px repeat-x; --trk-h: 6px; }
-:root.hud-theme-japan { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%202l2%205%203.5-2.5-1%205%205.5.5-4.5%203%203%204.5-5-1L12%2022l-2.5-5.5-5%201%203-4.5-4.5-3%205.5-.5-1-5L10%207z'%2F%3E%3C%2Fsvg%3E");  }
-:root.hud-theme-egypt { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%201a4.5%205.5%200%200%200-2%2010.4H4v3h6.5V23h3v-8.6H20v-3h-6A4.5%205.5%200%200%200%2012%201zm0%203a1.7%202.6%200%201%201%200%205.2A1.7%202.6%200%200%201%2012%204z'%20fill-rule%3D'evenodd'%2F%3E%3C%2Fsvg%3E");  }
-:root.hud-theme-western { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%202l2.9%206.6%207.1.6-5.4%204.7%201.6%207L12%2017.3%205.8%2020.9l1.6-7L2%209.2l7.1-.6z'%2F%3E%3C%2Fsvg%3E"); --trk: repeating-linear-gradient(60deg, color-mix(in srgb, var(--hud-accent) 80%, #000) 0 2px, color-mix(in srgb, var(--hud-accent) 45%, #fff) 2px 4px); --trk-h: 4px; }
-:root.hud-theme-pirate { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%202C6.5%202%203%205.8%203%2010.5c0%203%201.5%205%203.5%206V20h11v-3.5c2-1%203.5-3%203.5-6C21%205.8%2017.5%202%2012%202zM8.5%209.5a2%202%200%201%201%200%204%202%202%200%200%201%200-4zm7%200a2%202%200%201%201%200%204%202%202%200%200%201%200-4z'%20fill-rule%3D'evenodd'%2F%3E%3C%2Fsvg%3E"); --trk: repeating-linear-gradient(60deg, color-mix(in srgb, var(--hud-accent) 80%, #000) 0 2px, color-mix(in srgb, var(--hud-accent) 45%, #fff) 2px 4px); --trk-h: 4px; }
-:root.hud-theme-witch { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M15%202a10%2010%200%201%200%207%2017A8%208%200%200%201%2015%202z'%2F%3E%3Ccircle%20cx%3D'18'%20cy%3D'6'%20r%3D'1.5'%2F%3E%3C%2Fsvg%3E"); --trk: radial-gradient(circle, color-mix(in srgb, var(--hud-accent) 75%, transparent) 1.4px, transparent 1.9px) 0 50% / 8px 6px repeat-x; --trk-h: 6px; }
-:root.hud-theme-voodoo { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M1%2012s4-7%2011-7%2011%207%2011%207-4%207-11%207S1%2012%201%2012zm11-4a4%204%200%201%200%200%208%204%204%200%200%200%200-8z'%20fill-rule%3D'evenodd'%2F%3E%3C%2Fsvg%3E");  }
-:root.hud-theme-spacehorror { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cellipse%20cx%3D'12'%20cy%3D'14'%20rx%3D'11'%20ry%3D'4'%2F%3E%3Cpath%20d%3D'M6%2013a6%206%200%200%201%2012%200z'%2F%3E%3C%2Fsvg%3E"); --trk: var(--hud-accent); --trk-glow: 0 0 6px var(--hud-accent), 0 0 12px color-mix(in srgb, var(--hud-accent) 55%, transparent); }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 :root.hud-themed-controls[class*="hud-theme-"] :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="range"]::-webkit-slider-thumb {
   background: var(--hud-accent) !important; -webkit-mask: var(--thumb) center / contain no-repeat; mask: var(--thumb) center / contain no-repeat;
 }
 :root.hud-themed-controls[class*="hud-theme-"] :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="range"]::-moz-range-thumb {
   background: var(--hud-accent) !important; mask: var(--thumb) center / contain no-repeat;
 }
-:root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="range"]::-webkit-slider-thumb { background: #000080 !important; }
+
 
 /* --- Сцена в узкой карточке --------------------------------------------------
    Колонка чата Таверны бывает узкой и на ПК: окно широкое, а карточка — 380px.

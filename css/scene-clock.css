@@ -1,0 +1,91 @@
+/* Часы сцены (render/scene-clock.js): сколько шла близость и что за это время
+   сдвинулось в расписаниях. Узкая полоса под полосой сцены; у каждого исхода
+   свой значок и слово, не только цвет. */
+.hud-sclock {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px;
+  font-size: 11.5px; line-height: 1.3;
+}
+.hud-sclock-dur { display: inline-flex; align-items: center; gap: 5px; color: var(--hud-text-muted, #a8a5ad); }
+.hud-sclock-dur b { color: var(--hud-text, #e6e6ee); font-weight: 650; }
+.hud-sclock-dur i, .hud-sclock-chip i { font-style: normal; }
+.hud-sclock-chip {
+  --sc: #e0a458;
+  display: inline-flex; align-items: center; gap: 5px; max-width: 100%;
+  padding: 2px 9px; border-radius: 999px;
+  background: color-mix(in srgb, var(--sc) 12%, rgba(255,255,255,.03));
+  border: 1px solid color-mix(in srgb, var(--sc) 40%, transparent);
+  color: var(--hud-text, #e6e6ee);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: help;
+}
+.hud-sclock-chip i { color: var(--sc); }
+.hud-sclock-chip.is-missed { --sc: #e46a6a; }
+.hud-sclock-chip.is-late { --sc: #e0a458; }
+.hud-sclock-chip.is-wait { --sc: #8ab4e8; }
+
+/* Циферблат: настенные часы на 12 часов, дуга — сцена, точки — пропущенное. */
+.hud-sclock.is-dial { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px; align-items: center; flex-wrap: nowrap;
+  padding: 8px 10px; border-radius: 12px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); }
+.hud-sclock-face { width: 96px; height: 96px; }
+.hud-sclock-face .face { fill: color-mix(in srgb, var(--hud-accent, #d96a8a) 7%, rgba(255,255,255,.03)); stroke: rgba(255,255,255,.18); stroke-width: 1; }
+.hud-sclock-face .ticks line { stroke: rgba(255,255,255,.4); stroke-width: 1; }
+.hud-sclock-face .nums text { font-size: 8px; fill: var(--hud-text-muted, #a8a5ad); text-anchor: middle; dominant-baseline: central; }
+.hud-sclock-face .arc { fill: none; stroke: var(--hud-accent, #d96a8a); stroke-width: 5; stroke-linecap: round; opacity: .75; filter: drop-shadow(0 0 3px var(--hud-accent, #d96a8a)); }
+.hud-sclock-face circle.is-missed { fill: #e46a6a; } .hud-sclock-face circle.is-late { fill: #e0a458; } .hud-sclock-face circle.is-wait { fill: #8ab4e8; }
+.hud-sclock-face circle[class^="is-"] { stroke: var(--hud-bg, #1e1826); stroke-width: 1.2; cursor: help; }
+.hud-sclock-face line.h { stroke: var(--hud-text, #e6e6ee); stroke-width: 3; stroke-linecap: round; }
+.hud-sclock-face line.m { stroke: var(--hud-text, #e6e6ee); stroke-width: 1.8; stroke-linecap: round; }
+.hud-sclock-face .hub { fill: var(--hud-accent, #d96a8a); }
+.hud-sclock-side { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; min-width: 0; }
+.hud-sclock-side > small { color: var(--hud-text-muted, #a8a5ad); font-size: 10.5px; margin-right: 4px; }
+
+/* Линия времени. */
+.hud-sclock.is-line { display: grid; gap: 4px; }
+.hud-sclock-line { position: relative; height: 34px; margin: 14px 8px 4px; }
+.hud-sclock-line::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 2px; transform: translateY(-50%); background: rgba(255,255,255,.12); border-radius: 2px; }
+.hud-sclock-run { position: absolute; left: 0; top: 50%; height: 4px; transform: translateY(-50%); border-radius: 4px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--hud-accent, #d96a8a) 35%, transparent), var(--hud-accent, #d96a8a)); box-shadow: 0 0 6px var(--hud-accent, #d96a8a); }
+.hud-sclock-pin { --sc: #e0a458; position: absolute; top: 50%; transform: translate(-50%, -50%); display: grid; justify-items: center; cursor: help; }
+.hud-sclock-pin i { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%; font-size: 11px; background: var(--hud-bg, #1e1826); color: var(--sc); border: 1.5px solid var(--sc); }
+.hud-sclock-pin small { position: absolute; top: -15px; font-size: 9.5px; color: var(--sc); white-space: nowrap; }
+.hud-sclock-pin.is-missed { --sc: #e46a6a; } .hud-sclock-pin.is-wait { --sc: #8ab4e8; }
+.hud-sclock-end { position: absolute; bottom: -12px; font-size: 9.5px; color: var(--hud-text-muted, #a8a5ad); white-space: nowrap; }
+.hud-sclock-end.is-start { left: 0; } .hud-sclock-end.is-now { transform: translateX(-100%); color: var(--hud-accent, #d96a8a); }
+.hud-sclock-notes { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 8px; font-size: 11px; color: var(--hud-text-muted, #a8a5ad); }
+.hud-sclock-notes .is-missed { color: #f08a8a; } .hud-sclock-notes .is-late { color: #f0c27a; } .hud-sclock-notes .is-wait { color: #a8c8f0; }
+/* Значки — цветным шрифтом эмодзи: шрифт темы иначе подменяет их глифами. */
+.hud-sclock :is(.hud-sclock-dur i, .hud-sclock-chip i, .hud-sclock-pin i) { font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif; }
+
+/* Оформление — языком видов блоков (css/views.css): медальон часов,
+   линейные значки исходов, плашки со стеклом. */
+.hud-sclock .hud-v-ico { width: 13px; height: 13px; }
+.hud-sclock-dur { gap: 7px; font-size: 12px; }
+.hud-sclock-dur .hud-v-medal { width: 26px; height: 26px; }
+.hud-sclock-dur .hud-v-medal .hud-v-ico { width: 14px; height: 14px; }
+.hud-sclock-dur b { font-size: 13px; color: color-mix(in srgb, var(--v-acc) 35%, var(--ink-hi, #fff)); text-shadow: 0 0 10px var(--v-glow); }
+.hud-sclock-chip { padding: 3px 11px 3px 4px; gap: 6px; box-shadow: inset 0 1px 0 rgba(255,255,255,.08); }
+.hud-sclock-chip > i { display: grid; place-items: center; width: 20px; height: 20px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--sc) 55%, transparent), color-mix(in srgb, var(--sc) 18%, rgba(0,0,0,.3))); color: #fff; }
+.hud-sclock-chip > i .hud-v-ico { width: 11px; height: 11px; }
+.hud-sclock.is-dial { grid-template-columns: 104px minmax(0, 1fr); padding: 10px 12px; }
+.hud-sclock.is-dial .hud-sclock-face { width: 104px; height: 104px; filter: drop-shadow(0 6px 10px rgba(0,0,0,.45)); }
+.hud-sclock-face .face { fill: color-mix(in srgb, var(--v-acc) 9%, #17121c); stroke: color-mix(in srgb, var(--v-acc) 45%, #7a6c7c); stroke-width: 2.2; }
+.hud-sclock-pin i .hud-v-ico { width: 11px; height: 11px; }
+.hud-sclock-pin i { background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--sc) 40%, #2a2030), #140f18); box-shadow: 0 2px 6px rgba(0,0,0,.5); }
+.hud-sclock-notes span { display: inline-flex; align-items: center; gap: 5px; }
+.hud-sclock.is-line { padding: 10px 12px; }
+@container (max-width: 360px) { .hud-sclock.is-dial { grid-template-columns: minmax(0, 1fr); justify-items: center; } }
+/* Рядом с циферблатом места мало — плашки переносятся, а не обрезаются. */
+.hud-sclock.is-dial .hud-sclock-chip { white-space: normal; border-radius: 12px; line-height: 1.25; padding-top: 3px; padding-bottom: 3px; }
+/* Циферблат и подписи — переносом: на узкой карточке подписи уходят под часы. */
+.hud-sclock.is-dial { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; }
+.hud-sclock.is-dial .hud-sclock-face { flex: none; }
+.hud-sclock.is-dial .hud-sclock-side { flex: 1 1 170px; }
+.hud-sclock-dur { flex-wrap: wrap; }
+/* Плашки переносятся, а не обрезаются: «пропущено» важнее ровной строки. */
+.hud-sclock-chip { white-space: normal; border-radius: 12px; line-height: 1.25; }
+
+/* Светлые темы: подписи исходов — тёмными тонами. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-sclock-notes .is-missed { color: #b8323a; } :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-sclock-notes .is-late { color: #9a5a12; } :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-sclock-notes .is-wait { color: #2f5f9e; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-sclock-face .face { fill: color-mix(in srgb, var(--v-acc) 10%, #fff8fb); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-sclock-face .ticks line { stroke: rgba(0,0,0,.35); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-sclock-face line.h, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-sclock-face line.m { stroke: #3a2a30; }

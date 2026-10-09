@@ -1,0 +1,64 @@
+/* Тема «ice» — правила под :root.hud-theme-ice.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/themes.css --- */
+/* ======================= Лёд ======================= */
+.hud-theme-ice { --hud-radius: 14px; }
+.hud-theme-ice .hud-key::after,
+.hud-theme-ice .hud-key-label::after { content: ' \2744\FE0E'; margin-left: 4px; font-size: .95em; }
+.hud-theme-ice .hud-os-logo::after { content: ' \2745'; }
+.hud-theme-ice .hud-world-title::after { content: ' \2746'; }
+/* Иней наползает из трёх углов. */
+.hud-theme-ice .hud-os-card::after {
+  background:
+    radial-gradient(52% 62% at 0% 0%, rgba(200,240,255,.17), transparent 70%),
+    radial-gradient(46% 54% at 100% 0%, rgba(200,240,255,.13), transparent 70%),
+    radial-gradient(40% 46% at 100% 100%, rgba(200,240,255,.1), transparent 70%),
+    var(--hud-bg);
+}
+/* Преломление: узкая радужная кромка по левому краю. */
+.hud-theme-ice .hud-os-wrapper::before {
+  content: ''; position: absolute; inset: 0; z-index: 2; pointer-events: none;
+  background: linear-gradient(180deg, transparent 6%, rgba(255,120,200,.16) 26%,
+    rgba(120,200,255,.2) 48%, rgba(160,255,220,.16) 66%, transparent 92%);
+  background-size: 2px 100%; background-repeat: no-repeat; background-position: left 5px top;
+}
+/* Кристаллы: три снежинки разного размера. */
+.hud-theme-ice .hud-tab-content::before {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='22' height='22' viewBox='0 0 22 22'%3E%3Cg stroke='%23cdeffa' stroke-width='1' stroke-linecap='round' opacity='.75'%3E%3Cpath d='M11 2v18M3.2 6.5l15.6 9M3.2 15.5l15.6-9'/%3E%3Cpath d='M11 5.6 8.6 3.6M11 5.6l2.4-2M11 16.4l-2.4 2M11 16.4l2.4 2'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='15' viewBox='0 0 15 15'%3E%3Cg stroke='%23bfeeff' stroke-width='.9' stroke-linecap='round' opacity='.6'%3E%3Cpath d='M7.5 1.5v12M2.2 4.5l10.6 6M2.2 10.5l10.6-6'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 11 11'%3E%3Cg stroke='%23e6f8ff' stroke-width='.8' stroke-linecap='round' opacity='.5'%3E%3Cpath d='M5.5 1v9M1.6 3.2l7.8 4.6M1.6 7.8l7.8-4.6'/%3E%3C/g%3E%3C/svg%3E");
+  background-position: right 12px top 8px, left 16px bottom 14px, right 46px bottom 10px;
+  animation: hud-ice-glint 6.5s ease-in-out infinite alternate;
+}
+/* Ледяная искра в углу. */
+.hud-theme-ice .hud-os-wrapper::after {
+  /* Тоже вниз: на своём прежнем месте искра лежала на виджете погоды. */
+  right: 14px; bottom: 12px; width: 26px; height: 26px;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(230,250,255,.9) 0 1.2px, transparent 1.6px),
+    linear-gradient(0deg, transparent 46%, rgba(200,240,255,.55) 50%, transparent 54%),
+    linear-gradient(90deg, transparent 46%, rgba(200,240,255,.55) 50%, transparent 54%),
+    linear-gradient(45deg, transparent 47%, rgba(200,240,255,.35) 50%, transparent 53%),
+    linear-gradient(-45deg, transparent 47%, rgba(200,240,255,.35) 50%, transparent 53%);
+}
+.hud-theme-ice    .hud-header::after { right: 46px; }
+/* ---- Лёд — кристалл, сосульки, иней ---- */
+.hud-theme-ice .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bfeeff' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9'/%3E%3Cpath d='M12 6.6L9.6 4.4M12 6.6l2.4-2.2M12 17.4l-2.4 2.2M12 17.4l2.4 2.2'/%3E%3C/svg%3E"); }
+.hud-theme-ice .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bfeeff' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 5h16'/%3E%3Cpath d='M7 5l1.2 7L9 5M12 5l1 9 1-9M17 5l1.2 6L19 5'/%3E%3C/svg%3E"); }
+.hud-theme-ice .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bfeeff' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 4v16'/%3E%3Cpath d='M12 8l-4-2M12 8l4-2M12 13l-5-2.5M12 13l5-2.5M12 18l-3.5-1.8M12 18l3.5-1.8'/%3E%3C/svg%3E"); }
+.hud-theme-ice .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bfeeff' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Ccircle cx='8' cy='9' r='3.4'/%3E%3Ccircle cx='16' cy='14' r='2.4'/%3E%3Cpath d='M6.4 7.2a3.4 3.4 0 011.4-1' opacity='.8'/%3E%3C/svg%3E"); }
+.hud-theme-ice .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23bfeeff' stroke-width='1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M3 12h18'/%3E%3Cpath d='M6 12l-1.6-2M6 12l-1.6 2M12 12l-1.6-2M12 12l-1.6 2M18 12l-1.6-2M18 12l-1.6 2'/%3E%3C/svg%3E"); }
+
+/* --- из css/extras.css --- */
+:root.hud-theme-ice { --cb-frame: rgba(188,214,238,.6); --cb-ink: #bcd6ee; --cb-on: ''; }
+
+/* --- из css/deco.css --- */
+:root.hud-theme-ice { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%201l2.6%208.4L23%2012l-8.4%202.6L12%2023l-2.6-8.4L1%2012l8.4-2.6z'%2F%3E%3C%2Fsvg%3E"); --trk: var(--hud-accent); --trk-glow: 0 0 6px var(--hud-accent), 0 0 12px color-mix(in srgb, var(--hud-accent) 55%, transparent); }
+
+/* --- анимации темы --- */
+@keyframes hud-ice-glint { from { opacity: .55; } to { opacity: 1; } }

@@ -1,0 +1,58 @@
+/* Тема «witch» — правила под :root.hud-theme-witch.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/misc.css --- */
+/* Ведьмовство: восковой отсвет снизу, как от свечи на столе. */
+.hud-theme-witch .hud-os-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(90% 46% at 50% 108%, rgba(200,168,106,.20), transparent 62%);
+}
+.hud-theme-witch .hud-os-logo::after { content: ' \1F56F'; }
+.hud-theme-witch .hud-tab.active { box-shadow: inset 0 -2px 0 #c8a86a; }
+.hud-theme-witch       .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-witch       .hud-diary-empty::after { content: var(--th-empty-diary); }
+/* --- Ведьмовство: воск, травы и лунный круг ------------------------------- */
+.hud-theme-witch .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a86a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.6'/%3E%3Cpath d='M12 3.4l2.4 5.2 5.6.6-4.2 3.8 1.2 5.6-5-2.8-5 2.8 1.2-5.6L4 9.2l5.6-.6z'/%3E%3C/svg%3E"); }
+.hud-theme-witch .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a86a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4.4 11h15.2c0 5-3.4 8.6-7.6 8.6S4.4 16 4.4 11z'/%3E%3Cpath d='M3 11h18' /%3E%3Cpath d='M8.6 8c-.6-2 .4-3.4 1.4-3.4M13 8c-.8-2.4.6-4 1.8-4' opacity='.6'/%3E%3C/svg%3E"); }
+.hud-theme-witch .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a86a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21V9'/%3E%3Cpath d='M12 9c-2.6-1.6-4-4-4-6.4 2.6 0 4 2.2 4 6.4zM12 11.4c2.4-1.6 4.4-1.6 6 0-1.6 2-3.6 2-6 0z'/%3E%3Cpath d='M9 18.6h6' opacity='.7'/%3E%3C/svg%3E"); }
+.hud-theme-witch .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a86a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='10' r='6'/%3E%3Cpath d='M9.4 7.6c.8-1.2 2-1.8 3.4-1.8' opacity='.7'/%3E%3Cpath d='M7 20.4c1.6-2 3-3 5-3s3.4 1 5 3z'/%3E%3C/svg%3E"); }
+.hud-theme-witch .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a86a' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='9' width='3.4' height='11'/%3E%3Crect x='10.4' y='6' width='3.4' height='14'/%3E%3Crect x='17.8' y='11' width='3.4' height='9'/%3E%3Cpath d='M4.7 9V6.6M12.1 6V3.4M19.5 11V8.6'/%3E%3C/svg%3E"); }
+/* Обои: свечной отсвет снизу и медленно тлеющие пылинки. */
+.hud-theme-witch .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(80% 40% at 50% 106%, rgba(200,168,106,.20), transparent 66%),
+    radial-gradient(circle 1.3px at 24% 62%, rgba(200,168,106,.55) 0 60%, transparent 100%),
+    radial-gradient(circle 1px at 72% 38%, rgba(200,168,106,.42) 0 60%, transparent 100%),
+    radial-gradient(circle 1.6px at 52% 18%, rgba(106,74,138,.40) 0 60%, transparent 100%);
+  background-size: auto, 120px 104px, 96px 84px, 150px 128px;
+  animation: hud-th-embers 9s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+/* Фирменный знак: рунный круг в правом нижнем углу. */
+.hud-theme-witch .hud-os-wrapper::after {
+  right: 14px; bottom: 12px; width: 44px; height: 44px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 44 44' fill='none' stroke='%23c8a86a' stroke-opacity='.42' stroke-width='1' stroke-linecap='round'%3E%3Ccircle cx='22' cy='22' r='20'/%3E%3Ccircle cx='22' cy='22' r='15'/%3E%3Cpath d='M22 7l13 22H9z'/%3E%3Cpath d='M22 2v5M22 37v5M2 22h5M37 22h5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-size: contain;
+}
+.hud-theme-witch :is(.hud-key, .hud-key-label)::after { content: ' \2726'; margin-left: 4px; font-size: .8em; opacity: .75; }
+.hud-theme-witch .hud-world-title::after { content: ' \263E'; }
+.hud-theme-witch .hud-key-item { border-left-color: #c8a86a; }
+.hud-theme-witch .hud-diary-entry { border-left-color: #6a4a8a; }
+.hud-theme-witch {
+  --hud-radius: 7px;
+  --th-empty-world: 'Круг сегодня не чертили.';
+  --th-empty-diary: 'Гримуар ещё чист.';
+}
+
+/* --- из css/deco.css --- */
+:root.hud-theme-witch { --cb-off: '☾';   --cb-on: '☽'; }
+:root.hud-theme-witch { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M15%202a10%2010%200%201%200%207%2017A8%208%200%200%201%2015%202z'%2F%3E%3Ccircle%20cx%3D'18'%20cy%3D'6'%20r%3D'1.5'%2F%3E%3C%2Fsvg%3E"); --trk: radial-gradient(circle, color-mix(in srgb, var(--hud-accent) 75%, transparent) 1.4px, transparent 1.9px) 0 50% / 8px 6px repeat-x; --trk-h: 6px; }
+
+/* --- анимации темы --- */
+@keyframes hud-th-embers {
+  from { background-position: 0 0, 0 0, 0 0, 0 0; }
+  to   { background-position: 0 0, 0 -34px, 0 -26px, 0 -44px; }
+}

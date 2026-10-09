@@ -1,0 +1,54 @@
+/* Тема «cottage» — правила под :root.hud-theme-cottage.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/themes.css --- */
+/* ======================= Коттеджкор ======================= */
+.hud-theme-cottage {
+  --hud-radius: 10px;
+  --lt-paper: rgba(255,253,246,.62); --lt-paper-2: rgba(255,253,246,.4);
+  --lt-ink: #4a4034; --lt-ink-soft: rgba(74,64,52,.62);
+  --lt-line: rgba(140,120,80,.3); --lt-solid: #f5efe0;
+  --hud-text: #4a4034;
+  --hud-text-muted: rgba(74,64,52,.62);
+  --hud-border: rgba(140,120,80,.32);
+}
+.hud-theme-cottage .hud-key::after,
+.hud-theme-cottage .hud-key-label::after { content: ' \2741'; margin-left: 4px; font-size: .95em; }
+.hud-theme-cottage .hud-os-logo::after { content: ' \2698'; }
+.hud-theme-cottage .hud-world-title::after { content: ' \2618'; }
+/* Льняное переплетение: нити в двух направлениях. */
+.hud-theme-cottage .hud-os-card::after {
+  background:
+    repeating-linear-gradient(90deg, rgba(140,120,80,.045) 0 1px, transparent 1px 4px),
+    repeating-linear-gradient(0deg, rgba(140,120,80,.045) 0 1px, transparent 1px 4px),
+    var(--hud-bg);
+}
+/* Засушенная веточка в углу. */
+.hud-theme-cottage .hud-os-wrapper::after {
+  right: 10px; bottom: 8px; width: 40px; height: 50px; opacity: .5;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='50' viewBox='0 0 40 50'%3E%3Cg stroke='%238a7a52' stroke-width='1.2' fill='none' stroke-linecap='round'%3E%3Cpath d='M20 48V10'/%3E%3Cpath d='M20 34c-6-2-9-7-9-12'/%3E%3Cpath d='M20 27c6-2 9-7 9-12'/%3E%3Cpath d='M20 41c-5-1.6-7.5-6-7.5-10'/%3E%3C/g%3E%3Cg fill='%23c9a0a8'%3E%3Cellipse cx='20' cy='8' rx='3' ry='4.4'/%3E%3Cellipse cx='11' cy='21' rx='2.2' ry='3.2'/%3E%3Cellipse cx='29' cy='14.5' rx='2.2' ry='3.2'/%3E%3C/g%3E%3C/svg%3E") no-repeat center / contain;
+}
+/* Грибы вдоль нижнего края — три штуки разного размера. */
+.hud-theme-cottage .hud-tab-content::before {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='20' height='22' viewBox='0 0 20 22'%3E%3Cpath d='M7.4 13h5.2v5.8a2.6 2.6 0 0 1-5.2 0z' fill='%23efe4cb'/%3E%3Cpath d='M10 2.6c4.3 0 7.6 3.6 7.6 6.9 0 1.9-1.5 2.8-3.2 2.8H5.6c-1.7 0-3.2-.9-3.2-2.8 0-3.3 3.3-6.9 7.6-6.9z' fill='%23b8543f'/%3E%3Ccircle cx='6.6' cy='8' r='1.1' fill='%23fdf6e8'/%3E%3Ccircle cx='12.2' cy='6.9' r='.9' fill='%23fdf6e8'/%3E%3Ccircle cx='14.2' cy='9.6' r='.8' fill='%23fdf6e8'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='16' viewBox='0 0 14 16'%3E%3Cpath d='M5.2 9.4h3.6v4.2a1.8 1.8 0 0 1-3.6 0z' fill='%23efe4cb'/%3E%3Cpath d='M7 1.8c3 0 5.3 2.6 5.3 4.9 0 1.4-1 2-2.2 2H3.9c-1.2 0-2.2-.6-2.2-2 0-2.3 2.3-4.9 5.3-4.9z' fill='%23c98a5e'/%3E%3Ccircle cx='4.9' cy='5.6' r='.8' fill='%23fdf6e8'/%3E%3Ccircle cx='8.8' cy='5' r='.6' fill='%23fdf6e8'/%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='13' viewBox='0 0 11 13'%3E%3Cpath d='M4.1 7.6h2.8v3.4a1.4 1.4 0 0 1-2.8 0z' fill='%23efe4cb'/%3E%3Cpath d='M5.5 1.4c2.4 0 4.2 2 4.2 3.9 0 1.1-.8 1.6-1.7 1.6H3c-.9 0-1.7-.5-1.7-1.6 0-1.9 1.8-3.9 4.2-3.9z' fill='%239a7f52'/%3E%3C/svg%3E");
+  background-position: left 14px bottom 2px, left 44px bottom 3px, right 34px bottom 2px;
+  opacity: .85;
+}
+/* ---- Коттеджкор — гриб, банка варенья, колосок ---- */
+.hud-theme-cottage .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a8c4a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 11c0-4 3.6-6.6 8-6.6S20 7 20 11z'/%3E%3Cpath d='M10 11v5.4a2 2 0 004 0V11'/%3E%3Ccircle cx='9' cy='8' r='1'/%3E%3Ccircle cx='14.5' cy='7.4' r='.8'/%3E%3C/svg%3E"); }
+.hud-theme-cottage .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a8c4a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M8 6h8l-1 3h-6z'/%3E%3Cpath d='M7 9h10v9a2 2 0 01-2 2H9a2 2 0 01-2-2z'/%3E%3Cpath d='M9.4 13c1.6 1 3.6 1 5.2 0'/%3E%3C/svg%3E"); }
+.hud-theme-cottage .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a8c4a' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 20V7'/%3E%3Cpath d='M12 9c-2 0-3.4-1.2-3.4-3C10.6 6 12 7.2 12 9zM12 9c2 0 3.4-1.2 3.4-3C13.4 6 12 7.2 12 9z'/%3E%3Cpath d='M12 13c-2 0-3.4-1.2-3.4-3C10.6 10 12 11.2 12 13zM12 13c2 0 3.4-1.2 3.4-3C13.4 10 12 11.2 12 13z'/%3E%3C/svg%3E"); }
+.hud-theme-cottage .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a8c4a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M3 8l3 3 3-3 3 3 3-3 3 3 3-3' opacity='.75'/%3E%3Cpath d='M3 16l3-3 3 3 3-3 3 3 3-3 3 3' opacity='.55'/%3E%3C/svg%3E"); }
+.hud-theme-cottage .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237a8c4a' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M3 5h18'/%3E%3Cpath d='M5 5l2.5 5L10 5M10 5l2.5 5L15 5M15 5l2.5 5L20 5'/%3E%3C/svg%3E"); }
+
+/* --- из css/extras.css --- */
+:root.hud-theme-cottage { --cb-frame: rgba(107,138,78,.55); --cb-ink: #6b8a4e; --cb-on: '●'; }
+
+/* --- из css/deco.css --- */
+:root.hud-theme-cottage { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%202a3.5%203.5%200%200%201%203.4%204.4A3.5%203.5%200%200%201%2020.6%209%203.5%203.5%200%200%201%2018%2014.4a3.5%203.5%200%200%201-2.6%205.2A3.5%203.5%200%200%201%2012%2018a3.5%203.5%200%200%201-3.4%201.6A3.5%203.5%200%200%201%206%2014.4%203.5%203.5%200%200%201%203.4%209a3.5%203.5%200%200%201%205.2-2.6A3.5%203.5%200%200%201%2012%202z'%2F%3E%3C%2Fsvg%3E"); --trk: radial-gradient(circle, color-mix(in srgb, var(--hud-accent) 75%, transparent) 1.4px, transparent 1.9px) 0 50% / 8px 6px repeat-x; --trk-h: 6px; }

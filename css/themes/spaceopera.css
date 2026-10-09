@@ -1,0 +1,64 @@
+/* Тема «spaceopera» — правила под :root.hud-theme-spaceopera.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/misc.css --- */
+/* Космоопера: звёздная пыль по карточке. */
+.hud-theme-spaceopera .hud-os-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background:
+    radial-gradient(1px 1px at 12% 22%, rgba(255,255,255,.7), transparent 60%),
+    radial-gradient(1px 1px at 78% 14%, rgba(255,255,255,.5), transparent 60%),
+    radial-gradient(1.5px 1.5px at 46% 8%, rgba(190,214,255,.6), transparent 60%),
+    radial-gradient(1px 1px at 88% 62%, rgba(255,255,255,.45), transparent 60%);
+}
+.hud-theme-spaceopera .hud-os-logo::after { content: ' \2727'; }
+.hud-theme-spaceopera .hud-tab.active { box-shadow: inset 0 -2px 0 #7db8ff; }
+.hud-theme-spaceopera  .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-spaceopera  .hud-diary-empty::after { content: var(--th-empty-diary); }
+/* --- Космоопера: кольца, звёзды и тёплый синий ---------------------------- */
+.hud-theme-spaceopera .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237db8ff' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='11' r='5.4'/%3E%3Cellipse cx='12' cy='11' rx='10.4' ry='3.2' transform='rotate(-18 12 11)' opacity='.7'/%3E%3C/svg%3E"); }
+.hud-theme-spaceopera .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237db8ff' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2.6c2.6 3 4 7 4 11.4l-4 3.4-4-3.4C8 9.6 9.4 5.6 12 2.6z'/%3E%3Ccircle cx='12' cy='9.4' r='1.8'/%3E%3Cpath d='M8 12.4L4.4 16l2.6.6M16 12.4L19.6 16l-2.6.6'/%3E%3Cpath d='M10.6 18.4L12 21.6l1.4-3.2'/%3E%3C/svg%3E"); }
+.hud-theme-spaceopera .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237db8ff' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M4 17l4-9 5 4 3-7 4 5'/%3E%3Ccircle cx='4' cy='17' r='1.2' fill='%237db8ff'/%3E%3Ccircle cx='8' cy='8' r='1.2' fill='%237db8ff'/%3E%3Ccircle cx='13' cy='12' r='1.2' fill='%237db8ff'/%3E%3Ccircle cx='16' cy='5' r='1.2' fill='%237db8ff'/%3E%3Ccircle cx='20' cy='10' r='1.2' fill='%237db8ff'/%3E%3C/svg%3E"); }
+.hud-theme-spaceopera .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237db8ff' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='16.6' cy='7.4' r='3'/%3E%3Cpath d='M14.4 9.6L3.4 20.6M13 8.4L4 14M15.8 11L10 20' opacity='.7'/%3E%3C/svg%3E"); }
+.hud-theme-spaceopera .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%237db8ff' stroke-width='1' stroke-linecap='round'%3E%3Cpath d='M2 18c4-9 10-13 20-14' opacity='.8'/%3E%3Cpath d='M2 21c5-7 11-10 20-11' opacity='.5'/%3E%3Ccircle cx='9' cy='11.4' r='1.4' fill='%237db8ff' stroke='none'/%3E%3C/svg%3E"); }
+/* Обои: туманность и звёздная пыль, медленно плывущая. */
+.hud-theme-spaceopera .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(46% 30% at 18% 16%, rgba(90,58,224,.24), transparent 74%),
+    radial-gradient(38% 24% at 86% 74%, rgba(125,184,255,.16), transparent 76%),
+    radial-gradient(circle 1.1px at 22% 34%, rgba(255,255,255,.75) 0 60%, transparent 100%),
+    radial-gradient(circle .9px at 68% 18%, rgba(200,220,255,.6) 0 60%, transparent 100%),
+    radial-gradient(circle 1.3px at 44% 82%, rgba(255,255,255,.55) 0 60%, transparent 100%);
+  background-size: auto, auto, 120px 100px, 90px 76px, 160px 132px;
+  animation: hud-th-drift 22s linear infinite;
+  animation-play-state: paused;
+}
+/* Фирменный знак: край планетного кольца в правом нижнем углу. */
+.hud-theme-spaceopera .hud-os-wrapper::after {
+  right: -30px; bottom: -30px; width: 130px; height: 130px;
+  border-radius: 50%;
+  border: 1px solid rgba(125,184,255,.30);
+  box-shadow: inset 0 0 0 9px rgba(125,184,255,.07), 0 0 22px rgba(90,58,224,.20);
+}
+.hud-theme-spaceopera :is(.hud-key, .hud-key-label)::after { content: ' \2727'; margin-left: 4px; font-size: .85em; opacity: .8; }
+.hud-theme-spaceopera .hud-world-title::after { content: ' \2727'; }
+.hud-theme-spaceopera .hud-key-item { border-left-color: #7db8ff; }
+.hud-theme-spaceopera .hud-diary-entry { border-left-color: #5a3ae0; }
+.hud-theme-spaceopera {
+  --hud-radius: 10px;
+  --th-empty-world: 'В этом секторе пусто.';
+  --th-empty-diary: 'Бортовой журнал чист.';
+}
+
+/* --- из css/deco.css --- */
+:root.hud-theme-spaceopera { --cb-off: '○';   --cb-on: '◉'; }
+:root.hud-theme-spaceopera { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Ccircle%20cx%3D'12'%20cy%3D'12'%20r%3D'9'%2F%3E%3Ccircle%20cx%3D'12'%20cy%3D'12'%20r%3D'4'%20fill%3D'white'%2F%3E%3C%2Fsvg%3E"); --trk: radial-gradient(circle, color-mix(in srgb, var(--hud-accent) 75%, transparent) 1.4px, transparent 1.9px) 0 50% / 8px 6px repeat-x; --trk-h: 6px; }
+
+/* --- анимации темы --- */
+@keyframes hud-th-drift {
+  from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0; }
+  to   { background-position: 0 0, 0 0, 120px 0, -90px 0, 160px 0; }
+}

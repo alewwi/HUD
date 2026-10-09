@@ -13,10 +13,7 @@
   --fam-line: color-mix(in srgb, var(--fam-acc) 28%, transparent);
   --fam-ink: color-mix(in srgb, var(--fam-acc) 40%, #fff);
 }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-os-card {
-  --fam-inset: color-mix(in srgb, var(--fam-acc) 5%, rgba(255,255,255,.85));
-  --fam-ink: color-mix(in srgb, var(--fam-acc) 78%, #000);
-}
+
 
 /* --- Цикл: причины сниженного шанса, кровотечение, сбой, попытки ---------- */
 .hud-fert-reasons { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
@@ -345,9 +342,7 @@
 :is(.hud-pp-head small, .hud-pp-head em, .hud-pp-milk .info small, .hud-kids-head small, .hud-kid-chip .who small, .hud-fetus .txt > small, .hud-kid-care .ms-count, .hud-pp-row > span) {
   opacity: 1; color: color-mix(in srgb, currentColor 72%, transparent);
 }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-pp-head small, .hud-pp-head em, .hud-pp-milk .info small, .hud-kids-head small, .hud-kid-chip .who small, .hud-fetus .txt > small, .hud-fetus .looks-head, .hud-kid-care .ms-count, .hud-pp-row > span, .hud-fetus-fate .opts small) {
-  color: var(--lt-ink-soft, #6a5a64) !important; opacity: 1 !important;
-}
+
 
 /* Беременность: всегда видны срок и шкала, остальное — под «Подробнее». */
 .hud-prg-more > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 5px 12px; border-radius: 999px;

@@ -1,0 +1,128 @@
+/* Тема «kawaii» — правила под :root.hud-theme-kawaii.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/base.css --- */
+/* --- Каваи -------------------------------------------------------------- */
+.hud-theme-kawaii {
+  --hud-text: #4a2338;
+  --hud-text-muted: rgba(74,35,56,.62);
+  --hud-border: rgba(190,100,150,.26);
+  --hud-radius: 18px;
+}
+/* Розовая зайка над каждым блоком. Своя картинка, а не 🐰: эмодзи рисуется
+   шрифтом системы и розовым не бывает. */
+.hud-theme-kawaii .hud-key::after,
+.hud-theme-kawaii .hud-key-label::after {
+  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 16 16'%3E%3Cg fill='%23f78fc0'%3E%3Cellipse cx='5.6' cy='4.4' rx='1.4' ry='3.5'/%3E%3Cellipse cx='10.4' cy='4.4' rx='1.4' ry='3.5'/%3E%3Ccircle cx='8' cy='11' r='4.3'/%3E%3C/g%3E%3Cg fill='%23fff'%3E%3Ccircle cx='6.5' cy='10.3' r='.75'/%3E%3Ccircle cx='9.5' cy='10.3' r='.75'/%3E%3C/g%3E%3C/svg%3E");
+  margin-left: 5px; vertical-align: -2px;
+}
+/* Кружевной уголок из точек. */
+.hud-theme-kawaii .hud-os-card::after {
+  background:
+    radial-gradient(circle at 6px 6px, rgba(255,140,190,.5) 0 2.4px, transparent 3px) top right / 18px 18px repeat-x,
+    var(--hud-bg);
+}
+.hud-theme-kawaii  .hud-os-logo::after { content: ' (•ω•)'; letter-spacing: 0; }
+.hud-theme-kawaii  .hud-world-title::after { content: ' \273F\FE0E'; }
+.hud-theme-kawaii .hud-tab.active { box-shadow: inset 0 -2px 0 #e0568f; }
+/* =========================================================================
+   СВЕТЛЫЕ ТЕМЫ: ВНУТРЕННИЕ БЛОКИ
+   -------------------------------------------------------------------------
+   «Каваи» и «Средневековье» светлые, но десятки внутренних поверхностей —
+   экран телефона, лист дневника, газета, доска объявлений, панель
+   кастомизации — крашены жёстко заданным почти чёрным. Настройками их не
+   достать: там нет таких полей. Поэтому здесь один общий блок, который
+   переводит эти поверхности на светлую бумагу и возвращает тёмные чернила
+   тексту, у которого цвет тоже прописан наглухо.
+
+   Две переменные на тему: --lt-paper (карточка) и --lt-ink (текст).
+   Полноэкранные подложки становятся прозрачными — под ними и так лежит
+   фон темы, второй слой только грязнил бы цвет.
+   ========================================================================= */
+.hud-theme-kawaii {
+  --lt-paper: rgba(255,255,255,.58);
+  --lt-paper-2: rgba(255,255,255,.34);
+  --lt-ink: #4a2338;
+  --lt-ink-soft: rgba(74,35,56,.62);
+  --lt-line: rgba(190,100,150,.24);
+  --lt-solid: #ffe6f2;
+}
+.hud-theme-kawaii .hud-key-item::before {
+  content: '♡'; position: absolute; left: 8px; top: 6px;
+  color: #ff7fb6; font-size: .95em; line-height: 1.4;
+}
+.hud-theme-kawaii .hud-os-wrapper::after { display: none; }
+.hud-theme-kawaii :is(.hud-key, .hud-key-label) { letter-spacing: .04em; }
+.hud-theme-kawaii .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
+.hud-theme-kawaii .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
+.hud-theme-kawaii {
+  --th-empty-world: 'Сегодня в городе тихо-тихо.';
+  --th-empty-diary: 'Дневник ещё чистенький.';
+}
+/* --- 3. Светлые темы: плетение бумаги ------------------------------------
+   Четыре градиента под 135/225/45/315° на сетке 7px дают тканую фактуру
+   без единой картинки. Поверх ложится обычный фон блока. */
+.hud-theme-kawaii .hud-key-block {
+  background-image:
+    linear-gradient(135deg, rgba(224,86,143,.05) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(224,86,143,.05) 25%, transparent 25%),
+    linear-gradient(45deg,  rgba(224,86,143,.05) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(224,86,143,.05) 25%, transparent 25%);
+  background-size: 7px 7px;
+}
+
+/* --- из css/themes.css --- */
+/* Каваи: пастельные облака и блёстки. */
+.hud-theme-kawaii .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(38% 22% at 14% 8%, rgba(255,210,232,.5), transparent 72%),
+    radial-gradient(30% 18% at 82% 5%, rgba(255,224,240,.42), transparent 74%),
+    radial-gradient(circle 1.6px at 26% 34%, rgba(255,255,255,.85) 0 60%, transparent 100%),
+    radial-gradient(circle 1.2px at 64% 58%, rgba(255,235,246,.8) 0 60%, transparent 100%),
+    radial-gradient(circle 1.8px at 88% 78%, rgba(255,255,255,.7) 0 60%, transparent 100%);
+  background-size: auto, auto, 130px 110px, 95px 85px, 160px 140px;
+  animation: hud-th-sparkle 3.8s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+/* --- Каваи: наклейки, приклеенные по углам ------------------------------
+   Три картинки-стикера: сердечко, звёздочка и облачко на белых карточках,
+   каждая под своим углом. Рисованные, а не эмодзи: эмодзи берутся из
+   системного шрифта и пастельными не бывают. */
+.hud-theme-kawaii .hud-tab-content::before {
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='30' viewBox='0 0 30 30'%3E%3Cg transform='rotate(-9 15 15)'%3E%3Crect x='4' y='4' width='22' height='22' rx='6' fill='%23fffafd' opacity='.9'/%3E%3Cpath d='M15 22s-6-4-6-7.7A3.4 3.4 0 0 1 15 12a3.4 3.4 0 0 1 6 2.3C21 18 15 22 15 22z' fill='%23ff8fc0'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='27' height='27' viewBox='0 0 27 27'%3E%3Cg transform='rotate(13 13.5 13.5)'%3E%3Crect x='3.5' y='3.5' width='20' height='20' rx='5.5' fill='%23fffafd' opacity='.88'/%3E%3Cpath d='m13.5 7 2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4-4.5 2.4.9-5L6.3 12.3l5-.7z' fill='%23a8e6cf'/%3E%3C/g%3E%3C/svg%3E"),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cg transform='rotate(-5 14 14)'%3E%3Crect x='4' y='4' width='20' height='20' rx='6' fill='%23fffafd' opacity='.86'/%3E%3Cpath d='M9 18.5h10a3.2 3.2 0 0 0 .2-6.4 4.6 4.6 0 0 0-8.8 1A2.8 2.8 0 0 0 9 18.5z' fill='%23c9b8ff'/%3E%3C/g%3E%3C/svg%3E");
+  background-position: right 8px top 6px, left 10px bottom 12px, right 26px bottom 8px;
+  filter: drop-shadow(0 3px 5px rgba(180,90,140,.22));
+  opacity: .9;
+  animation: hud-th-bob 5.4s ease-in-out infinite alternate;
+}
+/* Каваи, Vamp и Лёд прикалывают собственную наклейку в тот же правый верхний
+   угол (сердечко 30x30 на right 8px, свеча 38x38 на right 16px и кристалл
+   22x22 на right 12px — слои .hud-tab-content::before). Общий значок шапки
+   стоял на right 12px и ложился прямо на неё; у Льда выходила снежинка
+   поверх снежинки.
+   Отодвигаем значок шапки левее наклейки, оставляя между ними по 12px
+   воздуха. Оба знака остаются на месте, просто рядом, а не друг на друге. */
+.hud-theme-kawaii .hud-header::after { right: 50px; }
+/* ---- Каваи — банты, лапки и спящий котик ---- */
+.hud-theme-kawaii .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0568f' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 12c-3-3-7-3-7 0s4 3 7 0zM12 12c3-3 7-3 7 0s-4 3-7 0z'/%3E%3Ccircle cx='12' cy='12' r='1.6'/%3E%3Cpath d='M10 14l-2 5M14 14l2 5'/%3E%3C/svg%3E"); }
+.hud-theme-kawaii .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0568f' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 16c0-3 2-5 5-5h6c3 0 5 2 5 5v2H4z'/%3E%3Cpath d='M7 11c-1-2 0-4 1-4s2 2 1 4M16 11c-1-2 0-4 1-4s2 2 1 4'/%3E%3Cpath d='M10 15h.01M14 15h.01M11 17.5c.7.6 1.3.6 2 0'/%3E%3C/svg%3E"); }
+.hud-theme-kawaii .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e0568f' stroke='none'%3E%3Cpath d='M12 20s-7-4.4-7-9.2C5 8 7 6.4 9 6.4c1.3 0 2.4.7 3 1.8.6-1.1 1.7-1.8 3-1.8 2 0 4 1.6 4 4.4C19 15.6 12 20 12 20z' opacity='.75'/%3E%3C/svg%3E"); }
+.hud-theme-kawaii .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0568f' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M6 8l1.2 2.4L9.6 11.6 7.2 12.8 6 15.2 4.8 12.8 2.4 11.6 4.8 10.4z'/%3E%3Cpath d='M16 5l.9 1.8 1.8.9-1.8.9L16 10.4l-.9-1.8-1.8-.9 1.8-.9z'/%3E%3Cpath d='M17 15l.7 1.4 1.4.7-1.4.7-.7 1.4-.7-1.4-1.4-.7 1.4-.7z'/%3E%3C/svg%3E"); }
+.hud-theme-kawaii .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0568f' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Ccircle cx='6' cy='9' r='1.6'/%3E%3Ccircle cx='10' cy='6' r='1.6'/%3E%3Ccircle cx='14' cy='6' r='1.6'/%3E%3Ccircle cx='18' cy='9' r='1.6'/%3E%3Cellipse cx='12' cy='14' rx='4.4' ry='3.4'/%3E%3C/svg%3E"); }
+
+/* --- из css/deco.css --- */
+:root.hud-theme-kawaii { --cb-off: '\2661\FE0E'; --cb-on: '\2665\FE0E'; }
+:root.hud-theme-kawaii { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%2021s-8-5.1-8-11a4.6%204.6%200%200%201%208-3%204.6%204.6%200%200%201%208%203c0%205.9-8%2011-8%2011z'%2F%3E%3C%2Fsvg%3E"); --trk: radial-gradient(circle, color-mix(in srgb, var(--hud-accent) 75%, transparent) 1.4px, transparent 1.9px) 0 50% / 8px 6px repeat-x; --trk-h: 6px; }
+
+/* --- анимации темы --- */
+@keyframes hud-th-sparkle { from { opacity: .55; } to { opacity: 1; } }
+@keyframes hud-th-bob {
+  from { background-position: right 8px top 6px, left 10px bottom 12px, right 26px bottom 8px; }
+  to   { background-position: right 11px top 9px, left 13px bottom 9px, right 23px bottom 11px; }
+}

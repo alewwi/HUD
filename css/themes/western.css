@@ -1,0 +1,58 @@
+/* Тема «western» — правила под :root.hud-theme-western.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/misc.css --- */
+.hud-theme-western {
+  --lt-paper: rgba(251,242,228,.64);
+  --lt-paper-2: rgba(251,242,228,.38);
+  --lt-ink: #3b2a1c;
+  --lt-ink-soft: rgba(59,42,28,.62);
+  --lt-line: rgba(140,100,60,.28);
+  --lt-solid: #f0e2cc;
+}
+/* Вестерн: волокна выгоревшего дерева. */
+.hud-theme-western .hud-os-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .5;
+  background: repeating-linear-gradient(180deg, rgba(120,80,40,.06) 0 3px, transparent 3px 9px);
+}
+.hud-theme-western .hud-os-logo::after { content: ' \2736'; }
+.hud-theme-western .hud-tab.active { box-shadow: inset 0 -2px 0 #b06a2c; }
+.hud-theme-western     .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-western     .hud-diary-empty::after { content: var(--th-empty-diary); }
+/* --- Вестерн: выгоревшее дерево, пыль и жесть ----------------------------- */
+.hud-theme-western .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b06a2c' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 2.6l2.2 4.6 5 .4-3.6 3.4 1.2 5-4.8-2.6-4.8 2.6 1.2-5L4.8 7.6l5-.4z'/%3E%3Ccircle cx='12' cy='10.4' r='1.8'/%3E%3C/svg%3E"); }
+.hud-theme-western .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b06a2c' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 21V6.6a2.6 2.6 0 015.2 0V12a2 2 0 01-4 0'/%3E%3Cpath d='M12 14a2 2 0 01-4 0V9.4a2.6 2.6 0 00-2.6 2.6'/%3E%3Cpath d='M9 21h6' opacity='.6'/%3E%3C/svg%3E"); }
+.hud-theme-western .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b06a2c' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 19.4V12a5 5 0 0110 0v7.4'/%3E%3Cpath d='M7 19.4h2.6M14.4 19.4H17' opacity='.7'/%3E%3C/svg%3E"); }
+.hud-theme-western .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b06a2c' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='4.6' y='3' width='14.8' height='18' rx='1'/%3E%3Cpath d='M7.4 6.6h9.2' /%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3Cpath d='M7.4 17.6h9.2' opacity='.6'/%3E%3C/svg%3E"); }
+.hud-theme-western .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23b06a2c' stroke-width='1.1' stroke-linecap='round'%3E%3Cpath d='M2 8h20M2 14h20' opacity='.6'/%3E%3Cpath d='M5 4.4V19M12 4.4V19M19 4.4V19'/%3E%3C/svg%3E"); }
+/* Обои: волокно доски и пыль, поднятая с дороги. */
+.hud-theme-western .hud-os-wrapper::before {
+  background-image:
+    repeating-linear-gradient(180deg, rgba(120,80,40,.055) 0 2px, transparent 2px 9px),
+    radial-gradient(60% 26% at 50% 100%, rgba(176,106,44,.14), transparent 72%),
+    radial-gradient(circle .8px at 30% 40%, rgba(120,80,40,.10) 0 60%, transparent 100%);
+  background-size: auto, auto, 46px 40px;
+}
+/* Фирменный знак: витой канат по нижнему краю. */
+.hud-theme-western .hud-os-wrapper::after {
+  left: 0; right: 0; bottom: 0; height: 9px;
+  background-image: repeating-linear-gradient(58deg, rgba(176,106,44,.42) 0 3px, rgba(176,106,44,.10) 3px 7px);
+  opacity: .55;
+}
+.hud-theme-western :is(.hud-key, .hud-key-label)::after { content: ' \2736'; margin-left: 4px; font-size: .8em; opacity: .75; }
+.hud-theme-western .hud-world-title::after { content: ' \2736'; }
+.hud-theme-western .hud-key-item { border-left-color: #b06a2c; }
+.hud-theme-western .hud-diary-entry { border-left-color: #8a4f1c; }
+.hud-theme-western {
+  --hud-radius: 4px;
+  --th-empty-world: 'В городе сегодня тихо.';
+  --th-empty-diary: 'Ни строчки за день.';
+}
+.hud-theme-western   .hud-key-item { border-left-color: #b06a2c !important; }
+
+/* --- из css/deco.css --- */
+:root.hud-theme-western { --cb-off: '✩';   --cb-on: '✪'; }
+:root.hud-theme-western { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%202l2.9%206.6%207.1.6-5.4%204.7%201.6%207L12%2017.3%205.8%2020.9l1.6-7L2%209.2l7.1-.6z'%2F%3E%3C%2Fsvg%3E"); --trk: repeating-linear-gradient(60deg, color-mix(in srgb, var(--hud-accent) 80%, #000) 0 2px, color-mix(in srgb, var(--hud-accent) 45%, #fff) 2px 4px); --trk-h: 4px; }

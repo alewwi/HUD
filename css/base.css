@@ -5919,9 +5919,8 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-phone-app[data-phone-app="health"]   > span { background: linear-gradient(160deg, #ff8fc4, #d6467f); }
 .hud-phone-app[data-phone-app="wallet"]   > span { background: linear-gradient(160deg, #4b5266, #1b1e28); color: #ffd76b; }
 .hud-phone-app[data-phone-app="calendar"] > span { background: linear-gradient(160deg, #ffffff, #e4e6ee); color: #e0453a; }
-/* Светлые темы красят глифы чернилами — на тёмном кошельке они пропадали. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-app[data-phone-app="wallet"] .hud-g-ico { color: #ffd76b; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-app[data-phone-app="calendar"] .hud-g-ico { color: #e0453a; }
+
+
 .hud-phone-app small { text-shadow: 0 1px 3px rgba(0,0,0,.7); }
 
 /* Значок непрочитанного поверх иконки. */
@@ -7260,9 +7259,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 }
 .hud-rel-graph.is-focused .hud-rel-edge.is-flowing { opacity: 1; }
 
-@media (hover: hover) and (pointer: fine) {
-  
-}
+
 
 /* =========================================================================
    Раскрытый граф отношений: центрирование, устойчивое к вёрстке SillyTavern
@@ -8329,127 +8326,34 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-theme-preset.active { border-color: var(--hud-accent); background: rgba(255,255,255,.1); box-shadow: 0 0 0 1px var(--hud-accent) inset; }
 .hud-theme-presets-note { margin-top: 8px; font-size: 10px; opacity: .6; line-height: 1.35; }
 
-/* --- Каваи -------------------------------------------------------------- */
-.hud-theme-kawaii {
-  --hud-text: #4a2338;
-  --hud-text-muted: rgba(74,35,56,.62);
-  --hud-border: rgba(190,100,150,.26);
-  --hud-radius: 18px;
-}
-/* Розовая зайка над каждым блоком. Своя картинка, а не 🐰: эмодзи рисуется
-   шрифтом системы и розовым не бывает. */
-.hud-theme-kawaii .hud-key::after,
-.hud-theme-kawaii .hud-key-label::after {
-  content: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='13' height='13' viewBox='0 0 16 16'%3E%3Cg fill='%23f78fc0'%3E%3Cellipse cx='5.6' cy='4.4' rx='1.4' ry='3.5'/%3E%3Cellipse cx='10.4' cy='4.4' rx='1.4' ry='3.5'/%3E%3Ccircle cx='8' cy='11' r='4.3'/%3E%3C/g%3E%3Cg fill='%23fff'%3E%3Ccircle cx='6.5' cy='10.3' r='.75'/%3E%3Ccircle cx='9.5' cy='10.3' r='.75'/%3E%3C/g%3E%3C/svg%3E");
-  margin-left: 5px; vertical-align: -2px;
-}
-/* Кружевной уголок из точек. */
-.hud-theme-kawaii .hud-os-card::after {
-  background:
-    radial-gradient(circle at 6px 6px, rgba(255,140,190,.5) 0 2.4px, transparent 3px) top right / 18px 18px repeat-x,
-    var(--hud-bg);
-}
+
+
 .hud-theme-kawaii .hud-key-item { border-left-color: #ff9fc9; }
 
-/* --- Dark Academia ------------------------------------------------------ */
-.hud-theme-academia { --hud-radius: 6px; }
-.hud-theme-academia .hud-key::after,
-.hud-theme-academia .hud-key-label::after { content: ' \2766\FE0E'; margin-left: 4px; font-size: .95em; }
-/* Кофейное кольцо в углу и корешки книг вдоль нижнего края. */
-.hud-theme-academia .hud-os-card::after {
-  background:
-    radial-gradient(circle at 92% 16px, transparent 0 12px, rgba(120,80,40,.22) 12px 14px, transparent 15px) no-repeat,
-    repeating-linear-gradient(90deg,
-      rgba(120,80,40,.16) 0 7px, transparent 7px 9px,
-      rgba(90,60,30,.2) 9px 14px, transparent 14px 17px) bottom left / 100% 9px repeat-x,
-    var(--hud-bg);
-}
 
-/* --- Vamp --------------------------------------------------------------- */
-.hud-theme-vamp { --hud-radius: 14px; }
-.hud-theme-vamp .hud-key::after,
-.hud-theme-vamp .hud-key-label::after { content: ' †'; margin-left: 4px; font-size: 1.05em; }
-/* Капли крови стекают с верхней кромки карточки. */
-.hud-theme-vamp .hud-os-card::after {
-  background:
-    radial-gradient(ellipse 5px 11px at 14% 0, rgba(160,12,30,.85) 0 62%, transparent 100%) no-repeat,
-    radial-gradient(ellipse 4px 18px at 31% 0, rgba(140,10,26,.75) 0 60%, transparent 100%) no-repeat,
-    radial-gradient(ellipse 6px 8px at 58% 0, rgba(170,14,34,.8) 0 64%, transparent 100%) no-repeat,
-    radial-gradient(ellipse 4px 14px at 79% 0, rgba(140,10,26,.7) 0 60%, transparent 100%) no-repeat,
-    var(--hud-bg);
-}
-/* Клыки: два острия под шапкой карточки. */
-.hud-theme-vamp .hud-os-topbar {
-  border-bottom: 0;
-  background-image:
-    linear-gradient(135deg, transparent 49%, rgba(255,240,240,.5) 50%, transparent 58%),
-    linear-gradient(225deg, transparent 49%, rgba(255,240,240,.5) 50%, transparent 58%);
-  background-size: 9px 7px, 9px 7px;
-  background-position: calc(50% - 7px) 100%, calc(50% + 7px) 100%;
-  background-repeat: no-repeat, no-repeat;
-}
 
-/* --- Киберпанк ---------------------------------------------------------- */
-.hud-theme-cyberpunk { --hud-radius: 4px; }
-.hud-theme-cyberpunk .hud-key::after,
-.hud-theme-cyberpunk .hud-key-label::after { content: '>_ '; font-family: 'Courier New', monospace; color: #2de2ff; }
-/* Развёртка ЭЛТ плюс угловые скобки терминала. */
-.hud-theme-cyberpunk .hud-os-card::after {
-  background:
-    repeating-linear-gradient(180deg, rgba(45,226,255,.055) 0 1px, transparent 1px 3px),
-    linear-gradient(90deg, #2de2ff 0 14px, transparent 14px) top left / 100% 2px no-repeat,
-    linear-gradient(90deg, transparent calc(100% - 14px), #ff2d6f calc(100% - 14px)) bottom left / 100% 2px no-repeat,
-    var(--hud-bg);
-}
+
+
+
+
+
+
+
 .hud-theme-cyberpunk .hud-key-item { border-left-color: #2de2ff; }
 
-/* --- Нуар --------------------------------------------------------------- */
-.hud-theme-noir { --hud-radius: 2px; }
-.hud-theme-noir .hud-key::after,
-.hud-theme-noir .hud-key-label::after { content: ' ◐'; margin-left: 4px; font-size: .95em; }
-/* Свет сквозь жалюзи наискось — единственная фактура, которая нужна нуару. */
-.hud-theme-noir .hud-os-card::after {
-  background:
-    repeating-linear-gradient(172deg,
-      rgba(255,255,255,.055) 0 6px, transparent 6px 19px) top right / 62% 130% no-repeat,
-    var(--hud-bg);
-}
-.hud-theme-noir .hud-os-topbar { border-bottom: 2px solid rgba(255,255,255,.22); }
 
-/* --- Средневековье ------------------------------------------------------ */
-.hud-theme-medieval {
-  --hud-text: #3a2c15;
-  --hud-text-muted: rgba(58,44,21,.66);
-  --hud-border: rgba(120,95,45,.32);
-  --hud-radius: 5px;
-}
-.hud-theme-medieval .hud-key::after,
-.hud-theme-medieval .hud-key-label::after { content: ' \2694\FE0E'; margin-left: 4px; font-size: .95em; }
-/* Серебряный клинок вдоль левого поля и золотая кайма сверху. */
-.hud-theme-medieval .hud-os-card::after {
-  background:
-    linear-gradient(90deg, rgba(210,215,225,.75) 0 2px, rgba(150,158,170,.5) 2px 4px, transparent 4px) left top / 4px 100% no-repeat,
-    linear-gradient(90deg, transparent, rgba(201,162,39,.75), transparent) top left / 100% 3px no-repeat,
-    var(--hud-bg);
-}
-.hud-theme-medieval .hud-key-item { border-left-color: #8a6a1f; }
 
-/* --- Криминал / Мафия ---------------------------------------------------
-   Держится подчёркнуто иначе, чем Vamp: там вино и мягкое свечение, здесь
-   чистая чернь, алый и прямые углы. Опознавательный знак — жёлтая лента
-   оцепления наискось в правом верхнем углу. */
-.hud-theme-mafia { --hud-radius: 3px; }
-.hud-theme-mafia .hud-key::after,
-.hud-theme-mafia .hud-key-label::after { content: ' \2716\FE0E'; margin-left: 4px; font-size: .9em; }
-.hud-theme-mafia .hud-os-card::after {
-  background:
-    repeating-linear-gradient(-38deg,
-      #f2c400 0 11px, #101010 11px 22px) top right / 190px 22px no-repeat,
-    var(--hud-bg);
-}
-.hud-theme-mafia .hud-os-topbar { border-bottom: 2px solid #d92b2b; }
-.hud-theme-mafia .hud-key-item { border-left-color: #d92b2b; border-radius: 0; }
-.hud-theme-mafia .hud-key-block { border-radius: 3px; }
+
+
+
+
+
+
+
+
+
+
+
 
 /* =========================================================================
    МИР: ПРОГНОЗ ПОГОДЫ И ГОРОСКОП
@@ -8635,88 +8539,41 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
    ========================================================================= */
 .hud-os-logo::after, .hud-world-title::after { font-size: .92em; opacity: .72; }
 
-.hud-theme-kawaii  .hud-os-logo::after { content: ' (•ω•)'; letter-spacing: 0; }
-.hud-theme-academia .hud-os-logo::after { content: ' \2767\FE0E'; }
-.hud-theme-vamp    .hud-os-logo::after { content: ' ‡'; }
-.hud-theme-cyberpunk .hud-os-logo::after { content: ' ▮'; color: #2de2ff; }
-.hud-theme-noir    .hud-os-logo::after { content: ' ▨'; }
-.hud-theme-medieval .hud-os-logo::after { content: ' \2720\FE0E'; }
-.hud-theme-mafia   .hud-os-logo::after { content: ' \2297'; }
 
-.hud-theme-kawaii  .hud-world-title::after { content: ' \273F\FE0E'; }
-.hud-theme-academia .hud-world-title::after { content: ' ¶'; }
-.hud-theme-vamp    .hud-world-title::after { content: ' \2619\FE0E'; }
-.hud-theme-cyberpunk .hud-world-title::after { content: ' ⌁'; color: #2de2ff; }
-.hud-theme-noir    .hud-world-title::after { content: ' \25E7'; }
-.hud-theme-medieval .hud-world-title::after { content: ' \2756'; }
 
-/* Активная вкладка получает цвет темы, а не общий акцент. */
-.hud-theme-cyberpunk .hud-tab.active { box-shadow: inset 0 -2px 0 #2de2ff; }
-.hud-theme-vamp .hud-tab.active { box-shadow: inset 0 -2px 0 #c31f38; }
-.hud-theme-mafia .hud-tab.active { box-shadow: inset 0 -2px 0 #d92b2b; border-radius: 0; }
-.hud-theme-medieval .hud-tab.active { box-shadow: inset 0 -2px 0 #c9a227; }
-.hud-theme-noir .hud-tab.active { box-shadow: inset 0 -2px 0 rgba(255,255,255,.6); }
-.hud-theme-kawaii .hud-tab.active { box-shadow: inset 0 -2px 0 #e0568f; }
-.hud-theme-academia .hud-tab.active { box-shadow: inset 0 -2px 0 #c9a227; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* Дневник тоже отзывается на тему: у бумаги свой оттенок кромки. */
 .hud-theme-kawaii .hud-diary-entry { border-left-color: #ff8fc0; }
-.hud-theme-academia .hud-diary-entry { border-left-color: #a9782f; }
-.hud-theme-vamp .hud-diary-entry { border-left-color: #8e1327; }
-.hud-theme-cyberpunk .hud-diary-entry { border-left-color: #2de2ff; }
-.hud-theme-noir .hud-diary-entry { border-left-color: #bdbdbd; }
+
+
+
+
 .hud-theme-medieval .hud-diary-entry { border-left-color: #8a6a1f; }
-.hud-theme-mafia .hud-diary-entry { border-left-color: #d92b2b; border-radius: 0; }
 
-/* =========================================================================
-   СВЕТЛЫЕ ТЕМЫ: ВНУТРЕННИЕ БЛОКИ
-   -------------------------------------------------------------------------
-   «Каваи» и «Средневековье» светлые, но десятки внутренних поверхностей —
-   экран телефона, лист дневника, газета, доска объявлений, панель
-   кастомизации — крашены жёстко заданным почти чёрным. Настройками их не
-   достать: там нет таких полей. Поэтому здесь один общий блок, который
-   переводит эти поверхности на светлую бумагу и возвращает тёмные чернила
-   тексту, у которого цвет тоже прописан наглухо.
 
-   Две переменные на тему: --lt-paper (карточка) и --lt-ink (текст).
-   Полноэкранные подложки становятся прозрачными — под ними и так лежит
-   фон темы, второй слой только грязнил бы цвет.
-   ========================================================================= */
-.hud-theme-kawaii {
-  --lt-paper: rgba(255,255,255,.58);
-  --lt-paper-2: rgba(255,255,255,.34);
-  --lt-ink: #4a2338;
-  --lt-ink-soft: rgba(74,35,56,.62);
-  --lt-line: rgba(190,100,150,.24);
-  --lt-solid: #ffe6f2;
-}
-.hud-theme-medieval {
-  --lt-paper: rgba(255,252,240,.62);
-  --lt-paper-2: rgba(255,252,240,.36);
-  --lt-ink: #3a2c15;
-  --lt-ink-soft: rgba(58,44,21,.64);
-  --lt-line: rgba(120,95,45,.3);
-  --lt-solid: #efe3c6;
-}
 
-/* --- Полноэкранные подложки: убираем тёмный слой совсем --- */
-/* Прозрачным можно делать только то, что лежит В ПОТОКЕ. Экран приложения
-   абсолютный и накрывает домашний: без своей подложки сквозь него
-   просвечивали иконки и уведомления. Ему нужен фон телефона. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
-  .hud-phone-emulator,
-  .hud-phone-chat-area, .hud-phone-chat-list, .hud-phone-bottom-bar
-) { background: transparent !important; }
-/* Домашний экран — фон телефона из настроек («Фон экрана»). У светлых тем
-   он и так светлый; прозрачность глушила настройку, и фон экрана
-   на светлой теме было не поменять. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-home-screen { background: var(--hud-phone-bg) !important; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-app-view {
-  /* Плотная подложка под градиентом: сам градиент темы полупрозрачный
-     (это её настройка), и сквозь него просвечивали иконки домашнего. */
-  background-color: var(--lt-solid) !important;
-  background-image: var(--hud-phone-bg) !important;
-}
+
+
+
 
 /* --- Карточки: светлая бумага вместо чёрного --- */
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-phone-notif, .hud-phone-notif-stack, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-section, .hud-phone-participants-list, .hud-phone-contact, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-photo-placeholder, .hud-diary-entry, .hud-world-section, .hud-world-section-ads, .hud-theme-panel, .hud-phone-mockup) {
@@ -8725,79 +8582,22 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   border-color: var(--lt-line);
 }
 
-/* Шапка приложения на телефоне — чуть плотнее бумаги, чтобы отделяться. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-app-title {
-  background: var(--lt-paper-2) !important;
-  color: var(--lt-ink);
-  border-bottom: 1px solid var(--lt-line);
-}
 
-/* --- Текст, у которого цвет прописан наглухо белым --- */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
-  .hud-phone-top-status, .hud-phone-statusline, .hud-phone-app small,
-  .hud-phone-lock-time, .hud-phone-lock-day, .hud-phone-lock-hint,
-  .hud-phone-notif-body b, .hud-phone-notif-label, .hud-phone-chat-meta b,
-  .hud-phone-note b, .hud-phone-contact b, .hud-msg-bubble, .hud-msg-sender,
-  .hud-phone-app-owner, .hud-phone-search-row, .hud-g-query,
-  .hud-diary-text, .hud-diary-about-user, .hud-phone-lockscreen
-) { color: var(--lt-ink) !important; }
 
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
-  .hud-phone-notif-body small, .hud-phone-chat-meta small, .hud-phone-note small,
-  .hud-phone-contact small, .hud-phone-lock-notice small, .hud-phone-lock-notice span,
-  .hud-msg-time, .hud-phone-notif-meta, .hud-phone-lock-empty
-) { color: var(--lt-ink-soft) !important; }
 
-/* Полоска «домой» и разделители — тёмные штрихи по светлому. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-phone-home-btn, .hud-phone-lock-bar) {
-  background: var(--lt-ink-soft) !important;
-}
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-lock-arrow {
-  border-color: var(--lt-ink-soft) !important;
-}
-/* Иконки-глифы нарисованы currentColor — им хватает цвета текста. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-g-ico { color: var(--lt-ink); }
 
-/* Стекло поверх экрана и корпус: блик на светлом выглядит грязью. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-glass { opacity: .25; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-emulator::after { display: none; }
 
-/* Исходящие пузыри остаются цветными, входящие становятся бумажными. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-msg-wrapper.incoming .hud-msg-bubble {
-  /* Цвет входящих — из настроек: у светлых тем он и так светлый (бумага),
-     а прибитая бумага глушила «Входящие сообщения». */
-  background: var(--hud-msg-in, var(--lt-paper)) !important;
-  border: 1px solid var(--lt-line);
-}
 
-/* Газета: тёмная «бумага» на светлой теме противоречит сама себе. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-news-article,
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-world-list li,
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-comment {
-  background: var(--lt-paper-2) !important;
-  color: var(--lt-ink);
-}
 
-/* Дневник: слои бумаги рассчитаны на тёмный лист, на светлом они мажут. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-diary-paper { opacity: .22; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-diary-holes { opacity: .35; }
 
-/* --- Светлые темы: остатки светлого текста и кружков ---------------------
-   Найдено замером контраста на собранном телефоне: эти надписи имели
-   жёстко заданный светлый цвет и на бумаге пропадали. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-phone-notif-body em, .hud-phone-notif em, .hud-phone-inputfield, .hud-phone-empty-line, .hud-phone-empty small, .hud-g-hint, .hud-g-query, .hud-phone-app-title) { color: var(--lt-ink-soft) !important; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-inputfield::placeholder { color: var(--lt-ink-soft); }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-send { color: #fff !important; }
 
-/* Кружки-инициалы: на бумаге белая буква по бледной заливке исчезала.
-   Даём им насыщенную подложку темы — буква снова белая по цвету. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(
-  .hud-phone-notif-ava, .hud-phone-chat-ava, .hud-phone-contact-avatar, .hud-msg-avatar
-):not(.has-img) {
-  background-color: var(--hud-accent) !important;
-  color: #fff !important;
-  text-shadow: 0 1px 2px rgba(0,0,0,.35);
-}
+
+
+
+
+
+
+
 
 /* =========================================================================
    ТЕМЫ: ФИРМЕННЫЙ ЗНАК КАЖДОЙ
@@ -8819,77 +8619,25 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 
 /* Каваи — сердечки вместо маркеров в списках. */
 .hud-theme-kawaii .hud-key-item { position: relative; padding-left: 22px; }
-.hud-theme-kawaii .hud-key-item::before {
-  content: '♡'; position: absolute; left: 8px; top: 6px;
-  color: #ff7fb6; font-size: .95em; line-height: 1.4;
-}
-.hud-theme-kawaii .hud-os-wrapper::after { display: none; }
+
+
 
 /* Dark Academia — поля тетради: двойная линия слева по всей карточке. */
 /* Поле тетради живёт на странице, а не на всей карточке: на обёртке оно
    начиналось от самого верха и перечёркивало виджет погоды и часы.
    .hud-tab-content — это и есть «лист», под вкладками. */
 .hud-theme-academia .hud-tab-content { position: relative; }
-.hud-theme-academia .hud-tab-content::after {
-  content: ''; position: absolute; pointer-events: none; z-index: 0;
-  left: 12px; top: 0; bottom: 0; width: 5px;
-  background: linear-gradient(90deg,
-    rgba(163,58,42,.32) 0 1px, transparent 1px 3px, rgba(163,58,42,.18) 3px 4px, transparent 4px);
-}
 
-/* Vamp — отблеск свечи сверху по центру. */
-.hud-theme-vamp .hud-os-wrapper::after {
-  left: 0; right: 0; top: 0; height: 120px;
-  background: radial-gradient(60% 100% at 50% 0%, rgba(255,150,90,.13), transparent 70%);
-}
 
-/* Киберпанк — угловые скобки терминала у каждого блока полей. */
-.hud-theme-cyberpunk .hud-key-block { position: relative; }
-.hud-theme-cyberpunk .hud-key-block::before,
-.hud-theme-cyberpunk .hud-key-block::after {
-  content: ''; position: absolute; width: 9px; height: 9px; pointer-events: none;
-  border-color: #2de2ff; border-style: solid;
-}
-.hud-theme-cyberpunk .hud-key-block::before { left: -1px; top: -1px; border-width: 1px 0 0 1px; }
-.hud-theme-cyberpunk .hud-key-block::after { right: -1px; bottom: -1px; border-width: 0 1px 1px 0; }
-.hud-theme-cyberpunk .hud-os-wrapper::after { display: none; }
 
-/* Нуар — зерно плёнки поверх всей карточки. */
-.hud-theme-noir .hud-os-wrapper::after {
-  inset: 0;
-  background-image:
-    radial-gradient(circle at 17% 29%, rgba(255,255,255,.05) 0 .6px, transparent .7px),
-    radial-gradient(circle at 63% 71%, rgba(0,0,0,.14) 0 .7px, transparent .8px),
-    radial-gradient(circle at 84% 13%, rgba(255,255,255,.04) 0 .5px, transparent .6px);
-  background-size: 23px 19px, 31px 27px, 17px 29px;
-  opacity: .75;
-}
 
-/* Средневековье — восковая печать в нижнем правом углу. */
-.hud-theme-medieval .hud-os-wrapper::after {
-  right: 14px; bottom: 12px; width: 34px; height: 34px; border-radius: 50%;
-  background:
-    radial-gradient(circle at 38% 34%, rgba(255,255,255,.4), transparent 46%),
-    radial-gradient(circle at 50% 50%, #9a2d1f 0 64%, #7a2317 66%, transparent 70%);
-  box-shadow: 0 2px 5px rgba(0,0,0,.32);
-}
 
-/* Криминал — пулевое отверстие с трещинами. */
-.hud-theme-mafia .hud-os-wrapper::after {
-  /* Внизу, как у medieval/fantasy/cottage: сверху карточки стоит погода. */
-  right: 20px; bottom: 14px; width: 20px; height: 20px;
-  background:
-    radial-gradient(circle at 50% 50%, #000 0 3.2px, rgba(0,0,0,.55) 3.6px 5px, transparent 5.4px),
-    conic-gradient(from 12deg,
-      transparent 0 3deg, rgba(0,0,0,.3) 3deg 4.5deg, transparent 4.5deg 62deg,
-      rgba(0,0,0,.26) 62deg 63.5deg, transparent 63.5deg 143deg,
-      rgba(0,0,0,.3) 143deg 144.5deg, transparent 144.5deg 221deg,
-      rgba(0,0,0,.24) 221deg 222.5deg, transparent 222.5deg 300deg,
-      rgba(0,0,0,.28) 300deg 301.5deg, transparent 301.5deg);
-}
 
-/* Знак «Мира» у Криминала был тем же револьвером, что у Нуара, — развели. */
-.hud-theme-mafia .hud-world-title::after { content: ' \2317'; }
+
+
+
+
+
 
 /* =========================================================================
    ТЕМЫ: ПОЧЕРК ЗАГОЛОВКОВ И ОТДЕЛКА БЛОКОВ
@@ -8907,17 +8655,14 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   background: rgba(255,143,192,.14);
   box-shadow: 0 2px 10px rgba(224,86,143,.18);
 }
-.hud-theme-kawaii :is(.hud-key, .hud-key-label) { letter-spacing: .04em; }
+
 
 /* --- Dark Academia: капитель и латунная линейка под заголовком --- */
 .hud-theme-academia :is(.hud-key, .hud-key-label) {
   font-variant: small-caps; text-transform: none;
   letter-spacing: .07em; font-weight: 600;
 }
-.hud-theme-academia .hud-key-label {
-  padding-bottom: 4px;
-  border-bottom: 1px solid rgba(201,162,39,.28);
-}
+
 
 /* --- Vamp: разрядка, винная тень и внутренняя виньетка карточки --- */
 .hud-theme-vamp :is(.hud-key, .hud-key-label) {
@@ -8928,11 +8673,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   box-shadow: inset 0 0 44px rgba(90,8,20,.5), var(--hud-shadow);
 }
 
-/* --- Киберпанк: хроматическое двоение и табличные цифры --- */
-.hud-theme-cyberpunk :is(.hud-key, .hud-key-label) {
-  text-shadow: -1px 0 rgba(255,45,111,.5), 1px 0 rgba(45,226,255,.5);
-  letter-spacing: .06em;
-}
 .hud-theme-cyberpunk .hud-os-card { font-variant-numeric: tabular-nums; }
 .hud-theme-cyberpunk .hud-key-item { border-left-width: 1px; padding-left: 12px; }
 
@@ -8940,28 +8680,16 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-theme-noir :is(.hud-key, .hud-key-label) {
   text-transform: uppercase; letter-spacing: .01em; font-weight: 500;
 }
-.hud-theme-noir .hud-key-block {
-  background-image: linear-gradient(118deg, rgba(255,255,255,.07), transparent 42%);
-}
 
-/* --- Средневековье: буквица и золотая линейка --- */
-.hud-theme-medieval .hud-key-item::first-letter {
-  font-size: 1.35em; font-weight: 700; color: #8a6a1f;
-}
-.hud-theme-medieval .hud-key-block {
-  border-top: 2px solid rgba(201,162,39,.4);
-  border-bottom: 1px solid rgba(201,162,39,.25);
-}
+
+
 
 /* --- Криминал: прописные с красной засечкой и штамп на блоке --- */
 .hud-theme-mafia :is(.hud-key, .hud-key-label) {
   text-transform: uppercase; letter-spacing: .1em; font-weight: 700;
   padding-left: 8px; border-left: 3px solid #d92b2b;
 }
-.hud-theme-mafia .hud-key-block {
-  border: 1px solid rgba(217,43,43,.35);
-  box-shadow: inset 0 0 0 1px rgba(0,0,0,.5);
-}
+
 
 /* =========================================================================
    ПРИЁМЫ, ПОДСМОТРЕННЫЕ В ТЕМАХ SILLYTAVERN
@@ -8991,49 +8719,28 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   :is(.hud-world-empty, .hud-diary-empty)::after {
   display: block; font-size: 13px; line-height: 1.5;
 }
-.hud-theme-kawaii .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
-.hud-theme-kawaii .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
-.hud-theme-academia .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
-.hud-theme-academia .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
-.hud-theme-vamp .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
-.hud-theme-vamp .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
-.hud-theme-cyberpunk .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
-.hud-theme-cyberpunk .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
-.hud-theme-noir .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
-.hud-theme-noir .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
-.hud-theme-medieval .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
-.hud-theme-medieval .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
-.hud-theme-mafia .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
-.hud-theme-mafia .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
 
-.hud-theme-kawaii {
-  --th-empty-world: 'Сегодня в городе тихо-тихо.';
-  --th-empty-diary: 'Дневник ещё чистенький.';
-}
-.hud-theme-academia {
-  --th-empty-world: 'Архив за этот день пуст.';
-  --th-empty-diary: 'Ни одной записи. Чернила не тронуты.';
-}
-.hud-theme-vamp {
-  --th-empty-world: 'Город молчит. Значит, ещё не проснулся.';
-  --th-empty-diary: 'Страницы пусты. Пока.';
-}
-.hud-theme-cyberpunk {
-  --th-empty-world: '// NO SIGNAL — данных за период нет';
-  --th-empty-diary: '// LOG EMPTY';
-}
-.hud-theme-noir {
-  --th-empty-world: 'Ни зацепок, ни свидетелей.';
-  --th-empty-diary: 'Записей нет. Дело не открывали.';
-}
-.hud-theme-medieval {
-  --th-empty-world: 'Вестей из города не приходило.';
-  --th-empty-diary: 'Летопись пока не начата.';
-}
-.hud-theme-mafia {
-  --th-empty-world: 'По городу — ничего. Тишина дороже.';
-  --th-empty-diary: 'Записей нет. И правильно.';
-}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* --- 2. Киберпанк: срезанные углы строк ---------------------------------
    Скос по диагонали вместо скругления. Левую полосу пришлось перенести из
@@ -9046,39 +8753,9 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   border-radius: 0;
 }
 
-/* --- 3. Светлые темы: плетение бумаги ------------------------------------
-   Четыре градиента под 135/225/45/315° на сетке 7px дают тканую фактуру
-   без единой картинки. Поверх ложится обычный фон блока. */
-.hud-theme-kawaii .hud-key-block {
-  background-image:
-    linear-gradient(135deg, rgba(224,86,143,.05) 25%, transparent 25%),
-    linear-gradient(225deg, rgba(224,86,143,.05) 25%, transparent 25%),
-    linear-gradient(45deg,  rgba(224,86,143,.05) 25%, transparent 25%),
-    linear-gradient(315deg, rgba(224,86,143,.05) 25%, transparent 25%);
-  background-size: 7px 7px;
-}
-.hud-theme-medieval .hud-key-block {
-  background-image:
-    linear-gradient(135deg, rgba(120,95,45,.07) 25%, transparent 25%),
-    linear-gradient(225deg, rgba(120,95,45,.07) 25%, transparent 25%),
-    linear-gradient(45deg,  rgba(120,95,45,.07) 25%, transparent 25%),
-    linear-gradient(315deg, rgba(120,95,45,.07) 25%, transparent 25%);
-  background-size: 7px 7px;
-}
 
-/* --- 4. Нуар: вёрстка по ширине; Vamp: волнистый курсив ------------------
-   Выключка по формату — приём газетной и комиксной полосы. Волнистая
-   черта под курсивом читается как подчёркнутое от руки. */
-.hud-theme-noir :is(.hud-diary-text, .hud-diary-about-user, .article-text) {
-  text-align: justify;
-  hyphens: auto;
-}
-.hud-theme-vamp :is(.hud-diary-text, .hud-key-item) em,
-.hud-theme-vamp :is(.hud-diary-text, .hud-key-item) i {
-  text-decoration: underline wavy rgba(195,31,56,.55);
-  text-underline-offset: 3px;
-  text-decoration-thickness: 1px;
-}
+
+
 
 /* =========================================================================
    ПРОГНОЗ, ГОРОСКОП И ПРЕДСКАЗАНИЕ: ЭФФЕКТЫ

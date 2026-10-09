@@ -1,0 +1,154 @@
+/* Тема «academia» — правила под :root.hud-theme-academia.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/base.css --- */
+/* --- Dark Academia ------------------------------------------------------ */
+.hud-theme-academia { --hud-radius: 6px; }
+.hud-theme-academia .hud-key::after,
+.hud-theme-academia .hud-key-label::after { content: ' \2766\FE0E'; margin-left: 4px; font-size: .95em; }
+/* Кофейное кольцо в углу и корешки книг вдоль нижнего края. */
+.hud-theme-academia .hud-os-card::after {
+  background:
+    radial-gradient(circle at 92% 16px, transparent 0 12px, rgba(120,80,40,.22) 12px 14px, transparent 15px) no-repeat,
+    repeating-linear-gradient(90deg,
+      rgba(120,80,40,.16) 0 7px, transparent 7px 9px,
+      rgba(90,60,30,.2) 9px 14px, transparent 14px 17px) bottom left / 100% 9px repeat-x,
+    var(--hud-bg);
+}
+.hud-theme-academia .hud-os-logo::after { content: ' \2767\FE0E'; }
+.hud-theme-academia .hud-world-title::after { content: ' ¶'; }
+.hud-theme-academia .hud-tab.active { box-shadow: inset 0 -2px 0 #c9a227; }
+.hud-theme-academia .hud-diary-entry { border-left-color: #a9782f; }
+.hud-theme-academia .hud-tab-content::after {
+  content: ''; position: absolute; pointer-events: none; z-index: 0;
+  left: 12px; top: 0; bottom: 0; width: 5px;
+  background: linear-gradient(90deg,
+    rgba(163,58,42,.32) 0 1px, transparent 1px 3px, rgba(163,58,42,.18) 3px 4px, transparent 4px);
+}
+.hud-theme-academia .hud-key-label {
+  padding-bottom: 4px;
+  border-bottom: 1px solid rgba(201,162,39,.28);
+}
+.hud-theme-academia .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
+.hud-theme-academia .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
+.hud-theme-academia {
+  --th-empty-world: 'Архив за этот день пуст.';
+  --th-empty-diary: 'Ни одной записи. Чернила не тронуты.';
+}
+
+/* --- из css/themes.css --- */
+/* Academia: бумажное зерно, пыль и чернильное пятно. */
+.hud-theme-academia .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(circle 22px at 88% 86%, rgba(30,22,12,.3), transparent 70%),
+    radial-gradient(circle .8px at 18% 26%, rgba(255,240,210,.16) 0 60%, transparent 100%),
+    radial-gradient(circle .6px at 62% 52%, rgba(255,240,210,.12) 0 60%, transparent 100%),
+    radial-gradient(circle .7px at 84% 18%, rgba(0,0,0,.2) 0 60%, transparent 100%);
+  background-size: auto, 41px 37px, 29px 33px, 53px 47px;
+}
+/* --- Academia: стопка страниц справа и рваный нижний край --------------- */
+.hud-theme-academia .hud-tab-content::before {
+  background-image:
+    linear-gradient(rgba(232,217,184,.2), rgba(232,217,184,.2)),
+    linear-gradient(rgba(232,217,184,.14), rgba(232,217,184,.14)),
+    linear-gradient(rgba(232,217,184,.09), rgba(232,217,184,.09)),
+    repeating-linear-gradient(135deg,
+      rgba(232,217,184,.13) 0 4px, transparent 4px 8px);
+  background-size: 1px calc(100% - 18px), 1px calc(100% - 32px), 1px calc(100% - 46px), 100% 5px;
+  background-position: right 4px top 9px, right 8px top 16px, right 12px top 23px, left bottom;
+}
+/* =========================================================================
+   DARK ACADEMIA: ИНТЕРФЕЙС КАК ПРЕДМЕТ
+   -------------------------------------------------------------------------
+   Не «коричневая тема», а книга на столе: закладка свешивается из-под
+   шапки, у страницы есть номер, у полей — чернильное подчёркивание и
+   пометки на полях, между разделами лежит засушенный цветок, а на блоке
+   стоит выцветший штамп. Всё рисуется градиентами и глифами, ни одной
+   картинки и ни одной постоянной анимации.
+   ========================================================================= */
+/* Закладка: лента свешивается из-под шапки карточки. */
+.hud-theme-academia .hud-tabs-header { position: relative; }
+.hud-theme-academia .hud-tabs-header::after {
+  content: ''; position: absolute; right: 14px; top: 0;
+  width: 12px; height: 26px; z-index: 3; pointer-events: none;
+  background: linear-gradient(180deg, #8c2f22, #6d2318);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 72%, 0 100%);
+  box-shadow: 0 2px 5px rgba(0,0,0,.4);
+}
+/* Номер страницы внизу разворота. Слот освободился, когда поле тетради
+   переехало на .hud-tab-content — теперь он снова при деле. */
+.hud-theme-academia .hud-os-wrapper::after {
+  display: block;
+  content: '— XLVII —';
+  left: 0; right: 0; bottom: 4px; top: auto;
+  text-align: center;
+  font-size: 10px; letter-spacing: .18em;
+  color: rgba(201,162,39,.5);
+  background: none;
+}
+/* Чернильное подчёркивание заголовка: линия неровная, как от пера. */
+.hud-theme-academia .hud-key-label {
+  background-image:
+    linear-gradient(90deg, rgba(163,58,42,.55) 0 38%, rgba(163,58,42,.28) 38% 62%, rgba(163,58,42,.5) 62% 100%);
+  background-size: 100% 1.5px;
+  background-position: left bottom 1px;
+  background-repeat: no-repeat;
+  padding-bottom: 5px;
+}
+/* Уголок страницы у каждого блока полей. */
+.hud-theme-academia .hud-key-block {
+  position: relative;
+  background-image:
+    linear-gradient(225deg, rgba(232,217,184,.16) 0 9px, transparent 9px);
+  background-repeat: no-repeat;
+  background-position: right top;
+}
+/* Выцветший штамп в углу блока. */
+.hud-theme-academia .hud-key-block::after {
+  content: ''; position: absolute; right: 9px; bottom: 7px;
+  width: 30px; height: 30px; border-radius: 50%; pointer-events: none;
+  border: 1.5px solid rgba(163,58,42,.3);
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 8px, rgba(163,58,42,.16) 8px 9.5px, transparent 9.5px),
+    linear-gradient(28deg, transparent 46%, rgba(163,58,42,.22) 46% 54%, transparent 54%);
+  transform: rotate(-13deg);
+  opacity: .75;
+}
+/* Пометка на полях у каждой строки — «nota bene» от руки. */
+.hud-theme-academia .hud-key-item { position: relative; padding-left: 26px; }
+.hud-theme-academia .hud-key-item::before {
+  content: 'nb.'; position: absolute; left: 8px; top: 6px;
+  font-size: .72em; font-style: italic; letter-spacing: .02em;
+  color: rgba(201,162,39,.62);
+}
+/* Засушенный цветок лежит между разделами. Виден только там, где блоки
+   идут подряд: это разделитель, а не украшение каждого блока. */
+.hud-theme-academia .hud-key-block + .hud-key-block { margin-top: 20px; }
+.hud-theme-academia .hud-key-block + .hud-key-block::before {
+  content: ''; position: absolute; left: 50%; top: -17px;
+  width: 34px; height: 14px; margin-left: -17px; pointer-events: none;
+  background:
+    radial-gradient(circle 2.6px at 50% 3px, rgba(196,150,120,.6) 0 60%, transparent 100%),
+    radial-gradient(circle 2.2px at 34% 6px, rgba(176,132,104,.5) 0 60%, transparent 100%),
+    radial-gradient(circle 2.2px at 66% 6px, rgba(176,132,104,.5) 0 60%, transparent 100%),
+    radial-gradient(circle 1.8px at 42% 10px, rgba(150,140,96,.45) 0 60%, transparent 100%),
+    radial-gradient(circle 1.8px at 58% 10px, rgba(150,140,96,.45) 0 60%, transparent 100%),
+    linear-gradient(rgba(122,116,80,.5), rgba(122,116,80,.5));
+  background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 1px 9px;
+  background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 50% 5px;
+  background-repeat: no-repeat;
+  transform: rotate(-6deg);
+}
+/* ---- Dark Academia — перо, книга, лавр ---- */
+.hud-theme-academia .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a97a' stroke-width='1.4' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 20c6-1 12-6 15-15-6 1-11 5-13 10z'/%3E%3Cpath d='M6 18c3-3 6-6 8-9'/%3E%3C/svg%3E"); }
+.hud-theme-academia .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a97a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 7c-2-1.6-5-2-7-1.6v11c2-.4 5 0 7 1.6 2-1.6 5-2 7-1.6v-11c-2-.4-5 0-7 1.6z'/%3E%3Cpath d='M12 7v11'/%3E%3C/svg%3E"); }
+.hud-theme-academia .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a97a' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 19c-3-2-5-6-5-10M12 19c3-2 5-6 5-10'/%3E%3Cpath d='M9 12c-1.4-.6-2.4-2-2.4-3.4M9 15c-1.4-.6-2.4-2-2.4-3.4M15 12c1.4-.6 2.4-2 2.4-3.4M15 15c1.4-.6 2.4-2 2.4-3.4'/%3E%3C/svg%3E"); }
+.hud-theme-academia .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a97a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M8 6h8v3l-2 2v6a2 2 0 01-4 0v-6l-2-2z'/%3E%3Cpath d='M9.6 12.4h4.8'/%3E%3C/svg%3E"); }
+.hud-theme-academia .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c8a97a' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 6h16M4 9h11M4 12h16M4 15h9'/%3E%3C/svg%3E"); }
+
+/* --- из css/deco.css --- */
+:root.hud-theme-academia { --cb-off: '☐';   --cb-on: '☒'; }
+:root.hud-theme-academia { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%201c2%202.5%202.5%205%200%208-2.5-3-2-5.5%200-8zM12%209v13M5%207c3%200%205%202.5%205%206-3%200-5.5-2-5-6zM19%207c-3%200-5%202.5-5%206%203%200%205.5-2%205-6zM7%2016h10'%20stroke%3D'black'%20stroke-width%3D'2'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E");  }

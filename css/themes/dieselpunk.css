@@ -1,0 +1,51 @@
+/* Тема «dieselpunk» — правила под :root.hud-theme-dieselpunk.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/misc.css --- */
+/* Дизельпанк: предупредительная косая штриховка. */
+.hud-theme-dieselpunk .hud-os-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(45deg, rgba(224,184,58,.22) 0 6px, rgba(0,0,0,0) 6px 12px) top / 100% 4px no-repeat;
+}
+.hud-theme-dieselpunk .hud-os-logo::after { content: ' \26ED'; }
+.hud-theme-dieselpunk .hud-tab.active { box-shadow: inset 0 -2px 0 #e0b83a; }
+.hud-theme-dieselpunk  .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-dieselpunk  .hud-diary-empty::after { content: var(--th-empty-diary); }
+/* --- Дизельпанк: воронёная сталь и предупредительная жёлтая -------------- */
+.hud-theme-dieselpunk .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0b83a' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='8.4' y='3' width='7.2' height='6.4' rx='1'/%3E%3Cpath d='M12 9.4v5.2'/%3E%3Cpath d='M9 14.6h6l-1.4 6.4h-3.2z'/%3E%3Cpath d='M10.2 5.4h3.6' opacity='.6'/%3E%3C/svg%3E"); }
+.hud-theme-dieselpunk .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0b83a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='6' y='4' width='12' height='16' rx='1.6'/%3E%3Cpath d='M6 8.4h12M6 15.6h12' opacity='.6'/%3E%3Cellipse cx='12' cy='4' rx='6' ry='1.4'/%3E%3Ccircle cx='12' cy='12' r='2' opacity='.5'/%3E%3C/svg%3E"); }
+.hud-theme-dieselpunk .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0b83a' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='1.6'/%3E%3Cpath d='M12 10.4c-1-3.4-.4-6.4 1-6.4s2 3-1 6.4z'/%3E%3Cpath d='M13.4 12.8c3.2-1.2 6-.4 5.4 1s-3.6 1.2-5.4-1z'/%3E%3Cpath d='M10.6 12.8c-3.2-1.2-6-.4-5.4 1s3.6 1.2 5.4-1z'/%3E%3C/svg%3E"); }
+.hud-theme-dieselpunk .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0b83a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M17.4 4.6a3.6 3.6 0 00-4.8 4.6L4.6 17.2a1.6 1.6 0 002.2 2.2l8-8a3.6 3.6 0 004.6-4.8l-2.2 2.2-2.2-.6-.6-2.2z'/%3E%3C/svg%3E"); }
+.hud-theme-dieselpunk .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e0b83a' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 16l4-8 4 8M9 16l4-8 4 8M16 16l4-8 4 8' opacity='.75'/%3E%3C/svg%3E"); }
+/* Обои: клёпаный лист стали и масляное пятно в углу. */
+.hud-theme-dieselpunk .hud-os-wrapper::before {
+  background-image:
+    repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 1px, transparent 1px 5px),
+    radial-gradient(circle 1.4px at 6px 6px, rgba(255,255,255,.10) 0 55%, transparent 100%),
+    radial-gradient(circle 30px at 90% 88%, rgba(20,16,8,.42), transparent 68%);
+  background-size: auto, 44px 44px, auto;
+}
+/* Фирменный знак: жёлтая лента опасности наискось в правом верхнем углу. */
+.hud-theme-dieselpunk .hud-os-wrapper::after {
+  right: -34px; top: 12px; width: 132px; height: 18px;
+  transform: rotate(38deg);
+  background: repeating-linear-gradient(45deg, rgba(224,184,58,.68) 0 9px, rgba(30,33,36,.85) 9px 18px);
+  box-shadow: 0 1px 3px rgba(0,0,0,.4);
+  opacity: .5;
+}
+.hud-theme-dieselpunk :is(.hud-key, .hud-key-label)::after { content: ' \25B0'; margin-left: 4px; font-size: .75em; opacity: .75; }
+.hud-theme-dieselpunk .hud-world-title::after { content: ' \26ED'; }
+.hud-theme-dieselpunk .hud-key-item { border-left-color: #e0b83a; }
+.hud-theme-dieselpunk .hud-diary-entry { border-left-color: #b08a20; }
+.hud-theme-dieselpunk {
+  --hud-radius: 2px;
+  --th-empty-world: 'Сводок нет. Топливо на нуле.';
+  --th-empty-diary: 'Бортовой журнал пуст.';
+}
+
+/* --- из css/deco.css --- */
+:root.hud-theme-dieselpunk { --cb-off: '▫';   --cb-on: '▪'; }
+:root.hud-theme-dieselpunk { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Crect%20x%3D'2'%20y%3D'7'%20width%3D'20'%20height%3D'10'%20rx%3D'5'%2F%3E%3C%2Fsvg%3E");  }

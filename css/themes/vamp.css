@@ -1,0 +1,98 @@
+/* Тема «vamp» — правила под :root.hud-theme-vamp.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/base.css --- */
+/* --- Vamp --------------------------------------------------------------- */
+.hud-theme-vamp { --hud-radius: 14px; }
+.hud-theme-vamp .hud-key::after,
+.hud-theme-vamp .hud-key-label::after { content: ' †'; margin-left: 4px; font-size: 1.05em; }
+/* Капли крови стекают с верхней кромки карточки. */
+.hud-theme-vamp .hud-os-card::after {
+  background:
+    radial-gradient(ellipse 5px 11px at 14% 0, rgba(160,12,30,.85) 0 62%, transparent 100%) no-repeat,
+    radial-gradient(ellipse 4px 18px at 31% 0, rgba(140,10,26,.75) 0 60%, transparent 100%) no-repeat,
+    radial-gradient(ellipse 6px 8px at 58% 0, rgba(170,14,34,.8) 0 64%, transparent 100%) no-repeat,
+    radial-gradient(ellipse 4px 14px at 79% 0, rgba(140,10,26,.7) 0 60%, transparent 100%) no-repeat,
+    var(--hud-bg);
+}
+/* Клыки: два острия под шапкой карточки. */
+.hud-theme-vamp .hud-os-topbar {
+  border-bottom: 0;
+  background-image:
+    linear-gradient(135deg, transparent 49%, rgba(255,240,240,.5) 50%, transparent 58%),
+    linear-gradient(225deg, transparent 49%, rgba(255,240,240,.5) 50%, transparent 58%);
+  background-size: 9px 7px, 9px 7px;
+  background-position: calc(50% - 7px) 100%, calc(50% + 7px) 100%;
+  background-repeat: no-repeat, no-repeat;
+}
+.hud-theme-vamp    .hud-os-logo::after { content: ' ‡'; }
+.hud-theme-vamp    .hud-world-title::after { content: ' \2619\FE0E'; }
+.hud-theme-vamp .hud-tab.active { box-shadow: inset 0 -2px 0 #c31f38; }
+.hud-theme-vamp .hud-diary-entry { border-left-color: #8e1327; }
+/* Vamp — отблеск свечи сверху по центру. */
+.hud-theme-vamp .hud-os-wrapper::after {
+  left: 0; right: 0; top: 0; height: 120px;
+  background: radial-gradient(60% 100% at 50% 0%, rgba(255,150,90,.13), transparent 70%);
+}
+.hud-theme-vamp .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
+.hud-theme-vamp .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
+.hud-theme-vamp {
+  --th-empty-world: 'Город молчит. Значит, ещё не проснулся.';
+  --th-empty-diary: 'Страницы пусты. Пока.';
+}
+.hud-theme-vamp :is(.hud-diary-text, .hud-key-item) em,
+.hud-theme-vamp :is(.hud-diary-text, .hud-key-item) i {
+  text-decoration: underline wavy rgba(195,31,56,.55);
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+}
+
+/* --- из css/themes.css --- */
+/* Vamp: летучие мыши и винное пятно. */
+.hud-theme-vamp .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(ellipse 3px 1.4px at 20% 14%, rgba(20,4,8,.85) 0 70%, transparent 100%),
+    radial-gradient(ellipse 2.4px 1.1px at 30% 9%, rgba(20,4,8,.7) 0 70%, transparent 100%),
+    radial-gradient(ellipse 2px 1px at 26% 20%, rgba(20,4,8,.6) 0 70%, transparent 100%),
+    radial-gradient(circle 26px at 92% 88%, rgba(105,10,26,.28), transparent 68%);
+}
+/* --- Vamp: две свечи по верхним углам ----------------------------------
+   Свеча = столбик воска, огонёк над ним и тёплое пятно вокруг. Огонёк
+   подрагивает вместе со всем слоем: отдельного элемента под него нет, а
+   заводить ради этого лишний узел в каждой карточке дороже, чем эффект. */
+.hud-theme-vamp .hud-tab-content::before {
+  background-image:
+    radial-gradient(circle 20px at 50% 50%, rgba(255,168,60,.16), transparent 70%),
+    radial-gradient(ellipse 3px 6px at 50% 50%, rgba(255,226,150,.95), rgba(255,132,30,.55) 52%, transparent 100%),
+    linear-gradient(rgba(238,224,202,.5), rgba(214,196,168,.5)),
+    radial-gradient(circle 18px at 50% 50%, rgba(255,168,60,.13), transparent 70%),
+    radial-gradient(ellipse 2.6px 5.2px at 50% 50%, rgba(255,226,150,.85), rgba(255,132,30,.5) 52%, transparent 100%),
+    linear-gradient(rgba(238,224,202,.42), rgba(214,196,168,.42));
+  background-size:
+    42px 42px, 9px 14px, 4px 22px,
+    38px 38px, 8px 12px, 3.4px 18px;
+  background-position:
+    left 14px top 12px, left 24px top 6px, left 25px top 18px,
+    right 16px top 16px, right 26px top 12px, right 27px top 22px;
+  animation: hud-th-candle 2.6s ease-in-out infinite alternate;
+}
+.hud-theme-vamp   .hud-header::after { right: 66px; }
+/* ---- Vamp — мышь, кубок, роза ---- */
+.hud-theme-vamp .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a3324b' stroke='none'%3E%3Cpath d='M2 10c2-2 3 0 4-2 1 3 3 4 6 4s5-1 6-4c1 2 2 0 4 2-2 1-3 3-3 5-2-1-4-1-7 1-3-2-5-2-7-1 0-2-1-4-3-5z' opacity='.85'/%3E%3C/svg%3E"); }
+.hud-theme-vamp .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a3324b' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M8 5h8l-1 5a3 3 0 01-6 0z'/%3E%3Cpath d='M12 13v5M9.5 18h5'/%3E%3C/svg%3E"); }
+.hud-theme-vamp .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a3324b' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 6c2.4 0 4 1.6 4 3.6 0 2.6-2.4 3.4-4 5.4-1.6-2-4-2.8-4-5.4C8 7.6 9.6 6 12 6z'/%3E%3Cpath d='M12 15v4M10 17.5c1.4-.4 2.6-.4 4 0'/%3E%3C/svg%3E"); }
+.hud-theme-vamp .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23a3324b' stroke='none'%3E%3Cpath d='M12 4c2.6 3.6 5 6.4 5 9.2A5 5 0 0112 18a5 5 0 01-5-4.8C7 10.4 9.4 7.6 12 4z' opacity='.8'/%3E%3C/svg%3E"); }
+.hud-theme-vamp .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a3324b' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 4v16M7 9h10'/%3E%3Cpath d='M4 20c2-2 4-3 8-3s6 1 8 3'/%3E%3C/svg%3E"); }
+
+/* --- из css/extras.css --- */
+:root.hud-theme-vamp { --cb-frame: rgba(201,186,130,.55); --cb-ink: #c9ba82; --cb-on: '★'; }
+
+/* --- из css/deco.css --- */
+/* Фигуры ползунков и дорожки по темам (сгенерировано). */
+:root.hud-theme-vamp { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%202l2.9%206.6%207.1.6-5.4%204.7%201.6%207L12%2017.3%205.8%2020.9l1.6-7L2%209.2l7.1-.6z'%2F%3E%3C%2Fsvg%3E");  }
+
+/* --- анимации темы --- */
+@keyframes hud-th-candle { from { opacity: .78; } to { opacity: 1; } }

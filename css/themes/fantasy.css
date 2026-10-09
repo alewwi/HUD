@@ -1,0 +1,87 @@
+/* Тема «fantasy» — правила под :root.hud-theme-fantasy.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/themes.css --- */
+/* Фэнтези: руны по краю, магические частицы и светлячки. */
+.hud-theme-fantasy .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(circle 1.6px at 22% 30%, rgba(224,168,74,.9) 0 55%, transparent 100%),
+    radial-gradient(circle 1.2px at 70% 62%, rgba(127,224,192,.8) 0 55%, transparent 100%),
+    radial-gradient(circle 2px at 86% 22%, rgba(154,107,255,.7) 0 55%, transparent 100%),
+    radial-gradient(45% 32% at 12% 92%, rgba(127,224,192,.09), transparent 74%);
+  background-size: 120px 100px, 88px 76px, 150px 130px, auto;
+  animation: hud-th-motes 6.5s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+/* Знаки темы «Фэнтези» — свои, ни с одной другой не совпадают. */
+.hud-theme-fantasy .hud-key::after,
+.hud-theme-fantasy .hud-key-label::after { content: ' \16DC'; margin-left: 4px; font-size: .95em; }
+.hud-theme-fantasy .hud-os-logo::after { content: ' \2727'; }
+.hud-theme-fantasy .hud-world-title::after { content: ' \274B'; }
+.hud-theme-fantasy { --hud-radius: 12px; }
+/* Карточка: светящаяся руническая кайма сверху и мшистый низ. */
+.hud-theme-fantasy .hud-os-card::after {
+  background:
+    linear-gradient(90deg, transparent, rgba(127,224,192,.5), rgba(154,107,255,.4), transparent) top left / 100% 2px no-repeat,
+    radial-gradient(70% 40% at 50% 100%, rgba(127,224,192,.1), transparent 72%),
+    var(--hud-bg);
+}
+/* Фирменный знак: рунический круг в нижнем правом углу. */
+.hud-theme-fantasy .hud-os-wrapper::after {
+  right: 16px; bottom: 14px; width: 30px; height: 30px; border-radius: 50%;
+  border: 1px solid rgba(127,224,192,.45);
+  box-shadow: inset 0 0 0 3px rgba(154,107,255,.14), 0 0 12px -4px rgba(127,224,192,.6);
+  background:
+    conic-gradient(from 0deg,
+      transparent 0 12deg, rgba(224,168,74,.5) 12deg 15deg, transparent 15deg 72deg,
+      rgba(127,224,192,.45) 72deg 75deg, transparent 75deg 144deg,
+      rgba(154,107,255,.45) 144deg 147deg, transparent 147deg 216deg,
+      rgba(224,168,74,.4) 216deg 219deg, transparent 219deg 288deg,
+      rgba(127,224,192,.4) 288deg 291deg, transparent 291deg);
+}
+.hud-theme-fantasy .hud-key-item { border-left-color: #7fe0c0; }
+.hud-theme-fantasy .hud-diary-entry { border-left-color: #9a6bff; }
+.hud-theme-fantasy .hud-tab.active { box-shadow: inset 0 -2px 0 #7fe0c0; }
+.hud-theme-fantasy :is(.hud-key, .hud-key-label) {
+  letter-spacing: .09em;
+  text-shadow: 0 0 10px rgba(127,224,192,.35);
+}
+.hud-theme-fantasy .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
+.hud-theme-fantasy .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
+.hud-theme-fantasy :is(.hud-world-empty, .hud-diary-empty) { font-size: 0; }
+.hud-theme-fantasy :is(.hud-world-empty, .hud-diary-empty)::after { display: block; font-size: 13px; line-height: 1.5; }
+.hud-theme-fantasy {
+  --th-empty-world: 'Вести ещё в пути — ворон не долетел.';
+  --th-empty-diary: 'Свиток чист. Перо ждёт.';
+}
+/* --- Фэнтези: дым поднимается снизу ------------------------------------- */
+.hud-theme-fantasy .hud-tab-content::before {
+  background-image:
+    radial-gradient(30% 42% at 20% 108%, rgba(180,220,210,.13), transparent 72%),
+    radial-gradient(24% 36% at 58% 112%, rgba(154,107,255,.11), transparent 74%),
+    radial-gradient(20% 30% at 86% 106%, rgba(127,224,192,.1), transparent 76%);
+  animation: hud-th-smoke 9s ease-in-out infinite alternate;
+}
+/* ---- Фэнтези — руна, кристалл, лоза ---- */
+.hud-theme-fantasy .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a78bfa' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 3l2.6 5.6 6 .9-4.3 4.3 1 6-5.3-2.9-5.3 2.9 1-6L3.4 9.5l6-.9z'/%3E%3C/svg%3E"); }
+.hud-theme-fantasy .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a78bfa' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 3l5 5-5 13-5-13z'/%3E%3Cpath d='M7 8h10M12 3v18'/%3E%3C/svg%3E"); }
+.hud-theme-fantasy .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a78bfa' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 20V8'/%3E%3Cpath d='M12 14c-3 0-5-2-5-5 3 0 5 2 5 5zM12 11c3 0 5-2 5-5-3 0-5 2-5 5z'/%3E%3C/svg%3E"); }
+.hud-theme-fantasy .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a78bfa' stroke-width='1' stroke-linecap='round' stroke-linejoin='round' %3E%3Ccircle cx='6' cy='7' r='1.2'/%3E%3Ccircle cx='13' cy='5' r='.9'/%3E%3Ccircle cx='18' cy='10' r='1.1'/%3E%3Ccircle cx='9' cy='14' r='1'/%3E%3Ccircle cx='16' cy='18' r='1.2'/%3E%3Cpath d='M6 7l7-2 5 5-9 4z' opacity='.55'/%3E%3C/svg%3E"); }
+.hud-theme-fantasy .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a78bfa' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 12h3l2-5 3 10 3-8 2 3h3'/%3E%3C/svg%3E"); }
+
+/* --- из css/deco.css --- */
+:root.hud-theme-fantasy { --cb-off: '✧';   --cb-on: '✦'; }
+:root.hud-theme-fantasy { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%201l5%207-5%2015-5-15zM12%201l-5%207h10z'%2F%3E%3C%2Fsvg%3E"); --trk: var(--hud-accent); --trk-glow: 0 0 6px var(--hud-accent), 0 0 12px color-mix(in srgb, var(--hud-accent) 55%, transparent); }
+
+/* --- анимации темы --- */
+@keyframes hud-th-motes {
+  from { background-position: 0 0, 0 0, 0 0, 0 0; opacity: .6; }
+  to   { background-position: 6px -10px, -8px 8px, 4px -6px, 0 0; opacity: 1; }
+}
+@keyframes hud-th-smoke {
+  from { background-position: 0 0, 0 0, 0 0; opacity: .7; }
+  to   { background-position: 8px -14px, -10px -18px, 6px -12px; opacity: 1; }
+}

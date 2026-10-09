@@ -162,10 +162,8 @@
 /* В блоке темпа x-ray — вся картинка: без второй панели скорости. */
 .hud-tempo.is-xray { display: block; padding: 10px 12px 8px; }
 
-/* Светлые темы: шапка темнее, полотно остаётся тёмным. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-xray-head > b { color: color-mix(in srgb, var(--tc, var(--pc)) 70%, #000); }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-xray-head .bpm strong { color: color-mix(in srgb, var(--tc, var(--pc)) 75%, #000); text-shadow: none; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-xray-cap em { color: color-mix(in srgb, var(--pc) 75%, #000); }
+
+
 
 /* --- Детали: губы вульвы, крестец ---------------------------------------- */
 .xr-majora { stroke: none; }
@@ -501,3 +499,19 @@
   .xr-end-label { font-size: 7.8px; }
   .xr-film { border-radius: 8px; }
 }
+
+/* --- Финал: кончает — фрикций нет, член стоит в глубине и пульсирует,
+   точка в шапке бьётся в ритме выбросов; после — всё стоит, струи
+   больше не бьют, остаётся лужа и потёк. ------------------------------- */
+.hud-xray.is-climax .hud-xray-row, .hud-xray.is-after .hud-xray-row { --k: 1; --v: 0; }
+.hud-xray.is-climax .hud-xray-pulse { opacity: 1; background: #fff6ea; box-shadow: 0 0 8px rgba(255,246,234,.8); }
+.hud-xray.is-entry .hud-xray-pulse { opacity: .6; }
+@keyframes xr-cum-pulse { 0%, 100% { transform: scale(.7); } 30% { transform: scale(1.25); } }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-tempo:is(:hover, .fx-tap, .fx-on) .hud-xray.is-climax .hud-xray-pulse { animation: xr-cum-pulse .8s ease-out infinite; }
+  .hud-tempo:is(:hover, .fx-tap, .fx-on) .hud-xray.is-climax .xr-glans { animation: xr-throb .8s ease-in-out infinite; }
+  .hud-tempo:is(:hover, .fx-tap, .fx-on) .hud-xray.is-after :is(.xr-cum-drop, .xr-cum-jet) { animation: none; opacity: 0; }
+  .hud-tempo:is(:hover, .fx-tap, .fx-on) .hud-xray.is-after .xr-glans { animation: none; }
+}
+/* Цвет темпа в финале — тёплый молочный, а не серо-синий «замерли». */
+.hud-tempo:has(> .hud-xray.is-climax), .hud-tempo:has(> .hud-xray.is-after) { --tc: #f0d6c2; }

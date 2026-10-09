@@ -1,0 +1,70 @@
+/* Тема «mafia» — правила под :root.hud-theme-mafia.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/base.css --- */
+/* --- Криминал / Мафия ---------------------------------------------------
+   Держится подчёркнуто иначе, чем Vamp: там вино и мягкое свечение, здесь
+   чистая чернь, алый и прямые углы. Опознавательный знак — жёлтая лента
+   оцепления наискось в правом верхнем углу. */
+.hud-theme-mafia { --hud-radius: 3px; }
+.hud-theme-mafia .hud-key::after,
+.hud-theme-mafia .hud-key-label::after { content: ' \2716\FE0E'; margin-left: 4px; font-size: .9em; }
+.hud-theme-mafia .hud-os-card::after {
+  background:
+    repeating-linear-gradient(-38deg,
+      #f2c400 0 11px, #101010 11px 22px) top right / 190px 22px no-repeat,
+    var(--hud-bg);
+}
+.hud-theme-mafia .hud-os-topbar { border-bottom: 2px solid #d92b2b; }
+.hud-theme-mafia .hud-key-item { border-left-color: #d92b2b; border-radius: 0; }
+.hud-theme-mafia .hud-key-block { border-radius: 3px; }
+.hud-theme-mafia   .hud-os-logo::after { content: ' \2297'; }
+.hud-theme-mafia .hud-tab.active { box-shadow: inset 0 -2px 0 #d92b2b; border-radius: 0; }
+.hud-theme-mafia .hud-diary-entry { border-left-color: #d92b2b; border-radius: 0; }
+/* Криминал — пулевое отверстие с трещинами. */
+.hud-theme-mafia .hud-os-wrapper::after {
+  /* Внизу, как у medieval/fantasy/cottage: сверху карточки стоит погода. */
+  right: 20px; bottom: 14px; width: 20px; height: 20px;
+  background:
+    radial-gradient(circle at 50% 50%, #000 0 3.2px, rgba(0,0,0,.55) 3.6px 5px, transparent 5.4px),
+    conic-gradient(from 12deg,
+      transparent 0 3deg, rgba(0,0,0,.3) 3deg 4.5deg, transparent 4.5deg 62deg,
+      rgba(0,0,0,.26) 62deg 63.5deg, transparent 63.5deg 143deg,
+      rgba(0,0,0,.3) 143deg 144.5deg, transparent 144.5deg 221deg,
+      rgba(0,0,0,.24) 221deg 222.5deg, transparent 222.5deg 300deg,
+      rgba(0,0,0,.28) 300deg 301.5deg, transparent 301.5deg);
+}
+/* Знак «Мира» у Криминала был тем же револьвером, что у Нуара, — развели. */
+.hud-theme-mafia .hud-world-title::after { content: ' \2317'; }
+.hud-theme-mafia .hud-key-block {
+  border: 1px solid rgba(217,43,43,.35);
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.5);
+}
+.hud-theme-mafia .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
+.hud-theme-mafia .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
+.hud-theme-mafia {
+  --th-empty-world: 'По городу — ничего. Тишина дороже.';
+  --th-empty-diary: 'Записей нет. И правильно.';
+}
+
+/* --- из css/themes.css --- */
+/* Криминал: смазанный отпечаток пальца в углу. */
+.hud-theme-mafia .hud-os-wrapper::before {
+  background-image:
+    repeating-radial-gradient(circle at 88% 16%, rgba(217,43,43,.16) 0 1px, transparent 1px 4px);
+  background-size: 70px 70px;
+  background-repeat: no-repeat;
+}
+/* ---- Криминал — масть, гильза, силуэт ---- */
+.hud-theme-mafia .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c9a227' stroke='none'%3E%3Cpath d='M12 4l5 5.4c1.6 1.8 1 4.6-1.4 5.2-1.2.3-2.4-.2-3-1.2L12 20h-1l.4-6.6c-.6 1-1.8 1.5-3 1.2-2.4-.6-3-3.4-1.4-5.2z' opacity='.85'/%3E%3C/svg%3E"); }
+.hud-theme-mafia .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9a227' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Crect x='9' y='5' width='6' height='12' rx='2.4'/%3E%3Cpath d='M9 9h6M9 13h6'/%3E%3Cpath d='M10.5 17v2.5h3V17'/%3E%3C/svg%3E"); }
+.hud-theme-mafia .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9a227' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round' %3E%3Ccircle cx='12' cy='8' r='3'/%3E%3Cpath d='M5 20c1-4 3.6-6 7-6s6 2 7 6'/%3E%3C/svg%3E"); }
+.hud-theme-mafia .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23c9a227' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 19l4-6 3 3 4-7 3 5 2-3'/%3E%3Ccircle cx='8' cy='13' r='1'/%3E%3Ccircle cx='15' cy='9' r='1'/%3E%3C/svg%3E"); }
+.hud-theme-mafia .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23c9a227' stroke='none'%3E%3Crect x='3' y='4' width='.8' height='16' opacity='.5'/%3E%3Crect x='7' y='4' width='.8' height='16' opacity='.4'/%3E%3Crect x='11' y='4' width='.8' height='16' opacity='.5'/%3E%3Crect x='15' y='4' width='.8' height='16' opacity='.4'/%3E%3Crect x='19' y='4' width='.8' height='16' opacity='.5'/%3E%3C/svg%3E"); }
+
+/* --- из css/deco.css --- */
+:root.hud-theme-mafia { --cb-off: '○';   --cb-on: '✕'; }
+:root.hud-theme-mafia { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Crect%20x%3D'3'%20y%3D'3'%20width%3D'18'%20height%3D'18'%20rx%3D'1'%2F%3E%3C%2Fsvg%3E");  }

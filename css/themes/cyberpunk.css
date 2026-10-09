@@ -1,0 +1,102 @@
+/* Тема «cyberpunk» — правила под :root.hud-theme-cyberpunk.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/base.css --- */
+/* --- Киберпанк ---------------------------------------------------------- */
+.hud-theme-cyberpunk { --hud-radius: 4px; }
+.hud-theme-cyberpunk .hud-key::after,
+.hud-theme-cyberpunk .hud-key-label::after { content: '>_ '; font-family: 'Courier New', monospace; color: #2de2ff; }
+/* Развёртка ЭЛТ плюс угловые скобки терминала. */
+.hud-theme-cyberpunk .hud-os-card::after {
+  background:
+    repeating-linear-gradient(180deg, rgba(45,226,255,.055) 0 1px, transparent 1px 3px),
+    linear-gradient(90deg, #2de2ff 0 14px, transparent 14px) top left / 100% 2px no-repeat,
+    linear-gradient(90deg, transparent calc(100% - 14px), #ff2d6f calc(100% - 14px)) bottom left / 100% 2px no-repeat,
+    var(--hud-bg);
+}
+.hud-theme-cyberpunk .hud-os-logo::after { content: ' ▮'; color: #2de2ff; }
+.hud-theme-cyberpunk .hud-world-title::after { content: ' ⌁'; color: #2de2ff; }
+/* Активная вкладка получает цвет темы, а не общий акцент. */
+.hud-theme-cyberpunk .hud-tab.active { box-shadow: inset 0 -2px 0 #2de2ff; }
+.hud-theme-cyberpunk .hud-diary-entry { border-left-color: #2de2ff; }
+/* Киберпанк — угловые скобки терминала у каждого блока полей. */
+.hud-theme-cyberpunk .hud-key-block { position: relative; }
+.hud-theme-cyberpunk .hud-key-block::before,
+.hud-theme-cyberpunk .hud-key-block::after {
+  content: ''; position: absolute; width: 9px; height: 9px; pointer-events: none;
+  border-color: #2de2ff; border-style: solid;
+}
+.hud-theme-cyberpunk .hud-key-block::before { left: -1px; top: -1px; border-width: 1px 0 0 1px; }
+.hud-theme-cyberpunk .hud-key-block::after { right: -1px; bottom: -1px; border-width: 0 1px 1px 0; }
+.hud-theme-cyberpunk .hud-os-wrapper::after { display: none; }
+/* --- Киберпанк: хроматическое двоение и табличные цифры --- */
+.hud-theme-cyberpunk :is(.hud-key, .hud-key-label) {
+  text-shadow: -1px 0 rgba(255,45,111,.5), 1px 0 rgba(45,226,255,.5);
+  letter-spacing: .06em;
+}
+.hud-theme-cyberpunk .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
+.hud-theme-cyberpunk .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
+.hud-theme-cyberpunk {
+  --th-empty-world: '// NO SIGNAL — данных за период нет';
+  --th-empty-diary: '// LOG EMPTY';
+}
+
+/* --- из css/themes.css --- */
+/* Киберпанк: сетка HUD и глитч-полоса. */
+.hud-theme-cyberpunk .hud-os-wrapper::before {
+  background-image:
+    linear-gradient(rgba(45,226,255,.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(45,226,255,.05) 1px, transparent 1px),
+    linear-gradient(180deg, transparent 0, rgba(255,45,111,.16) 2px, transparent 4px);
+  background-size: 26px 26px, 26px 26px, 100% 100%;
+  background-position: 0 0, 0 0, 0 30%;
+  animation: hud-th-glitch 5.5s steps(1, end) infinite;
+  animation-play-state: paused;
+}
+/* --- Киберпанк: неоновые трубки сверху и снизу -------------------------- */
+.hud-theme-cyberpunk .hud-tab-content::before {
+  background-image:
+    linear-gradient(90deg, transparent, #2de2ff 18%, #b06bff 50%, #ff2d6f 82%, transparent),
+    radial-gradient(70% 100% at 50% 0%, rgba(45,226,255,.2), transparent 72%),
+    linear-gradient(90deg, transparent, #ff2d6f 18%, #b06bff 50%, #2de2ff 82%, transparent),
+    radial-gradient(70% 100% at 50% 100%, rgba(255,45,111,.16), transparent 72%);
+  background-size: 100% 1.5px, 100% 16px, 100% 1.5px, 100% 14px;
+  background-position: left top, left top, left bottom, left bottom;
+  opacity: .8;
+}
+@media (hover: hover) {
+.hud-theme-cyberpunk .hud-os-logo:hover { animation-play-state: running; }
+}
+/* ---- Киберпанк — чип, схема, штрихкод ---- */
+.hud-theme-cyberpunk .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300e5ff' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Crect x='7' y='7' width='10' height='10' rx='1.5'/%3E%3Cpath d='M10 4v3M14 4v3M10 17v3M14 17v3M4 10h3M4 14h3M17 10h3M17 14h3'/%3E%3C/svg%3E"); }
+.hud-theme-cyberpunk .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300e5ff' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M3 12h4l2-4 3 8 2-5 2 3h5'/%3E%3Ccircle cx='7' cy='12' r='1'/%3E%3Ccircle cx='17' cy='14' r='1'/%3E%3C/svg%3E"); }
+.hud-theme-cyberpunk .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%2300e5ff' stroke='none'%3E%3Crect x='4' y='5' width='1.6' height='14' opacity='.9'/%3E%3Crect x='7' y='5' width='.9' height='14' opacity='.7'/%3E%3Crect x='9.4' y='5' width='2.2' height='14' opacity='.85'/%3E%3Crect x='13' y='5' width='.9' height='14' opacity='.6'/%3E%3Crect x='15.4' y='5' width='1.6' height='14' opacity='.8'/%3E%3Crect x='18.4' y='5' width='1' height='14' opacity='.55'/%3E%3C/svg%3E"); }
+.hud-theme-cyberpunk .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300e5ff' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 8h6l2 3 2-6 2 9 2-4h2'/%3E%3Cpath d='M4 17h16' opacity='.5'/%3E%3C/svg%3E"); }
+.hud-theme-cyberpunk .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300e5ff' stroke-width='1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M3 7h7l2 2h9M3 12h5l2-2h11M3 17h9l2 2h7'/%3E%3C/svg%3E"); }
+
+/* --- из css/misc.css --- */
+/* Киберпанк: хроматическое двоение остаётся, свечение — поверх него. */
+html.hud-theme-cyberpunk .hud-os-card :is(.hud-row:not(.nsfw) > .hud-key, .hud-key-block > .hud-key-label, .hud-world-title) {
+  text-shadow: -1px 0 rgba(255,45,111,.5), 1px 0 rgba(45,226,255,.5), 0 0 calc(1px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(5px * var(--hud-glow-r)) var(--hud-glow-strong),
+    0 0 calc(12px * var(--hud-glow-r)) var(--hud-glow), 0 0 calc(26px * var(--hud-glow-r)) var(--hud-glow-soft),
+    0 0 calc(4px * var(--hud-glow-r)) color-mix(in srgb, currentColor min(100%, calc(45% * var(--hud-glow-k, 1) * var(--hud-glow-i, 1))), transparent);
+}
+html.hud-theme-cyberpunk body.noShadows .hud-os-card :is(.hud-row:not(.nsfw) > .hud-key, .hud-key-block > .hud-key-label, .hud-world-title) { text-shadow: -1px 0 rgba(255,45,111,.5), 1px 0 rgba(45,226,255,.5), 0 0 calc(1px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(5px * var(--hud-glow-r)) var(--hud-glow-strong),
+    0 0 calc(12px * var(--hud-glow-r)) var(--hud-glow), 0 0 calc(26px * var(--hud-glow-r)) var(--hud-glow-soft),
+    0 0 calc(4px * var(--hud-glow-r)) color-mix(in srgb, currentColor min(100%, calc(45% * var(--hud-glow-k, 1) * var(--hud-glow-i, 1))), transparent) !important; }
+
+/* --- из css/deco.css --- */
+:root.hud-theme-cyberpunk { --cb-off: '[ ]'; --cb-on: '■'; }
+:root.hud-theme-cyberpunk { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M14%201L4%2014h7l-2%209%2011-13h-7z'%2F%3E%3C%2Fsvg%3E"); --trk: var(--hud-accent); --trk-glow: 0 0 6px var(--hud-accent), 0 0 12px color-mix(in srgb, var(--hud-accent) 55%, transparent); }
+
+/* --- анимации темы --- */
+@keyframes hud-th-glitch {
+  0%, 100% { background-position: 0 0, 0 0, 0 18%; }
+  22% { background-position: 0 0, 0 0, 0 62%; }
+  24% { background-position: 0 0, 0 0, 0 30%; }
+  61% { background-position: 0 0, 0 0, 0 84%; }
+  63% { background-position: 0 0, 0 0, 0 46%; }
+}

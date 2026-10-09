@@ -1,0 +1,83 @@
+/* Тема «medieval» — правила под :root.hud-theme-medieval.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/base.css --- */
+/* --- Средневековье ------------------------------------------------------ */
+.hud-theme-medieval {
+  --hud-text: #3a2c15;
+  --hud-text-muted: rgba(58,44,21,.66);
+  --hud-border: rgba(120,95,45,.32);
+  --hud-radius: 5px;
+}
+.hud-theme-medieval .hud-key::after,
+.hud-theme-medieval .hud-key-label::after { content: ' \2694\FE0E'; margin-left: 4px; font-size: .95em; }
+/* Серебряный клинок вдоль левого поля и золотая кайма сверху. */
+.hud-theme-medieval .hud-os-card::after {
+  background:
+    linear-gradient(90deg, rgba(210,215,225,.75) 0 2px, rgba(150,158,170,.5) 2px 4px, transparent 4px) left top / 4px 100% no-repeat,
+    linear-gradient(90deg, transparent, rgba(201,162,39,.75), transparent) top left / 100% 3px no-repeat,
+    var(--hud-bg);
+}
+.hud-theme-medieval .hud-key-item { border-left-color: #8a6a1f; }
+.hud-theme-medieval .hud-os-logo::after { content: ' \2720\FE0E'; }
+.hud-theme-medieval .hud-world-title::after { content: ' \2756'; }
+.hud-theme-medieval .hud-tab.active { box-shadow: inset 0 -2px 0 #c9a227; }
+.hud-theme-medieval {
+  --lt-paper: rgba(255,252,240,.62);
+  --lt-paper-2: rgba(255,252,240,.36);
+  --lt-ink: #3a2c15;
+  --lt-ink-soft: rgba(58,44,21,.64);
+  --lt-line: rgba(120,95,45,.3);
+  --lt-solid: #efe3c6;
+}
+/* Средневековье — восковая печать в нижнем правом углу. */
+.hud-theme-medieval .hud-os-wrapper::after {
+  right: 14px; bottom: 12px; width: 34px; height: 34px; border-radius: 50%;
+  background:
+    radial-gradient(circle at 38% 34%, rgba(255,255,255,.4), transparent 46%),
+    radial-gradient(circle at 50% 50%, #9a2d1f 0 64%, #7a2317 66%, transparent 70%);
+  box-shadow: 0 2px 5px rgba(0,0,0,.32);
+}
+/* --- Средневековье: буквица и золотая линейка --- */
+.hud-theme-medieval .hud-key-item::first-letter {
+  font-size: 1.35em; font-weight: 700; color: #8a6a1f;
+}
+.hud-theme-medieval .hud-key-block {
+  border-top: 2px solid rgba(201,162,39,.4);
+  border-bottom: 1px solid rgba(201,162,39,.25);
+}
+.hud-theme-medieval .hud-world-empty::after { content: var(--th-empty-world, 'Записей пока нет.'); }
+.hud-theme-medieval .hud-diary-empty::after { content: var(--th-empty-diary, 'Записей пока нет.'); }
+.hud-theme-medieval {
+  --th-empty-world: 'Вестей из города не приходило.';
+  --th-empty-diary: 'Летопись пока не начата.';
+}
+.hud-theme-medieval .hud-key-block {
+  background-image:
+    linear-gradient(135deg, rgba(120,95,45,.07) 25%, transparent 25%),
+    linear-gradient(225deg, rgba(120,95,45,.07) 25%, transparent 25%),
+    linear-gradient(45deg,  rgba(120,95,45,.07) 25%, transparent 25%),
+    linear-gradient(315deg, rgba(120,95,45,.07) 25%, transparent 25%);
+  background-size: 7px 7px;
+}
+
+/* --- из css/themes.css --- */
+/* Средневековье: волокна пергамента. */
+.hud-theme-medieval .hud-os-wrapper::before {
+  background-image:
+    repeating-linear-gradient(96deg, rgba(120,95,45,.05) 0 1px, transparent 1px 9px),
+    repeating-linear-gradient(6deg, rgba(120,95,45,.035) 0 1px, transparent 1px 13px);
+}
+/* ---- Средневековье — щит, печать, лилия ---- */
+.hud-theme-medieval .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a6a1f' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 4l7 2.4v6c0 4-3 6.6-7 7.6-4-1-7-3.6-7-7.6v-6z'/%3E%3Cpath d='M12 8v8M8.6 11.4h6.8'/%3E%3C/svg%3E"); }
+.hud-theme-medieval .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a6a1f' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M6 5h9l3 3v11H6z'/%3E%3Cpath d='M15 5v3h3'/%3E%3Ccircle cx='12' cy='14' r='2.6'/%3E%3Cpath d='M12 11.4v5.2M9.4 14h5.2'/%3E%3C/svg%3E"); }
+.hud-theme-medieval .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a6a1f' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 4c1.6 2.6 1.6 4.6 0 6-1.6-1.4-1.6-3.4 0-6z'/%3E%3Cpath d='M12 10c3 0 5 1.6 5 4s-2 6-5 6-5-3.6-5-6 2-4 5-4z'/%3E%3Cpath d='M6 12h12'/%3E%3C/svg%3E"); }
+.hud-theme-medieval .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a6a1f' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Ccircle cx='7' cy='8' r='2.4'/%3E%3Ccircle cx='13' cy='12' r='2.4'/%3E%3Ccircle cx='19' cy='16' r='2.4'/%3E%3Cpath d='M8.8 9.6l2.4 1.2M14.8 13.6l2.4 1.2'/%3E%3C/svg%3E"); }
+.hud-theme-medieval .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238a6a1f' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M4 5h16v9l-8 5-8-5z'/%3E%3Cpath d='M9 5v5M15 5v5'/%3E%3C/svg%3E"); }
+
+/* --- из css/deco.css --- */
+:root.hud-theme-medieval { --cb-off: '◇';   --cb-on: '◆'; }
+:root.hud-theme-medieval { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%201c2%202.5%202.5%205%200%208-2.5-3-2-5.5%200-8zM12%209v13M5%207c3%200%205%202.5%205%206-3%200-5.5-2-5-6zM19%207c-3%200-5%202.5-5%206%203%200%205.5-2%205-6zM7%2016h10'%20stroke%3D'black'%20stroke-width%3D'2'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E"); --trk: repeating-linear-gradient(60deg, color-mix(in srgb, var(--hud-accent) 80%, #000) 0 2px, color-mix(in srgb, var(--hud-accent) 45%, #fff) 2px 4px); --trk-h: 4px; }

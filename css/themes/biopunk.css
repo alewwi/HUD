@@ -1,0 +1,59 @@
+/* Тема «biopunk» — правила под :root.hud-theme-biopunk.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/misc.css --- */
+/* Биопанк: влажный органический отблеск, будто под плёнкой. */
+.hud-theme-biopunk .hud-os-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(120% 60% at 20% 0%, rgba(143,227,106,.14), transparent 60%),
+              radial-gradient(90% 50% at 90% 100%, rgba(255,107,168,.12), transparent 60%);
+}
+.hud-theme-biopunk .hud-os-logo::after { content: ' \2609'; }
+.hud-theme-biopunk .hud-tab.active { box-shadow: inset 0 -2px 0 #8fe36a; }
+.hud-theme-biopunk     .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-biopunk     .hud-diary-empty::after { content: var(--th-empty-diary); }
+/* --- Биопанк: влажная органика и кислотная зелень ------------------------ */
+.hud-theme-biopunk .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fe36a' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M7 3c0 5 10 5 10 9s-10 4-10 9M17 3c0 5-10 5-10 9s10 4 10 9'/%3E%3Cpath d='M8.4 7h7.2M8.4 17h7.2M7.6 12h8.8' opacity='.55'/%3E%3C/svg%3E"); }
+.hud-theme-biopunk .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fe36a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='8.4'/%3E%3Ccircle cx='9.4' cy='10' r='2'/%3E%3Ccircle cx='15' cy='13.6' r='2.6'/%3E%3Ccircle cx='11' cy='16' r='1.3'/%3E%3Cpath d='M4 12h16' opacity='.35'/%3E%3C/svg%3E"); }
+.hud-theme-biopunk .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fe36a' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='9' cy='10' r='3.2'/%3E%3Cpath d='M12.2 10H20M20 10l-2.4-2.2M20 10l-2.4 2.2'/%3E%3Cpath d='M6.6 7.4L4 5M6.6 12.6L4 15M9 6.8V4'/%3E%3C/svg%3E"); }
+.hud-theme-biopunk .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fe36a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9 3h6M10 3v11.4a3.4 3.4 0 004 0V3'/%3E%3Cpath d='M9.6 12.4c1.4 1 3.4 1 4.8 0' opacity='.6'/%3E%3Cpath d='M10 15.4a3.4 3.4 0 004 0v3.2a2 2 0 01-4 0z'/%3E%3C/svg%3E"); }
+.hud-theme-biopunk .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fe36a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M1 13h5l1.6-5 2.6 9 2.4-7 1.8 3H23'/%3E%3C/svg%3E"); }
+/* Обои: клеточные пузыри под плёнкой, медленно всплывают. */
+.hud-theme-biopunk .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(circle 5px at 18% 78%, rgba(143,227,106,.13) 0 62%, transparent 100%),
+    radial-gradient(circle 3px at 62% 62%, rgba(143,227,106,.11) 0 62%, transparent 100%),
+    radial-gradient(circle 7px at 84% 84%, rgba(255,107,168,.10) 0 62%, transparent 100%),
+    radial-gradient(circle 4px at 40% 30%, rgba(143,227,106,.08) 0 62%, transparent 100%);
+  background-size: 150px 130px, 110px 96px, 190px 160px, 130px 110px;
+  animation: hud-th-bubbles 14s linear infinite;
+  animation-play-state: paused;
+}
+/* Фирменный знак: подтёки слизи из-под верхней кромки. */
+.hud-theme-biopunk .hud-os-wrapper::after {
+  left: 0; right: 0; top: 0; height: 34px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 34' fill='%238fe36a' fill-opacity='.30'%3E%3Cpath d='M0 0h120v6c-8 0-8 9-14 9s-6-6-12-6-5 13-11 13-6-13-12-13-7 8-13 8-6-8-12-8-7 5-13 5-6-5-12-5-6 4-9 4z'/%3E%3C/svg%3E");
+  background-repeat: repeat-x; background-size: 120px 34px;
+}
+.hud-theme-biopunk :is(.hud-key, .hud-key-label)::after { content: ' \274B'; margin-left: 4px; font-size: .8em; opacity: .75; }
+.hud-theme-biopunk .hud-world-title::after { content: ' \2609'; }
+.hud-theme-biopunk .hud-key-item { border-left-color: #8fe36a; }
+.hud-theme-biopunk .hud-diary-entry { border-left-color: #3c7a2a; }
+.hud-theme-biopunk {
+  --hud-radius: 14px;
+  --th-empty-world: 'Культура ещё не выросла.';
+  --th-empty-diary: 'Образцов пока не брали.';
+}
+
+/* --- из css/deco.css --- */
+:root.hud-theme-biopunk { --cb-off: '⬡';   --cb-on: '⬢'; }
+:root.hud-theme-biopunk { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%201l9.5%205.5v11L12%2023l-9.5-5.5v-11z'%2F%3E%3C%2Fsvg%3E"); --trk: var(--hud-accent); --trk-glow: 0 0 6px var(--hud-accent), 0 0 12px color-mix(in srgb, var(--hud-accent) 55%, transparent); }
+
+/* --- анимации темы --- */
+@keyframes hud-th-bubbles {
+  from { background-position: 0 0, 0 0, 0 0, 0 0; }
+  to   { background-position: 0 -130px, 0 -96px, 0 -160px, 0 -110px; }
+}

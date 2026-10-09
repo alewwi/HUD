@@ -7,9 +7,7 @@
   --fam-paper: color-mix(in srgb, var(--fam-acc) 8%, rgba(255,255,255,.06));
   --fam-hand: 'Segoe Print', 'Comic Sans MS', 'Bradley Hand', cursive;
 }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-os-card {
-  --fam-paper: color-mix(in srgb, var(--fam-acc) 4%, #fffdf8);
-}
+
 .hud-fv .is-girl, .hud-ktv .is-girl { --c: var(--fam-girl); }
 .hud-fv .is-boy, .hud-ktv .is-boy { --c: var(--fam-boy); }
 .hud-fv .is-unknown { --c: var(--fam-baby); }
@@ -386,17 +384,9 @@
 
 /* Мелкие подписи в новых видах — без прозрачности от темы. */
 :is(.hud-fv, .hud-ppv, .hud-ktv, .kc-view) small { opacity: 1; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-fv, .hud-ppv, .hud-ktv, .kc-view) small:not(.us-corner small) {
-  color: var(--lt-ink-soft, #6a5a64) !important;
-}
+
 .hud-kid-care .ks-sticker { width: 40px; height: 40px; font-size: 1.15em; }
 .hud-kid-care .ks-slot.is-later .ks-sticker { width: 28px; height: 28px; font-size: .8em; }
 .hud-kid-care .ks-slot.is-later small { font-size: .6em; }
 
-/* Светлые темы: мелкие подписи — приглушённым цветом, без прозрачности. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-ktv .born, .hud-ktv .kg-note, .hud-ppv-rings .pr-legend li > span, .hud-ppv-bottles .pb-row span, .hud-kid-care .ks-head small, .hud-kid-care .ks-slot.is-later small) {
-  color: var(--lt-ink-soft, #6a5a64) !important;
-}
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-fam-tip {
-  background: color-mix(in srgb, var(--fam-acc) 8%, #fffaf6);
-}
+

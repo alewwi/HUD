@@ -1,9 +1,5 @@
-/* =========================================================================
-   «Сердца» (доверие), «Глаз» (разоблачение), «Во тьме» (страхи) — render/views.js
-   ========================================================================= */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-v-heartcard, .hud-v-expo.is-eye, .hud-v-fears.is-dark2) {
-  --f-ink: color-mix(in srgb, var(--v-acc) 78%, #000);
-}
+
+
 .hud-v-heartcard, .hud-v-expo.is-eye, .hud-v-fears.is-dark2 { --f-ink: color-mix(in srgb, var(--v-acc) 42%, #fff); }
 /* =========================================================================
    ДОВЕРИЕ «Сердца»: стеклянные сердца-сосуды, большое сердце с числом
@@ -135,7 +131,7 @@
    белым пятном, на светлых — как есть.
    ========================================================================= */
 .hud-v { --vp-mute: 12%; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-v { --vp-mute: 0%; }
+
 .hud-v-file { background: linear-gradient(175deg, color-mix(in srgb, color-mix(in srgb, var(--v-acc) 14%, #e3d4ad), #000 var(--vp-mute)), color-mix(in srgb, color-mix(in srgb, var(--v-acc) 16%, #cdb88a), #000 var(--vp-mute))); }
 .hud-v-file-tab { background: color-mix(in srgb, color-mix(in srgb, var(--v-acc) 14%, #e3d4ad), #000 var(--vp-mute)); }
 .hud-v-board { background-color: color-mix(in srgb, color-mix(in srgb, var(--v-acc) 18%, #8f6843), #000 var(--vp-mute)); }

@@ -1,0 +1,74 @@
+/* Тема «ocean» — правила под :root.hud-theme-ocean.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/themes.css --- */
+/* ======================= Глубина ======================= */
+.hud-theme-ocean { --hud-radius: 16px; }
+.hud-theme-ocean .hud-key::after,
+.hud-theme-ocean .hud-key-label::after { content: ' \2248'; margin-left: 4px; }
+.hud-theme-ocean .hud-os-logo::after { content: ' \223F'; }
+.hud-theme-ocean .hud-world-title::after { content: ' \224B'; }
+/* Каустика: пересекающиеся светлые нити, как блики на дне. */
+.hud-theme-ocean .hud-os-card::after {
+  background:
+    repeating-linear-gradient(24deg, rgba(120,230,255,.05) 0 2px, transparent 2px 17px),
+    repeating-linear-gradient(-32deg, rgba(120,230,255,.04) 0 2px, transparent 2px 23px),
+    var(--hud-bg);
+}
+/* Лучи света падают сверху под небольшим наклоном. */
+.hud-theme-ocean .hud-os-wrapper::before {
+  content: ''; position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    linear-gradient(170deg, rgba(150,240,255,.09) 0 5px, transparent 5px 42px),
+    linear-gradient(176deg, rgba(150,240,255,.06) 0 3px, transparent 3px 58px);
+  -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 78%);
+          mask-image: linear-gradient(180deg, #000 0%, transparent 78%);
+  animation: hud-oc-rays 13s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+/* Пузырьки поднимаются со дна. */
+.hud-theme-ocean .hud-tab-content::before {
+  background-image:
+    radial-gradient(circle 3px at 50% 50%, rgba(190,245,255,.4) 0 52%, rgba(190,245,255,.14) 58%, transparent 62%),
+    radial-gradient(circle 2px at 50% 50%, rgba(190,245,255,.32) 0 52%, transparent 60%),
+    radial-gradient(circle 4px at 50% 50%, rgba(190,245,255,.22) 0 52%, transparent 60%);
+  background-size: 58px 92px, 41px 68px, 77px 116px;
+  background-repeat: repeat;
+  animation: hud-oc-bubbles 14s linear infinite;
+}
+/* Медленная волна по нижнему краю. */
+.hud-theme-ocean .hud-os-wrapper::after {
+  left: 0; right: 0; bottom: 0; height: 12px;
+  background:
+    radial-gradient(ellipse 26px 8px at 50% 100%, rgba(79,216,200,.16), transparent 70%);
+  background-size: 52px 12px; background-repeat: repeat-x;
+  animation: hud-oc-wave 9s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+/* ---- Глубина — раковина, водоросли, пузыри ---- */
+.hud-theme-ocean .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235ec8d8' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M12 20c-4.4 0-8-3.4-8-7.6S7.6 4 12 4s8 4.2 8 8.4S16.4 20 12 20z'/%3E%3Cpath d='M12 20V4M12 20c-2-3-3-6-3-8.6M12 20c2-3 3-6 3-8.6'/%3E%3C/svg%3E"); }
+.hud-theme-ocean .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235ec8d8' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M8 20c0-5 1-9 3-12M8 20c-2-3-3-7-2-11'/%3E%3Cpath d='M16 20c0-4 .6-7 2-9'/%3E%3Cpath d='M11 11c1.6-.6 2.6-1.6 3-3M9.6 15c1.6-.6 2.6-1.6 3-3'/%3E%3C/svg%3E"); }
+.hud-theme-ocean .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235ec8d8' stroke-width='1.1' stroke-linecap='round' stroke-linejoin='round' %3E%3Ccircle cx='8' cy='16' r='2.6'/%3E%3Ccircle cx='14' cy='10' r='1.8'/%3E%3Ccircle cx='18' cy='5.5' r='1.2'/%3E%3Cpath d='M6.6 14.6a2.6 2.6 0 011-.8' opacity='.8'/%3E%3C/svg%3E"); }
+.hud-theme-ocean .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235ec8d8' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M3 9c2-2 4-2 6 0s4 2 6 0 4-2 6 0' opacity='.85'/%3E%3Cpath d='M3 14c2-2 4-2 6 0s4 2 6 0 4-2 6 0' opacity='.6'/%3E%3Cpath d='M3 19c2-2 4-2 6 0s4 2 6 0 4-2 6 0' opacity='.4'/%3E%3C/svg%3E"); }
+.hud-theme-ocean .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235ec8d8' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round' %3E%3Cpath d='M3 12c1.6-2.4 3.2-2.4 4.8 0s3.2 2.4 4.8 0 3.2-2.4 4.8 0 3.2 2.4 4.8 0'/%3E%3C/svg%3E"); }
+
+/* --- из css/extras.css --- */
+/* У Глубины знак — фигура, а не буква: текст во включённой не нужен. */
+:root.hud-theme-ocean { --cb-on: ''; }
+
+/* --- из css/deco.css --- */
+:root.hud-theme-ocean { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%202s7%207.6%207%2012.5a7%207%200%200%201-14%200C5%209.6%2012%202%2012%202z'%2F%3E%3C%2Fsvg%3E"); --trk: radial-gradient(circle, color-mix(in srgb, var(--hud-accent) 75%, transparent) 1.4px, transparent 1.9px) 0 50% / 8px 6px repeat-x; --trk-h: 6px; }
+
+/* --- анимации темы --- */
+@keyframes hud-oc-rays {
+  from { background-position: 0 0, 0 0; opacity: .7; }
+  to   { background-position: 16px 0, -12px 0; opacity: 1; }
+}
+@keyframes hud-oc-bubbles {
+  from { background-position: 0 0, 0 0, 0 0; }
+  to   { background-position: 5px -92px, -7px -68px, 4px -116px; }
+}
+@keyframes hud-oc-wave { from { background-position: 0 0; } to { background-position: 52px 0; } }

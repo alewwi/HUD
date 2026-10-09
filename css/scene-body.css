@@ -150,9 +150,7 @@
   0% { --sw: -1; } 14% { --sw: .9; } 28% { --sw: -.5; } 40% { --sw: .4; } 48% { --sw: -.3; } 72% { --sw: 1; } 100% { --sw: -1; }
 }
 
-/* Светлые темы. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-tempo { background: radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--tc) 14%, transparent), transparent 60%), rgba(255,255,255,.5); }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-tempo-head b { color: color-mix(in srgb, var(--tc) 70%, #000); }
+
 
 /* Тёмная ткань на тёмном силуэте — светлый контур, чтобы вещь читалась. */
 .hud-heat-svg .z-garment:is([style*="#1c1b21"], [style*="#1d1b22"], [style*="#1a1a1f"], [style*="#1a1716"], [style*="#241a18"], [style*="#2c2f38"], [style*="#2a2a30"], [style*="#26282f"], [style*="#1b2550"], [style*="#3f424a"]) .body { stroke: color-mix(in srgb, var(--cl) 25%, #d4d4de); stroke-width: .75; stroke-opacity: .8; }

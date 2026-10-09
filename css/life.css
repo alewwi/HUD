@@ -1,0 +1,328 @@
+/* Вкладка «Быт» (render/life.js). Язык — как у видов блоков (css/views.css):
+   стеклянные карточки .hud-v-card, медальоны, кольца .hud-v-ring, теги,
+   сегменты; цвет — акцент темы (--v-acc), предупреждение — янтарь, плохо —
+   красный (тон задаётся в разметке через --v-acc), сон — холодный синий. */
+.hud-life {
+  --life-sleep: #8ab4e8; --life-warn: #e0a458; --life-bad: #e46a6a;
+  display: grid; gap: 10px; grid-template-columns: minmax(0, 1fr); align-content: start; container-type: inline-size;
+}
+.hud-life-empty { margin: 0; font-size: 12.5px; color: var(--hud-text-muted, #a8a5ad); }
+.hud-life .hud-v-ico { width: 15px; height: 15px; }
+.hud-life-sub { display: inline-flex; align-items: center; gap: 5px; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--v-ink-soft); }
+.hud-life-sub .hud-v-ico { color: color-mix(in srgb, var(--v-acc) 55%, var(--ink-hi, #fff)); width: 13px; height: 13px; }
+
+/* Лица: аватарка, если есть, иначе буква на акценте. */
+.hud-life-face { width: 30px; height: 30px; background-size: cover; background-position: center; }
+.hud-life-face[style*="background-image"] { box-shadow: 0 0 0 2px color-mix(in srgb, var(--v-acc) 45%, transparent), 0 3px 8px rgba(0,0,0,.45); }
+
+/* --- Шапка и сводка ------------------------------------------------------ */
+.hud-life-hero { display: grid; gap: 12px; padding: 12px 14px 14px; overflow: hidden;
+  background: radial-gradient(120% 120% at 0% 0%, color-mix(in srgb, var(--v-acc) 22%, transparent), transparent 55%),
+              radial-gradient(90% 120% at 100% 100%, color-mix(in srgb, var(--life-sleep) 12%, transparent), transparent 60%), var(--v-surf); }
+.hud-life-hero::after { content: ''; position: absolute; right: -40px; top: -40px; width: 140px; height: 140px; border-radius: 50%;
+  background: radial-gradient(circle, color-mix(in srgb, var(--v-acc) 18%, transparent), transparent 70%); pointer-events: none; }
+.hud-life-hero-head { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.hud-life-hero-head .hud-life-face { width: 38px; height: 38px; font-size: 14px; }
+.hud-life-hero-head > span { display: grid; min-width: 0; }
+.hud-life-hero-head b { font-size: 14px; font-weight: 750; letter-spacing: .01em; color: color-mix(in srgb, var(--v-acc) 25%, var(--ink-hi, #fff)); }
+.hud-life-hero-head small { font-size: 11px; color: var(--v-ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-life-gauges { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 10px; }
+.hud-life-gauge { display: grid; justify-items: center; align-content: start; gap: 5px; min-width: 0; cursor: help; text-align: center; }
+.hud-life-gauges.is-rings .hud-v-ring { --size: 64px; transition: transform .25s ease; }
+.hud-life-gauges.is-rings .hud-v-ring-face { font-size: 13px; }
+@media (hover: hover) { .hud-life-gauges.is-rings .hud-life-gauge:hover .hud-v-ring { transform: scale(1.06); } }
+.hud-life-gauge-name { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 650; }
+.hud-life-gauge-name .hud-v-ico { width: 13px; height: 13px; color: color-mix(in srgb, var(--v-acc) 50%, var(--ink-hi, #fff)); }
+.hud-life-gauge .hud-v-tag { align-self: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.hud-life-gauges.is-bars { grid-template-columns: minmax(0, 1fr); gap: 8px; }
+.hud-life-gauges.is-bars .hud-life-gauge { grid-template-columns: 92px minmax(0, 1fr) 56px; grid-template-areas: 'name bar num' 'name tag num'; justify-items: stretch; align-items: center; column-gap: 10px; row-gap: 3px; text-align: left; }
+.hud-life-gauges.is-bars .hud-life-gauge-name { grid-area: name; }
+.hud-life-gauges.is-bars .hud-v-mini-bar { grid-area: bar; height: 7px; }
+.hud-life-gauges.is-bars .hud-v-tag { grid-area: tag; justify-self: start; }
+.hud-life-gauges.is-bars .hud-v-num { grid-area: num; text-align: right; font-size: 15px; }
+
+/* --- Таймеры ---------------------------------------------------------------- */
+.hud-life-timers { display: grid; grid-template-columns: repeat(auto-fit, minmax(128px, 1fr)); gap: 8px; }
+.hud-life-timer { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: 'medal text' 'seg seg'; align-items: center; gap: 6px 9px; padding: 8px 10px; cursor: help; }
+.hud-life-timer > .hud-v-medal { grid-area: medal; }
+.hud-life-timer-text { grid-area: text; display: grid; min-width: 0; line-height: 1.2; }
+.hud-life-timer-text small { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--v-ink-soft); }
+.hud-life-timer-text b { font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-life-timer .hud-v-segments { grid-area: seg; }
+.hud-life-timer .hud-v-segments > i { height: 5px; }
+.hud-life-timer.is-none { opacity: .55; filter: saturate(.4); }
+.hud-life-nudge { position: absolute; top: -7px; right: 8px; animation: hud-life-nudge 2.6s ease-in-out infinite; }
+@keyframes hud-life-nudge { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-2px); } }
+@media (prefers-reduced-motion: reduce) { .hud-life-nudge { animation: none; } }
+
+/* --- Разделы ------------------------------------------------------------------ */
+.hud-life-sec { display: grid; gap: 9px; padding: 11px 13px 13px; }
+.hud-life-sec > .hud-v-head { margin-bottom: 0; align-items: center; }
+.hud-life-sec > .hud-v-head b { display: inline-flex; align-items: center; gap: 8px; }
+.hud-life-sec > .hud-v-head .hud-v-medal { width: 26px; height: 26px; }
+.hud-life-sec > .hud-v-head .hud-v-medal .hud-v-ico { width: 14px; height: 14px; }
+.hud-life-sec p { margin: 0; font-size: 12px; }
+.hud-life-alert { display: flex; gap: 8px; align-items: flex-start; padding: 7px 10px; border-radius: 10px; font-size: 12px;
+  color: color-mix(in srgb, var(--life-warn) 45%, var(--ink-hi, #fff)); background: linear-gradient(90deg, color-mix(in srgb, var(--life-warn) 16%, transparent), transparent);
+  border: 1px solid color-mix(in srgb, var(--life-warn) 35%, transparent); }
+.hud-life-alert .hud-v-ico { flex: none; color: var(--life-warn); margin-top: 1px; }
+.hud-life-alert.is-cold { color: color-mix(in srgb, var(--life-sleep) 40%, var(--ink-hi, #fff)); background: linear-gradient(90deg, color-mix(in srgb, var(--life-sleep) 16%, transparent), transparent); border-color: color-mix(in srgb, var(--life-sleep) 35%, transparent); }
+.hud-life-alert.is-cold .hud-v-ico { color: var(--life-sleep); }
+
+/* --- Сутки: лента ------------------------------------------------------------- */
+.hud-life-day.is-strip { display: grid; gap: 8px; }
+.hud-life-day-track { position: relative; height: 54px; margin: 0 4px; border-radius: 12px; overflow: visible;
+  box-shadow: inset 0 0 0 1px var(--v-line), inset 0 6px 14px rgba(0,0,0,.35); }
+/* Небо суток: ночь синяя, день тёплый. */
+.hud-life-day-sky { position: absolute; inset: 0; border-radius: inherit; opacity: .55;
+  background: linear-gradient(90deg, #1b2245 0%, #2a2f58 12%, #6a4a5c 26%, #c98d5a 40%, #e9c27c 55%, #c98d5a 70%, #5a3f63 84%, #1b2245 100%); }
+.hud-life-day-sleep { position: absolute; top: 6px; bottom: 6px; min-width: 16px; display: grid; place-items: center; border-radius: 9px; cursor: help; color: #dfe9ff;
+  background: repeating-linear-gradient(135deg, color-mix(in srgb, var(--life-sleep) 55%, rgba(10,14,40,.6)) 0 6px, color-mix(in srgb, var(--life-sleep) 35%, rgba(10,14,40,.6)) 6px 12px);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--life-sleep) 70%, transparent), 0 0 12px -2px color-mix(in srgb, var(--life-sleep) 60%, transparent); }
+.hud-life-day-sleep.is-approx { opacity: .8; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--life-sleep) 50%, transparent); }
+.hud-life-day-sleep .hud-v-ico { width: 14px; height: 14px; filter: drop-shadow(0 0 4px #b8ccff); }
+.hud-life-day-ev { position: absolute; top: 50%; transform: translate(-50%, -50%); z-index: 1; height: 24px; min-width: 24px; padding: 0 6px; box-sizing: border-box;
+  display: inline-flex; align-items: center; justify-content: center; gap: 3px; border-radius: 999px; cursor: help; white-space: nowrap;
+  color: color-mix(in srgb, var(--v-acc) 30%, #fff);
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--v-acc) 45%, #2a2030), color-mix(in srgb, var(--v-acc) 20%, #120d16));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 0 0 1px color-mix(in srgb, var(--v-acc) 45%, transparent), 0 4px 10px -2px rgba(0,0,0,.6); }
+.hud-life-day-ev .hud-v-ico { width: 13px; height: 13px; filter: drop-shadow(0 0 3px var(--v-glow)); }
+.hud-life-day-ev b { margin-left: 2px; min-width: 15px; padding: 0 4px; border-radius: 999px; font: 800 9.5px/15px system-ui, sans-serif; text-align: center; color: var(--v-acc); background: #fff; }
+.hud-life-day-ev.r1 { top: 27%; } .hud-life-day-ev.r2 { top: 73%; }
+.hud-life-day-ev.is-end, .hud-life-day-ev.is-start { transform: translateY(-50%); }
+@media (hover: hover) { .hud-life-day-ev:hover { z-index: 3; box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 0 0 2px var(--v-acc), 0 6px 14px -2px var(--v-glow); } }
+.hud-life-day-now { position: absolute; right: -1px; top: -5px; bottom: -5px; width: 2px; border-radius: 2px; background: #fff; box-shadow: 0 0 0 1px var(--v-acc), 0 0 10px var(--v-acc); }
+.hud-life-day-now::before { content: ''; position: absolute; top: -4px; left: 50%; width: 8px; height: 8px; border-radius: 50%; transform: translateX(-50%); background: var(--v-acc); box-shadow: 0 0 8px var(--v-acc); }
+.hud-life-day-ticks { position: relative; height: 14px; margin: 0 4px; font-size: 9.5px; color: var(--v-ink-soft); }
+.hud-life-day-tick { position: absolute; top: 0; transform: translateX(-50%); white-space: nowrap; }
+.hud-life-day-tick::before { content: ''; position: absolute; left: 50%; top: -7px; width: 1px; height: 5px; background: currentColor; opacity: .6; }
+.hud-life-day-tick.is-minor::before { height: 3px; top: -5px; opacity: .35; }
+.hud-life-day-tick.is-now { transform: translateX(-100%); font-weight: 700; color: color-mix(in srgb, var(--v-acc) 45%, var(--ink-hi, #fff)); }
+.hud-life-day-tick.is-now::before { display: none; }
+.hud-life-day-legend { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 11.5px; min-width: 0; }
+.hud-life-day-legend li { display: flex; align-items: center; gap: 7px; min-width: 0; cursor: help; }
+.hud-life-day-legend li .hud-v-ico { flex: none; width: 13px; height: 13px; color: color-mix(in srgb, var(--v-acc) 50%, var(--ink-hi, #fff)); }
+.hud-life-day-legend li:first-child .hud-v-ico { color: var(--life-sleep); }
+.hud-life-day-legend span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--v-ink-soft); }
+.hud-life-day-legend time { font-weight: 700; color: var(--hud-text, #e6e6ee); font-variant-numeric: tabular-nums; }
+
+/* --- Сутки: циферблат ---------------------------------------------------------- */
+.hud-life-day.is-clock { display: grid; grid-template-columns: 168px minmax(0, 1fr); gap: 14px; align-items: center; }
+.hud-life-dial { width: 168px; height: 168px; filter: drop-shadow(0 8px 14px rgba(0,0,0,.45)); }
+.hud-life-dial .bezel { fill: none; stroke: color-mix(in srgb, var(--v-acc) 45%, #6b5f6e); stroke-width: 2.4; }
+.hud-life-dial .face { stroke: rgba(255,255,255,.08); stroke-width: .6; }
+.hud-life-dial .track { fill: none; stroke: rgba(255,255,255,.07); stroke-width: 6; }
+.hud-life-dial .ticks line { stroke: rgba(255,255,255,.3); stroke-width: .6; }
+.hud-life-dial .ticks line.is-major { stroke: color-mix(in srgb, var(--v-acc) 50%, #fff); stroke-width: 1.2; }
+.hud-life-dial .ticks text { font: 700 5.2px system-ui, sans-serif; fill: var(--v-ink-soft); text-anchor: middle; dominant-baseline: central; }
+.hud-life-dial .sleep { fill: none; stroke: var(--life-sleep); stroke-width: 6; stroke-linecap: round; filter: drop-shadow(0 0 3px var(--life-sleep)); }
+.hud-life-dial .sleep.is-approx { stroke-dasharray: 2.5 1.5; }
+.hud-life-dial .hand { stroke: #fff; stroke-width: 1.3; stroke-linecap: round; filter: drop-shadow(0 0 2px var(--v-acc)); }
+.hud-life-dial .hub { fill: var(--v-acc); stroke: #fff; stroke-width: .6; }
+.hud-life-dial .ev { cursor: help; }
+.hud-life-dial .ev > circle:not(.n) { fill: color-mix(in srgb, var(--v-acc) 35%, #1a1320); stroke: color-mix(in srgb, var(--v-acc) 60%, transparent); stroke-width: .6; }
+.hud-life-dial .ev > path { fill: none; stroke: #fff; stroke-width: 1.9; stroke-linecap: round; stroke-linejoin: round; }
+.hud-life-dial .ev circle.n { fill: #fff; }
+.hud-life-dial .ev text.n { font: 800 3.4px system-ui, sans-serif; fill: var(--v-acc); text-anchor: middle; dominant-baseline: central; }
+
+/* --- Еда ---------------------------------------------------------------------- */
+.hud-life-meals { position: relative; list-style: none; margin: 0; padding: 0 0 0 16px; display: grid; gap: 6px; font-size: 12px; }
+.hud-life-meals::before { content: ''; position: absolute; left: 4px; top: 6px; bottom: 6px; width: 2px; border-radius: 2px; background: linear-gradient(180deg, var(--v-acc), color-mix(in srgb, var(--v-acc) 10%, transparent)); }
+.hud-life-meals li { position: relative; display: grid; grid-template-columns: 92px minmax(0, 1fr); column-gap: 10px; }
+.hud-life-meals li::before { content: ''; position: absolute; left: -16px; top: 3px; width: 10px; height: 10px; border-radius: 50%; background: var(--v-acc); box-shadow: 0 0 0 3px color-mix(in srgb, var(--v-acc) 20%, transparent), 0 0 8px var(--v-glow); }
+.hud-life-meals li:first-child::before { animation: hud-life-pulse 2.4s ease-in-out infinite; }
+@keyframes hud-life-pulse { 50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--v-acc) 12%, transparent), 0 0 12px var(--v-glow); } }
+@media (prefers-reduced-motion: reduce) { .hud-life-meals li:first-child::before { animation: none; } }
+.hud-life-meals li.is-guess::before { background: transparent; border: 2px dashed var(--v-acc); box-shadow: none; width: 6px; height: 6px; }
+.hud-life-meals li.is-guess > span { font-style: italic; color: var(--v-ink-soft); }
+.hud-life-meals time { color: var(--v-ink-soft); font-variant-numeric: tabular-nums; }
+.hud-life-meals span { display: grid; }
+.hud-life-meals small { color: var(--v-ink-soft); font-size: 10.5px; }
+.hud-life-fav { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
+
+/* --- Сон ----------------------------------------------------------------------- */
+.hud-life-sleep { display: grid; gap: 6px; font-size: 12px; }
+.hud-life-sleep + .hud-life-sleep { padding-top: 8px; border-top: 1px dashed var(--v-line); }
+.hud-life-sleep-head { display: flex; align-items: center; gap: 8px; }
+.hud-life-sleep-head .hud-life-face { width: 24px; height: 24px; font-size: 10px; }
+.hud-life-sleep-head b { flex: 1; min-width: 0; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-life-nights { position: relative; display: flex; align-items: flex-end; gap: 6px; height: 84px; padding: 22px 4px 16px; border-radius: 10px;
+  background: linear-gradient(180deg, rgba(20,26,60,.35), rgba(0,0,0,.15)); box-shadow: inset 0 0 0 1px var(--v-line); }
+.hud-life-nights::after { content: 'норма'; position: absolute; left: 6px; right: 6px; bottom: calc(16px + var(--norm) * 46px); border-top: 1px dashed color-mix(in srgb, var(--life-sleep) 60%, transparent);
+  font-size: 8.5px; line-height: 1; text-align: right; color: color-mix(in srgb, var(--life-sleep) 70%, transparent); padding-top: 2px; pointer-events: none; }
+.hud-life-night { position: relative; flex: 1 1 0; max-width: 36px; height: 46px; display: flex; align-items: flex-end; cursor: help; }
+.hud-life-night i { display: block; width: 100%; height: calc(var(--h) * 100%); border-radius: 6px 6px 2px 2px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--life-sleep) 85%, #fff), color-mix(in srgb, var(--life-sleep) 45%, #101530));
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 0 10px -3px var(--life-sleep); }
+.hud-life-night.is-short i { background: linear-gradient(180deg, color-mix(in srgb, var(--life-warn) 85%, #fff), color-mix(in srgb, var(--life-warn) 45%, #2a1608)); box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 0 10px -3px var(--life-warn); }
+.hud-life-night small { position: absolute; bottom: calc(var(--h) * 100% + 3px); left: -6px; right: -6px; text-align: center; font-size: 9.5px; font-weight: 700; line-height: 1; color: var(--hud-text, #e6e6ee); }
+.hud-life-night b { position: absolute; top: -21px; left: 0; right: 0; display: grid; place-items: center; color: #d9ccff; }
+.hud-life-night b .hud-v-ico { width: 13px; height: 13px; filter: drop-shadow(0 0 4px #b8a6ff); }
+.hud-life-night em { position: absolute; bottom: -14px; left: -6px; right: -6px; text-align: center; font-style: normal; font-size: 9px; color: var(--v-ink-soft); }
+.hud-life-dreams { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; font-size: 12px; }
+.hud-life-dreams li { display: grid; grid-template-columns: 16px 42px minmax(0, 1fr); column-gap: 6px; align-items: baseline; font-style: italic; }
+.hud-life-dreams .hud-v-ico { color: #c8b6ff; width: 13px; height: 13px; }
+.hud-life-dreams time { font-style: normal; color: var(--v-ink-soft); }
+
+/* --- Гардероб ------------------------------------------------------------------ */
+.hud-life-wardrobe { display: grid; gap: 6px; }
+.hud-life-wardrobe + .hud-life-wardrobe { padding-top: 8px; border-top: 1px dashed var(--v-line); }
+.hud-life-wardrobe-head { display: flex; align-items: center; gap: 8px; }
+.hud-life-wardrobe-head .hud-life-face { width: 24px; height: 24px; font-size: 10px; }
+.hud-life-wardrobe-head b { font-size: 12px; font-weight: 650; }
+.hud-life-wardrobe-head small { font-size: 10.5px; color: var(--v-ink-soft); }
+/* Бирки: цветная кромка вещи слева, значок вида, состояние мелко. */
+.hud-life-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 6px; }
+.hud-life-item { --wc: #8a8f9c; position: relative; display: flex; align-items: center; gap: 7px; padding: 6px 9px 6px 12px; border-radius: 10px; font-size: 12px; cursor: help; overflow: hidden;
+  background: linear-gradient(100deg, color-mix(in srgb, var(--wc) 22%, transparent), rgba(255,255,255,.025) 55%);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), inset 0 1px 0 rgba(255,255,255,.06); transition: transform .2s ease; }
+.hud-life-item > s { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--wc); box-shadow: 0 0 8px var(--wc); text-decoration: none; }
+.hud-life-item > .hud-v-ico { flex: none; color: color-mix(in srgb, var(--wc) 55%, var(--ink-hi, #fff)); width: 17px; height: 17px; }
+.hud-life-item > span { display: grid; min-width: 0; line-height: 1.25; }
+.hud-life-item b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-life-item small { font-size: 10px; color: var(--v-ink-soft); }
+.hud-life-item.is-on { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--v-acc) 55%, transparent), 0 0 12px -4px var(--v-glow); }
+.hud-life-item.is-on small { color: color-mix(in srgb, var(--v-acc) 45%, var(--ink-hi, #fff)); }
+.hud-life-item.is-dirty small, .hud-life-item.is-worn small { color: color-mix(in srgb, var(--life-warn) 55%, var(--ink-hi, #fff)); }
+.hud-life-item.is-worn { background-image: linear-gradient(100deg, color-mix(in srgb, var(--wc) 14%, transparent), rgba(255,255,255,.02) 55%), repeating-linear-gradient(45deg, rgba(255,255,255,.03) 0 3px, transparent 3px 7px); }
+.hud-life-item.is-weather small { color: color-mix(in srgb, var(--life-sleep) 50%, var(--ink-hi, #fff)); }
+@media (hover: hover) { .hud-life-item:hover { transform: translateY(-1px); } }
+/* Вешалка: деревянная штанга, плечики, вещь цветом вещи. */
+.hud-life-rail { position: relative; display: flex; gap: 4px; overflow-x: auto; padding: 10px 6px 6px; scrollbar-width: thin; }
+.hud-life-rail::before { content: ''; position: absolute; left: 0; right: 0; top: 12px; height: 4px; border-radius: 4px;
+  background: linear-gradient(180deg, #e6d3bd, #8f7356); box-shadow: 0 2px 4px rgba(0,0,0,.45); }
+.hud-life-hanger { --wc: #8a8f9c; position: relative; flex: 0 0 78px; display: grid; justify-items: center; gap: 2px; text-align: center; font-size: 10.5px; cursor: help; transform-origin: 50% 4px; transition: transform .35s cubic-bezier(.3,1.6,.5,1); }
+@media (hover: hover) { .hud-life-hanger:hover { transform: rotate(-4deg); } }
+.hud-life-hanger svg { width: 46px; height: 56px; overflow: visible; filter: drop-shadow(0 5px 6px rgba(0,0,0,.45)); }
+.hud-life-hanger .hook { fill: none; stroke: #d8cfc6; stroke-width: 1.6; stroke-linecap: round; }
+.hud-life-hanger .bar { fill: none; stroke: #d8cfc6; stroke-width: 1.4; stroke-linejoin: round; }
+.hud-life-hanger .cloth { fill: var(--wc); stroke: rgba(255,255,255,.25); stroke-width: .8; }
+.hud-life-hanger .fold { stroke: rgba(0,0,0,.25); stroke-width: 1; }
+.hud-life-hanger > i { position: absolute; top: 30px; color: rgba(255,255,255,.85); }
+.hud-life-hanger > i .hud-v-ico { width: 16px; height: 16px; filter: drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
+.hud-life-hanger > span { max-width: 78px; line-height: 1.2; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.hud-life-hanger > small { font-size: 9.5px; color: var(--v-ink-soft); }
+.hud-life-hanger.is-on svg { filter: drop-shadow(0 0 7px var(--v-glow)) drop-shadow(0 5px 6px rgba(0,0,0,.45)); }
+.hud-life-hanger.is-on > small { color: color-mix(in srgb, var(--v-acc) 45%, var(--ink-hi, #fff)); }
+.hud-life-hanger.is-dirty .cloth { stroke: var(--life-warn); stroke-dasharray: 2 1.5; }
+.hud-life-hanger.is-worn .cloth { opacity: .7; }
+.hud-life-hanger.is-dirty > small, .hud-life-hanger.is-worn > small { color: color-mix(in srgb, var(--life-warn) 55%, var(--ink-hi, #fff)); }
+/* Список. */
+.hud-life-wlist { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; font-size: 12px; }
+.hud-life-wlist li { --wc: #8a8f9c; display: grid; grid-template-columns: 18px 10px minmax(0, 1fr) auto; align-items: center; gap: 7px; padding: 4px 6px; border-radius: 7px; cursor: help; }
+.hud-life-wlist li:nth-child(odd) { background: rgba(255,255,255,.03); }
+.hud-life-wlist li > .hud-v-ico { color: color-mix(in srgb, var(--wc) 55%, var(--ink-hi, #fff)); }
+.hud-life-wlist li > s { width: 10px; height: 10px; border-radius: 50%; background: var(--wc); box-shadow: 0 0 0 1px rgba(255,255,255,.3), 0 0 6px var(--wc); text-decoration: none; }
+.hud-life-wlist li.is-on > span { font-weight: 650; }
+.hud-life-wlist li > small { font-size: 10.5px; color: var(--v-ink-soft); }
+.hud-life-wlist li.is-dirty > small, .hud-life-wlist li.is-worn > small { color: color-mix(in srgb, var(--life-warn) 55%, var(--ink-hi, #fff)); }
+
+/* --- Деньги -------------------------------------------------------------------- */
+.hud-life-wallet { position: relative; display: grid; gap: 4px; padding: 14px 16px 13px; border-radius: 14px; overflow: hidden; isolation: isolate;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--v-acc) 55%, #1a1222) 0%, color-mix(in srgb, var(--v-acc) 22%, #120c18) 55%, #0d0a12 100%);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.2), inset 0 0 0 1px rgba(255,255,255,.08), 0 12px 24px -12px rgba(0,0,0,.8); }
+.hud-life-wallet::before { content: ''; position: absolute; inset: 0; z-index: -1;
+  background: radial-gradient(60% 90% at 90% 10%, rgba(255,255,255,.16), transparent 60%), repeating-linear-gradient(115deg, rgba(255,255,255,.025) 0 2px, transparent 2px 9px); }
+.hud-life-wallet-chip { position: absolute; right: 16px; top: 14px; width: 30px; height: 22px; border-radius: 5px;
+  background: linear-gradient(135deg, #f4dc9c, #b8914a 60%, #e9cf8a); box-shadow: inset 0 0 0 1px rgba(0,0,0,.25), inset 0 0 0 4px rgba(255,255,255,.1); }
+.hud-life-wallet-cap { display: inline-flex; align-items: center; gap: 6px; font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: rgba(255,255,255,.7); }
+.hud-life-wallet-cap .hud-v-ico { width: 14px; height: 14px; }
+.hud-life-wallet > b { font-size: 22px; font-weight: 800; letter-spacing: .02em; color: #fff !important; font-variant-numeric: tabular-nums; text-shadow: 0 0 16px var(--v-glow), 0 2px 3px rgba(0,0,0,.5) !important; }
+.hud-life-afford { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
+.hud-life-afford span { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: 999px; font-size: 11.5px; color: #fff; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); cursor: help; }
+.hud-life-afford .hud-v-ico { width: 13px; height: 13px; }
+.hud-life-afford small { font-size: 10px; opacity: .7; }
+.hud-life-spend-box { display: grid; gap: 6px; }
+.hud-life-spend-cap { display: flex; justify-content: space-between; align-items: baseline; font-size: 11px; color: var(--v-ink-soft); }
+.hud-life-spend-cap > span { display: inline-flex; align-items: center; gap: 5px; letter-spacing: .06em; text-transform: uppercase; font-size: 10px; }
+.hud-life-spend { display: flex; align-items: flex-end; gap: 6px; height: 64px; padding: 0 2px 16px; }
+.hud-life-spend span { position: relative; flex: 1 1 0; max-width: 38px; height: 100%; display: flex; align-items: flex-end; cursor: help; }
+.hud-life-spend i { display: block; width: 100%; height: calc(max(var(--h), .05) * 100%); border-radius: 5px 5px 2px 2px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--v-acc) 55%, #fff), color-mix(in srgb, var(--v-acc) 55%, transparent)); opacity: .55; box-shadow: inset 0 1px 0 rgba(255,255,255,.3); }
+.hud-life-spend span.is-max i { opacity: 1; box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 0 12px -2px var(--v-glow); }
+.hud-life-spend span.is-today small { color: color-mix(in srgb, var(--v-acc) 45%, var(--ink-hi, #fff)); font-weight: 800; }
+.hud-life-spend small { position: absolute; bottom: -15px; left: 0; right: 0; text-align: center; font-size: 9.5px; line-height: 1; color: var(--v-ink-soft); }
+.hud-life-prices-box > summary { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; font-size: 11.5px; color: var(--v-ink-soft); list-style: none; }
+.hud-life-prices-box > summary::-webkit-details-marker { display: none; }
+.hud-life-prices-box > summary::after { content: '▾'; font-size: 9px; transition: transform .2s ease; }
+.hud-life-prices-box:not([open]) > summary::after { transform: rotate(-90deg); }
+.hud-life-prices-box > summary small { padding: 0 6px; border-radius: 999px; background: color-mix(in srgb, var(--v-acc) 20%, transparent); }
+.hud-life-prices { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 4px; font-size: 12px; }
+.hud-life-prices li { display: flex; align-items: baseline; gap: 6px; }
+.hud-life-prices li > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-life-prices li > i { flex: 1; min-width: 14px; border-bottom: 1px dotted color-mix(in srgb, currentColor 30%, transparent); }
+.hud-life-prices b { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
+.hud-life-debts-wrap { display: grid; gap: 6px; }
+.hud-life-debts { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.hud-life-debts li { --v-acc: var(--life-bad); display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 8px 10px; border-radius: 10px; font-size: 12px;
+  background: linear-gradient(100deg, color-mix(in srgb, var(--v-acc) 16%, transparent), rgba(255,255,255,.02) 70%); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--v-acc) 30%, transparent); }
+.hud-life-debts li.is-paper { --v-acc: #c9a46a; background: linear-gradient(100deg, rgba(201,164,106,.2), rgba(255,255,255,.02) 70%); }
+.hud-life-debts li .hud-v-medal { width: 26px; height: 26px; }
+.hud-life-debts li .hud-v-medal .hud-v-ico { width: 14px; height: 14px; }
+.hud-life-debts li > span { flex: 1 1 160px; min-width: 0; display: grid; }
+.hud-life-debts li > span b { font-weight: 600; }
+.hud-life-debts li > span small { font-size: 10.5px; color: var(--v-ink-soft); }
+
+/* --- Дом ------------------------------------------------------------------------ */
+.hud-life-home { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.hud-life-home li { display: flex; align-items: flex-start; gap: 9px; font-size: 12px; }
+.hud-life-home li > .hud-v-ico { flex: none; width: 16px; height: 16px; margin-top: 2px; color: color-mix(in srgb, var(--v-acc) 50%, var(--ink-hi, #fff)); }
+.hud-life-home li > span { display: grid; min-width: 0; }
+.hud-life-home small { font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--v-ink-soft); }
+.hud-life-home li.is-broken > .hud-v-ico { color: var(--life-bad); }
+.hud-life-home li.is-out > .hud-v-ico { color: var(--life-warn); }
+
+@container (max-width: 440px) {
+  .hud-life-gauges.is-bars .hud-life-gauge { grid-template-columns: 80px minmax(0, 1fr) 48px; }
+  .hud-life-day.is-clock { grid-template-columns: minmax(0, 1fr); justify-items: center; }
+  .hud-life-meals li { grid-template-columns: minmax(0, 1fr); }
+  .hud-life-items { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Светлые темы: белые полутона на светлой бумаге пропадают. Кошелёк и
+   сутки остаются тёмными карточками. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-life {
+  --life-sleep: #3f6fb0; --life-warn: #b56a1c;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-life :is(.hud-life-item, .hud-life-wlist li:nth-child(odd)) { box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-life :is(.hud-life-alert, .hud-life-alert.is-cold, .hud-life-night small) { color: inherit; }
+
+/* Телефон: четыре кольца в ряд поменьше; в плашке суток — один значок и счётчик. */
+@container (max-width: 460px) {
+  .hud-life-gauges.is-rings { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; }
+  .hud-life-gauges.is-rings .hud-v-ring { --size: 50px !important; }
+  .hud-life-gauges.is-rings .hud-v-ring-face { font-size: 11px; }
+  .hud-life-gauge-name { font-size: 10.5px; } .hud-life-gauge-name .hud-v-ico { display: none; }
+  .hud-life-gauge .hud-v-tag { font-size: .58em; padding: 1px 5px; letter-spacing: .03em; }
+  .hud-life-day-ev .hud-v-ico ~ .hud-v-ico { display: none; }
+  .hud-life-day-ev { padding: 0 4px; }
+  .hud-life-hero { padding: 10px 11px 12px; }
+  .hud-life-sec { padding: 10px 11px 12px; }
+}
+/* Узкая карточка (телефон в Таверне, ~230px): колец столько столбцов, сколько
+   колец, размер — от ширины карточки; теги переносятся, а не обрезаются. */
+@container (max-width: 460px) {
+  .hud-life-gauges.is-rings { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); }
+  .hud-life-gauges.is-rings .hud-v-ring { --size: clamp(38px, 15cqi, 52px) !important; }
+}
+@container (max-width: 300px) {
+  .hud-life-gauges.is-rings .hud-v-ring-face { font-size: 10px; }
+  .hud-life-gauge .hud-v-tag { white-space: normal; line-height: 1.15; font-size: .55em; padding: 1px 4px; }
+  .hud-life-gauge-name { font-size: 9.5px; }
+  .hud-life-hero-head .hud-life-face { width: 30px; height: 30px; }
+  .hud-life-timers { grid-template-columns: minmax(0, 1fr); }
+  .hud-life-wallet > b { font-size: 18px; }
+  .hud-life-dial, .hud-life-day.is-clock { width: 100%; }
+}
+/* Разделы не распираются длинной строкой без переносов (цены, легенда суток). */
+.hud-life-sec { grid-template-columns: minmax(0, 1fr); }
+.hud-life-sec > *, .hud-life-hero > *, .hud-life-wallet > * { min-width: 0; }
+/* Шапка человека в гардеробе и сне: лицо, имя, ниже — счётчик. */
+.hud-life-wardrobe-head { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: center; }
+.hud-life-wardrobe-head .hud-life-face { grid-row: 1 / span 2; }
+.hud-life-wardrobe-head b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-life :is(.hud-life-prices, .hud-life-debts, .hud-life-home, .hud-life-dreams, .hud-life-wlist, .hud-life-day-legend, .hud-life-meals) { grid-template-columns: minmax(0, 1fr); }
+.hud-life :is(ul, ol) > li { min-width: 0; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-life-night b { color: #6a4fc0; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-life-nights { background: linear-gradient(180deg, rgba(60,80,160,.12), rgba(0,0,0,.03)); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-life-dreams .hud-v-ico { color: #6a4fc0; }

@@ -1,0 +1,26 @@
+/* Полоса влечения под блоком цикла (render/cycle-libido.js). Линия — фон по
+   фазе, который считает HUD; точки — желание из близости, когда о нём
+   писали; полый кружок — сегодня с поправкой на стресс и сон. */
+.hud-libido { display: grid; gap: 3px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,.07); }
+.hud-libido-title { font-size: 12px; color: var(--hud-text-muted, #898781); }
+.hud-libido-svg { width: 100%; max-width: 420px; height: auto; display: block; overflow: visible; }
+.hud-libido-svg .lib-pms { fill: rgba(170,150,220,.12); }
+.hud-libido-svg .lib-line { fill: none; stroke: var(--phase, var(--hud-accent, #d96a8a)); stroke-width: 1.6; stroke-linejoin: round; opacity: .85; }
+.hud-libido-svg .lib-now { stroke: rgba(255,255,255,.35); stroke-width: 1; stroke-dasharray: 2 2; }
+.hud-libido-svg .lib-today { fill: var(--phase, var(--hud-accent, #d96a8a)); stroke: #fff; stroke-width: 1; }
+.hud-libido-svg .lib-adj { fill: none; stroke: var(--hud-text, #e6e6ee); stroke-width: 1.2; stroke-dasharray: 2 1.5; }
+.hud-libido-svg .lib-dot { fill: #fff; stroke: var(--phase, var(--hud-accent, #d96a8a)); stroke-width: 1.4; }
+.hud-libido-svg .lib-seg { opacity: .8; }
+.hud-libido-text { margin: 0; font-size: 11.5px; color: var(--hud-text-muted, #a8a5ad); }
+.hud-libido-text b { color: var(--hud-text, #e6e6ee); font-weight: 600; }
+
+/* Оформление — языком видов блоков: значок пламени, заливка под линией
+   градиентом цвета фазы, свечение линии и сегодняшней точки. */
+.hud-libido-title { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: color-mix(in srgb, var(--phase, var(--hud-accent, #d96a8a)) 45%, var(--ink-hi, #fff)); }
+.hud-libido-title .hud-v-ico { width: 14px; height: 14px; filter: drop-shadow(0 0 3px var(--phase, var(--hud-accent, #d96a8a))); }
+.hud-libido-title em { font-style: normal; letter-spacing: .04em; text-transform: none; font-size: 11px; padding: 0 8px; border-radius: 999px;
+  background: color-mix(in srgb, var(--phase, var(--hud-accent, #d96a8a)) 20%, transparent); border: 1px solid color-mix(in srgb, var(--phase, var(--hud-accent, #d96a8a)) 40%, transparent); }
+.hud-libido-svg { color: var(--phase, var(--hud-accent, #d96a8a)); }
+.hud-libido-svg .lib-area { fill: url(#hud-lib-fill); stroke: none; }
+.hud-libido-svg .lib-line { stroke-width: 2; opacity: 1; filter: drop-shadow(0 0 3px var(--phase, var(--hud-accent, #d96a8a))); }
+.hud-libido-svg .lib-today { r: 4; filter: drop-shadow(0 0 4px var(--phase, var(--hud-accent, #d96a8a))); }

@@ -1,0 +1,54 @@
+/* Тема «spacehorror» — правила под :root.hud-theme-spacehorror.
+   Грузится только выбранная тема (themes.js, applyThemeClass), сразу после
+   style.css. Порядок правил — как в общем каскаде. Правило, которое должен
+   перебивать более поздний общий стиль той же силы, сюда не кладём — оно
+   стоит в общем CSS перед ним. */
+
+/* --- из css/misc.css --- */
+/* Космохоррор: аварийная полоса сверху — тот самый красный отсвет. */
+.hud-theme-spacehorror .hud-os-card::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: linear-gradient(180deg, rgba(224,58,58,.20), transparent 18%);
+}
+.hud-theme-spacehorror .hud-os-logo::after { content: ' \26A0'; }
+.hud-theme-spacehorror .hud-tab.active { box-shadow: inset 0 -2px 0 #e03a3a; }
+.hud-theme-spacehorror .hud-world-empty::after { content: var(--th-empty-world); }
+.hud-theme-spacehorror .hud-diary-empty::after { content: var(--th-empty-diary); }
+/* --- Космохоррор: темнота, аварийный красный и следы ---------------------- */
+.hud-theme-spacehorror .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e03a3a' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3.4c4.4 0 7.4 3 7.4 7.2 0 3-1 5-3 6.6H7.6c-2-1.6-3-3.6-3-6.6 0-4.2 3-7.2 7.4-7.2z'/%3E%3Cpath d='M8 9.4c1.6-1.4 4-1.6 6-.6' opacity='.75'/%3E%3Cpath d='M13.6 4.6l-2.2 5 2.6 1.4-3 4.4' opacity='.85'/%3E%3C/svg%3E"); }
+.hud-theme-spacehorror .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e03a3a' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 3c3.4 0 5.6 3.4 5.6 8s-2.2 10-5.6 10-5.6-5.4-5.6-10S8.6 3 12 3z'/%3E%3Cpath d='M9.4 10.4c1.6 1.4 3.6 1.4 5.2 0M9 14.6c2 1.6 4 1.6 6 0' opacity='.6'/%3E%3C/svg%3E"); }
+.hud-theme-spacehorror .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e03a3a' stroke-width='1.3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M9.4 20h5.2l-.8-8h-3.6z'/%3E%3Ccircle cx='12' cy='8.4' r='2.6'/%3E%3Cpath d='M6.6 4.6a7.6 7.6 0 000 7.6M17.4 4.6a7.6 7.6 0 010 7.6' opacity='.6'/%3E%3C/svg%3E"); }
+.hud-theme-spacehorror .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23e03a3a' stroke-width='1.4' stroke-linecap='round'%3E%3Cpath d='M5 3.4c1.6 5 2.4 11 2 17.2M10 2.6c1.6 5 2.4 11.4 2 18M15 3.4c1.6 5 2.4 11 2 17.2' opacity='.8'/%3E%3C/svg%3E"); }
+.hud-theme-spacehorror .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23e03a3a'%3E%3Crect x='1' y='9' width='4' height='6' opacity='.75'/%3E%3Crect x='7' y='9' width='4' height='6' opacity='.55'/%3E%3Crect x='13' y='9' width='4' height='6' opacity='.35'/%3E%3Crect x='19' y='9' width='4' height='6' opacity='.2'/%3E%3C/svg%3E"); }
+/* Обои: темнота сжимается к краям, по центру тревожный отсвет. */
+.hud-theme-spacehorror .hud-os-wrapper::before {
+  background-image:
+    radial-gradient(120% 90% at 50% 50%, transparent 42%, rgba(0,0,0,.55) 100%),
+    radial-gradient(60% 34% at 50% 0%, rgba(224,58,58,.16), transparent 72%);
+}
+/* Фирменный знак: аварийная кромка, которая дышит под курсором. */
+.hud-theme-spacehorror .hud-os-wrapper::after {
+  inset: 0;
+  box-shadow: inset 0 0 0 1px rgba(224,58,58,.28), inset 0 0 26px rgba(224,58,58,.16);
+  animation: hud-th-alarm 3.4s ease-in-out infinite alternate;
+  animation-play-state: paused;
+}
+.hud-theme-spacehorror :is(.hud-key, .hud-key-label)::after { content: ' \26A0\FE0E'; margin-left: 4px; font-size: .8em; opacity: .8; }
+.hud-theme-spacehorror .hud-world-title::after { content: ' \26A0\FE0E'; }
+.hud-theme-spacehorror .hud-key-item { border-left-color: #e03a3a; }
+.hud-theme-spacehorror .hud-diary-entry { border-left-color: #7a1414; }
+.hud-theme-spacehorror {
+  --hud-radius: 3px;
+  --th-empty-world: 'Связь потеряна. Данных нет.';
+  --th-empty-diary: 'Записи стёрты.';
+}
+
+/* --- из css/deco.css --- */
+:root.hud-theme-spacehorror { --cb-off: '◌';   --cb-on: '◉'; }
+:root.hud-theme-spacehorror { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cellipse%20cx%3D'12'%20cy%3D'14'%20rx%3D'11'%20ry%3D'4'%2F%3E%3Cpath%20d%3D'M6%2013a6%206%200%200%201%2012%200z'%2F%3E%3C%2Fsvg%3E"); --trk: var(--hud-accent); --trk-glow: 0 0 6px var(--hud-accent), 0 0 12px color-mix(in srgb, var(--hud-accent) 55%, transparent); }
+
+/* --- анимации темы --- */
+@keyframes hud-th-alarm {
+  from { box-shadow: inset 0 0 0 1px rgba(224,58,58,.16), inset 0 0 14px rgba(224,58,58,.08); }
+  to   { box-shadow: inset 0 0 0 1px rgba(224,58,58,.42), inset 0 0 34px rgba(224,58,58,.24); }
+}
