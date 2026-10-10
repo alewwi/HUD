@@ -12,12 +12,12 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.48.1';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.48.1';
-import { mapKey } from './utils.js?v=23.48.1';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.48.1';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.48.1';
-import { заменитьHudБлоки } from './hud-block.js?v=23.48.1';
+import { settings } from './settings.js?v=23.48.3';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.48.3';
+import { mapKey } from './utils.js?v=23.48.3';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.48.3';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.48.3';
+import { заменитьHudБлоки } from './hud-block.js?v=23.48.3';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 

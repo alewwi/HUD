@@ -239,11 +239,10 @@ export const defaultSettings = {
   hudFillGaps: true,
   // Вкладки карточки (tabs-order.js): порядок, скрытые, закреплённые — массивы
   // стабильных id. Незнакомые id не чистим: вкладка, которой сегодня нет, не
-  // теряет места. tabOverflow — невлезшие вкладки уходят в «⋯».
+  // теряет места.
   tabOrder: [],
   tabHidden: [],
   tabPinned: [],
-  tabOverflow: true,
   // Бюджет токенов (token-budget.js): 'chip' — чип «≈4,1k» в полосе последней
   // карточки с разбивкой по нажатию, 'off' — не показывать.
   tokenBudget: 'chip',

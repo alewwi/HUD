@@ -9,8 +9,8 @@
 // HTML5 drag-and-drop (тот на телефоне не работает): захват указателя,
 // touch-action: none на ручке, обмен местами при пересечении середины соседа.
 
-import { settings } from './settings.js?v=23.48.1';
-import { ВКЛАДКИ, полныйПорядок, сдвинуть } from './tabs-order.js?v=23.48.1';
+import { settings } from './settings.js?v=23.48.3';
+import { ВКЛАДКИ, полныйПорядок, сдвинуть } from './tabs-order.js?v=23.48.3';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const массив = (v) => Array.isArray(v) ? v.slice() : [];
@@ -37,7 +37,7 @@ function строка(в, i, всего) {
     + `<span class="hud-ct-btns">`
     + `<button type="button" data-ct="up" aria-label="Выше: ${esc(в.имя)}"${i === 0 ? ' disabled' : ''}>↑</button>`
     + `<button type="button" data-ct="down" aria-label="Ниже: ${esc(в.имя)}"${i === всего - 1 ? ' disabled' : ''}>↓</button>`
-    + `<button type="button" data-ct="pin" aria-pressed="${закреп}" title="Закрепить слева — не уходит в «⋯»">${закреп ? 'открепить' : 'закрепить'}</button>`
+    + `<button type="button" data-ct="pin" aria-pressed="${закреп}" title="Закрепить слева — первой в полосе">${закреп ? 'открепить' : 'закрепить'}</button>`
     + `<button type="button" data-ct="hide" aria-pressed="${скрыта}" title="Скрыть ярлык; блок по-прежнему пишется и копится">${скрыта ? 'показать' : 'скрыть'}</button>`
     + (в.enable && скрыта && !выкл ? `<button type="button" data-ct="off" title="Выключить сам блок: модель перестанет его писать">выключить</button>` : '')
     + `</span></li>`;
@@ -50,7 +50,7 @@ export function списокВкладок() {
 
 export function разметкаВкладок() {
   return `<details class="hud-custom-views hud-custom-tabs hud-smooth"><summary>🗂 Вкладки</summary>`
-    + `<p class="hud-ct-note">Порядок вкладок в карточке. <b>Скрыть</b> — убрать ярлык, а блок пусть пишется и копится (нужен модели и соседним блокам). <b>Выключить</b> — модель перестаёт его писать, и он ничего не стоит. Закреплённые стоят слева и не уходят в «⋯».</p>`
+    + `<p class="hud-ct-note">Порядок вкладок в карточке. <b>Скрыть</b> — убрать ярлык, а блок пусть пишется и копится (нужен модели и соседним блокам). <b>Выключить</b> — модель перестаёт его писать, и он ничего не стоит. Закреплённые стоят слева. Порядок можно менять и прямо в карточке: зажмите ярлык и тяните.</p>`
     + `<ul class="hud-ct-list" role="list">${списокВкладок()}</ul></details>`;
 }
 

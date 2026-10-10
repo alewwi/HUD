@@ -3,8 +3,8 @@
 // Мелкие утилиты, общие для всех доменов HUD (дневник, мир, сны, телефон,
 // граф отношений, память). Вынесено из index.js без изменения поведения.
 
-import { МЕТКИ } from './codes.js?v=23.48.1';
-import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.48.1';
+import { МЕТКИ } from './codes.js?v=23.48.3';
+import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.48.3';
 
 /** Экранирование через DOM: браузер сам решает, что считать опасным. */
 // Не выпускать касания наружу. SillyTavern ловит свайпы на уровне document
@@ -146,11 +146,26 @@ export function hudHashSeed(str) {
   return Math.abs(h);
 }
 
+// Инициалы человека: первые буквы имени и фамилии. Прозвище в кавычках
+// («Долорес "Лола" Ховард», «Долорес «Лола» Ховард») и приставка карточки —
+// не часть имени: раньше инициалом выходила сама кавычка. сколько = 1 —
+// одна буква (для кружков-аватарок с одной буквой).
+// Апостроф — не кавычка: «O'Neil», «D'Artagnan».
+const ПРОЗВИЩЕ = /(["`])[^"`]{1,40}\1|«[^»]{1,40}»|“[^”]{1,40}”|„[^“”]{1,40}[“”]|‘[^’]{1,40}’|\([^)]{1,40}\)/gu;
+export function инициалыИмени(имя, сколько = 2) {
+  const исходное = String(имя || '');
+  const слова = имяБезПриставки(исходное).replace(ПРОЗВИЩЕ, ' ').split(/\s+/)
+    .map(w => w.replace(/[^\p{L}\p{N}]/gu, '')).filter(Boolean);
+  if (!слова.length) return ((исходное.match(/\p{L}/u) || ['?'])[0]).toUpperCase();
+  if (сколько === 1 || слова.length === 1) return слова[0][0].toUpperCase();
+  return (слова[0][0] + слова[слова.length - 1][0]).toUpperCase();
+}
+
 export function commentInitials(name) {
   // Без приставки карточки: «THE REGENTS  Tristan Kingsley» — «TK», а не «TR».
-  const parts = имяБезПриставки(String(name || 'А')).split(/\s+/).filter(Boolean);
-  if (parts.length >= 2) return (parts[0].charAt(0) + parts[1].charAt(0)).toUpperCase();
-  return String(name || 'А').slice(0, 2).toUpperCase();
+  const parts = имяБезПриставки(String(name || 'А')).replace(ПРОЗВИЩЕ, ' ').split(/\s+/).filter(Boolean);
+  if (parts.length >= 2) return инициалыИмени(name);
+  return String(name || 'А').replace(/[^\p{L}\p{N}]/gu, '').slice(0, 2).toUpperCase() || 'А';
 }
 
 export function applyTooltips(text) {
@@ -172,11 +187,12 @@ const EXPLICIT_SPLIT_RE = /[;\uFF1B\u061B\n]+/;
 
 // Двоеточие между цифрами — время («Вызов к Ричарду на 12:00»), а не конец
 // метки: иначе пилюля выходила «…на 12:» с плашкой «00».
-const PILL_LABEL_RE = /^([\p{L}\p{M}\p{N}\s/(),.'’\u2019-]{2,80}?)((?<!\d)[:\uFF1A]|[:\uFF1A](?!\d)|—|–|\s-)\s*(.*)$/u;
+// Кавычки прозвища — часть имени в подписи: «Долорес «Лола» Ховард: тётя».
+const PILL_LABEL_RE = /^([\p{L}\p{M}\p{N}\s/(),.'’\u2019«»"“”„-]{2,80}?)((?<!\d)[:\uFF1A]|[:\uFF1A](?!\d)|—|–|\s-)\s*(.*)$/u;
 
 // Ищем зачины «Метка: » и режем строку перед каждым из них. Возвращает
 // null, если меток меньше двух — тогда работает прежняя эвристика по «. ».
-const LABEL_START_RE = /(?:^|[,.;]\s+|\s+[\u2014\u2013]\s+)([\p{L}\p{M}][\p{L}\p{M}\p{N}\s/()'\u2019-]{1,40}?)\s*[:\uFF1A]\s/gu;
+const LABEL_START_RE = /(?:^|[,.;]\s+|\s+[\u2014\u2013]\s+)([\p{L}\p{M}][\p{L}\p{M}\p{N}\s/()'\u2019«»"“”„-]{1,40}?)\s*[:\uFF1A]\s/gu;
 function splitByLabels(text) {
     const cuts = [];
     LABEL_START_RE.lastIndex = 0;
@@ -271,10 +287,7 @@ const ДОЛЯ = /^\s*(\d{1,3})\s*%/;
 const КОЛИЧЕСТВО = /\s*[×xх]\s*(\d+)\s*$/i;
 
 function инициалы(имя) {
-  const части = String(имя || '').replace(/[^\p{L}\p{N}\s]/gu, ' ').split(/\s+/).filter(Boolean);
-  if (!части.length) return '·';
-  if (части.length === 1) return части[0].slice(0, 1).toUpperCase();
-  return (части[0][0] + части[1][0]).toUpperCase();
+  return String(имя || '').trim() ? инициалыИмени(имя) : '·';
 }
 
 // лицоПоИмени — необязательная функция «имя → адрес аватарки или null». Нужна

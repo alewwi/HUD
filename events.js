@@ -11,17 +11,17 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.48.1';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.48.1';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.48.1';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.48.1';
-import { settings, defaultSettings } from './settings.js?v=23.48.1';
-import { полныйПорядок } from './tabs-order.js?v=23.48.1';
-import { getWorldVotes } from './render/world.js?v=23.48.1';
-import { раскрытьПорцию } from './render/long-list.js?v=23.48.1';
-import { прогретьИсторию } from './render/carryover.js?v=23.48.1';
-import { подключитьПалитру } from './color-picker.js?v=23.48.1';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.48.1';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.48.3';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.48.3';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.48.3';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.48.3';
+import { settings, defaultSettings } from './settings.js?v=23.48.3';
+import { полныйПорядок } from './tabs-order.js?v=23.48.3';
+import { getWorldVotes } from './render/world.js?v=23.48.3';
+import { раскрытьПорцию } from './render/long-list.js?v=23.48.3';
+import { прогретьИсторию } from './render/carryover.js?v=23.48.3';
+import { подключитьПалитру } from './color-picker.js?v=23.48.3';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.48.3';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -602,9 +602,9 @@ export function initGlobalEvents(ctx) {
       parent.querySelectorAll('.hud-tab-content').forEach(c => c.classList.remove('active'));
       tab.classList.add('active');
       if (tab.hasAttribute('role')) { tab.setAttribute('aria-selected', 'true'); tab.tabIndex = 0; }
-      // Вкладка из «⋯» — вернуть её в полосу и пересчитать, что влезает.
+      // Полоса прокручивается вбок: выбранный ярлык — целиком в её кадр.
       const полоса = tab.closest('.hud-tabs-header');
-      if (полоса) уложитьВкладки(полоса);
+      if (полоса) { const п = полоса.getBoundingClientRect(), я = tab.getBoundingClientRect(); if (я.left < п.left) полоса.scrollLeft -= п.left - я.left + 8; else if (я.right > п.right) полоса.scrollLeft += я.right - п.right + 8; }
       // Отложенная вкладка собирается здесь — при первом открытии.
       let target = parent.querySelector(`#${tab.dataset.target}`);
       if (target && target.classList.contains('hud-tab-lazy') && ctx.renderLazyTab) {
@@ -1899,7 +1899,7 @@ export function плавнаяСменаВкладки(тело, было, па�
   }
   if (панель && typeof панель.animate === 'function') панель.animate({ opacity: [0, 1], transform: ['translateY(-4px)', 'none'] }, { duration: 280, easing: 'ease' });
 }
-// Раскрыть или скрыть блок (меню «⋯», панель бюджета) плавно по высоте.
+// Раскрыть или скрыть блок (панель бюджета) плавно по высоте.
 export function плавноПоказать(узел, показать) {
   if (!узел) return;
   if (тише() || typeof узел.animate !== 'function') { узел.hidden = !показать; return; }
@@ -1915,103 +1915,6 @@ export function плавноПоказать(узел, показать) {
   ход.oncancel = () => { узел.style.overflow = ''; };
 }
 
-// --- Вкладки, что не влезли, — в «⋯» (settings.tabOverflow) ----------------
-// Полоса вкладок на узком экране прокручивается вбок, и половина ярлыков за
-// краем не видна. Невлезшие (кроме активной и закреплённых) уходят в «⋯»;
-// по нажатию список раскрывается в самой карточке, под полосой: поверх её
-// не повесить — полоса прокручивается и обрезала бы выпадающее меню.
-// Ширина полосы меняется и без resize окна (колонка чата, панель Таверны):
-// следим за самой полосой.
-const наблюдательПолос = typeof ResizeObserver === 'function' ? new ResizeObserver((записи) => {
-  // Только ширина: прятанье ярлыков меняет высоту полосы, и реакция на неё
-  // зациклила бы раскладку.
-  for (const з of записи) { const п = з.target; const w = Math.round(з.contentRect ? з.contentRect.width : п.clientWidth); if (п.__hudШирина === w) continue; п.__hudШирина = w; if (п.__hudКадр) continue; п.__hudКадр = requestAnimationFrame(() => { п.__hudКадр = 0; уложитьВкладки(п); }); }
-}) : null;
-// Меряем один раз и считаем арифметикой (сумма offsetWidth ярлыков): прежний
-// способ прятал по ярлыку и каждый раз читал scrollWidth — полный пересчёт
-// вёрстки всего чата, а на телефоне так у всех полусотни карточек; клик по
-// вкладке висел десятки секунд. Свёрнутые карточки не трогаем вовсе.
-export function уложитьВкладки(полоса) {
-  if (!полоса || !полоса.isConnected) return;
-  const карта = полоса.closest('.hud-os-card');
-  const свёртка = карта && карта.querySelector(':scope > .hud-toggle-input');
-  if (свёртка && !свёртка.checked) return;
-  if (наблюдательПолос && !полоса.__hudНаблюдаем) { полоса.__hudНаблюдаем = true; наблюдательПолос.observe(полоса); }
-  const ярлыки = [...полоса.querySelectorAll(':scope > .hud-tab')];
-  let кнопка = полоса.querySelector(':scope > .hud-tabs-more');
-  const меню = полоса.nextElementSibling && полоса.nextElementSibling.classList.contains('hud-tabs-menu') ? полоса.nextElementSibling : null;
-  const убрать = () => { ярлыки.forEach(т => т.classList.remove('is-overflow')); if (кнопка) кнопка.remove(); if (меню) меню.remove(); };
-  if (settings.tabOverflow === false) { убрать(); return; }
-  // Чтение — одним проходом, пока ничего не переставляли.
-  const ст = getComputedStyle(полоса);
-  const зазор = parseFloat(ст.columnGap || ст.gap) || 0;
-  const место = полоса.clientWidth - (parseFloat(ст.paddingLeft) || 0) - (parseFloat(ст.paddingRight) || 0);
-  if (место <= 0) return;
-  const спрятаныРаньше = ярлыки.map(т => т.classList.contains('is-overflow'));
-  // Ширина спрятанного (display: none) — из прошлого замера.
-  const ширины = ярлыки.map((т, i) => (спрятаныРаньше[i] ? (т.__hudШирина || 90) : (т.__hudШирина = т.offsetWidth)));
-  const всего = ширины.reduce((a, w) => a + w, 0) + зазор * Math.max(0, ярлыки.length - 1);
-  if (всего <= место + 1) { убрать(); return; }
-  const ширинаКнопки = (кнопка && !кнопка.hidden && кнопка.offsetWidth) || 52;
-  const закреп = new Set(Array.isArray(settings.tabPinned) ? settings.tabPinned : []);
-  // Прячем с конца, пока не влезет вместе с «⋯»; активную и закреплённые — нет.
-  const прячем = new Set();
-  let занято = всего + ширинаКнопки + зазор;
-  for (let i = ярлыки.length - 1; i >= 0 && занято > место + 1; i--) {
-    const т = ярлыки[i];
-    if (т.classList.contains('active') || закреп.has(т.dataset.tabId)) continue;
-    прячем.add(т);
-    занято -= ширины[i] + зазор;
-  }
-  if (!прячем.size) { убрать(); return; }
-  // Запись — одним проходом.
-  ярлыки.forEach(т => т.classList.toggle('is-overflow', прячем.has(т)));
-  if (!кнопка) {
-    кнопка = document.createElement('button');
-    кнопка.type = 'button';
-    кнопка.className = 'hud-tabs-more';
-    кнопка.setAttribute('aria-haspopup', 'true');
-    кнопка.setAttribute('aria-expanded', 'false');
-    кнопка.title = 'Остальные вкладки';
-    полоса.appendChild(кнопка);
-  }
-  кнопка.hidden = false;
-  if (кнопка.__hudЧисло !== прячем.size) {
-    кнопка.__hudЧисло = прячем.size;
-    кнопка.innerHTML = `<span aria-hidden="true">⋯</span><b>${прячем.size}</b>`;
-    кнопка.setAttribute('aria-label', 'Ещё вкладки: ' + прячем.size);
-  }
-  if (меню && !меню.hidden) заполнитьМенюВкладок(меню, [...прячем]);
-}
-function заполнитьМенюВкладок(меню, спрятано) {
-  меню.innerHTML = спрятано.map(т => `<button type="button" class="hud-tabs-menu-item" data-for="${т.dataset.target}">${т.innerHTML}</button>`).join('');
-  меню.querySelectorAll('.hud-help-mark').forEach(м => м.remove());
-}
-function переключитьМенюВкладок(кнопка, открыть) {
-  const полоса = кнопка.closest('.hud-tabs-header');
-  if (!полоса) return;
-  let меню = полоса.nextElementSibling && полоса.nextElementSibling.classList.contains('hud-tabs-menu') ? полоса.nextElementSibling : null;
-  const надо = открыть ?? !(меню && !меню.hidden);
-  if (!надо) { if (меню) плавноПоказать(меню, false); кнопка.setAttribute('aria-expanded', 'false'); return; }
-  if (!меню) { меню = document.createElement('div'); меню.className = 'hud-tabs-menu'; меню.setAttribute('role', 'group'); меню.setAttribute('aria-label', 'Остальные вкладки'); полоса.after(меню); }
-  заполнитьМенюВкладок(меню, [...полоса.querySelectorAll(':scope > .hud-tab.is-overflow')]);
-  меню.hidden = true;
-  плавноПоказать(меню, true);
-  кнопка.setAttribute('aria-expanded', 'true');
-}
-document.addEventListener('click', (e) => {
-  const кнопка = e.target.closest && e.target.closest('.hud-tabs-more');
-  if (кнопка) { e.preventDefault(); e.stopPropagation(); переключитьМенюВкладок(кнопка); return; }
-  const пункт = e.target.closest && e.target.closest('.hud-tabs-menu-item');
-  if (пункт) {
-    e.preventDefault(); e.stopPropagation();
-    const меню = пункт.closest('.hud-tabs-menu'), полоса = меню && меню.previousElementSibling;
-    const вкладка = полоса && [...полоса.querySelectorAll('.hud-tab')].find(т => т.dataset.target === пункт.dataset.for);
-    if (меню) меню.hidden = true;
-    const к = полоса && полоса.querySelector('.hud-tabs-more'); if (к) к.setAttribute('aria-expanded', 'false');
-    if (вкладка) { вкладка.click(); вкладка.focus({ preventScroll: true }); }
-  }
-}, true);
 // Клавиатура на полосе: стрелки — соседняя вкладка, Home/End — крайние,
 // Enter и пробел — открыть (ярлык — div, сам он нажатия не понимает).
 document.addEventListener('keydown', (e) => {
@@ -2054,7 +1957,7 @@ function снятьТягу(сохранить) {
   if (!т.активна) return;
   // Клик после отпускания не должен ещё и переключать вкладку.
   т.полоса.__hudБезКлика = Date.now();
-  if (!сохранить) { т.было.forEach(у => т.полоса.insertBefore(у, т.полоса.querySelector(':scope > .hud-tabs-more'))); уложитьВкладки(т.полоса); return; }
+  if (!сохранить) { т.было.forEach(у => т.полоса.appendChild(у)); return; }
   const новые = [...new Set([...т.полоса.querySelectorAll(':scope > .hud-tab[data-tab-id]')].map(у => у.dataset.tabId))];
   // На места этих id в полном порядке — по-новому; чужие id стоят где стояли.
   const полный = полныйПорядок(settings);
@@ -2064,7 +1967,6 @@ function снятьТягу(сохранить) {
   const закреп = Array.isArray(settings.tabPinned) ? settings.tabPinned : [];
   if (закреп.length) settings.tabPinned = [...новые.filter(id => закреп.includes(id)), ...закреп.filter(id => !новые.includes(id))];
   try { сохранитьНастройки && сохранитьНастройки(); } catch (_) { /* сохранится со следующим */ }
-  уложитьВкладки(т.полоса);
 }
 document.addEventListener('pointerdown', (e) => {
   const ярлык = e.target.closest && e.target.closest('.hud-tabs-header > .hud-tab[data-tab-id]');
@@ -2099,10 +2001,12 @@ document.addEventListener('pointermove', (e) => {
   }
   тяга.x = e.clientX;
   const { полоса, ярлык } = тяга;
-  // Ушёл за карточку — выход без сохранения.
-  const карта = полоса.closest('.hud-os-card');
-  if (карта) { const к = карта.getBoundingClientRect(); if (e.clientY < к.top - 30 || e.clientY > к.bottom + 30) { снятьТягу(false); return; } }
-  const видимые = [...полоса.querySelectorAll(':scope > .hud-tab:not(.is-overflow)')];
+  // Палец ушёл далеко от полосы — выход без сохранения. Меряем от самой
+  // полосы: рамка карточки на телефоне не совпадает с видимым содержимым,
+  // и по ней любое движение считалось уходом.
+  const п = полоса.getBoundingClientRect();
+  if (e.clientY < п.top - 80 || e.clientY > п.bottom + 80) { снятьТягу(false); return; }
+  const видимые = [...полоса.querySelectorAll(':scope > .hud-tab')];
   const i = видимые.indexOf(ярлык);
   const пред = видимые[i - 1], след = видимые[i + 1];
   if (пред && e.clientX < пред.getBoundingClientRect().left + пред.offsetWidth / 2) полоса.insertBefore(ярлык, пред);
@@ -2118,12 +2022,8 @@ document.addEventListener('click', (e) => {
   if (полоса && полоса.__hudБезКлика && Date.now() - полоса.__hudБезКлика < 400) { e.preventDefault(); e.stopPropagation(); полоса.__hudБезКлика = 0; }
 }, true);
 
-function уложитьВсеВкладки() {
-  document.querySelectorAll('.hud-os-card > .hud-toggle-input:checked ~ .hud-os-wrapper .hud-tabs-header').forEach(п => уложитьВкладки(п));
-}
-
 let таймерСписков = 0;
-const ужатьПозже = (мс = 120) => { clearTimeout(таймерСписков); таймерСписков = setTimeout(() => { ужатьСписки(); уложитьВсеВкладки(); }, мс); };
+const ужатьПозже = (мс = 120) => { clearTimeout(таймерСписков); таймерСписков = setTimeout(ужатьСписки, мс); };
 if (typeof MutationObserver !== 'undefined') new MutationObserver((записи) => {
   if (записи.some(з => [...з.addedNodes].some(у => у.nodeType === 1 && (у.matches?.('.hud-os-card, .hud-tab-content, .mes, .mes_text') || у.querySelector?.('.hud-os-card'))))) ужатьПозже();
 }).observe(document.body, { childList: true, subtree: true });
