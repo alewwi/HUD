@@ -6,17 +6,17 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.46.0';
-import { settings } from '../settings.js?v=23.46.0';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.46.0';
-import { G_ICONS } from './icons.js?v=23.46.0';
-import { buildMessengerHTML } from './messenger.js?v=23.46.0';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.46.0';
-import { сортироватьЧаты } from './msg-feed.js?v=23.46.0';
-import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.46.0';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.48.1';
+import { settings } from '../settings.js?v=23.48.1';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.48.1';
+import { G_ICONS } from './icons.js?v=23.48.1';
+import { buildMessengerHTML } from './messenger.js?v=23.48.1';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.48.1';
+import { сортироватьЧаты } from './msg-feed.js?v=23.48.1';
+import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.48.1';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.46.0';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.48.1';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -465,7 +465,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
       <div class="hud-phone-lock-notifications">${lockNotifs}</div>
       <div class="hud-phone-lock-swipe">
         <span class="hud-phone-lock-arrow"></span>
-        <span class="hud-phone-lock-hint">Проведите вверх</span>
+        <span class="hud-phone-lock-hint">Проведите вверх<span class="hud-phone-lock-tap"> или коснитесь</span></span>
         <span class="hud-phone-lock-bar"></span>
       </div>
     </div>`;

@@ -86,7 +86,7 @@ const память = `<div class="hud-tab-content active"><div class="hud-memory
 
 const темы = [...СВЕТЛЫЕ_ТЕМЫ, 'vamp', 'spacehorror'];
 const html = `<!doctype html><html class="hud-theme-${темы[0]}"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Темы — стенд</title>
-<link rel="stylesheet" href="../../style.css${В}"><link rel="stylesheet" data-t="light" href="../../css/themes/light.css${В}"><link rel="stylesheet" data-t="theme" href="../../css/themes/${темы[0]}.css${В}">
+<link rel="stylesheet" href="../../css/all.css${В}"><link rel="stylesheet" data-t="light" href="../../css/themes/light.css${В}"><link rel="stylesheet" data-t="theme" href="../../css/themes/${темы[0]}.css${В}">
 <style>body { margin: 0; padding: 12px; background: #2a2730; color: #ddd; font: 13px system-ui, sans-serif; }
 .bar { position: sticky; top: 0; z-index: 9; display: flex; gap: 8px; flex-wrap: wrap; padding: 8px; background: #111; border-radius: 8px; }
 .wrap { display: grid; gap: 14px; max-width: var(--w, 640px); margin: 12px auto; } h2 { margin: 6px 0 0; font-size: 12px; color: #aaa; }

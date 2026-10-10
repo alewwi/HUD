@@ -4,8 +4,8 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=23.46.0';
-import { settings } from '../settings.js?v=23.46.0';
+import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=23.48.1';
+import { settings } from '../settings.js?v=23.48.1';
 
 const есть = (v) => hudHasMeaningfulValue(v) && !/^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -248,7 +248,7 @@ export function карточкаСпутника(p, значок, связь, с
   const умения = есть(p.skills) ? String(p.skills).split(/[;\n]/).map(s => s.trim()).filter(Boolean) : [];
   return `<div class="hud-pet2" style="--p:${цвет}"><div class="hud-pet2-band"></div><div class="hud-pet2-top"><div class="hud-pet2-ava" aria-hidden="true">${значок}</div>`
     + `<div class="hud-pet2-nm"><b>${escapeHtml(p.name)}</b>${есть(p.species) ? `<small>${escapeHtml(p.species)}</small>` : ''}</div>${есть(p.mood) ? `<span class="hud-pet2-mood">${escapeHtml(p.mood)}</span>` : ''}</div>`
-    + (есть(p.owner) ? `<div class="hud-pet2-own"><i>${escapeHtml(инициалы(p.owner))}</i>хозяин: <b>${escapeHtml(p.owner)}</b></div>` : '')
+    + (есть(p.owner) ? `<div class="hud-pet2-own"><i>${escapeHtml(инициалы(p.owner))}</i><span>хозяин: <b>${escapeHtml(p.owner)}</b></span></div>` : '')
     + (связьHTML ? `<div class="hud-pet2-bondrow">${связьHTML}</div>` : '')
     + (плитки ? `<div class="hud-pet2-tiles">${плитки}</div>` : '')
     + (есть(p.note) ? `<div class="hud-pet2-now">${ик('note', цвет)}<span>Сейчас: ${escapeHtml(String(p.note))}</span></div>` : '')

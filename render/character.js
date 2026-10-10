@@ -4,27 +4,27 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.46.0';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.46.0';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.46.0';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=23.46.0';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.48.1';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.48.1';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.48.1';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=23.48.1';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  блокТемпаСцены, активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.46.0';
-import { часыСцены } from './scene-clock.js?v=23.46.0';
-import { buildUnderwear } from './underwear.js?v=23.46.0';
-import { buildDuel } from './duel.js?v=23.46.0';
-import { buildPregnancy } from './pregnancy.js?v=23.46.0';
-import { buildPostpartum } from './postpartum.js?v=23.46.0';
-import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды, датаЗачатия } from './conception.js?v=23.46.0';
-import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.46.0';
-import { parseSceneDate } from '../history-analyzer.js?v=23.46.0';
-import { settings, настройка } from '../settings.js?v=23.46.0';
-import { namesLikelySame } from '../names.js?v=23.46.0';
-import { видСостоянияТела } from './extras.js?v=23.46.0';
-import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ } from './views-fields.js?v=23.46.0';
-import { parseRelationList } from './relations-graph.js?v=23.46.0';
-import { отложитьРисунок } from './lazy-svg.js?v=23.46.0';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.46.0';
+  блокТемпаСцены, активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.48.1';
+import { часыСцены } from './scene-clock.js?v=23.48.1';
+import { buildUnderwear } from './underwear.js?v=23.48.1';
+import { buildDuel } from './duel.js?v=23.48.1';
+import { buildPregnancy } from './pregnancy.js?v=23.48.1';
+import { buildPostpartum } from './postpartum.js?v=23.48.1';
+import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды, датаЗачатия } from './conception.js?v=23.48.1';
+import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.48.1';
+import { parseSceneDate } from '../history-analyzer.js?v=23.48.1';
+import { settings, настройка } from '../settings.js?v=23.48.1';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.48.1';
+import { видСостоянияТела } from './extras.js?v=23.48.1';
+import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ } from './views-fields.js?v=23.48.1';
+import { parseRelationList } from './relations-graph.js?v=23.48.1';
+import { отложитьРисунок } from './lazy-svg.js?v=23.48.1';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.48.1';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле', 'состояние тела'];
@@ -441,10 +441,23 @@ export function контекстЗачатия(данные, партнёры = 
   // Партнёр — тот, в чьей близости упомянут сам человек, а не первый
   // попавшийся персонаж со своей защитой.
   const имя = String(своёИмя || '').trim().split(/\s+/)[0].toLowerCase();
-  const свой = (п) => !имя || [поле(п, 'Последний секс'), поле(п, 'NSFW'), поле(п, 'Детализация NSFW')].join(' ').toLowerCase().includes(имя);
+  // Имя — любым написанием из списков аватарок («Эва», «Эванджелина»), в падеже, транслитом.
+  const свой = (п) => !имя || упомянутВТексте([поле(п, 'Последний секс'), поле(п, 'NSFW'), поле(п, 'Детализация NSFW')].join(' '), своёИмя);
+  // Близость партнёра — своя, только если человек назван в ней самой: у
+  // Тристана «pr: Виктория» в «Последнем сексе», а Софи — в его NSFW, и кубик
+  // Софи бросался по его сексу с Викторией.
+  const полноеИмя = String(своёИмя || '').trim().split(/\s+/)[0];
+  const вЕгоСексе = (п) => {
+    const ls = поле(п, 'Последний секс');
+    if (!ls || !имя) return !!ls;
+    // Есть «pr:» — решает он: «pr: Виктория; …Софи смотрела» — не её близость.
+    const pr = (ls.match(/(?:^|[;|])\s*pr\s*:\s*([^;|]+)/i) || [])[1] || '';
+    if (pr.trim()) return упомянутВТексте(pr, своёИмя) || pr.split(/[\s,()]+/).some(w => w && namesLikelySame(w, полноеИмя));
+    return упомянутВТексте(ls, своёИмя);
+  };
   for (const п of (Array.isArray(партнёры) ? партнёры : []).filter(свой)) {
     if (!защита && !личная.test(поле(п, 'Защита'))) защита = поле(п, 'Защита');
-    if (!секс) секс = поле(п, 'Последний секс');
+    if (!секс && вЕгоСексе(п)) секс = поле(п, 'Последний секс');
   }
   // «Защита» живёт только в сцене. После неё о защите говорит окончание
   // последней близости: «в презерватив», «успел вытащить», «кончил внутрь».
@@ -976,11 +989,55 @@ function плашкаМодификаторов(о, имя) {
 // Вид следов на теле — классом строки: разметка карточек та же.
 const классСледов = () => { const в = видБлока('marksView'); return в && в !== 'classic' ? ' hud-mkv hud-mkv-' + в : ''; };
 
-function плашкаБеременности(о) {
+// Мать уже знает о беременности — по сюжету, не по тесту HUD: тогда
+// напоминание «в сюжете пока никто не знает» неправда и только мешает.
+// Смотрим с дня зачатия: секрет о её беременности, где она среди знающих;
+// строка хроники или «Важного», где она узнала / сделала тест / врач
+// подтвердил; её собственные мысли и ключ без сомнений («а вдруг?»).
+const ПРО_БЕРЕМЕННОСТЬ = /беремен|pregnan|две полоск|положительн\p{L}* тест|тест\p{L}* (?:показал|положительн)|ждёт ребёнка|ждет ребенка|ждёт малыша|ждет малыша|носит (?:под сердцем|его ребёнка|его ребенка|ребёнка|ребенка)/iu;
+const УЗНАЛА = /(?<![\p{L}])(?:знает|знала|узнал\p{L}*|узна[её]т|в курсе|выяснил\p{L}*|сделал\p{L}* тест|тест показал|подтвердил\p{L}*|подтвержд\p{L}*|сообщил\p{L}*|призналась|рассказал\p{L}*|догадал\p{L}*|понял\p{L}*|осознал\p{L}*|скрыва\p{L}*|утаива\p{L}*|knows|found out|confirmed)(?![\p{L}])/iu;
+const НЕ_ЗНАЕТ = /(?<![\p{L}])(?:не|ещё не|еще не|пока не)\s+(?:знает|знала|догадыва\p{L}*|подозрева\p{L}*|в курсе|узнал\p{L}*|понял\p{L}*)|doesn'?t know|unaware/iu;
+const СОМНЕНИЕ = /\?|(?<![\p{L}])(?:вдруг|если|может|неужели|боится|боюсь|кажется|наверное|задержк\p{L}*|подозрева\p{L}*)(?![\p{L}])|(?<![\p{L}])не\s+(?:\p{L}+\s+)?беремен/iu;
+const первое = (имя) => имяБезПриставки(String(имя || '').trim()).split(/\s+/)[0] || '';
+const тотЖеЧеловек = (а, б) => !!а && !!б && (namesLikelySame(а, б) || namesLikelySame(первое(а), первое(б)));
+function упомянута(текст, имя) {
+  const п = первое(имя);
+  if (!п) return false;
+  return упомянутВТексте(текст, п) || упомянутВТексте(текст, имя);
+}
+export function матьЗнает(о, имя, отMs = null) {
+  if (!о || !имя) return false;
+  let история = [];
+  try { история = typeof о.__hudИстория === 'function' ? о.__hudИстория() : []; } catch (_) { история = []; }
+  const сейчас = (() => { try { return typeof о.__hudХод === 'function' ? о.__hudХод() : null; } catch (_) { return null; } })();
+  const ходы = [{ ход: сейчас, данные: о, свежий: true }, ...история.map(х => ({ ход: х.ход, данные: х.данные, момент: х.момент }))];
+  const фразы = (v) => (Array.isArray(v) ? v : [v]).map(x => снятьЗаглушки(flattenFieldValue(x)) || '').join('. ').split(/(?<=[.!?…])\s+|[;\n]/).map(x => x.trim()).filter(Boolean);
+  for (const { ход, данные, момент, свежий } of ходы) {
+    // Ход до зачатия — про прошлую беременность, не про эту.
+    if (!свежий && отMs !== null && (!Number.isFinite(момент) || момент < отMs)) continue;
+    const пам = (ход && ход.memory) || {};
+    for (const с of Array.isArray(пам.secrets) ? пам.secrets : []) {
+      if (!с || !ПРО_БЕРЕМЕННОСТЬ.test(String(с.fact || '')) || !упомянута(с.fact, имя)) continue;
+      if ((с.knows || []).some(k => тотЖеЧеловек(k && (k.name || k), имя))) return true;
+    }
+    for (const ф of [...фразы(пам.timeline || []), ...фразы(пам.important || [])]) {
+      if (ПРО_БЕРЕМЕННОСТЬ.test(ф) && УЗНАЛА.test(ф) && !НЕ_ЗНАЕТ.test(ф) && упомянута(ф, имя)) return true;
+    }
+    // Свои мысли и ключ: «я беременна от него» — знает; «а вдруг я беременна?» — нет.
+    for (const ф of фразы([полеОбъекта(данные, 'Мысли', 'Th'), полеОбъекта(данные, 'Ключ', 'K')])) {
+      if (ПРО_БЕРЕМЕННОСТЬ.test(ф) && !НЕ_ЗНАЕТ.test(ф) && (УЗНАЛА.test(ф) || !СОМНЕНИЕ.test(ф))) return true;
+    }
+  }
+  return false;
+}
+
+// кто — 'user' или 'char:Имя'; имя — как в сюжете (для «мать знает»).
+function плашкаБеременности(о, кто = 'user', имя = '') {
   if (!пустоеПоле(снятьЗаглушки(flattenFieldValue(полеОбъекта(о, 'Беременность', 'Prg'))))) return '';
-  const с = состояниеЗачатия('user');
+  const с = состояниеЗачатия(кто);
   if (!с || !с.беременна || !с.проверено) return '';
   const от = parseSceneDate(с.когда), до = parseSceneDate(о && о.__датаСцены);
+  if (матьЗнает(о, имя, от)) return '';
   const дней = от !== null && до !== null && до >= от ? Math.round((до - от) / 86400000) : null;
   const срок = дней === null ? 'тест «+»' : дней ? `${дней} дн. с близости` : 'сегодня';
   return `<div class="hud-state-plaque is-preg" role="status"><i aria-hidden="true">🤰</i>`
@@ -1045,7 +1102,7 @@ export function buildUserHTML(userData, uid, isChecked, characters) {
   const баннерИгрока = настройка('headerStyle') === 'banner'
     ? `<div class="hud-banner"${avatarUrl ? ` style="background-image:url('${String(avatarUrl).replace(/'/g, '%27')}')"` : ''} aria-hidden="true"><span class="hud-banner-name">${escapeHtml(personaName)}</span><span class="hud-banner-vert">${escapeHtml(String(personaName).toUpperCase())}</span></div>`
     : '';
-  const плашки = плашкаБеременности(userData) + плашкиСостояния(userData, personaName);
+  const плашки = плашкаБеременности(userData, 'user', personaName) + плашкиСостояния(userData, personaName);
   if (!rows && !восприятие && !плашки) return '';
   return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}">${СЛОЙ_БУМАГИ}<div class="hud-header hud-user-header${баннерИгрока ? ' has-banner' : визитка ? ' is-visit' : ''}">${баннерИгрока}${визитка ? полосаВизитки(avatarUrl) : ''}${УКРАШЕНИЯ_ШАПКИ}<div class="hud-header-info">${портретВРамке(avatarHtml, personaName)}${имяСтолбиком(personaName)}${текстШапки(personaName, userData, true)}</div></div><div class="hud-body hud-user-body">${плашки}${восприятие}${сРазделителями(rows)}${подписьВкладки(personaName)}</div></div>`;
 }
@@ -1067,7 +1124,8 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
     : '';
   const визитка = настройка('headerStyle') === 'visit';
   let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}">${СЛОЙ_БУМАГИ}<div class="hud-header${баннер ? ' has-banner' : визитка ? ' is-visit' : ''}">${баннер}${визитка ? полосаВизитки(avatar && avatar.url) : ''}<i class="hud-ghost-letter" aria-hidden="true">${буква}</i>${УКРАШЕНИЯ_ШАПКИ}<div class="hud-header-info">${портретВРамке(avatarHtml, charName)}${имяСтолбиком(charName)}${текстШапки(charName, charData)}</div></div><div class="hud-body">`;
-  html += плашкиСостояния(charData, charName);
+  // Тест «+» у героини с циклом — то же напоминание, что у {{user}}.
+  html += плашкаБеременности(charData, 'char:' + String(charData['Имя'] || '').trim(), charName) + плашкиСостояния(charData, charName);
 
   // Фаза, поза, раунд и длительность рисуются одной полосой — один раз.
   let сценаПоказана = false;

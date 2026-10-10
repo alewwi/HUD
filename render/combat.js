@@ -19,10 +19,10 @@
 // цветом силуэта: это другая величина. Отходняк после адреналина считает HUD
 // по времени сюжета, а не модель.
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.46.0';
-import { namesLikelySame } from '../names.js?v=23.46.0';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.46.0';
-import { медаль } from './view-icons.js?v=23.46.0';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.48.1';
+import { namesLikelySame } from '../names.js?v=23.48.1';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.48.1';
+import { медаль } from './view-icons.js?v=23.48.1';
 
 const текст = (v) => String(снятьЗаглушки(flattenFieldValue(v)) || '').trim();
 const пусто = (s) => !s || /^(empty|none|нет|—|-|null)$/i.test(String(s).trim());
@@ -106,6 +106,7 @@ const ВИДЫ_РАН = [
   ['burn', /ожог|обожж/i, '≋', 'ожог'], ['fracture', /перелом|трещин/i, '⨯', 'перелом'], ['dislocation', /вывих|растяж/i, '↷', 'вывих'],
   ['bruise', /ушиб|синяк|гематом|удар/i, '◍', 'ушиб'],
 ];
+const ТРАВМА = /(?<![\p{L}])(?:ран(?:а|ы|у|ен|ени)|травм|ссадин|рассеч|укус|кровоточ|гематом|синяк|ожог|перелом|порез|колот|огнестр|ушиб|вывих|растяж|сотрясен|контуз|царапин|вмятин|разрыв)/iu;
 function раныИз(люди) {
   const out = [];
   for (const c of люди) {
@@ -118,9 +119,15 @@ function раныИз(люди) {
       const зона = п.zn || п['зона'] || '';
       if (!что) continue;
       const вид = ВИДЫ_РАН.find(([, rx]) => rx.test(что)) || null;
-      if (!вид && !зона) continue; // болезнь, а не рана
-      const точка = (ЗОНЫ_РАН.find(([rx]) => rx.test(зона || что)) || [null, null])[1];
       const стадия = String(п.sg || п['стадия'] || '').toLowerCase();
+      // Рана — вид раны или зона со словом травмы. Зона одна не делает раной
+      // болезнь («нейропатия тазового сплетения» с зоной «таз», даже fresh —
+      // только что найденная) и старый шрам («послеоперационный рубец»), если
+      // он не свежий.
+      const свежая = /fresh|свеж/.test(стадия);
+      if (!вид && !(зона && ТРАВМА.test(что))) continue;
+      if (!свежая && /(?<![\p{L}])(?:рубец|рубц|шрам)/iu.test(что)) continue;
+      const точка = (ЗОНЫ_РАН.find(([rx]) => rx.test(зона || что)) || [null, null])[1];
       const rc = parseFloat(п.rc || п['выздоровление']);
       const тяжесть = /fresh|свеж|worsen|ухудш/.test(стадия) || (Number.isFinite(rc) && rc < 30) ? 3 : (Number.isFinite(rc) && rc < 70) ? 2 : 1;
       const симпт = п.sy || п['симптомы'] || '';
@@ -220,7 +227,9 @@ export function buildCombatHTML(cb, data, uid, active, время = {}) {
     const мои = раны.filter(р => р.кто === кто);
     const кровь = Math.max(0, ...мои.map(р => р.кровь));
     const метки = мои.filter(р => р.точка).map(р => `<g class="w w-${р.вид} t${р.тяжесть}${р.обездвижено ? ' is-immobile' : ''}"><circle cx="${р.точка[0]}" cy="${р.точка[1]}" r="${2.4 + р.тяжесть * 1.3}"/>${р.обездвижено ? `<path d="M${р.точка[0] - 6} ${р.точка[1] - 6}l12 12m0-12l-12 12"/>` : ''}<title>${escapeHtml(р.видСлово + ': ' + р.что + (р.зона ? ' (' + р.зона + ')' : ''))}</title></g>`).join('');
-    const подписи = мои.map(р => `<li class="t${р.тяжесть}"><i aria-hidden="true">${р.знак}</i>${escapeHtml(р.что)}${р.зона ? `<small>${escapeHtml(р.зона)}</small>` : ''}${р.обездвижено ? '<small>обездвижено</small>' : ''}</li>`).join('');
+    // Прогноз заживления (render/life-combat.js) — по прошлым ходам.
+    const прогноз = (р) => (Array.isArray(время.заживление) ? время.заживление : []).find(з => з.кто === р.кто && String(з.nm).toLowerCase() === String(р.что).toLowerCase());
+    const подписи = мои.map(р => `<li class="t${р.тяжесть}"><i aria-hidden="true">${р.знак}</i>${escapeHtml(р.что)}${р.зона ? `<small>${escapeHtml(р.зона)}</small>` : ''}${прогноз(р) ? `<small class="hud-cb-heal">${escapeHtml(прогноз(р).текст)}</small>` : ''}${р.обездвижено ? '<small>обездвижено</small>' : ''}</li>`).join('');
     return `<div class="hud-cb-body"><b>${escapeHtml(кто)}</b><div class="hud-cb-body-row"><svg class="hud-cb-sil" viewBox="0 0 60 132" aria-hidden="true"><path class="sil" d="${СИЛУЭТ}"/>${метки}</svg><ul>${подписи}</ul></div>`
       + (кровь ? `<div class="hud-cb-blood" aria-label="Кровопотеря"><span>Кровопотеря</span><i class="b${кровь}" style="--b:${кровь / 3}"></i><small>${кровь >= 3 ? 'опасная' : 'есть'}</small></div>` : '') + `</div>`;
   }).join('');

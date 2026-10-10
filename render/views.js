@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.46.0';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.46.0';
-import { namesLikelySame } from '../names.js?v=23.46.0';
-import { силаСтраха, статусРужья } from '../codes.js?v=23.46.0';
-import { settings } from '../settings.js?v=23.46.0';
-import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.46.0';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.46.0';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.48.1';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.48.1';
+import { namesLikelySame } from '../names.js?v=23.48.1';
+import { силаСтраха, статусРужья } from '../codes.js?v=23.48.1';
+import { settings } from '../settings.js?v=23.48.1';
+import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.48.1';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.48.1';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -555,7 +555,7 @@ export function видКартыТела(value, вид) {
       const б = выше.reduce((л, t) => Math.hypot(t.x - s.x, t.y - s.y) < Math.hypot(л.x - s.x, л.y - s.y) ? t : л, выше[0]);
       return `<line x1="${б.x}" y1="${б.y}" x2="${s.x}" y2="${s.y}"/>`;
     }).join('');
-    const фон = Array.from({ length: 34 }, (_, i) => { let h = Math.imul(i + 1, 2654435761) >>> 0; h ^= h >>> 13; h = Math.imul(h, 1597334677) >>> 0; return `<circle class="bgstar" style="--d:${(h % 40) / 10}s" cx="${h % 90}" cy="${(h >> 7) % 192}" r="${((h >> 3) % 3) * 0.22 + 0.25}"/>`; }).join('');
+    const фон = Array.from({ length: 34 }, (_, i) => { let h = Math.imul(i + 1, 2654435761) >>> 0; h ^= h >>> 13; h = Math.imul(h, 1597334677) >>> 0; return `<circle class="bgstar" style="--d:${(h % 40) / 10}s" cx="${h % 90}" cy="${(h >>> 7) % 192}" r="${((h >>> 3) % 3) * 0.22 + 0.25}"/>`; }).join('');
     const сияние = звёзды.map(({ з, x, y }) => {
       const r = 0.9 + з.v * 0.17;
       return `<g class="star" style="--h:${жар(з.v)}"><circle class="glow" cx="${x}" cy="${y}" r="${(r * 2.8).toFixed(1)}"/><path d="${[[0, -1.8], [.45, -.45], [1.8, 0], [.45, .45], [0, 1.8], [-.45, .45], [-1.8, 0], [-.45, -.45]].map(([a, b], i) => (i ? 'L' : 'M') + (x + a * r).toFixed(2) + ' ' + (y + b * r).toFixed(2)).join('')}Z"/><title>${титул(з)}</title></g>`;
@@ -1090,7 +1090,7 @@ function снимок(текст) {
   const ночь = /ноч|луна|звёзд|звезд|темн|вечер|полноч/i.test(текст), дождь = /дожд|ливень|гроз|мокр|снег|туман/i.test(текст);
   const значок = (СЦЕНЫ.find(([rx]) => rx.test(текст)) || [0, 'star'])[1];
   const холм = (y, амп, фаза, шаг) => { let d = `M0 90V${y}`; for (let x = 0; x <= 120; x += шаг) d += `L${x} ${(y - амп * Math.sin((x + фаза) / 17) - амп * .4 * Math.sin((x + фаза) / 7)).toFixed(1)}`; return d + 'L120 90Z'; };
-  const звёзды = ночь ? Array.from({ length: 14 }, (_, i) => { let r = Math.imul(h + i * 97, 2654435761) >>> 0; return `<circle class="st" cx="${r % 120}" cy="${(r >> 8) % 40}" r="${((r >> 4) % 3) * .25 + .35}"/>`; }).join('') : '';
+  const звёзды = ночь ? Array.from({ length: 14 }, (_, i) => { let r = Math.imul(h + i * 97, 2654435761) >>> 0; return `<circle class="st" cx="${r % 120}" cy="${(r >>> 8) % 40}" r="${((r >>> 4) % 3) * .25 + .35}"/>`; }).join('') : '';
   const капли = дождь ? Array.from({ length: 16 }, (_, i) => { const x = (i * 8 + (h % 8)) % 124 - 2, y = (i * 23 + (h >> 3)) % 60; return `<path class="rain" d="M${x} ${y}l-2 7"/>`; }).join('') : '';
   const светило = ночь
     ? `<circle class="glow" cx="${86 + h % 14}" cy="20" r="16"/><path class="moon" d="M${92 + h % 14} 13a8 8 0 1 0 5 13 6.4 6.4 0 1 1-5-13Z"/>`

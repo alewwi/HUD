@@ -13,17 +13,17 @@
 // карточки ненадёжны — у неё content-visibility, и браузер может не
 // двигать их время.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.46.0';
-import { namesLikelySame } from '../names.js?v=23.46.0';
-import { разобратьХод } from './carryover.js?v=23.46.0';
-import { parseSceneDate } from '../history-analyzer.js?v=23.46.0';
-import { исходЗачатия } from './conception.js?v=23.46.0';
-import { блокПлодов } from './fetus.js?v=23.46.0';
-import { кровотечение } from './fertility.js?v=23.46.0';
-import { settings } from '../settings.js?v=23.46.0';
-import { одеждаПодробно, слойОдежды, темпИзТекста, блокТемпа, позаТела, полПерсонажа, проникновенияИзТекста, меткиПроникновения, строкиПроникновения, членИзТекста, семяИзТекста, влагаИзТекста, финалСцены, вышелИзТекста, снаружиИзТекста, движениеИзОргазма } from './scene-body.js?v=23.46.0';
-import { ощущенияИзТекста } from './body-layers.js?v=23.46.0';
-import { полосаВлечения } from './cycle-libido.js?v=23.46.0';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.48.1';
+import { namesLikelySame } from '../names.js?v=23.48.1';
+import { разобратьХод } from './carryover.js?v=23.48.1';
+import { parseSceneDate } from '../history-analyzer.js?v=23.48.1';
+import { исходЗачатия } from './conception.js?v=23.48.1';
+import { блокПлодов } from './fetus.js?v=23.48.1';
+import { кровотечение } from './fertility.js?v=23.48.1';
+import { settings } from '../settings.js?v=23.48.1';
+import { одеждаПодробно, слойОдежды, темпИзТекста, блокТемпа, позаТела, полПерсонажа, проникновенияИзТекста, меткиПроникновения, строкиПроникновения, членИзТекста, семяИзТекста, влагаИзТекста, финалСцены, вышелИзТекста, снаружиИзТекста, движениеИзОргазма } from './scene-body.js?v=23.48.1';
+import { ощущенияИзТекста } from './body-layers.js?v=23.48.1';
+import { полосаВлечения } from './cycle-libido.js?v=23.48.1';
 
 const пусто = (v) => { const s = String(v ?? '').trim(); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
 const число = (s) => { const m = String(s ?? '').replace(/(\d),(\d)/g, '$1.$2').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };
@@ -892,12 +892,21 @@ function кнопкаСудьбы(исход) {
     ? `<button type="button" class="hud-fate-btn" data-hud-fate="neg" ${данные} title="Сделать тест отрицательным: беременности не будет, модель узнает только это">✦\uFE0E Изменить судьбу</button>`
     : `<button type="button" class="hud-fate-btn" data-hud-fate="pos" ${данные} title="Сделать тест положительным: беременность будет, модель узнает только это">✦\uFE0E Изменить судьбу</button>`;
 }
+// К какой близости относится итог: «16.06.2028, 23:15» из поля «Последний
+// секс» — чтобы было видно, что тест смотрит на последнюю, а не на давнюю.
+function когдаТеста(исход) {
+  const т = исход.беременна ? исход.когда : (исход.этаБлизость && исход.этаБлизость.когда);
+  const dt = (String(т || '').match(/(?:^|[;|])\s*dt\s*:\s*([^;|]+)/i) || [])[1];
+  if (!dt) return '';
+  const кратко = dt.split(',').slice(0, 2).join(',').trim().slice(0, 40);
+  return кратко ? `<small class="hud-test-when">${исход.беременна ? 'зачатие' : 'близость'}: ${escapeHtml(кратко)}</small>` : '';
+}
 function блокТеста(исход, была) {
   return (была || исход.беременна) ? `<details class="hud-preg-test"${исход.кто ? ` data-kto="${escapeHtml(исход.кто)}"` : ''}>`
     + `<summary><i aria-hidden="true">🧪</i>Сделать тест</summary>`
     + `<div class="hud-test ${исход.беременна ? 'is-pos' : 'is-neg'}">`
     + `<span class="hud-test-stick" aria-hidden="true"><i class="hud-test-window"><b class="c-line"></b>${исход.беременна ? '<b class="t-line"></b>' : ''}</i></span>`
-    + `<div class="hud-test-result"><strong>${исход.беременна ? '+' : '−'}</strong><p>${исход.беременна ? 'Получилось — беременность' : 'Не получилось'}</p>${кнопкаСудьбы(исход)}</div>`
+    + `<div class="hud-test-result"><strong>${исход.беременна ? '+' : '−'}</strong><p>${исход.беременна ? 'Получилось — беременность' : 'Не получилось'}</p>${когдаТеста(исход)}${кнопкаСудьбы(исход)}</div>`
     + `</div>${исход.беременна && исход.кто ? блокПлодов(исход.кто) : ''}</details>` : '';
 }
 function блокРиска(р, исход, была) {

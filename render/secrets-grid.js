@@ -13,11 +13,13 @@
 // секрета, — «при нём об этом нельзя».
 // На узком экране сетку заменяет список по людям (container query).
 
-import { escapeHtml, getSafeUserName } from '../utils.js?v=23.46.0';
-import { settings } from '../settings.js?v=23.46.0';
-import { namesLikelySame } from '../names.js?v=23.46.0';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.46.0';
-import { ико, медаль } from './view-icons.js?v=23.46.0';
+import { escapeHtml, getSafeUserName } from '../utils.js?v=23.48.1';
+import { settings } from '../settings.js?v=23.48.1';
+import { namesLikelySame } from '../names.js?v=23.48.1';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.48.1';
+import { ико, медаль } from './view-icons.js?v=23.48.1';
+import { правкаСекрета, всплывшиеСекреты, правитьСнимок, правки } from '../snapshot-edits.js?v=23.48.1';
+import { разобратьДуэль } from './duel.js?v=23.48.1';
 // Склонение по числу: склон(3, ['секрет', 'секрета', 'секретов']).
 const склон = (n, [один, два, пять]) => { const к = Math.abs(n) % 100, е = к % 10; return к > 10 && к < 20 ? пять : е === 1 ? один : е >= 2 && е <= 4 ? два : пять; };
 
@@ -54,6 +56,19 @@ export function клеткаСекрета(сек, человек) {
   const ст = String(сек.status || '').toLowerCase();
   if (!/unknown|неизвест/.test(ст) && /suspect|подозр|part|частич/.test(ст)) return { вид: 'suspects', текст: 'мог догадаться — секрет уже расходится' };
   return { вид: 'not', текст: 'не знает' };
+}
+
+// Правка игрока (snapshot-edits.js) поверх данных модели. Если модель в том
+// же поле пишет другое (снова числит человека в «не знает») — расхождение
+// видно, а не чинится молча ни в ту, ни в другую сторону.
+export function клеткаСПравкой(сек, человек, все = правки()) {
+  const модель = клеткаСекрета(сек, человек);
+  const п = правкаСекрета(сек.fact, человек, все);
+  if (!п || !['known', 'suspected'].includes(п.значение)) return модель;
+  const вид = п.значение === 'known' ? 'knows' : 'suspects';
+  const явноНет = списком(сек.unaware ?? сек.hidden).some(k => тот(имяЧел(k), человек));
+  const расходится = явноНет && модель.вид === 'not';
+  return { вид, текст: `вы отметили: ${п.значение === 'known' ? 'знает' : 'подозревает'}${расходится ? ' · модель пишет «не знает»' : ''}`, правка: п, расходится };
 }
 
 // Знак, слово и линейный значок (view-icons.js) каждого состояния. Значок и
@@ -114,7 +129,19 @@ export function сеткаСекретов(секретыВсе, hudData) {
   const люди = людиСекретов(секреты, hudData);
   if (люди.length < 2) return '';
   // Таблица состояний: одна на всю отрисовку.
-  const клетка = секреты.map(с => люди.map(п => клеткаСекрета(с, п.имя)));
+  // Всплыло в споре (snapshot-edits.js): уступка в дуэли — «знает», совпала
+  // только суть — «подозревает». По умолчанию спрашиваем; «auto» — сразу.
+  const всеПравки = правки();
+  const дуэли = (Array.isArray(hudData && hudData.characters) ? hudData.characters : []).map(c => {
+    const д = разобратьДуэль(c && c['Словесная дуэль']);
+    const суть = String((c && c['Глубина конфликта']) || '').replace(/;\s*(?:dys|sg)\s*:.*$/i, '').replace(/^\s*wy\s*[:：]\s*/i, '');
+    return { уступка: д && д.уступка || '', суть: д ? суть : '' };
+  }).filter(д => д.уступка || д.суть);
+  const вСцене = люди.filter(п => п.игрок || (Array.isArray(hudData && hudData.characters) ? hudData.characters : []).some(c => тот(c && c['Имя'], п.имя))).map(п => п.имя);
+  let предложения = дуэли.length ? всплывшиеСекреты(секреты, дуэли, вСцене, клеткаСекрета, всеПравки) : [];
+  if (предложения.length && settings.secretsAutoRaise === 'auto') { предложения.forEach(п => правитьСнимок(п.путь, п.значение)); предложения = []; }
+  const клетка = секреты.map(с => люди.map(п => клеткаСПравкой(с, п.имя, правки())));
+  const предложено = (с, имя) => предложения.some(п => п.факт === с.fact && тот(п.кто, имя));
   const долиЗнания = люди.map((_, j) => Math.round(секреты.filter((_, i) => клетка[i][j].вид === 'knows').length / секреты.length * 100));
   const предупреждения = предупрежденияСекретов(секреты, hudData);
   const опасных = секреты.filter(с => ['critical', 'high'].includes(уровень(с))).length;
@@ -126,12 +153,12 @@ export function сеткаСекретов(секретыВсе, hudData) {
     const ур = уровень(с);
     const клетки = люди.map((п, j) => {
       const к = клетка[i][j];
-      return `<span class="hud-sgrid-cell is-${к.вид}" title="${escapeHtml(имяКоротко(п.имя) + ' — ' + к.текст)}" aria-label="${escapeHtml(имяКоротко(п.имя) + ': ' + ЗНАКИ[к.вид][1])}">${значокСостояния(к.вид)}</span>`;
+      return `<span class="hud-sgrid-cell is-${к.вид}${к.правка ? ' has-edit' : ''}${к.расходится ? ' is-conflict' : ''}${предложено(с, п.имя) ? ' is-proposed' : ''}" title="${escapeHtml(имяКоротко(п.имя) + ' — ' + к.текст)}" aria-label="${escapeHtml(имяКоротко(п.имя) + ': ' + ЗНАКИ[к.вид][1])}">${значокСостояния(к.вид)}</span>`;
     }).join('');
     const знают = клетка[i].filter(к => к.вид === 'knows').length;
     // Раскрытая строка: полный текст и кто откуда знает, кто во что верит.
     const откуда = люди.map((п, j) => ({ п, к: клетка[i][j] })).filter(x => x.к.вид !== 'not')
-      .map(({ п, к }) => `<li class="is-${к.вид}">${значокСостояния(к.вид)}<b>${escapeHtml(имяКоротко(п.имя))}</b><span>${escapeHtml(к.текст)}</span></li>`).join('');
+      .map(({ п, к }) => `<li class="is-${к.вид}${к.расходится ? ' is-conflict' : ''}">${значокСостояния(к.вид)}<b>${escapeHtml(имяКоротко(п.имя))}</b><span>${escapeHtml(к.текст)}</span>${к.правка ? `<button type="button" class="hud-sgrid-undo" data-sec-edit="${escapeHtml(к.правка.путь)}" data-value="" title="Снять отметку — вернуть как пишет модель">снять</button>` : ''}</li>`).join('');
     return `<details class="hud-sgrid-row lvl-${ур}"><summary><span class="hud-sgrid-fact" title="${escapeHtml(с.fact)} · знают ${знают} из ${люди.length}" style="--k:${Math.round(знают / люди.length * 100)}%"><i class="hud-sgrid-lvl" title="${СЛОВО_УРОВНЯ[ур]}">${ико('lock')}</i><span>${escapeHtml(заголовок(с.fact))}</span><em>${знают}/${люди.length}</em></span>${клетки}</summary>`
       + `<div class="hud-sgrid-full"><p>${escapeHtml(с.fact)}</p><span class="hud-v-tag">${СЛОВО_УРОВНЯ[ур]}</span>${откуда ? `<ul>${откуда}</ul>` : ''}</div></details>`;
   }).join('');
@@ -146,6 +173,8 @@ export function сеткаСекретов(секретыВсе, hudData) {
   // «Не знают: Тристан, Лена» — без падежей: «при Тристан» звучало бы неграмотно.
   const предупр = предупреждения.map(п => `<div class="hud-sgrid-warn">${медаль('alert')}<span><small>в сцене — нельзя</small><b>«${escapeHtml(заголовок(п.секрет.fact))}»</b><em>${п.кто.length === 1 ? 'не знает' : 'не знают'}: ${escapeHtml(п.кто.join(', '))}</em></span><span class="hud-sgrid-warn-faces">${п.полные.slice(0, 3).map(имя => лицо(имя, false)).join('')}</span></div>`).join('');
   const легенда = `<div class="hud-sgrid-legend">${Object.entries(ЗНАКИ).map(([к, [, с]]) => `<span class="is-${к}"><i class="hud-sgrid-cell is-${к}">${значокСостояния(к)}</i>${с}</span>`).join('')}</div>`;
-  return `<div class="hud-sgrid-wrap hud-v hud-v-card">${итог}${предупр}<div class="hud-sgrid" style="--cols:${люди.length}" role="table" aria-label="Кто что знает">`
+  const подъём = предложения.slice(0, 3).map(п => `<div class="hud-sgrid-raise">${медаль('speech')}<span><small>всплыло в споре</small><b>«${escapeHtml(заголовок(п.факт))}»</b><em>при ${escapeHtml(имяКоротко(п.кто))} — отметить «${п.значение === 'known' ? 'знает' : 'подозревает'}»?</em></span>`
+    + `<span class="hud-sgrid-raise-btns"><button type="button" data-sec-edit="${escapeHtml(п.путь)}" data-value="${п.значение}">отметить</button><button type="button" data-sec-edit="${escapeHtml(п.путь)}" data-value="dismissed" title="Не спрашивать про это снова">нет</button></span></div>`).join('');
+  return `<div class="hud-sgrid-wrap hud-v hud-v-card">${итог}${предупр}${подъём}<div class="hud-sgrid" style="--cols:${люди.length}" role="table" aria-label="Кто что знает">`
     + `<div class="hud-sgrid-top">${шапка}</div>${строки}</div><div class="hud-sgrid-people">${поЛюдям}</div>${легенда}</div>`;
 }
