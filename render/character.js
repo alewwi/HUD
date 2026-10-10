@@ -4,27 +4,29 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.48.3';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.48.3';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.48.3';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=23.48.3';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.51.8';
+import { иконка } from './hud-icons.js?v=23.51.8';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.51.8';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.51.8';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=23.51.8';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  блокТемпаСцены, активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.48.3';
-import { часыСцены } from './scene-clock.js?v=23.48.3';
-import { buildUnderwear } from './underwear.js?v=23.48.3';
-import { buildDuel } from './duel.js?v=23.48.3';
-import { buildPregnancy } from './pregnancy.js?v=23.48.3';
-import { buildPostpartum } from './postpartum.js?v=23.48.3';
-import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды, датаЗачатия } from './conception.js?v=23.48.3';
-import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.48.3';
-import { parseSceneDate } from '../history-analyzer.js?v=23.48.3';
-import { settings, настройка } from '../settings.js?v=23.48.3';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.48.3';
-import { видСостоянияТела } from './extras.js?v=23.48.3';
-import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ } from './views-fields.js?v=23.48.3';
-import { parseRelationList } from './relations-graph.js?v=23.48.3';
-import { отложитьРисунок } from './lazy-svg.js?v=23.48.3';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.48.3';
+  блокТемпаСцены, активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.51.8';
+import { часыСцены } from './scene-clock.js?v=23.51.8';
+import { buildUnderwear } from './underwear.js?v=23.51.8';
+import { buildDuel } from './duel.js?v=23.51.8';
+import { buildPregnancy } from './pregnancy.js?v=23.51.8';
+import { buildPostpartum } from './postpartum.js?v=23.51.8';
+import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды, датаЗачатия } from './conception.js?v=23.51.8';
+import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.51.8';
+import { parseSceneDate } from '../history-analyzer.js?v=23.51.8';
+import { settings, настройка } from '../settings.js?v=23.51.8';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.51.8';
+import { видСостоянияТела } from './extras.js?v=23.51.8';
+import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ } from './views-fields.js?v=23.51.8';
+import { parseRelationList } from './relations-graph.js?v=23.51.8';
+import { отложитьРисунок } from './lazy-svg.js?v=23.51.8';
+import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.51.8';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.51.8';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле', 'состояние тела'];
@@ -232,7 +234,8 @@ function значокПоля(нижнийКлюч) {
   // медальоне. Везде ещё у элемента нет оформления, и вид прежний.
   // Внутренний span нужен центровке: его сдвигают трансформацией, а сам
   // кружок и строка вокруг остаются на месте.
-  const обернуть = (з) => '<i class="hud-key-ico" aria-hidden="true"><span>' + з + '</span></i> ';
+  // В режиме SVG-значков (iconSet) эмодзи меняется на значок спрайта, обёртка та же.
+  const обернуть = (з) => '<i class="hud-key-ico" aria-hidden="true"><span>' + иконка(з) + '</span></i> ';
   const точный = ЗНАЧКИ_ПОЛЕЙ[нижнийКлюч];
   if (точный) return обернуть(точный);
   if (нижнийКлюч.includes('детализация nsfw')) return обернуть('🔥');
@@ -1096,6 +1099,28 @@ export function buildUserHTML(userData, uid, isChecked, characters) {
       rows += `<div class="${rowClass}"><span class="hud-key">${значок}${escapeHtml(label)}:</span> ${значениеПоля(label.toLowerCase(), value, 'hud-value')}</div>`;
     }
   });
+  // Силуэт игрока (настройка silhouetteLook). Облик — по старшинству: ручной
+  // «Мой облик» (кастомизация), поле «Внешность» игрока, описание персоны
+  // Таверны (разбор здесь же, без вопросов модели). Зон чувствительности
+  // модель игроку не пишет — силуэт без зон, но со следами и одеждой.
+  // Только в близости и при включённом NSFW — за теми же выключателями.
+  if (settings.silhouetteLook === 'auto' && вБлизости && settings.nsfwPrompt !== 'never') {
+    const поИгроку = (код) => { const имя = mapKey(код); for (const [k, v] of Object.entries(userData)) if (k === код || k.toLowerCase() === имя.toLowerCase()) return снятьЗаглушки(flattenFieldValue(v)); return ''; };
+    let персона = '';
+    try { персона = (typeof window !== 'undefined' && window.power_user && window.power_user.persona_description) || ''; } catch (_) { /* нет персоны */ }
+    const внешность = поИгроку('Ap');
+    // Внешность игрока по прошлым ходам (как у персонажей); описание персоны —
+    // канон, как карточка у персонажа (render/look.js: обликИзТекстов).
+    let прошлое = [];
+    try { прошлое = typeof userData.__hudВнешности === 'function' ? userData.__hudВнешности().map(([вн]) => вн) : []; } catch (_) { прошлое = []; }
+    const тексты = [внешность, ...прошлое].filter(Boolean);
+    const облик = сУчётомРучного(обликИзТекстов(тексты, { зона: зонаПоСлову, канон: персона ? [персона] : [] }), settings.userLook || {});
+    if (естьОблик(облик)) {
+      const владелец = { 'Имя': personaName, 'Внешность': внешность, 'Одежда': поИгроку('C'), 'Следы на теле': поИгроку('Mrk') };
+      const рисунок = отложитьРисунок(uid + '-look', () => buildHeatMap('', владелец, 'both', { облик, безЗон: true }), 300);
+      if (рисунок) rows += `<div class="hud-row hud-user-row full-width nsfw hud-user-look"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>${иконка('🧍')}</span></i> Силуэт:</span> ${рисунок}</div>`;
+    }
+  }
   const восприятие = settings.enablePerception !== false ? buildPerceptionHTML(characters) : '';
   const визитка = настройка('headerStyle') === 'visit';
   // Баннер игрока — как у персонажа: полоса из аватарки или своей картинки.

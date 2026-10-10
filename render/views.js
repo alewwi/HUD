@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.48.3';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.48.3';
-import { namesLikelySame } from '../names.js?v=23.48.3';
-import { силаСтраха, статусРужья } from '../codes.js?v=23.48.3';
-import { settings } from '../settings.js?v=23.48.3';
-import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.48.3';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.48.3';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.51.8';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.51.8';
+import { namesLikelySame } from '../names.js?v=23.51.8';
+import { силаСтраха, статусРужья } from '../codes.js?v=23.51.8';
+import { settings } from '../settings.js?v=23.51.8';
+import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.51.8';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.51.8';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -567,7 +567,9 @@ export function видКартыТела(value, вид) {
 
 /* --- Маршрут ---------------------------------------------------------------- */
 
-export function видМаршрута(точки, кто, вид) {
+// опции.ключМеста(точка) — общее имя места для маршрутов героя и игрока
+// (render/route-places.js): одна локация — одна точка на обеих схемах.
+export function видМаршрута(точки, кто, вид, опции = {}) {
   if (!Array.isArray(точки) || !точки.length) return '';
   const время = (p) => String(p.time || '').replace(/[[\]]/g, '').trim();
   const голова = `<div class="hud-v-head"><b>${escapeHtml(кто)}</b><span>${точки.length} ${точки.length === 1 ? 'точка' : точки.length < 5 ? 'точки' : 'точек'}${время(точки[0]) && время(точки[точки.length - 1]) ? ` · ${escapeHtml(время(точки[0]))} — ${escapeHtml(время(точки[точки.length - 1]))}` : ''}</span></div>`;
@@ -591,7 +593,7 @@ export function видМаршрута(точки, кто, вид) {
     };
     const места = [];
     const позиции = точки.map(p => {
-      const имя = (p.place || '').trim().toLowerCase();
+      const имя = (typeof опции.ключМеста === 'function' ? опции.ключМеста(p) : (p.place || '')).trim().toLowerCase();
       const было = места.find(м => м.имя === имя);
       if (было) return было;
       const h = hudHashSeed(имя || String(места.length));

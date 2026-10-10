@@ -13,17 +13,20 @@
 // карточки ненадёжны — у неё content-visibility, и браузер может не
 // двигать их время.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.48.3';
-import { namesLikelySame } from '../names.js?v=23.48.3';
-import { разобратьХод } from './carryover.js?v=23.48.3';
-import { parseSceneDate } from '../history-analyzer.js?v=23.48.3';
-import { исходЗачатия } from './conception.js?v=23.48.3';
-import { блокПлодов } from './fetus.js?v=23.48.3';
-import { кровотечение } from './fertility.js?v=23.48.3';
-import { settings } from '../settings.js?v=23.48.3';
-import { одеждаПодробно, слойОдежды, темпИзТекста, блокТемпа, позаТела, полПерсонажа, проникновенияИзТекста, меткиПроникновения, строкиПроникновения, членИзТекста, семяИзТекста, влагаИзТекста, финалСцены, вышелИзТекста, снаружиИзТекста, движениеИзОргазма } from './scene-body.js?v=23.48.3';
-import { ощущенияИзТекста } from './body-layers.js?v=23.48.3';
-import { полосаВлечения } from './cycle-libido.js?v=23.48.3';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки, имяБезПриставки } from '../utils.js?v=23.51.8';
+import { namesLikelySame } from '../names.js?v=23.51.8';
+import { разобратьХод } from './carryover.js?v=23.51.8';
+import { parseSceneDate } from '../history-analyzer.js?v=23.51.8';
+import { исходЗачатия } from './conception.js?v=23.51.8';
+import { блокПлодов } from './fetus.js?v=23.51.8';
+import { кровотечение } from './fertility.js?v=23.51.8';
+import { settings } from '../settings.js?v=23.51.8';
+import { одеждаПодробно, слойОдежды, темпИзТекста, блокТемпа, позаТела, полПерсонажа, проникновенияИзТекста, меткиПроникновения, строкиПроникновения, членИзТекста, семяИзТекста, влагаИзТекста, финалСцены, вышелИзТекста, снаружиИзТекста, движениеИзОргазма } from './scene-body.js?v=23.51.8';
+import { ощущенияИзТекста } from './body-layers.js?v=23.51.8';
+import { полосаВлечения } from './cycle-libido.js?v=23.51.8';
+import { разобратьОблик, обликИзТекстов, естьОблик, причёска, лицо, масштабСложения, масштабРоста, стильОблика, меткиОтметин, нуженКонтур } from './look.js?v=23.51.8';
+import { канонОблика, полИзКанона, подтянутьЛор } from './canon.js?v=23.51.8';
+import { силуэтТела, силуэтБезРук, открытоеТело, очертанияТела, defsОбъёма, слоиОбъёма, кромка, параметрыФигуры, деталиФигуры } from './body-art.js?v=23.51.8';
 
 const пусто = (v) => { const s = String(v ?? '').trim(); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
 const число = (s) => { const m = String(s ?? '').replace(/(\d),(\d)/g, '$1.$2').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };
@@ -76,6 +79,29 @@ function прошлыеХоды(индекс) {
   return out;
 }
 
+// Облику силуэта нужна вся история, а не двадцать ходов: устойчивые черты
+// (сетка шрамов, пучок, очки) называют редко. Разбор ходов кэширован
+// (разобратьХод), поэтому проход по чату дешёвый; итог — по имени и длине
+// чата, чтобы 50 карточек не пересчитывали одно и то же.
+const ГЛУБИНА_ОБЛИКА = 400;
+const кэшОблика = new Map();
+function внешностиПоЧату(индекс, достать, ключ) {
+  let chat = null;
+  try { const ctx = window.SillyTavern && window.SillyTavern.getContext && window.SillyTavern.getContext(); chat = ctx && Array.isArray(ctx.chat) ? ctx.chat : null; } catch (_) { chat = null; }
+  if (!chat || !Number.isInteger(индекс)) return [];
+  const к = ключ + '|' + индекс + '|' + chat.length;
+  if (кэшОблика.has(к)) return кэшОблика.get(к);
+  const out = [];
+  for (let j = Math.min(индекс, chat.length) - 1; j >= 0 && j >= индекс - ГЛУБИНА_ОБЛИКА; j--) {
+    const d = разобратьХод(chat[j]);
+    const о = d && достать(d);
+    if (о) out.push([поле(о, 'Внешность') || поле(о, 'Ap'), поле(о, 'Тело')]);
+  }
+  if (кэшОблика.size > 300) кэшОблика.clear();
+  кэшОблика.set(к, out);
+  return out;
+}
+
 export function привязатьИсторию(data, индекс) {
   if (!data || typeof data !== 'object') return;
   // Момент текущей сцены — для отсчёта следов по времени сюжета.
@@ -91,6 +117,8 @@ export function привязатьИсторию(data, индекс) {
       enumerable: false, configurable: true,
     });
     Object.defineProperty(о, '__hudМомент', { value: () => сейчас, enumerable: false, configurable: true });
+    // Внешность и тело этого героя по всему чату назад — для облика силуэта.
+    Object.defineProperty(о, '__hudВнешности', { value: () => (естьПрошлое ? внешностиПоЧату(индекс, достать, о === data.user ? '__игрок' : String(о['Имя'] || '')) : []), enumerable: false, configurable: true });
     Object.defineProperty(о, '__hudХод', { value: () => data, enumerable: false, configurable: true });
   };
   (Array.isArray(data.characters) ? data.characters : []).forEach(c => {
@@ -459,15 +487,46 @@ function подписьКадра(назад, момент) {
   return время ? когда + ' · ' + время : когда;
 }
 
-export function buildHeatMap(value, владелец, начальный = 'both') {
+// Облик силуэта (render/look.js, настройка silhouetteLook): тон кожи в теле,
+// волосы, сложение и отметины. 'neutral' — ровно прежний рисунок.
+export function обликВладельца(владелец) {
+  if (settings.silhouetteLook !== 'auto' || !владелец) return null;
+  // Устойчивые черты разбросаны по прошлым ходам: последняя «Внешность»
+  // часто про состояние («лицо белее мела»), а не про облик.
+  let прошлое = [];
+  try { прошлое = typeof владелец.__hudВнешности === 'function' ? владелец.__hudВнешности() : []; } catch (_) { прошлое = []; }
+  if (!прошлое.length) прошлое = история(владелец).map(х => [поле(х.данные, 'Внешность'), поле(х.данные, 'Тело')]);
+  const тексты = [[поле(владелец, 'Внешность'), поле(владелец, 'Тело')], ...прошлое];
+  // Лорбуки — в фоне, один раз на чат: записи попадут в следующие рисунки.
+  try { подтянутьЛор(); } catch (_) { /* без лорбуков */ }
+  const о = обликИзТекстов(тексты, { зона: зонаПоСлову, канон: канонОблика(поле(владелец, 'Имя')) });
+  return естьОблик(о) ? о : null;
+}
+
+// опции.облик — готовый облик (у игрока: ручной, поля, персона);
+// опции.безЗон — силуэт рисуется и без зон чувствительности (игрок: модель их
+// ему не пишет, и честнее показать нейтральный силуэт, чем придумать зоны).
+export function buildHeatMap(value, владелец, начальный = 'both', опции = {}) {
   const старт = ВИДЫ_КАРТЫ[начальный] ? начальный : 'both';
   const { зоны, поId } = зоныКарты(value);
-  if (!зоны.length) return '';
+  if (!зоны.length && !опции.безЗон) return '';
+  const облик = опции.облик !== undefined ? (естьОблик(опции.облик) ? опции.облик : null) : обликВладельца(владелец);
+  const сжатие = масштабСложения(облик);
   const следы = активныеСледы(поле(владелец, 'Следы на теле'), владелец).filter(с => с.зона);
   const ощущения = ощущенияИзТекста(поле(владелец, 'Физиология'), поле(владелец, 'Тело'));
   // Одежда по фигуре, темп и проникновение — render/scene-body.js.
-  const пол = полПерсонажа(поле(владелец, 'NSFW') || поле(владелец, 'NSFW (Юзер)'), поле(владелец, 'Тело'), поле(владелец, 'Внешность'), поле(владелец, 'Роль'));
+  // Пол — из HUD; если HUD молчит, а силуэт «по внешности» — из канона
+  // («Gender: Female» в карточке или лорбуке).
+  const пол = полПерсонажа(поле(владелец, 'NSFW') || поле(владелец, 'NSFW (Юзер)'), поле(владелец, 'Тело'), поле(владелец, 'Внешность'), поле(владелец, 'Роль'))
+    || (settings.silhouetteLook === 'auto' ? полИзКанона(канонОблика(поле(владелец, 'Имя'))) : '');
   const одежда = одеждаПодробно(поле(владелец, 'Одежда'), пол);
+  // Фигура по полу и очертания там, где тело открыто (render/body-art.js).
+  // Фигура по описанию (плечи, талия, бёдра, грудь, рельеф) и живот по сроку
+  // беременности — только «по внешности»; «нейтральный» — прежняя фигура пола.
+  const недель = (() => { const т = поле(владелец, 'Беременность'); const м = т.match(/(?:wk|недел\p{L}*)\s*[:：]?\s*(\d{1,2})|(\d{1,2})\s*(?:нед|wk|weeks?)/iu); return м ? Number(м[1] || м[2]) : 0; })();
+  const фигура = settings.silhouetteLook === 'auto' ? параметрыФигуры(пол, облик, недель) : null;
+  const силуэт = силуэтТела(пол, фигура);
+  const открыто = settings.silhouetteOutlines === 'off' ? null : открытоеТело(одежда);
   const текстыСцены = [поле(владелец, 'Поза'), поле(владелец, 'NSFW'), поле(владелец, 'NSFW (Юзер)')];
   const темп = темпИзТекста(...текстыСцены);
   const проникн = проникновенияИзТекста(...текстыСцены.slice(1), текстыСцены[0]);
@@ -485,9 +544,12 @@ export function buildHeatMap(value, владелец, начальный = 'both
 
   const defs = `<defs>`
     + `<radialGradient id="${id}-hot"><stop class="s0" offset="0"/><stop class="s1" offset=".3"/><stop class="s2" offset=".68"/><stop class="s3" offset="1"/></radialGradient>`
-    + `<linearGradient id="${id}-body" x1="0" y1="0" x2="0" y2="1"><stop class="b0" offset="0"/><stop class="b1" offset="1"/></linearGradient>`
+    // Один градиент на всю фигуру (userSpaceOnUse), а не на каждую часть:
+    // иначе низ торса темнел, а верх ног светлел — на стыке была ступенька.
+    + `<linearGradient id="${id}-body" gradientUnits="userSpaceOnUse" x1="0" y1="4" x2="0" y2="186"><stop class="b0" offset="0"/><stop class="b1" offset="1"/></linearGradient>`
     + `<pattern id="${id}-scan" width="4" height="3" patternUnits="userSpaceOnUse"><rect class="scan" width="4" height=".8"/></pattern>`
-    + `<clipPath id="${id}-clip">${СИЛУЭТ}</clipPath></defs>`;
+    + defsОбъёма(id)
+    + `<clipPath id="${id}-clip">${силуэт}</clipPath><clipPath id="${id}-clip-low">${силуэтБезРук(пол, фигура)}</clipPath></defs>`;
 
   const пятнаКадра = (карта, s) => {
     let out = '';
@@ -503,7 +565,7 @@ export function buildHeatMap(value, владелец, начальный = 'both
 
   const сторона = (s) => {
     const кадрыСтороны = кадры.map((к, i) => `<g class="z-frame${i === сейчас ? ' is-now' : ''}" data-frame="${i}">${пятнаКадра(к.карта, s)}</g>`).join('');
-    const ткань = слойОдежды(одежда, s, id);
+    const ткань = слойОдежды(одежда, s, id, `${id}-clip-low`);
     let метки_ = '';
     const занято = {};
     следы.forEach(с => {
@@ -520,12 +582,29 @@ export function buildHeatMap(value, владелец, начальный = 'both
       const точки = о.id === 'hands' ? [о.xy, [90 - о.xy[0], о.xy[1]]] : [о.xy];
       return точки.map(([x, y]) => `<g class="z-organ o-${о.id}"><circle class="z-organ-ring" cx="${x}" cy="${y}" r="6.5"/><circle class="z-organ-core" cx="${x}" cy="${y}" r="2.6"/><title>${escapeHtml(о.имя + ': ' + о.куски.join('; '))}</title></g>`).join('');
     }).join('');
-    return `<g class="z-side-${s}" transform="translate(${СДВИГ[s]} 2)">`
-      + `<g class="z-rim">${СИЛУЭТ}</g>`
-      + `<g class="z-body" fill="url(#${id}-body)">${СИЛУЭТ}</g>`
-      + `<g clip-path="url(#${id}-clip)"><rect width="90" height="190" fill="url(#${id}-scan)"/>`
-      + `<g class="z-detail">${ДЕТАЛИ[s].map(d => `<path d="${d}"/>`).join('')}</g>`
-      + `<g class="z-cloth-layer">${ткань}</g><g class="z-heat-layer">${кадрыСтороны}</g></g>`
+    // У женской фигуры дуги груди ниже; если грудь открыта, вместо них —
+    // очертания (body-art.js), а не обе линии разом.
+    const деталиСтороны = (s) => s !== 'f' || пол !== 'f' ? ДЕТАЛИ[s]
+      : ДЕТАЛИ.f.flatMap((d, i) => i === 2 || i === 3 ? (открыто && открыто.грудь ? [] : [d.replace(/(\d+(?:\.\d+)?) (5[7-9]|6[01])/g, (м, x, y) => x + ' ' + (Number(y) + 5))]) : [d]);
+    // Сложение — масштаб по X всей стороны вокруг оси фигуры (x = 45).
+    // Рост — по Y от ступней (y = 186).
+    const рост = масштабРоста(облик);
+    const масштаб = сжатие !== 1 || рост !== 1 ? ` translate(45 186) scale(${сжатие} ${рост}) translate(-45 -186)` : '';
+    return `<g class="z-side-${s}" transform="translate(${СДВИГ[s]} 2)${масштаб}">`
+      + `<g class="z-rim">${силуэт}</g>`
+      // Кромка — под заливкой тела: видна только её внешняя половина, и швы
+      // между частями (шея, руки поверх торса) не прорисовываются.
+      + кромка(id, силуэт)
+      + `<g class="z-body" fill="url(#${id}-body)">${силуэт}</g>`
+      + `<g clip-path="url(#${id}-clip)">${слоиОбъёма(id)}<rect width="90" height="190" fill="url(#${id}-scan)"/>`
+      + `<g class="z-detail">${деталиСтороны(s).map(d => `<path d="${d}"/>`).join('')}</g>` + деталиФигуры(фигура, s, пол)
+      // Татуировки, шрамы, ожоги — на коже, под одеждой: где одето, их не видно.
+      + (облик ? `<g class="z-look-layer">${меткиОтметин(облик, s, ПЯТНА)}</g>` : '')
+      + `<g class="z-cloth-layer">${ткань}</g><g class="z-heat-layer">${кадрыСтороны}</g>`
+      // Очертания — поверх пятен: тонкие линии, иначе их съедает свечение.
+      + очертанияТела(пол, открыто, s, фигура) + `</g>`
+      // Волосы — поверх одежды, под метками: длинные лежат на плечах.
+      + (облик ? причёска(облик, s, пол) + лицо(облик, s) : '')
       + `<g class="z-organ-layer">${органы}</g><g class="z-mark-layer">${метки_}</g><g class="z-pen-layer">${меткиПроникновения(проникн, s, темп)}</g></g>`;
   };
 
@@ -541,7 +620,8 @@ export function buildHeatMap(value, владелец, начальный = 'both
     крупно = `${x0.toFixed(1)} ${y0.toFixed(1)} 70 70`;
   }
 
-  const svg = `<svg class="hud-heat-svg" viewBox="${ВИДЫ_КАРТЫ[старт]}" role="img" aria-label="Карта чувствительности тела спереди и сзади">`
+  const стиль = облик ? стильОблика(облик) : '';
+  const svg = `<svg class="hud-heat-svg${облик ? ' has-look' : ''}${стиль.includes('--skin') ? ' has-skin' : ''}${нуженКонтур(облик) ? ' is-light-skin' : ''}"${стиль ? ` style="${стиль}"` : ''} viewBox="${ВИДЫ_КАРТЫ[старт]}" role="img" aria-label="${зоны.length ? 'Карта чувствительности тела спереди и сзади' : 'Силуэт спереди и сзади'}">`
     + defs + сторона('f') + сторона('b')
     + `<text class="z-side" x="51" y="199">спереди</text><text class="z-side" x="149" y="199">сзади</text></svg>`;
 

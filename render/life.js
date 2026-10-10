@@ -18,16 +18,16 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.48.3';
-import { settings } from '../settings.js?v=23.48.3';
-import { разобратьХод } from './carryover.js?v=23.48.3';
-import { моментСцены } from './intimacy.js?v=23.48.3';
-import { одеждаПодробно, полПерсонажа } from './scene-body.js?v=23.48.3';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.48.3';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.48.3';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.48.3';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.48.3';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.48.3';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.51.8';
+import { settings } from '../settings.js?v=23.51.8';
+import { разобратьХод } from './carryover.js?v=23.51.8';
+import { моментСцены } from './intimacy.js?v=23.51.8';
+import { одеждаПодробно, полПерсонажа } from './scene-body.js?v=23.51.8';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.51.8';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.51.8';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.51.8';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.51.8';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.51.8';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;
@@ -324,7 +324,11 @@ export function журналБыта(chat, конец = chat ? chat.length : 0, 
     if (sat !== null) прошлаяСытость = sat;
     // Сон каждого — по ночам: «slp» описывает прошлую ночь.
     for (const c of люди) {
-      const сон = сонИз(поле(c, 'Состояние тела'));
+      let сон = сонИз(поле(c, 'Состояние тела'));
+      // Нет slp — у хозяина телефона сон берём из часов (phn.hl): та же ночь,
+      // что во вкладке «Здоровье» телефона.
+      const часы = d.phone && d.phone.health && d.phone.health.sleep;
+      if (!сон && часы && d.phone.owner && c['Имя'] && namesLikelySame(c['Имя'], d.phone.owner)) сон = сонИз('slp: ' + часы);
       if (!сон) continue;
       const имя = тотЖеКлюч(ночи, имяКоротко(c['Имя']));
       if (!ночи.has(имя)) ночи.set(имя, new Map());

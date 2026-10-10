@@ -9,16 +9,16 @@
 //   «Карты»   — сохранённые места на нарисованной схеме города.
 // Кроме «Здоровья» всё строится из того, что уже есть в HUD.
 
-import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.48.3';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.48.3';
-import { G_ICONS } from './icons.js?v=23.48.3';
-import { parseCall } from './msg-parts.js?v=23.48.3';
-import { parseMsgParties } from './phone-common.js?v=23.48.3';
-import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.48.3';
-import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.48.3';
-import { namesLikelySame } from '../names.js?v=23.48.3';
-import { зоныКарты } from './intimacy.js?v=23.48.3';
-import { сводкаБолезней } from './character.js?v=23.48.3';
+import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.51.8';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.51.8';
+import { G_ICONS } from './icons.js?v=23.51.8';
+import { parseCall } from './msg-parts.js?v=23.51.8';
+import { parseMsgParties } from './phone-common.js?v=23.51.8';
+import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.51.8';
+import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.51.8';
+import { namesLikelySame } from '../names.js?v=23.51.8';
+import { зоныКарты } from './intimacy.js?v=23.51.8';
+import { сводкаБолезней } from './character.js?v=23.51.8';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const пусто = (v) => !текст(v) || /^(empty|none|null|нет|пусто)$/i.test(текст(v));
@@ -252,7 +252,12 @@ export function записьЗдоровья(ход) {
   const изСцены = витал(о).пульс;
   const пульс = изСцены ?? числоИз(зд.pulse);
   const шаги = числоИз(зд.steps);
-  const сон = пусто(зд.sleep) ? '' : текст(зд.sleep);
+  // Сон хозяина — тот же, что в «Быте»: из его «Состояния тела» (slp). Часы
+  // телефона (phn.hl) — только если там о сне ни слова. Раньше они жили
+  // порознь, и одна и та же ночь в двух вкладках длилась по-разному.
+  const хозяин = карточкаВладельца(ход.characters, тел.owner);
+  const slp = ((поле(хозяин, 'Состояние тела').match(/(?:^|[;\s])slp\s*:\s*([^;]+)/i) || [])[1] || '').trim();
+  const сон = slp || (пусто(зд.sleep) ? '' : текст(зд.sleep));
   if (пульс === null && шаги === null && !сон) return null;
   return { день: деньИз(сц['Дата']), мин: минутыИз(сц['Время']), пульс, шаги, сон, сцена: изСцены !== null };
 }
@@ -276,7 +281,12 @@ function разобратьСон(s) {
   }
   const ч = t.match(/(\d+(?:[.,]\d+)?)\s*(?:h|ч)/i), мм = t.match(/(\d+)\s*(?:m|мин|м)(?![\p{L}])/iu);
   const мин = (ч ? parseFloat(ч[1].replace(',', '.')) * 60 : 0) + (мм ? +мм[1] : 0);
-  return { мин: мин || null, с: '', до: '', заметка: t.replace(ч ? ч[0] : '', '').replace(мм ? мм[0] : '', '').replace(/^[\s,;.—-]+|[\s,;.]+$/g, '') };
+  // «4 ч 10 мин, легла в 03:20» (так пишет «Состояние тела») → 03:20–07:30.
+  const легла = t.match(/(?:лёг|лег|легл\p{L}*|уснул\p{L}*|в)\s*(\d{1,2}[:.]\d{2})/iu);
+  const с = легла && мин ? легла[1].replace('.', ':') : '';
+  const до = с ? ЧЧММ(минутыИз(с) + мин) : '';
+  const заметка = t.replace(ч ? ч[0] : '', '').replace(мм ? мм[0] : '', '').replace(легла && с ? легла[0] : '', '').replace(/^[\s,;.—-]+|[\s,;.]+$/g, '');
+  return { мин: мин || null, с, до, заметка };
 }
 const длительность = (м) => Math.floor(м / 60) + ' ч' + (м % 60 ? ' ' + Math.round(м % 60) + ' мин' : '');
 

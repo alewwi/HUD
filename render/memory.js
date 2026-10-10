@@ -6,14 +6,15 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.48.3';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.48.3';
-import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.48.3';
-import { отложитьРисунок } from './lazy-svg.js?v=23.48.3';
-import { длинныйСписок } from './long-list.js?v=23.48.3';
-import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.48.3';
-import { статусРужья } from '../codes.js?v=23.48.3';
-import { сеткаСекретов } from './secrets-grid.js?v=23.48.3';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.51.8';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.51.8';
+import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.51.8';
+import { отложитьРисунок } from './lazy-svg.js?v=23.51.8';
+import { длинныйСписок } from './long-list.js?v=23.51.8';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.51.8';
+import { общиеМеста } from './route-places.js?v=23.51.8';
+import { статусРужья } from '../codes.js?v=23.51.8';
+import { сеткаСекретов } from './secrets-grid.js?v=23.51.8';
 
 function parseRoutePoint(item) {
   // Модель иногда ставит дату перед временем («09.11, 22:15») — дату отбрасываем.
@@ -123,9 +124,14 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
   } catch (e) { console.warn('[TavernOS HUD] Memory timeline render failed:', e); }
 
   // 2. МАРШРУТЫ (Связанные узлы пути)
-  const buildRouteHTML = (routeArr, entityLabel) => {
+  // Точки обоих маршрутов разбираем один раз: одна локация у героя и игрока
+  // под разными подписями — одна точка на схеме (render/route-places.js).
+  const точкиИгрока = (memoryData.route && memoryData.route.user || []).map(parseRoutePoint);
+  const точкиГероя = (memoryData.route && memoryData.route.char || []).map(parseRoutePoint);
+  const ключМеста = общиеМеста(точкиИгрока, точкиГероя);
+  const buildRouteHTML = (routeArr, entityLabel, точки) => {
       if (!routeArr || routeArr.length === 0) return '';
-      return видМаршрута(routeArr.map(parseRoutePoint), entityLabel, видБлока('routeView')) || buildRouteMapHTML(routeArr, entityLabel);
+      return видМаршрута(точки, entityLabel, видБлока('routeView'), { ключМеста }) || buildRouteMapHTML(routeArr, entityLabel);
   };
 
   // Имя персонажа для подписей. Раньше маршрут его вычислял, а блок эмоций
@@ -136,9 +142,9 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
 
   if (memoryData.route && (memoryData.route.user?.length > 0 || memoryData.route.char?.length > 0)) {
     let routeHtml = '';
-    if (memoryData.route.user?.length > 0) routeHtml += buildRouteHTML(memoryData.route.user, getSafeUserName());
+    if (memoryData.route.user?.length > 0) routeHtml += buildRouteHTML(memoryData.route.user, getSafeUserName(), точкиИгрока);
     if (memoryData.route.char?.length > 0) {
-      routeHtml += buildRouteHTML(memoryData.route.char, charLabel);
+      routeHtml += buildRouteHTML(memoryData.route.char, charLabel, точкиГероя);
     }
     html += `<div class="hud-row full-width"><span class="hud-key">🗺️ Мини-карта маршрутов:</span> ${routeHtml}</div>`;
   }

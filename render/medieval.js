@@ -12,11 +12,11 @@
 // Переключение разделов шкатулки — на радиокнопках и CSS, без скриптов:
 // карточка HUD перерисовывается целиком, и состояние не нужно восстанавливать.
 
-import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=23.48.3';
-import { settings } from '../settings.js?v=23.48.3';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.48.3';
-import { namesLikelySame } from '../names.js?v=23.48.3';
-import { buildCalendarApp, parseDayMonth } from './phone.js?v=23.48.3';
+import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=23.51.8';
+import { settings } from '../settings.js?v=23.51.8';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.51.8';
+import { namesLikelySame } from '../names.js?v=23.51.8';
+import { buildCalendarApp, parseDayMonth } from './phone.js?v=23.51.8';
 
 const т = (v) => defeatWI(escapeHtml(String(v ?? '')));
 
@@ -161,8 +161,8 @@ export function фазаЛуны(d, mo, y) {
   return { возраст, имя: ФАЗЫ[Math.floor(((возраст / синод) * 8) + .5) % 8], доля: возраст / синод };
 }
 
-function buildAlmanac(events, characters, sceneDate) {
-  const cal = buildCalendarApp(events, characters, sceneDate);
+function buildAlmanac(events, characters, sceneDate, владелец = null) {
+  const cal = buildCalendarApp(events, characters, sceneDate, владелец);
   const дм = parseDayMonth(sceneDate);
   let луна = '';
   if (дм) {
@@ -294,7 +294,7 @@ export function buildCasketHTML(satchel, letters, uid, isChecked, fallbackOwner,
   const нераспечатано = (letters || []).filter(l => статусПисьма(l.status).ключ === 'sealed').length;
   const разделы = [
     on('castAppLetters') && { id: 'letters', icon: '✉️', label: 'Письма', badge: нераспечатано, body: buildLetters(letters, owner) },
-    on('castAppCalendar') && { id: 'almanac', icon: '📅', label: 'Святцы', body: buildAlmanac(s.calendar, characters, sceneDate) },
+    on('castAppCalendar') && { id: 'almanac', icon: '📅', label: 'Святцы', body: buildAlmanac(s.calendar, characters, sceneDate, owner || null) },
     on('castAppPurse') && { id: 'purse', icon: '💰', label: 'Кошель', body: buildPurse(s.wallet) },
     on('castAppNotes') && { id: 'notes', icon: '🪶', label: 'Записи', body: buildNotes(s.notes) },
     on('castAppMap') && { id: 'map', icon: '🗺️', label: 'Карта', body: buildMap(s.maps) },

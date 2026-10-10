@@ -6,8 +6,8 @@
 // index.js импортирует отсюда только buildDiaryHTML и hudHasMeaningfulDiary —
 // остальное экспортируется для тестов и внутренних нужд домена.
 
-import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки } from '../utils.js?v=23.48.3';
-import { settings } from '../settings.js?v=23.48.3';
+import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки } from '../utils.js?v=23.51.8';
+import { settings } from '../settings.js?v=23.51.8';
 
 // Дневник: словарь эмоциональных синонимов. Раньше всё сводилось к
 // четырём темам (sad / angry / panic / neutral) — «скука», «презрение»,
@@ -268,7 +268,33 @@ function buildWaxDrops(seed) {
   }).join("");
 }
 
-export function buildBodyDiaryHTML(items, uid, isChecked) {
+// «Почерк тела» (настройка bodyDiaryHand): запись меняет вид по накалу той
+// же карточки — «Готовность к оргазму» и «Жизненные показатели» автора.
+// calm — как раньше; warm — теплее, чуть наклонно; peak — крупнее, рваный
+// ритм; after — ровно и мельче. Читаемость прежде всего: сдвиги до 2px и 2°,
+// цвет и контраст не меняются. Ритм — из хэша текста, не случайный: при
+// перерисовке запись не «пляшет».
+export const ПОЧЕРКИ = ['calm', 'warm', 'peak', 'after'];
+const первоеЧисло = (s) => { const м = String(s || '').match(/(\d+(?:[.,]\d+)?)\s*(%|\/\s*10)?/); if (!м) return null; const n = parseFloat(м[1].replace(',', '.')); return м[2] && м[2].includes('%') ? n / 10 : n; };
+export function почеркЗаписи({ org = '', vit = '', mood = '', text = '' } = {}) {
+  const о = первоеЧисло(org);
+  const пульс = (() => { const м = String(vit || '').match(/(?:пульс|чсс|hr|pulse|bpm)\D{0,6}(\d{2,3})|(\d{2,3})\s*(?:уд|bpm)/i); return м ? Number(м[1] || м[2]) : null; })();
+  const после = /(?<![\p{L}])(?:после|отход|расслаб|обмяк|утих|успока|истом|afterglow|after|spent|relax)/iu.test(mood + ' ' + text);
+  const пик = (о != null && о >= 8) || (пульс != null && пульс >= 120) || /(?<![\p{L}])(?:на грани|пик|оргазм|кончил|кончает|peak|climax|orgasm)/iu.test(mood);
+  if (пик && !после) return 'peak';
+  if (после && (о == null || о <= 4)) return 'after';
+  if ((о != null && о >= 5) || (пульс != null && пульс >= 100)) return 'warm';
+  return 'calm';
+}
+// Наклон и подъём строки из хэша текста: −2…2° и −2…2px.
+export function ритмПочерка(текст) {
+  let h = 2166136261;
+  for (const ch of String(текст || '')) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619) >>> 0; }
+  const a = ((h % 401) / 100) - 2, b = (((h >>> 9) % 401) / 100) - 2;
+  return { наклон: Math.round(a * 50) / 100, подъём: Math.round(b * 50) / 100 };
+}
+
+export function buildBodyDiaryHTML(items, uid, isChecked, накалАвтора = null) {
   let html = `<div class="hud-tab-content ${isChecked ? "active" : ""}" id="content-${uid}"><div class="hud-diary-container hud-body-diary">`;
   if (!Array.isArray(items) || !items.length) {
     return html + `<div class="hud-diary-empty">Записей пока нет.</div></div></div>`;
@@ -279,7 +305,13 @@ export function buildBodyDiaryHTML(items, uid, isChecked) {
     const author = e.author && !/^(none|empty)$/i.test(e.author) ? e.author : "";
     const time = e.time && !/^(none|empty)$/i.test(e.time) ? e.time : "";
     const mood = e.mood && !/^(none|empty)$/i.test(e.mood) ? e.mood : "";
-    html += `<div class="hud-diary-entry hud-body-entry">${buildWaxDrops(seed)}` +
+    let почерк = '';
+    if (settings.bodyDiaryHand === 'on') {
+      const н = typeof накалАвтора === 'function' ? (накалАвтора(author) || {}) : {};
+      const вид = почеркЗаписи({ ...н, mood, text: e.text || '' });
+      if (вид !== 'calm') { const р = ритмПочерка(e.text || ''); почерк = ` data-hand="${вид}" style="--h-tilt:${р.наклон}deg;--h-rise:${р.подъём}px"`; }
+    }
+    html += `<div class="hud-diary-entry hud-body-entry"${почерк}>${buildWaxDrops(seed)}` +
       (author ? `<div class="hud-diary-author">${escapeHtml(имяБезПриставки(author))}</div>` : "") +
       (time ? `<div class="hud-diary-time">${escapeHtml(time)}</div>` : "") +
       `<div class="hud-diary-text">${renderDiaryText(e.text || "")}</div>` +

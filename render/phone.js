@@ -6,17 +6,17 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.48.3';
-import { settings } from '../settings.js?v=23.48.3';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.48.3';
-import { G_ICONS } from './icons.js?v=23.48.3';
-import { buildMessengerHTML } from './messenger.js?v=23.48.3';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.48.3';
-import { сортироватьЧаты } from './msg-feed.js?v=23.48.3';
-import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.48.3';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.51.8';
+import { settings } from '../settings.js?v=23.51.8';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.51.8';
+import { G_ICONS } from './icons.js?v=23.51.8';
+import { buildMessengerHTML } from './messenger.js?v=23.51.8';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.51.8';
+import { сортироватьЧаты } from './msg-feed.js?v=23.51.8';
+import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.51.8';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.48.3';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.51.8';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -148,7 +148,10 @@ export function parseDayMonth(str) {
   return null;
 }
 
-export function buildCalendarApp(events, characters, sceneDate) {
+// владелец — хозяин телефона (или шкатулки): в календаре только ЕГО расписание.
+// Чужие дела в своём телефоне человек не видит. Не нашли хозяина среди героев
+// — расписаний нет, остаются события календаря (phn.cl).
+export function buildCalendarApp(events, characters, sceneDate, владелец = null) {
   const list = [];
   (Array.isArray(events) ? events : []).forEach(e => {
     const dm = parseDayMonth(e.date);
@@ -158,17 +161,19 @@ export function buildCalendarApp(events, characters, sceneDate) {
       kind: /birth|день рожд/.test(kind) ? 'birthday' : /holiday|праздн|фестив/.test(kind) ? 'holiday' : 'event' });
   });
 
-  // Расписание персонажей: пункты со временем чч:мм ложатся на дату сцены.
+  // Расписание хозяина: пункты со временем чч:мм ложатся на дату сцены.
   const today = parseDayMonth(sceneDate);
+  const чьё = (Array.isArray(characters) ? characters : []).filter(ch => ch && (владелец === null || (ch['Имя'] && namesLikelySame(ch['Имя'], владелец))));
   if (today) {
-    (Array.isArray(characters) ? characters : []).forEach(ch => {
+    чьё.forEach(ch => {
       const raw = ch && (ch['Расписание'] || ch['расписание']);
       if (!raw) return;
       String(raw).split(/[;\n]/).map(x => x.trim()).filter(Boolean).forEach(item => {
         const t = item.match(/\b(\d{1,2}:\d{2})\b/);
         if (!t) return;
         const title = item.replace(t[0], '').replace(/^[\s—–\-:.]+|[\s—–\-:.]+$/g, '') || 'Дело';
-        const who = ch['Имя'] ? String(ch['Имя']).split(' ')[0] + ': ' : '';
+        // Своё расписание — без имени: «Ричард: встреча» в своём же телефоне лишнее.
+        const who = владелец === null && ch['Имя'] ? String(ch['Имя']).split(' ')[0] + ': ' : '';
         list.push({ d: today.d, mo: today.mo, y: today.y, title: who + title, time: t[1], kind: 'plan' });
       });
     });
@@ -344,7 +349,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
       body: messenger || emptyApp(G_ICONS.chat, 'В текущем повествовании нет переписок') },
     on('phoneAppContacts') && { id: 'contacts', icon: G_ICONS.person, label: 'Контакты',  body: buildContactsApp(phone.contacts) },
     on('phoneAppWallet') && { id: 'wallet',   icon: G_ICONS.card, label: 'Кошелёк',   body: buildWalletApp(phone.wallet, phoneOwner) },
-    on('phoneAppCalendar') && { id: 'calendar', icon: G_ICONS.cal, label: 'Календарь', body: buildCalendarApp(phone.calendar, characters, sceneDate) },
+    on('phoneAppCalendar') && { id: 'calendar', icon: G_ICONS.cal, label: 'Календарь', body: buildCalendarApp(phone.calendar, characters, sceneDate, phoneOwner) },
     on('phoneAppGallery') && { id: 'gallery',  icon: G_ICONS.image, label: 'Галерея',   body: buildGalleryApp(phone.gallery) },
     on('phoneAppNotes') && { id: 'notes',    icon: G_ICONS.note, label: 'Заметки',   body: buildNotesApp(phone.notes) },
     on('phoneAppMaps') && { id: 'maps',     icon: G_ICONS.map, label: 'Карты',     body: buildMapsApp(phone.maps, местоВладельца) },
@@ -465,7 +470,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
       <div class="hud-phone-lock-notifications">${lockNotifs}</div>
       <div class="hud-phone-lock-swipe">
         <span class="hud-phone-lock-arrow"></span>
-        <span class="hud-phone-lock-hint">Проведите вверх<span class="hud-phone-lock-tap"> или коснитесь</span></span>
+        <span class="hud-phone-lock-hint">Проведите вверх</span>
         <span class="hud-phone-lock-bar"></span>
       </div>
     </div>`;

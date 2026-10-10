@@ -5,7 +5,7 @@
 // Оформление — в духе остальной вкладки, газетной полосы: биржевая сводка,
 // театральные билеты, сводка происшествий.
 
-import { escapeHtml, applyTooltips } from '../utils.js?v=23.48.3';
+import { escapeHtml, applyTooltips } from '../utils.js?v=23.51.8';
 
 const части = (строка) => String(строка ?? '').split('|').map(s => s.trim());
 

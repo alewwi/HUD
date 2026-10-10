@@ -11,9 +11,9 @@
 // Модель о последствиях не вспомнит: что с зашитым предплечьем нельзя под
 // душ, что ночь после схватки короткая, что после боя кусок в горло не лезет.
 
-import { settings } from '../settings.js?v=23.48.3';
-import { flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.48.3';
-import { namesLikelySame } from '../names.js?v=23.48.3';
+import { settings } from '../settings.js?v=23.51.8';
+import { flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.51.8';
+import { namesLikelySame } from '../names.js?v=23.51.8';
 
 const Ч = 3600e3, СУТКИ = 864e5;
 const текст = (v) => (v === null || v === undefined ? '' : String(снятьЗаглушки(flattenFieldValue(v)) || '')).trim();
