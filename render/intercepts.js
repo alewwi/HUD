@@ -3,18 +3,18 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки } from '../utils.js?v=23.48.1';
-import { overrideAvatarUrl } from '../avatars.js?v=23.48.1';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.48.3';
+import { overrideAvatarUrl } from '../avatars.js?v=23.48.3';
 // Снимки, ролики, голосовые и звонки собирает тот же код, что и в личном
 // телефоне. Своя копия разбора здесь означала бы, что новый формат от модели
 // в одном мессенджере работает, а в другом остаётся сырым тегом в тексте.
-import { собратьЛенту, моментПоследнего } from './msg-feed.js?v=23.48.1';
+import { собратьЛенту, моментПоследнего } from './msg-feed.js?v=23.48.3';
 
 // Кружок отправителя в перехвате: ручная аватарка фоном либо инициал.
 // Разметка и классы прежние — картинку прячет за собой класс has-img.
 function interceptFace(sender) {
   const url = overrideAvatarUrl(sender);
-  const letter = String(sender || '').trim().charAt(0).toUpperCase() || '?';
+  const letter = String(sender || '').trim() ? инициалыИмени(sender, 1) : '?';
   return '<div class="hud-msg-avatar hud-intercept-avatar' + (url ? ' has-img' : '') +
     '" data-ava-name="' + escapeHtml(String(sender || '')) + '" data-ava-bg="none"' +
     (url ? ' style="background-image:url(\'' + url + '\')"' : '') +

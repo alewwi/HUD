@@ -9,16 +9,16 @@
 //   «Карты»   — сохранённые места на нарисованной схеме города.
 // Кроме «Здоровья» всё строится из того, что уже есть в HUD.
 
-import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName } from '../utils.js?v=23.48.1';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.48.1';
-import { G_ICONS } from './icons.js?v=23.48.1';
-import { parseCall } from './msg-parts.js?v=23.48.1';
-import { parseMsgParties } from './phone-common.js?v=23.48.1';
-import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.48.1';
-import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.48.1';
-import { namesLikelySame } from '../names.js?v=23.48.1';
-import { зоныКарты } from './intimacy.js?v=23.48.1';
-import { сводкаБолезней } from './character.js?v=23.48.1';
+import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.48.3';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.48.3';
+import { G_ICONS } from './icons.js?v=23.48.3';
+import { parseCall } from './msg-parts.js?v=23.48.3';
+import { parseMsgParties } from './phone-common.js?v=23.48.3';
+import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.48.3';
+import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.48.3';
+import { namesLikelySame } from '../names.js?v=23.48.3';
+import { зоныКарты } from './intimacy.js?v=23.48.3';
+import { сводкаБолезней } from './character.js?v=23.48.3';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const пусто = (v) => !текст(v) || /^(empty|none|null|нет|пусто)$/i.test(текст(v));
@@ -31,7 +31,7 @@ function лицо(имя, класс) {
   let url = overrideAvatarUrl(имя);
   if (!url && игрок && namesLikelySame(имя, игрок)) url = getUserAvatarUrl();
   if (!url) { const a = getAvatarUrl(имя, false); url = a && a.url; }
-  const буква = текст(имя).charAt(0).toUpperCase() || '?';
+  const буква = текст(имя) ? инициалыИмени(текст(имя), 1) : '?';
   const фон = `linear-gradient(150deg, ${HUD_AVATAR_COLORS[hudHashSeed(имя) % HUD_AVATAR_COLORS.length]}, rgba(0,0,0,.5))`;
   return `<span class="${класс}${url ? ' has-img' : ''}" data-ava-name="${escapeHtml(имя)}" data-ava-auto="1" data-ava-bg="${escapeHtml(фон)}" style="background-image:${url ? `url('${escapeHtml(url)}')` : фон}">${escapeHtml(буква)}</span>`;
 }

@@ -12,8 +12,8 @@
 // Не разобрали данные — пустая строка, и поле рисуется по-старому.
 // Оформление — css/views-fields.css.
 
-import { escapeHtml, разбитьСписок } from '../utils.js?v=23.48.1';
-import { ико, ИКОНКИ } from './view-icons.js?v=23.48.1';
+import { escapeHtml, разбитьСписок } from '../utils.js?v=23.48.3';
+import { ико, ИКОНКИ } from './view-icons.js?v=23.48.3';
 
 const т = (s) => escapeHtml(String(s ?? '').trim());
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто|—|-)$/i.test(String(v).trim());

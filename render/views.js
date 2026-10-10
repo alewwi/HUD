@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName } from '../utils.js?v=23.48.1';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.48.1';
-import { namesLikelySame } from '../names.js?v=23.48.1';
-import { силаСтраха, статусРужья } from '../codes.js?v=23.48.1';
-import { settings } from '../settings.js?v=23.48.1';
-import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.48.1';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.48.1';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.48.3';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.48.3';
+import { namesLikelySame } from '../names.js?v=23.48.3';
+import { силаСтраха, статусРужья } from '../codes.js?v=23.48.3';
+import { settings } from '../settings.js?v=23.48.3';
+import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.48.3';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.48.3';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -84,7 +84,7 @@ export function видБлока(ключ) {
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const число = (s) => { const m = String(s ?? '').replace(',', '.').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };
-const инициалы = (имя) => String(имя || '?').trim().split(/\s+/).slice(0, 2).map(ч => ч.charAt(0).toUpperCase()).join('') || '?';
+const инициалы = (имя) => инициалыИмени(имя || '?');
 const первое = (имя) => String(имя || '').trim().split(/\s+/)[0];
 // Id внутри SVG: карточек на странице много, у градиентов свои имена.
 let счётId = 0;

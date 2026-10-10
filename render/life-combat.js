@@ -11,9 +11,9 @@
 // Модель о последствиях не вспомнит: что с зашитым предплечьем нельзя под
 // душ, что ночь после схватки короткая, что после боя кусок в горло не лезет.
 
-import { settings } from '../settings.js?v=23.48.1';
-import { flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.48.1';
-import { namesLikelySame } from '../names.js?v=23.48.1';
+import { settings } from '../settings.js?v=23.48.3';
+import { flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.48.3';
+import { namesLikelySame } from '../names.js?v=23.48.3';
 
 const Ч = 3600e3, СУТКИ = 864e5;
 const текст = (v) => (v === null || v === undefined ? '' : String(снятьЗаглушки(flattenFieldValue(v)) || '')).trim();
@@ -142,14 +142,15 @@ export function новыйУчётБоя() {
       }
     },
 
-    итог(сейчас, { главный = '', события = [], сон = [], голод = null, норма = 8 } = {}) {
+    итог(сейчас, { главный = '', события = [], сон = [], голод = null, норма = 8, естьКарточка = () => true } = {}) {
       if (settings.combatAftermath === false) return null;
       const днейГигиена = Math.max(0, Number(settings.aftermathHygieneDays ?? 3));
       const днейСон = Math.max(0, Number(settings.aftermathSleepDays ?? 1));
       const днейАппетит = Math.max(0, Number(settings.aftermathAppetiteDays ?? 1));
       const свой = (имя) => !главный || имя === главный || namesLikelySame(имя, главный);
       // Раны: кривая rc по ходам и прогноз — две-три точки дают наклон.
-      const всеРаны = [...раны.values()].filter(р => р.последний >= сейчас - 14 * СУТКИ && !ЗАЖИЛО.test(р.sg) && !(р.точки.length && р.точки[р.точки.length - 1].rc >= 100)).map(р => {
+      // Только у тех, чья карточка есть в этом HUD.
+      const всеРаны = [...раны.values()].filter(р => естьКарточка(р.кто) && р.последний >= сейчас - 14 * СУТКИ && !ЗАЖИЛО.test(р.sg) && !(р.точки.length && р.точки[р.точки.length - 1].rc >= 100)).map(р => {
         const т = р.точки.slice(-4);
         let прогноз = null;
         if (т.length >= 2) {
