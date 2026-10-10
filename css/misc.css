@@ -6690,26 +6690,7 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 /* Остановки маршрута: название места переносится, а не режется. */
 .hud-route-info b, .hud-route-info small { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: break-word; }
 
-/* Вкладки, что не влезли в полосу, — в «⋯» (events.js → уложитьВкладки).
-   Кнопка липнет к правому краю полосы, список раскрывается под полосой
-   внутри карточки, ярлыками в том же стиле. */
-.hud-tabs-header > .hud-tab.is-overflow { display: none !important; }
-.hud-tabs-more {
-  flex: none; position: sticky; right: 0; margin-left: auto; z-index: 3;
-  display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; cursor: pointer;
-  font: inherit; font-size: .9em; color: var(--hud-text, #e6e6ee);
-  background: var(--hud-tab-bg, rgba(255,255,255,.06)); border: 1px solid var(--hud-border, rgba(255,255,255,.14));
-  border-bottom: 0; border-radius: 8px 8px 0 0; box-shadow: -8px 0 10px -6px rgba(0,0,0,.45);
-}
-.hud-tabs-more b { font-size: .78em; font-weight: 800; padding: 0 5px; border-radius: 999px; background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 35%, transparent); }
-.hud-tabs-more[aria-expanded="true"] { color: var(--hud-accent, #8c5ad2); border-color: var(--hud-accent, #8c5ad2); }
-.hud-tabs-menu { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px; border-bottom: 1px solid var(--hud-border, rgba(255,255,255,.12)); background: rgba(0,0,0,.12); }
-.hud-tabs-menu[hidden] { display: none; }
-.hud-tabs-menu-item {
-  font: inherit; font-size: .9em; cursor: pointer; padding: 5px 11px; border-radius: 999px; color: var(--hud-text, #e6e6ee);
-  background: var(--hud-tab-bg, rgba(255,255,255,.06)); border: 1px solid var(--hud-border, rgba(255,255,255,.14));
-}
-.hud-tabs-menu-item:hover, .hud-tabs-menu-item:focus-visible { border-color: var(--hud-accent, #8c5ad2); color: var(--hud-accent, #8c5ad2); outline: none; }
+/* Фокус ярлыка вкладки с клавиатуры. */
 .hud-tabs-header > .hud-tab[role="tab"]:focus-visible { outline: 2px solid var(--hud-accent, #8c5ad2); outline-offset: -2px; }
 
 /* Бюджет токенов: чип в полосе последней карточки и панель под ней

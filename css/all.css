@@ -3,23 +3,23 @@
    же порядке и по включённости фич. Порядок — часть устройства: каскад
    держится на нём. Новая часть — сюда и в ЧАСТИ в css-loader.js. */
 
-@import url('./base.css?v=23.48.1');
-@import url('./themes.css?v=23.48.1');
-@import url('./misc.css?v=23.48.1');
-@import url('./views.css?v=23.48.1');
-@import url('./views-fields.css?v=23.48.1');
-@import url('./views-trio.css?v=23.48.1');
-@import url('./family.css?v=23.48.1');
-@import url('./family-views.css?v=23.48.1');
-@import url('./extras.css?v=23.48.1');
-@import url('./deco.css?v=23.48.1');
-@import url('./scene-body.css?v=23.48.1');
-@import url('./xray.css?v=23.48.1');
-@import url('./scene-clock.css?v=23.48.1');
-@import url('./cycle-libido.css?v=23.48.1');
-@import url('./secrets-grid.css?v=23.48.1');
-@import url('./life.css?v=23.48.1');
-@import url('./underwear.css?v=23.48.1');
-@import url('./duel.css?v=23.48.1');
-@import url('./combat.css?v=23.48.1');
-@import url('./compact.css?v=23.48.1');
+@import url('./base.css?v=23.48.3');
+@import url('./themes.css?v=23.48.3');
+@import url('./misc.css?v=23.48.3');
+@import url('./views.css?v=23.48.3');
+@import url('./views-fields.css?v=23.48.3');
+@import url('./views-trio.css?v=23.48.3');
+@import url('./family.css?v=23.48.3');
+@import url('./family-views.css?v=23.48.3');
+@import url('./extras.css?v=23.48.3');
+@import url('./deco.css?v=23.48.3');
+@import url('./scene-body.css?v=23.48.3');
+@import url('./xray.css?v=23.48.3');
+@import url('./scene-clock.css?v=23.48.3');
+@import url('./cycle-libido.css?v=23.48.3');
+@import url('./secrets-grid.css?v=23.48.3');
+@import url('./life.css?v=23.48.3');
+@import url('./underwear.css?v=23.48.3');
+@import url('./duel.css?v=23.48.3');
+@import url('./combat.css?v=23.48.3');
+@import url('./compact.css?v=23.48.3');
