@@ -6536,7 +6536,7 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
    короткие слова, которые рвались посреди на узком экране. */
 .hud-fear em, .hud-prot-kicker, .hud-phone-time { white-space: nowrap; }
 .hud-fear em { flex: none; }
-.hud-prot-kicker { overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.hud-prot-kicker { white-space: normal; overflow-wrap: break-word; max-width: 100%; }
 
 /* На телефоне вложенная прокрутка в строках карточки (отношения, ключ, цели,
    NSFW — 140px) без видимой полосы выглядела обрезанным краем: карточка
@@ -6659,3 +6659,130 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
   background: linear-gradient(120deg, color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 20%, transparent), color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 5%, transparent));
 }
 .hud-state-plaque.is-preg .hud-state-timer { background: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 28%, transparent); }
+
+/* Длинные имена и фразы на узкой карточке телефона: плашка растёт вниз,
+   а не вылезает за край и не режется многоточием. */
+.hud-fears { min-width: 0; max-width: 100%; }
+.hud-fear { max-width: 100%; min-width: 0; }
+.hud-fear b { min-width: 0; overflow-wrap: break-word; }
+.hud-eco-name { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: break-word; min-width: 0; }
+.hud-pet2-own > span { min-width: 0; overflow-wrap: break-word; }
+.hud-phone-statusbar { gap: 8px; min-width: 0; }
+.hud-phone-owner-label { min-width: 0; overflow-wrap: break-word; text-align: center; }
+.hud-pill-label { overflow-wrap: break-word; }
+.hud-nsfw-pill .hud-pill-label { flex-wrap: wrap; }
+@media (max-width: 600px) {
+  .hud-mark-timer small { white-space: normal; }
+  .hud-prot { grid-template-columns: 40px minmax(0, 1fr); }
+  .hud-prot > em { grid-column: 2; justify-self: start; }
+}
+/* Тест на беременность в узкой карточке: полоска теста и итог в одну
+   строку не помещались, итог сжимался до 12px. Теперь итог уходит вниз. */
+.hud-test { flex-wrap: wrap; row-gap: 8px; }
+.hud-test-result { flex: 1 1 120px; }
+.hud-fate-btn { white-space: normal; }
+.hud-test-when { display: block; margin-top: 2px; font-size: .74em; opacity: .7; overflow-wrap: break-word; }
+/* Ружья Чехова в узкой карточке: значок, текст, «назревает» и кнопка в
+   одну строку сжимали текст до 5px. Статус с кнопкой уходят под текст. */
+.hud-gun { flex-wrap: wrap; }
+.hud-gun-body { flex: 1 1 120px; overflow-wrap: break-word; }
+.hud-gun-body p, .hud-gun-body small { overflow-wrap: break-word; }
+/* Остановки маршрута: название места переносится, а не режется. */
+.hud-route-info b, .hud-route-info small { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: break-word; }
+
+/* Вкладки, что не влезли в полосу, — в «⋯» (events.js → уложитьВкладки).
+   Кнопка липнет к правому краю полосы, список раскрывается под полосой
+   внутри карточки, ярлыками в том же стиле. */
+.hud-tabs-header > .hud-tab.is-overflow { display: none !important; }
+.hud-tabs-more {
+  flex: none; position: sticky; right: 0; margin-left: auto; z-index: 3;
+  display: inline-flex; align-items: center; gap: 4px; padding: 6px 10px; cursor: pointer;
+  font: inherit; font-size: .9em; color: var(--hud-text, #e6e6ee);
+  background: var(--hud-tab-bg, rgba(255,255,255,.06)); border: 1px solid var(--hud-border, rgba(255,255,255,.14));
+  border-bottom: 0; border-radius: 8px 8px 0 0; box-shadow: -8px 0 10px -6px rgba(0,0,0,.45);
+}
+.hud-tabs-more b { font-size: .78em; font-weight: 800; padding: 0 5px; border-radius: 999px; background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 35%, transparent); }
+.hud-tabs-more[aria-expanded="true"] { color: var(--hud-accent, #8c5ad2); border-color: var(--hud-accent, #8c5ad2); }
+.hud-tabs-menu { display: flex; flex-wrap: wrap; gap: 6px; padding: 8px 12px; border-bottom: 1px solid var(--hud-border, rgba(255,255,255,.12)); background: rgba(0,0,0,.12); }
+.hud-tabs-menu[hidden] { display: none; }
+.hud-tabs-menu-item {
+  font: inherit; font-size: .9em; cursor: pointer; padding: 5px 11px; border-radius: 999px; color: var(--hud-text, #e6e6ee);
+  background: var(--hud-tab-bg, rgba(255,255,255,.06)); border: 1px solid var(--hud-border, rgba(255,255,255,.14));
+}
+.hud-tabs-menu-item:hover, .hud-tabs-menu-item:focus-visible { border-color: var(--hud-accent, #8c5ad2); color: var(--hud-accent, #8c5ad2); outline: none; }
+.hud-tabs-header > .hud-tab[role="tab"]:focus-visible { outline: 2px solid var(--hud-accent, #8c5ad2); outline-offset: -2px; }
+
+/* Бюджет токенов: чип в полосе последней карточки и панель под ней
+   (token-budget.js → разметкаБюджета). Старые карточки чипа не показывают:
+   цена — про следующий запрос. */
+.hud-budget-chip {
+  display: inline-flex; align-items: center; padding: 2px 8px; margin-right: 6px; border-radius: 999px; cursor: pointer;
+  font-size: 11px; font-weight: 700; letter-spacing: .02em; font-variant-numeric: tabular-nums; white-space: nowrap;
+  color: var(--hud-text, #e6e6ee); background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 18%, transparent);
+  border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 40%, transparent);
+}
+.hud-budget-chip[aria-expanded="true"] { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 35%, transparent); }
+.hud-os-card.hud-historical .hud-budget-chip, .hud-custom-preview-body .hud-budget-chip { display: none; }
+.hud-budget-panel { margin: 8px 12px 4px; padding: 10px 12px; border-radius: 12px; font-size: 12px; color: var(--hud-text, #e6e6ee);
+  background: rgba(0,0,0,.18); border: 1px solid var(--hud-border, rgba(255,255,255,.12)); }
+.hud-budget-panel[hidden] { display: none; }
+.hud-budget-sum { margin: 0 0 4px; overflow-wrap: break-word; }
+.hud-budget-sum b { font-size: 1.15em; color: var(--ink-hi, #fff); }
+.hud-budget-note { margin: 4px 0 0; font-size: 11px; opacity: .72; overflow-wrap: break-word; }
+.hud-budget-list { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 5px; }
+.hud-budget-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name num" "bar off"; column-gap: 8px; row-gap: 3px; align-items: center; }
+.hud-budget-list li.is-off { opacity: .5; }
+.hud-budget-name { grid-area: name; min-width: 0; overflow-wrap: break-word; }
+.hud-budget-name small { display: block; font-size: 10.5px; opacity: .7; }
+.hud-budget-num { grid-area: num; font-variant-numeric: tabular-nums; }
+.hud-budget-bar { grid-area: bar; display: block; height: 5px; border-radius: 3px; width: var(--w); background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 70%, transparent); }
+.hud-budget-off { grid-area: off; justify-self: end; font: inherit; font-size: 10.5px; cursor: pointer; padding: 1px 8px; border-radius: 999px;
+  color: inherit; background: transparent; border: 1px dashed var(--hud-border, rgba(255,255,255,.3)); }
+.hud-budget-off:hover:not(:disabled) { border-style: solid; border-color: var(--hud-accent, #8c5ad2); }
+
+/* «Кастомизация» → «Вкладки» (customize-tabs.js). */
+.hud-ct-note { margin: 6px 0 8px; font-size: 12px; opacity: .8; line-height: 1.4; }
+.hud-ct-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.hud-ct-row { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "h name" "h btns"; column-gap: 8px; row-gap: 4px; align-items: center;
+  padding: 6px 8px; border-radius: 10px; background: rgba(127,127,127,.08); border: 1px solid rgba(127,127,127,.18); }
+.hud-ct-row.is-pinned { border-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 55%, transparent); }
+.hud-ct-row.is-hidden .hud-ct-name b { opacity: .55; text-decoration: line-through; text-decoration-thickness: 1px; }
+.hud-ct-row.is-off { opacity: .55; }
+.hud-ct-row.is-dragging { outline: 2px dashed var(--hud-accent, #8c5ad2); background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 14%, transparent); }
+.hud-ct-handle { grid-area: h; cursor: grab; touch-action: none; user-select: none; font-size: 18px; line-height: 1; padding: 4px 2px; opacity: .7; }
+.hud-ct-row.is-dragging .hud-ct-handle { cursor: grabbing; }
+.hud-ct-name { grid-area: name; min-width: 0; overflow-wrap: break-word; }
+.hud-ct-name small { display: block; font-size: 11px; opacity: .72; }
+.hud-ct-btns { grid-area: btns; display: flex; flex-wrap: wrap; gap: 4px; }
+.hud-ct-btns button { font: inherit; font-size: 11px; padding: 2px 8px; border-radius: 999px; cursor: pointer; color: inherit; background: transparent; border: 1px solid rgba(127,127,127,.35); }
+.hud-ct-btns button[aria-pressed="true"] { border-color: var(--hud-accent, #8c5ad2); color: var(--hud-accent, #8c5ad2); }
+.hud-ct-btns button:disabled { opacity: .35; cursor: default; }
+.hud-custom-budget-body { margin: 8px 0 0; }
+.hud-budget-total { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 8px; align-items: baseline; padding: 6px 0; border-bottom: 1px dashed var(--hud-border, rgba(255,255,255,.14)); }
+.hud-budget-total span { font-weight: 650; }
+.hud-budget-total b { font-size: 1.1em; color: var(--ink-hi, #fff); font-variant-numeric: tabular-nums; }
+.hud-budget-total small { grid-column: 1 / -1; font-size: 11px; opacity: .72; overflow-wrap: break-word; }
+.hud-budget-total + .hud-budget-sum { margin-top: 8px; }
+
+/* Перестановка вкладок долгим нажатием (events.js): ярлык приподнят,
+   полоса не листается, пока идёт перестановка. */
+.hud-tabs-header.is-reordering { touch-action: none; user-select: none; -webkit-user-select: none; }
+.hud-tabs-header.is-reordering > .hud-tab:not(.is-lifted) { transition: transform .15s ease; }
+.hud-tabs-header > .hud-tab.is-lifted { cursor: grabbing; transform: translateY(-3px) scale(1.04); z-index: 4;
+  box-shadow: 0 6px 14px rgba(0,0,0,.45), 0 0 0 2px color-mix(in srgb, var(--hud-accent, #8c5ad2) 60%, transparent); }
+.hud-tabs-header > .hud-tab { -webkit-touch-callout: none; }
+
+/* Телефон на узком экране: по высоте — не больше видимой части окна, чтобы
+   кнопка «домой» внизу корпуса была видна вместе с верхом и не приходилось
+   долистывать карточку до низа и обратно. Подсказка «или коснитесь» — только
+   на сенсорном экране (там телефон открывает касание, events.js). */
+@media (max-width: 600px) {
+  .hud-os-card .hud-phone-emulator { min-height: 0 !important; height: clamp(400px, calc(100dvh - 200px), 560px); }
+  .hud-os-card .hud-phone-emulator .hud-phone-lockscreen,
+  .hud-os-card .hud-phone-emulator .hud-phone-unlocked { min-height: 0 !important; height: 100%; }
+  .hud-os-card .hud-phone-emulator .hud-phone-home-screen { min-height: 0 !important; }
+  .hud-os-card .hud-phone-emulator .hud-phone-unlocked { overflow-y: auto; overscroll-behavior: auto; }
+  .hud-os-card .hud-phone-lock-time { margin-top: 28px; }
+}
+.hud-phone-lock-tap { display: none; }
+@media (pointer: coarse) { .hud-phone-lock-tap { display: inline; } }

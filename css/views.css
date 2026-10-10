@@ -1561,3 +1561,8 @@
 /* Светлые темы: «яркий» текст новых блоков (быт, дуэль, часы сцены, секреты)
    смешивается не с белым, а с почти чёрным — color-mix(…, var(--ink-hi)). */
 :root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) { --ink-hi: #1c1016; }
+
+/* Привязанность сердцами в узкой карточке: подпись, десять сердец и число
+   не помещались в строку, число уходило за край. Теперь строка переносится. */
+.hud-v-bond { flex-wrap: wrap; row-gap: 4px; }
+.hud-v-bond .hud-v-hearts { flex-wrap: wrap; max-width: 100%; }

@@ -25,7 +25,7 @@
 .hud-life-hero-head .hud-life-face { width: 38px; height: 38px; font-size: 14px; }
 .hud-life-hero-head > span { display: grid; min-width: 0; }
 .hud-life-hero-head b { font-size: 14px; font-weight: 750; letter-spacing: .01em; color: color-mix(in srgb, var(--v-acc) 25%, var(--ink-hi, #fff)); }
-.hud-life-hero-head small { font-size: 11px; color: var(--v-ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-life-hero-head small { font-size: 11px; color: var(--v-ink-soft); overflow-wrap: break-word; }
 .hud-life-gauges { display: grid; grid-template-columns: repeat(auto-fit, minmax(84px, 1fr)); gap: 10px; }
 .hud-life-gauge { display: grid; justify-items: center; align-content: start; gap: 5px; min-width: 0; cursor: help; text-align: center; }
 .hud-life-gauges.is-rings .hud-v-ring { --size: 64px; transition: transform .25s ease; }
@@ -33,7 +33,7 @@
 @media (hover: hover) { .hud-life-gauges.is-rings .hud-life-gauge:hover .hud-v-ring { transform: scale(1.06); } }
 .hud-life-gauge-name { display: inline-flex; align-items: center; gap: 4px; font-size: 11.5px; font-weight: 650; }
 .hud-life-gauge-name .hud-v-ico { width: 13px; height: 13px; color: color-mix(in srgb, var(--v-acc) 50%, var(--ink-hi, #fff)); }
-.hud-life-gauge .hud-v-tag { align-self: center; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.hud-life-gauge .hud-v-tag { align-self: center; max-width: 100%; white-space: normal; overflow-wrap: break-word; text-align: center; }
 .hud-life-gauges.is-bars { grid-template-columns: minmax(0, 1fr); gap: 8px; }
 .hud-life-gauges.is-bars .hud-life-gauge { grid-template-columns: 92px minmax(0, 1fr) 56px; grid-template-areas: 'name bar num' 'name tag num'; justify-items: stretch; align-items: center; column-gap: 10px; row-gap: 3px; text-align: left; }
 .hud-life-gauges.is-bars .hud-life-gauge-name { grid-area: name; }
@@ -47,7 +47,7 @@
 .hud-life-timer > .hud-v-medal { grid-area: medal; }
 .hud-life-timer-text { grid-area: text; display: grid; min-width: 0; line-height: 1.2; }
 .hud-life-timer-text small { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--v-ink-soft); }
-.hud-life-timer-text b { font-size: 13px; font-weight: 700; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-life-timer-text b { font-size: 13px; font-weight: 700; overflow-wrap: break-word; }
 .hud-life-timer .hud-v-segments { grid-area: seg; }
 .hud-life-timer .hud-v-segments > i { height: 5px; }
 .hud-life-timer.is-none { opacity: .55; filter: saturate(.4); }
@@ -103,7 +103,7 @@
 .hud-life-day-legend li { display: flex; align-items: center; gap: 7px; min-width: 0; cursor: help; }
 .hud-life-day-legend li .hud-v-ico { flex: none; width: 13px; height: 13px; color: color-mix(in srgb, var(--v-acc) 50%, var(--ink-hi, #fff)); }
 .hud-life-day-legend li:first-child .hud-v-ico { color: var(--life-sleep); }
-.hud-life-day-legend span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--v-ink-soft); }
+.hud-life-day-legend span { flex: 1; min-width: 0; overflow-wrap: break-word; color: var(--v-ink-soft); }
 .hud-life-day-legend time { font-weight: 700; color: var(--hud-text, #e6e6ee); font-variant-numeric: tabular-nums; }
 
 /* --- Сутки: циферблат ---------------------------------------------------------- */
@@ -145,7 +145,7 @@
 .hud-life-sleep + .hud-life-sleep { padding-top: 8px; border-top: 1px dashed var(--v-line); }
 .hud-life-sleep-head { display: flex; align-items: center; gap: 8px; }
 .hud-life-sleep-head .hud-life-face { width: 24px; height: 24px; font-size: 10px; }
-.hud-life-sleep-head b { flex: 1; min-width: 0; font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-life-sleep-head b { flex: 1; min-width: 0; font-weight: 650; overflow-wrap: break-word; }
 .hud-life-nights { position: relative; display: flex; align-items: flex-end; gap: 6px; height: 84px; padding: 22px 4px 16px; border-radius: 10px;
   background: linear-gradient(180deg, rgba(20,26,60,.35), rgba(0,0,0,.15)); box-shadow: inset 0 0 0 1px var(--v-line); }
 .hud-life-nights::after { content: 'норма'; position: absolute; left: 6px; right: 6px; bottom: calc(16px + var(--norm) * 46px); border-top: 1px dashed color-mix(in srgb, var(--life-sleep) 60%, transparent);
@@ -179,7 +179,7 @@
 .hud-life-item > s { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--wc); box-shadow: 0 0 8px var(--wc); text-decoration: none; }
 .hud-life-item > .hud-v-ico { flex: none; color: color-mix(in srgb, var(--wc) 55%, var(--ink-hi, #fff)); width: 17px; height: 17px; }
 .hud-life-item > span { display: grid; min-width: 0; line-height: 1.25; }
-.hud-life-item b { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-life-item b { font-weight: 600; overflow-wrap: break-word; }
 .hud-life-item small { font-size: 10px; color: var(--v-ink-soft); }
 .hud-life-item.is-on { box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--v-acc) 55%, transparent), 0 0 12px -4px var(--v-glow); }
 .hud-life-item.is-on small { color: color-mix(in srgb, var(--v-acc) 45%, var(--ink-hi, #fff)); }
@@ -249,7 +249,7 @@
 .hud-life-prices-box > summary small { padding: 0 6px; border-radius: 999px; background: color-mix(in srgb, var(--v-acc) 20%, transparent); }
 .hud-life-prices { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 4px; font-size: 12px; }
 .hud-life-prices li { display: flex; align-items: baseline; gap: 6px; }
-.hud-life-prices li > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-life-prices li > span { min-width: 0; overflow-wrap: break-word; }
 .hud-life-prices li > i { flex: 1; min-width: 14px; border-bottom: 1px dotted color-mix(in srgb, currentColor 30%, transparent); }
 .hud-life-prices b { font-weight: 700; white-space: nowrap; font-variant-numeric: tabular-nums; }
 .hud-life-debts-wrap { display: grid; gap: 6px; }
@@ -320,9 +320,54 @@
 /* Шапка человека в гардеробе и сне: лицо, имя, ниже — счётчик. */
 .hud-life-wardrobe-head { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: 8px; align-items: center; }
 .hud-life-wardrobe-head .hud-life-face { grid-row: 1 / span 2; }
-.hud-life-wardrobe-head b { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-life-wardrobe-head b { overflow-wrap: break-word; }
 .hud-life :is(.hud-life-prices, .hud-life-debts, .hud-life-home, .hud-life-dreams, .hud-life-wlist, .hud-life-day-legend, .hud-life-meals) { grid-template-columns: minmax(0, 1fr); }
 .hud-life :is(ul, ol) > li { min-width: 0; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-life-night b { color: #6a4fc0; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-life-nights { background: linear-gradient(180deg, rgba(60,80,160,.12), rgba(0,0,0,.03)); }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-life-dreams .hud-v-ico { color: #6a4fc0; }
+/* «Надо бы» — над краем плитки, не на подписи таймера. */
+.hud-life-nudge { top: -11px; right: 6px; font-size: .6em; padding: 0 7px; }
+.hud-life-timer:has(.hud-life-nudge) { margin-top: 4px; }
+/* Счётчик в плашке суток — белым на тёмном акценте: розовое на белом не читалось. */
+.hud-life-day-ev b { color: #fff; background: color-mix(in srgb, var(--v-acc) 70%, #000); box-shadow: 0 0 0 1px rgba(255,255,255,.35); font-size: 10px; }
+.hud-life-dial .ev circle.n { fill: color-mix(in srgb, var(--v-acc) 70%, #000); stroke: rgba(255,255,255,.5); stroke-width: .4; }
+.hud-life-dial .ev text.n { fill: #fff; }
+
+/* Перечни через «;» — пилюлями (render/life.js → пилюлиБыта). */
+.hud-life-pills { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; min-width: 0; }
+.hud-life-pills .hud-v-tag { white-space: normal; overflow-wrap: break-word; max-width: 100%; text-align: left; }
+.hud-life-who { display: block; }
+.hud-life-who + .hud-life-who { margin-top: 4px; }
+
+/* После схватки (render/life-combat.js): мыться нельзя, отходняк, раны с
+   кривой заживления, журнал схваток. */
+.hud-life-aftermath { --life-wound: #e06a5a; }
+.hud-life-alert.is-wound { background: linear-gradient(90deg, color-mix(in srgb, var(--life-wound, #e06a5a) 18%, transparent), transparent); border-color: color-mix(in srgb, var(--life-wound, #e06a5a) 40%, transparent); }
+.hud-life-alert.is-wound .hud-v-ico { color: var(--life-wound, #e06a5a); }
+.hud-life-alert.is-crash .hud-v-ico { color: #e6c25a; }
+.hud-life-alert + .hud-life-alert { margin-top: 6px; }
+.hud-life-wounds, .hud-life-fights { list-style: none; margin: 8px 0 0; padding: 0; display: grid; gap: 8px; font-size: 12px; }
+.hud-life-wound { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "m t" "c c"; column-gap: 9px; row-gap: 4px; align-items: start; }
+.hud-life-wound > .hud-v-medal { grid-area: m; width: 28px; height: 28px; --v-acc: var(--life-wound, #e06a5a); }
+.hud-life-wound > span { grid-area: t; display: grid; min-width: 0; overflow-wrap: break-word; }
+.hud-life-wound small { font-size: 10.5px; color: var(--v-ink-soft); }
+.hud-life-wound .hud-life-heal-when { color: color-mix(in srgb, #6fcf8f 70%, var(--ink-hi, #fff)); font-weight: 650; }
+.hud-life-heal { grid-area: c; width: 100%; height: 38px; }
+.hud-life-heal .base { stroke: color-mix(in srgb, currentColor 18%, transparent); stroke-width: 1; fill: none; }
+.hud-life-heal .ln { stroke: #6fcf8f; stroke-width: 1.8; fill: none; stroke-linejoin: round; stroke-linecap: round; }
+.hud-life-heal .fc { stroke: #6fcf8f; stroke-width: 1.2; stroke-dasharray: 3 3; fill: none; opacity: .7; }
+.hud-life-heal circle { fill: #6fcf8f; }
+.hud-life-fights li { display: flex; gap: 8px; align-items: flex-start; min-width: 0; }
+.hud-life-fights li > .hud-v-ico { flex: none; width: 14px; height: 14px; margin-top: 1px; color: var(--life-wound, #e06a5a); }
+.hud-life-fights li > span { min-width: 0; overflow-wrap: break-word; }
+.hud-life-fights time { font-weight: 700; margin-right: 4px; }
+.hud-life-nudge.is-wound { background: color-mix(in srgb, var(--life-wound, #e06a5a) 55%, #000); color: #fff; }
+.hud-cb-heal { color: #6fcf8f; font-weight: 650; }
+
+/* Гардероб → погода: подсказка, а «нечего» — находка для сюжета. */
+.hud-life-hint { display: flex; gap: 8px; align-items: flex-start; margin: 0 0 8px; padding: 7px 10px; border-radius: 10px; font-size: 12px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--life-sleep, #7aa3e6) 14%, transparent), transparent); border: 1px solid color-mix(in srgb, var(--life-sleep, #7aa3e6) 28%, transparent); }
+.hud-life-hint > .hud-v-ico { flex: none; margin-top: 1px; color: var(--life-sleep, #7aa3e6); }
+.hud-life-hint > span { min-width: 0; overflow-wrap: break-word; }
+.hud-life-hint .is-find { display: inline-block; margin-top: 4px; white-space: normal; background: color-mix(in srgb, #e6c25a 30%, transparent); }

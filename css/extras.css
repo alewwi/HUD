@@ -427,7 +427,7 @@
 .hud-pet2-bond path.on { fill: var(--p); }
 .hud-pet2-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(80px, 1fr)); gap: 8px; margin: 12px 14px 0; }
 .hud-pet2-tile { padding: 8px 9px; border-radius: 12px; background: rgba(0,0,0,.18); border: 1px solid color-mix(in srgb, var(--p) 22%, transparent); min-width: 0; }
-.hud-pet2-tile span { display: flex; align-items: center; gap: 4px; font-size: .56em; font-weight: 800; letter-spacing: .04em; white-space: nowrap; text-transform: uppercase; opacity: .78; }
+.hud-pet2-tile span { display: flex; align-items: center; gap: 4px; font-size: .56em; font-weight: 800; letter-spacing: .04em; white-space: nowrap; flex-wrap: wrap; row-gap: 2px; text-transform: uppercase; opacity: .78; }
 .hud-pet2-tile svg { width: 13px; height: 13px; flex: none; }
 .hud-pet2-tile p { margin: 4px 0 0; font-size: .8em; line-height: 1.35; overflow-wrap: anywhere; }
 .hud-pet2-now { display: flex; gap: 8px; align-items: flex-start; margin: 10px 14px 0; padding: 8px 10px; border-radius: 12px; font-size: .84em; font-style: italic; background: color-mix(in srgb, var(--p) 12%, transparent); border-left: 3px solid var(--p); }
