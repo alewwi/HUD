@@ -5,14 +5,14 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { settings } from './settings.js?v=23.46.0';
-import { видБлока } from './render/views.js?v=23.46.0';
-import { escapeHtml } from './utils.js?v=23.46.0';
-import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.46.0';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.46.0';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.46.0';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.46.0';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.46.0';
+import { settings } from './settings.js?v=23.48.1';
+import { видБлока } from './render/views.js?v=23.48.1';
+import { escapeHtml } from './utils.js?v=23.48.1';
+import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.48.1';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.48.1';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.48.1';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.48.1';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.48.1';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -191,8 +191,10 @@ export function addSettingsUI() {
             <option value="off"${settings.hudCompleteCheck === 'off' ? ' selected' : ''}>Не проверять</option>
           </select>
         </label>
+        ${галка('hud-fill-gaps', settings.hudFillGaps !== false, '🧩 Дописывать пропущенное', 'С инструкцией нового ответа — короткая просьба: если в прошлом HUD не было обязательного (мысли, дневник, гороскоп), включить это сейчас; если в быте еда без подробностей («поели», «семейный ужин»), дописать в таймлайн, что ели, с прежним временем. Это не перегенерация: просьба едет вместе с обычным запросом.')}
         ${галка('hud-consistency-check', settings.hudConsistencyCheck === true, '🧮 Противоречия с бытом', 'Вдобавок к полноте: сытость высокая, а по журналу не ели 7 часов и больше и в этом ходе о еде ни слова; баланс сдвинулся без единой транзакции. Тогда HUD считается неполным — так же досоздаётся или предупреждает, как выбрано выше. Нужна вкладка «Быт».')}
         <label class="hud-set-check" title="Правила и поля близости — самая тяжёлая часть промта. «Авто»: только когда сцена идёт по последнему HUD или начинается по словам последних сообщений. Кинки, фетиши и история секса на экране не пропадают — HUD берёт их из прошлых ходов.">🔞 Часть про близость:
+        ${галка('hud-adapt-prompt', settings.hudAdaptPrompt !== false, '🎯 Усиления', 'Если модель в этом чате регулярно оставляет пустыми мысли, дневник или гороскоп (больше трети ходов из последних 50, минимум 12), — короткая строка-напоминание в инструкции. Не больше трёх полей; счёт отдельный для каждой модели. Видно в бюджете токенов.')}
           <select id="hud-nsfw-prompt" style="flex:1; min-width:0; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;">
             <option value="auto"${(settings.nsfwPrompt || 'auto') === 'auto' ? ' selected' : ''}>Авто — когда сцена идёт</option>
             <option value="always"${settings.nsfwPrompt === 'always' ? ' selected' : ''}>Всегда</option>
@@ -448,7 +450,7 @@ export function addSettingsUI() {
    ['hud-enable-companions', 'enableCompanions'], ['hud-enable-bodystate', 'enableBodyState'], ['hud-enable-twists', 'enableTwists'], ['hud-enable-perception', 'enablePerception'], ['hud-enable-familytree', 'enableFamilyTree'], ['hud-enable-assistant', 'enableAssistant'],
    ['hud-enable-menstruation', 'enableMenstruation'], ['hud-enable-sceneclock', 'enableSceneClock'], ['hud-enable-tempo', 'enableTempo'], ['hud-enable-underwear', 'enableUnderwear'], ['hud-enable-duel', 'enableVerbalDuel'], ['hud-enable-combat', 'enableCombat'], ['hud-enable-life', 'enableLife'], ['hud-enable-intimacy-extras', 'enableIntimacyExtras'], ['hud-enable-heatmap', 'enableHeatMap'],
    ['hud-enable-economy', 'enableEconomy'], ['hud-enable-events', 'enableEvents'], ['hud-enable-city', 'enableCity'], ['hud-enable-horoscope', 'enableHoroscope'],
-   ['hud-prompt-separate', 'hudPromptSeparate'], ['hud-snapshot', 'hudSnapshot'], ['hud-consistency-check', 'hudConsistencyCheck']].forEach(([id, ключ]) => {
+   ['hud-prompt-separate', 'hudPromptSeparate'], ['hud-snapshot', 'hudSnapshot'], ['hud-consistency-check', 'hudConsistencyCheck'], ['hud-fill-gaps', 'hudFillGaps'], ['hud-adapt-prompt', 'hudAdaptPrompt']].forEach(([id, ключ]) => {
     const поле = document.getElementById(id);
     if (поле) поле.addEventListener('change', (e) => {
       settings[ключ] = e.target.checked;
@@ -482,7 +484,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.46.0');
+      const mod = await import('./render/archive.js?v=23.48.1');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);

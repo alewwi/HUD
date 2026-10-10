@@ -18,7 +18,7 @@
 // Ключи в vars — те же, что в settings.js. Незнакомые ключи не пишем: их
 // applyThemeColors() всё равно не читает.
 
-import { settings } from './settings.js?v=23.46.0';
+import { settings } from './settings.js?v=23.48.1';
 
 const HUD_THEMES = [
   {
@@ -882,7 +882,10 @@ function подключитьCSSТемы(id) {
   есть.forEach(l => { l.dataset.hudThemeOld = '1'; });
   const путьСтиля = new URL('./style.css', import.meta.url).pathname;
   const свой = [...head.querySelectorAll('link[rel="stylesheet"]')].find(l => { try { return new URL(l.href).pathname === путьСтиля; } catch (_) { return false; } });
-  let после = есть.length ? есть[есть.length - 1] : свой;
+  // За последней частью стилей HUD (css-loader.js), а не за style.css: части
+  // теперь отдельными <link> сразу за ним.
+  const последняяЧасть = [...head.querySelectorAll('link[data-hud-css]')].pop();
+  let после = есть.length ? есть[есть.length - 1] : (последняяЧасть || свой);
   const новые = нужно.map(имя => {
     const l = document.createElement('link');
     l.rel = 'stylesheet';

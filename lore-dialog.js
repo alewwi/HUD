@@ -4,9 +4,9 @@
 // с помощью модели) и записать её через SillyTavern. Вынесено из index.js и
 // грузится через import() при первом открытии окна (загрузитьЛор).
 
-import { guardTouchSwipe, escapeHtml } from './utils.js?v=23.46.0';
-import { settings } from './settings.js?v=23.46.0';
-import { stripHudBlock, buildLoreGenPrompt, parseLoreGenResponse, loreAlreadyHas, buildLoreEntry } from './lore.js?v=23.46.0';
+import { guardTouchSwipe, escapeHtml } from './utils.js?v=23.48.1';
+import { settings } from './settings.js?v=23.48.1';
+import { stripHudBlock, buildLoreGenPrompt, parseLoreGenResponse, loreAlreadyHas, buildLoreEntry } from './lore.js?v=23.48.1';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // getAvailableHudLorebooks, getMainProtagonistNames, getStContextSafe, getStRequestHeadersSafe, loadHudLorebook, showHudToast.

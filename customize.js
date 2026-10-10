@@ -5,16 +5,17 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.46.0';
-import { settings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО } from './settings.js?v=23.46.0';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.46.0';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.46.0';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.46.0';
-import { hudБлоки } from './hud-block.js?v=23.46.0';
-import { parseHUDComplex } from './hud-parser.js?v=23.46.0';
-import { ПРИМЕР_HUD_ТЕКСТ, ПРИМЕР_СЕМЬИ, БАЗОВЫЙ_HUD_ТЕКСТ, ПРИМЕР_БОЯ, ПРИМЕР_БОЯ_РАНЫ, ПРИМЕР_БЫТА_ПРОШЛОЕ } from './render/sample-hud.js?v=23.46.0';
-import { задатьПримерСемьи } from './render/conception.js?v=23.46.0';
-import { привязатьИсторию } from './render/intimacy.js?v=23.46.0';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.48.1';
+import { settings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО } from './settings.js?v=23.48.1';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.48.1';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.48.1';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.48.1';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.48.1';
+import { hudБлоки } from './hud-block.js?v=23.48.1';
+import { parseHUDComplex } from './hud-parser.js?v=23.48.1';
+import { ПРИМЕР_HUD_ТЕКСТ, ПРИМЕР_СЕМЬИ, БАЗОВЫЙ_HUD_ТЕКСТ, ПРИМЕР_БОЯ, ПРИМЕР_БОЯ_РАНЫ, ПРИМЕР_БЫТА_ПРОШЛОЕ } from './render/sample-hud.js?v=23.48.1';
+import { задатьПримерСемьи } from './render/conception.js?v=23.48.1';
+import { привязатьИсторию } from './render/intimacy.js?v=23.48.1';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -94,6 +95,11 @@ export function разметкаПанелиТемы() {
             </select>
           </div>
         </div>
+        ${разметкаВкладок()}
+        <details class="hud-custom-views hud-custom-budget hud-smooth"><summary>💰 Бюджет токенов</summary>
+          <div class="hud-theme-grid">${основа.выбор('tokenBudget', 'Чип в карточке', 'Число «≈4,1k» в полосе последней карточки; по нажатию — разбивка по блокам', [['chip', 'Показывать'], ['off', 'Не показывать']])}</div>
+          <div class="hud-budget-panel hud-custom-budget-body"><p class="hud-budget-note">Откройте раздел — посчитаю.</p></div>
+        </details>
         <details class="hud-custom-views hud-smooth"><summary>🧩 Вид блоков</summary>
           <details class="hud-custom-sub hud-smooth"><summary>Портрет</summary>
           <div class="hud-theme-grid">
@@ -180,7 +186,7 @@ export function разметкаПанелиТемы() {
           + ВИДЫ_БЛОКОВ.filter(б => б.группа === группа).map((б, i, все) => `<div class="hud-theme-row"><label>${б.поле}:</label>`
             + `<select class="hud-theme-select-input hud-custom-rerender" data-key="${б.ключ}">${Object.entries(б.виды).map(([k, имя], i) => `<option value="${k}"${видБлока(б.ключ) === k ? ' selected' : ''}>${имя}${i || б.новый ? '' : ' (как было)'}</option>`).join('')}</select></div>`
             + (б.ключ === 'clothesView' ? основа.выбор('underwearView', 'Бельё', 'Комплект с силуэтами или слоем между кожей и одеждой (если бельё включено в настройках)', [['set', 'Комплект'], ['layer', 'Слоем']]) : '')
-            + (б.ключ === 'secretsView' ? основа.выбор('secretsGrid', 'Сетка «кто что знает»', 'Над секретами: кто знает, подозревает, не знает или ошибается, и кого нельзя посвящать в сцене', [['auto', 'От трёх секретов'], ['on', 'Всегда'], ['off', 'Не показывать']]) : '')
+            + (б.ключ === 'secretsView' ? основа.выбор('secretsGrid', 'Сетка «кто что знает»', 'Над секретами: кто знает, подозревает, не знает или ошибается, и кого нельзя посвящать в сцене', [['auto', 'От трёх секретов'], ['on', 'Всегда'], ['off', 'Не показывать']])  + основа.выбор('secretsAutoRaise', 'Всплыло в споре', 'Секрет прозвучал в словесной дуэли при том, кто его не знал: спросить, отметить ли «знает / подозревает», отметить сразу или молчать. Отметка — ваша правка: модель её увидит, текст сообщения не меняется', [['ask', 'Спросить'], ['auto', 'Сразу'], ['off', 'Молчать']]): '')
             // Цикл в карточке идёт после беременности и «После родов» — последним в «Теле и здоровье».
             + (б.ключ === 'postpartumView' ? `<div class="hud-theme-row"><label>Менструальный цикл:</label><select class="hud-theme-select-input hud-custom-rerender" data-key="cycleView">${Object.entries(ВИДЫ_ЦИКЛА).map(([k, имя]) => `<option value="${k}"${(settings.cycleView || 'ring') === k ? ' selected' : ''}>${имя}</option>`).join('')}</select></div>`
               + основа.выбор('cycleLibido', 'Влечение под циклом', 'Линия — склонность по фазе, её считает HUD; точки — желание из близости, когда о нём писали', [['phase+actual', 'Фаза и как было'], ['phase', 'Только по фазе'], ['off', 'Не показывать']]) : '')).join('')
@@ -485,6 +491,22 @@ export function открытьКастомизацию() {
     // Свайп по ползунку или просмотру не должен листать варианты ответа
     // Таверны: она ловит касания на всём документе.
     guardTouchSwipe(окно);
+    // Вкладки: порядок, закрепление, скрытие (customize-tabs.js).
+    подключитьВкладки(окно, основа, () => собратьПросмотр(окно));
+    // Бюджет считаем, когда раздел открыли: двадцать с лишним сборок
+    // инструкции незачем делать при каждом открытии окна.
+    окно.addEventListener('toggle', (e) => {
+      const d = e.target;
+      if (!d || !d.matches || !d.open) return;
+      if (!d.matches('.hud-custom-budget, .hud-custom-tabs')) return;
+      const тело = окно.querySelector('.hud-custom-budget-body');
+      Promise.resolve(основа.посчитатьБюджет && основа.посчитатьБюджет()).then(итог => {
+        if (!итог) return;
+        if (тело) тело.innerHTML = основа.разметкаБюджета(итог);
+        задатьЦены(итог);
+        const сп = окно.querySelector('.hud-ct-list'); if (сп) сп.innerHTML = списокВкладок();
+      }).catch(err => { if (тело) тело.textContent = 'Не посчиталось: ' + (err && err.message || err); });
+    }, true);
     окно.addEventListener('click', (e) => {
       if (e.target === окно || e.target.closest('.hud-custom-close')) { закрытьКастомизацию(); return; }
       if (e.target.closest('.hud-custom-refresh')) собратьПросмотр(окно);

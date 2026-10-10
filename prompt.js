@@ -5,10 +5,10 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.46.0';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.46.0';
-import { parseSceneDate } from './history-analyzer.js?v=23.46.0';
-import { возрастТочно } from './render/babies.js?v=23.46.0';
+import { settings } from './settings.js?v=23.48.1';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.48.1';
+import { parseSceneDate } from './history-analyzer.js?v=23.48.1';
+import { возрастТочно } from './render/babies.js?v=23.48.1';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -224,7 +224,7 @@ ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and ru
    "chr": ["[HH:MM] - [place] - [arrived | left | stayed | moving]", "route: one line per movement, up to 20; [] when absent from the scene"]
   },
   "fct": ["[fact: an important or newly learned fact, stated plainly, people by their real names]", "facts: as many lines as matter"],${ружья ? `${быт ? `
-  "hk": "[OPTIONAL — only in a turn where any of this happened: 'eat: what, where, with whom; wash: what; buy: what and how much; fix: what; break: what; wear: what was put on or taken off', separated by ;]",` : ''}
+  "hk": "[OPTIONAL — only in a turn where any of this happened: 'eat: what, where, with whom; wash: what; buy: what and how much; fix: what; break: what household object actually broke (not an injury, not a near miss); wear: what was put on or taken off', separated by ;]",` : ''}
   "gun": ["[a setup the story planted and has not paid off — a promise, threat, hint, unexplained object, open mystery, debt or foreshadowing] | [who or what it is tied to] | [open | building | fired]", "chekhov's guns: one line per unresolved thread, drawn from the Fl flags and from what the story left hanging — never invent new plot to fill the list. Keep each one until it pays off; on that turn mark it fired, then drop it next turn"],` : ''}
   "sec": [
    {

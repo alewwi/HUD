@@ -12,11 +12,12 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.46.0';
-import { mapKey } from './utils.js?v=23.46.0';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.46.0';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.46.0';
-import { заменитьHudБлоки } from './hud-block.js?v=23.46.0';
+import { settings } from './settings.js?v=23.48.1';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.48.1';
+import { mapKey } from './utils.js?v=23.48.1';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.48.1';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.48.1';
+import { заменитьHudБлоки } from './hud-block.js?v=23.48.1';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -260,6 +261,8 @@ export function решитьБой(снимок, тексты) {
 export function строкаСнимка(снимок, nsfw) {
   if (!объект(снимок)) return '';
   const копия = JSON.parse(JSON.stringify(снимок));
+  // Правки игрока (snapshot-edits.js): «отметил, что Лена знает» — модели.
+  try { наложитьНаСнимок(копия); } catch (_) { /* без правок */ }
   if (!nsfw) {
     // «Последний секс» вне сцены — когда, с кем и чем кончилось (защита и риск): схема просит эту
     // часть и вне близости, чтобы запись не устаревала. Подробности остаются

@@ -11,16 +11,17 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.46.0';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.46.0';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.46.0';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.46.0';
-import { settings, defaultSettings } from './settings.js?v=23.46.0';
-import { getWorldVotes } from './render/world.js?v=23.46.0';
-import { раскрытьПорцию } from './render/long-list.js?v=23.46.0';
-import { прогретьИсторию } from './render/carryover.js?v=23.46.0';
-import { подключитьПалитру } from './color-picker.js?v=23.46.0';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.46.0';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.48.1';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.48.1';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.48.1';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.48.1';
+import { settings, defaultSettings } from './settings.js?v=23.48.1';
+import { полныйПорядок } from './tabs-order.js?v=23.48.1';
+import { getWorldVotes } from './render/world.js?v=23.48.1';
+import { раскрытьПорцию } from './render/long-list.js?v=23.48.1';
+import { прогретьИсторию } from './render/carryover.js?v=23.48.1';
+import { подключитьПалитру } from './color-picker.js?v=23.48.1';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.48.1';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -226,6 +227,7 @@ export function initGlobalEvents(ctx) {
   // новости. settings по своей природе общий живой объект (см. settings.js),
   // а getWorldVotes живёт в домене «Мир» — берём их импортом, а не через ctx.
   const { saveSettings, applyThemeColors, showHudToast } = ctx;
+  сохранитьНастройки = saveSettings;
 
   // Наборы тем. Панель живёт внутри карточки HUD, а карточки появляются,
   // сворачиваются и пересобираются — привязываться к самим полям бессмысленно,
@@ -593,9 +595,16 @@ export function initGlobalEvents(ctx) {
     if (tab) {
       e.preventDefault();
       const parent = tab.closest('.hud-os-wrapper');
-      parent.querySelectorAll('.hud-tab').forEach(t => t.classList.remove('active'));
+      // Высота до смены — от неё плавно едем к высоте новой вкладки.
+      const телоВкладок = parent.querySelector('.hud-tabs-body');
+      const былаВысота = телоВкладок && !tab.classList.contains('active') ? телоВкладок.offsetHeight : null;
+      parent.querySelectorAll('.hud-tab').forEach(t => { t.classList.remove('active'); if (t.hasAttribute('role')) { t.setAttribute('aria-selected', 'false'); t.tabIndex = -1; } });
       parent.querySelectorAll('.hud-tab-content').forEach(c => c.classList.remove('active'));
       tab.classList.add('active');
+      if (tab.hasAttribute('role')) { tab.setAttribute('aria-selected', 'true'); tab.tabIndex = 0; }
+      // Вкладка из «⋯» — вернуть её в полосу и пересчитать, что влезает.
+      const полоса = tab.closest('.hud-tabs-header');
+      if (полоса) уложитьВкладки(полоса);
       // Отложенная вкладка собирается здесь — при первом открытии.
       let target = parent.querySelector(`#${tab.dataset.target}`);
       if (target && target.classList.contains('hud-tab-lazy') && ctx.renderLazyTab) {
@@ -606,6 +615,7 @@ export function initGlobalEvents(ctx) {
         if (ctx.attachHelpMarks) ctx.attachHelpMarks(target);
       }
       if (target) target.classList.add('active');
+      if (target && былаВысота !== null) плавнаяСменаВкладки(телоВкладок, былаВысота, target);
       return;
     }
 
@@ -760,7 +770,7 @@ export function initGlobalEvents(ctx) {
       // открываем переписку — как на настоящем телефоне. Своей стопки у
       // него нет, поэтому приложение известно заранее: «Сообщения».
       const fromLock = chatRow.classList.contains('hud-phone-lock-notice');
-      if (fromLock && emulator) emulator.classList.add('unlocked');
+      if (fromLock && emulator) { emulator.classList.add('unlocked'); показатьТелефон(emulator); }
       let view = chatRow.closest('.hud-phone-app-view');
       if (emulator && (stack || fromLock)) {
         const appId = stack ? stack.dataset.phoneApp : 'messages';
@@ -794,6 +804,7 @@ export function initGlobalEvents(ctx) {
           v.classList.toggle('active', on);
           if (on) openChat(v, null);
         });
+        показатьТелефон(emulator);
       }
       return;
     }
@@ -806,6 +817,7 @@ export function initGlobalEvents(ctx) {
         v.classList.remove('active');
         openChat(v, null);
       });
+      показатьТелефон(emulator);
       return;
     }
 
@@ -1093,6 +1105,13 @@ export function initGlobalEvents(ctx) {
     syncThemeInputs();
   }
 
+  // На узком экране телефон после разблокировки, открытия приложения и
+  // «домой» доезжает в кадр целиком: кнопка «домой» и язычок — внизу корпуса.
+  const показатьТелефон = (emulator) => {
+    if (!emulator || typeof matchMedia !== 'function' || !matchMedia('(max-width: 600px)').matches) return;
+    requestAnimationFrame(() => { try { emulator.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (_) { emulator.scrollIntoView(false); } });
+  };
+
   // --- Экран блокировки: разблокировка свайпом вверх --------------------
   // Жест ведут пальцем, поэтому слушаем pointer-события. Простой тап
   // телефон не открывает: иначе замок не имел бы смысла. Тап по карточке
@@ -1116,7 +1135,7 @@ export function initGlobalEvents(ctx) {
       // Тянем экран за пальцем, но не дальше его собственной высоты.
       lock.style.setProperty('--lock-drag', Math.min(dy, lock.offsetHeight) + 'px');
     };
-    const finish = () => {
+    const finish = (ev) => {
       lock.removeEventListener('pointermove', onMove);
       lock.removeEventListener('pointerup', finish);
       lock.removeEventListener('pointercancel', finish);
@@ -1126,7 +1145,13 @@ export function initGlobalEvents(ctx) {
       lock.style.removeProperty('--lock-drag');
       // Либо протянули далеко, либо коротко и резко смахнули.
       const flick = (Date.now() - startedAt) < 260 && dy > 24;
-      if (dy > LOCK_UNLOCK_PX || flick) emulator.classList.add('unlocked');
+      // Палец ушёл в прокрутку чата — это не жест замка.
+      if (ev && ev.type === 'pointercancel') return;
+      // На сенсорном экране вертикальный жест вне язычка забирает прокрутка
+      // чата, а язычок внизу высокой карточки: до него приходилось долистать,
+      // потянуть и вернуться наверх. Поэтому там телефон открывает касание.
+      const тап = Math.abs(dy) <= LOCK_SLOP_PX && Date.now() - startedAt < 600 && (e.pointerType === 'touch' || e.pointerType === 'pen');
+      if (dy > LOCK_UNLOCK_PX || flick || (тап && !e.target.closest('.hud-phone-lock-notice'))) { emulator.classList.add('unlocked'); показатьТелефон(emulator); }
     };
     lock.addEventListener('pointermove', onMove);
     lock.addEventListener('pointerup', finish);
@@ -1857,8 +1882,248 @@ function ужатьСписки() {
     с.classList.toggle('is-end', с.scrollHeight - с.clientHeight < 4);
   });
 }
+// --- Плавно, как разделы «Кастомизации» ---------------------------------------
+// Смена вкладки: высота тела вкладок едет от прежней к новой, новое
+// содержимое проявляется. Без движения — если система просит меньше анимаций.
+const тише = () => typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches;
+export function плавнаяСменаВкладки(тело, было, панель) {
+  if (!тело || тише() || typeof тело.animate !== 'function') return;
+  if (тело.__hudAnim) тело.__hudAnim.cancel();
+  const стало = тело.offsetHeight;
+  if (Math.abs(стало - было) > 2) {
+    тело.style.overflow = 'hidden';
+    const ход = тело.animate({ height: [было + 'px', стало + 'px'] }, { duration: Math.min(420, 180 + Math.abs(стало - было) * 0.3), easing: 'cubic-bezier(.22,.8,.3,1)' });
+    тело.__hudAnim = ход;
+    const сброс = () => { тело.style.overflow = ''; тело.__hudAnim = null; };
+    ход.onfinish = сброс; ход.oncancel = сброс;
+  }
+  if (панель && typeof панель.animate === 'function') панель.animate({ opacity: [0, 1], transform: ['translateY(-4px)', 'none'] }, { duration: 280, easing: 'ease' });
+}
+// Раскрыть или скрыть блок (меню «⋯», панель бюджета) плавно по высоте.
+export function плавноПоказать(узел, показать) {
+  if (!узел) return;
+  if (тише() || typeof узел.animate !== 'function') { узел.hidden = !показать; return; }
+  if (узел.__hudAnim) узел.__hudAnim.cancel();
+  узел.hidden = false;
+  const полная = узел.scrollHeight;
+  узел.style.overflow = 'hidden';
+  const ход = узел.animate(показать
+    ? { height: ['0px', полная + 'px'], opacity: [0, 1] }
+    : { height: [узел.offsetHeight + 'px', '0px'], opacity: [1, 0] }, { duration: Math.min(380, 160 + полная * 0.3), easing: 'cubic-bezier(.22,.8,.3,1)' });
+  узел.__hudAnim = ход;
+  ход.onfinish = () => { узел.style.overflow = ''; узел.__hudAnim = null; if (!показать) узел.hidden = true; };
+  ход.oncancel = () => { узел.style.overflow = ''; };
+}
+
+// --- Вкладки, что не влезли, — в «⋯» (settings.tabOverflow) ----------------
+// Полоса вкладок на узком экране прокручивается вбок, и половина ярлыков за
+// краем не видна. Невлезшие (кроме активной и закреплённых) уходят в «⋯»;
+// по нажатию список раскрывается в самой карточке, под полосой: поверх её
+// не повесить — полоса прокручивается и обрезала бы выпадающее меню.
+// Ширина полосы меняется и без resize окна (колонка чата, панель Таверны):
+// следим за самой полосой.
+const наблюдательПолос = typeof ResizeObserver === 'function' ? new ResizeObserver((записи) => {
+  // Только ширина: прятанье ярлыков меняет высоту полосы, и реакция на неё
+  // зациклила бы раскладку.
+  for (const з of записи) { const п = з.target; const w = Math.round(з.contentRect ? з.contentRect.width : п.clientWidth); if (п.__hudШирина === w) continue; п.__hudШирина = w; if (п.__hudКадр) continue; п.__hudКадр = requestAnimationFrame(() => { п.__hudКадр = 0; уложитьВкладки(п); }); }
+}) : null;
+// Меряем один раз и считаем арифметикой (сумма offsetWidth ярлыков): прежний
+// способ прятал по ярлыку и каждый раз читал scrollWidth — полный пересчёт
+// вёрстки всего чата, а на телефоне так у всех полусотни карточек; клик по
+// вкладке висел десятки секунд. Свёрнутые карточки не трогаем вовсе.
+export function уложитьВкладки(полоса) {
+  if (!полоса || !полоса.isConnected) return;
+  const карта = полоса.closest('.hud-os-card');
+  const свёртка = карта && карта.querySelector(':scope > .hud-toggle-input');
+  if (свёртка && !свёртка.checked) return;
+  if (наблюдательПолос && !полоса.__hudНаблюдаем) { полоса.__hudНаблюдаем = true; наблюдательПолос.observe(полоса); }
+  const ярлыки = [...полоса.querySelectorAll(':scope > .hud-tab')];
+  let кнопка = полоса.querySelector(':scope > .hud-tabs-more');
+  const меню = полоса.nextElementSibling && полоса.nextElementSibling.classList.contains('hud-tabs-menu') ? полоса.nextElementSibling : null;
+  const убрать = () => { ярлыки.forEach(т => т.classList.remove('is-overflow')); if (кнопка) кнопка.remove(); if (меню) меню.remove(); };
+  if (settings.tabOverflow === false) { убрать(); return; }
+  // Чтение — одним проходом, пока ничего не переставляли.
+  const ст = getComputedStyle(полоса);
+  const зазор = parseFloat(ст.columnGap || ст.gap) || 0;
+  const место = полоса.clientWidth - (parseFloat(ст.paddingLeft) || 0) - (parseFloat(ст.paddingRight) || 0);
+  if (место <= 0) return;
+  const спрятаныРаньше = ярлыки.map(т => т.classList.contains('is-overflow'));
+  // Ширина спрятанного (display: none) — из прошлого замера.
+  const ширины = ярлыки.map((т, i) => (спрятаныРаньше[i] ? (т.__hudШирина || 90) : (т.__hudШирина = т.offsetWidth)));
+  const всего = ширины.reduce((a, w) => a + w, 0) + зазор * Math.max(0, ярлыки.length - 1);
+  if (всего <= место + 1) { убрать(); return; }
+  const ширинаКнопки = (кнопка && !кнопка.hidden && кнопка.offsetWidth) || 52;
+  const закреп = new Set(Array.isArray(settings.tabPinned) ? settings.tabPinned : []);
+  // Прячем с конца, пока не влезет вместе с «⋯»; активную и закреплённые — нет.
+  const прячем = new Set();
+  let занято = всего + ширинаКнопки + зазор;
+  for (let i = ярлыки.length - 1; i >= 0 && занято > место + 1; i--) {
+    const т = ярлыки[i];
+    if (т.classList.contains('active') || закреп.has(т.dataset.tabId)) continue;
+    прячем.add(т);
+    занято -= ширины[i] + зазор;
+  }
+  if (!прячем.size) { убрать(); return; }
+  // Запись — одним проходом.
+  ярлыки.forEach(т => т.classList.toggle('is-overflow', прячем.has(т)));
+  if (!кнопка) {
+    кнопка = document.createElement('button');
+    кнопка.type = 'button';
+    кнопка.className = 'hud-tabs-more';
+    кнопка.setAttribute('aria-haspopup', 'true');
+    кнопка.setAttribute('aria-expanded', 'false');
+    кнопка.title = 'Остальные вкладки';
+    полоса.appendChild(кнопка);
+  }
+  кнопка.hidden = false;
+  if (кнопка.__hudЧисло !== прячем.size) {
+    кнопка.__hudЧисло = прячем.size;
+    кнопка.innerHTML = `<span aria-hidden="true">⋯</span><b>${прячем.size}</b>`;
+    кнопка.setAttribute('aria-label', 'Ещё вкладки: ' + прячем.size);
+  }
+  if (меню && !меню.hidden) заполнитьМенюВкладок(меню, [...прячем]);
+}
+function заполнитьМенюВкладок(меню, спрятано) {
+  меню.innerHTML = спрятано.map(т => `<button type="button" class="hud-tabs-menu-item" data-for="${т.dataset.target}">${т.innerHTML}</button>`).join('');
+  меню.querySelectorAll('.hud-help-mark').forEach(м => м.remove());
+}
+function переключитьМенюВкладок(кнопка, открыть) {
+  const полоса = кнопка.closest('.hud-tabs-header');
+  if (!полоса) return;
+  let меню = полоса.nextElementSibling && полоса.nextElementSibling.classList.contains('hud-tabs-menu') ? полоса.nextElementSibling : null;
+  const надо = открыть ?? !(меню && !меню.hidden);
+  if (!надо) { if (меню) плавноПоказать(меню, false); кнопка.setAttribute('aria-expanded', 'false'); return; }
+  if (!меню) { меню = document.createElement('div'); меню.className = 'hud-tabs-menu'; меню.setAttribute('role', 'group'); меню.setAttribute('aria-label', 'Остальные вкладки'); полоса.after(меню); }
+  заполнитьМенюВкладок(меню, [...полоса.querySelectorAll(':scope > .hud-tab.is-overflow')]);
+  меню.hidden = true;
+  плавноПоказать(меню, true);
+  кнопка.setAttribute('aria-expanded', 'true');
+}
+document.addEventListener('click', (e) => {
+  const кнопка = e.target.closest && e.target.closest('.hud-tabs-more');
+  if (кнопка) { e.preventDefault(); e.stopPropagation(); переключитьМенюВкладок(кнопка); return; }
+  const пункт = e.target.closest && e.target.closest('.hud-tabs-menu-item');
+  if (пункт) {
+    e.preventDefault(); e.stopPropagation();
+    const меню = пункт.closest('.hud-tabs-menu'), полоса = меню && меню.previousElementSibling;
+    const вкладка = полоса && [...полоса.querySelectorAll('.hud-tab')].find(т => т.dataset.target === пункт.dataset.for);
+    if (меню) меню.hidden = true;
+    const к = полоса && полоса.querySelector('.hud-tabs-more'); if (к) к.setAttribute('aria-expanded', 'false');
+    if (вкладка) { вкладка.click(); вкладка.focus({ preventScroll: true }); }
+  }
+}, true);
+// Клавиатура на полосе: стрелки — соседняя вкладка, Home/End — крайние,
+// Enter и пробел — открыть (ярлык — div, сам он нажатия не понимает).
+document.addEventListener('keydown', (e) => {
+  const т = e.target;
+  if (!т || !т.matches || !т.matches('.hud-tabs-header > .hud-tab[role="tab"]')) return;
+  const все = [...т.parentElement.querySelectorAll(':scope > .hud-tab')];
+  const i = все.indexOf(т);
+  let к = null;
+  if (e.key === 'ArrowRight') к = все[(i + 1) % все.length];
+  else if (e.key === 'ArrowLeft') к = все[(i - 1 + все.length) % все.length];
+  else if (e.key === 'Home') к = все[0];
+  else if (e.key === 'End') к = все[все.length - 1];
+  else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); т.click(); return; }
+  if (!к) return;
+  e.preventDefault();
+  к.click();
+  к.focus({ preventScroll: true });
+});
+// --- Перестановка вкладок долгим нажатием ------------------------------------
+// Полоса прокручивается вбок (touch-action: pan-x), и тянуть ярлык вдоль неё
+// пальцем нельзя — палец её листает. Поэтому вход в перестановку — долгое
+// нажатие (~400 мс, как значки на домашнем экране): короткое касание
+// по-прежнему открывает вкладку, протяжка — листает полосу.
+// touch-action браузер читает в момент касания, менять его посреди жеста
+// поздно — в режиме перестановки гасим touchmove (первый после неподвижного
+// удержания ещё можно отменить, прокрутка не начнётся).
+// Выход — по любому поводу: отпустил, pointercancel, второй палец, ушёл за
+// карточку. Застрявший режим — полоса, которая перестала листаться.
+let сохранитьНастройки = null;
+const ДОЛГО = 400, ДРОЖЬ = 8, КРАЙ = 40;
+let тяга = null;   // { полоса, ярлык, id, x0, y0, таймер, активна, было: [узлы], кадр, x }
+function снятьТягу(сохранить) {
+  const т = тяга;
+  if (!т) return;
+  тяга = null;
+  clearTimeout(т.таймер);
+  cancelAnimationFrame(т.кадр);
+  т.полоса.classList.remove('is-reordering');
+  т.ярлык.classList.remove('is-lifted');
+  if (!т.активна) return;
+  // Клик после отпускания не должен ещё и переключать вкладку.
+  т.полоса.__hudБезКлика = Date.now();
+  if (!сохранить) { т.было.forEach(у => т.полоса.insertBefore(у, т.полоса.querySelector(':scope > .hud-tabs-more'))); уложитьВкладки(т.полоса); return; }
+  const новые = [...new Set([...т.полоса.querySelectorAll(':scope > .hud-tab[data-tab-id]')].map(у => у.dataset.tabId))];
+  // На места этих id в полном порядке — по-новому; чужие id стоят где стояли.
+  const полный = полныйПорядок(settings);
+  const места = полный.map((id, i) => новые.includes(id) ? i : -1).filter(i => i >= 0);
+  места.forEach((место, k) => { полный[место] = новые[k]; });
+  settings.tabOrder = полный;
+  const закреп = Array.isArray(settings.tabPinned) ? settings.tabPinned : [];
+  if (закреп.length) settings.tabPinned = [...новые.filter(id => закреп.includes(id)), ...закреп.filter(id => !новые.includes(id))];
+  try { сохранитьНастройки && сохранитьНастройки(); } catch (_) { /* сохранится со следующим */ }
+  уложитьВкладки(т.полоса);
+}
+document.addEventListener('pointerdown', (e) => {
+  const ярлык = e.target.closest && e.target.closest('.hud-tabs-header > .hud-tab[data-tab-id]');
+  if (тяга) { снятьТягу(false); return; }   // второй палец — выход
+  if (!ярлык || (e.pointerType === 'mouse' && e.button !== 0)) return;
+  const полоса = ярлык.parentElement;
+  тяга = { полоса, ярлык, id: e.pointerId, x0: e.clientX, y0: e.clientY, x: e.clientX, активна: false, было: [...полоса.querySelectorAll(':scope > .hud-tab')] };
+  тяга.таймер = setTimeout(() => {
+    if (!тяга || тяга.ярлык !== ярлык) return;
+    тяга.активна = true;
+    полоса.classList.add('is-reordering');
+    ярлык.classList.add('is-lifted');
+    try { ярлык.setPointerCapture(тяга.id); } catch (_) { /* старый браузер */ }
+    try { navigator.vibrate && navigator.vibrate(12); } catch (_) { /* нет вибро */ }
+    // Автопрокрутка у краёв: иначе вкладку с конца в начало не дотащить.
+    const шаг = () => {
+      if (!тяга || !тяга.активна) return;
+      const п = полоса.getBoundingClientRect();
+      if (тяга.x < п.left + КРАЙ) полоса.scrollLeft -= 8;
+      else if (тяга.x > п.right - КРАЙ) полоса.scrollLeft += 8;
+      тяга.кадр = requestAnimationFrame(шаг);
+    };
+    тяга.кадр = requestAnimationFrame(шаг);
+  }, ДОЛГО);
+}, true);
+document.addEventListener('pointermove', (e) => {
+  if (!тяга || e.pointerId !== тяга.id) return;
+  if (!тяга.активна) {
+    // Сдвинулся раньше времени — это прокрутка или свайп, не перестановка.
+    if (Math.abs(e.clientX - тяга.x0) > ДРОЖЬ || Math.abs(e.clientY - тяга.y0) > ДРОЖЬ) снятьТягу(false);
+    return;
+  }
+  тяга.x = e.clientX;
+  const { полоса, ярлык } = тяга;
+  // Ушёл за карточку — выход без сохранения.
+  const карта = полоса.closest('.hud-os-card');
+  if (карта) { const к = карта.getBoundingClientRect(); if (e.clientY < к.top - 30 || e.clientY > к.bottom + 30) { снятьТягу(false); return; } }
+  const видимые = [...полоса.querySelectorAll(':scope > .hud-tab:not(.is-overflow)')];
+  const i = видимые.indexOf(ярлык);
+  const пред = видимые[i - 1], след = видимые[i + 1];
+  if (пред && e.clientX < пред.getBoundingClientRect().left + пред.offsetWidth / 2) полоса.insertBefore(ярлык, пред);
+  else if (след && e.clientX > след.getBoundingClientRect().left + след.offsetWidth / 2) полоса.insertBefore(ярлык, след.nextSibling);
+}, true);
+document.addEventListener('pointerup', (e) => { if (тяга && e.pointerId === тяга.id) снятьТягу(тяга.активна); }, true);
+document.addEventListener('pointercancel', (e) => { if (тяга && e.pointerId === тяга.id) снятьТягу(false); }, true);
+document.addEventListener('touchmove', (e) => { if (тяга && тяга.активна && e.cancelable) e.preventDefault(); }, { passive: false, capture: true });
+document.addEventListener('contextmenu', (e) => { if (тяга && тяга.активна) e.preventDefault(); }, true);
+// Клик сразу после перестановки — не переключение вкладки.
+document.addEventListener('click', (e) => {
+  const полоса = e.target.closest && e.target.closest('.hud-tabs-header');
+  if (полоса && полоса.__hudБезКлика && Date.now() - полоса.__hudБезКлика < 400) { e.preventDefault(); e.stopPropagation(); полоса.__hudБезКлика = 0; }
+}, true);
+
+function уложитьВсеВкладки() {
+  document.querySelectorAll('.hud-os-card > .hud-toggle-input:checked ~ .hud-os-wrapper .hud-tabs-header').forEach(п => уложитьВкладки(п));
+}
+
 let таймерСписков = 0;
-const ужатьПозже = (мс = 120) => { clearTimeout(таймерСписков); таймерСписков = setTimeout(ужатьСписки, мс); };
+const ужатьПозже = (мс = 120) => { clearTimeout(таймерСписков); таймерСписков = setTimeout(() => { ужатьСписки(); уложитьВсеВкладки(); }, мс); };
 if (typeof MutationObserver !== 'undefined') new MutationObserver((записи) => {
   if (записи.some(з => [...з.addedNodes].some(у => у.nodeType === 1 && (у.matches?.('.hud-os-card, .hud-tab-content, .mes, .mes_text') || у.querySelector?.('.hud-os-card'))))) ужатьПозже();
 }).observe(document.body, { childList: true, subtree: true });

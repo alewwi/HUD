@@ -1,36 +1,14 @@
-/* TavernOS HUD — стили.
+/* TavernOS HUD — вход стилей.
 
-   Файл разрезан на части: двенадцать тысяч строк в одном месте мешали
-   искать. Порядок подключения — часть устройства, а не вкус: каскад здесь
-   держится на порядке правил, и перестановка ломает вёрстку молча.
+   Части стилей подключает css-loader.js: отдельными <link> сразу за этим
+   файлом, параллельно (цепочка @import грузилась по одному файлу и держала
+   отрисовку) и по включённости фич — выключенный бой не тянет combat.css.
+   Порядок частей — в css-loader.js (ЧАСТИ); он же — порядок каскада, и
+   перестановка ломает вёрстку молча. Все части разом, для стендов, —
+   css/all.css.
 
-   @import обязан стоять раньше любых правил, поэтому в этом файле больше
-   ничего и нет.
-
-   Украшения готовых тем (.hud-theme-<id>) здесь не грузятся: они в
-   css/themes/<id>.css, и themes.js подключает только выбранную — сразу
-   после этого файла. Светлым темам ещё нужен css/themes/light.css. Правило
-   темы, которое должен перебивать более поздний общий стиль той же силы,
-   остаётся в общих файлах, перед ним: файл темы стоит последним и иначе
-   победил бы. */
-
-@import url('./css/base.css?v=23.46.0');
-@import url('./css/themes.css?v=23.46.0');
-@import url('./css/misc.css?v=23.46.0');
-@import url('./css/views.css?v=23.46.0');
-@import url('./css/views-fields.css?v=23.46.0');
-@import url('./css/views-trio.css?v=23.46.0');
-@import url('./css/family.css?v=23.46.0');
-@import url('./css/family-views.css?v=23.46.0');
-@import url('./css/extras.css?v=23.46.0');
-@import url('./css/deco.css?v=23.46.0');
-@import url('./css/scene-body.css?v=23.46.0');
-@import url('./css/xray.css?v=23.46.0');
-@import url('./css/scene-clock.css?v=23.46.0');
-@import url('./css/cycle-libido.css?v=23.46.0');
-@import url('./css/secrets-grid.css?v=23.46.0');
-@import url('./css/life.css?v=23.46.0');
-@import url('./css/underwear.css?v=23.46.0');
-@import url('./css/duel.css?v=23.46.0');
-@import url('./css/combat.css?v=23.46.0');
-@import url('./css/compact.css?v=23.46.0');
+   Украшения готовых тем (.hud-theme-<id>) — в css/themes/<id>.css, их
+   подключает themes.js: сразу за последней частью стилей HUD. Светлым темам
+   ещё нужен css/themes/light.css. Правило темы, которое должен перебивать
+   более поздний общий стиль той же силы, остаётся в общих файлах, перед ним:
+   файл темы стоит последним и иначе победил бы. */

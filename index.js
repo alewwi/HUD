@@ -1,36 +1,42 @@
 // hud-manager/index.js (v21.5.5)
-import { hexToRgba, settings, defaultSettings, настройка, КЛЮЧИ_АВТО } from './settings.js?v=23.46.0';
-import { escapeHtml, getSafeUserName, hudHasMeaningfulValue, имяДляВкладки, имяБезПриставки, убратьПриставкуКарточки } from './utils.js?v=23.46.0';
-import { parseHUDComplex, scoreHudJsonCandidate } from './hud-parser.js?v=23.46.0';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, облегчитьКарточку, вернутьКарточку } from './events.js?v=23.46.0';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.46.0';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.46.0';
-import { mergeCarryOver, вернутьЧерты, сдвигиДоверия, ключБлокаСводки, достатьРазборыСводки, запомнитьРазборСводки } from './render/carryover.js?v=23.46.0';
-import { привязатьИсторию } from './render/intimacy.js?v=23.46.0';
-import { журналБыта, buildLifeHTML, естьБыт, строкаБыта, темыБыта } from './render/life.js?v=23.46.0';
-import { строкаЧасовСцены } from './render/scene-clock.js?v=23.46.0';
-import { buildCombatHTML, hudHasCombat } from './render/combat.js?v=23.46.0';
-import { состояниеСцены } from './render/character.js?v=23.46.0';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.46.0';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.46.0';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.46.0';
-import { buildMemoryHTML } from './render/memory.js?v=23.46.0';
-import { buildPhoneTabsHTML } from './render/phone.js?v=23.46.0';
-import { праздникиСцены } from './render/holidays.js?v=23.46.0';
-import { изменитьСудьбу, откатитьСудьбу, отметитьТест, узнатьПол, изменитьПлоды, откатитьПлоды, зарегистрироватьРоды, роды, поправитьРоды } from './render/conception.js?v=23.46.0';
-import { buildBabiesHTML, hudHasBabies, днейИзТекста } from './render/babies.js?v=23.46.0';
-import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.46.0';
-import { hudHasRelations } from './render/relations-graph.js?v=23.46.0';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.46.0';
-import { чипЛуны, теньЛуны, титрыСцены, карточкаПоворота } from './render/extras.js?v=23.46.0';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.46.0';
-import { applyThemeClass } from './themes.js?v=23.46.0';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.46.0';
-import { getChatMessages, parseSceneDate } from './history-analyzer.js?v=23.46.0';
-import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ } from './hud-block.js?v=23.46.0';
-import { собратьСнимок, строкаСнимка, решитьNSFW, решитьБой, последниеТекстыЧата, легендаСнимка } from './hud-snapshot.js?v=23.46.0';
-import { создатьПроверкуПолноты } from './hud-check.js?v=23.46.0';
-import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.46.0';
+import { hexToRgba, settings, defaultSettings, настройка, КЛЮЧИ_АВТО } from './settings.js?v=23.48.1';
+import { escapeHtml, getSafeUserName, hudHasMeaningfulValue, имяДляВкладки, имяБезПриставки, убратьПриставкуКарточки } from './utils.js?v=23.48.1';
+import { parseHUDComplex, scoreHudJsonCandidate } from './hud-parser.js?v=23.48.1';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, облегчитьКарточку, вернутьКарточку, плавноПоказать } from './events.js?v=23.48.1';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.48.1';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.48.1';
+import { mergeCarryOver, вернутьЧерты, сдвигиДоверия, ключБлокаСводки, достатьРазборыСводки, запомнитьРазборСводки } from './render/carryover.js?v=23.48.1';
+import { привязатьИсторию } from './render/intimacy.js?v=23.48.1';
+import { журналБыта, buildLifeHTML, естьБыт, строкаБыта, темыБыта, пробелыБыта } from './render/life.js?v=23.48.1';
+import { строкаЧасовСцены } from './render/scene-clock.js?v=23.48.1';
+import { buildCombatHTML, hudHasCombat } from './render/combat.js?v=23.48.1';
+import { прогнозыЗаживления } from './render/life-combat.js?v=23.48.1';
+import { состояниеСцены } from './render/character.js?v=23.48.1';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.48.1';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.48.1';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.48.1';
+import { buildMemoryHTML } from './render/memory.js?v=23.48.1';
+import { buildPhoneTabsHTML } from './render/phone.js?v=23.48.1';
+import { праздникиСцены } from './render/holidays.js?v=23.48.1';
+import { изменитьСудьбу, откатитьСудьбу, отметитьТест, узнатьПол, изменитьПлоды, откатитьПлоды, зарегистрироватьРоды, роды, поправитьРоды } from './render/conception.js?v=23.48.1';
+import { buildBabiesHTML, hudHasBabies, днейИзТекста } from './render/babies.js?v=23.48.1';
+import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.48.1';
+import { hudHasRelations } from './render/relations-graph.js?v=23.48.1';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.48.1';
+import { чипЛуны, теньЛуны, титрыСцены, карточкаПоворота } from './render/extras.js?v=23.48.1';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.48.1';
+import { applyThemeClass } from './themes.js?v=23.48.1';
+import { упорядочитьВкладки } from './tabs-order.js?v=23.48.1';
+import { подключитьСтили } from './css-loader.js?v=23.48.1';
+import { бюджетИнструкции, подписьБюджета, медианаОтвета, оценкаТокенов, точноТокенов, разметкаБюджета, коротко } from './token-budget.js?v=23.48.1';
+import { наблюденияПолей, учестьОтвет, профильМодели, строкаУсиления, слабыеПоля } from './adapt-prompt.js?v=23.48.1';
+import { правитьСнимок, снятьПравку } from './snapshot-edits.js?v=23.48.1';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.48.1';
+import { getChatMessages, parseSceneDate } from './history-analyzer.js?v=23.48.1';
+import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ, заменитьHudБлоки } from './hud-block.js?v=23.48.1';
+import { собратьСнимок, строкаСнимка, решитьNSFW, решитьБой, последниеТекстыЧата, легендаСнимка } from './hud-snapshot.js?v=23.48.1';
+import { создатьПроверкуПолноты, чегоНеХватает } from './hud-check.js?v=23.48.1';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.48.1';
 (function() {
   window.HUD = window.HUD || {};
   window.HUD.bootstrap = true;
@@ -93,7 +99,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
   // нужна она только к генерации. Грузится заранее, когда страница затихнет, и
   // в любом случае до первой отправки (обёртка fetch ждёт её).
   let загрузитьПромптОбещание = null;
-  const загрузитьПромпт = () => (загрузитьПромптОбещание ||= import('./prompt.js?v=23.46.0').then(м => { м.подключить(связьПромпта); return м; }));
+  const загрузитьПромпт = () => (загрузитьПромптОбещание ||= import('./prompt.js?v=23.48.1').then(м => { м.подключить(связьПромпта); return м; }));
   const связьПромпта = {
     get последнийСнимокОбъект() { return последнийСнимокОбъект; },
     get сверитьРоды() { return сверитьРоды; },
@@ -267,9 +273,185 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     return null;
   }
 
+  /* «Дописывать пропущенное» (settings.hudFillGaps): строки для инструкции.
+     Прошлый HUD без обязательных полей (hud-check.js, чегоНеХватает) — «включи
+     их в этот раз»; еда в быте без подробностей (life.js, пробелыБыта) —
+     «допиши в lg с прежним временем». Не перегенерация: просьба едет с
+     обычной инструкцией нового ответа. */
+  function дописатьПропущенное(прошлыйHUD) {
+    if (settings.hudFillGaps === false || !settings.autoInject) return '';
+    const строки = [];
+    try {
+      if (прошлыйHUD) {
+        const нет = чегоНеХватает(прошлыйHUD).filter(x => !/^весь HUD/.test(x));
+        if (нет.length) строки.push('Last HUD missed: ' + нет.slice(0, 5).join(', ') + ' — include them in this HUD.');
+      }
+      if (settings.enableLife !== false && settings.enableMemory !== false) {
+        const ctx = window.SillyTavern?.getContext?.();
+        const чат = Array.isArray(ctx?.chat) ? ctx.chat : [];
+        // Журнал — до сообщения с тем HUD, что ушёл в запрос: при свайпе
+        // перегенерируемый ответ в него не входит.
+        let конец = чат.length;
+        if (прошлыйHUD) for (let i = чат.length - 1; i >= 0; i--) { const m = чат[i]; const т = m && (m.swipes && m.swipes[m.swipe_id] !== undefined ? m.swipes[m.swipe_id] : m.mes); if (т && String(т).includes(прошлыйHUD)) { конец = i + 1; break; } }
+        const пробел = пробелыБыта(журналБыта(чат, конец));
+        if (пробел) строки.push(пробел);
+      }
+    } catch (e) { console.warn('[TavernOS HUD] дописать пропущенное', e); }
+    return строки.join('\n');
+  }
+
+  // --- Учёт пропусков по полям (adapt-prompt.js) -------------------------
+  // Один раз на ответ: тот же ход при повторной отрисовке не считаем.
+  const учтено = new Set();
+  function учестьПоляОтвета(messageId, type) {
+    try {
+      if (!settings.autoInject || settings.hudAdaptPrompt === false) return;
+      if (type && !['normal', 'swipe', 'regenerate', 'continue', undefined].includes(type)) return;
+      const ctx = window.SillyTavern?.getContext?.();
+      const m = ctx?.chat?.[Number(messageId)];
+      if (!m || m.is_user || m.is_system) return;
+      const ключ = String(ctx.getCurrentChatId?.() ?? '') + '|' + messageId + '|' + (m.swipe_id ?? 0);
+      if (учтено.has(ключ)) return;
+      учтено.add(ключ);
+      const т = m.swipes && m.swipes[m.swipe_id] !== undefined ? m.swipes[m.swipe_id] : m.mes;
+      if (учестьОтвет(ctx.chatMetadata, профильМодели(), наблюденияПолей(т))) {
+        try { (ctx.saveMetadataDebounced || ctx.saveMetadata)?.call(ctx); } catch (_) { /* сохранит со следующим */ }
+      }
+    } catch (e) { console.warn('[TavernOS HUD] учёт полей', e); }
+  }
+
+  // --- Бюджет токенов (token-budget.js) -----------------------------------
+  // Как пойдёт СЛЕДУЮЩИЙ запрос: близость и бой — по последнему HUD, как
+  // решает перехват запроса; снимок, сейф и усиления — те же строки.
+  let кэшБюджета = null;
+  // Что Таверна сама кладёт в запрос: размер последнего запроса до нашей
+  // инструкции и записи лорбука, которые она активировала.
+  let запросТаверны = null, лорбукТаверны = null;
+  // Карточка и персона — тем же чтением, что и для перегенерации HUD.
+  function текстКарточки() {
+    const ctx = getStContextSafe();
+    const части = [];
+    try {
+      const id = ctx?.characterId;
+      const ch = id !== undefined && id !== null && id >= 0 ? ctx?.characters?.[id] : null;
+      const d = ch?.data || ch || {};
+      части.push(d.description || ch?.description || '', d.personality || ch?.personality || '', d.scenario || ch?.scenario || '', d.mes_example || ch?.mes_example || '');
+    } catch (_) { /* нет карточки */ }
+    try { части.push((typeof window.power_user !== 'undefined' && window.power_user?.persona_description) || ctx?.persona?.description || ''); } catch (_) { /* нет персоны */ }
+    return части.filter(x => String(x).trim()).join('\n');
+  }
+  async function посчитатьБюджет() {
+    const { buildDynamicPrompt } = await загрузитьПромпт();
+    const ctx = window.SillyTavern?.getContext?.();
+    const чат = Array.isArray(ctx?.chat) ? ctx.chat : [];
+    let блок = '', объект = null;
+    for (let j = чат.length - 1; j >= 0 && !блок; j--) {
+      const m = чат[j];
+      if (!m || m.is_user || m.is_system) continue;
+      const т = m.swipes && m.swipes[m.swipe_id] !== undefined ? m.swipes[m.swipe_id] : m.mes;
+      блок = extractHudBlock(String(т || '')) || '';
+    }
+    if (блок) { try { объект = собратьСнимок(блок); } catch (_) { объект = null; } }
+    const тексты = последниеТекстыЧата(чат);
+    const nsfw = решитьNSFW(объект, тексты), бой = решитьБой(объект, тексты);
+    const подпись = подписьБюджета({ nsfw, бой, ход: чат.length, снимок: settings.hudSnapshot, модель: профильМодели() });
+    if (кэшБюджета && кэшБюджета.подпись === подпись) return кэшБюджета.итог;
+    const снимок = объект && settings.hudSnapshot !== false ? строкаСнимка(объект, nsfw) : '';
+    const сейф = дописатьПропущенное(блок);
+    const усиление = строкаУсиления(ctx?.chatMetadata, профильМодели());
+    const инструкция = бюджетИнструкции(buildDynamicPrompt, { nsfw, бой });
+    // Родной счётчик Таверны — по целому; разделы масштабируем той же долей.
+    const целое = buildDynamicPrompt({ nsfw, бой }) + снимок + сейф + усиление;
+    const оценка = оценкаТокенов(целое);
+    const точно = await точноТокенов(целое);
+    const k = оценка > 0 && точно > 0 ? точно / оценка : 1;
+    const масштаб = (n) => Math.round(n * k);
+    инструкция.всего = масштаб(инструкция.всего); инструкция.основа = масштаб(инструкция.основа);
+    инструкция.разделы.forEach(р => { р.цена = масштаб(р.цена); });
+    const итог = { инструкция, снимок: масштаб(оценкаТокенов(снимок)), сейф: масштаб(оценкаТокенов(сейф)), усиление: масштаб(оценкаТокенов(усиление)), ответ: медианаОтвета(чат), слабые: слабыеПоля(ctx?.chatMetadata, профильМодели()), nsfw, бой };
+    итог.запрос = инструкция.всего + итог.снимок + итог.сейф + итог.усиление;
+    // Обычный ответ целиком: Таверна шлёт пресет, карточку, лорбук и историю,
+    // HUD добавляет своё. Пока запроса не было — хотя бы карточка и лорбук.
+    const карточка = масштаб(оценкаТокенов(текстКарточки()));
+    const лорбук = лорбукТаверны ? масштаб(лорбукТаверны.токены) : null;
+    итог.ответ_целиком = запросТаверны
+      ? { таверна: масштаб(запросТаверны.токены), карточка, лорбук, всего: масштаб(запросТаверны.токены) + итог.запрос, точно: true }
+      : { таверна: null, карточка, лорбук, всего: итог.запрос + карточка + (лорбук || 0), точно: false };
+    // Перегенерация HUD (regen.js): последние N сообщений без старых HUD,
+    // инструкция в режиме regen, снимок и HUD_EXTERNAL_CONTEXT — карточка,
+    // персона и лорбуки, выбранные для HUD.
+    try {
+      const n = Math.min(50, Math.max(1, parseInt(settings.regenContextMessages, 10) || defaultSettings.regenContextMessages || 6));
+      const история = чат.slice(-n).map(m => { const т = m && (m.swipes && m.swipes[m.swipe_id] !== undefined ? m.swipes[m.swipe_id] : m.mes); return заменитьHudБлоки(String(т || ''), '').trim(); }).filter(Boolean).join('\n');
+      const лор = await buildHudLoreContext(история);
+      const i = лор.indexOf('LOREBOOK —');
+      const р = {
+        история: масштаб(оценкаТокенов(история)), сообщений: n,
+        инструкция: масштаб(оценкаТокенов(buildDynamicPrompt({ nsfw, режим: 'regen', бой }))),
+        снимок: итог.снимок,
+        карточка: масштаб(оценкаТокенов(i >= 0 ? лор.slice(0, i) : лор)),
+        лорбук: масштаб(оценкаТокенов(i >= 0 ? лор.slice(i) : '')),
+      };
+      р.всего = р.история + р.инструкция + р.снимок + р.карточка + р.лорбук;
+      итог.перегенерация = р;
+    } catch (e) { console.warn('[TavernOS HUD] бюджет перегенерации', e); }
+    кэшБюджета = { подпись, итог };
+    return итог;
+  }
+  let таймерЧипов = 0;
+  function обновитьЧипыБюджетаПозже(мс = 1500) { clearTimeout(таймерЧипов); таймерЧипов = setTimeout(обновитьЧипыБюджета, мс); }
+  async function обновитьЧипыБюджета() {
+    if (settings.tokenBudget === 'off') return;
+    const чипы = [...document.querySelectorAll('.hud-os-card:not(.hud-historical) .hud-budget-chip')].filter(ч => !ч.closest('.hud-custom-preview-body'));
+    if (!чипы.length) return;
+    try {
+      const итог = await посчитатьБюджет();
+      const всего = (итог.ответ_целиком && итог.ответ_целиком.всего) || итог.запрос;
+      for (const ч of чипы) { ч.textContent = '≈' + коротко(всего); ч.title = `≈${всего} токенов в следующем ответе: HUD ≈${итог.запрос}, остальное — карточка, лорбук, пресет и история. Нажмите — разбивка.`; }
+      document.querySelectorAll('.hud-budget-panel:not([hidden])').forEach(п => { п.innerHTML = разметкаБюджета(итог); });
+    } catch (e) { console.warn('[TavernOS HUD] бюджет', e); }
+  }
+  // Чип в полосе — внутри <label> сворачивания: клик по нему не должен
+  // сворачивать карточку. Панель — внутри карточки, под полосой.
+  document.addEventListener('click', (e) => {
+    const чип = e.target.closest && e.target.closest('.hud-budget-chip');
+    const выкл = !чип && e.target.closest && e.target.closest('.hud-budget-off');
+    if (!чип && !выкл) return;
+    e.preventDefault(); e.stopPropagation();
+    if (выкл) {
+      let значение = false;
+      try { значение = JSON.parse(выкл.dataset.value); } catch (_) { значение = false; }
+      settings[выкл.dataset.key] = значение;
+      saveSettings();
+      кэшБюджета = null;
+      выкл.closest('li')?.classList.add('is-off');
+      выкл.textContent = 'выключено';
+      выкл.disabled = true;
+      обновитьЧипыБюджетаПозже(300);
+      return;
+    }
+    const card = чип.closest('.hud-os-card');
+    const обёртка = card && card.querySelector(':scope > .hud-os-wrapper');
+    if (!обёртка) return;
+    const свёртка = card.querySelector(':scope > .hud-toggle-input');
+    if (свёртка && !свёртка.checked) свёртка.checked = true;
+    let панель = обёртка.querySelector(':scope > .hud-budget-panel');
+    if (панель && !панель.hidden) { плавноПоказать(панель, false); чип.setAttribute('aria-expanded', 'false'); return; }
+    if (!панель) { панель = document.createElement('div'); панель.className = 'hud-budget-panel'; панель.setAttribute('role', 'region'); панель.setAttribute('aria-label', 'Бюджет токенов'); обёртка.prepend(панель); }
+    панель.innerHTML = разметкаБюджета(кэшБюджета && кэшБюджета.итог);
+    панель.hidden = true;
+    плавноПоказать(панель, true);
+    чип.setAttribute('aria-expanded', 'true');
+    посчитатьБюджет().then(итог => { if (!панель.hidden) панель.innerHTML = разметкаБюджета(итог); чип.textContent = '≈' + коротко((итог.ответ_целиком && итог.ответ_целиком.всего) || итог.запрос); }).catch(err => { панель.innerHTML = `<p class="hud-budget-note">Не посчиталось: ${escapeHtml(err && err.message || String(err))}</p>`; });
+  }, true);
+  document.addEventListener('keydown', (e) => {
+    if ((e.key === 'Enter' || e.key === ' ') && e.target && e.target.matches && e.target.matches('.hud-budget-chip')) { e.preventDefault(); e.target.click(); }
+  });
+
   /* Итог быта и часов сцены для модели — одной-двумя строками: то, что HUD
      посчитал, а модель сама не выведет («не ели 7 ч», «ужин 19:00 пропущен»).
      Журнал в запрос не идёт никогда. Куда — по settings.lifeToModel. */
+
   function итогБытаДляМодели() {
     if (settings.enableLife === false || !settings.lifeToModel || settings.lifeToModel === 'off') return '';
     try {
@@ -412,6 +594,8 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
           const инжект = !!settings.autoInject;
           const снимокВключён = инжект && settings.hudSnapshot !== false && hudsToKeep > 0;
           let объектСнимка = null;
+          // Текст прошлого HUD (последний блок в запросе) — для «Дописывать пропущенное».
+          let прошлыйHUD = '';
 
 
           // Какие блоки сжать в сводку. Без снимка — всё, кроме последних
@@ -457,6 +641,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
               }
             });
 
+            if (allMatches.length) { const посл = allMatches[allMatches.length - 1]; прошлыйHUD = parsedBody.messages[посл.mIdx].content.substring(посл.index, посл.index + посл.length); }
             if (снимокВключён && allMatches.length) {
               const посл = allMatches[allMatches.length - 1];
               объектСнимка = собратьСнимок(parsedBody.messages[посл.mIdx].content.substring(посл.index, посл.index + посл.length));
@@ -483,6 +668,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
           else if (parsedBody.prompt && typeof parsedBody.prompt === 'string') {
             let allMatches = [];
             for (const б of hudБлоки(parsedBody.prompt)) allMatches.push({ index: б.index, length: б.length });
+            if (allMatches.length) { const посл = allMatches[allMatches.length - 1]; прошлыйHUD = parsedBody.prompt.substring(посл.index, посл.index + посл.length); }
             if (снимокВключён && allMatches.length) {
               const посл = allMatches[allMatches.length - 1];
               объектСнимка = собратьСнимок(parsedBody.prompt.substring(посл.index, посл.index + посл.length));
@@ -517,7 +703,24 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
           const { buildDynamicPrompt } = await загрузитьПромпт();
           // Бой — только когда он нужен (hud-snapshot.js, решитьБой).
           const бой = решитьБой(объектСнимка, последниеТекстыЧата(чатДляРешения));
+          // Бюджет: что прислала Таверна сама (пресет, карточка, лорбук, история;
+          // старые HUD уже свёрнуты в сводки) — до нашей инструкции.
+          try {
+            const весьТекст = Array.isArray(parsedBody.messages)
+              ? parsedBody.messages.map(m => typeof m.content === 'string' ? m.content : Array.isArray(m.content) ? m.content.map(x => (x && x.text) || '').join('') : '').join('\n')
+              : String(parsedBody.prompt || '');
+            запросТаверны = { токены: оценкаТокенов(весьТекст), t: Date.now() };
+            кэшБюджета = null;
+          } catch (_) { /* бюджет — не повод ломать запрос */ }
           let dynamicPrompt = раскрытьИнструкцию(buildDynamicPrompt({ nsfw, бой }), снимок);
+          // Сейф: чего не было в прошлом HUD и что быт знает без подробностей —
+          // просим дописать в этом же ответе, короткой строкой в инструкции.
+          const дописать = дописатьПропущенное(прошлыйHUD);
+          if (дописать) dynamicPrompt += '\n\n' + дописать;
+          // Усиления (adapt-prompt.js): поля, которые эта модель в этом чате
+          // регулярно оставляет пустыми, — одной строкой, не больше трёх полей.
+          const усиление = строкаУсиления(window.SillyTavern?.getContext?.()?.chatMetadata, профильМодели());
+          if (усиление) dynamicPrompt += '\n\n' + усиление;
           window.__tavernOSHudPrompt = { nsfw, бой, снимок: снимок.length, символов: dynamicPrompt.length, отдельно: settings.hudPromptSeparate !== false };
           console.info('[TavernOS HUD] Инструкция HUD', window.__tavernOSHudPrompt);
 
@@ -876,6 +1079,9 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
   }
 
   function saveSettings() {
+    обновитьЧипыБюджетаПозже(800);
+    // Включили фичу — её стили встают на своё место в цепочке.
+    try { подключитьСтили(settings); } catch (_) { /* стили — не повод не сохранить */ }
     try {
       localStorage.setItem('hud_settings', JSON.stringify(settings));
     } catch (e) {
@@ -1125,7 +1331,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
   // Окно «Кастомизация» и его панель темы (customize.js) вместе с примером HUD
   // грузятся при первом открытии: при старте они не нужны.
   let загрузитьКастомизациюОбещание = null;
-  const загрузитьКастомизацию = () => (загрузитьКастомизациюОбещание ||= import('./customize.js?v=23.46.0').then(м => { м.подключить(связьКастомизации); return м; }));
+  const загрузитьКастомизацию = () => (загрузитьКастомизациюОбещание ||= import('./customize.js?v=23.48.1').then(м => { м.подключить(связьКастомизации); return м; }));
   const связьКастомизации = {
     get applyCardUiState() { return applyCardUiState; },
     get applyThemeColors() { return applyThemeColors; },
@@ -1141,6 +1347,8 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     get выбор() { return выбор; },
     get перерисоватьКарточкиЧата() { return перерисоватьКарточкиЧата; },
     get путьУзла() { return путьУзла; },
+    get посчитатьБюджет() { return посчитатьБюджет; },
+    get разметкаБюджета() { return разметкаБюджета; },
   };
   function собратьПросмотр(...аргументы) { return загрузитьКастомизацию().then(м => м.собратьПросмотр(...аргументы)); }
   function открытьКастомизацию(...аргументы) { return загрузитьКастомизацию().then(м => м.открытьКастомизацию(...аргументы)); }
@@ -1566,6 +1774,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
       <label class="hud-os-topbar" for="os-toggle-${baseId}">
         <div class="hud-os-topbar-left"><span class="hud-os-logo">TavernOS</span>${osSubtitleHtml}</div>
         <div class="hud-os-topbar-right">
+            ${settings.tokenBudget !== 'off' ? '<span class="hud-budget-chip" role="button" tabindex="0" aria-expanded="false" title="Сколько HUD стоит токенов: нажмите — разбивка по блокам">≈…</span>' : ''}
             ${settings.enableAssistant !== false ? '<span class="hud-ask-btn" role="button" tabindex="0" title="Спросить про сюжет: модель ответит по HUD и последним сообщениям, в чат ничего не попадёт">❓</span>' : ''}
             <span class="hud-regen-btn" title="Перегенерировать только HUD">🔄</span>
             <span class="hud-toggle-indicator">▼</span>
@@ -1643,9 +1852,9 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
      
     // Поворот сюжета — над вкладками: он про всю сцену, а не про одного.
     html += карточкаПоворота(data.scene && data.scene['Поворот сюжета']);
-    html += `<div class="hud-tabs-header">`;
+    html += `<div class="hud-tabs-header" role="tablist" aria-label="Вкладки HUD">`;
 
-    let tabsHtml = '', contentHtml = '', isFirst = true;
+    let tabsHtml = '', contentHtml = '';
 
     // Складываем сюда способ собрать каждую отложенную вкладку. Объект уедет
     // на элемент карточки сразу после вставки разметки в сообщение.
@@ -1660,21 +1869,16 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     const сПриставкой = [...new Set([(getStContextSafe() || {}).name2, ...(Array.isArray(data.characters) ? data.characters.map(c => c && c['Имя']) : [])]
       .filter(н => typeof н === 'string' && н.trim() && имяБезПриставки(н) !== н.trim()))];
     const чисто = (h) => сПриставкой.reduce((acc, н) => убратьПриставкуКарточки(acc, н), h);
-    const addTab = (tabHtml, uid, build) => {
-      tabsHtml += tabHtml;
-      if (isFirst || !lazyOn) {
-        contentHtml += чисто(build(isFirst));
-      } else {
-        lazyThunks['content-' + uid] = () => чисто(build(false));
-        contentHtml += `<div class="hud-tab-content hud-tab-lazy" id="content-${uid}"></div>`;
-      }
-      isFirst = false;
-    };
+    // Сперва только собираем: порядок, скрытые и закреплённые вкладки
+    // (tabs-order.js, настройки tabOrder / tabHidden / tabPinned) применяются
+    // ниже, перед выводом. id стабильный: у всех персонажей один — 'character'.
+    const вкладки = [];
+    const addTab = (id, cls, ярлык, uid, build) => { вкладки.push({ id, cls, ярлык, uid, build }); };
 
     data.characters.forEach((char, index) => {
       const uid = `char-${index}-${baseId}`;
       const name = char['Имя'] || `NPC ${index+1}`;
-      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">👤 ${escapeHtml(имяДляВкладки(name))}${значокСправки('character')}</div>`,
+      addTab('character', '', `👤 ${escapeHtml(имяДляВкладки(name))}${значокСправки('character')}`,
         uid, (active) => buildCharacterHTML(char, uid, active, index === 0));
     });
 
@@ -1684,19 +1888,19 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
       const uid = `user-${baseId}`;
       // Блок игрока может оказаться пустым — узнаём это только собрав его,
       // поэтому строим сразу и откладываем уже готовую строку.
-      const userTabHtml = buildUserHTML(data.user, uid, isFirst, data.characters);
+      const userTabHtml = buildUserHTML(data.user, uid, false, data.characters);
       if (userTabHtml) {
         сводкаУИгрока = true;
         const personaName = getSafeUserName();
-        addTab(`<div class="hud-tab hud-user-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">👤 ${escapeHtml(имяДляВкладки(personaName))}${значокСправки('user')}</div>`,
-          uid, (active) => active ? userTabHtml : buildUserHTML(data.user, uid, false, data.characters));
+        addTab('user', 'hud-user-tab', `👤 ${escapeHtml(имяДляВкладки(personaName))}${значокСправки('user')}`,
+          uid, (active) => buildUserHTML(data.user, uid, active, data.characters));
       }
     }
 
     // Бой (render/combat.js): вкладка только при живом cb; срез хода, не копится.
     if (settings.enableCombat !== false && hudHasCombat(data.combat)) {
       const uid = `combat-${baseId}`;
-      addTab(`<div class="hud-tab hud-combat-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">⚔️ Бой${значокСправки('combat')}</div>`, uid, (active) => {
+      addTab('combat', 'hud-combat-tab', `⚔️ Бой${значокСправки('combat')}`, uid, (active) => {
         // Отходняк считаем по времени сюжета: сколько минут прошло с хода,
         // где бой стал «кончено»; события погони — из прошлых ходов.
         const главный = Array.isArray(data.characters) ? data.characters[0] : null;
@@ -1708,26 +1912,28 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
         const событияПогони = история.map(х => х.ход && х.ход.combat && х.ход.combat.ch).filter(Boolean)
           .map(ch => ({ д: parseFloat((String(ch).match(/dst\s*:\s*(\d{1,3})/i) || [])[1]), текст: (String(ch).match(/evt\s*:\s*([^;]+)/i) || [])[1] || '' }))
           .filter(е => Number.isFinite(е.д) && е.текст).slice(0, 8);
-        return buildCombatHTML(data.combat, data, uid, active, { конченоМинут: сейчас && конченоС ? (сейчас - конченоС) / 60000 : null, событияПогони });
+        let заживление = [];
+        try { заживление = прогнозыЗаживления([...история.map(х => ({ момент: х.момент, ход: х.ход })), { момент: сейчас, ход: data }], сейчас); } catch (_) { заживление = []; }
+        return buildCombatHTML(data.combat, data, uid, active, { конченоМинут: сейчас && конченоС ? (сейчас - конченоС) / 60000 : null, событияПогони, заживление });
       });
     }
 
     if (settings.enableBabies !== false && hudHasBabies(data.babies)) {
       const uid = `babies-${baseId}`;
-      addTab(`<div class="hud-tab hud-kids-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🍼 Детская</div>`,
+      addTab('babies', 'hud-kids-tab', `🍼 Детская`,
         uid, (active) => buildBabiesHTML(data.babies, uid, active, data.scene || {}));
     }
 
     // Средневековье: шкатулка на месте телефона.
     if (средневековье && settings.enableCasket !== false && hudHasCasket(data.satchel, data.letters)) {
       const uid = `casket-${baseId}`;
-      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🗝️ Шкатулка${значокСправки('casket')}</div>`,
+      addTab('casket', '', `🗝️ Шкатулка${значокСправки('casket')}`,
         uid, (active) => buildCasketHTML(data.satchel, data.letters, uid, active, (Array.isArray(data.characters) && data.characters[0] && data.characters[0]['Имя']) || getMainProtagonistNames().char, data.scene && data.scene['Дата'], data.characters));
     }
 
     if (hasPhone) {
       const uid = `phone-${baseId}`;
-      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📱 Телефон${значокСправки('phone')}</div>`,
+      addTab('phone', '', `📱 Телефон${значокСправки('phone')}`,
         // Последний запасной владелец телефона — персонаж, а не персона игрока:
         // телефон по схеме всегда принадлежит персонажу.
         uid, (active) => buildPhoneTabsHTML(data.chatsMap, uid, active, (Array.isArray(data.characters) && data.characters[0] && data.characters[0]['Имя']) || getMainProtagonistNames().char, data.phone, data.scene && data.scene['Дата'], tRaw, data.characters, { scene: data.scene, world: data.world }));
@@ -1736,7 +1942,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     // === ВСТАВЛЯЕМ ВКЛАДКУ ПАМЯТИ СЮДА ===
     if (settings.enableMemory && hasMemory) {
       const uid = `memory-${baseId}`;
-      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🧠 Память${значокСправки('memory')}</div>`, uid, (active) => {
+      addTab('memory', '', `🧠 Память${значокСправки('memory')}`, uid, (active) => {
         try {
           const сводка = !сводкаУИгрока && settings.enablePerception !== false ? buildPerceptionHTML(data.characters) : '';
           return buildMemoryHTML(data.memory || {}, uid, active, data, { perception: сводка });
@@ -1759,7 +1965,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
       const последний = Array.isArray(чатБыта) && индексБыта >= чатБыта.length - 2;
       if (пример || (Number.isInteger(индексБыта) && Array.isArray(чатБыта) && (lazyOn || последний))) {
         const uid = `life-${baseId}`;
-        addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🧺 Быт${значокСправки('life')}</div>`, uid, (active) => {
+        addTab('life', '', `🧺 Быт${значокСправки('life')}`, uid, (active) => {
           try {
             const ж = пример ? журналБыта(null, 0, [...(Array.isArray(data.__hudБытПрошлое) ? data.__hudБытПрошлое : []), data]) : журналБыта(чатБыта, индексБыта + 1);
             return естьБыт(ж) ? buildLifeHTML(ж, uid, active)
@@ -1777,19 +1983,19 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     // "empty", "none" and "пусто" must not create an otherwise blank tab.
     if (средневековье && settings.enableOverheard !== false && hudHasMeaningfulOverheard(data.overheard)) {
       const uid = `overheard-${baseId}`;
-      addTab(`<div class="hud-tab intercept-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">👂 Подслушанное${значокСправки('overheard')}</div>`,
+      addTab('overheard', 'intercept-tab', `👂 Подслушанное${значокСправки('overheard')}`,
         uid, (active) => buildOverheardHTML(data.overheard, uid, active));
     }
 
     if (!средневековье && hudHasMeaningfulIntercepts(data.intercepts) && settings.enableIntercepts) {
       const uid = `intercept-${baseId}`;
-      addTab(`<div class="hud-tab intercept-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📡 Перехваты${значокСправки('intercepts')}</div>`,
+      addTab('intercepts', 'intercept-tab', `📡 Перехваты${значокСправки('intercepts')}`,
         uid, (active) => buildInterceptsHTML(data.intercepts, uid, active, data.scene && data.scene['Дата']));
     }
 
     if (hudHasMeaningfulDiary(data.diary) && settings.enableDiary) {
       const uid = `diary-${baseId}`;
-      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">📖 Дневник${значокСправки('diary')}</div>`,
+      addTab('diary', '', `📖 Дневник${значокСправки('diary')}`,
         uid, (active) => buildDiaryHTML(data.diary, uid, active));
     }
 
@@ -1797,30 +2003,42 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     // только во время близости и сразу после, вне сцены вкладки просто нет.
     if (hudHasMeaningfulBodyDiary(data.bodyDiary) && settings.enableDiary) {
       const uid = `bodydiary-${baseId}`;
-      addTab(`<div class="hud-tab hud-body-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🕯 Дневник тела${значокСправки('bodyDiary')}</div>`,
+      addTab('bodydiary', 'hud-body-tab', `🕯 Дневник тела${значокСправки('bodyDiary')}`,
         uid, (active) => buildBodyDiaryHTML(data.bodyDiary, uid, active));
     }
 
     if (hudHasMeaningfulDreams(data.dreams) && settings.enableDreams) {
       const uid = `dream-${baseId}`;
-      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🌙 Сны${значокСправки('dreams')}</div>`,
+      addTab('dreams', '', `🌙 Сны${значокСправки('dreams')}`,
         uid, (active) => buildDreamHTML(data.dreams, uid, active));
     }
 
     if (settings.enableCompanions !== false && hudHasMeaningfulCompanions(data.companions)) {
       const uid = `pets-${baseId}`;
-      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🐾 Спутники</div>`,
+      addTab('pets', '', `🐾 Спутники`,
         uid, (active) => buildCompanionsHTML(data.companions, uid, active));
     }
 
     if (hudHasMeaningfulWorld(data.world) && settings.enableWorld) {
       const uid = `world-${baseId}`;
-      addTab(`<div class="hud-tab ${isFirst ? 'active' : ''}" data-target="content-${uid}">🌍 Мир${значокСправки('world')}</div>`,
+      addTab('world', '', `🌍 Мир${значокСправки('world')}`,
         uid, (active) => buildWorldHTML(data.world, uid, active, settings.showComments));
     }
 
     const персонажи = Array.isArray(data.characters) ? data.characters : [];
     const титры = титрыСцены({ имена: персонажи.map(c => c && c['Имя']), место: (персонажи[0] || {})['Место'] || '', время: hudHasMeaningfulValue(tRaw) ? String(tRaw).split('|')[0].trim() : '', дата: hudHasMeaningfulValue(dRaw) ? dRaw : '', игрок: data.user && Object.keys(data.user).length ? getSafeUserName() : '' });
+    // Порядок и скрытие — из настроек; активна первая из видимых.
+    const панель = (h) => String(h || '').replace(/<div(\s+class="hud-tab-content)/, '<div role="tabpanel"$1');
+    упорядочитьВкладки(вкладки, settings).forEach((т, i) => {
+      const активна = i === 0;
+      tabsHtml += `<div class="hud-tab${т.cls ? ' ' + т.cls : ''}${активна ? ' active' : ''}" role="tab" tabindex="${активна ? 0 : -1}" aria-selected="${активна}" aria-controls="content-${т.uid}" data-tab-id="${т.id}" data-target="content-${т.uid}">${т.ярлык}</div>`;
+      if (активна || !lazyOn) {
+        contentHtml += панель(чисто(т.build(активна)));
+      } else {
+        lazyThunks['content-' + т.uid] = () => панель(чисто(т.build(false)));
+        contentHtml += `<div class="hud-tab-content hud-tab-lazy" role="tabpanel" id="content-${т.uid}"></div>`;
+      }
+    });
     html += tabsHtml + `</div><div class="hud-tab-hint" hidden></div><div class="hud-tabs-body">` + contentHtml + `</div>` + титры + `</div></div>`;
     // Заберёт processMessage сразу после вставки разметки: см. lastLazyThunks.
     lastLazyThunks = Object.keys(lazyThunks).length ? lazyThunks : null;
@@ -1985,6 +2203,21 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
       if (о) блоки.push({ from: о.от, to: s.length, contentFrom: о.до, contentTo: s.length, closed: false });
     }
     return блоки;
+  }
+
+  const ОБЁРТКИ_MARKDOWN = /^(?:OL|UL|LI|CODE|PRE|BLOCKQUOTE|P|EM|STRONG|B|I|U|S|DEL)$/;
+  function поднятьИзОбёрток(textElement, card) {
+    let верх = card;
+    while (верх.parentElement && верх.parentElement !== textElement && ОБЁРТКИ_MARKDOWN.test(верх.parentElement.tagName)) верх = верх.parentElement;
+    if (верх === card) return;
+    const откуда = card.parentElement;
+    верх.after(card);
+    // Пустые после переноса обёртки (остались только пробелы) — прочь.
+    for (let p = откуда; p && p !== textElement && p !== верх.parentElement; ) {
+      const выше = p.parentElement;
+      if (!p.textContent.trim() && !p.querySelector('img, video, iframe, svg, .hud-os-card')) p.remove();
+      p = выше;
+    }
   }
 
   async function processMessage(messageElement) {
@@ -2203,6 +2436,14 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
       if (fresh) fresh.__hudLazy = lastLazyThunks;
       lastLazyThunks = null;
     }
+    // Чип бюджета в новой карточке — заполнить, когда карточки чата встанут.
+    if (settings.tokenBudget !== 'off' && textElement.querySelector('.hud-budget-chip')) обновитьЧипыБюджетаПозже(1500);
+
+    // Модель иногда кладёт блок HUD в markdown-список или `код`: каждый
+    // уровень отступа съедает ширину, и на телефоне карточка сжималась до
+    // 160px. Поднимаем её на уровень текста сообщения — сразу после внешней
+    // обёртки; опустевшие обёртки убираем. Чужие div других расширений не трогаем.
+    textElement.querySelectorAll('.hud-os-card').forEach(card => поднятьИзОбёрток(textElement, card));
 
     // Теперь заготовки на месте — можно открывать ту вкладку, что была
     // открыта до пересборки: её содержимое соберётся как надо.
@@ -2399,6 +2640,18 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     const вышло = hudFate === 'undo' ? откатитьСудьбу(kto) : изменитьСудьбу(kto, key, hudFate === 'pos');
     if (!вышло) return;
     const mes = кнопка.closest('.mes');
+    if (mes) mes.__hudUiState = readCardUiState(mes);
+    перерисоватьКарточкиЧата();
+  });
+  // Правки снимка из сетки секретов: «отметить», «нет», «снять».
+  document.addEventListener('click', (e) => {
+    const кн = e.target && e.target.closest && e.target.closest('[data-sec-edit]');
+    if (!кн || !кн.closest('.hud-os-card')) return;
+    e.preventDefault(); e.stopPropagation();
+    const путь = кн.dataset.secEdit, значение = кн.dataset.value || '';
+    const mes = кн.closest('.mes');
+    const вышло = значение ? правитьСнимок(путь, значение, mes ? Number(mes.getAttribute('mesid')) : null) : снятьПравку(путь);
+    if (!вышло) return;
     if (mes) mes.__hudUiState = readCardUiState(mes);
     перерисоватьКарточкиЧата();
   });
@@ -3035,7 +3288,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
   // Перегенерация HUD по 🔄 / ➕ и досоздание после проверки полноты
   // (regen.js) — грузится при первом нажатии.
   let загрузитьПерегенерациюОбещание = null;
-  const загрузитьПерегенерацию = () => (загрузитьПерегенерациюОбещание ||= import('./regen.js?v=23.46.0').then(м => { м.подключить(связьПерегенерации); return м; }));
+  const загрузитьПерегенерацию = () => (загрузитьПерегенерациюОбещание ||= import('./regen.js?v=23.48.1').then(м => { м.подключить(связьПерегенерации); return м; }));
   const связьПерегенерации = {
     get buildHudLoreContext() { return buildHudLoreContext; },
     get getMessageUpdateFunction() { return getMessageUpdateFunction; },
@@ -3099,7 +3352,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
       const mes = btn.closest('.mes');
       const id = mes ? Number(mes.getAttribute('mesid')) : NaN;
       // Помощник (render/assistant.js) грузится по первому вопросу.
-      import('./render/assistant.js?v=23.46.0').then(({ openAssistantDialog }) => openAssistantDialog({ mesId: Number.isInteger(id) ? id : null, лорбуки: лорбукиДляАссистента, сохранить: saveSettings, профили: списокПрофилей }))
+      import('./render/assistant.js?v=23.48.1').then(({ openAssistantDialog }) => openAssistantDialog({ mesId: Number.isInteger(id) ? id : null, лорбуки: лорбукиДляАссистента, сохранить: saveSettings, профили: списокПрофилей }))
         .catch(e => { console.error('[TavernOS HUD] помощник не загрузился:', e); showHudToast('error', 'Помощник', 'Не загрузился: ' + (e && e.message || e)); });
     };
     btn.addEventListener('click', открыть, true);
@@ -3311,7 +3564,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
   // Панель расширения в «Расширениях» Таверны (settings-ui.js). Она нужна не
   // для первой отрисовки чата — грузится после запуска.
   let загрузитьПанельНастроекОбещание = null;
-  const загрузитьПанельНастроек = () => (загрузитьПанельНастроекОбещание ||= import('./settings-ui.js?v=23.46.0').then(м => { м.подключить(связьНастроек); return м; }));
+  const загрузитьПанельНастроек = () => (загрузитьПанельНастроекОбещание ||= import('./settings-ui.js?v=23.48.1').then(м => { м.подключить(связьНастроек); return м; }));
   const связьНастроек = {
     get applyThemeColors() { return applyThemeColors; },
     get cachedChatContainer() { return cachedChatContainer; },
@@ -3436,7 +3689,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
 
   // Окно «В лорбук» (lore-dialog.js) — грузится при первом открытии.
   let загрузитьЛорОбещание = null;
-  const загрузитьЛор = () => (загрузитьЛорОбещание ||= import('./lore-dialog.js?v=23.46.0').then(м => { м.подключить(связьЛора); return м; }));
+  const загрузитьЛор = () => (загрузитьЛорОбещание ||= import('./lore-dialog.js?v=23.48.1').then(м => { м.подключить(связьЛора); return м; }));
   const связьЛора = {
     get getAvailableHudLorebooks() { return getAvailableHudLorebooks; },
     get getMainProtagonistNames() { return getMainProtagonistNames; },
@@ -3536,6 +3789,13 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     // Не ждём внутри обработчика: ST ждёт своих слушателей, прежде чем сохранить чат.
     es.on(et.MESSAGE_RECEIVED, (messageId, type) => {
       setTimeout(() => { проверкаПолноты.послеОтвета(messageId, type).catch(e => console.warn('[TavernOS HUD] Проверка полноты', e)); }, 800);
+      setTimeout(() => учестьПоляОтвета(messageId, type), 400);
+      обновитьЧипыБюджетаПозже(2500);
+    });
+    if (et.CHAT_CHANGED) es.on(et.CHAT_CHANGED, () => { кэшБюджета = null; запросТаверны = null; лорбукТаверны = null; обновитьЧипыБюджетаПозже(3000); });
+    // Лорбук, который Таверна вставила в последний запрос: его записи.
+    if (et.WORLD_INFO_ACTIVATED) es.on(et.WORLD_INFO_ACTIVATED, (записи) => {
+      try { const сп = Array.isArray(записи) ? записи : []; лорбукТаверны = { токены: оценкаТокенов(сп.map(з => (з && з.content) || '').join('\n')), записей: сп.length }; кэшБюджета = null; } catch (_) { /* нет — нет */ }
     });
   }
 
@@ -3548,6 +3808,9 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     }
     cachedChatContainer = chatContainer;
     loadSettings(); 
+    // Стили — сразу по загрузке настроек и до первой карточки: параллельно и
+    // по включённости фич (css-loader.js).
+    try { подключитьСтили(settings); } catch (e) { console.error('[TavernOS HUD] стили', e); }
     restoreLastTavernRequest();
     // Макрос {{hudLast}} — и для нашей инструкции, и для пресетов.
     зарегистрироватьМакросHUD();
@@ -3557,6 +3820,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     initWandButton(); // Наша новая кнопка!
     updatePerformanceMode();
     processAllMessages(); 
+    обновитьЧипыБюджетаПозже(4000);
     initObserver(eventsCtx, chatContainer);
     if (isPerformanceModeActive(chatContainer)) setupPerformanceObserver();
     chatContainer.addEventListener('scroll', schedulePerformanceRefresh, { passive: true });

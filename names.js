@@ -10,7 +10,7 @@
 // "Майкл Смит", "Michael Smith" и т.п. Граф сначала собирает все реальные
 // имена, затем пытается сопоставить каждую ссылку с уже существующим узлом,
 // и только после этого создаёт новый узел.
-import { settings } from './settings.js?v=23.46.0';
+import { settings } from './settings.js?v=23.48.1';
 
 export function normalizeNameText(name) {
   return String(name ?? '')
@@ -29,7 +29,8 @@ export function transliterateCyrillic(name) {
   const table = {
     'а':'a','б':'b','в':'v','г':'g','д':'d','е':'e','ж':'zh','з':'z','и':'i','й':'y','к':'k','л':'l','м':'m','н':'n','о':'o','п':'p','р':'r','с':'s','т':'t','у':'u','ф':'f','х':'kh','ц':'ts','ч':'ch','ш':'sh','щ':'shch','ъ':'','ы':'y','ь':'','э':'e','ю':'yu','я':'ya'
   };
-  return Array.from(src).map(ch => table[ch] ?? ch).join('');
+  // «ье» звучит «йе»: «Готье», «Оливье» — как французские Gauthier, Olivier.
+  return Array.from(src.replace(/ье/g, 'йе')).map(ch => table[ch] ?? ch).join('');
 }
 
 export function nameLettersOnly(name) {
@@ -42,6 +43,13 @@ export function namePhoneticLatin(name) {
   // Сводим распространённые варианты английского написания к близкой
   // фонетической форме, чтобы Michael/Mайкл, Sergei/Сергей и т.п. сближались.
   s = s
+    // «Эванджелина» / «Evangeline»: «дж» перед е, и в английском — это g.
+    .replace(/dzh(?=[ei])/g, 'g')
+    // Французское -ier на конце читается «-ье»: Gauthier — Готье.
+    .replace(/ier$/, 'ye')
+    // Немая e в английском: Kate, Jane, Grace читаются «эй» — Кейт, Джейн, Грейс.
+    .replace(/ace$/, 'eys')
+    .replace(/a([bdfgklmnprstvz])e$/, 'ey$1')
     .replace(/michael/g, 'maykl')
     .replace(/alexander/g, 'aleksandr')
     .replace(/alexandra/g, 'aleksandra')
@@ -86,7 +94,9 @@ function nameVariants(name) {
   const squashed = raw.replace(/[^a-zа-я0-9]+/gi, '');
   const tokens = raw.split(/\s+/).filter(Boolean);
   const tokenTranslit = tokens.map(x => nameLettersOnly(x)).join('');
-  return new Set([raw.replace(/[^a-zа-я0-9]+/gi, ''), translit, phonetic, consonants, squashed, tokenTranslit].filter(Boolean));
+  // Одни согласные — примета только длинного имени: у «Анны» и «Инны» они
+  // одни и те же (nn), у «Мии» и «Маи» тоже (m).
+  return new Set([raw.replace(/[^a-zа-я0-9]+/gi, ''), translit, phonetic, consonants.length >= 4 ? consonants : '', squashed, tokenTranslit].filter(Boolean));
 }
 
 // --- Имена из настроек аватарок ---------------------------------------------
@@ -116,9 +126,15 @@ function поСпискамАватарок(A, B) {
   if (!группы.length) return null;
   // Имя из списка узнаём целиком или по первому слову: в переписке человек
   // встречается и полным именем, и одним лишь именем.
+  // И в падеже: в списке «София», в тексте «Софию», «Софией».
   const вСписке = (имя, список) => {
-    const н = имя.toLowerCase(), первое = н.split(' ')[0];
-    return список.some(x => x === н || x.split(' ')[0] === первое);
+    const н = имя.toLowerCase(), первое = н.split(' ')[0], зв = namePhoneticLatin(первое);
+    return список.some(x => {
+      const xп = x.split(' ')[0];
+      if (x === н || xп === первое) return true;
+      const зx = namePhoneticLatin(xп);
+      return зв.length >= 3 && зx.length >= 3 && (сПадежом(зв, зx) || (зв.replace(ГЛАСНЫЕ_В_КОНЦЕ, '') === зx.replace(ГЛАСНЫЕ_В_КОНЦЕ, '') && зв.replace(ГЛАСНЫЕ_В_КОНЦЕ, '').length >= 3 && !несклоняемоеПродлено(зв, зx)));
+    });
   };
   const гA = группы.filter(г => вСписке(A, г));
   const гB = группы.filter(г => вСписке(B, г));
@@ -146,6 +162,56 @@ function levenshtein(a, b) {
   return prev[b.length];
 }
 
+// Первые слова имён (уже в фонетической латинице). Одна буква разницы — это
+// опечатка или транслитерация только у длинного имени и не в первой букве:
+// «Мия» и «Мая», «Лея» и «Лия», «Мария» и «Дария» — разные люди. Падеж
+// («Софии», «Тристана», «Анны») — та же основа без конечных гласных.
+const ГЛАСНЫЕ_В_КОНЦЕ = /[aeiouy]+$/;
+// Короткое имя в другой азбуке — транслитерация: «Мия» / «Mia», «Кейт» /
+// «Kate», «Ной» / «Noah». Тут сравниваем согласные (немая h не в счёт) и
+// звучание в целом. Разные героини одного сюжета обычно в одной азбуке —
+// «Мия» и «Мая» так не сольются.
+const КИРИЛЛИЦА = /[а-яё]/i;
+// Немая h — в конце и после гласной (Noah, Sarah), но не в sh, kh, zh, ch, th:
+// иначе «Шеф» (shef) сходил за Sophie (sofi).
+const согласные = (s) => s.replace(/(?<![skzct])h/g, '').replace(/[aeiouy]+/g, '');
+// Падежные окончания в транслитерации: «Коэном», «Аресом», «Тристану», «Софии».
+const ПАДЕЖ = /^(?:a|ya|u|yu|e|i|y|om|em|oy|ey|oyu|eyu|am|yam|ym|im|akh|yakh|ov|ev)$/;
+function сПадежом(a, b) {
+  const [к, д] = a.length <= b.length ? [a, b] : [b, a];
+  return к.length >= 3 && д.startsWith(к) && ПАДЕЖ.test(д.slice(к.length));
+}
+// Начало «Дж» / J / Y: «Джейн» (dzheyn → geyn) и Jane (yeyn) — одно и то же.
+const начало = (s) => s.replace(/^(?:dzh|g(?=[ei])|y)/, 'J');
+function несклоняемоеПродлено(a, b) {
+  const [к, д] = a.length <= b.length ? [a, b] : [b, a];
+  return к !== д && д.startsWith(к) && /[ieou]$/.test(к) && /^[aeiouy]/.test(д.slice(к.length));
+}
+function первыеСловаСовпадают(a, b, исхA = '', исхB = '') {
+  if (a === b) return true;
+  // Имя на -и, -е, -о, -у не склоняется: «Софию», «Софии», «София» — это
+  // другое имя (София), а не падеж Софи. Если у игрока это один человек —
+  // для этого списки имён под картинкой.
+  if (несклоняемоеПродлено(a, b)) return false;
+  if (КИРИЛЛИЦА.test(исхA) !== КИРИЛЛИЦА.test(исхB)) { a = начало(a); b = начало(b); if (a === b) return true; }
+  // Опечатка — не в первой и не в последней букве: последняя у нас падеж
+  // («Грея» — это Грей, а не Grace), первая — другое имя («Мария» / «Дария»).
+  if (Math.min(a.length, b.length) >= 5 && a[0] === b[0] && a[a.length - 1] === b[b.length - 1] && levenshtein(a, b) <= 1) return true;
+  const оa = a.replace(ГЛАСНЫЕ_В_КОНЦЕ, ''), оb = b.replace(ГЛАСНЫЕ_В_КОНЦЕ, '');
+  if (оa.length >= 3 && оa === оb) return true;
+  if (сПадежом(a, b) || сПадежом(оa, b) || сПадежом(a, оb)) return true;
+  if (КИРИЛЛИЦА.test(исхA) !== КИРИЛЛИЦА.test(исхB)) {
+    // «Ксавье» / «Ксавьер» — Xavier по-французски и по-английски.
+    const [к, д] = a.length <= b.length ? [a, b] : [b, a];
+    if (к.length >= 5 && д.length === к.length + 1 && д.startsWith(к) && !/[aeiouy]/.test(д.slice(-1))) return true;
+    // s и z в транслитерации путаются: «Изольда» (izolda) — Isolde.
+    const сa = согласные(a).replace(/z(?!h)/g, 's'), сb = согласные(b).replace(/z(?!h)/g, 's');
+    const началоТо = a[0] === b[0] || (/^[aeiouy]/.test(a) && /^[aeiouy]/.test(b));
+    if (сa && сa === сb && началоТо) return levenshtein(a, b) <= 2;
+  }
+  return false;
+}
+
 // Общее сравнение имён для всего HUD: транслитерация, фонетика, опечатка в одну
 // букву. Уменьшительных форм здесь нет намеренно: «Лиза» и «Elizabeth» в одном
 // сюжете могут оказаться разными людьми, и граф, аватарки и сводка их бы слили.
@@ -168,7 +234,7 @@ export function namesLikelySame(a, b) {
   // совпадает первый/единственный идентифицирующий токен.
   const aFirst = namePhoneticLatin(ta[0] || A);
   const bFirst = namePhoneticLatin(tb[0] || B);
-  if (aFirst && bFirst && (aFirst === bFirst || levenshtein(aFirst, bFirst) <= 1)) return true;
+  if (aFirst && bFirst && первыеСловаСовпадают(aFirst, bFirst, ta[0] || A, tb[0] || B)) return true;
 
   const ca = nameConsonantSignature(A), cb = nameConsonantSignature(B);
   if (ca && cb) {
@@ -184,6 +250,9 @@ export function namesLikelySame(a, b) {
     // рядом (izolda / isolde), а Тристан с Кристиной — нет.
     const полное = levenshtein(namePhoneticLatin(A), namePhoneticLatin(B));
     if (полное > 2) return false;
+    // У коротких имён одна-две согласные: «Ева» (v) и «Ана» (n), «Ария» (r)
+    // и «Мария» (mr) по ним отличались на одну букву и сливались.
+    if (minLen < 4) return false;
     if (dist <= 1 || (minLen >= 6 && dist <= 2)) return true;
   }
   return false;
@@ -208,7 +277,7 @@ const ПОЛНЫЕ_ФОРМЫ = {
   'dick': ['richard'], 'rick': ['richard'], 'richie': ['richard'], 'tom': ['thomas'], 'tommy': ['thomas'],
   'jim': ['james'], 'jimmy': ['james'], 'jack': ['john'], 'johnny': ['john'], 'tony': ['anthony'], 'sam': ['samuel', 'samantha'],
   'chris': ['christopher', 'christina'], 'nick': ['nicholas'], 'dan': ['daniel'], 'danny': ['daniel'], 'ben': ['benjamin'],
-  'matt': ['matthew'], 'andy': ['andrew'], 'jen': ['jennifer'], 'jenny': ['jennifer'], 'sophie': ['sophia'],
+  'matt': ['matthew'], 'andy': ['andrew'], 'jen': ['jennifer'], 'jenny': ['jennifer'],
   'maggie': ['margaret'], 'meg': ['margaret'], 'eddie': ['edward'], 'ed': ['edward'], 'ted': ['edward'],
 };
 
@@ -286,4 +355,30 @@ export function найтиПоИмени(имя, имена) {
     else if (счёт === лучшийСчёт) спор = true;
   });
   return спор ? -1 : лучший;
+}
+
+// Все написания человека, которые пользователь перечислил под одной
+// картинкой в настройках аватарок («Эва, Эванджелина, Ева, Evangeline»).
+// Без списков — только само имя.
+export function алиасыИмени(имя) {
+  const н = normalizeNameText(имя);
+  if (!н) return [];
+  let группы = [];
+  try { группы = группыАватарок(); } catch (_) { группы = []; }
+  const первое = н.split(' ')[0];
+  const out = new Set([н]);
+  for (const г of группы) if (г.some(x => x === н || x.split(' ')[0] === первое)) г.forEach(x => out.add(x));
+  return [...out];
+}
+
+// Назван ли человек в тексте: любым написанием из списков аватарок, в
+// падеже («Эванджелиной»), транслитом («Sophie» — «Софи»). Смотрим слова
+// с большой буквы — имена в тексте пишут так.
+export function упомянутВТексте(текст, имя) {
+  const s = String(текст || '');
+  if (!s.trim() || !String(имя || '').trim()) return false;
+  const слова = s.match(/(?<![\p{L}])\p{Lu}[\p{L}'’-]{1,}/gu) || [];
+  if (!слова.length) return false;
+  const варианты = алиасыИмени(имя).map(а => а.split(' ')[0]).filter(а => а.length >= 2);
+  return слова.some(w => варианты.some(а => namesLikelySame(w, а)));
 }

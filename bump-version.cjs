@@ -61,11 +61,11 @@ for (const f of files) {
   if (out !== src) pending.push({ file: f, text: out });
 }
 
-// Стили разрезаны на части и подключаются из style.css через @import.
+// Стили разрезаны на части: в Таверне их подключает css-loader.js (версия —
+// из его собственного адреса), а стенды — css/all.css через @import.
 // Манифест ставит хвост ?v= только самому style.css, поэтому части нужно
 // пометить здесь — иначе браузер оставит их в кэше и после обновления.
-{
-  const cssPath = path.join(__dirname, 'style.css');
+for (const cssPath of [path.join(__dirname, 'style.css'), path.join(__dirname, 'css', 'all.css')]) {
   if (fs.existsSync(cssPath)) {
     const src = fs.readFileSync(cssPath, 'utf8');
     const out = src.replace(/(@import\s+url\(['\"])([^'\"?]+\.css)(\?v=[^'\"]*)?(['\"]\))/g,
