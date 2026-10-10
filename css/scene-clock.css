@@ -49,7 +49,7 @@
 .hud-sclock-pin small { position: absolute; top: -15px; font-size: 9.5px; color: var(--sc); white-space: nowrap; }
 .hud-sclock-pin.is-missed { --sc: #e46a6a; } .hud-sclock-pin.is-wait { --sc: #8ab4e8; }
 .hud-sclock-end { position: absolute; bottom: -12px; font-size: 9.5px; color: var(--hud-text-muted, #a8a5ad); white-space: nowrap; }
-.hud-sclock-end.is-start { left: 0; } .hud-sclock-end.is-now { transform: translateX(-100%); color: var(--hud-accent, #d96a8a); }
+.hud-sclock-end.is-start { left: 0; } .hud-sclock-end.is-now { transform: translateX(-100%); color: var(--hud-accent-text, var(--hud-accent, #d96a8a)); }
 .hud-sclock-notes { display: flex; flex-wrap: wrap; gap: 4px 10px; margin-top: 8px; font-size: 11px; color: var(--hud-text-muted, #a8a5ad); }
 .hud-sclock-notes .is-missed { color: #f08a8a; } .hud-sclock-notes .is-late { color: #f0c27a; } .hud-sclock-notes .is-wait { color: #a8c8f0; }
 /* Значки — цветным шрифтом эмодзи: шрифт темы иначе подменяет их глифами. */

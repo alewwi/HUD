@@ -1,0 +1,98 @@
+/* TavernOS HUD — платформенные мелочи. Последняя часть (css-loader.js).
+
+   1. color-scheme по теме — ТОЛЬКО на карточке. На :root
+      он поменял бы полосы прокрутки и нативные поля всей Таверны. Класс
+      hud-scheme-light ставит applyThemeColors по яркости фона карточки.
+   2. accent-color для флажков, переключателей и ползунков — с нулевой
+      специфичностью (:where), чтобы свои правила полей по-прежнему побеждали.
+   3. Отступы под вырез экрана. Без viewport-fit=cover (это решает Таверна)
+      env() равен нулю, и правила ничего не меняют.
+   4. «Уменьшить движение»: общий выключатель (base.css) не охватывал
+      ::before/::after — там жили бесконечные анимации. */
+
+/* Окно кастомизации не трогаем: его фон — от темы Таверны (тёмный и при
+   светлой теме HUD), и светлая схема рассогласовала бы выпадающие списки. */
+:where(html:not(.hud-scheme-light)) .hud-os-card { color-scheme: dark; }
+:where(html.hud-scheme-light) .hud-os-card { color-scheme: light; }
+
+:where(.hud-os-card, #hud-custom-modal) :where(input[type="checkbox"], input[type="radio"], input[type="range"], progress) {
+  accent-color: var(--hud-accent-text, var(--hud-accent));
+}
+
+@media (max-width: 800px) {
+  .hud-custom-overlay.is-open {
+    padding: env(safe-area-inset-top, 0px) env(safe-area-inset-right, 0px) env(safe-area-inset-bottom, 0px) env(safe-area-inset-left, 0px);
+  }
+}
+.hud-toast-container { top: max(24px, calc(env(safe-area-inset-top, 0px) + 12px)); }
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.hud-os-card, .hud-memory-body, .hud-phone-mockup, .hud-toast-container, #hud-custom-modal, .hud-rel-graph, .hud-modal-overlay)::before,
+  :is(.hud-os-card, .hud-memory-body, .hud-phone-mockup, .hud-toast-container, #hud-custom-modal, .hud-rel-graph, .hud-modal-overlay)::after,
+  :is(.hud-os-card, .hud-memory-body, .hud-phone-mockup, .hud-toast-container, #hud-custom-modal, .hud-rel-graph, .hud-modal-overlay) *::before,
+  :is(.hud-os-card, .hud-memory-body, .hud-phone-mockup, .hud-toast-container, #hud-custom-modal, .hud-rel-graph, .hud-modal-overlay) *::after,
+  :is(.hud-toast-container, #hud-custom-modal, .hud-rel-graph, .hud-modal-overlay) * {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Карточка — контейнер для копий узких блоков (tests/tools/build-cq.mjs).
+   Только под настройкой containerQueries: без контейнера @container hud не
+   срабатывает, и вид прежний. Ширина карточки не зависит от содержимого
+   (блок в потоке сообщения), поэтому inline-size её не схлопывает. */
+html.hud-cq .hud-os-card { container: hud / inline-size; }
+
+/* Значки одним SVG-спрайтом (render/hud-icons.js, настройка iconSet). Вписан
+   в 1em — встаёт туда, где стоял эмодзи, раскладка не прыгает. Рисунок —
+   классом на <html>: линия по умолчанию, остальное по теме или вручную. */
+.hud-ico {
+  display: inline-block; width: 1em; height: 1em; vertical-align: -0.14em; flex: none; overflow: visible;
+  fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round;
+}
+html.hud-ico-duotone .hud-ico { fill: color-mix(in oklch, currentColor 35%, transparent); stroke-width: 1.6; }
+html.hud-ico-pixel .hud-ico { stroke-width: 2.4; stroke-linecap: square; stroke-linejoin: miter; shape-rendering: crispEdges; }
+html.hud-ico-ink .hud-ico { stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 1; }
+html.hud-ico-rounded .hud-ico { stroke-width: 2.2; fill: color-mix(in oklch, currentColor 18%, transparent); }
+.hud-tab .hud-ico { margin-right: .05em; }
+@media (forced-colors: active) { .hud-ico { stroke: CanvasText; fill: none; } }
+
+/* Свет по времени хода (render/light.js, настройка lightFollowsTime), слой 1:
+   тень карточки. Утром светило слева — тень уходит вправо, вечером наоборот;
+   низкое солнце даёт тень длиннее; ночью тень холоднее. Ореол свечения
+   (--hud-glow-card) не трогаем: он исходит от самой карточки. Карточка без
+   времени класса hud-lit не получает — вид прежний.
+   --light-k — сила света у темы: у плоских тем с жёсткими тенями как частью
+   рисунка (нуар, веб 1.0, киберпанк) свет выключен, чтобы рисунок не
+   «разъезжался». */
+.hud-os-card.hud-lit {
+  --light-k: 1;
+  --hud-shadow: var(--hud-glow-card),
+    calc(var(--light-dx, 0) * var(--light-k) * 14px) calc((8px + var(--light-dy, 1) * 6px * var(--light-k))) 32px
+    color-mix(in oklch, rgba(0, 0, 0, .18), rgb(40, 70, 140) calc(var(--light-night, 0) * var(--light-k) * 45%));
+}
+:is(.hud-theme-noir, .hud-theme-web1, .hud-theme-cyberpunk) .hud-os-card.hud-lit { --light-k: 0; --hud-shadow: var(--hud-glow-card), 0 8px 32px rgba(0, 0, 0, .15); }
+
+/* Платформенные эффекты — каждый за своим выключателем (applyThemeColors
+   ставит класс, только если браузер умеет).
+   11.1 Проявление через @starting-style вместо анимации hud-fade-in: класс
+   стоит лишь при поддержке, и старая анимация здесь же снимается — двойного
+   проявления не бывает. */
+html.hud-starting-style :is(.hud-tab-content.active, .hud-phone-app-view.active, .hud-phone-participants-list.active, .hud-theme-panel.active) {
+  animation: none;
+  transition: opacity .28s ease, translate .28s var(--hud-ease-out, ease);
+  @starting-style { opacity: 0; translate: 0 4px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html.hud-starting-style :is(.hud-tab-content.active, .hud-phone-app-view.active, .hud-phone-participants-list.active, .hud-theme-panel.active) { transition: none; }
+}
+/* 11.2 Растворение при смене темы (events.js, плавнаяСменаТемы). */
+html.hud-theme-fade::view-transition-old(root),
+html.hud-theme-fade::view-transition-new(root) { animation-duration: .22s; }
+/* 11.3 Скошенные и вогнутые углы — улучшение поверх скругления, только где
+   браузер умеет (Chromium 139+); остальные видят прежние скругления. */
+@supports (corner-shape: bevel) {
+  html.hud-corner-shape:is(.hud-theme-cyberpunk, .hud-theme-dieselpunk, .hud-theme-steampunk, .hud-theme-spaceopera) :is(.hud-os-card, .hud-os-card .hud-tab, .hud-os-card .hud-key-item, .hud-os-card .hud-detail-pill) { corner-shape: bevel; }
+  html.hud-corner-shape:is(.hud-theme-medieval, .hud-theme-witch, .hud-theme-vamp) :is(.hud-os-card .hud-tab, .hud-os-card .hud-key-item, .hud-os-card .hud-detail-pill) { corner-shape: scoop; }
+}

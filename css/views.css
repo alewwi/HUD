@@ -314,6 +314,9 @@
 .hud-v-route.is-map .hud-v-map-legend { margin-top: 0 !important; }
 @container (max-width: 520px) { .hud-v-route.is-map { grid-template-columns: 1fr; } .hud-v-route.is-map .hud-v-map-legend { margin-top: 10px !important; } }
 @media (max-width: 600px) { .hud-v-route.is-map { grid-template-columns: 1fr; } .hud-v-route.is-map .hud-v-map-legend { margin-top: 10px !important; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { .hud-v-route.is-map { grid-template-columns: 1fr; } .hud-v-route.is-map .hud-v-map-legend { margin-top: 10px !important; } } }
+/* cq ↑ */
 .hud-v-map { display: block; width: 100%; max-width: 460px; height: auto; border-radius: 14px; background: linear-gradient(160deg, color-mix(in srgb, var(--v-acc) 6%, #1c1a22), #121118); box-shadow: inset 0 0 0 1px var(--v-line), 0 8px 18px -12px rgba(0,0,0,.8); }
 .hud-v-map .river { fill: none; stroke: color-mix(in srgb, #5f8fd6 45%, transparent); stroke-width: 10; stroke-linecap: round; }
 .hud-v-map .road { fill: none; stroke: rgba(255,255,255,.07); stroke-width: 5; }
@@ -531,6 +534,9 @@
 .hud-v-gun-col-head em { margin-left: auto; font-style: normal; padding: 0 7px; border-radius: 99px; background: color-mix(in srgb, var(--col) 22%, transparent); }
 .hud-v-gun-card { padding: 9px 11px; border-radius: 11px; font-size: .86em; background: rgba(255,255,255,.04); border: 1px solid color-mix(in srgb, var(--col) 25%, transparent); border-left: 3px solid var(--col); box-shadow: 0 6px 12px -10px rgba(0,0,0,.8); }
 @media (max-width: 600px) { .hud-v-gun-cols { grid-template-columns: 1fr; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { .hud-v-gun-cols { grid-template-columns: 1fr; } } }
+/* cq ↑ */
 
 
 .hud-v-gun-col.is-fired .hud-v-gun-card p { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--col) 60%, transparent); opacity: .8; }
@@ -1557,6 +1563,12 @@
   .hud-v-vit-nums:not(.is-legend) > span { flex: 1 1 100%; }
   .hud-v-vit-nums .up { flex-basis: 100%; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-v-vit-nums:not(.is-legend) > span { flex: 1 1 100%; }
+  .hud-v-vit-nums .up { flex-basis: 100%; }
+} }
+/* cq ↑ */
 
 /* Светлые темы: «яркий» текст новых блоков (быт, дуэль, часы сцены, секреты)
    смешивается не с белым, а с почти чёрным — color-mix(…, var(--ink-hi)). */

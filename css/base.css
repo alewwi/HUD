@@ -154,7 +154,7 @@
 }
 
 .hud-os-topbar-left { display: flex; align-items: center; gap: 10px; overflow: hidden; }
-.hud-os-logo { color: var(--hud-accent); white-space: nowrap; font-size: 1.05em; }
+.hud-os-logo { color: var(--hud-accent-text, var(--hud-accent)); white-space: nowrap; font-size: 1.05em; }
 
 .hud-os-subtitle { display: flex; gap: 4px; overflow: hidden; opacity: 1; transition: all 0.3s ease; max-width: 500px; }
 .hud-toggle-input:checked ~ .hud-os-topbar .hud-os-subtitle { opacity: 0; max-width: 0; margin: 0; padding: 0; pointer-events: none; }
@@ -168,7 +168,7 @@
     display: flex; align-items: center; justify-content: center;
     width: 24px; height: 24px;
 }
-.hud-regen-btn:active { opacity: 1; color: var(--hud-accent); background: rgba(255,255,255,0.1); }
+.hud-regen-btn:active { opacity: 1; color: var(--hud-accent-text, var(--hud-accent)); background: rgba(255,255,255,0.1); }
 .hud-spinning { opacity: 1; pointer-events: none; }
 
 .hud-missing-placeholder { display: flex; justify-content: flex-start; margin-top: 10px; }
@@ -183,7 +183,7 @@
     border-radius: 8px;
 }
 .hud-create-btn:active, .hud-create-btn:hover {
-    opacity: 1; color: var(--hud-accent); border-style: solid;
+    opacity: 1; color: var(--hud-accent-text, var(--hud-accent)); border-style: solid;
     border-color: var(--hud-accent); background: rgba(255,255,255,0.08);
 }
 .hud-create-btn.hud-spinning { opacity: 1; border-style: solid; }
@@ -1763,7 +1763,7 @@
     border-bottom: none; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 0.9em;
     color: var(--hud-text-muted); white-space: nowrap; transition: all 0.2s;
 }
-.hud-tab.active { background: transparent; border-color: var(--hud-accent); color: var(--hud-accent); border-bottom: 1px solid transparent; padding-bottom: 7px; margin-bottom: -1px; z-index: 2;}
+.hud-tab.active { background: transparent; border-color: var(--hud-accent); color: var(--hud-accent-text, var(--hud-accent)); border-bottom: 1px solid transparent; padding-bottom: 7px; margin-bottom: -1px; z-index: 2;}
 
 /* --- Мини-гайд -----------------------------------------------------------
    Вопросик стоит и у названия вкладки, и у знакомых полей. Внутри вкладки
@@ -1810,6 +1810,12 @@
   .hud-help-mark { width: 16px; height: 16px; font-size: 11px; }
   .hud-help-mark::after { inset: -8px; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-help-mark { width: 16px; height: 16px; font-size: 11px; }
+  .hud-help-mark::after { inset: -8px; }
+} }
+/* cq ↑ */
 
 /* Разворот плавный. Высоту задаёт обработчик: он меряет содержимое и
    гонит max-height от нуля до него. Приём «0fr → 1fr» выглядит чище, но в
@@ -1833,11 +1839,11 @@
   padding: 10px 12px; font-size: 12.5px; line-height: 1.5;
 }
 .hud-hint-title {
-  font-weight: 700; color: var(--hud-accent); margin-bottom: 5px;
+  font-weight: 700; color: var(--hud-accent-text, var(--hud-accent)); margin-bottom: 5px;
   letter-spacing: .01em;
 }
 .hud-hint-row { margin-top: 3px; }
-.hud-hint-row b { color: var(--hud-accent); font-weight: 600; }
+.hud-hint-row b { color: var(--hud-accent-text, var(--hud-accent)); font-weight: 600; }
 /* Пока подсказка вкладки открыта, верхняя граница тела вкладок лишняя:
    две линии подряд читаются как сбой вёрстки. */
 .hud-tab-hint.is-open + .hud-tabs-body { border-top: none; }
@@ -1861,7 +1867,7 @@
     box-shadow: 0 15px 0 -3px var(--hud-text-muted); opacity: 0.6;
 }
 .hud-header-text { display: flex; flex-direction: column; justify-content: center; overflow: hidden; width: 100%; }
-.hud-title { font-weight: bold; font-size: 1.1em; color: var(--hud-accent); }
+.hud-title { font-weight: bold; font-size: 1.1em; color: var(--hud-accent-text, var(--hud-accent)); }
 
 .hud-tab.hud-user-tab { font-style: italic; }
 .hud-user-body { max-height: 220px; }
@@ -1884,7 +1890,7 @@
 }
 .hud-row.full-width { grid-column: 1 / -1; }
 
-.hud-key { font-weight: bold; color: var(--hud-accent); font-size: 0.85em; margin-bottom: 4px; text-transform: uppercase; }
+.hud-key { font-weight: bold; color: var(--hud-accent-text, var(--hud-accent)); font-size: 0.85em; margin-bottom: 4px; text-transform: uppercase; }
 .hud-value { color: var(--hud-text); font-size: 0.95em; }
 
 .hud-row::-webkit-scrollbar { height: 4px; }
@@ -1895,7 +1901,7 @@
 .hud-schedule-container { display: flex; flex-direction: column; gap: 0; position: relative; padding-left: 14px; margin-top: 4px; border-left: 2px solid rgba(255,255,255,0.1); width: 100%; }
 .hud-schedule-item { display: flex; align-items: flex-start; gap: 12px; padding: 12px 0 12px 16px; position: relative; }
 .hud-schedule-item::before { content: ''; position: absolute; left: -21px; top: 16px; width: 10px; height: 10px; background: var(--hud-accent); border-radius: 50%; box-shadow: 0 0 8px var(--hud-accent); border: 2px solid var(--hud-bg); }
-.hud-schedule-time { font-family: monospace; font-weight: bold; color: var(--hud-accent); font-size: 0.95em; min-width: 45px; flex-shrink: 0; margin-top: 2px; }
+.hud-schedule-time { font-family: monospace; font-weight: bold; color: var(--hud-accent-text, var(--hud-accent)); font-size: 0.95em; min-width: 45px; flex-shrink: 0; margin-top: 2px; }
 .hud-schedule-event { color: var(--hud-text); font-size: 0.9em; line-height: 1.4; background: rgba(0,0,0,0.2); padding: 8px 12px; border-radius: 8px; width: 100%; border: 1px solid var(--hud-border); transition: all 0.2s ease; }
 
 .hud-detail-pill { background: rgba(0, 0, 0, 0.2); border: 1px solid var(--hud-border); padding: 8px 12px; border-radius: 6px; font-size: 0.9em; color: var(--hud-text); line-height: 1.4; transition: all 0.2s ease; cursor: pointer; }
@@ -1906,7 +1912,7 @@
 .hud-key-block::-webkit-scrollbar-track { background: transparent; }
 .hud-key-block::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 2px; }
 
-.hud-key-label { font-weight: bold; color: var(--hud-accent); font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
+.hud-key-label { font-weight: bold; color: var(--hud-accent-text, var(--hud-accent)); font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
 .hud-key-list { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: 4px; }
 .hud-key-item { background: rgba(0, 0, 0, 0.15); padding: 6px 10px; border-radius: 6px; border-left: 3px solid var(--hud-accent); display: flex; align-items: flex-start; gap: 8px; line-height: 1.4; font-size: 0.9em; transition: all 0.2s ease; cursor: pointer; }
 
@@ -2024,13 +2030,13 @@
 }
 .hud-phone-participants-list.active { display: block; animation: hud-fade-in 0.2s ease; }
 
-.hud-phone-options { color: var(--hud-accent); font-size: 1.2em; font-weight: bold; cursor: pointer; }
+.hud-phone-options { color: var(--hud-accent-text, var(--hud-accent)); font-size: 1.2em; font-weight: bold; cursor: pointer; }
 .hud-phone-chat-area { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
 
 .hud-msg-wrapper { display: flex; gap: 8px; max-width: 85%; }
 .hud-msg-wrapper.incoming { align-self: flex-start; }
 .hud-msg-wrapper.outgoing { align-self: flex-end; flex-direction: row-reverse; }
-.hud-msg-avatar { width: 26px; height: 26px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: bold; color: var(--hud-accent); flex-shrink: 0; margin-top: auto; }
+.hud-msg-avatar { width: 26px; height: 26px; border-radius: 50%; background: rgba(255, 255, 255, 0.1); display: flex; align-items: center; justify-content: center; font-size: 0.75em; font-weight: bold; color: var(--hud-accent-text, var(--hud-accent)); flex-shrink: 0; margin-top: auto; }
 .hud-msg-content { display: flex; flex-direction: column; gap: 2px; }
 .hud-msg-wrapper.outgoing .hud-msg-content { align-items: flex-end; }
 .hud-msg-sender { font-size: 0.65em; color: rgba(255,255,255,0.5); margin: 0 4px; }
@@ -2049,7 +2055,7 @@
     outline: none; list-style: none; user-select: none;
 }
 .hud-msg-deleted-details summary::-webkit-details-marker { display: none; }
-.hud-msg-deleted-details[open] summary { margin-bottom: 6px; color: var(--hud-accent); }
+.hud-msg-deleted-details[open] summary { margin-bottom: 6px; color: var(--hud-accent-text, var(--hud-accent)); }
 .hud-msg-deleted-text { 
     font-size: 0.85em; color: rgba(255, 255, 255, 0.7); font-family: monospace; 
     border-top: 1px solid rgba(255, 255, 255, 0.1); padding-top: 6px; 
@@ -2133,7 +2139,7 @@
     line-height: 1.1; z-index: 2;
 }
 .hud-diary-time { font-size: 0.8em; color: var(--hud-text-muted); margin-bottom: 6px; font-weight: bold; font-family: monospace; letter-spacing: 1px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px;}
-.hud-diary-author { font-size: 0.9em; color: var(--hud-accent); font-weight: bold; margin-bottom: 4px; letter-spacing: 0.2px; }
+.hud-diary-author { font-size: 0.9em; color: var(--hud-accent-text, var(--hud-accent)); font-weight: bold; margin-bottom: 4px; letter-spacing: 0.2px; }
 .hud-diary-text {
     font-size: 0.95em;
     color: var(--hud-text);
@@ -2217,7 +2223,7 @@
   font-size: 2.05em;
   line-height: .78;
   margin: 4px 7px 0 0;
-  color: var(--hud-accent);
+  color: var(--hud-accent-text, var(--hud-accent));
   font-style: normal;
   text-shadow: 0 2px 6px rgba(0,0,0,.45);
 }
@@ -3283,7 +3289,7 @@
    ========================================= */
 @media (hover: hover) {
     .hud-os-topbar:hover { background: rgba(255, 255, 255, 0.05); filter: brightness(1.1); }
-    .hud-regen-btn:hover { opacity: 1; color: var(--hud-accent); background: rgba(255,255,255,0.1); }
+    .hud-regen-btn:hover { opacity: 1; color: var(--hud-accent-text, var(--hud-accent)); background: rgba(255,255,255,0.1); }
     .hud-scene-widget:hover { box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), inset 0 0 30px rgba(255,255,255,0.04); }
     .hud-scene-widget:hover .hud-fx-weather,
     .hud-scene-widget:hover .hud-fx-season-scene,
@@ -3375,6 +3381,46 @@
     .weather-fog .hud-fx-weather { animation-duration: calc(12s * var(--gust, 1)); }
     .weather-storm .hud-fx-storm-flash { animation-duration: 9s; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+    /* Autumn scene is intentionally light on mobile: fewer simultaneous animated leaf nodes,
+       while preserving the apple tree, travelling hedgehog, burrow and fire. */
+    .season-autumn .hud-tree-leaf.lf3 { display:none; }
+    .season-autumn .hud-burrow { right:18%; bottom:0; transform:scale(.92); transform-origin:bottom right; z-index:12; }
+    .season-autumn .hud-hedgehog { bottom:2%; z-index:12; }
+    .season-autumn .hud-burrow-animal { bottom:4px; z-index:13; }
+    .season-autumn .hud-hedgehog { animation-duration:46s; }
+    .season-autumn .hud-hedgehog { animation-name:hud-hedgehog-forage-mobile; }
+
+    .season-autumn .hud-hedgehog-apple { animation-duration:46s; }
+    .season-autumn .hud-tree-apple,
+    .season-autumn .hud-fallen-apple { animation-duration:46s; z-index:13; }
+    .season-autumn .hud-burrow-animal { animation-duration:46s; }
+    .season-autumn .hud-tree-leaf { animation-duration:10s; }
+    .season-autumn .hud-bg-tree-autumn-foliage { opacity:.74; filter:none; }
+    .season-autumn .hud-bg-tree-autumn-foliage.foliage-2 { opacity:.88; }
+    .hud-phone-subtab { padding: 8px 12px; font-size: 0.85em; }
+    .hud-tabs-header { padding: 12px 8px 0 8px; }
+    .hud-tab { padding: 10px 14px; font-size: 0.95em; }
+    .hud-news-article .article-text,
+    .hud-news-article .article-text.article-text-columns { column-count: 1; column-rule: none; }
+    .hud-ads-grid { grid-template-columns: 1fr; }
+    .hud-toast { min-width: auto; width: 90vw; }
+    #hud-keep-count, #hud-regen-context { font-size: 16px; }
+    
+    .hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-scene-atm {
+        box-shadow: none;
+    }
+    .hud-fx-bg::before { display: none; }
+    /* На узком экране снимаем drop-shadow (он тут и дорог, и не виден),
+       но лёгкое размытие оставляем — без него тучка распадается на
+       отдельные жёсткие кружки от box-shadow. */
+    .weather-rain .hud-rain-cloud { filter: blur(1px); }
+    .weather-rain .hud-rain-cloud.rc-back { filter: blur(1.6px); }
+    .weather-fog .hud-fx-weather { animation-duration: calc(12s * var(--gust, 1)); }
+    .weather-storm .hud-fx-storm-flash { animation-duration: 9s; }
+} }
+/* cq ↑ */
 
 @media (max-width: 420px) and (pointer: coarse) {
     /* Узкий экран: сцена спокойная, пока по виджету не тапнули.
@@ -3526,6 +3572,51 @@
     .weather-rain.weather-intensity-low .hud-fx-weather::after { top: 34px; height: 96px; }
     .weather-storm .hud-fx-weather::after { top: 34px; height: 128px; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media screen and (min-width: 601px) { @container hud (max-width: 470px) {
+    .hud-scene-widget {
+        height: auto !important;
+        min-height: 150px;
+        padding: 16px 14px !important;
+        gap: 12px;
+    }
+    .hud-scene-top { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; }
+    .hud-scene-time-group { align-items: center; width: auto; }
+    .hud-scene-weather-group { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; width: 100%; max-width: 100%; gap: 6px; text-align: center; }
+    .hud-time-display { font-size: 2em !important; line-height: 1; }
+    .hud-weather-item, .hud-mood-item { white-space: normal; word-wrap: break-word; text-align: center; font-size: 0.85em; }
+    .hud-scene-atm { white-space: normal; word-wrap: break-word; text-align: center; width: 100%; font-size: 0.88em; }
+    .hud-fx-bg, .hud-fx-season-scene, .hud-fx-weather { height: 100%; width: 100%; }
+
+    /* Светило на телефоне ездит по небу так же, как на десктопе.
+       Раньше здесь стояло left:auto/right:20px !important — солнце и луна
+       были прибиты к правому верхнему углу в любое время суток, и вся дуга
+       восход-закат на мобильном не работала. Размер уменьшаем, координаты
+       оставляем за --cel-x/--cel-y. */
+    .hud-fx-celestial {
+        width: 40px; height: 40px;
+        margin-left: -20px !important; margin-top: -20px !important;
+        left: var(--cel-x, auto) !important;
+        /* Дугу поджимаем вниз: на узком экране её вершина (--cel-y = 16%)
+           приходится ровно на плашку с часами, и в полдень/полночь светило
+           пряталось за временем. 16%..76% превращаются в 34%..71%. */
+        top: calc(24% + var(--cel-y, 12px) * 0.62) !important;
+        right: auto !important;
+    }
+    /* Старые карточки без координат — прежний угол. */
+    .hud-fx-celestial:not([style*="--cel-x"]) {
+        left: auto !important; right: 20px !important; top: 12px !important;
+        margin: 0 !important;
+    }
+
+    /* Полосы короче, но верх остаётся под тучей — иначе капли
+       появляются рядом с облаком, а не из него. */
+    .weather-rain .hud-fx-weather::after { top: 36px; height: 96px; }
+    .weather-rain.weather-intensity-high .hud-fx-weather::after { top: 42px; height: 128px; }
+    .weather-rain.weather-intensity-low .hud-fx-weather::after { top: 34px; height: 96px; }
+    .weather-storm .hud-fx-weather::after { top: 34px; height: 128px; }
+} }
+/* cq ↑ */
 
 .hud-os-card * { -webkit-tap-highlight-color: transparent; }
 
@@ -3760,7 +3851,7 @@
 
 /* Жирный шрифт и цвет для ярлыков в пилюлях (до двоеточия) */
 .hud-pill-label {
-    font-weight: bold; color: var(--hud-accent); opacity: 0.9;
+    font-weight: bold; color: var(--hud-accent-text, var(--hud-accent)); opacity: 0.9;
     margin-right: 2px; text-transform: uppercase; font-size: 0.9em; letter-spacing: 0.5px;
 }
 
@@ -4103,7 +4194,7 @@
     font-size: 0.8em; opacity: 0.6; cursor: pointer; user-select: none;
     transition: opacity 0.2s; outline: none; display: inline-block;
 }
-.hud-voice-details summary:hover { opacity: 1; color: var(--hud-accent); }
+.hud-voice-details summary:hover { opacity: 1; color: var(--hud-accent-text, var(--hud-accent)); }
 .hud-voice-text {
     font-size: 0.9em; margin-top: 6px; padding-top: 6px;
     border-top: 1px dashed rgba(255, 255, 255, 0.15); font-style: italic;
@@ -4279,7 +4370,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-phone-photo-info div,
 .hud-phone-photo-info small { display:block; }
 .hud-phone-photo-info small { margin-top:5px; opacity:.6; }
-.hud-phone-photo-info em { margin-top:5px; color:var(--hud-accent); font-style:normal; }
+.hud-phone-photo-info em { margin-top:5px; color:var(--hud-accent-text, var(--hud-accent)); font-style:normal; }
 .hud-phone-empty-app { min-height:330px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; opacity:.65; gap:6px; }
 
 .hud-phone-empty-line { padding:14px; text-align:center; opacity:.5; font-size:10px; }
@@ -4292,6 +4383,16 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   .hud-phone-app > span { width:48px; height:48px; font-size:23px; }
   .hud-phone-contacts { grid-template-columns:1fr; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-phone-emulator { min-height:560px; }
+  .hud-phone-lockscreen,.hud-phone-unlocked { min-height:560px; }
+  .hud-phone-lock-time { margin-top:48px; font-size:58px; }
+  .hud-phone-home-screen { min-height:490px; padding-left:12px; padding-right:12px; }
+  .hud-phone-app > span { width:48px; height:48px; font-size:23px; }
+  .hud-phone-contacts { grid-template-columns:1fr; }
+} }
+/* cq ↑ */
 
 /* ---------------------------------------------------------------------------
    TavernOS 21.5.1 — Memory panel
@@ -4352,12 +4453,12 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-timeline-container { border-left: 2px solid var(--hud-accent); margin-left: 10px; padding-left: 16px; display: flex; flex-direction: column; gap: 12px; margin-top: 6px; }
 .hud-timeline-item { position: relative; }
 .hud-timeline-item::before { content: ''; position: absolute; left: -23px; top: 4px; width: 12px; height: 12px; border-radius: 50%; background: var(--hud-bg); border: 2px solid var(--hud-accent); z-index: 2;}
-.hud-timeline-time { font-family: monospace; font-weight: bold; color: var(--hud-accent); font-size: 0.9em; margin-bottom: 4px; }
+.hud-timeline-time { font-family: monospace; font-weight: bold; color: var(--hud-accent-text, var(--hud-accent)); font-size: 0.9em; margin-bottom: 4px; }
 .hud-timeline-content { color: var(--hud-text); font-size: 0.9em; line-height: 1.4; background: rgba(0,0,0,0.15); padding: 8px 12px; border-radius: 6px; border: 1px solid var(--hud-border); }
 
 /* Дизайн: МАРШРУТЫ (Карта перемещений) */
 
-.hud-route-name { font-weight: bold; color: var(--hud-accent); margin-bottom: 10px; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.5px; }
+.hud-route-name { font-weight: bold; color: var(--hud-accent-text, var(--hud-accent)); margin-bottom: 10px; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.5px; }
 
 .hud-route-info { padding-bottom: 12px; display: flex; flex-direction: column; }
 
@@ -4367,7 +4468,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-mood-history { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 8px; scrollbar-width: none; width: 100%; }
 .hud-mood-history::-webkit-scrollbar { display: none; }
 .hud-mood-chip { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 8px 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 100px; flex-shrink: 0; }
-.hud-mood-chip-time { font-family: monospace; font-size: 0.75em; color: var(--hud-accent); opacity: 0.9; margin-bottom: 2px; }
+.hud-mood-chip-time { font-family: monospace; font-size: 0.75em; color: var(--hud-accent-text, var(--hud-accent)); opacity: 0.9; margin-bottom: 2px; }
 .hud-mood-chip-val { font-size: 0.85em; color: #e2e8f0; text-align: center; line-height: 1.2;}
 
 /* Дизайн: СЕКРЕТЫ (Интерактивные спойлеры) */
@@ -4994,6 +5095,99 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
     word-break: break-word;
   }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  /* Не даём длинным словам/именам раздвигать карточку за экран. */
+  .hud-timeline-container,
+.hud-mood-group,
+.hud-secret-details,
+.hud-secret-body,
+.hud-secret-cols,
+.hud-secret-col,
+.hud-secret-person,
+.hud-secret-psource {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+
+  /* Секреты: на телефоне всегда одна колонка, чтобы заголовки и списки
+     не сжимались в две узкие колонки. */
+  .hud-secret-cols {
+    grid-template-columns: minmax(0, 1fr) !important;
+    gap: 12px;
+  }
+
+  .hud-secret-header {
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: flex-start;
+  }
+
+  .hud-secret-lvl,
+  .hud-secret-stat {
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .hud-secret-spread {
+    overflow-x: auto;
+    overflow-wrap: anywhere;
+  }
+
+  .hud-secret-body {
+    padding: 12px;
+  }
+
+  .hud-secret-title,
+  .hud-secret-person,
+  .hud-secret-psource {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .hud-secret-psource {
+    padding-left: 10px;
+    margin-left: 2px;
+  }
+
+  /* Таймлайн: длинное событие переносится внутри карточки, а не
+     растягивает весь HUD по горизонтали. */
+  .hud-timeline-content {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  /* Маршруты: название места/действие тоже не могут вылезти за экран. */
+  .hud-route-info {
+    min-width: 0;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  /* Эмоции остаются горизонтально прокручиваемыми, но сами чипы
+     не позволяют длинному слову растянуть контейнер. */
+  .hud-mood-history {
+    min-width: 0;
+    max-width: 100%;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .hud-mood-chip {
+    max-width: min(220px, 72vw);
+    white-space: normal;
+  }
+
+  .hud-mood-chip-val {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+} }
+/* cq ↑ */
 
 @media (max-width: 380px) {
   .hud-secret-summary {
@@ -5033,6 +5227,15 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
         font-size: 0.78em;
     }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+    .hud-phone-participants-list {
+        width: min(320px, calc(100vw - 28px));
+        max-width: calc(100vw - 28px);
+        font-size: 0.78em;
+    }
+} }
+/* cq ↑ */
 
 /* =========================================
    ИНВЕНТАРЬ: ВЕРТИКАЛЬНЫЕ БЛОКИ КАК В ЦЕЛЯХ
@@ -5073,6 +5276,19 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
         overflow-wrap: anywhere;
     }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+    .hud-inventory-grid {
+        max-height: 140px;
+        padding-right: 4px;
+    }
+    .hud-inventory-pill {
+        width: 100%;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+} }
+/* cq ↑ */
 
 /* =========================================
    ПОГОДА — ПЛАВНОЕ ЗАТЕМНЕНИЕ БЕЗ ВСПЫШКИ
@@ -5352,6 +5568,9 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
     100% { left:30%; bottom:31%; rotate:-4deg; scale:1 1; }
 }
 @media (max-width:600px) { .season-summer .hud-summer-dragonfly { width:36px; height:17px; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { .season-summer .hud-summer-dragonfly { width:36px; height:17px; } } }
+/* cq ↑ */
 
 /* --- SUMMER: sandcastle --- */
 /* Замок стоит в песке (полоса песка — нижние 9%), а не на линии прибоя.
@@ -5643,6 +5862,19 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
     .season-winter .hud-winter-frozen-pond { left:47%; width:50%; bottom:.7%; height:12%; }
     .season-winter .hud-winter-house { left:6.5%; bottom:8.5%; transform:scale(.88); transform-origin:left bottom; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+    .season-summer .hud-volleyball-net { width:100px; }
+    .season-summer .hud-volleyball { left:20%; }
+    .season-summer .hud-sandcastle { left:60%; transform:scale(.92); transform-origin:left bottom; }
+    /* Дальний остров. Размеры в процентах от виджета, а на телефоне виджет
+       узкий и высокий: остров сжимался в тёмный ком прямо под солнцем и
+       читался как тень. Здесь он плоская полоса суши на самой линии горизонта. */
+    .season-summer .hud-summer-distant-island { left:50%; width:44%; bottom:34%; height:4%; opacity:.45; }
+    .season-winter .hud-winter-frozen-pond { left:47%; width:50%; bottom:.7%; height:12%; }
+    .season-winter .hud-winter-house { left:6.5%; bottom:8.5%; transform:scale(.88); transform-origin:left bottom; }
+} }
+/* cq ↑ */
 
 @media (prefers-reduced-motion: reduce) {
     .season-summer .hud-summer-heat-haze,
@@ -6064,6 +6296,11 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 @media (max-width: 600px) {
   .hud-phone-participants-list { left: 8px; right: 8px; width: auto; max-width: none; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-phone-participants-list { left: 8px; right: 8px; width: auto; max-width: none; }
+} }
+/* cq ↑ */
 
 /* =========================================================================
    Телефон: корпус, стекло и «живость»
@@ -6236,6 +6473,11 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 @media (max-width: 600px) {
   .hud-phone-shell { --hud-phone-frame-w: 5px; --hud-phone-body-r: 28px; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-phone-shell { --hud-phone-frame-w: 5px; --hud-phone-body-r: 28px; }
+} }
+/* cq ↑ */
 .hud-phone-shell .hud-phone-emulator { width: 100%; }
 .hud-phone-shell .hud-phone-btn-side { position: absolute; }
 .hud-phone-btn-side.vol-up   { left: -3px; top: 118px; height: 42px; }
@@ -7501,7 +7743,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   box-shadow: 0 3px 10px color-mix(in srgb, var(--hud-phone-accent) 42%, transparent) !important;
 }
 .hud-phone-name, .hud-phone-options, .hud-phone-back { color: var(--hud-phone-accent); }
-.hud-phone-home-screen { --hud-accent: var(--hud-phone-accent); }
+.hud-phone-home-screen { --hud-accent: var(--hud-phone-accent); --hud-accent-text: initial; }
 
 /* Плотность (непрозрачность) карточек уведомлений. */
 .hud-phone-notif { opacity: var(--hud-phone-notif-alpha); }
@@ -7598,6 +7840,50 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   .hud-phone-contacts { grid-template-columns: repeat(2, 1fr); }
   .hud-phone-gallery-grid { grid-template-columns: 1fr; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  /* Строка превью-тегов зажималась между логотипом в контейнере 125px
+     и обрезалась: 52px видно из 473px. Переносим её на свою строку
+     и делаем прокручиваемой вбок. */
+  .hud-os-topbar-left { flex-wrap: wrap; }
+  .hud-os-subtitle {
+    flex: 1 0 100%;
+    min-width: 0;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .hud-os-subtitle::-webkit-scrollbar { display: none; }
+
+  /* Сетка приложений: три колонки вместо четырёх, иначе подписи ломаются
+     на три строки («Соо/бще/ния»). Иконки и шрифт мельче. */
+  .hud-phone-app-grid { grid-template-columns: repeat(3, 1fr); gap: 14px 8px; }
+  .hud-phone-app > span { width: 46px; height: 46px; font-size: 21px; border-radius: 13px; }
+  .hud-phone-app small {
+    font-size: 9.5px; line-height: 1.15;
+    max-width: 100%;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+  }
+  .hud-phone-home-screen { padding: 16px 12px 60px; min-height: 420px; }
+
+  /* Уведомления: компактнее, чтобы влезали в узкий экран. */
+  .hud-phone-notif { padding: 8px 9px 8px 11px; border-radius: 14px; gap: 8px; grid-template-columns: 30px minmax(0,1fr) auto; }
+  .hud-phone-notif-ava { width: 30px; height: 30px; flex: 0 0 30px; font-size: 12px; }
+  .hud-phone-notif-body b { font-size: 11.5px; }
+  .hud-phone-notif-body small { font-size: 10.5px; -webkit-line-clamp: 1; }
+  .hud-phone-notif-meta em { font-size: 9px; }
+
+  /* Переписка: чуть плотнее поля, чтобы текст не жался в колонку. */
+  .hud-phone-app-view { padding: 8px 8px 46px; }
+  
+  .hud-phone-chat-row { grid-template-columns: 36px minmax(0,1fr) auto; gap: 8px; padding: 7px 6px; }
+  .hud-phone-chat-ava { width: 36px; height: 36px; flex: 0 0 36px; font-size: 15px; }
+
+  /* Контакты и галерея: две колонки вместо трёх/двух. */
+  .hud-phone-contacts { grid-template-columns: repeat(2, 1fr); }
+  .hud-phone-gallery-grid { grid-template-columns: 1fr; }
+} }
+/* cq ↑ */
 
 /* Входная анимация карточки уведомления объявлена с fill-mode:backwards.
    Пока вкладка «Телефон» неактивна, анимация не стартует, и элемент
@@ -7613,6 +7899,14 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   .hud-os-topbar { flex-wrap: wrap; row-gap: 6px; }
   .hud-os-topbar-left { flex: 1 1 100%; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  /* Даём левой части шапки всю ширину, иначе строка превью упирается
+     в 125px и прокрутка внутри неё бесполезна. */
+  .hud-os-topbar { flex-wrap: wrap; row-gap: 6px; }
+  .hud-os-topbar-left { flex: 1 1 100%; }
+} }
+/* cq ↑ */
 
 @media (max-width: 600px) {
   /* Поле ввода заезжало на нижнюю панель на 7px: у компактного экрана
@@ -7620,6 +7914,14 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   .hud-phone-app-view { padding-bottom: 54px; }
   .hud-phone-app-view[data-phone-view="messages"] { padding-bottom: 55px; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  /* Поле ввода заезжало на нижнюю панель на 7px: у компактного экрана
+     нижний отступ был равен высоте дока без запаса под тень и рамку. */
+  .hud-phone-app-view { padding-bottom: 54px; }
+  .hud-phone-app-view[data-phone-view="messages"] { padding-bottom: 55px; }
+} }
+/* cq ↑ */
 
 @media (max-width: 600px) {
   /* Пустое поле ввода держим в одну строку — иначе подпись «Сообщение…»
@@ -7655,6 +7957,42 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   .hud-phone-app-view .hud-msg-bubble { padding: 7px 10px; }
   .hud-phone-app-view .hud-msg-avatar { width: 22px; height: 22px; flex: 0 0 22px; font-size: 10px; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  /* Пустое поле ввода держим в одну строку — иначе подпись «Сообщение…»
+     ломалась в колонку по слогам. Черновик под это правило не попадает:
+     его показываем целиком, правило для него стоит ниже по файлу.
+     Скругление при этом меняем на умеренное: у многострочного черновика
+     полностью круглые торцы выглядят как ошибка вёрстки. */
+  .hud-phone-inputfield:not(.draft-active) {
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    min-width: 0; border-radius: 999px;
+  }
+  .hud-phone-inputfield.draft-active { border-radius: 14px; min-width: 0; }
+  .hud-phone-app-view .hud-phone-input-bar { gap: 7px; padding: 7px 9px; }
+  .hud-phone-app-view .hud-phone-attach,
+  .hud-phone-app-view .hud-phone-send { width: 26px; height: 26px; flex: 0 0 26px; }
+
+  .hud-phone-header { gap: 6px; padding: 7px 10px; }
+  .hud-phone-title-group { min-width: 0; flex: 1 1 auto; }
+  .hud-phone-name {
+    display: block; min-width: 0;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font-size: 12.5px;
+  }
+  .hud-phone-back, .hud-phone-options { flex: 0 0 auto; }
+
+  .hud-phone-app-title { gap: 6px; font-size: 14px; }
+  .hud-phone-app-title, .hud-phone-app-owner { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+  /* Пузыри: на узком экране пусть занимают больше ширины, чтобы текст
+     не сыпался по два слова в строку. */
+  .hud-phone-app-view .hud-msg-wrapper { max-width: 100%; }
+  .hud-phone-app-view .hud-msg-content { max-width: 100%; min-width: 0; }
+  .hud-phone-app-view .hud-msg-bubble { padding: 7px 10px; }
+  .hud-phone-app-view .hud-msg-avatar { width: 22px; height: 22px; flex: 0 0 22px; font-size: 10px; }
+} }
+/* cq ↑ */
 
 /* =========================================================================
    Свёрнутая стопка уведомлений: верхняя карточка полностью непрозрачна
@@ -8212,6 +8550,11 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 @media screen and (max-width: 600px) {
     .season-winter .hud-xmas-tree { left: 52%; transform: scale(.82); transform-origin: 50% 100%; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media screen and (min-width: 601px) { @container hud (max-width: 470px) {
+    .season-winter .hud-xmas-tree { left: 52%; transform: scale(.82); transform-origin: 50% 100%; }
+} }
+/* cq ↑ */
 
 /* --- Свет в окнах ------------------------------------------------------ */
 /* Свет идёт ИЗ окна: горит само стекло — ярче к середине, темнее у рамы, —
@@ -8311,7 +8654,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
    ========================================================================= */
 
 .hud-theme-presets { padding: 10px 12px 12px; border-bottom: 1px solid var(--hud-border); }
-.hud-theme-presets-title { font-size: .8em; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--hud-accent); margin-bottom: 8px; }
+.hud-theme-presets-title { font-size: .8em; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--hud-accent-text, var(--hud-accent)); margin-bottom: 8px; }
 .hud-theme-presets-row { display: flex; flex-wrap: wrap; gap: 6px; }
 .hud-theme-preset {
   flex: 0 0 auto; display: flex; flex-direction: column; align-items: center; gap: 3px;
@@ -8377,7 +8720,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   text-align: center;
 }
 .hud-forecast-period { font-size: .72em; text-transform: uppercase; letter-spacing: .06em; opacity: .7; }
-.hud-forecast-icon { display: block; line-height: 0; color: var(--hud-accent); }
+.hud-forecast-icon { display: block; line-height: 0; color: var(--hud-accent-text, var(--hud-accent)); }
 .hud-fc-ico {
   width: 30px; height: 30px; display: block;
   fill: none; stroke: currentColor; stroke-width: 1.5;
@@ -8409,7 +8752,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-horo-sign {
   display: flex; align-items: center; gap: 6px;
   font-size: .82em; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
-  color: var(--hud-accent);
+  color: var(--hud-accent-text, var(--hud-accent));
 }
 .hud-horo-sign i { font-style: normal; font-size: 1.35em; line-height: 1; opacity: .9; }
 .hud-horo-text { font-size: .88em; line-height: 1.4; opacity: .92; }
@@ -8427,7 +8770,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 }
 .hud-horo-prediction-label {
   display: block; font-size: .72em; text-transform: uppercase; letter-spacing: .08em;
-  color: var(--hud-accent); margin-bottom: 4px;
+  color: var(--hud-accent-text, var(--hud-accent)); margin-bottom: 4px;
 }
 .hud-horo-prediction p { margin: 0 0 4px; font-size: .9em; line-height: 1.45; font-style: italic; }
 .hud-horo-prediction p:last-child { margin-bottom: 0; }
@@ -8438,6 +8781,13 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   .hud-forecast-cell { flex-basis: 68px; min-width: 68px; padding: 8px 6px; }
   .hud-fc-ico { width: 26px; height: 26px; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-horo-grid { grid-template-columns: 1fr 1fr; }
+  .hud-forecast-cell { flex-basis: 68px; min-width: 68px; padding: 8px 6px; }
+  .hud-fc-ico { width: 26px; height: 26px; }
+} }
+/* cq ↑ */
 @media (max-width: 380px) {
   .hud-horo-grid { grid-template-columns: 1fr; }
 }
@@ -8483,7 +8833,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 }
 .hud-ava-tag {
   flex: 0 0 auto; font-size: 10px; font-weight: 700; letter-spacing: .02em;
-  color: var(--hud-accent); min-width: 58px;
+  color: var(--hud-accent-text, var(--hud-accent)); min-width: 58px;
 }
 .hud-ava-thumb {
   flex: 0 0 34px; width: 34px; height: 34px; border-radius: 50%;
@@ -8516,7 +8866,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-set-group > summary {
   cursor: pointer; outline: none; list-style: none;
   padding: 8px 10px; font-weight: 700; font-size: 13px;
-  color: var(--hud-accent); display: flex; align-items: center; gap: 6px;
+  color: var(--hud-accent-text, var(--hud-accent)); display: flex; align-items: center; gap: 6px;
   border-radius: 8px;
 }
 .hud-set-group > summary::-webkit-details-marker { display: none; }
@@ -8946,7 +9296,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-horo-prediction p:first-of-type::first-letter {
   float: left; font-size: 2.1em; line-height: .82;
   margin: 3px 7px 0 0; font-style: normal; font-weight: 700;
-  color: var(--hud-accent);
+  color: var(--hud-accent-text, var(--hud-accent));
   text-shadow: 0 2px 8px color-mix(in srgb, var(--hud-accent) 45%, transparent);
 }
 /* Блик пробегает по блоку предсказания — только после касания. */

@@ -124,6 +124,9 @@
 @keyframes hud-f-creep { 0%, 100% { transform: translate(-50%, -50%); } 50% { transform: translate(-50%, calc(-50% + 4px)) scale(1.06); } }
 @keyframes hud-f-flame { from { transform: scale(1, 1) rotate(-2deg); } to { transform: scale(.92, 1.08) rotate(2deg); } }
 @media (max-width: 600px) { .hud-v-eye2 { width: 88px; height: 88px; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { .hud-v-eye2 { width: 88px; height: 88px; } } }
+/* cq ↑ */
 
 /* =========================================================================
    Бумажные предметы прежних видов (папки секретов, доска ружей): бумага

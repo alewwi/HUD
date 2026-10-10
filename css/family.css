@@ -325,6 +325,12 @@
   .hud-pp-row { grid-template-columns: 1fr; gap: 2px; }
   .hud-kid-tracker { grid-template-columns: 1fr; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-pp-row { grid-template-columns: 1fr; gap: 2px; }
+  .hud-kid-tracker { grid-template-columns: 1fr; }
+} }
+/* cq ↑ */
 
 /* Имя малыша — круглым почерком, как на бирке в роддоме. */
 .hud-kid-card .hud-header :is(.hud-char-name, .hud-name, h2, h3) { font-family: 'Segoe Print', 'Comic Sans MS', cursive !important; color: var(--c) !important; }
@@ -337,6 +343,11 @@
 @media (max-width: 600px) {
   .hud-fetus-btn { white-space: normal; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-fetus-btn { white-space: normal; }
+} }
+/* cq ↑ */
 /* Мелкие подписи — не прозрачностью, а приглушённым цветом: на светлых темах
    прозрачность съедала текст. */
 :is(.hud-pp-head small, .hud-pp-head em, .hud-pp-milk .info small, .hud-kids-head small, .hud-kid-chip .who small, .hud-fetus .txt > small, .hud-kid-care .ms-count, .hud-pp-row > span) {

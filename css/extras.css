@@ -87,10 +87,10 @@
 :root.hud-skin-ghost .hud-os-card .hud-header { position: relative; overflow: hidden; }
 :root.hud-skin-ghost .hud-os-card .hud-ghost-letter {
   display: block; position: absolute; right: 4%; top: 50%; transform: translateY(-50%); pointer-events: none; z-index: 0;
-  font: italic 700 120px/1 Georgia, 'Times New Roman', serif; color: var(--hud-accent); opacity: .18; }
+  font: italic 700 120px/1 Georgia, 'Times New Roman', serif; color: var(--hud-accent-text, var(--hud-accent)); opacity: .18; }
 :root.hud-skin-ghost .hud-os-card .hud-header-info { position: relative; z-index: 1; }
 :root.hud-skin-ghost .hud-os-card .hud-header-text::after { content: var(--hud-dateline, ''); display: block; margin-top: 3px; font-size: .7em; letter-spacing: 3px; opacity: .75; }
-:root.hud-skin-ghost .hud-os-card .hud-body > .hud-row > .hud-key::before { content: '✦ '; display: inline-block; margin-right: 2px; color: var(--hud-accent); }
+:root.hud-skin-ghost .hud-os-card .hud-body > .hud-row > .hud-key::before { content: '✦ '; display: inline-block; margin-right: 2px; color: var(--hud-accent-text, var(--hud-accent)); }
 @keyframes hud-ghost-flip { to { transform: perspective(400px) rotateY(360deg); } }
 :root.hud-skin-ghost .hud-os-card .hud-body > .hud-row:is(:hover, .fx-hold) > .hud-key::before { animation: hud-ghost-flip 2.4s linear infinite; }
 :root.hud-skin-ghost .hud-os-card .hud-body > .hud-row.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) > .hud-key::before { animation-play-state: paused !important; }
@@ -270,6 +270,9 @@
 .hud-scene-widget.is-compact .hud-moonchip, .hud-historical .hud-moonchip { display: none; }
 /* На телефоне плашка та же, что на ПК (диск, подпись, ряд фаз), по центру сцены. */
 @media (max-width: 600px) { .hud-moonchip { margin-inline: auto; } .hud-moonchip-row i { width: 17px; height: 17px; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { .hud-moonchip { margin-inline: auto; } .hud-moonchip-row i { width: 17px; height: 17px; } } }
+/* cq ↑ */
 /* Тень на луне в небе: терминатор ::after получает тёмный серп нужной ширины. */
 :is(.phase-night, .phase-deep-night, .phase-evening, .phase-predawn).hud-scene-widget[style*="--moon-dark"] .hud-fx-celestial::after {
   box-shadow: inset var(--moon-dark) 0 0 0 rgba(10,15,34,.86); opacity: calc(.12 + .88 * min(1, var(--moon-lit, 1) * 2.5)); }
@@ -280,7 +283,7 @@
 .hud-credits { margin: 4px 12px 12px; padding: 16px 14px 12px; text-align: center; border-radius: 10px; color: var(--x-ink);
   background: linear-gradient(180deg, var(--x-surf), var(--x-surf2)); border: 1px solid var(--x-line); box-shadow: inset 0 0 24px color-mix(in srgb, var(--x-surf2) 70%, transparent); }
 .hud-credits, .hud-credits * { text-shadow: none !important; }
-.hud-credits-end { font: italic 700 1.25em Georgia, serif; letter-spacing: .18em; text-transform: uppercase; margin-bottom: 10px; color: var(--hud-accent); }
+.hud-credits-end { font: italic 700 1.25em Georgia, serif; letter-spacing: .18em; text-transform: uppercase; margin-bottom: 10px; color: var(--hud-accent-text, var(--hud-accent)); }
 .hud-credits-cast { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; gap: 3px 12px; margin: 4px 0; font-family: Georgia, serif; }
 .hud-credits-cast span { width: 100%; font-size: .6em; letter-spacing: .3em; text-transform: uppercase; color: var(--x-ink-soft); }
 .hud-credits-cast b { font-weight: 400; font-size: .92em; color: var(--x-ink); }
@@ -331,7 +334,7 @@
 .hud-diary-text b::after { margin: 0 0 0 4px; }
 .hud-diary-text i, .hud-diary-about-user i { padding: 0 5px 0 13px; position: relative; background: color-mix(in srgb, var(--hud-accent) 14%, transparent); border-left: 3px solid var(--hud-accent);
   border-radius: 2px; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
-.hud-diary-text i::before { content: '✦'; position: absolute; left: 2px; top: .1em; font-size: .55em; font-style: normal; color: var(--hud-accent); }
+.hud-diary-text i::before { content: '✦'; position: absolute; left: 2px; top: .1em; font-size: .55em; font-style: normal; color: var(--hud-accent-text, var(--hud-accent)); }
 .hud-diary-text s { padding: 0 3px; text-decoration-thickness: 2px; text-decoration-color: #b45f66; opacity: .85; }
 .hud-diary-text s::before { content: '× '; color: #b45f66; font-size: .8em; text-decoration: none; display: inline-block; }
 .hud-diary-text u { text-decoration: underline wavy color-mix(in srgb, var(--hud-accent) 80%, currentColor); text-underline-offset: 4px; }
@@ -638,6 +641,13 @@
   .hud-cp-panel { width: 100%; border-radius: 16px 16px 12px 12px; }
   .hud-cp-preview { max-height: 200px; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-cp { align-items: flex-end; padding: 8px; }
+  .hud-cp-panel { width: 100%; border-radius: 16px 16px 12px 12px; }
+  .hud-cp-preview { max-height: 200px; }
+} }
+/* cq ↑ */
 /* В окне палитры сцена узкая: плашки встают столбиком, как на телефоне. */
 .hud-cp-preview .hud-scene-top { display: flex !important; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
 .hud-cp-preview .hud-scene-weather-group { flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; max-width: 100%; }

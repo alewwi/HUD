@@ -916,7 +916,7 @@
   font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   font-size: .88em; font-weight: 700;
   padding: 0 5px; border-radius: 4px;
-  color: var(--hud-accent, #8c5ad2);
+  color: var(--hud-accent-text, var(--hud-accent, #8c5ad2));
   background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 16%, transparent);
   border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 32%, transparent);
 }
@@ -1823,6 +1823,17 @@
   /* Светило идёт по боковым полосам неба и не прячется за часами. */
   .hud-fx-celestial[style*="--cel-xm"] { left: var(--cel-xm) !important; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media screen and (min-width: 601px) { @container hud (max-width: 470px) {
+  /* Полоса пейзажа под плашками. Декорации привязаны к низу сцены, поэтому
+     лишний отступ снизу открывает их, ничего не сдвигая. */
+  .hud-scene-widget { padding-bottom: 64px !important; }
+  /* Атмосфера — по ширине текста, а не во всю сцену. */
+  .hud-scene-atm { width: auto; max-width: 100%; align-self: center; padding: 8px 14px; }
+  /* Светило идёт по боковым полосам неба и не прячется за часами. */
+  .hud-fx-celestial[style*="--cel-xm"] { left: var(--cel-xm) !important; }
+} }
+/* cq ↑ */
 
 /* --- Близость: полоса сцены --------------------------------------------- */
 .hud-scene-strip-wrap { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
@@ -3599,6 +3610,44 @@
     .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-back { left: 13%; margin-left: calc(var(--rc-w) * -.5); }
     .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-front { left: 87%; margin-left: calc(var(--rc-w) * -.5); }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media screen and (min-width: 601px) { @container hud (max-width: 470px) {
+    /* Лунная дорожка и солнечные блики на воде идут за светилом, а оно на
+       телефоне стоит на боковой полосе (--cel-xm), а не на --cel-x. */
+    .season-summer .hud-sea { --cel-x: var(--cel-xm); }
+    /* Лучи ясного солнца — туда же, где само солнце на телефоне. */
+    .weather-clear .hud-fx-weather::before {
+        left: var(--cel-xm, var(--cel-x, auto));
+        top: calc(24% + var(--cel-y, 12px) * 0.62);
+        width: 56px; height: 56px; margin-left: -28px; margin-top: -28px;
+    }
+
+    /* Дождь и гроза шли узкой полосой по центру — ровно за плашками часов
+       и погоды, и на телефоне капель почти не было видно. Теперь дождь на
+       всю ширину, а тучи разведены по краям, мимо плашек. */
+    /* Полосу не поворачиваем, а скашиваем. Поворот высокой полосы на всю
+       сцену наклонял и её верхний край: струи начинались с косой линии
+       посреди неба, «из ниоткуда», и шли почти наискосок (угол дождя плюс
+       ветер доходил до 35°). skewX наклоняет только капли — верх полосы
+       остаётся ровным у кромки сцены и плавно проявляется, будто дождь
+       идёт из туч над кадром. Ветер добавляет наклон, но не больше 24°. */
+    .weather-rain .hud-fx-weather::after,
+    .weather-rain.weather-intensity-high .hud-fx-weather::after,
+    .weather-rain.weather-intensity-low .hud-fx-weather::after,
+    .weather-storm .hud-fx-weather::after {
+        left: -30%; width: 160%; margin-left: 0;
+        top: 0; height: 100%;
+        transform: skewX(calc(-1 * min(24deg, var(--rain-lean, 8deg) + var(--rain-tilt-extra, 0deg) * .6)));
+        -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 16%, rgba(0,0,0,.6) 78%, transparent 100%);
+                mask-image: linear-gradient(to bottom, transparent 0, #000 16%, rgba(0,0,0,.6) 78%, transparent 100%);
+    }
+    .weather-rain.weather-intensity-high .hud-fx-weather::after { --rain-lean: 11deg; }
+    .weather-rain.weather-intensity-low .hud-fx-weather::after { --rain-lean: 4deg; }
+    .weather-storm .hud-fx-weather::after { --rain-lean: 13deg; }
+    .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-back { left: 13%; margin-left: calc(var(--rc-w) * -.5); }
+    .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-front { left: 87%; margin-left: calc(var(--rc-w) * -.5); }
+} }
+/* cq ↑ */
 
 /* --- Сосульки держатся за карниз ----------------------------------------- */
 /* Сосульки висели прямо на верхней рамке сцены — держаться им было не за
@@ -3682,6 +3731,16 @@
     .hud-scene-widget.weather-rain.weather-intensity-low .hud-fx-clouds .hud-rain-cloud.rc-back { --rc-w: 34px; left: 10%; margin-left: calc(var(--rc-w) * -.5); }
     .hud-scene-widget.weather-rain.weather-intensity-low .hud-fx-clouds .hud-rain-cloud.rc-front { --rc-w: 42px; left: 90%; margin-left: calc(var(--rc-w) * -.5); }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media screen and (min-width: 601px) { @container hud (max-width: 470px) {
+    .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-back { --rc-w: 40px; left: 10%; }
+    .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-front { --rc-w: 52px; left: 90%; }
+    .hud-scene-widget.weather-rain.weather-intensity-high .hud-fx-clouds .hud-rain-cloud.rc-back { --rc-w: 50px; left: 10%; margin-left: calc(var(--rc-w) * -.5); }
+    .hud-scene-widget.weather-rain.weather-intensity-high .hud-fx-clouds .hud-rain-cloud.rc-front { --rc-w: 64px; left: 90%; margin-left: calc(var(--rc-w) * -.5); }
+    .hud-scene-widget.weather-rain.weather-intensity-low .hud-fx-clouds .hud-rain-cloud.rc-back { --rc-w: 34px; left: 10%; margin-left: calc(var(--rc-w) * -.5); }
+    .hud-scene-widget.weather-rain.weather-intensity-low .hud-fx-clouds .hud-rain-cloud.rc-front { --rc-w: 42px; left: 90%; margin-left: calc(var(--rc-w) * -.5); }
+} }
+/* cq ↑ */
 
 /* =========================================================================
    ВЕСНА ПО МЕСЯЦАМ
@@ -4091,6 +4150,9 @@
      «ожидал / вышло»), — цвет группы. */
   --кромка: var(--kind);
   --hud-accent: var(--kind-ink);
+  /* Подбор контраста (--hud-accent-text) — для акцента темы, не для цвета
+     группы: здесь текст снова берёт сам --hud-accent. */
+  --hud-accent-text: initial;
 }
 .hud-row[class*=" kind-"] { position: relative; isolation: isolate; }
 /* Корешок слева и налёт цвета группы от левого верхнего угла. Под текстом:
@@ -4990,7 +5052,7 @@
 }
 .hud-msg-draft-mark {
   font-size: .72em; letter-spacing: .04em; margin-bottom: 3px; opacity: .8;
-  color: var(--hud-accent, #8c5ad2);
+  color: var(--hud-accent-text, var(--hud-accent, #8c5ad2));
 }
 
 /* =========================================================================
@@ -5753,6 +5815,11 @@ html.hud-custom-open body { overflow: hidden; }
 @media (max-width: 600px) {
   .season-autumn .hud-hedgehog { animation-name: hud-hedgehog-trip-mobile; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .season-autumn .hud-hedgehog { animation-name: hud-hedgehog-trip-mobile; }
+} }
+/* cq ↑ */
 
 /* Раскрытый граф отношений уходит в body. Его слой (9998) был ниже окна
    «Кастомизация» (10050), и в примере граф открывался под окном —
@@ -5992,6 +6059,18 @@ html.hud-custom-open body { overflow: hidden; }
      скорости) — в режиме рамки оставляем им только светящуюся кромку. */
   html:not(.hud-glow-mobile-full) :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-scene-atm) { box-shadow: inset 0 0 0 1px var(--hud-glow-soft) !important; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  html:not(.hud-glow-mobile-full) { --hud-glow-wide: 0; }
+  /* «Выключено»: свет прозрачный. !important у переменных сильнее
+     инлайновых значений, которые пишет applyThemeColors. */
+  html.hud-glow-mobile-off { --hud-glow: transparent !important; --hud-glow-soft: transparent !important; --hud-glow-strong: transparent !important; }
+  html.hud-glow-mobile-off.hud-glow-breath :is(.hud-time-display, .hud-title, .hud-avatar, .hud-avatar-placeholder, .hud-tabs-header .hud-tab.active, .hud-phone-lock-time) { animation: none !important; }
+  /* Плашки сцены на узком экране без внешних теней (base.css, ради
+     скорости) — в режиме рамки оставляем им только светящуюся кромку. */
+  html:not(.hud-glow-mobile-full) :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-scene-atm) { box-shadow: inset 0 0 0 1px var(--hud-glow-soft) !important; }
+} }
+/* cq ↑ */
 
 /* Карточка в «жидком стекле» — там тень своя. */
 html .hud-glass-liquid .hud-os-card { box-shadow: var(--hud-glow-card), var(--glass-depth), inset 0 1px 0 var(--glass-rim); }
@@ -6040,6 +6119,9 @@ html .hud-glass-liquid .hud-os-card { box-shadow: var(--hud-glow-card), var(--gl
    --hud-glow-k — «Выключено» на телефоне даёт 0. */
 :root { --hud-glow-k: 1; }
 @media (max-width: 600px) { html.hud-glow-mobile-off { --hud-glow-k: 0 !important; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { html.hud-glow-mobile-off { --hud-glow-k: 0 !important; } } }
+/* cq ↑ */
 html:not(.hud-theme-cyberpunk) .hud-os-card :is(.hud-row:not(.nsfw) > .hud-key, .hud-key-block > .hud-key-label, .hud-world-title) {
   text-shadow: 0 0 calc(1px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(5px * var(--hud-glow-r)) var(--hud-glow-strong),
     0 0 calc(12px * var(--hud-glow-r)) var(--hud-glow), 0 0 calc(26px * var(--hud-glow-r)) var(--hud-glow-soft),
@@ -6462,6 +6544,11 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
 @media (max-width: 600px) {
   :root { --hud-glow-card: 0 0 0 0 transparent; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  :root { --hud-glow-card: 0 0 0 0 transparent; }
+} }
+/* cq ↑ */
 
 /* =========================================================================
    ВИД СЕКЦИЙ (Кастомизация → Вид блоков)
@@ -6515,6 +6602,12 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
   .hud-toggle-input:checked ~ .hud-os-topbar .hud-os-subtitle { display: none; }
   .hud-toggle-input:checked ~ .hud-os-topbar .hud-os-topbar-left { flex: 1 1 auto; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-toggle-input:checked ~ .hud-os-topbar .hud-os-subtitle { display: none; }
+  .hud-toggle-input:checked ~ .hud-os-topbar .hud-os-topbar-left { flex: 1 1 auto; }
+} }
+/* cq ↑ */
 
 /* Пульс, дыхание, температура: график тянется на всю плитку (раньше —
    жёсткие 72px, на узком телефоне обрезался и оставлял пустую половину),
@@ -6531,6 +6624,12 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
   .hud-mark { grid-template-columns: 34px minmax(0, 1fr) !important; }
   .hud-mark > .hud-mark-timer { grid-column: 1 / -1; justify-content: flex-start; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-mark { grid-template-columns: 34px minmax(0, 1fr) !important; }
+  .hud-mark > .hud-mark-timer { grid-column: 1 / -1; justify-content: flex-start; }
+} }
+/* cq ↑ */
 
 /* Бирки силы страха, «контрацепция», время в статусбаре перехватов —
    короткие слова, которые рвались посреди на узком экране. */
@@ -6544,6 +6643,11 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 @media (max-width: 600px) {
   .hud-os-card .hud-body :is(.hud-vertical-container, .hud-key-list) { max-height: none !important; overflow-y: visible !important; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-os-card .hud-body :is(.hud-vertical-container, .hud-key-list) { max-height: none !important; overflow-y: visible !important; }
+} }
+/* cq ↑ */
 
 /* На узкой карточке (телефон до ~390px) плитки пульса, дыхания и
    температуры встают столбиком: втроём в ряд подписи и графики не влезали. */
@@ -6676,6 +6780,13 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
   .hud-prot { grid-template-columns: 40px minmax(0, 1fr); }
   .hud-prot > em { grid-column: 2; justify-self: start; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-mark-timer small { white-space: normal; }
+  .hud-prot { grid-template-columns: 40px minmax(0, 1fr); }
+  .hud-prot > em { grid-column: 2; justify-self: start; }
+} }
+/* cq ↑ */
 /* Тест на беременность в узкой карточке: полоска теста и итог в одну
    строку не помещались, итог сжимался до 12px. Теперь итог уходит вниз. */
 .hud-test { flex-wrap: wrap; row-gap: 8px; }
@@ -6736,7 +6847,7 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 .hud-ct-name small { display: block; font-size: 11px; opacity: .72; }
 .hud-ct-btns { grid-area: btns; display: flex; flex-wrap: wrap; gap: 4px; }
 .hud-ct-btns button { font: inherit; font-size: 11px; padding: 2px 8px; border-radius: 999px; cursor: pointer; color: inherit; background: transparent; border: 1px solid rgba(127,127,127,.35); }
-.hud-ct-btns button[aria-pressed="true"] { border-color: var(--hud-accent, #8c5ad2); color: var(--hud-accent, #8c5ad2); }
+.hud-ct-btns button[aria-pressed="true"] { border-color: var(--hud-accent, #8c5ad2); color: var(--hud-accent-text, var(--hud-accent, #8c5ad2)); }
 .hud-ct-btns button:disabled { opacity: .35; cursor: default; }
 .hud-custom-budget-body { margin: 8px 0 0; }
 .hud-budget-total { display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 8px; align-items: baseline; padding: 6px 0; border-bottom: 1px dashed var(--hud-border, rgba(255,255,255,.14)); }
@@ -6753,17 +6864,134 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
   box-shadow: 0 6px 14px rgba(0,0,0,.45), 0 0 0 2px color-mix(in srgb, var(--hud-accent, #8c5ad2) 60%, transparent); }
 .hud-tabs-header > .hud-tab { -webkit-touch-callout: none; }
 
-/* Телефон на узком экране: по высоте — не больше видимой части окна, чтобы
-   кнопка «домой» внизу корпуса была видна вместе с верхом и не приходилось
-   долистывать карточку до низа и обратно. Подсказка «или коснитесь» — только
-   на сенсорном экране (там телефон открывает касание, events.js). */
-@media (max-width: 600px) {
-  .hud-os-card .hud-phone-emulator { min-height: 0 !important; height: clamp(400px, calc(100dvh - 200px), 560px); }
-  .hud-os-card .hud-phone-emulator .hud-phone-lockscreen,
-  .hud-os-card .hud-phone-emulator .hud-phone-unlocked { min-height: 0 !important; height: 100%; }
-  .hud-os-card .hud-phone-emulator .hud-phone-home-screen { min-height: 0 !important; }
-  .hud-os-card .hud-phone-emulator .hud-phone-unlocked { overflow-y: auto; overscroll-behavior: auto; }
-  .hud-os-card .hud-phone-lock-time { margin-top: 28px; }
+/* Экран блокировки тянут вверх с любого места (events.js), поэтому жест
+   не отдаётся прокрутке страницы. Внутри разблокированного телефона
+   прокрутка списков не перетекает на чат, когда список дошёл до края. */
+.hud-phone-emulator:not(.unlocked) .hud-phone-lockscreen,
+.hud-phone-emulator:not(.unlocked) .hud-phone-lockscreen * { touch-action: none; }
+.hud-phone-lockscreen { cursor: grab; user-select: none; -webkit-user-select: none; }
+.hud-phone-lockscreen.is-dragging { cursor: grabbing; }
+.hud-phone-lock-notifications, .hud-phone-chat-area, .hud-phone-chat-list, .hud-phone-unlocked, .hud-phone-app-view { overscroll-behavior: contain; }
+
+/* Кастомизация: «Подробно» (customize-detail.js). Атрибут hidden перебивают
+   правила display у сеток панели, поэтому !important. Кнопка на всю
+   ширину и не ниже 44px — под палец. */
+.hud-custom-detail[hidden] { display: none !important; }
+.hud-detail-toggle {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  width: 100%; min-height: 44px; margin: 10px 0 6px; padding: 8px 14px; box-sizing: border-box;
+  border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 40%, transparent); border-radius: 10px;
+  background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 10%, rgba(255,255,255,.03));
+  color: inherit; font: inherit; font-weight: 600; cursor: pointer; text-align: left;
 }
-.hud-phone-lock-tap { display: none; }
-@media (pointer: coarse) { .hud-phone-lock-tap { display: inline; } }
+.hud-detail-toggle:hover { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 18%, rgba(255,255,255,.04)); }
+.hud-detail-toggle:focus-visible { outline: 2px solid var(--hud-accent, #8c5ad2); outline-offset: 2px; }
+.hud-detail-toggle-chev { width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform .2s ease; opacity: .7; flex: none; }
+.hud-detail-toggle.is-open .hud-detail-toggle-chev { transform: rotate(-135deg) translateY(-2px); }
+.hud-custom-detail { display: flex; flex-direction: column; gap: inherit; }
+.hud-custom-detail:not([hidden]) { animation: hud-smooth-in .28s ease both; }
+@media (prefers-reduced-motion: reduce) { .hud-custom-detail:not([hidden]) { animation: none; } .hud-detail-toggle-chev { transition: none; } }
+
+/* Значок контраста у цветового поля (contrast.js): знак и число, а не
+   только цвет — читается и без различения цветов. */
+.hud-contrast-badge {
+  display: inline-block; flex: none; padding: 1px 5px; border-radius: 6px;
+  font-size: 10px; line-height: 1.4; font-variant-numeric: tabular-nums; white-space: nowrap;
+  border: 1px solid; opacity: 1 !important; cursor: help;
+}
+/* Текст — цвет панели (читаем на любой теме окна), смысл — рамка и подложка. */
+.hud-contrast-badge { color: inherit; }
+.hud-contrast-badge[data-state="ok"]   { border-color: #3fae6a; background: rgba(63,174,106,.16); }
+.hud-contrast-badge[data-state="warn"] { border-color: #d19a22; background: rgba(209,154,34,.18); }
+.hud-contrast-badge[data-state="bad"]  { border-color: #e04848; background: rgba(224,72,72,.2); }
+.hud-contrast-badge[data-state="na"]   { border-style: dashed; opacity: .55 !important; }
+.hud-role .hud-contrast-badge { margin-top: -1px; }
+
+/* Маркеры эффектов (render/fx.js), фаза 1: те же правила, что у списков на
+   сто классов выше, но по атрибуту data-fx. Старые списки пока живут рядом —
+   объявления одинаковые, поэтому вид не меняется. Отдельным релизом, когда
+   равенство множеств подтвердится, списки уйдут, останутся эти строки. */
+[data-fx~="lift"] { transition: transform .6s cubic-bezier(.22,.8,.26,1), filter .6s cubic-bezier(.22,.8,.26,1), background-color .4s ease, border-color .4s ease, box-shadow .4s ease, color .4s ease, opacity .4s ease !important; }
+@media (prefers-reduced-motion: no-preference) {
+  @media (hover: hover) {
+    [data-fx~="lift"]:hover { transform: translateY(-3px) !important; filter: drop-shadow(0 7px 10px rgba(0,0,0,.38)) drop-shadow(0 0 0 transparent); z-index: 2; }
+    [data-fx~="glow"]:is(:hover, .fx-hold) { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite; }
+    [data-fx~="glow"].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) { animation-play-state: paused !important; }
+  }
+  [data-fx~="lift"].fx-tap { transform: translateY(-3px) !important; filter: drop-shadow(0 7px 10px rgba(0,0,0,.38)) drop-shadow(0 0 0 transparent); z-index: 2; }
+  [data-fx~="glow"]:is(.fx-tap, .fx-hold) { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite; }
+  [data-fx~="glow"].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) { animation-play-state: paused !important; }
+}
+
+/* Облик силуэта (render/look.js, настройка silhouetteLook): тон кожи
+   примешан в тёмный градиент тела, а не залит поверх — пятна
+   чувствительности (screen) остаются такими же яркими. Обводка не
+   толстеет от масштаба сложения. */
+.hud-heat-svg.has-skin .b0 { stop-color: color-mix(in oklch, var(--skin) 62%, #3a2c44); }
+.hud-heat-svg.has-skin .b1 { stop-color: color-mix(in oklch, var(--skin) 46%, #19141f); }
+/* Рамка и развёртка тепловизора на коже приглушены: иначе розовая кромка
+   перекрашивала любой тон в один и тот же. */
+.hud-heat-svg.has-skin .z-rim > * { fill: color-mix(in srgb, var(--skin) 30%, rgba(255,255,255,.12)); stroke: color-mix(in srgb, var(--heat) 22%, rgba(255,255,255,.22)); }
+.hud-heat-svg.has-look .z-rim > * { vector-effect: non-scaling-stroke; }
+.hud-heat-svg .z-hair { fill: var(--hair, #5e4d61); opacity: .9; stroke: color-mix(in oklch, var(--hair, #5e4d61) 55%, #fff); stroke-width: .7; vector-effect: non-scaling-stroke; }
+.hud-heat-svg .z-look-mark { fill: none; stroke: color-mix(in srgb, var(--heat, #d96a8a) 35%, #fff); stroke-width: .9; stroke-linecap: round; opacity: .9; vector-effect: non-scaling-stroke; }
+.hud-heat-svg .z-look-mark.is-mole circle, .hud-heat-svg .z-look-mark.is-piercing circle { fill: color-mix(in srgb, var(--heat, #d96a8a) 35%, #fff); stroke: none; }
+.hud-heat-svg .z-look-mark.is-piercing circle { fill: none; stroke: #e8e8f0; stroke-width: .8; }
+
+/* «Почерк тела» (render/diary.js, настройка bodyDiaryHand). Только форма:
+   размер, наклон, разрядка, базовая линия — цвет и контраст те же, размер
+   не ниже пола --hud-fs-min. Сдвиги до 2px и 2°. */
+.hud-body-entry[data-hand] .hud-diary-text { transform-origin: left center; }
+.hud-body-entry[data-hand="warm"] .hud-diary-text { font-style: italic; letter-spacing: .01em; transform: skewX(calc(var(--h-tilt, 0deg) * .5)); }
+.hud-body-entry[data-hand="peak"] .hud-diary-text { font-size: 1.07em; letter-spacing: .025em; word-spacing: .06em; transform: skewX(var(--h-tilt, 0deg)) translateY(var(--h-rise, 0px)); }
+.hud-body-entry[data-hand="peak"] .hud-diary-text > :nth-child(even) { transform: translateY(calc(var(--h-rise, 0px) * -1)) rotate(calc(var(--h-tilt, 0deg) * -.4)); }
+.hud-body-entry[data-hand="after"] .hud-diary-text { font-size: max(var(--hud-fs-min, 11px), .95em); line-height: 1.62; letter-spacing: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-body-entry[data-hand="peak"]:first-child .hud-diary-text { animation: hud-hand-tremor 2.6s ease-in-out 1; }
+}
+@keyframes hud-hand-tremor { 0%, 100% { translate: 0 0; } 20% { translate: .4px -.3px; } 40% { translate: -.4px .3px; } 60% { translate: .3px .2px; } 80% { translate: -.2px -.2px; } }
+.hud-heat-svg.has-skin.is-light-skin .z-heat { stroke: #4a1430; stroke-opacity: .7; stroke-width: .7; vector-effect: non-scaling-stroke; }
+
+/* Объём силуэта (render/body-art.js): свет сверху слева, тень по правому
+   краю, контровая кромка; пряди волос; очертания — тонкие линии того же
+   тона, что и детали тела, без заливки. Пятна чувствительности — поверх. */
+.hud-heat-svg .v0 { stop-color: #fff; stop-opacity: .09; }
+.hud-heat-svg .v1 { stop-color: #fff; stop-opacity: 0; }
+.hud-heat-svg .v2 { stop-color: #000; stop-opacity: .38; }
+.hud-heat-svg .g0 { stop-color: #fff; stop-opacity: .18; }
+.hud-heat-svg .g1 { stop-color: #fff; stop-opacity: 0; }
+.hud-heat-svg .e0 { stop-color: #fff; stop-opacity: .55; }
+.hud-heat-svg .e1 { stop-color: #fff; stop-opacity: 0; }
+.hud-heat-svg .z-edge > * { stroke-width: .8; vector-effect: non-scaling-stroke; }
+.hud-heat-svg .z-hair-strands path { fill: none; stroke: color-mix(in oklch, var(--hair, #5e4d61) 50%, #fff); stroke-opacity: .5; stroke-width: .55; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.hud-heat-svg .z-anat { filter: drop-shadow(0 0 .5px rgba(20, 6, 14, .85)); }
+.hud-heat-svg .z-anat path { fill: none; stroke: rgba(255, 240, 246, .58); stroke-width: .9; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+
+/* «Пример» в шапке кастомизации: включённый — подсвечен акцентом. */
+.hud-custom-head .hud-custom-sample { font-size: 12px; padding: 0 10px; }
+.hud-custom-head .hud-custom-sample.is-on { background: color-mix(in oklab, var(--hud-accent, #c31f38) 35%, transparent); border-color: color-mix(in oklab, var(--hud-accent, #c31f38) 70%, transparent); }
+
+/* Черты облика (render/look.js): кудри, пучок, хвост, коса — тем же цветом
+   волос; седые виски — серебром; щетина и борода — полупрозрачной тенью;
+   веснушки — точками; очки — тонкой оправой. Татуировки — тонким
+   орнаментом «чернилами»: светлыми на тёмном теле и тёмными на светлом. */
+.hud-heat-svg .z-hair-curls circle { fill: var(--hair, #5e4d61); stroke: color-mix(in oklch, var(--hair, #5e4d61) 60%, #fff); stroke-opacity: .55; stroke-width: .5; vector-effect: non-scaling-stroke; }
+.hud-heat-svg g.z-hair > * { fill: var(--hair, #5e4d61); stroke: color-mix(in oklch, var(--hair, #5e4d61) 55%, #fff); stroke-width: .55; vector-effect: non-scaling-stroke; }
+.hud-heat-svg .z-hair-band { fill: none; stroke: color-mix(in oklch, var(--hair, #5e4d61) 40%, #000); stroke-width: .9; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.hud-heat-svg .z-temples path { fill: #d4d4da; opacity: .85; }
+.hud-heat-svg .z-temples.is-bare path { opacity: .6; }
+.hud-heat-svg .z-beard { fill: color-mix(in oklch, var(--hair, #3a2c2c) 70%, #000); opacity: .32; }
+.hud-heat-svg .z-beard.is-full { opacity: .62; }
+.hud-heat-svg .z-freckles circle { fill: #8a4a2e; opacity: .75; }
+.hud-heat-svg .z-glasses > * { fill: rgba(200, 225, 255, .14); stroke: #1c1820; stroke-width: .8; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.hud-heat-svg .z-glasses path { fill: none; }
+.hud-heat-svg .z-look-mark.is-tattoo path { fill: none; stroke: rgba(196, 210, 255, .62); stroke-width: .75; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+.hud-heat-svg.is-light-skin .z-look-mark.is-tattoo path { stroke: rgba(30, 38, 76, .78); }
+.hud-heat-svg .z-look-mark.is-burn path { fill: rgba(200, 80, 60, .35); stroke: rgba(230, 120, 90, .7); stroke-width: .6; vector-effect: non-scaling-stroke; }
+
+/* Фигура по описанию (render/body-art.js): рельеф мышц и вены — тонкими
+   линиями деталей тела, живот при беременности — мягким светом и линией. */
+.hud-heat-svg .z-muscle path { fill: none; stroke: rgba(255, 255, 255, .16); stroke-width: .7; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.hud-heat-svg.is-light-skin .z-muscle path { stroke: rgba(60, 30, 40, .28); }
+.hud-heat-svg .z-belly ellipse { fill: rgba(255, 255, 255, .09); }
+.hud-heat-svg .z-belly path { fill: none; stroke: rgba(255, 255, 255, .22); stroke-width: .7; stroke-linecap: round; vector-effect: non-scaling-stroke; }

@@ -255,6 +255,13 @@
   :root.hud-ava-arch:is(.hud-deco-fan, .hud-deco-roses) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > :is(.hud-avatar, .hud-avatar-placeholder) { height: 88px !important; }
   :root:is(.hud-deco-lattice, .hud-deco-octagon) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > :is(.hud-avatar, .hud-avatar-placeholder) { width: 62px !important; height: 62px !important; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  :root.hud-ava-framed .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > :is(.hud-avatar, .hud-avatar-placeholder) { width: 72px !important; height: 72px !important; }
+  :root.hud-ava-arch:is(.hud-deco-fan, .hud-deco-roses) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > :is(.hud-avatar, .hud-avatar-placeholder) { height: 88px !important; }
+  :root:is(.hud-deco-lattice, .hud-deco-octagon) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > :is(.hud-avatar, .hud-avatar-placeholder) { width: 62px !important; height: 62px !important; }
+} }
+/* cq ↑ */
 
 /* =========================================================================
    КАРТИНКА В УГЛУ ШАПКИ
@@ -299,6 +306,20 @@
   :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin-right: 30px; }
   :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco { right: -26px; bottom: -18px; width: 66px; height: 66px; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  :root.hud-orn-on .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 58px !important; }
+  :root.hud-orn-on .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 60px; height: 60px; top: -4px; right: 0; }
+  :root.hud-orn-bridge .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 84px; height: 40px; }
+  :root.hud-orn-cat .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 50px; height: 44px; }
+  :root.hud-wax-seal .hud-os-card .hud-header:not(.has-banner) .hud-head-wax { width: 42px; height: 42px; margin-top: -21px; right: 8px; }
+  :root.hud-wax-seal.hud-orn-on .hud-os-card .hud-header:not(.has-banner) .hud-head-wax { top: auto; bottom: 0; margin-top: 0; right: 12px; }
+  :root.hud-wax-seal:not(.hud-orn-on) .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 50px !important; }
+  :root.hud-ava-framed .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin-left: 4px; }
+  :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin-right: 30px; }
+  :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco { right: -26px; bottom: -18px; width: 66px; height: 66px; }
+} }
+/* cq ↑ */
 
 /* =========================================================================
    РАЗДЕЛИТЕЛИ ГРУПП
@@ -419,7 +440,7 @@
 .hud-prof-namebar { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .hud-os-card .hud-header.is-visit .hud-prof-namebar { justify-content: center; }
 .hud-prof-lv {
-  font: italic 900 10px/1 sans-serif; color: var(--hud-accent); border: 1px solid var(--hud-accent); padding: 2px 4px; border-radius: 4px; white-space: nowrap;
+  font: italic 900 10px/1 sans-serif; color: var(--hud-accent-text, var(--hud-accent)); border: 1px solid var(--hud-accent); padding: 2px 4px; border-radius: 4px; white-space: nowrap;
 }
 .hud-prof-pill {
   font-style: normal; font-size: 10px; line-height: 1.1; color: #fff; background: color-mix(in srgb, var(--hud-accent) 72%, #000); padding: 3px 7px; border-radius: 4px; text-shadow: 0 1px 1px rgba(0,0,0,.3);
@@ -461,7 +482,7 @@
 :root.hud-brackets .hud-os-card .hud-row.f-thoughts .hud-value::after,
 :root.hud-brackets .hud-os-card .hud-line-quote::before,
 :root.hud-brackets .hud-os-card .hud-q-end::before {
-  color: var(--hud-accent); font-size: 1.3em; font-weight: 700; font-style: normal;
+  color: var(--hud-accent-text, var(--hud-accent)); font-size: 1.3em; font-weight: 700; font-style: normal;
 }
 
 /* --- Полосы старого экрана («First bite», q::after) -------------------- */
@@ -593,14 +614,14 @@
 /* --- Имя столбиком у портрета («秦素») ------------------------------------ */
 .hud-vert-name {
   flex: none; writing-mode: vertical-rl; text-orientation: upright; max-height: 118px; overflow: hidden;
-  font: 700 12px/1 'Yu Mincho', Georgia, 'Times New Roman', serif; letter-spacing: .1em; color: var(--hud-accent); padding: 4px 3px;
+  font: 700 12px/1 'Yu Mincho', Georgia, 'Times New Roman', serif; letter-spacing: .1em; color: var(--hud-accent-text, var(--hud-accent)); padding: 4px 3px;
   border-left: 1px solid color-mix(in srgb, var(--hud-accent) 50%, transparent); border-right: 1px solid color-mix(in srgb, var(--hud-accent) 50%, transparent);
 }
 .hud-os-card .hud-header.is-visit .hud-vert-name { display: none; }
 
 /* --- Счёт дней сюжета («First bite») ------------------------------------- */
 .hud-day {
-  align-self: flex-start; margin-top: 4px; font: italic 600 .78em/1 Georgia, serif; letter-spacing: .06em; color: var(--hud-accent); white-space: nowrap;
+  align-self: flex-start; margin-top: 4px; font: italic 600 .78em/1 Georgia, serif; letter-spacing: .06em; color: var(--hud-accent-text, var(--hud-accent)); white-space: nowrap;
   padding: 3px 9px; border-radius: 99px; border: 1px solid color-mix(in srgb, var(--hud-accent) 55%, transparent); background: color-mix(in srgb, var(--hud-accent) 10%, transparent);
 }
 .hud-os-card .hud-header.is-visit .hud-day { align-self: center; }
@@ -637,11 +658,11 @@
 .hud-trust-up { display: none; }
 :root.hud-trust-hearts .hud-os-card .hud-row .hud-trust-up { display: block; position: absolute; right: 48px; top: 7px; z-index: 2; pointer-events: none; }
 .hud-trust-up b {
-  display: block; font: 700 11px/1 system-ui, sans-serif; white-space: nowrap; color: var(--hud-accent); padding: 3px 8px; border-radius: 99px;
+  display: block; font: 700 11px/1 system-ui, sans-serif; white-space: nowrap; color: var(--hud-accent-text, var(--hud-accent)); padding: 3px 8px; border-radius: 99px;
   background: color-mix(in srgb, var(--hud-accent) 14%, transparent); border: 1px solid color-mix(in srgb, var(--hud-accent) 35%, transparent);
 }
 .hud-trust-up i {
-  position: absolute; left: 12px; top: 2px; font-style: normal; font-size: 12px; line-height: 1; color: var(--hud-accent); opacity: 0;
+  position: absolute; left: 12px; top: 2px; font-style: normal; font-size: 12px; line-height: 1; color: var(--hud-accent-text, var(--hud-accent)); opacity: 0;
   text-shadow: 0 0 5px color-mix(in srgb, var(--hud-accent) 60%, transparent); animation: hud-heart-up 1.8s ease-out infinite;
 }
 .hud-trust-up i:nth-child(2) { left: 26px; font-size: 9px; animation-delay: .35s; --x: 6px; }
@@ -728,6 +749,12 @@
   :root:is(.hud-orn-redbranch, .hud-orn-oni, .hud-orn-hat) .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 66px; height: 62px; }
   :root.hud-orn-redbranch .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 62px !important; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  :root:is(.hud-orn-redbranch, .hud-orn-oni, .hud-orn-hat) .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 66px; height: 62px; }
+  :root.hud-orn-redbranch .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 62px !important; }
+} }
+/* cq ↑ */
 
 /* --- Подвеска на шнуре («Swallows»): качается под курсором или по нажатию - */
 .hud-pendant, .hud-label-badge, .hud-dragon { display: none; }
@@ -741,6 +768,9 @@
 :root.hud-hang-pendant .hud-os-card .hud-header:not(.has-banner):is(:hover, .fx-deco) .hud-pendant { animation-play-state: running; }
 @keyframes hud-pendant-swing { 0%, 100% { rotate: 7deg; } 50% { rotate: -7deg; } }
 @media (max-width: 600px) { :root.hud-hang-pendant .hud-os-card .hud-header:not(.has-banner) .hud-pendant { right: 70px; width: 22px; height: 52px; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { :root.hud-hang-pendant .hud-os-card .hud-header:not(.has-banner) .hud-pendant { right: 70px; width: 22px; height: 52px; } } }
+/* cq ↑ */
 
 /* --- Имя «фольгой» («Purple moon»): золотое тиснение с оттенком темы ------ */
 :root.hud-name-foil .hud-os-card .hud-header .hud-title {
@@ -807,7 +837,7 @@
     .hud-theme-steampunk, .hud-theme-dieselpunk, .hud-theme-solarpunk, .hud-theme-biopunk, .hud-theme-spaceopera, .hud-theme-japan, .hud-theme-egypt,
     .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo, .hud-theme-spacehorror) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]::before {
   content: '' !important; display: block !important; width: auto !important; height: auto !important; background: none !important; border: none !important;
-  box-shadow: none !important; transform: none !important; clip-path: none !important; font: 12px/1 'Segoe UI Symbol', 'Segoe UI', sans-serif; color: var(--hud-accent);
+  box-shadow: none !important; transform: none !important; clip-path: none !important; font: 12px/1 'Segoe UI Symbol', 'Segoe UI', sans-serif; color: var(--hud-accent-text, var(--hud-accent));
 }
 :root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked {
   border-color: var(--hud-accent) !important; background: color-mix(in srgb, var(--hud-accent) 14%, transparent) !important;

@@ -3,7 +3,7 @@
    всплывшая в споре. Язык — как у видов блоков (css/views.css): карточка,
    медальоны, линейные значки. «Я» — акцент темы, соперник — холодный синий;
    рамка карточки теплеет с градусом спора. */
-.hud-duel { --me: var(--hud-accent, #d96a8a); --them: #8ab4e8; --heat: #d6b94a; display: grid; gap: 10px; padding: 12px 14px; font-size: 12px; container-type: inline-size; }
+.hud-duel { --me: var(--hud-accent, #d96a8a); --them: #8ab4e8; --heat: #d6b94a; display: grid; gap: var(--hud-sp-5); padding: 12px 14px; font-size: var(--hud-fs-md); container-type: inline-size; }
 .hud-duel .hud-v-ico { width: 14px; height: 14px; }
 .hud-duel.is-peace { --heat: #7fc49a; } .hud-duel.is-cold { --heat: #8ab4e8; } .hud-duel.is-argue { --heat: #d6b94a; }
 .hud-duel.is-jab { --heat: #e0a458; } .hud-duel.is-fight { --heat: #e46a6a; } .hud-duel.is-shout { --heat: #ff4f6a; }
@@ -13,23 +13,23 @@
 .hud-duel.is-fight.hud-v-card, .hud-duel.is-shout.hud-v-card { box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 0 22px -10px var(--heat), 0 8px 18px -12px rgba(0,0,0,.7); }
 
 /* Шапка: лицо против лица. */
-.hud-duel-vs { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: 10px; }
-.hud-duel-who { display: flex; align-items: center; gap: 8px; min-width: 0; opacity: .78; transition: opacity .3s ease; }
+.hud-duel-vs { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--hud-sp-5); }
+.hud-duel-who { display: flex; align-items: center; gap: var(--hud-sp-4); min-width: 0; opacity: .78; transition: opacity .3s ease; }
 .hud-duel-who.is-them { justify-content: flex-end; text-align: right; }
 .hud-duel-who > span { display: grid; min-width: 0; line-height: 1.15; }
-.hud-duel-who b { font-size: 13px; font-weight: 750; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-duel-who b { font-size: var(--hud-fs-lg); font-weight: 750; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hud-duel-who em { font-size: 18px; }
 .hud-duel-who.is-me b, .hud-duel-who.is-me em { color: color-mix(in srgb, var(--me) 45%, var(--ink-hi, #fff)); }
 .hud-duel-who.is-them b, .hud-duel-who.is-them em { color: color-mix(in srgb, var(--them) 45%, var(--ink-hi, #fff)); }
 .hud-duel-who.is-lead { opacity: 1; }
-.hud-duel-face { width: 36px; height: 36px; font-size: 13px; background-size: cover; background-position: center; }
+.hud-duel-face { width: 36px; height: 36px; font-size: var(--hud-fs-lg); background-size: cover; background-position: center; }
 .hud-duel-who.is-me .hud-duel-face { --v-acc: var(--me); } .hud-duel-who.is-them .hud-duel-face { --v-acc: var(--them); }
 .hud-duel-who.is-lead .hud-duel-face { box-shadow: 0 0 0 2px var(--v-acc), 0 0 14px var(--v-acc); }
 .hud-duel-vs-mid { --v-acc: var(--heat); }
 
 /* Канат: цвет стороны у её края, указатель тянется к тому, кто ведёт. */
 .hud-duel-tug { padding: 4px 6px; }
-.hud-duel-track { position: relative; display: block; height: 10px; border-radius: 999px;
+.hud-duel-track { position: relative; display: block; height: 10px; border-radius: var(--hud-r-pill);
   background: repeating-linear-gradient(115deg, rgba(255,255,255,.14) 0 3px, transparent 3px 7px),
               linear-gradient(90deg, color-mix(in srgb, var(--me) 75%, transparent), rgba(255,255,255,.1) 50%, color-mix(in srgb, var(--them) 70%, transparent));
   box-shadow: inset 0 1px 2px rgba(0,0,0,.45); }
@@ -56,8 +56,8 @@
 .hud-duel-pan.is-me { --pan: var(--me); } .hud-duel-pan.is-them { --pan: var(--them); }
 
 /* График по ходам. */
-.hud-duel-chart { display: grid; grid-template-columns: minmax(0, 1fr); gap: 2px; font-size: 10px; color: var(--v-ink-soft); }
-.hud-duel-chart svg { width: 100%; height: 76px; overflow: visible; border-radius: 8px;
+.hud-duel-chart { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--hud-sp-1); font-size: var(--hud-fs-xs); color: var(--v-ink-soft); }
+.hud-duel-chart svg { width: 100%; height: 76px; overflow: visible; border-radius: var(--hud-r-md);
   background: linear-gradient(180deg, color-mix(in srgb, var(--me) 10%, transparent), transparent 50%, color-mix(in srgb, var(--them) 10%, transparent)); }
 .hud-duel-chart .mid { stroke: rgba(255,255,255,.25); stroke-dasharray: 3 3; vector-effect: non-scaling-stroke; }
 .hud-duel-chart .area { fill: color-mix(in srgb, var(--me) 18%, transparent); }
@@ -72,7 +72,7 @@
 
 /* Градус: лесенка-термометр. */
 .hud-duel-heat { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; }
-.hud-duel-heat span { --h: #8f8a99; display: inline-flex; align-items: center; gap: 5px; padding: 3px 7px; border-radius: 8px; font-size: 11.5px; color: color-mix(in srgb, var(--h) 55%, var(--ink-hi, #fff));
+.hud-duel-heat span { --h: #8f8a99; display: inline-flex; align-items: center; gap: 5px; padding: 3px 7px; border-radius: var(--hud-r-md); font-size: 11.5px; color: color-mix(in srgb, var(--h) 55%, var(--ink-hi, #fff));
   background: color-mix(in srgb, var(--h) 8%, transparent); opacity: .4; transition: opacity .3s ease; }
 .hud-duel-heat span.is-past { opacity: .75; }
 .hud-duel-heat span.is-now { opacity: 1; padding: 3px 11px; font-weight: 700; background: color-mix(in srgb, var(--h) 24%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--h) 60%, transparent), 0 0 12px -3px var(--h); }
@@ -80,7 +80,7 @@
 .hud-duel-heat .is-jab { --h: #e0a458; } .hud-duel-heat .is-fight { --h: #e46a6a; } .hud-duel-heat .is-shout { --h: #ff4f6a; }
 
 /* Накал по ходам. */
-.hud-duel-heat-hist { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 2px; font-size: 10px; color: var(--v-ink-soft); }
+.hud-duel-heat-hist { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: var(--hud-sp-1); font-size: var(--hud-fs-xs); color: var(--v-ink-soft); }
 .hud-duel-heat-hist > span { margin-right: 6px; letter-spacing: .08em; text-transform: uppercase; }
 .hud-duel-heat-hist i { --h: #8f8a99; font-style: normal; display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; color: color-mix(in srgb, var(--h) 45%, var(--ink-hi, #fff));
   background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--h) 40%, transparent), color-mix(in srgb, var(--h) 12%, rgba(0,0,0,.3))); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--h) 55%, transparent); cursor: help; }
@@ -92,14 +92,14 @@
 
 /* Уступки и всплывшее. */
 .hud-duel-gvs { display: flex; flex-wrap: wrap; gap: 5px; align-items: center; }
-.hud-duel-gvs > span:first-child { display: inline-flex; align-items: center; gap: 5px; font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--v-ink-soft); }
-.hud-duel-gv { padding: 3px 10px; border-radius: 999px; background: rgba(255,255,255,.05); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
-.hud-duel-gv small { margin-right: 6px; padding: 0 5px; border-radius: 999px; background: color-mix(in srgb, var(--heat) 25%, transparent); font-weight: 700; }
-.hud-duel-past { display: flex; gap: 10px; align-items: flex-start; padding: 8px 10px; border-radius: 10px;
+.hud-duel-gvs > span:first-child { display: inline-flex; align-items: center; gap: 5px; font-size: var(--hud-fs-xs); letter-spacing: .08em; text-transform: uppercase; color: var(--v-ink-soft); }
+.hud-duel-gv { padding: 3px 10px; border-radius: var(--hud-r-pill); background: rgba(255,255,255,.05); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); }
+.hud-duel-gv small { margin-right: 6px; padding: 0 5px; border-radius: var(--hud-r-pill); background: color-mix(in srgb, var(--heat) 25%, transparent); font-weight: 700; }
+.hud-duel-past { display: flex; gap: var(--hud-sp-5); align-items: flex-start; padding: 8px 10px; border-radius: var(--hud-r-lg);
   background: linear-gradient(100deg, rgba(201,164,106,.16), rgba(255,255,255,.02) 70%); box-shadow: inset 0 0 0 1px rgba(201,164,106,.3); }
 .hud-duel-past .hud-v-medal { --v-acc: #c9a46a; width: 28px; height: 28px; }
-.hud-duel-past > span { display: grid; gap: 2px; }
-.hud-duel-past small { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: #d9bd8a; }
+.hud-duel-past > span { display: grid; gap: var(--hud-sp-1); }
+.hud-duel-past small { font-size: var(--hud-fs-xs); letter-spacing: .08em; text-transform: uppercase; color: #d9bd8a; }
 .hud-duel-past p { margin: 0; font-style: italic; }
 
 @container (max-width: 380px) {
@@ -110,14 +110,14 @@
 /* Узкая карточка (телефон, ~215px): имя и счёт — под лицом, не рядом. */
 @container (max-width: 300px) {
   .hud-duel { padding: 10px; }
-  .hud-duel-vs { gap: 6px; }
+  .hud-duel-vs { gap: var(--hud-sp-3); }
   .hud-duel-who, .hud-duel-who.is-them { flex-direction: column; justify-content: flex-start; text-align: center; gap: 3px; }
   .hud-duel-who.is-them { flex-direction: column-reverse; justify-content: flex-end; }
-  .hud-duel-who b { font-size: 11px; max-width: 100%; }
+  .hud-duel-who b { font-size: var(--hud-fs-sm); max-width: 100%; }
   .hud-duel-who em { font-size: 14px; }
   .hud-duel-face { width: 30px; height: 30px; }
   .hud-duel-vs-mid.hud-v-medal.is-lg { width: 32px; height: 32px; }
-  .hud-duel-heat { gap: 2px; }
+  .hud-duel-heat { gap: var(--hud-sp-1); }
   .hud-duel-heat span:not(.is-now) { padding: 3px 4px; }
 }
 

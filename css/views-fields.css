@@ -188,6 +188,14 @@
   .hud-f-looks.is-traits .side.l { text-align: left; }
   .hud-f-looks.is-traits .side.l li { flex-direction: row; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-f-looks.is-traits { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+  .hud-f-looks.is-traits .fig { grid-column: 1 / -1; grid-row: 1; justify-self: center; }
+  .hud-f-looks.is-traits .side.l { text-align: left; }
+  .hud-f-looks.is-traits .side.l li { flex-direction: row; }
+} }
+/* cq ↑ */
 
 /* Ориентировка: бумага темы, сверху состаренная */
 .hud-f-looks.is-profile .sheet {
@@ -211,6 +219,9 @@
 .hud-f-looks.is-profile .stamp { flex: none; margin-left: 8px; padding: 2px 8px; border: 2px solid color-mix(in srgb, var(--t-acc) 70%, #a01818); border-radius: 4px; transform: rotate(-6deg);
   color: color-mix(in srgb, var(--t-acc) 60%, #d03030); font: 900 .66em var(--f-mono); letter-spacing: .14em; text-transform: uppercase; opacity: .85; }
 @media (max-width: 600px) { .hud-f-looks.is-profile .sheet { grid-template-columns: 56px minmax(0, 1fr); } .hud-f-looks.is-profile .mug svg { width: 44px; } .hud-f-looks.is-profile .hdr b { letter-spacing: .14em; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { .hud-f-looks.is-profile .sheet { grid-template-columns: 56px minmax(0, 1fr); } .hud-f-looks.is-profile .mug svg { width: 44px; } .hud-f-looks.is-profile .hdr b { letter-spacing: .14em; } } }
+/* cq ↑ */
 
 /* Скетчбук */
 .hud-f-looks.is-sketch .pad {
@@ -381,6 +392,9 @@
 .hud-f-phys.is-readout .reads span { flex: 1; min-width: 0; }
 .hud-f-phys.is-readout .reads b { font: 700 .76em var(--f-mono); color: var(--f-soft); }
 @media (max-width: 600px) { .hud-f-phys.is-readout { flex-direction: column; } .hud-f-phys.is-readout .cam { align-self: center; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { .hud-f-phys.is-readout { flex-direction: column; } .hud-f-phys.is-readout .cam { align-self: center; } } }
+/* cq ↑ */
 
 /* ================================ МЕСТО =================================== */
 
@@ -414,6 +428,9 @@
 .hud-f-place.is-pin .tag ul { display: block; list-style: none; margin: 5px 0 0; padding: 0; font: .9em/1.4 var(--f-hand); color: var(--f-pen); }
 .hud-f-place.is-pin .tag li { border-bottom: 1px dotted var(--f-paper-rule); }
 @media (max-width: 600px) { .hud-f-place.is-pin { flex-direction: column; align-items: flex-start; } .hud-f-place.is-pin .key { width: 96px; height: 48px; margin: 0 0 -6px 4px; } .hud-f-place.is-pin .tag { max-width: 100%; } .hud-f-sched.is-tickets .stub { width: 64px; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { .hud-f-place.is-pin { flex-direction: column; align-items: flex-start; } .hud-f-place.is-pin .key { width: 96px; height: 48px; margin: 0 0 -6px 4px; } .hud-f-place.is-pin .tag { max-width: 100%; } .hud-f-sched.is-tickets .stub { width: 64px; } } }
+/* cq ↑ */
 
 /* Открытка */
 .hud-f-place.is-sign .card { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 14px; padding: 14px; border-radius: 6px; color: var(--f-paper-ink);
@@ -434,6 +451,9 @@
 .hud-f-place.is-sign .lines { clear: both; list-style: none; margin: 0; padding: 0; font: .92em/1.5 var(--f-hand); color: var(--f-pen); }
 .hud-f-place.is-sign .lines li { border-bottom: 1px solid var(--f-paper-rule); padding-top: 4px; }
 @media (max-width: 600px) { .hud-f-place.is-sign .card { grid-template-columns: 1fr; } .hud-f-place.is-sign .addr { border-left: 0; border-top: 1px solid var(--f-paper-rule); padding: 10px 0 0; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { .hud-f-place.is-sign .card { grid-template-columns: 1fr; } .hud-f-place.is-sign .addr { border-left: 0; border-top: 1px solid var(--f-paper-rule); padding: 10px 0 0; } } }
+/* cq ↑ */
 
 /* ================================ СТАТУС ================================== */
 
@@ -548,6 +568,13 @@
   .hud-f-exp.is-split .dream { padding-right: 14px; padding-bottom: 20px; border-radius: 14px 14px 0 0; clip-path: polygon(0 0, 100% 0, 100% 92%, 84% 100%, 66% 90%, 48% 100%, 30% 90%, 14% 100%, 0 92%); }
   .hud-f-exp.is-split .real { margin: -10px 0 0; padding: 20px 14px 14px; border-radius: 0 0 14px 14px; clip-path: polygon(0 8%, 14% 0, 30% 10%, 48% 0, 66% 10%, 84% 0, 100% 8%, 100% 100%, 0 100%); }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-f-exp.is-split { grid-template-columns: 1fr; }
+  .hud-f-exp.is-split .dream { padding-right: 14px; padding-bottom: 20px; border-radius: 14px 14px 0 0; clip-path: polygon(0 0, 100% 0, 100% 92%, 84% 100%, 66% 90%, 48% 100%, 30% 90%, 14% 100%, 0 92%); }
+  .hud-f-exp.is-split .real { margin: -10px 0 0; padding: 20px 14px 14px; border-radius: 0 0 14px 14px; clip-path: polygon(0 8%, 14% 0, 30% 10%, 48% 0, 66% 10%, 84% 0, 100% 8%, 100% 100%, 0 100%); }
+} }
+/* cq ↑ */
 
 /* Два полароида */
 .hud-f-exp.is-photos { display: flex; flex-wrap: wrap; justify-content: center; gap: 18px; padding: 10px 4px 4px; }
@@ -725,6 +752,13 @@
   .hud-f-flags.is-pins .card:nth-child(3n)::after { display: block; }
   .hud-f-flags.is-pins .card:nth-child(2n)::after, .hud-f-flags.is-pins .card:last-child::after { display: none; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-f-flags.is-pins .cork { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .hud-f-flags.is-pins .card:nth-child(3n)::after { display: block; }
+  .hud-f-flags.is-pins .card:nth-child(2n)::after, .hud-f-flags.is-pins .card:last-child::after { display: none; }
+} }
+/* cq ↑ */
 
 /* Закладки в книге */
 .hud-f-flags.is-lamps .book { position: relative; padding: 10px 0 10px 40px; }
@@ -773,6 +807,9 @@
 .hud-f-conflict.is-counter .chip::before { content: ''; position: absolute; inset: 0; z-index: -1; }
 .hud-f-conflict.is-counter .chip::after { content: ''; position: absolute; left: 8px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: #fff; }
 @media (max-width: 600px) { .hud-f-conflict.is-counter { flex-direction: column; align-items: flex-start; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { .hud-f-conflict.is-counter { flex-direction: column; align-items: flex-start; } } }
+/* cq ↑ */
 
 /* Погода между ними: у стадии своё небо, в нём оттенок темы */
 .hud-f-conflict.is-weather .sky { position: relative; border-radius: 14px; overflow: hidden; min-height: 120px; box-shadow: var(--f-shadow); }
@@ -984,3 +1021,6 @@
 /* Орден на узком экране: медаль меньше, слова не рвутся посередине. */
 .hud-f-role.is-ribbon .title b { word-break: normal; overflow-wrap: normal; hyphens: auto; }
 @media (max-width: 600px) { .hud-f-role.is-ribbon { gap: 10px; } .hud-f-role.is-ribbon .medal { width: 66px; height: 76px; } .hud-f-role.is-ribbon .title b { font-size: 1.1em; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { .hud-f-role.is-ribbon { gap: 10px; } .hud-f-role.is-ribbon .medal { width: 66px; height: 76px; } .hud-f-role.is-ribbon .title b { font-size: 1.1em; } } }
+/* cq ↑ */

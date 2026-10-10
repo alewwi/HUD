@@ -1,0 +1,54 @@
+/* TavernOS HUD — токены: расстояния, скругления, высота слоёв, движение, шрифт.
+   Только объявления, ни одного правила, которое что-то красит. Грузится
+   первым (css-loader.js, ЧАСТИ), до base.css.
+
+   Значения токенов = числам, которые уже стоят в коде: перевод литерала на
+   токен не меняет ни пикселя (tests/tools/codemod-tokens.mjs меняет только
+   при точном совпадении). Округление «к шкале» — отдельное решение, не здесь.
+
+   Плотность: расстояния умножаются на --hud-density (1 — как сейчас).
+   calc(6px * 1) — ровно 6px, поэтому при 1 вид не меняется. */
+:root {
+  --hud-density: 1;
+
+  /* Расстояния. 3, 5, 7 и 9px встречаются реже — остаются числами. */
+  --hud-sp-1: calc(2px * var(--hud-density));
+  --hud-sp-2: calc(4px * var(--hud-density));
+  --hud-sp-3: calc(6px * var(--hud-density));
+  --hud-sp-4: calc(8px * var(--hud-density));
+  --hud-sp-5: calc(10px * var(--hud-density));
+  --hud-sp-6: calc(12px * var(--hud-density));
+  --hud-sp-7: calc(14px * var(--hud-density));
+  --hud-sp-8: calc(16px * var(--hud-density));
+
+  /* Скругления — рядом с --hud-radius, не вместо. */
+  --hud-r-xs: 2px;
+  --hud-r-sm: 4px;
+  --hud-r-md: 8px;
+  --hud-r-lg: 10px;
+  --hud-r-pill: 999px;
+
+  /* Лестница высоты. Объявлена, но числа в CSS пока не заменены: сперва
+     сверка с всплывающими окнами самой Таверны (её z-index), живьём.
+     Сейчас в HUD: 1…60 внутри карточки, 9997–10061 у окон, 100000 палитра. */
+  --z-base: 0;
+  --z-raised: 2;
+  --z-sticky: 10;
+  --z-dropdown: 60;
+  --z-overlay: 9998;
+  --z-modal: 10050;
+  --z-toast: 10061;
+
+  /* Движение. */
+  --hud-dur-fast: .2s;
+  --hud-dur-med: .4s;
+  --hud-dur-slow: .6s;
+  --hud-ease-out: cubic-bezier(.22, .9, .3, 1);
+
+  /* Шрифт. --hud-fs-min — пол для нового кода (старые 9–10.5px не трогаем). */
+  --hud-fs-xs: 10px;
+  --hud-fs-sm: 11px;
+  --hud-fs-md: 12px;
+  --hud-fs-lg: 13px;
+  --hud-fs-min: 11px;
+}

@@ -38,3 +38,12 @@
   .hud-os-card .hud-ill-head b { font-size: .95em; }
   .hud-os-card .hud-ill-row { font-size: .88em; }
 }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-os-card .hud-nsfw-pill { padding: 8px 11px !important; font-size: .9em; }
+  .hud-os-card .hud-nsfw-pill .hud-pill-label { font-size: .84em !important; padding: 2px 9px !important; }
+  .hud-os-card .hud-ill { padding: 9px 11px !important; }
+  .hud-os-card .hud-ill-head b { font-size: .95em; }
+  .hud-os-card .hud-ill-row { font-size: .88em; }
+} }
+/* cq ↑ */
