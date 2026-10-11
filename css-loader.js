@@ -18,14 +18,15 @@
 //
 // Стенды (tests/tools) подключают всё разом через css/all.css.
 
-import { settings } from './settings.js?v=23.48.3';
+import { settings } from './settings.js?v=23.51.8';
 
 const ВЕРСИЯ = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
 const МЕТКА = 'data-hud-css';
 
 // [файл, когда нужен]. Без условия — нужен всегда.
 export const ЧАСТИ = [
-  ['base'], ['themes'], ['misc'], ['views'], ['views-fields'], ['views-trio'], ['family'], ['family-views'],
+  // Токены — первыми: только объявления переменных, остальные части их читают.
+  ['tokens'], ['base'], ['themes'], ['misc'], ['views'], ['views-fields'], ['views-trio'], ['family'], ['family-views'],
   ['extras'], ['deco'], ['scene-body'],
   // В xray.css и шкала темпа (.hud-tempo), не только рентген.
   ['xray', (s) => s.enableTempo !== false],
@@ -37,6 +38,8 @@ export const ЧАСТИ = [
   ['duel', (s) => s.enableVerbalDuel !== false],
   ['combat', (s) => s.enableCombat !== false],
   ['compact'],
+  // Платформа: color-scheme, accent-color, вырез экрана, движение в ::before/::after.
+  ['platform'],
 ];
 
 const адрес = (имя) => new URL('./css/' + имя + '.css' + ВЕРСИЯ, import.meta.url).href;

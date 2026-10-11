@@ -96,13 +96,31 @@ export const hudBlockRe = (flags = 'i', inner = false) =>
  * Все настоящие блоки HUD вне рассуждений.
  * [{ index, length, full, inner }] — full и inner вырезаны из исходного текста.
  */
+
+/**
+ * Внутри меток — данные HUD, а не их пересказ? В плане модель пишет «верну
+ * `[HUD]...[/HUD]` в конце» или «[HUD] ```json ... ``` [/HUD]» — это упоминание:
+ * без JSON и без «ключ: значение». Такую пару блоком не считаем: раньше на её
+ * место (внутрь плана) вставала карточка, а настоящий блок в конце вырезался —
+ * и HUD пропадал, если план свёрнут или спрятан.
+ */
+export function похожНаДанные(содержимое) {
+  const т = String(содержимое ?? '')
+    .replace(/<[^>]*>/g, ' ').replace(/&[a-z#0-9]+;/gi, (с) => (с === '&#123;' || с === '&lbrace;' ? '{' : ' '))
+    .replace(/\x60{3}\s*json/gi, ' ').replace(/\x60+/g, ' ').replace(/\.{2,}|…/g, ' ').trim();
+  if (т.length < 8) return false;
+  return /\{[\s\S]*["'\w]/.test(т) || /(?:^|\n)\s*[A-Za-z_]\w*\s*:\s*\S/.test(т);
+}
+
 export function hudБлоки(text) {
   const s = String(text ?? '');
   const маска = маскаРассуждений(s);
   const out = [];
   for (const m of маска.matchAll(new RegExp(hudBlockRe('gi', true).source, 'gid'))) {
     const [от, до] = m.indices[1];
-    out.push({ index: m.index, length: m[0].length, full: s.slice(m.index, m.index + m[0].length), inner: s.slice(от, до) });
+    const inner = s.slice(от, до);
+    if (!похожНаДанные(inner)) continue;
+    out.push({ index: m.index, length: m[0].length, full: s.slice(m.index, m.index + m[0].length), inner });
   }
   return out;
 }
@@ -114,7 +132,7 @@ export function меткаСДанными(хвост) {
 
 /** В тексте есть настоящий блок HUD вне рассуждений? */
 export function естьHudБлок(text) {
-  return hudBlockRe('i').test(маскаРассуждений(text));
+  return hudБлоки(text).length > 0;
 }
 
 /** Первый блок [HUD]…[/HUD] вне рассуждений; пустая строка, если блока нет. */

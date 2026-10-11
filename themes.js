@@ -18,7 +18,7 @@
 // Ключи в vars — те же, что в settings.js. Незнакомые ключи не пишем: их
 // applyThemeColors() всё равно не читает.
 
-import { settings } from './settings.js?v=23.48.3';
+import { settings } from './settings.js?v=23.51.8';
 
 const HUD_THEMES = [
   {
@@ -748,7 +748,7 @@ export const THEME_CATEGORIES = [
   { id: 'space', label: 'Космос' },
   { id: 'nature', label: 'Стихии' },
 ];
-const HUD_THEME_IDS = HUD_THEMES.map(t => t.id);
+export const HUD_THEME_IDS = HUD_THEMES.map(t => t.id);
 
 // Все поля, которыми вообще распоряжаются темы. Нужен и для сброса, и для
 // снимка своей темы: перечислять руками — верный способ что-то забыть.

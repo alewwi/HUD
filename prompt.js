@@ -5,10 +5,10 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.48.3';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.48.3';
-import { parseSceneDate } from './history-analyzer.js?v=23.48.3';
-import { возрастТочно } from './render/babies.js?v=23.48.3';
+import { settings } from './settings.js?v=23.51.8';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.51.8';
+import { parseSceneDate } from './history-analyzer.js?v=23.51.8';
+import { возрастТочно } from './render/babies.js?v=23.51.8';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -138,7 +138,7 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
    "N": "[name: the character's original name, copied EXACTLY as on their card — same script, same spelling, never translated. The avatar is matched by this string; a mismatch loses the picture]",
    "A": "[age: years and date of birth as DD.MM.YYYY, e.g. '24, 03.11.2000']",
    "C": "[clothing: what they are wearing right now, head to toe, including its state — wet, torn, half-unbuttoned]",
-   "Ap": "[appearance: begin with the body's gender as one letter — 'М' male, 'Ж' female — then a comma; then build, height, hair, eyes, skin, distinguishing marks. The lasting description, repeated turn to turn; it changes only from injury, exhaustion or time.]",
+   "Ap": "[appearance — the LASTING look, the same words turn to turn: begin with 'М' or 'Ж' and a comma; then height in cm; body shape — build, shoulders, waist, hips, chest, muscle; hair — colour, length, how it is worn (bun, curls, ponytail…); eyes; skin tone; permanent marks with where they are — tattoos, scars, piercings, freckles, glasses. NOT mood, expression, gaze, pose, gestures or what they hold — those belong in B. Change it only when the look itself changes: a haircut, a new scar, weight.]",
    "R": "[role: occupation and position in the story — who they are to the others]",
    "B": "[body and mind: current physical and mental state in a phrase or two — tired, tense, tipsy, calm, shaken]",
    "H": "[health: ${болезни ? 'overall physical state in a phrase — pain, stamina, how they hold up; specific illnesses and injuries go to Ill, never its codes here' : 'wounds, pain, illness, stamina'}. 'empty' when all is well.]",${болезни ? `
@@ -198,7 +198,7 @@ ${бельё ? `   "Un": "[OPTIONAL, only when it matters in the scene — under
  "us": {
   "A": "[age: years and date of birth as DD.MM.YYYY]",
   "C": "[clothing: what {{user}} is wearing right now and its state]",
-  "Ap": "[appearance: begin with the body's gender as one letter — 'М' male, 'Ж' female — then a comma; then physical appearance only — build, height, hair, eyes, marks]",
+  "Ap": "[appearance — the LASTING look, same words turn to turn: begin with 'М' or 'Ж' and a comma; then height in cm, body shape (build, shoulders, waist, hips, chest), hair (colour, length, how worn), eyes, skin tone, permanent marks with where they are — tattoos, scars, piercings, glasses. No mood, expression, pose or what they hold]",
   "H": "[health: ${болезни ? 'overall physical state in a phrase; illnesses and injuries go to Ill, never repeated here' : 'physical state only — wounds, pain, illness, stamina'}]",${болезни ? `
   "Ill": "[illnesses and injuries of {{user}}, ONLY if any — otherwise omit. Same format and rules as for characters: groups separated by |, each 'nm: what it is; sg: fresh, worsening, stable, healing, chronic or healed; rc: recovery 0-100%; sy: symptoms; trt: treatment; zn: body zone of a wound'. Keep each condition under the SAME name every turn and in ONE field only${следы ? (интим ? ' — marks left by intimacy (hickeys, bites, scratches, soreness) go to Mrk unless they become a real injury, and nothing is in both Ill and Mrk' : ' — marks that simply fade (bruises, grazes, redness) go to Mrk, and nothing is in both Ill and Mrk') : ''}]",` : ''}${беременностьВПромпт ? `
   "Prg": "[pregnancy of {{user}}, ONLY if pregnant — otherwise omit. 'wk: week as a number; due: expected due date; fa: the father, if known; sy: symptoms; knw: who knows; cnd: how it is going; gnd: baby's sex once an ultrasound shows it (from ~18-20 wk), else omit; bnm: chosen name, if any; vis: next doctor's visit or test; crv: cravings and odd appetites; brn: ONLY on the turn the baby is born — date and time']",` : ''}${послеродовоеВПромпт ? `

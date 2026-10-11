@@ -14,8 +14,8 @@
 // Правка живёт, пока её не снимут; если модель потом пишет в то же поле
 // другое — это показывается как расхождение, а не чинится молча.
 
-import { settings } from './settings.js?v=23.48.3';
-import { namesLikelySame } from './names.js?v=23.48.3';
+import { settings } from './settings.js?v=23.51.8';
+import { namesLikelySame, упомянутВТексте } from './names.js?v=23.51.8';
 
 const КЛЮЧ = 'tavernosHudEdits';
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
@@ -125,6 +125,10 @@ export function всплывшиеСекреты(секреты, дуэли, п�
     }
     if (!значение) continue;
     for (const кто of присутствующие) {
+      // Участник секрета («Лилиан и Софи вместе») его и так знает — если только
+      // от него этот секрет и не скрыт («Софи знала о помолвке Тристана»).
+      const скрыт = (Array.isArray(с.hidden) ? с.hidden : []).some(х => namesLikelySame(String(х && (х.name || х) || ''), кто));
+      if (!скрыт && упомянутВТексте(факт, кто)) continue;
       if (правкаСекрета(факт, кто, все)) continue;   // уже решено (в т. ч. «нет»)
       const вид = состояние(с, кто).вид;
       if (вид === 'knows' || вид === 'wrong') continue;

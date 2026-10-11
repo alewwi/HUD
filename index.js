@@ -1,42 +1,48 @@
 // hud-manager/index.js (v21.5.5)
-import { hexToRgba, settings, defaultSettings, настройка, КЛЮЧИ_АВТО } from './settings.js?v=23.48.3';
-import { escapeHtml, getSafeUserName, hudHasMeaningfulValue, имяДляВкладки, имяБезПриставки, убратьПриставкуКарточки } from './utils.js?v=23.48.3';
-import { parseHUDComplex, scoreHudJsonCandidate } from './hud-parser.js?v=23.48.3';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, облегчитьКарточку, вернутьКарточку, плавноПоказать } from './events.js?v=23.48.3';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.48.3';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.48.3';
-import { mergeCarryOver, вернутьЧерты, сдвигиДоверия, ключБлокаСводки, достатьРазборыСводки, запомнитьРазборСводки } from './render/carryover.js?v=23.48.3';
-import { привязатьИсторию } from './render/intimacy.js?v=23.48.3';
-import { журналБыта, buildLifeHTML, естьБыт, строкаБыта, темыБыта, пробелыБыта } from './render/life.js?v=23.48.3';
-import { строкаЧасовСцены } from './render/scene-clock.js?v=23.48.3';
-import { buildCombatHTML, hudHasCombat } from './render/combat.js?v=23.48.3';
-import { прогнозыЗаживления } from './render/life-combat.js?v=23.48.3';
-import { состояниеСцены } from './render/character.js?v=23.48.3';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.48.3';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.48.3';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.48.3';
-import { buildMemoryHTML } from './render/memory.js?v=23.48.3';
-import { buildPhoneTabsHTML } from './render/phone.js?v=23.48.3';
-import { праздникиСцены } from './render/holidays.js?v=23.48.3';
-import { изменитьСудьбу, откатитьСудьбу, отметитьТест, узнатьПол, изменитьПлоды, откатитьПлоды, зарегистрироватьРоды, роды, поправитьРоды } from './render/conception.js?v=23.48.3';
-import { buildBabiesHTML, hudHasBabies, днейИзТекста } from './render/babies.js?v=23.48.3';
-import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.48.3';
-import { hudHasRelations } from './render/relations-graph.js?v=23.48.3';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.48.3';
-import { чипЛуны, теньЛуны, титрыСцены, карточкаПоворота } from './render/extras.js?v=23.48.3';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.48.3';
-import { applyThemeClass } from './themes.js?v=23.48.3';
-import { упорядочитьВкладки } from './tabs-order.js?v=23.48.3';
-import { подключитьСтили } from './css-loader.js?v=23.48.3';
-import { бюджетИнструкции, подписьБюджета, медианаОтвета, оценкаТокенов, точноТокенов, разметкаБюджета, коротко } from './token-budget.js?v=23.48.3';
-import { наблюденияПолей, учестьОтвет, профильМодели, строкаУсиления, слабыеПоля } from './adapt-prompt.js?v=23.48.3';
-import { правитьСнимок, снятьПравку } from './snapshot-edits.js?v=23.48.3';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.48.3';
-import { getChatMessages, parseSceneDate } from './history-analyzer.js?v=23.48.3';
-import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ, заменитьHudБлоки } from './hud-block.js?v=23.48.3';
-import { собратьСнимок, строкаСнимка, решитьNSFW, решитьБой, последниеТекстыЧата, легендаСнимка } from './hud-snapshot.js?v=23.48.3';
-import { создатьПроверкуПолноты, чегоНеХватает } from './hud-check.js?v=23.48.3';
-import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.48.3';
+import { hexToRgba, settings, defaultSettings, настройка, КЛЮЧИ_АВТО } from './settings.js?v=23.51.8';
+import { escapeHtml, getSafeUserName, hudHasMeaningfulValue, имяДляВкладки, имяБезПриставки, убратьПриставкуКарточки } from './utils.js?v=23.51.8';
+import { parseHUDComplex, scoreHudJsonCandidate } from './hud-parser.js?v=23.51.8';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, облегчитьКарточку, вернутьКарточку, плавноПоказать } from './events.js?v=23.51.8';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.51.8';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.51.8';
+import { mergeCarryOver, вернутьЧерты, сдвигиДоверия, ключБлокаСводки, достатьРазборыСводки, запомнитьРазборСводки } from './render/carryover.js?v=23.51.8';
+import { привязатьИсторию } from './render/intimacy.js?v=23.51.8';
+import { журналБыта, buildLifeHTML, естьБыт, строкаБыта, темыБыта, пробелыБыта } from './render/life.js?v=23.51.8';
+import { строкаЧасовСцены } from './render/scene-clock.js?v=23.51.8';
+import { buildCombatHTML, hudHasCombat } from './render/combat.js?v=23.51.8';
+import { прогнозыЗаживления } from './render/life-combat.js?v=23.51.8';
+import { состояниеСцены } from './render/character.js?v=23.51.8';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.51.8';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.51.8';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.51.8';
+import { buildMemoryHTML } from './render/memory.js?v=23.51.8';
+import { buildPhoneTabsHTML } from './render/phone.js?v=23.51.8';
+import { праздникиСцены } from './render/holidays.js?v=23.51.8';
+import { изменитьСудьбу, откатитьСудьбу, отметитьТест, узнатьПол, изменитьПлоды, откатитьПлоды, зарегистрироватьРоды, роды, поправитьРоды } from './render/conception.js?v=23.51.8';
+import { buildBabiesHTML, hudHasBabies, днейИзТекста } from './render/babies.js?v=23.51.8';
+import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.51.8';
+import { hudHasRelations } from './render/relations-graph.js?v=23.51.8';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.51.8';
+import { чипЛуны, теньЛуны, титрыСцены, карточкаПоворота } from './render/extras.js?v=23.51.8';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.51.8';
+import { applyThemeClass } from './themes.js?v=23.51.8';
+import { упорядочитьВкладки } from './tabs-order.js?v=23.51.8';
+import { подключитьСтили } from './css-loader.js?v=23.51.8';
+import { пометитьЭффекты } from './render/fx.js?v=23.51.8';
+import { namesLikelySame } from './names.js?v=23.51.8';
+import { заменитьВТексте } from './dom-patch.js?v=23.51.8';
+import { ярлыкСЗначком, подключитьЗначки } from './render/hud-icons.js?v=23.51.8';
+import { вычислитьСвет, переменныеСвета } from './render/light.js?v=23.51.8';
+import { текстНаКарточке, фоныКарточки, подложкаЧата, яркость } from './contrast.js?v=23.51.8';
+import { бюджетИнструкции, подписьБюджета, медианаОтвета, оценкаТокенов, точноТокенов, разметкаБюджета, коротко } from './token-budget.js?v=23.51.8';
+import { наблюденияПолей, учестьОтвет, профильМодели, строкаУсиления, слабыеПоля } from './adapt-prompt.js?v=23.51.8';
+import { правитьСнимок, снятьПравку } from './snapshot-edits.js?v=23.51.8';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.51.8';
+import { getChatMessages, parseSceneDate } from './history-analyzer.js?v=23.51.8';
+import { extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ, заменитьHudБлоки, похожНаДанные } from './hud-block.js?v=23.51.8';
+import { собратьСнимок, строкаСнимка, решитьNSFW, решитьБой, последниеТекстыЧата, легендаСнимка } from './hud-snapshot.js?v=23.51.8';
+import { создатьПроверкуПолноты, чегоНеХватает } from './hud-check.js?v=23.51.8';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.51.8';
 (function() {
   window.HUD = window.HUD || {};
   window.HUD.bootstrap = true;
@@ -99,7 +105,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
   // нужна она только к генерации. Грузится заранее, когда страница затихнет, и
   // в любом случае до первой отправки (обёртка fetch ждёт её).
   let загрузитьПромптОбещание = null;
-  const загрузитьПромпт = () => (загрузитьПромптОбещание ||= import('./prompt.js?v=23.48.3').then(м => { м.подключить(связьПромпта); return м; }));
+  const загрузитьПромпт = () => (загрузитьПромптОбещание ||= import('./prompt.js?v=23.51.8').then(м => { м.подключить(связьПромпта); return м; }));
   const связьПромпта = {
     get последнийСнимокОбъект() { return последнийСнимокОбъект; },
     get сверитьРоды() { return сверитьРоды; },
@@ -835,6 +841,9 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
    return () => { clearInterval(таймер); узел.remove(); };
  }
 
+// Акцент для текста: тот же, если читаем на фоне карточки, иначе подправленный.
+const акцентДляТекста = () => текстНаКарточке(settings.accentColor || '#de859f', settings);
+
  function applyThemeColors() {
     const root = document.documentElement;
     // Цвет текста: пустое значение снимает переопределение, и HUD снова
@@ -855,6 +864,33 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     // элемента <html> и всё равно окажутся сильнее.
     applyThemeClass(settings.themePreset);
     if (settings.accentColor) root.style.setProperty('--hud-accent', settings.accentColor);
+    // Акцент как текст (contrast.js): если на фоне карточки он ниже 4,5:1,
+    // CSS берёт подправленный по светлоте --hud-accent-text. Когда контраст
+    // и так достаточен, переменной нет — срабатывает запасное значение, то
+    // есть сам акцент, и вид не меняется ни на пиксель.
+    {
+      const р = settings.autoAccentText === 'off' ? null : акцентДляТекста();
+      if (р && р.подправлен) root.style.setProperty('--hud-accent-text', р.цвет);
+      else root.style.removeProperty('--hud-accent-text');
+    }
+    // Светлая или тёмная схема нативных полей и полос прокрутки — по яркости
+    // фона карточки (css/platform.css; только на карточке и окне, не на :root).
+    {
+      const фоны = фоныКарточки(settings, подложкаЧата());
+      const светло = фоны.length > 0 && фоны.reduce((с, ф) => с + яркость(ф), 0) / фоны.length > 0.35;
+      root.classList.toggle('hud-scheme-light', светло);
+    }
+    // Карточка подстраивается под свою ширину (css/platform.css, копии узких блоков).
+    root.classList.toggle('hud-cq', settings.containerQueries === 'on');
+    // Значки одним SVG-спрайтом вместо эмодзи (render/hud-icons.js).
+    подключитьЗначки(settings);
+    // Платформенные эффекты (css/platform.css) — только если браузер умеет.
+    {
+      const умеет = (проверка) => { try { return typeof CSS !== 'undefined' && CSS.supports(проверка); } catch (_) { return false; } };
+      root.classList.toggle('hud-starting-style', settings.startingStyle === 'on' && умеет('selector(:popover-open)'));
+      root.classList.toggle('hud-theme-fade', settings.themeSwitchFade === 'on' && typeof document.startViewTransition === 'function');
+      root.classList.toggle('hud-corner-shape', settings.cornerShape === 'on' && умеет('corner-shape: bevel'));
+    }
     if (settings.glowColor) root.style.setProperty('--hud-purple-glow', hexToRgba(settings.glowColor, Math.min(100, settings.glowAlpha !== undefined ? settings.glowAlpha : 40)));
     // Свечение карточки. Цвет и сила — «Свечение», размах — «Размах
     // свечения»: радиусы всех ореолов умножаются на --hud-glow-r. Мягкий и
@@ -1331,7 +1367,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
   // Окно «Кастомизация» и его панель темы (customize.js) вместе с примером HUD
   // грузятся при первом открытии: при старте они не нужны.
   let загрузитьКастомизациюОбещание = null;
-  const загрузитьКастомизацию = () => (загрузитьКастомизациюОбещание ||= import('./customize.js?v=23.48.3').then(м => { м.подключить(связьКастомизации); return м; }));
+  const загрузитьКастомизацию = () => (загрузитьКастомизациюОбещание ||= import('./customize.js?v=23.51.8').then(м => { м.подключить(связьКастомизации); return м; }));
   const связьКастомизации = {
     get applyCardUiState() { return applyCardUiState; },
     get applyThemeColors() { return applyThemeColors; },
@@ -1705,31 +1741,19 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
 
     let dewActive = phaseClass === 'phase-morning' && (wClass === 'weather-clear' || wClass === 'weather-cloudy') && (seasonClass === 'season-spring' || seasonClass === 'season-summer');
 
-    let celestialStyle = '', sunVarsStyle = '', sceneStyle = '';
+    let celestialStyle = '', sunVarsStyle = '', sceneStyle = '', светКарточки = null;
     if (hourMatch) {
       let hh = parseInt(hourMatch[1], 10), mmMatch = tRaw.match(/\d{1,2}:(\d{2})/), mm = mmMatch ? parseInt(mmMatch[1], 10) : 0, minutesOfDay = hh * 60 + mm;
       // DAY_START и DAY_END — восход и закат этого месяца (см. выше).
-      let p, cx, cy;
-      if (minutesOfDay >= DAY_START && minutesOfDay <= DAY_END) p = (minutesOfDay - DAY_START) / (DAY_END - DAY_START);
-      else p = (minutesOfDay > DAY_END ? (minutesOfDay - DAY_END) : (minutesOfDay + (1440 - DAY_END))) / (1440 - (DAY_END - DAY_START));
-      cx = 6 + p * 84; cy = 76 - Math.sin(p * Math.PI) * 60;
-      const clamp = (v, min, max) => Math.min(max, Math.max(min, v));
-      const smoothStep = (value, edge0, edge1) => {
-        if (value <= edge0) return 0;
-        if (value >= edge1) return 1;
-        return (value - edge0) / (edge1 - edge0);
-      };
-      // Ночь уходит к 08:00 и приходит с 19:30 до 22:00. Раньше вечерняя
-      // граница шла до полуночи: в 21:00 (фаза «вечер», тёмное небо) сила
-      // ночи была 0.25, и море с песком оставались дневными. А утром в 07:00
-      // она была 0.67 — вода темнела под светлым утренним небом.
-      // Все границы — от восхода и заката месяца; при 6:00–20:00 они те же,
-      // что были в часах: ночь 5:00–8:00 и 19:30–22:00, золото в 17:00,
-      // закат в 18:00, звёзды гаснут к 12:00 и зажигаются с 20:00.
-      const nightStrength = clamp(1 - smoothStep(minutesOfDay, DAY_START - 60, DAY_START + 120) + smoothStep(minutesOfDay, DAY_END - 30, DAY_END + 120), 0, 1);
-      const goldenStrength = clamp(1 - Math.abs(minutesOfDay - (DAY_END - 180)) / 90, 0, 1);
-      const sunsetStrength = clamp(1 - Math.abs(minutesOfDay - (DAY_END - 120)) / 90, 0, 1);
-      const starStrength = clamp(1 - smoothStep(minutesOfDay, DAY_START - 30, DAY_START + 360) + smoothStep(minutesOfDay, DAY_END, DAY_END + 240), 0, 1);
+      // Математика света — в render/light.js (та же, что была здесь): её же
+      // берёт карточка для тени и блика (lightFollowsTime).
+      // Ночь уходит к 08:00 и приходит с 19:30 до 22:00; при 6:00–20:00
+      // границы те же, что были в часах: ночь 5:00–8:00 и 19:30–22:00,
+      // золото в 17:00, закат в 18:00, звёзды гаснут к 12:00 и зажигаются с 20:00.
+      const свет = вычислитьСвет({ минуты: minutesOfDay, началоДня: DAY_START, конецДня: DAY_END });
+      светКарточки = свет;
+      const { p, cx, cy, cxm } = свет;
+      const nightStrength = свет.ночь, goldenStrength = свет.золото, sunsetStrength = свет.закат, starStrength = свет.звёзды;
 
       // Светило всегда ЗА пейзажем, на любой высоте. Небесное тело физически
       // дальше любого дерева, поэтому пересечение должно его скрывать, а не
@@ -1739,7 +1763,6 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
       // всегда пряталось за часами. Там оно идёт по боковым полосам: до
       // полудня слева (8–16%), после — справа (84–92%). Шире нельзя: у края
       // полосы светило уходит за рамку сцены, у середины — под часы.
-      const cxm = cx < 50 ? 8 + (cx - 6) / 44 * 8 : 84 + (cx - 50) / 40 * 8;
       celestialStyle = ` style="--cel-x:${cx.toFixed(1)}%;--cel-xm:${cxm.toFixed(1)}%;--cel-y:${cy.toFixed(1)}%;--cel-layer:1;--scene-layer:2;"`;
       sunVarsStyle = ` style="--sun-h:${p.toFixed(3)};--sun-alt:${Math.max(0, Math.sin(p * Math.PI)).toFixed(3)};"`;
       // --cel-x/--cel-y дублируем на виджет: лунная дорожка и солнечные блики
@@ -1769,7 +1792,10 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     // Строка «дата · время» для шапок персонажей (газета, журнал, баннер):
     // переменная карточки, её читает content: var(--hud-dateline) в CSS.
     const строкаДаты = [hudHasMeaningfulValue(dRaw) ? dRaw : '', hudHasMeaningfulValue(tRaw) ? String(tRaw).split('|')[0].trim() : ''].filter(Boolean).join(' · ').replace(/[\\'"<>\n]/g, ' ');
-    let html = `<div class="hud-os-card no-swipe"${строкаДаты ? ` style="--hud-dateline:'${строкаДаты}'"` : ''}>
+    // Свет карточки по времени хода (render/light.js, настройка lightFollowsTime):
+    // без времени — ничего, вид прежний.
+    const стильКарточки = (строкаДаты ? `--hud-dateline:'${строкаДаты}';` : '') + переменныеСвета(светКарточки, settings.lightFollowsTime);
+    let html = `<div class="hud-os-card no-swipe${светКарточки && settings.lightFollowsTime && settings.lightFollowsTime !== 'off' ? ' hud-lit' : ''}"${стильКарточки ? ` style="${стильКарточки}"` : ''}>
       <input type="checkbox" class="hud-toggle-input" id="os-toggle-${baseId}">
       <label class="hud-os-topbar" for="os-toggle-${baseId}">
         <div class="hud-os-topbar-left"><span class="hud-os-logo">TavernOS</span>${osSubtitleHtml}</div>
@@ -2003,8 +2029,19 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     // только во время близости и сразу после, вне сцены вкладки просто нет.
     if (hudHasMeaningfulBodyDiary(data.bodyDiary) && settings.enableDiary) {
       const uid = `bodydiary-${baseId}`;
+      // «Почерк тела» (bodyDiaryHand): накал автора записи — из его же карточки
+      // этого хода: готовность к оргазму и пульс.
+      const полеИз = (о, ...ключи) => { if (!о) return ''; for (const к of ключи) { const k = Object.keys(о).find(x => x.toLowerCase() === к.toLowerCase()); if (k && о[k] != null) return String(о[k]); } return ''; };
+      const накалАвтора = (автор) => {
+        const имя = String(автор || '').trim();
+        if (!имя) return null;
+        const игрок = getSafeUserName();
+        const кто = (игрок && (имя === игрок || namesLikelySame(имя, игрок))) ? data.user
+          : (data.characters || []).find(c => c && c['Имя'] && (c['Имя'] === имя || namesLikelySame(c['Имя'], имя)));
+        return кто ? { org: полеИз(кто, 'Готовность к оргазму', 'Org'), vit: полеИз(кто, 'Жизненные показатели', 'Vit') } : null;
+      };
       addTab('bodydiary', 'hud-body-tab', `🕯 Дневник тела${значокСправки('bodyDiary')}`,
-        uid, (active) => buildBodyDiaryHTML(data.bodyDiary, uid, active));
+        uid, (active) => buildBodyDiaryHTML(data.bodyDiary, uid, active, накалАвтора));
     }
 
     if (hudHasMeaningfulDreams(data.dreams) && settings.enableDreams) {
@@ -2031,7 +2068,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     const панель = (h) => String(h || '').replace(/<div(\s+class="hud-tab-content)/, '<div role="tabpanel"$1');
     упорядочитьВкладки(вкладки, settings).forEach((т, i) => {
       const активна = i === 0;
-      tabsHtml += `<div class="hud-tab${т.cls ? ' ' + т.cls : ''}${активна ? ' active' : ''}" role="tab" tabindex="${активна ? 0 : -1}" aria-selected="${активна}" aria-controls="content-${т.uid}" data-tab-id="${т.id}" data-target="content-${т.uid}">${т.ярлык}</div>`;
+      tabsHtml += `<div class="hud-tab${т.cls ? ' ' + т.cls : ''}${активна ? ' active' : ''}" role="tab" tabindex="${активна ? 0 : -1}" aria-selected="${активна}" aria-controls="content-${т.uid}" data-tab-id="${т.id}" data-target="content-${т.uid}">${ярлыкСЗначком(т.ярлык)}</div>`;
       if (активна || !lazyOn) {
         contentHtml += панель(чисто(т.build(активна)));
       } else {
@@ -2192,6 +2229,9 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
         if (k.от > занятоДо) о = k;
       }
       if (!о) continue;
+      // «верну `[HUD]...[/HUD]` в конце» в плане — пересказ, не блок: его не
+      // трогаем, и открывающая не уходит в пару (hud-block.js: похожНаДанные).
+      if (!похожНаДанные(String(текст || '').slice(о.до, з.от))) continue;
       блоки.push({ from: о.от, to: з.до, contentFrom: о.до, contentTo: з.от, closed: true });
       занятоДо = з.до;
     }
@@ -2354,6 +2394,8 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     // Какой из блоков пошёл в карточку: его же вернём после сворачивания.
     let selectedIndexForRestore = -1;
     let newHtml = innerHtml;
+    // Те же замены, что в newHtml, — для точечной правки DOM (dom-patch.js).
+    let правкиHud = null;
     let rendered = '';
     // Подпись нужна и ниже, за пределами разбора блоков, — объявляем здесь.
     let подпись = '';
@@ -2389,10 +2431,12 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
         stripRawHudKeepCard(textElement);
         messageElement.__hudSource = innerHtml;
       } else if (rendered) {
+        правкиHud = [];
         for (let i = hudBlocks.length - 1; i >= 0; i--) {
           const block = hudBlocks[i];
           const replacement = i === selected.index ? rendered : '';
           newHtml = newHtml.slice(0, block.index) + replacement + newHtml.slice(block.index + block.full.length);
+          правкиHud.push({ from: block.index, to: block.index + block.full.length, html: replacement });
         }
         hasChanges = newHtml !== innerHtml;
 
@@ -2415,7 +2459,8 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
       // нечего и карточку можно оставить в покое.
       messageElement.__hudRenderSig = подпись;
       const normalized = normalizeHudDisplayDom(messageElement, textElement, rendered, естьЗакрытый);
-      if (!normalized) textElement.innerHTML = newHtml;
+      // Точечно, если строка ещё совпадает с DOM: чужие узлы остаются живыми.
+      if (!normalized && !(правкиHud && заменитьВТексте(textElement, innerHtml, правкиHud))) textElement.innerHTML = newHtml;
       // Карточка новая, а открыта в ней должна остаться та же вкладка, что
       // и до пересборки. Но не прямо сейчас: возврат открывает вкладку
       // кликом, а отложенные вкладки собираются из заготовок, которые лягут
@@ -2460,6 +2505,8 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
       else attachHelpMarks(textElement);
       // Эмодзи в медальонах центрируем по чернилам — независимо от пояснений.
       centerFieldIcons(textElement);
+      // Маркеры эффектов data-fx (render/fx.js) — по готовому дереву.
+      пометитьЭффекты(textElement);
     }
 
     // Защита от свайпа стоит только на самой карточке. Раньше она
@@ -2809,12 +2856,19 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     // and therefore also cleans up a malformed/duplicate second block.
     if (matches.length) {
       let out = html;
+      // Карточка — на месте ПОСЛЕДНЕГО блока: модель пишет HUD в конце ответа,
+      // а ранние пары — копии и пересказы из плана. Раньше карточка вставала
+      // на место первой — внутрь плана, и пропадала вместе с ним.
+      const где = matches.length - 1;
       for (let i = matches.length - 1; i >= 0; i--) {
         const r = matches[i];
-        out = out.slice(0, r.index) + (i === 0 ? renderedHtml : '') + out.slice(r.index + r.length);
+        out = out.slice(0, r.index) + (i === где ? renderedHtml : '') + out.slice(r.index + r.length);
       }
       if (out !== html) {
-        textElement.innerHTML = out;
+        // Точечно: чужие узлы сообщения (картинки и кнопки других расширений)
+        // остаются живыми. Строка разошлась с DOM — как раньше, целиком.
+        const правки = matches.map((r, i) => ({ from: r.index, to: r.index + r.length, html: i === где ? renderedHtml : '' }));
+        if (!заменитьВТексте(textElement, html, правки)) textElement.innerHTML = out;
         return true;
       }
     }
@@ -2837,17 +2891,15 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
       flat.push({ node: n, start: flat.length ? flat[flat.length - 1].end : 0, end: (flat.length ? flat[flat.length - 1].end : 0) + value.length });
     }
     const fullText = маскаРассуждений(flat.map(x => x.node.nodeValue || '').join(''));
-    // И здесь пара должна быть ближайшей: закрывающую берём первую, а
-    // открывающую — последнюю перед ней.
-    const close = /(?:\[|<)\s*\/\s*HUD\s*(?:\]|>)/i;
-    const closeMatch = fullText.match(close);
-    const openAll = /(?:\[|<)\s*HUD\s*(?:\]|>)/ig;
-    let openMatch = null;
-    if (closeMatch) {
-      for (let m2; (m2 = openAll.exec(fullText)) !== null; ) {
-        if (m2.index + m2[0].length > closeMatch.index) break;
-        openMatch = m2;
-      }
+    // Пара — ближайшая (открывающая — последняя перед закрывающей), и из таких
+    // пар — последняя с данными внутри: ранние — пересказы из плана
+    // («верну `[HUD]...[/HUD]` в конце»), на их место карточку не ставим.
+    const closeAll = /(?:\[|<)\s*\/\s*HUD\s*(?:\]|>)/ig;
+    const opens = [...fullText.matchAll(/(?:\[|<)\s*HUD\s*(?:\]|>)/ig)];
+    let closeMatch = null, openMatch = null;
+    for (const з of [...fullText.matchAll(closeAll)].reverse()) {
+      const о = opens.filter(m2 => m2.index + m2[0].length <= з.index).pop();
+      if (о && похожНаДанные(fullText.slice(о.index + о[0].length, з.index))) { closeMatch = з; openMatch = о; break; }
     }
     if (openMatch) {
       {
@@ -3288,7 +3340,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
   // Перегенерация HUD по 🔄 / ➕ и досоздание после проверки полноты
   // (regen.js) — грузится при первом нажатии.
   let загрузитьПерегенерациюОбещание = null;
-  const загрузитьПерегенерацию = () => (загрузитьПерегенерациюОбещание ||= import('./regen.js?v=23.48.3').then(м => { м.подключить(связьПерегенерации); return м; }));
+  const загрузитьПерегенерацию = () => (загрузитьПерегенерациюОбещание ||= import('./regen.js?v=23.51.8').then(м => { м.подключить(связьПерегенерации); return м; }));
   const связьПерегенерации = {
     get buildHudLoreContext() { return buildHudLoreContext; },
     get getMessageUpdateFunction() { return getMessageUpdateFunction; },
@@ -3352,7 +3404,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
       const mes = btn.closest('.mes');
       const id = mes ? Number(mes.getAttribute('mesid')) : NaN;
       // Помощник (render/assistant.js) грузится по первому вопросу.
-      import('./render/assistant.js?v=23.48.3').then(({ openAssistantDialog }) => openAssistantDialog({ mesId: Number.isInteger(id) ? id : null, лорбуки: лорбукиДляАссистента, сохранить: saveSettings, профили: списокПрофилей }))
+      import('./render/assistant.js?v=23.51.8').then(({ openAssistantDialog }) => openAssistantDialog({ mesId: Number.isInteger(id) ? id : null, лорбуки: лорбукиДляАссистента, сохранить: saveSettings, профили: списокПрофилей }))
         .catch(e => { console.error('[TavernOS HUD] помощник не загрузился:', e); showHudToast('error', 'Помощник', 'Не загрузился: ' + (e && e.message || e)); });
     };
     btn.addEventListener('click', открыть, true);
@@ -3564,7 +3616,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
   // Панель расширения в «Расширениях» Таверны (settings-ui.js). Она нужна не
   // для первой отрисовки чата — грузится после запуска.
   let загрузитьПанельНастроекОбещание = null;
-  const загрузитьПанельНастроек = () => (загрузитьПанельНастроекОбещание ||= import('./settings-ui.js?v=23.48.3').then(м => { м.подключить(связьНастроек); return м; }));
+  const загрузитьПанельНастроек = () => (загрузитьПанельНастроекОбещание ||= import('./settings-ui.js?v=23.51.8').then(м => { м.подключить(связьНастроек); return м; }));
   const связьНастроек = {
     get applyThemeColors() { return applyThemeColors; },
     get cachedChatContainer() { return cachedChatContainer; },
@@ -3689,7 +3741,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
 
   // Окно «В лорбук» (lore-dialog.js) — грузится при первом открытии.
   let загрузитьЛорОбещание = null;
-  const загрузитьЛор = () => (загрузитьЛорОбещание ||= import('./lore-dialog.js?v=23.48.3').then(м => { м.подключить(связьЛора); return м; }));
+  const загрузитьЛор = () => (загрузитьЛорОбещание ||= import('./lore-dialog.js?v=23.51.8').then(м => { м.подключить(связьЛора); return м; }));
   const связьЛора = {
     get getAvailableHudLorebooks() { return getAvailableHudLorebooks; },
     get getMainProtagonistNames() { return getMainProtagonistNames; },
@@ -3748,7 +3800,7 @@ import { обновитьПалитруГрупп, следитьЗаТемой 
     tabHelp: TAB_HELP,
     findTermHelp,
     buildHintHTML,
-    attachHelpMarks: (корень) => { if (settings.showHints !== false) attachHelpMarks(корень); centerFieldIcons(корень); },
+    attachHelpMarks: (корень) => { if (settings.showHints !== false) attachHelpMarks(корень); centerFieldIcons(корень); пометитьЭффекты(корень); },
     isPerformanceModeActive,
     refreshPerformanceMessageClasses,
     schedulePerformanceRefresh,

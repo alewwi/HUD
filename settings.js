@@ -261,6 +261,38 @@ export const defaultSettings = {
   aftermathHygieneDays: 3,
   aftermathSleepDays: 1,
   aftermathAppetiteDays: 1,
+  // Волна 3: визуал за выключателями. Рискованное — выключено по умолчанию.
+  // autoAccentText (contrast.js): акцент как текст подправляется по
+  // светлоте, если на фоне карточки он ниже 4,5:1; выбранный цвет не меняется.
+  autoAccentText: 'on',
+  // Окно кастомизации: 'split' — основное сверху, подробное за кнопкой
+  // «Подробно»; 'flat' — прежнее плоское окно. customDetailOpen — раскрыто ли.
+  customDetailMode: 'split',
+  customDetailOpen: false,
+  // Карточка подстраивается под свою ширину (container queries), а не только
+  // под ширину окна: узкая колонка чата на широком мониторе.
+  containerQueries: 'off',
+  // Значки: 'emoji' — как раньше; 'svg' — один набор SVG. iconStyle — рисунок
+  // набора: 'auto' (по теме) | 'line' | 'duotone' | 'pixel' | 'ink' | 'rounded'.
+  iconSet: 'emoji',
+  iconStyle: 'auto',
+  // Тень и блик карточки — от игрового времени сцены: 'off' | 'subtle' | 'full'.
+  lightFollowsTime: 'off',
+  // Силуэт карты тела: 'neutral' — как раньше, 'auto' — тон кожи, волосы,
+  // сложение и отметины из описания внешности.
+  silhouetteLook: 'neutral',
+  // Очертания на силуэте — только линии (изгиб груди, паховые линии), там,
+  // где одежды нет или она это место открывает. 'off' — без них.
+  silhouetteOutlines: 'on',
+  // Облик игрока для силуэта — вручную (кастомизация): тон 0…5, волосы, сложение.
+  userLook: { кожа: '', волосы: '', длина: '', вид: '', сложение: '' },
+  // «Почерк тела»: запись дневника тела меняет вид по накалу сцены.
+  bodyDiaryHand: 'off',
+  // Платформенные эффекты: проявление через @starting-style, растворение при
+  // смене темы (View Transitions), скошенные углы (corner-shape).
+  startingStyle: 'off',
+  themeSwitchFade: 'off',
+  cornerShape: 'off',
   regenContextMessages: 6,
   // Сколько последних сообщений уходит модели, когда она пишет запись
   // лорбука по кнопке «Написать моделью». 0 — вообще без контекста сцены.

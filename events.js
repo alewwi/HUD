@@ -11,17 +11,17 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.48.3';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.48.3';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.48.3';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.48.3';
-import { settings, defaultSettings } from './settings.js?v=23.48.3';
-import { полныйПорядок } from './tabs-order.js?v=23.48.3';
-import { getWorldVotes } from './render/world.js?v=23.48.3';
-import { раскрытьПорцию } from './render/long-list.js?v=23.48.3';
-import { прогретьИсторию } from './render/carryover.js?v=23.48.3';
-import { подключитьПалитру } from './color-picker.js?v=23.48.3';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.48.3';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.51.8';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.51.8';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.51.8';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.51.8';
+import { settings, defaultSettings } from './settings.js?v=23.51.8';
+import { полныйПорядок } from './tabs-order.js?v=23.51.8';
+import { getWorldVotes } from './render/world.js?v=23.51.8';
+import { раскрытьПорцию } from './render/long-list.js?v=23.51.8';
+import { прогретьИсторию } from './render/carryover.js?v=23.51.8';
+import { подключитьПалитру } from './color-picker.js?v=23.51.8';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.51.8';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -531,10 +531,15 @@ export function initGlobalEvents(ctx) {
       settings.themePreset = theme ? theme.id : '';
       settings.themePalette = '';
       saveSettings();
-      applyThemeColors();
-      redrawPalettes();
-      // Украшения на «Авто» с разметкой по теме пересобирает index.js.
-      document.dispatchEvent(new CustomEvent('hud-theme-changed'));
+      // Растворение при смене темы (настройка themeSwitchFade): снимок всей
+      // страницы плавно сменяется новым за ~0,2 с. Без API или при «уменьшить
+      // движение» — мгновенно, как раньше.
+      плавнаяСменаТемы(() => {
+        applyThemeColors();
+        redrawPalettes();
+        // Украшения на «Авто» с разметкой по теме пересобирает index.js.
+        document.dispatchEvent(new CustomEvent('hud-theme-changed'));
+      });
 
       syncThemeInputs();
       document.querySelectorAll('.hud-theme-preset').forEach(b => {
@@ -770,7 +775,7 @@ export function initGlobalEvents(ctx) {
       // открываем переписку — как на настоящем телефоне. Своей стопки у
       // него нет, поэтому приложение известно заранее: «Сообщения».
       const fromLock = chatRow.classList.contains('hud-phone-lock-notice');
-      if (fromLock && emulator) { emulator.classList.add('unlocked'); показатьТелефон(emulator); }
+      if (fromLock && emulator) emulator.classList.add('unlocked');
       let view = chatRow.closest('.hud-phone-app-view');
       if (emulator && (stack || fromLock)) {
         const appId = stack ? stack.dataset.phoneApp : 'messages';
@@ -804,7 +809,6 @@ export function initGlobalEvents(ctx) {
           v.classList.toggle('active', on);
           if (on) openChat(v, null);
         });
-        показатьТелефон(emulator);
       }
       return;
     }
@@ -817,7 +821,6 @@ export function initGlobalEvents(ctx) {
         v.classList.remove('active');
         openChat(v, null);
       });
-      показатьТелефон(emulator);
       return;
     }
 
@@ -1075,7 +1078,9 @@ export function initGlobalEvents(ctx) {
       // Пустой цвет — «как в теме»: квадрат показывает цвет темы, а не чёрный.
       if (inp.type === 'color' && !settings[k]) { inp.value = settings.accentColor || '#8c5ad2'; return; }
       inp.value = String(settings[k]);
-      const label = inp.nextElementSibling;
+      // Подпись-число стоит только за ползунком. За цветом идёт название роли
+      // («Основной») или значок контраста — их не трогаем.
+      const label = inp.type === 'range' ? inp.nextElementSibling : null;
       if (label && label.tagName === 'SPAN') {
         label.textContent = /Alpha$|Opacity$|Scale$|Offset[XY]$/.test(k) ? settings[k] + '%'
           : /Blur$|Radius$|Size$/.test(k) ? settings[k] + 'px' : settings[k];
@@ -1105,35 +1110,42 @@ export function initGlobalEvents(ctx) {
     syncThemeInputs();
   }
 
-  // На узком экране телефон после разблокировки, открытия приложения и
-  // «домой» доезжает в кадр целиком: кнопка «домой» и язычок — внизу корпуса.
-  const показатьТелефон = (emulator) => {
-    if (!emulator || typeof matchMedia !== 'function' || !matchMedia('(max-width: 600px)').matches) return;
-    requestAnimationFrame(() => { try { emulator.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (_) { emulator.scrollIntoView(false); } });
-  };
-
   // --- Экран блокировки: разблокировка свайпом вверх --------------------
-  // Жест ведут пальцем, поэтому слушаем pointer-события. Простой тап
-  // телефон не открывает: иначе замок не имел бы смысла. Тап по карточке
-  // уведомления разблокирует и открывает чат — это делает click-хендлер.
+  // Жест ведут пальцем, поэтому слушаем pointer-события. Тянуть можно с
+  // любого места экрана: на нём стоит touch-action: none, и страница с
+  // чатом под пальцем не едет. Простой тап телефон не открывает, иначе
+  // замок не имел бы смысла; тап по уведомлению разблокирует и открывает
+  // чат — это делает click-хендлер. Список уведомлений, если не влез,
+  // листается тем же пальцем, а когда дошёл до конца — тянется экран.
   const LOCK_UNLOCK_PX = 64;  // сколько нужно протянуть
   const LOCK_SLOP_PX = 8;     // до этого движение считается тапом
   document.addEventListener('pointerdown', function (e) {
     const lock = e.target.closest('.hud-phone-lockscreen');
     if (!lock || lock.dataset.dragging === '1') return;
+    if (e.button != null && e.button !== 0) return;
     const emulator = lock.closest('.hud-phone-emulator');
     if (!emulator || emulator.classList.contains('unlocked')) return;
     const startY = e.clientY, startedAt = Date.now();
-    let dy = 0;
+    const список = e.target.closest('.hud-phone-lock-notifications');
+    const листать = список && список.scrollHeight > список.clientHeight + 1 ? список : null;
+    const началоСписка = листать ? листать.scrollTop : 0;
+    let dy = 0, тянем = 0;
     lock.dataset.dragging = '1';
     try { lock.setPointerCapture(e.pointerId); } catch (err) {}
 
     const onMove = (ev) => {
       dy = startY - ev.clientY;
-      if (dy <= LOCK_SLOP_PX) return;
+      тянем = dy;
+      if (листать) {
+        const предел = листать.scrollHeight - листать.clientHeight;
+        const куда = началоСписка + dy;
+        листать.scrollTop = Math.max(0, Math.min(предел, куда));
+        тянем = куда - предел;
+      }
+      if (тянем <= LOCK_SLOP_PX) { lock.style.removeProperty('--lock-drag'); return; }
       lock.classList.add('is-dragging');
       // Тянем экран за пальцем, но не дальше его собственной высоты.
-      lock.style.setProperty('--lock-drag', Math.min(dy, lock.offsetHeight) + 'px');
+      lock.style.setProperty('--lock-drag', Math.min(тянем, lock.offsetHeight) + 'px');
     };
     const finish = (ev) => {
       lock.removeEventListener('pointermove', onMove);
@@ -1143,20 +1155,23 @@ export function initGlobalEvents(ctx) {
       try { lock.releasePointerCapture(e.pointerId); } catch (err) {}
       lock.classList.remove('is-dragging');
       lock.style.removeProperty('--lock-drag');
-      // Либо протянули далеко, либо коротко и резко смахнули.
-      const flick = (Date.now() - startedAt) < 260 && dy > 24;
-      // Палец ушёл в прокрутку чата — это не жест замка.
       if (ev && ev.type === 'pointercancel') return;
-      // На сенсорном экране вертикальный жест вне язычка забирает прокрутка
-      // чата, а язычок внизу высокой карточки: до него приходилось долистать,
-      // потянуть и вернуться наверх. Поэтому там телефон открывает касание.
-      const тап = Math.abs(dy) <= LOCK_SLOP_PX && Date.now() - startedAt < 600 && (e.pointerType === 'touch' || e.pointerType === 'pen');
-      if (dy > LOCK_UNLOCK_PX || flick || (тап && !e.target.closest('.hud-phone-lock-notice'))) { emulator.classList.add('unlocked'); показатьТелефон(emulator); }
+      // Либо протянули далеко, либо коротко и резко смахнули.
+      const flick = (Date.now() - startedAt) < 260 && тянем > 24;
+      if (тянем > LOCK_UNLOCK_PX || flick) emulator.classList.add('unlocked');
     };
     lock.addEventListener('pointermove', onMove);
     lock.addEventListener('pointerup', finish);
     lock.addEventListener('pointercancel', finish);
   });
+  // Страховка для браузеров, где touch-action не уважают (старый Safari):
+  // жест на экране блокировки не прокручивает страницу.
+  document.addEventListener('touchmove', function (e) {
+    const lock = e.target.closest && e.target.closest('.hud-phone-lockscreen');
+    if (!lock || e.touches.length > 1) return;
+    const emulator = lock.closest('.hud-phone-emulator');
+    if (emulator && !emulator.classList.contains('unlocked') && e.cancelable) e.preventDefault();
+  }, { passive: false });
 
   // Клавиатура: Enter или пробел на экране блокировки снимают замок.
   document.addEventListener('keydown', function (e) {
@@ -1627,6 +1642,17 @@ try {
 
 let синхронизацияТемы = null;
 const ЛЁГКИЕ_ЧАСТИ = ':scope > .hud-theme-panel, :scope > .hud-os-wrapper';
+
+// Смена темы через View Transitions. Переход снимает снимок ВСЕЙ страницы
+// (имя view-transition-name у каждой из многих карточек дать нельзя — имена
+// должны быть уникальны), поэтому это растворение страницы целиком; во время
+// перехода нажатия не принимаются — он короткий.
+export function плавнаяСменаТемы(применить) {
+  const можно = settings.themeSwitchFade === 'on' && typeof document.startViewTransition === 'function'
+    && !(typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches);
+  if (!можно) { применить(); return; }
+  try { document.startViewTransition(применить); } catch (_) { применить(); }
+}
 
 export function облегчитьКарточку(card) {
   if (!card || card.__hudLight || !card.isConnected) return false;
