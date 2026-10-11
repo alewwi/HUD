@@ -5,19 +5,19 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.53.5';
-import { settings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО } from './settings.js?v=23.53.5';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.53.5';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.53.5';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.53.5';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.53.5';
-import { hudБлоки } from './hud-block.js?v=23.53.5';
-import { parseHUDComplex } from './hud-parser.js?v=23.53.5';
-import { ПРИМЕР_HUD_ТЕКСТ, ПРИМЕР_СЕМЬИ, БАЗОВЫЙ_HUD_ТЕКСТ, ПРИМЕР_БОЯ, ПРИМЕР_БОЯ_РАНЫ, ПРИМЕР_БЫТА_ПРОШЛОЕ } from './render/sample-hud.js?v=23.53.5';
-import { задатьПримерСемьи } from './render/conception.js?v=23.53.5';
-import { привязатьИсторию } from './render/intimacy.js?v=23.53.5';
-import { пометитьЭффекты } from './render/fx.js?v=23.53.5';
-import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.53.5';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.56.3';
+import { settings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО } from './settings.js?v=23.56.3';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.56.3';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.56.3';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.56.3';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.56.3';
+import { hudБлоки } from './hud-block.js?v=23.56.3';
+import { parseHUDComplex } from './hud-parser.js?v=23.56.3';
+import { ПРИМЕР_HUD_ТЕКСТ, ПРИМЕР_СЕМЬИ, БАЗОВЫЙ_HUD_ТЕКСТ, ПРИМЕР_БОЯ, ПРИМЕР_БОЯ_РАНЫ, ПРИМЕР_БЫТА_ПРОШЛОЕ } from './render/sample-hud.js?v=23.56.3';
+import { задатьПримерСемьи } from './render/conception.js?v=23.56.3';
+import { привязатьИсторию } from './render/intimacy.js?v=23.56.3';
+import { пометитьЭффекты } from './render/fx.js?v=23.56.3';
+import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.56.3';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -511,6 +511,58 @@ export function закрытьКастомизацию() {
   if (основа.видыМенялись) { основа.видыМенялись = false; основа.перерисоватьКарточкиЧата(); }
 }
 
+/* Граница просмотра и настроек на телефоне — её саму тянут пальцем вверх и
+   вниз: просмотр от 10 до 90 % окна, остальное — настройки. Без отдельных
+   кнопок: под линией — невидимая полоса под палец, при касании линия
+   подсвечивается. Доля помнится на устройстве; со стрелками — по 5 %. */
+const КЛЮЧ_ГРАНИЦЫ = 'hud-custom-split';
+function подключитьГраницу(окно) {
+  const тело = окно.querySelector('.hud-custom-body');
+  const просмотр = окно.querySelector('.hud-custom-preview');
+  const черта = окно.querySelector('.hud-custom-split');
+  if (!тело || !просмотр || !черта) return;
+  let доля = NaN;
+  try { доля = parseFloat(localStorage.getItem(КЛЮЧ_ГРАНИЦЫ)); } catch (_) { доля = NaN; }
+  // Высоту ставим в пикселях от тела окна: проценты от строки flex-колонки
+  // мобильный браузер считает не всегда (см. css/misc.css, max-width: 800px).
+  const поставить = () => {
+    if (!Number.isFinite(доля) || getComputedStyle(черта).display === 'none') { просмотр.style.height = ''; return; }
+    доля = Math.max(0.1, Math.min(0.9, доля));
+    const h = тело.clientHeight - черта.offsetHeight;
+    if (h > 0) просмотр.style.height = Math.round(доля * h) + 'px';
+    черта.setAttribute('aria-valuenow', String(Math.round(доля * 100)));
+  };
+  const запомнить = () => { try { localStorage.setItem(КЛЮЧ_ГРАНИЦЫ, String(доля)); } catch (_) { /* хранилище недоступно */ } };
+  окно.__hudГраница = поставить;
+  let тяга = null;
+  черта.addEventListener('pointerdown', (e) => {
+    if (e.button > 0) return;
+    e.preventDefault();
+    const r = тело.getBoundingClientRect();
+    тяга = { id: e.pointerId, верх: r.top, высота: r.height - черта.offsetHeight };
+    try { черта.setPointerCapture(e.pointerId); } catch (_) { /* старый браузер */ }
+    черта.classList.add('is-drag');
+  });
+  черта.addEventListener('pointermove', (e) => {
+    if (!тяга || e.pointerId !== тяга.id || тяга.высота <= 0) return;
+    доля = (e.clientY - тяга.верх) / тяга.высота;
+    поставить();
+  });
+  const конец = () => { if (!тяга) return; тяга = null; черта.classList.remove('is-drag'); запомнить(); };
+  черта.addEventListener('pointerup', конец);
+  черта.addEventListener('pointercancel', конец);
+  черта.addEventListener('lostpointercapture', конец);
+  черта.addEventListener('keydown', (e) => {
+    if (e.key !== 'ArrowUp' && e.key !== 'ArrowDown') return;
+    e.preventDefault();
+    if (!Number.isFinite(доля)) доля = просмотр.offsetHeight / Math.max(1, тело.clientHeight - черта.offsetHeight);
+    доля += e.key === 'ArrowDown' ? 0.05 : -0.05;
+    поставить();
+    запомнить();
+  });
+  if (typeof window.addEventListener === 'function') window.addEventListener('resize', поставить);
+}
+
 export function открытьКастомизацию() {
   let окно = document.getElementById('hud-custom-modal');
   if (!окно) {
@@ -527,6 +579,7 @@ export function открытьКастомизацию() {
         </header>
         <div class="hud-custom-body">
           <aside class="hud-custom-settings" aria-label="Настройки вида"><div class="hud-theme-panel active"></div></aside>
+          <div class="hud-custom-split" role="separator" aria-orientation="horizontal" aria-label="Граница просмотра и настроек: тяните вверх или вниз" aria-valuemin="10" aria-valuemax="90" tabindex="0"></div>
           <section class="hud-custom-preview" aria-label="Просмотр HUD"><div class="hud-custom-preview-body mes_text"></div></section>
         </div>
       </div>`;
@@ -534,6 +587,7 @@ export function открытьКастомизацию() {
     // Свайп по ползунку или просмотру не должен листать варианты ответа
     // Таверны: она ловит касания на всём документе.
     guardTouchSwipe(окно);
+    подключитьГраницу(окно);
     // Вкладки: порядок, закрепление, скрытие (customize-tabs.js).
     подключитьВкладки(окно, основа, () => собратьПросмотр(окно));
     // Бюджет считаем, когда раздел открыли: двадцать с лишним сборок
@@ -622,6 +676,8 @@ export function открытьКастомизацию() {
   }
   окно.classList.add('is-open');
   document.documentElement.classList.add('hud-custom-open');
+  // Граница просмотра и настроек — по запомненной доле, когда окно видно.
+  if (окно.__hudГраница) requestAnimationFrame(окно.__hudГраница);
   // Панель пересобираем при каждом открытии: значения — из текущих настроек.
   // Окно уже открыто: сбой панели или просмотра не делает кнопку «мёртвой».
   const панель = окно.querySelector('.hud-custom-settings .hud-theme-panel');
