@@ -7114,3 +7114,22 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 .hud-heat-svg.bs-line .z-hair.is-curly { stroke: color-mix(in oklch, var(--hair, #5e4d61) 58%, #150e1c); stroke-width: 2.4; }
 .hud-heat-svg.bs-thermal .z-hair.is-curly { stroke: #0d0b26; stroke-width: 2.4; }
 .hud-heat-svg.bs-soft .z-hair.is-curly { stroke: var(--hair, #3a2418); stroke-width: 2.4; }
+
+/* Граница просмотра и настроек в «Кастомизации» (customize.js:
+   подключитьГраницу). На широком экране её нет — колонки рядом. На телефоне
+   это сама линия между окнами: под ней полоса под палец, линия видна одна,
+   при касании — цвета темы и толще. */
+.hud-custom-split { display: none; }
+@media (max-width: 800px) {
+  .hud-custom-preview { order: -2; border-bottom: 0; }
+  .hud-custom-split {
+    display: block; order: -1; flex: none; position: relative; z-index: 2;
+    height: 16px; margin: -8px 0; touch-action: none; cursor: row-resize; outline: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .hud-custom-split::before {
+    content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 1px; transform: translateY(-50%);
+    background: rgba(127, 127, 127, .3); transition: height .15s ease, background-color .15s ease;
+  }
+  .hud-custom-split:is(.is-drag, :focus-visible)::before { height: 3px; background: var(--hud-accent, #c31f38); }
+}

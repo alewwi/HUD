@@ -163,3 +163,37 @@
   .hud-heat:is(:hover, .fx-tap, .fx-on) .z-pen-core { animation-play-state: running; }
 }
 @keyframes hud-pen-pulse { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.6); opacity: .8; } }
+
+/* --- Узоры толчка (render/xray.js: УЗОРЫ — те же кадры, что у волны) -------
+   дразнит — три касания кончиком и один глубокий с задержкой; кругами — в
+   глубине, покачивание тазом без хода; нарастает — толчки всё чаще к концу
+   цикла; на всю длину — медленный ход до самой головки и обратно. */
+@media (prefers-reduced-motion: no-preference) {
+  .hud-tempo.is-tease { animation-name: hud-tk-tease, hud-tsw, hud-tv-tease; animation-duration: var(--beat, 3s), calc(var(--beat1, 1s) * 2), var(--beat, 3s); }
+  .hud-tempo.is-grind { animation-name: hud-tk-grind, hud-tsw-grind, hud-tv-grind; animation-duration: var(--beat, 1.5s), var(--beat, 1.5s), var(--beat, 1.5s); }
+  .hud-tempo.is-build { animation-name: hud-tk-build, hud-tsw, hud-tv-build; animation-duration: var(--beat, 4s), calc(var(--beat1, 1s) * 2), var(--beat, 4s); }
+  .hud-tempo.is-long { animation-name: hud-tk-long, hud-tsw, hud-tv; animation-duration: var(--beat, 1.4s), calc(var(--beat1, 1s) * 2), var(--beat, 1.4s); }
+}
+@keyframes hud-tk-tease { 0% { --k: .1; } 12% { --k: .32; } 24% { --k: .08; } 36% { --k: .34; } 48% { --k: .08; } 66% { --k: 1; } 78% { --k: 1; } 100% { --k: .1; } }
+@keyframes hud-tv-tease { 0% { --v: 1; } 11% { --v: 1; } 13% { --v: -1; } 23% { --v: -1; } 25% { --v: 1; } 35% { --v: 1; } 37% { --v: -1; } 47% { --v: -1; } 49% { --v: 1; } 65% { --v: 1; } 67% { --v: 0; } 77% { --v: 0; } 79% { --v: -1; } 99% { --v: -1; } 100% { --v: 1; } }
+@keyframes hud-tk-grind { 0% { --k: 1; } 25% { --k: .84; } 50% { --k: 1; } 75% { --k: .84; } 100% { --k: 1; } }
+/* Кругами: покачивание шире обычного, по кругу — две полуволны за цикл. */
+@keyframes hud-tsw-grind { 0% { --sw: -1.6; } 25% { --sw: 0; } 50% { --sw: 1.6; } 75% { --sw: 0; } 100% { --sw: -1.6; } }
+@keyframes hud-tv-grind { 0%, 100% { --v: 0; } 25% { --v: -.3; } 75% { --v: .3; } }
+@keyframes hud-tk-build { 0% { --k: 1; } 20% { --k: .12; } 36% { --k: 1; } 50% { --k: .16; } 62% { --k: 1; } 71% { --k: .2; } 79% { --k: 1; } 86% { --k: .24; } 92% { --k: 1; } 96% { --k: .3; } 100% { --k: 1; } }
+@keyframes hud-tv-build { 0% { --v: -1; } 19% { --v: -1; } 21% { --v: 1; } 35% { --v: 1; } 37% { --v: -1; } 49% { --v: -1; } 51% { --v: 1; } 61% { --v: 1; } 63% { --v: -1; } 70% { --v: -1; } 72% { --v: 1; } 78% { --v: 1; } 80% { --v: -1; } 85% { --v: -1; } 87% { --v: 1; } 91% { --v: 1; } 93% { --v: -1; } 95.5% { --v: -1; } 96.5% { --v: 1; } 100% { --v: 1; } }
+@keyframes hud-tk-long { 0% { --k: 1; animation-timing-function: cubic-bezier(.6, 0, .35, 1); } 60% { --k: .02; animation-timing-function: cubic-bezier(.5, 0, .85, .5); } 100% { --k: 1; } }
+
+/* Трётся у входа (узор rub): головка снаружи и ходит по губам вверх к клитору
+   и обратно — --ry от 0 (вход) до 1 (клитор); у строки --rub — на сколько px
+   вверх (render/xray.js: разрез → трение). Клитор вспыхивает наверху хода. */
+@property --ry { syntax: '<number>'; inherits: true; initial-value: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-tempo.is-rub { animation-name: hud-tk-rub, hud-tsw, hud-ry; animation-duration: var(--beat, 1.6s), calc(var(--beat1, 1.6s) * 2), var(--beat, 1.6s); animation-timing-function: ease-in-out; }
+}
+@keyframes hud-tk-rub { 0% { --k: .84; --v: 0; } 50% { --k: 1; } 100% { --k: .84; --v: 0; } }
+@keyframes hud-ry { 0% { --ry: .1; } 50% { --ry: 1; } 100% { --ry: .1; } }
+.hud-xray-row.is-rub .xr-move { transform: none; }
+.hud-xray-row.is-rub .xr-move:is(.p-penis, .p-toy, .is-body) { transform: translateY(calc(var(--ry, 0) * var(--rub, 0) * 1px)); }
+.hud-xray-row.is-rub .xr-clit-g { transform-box: fill-box; transform-origin: center; }
+:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .hud-xray-row.is-rub .xr-clit-g { transform: scale(calc(1 + clamp(0, (var(--ry, 0) - .7) * 3.3, 1) * .22)); filter: brightness(calc(1 + clamp(0, (var(--ry, 0) - .7) * 3.3, 1) * .25)); }
