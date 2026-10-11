@@ -17,7 +17,7 @@ const ход = { combat: { ...SH.ПРИМЕР_БОЯ, ch: 'dst: 35; to: к на�
 const погоня = CB.buildCombatHTML({ ...ход.combat, st: 'погоня' }, ход, 'b', true, { событияПогони: [{ д: 20, текст: 'подвернул ногу' }, { д: 50, текст: 'потерял из вида' }] });
 const бой = CB.buildCombatHTML(ход.combat, ход, 'a', true, {});
 const откат = CB.buildCombatHTML({ st: 'кончено', ad: 'Марк Грей: 80' }, ход, 'c', true, { конченоМинут: 25 });
-const css = fs.readFileSync(ROOT + 'css/views.css', 'utf8') + fs.readFileSync(ROOT + 'css/combat.css', 'utf8');
+const css = ['tokens.css', 'views.css', 'combat.css'].map(f => fs.readFileSync(ROOT + 'css/' + f, 'utf8')).join(String.fromCharCode(10));
 const стиль = 'body{margin:0;padding:16px;background:#17131c;color:#e6e6ee;font:13px system-ui;--hud-accent:#d96a8a;--hud-text:#e6e6ee;--hud-text-muted:#a8a5ad;--hud-bg:#221c2a}.card{background:#221c2a;border-radius:12px;padding:12px;margin-bottom:16px}.hud-tab-content{display:block}';
 const карточка = (з, ш, h) => `<h4>${з}</h4><div class="card" style="width:${ш}px">${h}</div>`;
 fs.writeFileSync(ROOT + 'tests/tools/combat-stand.html', `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Бой — стенд</title><style>${стиль}${css}</style>`

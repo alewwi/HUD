@@ -40,7 +40,7 @@ Object.defineProperty(т, '__hudИстория', { value: () => [
 const часы = ['chips', 'dial', 'line'].map(в => { settings.sceneClockView = в; return `<h2>sceneClockView: ${в}</h2>` + SC.часыСцены(т, CHR.состояниеСцены); });
 delete settings.sceneClockView;
 
-const css = ['views.css', 'duel.css', 'scene-clock.css'].map(f => fs.readFileSync(path.join(КОРЕНЬ, 'css', f), 'utf8')).join('\n');
+const css = ['tokens.css', 'views.css', 'duel.css', 'scene-clock.css'].map(f => fs.readFileSync(path.join(КОРЕНЬ, 'css', f), 'utf8')).join('\n');
 fs.writeFileSync(path.join(ТУТ, 'views-stand.html'), `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Виды — стенд</title><style>
 body { margin: 0; padding: 16px; background: #15111b; color: #e6e6ee; font: 13px system-ui, sans-serif; --hud-accent: #d96a8a; --hud-bg: #1e1826; }
 .wrap { max-width: 560px; margin: 0 auto; display: grid; gap: 10px; } .wrap.is-narrow { max-width: 215px; margin: 0; } h2 { font-size: 12px; color: #a8a5ad; margin: 12px 0 0; }

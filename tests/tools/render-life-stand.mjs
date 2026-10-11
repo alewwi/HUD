@@ -30,7 +30,7 @@ for (const [к, в] of [['lifeDayView', 'strip'], ['lifeDayView', 'clock'], ['li
   блоки.push(`<h2>${к}: ${в}</h2>` + LF.buildLifeHTML(ж, к + в, true));
   delete settings[к];
 }
-const css = ['views.css', 'life.css'].map(f => fs.readFileSync(path.join(КОРЕНЬ, 'css', f), 'utf8')).join('\n');
+const css = ['tokens.css', 'views.css', 'life.css'].map(f => fs.readFileSync(path.join(КОРЕНЬ, 'css', f), 'utf8')).join('\n');
 const html = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Быт — стенд</title><style>
 body { margin: 0; padding: 16px; background: #15111b; color: #e6e6ee; font: 13px system-ui, sans-serif; --hud-accent: #d96a8a; --hud-bg: #1e1826; }
 .wrap { max-width: 640px; margin: 0 auto; display: grid; gap: 18px; } h2 { font-size: 12px; color: #a8a5ad; margin: 12px 0 4px; }
