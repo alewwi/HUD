@@ -5,19 +5,19 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.51.8';
-import { settings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО } from './settings.js?v=23.51.8';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.51.8';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.51.8';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.51.8';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.51.8';
-import { hudБлоки } from './hud-block.js?v=23.51.8';
-import { parseHUDComplex } from './hud-parser.js?v=23.51.8';
-import { ПРИМЕР_HUD_ТЕКСТ, ПРИМЕР_СЕМЬИ, БАЗОВЫЙ_HUD_ТЕКСТ, ПРИМЕР_БОЯ, ПРИМЕР_БОЯ_РАНЫ, ПРИМЕР_БЫТА_ПРОШЛОЕ } from './render/sample-hud.js?v=23.51.8';
-import { задатьПримерСемьи } from './render/conception.js?v=23.51.8';
-import { привязатьИсторию } from './render/intimacy.js?v=23.51.8';
-import { пометитьЭффекты } from './render/fx.js?v=23.51.8';
-import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.51.8';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.53.5';
+import { settings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО } from './settings.js?v=23.53.5';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.53.5';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.53.5';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.53.5';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.53.5';
+import { hudБлоки } from './hud-block.js?v=23.53.5';
+import { parseHUDComplex } from './hud-parser.js?v=23.53.5';
+import { ПРИМЕР_HUD_ТЕКСТ, ПРИМЕР_СЕМЬИ, БАЗОВЫЙ_HUD_ТЕКСТ, ПРИМЕР_БОЯ, ПРИМЕР_БОЯ_РАНЫ, ПРИМЕР_БЫТА_ПРОШЛОЕ } from './render/sample-hud.js?v=23.53.5';
+import { задатьПримерСемьи } from './render/conception.js?v=23.53.5';
+import { привязатьИсторию } from './render/intimacy.js?v=23.53.5';
+import { пометитьЭффекты } from './render/fx.js?v=23.53.5';
+import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.53.5';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -331,6 +331,7 @@ function разметкаНовинок() {
     + в('iconStyle', 'Рисунок значков', 'Как нарисованы значки набора; «по теме» — пиксель в киберпанке, тушь в нуаре и Японии, округлые в каваи', [['auto', 'По теме'], ['line', 'Линия'], ['duotone', 'Два тона'], ['pixel', 'Пиксель'], ['ink', 'Тушь'], ['rounded', 'Округлые']])
     + в('lightFollowsTime', 'Свет по времени', 'Тень карточки падает от солнца или луны сцены: утром вправо, вечером влево, ночью холоднее', [['off', 'Нет'], ['subtle', 'Слегка'], ['full', 'Полностью']])
     + в('silhouetteLook', 'Силуэт карты тела', 'Тон кожи, волосы, сложение и шрамы — из описания внешности; у игрока — ещё «Мой облик» ниже', [['neutral', 'Нейтральный'], ['auto', 'По внешности']])
+    + в('silhouetteStyle', 'Вид тела на карте', 'Контур — тёмное тело и светящаяся линия цвета темы; тепловизор — тепло растекается по тёмно-синему телу; мягкий объём — тон кожи из описания, тень и свет', [['line', 'Контур'], ['thermal', 'Тепловизор'], ['soft', 'Мягкий объём']])
     + в('silhouetteOutlines', 'Очертания на силуэте', 'Только линии — изгиб груди, паховые линии — там, где одежды нет или она это место открывает', [['on', 'Показывать'], ['off', 'Не показывать']])
     + в('bodyDiaryHand', 'Почерк тела', 'Запись дневника тела меняет вид по накалу сцены: на пике — крупнее и рваный ритм, после — ровно и мельче', [['off', 'Нет'], ['on', 'Да']])
     + в('startingStyle', 'Проявление вкладок', 'Плавное проявление средствами браузера вместо анимации (новые Chrome и Edge)', [['off', 'Как раньше'], ['on', 'Новое']])

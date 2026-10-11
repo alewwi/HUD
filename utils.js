@@ -3,8 +3,17 @@
 // Мелкие утилиты, общие для всех доменов HUD (дневник, мир, сны, телефон,
 // граф отношений, память). Вынесено из index.js без изменения поведения.
 
-import { МЕТКИ } from './codes.js?v=23.51.8';
-import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.51.8';
+import { МЕТКИ } from './codes.js?v=23.53.5';
+import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.53.5';
+
+// Замеры по шагам для поиска узких мест: включаются только объектом
+// window.__hudProf = {} в консоли, копят { шаг: [мс, …] }. Без него — прямой вызов.
+export function замер(имя, fn) {
+  const п = typeof window !== 'undefined' && window.__hudProf;
+  if (!п) return fn();
+  const t = performance.now();
+  try { return fn(); } finally { (п[имя] = п[имя] || []).push(Math.round((performance.now() - t) * 10) / 10); }
+}
 
 /** Экранирование через DOM: браузер сам решает, что считать опасным. */
 // Не выпускать касания наружу. SillyTavern ловит свайпы на уровне document

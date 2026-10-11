@@ -8,7 +8,7 @@
 // attachHelpMarks уже по готовому дереву. Так словарь можно пополнять, не
 // трогая ни один из полутора десятков сборщиков разметки.
 
-import { escapeHtml } from './utils.js?v=23.51.8';
+import { escapeHtml } from './utils.js?v=23.53.5';
 
 /* --- Вкладки --------------------------------------------------------------
    Ключ — вид вкладки, а не подпись: подписи персонажей меняются от чата к
@@ -281,20 +281,50 @@ function поправитьВопросики() {
 }
 
 // Эмодзи в медальонах закрытой части: поправка своя на каждый знак.
+// Мерить сразу после вставки карточки нельзя: первое же чтение стиля
+// заставляет браузер пересчитать стили всего документа (в длинном чате —
+// 300–700 мс), а запись поправки и следующее чтение — ещё раз. При
+// открытии чата это давало десятки секунд. Поэтому копим корни и меряем
+// одним проходом после кадра, когда стили уже посчитаны: сначала все
+// чтения, потом все записи. Поправка — в em: кегль читать не нужно.
+// Свёрнутые карточки (их в ленте десятки) не мерим: их медальоны выровняем,
+// когда карточку раскроют.
+const ГЛИФЫ_МЕДАЛЬОНОВ = '.hud-row.nsfw > .hud-key .hud-key-ico > span';
+const ждутЦентровки = new Set();
+let центровкаЖдёт = false;
 export function centerFieldIcons(корень) {
-  if (typeof document === 'undefined') return;
+  if (typeof document === 'undefined' || !корень || !корень.querySelectorAll) return;
+  ждутЦентровки.add(корень);
+  if (центровкаЖдёт) return;
+  центровкаЖдёт = true;
+  const после = () => setTimeout(центроватьОтложенные, 0);
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(после); else после();
+}
+if (typeof document !== 'undefined') document.addEventListener('change', (e) => {
+  const т = e.target;
+  if (т && т.checked && т.matches && т.matches('.hud-os-card > .hud-toggle-input')) centerFieldIcons(т.parentElement);
+}, true);
+function центроватьОтложенные() {
+  центровкаЖдёт = false;
+  const корни = [...ждутЦентровки];
+  ждутЦентровки.clear();
   поправитьВопросики();
-  if (!корень || !корень.querySelectorAll) return;
-  корень.querySelectorAll('.hud-row.nsfw > .hud-key .hud-key-ico > span').forEach(глиф => {
-    const знак = (глиф.textContent || '').trim();
-    if (!знак) return;
-    const стиль = getComputedStyle(глиф);
-    const с = смещениеГлифа(знак, стиль);
-    if (!с) return;
-    const кегль = parseFloat(стиль.fontSize) || 11;
-    глиф.style.setProperty('--ico-dx', (с.x * кегль).toFixed(2) + 'px');
-    глиф.style.setProperty('--ico-dy', (с.y * кегль).toFixed(2) + 'px');
-  });
+  const правки = [];
+  for (const корень of корни) {
+    if (корень.isConnected === false) continue;
+    корень.querySelectorAll(ГЛИФЫ_МЕДАЛЬОНОВ).forEach(глиф => {
+      const знак = (глиф.textContent || '').trim();
+      if (!знак) return;
+      const свёртка = глиф.closest('.hud-os-card')?.querySelector(':scope > .hud-toggle-input');
+      if (свёртка && !свёртка.checked) return;
+      const с = смещениеГлифа(знак, getComputedStyle(глиф));
+      if (с) правки.push([глиф, с]);
+    });
+  }
+  for (const [глиф, с] of правки) {
+    глиф.style.setProperty('--ico-dx', с.x.toFixed(4) + 'em');
+    глиф.style.setProperty('--ico-dy', с.y.toFixed(4) + 'em');
+  }
 }
 
 export function attachHelpMarks(корень) {

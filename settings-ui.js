@@ -5,14 +5,14 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { settings } from './settings.js?v=23.51.8';
-import { видБлока } from './render/views.js?v=23.51.8';
-import { escapeHtml } from './utils.js?v=23.51.8';
-import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.51.8';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.51.8';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.51.8';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.51.8';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.51.8';
+import { settings } from './settings.js?v=23.53.5';
+import { видБлока } from './render/views.js?v=23.53.5';
+import { escapeHtml } from './utils.js?v=23.53.5';
+import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.53.5';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.53.5';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.53.5';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.53.5';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.53.5';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -141,6 +141,7 @@ export function addSettingsUI() {
 
       ${группа('⚡ Производительность', `
         ${галка('hud-lighten-old', settings.lightenOldCards !== false, '🪶 Облегчать старые свёрнутые карточки', 'У старой свёрнутой карточки в странице остаётся только заголовок. Панель темы и содержимое откладываются и возвращаются при первом касании карточки. Заметно легче в длинных чатах, особенно на телефоне.')}
+        <label class="hud-set-check" title="Столько последних карточек собирается целиком сразу при открытии чата. У более старых собирается только полоса заголовка (время, погода, дата), а вся карточка — в тот момент, когда вы её раскрываете. Чем меньше число, тем быстрее открывается длинный чат. Работает вместе с «Облегчать старые свёрнутые карточки».">🪶 Сразу собирать последних карточек: ${число('hud-cards-full', 1, 2000, settings.cardsBuiltFull || 5, 64)} шт.</label>
         ${галка('hud-lazy-tabs', settings.lazyTabs !== false, '🗂️ Ленивая загрузка вкладок', 'Собирается только открытая вкладка. Остальные (Телефон, Память, Мир и так далее) строятся в тот момент, когда вы на них переключаетесь, и дальше остаются готовыми. Заметно легче на карточках с большим HUD.')}
 
         ${подгруппа('📜 Длинные чаты (200+ сообщений)', `
@@ -484,7 +485,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.51.8');
+      const mod = await import('./render/archive.js?v=23.53.5');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -505,7 +506,14 @@ export function addSettingsUI() {
     основа.saveSettings();
     const scope = основа.cachedChatContainer || document;
     if (e.target.checked) основа.запланироватьОблегчение();
-    else scope.querySelectorAll('.hud-os-card').forEach(card => вернутьКарточку(card));
+    else { scope.querySelectorAll('.hud-os-card').forEach(card => вернутьКарточку(card)); основа.собратьОтложенные(); }
+  });
+  document.getElementById('hud-cards-full').addEventListener('change', (e) => {
+    let v = parseInt(e.target.value, 10); if (isNaN(v) || v < 1) v = 1;
+    v = Math.min(2000, v);
+    settings.cardsBuiltFull = v; e.target.value = v; основа.saveSettings();
+    // Число подняли — дособрать полосы, которые теперь в пределах.
+    основа.собратьОтложенные();
   });
   document.getElementById('hud-card-limit').addEventListener('change', (e) => {
     let v = parseInt(e.target.value, 10); if (isNaN(v) || v < 0) v = 0;

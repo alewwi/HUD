@@ -11,17 +11,18 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.51.8';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.51.8';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.51.8';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.51.8';
-import { settings, defaultSettings } from './settings.js?v=23.51.8';
-import { полныйПорядок } from './tabs-order.js?v=23.51.8';
-import { getWorldVotes } from './render/world.js?v=23.51.8';
-import { раскрытьПорцию } from './render/long-list.js?v=23.51.8';
-import { прогретьИсторию } from './render/carryover.js?v=23.51.8';
-import { подключитьПалитру } from './color-picker.js?v=23.51.8';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.51.8';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.53.5';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.53.5';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.53.5';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.53.5';
+import { settings, defaultSettings } from './settings.js?v=23.53.5';
+import { полныйПорядок } from './tabs-order.js?v=23.53.5';
+import { getWorldVotes } from './render/world.js?v=23.53.5';
+import { раскрытьПорцию } from './render/long-list.js?v=23.53.5';
+import { прогретьИсторию } from './render/carryover.js?v=23.53.5';
+import { подключитьПалитру } from './color-picker.js?v=23.53.5';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.53.5';
+import { замер } from './utils.js?v=23.53.5';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -1432,7 +1433,7 @@ export function clearReactions() {
 
 export function initObserver(ctx, chatContainer) {
   const { safeProcessMessage, isPerformanceModeActive, refreshPerformanceMessageClasses,
-          schedulePerformanceRefresh, getPerformanceObserver } = ctx;
+          schedulePerformanceRefresh, getPerformanceObserver, вернутьЖивуюСразу } = ctx;
   if (observer) {
     observer.disconnect();
     // Копилка привязана к прежнему контейнеру: её содержимое больше не имеет
@@ -1440,7 +1441,7 @@ export function initObserver(ctx, chatContainer) {
     отменитьРазбор();
   }
 
-  observer = new MutationObserver((mutations) => {
+  observer = new MutationObserver((mutations) => замер('наблюдатель', () => {
     const touchedMessages = new Set();
     let avatarChanged = false;
 
@@ -1493,6 +1494,10 @@ export function initObserver(ctx, chatContainer) {
     }
 
     if (!touchedMessages.size) return;
+    // Чужое расширение перерисовало сообщение, а HUD в нём тот же — прежняя
+    // карточка встаёт на место сразу, не дожидаясь тишины. Полный разбор
+    // ниже всё равно пройдёт и выйдет рано: карточка уже на месте.
+    if (вернутьЖивуюСразу) touchedMessages.forEach(mes => { if (mes.isConnected) вернутьЖивуюСразу(mes); });
     touchedMessages.forEach(mes => ЖДУЩИЕ.add(mes));
     if (avatarChanged) аватаркиМенялись = true;
 
@@ -1521,7 +1526,7 @@ export function initObserver(ctx, chatContainer) {
     // Ждём тишины, но если поток мутаций не прекращается — разбираем по потолку.
     const осталось = Math.max(0, РАЗБОР_ПОТОЛОК - (сейчас - разборНачат));
     разборТаймер = setTimeout(разобрать, Math.min(РАЗБОР_ТИШИНА, осталось));
-  });
+  }));
 
   // Замен аватарок обычно несколько подряд (у каждого сообщения своя) —
   // обновляем один раз, когда они закончились.
@@ -1884,29 +1889,52 @@ document.addEventListener('click', (e) => {
 // сетки и виды блоков — тоже вниз. Скрытые вкладки меряем, когда откроют.
 const СПИСКИ = '.hud-vertical-container, .hud-ill-list, .hud-marks, .hud-guns, .hud-v-vaults, .hud-v-envs, .hud-v-files, .hud-v-webs, .hud-v-secbars, .hud-v-inv.is-cards, .hud-v-inv.is-groups';
 const ВБОК = '.hud-vertical-container, .hud-ill-list, .hud-marks';
-function ужатьСписки() {
+// Мерим только раскрытые карточки: свёрнутая прячет содержимое через
+// max-height: 0, а не display: none, и раньше списки всех свёрнутых карточек
+// ленты мерились честно. Чтения и записи разведены по фазам: запись между
+// чтениями заставляет браузер пересчитать вёрстку заново на каждом списке —
+// в длинном чате это давало секунды. Теперь пересчётов три на весь проход.
+function ужатьСписки() { замер('ужатьСписки', ужатьСпискиСразу); }
+function ужатьСпискиСразу() {
   if (typeof window.matchMedia !== 'function' || !document.querySelectorAll) return;
   const широкий = window.matchMedia('(min-width: 601px)').matches;
-  document.querySelectorAll(`.hud-os-card :is(${СПИСКИ})`).forEach(с => {
-    const дети = [...с.children].filter(x => x.nodeType === 1 && getComputedStyle(x).display !== 'none' && getComputedStyle(x).position !== 'absolute');
-    if (дети.length < 4) { if (с.classList.contains('is-capped') || с.classList.contains('is-capped-x')) { с.classList.remove('is-capped', 'is-capped-x', 'is-end'); с.style.maxHeight = ''; } return; }
+  // 1. Чтения: видимые дети, видим ли сам список, ширина.
+  const план = [...document.querySelectorAll(`.hud-os-card:has(> .hud-toggle-input:checked) :is(${СПИСКИ})`)].map(с => ({
+    с,
+    дети: [...с.children].filter(x => { if (x.nodeType !== 1) return false; const ст = getComputedStyle(x); return ст.display !== 'none' && ст.position !== 'absolute'; }),
+    виден: !!с.offsetParent,
+    ширина: с.clientWidth,
+  }));
+  // 2. Записи: классы; у тех, что будем мерить, снимаем потолок.
+  const мерить = [];
+  for (const п of план) {
+    const { с, дети } = п;
+    if (дети.length < 4) { if (с.classList.contains('is-capped') || с.classList.contains('is-capped-x')) { с.classList.remove('is-capped', 'is-capped-x', 'is-end'); с.style.maxHeight = ''; } continue; }
     if (широкий && с.matches(ВБОК)) {
       if (!с.classList.contains('is-capped-x')) { с.classList.remove('is-capped'); с.style.maxHeight = ''; с.classList.add('is-capped-x'); }
-      return;
+      continue;
     }
-    if (!с.offsetParent) return;
-    const ключ = дети.length + '|' + с.clientWidth;
-    if (с.classList.contains('is-capped') && с.dataset.cap === ключ) return;
+    if (!п.виден) continue;
+    п.ключ = дети.length + '|' + п.ширина;
+    if (с.classList.contains('is-capped') && с.dataset.cap === п.ключ) continue;
     с.classList.remove('is-capped-x');
     с.classList.add('is-capped');
     с.style.maxHeight = 'none';
-    const верх = с.getBoundingClientRect().top;
-    const низ = Math.max(...дети.slice(0, 3).map(x => x.getBoundingClientRect().bottom));
+    мерить.push(п);
+  }
+  if (!мерить.length) return;
+  // 3. Чтения: одна вёрстка на все списки.
+  for (const п of мерить) {
+    const верх = п.с.getBoundingClientRect().top;
+    const низ = Math.max(...п.дети.slice(0, 3).map(x => x.getBoundingClientRect().bottom));
     // Три карточки целиком и краешек четвёртой — видно, что дальше есть ещё.
-    с.style.maxHeight = Math.ceil(низ - верх + 34) + 'px';
-    с.dataset.cap = ключ;
-    с.classList.toggle('is-end', с.scrollHeight - с.clientHeight < 4);
-  });
+    п.высота = Math.ceil(низ - верх + 34);
+  }
+  // 4. Записи: потолки.
+  for (const п of мерить) { п.с.style.maxHeight = п.высота + 'px'; п.с.dataset.cap = п.ключ; }
+  // 5. Чтения, потом записи: долистан ли список до конца.
+  const концы = мерить.map(п => п.с.scrollHeight - п.с.clientHeight < 4);
+  мерить.forEach((п, i) => п.с.classList.toggle('is-end', концы[i]));
 }
 // --- Плавно, как разделы «Кастомизации» ---------------------------------------
 // Смена вкладки: высота тела вкладок едет от прежней к новой, новое
@@ -2050,9 +2078,9 @@ document.addEventListener('click', (e) => {
 
 let таймерСписков = 0;
 const ужатьПозже = (мс = 120) => { clearTimeout(таймерСписков); таймерСписков = setTimeout(ужатьСписки, мс); };
-if (typeof MutationObserver !== 'undefined') new MutationObserver((записи) => {
+if (typeof MutationObserver !== 'undefined') new MutationObserver((записи) => замер('наблюдательСписков', () => {
   if (записи.some(з => [...з.addedNodes].some(у => у.nodeType === 1 && (у.matches?.('.hud-os-card, .hud-tab-content, .mes, .mes_text') || у.querySelector?.('.hud-os-card'))))) ужатьПозже();
-}).observe(document.body, { childList: true, subtree: true });
+})).observe(document.body, { childList: true, subtree: true });
 document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('.hud-tab, .hud-kid-tab, .hud-kid-chip, summary, .hud-toggle-input, label')) ужатьПозже(80); }, true);
 document.addEventListener('toggle', () => ужатьПозже(60), true);
 if (typeof window.addEventListener === 'function') window.addEventListener('resize', () => ужатьПозже(200));
