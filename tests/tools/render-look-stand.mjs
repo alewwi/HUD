@@ -31,13 +31,19 @@ const ЛЮДИ = [
   ['Тёмная кожа, длинные чёрные волосы, стройная', 'auto'],
   ['Очень тёмная кожа, лысый, мускулистый, шрам на бедре', 'auto'],
 ];
-const блоки = ЛЮДИ.map(([вн, режим, одежда]) => {
-  settings.silhouetteLook = режим || 'neutral';
-  return `<figure><figcaption>${вн}</figcaption>${Im.buildHeatMap(ЗОНЫ, { 'Имя': 'X', 'Внешность': вн, 'Одежда': одежда || '' })}</figure>`;
+// Каждый облик — во всех трёх подачах тела (настройка silhouetteStyle).
+const ПОДАЧИ = [['line', 'Контур'], ['thermal', 'Тепловизор'], ['soft', 'Мягкий объём']];
+const блоки = ПОДАЧИ.map(([подача, имя]) => {
+  settings.silhouetteStyle = подача;
+  return `<h2>${имя}</h2><div class="wrap">` + ЛЮДИ.map(([вн, режим, одежда]) => {
+    settings.silhouetteLook = режим || 'neutral';
+    return `<figure><figcaption>${вн}</figcaption>${Im.buildHeatMap(ЗОНЫ, { 'Имя': 'X', 'Внешность': вн, 'Одежда': одежда || '' })}</figure>`;
+  }).join('') + '</div>';
 });
 settings.silhouetteLook = 'neutral';
+settings.silhouetteStyle = 'line';
 const html = `<!doctype html><meta charset="utf-8"><title>Облик силуэта</title><link rel="stylesheet" href="../../css/all.css?v=${ВЕРСИЯ}">
-<style>body{margin:0;padding:16px;background:#17131c;color:#e6e6ee;font:13px system-ui;--nsfw:#d96a8a}.wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}figure{margin:0;padding:10px;background:#221c2a;border-radius:12px}figcaption{margin-bottom:6px;font-size:12px;opacity:.8}.hud-heat-list{display:none}.hud-heat-svg{width:100%;height:auto}</style>
-<div class="wrap">${блоки.join('')}</div>`;
+<style>body{margin:0;padding:16px;background:#17131c;color:#e6e6ee;font:13px system-ui;--nsfw:#d96a8a}.wrap{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}figure{margin:0;padding:10px;background:#221c2a;border-radius:12px}figcaption{margin-bottom:6px;font-size:12px;opacity:.8}.hud-heat-list{display:none}.hud-heat-svg{width:100%;height:auto}h2{font-size:15px;margin:18px 0 8px}</style>
+${блоки.join('')}`;
 fs.writeFileSync(path.join(КОРЕНЬ, 'tests', 'tools', 'look-stand.html'), html);
 console.log('→ tests/tools/look-stand.html');

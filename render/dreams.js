@@ -3,7 +3,7 @@
 // Домен «Сны»: пузыри, треснувшее стекло и записи сновидений.
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=23.51.8';
+import { escapeHtml, hudHasMeaningfulValue } from '../utils.js?v=23.53.5';
 
 function buildDreamBubblesHtml() {
   let bubbles = '';

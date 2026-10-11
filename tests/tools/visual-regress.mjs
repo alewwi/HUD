@@ -5,7 +5,7 @@
 //   node tests/tools/visual-regress.mjs --update   принять текущие снимки эталонами
 //   BROWSER=путь\к\chrome.exe  — другой браузер (по умолчанию Edge)
 //
-// Эталоны: tests/screens/<стенд>/<вариант>.png, их хеши — tests/screens/manifest.json
+// Эталоны: <hud-screens>/<стенд>/<вариант>.png вне папки расширения, их хеши — tests/screens/manifest.json
 // (видно, какие эталоны менялись и когда, даже если PNG лежат вне репозитория).
 // Отчёт: tests/screens/.report/index.html — эталон | сейчас | разница.
 //
@@ -27,7 +27,11 @@ import { createRequire } from 'node:module';
 
 const ТУТ = path.dirname(fileURLToPath(import.meta.url));
 const КОРЕНЬ = path.resolve(ТУТ, '..', '..');
-const ЭКРАНЫ = path.join(КОРЕНЬ, 'tests', 'screens');
+// Снимки (эталоны и отчёт, ~120 МБ PNG) живут ВНЕ папки расширения: в
+// репозиторий они не идут — это локальные артефакты машины, на которой их
+// сняли. Папка — рядом с Таверной (hud-screens) или HUD_SCREENS=путь.
+// В репозитории остаётся только tests/screens/manifest.json — хеши эталонов.
+const ЭКРАНЫ = process.env.HUD_SCREENS ? path.resolve(process.env.HUD_SCREENS) : path.resolve(КОРЕНЬ, '..', '..', '..', '..', 'hud-screens');
 const ОТЧЁТ = path.join(ЭКРАНЫ, '.report');
 const аргументы = new Set(process.argv.slice(2));
 const ШИРОКИЙ = аргументы.has('--wide'), ПРИНЯТЬ = аргументы.has('--update');
@@ -87,7 +91,7 @@ function сравнить(а, б, разница) {
 }
 
 const хеш = (ф) => crypto.createHash('sha256').update(fs.readFileSync(ф)).digest('hex');
-const манифестПуть = path.join(ЭКРАНЫ, 'manifest.json');
+const манифестПуть = path.join(КОРЕНЬ, 'tests', 'screens', 'manifest.json');
 const манифест = fs.existsSync(манифестПуть) ? JSON.parse(fs.readFileSync(манифестПуть, 'utf8')) : {};
 const строки = [];
 let изменено = 0, новых = 0;
@@ -110,7 +114,7 @@ for (const с of СНИМКИ) {
   if (плохо) { изменено++; строки.push({ ключ, эталон, сейчас, разница, р }); }
   console.log(`  ${плохо ? 'ИЗМЕНЁН' : 'ок      '}  ${ключ}  ${(р.доля * 100).toFixed(3)}%${р.причина ? ' — ' + р.причина : ''}`);
 }
-fs.mkdirSync(ЭКРАНЫ, { recursive: true });
+fs.mkdirSync(path.dirname(манифестПуть), { recursive: true });
 fs.writeFileSync(манифестПуть, JSON.stringify(манифест, null, 2) + '\n');
 fs.mkdirSync(ОТЧЁТ, { recursive: true });
 const отн = (ф) => path.relative(ОТЧЁТ, ф).split(path.sep).join('/');
