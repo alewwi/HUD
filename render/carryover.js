@@ -14,15 +14,15 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.53.5';
-import { проставитьДень } from './msg-feed.js?v=23.53.5';
-import { normalizeJSONData } from '../schema.js?v=23.53.5';
-import { settings } from '../settings.js?v=23.53.5';
-import { статусРужья } from '../codes.js?v=23.53.5';
-import { extractHudBlock } from '../hud-block.js?v=23.53.5';
-import { namesLikelySame } from '../names.js?v=23.53.5';
-import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.53.5';
-import { readParsed, writeParsed } from '../store.js?v=23.53.5';
+import { parseHUDComplex } from '../hud-parser.js?v=23.56.3';
+import { проставитьДень } from './msg-feed.js?v=23.56.3';
+import { normalizeJSONData } from '../schema.js?v=23.56.3';
+import { settings } from '../settings.js?v=23.56.3';
+import { статусРужья } from '../codes.js?v=23.56.3';
+import { extractHudBlock } from '../hud-block.js?v=23.56.3';
+import { namesLikelySame } from '../names.js?v=23.56.3';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.56.3';
+import { readParsed, writeParsed } from '../store.js?v=23.56.3';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -506,13 +506,16 @@ export function mergeCarryOver(data, messageElement) {
 
   const начало = Math.max(0, индекс - ходов);
   let былиПрошлые = false;
+  const воспоминания = new Map();
   for (let i = начало; i < индекс && i < chat.length; i++) {
     const прошлый = разобратьХод(chat[i]);
     if (!прошлый) continue;
     былиПрошлые = true;
     наложить(накоплено, прошлый, предел, пределСообщений);
+    копитьВоспоминания(воспоминания, прошлый);
   }
   if (!былиПрошлые) return data;
+  копитьВоспоминания(воспоминания, data);
 
   // Текущий ход кладём последним: его значения главнее.
   наложить(накоплено, data, предел, пределСообщений);
@@ -537,8 +540,61 @@ export function mergeCarryOver(data, messageElement) {
   for (const поле of Object.keys(накоплено.satchel)) {
     if (накоплено.satchel[поле].length) итог.satchel[поле] = накоплено.satchel[поле];
   }
+  // Общие воспоминания — копятся по ходам (модель часто пишет одно и
+  // заменяет прежнее): свои эпизоды каждого персонажа текущего хода.
+  if (Array.isArray(data.characters) && воспоминания.size) {
+    итог.characters = data.characters.map(c => {
+      const имя = текст(c && c['Имя']);
+      const свои = [...воспоминания.entries()].find(([к]) => namesLikelySame(к, имя));
+      if (!свои || свои[1].length < 2) return c;
+      return { ...c, 'Общие воспоминания': свои[1].slice(-ВОСПОМИНАНИЙ).join('; ') };
+    });
+  }
   // Мир остаётся таким, каким его прислал текущий ход.
   return итог;
+}
+
+// --- Общие воспоминания: копятся по ходам ----------------------------------
+// Эпизоды через «;». Почти тот же эпизод в новой формулировке («Семь суток
+// пустого взгляда Софи за столом и…» каждый ход) — одно воспоминание: место
+// оставляем свежее, текст — свежий. Не больше ВОСПОМИНАНИЙ, новые в конце.
+const ВОСПОМИНАНИЙ = 8;
+const кориВоспоминания = (s) => new Set(ключ(s).replace(/[^\p{L}\p{N} ]/gu, ' ').split(/\s+/).filter(w => w.length > 3).map(w => w.slice(0, 5)));
+function тоЖеВоспоминание(а, б) {
+  const А = кориВоспоминания(а), Б = кориВоспоминания(б);
+  if (!А.size || !Б.size) return ключ(а) === ключ(б);
+  let общих = 0;
+  for (const w of А) if (Б.has(w)) общих++;
+  return общих / Math.min(А.size, Б.size) >= 0.6;
+}
+/** Снимок для модели: «Mm» каждого персонажа — накопленным списком, а не одним
+ * эпизодом последнего хода, иначе «сохрани прежние» ей не из чего взять. */
+export function дополнитьВоспоминанияСнимка(снимок, chat) {
+  if (!снимок || !Array.isArray(снимок.cs) || !Array.isArray(chat) || settings.carryOver === false) return снимок;
+  const ходов = Math.max(0, Math.min(200, Number(settings.carryTurns ?? 20)));
+  const карта = new Map();
+  for (let i = Math.max(0, chat.length - ходов); i < chat.length; i++) копитьВоспоминания(карта, разобратьХод(chat[i]));
+  for (const c of снимок.cs) {
+    if (!c || typeof c !== 'object' || !c.N) continue;
+    const свои = [...карта.entries()].find(([к]) => namesLikelySame(к, String(c.N)));
+    if (свои && свои[1].length > 1) c.Mm = свои[1].slice(-6).join('; ');
+  }
+  return снимок;
+}
+function копитьВоспоминания(карта, ход) {
+  for (const c of (Array.isArray(ход && ход.characters) ? ход.characters : [])) {
+    const имя = текст(c && c['Имя']);
+    const сырое = текст(Array.isArray(c && c['Общие воспоминания']) ? c['Общие воспоминания'].join('; ') : c && c['Общие воспоминания']);
+    if (!имя || !сырое || /^(empty|none|нет|пусто)$/i.test(сырое)) continue;
+    const ключИмени = [...карта.keys()].find(к => namesLikelySame(к, имя)) || имя;
+    const список = карта.get(ключИмени) || [];
+    for (const эпизод of сырое.split(';').map(s => s.trim()).filter(Boolean)) {
+      const i = список.findIndex(было => тоЖеВоспоминание(было, эпизод));
+      if (i >= 0) список.splice(i, 1);
+      список.push(эпизод);
+    }
+    карта.set(ключИмени, список.slice(-ВОСПОМИНАНИЙ * 2));
+  }
 }
 
 

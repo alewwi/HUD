@@ -12,11 +12,11 @@
 //   всплыло       — запись памяти (таймлайн, важное), с которой совпадает
 //                   суть спора: «это про тот вечер 12-го».
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.53.5';
-import { namesLikelySame } from '../names.js?v=23.53.5';
-import { settings } from '../settings.js?v=23.53.5';
-import { getAvatarUrl } from '../avatars.js?v=23.53.5';
-import { ико, медаль } from './view-icons.js?v=23.53.5';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки } from '../utils.js?v=23.56.3';
+import { namesLikelySame } from '../names.js?v=23.56.3';
+import { settings } from '../settings.js?v=23.56.3';
+import { getAvatarUrl } from '../avatars.js?v=23.56.3';
+import { ико, медаль } from './view-icons.js?v=23.56.3';
 
 const текст = (v) => String(снятьЗаглушки(flattenFieldValue(v)) || '').trim();
 const поле = (о, имя) => {
@@ -25,8 +25,10 @@ const поле = (о, имя) => {
   return ключ ? текст(о[ключ]) : '';
 };
 const пусто = (s) => !s || /^(empty|none|нет|—|-)$/i.test(String(s).trim());
-const имяКоротко = (имя) => String(имя || '').replace(/^.*\s{2,}/, '').trim().split(/\s+/)[0] || '';
-const тот = (a, b) => a && b && namesLikelySame(имяКоротко(a), имяКоротко(b));
+// Приставка карточки («THE REGENTS Tristan Kingsley») — и с двумя пробелами,
+// как у Таверны, и с одним, как пишет модель: иначе соперником выходил «THE».
+const имяКоротко = (имя) => имяБезПриставки(String(имя || '').replace(/^.*\s{2,}/, '')).trim().split(/\s+/)[0] || '';
+const тот = (a, b) => !!(a && b && namesLikelySame(имяКоротко(a), имяКоротко(b)));
 
 // Градус: от тёплого к горячему. Второе — линейный значок из view-icons.js.
 export const ГРАДУС = [
@@ -104,14 +106,18 @@ export function buildDuel(value, c) {
   // Прошлые ходы того же спора — подряд, пока Vd был.
   const прошлые = [];
   for (const х of история) { const п = разобратьДуэль(поле(х.данные, 'Словесная дуэль')); if (!п) break; прошлые.push({ ...п, назад: х.назад }); }
+  // Соперник: тот, кто вёл в каком-то ходе, или назван в уступке («Софи
+  // уступила…»), или — сосед по сцене (ведёт весь спор сам владелец).
+  const соседи = (c && Array.isArray(c.__соседи) ? c.__соседи : []).map(с => с.имя).filter(n => n && !тот(n, я));
+  const изУступок = [д, ...прошлые].map(x => (x.уступка.match(/^([\p{Lu}][\p{L}-]+)/u) || [])[1]).find(n => n && !тот(n, я));
   const соперник = [д, ...прошлые].map(x => x.ведёт).find(n => n && !тот(n, я))
-    || (д.уступка.match(/^([\p{Lu}][\p{L}-]+)/u) || [])[1] || 'собеседник';
+    || изУступок || соседи[0] || 'собеседник';
   const сейчас = положение(д, я), было = прошлые.length ? положение(прошлые[0], я) : null;
   const сдвиг = сейчас !== null && было !== null ? сейчас - было : 0;
   const вид = ['tug', 'scales', 'chart'].includes(settings.duelView) ? settings.duelView : 'tug';
   const яК = escapeHtml(имяКоротко(я)), онК = escapeHtml(имяКоротко(соперник));
   const итог = сейчас === null ? '' : `<p class="hud-duel-shift">${сейчас >= 50 ? `Ведёт ${яК}` : `Ведёт ${онК}`}, ${Math.max(сейчас, 100 - сейчас)} из 100`
-    + (Math.abs(сдвиг) >= 5 ? ` · <span class="${сдвиг > 0 ? 'is-me' : 'is-them'}">${сдвиг > 0 ? '◀' : '▶'} ${сдвиг > 0 ? яК : онК} отыграл(а) ${Math.abs(сдвиг)}</span>` : '') + `</p>`;
+    + (Math.abs(сдвиг) >= 5 ? ` · <span class="${сдвиг > 0 ? 'is-me' : 'is-them'}">${сдвиг > 0 ? '◀' : '▶'} +${Math.abs(сдвиг)} в пользу ${сдвиг > 0 ? яК : онК}</span>` : '') + `</p>`;
   let полоса = '';
   if (сейчас !== null && вид === 'scales') {
     // Весы: кто ведёт — та чаша тяжелее и ниже. Наклон до ±16°.

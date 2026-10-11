@@ -3,12 +3,12 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.53.5';
-import { overrideAvatarUrl } from '../avatars.js?v=23.53.5';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.56.3';
+import { overrideAvatarUrl } from '../avatars.js?v=23.56.3';
 // Снимки, ролики, голосовые и звонки собирает тот же код, что и в личном
 // телефоне. Своя копия разбора здесь означала бы, что новый формат от модели
 // в одном мессенджере работает, а в другом остаётся сырым тегом в тексте.
-import { собратьЛенту, моментПоследнего } from './msg-feed.js?v=23.53.5';
+import { собратьЛенту, моментПоследнего, тотЖеВПереписке } from './msg-feed.js?v=23.56.3';
 
 // Кружок отправителя в перехвате: ручная аватарка фоном либо инициал.
 // Разметка и классы прежние — картинку прячет за собой класс has-img.
@@ -25,17 +25,26 @@ function interceptFace(sender) {
 // никогда не присылает — а строки сообщений всегда вида «А -> Б: текст»,
 // то есть состав известен и без неё. Раньше без этого поля шапка просто
 // переставала быть кнопкой: нажимать было не на что.
+// Один человек под разными подписями — одно имя, самое полное («Декан» и
+// «Декан Харрис» — Декан Харрис). Адресат «-> All», «-> название группы» —
+// не участник: прежде он и был тем самым «третьим» в переписке двоих.
+const ВСЕМ = /^(?:all|everyone|group|chat|все|всем|чат|группа|группе)$/i;
 export function interceptParticipants(intercept) {
-  const явные = String((intercept && intercept.participants) || '')
-    .split(/[;,]/).map(v => v.trim()).filter(Boolean);
-  if (явные.length >= 2) return явные.join('; ');
-
+  const чат = String((intercept && intercept.chatName) || '').trim().toLowerCase();
   const имена = [];
   const добавить = (raw) => {
     const v = String(raw || '').replace(/\[[^\]]*\]/g, '').trim();
-    if (!v || v.length > 40 || /^unknown$/i.test(v)) return;
-    if (!имена.some(x => x.toLowerCase() === v.toLowerCase())) имена.push(v);
+    if (!v || v.length > 40 || /^unknown$/i.test(v) || ВСЕМ.test(v) || (чат && v.toLowerCase() === чат)) return;
+    const i = имена.findIndex(x => тотЖеВПереписке(x, v));
+    if (i < 0) имена.push(v);
+    else if (v.length > имена[i].length) имена[i] = v;
   };
+  const явные = String((intercept && intercept.participants) || '')
+    .split(/[;,]/).map(v => v.trim()).filter(Boolean);
+  явные.forEach(добавить);
+  // Модель назвала двоих и больше — им и верим (после склейки написаний).
+  if (имена.length >= 2) return имена.join('; ');
+
   for (const raw of (Array.isArray(intercept && intercept.messages) ? intercept.messages : [])) {
     const первая = String(raw || '').split('|')[0];
     const m = первая.match(/^\s*([^:]+?)\s*(?:->|→)\s*([^:]+?)\s*:/);

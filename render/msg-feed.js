@@ -12,10 +12,24 @@
 // оказываются рядом вчерашнее «22:30» и сегодняшнее «08:30», и без подписи
 // «Вчера» это читается как один разговор подряд.
 
-import { escapeHtml, defeatWI } from '../utils.js?v=23.53.5';
-import { buildBubbleInner, buildCallRow, msgKey } from './msg-parts.js?v=23.53.5';
-import { avaFace } from './phone-common.js?v=23.53.5';
-import { namesLikelySame } from '../names.js?v=23.53.5';
+import { escapeHtml, defeatWI } from '../utils.js?v=23.56.3';
+import { buildBubbleInner, buildCallRow, msgKey } from './msg-parts.js?v=23.56.3';
+import { avaFace } from './phone-common.js?v=23.56.3';
+import { namesLikelySame } from '../names.js?v=23.56.3';
+
+// Один человек в переписке под разными подписями: «Грей» и «Профессор Грей»,
+// «Butler» и «Private Butler», «Tristan» и «THE REGENTS Tristan Kingsley».
+// namesLikelySame такие пары не узнаёт (звание, приставка карточки): тогда —
+// все слова короткой подписи есть в длинной.
+const словаИмени = (s) => String(s || '').toLowerCase().replace(/ё/g, 'е').split(/[^\p{L}\p{N}]+/u).filter(w => w.length > 1);
+export function тотЖеВПереписке(a, b) {
+  if (!a || !b) return false;
+  if (namesLikelySame(a, b)) return true;
+  const А = словаИмени(a), Б = словаИмени(b);
+  if (!А.length || !Б.length) return false;
+  const [к, д] = А.length <= Б.length ? [А, Б] : [Б, А];
+  return к.every(w => д.includes(w));
+}
 
 const МЕСЯЦЫ_РОД = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 
@@ -222,7 +236,7 @@ export function собратьЛенту(messages, { owner = '', сцена = ''
   строки.forEach((raw, i) => {
     if (!String(raw || '').trim()) return;
     const { кто, текст, время, статус, удалено, черновик } = разобратьСообщение(raw);
-    let исходящее = Boolean(owner && namesLikelySame(кто, owner));
+    let исходящее = Boolean(owner && тотЖеВПереписке(кто, owner));
     if (/^(?:user|you|вы|я|player)$/i.test(кто.trim())) исходящее = true;
 
     if (черновик && исходящее && черновикВПоле) { draft = текст; return; }
