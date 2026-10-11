@@ -6995,3 +6995,122 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 .hud-heat-svg.is-light-skin .z-muscle path { stroke: rgba(60, 30, 40, .28); }
 .hud-heat-svg .z-belly ellipse { fill: rgba(255, 255, 255, .09); }
 .hud-heat-svg .z-belly path { fill: none; stroke: rgba(255, 255, 255, .22); stroke-width: .7; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+
+/* =========================================================================
+   ТЕЛО НА КАРТЕ: ТРИ ПОДАЧИ (настройка silhouetteStyle, render/intimacy.js)
+   Фигура — один плавный контур (render/body-art.js), пятна — размытым теплом
+   (фильтр на слое), сканлайнов и толстой кромки больше нет.
+     bs-line    — «Контур»: тёмное тело, светящаяся линия цвета зон;
+     bs-thermal — «Тепловизор»: тёмно-синее тело, тепло жёлто-оранжевое;
+     bs-soft    — «Мягкий объём»: тон кожи, тень по краю внутрь и свет.
+   ========================================================================= */
+.hud-heat-svg:is(.bs-line, .bs-thermal, .bs-soft) .z-rim { display: none; }
+.hud-heat-svg:is(.bs-line, .bs-thermal, .bs-soft) .z-heat,
+.hud-heat-svg.has-skin.is-light-skin:is(.bs-line, .bs-thermal, .bs-soft) .z-heat { stroke: none; }
+.hud-heat-svg:is(.bs-line, .bs-thermal, .bs-soft) .z-edge > * { stroke-linejoin: round; }
+
+/* --- Контур --------------------------------------------------------------- */
+.hud-heat-svg.bs-line .b0 { stop-color: color-mix(in srgb, var(--heat, #e0507a) 9%, #1d1426); }
+.hud-heat-svg.bs-line .b1 { stop-color: color-mix(in srgb, var(--heat, #e0507a) 5%, #120c18); }
+.hud-heat-svg.bs-line.has-skin .b0 { stop-color: color-mix(in oklch, var(--skin) 20%, #1d1426); }
+.hud-heat-svg.bs-line.has-skin .b1 { stop-color: color-mix(in oklch, var(--skin) 12%, #120c18); }
+.hud-heat-svg.bs-line .z-body { opacity: .94; }
+.hud-heat-svg.bs-line .z-edge > * {
+  stroke: color-mix(in srgb, var(--heat, #e0507a) 78%, #fff); stroke-width: 1.1; stroke-opacity: .95;
+  filter: drop-shadow(0 0 1.4px var(--heat, #e0507a)) drop-shadow(0 0 4px color-mix(in srgb, var(--heat, #e0507a) 55%, transparent));
+}
+.hud-heat-svg.bs-line .z-shade { opacity: .55; }
+.hud-heat-svg.bs-line .z-glow { opacity: .7; }
+.hud-heat-svg.bs-line .s0 { stop-color: #fff4dc; stop-opacity: 1; }
+.hud-heat-svg.bs-line .s1 { stop-color: color-mix(in srgb, var(--heat, #e0507a) 55%, #ffd6e6); stop-opacity: .95; }
+.hud-heat-svg.bs-line .s2 { stop-color: var(--heat, #e0507a); stop-opacity: .55; }
+.hud-heat-svg.bs-line .s3 { stop-color: var(--heat, #e0507a); stop-opacity: 0; }
+.hud-heat-svg.bs-line .z-hair, .hud-heat-svg.bs-line g.z-hair > * {
+  fill: color-mix(in oklch, var(--hair, #5e4d61) 58%, #150e1c); opacity: 1;
+  stroke: color-mix(in oklch, var(--hair, #8a6a9a) 45%, color-mix(in srgb, var(--heat, #e0507a) 45%, #fff)); stroke-width: .8;
+}
+.hud-heat-svg.bs-line .z-hair.is-back { opacity: .92; }
+.hud-heat-svg.bs-line .z-hair-strands path { stroke: color-mix(in oklch, var(--hair, #8a6a9a) 40%, #fff); stroke-opacity: .42; }
+.hud-heat-svg.bs-line .z-garment .body { fill-opacity: .5; stroke: color-mix(in srgb, var(--cl, #8a8f9c) 55%, #fff); stroke-width: .7; filter: none; }
+.hud-heat-svg.bs-line .z-detail path { stroke: color-mix(in srgb, var(--heat, #e0507a) 30%, rgba(255,255,255,.2)); stroke-opacity: .6; }
+.hud-heat-svg.bs-line .z-anat { filter: none; }
+.hud-heat-svg.bs-line .z-anat path { stroke: color-mix(in srgb, var(--heat, #e0507a) 55%, #fff); stroke-opacity: .6; }
+
+/* --- Тепловизор ------------------------------------------------------------ */
+.hud-heat-svg.bs-thermal .b0, .hud-heat-svg.bs-thermal.has-skin .b0 { stop-color: #29225e; }
+.hud-heat-svg.bs-thermal .b1, .hud-heat-svg.bs-thermal.has-skin .b1 { stop-color: #110e2e; }
+.hud-heat-svg.bs-thermal .z-edge > * { stroke: #5a50c0; stroke-width: .7; stroke-opacity: .8; filter: none; }
+.hud-heat-svg.bs-thermal .z-shade { opacity: .35; }
+.hud-heat-svg.bs-thermal .z-glow { display: none; }
+.hud-heat-svg.bs-thermal .z-heat { mix-blend-mode: normal; }
+.hud-heat-svg.bs-thermal .s0 { stop-color: #fffbd8; stop-opacity: 1; }
+.hud-heat-svg.bs-thermal .s1 { stop-color: #ffd24a; stop-opacity: .98; }
+.hud-heat-svg.bs-thermal .s2 { stop-color: #ff6a2a; stop-opacity: .8; }
+.hud-heat-svg.bs-thermal .s3 { stop-color: #c2186b; stop-opacity: 0; }
+.hud-heat-svg.bs-thermal .z-hair, .hud-heat-svg.bs-thermal g.z-hair > *, .hud-heat-svg.bs-thermal .z-hair-curls circle { fill: #0d0b26; opacity: 1; stroke: #33307a; stroke-width: .6; }
+.hud-heat-svg.bs-thermal .z-hair-strands path { stroke: #4a44a6; stroke-opacity: .55; }
+.hud-heat-svg.bs-thermal .z-hair-sheen { display: none; }
+/* Ткань «холодная»: тёмная, с лёгким оттенком своего цвета. */
+.hud-heat-svg.bs-thermal .z-garment .body { fill: color-mix(in srgb, var(--cl, #8a8f9c) 16%, #0a1130); fill-opacity: .92; stroke: #26336e; filter: none; }
+.hud-heat-svg.bs-thermal .z-garment :is(.seam, .fold, .band, .strap) { stroke: #2e3f86; }
+.hud-heat-svg.bs-thermal .z-detail path, .hud-heat-svg.bs-thermal .z-muscle path { stroke: rgba(150, 140, 255, .2); }
+.hud-heat-svg.bs-thermal .z-anat { filter: none; }
+.hud-heat-svg.bs-thermal .z-anat path { stroke: #8f84ea; stroke-opacity: .5; }
+.hud-heat-svg.bs-thermal .z-look-mark.is-tattoo path { stroke: rgba(150, 160, 255, .5); }
+
+/* --- Мягкий объём ----------------------------------------------------------- */
+.hud-heat-svg.bs-soft { --skin-soft: var(--skin, #c99a82); }
+.hud-heat-svg.bs-soft .b0, .hud-heat-svg.bs-soft.has-skin .b0 { stop-color: color-mix(in oklch, var(--skin-soft) 90%, #fff); }
+.hud-heat-svg.bs-soft .b1, .hud-heat-svg.bs-soft.has-skin .b1 { stop-color: color-mix(in oklch, var(--skin-soft) 88%, #000); }
+.hud-heat-svg.bs-soft .z-edge > * { stroke: color-mix(in oklch, var(--skin-soft) 45%, #000); stroke-width: .5; stroke-opacity: .55; filter: none; }
+.hud-heat-svg.bs-soft .z-inner > * { fill: none; stroke: color-mix(in oklch, var(--skin-soft) 40%, #2a0c06); stroke-width: 3.6; opacity: .42; }
+.hud-heat-svg.bs-soft .v0 { stop-color: #fff; stop-opacity: .16; }
+.hud-heat-svg.bs-soft .v2 { stop-color: #2a0c06; stop-opacity: .26; }
+.hud-heat-svg.bs-soft .z-heat { mix-blend-mode: multiply; }
+.hud-heat-svg.bs-soft .s0 { stop-color: #d42c5c; stop-opacity: .9; }
+.hud-heat-svg.bs-soft .s1 { stop-color: #e4547a; stop-opacity: .6; }
+.hud-heat-svg.bs-soft .s2 { stop-color: #ee7a96; stop-opacity: .24; }
+.hud-heat-svg.bs-soft .s3 { stop-color: #ee7a96; stop-opacity: 0; }
+.hud-heat-svg.bs-soft .z-hair, .hud-heat-svg.bs-soft g.z-hair > *, .hud-heat-svg.bs-soft .z-hair-curls circle { fill: var(--hair, #3a2418); opacity: 1; stroke: color-mix(in oklch, var(--hair, #3a2418) 70%, #000); stroke-width: .5; }
+.hud-heat-svg.bs-soft .z-hair-strands path { stroke: color-mix(in oklch, var(--hair, #3a2418) 55%, #fff); stroke-opacity: .55; }
+.hud-heat-svg.bs-soft .z-detail path { stroke: rgba(70, 28, 20, .22); }
+.hud-heat-svg.bs-soft .z-muscle path { stroke: rgba(70, 28, 20, .28); }
+.hud-heat-svg.bs-soft .z-anat { filter: none; }
+.hud-heat-svg.bs-soft .z-anat path { stroke: rgba(100, 36, 30, .5); }
+.hud-heat-svg.bs-soft .z-look-mark.is-tattoo path { stroke: rgba(30, 38, 76, .72); }
+.hud-heat-svg.bs-soft .z-belly ellipse { fill: rgba(255, 255, 255, .14); }
+
+/* Блик на волосах — у всех подач, кроме тепловизора. */
+.hud-heat-svg .z-hair-sheen { fill: #fff; opacity: .16; stroke: none; }
+/* Цвет пятна по силе (t-hi ≥ 7, t-mid ≥ 4, t-lo) — у тепловизора своя шкала. */
+.hud-heat-svg.bs-thermal .z-heat.t-hi { fill: #ffe46a; }
+.hud-heat-svg.bs-thermal .z-heat.t-mid { fill: #ff8a2a; }
+.hud-heat-svg.bs-thermal .z-heat.t-lo { fill: #d4306c; }
+.hud-heat-svg.bs-line .z-heat.t-hi { fill: color-mix(in srgb, var(--heat, #e0507a) 70%, #fff3e0); }
+.hud-heat-svg.bs-soft .z-heat { fill: #d63a66; }
+.hud-heat-svg.bs-soft .z-heat.t-lo { fill: #e8708e; }
+
+/* Женская грудь (render/body-art.js: грудьФигуры): контур по складке, мягкая
+   тень над ней и короткая ложбинка — форма без подробностей. */
+.hud-heat-svg .z-bust-line { fill: none; stroke: rgba(255, 255, 255, .3); stroke-width: .75; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.hud-heat-svg .z-bust-line.is-cleft { stroke-width: .5; opacity: .6; }
+.hud-heat-svg .z-bust-shade { fill: rgba(0, 0, 0, .26); stroke: none; }
+.hud-heat-svg.bs-line .z-bust-line { stroke: color-mix(in srgb, var(--heat, #e0507a) 45%, rgba(255, 255, 255, .55)); stroke-opacity: .6; }
+.hud-heat-svg.bs-thermal .z-bust-line { stroke: rgba(150, 140, 255, .32); }
+.hud-heat-svg.bs-thermal .z-bust-shade { fill: rgba(4, 2, 20, .3); }
+.hud-heat-svg.bs-soft .z-bust-line { stroke: rgba(90, 34, 26, .42); }
+.hud-heat-svg.bs-soft .z-bust-shade { fill: rgba(70, 26, 18, .2); }
+.hud-heat-svg .z-bust-light { fill: #fff; opacity: .08; stroke: none; filter: blur(1.4px); }
+.hud-heat-svg.bs-soft .z-bust-light { opacity: .14; }
+.hud-heat-svg.bs-thermal .z-bust-light { display: none; }
+.hud-heat-svg.bs-soft .z-bust-shade { fill: rgba(70, 26, 18, .26); }
+/* Кудри — край массы волос: без обводки, цветом самих волос (render/look.js). */
+.hud-heat-svg .z-hair-curls circle,
+.hud-heat-svg:is(.bs-line, .bs-thermal, .bs-soft) .z-hair-curls circle { stroke: none; }
+.hud-heat-svg.bs-line .z-hair-curls circle { fill: color-mix(in oklch, var(--hair, #5e4d61) 58%, #150e1c); }
+/* Кудрявые волосы: бугорки по контуру — круглая пунктирная обводка цветом
+   самих волос, под заливкой (paint-order), так что снаружи — пышный край. */
+.hud-heat-svg .z-hair.is-curly { stroke: var(--hair, #5e4d61); stroke-width: 2.4; stroke-dasharray: 0 2.1; stroke-linecap: round; stroke-linejoin: round; paint-order: stroke; vector-effect: none; }
+.hud-heat-svg.bs-line .z-hair.is-curly { stroke: color-mix(in oklch, var(--hair, #5e4d61) 58%, #150e1c); stroke-width: 2.4; }
+.hud-heat-svg.bs-thermal .z-hair.is-curly { stroke: #0d0b26; stroke-width: 2.4; }
+.hud-heat-svg.bs-soft .z-hair.is-curly { stroke: var(--hair, #3a2418); stroke-width: 2.4; }
