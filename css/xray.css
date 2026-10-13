@@ -100,8 +100,10 @@
 .xr-ridge-u { fill: none; stroke: #9c5a45; stroke-opacity: .16; stroke-width: 2; stroke-linecap: round; filter: blur(.8px); }
 .xr-gloss { fill: none; stroke: #fff; stroke-opacity: .3; stroke-width: 1.8; stroke-linecap: round; filter: blur(.9px); }
 .xr-gloss.is-soft { stroke-opacity: .22; stroke-width: 1.4; }
-.xr-hand { fill: #efbfa2; stroke: #a0614a; stroke-opacity: .55; stroke-width: .6; stroke-linejoin: round; }
-.xr-hand.is-back, .xr-finger.is-back .xr-hand { fill: #d9a185; }
+.xr-hand { stroke: #a0614a; stroke-opacity: .55; stroke-width: .6; stroke-linejoin: round; }
+.xr-hand:not([fill]) { fill: #efbfa2; }
+/* Дальние пальцы — в тени: тот же объём, только темнее. */
+.xr-hand.is-back, .xr-finger.is-back .xr-hand { filter: brightness(.86) saturate(1.06); }
 .xr-nail { fill: #fbe6d8; stroke: #c9947c; stroke-width: .45; }
 .xr-crease { fill: none; stroke: #a8684f; stroke-opacity: .4; stroke-width: .9; stroke-linecap: round; filter: blur(.4px); }
 .xr-toy, .xr-toy-ring { fill: #a77bd6; stroke: #6f42a0; stroke-width: .7; }
@@ -368,8 +370,6 @@
 .xr-drool .xr-wet-run { stroke-opacity: .16; }
 .xr-drool .xr-wet-drop { opacity: .45; }
 .xr-drool { transform-box: fill-box; transform-origin: 50% 0; }
-/* Пальцы внутри и в покое чуть согнуты крючком. */
-.xr-pip, .xr-dip { transform: rotate(-5deg); }
 .xr-hand.is-seg { stroke: none; }
 .xr-seg-edge { fill: none; stroke: #a0614a; stroke-opacity: .55; stroke-width: .6; }
 .xr-curl, .xr-thumb, .xr-twist, .xr-nod, .xr-uvula-sw, .xr-vibe { transform: none; }
@@ -399,11 +399,7 @@
   :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-flange { transform: scaleX(calc(1 - clamp(0, (var(--k, 1) - .8) * 5, 1) * .12)); }
   /* Пальцы: манящее сгибание, большой палец трёт клитор, сухожилия, точка G. */
   /* Кисть чуть покачивается; сгибаются сами пальцы — в суставах (ниже). */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-curl { transform: rotate(calc(var(--sw, -1) * -.6deg)); }
-  /* «Иди сюда»: в глубине средняя и ногтевая фаланги сгибаются сильнее —
-     подушечки давят на переднюю стенку у точки G, на отходе разгибаются. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-pip { transform: rotate(calc((5 + clamp(0, (var(--k, 1) - .4) * 1.67, 1) * 10) * -1deg)); }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-dip { transform: rotate(calc((5 + clamp(0, (var(--k, 1) - .4) * 1.67, 1) * 14) * -1deg)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-curl { transform: rotate(calc(clamp(0, (var(--k, 1) - .4) * 1.67, 1) * -2.4deg + var(--sw, -1) * -.4deg)); }
 :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-thumb { animation: xr-rub calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
   :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-tendon { stroke-opacity: calc(.12 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .22); }
   /* Кулак: проворот, костяшки, мышцы предплечья, живот выпирает, блик на костяшках. */
@@ -550,4 +546,79 @@
   /* Кругами: член ходит по тому же кругу, что и таз, — вверх-вниз на 1,6 px
      (в пределах, где бугры стенки ещё налезают на ствол), а не стоит. */
   :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray.is-grind .hud-xray-row[style*="--arc:"]:not(.is-finish) .xr-move.p-penis { transform: translate(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px), calc(var(--sw, -1) * var(--arc, 0) * -.6px)); }
+}
+/* Подушечка большого пальца — мягкий блик на той стороне, что прижата к клитору. */
+.xr-thumb-pad { fill: none; stroke: #fff2e8; stroke-opacity: .32; stroke-width: 1.4; stroke-linecap: round; filter: blur(.5px); }
+
+/* =========================================================================
+   РУКИ НА ЧЛЕНЕ (render/xray.js: кистьНаСтволе, ручнаяСцена). Её рука —
+   светлее и тоньше, лак на ногтях; его — тон его кожи. Её кисть ходит по
+   стволу от --k блока темпа: 1 — у основания, 0 — у головки (--amp — ход).
+   ========================================================================= */
+.xr-hj-skin:not([fill]) { fill: #f6d4c1; }
+.xr-hj-skin { stroke: #b97c66; stroke-opacity: .6; stroke-width: .7; stroke-linejoin: round; }
+.xr-hj-skin.is-m { stroke: #a0614a; }
+.xr-hj-line { fill: none; stroke: #b97c66; stroke-opacity: .55; stroke-width: .8; stroke-linecap: round; }
+.xr-hj-nail { fill: #fbe6d8; stroke: #c9947c; stroke-width: .4; }
+.xr-hj-nail.is-f { fill: #d9507a; stroke: #9e2c4c; }
+.xr-hj-shade { fill: none; stroke: #8c4a36; stroke-opacity: .3; stroke-width: 3; stroke-linecap: round; filter: blur(1.4px); }
+.xr-hj-drop { fill: #fffaf4; opacity: .55; filter: blur(.4px); }
+.xr-hj-move { transform: translateX(calc((1 - var(--k, 1)) * var(--amp, 0) * 1px)); }
+.xr-hj { transform-box: fill-box; transform-origin: 50% 60%; }
+@media (prefers-reduced-motion: no-preference) {
+  /* У головки кисть чуть сжимается — плотнее обхватывает венчик. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-hj-move .xr-hj { transform: scaleY(calc(1 - (1 - var(--k, 1)) * .04)); }
+  /* Кругами — прокручивает: кисть покачивается вокруг ствола. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray.is-grind .xr-hj-move .xr-hj { transform: skewX(calc(var(--sw, -1) * 5deg)); }
+  /* Капля предсемени на головке набухает, когда кисть у головки. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-hj-drop { opacity: calc(.35 + (1 - var(--k, 1)) * .5); }
+}
+/* Объём рук: свет по верхнему краю, тень по нижнему; пальцы на члене —
+   каждый свой, тень в бороздках между ними; ногти — лунка и блик. */
+.xr-hand-light { fill: none; stroke: #fff4ea; stroke-opacity: .42; stroke-width: 1.8; stroke-linecap: round; filter: blur(.9px); }
+.xr-hand-shadow { fill: none; stroke: #8c4a36; stroke-opacity: .28; stroke-width: 2.6; stroke-linecap: round; filter: blur(1.3px); }
+.xr-nail-moon { fill: none; stroke: #fff; stroke-opacity: .5; stroke-width: .7; stroke-linecap: round; }
+.xr-nail-gloss { fill: none; stroke: #fff; stroke-opacity: .7; stroke-width: .8; stroke-linecap: round; filter: blur(.3px); }
+.xr-hj-finger { stroke: #b97c66; stroke-opacity: .55; stroke-width: .6; stroke-linejoin: round; }
+.xr-hj.is-m .xr-hj-finger, .xr-hj.is-m .xr-hj-skin { stroke: #8f5640; }
+.xr-hj-groove { fill: none; stroke: #7e4230; stroke-opacity: .32; stroke-width: 2.2; stroke-linecap: round; filter: blur(1px); }
+.xr-hj-tendon { fill: none; stroke: #fff2e8; stroke-opacity: .28; stroke-width: 1; stroke-linecap: round; filter: blur(.4px); }
+.xr-hj-light { fill: none; stroke: #fff4ea; stroke-opacity: .35; stroke-width: 3; stroke-linecap: round; filter: blur(1.6px); }
+.xr-hj-knuckle { fill: #fff3ea; stroke: none; opacity: .32; filter: blur(.8px); }
+.xr-crease.is-soft { stroke-opacity: .22; }
+
+/* =========================================================================
+   ОБЪЁМ КОЖИ РУК (render/xray.js: объём). Заливка, внутри контура — мягкая
+   тень по краю, тень снизу и блик сверху. Тон — от кисти: по умолчанию —
+   кисть при фингеринге, .is-f — её рука, .is-m — его.
+   ========================================================================= */
+.xr-vol { fill: var(--skin, #efc3a7); stroke: none; }
+.xr-vol-rim { fill: none; stroke: var(--rim, #bb7c62); stroke-opacity: .5; stroke-width: 6; filter: blur(2.2px); }
+.xr-vol-lo { fill: none; stroke: var(--lo, #9c5c45); stroke-opacity: .38; stroke-width: 4; filter: blur(1.8px); }
+.xr-vol-hi { fill: none; stroke: var(--hi, #fff6ee); stroke-opacity: .6; stroke-width: 3; filter: blur(1.5px); }
+.xr-vol-edge { fill: none; stroke: var(--edge, #a0644c); stroke-opacity: .55; stroke-width: .55; stroke-linejoin: round; stroke-linecap: round; }
+.xr-finger.is-back { filter: brightness(.87) saturate(1.05); }
+.xr-hj.is-f { --skin: #f7d8c6; --rim: #cf947c; --lo: #b47660; --hi: #fff8f2; --edge: #b47862; }
+.xr-hj.is-m { --skin: #e3aa8a; --rim: #a96a50; --lo: #87503a; --hi: #ffe6d4; --edge: #87513c; }
+.xr-nail2 { fill: #fbe8dc; stroke: #c49078; stroke-width: .4; }
+.xr-nail2.is-f { fill: #d0607f; stroke: #9c3755; stroke-width: .35; }
+/* Кисть одним силуэтом: свет вдоль пальцев, ногти — пластинки у кончика. */
+.xr-vol-shine { fill: none; stroke: var(--hi, #fff6ee); stroke-opacity: .5; stroke-width: 2.4; stroke-linecap: round; filter: blur(1.4px); }
+.xr-nail3 { fill: #f7ddd2; stroke: #c08a76; stroke-opacity: .7; stroke-width: .4; stroke-linejoin: round; }
+.xr-nail3.is-f { fill: #cf6684; stroke: #9a3a57; }
+.xr-hj.is-m .xr-nail3 { fill: #eac1ad; stroke: #9a6450; }
+/* Массаж клитора большим пальцем: вся кисть — одна картинка — описывает
+   маленькие круги (подушечка растирает клитор), чуть покачиваясь в запястье. */
+@keyframes xr-rub-w {
+  0% { transform: translate(1.4px, 0) rotate(-.8deg); } 25% { transform: translate(0, 1.4px) rotate(0deg); }
+  50% { transform: translate(-1.4px, 0) rotate(.8deg); } 75% { transform: translate(0, -1.4px) rotate(0deg); } 100% { transform: translate(1.4px, 0) rotate(-.8deg); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* Большой палец трёт клитор — кисть покачивается в запястье, подушечка ходит по нему. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-wrist.is-rub { animation: xr-rub-w calc(var(--beat1, 1s) * 1.1) linear infinite; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* Её кисть гибкая: в ходе вверх и вниз чуть наклоняется в запястье по
+     направлению движения (--v), у головки сжимается плотнее. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-hj-move .xr-hj { transform: rotate(calc(var(--v, 0) * -2.4deg)) scaleY(calc(1 - (1 - var(--k, 1)) * .045)); }
 }
