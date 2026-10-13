@@ -14,15 +14,15 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.56.3';
-import { проставитьДень } from './msg-feed.js?v=23.56.3';
-import { normalizeJSONData } from '../schema.js?v=23.56.3';
-import { settings } from '../settings.js?v=23.56.3';
-import { статусРужья } from '../codes.js?v=23.56.3';
-import { extractHudBlock } from '../hud-block.js?v=23.56.3';
-import { namesLikelySame } from '../names.js?v=23.56.3';
-import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.56.3';
-import { readParsed, writeParsed } from '../store.js?v=23.56.3';
+import { parseHUDComplex } from '../hud-parser.js?v=23.57.2';
+import { проставитьДень } from './msg-feed.js?v=23.57.2';
+import { normalizeJSONData } from '../schema.js?v=23.57.2';
+import { settings } from '../settings.js?v=23.57.2';
+import { статусРужья } from '../codes.js?v=23.57.2';
+import { extractHudBlock } from '../hud-block.js?v=23.57.2';
+import { namesLikelySame } from '../names.js?v=23.57.2';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.57.2';
+import { readParsed, writeParsed } from '../store.js?v=23.57.2';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -364,20 +364,36 @@ function людиПерехвата(item) {
 // телефона каждого из двоих («Лейла | Евангелина» и «Евангелина | Лейла»),
 // или владелец, названный то полностью, то короче, — одна вкладка. Групповой
 // чат («REGENCE_HQ_SEC») узнаём по названию, с чьего бы телефона он ни был.
+//
+// Личный разговор узнаём по составу: владелец телефона плюс люди из названия
+// («Atlas & Ares», «Brandon Kane»). Прежде сравнивали названия целиком, а
+// namesLikelySame смотрит на первое имя — и «Atlas & Ares» с «Atlas &
+// Evangeline» сходили за один чат: Арес оказывался в переписке с Евангелиной.
+const ЧАСТИ_ЧАТА = /\s*(?:&|\||↔|→|->|←|\+|,|\s(?:and|и)\s)\s*/i;
+function составЛичного(item, цель, чат, тотЖе) {
+  if (!чат || /[/#_@]/.test(чат)) return null;
+  const люди = [цель, ...людиПерехвата(item)].filter(Boolean);
+  const части = чат.split(ЧАСТИ_ЧАТА).map(s => s.trim()).filter(Boolean);
+  // Название чата — люди из самой переписки: это личный разговор.
+  if (!части.length || !части.every(ч => люди.some(л => тотЖе(л, ч)))) return null;
+  const состав = [];
+  for (const x of [цель, ...части]) if (x && !состав.some(y => тотЖе(y, x))) состав.push(x);
+  return состав;
+}
 function склеитьПерехваты(старое, новое, предел, пределСообщений) {
   const записи = [];
   const тотЖе = (a, b) => !!a && !!b && (ключ(a) === ключ(b) || namesLikelySame(a, b));
+  const тотЖеСостав = (а, б) => а.length === б.length && а.every(x => б.some(y => тотЖе(x, y))) && б.every(y => а.some(x => тотЖе(x, y)));
   for (const item of [...(старое || []), ...(новое || [])]) {
     if (!item || typeof item !== 'object') continue;
     const цель = текст(item.target), чат = текст(item.chatName);
     if (!цель && !чат) continue;
-    // Название чата — человек из самой переписки: это личный разговор двоих.
-    const личный = !!чат && !/[/#_@]/.test(чат) && [цель, ...людиПерехвата(item)].some(x => тотЖе(x, чат));
-    const найдено = записи.find(з => личный
-      ? з.личный && ((тотЖе(з.цель, цель) && тотЖе(з.чат, чат)) || (тотЖе(з.цель, чат) && тотЖе(з.чат, цель)))
-      : !з.личный && ключ(з.чат) === ключ(чат) && (чат || тотЖе(з.цель, цель)));
+    const состав = составЛичного(item, цель, чат, тотЖе);
+    const найдено = записи.find(з => состав
+      ? з.состав && тотЖеСостав(з.состав, состав)
+      : !з.состав && ключ(з.чат) === ключ(чат) && (чат || тотЖе(з.цель, цель)));
     if (!найдено) {
-      записи.push({ личный, цель, чат, item: { ...item, messages: склеитьСообщения([], item.messages, пределСообщений) } });
+      записи.push({ состав, цель, чат, item: { ...item, messages: склеитьСообщения([], item.messages, пределСообщений) } });
       continue;
     }
     найдено.item = { ...найдено.item, ...item, messages: склеитьСообщения(найдено.item.messages, item.messages, пределСообщений) };

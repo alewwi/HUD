@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.56.3';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.56.3';
-import { namesLikelySame } from '../names.js?v=23.56.3';
-import { силаСтраха, статусРужья } from '../codes.js?v=23.56.3';
-import { settings } from '../settings.js?v=23.56.3';
-import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.56.3';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.56.3';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.57.2';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.57.2';
+import { namesLikelySame } from '../names.js?v=23.57.2';
+import { силаСтраха, статусРужья } from '../codes.js?v=23.57.2';
+import { settings } from '../settings.js?v=23.57.2';
+import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.57.2';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.57.2';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -48,7 +48,7 @@ export const ВИДЫ_БЛОКОВ = [
   { ключ: 'duelView', группа: 'Связи', поле: 'Словесная дуэль', виды: { tug: 'Канат', scales: 'Весы', chart: 'График по ходам' }, новый: true },
   { ключ: 'jealousyView', группа: 'Связи', поле: 'Ревность', виды: { text: 'Текст', triangle: 'Треугольник', thorns: 'Шипы', thought: 'Мысли' } },
   // X-ray — основной вид: рисует пенетрацию в разрезе и ходит в такт темпу.
-  // Без проникновения в тексте блок сам откатывается к шкале (scene-body.js).
+  // Без проникновения блока темпа нет ни в каком виде (scene-body.js).
   { ключ: 'sceneClockView', группа: 'Близость', поле: 'Часы сцены', виды: { chips: 'Плашки', dial: 'Циферблат', line: 'Линия времени' }, новый: true },
   { ключ: 'tempoView', группа: 'Близость', поле: 'Темп', виды: { xray: 'X-ray', tube: 'Шкала', metronome: 'Метроном', springs: 'Пружины', cradle: 'Маятник Ньютона' }, новый: true },
   { ключ: 'orgView', группа: 'Близость', поле: 'Готовность к оргазму', виды: { bar: 'Шкала', ring: 'Кольцо', flame: 'Пламя', wave: 'Волна', pulse: 'Пульс', glass: 'Бокал' } },

@@ -3,12 +3,12 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.56.3';
-import { overrideAvatarUrl } from '../avatars.js?v=23.56.3';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.57.2';
+import { overrideAvatarUrl } from '../avatars.js?v=23.57.2';
 // Снимки, ролики, голосовые и звонки собирает тот же код, что и в личном
 // телефоне. Своя копия разбора здесь означала бы, что новый формат от модели
 // в одном мессенджере работает, а в другом остаётся сырым тегом в тексте.
-import { собратьЛенту, моментПоследнего, тотЖеВПереписке } from './msg-feed.js?v=23.56.3';
+import { собратьЛенту, моментПоследнего, тотЖеВПереписке } from './msg-feed.js?v=23.57.2';
 
 // Кружок отправителя в перехвате: ручная аватарка фоном либо инициал.
 // Разметка и классы прежние — картинку прячет за собой класс has-img.
@@ -32,9 +32,17 @@ const ВСЕМ = /^(?:all|everyone|group|chat|все|всем|чат|групп�
 export function interceptParticipants(intercept) {
   const чат = String((intercept && intercept.chatName) || '').trim().toLowerCase();
   const имена = [];
+  // Адресат с названием чата — сама группа («-> REGENCE_HQ_SEC»). Но личный
+  // чат часто назван именем собеседника («Brandon Kane»): кто сам пишет в
+  // переписке, тот человек, а не группа, и из состава не выпадает.
+  const строки = Array.isArray(intercept && intercept.messages) ? intercept.messages : [];
+  const пишет = (v) => строки.some(raw => {
+    const m = String(raw || '').split('|')[0].match(/^\s*([^:]+?)\s*(?:->|→|:)/);
+    return m && m[1].trim().toLowerCase() === v.toLowerCase();
+  });
   const добавить = (raw) => {
     const v = String(raw || '').replace(/\[[^\]]*\]/g, '').trim();
-    if (!v || v.length > 40 || /^unknown$/i.test(v) || ВСЕМ.test(v) || (чат && v.toLowerCase() === чат)) return;
+    if (!v || v.length > 40 || /^unknown$/i.test(v) || ВСЕМ.test(v) || (чат && v.toLowerCase() === чат && !пишет(v))) return;
     const i = имена.findIndex(x => тотЖеВПереписке(x, v));
     if (i < 0) имена.push(v);
     else if (v.length > имена[i].length) имена[i] = v;
@@ -45,7 +53,7 @@ export function interceptParticipants(intercept) {
   // Модель назвала двоих и больше — им и верим (после склейки написаний).
   if (имена.length >= 2) return имена.join('; ');
 
-  for (const raw of (Array.isArray(intercept && intercept.messages) ? intercept.messages : [])) {
+  for (const raw of строки) {
     const первая = String(raw || '').split('|')[0];
     const m = первая.match(/^\s*([^:]+?)\s*(?:->|→)\s*([^:]+?)\s*:/);
     if (m) { добавить(m[1]); добавить(m[2]); continue; }
@@ -93,6 +101,13 @@ export function buildInterceptsHTML(interceptsData, uid, isChecked, sceneDate) {
       } else {
         chatName = interceptArrowParts[interceptArrowParts.length - 1];
       }
+    } else if (/\s(?:&|and|и)\s/i.test(chatName)) {
+      // «Atlas & Evangeline» с телефона Атласа — контакт Evangeline. Иначе
+      // две вкладки Атласа подписывались «Atlas ↔ Atlas». Название, где
+      // владельца нет («Kane & Partners»), оставляем как есть.
+      const части = chatName.split(/\s+(?:&|and|и)\s+/i).map(s => s.trim()).filter(Boolean);
+      const свои = части.filter(ч => тотЖеВПереписке(ч, targetName));
+      if (части.length === 2 && свои.length === 1) chatName = части.find(ч => ч !== свои[0]);
     }
 
     let latestTime = '--:--', unreadCount = 0;

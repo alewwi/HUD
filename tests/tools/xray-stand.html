@@ -1,0 +1,60 @@
+<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>X-ray — стенд</title>
+<!-- Стенд x-ray: открыть через сервер Таверны
+     /scripts/extensions/third-party/HUD/tests/tools/xray-stand.html?w=480
+     ?t=1.2 — остановить все анимации на этой секунде (кадр для снимка). -->
+<link rel="stylesheet" href="../../css/all.css">
+<style>
+body { margin: 0; padding: 16px; background: #15111b; color: #e6e6ee; font: 13px system-ui, sans-serif; --hud-accent: #d96a8a; --hud-nsfw-color: #d9548a; }
+.big .xr-film, .big .xr-wave { max-width: none; }
+.wrap { max-width: var(--w, 480px); display: grid; gap: 14px; } h2 { font-size: 12px; color: #a8a5ad; margin: 10px 0 0; font-weight: 600; }
+</style>
+<div class="wrap" id="wrap"></div>
+<p id="note" style="max-width:560px;line-height:1.5"></p>
+<script>
+// Открыт двойным кликом (file://) — модули браузер не загрузит, страница
+// осталась бы пустой. Подсказываем адрес через сервер Таверны.
+if (location.protocol === 'file:') {
+  const адрес = 'http://127.0.0.1:8000/scripts/extensions/third-party/HUD/tests/tools/xray-stand.html?big';
+  document.getElementById('note').innerHTML = 'Стенд открыт как файл — так браузер не загружает модули. Запусти SillyTavern и открой через него:<br><a style="color:#ff9fc0" href="' + адрес + '">' + адрес + '</a>';
+}
+window.addEventListener('error', (e) => { document.getElementById('note').textContent = 'Ошибка стенда: ' + (e.message || e); });
+window.addEventListener('unhandledrejection', (e) => { document.getElementById('note').textContent = 'Ошибка стенда: ' + (e.reason && e.reason.message || e.reason); });
+</script>
+<script type="module">
+const q = new URLSearchParams(location.search);
+if (q.get('w')) document.documentElement.style.setProperty('--w', q.get('w') + 'px');
+if (q.has('big')) document.body.classList.add('big');
+const SB = await import('../../render/scene-body.js');
+const случаи = [
+  ['Дразнит', 'дразнит, водит головкой у входа, неглубоко входит и выходит', 'член во влагалище'],
+  ['Трётся у входа', 'член трется о половые губы и клитор, не входя', 'член скользит по половым губам'],
+  ['Ровно, глубоко', 'ритмичные глубокие толчки, медленно', 'член глубоко во влагалище'],
+  ['Нарастает', 'темп нарастает, толчки все чаще', 'член во влагалище'],
+  ['Сзади', 'медленно, ритмичные толчки', 'член в анусе'],
+  ['Кругами', 'двигает бедрами кругами, глубоко внутри', 'член глубоко во влагалище'],
+  ['Пальцы', 'ритмичные толчки пальцами', 'его пальцы внутри влагалища'],
+  ['Пальцы и большой на клиторе', 'ритмичные толчки пальцами', 'его пальцы внутри влагалища, большим пальцем ласкает клитор'],
+];
+const только = q.get('c');
+const wrap = document.getElementById('wrap');
+for (const [i, [имя, поза, где]] of случаи.entries()) {
+  if (только && !только.split(',').includes(String(i))) continue;
+  const т = SB.темпИзТекста(поза, '', '');
+  const проникн = SB.проникновенияИзТекста(/пальц/.test(где) ? '' : 'pn: 17 см', где + '; ' + поза);
+  const html = SB.блокТемпа(т || { уровень: 2, сек: 1.4, слово: 'ритмично', вМинуту: 43 }, { проникн, пол: 'f', член: { см: 17 }, влага: { уровень: 2 } });
+  wrap.insertAdjacentHTML('beforeend', `<h2>${i}. ${имя} — ${т ? (т.узор || 'ровно') + ', ' + т.сек + ' с' : 'нет темпа'}</h2>` + html);
+}
+document.querySelectorAll('.hud-tempo').forEach(e => e.classList.add('fx-on'));
+const t = parseFloat(q.get('t'));
+if (Number.isFinite(t)) {
+  await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+  for (const a of document.getAnimations()) { a.pause(); a.currentTime = t * 1000; }
+}
+// ?zoom=x,y,w,h — лупа: первый снимок показывает только эту часть (координаты разреза).
+if (q.get('zoom')) {
+  const s = document.querySelector('.xr-film');
+  if (s) { s.setAttribute('viewBox', q.get('zoom').split(',').join(' ')); s.style.maxWidth = 'none'; s.style.width = (q.get('zw') || 760) + 'px'; }
+}
+window.кадр = (сек) => { for (const a of document.getAnimations()) { a.pause(); a.currentTime = сек * 1000; } };
+window.готово = true;
+</script>
