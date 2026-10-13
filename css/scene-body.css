@@ -165,21 +165,46 @@
 @keyframes hud-pen-pulse { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.6); opacity: .8; } }
 
 /* --- Узоры толчка (render/xray.js: УЗОРЫ — те же кадры, что у волны) -------
-   дразнит — три касания кончиком и один глубокий с задержкой; кругами — в
-   глубине, покачивание тазом без хода; нарастает — толчки всё чаще к концу
-   цикла; на всю длину — медленный ход до самой головки и обратно. */
+   дразнит — без проникновения: головкой по губам, кругами на клиторе,
+   шлепки по нему, нажим на вход; кругами — в глубине, таз по кругу без хода;
+   нарастает — толчки всё чаще к концу цикла; на всю длину — медленный ход
+   до самой головки и обратно. */
 @media (prefers-reduced-motion: no-preference) {
-  .hud-tempo.is-tease { animation-name: hud-tk-tease, hud-tsw, hud-tv-tease; animation-duration: var(--beat, 3s), calc(var(--beat1, 1s) * 2), var(--beat, 3s); }
+  .hud-tempo.is-tease { animation-name: hud-tk-tease, hud-tsw, hud-tv-tease; animation-duration: var(--beat, 4.8s), calc(var(--beat1, 1s) * 2), var(--beat, 4.8s); animation-timing-function: cubic-bezier(.37, 0, .63, 1), ease-in-out, linear; }
   .hud-tempo.is-grind { animation-name: hud-tk-grind, hud-tsw-grind, hud-tv-grind; animation-duration: var(--beat, 1.5s), var(--beat, 1.5s), var(--beat, 1.5s); }
   .hud-tempo.is-build { animation-name: hud-tk-build, hud-tsw, hud-tv-build; animation-duration: var(--beat, 4s), calc(var(--beat1, 1s) * 2), var(--beat, 4s); }
   .hud-tempo.is-long { animation-name: hud-tk-long, hud-tsw, hud-tv; animation-duration: var(--beat, 1.4s), calc(var(--beat1, 1s) * 2), var(--beat, 1.4s); }
 }
-@keyframes hud-tk-tease { 0% { --k: .1; } 12% { --k: .32; } 24% { --k: .08; } 36% { --k: .34; } 48% { --k: .08; } 66% { --k: 1; } 78% { --k: 1; } 100% { --k: .1; } }
-@keyframes hud-tv-tease { 0% { --v: 1; } 11% { --v: 1; } 13% { --v: -1; } 23% { --v: -1; } 25% { --v: 1; } 35% { --v: 1; } 37% { --v: -1; } 47% { --v: -1; } 49% { --v: 1; } 65% { --v: 1; } 67% { --v: 0; } 77% { --v: 0; } 79% { --v: -1; } 99% { --v: -1; } 100% { --v: 1; } }
-@keyframes hud-tk-grind { 0% { --k: 1; } 25% { --k: .84; } 50% { --k: 1; } 75% { --k: .84; } 100% { --k: 1; } }
-/* Кругами: покачивание шире обычного, по кругу — две полуволны за цикл. */
-@keyframes hud-tsw-grind { 0% { --sw: -1.6; } 25% { --sw: 0; } 50% { --sw: 1.6; } 75% { --sw: 0; } 100% { --sw: -1.6; } }
-@keyframes hud-tv-grind { 0%, 100% { --v: 0; } 25% { --v: -.3; } 75% { --v: .3; } }
+/* Дразнит — внутрь не входит (render/xray.js: разрез → трение, строка
+   is-rub is-tz). --ry — головка по губам (0 — вход, 1 — клитор), --tx —
+   ближе-дальше от губ, px: −9 — отвёл для шлепка, +1,8 — давит на вход, но
+   не проходит. Кадры --ry — те же, что у волны (УЗОРЫ.tease):
+   медленно вверх, кругами на клиторе, два шлепка по нему, вниз ко входу,
+   два нажима на вход — будто сейчас войдёт — и отступает. */
+@property --tx { syntax: '<number>'; inherits: true; initial-value: 0; }
+/* Плавно: все отрезки — по синусу (медленно трогается, медленно встаёт),
+   разворотов мало — один неспешный круг, два мягких шлепка, один нажим. */
+@keyframes hud-tk-tease {
+  0% { --ry: .04; --tx: 0; --k: .9; animation-timing-function: cubic-bezier(.37, 0, .63, 1); }
+  20% { --ry: 1; animation-timing-function: cubic-bezier(.37, 0, .63, 1); } 30% { --ry: .9; animation-timing-function: cubic-bezier(.37, 0, .63, 1); }
+  40% { --ry: 1; --tx: 0; animation-timing-function: cubic-bezier(.37, 0, .63, 1); }
+  46% { --tx: -5; animation-timing-function: cubic-bezier(.37, 0, .63, 1); } 52% { --tx: 0; animation-timing-function: cubic-bezier(.37, 0, .63, 1); }
+  58% { --tx: -5; animation-timing-function: cubic-bezier(.37, 0, .63, 1); } 64% { --ry: 1; --tx: 0; animation-timing-function: cubic-bezier(.37, 0, .63, 1); }
+  78% { --ry: .04; --tx: 0; animation-timing-function: cubic-bezier(.37, 0, .63, 1); }
+  86% { --tx: 1.6; animation-timing-function: cubic-bezier(.37, 0, .63, 1); } 93% { --tx: 0; animation-timing-function: cubic-bezier(.37, 0, .63, 1); }
+  100% { --ry: .04; --tx: 0; --k: .9; }
+}
+@keyframes hud-tv-tease { 0%, 100% { --v: 0; } }
+/* Кругами — настоящий круг без остановок: глубина (--k) — косинус, вверх-вниз
+   (--sw) — синус, со сдвигом в четверть. Синус из отрезков «быстро от нуля —
+   медленно к краю» (кадры в крайних точках и в нулях). Раньше на каждом
+   кадре движение замирало — круг шёл рывками. */
+@keyframes hud-tk-grind { 0% { --k: 1; animation-timing-function: cubic-bezier(.37, 0, .63, 1); } 50% { --k: .8; animation-timing-function: cubic-bezier(.37, 0, .63, 1); } 100% { --k: 1; } }
+@keyframes hud-tsw-grind {
+  0% { --sw: 0; animation-timing-function: cubic-bezier(.33, .66, .66, 1); } 25% { --sw: 1.3; animation-timing-function: cubic-bezier(.33, 0, .66, .33); }
+  50% { --sw: 0; animation-timing-function: cubic-bezier(.33, .66, .66, 1); } 75% { --sw: -1.3; animation-timing-function: cubic-bezier(.33, 0, .66, .33); } 100% { --sw: 0; }
+}
+@keyframes hud-tv-grind { 0%, 50%, 100% { --v: 0; animation-timing-function: cubic-bezier(.33, .66, .66, 1); } 25% { --v: -.3; animation-timing-function: cubic-bezier(.33, 0, .66, .33); } 75% { --v: .3; animation-timing-function: cubic-bezier(.33, 0, .66, .33); } }
 @keyframes hud-tk-build { 0% { --k: 1; } 20% { --k: .12; } 36% { --k: 1; } 50% { --k: .16; } 62% { --k: 1; } 71% { --k: .2; } 79% { --k: 1; } 86% { --k: .24; } 92% { --k: 1; } 96% { --k: .3; } 100% { --k: 1; } }
 @keyframes hud-tv-build { 0% { --v: -1; } 19% { --v: -1; } 21% { --v: 1; } 35% { --v: 1; } 37% { --v: -1; } 49% { --v: -1; } 51% { --v: 1; } 61% { --v: 1; } 63% { --v: -1; } 70% { --v: -1; } 72% { --v: 1; } 78% { --v: 1; } 80% { --v: -1; } 85% { --v: -1; } 87% { --v: 1; } 91% { --v: 1; } 93% { --v: -1; } 95.5% { --v: -1; } 96.5% { --v: 1; } 100% { --v: 1; } }
 @keyframes hud-tk-long { 0% { --k: 1; animation-timing-function: cubic-bezier(.6, 0, .35, 1); } 60% { --k: .02; animation-timing-function: cubic-bezier(.5, 0, .85, .5); } 100% { --k: 1; } }
@@ -189,11 +214,45 @@
    вверх (render/xray.js: разрез → трение). Клитор вспыхивает наверху хода. */
 @property --ry { syntax: '<number>'; inherits: true; initial-value: 0; }
 @media (prefers-reduced-motion: no-preference) {
-  .hud-tempo.is-rub { animation-name: hud-tk-rub, hud-tsw, hud-ry; animation-duration: var(--beat, 1.6s), calc(var(--beat1, 1.6s) * 2), var(--beat, 1.6s); animation-timing-function: ease-in-out; }
+  .hud-tempo.is-rub { animation-name: hud-tk-rub, hud-tsw, hud-ry; animation-duration: var(--beat, 2.4s), calc(var(--beat1, 1.6s) * 2), var(--beat, 2.4s); animation-timing-function: cubic-bezier(.37, 0, .63, 1); }
 }
 @keyframes hud-tk-rub { 0% { --k: .84; --v: 0; } 50% { --k: 1; } 100% { --k: .84; --v: 0; } }
-@keyframes hud-ry { 0% { --ry: .1; } 50% { --ry: 1; } 100% { --ry: .1; } }
+/* Вверх к клитору и вниз — ровно, по синусу, без разворотов посреди хода
+   (те же кадры, что у волны: render/xray.js, УЗОРЫ.rub). */
+@keyframes hud-ry {
+  0% { --ry: .04; animation-timing-function: cubic-bezier(.37, 0, .63, 1); } 50% { --ry: 1; animation-timing-function: cubic-bezier(.37, 0, .63, 1); } 100% { --ry: .04; }
+}
+/* Подъём головки: треть — бёдра (тело и ствол вместе, translateY), остальное
+   — поворот ствола вокруг корня (.xr-pivot, --rot° на самом верху). У входа
+   головка чуть вдавливается в губы; у «дразнит» ещё и --tx (шлепки, нажим). */
 .hud-xray-row.is-rub .xr-move { transform: none; }
-.hud-xray-row.is-rub .xr-move:is(.p-penis, .p-toy, .is-body) { transform: translateY(calc(var(--ry, 0) * var(--rub, 0) * 1px)); }
+/* Кончик — между губ, а не во входе: на 4 px назад, у входа вдавливается
+   на 1,6 px. Дальше он заходил во вход, и через преддверие просвечивало
+   отверстие уретры — та самая «чёрная штучка» у головки. */
+.hud-xray-row.is-rub .xr-move:is(.p-penis, .p-toy, .is-body) { transform: translate(calc(-4px + (1 - var(--ry, 0)) * 1.6px + var(--tx, 0) * 1px), calc(var(--ry, 0) * var(--rub, 0) * .35px)); }
+.hud-xray-row.is-rub :is(.xr-meatus, .xr-precum, .xr-ripple, .xr-hit, .xr-splash) { display: none; }
+/* Губы обнимают кончик головки, пока она прижата: без тёмного просвета
+   между круглой головкой и плоской губой. Едут вверх вместе с головкой;
+   отвёл головку для шлепка — губы отпускают. */
+.xr-hug { transform: translateY(calc(var(--ry, 0) * var(--rub, 0) * 1px)); opacity: calc(1 - clamp(0, var(--tx, 0) / -4, 1)); }
+.xr-hug-pad { fill: #d18c7e; filter: blur(1.1px); }
+.xr-hug-crease { fill: none; stroke: #a8565a; stroke-opacity: .32; stroke-width: 1.4; stroke-linecap: round; filter: blur(.8px); }
+.xr-pivot { transform: none; }
+.hud-xray-row.is-rub:not(.is-finish) .xr-pivot { transform: rotate(calc(var(--ry, 0) * var(--rot, 0) * -1deg)); }
 .hud-xray-row.is-rub .xr-clit-g { transform-box: fill-box; transform-origin: center; }
-:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .hud-xray-row.is-rub .xr-clit-g { transform: scale(calc(1 + clamp(0, (var(--ry, 0) - .7) * 3.3, 1) * .22)); filter: brightness(calc(1 + clamp(0, (var(--ry, 0) - .7) * 3.3, 1) * .25)); }
+/* Клитор набухает, когда головка на нём, и вздрагивает от шлепка. */
+:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .hud-xray-row.is-rub .xr-clit-g { transform: scale(calc(1 + clamp(0, (var(--ry, 0) - .7) * 3.3, 1) * .22 + clamp(0, var(--tx, 0) / .6, 1) * clamp(0, (var(--ry, 0) - .9) * 10, 1) * .12)); filter: brightness(calc(1 + clamp(0, (var(--ry, 0) - .7) * 3.3, 1) * .25)); }
+/* Губы под головкой расходятся, на нажиме — ещё шире. */
+.hud-xray-row.is-rub .xr-pull.is-minor { transform: scaleX(calc(1 + (1 - var(--k, 1)) * .1 + clamp(0, var(--ry, 0) * 5, 1) * .1 + clamp(0, var(--tx, 0) / 1.8, 1) * .1)); }
+/* Волна трения — подъём головки (--ry), и бегущая точка — тоже по нему. */
+.hud-tempo:is(.is-rub, .is-tease) .xr-wave-dot circle { transform: translateY(calc((1 - var(--ry, 0)) * var(--wy, 22px))); }
+.hud-tempo:is(.is-rub, .is-tease) .xr-wave-halo { transform: translateY(calc((1 - var(--ry, 0)) * var(--wy, 22px))) scale(calc(.6 + var(--ry, 0) * .7)); }
+/* След трения: влажная полоса по щели и вмятина под головкой — идёт за ней. */
+.xr-slick { fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-opacity: calc(.06 + var(--wet, .3) * .14); filter: blur(.9px); }
+.xr-press-g { transform: translateY(calc(var(--ry, 0) * var(--rub, 0) * 1px)); opacity: calc(clamp(0, var(--ry, 0) * 6, 1) * (1 - clamp(0, var(--tx, 0) / -4, 1))); }
+.xr-press { fill: #7a2238; opacity: .42; filter: blur(1.4px); }
+.xr-press-hi { fill: none; stroke: #ffe2ea; stroke-opacity: .4; stroke-width: .9; stroke-linecap: round; filter: blur(.5px); }
+@keyframes xr-slick { 0%, 100% { stroke-opacity: calc(.06 + var(--wet, .3) * .14); } 50% { stroke-opacity: calc(.14 + var(--wet, .3) * .22); } }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-slick { animation: xr-slick calc(var(--beat1, 1.6s) * 2) ease-in-out infinite; }
+}

@@ -244,6 +244,8 @@
 /* --- Красота: светотень, свет по коже, пульс темпа ------------------------ */
 .xr-gshade { fill: none; stroke: #8c4a36; stroke-opacity: .35; stroke-width: 14; filter: blur(5px); }
 .xr-glight { fill: #fff3e8; opacity: .22; filter: blur(9px); }
+/* Стык нижнего края ствола с мошонкой — мягкая складка, а не жёсткая линия. */
+.xr-root-crease { fill: none; stroke: #8c4a36; stroke-opacity: .22; stroke-width: 3; stroke-linecap: round; filter: blur(1.4px); }
 .xr-shaft-hi { fill: none; stroke: #fff; stroke-opacity: .28; stroke-width: 3.2; stroke-linecap: round; filter: blur(1.4px); }
 .xr-skin-hi { fill: none; stroke: #fff2e6; stroke-opacity: .35; stroke-width: 1; filter: blur(.6px); }
 .xr-film.is-dark .xr-skin-hi { stroke-opacity: .12; }
@@ -325,8 +327,6 @@
 @keyframes xr-ripple { 0% { transform: scale(.7); opacity: 0; } 8% { transform: scale(.8); opacity: .3; } 45% { transform: scale(1.7); opacity: 0; } 100% { transform: scale(1.7); opacity: 0; } }
 @media (prefers-reduced-motion: no-preference) {
   :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-lick.is-oral { animation: xr-lick-oral calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
-  /* Мошонка — плавно, от качания блока (--sw), с лёгким подскоком на ударе. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-sway { transform: rotate(calc(var(--sw, -1) * 5deg)) translateY(calc(clamp(0, (var(--k, 1) - .8) * 5, 1) * -1.6px)); }
   :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-ripple { animation: xr-ripple var(--beat1, 1s) ease-out infinite; }
 }
 
@@ -368,6 +368,10 @@
 .xr-drool .xr-wet-run { stroke-opacity: .16; }
 .xr-drool .xr-wet-drop { opacity: .45; }
 .xr-drool { transform-box: fill-box; transform-origin: 50% 0; }
+/* Пальцы внутри и в покое чуть согнуты крючком. */
+.xr-pip, .xr-dip { transform: rotate(-5deg); }
+.xr-hand.is-seg { stroke: none; }
+.xr-seg-edge { fill: none; stroke: #a0614a; stroke-opacity: .55; stroke-width: .6; }
 .xr-curl, .xr-thumb, .xr-twist, .xr-nod, .xr-uvula-sw, .xr-vibe { transform: none; }
 .xr-tongue-grp { transform-box: fill-box; transform-origin: 0 50%; }
 
@@ -394,7 +398,12 @@
   :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-led { animation: xr-led .9s ease-in-out infinite; }
   :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-flange { transform: scaleX(calc(1 - clamp(0, (var(--k, 1) - .8) * 5, 1) * .12)); }
   /* Пальцы: манящее сгибание, большой палец трёт клитор, сухожилия, точка G. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-curl { transform: rotate(calc(var(--sw, -1) * -1.4deg)); }
+  /* Кисть чуть покачивается; сгибаются сами пальцы — в суставах (ниже). */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-curl { transform: rotate(calc(var(--sw, -1) * -.6deg)); }
+  /* «Иди сюда»: в глубине средняя и ногтевая фаланги сгибаются сильнее —
+     подушечки давят на переднюю стенку у точки G, на отходе разгибаются. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-pip { transform: rotate(calc((5 + clamp(0, (var(--k, 1) - .4) * 1.67, 1) * 10) * -1deg)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-dip { transform: rotate(calc((5 + clamp(0, (var(--k, 1) - .4) * 1.67, 1) * 14) * -1deg)); }
 :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-thumb { animation: xr-rub calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
   :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-tendon { stroke-opacity: calc(.12 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .22); }
   /* Кулак: проворот, костяшки, мышцы предплечья, живот выпирает, блик на костяшках. */
@@ -515,3 +524,30 @@
 }
 /* Цвет темпа в финале — тёплый молочный, а не серо-синий «замерли». */
 .hud-tempo:has(> .hud-xray.is-climax), .hud-tempo:has(> .hud-xray.is-after) { --tc: #f0d6c2; }
+
+
+/* =========================================================================
+   ПРЕЖНИЕ ТОЛЧКИ — по образцу «дразнит» и трения: тело движется, как
+   движется на самом деле, ткани откликаются (render/xray.js: разрез → дуга).
+   Ствол внутри канала не наклоняется — плоть не лезет за стенки.
+   ========================================================================= */
+@media (prefers-reduced-motion: no-preference) {
+  /* Бёдра по дуге: на отходе таз приподнимается на --arc px. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--arc:"]:not(.is-finish) .xr-move.is-body { transform: translate(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px), calc((1 - var(--k, 1)) * var(--arc, 0) * -1px)); }
+  /* Кругами: таз описывает круг в глубине — вглубь-наружу по --k, вверх-вниз
+     по --sw со сдвигом в четверть круга; лобок давит на клитор спереди. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray.is-grind .hud-xray-row[style*="--arc:"]:not(.is-finish) .xr-move.is-body { transform: translate(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px), calc(var(--sw, -1) * var(--arc, 0) * -1px)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray.is-grind .xr-clit-g { transform: scale(calc(1 + clamp(0, var(--sw, -1), 1) * .16)); filter: brightness(calc(1 + clamp(0, var(--sw, -1), 1) * .22)); }
+  /* Удар отдаётся в бедро принимающего на любой глубине, до упора — сильнее. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row:not([style*="--push:2.6"]):not(.is-rub):not(.is-tz) .xr-thigh { transform: translateX(calc(clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .8px)); }
+}
+/* Большой палец, о котором в тексте ни слова, не трёт клитор: лежит на
+   лобке, отведён вверх (render/xray.js: пальцы → is-rest). */
+.xr-thumb.is-rest { transform: rotate(-12deg) !important; animation: none !important; }
+/* Шов на мошонке — едва заметная складка, а не линия разреза. */
+.xr-gline.is-raphe { stroke-opacity: .2; filter: blur(.6px); }
+@media (prefers-reduced-motion: no-preference) {
+  /* Кругами: член ходит по тому же кругу, что и таз, — вверх-вниз на 1,6 px
+     (в пределах, где бугры стенки ещё налезают на ствол), а не стоит. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray.is-grind .hud-xray-row[style*="--arc:"]:not(.is-finish) .xr-move.p-penis { transform: translate(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px), calc(var(--sw, -1) * var(--arc, 0) * -.6px)); }
+}
