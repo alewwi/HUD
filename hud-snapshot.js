@@ -12,12 +12,12 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.56.3';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.56.3';
-import { mapKey } from './utils.js?v=23.56.3';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.56.3';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.56.3';
-import { заменитьHudБлоки } from './hud-block.js?v=23.56.3';
+import { settings } from './settings.js?v=23.57.2';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.57.2';
+import { mapKey } from './utils.js?v=23.57.2';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.57.2';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.57.2';
+import { заменитьHudБлоки } from './hud-block.js?v=23.57.2';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -133,6 +133,11 @@ export function собратьСнимок(текстБлока) {
   else if (выкл('phoneAppMessages')) delete к.cm;
   if (к.phn && typeof к.phn === 'object' && выкл('phoneAppHealth')) delete к.phn.hl;
   if (!settings.enableIntercepts) delete к.tp;
+  // Перехваты — модели только последнее сообщение каждой переписки. Целиком
+  // она переписывала их из снимка слово в слово, ход за ходом, без единой
+  // новой строки; прежние сообщения на экране держит перенос из прошлых
+  // ходов (render/carryover.js), он же склеивает повторы.
+  else if (Array.isArray(к.tp)) к.tp.forEach(п => { if (объект(п) && Array.isArray(п.ms)) п.ms = п.ms.filter(непусто).slice(-1); });
   if (!settings.enableDiary) { delete к.dy; delete к.bd; }
   if (!settings.enableDreams) delete к.dr;
   if (!settings.enableMemory) delete к.me;
@@ -296,7 +301,7 @@ const НАЗВАНИЯ_ПОЛЕЙ = {
   Dur: 'duration', Prt: 'protection', Org: 'orgasm readiness', Vit: 'vitals', Snd: 'sounds', BM: 'body map', W: 'intimate state',
   Kn: 'kinks', Ft: 'fetishes', NG: 'never', NT: 'turn-offs', ND: 'intimate detail', AC: 'aftercare', UW: 'intimate state',
 };
-const НАЗВАНИЯ_РАЗДЕЛОВ = { us: '{{user}}', cm: 'chats', phn: 'phone', tp: 'intercepts', pet: 'companions', sm: 'casket', lt: 'letters', ov: 'overheard' };
+const НАЗВАНИЯ_РАЗДЕЛОВ = { us: '{{user}}', cm: 'chats', phn: 'phone', tp: 'intercepts (last message each)', pet: 'companions', sm: 'casket', lt: 'letters', ov: 'overheard' };
 const ПОЯСНЕНИЯ = { hd: 'does NOT know', knw: 'knows', stt: 'status', lv: 'level', f: 'fact', n: 'name', src: 'source' };
 
 export function легендаСнимка(строка) {
