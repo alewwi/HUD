@@ -567,9 +567,7 @@
 .xr-hj { transform-box: fill-box; transform-origin: 50% 60%; }
 @media (prefers-reduced-motion: no-preference) {
   /* У головки кисть чуть сжимается — плотнее обхватывает венчик. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-hj-move .xr-hj { transform: scaleY(calc(1 - (1 - var(--k, 1)) * .04)); }
   /* Кругами — прокручивает: кисть покачивается вокруг ствола. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray.is-grind .xr-hj-move .xr-hj { transform: skewX(calc(var(--sw, -1) * 5deg)); }
   /* Капля предсемени на головке набухает, когда кисть у головки. */
   :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-hj-drop { opacity: calc(.35 + (1 - var(--k, 1)) * .5); }
 }
@@ -584,7 +582,10 @@
 .xr-hj-groove { fill: none; stroke: #7e4230; stroke-opacity: .32; stroke-width: 2.2; stroke-linecap: round; filter: blur(1px); }
 .xr-hj-tendon { fill: none; stroke: #fff2e8; stroke-opacity: .28; stroke-width: 1; stroke-linecap: round; filter: blur(.4px); }
 .xr-hj-light { fill: none; stroke: #fff4ea; stroke-opacity: .35; stroke-width: 3; stroke-linecap: round; filter: blur(1.6px); }
-.xr-hj-knuckle { fill: #fff3ea; stroke: none; opacity: .32; filter: blur(.8px); }
+.xr-hj-knuckle { fill: #fffaf5; stroke: none; opacity: .3; filter: blur(.9px); }
+.xr-hj-knuckle-sh { fill: none; stroke: #a8695a; stroke-opacity: .13; stroke-width: 1.6; stroke-linecap: round; filter: blur(.8px); }
+.xr-hj-dimple { fill: #a8695a; opacity: .11; filter: blur(.9px); }
+.xr-hj.is-m .xr-hj-knuckle-sh, .xr-hj.is-m .xr-hj-dimple { stroke: #7e4535; fill: #7e4535; }
 .xr-crease.is-soft { stroke-opacity: .22; }
 
 /* =========================================================================
@@ -620,5 +621,27 @@
 @media (prefers-reduced-motion: no-preference) {
   /* Её кисть гибкая: в ходе вверх и вниз чуть наклоняется в запястье по
      направлению движения (--v), у головки сжимается плотнее. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-hj-move .xr-hj { transform: rotate(calc(var(--v, 0) * -2.4deg)) scaleY(calc(1 - (1 - var(--k, 1)) * .045)); }
 }
+
+/* Руки не пульсируют: кисть — живая рука, не «удар». Вспышка и волна на
+   кончике — только у члена и игрушки; сухожилия не мерцают в такт; её кисть
+   ходит по стволу, не сжимаясь (сжатие в такт читалось как пульсация). */
+.hud-xray-row.p-fingers :is(.xr-hit, .xr-ripple) { display: none; }
+:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-tendon { stroke-opacity: .18; }
+/* Её пальцы раздельно: тонкая тёмная линия по бороздке. */
+.xr-hj-sep { fill: none; stroke: var(--edge, #b47862); stroke-opacity: .7; stroke-width: .6; stroke-linecap: round; }
+/* Складки на её пальцах — тонкие и мягкие, не прорезь. */
+.xr-hj .xr-crease { stroke-width: .7; stroke-opacity: .32; filter: blur(.2px); }
+/* Пальцы уходят за ствол: у нижнего края — тень заворота. */
+.xr-hj-wrap { fill: none; stroke: #8c4a36; stroke-opacity: .42; stroke-width: 4.4; stroke-linecap: round; filter: blur(1.8px); }
+/* Красота рук: румянец, косточка, венки, блик, тень на стволе, мягкий контур. */
+.xr-hj-blush { fill: #f2938f; opacity: .26; filter: blur(1.6px); }
+.xr-hj-blush.is-tip { opacity: .3; }
+.xr-hj.is-m .xr-hj-blush { fill: #c7705e; opacity: .18; }
+.xr-hj-bone { fill: #fff6ef; opacity: .4; filter: blur(1.1px); }
+.xr-hj-vein { fill: none; stroke: #8fa0c8; stroke-opacity: .16; stroke-width: 1.1; stroke-linecap: round; filter: blur(.5px); }
+.xr-hj.is-m .xr-hj-vein { stroke: #6f7fa8; stroke-opacity: .22; stroke-width: 1.4; }
+.xr-hj-rimlight { fill: none; stroke: #fffaf5; stroke-opacity: .55; stroke-width: 1.6; stroke-linecap: round; filter: blur(.8px); }
+.xr-hj-cast { fill: #3a1c14; opacity: .28; filter: blur(4px); }
+.xr-hj .xr-vol-edge { stroke-width: .45; stroke-opacity: .48; }
+.xr-hj.is-f { --edge: #c08a76; --rim: #d9a08a; }
