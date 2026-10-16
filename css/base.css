@@ -5999,6 +5999,20 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
     transition: transform .18s ease;
 }
 
+/* Свёрнутый граф на телефоне — превью: граф 1000×760 сжат до ~250px, подписи
+   связей и ролей выходят по 2–3px и только шумят. Их видно в развёрнутом
+   графе и в строке под ним по нажатию; имена — крупнее, чтобы читались. */
+@media (max-width: 600px) {
+    .hud-rel-graph:not(.is-expanded) :is(.hud-rel-edge-label, .hud-rel-role) { display: none; }
+    .hud-rel-graph:not(.is-expanded) .hud-rel-name { font-size: 26px; }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+    .hud-rel-graph:not(.is-expanded) :is(.hud-rel-edge-label, .hud-rel-role) { display: none; }
+    .hud-rel-graph:not(.is-expanded) .hud-rel-name { font-size: 26px; }
+} }
+/* cq ↑ */
+
 @media (max-width: 680px) {
     .hud-rel-stage {
         min-height: 250px;

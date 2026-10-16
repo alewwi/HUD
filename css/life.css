@@ -242,7 +242,7 @@
 .hud-life-spend span.is-max i { opacity: 1; box-shadow: inset 0 1px 0 rgba(255,255,255,.35), 0 0 12px -2px var(--v-glow); }
 .hud-life-spend span.is-today small { color: color-mix(in srgb, var(--v-acc) 45%, var(--ink-hi, #fff)); font-weight: 800; }
 .hud-life-spend small { position: absolute; bottom: -15px; left: 0; right: 0; text-align: center; font-size: 9.5px; line-height: 1; color: var(--v-ink-soft); }
-.hud-life-prices-box > summary { display: inline-flex; align-items: center; gap: var(--hud-sp-3); cursor: pointer; font-size: 11.5px; color: var(--v-ink-soft); list-style: none; }
+.hud-life-prices-box > summary { display: inline-flex; flex-wrap: wrap; max-width: 100%; align-items: center; gap: var(--hud-sp-3); cursor: pointer; font-size: 11.5px; color: var(--v-ink-soft); list-style: none; }
 .hud-life-prices-box > summary::-webkit-details-marker { display: none; }
 .hud-life-prices-box > summary::after { content: '▾'; font-size: 9px; transition: transform .2s ease; }
 .hud-life-prices-box:not([open]) > summary::after { transform: rotate(-90deg); }

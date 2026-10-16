@@ -5513,7 +5513,10 @@
 html.hud-custom-open body { overflow: hidden; }
 .hud-custom-dialog {
   width: min(1280px, 100%); height: min(92vh, 980px); display: flex; flex-direction: column;
-  background: var(--SmartThemeBlurTintColor, #14111a); color: var(--hud-text, #e6e6ee);
+  /* Тон темы ST полупрозрачный (он рассчитан на размытие под собой), а без
+     размытия — в режиме производительности — сквозь окно читался чат. Под
+     тоном — своя плотная поверхность карточки (тёмная или светлая по теме). */
+  background: linear-gradient(var(--SmartThemeBlurTintColor, transparent), var(--SmartThemeBlurTintColor, transparent)), var(--x-surf, #14111a); color: var(--hud-text, #e6e6ee);
   border: 1px solid color-mix(in oklab, var(--hud-accent, #c31f38) 40%, transparent);
   border-radius: 16px; box-shadow: 0 24px 70px rgba(0, 0, 0, .6); overflow: hidden;
 }

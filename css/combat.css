@@ -61,16 +61,20 @@
 .hud-cb-ammo i.on { background: #f0c27a; }
 .hud-cb-hidden { display: inline-flex; align-items: center; gap: var(--hud-sp-2); font-size: var(--hud-fs-sm); color: #c9b8ef; }
 .hud-cb-hidden svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; }
-.hud-cb-ad { display: grid; grid-template-columns: 80px minmax(60px, 1fr) 28px; column-gap: var(--hud-sp-4); align-items: center; font-size: var(--hud-fs-md); }
+.hud-cb-ad { display: grid; grid-template-columns: clamp(48px, 30%, 80px) minmax(40px, 1fr) auto; column-gap: var(--hud-sp-4); align-items: center; font-size: var(--hud-fs-md); }
 .hud-cb-adbar { height: 6px; border-radius: var(--hud-r-pill); background: rgba(255,255,255,.08); overflow: hidden; }
 .hud-cb-adbar i { display: block; height: 100%; background: linear-gradient(90deg, #f0c27a, #e46a6a); }
 .hud-cb-ad em { font-style: normal; text-align: right; }
 .hud-cb-later { grid-column: 2 / -1; color: #f0c27a; font-size: var(--hud-fs-sm); }
 .hud-cb-later.is-crash { color: #8ab4e8; }
-.hud-cb-nerve { display: grid; grid-template-columns: 80px minmax(0, 1fr); gap: var(--hud-sp-4); align-items: center; font-size: var(--hud-fs-md); }
+.hud-cb-nerve { display: grid; grid-template-columns: clamp(48px, 30%, 80px) minmax(0, 1fr); gap: var(--hud-sp-4); align-items: center; font-size: var(--hud-fs-md); }
 .hud-cb-nerve > span { display: flex; gap: 3px; }
-.hud-cb-nerve i { flex: 1 1 0; min-width: 14px; height: 18px; border-radius: var(--hud-r-sm); background: rgba(255,255,255,.06); font-style: normal; font-size: 10.5px; display: grid; place-items: center; white-space: nowrap; }
-.hud-cb-nerve i.is-now { flex: 3 1 0; color: #fff; }
+.hud-cb-nerve i { flex: 1 1 0; min-width: 6px; height: 18px; border-radius: var(--hud-r-sm); background: rgba(255,255,255,.06); font-style: normal; font-size: 10.5px; display: grid; place-items: center; white-space: nowrap; }
+.hud-cb-nerve i.is-now { flex: 3 0 auto; padding: 0 5px; color: #fff; }
+/* На узкой карточке (телефон, ~215px) имя уступает место полосе, а слово
+   выбранной клетки («действует») не вылезает на соседние: клетка не уже
+   своего слова, остальные сжимаются до полосок. */
+.hud-cb-ad > b, .hud-cb-nerve > b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hud-cb-nerve .n-act.is-now { background: #2f6f4f; } .hud-cb-nerve .n-shake.is-now { background: #7a6a2a; } .hud-cb-nerve .n-freeze.is-now { background: #3a5a8a; }
 .hud-cb-nerve .n-panic.is-now { background: #8a3a2a; } .hud-cb-nerve .n-run.is-now { background: #6a2a6a; }
 .hud-cb-cover { list-style: none; margin: 0; padding: 0; display: grid; gap: 3px; font-size: var(--hud-fs-md); }
