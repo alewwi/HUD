@@ -7,11 +7,11 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.59.0';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.59.0';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.59.0';
-import { buildFamilyTree } from './family-tree.js?v=23.59.0';
-import { settings } from '../settings.js?v=23.59.0';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.61.0';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.61.0';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.61.0';
+import { buildFamilyTree } from './family-tree.js?v=23.61.0';
+import { settings } from '../settings.js?v=23.61.0';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -176,39 +176,58 @@ function wrapRelationLabel(label, maxCharsPerLine) {
   return lines.length ? lines.slice(0, 3) : [''];
 }
 
-function classifyRelationVisual(label) {
-  const s = String(label || '').toLowerCase().replace(/ё/g, 'е');
-  // Порядок значим: возвращается первое совпадение. Частное — раньше общего.
-  const groups = [
+// Группы связей для графа: подпись → тип. Порядок значим: берётся первое
+// совпадение, частное — раньше общего.
+  // Русские основы ищем с начала слова ((?<!\p{L})): иначе «жен» находилось в
+  // «женщине» и «раздражении» (→ семья), «сестр» — в «медсестре», «люб» — в
+  // «любопытстве». Английские слова — целиком (\b…\b): «son» сидит в «person»,
+  // «ally» — в «really», «ward» — в «toward».
+const ГРУППЫ_СВЯЗЕЙ = (() => {
+  const н = '(?<![\\p{L}])';
+  const ру = (тело) => new RegExp(н + '(?:' + тело + ')', 'u');
+  const ан = (тело) => new RegExp('\\b(?:' + тело + ')\\b');
+  return [
+    // Недоверие — раньше дружбы: в «недоверии» и «не доверяет» есть «довер».
+    ['suspicious', /недовер|(?<![\p{L}])(?:не|без)\s+довер/u, null],
     // Запретное — раньше романтики: «любовница» не должна попасть в «любовь».
-    ['forbidden', /любовниц|любовник|интрижк|тайн(ая|ый) (связ|роман|любов)|скрыт(ая|ую|ой) любов|запрет|измен|адюльт|affair|mistress|lover on the side|forbidden|secret love|adultery/],
+    ['forbidden', ру('любовниц|любовник|интрижк|тайн\\p{L}* (?:связ|роман|любов)|скрыт\\p{L}* любов|запретн|измен|адюльт'), ан('affairs?|mistress|lover on the side|forbidden|secret love|adultery')],
     // Подельник — соучастие в чём-то незаконном, не дружба.
-    ['accomplice', /подельник|сообщник|соучастн|подруч|accomplice|partner in crime|henchman/],
-    // Долг — денежный, кровный или «обязан жизнью».
-    ['debt', /должен|должна|долг|обязан|обязана|расплат|kredit|кредит|debt|owes|indebted|blood debt|life debt/],
+    ['accomplice', ру('подельни|сообщни|соучастн|подручн'), ан('accomplices?|partner in crime|henchm[ae]n')],
+    // Долг — денежный, кровный или «обязан жизнью». «Долгая дружба» — не долг.
+    ['debt', ру('должен|должна|долг(?:и|а|у|ом|ов|ам)?(?![\\p{L}])|обязан|расплат|кредит'), ан('debts?|owes?|indebted|blood debt|life debt')],
     // Родство по ролям. Родитель и ребёнок разведены: стрелка в графе
     // направленная, и «отец → сын» должен читаться иначе, чем «сын → отец».
-    ['parent', /отец|отц|мать|матер|мам|пап|родител|опекун|отчим|мачех|усыновител|приёмн(ый|ая) (отец|мать)|father|mother|parent|guardian|stepfather|stepmother|foster parent/],
-    ['child', /сын|доч|дочер|падчериц|пасынок|подопечн|воспитанник|воспитанниц|child|son|daughter|stepdaughter|stepson|ward/],
-    ['sibling', /брат|сестр|близнец|sibling|brother|sister|twin/],
+    ['parent', ру('отец|отц|мать|матер(?!иал)|матушк|мам|пап(?!арац|к)|родител|опекун|отчим|мачех|усыновител|приемн\\p{L}* (?:отец|мать)'), ан('father|mother|parents?|guardian|step(?:father|mother)|foster parent|dad|mom|mum')],
+    ['child', ру('сын|доч|падчериц|пасын|подопечн|воспитанни'), ан('child(?:ren)?|sons?|daughters?|step(?:daughter|son)|ward')],
+    ['sibling', ру('брат(?!в|ств)|сестр|близнец'), ан('siblings?|brothers?|sisters?|twins?')],
     // Иерархия: служебная и учебная.
-    ['boss', /начальник|руководител|командир|босс|шеф|хозяин|наниматель|работодател|boss|chief|commander|employer|superior/],
-    ['subordinate', /подчинённ|подчиненн|подчин|сотрудник|работник|помощник|секретар|subordinate|employee|assistant|underling/],
-    ['mentor', /учител|наставник|ментор|тренер|мастер|профессор|mentor|teacher|coach|master|professor/],
-    ['student', /ученик|ученица|студент|стажёр|стажер|падаван|apprentice|student|trainee|pupil/],
-    // Общая принадлежность: группа, класс, курс, отряд.
-    ['group', /член |одногруппник|одноклассник|однокурсник|сокурсник|сослуживец|соратник|коллега по|состоит в|входит в|banda|member of|classmate|teammate|squadmate|fellow/],
-    ['love', /люб|влюб|обожа|страст|симпат|привязан|романт|любов|love|adore|romance|crush|attract|fond|cherish|desire/],
-    ['friend', /друж|довер|уважа|товариш|союз|прият|дружел|friend|trust|respect|ally|allies|support|close/],
-    ['hostile', /ненав|вражд|презир|ярост|злост|ненавист|hate|hatred|enemy|hostile|loathe|disgust|rage|enmity/],
-    ['jealous', /ревн|завист|собствен|jealous|envy|possessive/],
-    ['fear', /страх|боит|опас|пуга|тревог|fear|afraid|scared|threat|anxious|uneasy/],
-    ['suspicious', /подоз|насторож|невер|сомне|suspicious|doubt|distrust|wary|skeptic/],
+    ['boss', ру('начальни|руководител|командир|босс|шеф|хозяин|наниматель|работодател'), ан('boss|chief|commander|employer|superior')],
+    ['subordinate', ру('подчиненн|подчин|сотрудни|работни|помощни|секретар'), ан('subordinate|employee|assistant|underling')],
+    // «Мастер своего дела» — не наставник: «мастер» убран.
+    ['mentor', ру('учител|наставни|ментор|тренер|профессор'), ан('mentor|teacher|coach|professor')],
+    ['student', ру('ученик|ученица|студент|стажер|падаван'), ан('apprentice|student|trainee|pupil')],
+    // Общая принадлежность: группа, класс, курс, отряд, братство.
+    ['group', ру('член |одногруппни|одноклассни|однокурсни|сокурсни|сослужив|соратни|коллега по|состоит в|входит в|братств'), ан('member of|classmates?|teammates?|squadmates?|fellow')],
+    // «Невестка» — родня (ниже), «невеста» — романтика.
+    ['love', ру('люб(?!опыт)|влюб|обожа|страст|симпати|привязан|романт|возлюбл|невест(?!к)|жених|девушк|парень|парня|парнем|бойфренд'), ан('loves?|loved|loving|adores?|adored|romance|romantic|crush|attract\\w*|fond|cherish\\w*|desires?|girlfriend|boyfriend|fianc[ée]e?')],
+    // «Друг» — с начала слова и не «другой/другая»; «товарищ» прежде был с опечаткой.
+    ['friend', ру('друж|друг(?!ой|ая|ое|ие|их|ую|им|ом|ими|ого|ому)|друз|подруг|довер|уважа|товарищ|союз|приятел|опора|защитни'), ан('friends?|friendly|trust\\w*|respect\\w*|ally|allies|support\\w*')],
+    ['hostile', ру('ненав|вражд|враг|презир|ярост|злост|противни|ликвидац|мститель|палач|мучител|похитител'), ан('hate[sd]?|hatred|enem(?:y|ies)|hostile|loathe[sd]?|disgust\\w*|rage|enmity|nemesis')],
+    // «Собственный» — не ревность: только «собственник» и «её собственность».
+    ['jealous', ру('ревн|завист|собственни|собственност|соперни'), ан('jealous\\w*|envy|envious|possessive|rivals?')],
+    // Страх — и с приставкой («перепуганный», «испуг»), но не «безопасность».
+    ['fear', /страх|боит|боя(?:тся|лась|лся)|(?<!без)опас|пуга|испуг|тревог|угроз/u, ан('fear\\w*|afraid|scared|threat\\w*|anxious|uneasy')],
+    ['suspicious', ру('подоз|насторож|невер|сомне'), ан('suspicious|suspect\\w*|doubt\\w*|distrust\\w*|wary|skeptic\\w*')],
     // Семья вообще — запасной вариант, если роль не названа: «родня», «муж».
-    ['family', /семь|родн|муж|жен|супруг|племянн|тёт|тет|дяд|дед|бабуш|кузен|кузин|family|husband|wife|spouse|cousin|uncle|aunt|nephew|niece|grandmother|grandfather/],
-    ['neutral', /нейтр|коллег|знаком|делов|рабоч|формаль|нейтрал|neutral|colleague|acquaint|professional|formal/]
+    // «Мужчина», «женщина», «мужество» — не семья.
+    ['family', ру('семь|семей|родн(?!ик)|родствен|муж(?!чин|ик|еств|ск)|жена|жены|жене|женой|жену|жен(?![\\p{L}])|супруг|племянни|тет(?!рад)|дяд|дед(?!лайн)|бабуш|кузен|кузин|шурин|девер|золовк|свояк|зят|невестк|свекр|тест(?:ь|я|ю|ем)(?![\\p{L}])|тещ'), ан('family|husband|wife|spouse|cousins?|uncle|aunt|nephew|niece|grand(?:mother|father|ma|pa)|in-laws?')],
+    ['neutral', ру('нейтр|коллег|знаком|незнаком|делов|рабоч|формаль'), ан('neutral|colleagues?|acquaint\\w*|professional|formal|stranger')],
   ];
-  for (const [type, rx] of groups) if (rx.test(s)) return type;
+})();
+
+function classifyRelationVisual(label) {
+  const s = String(label || '').toLowerCase().replace(/ё/g, 'е');
+  for (const [type, rx, en] of ГРУППЫ_СВЯЗЕЙ) if (rx.test(s) || (en && en.test(s))) return type;
   return 'other';
 }
 
@@ -320,8 +339,12 @@ export function buildRelGraphHTML(hudData, uid) {
       <filter id="${markerBase}-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
       <radialGradient id="${markerBase}-core" cx="35%" cy="30%"><stop offset="0%" stop-color="#fff" stop-opacity=".32"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></radialGradient>
       ${markerTypes.map(type => {
+        // Наконечник в единицах графа, а не толщины линии: у линий
+        // non-scaling-stroke, и в размере толщины стрелка всегда ~14 экранных
+        // пикселей — на узкой карточке, где граф сжат вчетверо, она была
+        // размером с аватар.
         const markerId = `${markerBase}-arr-${type}`;
-        return `<marker id="${markerId}" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M 0 1.2 L 10 5 L 0 8.8 Z" class="hud-rel-marker hud-rel-${type}"/></marker>`;
+        return `<marker id="${markerId}" viewBox="0 0 10 10" refX="8.5" refY="5" markerUnits="userSpaceOnUse" markerWidth="18" markerHeight="18" orient="auto"><path d="M 0 1.2 L 10 5 L 0 8.8 Z" class="hud-rel-marker hud-rel-${type}"/></marker>`;
       }).join('')}
     </defs>`;
 
