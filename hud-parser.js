@@ -7,8 +7,8 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=23.59.0';
-import { hudБлоки } from './hud-block.js?v=23.59.0';
+import { normalizeJSONData } from './schema.js?v=23.61.0';
+import { hudБлоки } from './hud-block.js?v=23.61.0';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';
@@ -79,31 +79,34 @@ function extractBalancedJsonCandidates(text) {
   const candidates = [];
   if (typeof text !== 'string' || !text) return candidates;
 
-  for (let i = 0; i < text.length; i++) {
-    if (text[i] !== '{') continue;
-    let depth = 0;
-    let inString = false;
-    let escaped = false;
-
-    for (let j = i; j < text.length; j++) {
-      const ch = text[j];
-      if (inString) {
-        if (escaped) escaped = false;
-        else if (ch === '\\') escaped = true;
-        else if (ch === '"') inString = false;
-        continue;
-      }
-      if (ch === '"') { inString = true; continue; }
-      if (ch === '{') depth++;
-      else if (ch === '}') {
-        depth--;
-        if (depth === 0) {
-          candidates.push(text.slice(i, j + 1));
-          i = j;
-          break;
-        }
-      }
+  // Один проход со стеком открытых скобок. Раньше от каждой «{» шёл
+  // отдельный проход до парной: у обрезанного ответа пары нет, и каждая
+  // «{» пробегала текст до конца — 40 КБ разбирались за ~0,3 с, 300 КБ — 15 с.
+  // Кандидаты те же: самые внешние закрытые объекты слева направо (у
+  // обрезанного блока внешний не закрыт — кандидатами становятся вложенные).
+  const стек = [], закрытые = [];
+  let inString = false;
+  let escaped = false;
+  for (let j = 0; j < text.length; j++) {
+    const ch = text[j];
+    if (inString) {
+      if (escaped) escaped = false;
+      else if (ch === '\\') escaped = true;
+      else if (ch === '"') inString = false;
+      continue;
     }
+    // Строки считаем только внутри объекта: кавычка в прозе вокруг блока
+    // не должна «открыть строку» до конца текста.
+    if (ch === '"' && стек.length) { inString = true; continue; }
+    if (ch === '{') стек.push(j);
+    else if (ch === '}' && стек.length) закрытые.push([стек.pop(), j]);
+  }
+  закрытые.sort((a, b) => a[0] - b[0]);
+  let конец = -1;
+  for (const [от, до] of закрытые) {
+    if (от <= конец) continue;
+    candidates.push(text.slice(от, до + 1));
+    конец = до;
   }
   return candidates;
 }
@@ -264,41 +267,11 @@ function repairHudJsonStructural(jsonStr) {
     }
   }
 
-  // A few providers report a generic "Unexpected token" instead of the
-  // more useful comma-specific message. Try the same repair at the first
-  // likely next property boundary, but never inside a quoted string.
-  let inString = false;
-  let escaped = false;
-  let depth = 0;
-  for (let i = 0; i < source.length; i++) {
-    const ch = source[i];
-    if (inString) {
-      if (escaped) { escaped = false; continue; }
-      if (ch === '\\') { escaped = true; continue; }
-      if (ch === '"') inString = false;
-      continue;
-    }
-    if (ch === '"') {
-      inString = true;
-      continue;
-    }
-    if (ch === '{' || ch === '[') depth++;
-    else if (ch === '}' || ch === ']') depth = Math.max(0, depth - 1);
-
-    if (depth > 0 && ch === ':' && /\s*"[^"\\]*(?:\\.[^"\\]*)*"\s*:/.test(source.slice(i + 1))) {
-      const tail = source.slice(i + 1);
-      const m = tail.match(/^(\s*)"/);
-      if (m && i > 0) {
-        const prev = source.slice(0, i + 1);
-        const after = source.slice(i + 1);
-        // Only use this fallback if the value before the next quote looks
-        // complete (string/number/true/false/null/object/array).
-        if (/(?:"|\d|true|false|null|[}\]])\s*$/.test(prev)) {
-          add(prev.replace(/\s*$/, '') + ',' + after, 'structural-comma-scan');
-        }
-      }
-    }
-  }
+  // Здесь стоял запасной проход «по каждому двоеточию»: для каждого «:» он
+  // брал хвост текста и гонял по нему регулярку — O(n²), обрезанный ответ
+  // в 40 КБ разбирался ~0,3 с, в 300 КБ — 30 с. Вариантов он не давал ни
+  // разу: проверялся текст ДО двоеточия включительно, а он всегда кончается
+  // самим «:», не значением. Запятую по позиции ошибки JSON вставляет блок выше.
 
   return variants;
 }

@@ -18,7 +18,7 @@
 // Ключи в vars — те же, что в settings.js. Незнакомые ключи не пишем: их
 // applyThemeColors() всё равно не читает.
 
-import { settings } from './settings.js?v=23.59.0';
+import { settings, defaultSettings } from './settings.js?v=23.61.0';
 
 const HUD_THEMES = [
   {
@@ -819,7 +819,7 @@ export function visibleThemes() {
 export function presetRowHTML(activeId) {
   const btn = (t) => `<button type="button" class="hud-theme-preset${activeId === t.id ? ' active' : ''}${t.custom ? ' own' : ''}` +
     `" data-theme-preset="${t.id}" title="${String(t.hint).replace(/"/g, '&quot;')}">` +
-    `<span>${t.icon}</span><small>${String(t.label).replace(/</g, '&lt;')}</small></button>`;
+    `<span>${String(t.icon).replace(/[<>&"]/g, '')}</span><small>${String(t.label).replace(/&/g, '&amp;').replace(/</g, '&lt;')}</small></button>`;
   return visibleThemes().map(btn).join('') +
     `<button type="button" class="hud-theme-preset reset${activeId ? '' : ' active'}" data-theme-preset=""` +
     ` title="Вернуть стандартные цвета TavernOS"><span>\u21BA</span><small>Сброс</small></button>`;
@@ -841,6 +841,24 @@ export function themeSnapshot(label) {
 // Разбор входящего файла. Чужому файлу не доверяем: берём только знакомые
 // ключи и только простые значения — строку или число. Иначе тема стала бы
 // способом протащить в настройки что угодно.
+// Значение поля из чужого файла темы — строго по типу поля. Файлы тем
+// пересылают друг другу, а значения потом встают в разметку «Кастомизации» и
+// в CSS: строка вида «"><img onerror=…>» в цвете исполнила бы скрипт.
+// Цвет — только #hex (или пусто, где пусто значит «цвет темы»), шрифт — без
+// скобок, точек с запятой и угловых скобок, перечисление — короткое слово.
+const ЦВЕТ = /^#[0-9a-f]{3,8}$/i;
+const ШРИФТ = /^[\p{L}\p{N}\s'",.-]{1,80}$/u;
+const СЛОВО = /^[a-z0-9-]{1,24}$/i;
+function значениеИзФайла(ключ, v) {
+  const исх = defaultSettings[ключ];
+  if (typeof исх === 'number') return typeof v === 'number' && Number.isFinite(v) && Math.abs(v) <= 10000 ? v : undefined;
+  if (typeof исх === 'boolean') return typeof v === 'boolean' ? v : undefined;
+  if (typeof v !== 'string') return undefined;
+  if (/^font|Font$/.test(ключ)) return ШРИФТ.test(v) ? v : undefined;
+  if (ЦВЕТ.test(String(исх)) || /Color$|Accent$|Bg$|BgStart$|BgEnd$|^msgOut(Start|End)$/.test(ключ)) return v === '' || ЦВЕТ.test(v) ? v : undefined;
+  return СЛОВО.test(v) ? v : undefined;
+}
+
 export function parseThemeFile(text) {
   let данные;
   try { данные = JSON.parse(String(text || '')); } catch (_) { return null; }
@@ -848,14 +866,13 @@ export function parseThemeFile(text) {
   const источник = данные.vars && typeof данные.vars === 'object' ? данные.vars : данные;
   const vars = {};
   for (const k of КЛЮЧИ_ВИДА) {
-    const v = источник[k];
-    if (typeof v === 'string' && v.length <= 120) vars[k] = v;
-    else if (typeof v === 'number' && Number.isFinite(v)) vars[k] = v;
+    const v = значениеИзФайла(k, источник[k]);
+    if (v !== undefined) vars[k] = v;
   }
   if (!Object.keys(vars).length) return null;
   return {
     label: typeof данные.label === 'string' ? данные.label.slice(0, 40) : 'Тема из файла',
-    icon: typeof данные.icon === 'string' ? данные.icon.slice(0, 4) : '\u2605',
+    icon: (() => { const з = typeof данные.icon === 'string' ? данные.icon.replace(/[<>&"'`]/g, '').trim() : ''; return з ? з.slice(0, 4) : '★'; })(),
     vars,
   };
 }

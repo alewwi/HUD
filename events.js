@@ -11,18 +11,18 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.59.0';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.59.0';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.59.0';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.59.0';
-import { settings, defaultSettings } from './settings.js?v=23.59.0';
-import { полныйПорядок } from './tabs-order.js?v=23.59.0';
-import { getWorldVotes } from './render/world.js?v=23.59.0';
-import { раскрытьПорцию } from './render/long-list.js?v=23.59.0';
-import { прогретьИсторию } from './render/carryover.js?v=23.59.0';
-import { подключитьПалитру } from './color-picker.js?v=23.59.0';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.59.0';
-import { замер } from './utils.js?v=23.59.0';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.61.0';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.61.0';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.61.0';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.61.0';
+import { settings, defaultSettings } from './settings.js?v=23.61.0';
+import { полныйПорядок } from './tabs-order.js?v=23.61.0';
+import { getWorldVotes } from './render/world.js?v=23.61.0';
+import { раскрытьПорцию } from './render/long-list.js?v=23.61.0';
+import { прогретьИсторию } from './render/carryover.js?v=23.61.0';
+import { подключитьПалитру } from './color-picker.js?v=23.61.0';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.61.0';
+import { замер } from './utils.js?v=23.61.0';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;

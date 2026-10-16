@@ -464,9 +464,10 @@ const settings = S.settings;
     // Большой массирует клитор: кисть — одна картинка — ходит маленькими кругами;
     // отдельных кусков у пальца нет.
     проверить('пальцы: большой массирует клитор — кисть целиком, кругами', !/xr-thumb-tip/.test(сБольшим) && /@keyframes xr-rub-w \{\s*0% \{ transform: translate/.test(css('css/xray.css')));
-    // Её рука обхватывает ствол полностью: кончики спрятаны, ногтей нет.
+    // Её рука обхватывает ствол: ногтя нет у четырёх пальцев (кончики на стволе
+    // подушечками), только у большого — один.
     const её = SB.блокТемпа(SB.темпИзТекста('медленно; она медленно водит ладонью по его члену'), { проникн: SB.проникновенияИзТекста('pn: 17 см', 'она медленно водит ладонью по его члену') });
-    проверить('руки на члене: полный обхват, без ногтей', /xr-hj is-f/.test(её) && !/xr-nail/.test(её));
+    проверить('руки на члене: ноготь — только у большого пальца', /xr-hj is-f/.test(её) && (её.match(/class="xr-nail3/g) || []).length === 1);
     проверить('руки на члене: кисть одним контуром', контуров(SB.блокТемпа(SB.темпИзТекста('медленно; она медленно водит ладонью по его члену'), { проникн: SB.проникновенияИзТекста('pn: 17 см', 'она медленно водит ладонью по его члену') })) === 1);
     // Её руки на члене: свой разрез — член и кисть, ход по темпу; он сам
     // держит член, водя головкой по губам, — его рука у основания.
@@ -608,6 +609,52 @@ const settings = S.settings;
 // --- Настройки ---------------------------------------------------------------
 проверить('настройки: рискованное выключено по умолчанию', ['containerQueries', 'lightFollowsTime', 'bodyDiaryHand', 'startingStyle', 'themeSwitchFade', 'cornerShape'].every(к => S.defaultSettings[к] === 'off') && S.defaultSettings.iconSet === 'emoji' && S.defaultSettings.silhouetteLook === 'neutral');
 проверить('кастомизация: раздел «Новое оформление» со всеми выключателями', ['autoAccentText', 'customDetailMode', 'containerQueries', 'iconSet', 'iconStyle', 'lightFollowsTime', 'silhouetteLook', 'bodyDiaryHand', 'startingStyle', 'themeSwitchFade', 'cornerShape'].every(к => css('customize.js').includes(`в('${к}'`)));
+
+// --- Безопасность и скорость (аудит 2026-10-16) -------------------------------
+{
+  // Файл темы пересылают друг другу: значение поля не должно закрыть атрибут
+  // value="…" в «Кастомизации» и дописать разметку.
+  const TH = await модуль('themes.js');
+  const вредная = TH.parseThemeFile(JSON.stringify({ label: 'x', icon: '<img>', vars: { accentColor: '"><img src=x onerror=alert(1)>', cardBgStart: '#112233', fontMain: "x;}body{", fontHeaders: "'Lora', serif", glassType: 'liquid"><b>', glowAlpha: 30, phoneThemeAuto: false } }));
+  проверить('тема из файла: цвет с разметкой отвергнут, обычный принят', вредная && !('accentColor' in вредная.vars) && вредная.vars.cardBgStart === '#112233' && вредная.vars.glowAlpha === 30 && вредная.vars.phoneThemeAuto === false);
+  проверить('тема из файла: шрифт и перечисление со скобками отвергнуты, обычный шрифт принят', вредная && !('fontMain' in вредная.vars) && !('glassType' in вредная.vars) && вредная.vars.fontHeaders === "'Lora', serif");
+  проверить('тема из файла: значок без угловых скобок', вредная && !/[<>]/.test(вредная.icon));
+  проверить('кастомизация: настройки в разметке панели экранированы', /const s = вАтрибуты\(settings\)/.test(css('customize.js')) && !/value="\$\{settings\./.test(css('customize.js').split('export function разметкаПанелиТемы')[1].split('\nfunction разметкаНовинок')[0]));
+  // Сырой ответ модели в innerHTML без санитайзера ST не кладём.
+  проверить('перегенерация: нет innerHTML = updatedFullText', !/innerHTML\s*=\s*updatedFullText/.test(css('regen.js')));
+  // Перехват fetch: генерацией считаются только адреса генерации текста ST.
+  const и = css('index.js'), рег = new RegExp(и.match(/const ЭНДПОИНТ_ГЕНЕРАЦИИ = \/(.+)\/i;/)[1], 'i');
+  проверить('перехват: генерация — только эндпоинты генерации текста', ['/api/backends/chat-completions/generate', '/api/backends/text-completions/generate', '/api/novelai/generate', '/api/horde/generate-text'].every(u => рег.test(u))
+    && !['/api/chats/save', '/api/chats/get', '/api/characters/chats', '/api/backends/chat-completions/status', '/api/novelai/generate-image'].some(u => рег.test(u)));
+  // Обрезанный ответ разбирается за линейное время (раньше 300 КБ — 31 с).
+  const HP = await модуль('hud-parser.js');
+  const обрезок = '[HUD]\n```json\n{"sc": {' + '"x": "y", '.repeat(30000);
+  const t0 = performance.now(); try { HP.repairGeneratedHudBlock(обрезок); } catch (_) {} try { HP.parseHUDComplex(обрезок.slice(6)); } catch (_) {}
+  const мс = performance.now() - t0;
+  проверить('разбор: обрезанный HUD 300 КБ — быстрее 1,5 с', мс < 1500, Math.round(мс) + ' мс');
+
+  // Граф отношений: подпись → группа. Ловушки из живых чатов: «жен/муж»
+  // внутри «женщины» и «раздражения», «любопытство», «недоверие», «медсестра».
+  const RG = await модуль('render/relations-graph.js');
+  const подписи = { Борис: 'раздражение из-за промаха', Вера: 'лучший друг', Глеб: 'личный враг', Дина: 'невеста', Ева: 'медсестра', Жора: 'недоверие', Зоя: 'единственная женщина', Ира: 'любопытство', Кира: 'жена', Лев: 'шурин', Мира: 'подруга детства', Нил: 'долгая дружба' };
+  const граф = RG.buildRelGraphHTML({ characters: [{ 'Имя': 'Анна', 'Отношения': Object.entries(подписи).map(([к, п]) => к + ': ' + п).join('; ') }], user: {} }, 't') || '';
+  // В data-edge-direction стоит «a=>b» с голой «>», поэтому не [^>]*.
+  const тип = (подпись) => (граф.match(new RegExp('<path class="hud-rel-edge hud-rel-\\w+" data-rel-type="(\\w+)"(?:(?!<path)[\\s\\S])*?data-edge-label="' + подпись + '"')) || [])[1];
+  const ждём = { 'раздражение из-за промаха': 'other', 'лучший друг': 'friend', 'личный враг': 'hostile', 'невеста': 'love', 'медсестра': 'other', 'недоверие': 'suspicious', 'единственная женщина': 'other', 'любопытство': 'other', 'жена': 'family', 'шурин': 'family', 'подруга детства': 'friend', 'долгая дружба': 'friend' };
+  const мимо = Object.entries(ждём).filter(([п, т]) => тип(п) !== т).map(([п, т]) => п + ': ' + тип(п) + ' ≠ ' + т);
+  проверить('граф: подписи раскладываются по своим группам', !мимо.length, мимо.join('; '));
+
+  // Страх с силой «null» от модели — без слова null на экране.
+  const КД = await модуль('codes.js');
+  проверить('страхи: сила null не выводится', КД.силаСтраха('null (нейтрализовано Ella)') === '(нейтрализовано Ella)' && КД.силаСтраха('null') === '' && КД.силаСтраха('hi') === 'сильно');
+
+  // X-ray: «член 8.5 дюймов глубоко в её глотке» — оральный, а поцелуй
+  // («губы впиваются в её рот») при члене внутри — не рот.
+  const SBх = await модуль('render/scene-body.js');
+  const куда = (т) => SBх.проникновенияИзТекста(т).map(п => п.чем + '→' + п.куда).join(',');
+  проверить('x-ray: член в её глотке с числом — рот', куда('член 8.5 дюймов глубоко в ее глотке') === 'penis→oral' && куда('ствол в ее горле') === 'penis→oral');
+  проверить('x-ray: поцелуй в рот при члене внутри — не рот', !/oral/.test(куда('член внутри на 8.5 дюймов, губы впиваются в ее рот; член во влагалище')));
+}
 
 console.log(`\nпроверок: ${всего}, провалов: ${провалы.length}`);
 if (провалы.length) { console.log(провалы.map(п => ' ✗ ' + п).join('\n')); process.exitCode = 1; }

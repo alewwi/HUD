@@ -56,6 +56,8 @@ body { background: #0d0b12; color: #cfc6dc; font: 14px/1.4 system-ui; margin: 0;
    качание (−1…1, период — два толчка). Дети считают от них свой сдвиг. */
 @property --k { syntax: '<number>'; inherits: true; initial-value: 1; }
 @property --sw { syntax: '<number>'; inherits: true; initial-value: -1; }
+/* --v — куда движется: −1 выход, +1 вход, 0 — стоит на глубине. */
+@property --v { syntax: '<number>'; inherits: true; initial-value: 0; }
 .hud-tempo { --tc: var(--hud-nsfw-color, #d9548a); --k: 1; --sw: -1; display: flex; align-items: center; gap: 14px; margin-top: 8px; padding: 10px 14px 10px 12px; border-radius: 14px;
   background: radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--tc) 14%, transparent), transparent 60%), rgba(0,0,0,.18);
   box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--tc) 30%, transparent); }
@@ -86,27 +88,6 @@ body { background: #0d0b12; color: #cfc6dc; font: 14px/1.4 system-ui; margin: 0;
   background: linear-gradient(0deg, color-mix(in srgb, var(--tc) 85%, #000), var(--tc) 55%, color-mix(in srgb, var(--tc) 55%, #fff)); box-shadow: 0 0 14px var(--tc); }
 .hud-tempo-tube .peak { position: absolute; left: 3px; right: 3px; bottom: calc(var(--depth, .72) * 100%); height: 2px; border-radius: 2px; background: #fff; opacity: .75; box-shadow: 0 0 6px var(--tc); }
 .hud-tempo-tube small { font-size: .58em; letter-spacing: .08em; text-transform: uppercase; color: color-mix(in srgb, currentColor 55%, transparent); order: -1; }
-
-/* Тело: фигура-манекен в позе сцены, крупно. */
-.hud-tempo.is-body { flex-wrap: wrap; }
-.hud-tempo.is-body .hud-tempo-visual { flex: 1 1 260px; }
-.hud-tempo.is-body .hud-tempo-visual > svg { width: 100%; max-width: 340px; height: auto; aspect-ratio: 160 / 120; }
-.tv-body { --skin: color-mix(in srgb, var(--tc) 14%, #e9c3b2); --skin-d: color-mix(in srgb, var(--tc) 22%, #b98472); }
-.tv-body.is-m { --skin: color-mix(in srgb, var(--tc) 12%, #d6a68f); --skin-d: color-mix(in srgb, var(--tc) 20%, #9c6c58); }
-.tv-body .r0 { stop-color: color-mix(in srgb, var(--tc) 28%, #e8dcd8); } .tv-body .r1 { stop-color: color-mix(in srgb, var(--tc) 16%, #b9a9a6); }
-.tv-body .h0 { stop-color: var(--tc); stop-opacity: .55; } .tv-body .h1 { stop-color: var(--tc); stop-opacity: 0; }
-.tv-body .shadow { fill: rgba(0,0,0,.3); }
-.tv-body .wall { fill: color-mix(in srgb, var(--tc) 10%, #3a2e30); } .tv-body .wall-edge { stroke: rgba(255,255,255,.15); stroke-width: 1; }
-.tv-body .limb, .tv-body .neck { fill: none; stroke: var(--skin); stroke-linecap: round; }
-.tv-body .limb.far { stroke: var(--skin-d); }
-.tv-body :is(.chest, .pelvis), .tv-body .skull, .tv-body .bust { fill: var(--skin); }
-.tv-body .waist { fill: none; stroke: var(--skin); stroke-linecap: round; }
-.tv-body .chest, .tv-body .pelvis { stroke: var(--skin-d); stroke-width: .5; stroke-opacity: .6; }
-
-.tv-body .bust { stroke: var(--skin-d); stroke-width: .5; }
-.tv-body .hair { fill: color-mix(in srgb, var(--tc) 25%, #2b1a18); }
-.tv-body .glow { opacity: calc(.15 + (1 - var(--k)) * .85 * var(--depth, .72)); }
-.tv-body .move { transform-box: view-box; transform: rotate(calc((1 - var(--k)) * var(--amp, -8deg) * var(--depth, .72))); }
 
 /* Метроном: орех, латунь, кремовая шкала. */
 .tv-metronome .w0 { stop-color: #3d2116; } .tv-metronome .w1 { stop-color: #6e3d26; } .tv-metronome .w2 { stop-color: #2b160e; }
@@ -147,13 +128,18 @@ body { background: #0d0b12; color: #cfc6dc; font: 14px/1.4 system-ui; margin: 0;
 
 /* --- Движение: ритм на корне, на паузе; идёт под курсором/по нажатию ------- */
 @media (prefers-reduced-motion: no-preference) {
-  .hud-tempo { animation: hud-tk var(--beat, 1s) cubic-bezier(.5, 0, .3, 1) infinite, hud-tsw calc(var(--beat1, 1s) * 2) infinite; }
-  .hud-tempo.is-ragged { animation-name: hud-tk-ragged, hud-tsw-ragged; animation-duration: var(--beat, 3s), var(--beat, 3s); }
+  .hud-tempo { animation: hud-tk var(--beat, 1s) cubic-bezier(.5, 0, .3, 1) infinite, hud-tsw calc(var(--beat1, 1s) * 2) infinite, hud-tv var(--beat, 1s) linear infinite; }
+  .hud-tempo.is-ragged { animation-name: hud-tk-ragged, hud-tsw-ragged, hud-tv-ragged; animation-duration: var(--beat, 3s), var(--beat, 3s), var(--beat, 3s); }
 }
 .hud-tempo { animation-play-state: paused, paused; }
 .hud-tempo:is(:hover, .fx-tap, .fx-on) { animation-play-state: running, running; }
 .hud-tempo.l0 { animation: none; }
-@keyframes hud-tk { 0% { --k: 1; } 45% { --k: .12; } 100% { --k: 1; } }
+/* Выход — плавный, с замедлением в конце; вход — разгон до удара. Не зеркало. */
+/* После удара — короткая задержка на глубине, выход трогается мягко с места
+   и плавно замедляется к краю, вход разгоняется в удар. Без отскока. */
+@keyframes hud-tk { 0% { --k: 1; animation-timing-function: cubic-bezier(.6, 0, .35, 1); } 64% { --k: .12; animation-timing-function: cubic-bezier(.5, 0, .85, .5); } 100% { --k: 1; } }
+@keyframes hud-tv { 0% { --v: 0; } 10% { --v: -.4; } 22% { --v: -1; } 56% { --v: -1; } 64% { --v: 0; } 72% { --v: 1; } 97% { --v: 1; } 100% { --v: 0; } }
+@keyframes hud-tv-ragged { 0% { --v: 0; } 3% { --v: -1; } 12% { --v: -1; } 16% { --v: 1; } 26% { --v: 1; } 30% { --v: -1; } 38% { --v: -1; } 42% { --v: 1; } 46% { --v: 1; } 50% { --v: -1; } 70% { --v: -1; } 74% { --v: 1; } 97% { --v: 1; } 100% { --v: 0; } }
 @keyframes hud-tsw {
   0% { --sw: -1; animation-timing-function: cubic-bezier(.45, 0, .55, 1); }
   50% { --sw: 1; animation-timing-function: cubic-bezier(.45, 0, .55, 1); }
@@ -167,9 +153,7 @@ body { background: #0d0b12; color: #cfc6dc; font: 14px/1.4 system-ui; margin: 0;
   0% { --sw: -1; } 14% { --sw: .9; } 28% { --sw: -.5; } 40% { --sw: .4; } 48% { --sw: -.3; } 72% { --sw: 1; } 100% { --sw: -1; }
 }
 
-/* Светлые темы. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-tempo { background: radial-gradient(120% 140% at 100% 0%, color-mix(in srgb, var(--tc) 14%, transparent), transparent 60%), rgba(255,255,255,.5); }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-tempo-head b { color: color-mix(in srgb, var(--tc) 70%, #000); }
+
 
 /* Тёмная ткань на тёмном силуэте — светлый контур, чтобы вещь читалась. */
 .hud-heat-svg .z-garment:is([style*="#1c1b21"], [style*="#1d1b22"], [style*="#1a1a1f"], [style*="#1a1716"], [style*="#241a18"], [style*="#2c2f38"], [style*="#2a2a30"], [style*="#26282f"], [style*="#1b2550"], [style*="#3f424a"]) .body { stroke: color-mix(in srgb, var(--cl) 25%, #d4d4de); stroke-width: .75; stroke-opacity: .8; }
@@ -183,441 +167,876 @@ body { background: #0d0b12; color: #cfc6dc; font: 14px/1.4 system-ui; margin: 0;
 }
 @keyframes hud-pen-pulse { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.6); opacity: .8; } }
 
-﻿/* =========================================================================
-   РАЗРЕЗ ПЕНЕТРАЦИИ (render/xray.js)
-   Стиль артов: тело в тёплых тонах кожи, круглая вырезка с розово-красной
-   плотью, органы мягкими пятнами, инструмент внутри канала, влажный блеск.
-   Движение: --k — толчок (1 — до глубины, ~0 — назад), --depth — глубина,
-   --o — длина хода. Всё, что движется, считает сдвиг от них.
+/* --- Узоры толчка (render/xray.js: УЗОРЫ — те же кадры, что у волны) -------
+   дразнит — без проникновения: головкой по губам, кругами на клиторе,
+   шлепки по нему, нажим на вход; кругами — в глубине, таз по кругу без хода;
+   нарастает — толчки всё чаще к концу цикла; на всю длину — медленный ход
+   до самой головки и обратно. */
+@media (prefers-reduced-motion: no-preference) {
+  .hud-tempo.is-tease { animation-name: hud-tk-tease, hud-tsw, hud-tv-tease; animation-duration: var(--beat, 4.8s), calc(var(--beat1, 1s) * 2), var(--beat, 4.8s); animation-timing-function: cubic-bezier(.37, 0, .63, 1), ease-in-out, linear; }
+  .hud-tempo.is-grind { animation-name: hud-tk-grind, hud-tsw-grind, hud-tv-grind; animation-duration: var(--beat, 1.5s), var(--beat, 1.5s), var(--beat, 1.5s); }
+  .hud-tempo.is-build { animation-name: hud-tk-build, hud-tsw, hud-tv-build; animation-duration: var(--beat, 4s), calc(var(--beat1, 1s) * 2), var(--beat, 4s); }
+  .hud-tempo.is-long { animation-name: hud-tk-long, hud-tsw, hud-tv; animation-duration: var(--beat, 1.4s), calc(var(--beat1, 1s) * 2), var(--beat, 1.4s); }
+}
+/* Дразнит — внутрь не входит (render/xray.js: разрез → трение, строка
+   is-rub is-tz). --ry — головка по губам (0 — вход, 1 — клитор), --tx —
+   ближе-дальше от губ, px: −9 — отвёл для шлепка, +1,8 — давит на вход, но
+   не проходит. Кадры --ry — те же, что у волны (УЗОРЫ.tease):
+   медленно вверх, кругами на клиторе, два шлепка по нему, вниз ко входу,
+   два нажима на вход — будто сейчас войдёт — и отступает. */
+@property --tx { syntax: '<number>'; inherits: true; initial-value: 0; }
+/* Плавно: все отрезки — по синусу (медленно трогается, медленно встаёт),
+   разворотов мало — один неспешный круг, два мягких шлепка, один нажим. */
+@keyframes hud-tk-tease {
+  0% { --ry: .04; --tx: 0; --k: .9; animation-timing-function: cubic-bezier(.37, 0, .63, 1); }
+  20% { --ry: 1; animation-timing-function: cubic-bezier(.37, 0, .63, 1); } 30% { --ry: .9; animation-timing-function: cubic-bezier(.37, 0, .63, 1); }
+  40% { --ry: 1; --tx: 0; animation-timing-function: cubic-bezier(.37, 0, .63, 1); }
+  46% { --tx: -5; animation-timing-function: cubic-bezier(.37, 0, .63, 1); } 52% { --tx: 0; animation-timing-function: cubic-bezier(.37, 0, .63, 1); }
+  58% { --tx: -5; animation-timing-function: cubic-bezier(.37, 0, .63, 1); } 64% { --ry: 1; --tx: 0; animation-timing-function: cubic-bezier(.37, 0, .63, 1); }
+  78% { --ry: .04; --tx: 0; animation-timing-function: cubic-bezier(.37, 0, .63, 1); }
+  86% { --tx: 1.6; animation-timing-function: cubic-bezier(.37, 0, .63, 1); } 93% { --tx: 0; animation-timing-function: cubic-bezier(.37, 0, .63, 1); }
+  100% { --ry: .04; --tx: 0; --k: .9; }
+}
+@keyframes hud-tv-tease { 0%, 100% { --v: 0; } }
+/* Кругами — настоящий круг без остановок: глубина (--k) — косинус, вверх-вниз
+   (--sw) — синус, со сдвигом в четверть. Синус из отрезков «быстро от нуля —
+   медленно к краю» (кадры в крайних точках и в нулях). Раньше на каждом
+   кадре движение замирало — круг шёл рывками. */
+@keyframes hud-tk-grind { 0% { --k: 1; animation-timing-function: cubic-bezier(.37, 0, .63, 1); } 50% { --k: .8; animation-timing-function: cubic-bezier(.37, 0, .63, 1); } 100% { --k: 1; } }
+@keyframes hud-tsw-grind {
+  0% { --sw: 0; animation-timing-function: cubic-bezier(.33, .66, .66, 1); } 25% { --sw: 1.3; animation-timing-function: cubic-bezier(.33, 0, .66, .33); }
+  50% { --sw: 0; animation-timing-function: cubic-bezier(.33, .66, .66, 1); } 75% { --sw: -1.3; animation-timing-function: cubic-bezier(.33, 0, .66, .33); } 100% { --sw: 0; }
+}
+@keyframes hud-tv-grind { 0%, 50%, 100% { --v: 0; animation-timing-function: cubic-bezier(.33, .66, .66, 1); } 25% { --v: -.3; animation-timing-function: cubic-bezier(.33, 0, .66, .33); } 75% { --v: .3; animation-timing-function: cubic-bezier(.33, 0, .66, .33); } }
+@keyframes hud-tk-build { 0% { --k: 1; } 20% { --k: .12; } 36% { --k: 1; } 50% { --k: .16; } 62% { --k: 1; } 71% { --k: .2; } 79% { --k: 1; } 86% { --k: .24; } 92% { --k: 1; } 96% { --k: .3; } 100% { --k: 1; } }
+@keyframes hud-tv-build { 0% { --v: -1; } 19% { --v: -1; } 21% { --v: 1; } 35% { --v: 1; } 37% { --v: -1; } 49% { --v: -1; } 51% { --v: 1; } 61% { --v: 1; } 63% { --v: -1; } 70% { --v: -1; } 72% { --v: 1; } 78% { --v: 1; } 80% { --v: -1; } 85% { --v: -1; } 87% { --v: 1; } 91% { --v: 1; } 93% { --v: -1; } 95.5% { --v: -1; } 96.5% { --v: 1; } 100% { --v: 1; } }
+@keyframes hud-tk-long { 0% { --k: 1; animation-timing-function: cubic-bezier(.6, 0, .35, 1); } 60% { --k: .02; animation-timing-function: cubic-bezier(.5, 0, .85, .5); } 100% { --k: 1; } }
+
+/* Трётся у входа (узор rub): головка снаружи и ходит по губам вверх к клитору
+   и обратно — --ry от 0 (вход) до 1 (клитор); у строки --rub — на сколько px
+   вверх (render/xray.js: разрез → трение). Клитор вспыхивает наверху хода. */
+@property --ry { syntax: '<number>'; inherits: true; initial-value: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-tempo.is-rub { animation-name: hud-tk-rub, hud-tsw, hud-ry; animation-duration: var(--beat, 2.4s), calc(var(--beat1, 1.6s) * 2), var(--beat, 2.4s); animation-timing-function: cubic-bezier(.37, 0, .63, 1); }
+}
+@keyframes hud-tk-rub { 0% { --k: .84; --v: 0; } 50% { --k: 1; } 100% { --k: .84; --v: 0; } }
+/* Вверх к клитору и вниз — ровно, по синусу, без разворотов посреди хода
+   (те же кадры, что у волны: render/xray.js, УЗОРЫ.rub). */
+@keyframes hud-ry {
+  0% { --ry: .04; animation-timing-function: cubic-bezier(.37, 0, .63, 1); } 50% { --ry: 1; animation-timing-function: cubic-bezier(.37, 0, .63, 1); } 100% { --ry: .04; }
+}
+/* Подъём головки: треть — бёдра (тело и ствол вместе, translateY), остальное
+   — поворот ствола вокруг корня (.xr-pivot, --rot° на самом верху). У входа
+   головка чуть вдавливается в губы; у «дразнит» ещё и --tx (шлепки, нажим). */
+.hud-xray-row.is-rub .xr-move { transform: none; }
+/* Кончик — между губ, а не во входе: на 4 px назад, у входа вдавливается
+   на 1,6 px. Дальше он заходил во вход, и через преддверие просвечивало
+   отверстие уретры — та самая «чёрная штучка» у головки. */
+.hud-xray-row.is-rub .xr-move:is(.p-penis, .p-toy, .is-body) { transform: translate(calc(-4px + (1 - var(--ry, 0)) * 1.6px + var(--tx, 0) * 1px), calc(var(--ry, 0) * var(--rub, 0) * .35px)); }
+.hud-xray-row.is-rub :is(.xr-meatus, .xr-precum, .xr-ripple, .xr-hit, .xr-splash) { display: none; }
+/* Губы обнимают кончик головки, пока она прижата: без тёмного просвета
+   между круглой головкой и плоской губой. Едут вверх вместе с головкой;
+   отвёл головку для шлепка — губы отпускают. */
+.xr-hug { transform: translateY(calc(var(--ry, 0) * var(--rub, 0) * 1px)); opacity: calc(1 - clamp(0, var(--tx, 0) / -4, 1)); }
+.xr-hug-pad { fill: #d18c7e; filter: blur(1.1px); }
+.xr-hug-crease { fill: none; stroke: #a8565a; stroke-opacity: .32; stroke-width: 1.4; stroke-linecap: round; filter: blur(.8px); }
+.xr-pivot { transform: none; }
+.hud-xray-row.is-rub:not(.is-finish) .xr-pivot { transform: rotate(calc(var(--ry, 0) * var(--rot, 0) * -1deg)); }
+.hud-xray-row.is-rub .xr-clit-g { transform-box: fill-box; transform-origin: center; }
+/* Клитор набухает, когда головка на нём, и вздрагивает от шлепка. */
+:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .hud-xray-row.is-rub .xr-clit-g { transform: scale(calc(1 + clamp(0, (var(--ry, 0) - .7) * 3.3, 1) * .22 + clamp(0, var(--tx, 0) / .6, 1) * clamp(0, (var(--ry, 0) - .9) * 10, 1) * .12)); filter: brightness(calc(1 + clamp(0, (var(--ry, 0) - .7) * 3.3, 1) * .25)); }
+/* Губы под головкой расходятся, на нажиме — ещё шире. */
+.hud-xray-row.is-rub .xr-pull.is-minor { transform: scaleX(calc(1 + (1 - var(--k, 1)) * .1 + clamp(0, var(--ry, 0) * 5, 1) * .1 + clamp(0, var(--tx, 0) / 1.8, 1) * .1)); }
+/* Волна трения — подъём головки (--ry), и бегущая точка — тоже по нему. */
+.hud-tempo:is(.is-rub, .is-tease) .xr-wave-dot circle { transform: translateY(calc((1 - var(--ry, 0)) * var(--wy, 22px))); }
+.hud-tempo:is(.is-rub, .is-tease) .xr-wave-halo { transform: translateY(calc((1 - var(--ry, 0)) * var(--wy, 22px))) scale(calc(.6 + var(--ry, 0) * .7)); }
+/* След трения: влажная полоса по щели и вмятина под головкой — идёт за ней. */
+.xr-slick { fill: none; stroke: #fff; stroke-width: 1.8; stroke-linecap: round; stroke-opacity: calc(.06 + var(--wet, .3) * .14); filter: blur(.9px); }
+.xr-press-g { transform: translateY(calc(var(--ry, 0) * var(--rub, 0) * 1px)); opacity: calc(clamp(0, var(--ry, 0) * 6, 1) * (1 - clamp(0, var(--tx, 0) / -4, 1))); }
+.xr-press { fill: #7a2238; opacity: .42; filter: blur(1.4px); }
+.xr-press-hi { fill: none; stroke: #ffe2ea; stroke-opacity: .4; stroke-width: .9; stroke-linecap: round; filter: blur(.5px); }
+@keyframes xr-slick { 0%, 100% { stroke-opacity: calc(.06 + var(--wet, .3) * .14); } 50% { stroke-opacity: calc(.14 + var(--wet, .3) * .22); } }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-slick { animation: xr-slick calc(var(--beat1, 1.6s) * 2) ease-in-out infinite; }
+}
+
+/* =========================================================================
+   X-RAY ТЕКУЩЕЙ СЦЕНЫ (render/xray.js)
+   Шапка темпа, сагиттальный разрез в реальном масштабе (тот, кого берут, —
+   справа, тот, кто проникает, — слева), линейка в см и волна толчков.
+   Движение — от --k блока темпа (1 — на глубине, ~.1 — назад): --amp — ход
+   в px, --kp — момент, когда кончик задевает простату, --push — насколько
+   упор сдвигает шейку.
    ========================================================================= */
 
-.hud-xray { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
-.hud-xray-row {
-  --pc: var(--hud-nsfw-color, #d9548a);
-  display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-start;
-  padding: 10px 12px 12px; border-radius: 14px;
-  background: linear-gradient(180deg, rgba(24,15,19,.86), rgba(12,8,10,.9));
-  box-shadow: inset 0 0 0 1px rgba(226,175,160,.14), 0 8px 20px rgba(0,0,0,.4);
-}
+.hud-xray { --pc: var(--hud-nsfw-color, #d9548a); display: flex; flex-direction: column; gap: 8px; }
+
+/* --- Шапка темпа --------------------------------------------------------- */
+.hud-xray-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.hud-xray-head > b { font-size: .72em; letter-spacing: .14em; text-transform: uppercase; color: color-mix(in srgb, var(--tc, var(--pc)) 55%, #fff); }
+.hud-xray-head .bpm { font-size: .8em; color: color-mix(in srgb, currentColor 72%, transparent); }
+.hud-xray-head .bpm strong { font-size: 1.7em; font-weight: 800; margin-right: 4px; color: color-mix(in srgb, var(--tc, var(--pc)) 40%, #fff);
+  text-shadow: 0 0 10px color-mix(in srgb, var(--tc, var(--pc)) 60%, transparent); }
+.hud-xray-head .chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.hud-xray-head .chips i { font-style: normal; font-size: .76em; font-weight: 700; padding: 1px 9px; border-radius: 999px; background: color-mix(in srgb, var(--tc, var(--pc)) 22%, transparent); }
+
+/* --- Ряд: подпись и разрез ----------------------------------------------- */
+.hud-xray-row { --pc: var(--hud-nsfw-color, #d9548a); display: flex; flex-direction: column; gap: 5px; }
 .hud-xray-row.p-fingers { --pc: #f0a94a; }
 .hud-xray-row.p-tongue { --pc: #ff7aa8; }
 .hud-xray-row.p-toy { --pc: #9b7bff; }
 .hud-xray-row.p-fist { --pc: #ff6b5e; }
-.hud-xray-visual { flex: none; line-height: 0; }
-
-/* --- Полотно ------------------------------------------------------------ */
-.xr-film {
-  display: block; width: 300px; max-width: 100%; height: auto; border-radius: 12px;
-  box-shadow: 0 0 0 1px rgba(226,175,160,.16), 0 10px 26px rgba(0,0,0,.55);
-  background: #150e12;
-}
-.xr-plate { fill: #150e12; }
-.xr-bg0 { stop-color: #2a1a22; } .xr-bg1 { stop-color: #1a1116; } .xr-bg2 { stop-color: #0c0809; }
-.xr-vig0 { stop-color: #000; stop-opacity: 0; } .xr-vig1 { stop-color: #000; stop-opacity: .5; }
-.xr-mark { fill: rgba(240,206,196,.34); font: 600 5.4px/1 ui-monospace, Consolas, monospace; letter-spacing: .14em; }
-
-/* --- Тело: тёплая кожа, тень на ягодице, румянец ------------------------ */
-.xr-sk0 { stop-color: #fbe0c6; } .xr-sk1 { stop-color: #efb894; } .xr-sk2 { stop-color: #d99a76; }
-/* Объём ягодиц: свет сверху-сбоку, тень к низу и наружу. */
-.xr-butt0 { stop-color: rgba(255,244,232,.75); } .xr-butt1 { stop-color: rgba(238,182,150,.22); } .xr-butt2 { stop-color: rgba(126,68,46,.55); }
-.xr-butt { stroke: rgba(180,120,94,.28); stroke-width: .7; }
-.xr-butt-shine { fill: #fff; opacity: .16; filter: blur(7px); }
-.xr-cleft { fill: none; stroke: #96543c; stroke-opacity: .6; stroke-width: 7; stroke-linecap: round; filter: blur(3px); }
-.xr-under-butt { fill: none; stroke: #a9694f; stroke-opacity: .35; stroke-width: 6; stroke-linecap: round; filter: blur(4px); }
-.xr-thigh { fill: rgba(226,170,142,.55); stroke: rgba(180,120,94,.2); stroke-width: .6; }
-.xr-stocking { fill: #2b2233; fill-opacity: .92; }
-.xr-stocking-lace { fill: none; stroke: #e3c3d4; stroke-opacity: .8; stroke-width: 1.6; }
-.xr-stocking-sheen { fill: none; stroke: #fff; stroke-opacity: .18; stroke-width: 3; filter: blur(3px); }
-.xr-window-glow { fill: #fff; opacity: .03; filter: blur(12px); }
-.xr-body-fill { fill-opacity: 1; }
-.xr-body-shade { fill: #b9795c; fill-opacity: .22; filter: blur(6px); }
-.xr-body-blush { fill: #e0705f; fill-opacity: .18; filter: blur(7px); }
-.xr-body-line { fill: none; stroke: #b06a52; stroke-opacity: .5; stroke-width: .9; }
-.xr-belly-line { fill: none; stroke: #c58567; stroke-opacity: .45; stroke-width: .8; }
-.xr-nose-line { fill: none; stroke: #c58567; stroke-opacity: .5; stroke-width: .8; }
-.hud-xray-row.is-giver .xr-body-fill { filter: brightness(.94); }
-
-/* --- Вырезка: слои среза и розово-красная плоть ------------------------- */
-.xr-fl0 { stop-color: #ec7288; } .xr-fl1 { stop-color: #c04a63; } .xr-fl2 { stop-color: #8d2b47; }
-.xr-cut-outer { fill: #f9e2cd; stroke: #dda98a; stroke-width: .8; }
-.xr-cut-depth { fill: none; stroke: #7a2038; stroke-opacity: .5; stroke-width: 7; filter: blur(5px); }
-.xr-cut-layer { fill: #e9a48f; stroke: #cf8975; stroke-width: .5; }
-.xr-cut-inner { stroke: #8d2f47; stroke-width: .6; }
-
-/* --- Органы: мягкие пятна с подсветкой края ----------------------------- */
-.xr-organ { stroke-width: 1; stroke-opacity: .95; }
-.xr-organ-edge { fill: none; stroke-opacity: .55; stroke-width: .8; }
-.xr-organ.xr-bladder { fill: #f4c96a; stroke: #cf9c3d; }
-.xr-organ.xr-uterus { fill: #f9d3de; stroke: #dd93ab; }
-.xr-organ.xr-uterus + .xr-organ-edge { stroke: #f2c3d3; }
-.xr-organ.xr-cervix { fill: #e77e97; stroke: #c25f7a; }
-.xr-organ.xr-ovary { fill: #edaec0; stroke: #cf8ba0; }
-.xr-organ.xr-clit, .xr-organ.xr-labia { fill: #e57c95; stroke: #c25f7a; }
-.xr-organ.xr-prostate, .xr-prostate { fill: #f0b0b8; stroke: #d18f9a; stroke-width: 1; }
-.xr-organ.xr-vesicle { fill: #f6ccd4; stroke: #dda3ae; }
-.xr-organ.xr-penis-root, .xr-organ.xr-scrotum { fill: #e8a98c; stroke: #cd8a6d; }
-.xr-organ.xr-tongue-mass { fill: #dd6272; stroke: #bd4a5f; }
-.xr-organ.xr-palate { fill: #e89aa4; stroke: #d1788a; }
-.xr-organ.xr-uvula { fill: #dd8090; stroke: #c76a7e; }
-.xr-organ.xr-pharynx { fill: #c44b62; stroke: #9e3a4e; }
-.xr-organ.xr-epiglottis { fill: #e8b0b6; stroke: #cf8f96; }
-.xr-organ.xr-trachea { fill: #e8b7b0; stroke: #cf9089; }
-.xr-organ.xr-lips { fill: #d9576b; stroke: #b84156; }
-.xr-organ.xr-jaw { fill: #e8a98c; stroke: #cd8a6d; }
-.xr-cavity { fill: none; stroke: #bd3a55; stroke-width: 1.3; stroke-linecap: round; }
-.xr-tube { fill: none; stroke: #f4c6d0; stroke-width: 1.1; stroke-linecap: round; stroke-opacity: .9; }
-.xr-cartilage path { fill: none; stroke: #cf9089; stroke-width: 1.1; }
-.xr-teeth { fill: none; stroke: #fdf6ee; stroke-width: 2.6; stroke-linecap: square; }
-
-/* --- Каналы: тёмно-розовый просвет и слизистая -------------------------- */
-.xr-canal-lumen { fill: #71182f; opacity: calc(.82 + var(--k, 1) * .18); }
-.xr-canal-wall { fill: none; stroke: #f2a7b8; stroke-width: 1.4; stroke-linecap: round; }
-.xr-canal.is-target .xr-canal-wall { stroke: #ffc3d2; stroke-width: 1.6; }
-.xr-canal.is-dim { opacity: .3; }
-.xr-canal.is-dim .xr-canal-wall { stroke: #d894a6; stroke-width: 1; }
-.xr-ruga { fill: none; stroke: #f7c6d2; stroke-width: .8; stroke-opacity: .85; }
-.xr-crease-butt { fill: none; stroke: #c07f61; stroke-opacity: .5; stroke-width: 1.4; stroke-linecap: round; stroke-dasharray: 0; }
-
-/* --- Инструмент: тёплое тело с бликом, у каждого свой тон -------------- */
-.xr-obj0 { stop-color: color-mix(in srgb, var(--pc) 8%, #ffe8d8); }
-.xr-obj1 { stop-color: color-mix(in srgb, var(--pc) 26%, #f2c1a2); }
-.xr-obj2 { stop-color: color-mix(in srgb, var(--pc) 48%, #cf8f74); }
-.xr-flesh { stroke: color-mix(in srgb, var(--pc) 30%, #b9745c); stroke-width: .6; }
-.xr-flesh-core { fill: #fff; fill-opacity: .14; }
-.xr-glabella { fill: #f6b0b8; stroke: #cf7c8b; stroke-width: .7; }
-.xr-corona-groove { fill: none; stroke: #b0655c; stroke-opacity: .55; stroke-width: 1; }
-.xr-glabella-shine { fill: #fff; fill-opacity: .3; }
-.xr-ridge, .xr-skin { fill: none; stroke: #b9745c; stroke-opacity: .45; stroke-width: .6; stroke-linecap: round; }
-.xr-uretra { fill: none; stroke: #b9745c; stroke-opacity: .7; stroke-width: .7; }
-.xr-shine { fill: none; stroke: #fff; stroke-opacity: .4; stroke-width: 1; stroke-linecap: round; }
-.xr-crease-finger, .xr-crease-hand { fill: none; stroke: #b9745c; stroke-opacity: .45; stroke-width: .6; }
-.xr-nail { fill: #f9e3d4; stroke: #c9947c; stroke-width: .4; }
-.xr-knuckle { fill: #d99a86; stroke: #b9745c; stroke-opacity: .4; stroke-width: .4; }
-/* Игрушка — силикон, своим цветом, не flesh. */
-.xr-toy0 { stop-color: #e6ccf7; } .xr-toy1 { stop-color: #b98ce0; } .xr-toy2 { stop-color: #8b5cbd; }
-.xr-toy, .xr-toy-tip { stroke: #7a4aa8; stroke-width: .6; }
-.xr-toy-shine { fill: none; stroke: #fff; stroke-opacity: .45; stroke-width: 1; }
-.xr-toy-band { fill: none; stroke: #7a4aa8; stroke-opacity: .5; stroke-width: .6; }
-.xr-toy-base { fill: none; stroke: #b98ce0; stroke-width: 1.6; }
-.xr-toy-base-in { fill: #e6ccf7; fill-opacity: .6; }
-.xr-toy-cord { fill: none; stroke: #b98ce0; stroke-width: 1; opacity: .9; }
-.xr-speed-line { fill: none; stroke: #fff; stroke-opacity: .22; stroke-width: .8; stroke-dasharray: 3 2.6; }
-
-/* Ход: объект идёт назад на (1 − --k) от глубины; призраки отстают сильнее. */
-.xr-move { transform: translateX(calc((1 - var(--k, 1)) * var(--depth, .72) * var(--o, 26px) * -1)); }
-.xr-ghost { opacity: .26; filter: blur(1.6px); }
-.xr-ghost.g1 { transform: translateX(calc((1 - var(--k, 1)) * var(--depth, .72) * var(--o, 26px) * -1 + 10px)); opacity: .3; }
-.xr-ghost.g2 { transform: translateX(calc((1 - var(--k, 1)) * var(--depth, .72) * var(--o, 26px) * -1 + 21px)); opacity: .14; }
-.xr-ghost .xr-shine, .xr-ghost .xr-speed-line { display: none; }
-
-/* --- Влага: лужица, потёки, капли --------------------------------------- */
-.xr-wet-pool { fill: #fdf7f2; fill-opacity: .45; }
-.xr-wet-drip { fill: #fdf7f2; fill-opacity: .5; }
-.xr-wet-drop { fill: #fff; fill-opacity: .65; }
-
-/* --- Шкала глубины ------------------------------------------------------ */
-.xr-depth-line { stroke: rgba(255,222,230,.28); stroke-width: .6; stroke-dasharray: 3 2.6; }
-.xr-tick { stroke: rgba(255,224,232,.4); stroke-width: .7; }
-.xr-tick.is-deep { stroke: #fff; stroke-width: 1.1; }
-.xr-depth-dot { fill: var(--pc); stroke: #fff; stroke-width: .5; filter: drop-shadow(0 0 3px var(--pc)); }
-.xr-depth-dot-in { fill: #fff; }
-.xr-depth-dot, .xr-depth-dot-in {
-  transform: translate(calc((1 - var(--k, 1)) * var(--depth, .72) * var(--dx, 0) * 1px), calc((1 - var(--k, 1)) * var(--depth, .72) * var(--dy, 0) * 1px));
-}
-
-/* --- Врезка хода -------------------------------------------------------- */
-.xr-stroke-plate { fill: rgba(22,11,16,.6); stroke: rgba(255,206,216,.22); stroke-width: .6; }
-.xr-stroke-line, .xr-stroke-head { fill: none; stroke: rgba(255,214,222,.6); stroke-width: .9; }
-.xr-stroke-label { fill: rgba(255,226,230,.8); font: 600 5.4px/1 ui-monospace, Consolas, monospace; text-anchor: middle; }
-/* Полость матки — тонкой линией, чтобы не перебивать форму органа. */
-.xr-cavity-uterus { fill: none; stroke: #cf5570; stroke-width: .9; stroke-opacity: .8; stroke-linecap: round; }
-
-/* --- Номера и выноски --------------------------------------------------- */
-.xr-tag-line { fill: none; stroke: rgba(255,222,230,.26); stroke-width: .5; stroke-dasharray: 2 2; }
-.xr-tag-dot { fill: #fff; stroke: rgba(120,40,60,.8); stroke-width: .7; }
-.xr-tag-chip { fill: rgba(30,13,19,.85); stroke: rgba(255,206,216,.85); stroke-width: .7; }
-.xr-tag-num { fill: #ffe9ee; font: 700 6.2px/1 ui-monospace, Consolas, monospace; text-anchor: middle; }
-
-/* --- Панель рядом ------------------------------------------------------- */
-.hud-xray-side { flex: 1 1 156px; min-width: 150px; display: flex; flex-direction: column; gap: 6px; }
-.hud-xray-cap { display: inline-flex; align-items: center; gap: 7px; align-self: flex-start; font-size: .84em; padding: 4px 11px 4px 8px; border-radius: 999px;
-  background: color-mix(in srgb, var(--pc) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pc) 45%, transparent); }
+.hud-xray-cap { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: .84em; }
 .hud-xray-cap > i { width: 8px; height: 8px; border-radius: 50%; background: var(--pc); box-shadow: 0 0 7px var(--pc); }
 .hud-xray-cap b { font-weight: 800; }
-.hud-xray-cap em { font-style: normal; color: color-mix(in srgb, currentColor 70%, transparent); }
-.hud-xray-chips { display: flex; flex-wrap: wrap; gap: 4px; }
-.hud-xray-chips i { font-style: normal; font-size: .74em; font-weight: 700; padding: 1px 8px; border-radius: 999px; background: color-mix(in srgb, var(--pc) 22%, transparent); }
-.hud-xray-speed { display: flex; align-items: baseline; gap: 6px; }
-.hud-xray-speed b { font-size: 1.5em; font-weight: 800; color: color-mix(in srgb, var(--pc) 45%, #fff); text-shadow: 0 0 10px color-mix(in srgb, var(--pc) 55%, transparent); }
-.hud-xray-speed span { font-size: .72em; letter-spacing: .04em; color: color-mix(in srgb, currentColor 62%, transparent); }
-.hud-xray-depth { display: flex; flex-direction: column; gap: 3px; }
-.hud-xray-depth-head { display: flex; align-items: baseline; gap: 6px; font-size: .74em; }
-.hud-xray-depth-head span { letter-spacing: .06em; text-transform: uppercase; color: color-mix(in srgb, currentColor 60%, transparent); }
-.hud-xray-depth-head b { font-size: 1.15em; font-weight: 800; color: color-mix(in srgb, var(--pc) 45%, #fff); }
-.hud-xray-depth-head em { font-style: normal; opacity: .6; }
-.hud-xray-depth-bar { position: relative; display: block; height: 8px; border-radius: 5px; overflow: hidden;
-  background: rgba(255,255,255,.08); box-shadow: inset 0 0 0 1px rgba(255,200,210,.2); }
-.hud-xray-depth-fill { position: absolute; inset: 0 auto 0 0; border-radius: 5px;
-  width: calc(var(--k, 1) * var(--depth, .72) * 100%);
-  background: linear-gradient(90deg, color-mix(in srgb, var(--pc) 35%, transparent), var(--pc));
-  box-shadow: 0 0 9px var(--pc); }
-.xr-legend { list-style: none; margin: 2px 0 0; padding: 0; display: grid; gap: 1px; font-size: .74em; }
-.xr-legend li { display: flex; gap: 6px; align-items: baseline; opacity: .66; }
-.xr-legend li b { flex: none; min-width: 9px; color: rgba(255,216,224,.9); font-weight: 700; }
-.xr-legend li.is-target { opacity: 1; font-weight: 600; color: color-mix(in srgb, var(--pc) 35%, #fff); }
-.xr-legend li.is-target b { color: var(--pc); }
+.hud-xray-cap small { font-size: .86em; font-weight: 700; padding: 0 7px; border-radius: 999px; background: color-mix(in srgb, var(--pc) 20%, transparent); }
+.hud-xray-cap span { color: color-mix(in srgb, currentColor 75%, transparent); }
+.hud-xray-cap em { margin-left: auto; font-style: normal; font-weight: 700; font-size: .92em; color: color-mix(in srgb, var(--pc) 45%, #fff); }
+.hud-xray-visual { line-height: 0; }
 
-/* --- Движение без темпа: собственный ритм под курсором ------------------ */
+/* --- Полотно ------------------------------------------------------------- */
+.xr-film { display: block; width: 100%; max-width: 480px; height: auto; border-radius: 10px; background: #100a0e;
+  box-shadow: 0 0 0 1px rgba(226,175,160,.14), 0 8px 20px rgba(0,0,0,.45); }
+.xr-plate { fill: #100a0e; }
+
+/* Тот, кого берут: разрез — приглушённая плоть, по краю — кожа и жир. */
+.xr-b0 { stop-color: #b86a76; } .xr-b1 { stop-color: #94485a; } .xr-b2 { stop-color: #6a2c3e; }
+.xr-fat { fill: none; stroke: #f3d49a; stroke-opacity: .32; stroke-width: 9; }
+.xr-skin { fill: none; stroke: #f6d2b8; stroke-width: 2.4; stroke-linejoin: round; }
+.xr-crease-skin { fill: none; stroke: #a8604c; stroke-opacity: .45; stroke-width: 1.4; stroke-linecap: round; filter: blur(.6px); }
+
+/* Ориентиры внутри: кости, пузырь, матка, кишка, протоки. */
+.xr-bone { fill: #efe1c4; stroke: #c4ad86; stroke-width: .7; }
+.xr-uterus { fill: #d9788f; stroke: #f4b6c5; stroke-opacity: .65; stroke-width: .9; }
+.xr-prostate-body { fill: #e29aaa; stroke: #ffd2dc; stroke-opacity: .4; stroke-width: .9; }
+/* Светится, пока кончик за простатой, и вспыхивает на каждом толчке. */
+.xr-prostate-glow { fill: #ffe0ea; opacity: calc(clamp(0, (var(--k, 1) - var(--kp, 2)) * 5, 1) * (.25 + .7 * clamp(0, (var(--k, 1) - .7) * 3.3, 1))); filter: blur(4px); }
+.xr-palate { fill: #d47a90; stroke: #f6b8c8; stroke-opacity: .25; stroke-width: .7; filter: blur(.4px); }
+.xr-uvula { fill: #e47a92; stroke: #ffc4d2; stroke-width: .7; }
+.xr-tongue-mass { fill: #c24c64; stroke: none; }
+.xr-papillae-line { fill: none; stroke: #f09aae; stroke-opacity: .55; stroke-width: 1; stroke-dasharray: .6 2; stroke-linecap: round; }
+
+/* Канал: стенка слизистой, сомкнутая щель, складки. */
+.xr-wall { fill: #c86f85; stroke: none; filter: blur(.8px); }
+.xr-slit { fill: none; stroke: #5a1229; stroke-width: 2.2; stroke-linecap: round; }
+.xr-ruga { fill: none; stroke: #f6bccb; stroke-opacity: .55; stroke-width: .8; stroke-linecap: round; }
+/* Раскрытый канал вокруг того, что внутри: растянутая стенка и просвет. */
+.xr-stretch { fill: #cf7489; stroke: none; filter: blur(1px); }
+.xr-open { fill: #4a1324; filter: blur(.6px); }
+
+/* То, во что упираются. */
+.xr-cervix { fill: #d47891; stroke: #e9a2b3; stroke-opacity: .3; stroke-width: .8; filter: drop-shadow(-1px 0 3px rgba(90,20,40,.5)); }
+.xr-cervix-hi { fill: #fff; opacity: .16; filter: blur(2px); }
+.xr-os { fill: none; stroke: #8e2341; stroke-width: 1.4; stroke-linecap: round; }
+.xr-end { transform: translateX(calc(clamp(0, (var(--k, 1) - .9) * 10, 1) * var(--push, 0) * 1px)); }
+
+/* Вход и лицо снаружи. */
+.xr-minora { fill: #c96880; stroke: none; filter: blur(.35px); }
+.xr-minora-wet { fill: none; stroke: #fff; stroke-opacity: .14; stroke-width: 2.2; stroke-linecap: round; filter: blur(1.2px); }
+.xr-clit { stroke: none; filter: blur(.2px); }
+.xr-cl0 { stop-color: #ffd0da; } .xr-cl1 { stop-color: #e2738c; } .xr-cl2 { stop-color: #b44a64; }
+.xr-vestibule { stroke: none; }
+.xr-vs0 { stop-color: #c25e77; } .xr-vs1 { stop-color: #b0566c; stop-opacity: 0; }
+
+.xr-anus { fill: none; stroke: #8c4152; stroke-width: .8; stroke-linecap: round; }
+.xr-sphincter { fill: #96384f; opacity: .6; filter: blur(1.2px); }
+.xr-lip { fill: #cf5d70; stroke: #a8394e; stroke-opacity: .6; stroke-width: .6; }
+.xr-gline { fill: none; stroke: #b9735a; stroke-opacity: .55; stroke-width: .8; stroke-linecap: round; }
+
+/* --- Тот, кто проникает -------------------------------------------------- */
+.xr-s0 { stop-color: #f4caac; } .xr-s1 { stop-color: #e5aa8a; } .xr-s2 { stop-color: #c98566; }
+.xr-gskin { stroke: #a8654c; stroke-opacity: .35; stroke-width: .7; stroke-linejoin: round; }
+.xr-testis { fill: #b06a55; opacity: .4; filter: blur(2px); }
+.xr-hair { fill: none; stroke: #4a3026; stroke-opacity: .35; stroke-width: .6; stroke-linecap: round; }
+.xr-hair-shade { fill: #6b4434; opacity: .14; filter: blur(4px); }
+.xr-o0 { stop-color: #f6cdb2; } .xr-o1 { stop-color: #e9ae90; } .xr-o2 { stop-color: #b8735a; }
+.xr-shaft { stroke: none; }
+.xr-shaft-edge { fill: none; stroke: #9c5a45; stroke-opacity: .32; stroke-width: .8; filter: blur(.3px); }
+.xr-shaft-shade { fill: #8c4a3a; opacity: .18; filter: blur(1.6px); }
+.xr-glans { fill: #e48d9a; stroke: #b9606f; stroke-opacity: .5; stroke-width: .7; }
+.xr-glans-hi { fill: #fff; opacity: .28; filter: blur(1.6px); }
+.xr-corona { fill: none; stroke: #8c3e4a; stroke-opacity: .4; stroke-width: 1.8; filter: blur(.6px); }
+.xr-frenulum, .xr-fold { fill: none; stroke: #a85a52; stroke-opacity: .5; stroke-width: .8; stroke-linecap: round; }
+.xr-meatus { fill: none; stroke: #8c3a46; stroke-width: .8; stroke-linecap: round; }
+.xr-vein { fill: none; stroke: #9a6c86; stroke-opacity: .38; stroke-width: 2.2; stroke-linecap: round; filter: blur(.5px); }
+.xr-ridge-u { fill: none; stroke: #9c5a45; stroke-opacity: .16; stroke-width: 2; stroke-linecap: round; filter: blur(.8px); }
+.xr-gloss { fill: none; stroke: #fff; stroke-opacity: .3; stroke-width: 1.8; stroke-linecap: round; filter: blur(.9px); }
+.xr-gloss.is-soft { stroke-opacity: .22; stroke-width: 1.4; }
+.xr-hand { stroke: #a0614a; stroke-opacity: .55; stroke-width: .6; stroke-linejoin: round; }
+.xr-hand:not([fill]) { fill: #efbfa2; }
+/* Дальние пальцы — в тени: тот же объём, только темнее. */
+.xr-hand.is-back, .xr-finger.is-back .xr-hand { filter: brightness(.86) saturate(1.06); }
+.xr-nail { fill: #fbe6d8; stroke: #c9947c; stroke-width: .45; }
+.xr-crease { fill: none; stroke: #a8684f; stroke-opacity: .4; stroke-width: .9; stroke-linecap: round; filter: blur(.4px); }
+.xr-toy, .xr-toy-ring { fill: #a77bd6; stroke: #6f42a0; stroke-width: .7; }
+.xr-toy-ring { fill: none; stroke-opacity: .6; }
+.xr-toy-gloss { fill: none; stroke: #fff; stroke-opacity: .38; stroke-width: 2.2; stroke-linecap: round; filter: blur(1px); }
+.xr-tongue { fill: #d65f76; stroke: none; }
+.xr-tongue-lit { fill: none; stroke: #ff9fb2; stroke-opacity: .32; stroke-linecap: round; filter: blur(2.4px); }
+.xr-tongue-dim { fill: none; stroke: #8e2a42; stroke-opacity: .34; stroke-linecap: round; filter: blur(2.4px); }
+.xr-tg0 { stop-color: #ea8295; } .xr-tg1 { stop-color: #d65f76; } .xr-tg2 { stop-color: #b3445c; }
+.xr-tongue-under { fill: none; stroke: #8e2f46; stroke-opacity: .45; stroke-width: 1.2; stroke-linecap: round; filter: blur(.4px); }
+.xr-tongue-tip-hi { fill: #fff; opacity: .3; filter: blur(.8px); }
+.xr-tongue-groove { fill: none; stroke: #9c3550; stroke-opacity: .4; stroke-width: 1.4; stroke-linecap: round; filter: blur(.5px); }
+.xr-papillae circle { fill: #f7aebd; opacity: .55; }
+
+/* Вспышка на кончике в момент толчка; сильнее, если упёрлись. */
+.xr-g0 { stop-color: #ffe4ec; stop-opacity: .5; } .xr-g1 { stop-color: #ffd0dc; stop-opacity: 0; }
+.xr-hit { opacity: 0; }
+:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-hit { opacity: calc(clamp(0, (var(--k, 1) - .82) * 5.5, 1) * var(--hit, .5)); }
+
+/* Ход: всё, что движется с кончиком, отходит назад на (1 − --k) × --amp. */
+.xr-move { transform: translateX(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px)); }
+
+/* --- Линейка ------------------------------------------------------------- */
+.xr-ruler-line { stroke: rgba(255,222,230,.4); stroke-width: .6; }
+.xr-tick { stroke: rgba(255,222,230,.45); stroke-width: .5; }
+.xr-tick.is-major { stroke: rgba(255,222,230,.8); stroke-width: .7; }
+.xr-num { fill: rgba(255,226,232,.7); font: 600 6px/1 ui-monospace, Consolas, monospace; text-anchor: middle; }
+.xr-target { stroke: #fff; stroke-opacity: .35; stroke-width: .6; stroke-dasharray: 2 2; }
+.xr-target-label { fill: #fff; fill-opacity: .85; font: 700 6.4px/1 ui-monospace, Consolas, monospace; }
+.xr-caret { fill: var(--pc); stroke: #fff; stroke-width: .5; filter: drop-shadow(0 0 2px var(--pc)); }
+.xr-end-label { fill: rgba(255,236,240,.62); font: 600 6px/1 system-ui, sans-serif; letter-spacing: .08em; text-anchor: middle; text-transform: uppercase; }
+
+/* --- Волна темпа --------------------------------------------------------- */
+.xr-wave { display: block; width: 100%; max-width: 480px; height: auto; }
+.xr-wave-base { stroke: rgba(255,222,230,.18); stroke-width: .6; }
+.xr-wave-beat { stroke: rgba(255,222,230,.14); stroke-width: .6; stroke-dasharray: 1.6 1.6; }
+.xr-wf0 { stop-color: var(--tc, var(--pc)); stop-opacity: .38; } .xr-wf1 { stop-color: var(--tc, var(--pc)); stop-opacity: 0; }
+.xr-wave-line { fill: none; stroke: color-mix(in srgb, var(--tc, var(--pc)) 70%, #fff); stroke-width: 1.3; stroke-linejoin: round; stroke-linecap: round; }
+.xr-wave-glow { fill: none; stroke: var(--tc, var(--pc)); stroke-width: 4; stroke-opacity: .35; filter: blur(2px); }
+.xr-wave-grid { stroke: rgba(255,222,230,.07); stroke-width: .5; }
+.xr-wave-peak { fill: #fff; stroke: var(--tc, var(--pc)); stroke-width: .8; opacity: .85; }
+.xr-wave-halo { fill: var(--tc, var(--pc)); opacity: calc(.15 + var(--k, 1) * .35); transform-box: fill-box; transform-origin: center; transform: translateY(calc((1 - var(--k, 1)) * var(--wy, 22px))) scale(calc(.6 + var(--k, 1) * .7)); filter: blur(1.5px); }
+.xr-wave-head { stroke: rgba(255,255,255,.3); stroke-width: .6; }
+.xr-wave-dot circle { fill: #fff; stroke: var(--tc, var(--pc)); stroke-width: 1; transform: translateY(calc((1 - var(--k, 1)) * var(--wy, 22px))); }
+.hud-xray.is-still .xr-wave-run { display: none; }
+
+@keyframes xr-run { from { transform: translateX(0); } to { transform: translateX(228px); } }
 @media (prefers-reduced-motion: no-preference) {
-  .hud-xray.is-standalone { animation: hud-tk var(--beat, 1.6s) cubic-bezier(.5, 0, .3, 1) infinite, hud-tsw calc(var(--beat1, 1.6s) * 2) infinite; }
-  .hud-xray.is-standalone.is-ragged { animation-name: hud-tk-ragged, hud-tsw-ragged; animation-duration: var(--beat, 3s), var(--beat, 3s); }
+  .xr-wave-run { animation: xr-run calc(var(--beat, 1s) * var(--reps, 2)) linear infinite; animation-play-state: paused; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-wave-run { animation-play-state: running; }
+  /* Без блока темпа (стенд, старые вызовы) — свой ровный ритм. */
+  .hud-xray.is-standalone { animation: hud-tk var(--beat, 1.6s) cubic-bezier(.5, 0, .3, 1) infinite; }
+  .hud-xray.is-standalone.is-ragged { animation-name: hud-tk-ragged; }
 }
-.hud-xray.is-standalone { animation-play-state: paused, paused; }
-.hud-xray.is-standalone:is(:hover, .fx-tap, .fx-on) { animation-play-state: running, running; }
-.hud-tempo.is-xray .hud-xray { margin-top: 0; }
-.hud-tempo.is-xray { flex-wrap: wrap; }
-.hud-tempo.is-xray .hud-tempo-visual { flex: 1 1 240px; display: block; }
-.hud-heat.hide-pen .hud-xray { display: none; }
+.hud-xray.is-standalone { animation-play-state: paused; }
+.hud-xray.is-standalone:is(:hover, .fx-tap, .fx-on) { animation-play-state: running; }
 
-@media (max-width: 460px) {
-  .xr-film { width: 100%; }
-  .hud-xray-side { flex-basis: 100%; }
+/* В блоке темпа x-ray — вся картинка: без второй панели скорости. */
+.hud-tempo.is-xray { display: block; padding: 10px 12px 8px; }
+
+
+
+
+/* --- Детали: губы вульвы, крестец ---------------------------------------- */
+.xr-majora { stroke: none; }
+.xr-vu0 { stop-color: #d99a82; } .xr-vu1 { stop-color: #cf8a7a; } .xr-vu2 { stop-color: #bf6f76; }
+.xr-majora-sh { fill: none; stroke: #a8565a; stroke-opacity: .2; stroke-width: 2; stroke-linecap: round; filter: blur(1px); }
+.xr-majora-hi { fill: none; stroke: #ffe6d6; stroke-opacity: .32; stroke-width: 2; stroke-linecap: round; filter: blur(1px); }
+.xr-minora-edge { fill: none; stroke: #a84a62; stroke-width: .9; stroke-linecap: round; }
+.xr-sacrum { fill: none; stroke: #dcc2a4; stroke-opacity: .55; stroke-width: 13; stroke-linecap: round; filter: blur(1.4px); }
+.xr-sacrum-core { fill: none; stroke: #c9a986; stroke-width: 6; stroke-linecap: round; opacity: .35; filter: blur(1.4px); }
+.xr-sacrum-seam { fill: none; stroke: #a8866a; stroke-opacity: .35; stroke-width: 1.6; stroke-linecap: round; filter: blur(.8px); }
+
+/* --- Стенка, которая обхватывает то, что внутри ------------------------- */
+.xr-w0 { stop-color: #a9536a; stop-opacity: 0; }
+.xr-w1 { stop-color: #ad586d; }
+.xr-w2 { stop-color: #bd6479; }
+.xr-w3 { stop-color: #c86f85; }
+.xr-ruffle { fill: #d47a91; stroke: #f0a8ba; stroke-opacity: .25; stroke-width: .4; }
+.xr-fold-deep { fill: #8c2c46; opacity: .3; filter: blur(1.2px); }
+.xr-fold-deep.is-shut { opacity: .26; }
+.xr-contact { fill: none; stroke: #6e1a30; stroke-width: 1.6; stroke-opacity: .45; filter: blur(.7px); }
+.xr-contact.is-front { stroke-width: 2; stroke-opacity: .4; }
+.xr-gleam { fill: none; stroke: #fff; stroke-opacity: .16; stroke-width: 1.2; stroke-linecap: round; filter: blur(.6px); }
+.xr-shut { fill: none; stroke: #6a1a2e; stroke-width: 1.5; stroke-opacity: .75; stroke-linecap: round; filter: blur(.4px); }
+.xr-wall.is-soft { fill: #b65f75; stroke: none; filter: blur(1.6px); }
+
+/* --- Голова и лицо — тёмные силуэты: важен только контур ----------------- */
+.xr-film.is-dark .xr-body { fill: #2a1d23; }
+.xr-film.is-dark .xr-skin { stroke: #8a6672; stroke-width: 1.3; }
+.xr-film.is-dark .xr-fat { display: none; }
+.xr-film.is-dark .xr-lip { fill: #7e3c4c; stroke: #a35466; }
+.xr-mouthwall { fill: #9c4a5e; }
+.xr-giver.is-shadow .xr-gskin { fill: #2a1d23; stroke: #8a6672; stroke-width: 1.3; stroke-opacity: 1; }
+.xr-mouth-shade { fill: #2a1d23; }
+.xr-tongue-lipshade { fill: none; stroke: #5a1828; stroke-opacity: .5; stroke-width: 5; filter: blur(2px); }
+
+/* --- Семя: кончили внутрь ------------------------------------------------- */
+.hud-xray-row.is-finish { --k: 1; }
+.hud-xray-cap small.is-cum { background: rgba(255,250,240,.16); color: #fff6ea; }
+.xr-cum-pool { fill: #fbf7ef; fill-opacity: .93; stroke: #fff; stroke-opacity: .7; stroke-width: .5; transform-origin: 0% 50% !important;
+  transform-box: fill-box; transform-origin: 100% 50%; filter: drop-shadow(0 0 2px rgba(255,255,255,.45)); }
+.xr-cum-drop { fill: #fffdf8; opacity: 0; transform-box: fill-box; transform-origin: center; }
+.xr-cum-drip { fill: #fbf7ef; fill-opacity: .92; transform-box: fill-box; transform-origin: 50% 0; }
+@keyframes xr-fill { 0% { transform: scaleX(.04); opacity: .15; } 100% { transform: scaleX(1); opacity: 1; } }
+@keyframes xr-spurt { 0% { transform: translate(0, 0) scale(.5); opacity: 0; } 12% { opacity: 1; } 100% { transform: translate(var(--dx, 10px), var(--dy, 0px)) scale(1.25); opacity: 0; } }
+@keyframes xr-drip { 0% { transform: scaleY(0); } 100% { transform: scaleY(1); } }
+@keyframes xr-throb { 0%, 100% { filter: brightness(1); } 45% { filter: brightness(1.16) saturate(1.1); } }
+/* В покое — итог (лужа и капля у входа); под курсором — заново: головка
+   пульсирует, капли бьют, лужа растёт от глубины к входу. */
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-pool { animation: xr-pump 3.3s linear both; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-drop { animation: xr-spurt 1.1s ease-out var(--dl, 0s) infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-drip { animation: xr-drip 2.6s ease-in 2.4s both; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .is-finish .xr-glans { animation: xr-throb .55s ease-in-out infinite; }
 }
 
-/* --- Промежность: лобок, губы, клитор, преддверие, уретра, анус ---------- */
-.xr-mons { fill: #e8b493; stroke: #bd8163; stroke-opacity: .6; stroke-width: .8; }
-.xr-labia-major { fill: #e5a189; stroke: #a45f47; stroke-opacity: .8; stroke-width: 1; }
-.xr-labia-major-in { fill: #f2c6ac; stroke: none; }
-.xr-labia-minor { fill: #e5839c; stroke: #b85c76; stroke-opacity: .95; stroke-width: 1; }
-.xr-vestibule { fill: #b83e58; stroke: #8e2a41; stroke-opacity: .9; stroke-width: .8; }
-.xr-clit { fill: #ee7a94; stroke: #bf546f; stroke-width: .8; }
-.xr-clit-hood { fill: none; stroke: #d59a86; stroke-width: 2.2; stroke-linecap: round; }
-.xr-clit-body { fill: none; stroke: #d1738c; stroke-width: 1.6; stroke-linecap: round; stroke-opacity: .8; }
-.xr-meatus { fill: none; stroke: #9c3348; stroke-width: .9; stroke-linecap: round; }
-.xr-introitus { fill: #8b2440; stroke: #ffc9d7; stroke-width: 1.3; }
-.xr-hymen { fill: none; stroke: #f6c0cf; stroke-width: 1; stroke-linecap: round; }
-.xr-perineum { fill: #e9b092; stroke: #bd8163; stroke-opacity: .65; stroke-width: .8; }
-.xr-raphe { fill: none; stroke: #c9856a; stroke-opacity: .5; stroke-width: .7; stroke-linecap: round; }
-.xr-anus-outer { fill: #b06a72; stroke: #8e4f5a; stroke-width: .7; }
-.xr-anus-inner { fill: #6d2f3c; stroke: #8e4f5a; stroke-opacity: .7; stroke-width: .5; }
-.xr-anus-ray { fill: none; stroke: #d99aa7; stroke-opacity: .55; stroke-width: .5; }
-.xr-fornix { fill: none; stroke: #e79cb0; stroke-width: .8; stroke-linecap: round; stroke-opacity: .85; }
-/* --- Мужская промежность ------------------------------------------------ */
-.xr-penis-own { fill: #e8a184; stroke: #c9825f; stroke-width: .7; }
-.xr-glabella-own { fill: #f0b0b8; stroke: #d98d99; stroke-width: .6; }
-.xr-uretra-own { fill: none; stroke: #b9745c; stroke-width: .7; stroke-linecap: round; }
-.xr-scrotum { fill: #e5a186; stroke: #c9825f; stroke-width: .7; }
-.xr-raphe-scrotum { fill: none; stroke: #b9745c; stroke-opacity: .55; stroke-width: .7; stroke-linecap: round; }
-.xr-testicle { fill: #d99a86; fill-opacity: .55; stroke: #c9825f; stroke-opacity: .6; stroke-width: .5; }
-/* --- Детали члена: венец, уздечка, крайняя плоть, вена ------------------- */
-.xr-corona { fill: none; stroke: #d98d99; stroke-width: 1; stroke-opacity: .85; }
-.xr-frenulum { fill: none; stroke: #c9825f; stroke-opacity: .6; stroke-width: .8; stroke-linecap: round; }
-.xr-foreskin { fill: none; stroke: #c9825f; stroke-opacity: .45; stroke-width: .7; stroke-linecap: round; }
-.xr-vein-line { fill: none; stroke: #b9745c; stroke-opacity: .4; stroke-width: .7; stroke-linecap: round; }
-/* --- Влажный блеск внутри канала ---------------------------------------- */
-.xr-sheen { fill: none; stroke: #fff; stroke-opacity: .22; stroke-width: 1.6; stroke-linecap: round; }
-/* Тень под входом: инструмент лежит в flesh, а не поверх картинки. */
-.xr-entry-shadow { fill: #5e1a2c; fill-opacity: .38; filter: blur(4px); }
-/* Приближение сцены: анатомия крупнее, номера с выносками — вне группы. */
-/* Приближение сделано кадром (viewBox фильма), а не transform: так анатомия не уезжает за край окна. */
+/* --- Губа стенки поверх края, колено согнутого члена, потёк ---------------- */
+.xr-joint { stroke: none; }
+.is-finish .xr-hit { display: none; }
+.xr-cum-streak { fill: none; stroke: #fbf7ef; stroke-opacity: .9; stroke-width: 2.1; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+@keyframes xr-streak { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-streak { animation: xr-streak 2.2s ease-in 2s both; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-leak .xr-cum-drip { animation: xr-drip 1.4s ease-in 4s both; }
+}
 
+/* Член в горле сгибается по толчку: 0° на отходе, --bend° на глубине. */
+.xr-bend { transform: rotate(calc(var(--bend, 0) * clamp(0, (var(--k, 1) - var(--kb, 1)) * var(--kbs, 1), 1) * 1deg)); }
+/* Семя заливает шейку: канал и белая плёнка поверх. */
+.xr-cum-canal { fill: none; stroke: #fbf7ef; stroke-opacity: .95; stroke-width: 3.4; stroke-linecap: round; stroke-dasharray: 100; stroke-dashoffset: 0; filter: drop-shadow(0 0 1.4px rgba(255,255,255,.6)); }
+@keyframes xr-canal { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
+@keyframes xr-glaze { 0% { opacity: 0; } 100% { opacity: 1; } }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-canal { animation: xr-canal-fill 3.3s linear .3s both; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-film { animation: xr-film 3.6s ease-out .6s both; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-jet { animation: xr-jet .55s ease-out var(--dl, 0s) 6 both; }
+}
+
+/* --- Красота: светотень, свет по коже, пульс темпа ------------------------ */
+.xr-gshade { fill: none; stroke: #8c4a36; stroke-opacity: .35; stroke-width: 14; filter: blur(5px); }
+.xr-glight { fill: #fff3e8; opacity: .22; filter: blur(9px); }
+/* Стык нижнего края ствола с мошонкой — мягкая складка, а не жёсткая линия. */
+.xr-root-crease { fill: none; stroke: #8c4a36; stroke-opacity: .22; stroke-width: 3; stroke-linecap: round; filter: blur(1.4px); }
+.xr-shaft-hi { fill: none; stroke: #fff; stroke-opacity: .28; stroke-width: 3.2; stroke-linecap: round; filter: blur(1.4px); }
+.xr-skin-hi { fill: none; stroke: #fff2e6; stroke-opacity: .35; stroke-width: 1; filter: blur(.6px); }
+.xr-film.is-dark .xr-skin-hi { stroke-opacity: .12; }
+.xr-cervix-canal { fill: none; stroke: #9e3550; stroke-opacity: .4; stroke-width: 1.6; stroke-linecap: round; filter: blur(.5px); }
+/* Семя в горле и на языке. */
+.xr-cum-throat { fill: none; stroke: #fbf7ef; stroke-opacity: .92; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; filter: drop-shadow(0 0 2px rgba(255,255,255,.4)); }
+.xr-cum-tongue { fill: none; stroke: #fbf7ef; stroke-opacity: .8; stroke-width: 2.6; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-throat { animation: xr-streak 2.6s ease-out .4s both; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-tongue { animation: xr-streak 2.4s ease-out 2.2s both; }
+}
+/* Пульс в шапке — вспыхивает на каждом толчке. */
+.hud-xray-head { align-items: center; }
+.hud-xray-pulse { width: 9px; height: 9px; border-radius: 50%; align-self: center; background: var(--tc, var(--pc));
+  box-shadow: 0 0 calc(4px + var(--k, 1) * 10px) var(--tc, var(--pc)); transform: scale(calc(.55 + var(--k, 1) * .6)); opacity: calc(.45 + var(--k, 1) * .55); }
+.hud-xray.is-still .hud-xray-pulse { transform: none; opacity: .5; box-shadow: none; }
+
+/* --- Живое: губы тянутся за членом, клитор и головка набухают на ударе,
+   мошонка качается в такт. Всё от --k / --sw блока темпа. ---------------- */
+/* Губы, край ануса и губы рта не сдвигаются — тянутся от прикреплённого края:
+   на выходе вытягиваются наружу, на входе вдавливаются. */
+.xr-pull { transform-box: fill-box; transform-origin: 100% 50%; }
+.xr-pull.is-minor { transform: scaleX(calc(1 + (1 - var(--k, 1)) * .18 + clamp(0, -1 * var(--v, 0), 1) * (1 - var(--k, 1)) * .32 - clamp(0, var(--v, 0), 1) * .07)); }
+.xr-pull.is-lip { transform: scaleX(calc(1 + (1 - var(--k, 1)) * .05 + clamp(0, -1 * var(--v, 0), 1) * (1 - var(--k, 1)) * .1 - clamp(0, var(--v, 0), 1) * .03)); }
+.xr-lip-line { fill: none; stroke: #8a6672; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
+.xr-pull.is-major { transform: scaleX(calc(1 + (1 - var(--k, 1)) * .04 + clamp(0, -1 * var(--v, 0), 1) * (1 - var(--k, 1)) * .06)); }
+.xr-clit-g { transform-box: fill-box; transform-origin: center; }
+:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-clit-g { transform: scale(calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .14)); }
+:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-glans { filter: brightness(calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .07)); }
+
+/* --- Влага (lb:) — блеск, бусины, ниточки, капля, брызги. --wet 0…1. ------- */
+.hud-xray-cap small.is-wet { background: rgba(180,220,255,.14); color: #e6f3ff; }
+.xr-film.is-wet .xr-gleam { stroke-opacity: calc(.16 + var(--wet, 0) * .1); }
+.xr-film.is-wet .xr-ruffle { filter: brightness(calc(1 + var(--wet, 0) * .1)); }
+.xr-film.is-wet .xr-gloss { stroke-opacity: calc(.3 + var(--wet, 0) * .2); }
+.xr-film.is-wet .xr-minora-wet { stroke-opacity: calc(.14 + var(--wet, 0) * .14); }
+.xr-wet-coat { fill: none; stroke: #fff; stroke-opacity: calc(.06 + var(--wet, 0) * .22); stroke-width: 3; stroke-linecap: round; stroke-dasharray: 22 7 36 10 14 6; filter: blur(1.3px); }
+.xr-wet-coat.is-low { stroke-opacity: calc(.04 + var(--wet, 0) * .12); stroke-dasharray: 20 12 40 8 9 6; }
+.xr-bead-hi { fill: #fff; opacity: .9; }
+.xr-bead { fill: #fff; fill-opacity: calc(.18 + var(--wet, 0) * .3); stroke: #fff; stroke-opacity: .35; stroke-width: .3; }
+/* Ниточки тянутся только на выходе и рвутся на входе. */
+.xr-strand { fill: none; stroke: #fff; stroke-width: .9; stroke-linecap: round; opacity: calc((1 - var(--k, 1)) * var(--wet, 0) * .26 * clamp(0, -1 * var(--v, 0), 1)); filter: blur(.7px); }
+/* Брызги — только пока идут толчки: в покое член стоит на глубине (--k = 1),
+   и брызги висели бы в воздухе. */
+.xr-splash { fill: #fff; opacity: 0;
+  transform: translate(calc(clamp(0, (var(--k, 1) - .9) * 10, 1) * var(--sx, 0)), calc(clamp(0, (var(--k, 1) - .9) * 10, 1) * var(--sy, 0))); }
+:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-splash { opacity: calc(clamp(0, (var(--k, 1) - .9) * 10, 1) * .85 * clamp(0, var(--v, 0) + .6, 1)); }
+.xr-wet-run { fill: none; stroke: #fff; stroke-opacity: calc(var(--wet, 0) * .26); stroke-width: 2.2; stroke-linecap: round; filter: blur(1px); }
+.xr-wet-drop { fill: #fff; opacity: calc(.25 + var(--wet, 0) * .5); }
+.xr-wet-drip { transform-box: fill-box; transform-origin: 50% 0; }
+/* Лубрикант — прозрачнее, с холодным бликом. */
+.xr-film.is-lube :is(.xr-bead, .xr-wet-drop) { fill: #e8f4ff; }
+.xr-film.is-lube .xr-wet-coat, .xr-film.is-lube .xr-wet-run, .xr-film.is-lube .xr-strand { stroke: #e8f4ff; }
+@keyframes xr-wet-fall { 0%, 55% { transform: translateY(0) scaleY(1); opacity: 1; } 85% { transform: translateY(9px) scaleY(1.25); opacity: .9; } 100% { transform: translateY(14px) scaleY(1.3); opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-wet-drop { animation: xr-wet-fall calc(var(--beat, 1s) * 3) ease-in infinite; transform-box: fill-box; }
+}
+
+/* Язык лижет: кончик ходит вверх-вниз в ритме темпа, поверх толчков. */
+.xr-lick { transform: rotate(-4deg); }
+@keyframes xr-lick { from { transform: rotate(-13deg); } to { transform: rotate(10deg); } }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-lick { animation: xr-lick calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
+}
+
+/* --- Рот: без тёмного просвета — стенки и язык прилегают к стволу. -------- */
+.xr-film.is-dark .xr-open { fill: #8e4054; filter: blur(.8px); }
+.xr-film.is-dark .xr-stretch { fill: #a8566a; }
+.xr-tongue-mass.is-tip { stroke: none; }
+.xr-lick.is-oral { transform: none; }
+@keyframes xr-lick-oral { from { transform: rotate(4deg); } to { transform: rotate(-7deg); } }
+
+/* --- Мошонка качается в такт и подпрыгивает на ударе; волна на ударе. ---- */
+.xr-scrotum-sh { fill: none; stroke: #8c4a36; stroke-opacity: .3; stroke-width: 6; filter: blur(2.4px); }
+.xr-rugae-skin { fill: none; stroke: #9c5a45; stroke-opacity: .12; stroke-width: .8; stroke-linecap: round; filter: blur(.4px); }
+.xr-gskin.is-scrotum, .xr-gskin.is-under, .xr-gskin.is-fill { stroke: none; }
+.xr-gskin-line { fill: none; stroke: #a8654c; stroke-opacity: .35; stroke-width: .7; stroke-linejoin: round; }
+.xr-ripple { fill: none; stroke: #ffd6e0; stroke-width: 3; opacity: 0; transform-box: fill-box; transform-origin: center; filter: blur(1.6px); }
+@keyframes xr-ripple { 0% { transform: scale(.7); opacity: 0; } 8% { transform: scale(.8); opacity: .3; } 45% { transform: scale(1.7); opacity: 0; } 100% { transform: scale(1.7); opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-lick.is-oral { animation: xr-lick-oral calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-ripple { animation: xr-ripple var(--beat1, 1s) ease-out infinite; }
+}
+
+/* --- Ещё движение ---------------------------------------------------------- */
+/* Влажный блик скользит по стволу и игрушке. */
+.xr-sheen-run { fill: none; stroke: #fff; stroke-opacity: 0; stroke-width: 2.4; stroke-linecap: round; stroke-dasharray: 14 86; filter: blur(1.2px); }
+@keyframes xr-sheen { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+/* Вены наливаются на ударе. */
+/* Сфинктер сжимается, когда член выходит. */
+.xr-sphincter { transform-box: fill-box; transform-origin: 0 50%; }
+/* Шейка вздрагивает от удара. */
+@keyframes xr-wobble { 0% { transform: scale(1); } 8% { transform: scale(1.035, .975); } 30% { transform: scale(.985, 1.015); } 60%, 100% { transform: scale(1); } }
+.xr-cervix { transform-box: fill-box; transform-origin: 0 50%; }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-sheen-run { stroke-opacity: .32; animation: xr-sheen calc(var(--beat1, 1s) * 2) linear infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-vein { stroke-opacity: calc(.34 + clamp(0, (var(--k, 1) - .55) * 2.4, 1) * .26); stroke-width: calc(2.2px + clamp(0, (var(--k, 1) - .55) * 2.4, 1) * .8px); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-sphincter { transform: scaleY(calc(1 + (1 - var(--k, 1)) * .25)) scaleX(calc(1 - (1 - var(--k, 1)) * .08)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-cervix { animation: xr-wobble var(--beat1, 1s) ease-out infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-vestibule { filter: brightness(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .12)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-film.is-dark .xr-wall { filter: blur(.8px) brightness(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .1)); }
+}
+
+/* =========================================================================
+   ЖИВОЕ ТЕЛО — по 10 движений и деталей на каждый вид близости.
+   Всё — от --k (толчок) и --sw (качание) блока темпа, только пока идёт.
+   ========================================================================= */
+.xr-tendon { fill: none; stroke: #fff2e8; stroke-opacity: .18; stroke-width: 1.4; stroke-linecap: round; filter: blur(.6px); }
+.xr-flex { fill: none; stroke: #fff2e8; stroke-opacity: .14; stroke-width: 3; stroke-linecap: round; filter: blur(1.4px); }
+.xr-knuckle-hi { fill: none; stroke: #fff; stroke-opacity: 0; stroke-width: 1.4; stroke-linecap: round; filter: blur(.6px); }
+.xr-led { fill: #ffe3f8; opacity: .5; filter: drop-shadow(0 0 2px #ff9ae0); }
+.xr-vibe-ring { fill: none; stroke: #e8d4ff; stroke-width: 1.6; opacity: 0; transform-box: fill-box; transform-origin: center; filter: blur(1px); }
+.xr-flange { transform-box: fill-box; transform-origin: 100% 50%; }
+.xr-gspot { fill: #ffd0dc; opacity: calc(clamp(0, (var(--k, 1) - var(--kg, 2)) * 5, 1) * .5); filter: blur(3px); }
+.xr-bulge { fill: #ffd6e0; opacity: 0; filter: blur(4px); }
+.xr-anal-rim { fill: #c25e77; stroke: none; filter: blur(.3px); }
+.xr-peri { fill: none; stroke: #ffd0dc; stroke-opacity: 0; stroke-width: 6; stroke-linecap: round; stroke-dasharray: 10 90; filter: blur(2px); }
+.xr-swallow { fill: none; stroke: #ffd0dc; stroke-opacity: 0; stroke-linecap: round; stroke-dasharray: 8 92; filter: blur(2.4px); }
+.xr-saliva { fill: none; stroke: #fff; stroke-width: .9; stroke-linecap: round; opacity: calc((1 - var(--k, 1)) * .24 * clamp(0, -1 * var(--v, 0), 1)); filter: blur(.7px); }
+.xr-drool .xr-wet-run { stroke-opacity: .16; }
+.xr-drool .xr-wet-drop { opacity: .45; }
+.xr-drool { transform-box: fill-box; transform-origin: 50% 0; }
+.xr-hand.is-seg { stroke: none; }
+.xr-seg-edge { fill: none; stroke: #a0614a; stroke-opacity: .55; stroke-width: .6; }
+.xr-curl, .xr-thumb, .xr-twist, .xr-nod, .xr-uvula-sw, .xr-vibe { transform: none; }
+.xr-tongue-grp { transform-box: fill-box; transform-origin: 0 50%; }
+
+/* Большой палец трёт клитор — поворотом вокруг своего основания. */
+@keyframes xr-rub { from { transform: rotate(-3.5deg); } to { transform: rotate(3deg); } }
+@keyframes xr-buzz { from { transform: translateY(-.4px); } to { transform: translateY(.4px); } }
+@keyframes xr-led { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
+@keyframes xr-tongue-roll { from { transform: scaleY(.94); } to { transform: scaleY(1.05); } }
+@keyframes xr-flick { from { transform: translateY(0) scale(1); } to { transform: translateY(-.7px) scale(1.08); } }
+
+@media (prefers-reduced-motion: no-preference) {
+  /* Общее для лона и ануса: стенки присасываются на отходе, кожа вспыхивает на ударе. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) :is(.xr-bumps, .xr-squeeze) { transform: scaleY(calc(1 - (1 - var(--k, 1)) * (.025 + clamp(0, -1 * var(--v, 0), 1) * .06))); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-skin-hi { stroke-opacity: calc(.35 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .3); }
+  /* Член: головка наливается, живот дающего напрягается. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-glans { filter: brightness(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .07)) saturate(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .35)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-gshade { stroke-opacity: calc(.35 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .25); }
+  /* Анал: перистальтика, своя мошонка у мужчины качается. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-peri { stroke-opacity: .22; animation: xr-sheen calc(var(--beat1, 1s) * 3) linear infinite reverse; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-own { transform: translateY(calc(var(--sw, -1) * 1.6px)); }
+  /* Игрушка: вибрация, волны от кончика, мигает индикатор, упор пружинит. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-vibe { animation: xr-buzz .07s linear infinite alternate; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-vibe-ring { animation: xr-ripple .45s ease-out infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-led { animation: xr-led .9s ease-in-out infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-flange { transform: scaleX(calc(1 - clamp(0, (var(--k, 1) - .8) * 5, 1) * .12)); }
+  /* Пальцы: манящее сгибание, большой палец трёт клитор, сухожилия, точка G. */
+  /* Кисть чуть покачивается; сгибаются сами пальцы — в суставах (ниже). */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-curl { transform: rotate(calc(clamp(0, (var(--k, 1) - .4) * 1.67, 1) * -2.4deg + var(--sw, -1) * -.4deg)); }
+:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-thumb { animation: xr-rub calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-tendon { stroke-opacity: calc(.12 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .22); }
+  /* Кулак: проворот, костяшки, мышцы предплечья, живот выпирает, блик на костяшках. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-twist { transform: rotate(calc(var(--sw, -1) * 3deg)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-knuckles { transform: translateY(calc(var(--sw, -1) * .9px)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-flex { stroke-opacity: calc(.08 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .26); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-bulge { opacity: calc(clamp(0, (var(--k, 1) - .8) * 5, 1) * .4); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-knuckle-hi { stroke-opacity: calc(clamp(0, (var(--k, 1) - .8) * 5, 1) * .5); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row.p-fist .xr-minora { filter: blur(.35px) brightness(calc(1 + var(--k, 1) * .14)); }
+  /* Рот: язычок качается, глоток катится по горлу. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-uvula-sw { transform: rotate(calc(var(--sw, -1) * 9deg)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-drool { animation: xr-wet-fall calc(var(--beat1, 1s) * 4) ease-in infinite; }
+  /* Куни: голова покачивается, язык перекатывается, клитор вздрагивает в такт. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-nod { transform: rotate(calc(var(--sw, -1) * 1.8deg)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-tongue-grp:not(.is-oral) { animation: xr-tongue-roll calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row.p-tongue .xr-clit-g { animation: xr-flick calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row.p-tongue .xr-minora-wet { stroke-opacity: .3; }
+}
+
+/* --- Семя: толчками из головки, струями в зев, канал шейки заполняется ---- */
+.xr-cum-film { fill: #fbf7ef; fill-opacity: .4; transform-box: fill-box; transform-origin: center; }
+.xr-cum-jet { fill: none; stroke: #fffdf8; stroke-width: 1.2; stroke-linecap: round; stroke-dasharray: 18 82; stroke-dashoffset: 100; opacity: 0; filter: blur(.25px); }
+/* Лужа растёт толчками — в такт пульсации головки (.55 с). */
+@keyframes xr-pump { 0% { transform: scaleX(.05); } 8% { transform: scaleX(.28); } 17% { transform: scaleX(.32); } 25% { transform: scaleX(.52); } 33% { transform: scaleX(.55); } 42% { transform: scaleX(.72); } 50% { transform: scaleX(.75); } 58% { transform: scaleX(.88); } 67% { transform: scaleX(.9); } 83% { transform: scaleX(1); } 100% { transform: scaleX(1); } }
+@keyframes xr-canal-fill { 0% { stroke-dashoffset: 100; } 15% { stroke-dashoffset: 82; } 33% { stroke-dashoffset: 60; } 50% { stroke-dashoffset: 40; } 67% { stroke-dashoffset: 20; } 85%, 100% { stroke-dashoffset: 0; } }
+@keyframes xr-film { from { transform: scale(0); } to { transform: scale(1); } }
+@keyframes xr-jet { 0% { stroke-dashoffset: 100; opacity: 0; } 15% { opacity: .95; } 100% { stroke-dashoffset: 0; opacity: 0; } }
+
+/* --- Влага: капля набухает, тянется, срывается; бусины поблёскивают ------- */
+@keyframes xr-wet-fall { 0% { transform: translateY(0) scale(.3); opacity: 0; } 20% { opacity: 1; } 55% { transform: translateY(0) scale(1, 1); } 72% { transform: translateY(2px) scale(.9, 1.4); } 86% { transform: translateY(12px) scale(.8, 1.2); opacity: .9; } 100% { transform: translateY(22px) scale(.7, 1.1); opacity: 0; } }
+@keyframes xr-twinkle { 0%, 100% { opacity: .9; } 50% { opacity: .35; } }
+@keyframes xr-coat { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -95; } }
+
+/* --- Бедро принимающего в тени — за плоскостью разреза, вместо чёрного ---- */
+.xr-bd0 { stop-color: #8c5450; stop-opacity: .96; } .xr-bd1 { stop-color: #5e3538; stop-opacity: .8; } .xr-bd2 { stop-color: #2a161c; stop-opacity: 0; }
+.xr-film.is-dark .xr-bd0 { stop-color: #3a272d; } .xr-film.is-dark .xr-bd1 { stop-color: #2c1e23; }
+.xr-entry-in { fill: #b85870; filter: blur(.6px); }
+.xr-entry-in.is-mouth { fill: #6e3242; }
+.xr-hips, .xr-wrist, .xr-thigh { transform: none; }
+@media (prefers-reduced-motion: no-preference) {
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-bead-hi { animation: xr-twinkle 1.6s ease-in-out infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-wet-coat { animation: xr-coat calc(var(--beat1, 1s) * 3) linear infinite; }
+  /* Бёдра дающего качаются вокруг корня члена; кисть — от запястья; бедро
+     принимающего вздрагивает на ударе. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-hips { transform: rotate(calc(var(--sw, -1) * 2.4deg)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-wrist { transform: rotate(calc(var(--sw, -1) * .9deg)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-thigh { transform: translateX(calc(clamp(0, (var(--k, 1) - .8) * 5, 1) * 1.6px)) scaleY(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .015)); }
+}
+
+/* =========================================================================
+   ЕЩЁ ЖИЗНИ: ткани, румянец, пот, предсемя — всё от толчка (--k) и темпа
+   ========================================================================= */
+.xr-fl0 { stop-color: #ff7a9a; stop-opacity: .55; } .xr-fl1 { stop-color: #ff7a9a; stop-opacity: .2; } .xr-fl2 { stop-color: #ff7a9a; stop-opacity: 0; }
+.xr-flush { opacity: 0; filter: blur(3px); }
+.xr-sweat ellipse { fill: #fff; opacity: 0; filter: blur(.9px); }
+.xr-precum { fill: #fffaf4; opacity: 0; filter: blur(.7px); }
+.xr-os, .xr-cervix-canal { transform-box: fill-box; transform-origin: 0 50%; }
+.xr-film.is-wet .xr-minora { transform-box: fill-box; transform-origin: 100% 50%; transform: scaleX(calc(1 + var(--wet, 0) * .14)); }
+@keyframes xr-sweat { 0%, 100% { opacity: .1; transform: scale(.85); } 50% { opacity: .34; transform: scale(1.1); } }
+@media (prefers-reduced-motion: no-preference) {
+  /* Кожа у входа приливает: тем сильнее, чем влажнее, и вспыхивает на ударе. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-flush { opacity: calc(.34 + var(--wet, .3) * .2); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-flush { opacity: calc(.34 + var(--wet, .3) * .2 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .22); }
+  /* Мягкие ткани у входа сминаются на ударе и расправляются на отходе. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-fat { stroke-width: calc(9px + clamp(0, (var(--k, 1) - .8) * 5, 1) * 2.2px); stroke-opacity: calc(.32 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .08); }
+  /* Зев шейки приоткрывается на глубине. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-os { transform: scale(calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .4), calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * 1.3)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-cervix-hi { opacity: calc(.16 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .2); }
+  /* Малые губы набухают на ударе (чуть толще), клитор — следом. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-film.is-wet .xr-minora { transform: scaleX(calc(1 + var(--wet, 0) * .14 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .12)); }
+  /* Пот мерцает вразнобой. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-sweat ellipse { transform-box: fill-box; transform-origin: center; animation: xr-sweat calc(var(--beat1, 1s) * 3) ease-in-out infinite; animation-delay: calc(var(--i, 0) * -.43s); }
+  /* Капля предсемени набухает на глубине и тянется назад на отходе. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-film.is-wet .xr-precum { opacity: calc(var(--wet, 0) * clamp(0, (var(--k, 1) - .5) * 2, 1) * .55); transform: scale(calc(.7 + clamp(0, (var(--k, 1) - .5) * 2, 1) * .5)); transform-box: fill-box; transform-origin: 0 50%; }
+}
+
+/* =========================================================================
+   РОТ: язык и горло. Всё от толчка (--k) и скорости (--v): язык
+   прогибается под стволом и поднимается на отходе, кончик тянется за ним,
+   горло волнами идёт за стволом и сжимается на глубине, язычок поджимается.
+   ========================================================================= */
+.xr-grip { fill: none; stroke: #ffd0dc; stroke-opacity: 0; stroke-linecap: round; stroke-dasharray: 6 14; filter: blur(2.2px); }
+.xr-tongue-grp.is-oral { transform-box: fill-box; transform-origin: 100% 40%; }
+@keyframes xr-swallow-run { 0% { stroke-dashoffset: 100; stroke-opacity: 0; } 14% { stroke-opacity: .3; } 80% { stroke-opacity: .3; } 100% { stroke-dashoffset: 0; stroke-opacity: 0; } }
+@media (prefers-reduced-motion: no-preference) {
+  /* Язык: ствол вдавливает его на входе, на отходе он выпрямляется и чуть приподнимается. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-tongue-grp.is-oral { translate: 0 calc(var(--k, 1) * 1.9px - clamp(0, -1 * var(--v, 0), 1) * (1 - var(--k, 1)) * 1.1px); scale: calc(1 + (1 - var(--k, 1)) * .012) calc(1 - var(--k, 1) * .055); }
+  /* Кончик языка тянется за стволом на отходе и возвращается на входе. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-lick.is-oral { translate: calc((1 - var(--k, 1)) * -3.4px) calc(clamp(0, -1 * var(--v, 0), 1) * -.9px); }
+  /* Глоток катится по горлу плавно: появляется, идёт, гаснет — без рывка на повторе. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-swallow { stroke-opacity: 0; animation: xr-swallow-run calc(var(--beat1, 1s) * 2) ease-in-out infinite; }
+  /* Горло идёт волнами за стволом и смыкается на глубине. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-grip { stroke-dashoffset: calc(var(--k, 1) * -20); stroke-opacity: calc(clamp(0, (var(--k, 1) - .15) * 1.7, 1) * .2); }
+  /* Язычок поджимается к нёбу на глубине. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-uvula-sw { translate: 0 calc(clamp(0, (var(--k, 1) - .7) * 3.3, 1) * -1.3px); }
+}
+
+/* --- Телефон: подписи крупнее — картинка там ~0,8 от натуральной -------------- */
+@media (max-width: 560px) {
+  .xr-num { font-size: 8px; transform: translateY(.8px); }
+  .xr-target-label { font-size: 8.6px; }
+  .xr-end-label { font-size: 7.8px; }
+  .xr-film { border-radius: 8px; }
+}
+
+/* --- Финал: кончает — фрикций нет, член стоит в глубине и пульсирует,
+   точка в шапке бьётся в ритме выбросов; после — всё стоит, струи
+   больше не бьют, остаётся лужа и потёк. ------------------------------- */
+.hud-xray.is-climax .hud-xray-row, .hud-xray.is-after .hud-xray-row { --k: 1; --v: 0; }
+.hud-xray.is-climax .hud-xray-pulse { opacity: 1; background: #fff6ea; box-shadow: 0 0 8px rgba(255,246,234,.8); }
+.hud-xray.is-entry .hud-xray-pulse { opacity: .6; }
+@keyframes xr-cum-pulse { 0%, 100% { transform: scale(.7); } 30% { transform: scale(1.25); } }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-tempo:is(:hover, .fx-tap, .fx-on) .hud-xray.is-climax .hud-xray-pulse { animation: xr-cum-pulse .8s ease-out infinite; }
+  .hud-tempo:is(:hover, .fx-tap, .fx-on) .hud-xray.is-climax .xr-glans { animation: xr-throb .8s ease-in-out infinite; }
+  .hud-tempo:is(:hover, .fx-tap, .fx-on) .hud-xray.is-after :is(.xr-cum-drop, .xr-cum-jet) { animation: none; opacity: 0; }
+  .hud-tempo:is(:hover, .fx-tap, .fx-on) .hud-xray.is-after .xr-glans { animation: none; }
+}
+/* Цвет темпа в финале — тёплый молочный, а не серо-синий «замерли». */
+.hud-tempo:has(> .hud-xray.is-climax), .hud-tempo:has(> .hud-xray.is-after) { --tc: #f0d6c2; }
+
+
+/* =========================================================================
+   ПРЕЖНИЕ ТОЛЧКИ — по образцу «дразнит» и трения: тело движется, как
+   движется на самом деле, ткани откликаются (render/xray.js: разрез → дуга).
+   Ствол внутри канала не наклоняется — плоть не лезет за стенки.
+   ========================================================================= */
+@media (prefers-reduced-motion: no-preference) {
+  /* Бёдра по дуге: на отходе таз приподнимается на --arc px. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--arc:"]:not(.is-finish) .xr-move.is-body { transform: translate(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px), calc((1 - var(--k, 1)) * var(--arc, 0) * -1px)); }
+  /* Кругами: таз описывает круг в глубине — вглубь-наружу по --k, вверх-вниз
+     по --sw со сдвигом в четверть круга; лобок давит на клитор спереди. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray.is-grind .hud-xray-row[style*="--arc:"]:not(.is-finish) .xr-move.is-body { transform: translate(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px), calc(var(--sw, -1) * var(--arc, 0) * -1px)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray.is-grind .xr-clit-g { transform: scale(calc(1 + clamp(0, var(--sw, -1), 1) * .16)); filter: brightness(calc(1 + clamp(0, var(--sw, -1), 1) * .22)); }
+  /* Удар отдаётся в бедро принимающего на любой глубине, до упора — сильнее. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row:not([style*="--push:2.6"]):not(.is-rub):not(.is-tz) .xr-thigh { transform: translateX(calc(clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .8px)); }
+}
+/* Большой палец, о котором в тексте ни слова, не трёт клитор: лежит на
+   лобке, отведён вверх (render/xray.js: пальцы → is-rest). */
+.xr-thumb.is-rest { transform: rotate(-12deg) !important; animation: none !important; }
+/* Шов на мошонке — едва заметная складка, а не линия разреза. */
+.xr-gline.is-raphe { stroke-opacity: .2; filter: blur(.6px); }
+@media (prefers-reduced-motion: no-preference) {
+  /* Кругами: член ходит по тому же кругу, что и таз, — вверх-вниз на 1,6 px
+     (в пределах, где бугры стенки ещё налезают на ствол), а не стоит. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray.is-grind .hud-xray-row[style*="--arc:"]:not(.is-finish) .xr-move.p-penis { transform: translate(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px), calc(var(--sw, -1) * var(--arc, 0) * -.6px)); }
+}
+/* Подушечка большого пальца — мягкий блик на той стороне, что прижата к клитору. */
+.xr-thumb-pad { fill: none; stroke: #fff2e8; stroke-opacity: .32; stroke-width: 1.4; stroke-linecap: round; filter: blur(.5px); }
+
+/* =========================================================================
+   РУКИ НА ЧЛЕНЕ (render/xray.js: кистьНаСтволе, ручнаяСцена). Её рука —
+   светлее и тоньше, лак на ногтях; его — тон его кожи. Её кисть ходит по
+   стволу от --k блока темпа: 1 — у основания, 0 — у головки (--amp — ход).
+   ========================================================================= */
+.xr-hj-skin:not([fill]) { fill: #f6d4c1; }
+.xr-hj-skin { stroke: #b97c66; stroke-opacity: .6; stroke-width: .7; stroke-linejoin: round; }
+.xr-hj-skin.is-m { stroke: #a0614a; }
+.xr-hj-line { fill: none; stroke: #b97c66; stroke-opacity: .55; stroke-width: .8; stroke-linecap: round; }
+.xr-hj-nail { fill: #fbe6d8; stroke: #c9947c; stroke-width: .4; }
+.xr-hj-nail.is-f { fill: #d9507a; stroke: #9e2c4c; }
+.xr-hj-shade { fill: none; stroke: #8c4a36; stroke-opacity: .3; stroke-width: 3; stroke-linecap: round; filter: blur(1.4px); }
+.xr-hj-drop { fill: #fffaf4; opacity: .55; filter: blur(.4px); }
+.xr-hj-move { transform: translateX(calc((1 - var(--k, 1)) * var(--amp, 0) * 1px)); }
+.xr-hj { transform-box: fill-box; transform-origin: 50% 60%; }
+@media (prefers-reduced-motion: no-preference) {
+  /* У головки кисть чуть сжимается — плотнее обхватывает венчик. */
+  /* Кругами — прокручивает: кисть покачивается вокруг ствола. */
+  /* Капля предсемени на головке набухает, когда кисть у головки. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-hj-drop { opacity: calc(.35 + (1 - var(--k, 1)) * .5); }
+}
+/* Объём рук: свет по верхнему краю, тень по нижнему; пальцы на члене —
+   каждый свой, тень в бороздках между ними; ногти — лунка и блик. */
+.xr-hand-light { fill: none; stroke: #fff4ea; stroke-opacity: .42; stroke-width: 1.8; stroke-linecap: round; filter: blur(.9px); }
+.xr-hand-shadow { fill: none; stroke: #8c4a36; stroke-opacity: .28; stroke-width: 2.6; stroke-linecap: round; filter: blur(1.3px); }
+.xr-nail-moon { fill: none; stroke: #fff; stroke-opacity: .5; stroke-width: .7; stroke-linecap: round; }
+.xr-nail-gloss { fill: none; stroke: #fff; stroke-opacity: .7; stroke-width: .8; stroke-linecap: round; filter: blur(.3px); }
+.xr-hj-finger { stroke: #b97c66; stroke-opacity: .55; stroke-width: .6; stroke-linejoin: round; }
+.xr-hj.is-m .xr-hj-finger, .xr-hj.is-m .xr-hj-skin { stroke: #8f5640; }
+.xr-hj-groove { fill: none; stroke: #7e4230; stroke-opacity: .32; stroke-width: 2.2; stroke-linecap: round; filter: blur(1px); }
+.xr-hj-tendon { fill: none; stroke: #fff2e8; stroke-opacity: .28; stroke-width: 1; stroke-linecap: round; filter: blur(.4px); }
+.xr-hj-light { fill: none; stroke: #fff4ea; stroke-opacity: .35; stroke-width: 3; stroke-linecap: round; filter: blur(1.6px); }
+.xr-hj-knuckle { fill: #fffaf5; stroke: none; opacity: .3; filter: blur(.9px); }
+.xr-hj-knuckle-sh { fill: none; stroke: #a8695a; stroke-opacity: .13; stroke-width: 1.6; stroke-linecap: round; filter: blur(.8px); }
+.xr-hj-dimple { fill: #a8695a; opacity: .11; filter: blur(.9px); }
+.xr-hj.is-m .xr-hj-knuckle-sh, .xr-hj.is-m .xr-hj-dimple { stroke: #7e4535; fill: #7e4535; }
+.xr-crease.is-soft { stroke-opacity: .22; }
+
+/* =========================================================================
+   ОБЪЁМ КОЖИ РУК (render/xray.js: объём). Заливка, внутри контура — мягкая
+   тень по краю, тень снизу и блик сверху. Тон — от кисти: по умолчанию —
+   кисть при фингеринге, .is-f — её рука, .is-m — его.
+   ========================================================================= */
+.xr-vol { fill: var(--skin, #efc3a7); stroke: none; }
+.xr-vol-rim { fill: none; stroke: var(--rim, #bb7c62); stroke-opacity: .5; stroke-width: 6; filter: blur(2.2px); }
+.xr-vol-lo { fill: none; stroke: var(--lo, #9c5c45); stroke-opacity: .38; stroke-width: 4; filter: blur(1.8px); }
+.xr-vol-hi { fill: none; stroke: var(--hi, #fff6ee); stroke-opacity: .6; stroke-width: 3; filter: blur(1.5px); }
+.xr-vol-edge { fill: none; stroke: var(--edge, #a0644c); stroke-opacity: .55; stroke-width: .55; stroke-linejoin: round; stroke-linecap: round; }
+.xr-finger.is-back { filter: brightness(.87) saturate(1.05); }
+.xr-hj.is-f { --skin: #f7d8c6; --rim: #cf947c; --lo: #b47660; --hi: #fff8f2; --edge: #b47862; }
+.xr-hj.is-m { --skin: #e3aa8a; --rim: #a96a50; --lo: #87503a; --hi: #ffe6d4; --edge: #87513c; }
+.xr-nail2 { fill: #fbe8dc; stroke: #c49078; stroke-width: .4; }
+.xr-nail2.is-f { fill: #d0607f; stroke: #9c3755; stroke-width: .35; }
+/* Кисть одним силуэтом: свет вдоль пальцев, ногти — пластинки у кончика. */
+.xr-vol-shine { fill: none; stroke: var(--hi, #fff6ee); stroke-opacity: .5; stroke-width: 2.4; stroke-linecap: round; filter: blur(1.4px); }
+.xr-nail3 { fill: #f7ddd2; stroke: #c08a76; stroke-opacity: .7; stroke-width: .4; stroke-linejoin: round; }
+.xr-nail3.is-f { fill: #cf6684; stroke: #9a3a57; }
+.xr-hj.is-m .xr-nail3 { fill: #eac1ad; stroke: #9a6450; }
+/* Массаж клитора большим пальцем: вся кисть — одна картинка — описывает
+   маленькие круги (подушечка растирает клитор), чуть покачиваясь в запястье. */
+@keyframes xr-rub-w {
+  0% { transform: translate(1.4px, 0) rotate(-.8deg); } 25% { transform: translate(0, 1.4px) rotate(0deg); }
+  50% { transform: translate(-1.4px, 0) rotate(.8deg); } 75% { transform: translate(0, -1.4px) rotate(0deg); } 100% { transform: translate(1.4px, 0) rotate(-.8deg); }
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* Большой палец трёт клитор — кисть покачивается в запястье, подушечка ходит по нему. */
+  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-wrist.is-rub { animation: xr-rub-w calc(var(--beat1, 1s) * 1.1) linear infinite; }
+}
+@media (prefers-reduced-motion: no-preference) {
+  /* Её кисть гибкая: в ходе вверх и вниз чуть наклоняется в запястье по
+     направлению движения (--v), у головки сжимается плотнее. */
+}
+
+/* Руки не пульсируют: кисть — живая рука, не «удар». Вспышка и волна на
+   кончике — только у члена и игрушки; сухожилия не мерцают в такт; её кисть
+   ходит по стволу, не сжимаясь (сжатие в такт читалось как пульсация). */
+.hud-xray-row.p-fingers :is(.xr-hit, .xr-ripple) { display: none; }
+:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-tendon { stroke-opacity: .18; }
+/* Её пальцы раздельно: тонкая тёмная линия по бороздке. */
+.xr-hj-sep { fill: none; stroke: var(--edge, #b47862); stroke-opacity: .7; stroke-width: .6; stroke-linecap: round; }
+/* Складки на её пальцах — тонкие и мягкие, не прорезь. */
+.xr-hj .xr-crease { stroke-width: .7; stroke-opacity: .32; filter: blur(.2px); }
+/* Пальцы уходят за ствол: у нижнего края — тень заворота. */
+.xr-hj-wrap { fill: none; stroke: #8c4a36; stroke-opacity: .42; stroke-width: 4.4; stroke-linecap: round; filter: blur(1.8px); }
+/* Красота рук: румянец, косточка, венки, блик, тень на стволе, мягкий контур. */
+.xr-hj-blush { fill: #f2938f; opacity: .26; filter: blur(1.6px); }
+.xr-hj-blush.is-tip { opacity: .3; }
+.xr-hj.is-m .xr-hj-blush { fill: #c7705e; opacity: .18; }
+.xr-hj-bone { fill: #fff6ef; opacity: .4; filter: blur(1.1px); }
+.xr-hj-vein { fill: none; stroke: #8fa0c8; stroke-opacity: .16; stroke-width: 1.1; stroke-linecap: round; filter: blur(.5px); }
+.xr-hj.is-m .xr-hj-vein { stroke: #6f7fa8; stroke-opacity: .22; stroke-width: 1.4; }
+.xr-hj-rimlight { fill: none; stroke: #fffaf5; stroke-opacity: .55; stroke-width: 1.6; stroke-linecap: round; filter: blur(.8px); }
+.xr-hj-cast { fill: #3a1c14; opacity: .28; filter: blur(4px); }
+.xr-hj .xr-vol-edge { stroke-width: .45; stroke-opacity: .48; }
+.xr-hj.is-f { --edge: #c08a76; --rim: #d9a08a; }
 
 .xr-film { width: 760px !important; }
 .hud-xray-side { font-size: 15px; }
 </style></head><body>
-<div class="fx-on"><div class="hud-xray" style="--beat:0.8s;--beat1:0.8s;--depth:0.96;--o:26px"><div class="hud-xray-row p-penis k-anal"><div class="hud-xray-visual"><svg class="xr-film" viewBox="24 30 196 182" role="img" aria-label="Разрез: пенетрация внутри тела">
+<div class="fx-on"><div class="hud-xray" style="--beat:0.8s;--beat1:0.8s"><div class="hud-xray-head"><i class="hud-xray-pulse" aria-hidden="true"></i><b>Темп</b><span class="bpm"><strong>75</strong> толчков в минуту</span><span class="chips"><i>ритмично</i><i>до упора</i></span></div><div class="hud-xray-row p-penis k-vaginal" style="--arc:2;--amp:70;--kp:2;--kg:2;--push:2.6"><div class="hud-xray-cap"><i aria-hidden="true"></i><b>член</b><span>→ vaginal</span><em>до 13,8 см</em></div><div class="hud-xray-visual"><svg class="xr-film" viewBox="-116 -70 302 144" role="img" aria-label="член — лоно, 13,8 см">
   <defs>
-    <radialGradient id="zoom0-bg" cx=".46" cy=".42" r=".8">
-      <stop class="xr-bg0" offset="0"/><stop class="xr-bg1" offset=".62"/><stop class="xr-bg2" offset="1"/>
-    </radialGradient>
-    <radialGradient id="zoom0-butt" cx=".42" cy=".32" r=".78">
-      <stop class="xr-butt0" offset="0"/><stop class="xr-butt1" offset=".62"/><stop class="xr-butt2" offset="1"/>
-    </radialGradient>
-    <radialGradient id="zoom0-flesh" cx=".44" cy=".4" r=".66">
-      <stop class="xr-fl0" offset="0"/><stop class="xr-fl1" offset=".58"/><stop class="xr-fl2" offset="1"/>
-    </radialGradient>
-    <linearGradient id="zoom0-body" x1=".25" y1="0" x2=".75" y2="1">
-      <stop class="xr-sk0" offset="0"/><stop class="xr-sk1" offset=".5"/><stop class="xr-sk2" offset="1"/>
-    </linearGradient>
-    <linearGradient id="zoom0-obj" x1="0" y1="0" x2="0" y2="1">
-      <stop class="xr-obj0" offset="0"/><stop class="xr-obj1" offset=".45"/><stop class="xr-obj2" offset="1"/>
-    </linearGradient>
-    <linearGradient id="zoom0-toy" x1="0" y1="0" x2="0" y2="1">
-      <stop class="xr-toy0" offset="0"/><stop class="xr-toy1" offset=".5"/><stop class="xr-toy2" offset="1"/>
-    </linearGradient>
-    <clipPath id="zoom0-win"><ellipse cx="128" cy="100" rx="54" ry="54"/></clipPath>
-    <radialGradient id="zoom0-vig" cx=".5" cy=".5" r=".74">
-      <stop class="xr-vig0" offset="0"/><stop class="xr-vig1" offset="1"/>
-    </radialGradient>
-  </defs>
-  <rect class="xr-plate" x="0" y="0" width="240" height="210"/>
-  <rect class="xr-backdrop" x="0" y="0" width="240" height="210" fill="url(#zoom0-bg)"/>
-  <rect class="xr-vignette" x="0" y="0" width="240" height="210" fill="url(#zoom0-vig)"/>
-  <g class="xr-clinical"><g class="xr-zoom"><g class="xr-skin-body">
-    <path class="xr-body-fill" fill="url(#zoom0-body)" d="M54 28 Q36 58 30 96 Q24 134 30 168 Q36 194 32 210 L230 210 Q226 190 232 166 Q242 132 238 96 Q232 58 214 32 Q186 14 152 10 Q112 6 78 14 Q62 18 54 28 Z"/>
-    <g class="xr-buttock">
-      <path class="xr-butt" fill="url(#zoom0-butt)" d="M46 66 Q62 34 100 30 Q132 30 140 62 Q148 100 134 136 Q118 168 86 168 Q54 166 44 132 Q38 98 46 66 Z"/>
-      <ellipse class="xr-butt-shine" cx="78" cy="72" rx="20" ry="26" transform="rotate(-16 78 72)"/>
-    </g>
-    <g class="xr-buttock">
-      <path class="xr-butt" fill="url(#zoom0-butt)" d="M152 60 Q170 30 206 34 Q234 42 236 78 Q238 116 224 148 Q208 174 178 172 Q150 168 144 134 Q138 96 152 60 Z"/>
-      <ellipse class="xr-butt-shine" cx="196" cy="70" rx="20" ry="26" transform="rotate(14 196 70)"/>
-    </g>
-    <path class="xr-cleft" d="M132 34 Q126 78 128 118 Q130 152 134 178"/>
-    <path class="xr-under-butt" d="M34 172 Q86 190 130 176 Q176 192 232 168"/>
-    <g class="xr-thighs">
-      <path class="xr-stocking" d="M30 168 Q64 196 118 182 Q114 196 112 210 L32 210 Z"/>
-      <path class="xr-stocking" d="M144 180 Q192 196 232 166 Q236 190 232 210 L140 210 Z"/>
-      <path class="xr-stocking-lace" d="M30 168 Q64 196 118 182"/>
-      <path class="xr-stocking-lace" d="M144 180 Q192 196 232 166"/>
-      <path class="xr-stocking-sheen" d="M56 176 Q80 200 112 196"/>
-      <path class="xr-stocking-sheen" d="M164 186 Q196 202 226 180"/>
-    </g>
-    <path class="xr-body-line" d="M54 28 Q36 58 30 96 Q24 134 30 168 Q36 194 32 210 L230 210 Q226 190 232 166 Q242 132 238 96 Q232 58 214 32 Q186 14 152 10 Q112 6 78 14 Q62 18 54 28 Z"/>
-    <ellipse class="xr-window-glow" cx="128" cy="100" rx="72" ry="72"/>
-  </g><g class="xr-window">
-    <ellipse class="xr-cut-outer" cx="128" cy="100" rx="60" ry="60"/>
-    <ellipse class="xr-cut-layer" cx="128" cy="100" rx="57.4" ry="57.4"/>
-    <ellipse class="xr-cut-inner" cx="128" cy="100" rx="54" ry="54" fill="url(#zoom0-flesh)"/>
-    <ellipse class="xr-cut-depth" cx="128" cy="100" rx="51" ry="51"/>
-  </g><g clip-path="url(#zoom0-win)"><g class="xr-canal c-vag is-dim"><path class="xr-canal-lumen" d="M92.5 136.8 L96.9 132 L101.4 127.3 L105.9 122.6 L110.4 117.8 L114.8 113.1 L119.3 108.4 L123.8 103.6 L128.3 98.9 L132.7 94.2 L137.2 89.4 L142.8 94.6 L138.5 99.4 L134.1 104.3 L129.8 109.2 L125.5 114 L121.2 118.9 L116.8 123.8 L112.5 128.6 L108.2 133.5 L103.9 138.4 L99.5 143.2 Z"/></g><g class="xr-canal c-ana is-target"><path class="xr-canal-lumen" d="M123 144.7 L125.5 141.1 L128 137.5 L130.5 133.9 L133 130.3 L135.6 126.7 L138.1 123.1 L140.6 119.5 L143.1 115.9 L145.6 112.3 L148.1 108.7 L155.7 113.7 L153.4 117.4 L151.2 121.2 L148.9 124.9 L146.6 128.7 L144.4 132.5 L142.1 136.2 L139.8 140 L137.6 143.7 L135.3 147.5 L133 151.3 Z"/></g><g class="xr-organs">
-    <path class="xr-prostate" d="M143 120.8 Q145.2 121.6 146.8 123.3 Q148.4 124.9 149 127 Q149.6 129 149.1 131 Q148.5 132.9 147 134.2 Q145.5 135.4 143.3 135.7 Q141.2 136 139 135.2 Q136.8 134.4 135.2 132.7 Q133.6 131.1 133 129 Q132.4 127 132.9 125 Q133.5 123.1 135 121.8 Q136.5 120.6 138.7 120.3 Q140.8 120 143 120.8 Z"/>
-    <path class="xr-mons" d="M78.7 147.1 Q74.8 145.3 75.6 141.6 Q76.3 137.8 80.4 136.3 Q84.5 134.8 86.6 138.4 Q88.7 142.1 85.6 145.5 Q82.5 148.8 78.7 147.1 Z"/>
-    <path class="xr-penis-own" d="M82.8 136.7 Q78.6 138.2 77 134.1 Q75.4 129.9 75.1 124.4 Q74.8 118.8 77.1 114.7 Q79.5 110.7 82.7 110.1 Q85.9 109.6 88.7 113.9 Q91.5 118.2 91.5 122.7 Q91.6 127.1 89.2 131.1 Q86.9 135.2 82.8 136.7 Z"/>
-    <path class="xr-glabella-own" d="M81.1 109.6 Q78.9 108.4 79.9 105.8 Q80.9 103.2 84.1 103.4 Q87.2 103.7 88.2 106.3 Q89.2 109 86.3 109.9 Q83.4 110.8 81.1 109.6 Z"/>
-    <path class="xr-uretra-own" d="M85.2 104.5 L88.4 103.9"/>
-    <path class="xr-scrotum" d="M88 135.4 Q83.3 130.1 84.5 125.9 Q85.7 121.7 90.2 119.7 Q94.8 117.7 100.8 121.4 Q106.8 125.2 109.5 131.2 Q112.2 137.2 108.4 139.8 Q104.5 142.5 98.7 141.5 Q92.8 140.6 88 135.4 Z"/>
-    <path class="xr-raphe-scrotum" d="M88 130.9 Q97.7 129.2 103.6 125.8"/>
-    <path class="xr-testicle" d="M88.4 131.3 Q88.2 129.3 90.5 128.3 Q92.7 127.3 95.4 128.8 Q98 130.4 97.8 132.8 Q97.6 135.3 95.2 135.7 Q92.8 136.1 90.7 134.7 Q88.6 133.2 88.4 131.3 Z"/>
-    <path class="xr-testicle" d="M93.1 127.6 Q92.9 125.7 95.2 124.6 Q97.4 123.6 100.1 125.2 Q102.7 126.7 102.5 129.2 Q102.3 131.6 99.9 132.1 Q97.5 132.5 95.4 131 Q93.3 129.6 93.1 127.6 Z"/>
-    <path class="xr-perineum" d="M111 137 Q109.5 131.2 113.2 130.1 Q116.9 129.1 121.1 130.3 Q125.4 131.6 127.3 136.9 Q129.2 142.2 125.4 144.9 Q121.6 147.6 117 145.2 Q112.5 142.7 111 137 Z"/>
-    <path class="xr-raphe" d="M114.8 134.3 Q121.9 135.5 128.1 137.6"/>
-    <g class="xr-anus"><ellipse class="xr-anus-outer" cx="128" cy="148" rx="8.2" ry="6"/>
-      <ellipse class="xr-anus-inner" cx="128" cy="148" rx="4.2" ry="3"/>
-      <path class="xr-anus-ray" d="M132.4 148 L135.8 148"/><path class="xr-anus-ray" d="M131.4 150.1 L134 151.7"/><path class="xr-anus-ray" d="M128.8 151.2 L129.4 153.7"/><path class="xr-anus-ray" d="M125.8 150.8 L124.1 153"/><path class="xr-anus-ray" d="M123.9 149.1 L120.7 150"/><path class="xr-anus-ray" d="M123.9 146.9 L120.7 146"/><path class="xr-anus-ray" d="M125.8 145.2 L124.1 143"/><path class="xr-anus-ray" d="M128.8 144.8 L129.4 142.3"/><path class="xr-anus-ray" d="M131.4 145.9 L134 144.3"/></g>
-  </g><g class="xr-canal c-vag is-dim">
-    <path class="xr-canal-wall" d="M92.5 136.8 L96.9 132 L101.4 127.3 L105.9 122.6 L110.4 117.8 L114.8 113.1 L119.3 108.4 L123.8 103.6 L128.3 98.9 L132.7 94.2 L137.2 89.4"/><path class="xr-canal-wall" d="M99.5 143.2 L103.9 138.4 L108.2 133.5 L112.5 128.6 L116.8 123.8 L121.2 118.9 L125.5 114 L129.8 109.2 L134.1 104.3 L138.5 99.4 L142.8 94.6"/>
+    <linearGradient id="zoom0-hs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f9dcc6"/><stop offset="0.35" stop-color="#f1c4a8"/><stop offset="0.75" stop-color="#e3a98c"/><stop offset="1" stop-color="#c98a6e"/></linearGradient><linearGradient id="zoom0-hf" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fde8da"/><stop offset="0.4" stop-color="#f6d2bd"/><stop offset="0.8" stop-color="#e8b49b"/><stop offset="1" stop-color="#d39a80"/></linearGradient><linearGradient id="zoom0-hm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#eebb9b"/><stop offset="0.4" stop-color="#e2a585"/><stop offset="0.8" stop-color="#cf8e6f"/><stop offset="1" stop-color="#b2745a"/></linearGradient><linearGradient id="zoom0-hu" gradientUnits="userSpaceOnUse" x1="0" y1="-15" x2="0" y2="22"><stop offset="0" stop-color="#f9dcc6"/><stop offset=".4" stop-color="#f1c4a8"/><stop offset=".8" stop-color="#e0a588"/><stop offset="1" stop-color="#c98a6e"/></linearGradient><linearGradient id="zoom0-af" x1="0" y1="1" x2="1" y2="0"><stop offset="0" stop-color="#dca58b"/><stop offset=".35" stop-color="#f6d3be"/><stop offset=".6" stop-color="#fde6d8"/><stop offset="1" stop-color="#e2ae95"/></linearGradient><linearGradient id="zoom0-am" x1="1" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#c4876a"/><stop offset=".35" stop-color="#e3a888"/><stop offset=".6" stop-color="#efbe9e"/><stop offset="1" stop-color="#c98d70"/></linearGradient><linearGradient id="zoom0-ff" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#d69c83"/><stop offset="0.22" stop-color="#f3cdb7"/><stop offset="0.45" stop-color="#fde6d8"/><stop offset="0.75" stop-color="#f0c4ad"/><stop offset="1" stop-color="#c98d73"/></linearGradient><linearGradient id="zoom0-fm" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c4876a"/><stop offset="0.22" stop-color="#e2a888"/><stop offset="0.45" stop-color="#f0bf9f"/><stop offset="0.75" stop-color="#dda183"/><stop offset="1" stop-color="#b47459"/></linearGradient>
+    <radialGradient id="zoom0-b" cx=".3" cy=".45" r=".9"><stop class="xr-b0" offset="0"/><stop class="xr-b1" offset=".55"/><stop class="xr-b2" offset="1"/></radialGradient>
+    <linearGradient id="zoom0-s" gradientUnits="userSpaceOnUse" x1="0" y1="-100" x2="0" y2="104"><stop class="xr-s0" offset="0"/><stop class="xr-s1" offset=".5"/><stop class="xr-s2" offset="1"/></linearGradient>
+    <linearGradient id="zoom0-o" x1="0" y1="0" x2="0" y2="1"><stop class="xr-o0" offset="0"/><stop class="xr-o1" offset=".4"/><stop class="xr-o2" offset="1"/></linearGradient>
+    <radialGradient id="zoom0-bd" cx=".62" cy=".5" r=".55"><stop class="xr-bd0" offset="0"/><stop class="xr-bd1" offset=".6"/><stop class="xr-bd2" offset="1"/></radialGradient>
+    <radialGradient id="zoom0-g"><stop class="xr-g0" offset="0"/><stop class="xr-g1" offset="1"/></radialGradient>
+    <radialGradient id="zoom0-fl"><stop class="xr-fl0" offset="0"/><stop class="xr-fl1" offset=".55"/><stop class="xr-fl2" offset="1"/></radialGradient>
+    <linearGradient id="zoom0-f" gradientUnits="userSpaceOnUse" x1="-300" y1="0" x2="-200" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient>
+    <mask id="zoom0-m" maskUnits="userSpaceOnUse" x="-500" y="-160" width="560" height="320"><rect x="-500" y="-160" width="560" height="320" fill="url(#zoom0-f)"/></mask>
+    <clipPath id="zoom0-c"><path d="M-4 -90 C-6 -79.5 -16 -71.5 -16 -61.5 C-16 -51.5 -9 -45.5 -6 -39.5 C-4 -33.5 -2 -25.5 -1 -20.5 L-1 20.5 C-2 25.5 -4 33.5 -6 39.5 C-8 45.5 -6 51.5 -5 54.5 C-5 55.5 -2 56.5 -1 57.5 C-2 59.5 -5 61.5 -7 65.5 C-14 75.5 -22 83.5 -18 94 L400 94 L400 -90 Z"/></clipPath>
     
-  </g><g class="xr-canal c-ana is-target">
-    <path class="xr-canal-wall" d="M123 144.7 L125.5 141.1 L128 137.5 L130.5 133.9 L133 130.3 L135.6 126.7 L138.1 123.1 L140.6 119.5 L143.1 115.9 L145.6 112.3 L148.1 108.7"/><path class="xr-canal-wall" d="M133 151.3 L135.3 147.5 L137.6 143.7 L139.8 140 L142.1 136.2 L144.4 132.5 L146.6 128.7 L148.9 124.9 L151.2 121.2 L153.4 117.4 L155.7 113.7"/>
-    <path class="xr-ruga" d="M128.7 139.7 Q130.7 143.9 135.3 144"/><path class="xr-ruga" d="M132.8 133.7 Q134.7 137.7 139.1 137.8"/><path class="xr-ruga" d="M137 127.7 Q138.7 131.6 143 131.5"/><path class="xr-ruga" d="M141.1 121.6 Q142.6 125.5 146.8 125.3"/><path class="xr-ruga" d="M145.2 115.6 Q146.6 119.3 150.6 119.1"/>
-  </g><path class="xr-sheen" d="M103 128.8 Q113.7 116.5 125.2 104.9"/><g class="xr-wet" transform="translate(95.3 143.8) rotate(-47.5)">
-    <path class="xr-wet-pool" d="M-22 4 Q-6 -6 15 2 Q26 8 12 14 Q-8 19 -22 12 Q-30 7 -22 4 Z"/>
-    <path class="xr-wet-drip" d="M-8 15 Q-11 26 -6 33 Q-2 36 1 31 Q2 21 0 15 Z"/>
-    <path class="xr-wet-drip" d="M11 13 Q10 24 14 29 Q18 31 19 25 Q19 17 16 13 Z"/>
-    <path class="xr-wet-drip" d="M-20 12 Q-23 20 -20 25 Q-17 26 -16 21 Q-16 15 -17 12 Z"/>
-    <circle class="xr-wet-drop" cx="-24" cy="20" r="2.4"/>
-    <circle class="xr-wet-drop" cx="22" cy="18" r="1.8"/>
-    <circle class="xr-wet-drop" cx="4" cy="38" r="1.6"/>
-  </g></g><ellipse class="xr-entry-shadow" cx="95.1" cy="141" rx="16" ry="9" transform="rotate(-47.5 95.1 141)"/><g transform="translate(128 148) rotate(-57)"><g class="xr-ghost g2"><path class="xr-flesh" fill="url(#zoom0-obj)" d="M-26 -7 Q-16 -8.8 -6 -8.4 Q12.2 -9.2 25 -8.8
-      Q26.5 -8.6 28 -9.4 Q31 -10 33 -8.6
-      Q37.4 -7.2 39.4 -3 Q40.6 0 39.4 3
-      Q37.4 7.2 33 8.6 Q31 10 28 9.4
-      Q26.5 8.6 25 8.8 Q12.2 9.2 -6 8.4 Q-16 8.8 -26 7 Q-29.5 0 -26 -7 Z"/>
-    <path class="xr-glabella" fill="url(#zoom0-obj)" d="M28.6 -7.4 Q32 -7.4 34.4 -6.2
-      Q38.6 -5 40.4 -2 Q41.4 0 40.4 2
-      Q38.6 5 34.4 6.2 Q32 7.4 28.6 7.4
-      Q31 3.4 31 0 Q31 -3.4 28.6 -7.4 Z"/>
-    <path class="xr-glabella-shine" d="M30 -5.2 Q34 -4.8 37.4 -3.2 Q34.4 -3.4 31.2 -3 Q30.2 -4 30 -5.2 Z"/>
-    <path class="xr-corona-groove" d="M27.2 -7.6 Q28.8 0 27.2 7.6"/>
-    <path class="xr-corona" d="M28 -7.9 Q29.6 0 28 7.9"/>
-    <path class="xr-frenulum" d="M29 7.2 Q33 8.6 37 5.6"/>
-    <path class="xr-foreskin" d="M22 -7.5 Q24.4 0 22 7.5"/>
-    <path class="xr-uretra" d="M38.6 -1.1 L41.2 0.2 M38.6 1.1 L41.2 -0.2"/>
-    <path class="xr-shine" d="M-30 -5.4 Q13.5 -6.6 23 -5.6"/>
-    <path class="xr-vein-line" d="M-26 -6.4 Q0 -7.6 19 -6.4"/>
-    <path class="xr-skin" d="M-36 -5.8 Q-24 -7.4 -10 -7 M-36 5.8 Q-24 7.4 -10 7"/>
-    <path class="xr-skin" d="M6.8 -7.6 Q14.9 -2.8 6.8 7.6"/></g></g><g transform="translate(128 148) rotate(-57)"><g class="xr-ghost g1"><path class="xr-flesh" fill="url(#zoom0-obj)" d="M-26 -7 Q-16 -8.8 -6 -8.4 Q12.2 -9.2 25 -8.8
-      Q26.5 -8.6 28 -9.4 Q31 -10 33 -8.6
-      Q37.4 -7.2 39.4 -3 Q40.6 0 39.4 3
-      Q37.4 7.2 33 8.6 Q31 10 28 9.4
-      Q26.5 8.6 25 8.8 Q12.2 9.2 -6 8.4 Q-16 8.8 -26 7 Q-29.5 0 -26 -7 Z"/>
-    <path class="xr-glabella" fill="url(#zoom0-obj)" d="M28.6 -7.4 Q32 -7.4 34.4 -6.2
-      Q38.6 -5 40.4 -2 Q41.4 0 40.4 2
-      Q38.6 5 34.4 6.2 Q32 7.4 28.6 7.4
-      Q31 3.4 31 0 Q31 -3.4 28.6 -7.4 Z"/>
-    <path class="xr-glabella-shine" d="M30 -5.2 Q34 -4.8 37.4 -3.2 Q34.4 -3.4 31.2 -3 Q30.2 -4 30 -5.2 Z"/>
-    <path class="xr-corona-groove" d="M27.2 -7.6 Q28.8 0 27.2 7.6"/>
-    <path class="xr-corona" d="M28 -7.9 Q29.6 0 28 7.9"/>
-    <path class="xr-frenulum" d="M29 7.2 Q33 8.6 37 5.6"/>
-    <path class="xr-foreskin" d="M22 -7.5 Q24.4 0 22 7.5"/>
-    <path class="xr-uretra" d="M38.6 -1.1 L41.2 0.2 M38.6 1.1 L41.2 -0.2"/>
-    <path class="xr-shine" d="M-30 -5.4 Q13.5 -6.6 23 -5.6"/>
-    <path class="xr-vein-line" d="M-26 -6.4 Q0 -7.6 19 -6.4"/>
-    <path class="xr-skin" d="M-36 -5.8 Q-24 -7.4 -10 -7 M-36 5.8 Q-24 7.4 -10 7"/>
-    <path class="xr-skin" d="M6.8 -7.6 Q14.9 -2.8 6.8 7.6"/></g></g><g class="xr-object p-penis" transform="translate(128 148) rotate(-57)">
-      <g class="xr-move">
-        <path class="xr-flesh" fill="url(#zoom0-obj)" d="M-26 -7 Q-16 -8.8 -6 -8.4 Q12.2 -9.2 25 -8.8
-      Q26.5 -8.6 28 -9.4 Q31 -10 33 -8.6
-      Q37.4 -7.2 39.4 -3 Q40.6 0 39.4 3
-      Q37.4 7.2 33 8.6 Q31 10 28 9.4
-      Q26.5 8.6 25 8.8 Q12.2 9.2 -6 8.4 Q-16 8.8 -26 7 Q-29.5 0 -26 -7 Z"/>
-    <path class="xr-glabella" fill="url(#zoom0-obj)" d="M28.6 -7.4 Q32 -7.4 34.4 -6.2
-      Q38.6 -5 40.4 -2 Q41.4 0 40.4 2
-      Q38.6 5 34.4 6.2 Q32 7.4 28.6 7.4
-      Q31 3.4 31 0 Q31 -3.4 28.6 -7.4 Z"/>
-    <path class="xr-glabella-shine" d="M30 -5.2 Q34 -4.8 37.4 -3.2 Q34.4 -3.4 31.2 -3 Q30.2 -4 30 -5.2 Z"/>
-    <path class="xr-corona-groove" d="M27.2 -7.6 Q28.8 0 27.2 7.6"/>
-    <path class="xr-corona" d="M28 -7.9 Q29.6 0 28 7.9"/>
-    <path class="xr-frenulum" d="M29 7.2 Q33 8.6 37 5.6"/>
-    <path class="xr-foreskin" d="M22 -7.5 Q24.4 0 22 7.5"/>
-    <path class="xr-uretra" d="M38.6 -1.1 L41.2 0.2 M38.6 1.1 L41.2 -0.2"/>
-    <path class="xr-shine" d="M-30 -5.4 Q13.5 -6.6 23 -5.6"/>
-    <path class="xr-vein-line" d="M-26 -6.4 Q0 -7.6 19 -6.4"/>
-    <path class="xr-skin" d="M-36 -5.8 Q-24 -7.4 -10 -7 M-36 5.8 Q-24 7.4 -10 7"/>
-    <path class="xr-skin" d="M6.8 -7.6 Q14.9 -2.8 6.8 7.6"/>
-        <path class="xr-speed-line" d="M-32 -9.6 L14 -10.2 M-36 9.6 L10 10.2"/>
-      </g>
-    </g><g class="xr-depth">
-    <path class="xr-depth-line" d="M117.9 141.5 L143.9 101.5"/>
-    <path class="xr-tick" d="M119.6 142.6 L116.3 140.4"/><path class="xr-tick" d="M126.1 132.6 L122.8 130.4"/><path class="xr-tick" d="M132.6 122.6 L129.3 120.4"/><path class="xr-tick" d="M139.1 112.6 L135.8 110.4"/><path class="xr-tick is-deep" d="M145.6 102.6 L142.3 100.4"/>
-    <circle class="xr-depth-dot" cx="143.9" cy="101.5" r="3.4" style="--dx:-26;--dy:40"/>
-    <circle class="xr-depth-dot-in" cx="143.9" cy="101.5" r="1.3" style="--dx:-26;--dy:40"/>
-  </g></g><g class="xr-stroke" transform="translate(40 26)">
-    <rect class="xr-stroke-plate" x="-10" y="-13" width="54" height="27" rx="7"/>
-    <path class="xr-stroke-line" d="M0 0 H34"/>
-    <path class="xr-stroke-head" d="M0 0 l4.4 -2.8 M0 0 l4.4 2.8"/>
-    <path class="xr-stroke-head" d="M34 0 l-4.4 -2.8 M34 0 l-4.4 2.8"/>
-    <text class="xr-stroke-label" x="17" y="9">ход ≈ 4,3 см</text>
+    
+    <linearGradient id="zoom0-w" gradientUnits="userSpaceOnUse" x1="0" y1="-29.5" x2="0" y2="29.5">
+      <stop offset="0" class="xr-w0"/><stop offset="0.0610" class="xr-w1"/><stop offset="0.1186" class="xr-w2"/><stop offset="0.1864" class="xr-w3"/>
+      <stop offset="0.8136" class="xr-w3"/><stop offset="0.8814" class="xr-w2"/><stop offset="0.9390" class="xr-w1"/><stop offset="1" class="xr-w0"/></linearGradient>
+    <linearGradient id="zoom0-e" gradientUnits="userSpaceOnUse" x1="160.4" y1="0" x2="185.5" y2="0"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#fff" stop-opacity="0"/></linearGradient>
+    <linearGradient id="zoom0-zf" gradientUnits="userSpaceOnUse" x1="-30" y1="0" x2="-14" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient>
+    <mask id="zoom0-zm" maskUnits="userSpaceOnUse" x="-34" y="-33.5" width="560" height="67"><rect x="-34" y="-33.5" width="560" height="67" fill="url(#zoom0-zf)"/></mask>
+    <linearGradient id="zoom0-ing" gradientUnits="userSpaceOnUse" x1="-2" y1="0" x2="4" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".5" stop-color="#fff" stop-opacity=".6"/><stop offset="1" stop-color="#fff"/></linearGradient>
+    <mask id="zoom0-in" maskUnits="userSpaceOnUse" x="-20" y="-39.5" width="200" height="79"><rect x="-20" y="-39.5" width="200" height="79" fill="url(#zoom0-ing)"/></mask>
+    <mask id="zoom0-k" maskUnits="userSpaceOnUse" x="-400" y="-200" width="900" height="400"><rect x="-400" y="-200" width="900" height="400" fill="url(#zoom0-e)"/></mask>
+    
+  </defs>
+  <rect class="xr-plate" x="-116" y="-70" width="302" height="144"/>
+  <g class="xr-thigh"><ellipse class="xr-backdrop" fill="url(#zoom0-bd)" cx="-28" cy="4" rx="95.5" ry="117.5"/></g>
+  <g transform="translate(138 0)"><g class="xr-move is-body" mask="url(#zoom0-m)"><g class="xr-giver"><g transform="translate(-150 0)"><g class="xr-hips"><g transform="translate(150 0)">
+    <clipPath id="zoom0-gs"><path d="M-550 -100 L-186 -100 C-170 -87.5 -154 -67.5 -157 -41.5 C-158 -26.5 -153 -18.5 -146 -17.5 L-146 16.5 C-138 19.5 -127 29.5 -129 44.5 C-131 57.5 -148 61.5 -158 54.5 C-164 65.5 -174 79.5 -182 104 L-550 104 Z"/></clipPath>
+    <path class="xr-gskin is-fill" fill="url(#zoom0-s)" d="M-550 -100 L-186 -100 C-170 -87.5 -154 -67.5 -157 -41.5 C-158 -26.5 -153 -18.5 -146 -17.5 L-146 16.5 C-138 19.5 -127 29.5 -129 44.5 C-131 57.5 -148 61.5 -158 54.5 C-164 65.5 -174 79.5 -182 104 L-550 104 Z"/>
+    <path class="xr-gskin-line" d="M-550 -100 L-186 -100 C-170 -87.5 -154 -67.5 -157 -41.5 C-158 -26.5 -153 -18.5 -146 -17.5 L-146 16.5 C-138 19.5 -127 29.5 -129 44.5 C-131 57.5 -148 61.5 -158 54.5 C-164 65.5 -174 79.5 -182 104 L-550 104 Z"/>
+    <g clip-path="url(#zoom0-gs)">
+      <path class="xr-gshade" d="M-550 -100 L-186 -100 C-170 -87.5 -154 -67.5 -157 -41.5 C-158 -26.5 -153 -18.5 -146 -17.5 L-146 16.5 C-138 19.5 -127 29.5 -129 44.5 C-131 57.5 -148 61.5 -158 54.5 C-164 65.5 -174 79.5 -182 104 L-550 104 Z"/>
+      <ellipse class="xr-glight" cx="-190" cy="-57.5" rx="26" ry="34"/>
+      <path class="xr-gline" d="M-164 61.5 Q-190 69.5 -246 66.5 M-196 -69.5 Q-178 -51.5 -182 -27.5"/>
+      <path class="xr-gline is-raphe" d="M-144 23.5 Q-136 41.5 -146 57.5"/>
+      <path class="xr-rugae-skin" d="M-140 31.5 q3 2 4 6 M-136 39.5 q2 2 3 6 M-146 47.5 q3 1 5 4"/>
+      <ellipse class="xr-hair-shade" cx="-168" cy="-47.5" rx="16" ry="14"/>
+      <path class="xr-hair" d="M-178 -57.5 q1.6 -2.6 3.6 -1.4 M-173.4 -55.9 q1.6 -2.6 3.6 -1.4 M-171.2 -54.3 q1.6 -2.6 3.6 -1.4 M-166.6 -57.5 q1.6 -2.6 3.6 -1.4 M-164.4 -55.9 q1.6 -2.6 3.6 -1.4 M-176.8 -47.3 q1.6 -2.6 3.6 -1.4 M-174.6 -50.5 q1.6 -2.6 3.6 -1.4 M-170 -48.9 q1.6 -2.6 3.6 -1.4 M-167.8 -47.3 q1.6 -2.6 3.6 -1.4 M-163.2 -50.5 q1.6 -2.6 3.6 -1.4 M-178 -41.9 q1.6 -2.6 3.6 -1.4 M-173.4 -40.3 q1.6 -2.6 3.6 -1.4 M-171.2 -43.5 q1.6 -2.6 3.6 -1.4 M-166.6 -41.9 q1.6 -2.6 3.6 -1.4 "/>
+      <g class="xr-sweat"><ellipse cx="-222" cy="-47.5" rx="2.6" ry="1.5" style="--i:0"/><ellipse cx="-268" cy="-33.5" rx="2" ry="1.2" style="--i:1"/><ellipse cx="-246" cy="-69.5" rx="2.2" ry="1.3" style="--i:2"/><ellipse cx="-300" cy="-55.5" rx="2.6" ry="1.4" style="--i:3"/><ellipse cx="-220" cy="71.5" rx="2.4" ry="1.4" style="--i:4"/><ellipse cx="-274" cy="61.5" rx="2" ry="1.2" style="--i:5"/><ellipse cx="-310" cy="77.5" rx="2.6" ry="1.5" style="--i:6"/></g>
+    </g>
+  </g></g></g></g></g></g>
+  <path class="xr-body" fill="url(#zoom0-b)" d="M-4 -90 C-6 -79.5 -16 -71.5 -16 -61.5 C-16 -51.5 -9 -45.5 -6 -39.5 C-4 -33.5 -2 -25.5 -1 -20.5 L-1 20.5 C-2 25.5 -4 33.5 -6 39.5 C-8 45.5 -6 51.5 -5 54.5 C-5 55.5 -2 56.5 -1 57.5 C-2 59.5 -5 61.5 -7 65.5 C-14 75.5 -22 83.5 -18 94 L400 94 L400 -90 Z"/>
+  <g clip-path="url(#zoom0-c)">
+    <ellipse class="xr-flush" fill="url(#zoom0-fl)" cx="-2" cy="0" rx="61.5" ry="73.5"/>
+    <g class="xr-inside"></g>
+    <g class="xr-canal c-vaginal"></g>
+    <g class="xr-tube" mask="url(#zoom0-k)"><path fill="url(#zoom0-w)" d="M-8 -29.5 L156 -29.5 C176.7 -29.5 185.5 -13.3 185.5 0 C185.5 13.3 176.7 29.5 156 29.5 L-8 29.5 Z"/>
+    <g mask="url(#zoom0-in)"><g class="xr-squeeze">
+    <path class="xr-fold-deep" d="M-6 -19.9 Q-3 -26.7 0 -19.9 Q3.8 -23.7 7.7 -19.9 Q12.3 -24.9 17 -19.9 Q22.5 -26.1 28 -19.9 Q31.4 -23.1 34.8 -19.9 Q39.1 -24.3 43.3 -19.9 Q48.4 -25.5 53.5 -19.9 Q56.5 -26.7 59.5 -19.9 Q63.3 -23.7 67.2 -19.9 Q71.8 -24.9 76.5 -19.9 Q82 -26.1 87.5 -19.9 Q90.9 -23.1 94.3 -19.9 Q98.6 -24.3 102.8 -19.9 Q107.9 -25.5 113 -19.9 Q116 -26.7 119 -19.9 Q122.8 -23.7 126.7 -19.9 Q131.3 -24.9 136 -19.9 Q141.5 -26.1 147 -19.9 Q150.4 -23.1 153.8 -19.9 Q154.9 -24.3 156 -19.9 Z M-6 19.9 Q-1.3 24.9 3.3 19.9 Q8.8 26.1 14.3 19.9 Q17.8 23.1 21.2 19.9 Q25.4 24.3 29.7 19.9 Q34.8 25.5 39.8 19.9 Q42.8 26.7 45.8 19.9 Q49.7 23.7 53.5 19.9 Q58.2 24.9 62.8 19.9 Q68.3 26.1 73.8 19.9 Q77.3 23.1 80.7 19.9 Q84.9 24.3 89.2 19.9 Q94.3 25.5 99.3 19.9 Q102.3 26.7 105.3 19.9 Q109.2 23.7 113 19.9 Q117.7 24.9 122.3 19.9 Q127.8 26.1 133.3 19.9 Q136.8 23.1 140.2 19.9 Q144.4 24.3 148.7 19.9 Q152.3 25.5 156 19.9 Z"/>
+    <path class="xr-ruffle" d="M-6 -17.7 Q-4.4 -20.7 -2.8 -17.7 Q-0.8 -19.4 1.2 -17.7 Q3.6 -19.9 6 -17.7 Q8.8 -20.4 11.6 -17.7 Q13.4 -19.1 15.2 -17.7 Q17.4 -19.6 19.6 -17.7 Q22.2 -20.2 24.8 -17.7 Q26.4 -20.7 28 -17.7 Q30 -19.4 32 -17.7 Q34.4 -19.9 36.8 -17.7 Q39.6 -20.4 42.4 -17.7 Q44.2 -19.1 46 -17.7 Q48.2 -19.6 50.4 -17.7 Q53 -20.2 55.6 -17.7 Q57.2 -20.7 58.8 -17.7 Q60.8 -19.4 62.8 -17.7 Q65.2 -19.9 67.6 -17.7 Q70.4 -20.4 73.2 -17.7 Q75 -19.1 76.8 -17.7 Q79 -19.6 81.2 -17.7 Q83.8 -20.2 86.4 -17.7 Q88 -20.7 89.6 -17.7 Q91.6 -19.4 93.6 -17.7 Q96 -19.9 98.4 -17.7 Q101.2 -20.4 104 -17.7 Q105.8 -19.1 107.6 -17.7 Q109.8 -19.6 112 -17.7 Q114.6 -20.2 117.2 -17.7 Q118.8 -20.7 120.4 -17.7 Q122.4 -19.4 124.4 -17.7 Q126.8 -19.9 129.2 -17.7 Q132 -20.4 134.8 -17.7 Q136.6 -19.1 138.4 -17.7 Q140.6 -19.6 142.8 -17.7 Q145.4 -20.2 148 -17.7 Q149.6 -20.7 151.2 -17.7 Q153.2 -19.4 155.2 -17.7 Q155.6 -19.9 156 -17.7 Z M-6 17.7 Q-4.2 19.1 -2.4 17.7 Q-0.2 19.6 2 17.7 Q4.6 20.2 7.2 17.7 Q8.8 20.7 10.4 17.7 Q12.4 19.4 14.4 17.7 Q16.8 19.9 19.2 17.7 Q22 20.4 24.8 17.7 Q26.6 19.1 28.4 17.7 Q30.6 19.6 32.8 17.7 Q35.4 20.2 38 17.7 Q39.6 20.7 41.2 17.7 Q43.2 19.4 45.2 17.7 Q47.6 19.9 50 17.7 Q52.8 20.4 55.6 17.7 Q57.4 19.1 59.2 17.7 Q61.4 19.6 63.6 17.7 Q66.2 20.2 68.8 17.7 Q70.4 20.7 72 17.7 Q74 19.4 76 17.7 Q78.4 19.9 80.8 17.7 Q83.6 20.4 86.4 17.7 Q88.2 19.1 90 17.7 Q92.2 19.6 94.4 17.7 Q97 20.2 99.6 17.7 Q101.2 20.7 102.8 17.7 Q104.8 19.4 106.8 17.7 Q109.2 19.9 111.6 17.7 Q114.4 20.4 117.2 17.7 Q119 19.1 120.8 17.7 Q123 19.6 125.2 17.7 Q127.8 20.2 130.4 17.7 Q132 20.7 133.6 17.7 Q135.6 19.4 137.6 17.7 Q140 19.9 142.4 17.7 Q145.2 20.4 148 17.7 Q149.8 19.1 151.6 17.7 Q153.8 19.6 156 17.7 Q156 20.2 156 17.7 Z"/>
+    <path class="xr-contact" d="M-8 -17.7 H156 M-8 17.7 H156"/>
+    <path class="xr-gleam" d="M-6 -19.5 H150 M-6 19.9 H150"/></g></g><g transform="translate(138 0)"><g class="xr-move"><path fill="url(#zoom0-w)" mask="url(#zoom0-zm)" d="M-30 -30.5 H520 V30.5 H-30 L-30 19.9 L-14 19.5 C-5.2 18.9 -.4 10.5 1 0 C-.4 -10.5 -5.2 -18.9 -14 -19.5 L-30 -19.9 Z"/>
+    <path class="xr-contact is-front" d="M-14 19.5 C-5.2 18.9 -.4 10.5 1 0 C-.4 -10.5 -5.2 -18.9 -14 -19.5"/></g></g><path class="xr-fold-deep is-shut" d="M0 -1.6 Q2.5 -6.8 5 -1.6 Q8.2 -4.5 11.3 -1.6 Q15.2 -5.4 19 -1.6 Q23.5 -6.3 28 -1.6 Q30.8 -4 33.7 -1.6 Q37.2 -4.9 40.7 -1.6 Q44.8 -5.9 49 -1.6 Q51.5 -6.8 54 -1.6 Q57.2 -4.5 60.3 -1.6 Q64.2 -5.4 68 -1.6 Q72.5 -6.3 77 -1.6 Q79.8 -4 82.7 -1.6 Q86.2 -4.9 89.7 -1.6 Q93.8 -5.9 98 -1.6 Q100.5 -6.8 103 -1.6 Q106.2 -4.5 109.3 -1.6 Q113.2 -5.4 117 -1.6 Q121.5 -6.3 126 -1.6 Q128.8 -4 131.7 -1.6 Q135.2 -4.9 138.7 -1.6 Q139.3 -5.9 140 -1.6 Z M0 1.6 Q4.5 6.3 9 1.6 Q11.8 4 14.7 1.6 Q18.2 4.9 21.7 1.6 Q25.8 5.9 30 1.6 Q32.5 6.8 35 1.6 Q38.2 4.5 41.3 1.6 Q45.2 5.4 49 1.6 Q53.5 6.3 58 1.6 Q60.8 4 63.7 1.6 Q67.2 4.9 70.7 1.6 Q74.8 5.9 79 1.6 Q81.5 6.8 84 1.6 Q87.2 4.5 90.3 1.6 Q94.2 5.4 98 1.6 Q102.5 6.3 107 1.6 Q109.8 4 112.7 1.6 Q116.2 4.9 119.7 1.6 Q123.8 5.9 128 1.6 Q130.5 6.8 133 1.6 Q136.2 4.5 139.3 1.6 Q139.7 5.4 140 1.6 Z"/>
+    <path class="xr-ruffle" d="M0 -0.5 Q1.6 -1.7 3.2 -0.5 Q5.1 -2.1 7 -0.5 Q9.2 -2.5 11.4 -0.5 Q12.9 -1.5 14.3 -0.5 Q16.1 -1.9 17.8 -0.5 Q19.9 -2.3 21.9 -0.5 Q23.2 -2.7 24.5 -0.5 Q26.1 -1.7 27.7 -0.5 Q29.6 -2.1 31.5 -0.5 Q33.7 -2.5 35.9 -0.5 Q37.4 -1.5 38.8 -0.5 Q40.6 -1.9 42.3 -0.5 Q44.4 -2.3 46.4 -0.5 Q47.7 -2.7 49 -0.5 Q50.6 -1.7 52.2 -0.5 Q54.1 -2.1 56 -0.5 Q58.2 -2.5 60.4 -0.5 Q61.9 -1.5 63.3 -0.5 Q65.1 -1.9 66.8 -0.5 Q68.9 -2.3 70.9 -0.5 Q72.2 -2.7 73.5 -0.5 Q75.1 -1.7 76.7 -0.5 Q78.6 -2.1 80.5 -0.5 Q82.7 -2.5 84.9 -0.5 Q86.4 -1.5 87.8 -0.5 Q89.6 -1.9 91.3 -0.5 Q93.4 -2.3 95.4 -0.5 Q96.7 -2.7 98 -0.5 Q99.6 -1.7 101.2 -0.5 Q103.1 -2.1 105 -0.5 Q107.2 -2.5 109.4 -0.5 Q110.9 -1.5 112.3 -0.5 Q114.1 -1.9 115.8 -0.5 Q117.9 -2.3 119.9 -0.5 Q121.2 -2.7 122.5 -0.5 Q124.1 -1.7 125.7 -0.5 Q127.6 -2.1 129.5 -0.5 Q131.7 -2.5 133.9 -0.5 Q135.4 -1.5 136.8 -0.5 Q138.4 -1.9 140 -0.5 Z M0 0.5 Q1.8 1.9 3.5 0.5 Q5.6 2.3 7.6 0.5 Q8.9 2.7 10.2 0.5 Q11.8 1.7 13.4 0.5 Q15.3 2.1 17.2 0.5 Q19.4 2.5 21.6 0.5 Q23.1 1.5 24.5 0.5 Q26.3 1.9 28 0.5 Q30.1 2.3 32.1 0.5 Q33.4 2.7 34.7 0.5 Q36.3 1.7 37.9 0.5 Q39.8 2.1 41.7 0.5 Q43.9 2.5 46.1 0.5 Q47.6 1.5 49 0.5 Q50.8 1.9 52.5 0.5 Q54.6 2.3 56.6 0.5 Q57.9 2.7 59.2 0.5 Q60.8 1.7 62.4 0.5 Q64.3 2.1 66.2 0.5 Q68.4 2.5 70.6 0.5 Q72.1 1.5 73.5 0.5 Q75.3 1.9 77 0.5 Q79.1 2.3 81.1 0.5 Q82.4 2.7 83.7 0.5 Q85.3 1.7 86.9 0.5 Q88.8 2.1 90.7 0.5 Q92.9 2.5 95.1 0.5 Q96.6 1.5 98 0.5 Q99.8 1.9 101.5 0.5 Q103.6 2.3 105.6 0.5 Q106.9 2.7 108.2 0.5 Q109.8 1.7 111.4 0.5 Q113.3 2.1 115.2 0.5 Q117.4 2.5 119.6 0.5 Q121.1 1.5 122.5 0.5 Q124.3 1.9 126 0.5 Q128.1 2.3 130.1 0.5 Q131.4 2.7 132.7 0.5 Q134.3 1.7 135.9 0.5 Q137.8 2.1 139.7 0.5 Q139.9 2.5 140 0.5 Z"/>
+    <path class="xr-shut" d="M0 0 Q2.3 -0.9 4.5 0 Q7.2 0.9 9.8 0 Q12.9 -0.9 16 0 Q19.5 0.9 23 0 Q25.5 -0.9 27.9 0 Q30.8 0.9 33.7 0 Q37 -0.9 40.3 0 Q42.5 0.9 44.8 0 Q47.4 -0.9 50.1 0 Q53.2 0.9 56.3 0 Q59.8 -0.9 63.3 0 Q65.7 0.9 68.2 0 Q71 -0.9 73.9 0 Q77.2 0.9 80.5 0 Q82.8 -0.9 85 0 Q87.7 0.9 90.3 0 Q93.4 -0.9 96.5 0 Q100 0.9 103.5 0 Q106 -0.9 108.4 0 Q111.3 0.9 114.2 0 Q117.5 -0.9 120.8 0 Q123 0.9 125.3 0 Q127.9 -0.9 130.6 0 Q133.7 0.9 136.8 0 Q140.3 -0.9 140 0"/></g>
+    
+    
+    
+    
+    <g class="xr-end"><path class="xr-cervix" d="M140 -10 C144 -15.6 162 -16 172 -9.4 C176 -4.4 176 4.4 172 9.4 C162 16 144 15.6 140 10 C137 6 137 -6 140 -10 Z"/>
+      <ellipse class="xr-cervix-hi" cx="156" cy="-7" rx="10" ry="3.2"/>
+      <path class="xr-cervix-canal" d="M141 0 C150 -.6 162 .6 172 0"/>
+      <path class="xr-os" d="M139.4 -2.6 Q141.8 0 139.4 2.6"/></g>
+    
+    <path class="xr-fat" d="M-4 -90 C-6 -79.5 -16 -71.5 -16 -61.5 C-16 -51.5 -9 -45.5 -6 -39.5 C-4 -33.5 -2 -25.5 -1 -20.5 L-1 20.5 C-2 25.5 -4 33.5 -6 39.5 C-8 45.5 -6 51.5 -5 54.5 C-5 55.5 -2 56.5 -1 57.5 C-2 59.5 -5 61.5 -7 65.5 C-14 75.5 -22 83.5 -18 94 L400 94 L400 -90 Z"/>
+  </g>
+  <path class="xr-skin" d="M-4 -90 C-6 -79.5 -16 -71.5 -16 -61.5 C-16 -51.5 -9 -45.5 -6 -39.5 C-4 -33.5 -2 -25.5 -1 -20.5 L-1 20.5 C-2 25.5 -4 33.5 -6 39.5 C-8 45.5 -6 51.5 -5 54.5 C-5 55.5 -2 56.5 -1 57.5 C-2 59.5 -5 61.5 -7 65.5 C-14 75.5 -22 83.5 -18 94 L400 94 L400 -90 Z"/>
+  <path class="xr-skin-hi" d="M-4 -90 C-6 -79.5 -16 -71.5 -16 -61.5 C-16 -51.5 -9 -45.5 -6 -39.5 C-4 -33.5 -2 -25.5 -1 -20.5 L-1 20.5 C-2 25.5 -4 33.5 -6 39.5 C-8 45.5 -6 51.5 -5 54.5 C-5 55.5 -2 56.5 -1 57.5 C-2 59.5 -5 61.5 -7 65.5 C-14 75.5 -22 83.5 -18 94 L400 94 L400 -90 Z"/>
+  <linearGradient id="zoom0-vs" gradientUnits="userSpaceOnUse" x1="-8.4" y1="0" x2="3.4" y2="0"><stop offset="0" class="xr-vs0"/><stop offset=".55" class="xr-vs0"/><stop offset="1" class="xr-vs1"/></linearGradient>
+      <path class="xr-vestibule" fill="url(#zoom0-vs)" d="M-3 -45.5 C-7 -35.5 -8.4 -8.6 -8.4 0 C-8.4 8.6 -7 35.5 -3 45.5 C2 37.5 3.4 10.8 3.4 0 C3.4 -10.7 2 -37.5 -3 -45.5 Z"/>
+      <path class="xr-anus" d="M-2 54.5 l3 1 M-2 60.5 l3 -1 M-2.4 57.5 h3.4"/>
+  <g transform="translate(138 0)"><g class="xr-move p-penis" mask="url(#zoom0-m)">
+  <linearGradient id="zoom0-rg" gradientUnits="userSpaceOnUse" x1="-178" y1="0" x2="-147" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".4" stop-color="#fff" stop-opacity=".08"/><stop offset=".75" stop-color="#fff" stop-opacity=".55"/><stop offset="1" stop-color="#fff"/></linearGradient>
+  <mask id="zoom0-root" maskUnits="userSpaceOnUse" x="-210" y="-120" width="290" height="240"><rect x="-210" y="-120" width="290" height="240" fill="url(#zoom0-rg)"/></mask>
+  <g mask="url(#zoom0-root)">
+  <path fill="url(#zoom0-o)" class="xr-shaft" d="M-186 -22.5 Q-156 -19.3 -142 -18.7 C-90 -19.1 -43 -17.5 -33 -17.1 L-27 -16.7 L-27 16.7 L-33 17.1 C-43 17.5 -90 19.1 -142 18.6 Q-156 18.9 -186 19.9 Z"/>
+  <path class="xr-shaft-shade" d="M-170 15.8 Q-154 7.4 -120 7.7 C-90 8.8 -43 7.9 -33 7 L-33 17.1 C-43 17.5 -90 19.1 -150 18.5 Q-160 18.9 -170 15.8 Z"/>
+  <path class="xr-shaft-edge" d="M-148 -18.8 C-90 -19.1 -43 -17.5 -33 -17.1 M-148 18.6 C-90 19.1 -43 17.5 -33 17.1"/>
+  <path class="xr-vein" d="M-144 -13.5 C-108 -15.5 -87 -11.1 -66 -13.9 C-48 -15.9 -51 -13.1 -39 -14.5 M-96 -12.7 C-87 -5.2 -72 0.9 -60 -2.6"/>
+  <path class="xr-ridge-u" d="M-146 14.1 L-37 13.9"/>
+  <path class="xr-root-crease" d="M-148 18.1 Q-137 19.7 -124 18.5"/>
+  <path class="xr-shaft-hi" d="M-144 -9.6 C-90 -10.8 -43 -10.1 -35 -8.7"/>
+  </g>
+  <path class="xr-fold" d="M-42 -17.1 Q-39 0 -42 17.1"/>
+  <path class="xr-glans" d="M-35 -19.3 C-18.2 -19.1 -6 -13.3 -1.4 -5.2 C.7 -1.7 .7 1.8 -1.4 5.3 C-6 13.3 -18.2 19.1 -35 19.3 C-30 8.8 -30 -8.7 -35 -19.3 Z"/>
+  <ellipse class="xr-glans-hi" cx="-14.8" cy="-7.3" rx="9.2" ry="3.9"/>
+  <path class="xr-corona" d="M-35.6 -18.7 Q-31.4 0 -35.6 18.7"/>
+  <path class="xr-frenulum" d="M-32 17.5 Q-16.5 16.1 -7 8.8"/>
+  <path class="xr-meatus" d="M-1.4 -2.6 Q-3.6 0 -1.4 2.6"/>
+  <path class="xr-gloss" d="M-142 -14.5 L-40 -14.9 M-29 -14.1 Q-13.2 -10.8 -6 -6.3"/>
+  <path class="xr-sheen-run" pathLength="100" d="M-142 -14.3 L-37 -14.7"/>
+    <circle class="xr-hit" cx="-2" cy="0" r="19.5" fill="url(#zoom0-g)" style="--hit:1"/>
+    <ellipse class="xr-ripple" cx="2" cy="0" rx="12.3" ry="21.5"/>
   </g></g>
-  <g class="xr-labels"><g class="xr-tag">
-    <path class="xr-tag-line" d="M72.5 144.9 L44 92"/>
-    <circle class="xr-tag-dot" cx="72.47984203718961" cy="144.93985520075717" r="1.1"/>
-    <circle class="xr-tag-chip" cx="44" cy="92" r="5.4"/>
-    <text class="xr-tag-num" x="44" y="94">1</text></g><g class="xr-tag">
-    <path class="xr-tag-line" d="M70.7 129.2 L44 70"/>
-    <circle class="xr-tag-dot" cx="70.67399235478072" cy="129.151159658549" r="1.1"/>
-    <circle class="xr-tag-chip" cx="44" cy="70" r="5.4"/>
-    <text class="xr-tag-num" x="44" y="72">2</text></g><g class="xr-tag">
-    <path class="xr-tag-line" d="M83.6 109.2 L204 84"/>
-    <circle class="xr-tag-dot" cx="83.56537579397776" cy="109.1682611444796" r="1.1"/>
-    <circle class="xr-tag-chip" cx="204" cy="84" r="5.4"/>
-    <text class="xr-tag-num" x="204" y="86">3</text></g><g class="xr-tag">
-    <path class="xr-tag-line" d="M92.4 126.1 L44 126"/>
-    <circle class="xr-tag-dot" cx="92.4341503175911" cy="126.13130445779186" r="1.1"/>
-    <circle class="xr-tag-chip" cx="44" cy="126" r="5.4"/>
-    <text class="xr-tag-num" x="44" y="128">4</text></g><g class="xr-tag">
-    <path class="xr-tag-line" d="M118 133.7 L204 138"/>
-    <circle class="xr-tag-dot" cx="118.0458496824089" cy="133.70869554220815" r="1.1"/>
-    <circle class="xr-tag-chip" cx="204" cy="138" r="5.4"/>
-    <text class="xr-tag-num" x="204" y="140">5</text></g><g class="xr-tag">
-    <path class="xr-tag-line" d="M128 148 L204 166"/>
-    <circle class="xr-tag-dot" cx="128" cy="148" r="1.1"/>
-    <circle class="xr-tag-chip" cx="204" cy="166" r="5.4"/>
-    <text class="xr-tag-num" x="204" y="168">6</text></g><g class="xr-tag">
-    <path class="xr-tag-line" d="M126.8 106.4 L204 190"/>
-    <circle class="xr-tag-dot" cx="126.8" cy="106.4" r="1.1"/>
-    <circle class="xr-tag-chip" cx="204" cy="190" r="5.4"/>
-    <text class="xr-tag-num" x="204" y="192">7</text></g><g class="xr-tag">
-    <path class="xr-tag-line" d="M140 83.1 L204 112"/>
-    <circle class="xr-tag-dot" cx="139.97707515879557" cy="83.14565222889591" r="1.1"/>
-    <circle class="xr-tag-chip" cx="204" cy="112" r="5.4"/>
-    <text class="xr-tag-num" x="204" y="114">8</text></g><g class="xr-tag">
-    <path class="xr-tag-line" d="M148.9 109 L44 168"/>
-    <circle class="xr-tag-dot" cx="148.86877452361335" cy="108.96304331331223" r="1.1"/>
-    <circle class="xr-tag-chip" cx="44" cy="168" r="5.4"/>
-    <text class="xr-tag-num" x="44" y="170">9</text></g></g>
-  <text class="xr-mark" x="34" y="205">РАЗРЕЗ · САГИТТАЛЬНЫЙ</text>
-</svg></div><div class="hud-xray-side"><div class="hud-xray-cap"><i aria-hidden="true"></i><b>член</b><em>— anal</em></div><div class="hud-xray-chips"><i>ритмично</i><i>до упора</i></div><div class="hud-xray-speed"><b>75</b><span>толчков в минуту</span></div><div class="hud-xray-depth"><div class="hud-xray-depth-head"><span>глубина</span><b>8,6 см</b><em>из 9</em></div><i class="hud-xray-depth-bar"><i class="hud-xray-depth-fill"></i></i></div><ol class="xr-legend"><li class=""><b>1</b>лобок</li><li class=""><b>2</b>свой член</li><li class=""><b>3</b>головка</li><li class=""><b>4</b>мошонка</li><li class=""><b>5</b>промежность</li><li class=""><b>6</b>анус</li><li class="is-target"><b>7</b>прямая кишка</li><li class=""><b>8</b>предстательная железа</li><li class=""><b>9</b>ягодица</li></ol></div></div></div></div>
+  
+  <g clip-path="url(#zoom0-c)"><g class="xr-bumps" mask="url(#zoom0-k)"><g mask="url(#zoom0-in)"><path fill="url(#zoom0-w)" d="M-4 -20.9 L-4 -16.1 Q-1.7 -14.3 0.5 -16.1 Q3.6 -13.6 6.7 -16.1 Q10.6 -12.9 14.5 -16.1 Q19.3 -14.7 24 -16.1 Q26.7 -14 29.3 -16.1 Q32.8 -13.2 36.3 -16.1 Q40.7 -12.5 45 -16.1 Q47.3 -14.3 49.5 -16.1 Q52.6 -13.6 55.7 -16.1 Q59.6 -12.9 63.5 -16.1 Q68.3 -14.7 73 -16.1 Q75.7 -14 78.3 -16.1 Q81.8 -13.2 85.3 -16.1 Q89.7 -12.5 94 -16.1 Q96.3 -14.3 98.5 -16.1 Q101.6 -13.6 104.7 -16.1 Q108.6 -12.9 112.5 -16.1 Q117.3 -14.7 122 -16.1 Q124.7 -14 127.3 -16.1 Q130.8 -13.2 134.3 -16.1 Q138.7 -12.5 140 -16.1 L140 -20.9 Z"/><path fill="url(#zoom0-w)" d="M-4 20.9 L-4 16.1 Q0.8 13.6 5.5 16.1 Q8.2 12.9 10.8 16.1 Q14.3 14.7 17.8 16.1 Q22.2 14 26.5 16.1 Q28.8 13.2 31 16.1 Q34.1 12.5 37.2 16.1 Q41.1 14.3 45 16.1 Q49.8 13.6 54.5 16.1 Q57.2 12.9 59.8 16.1 Q63.3 14.7 66.8 16.1 Q71.2 14 75.5 16.1 Q77.8 13.2 80 16.1 Q83.1 12.5 86.2 16.1 Q90.1 14.3 94 16.1 Q98.8 13.6 103.5 16.1 Q106.2 12.9 108.8 16.1 Q112.3 14.7 115.8 16.1 Q120.2 14 124.5 16.1 Q126.8 13.2 129 16.1 Q132.1 12.5 135.2 16.1 Q139.1 14.3 140 16.1 L140 20.9 Z"/></g></g></g>
+  <g class="xr-front"><g class="xr-vulva">
+      <linearGradient id="zoom0-vu" gradientUnits="userSpaceOnUse" x1="-12" y1="0" x2="-1" y2="0"><stop offset="0" class="xr-vu0"/><stop offset=".55" class="xr-vu1"/><stop offset="1" class="xr-vu2"/></linearGradient>
+      <radialGradient id="zoom0-cl" gradientUnits="userSpaceOnUse" cx="-6.8" cy="-39.8" r="2.6" fx="-7.4" fy="-40.5"><stop offset="0" class="xr-cl0"/><stop offset=".5" class="xr-cl1"/><stop offset="1" class="xr-cl2"/></radialGradient>
+      <linearGradient id="zoom0-vf" gradientUnits="userSpaceOnUse" x1="0" y1="-50.9" x2="0" y2="-46.5"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient>
+      <mask id="zoom0-vm" maskUnits="userSpaceOnUse" x="-40" y="-200" width="60" height="400"><rect x="-40" y="-200" width="60" height="400" fill="url(#zoom0-vf)"/></mask>
+      <g class="xr-pull is-major" mask="url(#zoom0-vm)">
+        <g class="xr-clit-g"><ellipse class="xr-clit" fill="url(#zoom0-cl)" cx="-6.8" cy="-39.8" rx="2.1" ry="1.6" transform="rotate(-30 -6.8 -39.8)"/></g>
+        <path class="xr-majora" fill="url(#zoom0-vu)" d="M-7.2 -50.5 C-8.6 -48.1 -9.2 -45.1 -8.8 -43.1 C-8.4 -41.7 -7.2 -41.3 -6.2 -41.3 C-6.8 -39.5 -8.2 -38.1 -9.2 -36.5 C-10.6 -31.5 -11 -8.6 -11 0 C-11 8.6 -7 35.5 -1 41.5 C-4 31.5 -5.4 8.6 -5.4 0 C-5.4 -8.6 -4.4 -31.5 -3.8 -37.5 C-3.6 -41.5 -4.6 -46.1 -7.2 -50.5 Z"/>
+        <path class="xr-majora-hi" d="M-6.6 -47.9 C-7.8 -46.1 -8.2 -44.5 -7.8 -43.1 M-7.4 -33.5 C-9.6 -8.6 -9.6 8.6 -6.6 33.5"/>
+        <path class="xr-majora-sh" d="M-4 -35.5 C-6.4 -10.7 -6.4 10.8 -4 35.5"/></g>
+      <g class="xr-pull is-minor"><path class="xr-minora" d="M-1.6 -33.5 C-4.6 -27.5 -6.2 -6.4 -6 0 C-6.2 6.5 -4.6 27.5 -1.6 33.5 C-2.8 25.5 -3 6.5 -2.8 0 C-3 -6.4 -2.8 -25.5 -1.6 -33.5 Z"/>
+        <path class="xr-minora-wet" d="M-3.4 -27.5 C-5 -6.4 -5 6.5 -3.4 27.5"/></g></g></g>
+  
+  
+  
+  
+  <g class="xr-ruler"><path class="xr-ruler-line" d="M0 62 H150"/><path class="xr-tick is-major" d="M0 62 v4"/><text class="xr-num" x="0" y="72">0</text><path class="xr-tick" d="M10 62 v2.4"/><path class="xr-tick" d="M20 62 v2.4"/><path class="xr-tick" d="M30 62 v2.4"/><path class="xr-tick" d="M40 62 v2.4"/><path class="xr-tick is-major" d="M50 62 v4"/><text class="xr-num" x="50" y="72">5</text><path class="xr-tick" d="M60 62 v2.4"/><path class="xr-tick" d="M70 62 v2.4"/><path class="xr-tick" d="M80 62 v2.4"/><path class="xr-tick" d="M90 62 v2.4"/><path class="xr-tick is-major" d="M100 62 v4"/><text class="xr-num" x="100" y="72">10</text><path class="xr-tick" d="M110 62 v2.4"/><path class="xr-tick" d="M120 62 v2.4"/><path class="xr-tick" d="M130 62 v2.4"/><path class="xr-tick" d="M140 62 v2.4"/><path class="xr-tick is-major" d="M150 62 v4"/><text class="xr-num" x="150" y="72">15</text>
+    <path class="xr-target" d="M138 27.5 V62"/>
+    <text class="xr-target-label" x="141" y="59">13,8 см</text></g>
+  <g transform="translate(138 0)"><g class="xr-move"><path class="xr-caret" d="M0 61 l-2.6 -4.4 h5.2 Z"/></g></g>
+  <text class="xr-end-label" x="156" y="28">шейка</text>
+</svg></div></div><svg class="xr-wave" viewBox="0 0 240 32" aria-hidden="true" style="--reps:2">
+    <defs><linearGradient id="zoom-wf" x1="0" y1="0" x2="0" y2="1"><stop class="xr-wf0" offset="0"/><stop class="xr-wf1" offset="1"/></linearGradient></defs>
+    <path class="xr-wave-grid" d="M6 21.5 H234"/><path class="xr-wave-grid" d="M6 16 H234"/><path class="xr-wave-grid" d="M6 10.5 H234"/><path class="xr-wave-base" d="M6 27 H234"/><path class="xr-wave-beat" d="M6 3 V30"/><path class="xr-wave-beat" d="M120 3 V30"/><path class="xr-wave-beat" d="M234 3 V30"/>
+    <path class="xr-wave-fill" fill="url(#zoom-wf)" d="M6 5 C49.8 5 31.5 24.4 79 24.4 C99.5 24.4 113.8 14.7 120 5 C163.8 5 145.5 24.4 193 24.4 C213.5 24.4 227.8 14.7 234 5 V27 H6 Z"/>
+    <path class="xr-wave-glow" d="M6 5 C49.8 5 31.5 24.4 79 24.4 C99.5 24.4 113.8 14.7 120 5 C163.8 5 145.5 24.4 193 24.4 C213.5 24.4 227.8 14.7 234 5"/>
+    <path class="xr-wave-line" d="M6 5 C49.8 5 31.5 24.4 79 24.4 C99.5 24.4 113.8 14.7 120 5 C163.8 5 145.5 24.4 193 24.4 C213.5 24.4 227.8 14.7 234 5"/><circle class="xr-wave-peak" cx="6" cy="5" r="1.5"/><circle class="xr-wave-peak" cx="120" cy="5" r="1.5"/><circle class="xr-wave-peak" cx="234" cy="5" r="1.5"/>
+    <g class="xr-wave-run"><g class="xr-wave-dot" style="--wy:22px">
+      <path class="xr-wave-head" d="M6 3 V30"/><circle class="xr-wave-halo" cx="6" cy="5" r="5"/><circle cx="6" cy="5" r="2.6"/></g></g>
+  </svg></div></div>
 <script>if(location.search.includes('crop')){const s=document.querySelector('.xr-film');const p=new URLSearchParams(location.search).get('crop');if(s&&p)s.setAttribute('viewBox',p);}</script>
 </body></html>
