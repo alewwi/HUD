@@ -4,29 +4,29 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.61.0';
-import { иконка } from './hud-icons.js?v=23.61.0';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.61.0';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.61.0';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=23.61.0';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.61.5';
+import { иконка } from './hud-icons.js?v=23.61.5';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.61.5';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.61.5';
+import { силаСтраха, стадияБолезни } from '../codes.js?v=23.61.5';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  блокТемпаСцены, активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.61.0';
-import { часыСцены } from './scene-clock.js?v=23.61.0';
-import { buildUnderwear } from './underwear.js?v=23.61.0';
-import { buildDuel } from './duel.js?v=23.61.0';
-import { buildPregnancy } from './pregnancy.js?v=23.61.0';
-import { buildPostpartum } from './postpartum.js?v=23.61.0';
-import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды, датаЗачатия } from './conception.js?v=23.61.0';
-import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.61.0';
-import { parseSceneDate } from '../history-analyzer.js?v=23.61.0';
-import { settings, настройка } from '../settings.js?v=23.61.0';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.61.0';
-import { видСостоянияТела } from './extras.js?v=23.61.0';
-import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ } from './views-fields.js?v=23.61.0';
-import { parseRelationList } from './relations-graph.js?v=23.61.0';
-import { отложитьРисунок } from './lazy-svg.js?v=23.61.0';
-import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.61.0';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.61.0';
+  блокТемпаСцены, активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.61.5';
+import { часыСцены } from './scene-clock.js?v=23.61.5';
+import { buildUnderwear } from './underwear.js?v=23.61.5';
+import { buildDuel } from './duel.js?v=23.61.5';
+import { buildPregnancy } from './pregnancy.js?v=23.61.5';
+import { buildPostpartum } from './postpartum.js?v=23.61.5';
+import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды, датаЗачатия } from './conception.js?v=23.61.5';
+import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.61.5';
+import { parseSceneDate } from '../history-analyzer.js?v=23.61.5';
+import { settings, настройка } from '../settings.js?v=23.61.5';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.61.5';
+import { видСостоянияТела } from './extras.js?v=23.61.5';
+import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом } from './views-fields.js?v=23.61.5';
+import { parseRelationList } from './relations-graph.js?v=23.61.5';
+import { отложитьРисунок } from './lazy-svg.js?v=23.61.5';
+import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.61.5';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.61.5';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле', 'состояние тела'];
@@ -339,6 +339,10 @@ function значениеПоля(ключ, значение, класс = 'hud-
     if (главное) return `<span class="${класс} hud-status"><b class="hud-status-main"><i class="hud-status-dot" aria-hidden="true"></i>${applyTooltips(главное)}</b>`
       + (ещё.length ? `<span class="hud-status-tags">${ещё.map(ч => `<span>${applyTooltips(ч)}</span>`).join('')}</span>` : '') + `</span>`;
   }
+  // Несколько пунктов через «;» — несколько пилюль, а не одна длинная строка
+  // («190 см; широкие плечи; платиновые волосы»). Мысли — проза: там «;»
+  // просто знак препинания.
+  if (ключ !== 'мысли' && части().length > 1) return `<div class="hud-vertical-container">${buildPillList(текст, 'hud-detail-pill', true)}</div>`;
   return `<span class="${класс}">${applyTooltips(текст)}</span>`;
 }
 // Цвет из темы получают ВСЕ строки, кроме NSFW: поле, которого нет в
@@ -1316,12 +1320,9 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary) {
       // и день или часть дня («пятница 10:00 - сдача», «суббота - сборка»):
       // прежде колонка появлялась, только если строка начиналась с часов, и
       // «пятница 10:00 - …» шла одним текстом.
-      const items = String(value).split(String(value).includes(';') ? /;/ : /(?:\.\s+(?=[А-ЯA-ZЁ])|\n)/)
-        .filter(i => i.trim().length > 0).map(i => {
-          const text = i.trim().replace(/\.$/, '');
-          const m = text.match(/^(.{0,24}?\d{1,2}:\d{2})\s*[-—–:]?\s*(.+)$/) || text.match(/^([^-—–:;]{1,24}?)\s+[-—–]\s+(.+)$/);
-          return m ? `<div class="hud-schedule-item"><div class="hud-schedule-time">${escapeHtml(m[1].trim())}</div><div class="hud-schedule-event">${applyTooltips(m[2])}</div></div>` : `<div class="hud-schedule-item"><div class="hud-schedule-event">${applyTooltips(text)}</div></div>`;
-        }).join('');
+      // Разбор общий с видами расписания (views-fields.js); время не
+      // разрывается переносом даже в узкой колонке.
+      const items = разобратьРасписание(value).map(x => `<div class="hud-schedule-item">${x.когда ? `<div class="hud-schedule-time">${времяЦеликом(x.когда)}</div>` : ''}<div class="hud-schedule-event">${applyTooltips(x.что)}</div></div>`).join('');
       // Подписи у строки не было — единственной среди полей персонажа.
       html += `<div class="${rowClass} full-width"><span class="hud-key">${icon}${escapeHtml(key)}:</span> <div class="hud-schedule-container">${items}</div></div>`;
     } else if (lowerKey === 'ожидание vs реальность') {

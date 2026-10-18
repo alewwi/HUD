@@ -12,8 +12,8 @@
 // Не разобрали данные — пустая строка, и поле рисуется по-старому.
 // Оформление — css/views-fields.css.
 
-import { escapeHtml, разбитьСписок } from '../utils.js?v=23.61.0';
-import { ико, ИКОНКИ } from './view-icons.js?v=23.61.0';
+import { escapeHtml, разбитьСписок } from '../utils.js?v=23.61.5';
+import { ИКОНКИ } from './view-icons.js?v=23.61.5';
 
 const т = (s) => escapeHtml(String(s ?? '').trim());
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто|—|-)$/i.test(String(v).trim());
@@ -287,7 +287,7 @@ function видРоли(value, вид) {
     // остальные роли — наградными планками.
     const id = новыйId('md');
     const лучи = Array.from({ length: 16 }, (_, k) => { const a = k / 16 * Math.PI * 2, r1 = k % 2 ? 19 : 24; return `${ф(40 + Math.cos(a) * r1)},${ф(64 + Math.sin(a) * r1)}`; }).join(' ');
-    const листья = Array.from({ length: 14 }, (_, k) => { const a = Math.PI * (.62 + k / 13 * .76) * (k < 7 ? 1 : 1), сторона = k < 7 ? -1 : 1, t = (k % 7) / 6;
+    const листья = Array.from({ length: 14 }, (_, k) => { const сторона = k < 7 ? -1 : 1, t = (k % 7) / 6;
       const ang = Math.PI / 2 + сторона * (0.35 + t * 2.1), x = 40 + Math.cos(ang) * 15, y = 64 + Math.sin(ang) * 15;
       return `<ellipse class="leaf" cx="${ф(x)}" cy="${ф(y)}" rx="1.6" ry="3.4" transform="rotate(${ф(ang * 180 / Math.PI + 90)} ${ф(x)} ${ф(y)})"/>`; }).join('');
     return обёртка('role', 'ribbon', `<svg class="medal" viewBox="0 0 80 92" aria-hidden="true"><defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" class="g0"/><stop offset=".5" class="g1"/><stop offset="1" class="g2"/></linearGradient></defs>`
@@ -561,12 +561,18 @@ function видЦелей(value, вид) {
 
 /* ============================== РАСПИСАНИЕ ================================ */
 
+// Время пункта — «09:00» или диапазон «09:00–11:00»: конец диапазона тоже
+// время, а не начало события.
+const ВРЕМЯ_ПУНКТА = /\d{1,2}:\d{2}(?:\s*[-—–]\s*\d{1,2}:\d{2})?/;
+/** Текст → HTML, где каждое «ЧЧ:ММ» не разрывается переносом строки. */
+export const времяЦеликом = (s) => т(s).replace(/\d{1,2}:\d{2}/g, '<span class="hud-nowrap">$&</span>');
+
 export function разобратьРасписание(value) {
   const v = String(value || '');
   return v.split(v.includes(';') ? /;/ : /(?:\.\s+(?=[А-ЯA-ZЁ])|\n)/).map(i => i.trim().replace(/\.$/, '')).filter(Boolean).map(text => {
-    const m = text.match(/^(.{0,24}?\d{1,2}:\d{2})\s*[-—–:]?\s*(.+)$/) || text.match(/^([^-—–:;]{1,24}?)\s+[-—–]\s+(.+)$/);
+    const m = text.match(/^(.{0,24}?\d{1,2}:\d{2}(?:\s*[-—–]\s*\d{1,2}:\d{2})?)\s*[-—–:]?\s*(.+)$/) || text.match(/^([^-—–:;]{1,24}?)\s+[-—–]\s+(.+)$/);
     if (!m) return { когда: '', что: text, день: '', время: '' };
-    const когда = m[1].trim(), время = (когда.match(/\d{1,2}:\d{2}/) || [''])[0];
+    const когда = m[1].trim(), время = (когда.match(ВРЕМЯ_ПУНКТА) || [''])[0];
     return { когда, что: m[2].trim(), время, день: когда.replace(время, '').trim() };
   });
 }
@@ -576,19 +582,19 @@ function видРасписания(value, вид) {
   if (вид === 'calendar') {
     // Отрывной календарь: корешок с кольцами, под листом — стопка, низ рваный.
     return обёртка('sched', 'calendar', с.map((x, i) => `<div class="pad" style="--i:${i}"><i class="spine" aria-hidden="true"><s></s><s></s><s></s></i>`
-      + `<div class="leaf"><span class="day">${т(x.день || 'в течение дня')}</span><b class="big">${т(x.время || '—')}</b><span class="what">${т(с1(x.что))}</span></div><i class="stack" aria-hidden="true"></i></div>`).join(''));
+      + `<div class="leaf"><span class="day">${т(x.день || 'в течение дня')}</span><b class="big">${времяЦеликом(x.время || '—')}</b><span class="what">${т(с1(x.что))}</span></div><i class="stack" aria-hidden="true"></i></div>`).join(''));
   }
   if (вид === 'planner') {
     // Ежедневник: кожаная обложка со строчкой, ленточка-закладка, лист с полями.
     return обёртка('sched', 'planner', `<div class="cover"><i class="ribbon" aria-hidden="true"></i><div class="page"><span class="head">План<em>${т(с[0].день || 'на ближайшее')}</em></span>`
-      + с.map(x => `<div class="line"><span class="when">${т(x.время || x.день || '·')}</span><span class="what">${т(с1(x.что))}</span><i class="ck" aria-hidden="true"></i></div>`).join('') + `</div></div>`);
+      + с.map(x => `<div class="line"><span class="when">${времяЦеликом(x.время || x.день || '·')}</span><span class="what">${т(с1(x.что))}</span><i class="ck" aria-hidden="true"></i></div>`).join('') + `</div></div>`);
   }
   if (вид === 'tickets') {
     // Входные билеты: шапка, поля «день / время / №», голографическая полоса,
     // перфорация и корешок со штрихкодом.
     return обёртка('sched', 'tickets', с.map((x, i) => `<div class="tk" style="--h:${(i * 97) % 300 - 150}"><div class="main"><span class="head">Входной билет<i class="holo" aria-hidden="true"></i></span>`
-      + `<b class="ev">${т(с1(x.что))}</b><span class="fields"><span><small>день</small>${т(x.день || '—')}</span><span><small>время</small>${т(x.время || '—')}</span><span><small>№</small>${String(i + 1).padStart(3, '0')}</span></span></div>`
-      + `<div class="stub" aria-hidden="true"><span class="code"></span><small>${т(x.время || '—')}</small></div></div>`).join(''));
+      + `<b class="ev">${т(с1(x.что))}</b><span class="fields"><span><small>день</small>${т(x.день || '—')}</span><span><small>время</small>${времяЦеликом(x.время || '—')}</span><span><small>№</small>${String(i + 1).padStart(3, '0')}</span></span></div>`
+      + `<div class="stub" aria-hidden="true"><span class="code"></span><small>${времяЦеликом(x.время || '—')}</small></div></div>`).join(''));
   }
   return '';
 }

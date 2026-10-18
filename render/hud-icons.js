@@ -15,8 +15,8 @@
 //    меняются: SVG вписан в 1em и встаёт туда же, где стоял символ;
 //  · значок декоративный (aria-hidden), смысл несёт текст рядом.
 
-import { settings } from '../settings.js?v=23.61.0';
-import { ИКОНКИ } from './view-icons.js?v=23.61.0';
+import { settings } from '../settings.js?v=23.61.5';
+import { ИКОНКИ } from './view-icons.js?v=23.61.5';
 
 // Рисунки, которых не было в view-icons.js. Квадрат 24×24, обводка.
 const ДОП = {
@@ -69,8 +69,6 @@ const норм = (э) => String(э || '').split(VS16).join('').trim();
 
 /** Имя значка для эмодзи или '' — если своего рисунка нет. */
 export const имяЗначка = (эмодзи) => { const и = ЭМОДЗИ[норм(эмодзи)]; return и && НАБОР[и] ? и : ''; };
-export const ЕСТЬ_ЗНАЧОК = (имя) => !!НАБОР[имя];
-export const ИМЕНА_НАБОРА = Object.keys(НАБОР);
 
 export const значкиВключены = (s = settings) => s.iconSet === 'svg';
 

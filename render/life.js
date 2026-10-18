@@ -18,16 +18,16 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.61.0';
-import { settings } from '../settings.js?v=23.61.0';
-import { разобратьХод } from './carryover.js?v=23.61.0';
-import { моментСцены } from './intimacy.js?v=23.61.0';
-import { одеждаПодробно, полПерсонажа } from './scene-body.js?v=23.61.0';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.61.0';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.61.0';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.61.0';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.61.0';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.61.0';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.61.5';
+import { settings } from '../settings.js?v=23.61.5';
+import { разобратьХод } from './carryover.js?v=23.61.5';
+import { моментСцены } from './intimacy.js?v=23.61.5';
+import { одеждаПодробно, полПерсонажа } from './scene-body.js?v=23.61.5';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.61.5';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.61.5';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.61.5';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.61.5';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.61.5';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;
@@ -620,9 +620,11 @@ export function сколькоПрошло(t, сейчас) {
   if (мин < 50) return мин <= 5 ? 'только что' : мин + ' мин назад';
   if (мин < 20 * 60) return Math.round(мин / 60) + ' ч назад';
   const дни = Math.floor(сейчас / СУТКИ) - Math.floor(t / СУТКИ);
+  // 20+ часов, а сутки те же (01:30 → 23:00) — всё ещё часы, не «0 дн.».
+  if (дни < 1) return Math.round(мин / 60) + ' ч назад';
   const чч = new Date(t).toISOString().slice(11, 16);
   if (дни === 1) return 'вчера ' + чч;
-  return дни + (дни < 5 ? ' дн.' : ' дн.') + ' назад';
+  return дни + ' ' + склон(дни, ['день', 'дня', 'дней']) + ' назад';
 }
 const часы = (ч) => (Math.round(ч * 2) / 2).toString().replace('.', ',') + ' ч';
 const деньги = (n, вал = '') => Math.round(n).toLocaleString('ru-RU').replace(/\s/g, ' ') + (вал ? ' ' + вал : '');
@@ -766,7 +768,7 @@ const ТКАНИ = { silk: 'шёлк', lace: 'кружево', sheer: 'тонк�
 const ИМЯ_СОБЫТИЯ = (вид) => (ВИДЫ_БЫТА[вид] ? ВИДЫ_БЫТА[вид].имя : вид === 'income' ? 'Доход' : вид === 'out' ? 'Закончилось' : вид === 'fight' ? 'Схватка' : вид === 'crash' ? 'Отходняк' : '');
 const икоСобытия = (вид, класс = '') => ико(ИКОНКА_СОБЫТИЯ[вид] || 'diamond', класс);
 // Тон по уровню: акцент темы — в порядке, янтарь — пора, красный — плохо.
-const ЯНТАРЬ = '#e0a458', КРАСНЫЙ = '#e46a6a', СОН = '#8ab4e8';
+const ЯНТАРЬ = '#e0a458', КРАСНЫЙ = '#e46a6a';
 const тон = (v, п = {}) => (v < 30 ? 'is-low' : v < 60 || п.тревога ? 'is-mid' : 'is-ok');
 const цветТона = (т) => (т === 'is-low' ? `--v-acc:${КРАСНЫЙ};` : т === 'is-mid' ? `--v-acc:${ЯНТАРЬ};` : '');
 

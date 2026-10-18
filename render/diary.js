@@ -6,8 +6,8 @@
 // index.js импортирует отсюда только buildDiaryHTML и hudHasMeaningfulDiary —
 // остальное экспортируется для тестов и внутренних нужд домена.
 
-import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки } from '../utils.js?v=23.61.0';
-import { settings } from '../settings.js?v=23.61.0';
+import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки } from '../utils.js?v=23.61.5';
+import { settings } from '../settings.js?v=23.61.5';
 
 // Дневник: словарь эмоциональных синонимов. Раньше всё сводилось к
 // четырём темам (sad / angry / panic / neutral) — «скука», «презрение»,
@@ -274,7 +274,6 @@ function buildWaxDrops(seed) {
 // ритм; after — ровно и мельче. Читаемость прежде всего: сдвиги до 2px и 2°,
 // цвет и контраст не меняются. Ритм — из хэша текста, не случайный: при
 // перерисовке запись не «пляшет».
-export const ПОЧЕРКИ = ['calm', 'warm', 'peak', 'after'];
 const первоеЧисло = (s) => { const м = String(s || '').match(/(\d+(?:[.,]\d+)?)\s*(%|\/\s*10)?/); if (!м) return null; const n = parseFloat(м[1].replace(',', '.')); return м[2] && м[2].includes('%') ? n / 10 : n; };
 export function почеркЗаписи({ org = '', vit = '', mood = '', text = '' } = {}) {
   const о = первоеЧисло(org);
