@@ -27,6 +27,7 @@ const МЕТКА = 'data-hud-css';
 export const ЧАСТИ = [
   // Токены — первыми: только объявления переменных, остальные части их читают.
   ['tokens'], ['base'], ['themes'], ['misc'], ['views'], ['views-fields'], ['views-trio'], ['family'], ['family-views'],
+  ['world-views', (s) => s.enableWorld !== false],
   ['extras'], ['deco'], ['scene-body'],
   // В xray.css и шкала темпа (.hud-tempo), не только рентген.
   ['xray', (s) => s.enableTempo !== false],

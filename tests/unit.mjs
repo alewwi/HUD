@@ -429,9 +429,10 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   const M = await модуль('render/memory.js');
   const Co = await модуль('render/companions.js');
   const S = await модуль('render/sample-hud.js');
+  const W = await модуль('render/world.js');
   const д = Sch.normalizeJSONData(P.parseHUDComplex(S.ПРИМЕР_HUD_ТЕКСТ.split('{{user}}').join('Софи')));
   const собрать = () => д.characters.map((c, i) => Ch.buildCharacterHTML(c, 'v' + i, true, i === 0)).join('')
-    + M.buildMemoryHTML(д.memory, 'vm', true, д) + Co.buildCompanionsHTML(д.companions, 'vp', true);
+    + M.buildMemoryHTML(д.memory, 'vm', true, д) + Co.buildCompanionsHTML(д.companions, 'vp', true) + W.buildWorldHTML(д.world, 'vw', true, true);
   const сбои = [], пустые = [];
   for (const б of V.ВИДЫ_БЛОКОВ) {
     for (const вид of Object.keys(б.виды).slice(1)) {
@@ -440,7 +441,7 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
         const h = собрать();
         if (/undefined|NaN|\[object Object\]/.test(h)) сбои.push(б.ключ + ':' + вид);
         const своё = { petView: /hud-tama|hud-pet-head/, bodyStateView: /hud-bs-(?:flasks|chips)/, healthView: /hud-hv-/, marksView: /hud-mkv-|hud-marks/ }[б.ключ];
-        if (!['front', 'list'].includes(вид) && !(своё ? своё.test(h) : /hud-v-|hud-f-/.test(h)) && б.ключ !== 'bondView') пустые.push(б.ключ + ':' + вид);
+        if (!['front', 'list'].includes(вид) && !(своё ? своё.test(h) : /hud-v-|hud-f-|hud-wv-/.test(h)) && б.ключ !== 'bondView') пустые.push(б.ключ + ':' + вид);
       } catch (e) { сбои.push(б.ключ + ':' + вид + ' ' + e.message); }
     }
     delete St.settings[б.ключ];
@@ -471,7 +472,7 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   проверить('воспоминания и важное сохраняют кнопку «Запомнить»', ['polaroid', 'film', 'beads'].every(в => V.видВоспоминаний(пп, в).includes('hud-remember')) && ['scroll', 'notebook', 'bookmarks'].every(в => V.видВажного(пп, в).includes('hud-remember')));
   const сек = V.видСекретов([{ fact: 'А', level: 'low', status: 'unknown' }, { fact: 'Б', level: 'low', status: 'part' }], 'envelopes');
   проверить('конверты: целая печать без трещин, расколотая — две половинки', (сек.match(/class="crack"/g) || []).length === 0 && сек.includes('is-broken'));
-  проверить('в кастомизации виды идут группами, как в карточке', V.ВИДЫ_БЛОКОВ.map(б => б.группа).filter((г, i, все) => все.indexOf(г) === i).join() === 'Облик,Тело и здоровье,Место и речь,Мысли и чувства,Планы и вещи,Связи,Близость,Детская,Память,Быт,Спутники');
+  проверить('в кастомизации виды идут группами, как в карточке', V.ВИДЫ_БЛОКОВ.map(б => б.группа).filter((г, i, все) => все.indexOf(г) === i).join() === 'Облик,Тело и здоровье,Место и речь,Мысли и чувства,Планы и вещи,Связи,Близость,Детская,Память,Быт,Спутники,Мир');
   проверить('у каждой группы блоки подряд', V.ВИДЫ_БЛОКОВ.every((б, i, все) => i === 0 || б.группа === все[i - 1].группа || !все.slice(0, i).some(x => x.группа === б.группа)));
   const F = await модуль('render/views-fields.js');
   проверить('виды полей: у каждого поля из таблицы есть вид в «Кастомизации»', Object.values(F.ВИД_ПОЛЯ).every(к => V.ВИДЫ_БЛОКОВ.some(б => б.ключ === к && Object.keys(б.виды)[0] === 'classic')));

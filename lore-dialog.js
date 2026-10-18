@@ -6,7 +6,7 @@
 
 import { guardTouchSwipe, escapeHtml } from './utils.js?v=23.61.5';
 import { settings } from './settings.js?v=23.61.5';
-import { stripHudBlock, buildLoreGenPrompt, parseLoreGenResponse, loreAlreadyHas, buildLoreEntry } from './lore.js?v=23.61.5';
+import { окноКонтекстаЛора, buildLoreGenPrompt, parseLoreGenResponse, loreAlreadyHas, buildLoreEntry } from './lore.js?v=23.61.5';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // getAvailableHudLorebooks, getMainProtagonistNames, getStContextSafe, getStRequestHeadersSafe, loadHudLorebook, showHudToast.
@@ -72,7 +72,8 @@ async function writeLorebook(name, book) {
   return 'http';
 }
 
-export async function openLoreDialog(text, keys) {
+// откуда — номер сообщения, в чьём HUD нажали «Запомнить» (null — конец чата).
+export async function openLoreDialog(text, keys, откуда = null) {
   if (loreDialogOpen) return;
   loreDialogOpen = true;
 
@@ -90,7 +91,7 @@ export async function openLoreDialog(text, keys) {
           <input type="text" class="hud-modal-keys">
           <label class="hud-modal-label">В какую книгу</label>
           <select class="hud-modal-book"><option value="">Загружаю список…</option></select>
-          <div class="hud-modal-note">Сейчас в полях — сухая выжимка из HUD. Можно записать как есть, а можно попросить модель дописать связный текст с контекстом сцены, заголовок и ключи — она прочитает последние сообщения чата.</div>
+          <div class="hud-modal-note">Сейчас в полях — сухая выжимка из HUD. Можно записать как есть, а можно попросить модель дописать связный текст с контекстом сцены, заголовок и ключи — она прочитает сообщения до этого HUD и то, где запись впервые появилась.</div>
           <div class="hud-modal-note hud-lore-genstate" hidden></div>
         </div>
         <div class="hud-modal-foot">
@@ -143,12 +144,9 @@ export async function openLoreDialog(text, keys) {
     let безHud = false;
     try {
       const сколько = Math.max(0, Math.min(50, Number(settings.loreContextMessages ?? 10)));
-      const chat = Array.isArray(ctx.chat) ? ctx.chat : [];
-      const хвост = сколько ? chat.slice(-сколько) : [];
-      const сообщения = хвост.map(m => ({
-        name: String(m && m.name || ''),
-        text: stripHudBlock(String(m && m.mes || '')),
-      })).filter(m => m.text);
+      // Сообщения до HUD с этой записью и то, где она впервые появилась —
+      // по исходному тексту из HUD, а не по правленому в поле.
+      const сообщения = окноКонтекстаЛора(ctx.chat, откуда, String(text || '') || факт, сколько);
       const имена = основа.getMainProtagonistNames(ctx);
       const prompt = buildLoreGenPrompt({
         fact: факт,

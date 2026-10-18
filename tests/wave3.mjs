@@ -681,5 +681,111 @@ const settings = S.settings;
   проверить('мысли с «;» — одной строкой', !/hud-detail-pill/.test(строка('Мысли')));
 }
 
+// --- Наведение — только мышью --------------------------------------------------
+// Правило с :hover (кроме :not(:hover)) лежит внутри
+// @media (hover: hover) and (pointer: fine): на телефоне всё работает касанием.
+{
+  const голые = [];
+  for (const ф of всеCSS.filter(ф => !ф.endsWith('all.css'))) {
+    const s = css(ф).replace(/\/\*[\s\S]*?\*\//g, '');
+    const стек = []; let начало = 0;
+    for (let i = 0; i < s.length; i++) {
+      if (s[i] === '{') { стек.push(s.slice(начало, i).trim()); начало = i + 1; }
+      else if (s[i] === '}') { стек.pop(); начало = i + 1; }
+      else if (s[i] === ';') начало = i + 1;
+      const откр = s[i] === '{' ? стек[стек.length - 1] : null;
+      if (откр && !откр.startsWith('@') && /:hover\b/.test(откр.replace(/:not\([^)]*\)/g, '')) && !стек.slice(0, -1).some(п => /hover:\s*hover\)\s*and\s*\(pointer:\s*fine/.test(п))) голые.push(ф + ': ' + откр.slice(0, 80));
+    }
+  }
+  проверить('наведение: каждый :hover — под (hover: hover) and (pointer: fine)', !голые.length, голые.slice(0, 5).join(' | '));
+  проверить('наведение: запасной блок касания — точное дополнение мыши', /@media not all and \(hover: hover\) and \(pointer: fine\)/.test(css('css/misc.css')) && !/@media \(hover: none\)/.test(всеCSS.map(css).join('\n')));
+}
+
+// --- Виды «Мира»: кнопки, без эмодзи, отметки переживают перерисовку ----------
+{
+  const V = await модуль('render/views.js');
+  const W = await модуль('render/world.js');
+  const WV = await модуль('render/world-views.js');
+  const мир = {
+    headlines: ['Выставка карт | Открылась выставка', 'Ливни | До выходных'], rumors: ['«Говорят, клуб закроют»', 'На Садовой играет скрипка'],
+    economy: ['Доллар | 97 ₽ | +0,4', 'Хлеб | 64 ₽ | подорожал', 'Рынок замер'], city: ['traffic | пробка, 7 баллов', 'emergency | пожар на складе'],
+    forecast: ['Утро | ясно | +7°C | туман', 'Ночь | дождь | +3°C'], horoscope: ['Овен | смелость | удача', 'Рак | дома | неудача'], prediction: ['Звёзды за смелых'],
+    events: ['concert | Джаз | клуб, 20:00', 'cinema | Ужасы | «Октябрь»'], ads: ['Продаю шкаф, звонить 555-0192', 'Отдам котят'], comments: ['anna: привет', 'bob: пока'],
+  };
+  const мирБлоки = V.ВИДЫ_БЛОКОВ.filter(б => б.группа === 'Мир');
+  const безКнопок = [], сЭмодзи = [];
+  for (const б of мирБлоки) for (const вид of Object.keys(б.виды).slice(1)) {
+    St0(б.ключ, вид);
+    const ПОЛЯ = { newsView: ['headlines'], rumorsView: ['rumors'], economyView: ['economy'], cityView: ['city'], forecastView: ['forecast'], horoscopeView: ['horoscope', 'prediction'], eventsView: ['events'], adsView: ['ads'], commentsView: ['comments'] };
+    const h = W.buildWorldHTML(Object.fromEntries(ПОЛЯ[б.ключ].map(п => [п, мир[п]])), 'w', true, true);
+    const виды = h.split('<div class="hud-v hud-wv').slice(1).join('').split('<div class="hud-breaking-news')[0];
+    if (!/data-wv="[a-z]+"[^>]*role="button" tabindex="0"|<button type="button"[^>]*data-wv=/.test(виды)) безКнопок.push(б.ключ + ':' + вид);
+    if (/\p{Extended_Pictographic}/u.test(виды.replace(/[♈-♓]︎|[▲▼•]/g, ''))) сЭмодзи.push(б.ключ + ':' + вид);
+    St0(б.ключ);
+  }
+  function St0(к, в) { if (в) settings[к] = в; else delete settings[к]; }
+  проверить('мир: у каждого нового вида есть кнопки (роль и фокус)', !безКнопок.length, безКнопок.join(', '));
+  проверить('мир: в новых видах нет эмодзи', !сЭмодзи.length, сЭмодзи.join(', '));
+  // Нажатие без DOM: цель и корень — заготовки с нужными методами.
+  const узел = (html) => {
+    const кл = new Set(), ат = {};
+    const н = { dataset: {}, tagName: 'SPAN', textContent: '', classList: { add: (...a) => a.forEach(x => кл.add(x)), remove: (...a) => a.forEach(x => кл.delete(x)), toggle: (x, f) => { const on = f === undefined ? !кл.has(x) : f; on ? кл.add(x) : кл.delete(x); return on; }, contains: (x) => кл.has(x) },
+      setAttribute: (k, v) => { ат[k] = v; }, removeAttribute: (k) => { delete ат[k]; }, get offsetWidth() { return 1; }, кл, ат, дети: {} };
+    н.querySelector = (s) => н.дети[s] || null; н.querySelectorAll = () => [];
+    return н;
+  };
+  const нажать = (действие, к, база, тип = 'click', тег = 'SPAN', ключЦели) => {
+    const корень = узел(), цель = узел(), n = узел();
+    цель.tagName = тег; цель.dataset = { wv: действие, k: к, base: String(база) }; цель.дети['.n'] = n; цель.дети['.cnt'] = n;
+    цель.closest = (s) => s === '.hud-wv' ? корень : s.includes('[data-wv]') ? цель : null;
+    const ok = WV.действиеМира({ type: тип, key: ключЦели, target: цель, preventDefault() {} });
+    return { ok, цель, n };
+  };
+  WV.сброситьОтметкиМира();
+  settings.commentsView = 'threads';
+  const ветка = () => W.buildWorldHTML({ comments: ['anna: привет'] }, 'w', true, true);
+  const к = (ветка().match(/data-wv="like" data-k="([^"]+)"/) || [])[1];
+  const лайк = нажать('like', к, 10);
+  проверить('мир: лайк — отмечен и +1', лайк.ok && лайк.цель.кл.has('is-set') && лайк.n.textContent === '11');
+  проверить('мир: лайк переживает перерисовку', new RegExp(`a-like is-set[^>]*data-k="${к.replace(/[|]/g, '\\|')}"`).test(ветка()));
+  delete settings.commentsView;
+  settings.adsView = 'tearoff';
+  const листки = () => W.buildWorldHTML({ ads: ['Продаю шкаф, звонить 555-0192'] }, 'w', true, true);
+  const до = (листки().match(/class="gone"/g) || []).length;
+  const полоска = (листки().match(/data-wv="tear" data-k="([^"]+)"/) || [])[1];
+  нажать('tear', полоска, 0);
+  проверить('мир: оторванная полоска не вырастает обратно', (листки().match(/class="gone"/g) || []).length === до + 1);
+  delete settings.adsView;
+  settings.rumorsView = 'chain';
+  const цепь = () => W.buildWorldHTML({ rumors: ['Говорят, клуб закроют'] }, 'w', true, true);
+  const кп = (цепь().match(/data-wv="pass" data-k="([^"]+)"/) || [])[1], база = Number((цепь().match(/data-base="(\d+)"/) || [])[1]);
+  нажать('pass', кп, база); нажать('pass', кп, база);
+  проверить('мир: «передать дальше» копится', цепь().includes(`<b class="cnt">${база + 2}</b>`));
+  delete settings.rumorsView;
+  проверить('мир: Enter на настоящей кнопке не переключает второй раз', нажать('like', 'x', 0, 'keydown', 'BUTTON', 'Enter').ok === false);
+  проверить('мир: Enter на элементе с ролью кнопки — переключает', нажать('hl', 'y', 0, 'keydown', 'P', 'Enter').ok === true);
+  WV.сброситьОтметкиМира();
+}
+
+// --- «Запомнить»: контекст для модели — до HUD с записью ----------------------
+{
+  const L = await модуль('lore.js');
+  const блок = (факт) => 'Ответ.\n[HUD]\n```json\n' + JSON.stringify({ me: { fc: [факт] } }) + '\n```\n[/HUD]';
+  const факт = 'Тристан спрятал «пистолет» в ящик стола';
+  const чат = [{ name: 'Софи', mes: 'Что там?' }, { name: 'Тристан', mes: блок(факт) }];
+  for (let i = 2; i < 13; i++) чат.push({ name: i % 2 ? 'Тристан' : 'Софи', mes: 'ход ' + i });
+  чат.push({ name: 'Тристан', mes: блок(факт) }, { name: 'Софи', mes: 'после кнопки' });
+  const окно = L.окноКонтекстаЛора(чат, 13, факт, 3);
+  проверить('лор: начало — где запись появилась, с репликой перед ним', окно[0].text === 'Что там?' && окно[1].text === 'Ответ.', JSON.stringify(окно.slice(0, 2)));
+  проверить('лор: между началом и хвостом — пропуск', окно[2] && окно[2].пропуск === 9, JSON.stringify(окно[2]));
+  проверить('лор: хвост кончается сообщением с HUD, позже — ничего', окно.length === 6 && окно[5].text === 'Ответ.' && !окно.some(м => м.text === 'после кнопки'));
+  проверить('лор: без номера — конец чата', L.окноКонтекстаЛора(чат, null, факт, 2).at(-1).text === 'после кнопки');
+  проверить('лор: факта в старых HUD нет — только хвост', L.окноКонтекстаЛора(чат, 13, 'совсем другой факт про сад', 3).length === 3);
+  проверить('лор: 0 — без контекста', L.окноКонтекстаЛора(чат, 13, факт, 0).length === 0);
+  проверить('лор: пропуск в запросе — пометкой', L.buildLoreGenPrompt({ fact: факт, messages: окно }).includes('[… 9 messages skipped …]'));
+  const сПланом = L.buildLoreGenPrompt({ fact: факт, messages: [{ name: 'Тристан', text: '<plan>1. Command: fix</plan>Он закрыл ящик.' }] });
+  проверить('лор: черновик модели <plan> в запрос не идёт', !сПланом.includes('Command') && сПланом.includes('Он закрыл ящик.'));
+}
+
 console.log(`\nпроверок: ${всего}, провалов: ${провалы.length}`);
 if (провалы.length) { console.log(провалы.map(п => ' ✗ ' + п).join('\n')); process.exitCode = 1; }

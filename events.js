@@ -18,6 +18,7 @@ import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТе�
 import { settings, defaultSettings } from './settings.js?v=23.61.5';
 import { полныйПорядок } from './tabs-order.js?v=23.61.5';
 import { getWorldVotes } from './render/world.js?v=23.61.5';
+import { действиеМира } from './render/world-views.js?v=23.61.5';
 import { раскрытьПорцию } from './render/long-list.js?v=23.61.5';
 import { прогретьИсторию } from './render/carryover.js?v=23.61.5';
 import { подключитьПалитру } from './color-picker.js?v=23.61.5';
@@ -583,7 +584,10 @@ export function initGlobalEvents(ctx) {
       e.preventDefault();
       e.stopPropagation();
       if (ctx.openLoreDialog) {
-        ctx.openLoreDialog(remember.dataset.loreText || '', remember.dataset.loreKeys || '');
+        // Номер сообщения с этим HUD: контекст для модели — до него, а не хвост чата.
+        const сообщение = remember.closest('.mes[mesid]');
+        const откуда = сообщение ? Number(сообщение.getAttribute('mesid')) : NaN;
+        ctx.openLoreDialog(remember.dataset.loreText || '', remember.dataset.loreKeys || '', Number.isInteger(откуда) ? откуда : null);
       }
       return;
     }
@@ -2135,6 +2139,8 @@ document.addEventListener('click', (e) => {
 // Секреты в новых видах (render/views.js): текст открывается нажатием —
 // как спойлер в списке секретов.
 document.addEventListener('click', (e) => {
+  // Виды «Мира»: у кликабельных частей своё действие — вид при этом не «оживает».
+  if (действиеМира(e)) return;
   const тайна = e.target.closest && e.target.closest('.hud-v-spoil');
   if (тайна) { тайна.classList.toggle('is-open'); return; }
   // Карта таро рубашкой вверх переворачивается нажатием.
@@ -2163,6 +2169,7 @@ document.addEventListener('click', (e) => {
 });
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter' && e.key !== ' ') return;
+  if (действиеМира(e)) return;
   const тайна = e.target && e.target.closest && e.target.closest('.hud-v-spoil, .hud-v-tarot.is-hidden');
   if (!тайна) return;
   e.preventDefault();

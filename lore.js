@@ -26,7 +26,7 @@ export function isNewLoreItem(text) {
 }
 
 import { namePhoneticLatin, формыИмени } from './names.js?v=23.61.5';
-import { заменитьHudБлоки } from './hud-block.js?v=23.61.5';
+import { заменитьHudБлоки, hudБлоки } from './hud-block.js?v=23.61.5';
 
 // Служебные слова, которые в ключи активации не годятся: они встречаются
 // в каждом втором сообщении и запись срабатывала бы постоянно.
@@ -151,13 +151,47 @@ export function stripHudBlock(text) {
   return заменитьHudБлоки(String(text || ''), '').trim();
 }
 
+// Сообщения для записи по кнопке «Запомнить». Раньше брался хвост чата —
+// то, что написано после, а не то, о чём запись. Теперь окно заканчивается
+// сообщением с тем HUD, где нажали кнопку (до), а если факт впервые появился
+// в HUD раньше — в начало идут то сообщение и реплика перед ним. Между ними —
+// пометка { пропуск: n }. сколько — длина хвоста (настройка loreContextMessages);
+// 0 — без контекста. До — индекс в chat; неизвестен — конец чата.
+const ровно = (t) => String(t || '').toLowerCase().replace(/ё/g, 'е').replace(/[^\p{L}\p{N}]+/gu, '');
+export function окноКонтекстаЛора(chat, до, факт, сколько = 10) {
+  const все = Array.isArray(chat) ? chat : [];
+  if (!все.length || !(сколько > 0)) return [];
+  const конец = Number.isInteger(до) && до >= 0 && до < все.length ? до : все.length - 1;
+  const начало = Math.max(0, конец - сколько + 1);
+  // Первое появление: HUD-блок, в котором есть начало факта. Сравниваем без
+  // пробелов, кавычек и регистра — в JSON блока кавычки экранированы.
+  const образец = ровно(факт).slice(0, 48);
+  let первое = -1;
+  if (образец.length >= 8) {
+    for (let i = 0; i < начало; i++) {
+      const текст = String(все[i] && все[i].mes || '');
+      if (!текст.includes('[HUD')) continue;
+      if (hudБлоки(текст).some(б => ровно(б.inner).includes(образец))) { первое = i; break; }
+    }
+  }
+  const взять = (i) => ({ name: String(все[i] && все[i].name || ''), text: stripHudBlock(String(все[i] && все[i].mes || '')) });
+  const хвост = [];
+  for (let i = начало; i <= конец; i++) хвост.push(взять(i));
+  if (первое < 0) return хвост.filter(m => m.text);
+  const голова = [];
+  for (let i = Math.max(0, первое - 1); i <= первое; i++) голова.push(взять(i));
+  const пропущено = начало - первое - 1;
+  return [...голова.filter(m => m.text), ...(пропущено > 0 ? [{ пропуск: пропущено }] : []), ...хвост.filter(m => m.text)];
+}
+
 // Запрос к модели. Пишем по-английски: инструкции модели держатся лучше, а
 // язык самой записи задаём отдельным требованием — по языку истории.
 export function buildLoreGenPrompt({ fact, keys, messages, userName, charName }) {
   // Сообщения приходят из чата как есть — с разметкой, картинками и кнопками
   // интерфейса. Модели нужна проза: теги режем, пробелы схлопываем.
+  // Рассуждения модели (<plan>, <think>) — не история: вырезаем целиком.
   const проза = (t) => String(t || '')
-    .replace(/<(script|style)[\s\S]*?<\/\1>/gi, ' ')
+    .replace(/<(script|style|think|thinking|plan|reasoning)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ')
     .replace(/<[^>]+>/g, ' ')
     .replace(/&nbsp;/gi, ' ')
     .replace(/[ \t]+/g, ' ')
@@ -165,9 +199,9 @@ export function buildLoreGenPrompt({ fact, keys, messages, userName, charName })
     .trim();
 
   const контекст = (Array.isArray(messages) ? messages : [])
-    .map(m => ({ name: m.name || '?', text: проза(m.text).slice(0, 900) }))
-    .filter(m => m.text)
-    .map(m => `${m.name}: ${m.text}`)
+    .map(m => m && m.пропуск ? { пропуск: m.пропуск } : { name: m.name || '?', text: проза(m.text).slice(0, 900) })
+    .filter(m => m.пропуск || m.text)
+    .map(m => m.пропуск ? `[… ${m.пропуск} messages skipped …]` : `${m.name}: ${m.text}`)
     .join('\n\n');
 
   // Блоки собираем списком и склеиваем пустой строкой: слипшиеся секции модель
@@ -177,7 +211,7 @@ export function buildLoreGenPrompt({ fact, keys, messages, userName, charName })
     'FACT TO RECORD (this is the point of the entry, do not contradict it):\n' + String(fact || '').trim(),
     keys && keys.length ? 'PEOPLE INVOLVED (context only — do NOT use them as keys): ' + keys.join(', ') : '',
     userName || charName ? `PROTAGONISTS: user = ${userName || '?'}, character = ${charName || '?'}` : '',
-    контекст ? 'RECENT STORY (oldest first, newest last):\n' + контекст : '',
+    контекст ? 'STORY AROUND THE FACT (oldest first; the last message is the moment the fact was saved — nothing after it has happened yet):\n' + контекст : '',
     [
       'Answer with ONE JSON object and nothing else — no prose, no code fence:',
       '{',
