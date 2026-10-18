@@ -121,7 +121,8 @@
 /* Вспышка на кончике в момент толчка; сильнее, если упёрлись. */
 .xr-g0 { stop-color: #ffe4ec; stop-opacity: .5; } .xr-g1 { stop-color: #ffd0dc; stop-opacity: 0; }
 .xr-hit { opacity: 0; }
-:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-hit { opacity: calc(clamp(0, (var(--k, 1) - .82) * 5.5, 1) * var(--hit, .5)); }
+:is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-hit { opacity: calc(clamp(0, (var(--k, 1) - .82) * 5.5, 1) * var(--hit, .5)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-hit { opacity: calc(clamp(0, (var(--k, 1) - .82) * 5.5, 1) * var(--hit, .5)); } }
 
 /* Ход: всё, что движется с кончиком, отходит назад на (1 − --k) × --amp. */
 .xr-move { transform: translateX(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px)); }
@@ -153,13 +154,15 @@
 @keyframes xr-run { from { transform: translateX(0); } to { transform: translateX(228px); } }
 @media (prefers-reduced-motion: no-preference) {
   .xr-wave-run { animation: xr-run calc(var(--beat, 1s) * var(--reps, 2)) linear infinite; animation-play-state: paused; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-wave-run { animation-play-state: running; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .xr-wave-run { animation-play-state: running; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .xr-wave-run { animation-play-state: running; } }
   /* Без блока темпа (стенд, старые вызовы) — свой ровный ритм. */
   .hud-xray.is-standalone { animation: hud-tk var(--beat, 1.6s) cubic-bezier(.5, 0, .3, 1) infinite; }
   .hud-xray.is-standalone.is-ragged { animation-name: hud-tk-ragged; }
 }
 .hud-xray.is-standalone { animation-play-state: paused; }
-.hud-xray.is-standalone:is(:hover, .fx-tap, .fx-on) { animation-play-state: running; }
+.hud-xray.is-standalone:is(.fx-tap, .fx-on) { animation-play-state: running; }
+@media (hover: hover) and (pointer: fine) { .hud-xray.is-standalone:hover { animation-play-state: running; } }
 
 /* В блоке темпа x-ray — вся картинка: без второй панели скорости. */
 .hud-tempo.is-xray { display: block; padding: 10px 12px 8px; }
@@ -212,10 +215,14 @@
 /* В покое — итог (лужа и капля у входа); под курсором — заново: головка
    пульсирует, капли бьют, лужа растёт от глубины к входу. */
 @media (prefers-reduced-motion: no-preference) {
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-pool { animation: xr-pump 3.3s linear both; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-drop { animation: xr-spurt 1.1s ease-out var(--dl, 0s) infinite; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-drip { animation: xr-drip 2.6s ease-in 2.4s both; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .is-finish .xr-glans { animation: xr-throb .55s ease-in-out infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .xr-cum-pool { animation: xr-pump 3.3s linear both; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .xr-cum-pool { animation: xr-pump 3.3s linear both; } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .xr-cum-drop { animation: xr-spurt 1.1s ease-out var(--dl, 0s) infinite; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .xr-cum-drop { animation: xr-spurt 1.1s ease-out var(--dl, 0s) infinite; } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .xr-cum-drip { animation: xr-drip 2.6s ease-in 2.4s both; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .xr-cum-drip { animation: xr-drip 2.6s ease-in 2.4s both; } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .is-finish .xr-glans { animation: xr-throb .55s ease-in-out infinite; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .is-finish .xr-glans { animation: xr-throb .55s ease-in-out infinite; } }
 }
 
 /* --- Губа стенки поверх края, колено согнутого члена, потёк ---------------- */
@@ -224,8 +231,10 @@
 .xr-cum-streak { fill: none; stroke: #fbf7ef; stroke-opacity: .9; stroke-width: 2.1; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
 @keyframes xr-streak { from { stroke-dashoffset: 1; } to { stroke-dashoffset: 0; } }
 @media (prefers-reduced-motion: no-preference) {
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-streak { animation: xr-streak 2.2s ease-in 2s both; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-leak .xr-cum-drip { animation: xr-drip 1.4s ease-in 4s both; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .xr-cum-streak { animation: xr-streak 2.2s ease-in 2s both; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .xr-cum-streak { animation: xr-streak 2.2s ease-in 2s both; } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .xr-leak .xr-cum-drip { animation: xr-drip 1.4s ease-in 4s both; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .xr-leak .xr-cum-drip { animation: xr-drip 1.4s ease-in 4s both; } }
 }
 
 /* Член в горле сгибается по толчку: 0° на отходе, --bend° на глубине. */
@@ -235,9 +244,12 @@
 @keyframes xr-canal { 0% { transform: scaleX(0); } 100% { transform: scaleX(1); } }
 @keyframes xr-glaze { 0% { opacity: 0; } 100% { opacity: 1; } }
 @media (prefers-reduced-motion: no-preference) {
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-canal { animation: xr-canal-fill 3.3s linear .3s both; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-film { animation: xr-film 3.6s ease-out .6s both; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-jet { animation: xr-jet .55s ease-out var(--dl, 0s) 6 both; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .xr-cum-canal { animation: xr-canal-fill 3.3s linear .3s both; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .xr-cum-canal { animation: xr-canal-fill 3.3s linear .3s both; } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .xr-cum-film { animation: xr-film 3.6s ease-out .6s both; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .xr-cum-film { animation: xr-film 3.6s ease-out .6s both; } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .xr-cum-jet { animation: xr-jet .55s ease-out var(--dl, 0s) 6 both; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .xr-cum-jet { animation: xr-jet .55s ease-out var(--dl, 0s) 6 both; } }
 }
 
 /* --- Красота: светотень, свет по коже, пульс темпа ------------------------ */
@@ -253,8 +265,10 @@
 .xr-cum-throat { fill: none; stroke: #fbf7ef; stroke-opacity: .92; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 1; stroke-dashoffset: 0; filter: drop-shadow(0 0 2px rgba(255,255,255,.4)); }
 .xr-cum-tongue { fill: none; stroke: #fbf7ef; stroke-opacity: .8; stroke-width: 2.6; stroke-linecap: round; stroke-dasharray: 1; stroke-dashoffset: 0; }
 @media (prefers-reduced-motion: no-preference) {
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-throat { animation: xr-streak 2.6s ease-out .4s both; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-cum-tongue { animation: xr-streak 2.4s ease-out 2.2s both; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .xr-cum-throat { animation: xr-streak 2.6s ease-out .4s both; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .xr-cum-throat { animation: xr-streak 2.6s ease-out .4s both; } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .xr-cum-tongue { animation: xr-streak 2.4s ease-out 2.2s both; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .xr-cum-tongue { animation: xr-streak 2.4s ease-out 2.2s both; } }
 }
 /* Пульс в шапке — вспыхивает на каждом толчке. */
 .hud-xray-head { align-items: center; }
@@ -272,8 +286,10 @@
 .xr-lip-line { fill: none; stroke: #8a6672; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
 .xr-pull.is-major { transform: scaleX(calc(1 + (1 - var(--k, 1)) * .04 + clamp(0, -1 * var(--v, 0), 1) * (1 - var(--k, 1)) * .06)); }
 .xr-clit-g { transform-box: fill-box; transform-origin: center; }
-:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-clit-g { transform: scale(calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .14)); }
-:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-glans { filter: brightness(calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .07)); }
+:is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-clit-g { transform: scale(calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .14)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-clit-g { transform: scale(calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .14)); } }
+:is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-glans { filter: brightness(calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .07)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-glans { filter: brightness(calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .07)); } }
 
 /* --- Влага (lb:) — блеск, бусины, ниточки, капля, брызги. --wet 0…1. ------- */
 .hud-xray-cap small.is-wet { background: rgba(180,220,255,.14); color: #e6f3ff; }
@@ -291,7 +307,8 @@
    и брызги висели бы в воздухе. */
 .xr-splash { fill: #fff; opacity: 0;
   transform: translate(calc(clamp(0, (var(--k, 1) - .9) * 10, 1) * var(--sx, 0)), calc(clamp(0, (var(--k, 1) - .9) * 10, 1) * var(--sy, 0))); }
-:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-splash { opacity: calc(clamp(0, (var(--k, 1) - .9) * 10, 1) * .85 * clamp(0, var(--v, 0) + .6, 1)); }
+:is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-splash { opacity: calc(clamp(0, (var(--k, 1) - .9) * 10, 1) * .85 * clamp(0, var(--v, 0) + .6, 1)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-splash { opacity: calc(clamp(0, (var(--k, 1) - .9) * 10, 1) * .85 * clamp(0, var(--v, 0) + .6, 1)); } }
 .xr-wet-run { fill: none; stroke: #fff; stroke-opacity: calc(var(--wet, 0) * .26); stroke-width: 2.2; stroke-linecap: round; filter: blur(1px); }
 .xr-wet-drop { fill: #fff; opacity: calc(.25 + var(--wet, 0) * .5); }
 .xr-wet-drip { transform-box: fill-box; transform-origin: 50% 0; }
@@ -300,14 +317,16 @@
 .xr-film.is-lube .xr-wet-coat, .xr-film.is-lube .xr-wet-run, .xr-film.is-lube .xr-strand { stroke: #e8f4ff; }
 @keyframes xr-wet-fall { 0%, 55% { transform: translateY(0) scaleY(1); opacity: 1; } 85% { transform: translateY(9px) scaleY(1.25); opacity: .9; } 100% { transform: translateY(14px) scaleY(1.3); opacity: 0; } }
 @media (prefers-reduced-motion: no-preference) {
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-wet-drop { animation: xr-wet-fall calc(var(--beat, 1s) * 3) ease-in infinite; transform-box: fill-box; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .xr-wet-drop { animation: xr-wet-fall calc(var(--beat, 1s) * 3) ease-in infinite; transform-box: fill-box; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .xr-wet-drop { animation: xr-wet-fall calc(var(--beat, 1s) * 3) ease-in infinite; transform-box: fill-box; } }
 }
 
 /* Язык лижет: кончик ходит вверх-вниз в ритме темпа, поверх толчков. */
 .xr-lick { transform: rotate(-4deg); }
 @keyframes xr-lick { from { transform: rotate(-13deg); } to { transform: rotate(10deg); } }
 @media (prefers-reduced-motion: no-preference) {
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-lick { animation: xr-lick calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-lick { animation: xr-lick calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-lick { animation: xr-lick calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; } }
 }
 
 /* --- Рот: без тёмного просвета — стенки и язык прилегают к стволу. -------- */
@@ -325,8 +344,10 @@
 .xr-ripple { fill: none; stroke: #ffd6e0; stroke-width: 3; opacity: 0; transform-box: fill-box; transform-origin: center; filter: blur(1.6px); }
 @keyframes xr-ripple { 0% { transform: scale(.7); opacity: 0; } 8% { transform: scale(.8); opacity: .3; } 45% { transform: scale(1.7); opacity: 0; } 100% { transform: scale(1.7); opacity: 0; } }
 @media (prefers-reduced-motion: no-preference) {
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-lick.is-oral { animation: xr-lick-oral calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-ripple { animation: xr-ripple var(--beat1, 1s) ease-out infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-lick.is-oral { animation: xr-lick-oral calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-lick.is-oral { animation: xr-lick-oral calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-ripple { animation: xr-ripple var(--beat1, 1s) ease-out infinite; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-ripple { animation: xr-ripple var(--beat1, 1s) ease-out infinite; } }
 }
 
 /* --- Ещё движение ---------------------------------------------------------- */
@@ -340,12 +361,18 @@
 @keyframes xr-wobble { 0% { transform: scale(1); } 8% { transform: scale(1.035, .975); } 30% { transform: scale(.985, 1.015); } 60%, 100% { transform: scale(1); } }
 .xr-cervix { transform-box: fill-box; transform-origin: 0 50%; }
 @media (prefers-reduced-motion: no-preference) {
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-sheen-run { stroke-opacity: .32; animation: xr-sheen calc(var(--beat1, 1s) * 2) linear infinite; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-vein { stroke-opacity: calc(.34 + clamp(0, (var(--k, 1) - .55) * 2.4, 1) * .26); stroke-width: calc(2.2px + clamp(0, (var(--k, 1) - .55) * 2.4, 1) * .8px); }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-sphincter { transform: scaleY(calc(1 + (1 - var(--k, 1)) * .25)) scaleX(calc(1 - (1 - var(--k, 1)) * .08)); }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-cervix { animation: xr-wobble var(--beat1, 1s) ease-out infinite; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-vestibule { filter: brightness(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .12)); }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-film.is-dark .xr-wall { filter: blur(.8px) brightness(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .1)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-sheen-run { stroke-opacity: .32; animation: xr-sheen calc(var(--beat1, 1s) * 2) linear infinite; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-sheen-run { stroke-opacity: .32; animation: xr-sheen calc(var(--beat1, 1s) * 2) linear infinite; } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-vein { stroke-opacity: calc(.34 + clamp(0, (var(--k, 1) - .55) * 2.4, 1) * .26); stroke-width: calc(2.2px + clamp(0, (var(--k, 1) - .55) * 2.4, 1) * .8px); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-vein { stroke-opacity: calc(.34 + clamp(0, (var(--k, 1) - .55) * 2.4, 1) * .26); stroke-width: calc(2.2px + clamp(0, (var(--k, 1) - .55) * 2.4, 1) * .8px); } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-sphincter { transform: scaleY(calc(1 + (1 - var(--k, 1)) * .25)) scaleX(calc(1 - (1 - var(--k, 1)) * .08)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-sphincter { transform: scaleY(calc(1 + (1 - var(--k, 1)) * .25)) scaleX(calc(1 - (1 - var(--k, 1)) * .08)); } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-cervix { animation: xr-wobble var(--beat1, 1s) ease-out infinite; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-cervix { animation: xr-wobble var(--beat1, 1s) ease-out infinite; } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-vestibule { filter: brightness(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .12)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-vestibule { filter: brightness(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .12)); } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-film.is-dark .xr-wall { filter: blur(.8px) brightness(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .1)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-film.is-dark .xr-wall { filter: blur(.8px) brightness(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .1)); } }
 }
 
 /* =========================================================================
@@ -381,39 +408,64 @@
 
 @media (prefers-reduced-motion: no-preference) {
   /* Общее для лона и ануса: стенки присасываются на отходе, кожа вспыхивает на ударе. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) :is(.xr-bumps, .xr-squeeze) { transform: scaleY(calc(1 - (1 - var(--k, 1)) * (.025 + clamp(0, -1 * var(--v, 0), 1) * .06))); }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-skin-hi { stroke-opacity: calc(.35 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .3); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) :is(.xr-bumps, .xr-squeeze) { transform: scaleY(calc(1 - (1 - var(--k, 1)) * (.025 + clamp(0, -1 * var(--v, 0), 1) * .06))); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) :is(.xr-bumps, .xr-squeeze) { transform: scaleY(calc(1 - (1 - var(--k, 1)) * (.025 + clamp(0, -1 * var(--v, 0), 1) * .06))); } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-skin-hi { stroke-opacity: calc(.35 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .3); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-skin-hi { stroke-opacity: calc(.35 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .3); } }
   /* Член: головка наливается, живот дающего напрягается. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-glans { filter: brightness(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .07)) saturate(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .35)); }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-gshade { stroke-opacity: calc(.35 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .25); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-glans { filter: brightness(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .07)) saturate(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .35)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-glans { filter: brightness(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .07)) saturate(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .35)); } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-gshade { stroke-opacity: calc(.35 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .25); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-gshade { stroke-opacity: calc(.35 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .25); } }
   /* Анал: перистальтика, своя мошонка у мужчины качается. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-peri { stroke-opacity: .22; animation: xr-sheen calc(var(--beat1, 1s) * 3) linear infinite reverse; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-own { transform: translateY(calc(var(--sw, -1) * 1.6px)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-peri { stroke-opacity: .22; animation: xr-sheen calc(var(--beat1, 1s) * 3) linear infinite reverse; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-peri { stroke-opacity: .22; animation: xr-sheen calc(var(--beat1, 1s) * 3) linear infinite reverse; } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-own { transform: translateY(calc(var(--sw, -1) * 1.6px)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-own { transform: translateY(calc(var(--sw, -1) * 1.6px)); } }
   /* Игрушка: вибрация, волны от кончика, мигает индикатор, упор пружинит. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-vibe { animation: xr-buzz .07s linear infinite alternate; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-vibe-ring { animation: xr-ripple .45s ease-out infinite; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-led { animation: xr-led .9s ease-in-out infinite; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-flange { transform: scaleX(calc(1 - clamp(0, (var(--k, 1) - .8) * 5, 1) * .12)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-vibe { animation: xr-buzz .07s linear infinite alternate; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-vibe { animation: xr-buzz .07s linear infinite alternate; } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-vibe-ring { animation: xr-ripple .45s ease-out infinite; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-vibe-ring { animation: xr-ripple .45s ease-out infinite; } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-led { animation: xr-led .9s ease-in-out infinite; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-led { animation: xr-led .9s ease-in-out infinite; } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-flange { transform: scaleX(calc(1 - clamp(0, (var(--k, 1) - .8) * 5, 1) * .12)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-flange { transform: scaleX(calc(1 - clamp(0, (var(--k, 1) - .8) * 5, 1) * .12)); } }
   /* Пальцы: манящее сгибание, большой палец трёт клитор, сухожилия, точка G. */
   /* Кисть чуть покачивается; сгибаются сами пальцы — в суставах (ниже). */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-curl { transform: rotate(calc(clamp(0, (var(--k, 1) - .4) * 1.67, 1) * -2.4deg + var(--sw, -1) * -.4deg)); }
-:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-thumb { animation: xr-rub calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-tendon { stroke-opacity: calc(.12 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .22); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-curl { transform: rotate(calc(clamp(0, (var(--k, 1) - .4) * 1.67, 1) * -2.4deg + var(--sw, -1) * -.4deg)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-curl { transform: rotate(calc(clamp(0, (var(--k, 1) - .4) * 1.67, 1) * -2.4deg + var(--sw, -1) * -.4deg)); } }
+:is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-thumb { animation: xr-rub calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-thumb { animation: xr-rub calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-tendon { stroke-opacity: calc(.12 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .22); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-tendon { stroke-opacity: calc(.12 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .22); } }
   /* Кулак: проворот, костяшки, мышцы предплечья, живот выпирает, блик на костяшках. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-twist { transform: rotate(calc(var(--sw, -1) * 3deg)); }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-knuckles { transform: translateY(calc(var(--sw, -1) * .9px)); }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-flex { stroke-opacity: calc(.08 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .26); }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-bulge { opacity: calc(clamp(0, (var(--k, 1) - .8) * 5, 1) * .4); }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-knuckle-hi { stroke-opacity: calc(clamp(0, (var(--k, 1) - .8) * 5, 1) * .5); }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row.p-fist .xr-minora { filter: blur(.35px) brightness(calc(1 + var(--k, 1) * .14)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-twist { transform: rotate(calc(var(--sw, -1) * 3deg)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-twist { transform: rotate(calc(var(--sw, -1) * 3deg)); } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-knuckles { transform: translateY(calc(var(--sw, -1) * .9px)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-knuckles { transform: translateY(calc(var(--sw, -1) * .9px)); } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-flex { stroke-opacity: calc(.08 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .26); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-flex { stroke-opacity: calc(.08 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .26); } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-bulge { opacity: calc(clamp(0, (var(--k, 1) - .8) * 5, 1) * .4); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-bulge { opacity: calc(clamp(0, (var(--k, 1) - .8) * 5, 1) * .4); } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-knuckle-hi { stroke-opacity: calc(clamp(0, (var(--k, 1) - .8) * 5, 1) * .5); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-knuckle-hi { stroke-opacity: calc(clamp(0, (var(--k, 1) - .8) * 5, 1) * .5); } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .hud-xray-row.p-fist .xr-minora { filter: blur(.35px) brightness(calc(1 + var(--k, 1) * .14)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .hud-xray-row.p-fist .xr-minora { filter: blur(.35px) brightness(calc(1 + var(--k, 1) * .14)); } }
   /* Рот: язычок качается, глоток катится по горлу. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-uvula-sw { transform: rotate(calc(var(--sw, -1) * 9deg)); }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-drool { animation: xr-wet-fall calc(var(--beat1, 1s) * 4) ease-in infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-uvula-sw { transform: rotate(calc(var(--sw, -1) * 9deg)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-uvula-sw { transform: rotate(calc(var(--sw, -1) * 9deg)); } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-drool { animation: xr-wet-fall calc(var(--beat1, 1s) * 4) ease-in infinite; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-drool { animation: xr-wet-fall calc(var(--beat1, 1s) * 4) ease-in infinite; } }
   /* Куни: голова покачивается, язык перекатывается, клитор вздрагивает в такт. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-nod { transform: rotate(calc(var(--sw, -1) * 1.8deg)); }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-tongue-grp:not(.is-oral) { animation: xr-tongue-roll calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row.p-tongue .xr-clit-g { animation: xr-flick calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row.p-tongue .xr-minora-wet { stroke-opacity: .3; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-nod { transform: rotate(calc(var(--sw, -1) * 1.8deg)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-nod { transform: rotate(calc(var(--sw, -1) * 1.8deg)); } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-tongue-grp:not(.is-oral) { animation: xr-tongue-roll calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-tongue-grp:not(.is-oral) { animation: xr-tongue-roll calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .hud-xray-row.p-tongue .xr-clit-g { animation: xr-flick calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .hud-xray-row.p-tongue .xr-clit-g { animation: xr-flick calc(var(--beat1, 1s) * .5) ease-in-out infinite alternate; } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .hud-xray-row.p-tongue .xr-minora-wet { stroke-opacity: .3; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .hud-xray-row.p-tongue .xr-minora-wet { stroke-opacity: .3; } }
 }
 
 /* --- Семя: толчками из головки, струями в зев, канал шейки заполняется ---- */
@@ -437,13 +489,18 @@
 .xr-entry-in.is-mouth { fill: #6e3242; }
 .xr-hips, .xr-wrist, .xr-thigh { transform: none; }
 @media (prefers-reduced-motion: no-preference) {
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-bead-hi { animation: xr-twinkle 1.6s ease-in-out infinite; }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-wet-coat { animation: xr-coat calc(var(--beat1, 1s) * 3) linear infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .xr-bead-hi { animation: xr-twinkle 1.6s ease-in-out infinite; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .xr-bead-hi { animation: xr-twinkle 1.6s ease-in-out infinite; } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .xr-wet-coat { animation: xr-coat calc(var(--beat1, 1s) * 3) linear infinite; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .xr-wet-coat { animation: xr-coat calc(var(--beat1, 1s) * 3) linear infinite; } }
   /* Бёдра дающего качаются вокруг корня члена; кисть — от запястья; бедро
      принимающего вздрагивает на ударе. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-hips { transform: rotate(calc(var(--sw, -1) * 2.4deg)); }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-wrist { transform: rotate(calc(var(--sw, -1) * .9deg)); }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-thigh { transform: translateX(calc(clamp(0, (var(--k, 1) - .8) * 5, 1) * 1.6px)) scaleY(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .015)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-hips { transform: rotate(calc(var(--sw, -1) * 2.4deg)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-hips { transform: rotate(calc(var(--sw, -1) * 2.4deg)); } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-wrist { transform: rotate(calc(var(--sw, -1) * .9deg)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-wrist { transform: rotate(calc(var(--sw, -1) * .9deg)); } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-thigh { transform: translateX(calc(clamp(0, (var(--k, 1) - .8) * 5, 1) * 1.6px)) scaleY(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .015)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-thigh { transform: translateX(calc(clamp(0, (var(--k, 1) - .8) * 5, 1) * 1.6px)) scaleY(calc(1 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .015)); } }
 }
 
 /* =========================================================================
@@ -458,19 +515,27 @@
 @keyframes xr-sweat { 0%, 100% { opacity: .1; transform: scale(.85); } 50% { opacity: .34; transform: scale(1.1); } }
 @media (prefers-reduced-motion: no-preference) {
   /* Кожа у входа приливает: тем сильнее, чем влажнее, и вспыхивает на ударе. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-flush { opacity: calc(.34 + var(--wet, .3) * .2); }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-flush { opacity: calc(.34 + var(--wet, .3) * .2 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .22); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-flush { opacity: calc(.34 + var(--wet, .3) * .2); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-flush { opacity: calc(.34 + var(--wet, .3) * .2); } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-flush { opacity: calc(.34 + var(--wet, .3) * .2 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .22); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-flush { opacity: calc(.34 + var(--wet, .3) * .2 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .22); } }
   /* Мягкие ткани у входа сминаются на ударе и расправляются на отходе. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-fat { stroke-width: calc(9px + clamp(0, (var(--k, 1) - .8) * 5, 1) * 2.2px); stroke-opacity: calc(.32 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .08); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-fat { stroke-width: calc(9px + clamp(0, (var(--k, 1) - .8) * 5, 1) * 2.2px); stroke-opacity: calc(.32 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .08); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-fat { stroke-width: calc(9px + clamp(0, (var(--k, 1) - .8) * 5, 1) * 2.2px); stroke-opacity: calc(.32 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .08); } }
   /* Зев шейки приоткрывается на глубине. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-os { transform: scale(calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .4), calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * 1.3)); }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-cervix-hi { opacity: calc(.16 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .2); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-os { transform: scale(calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .4), calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * 1.3)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-os { transform: scale(calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .4), calc(1 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * 1.3)); } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-cervix-hi { opacity: calc(.16 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .2); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-cervix-hi { opacity: calc(.16 + clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .2); } }
   /* Малые губы набухают на ударе (чуть толще), клитор — следом. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-film.is-wet .xr-minora { transform: scaleX(calc(1 + var(--wet, 0) * .14 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .12)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-film.is-wet .xr-minora { transform: scaleX(calc(1 + var(--wet, 0) * .14 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .12)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .hud-xray-row[style*="--push:2.6"] .xr-film.is-wet .xr-minora { transform: scaleX(calc(1 + var(--wet, 0) * .14 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .12)); } }
   /* Пот мерцает вразнобой. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-sweat ellipse { transform-box: fill-box; transform-origin: center; animation: xr-sweat calc(var(--beat1, 1s) * 3) ease-in-out infinite; animation-delay: calc(var(--i, 0) * -.43s); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-sweat ellipse { transform-box: fill-box; transform-origin: center; animation: xr-sweat calc(var(--beat1, 1s) * 3) ease-in-out infinite; animation-delay: calc(var(--i, 0) * -.43s); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-sweat ellipse { transform-box: fill-box; transform-origin: center; animation: xr-sweat calc(var(--beat1, 1s) * 3) ease-in-out infinite; animation-delay: calc(var(--i, 0) * -.43s); } }
   /* Капля предсемени набухает на глубине и тянется назад на отходе. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-film.is-wet .xr-precum { opacity: calc(var(--wet, 0) * clamp(0, (var(--k, 1) - .5) * 2, 1) * .55); transform: scale(calc(.7 + clamp(0, (var(--k, 1) - .5) * 2, 1) * .5)); transform-box: fill-box; transform-origin: 0 50%; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-film.is-wet .xr-precum { opacity: calc(var(--wet, 0) * clamp(0, (var(--k, 1) - .5) * 2, 1) * .55); transform: scale(calc(.7 + clamp(0, (var(--k, 1) - .5) * 2, 1) * .5)); transform-box: fill-box; transform-origin: 0 50%; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-film.is-wet .xr-precum { opacity: calc(var(--wet, 0) * clamp(0, (var(--k, 1) - .5) * 2, 1) * .55); transform: scale(calc(.7 + clamp(0, (var(--k, 1) - .5) * 2, 1) * .5)); transform-box: fill-box; transform-origin: 0 50%; } }
 }
 
 /* =========================================================================
@@ -483,15 +548,20 @@
 @keyframes xr-swallow-run { 0% { stroke-dashoffset: 100; stroke-opacity: 0; } 14% { stroke-opacity: .3; } 80% { stroke-opacity: .3; } 100% { stroke-dashoffset: 0; stroke-opacity: 0; } }
 @media (prefers-reduced-motion: no-preference) {
   /* Язык: ствол вдавливает его на входе, на отходе он выпрямляется и чуть приподнимается. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-tongue-grp.is-oral { translate: 0 calc(var(--k, 1) * 1.9px - clamp(0, -1 * var(--v, 0), 1) * (1 - var(--k, 1)) * 1.1px); scale: calc(1 + (1 - var(--k, 1)) * .012) calc(1 - var(--k, 1) * .055); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-tongue-grp.is-oral { translate: 0 calc(var(--k, 1) * 1.9px - clamp(0, -1 * var(--v, 0), 1) * (1 - var(--k, 1)) * 1.1px); scale: calc(1 + (1 - var(--k, 1)) * .012) calc(1 - var(--k, 1) * .055); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-tongue-grp.is-oral { translate: 0 calc(var(--k, 1) * 1.9px - clamp(0, -1 * var(--v, 0), 1) * (1 - var(--k, 1)) * 1.1px); scale: calc(1 + (1 - var(--k, 1)) * .012) calc(1 - var(--k, 1) * .055); } }
   /* Кончик языка тянется за стволом на отходе и возвращается на входе. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-lick.is-oral { translate: calc((1 - var(--k, 1)) * -3.4px) calc(clamp(0, -1 * var(--v, 0), 1) * -.9px); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-lick.is-oral { translate: calc((1 - var(--k, 1)) * -3.4px) calc(clamp(0, -1 * var(--v, 0), 1) * -.9px); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-lick.is-oral { translate: calc((1 - var(--k, 1)) * -3.4px) calc(clamp(0, -1 * var(--v, 0), 1) * -.9px); } }
   /* Глоток катится по горлу плавно: появляется, идёт, гаснет — без рывка на повторе. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-swallow { stroke-opacity: 0; animation: xr-swallow-run calc(var(--beat1, 1s) * 2) ease-in-out infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-swallow { stroke-opacity: 0; animation: xr-swallow-run calc(var(--beat1, 1s) * 2) ease-in-out infinite; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-swallow { stroke-opacity: 0; animation: xr-swallow-run calc(var(--beat1, 1s) * 2) ease-in-out infinite; } }
   /* Горло идёт волнами за стволом и смыкается на глубине. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-grip { stroke-dashoffset: calc(var(--k, 1) * -20); stroke-opacity: calc(clamp(0, (var(--k, 1) - .15) * 1.7, 1) * .2); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-grip { stroke-dashoffset: calc(var(--k, 1) * -20); stroke-opacity: calc(clamp(0, (var(--k, 1) - .15) * 1.7, 1) * .2); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-grip { stroke-dashoffset: calc(var(--k, 1) * -20); stroke-opacity: calc(clamp(0, (var(--k, 1) - .15) * 1.7, 1) * .2); } }
   /* Язычок поджимается к нёбу на глубине. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-uvula-sw { translate: 0 calc(clamp(0, (var(--k, 1) - .7) * 3.3, 1) * -1.3px); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-uvula-sw { translate: 0 calc(clamp(0, (var(--k, 1) - .7) * 3.3, 1) * -1.3px); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-uvula-sw { translate: 0 calc(clamp(0, (var(--k, 1) - .7) * 3.3, 1) * -1.3px); } }
 }
 
 /* --- Телефон: подписи крупнее — картинка там ~0,8 от натуральной -------------- */
@@ -510,10 +580,14 @@
 .hud-xray.is-entry .hud-xray-pulse { opacity: .6; }
 @keyframes xr-cum-pulse { 0%, 100% { transform: scale(.7); } 30% { transform: scale(1.25); } }
 @media (prefers-reduced-motion: no-preference) {
-  .hud-tempo:is(:hover, .fx-tap, .fx-on) .hud-xray.is-climax .hud-xray-pulse { animation: xr-cum-pulse .8s ease-out infinite; }
-  .hud-tempo:is(:hover, .fx-tap, .fx-on) .hud-xray.is-climax .xr-glans { animation: xr-throb .8s ease-in-out infinite; }
-  .hud-tempo:is(:hover, .fx-tap, .fx-on) .hud-xray.is-after :is(.xr-cum-drop, .xr-cum-jet) { animation: none; opacity: 0; }
-  .hud-tempo:is(:hover, .fx-tap, .fx-on) .hud-xray.is-after .xr-glans { animation: none; }
+  .hud-tempo:is(.fx-tap, .fx-on) .hud-xray.is-climax .hud-xray-pulse { animation: xr-cum-pulse .8s ease-out infinite; }
+@media (hover: hover) and (pointer: fine) { .hud-tempo:hover .hud-xray.is-climax .hud-xray-pulse { animation: xr-cum-pulse .8s ease-out infinite; } }
+  .hud-tempo:is(.fx-tap, .fx-on) .hud-xray.is-climax .xr-glans { animation: xr-throb .8s ease-in-out infinite; }
+@media (hover: hover) and (pointer: fine) { .hud-tempo:hover .hud-xray.is-climax .xr-glans { animation: xr-throb .8s ease-in-out infinite; } }
+  .hud-tempo:is(.fx-tap, .fx-on) .hud-xray.is-after :is(.xr-cum-drop, .xr-cum-jet) { animation: none; opacity: 0; }
+@media (hover: hover) and (pointer: fine) { .hud-tempo:hover .hud-xray.is-after :is(.xr-cum-drop, .xr-cum-jet) { animation: none; opacity: 0; } }
+  .hud-tempo:is(.fx-tap, .fx-on) .hud-xray.is-after .xr-glans { animation: none; }
+@media (hover: hover) and (pointer: fine) { .hud-tempo:hover .hud-xray.is-after .xr-glans { animation: none; } }
 }
 /* Цвет темпа в финале — тёплый молочный, а не серо-синий «замерли». */
 .hud-tempo:has(> .hud-xray.is-climax), .hud-tempo:has(> .hud-xray.is-after) { --tc: #f0d6c2; }
@@ -525,13 +599,17 @@
    ========================================================================= */
 @media (prefers-reduced-motion: no-preference) {
   /* Бёдра по дуге: на отходе таз приподнимается на --arc px. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--arc:"]:not(.is-finish) .xr-move.is-body { transform: translate(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px), calc((1 - var(--k, 1)) * var(--arc, 0) * -1px)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .hud-xray-row[style*="--arc:"]:not(.is-finish) .xr-move.is-body { transform: translate(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px), calc((1 - var(--k, 1)) * var(--arc, 0) * -1px)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .hud-xray-row[style*="--arc:"]:not(.is-finish) .xr-move.is-body { transform: translate(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px), calc((1 - var(--k, 1)) * var(--arc, 0) * -1px)); } }
   /* Кругами: таз описывает круг в глубине — вглубь-наружу по --k, вверх-вниз
      по --sw со сдвигом в четверть круга; лобок давит на клитор спереди. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray.is-grind .hud-xray-row[style*="--arc:"]:not(.is-finish) .xr-move.is-body { transform: translate(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px), calc(var(--sw, -1) * var(--arc, 0) * -1px)); }
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray.is-grind .xr-clit-g { transform: scale(calc(1 + clamp(0, var(--sw, -1), 1) * .16)); filter: brightness(calc(1 + clamp(0, var(--sw, -1), 1) * .22)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .hud-xray.is-grind .hud-xray-row[style*="--arc:"]:not(.is-finish) .xr-move.is-body { transform: translate(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px), calc(var(--sw, -1) * var(--arc, 0) * -1px)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .hud-xray.is-grind .hud-xray-row[style*="--arc:"]:not(.is-finish) .xr-move.is-body { transform: translate(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px), calc(var(--sw, -1) * var(--arc, 0) * -1px)); } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .hud-xray.is-grind .xr-clit-g { transform: scale(calc(1 + clamp(0, var(--sw, -1), 1) * .16)); filter: brightness(calc(1 + clamp(0, var(--sw, -1), 1) * .22)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .hud-xray.is-grind .xr-clit-g { transform: scale(calc(1 + clamp(0, var(--sw, -1), 1) * .16)); filter: brightness(calc(1 + clamp(0, var(--sw, -1), 1) * .22)); } }
   /* Удар отдаётся в бедро принимающего на любой глубине, до упора — сильнее. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray-row:not([style*="--push:2.6"]):not(.is-rub):not(.is-tz) .xr-thigh { transform: translateX(calc(clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .8px)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .hud-xray-row:not([style*="--push:2.6"]):not(.is-rub):not(.is-tz) .xr-thigh { transform: translateX(calc(clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .8px)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .hud-xray-row:not([style*="--push:2.6"]):not(.is-rub):not(.is-tz) .xr-thigh { transform: translateX(calc(clamp(0, (var(--k, 1) - .85) * 6.6, 1) * .8px)); } }
 }
 /* Большой палец, о котором в тексте ни слова, не трёт клитор: лежит на
    лобке, отведён вверх (render/xray.js: пальцы → is-rest). */
@@ -541,7 +619,8 @@
 @media (prefers-reduced-motion: no-preference) {
   /* Кругами: член ходит по тому же кругу, что и таз, — вверх-вниз на 1,6 px
      (в пределах, где бугры стенки ещё налезают на ствол), а не стоит. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .hud-xray.is-grind .hud-xray-row[style*="--arc:"]:not(.is-finish) .xr-move.p-penis { transform: translate(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px), calc(var(--sw, -1) * var(--arc, 0) * -.6px)); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .hud-xray.is-grind .hud-xray-row[style*="--arc:"]:not(.is-finish) .xr-move.p-penis { transform: translate(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px), calc(var(--sw, -1) * var(--arc, 0) * -.6px)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .hud-xray.is-grind .hud-xray-row[style*="--arc:"]:not(.is-finish) .xr-move.p-penis { transform: translate(calc((1 - var(--k, 1)) * var(--amp, 20) * -1px), calc(var(--sw, -1) * var(--arc, 0) * -.6px)); } }
 }
 /* Подушечка большого пальца — мягкий блик на той стороне, что прижата к клитору. */
 .xr-thumb-pad { fill: none; stroke: #fff2e8; stroke-opacity: .32; stroke-width: 1.4; stroke-linecap: round; filter: blur(.5px); }
@@ -565,7 +644,8 @@
   /* У головки кисть чуть сжимается — плотнее обхватывает венчик. */
   /* Кругами — прокручивает: кисть покачивается вокруг ствола. */
   /* Капля предсемени на головке набухает, когда кисть у головки. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-hj-drop { opacity: calc(.35 + (1 - var(--k, 1)) * .5); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-hj-drop { opacity: calc(.35 + (1 - var(--k, 1)) * .5); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-hj-drop { opacity: calc(.35 + (1 - var(--k, 1)) * .5); } }
 }
 /* Объём рук: свет по верхнему краю, тень по нижнему; пальцы на члене —
    каждый свой, тень в бороздках между ними; ногти — лунка и блик. */
@@ -612,14 +692,16 @@
 }
 @media (prefers-reduced-motion: no-preference) {
   /* Большой палец трёт клитор — кисть покачивается в запястье, подушечка ходит по нему. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-wrist.is-rub { animation: xr-rub-w calc(var(--beat1, 1s) * 1.1) linear infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-wrist.is-rub { animation: xr-rub-w calc(var(--beat1, 1s) * 1.1) linear infinite; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-wrist.is-rub { animation: xr-rub-w calc(var(--beat1, 1s) * 1.1) linear infinite; } }
 }
 
 /* Руки не пульсируют: кисть — живая рука, не «удар». Вспышка и волна на
    кончике — только у члена и игрушки; сухожилия не мерцают в такт; её кисть
    ходит по стволу, не сжимаясь (сжатие в такт читалось как пульсация). */
 .hud-xray-row.p-fingers :is(.xr-hit, .xr-ripple) { display: none; }
-:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-tendon { stroke-opacity: .18; }
+:is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-tendon { stroke-opacity: .18; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-tendon { stroke-opacity: .18; } }
 /* Её пальцы раздельно: тонкая тёмная линия по бороздке. */
 .xr-hj-sep { fill: none; stroke: var(--edge, #b47862); stroke-opacity: .7; stroke-width: .6; stroke-linecap: round; }
 /* Складки на её пальцах — тонкие и мягкие, не прорезь. */

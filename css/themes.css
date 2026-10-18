@@ -96,7 +96,7 @@
 
 /* Фон новых тем — тоже по нажатию на сам фон; значок у логотипа — под
    курсором на логотипе. */
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .hud-os-logo:hover::after { animation-play-state: running !important; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -224,7 +224,7 @@
 /* Кнопка сброса цвета текста стоит в той же сетке ролей. */
 .hud-role-clear { border: 1px dashed var(--hud-border); border-radius: 7px; background: rgba(0,0,0,.2);
   color: var(--hud-text); cursor: pointer; padding: 3px 4px; font-size: 9px; line-height: 1.15; }
-.hud-role-clear:hover { background: rgba(255,255,255,.07); border-color: var(--hud-accent); }
+@media (hover: hover) and (pointer: fine) { .hud-role-clear:hover { background: rgba(255,255,255,.07); border-color: var(--hud-accent); } }
 .hud-role-x { font-size: 14px; opacity: .8; }
 
 /* =========================================================================
@@ -693,7 +693,7 @@
   background-repeat: no-repeat; background-position: center; background-size: contain;
   transition: opacity .3s ease, transform .3s ease;
 }
-.hud-os-card:hover .hud-header::after { opacity: .68; transform: translateY(-50%) scale(1.06); }
+@media (hover: hover) and (pointer: fine) { .hud-os-card:hover .hud-header::after { opacity: .68; transform: translateY(-50%) scale(1.06); } }
 
 /* Чтобы длинное имя не забежало под уехавший значок. */
 :is(.hud-theme-kawaii, .hud-theme-vamp, .hud-theme-ice) .hud-header-text { padding-right: 92px; }
@@ -955,16 +955,15 @@
 .hud-remember-cap { max-width: 0; overflow: hidden; white-space: nowrap; transition: max-width .22s ease; }
 /* Подпись показываем, когда мышь на самой записи, — тогда понятно, к чему
    относится кнопка. */
-.hud-lore-item:hover .hud-remember,
-.hud-secret-head-row:hover .hud-remember { opacity: 1; }
-.hud-lore-item:hover .hud-remember-cap,
-.hud-secret-head-row:hover .hud-remember-cap,
+@media (hover: hover) and (pointer: fine) { .hud-lore-item:hover .hud-remember,
+.hud-secret-head-row:hover .hud-remember { opacity: 1; } }
 .hud-remember:focus-visible .hud-remember-cap { max-width: 80px; }
-.hud-remember:hover {
+@media (hover: hover) and (pointer: fine) { .hud-lore-item:hover .hud-remember-cap, .hud-secret-head-row:hover .hud-remember-cap { max-width: 80px; } }
+@media (hover: hover) and (pointer: fine) { .hud-remember:hover {
   opacity: 1;
   color: var(--hud-accent-text, var(--hud-accent, #8c5ad2));
   background: rgba(140, 90, 210, .12);
-}
+} }
 /* Запись, встретившаяся впервые: плюс окрашен акцентом, но размер и тишина
    те же — метка, а не кнопка-приглашение. */
 .hud-remember.is-new { color: var(--hud-accent-text, var(--hud-accent, #8c5ad2)); opacity: .8; }
@@ -1057,7 +1056,7 @@
   background: var(--hud-accent, #8c5ad2); border-color: transparent; color: #fff;
 }
 .hud-modal-btn:disabled { opacity: .45; cursor: default; }
-.hud-modal-btn:not(:disabled):hover { filter: brightness(1.12); }
+@media (hover: hover) and (pointer: fine) { .hud-modal-btn:not(:disabled):hover { filter: brightness(1.12); } }
 
 /* Сетка галочек по приложениям телефона: в две колонки, чтобы восемь строк
    не растягивали панель настроек. */
@@ -1084,7 +1083,7 @@
   border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 55%, transparent);
   transition: background .15s ease;
 }
-.hud-set-tool-btn:hover { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 34%, transparent); }
+@media (hover: hover) and (pointer: fine) { .hud-set-tool-btn:hover { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 34%, transparent); } }
 .hud-set-tool-note { font-size: 11.5px; line-height: 1.45; color: var(--hud-text-muted, rgba(226,232,240,.66)); }
 
 /* Окно шире обычной модалки: в отчёте длинные цепочки статусов. */
@@ -1097,7 +1096,8 @@
   flex: none; width: 30px; height: 30px; border-radius: 8px; cursor: pointer; font-size: 15px; line-height: 1;
   background: rgba(127, 127, 127, .15); color: inherit; border: 1px solid rgba(127, 127, 127, .3);
 }
-.hud-arc-x:hover, .hud-arc-x:focus-visible { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 25%, transparent); outline: none; }
+.hud-arc-x:focus-visible { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 25%, transparent); outline: none; }
+@media (hover: hover) and (pointer: fine) { .hud-arc-x:hover { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 25%, transparent); outline: none; } }
 .hud-arc-modal .hud-modal-head small { font-weight: 400; opacity: .6; margin-left: 8px; letter-spacing: 0; }
 
 .hud-arc-controls { padding: 10px 16px; border-bottom: 1px solid var(--hud-border, rgba(255,255,255,.12)); }
@@ -1118,7 +1118,7 @@
   font-size: 11.5px; font-family: inherit; color: inherit;
   background: rgba(255,255,255,.06); border: 1px solid var(--hud-border, rgba(255,255,255,.14));
 }
-.hud-arc-quick button:hover { background: rgba(255,255,255,.12); }
+@media (hover: hover) and (pointer: fine) { .hud-arc-quick button:hover { background: rgba(255,255,255,.12); } }
 .hud-arc-quick .hud-arc-run {
   margin-left: auto; font-weight: 700; padding: 6px 16px;
   background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 30%, transparent);
@@ -1146,7 +1146,7 @@
   font-size: 12px; font-family: inherit; color: inherit;
   background: transparent; border: 1px solid transparent; border-bottom: none;
 }
-.hud-arc-tabs button:hover { background: rgba(255,255,255,.06); }
+@media (hover: hover) and (pointer: fine) { .hud-arc-tabs button:hover { background: rgba(255,255,255,.06); } }
 .hud-arc-tabs button.active {
   background: rgba(255,255,255,.08);
   border-color: var(--hud-border, rgba(255,255,255,.14));
@@ -1212,7 +1212,7 @@
   color: var(--hud-accent-text, var(--hud-accent, #8c5ad2));
   background: transparent; border: 1px solid transparent;
 }
-.hud-arc-ref:hover { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 18%, transparent); }
+@media (hover: hover) and (pointer: fine) { .hud-arc-ref:hover { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 18%, transparent); } }
 .hud-arc-ref.is-missing { color: #e0685f; border-color: rgba(224,104,95,.5); }
 
 .hud-arc-timeline { position: relative; padding-left: 12px; }

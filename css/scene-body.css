@@ -129,7 +129,8 @@
   .hud-tempo.is-ragged { animation-name: hud-tk-ragged, hud-tsw-ragged, hud-tv-ragged; animation-duration: var(--beat, 3s), var(--beat, 3s), var(--beat, 3s); }
 }
 .hud-tempo { animation-play-state: paused, paused; }
-.hud-tempo:is(:hover, .fx-tap, .fx-on) { animation-play-state: running, running; }
+.hud-tempo:is(.fx-tap, .fx-on) { animation-play-state: running, running; }
+@media (hover: hover) and (pointer: fine) { .hud-tempo:hover { animation-play-state: running, running; } }
 .hud-tempo.l0 { animation: none; }
 /* Выход — плавный, с замедлением в конце; вход — разгон до удара. Не зеркало. */
 /* После удара — короткая задержка на глубине, выход трогается мягко с места
@@ -157,7 +158,8 @@
 .hud-heat-svg .z-pen-core { transform-box: fill-box; transform-origin: center; }
 @media (prefers-reduced-motion: no-preference) {
   .hud-heat-svg .z-pen-core { animation: hud-pen-pulse var(--pp, 1.4s) ease-in-out infinite; animation-play-state: paused; }
-  .hud-heat:is(:hover, .fx-tap, .fx-on) .z-pen-core { animation-play-state: running; }
+  .hud-heat:is(.fx-tap, .fx-on) .z-pen-core { animation-play-state: running; }
+@media (hover: hover) and (pointer: fine) { .hud-heat:hover .z-pen-core { animation-play-state: running; } }
 }
 @keyframes hud-pen-pulse { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.6); opacity: .8; } }
 
@@ -238,7 +240,8 @@
 .hud-xray-row.is-rub:not(.is-finish) .xr-pivot { transform: rotate(calc(var(--ry, 0) * var(--rot, 0) * -1deg)); }
 .hud-xray-row.is-rub .xr-clit-g { transform-box: fill-box; transform-origin: center; }
 /* Клитор набухает, когда головка на нём, и вздрагивает от шлепка. */
-:is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .hud-xray-row.is-rub .xr-clit-g { transform: scale(calc(1 + clamp(0, (var(--ry, 0) - .7) * 3.3, 1) * .22 + clamp(0, var(--tx, 0) / .6, 1) * clamp(0, (var(--ry, 0) - .9) * 10, 1) * .12)); filter: brightness(calc(1 + clamp(0, (var(--ry, 0) - .7) * 3.3, 1) * .25)); }
+:is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .hud-xray-row.is-rub .xr-clit-g { transform: scale(calc(1 + clamp(0, (var(--ry, 0) - .7) * 3.3, 1) * .22 + clamp(0, var(--tx, 0) / .6, 1) * clamp(0, (var(--ry, 0) - .9) * 10, 1) * .12)); filter: brightness(calc(1 + clamp(0, (var(--ry, 0) - .7) * 3.3, 1) * .25)); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .hud-xray-row.is-rub .xr-clit-g { transform: scale(calc(1 + clamp(0, (var(--ry, 0) - .7) * 3.3, 1) * .22 + clamp(0, var(--tx, 0) / .6, 1) * clamp(0, (var(--ry, 0) - .9) * 10, 1) * .12)); filter: brightness(calc(1 + clamp(0, (var(--ry, 0) - .7) * 3.3, 1) * .25)); } }
 /* Губы под головкой расходятся, на нажиме — ещё шире. */
 .hud-xray-row.is-rub .xr-pull.is-minor { transform: scaleX(calc(1 + (1 - var(--k, 1)) * .1 + clamp(0, var(--ry, 0) * 5, 1) * .1 + clamp(0, var(--tx, 0) / 1.8, 1) * .1)); }
 /* Волна трения — подъём головки (--ry), и бегущая точка — тоже по нему. */
@@ -251,5 +254,6 @@
 .xr-press-hi { fill: none; stroke: #ffe2ea; stroke-opacity: .4; stroke-width: .9; stroke-linecap: round; filter: blur(.5px); }
 @keyframes xr-slick { 0%, 100% { stroke-opacity: calc(.06 + var(--wet, .3) * .14); } 50% { stroke-opacity: calc(.14 + var(--wet, .3) * .22); } }
 @media (prefers-reduced-motion: no-preference) {
-  :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on) .xr-slick { animation: xr-slick calc(var(--beat1, 1.6s) * 2) ease-in-out infinite; }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .xr-slick { animation: xr-slick calc(var(--beat1, 1.6s) * 2) ease-in-out infinite; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .xr-slick { animation: xr-slick calc(var(--beat1, 1.6s) * 2) ease-in-out infinite; } }
 }

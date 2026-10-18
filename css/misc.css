@@ -49,7 +49,8 @@
   /* Нажатие собирает карточку сразу, не дожидаясь прокрутки. */
   cursor: pointer;
 }
-.hud-evicted:hover, .hud-evicted:focus-visible { opacity: .85; }
+.hud-evicted:focus-visible { opacity: .85; }
+@media (hover: hover) and (pointer: fine) { .hud-evicted:hover { opacity: .85; } }
 
 /* =========================================================================
    Телефон: вложения — снимок и ролик
@@ -59,7 +60,7 @@
    описание открывается отдельным окном. */
 .hud-msg-media { cursor: pointer; }
 .hud-msg-media:focus-visible { outline: 2px solid var(--hud-accent, #8c5ad2); outline-offset: 2px; border-radius: 10px; }
-.hud-msg-media:hover .hud-msg-photo-frame { filter: brightness(1.12); }
+@media (hover: hover) and (pointer: fine) { .hud-msg-media:hover .hud-msg-photo-frame { filter: brightness(1.12); } }
 .hud-msg-photo-frame { position: relative; transition: filter .15s ease; }
 .hud-msg-photo-cap {
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
@@ -217,7 +218,7 @@
   border-left: 2px solid var(--уровень, rgba(255,255,255,.18));
   transition: background-color .18s ease, border-color .18s ease;
 }
-.hud-zone:hover { background: rgba(255,255,255,.075); }
+@media (hover: hover) and (pointer: fine) { .hud-zone:hover { background: rgba(255,255,255,.075); } }
 /* Имя переносится, а не обрезается: «Поясница» и «Ричард» одинаково важны. */
 .hud-zone-name, .hud-zone b {
   font-weight: 600; min-width: 0;
@@ -302,7 +303,7 @@
   border: 1px solid color-mix(in srgb, var(--страх, #e0685f) 32%, transparent);
   transition: background-color .18s ease, border-color .18s ease;
 }
-.hud-fear:hover { background: color-mix(in srgb, var(--страх, #e0685f) 20%, transparent); }
+@media (hover: hover) and (pointer: fine) { .hud-fear:hover { background: color-mix(in srgb, var(--страх, #e0685f) 20%, transparent); } }
 .hud-fear-ico { font-size: 13px; line-height: 1; flex: 0 0 auto; }
 .hud-fear b { font-weight: 600; }
 .hud-fear em {
@@ -459,7 +460,7 @@
   display: inline-flex; align-items: center; gap: 5px; cursor: pointer;
   opacity: .82;
 }
-.hud-theme-packs label:hover { opacity: 1; }
+@media (hover: hover) and (pointer: fine) { .hud-theme-packs label:hover { opacity: 1; } }
 
 /* =========================================================================
    МЕССЕНДЖЕР: ЦИТАТА, ПЕРЕСЫЛКА, ОПРОС, РЕАКЦИИ, ОСЦИЛЛОГРАММА
@@ -519,7 +520,7 @@
   font-size: 12px; line-height: 1; cursor: pointer;
   transition: transform .12s ease, background-color .12s ease;
 }
-.hud-msg-reaction:hover { transform: scale(1.12); background: rgba(0,0,0,.4); }
+@media (hover: hover) and (pointer: fine) { .hud-msg-reaction:hover { transform: scale(1.12); background: rgba(0,0,0,.4); } }
 .hud-msg-reaction:active { transform: scale(.94); }
 
 /* Палитра по долгому нажатию. Встаёт над пузырём и не съезжает за край
@@ -542,7 +543,7 @@
   font-size: 17px; line-height: 1; padding: 3px;
   border-radius: 50%; transition: transform .12s ease, background-color .12s ease;
 }
-.hud-reaction-pick:hover { transform: scale(1.25); background: rgba(255,255,255,.1); }
+@media (hover: hover) and (pointer: fine) { .hud-reaction-pick:hover { transform: scale(1.25); background: rgba(255,255,255,.1); } }
 /* Пузырь становится точкой отсчёта для палитры и полки реакций. */
 .hud-msg-bubble { position: relative; }
 
@@ -631,7 +632,7 @@
    отличия остаются, случайные — уходят. */
 :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill) { border-radius: 8px; }
 .hud-conflict-pill { padding: 7px 12px; }
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill):hover {
     border-color: var(--hud-accent);
   }
@@ -718,7 +719,7 @@
     transparent 38%, rgba(255,255,255,.13) 50%, transparent 62%);
   opacity: 0;
 }
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill):hover {
     transform: translateY(-1px);
     box-shadow:
@@ -781,7 +782,7 @@
   box-shadow: 3px 0 10px -2px color-mix(in srgb,
     var(--кромка, var(--hud-accent, #8c5ad2)) 45%, transparent);
 }
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill):hover::before {
     box-shadow: 3px 0 14px -1px color-mix(in srgb,
       var(--кромка, var(--hud-accent, #8c5ad2)) 70%, transparent);
@@ -842,7 +843,7 @@
 .hud-nogo-pill::before   { box-shadow: 3px 0 12px -2px rgba(255,120,124,.55); }
 .hud-noturn-pill::before { box-shadow: 3px 0 12px -2px rgba(160,178,206,.35); }
 .hud-fetish-pill::after  { box-shadow: 3px 0 12px -2px rgba(255,166,200,.55); }
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   :is(.hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill):hover { transform: translateY(-1px); }
 }
 :is(.hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill):active { transform: translateY(0) scale(.995); }
@@ -922,7 +923,7 @@
   -webkit-mask-composite: xor;
   mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
 }
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .hud-row.nsfw:hover {
     box-shadow:
       inset 0 1px 0 rgba(255,225,238,.22),
@@ -1041,7 +1042,7 @@
 }
 /* Наведение подсвечивает кромку и ореол, а не заливает плитку плотным
    цветом, как раньше: прозрачность не должна пропадать под курсором. */
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .hud-kink-pill:hover   { background: rgba(126,66,190,.14); box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 0 20px -6px rgba(186,140,240,.8); }
   .hud-fetish-pill:hover { background: rgba(196,58,118,.14); box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 0 20px -6px rgba(255,166,200,.8); }
   .hud-nogo-pill:hover   { background: rgba(160,40,48,.15);  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 0 20px -6px rgba(255,120,124,.8); }
@@ -1111,7 +1112,7 @@
 }
 
 /* Стеклянные плитки ловят свет в верхнем левом углу при наведении. */
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .hud-nsfw-pill:hover {
     background:
       radial-gradient(120% 90% at 18% 0%, var(--nfx-64, rgba(255,195,222,.18)), var(--nfx-65, rgba(255,195,222,0)) 60%),
@@ -1454,7 +1455,7 @@
 .hud-dash-end { fill: #3987e5; stroke: rgba(15,15,20,.9); stroke-width: 2; }
 .hud-dash-endlabel { fill: currentColor; font-size: 10px; font-weight: 700; font-family: inherit; }
 .hud-dash-hit { fill: transparent; }
-.hud-dash-hit:hover { fill: rgba(57,135,229,.18); }
+@media (hover: hover) and (pointer: fine) { .hud-dash-hit:hover { fill: rgba(57,135,229,.18); } }
 
 .hud-dash-split { display: flex; gap: 2px; height: 14px; border-radius: 4px; overflow: hidden; }
 .hud-dash-split i.is-dialogue, .hud-dash-legend i.is-dialogue { background: #3987e5; }
@@ -1482,7 +1483,8 @@
   font: inherit; cursor: pointer;
   color: inherit; background: transparent; border: 1px solid var(--hud-border, rgba(255,255,255,.16));
 }
-.hud-ask-chip:hover, .hud-ask-chip:focus-visible { background: rgba(255,255,255,.07); }
+.hud-ask-chip:focus-visible { background: rgba(255,255,255,.07); }
+@media (hover: hover) and (pointer: fine) { .hud-ask-chip:hover { background: rgba(255,255,255,.07); } }
 .hud-ask-input { width: 100%; box-sizing: border-box; min-height: 4.5em; }
 
 /* Подписи родства в дереве: на ветке к ребёнку и над парой. */
@@ -1619,7 +1621,7 @@
 .hud-heat-svg { width: 100%; height: auto; display: block; }
 .hud-heat-svg .z-heat { fill: var(--heat); }
 .hud-heat-svg .z-heat.is-peak { stroke-width: .9; }
-.hud-heat-svg .z-heat:hover { stroke-width: 1.2; }
+@media (hover: hover) and (pointer: fine) { .hud-heat-svg .z-heat:hover { stroke-width: 1.2; } }
 .hud-heat-svg .z-mark circle { fill: #16161d; stroke: rgba(255,255,255,.6); stroke-width: .6; }
 .hud-heat-svg .z-mark text { text-anchor: middle; dominant-baseline: central; }
 .hud-heat-svg .z-side { text-anchor: middle; }
@@ -1868,7 +1870,8 @@
 .hud-heat-svg .s2 { stop-color: var(--heat); stop-opacity: .5; }
 .hud-heat-svg .s3 { stop-color: var(--heat); stop-opacity: 0; }
 .hud-heat-svg .z-heat { mix-blend-mode: screen; stroke: none; }
-.hud-heat-svg .z-heat.is-peak, .hud-heat-svg .z-heat:hover { stroke: none; }
+.hud-heat-svg .z-heat.is-peak { stroke: none; }
+@media (hover: hover) and (pointer: fine) { .hud-heat-svg .z-heat:hover { stroke: none; } }
 .hud-heat-svg .z-mark .z-mark-halo { fill: color-mix(in srgb, var(--heat) 30%, transparent); stroke: none; }
 .hud-heat-svg .z-mark circle:not(.z-mark-halo) { fill: #140f17; stroke: color-mix(in srgb, var(--heat) 70%, #fff); stroke-width: .8; }
 .hud-heat-svg .z-mark text { font-size: 6.2px; }
@@ -2305,7 +2308,7 @@
 .hud-vit-beat, .hud-phone-lock-arrow { animation-play-state: paused !important; }
 .hud-vit.fx-tap .hud-vit-beat, .hud-os-card.fx-live .hud-vit-beat,
 .hud-phone-lockscreen.fx-tap .hud-phone-lock-arrow, .hud-os-card.fx-live .hud-phone-lock-arrow { animation-play-state: running !important; }
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .hud-vit:hover .hud-vit-beat, .hud-phone-lockscreen:hover .hud-phone-lock-arrow { animation-play-state: running !important; }
 }
 @keyframes hud-vit-beat { 0%, 100% { transform: scale(1); opacity: .7; } 35% { transform: scale(1.22); opacity: 1; } 70% { transform: scale(1.04); opacity: .85; } }
@@ -2341,7 +2344,7 @@
   transition: transform .6s cubic-bezier(.22,.8,.26,1);
 }
 .hud-scene-fold:focus-visible { outline: 2px solid var(--hud-accent, #8c5ad2); outline-offset: 2px; opacity: 1; }
-@media (hover: hover) { .hud-scene-fold:hover { opacity: 1; background: rgba(0,0,0,.55); } }
+@media (hover: hover) and (pointer: fine) { .hud-scene-fold:hover { opacity: 1; background: rgba(0,0,0,.55); } }
 .hud-scene-widget.is-compact {
   padding: 8px 44px 8px 10px !important; gap: 6px; cursor: default;
 }
@@ -2395,7 +2398,7 @@
 .hud-vit-deco { transform-origin: center; }
 
 @media (prefers-reduced-motion: no-preference) {
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     :is(.hud-row:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns)), .hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row):hover { transform: translateY(-3px) !important; filter: drop-shadow(0 7px 10px rgba(0,0,0,.38)) drop-shadow(0 0 0 transparent); z-index: 2; }
     :is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-scene-chip, .hud-phase-step, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-row.nsfw:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns))):is(:hover, .fx-hold) { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite; }
   :is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-scene-chip, .hud-phase-step, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-row.nsfw:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns))).fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) { animation-play-state: paused !important; }
@@ -3083,7 +3086,7 @@
 /* Покачивание — только после касания или под курсором, как у всей погоды. */
 .hud-fx-clouds .hud-rain-cloud { animation-play-state: paused !important; }
 .hud-scene-widget.fx-active .hud-fx-clouds .hud-rain-cloud { animation-play-state: running !important; }
-@media (hover: hover) { .hud-scene-widget:hover .hud-fx-clouds .hud-rain-cloud { animation-play-state: running !important; } }
+@media (hover: hover) and (pointer: fine) { .hud-scene-widget:hover .hud-fx-clouds .hud-rain-cloud { animation-play-state: running !important; } }
 .hud-scene-widget.is-compact > .hud-fx-clouds { display: none !important; }
 
 /* Значок болезни или травмы: медальон в цвет стадии. */
@@ -3096,7 +3099,7 @@
   transition: transform .7s cubic-bezier(.22,.8,.26,1);
 }
 @media (prefers-reduced-motion: no-preference) {
-  @media (hover: hover) { .hud-ill:hover .hud-ill-ico { transform: scale(1.1); } }
+  @media (hover: hover) and (pointer: fine) { .hud-ill:hover .hud-ill-ico { transform: scale(1.1); } }
   .hud-ill.fx-tap .hud-ill-ico { transform: scale(1.1); }
 }
 
@@ -3147,7 +3150,7 @@
   /* Окна (архив, ассистент, «Запомнить»): кнопки и поля под палец. */
   .hud-modal :is(button, select, input:not([type="range"]):not([type="checkbox"]):not([type="radio"])) { min-height: 34px; }
 }
-@media (hover: none) {
+@media not all and (hover: hover) and (pointer: fine) {
   /* Без курсора кнопку видно всегда; подпись открывает касание записи
      или раскрытый секрет. */
   .hud-remember { opacity: .85; }
@@ -4359,7 +4362,7 @@
   transition: background .2s, color .2s;
 }
 .hud-cask-tab span { font-size: 1.05em; }
-.hud-cask-tab:hover { color: #fff; background: rgba(255,255,255,.1); }
+@media (hover: hover) and (pointer: fine) { .hud-cask-tab:hover { color: #fff; background: rgba(255,255,255,.1); } }
 .hud-cask-badge {
   font-style: normal; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; font-size: .72em; line-height: 16px; text-align: center;
   background: var(--ink-red); color: #fbe9d0; font-family: sans-serif;
@@ -5056,7 +5059,7 @@
   animation: hud-intercept-blink 1.7s steps(1, end) infinite paused;
 }
 .hud-phone-mockup.intercept-mode.fx-active .intercept-status::before { animation-play-state: running; }
-@media (hover: hover) { .hud-phone-mockup.intercept-mode:hover .intercept-status::before { animation-play-state: running; } }
+@media (hover: hover) and (pointer: fine) { .hud-phone-mockup.intercept-mode:hover .intercept-status::before { animation-play-state: running; } }
 @media (prefers-reduced-motion: reduce) { .hud-phone-mockup.intercept-mode .intercept-status::before { animation: none; } }
 
 /* =========================================================================
@@ -5225,7 +5228,7 @@ html.hud-custom-open body { overflow: hidden; }
   flex: none; min-width: 34px; height: 34px; border-radius: 8px; cursor: pointer; font-size: 16px;
   background: rgba(127, 127, 127, .15); color: inherit; border: 1px solid rgba(127, 127, 127, .3);
 }
-.hud-custom-head button:hover { background: color-mix(in oklab, var(--hud-accent, #c31f38) 25%, transparent); }
+@media (hover: hover) and (pointer: fine) { .hud-custom-head button:hover { background: color-mix(in oklab, var(--hud-accent, #c31f38) 25%, transparent); } }
 .hud-custom-head button:focus-visible { outline: 2px solid var(--hud-accent, #c31f38); outline-offset: 2px; }
 .hud-custom-body { flex: 1; min-height: 0; display: grid; grid-template-columns: minmax(min(100%, 320px), 420px) minmax(0, 1fr); }
 .hud-custom-settings { min-height: 0; overflow-y: auto; border-right: 1px solid rgba(127, 127, 127, .2); overscroll-behavior: contain; }
@@ -5363,7 +5366,8 @@ html.hud-custom-open body { overflow: hidden; }
   font-size: 1.05em; line-height: 1; cursor: pointer; opacity: .6; transition: opacity .2s, background .2s;
 }
 .hud-versions-btn small { font-size: .62em; font-weight: 700; opacity: .85; }
-.hud-versions-btn:hover, .hud-versions-btn:focus-visible { opacity: 1; background: rgba(127, 127, 127, .15); outline: none; }
+.hud-versions-btn:focus-visible { opacity: 1; background: rgba(127, 127, 127, .15); outline: none; }
+@media (hover: hover) and (pointer: fine) { .hud-versions-btn:hover { opacity: 1; background: rgba(127, 127, 127, .15); outline: none; } }
 .hud-versions-pop {
   position: fixed; z-index: 10040; min-width: 220px; max-width: min(320px, calc(100vw - 16px)); max-height: 60vh; overflow-y: auto;
   display: flex; flex-direction: column; gap: 4px; padding: 8px;
@@ -5376,17 +5380,21 @@ html.hud-custom-open body { overflow: hidden; }
   display: flex; flex-direction: column; align-items: flex-start; gap: 1px; width: 100%; padding: 6px 8px; border-radius: 8px;
   background: rgba(127, 127, 127, .08); color: inherit; border: 1px solid transparent; cursor: pointer; text-align: left; font: inherit;
 }
-.hud-versions-pop button:hover, .hud-versions-pop button:focus-visible {
+.hud-versions-pop button:focus-visible {
   border-color: color-mix(in oklab, var(--hud-accent, #c31f38) 55%, transparent);
   background: color-mix(in oklab, var(--hud-accent, #c31f38) 14%, transparent); outline: none;
 }
+@media (hover: hover) and (pointer: fine) { .hud-versions-pop button:hover {
+  border-color: color-mix(in oklab, var(--hud-accent, #c31f38) 55%, transparent);
+  background: color-mix(in oklab, var(--hud-accent, #c31f38) 14%, transparent); outline: none;
+} }
 .hud-versions-pop button small { opacity: .65; font-size: 11px; }
 .hud-toast.loading, .hud-toast-cancel { pointer-events: auto; }
 .hud-toast-cancel {
   align-self: flex-start; margin-top: 4px; padding: 3px 12px; border-radius: 999px; cursor: pointer; font: inherit; font-size: 12px;
   background: rgba(127, 127, 127, .18); color: inherit; border: 1px solid rgba(127, 127, 127, .4);
 }
-.hud-toast-cancel:hover { background: rgba(127, 127, 127, .3); }
+@media (hover: hover) and (pointer: fine) { .hud-toast-cancel:hover { background: rgba(127, 127, 127, .3); } }
 
 /* =========================================================================
    ОСЕНЬ: ЯБЛОКИ И ЕЖИ
@@ -5568,7 +5576,8 @@ html.hud-custom-open body { overflow: hidden; }
   animation: hud-scene-pulse 1.6s ease-out infinite; animation-play-state: paused;
 }
 /* Точка «сцена идёт» пульсирует только под курсором или после касания. */
-.hud-row:is(:hover, .fx-tap) .hud-scene-state.is-live i, .hud-scene-state.is-live:is(:hover, .fx-tap) i { animation-play-state: running; }
+.hud-row:is(.fx-tap) .hud-scene-state.is-live i, .hud-scene-state.is-live:is(.fx-tap) i { animation-play-state: running; }
+@media (hover: hover) and (pointer: fine) { .hud-row:hover .hud-scene-state.is-live i, .hud-scene-state.is-live:hover i { animation-play-state: running; } }
 @keyframes hud-scene-pulse {
   0% { box-shadow: 0 0 0 0 color-mix(in oklab, var(--hud-nsfw-color, #d9548a) 65%, transparent); }
   100% { box-shadow: 0 0 0 7px transparent; }
@@ -5717,15 +5726,15 @@ html.hud-custom-open body { overflow: hidden; }
 .hud-map-badge .hud-g-ico { width: 14px; height: 14px; }
 .hud-map-row.is-me .hud-map-badge { background: transparent; color: var(--hud-phone-accent); border: 1.5px solid var(--hud-phone-accent); }
 .hud-map-row.is-here { background: color-mix(in oklab, var(--hud-phone-accent) 12%, transparent); }
-@media (hover: hover) { .hud-map-row[data-pin]:hover { background: rgba(255,255,255,.06); } }
-.hud-map:has(.hud-map-row[data-pin="1"]:hover) .hud-map-pin[data-pin="1"],
+@media (hover: hover) and (pointer: fine) { .hud-map-row[data-pin]:hover { background: rgba(255,255,255,.06); } }
+@media (hover: hover) and (pointer: fine) { .hud-map:has(.hud-map-row[data-pin="1"]:hover) .hud-map-pin[data-pin="1"],
 .hud-map:has(.hud-map-row[data-pin="2"]:hover) .hud-map-pin[data-pin="2"],
 .hud-map:has(.hud-map-row[data-pin="3"]:hover) .hud-map-pin[data-pin="3"],
 .hud-map:has(.hud-map-row[data-pin="4"]:hover) .hud-map-pin[data-pin="4"],
 .hud-map:has(.hud-map-row[data-pin="5"]:hover) .hud-map-pin[data-pin="5"],
 .hud-map:has(.hud-map-row[data-pin="6"]:hover) .hud-map-pin[data-pin="6"],
 .hud-map:has(.hud-map-row[data-pin="7"]:hover) .hud-map-pin[data-pin="7"],
-.hud-map:has(.hud-map-row[data-pin="8"]:hover) .hud-map-pin[data-pin="8"] { filter: drop-shadow(0 0 5px var(--hud-phone-accent)); }
+.hud-map:has(.hud-map-row[data-pin="8"]:hover) .hud-map-pin[data-pin="8"] { filter: drop-shadow(0 0 5px var(--hud-phone-accent)); } }
 
 /* =========================================================================
    СВЕЧЕНИЕ (Кастомизация → «Свечение», «Размах», «Дыхание», «На телефоне»)
@@ -5922,7 +5931,7 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
   html.hud-glow-breath :is(.hud-time-display, .hud-title, .hud-avatar, .hud-avatar-placeholder, .hud-tabs-header .hud-tab.active, .hud-phone-lock-time) { animation-play-state: paused; }
   html.hud-glow-breath :is(.hud-time-display, .hud-title, .hud-avatar, .hud-avatar-placeholder, .hud-tabs-header .hud-tab.active, .hud-phone-lock-time).fx-breath { animation-play-state: running; }
 }
-@media (prefers-reduced-motion: no-preference) and (hover: hover) {
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
   html.hud-glow-breath :is(.hud-time-display, .hud-title, .hud-avatar, .hud-avatar-placeholder, .hud-tabs-header .hud-tab.active, .hud-phone-lock-time):hover { animation-play-state: running; }
 }
 
@@ -5965,7 +5974,8 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
   font: inherit; font-size: 11px; line-height: 1.2; padding: 3px 9px; border-radius: 7px; cursor: pointer;
   color: var(--hud-text-muted, #c3c2b7); background: transparent; border: 1px solid transparent;
 }
-.hud-heat-btn:hover, .hud-heat-btn:focus-visible { color: var(--hud-text, #eee); outline: none; }
+.hud-heat-btn:focus-visible { color: var(--hud-text, #eee); outline: none; }
+@media (hover: hover) and (pointer: fine) { .hud-heat-btn:hover { color: var(--hud-text, #eee); outline: none; } }
 .hud-heat-views .hud-heat-btn.is-on { color: var(--hud-text, #eee); background: color-mix(in srgb, var(--heat) 26%, transparent); }
 .hud-heat-btn.is-layer { border-color: rgba(255, 255, 255, .12); }
 .hud-heat-btn.is-layer.is-on { color: var(--hud-text, #eee); border-color: color-mix(in srgb, var(--heat) 55%, transparent); background: color-mix(in srgb, var(--heat) 14%, transparent); }
@@ -5996,7 +6006,8 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
 .hud-heat-svg .z-organ-ring { fill: color-mix(in srgb, var(--hud-accent, #c31f38) 18%, transparent); stroke: color-mix(in srgb, var(--hud-accent, #c31f38) 60%, #fff); stroke-width: .8; stroke-dasharray: 2 1.4; }
 .hud-heat-svg .z-organ-core { fill: color-mix(in srgb, var(--hud-accent, #c31f38) 70%, #fff); }
 @media (prefers-reduced-motion: no-preference) {
-  .hud-heat:is(:hover, .fx-hold) .z-organ-ring { animation: hud-organ-pulse 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+  .hud-heat:is(.fx-hold) .z-organ-ring { animation: hud-organ-pulse 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; }
+@media (hover: hover) and (pointer: fine) { .hud-heat:hover .z-organ-ring { animation: hud-organ-pulse 1.8s ease-in-out infinite; transform-box: fill-box; transform-origin: center; } }
   .hud-heat.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .z-organ-ring { animation-play-state: paused !important; }
 }
 @keyframes hud-organ-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.18); } }
@@ -6067,7 +6078,8 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
 .hud-hl-tile.is-pulse.is-high .hud-hl-val b { color: color-mix(in oklab, var(--hud-phone-accent) 60%, #fff); }
 .hud-hl-beat { font-style: normal; color: var(--hud-phone-accent); }
 @media (prefers-reduced-motion: no-preference) {
-  .hud-hl-tile.is-pulse:is(:hover, .fx-hold) .hud-hl-beat { display: inline-block; animation: hud-hl-beat .8s ease-in-out infinite; }
+  .hud-hl-tile.is-pulse:is(.fx-hold) .hud-hl-beat { display: inline-block; animation: hud-hl-beat .8s ease-in-out infinite; }
+@media (hover: hover) and (pointer: fine) { .hud-hl-tile.is-pulse:hover .hud-hl-beat { display: inline-block; animation: hud-hl-beat .8s ease-in-out infinite; } }
   .hud-hl-tile.is-pulse.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-hl-beat { animation-play-state: paused !important; }
 }
 @keyframes hud-hl-beat { 0%, 100% { transform: scale(1); } 30% { transform: scale(1.3); } }
@@ -6082,7 +6094,7 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
 .hud-hl-chart .hl-hit { fill: transparent; cursor: default; }
 .hud-hl-chart .hl-dot { fill: var(--hud-phone-accent); stroke: color-mix(in srgb, currentColor 25%, transparent); stroke-width: 2; transition: r .15s; }
 .hud-hl-chart .hl-pt.is-scene .hl-dot { fill: color-mix(in oklab, var(--hud-phone-accent) 45%, #fff); }
-.hud-hl-chart .hl-pt:hover .hl-dot { r: 5.5; }
+@media (hover: hover) and (pointer: fine) { .hud-hl-chart .hl-pt:hover .hl-dot { r: 5.5; } }
 .hud-hl-chart .hl-now { fill: currentColor; font-size: 9px; font-weight: 700; text-anchor: end; }
 .hud-hl-legend { display: flex; align-items: center; gap: 6px; font-size: .68em; opacity: .65; margin-top: 4px; }
 .hud-hl-legend i { width: 8px; height: 8px; border-radius: 50%; background: color-mix(in oklab, var(--hud-phone-accent) 45%, #fff); }
@@ -6092,7 +6104,7 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
 .hud-hl-day i { display: block; width: 100%; max-width: 22px; border-radius: 4px 4px 0 0; background: color-mix(in oklab, var(--hud-phone-accent) 45%, transparent); }
 .hud-hl-day.is-today i { background: var(--hud-phone-accent); }
 .hud-hl-day small { font-size: .62em; opacity: .6; }
-.hud-hl-day:hover i { filter: brightness(1.2); }
+@media (hover: hover) and (pointer: fine) { .hud-hl-day:hover i { filter: brightness(1.2); } }
 
 .hud-hl-vitals { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; margin-bottom: 8px; }
 .hud-hl-vitals span { display: flex; flex-direction: column; align-items: center; padding: 5px 0; border-radius: 10px; background: color-mix(in srgb, currentColor 7%, transparent); }
@@ -6126,7 +6138,7 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
 .hud-wx-now .hud-wx-ico { filter: drop-shadow(0 0 8px color-mix(in oklab, var(--wx, var(--hud-phone-accent)) 45%, transparent)); }
 .hud-wx .hud-fc-ico > * { animation-play-state: paused !important; }
 .hud-wx-now.fx-active .hud-fc-ico > *, .hud-wx-fc.fx-active .hud-fc-ico > * { animation-play-state: running !important; }
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .hud-wx-now:hover .hud-fc-ico > *, .hud-wx-row:hover .hud-fc-ico > * { animation-play-state: running !important; }
 }
 .hud-wx-now, .hud-wx-fc { cursor: pointer; }
@@ -6147,7 +6159,8 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
   background: color-mix(in srgb, var(--hud-accent, #c31f38) 8%, transparent);
   border: 1px dashed color-mix(in srgb, var(--hud-accent, #c31f38) 35%, transparent);
 }
-.hud-more-btn:hover, .hud-more-btn:focus-visible { color: var(--hud-text, #eee); outline: none; background: color-mix(in srgb, var(--hud-accent, #c31f38) 16%, transparent); }
+.hud-more-btn:focus-visible { color: var(--hud-text, #eee); outline: none; background: color-mix(in srgb, var(--hud-accent, #c31f38) 16%, transparent); }
+@media (hover: hover) and (pointer: fine) { .hud-more-btn:hover { color: var(--hud-text, #eee); outline: none; background: color-mix(in srgb, var(--hud-accent, #c31f38) 16%, transparent); } }
 .hud-more-btn b { font-weight: 700; margin-left: 4px; font-variant-numeric: tabular-nums; }
 
 /* =========================================================================
@@ -6206,7 +6219,7 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
   border-color: color-mix(in oklab, var(--hud-neutral) 30%, transparent) !important;
   animation: none !important;
 }
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
   .hud-fetish-pill:not(#_):hover {
     background-color: color-mix(in oklab, var(--hud-neutral) 15%, transparent) !important;
     border-color: color-mix(in oklab, var(--hud-neutral) 60%, transparent) !important;
@@ -6389,10 +6402,14 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
   background: color-mix(in srgb, var(--phase, var(--hud-accent)) 8%, transparent);
   transition: background .2s, box-shadow .2s, border-color .2s;
 }
-.hud-fate-btn:hover, .hud-fate-btn:focus-visible {
+.hud-fate-btn:focus-visible {
   border-style: solid; background: color-mix(in srgb, var(--phase, var(--hud-accent)) 22%, transparent);
   box-shadow: 0 0 10px color-mix(in srgb, var(--phase, var(--hud-accent)) 45%, transparent);
 }
+@media (hover: hover) and (pointer: fine) { .hud-fate-btn:hover {
+  border-style: solid; background: color-mix(in srgb, var(--phase, var(--hud-accent)) 22%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--phase, var(--hud-accent)) 45%, transparent);
+} }
 .hud-fate-note { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; margin-top: 4px; font-size: .78em; opacity: .85; }
 .hud-fate-note .hud-fate-btn { margin-top: 0; font-size: 1em; padding: 1px 8px; }
 
@@ -6430,11 +6447,11 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 }
 .hud-scene-mods .hud-mod.is-fertile { --m: var(--hud-nsfw-color, #d9548a); }
 .hud-scene-mods .hud-mod.is-chance { flex-basis: 150px; }
-.hud-scene-mods .hud-mod:hover {
+@media (hover: hover) and (pointer: fine) { .hud-scene-mods .hud-mod:hover {
   border-color: color-mix(in srgb, var(--m) 55%, transparent);
   box-shadow: 0 0 14px color-mix(in srgb, var(--m) 28%, transparent);
   background: linear-gradient(120deg, color-mix(in srgb, var(--m) 22%, transparent), color-mix(in srgb, var(--m) 7%, transparent));
-}
+} }
 .hud-mod-ico {
   flex: 0 0 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-size: 13px;
   background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--m) 42%, transparent), color-mix(in srgb, var(--m) 10%, transparent));
@@ -6536,7 +6553,7 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 .hud-budget-bar { grid-area: bar; display: block; height: 5px; border-radius: 3px; width: var(--w); background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 70%, transparent); }
 .hud-budget-off { grid-area: off; justify-self: end; font: inherit; font-size: 10.5px; cursor: pointer; padding: 1px 8px; border-radius: 999px;
   color: inherit; background: transparent; border: 1px dashed var(--hud-border, rgba(255,255,255,.3)); }
-.hud-budget-off:hover:not(:disabled) { border-style: solid; border-color: var(--hud-accent, #8c5ad2); }
+@media (hover: hover) and (pointer: fine) { .hud-budget-off:hover:not(:disabled) { border-style: solid; border-color: var(--hud-accent, #8c5ad2); } }
 
 /* «Кастомизация» → «Вкладки» (customize-tabs.js). */
 .hud-ct-note { margin: 6px 0 8px; font-size: 12px; opacity: .8; line-height: 1.4; }
@@ -6590,7 +6607,7 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
   background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 10%, rgba(255,255,255,.03));
   color: inherit; font: inherit; font-weight: 600; cursor: pointer; text-align: left;
 }
-.hud-detail-toggle:hover { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 18%, rgba(255,255,255,.04)); }
+@media (hover: hover) and (pointer: fine) { .hud-detail-toggle:hover { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 18%, rgba(255,255,255,.04)); } }
 .hud-detail-toggle:focus-visible { outline: 2px solid var(--hud-accent, #8c5ad2); outline-offset: 2px; }
 .hud-detail-toggle-chev { width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(45deg) translateY(-2px); transition: transform .2s ease; opacity: .7; flex: none; }
 .hud-detail-toggle.is-open .hud-detail-toggle-chev { transform: rotate(-135deg) translateY(-2px); }
@@ -6619,7 +6636,7 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
    равенство множеств подтвердится, списки уйдут, останутся эти строки. */
 [data-fx~="lift"] { transition: transform .6s cubic-bezier(.22,.8,.26,1), filter .6s cubic-bezier(.22,.8,.26,1), background-color .4s ease, border-color .4s ease, box-shadow .4s ease, color .4s ease, opacity .4s ease !important; }
 @media (prefers-reduced-motion: no-preference) {
-  @media (hover: hover) {
+  @media (hover: hover) and (pointer: fine) {
     [data-fx~="lift"]:hover { transform: translateY(-3px) !important; filter: drop-shadow(0 7px 10px rgba(0,0,0,.38)) drop-shadow(0 0 0 transparent); z-index: 2; }
     [data-fx~="glow"]:is(:hover, .fx-hold) { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite; }
     [data-fx~="glow"].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) { animation-play-state: paused !important; }

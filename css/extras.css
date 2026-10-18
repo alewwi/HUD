@@ -16,7 +16,7 @@
   background: rgba(0,0,0,.22); color: var(--hud-text); border: 1px solid var(--hud-border); border-radius: 9px;
   transition: border-color .18s ease, background .18s ease, transform .18s ease;
 }
-.hud-theme-palette:hover { background: rgba(255,255,255,.08); transform: translateY(-1px); }
+@media (hover: hover) and (pointer: fine) { .hud-theme-palette:hover { background: rgba(255,255,255,.08); transform: translateY(-1px); } }
 .hud-theme-palette.active { border-color: var(--hud-accent); box-shadow: 0 0 0 1px var(--hud-accent) inset; background: rgba(255,255,255,.1); }
 .hud-palette-sw { display: flex; gap: 2px; }
 .hud-palette-sw i { width: 11px; height: 14px; border-radius: 3px; border: 1px solid rgba(255,255,255,.28); }
@@ -85,7 +85,8 @@
 :root.hud-skin-ghost .hud-os-card .hud-header-text::after { content: var(--hud-dateline, ''); display: block; margin-top: 3px; font-size: .7em; letter-spacing: 3px; opacity: .75; }
 :root.hud-skin-ghost .hud-os-card .hud-body > .hud-row > .hud-key::before { content: '✦ '; display: inline-block; margin-right: 2px; color: var(--hud-accent-text, var(--hud-accent)); }
 @keyframes hud-ghost-flip { to { transform: perspective(400px) rotateY(360deg); } }
-:root.hud-skin-ghost .hud-os-card .hud-body > .hud-row:is(:hover, .fx-hold) > .hud-key::before { animation: hud-ghost-flip 2.4s linear infinite; }
+:root.hud-skin-ghost .hud-os-card .hud-body > .hud-row:is(.fx-hold) > .hud-key::before { animation: hud-ghost-flip 2.4s linear infinite; }
+@media (hover: hover) and (pointer: fine) { :root.hud-skin-ghost .hud-os-card .hud-body > .hud-row:hover > .hud-key::before { animation: hud-ghost-flip 2.4s linear infinite; } }
 :root.hud-skin-ghost .hud-os-card .hud-body > .hud-row.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) > .hud-key::before { animation-play-state: paused !important; }
 
 /* --- «Газета» -------------------------------------------------------------- */
@@ -300,7 +301,8 @@
 .hud-deep .hud-veil .r { fill: none; stroke: color-mix(in srgb, var(--hud-accent) 60%, var(--x-ink)); stroke-width: 1.2; }
 .hud-deep.is-closed p { filter: blur(6px); opacity: .55; user-select: none; }
 .hud-deep.is-closed .hud-veil { display: flex; }
-.hud-deep:is(:hover, .fx-hold) .hud-veil .r { animation: hud-ripple 1.6s ease-out infinite; transform-origin: 17px 17px; }
+.hud-deep:is(.fx-hold) .hud-veil .r { animation: hud-ripple 1.6s ease-out infinite; transform-origin: 17px 17px; }
+@media (hover: hover) and (pointer: fine) { .hud-deep:hover .hud-veil .r { animation: hud-ripple 1.6s ease-out infinite; transform-origin: 17px 17px; } }
   .hud-deep.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-veil .r { animation-play-state: paused !important; }
 @keyframes hud-ripple { from { transform: scale(.6); opacity: 1; } to { transform: scale(1.25); opacity: 0; } }
 
@@ -451,7 +453,8 @@
    СДВИГИ ДОВЕРИЯ: видны при наведении или нажатии
    ========================================================================= */
 .hud-trust-meta { display: flex; flex-wrap: wrap; gap: 5px; max-height: 0; opacity: 0; overflow: hidden; margin-top: 0; font: 11px 'Courier New', monospace; transition: max-height .3s ease, opacity .3s ease, margin-top .3s ease; }
-.hud-row:hover > .hud-trust-meta, .hud-row:focus-within > .hud-trust-meta, .hud-row.is-meta-open > .hud-trust-meta { max-height: 120px; opacity: .9; margin-top: 8px; }
+.hud-row:focus-within > .hud-trust-meta, .hud-row.is-meta-open > .hud-trust-meta { max-height: 120px; opacity: .9; margin-top: 8px; }
+@media (hover: hover) and (pointer: fine) { .hud-row:hover > .hud-trust-meta { max-height: 120px; opacity: .9; margin-top: 8px; } }
 .hud-trust-meta span { padding: 1px 8px; border-radius: 99px; border: 1px solid color-mix(in srgb, var(--hud-text, #eee) 25%, transparent); white-space: nowrap; }
 .hud-trust-meta span b { font-weight: 700; }
 .hud-trust-meta .up { color: #8fd49a; border-color: rgba(143,212,154,.45); }
@@ -611,7 +614,8 @@
 .hud-cp-sw { display: flex; flex-wrap: wrap; gap: 6px; }
 .hud-cp-sw button { width: 24px; height: 24px; padding: 0; border-radius: 7px; cursor: pointer; background: var(--c); border: 1px solid rgba(255,255,255,.25); box-shadow: inset 0 0 0 2px rgba(0,0,0,.18); }
 .hud-cp-sw button.is-theme { border-radius: 50%; border-color: rgba(255,255,255,.55); }
-.hud-cp-sw button:hover, .hud-cp-sw button:focus-visible { transform: scale(1.12); outline: none; }
+.hud-cp-sw button:focus-visible { transform: scale(1.12); outline: none; }
+@media (hover: hover) and (pointer: fine) { .hud-cp-sw button:hover { transform: scale(1.12); outline: none; } }
 .hud-cp-actions { display: flex; justify-content: flex-end; gap: 8px; }
 .hud-cp-actions button { padding: 7px 16px; border-radius: 9px; cursor: pointer; font: inherit; color: inherit; background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.18); }
 .hud-cp-actions .hud-cp-ok { background: var(--hud-accent, #8c5ad2); border-color: transparent; color: #fff; font-weight: 700; }

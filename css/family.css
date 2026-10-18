@@ -73,7 +73,7 @@
 .hud-fetus .acts { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px; margin-top: 3px; }
 .hud-fetus-btn { padding: 3px 10px; border-radius: 999px; font: inherit; font-size: .78em; cursor: pointer; color: inherit; white-space: nowrap;
   border: 1px dashed color-mix(in srgb, var(--fam-acc) 55%, transparent); background: color-mix(in srgb, var(--fam-acc) 8%, transparent); transition: background .2s, box-shadow .2s; }
-.hud-fetus-btn:hover { border-style: solid; background: color-mix(in srgb, var(--fam-acc) 22%, transparent); box-shadow: 0 0 10px color-mix(in srgb, var(--fam-acc) 40%, transparent); }
+@media (hover: hover) and (pointer: fine) { .hud-fetus-btn:hover { border-style: solid; background: color-mix(in srgb, var(--fam-acc) 22%, transparent); box-shadow: 0 0 10px color-mix(in srgb, var(--fam-acc) 40%, transparent); } }
 .hud-fetus-btn.is-on { border-style: solid; background: color-mix(in srgb, var(--fam-acc) 30%, transparent); font-weight: 700; }
 .hud-fetus-btn.is-roll { border-style: solid; align-self: flex-start; }
 .hud-fetus-fate > summary { list-style: none; cursor: pointer; display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .78em;
@@ -89,7 +89,7 @@
 .hud-birth-row { margin-top: 10px; }
 .hud-birth-btn { padding: 6px 14px; border-radius: 999px; font: inherit; font-size: .84em; cursor: pointer; color: inherit;
   border: 1px solid color-mix(in srgb, var(--fam-acc) 50%, transparent); background: linear-gradient(90deg, color-mix(in srgb, var(--fam-girl) 22%, transparent), color-mix(in srgb, var(--fam-boy) 22%, transparent)); transition: box-shadow .2s; }
-.hud-birth-btn:hover { box-shadow: 0 0 14px color-mix(in srgb, var(--fam-acc) 40%, transparent); }
+@media (hover: hover) and (pointer: fine) { .hud-birth-btn:hover { box-shadow: 0 0 14px color-mix(in srgb, var(--fam-acc) 40%, transparent); } }
 
 /* --- После родов ------------------------------------------------------------- */
 .hud-pp { display: flex; flex-direction: column; gap: 8px; padding: 12px 14px; border-radius: 14px; background: var(--fam-inset); box-shadow: inset 0 0 0 1px var(--fam-line); }
@@ -187,7 +187,7 @@
   border: 1.5px dashed color-mix(in srgb, var(--c) 55%, transparent); transition: transform .25s, box-shadow .25s, border-style .2s; }
 .hud-kid-chip.is-girl { --c: var(--fam-girl); } .hud-kid-chip.is-boy { --c: var(--fam-boy); }
 .hud-kid-chip.is-on { border-style: solid; box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 18%, transparent), 0 8px 14px -10px rgba(0,0,0,.6); }
-.hud-kid-chip:hover { transform: translateY(-2px); }
+@media (hover: hover) and (pointer: fine) { .hud-kid-chip:hover { transform: translateY(-2px); } }
 .hud-kid-chip .toy { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; color: var(--c);
   background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--c) 40%, transparent), color-mix(in srgb, var(--c) 12%, transparent)); }
 .hud-kid-chip .who { display: flex; flex-direction: column; min-width: 0; gap: 1px; }
@@ -307,10 +307,8 @@
 }
 :is(.hud-kid-card > .deco, .hud-kid-card > .bunting, .hud-kids-head .bunting, .hud-kids-head .hang, .hud-kids-head .cloud, .hud-fetus-baby .baby, .hud-fetus .beat path,
   .hud-kid-care .ms-track .me, .hud-pp .breasts .drop, .hud-pp-track .now, .hud-kid-chip .toy svg), .hud-fetus .wombs::before { animation-play-state: paused; }
-.hud-kid-card:is(:hover, .fx-on) > :is(.deco, .bunting), .hud-kids-head:is(:hover, .fx-on) :is(.bunting, .hang, .cloud),
-.hud-fetus:is(:hover, .fx-on) :is(.hud-fetus-baby .baby, .beat path), .hud-fetus:is(:hover, .fx-on) .wombs::before,
-.hud-kid-care:is(:hover, .fx-on) .ms-track .me, .hud-pp:is(:hover, .fx-on) :is(.breasts .drop, .hud-pp-track .now),
-.hud-kid-chip:is(:hover, .fx-on) .toy svg { animation-play-state: running !important; }
+.hud-kid-card:is(.fx-on) > :is(.deco, .bunting), .hud-kids-head:is(.fx-on) :is(.bunting, .hang, .cloud), .hud-fetus:is(.fx-on) :is(.hud-fetus-baby .baby, .beat path), .hud-fetus:is(.fx-on) .wombs::before, .hud-kid-care:is(.fx-on) .ms-track .me, .hud-pp:is(.fx-on) :is(.breasts .drop, .hud-pp-track .now), .hud-kid-chip:is(.fx-on) .toy svg { animation-play-state: running !important; }
+@media (hover: hover) and (pointer: fine) { .hud-kid-card:hover > :is(.deco, .bunting), .hud-kids-head:hover :is(.bunting, .hang, .cloud), .hud-fetus:hover :is(.hud-fetus-baby .baby, .beat path), .hud-fetus:hover .wombs::before, .hud-kid-care:hover .ms-track .me, .hud-pp:hover :is(.breasts .drop, .hud-pp-track .now), .hud-kid-chip:hover .toy svg { animation-play-state: running !important; } }
 @keyframes hud-fam-wobble { 0%, 100% { translate: 0 0; } 50% { translate: 0 -4px; } }
 @keyframes hud-fam-swing { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(8deg); } 75% { transform: rotate(-8deg); } }
 @keyframes hud-fam-kick { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(-8deg) scale(1.04); } }
@@ -359,7 +357,7 @@
 .hud-prg-more > summary::-webkit-details-marker { display: none; }
 .hud-prg-more > summary::after { content: '▾'; transition: rotate .25s; }
 .hud-prg-more[open] > summary::after { rotate: 180deg; }
-.hud-prg-more > summary:hover { background: color-mix(in srgb, var(--fam-acc) 14%, transparent); }
+@media (hover: hover) and (pointer: fine) { .hud-prg-more > summary:hover { background: color-mix(in srgb, var(--fam-acc) 14%, transparent); } }
 .hud-prg-more:not([open]) .close, .hud-prg-more[open] .open { display: none; }
 .hud-prg-more[open] { display: flex; flex-direction: column; gap: 8px; }
 

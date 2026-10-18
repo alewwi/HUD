@@ -56,7 +56,7 @@
 :root.hud-deco-polaroid .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap {
   background: #fbf8f1; padding: 7px 7px 26px; transform: rotate(-4deg); box-shadow: 0 8px 18px rgba(0,0,0,.45); transition: transform .3s;
 }
-:root.hud-deco-polaroid .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap:hover { transform: none; }
+@media (hover: hover) and (pointer: fine) { :root.hud-deco-polaroid .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap:hover { transform: none; } }
 :root.hud-deco-polaroid .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > * { border-radius: 0 !important; border: 0 !important; box-shadow: inset 0 0 0 1px rgba(0,0,0,.1) !important; }
 :root.hud-deco-polaroid .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap::before {
   content: ''; position: absolute; top: -9px; left: 50%; width: 52px; height: 18px; translate: -50% 0; rotate: 3deg; z-index: 2; opacity: .9;
@@ -579,7 +579,8 @@
   transition: rotate .8s ease;
 }
 :root.hud-orn-saturn .hud-os-card .hud-header:not(.has-banner) .hud-head-orn::after { content: none !important; }
-:root.hud-orn-saturn .hud-os-card .hud-header:not(.has-banner):is(:hover, .fx-deco) .hud-head-orn { rotate: -8deg; }
+:root.hud-orn-saturn .hud-os-card .hud-header:not(.has-banner):is(.fx-deco) .hud-head-orn { rotate: -8deg; }
+@media (hover: hover) and (pointer: fine) { :root.hud-orn-saturn .hud-os-card .hud-header:not(.has-banner):hover .hud-head-orn { rotate: -8deg; } }
 
 /* --- Пластырь у «Здоровья» («吹雪 · 紫色») — цвета темы --------------------
    Сердечко вместо значка в углу, полоска пластыря в нижнем левом углу. */
@@ -710,13 +711,8 @@
 :root.hud-crt .hud-os-card .hud-row .hud-deep::after,
 :root .hud-os-card .hud-trust-up i,
 .hud-gen-ind i { animation-play-state: paused !important; }
-:root .hud-os-card .hud-header:is(:hover, .fx-deco) .hud-ava-wrap::before,
-:root:is(.hud-name-outline, .hud-name-sheen) .hud-os-card .hud-header:is(:hover, .fx-deco) .hud-title,
-:root.hud-name-outline .hud-os-card .hud-key-block:is(:hover, .fx-deco) > .hud-key-label,
-:root.hud-crt .hud-os-card .hud-body > :is(.hud-row.f-thoughts, .hud-row.f-lines):is(:hover, .fx-tap),
-:root.hud-crt .hud-os-card .hud-row:is(:hover, .fx-tap) .hud-deep::after,
-:root .hud-os-card .hud-row:is(:hover, .fx-tap) .hud-trust-up i,
-.hud-gen-ind:is(:hover, .fx-deco) i { animation-play-state: running !important; }
+:root .hud-os-card .hud-header:is(.fx-deco) .hud-ava-wrap::before, :root:is(.hud-name-outline, .hud-name-sheen) .hud-os-card .hud-header:is(.fx-deco) .hud-title, :root.hud-name-outline .hud-os-card .hud-key-block:is(.fx-deco) > .hud-key-label, :root.hud-crt .hud-os-card .hud-body > :is(.hud-row.f-thoughts, .hud-row.f-lines):is(.fx-tap), :root.hud-crt .hud-os-card .hud-row:is(.fx-tap) .hud-deep::after, :root .hud-os-card .hud-row:is(.fx-tap) .hud-trust-up i, .hud-gen-ind:is(.fx-deco) i { animation-play-state: running !important; }
+@media (hover: hover) and (pointer: fine) { :root .hud-os-card .hud-header:hover .hud-ava-wrap::before, :root:is(.hud-name-outline, .hud-name-sheen) .hud-os-card .hud-header:hover .hud-title, :root.hud-name-outline .hud-os-card .hud-key-block:hover > .hud-key-label, :root.hud-crt .hud-os-card .hud-body > :is(.hud-row.f-thoughts, .hud-row.f-lines):hover, :root.hud-crt .hud-os-card .hud-row:hover .hud-deep::after, :root .hud-os-card .hud-row:hover .hud-trust-up i, .hud-gen-ind:hover i { animation-play-state: running !important; } }
 /* «Дыхание» имени живёт своим выключателем (fx-breath) — его не трогаем. */
 :root.hud-glow-breath:is(.hud-name-outline, .hud-name-sheen) .hud-os-card .hud-header .hud-title.fx-breath { animation-play-state: running !important; }
 
@@ -763,7 +759,8 @@
   animation: hud-pendant-swing 2.6s ease-in-out infinite; animation-play-state: paused;
 }
 :root.hud-hang-pendant:not(.hud-orn-on) .hud-os-card .hud-header:not(.has-banner) .hud-pendant { right: 22px; }
-:root.hud-hang-pendant .hud-os-card .hud-header:not(.has-banner):is(:hover, .fx-deco) .hud-pendant { animation-play-state: running; }
+:root.hud-hang-pendant .hud-os-card .hud-header:not(.has-banner):is(.fx-deco) .hud-pendant { animation-play-state: running; }
+@media (hover: hover) and (pointer: fine) { :root.hud-hang-pendant .hud-os-card .hud-header:not(.has-banner):hover .hud-pendant { animation-play-state: running; } }
 @keyframes hud-pendant-swing { 0%, 100% { rotate: 7deg; } 50% { rotate: -7deg; } }
 @media (max-width: 600px) { :root.hud-hang-pendant .hud-os-card .hud-header:not(.has-banner) .hud-pendant { right: 70px; width: 22px; height: 52px; } }
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */

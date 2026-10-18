@@ -50,7 +50,7 @@
 .hud-f-age.is-id .guill { position: absolute; inset: 0; width: 100%; height: 100%; fill: none; stroke: color-mix(in srgb, var(--t-acc) 35%, transparent); stroke-width: .5; opacity: .6; }
 .hud-f-age.is-id .holo { position: absolute; right: 52px; top: -10px; bottom: -10px; width: 26px; transform: skewX(-12deg); opacity: .35;
   background: linear-gradient(180deg, #ffb3e6, #a6e3ff, #c6ffb3, #ffe6a6, #e0b3ff, #ffb3e6); transition: opacity .4s, transform .6s; }
-.hud-f-age.is-id:hover .holo { opacity: .6; transform: skewX(-12deg) translateX(-30px); }
+@media (hover: hover) and (pointer: fine) { .hud-f-age.is-id:hover .holo { opacity: .6; transform: skewX(-12deg) translateX(-30px); } }
 .hud-f-age.is-id .pass-head { position: relative; display: flex; align-items: center; justify-content: space-between; padding-bottom: 6px; margin-bottom: 8px; border-bottom: 1.5px solid var(--f-paper-rule); }
 .hud-f-age.is-id .pass-head span { font-size: .62em; font-weight: 800; letter-spacing: .2em; text-transform: uppercase; color: var(--f-ink); }
 .hud-f-age.is-id .emb { width: 18px; height: 18px; fill: none; stroke: var(--f-ink); stroke-width: 1.2; }
@@ -135,7 +135,7 @@
   box-shadow: inset 0 0 0 1px var(--f-paper-edge), 0 -4px 12px -6px rgba(0,0,0,.5); transition: transform .35s cubic-bezier(.2,.8,.2,1); z-index: calc(10 - var(--i));
 }
 .hud-f-clothes.is-layers .swatch:last-child { margin-bottom: 0; }
-.hud-f-clothes.is-layers .book:hover .swatch { transform: translateX(calc(var(--i) * 8px)); }
+@media (hover: hover) and (pointer: fine) { .hud-f-clothes.is-layers .book:hover .swatch { transform: translateX(calc(var(--i) * 8px)); } }
 .hud-f-clothes.is-layers .cloth { flex: none; width: 54px; height: 40px; border-radius: 2px; background-color: var(--cloth);
   -webkit-mask: conic-gradient(from -45deg at bottom, #0000, #000 1deg 89deg, #0000 90deg) 50% / 8px 100%; filter: drop-shadow(0 3px 3px rgba(0,0,0,.4)); }
 .hud-f-clothes.is-layers .f-linen .cloth { background-image: repeating-linear-gradient(0deg, rgba(255,255,255,.12) 0 1px, transparent 1px 3px), repeating-linear-gradient(90deg, rgba(0,0,0,.14) 0 1px, transparent 1px 3px); }
@@ -157,7 +157,7 @@
   background: repeating-linear-gradient(90deg, rgba(255,255,255,.07) 0 1px, transparent 1px 2px), linear-gradient(180deg, color-mix(in srgb, var(--sat) 85%, #fff), var(--sat));
   color: var(--f-tint-ink); outline: 1px dashed color-mix(in srgb, var(--f-tint-ink) 45%, transparent); outline-offset: -4px; box-shadow: var(--f-shadow); transition: transform .3s;
 }
-.hud-f-clothes.is-tags .label:hover { transform: rotate(0) translateY(-2px); }
+@media (hover: hover) and (pointer: fine) { .hud-f-clothes.is-tags .label:hover { transform: rotate(0) translateY(-2px); } }
 .hud-f-clothes.is-tags .loop { position: absolute; top: -7px; left: 10%; right: 10%; height: 9px; border-radius: 6px 6px 0 0; background: color-mix(in srgb, var(--sat) 75%, #000); z-index: -1; }
 .hud-f-clothes.is-tags .woven { font: 700 .74em/1.3 var(--f-serif); letter-spacing: .14em; text-transform: uppercase; text-align: center; }
 .hud-f-clothes.is-tags .care { display: flex; gap: 5px; opacity: .8; }
@@ -236,7 +236,7 @@
 .hud-f-looks.is-sketch .notes li { position: relative; padding-bottom: 1px; background: linear-gradient(90deg, color-mix(in srgb, var(--t-acc) 55%, transparent), transparent) bottom left / 80% 1px no-repeat; }
 .hud-f-looks.is-sketch .notes i { font-style: normal; color: var(--t-acc); margin-right: 4px; }
 .hud-f-looks.is-sketch .pencil { position: absolute; right: 10px; bottom: -6px; width: 84px; height: 14px; transform: rotate(-8deg); filter: drop-shadow(0 3px 3px rgba(0,0,0,.35)); transition: transform .4s; }
-.hud-f-looks.is-sketch:hover .pencil { transform: rotate(-14deg) translate(-8px, -2px); }
+@media (hover: hover) and (pointer: fine) { .hud-f-looks.is-sketch:hover .pencil { transform: rotate(-14deg) translate(-8px, -2px); } }
 .hud-f-looks.is-sketch .pencil .wood { fill: color-mix(in srgb, var(--t-acc) 45%, #f0b43a); }
 .hud-f-looks.is-sketch .pencil .tip { fill: #e8c79a; } .hud-f-looks.is-sketch .pencil .lead { fill: #333; }
 .hud-f-looks.is-sketch .pencil .band { fill: #c0c0c8; } .hud-f-looks.is-sketch .pencil .eraser { fill: color-mix(in srgb, var(--t-acc) 30%, #f08aa0); }
@@ -299,8 +299,8 @@
   background: radial-gradient(rgba(127,127,127,.06) .6px, transparent .8px) 0 0 / 3px 3px, linear-gradient(160deg, var(--f-paper), var(--f-paper-2));
   box-shadow: var(--f-shadow), inset 0 0 0 5px var(--f-paper), inset 0 0 0 6px #c9a24a;
 }
-.hud-f-role.is-stack:hover .front { transform: translateY(-6px) rotate(-1.5deg); }
-.hud-f-role.is-stack:hover .back { transform: rotate(7deg) translateX(6px); }
+@media (hover: hover) and (pointer: fine) { .hud-f-role.is-stack:hover .front { transform: translateY(-6px) rotate(-1.5deg); } }
+@media (hover: hover) and (pointer: fine) { .hud-f-role.is-stack:hover .back { transform: rotate(7deg) translateX(6px); } }
 .hud-f-role.is-stack .mono { position: absolute; left: 14px; top: 14px; width: 32px; height: 32px; border-radius: 50%; display: grid; place-items: center; font: 700 17px var(--f-serif); color: #fff;
   background: linear-gradient(135deg, #f3d888, #b8862e 60%, #f6e2a0); box-shadow: inset 0 0 0 1px rgba(90,60,10,.4); text-shadow: 0 1px 1px rgba(90,60,10,.6); }
 .hud-f-role.is-stack .front b { font: 700 1.08em var(--f-serif); font-variant: small-caps; letter-spacing: .06em; }
@@ -412,7 +412,7 @@
 /* Ключ с биркой */
 .hud-f-place.is-pin { display: flex; align-items: center; gap: 0; padding: 6px 0; }
 .hud-f-place.is-pin .key { flex: none; width: 120px; height: 60px; margin-right: -8px; filter: drop-shadow(0 5px 5px rgba(0,0,0,.35)); transform: rotate(-8deg); transition: transform .5s cubic-bezier(.3,1.4,.5,1); }
-.hud-f-place.is-pin:hover .key { transform: rotate(4deg); }
+@media (hover: hover) and (pointer: fine) { .hud-f-place.is-pin:hover .key { transform: rotate(4deg); } }
 .hud-f-place.is-pin .k0 { stop-color: color-mix(in srgb, var(--t-acc) 10%, #fff2c0); } .hud-f-place.is-pin .k1 { stop-color: color-mix(in srgb, var(--t-acc) 15%, #d6a83a); } .hud-f-place.is-pin .k2 { stop-color: color-mix(in srgb, var(--t-acc) 15%, #8a5a14); }
 .hud-f-place.is-pin .ring { fill: none; stroke: color-mix(in srgb, var(--t-acc) 15%, #b8b8c4); stroke-width: 2.4; }
 .hud-f-place.is-pin .bow, .hud-f-place.is-pin .shaft { stroke: color-mix(in srgb, var(--t-acc) 20%, #6b4410); stroke-width: .6; }
@@ -476,7 +476,7 @@
 /* Печать */
 .hud-f-status.is-stamp { position: relative; display: grid; justify-items: center; padding: 4px 0; --ink: color-mix(in srgb, var(--t-acc) 85%, #6b0f1a); }
 .hud-f-status.is-stamp .seal { width: 140px; height: 140px; grid-area: 1 / 1; transform: rotate(-12deg); opacity: .92; transition: transform .4s cubic-bezier(.3,1.4,.5,1); }
-.hud-f-status.is-stamp:hover .seal, .hud-f-status.is-stamp:hover .band { transform: rotate(-4deg) scale(1.04); }
+@media (hover: hover) and (pointer: fine) { .hud-f-status.is-stamp:hover .seal, .hud-f-status.is-stamp:hover .band { transform: rotate(-4deg) scale(1.04); } }
 .hud-f-status.is-stamp .o { fill: none; stroke: var(--ink); stroke-width: 4; }
 .hud-f-status.is-stamp .o2 { fill: none; stroke: var(--ink); stroke-width: 1.4; }
 .hud-f-status.is-stamp .ring { font: 800 10.4px var(--f-mono); letter-spacing: .14em; fill: var(--ink); }
@@ -508,7 +508,7 @@
   background: linear-gradient(175deg, color-mix(in srgb, var(--pap) 90%, #fff), var(--pap)); box-shadow: var(--f-shadow), inset 0 -18px 18px -18px rgba(0,0,0,.3);
   clip-path: polygon(0 -10px, 100% -10px, 100% calc(100% - 16px), calc(100% - 16px) 100%, 0 100%);
 }
-.hud-f-key.is-stickers .note:hover { transform: rotate(0) translateY(-3px) scale(1.02); }
+@media (hover: hover) and (pointer: fine) { .hud-f-key.is-stickers .note:hover { transform: rotate(0) translateY(-3px) scale(1.02); } }
 .hud-f-key.is-stickers .curl { position: absolute; right: 0; bottom: 0; width: 16px; height: 16px; background: linear-gradient(135deg, color-mix(in srgb, var(--pap) 65%, #000) 50%, transparent 50%); }
 .hud-f-key.is-stickers .tape { position: absolute; left: 50%; top: -6px; width: 46px; height: 14px; margin-left: -23px; transform: rotate(-4deg); background: color-mix(in srgb, #fff 45%, transparent); box-shadow: 0 1px 2px rgba(0,0,0,.2); }
 .hud-f-key.is-stickers .pin { position: absolute; left: 50%; top: 4px; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #fff, var(--t-acc) 45%, #400); box-shadow: 0 3px 3px rgba(0,0,0,.5); }
@@ -581,7 +581,7 @@
 .hud-f-exp.is-photos figure { position: relative; flex: 1 1 150px; max-width: 220px; margin: 0; padding: 8px 8px 10px; background: var(--f-paper); color: var(--f-paper-ink); transform: rotate(-3deg);
   box-shadow: inset 0 0 0 1px var(--f-paper-edge), var(--f-shadow); transition: transform .35s cubic-bezier(.2,.8,.2,1); }
 .hud-f-exp.is-photos figure.is { transform: rotate(2.4deg); }
-.hud-f-exp.is-photos figure:hover { transform: rotate(0) translateY(-4px) scale(1.02); z-index: 1; }
+@media (hover: hover) and (pointer: fine) { .hud-f-exp.is-photos figure:hover { transform: rotate(0) translateY(-4px) scale(1.02); z-index: 1; } }
 .hud-f-exp.is-photos svg { display: block; width: 100%; height: auto; }
 .hud-f-exp.is-photos .tape { position: absolute; left: 50%; top: -8px; width: 52px; height: 16px; margin-left: -26px; background: color-mix(in srgb, var(--t-acc) 12%, rgba(240,235,210,.7)); transform: rotate(3deg); box-shadow: 0 1px 2px rgba(0,0,0,.2); z-index: 1; }
 .hud-f-exp.is-photos .was svg { filter: saturate(.75) sepia(.25) blur(.3px); }
@@ -706,7 +706,7 @@
   display: flex; max-width: 460px; transition: transform .3s;
   -webkit-mask: radial-gradient(circle at calc(100% - 74px) 0, transparent 7px, #000 7.5px) top / 100% 51% no-repeat, radial-gradient(circle at calc(100% - 74px) 100%, transparent 7px, #000 7.5px) bottom / 100% 51% no-repeat;
 }
-.hud-f-sched.is-tickets .tk:hover { transform: translateX(4px) rotate(-.6deg); }
+@media (hover: hover) and (pointer: fine) { .hud-f-sched.is-tickets .tk:hover { transform: translateX(4px) rotate(-.6deg); } }
 .hud-f-sched.is-tickets .main { flex: 1; min-width: 0; padding: 9px 14px 10px; border-radius: 10px 0 0 10px; color: #fff;
   background: radial-gradient(circle at 90% 120%, rgba(255,255,255,.18), transparent 50%), linear-gradient(135deg, var(--tone), color-mix(in srgb, var(--tone) 55%, #000)); }
 .hud-f-sched.is-tickets .head { display: flex; align-items: center; justify-content: space-between; font-size: .62em; font-weight: 800; letter-spacing: .24em; text-transform: uppercase; opacity: .85; }
@@ -739,7 +739,7 @@
   background: radial-gradient(rgba(40,20,10,.4) .8px, transparent 1.2px) 0 0 / 5px 5px, radial-gradient(rgba(255,230,190,.2) .6px, transparent 1px) 2px 3px / 7px 7px, var(--cork);
   box-shadow: inset 0 0 0 6px color-mix(in srgb, var(--cork) 60%, #000), inset 0 0 24px rgba(0,0,0,.4); }
 .hud-f-flags.is-pins .card { position: relative; padding: 16px 10px 10px; font-size: .84em; line-height: 1.35; color: var(--f-paper-ink); transform: rotate(var(--r)); box-shadow: var(--f-shadow); transition: transform .3s; }
-.hud-f-flags.is-pins .card:hover { transform: rotate(0) scale(1.04); z-index: 4; }
+@media (hover: hover) and (pointer: fine) { .hud-f-flags.is-pins .card:hover { transform: rotate(0) scale(1.04); z-index: 4; } }
 .hud-f-flags.is-pins .c0 { background: repeating-linear-gradient(transparent 0 15px, var(--f-paper-rule) 15px 16px) 0 14px, var(--f-paper); }
 .hud-f-flags.is-pins .c1 { background: hsl(from var(--t-acc) calc(h + 50) var(--f-tint-s) var(--f-tint-l)); color: var(--f-tint-ink); }
 .hud-f-flags.is-pins .c2 { background: var(--f-paper-2); border: 6px solid var(--f-paper); border-bottom-width: 14px; padding: 12px 8px 4px; }
@@ -769,7 +769,7 @@
   position: relative; display: block; width: fit-content; max-width: 100%; padding: 7px 18px 7px 12px; margin-left: calc(var(--i) % 3 * 6px); border-radius: 0 12px 12px 0; color: var(--f-tint-ink);
   background: linear-gradient(180deg, color-mix(in srgb, var(--c) 90%, #fff), var(--c)); box-shadow: inset 4px 0 6px -4px rgba(0,0,0,.35), 0 4px 8px -5px rgba(0,0,0,.5); transition: transform .3s cubic-bezier(.3,1.4,.5,1); }
 .hud-f-flags.is-lamps .tab::before { content: ''; position: absolute; left: -6px; top: 0; bottom: 0; width: 6px; background: color-mix(in srgb, var(--c) 70%, #000); }
-.hud-f-flags.is-lamps .tab:hover { transform: translateX(6px); }
+@media (hover: hover) and (pointer: fine) { .hud-f-flags.is-lamps .tab:hover { transform: translateX(6px); } }
 
 /* ========================== ГЛУБИНА КОНФЛИКТА ============================= */
 

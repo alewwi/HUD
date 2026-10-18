@@ -333,12 +333,14 @@
 }
 :is(.hud-fv-us .sweep, .hud-fv-us .hb, .hud-fv-nest .egg, .hud-fv-letter .lt-seal, .hud-ppv-rings .arc, .hud-ppv-bottles .pb-line > span, .hud-ppv-bottles .milk,
   .hud-ppv-journal .pj-cal > i.is-today, .hud-ktv .kb-item .cube, .hud-ktv .kg-kid .head, .hud-kid-care .kb-cell .token, .hud-kid-care .ks-slot.is-next .ks-sticker, .hud-kid-care .kk-dial .mk.is-next) { animation-play-state: paused; }
-.hud-fetus:is(:hover, .fx-on) :is(.sweep, .hb, .egg, .lt-seal), .hud-pp:is(:hover, .fx-on) :is(.arc, .pb-line > span, .milk, .pj-cal > i.is-today),
-.hud-kid-chip:is(:hover, .fx-on) :is(.cube, .head), .hud-kid-care:is(:hover, .fx-on) :is(.kb-cell .token, .ks-slot.is-next .ks-sticker, .kk-dial .mk.is-next) { animation-play-state: running !important; }
+.hud-fetus:is(.fx-on) :is(.sweep, .hb, .egg, .lt-seal), .hud-pp:is(.fx-on) :is(.arc, .pb-line > span, .milk, .pj-cal > i.is-today), .hud-kid-chip:is(.fx-on) :is(.cube, .head), .hud-kid-care:is(.fx-on) :is(.kb-cell .token, .ks-slot.is-next .ks-sticker, .kk-dial .mk.is-next) { animation-play-state: running !important; }
+@media (hover: hover) and (pointer: fine) { .hud-fetus:hover :is(.sweep, .hb, .egg, .lt-seal), .hud-pp:hover :is(.arc, .pb-line > span, .milk, .pj-cal > i.is-today), .hud-kid-chip:hover :is(.cube, .head), .hud-kid-care:hover :is(.kb-cell .token, .ks-slot.is-next .ks-sticker, .kk-dial .mk.is-next) { animation-play-state: running !important; } }
 .hud-fv-us .sweep { opacity: 0; transition: opacity .5s; }
-.hud-fetus:is(:hover, .fx-on) .hud-fv-us .sweep, .hud-fv-us:is(:hover, .fx-on) .sweep { opacity: 1; }
-.hud-ktv .kp-card:hover { transform: rotate(0) translateY(-4px) scale(1.03); }
-.hud-kid-care:is(:hover, .fx-on) .ks-slot.is-done .ks-sticker { transform: rotate(0) scale(1.06); }
+.hud-fetus:is(.fx-on) .hud-fv-us .sweep, .hud-fv-us:is(.fx-on) .sweep { opacity: 1; }
+@media (hover: hover) and (pointer: fine) { .hud-fetus:hover .hud-fv-us .sweep, .hud-fv-us:hover .sweep { opacity: 1; } }
+@media (hover: hover) and (pointer: fine) { .hud-ktv .kp-card:hover { transform: rotate(0) translateY(-4px) scale(1.03); } }
+.hud-kid-care:is(.fx-on) .ks-slot.is-done .ks-sticker { transform: rotate(0) scale(1.06); }
+@media (hover: hover) and (pointer: fine) { .hud-kid-care:hover .ks-slot.is-done .ks-sticker { transform: rotate(0) scale(1.06); } }
 @keyframes hud-fv-sweep { from { transform: translateX(0); } to { transform: translateX(260px); } }
 @keyframes hud-fv-blink { 0%, 100% { opacity: .85; } 50% { opacity: .2; } }
 @keyframes hud-fv-wobble { 0%, 100% { rotate: 0deg; } 25% { rotate: -6deg; } 75% { rotate: 6deg; } }

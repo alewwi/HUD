@@ -30,7 +30,7 @@
 .hud-life-gauge { display: grid; justify-items: center; align-content: start; gap: 5px; min-width: 0; cursor: help; text-align: center; }
 .hud-life-gauges.is-rings .hud-v-ring { --size: 64px; transition: transform .25s ease; }
 .hud-life-gauges.is-rings .hud-v-ring-face { font-size: var(--hud-fs-lg); }
-@media (hover: hover) { .hud-life-gauges.is-rings .hud-life-gauge:hover .hud-v-ring { transform: scale(1.06); } }
+@media (hover: hover) and (pointer: fine) { .hud-life-gauges.is-rings .hud-life-gauge:hover .hud-v-ring { transform: scale(1.06); } }
 .hud-life-gauge-name { display: inline-flex; align-items: center; gap: var(--hud-sp-2); font-size: 11.5px; font-weight: 650; }
 .hud-life-gauge-name .hud-v-ico { width: 13px; height: 13px; color: color-mix(in srgb, var(--v-acc) 50%, var(--ink-hi, #fff)); }
 .hud-life-gauge .hud-v-tag { align-self: center; max-width: 100%; white-space: normal; overflow-wrap: break-word; text-align: center; border-radius: 10px; }
@@ -90,7 +90,7 @@
 .hud-life-day-ev b { margin-left: 2px; min-width: 15px; padding: 0 4px; border-radius: var(--hud-r-pill); font: 800 9.5px/15px system-ui, sans-serif; text-align: center; background: #fff; }
 .hud-life-day-ev.r1 { top: 27%; } .hud-life-day-ev.r2 { top: 73%; }
 .hud-life-day-ev.is-end, .hud-life-day-ev.is-start { transform: translateY(-50%); }
-@media (hover: hover) { .hud-life-day-ev:hover { z-index: 3; box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 0 0 2px var(--v-acc), 0 6px 14px -2px var(--v-glow); } }
+@media (hover: hover) and (pointer: fine) { .hud-life-day-ev:hover { z-index: 3; box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 0 0 2px var(--v-acc), 0 6px 14px -2px var(--v-glow); } }
 .hud-life-day-now { position: absolute; right: -1px; top: -5px; bottom: -5px; width: 2px; border-radius: var(--hud-r-xs); background: #fff; box-shadow: 0 0 0 1px var(--v-acc), 0 0 10px var(--v-acc); }
 .hud-life-day-now::before { content: ''; position: absolute; top: -4px; left: 50%; width: 8px; height: 8px; border-radius: 50%; transform: translateX(-50%); background: var(--v-acc); box-shadow: 0 0 8px var(--v-acc); }
 .hud-life-day-ticks { position: relative; height: 14px; margin: 0 4px; font-size: 9.5px; color: var(--v-ink-soft); }
@@ -186,13 +186,13 @@
 .hud-life-item.is-dirty small, .hud-life-item.is-worn small { color: color-mix(in srgb, var(--life-warn) 55%, var(--ink-hi, #fff)); }
 .hud-life-item.is-worn { background-image: linear-gradient(100deg, color-mix(in srgb, var(--wc) 14%, transparent), rgba(255,255,255,.02) 55%), repeating-linear-gradient(45deg, rgba(255,255,255,.03) 0 3px, transparent 3px 7px); }
 .hud-life-item.is-weather small { color: color-mix(in srgb, var(--life-sleep) 50%, var(--ink-hi, #fff)); }
-@media (hover: hover) { .hud-life-item:hover { transform: translateY(-1px); } }
+@media (hover: hover) and (pointer: fine) { .hud-life-item:hover { transform: translateY(-1px); } }
 /* Вешалка: деревянная штанга, плечики, вещь цветом вещи. */
 .hud-life-rail { position: relative; display: flex; gap: var(--hud-sp-2); overflow-x: auto; padding: 10px 6px 6px; scrollbar-width: thin; }
 .hud-life-rail::before { content: ''; position: absolute; left: 0; right: 0; top: 12px; height: 4px; border-radius: var(--hud-r-sm);
   background: linear-gradient(180deg, #e6d3bd, #8f7356); box-shadow: 0 2px 4px rgba(0,0,0,.45); }
 .hud-life-hanger { --wc: #8a8f9c; position: relative; flex: 0 0 78px; display: grid; justify-items: center; gap: var(--hud-sp-1); text-align: center; font-size: 10.5px; cursor: help; transform-origin: 50% 4px; transition: transform .35s cubic-bezier(.3,1.6,.5,1); }
-@media (hover: hover) { .hud-life-hanger:hover { transform: rotate(-4deg); } }
+@media (hover: hover) and (pointer: fine) { .hud-life-hanger:hover { transform: rotate(-4deg); } }
 .hud-life-hanger svg { width: 46px; height: 56px; overflow: visible; filter: drop-shadow(0 5px 6px rgba(0,0,0,.45)); }
 .hud-life-hanger .hook { fill: none; stroke: #d8cfc6; stroke-width: 1.6; stroke-linecap: round; }
 .hud-life-hanger .bar { fill: none; stroke: #d8cfc6; stroke-width: 1.4; stroke-linejoin: round; }

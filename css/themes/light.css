@@ -299,7 +299,7 @@
   background: linear-gradient(104deg,
     transparent 38%, rgba(40,30,20,.07) 50%, transparent 62%);
 }
-@media (hover: hover) {
+@media (hover: hover) and (pointer: fine) {
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill):hover {
     box-shadow: 0 4px 12px rgba(40,30,20,.18) !important;
   }
