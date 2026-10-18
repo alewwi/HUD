@@ -5,19 +5,19 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.61.0';
-import { settings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО } from './settings.js?v=23.61.0';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.61.0';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.61.0';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.61.0';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.61.0';
-import { hudБлоки } from './hud-block.js?v=23.61.0';
-import { parseHUDComplex } from './hud-parser.js?v=23.61.0';
-import { ПРИМЕР_HUD_ТЕКСТ, ПРИМЕР_СЕМЬИ, БАЗОВЫЙ_HUD_ТЕКСТ, ПРИМЕР_БОЯ, ПРИМЕР_БОЯ_РАНЫ, ПРИМЕР_БЫТА_ПРОШЛОЕ } from './render/sample-hud.js?v=23.61.0';
-import { задатьПримерСемьи } from './render/conception.js?v=23.61.0';
-import { привязатьИсторию } from './render/intimacy.js?v=23.61.0';
-import { пометитьЭффекты } from './render/fx.js?v=23.61.0';
-import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.61.0';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.61.5';
+import { settings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО } from './settings.js?v=23.61.5';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.61.5';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.61.5';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.61.5';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.61.5';
+import { hudБлоки } from './hud-block.js?v=23.61.5';
+import { parseHUDComplex } from './hud-parser.js?v=23.61.5';
+import { ПРИМЕР_HUD_ТЕКСТ, ПРИМЕР_СЕМЬИ, БАЗОВЫЙ_HUD_ТЕКСТ, ПРИМЕР_БОЯ, ПРИМЕР_БОЯ_РАНЫ, ПРИМЕР_БЫТА_ПРОШЛОЕ } from './render/sample-hud.js?v=23.61.5';
+import { задатьПримерСемьи } from './render/conception.js?v=23.61.5';
+import { привязатьИсторию } from './render/intimacy.js?v=23.61.5';
+import { пометитьЭффекты } from './render/fx.js?v=23.61.5';
+import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.61.5';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.

@@ -18,7 +18,8 @@
 // Ключи в vars — те же, что в settings.js. Незнакомые ключи не пишем: их
 // applyThemeColors() всё равно не читает.
 
-import { settings, defaultSettings } from './settings.js?v=23.61.0';
+import { settings, defaultSettings } from './settings.js?v=23.61.5';
+import { последнийСтильHUD } from './css-loader.js?v=23.61.5';
 
 const HUD_THEMES = [
   {
@@ -249,7 +250,7 @@ const HUD_THEMES = [
     id: 'cottage', label: 'Коттеджкор', icon: '\u2741', category: 'cozy',
     hint: 'Бумага, лён и топлёное молоко. Грибы, сухоцветы, подписи от руки.',
     vars: {
-      textColor: '#4a4034', textMutedColor: '#7a6f5e',
+      textColor: '#4a4034', textMutedColor: '#625746',
       accentColor: '#6f8452', glowColor: '#c9b98f', glowAlpha: 30,
       cardBgStart: '#f5efe0', cardBgEnd: '#e9dfc7', cardBgAlpha: 94,
       infoBlockBgStart: '#fffdf6', infoBlockBgEnd: '#fdf7e8', infoBlockBgAlpha: 70,
@@ -897,12 +898,9 @@ function подключитьCSSТемы(id) {
   const уже = есть.filter(l => !l.dataset.hudThemeOld).map(l => l.getAttribute(МЕТКА_CSS));
   if (уже.join() === нужно.join()) return;
   есть.forEach(l => { l.dataset.hudThemeOld = '1'; });
-  const путьСтиля = new URL('./style.css', import.meta.url).pathname;
-  const свой = [...head.querySelectorAll('link[rel="stylesheet"]')].find(l => { try { return new URL(l.href).pathname === путьСтиля; } catch (_) { return false; } });
   // За последней частью стилей HUD (css-loader.js), а не за style.css: части
   // теперь отдельными <link> сразу за ним.
-  const последняяЧасть = [...head.querySelectorAll('link[data-hud-css]')].pop();
-  let после = есть.length ? есть[есть.length - 1] : (последняяЧасть || свой);
+  let после = есть.length ? есть[есть.length - 1] : последнийСтильHUD(head);
   const новые = нужно.map(имя => {
     const l = document.createElement('link');
     l.rel = 'stylesheet';

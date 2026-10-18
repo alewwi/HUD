@@ -9,9 +9,9 @@
 // Текст сообщения здесь только считается, на экран не выводится, поэтому
 // разметку режем регуляркой — DOM на тысячу сообщений не нужен.
 
-import { hudFilled } from './utils.js?v=23.61.0';
+import { hudFilled } from './utils.js?v=23.61.5';
 
-import { заменитьHudБлоки } from './hud-block.js?v=23.61.0';
+import { заменитьHudБлоки } from './hud-block.js?v=23.61.5';
 
 // Служебные вставки других расширений и размышления модели — не проза.
 const СЛУЖЕБНОЕ = /<(think|thinking|plan|comics|img|script|style|details|summary)\b[^>]*>[\s\S]*?<\/\1>/gi;
@@ -225,7 +225,7 @@ export function createDashboard({ userName = '' } = {}) {
       if (!кто) continue;
       for (const o of образцы) {
         if (o.ключ === говорит || !o.rx.test(текст)) continue;
-        const k = кто.полное + ' ' + o.полное;
+        const k = кто.полное + '\0' + o.полное;
         упоминания.set(k, (упоминания.get(k) || 0) + 1);
       }
     }
@@ -273,7 +273,7 @@ export function createDashboard({ userName = '' } = {}) {
         share: диалог + описание ? Math.round(диалог / (диалог + описание) * 100) : null,
       },
       nsfw: { hudTurns: hudХодов, nsfwTurns: nsfwХодов, scenes: nsfwСерий, share: hudХодов ? Math.round(nsfwХодов / hudХодов * 100) : 0 },
-      mentions: топ(упоминания, 15).map(([k, count]) => { const [from, to] = k.split(' '); return { from, to, count }; }),
+      mentions: топ(упоминания, 15).map(([k, count]) => { const [from, to] = k.split('\0'); return { from, to, count }; }),
     };
   }
 

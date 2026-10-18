@@ -5,14 +5,14 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { settings } from './settings.js?v=23.61.0';
-import { видБлока } from './render/views.js?v=23.61.0';
-import { escapeHtml } from './utils.js?v=23.61.0';
-import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.61.0';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.61.0';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.61.0';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.61.0';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.61.0';
+import { settings } from './settings.js?v=23.61.5';
+import { видБлока } from './render/views.js?v=23.61.5';
+import { escapeHtml } from './utils.js?v=23.61.5';
+import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.61.5';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.61.5';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.61.5';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.61.5';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.61.5';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -485,7 +485,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.61.0');
+      const mod = await import('./render/archive.js?v=23.61.5');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);

@@ -11,18 +11,18 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.61.0';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.61.0';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.61.0';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.61.0';
-import { settings, defaultSettings } from './settings.js?v=23.61.0';
-import { полныйПорядок } from './tabs-order.js?v=23.61.0';
-import { getWorldVotes } from './render/world.js?v=23.61.0';
-import { раскрытьПорцию } from './render/long-list.js?v=23.61.0';
-import { прогретьИсторию } from './render/carryover.js?v=23.61.0';
-import { подключитьПалитру } from './color-picker.js?v=23.61.0';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.61.0';
-import { замер } from './utils.js?v=23.61.0';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.61.5';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.61.5';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.61.5';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.61.5';
+import { settings, defaultSettings } from './settings.js?v=23.61.5';
+import { полныйПорядок } from './tabs-order.js?v=23.61.5';
+import { getWorldVotes } from './render/world.js?v=23.61.5';
+import { раскрытьПорцию } from './render/long-list.js?v=23.61.5';
+import { прогретьИсторию } from './render/carryover.js?v=23.61.5';
+import { подключитьПалитру } from './color-picker.js?v=23.61.5';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.61.5';
+import { замер } from './utils.js?v=23.61.5';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -230,6 +230,8 @@ export function initGlobalEvents(ctx) {
   const { saveSettings, applyThemeColors, showHudToast } = ctx;
   сохранитьНастройки = saveSettings;
 
+  if (window.hudEventsInitialized) return;
+  window.hudEventsInitialized = true;
   // Наборы тем. Панель живёт внутри карточки HUD, а карточки появляются,
   // сворачиваются и пересобираются — привязываться к самим полям бессмысленно,
   // слушаем документ. И только отсюда: saveSettings приходит с ctx.
@@ -245,8 +247,6 @@ export function initGlobalEvents(ctx) {
       row.innerHTML = presetRowHTML(settings.themePreset);
     });
   });
-  if (window.hudEventsInitialized) return;
-  window.hudEventsInitialized = true;
   // Облегчённая карточка пропускала правки темы, пока лежала вне документа:
   // после возврата подтягиваем её поля к текущим настройкам.
   синхронизацияТемы = () => {
@@ -277,6 +277,7 @@ export function initGlobalEvents(ctx) {
           // Привязываем загрузку
           fileInput.onchange = (ev) => {
               const file = ev.target.files[0];
+              fileInput.value = '';
               if (!file) return;
               if (file.size > 3 * 1024 * 1024) {
                   showHudToast('error', 'Слишком большой файл', 'Выберите картинку до 3 МБ.');
@@ -638,9 +639,6 @@ export function initGlobalEvents(ctx) {
       return;
     }
 
-    // Контейнер мессенджера: в личном телефоне это экран приложения внутри
-    // эмулятора, в перехватах — старый .hud-phone-mockup. Ищем ближайший,
-    // чтобы переключение подвкладок работало в обоих.
     // Контейнер мессенджера: в личном телефоне это экран приложения внутри
     // эмулятора, в перехватах — старый .hud-phone-mockup. Ищем ближайший,
     // чтобы переключение подвкладок работало в обоих.
@@ -1887,8 +1885,11 @@ document.addEventListener('click', (e) => {
 // На телефоне — вниз: высоту под три карточки меряем по месту, карточки
 // разной высоты. На широком экране списки столбиком идут вбок по три в ряд,
 // сетки и виды блоков — тоже вниз. Скрытые вкладки меряем, когда откроют.
-const СПИСКИ = '.hud-vertical-container, .hud-ill-list, .hud-marks, .hud-guns, .hud-v-vaults, .hud-v-envs, .hud-v-files, .hud-v-webs, .hud-v-secbars, .hud-v-inv.is-cards, .hud-v-inv.is-groups';
+const СПИСКИ = '.hud-vertical-container, .hud-ill-list, .hud-marks, .hud-guns, .hud-v-vaults, .hud-v-envs, .hud-v-files, .hud-v-webs, .hud-v-secbars, .hud-v-inv.is-cards, .hud-v-inv.is-groups, .hud-mood-history';
 const ВБОК = '.hud-vertical-container, .hud-ill-list, .hud-marks';
+// Свои ленты вбок на широком экране (история настроения): там их не трогаем,
+// на телефоне они столбиком (css/compact.css) и ужимаются, как остальные.
+const ЛЕНТЫ = '.hud-mood-history';
 // Мерим только раскрытые карточки: свёрнутая прячет содержимое через
 // max-height: 0, а не display: none, и раньше списки всех свёрнутых карточек
 // ленты мерились честно. Чтения и записи разведены по фазам: запись между
@@ -1899,7 +1900,8 @@ function ужатьСпискиСразу() {
   if (typeof window.matchMedia !== 'function' || !document.querySelectorAll) return;
   const широкий = window.matchMedia('(min-width: 601px)').matches;
   // 1. Чтения: видимые дети, видим ли сам список, ширина.
-  const план = [...document.querySelectorAll(`.hud-os-card:has(> .hud-toggle-input:checked) :is(${СПИСКИ})`)].map(с => ({
+  const раскрытые = [...document.querySelectorAll('.hud-os-card')].filter(к => к.querySelector(':scope > .hud-toggle-input:checked'));
+  const план = [...new Set(раскрытые.flatMap(к => [...к.querySelectorAll(СПИСКИ)]))].map(с => ({
     с,
     дети: [...с.children].filter(x => { if (x.nodeType !== 1) return false; const ст = getComputedStyle(x); return ст.display !== 'none' && ст.position !== 'absolute'; }),
     виден: !!с.offsetParent,
@@ -1909,7 +1911,7 @@ function ужатьСпискиСразу() {
   const мерить = [];
   for (const п of план) {
     const { с, дети } = п;
-    if (дети.length < 4) { if (с.classList.contains('is-capped') || с.classList.contains('is-capped-x')) { с.classList.remove('is-capped', 'is-capped-x', 'is-end'); с.style.maxHeight = ''; } continue; }
+    if (дети.length < 4 || (широкий && с.matches(ЛЕНТЫ))) { if (с.classList.contains('is-capped') || с.classList.contains('is-capped-x')) { с.classList.remove('is-capped', 'is-capped-x', 'is-end'); с.style.maxHeight = ''; } continue; }
     if (широкий && с.matches(ВБОК)) {
       if (!с.classList.contains('is-capped-x')) { с.classList.remove('is-capped'); с.style.maxHeight = ''; с.classList.add('is-capped-x'); }
       continue;
