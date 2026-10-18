@@ -26,15 +26,24 @@ const ЗНАЧКИ_ЭКОНОМИКИ = [
   [/акци|индекс|бирж|stock/i, '📈'], [/налог|tax/i, '🧾'],
 ];
 
-export function buildEconomyHTML(rows) {
-  if (!Array.isArray(rows) || !rows.length) return '';
-  const строки = rows.map(row => {
+// Разбор строк — общий для сводки и видов «Мира» (render/world-views.js).
+// Строка без цены — заметка: { заметка: текст }.
+export function разборЭкономики(rows) {
+  return (Array.isArray(rows) ? rows : []).map(row => {
     const [имя, значение, изменение] = части(row);
-    if (значение === undefined) return `<div class="hud-eco-row is-note"><span>${applyTooltips(имя)}</span></div>`;
+    if (значение === undefined) return { заметка: имя };
     const [куда, знак] = направление(изменение);
     const значок = (ЗНАЧКИ_ЭКОНОМИКИ.find(([rx]) => rx.test(имя)) || [, '¤'])[1];
-    return `<div class="hud-eco-row" data-ico="${escapeHtml(значок)}"><i class="hud-eco-ico" aria-hidden="true">${значок}</i><span class="hud-eco-name">${escapeHtml(имя)}</span><span class="hud-eco-dots" aria-hidden="true"></span><b class="hud-eco-val">${escapeHtml(значение)}</b>`
-      + (изменение ? `<em class="hud-eco-chg is-${куда}"><i aria-hidden="true">${знак}</i>${escapeHtml(изменение)}</em>` : '<em></em>')
+    return { имя, значение, изменение: изменение || '', куда, знак, значок };
+  });
+}
+
+export function buildEconomyHTML(rows) {
+  if (!Array.isArray(rows) || !rows.length) return '';
+  const строки = разборЭкономики(rows).map(п => {
+    if (п.заметка !== undefined) return `<div class="hud-eco-row is-note"><span>${applyTooltips(п.заметка)}</span></div>`;
+    return `<div class="hud-eco-row" data-ico="${escapeHtml(п.значок)}"><i class="hud-eco-ico" aria-hidden="true">${п.значок}</i><span class="hud-eco-name">${escapeHtml(п.имя)}</span><span class="hud-eco-dots" aria-hidden="true"></span><b class="hud-eco-val">${escapeHtml(п.значение)}</b>`
+      + (п.изменение ? `<em class="hud-eco-chg is-${п.куда}"><i aria-hidden="true">${п.знак}</i>${escapeHtml(п.изменение)}</em>` : '<em></em>')
       + `</div>`;
   }).join('');
   return `<div class="hud-world-section hud-world-section-eco"><div class="hud-world-title">💹 Экономика</div><div class="hud-eco-list">${строки}</div></div>`;
@@ -59,14 +68,18 @@ const подписьВида = (слово, запасное) => {
   return !s || /^[a-z][a-z\s-]*$/i.test(s) ? запасное : s;
 };
 
-export function buildEventsHTML(rows) {
-  if (!Array.isArray(rows) || !rows.length) return '';
-  const карточки = rows.map(row => {
+export function разборАфиши(rows) {
+  return (Array.isArray(rows) ? rows : []).map(row => {
     const ч = части(row);
     const вид = ч.length > 1 ? ВИДЫ_АФИШИ.find(([, rx]) => rx.test(ч[0])) : null;
     const [ключ, значок, подпись] = вид ? [вид[0], вид[2], вид[3]] : ['other', '📅', ч.length > 2 ? подписьВида(ч[0], 'Событие') : 'Событие'];
-    const название = ч.length > 1 ? ч[1] : ч[0];
-    const где = ч.length > 2 ? ч.slice(2).join(' · ') : '';
+    return { ключ, значок, подпись, название: ч.length > 1 ? ч[1] : ч[0], где: ч.length > 2 ? ч.slice(2).join(' · ') : '' };
+  });
+}
+
+export function buildEventsHTML(rows) {
+  if (!Array.isArray(rows) || !rows.length) return '';
+  const карточки = разборАфиши(rows).map(({ ключ, значок, подпись, название, где }) => {
     // Билет: корешок с видом события, линия отрыва, основная часть.
     return `<div class="hud-afisha-card is-${ключ}"><div class="hud-afisha-stub"><i aria-hidden="true">${значок}</i><span class="hud-afisha-kind">${escapeHtml(подпись)}</span></div>`
       + `<div class="hud-afisha-main" data-ico="${значок}"><b class="hud-afisha-title">${escapeHtml(название)}</b>${где ? `<span class="hud-afisha-when">${escapeHtml(где)}</span>` : ''}<span class="hud-afisha-admit" aria-hidden="true">ADMIT ONE</span></div></div>`;
@@ -87,15 +100,21 @@ const ВИДЫ_ГОРОДА = [
   ['protest', /protest|rally|strike|march|митинг|протест|забастов|шестви/i, '📢', 'Митинги'],
 ];
 
-export function buildCityHTML(rows) {
-  if (!Array.isArray(rows) || !rows.length) return '';
-  const строки = rows.map(row => {
+export function разборГорода(rows) {
+  return (Array.isArray(rows) ? rows : []).map(row => {
     const ч = части(row);
     const вид = ч.length > 1 ? ВИДЫ_ГОРОДА.find(([, rx]) => rx.test(ч[0])) : null;
     const [ключ, значок, подпись] = вид ? [вид[0], вид[2], вид[3]] : ['other', '🏛', ч.length > 1 ? подписьВида(ч[0], 'Город') : 'Город'];
     const текст = ч.length > 1 ? ч.slice(1).join(' · ') : ч[0];
     // «9 баллов» у пробок — шкалой из десяти делений.
     const баллы = ключ === 'traffic' ? (текст.match(/(\d{1,2})\s*балл/i) || [])[1] : null;
+    return { ключ, значок, подпись, текст, баллы: баллы || null };
+  });
+}
+
+export function buildCityHTML(rows) {
+  if (!Array.isArray(rows) || !rows.length) return '';
+  const строки = разборГорода(rows).map(({ ключ, значок, подпись, текст, баллы }) => {
     const шкала = баллы ? `<span class="hud-city-pips" title="Пробки: ${баллы} из 10 баллов" aria-hidden="true">${Array.from({ length: 10 }, (_, i) => `<i class="${i < Number(баллы) ? 'on' : ''}${i >= 7 ? ' hi' : i >= 4 ? ' mid' : ''}"></i>`).join('')}</span>` : '';
     return `<div class="hud-city-row is-${ключ}" data-ico="${значок}"><span class="hud-city-kind"><i aria-hidden="true">${значок}</i>${escapeHtml(подпись)}${ключ === 'emergency' ? '<b class="hud-city-stamp">срочно</b>' : ''}</span><p>${applyTooltips(текст)}${шкала}</p></div>`;
   }).join('');
