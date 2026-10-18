@@ -39,9 +39,6 @@
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
 
-
-
-
 :root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
 :root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { content: '★' !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
 :root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { content: '●' !important; }
@@ -60,9 +57,6 @@
 :root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate).hud-skin-stickers .hud-os-card .hud-body > .hud-row {
   border: 2px solid var(--st-b) !important; border-radius: 12px !important; box-shadow: 4px 4px 0 var(--st-b) !important; background: color-mix(in srgb, var(--hud-accent) 9%, var(--st-base)) !important; margin: 0 4px 4px 0; }
 
-
-
-
 /* --- «Лунное стекло» -------------------------------------------------------
    Стекло тонируется акцентом темы. Акцент берём с карточки (--hud-mg):
    внутри строк --hud-accent подменён цветом группы, а стекло одно на всех. */
@@ -80,7 +74,6 @@
 :root.hud-skin-moonglass .hud-os-card .hud-title { letter-spacing: 4px !important; padding: 3px 12px; border-top: 1px solid color-mix(in srgb, var(--hud-mg) 55%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--hud-mg) 55%, transparent); width: fit-content; }
 :root.hud-skin-moonglass:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-os-card .hud-body > .hud-row {
   background: linear-gradient(145deg, rgba(255,255,255,.72), color-mix(in srgb, var(--hud-mg) 16%, rgba(255,255,255,.55))) !important; border-color: color-mix(in srgb, var(--hud-mg) 45%, transparent) !important; outline-color: color-mix(in srgb, var(--hud-mg) 25%, transparent); }
-
 
 /* --- «Призрачная буква» ---------------------------------------------------- */
 .hud-ghost-letter { display: none; }
@@ -244,7 +237,6 @@
   --x-veil: rgba(0,0,0,.55);
 }
 
-
 /* =========================================================================
    ФАЗА ЛУНЫ — плашка того же рода, что часы и погода: их фон, их рамка
    со свечением темы и их светлая «бумага» на светлых темах.
@@ -263,9 +255,6 @@
 .hud-moonchip-row i { display: grid; place-items: center; width: 19px; height: 19px; border-radius: 50%; opacity: .5; }
 .hud-moonchip-row i.on { opacity: 1; box-shadow: 0 0 0 1.5px var(--hud-accent), 0 0 9px var(--hud-glow, rgba(244,236,208,.5)); }
 .hud-moonchip-row svg { width: 14px; height: 14px; display: block; }
-
-
-
 
 .hud-scene-widget.is-compact .hud-moonchip, .hud-historical .hud-moonchip { display: none; }
 /* На телефоне плашка та же, что на ПК (диск, подпись, ряд фаз), по центру сцены. */
@@ -343,7 +332,6 @@
 .hud-diary-text b > i:only-child { border: 1px solid rgba(242,217,139,.65); background: linear-gradient(135deg, rgba(120,95,30,.5), rgba(40,32,18,.55)); color: #f2d98b; padding: 0 7px; border-radius: 4px; }
 .hud-diary-text b > i:only-child::before { content: none; }
 
-
 /* =========================================================================
    СОСТОЯНИЕ ТЕЛА
    ========================================================================= */
@@ -364,8 +352,10 @@
 .hud-bs .cork { fill: #9a7048; }
 .hud-bs .shine { fill: none; stroke: rgba(255,255,255,.5); stroke-width: 1.4; stroke-linecap: round; }
 .hud-bs .bub { fill: rgba(255,255,255,.7); }
-.hud-bs-side { flex: 1 1 150px; display: flex; flex-direction: column; gap: 8px; align-self: center; }
-.hud-bs-sleep { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: 12px; color: var(--x-ink);
+.hud-bs-side { flex: 1 1 150px; min-width: 0; display: flex; flex-direction: column; gap: 8px; align-self: center; }
+/* «поверхностного» шире колонки на телефоне — длинное слово переносится. */
+.hud-bs-sleep > div, .hud-bs-work { min-width: 0; overflow-wrap: anywhere; }
+.hud-bs-sleep { display: flex; align-items: center; gap: 9px; padding: 7px 10px; border-radius: 12px;
   background: linear-gradient(135deg, color-mix(in srgb, var(--a) 16%, var(--x-surf)), color-mix(in srgb, var(--a) 6%, var(--x-surf2))); border: 1px solid color-mix(in srgb, var(--a) 35%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
 .hud-bs-sleep, .hud-bs-sleep * { color: var(--x-ink) !important; text-shadow: none !important; }
 .hud-bs-sleep svg { width: 24px; height: 24px; flex: none; }
@@ -377,10 +367,6 @@
   background: linear-gradient(180deg, color-mix(in srgb, var(--c) 22%, rgba(255,255,255,.05)), color-mix(in srgb, var(--c) 10%, rgba(0,0,0,.15))); border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
 .hud-bs-chip i { min-width: 21px; height: 21px; padding: 0 3px; border-radius: 99px; display: grid; place-items: center; font-style: normal; font-size: 11px; font-weight: 800; background: color-mix(in srgb, var(--c) 45%, #000); color: #fff; }
 .hud-bs-note { margin: 8px 0 0; font-size: .82em; opacity: .75; line-height: 1.45; }
-
-
-
-
 
 /* =========================================================================
    ПОВОРОТ СЮЖЕТА — поверхность темы, оттенок по тону: золото — хорошее,
@@ -444,7 +430,7 @@
 .hud-tama { --p: #e8883a; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 12px; border-radius: 18px; min-width: 0;
   background: color-mix(in srgb, var(--p) 6%, rgba(0,0,0,.2)); border: 1px solid color-mix(in srgb, var(--p) 25%, transparent); }
 .hud-tama-dev { width: 118px; height: 136px; flex: none; filter: drop-shadow(0 10px 14px rgba(0,0,0,.45)); overflow: visible; }
-.hud-tama-stats { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 5px; font-family: 'Courier New', monospace; }
+.hud-tama-stats { min-width: 0; display: flex; flex-direction: column; gap: 5px; font-family: 'Courier New', monospace; }
 .hud-tama-stats > b { font-family: Georgia, serif; font-size: 1.05em; }
 .hud-tama-stats > small { font-size: .72em; opacity: .7; margin-top: -4px; }
 .hud-tama-st { display: grid; grid-template-columns: 15px minmax(0, 1fr) auto; gap: 6px; align-items: center; font-size: .76em; }
@@ -461,11 +447,6 @@
 .hud-tama-skills i { font-style: normal; padding: 1px 8px; border: 1px solid color-mix(in srgb, var(--p) 45%, transparent); }
 .hud-tama-skills i::before { content: "+ "; opacity: .6; }
 
-
-
-
-
-
 /* =========================================================================
    СДВИГИ ДОВЕРИЯ: видны при наведении или нажатии
    ========================================================================= */
@@ -475,7 +456,6 @@
 .hud-trust-meta span b { font-weight: 700; }
 .hud-trust-meta .up { color: #8fd49a; border-color: rgba(143,212,154,.45); }
 .hud-trust-meta .down { color: #ef8a8a; border-color: rgba(239,138,138,.45); }
-
 
 @media (prefers-reduced-motion: reduce) { .hud-trust-meta, .hud-deep p, .hud-wash > * { transition: none; } }
 /* Плашка луны живёт в верхней строке сцены — её поднимаем над облаками. */
@@ -608,7 +588,7 @@
   box-shadow: 0 20px 60px rgba(0,0,0,.6), 0 0 0 1px rgba(255,255,255,.04) inset; }
 .hud-cp-head { display: flex; align-items: center; gap: 8px; }
 .hud-cp-head b { flex: 1; font-size: 1.02em; }
-.hud-cp-was, .hud-cp-now { width: 34px; height: 26px; border-radius: 8px; border: 1px solid rgba(255,255,255,.25); box-shadow: inset 0 0 0 2px rgba(0,0,0,.25); }
+.hud-cp-was, .hud-cp-now { width: 34px; height: 26px; border: 1px solid rgba(255,255,255,.25); box-shadow: inset 0 0 0 2px rgba(0,0,0,.25); }
 .hud-cp-was { cursor: pointer; border-radius: 8px 0 0 8px; margin-right: -8px; opacity: .9; }
 .hud-cp-now { border-radius: 0 8px 8px 0; }
 .hud-cp-preview { position: relative; max-height: 240px; overflow: hidden; border-radius: 12px; padding: 6px; pointer-events: none;

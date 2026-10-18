@@ -188,7 +188,6 @@
   background: rgba(255,255,255,.05);
   border: 1px solid var(--hud-border, rgba(255,255,255,.12));
 }
-.hud-phase-step.is-past { opacity: .55; }
 .hud-phase-step.is-now {
   color: #fff; font-weight: 700;
   background: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 34%, transparent);
@@ -406,48 +405,6 @@
   filter: blur(.4px);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* =========================================================================
    ДВЕНАДЦАТЬ НОВЫХ ТЕМ: ПОЛНЫЙ НАБОР ПРИМЕТ
    -------------------------------------------------------------------------
@@ -491,185 +448,6 @@
   :is(.hud-world-empty, .hud-diary-empty)::after {
   display: block; font-size: 13px; line-height: 1.5;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* Наборы тем: галочки категорий над рядом пресетов. Двадцать четыре темы
    в одном ряду не листаются — ненужные наборы прячутся целиком. */
@@ -794,23 +572,10 @@
   flex: 0 0 auto; margin-right: 2px;
 }
 
-
-
-
-
-
-
-
-
-
-
 /* Плитка NSFW на бумаге: вместо винной заливки — светлая с тёмной кромкой. */
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-nsfw-pill {
   background: var(--lt-paper-2) !important;
-  border-color: var(--nfx-2, rgba(158,42,63,.45)) !important;
-  color: var(--lt-ink) !important;
 }
-
 
 /* =========================================================================
    ПИЛЮЛИ: ГОРИЗОНТ ЦЕЛИ, ЛИЦО СОБЕСЕДНИКА, ЧИСЛО
@@ -872,13 +637,9 @@
   }
 }
 
-
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-detail-pill.is-now   .hud-pill-label { color: #9a5a12 !important; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-detail-pill.is-soon  .hud-pill-label { color: #1e5fa8 !important; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-detail-pill.is-later .hud-pill-label { color: #5c6b78 !important; }
-
-
-
 
 /* =========================================================================
    ЗНАЧОК МЕТКИ, ДОЛЯ ПОЛОСОЙ, КОЛИЧЕСТВО
@@ -899,7 +660,7 @@
 }
 .hud-pill-meter {
   position: absolute; left: 0; right: 0; bottom: 0; height: 3px;
-  border-radius: 0 0 8px 8px; overflow: hidden;
+  overflow: hidden;
   background: rgba(255,255,255,.08);
 }
 .hud-pill-meter::before {
@@ -920,9 +681,6 @@
   background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 16%, transparent);
   border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 32%, transparent);
 }
-
-
-
 
 /* =========================================================================
    ОБЩИЙ ОБЪЁМ И ОТКЛИК ВСЕМ ПИЛЮЛЯМ
@@ -1007,9 +765,6 @@
     0 1px 2px rgba(40,30,20,.12) !important;
 }
 
-
-
-
 /* --- Цвет человека доходит до подписи ------------------------------------
    Кружок и корешок у человека уже свои, а имя оставалось общим розовым.
    Светлота фиксированная, меняется только тон: строки остаются одинаково
@@ -1032,7 +787,6 @@
       var(--кромка, var(--hud-accent, #8c5ad2)) 70%, transparent);
   }
 }
-
 
 /* --- Без переходов -------------------------------------------------------
    У карточки content-visibility: auto, и браузер не двигает время
@@ -1120,17 +874,6 @@
   color: transparent; text-shadow: none;
   filter: drop-shadow(0 0 6px rgba(244,211,94,.45));
 }
-
-
-
-
-
-
-
-
-
-
-
 
 /* =========================================================================
    NSFW: БАЗОВЫЙ ВИД
@@ -1346,18 +1089,11 @@
   box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 1px 3px rgba(40,30,20,.12) !important;
 }
 
-
-
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill) {
   background: color-mix(in srgb, var(--lt-paper-2) 55%, transparent) !important;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 1px 2px rgba(40,30,20,.10) !important;
 }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-nsfw-pill { border-color: var(--nfx-60, rgba(158,42,63,.30)) !important; color: var(--lt-ink) !important; }
-
-
-
-
-
 
 /* =========================================================================
    NSFW: СВЕТ СВЕЧИ, ОТСВЕТЫ, ПРОКРУТКА
@@ -1411,9 +1147,6 @@
 .hud-row.nsfw .hud-sex-rev { color: #f3dde7; }
 
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill) { text-shadow: none; }
-
-
-
 
 /* =========================================================================
    NSFW: МЕДАЛЬОНЫ, СТЕКЛЯННЫЕ ЗНАЧЕНИЯ, СИЯНИЕ
@@ -1500,15 +1233,6 @@
   box-shadow: 0 0 6px var(--nfx-87, rgba(255,92,154,.6));
 }
 
-
-
-
-
-
-
-
-
-
 /* =========================================================================
    АВАТАРКИ В ОТНОШЕНИЯХ И КАПС ПОМЕЛЬЧЕ
    ========================================================================= */
@@ -1575,7 +1299,7 @@
 .hud-ill.is-healing { --ill: #58c18a; }
 .hud-ill.is-chronic { --ill: #9a8ad8; }
 .hud-ill.is-healed { --ill: #6fb7e8; }
-.hud-ill-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.hud-ill-head { display: flex; gap: 8px; flex-wrap: wrap; }
 .hud-ill-stage {
   font-style: normal; font-size: 10.5px; padding: 1px 8px; border-radius: 999px; color: var(--ill);
   border: 1px solid currentColor; text-transform: uppercase; letter-spacing: .06em;
@@ -1589,8 +1313,6 @@
 
 /* Беременность */
 .hud-prg {
-  width: 100%; padding: 10px 12px; border-radius: 12px;
-  background: linear-gradient(135deg, rgba(255,170,200,.10), rgba(170,140,255,.08));
   border: 1px solid rgba(255,180,210,.28);
 }
 .hud-prg-head { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
@@ -1610,7 +1332,7 @@
 .hud-gun.is-building { --gun: #ff8a3d; }
 .hud-gun.is-fired { --gun: #8a8f98; opacity: .75; }
 .hud-gun-ico { flex: 0 0 auto; font-size: 1.1em; line-height: 1.3; }
-.hud-gun-body { flex: 1; min-width: 0; }
+.hud-gun-body { min-width: 0; }
 .hud-gun-body p { margin: 0; line-height: 1.4; }
 .hud-gun-body small { display: block; margin-top: 2px; opacity: .6; }
 .hud-gun-status {
@@ -1621,13 +1343,11 @@
 /* Спутники */
 .hud-body.hud-pets { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 10px; }
 .hud-pet { padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,.045); border: 1px solid var(--hud-border, rgba(255,255,255,.12)); }
-.hud-pet-head { display: flex; align-items: center; gap: 10px; }
+.hud-pet-head { display: flex; gap: 10px; }
 .hud-pet-ava {
-  flex: 0 0 42px; width: 42px; height: 42px; border-radius: 50%;
+  width: 42px; height: 42px; border-radius: 50%;
   display: grid; place-items: center; font-size: 22px; background: rgba(140,90,210,.25);
 }
-.hud-pet-title { flex: 1; min-width: 0; }
-.hud-pet-title b { display: block; }
 .hud-pet-title small { opacity: .65; }
 .hud-pet-mood { font-style: normal; font-size: 10.5px; padding: 2px 8px; border-radius: 999px; background: rgba(255,255,255,.08); }
 .hud-pet-owner { margin-top: 6px; font-size: .85em; opacity: .75; }
@@ -1749,19 +1469,17 @@
 .hud-ask-btn { cursor: pointer; }
 .hud-ask-modal { width: min(560px, 94vw); }
 .hud-ask-modal .hud-modal-head small { display: block; margin-top: 2px; font-size: 11px; font-weight: 400; opacity: .6; }
-.hud-ask-log { display: flex; flex-direction: column; gap: 8px; max-height: min(46vh, 420px); overflow: auto; }
+.hud-ask-log { display: flex; flex-direction: column; max-height: min(46vh, 420px); overflow: auto; }
 .hud-ask-log:not(:empty) { margin-bottom: 8px; }
 .hud-ask-q, .hud-ask-a {
-  max-width: 92%; padding: 8px 11px; border-radius: 12px;
-  font-size: 13px; line-height: 1.5; overflow-wrap: anywhere;
+  overflow-wrap: anywhere;
 }
 .hud-ask-q { align-self: flex-end; background: rgba(140,90,210,.24); }
-.hud-ask-a { align-self: flex-start; background: rgba(255,255,255,.06); border: 1px solid var(--hud-border, rgba(255,255,255,.1)); }
-.hud-ask-a.is-wait { opacity: .7; font-style: italic; }
+.hud-ask-a { align-self: flex-start; border: 1px solid var(--hud-border, rgba(255,255,255,.1)); }
 .hud-ask-a.is-error { border-color: rgba(255,90,90,.55); }
 .hud-ask-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 6px; }
 .hud-ask-chip {
-  font: inherit; font-size: 11px; padding: 3px 9px; border-radius: 999px; cursor: pointer;
+  font: inherit; cursor: pointer;
   color: inherit; background: transparent; border: 1px solid var(--hud-border, rgba(255,255,255,.16));
 }
 .hud-ask-chip:hover, .hud-ask-chip:focus-visible { background: rgba(255,255,255,.07); }
@@ -1837,119 +1555,117 @@
 
 /* --- Близость: полоса сцены --------------------------------------------- */
 .hud-scene-strip-wrap { display: flex; flex-direction: column; gap: 7px; min-width: 0; }
-.hud-scene-strip { display: flex; flex-wrap: wrap; gap: 6px; }
+.hud-scene-strip { display: flex; flex-wrap: wrap; }
 .hud-scene-chip {
-  display: inline-flex; align-items: center; gap: 5px; max-width: 100%;
-  font-size: 11.5px; line-height: 1.3; padding: 3px 10px; border-radius: 999px;
-  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.12); color: var(--hud-text, #e6e6ee);
+  display: inline-flex; align-items: center; max-width: 100%;
+  line-height: 1.3; border-radius: 999px;
+  background: rgba(255,255,255,.05); color: var(--hud-text, #e6e6ee);
 }
 .hud-scene-chip i { font-style: normal; }
 .hud-scene-chip b { font-weight: 650; }
 
 /* --- Защита: статусный цвет всегда вместе со значком и словом ---------- */
 .hud-prot {
-  --st: #898781; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px;
-  padding: 7px 10px; border-radius: 10px; background: rgba(255,255,255,.04);
+  --st: #898781; flex-wrap: wrap; gap: 4px 8px;
+  background: rgba(255,255,255,.04);
   border: 1px solid rgba(255,255,255,.1); border-left: 3px solid var(--st);
 }
 .hud-prot.is-good { --st: #0ca30c; }
 .hud-prot.is-serious { --st: #ec835a; }
 .hud-prot.is-critical { --st: #d03b3b; }
 .hud-prot-ico {
-  font-style: normal; width: 18px; height: 18px; border-radius: 50%; display: inline-grid; place-items: center;
+  font-style: normal;
   font-size: 11px; font-weight: 700; background: var(--st); color: #111;
 }
 .hud-prot b { font-weight: 650; }
-.hud-prot em { font-style: normal; font-size: 11px; color: var(--hud-text-muted, #c3c2b7); }
 .hud-prot-note { flex-basis: 100%; font-size: 12px; color: var(--hud-text-muted, #c3c2b7); }
 
 /* --- Готовность к оргазму: шкала, дорожка того же тона ----------------- */
 .hud-org { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 .hud-org-head { display: flex; align-items: baseline; gap: 8px; }
-.hud-org-head b { font-size: 17px; font-weight: 650; }
+.hud-org-head b { font-weight: 650; }
 .hud-org-head em { font-style: normal; font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); }
-.hud-org-meter { height: 6px; border-radius: 999px; overflow: hidden; background: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 18%, transparent); }
+.hud-org-meter { border-radius: 999px; background: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 18%, transparent); }
 .hud-org-meter > i { display: block; height: 100%; border-radius: 999px; background: var(--hud-nsfw-color, #d9548a); }
 .hud-org p { margin: 0; font-size: 12px; color: var(--hud-text-muted, #c3c2b7); }
 
 /* --- Пульс, дыхание, температура: три плитки со своими шкалами -------- */
-.hud-vitals { display: grid; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); gap: 8px; }
+.hud-vitals { display: grid; gap: 8px; }
 .hud-vit {
-  display: flex; flex-direction: column; gap: 3px; min-width: 0; padding: 8px 10px; border-radius: 10px;
+  display: flex; flex-direction: column; gap: 3px; min-width: 0;
   background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1);
 }
 .hud-vit-label { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--hud-text-muted, #898781); }
-.hud-vit-value b { font-size: 18px; font-weight: 650; }
+.hud-vit-value b { font-weight: 650; }
 .hud-vit-value small { margin-left: 4px; font-size: 10.5px; color: var(--hud-text-muted, #898781); }
-.hud-vit-spark { width: 72px; height: 22px; overflow: visible; }
-.hud-vit-spark polyline { fill: none; stroke: #898781; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
-.hud-vit-spark circle { fill: var(--hud-nsfw-color, #d9548a); stroke: #16161d; stroke-width: 2; }
+.hud-vit-spark { overflow: visible; }
+.hud-vit-spark polyline { fill: none; stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; }
 .hud-vit-flag { font-size: 10.5px; color: #ec835a; }
 .hud-vit em { font-style: normal; font-size: 11px; color: var(--hud-text-muted, #c3c2b7); }
-.hud-vit-beat { width: 8px; height: 8px; border-radius: 50%; background: var(--hud-nsfw-color, #d9548a); animation: hud-vit-beat var(--beat, 1s) ease-out infinite; }
+.hud-vit-beat { border-radius: 50%; animation: hud-vit-beat var(--beat, 1s) ease-out infinite; }
 .hud-historical .hud-vit-beat { animation: none; }
 @media (prefers-reduced-motion: reduce) { .hud-vit-beat { animation: none; } }
 
 /* --- Облако звуков: громкость — размером и насыщенностью -------------- */
-.hud-sounds { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.hud-sounds { display: flex; flex-wrap: wrap; }
 .hud-sound {
   font-size: calc(11px + var(--г, 5) * 1.1px); font-weight: calc(400 + var(--г, 5) * 30);
-  opacity: calc(.55 + var(--г, 5) * .045); line-height: 1.25; color: var(--hud-text, #e6e6ee);
+  color: var(--hud-text, #e6e6ee);
 }
 
 /* --- Тепловая карта тела ------------------------------------------------ */
-.hud-heat { --heat: #d55181; display: flex; flex-wrap: wrap; gap: 10px 14px; align-items: flex-start; }
+.hud-heat { display: flex; flex-wrap: wrap; align-items: flex-start; }
 .hud-heat-figure { flex: 0 1 230px; min-width: 180px; display: flex; flex-direction: column; gap: 6px; }
 .hud-heat-svg { width: 100%; height: auto; display: block; }
-.hud-heat-svg .z-heat { fill: var(--heat); stroke: none; }
-.hud-heat-svg .z-heat.is-peak { stroke: #fff; stroke-width: .9; }
-.hud-heat-svg .z-heat:hover { stroke: #fff; stroke-width: 1.2; }
+.hud-heat-svg .z-heat { fill: var(--heat); }
+.hud-heat-svg .z-heat.is-peak { stroke-width: .9; }
+.hud-heat-svg .z-heat:hover { stroke-width: 1.2; }
 .hud-heat-svg .z-mark circle { fill: #16161d; stroke: rgba(255,255,255,.6); stroke-width: .6; }
-.hud-heat-svg .z-mark text { font-size: 6px; text-anchor: middle; dominant-baseline: central; }
-.hud-heat-svg .z-side { font-size: 7px; fill: #898781; text-anchor: middle; }
+.hud-heat-svg .z-mark text { text-anchor: middle; dominant-baseline: central; }
+.hud-heat-svg .z-side { text-anchor: middle; }
 .hud-heat-scale { display: flex; align-items: center; gap: 6px; font-size: 10px; color: var(--hud-text-muted, #898781); }
-.hud-heat-scale i { flex: 1; height: 6px; border-radius: 999px; background: linear-gradient(90deg, color-mix(in srgb, var(--heat) 16%, transparent), var(--heat)); }
-.hud-heat-list { flex: 1 1 180px; min-width: 0; display: flex; flex-direction: column; gap: 5px; }
-.hud-heat-row { display: grid; grid-template-columns: minmax(0, 1fr) 54px 18px; column-gap: 8px; align-items: center; font-size: 12px; }
+.hud-heat-scale i { flex: 1; border-radius: 999px; background: linear-gradient(90deg, color-mix(in srgb, var(--heat) 16%, transparent), var(--heat)); }
+.hud-heat-list { flex: 1 1 180px; min-width: 0; display: flex; flex-direction: column; }
+.hud-heat-row { display: grid; align-items: center; font-size: 12px; }
 .hud-heat-row b { font-weight: 600; overflow-wrap: anywhere; }
 .hud-heat-row em { font-style: normal; text-align: right; font-variant-numeric: tabular-nums; }
-.hud-heat-row small { grid-column: 1 / -1; font-size: 10.5px; color: var(--hud-text-muted, #c3c2b7); }
+.hud-heat-row small { font-size: 10.5px; color: var(--hud-text-muted, #c3c2b7); }
 .hud-heat-row small:empty { display: none; }
-.hud-heat-bar { height: 5px; border-radius: 999px; overflow: hidden; background: color-mix(in srgb, var(--heat) 18%, transparent); }
+.hud-heat-bar { border-radius: 999px; overflow: hidden; }
 .hud-heat-bar > i { display: block; height: 100%; border-radius: 999px; background: var(--heat); }
 
 /* --- Следы на теле с таймером ------------------------------------------ */
 .hud-marks { display: flex; flex-direction: column; gap: 6px; }
 .hud-mark {
-  display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; align-items: center; gap: 8px;
-  padding: 6px 10px; border-radius: 10px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1);
+  display: grid; align-items: center; gap: 8px;
+  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1);
 }
-.hud-mark-ico { font-style: normal; font-size: 16px; text-align: center; }
+.hud-mark-ico { font-style: normal; text-align: center; }
 .hud-mark-body { display: flex; flex-direction: column; min-width: 0; }
 .hud-mark-body b { font-weight: 600; font-size: 12.5px; }
 .hud-mark-body span { font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); }
-.hud-mark-timer { display: flex; flex-direction: column; align-items: flex-end; gap: 3px; min-width: 64px; }
-.hud-mark-timer small { font-size: 10.5px; color: var(--hud-text-muted, #c3c2b7); white-space: nowrap; }
+.hud-mark-timer { display: flex; }
+.hud-mark-timer small { color: var(--hud-text-muted, #c3c2b7); }
 
 /* --- Менструальный цикл: кольцо фаз ------------------------------------- */
 .hud-cycle {
-  display: flex; flex-direction: column; gap: 8px; padding: 10px 12px; border-radius: 12px;
+  display: flex; flex-direction: column; gap: 8px;
   background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1);
 }
 .hud-cycle-top { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
-.hud-cycle-ring { width: 118px; height: 118px; flex: none; }
+.hud-cycle-ring { flex: none; }
 .hud-cycle-ring .c-arc { fill: none; stroke-width: 9; opacity: .5; }
 .hud-cycle-ring .c-arc.is-now { stroke-width: 13; opacity: 1; }
-.hud-cycle-ring .c-marker { fill: #fff; stroke: #16161d; stroke-width: 2; }
-.hud-cycle-ring .c-day { font-size: 26px; font-weight: 650; text-anchor: middle; fill: var(--hud-text, #e6e6ee); }
-.hud-cycle-ring .c-sub { font-size: 9.5px; text-anchor: middle; fill: #898781; }
+.hud-cycle-ring .c-marker { fill: #fff; stroke: #16161d; }
+.hud-cycle-ring .c-day { text-anchor: middle; fill: var(--hud-text, #e6e6ee); }
+.hud-cycle-ring .c-sub { text-anchor: middle; fill: #898781; }
 .hud-cycle-side { flex: 1 1 150px; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 .hud-cycle-phase { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.hud-cycle-phase b { font-size: 14px; font-weight: 650; }
-.hud-cycle-late { font-style: normal; display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #ec835a; }
+.hud-cycle-phase b { font-weight: 650; }
+.hud-cycle-late { font-style: normal; display: inline-flex; align-items: center; gap: 4px; font-size: 11px; }
 .hud-cycle-late i {
   font-style: normal; width: 14px; height: 14px; border-radius: 50%; display: inline-grid; place-items: center;
-  font-size: 9px; font-weight: 700; background: #ec835a; color: #111;
+  font-size: 9px; font-weight: 700; color: #111;
 }
 .hud-cycle-legend { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 2px; }
 .hud-cycle-legend li { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; gap: 7px; align-items: center; font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); }
@@ -1959,45 +1675,39 @@
 .hud-cycle-row { display: grid; grid-template-columns: 118px minmax(0, 1fr); gap: 8px; font-size: 12px; }
 .hud-cycle-row span { color: var(--hud-text-muted, #898781); }
 .hud-cycle-row p { margin: 0; }
-.hud-cycle-row.is-late span { color: #ec835a; }
-.hud-cycle-tips { margin: 2px 0 0; padding-left: 18px; font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); display: flex; flex-direction: column; gap: 2px; }
+.hud-cycle-tips { margin: 2px 0 0; padding-left: 18px; font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); display: flex; flex-direction: column; }
 @media (max-width: 480px) { .hud-cycle-row { grid-template-columns: 1fr; gap: 0; } }
 
 /* --- Мир: экономика, афиша, городские службы --------------------------- */
 .hud-eco-list { display: flex; flex-direction: column; }
 .hud-eco-row {
-  display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(64px, auto); gap: 10px; align-items: baseline;
-  padding: 5px 2px; border-bottom: 1px solid rgba(255,255,255,.07); font-size: 12.5px;
+  display: grid; align-items: baseline;
+  font-size: 12.5px;
 }
 .hud-eco-row:last-child { border-bottom: 0; }
-.hud-eco-name { color: var(--hud-text-muted, #c3c2b7); }
 .hud-eco-val { font-weight: 650; font-variant-numeric: tabular-nums; text-align: right; }
 .hud-eco-chg { font-style: normal; font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); text-align: right; white-space: nowrap; }
 .hud-eco-chg i { font-style: normal; margin-right: 3px; font-size: 9px; }
 .hud-eco-row.is-note { grid-template-columns: 1fr; color: var(--hud-text-muted, #c3c2b7); }
-.hud-afisha-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); gap: 8px; }
+.hud-afisha-grid { display: grid; }
 .hud-afisha-card {
-  display: flex; flex-direction: column; gap: 3px; padding: 8px 10px; border-radius: 10px;
-  background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1); min-width: 0;
+  display: flex;
+  background: rgba(255,255,255,.04); min-width: 0;
 }
-.hud-afisha-kind { font-size: 10.5px; color: var(--hud-text-muted, #898781); display: flex; gap: 5px; align-items: center; text-transform: uppercase; letter-spacing: .04em; }
+.hud-afisha-kind { display: flex; gap: 5px; align-items: center; text-transform: uppercase; }
 .hud-afisha-kind i { font-style: normal; font-size: 13px; }
-.hud-afisha-title { font-size: 13px; font-weight: 650; overflow-wrap: anywhere; }
-.hud-afisha-when { font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); }
+.hud-afisha-title { overflow-wrap: anywhere; }
+.hud-afisha-when { color: var(--hud-text-muted, #c3c2b7); }
 .hud-city-list { display: flex; flex-direction: column; gap: 6px; }
 .hud-city-row {
-  display: grid; grid-template-columns: 150px minmax(0, 1fr); gap: 10px; align-items: baseline;
-  padding: 6px 10px; border-radius: 9px; background: rgba(255,255,255,.035); border-left: 3px solid rgba(255,255,255,.14);
+  display: grid; gap: 10px; align-items: baseline;
 }
-.hud-city-row.is-emergency { border-left-color: #d03b3b; background: rgba(208,59,59,.08); }
-.hud-city-kind { font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); display: flex; gap: 6px; align-items: center; }
+.hud-city-kind { font-size: 11.5px; display: flex; gap: 6px; align-items: center; }
 .hud-city-kind i { font-style: normal; }
 .hud-city-row p { margin: 0; font-size: 12.5px; }
 @media (max-width: 480px) { .hud-city-row { grid-template-columns: 1fr; gap: 2px; } }
 
 /* Плитки пульса на узкой карточке — по две в ряд, а не столбцом. */
-.hud-vitals { grid-template-columns: repeat(auto-fit, minmax(78px, 1fr)); }
-.hud-vit { padding: 7px 8px; }
 
 /* --- Ассистент: что увидит модель и ответ с разметкой ------------------ */
 .hud-ask-ctx { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 8px; }
@@ -2034,7 +1744,6 @@
 .hud-scene-chip {
   position: relative; padding: 3px 11px 3px 3px; gap: 7px; font-size: 12px;
   background: linear-gradient(135deg, color-mix(in srgb, var(--nsfw) 16%, rgba(255,255,255,.04)), rgba(255,255,255,.02));
-  border: 1px solid color-mix(in srgb, var(--nsfw) 34%, transparent);
   box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 2px 10px color-mix(in srgb, var(--nsfw) 12%, transparent);
 }
 .hud-scene-chip > i:first-child {
@@ -2131,7 +1840,6 @@
   padding: calc(3px + var(--г, 5) * .25px) calc(8px + var(--г, 5) * .5px);
   border-radius: 999px;
   background: color-mix(in srgb, var(--nsfw) calc(6% + var(--г, 5) * 2.4%), rgba(255,255,255,.03));
-  border: 1px solid color-mix(in srgb, var(--nsfw) calc(12% + var(--г, 5) * 4%), transparent);
   box-shadow: 0 0 calc(var(--г, 5) * 1.2px) color-mix(in srgb, var(--nsfw) 30%, transparent);
 }
 .hud-sound b { font-weight: inherit; opacity: calc(.62 + var(--г, 5) * .038); }
@@ -2199,14 +1907,13 @@
 .hud-mark-timer small { font-size: 10px; }
 
 /* --- Цикл: засечки, свечение фазы, значки ------------------------------- */
-.hud-cycle { --phase: #9085e9; border-radius: 16px; padding: 12px 14px;
+.hud-cycle { border-radius: 16px; padding: 12px 14px;
   background:
     radial-gradient(70% 90% at 0% 0%, color-mix(in srgb, var(--phase) 16%, transparent), transparent 60%),
     linear-gradient(180deg, rgba(255,255,255,.045), rgba(255,255,255,.015));
   border: 1px solid color-mix(in srgb, var(--phase) 30%, rgba(255,255,255,.08));
   box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 6px 22px rgba(0,0,0,.2);
 }
-.hud-cycle.is-late { --phase: #ec835a; }
 .hud-cycle-ring { width: 128px; height: 128px; }
 .hud-cycle-ring .d0 { stop-color: color-mix(in srgb, var(--phase) 22%, #1a1520); }
 .hud-cycle-ring .d1 { stop-color: #0f0c13; }
@@ -2219,15 +1926,15 @@
 .hud-cycle-ring .c-marker { stroke-width: 2.5; }
 .hud-cycle-ring .c-day { font-size: 30px; font-weight: 700; letter-spacing: -.02em; }
 .hud-cycle-ring .c-sub { font-size: 8.5px; letter-spacing: .08em; text-transform: uppercase; }
-.hud-cycle-phase b { font-size: 16px; color: color-mix(in srgb, var(--phase) 40%, #fff); }
+.hud-cycle-phase b { font-size: 16px; }
 .hud-cycle-badges { display: flex; flex-wrap: wrap; gap: 5px; }
 .hud-cycle-badge {
   display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; padding: 2px 8px; border-radius: 999px;
-  background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12); color: var(--hud-text, #e6e6ee);
+  background: rgba(255,255,255,.06); color: var(--hud-text, #e6e6ee);
 }
 .hud-cycle-badge i { font-style: normal; }
-.hud-cycle-badge.is-fertile { background: rgba(201,133,0,.16); border-color: rgba(201,133,0,.5); }
-.hud-cycle-badge.is-pms { background: rgba(144,133,233,.16); border-color: rgba(144,133,233,.5); }
+.hud-cycle-badge.is-fertile { border-color: rgba(201,133,0,.5); }
+.hud-cycle-badge.is-pms { border-color: rgba(144,133,233,.5); }
 .hud-cycle-legend li i { width: 10px; height: 10px; border-radius: 50%; background: var(--c); box-shadow: 0 0 6px color-mix(in srgb, var(--c) 60%, transparent); }
 .hud-cycle-legend li.is-now { padding: 1px 6px; margin: 0 -6px; border-radius: 6px; background: color-mix(in srgb, var(--phase) 14%, transparent); }
 .hud-cycle-row { padding-top: 6px; border-top: 1px solid rgba(255,255,255,.07); }
@@ -2240,9 +1947,8 @@
 .hud-eco-ico {
   width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 12px; font-weight: 700;
   font-family: Georgia, serif; color: #1e1e1e; background: radial-gradient(circle at 35% 30%, #fff, #cfc8b8);
-  box-shadow: 0 1px 3px rgba(0,0,0,.5);
 }
-.hud-eco-name { font-family: Georgia, serif; color: var(--hud-text, #e6e6ee); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud-eco-name { font-family: Georgia, serif; color: var(--hud-text, #e6e6ee); }
 .hud-eco-dots { align-self: end; margin-bottom: 5px; border-bottom: 2px dotted rgba(255,255,255,.18); }
 .hud-eco-val { font-family: 'Courier New', ui-monospace, monospace; font-size: 13.5px; letter-spacing: .02em; }
 .hud-eco-chg { padding: 1px 7px; border-radius: 4px; background: rgba(255,255,255,.06); font-family: 'Courier New', ui-monospace, monospace; }
@@ -3607,8 +3313,8 @@
     .weather-rain.weather-intensity-high .hud-fx-weather::after { --rain-lean: 11deg; }
     .weather-rain.weather-intensity-low .hud-fx-weather::after { --rain-lean: 4deg; }
     .weather-storm .hud-fx-weather::after { --rain-lean: 13deg; }
-    .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-back { left: 13%; margin-left: calc(var(--rc-w) * -.5); }
-    .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-front { left: 87%; margin-left: calc(var(--rc-w) * -.5); }
+    .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-back { margin-left: calc(var(--rc-w) * -.5); }
+    .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-front { margin-left: calc(var(--rc-w) * -.5); }
 }
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media screen and (min-width: 601px) { @container hud (max-width: 470px) {
@@ -3644,8 +3350,8 @@
     .weather-rain.weather-intensity-high .hud-fx-weather::after { --rain-lean: 11deg; }
     .weather-rain.weather-intensity-low .hud-fx-weather::after { --rain-lean: 4deg; }
     .weather-storm .hud-fx-weather::after { --rain-lean: 13deg; }
-    .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-back { left: 13%; margin-left: calc(var(--rc-w) * -.5); }
-    .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-front { left: 87%; margin-left: calc(var(--rc-w) * -.5); }
+    .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-back { margin-left: calc(var(--rc-w) * -.5); }
+    .hud-scene-widget.weather-rain.weather-rain .hud-fx-clouds .hud-rain-cloud.rc-front { margin-left: calc(var(--rc-w) * -.5); }
 } }
 /* cq ↑ */
 
@@ -4339,12 +4045,6 @@
   .hud-key-block.f-key .hud-key-item { transform: none !important; }
 }
 
-
-
-
-
-
-
 /* =========================================================================
    КАРТОЧКА: ПОДАЧА ПРОСТЫХ ПОЛЕЙ, ЦЕЛИ И ВОСПОМИНАНИЯ
    Простые поля (возраст, одежда, роль…) оставались одной и той же плашкой
@@ -4527,9 +4227,6 @@
   transform: rotate(-3deg);
 }
 .hud-row.f-memories .hud-detail-pill:nth-child(even)::before { left: 26%; transform: rotate(4deg); }
-
-
-
 
 @media (prefers-reduced-motion: reduce) {
   .hud-row.f-memories .hud-detail-pill { transform: none !important; }
@@ -4840,7 +4537,6 @@
 
 /* --- Карта пером ------------------------------------------------------------------ */
 .hud-parch-map { border-radius: 4px; padding: 8px; }
-.hud-map-svg { display: block; width: 100%; height: auto; }
 .hud-map-deco path { fill: none; stroke: rgba(90,60,30,.45); stroke-width: 1.1; stroke-linejoin: round; }
 .hud-map-road { fill: none; stroke: var(--ink-red); stroke-width: 1.6; stroke-dasharray: 5 4; stroke-linecap: round; opacity: .8; }
 .hud-map-pt circle { fill: var(--parch); stroke: var(--ink); stroke-width: 1.5; }
@@ -4850,9 +4546,9 @@
 .hud-map-rose path { fill: var(--ink); }
 .hud-map-rose text { font: 700 8px Georgia, serif; fill: var(--ink-red); }
 .hud-map-list { margin-top: 6px; border-top: 1px solid rgba(90,60,30,.22); }
-.hud-map-row { display: flex; gap: 8px; padding: 4px 2px; border-bottom: 1px dotted rgba(90,60,30,.22); }
+.hud-map-row { border-bottom: 1px dotted rgba(90,60,30,.22); }
 .hud-map-row b { color: var(--ink-red); min-width: 1.2em; font-variant: oldstyle-nums; }
-.hud-map-row small { display: block; font-style: italic; color: var(--ink-soft); font-size: .84em; }
+.hud-map-row small { font-style: italic; color: var(--ink-soft); }
 
 /* --- Грамоты ------------------------------------------------------------------- */
 .hud-docs { display: flex; flex-direction: column; gap: 12px; }
@@ -4923,7 +4619,6 @@
 :is(.hud-row, .hud-key-block).f-x4 { --kind: var(--hud-f-x4, #c99a9a); }
 :is(.hud-row, .hud-key-block).f-x5 { --kind: var(--hud-f-x5, #9ab8c9); }
 :is(.hud-row, .hud-key-block).f-x6 { --kind: var(--hud-f-x6, #c9c09a); }
-.hud-row.kind-misc { --kind-mark: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2040%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%271.8%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M20%203l8%209-8%209-8-9z%27%2F%3E%3Cpath%20d%3D%27M20%208l3.5%204-3.5%204-3.5-4z%27%2F%3E%3C%2Fsvg%3E"); }
 
 /* =========================================================================
    ВСЁ В КАРТОЧКЕ — ИЗ ТЕМЫ
@@ -4951,7 +4646,6 @@
   border-color: color-mix(in srgb, var(--kind) 26%, transparent);
   background: linear-gradient(160deg, color-mix(in srgb, var(--kind) 20%, transparent), color-mix(in srgb, var(--kind) 6%, transparent));
 }
-
 
 /* =========================================================================
    СРЕДНЕВЕКОВАЯ ЭПОХА В СЦЕНЕ (настройка «Эпоха»)
@@ -5017,7 +4711,7 @@
    элементов со своей тенью (часы, буквицы, неон тем) она остаётся.
    ========================================================================= */
 :where(.hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate)
-  :where(.hud-os-wrapper, .hud-os-card, .hud-scene-widget, .hud-modal-overlay, .hud-help-pop) :where(*) {
+  :where(.hud-os-wrapper, .hud-os-card, .hud-scene-widget, .hud-modal-overlay) :where(*) {
   text-shadow:
     0 1px 0 rgba(255,255,255,.55),
     0 0 calc(var(--shadowWidth, 2) * 2px) color-mix(in srgb, var(--hud-accent, #c46) 16%, transparent);
@@ -5565,7 +5259,7 @@ html.hud-custom-open body { overflow: hidden; }
   .hud-custom-head { padding: 8px 10px; gap: 6px; }
   .hud-custom-source { display: none; }
   .hud-custom-head b { flex: 1; min-width: 0; }
-  .hud-custom-preview { order: -1; padding: 8px; border-bottom: 1px solid rgba(127, 127, 127, .25); }
+  .hud-custom-preview { padding: 8px; }
   .hud-custom-settings { border-right: 0; }
   .hud-custom-settings .hud-theme-panel { padding: 10px 12px 28px; }
 }
@@ -5628,7 +5322,7 @@ html.hud-custom-open body { overflow: hidden; }
 .hud-prg-belly { width: 74px; height: 146px; display: block; overflow: visible; }
 .hud-prg-belly .b-body, .hud-prg-belly .b-head { fill: color-mix(in oklab, var(--prg-a) 38%, var(--hud-text, #eee) 12%); }
 .hud-prg-belly .b-hair { fill: color-mix(in oklab, var(--prg-a) 55%, #000 25%); }
-.hud-prg-belly .b-glow { fill: color-mix(in oklab, var(--prg-3) 18%, transparent); filter: blur(4px); }
+.hud-prg-belly .b-glow { fill: color-mix(in oklab, var(--prg-3) 18%, transparent); }
 .hud-prg-belly .b-baby { fill: color-mix(in oklab, var(--prg-a) 60%, #000 25%); opacity: .2; }
 .hud-prg-belly .b-arm { fill: none; stroke: color-mix(in oklab, var(--prg-a) 38%, var(--hud-text, #eee) 12%); stroke-width: 5.5; stroke-linecap: round; stroke-linejoin: round; filter: brightness(.9); }
 .hud-kinds-light .hud-prg-belly .b-arm { stroke: color-mix(in oklab, var(--prg-a) 38%, #fff); filter: none; }
@@ -5927,11 +5621,11 @@ html.hud-custom-open body { overflow: hidden; }
 
 .hud-wx-fc { border-radius: 16px; padding: 6px 12px; background: rgba(255,255,255,.035); border: 1px solid rgba(255,255,255,.06); }
 .hud-wx-fc-title { font-size: .7em; text-transform: uppercase; letter-spacing: .08em; opacity: .55; padding: 6px 0 4px; }
-.hud-wx-row { display: grid; grid-template-columns: 56px 26px minmax(0, 1fr) auto; align-items: center; gap: 8px; padding: 7px 0; }
+.hud-wx-row { display: grid; align-items: center; gap: 8px; padding: 7px 0; }
 .hud-wx-row + .hud-wx-row { border-top: 1px solid rgba(255,255,255,.06); }
 .hud-wx-period { font-size: .8em; opacity: .75; }
 .hud-wx-period::first-letter { text-transform: uppercase; }
-.hud-wx-row-ico { color: var(--hud-phone-accent); line-height: 0; }
+.hud-wx-row-ico { line-height: 0; }
 .hud-wx-row-ico .hud-fc-ico { width: 22px; height: 22px; }
 .hud-wx-row-desc { font-size: .84em; min-width: 0; }
 .hud-wx-row-desc small { display: block; font-size: .86em; opacity: .55; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -6131,8 +5825,6 @@ html:not(.hud-theme-cyberpunk) .hud-os-card :is(.hud-row:not(.nsfw) > .hud-key, 
     0 0 calc(4px * var(--hud-glow-r)) color-mix(in srgb, currentColor min(100%, calc(45% * var(--hud-glow-k, 1) * var(--hud-glow-i, 1))), transparent);
 }
 
-
-
 /* Пилюли в строках: детали, инвентарь, ключевые мысли, конфликты.
    drop-shadow, а не box-shadow: у части пилюль свои тени и своё
    «без тени», и свет не должен их затирать. */
@@ -6238,12 +5930,30 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
    упирались в правый край. Колонка «когда» вмещает и «воскресенье 14:00». */
 .hud-schedule-container { box-sizing: border-box; }
 .hud-schedule-time { max-width: 9.5em; white-space: normal; line-height: 1.25; }
-
+/* «09:00» целиком: перенос — между словами и между временами, но не внутри. */
+.hud-nowrap { white-space: nowrap; }
+/* Событие — гибкая колонка: на узкой карточке сжимается и переносит длинное
+   слово, а не уезжает за край строки с горизонтальной прокруткой. */
+.hud-schedule-event { flex: 1 1 0; min-width: 0; width: auto; overflow-wrap: anywhere; }
+/* На телефоне карточка ~210–240px: колонка времени съедала половину, и
+   событие рвалось по слогам. Время — над событием, событию вся ширина. */
+@media (max-width: 600px) {
+  .hud-schedule-item { flex-direction: column; gap: 4px; padding: 10px 0 10px 8px; }
+  .hud-schedule-item::before { top: 13px; }
+  .hud-schedule-time { margin-top: 0; max-width: none; }
+  .hud-schedule-event { flex: 0 0 auto; width: 100%; box-sizing: border-box; }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-schedule-item { flex-direction: column; gap: 4px; padding: 10px 0 10px 8px; }
+  .hud-schedule-item::before { top: 13px; }
+  .hud-schedule-time { margin-top: 0; max-width: none; }
+  .hud-schedule-event { flex: 0 0 auto; width: 100%; box-sizing: border-box; }
+} }
+/* cq ↑ */
 
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-cycle-ring .d0 { stop-color: color-mix(in srgb, var(--phase) 18%, #ffffff); }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-cycle-ring .d1 { stop-color: color-mix(in srgb, var(--phase) 8%, #fbf4f6); }
-
-
 
 /* =========================================================================
    КАРТА ТЕЛА: ВИД, СЛОИ, ИСТОРИЯ (render/intimacy.js, buildHeatMap)
@@ -6322,7 +6032,7 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
 }
 @keyframes hud-out-breath { 0%, 100% { opacity: .55; } 50% { opacity: 1; } }
 
-.hud-scene-mods { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 5px; margin-bottom: 8px; }
+.hud-scene-mods { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; margin-bottom: 8px; }
 .hud-scene-mods-title { flex: 1 0 100%; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--hud-text-muted, #c3c2b7); }
 .hud-mod {
   display: inline-flex; align-items: center; gap: 5px; font-size: 11.5px; padding: 3px 10px; border-radius: 999px;
@@ -6440,12 +6150,6 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
 .hud-more-btn:hover, .hud-more-btn:focus-visible { color: var(--hud-text, #eee); outline: none; background: color-mix(in srgb, var(--hud-accent, #c31f38) 16%, transparent); }
 .hud-more-btn b { font-weight: 700; margin-left: 4px; font-variant-numeric: tabular-nums; }
 
-
-
-
-
-
-
 /* =========================================================================
    НЕЙТРАЛЬНЫЕ: БОЛЕЗНИ И ТРАВМЫ, СЛЕДЫ НА ТЕЛЕ, ФЕТИШ
    К сцене близости они прямо не относятся и розового закрытой части не
@@ -6531,7 +6235,6 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
 :is(.hud-forecast-icon, .hud-wx-now, .hud-wx-row-ico).w-partly :is(.ic-sun, .ic-rays) { stroke: var(--wx-sun); }
 :is(.hud-forecast-icon, .hud-wx-now, .hud-wx-row-ico).w-partly .ic-sun { fill: color-mix(in srgb, var(--wx-sun) 45%, transparent); }
 :is(.hud-forecast-icon, .hud-wx-now, .hud-wx-row-ico).w-overcast .ic-cloud:first-child { opacity: .6; }
-
 
 /* =========================================================================
    ИМЯ ПЕРСОНАЖА: СВЕЧЕНИЕ БЕЗ ОБРЕЗКИ
@@ -6659,8 +6362,6 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 
 /* Спутники: плашка настроения стоит в цветной полосе выше имени — на
    узкой карточке она заезжала на имя питомца. */
-.hud-pet2-band { height: 62px; }
-.hud-pet2-mood { top: 8px; }
 
 /* Таверна задаёт сообщениям word-break: break-word, и в карточке это
    разрешало рвать слова где угодно: сетки и колонки сжимались по кускам
@@ -6673,9 +6374,6 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
    вверх» уходил под рамку на 10–18px. */
 .hud-phone-lockscreen { min-height: 0 !important; }
 
-
-
-
 /* Прогноз: подпись времени («Destination») не рвётся посреди слова —
    колонка берёт ширину по слову, но не больше 88px, дальше многоточие. */
 .hud-wx-row { grid-template-columns: minmax(56px, max-content) 26px minmax(0, 1fr) auto; }
@@ -6686,7 +6384,7 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 .hud-test-result { min-width: 0; }
 .hud-fate-btn {
   margin-top: 6px; padding: 3px 10px; border-radius: 999px; cursor: pointer; font: inherit; font-size: .8em;
-  color: inherit; letter-spacing: .02em; white-space: nowrap;
+  color: inherit; letter-spacing: .02em;
   border: 1px dashed color-mix(in srgb, var(--phase, var(--hud-accent)) 55%, transparent);
   background: color-mix(in srgb, var(--phase, var(--hud-accent)) 8%, transparent);
   transition: background .2s, box-shadow .2s, border-color .2s;
@@ -6778,6 +6476,11 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 .hud-phone-owner-label { min-width: 0; overflow-wrap: break-word; text-align: center; }
 .hud-pill-label { overflow-wrap: break-word; }
 .hud-nsfw-pill .hud-pill-label { flex-wrap: wrap; }
+/* Капсула подписи на узкой карточке переносится в несколько строк — при 999px
+   она становилась овалом. 10px на одной строке та же капсула.
+   Подпись — inline-block: break-word не уменьшает её минимальную ширину,
+   и «Сентиментальность:» вылезала за плашку. anywhere и слоги — уменьшают. */
+:is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill) .hud-pill-label { border-radius: 10px; overflow-wrap: anywhere; hyphens: auto; }
 @media (max-width: 600px) {
   .hud-mark-timer small { white-space: normal; }
   .hud-prot { grid-template-columns: 40px minmax(0, 1fr); }
@@ -6978,7 +6681,7 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
    волос; седые виски — серебром; щетина и борода — полупрозрачной тенью;
    веснушки — точками; очки — тонкой оправой. Татуировки — тонким
    орнаментом «чернилами»: светлыми на тёмном теле и тёмными на светлом. */
-.hud-heat-svg .z-hair-curls circle { fill: var(--hair, #5e4d61); stroke: color-mix(in oklch, var(--hair, #5e4d61) 60%, #fff); stroke-opacity: .55; stroke-width: .5; vector-effect: non-scaling-stroke; }
+.hud-heat-svg .z-hair-curls circle { fill: var(--hair, #5e4d61); stroke-opacity: .55; stroke-width: .5; vector-effect: non-scaling-stroke; }
 .hud-heat-svg g.z-hair > * { fill: var(--hair, #5e4d61); stroke: color-mix(in oklch, var(--hair, #5e4d61) 55%, #fff); stroke-width: .55; vector-effect: non-scaling-stroke; }
 .hud-heat-svg .z-hair-band { fill: none; stroke: color-mix(in oklch, var(--hair, #5e4d61) 40%, #000); stroke-width: .9; stroke-linecap: round; vector-effect: non-scaling-stroke; }
 .hud-heat-svg .z-temples path { fill: #d4d4da; opacity: .85; }
@@ -7102,7 +6805,6 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 .hud-heat-svg.bs-thermal .z-bust-line { stroke: rgba(150, 140, 255, .32); }
 .hud-heat-svg.bs-thermal .z-bust-shade { fill: rgba(4, 2, 20, .3); }
 .hud-heat-svg.bs-soft .z-bust-line { stroke: rgba(90, 34, 26, .42); }
-.hud-heat-svg.bs-soft .z-bust-shade { fill: rgba(70, 26, 18, .2); }
 .hud-heat-svg .z-bust-light { fill: #fff; opacity: .08; stroke: none; filter: blur(1.4px); }
 .hud-heat-svg.bs-soft .z-bust-light { opacity: .14; }
 .hud-heat-svg.bs-thermal .z-bust-light { display: none; }

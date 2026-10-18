@@ -498,7 +498,6 @@
 .hud-f-status.is-toggles .clip { position: absolute; top: -6px; width: 8px; height: 5px; border-radius: 2px; background: color-mix(in srgb, currentColor 40%, transparent); }
 .hud-f-status.is-toggles .clip.l { left: 18%; } .hud-f-status.is-toggles .clip.r { right: 18%; }
 
-
 /* ================================= КЛЮЧ =================================== */
 
 /* Стикеры */

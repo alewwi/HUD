@@ -32,7 +32,7 @@
 .hud-fv-us .hb { fill: var(--c, #fff); opacity: .8; }
 .hud-fv-us .lbl { fill: rgba(255,255,255,.75); font: 700 9px ui-monospace, Consolas, monospace; }
 .hud-fv-us .scale path, .hud-fv-us .cross { stroke: rgba(255,255,255,.55); stroke-width: .8; fill: none; }
-.hud-fv-us .sweep { fill: rgba(255,255,255,.06); opacity: 0; }
+.hud-fv-us .sweep { fill: rgba(255,255,255,.06); }
 .hud-fv-us .us-corner { position: absolute; font: 600 .62em/1.35 ui-monospace, Consolas, monospace; color: rgba(235,235,235,.82); letter-spacing: .04em; text-shadow: 0 0 4px #000; }
 .hud-fv-us .tl { left: 6px; top: 5px; } .hud-fv-us .tr { right: 22px; top: 5px; text-align: right; } .hud-fv-us .bl { left: 6px; bottom: 5px; color: color-mix(in srgb, var(--fam-acc) 30%, #fff); }
 .hud-fv-us .us-caption { display: flex; flex-direction: column; gap: 5px; padding: 8px 2px 0; font-family: var(--fam-hand); }
@@ -63,19 +63,18 @@
 .hud-fv-letter .lt-paper { position: relative; padding: 16px 16px 26px 18px; border-radius: 4px; font-family: var(--fam-hand); line-height: 1.55;
   background: repeating-linear-gradient(180deg, transparent 0 23px, color-mix(in srgb, var(--fam-boy) 30%, transparent) 23px 24px) 0 46px / 100% 100% no-repeat, var(--fam-paper);
   box-shadow: 0 8px 16px -10px rgba(0,0,0,.6), inset 0 0 0 1px var(--fam-line), inset 3px 0 0 color-mix(in srgb, var(--fam-girl) 50%, transparent); transform: rotate(.5deg); }
-.hud-fv-letter .lt-stamp { position: absolute; right: 12px; top: 10px; width: 54px; height: 62px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+.hud-fv-letter .lt-stamp { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
   background: linear-gradient(160deg, color-mix(in srgb, var(--fam-girl) 40%, #fff), color-mix(in srgb, var(--fam-boy) 40%, #fff)); color: #3a2a30;
-  -webkit-mask: radial-gradient(circle 3px at 3px 3px, transparent 98%, #000) -3px -3px / 8px 8px; mask: radial-gradient(circle 3px at 3px 3px, transparent 98%, #000) -3px -3px / 8px 8px;
   transform: rotate(4deg); transition: transform .3s; }
 .hud-fv-letter .lt-stamp i { font-style: normal; font-size: 1.5em; }
 .hud-fv-letter .lt-stamp small { font: 700 .5em/1 Georgia, serif; letter-spacing: .08em; text-transform: uppercase; text-align: center; }
-.hud-fv-letter .lt-mark { position: absolute; right: 44px; top: 34px; width: 54px; height: 54px; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+.hud-fv-letter .lt-mark { position: absolute; border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center;
   border: 1.5px solid color-mix(in srgb, var(--fam-acc) 60%, transparent); color: color-mix(in srgb, var(--fam-acc) 70%, currentColor); transform: rotate(-14deg); opacity: .75;
   font-family: Georgia, serif; box-shadow: inset 0 0 0 3px transparent, inset 0 0 0 4px color-mix(in srgb, var(--fam-acc) 35%, transparent); }
 .hud-fv-letter .lt-mark b { font-size: .66em; letter-spacing: .14em; text-transform: uppercase; }
 .hud-fv-letter .lt-mark small { font-size: .6em; }
 .hud-fv-letter p { margin: 0; }
-.hud-fv-letter .lt-to { font-size: 1.05em; color: var(--fam-ink); padding-right: 96px; min-height: 2.2em; }
+.hud-fv-letter .lt-to { font-size: 1.05em; color: var(--fam-ink); }
 .hud-fv-letter .lt-line { padding-right: 8px; }
 .hud-fv-letter .lt-line b { color: var(--fam-ink); }
 .hud-fv-letter .lt-line.is-small { font-size: .8em; color: color-mix(in srgb, currentColor 70%, transparent); }
@@ -172,7 +171,7 @@
 .hud-ppv-bottles .pb-state.is-hot { border-color: #e04848; background: color-mix(in srgb, #e04848 14%, transparent); }
 .hud-ppv-bottles .pb-state small { font-size: .88em; color: color-mix(in srgb, currentColor 70%, transparent); }
 .hud-ppv-bottles .pb-rows { display: flex; flex-direction: column; gap: 4px; }
-.hud-ppv-bottles .pb-row { display: grid; grid-template-columns: 110px minmax(0, 1fr); gap: 8px; font-size: .9em; padding-bottom: 4px; border-bottom: 1px dashed var(--fam-line); }
+.hud-ppv-bottles .pb-row { display: grid; gap: 8px; font-size: .9em; padding-bottom: 4px; border-bottom: 1px dashed var(--fam-line); }
 .hud-ppv-bottles .pb-row span { font-size: .74em; letter-spacing: .08em; text-transform: uppercase; color: color-mix(in srgb, currentColor 65%, transparent); padding-top: 2px; }
 .hud-ppv-bottles .pb-row p { margin: 0; }
 .hud-ppv-bottles .pb-cycle, .hud-ppv-bottles .pb-formula { margin: 0; font-size: .84em; padding: 6px 10px; border-radius: 10px; border: 1px dashed var(--fam-line); }
@@ -189,7 +188,7 @@
 /* --- Полароиды на бечёвке --- */
 .hud-ktv.is-polaroid { position: relative; display: flex; flex-wrap: wrap; justify-content: center; gap: 14px 16px; padding: 14px 6px 4px; }
 .hud-ktv.is-polaroid .twine { position: absolute; left: 0; right: 0; top: 10px; height: 14px; border-top: 1.5px solid color-mix(in srgb, var(--fam-baby) 50%, #a07a4a); border-radius: 0 0 50% 50% / 0 0 100% 100%; pointer-events: none; }
-.hud-ktv .kp-card { --c: var(--fam-baby); width: 132px; padding: 8px 8px 10px; display: flex !important; flex-direction: column; align-items: center; gap: 2px; text-align: center;
+.hud-ktv .kp-card { --c: var(--fam-baby); padding: 8px 8px 10px; display: flex !important; flex-direction: column; align-items: center; gap: 2px; text-align: center;
   background: var(--fam-paper); box-shadow: 0 8px 14px -8px rgba(0,0,0,.65), inset 0 0 0 1px var(--fam-line); transform: rotate(calc((var(--i) % 2 * 2 - 1) * 3deg)); transition: transform .3s, box-shadow .3s; }
 .hud-ktv .kp-card.is-girl { --c: var(--fam-girl); } .hud-ktv .kp-card.is-boy { --c: var(--fam-boy); }
 .hud-ktv .kp-card .pin { position: absolute; top: -9px; left: 50%; width: 10px; height: 20px; margin-left: -5px; border-radius: 3px; background: linear-gradient(90deg, color-mix(in srgb, var(--c) 60%, #c89a5a), color-mix(in srgb, var(--c) 40%, #8a6a3a)); box-shadow: 0 2px 3px rgba(0,0,0,.35); }
@@ -222,7 +221,7 @@
 
 /* --- Ростомер --- */
 .hud-ktv.is-growth { display: flex; flex-direction: column; gap: 4px; }
-.hud-ktv .kg-wall { position: relative; display: flex; gap: 8px; height: 200px; padding: 10px 10px 0; border-radius: 16px; overflow: hidden;
+.hud-ktv .kg-wall { position: relative; display: flex; gap: 8px; padding: 10px 10px 0; border-radius: 16px; overflow: hidden;
   background: repeating-linear-gradient(90deg, color-mix(in srgb, var(--fam-acc) 5%, transparent) 0 18px, transparent 18px 36px), var(--fam-inset); box-shadow: inset 0 0 0 1px var(--fam-line); }
 .hud-ktv .kg-ruler { position: relative; flex: none; width: 38px; margin-bottom: 48px; border-radius: 6px 6px 0 0;
   background: repeating-linear-gradient(0deg, color-mix(in srgb, currentColor 35%, transparent) 0 1px, transparent 1px calc(100% / 12)), linear-gradient(90deg, color-mix(in srgb, var(--fam-baby) 55%, #e8c070), color-mix(in srgb, var(--fam-baby) 35%, #c89a4a)); }
@@ -262,13 +261,13 @@
 .hud-kid-care .ks-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; margin-bottom: 8px; }
 .hud-kid-care .ks-head b { font: 700 1em var(--fam-hand); color: color-mix(in srgb, var(--c) 45%, var(--fam-ink)); }
 .hud-kid-care .ks-head small { font-size: .74em; color: color-mix(in srgb, currentColor 65%, transparent); }
-.hud-kid-care .ks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 10px 6px; }
+.hud-kid-care .ks-grid { display: grid; }
 .hud-kid-care .ks-slot { display: flex; flex-direction: column; align-items: center; gap: 3px; text-align: center; cursor: help; }
-.hud-kid-care .ks-sticker { width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 1.35em; transform: rotate(var(--tilt)); transition: transform .3s; }
+.hud-kid-care .ks-sticker { border-radius: 50%; display: grid; place-items: center; font-style: normal; transform: rotate(var(--tilt)); transition: transform .3s; }
 .hud-kid-care .ks-slot.is-done .ks-sticker { background: radial-gradient(circle at 32% 28%, color-mix(in srgb, var(--c) 30%, #fff), var(--c) 75%); box-shadow: 0 0 0 3px #fff, 0 4px 6px rgba(0,0,0,.35); position: relative; }
 .hud-kid-care .ks-slot.is-done .ks-sticker::after { content: ''; position: absolute; right: -1px; bottom: 1px; width: 14px; height: 14px; border-radius: 0 0 50% 0; background: linear-gradient(135deg, transparent 50%, color-mix(in srgb, #fff 85%, var(--c)) 50%); box-shadow: -1px -1px 2px rgba(0,0,0,.2); }
 .hud-kid-care .ks-slot.is-next .ks-sticker { border: 2px dashed var(--c); background: color-mix(in srgb, var(--c) 14%, transparent); box-shadow: 0 0 0 4px color-mix(in srgb, var(--c) 12%, transparent); }
-.hud-kid-care .ks-slot.is-later .ks-sticker { border: 1.5px dashed color-mix(in srgb, currentColor 30%, transparent); color: color-mix(in srgb, currentColor 35%, transparent); font-size: 1em; font-weight: 700; }
+.hud-kid-care .ks-slot.is-later .ks-sticker { border: 1.5px dashed color-mix(in srgb, currentColor 30%, transparent); color: color-mix(in srgb, currentColor 35%, transparent); font-weight: 700; }
 .hud-kid-care .ks-slot small { font-size: .66em; line-height: 1.2; }
 .hud-kid-care .ks-slot.is-later small { color: color-mix(in srgb, currentColor 55%, transparent); }
 .hud-kid-care .ks-slot b { font-size: .62em; font-weight: 700; color: color-mix(in srgb, var(--c) 55%, currentColor); }
@@ -388,5 +387,4 @@
 .hud-kid-care .ks-sticker { width: 40px; height: 40px; font-size: 1.15em; }
 .hud-kid-care .ks-slot.is-later .ks-sticker { width: 28px; height: 28px; font-size: .8em; }
 .hud-kid-care .ks-slot.is-later small { font-size: .6em; }
-
 

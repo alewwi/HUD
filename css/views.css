@@ -39,18 +39,18 @@
 .hud-v-num { font-style: normal; font-weight: 800; font-size: 1.05em; color: color-mix(in srgb, var(--v-acc) 45%, #fff); text-shadow: 0 0 10px var(--v-glow); }
 .hud-v-num.is-small { font-size: .85em; }
 .hud-v-tag {
-  display: inline-block; align-self: flex-start; padding: 1px 8px; border-radius: 999px; font-size: .68em; font-weight: 700; font-style: normal;
+  display: inline-block; align-self: flex-start; border-radius: 999px; font-size: .68em; font-weight: 700; font-style: normal;
   letter-spacing: .06em; text-transform: uppercase; white-space: nowrap;
   color: color-mix(in srgb, var(--v-acc) 50%, #fff); background: color-mix(in srgb, var(--v-acc) 18%, transparent);
   border: 1px solid color-mix(in srgb, var(--v-acc) 34%, transparent);
 }
 .hud-v-tag.s1, .hud-v-tag.s2 { opacity: .8; }
-.hud-v-tag.s5 { background: color-mix(in srgb, var(--v-acc) 34%, transparent); box-shadow: 0 0 10px -2px var(--v-glow); }
-.hud-v-mini-bar { display: block; height: 5px; border-radius: 99px; background: color-mix(in srgb, currentColor 10%, transparent); overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,.35); }
-.hud-v-mini-bar > i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--v-acc) 40%, transparent), var(--v-acc) 70%, color-mix(in srgb, var(--v-acc) 50%, #fff)); box-shadow: 0 0 8px var(--v-glow); }
+.hud-v-tag.s5 { background: color-mix(in srgb, var(--v-acc) 34%, transparent); }
+.hud-v-mini-bar { display: block; border-radius: 99px; background: color-mix(in srgb, currentColor 10%, transparent); }
+.hud-v-mini-bar > i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--v-acc) 40%, transparent), var(--v-acc) 70%, color-mix(in srgb, var(--v-acc) 50%, #fff)); }
 .hud-v-segments { display: flex; gap: 3px; }
-.hud-v-segments > i { flex: 1; height: 9px; border-radius: 3px; background: color-mix(in srgb, currentColor 9%, transparent); box-shadow: inset 0 1px 2px rgba(0,0,0,.3); }
-.hud-v-segments > i.is-on { background: linear-gradient(180deg, color-mix(in srgb, var(--v-acc) 55%, #fff), var(--v-acc)); box-shadow: 0 0 8px -1px var(--v-glow), inset 0 1px 0 rgba(255,255,255,.3); }
+.hud-v-segments > i { flex: 1; height: 9px; border-radius: 3px; background: color-mix(in srgb, currentColor 9%, transparent); }
+.hud-v-segments > i.is-on { background: linear-gradient(180deg, color-mix(in srgb, var(--v-acc) 55%, #fff), var(--v-acc)); }
 .hud-v-emoji { font-style: normal; font-size: 18px; line-height: 1; filter: drop-shadow(0 2px 3px rgba(0,0,0,.4)); }
 .hud-v-note { margin: 6px 0 0; font-size: .86em; line-height: 1.45; color: var(--v-ink-soft); }
 .hud-v-empty { color: var(--v-ink-soft); font-size: .78em; font-style: italic; }
@@ -73,7 +73,6 @@
 
 /* --- Доверие --- */
 .hud-v-trust { display: grid; gap: 8px; }
-.hud-v-trust.is-hearts { grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr)); }
 .hud-v-who-line { display: flex; align-items: center; gap: 9px; min-width: 0; }
 .hud-v-who-line b { flex: 1; min-width: 0; font-size: .92em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .hud-v-trust.is-hearts .hud-v-hearts { margin: 8px 0 0 37px; }
@@ -122,7 +121,6 @@
 .hud-v-spectrum-track {
   position: absolute; left: 0; right: 0; top: 50%; height: 12px; margin-top: -6px; border-radius: 99px;
   background: linear-gradient(90deg, color-mix(in srgb, var(--v-acc) 20%, #2a2530), color-mix(in srgb, var(--v-acc) 60%, #3a3040) 50%, color-mix(in srgb, var(--v-acc) 60%, #fff));
-  box-shadow: inset 0 1px 2px rgba(0,0,0,.4), 0 0 16px -6px var(--v-glow);
 }
 .hud-v-spectrum-track > s { position: absolute; top: -3px; bottom: -3px; width: 1px; background: rgba(255,255,255,.25); }
 .hud-v-spot { position: absolute; left: var(--x); top: 50%; transform: translate(-50%, -50%); z-index: 1; }
@@ -146,8 +144,7 @@
 .hud-v-fears.is-skulls .hud-v-card { display: flex; align-items: center; gap: 12px; }
 .hud-v-fears.is-skulls .hud-v-skull-text { flex: 1; }
 .hud-v-skulls { display: inline-flex; gap: 2px; padding: 4px 8px; border-radius: 99px; background: rgba(0,0,0,.25); box-shadow: inset 0 1px 3px rgba(0,0,0,.4); }
-.hud-v-skulls i { font-style: normal; font-size: 14px; filter: grayscale(1) brightness(.6); opacity: .25; }
-.hud-v-skulls i.is-on { filter: drop-shadow(0 0 4px var(--v-glow)); opacity: 1; }
+.hud-v-skulls i { font-style: normal; font-size: 14px; }
 .hud-v-fears.is-storm { grid-template-columns: repeat(auto-fill, minmax(min(100%, 130px), 1fr)); }
 .hud-v-storm { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
 .hud-v-storm .hud-v-tag { align-self: center; }
@@ -218,22 +215,14 @@
 .hud-v-heartbeat svg { position: relative; width: 40px; height: 40px; fill: var(--v-acc); filter: drop-shadow(0 0 8px var(--v-acc)); }
 .hud-v-expo.is-bar .hud-v-segments > i { height: 12px; }
 .hud-v-seg-scale { display: flex; justify-content: space-between; font-size: .66em; letter-spacing: .05em; text-transform: uppercase; color: var(--v-ink-soft); }
-.hud-v-mask { width: 62px; height: 66px; overflow: visible; }
-.hud-v-mask .shadow { fill: rgba(0,0,0,.35); }
-.hud-v-mask .m0 { stop-color: #f4ede6; } .hud-v-mask .m1 { stop-color: color-mix(in srgb, var(--v-acc) 25%, #b9aea6); }
-.hud-v-mask .face { stroke: rgba(0,0,0,.25); stroke-width: .8; }
-.hud-v-mask .brow { fill: none; stroke: rgba(40,20,30,.55); stroke-width: 1.2; stroke-linecap: round; }
+.hud-v-mask .m1 { stop-color: color-mix(in srgb, var(--v-acc) 25%, #b9aea6); }
+.hud-v-mask .face { stroke-width: .8; }
 .hud-v-mask .eye { fill: #1a1218; }
 .hud-v-mask .mouth { fill: none; stroke: rgba(40,20,30,.6); stroke-width: 1.4; stroke-linecap: round; }
-.hud-v-mask .crack { fill: none; stroke: var(--v-acc); stroke-width: 1.4; stroke-linejoin: round; filter: drop-shadow(0 0 2px var(--v-acc)); }
-.hud-v-mask .chip { fill: var(--hud-card-inner-bg, #15111a); stroke: var(--v-acc); stroke-width: .8; }
-.hud-v-eye { width: 86px; height: 52px; overflow: visible; filter: drop-shadow(0 4px 8px rgba(0,0,0,.4)); }
+.hud-v-mask .crack { fill: none; }
 .hud-v-eye .open { transform-origin: 36px 22px; transform: scaleY(var(--o, .5)); }
 .hud-v-eye .white { fill: #f3eef0; }
-.hud-v-eye .vein { fill: none; stroke: #e0566b; stroke-width: .6; opacity: .7; }
 .hud-v-eye .i0 { stop-color: color-mix(in srgb, var(--v-acc) 40%, #fff); } .hud-v-eye .i1 { stop-color: var(--v-acc); } .hud-v-eye .i2 { stop-color: color-mix(in srgb, var(--v-acc) 60%, #000); }
-.hud-v-eye .pupil { fill: #0c0a10; }
-.hud-v-eye .glint { fill: rgba(255,255,255,.85); }
 .hud-v-eye .lid { fill: none; stroke: color-mix(in srgb, currentColor 80%, transparent); stroke-width: 2; stroke-linecap: round; }
 .hud-v-eye .lash { fill: none; stroke: color-mix(in srgb, currentColor 70%, transparent); stroke-width: 1.4; stroke-linecap: round; }
 @media (prefers-reduced-motion: no-preference) {
@@ -295,7 +284,7 @@
 }
 .hud-v-bm-tile b { font-size: .88em; }
 .hud-v-bm-tile em { font-style: normal; font-weight: 800; }
-.hud-v-bm-tile .heat { grid-column: 1 / -1; height: 4px; border-radius: 99px; background: rgba(0,0,0,.25); overflow: hidden; }
+.hud-v-bm-tile .heat { grid-column: 1 / -1; border-radius: 99px; background: rgba(0,0,0,.25); overflow: hidden; }
 .hud-v-bm-tile .heat > i { display: block; height: 100%; background: linear-gradient(90deg, color-mix(in srgb, var(--v-acc) 50%, #ffcf8a), var(--v-acc)); }
 .hud-v-bm-tile small { grid-column: 1 / -1; font-size: .7em; color: var(--v-ink-soft); }
 
@@ -338,7 +327,7 @@
 .hud-v-map-legend small { grid-column: 3; color: var(--v-ink-soft); font-size: .88em; }
 .hud-v-trail { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 6px; }
 .hud-v-stop { display: inline-flex; flex-direction: column; gap: 1px; padding: 7px 12px; border-radius: 14px; background: var(--v-surf); border: 1px solid var(--v-line); box-shadow: inset 0 1px 0 rgba(255,255,255,.07); }
-.hud-v-stop.is-now { border-color: var(--v-acc); box-shadow: 0 0 14px -4px var(--v-glow), inset 0 1px 0 rgba(255,255,255,.1); }
+.hud-v-stop.is-now { border-color: var(--v-acc); }
 .hud-v-stop small { font-size: .7em; color: var(--v-ink-soft); }
 .hud-v-stop b { font-size: .9em; }
 .hud-v-stop em { font-style: normal; font-size: .72em; color: var(--v-ink-soft); }
@@ -433,7 +422,7 @@
 .hud-v-chip > i { font-style: normal; }
 .hud-v-chip.w1 { font-size: .8em; opacity: .75; }
 .hud-v-chip.w2 { font-size: 1em; }
-.hud-v-chip.w3 { font-size: 1.25em; font-weight: 800; padding: 7px 16px; background: linear-gradient(135deg, color-mix(in srgb, var(--v-acc) 34%, transparent), color-mix(in srgb, var(--v-acc) 12%, transparent)); border-color: color-mix(in srgb, var(--v-acc) 60%, transparent); box-shadow: 0 0 18px -6px var(--v-glow), inset 0 1px 0 rgba(255,255,255,.12); }
+.hud-v-chip.w3 { font-size: 1.25em; font-weight: 800; padding: 7px 16px; background: linear-gradient(135deg, color-mix(in srgb, var(--v-acc) 34%, transparent), color-mix(in srgb, var(--v-acc) 12%, transparent)); border-color: color-mix(in srgb, var(--v-acc) 60%, transparent); }
 
 /* --- Секреты --- */
 .hud-v-spoil { filter: blur(5px); cursor: pointer; transition: filter .3s ease; border-radius: 4px; outline: none; }
@@ -445,7 +434,7 @@
 .hud-v-person:not(.is-k) .hud-v-face { filter: grayscale(1); box-shadow: 0 0 0 1px rgba(255,255,255,.2); }
 .hud-v-person:not(.is-k)::after { content: '✕'; font-size: .8em; color: #ef7b8a; }
 .hud-v-files { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 230px), 1fr)); gap: 18px 12px; padding-top: 12px; }
-.hud-v-file { position: relative; padding: 18px 14px 12px; border-radius: 3px 12px 12px 12px; transform: rotate(var(--r, 0deg)); color: #2f2618; background: linear-gradient(175deg, #e3d4ad, #cdb88a); box-shadow: 0 1px 0 #f5ead0 inset, 0 8px 16px -6px rgba(0,0,0,.6), 3px 3px 0 -1px #b8a171; }
+.hud-v-file { position: relative; padding: 18px 14px 12px; border-radius: 3px 12px 12px 12px; transform: rotate(var(--r, 0deg)); background: linear-gradient(175deg, #e3d4ad, #cdb88a); box-shadow: 0 1px 0 #f5ead0 inset, 0 8px 16px -6px rgba(0,0,0,.6), 3px 3px 0 -1px #b8a171; }
 .hud-v-file-tab { position: absolute; top: -13px; left: 0; padding: 3px 12px; border-radius: 7px 7px 0 0; font-size: .64em; font-weight: 800; letter-spacing: .08em; background: #e3d4ad; }
 .hud-v-file .clip { position: absolute; top: -6px; right: 28px; width: 10px; height: 26px; border: 2px solid #9aa1ab; border-radius: 6px; border-bottom-color: transparent; }
 .hud-v-stamp { position: absolute; right: 10px; top: 18px; padding: 2px 8px; border: 2.5px solid #b0263a; border-radius: 5px; color: #b0263a; font-size: .6em; font-weight: 900; letter-spacing: .08em; transform: rotate(10deg); opacity: .85; mix-blend-mode: multiply; }
@@ -453,7 +442,7 @@
 .hud-v-file b { display: block; position: relative; margin-top: 14px; padding-right: 8px; font-size: .92em; line-height: 1.4; }
 .hud-v-file-status { display: inline-block; margin-top: 6px; font-size: .68em; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #7a5b2a; }
 .hud-v-file-lines { display: flex; flex-direction: column; margin-top: 4px; }
-.hud-v-file-lines small { font-size: .74em; color: #5d4a2c; }
+.hud-v-file-lines small { font-size: .74em; }
 .hud-v-webs { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr)); gap: 10px; }
 .hud-v-web { display: flex; flex-direction: column; gap: 6px; }
 .hud-v-web svg { width: 100%; height: auto; max-height: 130px; overflow: visible; }
@@ -514,7 +503,7 @@
 
 /* --- Ружья Чехова --- */
 .hud-v-board { display: flex; flex-wrap: wrap; gap: 16px; padding: 18px 16px; border-radius: 14px; background: #8f6843 radial-gradient(circle at 30% 40%, rgba(0,0,0,.14) 0 1px, transparent 1.6px) 0 0 / 7px 7px; box-shadow: inset 0 0 0 6px #6a4a2c, inset 0 0 0 7px #4d351f, inset 0 0 22px rgba(0,0,0,.45), 0 10px 20px -12px rgba(0,0,0,.8); }
-.hud-v-note-card { position: relative; width: 168px; padding: 18px 12px 10px; transform: rotate(var(--r, 0deg)); color: #2f2a1c; background: linear-gradient(175deg, #fff8cf, #f5e9a8); box-shadow: 0 10px 14px -8px rgba(0,0,0,.55), 0 1px 0 rgba(255,255,255,.6) inset; font-size: .84em; transition: transform .25s ease; }
+.hud-v-note-card { position: relative; width: 168px; padding: 18px 12px 10px; transform: rotate(var(--r, 0deg)); background: linear-gradient(175deg, #fff8cf, #f5e9a8); box-shadow: 0 10px 14px -8px rgba(0,0,0,.55), 0 1px 0 rgba(255,255,255,.6) inset; font-size: .84em; transition: transform .25s ease; }
 .hud-v-note-card::after { content: ''; position: absolute; right: 0; bottom: 0; width: 18px; height: 18px; background: linear-gradient(135deg, rgba(0,0,0,.12) 50%, #e9dc93 50%); }
 .hud-v-note-card .pin { position: absolute; top: 5px; left: 50%; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #ff9d9d, #b3202e 70%); box-shadow: 0 3px 3px rgba(0,0,0,.45); }
 .hud-v-note-card.is-building { background: linear-gradient(175deg, #ffe7cf, #f9cf9f); }
@@ -523,7 +512,7 @@
 .hud-v-note-card.is-fired::after { background: linear-gradient(135deg, rgba(0,0,0,.12) 50%, #c8c8c8 50%); }
 .hud-v-note-card.is-fired p { text-decoration: line-through; text-decoration-color: rgba(176,38,58,.7); text-decoration-thickness: 1.5px; }
 .hud-v-note-card p { margin: 0; line-height: 1.4; }
-.hud-v-note-card small { display: block; opacity: .6; margin-top: 5px; }
+.hud-v-note-card small { display: block; margin-top: 5px; }
 .hud-v-note-card .stamp { display: inline-block; margin-top: 7px; padding: 1px 7px; border: 2px solid #b0263a; border-radius: 4px; font-style: normal; font-size: .72em; font-weight: 900; letter-spacing: .06em; text-transform: uppercase; color: #b0263a; transform: rotate(-4deg); }
 @media (hover: hover) { .hud-v-note-card:hover { transform: rotate(0) scale(1.04); z-index: 1; } }
 .hud-v-gun-cols { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
@@ -537,7 +526,6 @@
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) { .hud-v-gun-cols { grid-template-columns: 1fr; } } }
 /* cq ↑ */
-
 
 .hud-v-gun-col.is-fired .hud-v-gun-card p { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--col) 60%, transparent); opacity: .8; }
 .hud-v-gun-card p { margin: 0; line-height: 1.35; }
@@ -585,7 +573,7 @@
 }
 .hud-v-tarot .face, .hud-v-tarot .back { border-radius: 12px; -webkit-backface-visibility: hidden; backface-visibility: hidden; }
 .hud-v-tarot .face {
-  position: relative; min-height: 204px; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 24px 12px 28px; text-align: center; color: #f3ecdf;
+  position: relative; min-height: 204px; height: 100%; display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 24px 12px 28px; text-align: center;
   background: radial-gradient(120% 60% at 50% 26%, color-mix(in srgb, var(--v-acc) 38%, #2a1f3a), transparent 72%), linear-gradient(170deg, color-mix(in srgb, var(--v-acc) 18%, #1d1628), #0d0914);
   box-shadow: inset 0 0 0 1px var(--gold), 0 12px 20px -12px rgba(0,0,0,.85);
 }
@@ -613,18 +601,7 @@
 .hud-v-tarot .back .rays { position: absolute; left: 50%; top: 45%; width: 96px; height: 96px; margin: -48px 0 0 -48px; border-radius: 50%; border: 1px dashed color-mix(in srgb, var(--gold) 55%, transparent); box-shadow: 0 0 0 9px transparent, 0 0 0 10px color-mix(in srgb, var(--gold) 22%, transparent); }
 .hud-v-tarot .back em { position: absolute; bottom: 15px; font-style: normal; font-size: .62em; font-weight: 700; letter-spacing: .24em; text-transform: uppercase; color: var(--gold) !important; }
 
-
-
-
-
-
-
-
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-v-map :is(.road, .block) { stroke: rgba(0,0,0,.08); fill: rgba(0,0,0,.04); }
-
-
-/* Панель «Вид блоков»: группы видов. */
-.hud-custom-views-title { margin: 12px 2px 4px; font-size: .7em; font-weight: 700; text-transform: uppercase; letter-spacing: .09em; opacity: .6; }
 
 /* --- Аватарки вместо инициалов ------------------------------------------------
    Картинку находит views.js (или refreshAvatarFaces позже); инициалы
@@ -705,9 +682,6 @@
 .hud-v-bm-tile .heat > i { border-radius: 99px; background: linear-gradient(180deg, rgba(255,255,255,.4), rgba(255,255,255,0) 50%, rgba(0,0,0,.15)), linear-gradient(90deg, color-mix(in srgb, var(--v-acc) 50%, #ffcf8a), var(--v-acc)); box-shadow: 0 0 8px -1px var(--v-glow); }
 .hud-v-mini-bar.is-spread > i { background: linear-gradient(180deg, rgba(255,255,255,.42), rgba(255,255,255,0) 50%, rgba(0,0,0,.16)), linear-gradient(90deg, color-mix(in srgb, #8fb8ff 40%, transparent), color-mix(in srgb, var(--v-acc) 40%, #8fb8ff)); }
 
-
-
-
 /* --- Бумага: записки, папки --------------------------------------------------
    Тень Таверны на каждом элементе размывала тёмный текст на светлой бумаге,
    а мелкие подписи брали бледный цвет темы. На бумаге — свои чернила. */
@@ -787,7 +761,6 @@
   .hud-v-storm .bolt { animation: hud-v-flash 2.8s linear infinite; }
   /* Разоблачение */
   .hud-v-mask .crack { animation: hud-v-crack 1.8s ease-in-out infinite; }
-  .hud-v-eye .open { animation: hud-v-blink 4.2s ease-in-out infinite; }
   .hud-v-eye .look { animation: hud-v-look 5s ease-in-out infinite; }
   /* Деления везде: свет бежит по горящим */
   .hud-v-segments > i.is-on { animation: hud-v-bright 2s ease-in-out infinite; }
@@ -867,7 +840,6 @@
 .hud-v-receipt .hud-v-ico, .hud-v-menu h5 .hud-v-ico { width: 15px; height: 15px; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-v-slot i .hud-v-ico, .hud-v-item .badge .hud-v-ico, .hud-v-group-head .hud-v-ico, .hud-v-bm-area-head .hud-v-ico, .hud-v-skulls i.is-on) { color: color-mix(in srgb, var(--v-acc) 80%, #000); }
 
-
 /* =========================================================================
    ОТКАЗЫ: «Никогда не сделает», «Не возбуждает» — те же виды, приглушённо
    ========================================================================= */
@@ -878,7 +850,7 @@
 .hud-v-kinks.is-no .hud-v-stars i.is-on { color: color-mix(in srgb, var(--v-acc) 60%, #fff); text-shadow: none; }
 .hud-v-tarot.is-reversed .face { filter: saturate(.55); }
 .hud-v-tarot.is-reversed .sigil { transform: rotate(180deg); }
-.hud-v-tarot.is-reversed b { text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--gold) 70%, transparent); }
+.hud-v-tarot.is-reversed b { text-decoration-color: color-mix(in srgb, var(--gold) 70%, transparent); }
 .hud-v-tarot .sash {
   position: absolute; left: -8px; right: -8px; top: 44%; padding: 3px 0; transform: rotate(-16deg); font-style: normal; text-align: center;
   font-size: .62em; font-weight: 900; letter-spacing: .2em; text-transform: uppercase; color: #fff !important;
@@ -897,7 +869,7 @@
 .hud-v-menu, .hud-v-menu * { text-shadow: none !important; }
 .hud-v-menu-title { display: flex; align-items: center; gap: 10px; margin: 2px 4px 10px; }
 .hud-v-menu-title b { font-size: 1.05em; font-style: italic; letter-spacing: .08em; color: #fff7e8 !important; white-space: nowrap; }
-.hud-v-menu-title i { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(239,233,221,.5), transparent); }
+.hud-v-menu-title i { flex: 1; height: 1px; }
 .hud-v-menu section { margin: 0 4px 10px; }
 .hud-v-menu h5 { display: flex; align-items: center; gap: 7px; margin: 0 0 6px; font-size: .68em; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; color: color-mix(in srgb, var(--v-acc) 45%, #efe9dd) !important; }
 .hud-v-menu .dish { padding: 3px 0 7px; }
@@ -905,8 +877,8 @@
 .hud-v-menu .dish-line b { font-size: .95em; color: #fff7e8 !important; }
 .hud-v-menu .lead { flex: 1; min-width: 20px; border-bottom: 1.5px dotted rgba(239,233,221,.35); transform: translateY(-3px); }
 .hud-v-menu .heat { flex: none; display: inline-flex; gap: 1px; }
-.hud-v-menu .heat .hud-v-ico { width: 12px; height: 12px; color: rgba(239,233,221,.2); }
-.hud-v-menu .heat .hud-v-ico.is-on { color: #ff8a5c; fill: color-mix(in srgb, #ff6a3c 45%, transparent); filter: drop-shadow(0 0 3px rgba(255,120,70,.6)); }
+.hud-v-menu .heat .hud-v-ico { width: 12px; height: 12px; }
+.hud-v-menu .heat .hud-v-ico.is-on { fill: color-mix(in srgb, #ff6a3c 45%, transparent); filter: drop-shadow(0 0 3px rgba(255,120,70,.6)); }
 .hud-v-menu .heat em { font-style: italic; font-size: .78em; color: color-mix(in srgb, var(--v-acc) 40%, #efe9dd) !important; }
 .hud-v-menu .dish small { display: block; font-style: italic; font-size: .78em; line-height: 1.35; color: rgba(239,233,221,.68) !important; padding-right: 30px; }
 .hud-v-menu .chef { display: inline-block; margin-top: 3px; padding: 0 6px; border: 1px solid rgba(239,233,221,.35); border-radius: 3px; font-style: normal; font-size: .6em; letter-spacing: .14em; text-transform: uppercase; color: #efe9dd !important; transform: rotate(-2deg); }
@@ -935,12 +907,12 @@
 
 /* Страхи → Во тьме */
 .hud-v-dark {
-  position: relative; display: flex; flex-wrap: wrap; justify-content: space-around; align-items: flex-end; gap: 14px 10px; padding: 26px 14px 16px; border-radius: 16px; overflow: hidden; color: #d9d4e4; min-height: 150px;
+  position: relative; display: flex; flex-wrap: wrap; justify-content: space-around; gap: 14px 10px; border-radius: 16px; overflow: hidden; color: #d9d4e4;
   background: radial-gradient(90% 60% at 50% 110%, color-mix(in srgb, var(--v-acc) 22%, transparent), transparent 70%), radial-gradient(60% 40% at 20% 20%, rgba(90,80,130,.18), transparent), linear-gradient(180deg, #09080d, #131019);
   box-shadow: inset 0 0 30px rgba(0,0,0,.9), inset 0 0 0 1px rgba(255,255,255,.05), 0 10px 20px -12px rgba(0,0,0,.9);
 }
 .hud-v-dark::before { content: ''; position: absolute; inset: auto -10% -20% -10%; height: 60%; background: radial-gradient(50% 50% at 30% 50%, rgba(150,140,190,.08), transparent 70%), radial-gradient(40% 50% at 75% 60%, rgba(150,140,190,.07), transparent 70%); pointer-events: none; }
-.hud-v-dark-one { position: relative; flex: 1 1 120px; max-width: 200px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; transform: translateY(var(--y)); }
+.hud-v-dark-one { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px; transform: translateY(var(--y)); }
 .hud-v-dark-one b { font-size: .84em; line-height: 1.3; color: #e8e2f2 !important; }
 .hud-v-dark-one small { font-size: .66em; letter-spacing: .1em; text-transform: uppercase; color: color-mix(in srgb, var(--v-acc) 50%, #fff) !important; opacity: .85; }
 .hud-v-eyes { width: calc(84px * var(--k)); height: calc(34px * var(--k)); overflow: visible; transform: rotate(var(--tilt, 0deg)); }
@@ -1036,9 +1008,8 @@
 .hud-v-envelope .letter-lines { stroke: rgba(60,40,20,.35); stroke-width: 1; stroke-linecap: round; }
 .hud-v-envelope .band { fill: color-mix(in srgb, var(--v-acc) 70%, #6a1020); opacity: .85; }
 .hud-v-envelope .seal { fill: color-mix(in srgb, var(--v-acc) 75%, #5a0010); filter: drop-shadow(0 1.5px 1.5px rgba(0,0,0,.4)); }
-.hud-v-envelope .seal .rim { fill: none; stroke: rgba(255,255,255,.25); stroke-width: 1; }
-.hud-v-envelope .seal .emboss { fill: none; stroke: rgba(0,0,0,.35); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
-.hud-v-envelope .seal .crack { fill: none; stroke: #1a0608; stroke-width: 1.2; stroke-linejoin: round; }
+.hud-v-envelope .seal .rim { fill: none; }
+.hud-v-envelope .seal .emboss { fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
 .hud-v-env-body { width: 100%; display: flex; flex-direction: column; gap: 5px; }
 .hud-v-env-grade { align-self: center; font-size: .64em; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: color-mix(in srgb, var(--v-acc) 50%, currentColor); }
 .hud-v-env-body b { font-size: .9em; line-height: 1.4; text-align: center; }
@@ -1085,7 +1056,7 @@
 
 /* Инвентарь → Опись */
 .hud-v-receipt {
-  position: relative; max-width: 420px; margin: 6px auto; padding: 16px 16px 12px; color: #2a2620 !important; font-family: 'Courier New', Consolas, monospace;
+  position: relative; max-width: 420px; margin: 6px auto; padding: 16px 16px 12px; font-family: 'Courier New', Consolas, monospace;
   background: linear-gradient(180deg, #fbfaf6, #efece3);
   filter: drop-shadow(0 8px 10px rgba(0,0,0,.35));
 }
@@ -1109,7 +1080,7 @@
 .hud-v-rc-foot { display: flex; align-items: baseline; gap: 8px; margin-top: 10px; padding-top: 8px; border-top: 1.5px dashed rgba(42,38,32,.4); font-weight: 700; letter-spacing: .14em; text-transform: uppercase; font-size: .82em; }
 .hud-v-rc-foot .lead { flex: 1; }
 .hud-v-barcode { display: flex; height: 26px; margin: 10px 18px 4px; gap: 0; }
-.hud-v-barcode i:nth-child(odd) { background: #2a2620; } .hud-v-barcode i:nth-child(even) { background: transparent; }
+.hud-v-barcode i:nth-child(even) { background: transparent; }
 
 @media (prefers-reduced-motion: no-preference) {
   .hud-v-orbits .orbit { animation: hud-v-march 3s linear infinite; }
@@ -1121,7 +1092,6 @@
   .hud-v-anatomy .heart { animation: hud-v-beat var(--beat, 1s) ease-in-out infinite; }
   .hud-v-word { animation: hud-v-wordbob 3.2s ease-in-out infinite; }
   .hud-v-word:nth-child(even) { animation-delay: .8s; } .hud-v-word:nth-child(3n) { animation-duration: 4s; }
-  .hud-v-envelope .seal { animation: hud-v-bright 2s ease-in-out infinite; }
   .hud-v-drum .spin { animation: hud-v-drum 4.8s cubic-bezier(.6,0,.3,1) infinite; }
   .hud-v-drum .smoke { animation: hud-v-smoke 2s ease-out infinite; }
   .hud-v-drum .primer.is-hot { animation: hud-v-bright 1s ease-in-out infinite; }
@@ -1217,10 +1187,7 @@
   -webkit-mask: radial-gradient(circle at 20% 30%, #000 60%, rgba(0,0,0,.75) 100%); mask: radial-gradient(circle at 20% 30%, #000 60%, rgba(0,0,0,.75) 100%);
 }
 
-
-
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-v-tarot .face { box-shadow: inset 0 0 0 1px var(--gold), 0 10px 18px -12px rgba(80,40,60,.45); }
-
 
 /* Сургуч: неровный воск, трещина — щель с кромкой, скол — две половинки */
 .hud-v-envelope .seal .wax { fill: color-mix(in srgb, var(--v-acc) 72%, #4a0010); stroke: color-mix(in srgb, var(--v-acc) 50%, #220008); stroke-width: .5; }
@@ -1241,14 +1208,14 @@
    ========================================================================= */
 .hud-v :is(.hud-lore-item) { position: relative; }
 /* Свиток */
-.hud-v-scroll { position: relative; max-width: 640px; margin: 4px auto; padding: 18px 26px; color: var(--v-ink-paper); background: linear-gradient(90deg, rgba(0,0,0,.08), transparent 8%, transparent 92%, rgba(0,0,0,.08)), linear-gradient(180deg, var(--v-paper), var(--v-paper2)); box-shadow: 0 10px 18px -12px rgba(0,0,0,.7); }
-.hud-v-scroll .roll { position: absolute; left: -8px; right: -8px; top: -8px; height: 16px; border-radius: 8px; background: linear-gradient(180deg, color-mix(in srgb, var(--v-acc) 20%, #d8c39c), color-mix(in srgb, var(--v-acc) 30%, #8e7250) 60%, color-mix(in srgb, var(--v-acc) 30%, #5d4630)); box-shadow: 0 3px 5px rgba(0,0,0,.35); }
-.hud-v-scroll .roll.is-b { top: auto; bottom: -8px; }
+.hud-v-scroll { position: relative; max-width: 640px; color: var(--v-ink-paper); background: linear-gradient(90deg, rgba(0,0,0,.08), transparent 8%, transparent 92%, rgba(0,0,0,.08)), linear-gradient(180deg, var(--v-paper), var(--v-paper2)); }
+.hud-v-scroll .roll { position: absolute; background: linear-gradient(180deg, color-mix(in srgb, var(--v-acc) 20%, #d8c39c), color-mix(in srgb, var(--v-acc) 30%, #8e7250) 60%, color-mix(in srgb, var(--v-acc) 30%, #5d4630)); }
+.hud-v-scroll .roll.is-b { top: auto; }
 .hud-v-scroll ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 10px; font-family: Georgia, 'Times New Roman', serif; }
 .hud-v-scroll li { display: grid; grid-template-columns: 34px minmax(0, 1fr) auto; gap: 8px; align-items: baseline; padding-bottom: 8px; border-bottom: 1px solid color-mix(in srgb, var(--v-ink-paper) 15%, transparent); }
 .hud-v-scroll li:last-child { border-bottom: 0; padding-bottom: 0; }
 .hud-v-scroll .mark { font-weight: 700; font-style: italic; color: color-mix(in srgb, var(--v-acc) 70%, #3a1a10); }
-.hud-v-scroll:not(#_) :is(li, .hud-lore-text) { color: var(--v-ink-paper) !important; text-shadow: none !important; }
+.hud-v-scroll:not(#_) :is(li, .hud-lore-text) { text-shadow: none !important; }
 /* Блокнот */
 .hud-v-notebook { position: relative; padding: 14px 16px 14px 46px; border-radius: 6px 12px 12px 6px; color: var(--v-ink-paper); font-family: Georgia, 'Times New Roman', serif;
   background: linear-gradient(90deg, transparent 34px, color-mix(in srgb, var(--v-acc) 55%, #e05a6a) 34px 35.5px, transparent 35.5px), repeating-linear-gradient(180deg, transparent 0 27px, color-mix(in srgb, #7aa7d9 40%, transparent) 27px 28px), var(--v-paper);
@@ -1269,22 +1236,21 @@
 .hud-v-bookmark .hud-lore-text { font-size: .92em; line-height: 1.45; }
 /* Полароиды */
 .hud-v-mem.is-polaroid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 170px), 1fr)); gap: 16px 12px; padding: 6px 2px; }
-.hud-v-polaroid { display: flex; flex-direction: column; gap: 8px; padding: 9px 9px 12px; background: var(--v-paper); transform: rotate(var(--r)); box-shadow: 0 10px 16px -8px rgba(0,0,0,.6); transition: transform .25s ease; }
+.hud-v-polaroid { display: flex; flex-direction: column; gap: 8px; transform: rotate(var(--r)); transition: transform .25s ease; }
 @media (hover: hover) { .hud-v-polaroid:hover { transform: rotate(0) scale(1.04); z-index: 1; } }
-.hud-v-polaroid .photo { position: relative; aspect-ratio: 4 / 3; display: grid; place-items: center; overflow: hidden; color: rgba(255,255,255,.85);
+.hud-v-polaroid .photo { position: relative; place-items: center; overflow: hidden; color: rgba(255,255,255,.85);
   background: radial-gradient(70% 60% at 30% 30%, hsl(from var(--v-acc) calc(h + var(--тон, 0)) s calc(l + 18) / .9), transparent 70%), linear-gradient(160deg, hsl(from var(--v-acc) calc(h + var(--тон2, 0)) calc(s - 10) calc(l - 4)), hsl(from var(--v-acc) calc(h + var(--тон, 0)) s calc(l - 26)));
-  background-color: var(--v-acc); box-shadow: inset 0 0 18px rgba(0,0,0,.35); }
+  background-color: var(--v-acc); }
 .hud-v-polaroid .photo .hud-v-ico { width: 38%; height: auto; stroke-width: 1.2; filter: drop-shadow(0 2px 6px rgba(0,0,0,.4)); }
 .hud-v-polaroid .photo .sun { position: absolute; right: 14%; top: 14%; width: 16%; aspect-ratio: 1; border-radius: 50%; background: rgba(255,255,255,.35); filter: blur(3px); }
-.hud-v-polaroid:not(#_) .hud-lore-text { font-family: 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive; font-size: .84em; line-height: 1.35; color: var(--v-ink-paper) !important; text-shadow: none !important; }
+.hud-v-polaroid:not(#_) .hud-lore-text { font-family: 'Segoe Print', 'Bradley Hand', 'Comic Sans MS', cursive; font-size: .84em; line-height: 1.35; text-shadow: none !important; }
 /* Плёнка */
-.hud-v-film { display: flex; gap: 0; overflow-x: auto; padding: 16px 0; border-radius: 8px; scrollbar-width: thin;
-  background: radial-gradient(circle, transparent 3px, #111 3.5px) 0 4px / 16px 10px repeat-x, radial-gradient(circle, transparent 3px, #111 3.5px) 0 calc(100% - 4px) / 16px 10px repeat-x, #111;
+.hud-v-film { display: flex; gap: 0; overflow-x: auto; border-radius: 8px; scrollbar-width: thin;
   box-shadow: 0 8px 16px -10px rgba(0,0,0,.8); }
 .hud-v-film::-webkit-scrollbar { height: 6px; }
-.hud-v-film .frame { position: relative; flex: 0 0 190px; min-height: 110px; margin: 0 6px; padding: 18px 12px 12px; border-radius: 3px; color: #f5ece4;
+.hud-v-film .frame { position: relative; flex: 0 0 190px; min-height: 110px; margin: 0 6px; color: #f5ece4;
   background: radial-gradient(80% 70% at 40% 30%, color-mix(in srgb, var(--v-acc) 38%, #6a4a3a), color-mix(in srgb, var(--v-acc) 20%, #1d1414)); box-shadow: inset 0 0 20px rgba(0,0,0,.55); }
-.hud-v-film .frame .no { position: absolute; left: 8px; top: 4px; font-family: 'Courier New', monospace; font-size: .62em; font-weight: 700; color: #f0b25a; opacity: .8; }
+.hud-v-film .frame .no { position: absolute; font-family: 'Courier New', monospace; font-size: .62em; font-weight: 700; opacity: .8; }
 .hud-v-film:not(#_) .hud-lore-text { color: #f5ece4 !important; font-size: .86em; line-height: 1.4; }
 /* Бусины */
 .hud-v-beads { list-style: none; margin: 0; padding: 0 0 0 6px; position: relative; display: flex; flex-direction: column; gap: 10px; }
@@ -1323,22 +1289,19 @@
 .hud-v-stem .petal { fill: color-mix(in srgb, var(--v-acc) 80%, #7a0018); stroke: rgba(0,0,0,.25); stroke-width: .5; }
 .hud-v-stem .petal.is-in { fill: color-mix(in srgb, var(--v-acc) 55%, #ff9aaa); }
 .hud-v-jeal.is-thought { display: flex; flex-direction: column; align-items: flex-start; gap: 0; }
-.hud-v-cloud-bubble { position: relative; max-width: 620px; display: flex; flex-direction: column; gap: 8px; padding: 14px 18px; border-radius: 26px;
-  background: radial-gradient(120% 90% at 20% 0%, color-mix(in srgb, var(--v-acc) 18%, rgba(255,255,255,.08)), color-mix(in srgb, var(--v-acc) 8%, rgba(0,0,0,.2)));
-  border: 1px solid var(--v-line); box-shadow: 0 10px 20px -14px var(--v-glow), inset 0 1px 0 rgba(255,255,255,.08); }
+.hud-v-cloud-bubble { position: relative; max-width: 620px; display: flex; flex-direction: column; gap: 8px;
+  }
 .hud-v-cloud-bubble p { font-style: italic; }
 .hud-v-thinker { position: relative; display: flex; align-items: flex-end; gap: 4px; margin: 2px 0 0 22px; }
-.hud-v-thinker .puff { border-radius: 50%; background: color-mix(in srgb, var(--v-acc) 14%, rgba(255,255,255,.08)); border: 1px solid var(--v-line); }
+.hud-v-thinker .puff { border-radius: 50%; background: color-mix(in srgb, var(--v-acc) 14%, rgba(255,255,255,.08)); }
 .hud-v-thinker .p1 { width: 12px; height: 12px; margin-bottom: 18px; } .hud-v-thinker .p2 { width: 7px; height: 7px; margin-bottom: 8px; }
 .hud-v-thinker .hud-v-face { width: 30px; height: 30px; }
-
 
 @media (prefers-reduced-motion: no-preference) {
   .hud-v-mask { animation: hud-v-bob 3s ease-in-out infinite; }
   .hud-v-envelope .seal { animation: none; }
   .hud-v-beads .bead { animation: hud-v-bright 2.4s ease-in-out infinite; }
   .hud-v-beads li:nth-child(even) .bead { animation-delay: .6s; }
-  .hud-v-film .frame { animation: hud-v-flick 3s steps(1) infinite; }
   .hud-v-tri .thorn { animation: hud-v-bright 1.6s ease-in-out infinite; }
   .hud-v-stem .drop { animation: hud-v-drip 2.4s ease-in infinite; }
   .hud-v-thinker .puff { animation: hud-v-bob 2s ease-in-out infinite; }
@@ -1380,7 +1343,6 @@
 .hud-v-scroll:not(#_) :is(li, .hud-lore-text) { color: var(--sc-ink) !important; }
 .hud-v-scroll:not(#_) .mark { color: var(--sc-mark) !important; font-size: .9em; }
 .hud-v-scroll .hud-remember, .hud-v-notebook .hud-remember, .hud-v-polaroid .hud-remember { color: var(--v-ink-paper-soft) !important; border-color: rgba(90,55,20,.3) !important; background: rgba(255,255,255,.35) !important; opacity: .9; }
-
 
 /* Маска: фарфор с объёмом */
 .hud-v-mask { width: 80px; height: 86px; overflow: visible; filter: drop-shadow(0 6px 8px rgba(0,0,0,.45)); }
@@ -1437,11 +1399,10 @@
 .hud-v-shade .eyes { transform-origin: 50px 34px; }
 
 /* Полароиды: пейзаж, лента, зерно */
-.hud-v-polaroid { position: relative; padding: 10px 10px 14px; background: linear-gradient(180deg, color-mix(in srgb, var(--v-acc) 3%, #fdfbf7), color-mix(in srgb, var(--v-acc) 6%, #f1ece4)); }
+.hud-v-polaroid { position: relative; padding: 10px 10px 14px; }
 .hud-v-polaroid .tape { position: absolute; left: 50%; top: -9px; width: 64px; height: 18px; margin-left: -32px; transform: rotate(calc(var(--r) * -1.5)); z-index: 2;
   background: repeating-linear-gradient(90deg, rgba(255,255,255,.18) 0 4px, transparent 4px 8px), color-mix(in srgb, var(--v-acc) 45%, rgba(255,255,255,.5)); opacity: .8; box-shadow: 0 1px 2px rgba(0,0,0,.2); }
-.hud-v-polaroid .photo { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; border-radius: 1px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); }
-.hud-v-polaroid .photo .k0 { stop-color: color-mix(in srgb, var(--v-acc) 30%, #ffe6d0); }
+.hud-v-polaroid .photo { display: block; width: 100%; height: auto; aspect-ratio: 4 / 3; border-radius: 1px; }
 .hud-v-polaroid .photo .k0 { stop-color: var(--v-acc); stop-color: hsl(from var(--v-acc) calc(h + var(--тон2, 0)) calc(s - 10) calc(l + 26)); }
 .hud-v-polaroid .photo .k1 { stop-color: var(--v-acc); stop-color: hsl(from var(--v-acc) calc(h + var(--тон, 0)) s calc(l + 8)); }
 .hud-v-polaroid .photo .k2 { stop-color: var(--v-acc); stop-color: hsl(from var(--v-acc) calc(h + var(--тон, 0)) s calc(l - 4)); }
@@ -1463,10 +1424,7 @@
 .hud-v-polaroid .photo .badge path { fill: none; stroke: color-mix(in srgb, var(--v-acc) 70%, #300); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
 /* Плёнка: прямоугольная перфорация, кадр с зерном и виньеткой */
-.hud-v-film { padding: 20px 0; background:
-  repeating-linear-gradient(90deg, transparent 0 5px, color-mix(in srgb, var(--v-acc) 6%, #efe8dc) 5px 13px, transparent 13px 18px) 0 5px / 100% 8px no-repeat,
-  repeating-linear-gradient(90deg, transparent 0 5px, color-mix(in srgb, var(--v-acc) 6%, #efe8dc) 5px 13px, transparent 13px 18px) 0 calc(100% - 5px) / 100% 8px no-repeat,
-  linear-gradient(180deg, #1a1412, #0e0b0a); }
+.hud-v-film { padding: 20px 0; }
 .hud-v-film .frame { overflow: hidden; border-radius: 4px;
   background: radial-gradient(90% 80% at 40% 35%, color-mix(in srgb, var(--v-acc) 40%, #8a6a52), color-mix(in srgb, var(--v-acc) 25%, #2a1c18) 75%, #120c0b); }
 .hud-v-film .frame .grain { position: absolute; inset: 0; pointer-events: none; opacity: .35; background: radial-gradient(circle at 30% 40%, rgba(255,255,255,.15) 0 .6px, transparent 1px) 0 0 / 5px 5px, radial-gradient(circle at 70% 20%, rgba(0,0,0,.25) 0 .6px, transparent 1px) 0 0 / 7px 6px; }
@@ -1483,8 +1441,6 @@
 .hud-v-thinker .puff { background: var(--cb, color-mix(in srgb, var(--v-acc) 18%, #1d1822)); border: 0; box-shadow: 0 0 0 1px color-mix(in srgb, var(--v-acc) 40%, transparent); }
 .hud-v-jeal.is-thought { --cb: color-mix(in srgb, var(--v-acc) 18%, #1d1822); }
 
-
-
 @media (prefers-reduced-motion: no-preference) {
   .hud-v-eye .lidset { animation: hud-v-blink3 4.4s ease-in-out infinite; }
   .hud-v-eye .open { animation: none; }
@@ -1493,7 +1449,6 @@
   .hud-v-dark .fog.f2 { animation: hud-v-fog 12s ease-in-out infinite reverse; }
   .hud-v-polaroid .photo .rain { animation: hud-v-rain .9s linear infinite; }
   .hud-v-polaroid .photo .st { animation: hud-v-twinkle 3s ease-in-out infinite; }
-  .hud-v-film .frame { animation: none; }
   .hud-v-film .frame .grain { animation: hud-v-grain .6s steps(3) infinite; }
 }
 @keyframes hud-v-blink3 { 0%, 90%, 100% { transform: scaleY(1); } 94% { transform: scaleY(.06); } }
@@ -1509,8 +1464,6 @@
 .hud-v-polaroid:not(#_) .hud-lore-text { color: var(--pol-ink) !important; }
 .hud-v-polaroid:not(#_) .hud-remember { color: var(--pol-ink) !important; background: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.18) !important; }
 .hud-v-polaroid .photo { box-shadow: inset 0 0 0 1px rgba(0,0,0,.4); }
-
-
 
 /* Плёнка: перфорация — повторяющийся узор, чтобы её можно было «прокрутить»;
    текст кадра по центру, кнопка «Запомнить» — в углу. */

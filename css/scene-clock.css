@@ -5,17 +5,16 @@
   display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 6px;
   font-size: 11.5px; line-height: 1.3;
 }
-.hud-sclock-dur { display: inline-flex; align-items: center; gap: 5px; color: var(--hud-text-muted, #a8a5ad); }
+.hud-sclock-dur { display: inline-flex; align-items: center; color: var(--hud-text-muted, #a8a5ad); }
 .hud-sclock-dur b { color: var(--hud-text, #e6e6ee); font-weight: 650; }
 .hud-sclock-dur i, .hud-sclock-chip i { font-style: normal; }
 .hud-sclock-chip {
   --sc: #e0a458;
-  display: inline-flex; align-items: center; gap: 5px; max-width: 100%;
-  padding: 2px 9px; border-radius: 999px;
+  display: inline-flex; align-items: center; max-width: 100%;
   background: color-mix(in srgb, var(--sc) 12%, rgba(255,255,255,.03));
   border: 1px solid color-mix(in srgb, var(--sc) 40%, transparent);
   color: var(--hud-text, #e6e6ee);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: help;
+  overflow: hidden; text-overflow: ellipsis; cursor: help;
 }
 .hud-sclock-chip i { color: var(--sc); }
 .hud-sclock-chip.is-missed { --sc: #e46a6a; }
@@ -23,10 +22,10 @@
 .hud-sclock-chip.is-wait { --sc: #8ab4e8; }
 
 /* Циферблат: настенные часы на 12 часов, дуга — сцена, точки — пропущенное. */
-.hud-sclock.is-dial { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: 10px; align-items: center; flex-wrap: nowrap;
-  padding: 8px 10px; border-radius: 12px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); }
+.hud-sclock.is-dial { gap: 10px;
+  border-radius: 12px; background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08); }
 .hud-sclock-face { width: 96px; height: 96px; }
-.hud-sclock-face .face { fill: color-mix(in srgb, var(--hud-accent, #d96a8a) 7%, rgba(255,255,255,.03)); stroke: rgba(255,255,255,.18); stroke-width: 1; }
+.hud-sclock-face .face { fill: color-mix(in srgb, var(--hud-accent, #d96a8a) 7%, rgba(255,255,255,.03)); stroke: rgba(255,255,255,.18); }
 .hud-sclock-face .ticks line { stroke: rgba(255,255,255,.4); stroke-width: 1; }
 .hud-sclock-face .nums text { font-size: 8px; fill: var(--hud-text-muted, #a8a5ad); text-anchor: middle; dominant-baseline: central; }
 .hud-sclock-face .arc { fill: none; stroke: var(--hud-accent, #d96a8a); stroke-width: 5; stroke-linecap: round; opacity: .75; filter: drop-shadow(0 0 3px var(--hud-accent, #d96a8a)); }

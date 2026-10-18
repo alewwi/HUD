@@ -18,7 +18,6 @@
     --hud-text: var(--SmartThemeBodyColor, inherit);
     --hud-text-muted: var(--SmartThemeMutedColor, rgba(255, 255, 255, 0.6));
     
-    --hud-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
     --hud-radius: 12px;
     --hud-transition: 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
 	--hud-blur-intensity: 8px;
@@ -108,13 +107,11 @@
     border: 1px solid var(--hud-border); 
     border-top: 1px solid rgba(255, 255, 255, 0.2);
     margin: 12px 0; overflow: hidden; box-shadow: var(--hud-shadow);
-    color: var(--hud-text); font-family: inherit; font-size: inherit;
+    color: var(--hud-text);
     position: relative; z-index: 1;
     max-width: 100%; box-sizing: border-box; overflow-x: hidden;
-    word-break: break-word; overflow-wrap: break-word;
     
     /* Делаем сам контейнер прозрачным, всю работу делают слои ниже */
-    background: transparent !important;
 }
 
 /* СЛОЙ 1: Картинка (с возможностью масштабирования и смещения) */
@@ -138,17 +135,15 @@
 .hud-os-card::after {
     content: ''; position: absolute; inset: 0; z-index: -1;
     background: var(--hud-bg); /* Градиент карточки ложится поверх картинки */
-    backdrop-filter: blur(var(--hud-blur-intensity, 8px));
-    -webkit-backdrop-filter: blur(var(--hud-blur-intensity, 8px));
     pointer-events: none;
     border-radius: inherit;
 }
 
-.hud-os-topbar, .hud-os-wrapper { position: relative; z-index: 1; }
+.hud-os-topbar, .hud-os-wrapper { z-index: 1; }
 .hud-toggle-input { display: none !important; }
 
 .hud-os-topbar {
-    background: var(--hud-header-bg); padding: 10px 16px; display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px; display: flex; justify-content: space-between; align-items: center;
     cursor: pointer; user-select: none; border-bottom: 1px solid var(--hud-border); font-size: 0.9em; font-weight: bold; color: var(--hud-text-muted);
     transition: background 0.2s, filter 0.2s;
 }
@@ -212,7 +207,7 @@
    ========================================= */
 .hud-toast-container {
     position: fixed;
-    top: 24px; /* Изменили bottom на top */
+    /* Изменили bottom на top */
     left: 50%; /* Сдвигаем на середину */
     transform: translateX(-50%); /* Центрируем */
     display: flex;
@@ -284,7 +279,6 @@
     container-type: inline-size;
     --sky-top: #1b2233; --sky-mid: #232c42; --sky-bot: #0c0e15;
     --scene-glow: rgba(222, 133, 159, 0.12);
-    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), inset 0 -1px 0 rgba(0,0,0,0.3);
     transition: box-shadow 0.3s ease;
 }
 /* Здесь было второе объявление .hud-scene-widget::before с ночным
@@ -414,7 +408,7 @@
     50%      { opacity: 1;    transform: rotate(45deg) scale(1.2); }
 }
 
-.phase-predawn { --sky-top: #17263f; --sky-mid: #4d4c78; --sky-bot: #d39a66; --scene-glow: rgba(255, 186, 125, 0.18); --scene-night-strength: 0.72; --scene-golden-strength: 0.15; --scene-sunset-strength: 0.08; --scene-star-strength: 0.42; --window-glow: 0.3; }
+.phase-predawn { --sky-top: #17263f; --sky-mid: #4d4c78; --sky-bot: #d39a66; --scene-glow: rgba(255, 186, 125, 0.18); --scene-night-strength: 0.72; --scene-golden-strength: 0.15; --scene-sunset-strength: 0.08; --scene-star-strength: 0.42; }
 /* Небо дня шло от насыщенного синего к почти белому у горизонта: средняя
    светлота около 0.63, и в тёмном интерфейсе это било по глазам. Опущено
    примерно до 0.44 — синева и светлый горизонт на месте, день читается
@@ -422,10 +416,10 @@
 .phase-morning { --sky-top: #45607f; --sky-mid: #91697f; --sky-bot: #cf9c78; --scene-glow: rgba(255, 190, 140, 0.16); --scene-night-strength: 0.18; --scene-golden-strength: 0.08; --scene-sunset-strength: 0.04; --scene-star-strength: 0.14; --window-glow: 0.12; }
 .phase-day     { --sky-top: #24496f; --sky-mid: #386f92; --sky-bot: #7da5b5; --scene-glow: rgba(255, 255, 255, 0.10); --scene-night-strength: 0; --scene-golden-strength: 0; --scene-sunset-strength: 0; --scene-star-strength: 0; --window-glow: 0; }
 .phase-golden  { --sky-top: #2b3d6b; --sky-mid: #a35e6a; --sky-bot: #ef955f; --scene-glow: rgba(255, 196, 103, 0.22); --scene-night-strength: 0.16; --scene-golden-strength: 1; --scene-sunset-strength: 0.38; --scene-star-strength: 0.08; --window-glow: 0.18; }
-.phase-sunset  { --sky-top: #2b173b; --sky-mid: #7b3057; --sky-bot: #ee7747; --scene-glow: rgba(255, 134, 92, 0.24); --scene-night-strength: 0.3; --scene-golden-strength: 0.7; --scene-sunset-strength: 1; --scene-star-strength: 0.12; --window-glow: 0.55; }
-.phase-evening { --sky-top: #2b1b45; --sky-mid: #7a3860; --sky-bot: #e2703f; --scene-glow: rgba(255, 130, 90, 0.22); --scene-night-strength: 0.68; --scene-golden-strength: 0.24; --scene-sunset-strength: 0.42; --scene-star-strength: 0.4; --window-glow: 1.05; }
-.phase-night   { --sky-top: #080b14; --sky-mid: #131a2b; --sky-bot: #1d2740; --scene-glow: rgba(222, 133, 159, 0.14); --scene-night-strength: 1; --scene-golden-strength: 0; --scene-sunset-strength: 0; --scene-star-strength: 1; --window-glow: 1.3; }
-.phase-deep-night { --sky-top: #03070f; --sky-mid: #0c1220; --sky-bot: #12213b; --scene-glow: rgba(120, 140, 255, 0.08); --scene-night-strength: 1; --scene-golden-strength: 0; --scene-sunset-strength: 0; --scene-star-strength: 1; --window-glow: 0.5; }
+.phase-sunset  { --sky-top: #2b173b; --sky-mid: #7b3057; --sky-bot: #ee7747; --scene-glow: rgba(255, 134, 92, 0.24); --scene-night-strength: 0.3; --scene-golden-strength: 0.7; --scene-sunset-strength: 1; --scene-star-strength: 0.12; }
+.phase-evening { --scene-night-strength: 0.68; --scene-golden-strength: 0.24; --scene-sunset-strength: 0.42; --scene-star-strength: 0.4; }
+.phase-night   { --sky-top: #080b14; --sky-mid: #131a2b; --sky-bot: #1d2740; --scene-glow: rgba(222, 133, 159, 0.14); --scene-night-strength: 1; --scene-golden-strength: 0; --scene-sunset-strength: 0; --scene-star-strength: 1; }
+.phase-deep-night { --sky-top: #03070f; --sky-mid: #0c1220; --sky-bot: #12213b; --scene-glow: rgba(120, 140, 255, 0.08); --scene-night-strength: 1; --scene-golden-strength: 0; --scene-sunset-strength: 0; --scene-star-strength: 1; }
 
 .phase-deep-night .hud-fx-bg,
 .phase-evening .hud-fx-bg { filter: brightness(0.82) saturate(0.88); transition: filter 1.2s ease; }
@@ -507,12 +501,6 @@
 .weather-cloudy .hud-fx-weather { background: linear-gradient(180deg, rgba(190,200,215,0.16) 0%, transparent 60%); }
 .hud-fx-cloud-cover { opacity: 0.12; } /* z-index — через var(--scene-layer, 2) выше */
 .weather-cloudy .hud-fx-cloud-cover {
-    background:
-        radial-gradient(46% 70% at 30% 55%, rgba(215,220,230,0.85), transparent 72%),
-        radial-gradient(38% 60% at 62% 45%, rgba(200,206,218,0.8), transparent 72%),
-        radial-gradient(30% 55% at 85% 60%, rgba(190,196,210,0.7), transparent 72%);
-    background-size: 140px 60px; background-repeat: no-repeat;
-    background-position: -160px 12px;
     animation: hud-cloud-cover-pass calc(11s * var(--gust, 1)) ease-in-out infinite;
 }
 @keyframes hud-cloud-cover-pass {
@@ -579,7 +567,7 @@
    Верх полосы заходит под переднюю тучу, поэтому капли не появляются
    из пустоты, а выпадают из облака. */
 .weather-rain .hud-fx-weather::after {
-    content: ''; position: absolute; top: 36px; left: 50%; margin-left: -70px; width: 140px; height: 100px; z-index: 1;
+    content: ''; position: absolute; left: 50%; margin-left: -70px; width: 140px; height: 100px; z-index: 1;
     /* Три плана капель вместо одной решётки из одинаковых точек:
        ближние длинные росчерки, средние и мелкая водяная пыль. Планы
        падают с разной скоростью — шаг каждого равен высоте его плитки,
@@ -623,7 +611,7 @@
    против 96px за 0.9с у обычного дождя. Полуширина туч здесь ≈ 100,
    полоса после наклона в 15° занимает ≈ 95 — снова в границах. */
 .weather-rain.weather-intensity-high .hud-fx-weather::after {
-    width: 160px; height: 136px; margin-left: -80px; top: 42px;
+    width: 160px; height: 136px; margin-left: -80px;
     background-image:
         radial-gradient(ellipse 1.35px 16px at 50% 60%, rgba(240,248,255,.95) 0%, rgba(240,248,255,.45) 50%, transparent 100%),
         radial-gradient(ellipse 1.1px 12px at 50% 58%, rgba(224,238,255,.72) 0%, rgba(224,238,255,.26) 55%, transparent 100%),
@@ -651,7 +639,7 @@
    ключевые кадры — у планов свои плитки, общий hud-rain-fall сдвинул бы
    их на чужой шаг и стык поехал бы. */
 .weather-rain.weather-intensity-low .hud-fx-weather::after {
-    width: 108px; height: 96px; margin-left: -54px; top: 34px;
+    width: 108px; height: 96px; margin-left: -54px;
     background-image:
         radial-gradient(ellipse .9px 6px at 50% 56%, rgba(216,231,252,.55) 0%, transparent 100%),
         radial-gradient(ellipse .7px 4px at 50% 54%, rgba(198,216,244,.34) 0%, transparent 100%);
@@ -1291,15 +1279,14 @@
 }
 .hud-bird-flock { position: absolute; inset: 0; }
 .hud-bird {
-    position: absolute; width: 12px; height: 6px; opacity: 0;
+    position: absolute; opacity: 0;
     animation: hud-bird-fly linear infinite;
 }
 .hud-bird::before, .hud-bird::after {
-    content: ''; position: absolute; top: 0; width: 7px; height: 2px;
-    border-radius: 50% 50% 0 0; background: #2a2018;
+    content: ''; position: absolute; 
 }
-.hud-bird::before { left: 0; transform: rotate(20deg); transform-origin: right center; animation: hud-wing-flap 0.9s ease-in-out infinite; }
-.hud-bird::after  { right: 0; transform: rotate(-20deg); transform-origin: left center; animation: hud-wing-flap 0.9s ease-in-out infinite; }
+.hud-bird::before { transform: rotate(20deg); animation: hud-wing-flap 0.9s ease-in-out infinite; }
+.hud-bird::after  { transform: rotate(-20deg); animation: hud-wing-flap 0.9s ease-in-out infinite; }
 @keyframes hud-wing-flap { 0%, 100% { transform: rotate(20deg); } 50% { transform: rotate(45deg); } }
 .hud-bird.b1 { top: 14%; left: 100%; animation-duration: 13s; animation-delay: 0s; }
 .hud-bird.b2 { top: 18%; left: 100%; animation-duration: 13s; animation-delay: 0.35s; }
@@ -1314,7 +1301,7 @@
 }
 /* Fallen apples: separate ground layer. They appear under the apple tree, are collected by the walker,
    then respawn after a quiet pause. The apples on the tree itself stay visible all the time. */
-.hud-fallen-apples { position:absolute; left:0; right:0; bottom:0; height:20px; z-index:12; pointer-events:none; }
+.hud-fallen-apples { position:absolute; left:0; right:0; bottom:0; z-index:12; pointer-events:none; }
 .hud-fallen-apple {
     position:absolute; width:6px; height:6px; border-radius:50%;
     background:radial-gradient(circle at 35% 30%, #f08a6d 0%, #c63f32 72%, #8f281f 100%);
@@ -1325,11 +1312,11 @@
 }
 .hud-fallen-apple::before { content:''; position:absolute; left:3px; top:-2px; width:2px; height:3px; border-radius:2px; background:#4f3923; transform:rotate(10deg); }
 .hud-fallen-apple::after { content:''; position:absolute; left:4px; top:-2px; width:3px; height:2px; border-radius:80% 0 80% 0; background:#557a3d; transform:rotate(-22deg); }
-.hud-fallen-apple.fa1 { left:calc(20% + 12px); bottom:5px; --drop:-98px; animation-delay:.15s; }
-.hud-fallen-apple.fa2 { left:calc(20% + 28px); bottom:1px; --drop:-108px; animation-delay:.95s; }
-.hud-fallen-apple.fa3 { left:calc(20% + 44px); bottom:7px; --drop:-92px; animation-delay:1.65s; }
-.hud-fallen-apple.fa4 { left:calc(20% + 20px); bottom:12px; --drop:-116px; animation-delay:2.35s; }
-.hud-fallen-apple.fa5 { left:calc(20% + 55px); bottom:3px; --drop:-104px; animation-delay:3.05s; }
+.hud-fallen-apple.fa1 { bottom:5px; --drop:-98px; }
+.hud-fallen-apple.fa2 { bottom:1px; --drop:-108px; }
+.hud-fallen-apple.fa3 { bottom:7px; --drop:-92px; }
+.hud-fallen-apple.fa4 { bottom:12px; --drop:-116px; }
+.hud-fallen-apple.fa5 { bottom:3px; --drop:-104px; }
 @keyframes hud-fallen-apple-cycle {
     0%, 3% { opacity:0; transform:translateY(var(--drop)) rotate(-22deg) scale(.72); }
     8% { opacity:1; transform:translateY(calc(var(--drop) * .56)) rotate(32deg) scale(.88); }
@@ -1380,9 +1367,6 @@
 /* Доли кроны, а не пиксели дерева: яблоки сидят в гуще нарисованных
    ветвей при любой ширине виджета. Точки выбраны внутри больших пятен
    листвы (см. фон foliage-2). */
-.hud-tree-apple.a1 { left:31%; top:31%; }
-.hud-tree-apple.a2 { left:62%; top:62%; }
-.hud-tree-apple.a3 { left:45%; top:20%; }
 
 .hud-tree-leaves { position:absolute; inset:0; pointer-events:none; z-index:3; }
 .hud-tree-leaf {
@@ -1404,13 +1388,12 @@
     /* Autumn story loop: start at the apple tree, collect fruit, walk to the burrow,
        disappear inside, then return to the tree empty-handed. Keep fauna clearly above
        the ground layer so atmospheric blur/overlays cannot swallow the silhouettes. */
-    position:absolute; left:20%; bottom:2%; width:26px; height:14px;
+    position:absolute; left:20%; bottom:2%;
     animation:hud-hedgehog-forage 38s linear infinite;
-    z-index:12; pointer-events:none; will-change:left, transform, opacity;
+    pointer-events:none;
 }
 .hud-hedgehog-body {
-    position:absolute; inset:0; border-radius:50% 60% 55% 45%;
-    background:linear-gradient(160deg, #7a5c3e, #4c3a26 70%);
+    position:absolute;
 }
 .hud-hedgehog-spikes {
     position:absolute; left:-2px; top:-3px; width:20px; height:12px;
@@ -1429,8 +1412,8 @@
     opacity:0;
     animation:hud-hedgehog-carry-apple 38s linear infinite;
 }
-.hud-hedgehog-apple.ha1 { left:5px; top:-4px; transform:rotate(-8deg); }
-.hud-hedgehog-apple.ha2 { left:13px; top:-5px; transform:rotate(10deg); animation-delay:.12s; }
+.hud-hedgehog-apple.ha1 { transform:rotate(-8deg); }
+.hud-hedgehog-apple.ha2 { transform:rotate(10deg); animation-delay:.12s; }
 
 /* The walker stays facing the current travel direction. The actual path is expressed
    through left-position keyframes so the destination can line up with the burrow. */
@@ -1463,15 +1446,12 @@
 /* The companion waits visibly at the burrow. It hides exactly when the foraging hedgehog
    arrives, then reappears just before the next trip. */
 .hud-burrow-animal {
-    position:absolute; left:25px; bottom:4px; width:18px; height:14px;
+    position:absolute; bottom:4px;
     animation:hud-burrow-companion 38s linear infinite;
-    transform-origin:bottom center;
-    will-change:transform, opacity;
     z-index:13;
 }
 .hud-burrow-animal-body {
-    position:absolute; inset:0; border-radius:55% 60% 45% 45%;
-    background:linear-gradient(160deg, #745436, #46311f 72%);
+    position:absolute;
 }
 .hud-burrow-animal-spines {
     position:absolute; left:-2px; top:-4px; width:15px; height:11px;
@@ -1694,46 +1674,35 @@
 .hud-scene-time-group {
     display: flex; flex-direction: column; flex-shrink: 0;
     /* Темный полупрозрачный фон и сильное размытие заднего плана */
-    background: linear-gradient(160deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.2));
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
     padding: 10px 18px; border-radius: 14px;
     border: 1px solid rgba(255, 255, 255, 0.15);
     box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 .hud-time-display {
-    font-size: 2.6em; font-weight: 700; line-height: 1; letter-spacing: 1px;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    font-weight: 700; line-height: 1; letter-spacing: 1px;
     font-variant-numeric: tabular-nums;
-    color: #ffffff;
     /* Мощная черная тень под цифрами, чтобы они "горели" */
-    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.9), 0 0 15px rgba(255, 255, 255, 0.2);
 }
 .hud-time-colon { opacity: 0.85; }
 .hud-date-display { 
-    font-size: 0.78em; color: rgba(255, 255, 255, 0.9); text-transform: uppercase; 
+    font-size: 0.78em; text-transform: uppercase;
     letter-spacing: 1.5px; margin-top: 6px; font-weight: 600; 
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9); 
 }
 
 .hud-scene-weather-group { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; text-align: right; max-width: 60%; }
 .hud-weather-item, .hud-mood-item {
-    background: linear-gradient(160deg, rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.25));
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
     border: 1px solid rgba(255, 255, 255, 0.15);
-    padding: 6px 14px; border-radius: 20px; font-size: 0.85em; color: #ffffff; font-weight: 500;
+    padding: 6px 14px; border-radius: 20px; font-size: 0.85em; font-weight: 500;
     box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
     display: inline-flex; align-items: center; gap: 6px;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.9);
 }
 
 .hud-scene-atm {
-    font-size: 0.92em; font-style: italic; color: #ffffff; text-align: center;
+    font-size: 0.92em; font-style: italic; text-align: center;
     padding: 12px 18px; border-radius: 12px;
-    background: linear-gradient(160deg, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0.15));
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
     border: 1px solid rgba(255, 255, 255, 0.12);
     font-family: 'Georgia', serif; margin-top: 2px;
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.9);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1759,11 +1728,11 @@
 .hud-tabs-header { display: flex; gap: 4px; padding: 8px 12px 0 12px; background: rgba(0,0,0,0.1); overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
 .hud-tabs-header::-webkit-scrollbar { display: none; }
 .hud-tab {
-    padding: 6px 12px; background: var(--hud-card-inner-bg); border: 1px solid var(--hud-border);
+    padding: 6px 12px; border: 1px solid var(--hud-border);
     border-bottom: none; border-radius: 8px 8px 0 0; cursor: pointer; font-size: 0.9em;
     color: var(--hud-text-muted); white-space: nowrap; transition: all 0.2s;
 }
-.hud-tab.active { background: transparent; border-color: var(--hud-accent); color: var(--hud-accent-text, var(--hud-accent)); border-bottom: 1px solid transparent; padding-bottom: 7px; margin-bottom: -1px; z-index: 2;}
+.hud-tab.active { border-color: var(--hud-accent); color: var(--hud-accent-text, var(--hud-accent)); border-bottom: 1px solid transparent; padding-bottom: 7px; margin-bottom: -1px; z-index: 2;}
 
 /* --- Мини-гайд -----------------------------------------------------------
    Вопросик стоит и у названия вкладки, и у знакомых полей. Внутри вкладки
@@ -1859,15 +1828,15 @@
 .hud-tab-content.active { display: block; }
 
 .hud-header-info { display: flex; align-items: center; gap: 14px; margin-bottom: 12px; }
-.hud-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--hud-accent); box-shadow: 0 0 10px var(--hud-purple-glow); flex-shrink: 0; }
+.hud-avatar { width: 48px; height: 48px; border-radius: 50%; object-fit: cover; border: 2px solid var(--hud-accent); flex-shrink: 0; }
 .hud-avatar-placeholder { width: 48px; height: 48px; border-radius: 50%; background: var(--hud-card-inner-bg); display: flex; align-items: center; justify-content: center; font-size: 20px; border: 2px solid var(--hud-accent); flex-shrink: 0; }
 .hud-avatar-placeholder.hud-avatar-user { font-size: 0; }
 .hud-avatar-placeholder.hud-avatar-user::before {
     content: ''; width: 20px; height: 20px; border-radius: 50%; background: var(--hud-text-muted);
     box-shadow: 0 15px 0 -3px var(--hud-text-muted); opacity: 0.6;
 }
-.hud-header-text { display: flex; flex-direction: column; justify-content: center; overflow: hidden; width: 100%; }
-.hud-title { font-weight: bold; font-size: 1.1em; color: var(--hud-accent-text, var(--hud-accent)); }
+.hud-header-text { display: flex; flex-direction: column; justify-content: center; width: 100%; }
+.hud-title { font-weight: bold; color: var(--hud-accent-text, var(--hud-accent)); }
 
 .hud-tab.hud-user-tab { font-style: italic; }
 .hud-user-body { max-height: 220px; }
@@ -1890,7 +1859,7 @@
 }
 .hud-row.full-width { grid-column: 1 / -1; }
 
-.hud-key { font-weight: bold; color: var(--hud-accent-text, var(--hud-accent)); font-size: 0.85em; margin-bottom: 4px; text-transform: uppercase; }
+.hud-key { font-weight: bold; color: var(--hud-accent-text, var(--hud-accent)); margin-bottom: 4px; text-transform: uppercase; }
 .hud-value { color: var(--hud-text); font-size: 0.95em; }
 
 .hud-row::-webkit-scrollbar { height: 4px; }
@@ -1912,11 +1881,11 @@
 .hud-key-block::-webkit-scrollbar-track { background: transparent; }
 .hud-key-block::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.2); border-radius: 2px; }
 
-.hud-key-label { font-weight: bold; color: var(--hud-accent-text, var(--hud-accent)); font-size: 0.85em; text-transform: uppercase; letter-spacing: 0.5px; }
+.hud-key-label { font-weight: bold; color: var(--hud-accent-text, var(--hud-accent)); text-transform: uppercase; }
 .hud-key-list { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: 4px; }
 .hud-key-item { background: rgba(0, 0, 0, 0.15); padding: 6px 10px; border-radius: 6px; border-left: 3px solid var(--hud-accent); display: flex; align-items: flex-start; gap: 8px; line-height: 1.4; font-size: 0.9em; transition: all 0.2s ease; cursor: pointer; }
 
-.hud-inventory-pill { background: rgba(0, 0, 0, 0.2); border: 1px solid var(--hud-border); padding: 3px 10px; border-radius: 6px; font-size: 0.9em; color: var(--hud-text); white-space: nowrap; transition: all 0.2s ease; cursor: default; }
+.hud-inventory-pill { background: rgba(0, 0, 0, 0.2); border: 1px solid var(--hud-border); padding: 3px 10px; border-radius: 6px; font-size: 0.9em; color: var(--hud-text); transition: all 0.2s ease; cursor: default; }
 
 /* Плитки NSFW и их подписи — в misc.css, раздел «NSFW — весь блок». */
 /* --- Кинки, фетиши и границы -----------------------------------------
@@ -1976,18 +1945,14 @@
     content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 5px;
     background: linear-gradient(180deg, rgba(160,178,206,0.55), rgba(160,178,206,0.10));
 }
-.hud-kink-pill .hud-pill-label   { color: #d3b0f5; }
-.hud-fetish-pill .hud-pill-label { color: #ffaacb; }
-.hud-nogo-pill .hud-pill-label   { color: #ff9a9e; }
-.hud-noturn-pill .hud-pill-label { color: #a9b6cb; }
 .hud-kink-pill:active   { border-color: rgba(186,140,240,0.9); box-shadow: 0 2px 10px rgba(126,66,190,0.5); }
 .hud-fetish-pill:active { border-color: rgba(255,166,200,0.9); box-shadow: 0 2px 10px rgba(196,58,118,0.5); }
 .hud-nogo-pill:active   { border-color: rgba(255,120,124,0.9); box-shadow: 0 2px 10px rgba(120,32,38,0.5); }
 .hud-noturn-pill:active { border-color: rgba(160,178,206,0.8); opacity: 1; }
 @media (hover: hover) {
-    .hud-kink-pill:hover   { border-color: rgba(186,140,240,0.9); box-shadow: 0 2px 10px rgba(126,66,190,0.45); background: rgba(126,66,190,0.28); }
-    .hud-fetish-pill:hover { border-color: rgba(255,166,200,0.9); box-shadow: 0 2px 10px rgba(196,58,118,0.45); background: rgba(196,58,118,0.27); }
-    .hud-nogo-pill:hover   { border-color: rgba(255,120,124,0.9); box-shadow: 0 2px 10px rgba(120,32,38,0.45); background: rgba(120,32,38,0.30); }
+    .hud-kink-pill:hover   { border-color: rgba(186,140,240,0.9); }
+    .hud-fetish-pill:hover { border-color: rgba(255,166,200,0.9); }
+    .hud-nogo-pill:hover   { border-color: rgba(255,120,124,0.9); }
     .hud-noturn-pill:hover { border-color: rgba(160,178,206,0.8); opacity: 1; filter: saturate(0.8); }
 }
 
@@ -1995,13 +1960,13 @@
    ТЕЛЕФОН, ПЕРЕХВАТЫ И УЧАСТНИКИ
    ========================================= */
 .hud-phone-mockup {
-    display: flex; flex-direction: column; background: rgba(10, 10, 15, 0.6);
+    display: flex; flex-direction: column;
     border-radius: 20px; border: 3px solid rgba(255, 255, 255, 0.1);
     height: 380px; overflow: hidden; box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
 }
 .hud-phone-subtabs { display: flex; gap: 4px; padding: 6px 10px; background: rgba(0,0,0,0.3); overflow-x: auto; -webkit-overflow-scrolling: touch; border-bottom: 1px solid rgba(255,255,255,0.05); }
 
-.hud-phone-subtab { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 6px; color: var(--hud-text-muted); font-size: 0.8em; cursor: pointer; white-space: nowrap; transition: all 0.2s; }
+.hud-phone-subtab { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 4px 10px; border-radius: 6px; color: var(--hud-text-muted); font-size: 0.8em; cursor: pointer; transition: all 0.2s; }
 .hud-phone-subtab.active { background: var(--hud-accent); color: #fff; border-color: var(--hud-accent); font-weight: bold; }
 /* Цвет перехвата — из темы (--hud-intercept-color), как у вкладки «Перехваты». */
 .hud-phone-subtab.intercept-tab { border-color: color-mix(in srgb, var(--hud-intercept-color, #ff4d4d) 40%, transparent); color: color-mix(in srgb, var(--hud-intercept-color, #ff4d4d) 70%, var(--hud-text, #fff)); }
@@ -2013,24 +1978,23 @@
 .hud-phone-statusbar { display: flex; justify-content: space-between; align-items: center; padding: 4px 16px; font-size: 0.7em; color: rgba(255,255,255,0.7); background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.05); }
 .hud-phone-owner-label { opacity: 0.6; font-size: 0.95em; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; transition: color 0.3s; }
 
-.hud-phone-owner-label.intercept-status { color: #ff4d4d; text-shadow: 0 0 5px rgba(255,77,77,0.5); opacity: 0.9; }
+.hud-phone-owner-label.intercept-status { opacity: 0.9; }
 
 .hud-phone-status-icons { display: flex; gap: 4px; }
-.hud-phone-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid rgba(255, 255, 255, 0.05); z-index: 10; position: relative;}
+.hud-phone-header { display: flex; align-items: center; justify-content: space-between; padding: 8px 16px; background: rgba(255, 255, 255, 0.05); border-bottom: 1px solid rgba(255, 255, 255, 0.05); z-index: 10; }
 
 /* Выпадающий список участников */
 .hud-phone-title-group { display: flex; flex-direction: column; align-items: center; }
-.hud-phone-name { font-weight: bold; font-size: 0.9em; color: #fff; }
+.hud-phone-name { font-weight: bold; }
 .hud-phone-participants-list {
     display: none; font-size: 0.75em; color: rgba(255,255,255,0.8); 
-    font-weight: normal; margin-top: 4px; background: rgba(0,0,0,0.85); 
-    padding: 6px 12px; border-radius: 8px; border: 1px solid var(--hud-accent);
-    position: absolute; top: 100%; left: 50%; transform: translateX(-50%); z-index: 20;
-    white-space: nowrap; max-width: 90%; box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    font-weight: normal;
+    border: 1px solid var(--hud-accent);
+    position: absolute; top: 100%; z-index: 20;
 }
 .hud-phone-participants-list.active { display: block; animation: hud-fade-in 0.2s ease; }
 
-.hud-phone-options { color: var(--hud-accent-text, var(--hud-accent)); font-size: 1.2em; font-weight: bold; cursor: pointer; }
+.hud-phone-options { font-size: 1.2em; font-weight: bold; cursor: pointer; }
 .hud-phone-chat-area { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
 
 .hud-msg-wrapper { display: flex; gap: 8px; max-width: 85%; }
@@ -2040,9 +2004,9 @@
 .hud-msg-content { display: flex; flex-direction: column; gap: 2px; }
 .hud-msg-wrapper.outgoing .hud-msg-content { align-items: flex-end; }
 .hud-msg-sender { font-size: 0.65em; color: rgba(255,255,255,0.5); margin: 0 4px; }
-.hud-msg-bubble { display: flex; flex-direction: column; padding: 8px 12px; font-size: 0.88em; line-height: 1.4; position: relative; }
-.hud-msg-wrapper.incoming .hud-msg-bubble { background: rgba(255, 255, 255, 0.15); color: #e2e2e6; border-radius: 14px 14px 14px 4px; }
-.hud-msg-wrapper.outgoing .hud-msg-bubble { background: linear-gradient(135deg, var(--hud-accent), rgba(222, 133, 159, 0.8)); color: #fff; border-radius: 14px 14px 4px 14px; box-shadow: 0 2px 10px rgba(222, 133, 159, 0.2); }
+.hud-msg-bubble { display: flex; flex-direction: column; padding: 8px 12px; font-size: 0.88em; line-height: 1.4; }
+.hud-msg-wrapper.incoming .hud-msg-bubble { color: #e2e2e6; border-radius: 14px 14px 14px 4px; }
+.hud-msg-wrapper.outgoing .hud-msg-bubble { color: #fff; border-radius: 14px 14px 4px 14px; }
 /* --- НОВЫЕ СТИЛИ: Удаленные сообщения и Черновики --- */
 .hud-msg-deleted-details {
     background: rgba(0, 0, 0, 0.2); border-radius: 12px; padding: 6px 12px; 
@@ -2141,10 +2105,8 @@
 .hud-diary-time { font-size: 0.8em; color: var(--hud-text-muted); margin-bottom: 6px; font-weight: bold; font-family: monospace; letter-spacing: 1px; border-bottom: 1px dashed rgba(255,255,255,0.1); padding-bottom: 4px;}
 .hud-diary-author { font-size: 0.9em; color: var(--hud-accent-text, var(--hud-accent)); font-weight: bold; margin-bottom: 4px; letter-spacing: 0.2px; }
 .hud-diary-text {
-    font-size: 0.95em;
     color: var(--hud-text);
     line-height: 26px;
-    font-family: 'Caveat', 'Comic Sans MS', cursive;
     font-style: italic;
     position: relative; z-index: 1;
 }
@@ -2152,10 +2114,8 @@
     margin-top: 10px;
     padding-top: 10px;
     border-top: 1px dashed rgba(255, 255, 255, 0.1);
-    font-size: 0.95em;
     color: var(--hud-text);
     line-height: 26px;
-    font-family: 'Caveat', 'Comic Sans MS', cursive;
     font-style: italic;
     position: relative; z-index: 1;
 }
@@ -3351,7 +3311,6 @@
     .season-autumn .hud-hedgehog { bottom:2%; z-index:12; }
     .season-autumn .hud-burrow-animal { bottom:4px; z-index:13; }
     .season-autumn .hud-hedgehog { animation-duration:46s; }
-    .season-autumn .hud-hedgehog { animation-name:hud-hedgehog-forage-mobile; }
 
     .season-autumn .hud-hedgehog-apple { animation-duration:46s; }
     .season-autumn .hud-tree-apple,
@@ -3390,7 +3349,6 @@
     .season-autumn .hud-hedgehog { bottom:2%; z-index:12; }
     .season-autumn .hud-burrow-animal { bottom:4px; z-index:13; }
     .season-autumn .hud-hedgehog { animation-duration:46s; }
-    .season-autumn .hud-hedgehog { animation-name:hud-hedgehog-forage-mobile; }
 
     .season-autumn .hud-hedgehog-apple { animation-duration:46s; }
     .season-autumn .hud-tree-apple,
@@ -3541,7 +3499,7 @@
     .hud-scene-weather-group { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; width: 100%; max-width: 100%; gap: 6px; text-align: center; }
     .hud-time-display { font-size: 2em !important; line-height: 1; }
     .hud-weather-item, .hud-mood-item { white-space: normal; word-wrap: break-word; text-align: center; font-size: 0.85em; }
-    .hud-scene-atm { white-space: normal; word-wrap: break-word; text-align: center; width: 100%; font-size: 0.88em; }
+    .hud-scene-atm { white-space: normal; word-wrap: break-word; text-align: center; font-size: 0.88em; }
     .hud-fx-bg, .hud-fx-season-scene, .hud-fx-weather { height: 100%; width: 100%; }
 
     /* Светило на телефоне ездит по небу так же, как на десктопе.
@@ -3567,10 +3525,6 @@
 
     /* Полосы короче, но верх остаётся под тучей — иначе капли
        появляются рядом с облаком, а не из него. */
-    .weather-rain .hud-fx-weather::after { top: 36px; height: 96px; }
-    .weather-rain.weather-intensity-high .hud-fx-weather::after { top: 42px; height: 128px; }
-    .weather-rain.weather-intensity-low .hud-fx-weather::after { top: 34px; height: 96px; }
-    .weather-storm .hud-fx-weather::after { top: 34px; height: 128px; }
 }
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media screen and (min-width: 601px) { @container hud (max-width: 470px) {
@@ -3585,7 +3539,7 @@
     .hud-scene-weather-group { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; width: 100%; max-width: 100%; gap: 6px; text-align: center; }
     .hud-time-display { font-size: 2em !important; line-height: 1; }
     .hud-weather-item, .hud-mood-item { white-space: normal; word-wrap: break-word; text-align: center; font-size: 0.85em; }
-    .hud-scene-atm { white-space: normal; word-wrap: break-word; text-align: center; width: 100%; font-size: 0.88em; }
+    .hud-scene-atm { white-space: normal; word-wrap: break-word; text-align: center; font-size: 0.88em; }
     .hud-fx-bg, .hud-fx-season-scene, .hud-fx-weather { height: 100%; width: 100%; }
 
     /* Светило на телефоне ездит по небу так же, как на десктопе.
@@ -3611,10 +3565,6 @@
 
     /* Полосы короче, но верх остаётся под тучей — иначе капли
        появляются рядом с облаком, а не из него. */
-    .weather-rain .hud-fx-weather::after { top: 36px; height: 96px; }
-    .weather-rain.weather-intensity-high .hud-fx-weather::after { top: 42px; height: 128px; }
-    .weather-rain.weather-intensity-low .hud-fx-weather::after { top: 34px; height: 96px; }
-    .weather-storm .hud-fx-weather::after { top: 34px; height: 128px; }
 } }
 /* cq ↑ */
 
@@ -3837,14 +3787,13 @@
 
 /* Красные уведомления-бейджики на вкладках телефонов и перехватов */
 .hud-unread-badge {
-    display: inline-block; background: #ff3b30; color: #fff; border-radius: 10px;
+    display: inline-block; color: #fff; border-radius: 10px;
     padding: 2px 6px; font-size: 0.85em; font-weight: bold; margin-left: 6px;
-    box-shadow: 0 0 5px rgba(255, 59, 48, 0.6); line-height: 1; vertical-align: middle;
+    line-height: 1; vertical-align: middle;
 }
 
 /* Красивые желтые звездочки для оценки секса */
 .hud-stars-rating {
-    color: #f4d35e; text-shadow: 0 0 5px rgba(244, 211, 94, 0.5);
     font-size: 1.2em; letter-spacing: 2px;
 }
 .hud-sex-rev { line-height: 1.5; font-style: italic; }
@@ -3852,13 +3801,12 @@
 /* Жирный шрифт и цвет для ярлыков в пилюлях (до двоеточия) */
 .hud-pill-label {
     font-weight: bold; color: var(--hud-accent-text, var(--hud-accent)); opacity: 0.9;
-    margin-right: 2px; text-transform: uppercase; font-size: 0.9em; letter-spacing: 0.5px;
+    margin-right: 2px; text-transform: uppercase;
 }
 
 /* Кастомный блок: Глубина конфликта (Красный цвет, подчеркивает опасность) */
 .hud-conflict-pill {
-    background: rgba(255, 59, 48, 0.15); border-left: 3px solid #ff3b30;
-    padding: 6px 10px; border-radius: 4px; font-size: 0.9em; color: var(--hud-text); line-height: 1.4;
+    border-radius: 4px; font-size: 0.9em; color: var(--hud-text); line-height: 1.4;
 }
 
 /* Кастомный блок: Ожидание vs Реальность (Двуцветный градиент и рамка) */
@@ -3908,14 +3856,7 @@
 .hud-theme-btn:active, .hud-theme-btn:hover { opacity: 1; filter: grayscale(0%); background: rgba(255,255,255,0.1); }
 
 .hud-theme-panel {
-    display: none;
-    background: rgba(10, 10, 15, 0.6);
-    border-bottom: 1px solid var(--hud-border);
-    padding: 12px 16px;
     grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 10px;
-    font-size: 0.85em;
-    color: var(--hud-text-muted);
 }
 
 /* =========================================
@@ -4068,7 +4009,7 @@
 /* 8. Красная точка записи в статус-строке. */
 .hud-phone-mockup.intercept-mode .hud-phone-statusbar { position: relative; }
 .hud-phone-mockup.intercept-mode .hud-phone-statusbar::after {
-  content: ''; position: absolute; left: 50%; top: 50%; margin-left: -34px; transform: translateY(-50%);
+  position: absolute; left: 50%; top: 50%; margin-left: -34px; transform: translateY(-50%);
   width: 5px; height: 5px; border-radius: 50%;
   background: #ff3b30; box-shadow: 0 0 6px rgba(255,59,48,.9);
   animation: hud-intercept-blink 1.7s steps(1, end) infinite;
@@ -4226,11 +4167,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   width: min(100%, 430px);
   min-height: 610px;
   margin: 0 auto;
-  border: 7px solid rgba(10,10,14,.95);
-  border-radius: 34px;
   overflow: hidden;
-  background: #0b0c11;
-  box-shadow: 0 18px 50px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,255,255,.08);
   isolation: isolate;
 }
 .hud-phone-emulator::after {
@@ -4252,7 +4189,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-phone-lock-notice span { display:block; font-size:10px; text-transform:uppercase; opacity:.6; }
 .hud-phone-lock-notice b { display:block; font-size:12px; margin-top:2px; }
 .hud-phone-lock-notice small { display:block; font-size:11px; opacity:.8; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.hud-phone-lock-notice em { float:right; margin-top:-14px; font-size:9px; opacity:.5; font-style:normal; }
+.hud-phone-lock-notice em { margin-top:-14px; font-size:9px; opacity:.5; font-style:normal; }
 
 .hud-phone-unlocked { display:none; flex-direction:column; }
 .hud-phone-emulator.unlocked .hud-phone-unlocked { display:flex; }
@@ -4326,28 +4263,28 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-phone-home-notice small { opacity:.45; }
 .hud-phone-app-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:18px 12px; }
 .hud-phone-app { border:0; background:transparent; color:#fff; display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer; min-width:0; }
-.hud-phone-app > span { width:54px; height:54px; display:flex; align-items:center; justify-content:center; border-radius:16px; font-size:26px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.14); box-shadow:0 7px 20px rgba(0,0,0,.2); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); transition:transform .18s ease, background .18s ease; }
+.hud-phone-app > span { width:54px; height:54px; display:flex; align-items:center; justify-content:center; border-radius:16px; font-size:26px; background:rgba(255,255,255,.12); border:1px solid rgba(255,255,255,.14); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
 .hud-phone-app:hover > span { transform:translateY(-2px) scale(1.04); background:rgba(255,255,255,.19); }
 .hud-phone-app small { font-size:10px; opacity:.85; }
-.hud-phone-app-view { display:none; position:absolute; inset:0; padding:10px 12px 55px; overflow:auto; background:rgba(5,7,12,.48); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); }
-.hud-phone-app-view.active { display:block; animation:hud-fade-in .18s ease; }
-.hud-phone-app-title { font-weight:700; font-size:16px; padding:4px 2px 12px; position:sticky; top:0; z-index:4; background:linear-gradient(rgba(7,8,13,.8),rgba(7,8,13,0)); }
+.hud-phone-app-view { display:none; position:absolute; inset:0; padding:10px 12px 55px; overflow:auto; background:rgba(5,7,12,.48); }
+.hud-phone-app-view.active { display:block; }
+.hud-phone-app-title { font-weight:700; font-size:16px; padding:4px 2px 12px; }
 /* Нижняя панель обязана быть выше экрана приложения (z-index:40):
    home-wrap не создаёт своего контекста наложения, поэтому панель и
    экран конкурируют напрямую. При z-index:10 открытое приложение
    накрывало кнопку «домой», и с его корневого экрана было не выйти. */
-.hud-phone-bottom-bar { position:absolute; bottom:0; left:0; right:0; height:46px; display:flex; align-items:center; justify-content:center; background:rgba(0,0,0,.3); border-top:1px solid rgba(255,255,255,.08); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); z-index:50; }
-.hud-phone-home-btn { width:42px; height:28px; border-radius:15px; border:0; background:rgba(255,255,255,.12); color:#fff; cursor:pointer; }
-.hud-phone-chat-list { display:flex; gap:7px; overflow-x:auto; padding-bottom:8px; margin-bottom:8px; }
+.hud-phone-bottom-bar { position:absolute; bottom:0; left:0; right:0; height:46px; display:flex; align-items:center; justify-content:center; -webkit-backdrop-filter:blur(16px); z-index:50; }
+.hud-phone-home-btn { border:0; color:#fff; cursor:pointer; }
+.hud-phone-chat-list { overflow-x:auto; padding-bottom:8px; margin-bottom:8px; }
 
 .hud-phone-section { margin-bottom:14px; }
 .hud-phone-section h4 { margin:4px 0 8px; font-size:11px; text-transform:uppercase; letter-spacing:.08em; opacity:.55; }
-.hud-phone-contact, .hud-phone-search-row { display:flex; gap:9px; align-items:center; padding:9px; margin-bottom:6px; border:1px solid rgba(255,255,255,.08); border-radius:12px; background:rgba(255,255,255,.045); }
+.hud-phone-contact, .hud-phone-search-row { display:flex; gap:9px; margin-bottom:6px; border:1px solid rgba(255,255,255,.08); border-radius:12px; }
 .hud-phone-contact>div, .hud-phone-search-row { min-width:0; flex:1; }
-.hud-phone-contact b { display:block; font-size:11px; }
+.hud-phone-contact b { font-size:11px; }
 .hud-phone-search-row small { display:block; font-size:9px; opacity:.5; margin-top:2px; }
 
-.hud-phone-contacts { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.hud-phone-contacts { grid-template-columns:repeat(3,1fr); }
 .hud-phone-contact { margin:0; flex-direction:column; align-items:flex-start; }
 .hud-phone-contacts > .hud-phone-contact { align-self:stretch; }
 .hud-phone-contact-avatar { width:30px; height:30px; flex:0 0 30px; min-width:30px; min-height:30px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; border-radius:50%; background:linear-gradient(135deg,var(--hud-accent),#704ad4); }
@@ -4370,10 +4307,10 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-phone-photo-info div,
 .hud-phone-photo-info small { display:block; }
 .hud-phone-photo-info small { margin-top:5px; opacity:.6; }
-.hud-phone-photo-info em { margin-top:5px; color:var(--hud-accent-text, var(--hud-accent)); font-style:normal; }
-.hud-phone-empty-app { min-height:330px; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; opacity:.65; gap:6px; }
+.hud-phone-photo-info em { color:var(--hud-accent-text, var(--hud-accent)); }
+.hud-phone-empty-app { min-height:330px; opacity:.65; }
 
-.hud-phone-empty-line { padding:14px; text-align:center; opacity:.5; font-size:10px; }
+.hud-phone-empty-line { padding:14px; text-align:center; opacity:.5; }
 
 @media (max-width:600px) {
   .hud-phone-emulator { min-height:560px; }
@@ -4458,7 +4395,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 
 /* Дизайн: МАРШРУТЫ (Карта перемещений) */
 
-.hud-route-name { font-weight: bold; color: var(--hud-accent-text, var(--hud-accent)); margin-bottom: 10px; text-transform: uppercase; font-size: 0.85em; letter-spacing: 0.5px; }
+.hud-route-name { margin-bottom: 10px; text-transform: uppercase; }
 
 .hud-route-info { padding-bottom: 12px; display: flex; flex-direction: column; }
 
@@ -4482,7 +4419,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .lvl-high { border-left-color: #f4d35e; }
 .lvl-critical { border-left-color: #ff4d4d; }
 
-.hud-secret-header { display: flex; justify-content: space-between; align-items: center; font-size: 0.85em; font-family: monospace; font-weight: bold; letter-spacing: 1px; }
+.hud-secret-header { display: flex; flex-wrap: wrap; gap: 6px; justify-content: space-between; align-items: center; font-size: 0.85em; font-family: monospace; font-weight: bold; letter-spacing: 1px; }
 .hud-secret-lvl { padding: 4px 8px; border-radius: 4px; background: rgba(255,255,255,0.1); color: #fff; }
 .hud-secret-stat { padding: 4px 8px; border-radius: 4px; }
 .stat-known { color: #2dd4bf; background: rgba(45,212,191,0.15); }
@@ -4591,8 +4528,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-rel-stage {
     position: relative;
     width: 100%;
-    aspect-ratio: 820 / 560;
-    min-height: 280px;
     background:
         radial-gradient(circle at 50% 50%, rgba(140,90,210,.06), transparent 35%),
         linear-gradient(rgba(255,255,255,.022) 1px, transparent 1px),
@@ -4620,7 +4555,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-rel-edge-hit {
     fill: none;
     stroke: transparent;
-    stroke-width: 18px;
     stroke-linecap: round;
     pointer-events: stroke;
     cursor: pointer;
@@ -4649,7 +4583,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
     font-family: inherit;
     font-weight: 700;
     letter-spacing: .01em;
-    paint-order: stroke;
     stroke: rgba(8,10,18,.88);
     stroke-width: 4px;
     pointer-events: none;
@@ -4666,7 +4599,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-rel-edge-dot.hud-rel-other { stroke: #d7c8f7; }
 .hud-rel-edge-badge text {
     fill: #fff;
-    font-size: 8px;
     font-family: inherit;
     font-weight: 800;
 }
@@ -4804,15 +4736,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 }
 .hud-rel-graph.is-expanded {
     position: fixed;
-    left: 50%;
-    top: 50%;
-    width: min(92vw, 900px);
-    max-width: 900px;
-    z-index: 9998;
-    margin: 0;
-    box-sizing: border-box;
     opacity: 1;
-    transform: translate(-50%, -50%) scale(var(--hud-rel-zoom, 1));
     border: 1px solid rgba(196,181,253,.26);
     border-radius: 20px;
     box-shadow: 0 30px 80px rgba(5,7,15,.78), 0 0 0 1px rgba(255,255,255,.05);
@@ -4831,7 +4755,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
     -webkit-backdrop-filter: blur(4px);
     opacity: 0;
     pointer-events: none;
-    z-index: 9997;
     transition: opacity .22s ease;
 }
 .hud-rel-graph-backdrop.visible { opacity: 1; pointer-events: auto; }
@@ -4850,10 +4773,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-route-map {
     width: 100%;
     margin-bottom: 10px;
-    padding: 8px 8px 4px;
-    border-radius: 12px;
-    background: rgba(0, 0, 0, 0.2);
-    border: 1px solid rgba(255,255,255,0.08);
     cursor: pointer;
 }
 
@@ -4899,12 +4818,10 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-route-info { min-width: 0; }
 .hud-route-info b {
   display: block; font-size: .88em; color: #e6f6f3; font-weight: 600;
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .hud-route-info small {
   display: block; font-size: .74em; margin-top: 1px;
   color: rgba(190,205,220,.55);
-  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 /* Перегон: отрезок линии между остановками и время в пути. */
 .hud-route-leg {
@@ -5215,23 +5132,17 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
     white-space: normal;
     overflow-wrap: anywhere;
     word-break: break-word;
-    width: min(420px, calc(100vw - 40px));
-    max-width: calc(100vw - 40px);
     box-sizing: border-box;
     text-align: left;
 }
 @media (max-width: 600px) {
     .hud-phone-participants-list {
-        width: min(320px, calc(100vw - 28px));
-        max-width: calc(100vw - 28px);
         font-size: 0.78em;
     }
 }
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) {
     .hud-phone-participants-list {
-        width: min(320px, calc(100vw - 28px));
-        max-width: calc(100vw - 28px);
         font-size: 0.78em;
     }
 } }
@@ -5366,7 +5277,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .phase-night .hud-fx-bg { filter: brightness(0.62) saturate(0.88); transition: filter 1.2s ease; }
 .phase-night .hud-fx-season-scene { filter: brightness(0.58) saturate(0.78); }
 .phase-night .hud-fx-weather, .phase-night .hud-fx-cloud-cover, .phase-night .hud-fx-temp { filter: brightness(0.72); }
-.phase-night .hud-fx-celestial { filter: brightness(1.05) saturate(0.95); box-shadow: inset -9px -6px 0 0 rgba(20,25,45,0.55), 0 0 24px 7px rgba(210,220,255,0.42), 0 0 48px 14px rgba(180,200,255,0.14); }
+.phase-night .hud-fx-celestial { filter: brightness(1.05) saturate(0.95); }
 .phase-night .hud-fx-stars { z-index: 0; opacity: 1; filter: brightness(1.55) saturate(1.08); }
 .phase-night .hud-fx-stars .hud-star2 { filter: brightness(1.45); box-shadow: 0 0 7px rgba(255,255,255,0.95), 0 0 14px rgba(180,210,255,0.42), 0 0 24px rgba(150,190,255,0.18); }
 .phase-night .hud-fx-fireflies { z-index: 7; }
@@ -5508,7 +5419,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
         radial-gradient(26% 62% at 88% 100%, rgba(114,146,160,.8) 0 54%, rgba(114,146,160,0) 57%);
     -webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
             mask-image: linear-gradient(90deg, transparent 0%, #000 16%, #000 84%, transparent 100%);
-    filter:blur(.7px);
     opacity:.5;
 }
 .season-summer .hud-summer-heat-haze {
@@ -5517,7 +5427,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
     background:repeating-linear-gradient(180deg, rgba(255,255,255,.16) 0 1px, transparent 1px 7px);
     filter:blur(1.4px);
     animation:hud-summer-haze 7s ease-in-out infinite alternate;
-    animation-play-state:paused !important;
 }
 @keyframes hud-summer-haze {
     0% { transform:translateX(-2px) scaleY(1); opacity:.15; }
@@ -5534,7 +5443,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
     position:absolute; left:30%; bottom:31%; width:46px; height:22px; z-index:12;
     pointer-events:none;
     animation:hud-dragonfly-patrol 22s ease-in-out infinite;
-    animation-play-state:paused !important;
     filter:drop-shadow(0 1px 1.5px rgba(10,30,40,.28));
 }
 .season-summer .hud-df { display:block; width:100%; height:100%; overflow:visible; }
@@ -5550,7 +5458,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .season-summer .hud-df-wings {
     transform-box:view-box; transform-origin:38px 14px;
     animation:hud-df-flap .09s ease-in-out infinite alternate;
-    animation-play-state:paused !important;
 }
 .season-summer .hud-df-hind { transform-origin:36px 14px; animation-delay:-.045s; }
 @keyframes hud-df-flap { from { transform:scaleY(1); } to { transform:scaleY(.42); } }
@@ -5665,7 +5572,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
     filter:blur(8px);
     transform:skewX(-8deg);
     animation:hud-aurora-breathe 13s ease-in-out infinite alternate;
-    animation-play-state:paused !important;
 }
 .phase-night.season-winter .hud-winter-aurora {
     opacity:.92;
@@ -5734,8 +5640,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
     position:absolute; left:16px; bottom:17px; width:26px; height:18px; z-index:3;
     border:2px solid rgba(46,33,21,.95); background:rgba(25,26,29,.98);
     border-radius:2px;
-    box-shadow:0 0 0 1px rgba(12,13,16,.65);
-    opacity:.75;
 }
 /* Подоконник: выступает за раму, на нём лежит снег. */
 .season-winter .hud-winter-warm-window::after {
@@ -5778,7 +5682,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .season-winter .hud-winter-smoke {
     position:absolute; left:3px; bottom:23px; width:9px; height:9px; border-radius:50%;
     background:rgba(236,241,245,.28); filter:blur(2px); opacity:0;
-    animation:hud-winter-smoke-rise 11s ease-out infinite; animation-play-state:paused !important;
+    animation:hud-winter-smoke-rise 11s ease-out infinite;
 }
 .season-winter .hud-winter-smoke.sm2 { animation-delay:3.6s; transform:scale(.8); }
 .season-winter .hud-winter-smoke.sm3 { animation-delay:7.1s; transform:scale(.65); }
@@ -5981,8 +5885,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 /* Expanded graph: width is constrained by both viewport width and available
    viewport height, so it stays inside the window on desktop and phones. */
 .hud-rel-graph.is-expanded {
-    left: 50%;
-    top: 50%;
     width: min(94vw, 1000px, calc((100vh - 120px) * 1.31));
     max-width: calc(100vw - 20px);
     max-height: calc(100vh - 20px);
@@ -5992,11 +5894,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
     min-height: 0;
     height: min(64vh, 620px);
     aspect-ratio: auto;
-}
-.hud-rel-graph.is-expanded .hud-rel-svg {
-    transform: scale(var(--hud-rel-zoom, 1));
-    transform-origin: center center;
-    transition: transform .18s ease;
 }
 
 /* Свёрнутый граф на телефоне — превью: граф 1000×760 сжат до ~250px, подписи
@@ -6143,7 +6040,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 }
 
 .hud-phone-top-status { padding-top: 26px; letter-spacing: .02em; }
-.hud-phone-status-glyphs { display: inline-flex; gap: 6px; align-items: center; opacity: .75; font-size: 10px; }
+.hud-phone-status-glyphs { display: inline-flex; align-items: center; font-size: 10px; }
 
 /* Иконки приложений: свой цвет каждому + отклик на нажатие. */
 .hud-phone-app > span {
@@ -6165,7 +6062,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-phone-app[data-phone-app="health"]   > span { background: linear-gradient(160deg, #ff8fc4, #d6467f); }
 .hud-phone-app[data-phone-app="wallet"]   > span { background: linear-gradient(160deg, #4b5266, #1b1e28); color: #ffd76b; }
 .hud-phone-app[data-phone-app="calendar"] > span { background: linear-gradient(160deg, #ffffff, #e4e6ee); color: #e0453a; }
-
 
 .hud-phone-app small { text-shadow: 0 1px 3px rgba(0,0,0,.7); }
 
@@ -6241,11 +6137,11 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 
 .hud-phone-chat-meta { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .hud-phone-chat-meta b {
-  font-size: 13px; font-weight: 650; color: rgba(240,238,250,.95);
+  font-weight: 650; color: rgba(240,238,250,.95);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .hud-phone-chat-meta small {
-  font-size: 11.5px; color: rgba(226,232,240,.5);
+  color: rgba(226,232,240,.5);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 
@@ -6277,7 +6173,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 
 /* Владелец устройства — подписью в заголовке приложения. Раньше он стоял
    в верхней плашке телефона и спорил с владельцем открытого чата. */
-.hud-phone-app-title { display: flex; align-items: baseline; gap: 8px; }
 .hud-phone-app-owner {
   margin-left: auto;
   font-size: 10.5px; font-weight: 500;
@@ -6506,14 +6401,13 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-phone-contact {
   background: linear-gradient(160deg, rgba(255,255,255,.055), rgba(255,255,255,.02)) !important;
   border-color: rgba(255,255,255,.07) !important;
-  transition: transform .14s ease, border-color .14s ease, background .14s ease;
 }
 .hud-phone-contact:hover {
   transform: translateY(-2px);
   border-color: color-mix(in srgb, var(--hud-accent) 40%, transparent) !important;
 }
 
-.hud-phone-contact small { display: block; opacity: .55; font-size: .78em; margin-top: 3px; line-height: 1.35; }
+.hud-phone-contact small { line-height: 1.35; }
 
 /* Галерея — «снимок» получает свой оттенок через --shot из JS. */
 .hud-phone-photo-placeholder {
@@ -6521,15 +6415,11 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
     radial-gradient(70% 60% at 30% 25%, color-mix(in srgb, var(--shot, #6aa7ff) 55%, transparent), transparent 70%),
     radial-gradient(60% 50% at 78% 80%, rgba(255,255,255,.1), transparent 65%),
     linear-gradient(150deg, #1a1d27, #0c0e15) !important;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 26px; filter: saturate(.9);
+  filter: saturate(.9);
 }
 .hud-phone-photo-card { transition: transform .16s ease, border-color .16s ease; }
 .hud-phone-photo-card:hover { transform: translateY(-2px); border-color: color-mix(in srgb, var(--hud-accent) 35%, transparent); }
 .hud-phone-photo-time {
-  position: absolute; right: 7px; bottom: 7px;
-  padding: 2px 7px; border-radius: 999px;
-  background: rgba(0,0,0,.62); font-size: 10px;
   backdrop-filter: blur(4px);
 }
 
@@ -6554,7 +6444,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 /* Карты — стилизованная подложка с сеткой улиц и булавкой. */
 
 .hud-phone-app-view[data-phone-view="maps"] .hud-phone-section {
-  border-radius: 14px; padding: 10px;
   background:
     repeating-linear-gradient(0deg, rgba(255,255,255,.03) 0 1px, transparent 1px 26px),
     repeating-linear-gradient(90deg, rgba(255,255,255,.03) 0 1px, transparent 1px 26px),
@@ -7011,18 +6900,12 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   opacity: .92;
 }
 
-.weather-snow.weather-intensity-low .hud-fx-weather { --snow-dx: 0; --snow-dy: 1; --snow-cover: 22px; --snow-opacity: .6; --snow-sway: 11px; }
+.weather-snow.weather-intensity-low .hud-fx-weather { --snow-dx: 0; --snow-dy: 1; --snow-cover: 22px; --snow-sway: 11px; }
 .weather-snow.weather-intensity-low .hud-snow-layer.snow-far,
 .weather-snow.weather-intensity-low .hud-snow-layer.snow-near { display: none; }
 .weather-snow.weather-intensity-low .hud-snow-layer.snow-mid {
   --snow-tile: clamp(100px, 26cqi, 240px);
   --snow-speed: 26s;
-  background-image:
-    radial-gradient(circle 1.7px, rgba(226,238,255,.88) 0 64%, transparent 100%),
-    radial-gradient(circle 1.3px, rgba(226,238,255,.72) 0 64%, transparent 100%),
-    radial-gradient(circle 1.5px, rgba(226,238,255,.6)  0 64%, transparent 100%),
-    radial-gradient(circle 1.1px, rgba(226,238,255,.48) 0 64%, transparent 100%);
-  background-position: 0 0, 41px 17px, 19px 63px, 71px 44px;
   /* Второй, независимый цикл поверх покачивающегося падения: мягкая
      пульсация яркости, будто хлопья ловят лунный свет под разным углом. */
   animation-name: hud-snow-drift, hud-snow-sway, hud-snow-twinkle;
@@ -7308,14 +7191,12 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
    ========================================================================= */
 .hud-phone-notif-stack {
   position: relative;
-  display: flex; flex-direction: column; gap: 6px;
   margin-bottom: 18px;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 .hud-phone-notif-head {
   display: flex; align-items: center; justify-content: space-between;
-  padding: 0 4px 2px;
   font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase;
   color: rgba(226,232,240,.5);
 }
@@ -7326,15 +7207,11 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   grid-template-columns: 34px minmax(0,1fr) auto;
   align-items: center;
   gap: 10px;
-  padding: 9px 11px;
-  border-radius: 15px;
   border: 1px solid rgba(255,255,255,.09);
   /* Непрозрачный фон: при наложении стопкой сквозь верхнюю карточку
      читались имя и текст нижних — превью выглядело замыленным. */
   background: linear-gradient(160deg, rgb(28,30,42), rgb(14,15,22));
-  box-shadow: 0 8px 22px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.07);
   transform: scale(calc(1 - var(--depth) * .035)) translateY(calc(var(--depth) * -4px));
-  opacity: calc(1 - var(--depth) * .18);
   transition: transform .22s cubic-bezier(.2,.9,.3,1), opacity .22s ease;
   animation: hud-notif-in .34s cubic-bezier(.2,.9,.3,1) backwards;
   animation-delay: calc(var(--depth) * .06s);
@@ -7360,7 +7237,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-phone-notif-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .hud-phone-notif-body b {
   display: flex; align-items: baseline; gap: 6px;
-  font-size: 12.5px; font-weight: 650; color: rgba(240,238,250,.96);
+  font-weight: 650; color: rgba(240,238,250,.96);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 /* В групповом чате рядом с названием — кто именно написал. */
@@ -7370,14 +7247,14 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .hud-phone-notif-body small {
-  font-size: 11.5px; line-height: 1.35; color: rgba(226,232,240,.62);
+  font-size: 11.5px; line-height: 1.35;
   display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
   overflow: hidden;
 }
 .hud-phone-notif-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
 .hud-phone-notif-meta em { font-style: normal; font-size: 10px; opacity: .45; }
 .hud-phone-notif-more {
-  text-align: center; font-size: 10.5px; padding: 3px 0 0;
+  text-align: center; font-size: 10.5px;
   color: rgba(226,232,240,.38);
 }
 
@@ -7515,8 +7392,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 }
 .hud-rel-graph.is-focused .hud-rel-edge.is-flowing { opacity: 1; }
 
-
-
 /* =========================================================================
    Раскрытый граф отношений: центрирование, устойчивое к вёрстке SillyTavern
    ========================================================================= */
@@ -7528,7 +7403,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-rel-graph.is-expanded {
   left: 50vw !important;
   top: 50vh !important;
-  transform: translate(-50%, -50%) scale(var(--hud-rel-zoom, 1)) !important;
 }
 /* Подложка раскрытого графа — тоже на вьюпортных единицах. */
 .hud-rel-graph-backdrop {
@@ -7564,7 +7438,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   letter-spacing: .03em;
   color: rgba(226,232,240,.3);
   padding-top: 7px;
-  transition: opacity .2s ease;
 }
 .hud-phone-notif-stack.is-open::after { content: 'нажми на уведомление, чтобы открыть чат'; }
 
@@ -7660,7 +7533,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 
 /* Раскрыто: карточки появляются каскадом и приподнимаются под курсором. */
 .hud-phone-notif-stack.is-open > .hud-phone-notif {
-  animation: hud-notif-drop .32s cubic-bezier(.2,.9,.3,1) backwards !important;
   animation-delay: calc(var(--depth) * .05s) !important;
 }
 @keyframes hud-notif-drop {
@@ -7714,7 +7586,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   border-color: color-mix(in srgb, var(--hud-phone-frame) 80%, #9aa3b5);
 }
 /* Настройки, которым нужен свой якорь. */
-.hud-phone-app-view { backdrop-filter: blur(var(--hud-phone-blur)) !important; -webkit-backdrop-filter: blur(var(--hud-phone-blur)) !important; }
 .hud-phone-app { border-radius: var(--hud-phone-icon-radius) !important; }
 .hud-phone-emulator .hud-msg-wrapper.incoming .hud-msg-bubble { border-radius: var(--hud-phone-radius) var(--hud-phone-radius) var(--hud-phone-radius) 4px; }
 .hud-phone-emulator .hud-msg-wrapper.outgoing .hud-msg-bubble { border-radius: var(--hud-phone-radius) var(--hud-phone-radius) 4px var(--hud-phone-radius); }
@@ -7814,17 +7685,17 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 
 @media (max-width: 600px) {
   /* Строка превью-тегов зажималась между логотипом в контейнере 125px
-     и обрезалась: 52px видно из 473px. Переносим её на свою строку
-     и делаем прокручиваемой вбок. */
+     и обрезалась: 52px видно из 473px. Переносим её на свою строку,
+     а теги — друг под друга: вбок ничего не прокручивается, длинная
+     погода переносится внутри своего тега. */
   .hud-os-topbar-left { flex-wrap: wrap; }
   .hud-os-subtitle {
     flex: 1 0 100%;
     min-width: 0;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    max-width: none;
+    flex-wrap: wrap;
   }
-  .hud-os-subtitle::-webkit-scrollbar { display: none; }
+  .hud-os-subtitle .hud-preview-tag { min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: break-word; line-height: 1.35; }
 
   /* Сетка приложений: три колонки вместо четырёх, иначе подписи ломаются
      на три строки («Соо/бще/ния»). Иконки и шрифт мельче. */
@@ -7857,17 +7728,17 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) {
   /* Строка превью-тегов зажималась между логотипом в контейнере 125px
-     и обрезалась: 52px видно из 473px. Переносим её на свою строку
-     и делаем прокручиваемой вбок. */
+     и обрезалась: 52px видно из 473px. Переносим её на свою строку,
+     а теги — друг под друга: вбок ничего не прокручивается, длинная
+     погода переносится внутри своего тега. */
   .hud-os-topbar-left { flex-wrap: wrap; }
   .hud-os-subtitle {
     flex: 1 0 100%;
     min-width: 0;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
+    max-width: none;
+    flex-wrap: wrap;
   }
-  .hud-os-subtitle::-webkit-scrollbar { display: none; }
+  .hud-os-subtitle .hud-preview-tag { min-width: 0; max-width: 100%; white-space: normal; overflow-wrap: break-word; line-height: 1.35; }
 
   /* Сетка приложений: три колонки вместо четырёх, иначе подписи ломаются
      на три строки («Соо/бще/ния»). Иконки и шрифт мельче. */
@@ -8074,14 +7945,9 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .season-summer .hud-sea-moonpath {
     position: absolute; top: 0; bottom: 0;
     left: var(--cel-x, 50%);
-    width: 34%;
-    margin-left: -17%;
     pointer-events: none;
     opacity: var(--scene-night-strength, 0);
     background: linear-gradient(180deg, rgba(232,240,255,.92) 0%, rgba(214,228,255,.62) 30%, rgba(190,212,255,.34) 62%, rgba(172,198,255,.14) 100%);
-    -webkit-mask-image: radial-gradient(64% 100% at 50% 0%, #000 0%, rgba(0,0,0,.72) 44%, transparent 96%);
-    mask-image: radial-gradient(64% 100% at 50% 0%, #000 0%, rgba(0,0,0,.72) 44%, transparent 96%);
-    filter: blur(.4px);
     animation: hud-moonpath-shimmer 4.6s ease-in-out infinite alternate;
     transition: opacity 1.4s ease, left 1.4s ease;
 }
@@ -8328,7 +8194,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 /* Единственное отличие домиков — план: масштаб, место на склоне и дымка.
    Внутренняя вёрстка (стены, крыша, окно, труба) общая. */
 .season-winter .hud-winter-house.h1 {
-    left: 10.5%; bottom: 9.2%; z-index: 5;
+    bottom: 9.2%; z-index: 5;
 }
 .season-winter .hud-winter-house.h2 {
     left: 34%; bottom: 10.4%; z-index: 4;
@@ -8683,34 +8549,9 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-theme-preset.active { border-color: var(--hud-accent); background: rgba(255,255,255,.1); box-shadow: 0 0 0 1px var(--hud-accent) inset; }
 .hud-theme-presets-note { margin-top: 8px; font-size: 10px; opacity: .6; line-height: 1.35; }
 
-
-
 .hud-theme-kawaii .hud-key-item { border-left-color: #ff9fc9; }
 
-
-
-
-
-
-
-
-
-
 .hud-theme-cyberpunk .hud-key-item { border-left-color: #2de2ff; }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* =========================================================================
    МИР: ПРОГНОЗ ПОГОДЫ И ГОРОСКОП
@@ -8903,41 +8744,10 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
    ========================================================================= */
 .hud-os-logo::after, .hud-world-title::after { font-size: .92em; opacity: .72; }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* Дневник тоже отзывается на тему: у бумаги свой оттенок кромки. */
 .hud-theme-kawaii .hud-diary-entry { border-left-color: #ff8fc0; }
 
-
-
-
 .hud-theme-medieval .hud-diary-entry { border-left-color: #8a6a1f; }
-
-
-
-
-
-
 
 /* --- Карточки: светлая бумага вместо чёрного --- */
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-phone-notif, .hud-phone-notif-stack, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-section, .hud-phone-participants-list, .hud-phone-contact, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-photo-placeholder, .hud-diary-entry, .hud-world-section, .hud-world-section-ads, .hud-theme-panel, .hud-phone-mockup) {
@@ -8945,23 +8755,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   color: var(--lt-ink);
   border-color: var(--lt-line);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* =========================================================================
    ТЕМЫ: ФИРМЕННЫЙ ЗНАК КАЖДОЙ
@@ -8984,24 +8777,11 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 /* Каваи — сердечки вместо маркеров в списках. */
 .hud-theme-kawaii .hud-key-item { position: relative; padding-left: 22px; }
 
-
-
 /* Dark Academia — поля тетради: двойная линия слева по всей карточке. */
 /* Поле тетради живёт на странице, а не на всей карточке: на обёртке оно
    начиналось от самого верха и перечёркивало виджет погоды и часы.
    .hud-tab-content — это и есть «лист», под вкладками. */
 .hud-theme-academia .hud-tab-content { position: relative; }
-
-
-
-
-
-
-
-
-
-
-
 
 /* =========================================================================
    ТЕМЫ: ПОЧЕРК ЗАГОЛОВКОВ И ОТДЕЛКА БЛОКОВ
@@ -9020,13 +8800,11 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   box-shadow: 0 2px 10px rgba(224,86,143,.18);
 }
 
-
 /* --- Dark Academia: капитель и латунная линейка под заголовком --- */
 .hud-theme-academia :is(.hud-key, .hud-key-label) {
   font-variant: small-caps; text-transform: none;
   letter-spacing: .07em; font-weight: 600;
 }
-
 
 /* --- Vamp: разрядка, винная тень и внутренняя виньетка карточки --- */
 .hud-theme-vamp :is(.hud-key, .hud-key-label) {
@@ -9045,15 +8823,11 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   text-transform: uppercase; letter-spacing: .01em; font-weight: 500;
 }
 
-
-
-
 /* --- Криминал: прописные с красной засечкой и штамп на блоке --- */
 .hud-theme-mafia :is(.hud-key, .hud-key-label) {
   text-transform: uppercase; letter-spacing: .1em; font-weight: 700;
   padding-left: 8px; border-left: 3px solid #d92b2b;
 }
-
 
 /* =========================================================================
    ПРИЁМЫ, ПОДСМОТРЕННЫЕ В ТЕМАХ SILLYTAVERN
@@ -9084,28 +8858,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   display: block; font-size: 13px; line-height: 1.5;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* --- 2. Киберпанк: срезанные углы строк ---------------------------------
    Скос по диагонали вместо скругления. Левую полосу пришлось перенести из
    border-left во внутреннюю тень: clip-path режет и рамку тоже, а тень
@@ -9116,10 +8868,6 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   box-shadow: inset 2px 0 0 #2de2ff;
   border-radius: 0;
 }
-
-
-
-
 
 /* =========================================================================
    ПРОГНОЗ, ГОРОСКОП И ПРЕДСКАЗАНИЕ: ЭФФЕКТЫ

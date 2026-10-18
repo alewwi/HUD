@@ -9,10 +9,10 @@
 .hud-theme-cottage {
   --hud-radius: 10px;
   --lt-paper: rgba(255,253,246,.62); --lt-paper-2: rgba(255,253,246,.4);
-  --lt-ink: #4a4034; --lt-ink-soft: rgba(74,64,52,.62);
+  --lt-ink: #4a4034; --lt-ink-soft: rgba(74,64,52,.74);
   --lt-line: rgba(140,120,80,.3); --lt-solid: #f5efe0;
   --hud-text: #4a4034;
-  --hud-text-muted: rgba(74,64,52,.62);
+  --hud-text-muted: rgba(74,64,52,.74);
   --hud-border: rgba(140,120,80,.32);
 }
 .hud-theme-cottage .hud-key::after,

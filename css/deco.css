@@ -242,7 +242,7 @@
 /* Розы и клинок через угол портрета («绣春刀») */
 :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin-right: 44px; }
 :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > * { border-radius: 50% !important; border: 2px solid var(--hud-deco-c) !important; box-shadow: 0 0 14px rgba(0,0,0,.6) !important; }
-:root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco { --deco-img: url('../img/deco/roses.webp'); right: -34px; bottom: -22px; width: 84px; height: 84px; rotate: 8deg; z-index: 3; }
+:root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco { --deco-img: url('../img/deco/roses.webp'); right: -34px; bottom: -22px; width: 84px; height: 84px; z-index: 3; }
 
 /* Веер и розы помнят арку «Вампира» (Форма портрета). */
 :root.hud-ava-arch:is(.hud-deco-fan, .hud-deco-roses) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > :is(.hud-avatar, .hud-avatar-placeholder) {
@@ -326,25 +326,23 @@
    ========================================================================= */
 .hud-group-div { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; margin: 6px 2px 0; }
 .hud-group-div span {
-  font: 700 .72em/1 var(--hud-font-headers, serif); letter-spacing: .22em; text-transform: uppercase; color: var(--hud-deco-c);
+  font: 700 .72em/1 var(--hud-font-headers, serif); letter-spacing: .22em; text-transform: uppercase;
   padding: 3px 10px; border-radius: 4px; background: color-mix(in srgb, var(--hud-deco-c) 12%, transparent); white-space: nowrap;
 }
 .hud-group-div::before, .hud-group-div::after {
   content: ''; flex: 1; height: 1px; opacity: .8;
-  background: linear-gradient(90deg, transparent, var(--hud-deco-c) 30%, var(--hud-deco-c) 70%, transparent);
 }
 /* Картинки из тем: подпись над узором, узор вырезан из цвета темы. */
 :root:is(.hud-div-butterfly, .hud-div-mountain, .hud-div-ripple) .hud-group-div { flex-direction: column; gap: 3px; }
 :root:is(.hud-div-butterfly, .hud-div-mountain, .hud-div-ripple) .hud-group-div::before { display: none; }
 :root:is(.hud-div-butterfly, .hud-div-mountain, .hud-div-ripple) .hud-group-div span { background: none; padding: 0; }
 :root:is(.hud-div-butterfly, .hud-div-mountain, .hud-div-ripple) .hud-group-div::after {
-  flex: none; align-self: stretch; height: 18px; opacity: 1; background: var(--hud-deco-c);
+  flex: none; align-self: stretch; opacity: 1;
   -webkit-mask: var(--hud-div-img) center / contain no-repeat; mask: var(--hud-div-img) center / contain no-repeat;
 }
 :root.hud-div-butterfly { --hud-div-img: url('../img/deco/hr-butterfly.webp'); }
 :root.hud-div-mountain { --hud-div-img: url('../img/deco/hr-mountain.webp'); }
 :root.hud-div-ripple { --hud-div-img: url('../img/deco/hr-ripple.webp'); }
-:root.hud-div-ripple .hud-group-div::after { height: 26px; }
 
 /* =========================================================================
    БУМАГА ВМЕСТО ЗЕРНА
@@ -846,24 +844,6 @@
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 :root.hud-themed-controls.hud-theme-steampunk :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { rotate: 22deg; }
 /* Web 1.0 — ящик как в Windows 95. */
 :root.hud-themed-controls.hud-theme-web1 :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"] {
@@ -892,36 +872,12 @@
   width: 18px; height: 18px; border: none; border-radius: 0;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 :root.hud-themed-controls[class*="hud-theme-"] :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="range"]::-webkit-slider-thumb {
   background: var(--hud-accent) !important; -webkit-mask: var(--thumb) center / contain no-repeat; mask: var(--thumb) center / contain no-repeat;
 }
 :root.hud-themed-controls[class*="hud-theme-"] :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="range"]::-moz-range-thumb {
   background: var(--hud-accent) !important; mask: var(--thumb) center / contain no-repeat;
 }
-
 
 /* --- Сцена в узкой карточке --------------------------------------------------
    Колонка чата Таверны бывает узкой и на ПК: окно широкое, а карточка — 380px.

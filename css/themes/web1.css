@@ -86,3 +86,8 @@
 /* --- анимации темы --- */
 @keyframes hud-w1-blink { 0%, 58% { opacity: 1; } 59%, 100% { opacity: .18; } }
 @keyframes hud-w1-tape { to { background-position: 39.6px 0; } }
+
+/* Исходящие пузыри здесь тёмно-синие, а общий слой светлых тем (light.css)
+   красит текст пузырей чернилами — на синем он пропадал. */
+.hud-theme-web1 .hud-msg-wrapper.outgoing .hud-msg-bubble { color: #fff !important; }
+.hud-theme-web1 .hud-msg-wrapper.outgoing .hud-msg-bubble :is(.hud-msg-time, .msg-status) { color: rgba(255,255,255,.8) !important; text-shadow: none; }

@@ -14,7 +14,6 @@
   --fam-ink: color-mix(in srgb, var(--fam-acc) 40%, #fff);
 }
 
-
 /* --- Цикл: причины сниженного шанса, кровотечение, сбой, попытки ---------- */
 .hud-fert-reasons { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
 .hud-fert-reasons span { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px 2px 6px; border-radius: 999px; font-size: .74em;
@@ -55,7 +54,7 @@
 .hud-fetus-baby .eye { fill: color-mix(in srgb, var(--c) 30%, #5a2a2a); opacity: .6; }
 .hud-fetus-baby .gloss { fill: #fff; opacity: .45; }
 .hud-fetus-baby.is-girl { --c: var(--fam-girl); } .hud-fetus-baby.is-boy { --c: var(--fam-boy); } .hud-fetus-baby.is-unknown { --c: var(--fam-baby); }
-.hud-fetus .txt { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.hud-fetus .txt { min-width: 0; display: flex; flex-direction: column; gap: 3px; }
 .hud-fetus .kind { font: 700 1.12em var(--hud-font-title, Georgia, serif); color: var(--fam-ink); letter-spacing: .02em; }
 .hud-fetus .txt > small { font-size: .74em; opacity: .75; }
 .hud-fetus .sex { font-size: .9em; }
@@ -333,7 +332,7 @@
 /* cq ↑ */
 
 /* Имя малыша — круглым почерком, как на бирке в роддоме. */
-.hud-kid-card .hud-header :is(.hud-char-name, .hud-name, h2, h3) { font-family: 'Segoe Print', 'Comic Sans MS', cursive !important; color: var(--c) !important; }
+.hud-kid-card .hud-header :is(.hud-name, h2, h3) { font-family: 'Segoe Print', 'Comic Sans MS', cursive !important; color: var(--c) !important; }
 .hud-kid-card .hud-avatar-placeholder, .hud-kid-card .hud-avatar { box-shadow: 0 0 0 3px color-mix(in srgb, var(--c) 55%, transparent) !important; }
 
 /* Узкий экран: малыши в животе — значки сверху, текст и кнопки под ними. */
@@ -353,7 +352,6 @@
 :is(.hud-pp-head small, .hud-pp-head em, .hud-pp-milk .info small, .hud-kids-head small, .hud-kid-chip .who small, .hud-fetus .txt > small, .hud-kid-care .ms-count, .hud-pp-row > span) {
   opacity: 1; color: color-mix(in srgb, currentColor 72%, transparent);
 }
-
 
 /* Беременность: всегда видны срок и шкала, остальное — под «Подробнее». */
 .hud-prg-more > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 5px 12px; border-radius: 999px;

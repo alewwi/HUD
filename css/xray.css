@@ -10,7 +10,7 @@
 .hud-xray { --pc: var(--hud-nsfw-color, #d9548a); display: flex; flex-direction: column; gap: 8px; }
 
 /* --- Шапка темпа --------------------------------------------------------- */
-.hud-xray-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; }
+.hud-xray-head { display: flex; flex-wrap: wrap; gap: 4px 12px; }
 .hud-xray-head > b { font-size: .72em; letter-spacing: .14em; text-transform: uppercase; color: color-mix(in srgb, var(--tc, var(--pc)) 55%, #fff); }
 .hud-xray-head .bpm { font-size: .8em; color: color-mix(in srgb, currentColor 72%, transparent); }
 .hud-xray-head .bpm strong { font-size: 1.7em; font-weight: 800; margin-right: 4px; color: color-mix(in srgb, var(--tc, var(--pc)) 40%, #fff);
@@ -163,9 +163,6 @@
 
 /* В блоке темпа x-ray — вся картинка: без второй панели скорости. */
 .hud-tempo.is-xray { display: block; padding: 10px 12px 8px; }
-
-
-
 
 /* --- Детали: губы вульвы, крестец ---------------------------------------- */
 .xr-majora { stroke: none; }
@@ -521,7 +518,6 @@
 /* Цвет темпа в финале — тёплый молочный, а не серо-синий «замерли». */
 .hud-tempo:has(> .hud-xray.is-climax), .hud-tempo:has(> .hud-xray.is-after) { --tc: #f0d6c2; }
 
-
 /* =========================================================================
    ПРЕЖНИЕ ТОЛЧКИ — по образцу «дразнит» и трения: тело движется, как
    движется на самом деле, ткани откликаются (render/xray.js: разрез → дуга).
@@ -599,7 +595,7 @@
 .xr-vol-hi { fill: none; stroke: var(--hi, #fff6ee); stroke-opacity: .6; stroke-width: 3; filter: blur(1.5px); }
 .xr-vol-edge { fill: none; stroke: var(--edge, #a0644c); stroke-opacity: .55; stroke-width: .55; stroke-linejoin: round; stroke-linecap: round; }
 .xr-finger.is-back { filter: brightness(.87) saturate(1.05); }
-.xr-hj.is-f { --skin: #f7d8c6; --rim: #cf947c; --lo: #b47660; --hi: #fff8f2; --edge: #b47862; }
+.xr-hj.is-f { --skin: #f7d8c6; --lo: #b47660; --hi: #fff8f2; }
 .xr-hj.is-m { --skin: #e3aa8a; --rim: #a96a50; --lo: #87503a; --hi: #ffe6d4; --edge: #87513c; }
 .xr-nail2 { fill: #fbe8dc; stroke: #c49078; stroke-width: .4; }
 .xr-nail2.is-f { fill: #d0607f; stroke: #9c3755; stroke-width: .35; }
@@ -617,10 +613,6 @@
 @media (prefers-reduced-motion: no-preference) {
   /* Большой палец трёт клитор — кисть покачивается в запястье, подушечка ходит по нему. */
   :is(.hud-tempo, .hud-xray.is-standalone):is(:hover, .fx-tap, .fx-on):not(.l0) .xr-wrist.is-rub { animation: xr-rub-w calc(var(--beat1, 1s) * 1.1) linear infinite; }
-}
-@media (prefers-reduced-motion: no-preference) {
-  /* Её кисть гибкая: в ходе вверх и вниз чуть наклоняется в запястье по
-     направлению движения (--v), у головки сжимается плотнее. */
 }
 
 /* Руки не пульсируют: кисть — живая рука, не «удар». Вспышка и волна на

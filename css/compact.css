@@ -24,19 +24,62 @@
   scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--hud-accent, #c31f38) 45%, transparent) transparent;
   -webkit-mask: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
 }
+/* Не уже 160px: в узкой карточке широкого окна треть — это 90px, и в
+   карточке секрета пропадал статус «НЕ РАСКРЫТ». Там — две в ряд. */
 .hud-os-card .is-capped-x > * {
-  flex: 0 0 calc((100% - 20px) / 3.15) !important; max-width: calc((100% - 20px) / 3.15) !important; min-width: 0;
+  flex: 0 0 max(160px, (100% - 20px) / 3.15) !important; max-width: max(160px, (100% - 20px) / 3.15) !important; min-width: 0;
   margin: 0 !important; scroll-snap-align: start; box-sizing: border-box;
 }
 .hud-os-card :is(.is-capped, .is-capped-x).is-end { -webkit-mask: none; mask: none; }
+/* След в ленте вбок — узкий, как на телефоне: таймер на своей строке,
+   иначе «сойдёт через 2 дн. 11 ч» сжимал название до буквы в строке. */
+.hud-os-card .hud-marks.is-capped-x > .hud-mark { grid-template-columns: 34px minmax(0, 1fr) !important; }
+.hud-os-card .hud-marks.is-capped-x > .hud-mark > .hud-mark-timer { grid-column: 1 / -1; justify-content: flex-start; }
+.hud-os-card .hud-marks.is-capped-x .hud-mark-timer small { white-space: normal; }
 
-/* Компактнее на телефоне: отступы и шрифт внутри карточек. */
+/* Компактнее на телефоне: отступы и шрифт внутри карточек.
+   И правило телефона: вбок ничего не листается и не обрезается — ленты
+   (история настроения, прогноз) встают столбиком или в два ряда, длинные
+   подписи переносятся. Ленты вбок — только на широком экране. */
 @media (max-width: 600px) {
   .hud-os-card .hud-nsfw-pill { padding: 8px 11px !important; font-size: .9em; }
   .hud-os-card .hud-nsfw-pill .hud-pill-label { font-size: .84em !important; padding: 2px 9px !important; }
   .hud-os-card .hud-ill { padding: 9px 11px !important; }
   .hud-os-card .hud-ill-head b { font-size: .95em; }
   .hud-os-card .hud-ill-row { font-size: .88em; }
+  .hud-os-card .hud-mood-history { flex-direction: column; overflow-x: visible; gap: 6px; padding-bottom: 0; }
+  .hud-os-card .hud-mood-history > .hud-mood-chip { min-width: 0; width: 100%; box-sizing: border-box; }
+  .hud-os-card .hud-forecast-row { flex-wrap: wrap; overflow-x: visible; }
+  .hud-os-card .hud-forecast-cell { flex: 1 1 calc(50% - 4px); min-width: 0; }
+  .hud-os-card .hud-route-head { flex-wrap: wrap; }
+  .hud-os-card .hud-trust-meta span { white-space: normal; }
+  .hud-os-card .hud-pet2-mood { white-space: normal; text-overflow: clip; }
+  /* Строка экономики: значок и название целиком, под названием — цена
+     и изменение. В одну строку название сжималось до 30px («Квар/тиры»). */
+  .hud-os-card .hud-eco-row:not(.is-note) { display: flex; flex-wrap: wrap; align-items: center; column-gap: 8px; row-gap: 3px; }
+  .hud-os-card .hud-eco-dots { display: none; }
+  .hud-os-card .hud-eco-row > .hud-eco-ico { flex: 0 0 26px; }
+  .hud-os-card .hud-eco-row > .hud-eco-name { flex: 1 1 calc(100% - 34px); min-width: 0; }
+  .hud-os-card .hud-eco-row > .hud-eco-val { margin-left: 34px; white-space: nowrap; text-align: left; }
+  .hud-os-card .hud-eco-row > .hud-eco-chg { white-space: nowrap; }
+  .hud-os-card .hud-ad-card { min-width: 0; overflow-wrap: anywhere; }
+  .hud-os-card .hud-intercept-header .hud-phone-name { white-space: normal; min-width: 0; overflow-wrap: anywhere; }
+  .hud-os-card .hud-rel-heading > * { min-width: 0; }
+  .hud-os-card .hud-rel-heading small { white-space: normal; }
+  /* Заголовок графа — на всю строку, переключатель «Связи / Семья» под ним:
+     в одной строке с ним заголовок схлопывался до 3px. */
+  .hud-os-card .hud-rel-toolbar { flex-wrap: wrap; row-gap: 8px; }
+  .hud-os-card .hud-rel-heading { flex: 1 1 100%; }
+  /* Узкие колонки сжимали текст до буквы-двух в строку: имя в «Доверии»
+     (шкала 64px отнимала место) — на свою строку, шкала с числом под ним;
+     страх — название целиком, бирка и точки ниже; «Детская» — под мобилем,
+     а не в 26px слева от него. */
+  .hud-os-card .hud-zone:has(.hud-zone-bar) { grid-template-columns: minmax(0, 1fr) auto !important; row-gap: 4px; }
+  .hud-os-card .hud-zone:has(.hud-zone-bar) > .hud-zone-name { grid-column: 1 / -1; }
+  .hud-os-card .hud-fear { flex-wrap: wrap; border-radius: 12px; }
+  .hud-os-card .hud-fear b { flex: 1 1 calc(100% - 26px); }
+  .hud-os-card .hud-kids-head { padding-top: 60px; }
+  .hud-os-card .hud-kids-head .title { padding-right: 0; }
 }
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) {
@@ -45,5 +88,38 @@
   .hud-os-card .hud-ill { padding: 9px 11px !important; }
   .hud-os-card .hud-ill-head b { font-size: .95em; }
   .hud-os-card .hud-ill-row { font-size: .88em; }
+  .hud-os-card .hud-mood-history { flex-direction: column; overflow-x: visible; gap: 6px; padding-bottom: 0; }
+  .hud-os-card .hud-mood-history > .hud-mood-chip { min-width: 0; width: 100%; box-sizing: border-box; }
+  .hud-os-card .hud-forecast-row { flex-wrap: wrap; overflow-x: visible; }
+  .hud-os-card .hud-forecast-cell { flex: 1 1 calc(50% - 4px); min-width: 0; }
+  .hud-os-card .hud-route-head { flex-wrap: wrap; }
+  .hud-os-card .hud-trust-meta span { white-space: normal; }
+  .hud-os-card .hud-pet2-mood { white-space: normal; text-overflow: clip; }
+  /* Строка экономики: значок и название целиком, под названием — цена
+     и изменение. В одну строку название сжималось до 30px («Квар/тиры»). */
+  .hud-os-card .hud-eco-row:not(.is-note) { display: flex; flex-wrap: wrap; align-items: center; column-gap: 8px; row-gap: 3px; }
+  .hud-os-card .hud-eco-dots { display: none; }
+  .hud-os-card .hud-eco-row > .hud-eco-ico { flex: 0 0 26px; }
+  .hud-os-card .hud-eco-row > .hud-eco-name { flex: 1 1 calc(100% - 34px); min-width: 0; }
+  .hud-os-card .hud-eco-row > .hud-eco-val { margin-left: 34px; white-space: nowrap; text-align: left; }
+  .hud-os-card .hud-eco-row > .hud-eco-chg { white-space: nowrap; }
+  .hud-os-card .hud-ad-card { min-width: 0; overflow-wrap: anywhere; }
+  .hud-os-card .hud-intercept-header .hud-phone-name { white-space: normal; min-width: 0; overflow-wrap: anywhere; }
+  .hud-os-card .hud-rel-heading > * { min-width: 0; }
+  .hud-os-card .hud-rel-heading small { white-space: normal; }
+  /* Заголовок графа — на всю строку, переключатель «Связи / Семья» под ним:
+     в одной строке с ним заголовок схлопывался до 3px. */
+  .hud-os-card .hud-rel-toolbar { flex-wrap: wrap; row-gap: 8px; }
+  .hud-os-card .hud-rel-heading { flex: 1 1 100%; }
+  /* Узкие колонки сжимали текст до буквы-двух в строку: имя в «Доверии»
+     (шкала 64px отнимала место) — на свою строку, шкала с числом под ним;
+     страх — название целиком, бирка и точки ниже; «Детская» — под мобилем,
+     а не в 26px слева от него. */
+  .hud-os-card .hud-zone:has(.hud-zone-bar) { grid-template-columns: minmax(0, 1fr) auto !important; row-gap: 4px; }
+  .hud-os-card .hud-zone:has(.hud-zone-bar) > .hud-zone-name { grid-column: 1 / -1; }
+  .hud-os-card .hud-fear { flex-wrap: wrap; border-radius: 12px; }
+  .hud-os-card .hud-fear b { flex: 1 1 calc(100% - 26px); }
+  .hud-os-card .hud-kids-head { padding-top: 60px; }
+  .hud-os-card .hud-kids-head .title { padding-right: 0; }
 } }
 /* cq ↑ */

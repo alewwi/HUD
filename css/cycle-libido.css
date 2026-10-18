@@ -2,10 +2,10 @@
    фазе, который считает HUD; точки — желание из близости, когда о нём
    писали; полый кружок — сегодня с поправкой на стресс и сон. */
 .hud-libido { display: grid; gap: 3px; padding-top: 6px; border-top: 1px solid rgba(255,255,255,.07); }
-.hud-libido-title { font-size: 12px; color: var(--hud-text-muted, #898781); }
+.hud-libido-title { color: var(--hud-text-muted, #898781); }
 .hud-libido-svg { width: 100%; max-width: 420px; height: auto; display: block; overflow: visible; }
 .hud-libido-svg .lib-pms { fill: rgba(170,150,220,.12); }
-.hud-libido-svg .lib-line { fill: none; stroke: var(--phase, var(--hud-accent, #d96a8a)); stroke-width: 1.6; stroke-linejoin: round; opacity: .85; }
+.hud-libido-svg .lib-line { fill: none; stroke: var(--phase, var(--hud-accent, #d96a8a)); stroke-linejoin: round; }
 .hud-libido-svg .lib-now { stroke: rgba(255,255,255,.35); stroke-width: 1; stroke-dasharray: 2 2; }
 .hud-libido-svg .lib-today { fill: var(--phase, var(--hud-accent, #d96a8a)); stroke: #fff; stroke-width: 1; }
 .hud-libido-svg .lib-adj { fill: none; stroke: var(--hud-text, #e6e6ee); stroke-width: 1.2; stroke-dasharray: 2 1.5; }

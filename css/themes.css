@@ -19,38 +19,8 @@
     .hud-theme-noir, .hud-theme-medieval, .hud-theme-mafia, .hud-theme-fantasy)
   .hud-os-wrapper::before { opacity: 1; }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* Движение декора — только там, где есть курсор, и только под наведением.
    На телефоне эти слои остаются картинкой и не стоят ни кадра. */
-
-@media (prefers-reduced-motion: reduce) {
-  .hud-os-wrapper::before { animation: none !important; }
-}
 
 /* =========================================================================
    ТЕМЫ: ТРЕТИЙ СЛОЙ — ТО, ЧЕГО НЕ ХВАТАЛО
@@ -80,11 +50,6 @@
   animation-play-state: paused !important;
 }
 
-
-
-
-
-
 /* Мерцающая надпись — отдельно от слоя: гаснуть должен именно текст. */
 .hud-theme-cyberpunk .hud-os-logo {
   animation: hud-th-flicker 4.6s steps(1, end) infinite;
@@ -99,11 +64,8 @@
   69% { opacity: 1; text-shadow: 0 0 8px rgba(45,226,255,.5); }
 }
 
-
-
 /* Движение фона — только по нажатию на сам фон (класс fx-bg, events.js).
    Логотип киберпанка оживает под курсором на нём самом. */
-.hud-os-card.fx-bg .hud-tab-content::before { animation-play-state: running !important; }
 
 @media (prefers-reduced-motion: reduce) {
   .hud-tab-content::before, .hud-theme-cyberpunk .hud-os-logo { animation: none !important; }
@@ -118,35 +80,11 @@
               inset 2px 2px #dfdfdf, inset -2px -2px #808080 !important;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* Подписи от руки: заголовки полей крупнее и тоньше. */
 .hud-theme-cottage :is(.hud-key, .hud-key-label) {
   font-family: 'Amatic SC', cursive; font-size: 1.24em;
   letter-spacing: .05em; text-transform: none; font-weight: 700;
 }
-
-
-
-
-
-
-
 
 /* Ледяная кромка блока: зубчатый низ. */
 .hud-theme-ice .hud-key-block {
@@ -156,24 +94,8 @@
   padding-bottom: 16px;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* Фон новых тем — тоже по нажатию на сам фон; значок у логотипа — под
    курсором на логотипе. */
-.hud-os-card.fx-bg .hud-os-wrapper::after,
-.hud-os-card.fx-bg .hud-os-wrapper::before { animation-play-state: running !important; }
 @media (hover: hover) {
   .hud-os-logo:hover::after { animation-play-state: running !important; }
 }
@@ -305,21 +227,6 @@
 .hud-role-clear:hover { background: rgba(255,255,255,.07); border-color: var(--hud-accent); }
 .hud-role-x { font-size: 14px; opacity: .8; }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* =========================================================================
    СЦЕНЕ — СВОЁ НЕПРОЗРАЧНОЕ НЕБО
    -------------------------------------------------------------------------
@@ -434,13 +341,8 @@
 .hud-grass-tuft.gt6 { left: 92%; bottom: 6.6%; transform: scale(.78); }
 /* Лужа после весеннего дождя: небо в ней отражается светлой полосой. */
 .hud-spring-puddle {
-  position: absolute; left: 30%; bottom: 6%; width: 74px; height: 13px;
-  z-index: 2; pointer-events: none; border-radius: 50%;
-  background:
-    linear-gradient(180deg, rgba(190,225,240,.5), rgba(120,175,205,.35)),
-    radial-gradient(60% 40% at 38% 34%, rgba(255,255,255,.5), transparent 70%);
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.4);
-  opacity: .7;
+  position: absolute;
+  pointer-events: none; border-radius: 50%;
 }
 
 /* =========================================================================
@@ -747,18 +649,6 @@
 .weather-storm .hud-fx-weather,
 .weather-hail .hud-fx-weather { z-index: 3; }
 
-
-
-
-
-
-
-
-
-
-
-
-
 /* =========================================================================
    ГРАФ ОТНОШЕНИЙ: ПЕРЕТАСКИВАНИЕ И МАСШТАБ
    Раньше зум висел разом на панели и на svg внутри — множители
@@ -787,7 +677,6 @@
   transition: none !important;
 }
 
-
 /* =========================================================================
    УКРАШЕНИЯ ТЕМ: ПЯТЬ НОВЫХ МЕСТ
    Свободного места в карточке хватает: справа от имени персонажа, под
@@ -805,8 +694,6 @@
   transition: opacity .3s ease, transform .3s ease;
 }
 .hud-os-card:hover .hud-header::after { opacity: .68; transform: translateY(-50%) scale(1.06); }
-
-
 
 /* Чтобы длинное имя не забежало под уехавший значок. */
 :is(.hud-theme-kawaii, .hud-theme-vamp, .hud-theme-ice) .hud-header-text { padding-right: 92px; }
@@ -840,66 +727,6 @@
   background-repeat: no-repeat; background-position: right center; background-size: contain;
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* =========================================================================
    ПРОИЗВОДИТЕЛЬНОСТЬ: ПОЯСНЕНИЕ В НАСТРОЙКАХ И СВЁРНУТАЯ КАРТОЧКА
    ========================================================================= */
@@ -925,9 +752,8 @@
   color: var(--hud-text-muted, rgba(226,232,240,.4));
   border: 1px dashed var(--hud-border, rgba(255,255,255,.14));
   border-radius: 8px; padding: 6px 10px; margin: 4px 0;
-  opacity: .55; cursor: default; user-select: none;
+  opacity: .55; user-select: none;
 }
-
 
 /* =========================================================================
    ТЕЛЕФОН: КОШЕЛЁК И КАЛЕНДАРЬ

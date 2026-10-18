@@ -643,3 +643,65 @@
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-xray-head > b { color: color-mix(in srgb, var(--tc, var(--pc)) 70%, #000); }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-xray-head .bpm strong { color: color-mix(in srgb, var(--tc, var(--pc)) 75%, #000); text-shadow: none; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-xray-cap em { color: color-mix(in srgb, var(--pc) 75%, #000); }
+
+/* --- Цвета Таверны внутри карточки ---------------------------------------
+   Таверна красит <em>/<i>/<u>/<q> в сообщении и любой <small> цветами своей
+   темы (--SmartTheme…). При тёмной Таверне это белый и бледно-голубой: на
+   бумаге светлой темы HUD пропадали даты рождения, проценты, плашки стадий
+   болезни, сроки беременности, подписи в бою и дневниках. Правило Таверны
+   `.mes_text em` сильнее большинства наших, поэтому не спорим с ним, а
+   переводим его переменные на цвет текста родителя. <small> — через :where,
+   чтобы любые наши правила для <small> оставались сильнее. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-os-card {
+  --SmartThemeEmColor: currentColor; --SmartThemeUnderlineColor: currentColor; --SmartThemeQuoteColor: currentColor;
+}
+:where(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :where(.hud-os-card) small { color: inherit; }
+/* --- Остатки светлого текста (замер контраста примера в «Коттеджкоре») --- */
+/* Стадия болезни и статус ружья — цвет своей стадии, но тёмный. Правило
+   Таверны для <em> их перебивало, поэтому сила (0,2,0). */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-ill-stage { color: color-mix(in oklab, var(--ill) 55%, var(--lt-ink)); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-gun-status { color: color-mix(in oklab, var(--gun, var(--lt-ink)) 55%, var(--lt-ink)); }
+/* Память: маршрут, огласка секрета, кто в курсе. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-route-info b, .hud-secret-spread-meta b, .hud-secret-pname) { color: var(--lt-ink); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-secret-person.unaware .hud-secret-pname { color: #b23a3a; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-secret-psource { color: var(--lt-ink-soft); border-left-color: var(--lt-line); }
+/* Мир: текст статьи и афиша. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-news-article .article-text { color: var(--lt-ink); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-afisha-title, .hud-afisha-stub .hud-afisha-kind) { color: var(--lt-ink); opacity: 1; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-afisha-title::before { color: color-mix(in srgb, var(--tk) 70%, #000); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-afisha-when { color: color-mix(in srgb, var(--tk) 45%, var(--lt-ink)); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-horo-disclaimer { opacity: .85; }
+/* Сны: толкование было бирюзовым свечением для тёмного листа. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-dream-meaning { color: var(--lt-ink); border-top-color: var(--lt-line); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-dream-meaning-label { color: #0f766e; }
+/* Дневник тела: автор, время и настроение записи. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-body-diary :is(.hud-diary-author, .hud-diary-time, .hud-body-mood) { color: var(--lt-ink-soft); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-body-mood { opacity: .9; }
+/* Плашки сцены и звуки: тёмные капсулы на бумаге с тёмным же текстом —
+   на светлой теме капсула светлая, как у «Темпа». */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-scene-chip {
+  color: var(--lt-ink);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--nsfw) 14%, #fff), color-mix(in srgb, var(--nsfw) 6%, #fdf9f6)) padding-box,
+    linear-gradient(120deg, color-mix(in srgb, var(--nsfw) 70%, #fff), color-mix(in srgb, var(--nsfw) 15%, transparent) 45%, color-mix(in srgb, var(--nsfw) 55%, #fff)) border-box;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-sound {
+  color: var(--lt-ink);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--nsfw) calc(6% + var(--г, 5) * 1.4%), #fff), color-mix(in srgb, var(--nsfw) 5%, #fdf9f6)) padding-box,
+    linear-gradient(110deg, color-mix(in srgb, var(--nsfw) calc(30% + var(--г, 5) * 6%), #fff 8%), transparent 55%, color-mix(in srgb, var(--nsfw) calc(20% + var(--г, 5) * 5%), transparent)) border-box;
+}
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-scene-chip b, .hud-sound-eq i) { color: color-mix(in srgb, var(--nsfw) 65%, #000); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-sound-desc { color: var(--lt-ink-soft); }
+/* Этапы сцены и «Сцена идёт» — розовый текст под тёмный фон. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phase-step { color: var(--lt-ink-soft); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-phase-step.is-past, .hud-phase-step.is-now, .hud-scene-state.is-live) { color: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 62%, #000); }
+/* Тревожные пометки: жизненные «выше нормы», пропущенный звонок. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-vit-flag { color: #b0501d; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-call-row.is-missed .hud-call-body b { color: #b2402f; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-cycle-legend small { color: var(--lt-ink-soft); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-xray-cap small.is-wet { color: #2c5d8a; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-xray-cap small.is-cum { color: #7a5a2a; background: rgba(160,120,60,.14); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-afisha-admit { color: color-mix(in srgb, var(--tk) 60%, #000); }
+/* Процент на шкале болезни: тёмная тень под тёмными чернилами мутила цифры. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-ill-meter small { color: var(--lt-ink); text-shadow: 0 0 3px rgba(255,255,255,.75); }
