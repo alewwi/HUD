@@ -84,10 +84,18 @@ const settings = S.settings;
 {
   const FX = await модуль('render/fx.js');
   const misc = css('css/misc.css');
-  проверить('data-fx: список подъёма слово в слово как в misc.css', misc.includes(':is(' + FX.СЕЛЕКТОР_LIFT + ') { transition:'), FX.FX_LIFT.length + ' селекторов');
-  проверить('data-fx: список свечения слово в слово как в misc.css', misc.includes(':is(' + FX.СЕЛЕКТОР_GLOW + '):is(:hover, .fx-hold) { animation: hud-soft-nsfw'), FX.FX_GLOW.length + ' селекторов');
-  проверить('data-fx: новые правила дублируют старые объявления', /\[data-fx~="lift"\]:hover \{ transform: translateY\(-3px\) !important; filter: drop-shadow\(0 7px 10px rgba\(0,0,0,\.38\)\) drop-shadow\(0 0 0 transparent\); z-index: 2; \}/.test(misc)
-    && /\[data-fx~="lift"\]\.fx-tap \{ transform: translateY\(-3px\) !important;/.test(misc) && /\[data-fx~="glow"\]:is\(\.fx-tap, \.fx-hold\) \{ animation: hud-soft-nsfw/.test(misc));
+  // Фаза 2: мегасписков в CSS нет — их проверка шла по каждому элементу страницы.
+  проверить('data-fx: старых списков на сто классов в CSS нет', !misc.includes(FX.СЕЛЕКТОР_LIFT) && !misc.includes(FX.СЕЛЕКТОР_GLOW), FX.FX_LIFT.length + ' / ' + FX.FX_GLOW.length + ' селекторов');
+  // Правила по атрибуту — с той же специфичностью, что у прежних :is(…):
+  // подъём (0,2,0), свечение (0,4,0) с :hover/.fx-tap.
+  проверить('data-fx: правила подъёма и свечения на месте, специфичность прежняя',
+    /\[data-fx~="lift"\]\[data-fx\] \{ transition: transform \.6s/.test(misc)
+    && /\[data-fx~="lift"\]\[data-fx\]:hover \{ transform: translateY\(-3px\) !important; filter: drop-shadow\(0 7px 10px rgba\(0,0,0,\.38\)\) drop-shadow\(0 0 0 transparent\); z-index: 2; \}/.test(misc)
+    && /\[data-fx~="lift"\]\[data-fx\]\.fx-tap \{ transform: translateY\(-3px\) !important;/.test(misc)
+    && /\[data-fx~="glow"\]\[data-fx\]\[data-fx\]:is\(:hover, \.fx-hold\) \{ animation: hud-soft-nsfw/.test(misc)
+    && /\[data-fx~="glow"\]\[data-fx\]\[data-fx\]:is\(\.fx-tap, \.fx-hold\) \{ animation: hud-soft-nsfw/.test(misc));
+  // Порции длинных списков, дорисованные позже, тоже помечаются.
+  проверить('data-fx: дорисованная порция списка получает метки', /раскрытьПорцию\(кнопка\)\.forEach\(узел => \{ refreshReactions\(узел\); пометитьЭффекты\(узел\); \}\)/.test(fs.readFileSync(path.join(КОРЕНЬ, 'events.js'), 'utf8')));
   // Пометка: метка ставится один раз, соседние метки сохраняются.
   const атрибуты = {};
   const у = { getAttribute: (k) => атрибуты[k] ?? null, setAttribute: (k, v) => { атрибуты[k] = v; } };
@@ -785,6 +793,99 @@ const settings = S.settings;
   проверить('лор: пропуск в запросе — пометкой', L.buildLoreGenPrompt({ fact: факт, messages: окно }).includes('[… 9 messages skipped …]'));
   const сПланом = L.buildLoreGenPrompt({ fact: факт, messages: [{ name: 'Тристан', text: '<plan>1. Command: fix</plan>Он закрыл ящик.' }] });
   проверить('лор: черновик модели <plan> в запрос не идёт', !сПланом.includes('Command') && сПланом.includes('Он закрыл ящик.'));
+}
+
+// --- Дневник: настроение → лист, штамп; сны: разбор и виды -------------------
+{
+  const D = await модуль('render/diary.js');
+  const тема = (м) => D.normalizeDiaryMood(м);
+  const ждём = {
+    'тоска': 'longing', longing: 'longing', 'контроль': 'control', 'самоконтроль': 'control', 'безумие': 'madness',
+    'растерзанное самообладание': 'madness', 'холодная рассудительность': 'calc', 'решимость': 'resolve', 'непреклонность': 'resolve',
+    'азарт': 'thrill', 'ирония': 'irony', 'уважение': 'respect', 'любопытство': 'curiosity', 'стресс': 'stress', 'напряжение': 'stress',
+    'усталость': 'apathy', tired: 'apathy', 'холодное спокойствие': 'cold', 'удовлетворение': 'triumph', 'обладание': 'jealousy',
+  };
+  const мимо = Object.entries(ждём).filter(([м, к]) => тема(м) !== к).map(([м, к]) => `${м}→${тема(м)} (ждали ${к})`);
+  проверить('дневник: новые термины попадают в свои листы', мимо.length === 0, мимо.join('; '));
+  проверить('дневник: «внимание» — не мания, «холодное» — не дно', тема('внимание') !== 'obsession' && тема('холодное') !== 'collapse', тема('внимание') + ' / ' + тема('холодное'));
+  проверить('дневник: короткое латинское слово — целиком (rest ≠ restless)', тема('restless') !== тема('rest') || тема('rest') === 'neutral');
+  проверить('дневник: у каждой темы есть CSS-лист и значок', Object.entries(D.ТЕМЫ_ДНЕВНИКА).every(([к, т]) => т.имя && т.значок && css('css/base.css').includes('.hud-diary-mood-' + к)),
+    Object.keys(D.ТЕМЫ_ДНЕВНИКА).filter(к => !css('css/base.css').includes('.hud-diary-mood-' + к)).join());
+  проверить('дневник: пример темы попадает в саму тему', Object.entries(D.ТЕМЫ_ДНЕВНИКА).every(([к, т]) => к === 'neutral' || тема(т.пример) === к),
+    Object.entries(D.ТЕМЫ_ДНЕВНИКА).filter(([к, т]) => к !== 'neutral' && тема(т.пример) !== к).map(([к, т]) => `${т.пример}→${тема(т.пример)}≠${к}`).join('; '));
+  const штамп = D.штампНастроения('Холодная ярость', 'angry');
+  проверить('дневник: штамп — слово модели и SVG-значок', штамп.includes('холодная ярость') && штамп.includes('<svg') && штамп.includes('лист «'));
+  проверить('дневник: английский код в штампе — русским именем темы', D.штампНастроения('lng', 'longing').includes(D.ТЕМЫ_ДНЕВНИКА.longing.имя));
+  проверить('дневник: без настроения и для нейтрального — без штампа', D.штампНастроения('', 'neutral') === '' && D.штампНастроения('neutral', 'neutral') === '');
+  проверить('дневник: штамп в листе', D.buildDiaryHTML([{ author: 'А', time: '21:40', text: 'текст', mood: 'тоска' }], 'd', true).includes('hud-diary-stamp'));
+
+  const Dr = await модуль('render/dreams.js');
+  const V = await модуль('render/views.js');
+  const люди = ['Марк Грей', 'Софи'];
+  const кошмар = Dr.разобратьСон({ text: 'Кошмар: Софи падает в ледяную воду с моста, кричит, но звука нет.', meaning: 'Беспомощность' }, люди);
+  проверить('сны: кошмар узнаётся, видит Софи, образы — вода и падение', кошмар.тип.ключ === 'nightmare' && /Софи/.test(кошмар.кто || '') && кошмар.образы.length > 0 && кошмар.образы.length <= 3, JSON.stringify(кошмар));
+  проверить('сны: без людей — сон без имени, не падает', Dr.разобратьСон({ text: 'Снится дом у моря.' }, []).тип.ключ === 'dream');
+  const вид = V.ВИДЫ_БЛОКОВ.find(б => б.ключ === 'dreamsView');
+  проверить('сны: вид блока зарегистрирован, первый — классика', вид && Object.keys(вид.виды)[0] === 'classic' && Object.keys(вид.виды).length >= 5);
+  const сны = [{ text: 'Марку снится библиотека без конца.', meaning: 'Страх потеряться' }];
+  const классика = Dr.buildDreamHTML(сны, 'u', true, люди);
+  const разные = Object.keys(вид.виды).slice(1).map(в => { settings.dreamsView = в; return Dr.buildDreamHTML(сны, 'u', true, люди); });
+  delete settings.dreamsView;
+  проверить('сны: каждый вид рисует своё и не теряет текст', разные.every(h => h !== классика && h.includes('библиотека без конца') && h.includes('Страх потеряться')));
+  проверить('сны: CSS видов грузится только при включённых снах', css('css-loader.js').includes("['dream-views', (s) => s.enableDreams !== false]") && css('css/all.css').includes('dream-views.css'));
+  проверить('сны: туман неба снимается кликом', css('events.js').includes("closest('.hud-dv-sky')"));
+  settings.dreamsView = 'catcher';
+  const ловец = Dr.buildDreamHTML([{ text: 'Кошмар: Софи падает в ледяную воду с моста.', meaning: 'Страх' }, { text: 'Марку снится дом у моря.' }], 'u', true, люди);
+  delete settings.dreamsView;
+  проверить('сны: ловец — кошмар узлом в сети, добрый сон бусиной в центре', (ловец.match(/class="knot"/g) || []).length === 1 && (ловец.match(/<circle class="bead"/g) || []).length === 1);
+  проверить('сны: ловец — перо на каждый образ', (ловец.split('hud-dv-catch t-nightmare')[1].split('hud-dv-catch ')[0].match(/hud-dv-feather f/g) || []).length === 3);
+  проверить('сны: ловец оживает нажатием', css('events.js').includes('.hud-diary-entry, .hud-dv-catch,'));
+  проверить('сны: плёнки в снах больше нет', !Object.keys(вид.виды).includes('film'));
+
+  // Характер листа: частицы, край, появление, почерк — css/diary-moods.css.
+  const лист = (м) => D.buildDiaryHTML([{ author: 'А', time: '21:40', text: 'текст', mood: м }], 'd', true);
+  проверить('дневник: у темы с частицами — шесть частиц', (лист('нежность').match(/class="hud-dp"/g) || []).length === 6);
+  проверить('дневник: у темы без частиц — пустой живой слой, у нейтральной — никакого', лист('контроль').includes('<span class="hud-diary-fx" aria-hidden="true"></span>') && !лист('').includes('hud-diary-fx'));
+  const dm = css('css/diary-moods.css');
+  const безПоявления = Object.keys(D.ТЕМЫ_ДНЕВНИКА).filter(к => к !== 'neutral' && !new RegExp(`\\.hud-diary-mood-${к}\\b[^{]*\\{[^}]*--dm-in:`).test(dm));
+  проверить('дневник: у каждой темы своё появление', безПоявления.length === 0, безПоявления.join());
+  проверить('дневник: стили характера грузятся только с дневником', css('css-loader.js').includes("['diary-moods', (s) => s.enableDiary !== false]") && css('css/all.css').includes('diary-moods.css'));
+  const правилаDm = [...dm.replace(/\/\*[\s\S]*?\*\//g, '').replace(/@keyframes[^{]*\{(?:[^{}]*\{[^}]*\})*[^}]*\}/g, '').matchAll(/([^{}]+)\{([^{}]*)\}/g)];
+  const безПаузы = правилаDm.filter(([, , т]) => /infinite/.test(т) && !/animation-play-state: (?:paused|running, paused)/.test(т)).map(([, с]) => с.trim());
+  проверить('дневник: зацикленное ждёт касания', безПаузы.length === 0 && /\.hud-diary-entry\.fx-active :is\(\.hud-dp, \.hud-diary-text\) \{ animation-play-state: running; \}/.test(dm), безПаузы.join(' | '));
+  проверить('дневник: появление не выезжает вправо за поле (scale ≤ 1.02)', ![...dm.matchAll(/@keyframes hud-dm-in-[\w-]+ \{([^\n]*)\}/g)].some(м => [...м[1].matchAll(/scale: ([\d.]+)(?: ([\d.]+))?/g)].some(s => Number(s[1]) > 1.02 && !s[2])));
+  проверить('дневник: почерк по настроению — выключатель, по умолчанию включён', S.defaultSettings.diaryMoodHand === 'on' && css('customize.js').includes("основа.выбор('diaryMoodHand'") && css('index.js').includes("setProperty('--hud-dm-gate', 'initial')"));
+  проверить('дневник: заслонка почерка объявлена пустой', /:root \{ --hud-dm-gate: ; \}/.test(dm) && (dm.match(/--hud-dm-font: var\(--hud-dm-gate\)/g) || []).length >= 10);
+  // Переделанные по просьбе листы: свой цвет, не близкий ни к одному соседу.
+  const цвета = Object.fromEntries([...css('css/base.css').matchAll(/\.hud-diary-mood-([a-z]+) \{ --dm: (#[0-9a-f]{6}); \}/g)].map(м => [м[1], м[2]]));
+  const ргб = (h) => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const даль = (a, b) => { const [x, y] = [ргб(a), ргб(b)]; const r = (x[0] + y[0]) / 2; return Math.sqrt((2 + r / 256) * (x[0] - y[0]) ** 2 + 4 * (x[1] - y[1]) ** 2 + (2 + (255 - r) / 256) * (x[2] - y[2]) ** 2); };
+  const переделаны = ['obsession', 'jealousy', 'codependency', 'guilt', 'contempt', 'irritation', 'sad', 'control', 'resolve', 'thrill', 'irony', 'stress', 'shame', 'embarrassment', 'tenderness', 'protection'];
+  const тесно = переделаны.flatMap(к => Object.keys(цвета).filter(о => о !== к && даль(цвета[к], цвета[о]) < 45).map(о => `${к}~${о}`));
+  проверить('дневник: у переделанных листов цвет не путается с соседями', Object.keys(цвета).length === 40 && тесно.length === 0, тесно.join(', '));
+  проверить('дневник: презрение больше не красное (не рядом с любовью и страстью)', даль(цвета.contempt, цвета.love) > 120 && даль(цвета.contempt, цвета.lust) > 120);
+  проверить('дневник: у переделанных листов своё движение', ['obsession', 'jealousy', 'codependency', 'guilt', 'contempt', 'thrill', 'stress'].every(к => new RegExp(`\\.hud-diary-mood-${к} \\.hud-diary-fx::(?:before|after)[^{]*\\{[^}]*animation:`).test(dm)) && /\.hud-diary-mood-irritation \.hud-dp \{[^}]*hud-dmp-scratch/.test(dm));
+
+  const новые = { 'смущение': 'embarrassment', 'краснеет': 'embarrassment', shy: 'embarrassment', 'стыд': 'shame', 'позор': 'shame', 'нежность': 'tenderness', tender: 'tenderness', 'влюблённость': 'love', 'защита': 'protection', protective: 'protection', 'преданность': 'devotion', 'верность': 'devotion', 'панический трепет': 'panic' };
+  const мимоН = Object.entries(новые).filter(([м, к]) => тема(м) !== к).map(([м, к]) => `${м}→${тема(м)} (ждали ${к})`);
+  проверить('дневник: смущение, нежность и защита отделены от стыда, любви и преданности', мимоН.length === 0, мимоН.join('; '));
+  проверить('дневник: стыд жёлтый и заливается краской', цвета.shame === '#ffcc00' && /\.hud-diary-mood-shame \.hud-diary-fx::after \{[^}]*hud-dmf-flush/.test(dm));
+  проверить('дневник: ревность ядовито-зелёная, с шипов капает яд, обрывков фото нет', цвета.jealousy === '#39ff14' && /hud-dmp-venom/.test(dm) && !dm.includes('clip-path: polygon(0 8%, 70% 0'));
+  проверить('дневник: у преданности свеча вместо печати', /\.hud-diary-mood-devotion \.hud-diary-fx::after \{[^}]*hud-dmf-flame/.test(dm) && !dm.includes('сургучная'));
+  проверить('дневник: часы скуки — круг за минуту, щелчками', /hud-dmf-tick 60s/.test(dm));
+  проверить('дневник: у новых листов своё движение', ['embarrassment', 'tenderness', 'protection'].every(к => new RegExp(`\\.hud-diary-mood-${к} \\.hud-diary-fx::before \\{[^}]*animation:`).test(dm)));
+
+  // Сны: у каждого вида своё движение — только под курсором или после нажатия.
+  const dv = css('css/dream-views.css');
+  const правилаDv = [...dv.replace(/\/\*[\s\S]*?\*\//g, '').replace(/@keyframes[^{]*\{(?:[^{}]*\{[^}]*\})*[^}]*\}/g, '').matchAll(/([^{}]+)\{([^{}]*)\}/g)];
+  const сныБезПаузы = правилаDv.filter(([, , т]) => /infinite/.test(т) && !/animation-play-state: paused/.test(т)).map(([с]) => с.trim());
+  проверить('сны: зацикленное стоит до касания', сныБезПаузы.length === 0, сныБезПаузы.join(' | '));
+  проверить('сны: ничего не играет само при открытии вкладки', !dv.includes('.hud-tab-content.active'));
+  проверить('сны: паутина ловца плетётся неспешно', /hud-dv-weave 4.2s/.test(dv));
+  проверить('сны: у каждого вида оживление по нажатию и под мышью', ['hud-dv-cloud', 'hud-dv-entry', 'hud-dv-sky', 'hud-dv-catch'].every(к => dv.includes(`.${к}.fx-active`) && dv.includes(`.${к}:hover`)));
+  проверить('сны: у каждого типа сна своё движение в облаках и на небе', ['nightmare', 'memory', 'wish', 'dream'].every(т => dv.includes(`.hud-dv-cloud.t-${т} .hud-dv-fx::before`) && dv.includes(`.hud-dv-sky.t-${т} .hud-dv-fx::before`)));
+  проверить('сны: нажатие на сонник и облака оживляет их', css('events.js').includes('.hud-dv-catch, .hud-dv-cloud, .hud-dv-entry,') && css('events.js').includes("небо.classList.toggle('fx-active', небо.classList.toggle('is-clear'))"));
+  проверить('дневник: в новых листах нет эмодзи', !/\p{Extended_Pictographic}/u.test(dm.replace(/\/\*[\s\S]*?\*\//g, '')));
 }
 
 console.log(`\nпроверок: ${всего}, провалов: ${провалы.length}`);

@@ -216,7 +216,24 @@ export function обновитьПалитруГрупп() {
     // Главный тон темы — от него считаются тона людей (кружки в «Отношениях»).
     root.style.setProperty('--hud-tone-base', String(тонаГлавный));
     root.classList.toggle('hud-kinds-light', светлаяТема);
+    теньСветлойПалитры(светлаяТема);
   } catch (e) { console.warn('[TavernOS HUD] палитра секций', e); }
+}
+
+// Тень Таверны на светлой палитре (своя тема без готового светлого пресета).
+// Правило на «*» живёт только пока палитра светлая: браузер проверяет его у
+// каждого элемента страницы при каждом пересчёте стилей (см. css/misc.css).
+const ТЕНЬ_СВЕТЛОЙ = `:where(.hud-kinds-light) :where(.hud-os-wrapper, .hud-os-card, .hud-scene-widget, .hud-modal-overlay) :where(*) {
+  text-shadow: 0 1px 0 rgba(255,255,255,.55), 0 0 calc(var(--shadowWidth, 2) * 2px) color-mix(in srgb, var(--hud-accent, #c46) 16%, transparent);
+}`;
+function теньСветлойПалитры(вкл) {
+  let узел = document.getElementById('hud-kinds-light-shadow');
+  if (вкл && !узел) {
+    узел = document.createElement('style');
+    узел.id = 'hud-kinds-light-shadow';
+    узел.textContent = ТЕНЬ_СВЕТЛОЙ;
+    document.head.appendChild(узел);
+  } else if (!вкл && узел) узел.remove();
 }
 
 // SillyTavern меняет тему, переписывая переменные в style у <html> и класс

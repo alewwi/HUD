@@ -3,8 +3,8 @@
 // Мелкие утилиты, общие для всех доменов HUD (дневник, мир, сны, телефон,
 // граф отношений, память). Вынесено из index.js без изменения поведения.
 
-import { МЕТКИ } from './codes.js?v=23.61.5';
-import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.61.5';
+import { МЕТКИ } from './codes.js?v=23.63.7';
+import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.63.7';
 
 // Замеры по шагам для поиска узких мест: включаются только объектом
 // window.__hudProf = {} в консоли, копят { шаг: [мс, …] }. Без него — прямой вызов.
@@ -333,7 +333,14 @@ export function buildPillList(value, pillClass, forceSeparate = false, вид = 
         const match = chunk.match(PILL_LABEL_RE);
         // В «Отношениях» метка — это имя: переводить его как код нельзя,
         // человек по имени Date остался бы «Датой».
-        if (match) { items.push({ label: вид === 'отношения' ? match[1].trim() : перевестиМетку(match[1]), sep: match[2], text: match[3] }); }
+        if (match) {
+            const label = вид === 'отношения' ? match[1].trim() : перевестиМетку(match[1]);
+            // «xp: ожидал, что…» — метка «ожидал» и то же слово в начале
+            // текста: на экране было «ожидал: ожидал, что…». Повтор снимаем.
+            const повтор = label && String(match[3]).match(new RegExp('^' + label.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![\\p{L}])[\\s,:—–-]*', 'iu'));
+            const text = повтор && повтор[0].length < String(match[3]).length ? String(match[3]).slice(повтор[0].length) : match[3];
+            items.push({ label, sep: match[2], text });
+        }
         else if (items.length > 0 && items[items.length - 1].label && /(?:kink|fetish|nogo|noturn)-pill/.test(pillClass)
             && chunk.split(/\s+/).length <= 4 && !/[.!?…]$/.test(chunk)) {
             // «Жёсткий секс: да, предпочитает доминирование; охотно» — «насколько

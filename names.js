@@ -10,7 +10,7 @@
 // "Майкл Смит", "Michael Smith" и т.п. Граф сначала собирает все реальные
 // имена, затем пытается сопоставить каждую ссылку с уже существующим узлом,
 // и только после этого создаёт новый узел.
-import { settings } from './settings.js?v=23.61.5';
+import { settings } from './settings.js?v=23.63.7';
 
 export function normalizeNameText(name) {
   return String(name ?? '')
@@ -37,7 +37,21 @@ export function nameLettersOnly(name) {
   return transliterateCyrillic(name).replace(/[^a-z0-9]+/g, '');
 }
 
+// Фонетика имени — чистая функция строки, а зовут её на каждое сравнение и
+// каждое упоминание в тексте: запоминаем (только короткие строки — имена).
+const памятьФонетики = new Map();
 export function namePhoneticLatin(name) {
+  const s = String(name ?? '');
+  if (s.length > 120) return фонетикаСразу(s);
+  let v = памятьФонетики.get(s);
+  if (v === undefined) {
+    v = фонетикаСразу(s);
+    if (памятьФонетики.size >= 20000) памятьФонетики.clear();
+    памятьФонетики.set(s, v);
+  }
+  return v;
+}
+function фонетикаСразу(name) {
   let s = nameLettersOnly(name);
   if (!s) return '';
   // Сводим распространённые варианты английского написания к близкой
@@ -114,8 +128,30 @@ function группыАватарок() {
     спискиАватарок = сырые
       .map(строка => String(строка || '').split(/[,;\n]/).map(н => normalizeNameText(н).toLowerCase()).filter(Boolean))
       .filter(список => список.length > 0);
+    // Списки поменялись — прежние ответы «один ли это человек» уже неверны.
+    памятьСравнений.clear();
   }
   return спискиАватарок;
+}
+
+// Память сравнений. Одни и те же пары имён сравниваются тысячи раз за
+// отрисовку: перенос списков, сдвиги доверия, граф, быт — каждый ход истории
+// на каждого персонажа. Транслитерация, фонетика и Левенштейн съедали до 40%
+// времени сборки карточки. Ответ зависит только от двух строк и списков
+// аватарок; списки сверяем на каждом вызове, но дёшево — сравнением самих
+// строк, без JSON: правка списка сразу сбрасывает память.
+const памятьСравнений = new Map();
+const ПРЕДЕЛ_ПАМЯТИ = 20000;
+let былиСписки = null;
+function сверитьСписки() {
+  try {
+    const о = Array.isArray(settings.avatarOverrides) ? settings.avatarOverrides : [];
+    const б = былиСписки;
+    const те = б && б.ch === settings.avatarCharNames && б.us === settings.avatarUserNames && б.n === о.length && о.every((з, i) => (з && з.names) === б.имена[i]);
+    if (те) return;
+    былиСписки = { ch: settings.avatarCharNames, us: settings.avatarUserNames, n: о.length, имена: о.map(з => з && з.names) };
+    группыАватарок();
+  } catch (_) { /* без настроек — как раньше */ }
 }
 
 // true — пользователь назвал их одним человеком, false — разными,
@@ -216,6 +252,19 @@ function первыеСловаСовпадают(a, b, исхA = '', исхB = 
 // букву. Уменьшительных форм здесь нет намеренно: «Лиза» и «Elizabeth» в одном
 // сюжете могут оказаться разными людьми, и граф, аватарки и сводка их бы слили.
 export function namesLikelySame(a, b) {
+  const sa = String(a ?? ''), sb = String(b ?? '');
+  if (sa === sb) return !!normalizeNameText(sa);
+  сверитьСписки();
+  const k = sa + '\u0001' + sb;
+  let v = памятьСравнений.get(k);
+  if (v === undefined) {
+    v = сравнитьИмена(sa, sb);
+    if (памятьСравнений.size >= ПРЕДЕЛ_ПАМЯТИ) памятьСравнений.clear();
+    памятьСравнений.set(k, v);
+  }
+  return v;
+}
+function сравнитьИмена(a, b) {
   const A = normalizeNameText(a), B = normalizeNameText(b);
   if (!A || !B) return false;
   if (A === B) return true;

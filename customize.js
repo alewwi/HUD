@@ -5,19 +5,19 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.61.5';
-import { settings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО } from './settings.js?v=23.61.5';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.61.5';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.61.5';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.61.5';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.61.5';
-import { hudБлоки } from './hud-block.js?v=23.61.5';
-import { parseHUDComplex } from './hud-parser.js?v=23.61.5';
-import { ПРИМЕР_HUD_ТЕКСТ, ПРИМЕР_СЕМЬИ, БАЗОВЫЙ_HUD_ТЕКСТ, ПРИМЕР_БОЯ, ПРИМЕР_БОЯ_РАНЫ, ПРИМЕР_БЫТА_ПРОШЛОЕ } from './render/sample-hud.js?v=23.61.5';
-import { задатьПримерСемьи } from './render/conception.js?v=23.61.5';
-import { привязатьИсторию } from './render/intimacy.js?v=23.61.5';
-import { пометитьЭффекты } from './render/fx.js?v=23.61.5';
-import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.61.5';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.63.7';
+import { settings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО } from './settings.js?v=23.63.7';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.63.7';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.63.7';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.63.7';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.63.7';
+import { hudБлоки } from './hud-block.js?v=23.63.7';
+import { parseHUDComplex } from './hud-parser.js?v=23.63.7';
+import { ПРИМЕР_HUD_ТЕКСТ, ПРИМЕР_СЕМЬИ, БАЗОВЫЙ_HUD_ТЕКСТ, ПРИМЕР_БОЯ, ПРИМЕР_БОЯ_РАНЫ, ПРИМЕР_БЫТА_ПРОШЛОЕ } from './render/sample-hud.js?v=23.63.7';
+import { задатьПримерСемьи } from './render/conception.js?v=23.63.7';
+import { привязатьИсторию } from './render/intimacy.js?v=23.63.7';
+import { пометитьЭффекты } from './render/fx.js?v=23.63.7';
+import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.63.7';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -181,6 +181,7 @@ export function разметкаПанелиТемы() {
             ${основа.выбор('sceneCredits', 'Титры сцены', 'Под карточкой: «конец сцены», кто в ролях, место и время.', [['off', 'Нет'], ['on', 'Показывать']])}
             ${основа.выбор('moonPhase', 'Фаза луны', 'По игровой дате: плашка в погоде и тень на луне в небе.', [['true', 'Показывать'], ['false', 'Нет']])}
             ${основа.выбор('subtextVeil', 'Скрытый подтекст', 'Под «водой»: открывается нажатием.', [['true', 'Под водой'], ['false', 'Открыто']])}
+            ${основа.выбор('diaryMoodHand', 'Почерк по настроению', 'У листа дневника свой почерк по настроению записи: моноширинный у расчёта, сжатый у напряжения, каракули у паники. «Мой шрифт» — везде шрифт дневника из настроек выше.', [['on', 'По настроению'], ['off', 'Мой шрифт']])}
             ${основа.выбор('diaryVeil', '«О ней» в дневнике', 'Под акварелью: открывается нажатием.', [['true', 'Под акварелью'], ['false', 'Открыто']])}
           </div></details>
           <details class="hud-custom-sub hud-smooth"><summary>Интерфейс</summary>

@@ -11,19 +11,20 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.61.5';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.61.5';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.61.5';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.61.5';
-import { settings, defaultSettings } from './settings.js?v=23.61.5';
-import { полныйПорядок } from './tabs-order.js?v=23.61.5';
-import { getWorldVotes } from './render/world.js?v=23.61.5';
-import { действиеМира } from './render/world-views.js?v=23.61.5';
-import { раскрытьПорцию } from './render/long-list.js?v=23.61.5';
-import { прогретьИсторию } from './render/carryover.js?v=23.61.5';
-import { подключитьПалитру } from './color-picker.js?v=23.61.5';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.61.5';
-import { замер } from './utils.js?v=23.61.5';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.63.7';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.63.7';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.63.7';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.63.7';
+import { settings, defaultSettings } from './settings.js?v=23.63.7';
+import { полныйПорядок } from './tabs-order.js?v=23.63.7';
+import { getWorldVotes } from './render/world.js?v=23.63.7';
+import { действиеМира } from './render/world-views.js?v=23.63.7';
+import { раскрытьПорцию } from './render/long-list.js?v=23.63.7';
+import { прогретьИсторию } from './render/carryover.js?v=23.63.7';
+import { подключитьПалитру } from './color-picker.js?v=23.63.7';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.63.7';
+import { замер } from './utils.js?v=23.63.7';
+import { пометитьЭффекты } from './render/fx.js?v=23.63.7';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -37,6 +38,9 @@ let observer = null;
 const ЖДУЩИЕ = new Set();
 let разборТаймер = 0;
 let разборНачат = 0;
+// Чат, для которого первая пачка уже дождалась прогрева истории, и само ожидание.
+let прогретыйЧат = '';
+let ожиданиеПрогрева = null;
 let аватаркиМенялись = false;
 const РАЗБОР_ТИШИНА = 120;
 const РАЗБОР_ПОТОЛОК = 600;
@@ -827,6 +831,11 @@ export function initGlobalEvents(ctx) {
       return;
     }
 
+    // Сны, вид «Ночное небо»: туман над смыслом рассеивается нажатием и возвращается.
+    const небо = e.target.closest('.hud-dv-sky');
+    // Туман рассеян — небо и оживает: звёзды, луна, падающие звёзды (css/dream-views.css).
+    if (небо) { небо.classList.toggle('fx-active', небо.classList.toggle('is-clear')); return; }
+
     const dreamEntry = e.target.closest('.hud-dream-entry');
     if (dreamEntry) {
       const stage = Number(dreamEntry.getAttribute('data-crack') || 0);
@@ -1036,7 +1045,7 @@ export function initGlobalEvents(ctx) {
       return;
     }
 
-    const fxHost = e.target.closest('.hud-ad-card, .hud-breaking-news, .hud-dream-moon, .hud-route-map, .hud-phone-mockup.intercept-mode, .hud-diary-entry, .hud-world-section-forecast, .hud-world-section-horo, .hud-wx-now, .hud-wx-fc');
+    const fxHost = e.target.closest('.hud-ad-card, .hud-breaking-news, .hud-dream-moon, .hud-route-map, .hud-phone-mockup.intercept-mode, .hud-diary-entry, .hud-dv-catch, .hud-dv-cloud, .hud-dv-entry, .hud-world-section-forecast, .hud-world-section-horo, .hud-wx-now, .hud-wx-fc');
     if (fxHost) {
       fxHost.classList.toggle('fx-active');
       return;
@@ -1503,8 +1512,26 @@ export function initObserver(ctx, chatContainer) {
     touchedMessages.forEach(mes => ЖДУЩИЕ.add(mes));
     if (avatarChanged) аватаркиМенялись = true;
 
-    const разобрать = () => {
+    const разобрать = async () => {
       разборТаймер = 0;
+      // Первая пачка нового чата ждёт прогрева истории (база, потом фоновый
+      // поток; не дольше 1,5 с): иначе последние карточки разбирали прошлые
+      // ходы в главном потоке раньше, чем прогрев успевал начаться, — замер
+      // показал прогрев через 3 с ПОСЛЕ сборки, и сохранённый кэш не помогал.
+      const чат = window.SillyTavern?.getContext?.();
+      const идЧата = чат && typeof чат.getCurrentChatId === 'function' ? чат.getCurrentChatId() : '';
+      if (идЧата && идЧата !== прогретыйЧат && Array.isArray(чат.chat) && чат.chat.length) {
+        прогретыйЧат = идЧата;
+        ожиданиеПрогрева = Promise.race([прогретьИсторию(чат.chat), new Promise(r => setTimeout(r, 1500))]).catch(() => {});
+      }
+      // Проход, начатый, пока прогрев ещё идёт, ждёт того же прогрева.
+      if (ожиданиеПрогрева) {
+        разборНачат = Date.now();
+        await ожиданиеПрогрева;
+        ожиданиеПрогрева = null;
+        if (разборТаймер) return; // пока ждали, пришли новые правки — разберёт следующий проход
+      }
+      try { performance.mark('hud:пачка:' + ЖДУЩИЕ.size); } catch (_) {}
       разборНачат = 0;
       const пачка = [...ЖДУЩИЕ];
       ЖДУЩИЕ.clear();
@@ -1882,7 +1909,8 @@ document.addEventListener('click', (e) => {
   const кнопка = e.target.closest('.hud-longlist > .hud-more-btn');
   if (!кнопка) return;
   e.preventDefault(); e.stopPropagation();
-  раскрытьПорцию(кнопка).forEach(узел => refreshReactions(узел));
+  // Новая порция — без меток data-fx: подъём и свечение держатся на них (render/fx.js).
+  раскрытьПорцию(кнопка).forEach(узел => { refreshReactions(узел); пометитьЭффекты(узел); });
 }, true);
 
 // Длинные списки карточек: видно три, остальное листается (css/compact.css).
@@ -1911,12 +1939,20 @@ function ужатьСпискиСразу() {
     виден: !!с.offsetParent,
     ширина: с.clientWidth,
   }));
+  // Свёрнутый граф отношений в карточке уже 760px: граф 1000px сжат вдвое, и
+  // подписи двух десятков связей сливались в кашу. Там подпись видна только у
+  // выбранной связи (css/base.css, .is-narrow); в развёрнутом — все.
+  const графы = раскрытые.flatMap(к => [...к.querySelectorAll('.hud-rel-graph:not(.is-expanded)')]).map(г => [г, г.clientWidth]);
+  for (const [г, ш] of графы) if (ш) г.classList.toggle('is-narrow', ш < 760);
   // 2. Записи: классы; у тех, что будем мерить, снимаем потолок.
   const мерить = [];
   for (const п of план) {
     const { с, дети } = п;
     if (дети.length < 4 || (широкий && с.matches(ЛЕНТЫ))) { if (с.classList.contains('is-capped') || с.classList.contains('is-capped-x')) { с.classList.remove('is-capped', 'is-capped-x', 'is-end'); с.style.maxHeight = ''; } continue; }
-    if (широкий && с.matches(ВБОК)) {
+    // Вбок — только когда в ряд помещаются хотя бы две карточки (по 160px).
+    // В половинной ячейке узкой карточки (240px) лента вбок показывала
+    // полторы карточки с текстом, обрезанным посреди слова, — там вниз.
+    if (широкий && с.matches(ВБОК) && (п.ширина === 0 || п.ширина >= 340)) {
       if (!с.classList.contains('is-capped-x')) { с.classList.remove('is-capped'); с.style.maxHeight = ''; с.classList.add('is-capped-x'); }
       continue;
     }
@@ -1957,7 +1993,11 @@ export function плавнаяСменаВкладки(тело, было, па�
     const сброс = () => { тело.style.overflow = ''; тело.__hudAnim = null; };
     ход.onfinish = сброс; ход.oncancel = сброс;
   }
-  if (панель && typeof панель.animate === 'function') панель.animate({ opacity: [0, 1], transform: ['translateY(-4px)', 'none'] }, { duration: 280, easing: 'ease' });
+  // Только прозрачность: transform на панели делал её контейнером для всех
+  // вложенных позиционированных узлов, и на старте и на финише анимации браузер
+  // пересчитывал стили всей вкладки (~7500 узлов, по ~135 мс) — сдвиг на 4px
+  // того не стоил.
+  if (панель && typeof панель.animate === 'function') панель.animate({ opacity: [0, 1] }, { duration: 240, easing: 'ease' });
 }
 // Раскрыть или скрыть блок (панель бюджета) плавно по высоте.
 export function плавноПоказать(узел, показать) {
@@ -2085,7 +2125,7 @@ document.addEventListener('click', (e) => {
 let таймерСписков = 0;
 const ужатьПозже = (мс = 120) => { clearTimeout(таймерСписков); таймерСписков = setTimeout(ужатьСписки, мс); };
 if (typeof MutationObserver !== 'undefined') new MutationObserver((записи) => замер('наблюдательСписков', () => {
-  if (записи.some(з => [...з.addedNodes].some(у => у.nodeType === 1 && (у.matches?.('.hud-os-card, .hud-tab-content, .mes, .mes_text') || у.querySelector?.('.hud-os-card'))))) ужатьПозже();
+  if (записи.some(з => [...з.addedNodes].some(у => у.nodeType === 1 && (у.matches?.('.hud-os-card, .hud-tab-content, .mes, .mes_text, .hud-rel-graph') || у.querySelector?.('.hud-os-card, .hud-rel-graph'))))) ужатьПозже();
 })).observe(document.body, { childList: true, subtree: true });
 document.addEventListener('click', (e) => { if (e.target.closest && e.target.closest('.hud-tab, .hud-kid-tab, .hud-kid-chip, summary, .hud-toggle-input, label')) ужатьПозже(80); }, true);
 document.addEventListener('toggle', () => ужатьПозже(60), true);
@@ -2170,6 +2210,8 @@ document.addEventListener('click', (e) => {
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter' && e.key !== ' ') return;
   if (действиеМира(e)) return;
+  const небо = e.target && e.target.closest && e.target.closest('.hud-dv-sky');
+  if (небо) { e.preventDefault(); небо.classList.toggle('fx-active', небо.classList.toggle('is-clear')); return; }
   const тайна = e.target && e.target.closest && e.target.closest('.hud-v-spoil, .hud-v-tarot.is-hidden');
   if (!тайна) return;
   e.preventDefault();

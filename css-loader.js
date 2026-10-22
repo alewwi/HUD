@@ -18,7 +18,7 @@
 //
 // Стенды (tests/tools) подключают всё разом через css/all.css.
 
-import { settings } from './settings.js?v=23.61.5';
+import { settings } from './settings.js?v=23.63.7';
 
 const ВЕРСИЯ = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
 const МЕТКА = 'data-hud-css';
@@ -28,6 +28,8 @@ export const ЧАСТИ = [
   // Токены — первыми: только объявления переменных, остальные части их читают.
   ['tokens'], ['base'], ['themes'], ['misc'], ['views'], ['views-fields'], ['views-trio'], ['family'], ['family-views'],
   ['world-views', (s) => s.enableWorld !== false],
+  ['dream-views', (s) => s.enableDreams !== false],
+  ['diary-moods', (s) => s.enableDiary !== false],
   ['extras'], ['deco'], ['scene-body'],
   // В xray.css и шкала темпа (.hud-tempo), не только рентген.
   ['xray', (s) => s.enableTempo !== false],

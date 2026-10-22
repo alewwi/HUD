@@ -5,14 +5,15 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { settings } from './settings.js?v=23.61.5';
-import { видБлока } from './render/views.js?v=23.61.5';
-import { escapeHtml } from './utils.js?v=23.61.5';
-import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.61.5';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.61.5';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.61.5';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.61.5';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.61.5';
+import { settings } from './settings.js?v=23.63.7';
+import { видБлока } from './render/views.js?v=23.63.7';
+import { escapeHtml } from './utils.js?v=23.63.7';
+import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.63.7';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.63.7';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.63.7';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.63.7';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.63.7';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.63.7';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -143,6 +144,7 @@ export function addSettingsUI() {
         ${галка('hud-lighten-old', settings.lightenOldCards !== false, '🪶 Облегчать старые свёрнутые карточки', 'У старой свёрнутой карточки в странице остаётся только заголовок. Панель темы и содержимое откладываются и возвращаются при первом касании карточки. Заметно легче в длинных чатах, особенно на телефоне.')}
         <label class="hud-set-check" title="Столько последних карточек собирается целиком сразу при открытии чата. У более старых собирается только полоса заголовка (время, погода, дата), а вся карточка — в тот момент, когда вы её раскрываете. Чем меньше число, тем быстрее открывается длинный чат. Работает вместе с «Облегчать старые свёрнутые карточки».">🪶 Сразу собирать последних карточек: ${число('hud-cards-full', 1, 2000, settings.cardsBuiltFull || 5, 64)} шт.</label>
         ${галка('hud-lazy-tabs', settings.lazyTabs !== false, '🗂️ Ленивая загрузка вкладок', 'Собирается только открытая вкладка. Остальные (Телефон, Память, Мир и так далее) строятся в тот момент, когда вы на них переключаетесь, и дальше остаются готовыми. Заметно легче на карточках с большим HUD.')}
+        ${галка('hud-fix-st-css', settings.fixStSlowCss !== false, '🧹 Ускорить два правила Таверны', 'В стилях самой Таверны есть два правила, из-за которых любое изменение оформления внутри чата заставляет браузер перепроверять всю страницу — около десятой доли секунды на каждое переключение вкладки, раскрытие и анимацию. HUD подменяет их равноценными дешёвыми: вид не меняется. Выключите, если заметите что-то странное в виде чата «Документ» или в настройках Text Completion.')}
 
         ${подгруппа('📜 Длинные чаты (200+ сообщений)', `
           ${галка('hud-performance-mode', settings.performanceMode, '⚡ Performance Mode', 'При 200+ сообщениях отключает тяжёлую повторную обработку старых сообщений, замораживает их анимации/эффекты и обрабатывает HUD по мере прокрутки.')}
@@ -485,7 +487,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.61.5');
+      const mod = await import('./render/archive.js?v=23.63.7');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -499,6 +501,7 @@ export function addSettingsUI() {
     });
   });
   document.getElementById('hud-lazy-tabs').addEventListener('change', (e) => { settings.lazyTabs = e.target.checked; основа.saveSettings(); });
+  document.getElementById('hud-fix-st-css').addEventListener('change', (e) => { settings.fixStSlowCss = e.target.checked; основа.saveSettings(); применитьПравкуCSSТаверны(); });
   // Выключили облегчение — возвращаем содержимое всем карточкам сразу,
   // включили — облегчаем старые, как после обычной отрисовки.
   document.getElementById('hud-lighten-old').addEventListener('change', (e) => {

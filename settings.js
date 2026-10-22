@@ -11,6 +11,9 @@
 export const defaultSettings = {
   // Вкладки, кроме открытой, собираются не сразу, а при первом переключении.
   lazyTabs: true,
+  // Обезвредить два правила Таверны с :has([style*=…]) — каждое изменение
+  // style в чате из-за них стоило ~120 мс пересчёта стилей (st-css-fix.js).
+  fixStSlowCss: true,
   // Сколько собранных HUD-карточек держать в DOM. 0 — не ограничивать.
   hudCardLimit: 0,
   // Карточки сверх лимита прятать совсем: без полоски «HUD свёрнут»,
@@ -176,6 +179,8 @@ export const defaultSettings = {
   // «Глубина»: скрытый подтекст и «О ней» в дневнике открываются нажатием.
   subtextVeil: true,
   diaryVeil: true,
+  // Почерк листа по настроению (css/diary-moods.css); off — везде шрифт дневника.
+  diaryMoodHand: 'on',
   // Новые блоки промта: состояние тела у персонажей и поворот сюжета в сцене.
   enableBodyState: true,
   enableTwists: true,
