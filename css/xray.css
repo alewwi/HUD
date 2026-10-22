@@ -313,7 +313,7 @@
 .xr-wet-drop { fill: #fff; opacity: calc(.25 + var(--wet, 0) * .5); }
 .xr-wet-drip { transform-box: fill-box; transform-origin: 50% 0; }
 /* Лубрикант — прозрачнее, с холодным бликом. */
-.xr-film.is-lube :is(.xr-bead, .xr-wet-drop) { fill: #e8f4ff; }
+.xr-film.is-lube .xr-bead, .xr-film.is-lube .xr-wet-drop { fill: #e8f4ff; }
 .xr-film.is-lube .xr-wet-coat, .xr-film.is-lube .xr-wet-run, .xr-film.is-lube .xr-strand { stroke: #e8f4ff; }
 @keyframes xr-wet-fall { 0%, 55% { transform: translateY(0) scaleY(1); opacity: 1; } 85% { transform: translateY(9px) scaleY(1.25); opacity: .9; } 100% { transform: translateY(14px) scaleY(1.3); opacity: 0; } }
 @media (prefers-reduced-motion: no-preference) {
@@ -408,8 +408,8 @@
 
 @media (prefers-reduced-motion: no-preference) {
   /* Общее для лона и ануса: стенки присасываются на отходе, кожа вспыхивает на ударе. */
-  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) :is(.xr-bumps, .xr-squeeze) { transform: scaleY(calc(1 - (1 - var(--k, 1)) * (.025 + clamp(0, -1 * var(--v, 0), 1) * .06))); }
-@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) :is(.xr-bumps, .xr-squeeze) { transform: scaleY(calc(1 - (1 - var(--k, 1)) * (.025 + clamp(0, -1 * var(--v, 0), 1) * .06))); } }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-bumps, :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-squeeze { transform: scaleY(calc(1 - (1 - var(--k, 1)) * (.025 + clamp(0, -1 * var(--v, 0), 1) * .06))); }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-bumps, :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-squeeze { transform: scaleY(calc(1 - (1 - var(--k, 1)) * (.025 + clamp(0, -1 * var(--v, 0), 1) * .06))); } }
   :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-skin-hi { stroke-opacity: calc(.35 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .3); }
 @media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-skin-hi { stroke-opacity: calc(.35 + clamp(0, (var(--k, 1) - .8) * 5, 1) * .3); } }
   /* Член: головка наливается, живот дающего напрягается. */
@@ -584,8 +584,8 @@
 @media (hover: hover) and (pointer: fine) { .hud-tempo:hover .hud-xray.is-climax .hud-xray-pulse { animation: xr-cum-pulse .8s ease-out infinite; } }
   .hud-tempo:is(.fx-tap, .fx-on) .hud-xray.is-climax .xr-glans { animation: xr-throb .8s ease-in-out infinite; }
 @media (hover: hover) and (pointer: fine) { .hud-tempo:hover .hud-xray.is-climax .xr-glans { animation: xr-throb .8s ease-in-out infinite; } }
-  .hud-tempo:is(.fx-tap, .fx-on) .hud-xray.is-after :is(.xr-cum-drop, .xr-cum-jet) { animation: none; opacity: 0; }
-@media (hover: hover) and (pointer: fine) { .hud-tempo:hover .hud-xray.is-after :is(.xr-cum-drop, .xr-cum-jet) { animation: none; opacity: 0; } }
+  .hud-tempo:is(.fx-tap, .fx-on) .hud-xray.is-after .xr-cum-drop, .hud-tempo:is(.fx-tap, .fx-on) .hud-xray.is-after .xr-cum-jet { animation: none; opacity: 0; }
+@media (hover: hover) and (pointer: fine) { .hud-tempo:hover .hud-xray.is-after .xr-cum-drop, .hud-tempo:hover .hud-xray.is-after .xr-cum-jet { animation: none; opacity: 0; } }
   .hud-tempo:is(.fx-tap, .fx-on) .hud-xray.is-after .xr-glans { animation: none; }
 @media (hover: hover) and (pointer: fine) { .hud-tempo:hover .hud-xray.is-after .xr-glans { animation: none; } }
 }
@@ -699,7 +699,7 @@
 /* Руки не пульсируют: кисть — живая рука, не «удар». Вспышка и волна на
    кончике — только у члена и игрушки; сухожилия не мерцают в такт; её кисть
    ходит по стволу, не сжимаясь (сжатие в такт читалось как пульсация). */
-.hud-xray-row.p-fingers :is(.xr-hit, .xr-ripple) { display: none; }
+.hud-xray-row.p-fingers .xr-hit, .hud-xray-row.p-fingers .xr-ripple { display: none; }
 :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on):not(.l0) .xr-tendon { stroke-opacity: .18; }
 @media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover:not(.l0) .xr-tendon { stroke-opacity: .18; } }
 /* Её пальцы раздельно: тонкая тёмная линия по бороздке. */

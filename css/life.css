@@ -325,7 +325,7 @@
 .hud-life-wardrobe-head { display: grid; grid-template-columns: auto minmax(0, 1fr); column-gap: var(--hud-sp-4); align-items: center; }
 .hud-life-wardrobe-head .hud-life-face { grid-row: 1 / span 2; }
 .hud-life-wardrobe-head b { overflow-wrap: break-word; }
-.hud-life :is(.hud-life-prices, .hud-life-debts, .hud-life-home, .hud-life-dreams, .hud-life-wlist, .hud-life-day-legend, .hud-life-meals) { grid-template-columns: minmax(0, 1fr); }
+.hud-life .hud-life-prices, .hud-life .hud-life-debts, .hud-life .hud-life-home, .hud-life .hud-life-dreams, .hud-life .hud-life-wlist, .hud-life .hud-life-day-legend, .hud-life .hud-life-meals { grid-template-columns: minmax(0, 1fr); }
 .hud-life :is(ul, ol) > li { min-width: 0; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-life-night b { color: #6a4fc0; }
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-life-nights { background: linear-gradient(180deg, rgba(60,80,160,.12), rgba(0,0,0,.03)); }

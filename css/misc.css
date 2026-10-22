@@ -442,11 +442,17 @@
 :is(.hud-theme-steampunk, .hud-theme-dieselpunk, .hud-theme-solarpunk, .hud-theme-biopunk,
     .hud-theme-spaceopera, .hud-theme-spacehorror, .hud-theme-japan, .hud-theme-egypt,
     .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo)
-  :is(.hud-world-empty, .hud-diary-empty) { font-size: 0; }
+  .hud-world-empty, :is(.hud-theme-steampunk, .hud-theme-dieselpunk, .hud-theme-solarpunk, .hud-theme-biopunk,
+    .hud-theme-spaceopera, .hud-theme-spacehorror, .hud-theme-japan, .hud-theme-egypt,
+    .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo)
+  .hud-diary-empty { font-size: 0; }
 :is(.hud-theme-steampunk, .hud-theme-dieselpunk, .hud-theme-solarpunk, .hud-theme-biopunk,
     .hud-theme-spaceopera, .hud-theme-spacehorror, .hud-theme-japan, .hud-theme-egypt,
     .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo)
-  :is(.hud-world-empty, .hud-diary-empty)::after {
+  .hud-world-empty::after, :is(.hud-theme-steampunk, .hud-theme-dieselpunk, .hud-theme-solarpunk, .hud-theme-biopunk,
+    .hud-theme-spaceopera, .hud-theme-spacehorror, .hud-theme-japan, .hud-theme-egypt,
+    .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo)
+  .hud-diary-empty::after {
   display: block; font-size: 13px; line-height: 1.5;
 }
 
@@ -630,10 +636,10 @@
 /* --- Общий язык семейства ------------------------------------------------
    Скругление и отклик на наведение были у каждого вида свои. Смысловые
    отличия остаются, случайные — уходят. */
-:is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill) { border-radius: 8px; }
+.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill { border-radius: 8px; }
 .hud-conflict-pill { padding: 7px 12px; }
 @media (hover: hover) and (pointer: fine) {
-  :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill):hover {
+  .hud-detail-pill:hover, .hud-inventory-pill:hover, .hud-conflict-pill:hover {
     border-color: var(--hud-accent);
   }
 }
@@ -690,7 +696,7 @@
    не трогая смысловые отличия. Кинк, фетиш, запрет и «не возбуждает» сюда
    не входят: у них псевдоэлементы заняты собственными фактурами.
    ========================================================================= */
-:is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill) {
+.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill {
   position: relative;
   border-radius: 10px;
   padding-left: 14px;
@@ -703,7 +709,7 @@
 
 /* Корешок: вертикальная полоса, гаснущая книзу. Цвет — из переменной, её
    и подменяют цель, отношения и конфликт. */
-:is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill)::before {
+.hud-detail-pill::before, .hud-inventory-pill::before, .hud-conflict-pill::before, .hud-nsfw-pill::before {
   content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
   background: linear-gradient(180deg,
     var(--кромка, var(--hud-accent, #8c5ad2)) 0%,
@@ -713,23 +719,23 @@
 
 /* Отсвет: узкая светлая полоса поперёк плитки, видна только при наведении.
    Проезжать по плитке ей нельзя: переходы внутри карточки не проигрываются. */
-:is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill)::after {
+.hud-detail-pill::after, .hud-inventory-pill::after, .hud-conflict-pill::after, .hud-nsfw-pill::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background: linear-gradient(104deg,
     transparent 38%, rgba(255,255,255,.13) 50%, transparent 62%);
   opacity: 0;
 }
 @media (hover: hover) and (pointer: fine) {
-  :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill):hover {
+  .hud-detail-pill:hover, .hud-inventory-pill:hover, .hud-conflict-pill:hover, .hud-nsfw-pill:hover {
     transform: translateY(-1px);
     box-shadow:
       inset 0 1px 0 rgba(255,255,255,.12),
       0 5px 14px rgba(0,0,0,.38);
   }
-  :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill):hover::after { opacity: 1; }
+  .hud-detail-pill:hover::after, .hud-inventory-pill:hover::after, .hud-conflict-pill:hover::after, .hud-nsfw-pill:hover::after { opacity: 1; }
 }
 /* На пальце наведения нет — отклик даём на нажатие. */
-:is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill):active { transform: translateY(0) scale(.995); }
+.hud-detail-pill:active, .hud-inventory-pill:active, .hud-conflict-pill:active, .hud-nsfw-pill:active { transform: translateY(0) scale(.995); }
 
 /* Цвет корешка по семьям. Конфликт остаётся красным, инвентарь нейтрален,
    плитки NSFW берут розовый семейства. */
@@ -754,13 +760,13 @@
    на нуле даже когда карточка в кадре; при fill-mode both плитки так и
    остаются прозрачными. Отделка ниже статическая и от этого не зависит. */
 @media (prefers-reduced-motion: reduce) {
-  :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill)::after { display: none; }
+  .hud-detail-pill::after, .hud-inventory-pill::after, .hud-conflict-pill::after, .hud-nsfw-pill::after { display: none; }
 }
 
 /* --- То же на бумажных темах --------------------------------------------
    На светлом фоне белый блик не виден, а чёрная тень грязнит бумагу.
    Блик делаем тёмным, тень мягче и холоднее. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill) {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-detail-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-inventory-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-conflict-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-nsfw-pill {
   box-shadow:
     inset 0 1px 0 rgba(255,255,255,.55),
     0 1px 2px rgba(40,30,20,.12) !important;
@@ -778,12 +784,12 @@
 /* --- Свечение корешка ----------------------------------------------------
    Полоса в три пикселя на тёмном фоне почти не даёт цвета. Ореол вбок
    делает окраску плитки заметной боковым зрением, не трогая текст. */
-:is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill)::before {
+.hud-detail-pill::before, .hud-inventory-pill::before, .hud-conflict-pill::before, .hud-nsfw-pill::before {
   box-shadow: 3px 0 10px -2px color-mix(in srgb,
     var(--кромка, var(--hud-accent, #8c5ad2)) 45%, transparent);
 }
 @media (hover: hover) and (pointer: fine) {
-  :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill):hover::before {
+  .hud-detail-pill:hover::before, .hud-inventory-pill:hover::before, .hud-conflict-pill:hover::before, .hud-nsfw-pill:hover::before {
     box-shadow: 3px 0 14px -1px color-mix(in srgb,
       var(--кромка, var(--hud-accent, #8c5ad2)) 70%, transparent);
   }
@@ -793,7 +799,7 @@
    У карточки content-visibility: auto, и браузер не двигает время
    переходов внутри неё: замерено, они висят с временем 0. Переходы из
    base.css у этих плиток гасим, иначе значения застревают на старых. */
-:is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill) { transition: none !important; }
+.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-nsfw-pill { transition: none !important; }
 
 /* =========================================================================
    NSFW — ВЕСЬ БЛОК
@@ -831,7 +837,7 @@
    Свои фактуры у них в base.css. Здесь — объём, срезанный угол, свечение
    полосы и отклик. Полосу кинк, запрет и «не возбуждает» рисуют в ::before,
    фетиш — в ::after: у него ::before занят шёлковым бликом. */
-:is(.hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill) {
+.hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill {
   border-radius: 10px;
   clip-path: polygon(0 0, calc(100% - 11px) 0, 100% 11px, 100% 100%, 0 100%);
   box-shadow:
@@ -844,9 +850,9 @@
 .hud-noturn-pill::before { box-shadow: 3px 0 12px -2px rgba(160,178,206,.35); }
 .hud-fetish-pill::after  { box-shadow: 3px 0 12px -2px rgba(255,166,200,.55); }
 @media (hover: hover) and (pointer: fine) {
-  :is(.hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill):hover { transform: translateY(-1px); }
+  .hud-kink-pill:hover, .hud-fetish-pill:hover, .hud-nogo-pill:hover, .hud-noturn-pill:hover { transform: translateY(-1px); }
 }
-:is(.hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill):active { transform: translateY(0) scale(.995); }
+.hud-kink-pill:active, .hud-fetish-pill:active, .hud-nogo-pill:active, .hud-noturn-pill:active { transform: translateY(0) scale(.995); }
 
 /* --- Фаза близости: дорожка ----------------------------------------------
    Пройденный участок залит, текущий шаг горит и поднят, будущее приглушено. */
@@ -1090,7 +1096,7 @@
   box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 1px 3px rgba(40,30,20,.12) !important;
 }
 
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill) {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-nsfw-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-kink-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-fetish-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-nogo-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-noturn-pill {
   background: color-mix(in srgb, var(--lt-paper-2) 55%, transparent) !important;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.6), 0 1px 2px rgba(40,30,20,.10) !important;
 }
@@ -1126,10 +1132,10 @@
 
 /* Отражение по верхней кромке у кинка, фетиша, запрета и «не возбуждает» —
    то же, что у плиток NSFW. */
-:is(.hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill) { background-image: linear-gradient(180deg, rgba(255,255,255,.07) 0, rgba(255,255,255,0) 46%); }
+.hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill { background-image: linear-gradient(180deg, rgba(255,255,255,.07) 0, rgba(255,255,255,0) 46%); }
 
 /* Текст на стекле: лёгкая тень, чтобы буквы не растворялись в прозрачном фоне. */
-:is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill) { text-shadow: 0 1px 1px rgba(0,0,0,.28); }
+.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill { text-shadow: 0 1px 1px rgba(0,0,0,.28); }
 
 /* Чуть больше воздуха между плитками закрытой части. */
 .hud-row.nsfw .hud-vertical-container { gap: 7px; }
@@ -1147,7 +1153,7 @@
 .hud-row.nsfw .hud-zone-name { color: var(--nfx-40, #ffd0e2); }
 .hud-row.nsfw .hud-sex-rev { color: #f3dde7; }
 
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill) { text-shadow: none; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-nsfw-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-kink-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-fetish-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-nogo-pill, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-noturn-pill { text-shadow: none; }
 
 /* =========================================================================
    NSFW: МЕДАЛЬОНЫ, СТЕКЛЯННЫЕ ЗНАЧЕНИЯ, СИЯНИЕ
@@ -1961,6 +1967,13 @@
   .hud-eco-dots { display: none; }
   .hud-eco-chg { grid-column: 2 / -1; justify-self: start; }
 }
+/* Длинная строка (значение фразой): значок и название, под ними значение и
+   изменение — с переносом, без вылета за край. */
+.hud-os-card .hud-eco-row.is-long:not(.is-note) { display: grid; grid-template-columns: 26px minmax(0, 1fr); row-gap: 3px; align-items: start; }
+.hud-os-card .hud-eco-row.is-long > .hud-eco-dots { display: none; }
+.hud-os-card .hud-eco-row.is-long > .hud-eco-val, .hud-os-card .hud-eco-row.is-long > .hud-eco-chg { grid-column: 2; margin-left: 0; justify-self: start; text-align: left; white-space: normal; overflow-wrap: anywhere; }
+.hud-os-card .hud-eco-row.is-long > .hud-eco-val { font-size: 12.5px; letter-spacing: 0; }
+.hud-os-card .hud-eco-row.is-long > em:empty { display: none; }
 
 /* --- Мир: афиша билетами ------------------------------------------------- */
 .hud-afisha-grid { grid-template-columns: repeat(auto-fill, minmax(min(100%, 210px), 1fr)); gap: 10px; }
@@ -2071,10 +2084,10 @@
    ========================================================================= */
 
 /* Общий блик сверху: мягкая полоска света по верхней кромке. */
-:is(.hud-scene-chip, .hud-sound, .hud-cycle-badge, .hud-mark, .hud-heat-row, .hud-city-row, .hud-prot, .hud-vit, .hud-afisha-main, .hud-eco-chg) {
+.hud-scene-chip, .hud-sound, .hud-cycle-badge, .hud-mark, .hud-heat-row, .hud-city-row, .hud-prot, .hud-vit, .hud-afisha-main, .hud-eco-chg {
   position: relative;
 }
-:is(.hud-scene-chip, .hud-sound, .hud-cycle-badge, .hud-mark, .hud-prot)::before {
+.hud-scene-chip::before, .hud-sound::before, .hud-cycle-badge::before, .hud-mark::before, .hud-prot::before {
   content: ''; position: absolute; left: 1px; right: 1px; top: 1px; height: 45%; pointer-events: none;
   border-radius: inherit; border-bottom-left-radius: 0; border-bottom-right-radius: 0;
   background: linear-gradient(180deg, rgba(255,255,255,.1), rgba(255,255,255,0));
@@ -2348,9 +2361,7 @@
 .hud-scene-widget.is-compact {
   padding: 8px 44px 8px 10px !important; gap: 6px; cursor: default;
 }
-.hud-scene-widget.is-compact > :is(.hud-fx-stars, .hud-fx-fireflies, .hud-fx-storm-flash, .hud-fx-lightning, .hud-fx-rainbow,
-  .hud-fx-celestial, .hud-fx-cloud-cover, .hud-fx-season-scene, .hud-fx-weather, .hud-fx-frost, .hud-fx-temp, .hud-scene-atm),
-.hud-scene-widget.is-compact .hud-mood-item { display: none !important; }
+.hud-scene-widget.is-compact > .hud-fx-stars, .hud-scene-widget.is-compact > .hud-fx-fireflies, .hud-scene-widget.is-compact > .hud-fx-storm-flash, .hud-scene-widget.is-compact > .hud-fx-lightning, .hud-scene-widget.is-compact > .hud-fx-rainbow, .hud-scene-widget.is-compact > .hud-fx-celestial, .hud-scene-widget.is-compact > .hud-fx-cloud-cover, .hud-scene-widget.is-compact > .hud-fx-season-scene, .hud-scene-widget.is-compact > .hud-fx-weather, .hud-scene-widget.is-compact > .hud-fx-frost, .hud-scene-widget.is-compact > .hud-fx-temp, .hud-scene-widget.is-compact > .hud-scene-atm, .hud-scene-widget.is-compact .hud-mood-item { display: none !important; }
 .hud-scene-widget.is-compact { min-height: 0 !important; }
 /* На телефоне плашки сцены стоят столбиком и сцена держит высоту 150px —
    в свёрнутом виде это отменяем: одна полоса, погода справа. */
@@ -2376,7 +2387,7 @@
 
 /* Подготовка: плавные переходы, точки опоры, строчные элементы под transform. */
 .hud-key-ico > span, .hud-eco-chg i { display: inline-block; }
-:is(.hud-row:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns)), .hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row) { transition: transform .6s cubic-bezier(.22,.8,.26,1), filter .6s cubic-bezier(.22,.8,.26,1), background-color .4s ease, border-color .4s ease, box-shadow .4s ease, color .4s ease, opacity .4s ease !important; }
+[data-fx~="lift"][data-fx] { transition: transform .6s cubic-bezier(.22,.8,.26,1), filter .6s cubic-bezier(.22,.8,.26,1), background-color .4s ease, border-color .4s ease, box-shadow .4s ease, color .4s ease, opacity .4s ease !important; }
 :is(.hud-key-ico > span, .hud-emoji, .hud-fear-ico, .hud-prg-ico, .hud-scene-chip > i:first-child, .hud-prot-ico, .hud-vit-ico, .hud-mark-ico, .hud-eco-ico, .hud-city-kind > i, .hud-secret-lock, .hud-perc-face, .hud-pill-face, .hud-timeline-time, .hud-schedule-time, .hud-news-headline) { transition: transform .7s cubic-bezier(.22,.8,.26,1), color .5s ease; }
 .hud-org-meter > i, .hud-heat-bar > i, .hud-mark-heal-track > i, .hud-ill-meter > i, .hud-prg-meter > i, .hud-zone-bar > i { transform-origin: left center; }
 .hud-sound-eq i { transform-origin: center bottom; }
@@ -2399,9 +2410,9 @@
 
 @media (prefers-reduced-motion: no-preference) {
   @media (hover: hover) and (pointer: fine) {
-    :is(.hud-row:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns)), .hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row):hover { transform: translateY(-3px) !important; filter: drop-shadow(0 7px 10px rgba(0,0,0,.38)) drop-shadow(0 0 0 transparent); z-index: 2; }
-    :is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-scene-chip, .hud-phase-step, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-row.nsfw:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns))):is(:hover, .fx-hold) { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite; }
-  :is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-scene-chip, .hud-phase-step, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-row.nsfw:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns))).fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) { animation-play-state: paused !important; }
+    [data-fx~="lift"][data-fx]:hover { transform: translateY(-3px) !important; filter: drop-shadow(0 7px 10px rgba(0,0,0,.38)) drop-shadow(0 0 0 transparent); z-index: 2; }
+    [data-fx~="glow"][data-fx][data-fx]:is(:hover, .fx-hold) { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite; }
+  [data-fx~="glow"][data-fx][data-fx].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) { animation-play-state: paused !important; }
     .hud-row:hover .hud-key-ico > span { transform: scale(1.1); }
     .hud-key-item:hover .hud-emoji { transform: scale(1.1); }
     .hud-fear:hover .hud-fear-ico { transform: scale(1.1); }
@@ -2654,9 +2665,9 @@
     .hud-row.nsfw-review:is(:hover, .fx-hold) .hud-sex-rev { animation: hud-mo-review 3.4s ease-in-out infinite alternate; }
   .hud-row.nsfw-review.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) .hud-sex-rev { animation-play-state: paused !important; }
   }
-  :is(.hud-row:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns)), .hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row).fx-tap { transform: translateY(-3px) !important; filter: drop-shadow(0 7px 10px rgba(0,0,0,.38)) drop-shadow(0 0 0 transparent); z-index: 2; }
-  :is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-scene-chip, .hud-phase-step, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-row.nsfw:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns))):is(.fx-tap, .fx-hold) { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite; }
-  :is(.hud-nsfw-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-scene-chip, .hud-phase-step, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-row.nsfw:not(:has(.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill, .hud-schedule-event, .hud-exp-reality, .hud-phase-step, .hud-fear, .hud-ill, .hud-prg, .hud-zone, .hud-perc, .hud-scene-chip, .hud-prot, .hud-org, .hud-vit, .hud-sound, .hud-heat-row, .hud-mark, .hud-cycle-badge, .hud-eco-row, .hud-afisha-card, .hud-city-row, .hud-news-article, .hud-world-list li, .hud-comment, .hud-horo-card, .hud-timeline-content, .hud-mood-chip, .hud-gun, .hud-pet, .hud-line-quote, .hud-phone-contact, .hud-phone-photo-card, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-map-row, .hud-vitals, .hud-sounds, .hud-heat, .hud-marks, .hud-cycle, .hud-scene-strip, .hud-fears, .hud-perc-list, .hud-lines, .hud-route-map, .hud-mood-group, .hud-guns))).fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) { animation-play-state: paused !important; }
+  [data-fx~="lift"][data-fx].fx-tap { transform: translateY(-3px) !important; filter: drop-shadow(0 7px 10px rgba(0,0,0,.38)) drop-shadow(0 0 0 transparent); z-index: 2; }
+  [data-fx~="glow"][data-fx][data-fx]:is(.fx-tap, .fx-hold) { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite; }
+  [data-fx~="glow"][data-fx][data-fx].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) { animation-play-state: paused !important; }
   .hud-row.fx-tap .hud-key-ico > span { transform: scale(1.1); }
   .hud-key-item.fx-tap .hud-emoji { transform: scale(1.1); }
   .hud-fear.fx-tap .hud-fear-ico { transform: scale(1.1); }
@@ -3132,8 +3143,7 @@
 
   /* Подписи не мельче 10px. Где размер задан долей родителя — берём большее. */
   .hud-os-card .hud-key { font-size: max(10.5px, .85em); }
-  .hud-os-card :is(.hud-remember, .hud-prot-kicker, .hud-org-scale, .hud-city-stamp, .hud-secret-lvl, .hud-secret-stat,
-    .hud-phone-time, .hud-msg-time, .hud-rel-legend-item, .hud-rel-inspector-sub) { font-size: 10px; }
+  .hud-os-card .hud-remember, .hud-os-card .hud-prot-kicker, .hud-os-card .hud-org-scale, .hud-os-card .hud-city-stamp, .hud-os-card .hud-secret-lvl, .hud-os-card .hud-secret-stat, .hud-os-card .hud-phone-time, .hud-os-card .hud-msg-time, .hud-os-card .hud-rel-legend-item, .hud-os-card .hud-rel-inspector-sub { font-size: 10px; }
   .hud-os-card .hud-rel-heading small, .hud-os-card .hud-secret-spread-meta small { font-size: 10px; }
   .hud-os-card .hud-rel-inspector-main { font-size: 10.5px; }
   .hud-os-card .hud-afisha-kind { font-size: 9.5px; }
@@ -3407,8 +3417,8 @@
 :is(.weather-wind, .weather-windy, .weather-windy-strong) .hud-bg-tree.bt3 { animation-delay: -1.3s; }
 :is(.weather-wind, .weather-windy, .weather-windy-strong) .hud-bg-tree.bt4 { animation-delay: -.4s; }
 :is(.weather-wind, .weather-windy, .weather-windy-strong) .hud-umbrella { rotate: -2deg; transform-origin: 50% 100%; }
-:is(.weather-wind, .weather-windy, .weather-windy-strong) :is(.hud-umbrella-canopy, .hud-umbrella-valance) { animation-duration: 1.7s; }
-:is(.weather-wind.weather-intensity-high, .weather-windy-strong) :is(.hud-umbrella-canopy, .hud-umbrella-valance) { animation-duration: 1.1s; }
+:is(.weather-wind, .weather-windy, .weather-windy-strong) .hud-umbrella-canopy, :is(.weather-wind, .weather-windy, .weather-windy-strong) .hud-umbrella-valance { animation-duration: 1.7s; }
+:is(.weather-wind.weather-intensity-high, .weather-windy-strong) .hud-umbrella-canopy, :is(.weather-wind.weather-intensity-high, .weather-windy-strong) .hud-umbrella-valance { animation-duration: 1.1s; }
 @keyframes hud-flag-flutter { 0%, 100% { transform: scaleX(1) skewY(0deg); } 50% { transform: scaleX(.82) skewY(7deg); } }
 .season-summer:is(.weather-wind, .weather-windy, .weather-windy-strong) .hud-sandcastle-flag::after {
     transform-origin: 0 50%;
@@ -3577,7 +3587,7 @@
 .season-spring.month-3 .hud-meadow { filter: saturate(.42) hue-rotate(-26deg) brightness(.84); }
 .season-spring.month-3 .hud-grass { filter: saturate(.5) hue-rotate(-20deg); }
 .season-spring.month-3 .hud-far-treeline { filter: saturate(.5) brightness(.95); }
-.season-spring.month-3 :is(.hud-flowerbed, .hud-bee, .hud-butterfly, .hud-dandelion, .hud-pollen, .hud-shrub-bloom) { display: none; }
+.season-spring.month-3 .hud-flowerbed, .season-spring.month-3 .hud-bee, .season-spring.month-3 .hud-butterfly, .season-spring.month-3 .hud-dandelion, .season-spring.month-3 .hud-pollen, .season-spring.month-3 .hud-shrub-bloom { display: none; }
 
 /* Снег в тени у деревьев. */
 .season-spring .hud-spring-snow {
@@ -4241,37 +4251,37 @@
    из тонов темы Таверны и HUD: все секции — родня теме, но не одна краска.
    Без палитры (старый браузер, скрипт не отработал) — цвет группы.
    ========================================================================= */
-:is(.hud-row, .hud-key-block).f-age { --kind: var(--hud-f-age, var(--hud-kind-look, #cbb9a3)); }
-:is(.hud-row, .hud-key-block).f-clothes { --kind: var(--hud-f-clothes, var(--hud-kind-look, #cbb9a3)); }
-:is(.hud-row, .hud-key-block).f-looks { --kind: var(--hud-f-looks, var(--hud-kind-look, #cbb9a3)); }
-:is(.hud-row, .hud-key-block).f-body { --kind: var(--hud-f-body, var(--hud-kind-look, #cbb9a3)); }
-:is(.hud-row, .hud-key-block).f-phys { --kind: var(--hud-f-phys, var(--hud-kind-vitals, #5fd68a)); }
-:is(.hud-row, .hud-key-block).f-health { --kind: var(--hud-f-health, var(--hud-kind-vitals, #5fd68a)); }
-:is(.hud-row, .hud-key-block).f-illness { --kind: var(--hud-f-illness, var(--hud-kind-vitals, #5fd68a)); }
-:is(.hud-row, .hud-key-block).f-marks { --kind: var(--hud-f-marks, var(--hud-kind-vitals, #5fd68a)); }
-:is(.hud-row, .hud-key-block).f-preg { --kind: var(--hud-f-preg, var(--hud-kind-vitals, #5fd68a)); }
-:is(.hud-row, .hud-key-block).f-cycle { --kind: var(--hud-f-cycle, var(--hud-kind-vitals, #5fd68a)); }
-:is(.hud-row, .hud-key-block).f-where { --kind: var(--hud-f-where, var(--hud-kind-place, #3fd0c9)); }
-:is(.hud-row, .hud-key-block).f-role { --kind: var(--hud-f-role, var(--hud-kind-standing, #6aaef5)); }
-:is(.hud-row, .hud-key-block).f-status { --kind: var(--hud-f-status, var(--hud-kind-standing, #6aaef5)); }
-:is(.hud-row, .hud-key-block).f-thoughts { --kind: var(--hud-f-thoughts, var(--hud-kind-mind, #b594ff)); }
-:is(.hud-row, .hud-key-block).f-subtext { --kind: var(--hud-f-subtext, var(--hud-kind-mind, #b594ff)); }
-:is(.hud-row, .hud-key-block).f-key { --kind: var(--hud-f-key, var(--hud-kind-mind, #b594ff)); }
-:is(.hud-row, .hud-key-block).f-exp { --kind: var(--hud-f-exp, var(--hud-kind-mind, #b594ff)); }
-:is(.hud-row, .hud-key-block).f-dream { --kind: var(--hud-f-dream, var(--hud-kind-dream, #8f95ff)); }
-:is(.hud-row, .hud-key-block).f-goals { --kind: var(--hud-f-goals, var(--hud-kind-plans, #f2c94c)); }
-:is(.hud-row, .hud-key-block).f-schedule { --kind: var(--hud-f-schedule, var(--hud-kind-plans, #f2c94c)); }
-:is(.hud-row, .hud-key-block).f-inventory { --kind: var(--hud-f-inventory, var(--hud-kind-items, #9fb0c6)); }
-:is(.hud-row, .hud-key-block).f-relations { --kind: var(--hud-f-relations, var(--hud-kind-bonds, #f27fc4)); }
-:is(.hud-row, .hud-key-block).f-trust { --kind: var(--hud-f-trust, var(--hud-kind-bonds, #f27fc4)); }
-:is(.hud-row, .hud-key-block).f-memories { --kind: var(--hud-f-memories, var(--hud-kind-bonds, #f27fc4)); }
-:is(.hud-row, .hud-key-block).f-lines { --kind: var(--hud-f-lines, var(--hud-kind-bonds, #f27fc4)); }
-:is(.hud-row, .hud-key-block).f-jealousy { --kind: var(--hud-f-jealousy, var(--hud-kind-tension, #ff9a4a)); }
-:is(.hud-row, .hud-key-block).f-clash { --kind: var(--hud-f-clash, var(--hud-kind-tension, #ff9a4a)); }
-:is(.hud-row, .hud-key-block).f-conflict { --kind: var(--hud-f-conflict, var(--hud-kind-tension, #ff9a4a)); }
-:is(.hud-row, .hud-key-block).f-fears { --kind: var(--hud-f-fears, var(--hud-kind-alarm, #ff5a5a)); }
-:is(.hud-row, .hud-key-block).f-flags { --kind: var(--hud-f-flags, var(--hud-kind-alarm, #ff5a5a)); }
-:is(.hud-row, .hud-key-block).f-exposure { --kind: var(--hud-f-exposure, var(--hud-kind-alarm, #ff5a5a)); }
+.hud-row.f-age, .hud-key-block.f-age { --kind: var(--hud-f-age, var(--hud-kind-look, #cbb9a3)); }
+.hud-row.f-clothes, .hud-key-block.f-clothes { --kind: var(--hud-f-clothes, var(--hud-kind-look, #cbb9a3)); }
+.hud-row.f-looks, .hud-key-block.f-looks { --kind: var(--hud-f-looks, var(--hud-kind-look, #cbb9a3)); }
+.hud-row.f-body, .hud-key-block.f-body { --kind: var(--hud-f-body, var(--hud-kind-look, #cbb9a3)); }
+.hud-row.f-phys, .hud-key-block.f-phys { --kind: var(--hud-f-phys, var(--hud-kind-vitals, #5fd68a)); }
+.hud-row.f-health, .hud-key-block.f-health { --kind: var(--hud-f-health, var(--hud-kind-vitals, #5fd68a)); }
+.hud-row.f-illness, .hud-key-block.f-illness { --kind: var(--hud-f-illness, var(--hud-kind-vitals, #5fd68a)); }
+.hud-row.f-marks, .hud-key-block.f-marks { --kind: var(--hud-f-marks, var(--hud-kind-vitals, #5fd68a)); }
+.hud-row.f-preg, .hud-key-block.f-preg { --kind: var(--hud-f-preg, var(--hud-kind-vitals, #5fd68a)); }
+.hud-row.f-cycle, .hud-key-block.f-cycle { --kind: var(--hud-f-cycle, var(--hud-kind-vitals, #5fd68a)); }
+.hud-row.f-where, .hud-key-block.f-where { --kind: var(--hud-f-where, var(--hud-kind-place, #3fd0c9)); }
+.hud-row.f-role, .hud-key-block.f-role { --kind: var(--hud-f-role, var(--hud-kind-standing, #6aaef5)); }
+.hud-row.f-status, .hud-key-block.f-status { --kind: var(--hud-f-status, var(--hud-kind-standing, #6aaef5)); }
+.hud-row.f-thoughts, .hud-key-block.f-thoughts { --kind: var(--hud-f-thoughts, var(--hud-kind-mind, #b594ff)); }
+.hud-row.f-subtext, .hud-key-block.f-subtext { --kind: var(--hud-f-subtext, var(--hud-kind-mind, #b594ff)); }
+.hud-row.f-key, .hud-key-block.f-key { --kind: var(--hud-f-key, var(--hud-kind-mind, #b594ff)); }
+.hud-row.f-exp, .hud-key-block.f-exp { --kind: var(--hud-f-exp, var(--hud-kind-mind, #b594ff)); }
+.hud-row.f-dream, .hud-key-block.f-dream { --kind: var(--hud-f-dream, var(--hud-kind-dream, #8f95ff)); }
+.hud-row.f-goals, .hud-key-block.f-goals { --kind: var(--hud-f-goals, var(--hud-kind-plans, #f2c94c)); }
+.hud-row.f-schedule, .hud-key-block.f-schedule { --kind: var(--hud-f-schedule, var(--hud-kind-plans, #f2c94c)); }
+.hud-row.f-inventory, .hud-key-block.f-inventory { --kind: var(--hud-f-inventory, var(--hud-kind-items, #9fb0c6)); }
+.hud-row.f-relations, .hud-key-block.f-relations { --kind: var(--hud-f-relations, var(--hud-kind-bonds, #f27fc4)); }
+.hud-row.f-trust, .hud-key-block.f-trust { --kind: var(--hud-f-trust, var(--hud-kind-bonds, #f27fc4)); }
+.hud-row.f-memories, .hud-key-block.f-memories { --kind: var(--hud-f-memories, var(--hud-kind-bonds, #f27fc4)); }
+.hud-row.f-lines, .hud-key-block.f-lines { --kind: var(--hud-f-lines, var(--hud-kind-bonds, #f27fc4)); }
+.hud-row.f-jealousy, .hud-key-block.f-jealousy { --kind: var(--hud-f-jealousy, var(--hud-kind-tension, #ff9a4a)); }
+.hud-row.f-clash, .hud-key-block.f-clash { --kind: var(--hud-f-clash, var(--hud-kind-tension, #ff9a4a)); }
+.hud-row.f-conflict, .hud-key-block.f-conflict { --kind: var(--hud-f-conflict, var(--hud-kind-tension, #ff9a4a)); }
+.hud-row.f-fears, .hud-key-block.f-fears { --kind: var(--hud-f-fears, var(--hud-kind-alarm, #ff5a5a)); }
+.hud-row.f-flags, .hud-key-block.f-flags { --kind: var(--hud-f-flags, var(--hud-kind-alarm, #ff5a5a)); }
+.hud-row.f-exposure, .hud-key-block.f-exposure { --kind: var(--hud-f-exposure, var(--hud-kind-alarm, #ff5a5a)); }
 /* Цели: срок читается светлотой цвета секции, а не чужими оранжевым и синим. */
 .hud-row[class*=" kind-"] .hud-detail-pill.is-now   { --срок: var(--kind); --кромка: var(--kind); }
 .hud-row[class*=" kind-"] .hud-detail-pill.is-soon  { --срок: color-mix(in oklab, var(--kind) 72%, var(--hud-text, #fff)); --кромка: var(--срок); }
@@ -4279,7 +4289,7 @@
 .hud-row[class*=" kind-"] .hud-detail-pill:is(.is-now, .is-soon, .is-later) .hud-pill-label { color: var(--kind-ink); }
 .hud-row.f-goals .hud-detail-pill:is(.is-now, .is-soon, .is-later) .hud-pill-label { color: #17120c !important; }
 /* Конфликт и инвентарь внутри строки — цвет секции, а не общий красный/серый. */
-.hud-row[class*=" kind-"] :is(.hud-conflict-pill, .hud-inventory-pill) { --кромка: var(--kind); }
+.hud-row[class*=" kind-"] .hud-conflict-pill, .hud-row[class*=" kind-"] .hud-inventory-pill { --кромка: var(--kind); }
 .hud-row.f-conflict .hud-conflict-pill {
   background: linear-gradient(115deg,
     color-mix(in srgb, var(--kind) 26%, transparent) 0 47%,
@@ -4316,7 +4326,7 @@
 .hud-cask-lid, .hud-letter-who b, .hud-doc-title, .hud-quill-note header b, .hud-ledger-title, .hud-ov-head b, .hud-almanac .hud-cal-head { font-family: var(--hud-font-headers, inherit); }
 .hud-letter-sheet, .hud-quill-note p, .hud-ov-sheet p { font-family: var(--hud-font-diary, inherit); }
 /* Светлая тема: ларец светлого дерева, надписи тёмные. */
-:is(.hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-cask, .hud-overheard) {
+:is(.hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-cask, :is(.hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-overheard {
   --wood: color-mix(in oklab, var(--hud-accent, #b08a4a) 26%, #fbf6ee);
   --wood-2: color-mix(in oklab, var(--hud-accent, #b08a4a) 40%, #f1e6da);
   --brass: color-mix(in oklab, var(--hud-accent, #b08a4a) 78%, #2a1d12);
@@ -4615,13 +4625,13 @@
 
 /* Прочие поля (нет в таблицах) и «Что о тебе думают» — тоже из темы. */
 .kind-misc { --kind: var(--hud-kind-misc, #b8a98f); }
-:is(.hud-row, .hud-key-block).f-perception { --kind: var(--hud-f-perception, #f27fc4); }
-:is(.hud-row, .hud-key-block).f-x1 { --kind: var(--hud-f-x1, #c9a27a); }
-:is(.hud-row, .hud-key-block).f-x2 { --kind: var(--hud-f-x2, #9fb8a0); }
-:is(.hud-row, .hud-key-block).f-x3 { --kind: var(--hud-f-x3, #a9a3c9); }
-:is(.hud-row, .hud-key-block).f-x4 { --kind: var(--hud-f-x4, #c99a9a); }
-:is(.hud-row, .hud-key-block).f-x5 { --kind: var(--hud-f-x5, #9ab8c9); }
-:is(.hud-row, .hud-key-block).f-x6 { --kind: var(--hud-f-x6, #c9c09a); }
+.hud-row.f-perception, .hud-key-block.f-perception { --kind: var(--hud-f-perception, #f27fc4); }
+.hud-row.f-x1, .hud-key-block.f-x1 { --kind: var(--hud-f-x1, #c9a27a); }
+.hud-row.f-x2, .hud-key-block.f-x2 { --kind: var(--hud-f-x2, #9fb8a0); }
+.hud-row.f-x3, .hud-key-block.f-x3 { --kind: var(--hud-f-x3, #a9a3c9); }
+.hud-row.f-x4, .hud-key-block.f-x4 { --kind: var(--hud-f-x4, #c99a9a); }
+.hud-row.f-x5, .hud-key-block.f-x5 { --kind: var(--hud-f-x5, #9ab8c9); }
+.hud-row.f-x6, .hud-key-block.f-x6 { --kind: var(--hud-f-x6, #c9c09a); }
 
 /* =========================================================================
    ВСЁ В КАРТОЧКЕ — ИЗ ТЕМЫ
@@ -4657,7 +4667,7 @@
    ставим то, что там было: перевёрнутую рыбацкую лодку и сеть на кольях.
    ========================================================================= */
 .hud-rowboat, .hud-fishnet { display: none; }
-.era-medieval :is(.hud-umbrella, .hud-volleyball-net, .hud-volleyball, .hud-surfboard, .hud-towel, .hud-towel-shadow, .hud-sandcastle-shovel, .hud-xmas-tree, .hud-pumpkins, .hud-fireworks) { display: none !important; }
+.era-medieval .hud-umbrella, .era-medieval .hud-volleyball-net, .era-medieval .hud-volleyball, .era-medieval .hud-surfboard, .era-medieval .hud-towel, .era-medieval .hud-towel-shadow, .era-medieval .hud-sandcastle-shovel, .era-medieval .hud-xmas-tree, .era-medieval .hud-pumpkins, .era-medieval .hud-fireworks { display: none !important; }
 .era-medieval.season-summer .hud-rowboat {
   display: block; position: absolute; right: 22px; bottom: 2.4%; width: 96px; height: 30px; z-index: 7; pointer-events: none;
   filter: brightness(calc(1 - var(--scene-night-strength, 0) * .58)) saturate(calc(1 - var(--scene-night-strength, 0) * .55));
@@ -4713,12 +4723,10 @@
    специфичность: перебиваем только унаследованную тень Таверны, а у
    элементов со своей тенью (часы, буквицы, неон тем) она остаётся.
    ========================================================================= */
-:where(.hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate)
-  :where(.hud-os-wrapper, .hud-os-card, .hud-scene-widget, .hud-modal-overlay) :where(*) {
-  text-shadow:
-    0 1px 0 rgba(255,255,255,.55),
-    0 0 calc(var(--shadowWidth, 2) * 2px) color-mix(in srgb, var(--hud-accent, #c46) 16%, transparent);
-}
+/* Само правило — только там, где оно нужно: в css/themes/light.css (готовые
+   светлые темы) и в <style>, который palette.js ставит при светлой палитре.
+   Правило на «*» браузер проверяет у каждого элемента страницы при каждом
+   пересчёте стилей, и на тёмных темах оно платило впустую. */
 /* Маршрут в памяти: белые подписи на белой бумаге не читались. */
 :is(.hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-route-stop.is-current .hud-route-info b { color: var(--hud-text) !important; }
 :is(.hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-route-span, .hud-route-info small, .hud-route-info em) { color: var(--hud-text-muted, #6d5a64) !important; }
@@ -5763,7 +5771,7 @@ html.hud-custom-open body { overflow: hidden; }
   html.hud-glow-mobile-off.hud-glow-breath :is(.hud-time-display, .hud-title, .hud-avatar, .hud-avatar-placeholder, .hud-tabs-header .hud-tab.active, .hud-phone-lock-time) { animation: none !important; }
   /* Плашки сцены на узком экране без внешних теней (base.css, ради
      скорости) — в режиме рамки оставляем им только светящуюся кромку. */
-  html:not(.hud-glow-mobile-full) :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-scene-atm) { box-shadow: inset 0 0 0 1px var(--hud-glow-soft) !important; }
+  html:not(.hud-glow-mobile-full) .hud-scene-time-group, html:not(.hud-glow-mobile-full) .hud-weather-item, html:not(.hud-glow-mobile-full) .hud-mood-item, html:not(.hud-glow-mobile-full) .hud-scene-atm { box-shadow: inset 0 0 0 1px var(--hud-glow-soft) !important; }
 }
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) {
@@ -5774,7 +5782,7 @@ html.hud-custom-open body { overflow: hidden; }
   html.hud-glow-mobile-off.hud-glow-breath :is(.hud-time-display, .hud-title, .hud-avatar, .hud-avatar-placeholder, .hud-tabs-header .hud-tab.active, .hud-phone-lock-time) { animation: none !important; }
   /* Плашки сцены на узком экране без внешних теней (base.css, ради
      скорости) — в режиме рамки оставляем им только светящуюся кромку. */
-  html:not(.hud-glow-mobile-full) :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-scene-atm) { box-shadow: inset 0 0 0 1px var(--hud-glow-soft) !important; }
+  html:not(.hud-glow-mobile-full) .hud-scene-time-group, html:not(.hud-glow-mobile-full) .hud-weather-item, html:not(.hud-glow-mobile-full) .hud-mood-item, html:not(.hud-glow-mobile-full) .hud-scene-atm { box-shadow: inset 0 0 0 1px var(--hud-glow-soft) !important; }
 } }
 /* cq ↑ */
 
@@ -5796,7 +5804,7 @@ html .hud-glass-liquid .hud-os-card { box-shadow: var(--hud-glow-card), var(--gl
 }
 .hud-scene-atm { text-shadow: 0 2px 6px rgba(0, 0, 0, .9), 0 0 calc(3px * var(--hud-glow-r)) var(--hud-glow), 0 0 calc(10px * var(--hud-glow-r)) var(--hud-glow-soft); }
 .hud-date-display { text-shadow: 0 2px 4px rgba(0, 0, 0, .9), 0 0 calc(4px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(12px * var(--hud-glow-r)) var(--hud-glow); }
-:is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-scene-atm) {
+.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-scene-atm {
   box-shadow: 0 4px 14px rgba(0, 0, 0, .3), inset 0 0 0 1px var(--hud-glow-soft), 0 0 calc(14px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft);
 }
 
@@ -5837,8 +5845,7 @@ html:not(.hud-theme-cyberpunk) .hud-os-card :is(.hud-row:not(.nsfw) > .hud-key, 
 /* Пилюли в строках: детали, инвентарь, ключевые мысли, конфликты.
    drop-shadow, а не box-shadow: у части пилюль свои тени и своё
    «без тени», и свет не должен их затирать. */
-.hud-os-card .hud-row:not(.nsfw) :is(.hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill),
-.hud-os-card .hud-key-block .hud-key-item {
+.hud-os-card .hud-row:not(.nsfw) .hud-detail-pill, .hud-os-card .hud-row:not(.nsfw) .hud-inventory-pill, .hud-os-card .hud-row:not(.nsfw) .hud-conflict-pill, .hud-os-card .hud-key-block .hud-key-item {
   filter: drop-shadow(0 0 calc(3px * var(--hud-glow-r)) var(--hud-glow)) drop-shadow(0 0 calc(9px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft));
 }
 
@@ -5846,7 +5853,7 @@ html:not(.hud-theme-cyberpunk) .hud-os-card :is(.hud-row:not(.nsfw) > .hud-key, 
 :where(.hud-os-card) :where(.hud-key, .hud-key-label) { text-shadow: 0 0 calc(2px * var(--hud-glow-r)) var(--hud-glow-soft), 0 0 calc(8px * var(--hud-glow-r)) var(--hud-glow-soft); }
 
 /* Шкалы — как неоновые трубки. */
-:is(.hud-ill-meter, .hud-org-meter, .hud-prg-meter, .hud-conception-bar, .hud-poll-bar, .hud-dash-bar-track, .hud-mark-heal-track, .hud-heat-bar, .hud-breaking-track, .hud-fc-bar) {
+.hud-ill-meter, .hud-org-meter, .hud-prg-meter, .hud-conception-bar, .hud-poll-bar, .hud-dash-bar-track, .hud-mark-heal-track, .hud-heat-bar, .hud-breaking-track, .hud-fc-bar {
   filter: drop-shadow(0 0 calc(4px * var(--hud-glow-r)) var(--hud-glow));
 }
 .hud-trustmap .hud-zone-bar > i, .hud-bodymap:not(.hud-row.nsfw *) .hud-zone-bar > i { box-shadow: 0 0 calc(8px * var(--hud-glow-r)) var(--hud-glow); }
@@ -5861,28 +5868,28 @@ html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-lock-time {
   text-shadow: 0 0 calc(2px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(8px * var(--hud-glow-r)) var(--hud-glow-strong),
     0 0 calc(20px * var(--hud-glow-r)) var(--hud-glow), 0 0 calc(44px * var(--hud-glow-r)) var(--hud-glow-soft);
 }
-html:not(.hud-phone-noglow) .hud-phone-emulator :is(.hud-phone-lock-day, .hud-phone-lock-hint, .hud-phone-top-status) { text-shadow: 0 0 calc(6px * var(--hud-glow-r)) var(--hud-glow); }
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-lock-day, html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-lock-hint, html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-top-status { text-shadow: 0 0 calc(6px * var(--hud-glow-r)) var(--hud-glow); }
 /* Уведомления и строка «проведите вверх». */
-html:not(.hud-phone-noglow) .hud-phone-emulator :is(.hud-phone-notif, .hud-phone-lock-notice) { filter: drop-shadow(0 0 calc(5px * var(--hud-glow-r)) var(--hud-glow-soft)); }
-html:not(.hud-phone-noglow) .hud-phone-emulator :is(.hud-phone-lock-bar, .hud-phone-home-btn) { box-shadow: 0 0 calc(8px * var(--hud-glow-r)) var(--hud-glow); }
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-notif, html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-lock-notice { filter: drop-shadow(0 0 calc(5px * var(--hud-glow-r)) var(--hud-glow-soft)); }
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-lock-bar, html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-home-btn { box-shadow: 0 0 calc(8px * var(--hud-glow-r)) var(--hud-glow); }
 /* Заголовок приложения, «назад», значки непрочитанного. */
 html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-app-title { text-shadow: 0 0 calc(3px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(10px * var(--hud-glow-r)) var(--hud-glow); }
 html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-back { text-shadow: 0 0 calc(6px * var(--hud-glow-r)) var(--hud-glow-strong); }
 html:not(.hud-phone-noglow) .hud-phone-emulator :is(.hud-unread-badge, .hud-calls-tabs label i) { box-shadow: 0 0 calc(6px * var(--hud-glow-r)) var(--hud-glow-strong); }
 /* Переписки: лица в списке, пузыри, строка ввода. */
-html:not(.hud-phone-noglow) .hud-phone-emulator :is(.hud-phone-chat-ava, .hud-phone-contact-avatar, .hud-phone-notif-ava, .hud-calls-ava, .hud-map-badge) {
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-chat-ava, html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-contact-avatar, html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-notif-ava, html:not(.hud-phone-noglow) .hud-phone-emulator .hud-calls-ava, html:not(.hud-phone-noglow) .hud-phone-emulator .hud-map-badge {
   box-shadow: 0 0 0 1px var(--hud-glow-soft), 0 0 calc(8px * var(--hud-glow-r)) var(--hud-glow);
 }
 html:not(.hud-phone-noglow) .hud-phone-emulator .hud-msg-wrapper.outgoing .hud-msg-bubble { filter: drop-shadow(0 0 calc(5px * var(--hud-glow-r)) var(--hud-glow)); }
 html:not(.hud-phone-noglow) .hud-phone-emulator .hud-msg-wrapper.incoming .hud-msg-bubble { filter: drop-shadow(0 0 calc(4px * var(--hud-glow-r)) var(--hud-glow-soft)); }
-html:not(.hud-phone-noglow) .hud-phone-emulator :is(.hud-phone-input-bar, .hud-google-bar) { box-shadow: 0 0 0 1px var(--hud-glow-soft), 0 0 calc(8px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft); }
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-input-bar, html:not(.hud-phone-noglow) .hud-phone-emulator .hud-google-bar { box-shadow: 0 0 0 1px var(--hud-glow-soft), 0 0 calc(8px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft); }
 html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-send { filter: drop-shadow(0 0 calc(5px * var(--hud-glow-r)) var(--hud-glow-strong)); }
 /* Приложения: погода, звонки, карта, заметки, кошелёк. */
 html:not(.hud-phone-noglow) .hud-phone-emulator .hud-wx-now { box-shadow: 0 10px 26px -16px color-mix(in oklab, var(--hud-phone-accent) 70%, transparent), 0 0 0 1px var(--hud-glow-soft), 0 0 calc(14px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft); }
 html:not(.hud-phone-noglow) .hud-phone-emulator .hud-wx-temp { text-shadow: 0 0 calc(3px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(16px * var(--hud-glow-r)) var(--hud-glow); }
-html:not(.hud-phone-noglow) .hud-phone-emulator :is(.hud-wx-ico, .hud-wx-row-ico, .hud-calls-ico, .hud-map-pin, .hud-map-me) { filter: drop-shadow(0 0 calc(4px * var(--hud-glow-r)) var(--hud-glow)); }
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-wx-ico, html:not(.hud-phone-noglow) .hud-phone-emulator .hud-wx-row-ico, html:not(.hud-phone-noglow) .hud-phone-emulator .hud-calls-ico, html:not(.hud-phone-noglow) .hud-phone-emulator .hud-map-pin, html:not(.hud-phone-noglow) .hud-phone-emulator .hud-map-me { filter: drop-shadow(0 0 calc(4px * var(--hud-glow-r)) var(--hud-glow)); }
 html:not(.hud-phone-noglow) .hud-phone-emulator .hud-map-canvas { box-shadow: inset 0 0 30px rgba(0, 0, 0, .35), 0 0 0 1px var(--hud-glow-soft), 0 0 calc(10px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft); }
-html:not(.hud-phone-noglow) .hud-phone-emulator :is(.hud-wx-fc, .hud-phone-note, .hud-cal) { box-shadow: 0 0 0 1px var(--hud-glow-soft), 0 0 calc(10px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft); }
+html:not(.hud-phone-noglow) .hud-phone-emulator .hud-wx-fc, html:not(.hud-phone-noglow) .hud-phone-emulator .hud-phone-note, html:not(.hud-phone-noglow) .hud-phone-emulator .hud-cal { box-shadow: 0 0 0 1px var(--hud-glow-soft), 0 0 calc(10px * var(--hud-glow-r) * var(--hud-glow-wide)) var(--hud-glow-soft); }
 
 /* Режим «Без теней текста» SillyTavern (body.noShadows, его включают многие
    темы ST) снимает все text-shadow, и заголовки HUD теряли свечение.
@@ -5903,7 +5910,7 @@ body.noShadows :where(.hud-os-card) :where(.hud-key, .hud-key-label) { text-shad
 html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-phone-app > small { text-shadow: 0 0 calc(5px * var(--hud-glow-r)) var(--hud-glow) !important; }
 html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-phone-lock-time { text-shadow: 0 0 calc(2px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(8px * var(--hud-glow-r)) var(--hud-glow-strong),
     0 0 calc(20px * var(--hud-glow-r)) var(--hud-glow), 0 0 calc(44px * var(--hud-glow-r)) var(--hud-glow-soft) !important; }
-html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator :is(.hud-phone-lock-day, .hud-phone-lock-hint, .hud-phone-top-status) { text-shadow: 0 0 calc(6px * var(--hud-glow-r)) var(--hud-glow) !important; }
+html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-phone-lock-day, html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-phone-lock-hint, html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-phone-top-status { text-shadow: 0 0 calc(6px * var(--hud-glow-r)) var(--hud-glow) !important; }
 html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-phone-app-title { text-shadow: 0 0 calc(3px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(10px * var(--hud-glow-r)) var(--hud-glow) !important; }
 html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-phone-back { text-shadow: 0 0 calc(6px * var(--hud-glow-r)) var(--hud-glow-strong) !important; }
 html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { text-shadow: 0 0 calc(3px * var(--hud-glow-r)) var(--hud-glow-strong), 0 0 calc(16px * var(--hud-glow-r)) var(--hud-glow) !important; }
@@ -6175,10 +6182,10 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
    нейтральный ссылался на --hud-accent строки — круг, браузер отбрасывал
    все три переменные, и «Здоровье», «Следы», «Фетиш» теряли цвет. */
 :root { --hud-accent-theme: var(--hud-accent); }
-:is(.hud-row, .hud-key-block, .hud-mark, .hud-ill, .hud-fetish-pill, .hud-mark-stage):not(#_) {
+.hud-row:not(#_), .hud-key-block:not(#_), .hud-mark:not(#_), .hud-ill:not(#_), .hud-fetish-pill:not(#_), .hud-mark-stage:not(#_) {
   --hud-neutral: color-mix(in oklab, var(--hud-text-muted, #b4b0bd) 78%, var(--hud-accent-theme, #8c5ad2) 22%);
 }
-:is(.hud-row, .hud-key-block):is(.f-health, .f-illness, .f-marks, .f-fetish):not(#_) { --kind: var(--hud-neutral); }
+.hud-row:is(.f-health, .f-illness, .f-marks, .f-fetish):not(#_), .hud-key-block:is(.f-health, .f-illness, .f-marks, .f-fetish):not(#_) { --kind: var(--hud-neutral); }
 
 /* Болезни и травмы: стадия — оттенком, не светофором. */
 .hud-ill:not(#_) { --ill: var(--hud-neutral); }
@@ -6245,7 +6252,7 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
 :is(.hud-wx, .hud-world-section-forecast) .w-wind     { --wx: #7fe0c4; }
 .hud-wx .is-night.w-clear { --wx: #d9dcff; }
 .hud-forecast-icon[class*="w-"] { color: var(--wx); filter: drop-shadow(0 0 5px color-mix(in srgb, var(--wx) 40%, transparent)); }
-:is(.hud-forecast-icon, .hud-wx-now, .hud-wx-row-ico).w-partly :is(.ic-sun, .ic-rays) { stroke: var(--wx-sun); }
+:is(.hud-forecast-icon, .hud-wx-now, .hud-wx-row-ico).w-partly .ic-sun, :is(.hud-forecast-icon, .hud-wx-now, .hud-wx-row-ico).w-partly .ic-rays { stroke: var(--wx-sun); }
 :is(.hud-forecast-icon, .hud-wx-now, .hud-wx-row-ico).w-partly .ic-sun { fill: color-mix(in srgb, var(--wx-sun) 45%, transparent); }
 :is(.hud-forecast-icon, .hud-wx-now, .hud-wx-row-ico).w-overcast .ic-cloud:first-child { opacity: .6; }
 
@@ -6279,7 +6286,7 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
 /* Акцент берём на уровне карточки: внутри строки --hud-accent сам выводится
    из --kind, и прямая ссылка замыкалась в круг — цвет пропадал совсем. */
 html.hud-pills-mono .hud-os-card { --hud-pill-mono: var(--hud-accent, #c31f38); }
-html.hud-pills-mono .hud-os-card :is(.hud-row, .hud-key-block):not(.nsfw) { --kind: var(--hud-pill-mono) !important; }
+html.hud-pills-mono .hud-os-card .hud-row:not(.nsfw), html.hud-pills-mono .hud-os-card .hud-key-block:not(.nsfw) { --kind: var(--hud-pill-mono) !important; }
 html.hud-pills-mono .hud-os-card .hud-detail-pill:is(.is-now, .is-soon, .is-later) { --срок: var(--kind); --кромка: var(--kind); }
 html.hud-pills-mono .hud-os-card .hud-detail-pill:is(.is-now, .is-soon, .is-later) .hud-pill-label { color: inherit; }
 html.hud-pills-mono .hud-os-card .hud-detail-pill[style*="--тон-сдвиг"] { --тон-сдвиг: 0 !important; }
@@ -6360,11 +6367,11 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
    NSFW — 140px) без видимой полосы выглядела обрезанным краем: карточка
    и так прокручивается целиком, поэтому списки раскрываем. */
 @media (max-width: 600px) {
-  .hud-os-card .hud-body :is(.hud-vertical-container, .hud-key-list) { max-height: none !important; overflow-y: visible !important; }
+  .hud-os-card .hud-body .hud-vertical-container, .hud-os-card .hud-body .hud-key-list { max-height: none !important; overflow-y: visible !important; }
 }
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) {
-  .hud-os-card .hud-body :is(.hud-vertical-container, .hud-key-list) { max-height: none !important; overflow-y: visible !important; }
+  .hud-os-card .hud-body .hud-vertical-container, .hud-os-card .hud-body .hud-key-list { max-height: none !important; overflow-y: visible !important; }
 } }
 /* cq ↑ */
 
@@ -6630,22 +6637,6 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 .hud-contrast-badge[data-state="na"]   { border-style: dashed; opacity: .55 !important; }
 .hud-role .hud-contrast-badge { margin-top: -1px; }
 
-/* Маркеры эффектов (render/fx.js), фаза 1: те же правила, что у списков на
-   сто классов выше, но по атрибуту data-fx. Старые списки пока живут рядом —
-   объявления одинаковые, поэтому вид не меняется. Отдельным релизом, когда
-   равенство множеств подтвердится, списки уйдут, останутся эти строки. */
-[data-fx~="lift"] { transition: transform .6s cubic-bezier(.22,.8,.26,1), filter .6s cubic-bezier(.22,.8,.26,1), background-color .4s ease, border-color .4s ease, box-shadow .4s ease, color .4s ease, opacity .4s ease !important; }
-@media (prefers-reduced-motion: no-preference) {
-  @media (hover: hover) and (pointer: fine) {
-    [data-fx~="lift"]:hover { transform: translateY(-3px) !important; filter: drop-shadow(0 7px 10px rgba(0,0,0,.38)) drop-shadow(0 0 0 transparent); z-index: 2; }
-    [data-fx~="glow"]:is(:hover, .fx-hold) { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite; }
-    [data-fx~="glow"].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) { animation-play-state: paused !important; }
-  }
-  [data-fx~="lift"].fx-tap { transform: translateY(-3px) !important; filter: drop-shadow(0 7px 10px rgba(0,0,0,.38)) drop-shadow(0 0 0 transparent); z-index: 2; }
-  [data-fx~="glow"]:is(.fx-tap, .fx-hold) { animation: hud-soft-nsfw 3.2s ease-in-out .6s infinite; }
-  [data-fx~="glow"].fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) { animation-play-state: paused !important; }
-}
-
 /* Облик силуэта (render/look.js, настройка silhouetteLook): тон кожи
    примешан в тёмный градиент тела, а не залит поверх — пятна
    чувствительности (screen) остаются такими же яркими. Обводка не
@@ -6775,7 +6766,7 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 .hud-heat-svg.bs-thermal .z-hair-sheen { display: none; }
 /* Ткань «холодная»: тёмная, с лёгким оттенком своего цвета. */
 .hud-heat-svg.bs-thermal .z-garment .body { fill: color-mix(in srgb, var(--cl, #8a8f9c) 16%, #0a1130); fill-opacity: .92; stroke: #26336e; filter: none; }
-.hud-heat-svg.bs-thermal .z-garment :is(.seam, .fold, .band, .strap) { stroke: #2e3f86; }
+.hud-heat-svg.bs-thermal .z-garment .seam, .hud-heat-svg.bs-thermal .z-garment .fold, .hud-heat-svg.bs-thermal .z-garment .band, .hud-heat-svg.bs-thermal .z-garment .strap { stroke: #2e3f86; }
 .hud-heat-svg.bs-thermal .z-detail path, .hud-heat-svg.bs-thermal .z-muscle path { stroke: rgba(150, 140, 255, .2); }
 .hud-heat-svg.bs-thermal .z-anat { filter: none; }
 .hud-heat-svg.bs-thermal .z-anat path { stroke: #8f84ea; stroke-opacity: .5; }

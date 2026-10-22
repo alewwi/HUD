@@ -79,13 +79,13 @@ html.hud-ico-rounded .hud-ico { stroke-width: 2.2; fill: color-mix(in oklch, cur
    11.1 Проявление через @starting-style вместо анимации hud-fade-in: класс
    стоит лишь при поддержке, и старая анимация здесь же снимается — двойного
    проявления не бывает. */
-html.hud-starting-style :is(.hud-tab-content.active, .hud-phone-app-view.active, .hud-phone-participants-list.active, .hud-theme-panel.active) {
+html.hud-starting-style .hud-tab-content.active, html.hud-starting-style .hud-phone-app-view.active, html.hud-starting-style .hud-phone-participants-list.active, html.hud-starting-style .hud-theme-panel.active {
   animation: none;
   transition: opacity .28s ease, translate .28s var(--hud-ease-out, ease);
   @starting-style { opacity: 0; translate: 0 4px; }
 }
 @media (prefers-reduced-motion: reduce) {
-  html.hud-starting-style :is(.hud-tab-content.active, .hud-phone-app-view.active, .hud-phone-participants-list.active, .hud-theme-panel.active) { transition: none; }
+  html.hud-starting-style .hud-tab-content.active, html.hud-starting-style .hud-phone-app-view.active, html.hud-starting-style .hud-phone-participants-list.active, html.hud-starting-style .hud-theme-panel.active { transition: none; }
 }
 /* 11.2 Растворение при смене темы (events.js, плавнаяСменаТемы). */
 html.hud-theme-fade::view-transition-old(root),

@@ -15,7 +15,7 @@
 }
 .hud-heat-svg .z-garment .fold { stroke-width: .75; stroke: color-mix(in srgb, var(--cl, #8a8f9c) 60%, #000); }
 /* На тёмной ткани швы светлее, чтобы читались. */
-.hud-heat-svg .z-garment:is([style*="#1c1b21"], [style*="#1d1b22"], [style*="#1a1a1f"], [style*="#1a1716"], [style*="#241a18"], [style*="#2c2f38"], [style*="#2a2a30"], [style*="#26282f"]) :is(.seam, .fold) { stroke: color-mix(in srgb, var(--cl) 40%, #fff); opacity: .5; }
+.hud-heat-svg .z-garment:is([style*="#1c1b21"], [style*="#1d1b22"], [style*="#1a1a1f"], [style*="#1a1716"], [style*="#241a18"], [style*="#2c2f38"], [style*="#2a2a30"], [style*="#26282f"]) .seam, .hud-heat-svg .z-garment:is([style*="#1c1b21"], [style*="#1d1b22"], [style*="#1a1a1f"], [style*="#1a1716"], [style*="#241a18"], [style*="#2c2f38"], [style*="#2a2a30"], [style*="#26282f"]) .fold { stroke: color-mix(in srgb, var(--cl) 40%, #fff); opacity: .5; }
 .hud-heat-svg .z-garment .strap { fill: none; stroke: var(--cl, #8a8f9c); stroke-width: 1; stroke-linecap: round; }
 .hud-heat-svg .z-garment .band { fill: none; stroke: color-mix(in srgb, var(--cl, #8a8f9c) 60%, #fff); stroke-width: 1.4; opacity: .7; }
 .hud-heat-svg .z-garment .btn { fill: color-mix(in srgb, var(--cl, #8a8f9c) 55%, #999); stroke: rgba(0,0,0,.35); stroke-width: .2; }
@@ -229,7 +229,7 @@
    на 1,6 px. Дальше он заходил во вход, и через преддверие просвечивало
    отверстие уретры — та самая «чёрная штучка» у головки. */
 .hud-xray-row.is-rub .xr-move:is(.p-penis, .p-toy, .is-body) { transform: translate(calc(-4px + (1 - var(--ry, 0)) * 1.6px + var(--tx, 0) * 1px), calc(var(--ry, 0) * var(--rub, 0) * .35px)); }
-.hud-xray-row.is-rub :is(.xr-meatus, .xr-precum, .xr-ripple, .xr-hit, .xr-splash) { display: none; }
+.hud-xray-row.is-rub .xr-meatus, .hud-xray-row.is-rub .xr-precum, .hud-xray-row.is-rub .xr-ripple, .hud-xray-row.is-rub .xr-hit, .hud-xray-row.is-rub .xr-splash { display: none; }
 /* Губы обнимают кончик головки, пока она прижата: без тёмного просвета
    между круглой головкой и плоской губой. Едут вверх вместе с головкой;
    отвёл головку для шлепка — губы отпускают. */

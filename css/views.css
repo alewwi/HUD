@@ -602,13 +602,13 @@
 .hud-v-tarot .back .rays { position: absolute; left: 50%; top: 45%; width: 96px; height: 96px; margin: -48px 0 0 -48px; border-radius: 50%; border: 1px dashed color-mix(in srgb, var(--gold) 55%, transparent); box-shadow: 0 0 0 9px transparent, 0 0 0 10px color-mix(in srgb, var(--gold) 22%, transparent); }
 .hud-v-tarot .back em { position: absolute; bottom: 15px; font-style: normal; font-size: .62em; font-weight: 700; letter-spacing: .24em; text-transform: uppercase; color: var(--gold) !important; }
 
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-v-map :is(.road, .block) { stroke: rgba(0,0,0,.08); fill: rgba(0,0,0,.04); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-v-map .road, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-v-map .block { stroke: rgba(0,0,0,.08); fill: rgba(0,0,0,.04); }
 
 /* --- Аватарки вместо инициалов ------------------------------------------------
    Картинку находит views.js (или refreshAvatarFaces позже); инициалы
    остаются под ней для чтения с экрана и на случай битой ссылки. */
 .hud-v-ring > .hud-v-ring-face { font-style: normal; }
-:is(.hud-v-face, .hud-v-ring-face).has-img {
+.hud-v-face.has-img, .hud-v-ring-face.has-img {
   background-size: cover !important; background-position: center 22% !important; background-repeat: no-repeat !important;
   color: transparent !important; text-shadow: none !important;
 }
@@ -686,7 +686,7 @@
 /* --- Бумага: записки, папки --------------------------------------------------
    Тень Таверны на каждом элементе размывала тёмный текст на светлой бумаге,
    а мелкие подписи брали бледный цвет темы. На бумаге — свои чернила. */
-:is(.hud-v-note-card, .hud-v-file), :is(.hud-v-note-card, .hud-v-file) * { text-shadow: none !important; }
+.hud-v-note-card, .hud-v-file, :is(.hud-v-note-card, .hud-v-file) * { text-shadow: none !important; }
 .hud-v-note-card, .hud-v-note-card p { color: #2b2418 !important; }
 .hud-v-note-card small { color: #6b5836 !important; opacity: 1; }
 .hud-v-file, .hud-v-file b { color: #2b2418 !important; }
@@ -709,13 +709,13 @@
    поэтому назад он не бежит). На телефоне — один пробег по нажатию.
    Остальное — петли, у которых первый кадр совпадает с покоем: пока блок
    на паузе, он выглядит как обычно. */
-:is(.hud-v-card, .hud-v-vault, .hud-v-slot, .hud-v-file)::after, .hud-v-tarot .face::after {
+.hud-v-card::after, .hud-v-vault::after, .hud-v-slot::after, .hud-v-file::after, .hud-v-tarot .face::after {
   content: ''; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; z-index: 2;
   background: linear-gradient(115deg, transparent 38%, rgba(255,255,255,.14) 47%, rgba(255,255,255,.05) 53%, transparent 62%) 110% 0 / 260% 100% no-repeat;
 }
 .hud-v-tarot .face::after { background-image: linear-gradient(115deg, transparent 36%, color-mix(in srgb, var(--gold) 28%, transparent) 46%, rgba(255,255,255,.12) 50%, color-mix(in srgb, var(--v-acc) 25%, transparent) 55%, transparent 64%); }
 @media (hover: hover) and (pointer: fine) {
-  :is(.hud-v-card, .hud-v-vault, .hud-v-slot, .hud-v-file):hover::after, .hud-v-tarot:hover .face::after { background-position: -5% 0; transition: background-position .95s cubic-bezier(.2,.7,.2,1); }
+  .hud-v-card:hover::after, .hud-v-vault:hover::after, .hud-v-slot:hover::after, .hud-v-file:hover::after, .hud-v-tarot:hover .face::after { background-position: -5% 0; transition: background-position .95s cubic-bezier(.2,.7,.2,1); }
 }
 @keyframes hud-v-sheen { from { background-position: 110% 0; } to { background-position: -5% 0; } }
 @keyframes hud-v-slide { from { background-position: -80% 0; } to { background-position: 180% 0; } }
@@ -747,7 +747,7 @@
 @keyframes hud-v-mercury { 0%, 100% { transform: scaleY(1); } 50% { transform: scaleY(1.1); } }
 
 @media (prefers-reduced-motion: no-preference) {
-  .hud-v.fx-active :is(.hud-v-card, .hud-v-vault, .hud-v-slot, .hud-v-file)::after, .hud-v.fx-active .hud-v-tarot .face::after { animation: hud-v-sheen 1.1s cubic-bezier(.2,.7,.2,1) 1; }
+  .hud-v.fx-active .hud-v-card::after, .hud-v.fx-active .hud-v-vault::after, .hud-v.fx-active .hud-v-slot::after, .hud-v.fx-active .hud-v-file::after, .hud-v.fx-active .hud-v-tarot .face::after { animation: hud-v-sheen 1.1s cubic-bezier(.2,.7,.2,1) 1; }
   /* Доверие */
   .hud-v-hearts svg:is(.is-full, .is-part) { animation: hud-v-beat 1.7s ease-in-out infinite; animation-delay: calc(var(--i, 0) * .14s); }
   .hud-v-shield .fill { animation: hud-v-bright 2.4s ease-in-out infinite; }
@@ -806,7 +806,7 @@
   .hud-v-paw { animation: hud-v-bob 1.6s ease-in-out infinite; }
 }
 @media (hover: hover) and (pointer: fine) { .hud-v-note-card:hover { animation: none; } }
-.hud-v-skulls i, .hud-v-stars i, .hud-v-gun-col-head i, .hud-v-fuse-line :is(.boom, .charge) { display: inline-block; }
+.hud-v-skulls i, .hud-v-stars i, .hud-v-gun-col-head i, .hud-v-fuse-line .boom, .hud-v-fuse-line .charge { display: inline-block; }
 .hud-v-file { transition: transform .3s cubic-bezier(.2,.8,.2,1); }
 @media (hover: hover) and (pointer: fine) { .hud-v-file:hover { transform: rotate(0deg) translateY(-3px); z-index: 1; } }
 
@@ -1134,14 +1134,14 @@
 .hud-v-note-card.is-fired { background: linear-gradient(175deg, color-mix(in srgb, var(--v-acc) 5%, #f2f0f0), color-mix(in srgb, var(--v-acc) 9%, #d9d6d6)); }
 .hud-v-note-card .pin { background: radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--v-acc) 40%, #fff), var(--v-acc) 70%); }
 .hud-v-note-card .stamp { border-color: color-mix(in srgb, var(--v-acc) 70%, #6a0f1c); }
-.hud-v-note-card:not(#_), .hud-v-note-card:not(#_) :is(p, span, b) { color: var(--v-ink-paper) !important; text-shadow: none !important; }
+.hud-v-note-card:not(#_), .hud-v-note-card:not(#_) p, .hud-v-note-card:not(#_) span, .hud-v-note-card:not(#_) b { color: var(--v-ink-paper) !important; text-shadow: none !important; }
 .hud-v-note-card:not(#_) small { color: var(--v-ink-paper-soft) !important; text-shadow: none !important; opacity: 1 !important; filter: none !important; }
 .hud-v-note-card:not(#_) .stamp { color: color-mix(in srgb, var(--v-acc) 70%, #6a0f1c) !important; text-shadow: none !important; }
 
 /* Папки, конверты, опись — та же бумага в тоне темы */
 .hud-v-file { background: linear-gradient(175deg, color-mix(in srgb, var(--v-acc) 8%, #e6d8b4), color-mix(in srgb, var(--v-acc) 12%, #cfbb8f)); }
 .hud-v-file-tab { background: color-mix(in srgb, var(--v-acc) 8%, #e6d8b4); }
-.hud-v-file:not(#_), .hud-v-file:not(#_) :is(b, span) { color: var(--v-ink-paper) !important; text-shadow: none !important; }
+.hud-v-file:not(#_), .hud-v-file:not(#_) b, .hud-v-file:not(#_) span { color: var(--v-ink-paper) !important; text-shadow: none !important; }
 .hud-v-file:not(#_) small { color: var(--v-ink-paper-soft) !important; text-shadow: none !important; }
 .hud-v-file:not(#_) .hud-v-stamp { color: color-mix(in srgb, var(--v-acc) 70%, #7a1020) !important; border-color: currentColor; }
 .hud-v-envelope .p0 { stop-color: color-mix(in srgb, var(--v-acc) 7%, #f3e9d6); } .hud-v-envelope .p1 { stop-color: color-mix(in srgb, var(--v-acc) 14%, #d8c6a6); }

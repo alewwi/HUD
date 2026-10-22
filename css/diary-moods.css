@@ -1,0 +1,734 @@
+/* =========================================================================
+   ДНЕВНИК: ХАРАКТЕР ЛИСТА ПО НАСТРОЕНИЮ (render/diary.js → ТЕМЫ_ДНЕВНИКА)
+   -------------------------------------------------------------------------
+   Цвет и бумагу каждой теме задаёт base.css. Здесь — то, чем листы
+   отличаются не только цветом:
+     • почерк — свой шрифт и посадка строк;
+     • край — зубцы, срезанный угол, фестоны, шипы;
+     • появление — как лист ложится, когда открывают вкладку (один раз);
+     • живой слой .hud-diary-fx — сердечки, искры, снег, дождь, лупа, часы.
+   Появление сдвигает лист только через translate/scale/rotate и opacity:
+   transform и filter у тем свои, их не трогаем. Вправо лист не выезжает
+   дальше поля контейнера — иначе мелькнёт полоса прокрутки вбок.
+   Всё зацикленное стоит на паузе, пока лист не тронули: наведение мышью
+   или нажатие (fx-active, events.js) — как и остальное движение в HUD.
+   ========================================================================= */
+
+/* --- Живой слой ------------------------------------------------------------ */
+.hud-diary-fx { position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none; border-radius: inherit; }
+.hud-diary-fx::before, .hud-diary-fx::after { position: absolute; pointer-events: none; }
+.hud-dp {
+  position: absolute; display: block; left: var(--px); top: var(--py);
+  width: var(--pw, 6px); height: var(--ph, 6px); border-radius: var(--pr, 50%);
+  background: var(--pc, var(--dm)); opacity: 0;
+}
+/* Шесть частиц: место, темп, сдвиг по фазе и куда каждую уносит. */
+.hud-dp:nth-child(1) { --px: 7%;  --py: 22%; --pd: 4.4s; --pdl: -.6s;  --dx: 10px;  --dy: -6px; --rot: 200deg;  --bx: -70px; --by: -34px; }
+.hud-dp:nth-child(2) { --px: 23%; --py: 64%; --pd: 5.2s; --pdl: -2.4s; --dx: -8px;  --dy: 6px;  --rot: -160deg; --bx: 64px;  --by: -40px; }
+.hud-dp:nth-child(3) { --px: 40%; --py: 34%; --pd: 3.8s; --pdl: -1.2s; --dx: 14px;  --dy: -12px; --rot: 260deg; --bx: -40px; --by: 36px; }
+.hud-dp:nth-child(4) { --px: 57%; --py: 80%; --pd: 4.8s; --pdl: -3.3s; --dx: -12px; --dy: 4px;  --rot: -220deg; --bx: 78px;  --by: 28px; }
+.hud-dp:nth-child(5) { --px: 74%; --py: 12%; --pd: 5.6s; --pdl: -1.9s; --dx: 6px;   --dy: -4px; --rot: 180deg;  --bx: -84px; --by: 8px; }
+.hud-dp:nth-child(6) { --px: 89%; --py: 50%; --pd: 4.1s; --pdl: -4s;   --dx: -6px;  --dy: 10px; --rot: -240deg; --bx: 30px;  --by: 44px; }
+
+@keyframes hud-dmp-rise    { 0% { translate: 0 0; scale: .5; opacity: 0; } 15%, 70% { opacity: var(--po, .75); } 100% { translate: var(--dx) -110px; scale: 1.1; opacity: 0; } }
+@keyframes hud-dmp-fall    { 0% { translate: 0 0; rotate: 0deg; opacity: 0; } 12%, 75% { opacity: var(--po, .8); } 100% { translate: var(--dx) 150px; rotate: var(--rot); opacity: 0; } }
+@keyframes hud-dmp-twinkle { 0%, 100% { scale: .2; opacity: 0; } 50% { scale: 1; opacity: var(--po, .9); } }
+@keyframes hud-dmp-drift   { 0% { translate: 0 0; opacity: 0; } 15%, 85% { opacity: var(--po, .6); } 100% { translate: 440px var(--dy); opacity: 0; } }
+@keyframes hud-dmp-burst   { 0% { translate: 0 0; scale: .3; opacity: 0; } 10% { opacity: var(--po, 1); } 100% { translate: var(--bx) var(--by); scale: 1; opacity: 0; } }
+@keyframes hud-dmp-flicker { 0%, 100%, 12%, 40%, 48% { opacity: 0; } 8%, 44% { opacity: var(--po, .8); } 44% { translate: 3px 0; } }
+
+
+/* Группы движения. Скорость темы — множитель --dm-speed. */
+.hud-diary-entry:is(.hud-diary-mood-love, .hud-diary-mood-lust, .hud-diary-mood-cozy, .hud-diary-mood-disgust) .hud-dp {
+  top: calc(100% - 14px); animation: hud-dmp-rise calc(var(--pd) * var(--dm-speed, 1)) ease-out var(--pdl) infinite; animation-play-state: paused;
+}
+.hud-diary-entry:is(.hud-diary-mood-joy, .hud-diary-mood-cold, .hud-diary-mood-collapse, .hud-diary-mood-sad, .hud-diary-mood-longing, .hud-diary-mood-disappointment, .hud-diary-mood-apathy) .hud-dp {
+  top: -12px; animation: hud-dmp-fall calc(var(--pd) * var(--dm-speed, 1)) linear var(--pdl) infinite; animation-play-state: paused;
+}
+.hud-diary-entry:is(.hud-diary-mood-triumph, .hud-diary-mood-respect) .hud-dp {
+  animation: hud-dmp-twinkle calc(var(--pd) * var(--dm-speed, .6)) ease-in-out var(--pdl) infinite; animation-play-state: paused;
+}
+.hud-diary-entry.hud-diary-mood-relief .hud-dp {
+  left: -40px; animation: hud-dmp-drift calc(var(--pd) * var(--dm-speed, 1)) linear var(--pdl) infinite; animation-play-state: paused;
+}
+.hud-diary-entry.hud-diary-mood-angry .hud-dp { animation: hud-dmp-burst calc(var(--pd) * .35) ease-out var(--pdl) infinite; animation-play-state: paused; }
+.hud-diary-entry:is(.hud-diary-mood-panic, .hud-diary-mood-madness) .hud-dp { animation: hud-dmp-flicker calc(var(--pd) * .5) steps(1, end) var(--pdl) infinite; animation-play-state: paused; }
+
+
+/* Форма частиц. Маски — SVG в data-URI, без внешних запросов. */
+.hud-diary-mood-love .hud-dp { --pw: 14px; --ph: 13px; --po: .8; --pr: 0; background: #ff9ab0;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 22'%3E%3Cpath d='M12 21S3 15.5 1.2 9.9C-.2 5.4 2.6 1 6.8 1 9.3 1 11 2.4 12 4.2 13 2.4 14.7 1 17.2 1c4.2 0 7 4.4 5.6 8.9C21 15.5 12 21 12 21z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 22'%3E%3Cpath d='M12 21S3 15.5 1.2 9.9C-.2 5.4 2.6 1 6.8 1 9.3 1 11 2.4 12 4.2 13 2.4 14.7 1 17.2 1c4.2 0 7 4.4 5.6 8.9C21 15.5 12 21 12 21z'/%3E%3C/svg%3E") center / contain no-repeat; }
+.hud-diary-mood-love .hud-dp:nth-child(even) { --pw: 9px; --ph: 8px; background: #ffc4d2; }
+.hud-diary-mood-lust .hud-dp { --pw: 5px; --ph: 5px; --po: .95; background: radial-gradient(circle, #ffe2a8, #ff5c8e 55%, rgba(255,92,142,0) 72%); box-shadow: 0 0 6px rgba(255,92,142,.8); }
+.hud-diary-mood-lust .hud-dp:nth-child(3n) { --pw: 3px; --ph: 3px; }
+.hud-diary-mood-cozy .hud-dp { --pw: 10px; --ph: 22px; --po: .5; --dm-speed: 1.5; background: radial-gradient(ellipse, rgba(255,236,214,.34), rgba(255,236,214,0) 70%); }
+.hud-diary-mood-cozy .hud-dp:nth-child(n+4) { display: none; }
+.hud-diary-mood-cozy .hud-dp:nth-child(1) { --px: 12%; } .hud-diary-mood-cozy .hud-dp:nth-child(2) { --px: 16%; } .hud-diary-mood-cozy .hud-dp:nth-child(3) { --px: 20%; }
+.hud-diary-mood-disgust .hud-dp { --pw: 8px; --ph: 8px; --po: .8; --dm-speed: 1.3; background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.45) 0 1.5px, transparent 2px), rgba(181,201,74,.12); box-shadow: inset 0 0 0 1px rgba(181,201,74,.7); }
+.hud-diary-mood-disgust .hud-dp:nth-child(odd) { --pw: 5px; --ph: 5px; }
+.hud-diary-mood-joy .hud-dp { --pw: 6px; --ph: 9px; --pr: 1px; --po: .9; }
+.hud-diary-mood-joy .hud-dp:nth-child(1) { --pc: #f2cf5b; } .hud-diary-mood-joy .hud-dp:nth-child(2) { --pc: #ff8fb0; }
+.hud-diary-mood-joy .hud-dp:nth-child(3) { --pc: #7fdcaa; } .hud-diary-mood-joy .hud-dp:nth-child(4) { --pc: #8fb2ff; }
+.hud-diary-mood-joy .hud-dp:nth-child(5) { --pc: #ffb02e; } .hud-diary-mood-joy .hud-dp:nth-child(6) { --pc: #c6f06a; }
+.hud-diary-mood-cold .hud-dp { --pw: 11px; --ph: 11px; --pr: 0; --po: .8; --dm-speed: 1.7; background: #e2f3ff;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M9 3.5l3 2.5 3-2.5M9 20.5l3-2.5 3 2.5'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M12 2v20M3.3 7l17.4 10M3.3 17L20.7 7M9 3.5l3 2.5 3-2.5M9 20.5l3-2.5 3 2.5'/%3E%3C/svg%3E") center / contain no-repeat; }
+.hud-diary-mood-cold .hud-dp:nth-child(even) { --pw: 6px; --ph: 6px; }
+.hud-diary-mood-collapse .hud-dp { --pw: 5px; --ph: 4px; --pr: 0; --po: .7; --dm-speed: .6; background: #b0a9a4; clip-path: polygon(10% 20%, 70% 0, 100% 60%, 40% 100%, 0 70%); }
+.hud-diary-mood-sad .hud-dp { --pw: 7px; --ph: 11px; --pr: 0; --po: .8; --dm-speed: 1.6; --dx: 0px; --rot: 0deg; background: rgba(140,205,232,.85);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 24'%3E%3Cpath d='M8 1S1 10 1 15.5a7 7 0 0 0 14 0C15 10 8 1 8 1z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 24'%3E%3Cpath d='M8 1S1 10 1 15.5a7 7 0 0 0 14 0C15 10 8 1 8 1z'/%3E%3C/svg%3E") center / contain no-repeat; }
+.hud-diary-mood-sad .hud-dp:nth-child(n+4) { display: none; }
+.hud-diary-mood-longing .hud-dp { --pw: 1px; --ph: 18px; --pr: 0; --po: .55; --dm-speed: .32; --dx: -4px; --rot: 0deg; background: linear-gradient(180deg, rgba(200,195,255,0), rgba(200,195,255,.9)); }
+.hud-diary-mood-disappointment .hud-dp { --pw: 3px; --ph: 3px; --po: .45; --dm-speed: 2.2; background: #c9b79c; }
+.hud-diary-mood-apathy .hud-dp { --pw: 2px; --ph: 2px; --po: .35; --dm-speed: 3.2; background: #9a9aa2; }
+.hud-diary-mood-triumph .hud-dp, .hud-diary-mood-respect .hud-dp { --pw: 10px; --ph: 10px; --pr: 0; background: #ffe7a0;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6z'/%3E%3C/svg%3E") center / contain no-repeat; }
+.hud-diary-mood-triumph .hud-dp:nth-child(odd) { --pw: 6px; --ph: 6px; }
+.hud-diary-mood-respect .hud-dp { --pw: 5px; --ph: 5px; --po: .6; background: #e8d7a8; }
+.hud-diary-mood-relief .hud-dp { --pw: 9px; --ph: 6px; --pr: 0; --po: .55; --dm-speed: 1.5; background: #9fe8c0;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 16'%3E%3Cpath d='M1 15C2 6 9 1 23 1c-2 9-9 14-22 14z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 16'%3E%3Cpath d='M1 15C2 6 9 1 23 1c-2 9-9 14-22 14z'/%3E%3C/svg%3E") center / contain no-repeat; }
+.hud-diary-mood-angry .hud-dp { left: 50%; top: 45%; --pw: 2.5px; --ph: 11px; --pr: 1px; background: linear-gradient(180deg, #ffe0a0, #ff6b5b); rotate: var(--rot); }
+.hud-diary-mood-angry .hud-dp:nth-child(odd) { left: 30%; top: 60%; }
+.hud-diary-mood-panic .hud-dp { --pw: 3px; --ph: 13px; --pr: 1px; --po: .75; background: linear-gradient(180deg, #ff6be0 0 64%, transparent 64% 78%, #ff6be0 78%); }
+.hud-diary-mood-madness .hud-dp { --pw: 34%; --ph: 3px; --pr: 0; --po: .55; background: linear-gradient(90deg, rgba(255,79,216,.8), rgba(79,220,255,.8)); }
+.hud-diary-mood-madness .hud-dp:nth-child(even) { --pw: 16%; --ph: 2px; }
+
+
+/* --- Слой-рисунок: у тем без частиц своё живое пятно ---------------------- */
+
+/* Контроль: уголки видоискателя и луч, который проверяет строку за строкой. */
+.hud-diary-mood-control .hud-diary-fx::before {
+  content: ''; inset: 5px; --c: rgba(58,208,122,.7);
+  background:
+    linear-gradient(var(--c) 0 0) left top / 12px 2px no-repeat, linear-gradient(var(--c) 0 0) left top / 2px 12px no-repeat,
+    linear-gradient(var(--c) 0 0) right top / 12px 2px no-repeat, linear-gradient(var(--c) 0 0) right top / 2px 12px no-repeat,
+    linear-gradient(var(--c) 0 0) left bottom / 12px 2px no-repeat, linear-gradient(var(--c) 0 0) left bottom / 2px 12px no-repeat,
+    linear-gradient(var(--c) 0 0) right bottom / 12px 2px no-repeat, linear-gradient(var(--c) 0 0) right bottom / 2px 12px no-repeat;
+}
+.hud-diary-mood-control .hud-diary-fx::after {
+  content: ''; inset: 0;
+  background: linear-gradient(180deg, transparent calc(50% - 10px), rgba(58,208,122,.10) calc(50% - 1px), rgba(120,255,170,.6) 50%, transparent calc(50% + 1px));
+  translate: 0 -50%; animation: hud-dmf-scan 3.4s cubic-bezier(.6,0,.4,1) infinite alternate; animation-play-state: paused;
+}
+@keyframes hud-dmf-scan { from { translate: 0 -50%; } to { translate: 0 50%; } }
+
+/* Расчёт: линейка по верху и мигающая каретка в конце, как на экране. */
+.hud-diary-mood-calc .hud-diary-fx::before {
+  content: ''; left: 0; right: 0; top: 0; height: 10px;
+  background:
+    repeating-linear-gradient(90deg, rgba(79,209,232,.55) 0 1px, transparent 1px 8px) top / 100% 4px no-repeat,
+    repeating-linear-gradient(90deg, rgba(79,209,232,.7) 0 1px, transparent 1px 40px) top / 100% 9px no-repeat;
+}
+.hud-diary-mood-calc .hud-diary-fx::after {
+  content: ''; right: 14px; bottom: 12px; width: 7px; height: 13px; background: #4fd1e8; box-shadow: 0 0 6px rgba(79,209,232,.7);
+  animation: hud-dmf-blink 1.1s steps(1, end) infinite; animation-play-state: paused;
+}
+@keyframes hud-dmf-blink { 50% { opacity: 0; } }
+/* Шестьдесят щелчков: каждый — короткий рывок и почти секунда неподвижности. */
+@keyframes hud-dmf-tick { 0.00%, 1.50% { rotate: 0deg; } 1.67%, 3.17% { rotate: 6deg; } 3.33%, 4.83% { rotate: 12deg; } 5.00%, 6.50% { rotate: 18deg; } 6.67%, 8.17% { rotate: 24deg; } 8.33%, 9.83% { rotate: 30deg; } 10.00%, 11.50% { rotate: 36deg; } 11.67%, 13.17% { rotate: 42deg; } 13.33%, 14.83% { rotate: 48deg; } 15.00%, 16.50% { rotate: 54deg; } 16.67%, 18.17% { rotate: 60deg; } 18.33%, 19.83% { rotate: 66deg; } 20.00%, 21.50% { rotate: 72deg; } 21.67%, 23.17% { rotate: 78deg; } 23.33%, 24.83% { rotate: 84deg; } 25.00%, 26.50% { rotate: 90deg; } 26.67%, 28.17% { rotate: 96deg; } 28.33%, 29.83% { rotate: 102deg; } 30.00%, 31.50% { rotate: 108deg; } 31.67%, 33.17% { rotate: 114deg; } 33.33%, 34.83% { rotate: 120deg; } 35.00%, 36.50% { rotate: 126deg; } 36.67%, 38.17% { rotate: 132deg; } 38.33%, 39.83% { rotate: 138deg; } 40.00%, 41.50% { rotate: 144deg; } 41.67%, 43.17% { rotate: 150deg; } 43.33%, 44.83% { rotate: 156deg; } 45.00%, 46.50% { rotate: 162deg; } 46.67%, 48.17% { rotate: 168deg; } 48.33%, 49.83% { rotate: 174deg; } 50.00%, 51.50% { rotate: 180deg; } 51.67%, 53.17% { rotate: 186deg; } 53.33%, 54.83% { rotate: 192deg; } 55.00%, 56.50% { rotate: 198deg; } 56.67%, 58.17% { rotate: 204deg; } 58.33%, 59.83% { rotate: 210deg; } 60.00%, 61.50% { rotate: 216deg; } 61.67%, 63.17% { rotate: 222deg; } 63.33%, 64.83% { rotate: 228deg; } 65.00%, 66.50% { rotate: 234deg; } 66.67%, 68.17% { rotate: 240deg; } 68.33%, 69.83% { rotate: 246deg; } 70.00%, 71.50% { rotate: 252deg; } 71.67%, 73.17% { rotate: 258deg; } 73.33%, 74.83% { rotate: 264deg; } 75.00%, 76.50% { rotate: 270deg; } 76.67%, 78.17% { rotate: 276deg; } 78.33%, 79.83% { rotate: 282deg; } 80.00%, 81.50% { rotate: 288deg; } 81.67%, 83.17% { rotate: 294deg; } 83.33%, 84.83% { rotate: 300deg; } 85.00%, 86.50% { rotate: 306deg; } 86.67%, 88.17% { rotate: 312deg; } 88.33%, 89.83% { rotate: 318deg; } 90.00%, 91.50% { rotate: 324deg; } 91.67%, 93.17% { rotate: 330deg; } 93.33%, 94.83% { rotate: 336deg; } 95.00%, 96.50% { rotate: 342deg; } 96.67%, 98.17% { rotate: 348deg; } 98.33%, 99.83% { rotate: 354deg; } 100% { rotate: 360deg; } }
+
+/* Любопытство: лупа бродит по листу. Прежний неподвижный круг убран. */
+.hud-diary-entry.hud-diary-mood-curiosity { background: linear-gradient(180deg, rgba(14,28,26,0.96), rgba(12,20,19,0.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(170,255,225,0.05) 25px, rgba(170,255,225,0.05) 26px); }
+.hud-diary-mood-curiosity .hud-diary-fx::after {
+  content: ''; right: 10%; top: 14px; width: 66px; height: 66px;
+  background:
+    radial-gradient(circle at 40% 40%, rgba(220,255,240,.10) 0 20px, rgba(79,224,176,.65) 21px 23px, transparent 24px),
+    linear-gradient(45deg, transparent 46%, rgba(79,224,176,.75) 46% 54%, transparent 54%) right bottom / 38% 38% no-repeat;
+  animation: hud-dmf-search 9s ease-in-out infinite; animation-play-state: paused;
+}
+@keyframes hud-dmf-search { 0%, 100% { translate: 0 0; rotate: 0deg; } 25% { translate: -70px 18px; rotate: -8deg; } 50% { translate: -150px -4px; rotate: 4deg; } 75% { translate: -60px 34px; rotate: -3deg; } }
+
+/* Озарение: из угла расходятся лучи и медленно поворачиваются. */
+.hud-diary-mood-realization .hud-diary-fx::before {
+  content: ''; right: -90px; top: -90px; width: 220px; height: 220px; border-radius: 50%;
+  background: repeating-conic-gradient(rgba(111,208,255,.13) 0 6deg, transparent 6deg 18deg);
+  -webkit-mask: radial-gradient(circle, #000 20%, transparent 68%); mask: radial-gradient(circle, #000 20%, transparent 68%);
+  animation: hud-dmf-turn 26s linear infinite; animation-play-state: paused;
+}
+/* …и вспышка, когда лист появляется. */
+.hud-diary-mood-realization .hud-diary-fx::after { content: ''; inset: 0; background: radial-gradient(circle at 85% 15%, rgba(200,240,255,.7), rgba(111,208,255,.15) 50%, transparent 80%); opacity: 0; }
+.hud-tab-content.active .hud-diary-mood-realization .hud-diary-fx::after { animation: hud-dmf-flash 1.1s ease-out .15s both; }
+@keyframes hud-dmf-flash { 0% { opacity: 0; } 20% { opacity: 1; } 100% { opacity: 0; } }
+@keyframes hud-dmf-turn { to { rotate: 360deg; } }
+
+/* Покой: круги по воде расходятся от одной точки. */
+.hud-diary-mood-peace .hud-diary-fx::before, .hud-diary-mood-peace .hud-diary-fx::after {
+  content: ''; right: 16%; bottom: 22%; width: 40px; height: 40px; border-radius: 50%;
+  border: 1px solid rgba(120,194,192,.45); scale: .4; opacity: 0;
+  animation: hud-dmf-ripple 5s ease-out infinite; animation-play-state: paused;
+}
+.hud-diary-mood-peace .hud-diary-fx::after { animation-delay: -2.5s; }
+@keyframes hud-dmf-ripple { 0% { scale: .3; opacity: .7; } 100% { scale: 3.4; opacity: 0; } }
+
+/* Тревога: пунктир по краю листа бежит без остановки. */
+.hud-diary-mood-nervous .hud-diary-fx::before {
+  content: ''; inset: 4px; --a: rgba(232,224,122,.55);
+  background:
+    repeating-linear-gradient(90deg, var(--a) 0 5px, transparent 5px 10px) top / 100% 1px no-repeat,
+    repeating-linear-gradient(90deg, var(--a) 0 5px, transparent 5px 10px) bottom / 100% 1px no-repeat,
+    repeating-linear-gradient(180deg, var(--a) 0 5px, transparent 5px 10px) left / 1px 100% no-repeat,
+    repeating-linear-gradient(180deg, var(--a) 0 5px, transparent 5px 10px) right / 1px 100% no-repeat;
+  animation: hud-dmf-ants .6s linear infinite; animation-play-state: paused;
+}
+@keyframes hud-dmf-ants { to { background-position: 10px 0, -10px 100%, 0 -10px, 100% 10px; } }
+
+/* Скука: часы в углу. Стрелка еле ползёт: щелчок — и долгая пауза, круг
+   за минуту, — время тянется. */
+.hud-diary-mood-bored .hud-diary-fx::before {
+  content: ''; right: 16px; bottom: 14px; width: 26px; height: 26px; border-radius: 50%;
+  border: 1.5px solid rgba(194,180,106,.6); box-sizing: border-box;
+  background: linear-gradient(rgba(194,180,106,.8) 0 0) 50% 50% / 1.5px 7px no-repeat, radial-gradient(circle, rgba(194,180,106,.9) 0 1.5px, transparent 2px);
+  background-position: 50% calc(50% - 3px), center;
+}
+.hud-diary-mood-bored .hud-diary-fx::after {
+  content: ''; right: 28.25px; bottom: 27px; width: 1.5px; height: 10px; border-radius: 1px; background: rgba(214,200,126,.9);
+  transform-origin: 50% 100%; animation: hud-dmf-tick 60s linear infinite; animation-play-state: paused;
+}
+
+/* Ирония: огромная закрывающая кавычка, которая подмигивает. */
+.hud-diary-mood-irony .hud-diary-fx::after {
+  content: '\201D'; right: 10px; bottom: -26px; font: 700 76px/1 Georgia, serif; color: rgba(224,137,90,.22);
+  transform-origin: 50% 30%; animation: hud-dmf-wink 2.4s ease-in-out infinite; animation-play-state: paused;
+}
+@keyframes hud-dmf-wink { 0%, 70%, 100% { rotate: 0deg; } 80% { rotate: -14deg; } 90% { rotate: 6deg; } }
+
+/* Решимость: по стали пробегает блик и надолго гаснет. */
+.hud-diary-mood-resolve .hud-diary-fx::before {
+  content: ''; top: 0; bottom: 0; left: 0; width: 40%;
+  background: linear-gradient(105deg, transparent 20%, rgba(190,210,255,.22) 50%, transparent 80%);
+  translate: -110% 0; animation: hud-dmf-glint 4.5s ease-in-out infinite; animation-play-state: paused;
+}
+@keyframes hud-dmf-glint { 0% { translate: -110% 0; } 30%, 100% { translate: 280% 0; } }
+
+/* Похоть: жар снизу дышит. */
+.hud-diary-mood-lust .hud-diary-fx::before {
+  content: ''; left: 0; right: 0; bottom: 0; height: 60%;
+  background: radial-gradient(70% 90% at 50% 110%, rgba(255,92,142,.26), transparent 70%);
+  opacity: .5; animation: hud-dmf-blush 1.6s ease-in-out infinite alternate; animation-play-state: paused;
+}
+
+/* Любовь: тёплое сердцебиение из середины листа — тук-тук и пауза. */
+.hud-diary-mood-love .hud-diary-fx::before {
+  content: ''; inset: 0; background: radial-gradient(60% 70% at 50% 50%, rgba(255,154,176,.16), transparent 70%);
+  opacity: .4; animation: hud-dmf-beat 1.4s ease-out infinite; animation-play-state: paused;
+}
+@keyframes hud-dmf-beat { 0%, 40%, 100% { opacity: .35; } 10% { opacity: 1; } 25% { opacity: .55; } 32% { opacity: .9; } }
+
+/* Холод: лист появляется заиндевелым и оттаивает. */
+.hud-diary-mood-cold .hud-diary-fx::before { content: ''; inset: 0; background: radial-gradient(130% 100% at 50% 50%, rgba(225,242,255,.0) 30%, rgba(225,242,255,.55)), rgba(200,228,255,.28); opacity: 0; }
+.hud-tab-content.active .hud-diary-mood-cold .hud-diary-fx::before { animation: hud-dmf-thaw 1.8s ease-out both; }
+@keyframes hud-dmf-thaw { from { opacity: 1; } to { opacity: 0; } }
+
+/* Безумие: строки дёргаются, как сбитый кадр. */
+.hud-diary-entry.hud-diary-mood-madness .hud-diary-text { animation: hud-dmf-glitch 2.2s steps(1, end) infinite; animation-play-state: paused; }
+@keyframes hud-dmf-glitch { 0%, 100%, 30%, 62% { translate: 0 0; } 28% { translate: 2px 0; } 60% { translate: -2px 1px; } 92% { translate: 1px -1px; } }
+
+/* =========================================================================
+   ДВЕНАДЦАТЬ ЛИСТОВ ЗАНОВО
+   -------------------------------------------------------------------------
+   Сравнение на стенде: презрение было багровым рядом с любовью и страстью,
+   контроль — красным, как ярость, грусть и зависимость сливались с синими,
+   у раздражения, азарта и напряжения движения не было видно или оно
+   повторяло соседей. Теперь у каждого листа свой цвет и своё движение.
+   Цвета (--dm) — в base.css рядом с остальными.
+   ========================================================================= */
+.hud-diary-entry:is(.hud-diary-mood-sad, .hud-diary-mood-guilt, .hud-diary-mood-contempt, .hud-diary-mood-obsession, .hud-diary-mood-jealousy, .hud-diary-mood-codependency) { --dm-letter: var(--dm); }
+
+/* Грусть: глубокая бирюзово-синяя «петроль», лист отсырел снизу. */
+.hud-diary-entry.hud-diary-mood-sad {
+  background: linear-gradient(180deg, rgba(13,25,33,.96), rgba(10,19,26,.97)), repeating-linear-gradient(transparent, transparent 25px, rgba(150,210,235,.06) 25px, rgba(150,210,235,.06) 26px);
+  border-left-color: #4a98bf; transform: rotate(-.35deg);
+  box-shadow: 0 5px 18px rgba(0,0,0,.36), inset 0 -34px 30px -24px rgba(74,152,191,.22), inset 0 0 24px rgba(74,152,191,.10);
+}
+.hud-diary-entry.hud-diary-mood-sad::before { background: rgba(74,152,191,.55); }
+.hud-diary-entry.hud-diary-mood-sad::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(circle at 10% 20%, rgba(120,200,232,.16), transparent 14%), radial-gradient(circle at 84% 70%, rgba(120,200,232,.12), transparent 16%), linear-gradient(0deg, rgba(74,152,191,.10), transparent 40%);
+}
+.hud-diary-entry.hud-diary-mood-sad :is(.hud-diary-text, .hud-diary-about-user) { text-shadow: 0 0 .5px rgba(255,255,255,.22); }
+.hud-diary-entry.hud-diary-mood-sad .hud-diary-sticker { background: rgba(176,220,240,.86); }
+
+/* Вина: застиранный голубой лист. Кто-то стирает ластиком одно и то же
+   место — пятно светлеет, сыплются крошки, и всё начинается заново. */
+.hud-diary-entry.hud-diary-mood-guilt {
+  background: linear-gradient(180deg, rgba(27,34,40,.96), rgba(21,27,32,.97)), repeating-linear-gradient(transparent, transparent 25px, rgba(170,210,230,.05) 25px, rgba(170,210,230,.05) 26px);
+  border-left-color: #a9cde0; transform: rotate(.3deg);
+  box-shadow: 0 3px 10px rgba(0,0,0,.45), inset 0 14px 22px -12px rgba(0,0,0,.6);
+}
+.hud-diary-entry.hud-diary-mood-guilt::before { background: rgba(169,205,224,.5); }
+.hud-diary-entry.hud-diary-mood-guilt::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 70px 16px at 74% 62%, rgba(170,212,232,.14), transparent 70%), radial-gradient(ellipse 46px 11px at 28% 80%, rgba(170,212,232,.10), transparent 70%), radial-gradient(ellipse 30px 9px at 52% 30%, rgba(170,212,232,.08), transparent 70%);
+}
+.hud-diary-entry.hud-diary-mood-guilt :is(.hud-diary-text, .hud-diary-about-user) { opacity: .9; }
+.hud-diary-entry.hud-diary-mood-guilt .hud-diary-sticker { background: rgba(200,226,238,.88); }
+.hud-diary-mood-guilt .hud-diary-fx::before {
+  content: ''; inset: 0; opacity: .35;
+  background: radial-gradient(ellipse 64px 15px at 74% 62%, rgba(214,236,246,.32), transparent 72%);
+  animation: hud-dmf-fade 3s ease-in-out infinite; animation-play-state: paused;
+}
+.hud-diary-mood-guilt .hud-diary-fx::after {
+  content: ''; right: calc(26% - 13px); top: calc(62% - 20px); width: 26px; height: 11px; border-radius: 2px;
+  background: linear-gradient(90deg, #efd2cc 0 58%, #6f9fb6 58% 100%); box-shadow: 0 2px 3px rgba(0,0,0,.45), inset 0 -2px 0 rgba(0,0,0,.15);
+  rotate: -16deg; animation: hud-dmf-rub 3s ease-in-out infinite; animation-play-state: paused;
+}
+.hud-diary-mood-guilt .hud-dp { top: 60%; --pw: 3px; --ph: 3px; --pr: 1px; --po: .8; background: #d8c8c4; animation: hud-dmp-crumb calc(var(--pd) * .3) ease-in var(--pdl) infinite; animation-play-state: paused; }
+.hud-diary-mood-guilt .hud-dp:nth-child(1) { --px: 64%; } .hud-diary-mood-guilt .hud-dp:nth-child(2) { --px: 70%; } .hud-diary-mood-guilt .hud-dp:nth-child(3) { --px: 75%; }
+.hud-diary-mood-guilt .hud-dp:nth-child(4) { --px: 80%; } .hud-diary-mood-guilt .hud-dp:nth-child(n+5) { display: none; }
+@keyframes hud-dmf-rub { 0%, 52%, 100% { translate: 0 0; } 8% { translate: -15px 2px; } 16% { translate: 9px -1px; } 24% { translate: -13px 3px; } 32% { translate: 10px 0; } 40% { translate: -9px 2px; } 48% { translate: 4px 0; } }
+@keyframes hud-dmf-fade { 0%, 100% { opacity: .3; } 45% { opacity: 1; } }
+@keyframes hud-dmp-crumb { 0% { translate: 0 0; opacity: 0; } 10% { opacity: var(--po, .8); } 100% { translate: var(--dx) 38px; opacity: 0; } }
+
+/* Презрение: чёрный лак и серебро. Срезанный угол, тонкая серебряная
+   рамка, лорнет в углу — по стёклам скользит холодный блик. */
+.hud-diary-entry.hud-diary-mood-contempt {
+  background: linear-gradient(160deg, rgba(22,22,27,.98), rgba(10,10,13,.98) 60%, rgba(20,20,25,.98)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,.035) 25px, rgba(255,255,255,.035) 26px);
+  border-left-color: #d6d9e3; transform: rotate(-.4deg);
+  box-shadow: 0 6px 18px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.08);
+}
+.hud-diary-entry.hud-diary-mood-contempt::before { background: rgba(214,217,227,.4); }
+.hud-diary-entry.hud-diary-mood-contempt::after { content: ''; position: absolute; inset: 6px 6px 6px 10px; pointer-events: none; border: 1px solid rgba(214,217,227,.16); }
+.hud-diary-entry.hud-diary-mood-contempt :is(.hud-diary-text, .hud-diary-about-user) { color: rgba(234,236,242,.92); }
+.hud-diary-entry.hud-diary-mood-contempt .hud-diary-sticker { background: rgba(228,230,236,.92); }
+.hud-diary-mood-contempt .hud-diary-fx::before, .hud-diary-mood-contempt .hud-diary-fx::after {
+  content: ''; right: 16px; top: 40px; width: 50px; height: 26px;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 30' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='12' cy='11' r='9'/%3E%3Ccircle cx='35' cy='11' r='9'/%3E%3Cpath d='M21 10q2.5-3 5 0M43 17l11 12'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 56 30' fill='none' stroke='%23000' stroke-width='2.4' stroke-linecap='round'%3E%3Ccircle cx='12' cy='11' r='9'/%3E%3Ccircle cx='35' cy='11' r='9'/%3E%3Cpath d='M21 10q2.5-3 5 0M43 17l11 12'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.hud-diary-mood-contempt .hud-diary-fx::before { background: linear-gradient(180deg, rgba(230,232,240,.55), rgba(150,154,166,.45)); }
+.hud-diary-mood-contempt .hud-diary-fx::after {
+  background: linear-gradient(110deg, transparent 40%, rgba(255,255,255,.95) 50%, transparent 60%) 120% 0 / 300% 100% no-repeat;
+  animation: hud-dmf-glance 3.2s ease-in-out infinite; animation-play-state: paused;
+}
+@keyframes hud-dmf-glance { 0% { background-position: 120% 0; } 35%, 100% { background-position: -20% 0; } }
+
+/* Одержимость: глубокий фиолетовый, гипнотические круги и глаз, который
+   не отрываясь следит — зрачок мечется, изредка моргает. */
+.hud-diary-entry.hud-diary-mood-obsession {
+  background: radial-gradient(60% 90% at calc(100% - 52px) 50%, rgba(143,77,255,.12), transparent 62%), linear-gradient(180deg, rgba(19,11,30,.97), rgba(12,8,20,.98)), repeating-linear-gradient(transparent, transparent 23px, rgba(255,255,255,.05) 23px, rgba(255,255,255,.05) 24px);
+  border-left-color: #8f4dff; transform: rotate(-.3deg);
+  box-shadow: 0 6px 20px rgba(0,0,0,.5), inset 0 0 40px rgba(0,0,0,.55), inset 0 0 18px rgba(143,77,255,.18);
+}
+.hud-diary-entry.hud-diary-mood-obsession::before { background: rgba(143,77,255,.6); }
+.hud-diary-entry.hud-diary-mood-obsession::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: repeating-radial-gradient(circle at calc(100% - 52px) 50%, rgba(160,110,255,.10) 0 1px, transparent 1px 11px);
+  -webkit-mask: radial-gradient(circle at calc(100% - 52px) 50%, #000 10%, transparent 62%); mask: radial-gradient(circle at calc(100% - 52px) 50%, #000 10%, transparent 62%);
+}
+.hud-diary-entry.hud-diary-mood-obsession .hud-diary-sticker { background: rgba(212,190,255,.88); }
+.hud-diary-mood-obsession .hud-diary-fx::before {
+  content: ''; right: 21px; top: 50%; width: 62px; height: 30px; margin-top: -15px;
+  /* Зрачок с бликом и радужка — слои фона самого глаза, а не отдельный
+     кружок: двигаем их background-position, и контур глаза (маска) их
+     обрезает — за веко зрачок не вылезет ни при каком сдвиге и размере. */
+  background:
+    radial-gradient(circle at 9px 9px, #fff 0 1.3px, transparent 1.9px) 50% 50% / 24px 24px no-repeat,
+    radial-gradient(circle, #0b0614 0 4.6px, rgba(143,77,255,.85) 5.2px 10px, rgba(60,30,110,.95) 10.5px 11.5px, transparent 12px) 50% 50% / 24px 24px no-repeat,
+    radial-gradient(70% 90% at 50% 50%, rgba(232,224,255,.30), rgba(232,224,255,.16));
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 62 30'%3E%3Cpath d='M1 15C12 1 50 1 61 15 50 29 12 29 1 15Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 62 30'%3E%3Cpath d='M1 15C12 1 50 1 61 15 50 29 12 29 1 15Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  filter: drop-shadow(0 0 4px rgba(143,77,255,.6));
+  animation: hud-dmf-dart 3s steps(1, end) infinite, hud-dmf-lid 4.6s ease-in-out infinite; animation-play-state: paused;
+}
+@keyframes hud-dmf-lid { 0%, 90%, 100% { scale: 1 1; } 94% { scale: 1 .06; } }
+/* Зрачок мечется: позиции — доли свободного хода радужки внутри глаза. */
+@keyframes hud-dmf-dart { 0%, 100% { background-position: 50% 50%, 50% 50%, 0 0; } 18% { background-position: 28% 55%, 28% 55%, 0 0; } 40% { background-position: 70% 45%, 70% 45%, 0 0; } 55% { background-position: 74% 58%, 74% 58%, 0 0; } 75% { background-position: 40% 50%, 40% 50%, 0 0; } }
+
+/* Ревность: ядовито-зелёный, правый край оборван — кого-то вырвали из
+   снимка. По верху ползёт колючая лоза, с шипов набухают и срываются
+   светящиеся капли яда. */
+.hud-diary-entry.hud-diary-mood-jealousy {
+  background: linear-gradient(115deg, rgba(6,22,8,.97), rgba(9,30,10,.97) 60%, rgba(5,17,6,.97)), repeating-linear-gradient(transparent, transparent 25px, rgba(120,255,120,.05) 25px, rgba(120,255,120,.05) 26px);
+  border-left-color: #39ff14; transform: rotate(-.45deg);
+  box-shadow: 0 5px 16px rgba(0,0,0,.42), inset -30px 0 36px -26px rgba(0,0,0,.8), inset 0 0 20px rgba(57,255,20,.10);
+  clip-path: polygon(0 0, 100% 0, 98.4% 8%, 100% 16%, 97.8% 25%, 100% 34%, 98.5% 44%, 100% 55%, 97.9% 66%, 100% 76%, 98.3% 87%, 100% 100%, 0 100%);
+}
+.hud-diary-entry.hud-diary-mood-jealousy::before { background: rgba(57,255,20,.55); }
+.hud-diary-entry.hud-diary-mood-jealousy::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(70% 100% at 104% 50%, rgba(57,255,20,.22), transparent 70%), radial-gradient(circle at 30% 30%, rgba(120,255,120,.06), transparent 34%);
+}
+.hud-diary-entry.hud-diary-mood-jealousy .hud-diary-sticker { background: rgba(190,255,180,.9); }
+.hud-diary-mood-jealousy .hud-diary-fx::before {
+  content: ''; left: 0; right: 0; top: 0; height: 8px;
+  background: conic-gradient(from 135deg at 50% 0, rgba(57,255,20,.7) 90deg, transparent 0) 0 0 / 11px 8px repeat-x, linear-gradient(rgba(30,150,30,.7) 0 0) 0 0 / 100% 1.5px no-repeat;
+  animation: hud-dmf-creep 1.6s linear infinite; animation-play-state: paused;
+}
+@keyframes hud-dmf-creep { to { background-position: 11px 0, 0 0; } }
+.hud-diary-entry.hud-diary-mood-jealousy .hud-dp {
+  top: 7px; --pw: 3px; --ph: 9px; --pr: 0 0 50% 50% / 0 0 60% 60%; --po: .95;
+  background: linear-gradient(#7dff5a, #1fb80a); box-shadow: 0 0 6px rgba(57,255,20,.85);
+  transform-origin: 50% 0; animation: hud-dmp-venom calc(var(--pd) * .75) ease-in var(--pdl) infinite; animation-play-state: paused;
+}
+@keyframes hud-dmp-venom { 0% { scale: 1 .2; translate: 0 0; opacity: 0; } 12% { opacity: var(--po); } 45% { scale: 1 1; translate: 0 0; } 52% { scale: .9 1.25; translate: 0 2px; } 100% { scale: .8 1.3; translate: 0 130px; opacity: 0; } }
+
+/* Зависимость: пыльно-сиреневый лист, к которому прилип второй — лист
+   двойной. По низу между двумя булавками провисает нить: дёрнешь — она
+   натягивается и снова провисает. */
+.hud-diary-entry.hud-diary-mood-codependency {
+  background: linear-gradient(180deg, rgba(31,20,29,.96), rgba(22,15,21,.97)), repeating-linear-gradient(transparent, transparent 25px, rgba(240,200,230,.05) 25px, rgba(240,200,230,.05) 26px);
+  border-left-color: #c886b6;
+  box-shadow: 5px 5px 0 -1px rgba(44,30,41,.96), 5px 5px 0 0 rgba(200,134,182,.28), 0 6px 16px rgba(0,0,0,.4);
+}
+.hud-diary-entry.hud-diary-mood-codependency::before { background: rgba(200,134,182,.5); box-shadow: 4px 0 0 rgba(200,134,182,.26); }
+.hud-diary-entry.hud-diary-mood-codependency::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: radial-gradient(50% 60% at 0% 50%, rgba(200,134,182,.10), transparent 70%), radial-gradient(50% 60% at 100% 50%, rgba(200,134,182,.10), transparent 70%); }
+.hud-diary-entry.hud-diary-mood-codependency .hud-diary-sticker { background: rgba(236,206,226,.9); }
+.hud-diary-mood-codependency .hud-diary-fx::before {
+  content: ''; left: 26px; right: 22px; bottom: 6px; height: 18px; transform-origin: 50% 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 20' preserveAspectRatio='none'%3E%3Cpath d='M0 1Q50 38 100 1' fill='none' stroke='%23d79cc6' stroke-width='1.6' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") 0 0 / 100% 100% no-repeat;
+  animation: hud-dmf-tug 2.6s cubic-bezier(.3,0,.3,1) infinite; animation-play-state: paused;
+}
+.hud-diary-mood-codependency .hud-diary-fx::after {
+  content: ''; left: 21px; right: 17px; bottom: 21px; height: 10px;
+  background: radial-gradient(circle at 5px 5px, #f1c9e3 0 2.5px, #8a4f7a 3px 4px, transparent 4.5px) left / 10px 10px no-repeat, radial-gradient(circle at 5px 5px, #f1c9e3 0 2.5px, #8a4f7a 3px 4px, transparent 4.5px) right / 10px 10px no-repeat;
+}
+@keyframes hud-dmf-tug { 0%, 100% { scale: 1 1; } 18% { scale: 1 .12; } 30% { scale: 1 1.25; } 42% { scale: 1 .8; } 54% { scale: 1 1.06; } 64% { scale: 1 1; } }
+
+/* Контроль: фосфорно-зелёный экран слежки — сетка, строчная развёртка,
+   уголки видоискателя и луч, проверяющий строку за строкой. */
+.hud-diary-entry.hud-diary-mood-control {
+  background: linear-gradient(180deg, rgba(9,19,13,.97), rgba(6,13,9,.97)), repeating-linear-gradient(0deg, transparent 0 19px, rgba(58,208,122,.07) 19px 20px), repeating-linear-gradient(90deg, transparent 0 19px, rgba(58,208,122,.07) 19px 20px);
+  border-left-color: #3ad07a; border-radius: 2px; transform: none;
+  box-shadow: 0 3px 10px rgba(0,0,0,.45), inset 3px 0 0 rgba(58,208,122,.3), inset 0 0 26px rgba(58,208,122,.08);
+}
+.hud-diary-entry.hud-diary-mood-control::before { background: rgba(58,208,122,.7); }
+.hud-diary-entry.hud-diary-mood-control::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(0deg, rgba(0,0,0,.16) 0 1px, transparent 1px 3px); }
+.hud-diary-entry.hud-diary-mood-control :is(.hud-diary-text, .hud-diary-about-user) { text-shadow: 0 0 5px rgba(58,208,122,.28); }
+.hud-diary-entry.hud-diary-mood-control .hud-diary-sticker { background: rgba(196,240,212,.92); border-radius: 1px; }
+
+/* Решимость: кобальтовая сталь с заклёпками на срезанных углах. */
+.hud-diary-entry.hud-diary-mood-resolve {
+  background: linear-gradient(160deg, rgba(25,33,58,.96), rgba(13,17,31,.97) 55%, rgba(21,27,47,.97)), repeating-linear-gradient(transparent, transparent 25px, rgba(180,200,255,.05) 25px, rgba(180,200,255,.05) 26px);
+  border-left: 4px solid #4f7cff; transform: none;
+  box-shadow: 0 5px 14px rgba(0,0,0,.45), inset 0 1px 0 rgba(190,210,255,.16), inset 0 -2px 0 rgba(0,0,0,.4), inset 0 0 26px rgba(79,124,255,.10);
+}
+.hud-diary-entry.hud-diary-mood-resolve::before { background: rgba(79,124,255,.6); }
+.hud-diary-entry.hud-diary-mood-resolve::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(circle at 15px 15px, rgba(205,218,255,.6) 0 2px, rgba(0,0,0,.5) 2.5px, transparent 3.5px), radial-gradient(circle at calc(100% - 15px) 15px, rgba(205,218,255,.6) 0 2px, rgba(0,0,0,.5) 2.5px, transparent 3.5px), radial-gradient(circle at 15px calc(100% - 15px), rgba(205,218,255,.6) 0 2px, rgba(0,0,0,.5) 2.5px, transparent 3.5px), radial-gradient(circle at calc(100% - 15px) calc(100% - 15px), rgba(205,218,255,.6) 0 2px, rgba(0,0,0,.5) 2.5px, transparent 3.5px);
+}
+.hud-diary-entry.hud-diary-mood-resolve .hud-diary-sticker { background: rgba(200,214,255,.92); }
+
+/* Ирония: терракота с комиксным растром и смещённой «печатной» тенью. */
+.hud-diary-entry.hud-diary-mood-irony {
+  background: radial-gradient(rgba(224,137,90,.13) 1px, transparent 1.6px) 0 0 / 9px 9px, linear-gradient(180deg, rgba(34,22,16,.96), rgba(24,16,12,.96));
+  border-left-color: #e0895a; transform: rotate(.7deg);
+  box-shadow: 3px 3px 0 rgba(224,137,90,.22), 0 5px 14px rgba(0,0,0,.36);
+}
+.hud-diary-entry.hud-diary-mood-irony::before { background: rgba(224,137,90,.55); }
+.hud-diary-entry.hud-diary-mood-irony .hud-diary-sticker { background: rgba(250,212,188,.92); transform: rotate(-9deg); }
+
+/* Раздражение: лист царапают — три полосы от ногтей вспыхивают то тут,
+   то там и медленно бледнеют. */
+.hud-diary-entry.hud-diary-mood-irritation .hud-dp {
+  --pw: 12px; --ph: 18px; --pr: 0; --po: .9;
+  background: repeating-linear-gradient(90deg, #ffb066 0 1.6px, transparent 1.6px 5px);
+  rotate: calc(var(--rot) / 9);
+  animation: hud-dmp-scratch calc(var(--pd) * .55) ease-out var(--pdl) infinite; animation-play-state: paused;
+}
+@keyframes hud-dmp-scratch { 0% { clip-path: inset(0 0 100% 0); opacity: var(--po); } 12% { clip-path: inset(0 0 0 0); opacity: var(--po); } 70% { opacity: .35; } 100% { clip-path: inset(0 0 0 0); opacity: 0; } }
+
+/* Азарт: по низу бежит кардиограмма — пульс частит. */
+.hud-diary-mood-thrill .hud-diary-fx::before {
+  content: ''; left: 0; right: -80px; bottom: 8px; height: 22px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 22'%3E%3Cpath d='M0 13H24L27 9L30 13H34L37 2L41 21L44 13H52L55 10L58 13H80' fill='none' stroke='%23ffb02e' stroke-width='1.6' stroke-linejoin='round' stroke-linecap='round'/%3E%3C/svg%3E") 0 0 / 80px 22px repeat-x;
+  filter: drop-shadow(0 0 3px rgba(255,176,46,.8)); opacity: .85;
+  animation: hud-dmf-ecg .7s linear infinite; animation-play-state: paused;
+}
+.hud-diary-mood-thrill .hud-diary-fx::after { content: ''; inset: 0; background: radial-gradient(60% 50% at 50% 100%, rgba(255,176,46,.16), transparent 70%); opacity: .4; animation: hud-dmf-beat .7s ease-out infinite; animation-play-state: paused; }
+@keyframes hud-dmf-ecg { to { translate: -80px 0; } }
+
+/* Напряжение: манометр в углу — стрелка дрожит у красной зоны и то и
+   дело в неё заскакивает. */
+.hud-diary-mood-stress .hud-diary-fx::before {
+  content: ''; right: 16px; bottom: 14px; width: 46px; height: 23px; border-radius: 23px 23px 0 0;
+  background: conic-gradient(from -90deg at 50% 100%, rgba(255,170,110,.45) 0 112deg, #ff4a2e 112deg 180deg, transparent 180deg);
+  -webkit-mask: radial-gradient(circle at 50% 100%, transparent 0 15px, #000 15.5px 22px, transparent 22.5px); mask: radial-gradient(circle at 50% 100%, transparent 0 15px, #000 15.5px 22px, transparent 22.5px);
+}
+.hud-diary-mood-stress .hud-diary-fx::after {
+  content: ''; right: 38px; bottom: 13px; width: 2.5px; height: 19px; border-radius: 2px;
+  background: linear-gradient(#ffe2cc, #e8642a); box-shadow: 0 0 4px rgba(232,100,42,.8);
+  transform-origin: 50% calc(100% - 1px); rotate: -40deg;
+  animation: hud-dmf-needle 1.7s linear infinite; animation-play-state: paused;
+}
+@keyframes hud-dmf-needle { 0% { rotate: -40deg; } 12% { rotate: -10deg; } 16% { rotate: -22deg; } 30% { rotate: 10deg; } 34% { rotate: 0deg; } 50% { rotate: 48deg; } 53% { rotate: 36deg; } 57% { rotate: 62deg; } 70% { rotate: 20deg; } 85% { rotate: 30deg; } 100% { rotate: -40deg; } }
+
+/* =========================================================================
+   СТЫД, ПРЕДАННОСТЬ И ТРИ НОВЫХ ЛИСТА: СМУЩЕНИЕ, НЕЖНОСТЬ, ЗАЩИТА
+   ========================================================================= */
+.hud-diary-entry:is(.hud-diary-mood-shame, .hud-diary-mood-embarrassment, .hud-diary-mood-tenderness, .hud-diary-mood-protection) { --dm-letter: var(--dm); }
+
+/* Стыд: жёлтый лист, на котором проступают пятна румянца, а потом краска
+   заливает лист снизу доверху — как лицо, когда стыдно. */
+.hud-diary-entry.hud-diary-mood-shame {
+  background: linear-gradient(180deg, rgba(36,30,10,.96), rgba(26,21,8,.97)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,220,100,.06) 25px, rgba(255,220,100,.06) 26px);
+  border-left-color: #ffcc00; transform: rotate(.8deg) scale(.994);
+  box-shadow: 0 4px 14px rgba(0,0,0,.38), inset 0 0 30px rgba(255,204,0,.10);
+}
+.hud-diary-entry.hud-diary-mood-shame::before { background: rgba(255,204,0,.5); }
+.hud-diary-entry.hud-diary-mood-shame::after {
+  content: ''; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 18% 22% at 18% 58%, rgba(255,90,70,.12), transparent 70%), radial-gradient(ellipse 18% 22% at 82% 58%, rgba(255,90,70,.12), transparent 70%);
+}
+.hud-diary-entry.hud-diary-mood-shame :is(.hud-diary-text, .hud-diary-about-user) { opacity: .93; }
+.hud-diary-entry.hud-diary-mood-shame .hud-diary-sticker { background: rgba(255,232,150,.92); }
+.hud-diary-mood-shame .hud-diary-fx::before {
+  content: ''; inset: 0; opacity: .3;
+  background: radial-gradient(ellipse 22% 26% at 18% 58%, rgba(255,70,60,.42), transparent 72%), radial-gradient(ellipse 22% 26% at 82% 58%, rgba(255,70,60,.42), transparent 72%), radial-gradient(ellipse 14% 12% at 50% 30%, rgba(255,90,70,.22), transparent 72%);
+  animation: hud-dmf-cheeks 4s ease-in-out infinite; animation-play-state: paused;
+}
+.hud-diary-mood-shame .hud-diary-fx::after {
+  content: ''; inset: 0; opacity: 0; translate: 0 100%;
+  background: linear-gradient(0deg, rgba(255,70,55,.34), rgba(255,95,70,.18) 55%, rgba(255,120,80,0));
+  animation: hud-dmf-flush 4s cubic-bezier(.4,0,.2,1) infinite; animation-play-state: paused;
+}
+@keyframes hud-dmf-cheeks { 0%, 100% { opacity: .3; scale: .85; } 40%, 70% { opacity: 1; scale: 1.08; } }
+@keyframes hud-dmf-flush { 0% { translate: 0 100%; opacity: 0; } 12% { opacity: 1; } 50% { translate: 0 0; opacity: 1; } 78% { translate: 0 0; opacity: .8; } 100% { translate: 0 0; opacity: 0; } }
+
+/* Преданность: вместо печати — свеча с голубым огнём, который не гаснет;
+   пламя колышется, от него по листу тёплый отсвет. */
+.hud-diary-mood-devotion .hud-diary-fx::before {
+  content: ''; right: 24px; bottom: 10px; width: 8px; height: 20px; border-radius: 2px 2px 1px 1px;
+  background: linear-gradient(90deg, #c7d2e8, #f6f8fd 45%, #b4c0d8); box-shadow: 0 2px 3px rgba(0,0,0,.45), 0 -2px 10px rgba(143,180,232,.35);
+}
+.hud-diary-mood-devotion .hud-diary-fx::after {
+  content: ''; right: 23px; bottom: 29px; width: 10px; height: 19px; border-radius: 50% 50% 50% 50% / 62% 62% 38% 38%;
+  background: radial-gradient(ellipse at 50% 74%, #fff 0 16%, #ffe9a8 30%, #8fb4e8 62%, rgba(143,180,232,0) 76%);
+  filter: drop-shadow(0 0 6px rgba(143,180,232,.95)) drop-shadow(0 0 16px rgba(255,220,150,.4));
+  transform-origin: 50% 92%; animation: hud-dmf-flame 1.4s ease-in-out infinite alternate; animation-play-state: paused;
+}
+.hud-diary-entry.hud-diary-mood-devotion .hud-diary-paper { background-image: radial-gradient(45% 60% at calc(100% - 28px) calc(100% - 30px), rgba(143,180,232,.16), transparent 70%); }
+@keyframes hud-dmf-flame { 0% { scale: 1 1; rotate: -3deg; } 30% { scale: .9 1.1; rotate: 2deg; } 60% { scale: 1.06 .94; rotate: -1deg; } 100% { scale: .95 1.14; rotate: 3deg; } }
+
+/* Смущение (не стыд): розовый лист, наклейка отвернулась. На «щеках»
+   проступают штрихи румянца, у виска скатывается капелька. */
+.hud-diary-entry.hud-diary-mood-embarrassment {
+  background: linear-gradient(180deg, rgba(40,24,32,.96), rgba(30,18,25,.97)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,200,220,.05) 25px, rgba(255,200,220,.05) 26px);
+  border-left-color: #ffb0c8; transform: rotate(-.6deg);
+  box-shadow: 0 4px 14px rgba(0,0,0,.36), inset 0 0 26px rgba(255,176,200,.12);
+}
+.hud-diary-entry.hud-diary-mood-embarrassment::before { background: rgba(255,176,200,.5); }
+.hud-diary-entry.hud-diary-mood-embarrassment .hud-diary-sticker { background: rgba(255,222,232,.92); transform: rotate(-16deg) translate(2px, 2px); }
+.hud-diary-mood-embarrassment .hud-diary-fx::before {
+  content: ''; inset: 0; opacity: .35;
+  background:
+    repeating-linear-gradient(115deg, rgba(255,120,150,.9) 0 1.6px, transparent 1.6px 5px) 10% 62% / 24px 10px no-repeat,
+    repeating-linear-gradient(115deg, rgba(255,120,150,.9) 0 1.6px, transparent 1.6px 5px) 90% 62% / 24px 10px no-repeat,
+    radial-gradient(ellipse 12% 14% at 12% 63%, rgba(255,140,170,.22), transparent 70%), radial-gradient(ellipse 12% 14% at 88% 63%, rgba(255,140,170,.22), transparent 70%);
+  animation: hud-dmf-shy 2.6s ease-in-out infinite; animation-play-state: paused;
+}
+.hud-diary-mood-embarrassment .hud-diary-fx::after {
+  content: ''; right: 48px; top: 10px; width: 7px; height: 10px; opacity: 0;
+  background: linear-gradient(#f2fbff, #9fd4ff);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 24'%3E%3Cpath d='M8 1S1 10 1 15.5a7 7 0 0 0 14 0C15 10 8 1 8 1z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 24'%3E%3Cpath d='M8 1S1 10 1 15.5a7 7 0 0 0 14 0C15 10 8 1 8 1z'/%3E%3C/svg%3E") center / contain no-repeat;
+  animation: hud-dmf-sweat 2.6s ease-in infinite; animation-play-state: paused;
+}
+@keyframes hud-dmf-shy { 0%, 100% { opacity: .35; } 35%, 65% { opacity: 1; } }
+@keyframes hud-dmf-sweat { 0%, 20% { translate: 0 0; opacity: 0; } 32% { opacity: 1; } 80% { translate: 0 18px; opacity: 1; } 100% { translate: 0 24px; opacity: 0; } }
+
+/* Нежность: пудрово-розовый лист со скруглёнными углами, середина тихо
+   дышит светом, сверху медленно опускается пух одуванчика. */
+.hud-diary-entry.hud-diary-mood-tenderness {
+  background: radial-gradient(120% 80% at 50% 0%, rgba(255,209,220,.10), transparent 60%), linear-gradient(180deg, rgba(42,30,36,.95), rgba(32,24,30,.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,225,235,.06) 25px, rgba(255,225,235,.06) 26px);
+  border-left-color: #ffd1dc; border-radius: 16px; transform: rotate(-.2deg);
+  box-shadow: 0 6px 20px rgba(0,0,0,.3), inset 0 0 30px rgba(255,209,220,.12);
+}
+.hud-diary-entry.hud-diary-mood-tenderness::before { background: rgba(255,209,220,.5); }
+.hud-diary-entry.hud-diary-mood-tenderness .hud-diary-sticker { background: rgba(255,234,240,.94); }
+.hud-diary-mood-tenderness .hud-diary-fx::before {
+  content: ''; inset: 0; opacity: .35;
+  background: radial-gradient(55% 60% at 50% 55%, rgba(255,209,220,.16), transparent 70%);
+  animation: hud-dmf-breathe 5s ease-in-out infinite alternate; animation-play-state: paused;
+}
+@keyframes hud-dmf-breathe { from { opacity: .3; scale: .96; } to { opacity: 1; scale: 1.04; } }
+.hud-diary-entry.hud-diary-mood-tenderness .hud-dp {
+  top: -12px; --pw: 11px; --ph: 11px; --po: .85;
+  background: radial-gradient(circle, #fff 0 1.4px, rgba(255,240,245,.75) 1.8px, rgba(255,240,245,.25) 3.2px, transparent 5.5px);
+  animation: hud-dmp-fluff calc(var(--pd) * 1.9) ease-in-out var(--pdl) infinite; animation-play-state: paused;
+}
+@keyframes hud-dmp-fluff { 0% { translate: 0 0; rotate: 0deg; opacity: 0; } 12% { opacity: var(--po); } 30% { translate: 10px 34px; rotate: 40deg; } 50% { translate: -8px 68px; rotate: -20deg; } 70% { translate: 9px 102px; rotate: 30deg; } 88% { opacity: var(--po); } 100% { translate: -4px 136px; rotate: 0deg; opacity: 0; } }
+
+/* Защита: лазурный лист под щитом — соты защитного поля мерцают, по полю
+   расходится круг, будто в щит пришёлся удар. */
+.hud-diary-entry.hud-diary-mood-protection {
+  background: linear-gradient(180deg, rgba(10,24,36,.96), rgba(8,18,28,.97)), repeating-linear-gradient(transparent, transparent 25px, rgba(150,215,255,.05) 25px, rgba(150,215,255,.05) 26px);
+  border-left: 3px solid #3fb8ff; border-radius: 12px 12px 4px 4px; transform: none;
+  box-shadow: 0 5px 16px rgba(0,0,0,.4), inset 0 0 0 1px rgba(63,184,255,.22), inset 0 0 30px rgba(63,184,255,.10);
+}
+.hud-diary-entry.hud-diary-mood-protection::before { background: rgba(63,184,255,.55); }
+.hud-diary-entry.hud-diary-mood-protection .hud-diary-sticker { background: rgba(200,235,255,.92); }
+.hud-diary-mood-protection .hud-diary-fx::before {
+  content: ''; inset: 0; opacity: .14;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 28 49'%3E%3Cpath fill='none' stroke='%233fb8ff' stroke-width='1' d='M14 8.7l12.1 7v14l-12.1 7-12.1-7v-14zM14 37.7V49M14 0v8.7'/%3E%3C/svg%3E") 0 0 / 28px 49px;
+  -webkit-mask: radial-gradient(90% 90% at 50% 50%, #000 30%, transparent 85%); mask: radial-gradient(90% 90% at 50% 50%, #000 30%, transparent 85%);
+  animation: hud-dmf-field 2.4s ease-in-out infinite alternate; animation-play-state: paused;
+}
+.hud-diary-mood-protection .hud-diary-fx::after {
+  content: ''; left: 50%; top: 50%; width: 60px; height: 60px; margin: -30px 0 0 -30px; border-radius: 50%;
+  border: 2px solid rgba(130,215,255,.8); box-shadow: 0 0 12px rgba(63,184,255,.7), inset 0 0 12px rgba(63,184,255,.5);
+  opacity: 0; scale: .2; animation: hud-dmf-impact 2.8s ease-out infinite; animation-play-state: paused;
+}
+@keyframes hud-dmf-field { from { opacity: .1; } to { opacity: .4; } }
+@keyframes hud-dmf-impact { 0% { scale: .2; opacity: 0; } 8% { opacity: 1; } 70% { scale: 5; opacity: 0; } 100% { scale: 5; opacity: 0; } }
+
+/* Пауза до касания, ход — под курсором или после нажатия. */
+.hud-diary-entry.fx-active :is(.hud-dp, .hud-diary-text) { animation-play-state: running; }
+.hud-diary-entry.fx-active .hud-diary-fx::before, .hud-diary-entry.fx-active .hud-diary-fx::after { animation-play-state: running; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-diary-entry:hover :is(.hud-dp, .hud-diary-text) { animation-play-state: running; }
+  .hud-diary-entry:hover .hud-diary-fx::before, .hud-diary-entry:hover .hud-diary-fx::after { animation-play-state: running; }
+}
+
+/* --- Край листа -------------------------------------------------------------- */
+.hud-diary-entry.hud-diary-mood-peace { border-radius: 16px; }
+.hud-diary-entry.hud-diary-mood-love { border-radius: 18px 18px 18px 4px; }
+.hud-diary-entry.hud-diary-mood-irony { border-radius: 4px 22px 4px 22px; }
+/* Уют: низ листа — фестоны, как у салфетки. */
+.hud-diary-entry.hud-diary-mood-cozy {
+  padding-bottom: 16px;
+  -webkit-mask: linear-gradient(#000 0 0) top / 100% calc(100% - 6px) no-repeat, radial-gradient(circle 6px at 50% 0, #000 98%, transparent) bottom / 12px 6px repeat-x;
+          mask: linear-gradient(#000 0 0) top / 100% calc(100% - 6px) no-repeat, radial-gradient(circle 6px at 50% 0, #000 98%, transparent) bottom / 12px 6px repeat-x;
+}
+/* Отвращение: правый край волной, будто лист разъело. */
+.hud-diary-entry.hud-diary-mood-disgust {
+  -webkit-mask: linear-gradient(#000 0 0) left / calc(100% - 5px) 100% no-repeat, radial-gradient(circle 5px at 0 50%, #000 98%, transparent) right / 5px 14px repeat-y;
+          mask: linear-gradient(#000 0 0) left / calc(100% - 5px) 100% no-repeat, radial-gradient(circle 5px at 0 50%, #000 98%, transparent) right / 5px 14px repeat-y;
+}
+/* Решимость: углы срезаны, как у стальной пластины. */
+.hud-diary-entry.hud-diary-mood-resolve { clip-path: polygon(10px 0, calc(100% - 10px) 0, 100% 10px, 100% calc(100% - 10px), calc(100% - 10px) 100%, 10px 100%, 0 calc(100% - 10px), 0 10px); }
+/* Презрение: срезан один угол — лист отвернулся. */
+.hud-diary-entry.hud-diary-mood-contempt { clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 0 100%); }
+/* Безумие: левый край рваный. */
+.hud-diary-entry.hud-diary-mood-madness { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 4px 88%, 0 76%, 5px 63%, 1px 50%, 6px 38%, 0 26%, 4px 12%); }
+
+/* --- Почерк -------------------------------------------------------------------
+   Шрифт дневника выбирает пользователь (--hud-font-diary, правило с !important
+   в base.css). Почерк темы встаёт поверх, только пока включён «Почерк по
+   настроению» (diaryMoodHand): выключатель — переменная-заслонка --hud-dm-gate.
+   Пустая — шрифт темы действует; initial (index.js) — объявление темы
+   становится недействительным, и остаётся шрифт пользователя. Размер
+   дневника тоже стоит с !important, поэтому чужие по росту шрифты
+   выравниваем по высоте строчных: font-size-adjust. */
+:root { --hud-dm-gate: ; }
+.hud-diary-entry[class*="hud-diary-mood-"] :is(.hud-diary-text, .hud-diary-about-user) { font-family: var(--hud-dm-font, var(--hud-font-diary)) !important; font-size-adjust: var(--hud-dm-adjust, none); }
+.hud-diary-mood-love :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Segoe Script', 'Snell Roundhand', 'Brush Script MT', cursive; --hud-dm-adjust: var(--hud-dm-gate) .41; font-style: normal; }
+.hud-diary-mood-cozy :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Segoe Print', 'Bradley Hand', 'Comic Neue', cursive; --hud-dm-adjust: var(--hud-dm-gate) .41; font-style: normal; }
+.hud-diary-mood-panic :is(.hud-diary-text, .hud-diary-about-user),
+.hud-diary-mood-madness :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Ink Free', 'Chalkboard SE', 'Segoe Print', cursive; --hud-dm-adjust: var(--hud-dm-gate) .41; font-style: normal; }
+.hud-diary-mood-madness .hud-diary-text { word-spacing: .12em; }
+.hud-diary-mood-calc :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) Consolas, 'Cascadia Mono', 'SF Mono', 'Courier New', monospace; --hud-dm-adjust: var(--hud-dm-gate) .39; font-style: normal; letter-spacing: -.01em; }
+.hud-diary-mood-control :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Segoe UI', system-ui, sans-serif; --hud-dm-adjust: var(--hud-dm-gate) .41; font-style: normal; font-weight: 500; letter-spacing: .01em; }
+.hud-diary-mood-contempt :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif; --hud-dm-adjust: var(--hud-dm-gate) .41; font-style: normal; letter-spacing: .02em; }
+.hud-diary-mood-resolve :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) Bahnschrift, 'DIN Alternate', 'Arial Narrow', sans-serif; --hud-dm-adjust: var(--hud-dm-gate) .41; font-style: normal; font-weight: 500; }
+.hud-diary-mood-stress :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) Bahnschrift, 'Arial Narrow', sans-serif; --hud-dm-adjust: var(--hud-dm-gate) .41; font-stretch: 75%; font-style: normal; }
+.hud-diary-mood-cold :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Segoe UI Light', 'Helvetica Neue', system-ui, sans-serif; --hud-dm-adjust: var(--hud-dm-gate) .41; font-weight: 300; font-style: normal; letter-spacing: .03em; }
+.hud-diary-mood-thrill :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Segoe UI', system-ui, sans-serif; --hud-dm-adjust: var(--hud-dm-gate) .41; font-weight: 600; }
+.hud-diary-mood-respect :is(.hud-diary-text, .hud-diary-about-user),
+.hud-diary-mood-devotion :is(.hud-diary-text, .hud-diary-about-user),
+.hud-diary-mood-longing :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) Georgia, 'Times New Roman', serif; --hud-dm-adjust: var(--hud-dm-gate) .41; }
+.hud-diary-mood-respect .hud-diary-text::first-letter,
+.hud-diary-mood-devotion .hud-diary-text::first-letter { font-family: Gabriola, 'Palatino Linotype', Georgia, serif; font-size: 2.7em; line-height: .7; }
+.hud-diary-mood-irony :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Trebuchet MS', 'Segoe UI', sans-serif; --hud-dm-adjust: var(--hud-dm-gate) .41; }
+.hud-diary-mood-bored .hud-diary-text { letter-spacing: .06em; word-spacing: .2em; }
+.hud-diary-mood-apathy .hud-diary-text { font-weight: 300; }
+/* Каждая строка придавлена пером — одержимость возвращается к одному. */
+.hud-diary-mood-obsession .hud-diary-text { text-decoration: underline; text-decoration-color: rgba(143,77,255,.5); text-underline-offset: 5px; }
+/* Стыд прячется: без буквицы. */
+.hud-diary-mood-shame .hud-diary-text::first-letter { float: none; font-size: 1em; margin: 0; line-height: inherit; }
+
+/* --- Появление ---------------------------------------------------------------
+   Играет, когда вкладка становится видимой, — один раз, без заливки после
+   конца (backwards): дальше лист стоит так, как велит тема. */
+.hud-tab-content.active > .hud-diary-container > .hud-diary-entry[class*="hud-diary-mood-"] {
+  animation: var(--dm-in, hud-dm-in-fade) var(--dm-in-d, .6s) var(--dm-in-e, cubic-bezier(.2,.7,.3,1)) calc(var(--dm-k, 0) * 90ms) backwards;
+}
+.hud-diary-container > .hud-diary-entry:nth-child(2) { --dm-k: 1; } .hud-diary-container > .hud-diary-entry:nth-child(3) { --dm-k: 2; }
+.hud-diary-container > .hud-diary-entry:nth-child(4) { --dm-k: 3; } .hud-diary-container > .hud-diary-entry:nth-child(n+5) { --dm-k: 4; }
+
+.hud-diary-mood-peace, .hud-diary-mood-relief, .hud-diary-mood-cozy, .hud-diary-mood-devotion { --dm-in: hud-dm-in-settle; --dm-in-d: 1.1s; }
+.hud-diary-mood-joy { --dm-in: hud-dm-in-bounce; --dm-in-d: .75s; --dm-in-e: ease-out; }
+.hud-diary-mood-triumph, .hud-diary-mood-respect { --dm-in: hud-dm-in-rise; --dm-in-d: .9s; }
+.hud-diary-mood-love { --dm-in: hud-dm-in-beat; --dm-in-d: 1s; --dm-in-e: ease-out; }
+.hud-diary-mood-lust { --dm-in: hud-dm-in-heat; --dm-in-d: 1.2s; --dm-in-e: ease-out; }
+.hud-diary-mood-obsession { --dm-in: hud-dm-in-zoom; --dm-in-d: .9s; }
+.hud-diary-mood-codependency { --dm-in: hud-dm-in-tug; --dm-in-d: .9s; --dm-in-e: ease-out; }
+.hud-diary-mood-jealousy { --dm-in: hud-dm-in-side; --dm-in-d: .7s; }
+.hud-diary-mood-realization { --dm-in: hud-dm-in-fade; --dm-in-d: .4s; }
+.hud-diary-mood-collapse { --dm-in: hud-dm-in-drop; --dm-in-d: .8s; --dm-in-e: cubic-bezier(.5,0,.75,0); }
+.hud-diary-mood-shame { --dm-in: hud-dm-in-flinch; --dm-in-d: .8s; --dm-in-e: ease-out; }
+.hud-diary-mood-guilt, .hud-diary-mood-sad { --dm-in: hud-dm-in-sink; --dm-in-d: 1.3s; --dm-in-e: ease-in-out; }
+.hud-diary-mood-disgust { --dm-in: hud-dm-in-recoil; --dm-in-d: .7s; --dm-in-e: ease-out; }
+.hud-diary-mood-contempt { --dm-in: hud-dm-in-lower; --dm-in-d: 1.1s; }
+.hud-diary-mood-irritation, .hud-diary-mood-nervous { --dm-in: hud-dm-in-twitch; --dm-in-d: .6s; --dm-in-e: linear; }
+.hud-diary-mood-panic, .hud-diary-mood-madness { --dm-in: hud-dm-in-glitch; --dm-in-d: .6s; --dm-in-e: steps(1, end); }
+.hud-diary-mood-angry, .hud-diary-mood-resolve { --dm-in: hud-dm-in-slam; --dm-in-d: .55s; --dm-in-e: ease-in; }
+.hud-diary-mood-disappointment { --dm-in: hud-dm-in-droop; --dm-in-d: 1.4s; --dm-in-e: ease-in-out; }
+.hud-diary-mood-apathy { --dm-in: hud-dm-in-fade; --dm-in-d: 2s; --dm-in-e: linear; }
+.hud-diary-mood-bored { --dm-in: hud-dm-in-yawn; --dm-in-d: 1.5s; --dm-in-e: ease-in-out; }
+.hud-diary-mood-cold { --dm-in: hud-dm-in-fade; --dm-in-d: .9s; }
+.hud-diary-mood-longing { --dm-in: hud-dm-in-drift; --dm-in-d: 1.5s; --dm-in-e: ease-out; }
+.hud-diary-mood-control { --dm-in: hud-dm-in-snap; --dm-in-d: .45s; --dm-in-e: steps(3, end); }
+.hud-diary-mood-calc { --dm-in: hud-dm-in-type; --dm-in-d: .9s; --dm-in-e: steps(12, end); }
+.hud-diary-mood-thrill { --dm-in: hud-dm-in-dash; --dm-in-d: .45s; --dm-in-e: cubic-bezier(.1,.9,.2,1); }
+.hud-diary-mood-irony { --dm-in: hud-dm-in-wink; --dm-in-d: .9s; --dm-in-e: ease-out; }
+.hud-diary-mood-curiosity { --dm-in: hud-dm-in-peek; --dm-in-d: 1s; --dm-in-e: ease-out; }
+.hud-diary-mood-stress { --dm-in: hud-dm-in-squeeze; --dm-in-d: .7s; --dm-in-e: ease-out; }
+.hud-diary-mood-embarrassment { --dm-in: hud-dm-in-shy; --dm-in-d: .9s; --dm-in-e: ease-out; }
+.hud-diary-mood-tenderness { --dm-in: hud-dm-in-settle; --dm-in-d: 1.4s; --dm-in-e: ease-out; }
+.hud-diary-mood-protection { --dm-in: hud-dm-in-shield; --dm-in-d: .8s; --dm-in-e: ease-out; }
+
+@keyframes hud-dm-in-fade    { from { opacity: 0; translate: 0 6px; } }
+@keyframes hud-dm-in-settle  { from { opacity: 0; translate: 0 -5px; } }
+@keyframes hud-dm-in-bounce  { 0% { opacity: 0; scale: .86; } 55% { opacity: 1; scale: 1.02; } 75% { scale: .99; } 100% { scale: 1; } }
+@keyframes hud-dm-in-rise    { from { opacity: 0; translate: 0 16px; scale: .97; } }
+@keyframes hud-dm-in-beat    { 0% { opacity: 0; scale: .95; } 25% { opacity: 1; scale: 1.02; } 40% { scale: .99; } 55% { scale: 1.015; } 100% { scale: 1; } }
+@keyframes hud-dm-in-heat    { 0% { opacity: 0; translate: 0 8px; } 40% { opacity: .7; translate: 0 2px; } 60% { opacity: .9; translate: 0 3px; } }
+@keyframes hud-dm-in-zoom    { from { opacity: 0; scale: .9; } }
+@keyframes hud-dm-in-tug     { 0% { opacity: 0; translate: -10px 0; } 40% { opacity: 1; translate: 5px 0; } 65% { translate: -3px 0; } 85% { translate: 1px 0; } }
+@keyframes hud-dm-in-side    { from { opacity: 0; translate: -18px 0; rotate: -1.5deg; } }
+@keyframes hud-dm-in-drop    { 0% { opacity: 0; translate: 0 -28px; rotate: -3deg; } 70% { opacity: 1; translate: 0 3px; } 85% { translate: 0 -1px; } }
+@keyframes hud-dm-in-flinch  { 0% { opacity: 0; scale: 1.02; } 30% { opacity: 1; scale: .96; translate: 0 2px; } 100% { scale: 1; } }
+@keyframes hud-dm-in-sink    { from { opacity: 0; translate: 0 -12px; } }
+@keyframes hud-dm-in-recoil  { 0% { opacity: 0; translate: -12px 0; } 45% { opacity: 1; translate: 5px 0; } 70% { translate: -2px 0; } }
+@keyframes hud-dm-in-lower   { from { opacity: 0; translate: 0 -10px; rotate: -1deg; } }
+@keyframes hud-dm-in-twitch  { 0% { opacity: 0; } 20% { opacity: 1; translate: 2px 0; } 30% { translate: -2px 0; } 40% { translate: 1px 0; } 50% { translate: 0 0; } 70% { translate: -1px 0; } 80% { translate: 0 0; } }
+@keyframes hud-dm-in-glitch  { 0% { opacity: 0; } 10% { opacity: 1; translate: 4px 0; } 20% { translate: -3px 1px; } 30% { opacity: .4; translate: 2px -1px; } 40% { opacity: 1; translate: 0 0; } 55% { translate: -2px 0; } 70% { translate: 0 0; } }
+@keyframes hud-dm-in-slam    { 0% { opacity: 0; translate: 0 -14px; scale: 1.02; } 55% { opacity: 1; translate: 0 2px; scale: 1; } 70% { translate: -2px 0; } 85% { translate: 2px 0; } }
+@keyframes hud-dm-in-droop   { 0% { opacity: 0; translate: 0 -6px; rotate: .8deg; } 60% { opacity: 1; } }
+@keyframes hud-dm-in-yawn    { 0% { opacity: 0; scale: 1 .94; } 50% { opacity: 1; scale: 1 1.015; } }
+@keyframes hud-dm-in-drift   { from { opacity: 0; translate: -16px 0; } }
+@keyframes hud-dm-in-snap    { from { opacity: 0; scale: .97; } }
+@keyframes hud-dm-in-type    { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@keyframes hud-dm-in-dash    { from { opacity: 0; translate: -46px 0; } }
+@keyframes hud-dm-in-wink    { 0% { opacity: 0; rotate: -2.5deg; } 55% { opacity: 1; rotate: 1.2deg; } 80% { rotate: -.4deg; } }
+@keyframes hud-dm-in-peek    { from { clip-path: circle(0% at 82% 30%); } to { clip-path: circle(150% at 82% 30%); } }
+@keyframes hud-dm-in-shy     { 0% { opacity: 0; translate: -8px 2px; rotate: -1.6deg; } 55% { opacity: 1; rotate: .7deg; } 80% { rotate: -.3deg; } }
+@keyframes hud-dm-in-shield  { 0% { opacity: 0; scale: .95; } 60% { opacity: 1; scale: 1.01; } }
+@keyframes hud-dm-in-squeeze { 0% { opacity: 0; scale: 1 1.04; } 50% { opacity: 1; scale: 1 .97; } 75% { scale: 1 1.01; } }
+
+/* Ярость и тревога уже дрожат на самом листе (base.css): дрожь идёт вторым
+   номером и ждёт касания, как прежде. */
+.hud-tab-content.active > .hud-diary-container > .hud-diary-entry.hud-diary-mood-angry {
+  animation: hud-dm-in-slam .55s ease-in calc(var(--dm-k, 0) * 90ms) backwards, hud-diary-shake .18s linear infinite alternate;
+  animation-play-state: running, paused;
+}
+.hud-tab-content.active > .hud-diary-container > .hud-diary-entry.hud-diary-mood-nervous {
+  animation: hud-dm-in-twitch .6s linear calc(var(--dm-k, 0) * 90ms) backwards, hud-diary-jitter 2.6s ease-in-out infinite;
+  animation-play-state: running, paused;
+}
+.hud-tab-content.active > .hud-diary-container > .hud-diary-entry.fx-active:is(.hud-diary-mood-angry, .hud-diary-mood-nervous) { animation-play-state: running; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-tab-content.active > .hud-diary-container > .hud-diary-entry:hover:is(.hud-diary-mood-angry, .hud-diary-mood-nervous) { animation-play-state: running; }
+}
+
+/* Без движения — по просьбе системы: частицы стоят на виду, лист не въезжает. */
+@media (prefers-reduced-motion: reduce) {
+  .hud-tab-content.active > .hud-diary-container > .hud-diary-entry[class*="hud-diary-mood-"],
+  .hud-diary-fx::before, .hud-diary-fx::after, .hud-diary-entry .hud-diary-text { animation: none !important; }
+  .hud-dp { animation: none !important; opacity: .5; }
+}

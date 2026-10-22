@@ -256,7 +256,7 @@
 .hud-wv-fc :is(.b-dusk) { background: linear-gradient(180deg, #43265f, #c45a78 60%, #f39b67); color: #fff; }
 .hud-wv-fc :is(.b-night) { background: radial-gradient(1px 1px at 20% 25%, #fff, transparent), radial-gradient(1px 1px at 70% 15%, #fff, transparent), radial-gradient(1.2px 1.2px at 45% 45%, #dfe6ff, transparent), radial-gradient(1px 1px at 85% 55%, #fff, transparent), linear-gradient(180deg, #060a20, #17204b 70%, #27336a); color: #e9edff; }
 /* Пасмурно, дождь, гроза, туман — серая пелена поверх неба. */
-.hud-wv-fc :is(.w-overcast, .w-cloudy, .w-rain, .w-drizzle, .w-shower, .w-storm, .w-fog, .w-snow)::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(80,90,105,.5), rgba(80,90,105,.15)); }
+.hud-wv-fc .w-overcast::before, .hud-wv-fc .w-cloudy::before, .hud-wv-fc .w-rain::before, .hud-wv-fc .w-drizzle::before, .hud-wv-fc .w-shower::before, .hud-wv-fc .w-storm::before, .hud-wv-fc .w-fog::before, .hud-wv-fc .w-snow::before { content: ''; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(180deg, rgba(80,90,105,.5), rgba(80,90,105,.15)); }
 .hud-wv-fc .w-storm::before { background: linear-gradient(180deg, rgba(30,30,50,.7), rgba(60,60,90,.3)); }
 .hud-wv-fc .w-fog::before { background: linear-gradient(180deg, rgba(225,228,235,.25), rgba(225,228,235,.6)); }
 .hud-wv-fc .w-snow::before { background: radial-gradient(1.5px 1.5px at 15% 30%, #fff, transparent), radial-gradient(1.5px 1.5px at 60% 20%, #fff, transparent), radial-gradient(1.5px 1.5px at 40% 70%, #fff, transparent), radial-gradient(1.5px 1.5px at 80% 60%, #fff, transparent), linear-gradient(180deg, rgba(200,215,235,.4), rgba(200,215,235,.1)); }
@@ -311,7 +311,7 @@
 
 /* --- Гороскоп: стихии ---------------------------------------------------- */
 .hud-wv-horo.is-elements { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr)); gap: 10px; }
-.hud-wv-horo.is-elements > :is(.fate, .disclaimer) { grid-column: 1 / -1; }
+.hud-wv-horo.is-elements > .fate, .hud-wv-horo.is-elements > .disclaimer { grid-column: 1 / -1; }
 .hud-wv.is-elements section { --e: var(--v-acc); border-radius: 12px; overflow: hidden; background: rgba(0,0,0,.16); border: 1px solid color-mix(in srgb, var(--e) 35%, transparent); }
 .hud-wv.is-elements .el-fire { --e: #e4573c; } .hud-wv.is-elements .el-earth { --e: #4caf6c; } .hud-wv.is-elements .el-air { --e: #d9bd45; } .hud-wv.is-elements .el-water { --e: #3f86e2; }
 .hud-wv.is-elements h5 { display: flex; align-items: center; gap: 6px; padding: 7px 10px; font-size: .72em; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: #fff; background: linear-gradient(90deg, color-mix(in srgb, var(--e) 72%, #000), color-mix(in srgb, var(--e) 20%, transparent)); }
@@ -520,7 +520,7 @@
 .hud-wv.is-signs .s-temp::before { inset: 7px; border-radius: 4px; background: #f6a400; transform: rotate(45deg); box-shadow: inset 0 0 0 2px #141414, 0 0 0 1.5px #fff; }
 .hud-wv.is-signs .s-temp .hud-v-ico { width: 15px; height: 15px; }
 /* Светоотражающий блик на знаке. */
-.hud-wv.is-signs :is(.s-round, .s-blue, .s-info)::after { border-radius: 50%; background: linear-gradient(130deg, rgba(255,255,255,.4), transparent 45%); pointer-events: none; }
+.hud-wv.is-signs .s-round::after, .hud-wv.is-signs .s-blue::after, .hud-wv.is-signs .s-info::after { border-radius: 50%; background: linear-gradient(130deg, rgba(255,255,255,.4), transparent 45%); pointer-events: none; }
 .hud-wv.is-signs .s-info::after { border-radius: 6px; inset: 3px 1px; }
 .hud-wv.is-signs .sub { margin-top: 3px; max-width: 56px; padding: 1px 3px; border: 1.5px solid #141414; border-radius: 2px; background: #fff; color: #141414; font: 800 .5em/1.15 'Arial Narrow', Arial, sans-serif; letter-spacing: .02em; text-align: center; text-transform: uppercase; overflow-wrap: anywhere; text-shadow: none !important; }
 .hud-wv.is-signs .pole { flex: 1; min-height: 10px; width: 4px; border-radius: 0 0 1px 1px; background: repeating-linear-gradient(180deg, #f2f2f2 0 6px, #1a1a1a 6px 12px); box-shadow: 1px 0 0 rgba(0,0,0,.3); }

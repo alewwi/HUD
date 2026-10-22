@@ -1,0 +1,345 @@
+/* =========================================================================
+   СНЫ — ВИДЫ БЛОКА (render/dreams.js, Кастомизация → Блоки: Сны)
+   Модель пишет текст сна и толкование; кому снится, тип сна (кошмар,
+   воспоминание, мечта, просто сон) и образы HUD выводит из текста сам.
+   Цвет типа — --dt; всё стоит столбиком, вбок ничего не листается.
+   ========================================================================= */
+.hud-dv { display: flex; flex-direction: column; gap: 14px; margin-top: 6px; }
+.hud-dv :is(.t-nightmare) { --dt: #e0566b; --dt-bg: rgba(224, 86, 107, .10); }
+.hud-dv :is(.t-memory) { --dt: #d4b98a; --dt-bg: rgba(212, 185, 138, .09); }
+.hud-dv :is(.t-wish) { --dt: #f2cf5b; --dt-bg: rgba(242, 207, 91, .09); }
+.hud-dv :is(.t-dream) { --dt: #8fb2ff; --dt-bg: rgba(143, 178, 255, .09); }
+.hud-dv .hud-v-ico { width: 1.15em; height: 1.15em; flex: none; vertical-align: -.2em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.hud-dv-head { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12.5px; }
+.hud-dv-head > b { font-weight: 650; color: var(--hud-text, #e6e6ee); }
+.hud-dv-face {
+  flex: none; width: 24px; height: 24px; border-radius: 50%; display: inline-grid; place-items: center;
+  font: 700 10px/1 system-ui, sans-serif; font-style: normal; color: #fff;
+  background: hsl(calc(var(--hud-tone-base, 330) + var(--тон, 0)) 45% 42%);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--dt) 45%, transparent);
+}
+.hud-dv-type {
+  display: inline-flex; align-items: center; gap: 4px; margin-left: auto; padding: 1px 8px; border-radius: 999px;
+  font: 600 10.5px/1.6 system-ui, sans-serif; letter-spacing: .05em; text-transform: lowercase;
+  color: var(--dt); background: var(--dt-bg); border: 1px solid color-mix(in srgb, var(--dt) 40%, transparent);
+}
+.hud-dv-motifs { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.hud-dv-motifs > span {
+  display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 4px;
+  font: 500 10.5px/1.6 system-ui, sans-serif; color: color-mix(in srgb, var(--dt) 70%, var(--hud-text, #fff));
+  background: color-mix(in srgb, var(--dt) 8%, transparent); border: 1px dashed color-mix(in srgb, var(--dt) 35%, transparent);
+}
+
+/* --- Облака ---------------------------------------------------------------- */
+.hud-dv-cloud { position: relative; display: flex; flex-direction: column; gap: 6px; }
+.hud-dv-puff {
+  position: relative; margin-top: 18px; padding: 14px 16px 12px; border-radius: 26px 30px 24px 28px;
+  background: radial-gradient(120% 90% at 30% 0%, color-mix(in srgb, var(--dt) 16%, rgba(255,255,255,.06)), rgba(255,255,255,.03) 70%);
+  border: 1px solid color-mix(in srgb, var(--dt) 26%, rgba(255,255,255,.1));
+  box-shadow: 0 6px 18px rgba(0,0,0,.3), inset 0 1px 0 rgba(255,255,255,.08);
+}
+/* Бугры облака сверху. */
+.hud-dv-puff::before, .hud-dv-puff::after {
+  content: ''; position: absolute; top: -12px; border-radius: 50%; pointer-events: none;
+  background: inherit; border: inherit; border-bottom-color: transparent; border-right-color: transparent; border-left-color: transparent;
+}
+.hud-dv-puff::before { left: 18%; width: 46px; height: 30px; }
+.hud-dv-puff::after { left: 46%; width: 60px; height: 36px; top: -16px; }
+.hud-dv-puff p { position: relative; z-index: 1; margin: 0; font: italic 14px/1.55 Georgia, serif; color: var(--hud-text, #ece8f4); }
+.hud-dv-dots { display: flex; gap: 5px; align-items: flex-end; margin-left: 22px; height: 14px; }
+.hud-dv-dots i { display: block; border-radius: 50%; background: color-mix(in srgb, var(--dt) 22%, rgba(255,255,255,.12)); border: 1px solid color-mix(in srgb, var(--dt) 26%, rgba(255,255,255,.1)); }
+.hud-dv-dots i:nth-child(1) { width: 10px; height: 10px; } .hud-dv-dots i:nth-child(2) { width: 7px; height: 7px; } .hud-dv-dots i:nth-child(3) { width: 4px; height: 4px; }
+.hud-dv-note {
+  display: flex; gap: 8px; align-items: flex-start; padding: 8px 12px; border-radius: 4px; transform: rotate(-.4deg);
+  background: color-mix(in srgb, var(--dt) 9%, rgba(0,0,0,.25)); border-left: 3px solid var(--dt);
+  font-size: 12.5px; line-height: 1.5; color: var(--hud-text, #e6e6ee);
+}
+.hud-dv-note .hud-v-ico { color: var(--dt); margin-top: 2px; }
+.hud-dv-note small { display: block; font: 700 9.5px/1.4 system-ui, sans-serif; letter-spacing: .12em; text-transform: uppercase; color: var(--dt); }
+
+/* --- Сонник ------------------------------------------------------------------ */
+.hud-dv-book { gap: 0; padding: 4px 0; border-radius: 6px; background: linear-gradient(180deg, rgba(42,34,26,.55), rgba(26,21,17,.55)); border: 1px solid rgba(212,185,138,.22); }
+.hud-dv-entry { padding: 12px 16px 14px; }
+.hud-dv-entry + .hud-dv-entry { border-top: 1px solid rgba(212,185,138,.16); }
+.hud-dv-entry header { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.hud-dv-word { display: inline-flex; align-items: center; gap: 6px; font: 700 15px/1.3 Georgia, serif; letter-spacing: .14em; text-transform: uppercase; color: var(--dt); }
+.hud-dv-meta { font: italic 11.5px/1.4 Georgia, serif; color: rgba(230,215,185,.6); }
+.hud-dv-see { margin-top: 3px; font: italic 11.5px/1.4 Georgia, serif; color: rgba(230,215,185,.55); }
+.hud-dv-see span { text-decoration: underline dotted; text-underline-offset: 2px; }
+.hud-dv-tale { margin: 8px 0 0; font: 14px/1.6 Georgia, serif; color: rgba(240,230,210,.92); text-indent: 1.2em; }
+.hud-dv-gloss { margin: 8px 0 0; font: 13px/1.55 Georgia, serif; color: rgba(240,230,210,.78); }
+.hud-dv-gloss b { font-variant: small-caps; color: var(--dt); letter-spacing: .04em; }
+.hud-dv-entry .hud-dv-word::first-letter { font-size: 1.25em; }
+
+/* --- Ночное небо --------------------------------------------------------------- */
+.hud-dv-sky {
+  position: relative; overflow: hidden; padding: 14px 16px 14px; border-radius: 12px; cursor: pointer;
+  background: radial-gradient(130% 90% at 85% 0%, color-mix(in srgb, var(--dt) 14%, transparent), transparent 60%), linear-gradient(180deg, #0c1022, #070914);
+  border: 1px solid color-mix(in srgb, var(--dt) 22%, rgba(255,255,255,.08));
+  box-shadow: 0 8px 22px rgba(0,0,0,.4);
+}
+.hud-dv-stars {
+  position: absolute; inset: 0; pointer-events: none; opacity: .75;
+  background:
+    radial-gradient(1px 1px at 12% 22%, #fff, transparent), radial-gradient(1px 1px at 34% 70%, #fff, transparent),
+    radial-gradient(1.5px 1.5px at 58% 18%, #fff, transparent), radial-gradient(1px 1px at 72% 54%, #fff, transparent),
+    radial-gradient(1px 1px at 88% 82%, #fff, transparent), radial-gradient(1.5px 1.5px at 22% 88%, #fff, transparent),
+    radial-gradient(1px 1px at 46% 40%, rgba(255,255,255,.7), transparent), radial-gradient(1px 1px at 94% 30%, rgba(255,255,255,.7), transparent);
+}
+.hud-dv-moon {
+  position: absolute; top: 12px; right: 14px; width: 30px; height: 30px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle at 35% 35%, #fff, var(--dt) 70%);
+  box-shadow: 0 0 18px color-mix(in srgb, var(--dt) 60%, transparent), inset -7px -4px 0 rgba(7,9,20,.55);
+}
+.hud-dv-sky .hud-dv-head { position: relative; padding-right: 40px; }
+.hud-dv-sky .hud-dv-type { margin-left: 0; }
+.hud-dv-sky .hud-dv-tale { position: relative; margin: 10px 0 0; font: italic 14px/1.55 Georgia, serif; color: #e7e9f6; }
+.hud-dv-sky .hud-dv-motifs { position: relative; }
+.hud-dv-fog { position: relative; margin-top: 12px; padding: 10px 12px; border-radius: 8px; background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08); }
+.hud-dv-fog small { display: inline-flex; align-items: center; gap: 4px; font: 700 9.5px/1.4 system-ui, sans-serif; letter-spacing: .12em; text-transform: uppercase; color: var(--dt); }
+.hud-dv-fog p { margin: 4px 0 0; font-size: 13px; line-height: 1.5; color: #dfe2f2; filter: blur(5px); transition: filter .6s ease; }
+.hud-dv-fog-veil {
+  position: absolute; inset: 0; display: grid; place-items: center; border-radius: inherit;
+  font: italic 12px/1.3 Georgia, serif; color: rgba(225,230,255,.75);
+  background: linear-gradient(90deg, rgba(160,170,220,.10), rgba(160,170,220,.18), rgba(160,170,220,.10));
+  transition: opacity .6s ease;
+}
+.hud-dv-sky.is-clear .hud-dv-fog p { filter: none; }
+.hud-dv-sky.is-clear .hud-dv-fog-veil { opacity: 0; pointer-events: none; }
+
+/* --- Ловец снов -------------------------------------------------------------------
+   Обруч плывёт слева, текст обтекает его и уходит под перья. Всё движение —
+   паутина, ветер, капли света — только под курсором или после нажатия
+   (fx-active), как погода и маршрут. */
+.hud-dv-catch {
+  position: relative; display: flow-root; padding: 12px 14px 14px; border-radius: 10px;
+  background: radial-gradient(90% 70% at 0% 0%, var(--dt-bg), transparent 70%), rgba(0,0,0,.18);
+  border: 1px solid color-mix(in srgb, var(--dt) 22%, rgba(255,255,255,.07));
+  box-shadow: 0 6px 18px rgba(0,0,0,.28);
+  --web: color-mix(in srgb, var(--dt) 62%, var(--hud-text, #fff));
+}
+.hud-dv-hoop {
+  float: left; position: relative; width: clamp(54px, 21%, 84px); margin: 0 12px 4px 0;
+  transform-origin: 50% 0;
+}
+.hud-dv-hoop > svg { display: block; width: 100%; overflow: visible; }
+.hud-dv-hoop .ring { fill: none; stroke: #8a6440; stroke-width: 4.2; }
+.hud-dv-hoop .wrap { fill: none; stroke: #c9a274; stroke-width: 4.2; stroke-dasharray: 1.6 2.4; }
+.hud-dv-hoop .web {
+  fill: none; stroke: var(--web); stroke-width: .7; stroke-linejoin: round; opacity: .85;
+  stroke-dasharray: 100; stroke-dashoffset: 0;
+}
+.hud-dv-hoop .bead { fill: var(--dt); filter: drop-shadow(0 0 3px var(--dt)); }
+.hud-dv-hoop .knot circle { fill: rgba(20,6,10,.92); stroke: var(--dt); stroke-width: 1; filter: drop-shadow(0 0 4px rgba(224,86,107,.7)); }
+.hud-dv-hoop .knot path { fill: none; stroke: var(--dt); stroke-width: .9; stroke-linecap: round; opacity: .9; }
+/* Перья висят под обручем на нитях разной длины. */
+.hud-dv-hang { position: relative; margin-top: -6px; padding: 0 8%; display: flex; justify-content: space-evenly; }
+.hud-dv-feather { position: relative; display: flex; flex-direction: column; align-items: center; transform-origin: 50% 0; }
+.hud-dv-feather::before { content: ''; width: 1px; height: 8px; background: color-mix(in srgb, #c9a274 70%, transparent); }
+.hud-dv-feather.f2::before { height: 15px; }
+.hud-dv-feather .hud-dv-bead {
+  display: block; width: 13px; height: 13px; padding: 1.5px; margin-top: -1px; border-radius: 50%; box-sizing: border-box;
+  color: #1a1420; background: color-mix(in srgb, var(--dt) 80%, #fff); stroke-width: 2.4;
+}
+.hud-dv-quill { width: 10px; height: 27px; margin-top: -1px; }
+.hud-dv-quill path:first-child { fill: color-mix(in srgb, var(--dt) 34%, #e9e2d4); stroke: rgba(50,35,30,.4); stroke-width: .6; opacity: .92; }
+.hud-dv-quill path:last-child { fill: none; stroke: rgba(40,30,30,.55); stroke-width: .8; stroke-linecap: round; }
+.hud-dv-catch .hud-dv-type { margin-left: 0; }
+.hud-dv-catch .hud-dv-tale { margin: 8px 0 0; text-indent: 0; font: italic 14px/1.55 Georgia, serif; color: var(--hud-text, #ece8f4); }
+.hud-dv-verdict { margin: 6px 0 0; font: 11.5px/1.4 system-ui, sans-serif; letter-spacing: .02em; color: color-mix(in srgb, var(--dt) 75%, var(--hud-text, #fff)); opacity: .85; }
+.hud-dv-verdict::before { content: '— '; }
+.hud-dv-catch .hud-dv-motifs { clear: none; }
+.hud-dv-catch .hud-dv-note { margin-top: 10px; clear: both; }
+
+/* Нить паутины неспешно прорисовывается заново от обруча к центру — каждый раз,
+   когда ловец трогают (наведение или нажатие), а не сама при открытии. */
+.hud-dv-catch.fx-active .hud-dv-hoop .web { animation: hud-dv-weave 4.2s cubic-bezier(.45,.05,.3,1); }
+@media (hover: hover) and (pointer: fine) { .hud-dv-catch:hover .hud-dv-hoop .web { animation: hud-dv-weave 4.2s cubic-bezier(.45,.05,.3,1); } }
+@keyframes hud-dv-weave { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+.hud-dv-hoop :is(.bead, .knot) { transform-box: fill-box; transform-origin: center; }
+
+/* Ветер: обруч покачивается, перья — каждое в своём ритме; у доброго сна
+   бусина дышит светом, кошмар в сети дёргается. */
+.hud-dv-catch .hud-dv-hoop { animation: hud-dv-sway 4.2s ease-in-out infinite alternate; animation-play-state: paused; }
+.hud-dv-catch .hud-dv-feather { animation: hud-dv-swing 2.6s ease-in-out infinite alternate; animation-play-state: paused; }
+.hud-dv-catch .hud-dv-feather.f2 { animation-duration: 3.1s; animation-delay: -1.2s; }
+.hud-dv-catch .hud-dv-feather.f3 { animation-duration: 2.2s; animation-delay: -.7s; }
+.hud-dv-catch .hud-dv-hoop svg .bead { animation: hud-dv-glow 2.4s ease-in-out infinite alternate; animation-play-state: paused; }
+.hud-dv-catch .hud-dv-hoop svg .knot { animation: hud-dv-twitch 1.4s steps(2, jump-none) infinite; animation-play-state: paused; }
+.hud-dv-catch.fx-active :is(.hud-dv-hoop, .hud-dv-feather, .bead, .knot) { animation-play-state: running; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-dv-catch:hover :is(.hud-dv-hoop, .hud-dv-feather, .bead, .knot) { animation-play-state: running; }
+}
+.hud-dv-catch { cursor: pointer; }
+@keyframes hud-dv-sway { from { rotate: -3deg; } to { rotate: 3deg; } }
+@keyframes hud-dv-swing { from { rotate: 9deg; } to { rotate: -9deg; } }
+@keyframes hud-dv-glow { from { opacity: .65; scale: .85; } to { opacity: 1; scale: 1.25; } }
+@keyframes hud-dv-twitch { 0% { translate: -.6px 0; } 50% { translate: .7px .4px; } 100% { translate: -.3px -.4px; } }
+
+/* =========================================================================
+   ДВИЖЕНИЕ СНОВ — только под курсором или после нажатия
+   -------------------------------------------------------------------------
+   У каждого вида своё движение, а внутри вида — своё у каждого типа сна:
+   кошмар, воспоминание, мечта, просто сон. Пока сон не тронули, всё стоит.
+   Нажатие вешает fx-active (events.js; у неба — вместе с рассеянным
+   туманом), мышь — :hover, только там, где мышь настоящая.
+   ========================================================================= */
+.hud-dv-cloud, .hud-dv-entry { cursor: pointer; }
+
+/* --- Облака: облако плывёт, пузырьки мысли поднимаются по очереди ------- */
+.hud-dv-puff { animation: hud-dv-float 3.6s ease-in-out infinite alternate; animation-play-state: paused; }
+.hud-dv-puff p, .hud-dv-puff .hud-dv-motifs { position: relative; z-index: 1; }
+.hud-dv-dots i { animation: hud-dv-pop 1.8s ease-in-out infinite; animation-play-state: paused; }
+.hud-dv-dots i:nth-child(2) { animation-delay: -.6s; } .hud-dv-dots i:nth-child(1) { animation-delay: -1.2s; }
+.hud-dv-puff .hud-dv-fx { position: absolute; inset: 0; z-index: 0; border-radius: inherit; overflow: hidden; pointer-events: none; }
+.hud-dv-puff .hud-dv-fx::before, .hud-dv-puff .hud-dv-fx::after { content: ''; position: absolute; pointer-events: none; }
+@keyframes hud-dv-float { from { translate: 0 0; } to { translate: 0 -4px; } }
+@keyframes hud-dv-pop { 0%, 100% { scale: 1; opacity: .7; } 30% { scale: 1.4; opacity: 1; } }
+
+/* Кошмар — грозовая туча: темнеет, в углу вспыхивает молния. */
+.hud-dv-cloud.t-nightmare .hud-dv-puff { background: radial-gradient(120% 90% at 30% 0%, rgba(70,40,52,.6), rgba(20,14,20,.7) 70%); }
+.hud-dv-cloud.t-nightmare .hud-dv-fx::before {
+  right: 12%; top: 4px; width: 16px; height: 28px; opacity: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 28'%3E%3Cpath d='M10 0L1 16h6l-3 12 11-17H9z' fill='%23ffe9b0'/%3E%3C/svg%3E") center / contain no-repeat;
+  filter: drop-shadow(0 0 6px rgba(255,220,150,.9));
+}
+.hud-dv-cloud.t-nightmare .hud-dv-fx::after { inset: 0; background: rgba(255,235,220,.22); opacity: 0; }
+.hud-dv-cloud.t-nightmare .hud-dv-fx::before, .hud-dv-cloud.t-nightmare .hud-dv-fx::after { animation: hud-dv-storm 3.4s linear infinite; animation-play-state: paused; }
+@keyframes hud-dv-storm { 0%, 58%, 64%, 68%, 100% { opacity: 0; } 60%, 66% { opacity: 1; } }
+
+.hud-dv-cloud.t-nightmare .hud-dv-puff { box-shadow: 0 8px 22px rgba(0,0,0,.45), inset 0 -10px 18px rgba(224,86,107,.12); }
+
+/* Воспоминание — старая киноплёнка: царапины и зерно дрожат по кадрам. */
+.hud-dv-cloud.t-memory .hud-dv-puff { background: radial-gradient(120% 90% at 30% 0%, rgba(212,185,138,.20), rgba(60,46,30,.25) 70%); }
+.hud-dv-cloud.t-memory .hud-dv-fx::before {
+  inset: 0; opacity: .5;
+  background: linear-gradient(90deg, transparent 22%, rgba(240,225,190,.22) 22.3%, transparent 22.6%), linear-gradient(90deg, transparent 71%, rgba(240,225,190,.16) 71.2%, transparent 71.5%), radial-gradient(rgba(240,225,190,.18) .6px, transparent 1px) 0 0 / 5px 5px;
+  animation: hud-dv-reel .5s steps(3, end) infinite; animation-play-state: paused;
+}
+.hud-dv-cloud.t-memory .hud-dv-fx::after { inset: 0; background: radial-gradient(80% 80% at 50% 50%, transparent 50%, rgba(40,28,14,.35)); }
+@keyframes hud-dv-reel { 0% { background-position: 0 0, 0 0, 0 0; } 33% { background-position: 9px 0, -14px 0, 2px 3px; } 66% { background-position: -6px 0, 8px 0, 4px 1px; } 100% { background-position: 3px 0, -3px 0, 1px 4px; } }
+
+/* Мечта — облако в золотых искрах, они вспыхивают по очереди. */
+.hud-dv-cloud.t-wish .hud-dv-puff { box-shadow: 0 6px 18px rgba(0,0,0,.3), 0 0 22px rgba(242,207,91,.16), inset 0 1px 0 rgba(255,240,190,.18); }
+.hud-dv-cloud.t-wish .hud-dv-fx::before, .hud-dv-cloud.t-wish .hud-dv-fx::after {
+  width: 12px; height: 12px; background: #ffe7a0; opacity: .25;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6z'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 0l2.6 9.4L24 12l-9.4 2.6L12 24l-2.6-9.4L0 12l9.4-2.6z'/%3E%3C/svg%3E") center / contain no-repeat;
+  animation: hud-dv-twinkle 1.6s ease-in-out infinite; animation-play-state: paused;
+}
+.hud-dv-cloud.t-wish .hud-dv-fx::before { right: 10%; top: 8px; }
+.hud-dv-cloud.t-wish .hud-dv-fx::after { right: 24%; bottom: 8px; width: 8px; height: 8px; animation-delay: -.8s; }
+@keyframes hud-dv-twinkle { 0%, 100% { scale: .4; opacity: .2; } 50% { scale: 1.15; opacity: 1; } }
+
+/* Просто сон — из облака всплывают сонные «z». */
+.hud-dv-cloud.t-dream .hud-dv-fx { overflow: visible; }
+.hud-dv-cloud.t-dream .hud-dv-fx::before, .hud-dv-cloud.t-dream .hud-dv-fx::after {
+  content: 'z'; right: 14%; top: 10px; font: italic 700 13px/1 Georgia, serif; color: var(--dt); opacity: .35;
+  animation: hud-dv-zz 2.8s ease-out infinite; animation-play-state: paused;
+}
+.hud-dv-cloud.t-dream .hud-dv-fx::after { content: 'Z'; right: 8%; font-size: 17px; animation-delay: -1.4s; }
+@keyframes hud-dv-zz { 0% { translate: 0 8px; opacity: 0; } 25% { opacity: .9; } 100% { translate: 10px -22px; opacity: 0; } }
+
+.hud-dv-cloud.fx-active :is(.hud-dv-puff, .hud-dv-dots i), .hud-dv-cloud.fx-active .hud-dv-fx::before, .hud-dv-cloud.fx-active .hud-dv-fx::after { animation-play-state: running; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-dv-cloud:hover :is(.hud-dv-puff, .hud-dv-dots i), .hud-dv-cloud:hover .hud-dv-fx::before, .hud-dv-cloud:hover .hud-dv-fx::after { animation-play-state: running; }
+}
+
+/* --- Сонник: ленточка-закладка качается, толкование выделяют маркером,
+       на полях оживает пометка читателя ------------------------------------ */
+.hud-dv-entry { position: relative; }
+.hud-dv-ribbon {
+  position: absolute; top: -4px; right: 18px; width: 11px; height: 36px; z-index: 1; pointer-events: none;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--dt) 70%, #000), var(--dt) 45%, color-mix(in srgb, var(--dt) 80%, #000));
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 78%, 0 100%); transform-origin: 50% 0;
+  box-shadow: 0 2px 3px rgba(0,0,0,.4);
+  animation: hud-dv-ribbon 2.8s ease-in-out infinite alternate; animation-play-state: paused;
+}
+.hud-dv-entry header { padding-right: 26px; }
+.hud-dv-mark { position: absolute; right: 12px; bottom: 10px; width: 22px; height: 22px; color: var(--dt); opacity: .55; pointer-events: none; }
+.hud-dv-mark .hud-v-ico { width: 100%; height: 100%; }
+.hud-dv-entry .hud-dv-tale, .hud-dv-entry .hud-dv-gloss { padding-right: 18px; }
+/* Толкование выделяют маркером — по строчке, слева направо. */
+.hud-dv-hl { background: linear-gradient(transparent 56%, color-mix(in srgb, var(--dt) 30%, transparent) 56%) 0 0 / 0% 100% no-repeat; -webkit-box-decoration-break: clone; box-decoration-break: clone; transition: background-size .9s ease; }
+.hud-dv-entry.t-nightmare .hud-dv-mark { animation: hud-dv-blot 2.6s ease-in-out infinite; animation-play-state: paused; filter: drop-shadow(0 0 4px var(--dt)); }
+.hud-dv-entry.t-memory .hud-dv-mark { transform-origin: 30% 90%; animation: hud-dv-rock 3.4s ease-in-out infinite alternate; animation-play-state: paused; }
+.hud-dv-entry.t-wish .hud-dv-mark { animation: hud-dv-twinkle 1.5s ease-in-out infinite; animation-play-state: paused; filter: drop-shadow(0 0 5px var(--dt)); }
+.hud-dv-entry.t-dream .hud-dv-mark { transform-origin: 50% 100%; animation: hud-dv-rock 4s ease-in-out infinite alternate; animation-play-state: paused; }
+@keyframes hud-dv-ribbon { from { rotate: -5deg; } to { rotate: 6deg; } }
+@keyframes hud-dv-blot { 0%, 100% { scale: .85; opacity: .45; } 50% { scale: 1.3; opacity: .9; } }
+@keyframes hud-dv-rock { from { rotate: -14deg; } to { rotate: 12deg; } }
+.hud-dv-entry.fx-active :is(.hud-dv-ribbon, .hud-dv-mark) { animation-play-state: running; }
+.hud-dv-entry.fx-active .hud-dv-hl { background-size: 100% 100%; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-dv-entry:hover :is(.hud-dv-ribbon, .hud-dv-mark) { animation-play-state: running; }
+  .hud-dv-entry:hover .hud-dv-hl { background-size: 100% 100%; }
+}
+
+/* --- Ночное небо: звёзды мерцают, луна светится; у кошмара по луне ползёт
+       туча, у воспоминания проступает созвездие, у мечты падают звёзды,
+       у сна медленно плывёт второе звёздное поле ----------------------------- */
+.hud-dv-stars { animation: hud-dv-stars 2.2s ease-in-out infinite alternate; animation-play-state: paused; }
+.hud-dv-moon { animation: hud-dv-moon 3s ease-in-out infinite alternate; animation-play-state: paused; }
+.hud-dv-sky .hud-dv-fx { position: absolute; inset: 0; pointer-events: none; overflow: hidden; border-radius: inherit; }
+.hud-dv-sky .hud-dv-fx::before, .hud-dv-sky .hud-dv-fx::after { content: ''; position: absolute; pointer-events: none; }
+@keyframes hud-dv-stars { from { opacity: .45; } to { opacity: 1; } }
+@keyframes hud-dv-moon { from { scale: 1; } to { scale: 1.08; } }
+
+.hud-dv-sky.t-nightmare .hud-dv-fx::before {
+  top: 4px; right: 6px; width: 58px; height: 26px; border-radius: 50%;
+  background: radial-gradient(circle at 30% 60%, rgba(30,20,30,.95) 0 9px, transparent 10px), radial-gradient(circle at 55% 45%, rgba(30,20,30,.95) 0 12px, transparent 13px), radial-gradient(circle at 78% 62%, rgba(30,20,30,.95) 0 8px, transparent 9px);
+  translate: 40px 0; animation: hud-dv-cloudpass 6s ease-in-out infinite; animation-play-state: paused;
+}
+@keyframes hud-dv-cloudpass { 0%, 100% { translate: 44px 4px; } 50% { translate: -24px 4px; } }
+.hud-dv-sky.t-memory .hud-dv-fx::before {
+  left: 10%; top: 12%; width: 46%; height: 60%; opacity: .2;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 60' fill='none' stroke='%23e8dcc0' stroke-width='.8'%3E%3Cpath d='M4 50L22 30L40 38L58 12L80 20L96 6'/%3E%3Cg fill='%23fff' stroke='none'%3E%3Ccircle cx='4' cy='50' r='1.6'/%3E%3Ccircle cx='22' cy='30' r='1.6'/%3E%3Ccircle cx='40' cy='38' r='1.6'/%3E%3Ccircle cx='58' cy='12' r='2'/%3E%3Ccircle cx='80' cy='20' r='1.6'/%3E%3Ccircle cx='96' cy='6' r='1.6'/%3E%3C/g%3E%3C/svg%3E") center / contain no-repeat;
+  animation: hud-dv-constellation 3.2s ease-in-out infinite alternate; animation-play-state: paused;
+}
+@keyframes hud-dv-constellation { from { opacity: .15; } to { opacity: .85; } }
+.hud-dv-sky.t-wish .hud-dv-fx::before, .hud-dv-sky.t-wish .hud-dv-fx::after {
+  top: 6%; right: 8%; width: 70px; height: 1.5px; border-radius: 2px; opacity: 0;
+  background: linear-gradient(90deg, rgba(255,240,200,0), #fff8e0); rotate: -24deg; transform-origin: 100% 50%;
+  animation: hud-dv-shoot 3.6s ease-in infinite; animation-play-state: paused;
+}
+.hud-dv-sky.t-wish .hud-dv-fx::after { top: 30%; right: 30%; width: 46px; animation-delay: -1.7s; }
+@keyframes hud-dv-shoot { 0%, 55% { translate: 0 0; opacity: 0; } 58% { opacity: 1; } 75% { translate: -140px 62px; opacity: 0; } 100% { opacity: 0; } }
+.hud-dv-sky.t-dream .hud-dv-fx::before {
+  inset: -20px; opacity: .6;
+  background: radial-gradient(1px 1px at 18% 30%, #cfe0ff, transparent), radial-gradient(1.5px 1.5px at 62% 74%, #cfe0ff, transparent), radial-gradient(1px 1px at 84% 22%, #cfe0ff, transparent), radial-gradient(1px 1px at 40% 58%, #cfe0ff, transparent), radial-gradient(1.5px 1.5px at 8% 82%, #cfe0ff, transparent);
+  animation: hud-dv-drift 9s linear infinite alternate; animation-play-state: paused;
+}
+@keyframes hud-dv-drift { from { translate: -12px 0; } to { translate: 14px -6px; } }
+
+.hud-dv-sky.fx-active :is(.hud-dv-stars, .hud-dv-moon), .hud-dv-sky.fx-active .hud-dv-fx::before, .hud-dv-sky.fx-active .hud-dv-fx::after { animation-play-state: running; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-dv-sky:hover :is(.hud-dv-stars, .hud-dv-moon), .hud-dv-sky:hover .hud-dv-fx::before, .hud-dv-sky:hover .hud-dv-fx::after { animation-play-state: running; }
+}
+
+/* --- Ловец: у доброго сна по перьям стекают капли света, у кошмара сеть
+       дрожит, воспоминание качается медленно и выцветшим ------------------- */
+.hud-dv-catch:not(.t-nightmare) .hud-dv-feather::after {
+  content: ''; position: absolute; top: 0; left: 50%; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%;
+  background: #fff; box-shadow: 0 0 5px var(--dt), 0 0 2px #fff; opacity: 0;
+  animation: hud-dv-dropdown 2.4s ease-in infinite; animation-play-state: paused;
+}
+.hud-dv-catch .hud-dv-feather.f2::after { animation-delay: -.9s; } .hud-dv-catch .hud-dv-feather.f3::after { animation-delay: -1.6s; }
+@keyframes hud-dv-dropdown { 0% { translate: 0 0; opacity: 0; } 15% { opacity: 1; } 85% { opacity: .9; } 100% { translate: 0 44px; opacity: 0; } }
+.hud-dv-catch.t-nightmare .hud-dv-hoop { animation: hud-dv-shiver .22s linear infinite alternate; animation-play-state: paused; }
+.hud-dv-catch.t-nightmare.fx-active .hud-dv-hoop { animation-play-state: running; }
+@media (hover: hover) and (pointer: fine) { .hud-dv-catch.t-nightmare:hover .hud-dv-hoop { animation-play-state: running; } }
+@keyframes hud-dv-shiver { from { rotate: -1.2deg; translate: -.5px 0; } to { rotate: 1.4deg; translate: .6px 0; } }
+.hud-dv-catch.t-memory .hud-dv-hoop { animation-duration: 6.5s; }
+.hud-dv-catch.t-memory .hud-dv-hang { filter: sepia(.6) saturate(.8); }
+.hud-dv-catch.fx-active .hud-dv-feather::after { animation-play-state: running; }
+@media (hover: hover) and (pointer: fine) { .hud-dv-catch:hover .hud-dv-feather::after { animation-play-state: running; } }
+
+/* Без движения — по просьбе системы. */
+@media (prefers-reduced-motion: reduce) {
+  .hud-dv-fog p, .hud-dv-fog-veil { transition: none; }
+  .hud-dv-catch :is(.hud-dv-hoop, .hud-dv-feather, .web, .bead, .knot), .hud-dv-feather::after, .hud-dv-puff, .hud-dv-dots i, .hud-dv-fx::before, .hud-dv-fx::after,
+  .hud-dv-ribbon, .hud-dv-mark, .hud-dv-stars, .hud-dv-moon { animation: none !important; }
+  .hud-dv-hl { transition: none; }
+}
+/* Небо тёмное в любой теме: имя — светлое, а не чернилами светлой темы. */
+.hud-dv-sky .hud-dv-head > b { color: #eceef8; }

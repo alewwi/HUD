@@ -2202,23 +2202,6 @@
   box-shadow: 0 1px 3px rgba(0,0,0,.25);
 }
 
-.hud-diary-entry.hud-diary-mood-sad {
-    background: linear-gradient(180deg, rgba(19, 18, 25, 0.95), rgba(25, 20, 24, 0.95)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.06) 25px, rgba(255,255,255,0.06) 26px);
-    transform: rotate(-0.35deg) scale(1.002);
-    filter: saturate(0.8) brightness(0.98);
-    box-shadow: 0 5px 18px rgba(0,0,0,0.34), inset 0 0 24px rgba(120, 160, 220, 0.08);
-}
-.hud-diary-entry.hud-diary-mood-sad::after {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background: radial-gradient(circle at 8% 18%, rgba(166, 208, 255, 0.18), transparent 14%),
-                radial-gradient(circle at 86% 68%, rgba(166, 208, 255, 0.14), transparent 15%),
-                radial-gradient(circle at 16% 82%, rgba(166, 208, 255, 0.11), transparent 12%);
-}
-.hud-diary-entry.hud-diary-mood-sad .hud-diary-text,
-.hud-diary-entry.hud-diary-mood-sad .hud-diary-about-user {
-    filter: blur(0.16px);
-    text-shadow: 0 0 0.5px rgba(255,255,255,0.22);
-}
 
 .hud-diary-entry.hud-diary-mood-angry {
     background: linear-gradient(180deg, rgba(28, 18, 18, 0.96), rgba(22, 17, 15, 0.96)), repeating-linear-gradient(transparent, transparent 22px, rgba(255,255,255,0.06) 22px, rgba(255,255,255,0.06) 23px);
@@ -2266,7 +2249,6 @@
 }
 
 .hud-diary-entry.hud-diary-mood-neutral .hud-diary-sticker { background: rgba(248, 248, 255, 0.9); }
-.hud-diary-entry.hud-diary-mood-sad .hud-diary-sticker { background: rgba(191, 219, 255, 0.82); }
 .hud-diary-entry.hud-diary-mood-angry .hud-diary-sticker { background: rgba(255, 214, 191, 0.87); }
 .hud-diary-entry.hud-diary-mood-panic .hud-diary-sticker { background: rgba(255, 233, 160, 0.82); }
 
@@ -2277,26 +2259,6 @@
    Движение (дрожь, золотой блик) заморожено до тапа или наведения —
    тот же уговор, что и во всём остальном HUD. */
 
-/* Вина: лист тяжёлый и придавленный, сверху лежит тень, на бумаге
-   расплылась и осталась несмытая клякса. */
-.hud-diary-entry.hud-diary-mood-guilt {
-    background: linear-gradient(180deg, rgba(26,21,19,0.96), rgba(18,15,14,0.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.05) 25px, rgba(255,255,255,0.05) 26px);
-    border-left-color: #8a5a44;
-    transform: rotate(0.3deg);
-    filter: saturate(0.85) brightness(0.94);
-    box-shadow: 0 3px 10px rgba(0,0,0,0.45), inset 0 12px 20px -10px rgba(0,0,0,0.75), inset 0 0 18px rgba(120,70,45,0.10);
-}
-.hud-diary-entry.hud-diary-mood-guilt::before { background: rgba(138, 90, 68, 0.45); }
-.hud-diary-entry.hud-diary-mood-guilt::after {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background:
-        radial-gradient(ellipse 34px 22px at 72% 62%, rgba(40,24,18,0.55), transparent 70%),
-        radial-gradient(ellipse 12px 9px at 62% 76%, rgba(40,24,18,0.40), transparent 72%),
-        radial-gradient(120% 60% at 50% 0%, rgba(0,0,0,0.35), transparent 60%);
-}
-.hud-diary-entry.hud-diary-mood-guilt .hud-diary-text,
-.hud-diary-entry.hud-diary-mood-guilt .hud-diary-about-user { filter: blur(0.2px); opacity: 0.92; }
-.hud-diary-entry.hud-diary-mood-guilt .hud-diary-sticker { background: rgba(198, 168, 148, 0.82); }
 
 /* Апатия: плоский обесцвеченный лист без тени. Ни наклона, ни бликов —
    писать не хотелось. */
@@ -2409,26 +2371,6 @@
 .hud-diary-entry.hud-diary-mood-cold .hud-diary-text::first-letter { color: #b9d6ee; text-shadow: none; }
 .hud-diary-entry.hud-diary-mood-cold .hud-diary-sticker { background: rgba(206, 226, 244, 0.80); }
 
-/* Презрение и ненависть: тёмно-багровый лист, наискось через запись
-   проходит резкий росчерк. */
-.hud-diary-entry.hud-diary-mood-contempt {
-    background: linear-gradient(180deg, rgba(26,14,17,0.97), rgba(17,11,13,0.97)), repeating-linear-gradient(transparent, transparent 24px, rgba(255,255,255,0.05) 24px, rgba(255,255,255,0.05) 25px);
-    border-left-color: #a51d3a;
-    transform: rotate(-0.5deg);
-    filter: contrast(1.08) saturate(0.90);
-    box-shadow: 0 6px 18px rgba(0,0,0,0.45), inset 0 0 22px rgba(165,29,58,0.14);
-}
-.hud-diary-entry.hud-diary-mood-contempt::before { background: rgba(165, 29, 58, 0.60); }
-.hud-diary-entry.hud-diary-mood-contempt::after {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background:
-        linear-gradient(101deg, transparent calc(50% - 1px), rgba(214,96,118,0.34) 50%, transparent calc(50% + 1.2px)),
-        linear-gradient(101deg, transparent calc(64% - 1px), rgba(214,96,118,0.18) 64%, transparent calc(64% + 1px)),
-        radial-gradient(60% 90% at 100% 50%, rgba(120,16,36,0.28), transparent 72%);
-}
-.hud-diary-entry.hud-diary-mood-contempt .hud-diary-text,
-.hud-diary-entry.hud-diary-mood-contempt .hud-diary-about-user { letter-spacing: -0.1px; color: rgba(242, 220, 224, 0.94); }
-.hud-diary-entry.hud-diary-mood-contempt .hud-diary-sticker { background: rgba(226, 176, 186, 0.85); }
 
 /* Раздражение: тёплый лист и злая короткая штриховка в углу. */
 .hud-diary-entry.hud-diary-mood-irritation {
@@ -2553,87 +2495,9 @@
 .hud-diary-entry.hud-diary-mood-love .hud-diary-text::first-letter { color: #ffb3c4; text-shadow: 0 2px 10px rgba(255,140,170,0.40); }
 .hud-diary-entry.hud-diary-mood-love .hud-diary-sticker { background: rgba(255, 214, 224, 0.90); }
 
-/* Смущение и стыд: по бумаге разлился румянец, лист чуть съёжился и
-   отвёрнут, уголок загнут сильнее — запись прячется. */
-.hud-diary-entry.hud-diary-mood-shame {
-    background: linear-gradient(180deg, rgba(28,23,21,0.96), rgba(21,17,16,0.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.05) 25px, rgba(255,255,255,0.05) 26px);
-    border-left-color: #ef8a63;
-    transform: rotate(0.8deg) scale(0.994);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.34), inset 0 0 20px rgba(226,114,91,0.12);
-}
-.hud-diary-entry.hud-diary-mood-shame::before { background: rgba(226, 114, 91, 0.50); }
-.hud-diary-entry.hud-diary-mood-shame::after {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background:
-        radial-gradient(ellipse 52px 30px at 26% 62%, rgba(238,120,86,0.30), transparent 70%),
-        radial-gradient(ellipse 42px 24px at 72% 40%, rgba(238,120,86,0.22), transparent 70%),
-        radial-gradient(ellipse 26px 16px at 50% 90%, rgba(238,120,86,0.14), transparent 72%);
-}
-.hud-diary-entry.hud-diary-mood-shame .hud-diary-text,
-.hud-diary-entry.hud-diary-mood-shame .hud-diary-about-user { font-size: 0.9em; opacity: 0.93; }
-.hud-diary-entry.hud-diary-mood-shame .hud-diary-curl { width: 34px; height: 34px; }
-.hud-diary-entry.hud-diary-mood-shame .hud-diary-sticker { background: rgba(250, 200, 186, 0.85); }
 
-/* Одержимость: одно и то же выведено поверх снова и снова, а виньетка
-   стягивает лист к центру. Регулярность узора здесь как раз к месту —
-   это и есть навязчивость. */
-.hud-diary-entry.hud-diary-mood-obsession {
-    background: linear-gradient(180deg, rgba(22,14,26,0.97), rgba(15,10,18,0.97)), repeating-linear-gradient(transparent, transparent 23px, rgba(255,255,255,0.05) 23px, rgba(255,255,255,0.05) 24px);
-    border-left-color: #8e4fd0;
-    transform: rotate(-0.3deg);
-    box-shadow: 0 6px 20px rgba(0,0,0,0.50), inset 0 0 40px rgba(0,0,0,0.55), inset 0 0 18px rgba(142,79,208,0.16);
-}
-.hud-diary-entry.hud-diary-mood-obsession::before { background: rgba(142, 79, 208, 0.60); }
-.hud-diary-entry.hud-diary-mood-obsession::after {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background:
-        repeating-linear-gradient(91deg, rgba(186,140,240,0.13) 0 1px, transparent 1px 5px),
-        repeating-linear-gradient(0deg, transparent 0 12px, rgba(186,140,240,0.10) 12px 13px),
-        radial-gradient(72% 72% at 50% 50%, transparent 38%, rgba(0,0,0,0.45) 100%);
-}
-.hud-diary-entry.hud-diary-mood-obsession .hud-diary-sticker { background: rgba(214, 186, 246, 0.85); }
 
-/* Зависимость: запись держится не на одном поле, а на двух, и по низу
-   тянутся две переплетённые нити. */
-.hud-diary-entry.hud-diary-mood-codependency {
-    background: linear-gradient(180deg, rgba(18,20,30,0.96), rgba(15,17,25,0.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.05) 25px, rgba(255,255,255,0.05) 26px);
-    border-left-color: #6f7fd6;
-    box-shadow: 0 4px 14px rgba(0,0,0,0.34), inset 14px 0 22px -16px rgba(111,127,214,0.55);
-}
-.hud-diary-entry.hud-diary-mood-codependency::before {
-    background: rgba(111, 127, 214, 0.50);
-    box-shadow: 4px 0 0 rgba(111, 127, 214, 0.26);
-}
-.hud-diary-entry.hud-diary-mood-codependency::after {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background:
-        repeating-linear-gradient(90deg, rgba(158,176,255,0.42) 0 6px, transparent 6px 12px),
-        repeating-linear-gradient(90deg, transparent 0 6px, rgba(158,176,255,0.26) 6px 12px);
-    background-size: 100% 2.5px, 100% 2.5px;
-    background-position: 0 calc(100% - 8px), 0 calc(100% - 5px);
-    background-repeat: no-repeat;
-}
-.hud-diary-entry.hud-diary-mood-codependency .hud-diary-sticker { background: rgba(196, 206, 246, 0.82); }
 
-/* Ревность: зелень натекает справа, лист повёрнут вполоборота, правая
-   сторона в тени — взгляд искоса. */
-.hud-diary-entry.hud-diary-mood-jealousy {
-    background: linear-gradient(115deg, rgba(16,26,18,0.97), rgba(22,30,20,0.97) 62%, rgba(14,20,14,0.97)), repeating-linear-gradient(transparent, transparent 25px, rgba(190,255,200,0.05) 25px, rgba(190,255,200,0.05) 26px);
-    border-left-color: #5fbf72;
-    transform: rotate(-0.45deg) skewY(-0.3deg);
-    filter: saturate(1.10);
-    box-shadow: 0 5px 16px rgba(0,0,0,0.40), inset -26px 0 34px -26px rgba(0,0,0,0.75), inset 0 0 18px rgba(95,191,114,0.10);
-}
-.hud-diary-entry.hud-diary-mood-jealousy::before { background: rgba(95, 191, 114, 0.55); }
-.hud-diary-entry.hud-diary-mood-jealousy::after {
-    content: ''; position: absolute; inset: 0; pointer-events: none;
-    background:
-        radial-gradient(70% 100% at 104% 50%, rgba(70,170,90,0.24), transparent 70%),
-        radial-gradient(circle at 34% 30%, rgba(140,220,150,0.08), transparent 34%);
-}
-.hud-diary-entry.hud-diary-mood-jealousy .hud-diary-text,
-.hud-diary-entry.hud-diary-mood-jealousy .hud-diary-about-user { letter-spacing: -0.05px; }
-.hud-diary-entry.hud-diary-mood-jealousy .hud-diary-sticker { background: rgba(196, 236, 200, 0.85); }
 
 /* Брезгливость: болезненная жёлто-зелёная бумага в липких разводах,
    лист заметно отодвинут от читателя. */
@@ -2786,6 +2650,181 @@
     to   { background-position: 0 160%; }
 }
 .hud-diary-entry.hud-diary-mood-peace .hud-diary-sticker { background: rgba(198, 234, 232, 0.85); }
+
+/* --- Штамп настроения (render/diary.js, штампНастроения) ----------------------
+   При тридцати семи темах цвет бумаги один их не различает: штамп рядом с
+   датой несёт значок темы и само слово модели. Цвет темы — --dm. */
+.hud-diary-entry { --dm: #a8a5ad; }
+.hud-diary-stamp {
+    display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; vertical-align: 1px;
+    padding: 1px 7px 1px 5px; border-radius: 3px; max-width: 62%;
+    font: 600 10px/1.5 system-ui, sans-serif; letter-spacing: .04em; text-transform: lowercase;
+    color: var(--dm); border: 1px solid color-mix(in srgb, var(--dm) 55%, transparent);
+    background: color-mix(in srgb, var(--dm) 12%, transparent);
+    transform: rotate(-1.5deg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--dm) 14%, transparent);
+}
+.hud-diary-stamp > span { overflow: hidden; text-overflow: ellipsis; }
+.hud-diary-stamp-ico { width: 1.15em; height: 1.15em; flex: none; vertical-align: 0; }
+.hud-diary-entry .hud-diary-text::first-letter { color: var(--dm-letter, var(--hud-accent-text, var(--hud-accent))); }
+
+/* Цвет каждой темы — штамп, буквица новых тем. */
+.hud-diary-mood-neutral { --dm: #9fb0c4; } .hud-diary-mood-peace { --dm: #78c2c0; }
+.hud-diary-mood-joy { --dm: #f2cf5b; } .hud-diary-mood-relief { --dm: #7fdcaa; }
+.hud-diary-mood-triumph { --dm: #e5b64b; } .hud-diary-mood-love { --dm: #f08fb0; }
+.hud-diary-mood-devotion { --dm: #8fb4e8; } .hud-diary-mood-cozy { --dm: #f0a868; }
+.hud-diary-mood-lust { --dm: #ff5c8e; } .hud-diary-mood-obsession { --dm: #8f4dff; }
+.hud-diary-mood-codependency { --dm: #c886b6; } .hud-diary-mood-jealousy { --dm: #39ff14; }
+.hud-diary-mood-realization { --dm: #6fd0ff; } .hud-diary-mood-collapse { --dm: #b0a9a4; }
+.hud-diary-mood-shame { --dm: #ffcc00; } .hud-diary-mood-guilt { --dm: #a9cde0; }
+.hud-diary-mood-disgust { --dm: #a8b03c; } .hud-diary-mood-contempt { --dm: #d6d9e3; }
+.hud-diary-mood-irritation { --dm: #ff9a3c; } .hud-diary-mood-nervous { --dm: #e8e07a; }
+.hud-diary-mood-panic { --dm: #ff6be0; } .hud-diary-mood-angry { --dm: #ff6b5b; }
+.hud-diary-mood-disappointment { --dm: #b9a48a; } .hud-diary-mood-apathy { --dm: #8d8d94; }
+.hud-diary-mood-bored { --dm: #c2b46a; } .hud-diary-mood-cold { --dm: #a8dcff; }
+.hud-diary-mood-sad { --dm: #4a98bf; }
+.hud-diary-mood-longing { --dm: #a99cf0; } .hud-diary-mood-control { --dm: #3ad07a; }
+.hud-diary-mood-madness { --dm: #ff4fd8; } .hud-diary-mood-calc { --dm: #4fd1e8; }
+.hud-diary-mood-resolve { --dm: #4f7cff; } .hud-diary-mood-thrill { --dm: #ffb02e; }
+.hud-diary-mood-irony { --dm: #e0895a; } .hud-diary-mood-respect { --dm: #e8d7a8; }
+.hud-diary-mood-curiosity { --dm: #4fe0b0; } .hud-diary-mood-stress { --dm: #e8642a; }
+.hud-diary-mood-embarrassment { --dm: #ffb0c8; } .hud-diary-mood-tenderness { --dm: #ffd1dc; } .hud-diary-mood-protection { --dm: #3fb8ff; }
+
+/* --- Похожие пары развели ------------------------------------------------------
+   Сравнение всех листов рядом (tests/tools/diary-stand.html): стыд, вина,
+   раздражение, отвращение и нервы были одним бурым листом; радость, триумф и
+   уют — одним золотым; разочарование, апатия и холод — одним серым. */
+.hud-diary-entry.hud-diary-mood-disgust {
+    background: linear-gradient(180deg, rgba(26,30,14,0.96), rgba(20,22,12,0.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(210,230,120,0.05) 25px, rgba(210,230,120,0.05) 26px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.38), inset 0 0 30px rgba(170,200,60,0.16);
+}
+.hud-diary-entry.hud-diary-mood-irritation {
+    background: linear-gradient(180deg, rgba(36,22,12,0.96), rgba(26,17,10,0.96)), repeating-linear-gradient(transparent, transparent 23px, rgba(255,170,90,0.06) 23px, rgba(255,170,90,0.06) 24px);
+}
+.hud-diary-entry.hud-diary-mood-triumph { box-shadow: 0 6px 18px rgba(0,0,0,0.36), inset 0 0 0 1px rgba(229,182,75,0.55), inset 0 0 0 4px rgba(20,14,6,0.6), inset 0 0 0 5px rgba(229,182,75,0.28); }
+.hud-diary-entry.hud-diary-mood-joy {
+    background: radial-gradient(circle at 96% 4%, rgba(255,226,120,0.26), transparent 34%), linear-gradient(180deg, rgba(34,30,16,0.95), rgba(26,22,14,0.95)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,240,180,0.06) 25px, rgba(255,240,180,0.06) 26px);
+}
+.hud-diary-entry.hud-diary-mood-cold {
+    background: linear-gradient(180deg, rgba(16,24,34,0.96), rgba(13,19,27,0.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(190,225,255,0.06) 25px, rgba(190,225,255,0.06) 26px);
+    box-shadow: 0 4px 14px rgba(0,0,0,0.36), inset 0 0 0 1px rgba(168,220,255,0.18), inset 0 0 26px rgba(150,205,255,0.12);
+}
+.hud-diary-entry.hud-diary-mood-disappointment {
+    background: linear-gradient(180deg, rgba(30,26,21,0.95), rgba(20,18,16,0.98)), repeating-linear-gradient(transparent, transparent 25px, rgba(220,200,170,0.05) 25px, rgba(220,200,170,0.05) 26px);
+    transform: rotate(-0.6deg);
+}
+.hud-diary-entry.hud-diary-mood-relief {
+    background: linear-gradient(180deg, rgba(16,30,24,0.95), rgba(14,24,20,0.95)), repeating-linear-gradient(transparent, transparent 25px, rgba(170,240,200,0.06) 25px, rgba(170,240,200,0.06) 26px);
+}
+
+/* --- Новые темы ------------------------------------------------------------------ */
+
+/* Тоска: лист в дождевых потёках, низ выцветает — как запотевшее окно. */
+.hud-diary-entry.hud-diary-mood-longing {
+    background: linear-gradient(180deg, rgba(24,22,38,0.95), rgba(18,17,28,0.97)), repeating-linear-gradient(transparent, transparent 25px, rgba(200,190,255,0.05) 25px, rgba(200,190,255,0.05) 26px);
+    border-left-color: #a99cf0; transform: rotate(-0.25deg);
+    box-shadow: 0 5px 16px rgba(0,0,0,0.34), inset 0 -30px 30px -20px rgba(169,156,240,0.12);
+}
+.hud-diary-entry.hud-diary-mood-longing::before { background: rgba(169,156,240,0.5); }
+.hud-diary-entry.hud-diary-mood-longing::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        linear-gradient(180deg, rgba(200,195,255,0.30), transparent 70%) 18% 0 / 1px 60% no-repeat,
+        linear-gradient(180deg, rgba(200,195,255,0.24), transparent 80%) 47% 0 / 1px 82% no-repeat,
+        linear-gradient(180deg, rgba(200,195,255,0.28), transparent 60%) 73% 0 / 1px 48% no-repeat,
+        linear-gradient(180deg, rgba(200,195,255,0.22), transparent 75%) 88% 0 / 1px 70% no-repeat;
+}
+.hud-diary-entry.hud-diary-mood-longing .hud-diary-text { opacity: .9; }
+.hud-diary-entry.hud-diary-mood-longing .hud-diary-sticker { background: rgba(214,206,255,0.88); }
+
+
+/* Надлом: лист пересекают трещины, буквы двоятся красным и голубым. */
+.hud-diary-entry.hud-diary-mood-madness {
+    background: linear-gradient(180deg, rgba(28,16,30,0.96), rgba(18,14,24,0.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,255,255,0.05) 25px, rgba(255,255,255,0.05) 26px);
+    border-left-color: #ff4fd8; transform: rotate(0.8deg) skewY(-0.4deg);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.4), inset 0 0 26px rgba(255,79,216,0.12);
+}
+.hud-diary-entry.hud-diary-mood-madness::before { background: rgba(255,79,216,0.55); }
+.hud-diary-entry.hud-diary-mood-madness::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        linear-gradient(118deg, transparent 49.6%, rgba(255,140,230,0.28) 49.8%, rgba(255,140,230,0.28) 50.1%, transparent 50.3%),
+        linear-gradient(62deg, transparent 70.6%, rgba(140,230,255,0.22) 70.8%, rgba(140,230,255,0.22) 71%, transparent 71.2%),
+        linear-gradient(160deg, transparent 22.7%, rgba(255,140,230,0.18) 22.9%, rgba(255,140,230,0.18) 23.1%, transparent 23.3%);
+}
+.hud-diary-entry.hud-diary-mood-madness .hud-diary-text { text-shadow: -1px 0 rgba(255,60,120,0.55), 1px 0 rgba(60,220,255,0.5); }
+.hud-diary-entry.hud-diary-mood-madness .hud-diary-sticker { background: rgba(255,190,240,0.9); transform: rotate(8deg); }
+
+/* Расчёт: чертёжная калька — тёмно-синяя, с мелкой и крупной сеткой. */
+.hud-diary-entry.hud-diary-mood-calc {
+    background: linear-gradient(180deg, rgba(10,24,36,0.96), rgba(8,18,28,0.97)),
+        repeating-linear-gradient(0deg, transparent 0 9px, rgba(79,209,232,0.06) 9px 10px),
+        repeating-linear-gradient(90deg, transparent 0 9px, rgba(79,209,232,0.06) 9px 10px);
+    border-left-color: #4fd1e8; transform: none; border-radius: 3px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 0 0 1px rgba(79,209,232,0.16);
+}
+.hud-diary-entry.hud-diary-mood-calc::before { background: rgba(79,209,232,0.6); }
+.hud-diary-entry.hud-diary-mood-calc::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        repeating-linear-gradient(0deg, transparent 0 49px, rgba(79,209,232,0.10) 49px 50px),
+        repeating-linear-gradient(90deg, transparent 0 49px, rgba(79,209,232,0.10) 49px 50px);
+}
+.hud-diary-entry.hud-diary-mood-calc .hud-diary-sticker { background: rgba(190,240,250,0.9); }
+
+
+/* Азарт: косые гоночные полосы по краю и лист, чуть подавшийся вперёд. */
+.hud-diary-entry.hud-diary-mood-thrill {
+    background: linear-gradient(180deg, rgba(34,22,10,0.96), rgba(24,16,10,0.96)), repeating-linear-gradient(transparent, transparent 24px, rgba(255,200,120,0.06) 24px, rgba(255,200,120,0.06) 25px);
+    border-left-color: #ffb02e; transform: rotate(-0.9deg) skewX(-1deg);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.38), inset 0 0 22px rgba(255,176,46,0.12);
+}
+.hud-diary-entry.hud-diary-mood-thrill::before { background: rgba(255,176,46,0.6); }
+.hud-diary-entry.hud-diary-mood-thrill::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background: repeating-linear-gradient(-55deg, rgba(255,176,46,0.16) 0 6px, transparent 6px 14px) right top / 46px 100% no-repeat;
+    -webkit-mask: linear-gradient(90deg, transparent, #000 60%); mask: linear-gradient(90deg, transparent, #000 60%);
+}
+.hud-diary-entry.hud-diary-mood-thrill .hud-diary-sticker { background: rgba(255,214,140,0.92); }
+
+
+/* Уважение: двойная тонкая рамка, как у почётной грамоты. */
+.hud-diary-entry.hud-diary-mood-respect {
+    background: linear-gradient(180deg, rgba(30,27,22,0.96), rgba(22,20,17,0.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(255,240,200,0.05) 25px, rgba(255,240,200,0.05) 26px);
+    border-left-color: #e8d7a8; transform: none;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.36), inset 0 0 0 4px rgba(22,20,17,0.9), inset 0 0 0 5px rgba(232,215,168,0.4), inset 0 0 0 8px rgba(22,20,17,0.9), inset 0 0 0 9px rgba(232,215,168,0.22);
+}
+.hud-diary-entry.hud-diary-mood-respect::before { background: rgba(232,215,168,0.55); }
+.hud-diary-entry.hud-diary-mood-respect .hud-diary-sticker { background: rgba(244,234,204,0.94); }
+
+/* Любопытство: луч лупы — светлый круг на тёмном листе. */
+.hud-diary-entry.hud-diary-mood-curiosity {
+    background: radial-gradient(circle at 78% 38%, rgba(79,224,176,0.16) 0 46px, rgba(79,224,176,0.28) 47px, transparent 49px), linear-gradient(180deg, rgba(14,28,26,0.96), rgba(12,20,19,0.96)), repeating-linear-gradient(transparent, transparent 25px, rgba(170,255,225,0.05) 25px, rgba(170,255,225,0.05) 26px);
+    border-left-color: #4fe0b0; transform: rotate(-0.3deg);
+    box-shadow: 0 5px 14px rgba(0,0,0,0.36);
+}
+.hud-diary-entry.hud-diary-mood-curiosity::before { background: rgba(79,224,176,0.55); }
+.hud-diary-entry.hud-diary-mood-curiosity .hud-diary-sticker { background: rgba(190,250,228,0.92); }
+
+/* Напряжение: строки сжаты теснее, края давит тёмная виньетка, лист чуть приплюснут. */
+.hud-diary-entry.hud-diary-mood-stress {
+    background: linear-gradient(180deg, rgba(34,20,12,0.96), rgba(24,15,10,0.96)), repeating-linear-gradient(transparent, transparent 17px, rgba(255,160,90,0.07) 17px, rgba(255,160,90,0.07) 18px);
+    border-left-color: #e8642a; transform: scaleY(0.995);
+    box-shadow: 0 5px 14px rgba(0,0,0,0.42), inset 0 0 0 1px rgba(232,100,42,0.2), inset 0 0 36px rgba(0,0,0,0.65);
+}
+.hud-diary-entry.hud-diary-mood-stress::before { background: rgba(232,100,42,0.6); }
+/* Тиски: тяжёлые тёмные планки сверху и снизу с рисками винта. */
+.hud-diary-entry.hud-diary-mood-stress::after {
+    content: ''; position: absolute; inset: 0; pointer-events: none;
+    background:
+        linear-gradient(180deg, rgba(0,0,0,0.55), rgba(0,0,0,0.25) 6px, transparent 7px) top / 100% 7px no-repeat,
+        linear-gradient(0deg, rgba(0,0,0,0.55), rgba(0,0,0,0.25) 6px, transparent 7px) bottom / 100% 7px no-repeat,
+        repeating-linear-gradient(90deg, rgba(232,100,42,0.35) 0 2px, transparent 2px 22px) top / 100% 3px no-repeat,
+        repeating-linear-gradient(90deg, rgba(232,100,42,0.35) 0 2px, transparent 2px 22px) bottom / 100% 3px no-repeat;
+}
+.hud-diary-entry.hud-diary-mood-stress .hud-diary-text { letter-spacing: -0.01em; }
+.hud-diary-entry.hud-diary-mood-stress .hud-diary-sticker { background: rgba(255,200,160,0.92); }
+.hud-diary-entry:is(.hud-diary-mood-longing, .hud-diary-mood-control, .hud-diary-mood-madness, .hud-diary-mood-calc, .hud-diary-mood-resolve, .hud-diary-mood-thrill, .hud-diary-mood-irony, .hud-diary-mood-respect, .hud-diary-mood-curiosity, .hud-diary-mood-stress) { --dm-letter: var(--dm); }
 
 /* Отклик на прикосновение. Это transition, а не анимация: в фоне ничего
    не крутится, а лист всё равно оживает под пальцем. Меняем opacity слоя
@@ -4158,7 +4197,7 @@
    body класс no-blur и снимает размытие со всего: body.no-blur * {
    backdrop-filter: unset !important }. Блюр плашек сцены — свой ползунок
    («Блюр плашек», 0 — без размытия), поэтому здесь он сильнее. */
-body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-scene-atm, .hud-moonchip) {
+body.no-blur .hud-scene-time-group, body.no-blur .hud-weather-item, body.no-blur .hud-mood-item, body.no-blur .hud-scene-atm, body.no-blur .hud-moonchip {
     backdrop-filter: blur(var(--hud-weather-blur, 6px)) !important;
     -webkit-backdrop-filter: blur(var(--hud-weather-blur, 6px)) !important;
 }
@@ -4822,6 +4861,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
   font-style: normal; font-size: 9px; font-weight: 700; color: #99f6e4; line-height: 1;
 }
 .hud-route-info { min-width: 0; }
+.hud-route-same { opacity: .55; font-weight: 400; }
 .hud-route-info b {
   display: block; font-size: .88em; color: #e6f6f3; font-weight: 600;
 }
@@ -5899,15 +5939,19 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
    связей и ролей выходят по 2–3px и только шумят. Их видно в развёрнутом
    графе и в строке под ним по нажатию; имена — крупнее, чтобы читались. */
 @media (max-width: 600px) {
-    .hud-rel-graph:not(.is-expanded) :is(.hud-rel-edge-label, .hud-rel-role) { display: none; }
+    .hud-rel-graph:not(.is-expanded) .hud-rel-edge-label, .hud-rel-graph:not(.is-expanded) .hud-rel-role { display: none; }
     .hud-rel-graph:not(.is-expanded) .hud-rel-name { font-size: 26px; }
 }
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) {
-    .hud-rel-graph:not(.is-expanded) :is(.hud-rel-edge-label, .hud-rel-role) { display: none; }
+    .hud-rel-graph:not(.is-expanded) .hud-rel-edge-label, .hud-rel-graph:not(.is-expanded) .hud-rel-role { display: none; }
     .hud-rel-graph:not(.is-expanded) .hud-rel-name { font-size: 26px; }
 } }
 /* cq ↑ */
+/* Средняя карточка (до ~760px): граф 1000px сжат вдвое, и подписи двух
+   десятков связей сливались в кашу. В свёрнутом графе подпись видна только
+   у выбранной связи и у связей выбранного человека; все — в развёрнутом. */
+.hud-rel-graph.is-narrow:not(.is-expanded) .hud-rel-edge-label:not(.is-active) { display: none; }
 
 @media (max-width: 680px) {
     .hud-rel-stage {
@@ -8749,7 +8793,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-theme-medieval .hud-diary-entry { border-left-color: #8a6a1f; }
 
 /* --- Карточки: светлая бумага вместо чёрного --- */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-phone-notif, .hud-phone-notif-stack, .hud-phone-lock-notice, .hud-phone-note, .hud-phone-section, .hud-phone-participants-list, .hud-phone-contact, .hud-phone-chat-row, .hud-phone-search-row, .hud-phone-photo-placeholder, .hud-diary-entry, .hud-world-section, .hud-world-section-ads, .hud-theme-panel, .hud-phone-mockup) {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-notif, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-notif-stack, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-lock-notice, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-note, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-section, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-participants-list, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-contact, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-chat-row, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-search-row, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-photo-placeholder, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-diary-entry, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-world-section, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-world-section-ads, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-theme-panel, :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-phone-mockup {
   background: var(--lt-paper) !important;
   color: var(--lt-ink);
   border-color: var(--lt-line);
@@ -8792,7 +8836,7 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
    ========================================================================= */
 
 /* --- Каваи: мягкие пузырьковые блоки и розовая подсветка --- */
-.hud-theme-kawaii :is(.hud-key-block, .hud-key-item) { border-radius: 16px; }
+.hud-theme-kawaii .hud-key-block, .hud-theme-kawaii .hud-key-item { border-radius: 16px; }
 .hud-theme-kawaii .hud-key-item { border-left-width: 4px; }
 @media (hover: hover) and (pointer: fine) { .hud-theme-kawaii .hud-key-item:hover {
   background: rgba(255,143,192,.14);
@@ -8800,13 +8844,13 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 } }
 
 /* --- Dark Academia: капитель и латунная линейка под заголовком --- */
-.hud-theme-academia :is(.hud-key, .hud-key-label) {
+.hud-theme-academia .hud-key, .hud-theme-academia .hud-key-label {
   font-variant: small-caps; text-transform: none;
   letter-spacing: .07em; font-weight: 600;
 }
 
 /* --- Vamp: разрядка, винная тень и внутренняя виньетка карточки --- */
-.hud-theme-vamp :is(.hud-key, .hud-key-label) {
+.hud-theme-vamp .hud-key, .hud-theme-vamp .hud-key-label {
   letter-spacing: .18em; font-weight: 600;
   text-shadow: 0 0 8px rgba(195,31,56,.45);
 }
@@ -8818,12 +8862,12 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
 .hud-theme-cyberpunk .hud-key-item { border-left-width: 1px; padding-left: 12px; }
 
 /* --- Нуар: прописные вплотную и жёсткий свет из угла --- */
-.hud-theme-noir :is(.hud-key, .hud-key-label) {
+.hud-theme-noir .hud-key, .hud-theme-noir .hud-key-label {
   text-transform: uppercase; letter-spacing: .01em; font-weight: 500;
 }
 
 /* --- Криминал: прописные с красной засечкой и штамп на блоке --- */
-.hud-theme-mafia :is(.hud-key, .hud-key-label) {
+.hud-theme-mafia .hud-key, .hud-theme-mafia .hud-key-label {
   text-transform: uppercase; letter-spacing: .1em; font-weight: 700;
   padding-left: 8px; border-left: 3px solid #d92b2b;
 }
@@ -8850,10 +8894,14 @@ body.no-blur :is(.hud-scene-time-group, .hud-weather-item, .hud-mood-item, .hud-
    собственную реплику. Без темы всё работает как прежде. */
 :is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-vamp, .hud-theme-cyberpunk,
     .hud-theme-noir, .hud-theme-medieval, .hud-theme-mafia)
-  :is(.hud-world-empty, .hud-diary-empty) { font-size: 0; }
+  .hud-world-empty, :is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-vamp, .hud-theme-cyberpunk,
+    .hud-theme-noir, .hud-theme-medieval, .hud-theme-mafia)
+  .hud-diary-empty { font-size: 0; }
 :is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-vamp, .hud-theme-cyberpunk,
     .hud-theme-noir, .hud-theme-medieval, .hud-theme-mafia)
-  :is(.hud-world-empty, .hud-diary-empty)::after {
+  .hud-world-empty::after, :is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-vamp, .hud-theme-cyberpunk,
+    .hud-theme-noir, .hud-theme-medieval, .hud-theme-mafia)
+  .hud-diary-empty::after {
   display: block; font-size: 13px; line-height: 1.5;
 }
 

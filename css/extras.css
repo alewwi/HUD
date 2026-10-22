@@ -101,7 +101,7 @@
   display: block; align-self: stretch; text-align: center; font-family: Georgia, 'Times New Roman', serif !important; font-variant: small-caps; text-transform: none; letter-spacing: .12em;
   font-size: 1em !important; color: var(--n-ink) !important; border-bottom: 3px double var(--n-rule); padding-bottom: 3px; margin-bottom: 8px; text-shadow: none !important; }
 :root.hud-skin-news .hud-os-card .hud-body > .hud-row :is(.hud-value, p, li) { font-family: Georgia, 'Times New Roman', serif; color: var(--n-ink); text-shadow: none !important; }
-:root.hud-skin-news .hud-os-card .hud-body > .hud-row :is(.hud-detail-pill, .hud-v-card, .hud-v-chip) { border-radius: 0 !important; border: 1px solid color-mix(in srgb, var(--n-ink) 30%, transparent) !important; box-shadow: none !important; }
+:root.hud-skin-news .hud-os-card .hud-body > .hud-row .hud-detail-pill, :root.hud-skin-news .hud-os-card .hud-body > .hud-row .hud-v-card, :root.hud-skin-news .hud-os-card .hud-body > .hud-row .hud-v-chip { border-radius: 0 !important; border: 1px solid color-mix(in srgb, var(--n-ink) 30%, transparent) !important; box-shadow: none !important; }
 :root.hud-skin-news .hud-os-card .hud-title { font-family: Georgia, 'Times New Roman', serif !important; font-size: 1.6em; letter-spacing: .03em; }
 :root.hud-skin-news .hud-os-card .hud-header-text::after {
   content: var(--hud-dateline, ''); display: block; margin-top: 4px; padding: 2px 0; border-top: 1px solid currentColor; border-bottom: 1px solid currentColor;
@@ -123,7 +123,7 @@
   text-transform: none !important; letter-spacing: 0 !important; border-radius: 0 !important; text-shadow: none !important; }
 :root.hud-skin-win95 .hud-os-card .hud-body > .hud-row > .hud-key::after {
   content: '' !important; position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 52px; height: 14px; background: var(--w-btns) no-repeat !important; display: block !important; opacity: 1 !important; }
-:root.hud-skin-win95 .hud-os-card .hud-body > .hud-row :is(.hud-detail-pill, .hud-v-card, .hud-v-chip) {
+:root.hud-skin-win95 .hud-os-card .hud-body > .hud-row .hud-detail-pill, :root.hud-skin-win95 .hud-os-card .hud-body > .hud-row .hud-v-card, :root.hud-skin-win95 .hud-os-card .hud-body > .hud-row .hud-v-chip {
   background: var(--w-field) !important; border: 2px solid !important; border-color: var(--w-lo) var(--w-hi) var(--w-hi) var(--w-lo) !important; border-radius: 0 !important; box-shadow: none !important; }
 :root.hud-skin-win95 .hud-os-card .hud-body > .hud-row :is(.hud-value, p) { font-family: Tahoma, Verdana, sans-serif; text-shadow: none !important; }
 :root.hud-skin-win95 .hud-os-card .hud-header { background: var(--w-face); border: 2px solid; border-color: var(--w-hi) var(--w-lo) var(--w-lo) var(--w-hi); padding: 6px 8px 0; margin-bottom: 10px; }
@@ -145,7 +145,7 @@
 :root.hud-skin-mac .hud-os-card .hud-body > .hud-row > .hud-key::before {
   flex: 0 0 34px; background: linear-gradient(var(--m-bg), var(--m-bg)) 9px 1px / 11px 9px no-repeat, linear-gradient(var(--m-line), var(--m-line)) 7px 0 / 15px 11px no-repeat,
     linear-gradient(var(--m-bg), var(--m-bg)) 5px 0 / 19px 11px no-repeat, repeating-linear-gradient(180deg, var(--m-line) 0 1px, transparent 1px 3px) !important; }
-:root.hud-skin-mac .hud-os-card .hud-body > .hud-row :is(.hud-detail-pill, .hud-v-card, .hud-v-chip) {
+:root.hud-skin-mac .hud-os-card .hud-body > .hud-row .hud-detail-pill, :root.hud-skin-mac .hud-os-card .hud-body > .hud-row .hud-v-card, :root.hud-skin-mac .hud-os-card .hud-body > .hud-row .hud-v-chip {
   border-radius: 0 !important; border: 1px solid color-mix(in srgb, var(--m-line) 60%, transparent) !important; box-shadow: 2px 2px 0 color-mix(in srgb, var(--m-line) 60%, transparent) !important; }
 
 /* --- «Бортовой журнал» ----------------------------------------------------- */
@@ -159,8 +159,8 @@
   font-style: italic; font-weight: 700; font-family: 'Segoe Print', 'Comic Sans MS', cursive !important; border-radius: 0 !important; box-shadow: 0 2px 4px rgba(0,0,0,.3); text-shadow: none !important;
   clip-path: polygon(0 8%, 4% 0, 8% 10%, 12% 0, 88% 0, 92% 10%, 96% 0, 100% 8%, 98% 50%, 100% 92%, 96% 100%, 92% 90%, 88% 100%, 12% 100%, 8% 90%, 4% 100%, 0 92%, 2% 50%); }
 :root.hud-skin-bujo .hud-os-card .hud-body > .hud-row:nth-child(even) > .hud-key { transform: rotate(1.4deg); }
-:root.hud-skin-bujo .hud-os-card .hud-body > .hud-row :is(.hud-detail-pill, .hud-v-card, .hud-v-chip) { border-radius: 2px !important; border: 1px dashed color-mix(in srgb, var(--j-tape) 45%, transparent) !important; box-shadow: 2px 2px 0 rgba(0,0,0,.2) !important; }
-:root.hud-skin-bujo .hud-os-card .hud-header :is(.hud-avatar, .hud-avatar-placeholder) { border-radius: 0 !important; transform: rotate(-6deg); outline: 1.5px dashed var(--j-ink); outline-offset: 4px; margin: 6px 8px 6px 4px; }
+:root.hud-skin-bujo .hud-os-card .hud-body > .hud-row .hud-detail-pill, :root.hud-skin-bujo .hud-os-card .hud-body > .hud-row .hud-v-card, :root.hud-skin-bujo .hud-os-card .hud-body > .hud-row .hud-v-chip { border-radius: 2px !important; border: 1px dashed color-mix(in srgb, var(--j-tape) 45%, transparent) !important; box-shadow: 2px 2px 0 rgba(0,0,0,.2) !important; }
+:root.hud-skin-bujo .hud-os-card .hud-header .hud-avatar, :root.hud-skin-bujo .hud-os-card .hud-header .hud-avatar-placeholder { border-radius: 0 !important; transform: rotate(-6deg); outline: 1.5px dashed var(--j-ink); outline-offset: 4px; margin: 6px 8px 6px 4px; }
 :root.hud-skin-bujo .hud-os-card .hud-header-text::after { content: var(--hud-dateline, ''); display: block; margin-top: 3px; font: italic 11px 'Courier New', monospace; opacity: .75; }
 
 /* --- «Стекло» -------------------------------------------------------------- */
@@ -174,7 +174,7 @@
 :root.hud-skin-glass .hud-os-card .hud-body > .hud-row > .hud-key {
   display: inline-block; padding: 3px 12px !important; margin-bottom: 8px; border-radius: 99px !important; border: 1px solid color-mix(in srgb, var(--hud-accent) 40%, rgba(255,255,255,.5));
   background: linear-gradient(180deg, rgba(255,255,255,.22), color-mix(in srgb, var(--hud-accent) 18%, transparent)) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.4); }
-:root.hud-skin-glass .hud-os-card .hud-body > .hud-row :is(.hud-detail-pill, .hud-v-card, .hud-v-chip) { border-radius: 10px !important; border: 1px solid rgba(255,255,255,.4) !important; box-shadow: inset 0 1px 1px rgba(255,255,255,.3) !important; }
+:root.hud-skin-glass .hud-os-card .hud-body > .hud-row .hud-detail-pill, :root.hud-skin-glass .hud-os-card .hud-body > .hud-row .hud-v-card, :root.hud-skin-glass .hud-os-card .hud-body > .hud-row .hud-v-chip { border-radius: 10px !important; border: 1px solid rgba(255,255,255,.4) !important; box-shadow: inset 0 1px 1px rgba(255,255,255,.3) !important; }
 
 /* --- «Улики» --------------------------------------------------------------- */
 :root.hud-skin-evidence .hud-os-card .hud-body { counter-reset: hud-ev; }
@@ -194,13 +194,13 @@
 /* =========================================================================
    ШАПКА ПЕРСОНАЖА: арка и баннер
    ========================================================================= */
-:root.hud-ava-arch .hud-os-card .hud-header :is(.hud-avatar, .hud-avatar-placeholder) {
+:root.hud-ava-arch .hud-os-card .hud-header .hud-avatar, :root.hud-ava-arch .hud-os-card .hud-header .hud-avatar-placeholder {
   width: 56px !important; height: 76px !important; border-radius: 28px 28px 3px 3px !important; object-fit: cover;
   border: 2px solid var(--hud-ava-frame, var(--hud-accent)) !important; outline: 1px solid color-mix(in srgb, var(--hud-ava-frame, var(--hud-accent)) 70%, transparent); outline-offset: 3px;
   box-shadow: 0 0 0 6px rgba(0,0,0,.3), 0 0 18px color-mix(in srgb, var(--hud-ava-frame, var(--hud-glow, var(--hud-accent))) 45%, transparent) !important; margin: 6px 6px 6px 6px; }
 /* Рамка портрета: свой цвет из «Кастомизации» сильнее рамок тем.
    Кадр — сдвиг и масштаб, как у обоев. */
-:root.hud-ava-custom .hud-os-card :is(.hud-avatar, .hud-avatar-placeholder) { border-color: var(--hud-ava-frame) !important; }
+:root.hud-ava-custom .hud-os-card .hud-avatar, :root.hud-ava-custom .hud-os-card .hud-avatar-placeholder { border-color: var(--hud-ava-frame) !important; }
 :root.hud-ava-custom .hud-os-card .hud-avatar { box-shadow: 0 0 10px color-mix(in srgb, var(--hud-ava-frame) 55%, transparent); }
 .hud-os-card .hud-header .hud-avatar { object-fit: cover; object-position: var(--hud-ava-pos, 50% 50%); }
 @supports (object-view-box: inset(0%)) { .hud-os-card .hud-header .hud-avatar { object-view-box: var(--hud-ava-view, none); } }
@@ -219,7 +219,7 @@
 .hud-banner-name { position: absolute; top: 10px; left: 14px; padding: 3px 12px; border-radius: 99px; font-size: .8em; font-weight: 700; color: #fff; background: rgba(20,16,36,.45); border: 1px solid rgba(255,255,255,.25); backdrop-filter: blur(4px); }
 .hud-banner-vert { position: absolute; right: 12px; top: 10px; writing-mode: vertical-rl; font: 9px/1 Georgia, serif; letter-spacing: .3em; color: rgba(255,255,255,.75); text-shadow: 0 1px 3px rgba(0,0,0,.6); max-height: 90px; overflow: hidden; }
 .hud-header.has-banner .hud-header-info { margin-top: -34px; padding-left: 12px; position: relative; z-index: 2; align-items: flex-end; }
-.hud-header.has-banner .hud-header-info :is(.hud-avatar, .hud-avatar-placeholder) { width: 60px; height: 60px; border-width: 3px; box-shadow: 0 4px 12px rgba(0,0,0,.45); }
+.hud-header.has-banner .hud-header-info .hud-avatar, .hud-header.has-banner .hud-header-info .hud-avatar-placeholder { width: 60px; height: 60px; border-width: 3px; box-shadow: 0 4px 12px rgba(0,0,0,.45); }
 .hud-header.has-banner .hud-header-text { padding-bottom: 4px; }
 
 /* =========================================================================
@@ -380,7 +380,7 @@
 .hud-twist.is-good { --tw: #d4a13c; }
 .hud-twist.is-bad { --tw: var(--hud-accent); }
 .hud-twist, .hud-twist * { text-shadow: none !important; }
-.hud-twist :is(h5, p) { color: var(--x-ink) !important; }
+.hud-twist h5, .hud-twist p { color: var(--x-ink) !important; }
 .hud-twist h5 svg { color: var(--tw); }
 .hud-twist-rib { position: absolute; right: -34px; top: 13px; transform: rotate(35deg); padding: 3px 40px; font-size: .56em; font-weight: 900; letter-spacing: .2em; background: var(--tw); color: #fff !important; }
 .hud-twist h5 { margin: 0 0 6px; padding-right: 70px; display: flex; align-items: center; gap: 8px; font-family: Georgia, serif; font-size: 1.08em; }

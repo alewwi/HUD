@@ -20,6 +20,9 @@
 .hud-os-card .is-capped-x {
   display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: flex-start;
   gap: 10px; overflow-x: auto !important; overflow-y: hidden !important; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+  /* Потолок 140px у .hud-vertical-container — для прокрутки вниз; в ленте
+     вбок прокрутки вниз нет, и высокие визитки «Отношений» обрезались. */
+  max-height: none !important;
   padding: 2px 2px 10px !important; box-sizing: border-box;
   scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--hud-accent, #c31f38) 45%, transparent) transparent;
   -webkit-mask: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
@@ -30,12 +33,24 @@
   flex: 0 0 max(160px, (100% - 20px) / 3.15) !important; max-width: max(160px, (100% - 20px) / 3.15) !important; min-width: 0;
   margin: 0 !important; scroll-snap-align: start; box-sizing: border-box;
 }
-.hud-os-card :is(.is-capped, .is-capped-x).is-end { -webkit-mask: none; mask: none; }
+.hud-os-card .is-capped.is-end, .hud-os-card .is-capped-x.is-end { -webkit-mask: none; mask: none; }
 /* След в ленте вбок — узкий, как на телефоне: таймер на своей строке,
    иначе «сойдёт через 2 дн. 11 ч» сжимал название до буквы в строке. */
 .hud-os-card .hud-marks.is-capped-x > .hud-mark { grid-template-columns: 34px minmax(0, 1fr) !important; }
 .hud-os-card .hud-marks.is-capped-x > .hud-mark > .hud-mark-timer { grid-column: 1 / -1; justify-content: flex-start; }
 .hud-os-card .hud-marks.is-capped-x .hud-mark-timer small { white-space: normal; }
+/* Визитка отношений в ленте вбок узкая (160px): лицо слева съедало половину
+   ширины, и текст шёл столбиком по слову. В ленте лицо — в строку с именем,
+   текст — под ними во всю ширину. */
+.hud-os-card .is-capped-x > .hud-detail-pill.has-face {
+  padding: 8px 11px 9px !important; border-radius: 14px; min-height: 0;
+  background:
+    radial-gradient(circle at 24px 24px, hsl(var(--тон, 0) 50% 45% / .3) 0 17px, transparent 22px),
+    linear-gradient(180deg, hsl(var(--тон, 0) 45% 30% / .26), transparent 70%);
+}
+.hud-os-card .is-capped-x > .hud-detail-pill.has-face .hud-pill-face { position: relative; left: auto; top: auto; transform: none; display: inline-grid; vertical-align: middle; margin: 0 7px 5px 0; }
+.hud-os-card .is-capped-x > .hud-detail-pill.has-face .hud-pill-label { display: inline; vertical-align: middle; }
+.hud-os-card .is-capped-x > .hud-detail-pill.has-face .hud-pill-label::after { content: ''; display: block; }
 
 /* Компактнее на телефоне: отступы и шрифт внутри карточек.
    И правило телефона: вбок ничего не листается и не обрезается — ленты

@@ -333,8 +333,8 @@
 }
 :is(.hud-fv-us .sweep, .hud-fv-us .hb, .hud-fv-nest .egg, .hud-fv-letter .lt-seal, .hud-ppv-rings .arc, .hud-ppv-bottles .pb-line > span, .hud-ppv-bottles .milk,
   .hud-ppv-journal .pj-cal > i.is-today, .hud-ktv .kb-item .cube, .hud-ktv .kg-kid .head, .hud-kid-care .kb-cell .token, .hud-kid-care .ks-slot.is-next .ks-sticker, .hud-kid-care .kk-dial .mk.is-next) { animation-play-state: paused; }
-.hud-fetus:is(.fx-on) :is(.sweep, .hb, .egg, .lt-seal), .hud-pp:is(.fx-on) :is(.arc, .pb-line > span, .milk, .pj-cal > i.is-today), .hud-kid-chip:is(.fx-on) :is(.cube, .head), .hud-kid-care:is(.fx-on) :is(.kb-cell .token, .ks-slot.is-next .ks-sticker, .kk-dial .mk.is-next) { animation-play-state: running !important; }
-@media (hover: hover) and (pointer: fine) { .hud-fetus:hover :is(.sweep, .hb, .egg, .lt-seal), .hud-pp:hover :is(.arc, .pb-line > span, .milk, .pj-cal > i.is-today), .hud-kid-chip:hover :is(.cube, .head), .hud-kid-care:hover :is(.kb-cell .token, .ks-slot.is-next .ks-sticker, .kk-dial .mk.is-next) { animation-play-state: running !important; } }
+.hud-fetus:is(.fx-on) .sweep, .hud-fetus:is(.fx-on) .hb, .hud-fetus:is(.fx-on) .egg, .hud-fetus:is(.fx-on) .lt-seal, .hud-pp:is(.fx-on) :is(.arc, .pb-line > span, .milk, .pj-cal > i.is-today), .hud-kid-chip:is(.fx-on) .cube, .hud-kid-chip:is(.fx-on) .head, .hud-kid-care:is(.fx-on) :is(.kb-cell .token, .ks-slot.is-next .ks-sticker, .kk-dial .mk.is-next) { animation-play-state: running !important; }
+@media (hover: hover) and (pointer: fine) { .hud-fetus:hover .sweep, .hud-fetus:hover .hb, .hud-fetus:hover .egg, .hud-fetus:hover .lt-seal, .hud-pp:hover :is(.arc, .pb-line > span, .milk, .pj-cal > i.is-today), .hud-kid-chip:hover .cube, .hud-kid-chip:hover .head, .hud-kid-care:hover :is(.kb-cell .token, .ks-slot.is-next .ks-sticker, .kk-dial .mk.is-next) { animation-play-state: running !important; } }
 .hud-fv-us .sweep { opacity: 0; transition: opacity .5s; }
 .hud-fetus:is(.fx-on) .hud-fv-us .sweep, .hud-fv-us:is(.fx-on) .sweep { opacity: 1; }
 @media (hover: hover) and (pointer: fine) { .hud-fetus:hover .hud-fv-us .sweep, .hud-fv-us:hover .sweep { opacity: 1; } }

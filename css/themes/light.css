@@ -705,3 +705,24 @@
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-afisha-admit { color: color-mix(in srgb, var(--tk) 60%, #000); }
 /* Процент на шкале болезни: тёмная тень под тёмными чернилами мутила цифры. */
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-ill-meter small { color: var(--lt-ink); text-shadow: 0 0 3px rgba(255,255,255,.75); }
+
+/* Тень Таверны на светлой бумаге (было в misc.css): вместо тёмного ореола —
+   светлый край и лёгкое сияние цвета темы. Только для светлых тем: правило
+   на «*» проверяется у каждого элемента страницы. */
+:where(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate)
+  :where(.hud-os-wrapper, .hud-os-card, .hud-scene-widget, .hud-modal-overlay) :where(*) {
+  text-shadow:
+    0 1px 0 rgba(255,255,255,.55),
+    0 0 calc(var(--shadowWidth, 2) * 2px) color-mix(in srgb, var(--hud-accent, #c46) 16%, transparent);
+}
+
+/* Сны (css/dream-views.css): цвет типа сна — пастель под тёмную карточку; на
+   бумаге ярлыки типа, образы и подписи смысла — темнее, к чернилам. Небо и
+   плёнка тёмные в любой теме, их не трогаем. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-dv-clouds, .hud-dv-catcher) :is(.hud-dv-verdict, .hud-dv-type, .hud-dv-motifs > span, .hud-dv-note small, .hud-dv-note .hud-v-ico) { color: color-mix(in srgb, var(--dt) 45%, var(--lt-ink)); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) :is(.hud-dv-clouds, .hud-dv-catcher) .hud-dv-note { background: color-mix(in srgb, var(--dt) 12%, var(--lt-paper)); color: var(--lt-ink); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-dv-catch { background: radial-gradient(90% 70% at 0% 0%, color-mix(in srgb, var(--dt) 14%, transparent), transparent 70%), color-mix(in srgb, var(--lt-paper) 70%, transparent); border-color: var(--lt-line); box-shadow: 0 3px 10px rgba(60,40,20,.12); --web: color-mix(in srgb, var(--dt) 45%, var(--lt-ink)); }
+/* Штамп настроения в дневнике: светлые цвета тем (бирюза, оранжевый) на бумаге не читаются — притемняем чернилами. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-diary-stamp { color: color-mix(in srgb, var(--dm) 50%, var(--lt-ink)); background: color-mix(in srgb, var(--dm) 18%, var(--lt-paper)); }
+/* Сны, облака: грозовая туча кошмара на светлой бумаге — серо-сиреневая, а не чёрная, иначе чернила текста на ней пропадают. */
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-dv-cloud.t-nightmare .hud-dv-puff { background: radial-gradient(120% 90% at 30% 0%, rgba(150,110,130,.30), rgba(110,90,110,.16) 70%); }

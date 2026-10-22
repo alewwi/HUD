@@ -13,7 +13,7 @@
 
 /* Цвет считается на самих украшениях: темы задают акцент на карточке,
    и с :root он пришёл бы исходным, а не темы. */
-:is(.hud-ava-wrap, .hud-ava-deco, .hud-head-orn, .hud-head-wax, .hud-group-div) {
+.hud-ava-wrap, .hud-ava-deco, .hud-head-orn, .hud-head-wax, .hud-group-div {
   --hud-deco-c: var(--hud-ava-frame, var(--hud-accent));
 }
 
@@ -23,11 +23,11 @@
 
 /* Перекраска картинки в цвет темы. Без --deco-img маска и слой
    недействительны и выключаются сами: скрепка и котик остаются как есть. */
-:is(.hud-ava-deco, .hud-head-orn, .hud-head-wax) {
+.hud-ava-deco, .hud-head-orn, .hud-head-wax {
   background-color: var(--hud-deco-c);
   -webkit-mask: var(--deco-img) center / contain no-repeat; mask: var(--deco-img) center / contain no-repeat;
 }
-:is(.hud-ava-deco, .hud-head-orn, .hud-head-wax)::after {
+.hud-ava-deco::after, .hud-head-orn::after, .hud-head-wax::after {
   content: ''; position: absolute; inset: 0;
   background: var(--deco-img) center / contain no-repeat;
   mix-blend-mode: luminosity;
@@ -42,7 +42,7 @@
   display: grid; place-items: center; position: relative; flex-shrink: 0; margin: 12px 14px 12px 8px;
 }
 :root.hud-ava-framed .hud-os-card .hud-header:not(.has-banner) .hud-ava-in { display: block; position: relative; line-height: 0; z-index: 1; }
-:root.hud-ava-framed .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > :is(.hud-avatar, .hud-avatar-placeholder) {
+:root.hud-ava-framed .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > .hud-avatar, :root.hud-ava-framed .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > .hud-avatar-placeholder {
   width: 84px !important; height: 84px !important; margin: 0 !important; transform: none !important; outline: none !important;
   animation: none !important; -webkit-mask: none !important; mask: none !important;
 }
@@ -136,7 +136,7 @@
 
 /* Китайские окна: фигурное и восьмиугольное («醉江南») */
 :root:is(.hud-deco-lattice, .hud-deco-octagon) .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin: 30px 40px 30px 34px; }
-:root:is(.hud-deco-lattice, .hud-deco-octagon) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > :is(.hud-avatar, .hud-avatar-placeholder) {
+:root:is(.hud-deco-lattice, .hud-deco-octagon) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > .hud-avatar, :root:is(.hud-deco-lattice, .hud-deco-octagon) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > .hud-avatar-placeholder {
   width: 70px !important; height: 70px !important; border-radius: 50% !important; border: 3px solid #fff !important; box-shadow: 0 4px 12px rgba(0,0,0,.3) !important;
 }
 :root.hud-deco-octagon .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > * { border-radius: 8px !important; }
@@ -245,21 +245,21 @@
 :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco { --deco-img: url('../img/deco/roses.webp'); right: -34px; bottom: -22px; width: 84px; height: 84px; z-index: 3; }
 
 /* Веер и розы помнят арку «Вампира» (Форма портрета). */
-:root.hud-ava-arch:is(.hud-deco-fan, .hud-deco-roses) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > :is(.hud-avatar, .hud-avatar-placeholder) {
+:root.hud-ava-arch:is(.hud-deco-fan, .hud-deco-roses) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > .hud-avatar, :root.hud-ava-arch:is(.hud-deco-fan, .hud-deco-roses) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > .hud-avatar-placeholder {
   border-radius: 42px 42px 4px 4px !important; height: 100px !important;
 }
 
 /* На узком экране портрет в рамке чуть меньше. */
 @media (max-width: 600px) {
-  :root.hud-ava-framed .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > :is(.hud-avatar, .hud-avatar-placeholder) { width: 72px !important; height: 72px !important; }
-  :root.hud-ava-arch:is(.hud-deco-fan, .hud-deco-roses) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > :is(.hud-avatar, .hud-avatar-placeholder) { height: 88px !important; }
-  :root:is(.hud-deco-lattice, .hud-deco-octagon) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > :is(.hud-avatar, .hud-avatar-placeholder) { width: 62px !important; height: 62px !important; }
+  :root.hud-ava-framed .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > .hud-avatar, :root.hud-ava-framed .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > .hud-avatar-placeholder { width: 72px !important; height: 72px !important; }
+  :root.hud-ava-arch:is(.hud-deco-fan, .hud-deco-roses) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > .hud-avatar, :root.hud-ava-arch:is(.hud-deco-fan, .hud-deco-roses) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > .hud-avatar-placeholder { height: 88px !important; }
+  :root:is(.hud-deco-lattice, .hud-deco-octagon) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > .hud-avatar, :root:is(.hud-deco-lattice, .hud-deco-octagon) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > .hud-avatar-placeholder { width: 62px !important; height: 62px !important; }
 }
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) {
-  :root.hud-ava-framed .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > :is(.hud-avatar, .hud-avatar-placeholder) { width: 72px !important; height: 72px !important; }
-  :root.hud-ava-arch:is(.hud-deco-fan, .hud-deco-roses) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > :is(.hud-avatar, .hud-avatar-placeholder) { height: 88px !important; }
-  :root:is(.hud-deco-lattice, .hud-deco-octagon) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > :is(.hud-avatar, .hud-avatar-placeholder) { width: 62px !important; height: 62px !important; }
+  :root.hud-ava-framed .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > .hud-avatar, :root.hud-ava-framed .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > .hud-avatar-placeholder { width: 72px !important; height: 72px !important; }
+  :root.hud-ava-arch:is(.hud-deco-fan, .hud-deco-roses) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > .hud-avatar, :root.hud-ava-arch:is(.hud-deco-fan, .hud-deco-roses) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > .hud-avatar-placeholder { height: 88px !important; }
+  :root:is(.hud-deco-lattice, .hud-deco-octagon) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > .hud-avatar, :root:is(.hud-deco-lattice, .hud-deco-octagon) .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > .hud-avatar-placeholder { width: 62px !important; height: 62px !important; }
 } }
 /* cq ↑ */
 
@@ -369,7 +369,7 @@
 :root.hud-paper-folds:not(.hud-paper-aged) .hud-os-card .hud-tab-content > .hud-paper { background: none; box-shadow: none; }
 
 /* Рваный низ плашек, как у отрывного листка. */
-:root.hud-paper-torn .hud-os-card .hud-body > :is(.hud-row, .hud-key-block) {
+:root.hud-paper-torn .hud-os-card .hud-body > .hud-row, :root.hud-paper-torn .hud-os-card .hud-body > .hud-key-block {
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='8' preserveAspectRatio='none'%3E%3Cpath d='M0 0H120V3L116 6 111 4 106 7 100 5 95 8 89 4 84 6 78 3 73 7 67 5 62 8 56 4 51 6 45 3 40 7 34 4 29 6 23 5 18 8 12 4 6 6 0 3Z'/%3E%3C/svg%3E") left bottom / 120px 8px repeat-x, linear-gradient(#000 0 0) top / 100% calc(100% - 7px) no-repeat;
           mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='8' preserveAspectRatio='none'%3E%3Cpath d='M0 0H120V3L116 6 111 4 106 7 100 5 95 8 89 4 84 6 78 3 73 7 67 5 62 8 56 4 51 6 45 3 40 7 34 4 29 6 23 5 18 8 12 4 6 6 0 3Z'/%3E%3C/svg%3E") left bottom / 120px 8px repeat-x, linear-gradient(#000 0 0) top / 100% calc(100% - 7px) no-repeat;
   border-bottom-left-radius: 0 !important; border-bottom-right-radius: 0 !important; padding-bottom: 14px !important;
@@ -391,7 +391,7 @@
 :root.hud-skin-double .hud-os-card .hud-body { gap: 12px !important; padding: 4px; }
 
 /* --- Стиль секций: тетрадь в клетку с пунктиром («🍀幸运符号», «小小便签») --- */
-:root.hud-skin-notebook .hud-os-card .hud-body > :is(.hud-row, .hud-key-block) {
+:root.hud-skin-notebook .hud-os-card .hud-body > .hud-row, :root.hud-skin-notebook .hud-os-card .hud-body > .hud-key-block {
   background-image:
     linear-gradient(color-mix(in srgb, var(--hud-accent) 14%, transparent) 1px, transparent 1px),
     linear-gradient(90deg, color-mix(in srgb, var(--hud-accent) 14%, transparent) 1px, transparent 1px) !important;
@@ -418,14 +418,14 @@
   mask-image: linear-gradient(to bottom, #000 45%, transparent), radial-gradient(ellipse 80% 100% at 50% 0, #000 55%, transparent); mask-composite: intersect;
 }
 .hud-os-card .hud-header.is-visit .hud-header-info { position: relative; z-index: 1; flex-direction: column !important; align-items: center !important; gap: 8px; margin: 0; }
-:root:not(.hud-ava-framed) .hud-os-card .hud-header.is-visit :is(.hud-avatar, .hud-avatar-placeholder) {
+:root:not(.hud-ava-framed) .hud-os-card .hud-header.is-visit .hud-avatar, :root:not(.hud-ava-framed) .hud-os-card .hud-header.is-visit .hud-avatar-placeholder {
   width: 78px !important; height: 78px !important; border: 3px solid #fff !important;
   box-shadow: 0 0 0 2px var(--hud-accent), 0 6px 16px rgba(0,0,0,.45) !important;
 }
-:root:not(.hud-ava-framed):not(.hud-ava-arch) .hud-os-card .hud-header.is-visit :is(.hud-avatar, .hud-avatar-placeholder) {
+:root:not(.hud-ava-framed):not(.hud-ava-arch) .hud-os-card .hud-header.is-visit .hud-avatar, :root:not(.hud-ava-framed):not(.hud-ava-arch) .hud-os-card .hud-header.is-visit .hud-avatar-placeholder {
   border-radius: 50% !important; -webkit-mask: none !important; mask: none !important;
 }
-:root.hud-ava-arch:not(.hud-ava-framed) .hud-os-card .hud-header.is-visit :is(.hud-avatar, .hud-avatar-placeholder) { height: 100px !important; }
+:root.hud-ava-arch:not(.hud-ava-framed) .hud-os-card .hud-header.is-visit .hud-avatar, :root.hud-ava-arch:not(.hud-ava-framed) .hud-os-card .hud-header.is-visit .hud-avatar-placeholder { height: 100px !important; }
 .hud-os-card .hud-header.is-visit .hud-header-text {
   display: flex; flex-direction: column; align-items: center !important; text-align: center !important; width: 100%; padding: 0 !important;
 }
@@ -484,12 +484,12 @@
 }
 
 /* --- Полосы старого экрана («First bite», q::after) -------------------- */
-:root.hud-crt .hud-os-card .hud-body > :is(.hud-row.f-thoughts, .hud-row.f-lines, .hud-row.f-subtext) {
+:root.hud-crt .hud-os-card .hud-body > .hud-row.f-thoughts, :root.hud-crt .hud-os-card .hud-body > .hud-row.f-lines, :root.hud-crt .hud-os-card .hud-body > .hud-row.f-subtext {
   box-shadow: inset 0 0 22px color-mix(in srgb, var(--hud-accent) 40%, transparent) !important;
 }
 /* Строки развёртки — верхним слоем фона самой плашки: её ::before и ::after
    заняты налётом группы и значком. */
-:root.hud-crt .hud-os-card .hud-body > :is(.hud-row.f-thoughts, .hud-row.f-lines) {
+:root.hud-crt .hud-os-card .hud-body > .hud-row.f-thoughts, :root.hud-crt .hud-os-card .hud-body > .hud-row.f-lines {
   background: repeating-linear-gradient(to bottom, transparent 0, color-mix(in srgb, var(--hud-accent) 22%, transparent) 1px, transparent 2px, transparent 4px) 0 0 / 100% 48px,
     var(--hud-card-inner-bg) !important;
   animation: hud-crt-scan 3s linear infinite;
@@ -515,9 +515,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  :root.hud-name-outline .hud-os-card :is(.hud-header .hud-title, .hud-key-block > .hud-key-label),
-  :root.hud-crt .hud-os-card .hud-body > :is(.hud-row.f-thoughts, .hud-row.f-lines),
-  :root.hud-crt .hud-os-card .hud-deep::after { animation: none !important; }
+  :root.hud-name-outline .hud-os-card :is(.hud-header .hud-title, .hud-key-block > .hud-key-label), :root.hud-crt .hud-os-card .hud-body > .hud-row.f-thoughts, :root.hud-crt .hud-os-card .hud-body > .hud-row.f-lines, :root.hud-crt .hud-os-card .hud-deep::after { animation: none !important; }
 }
 
 /* =========================================================================
@@ -535,7 +533,7 @@
 :root:is(.hud-deco-wreath, .hud-deco-lattice, .hud-deco-octagon, .hud-deco-fan, .hud-deco-lotus, .hud-deco-roses) .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco::after,
 :root:is(.hud-orn-roses, .hud-orn-plum, .hud-orn-bridge) .hud-os-card .hud-header:not(.has-banner) .hud-head-orn::after { content: none !important; }
 /* Тёмные розы на тёмных темах: светлый контур, чтобы не тонули в фоне. */
-:root:is(.hud-deco-roses, .hud-orn-roses):not(:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate)) .hud-os-card .hud-header:not(.has-banner) :is(.hud-ava-deco, .hud-head-orn) {
+:root:is(.hud-deco-roses, .hud-orn-roses):not(:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate)) .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco, :root:is(.hud-deco-roses, .hud-orn-roses):not(:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate)) .hud-os-card .hud-header:not(.has-banner) .hud-head-orn {
   filter: drop-shadow(0 0 1px rgba(255, 236, 236, .75)) drop-shadow(0 0 5px rgba(255, 210, 210, .35)) !important;
 }
 :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco { rotate: 8deg; }
@@ -561,10 +559,10 @@
 :root.hud-div-medallion .hud-group-div.hud-gd-3 span::before { background-image: url('../img/deco/med-4.webp'); }
 
 /* --- Своя картинка баннера и визитки ------------------------------------ */
-.hud-os-card .hud-header:not(.hud-user-header) :is(.hud-banner, .hud-visit-bg) { background-position: var(--hud-banner-char-pos, 50% 30%) !important; }
-.hud-os-card .hud-header.hud-user-header :is(.hud-banner, .hud-visit-bg) { background-position: var(--hud-banner-user-pos, 50% 30%) !important; }
-:root.hud-banner-char-own .hud-os-card .hud-header:not(.hud-user-header) :is(.hud-banner, .hud-visit-bg) { background-image: var(--hud-banner-char) !important; background-size: cover !important; }
-:root.hud-banner-user-own .hud-os-card .hud-header.hud-user-header :is(.hud-banner, .hud-visit-bg) { background-image: var(--hud-banner-user) !important; background-size: cover !important; }
+.hud-os-card .hud-header:not(.hud-user-header) .hud-banner, .hud-os-card .hud-header:not(.hud-user-header) .hud-visit-bg { background-position: var(--hud-banner-char-pos, 50% 30%) !important; }
+.hud-os-card .hud-header.hud-user-header .hud-banner, .hud-os-card .hud-header.hud-user-header .hud-visit-bg { background-position: var(--hud-banner-user-pos, 50% 30%) !important; }
+:root.hud-banner-char-own .hud-os-card .hud-header:not(.hud-user-header) .hud-banner, :root.hud-banner-char-own .hud-os-card .hud-header:not(.hud-user-header) .hud-visit-bg { background-image: var(--hud-banner-char) !important; background-size: cover !important; }
+:root.hud-banner-user-own .hud-os-card .hud-header.hud-user-header .hud-banner, :root.hud-banner-user-own .hud-os-card .hud-header.hud-user-header .hud-visit-bg { background-image: var(--hud-banner-user) !important; background-size: cover !important; }
 
 /* --- Сатурн и звезда в углу шапки («桃色密信», «Starlight mushrooms») -------
    Обе картинки — одним слоем: цвет темы снизу, картинки сверху в режиме
@@ -704,15 +702,9 @@
    по нажатию (events.js, fx-deco: нажал — ожили, нажал ещё — замерли),
    строки — под курсором или на пару секунд после касания (fx-tap).
    ========================================================================= */
-:root .hud-os-card .hud-header .hud-ava-wrap::before,
-:root:is(.hud-name-outline, .hud-name-sheen) .hud-os-card .hud-header .hud-title,
-:root.hud-name-outline .hud-os-card .hud-key-block > .hud-key-label,
-:root.hud-crt .hud-os-card .hud-body > :is(.hud-row.f-thoughts, .hud-row.f-lines),
-:root.hud-crt .hud-os-card .hud-row .hud-deep::after,
-:root .hud-os-card .hud-trust-up i,
-.hud-gen-ind i { animation-play-state: paused !important; }
-:root .hud-os-card .hud-header:is(.fx-deco) .hud-ava-wrap::before, :root:is(.hud-name-outline, .hud-name-sheen) .hud-os-card .hud-header:is(.fx-deco) .hud-title, :root.hud-name-outline .hud-os-card .hud-key-block:is(.fx-deco) > .hud-key-label, :root.hud-crt .hud-os-card .hud-body > :is(.hud-row.f-thoughts, .hud-row.f-lines):is(.fx-tap), :root.hud-crt .hud-os-card .hud-row:is(.fx-tap) .hud-deep::after, :root .hud-os-card .hud-row:is(.fx-tap) .hud-trust-up i, .hud-gen-ind:is(.fx-deco) i { animation-play-state: running !important; }
-@media (hover: hover) and (pointer: fine) { :root .hud-os-card .hud-header:hover .hud-ava-wrap::before, :root:is(.hud-name-outline, .hud-name-sheen) .hud-os-card .hud-header:hover .hud-title, :root.hud-name-outline .hud-os-card .hud-key-block:hover > .hud-key-label, :root.hud-crt .hud-os-card .hud-body > :is(.hud-row.f-thoughts, .hud-row.f-lines):hover, :root.hud-crt .hud-os-card .hud-row:hover .hud-deep::after, :root .hud-os-card .hud-row:hover .hud-trust-up i, .hud-gen-ind:hover i { animation-play-state: running !important; } }
+:root .hud-os-card .hud-header .hud-ava-wrap::before, :root:is(.hud-name-outline, .hud-name-sheen) .hud-os-card .hud-header .hud-title, :root.hud-name-outline .hud-os-card .hud-key-block > .hud-key-label, :root.hud-crt .hud-os-card .hud-body > .hud-row.f-thoughts, :root.hud-crt .hud-os-card .hud-body > .hud-row.f-lines, :root.hud-crt .hud-os-card .hud-row .hud-deep::after, :root .hud-os-card .hud-trust-up i, .hud-gen-ind i { animation-play-state: paused !important; }
+:root .hud-os-card .hud-header:is(.fx-deco) .hud-ava-wrap::before, :root:is(.hud-name-outline, .hud-name-sheen) .hud-os-card .hud-header:is(.fx-deco) .hud-title, :root.hud-name-outline .hud-os-card .hud-key-block:is(.fx-deco) > .hud-key-label, :root.hud-crt .hud-os-card .hud-body > .hud-row.f-thoughts:is(.fx-tap), :root.hud-crt .hud-os-card .hud-body > .hud-row.f-lines:is(.fx-tap), :root.hud-crt .hud-os-card .hud-row:is(.fx-tap) .hud-deep::after, :root .hud-os-card .hud-row:is(.fx-tap) .hud-trust-up i, .hud-gen-ind:is(.fx-deco) i { animation-play-state: running !important; }
+@media (hover: hover) and (pointer: fine) { :root .hud-os-card .hud-header:hover .hud-ava-wrap::before, :root:is(.hud-name-outline, .hud-name-sheen) .hud-os-card .hud-header:hover .hud-title, :root.hud-name-outline .hud-os-card .hud-key-block:hover > .hud-key-label, :root.hud-crt .hud-os-card .hud-body > .hud-row.f-thoughts:hover, :root.hud-crt .hud-os-card .hud-body > .hud-row.f-lines:hover, :root.hud-crt .hud-os-card .hud-row:hover .hud-deep::after, :root .hud-os-card .hud-row:hover .hud-trust-up i, .hud-gen-ind:hover i { animation-play-state: running !important; } }
 /* «Дыхание» имени живёт своим выключателем (fx-breath) — его не трогаем. */
 :root.hud-glow-breath:is(.hud-name-outline, .hud-name-sheen) .hud-os-card .hud-header .hud-title.fx-breath { animation-play-state: running !important; }
 
@@ -792,7 +784,7 @@
 /* --- Стиль секций «Этикетка» («Dunnoreal») -------------------------------
    Белые плашки, толстая чёрная рамка с тенью, подпись-бирка; наклейка
    «CAUTION EXTREME HEAT» у физиологии и значок 製品 в шапке. */
-:root.hud-skin-label .hud-os-card .hud-body > :is(.hud-row, .hud-key-block) {
+:root.hud-skin-label .hud-os-card .hud-body > .hud-row, :root.hud-skin-label .hud-os-card .hud-body > .hud-key-block {
   background: #fff !important; border: 2.5px solid #111 !important; border-radius: 0 !important; box-shadow: 3px 3px 0 #111 !important; color: #111;
 }
 :root.hud-skin-label .hud-os-card .hud-body > .hud-row::before { opacity: 0 !important; }
@@ -800,7 +792,7 @@
 :root.hud-skin-label .hud-os-card .hud-body > .hud-key-block > .hud-key-label {
   display: inline-block; background: #fff; border: 1.5px solid #111; padding: 3px 10px !important; color: #111 !important; margin: -2px 0 8px -2px; text-shadow: none !important;
 }
-:root.hud-skin-label .hud-os-card .hud-body > :is(.hud-row, .hud-key-block) :is(.hud-value, .hud-key-item) { color: #111 !important; }
+:root.hud-skin-label .hud-os-card .hud-body > :is(.hud-row, .hud-key-block) .hud-value, :root.hud-skin-label .hud-os-card .hud-body > :is(.hud-row, .hud-key-block) .hud-key-item { color: #111 !important; }
 :root.hud-skin-label .hud-os-card .hud-row.f-phys { overflow: visible !important; }
 :root.hud-skin-label .hud-os-card .hud-row.f-phys::after {
   -webkit-mask: none !important; mask: none !important; background: #fff url('../img/deco/label-caution.webp') center / 92% no-repeat !important;
@@ -886,5 +878,14 @@
   .hud-scene-widget:not(.is-compact) :is(.hud-scene-weather-group, .hud-scene-top:has(> .hud-moonchip) > .hud-scene-weather-group) {
     display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; width: 100%; max-width: 100%; gap: 6px; text-align: center; justify-self: auto;
   }
-  .hud-scene-widget:not(.is-compact) :is(.hud-weather-item, .hud-mood-item) { white-space: normal; word-wrap: break-word; text-align: center; }
+  .hud-scene-widget:not(.is-compact) .hud-weather-item, .hud-scene-widget:not(.is-compact) .hud-mood-item { white-space: normal; word-wrap: break-word; text-align: center; }
+}
+/* Средняя сцена (карточка ~520–700px): три колонки «часы | луна | погода»
+   оставляли погоде ~140px, и «морозная звёздная ночь…» вставала столбиком
+   в девять строк. Здесь луна уходит под часы, погода берёт правую колонку. */
+@container (min-width: 481px) and (max-width: 680px) {
+  .hud-scene-widget:not(.is-compact) .hud-scene-top:has(> .hud-moonchip) { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "time weather" "moon weather"; column-gap: 14px; row-gap: 10px; align-items: start; }
+  .hud-scene-widget:not(.is-compact) .hud-scene-top:has(> .hud-moonchip) > .hud-scene-time-group { grid-area: time; }
+  .hud-scene-widget:not(.is-compact) .hud-scene-top:has(> .hud-moonchip) > .hud-moonchip { grid-area: moon; align-self: start; justify-self: start; }
+  .hud-scene-widget:not(.is-compact) .hud-scene-top:has(> .hud-moonchip) > .hud-scene-weather-group { grid-area: weather; justify-self: stretch; }
 }

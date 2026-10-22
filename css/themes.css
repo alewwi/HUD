@@ -73,15 +73,14 @@
 
 /* Фаска как у окон девяносто пятого: светлые рёбра сверху-слева,
    тёмные снизу-справа. Четыре внутренние тени вместо рамки. */
-.hud-theme-web1 :is(.hud-os-card, .hud-key-block, .hud-key-item,
-  .hud-world-section, .hud-forecast-cell, .hud-horo-card, .hud-diary-entry) {
+.hud-theme-web1 .hud-os-card, .hud-theme-web1 .hud-key-block, .hud-theme-web1 .hud-key-item, .hud-theme-web1 .hud-world-section, .hud-theme-web1 .hud-forecast-cell, .hud-theme-web1 .hud-horo-card, .hud-theme-web1 .hud-diary-entry {
   border-radius: 0 !important;
   box-shadow: inset 1px 1px #fff, inset -1px -1px #0a0a0a,
               inset 2px 2px #dfdfdf, inset -2px -2px #808080 !important;
 }
 
 /* Подписи от руки: заголовки полей крупнее и тоньше. */
-.hud-theme-cottage :is(.hud-key, .hud-key-label) {
+.hud-theme-cottage .hud-key, .hud-theme-cottage .hud-key-label {
   font-family: 'Amatic SC', cursive; font-size: 1.24em;
   letter-spacing: .05em; text-transform: none; font-weight: 700;
 }
