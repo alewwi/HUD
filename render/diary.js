@@ -6,8 +6,9 @@
 // index.js импортирует отсюда только buildDiaryHTML и hudHasMeaningfulDiary —
 // остальное экспортируется для тестов и внутренних нужд домена.
 
-import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки } from '../utils.js?v=23.61.5';
-import { settings } from '../settings.js?v=23.61.5';
+import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки } from '../utils.js?v=23.63.7';
+import { settings } from '../settings.js?v=23.63.7';
+import { ико } from './view-icons.js?v=23.63.7';
 
 // Дневник: словарь эмоциональных синонимов. Раньше всё сводилось к
 // четырём темам (sad / angry / panic / neutral) — «скука», «презрение»,
@@ -20,7 +21,51 @@ import { settings } from '../settings.js?v=23.61.5';
 // выше широких («злость», «грусть»), иначе широкая перехватит их первой.
 // Поэтому «стыд» живёт в shame, а не в guilt, «отвращение» — в disgust,
 // а не в contempt: слово должно быть ровно в одном списке.
-function normalizeDiaryMood(value) {
+// Темы листа: подпись и слово-пример (для стенда tests/tools/render-diary-stand.mjs
+// и тестов). Порядок подбора — в normalizeDiaryMood ниже.
+// Значок — для штампа настроения на листе (render/view-icons.js): при тридцати
+// с лишним темах цвет бумаги один их не различает, значок различает всегда.
+export const ТЕМЫ_ДНЕВНИКА = {
+  neutral: { имя: 'ровно', пример: 'calm', значок: 'pause' }, peace: { имя: 'покой', пример: 'покой', значок: 'moonstar' },
+  joy: { имя: 'радость', пример: 'joy', значок: 'sun' }, relief: { имя: 'облегчение', пример: 'relief', значок: 'wind' },
+  triumph: { имя: 'триумф', пример: 'хищный триумф', значок: 'crown' }, love: { имя: 'любовь', пример: 'влюблённость', значок: 'heart' },
+  devotion: { имя: 'преданность', пример: 'преданность', значок: 'lantern' }, cozy: { имя: 'уют', пример: 'уют', значок: 'cup' },
+  lust: { имя: 'страсть', пример: 'lust', значок: 'flame' }, obsession: { имя: 'одержимость', пример: 'obsession', значок: 'eye' },
+  codependency: { имя: 'зависимость', пример: 'созависимость', значок: 'chain' }, jealousy: { имя: 'ревность', пример: 'possessive', значок: 'rose' },
+  realization: { имя: 'прозрение', пример: 'сокрушительное прозрение', значок: 'sparkle' }, collapse: { имя: 'крах', пример: 'крах', значок: 'fall' },
+  shame: { имя: 'стыд', пример: 'стыд', значок: 'mask' }, guilt: { имя: 'вина', пример: 'guilt', значок: 'scales' },
+  disgust: { имя: 'отвращение', пример: 'отвращение', значок: 'smoke' }, contempt: { имя: 'презрение', пример: 'contempt', значок: 'glasses' },
+  irritation: { имя: 'раздражение', пример: 'irritation', значок: 'bolt' }, nervous: { имя: 'нервы', пример: 'restless', значок: 'hourglass' },
+  panic: { имя: 'паника', пример: 'panic', значок: 'alert' }, angry: { имя: 'злость', пример: 'anger', значок: 'burst' },
+  disappointment: { имя: 'разочарование', пример: 'разочарование', значок: 'heartbreak' }, apathy: { имя: 'апатия', пример: 'усталость', значок: 'cloud' },
+  bored: { имя: 'скука', пример: 'скука', значок: 'clock' }, cold: { имя: 'холод', пример: 'хладнокровие', значок: 'snow' },
+  sad: { имя: 'грусть', пример: 'sadness', значок: 'umbrella' },
+  // Новые (замер по 22 чатам: эти слова уходили в «ровно»).
+  longing: { имя: 'тоска', пример: 'longing', значок: 'moon' }, control: { имя: 'контроль', пример: 'абсолютная доминация', значок: 'lock' },
+  madness: { имя: 'надлом', пример: 'безумие', значок: 'ghost' }, calc: { имя: 'расчёт', пример: 'холодный расчет', значок: 'chart' },
+  resolve: { имя: 'решимость', пример: 'стальная решимость', значок: 'target' }, thrill: { имя: 'азарт', пример: 'хищный азарт', значок: 'dagger' },
+  irony: { имя: 'ирония', пример: 'сардоническая ирония', значок: 'lips' }, respect: { имя: 'уважение', пример: 'admiration', значок: 'star' },
+  curiosity: { имя: 'любопытство', пример: 'curiosity', значок: 'key' }, stress: { имя: 'напряжение', пример: 'stress', значок: 'thermo' },
+  // Отделены от стыда, любви и преданности: смущение — не позор, нежность —
+  // не влюблённость, защита — не верность.
+  embarrassment: { имя: 'смущение', пример: 'смущение', значок: 'blush' }, tenderness: { имя: 'нежность', пример: 'нежность', значок: 'hearts' },
+  protection: { имя: 'защита', пример: 'protective', значок: 'shield' },
+};
+
+// Слова ищем с начала слова: подстрокой «дно» ловилось в «холоДНОе»,
+// «ire» — в «tired», «won» — в «wonder», «мани» — во «вниМАНИе», «преклон» —
+// в «непреклонность», «обладание» — в «самообладании». Латиница до четырёх
+// букв — ещё и с концом слова («rest» не в «restless»). Фразы с пробелом —
+// как есть.
+const ГРАНИЦЫ = new Map();
+function естьСлово(raw, t) {
+  if (/[^a-zа-я'-]/.test(t)) return raw.includes(t);
+  const лат = /^[a-z'-]+$/.test(t);
+  let re = ГРАНИЦЫ.get(t);
+  if (!re) { re = new RegExp('(?<![a-zа-я])' + t + (лат && t.length <= 4 ? '(?![a-z])' : ''), 'u'); ГРАНИЦЫ.set(t, re); }
+  return re.test(raw);
+}
+export function normalizeDiaryMood(value) {
   const raw = String(value ?? '')
     .toLowerCase()
     .replace(/[ё]/g, 'е')
@@ -30,11 +75,11 @@ function normalizeDiaryMood(value) {
   const patterns = [
     { key: 'triumph', tests: [
       'триумф','триумфаль','победа','побед','выиграл','выиграла','ликован','ликует','торжеств','гордость','горд','горделив','превосходств','упоени','эйфор','воодушевлен','окрылен','всесил',
-      'triumph','triumphant','victory','victorious','win','won','winner','elated','elation','exult','exultant','jubilant','jubilation','pride','proud','glory','glorious','euphoria','euphoric','vindicated','vindication','smug'
+      'triumph','triumphant','victory','victorious','win','won','winner','elated','elation','exult','exultant','jubilant','jubilation','pride','proud','glory','glorious','euphoria','euphoric','vindicated','vindication','smug','удовлетворени','сатисфакц','satisfaction','satisfied'
     ]},
     { key: 'collapse', tests: [
-      'сокрушен','сокруша','крах','рухнул','рухнет','обвал','развалил','разрушен','разруха','надлом','сломлен','сломал','катастроф','провал','падени','пала','упала на дно','дно','конец всему','все кончено','всему конец','руин','пепелищ','обломк','крушени',
-      'collapse','collapsed','collapsing','crumbl','ruin','ruined','ruins','wreck','wrecked','shatter','shattered','broken down','downfall','undone','crushed','devastat','catastroph','disaster','fell apart','falling apart','rock bottom','the end of everything','defeat','defeated'
+      'сокрушен','сокруша','крах','рухнул','рухнет','обвал','развалил','разрушен','разруха','надлом','сломлен','сломал','катастроф','провал','падени','пала духом','упала на дно','на дне','достиг дна','конец всему','агони','обреч','все кончено','всему конец','руин','пепелищ','обломк','крушени',
+      'collapse','collapsed','collapsing','crumbl','ruin','ruined','ruins','wreck','wrecked','shatter','shattered','broken down','downfall','undone','crushed','devastat','catastroph','disaster','fell apart','falling apart','rock bottom','the end of everything','defeat','defeated','agony','doom','doomed','reckoning'
     ]},
     { key: 'realization', tests: [
       'осозна','осознан','понима','поняла','понял','понял','прозрени','прозрел','озарени','озарило','дошло','догадал','догадка','стало ясно','ясност пришла','открылос','увидела правду','сообраз','раскусил','сложилас картина',
@@ -42,35 +87,59 @@ function normalizeDiaryMood(value) {
     ]},
     { key: 'jealousy', tests: [
       'ревност','ревну','ревнив','ревнует','завист','завидует','завидн','собственнич',
-      'jealous','jealousy','envy','envious','possessive','possessiveness','green-eyed','covet','covetous'
+      'jealous','jealousy','envy','envious','possessive','possessiveness','possession','ownership','обладани','green-eyed','covet','covetous'
     ]},
     { key: 'obsession', tests: [
-      'одержим','одержимост','навязчив','зациклил','зациклен','помешал','помешательств','маниакальн','мани','жажд','алчн','ненасытн','не может остановит','только о нем','только о ней','идея фикс','фиксац','преследу мысл',
+      'одержим','одержимост','навязчив','зациклил','зациклен','помешал','помешательств','маниакальн','мания','жажд','алчн','ненасытн','не может остановит','только о нем','только о ней','идея фикс','фиксац','преследу мысл',
       'obsess','obsessed','obsession','obsessive','fixated','fixation','compulsi','consumed by','consuming','craving','crave','craves','insatiable','ravenous','hunger for','thirst for','fanatic','mania','manic','preoccupied','can\'t stop thinking'
+    ]},
+    { key: 'madness', tests: [
+      'безуми','сумасшеств','рассудок','рассудка','растерзан','раскол','разлом','бред','галлюцин','сюрреал','паранои','расщеплен','не в себе','крыша едет',
+      'madness','insanity','insane','unhinged','deranged','delirium','delirious','fracture','fractured','surreal','paranoia','paranoid','psychosis','losing my mind','lunacy'
     ]},
     { key: 'codependency', tests: [
       'зависимост','созависим','зависима','зависим','привязанност','привязалас','привязалс','не может без','нужен как воздух','цепляетс за нег','цепляетс за не','срослас','раствор в нем','раствор в не','подчинен','подчинил','симбиоз',
       'codepend','co-depend','dependency','dependent','dependence','attachment','clingy','clinging','can\'t live without','need him','need her','enmeshed','enmeshment','symbiotic','subsumed'
     ]},
+    { key: 'control', tests: [
+      'контрол','самоконтрол','авторитар','директив','доминац','доминир','власт','диктат','тирани','повелева','командова','управля','владеет ситуац','держит все в руках',
+      'control','controlling','dominance','dominant','dominating','domination','dominate','command','commanding','authority','authoritative','power','tyranny','tyrant','dictate','in charge','mastery'
+    ]},
     { key: 'lust', tests: [
-      'похот','вожделен','возбужд','возбужден','желани','желает','страст','страстн','влечени','влеком','томлени по','жар в тел','дрожь по кож','хочет его','хочет ее','плотск','эротич','чувственн','искушени','соблазн',
-      'lust','lustful','arousal','aroused','arousing','desire','desirous','yearning','longing for','carnal','erotic','sensual','sultry','heat','wanting','want him','want her','temptation','tempted','seduce','seduction','turned on','ache for'
+      'похот','вожделен','возбужд','возбужден','желани','желает','страст','страстн','влечени','влеком','томлени по','жар в тел','дрожь по кож','хочет его','хочет ее','плотск','эротич','чувственн','искушени','соблазн','экстаз','пожар','медленный огонь',
+      'lust','lustful','arousal','aroused','arousing','desire','desirous','yearning','longing for','carnal','erotic','sensual','sultry','heat','wanting','want him','want her','temptation','tempted','seduce','seduction','turned on','ache for','ecstasy','ecstatic'
+    ]},
+    { key: 'tenderness', tests: [
+      'нежност','нежн','ласк','ласков','трепетн','бережн','умилени','умиля','мягкост','теплот к','гладит','прижимает к себе',
+      'tender','tenderness','gentle','gentleness','softness','soft','caring','cuddl','sweetness','doting','fondly'
     ]},
     { key: 'love', tests: [
-      'любов','люблю','любит','влюблен','влюблена','влюбилас','влюбилс','нежност','нежн','обожани','обожает','привязанност сердечн','трепет','сердце теплеет','родн','дорогой человек','дорога мне','люба',
-      'love','loved','loving','in love','beloved','adore','adoration','adoring','fond','fondness','affection','affectionate','tender','tenderness','cherish','cherished','smitten','infatuat','sweetheart','heart flutter'
+      'любов','люблю','любит','влюблен','влюблена','влюбилас','влюбилс','обожани','обожает','привязанност сердечн','сердце теплеет','родн','тепло','дорогой человек','дорога мне','люба',
+      'love','loved','loving','in love','beloved','adore','adoration','adoring','fond','fondness','affection','affectionate','cherish','cherished','smitten','infatuat','sweetheart','heart flutter'
+    ]},
+    { key: 'protection', tests: [
+      'защит','защища','защищ','оберега','оберег','ограждает','опека','опекает','покровит','стоит горой','заслонит','заслонила','не даст в обиду','не отдаст','на страже','прикрыл','прикрыла собой','охраня','бдительн',
+      'protect','protective','protection','protector','guard','guarding','guardian','shield','shielding','defend','defender','defensive','watchful','overprotective'
     ]},
     { key: 'devotion', tests: [
-      'преданност','предан','преданно','верност','верна ему','верна ей','верен ей','верен ему','защит','защища','защищ','оберега','ограждает','опека','опекает','покровит','стоит горой','заслонит','заслонила','не даст в обиду','не отдаст','служени','присяг','клятв','на страже','прикрыл','прикрыла собой',
-      'loyal','loyalty','devotion','devoted','protect','protective','protection','protector','guard','guarding','guardian','shield','shielding','defend','defender','faithful','fidelity','steadfast','unwavering','vow','sworn','stand by'
+      'преданност','предан','преданно','верност','верна ему','верна ей','верен ей','верен ему','служени','присяг','клятв',
+      'loyal','loyalty','devotion','devoted','faithful','fidelity','steadfast','unwavering','vow','sworn','stand by'
     ]},
     { key: 'cozy', tests: [
       'уют','уютн','по-домашнему','домашн тепло','тепло дома','плед','камин','у камина','чашка чая','какао','кутаетс','закуталас','свернулас клубк','гнездо','убежищ','мягк свет','ламп','шерстян','носки','тапочк','пахнет домом',
       'cozy','cosy','coziness','snug','snugly','snuggle','curled up','blanket','fireplace','hearth','warm socks','hot cocoa','cup of tea','homely','homey','hygge','safe place','nest','tucked in'
     ]},
+    { key: 'longing', tests: [
+      'тоск','томлени','скучает по','скучаю по','ждет его','ждет ее','вспоминает его','вспоминает ее','щемящ','разлук',
+      'longing','long for','yearn','yearning','pining','pine for','miss him','miss her','missing him','missing her','wistful'
+    ]},
+    { key: 'embarrassment', tests: [
+      'смущен','смущ','сконфуж','неловк','неудобн','застенчив','робост','робе','краснеет','покраснел','зарделас','зардел','растерялас','стесня',
+      'embarrass','embarrassed','embarrassment','awkward','awkwardness','flustered','sheepish','bashful','shy','shyness','timid','blush','blushing','blushed','self-conscious','coy'
+    ]},
     { key: 'shame', tests: [
-      'смущен','смущ','сконфуж','неловк','неудобн','стыд','стыдно','пристыж','застенчив','робост','робе','краснеет','покраснел','залилас краск','позор','опозор','унижени','унижен','мортиф',
-      'embarrass','embarrassed','embarrassment','awkward','awkwardness','flustered','sheepish','bashful','shy','shyness','timid','blush','blushing','blushed','shame','ashamed','shameful','humiliat','humiliated','humiliation','mortified','mortification','self-conscious'
+      'стыд','стыдно','пристыж','позор','опозор','унижени','унижен','мортиф','залилас краск',
+      'shame','ashamed','shameful','humiliat','humiliated','humiliation','mortified','mortification'
     ]},
     { key: 'guilt', tests: [
       'вина','вину','виноват','виноватост','виновн','провинил','раская','раскаяни','покая','угрызен','совест','самобичев','корит себя','виню себя','моя вина',
@@ -84,44 +153,71 @@ function normalizeDiaryMood(value) {
       'облегчени','облегчен','отлегло','выдохн','с плеч','полегчал','попуст','отпустило','успокоилас','успокоилс','обошлос','пронесло','слава богу',
       'relief','relieved','reprieve','unburdened','weight lifted','lifted','eased','at last','finally over','reassured','reassurance','solace'
     ]},
+    { key: 'irony', tests: [
+      'ирони','сарказ','саркаст','сардонич','насмеш','усмеш','забав','потеш','цинизм','цинич','ехидн','язвит','темное веселье','черный юмор',
+      'irony','ironic','sarcasm','sarcastic','sardonic','wry','smirk','smirking','mock','mocking','amuse','amused','amusement','cynic','cynical','snark','snarky','dark humor','dark humour'
+    ]},
+    { key: 'respect', tests: [
+      'уважени','уважает','почтени','почтител','восхищ','преклон','благоговен','признательн',
+      'respect','respectful','admire','admiration','admiring','revere','reverence','awe','esteem','in awe'
+    ]},
+    { key: 'curiosity', tests: [
+      'любопыт','интерес','заинтриг','увлечен','исследов','загадк','fascinat','curious','curiosity','intrigu','interested','inquisitive'
+    ]},
     { key: 'joy', tests: [
       'радост','радуетс','рада','рад ','счасть','счастлив','весел','веселье','восторг','восхищ','восхищени','смех','смеетс','улыб','улыбаетс','приподнят','светло на душе','тепло на душе','благодарност','благодар','предвкушени','надежд','окрыл',
       'joy','joyful','joyous','happy','happiness','glad','gladness','delight','delighted','cheerful','cheer','merry','laugh','laughter','smiling','smile','bliss','blissful','excited','excitement','thrilled','warmth','grateful','gratitude','thankful','hopeful','hope'
     ]},
     { key: 'contempt', tests: [
-      'презрени','презрен','презира','ненавист','ненавиж','ненавид','высокомер','надменн','снисходительн','пренебрежени','пренебрег','свысока',
+      'презрени','презрен','презира','ненавист','ненавиж','ненавид','высокомер','надменн','снисходительн','пренебрежени','пренебрег','свысока','спес',
       'contempt','contemptuous','disdain','disdainful','scorn','scornful','hatred','hate','hateful','loathing','loathe','sneer','sneering','condescend','condescending','haughty','arrogant','arrogance','superior','derision','derisive'
+    ]},
+    { key: 'thrill', tests: [
+      'азарт','кураж','раж','дерзост','дерзк','бунт','безрассуд','риск','охотнич','кровожадн',
+      'thrill','thrilling','reckless','daring','bold','defiant','defiance','rebel','rebellious','hunt','hunting','predatory','bloodlust','gamble'
+    ]},
+    { key: 'calc', tests: [
+      'расчет','рассудит','аналит','следствен','процессуал','трезв','ясност','сосредоточ','собранност','фокус','стратег','методич','просчит','логик',
+      'calculat','calculus','analytic','analytical','clinical','focus','focused','strategic','strategy','methodical','precise','precision','logic','logical','cold logic'
+    ]},
+    { key: 'resolve', tests: [
+      'решимост','решител','непреклон','упорств','упрям','стойкост','выдержк','мобилизац','готовност','выживани','долг','сталь','несгибаем',
+      'determin','resolve','resolute','resolution','stubborn','stubbornness','grit','unyielding','unbending','survival','survive','duty','perseveran','tenacity','tenacious'
     ]},
     { key: 'irritation', tests: [
       'раздраж','бесит','бесят','досад','досадн','ворчлив','брюзж','сварлив','злит по мелоч','заеб','достал','достали','надоел','надоед','выбешив','цепляетс','огрызаетс','колюч','ершист','ворчит',
       'irritat','irritated','irritable','irritation','annoy','annoyed','annoyance','vexed','vexation','exasperat','peeved','miffed','testy','snappy','snappish','grumpy','grouchy','cranky','fed up','sick of','impatient','impatience','prickly','petty'
     ]},
+    { key: 'stress', tests: [
+      'стресс','напряж','давлени','перегруз','на пределе','цейтнот','аврал','сдавлен',
+      'stress','stressed','tense','tension','pressure','strain','strained','overload','overloaded','overworked','under pressure','pressured'
+    ]},
     { key: 'nervous', tests: [
       'нервоз','нервнич','нервн','нервы','мандраж','волнени','взволнован','ерзает','ерзан','неусидч','беспокойств','беспокоитс','взвинчен','на взводе','дергаетс','дерган','суетлив','теребит','кусает губ','места себе не',
-      'nervous','nervousness','nervy','jittery','jitters','fidget','fidgety','restless','restlessness','antsy','edgy','on edge','keyed up','wound up','apprehensive','apprehension','unsettled','uneasy','butterflies','stage fright'
+      'nervous','nervousness','nervy','jittery','jitters','fidget','fidgety','restless','restlessness','antsy','edgy','on edge','keyed up','wound up','apprehensive','apprehension','unsettled','uneasy','butterflies','stage fright','concern','concerned','обеспокоен'
     ]},
     { key: 'panic', tests: [
       'паник','паничес','страх','страш','испуг','испуган','ужас','ужасн','кошмар','тревог','тревож','обеспоко','дрож','дрожит','дрожащ','растерян','растерянн','смятен','сует','спешк','спешит','тороп','торопит','срочн','аварийн','хаос','хаотич','безумн','отчаянн','в отчаяни','шок','шокирован','ошелом','ошарашен','опасен','опасност','на грани','неистово','лихорадоч','срыва','срыв','адреналин',
       'panic','panicked','panicking','fear','fearful','afraid','scared','fright','frightened','terror','terrified','horror','horrified','nightmare','anxious','anxiety','worry','worried','shaking','shaky','trembling','tremor','confused','confusion','hurry','hurried','rush','rushed','urgent','urgency','emergency','chaos','chaotic','frantic','frenzy','desperate','desperation','alarm','alarmed','alarming','shock','shocked','stunned','startled','overwhelmed','overwhelm','unsafe','danger','dangerous','breakdown','meltdown','adrenaline','distress','distressed','dread','dreadful'
     ]},
     { key: 'angry', tests: [
-      'ярост','ярость','злость','злитс','злой','злая','злоб','гнев','гневн','агресс','агрессив','враждеб','враждебн','озлоб','возмущ','негодован','фрустрац','фрустрир','напряж','напряжен','стресс','стрессов','задет','вскип','кипит','кипение','грубо','жестко','жесток','жестокост','свиреп','озверел','сарказм','саркаст','разъяр','вспыльчив','взбеш','бешен','бешенств','оскорблен','оскорблени',
-      'angry','anger','rage','raging','furious','fury','mad','madness','irate','ire','wrath','wrathful','cruel','cruelty','brutal','brutality','vicious','viciousness','savage','ferocious','frustrat','frustrated','frustration','agitated','agitation','hostile','hostility','resent','resentful','resentment','outrage','outraged','offended','insulted','tense','tension','stressed','stress','aggression','aggressive','enraged','boiling','seething','heated','heatedly','sarcastic','sarcasm','spiteful','venomous','cross'
+      'ярост','ярость','злость','злитс','злой','злая','злоб','гнев','гневн','агресс','агрессив','враждеб','враждебн','озлоб','возмущ','негодован','фрустрац','фрустрир','задет','вскип','кипит','кипение','грубо','жестко','жесток','жестокост','свиреп','озверел','разъяр','вспыльчив','взбеш','бешен','бешенств','оскорблен','оскорблени',
+      'angry','anger','rage','raging','furious','fury','mad','madness','irate','ire','wrath','wrathful','cruel','cruelty','brutal','brutality','vicious','viciousness','savage','ferocious','frustrat','frustrated','frustration','agitated','agitation','hostile','hostility','resent','resentful','resentment','outrage','outraged','offended','insulted','aggression','aggressive','enraged','boiling','seething','heated','heatedly','spiteful','аффект','venomous','cross'
     ]},
     { key: 'disappointment', tests: [
       'разочарован','разочарова','разочарование','обманут','обманул','обманулас','не оправдал','не оправдалис','ожидания не','подвел','подвела','обещал и не','зря надеял','напрасно ждал','остыло','потускнел',
       'disappoint','disappointed','disappointing','disappointment','let down','letdown','disillusion','disillusioned','disenchant','failed expectations','fell short','anticlimax','deflated'
     ]},
     { key: 'apathy', tests: [
-      'апати','апатич','подавлен','подавленн','опустошен','выгоран','выгорел','обесси','бессили','вял','вялост','безволи','безразличие ко всему','ничего не хочет','нет сил','упадок сил','оцепенени','отупени','заторможен','депресс','уныни','уныл',
-      'apathy','apathetic','listless','listlessness','lethargy','lethargic','burnout','burned out','burnt out','drained','depleted','numb','numbness','empty','emptiness','hollow','sluggish','languid','torpor','despondent','despondency','depressed','depression','dejected','dejection','no energy','can\'t be bothered'
+      'апати','апатич','подавлен','подавленн','опустошен','выгоран','выгорел','обесси','бессили','вял','вялост','безволи','безразличие ко всему','ничего не хочет','нет сил','упадок сил','оцепенени','отупени','заторможен','депресс','уныни','уныл','усталост','устал','истощени','изнеможени','изнурен','смирени',
+      'apathy','apathetic','listless','listlessness','lethargy','lethargic','burnout','burned out','burnt out','drained','depleted','numb','numbness','empty','emptiness','hollow','sluggish','languid','torpor','despondent','despondency','depressed','depression','dejected','dejection','no energy','can\'t be bothered','exhausted','exhaustion','tired','fatigue','weary','worn out','resigned','resignation'
     ]},
     { key: 'bored', tests: [
       'скук','скучн','скучает','скучан','занудств','монотонн','однообраз','рутин','томитс','маетс','убивает время','нечем зан','тянетс время',
       'bored','boredom','boring','dull','dullness','tedious','tedium','monotony','monotonous','humdrum','uneventful','idle','idling','restive','killing time','nothing to do','yawn'
     ]},
     { key: 'cold', tests: [
-      'равнодуш','безразлич','холодност','холодно относ','холоден','холодна','отстранен','отчужден','отчуждени','дистанц','бесстраст','безучаст','черств','ледян','замкнут','закрылас','закрылс',
+      'равнодуш','безразлич','холодност','холодно относ','холоден','холодна','отстранен','отчужден','отчуждени','дистанц','бесстраст','безучаст','черств','ледян','холод','хладнокров','беспощадн','озноб','замкнут','закрылас','закрылс',
       'indifferent','indifference','uncaring','unmoved','detached','detachment','aloof','aloofness','distant','withdrawn','impassive','dispassionate','unfeeling','callous','cold','coldness','icy','frosty','remote','disinterested','disengaged'
     ]},
     { key: 'sad', tests: [
@@ -138,7 +234,7 @@ function normalizeDiaryMood(value) {
     ]}
   ];
   for (const entry of patterns) {
-    if (entry.tests.some(test => raw.includes(test))) return entry.key;
+    if (entry.tests.some(test => естьСлово(raw, test))) return entry.key;
   }
   return 'neutral';
 }
@@ -205,6 +301,24 @@ function buildDiaryStains(seed) {
   }).join('');
 }
 
+// Штамп настроения рядом с датой: значок темы листа и само слово модели —
+// по-русски как есть («хищный азарт»), английское — именем темы («злость»).
+// Без настроения штампа нет.
+export function штампНастроения(mood, key) {
+  const тема = ТЕМЫ_ДНЕВНИКА[key];
+  const сырое = String(mood ?? '').trim();
+  if (!тема || !сырое || /^(empty|none|neutral|нейтрально)$/i.test(сырое)) return '';
+  const слово = /[а-яё]/i.test(сырое) ? сырое.replace(/_/g, ' ').toLowerCase() : тема.имя;
+  const коротко = слово.length > 28 ? слово.slice(0, 27) + '…' : слово;
+  return `<span class="hud-diary-stamp" title="Настроение: ${escapeHtml(слово)} · лист «${тема.имя}»">${ико(тема.значок, 'hud-diary-stamp-ico')}<span>${escapeHtml(коротко)}</span></span>`;
+}
+
+// Живой слой листа (css/diary-moods.css): у тем с частицами — шесть частиц,
+// у остальных пустой слой, на нём рисуют ::before и ::after. Нейтральному не нужен.
+const С_ЧАСТИЦАМИ = new Set(['love', 'lust', 'cozy', 'disgust', 'joy', 'cold', 'collapse', 'jealousy', 'sad', 'longing', 'disappointment', 'apathy', 'triumph', 'respect', 'irritation', 'relief', 'angry', 'panic', 'madness', 'guilt', 'tenderness']);
+const ЧАСТИЦЫ = '<i class="hud-dp"></i>'.repeat(6);
+const живойСлой = (key) => key === 'neutral' ? '' : `<span class="hud-diary-fx" aria-hidden="true">${С_ЧАСТИЦАМИ.has(key) ? ЧАСТИЦЫ : ''}</span>`;
+
 export function buildDiaryHTML(diaryData, uid, isChecked) {
   let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-diary-container">`;
   if (!diaryData || diaryData.length === 0) {
@@ -213,6 +327,7 @@ export function buildDiaryHTML(diaryData, uid, isChecked) {
   diaryData.forEach(entry => {
     const seed = typeof entry === 'object' && entry !== null ? `${entry.author || ''}|${entry.time || ''}|${entry.text || ''}` : String(entry || '');
     const moodKey = typeof entry === 'string' ? 'neutral' : normalizeDiaryMood(entry.mood || entry.emotion || '');
+    const штамп = typeof entry === 'string' ? '' : штампНастроения(entry.mood || entry.emotion || '', moodKey);
     const sticker = (typeof entry === 'object' && entry !== null && entry.author && entry.author.toLowerCase() !== 'none' && entry.author.toLowerCase() !== 'empty')
       ? `<span class="hud-diary-sticker">${escapeHtml(getDiaryStickerText(entry.author))}</span>`
       : '';
@@ -224,13 +339,13 @@ export function buildDiaryHTML(diaryData, uid, isChecked) {
     if (typeof entry === 'string') {
       let parts = entry.split('|'); let time = parts[0].trim(); let text = parts.length > 1 ? parts.slice(1).join('|').trim() : '';
       if (!text) { text = time; time = 'Скрытая запись'; }
-      html += `<div class="hud-diary-entry hud-diary-mood-${moodKey}">${paper}${sticker}${stains}<span class="hud-diary-damage" aria-hidden="true"></span><div class="hud-diary-time">${escapeHtml(time)}</div><div class="hud-diary-text">${renderDiaryText(text)}</div></div>`;
+      html += `<div class="hud-diary-entry hud-diary-mood-${moodKey}">${paper}${sticker}${stains}<span class="hud-diary-damage" aria-hidden="true"></span>${живойСлой(moodKey)}<div class="hud-diary-time">${escapeHtml(time)}${штамп}</div><div class="hud-diary-text">${renderDiaryText(text)}</div></div>`;
     } else {
       const author = entry && entry.author && entry.author.toLowerCase() !== 'none' && entry.author.toLowerCase() !== 'empty' ? entry.author : '';
       const time = entry && entry.time ? entry.time : 'Скрытая запись';
       const aboutUser = entry && entry.aboutUser && entry.aboutUser.toLowerCase() !== 'none' && entry.aboutUser.toLowerCase() !== 'empty' ? entry.aboutUser : '';
       const text = entry && entry.text ? entry.text : '';
-      html += `<div class="hud-diary-entry hud-diary-mood-${moodKey}">${paper}${sticker}${stains}<span class="hud-diary-damage" aria-hidden="true"></span>${author ? `<div class="hud-diary-author">${escapeHtml(имяБезПриставки(author))}</div>` : ''}<div class="hud-diary-time">${escapeHtml(time)}</div><div class="hud-diary-text">${renderDiaryText(text)}</div>${aboutUser ? (settings.diaryVeil === false
+      html += `<div class="hud-diary-entry hud-diary-mood-${moodKey}">${paper}${sticker}${stains}<span class="hud-diary-damage" aria-hidden="true"></span>${живойСлой(moodKey)}${author ? `<div class="hud-diary-author">${escapeHtml(имяБезПриставки(author))}</div>` : ''}<div class="hud-diary-time">${escapeHtml(time)}${штамп}</div><div class="hud-diary-text">${renderDiaryText(text)}</div>${aboutUser ? (settings.diaryVeil === false
         ? `<div class="hud-diary-about-user"><span class="hud-diary-about-label">О ней:</span> ${renderDiaryText(aboutUser)}</div>`
         : `<div class="hud-diary-about-user hud-wash is-closed" role="button" tabindex="0" aria-expanded="false"><span class="hud-diary-about-label">О ней:</span> <span class="hud-wash-text">${renderDiaryText(aboutUser)}</span><span class="hud-veil"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 3.5s6 6.4 6 10.5a6 6 0 0 1-12 0c0-4.1 6-10.5 6-10.5Z"/></svg>нажми, чтобы прочесть</span></span></div>`) : ''}</div>`;
     }

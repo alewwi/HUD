@@ -14,15 +14,15 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.61.5';
-import { проставитьДень } from './msg-feed.js?v=23.61.5';
-import { normalizeJSONData } from '../schema.js?v=23.61.5';
-import { settings } from '../settings.js?v=23.61.5';
-import { статусРужья } from '../codes.js?v=23.61.5';
-import { extractHudBlock } from '../hud-block.js?v=23.61.5';
-import { namesLikelySame } from '../names.js?v=23.61.5';
-import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.61.5';
-import { readParsed, writeParsed } from '../store.js?v=23.61.5';
+import { parseHUDComplex } from '../hud-parser.js?v=23.63.7';
+import { проставитьДень } from './msg-feed.js?v=23.63.7';
+import { normalizeJSONData } from '../schema.js?v=23.63.7';
+import { settings } from '../settings.js?v=23.63.7';
+import { статусРужья } from '../codes.js?v=23.63.7';
+import { extractHudBlock } from '../hud-block.js?v=23.63.7';
+import { namesLikelySame } from '../names.js?v=23.63.7';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.63.7';
+import { readParsed, writeParsed } from '../store.js?v=23.63.7';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -87,9 +87,16 @@ function именаТаверны() {
     return { user: (ctx && ctx.name1) || '', char: (ctx && ctx.name2) || '' };
   } catch (_) { return { user: '', char: '' }; }
 }
+// Отпечаток спрашивают на каждый прошлый ход каждой карточки — JSON настроек и
+// контекст Таверны пересобираем не чаще раза в полсекунды.
+let отпечатокБыл = '', отпечатокКогда = 0;
 function отпечаток() {
+  const t = Date.now();
+  if (отпечатокБыл && t - отпечатокКогда < 500) return отпечатокБыл;
   const и = именаТаверны();
-  return (хэшСтроки(ВЕРСИЯ_РАЗБОРА + JSON.stringify(настройкиРазбора()) + и.user + '|' + и.char) >>> 0).toString(36);
+  отпечатокБыл = (хэшСтроки(ВЕРСИЯ_РАЗБОРА + JSON.stringify(настройкиРазбора()) + и.user + '|' + и.char) >>> 0).toString(36);
+  отпечатокКогда = t;
+  return отпечатокБыл;
 }
 const ключХода = (raw, fp) => fp + ':' + raw.length + ':' + хэшСтроки(raw);
 
@@ -111,13 +118,24 @@ export const ключБлокаСводки = (текст) => 'с:' + ключХ
 export const достатьРазборыСводки = (ключи) => readParsed(ключи);
 export const запомнитьРазборСводки = (k, d) => запомнитьВБазе(k, d);
 
+// Ключ хода — хэш всего текста (до 80+ тыс. знаков) — запоминаем на объекте
+// сообщения, пока текст и отпечаток те же: его спрашивают десятки раз подряд.
+const ключиСообщений = new WeakMap();
+function ключСообщения(mes, raw) {
+  const fp = отпечаток();
+  const з = mes && typeof mes === 'object' ? ключиСообщений.get(mes) : null;
+  if (з && з.raw === raw && з.fp === fp) return з.k;
+  const k = ключХода(raw, fp);
+  if (mes && typeof mes === 'object') ключиСообщений.set(mes, { raw, fp, k });
+  return k;
+}
 function разобратьХод(mes) {
   const raw = текст(mes && mes.mes);
   if (!raw) return null;
   // Ключ — хэш всего текста: хвост в шестьдесят знаков совпадал у правок,
   // сделанных в середине блока без изменения длины, и кэш отдавал старый
   // разбор.
-  const k = ключХода(raw, отпечаток());
+  const k = ключСообщения(mes, raw);
   const было = кэш.взять(k);
   if (было !== undefined) return было;
   let результат = null;
@@ -184,11 +202,14 @@ export function прогретьИсторию(chat) {
 }
 
 async function прогреть(chat) {
+  try { performance.mark('hud:прогрев:' + (Array.isArray(chat) ? chat.length : 'нет')); } catch (_) {}
   if (!Array.isArray(chat) || !chat.length || settings.carryOver === false) return 0;
   const fp = отпечаток();
   const кандидаты = [];
   const было = new Set();
-  for (const mes of chat.slice(-ПРОГРЕВ_ХОДОВ)) {
+  // От свежих к старым: последним карточкам нужны ближние ходы, и ждущая
+  // прогрева первая сборка (events.js) получает их в первой же пачке потока.
+  for (const mes of chat.slice(-ПРОГРЕВ_ХОДОВ).reverse()) {
     const raw = текст(mes && mes.mes);
     // Без «HUD» в тексте блока нет — такие ходы разбираются мгновенно и так.
     if (!raw || !/hud/i.test(raw)) continue;
@@ -202,6 +223,7 @@ async function прогреть(chat) {
   const изБазы = await readParsed(кандидаты.map(([k]) => k));
   изБазы.forEach((d, k) => кэш.положить(k, d));
   let добавлено = изБазы.size;
+  try { performance.mark('hud:прогрев:база:' + изБазы.size + '/' + кандидаты.length); } catch (_) {}
 
   const остались = кандидаты.filter(([k]) => !изБазы.has(k));
   for (let i = 0; i < остались.length; i += ПАЧКА_ПОТОКА) {
@@ -225,8 +247,15 @@ async function прогреть(chat) {
 // генерала, Коэн меняет капельницу» — одна запись, остаётся полная.
 // В хронологии (поВремени) ещё и пересказ того же события в ту же минуту:
 // «15.06 21:43 — Тристан переносит её на руках…» и «15.06 21:43 — Перенос на руках…».
-const МЕТКА_ВРЕМЕНИ = /^\s*(\d{1,2}\.\d{1,2}(?:\.\d{2,4})?\s+\d{1,2}:\d{2})\s*[-—–:]?\s*/;
+// Дата необязательна: модель чаще пишет одно время («01:05 - …»), и такие
+// пересказы раньше не склеивались вовсе — в таймлайне стояли два «01:05»
+// об одном и том же поцелуе другими словами.
+const МЕТКА_ВРЕМЕНИ = /^\s*((?:\d{1,2}\.\d{1,2}(?:\.\d{2,4})?\s+)?\d{1,2}:\d{2})\s*[-—–:]?\s*/;
 const значимые = (s) => new Set(ключ(s).replace(/[^\p{L}\p{N} ]/gu, ' ').split(/\s+/).filter(w => w.length > 3));
+// Пересказ той же минуты переписан почти целиком: общих слов меньше половины,
+// но для одной минуты и десятка значимых слов это всё ещё одно событие.
+const ДОЛЯ_ТОЙ_ЖЕ_МИНУТЫ = .4;
+const минуты = (метка) => { const m = String(метка || '').match(/(\d{1,2}):(\d{2})$/); return m ? +m[1] * 60 + +m[2] : null; };
 function склеитьСтроки(старое, новое, предел, { поВремени = false } = {}) {
   const out = [];
   for (const v of [...(старое || []), ...(новое || [])]) {
@@ -244,11 +273,22 @@ function склеитьСтроки(старое, новое, предел, { п
       const A = значимые(o.суть), B = значимые(суть);
       if (!A.size || !B.size) return false;
       let общих = 0; for (const w of A) if (B.has(w)) общих++;
-      return общих / Math.min(A.size, B.size) >= .75;
+      const доля = общих / Math.min(A.size, B.size);
+      return доля >= .75 || (доля >= ДОЛЯ_ТОЙ_ЖЕ_МИНУТЫ && Math.min(A.size, B.size) >= 6);
     });
     if (i === -1) { out.push({ s, k, метка, суть }); continue; }
     // Полнее — та, что длиннее; при равной — свежая.
     if (суть.length >= out[i].суть.length) out[i] = { s, k, метка, суть };
+  }
+  // Событие, дописанное задним числом («00:48» после «01:07»), встаёт на своё
+  // место — но только среди близких по времени соседей: разница больше трёх
+  // часов — это уже переход через полночь или другой день, порядок ходов вернее.
+  if (поВремени) for (let i = 1; i < out.length; i++) {
+    for (let j = i; j > 0; j--) {
+      const a = минуты(out[j - 1].метка), b = минуты(out[j].метка);
+      if (a === null || b === null || !(a > b && a - b <= 180)) break;
+      [out[j - 1], out[j]] = [out[j], out[j - 1]];
+    }
   }
   return out.slice(-предел).map(o => o.s);
 }
@@ -630,30 +670,29 @@ const частиИстории = (v) => текст(Array.isArray(v) ? v.join('; 
 const короткаяИстория = (v) => { const ч = частиИстории(v); return ч.some(s => /^dt\s*[:：]/i.test(s)) && !ч.some(s => /^ak\s*[:：]/i.test(s)); };
 const датаИстории = (v) => { const dt = частиИстории(v).find(s => /^dt\s*[:：]/i.test(s)); return dt ? dt.replace(/^dt\s*[:：]\s*/i, '').toLowerCase().replace(/[\s,.]+/g, ' ').trim() : ''; };
 const пустоЗначение = (v) => { const s = текст(Array.isArray(v) ? v.join('; ') : v); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
-const чертыПоХэшу = new КэшРазборов(3000, ЖИЗНЬ_КЭША);
-
+// Черты берём из общего разбора хода (разобратьХод): тот же кэш, база и фоновый
+// поток, что у переноса списков. Раньше здесь был свой parseHUDComplex по
+// своему кэшу — каждый старый ход разбирался второй раз, и первая карточка
+// чата тратила на это до 350 мс. Поля черт в обоих разборах совпадают.
+// Есть ли черты в тексте — запоминаем на объекте сообщения, пока текст тот же.
+const естьЧертыУ = new WeakMap();
+const чертыУ = new WeakMap();
 function чертыХода(mes) {
   const raw = текст(mes && mes.mes);
-  if (!raw || !ЕСТЬ_ЧЕРТЫ.test(raw)) return null;
-  let хэш = 0;
-  for (let i = 0; i < raw.length; i++) хэш = ((хэш << 5) - хэш + raw.charCodeAt(i)) | 0;
-  const k = raw.length + ':' + хэш;
-  const было = чертыПоХэшу.взять(k);
-  if (было !== undefined) return было;
-  let out = null;
-  const блок = extractHudBlock(raw);
-  if (блок) {
-    try {
-      const d = parseHUDComplex(блок);
-      out = (Array.isArray(d.characters) ? d.characters : []).map(c => ({
-        имя: текст(c && c['Имя']),
-        поля: Object.fromEntries(УСТОЙЧИВЫЕ.filter(п => c && !пустоЗначение(c[п])).map(п => [п, c[п]])),
-      })).filter(x => x.имя && Object.keys(x.поля).length);
-      if (!out.length) out = null;
-    } catch (_) { out = null; }
-  }
-  // Храним только черты — это строки, память не растёт заметно.
-  чертыПоХэшу.положить(k, out);
+  if (!raw) return null;
+  const было = естьЧертыУ.get(mes);
+  const есть = было && было.raw === raw ? было.есть : ЕСТЬ_ЧЕРТЫ.test(raw);
+  if (!было || было.raw !== raw) естьЧертыУ.set(mes, { raw, есть });
+  if (!есть) return null;
+  const d = разобратьХод(mes);
+  if (!d) return null;
+  if (чертыУ.has(d)) return чертыУ.get(d);
+  let out = (Array.isArray(d.characters) ? d.characters : []).map(c => ({
+    имя: текст(c && c['Имя']),
+    поля: Object.fromEntries(УСТОЙЧИВЫЕ.filter(п => c && !пустоЗначение(c[п])).map(п => [п, c[п]])),
+  })).filter(x => x.имя && Object.keys(x.поля).length);
+  if (!out.length) out = null;
+  чертыУ.set(d, out);
   return out;
 }
 

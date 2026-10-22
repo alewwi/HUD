@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.61.5';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.61.5';
-import { namesLikelySame } from '../names.js?v=23.61.5';
-import { силаСтраха, статусРужья } from '../codes.js?v=23.61.5';
-import { settings } from '../settings.js?v=23.61.5';
-import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.61.5';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.61.5';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.63.7';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.63.7';
+import { namesLikelySame } from '../names.js?v=23.63.7';
+import { силаСтраха, статусРужья } from '../codes.js?v=23.63.7';
+import { settings } from '../settings.js?v=23.63.7';
+import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.63.7';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.63.7';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -64,6 +64,9 @@ export const ВИДЫ_БЛОКОВ = [
   { ключ: 'lifeGaugeView', группа: 'Быт', поле: 'Сводка', виды: { rings: 'Кольца', bars: 'Полоски', off: 'Скрыть' }, новый: true },
   { ключ: 'lifeDayView', группа: 'Быт', поле: 'Сутки', виды: { strip: 'Лента', clock: 'Циферблат', off: 'Скрыть' }, новый: true },
   { ключ: 'wardrobeView', группа: 'Быт', поле: 'Гардероб', виды: { tags: 'Бирки', rail: 'Вешалка', list: 'Список' }, новый: true },
+  // Вкладка «Сны» (render/dreams.js): модель пишет текст и толкование, кому снится,
+  // тип сна и образы HUD выводит из текста сам.
+  { ключ: 'dreamsView', группа: 'Сны', поле: 'Сны', виды: { classic: 'Разбитое стекло', clouds: 'Облака', book: 'Сонник', night: 'Ночное небо', catcher: 'Ловец снов' } },
   { ключ: 'petView', группа: 'Спутники', поле: 'Спутник', виды: { card: 'Карточка', tama: 'Тамагочи', classic: 'Прежний' }, новый: true },
   { ключ: 'bondView', группа: 'Спутники', поле: 'Привязанность', виды: { bars: 'Полоска', hearts: 'Сердца', paw: 'Лапа', tag: 'Жетон' } },
   // Вкладка «Мир» (render/world-views.js) — в порядке её блоков.
@@ -109,7 +112,9 @@ function пары(value) {
   return разбитьСписок(value).map(кусок => {
     const s = кусок.trim();
     if (!s || пусто(s)) return null;
-    const m = s.match(/^([^:：]{1,80})[:：]\s*(.*)$/);
+    // Двоеточие внутри времени («к 20:00») — часть текста, не разделитель:
+    // иначе страх «Что он не явится к 20:00: high» ломался на «…20» и «00: high».
+    const m = s.match(/^((?:[^:：]|(?<=\d)[:：](?=\d\d)){1,140}?)(?!(?<=\d)[:：]\d\d)[:：]\s*(.*)$/);
     return m ? { имя: m[1].trim(), текст: m[2].trim() } : { имя: s, текст: '' };
   }).filter(Boolean);
 }

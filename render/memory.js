@@ -6,15 +6,15 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.61.5';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.61.5';
-import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.61.5';
-import { отложитьРисунок } from './lazy-svg.js?v=23.61.5';
-import { длинныйСписок } from './long-list.js?v=23.61.5';
-import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.61.5';
-import { общиеМеста } from './route-places.js?v=23.61.5';
-import { статусРужья } from '../codes.js?v=23.61.5';
-import { сеткаСекретов } from './secrets-grid.js?v=23.61.5';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.63.7';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.63.7';
+import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.63.7';
+import { отложитьРисунок } from './lazy-svg.js?v=23.63.7';
+import { длинныйСписок } from './long-list.js?v=23.63.7';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.63.7';
+import { общиеМеста } from './route-places.js?v=23.63.7';
+import { статусРужья } from '../codes.js?v=23.63.7';
+import { сеткаСекретов } from './secrets-grid.js?v=23.63.7';
 
 function parseRoutePoint(item) {
   // Модель иногда ставит дату перед временем («09.11, 22:15») — дату отбрасываем.
@@ -53,12 +53,17 @@ function buildRouteMapHTML(routeArr, entityLabel) {
     }
     const place = (p.place || '').trim() || 'Без названия';
     const time = (p.time || '').replace(/[\[\]]/g, '').trim();
+    // Тот же адрес, что у прошлой точки, плюс уточнение («…, комната 307, у
+    // тумбы»): общую часть не повторяем на каждой остановке — «↳ у тумбы».
+    const части = place.split(/\s*,\s*/), прошлые = i > 0 ? String(pts[i - 1].place || '').split(/\s*,\s*/) : [];
+    let общих = 0; while (общих < прошлые.length && общих < части.length - 1 && части[общих].toLowerCase() === прошлые[общих].toLowerCase()) общих++;
+    const подпись = общих >= 2 ? `<span class="hud-route-same" aria-hidden="true">↳ </span>${escapeHtml(части.slice(общих).join(', '))}` : escapeHtml(place);
     return `${i > 0 ? `<li class="hud-route-leg"><span class="hud-route-leg-line"></span>${gap ? `<span class="hud-route-leg-time">${escapeHtml(gap)}</span>` : ''}</li>` : ''}
       <li class="hud-route-stop${last ? ' is-current' : ''}${i === 0 ? ' is-start' : ''}">
         <span class="hud-route-time">${escapeHtml(time)}</span>
         <span class="hud-route-pin"><i>${i + 1}</i></span>
         <span class="hud-route-info">
-          <b>${escapeHtml(place)}</b>
+          <b${общих >= 2 ? ` title="${escapeHtml(place)}"` : ''}>${подпись}</b>
           ${p.action ? `<small>${escapeHtml(p.action)}</small>` : ''}
         </span>
       </li>`;

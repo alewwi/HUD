@@ -14,8 +14,8 @@
 // пустить эфир, оторвать листок, поставить галочку, лайкнуть. Отметки живут
 // в памяти страницы (как голоса в новостях) и переживают перерисовку карточки.
 
-import { escapeHtml, hudHashSeed } from '../utils.js?v=23.61.5';
-import { ико, ИКОНКИ } from './view-icons.js?v=23.61.5';
+import { escapeHtml, hudHashSeed } from '../utils.js?v=23.63.7';
+import { ико, ИКОНКИ } from './view-icons.js?v=23.63.7';
 
 const т = (s) => escapeHtml(String(s ?? ''));
 const хэш = (s) => hudHashSeed(String(s ?? ''));

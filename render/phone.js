@@ -6,17 +6,17 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.61.5';
-import { settings } from '../settings.js?v=23.61.5';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.61.5';
-import { G_ICONS } from './icons.js?v=23.61.5';
-import { buildMessengerHTML } from './messenger.js?v=23.61.5';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.61.5';
-import { сортироватьЧаты } from './msg-feed.js?v=23.61.5';
-import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.61.5';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.63.7';
+import { settings } from '../settings.js?v=23.63.7';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.63.7';
+import { G_ICONS } from './icons.js?v=23.63.7';
+import { buildMessengerHTML } from './messenger.js?v=23.63.7';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.63.7';
+import { сортироватьЧаты } from './msg-feed.js?v=23.63.7';
+import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.63.7';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.61.5';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.63.7';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -391,10 +391,14 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
       const parties = parseMsgParties(s);
       lastSender = parties.sender || '';
       let body = s.split('|')[0].replace(/^(?:M|Msg|Сообщение|Chat|Чат):\s*/i, '').trim();
-      const mm = body.match(/^([^:-]+)(?:\s*(?:->|→)\s*([^:]+))?:\s*(.*)$/);
+      // Отправитель с дефисом («Ченнинг-Уинтроп») — тоже имя: [^:-] на нём
+      // обрывалось, и уведомление показывало сырое «Имя -> Кому: [CALL: …]».
+      const mm = body.match(/^(.+?)(?:\s*(?:->|→)\s*([^:]+?))?\s*:\s*(.*)$/);
       if (mm) body = mm[3];
       lastText = body.replace(/\[(?:VIDEO|ВИДЕО|VID|РОЛИК)[ _]?\d{0,2}:?\d{0,2}\s*:?\s*[^\]]*\]/gi, '🎬 Видео')
                      .replace(/\[(?:VOICE|ГОЛОС)_?\d{0,2}:?\d{0,2}\]/gi, '🎤 Голосовое сообщение')
+                     .replace(/\[(?:PHOTO|ФОТО|IMG|СНИМОК)\s*:?\s*[^\]]*\]/gi, '📷 Фото')
+                     .replace(/\[(?:CALL|ЗВОНОК)\s*:?\s*([^\]]*)\]/gi, (_, b) => /пропущ|missed|no answer/i.test(b) ? '📞 Пропущенный звонок' : /отклон|declined|rejected/i.test(b) ? '📞 Отклонённый звонок' : '📞 Звонок')
                      .replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]|✓+/gi, '').trim();
       break;
     }

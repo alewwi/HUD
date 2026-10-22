@@ -12,8 +12,8 @@
 // Не разобрали данные — пустая строка, и поле рисуется по-старому.
 // Оформление — css/views-fields.css.
 
-import { escapeHtml, разбитьСписок } from '../utils.js?v=23.61.5';
-import { ИКОНКИ } from './view-icons.js?v=23.61.5';
+import { escapeHtml, разбитьСписок } from '../utils.js?v=23.63.7';
+import { ИКОНКИ } from './view-icons.js?v=23.63.7';
 
 const т = (s) => escapeHtml(String(s ?? '').trim());
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто|—|-)$/i.test(String(v).trim());
@@ -30,8 +30,20 @@ function генератор(s) { let x = зерно(s) || 1; return () => { x ^=
 function куски(value) {
   const s = String(value ?? '').trim();
   let ч = разбитьСписок(s).map(x => x.trim()).filter(Boolean);
-  if (ч.length < 2) ч = s.split(/,\s*(?![^()]*\))/).map(x => x.trim()).filter(Boolean);
+  if (ч.length < 2) ч = склеитьПридаточные(s.split(/,\s*(?![^()]*\))/).map(x => x.trim()).filter(Boolean));
   return ч.filter(x => !пусто(x)).map(x => x.replace(/[.;]+$/, ''));
+}
+// Запятая перед придаточным или деепричастием — не новый пункт:
+// «поглядывает в сторону бара, будучи уверенным, что Софи приревновала»
+// раньше давало три пункта «…бара», «Будучи уверенным», «Что Софи…».
+const ПРИДАТОЧНОЕ = /^(?:что|чтобы|будто|словно|будучи|котор\p{L}*|когда|где|куда|откуда|если|пока|потому|поскольку|так как|хотя|ведь|чем|как|ни|не|отчего|зачем|почему|\p{L}+(?:ясь|вшись|вши|ючи|учи)|\p{L}{2,}[аяу]я)(?![\p{L}])/iu;
+function склеитьПридаточные(части) {
+  const итог = [];
+  for (const x of части) {
+    if (итог.length && ПРИДАТОЧНОЕ.test(x)) итог[итог.length - 1] += ', ' + x;
+    else итог.push(x);
+  }
+  return итог;
 }
 // «xp: …; gt: …» → { xp: '…', gt: '…' }.
 function метки(value) {

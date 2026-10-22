@@ -5,7 +5,7 @@
 // Оформление — в духе остальной вкладки, газетной полосы: биржевая сводка,
 // театральные билеты, сводка происшествий.
 
-import { escapeHtml, applyTooltips } from '../utils.js?v=23.61.5';
+import { escapeHtml, applyTooltips } from '../utils.js?v=23.63.7';
 
 const части = (строка) => String(строка ?? '').split('|').map(s => s.trim());
 
@@ -42,7 +42,10 @@ export function buildEconomyHTML(rows) {
   if (!Array.isArray(rows) || !rows.length) return '';
   const строки = разборЭкономики(rows).map(п => {
     if (п.заметка !== undefined) return `<div class="hud-eco-row is-note"><span>${applyTooltips(п.заметка)}</span></div>`;
-    return `<div class="hud-eco-row" data-ico="${escapeHtml(п.значок)}"><i class="hud-eco-ico" aria-hidden="true">${п.значок}</i><span class="hud-eco-name">${escapeHtml(п.имя)}</span><span class="hud-eco-dots" aria-hidden="true"></span><b class="hud-eco-val">${escapeHtml(п.значение)}</b>`
+    // Значение фразой («выставлен на срочные торги за долги») вместо цены
+    // в одну строку не помещается: такая строка раскладывается в столбик.
+    const длинная = String(п.значение).length > 16 || String(п.изменение).length > 18;
+    return `<div class="hud-eco-row${длинная ? ' is-long' : ''}" data-ico="${escapeHtml(п.значок)}"><i class="hud-eco-ico" aria-hidden="true">${п.значок}</i><span class="hud-eco-name">${escapeHtml(п.имя)}</span><span class="hud-eco-dots" aria-hidden="true"></span><b class="hud-eco-val">${escapeHtml(п.значение)}</b>`
       + (п.изменение ? `<em class="hud-eco-chg is-${п.куда}"><i aria-hidden="true">${п.знак}</i>${escapeHtml(п.изменение)}</em>` : '<em></em>')
       + `</div>`;
   }).join('');

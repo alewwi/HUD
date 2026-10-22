@@ -6,12 +6,12 @@
 // Вынесено из phone.js: тот разросся до девятисот строк и держал в себе
 // разом мессенджер, кошелёк, календарь и сборку самого аппарата.
 
-import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.61.5';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.61.5';
-import { G_ICONS } from './icons.js?v=23.61.5';
-import { собратьЛенту } from './msg-feed.js?v=23.61.5';
-import { avaFace, msgTimeOf, collectCounterparts } from './phone-common.js?v=23.61.5';
-import { namesLikelySame } from '../names.js?v=23.61.5';
+import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.63.7';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.63.7';
+import { G_ICONS } from './icons.js?v=23.63.7';
+import { собратьЛенту } from './msg-feed.js?v=23.63.7';
+import { avaFace, msgTimeOf, collectCounterparts } from './phone-common.js?v=23.63.7';
+import { namesLikelySame } from '../names.js?v=23.63.7';
 
 export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate) {
   const chatKeys = Object.keys(chatsMap || {});
@@ -93,7 +93,9 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate) {
     if (Array.isArray(chatObj.messages) && chatObj.messages.length) {
       const lastRaw = String(chatObj.messages[chatObj.messages.length - 1] || '');
       let p = lastRaw.split('|')[0].replace(/^(?:M|Msg|Сообщение|Chat|Чат):\s*/i, '').trim();
-      const mm = p.match(/^([^:-]+)(?:\s*(?:->|→)\s*([^:]+))?:\s*(.*)$/);
+      // Имя отправителя может быть с дефисом («Ченнинг-Уинтроп»): [^:-] на нём
+      // обрывалось, и превью оставалось сырым «Имя -> Кому: [CALL: …]».
+      const mm = p.match(/^(.+?)(?:\s*(?:->|→)\s*([^:]+?))?\s*:\s*(.*)$/);
       if (mm) p = mm[3];
       p = p.replace(/\[(?:VOICE|ГОЛОС)_?\d{0,2}:?\d{0,2}\]/gi, '🎤 Голосовое сообщение')
            .replace(/\[(?:VIDEO|ВИДЕО|VID|РОЛИК)[ _]?\d{0,2}:?\d{0,2}\s*:?\s*([^\]]*)\]/gi, (mm, d) => '🎬 Видео' + (d.trim() ? ': ' + d.trim() : ''))
