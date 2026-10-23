@@ -46,6 +46,11 @@
 }
 .hud-v-tag.s1, .hud-v-tag.s2 { opacity: .8; }
 .hud-v-tag.s5 { background: color-mix(in srgb, var(--v-acc) 34%, transparent); }
+/* Пояснение модели к силе страха («high — ему нужно, чтобы…»): строкой под
+   силой, мелко и курсивом — в каждом виде блока. */
+.hud-v-why { display: block; font-size: .74em; line-height: 1.35; font-style: italic; font-weight: 400; letter-spacing: 0; text-transform: none; white-space: normal; overflow-wrap: break-word; color: color-mix(in srgb, currentColor 72%, transparent); }
+.hud-v-storm .hud-v-why { text-align: center; }
+.hud-v-night-list small.hud-v-why { font-size: .74em; letter-spacing: 0; text-transform: none; color: color-mix(in srgb, currentColor 72%, transparent); }
 .hud-v-mini-bar { display: block; border-radius: 99px; background: color-mix(in srgb, currentColor 10%, transparent); }
 .hud-v-mini-bar > i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--v-acc) 40%, transparent), var(--v-acc) 70%, color-mix(in srgb, var(--v-acc) 50%, #fff)); }
 .hud-v-segments { display: flex; gap: 3px; }
@@ -141,8 +146,10 @@
 .hud-v-thermo-glass .scale s { display: block; width: 4px; height: 1px; background: rgba(255,255,255,.4); }
 .hud-v-thermo-text, .hud-v-skull-text { display: flex; flex-direction: column; gap: 5px; min-width: 0; }
 .hud-v-thermo-text b, .hud-v-skull-text b { font-size: .9em; line-height: 1.3; }
-.hud-v-fears.is-skulls .hud-v-card { display: flex; align-items: center; gap: 12px; }
-.hud-v-fears.is-skulls .hud-v-skull-text { flex: 1; }
+.hud-v-fears.is-skulls .hud-v-card { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+/* Узко (телефон) — черепа уходят строкой под текст, а не сжимают его в столбик. */
+.hud-v-fears.is-skulls .hud-v-skull-text { flex: 1 1 140px; min-width: 0; }
+.hud-v-fears.is-skulls .hud-v-skulls { margin-left: auto; }
 .hud-v-skulls { display: inline-flex; gap: 2px; padding: 4px 8px; border-radius: 99px; background: rgba(0,0,0,.25); box-shadow: inset 0 1px 3px rgba(0,0,0,.4); }
 .hud-v-skulls i { font-style: normal; font-size: 14px; }
 .hud-v-fears.is-storm { grid-template-columns: repeat(auto-fill, minmax(min(100%, 130px), 1fr)); }

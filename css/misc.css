@@ -306,6 +306,9 @@
 @media (hover: hover) and (pointer: fine) { .hud-fear:hover { background: color-mix(in srgb, var(--страх, #e0685f) 20%, transparent); } }
 .hud-fear-ico { font-size: 13px; line-height: 1; flex: 0 0 auto; }
 .hud-fear b { font-weight: 600; }
+/* Пояснение модели к силе — второй строкой внутри плашки. */
+.hud-fear.has-why { flex-wrap: wrap; border-radius: 14px; row-gap: 2px; }
+.hud-fear-why { flex-basis: 100%; padding-left: 20px; font-size: 10.5px; line-height: 1.35; font-style: italic; opacity: .78; white-space: normal; overflow-wrap: break-word; }
 .hud-fear em {
   font-style: normal; font-size: 10px; letter-spacing: .02em;
   padding: 1px 6px; border-radius: 999px;
