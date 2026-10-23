@@ -10,7 +10,7 @@
 // "Майкл Смит", "Michael Smith" и т.п. Граф сначала собирает все реальные
 // имена, затем пытается сопоставить каждую ссылку с уже существующим узлом,
 // и только после этого создаёт новый узел.
-import { settings } from './settings.js?v=23.63.7';
+import { settings } from './settings.js?v=23.63.9';
 
 export function normalizeNameText(name) {
   return String(name ?? '')
@@ -423,6 +423,16 @@ export function алиасыИмени(имя) {
 // Назван ли человек в тексте: любым написанием из списков аватарок, в
 // падеже («Эванджелиной»), транслитом («Sophie» — «Софи»). Смотрим слова
 // с большой буквы — имена в тексте пишут так.
+// Где человек назван в тексте впервые: позиция слова или -1. Те же правила,
+// что у упомянутВТексте: падеж, транслит, написания из списков аватарок.
+export function гдеУпомянут(текст, имя) {
+  const s = String(текст || '');
+  if (!s.trim() || !String(имя || '').trim()) return -1;
+  const варианты = алиасыИмени(имя).map(а => а.split(' ')[0]).filter(а => а.length >= 2);
+  for (const м of s.matchAll(/(?<![\p{L}])\p{Lu}[\p{L}'’-]{1,}/gu)) if (варианты.some(а => namesLikelySame(м[0], а))) return м.index;
+  return -1;
+}
+
 export function упомянутВТексте(текст, имя) {
   const s = String(текст || '');
   if (!s.trim() || !String(имя || '').trim()) return false;

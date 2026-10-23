@@ -11,20 +11,20 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.63.7';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.63.7';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.63.7';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.63.7';
-import { settings, defaultSettings } from './settings.js?v=23.63.7';
-import { полныйПорядок } from './tabs-order.js?v=23.63.7';
-import { getWorldVotes } from './render/world.js?v=23.63.7';
-import { действиеМира } from './render/world-views.js?v=23.63.7';
-import { раскрытьПорцию } from './render/long-list.js?v=23.63.7';
-import { прогретьИсторию } from './render/carryover.js?v=23.63.7';
-import { подключитьПалитру } from './color-picker.js?v=23.63.7';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.63.7';
-import { замер } from './utils.js?v=23.63.7';
-import { пометитьЭффекты } from './render/fx.js?v=23.63.7';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.63.9';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.63.9';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.63.9';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.63.9';
+import { settings, defaultSettings } from './settings.js?v=23.63.9';
+import { полныйПорядок } from './tabs-order.js?v=23.63.9';
+import { getWorldVotes } from './render/world.js?v=23.63.9';
+import { действиеМира } from './render/world-views.js?v=23.63.9';
+import { раскрытьПорцию } from './render/long-list.js?v=23.63.9';
+import { прогретьИсторию } from './render/carryover.js?v=23.63.9';
+import { подключитьПалитру } from './color-picker.js?v=23.63.9';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.63.9';
+import { замер } from './utils.js?v=23.63.9';
+import { пометитьЭффекты } from './render/fx.js?v=23.63.9';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;

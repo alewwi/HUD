@@ -7,8 +7,8 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=23.63.7';
-import { hudБлоки } from './hud-block.js?v=23.63.7';
+import { normalizeJSONData } from './schema.js?v=23.63.9';
+import { hudБлоки } from './hud-block.js?v=23.63.9';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';
@@ -527,7 +527,8 @@ export function repairGeneratedHudBlock(aiText) {
   }
   const rawInner = match.inner || '';
   try {
-    const parsed = parseHUDComplex(rawInner);
+    // Пишется обратно в чат — текст модели как есть, без выравнивания пробелов.
+    const parsed = normalizeJSONData(безМеток(разобратьHUDСырой(rawInner)));
     return `[HUD]\n\`\`\`json\n${JSON.stringify(parsed, null, 2)}\n\`\`\`\n[/HUD]`;
   } catch (initialError) {
     const decoded = decodeHighlightedHudHtml(rawInner);
@@ -715,7 +716,21 @@ export function разобратьСтарыйФормат(текст) {
 
 // Разобранный HUD и нормализованный для отрисовки.
 export function parseHUDComplex(contentEncoded) {
-  return normalizeJSONData(безМеток(разобратьHUDСырой(contentEncoded)));
+  return normalizeJSONData(ровныеПробелы(безМеток(разобратьHUDСырой(contentEncoded))));
+}
+
+// Невидимые «пробелы» в тексте модели — U+2800 (пустой символ Брайля), широкий
+// U+3000, тонкие и фигурные U+2000–U+200A, U+202F, U+205F — для показа
+// становятся обычными: иначе промежутки между словами в карточке шире
+// обычных, а имена и пилюли через них не узнаются. Это только вид: снимок HUD
+// для инструкции (разобратьHUDСырой) и починка ответа, которая пишет HUD обратно
+// в чат (repairGeneratedHudBlock), их не трогают.
+const НЕВИДИМЫЕ_ПРОБЕЛЫ = /[\u2800\u3000\u2000-\u200a\u202f\u205f]/g;
+export function ровныеПробелы(x) {
+  if (typeof x === 'string') return x.replace(НЕВИДИМЫЕ_ПРОБЕЛЫ, ' ');
+  if (Array.isArray(x)) { for (let i = 0; i < x.length; i++) x[i] = ровныеПробелы(x[i]); return x; }
+  if (x && typeof x === 'object') for (const к of Object.keys(x)) x[к] = ровныеПробелы(x[к]);
+  return x;
 }
 
 // Сырой HUD: объект в том виде, в каком его написала модель, — с короткими

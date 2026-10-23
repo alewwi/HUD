@@ -9,9 +9,9 @@
 // Текст сообщения здесь только считается, на экран не выводится, поэтому
 // разметку режем регуляркой — DOM на тысячу сообщений не нужен.
 
-import { hudFilled } from './utils.js?v=23.63.7';
+import { hudFilled } from './utils.js?v=23.63.9';
 
-import { заменитьHudБлоки } from './hud-block.js?v=23.63.7';
+import { заменитьHudБлоки } from './hud-block.js?v=23.63.9';
 
 // Служебные вставки других расширений и размышления модели — не проза.
 const СЛУЖЕБНОЕ = /<(think|thinking|plan|comics|img|script|style|details|summary)\b[^>]*>[\s\S]*?<\/\1>/gi;
@@ -22,6 +22,8 @@ export function чистыйТекст(raw) {
     .replace(/```[\s\S]*?```/g, ' ')
     .replace(/<[^>]*>/g, ' ')
     .replace(/&nbsp;|&[a-z]+;/gi, ' ')
+    // Невидимые «пробелы» модели (U+2800 и др., см. hud-parser.js) — обычными.
+    .replace(/[\u2800\u3000\u2000-\u200a\u202f\u205f]/g, ' ')
     .replace(/[ \t]+/g, ' ')
     .trim();
 }
