@@ -7,8 +7,9 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=23.63.9';
-import { hudБлоки } from './hud-block.js?v=23.63.9';
+import { normalizeJSONData } from './schema.js?v=23.64.1';
+import { hudБлоки } from './hud-block.js?v=23.64.1';
+import { имяБезПриставки } from './utils.js?v=23.64.1';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';
@@ -716,7 +717,29 @@ export function разобратьСтарыйФормат(текст) {
 
 // Разобранный HUD и нормализованный для отрисовки.
 export function parseHUDComplex(contentEncoded) {
-  return normalizeJSONData(ровныеПробелы(безМеток(разобратьHUDСырой(contentEncoded))));
+  return normalizeJSONData(подставитьИмена(ровныеПробелы(безМеток(разобратьHUDСырой(contentEncoded)))));
+}
+
+// Модель пишет макросы Таверны прямо в HUD («Беременность {{user}} не
+// наступит»). Чат Таверна показывает с подставленными именами, а карточку HUD
+// рисуем мы — подставляем сами, тоже только для показа. Имени нет (поток
+// разбора без имён) — макрос остаётся как есть.
+function подставитьИмена(x) {
+  let игрок = '', персонаж = '';
+  try {
+    const ctx = typeof SillyTavern !== 'undefined' && SillyTavern.getContext ? SillyTavern.getContext() : null;
+    игрок = String((ctx && ctx.name1) || '').trim();
+    персонаж = имяБезПриставки(String((ctx && ctx.name2) || '').trim());
+  } catch (_) { /* без имён */ }
+  if (!игрок && !персонаж) return x;
+  const заменить = (s) => s.replace(/\{\{\s*(user|char)\s*\}\}/gi, (м, кто) => (кто.toLowerCase() === 'user' ? игрок : персонаж) || м);
+  const обойти = (v) => {
+    if (typeof v === 'string') return v.includes('{{') ? заменить(v) : v;
+    if (Array.isArray(v)) { for (let i = 0; i < v.length; i++) v[i] = обойти(v[i]); return v; }
+    if (v && typeof v === 'object') for (const к of Object.keys(v)) v[к] = обойти(v[к]);
+    return v;
+  };
+  return обойти(x);
 }
 
 // Невидимые «пробелы» в тексте модели — U+2800 (пустой символ Брайля), широкий
