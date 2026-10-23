@@ -165,3 +165,33 @@ export function заменитьHudБлоки(text, замена = '') {
   });
   return out + s.slice(было);
 }
+
+// Чужой запрос генерации (саммари, лорбук, внешние блоки, impersonate) —
+// без HUD: полные блоки [HUD]…[/HUD] из истории вырезаем, они нужны только
+// ответу в чат. [HUD_SUMMARY] — сводки игрока — не трогаем никогда.
+// Сообщение, от которого ничего не осталось, получает «…»: пустое часть
+// бэкендов отвергает.
+export function убратьБлокиHUD(текст) {
+  const s = String(текст ?? '');
+  const блоки = hudБлоки(s);
+  if (!блоки.length) return s;
+  let out = '', с = 0;
+  for (const б of блоки) { out += s.slice(с, б.index); с = б.index + б.length; }
+  out = (out + s.slice(с)).replace(/\n{3,}/g, '\n\n').trim();
+  return out || '…';
+}
+/** Тело запроса генерации без блоков HUD; null — менять нечего или не JSON. */
+export function телоБезHUD(тело) {
+  let данные;
+  try { данные = JSON.parse(тело); } catch (_) { return null; }
+  if (!данные || typeof данные !== 'object') return null;
+  let изменено = false;
+  const чистить = (t) => { const r = убратьБлокиHUD(t); if (r !== t) изменено = true; return r; };
+  if (Array.isArray(данные.messages)) for (const m of данные.messages) {
+    if (!m) continue;
+    if (typeof m.content === 'string') m.content = чистить(m.content);
+    else if (Array.isArray(m.content)) for (const ч of m.content) if (ч && typeof ч.text === 'string') ч.text = чистить(ч.text);
+  }
+  if (typeof данные.prompt === 'string') данные.prompt = чистить(данные.prompt);
+  return изменено ? JSON.stringify(данные) : null;
+}

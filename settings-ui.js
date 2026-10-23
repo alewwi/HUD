@@ -5,15 +5,15 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { settings } from './settings.js?v=23.64.1';
-import { видБлока } from './render/views.js?v=23.64.1';
-import { escapeHtml } from './utils.js?v=23.64.1';
-import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.64.1';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.64.1';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.64.1';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.64.1';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.64.1';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.64.1';
+import { settings } from './settings.js?v=23.64.2';
+import { видБлока } from './render/views.js?v=23.64.2';
+import { escapeHtml } from './utils.js?v=23.64.2';
+import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.64.2';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.64.2';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.64.2';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.64.2';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.64.2';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.64.2';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -487,7 +487,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.64.1');
+      const mod = await import('./render/archive.js?v=23.64.2');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
