@@ -6,9 +6,9 @@
 // index.js импортирует отсюда только buildDiaryHTML и hudHasMeaningfulDiary —
 // остальное экспортируется для тестов и внутренних нужд домена.
 
-import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки } from '../utils.js?v=23.63.7';
-import { settings } from '../settings.js?v=23.63.7';
-import { ико } from './view-icons.js?v=23.63.7';
+import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки } from '../utils.js?v=23.63.9';
+import { settings } from '../settings.js?v=23.63.9';
+import { ико } from './view-icons.js?v=23.63.9';
 
 // Дневник: словарь эмоциональных синонимов. Раньше всё сводилось к
 // четырём темам (sad / angry / panic / neutral) — «скука», «презрение»,
@@ -102,7 +102,7 @@ export function normalizeDiaryMood(value) {
       'codepend','co-depend','dependency','dependent','dependence','attachment','clingy','clinging','can\'t live without','need him','need her','enmeshed','enmeshment','symbiotic','subsumed'
     ]},
     { key: 'control', tests: [
-      'контрол','самоконтрол','авторитар','директив','доминац','доминир','власт','диктат','тирани','повелева','командова','управля','владеет ситуац','держит все в руках',
+      'контрол','самоконтрол','авторитар','директив','осада','осаду','осадой','доминац','доминир','власт','диктат','тирани','повелева','командова','управля','владеет ситуац','держит все в руках',
       'control','controlling','dominance','dominant','dominating','domination','dominate','command','commanding','authority','authoritative','power','tyranny','tyrant','dictate','in charge','mastery'
     ]},
     { key: 'lust', tests: [
@@ -201,7 +201,7 @@ export function normalizeDiaryMood(value) {
       'panic','panicked','panicking','fear','fearful','afraid','scared','fright','frightened','terror','terrified','horror','horrified','nightmare','anxious','anxiety','worry','worried','shaking','shaky','trembling','tremor','confused','confusion','hurry','hurried','rush','rushed','urgent','urgency','emergency','chaos','chaotic','frantic','frenzy','desperate','desperation','alarm','alarmed','alarming','shock','shocked','stunned','startled','overwhelmed','overwhelm','unsafe','danger','dangerous','breakdown','meltdown','adrenaline','distress','distressed','dread','dreadful'
     ]},
     { key: 'angry', tests: [
-      'ярост','ярость','злость','злитс','злой','злая','злоб','гнев','гневн','агресс','агрессив','враждеб','враждебн','озлоб','возмущ','негодован','фрустрац','фрустрир','задет','вскип','кипит','кипение','грубо','жестко','жесток','жестокост','свиреп','озверел','разъяр','вспыльчив','взбеш','бешен','бешенств','оскорблен','оскорблени',
+      'ярост','ярость','злость','раскален','раскалён','злитс','злой','злая','злоб','гнев','гневн','агресс','агрессив','враждеб','враждебн','озлоб','возмущ','негодован','фрустрац','фрустрир','задет','вскип','кипит','кипение','грубо','жестко','жесток','жестокост','свиреп','озверел','разъяр','вспыльчив','взбеш','бешен','бешенств','оскорблен','оскорблени',
       'angry','anger','rage','raging','furious','fury','mad','madness','irate','ire','wrath','wrathful','cruel','cruelty','brutal','brutality','vicious','viciousness','savage','ferocious','frustrat','frustrated','frustration','agitated','agitation','hostile','hostility','resent','resentful','resentment','outrage','outraged','offended','insulted','aggression','aggressive','enraged','boiling','seething','heated','heatedly','spiteful','аффект','venomous','cross'
     ]},
     { key: 'disappointment', tests: [
@@ -230,7 +230,7 @@ export function normalizeDiaryMood(value) {
     ]},
     { key: 'peace', tests: [
       'покой','покоем','покоя','умиротвор','безмятеж','благодат','тишина','тишине','тихо и','отдых','отдохн','передышк','убаюк','дремл','полудрем','сон подступ','мир на душе','ничего не тревож','отпустило все','ровное дыхани',
-      'peace','peaceful','serene','serenity','tranquil','tranquility','stillness','repose','rest','restful','at rest','quietude','lull','drowsy','drifting off','nothing troubles','bliss of quiet'
+      'peace','peaceful','serene','serenity','tranquil','tranquility','retreat','stillness','repose','rest','restful','at rest','quietude','lull','drowsy','drifting off','nothing troubles','bliss of quiet'
     ]}
   ];
   for (const entry of patterns) {
@@ -254,7 +254,8 @@ function разметкаДневника(s) {
 }
 
 function renderDiaryText(value) {
-  return String(value ?? '').replace(/\\n/g, '\n').split(/\n+/).map(s => s.trim()).filter(Boolean)
+  // U+2800 и широкий пробел вместо пробелов — обычными (см. render/dreams.js).
+  return String(value ?? '').replace(/[\u2800\u3000]/g, ' ').replace(/\\n/g, '\n').split(/\n+/).map(s => s.trim()).filter(Boolean)
     .map(абзац => разметкаДневника(escapeHtml(абзац)))
     .join('<br><span class="hud-diary-indent" aria-hidden="true"></span>');
 }

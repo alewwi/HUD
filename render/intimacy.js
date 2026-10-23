@@ -13,20 +13,20 @@
 // карточки ненадёжны — у неё content-visibility, и браузер может не
 // двигать их время.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.63.7';
-import { namesLikelySame } from '../names.js?v=23.63.7';
-import { разобратьХод } from './carryover.js?v=23.63.7';
-import { parseSceneDate } from '../history-analyzer.js?v=23.63.7';
-import { исходЗачатия } from './conception.js?v=23.63.7';
-import { блокПлодов } from './fetus.js?v=23.63.7';
-import { кровотечение } from './fertility.js?v=23.63.7';
-import { settings } from '../settings.js?v=23.63.7';
-import { одеждаПодробно, слойОдежды, темпИзТекста, блокТемпа, позаТела, полПерсонажа, проникновенияИзТекста, меткиПроникновения, строкиПроникновения, членИзТекста, семяИзТекста, влагаИзТекста, финалСцены, вышелИзТекста, снаружиИзТекста, движениеИзОргазма } from './scene-body.js?v=23.63.7';
-import { ощущенияИзТекста } from './body-layers.js?v=23.63.7';
-import { полосаВлечения } from './cycle-libido.js?v=23.63.7';
-import { обликИзТекстов, естьОблик, причёска, волосыСзади, лицо, масштабСложения, масштабРоста, стильОблика, меткиОтметин, нуженКонтур } from './look.js?v=23.63.7';
-import { канонОблика, полИзКанона, подтянутьЛор } from './canon.js?v=23.63.7';
-import { силуэтТела, силуэтБезРук, открытоеТело, очертанияТела, defsОбъёма, слоиОбъёма, кромка, параметрыФигуры, деталиФигуры, кФигуре, грудьФигуры } from './body-art.js?v=23.63.7';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.63.9';
+import { namesLikelySame } from '../names.js?v=23.63.9';
+import { разобратьХод } from './carryover.js?v=23.63.9';
+import { parseSceneDate } from '../history-analyzer.js?v=23.63.9';
+import { исходЗачатия } from './conception.js?v=23.63.9';
+import { блокПлодов } from './fetus.js?v=23.63.9';
+import { кровотечение } from './fertility.js?v=23.63.9';
+import { settings } from '../settings.js?v=23.63.9';
+import { одеждаПодробно, слойОдежды, темпИзТекста, блокТемпа, позаТела, полПерсонажа, проникновенияИзТекста, меткиПроникновения, строкиПроникновения, членИзТекста, семяИзТекста, влагаИзТекста, финалСцены, вышелИзТекста, снаружиИзТекста, движениеИзОргазма } from './scene-body.js?v=23.63.9';
+import { ощущенияИзТекста } from './body-layers.js?v=23.63.9';
+import { полосаВлечения } from './cycle-libido.js?v=23.63.9';
+import { обликИзТекстов, естьОблик, причёска, волосыСзади, лицо, масштабСложения, масштабРоста, стильОблика, меткиОтметин, нуженКонтур } from './look.js?v=23.63.9';
+import { канонОблика, полИзКанона, подтянутьЛор } from './canon.js?v=23.63.9';
+import { силуэтТела, силуэтБезРук, открытоеТело, очертанияТела, defsОбъёма, слоиОбъёма, кромка, параметрыФигуры, деталиФигуры, кФигуре, грудьФигуры } from './body-art.js?v=23.63.9';
 
 const пусто = (v) => { const s = String(v ?? '').trim(); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
 const число = (s) => { const m = String(s ?? '').replace(/(\d),(\d)/g, '$1.$2').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };

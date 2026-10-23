@@ -6,10 +6,10 @@
 // или воспоминание, какие образы в нём — HUD выводит из текста сам.
 // Оформление новых видов — css/dream-views.css.
 
-import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.63.7';
-import { упомянутВТексте } from '../names.js?v=23.63.7';
-import { видБлока } from './views.js?v=23.63.7';
-import { ико } from './view-icons.js?v=23.63.7';
+import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.63.9';
+import { гдеУпомянут } from '../names.js?v=23.63.9';
+import { видБлока } from './views.js?v=23.63.9';
+import { ико } from './view-icons.js?v=23.63.9';
 
 function buildDreamBubblesHtml() {
   let bubbles = '';
@@ -53,7 +53,7 @@ function buildDreamGlassHtml() {
 
 // Тип сна. Порядок значим: кошмар сильнее всего — «кошмар о детстве» всё равно кошмар.
 const ТИПЫ = [
-  { ключ: 'nightmare', имя: 'кошмар', значок: 'ghost', rx: /кошмар|ужас|страх|крич|крик|кров|смерт|умир|мертв|погон|преслед|гонит|тонет|тонул|задыха|разбива|горит|пожар|не может пошевел|паралич|nightmare|horror|blood|death|drown|chase/i },
+  { ключ: 'nightmare', имя: 'кошмар', значок: 'ghost', rx: /кошмар|ужас|страх|крич|крик|кров|смерт|умир|мертв|погон|преслед|гонит|тонет|тонул|задыха|разбива|горит|пожар|не может пошевел|паралич|(?<![\p{L}])пул(?:я|и|ей|ями)(?![\p{L}])|выстрел|перестрел|застрел|(?<![\p{L}])ран(?:а|ы|у|ой|ам|ами)(?![\p{L}])|убий|убива|труп|отвалива|разлага|гниёт|гниет|чудовищ|nightmare|horror|blood|death|drown|chase|bullet|wound|corpse/iu },
   { ключ: 'memory', имя: 'воспоминание', значок: 'film', rx: /вспомина|детств|как тогда|как в тот|прошл|памят|юност|школьн|remember|childhood|memory/i },
   { ключ: 'wish', имя: 'мечта', значок: 'moonstar', rx: /мечта|мечтает|желани|свадьб|родил|счаст|вместе|обнима|целу|играет|смеёт|смеет|летит|летал|полёт|полет|свобод|dream of|wish/i },
 ];
@@ -81,21 +81,25 @@ const ОБРАЗЫ = [
 
 /** Что HUD видит в сне: кому снится, тип, образы. Экспорт — для тестов и стенда. */
 export function разобратьСон(сон, люди = []) {
-  const текст = String(сон && сон.text || '');
-  const тип = ТИПЫ.find(т => т.rx.test(текст)) || ПРОСТО_СОН;
+  const текст = пробелы(сон && сон.text || '');
+  // «Сон без привычных кошмаров» — не кошмар: отрицание перед словом не считаем.
+  const безОтрицаний = текст.replace(/(?<![\p{L}])(?:без|нет|ни)\s+(?:\p{L}+\s+)?(?:кошмар|страх|ужас)\p{L}*/giu, '');
+  const тип = ТИПЫ.find(т => т.rx.test(безОтрицаний)) || ПРОСТО_СОН;
   const образы = ОБРАЗЫ.map(о => { const m = текст.match(о.rx); return m ? { ...о, где: m.index } : null; })
     .filter(Boolean).sort((a, b) => a.где - b.где).slice(0, 3);
   // Кому снится: первый из людей сцены, кто назван в тексте («Марку снится…»).
   const кто = (Array.isArray(люди) ? люди : []).map(и => ({ и, где: позицияИмени(текст, и) })).filter(x => x.где >= 0).sort((a, b) => a.где - b.где)[0];
-  return { текст, смысл: значимо(сон && сон.meaning) ? String(сон.meaning) : '', тип, образы, кто: кто ? имяБезПриставки(кто.и) : '' };
+  return { текст, смысл: значимо(сон && сон.meaning) ? пробелы(сон.meaning) : '', тип, образы, кто: кто ? имяБезПриставки(кто.и) : '' };
 }
 function позицияИмени(текст, имя) {
-  if (!упомянутВТексте(текст, имя)) return -1;
-  const первое = String(имяБезПриставки(имя)).split(/\s+/)[0].slice(0, 4);
-  const i = первое ? текст.indexOf(первое) : -1;
-  return i >= 0 ? i : текст.length;
+  // Позицию даёт само сравнение имён: «Тристан» в тексте и Tristan Kingsley в
+  // списке — один человек; раньше транслит считался названным «в конце».
+  return гдеУпомянут(текст, имя);
 }
-const значимо = (v) => { const s = String(v ?? '').trim().toLowerCase(); return !!s && s !== 'none' && s !== 'empty'; };
+const значимо = (v) => { const s = String(v ?? '').trim().toLowerCase(); return !!s && s !== 'none' && s !== 'empty' && /\p{L}/u.test(s); };
+// U+2800 (пустой символ Брайля) и широкий пробел модели ставят вместо пробелов:
+// строки переносятся, но промежутки между словами шире обычных.
+const пробелы = (v) => String(v ?? '').replace(/[\u2800\u3000]/g, ' ');
 
 const лицо = (кто) => кто ? `<i class="hud-dv-face" style="--тон:${hudHashSeed(кто) % 70 - 35}" aria-hidden="true">${escapeHtml(инициалыИмени(кто))}</i>` : '';
 const ярлыкТипа = (т) => `<span class="hud-dv-type t-${т.ключ}">${ико(т.значок)}${т.имя}</span>`;
@@ -182,7 +186,9 @@ const ВИДЫ = { clouds: видОблака, book: видСонник, night: 
 
 export function buildDreamHTML(dreamsData, uid, isChecked, люди = []) {
   let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-dream-container"><div class="hud-dream-moon">🌙 Z z z . . .</div>`;
-  if (!dreamsData || dreamsData.length === 0) {
+  // Пустые сны («—» при «не спит») отбрасываем сразу: если других нет — как без снов.
+  dreamsData = (Array.isArray(dreamsData) ? dreamsData : []).filter(d => значимо(typeof d === 'string' ? d : d && d.text));
+  if (dreamsData.length === 0) {
     return html + `<div class="hud-dream-bubble"><div class="hud-dream-text">Снов пока нет</div><div class="hud-dream-meaning">Раздел активен, но в текущем HUD нет записей.</div></div></div></div>`;
   }
   const вид = ВИДЫ[видБлока('dreamsView')];
@@ -190,7 +196,7 @@ export function buildDreamHTML(dreamsData, uid, isChecked, люди = []) {
     const сны = dreamsData.map(d => разобратьСон(typeof d === 'string' ? { text: d } : d, люди)).filter(с => значимо(с.текст));
     return html + вид(сны) + `</div></div>`;
   }
-  dreamsData.forEach(dream => {
+  dreamsData.filter(dream => значимо(typeof dream === 'string' ? dream : dream && dream.text)).forEach(dream => {
     html += `<div class="hud-dream-entry" data-crack="0">${buildDreamBubblesHtml()}${buildDreamGlassHtml()}<div class="hud-dream-text">✨ ${escapeHtml(dream.text)}</div>`;
     if (dream.meaning && dream.meaning.toLowerCase() !== 'none' && dream.meaning.toLowerCase() !== 'empty') html += `<div class="hud-dream-meaning"><span class="hud-dream-meaning-label">🔮 Смысл:</span> ${escapeHtml(dream.meaning)}</div>`;
     html += `</div>`;
@@ -200,8 +206,8 @@ export function buildDreamHTML(dreamsData, uid, isChecked, люди = []) {
 
 export function hudHasMeaningfulDreams(items) {
   return Array.isArray(items) && items.some(i => {
-    if (typeof i === 'string') return hudHasMeaningfulValue(i);
+    if (typeof i === 'string') return hudHasMeaningfulValue(i) && значимо(i);
     if (!i || typeof i !== 'object') return false;
-    return hudHasMeaningfulValue(i.text);
+    return hudHasMeaningfulValue(i.text) && значимо(i.text);
   });
 }

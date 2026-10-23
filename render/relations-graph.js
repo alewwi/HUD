@@ -7,11 +7,11 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.63.7';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.63.7';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.63.7';
-import { buildFamilyTree } from './family-tree.js?v=23.63.7';
-import { settings } from '../settings.js?v=23.63.7';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.63.9';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.63.9';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.63.9';
+import { buildFamilyTree } from './family-tree.js?v=23.63.9';
+import { settings } from '../settings.js?v=23.63.9';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';

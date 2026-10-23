@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.63.7';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.63.7';
-import { namesLikelySame } from '../names.js?v=23.63.7';
-import { силаСтраха, статусРужья } from '../codes.js?v=23.63.7';
-import { settings } from '../settings.js?v=23.63.7';
-import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.63.7';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.63.7';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.63.9';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.63.9';
+import { namesLikelySame } from '../names.js?v=23.63.9';
+import { силаСтраха, статусРужья } from '../codes.js?v=23.63.9';
+import { settings } from '../settings.js?v=23.63.9';
+import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.63.9';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.63.9';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
