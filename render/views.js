@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.63.9';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.63.9';
-import { namesLikelySame } from '../names.js?v=23.63.9';
-import { силаСтраха, статусРужья } from '../codes.js?v=23.63.9';
-import { settings } from '../settings.js?v=23.63.9';
-import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.63.9';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.63.9';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.64.1';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.64.1';
+import { namesLikelySame } from '../names.js?v=23.64.1';
+import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.64.1';
+import { settings } from '../settings.js?v=23.64.1';
+import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.64.1';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.64.1';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -254,20 +254,13 @@ const ЗНАЧКИ_СТРАХА = [
   [/темн|ночь|dark/i, 'moon'], [/боль|пытк|удар|pain|hurt/i, 'drop'], [/высот|паден|height|fall/i, 'fall'],
   [/вод|утон|water|drown/i, 'wave'], [/огон|пожар|fire|burn/i, 'flame'], [/тюрьм|клетк|запер|cage|prison/i, 'cage'],
 ];
-// Сила словом → 1…5: паника — пять, «редко» — один. Неизвестное слово — середина.
-function силаЧислом(слово) {
-  const s = String(слово || '');
-  if (/пани[кч]|ужас|жутк|смертельн|невыносим|парализ|panic|terror/i.test(s)) return 5;
-  if (/постоянн|очень\s+сильн|глубок|сильн|остро|high|strong/i.test(s)) return 4;
-  if (/средн|заметн|иногда|порой|mid|medium/i.test(s)) return 3;
-  if (/изредк|слаб|редк|немног|чуть|фонов|low|weak/i.test(s)) return 2;
-  return 3;
-}
+// Сила (слово, пояснение модели, ступень 1…5) — общий разбор codes.js: тот же,
+// что у списка в render/character.js. Без силы — середина.
 function разобратьСтрахи(value) {
   return пары(value).map(п => {
-    const слово = п.текст ? силаСтраха(п.текст) : '';
+    const с = разобратьСилуСтраха(п.текст);
     const пара = ЗНАЧКИ_СТРАХА.find(([rx]) => rx.test(п.имя));
-    return { что: п.имя, слово, сила: силаЧислом(слово || п.текст), значок: пара ? пара[1] : 'ghost' };
+    return { что: п.имя, слово: с.слово, пояснение: с.пояснение, сила: с.сила || 3, значок: пара ? пара[1] : 'ghost' };
   });
 }
 const ТУЧА = 'M9 30h28a9 9 0 0 0 .8-18A13 13 0 0 0 13.3 14.6 8 8 0 0 0 9 30Z';
@@ -275,16 +268,18 @@ const ТУЧА = 'M9 30h28a9 9 0 0 0 .8-18A13 13 0 0 0 13.3 14.6 8 8 0 0 0 9 30Z
 export function видСтрахов(value, вид) {
   const страхи = разобратьСтрахи(value);
   if (!страхи.length) return '';
-  const титул = (с) => `${escapeHtml(с.что)}${с.слово ? ': ' + escapeHtml(с.слово) : ''}`;
+  const титул = (с) => `${escapeHtml(с.что)}${с.слово ? ': ' + escapeHtml(с.слово) : ''}${с.пояснение ? ' — ' + escapeHtml(с.пояснение) : ''}`;
   const бирка = (с) => с.слово ? `<span class="hud-v-tag s${с.сила}">${escapeHtml(с.слово)}</span>` : '';
+  // Пояснение модели («high — ему нужно, чтобы…») — строкой под силой.
+  const почему = (с) => с.пояснение ? `<small class="hud-v-why">${escapeHtml(с.пояснение)}</small>` : '';
   if (вид === 'thermometer') {
     return `<div class="hud-v hud-v-fears is-thermo">${страхи.map(с => `<div class="hud-v-card hud-v-thermo s${с.сила}" title="${титул(с)}">`
       + `<span class="hud-v-thermo-glass" aria-hidden="true"><i class="scale">${[1, 2, 3, 4].map(() => '<s></s>').join('')}</i><i class="mercury" style="--f:${с.сила / 5}"></i><i class="bulb"></i></span>`
-      + `<span class="hud-v-thermo-text">${медаль(с.значок)}<b>${escapeHtml(с.что)}</b>${бирка(с)}</span></div>`).join('')}</div>`;
+      + `<span class="hud-v-thermo-text">${медаль(с.значок)}<b>${escapeHtml(с.что)}</b>${бирка(с)}${почему(с)}</span></div>`).join('')}</div>`;
   }
   if (вид === 'skulls') {
     return `<div class="hud-v hud-v-fears is-skulls">${страхи.map(с => `<div class="hud-v-card s${с.сила}" title="${титул(с)}">`
-      + `${медаль(с.значок, 'is-lg')}<div class="hud-v-skull-text"><b>${escapeHtml(с.что)}</b>${бирка(с)}</div>`
+      + `${медаль(с.значок, 'is-lg')}<div class="hud-v-skull-text"><b>${escapeHtml(с.что)}</b>${бирка(с)}${почему(с)}</div>`
       + `<span class="hud-v-skulls" aria-label="${с.сила} из 5">${[1, 2, 3, 4, 5].map(i => `<i style="--i:${i}"${i <= с.сила ? ' class="is-on"' : ''}>${ико('skull')}</i>`).join('')}</span></div>`).join('')}</div>`;
   }
   if (вид === 'storm') {
@@ -295,7 +290,7 @@ export function видСтрахов(value, вид) {
         + `<defs><clipPath id="${id}c"><path d="${ТУЧА}"/></clipPath><linearGradient id="${id}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" class="s0"/><stop offset="1" class="s1"/></linearGradient></defs>`
         + `<path class="bg" d="${ТУЧА}"/><rect class="fill" x="0" y="${верх.toFixed(1)}" width="46" height="40" fill="url(#${id}g)" clip-path="url(#${id}c)"/><path class="rim" d="${ТУЧА}"/>${капли}`
         + (с.сила >= 4 ? '<path class="bolt" d="m24 27-5 8h4.4l-2.2 7 7-9.4h-4.6Z"/>' : '')
-        + `</svg><b>${escapeHtml(с.что)}</b>${бирка(с)}</div>`;
+        + `</svg><b>${escapeHtml(с.что)}</b>${бирка(с)}${почему(с)}</div>`;
     }).join('')}</div>`;
   }
   if (вид === 'dark') {
@@ -312,7 +307,7 @@ export function видСтрахов(value, вид) {
     }).join('');
     const свеча = `<svg class="hud-v-candle" viewBox="0 0 24 40" aria-hidden="true"><path class="flame" d="M12 4c3 4.6 4.2 7.4 4.2 10a4.2 4.2 0 0 1-8.4 0C7.8 11.4 9 8.6 12 4Z"/><path class="core" d="M12 10c1.2 2 1.7 3.2 1.7 4.4a1.7 1.7 0 0 1-3.4 0c0-1.2.5-2.4 1.7-4.4Z"/><path class="wick" d="M12 17v3"/><rect class="wax" x="8" y="20" width="8" height="16" rx="1.5"/><path class="drip" d="M9.5 20v4.5a1 1 0 0 0 2 0V21"/><ellipse class="dish" cx="12" cy="37" rx="9" ry="2.4"/></svg>`;
     return `<div class="hud-v hud-v-fears is-dark2"><div class="hud-v-night"><i class="glow" aria-hidden="true"></i>${пары}${свеча}</div>`
-      + `<ol class="hud-v-night-list">${страхи.map((с, i) => `<li class="s${с.сила}"><i class="n" aria-hidden="true">${i + 1}</i><span><b>${escapeHtml(с.что)}</b>${с.слово ? `<small>${escapeHtml(с.слово)}</small>` : ''}</span><span class="lvl" aria-label="${с.сила} из 5">${[1, 2, 3, 4, 5].map(k => `<s${k <= с.сила ? ' class="on"' : ''}></s>`).join('')}</span></li>`).join('')}</ol></div>`;
+      + `<ol class="hud-v-night-list">${страхи.map((с, i) => `<li class="s${с.сила}"><i class="n" aria-hidden="true">${i + 1}</i><span><b>${escapeHtml(с.что)}</b>${с.слово ? `<small>${escapeHtml(с.слово)}</small>` : ''}${почему(с)}</span><span class="lvl" aria-label="${с.сила} из 5">${[1, 2, 3, 4, 5].map(k => `<s${k <= с.сила ? ' class="on"' : ''}></s>`).join('')}</span></li>`).join('')}</ol></div>`;
   }
   if (вид === 'radar') {
     // Экран радара: страхи — отметки. Чем сильнее страх, тем ближе он к
@@ -331,7 +326,7 @@ export function видСтрахов(value, вид) {
       + `<g class="sweep"><path d="M${C} ${C}L${C + R} ${C}A${R} ${R} 0 0 0 ${(C + R * Math.cos(-0.7)).toFixed(1)} ${(C + R * Math.sin(-0.7)).toFixed(1)}Z" fill="url(#${id}w)"/><line x1="${C}" y1="${C}" x2="${C + R}" y2="${C}"/></g>`
       + отметки.map(о => `<g class="blip s${о.с.сила}" style="--d:${(о.n * .37).toFixed(2)}s"><circle class="halo" cx="${о.x.toFixed(1)}" cy="${о.y.toFixed(1)}" r="${(2.5 + о.с.сила).toFixed(1)}"/><circle class="dot" cx="${о.x.toFixed(1)}" cy="${о.y.toFixed(1)}" r="2.6"/><text x="${(о.x + 5).toFixed(1)}" y="${(о.y - 4).toFixed(1)}">${о.n}</text><title>${титул(о.с)}</title></g>`).join('')
       + `<circle class="rim" cx="${C}" cy="${C}" r="${R}"/></svg>`
-      + `<ol class="hud-v-radar-legend">${отметки.map(о => `<li class="s${о.с.сила}" title="${титул(о.с)}"><i class="n">${о.n}</i>${медаль(о.с.значок)}<span><b>${escapeHtml(о.с.что)}</b>${бирка(о.с)}</span><span class="hud-v-mini-bar" aria-hidden="true"><i style="width:${о.с.сила * 20}%"></i></span></li>`).join('')}</ol></div>`;
+      + `<ol class="hud-v-radar-legend">${отметки.map(о => `<li class="s${о.с.сила}" title="${титул(о.с)}"><i class="n">${о.n}</i>${медаль(о.с.значок)}<span><b>${escapeHtml(о.с.что)}</b>${бирка(о.с)}${почему(о.с)}</span><span class="hud-v-mini-bar" aria-hidden="true"><i style="width:${о.с.сила * 20}%"></i></span></li>`).join('')}</ol></div>`;
   }
   return '';
 }

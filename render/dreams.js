@@ -6,10 +6,10 @@
 // или воспоминание, какие образы в нём — HUD выводит из текста сам.
 // Оформление новых видов — css/dream-views.css.
 
-import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.63.9';
-import { гдеУпомянут } from '../names.js?v=23.63.9';
-import { видБлока } from './views.js?v=23.63.9';
-import { ико } from './view-icons.js?v=23.63.9';
+import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.64.1';
+import { гдеУпомянут } from '../names.js?v=23.64.1';
+import { видБлока } from './views.js?v=23.64.1';
+import { ико } from './view-icons.js?v=23.64.1';
 
 function buildDreamBubblesHtml() {
   let bubbles = '';

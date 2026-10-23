@@ -4,29 +4,29 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.63.9';
-import { иконка } from './hud-icons.js?v=23.63.9';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.63.9';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.63.9';
-import { силаСтраха, стадияБолезни } from '../codes.js?v=23.63.9';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.64.1';
+import { иконка } from './hud-icons.js?v=23.64.1';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.64.1';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.64.1';
+import { разобратьСилуСтраха, стадияБолезни } from '../codes.js?v=23.64.1';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  блокТемпаСцены, активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.63.9';
-import { часыСцены } from './scene-clock.js?v=23.63.9';
-import { buildUnderwear } from './underwear.js?v=23.63.9';
-import { buildDuel } from './duel.js?v=23.63.9';
-import { buildPregnancy } from './pregnancy.js?v=23.63.9';
-import { buildPostpartum } from './postpartum.js?v=23.63.9';
-import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды, датаЗачатия } from './conception.js?v=23.63.9';
-import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.63.9';
-import { parseSceneDate } from '../history-analyzer.js?v=23.63.9';
-import { settings, настройка } from '../settings.js?v=23.63.9';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.63.9';
-import { видСостоянияТела } from './extras.js?v=23.63.9';
-import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом } from './views-fields.js?v=23.63.9';
-import { parseRelationList } from './relations-graph.js?v=23.63.9';
-import { отложитьРисунок } from './lazy-svg.js?v=23.63.9';
-import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.63.9';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.63.9';
+  блокТемпаСцены, активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.64.1';
+import { часыСцены } from './scene-clock.js?v=23.64.1';
+import { buildUnderwear } from './underwear.js?v=23.64.1';
+import { buildDuel } from './duel.js?v=23.64.1';
+import { buildPregnancy } from './pregnancy.js?v=23.64.1';
+import { buildPostpartum } from './postpartum.js?v=23.64.1';
+import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды, датаЗачатия } from './conception.js?v=23.64.1';
+import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.64.1';
+import { parseSceneDate } from '../history-analyzer.js?v=23.64.1';
+import { settings, настройка } from '../settings.js?v=23.64.1';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.64.1';
+import { видСостоянияТела } from './extras.js?v=23.64.1';
+import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом } from './views-fields.js?v=23.64.1';
+import { parseRelationList } from './relations-graph.js?v=23.64.1';
+import { отложитьРисунок } from './lazy-svg.js?v=23.64.1';
+import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.64.1';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.64.1';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле', 'состояние тела'];
@@ -78,15 +78,6 @@ const ЗНАЧКИ_СТРАХА = [
   [/огон|пожар|fire|burn/i, '🔥'],
   [/тюрьм|клетк|запер|cage|prison/i, '🔒'],
 ];
-// Сила страха словами. Порядок важен: «очень сильно» должно попасть в
-// верхнюю ступень раньше, чем в среднюю по слову «сильно».
-const СИЛА_СТРАХА = [
-  [/пани[кч]|ужас|жутк|смертельн|невыносим|парализ|до\s*дрож/i, 'is-panic', 3],
-  [/постоянн|очень\s+сильн|глубок|сильн|остро|не\s*отпускает/i, 'is-high', 3],
-  [/средн|заметн|иногда|порой|периодич|временам/i, 'is-mid', 2],
-  [/изредк|слаб|редк|немног|чуть|фонов/i, 'is-low', 1],
-];
-
 function buildFears(value) {
   return разбитьСписок(value).map(кусок => {
     const s = кусок.trim();
@@ -96,12 +87,15 @@ function buildFears(value) {
     const что = m ? m[1].trim() : s;
     // Силу модель пишет кодом (low, mid, high, panic): на экран — словом, и
     // ступень дальше ищется по этому слову.
-    const сколько = m ? силаСтраха(m[2].trim()) : '';
+    const сила = m ? разобратьСилуСтраха(m[2].trim()) : { слово: '', пояснение: '', сила: 0 };
+    const сколько = сила.слово;
     const пара = ЗНАЧКИ_СТРАХА.find(([rx]) => rx.test(что));
     const значок = пара ? пара[1] : '😨';
     // Ступень ищем по слову силы. Не узнали слово — считаем средним: это
     // честнее, чем показать паникой или почти ничем.
-    const ступень = сколько ? (СИЛА_СТРАХА.find(([rx]) => rx.test(сколько)) || [null, 'is-mid', 2]) : null;
+    // Ступень — из общего разбора (1…5): пять — паника, четыре — сильный,
+    // три — средний, ниже — слабый. Точек у списка три.
+    const ступень = сколько ? (сила.сила >= 5 ? [null, 'is-panic', 3] : сила.сила === 4 ? [null, 'is-high', 3] : сила.сила === 3 ? [null, 'is-mid', 2] : [null, 'is-low', 1]) : null;
     const класс = ступень ? ' ' + ступень[1] : '';
     const точек = ступень ? ступень[2] : 0;
     const точки = точек
@@ -110,9 +104,11 @@ function buildFears(value) {
         + `</i>`
       : '';
     const хвост = сколько ? `<em>${escapeHtml(сколько)}</em>` : '';
-    return `<span class="hud-fear${класс}"${сколько ? ` title="${escapeHtml(что)}: ${escapeHtml(сколько)}"` : ''}>`
+    // Пояснение модели — отдельной строкой внутри плашки.
+    const почему = сила.пояснение ? `<small class="hud-fear-why">${escapeHtml(сила.пояснение)}</small>` : '';
+    return `<span class="hud-fear${класс}${почему ? ' has-why' : ''}"${сколько ? ` title="${escapeHtml(что)}: ${escapeHtml(сколько)}${сила.пояснение ? ' — ' + escapeHtml(сила.пояснение) : ''}"` : ''}>`
       + `<span class="hud-fear-ico" aria-hidden="true">${значок}</span>`
-      + `<b>${escapeHtml(что)}</b>${хвост}${точки}</span>`;
+      + `<b>${escapeHtml(что)}</b>${хвост}${точки}${почему}</span>`;
   }).filter(Boolean).join('');
 }
 
