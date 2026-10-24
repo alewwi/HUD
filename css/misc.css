@@ -6849,3 +6849,20 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
   }
   .hud-custom-split:is(.is-drag, :focus-visible)::before { height: 3px; background: var(--hud-accent, #c31f38); }
 }
+
+/* Персонаж вне сцены (character.js, render/carryover.js): плашка под шапкой
+   и строки, взятые из прошлых ходов, — приглушены и подписаны «прежнее». */
+.hud-away-note {
+  display: flex; align-items: flex-start; gap: 7px; margin: 2px 0 8px; padding: 6px 10px;
+  border-radius: 10px; border: 1px dashed color-mix(in srgb, currentColor 28%, transparent);
+  font-size: 11.5px; line-height: 1.4; opacity: .85; overflow-wrap: anywhere;
+}
+.hud-away-note svg { flex: 0 0 14px; width: 14px; height: 14px; margin-top: 1px; fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linecap: round; stroke-linejoin: round; }
+.hud-away-note svg circle { fill: currentColor; stroke: none; }
+.hud-away-note b { font-weight: 700; letter-spacing: .02em; }
+.hud-row.is-past { opacity: .74; }
+.hud-row.is-past .hud-key::after {
+  content: 'прежнее'; display: inline-block; margin-left: 6px; padding: 0 6px; border-radius: 999px;
+  font-size: .78em; font-weight: 600; letter-spacing: .03em; text-transform: none; vertical-align: 1px;
+  border: 1px solid color-mix(in srgb, currentColor 30%, transparent); opacity: .85;
+}

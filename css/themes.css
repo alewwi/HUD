@@ -826,49 +826,125 @@
 .hud-wallet-tx.is-out .hud-wallet-tx-side b { color: #ef8a7a; }
 .hud-wallet-tx.is-in  .hud-wallet-tx-side b { color: #7fd4a2; }
 
-/* --- Календарь --- */
-.hud-cal { display: flex; flex-direction: column; gap: 8px; padding: 8px 10px 12px; }
-.hud-cal-head { font-size: 13px; font-weight: 700; letter-spacing: .04em; text-align: center; }
-.hud-cal-week, .hud-cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
-.hud-cal-week span { font-size: 9.5px; text-align: center; opacity: .45; letter-spacing: .06em; text-transform: uppercase; }
-
-.hud-cal-day {
-  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center;
-  gap: 2px; min-height: 30px; border-radius: 8px; font-size: 11.5px;
-  background: rgba(255, 255, 255, .04);
+/* --- Календарь (render/calendar.js) ---
+   Как настоящий: месяц сеткой, выбранный день — кружком, сегодня — цветом;
+   под сеткой лист выбранного дня со счётчиком и лентой дел. У каждого
+   календаря свой цвет (--c0…), строки и точки берут его через --cc. */
+.hud-cal {
+  --hud-cal-own: var(--hud-phone-accent, var(--hud-accent, #8c5ad2));
+  display: flex; flex-direction: column; gap: 10px; padding: 8px 10px 14px; min-width: 0;
 }
-.hud-cal-day.is-empty { background: none; }
-.hud-cal-day b { font-weight: 600; opacity: .82; }
-.hud-cal-day.has-ev b { opacity: 1; font-weight: 700; }
-.hud-cal-day.is-today {
-  background: var(--hud-accent, #8c5ad2);
-  color: #fff; box-shadow: 0 0 0 1px rgba(255,255,255,.18) inset;
-}
-.hud-cal-day.is-today b { opacity: 1; }
+.hud-cal .c0 { --cc: var(--c0); } .hud-cal .c1 { --cc: var(--c1); } .hud-cal .c2 { --cc: var(--c2); }
+.hud-cal .c3 { --cc: var(--c3); } .hud-cal .c4 { --cc: var(--c4); } .hud-cal .c5 { --cc: var(--c5); }
+.hud-cal .c6 { --cc: var(--c6); } .hud-cal .c7 { --cc: var(--c7); } .hud-cal .c8 { --cc: var(--c8); }
+.hud-cal .c9 { --cc: var(--c9); } .hud-cal .c10 { --cc: var(--c10); } .hud-cal .c11 { --cc: var(--c11); }
+/* hidden — главнее display у списков и строк календаря. */
+.hud-cal [hidden] { display: none !important; }
+.hud-cal button { font: inherit; color: inherit; background: none; border: 0; margin: 0; padding: 0; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.hud-cal button:focus-visible { outline: 2px solid var(--hud-cal-own); outline-offset: 1px; }
 
-.hud-cal-dots { display: flex; gap: 2px; }
-.hud-cal-dot { width: 4px; height: 4px; border-radius: 50%; display: block; }
-.hud-cal-dot.k-birthday { background: #ff9ec8; }
-.hud-cal-dot.k-holiday  { background: #ffd166; }
-.hud-cal-dot.k-event    { background: #7fd4ff; }
-.hud-cal-dot.k-plan     { background: #9ad39a; }
-
-.hud-cal-agenda { display: flex; flex-direction: column; gap: 6px; margin-top: 2px; }
-.hud-cal-empty { font-size: 11px; opacity: .5; text-align: center; padding: 6px 0; }
-.hud-cal-row { display: flex; gap: 8px; align-items: baseline; font-size: 11.5px; }
-.hud-cal-row.is-today .hud-cal-row-day { color: var(--hud-accent-text, var(--hud-accent, #8c5ad2)); font-weight: 700; }
-.hud-cal-row-day { flex: 0 0 74px; opacity: .6; font-size: 10.5px; letter-spacing: .04em; }
-.hud-cal-row-items { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
-.hud-cal-item { position: relative; padding-left: 10px; line-height: 1.35; }
-.hud-cal-item::before {
-  content: ''; position: absolute; left: 0; top: .5em; width: 4px; height: 4px; border-radius: 50%;
-  background: currentColor; opacity: .8;
+/* Календари: фишка с цветной точкой; скрытый — точка пустая, подпись бледнее. */
+.hud-cal-cals { display: flex; flex-wrap: wrap; gap: 5px; }
+.hud-cal .hud-cal-chip {
+  display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 3px 9px 3px 7px; border-radius: 999px;
+  font-size: 10.5px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere;
+  background: color-mix(in srgb, var(--cc) 14%, transparent); border: 1px solid color-mix(in srgb, var(--cc) 35%, transparent);
 }
-.hud-cal-item b { font-weight: 700; opacity: .8; }
-.hud-cal-item.k-birthday { color: #ff9ec8; }
-.hud-cal-item.k-holiday  { color: #ffd166; }
-.hud-cal-item.k-event    { color: #7fd4ff; }
-.hud-cal-item.k-plan     { color: inherit; }
+.hud-cal-chip i { flex: 0 0 8px; width: 8px; height: 8px; border-radius: 50%; background: var(--cc); box-shadow: 0 0 0 1.5px var(--cc) inset; }
+.hud-cal .hud-cal-chip[aria-pressed="false"] { opacity: .55; background: none; }
+.hud-cal-chip[aria-pressed="false"] i { background: transparent; }
+
+/* Месяц. */
+.hud-cal-bar { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
+.hud-cal-head { font-size: 15px; font-weight: 700; letter-spacing: .01em; }
+.hud-cal-head small { font-size: .78em; font-weight: 500; opacity: .5; margin-left: 2px; }
+.hud-cal .hud-cal-nav {
+  width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 18px; line-height: 1; color: var(--hud-cal-own); transition: background-color .15s ease;
+}
+.hud-cal .hud-cal-nav:disabled { opacity: .25; cursor: default; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-cal .hud-cal-nav:not(:disabled):hover, .hud-cal .hud-cal-day:not(.is-empty):not(.is-selected):hover { background: color-mix(in srgb, currentColor 9%, transparent); }
+  .hud-cal .hud-cal-soon-day:hover { background: color-mix(in srgb, currentColor 6%, transparent); }
+}
+.hud-cal-week, .hud-cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; }
+.hud-cal-week span { font-size: 9.5px; text-align: center; opacity: .45; letter-spacing: .06em; text-transform: uppercase; padding-bottom: 3px; }
+.hud-cal-week span:nth-child(n+6) { opacity: .3; }
+.hud-cal .hud-cal-day {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+  gap: 2px; min-height: 34px; padding-top: 3px; border-radius: 10px; font-size: 12px;
+  transition: background-color .15s ease;
+}
+.hud-cal-day.is-empty { pointer-events: none; }
+.hud-cal-day b {
+  display: grid; place-items: center; width: 22px; height: 22px; border-radius: 50%;
+  font-weight: 500; font-variant-numeric: tabular-nums;
+}
+.hud-cal-day.is-weekend b { opacity: .7; }
+.hud-cal-day.is-past b { opacity: .42; }
+.hud-cal-day.has-ev b { font-weight: 700; }
+.hud-cal-day.is-today b { color: var(--hud-cal-own); font-weight: 800; opacity: 1; }
+/* Выбранный — кольцом (читается и на тёмном телефоне, и на бумаге светлых
+   тем), сегодня выбранный — залитым кругом цвета хозяина. */
+.hud-cal-day.is-selected b { opacity: 1; box-shadow: inset 0 0 0 1.5px currentColor; background: color-mix(in srgb, currentColor 10%, transparent); }
+.hud-cal-day.is-selected.is-today b { background: var(--hud-cal-own); color: #fff; box-shadow: none; }
+.hud-cal-dots { display: flex; gap: 2px; height: 4px; }
+.hud-cal-dot { width: 4px; height: 4px; border-radius: 50%; display: block; background: var(--cc); }
+
+/* Лист выбранного дня. */
+.hud-cal-sheet {
+  border-radius: 14px; padding: 10px 12px 12px; display: flex; flex-direction: column; gap: 8px;
+  background: color-mix(in srgb, currentColor 5%, transparent); border: 1px solid color-mix(in srgb, currentColor 9%, transparent);
+}
+.hud-cal-sheet.is-flip { animation: hud-cal-sheet-in .22s ease-out; }
+@keyframes hud-cal-sheet-in { from { opacity: .2; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .hud-cal-sheet.is-flip { animation: none; } }
+.hud-cal-sheet-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 10px; }
+.hud-cal-sheet-date { font-size: 13px; font-weight: 700; }
+.hud-cal-count { display: flex; flex-direction: column; align-items: flex-end; text-align: right; }
+.hud-cal-count b { font-size: 11.5px; font-weight: 700; color: var(--hud-cal-own); }
+.hud-cal-count small { font-size: 10px; opacity: .6; }
+.hud-cal-sheet-body { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.hud-cal-none { margin: 2px 0 0; font-size: 11.5px; opacity: .5; }
+.hud-cal-dayev { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.hud-cal-ev { display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 8px; align-items: start; }
+.hud-cal-ev-time { display: flex; flex-direction: column; align-items: flex-end; padding-top: 1px; font-variant-numeric: tabular-nums; }
+.hud-cal-ev-time b { font-size: 11.5px; font-weight: 700; }
+.hud-cal-ev-time b:is(.is-part, .is-allday) { font-size: 10px; font-weight: 600; opacity: .6; text-align: right; line-height: 1.2; }
+.hud-cal-ev-time small { font-size: 10px; opacity: .5; }
+.hud-cal-ev-body {
+  display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: 3px 0 3px 9px;
+  border-left: 3px solid var(--cc); border-radius: 2px;
+}
+.hud-cal-ev.is-allday .hud-cal-ev-body { padding: 4px 9px; border-radius: 6px; background: color-mix(in srgb, var(--cc) 16%, transparent); }
+.hud-cal-ev-title { font-size: 12.5px; line-height: 1.35; overflow-wrap: anywhere; }
+.hud-cal-who { display: inline-flex; align-items: center; gap: 4px; font-size: 10.5px; font-weight: 600; opacity: .8; }
+.hud-cal-who::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--cc); }
+
+/* Скоро: ближайшие дни с делами — нажатие открывает день. */
+.hud-cal-soon { display: flex; flex-direction: column; gap: 2px; }
+.hud-cal-soon-head { font-size: 10px; text-transform: uppercase; letter-spacing: .08em; opacity: .5; padding: 0 2px 2px; }
+.hud-cal .hud-cal-soon-day {
+  display: grid; grid-template-columns: 78px minmax(0, 1fr); gap: 8px; text-align: left; width: 100%;
+  padding: 6px 4px; border-radius: 10px; transition: background-color .15s ease;
+}
+.hud-cal .hud-cal-soon-day + .hud-cal-soon-day { border-top: 1px solid color-mix(in srgb, currentColor 7%, transparent); }
+.hud-cal-soon-when { display: flex; flex-direction: column; font-size: 11.5px; font-weight: 700; }
+.hud-cal-soon-when small { font-size: 10px; font-weight: 500; opacity: .55; }
+.hud-cal-soon-list { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.hud-cal-soon-item { position: relative; padding-left: 10px; font-size: 11.5px; line-height: 1.35; overflow-wrap: break-word; }
+.hud-cal-soon-item::before { content: ''; position: absolute; left: 0; top: .45em; width: 5px; height: 5px; border-radius: 50%; background: var(--cc); }
+.hud-cal-soon-item b { font-variant-numeric: tabular-nums; }
+.hud-cal-soon-item em { font-style: normal; opacity: .6; white-space: nowrap; }
+.hud-cal-soon-more { font-size: 10.5px; opacity: .5; padding-left: 10px; }
+
+/* Скрытый календарь — без своих точек, дел и пунктов «Скоро». */
+.hud-cal.off-c0 :is(.hud-cal-dot, .hud-cal-ev, .hud-cal-soon-item).c0, .hud-cal.off-c1 :is(.hud-cal-dot, .hud-cal-ev, .hud-cal-soon-item).c1,
+.hud-cal.off-c2 :is(.hud-cal-dot, .hud-cal-ev, .hud-cal-soon-item).c2, .hud-cal.off-c3 :is(.hud-cal-dot, .hud-cal-ev, .hud-cal-soon-item).c3,
+.hud-cal.off-c4 :is(.hud-cal-dot, .hud-cal-ev, .hud-cal-soon-item).c4, .hud-cal.off-c5 :is(.hud-cal-dot, .hud-cal-ev, .hud-cal-soon-item).c5,
+.hud-cal.off-c6 :is(.hud-cal-dot, .hud-cal-ev, .hud-cal-soon-item).c6, .hud-cal.off-c7 :is(.hud-cal-dot, .hud-cal-ev, .hud-cal-soon-item).c7,
+.hud-cal.off-c8 :is(.hud-cal-dot, .hud-cal-ev, .hud-cal-soon-item).c8, .hud-cal.off-c9 :is(.hud-cal-dot, .hud-cal-ev, .hud-cal-soon-item).c9,
+.hud-cal.off-c10 :is(.hud-cal-dot, .hud-cal-ev, .hud-cal-soon-item).c10, .hud-cal.off-c11 :is(.hud-cal-dot, .hud-cal-ev, .hud-cal-soon-item).c11 { display: none; }
 
 /* =========================================================================
    ТЕЛЕФОН: СНИМКИ И ЗВОНКИ В ПЕРЕПИСКЕ
@@ -1112,6 +1188,14 @@
 .hud-arc-sliders { display: grid; gap: 4px; margin: 8px 0 6px; }
 .hud-arc-sliders input { width: 100%; accent-color: var(--hud-accent, #8c5ad2); }
 .hud-arc-quick { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+/* Выбор летописи (chronicle-store.js): своя чата или чужая, вручную. */
+.hud-arc-chron { display: flex; align-items: center; gap: 4px 10px; flex-wrap: wrap; margin-top: 8px; font-size: 12px; }
+.hud-arc-chron label { display: flex; align-items: center; gap: 6px; min-width: 0; max-width: 100%; }
+.hud-arc-chron select {
+  min-width: 0; max-width: min(520px, 100%); padding: 4px 6px; border-radius: 6px; font-family: inherit; font-size: 12px;
+  color: inherit; background: rgba(0,0,0,.25); border: 1px solid var(--hud-border, rgba(255,255,255,.16));
+}
+.hud-arc-chron small { opacity: .65; }
 .hud-arc-quick button {
   cursor: pointer; padding: 5px 10px; border-radius: 7px;
   font-size: 11.5px; font-family: inherit; color: inherit;
@@ -1213,6 +1297,9 @@
 }
 @media (hover: hover) and (pointer: fine) { .hud-arc-ref:hover { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 18%, transparent); } }
 .hud-arc-ref.is-missing { color: #e0685f; border-color: rgba(224,104,95,.5); }
+/* Ход летописи, которого в чате нет: перейти некуда — не кнопка. */
+.hud-arc-ref.is-chron { cursor: default; opacity: .75; font-style: italic; }
+@media (hover: hover) and (pointer: fine) { .hud-arc-ref.is-chron:hover { background: none; } }
 
 .hud-arc-timeline { position: relative; padding-left: 12px; }
 .hud-arc-timeline::before {
