@@ -15,8 +15,8 @@
 //    меняются: SVG вписан в 1em и встаёт туда же, где стоял символ;
 //  · значок декоративный (aria-hidden), смысл несёт текст рядом.
 
-import { settings } from '../settings.js?v=23.67.0';
-import { ИКОНКИ } from './view-icons.js?v=23.67.0';
+import { settings } from '../settings.js?v=23.75.0';
+import { ИКОНКИ } from './view-icons.js?v=23.75.0';
 
 // Рисунки, которых не было в view-icons.js. Квадрат 24×24, обводка.
 const ДОП = {
@@ -108,7 +108,9 @@ export function подключитьЗначки(s = settings) {
   if (typeof document === 'undefined' || !document.documentElement) return;
   const root = document.documentElement;
   const вкл = значкиВключены(s);
+  // Рисунок по теме — и для значков шапки свёрнутой карточки ('header').
+  const рисунки = s.iconSet === 'svg' || s.iconSet === 'header';
   root.classList.toggle('hud-icons-svg', вкл);
-  СТИЛИ_ЗНАЧКОВ.forEach(ст => root.classList.toggle('hud-ico-' + ст, вкл && стильЗначков(s) === ст));
+  СТИЛИ_ЗНАЧКОВ.forEach(ст => root.classList.toggle('hud-ico-' + ст, рисунки && стильЗначков(s) === ст));
   if (вкл && document.body && !document.getElementById('hud-icon-sprite')) document.body.insertAdjacentHTML('beforeend', разметкаСпрайта());
 }

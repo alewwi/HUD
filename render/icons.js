@@ -29,6 +29,7 @@ export const G_ICONS = {
   handset: '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6.6 3.8c.7-.6 1.7-.4 2.2.3l1.6 2.3c.4.6.3 1.4-.2 1.9l-1 1c.9 1.9 2.4 3.4 4.4 4.4l1-1c.5-.5 1.3-.6 1.9-.2l2.3 1.6c.7.5.9 1.5.3 2.2l-1.2 1.4c-.8.9-2.1 1.2-3.2.8C9.6 16.8 7.2 14.4 5.5 9.3c-.4-1.1-.1-2.4.8-3.2Z"/></svg>',
   health: '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 20.2s-7.8-4.6-7.8-10.2A4.4 4.4 0 0 1 12 7.4a4.4 4.4 0 0 1 7.8 2.6c0 5.6-7.8 10.2-7.8 10.2Z"/><path d="M5.6 12.4h3.2l1.4-2.4 2.2 4.6 1.4-2.2h4.6"/></svg>',
   pin:   '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 21s6.4-6 6.4-11a6.4 6.4 0 1 0-12.8 0c0 5 6.4 11 6.4 11Z"/><circle cx="12" cy="10" r="2.4"/></svg>',
+  music: '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 17.6V5.4l10.4-2v12"/><circle cx="6.4" cy="17.6" r="2.6"/><circle cx="16.8" cy="15.4" r="2.6"/></svg>',
   phone: '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="6.4" y="2.8" width="11.2" height="18.4" rx="2.6"/><path d="M10.6 18.4h2.8"/></svg>',
   // Видеокамера: корпус и объектив-клин сбоку — тот же силуэт, что у значка
   // видео в мессенджерах, поэтому читается сразу и без подписи.

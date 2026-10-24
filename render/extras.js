@@ -4,8 +4,8 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.67.0';
-import { settings } from '../settings.js?v=23.67.0';
+import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.75.0';
+import { settings } from '../settings.js?v=23.75.0';
 
 const есть = (v) => hudHasMeaningfulValue(v) && !/^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -155,19 +155,46 @@ export function видСостоянияТела(value, вид) {
 const ПИСЬМО = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 6.5h17v11h-17Z M3.5 7l8.5 6.5L20.5 7"/></svg>';
 const МОЛНИЯ = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 3 5 13.5h6L10 21l8-10.5h-6Z"/></svg>';
 const ВОПРОС = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.3-1 .9-1 1.7M12 17h.01"/></svg>';
+// Компас — к «куда может повести»: это направление, а не пересказ.
+const КОМПАС = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2.2 4.8-4.8 2.2 2.2-4.8Z"/></svg>';
 export function разобратьПоворот(value) {
   const о = { название: '', что: '', куда: '', тон: '' };
+  // Кусок без метки продолжает предыдущее поле: модель разделяет «;» и два
+  // направления в hnt, и второе раньше уходило в «что случилось».
+  let последнее = 'что';
   String(value || '').split(/;|\n/).map(s => s.trim()).filter(Boolean).forEach(часть => {
     const m = часть.match(/^([^:]{1,20}):\s*(.+)$/);
     const метка = m ? m[1].trim().toLowerCase() : '', тело = m ? m[2].trim() : часть;
-    if (/назв|^ttl|title/.test(метка)) о.название = тело;
-    else if (/случ|^hap|what/.test(метка)) о.что = тело;
-    else if (/куда|вед|^hnt|hint|lead/.test(метка)) о.куда = тело;
+    if (/назв|^ttl|title/.test(метка)) { о.название = тело; последнее = 'что'; }
+    else if (/случ|^hap|what/.test(метка)) { о.что = тело; последнее = 'что'; }
+    else if (/куда|вед|^hnt|hint|lead/.test(метка)) { о.куда = тело; последнее = 'куда'; }
     else if (/тон|^ton|tone/.test(метка)) о.тон = тело.toLowerCase();
-    else о.что = о.что ? о.что + '; ' + часть : часть;
+    else о[последнее] = о[последнее] ? о[последнее] + '; ' + часть : часть;
   });
   if (!о.название && о.что) { о.название = о.что; о.что = ''; }
   return о;
+}
+/**
+ * «Куда может повести» — по направлениям. Схема просит «1) …; 2) …»; старые
+ * повороты писались одной фразой «…, — или …» — их делим по тире перед «или».
+ * Простое «или» внутри фразы («в Оксфорд или в Мэн») — не развилка.
+ */
+export function направленияПоворота(текст) {
+  const s = String(текст || '').replace(/\s+/g, ' ').trim();
+  if (!s) return [];
+  const чистить = (x) => x.replace(/^[\s;,.—–-]+|[\s;,—–-]+$/g, '').trim();
+  let части;
+  // Номера — только по порядку 1, 2, 3: «в 2024. Потом» не пункт.
+  const метки = [];
+  for (let n = 1, с = 0; n <= 3; n++) {
+    const m = new RegExp(`(?:^|[\\s;,.])${n}[).]\\s`).exec(s.slice(с));
+    if (!m) break;
+    const где = с + m.index + (m[0].length - 3);
+    метки.push(где); с = где + 3;
+  }
+  if (метки.length >= 2 || (метки.length === 1 && метки[0] === 0)) части = метки.map((от, i) => s.slice(от + 3, метки[i + 1] ?? s.length));
+  else части = s.split(/\s*[;,]?\s*[—–]\s*(?=или\s)/i);
+  return части.map(чистить).filter(Boolean).slice(0, 3);
 }
 export function карточкаПоворота(value) {
   if (!есть(value)) return '';
@@ -175,8 +202,15 @@ export function карточкаПоворота(value) {
   if (!п.название) return '';
   const тон = /bad|плох|угроз|опас|тревож/.test(п.тон) ? 'bad' : /good|хорош|удач|свет/.test(п.тон) ? 'good' : 'neutral';
   const знак = тон === 'bad' ? МОЛНИЯ : тон === 'good' ? ПИСЬМО : ВОПРОС;
+  // Направления — пунктами, как стрелки компаса; подпись напоминает, что это
+  // варианты, а не предсказание.
+  const пути = направленияПоворота(п.куда);
+  const куда = !пути.length ? '' : `<div class="hud-twist-hint"><div class="hud-twist-hint-head">${КОМПАС}<b>Куда может повести</b><small>варианты, не предсказание</small></div>`
+    + (пути.length === 1 ? `<p class="hud-twist-way is-one">${escapeHtml(пути[0])}</p>`
+      : `<ol class="hud-twist-ways">${пути.map((w, i) => `<li class="hud-twist-way"><span class="hud-twist-n" aria-hidden="true">${i + 1}</span><span>${escapeHtml(w)}</span></li>`).join('')}</ol>`)
+    + `</div>`;
   return `<div class="hud-twist is-${тон}"><span class="hud-twist-rib">ПОВОРОТ</span><h5>${знак}${escapeHtml(п.название)}</h5>`
-    + (п.что ? `<p>${escapeHtml(п.что)}</p>` : '') + (п.куда ? `<span class="hud-twist-hint">Куда может повести: ${escapeHtml(п.куда)}</span>` : '') + `</div>`;
+    + (п.что ? `<p>${escapeHtml(п.что)}</p>` : '') + куда + `</div>`;
 }
 
 // ---------------------------------------------------------------------------

@@ -6,9 +6,10 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.67.0';
-import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.67.0';
-import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.67.0';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.75.0';
+import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.75.0';
+import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.75.0';
+import { ссылкиТрека } from './music.js?v=23.75.0';
 
 let окноОткрыто = false;
 
@@ -120,6 +121,43 @@ function вкладкаХронологии(отчёт, поиск) {
       <span class="hud-arc-when">${e.kind === 'date' ? '📅' : '📍'} ${escapeHtml(e.text)}</span>
       ${ссылка(e.at)}
     </div>`).join('') + '</div>';
+}
+
+// Саундтрек: главы по дням сюжета. Глава — подряд идущие ходы с одной
+// подборкой; у каждой метка сцены, место, ходы и треки со ссылками.
+const НОТА = '<svg class="hud-arc-st-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l11-2v13 M9 18a3 3 0 1 1-6 0a3 3 0 1 1 6 0 M20 16a3 3 0 1 1-6 0a3 3 0 1 1 6 0"/></svg>';
+function трекиГлавы(треки) {
+  return '<ol class="hud-arc-st-list">' + треки.map(т => `<li class="${т.ok === false ? 'is-unfound' : ''}">`
+    + (т.art ? `<img src="${escapeHtml(т.art)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : '<i class="hud-arc-st-blank" aria-hidden="true"></i>')
+    + `<span class="hud-arc-st-tt"><b>${escapeHtml(т.t)}</b><em>${escapeHtml(т.a)}</em></span><span class="hud-arc-st-go">${ссылкиТрека(т)}</span></li>`).join('') + '</ol>';
+}
+export function вкладкаСаундтрека(отчёт, поиск) {
+  if (!Array.isArray(отчёт.soundtrack)) return '<div class="hud-arc-empty">Отчёт посчитан до появления саундтрека — нажмите «пересчитать».</div>';
+  const есть = (г) => !поиск || [г.label, г.place, г.date, ...(г.soundtrack || []).flatMap(т => [т.a, т.t]), ...((г.scene && г.scene.tracks) || []).flatMap(т => [т.a, т.t])]
+    .some(x => String(x || '').toLowerCase().includes(поиск));
+  const главы = отчёт.soundtrack.map((г, n) => ({ ...г, n })).filter(есть);
+  if (!главы.length) return `<div class="hud-arc-empty">${поиск ? 'По запросу ничего не нашлось' : 'В этом отрезке музыку не подбирали — включите «Музыку сцены» в настройках'}</div>`;
+  const дни = [];
+  for (const г of главы) {
+    const день = г.date || (дни.length ? дни[дни.length - 1].день : '');
+    if (!дни.length || дни[дни.length - 1].день !== день) дни.push({ день, главы: [] });
+    дни[дни.length - 1].главы.push(г);
+  }
+  const треков = отчёт.stats && отчёт.stats.soundtrackTracks;
+  const шапка = `<div class="hud-arc-note">${главы.length} ${главы.length === 1 ? 'глава' : главы.length < 5 ? 'главы' : 'глав'} саундтрека${треков ? ', треков — ' + треков : ''}. Глава — ходы, пока играла одна подборка.</div>`;
+  return шапка + дни.map(д => `<div class="hud-arc-st-day"><div class="hud-arc-st-date">${escapeHtml(д.день || 'Дата не указана')}</div>`
+    + д.главы.map(г => {
+      const ходы = г.from === г.to ? ссылка(г.from) : ссылка(г.from) + '<i>–</i>' + ссылка(г.to);
+      const телефон = г.phone && г.phone.tracks && г.phone.tracks.length
+        ? `<div class="hud-arc-st-phone">В телефоне у ${escapeHtml(имяБезПриставки(г.phone.owner || ''))}: ${г.phone.tracks.slice(0, 4).map(т => escapeHtml(т.a + ' — ' + т.t)).join('; ')}</div>` : '';
+      return `<div class="hud-arc-card hud-arc-st">
+        <div class="hud-arc-card-head">${НОТА}<b>${escapeHtml(г.label || 'Подборка')}</b>${г.why ? `<span class="hud-arc-tag">${escapeHtml(г.why)}</span>` : ''}</div>
+        <div class="hud-arc-st-meta">${г.place ? escapeHtml(г.place) + ' · ' : ''}ходы ${ходы}<button type="button" class="hud-arc-st-mt" data-arc-mt="${г.n}" title="Отдать саундтрек главы в очередь MoodTube">в очередь MoodTube</button></div>
+        ${(г.soundtrack || []).length ? трекиГлавы(г.soundtrack) : ''}
+        ${г.scene && г.scene.tracks && г.scene.tracks.length ? `<div class="hud-arc-st-sub">В сцене${г.scene.src ? ': ' + escapeHtml(г.scene.src) : ''}</div>${трекиГлавы(г.scene.tracks)}` : ''}
+        ${телефон}
+      </div>`;
+    }).join('') + '</div>').join('');
 }
 
 function вкладкаСтатистики(отчёт) {
@@ -378,8 +416,8 @@ export function openArchiveDialog() {
         </div>
         <div class="hud-arc-progress" hidden><div class="hud-arc-bar"></div><span></span></div>
         <div class="hud-arc-chron" title="Летопись — выжимки HUD, которые архив берёт, когда HUD вычищен из сообщений. Своя ведётся по копии чата всегда. Если HUD узнал чат не так или старые HUD остались в другом чате — выберите тот чат (или его летопись): HUD прочитает его файл, его ходы закроют пропуски своей, а ходы, которых здесь нет, архив добавит без дублей. Сам выбранный чат не меняется.">
-          <label>Летопись: своя + <select class="hud-arc-chron-sel"><option value="">ничего</option></select></label>
-          <small class="hud-arc-chron-info"></small>
+          <label>Летопись: своя + <select class="hud-arc-chron-sel" disabled><option value="">ищу чаты…</option></select></label>
+          <small class="hud-arc-chron-info" aria-live="polite"><i class="hud-arc-spin" aria-hidden="true"></i>ищу другие чаты персонажа и летописи…</small>
         </div>
       </div>
       <div class="hud-arc-tabs" hidden>
@@ -387,6 +425,7 @@ export function openArchiveDialog() {
         <button type="button" data-tab="guns">Ружья</button>
         <button type="button" data-tab="relations">Отношения</button>
         <button type="button" data-tab="timeline">Хронология</button>
+        <button type="button" data-tab="soundtrack">Саундтрек</button>
         <button type="button" data-tab="stats">Статистика</button>
         <button type="button" data-tab="dash">Дашборд</button>
         <input type="search" class="hud-arc-search" placeholder="Поиск по отчёту…">
@@ -464,6 +503,7 @@ export function openArchiveDialog() {
       : активная === 'guns' ? вкладкаРужей(отчёт, поиск)
       : активная === 'relations' ? вкладкаОтношений(отчёт, поиск)
       : активная === 'timeline' ? вкладкаХронологии(отчёт, поиск)
+      : активная === 'soundtrack' ? вкладкаСаундтрека(отчёт, поиск)
       : активная === 'dash' ? buildDashboardHTML(отчёт)
       : вкладкаСтатистики(отчёт);
     тело.scrollTop = 0;
@@ -481,6 +521,17 @@ export function openArchiveDialog() {
     запомнитьВиджет(галочка.dataset.widget, галочка.checked);
     показать();
     тело.scrollTop = прокрутка;
+  });
+
+  // Саундтрек главы — в очередь MoodTube (кнопка видна, только когда он стоит).
+  тело.addEventListener('click', (e) => {
+    const мт = e.target.closest('[data-arc-mt]');
+    if (!мт || !отчёт || !Array.isArray(отчёт.soundtrack)) return;
+    const г = отчёт.soundtrack[Number(мт.dataset.arcMt)];
+    const api = window.MoodTubeAPI;
+    if (!г || !api || typeof api.enqueueMany !== 'function') return;
+    const треки = (г.soundtrack || []).filter(т => т.ok !== false).map(т => т.a + ' - ' + т.t);
+    try { api.enqueueMany(треки); мт.textContent = 'в очереди: ' + треки.length; } catch (_) { мт.textContent = 'MoodTube не принял'; }
   });
 
   // Клик по номеру сообщения — прокрутка к нему в чате.
@@ -568,11 +619,22 @@ export function openArchiveDialog() {
   };
   // В списке — чаты персонажа (их файл HUD прочитает сам) и летописи из
   // указателя, у которых здесь нет чата. Значение: «chat:<id>» или «chron:<файл>».
+  // Пока ищем, список закрыт и подписан «ищу чаты…»: чаты персонажа Таверна
+  // читает с диска целиком, на длинных чатах это секунды, и пустой список
+  // «ничего» выглядел так, будто HUD чатов не видит. Список — только после
+  // полной загрузки.
+  const ищу = (текст) => {
+    выборЛетописи.disabled = true;
+    выборЛетописи.innerHTML = '<option value="">ищу чаты…</option>';
+    инфоЛетописи.innerHTML = `<i class="hud-arc-spin" aria-hidden="true"></i>${escapeHtml(текст)}`;
+  };
   const заполнитьСписок = async () => {
+    ищу('ищу другие чаты персонажа и летописи…');
     const c = ctxЛ();
     const своя = свойФайлЛетописи(c), текущая = выбраннаяЛетопись(c);
     const идЧата = String((typeof c?.getCurrentChatId === 'function' && c.getCurrentChatId()) || '');
-    const [список, чаты] = await Promise.all([списокЛетописей(), чатыПерсонажа().catch(() => [])]);
+    let чатыНеПрочитались = false;
+    const [список, чаты] = await Promise.all([списокЛетописей(), чатыПерсонажа().catch(() => { чатыНеПрочитались = true; return []; })]);
     const поФайлу = new Map(список.map(л => [л.файл, л]));
     const моя = поФайлу.get(своя);
     const летописьЧата = (л) => л ? ` · летопись: ${л.ходов || 0} ход.${диапазонДат(л)}` : '';
@@ -582,21 +644,25 @@ export function openArchiveDialog() {
     const чужие = список.filter(л => л.файл !== своя && !уЧатов.has(л.файл));
     if (текущая && !уЧатов.has(текущая) && !чужие.some(л => л.файл === текущая)) чужие.unshift({ файл: текущая });
     const опцииЛетописей = чужие.map(л => `<option value="chron:${escapeHtml(л.файл)}">${escapeHtml(`${л.чат || л.файл}${л.персонаж ? ' — ' + имяБезПриставки(л.персонаж) : ''} · ${л.ходов || 0} ход.${диапазонДат(л)}`)}</option>`).join('');
-    выборЛетописи.innerHTML = `<option value="">ничего${моя ? ` (своя: ${моя.ходов || 0} ход.${диапазонДат(моя)})` : ''}</option>`
+    выборЛетописи.innerHTML = `<option value="">только своя${моя ? ` (${моя.ходов || 0} ход.${диапазонДат(моя)})` : ''}</option>`
       + (опцииЧатов ? `<optgroup label="Чаты персонажа">${опцииЧатов}</optgroup>` : '')
       + (опцииЛетописей ? `<optgroup label="Другие летописи">${опцииЛетописей}</optgroup>` : '');
     const выбранныйЧат = текущая && другиеЧаты.find(ч => ч.летопись === текущая);
     выборЛетописи.value = выбранныйЧат ? 'chat:' + выбранныйЧат.id : (текущая ? 'chron:' + текущая : '');
     await показатьСовпадения();
+    // Что нашлось — первой строкой подсказки, чтобы пустой список не казался поломкой.
+    const найдено = чатыНеПрочитались ? 'чаты персонажа не прочитались' : `найдено других чатов: ${другиеЧаты.length}${чужие.length ? `, летописей: ${чужие.length}` : ''}`;
+    инфоЛетописи.textContent = найдено + ' · ' + инфоЛетописи.textContent;
+    выборЛетописи.disabled = false;
   };
-  заполнитьСписок().catch(e => { инфоЛетописи.textContent = 'список летописей не загрузился'; console.warn('[TavernOS HUD] летописи', e); });
+  заполнитьСписок().catch(e => { выборЛетописи.disabled = false; инфоЛетописи.textContent = 'список летописей не загрузился'; console.warn('[TavernOS HUD] летописи', e); });
   выборЛетописи.addEventListener('change', async () => {
     const v = выборЛетописи.value;
     выборЛетописи.disabled = true;
     try {
       if (v.startsWith('chat:')) {
-        инфоЛетописи.textContent = 'читаю чат…';
-        const итог = await летописьИзЧата(v.slice(5), (i, n) => { инфоЛетописи.textContent = `читаю чат: ${i} из ${n}`; });
+        ищу('читаю выбранный чат…');
+        const итог = await летописьИзЧата(v.slice(5), (i, n) => { инфоЛетописи.innerHTML = `<i class="hud-arc-spin" aria-hidden="true"></i>читаю чат: ${i} из ${n} сообщений`; });
         await выбратьЛетопись(итог.файл);
       } else await выбратьЛетопись(v.startsWith('chron:') ? v.slice(6) : null);
       await заполнитьСписок();
