@@ -12,12 +12,13 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.64.2';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.64.2';
-import { mapKey } from './utils.js?v=23.64.2';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.64.2';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.64.2';
-import { заменитьHudБлоки } from './hud-block.js?v=23.64.2';
+import { settings } from './settings.js?v=23.67.0';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.67.0';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.67.0';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.67.0';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.67.0';
+import { заменитьHudБлоки } from './hud-block.js?v=23.67.0';
+import { упомянутВТексте } from './names.js?v=23.67.0';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -109,6 +110,58 @@ export const СВЕЖИЕ_ПЕРСОНАЖА = ['Th', 'Ex', 'D'];
 // вырезанного стоит метка. Угловые скобки по правилам схемы значат «заполни
 // настоящим содержимым», а ключ остаётся в структуре.
 export const МЕТКА_НОВОГО = '<new this turn>';
+// Сколько последних строк маршрута и истории настроений, и сообщений каждой
+// переписки, видит модель в снимке.
+export const ХВОСТ_ИСТОРИИ = 4;
+export const ХВОСТ_ПЕРЕПИСКИ = 3;
+
+// --- Персонажи вне сцены -----------------------------------------------------
+// HUD — не снимок сцены, а живой мир: кто не в кадре, всё равно живёт —
+// переходит с места на место, пишет и звонит, меняет планы, настроение и
+// отношения, у него идёт цикл и болит рана. Поэтому вне сцены остаётся всё
+// живое, а уходит то, что видно только в кадре или почти не меняется:
+// внешность, одежда, ключевые мысли, вещи, реплики, страхи, отметины,
+// воспоминания, разоблачение, ожидание и подтекст хода. На экране их держит
+// прежняя карточка (render/carryover.js, вернутьЧерты).
+export const ВНЕ_СЦЕНЫ_БЕЗ = ['Ap', 'C', 'K', 'I', 'Mm', 'Ln', 'Fr', 'Mrk', 'Eo', 'Ex', 'D'];
+// Место — началом адреса: «город, особняк, парк» общие, а последняя часть —
+// уточнение («у подоконника», «на краю кровати»), по которому люди в одной
+// сцене расходятся. Одна сцена — когда начало одного адреса продолжает
+// другой: «комната 308» и «комната 308, у окна» — вместе, «бальная зала» и
+// «барная стойка в галерее» — нет.
+const началоМеста = (v) => {
+  const части = String(Array.isArray(v) ? v.join(', ') : v || '').toLowerCase().replace(/ё/g, 'е').split(/\s+[—–-]\s+/)[0].split(',').map(s => s.trim()).filter(Boolean);
+  return части.length >= 3 ? части.slice(0, -1).slice(0, 3) : части;
+};
+const однаСцена = (а, б) => а.length > 0 && б.length > 0 && а.slice(0, Math.min(а.length, б.length)).every((ч, i) => ч === б[i]);
+/**
+ * Кто из персонажей снимка вне сцены: не главный персонаж карточки, не назван
+ * в последних сообщениях, не там же, где {{user}} или главный, не в близости.
+ * При трёх персонажах и меньше — никто: короче почти не станет.
+ */
+export function внеСцены(снимок, { тексты = [], главный = '' } = {}) {
+  if (!объект(снимок) || settings.hudAwayShort === false) return [];
+  const cs = (Array.isArray(снимок.cs) ? снимок.cs : []).filter(c => объект(c) && c.N);
+  if (cs.length <= 3) return [];
+  const текст = (Array.isArray(тексты) ? тексты : [тексты]).join('\n');
+  const имяГлавного = имяБезПриставки(String(главный || ''));
+  // Имена — без приставки карточки («THE REGENTS  Tristan Kingsley»): иначе
+  // сравнивалось бы первое слово, «THE».
+  const имя = (c) => имяБезПриставки(String(c.N)) || String(c.N);
+  const этоГлавный = (c) => имяГлавного && (упомянутВТексте(имяГлавного, имя(c)) || упомянутВТексте(имя(c), имяГлавного));
+  const места = [началоМеста(объект(снимок.us) && снимок.us.L)];
+  cs.filter(этоГлавный).forEach(c => места.push(началоМеста(c.L)));
+  return cs.filter(c => {
+    if (этоГлавный(c)) return false;
+    if (упомянутВТексте(текст, имя(c))) return false;
+    const м = началоМеста(c.L);
+    if (!м.length || места.some(о => однаСцена(о, м))) return false;
+    if (ИДЁТ_СЦЕНА.some(k => поСути(c[k]))) return false;
+    return true;
+  }).map(c => String(c.N));
+}
+// Кто вне сцены в уже собранной строке снимка — для легенды того же запроса.
+const внеПоСтроке = new Map();
 const МЕТКА_СНОВ = '<new this turn — only if someone slept; otherwise []>';
 
 /**
@@ -138,6 +191,15 @@ export function собратьСнимок(текстБлока) {
   // новой строки; прежние сообщения на экране держит перенос из прошлых
   // ходов (render/carryover.js), он же склеивает повторы.
   else if (Array.isArray(к.tp)) к.tp.forEach(п => { if (объект(п) && Array.isArray(п.ms)) п.ms = п.ms.filter(непусто).slice(-1); });
+  // Переписки, маршрут и истории настроений — только хвост. Модель дописывает
+  // к нему новое; прежнее на экране держит перенос из прошлых ходов
+  // (render/carryover.js). Целиком они стоили около трети снимка памяти и
+  // переписывались слово в слово.
+  if (объект(к.cm)) for (const ч of Object.values(к.cm)) { if (объект(ч) && Array.isArray(ч.ms)) ч.ms = ч.ms.filter(непусто).slice(-ХВОСТ_ПЕРЕПИСКИ); }
+  if (объект(к.me)) {
+    if (объект(к.me.rt)) for (const кто of Object.keys(к.me.rt)) { if (Array.isArray(к.me.rt[кто])) к.me.rt[кто] = к.me.rt[кто].filter(непусто).slice(-ХВОСТ_ИСТОРИИ); }
+    if (объект(к.me.md)) for (const кто of Object.values(к.me.md)) { if (объект(кто) && Array.isArray(кто.hs)) кто.hs = кто.hs.filter(непусто).slice(-ХВОСТ_ИСТОРИИ); }
+  }
   if (!settings.enableDiary) { delete к.dy; delete к.bd; }
   if (!settings.enableDreams) delete к.dr;
   if (!settings.enableMemory) delete к.me;
@@ -263,16 +325,31 @@ export function решитьБой(снимок, тексты) {
 }
 
 // Строка снимка для промта: компактный JSON. Без близости — без её полей.
-export function строкаСнимка(снимок, nsfw) {
+export function строкаСнимка(снимок, nsfw, сцена = null) {
   if (!объект(снимок)) return '';
   const копия = JSON.parse(JSON.stringify(снимок));
   // Правки игрока (snapshot-edits.js): «отметил, что Лена знает» — модели.
   try { наложитьНаСнимок(копия); } catch (_) { /* без правок */ }
+  // Вне сцены — живое без кадра; близость у них не идёт (её нет в кадре),
+  // от неё — только «когда и с кем», как вне сцены у всех.
+  const вне = сцена ? внеСцены(копия, сцена) : [];
+  // Вернулись в сцену — в прошлом HUD были записаны коротко, теперь в кадре.
+  // Кто был коротким, считает вызывающий до того, как вернёт им карточку из
+  // истории (index.js, дополнитьКарточкиСнимка); без этого — по самой копии.
+  const короткие = сцена ? (Array.isArray(сцена.короткие) ? сцена.короткие : короткиеВСнимке(копия)) : [];
+  const вернулись = короткие.filter(н => !вне.includes(н) && (Array.isArray(копия.cs) ? копия.cs : []).some(c => объект(c) && String(c.N) === н));
+  const когдаИСКем = (v) => String(Array.isArray(v) ? v.join('; ') : v || '').split(';').map(s => s.trim()).filter(s => /^(dt|pr|en)\s*[:：]/i.test(s)).join('; ');
+  if (вне.length) (Array.isArray(копия.cs) ? копия.cs : []).forEach(c => {
+    if (!объект(c) || !вне.includes(String(c.N))) return;
+    const коротко = settings.nsfwPrompt !== 'never' ? когдаИСКем(c.SxL) : '';
+    убрать(c, ВНЕ_СЦЕНЫ_БЕЗ);
+    убрать(c, NSFW_ПЕРСОНАЖА);
+    if (коротко) c.SxL = коротко;
+  });
   if (!nsfw) {
     // «Последний секс» вне сцены — когда, с кем и чем кончилось (защита и риск): схема просит эту
     // часть и вне близости, чтобы запись не устаревала. Подробности остаются
     // в карточке (render/carryover.js), в инструкцию вне сцены не идут.
-    const когдаИСКем = (v) => String(Array.isArray(v) ? v.join('; ') : v || '').split(';').map(s => s.trim()).filter(s => /^(dt|pr|en)\s*[:：]/i.test(s)).join('; ');
     (Array.isArray(копия.cs) ? копия.cs : []).forEach(c => {
       const коротко = объект(c) && settings.nsfwPrompt !== 'never' ? когдаИСКем(c.SxL) : '';
       убрать(c, NSFW_ПЕРСОНАЖА);
@@ -282,7 +359,29 @@ export function строкаСнимка(снимок, nsfw) {
     delete копия.bd;
   }
   const чистый = вычистить(копия);
-  return объект(чистый) ? JSON.stringify(чистый) : '';
+  const строка = объект(чистый) ? JSON.stringify(чистый) : '';
+  if (строка && (вне.length || вернулись.length)) {
+    внеПоСтроке.set(строка, { вне, вернулись });
+    while (внеПоСтроке.size > 6) внеПоСтроке.delete(внеПоСтроке.keys().next().value);
+  }
+  return строка;
+}
+
+/** Кто в снимке записан коротко, как вне сцены: без внешности и одежды. */
+export function короткиеВСнимке(снимок) {
+  return (объект(снимок) && Array.isArray(снимок.cs) ? снимок.cs : []).filter(c => объект(c) && c.N && !непусто(c.Ap) && !непусто(c.C)).map(c => String(c.N));
+}
+
+/** Мягкое напоминание: вернувшиеся в сцену пишутся снова по общим правилам. */
+export function строкаВернулись(имена) {
+  if (!Array.isArray(имена) || !имена.length) return '';
+  return `Back in the scene now: ${имена.join(', ')}. Last turn they were away and written short; now they are here, so write them in full by the general rules again — C, K, Ex, D, Eo, Ln and the rest. Their Ap above comes from earlier turns: keep it unless their look has changed.`;
+}
+
+/** Строка для модели: кто вне сцены и как их писать. Пусто, если таких нет. */
+export function строкаВнеСцены(имена) {
+  if (!Array.isArray(имена) || !имена.length) return '';
+  return `Away from the scene right now: ${имена.join(', ')}. Above they carry only their living state — place, status, body and health, cycle, goals, schedule, thought, relationships, trust, flags. They go on living off-screen: they move, text and call, change plans, moods and relationships — update all of that. Write them in your HUD in the same short form: HUD keeps the rest of their card (appearance, clothes, things, lines, fears, marks, memories) from earlier turns. If one of them enters the scene in your reply, add the scene fields (C, K, Ex, D, Eo, Ln); Ap only if their look has changed.`;
 }
 
 /* Легенда снимка: расшифровка только тех кодов, что в нём есть. Схема с
@@ -301,8 +400,8 @@ const НАЗВАНИЯ_ПОЛЕЙ = {
   Dur: 'duration', Prt: 'protection', Org: 'orgasm readiness', Vit: 'vitals', Snd: 'sounds', BM: 'body map', W: 'intimate state',
   Kn: 'kinks', Ft: 'fetishes', NG: 'never', NT: 'turn-offs', ND: 'intimate detail', AC: 'aftercare', UW: 'intimate state',
 };
-const НАЗВАНИЯ_РАЗДЕЛОВ = { us: '{{user}}', cm: 'chats', phn: 'phone', tp: 'intercepts (last message each)', pet: 'companions', sm: 'casket', lt: 'letters', ov: 'overheard' };
-const ПОЯСНЕНИЯ = { hd: 'does NOT know', knw: 'knows', stt: 'status', lv: 'level', f: 'fact', n: 'name', src: 'source' };
+const НАЗВАНИЯ_РАЗДЕЛОВ = { us: '{{user}}', cm: 'chats (last messages each; HUD keeps the earlier ones)', phn: 'phone', tp: 'intercepts (last message each)', pet: 'companions', sm: 'casket', lt: 'letters', ov: 'overheard' };
+const ПОЯСНЕНИЯ = { md: 'mood (hs: last lines; HUD keeps the earlier ones)', rt: 'route (last lines; HUD keeps the earlier ones — add new moves after them)', hd: 'does NOT know', knw: 'knows', stt: 'status', lv: 'level', f: 'fact', n: 'name', src: 'source' };
 
 export function легендаСнимка(строка) {
   let с;
@@ -336,7 +435,10 @@ export function легендаСнимка(строка) {
     else if (код === 'phn') внутри = подразделы(знач, НАЗВАНИЯ_КОДОВ.телефон);
     части.push(внутри ? `${код} ${раздел} (${внутри})` : `${код} ${раздел}`);
   }
-  return части.join(' · ');
+  const легенда = части.join(' · ');
+  const о = typeof строка === 'string' ? внеПоСтроке.get(строка) : null;
+  const доп = о ? [строкаВнеСцены(о.вне), строкаВернулись(о.вернулись)].filter(Boolean) : [];
+  return доп.length ? легенда + '\n' + доп.join('\n') : легенда;
 }
 
 // Тексты последнего сообщения игрока и последнего ответа персонажа — для

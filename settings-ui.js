@@ -5,15 +5,15 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { settings } from './settings.js?v=23.64.2';
-import { видБлока } from './render/views.js?v=23.64.2';
-import { escapeHtml } from './utils.js?v=23.64.2';
-import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.64.2';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.64.2';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.64.2';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.64.2';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.64.2';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.64.2';
+import { settings } from './settings.js?v=23.67.0';
+import { видБлока } from './render/views.js?v=23.67.0';
+import { escapeHtml } from './utils.js?v=23.67.0';
+import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.67.0';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.67.0';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.67.0';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.67.0';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.67.0';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.67.0';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -187,6 +187,8 @@ export function addSettingsUI() {
         <label class="hud-set-check" title="Отдельный лимит токенов только для запроса создания/регенерации HUD.">🧠 Лимит токенов HUD: ${число('hud-max-tokens', 256, 32768, settings.hudMaxTokens, 70)}</label>
         ${галка('hud-prompt-separate', settings.hudPromptSeparate !== false, '🧩 Инструкция HUD отдельным сообщением', 'Задача, правила, схема и снимок уходят последним сообщением — после пресета, карточки, лорбуков и истории. Выключите, если бэкенд не принимает системное сообщение в конце: тогда инструкция дописывается к последнему сообщению, как раньше.')}
         ${галка('hud-snapshot', settings.hudSnapshot !== false, '📸 Снимок последнего HUD в конце инструкции', 'Последний HUD в коротких кодах, без пустых полей: модель обновляет его под новый ответ, а не собирает мир заново. Последний HUD не дублируется: из истории он вырезается и переезжает в снимок. Снимок считается одним из развёрнутых HUD.')}
+        ${галка('hud-away-short', settings.hudAwayShort !== false, '🚶 Кто вне сцены — коротко', 'Персонажи, которых нет в сцене (в другом месте и не названы в последних сообщениях), в снимке и в ответе модели — только живым: где, статус, тело и здоровье, цикл, цели, расписание, мысль, отношения, доверие, флаги. Они продолжают жить — переходят, пишут, звонят. Внешность, одежду, вещи, реплики, страхи, отметины и воспоминания карточка берёт из прошлых ходов. При трёх персонажах и меньше не срабатывает.')}
+        ${галка('hud-away-fill', settings.awayFillFromPast !== false, '🗂️ Вне сцены — дополнять карточку прошлым', 'У того, кто вне сцены, модель не пишет внешность, одежду, вещи, реплики, страхи и отметины. Включено — карточка берёт их из последних ходов, где персонаж был в кадре, и помечает такие строки «прежнее». Выключено — видно ровно то, что прислала модель. Если модель всё же прислала эти поля, карточка покажет присланное.')}
         <label class="hud-set-check" title="После ответа HUD проверяется на поля, которые схема требует каждый ход: мысли и «ожидание и реальность» каждого персонажа, дневник и гороскоп, если они включены. Условные поля (сны, дневник тела, подтекст, комментарии) не проверяются. Одна попытка на ответ; если вы сами остановили генерацию, проверки нет.">🩺 Неполный HUD:
           <select id="hud-complete-check" style="flex:1; min-width:0; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;">
             <option value="regen"${(settings.hudCompleteCheck || 'regen') === 'regen' ? ' selected' : ''}>Досоздавать перегенерацией</option>
@@ -453,7 +455,7 @@ export function addSettingsUI() {
    ['hud-enable-companions', 'enableCompanions'], ['hud-enable-bodystate', 'enableBodyState'], ['hud-enable-twists', 'enableTwists'], ['hud-enable-perception', 'enablePerception'], ['hud-enable-familytree', 'enableFamilyTree'], ['hud-enable-assistant', 'enableAssistant'],
    ['hud-enable-menstruation', 'enableMenstruation'], ['hud-enable-sceneclock', 'enableSceneClock'], ['hud-enable-tempo', 'enableTempo'], ['hud-enable-underwear', 'enableUnderwear'], ['hud-enable-duel', 'enableVerbalDuel'], ['hud-enable-combat', 'enableCombat'], ['hud-enable-life', 'enableLife'], ['hud-enable-intimacy-extras', 'enableIntimacyExtras'], ['hud-enable-heatmap', 'enableHeatMap'],
    ['hud-enable-economy', 'enableEconomy'], ['hud-enable-events', 'enableEvents'], ['hud-enable-city', 'enableCity'], ['hud-enable-horoscope', 'enableHoroscope'],
-   ['hud-prompt-separate', 'hudPromptSeparate'], ['hud-snapshot', 'hudSnapshot'], ['hud-consistency-check', 'hudConsistencyCheck'], ['hud-fill-gaps', 'hudFillGaps'], ['hud-adapt-prompt', 'hudAdaptPrompt']].forEach(([id, ключ]) => {
+   ['hud-prompt-separate', 'hudPromptSeparate'], ['hud-snapshot', 'hudSnapshot'], ['hud-away-short', 'hudAwayShort'], ['hud-away-fill', 'awayFillFromPast'], ['hud-consistency-check', 'hudConsistencyCheck'], ['hud-fill-gaps', 'hudFillGaps'], ['hud-adapt-prompt', 'hudAdaptPrompt']].forEach(([id, ключ]) => {
     const поле = document.getElementById(id);
     if (поле) поле.addEventListener('change', (e) => {
       settings[ключ] = e.target.checked;
@@ -487,7 +489,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.64.2');
+      const mod = await import('./render/archive.js?v=23.67.0');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);

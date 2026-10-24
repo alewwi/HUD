@@ -11,14 +11,16 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=23.64.2';
-import { normalizeJSONData } from './schema.js?v=23.64.2';
-import { parseRelationList } from './render/relations-graph.js?v=23.64.2';
-import { nameLettersOnly, namePhoneticLatin } from './names.js?v=23.64.2';
-import { hudFilled, getSafeUserName } from './utils.js?v=23.64.2';
-import { createDashboard } from './chat-stats.js?v=23.64.2';
-import { статусРужья } from './codes.js?v=23.64.2';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.64.2';
+import { parseHUDComplex } from './hud-parser.js?v=23.67.0';
+import { normalizeJSONData } from './schema.js?v=23.67.0';
+import { parseRelationList } from './render/relations-graph.js?v=23.67.0';
+import { nameLettersOnly, namePhoneticLatin } from './names.js?v=23.67.0';
+import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.67.0';
+import { createDashboard } from './chat-stats.js?v=23.67.0';
+import { статусРужья } from './codes.js?v=23.67.0';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.67.0';
+import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.67.0';
+import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.67.0';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -49,7 +51,7 @@ function ключФакта(fact) {
 // Извлечение блока [HUD] из текста сообщения. Тот же набор написаний, что и в
 // index.js: модель иногда шлёт < > вместо скобок, а ST успевает заэкранировать.
 // Поиск блока — общий, в hud-block.js. Экспорт оставлен: его берут отсюда.
-import { extractHudBlock } from './hud-block.js?v=23.64.2';
+import { extractHudBlock } from './hud-block.js?v=23.67.0';
 export { extractHudBlock };
 
 // Массив сообщений текущего чата.
@@ -181,27 +183,50 @@ function собратьРужья(накоп, data, at) {
 
 // Хронология сцены: дата, время, место. Записываем только моменты смены —
 // это и есть скелет сюжета.
+// Место сцены. У сцены его нет — оно у каждого персонажа и подробное до
+// метра («…особняк Регентов, южный парк у пруда, на сиденье гольф-кара»).
+// Берём, где игрок (иначе первый персонаж), и только начало адреса — два
+// первых куска до запятой: иначе каждый ход был бы «новой локацией». Раньше
+// архив читал scene['Место'] и всегда показывал «0 локаций».
+function местоСцены(data) {
+  const scene = data.scene && typeof data.scene === 'object' ? data.scene : {};
+  const первый = Array.isArray(data.characters) && data.characters[0] ? data.characters[0]['Место'] : '';
+  const полное = текст(scene['Место']) || текст(data.user ? data.user['Место'] : '') || текст(первый);
+  if (!значимо(полное)) return '';
+  return полное.split(/[,;(]/).map(ч => ч.trim()).filter(Boolean).slice(0, 2).join(', ');
+}
+
 function собратьСцену(состояние, data, at) {
   const scene = data.scene && typeof data.scene === 'object' ? data.scene : {};
   const дата = текст(scene['Дата']);
   const время = текст(scene['Время']);
-  const место = текст(scene['Место']);
+  const место = местоСцены(data);
 
   if (значимо(дата) && дата !== состояние.последняяДата) {
     состояние.dates.push({ date: дата, time: значимо(время) ? время : '', at });
     состояние.последняяДата = дата;
   }
-  if (значимо(место) && место !== состояние.последнееМесто) {
+  if (значимо(место) && место.toLowerCase() !== состояние.последнееМесто.toLowerCase()) {
     состояние.locations.push({ place: место, at });
     состояние.последнееМесто = место;
   }
 }
 
 // Настроения по персонажам — тоже только смены.
+// Настроение живёт в трекере (me.md → memory.mood): игрок и главный
+// персонаж. Раньше архив искал его у персонажей и не находил ни одного.
+function имяГлавного(data) {
+  try { const c = window.SillyTavern?.getContext?.(); if (c && c.name2) return имяБезПриставки(String(c.name2)); } catch (_) { /* нет Таверны */ }
+  return текст(Array.isArray(data.characters) && data.characters[0] && data.characters[0]['Имя']);
+}
 function собратьНастроения(накоп, data, at) {
   const персонажи = [];
   if (data.user && typeof data.user === 'object') персонажи.push(data.user);
   if (Array.isArray(data.characters)) персонажи.push(...data.characters);
+  const трекер = data.memory && data.memory.mood && typeof data.memory.mood === 'object' ? data.memory.mood : {};
+  const сейчас = (x) => текст(x && (x.current ?? x.nw));
+  if (значимо(сейчас(трекер.user))) персонажи.push({ 'Имя': текст(data.user && data.user['Имя']) || getSafeUserName(), 'Настроение': сейчас(трекер.user) });
+  if (значимо(сейчас(трекер.char))) персонажи.push({ 'Имя': имяГлавного(data), 'Настроение': сейчас(трекер.char) });
   for (const c of персонажи) {
     const имя = текст(c['Имя'] || c.N || c.name);
     const настроение = текст(c['Настроение'] || c.Md);
@@ -274,23 +299,21 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
   // Дашборд считает все сообщения, а не только с HUD, — в этом же проходе.
   const дашборд = createDashboard({ userName: getSafeUserName() });
 
+  // Летопись (chronicle.js): выжимки HUD, которые остались после чистки
+  // сообщений. HUD в сообщении есть — он и главный, и пополняет летопись; нет —
+  // берём выжимку из летописи; нет и её — хотя бы дату из тега <time>.
+  let летопись = new Map();
+  try { летопись = await летописьЧата(); } catch (_) { /* без летописи — как раньше */ }
+  const вЛетопись = new Map();
+
   let сОбработанным = 0;
   let битых = 0;
+  let изЛетописи = 0;
+  let датИзТегов = 0;
+  let внеЧата = 0;
 
-  for (let i = from; i <= to; i++) {
-    if (i > from && (i - from) % КУСОК === 0) {
-      if (onProgress) onProgress(i - from, to - from + 1);
-      await передышка();
-      if (shouldStop()) return null;
-    }
-    const raw = текст(chat[i] && (chat[i].mes ?? ''));
-    const естьHud = !!raw && !!extractHudBlock(raw);
-    const data = естьHud ? разобрать(chat[i]) : null;
-    дашборд.add(chat[i], data, i);
-    if (!естьHud) continue;
-    if (!data) { битых++; continue; }
+  const учестьХод = (data, i) => {
     сОбработанным++;
-
     собратьСекреты(секреты, data, i);
     собратьОтношения(отношения, data, i);
     собратьСцену(сцена, data, i);
@@ -308,8 +331,73 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
     }
     const w = текст(data.scene && data.scene['Погода']);
     if (значимо(w)) погода.set(w.toLowerCase(), (погода.get(w.toLowerCase()) || 0) + 1);
+  };
+
+  // Ходы летописи, которых среди сообщений чата нет: старый чат был длиннее,
+  // часть сообщений при чистке удалили, или к своей добавлена летопись
+  // другого чата. Они тоже сюжет — встают на своё место по порядку летописи,
+  // перед первым сообщением чата, что идёт в ней после них. Номер у такого
+  // хода дробный (до #i), к сообщению он не ведёт. Дубли не считаем: тот же
+  // ключ — это то же сообщение; та же дата, время и место — тот же ход копии,
+  // у которой сменились ключи.
+  const ключиЧата = new Set(chat.map((m, k) => ключСообщения(m, k)));
+  const подписьХода = (в) => {
+    const sc = в && в.scene || {};
+    const д = текст(sc['Дата']), t = текст(sc['Время']);
+    return значимо(д) && значимо(t) ? (д + '|' + t + '|' + местоСцены(в)).toLowerCase() : '';
+  };
+  const подписиЧата = new Set();
+  const порядокЛетописи = new Map();
+  const лишние = [];
+  [...летопись.keys()].forEach((к, поз) => {
+    порядокЛетописи.set(к, поз);
+    if (ключиЧата.has(к)) { const п = подписьХода(летопись.get(к)); if (п) подписиЧата.add(п); }
+    else лишние.push({ поз, к });
+  });
+  let следующийЛишний = 0;
+  const вставитьЛишние = (доПозиции, at, учесть) => {
+    while (следующийЛишний < лишние.length && лишние[следующийЛишний].поз < доПозиции) {
+      const { к } = лишние[следующийЛишний++];
+      if (!учесть) continue;
+      const в = летопись.get(к);
+      const п = подписьХода(в);
+      if (п && подписиЧата.has(п)) continue;
+      if (п) подписиЧата.add(п);
+      внеЧата++;
+      учестьХод(в, at);
+    }
+  };
+
+  for (let i = from; i <= to; i++) {
+    if (i > from && (i - from) % КУСОК === 0) {
+      if (onProgress) onProgress(i - from, to - from + 1);
+      await передышка();
+      if (shouldStop()) return null;
+    }
+    const raw = текст(chat[i] && (chat[i].mes ?? ''));
+    const естьHud = !!raw && !!extractHudBlock(raw);
+    let data = естьHud ? разобрать(chat[i]) : null;
+    const ключ = ключСообщения(chat[i], i);
+    // Ходы летописи вне чата — перед этим сообщением, если оно в ней есть. До
+    // начала отрезка («последние 50») их не берём: они раньше него.
+    if (порядокЛетописи.has(ключ)) вставитьЛишние(порядокЛетописи.get(ключ), i - 0.5, i > from || from === 0);
+    if (data) { const в = выжимкаHUD(data); if (в) вЛетопись.set(ключ, в); }
+    else if (chat[i] && !chat[i].is_user && летопись.has(ключ)) { data = летопись.get(ключ); изЛетописи++; }
+    дашборд.add(chat[i], data, i);
+    if (!data) {
+      if (естьHud) битых++;
+      else if (chat[i] && !chat[i].is_user) {
+        const д = датаИзТегов(raw);
+        if (д) { собратьСцену(сцена, { scene: { 'Дата': д.дата, 'Время': д.время } }, i); датИзТегов++; }
+      }
+      continue;
+    }
+    учестьХод(data, i);
   }
+  // Хвост летописи после последнего сообщения — если отрезок до конца чата.
+  вставитьЛишние(Infinity, to + 0.5, to === total - 1);
   if (onProgress) onProgress(to - from + 1, to - from + 1);
+  if (вЛетопись.size) дописатьВЛетопись(вЛетопись).catch(() => {});
 
   // Длительность сюжета: считаем по разобранным датам. Если разобрать не
   // удалось ни одной — так и пишем, вместо выдуманного числа.
@@ -349,6 +437,12 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
     stats: {
       totalMessages: to - from + 1,
       withHud: сОбработанным,
+      // Из них — по летописи (HUD из сообщения вычищен), и ходов, где дата
+      // взята только из тега <time>.
+      fromChronicle: изЛетописи,
+      // Ходы летописи, которых в этом чате нет совсем (без дублей).
+      chronicleOnly: внеЧата,
+      datesFromTags: датИзТегов,
       brokenHud: битых,
       uniqueCharacters: персонажи.size,
       characters: [...персонажи.values()].map(x => x.name),
@@ -379,7 +473,9 @@ const ПРЕФИКС = 'hud_archive_';
 export function chatSignature() {
   const chat = getChatMessages();
   const last = текст(chat.length ? (chat[chat.length - 1].mes || '') : '');
-  return chat.length + ':' + last.length + ':' + last.slice(-40).replace(/\s+/g, ' ');
+  // Пополнилась летопись (HUD вычищенных сообщений) — прошлый отчёт устарел.
+  const летопись = летописьЕсли();
+  return chat.length + ':' + last.length + ':' + last.slice(-40).replace(/\s+/g, ' ') + ':' + (летопись ? летопись.size : 0);
 }
 
 function ключКэша(from, to) {

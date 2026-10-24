@@ -590,9 +590,11 @@ const settings = S.settings;
   const PhX = await модуль('render/phone-extra.js');
   const RP = await модуль('render/route-places.js');
   const герои = [{ 'Имя': 'Лилиан Грей', 'Расписание': '21:30 - перезвонить маме' }, { 'Имя': 'Марк Грей', 'Расписание': '19:00 - зал с Олегом' }];
-  const кал = Ph.buildCalendarApp([], герои, 'Четверг, 17.10.2024', 'Лилиан Грей');
-  проверить('календарь: только расписание хозяина телефона, без его имени', /перезвонить маме/.test(кал) && !/зал с Олегом/.test(кал) && !/Лилиан:/.test(кал));
-  проверить('календарь: без хозяина — как раньше, у всех', /зал с Олегом/.test(Ph.buildCalendarApp([], герои, 'Четверг, 17.10.2024')));
+  // Без невидимых разделителей защиты от лорбука (defeatWI).
+  const кал = Ph.buildCalendarApp([], герои, 'Четверг, 17.10.2024', 'Лилиан Грей').replace(/​/g, '');
+  // Чужие расписания — своими календарями, с именем; своё — без имени.
+  проверить('календарь: своё расписание — без имени, чужое — своим календарём с именем', кал.includes('перезвонить маме</span></span>') && кал.includes('зал с Олегом</span><span class="hud-cal-who">Марк') && !/Лилиан/.test(кал));
+  проверить('календарь: без хозяина — у всех, у каждого своё имя', /зал с Олегом/.test(Ph.buildCalendarApp([], герои, 'Четверг, 17.10.2024').replace(/​/g, '')));
   const ход = { scene: { 'Дата': '17.10.2024', 'Время': '21:40' }, phone: { owner: 'Лилиан Грей', health: { sleep: '01:10–07:30, прерывистый' } }, characters: [{ 'Имя': 'Лилиан Грей', 'Состояние тела': 'eng: 35; slp: 4 ч 10 мин, легла в 03:20' }] };
   проверить('здоровье: сон хозяина — из «Состояния тела», как в Быте', PhX.записьЗдоровья(ход).сон === '4 ч 10 мин, легла в 03:20');
   const безSlp = { ...ход, characters: [{ 'Имя': 'Лилиан Грей' }] };
@@ -934,6 +936,217 @@ const settings = S.settings;
   проверить('чужой запрос: блоки [HUD] вырезаны, [HUD_SUMMARY] на месте', чисто.messages[0].content === 'Он ушёл.\n\n[HUD_SUMMARY] 21:00 · дома [/HUD_SUMMARY]' && чисто.messages[1].content === '…', JSON.stringify(чисто));
   проверить('чужой запрос без HUD — тело не трогаем', HB.телоБезHUD(JSON.stringify({ messages: [{ role: 'user', content: 'привет' }] })) === null);
   проверить('билеты: подписка на GENERATE_AFTER_DATA и конец генерации', инд.includes('es.on(et.GENERATE_AFTER_DATA') && инд.includes('et.GENERATION_ENDED, et.GENERATION_STOPPED') && инд.includes('билетыГенерации.перехватчик(type)'));
+
+  // Летопись: архив и дни сюжета переживают чистку HUD из сообщений.
+  const CH = await модуль('chronicle.js');
+  проверить('летопись: дата и время из тега <time>', JSON.stringify(CH.датаИзТегов('</plan><time> 20:03|30.10.24 среда|37°F, у крыльца')) === JSON.stringify({ дата: '30.10.24', время: '20:03' }) && CH.датаИзТегов('<time>...</time> header') === null && CH.датаИзТегов('прошлой осенью, 12.03.19, он написал') === null);
+  const ход = (t, место, секрет) => ({ scene: { 'Дата': '30.10.24', 'Время': t }, user: { 'Имя': 'Софи', 'Место': место }, characters: [{ 'Имя': 'Тристан', 'Отношения': 'Софи: наваждение' }], memory: { secrets: [{ fact: секрет, level: 'high', status: 'partial', knows: [{ name: 'А', source: 'с' }], hidden: ['Б'] }], guns: ['ружьё | Тристан | open'], mood: { user: { current: 'спокойна', history: ['x'] } } } });
+  const мета = {};
+  CH.дописатьЛетопись(мета, new Map([['k1', CH.выжимкаHUD(ход('20:03', 'Колдуэлл-холл, комната 307', 'тайна'))], ['k3', CH.выжимкаHUD(ход('20:10', 'Колдуэлл-холл, комната 307', 'тайна'))]]), ['k1', 'k2', 'k3']);
+  проверить('летопись: второй ход хранит только изменившееся', JSON.stringify(мета[CH.КЛЮЧ_ЛЕТОПИСИ].ходы[1]) === JSON.stringify(['k3', { sc: { 'Дата': '30.10.24', 'Время': '20:10' } }]));
+  CH.дописатьЛетопись(мета, new Map([['k2', CH.выжимкаHUD(ход('20:05', 'Бар «Старый Дуб»', 'тайна'))]]), ['k1', 'k2', 'k3']);
+  const прочли = CH.прочитатьЛетопись(мета);
+  проверить('летопись: новый ход встаёт на своё место, остальные читаются целиком', [...прочли.keys()].join() === 'k1,k2,k3' && прочли.get('k3').user['Место'] === 'Колдуэлл-холл, комната 307' && прочли.get('k3').memory.secrets[0].fact === 'тайна' && прочли.get('k2').memory.mood.user.current === 'спокойна');
+  проверить('летопись: без изменений — ничего не пишем', CH.дописатьЛетопись(мета, new Map([['k1', CH.выжимкаHUD(ход('20:03', 'Колдуэлл-холл, комната 307', 'тайна'))]]), ['k1', 'k2', 'k3']) === false);
+  const CS2 = await модуль('chronicle-store.js');
+  проверить('летопись: файл по integrity чата, копия чата видит тот же', CS2.свойФайлЛетописи({ chatMetadata: { integrity: 'fc50950e-9ec8' } }) === 'hud-chronicle-fc50950e-9ec8.json' && /^hud-chronicle-1-[0-9a-z]+.json$/.test(CS2.свойФайлЛетописи({ chatMetadata: {}, getCurrentChatId: () => 'Чат 1' })) && CS2.свойФайлЛетописи({ chatMetadata: {}, getCurrentChatId: () => 'Чат 1' }) !== CS2.свойФайлЛетописи({ chatMetadata: {}, getCurrentChatId: () => 'Чат 2' }));
+  проверить('летопись: выбор игрока — дополнительная, мусорный указатель и своя — нет', CS2.выбраннаяЛетопись({ chatMetadata: { integrity: 'abc', [CS2.КЛЮЧ_ВЫБОРА]: 'hud-chronicle-xyz.json' } }) === 'hud-chronicle-xyz.json' && CS2.выбраннаяЛетопись({ chatMetadata: { integrity: 'abc', [CS2.КЛЮЧ_ВЫБОРА]: '../secrets.json' } }) === null && CS2.выбраннаяЛетопись({ chatMetadata: { integrity: 'abc', [CS2.КЛЮЧ_ВЫБОРА]: 'hud-chronicle-abc.json' } }) === null && CS2.свойФайлЛетописи({ chatMetadata: { integrity: 'abc', [CS2.КЛЮЧ_ВЫБОРА]: 'hud-chronicle-xyz.json' } }) === 'hud-chronicle-abc.json');
+  {
+    const мета = { integrity: 'abc' }; let сохранено = 0;
+    const ctxБыло = globalThis.SillyTavern;
+    globalThis.SillyTavern = { getContext: () => ({ chatMetadata: мета, saveMetadata: async () => { сохранено++; } }) };
+    await CS2.выбратьЛетопись('hud-chronicle-xyz.json'); const выбрана = мета[CS2.КЛЮЧ_ВЫБОРА];
+    await CS2.выбратьЛетопись(null); const сброшена = !(CS2.КЛЮЧ_ВЫБОРА in мета);
+    await CS2.выбратьЛетопись('hud-chronicle-abc.json'); const своя = !(CS2.КЛЮЧ_ВЫБОРА in мета);
+    globalThis.SillyTavern = ctxБыло;
+    проверить('летопись: выбор пишется в метаданные чата и сбрасывается, своя — без указателя', выбрана === 'hud-chronicle-xyz.json' && сброшена && своя && сохранено === 3);
+  }
+  {
+    // Выбранная дополняет свою: пропуски своей закрывает она, общий ход — из своей, пишем — только в свою.
+    const файлы = { 'hud-chronicle-own7.json': {}, 'hud-chronicle-other7.json': {} };
+    CH.дописатьЛетопись(файлы['hud-chronicle-own7.json'], new Map([['m1', CH.выжимкаHUD(ход('10:00', 'своя', 'с1'))]]), ['m1', 'm2']);
+    CH.дописатьЛетопись(файлы['hud-chronicle-other7.json'], new Map([['m1', CH.выжимкаHUD(ход('10:00', 'чужая', 'ч1'))], ['m2', CH.выжимкаHUD(ход('11:00', 'чужая', 'ч2'))], ['x9', CH.выжимкаHUD(ход('12:00', 'чужая', 'ч3'))]]), ['m1', 'm2', 'x9']);
+    const залито = [];
+    const fetchБыл = globalThis.fetch, ctxБыло = globalThis.SillyTavern;
+    globalThis.fetch = async (url, init) => {
+      const u = String(url);
+      if (init && init.method === 'POST') { залито.push(JSON.parse(init.body).name); return { ok: true, json: async () => ({}) }; }
+      const имя = u.replace('/user/files/', '');
+      return файлы[имя] ? { ok: true, json: async () => файлы[имя][CH.КЛЮЧ_ЛЕТОПИСИ] } : { ok: false, json: async () => null };
+    };
+    const чат7 = [{ is_user: false, send_date: 'm1', mes: 'a' }, { is_user: false, send_date: 'm2', mes: 'b' }];
+    globalThis.SillyTavern = { getContext: () => ({ chat: чат7, chatMetadata: { integrity: 'own7', [CS2.КЛЮЧ_ВЫБОРА]: 'hud-chronicle-other7.json' } }) };
+    const вместе = await CS2.летописьЧата();
+    const дала = await CS2.совпаденийСЧатом('hud-chronicle-other7.json');
+    const тасама = CS2.летописьЕсли() === CS2.летописьЕсли();
+    await CS2.дописатьВЛетопись(new Map([['m2', CH.выжимкаHUD(ход('11:05', 'своя', 'с2'))]]));
+    await new Promise(r => setTimeout(r, 3300));
+    globalThis.fetch = fetchБыл; globalThis.SillyTavern = ctxБыло;
+    проверить('летопись: выбранная дополняет свою, общий ход — из своей', вместе.size === 3 && вместе.get('m1').user['Место'] === 'своя' && вместе.get('m2').user['Место'] === 'чужая' && JSON.stringify(дала) === JSON.stringify({ совпало: 2, новых: 1, вне: 1 }) && тасама, JSON.stringify([вместе.size, дала]));
+    проверить('летопись: дописывается только своя, выбранная не трогается', залито.includes('hud-chronicle-own7.json') && !залито.includes('hud-chronicle-other7.json'), залито.join());
+  }
+  проверить('архив: в окне — выбор летописи и число совпавших ходов', css('render/archive.js').includes('hud-arc-chron-sel') && css('render/archive.js').includes('совпаденийСЧатом('));
+  // Архив на очищенном чате: HUD из сообщений вычищен, есть летопись и <time>.
+  const старыйFetch = globalThis.fetch;
+  const летописьФайл = {}; CH.дописатьЛетопись(летописьФайл, new Map([['2024-01-01T10:00:00Z', CH.выжимкаHUD(ход('10:00', 'Пригород Кембриджа, особняк Регентов, бальный зал', 'тайна'))]]), []);
+  globalThis.fetch = async (url) => String(url) === '/user/files/hud-chronicle-test1.json' ? { ok: true, json: async () => летописьФайл[CH.КЛЮЧ_ЛЕТОПИСИ] } : { ok: false, json: async () => null };
+  const чатАрхива = [
+    { is_user: false, send_date: '2024-01-01T10:00:00Z', mes: 'Текст без HUD — вычищен.' },
+    { is_user: true, send_date: '2024-01-01T10:01:00Z', mes: 'ответ игрока' },
+    { is_user: false, send_date: '2024-01-01T10:02:00Z', mes: '<time> 09:15|02.11.24 суббота|снег</time> Утро.' },
+  ];
+  const ctxБыл = globalThis.SillyTavern;
+  globalThis.SillyTavern = { getContext: () => ({ chat: чатАрхива, chatMetadata: { integrity: 'test1' }, name1: 'Софи', name2: 'THE REGENTS  Тристан' }) };
+  const HA = await модуль('history-analyzer.js');
+  const отчёт = await HA.analyzeChat(0, 2);
+  globalThis.SillyTavern = ctxБыл; globalThis.fetch = старыйFetch;
+  проверить('архив: ход без HUD берётся из летописи, дата — и из <time>', отчёт.stats.fromChronicle === 1 && отчёт.stats.datesFromTags === 1 && отчёт.stats.storyDays === 4 && отчёт.secrets.length === 1, JSON.stringify(отчёт.stats));
+  проверить('архив: место — у игрока, началом адреса; настроение — из трекера', отчёт.locations[0] && отчёт.locations[0].place === 'Пригород Кембриджа, особняк Регентов' && отчёт.moods.some(м => м.name === 'Софи' && м.changes[0].mood === 'спокойна'), JSON.stringify([отчёт.locations, отчёт.moods]));
+  {
+    // Старый чат (120) + новый (150): ходы старого, которых в новом нет, — тоже в архив, без дублей.
+    const файлы = { 'hud-chronicle-own8.json': {}, 'hud-chronicle-old8.json': {} };
+    CH.дописатьЛетопись(файлы['hud-chronicle-own8.json'], new Map([['n1', CH.выжимкаHUD(ход('12:00', 'Сад', 'новая тайна'))]]), ['n1']);
+    CH.дописатьЛетопись(файлы['hud-chronicle-old8.json'], new Map([['o1', CH.выжимкаHUD(ход('09:00', 'Библиотека', 'старая тайна'))], ['o2', CH.выжимкаHUD(ход('12:00', 'Сад', 'новая тайна'))], ['o3', CH.выжимкаHUD(ход('10:00', 'Холл', 'старая тайна'))]]), ['o1', 'o2', 'o3']);
+    const fetchБыл = globalThis.fetch, ctxБыл8 = globalThis.SillyTavern;
+    globalThis.fetch = async (url, init) => {
+      if (init && init.method === 'POST') return { ok: true, json: async () => ({}) };
+      const имя = String(url).replace('/user/files/', '');
+      return файлы[имя] ? { ok: true, json: async () => файлы[имя][CH.КЛЮЧ_ЛЕТОПИСИ] } : { ok: false, json: async () => null };
+    };
+    const чат8 = [{ is_user: false, send_date: 'n1', mes: 'HUD вычищен' }, { is_user: true, send_date: 'n2', mes: 'игрок' }];
+    globalThis.SillyTavern = { getContext: () => ({ chat: чат8, chatMetadata: { integrity: 'own8', [CS2.КЛЮЧ_ВЫБОРА]: 'hud-chronicle-old8.json' }, name1: 'Софи', name2: 'Тристан' }) };
+    const о8 = await HA.analyzeChat(0, 1);
+    globalThis.fetch = fetchБыл; globalThis.SillyTavern = ctxБыл8;
+    проверить('архив: ходы выбранной летописи вне чата — на своём месте и без дублей', о8.stats.chronicleOnly === 2 && о8.stats.fromChronicle === 1 && о8.stats.withHud === 3 && о8.locations.map(l => l.place).join('|') === 'Библиотека|Холл|Сад' && о8.secrets.find(s => s.fact === 'старая тайна').firstSeen === -0.5, JSON.stringify([о8.stats, о8.locations]));
+    // Неочищенный чат без летописи: выбрать сам чат — HUD читает его файл и собирает летопись.
+    const блок9 = (t) => '[HUD]\n```json\n' + JSON.stringify({ sc: { T: t, Dt: '01.11.24' }, us: { L: 'Сад' }, cs: [{ N: 'Тристан', Th: 'мысль' }] }) + '\n```\n[/HUD]';
+    const сервер = { 'hud-chronicle-old9.json': null }; const запросы = [];
+    globalThis.fetch = async (url, init) => {
+      const u = String(url); запросы.push(u);
+      if (u === '/api/characters/chats') return { ok: true, json: async () => [{ file_id: 'old 9', chat_items: 3, chat_metadata: { integrity: 'old9' } }, { file_id: 'new 9', chat_items: 1, chat_metadata: { integrity: 'new9' } }] };
+      if (u === '/api/chats/get') return { ok: true, json: async () => [{ chat_metadata: { integrity: 'old9' }, user_name: 'Софи' }, { is_user: false, send_date: 's1', mes: 'Утро ' + блок9('08:00') }, { is_user: true, send_date: 's2', mes: 'привет' }, { is_user: false, send_date: 's3', mes: 'Днём ' + блок9('13:00') }] };
+      if (init && init.method === 'POST') { const т = JSON.parse(init.body); if (т.name) сервер[т.name] = Buffer.from(т.data, 'base64').toString('utf8'); return { ok: true, json: async () => ({}) }; }
+      return { ok: false, json: async () => null };
+    };
+    globalThis.SillyTavern = { getContext: () => ({ chat: [], chatMetadata: { integrity: 'new9' }, characterId: 0, characters: [{ name: 'Тристан', avatar: 't.png' }], getCurrentChatId: () => 'new 9', name2: 'Тристан' }) };
+    const чаты9 = await CS2.чатыПерсонажа();
+    const из9 = await CS2.летописьИзЧата('old 9');
+    globalThis.fetch = fetchБыл; globalThis.SillyTavern = ctxБыл8;
+    const записано9 = сервер['hud-chronicle-old9.json'] ? JSON.parse(сервер['hud-chronicle-old9.json']) : null;
+    const указатель9 = сервер['hud-chronicle-index.json'] ? JSON.parse(сервер['hud-chronicle-index.json']) : null;
+    проверить('летопись: чаты персонажа — с файлом летописи каждого', чаты9.length === 2 && чаты9[0].летопись === 'hud-chronicle-old9.json' && чаты9[0].сообщений === 3, JSON.stringify(чаты9));
+    проверить('летопись: из файла чата — HUD его ходов, под его integrity и с его подписью', из9.файл === 'hud-chronicle-old9.json' && из9.ходов === 2 && записано9 && записано9.ходы.length === 2 && указатель9 && указатель9.летописи['hud-chronicle-old9.json'].чат === 'old 9', JSON.stringify([из9, указатель9]));
+    проверить('архив: в списке — чаты персонажа, чат читается при выборе', css('render/archive.js').includes('летописьИзЧата(') && css('render/archive.js').includes('Чаты персонажа'));
+    проверить('архив: у хода вне чата — подпись «летопись», не ссылка', css('render/archive.js').includes('is-chron') && css('css/themes.css').includes('.hud-arc-ref.is-chron'));
+  }
+  проверить('день сюжета: первая дата — из летописи, HUD или <time>', css('index.js').includes('летописьЕсли()') && /датаИзТегов\(текстM\)/.test(css('index.js')));
+
+  {
+    // Ужатие снимка: хвосты переписок, маршрута, настроений; кто вне сцены — коротко, но живой.
+    const S = await модуль('hud-snapshot.js');
+    const { settings: наст } = await модуль('settings.js');
+    const блок = (о) => '[HUD]\n```json\n' + JSON.stringify(о) + '\n```\n[/HUD]';
+    const сн = S.собратьСнимок(блок({
+      sc: { T: '10:00', Dt: '01.11.24' }, us: { L: 'Бостон, Кингсли-Тауэр, спальня, у окна' },
+      cs: [
+        { N: 'THE REGENTS  Tristan Kingsley', L: 'Озеро, коттедж, веранда', Ap: 'высокий', Th: 'т' },
+        { N: 'Brandon Kane', L: 'Бостон, Кингсли-Тауэр, спальня, на кровати', Ap: 'б', Th: 'б' },
+        { N: 'Лена', L: 'Бостон, кафе на углу', Ap: 'рыжая', C: 'платье', I: 'сумка: в руке', Ln: '«Ну»', Mrk: 'синяк', Rl: 'Софи: подруга', Tr: 'Софи: 70', S: '12:00 - обед', G: 'nw: кофе; sn: позвонить Софи; lt: уехать', Prg: 'не беременна, цикл: 14 день', Th: 'л', SxL: 'dt: 01.10; pr: Марк; ak: подробно' },
+        { N: 'Ева', L: 'Офис', Ap: 'е', Th: 'е' },
+      ],
+      me: { rt: { us: ['01', '02', '03', '04', '05', '06'] }, md: { us: { nw: 'ок', hs: ['a', 'b', 'c', 'd', 'e'] } } },
+      cm: { 'Лена': { ow: 'Софи', ms: ['1', '2', '3', '4', '5'] } },
+    }));
+    проверить('снимок: маршрут и смены настроения — последние строки, переписки — последние сообщения', сн.me.rt.us.join() === '03,04,05,06' && сн.me.md.us.hs.join() === 'b,c,d,e' && сн.cm['Лена'].ms.join() === '3,4,5', JSON.stringify([сн.me, сн.cm]));
+    const сцена = { тексты: ['Ева позвонила'], главный: 'THE REGENTS  Tristan Kingsley' };
+    проверить('вне сцены: главный с приставкой, тот же адрес с другим уточнением и названный — в сцене', JSON.stringify(S.внеСцены(сн, сцена)) === JSON.stringify(['Лена']), JSON.stringify(S.внеСцены(сн, сцена)));
+    const стр = S.строкаСнимка(сн, false, сцена);
+    const лена = JSON.parse(стр).cs.find(c => c.N === 'Лена');
+    проверить('вне сцены: остаётся живое — место, отношения, доверие, планы, цели, цикл, мысль; «последний секс» — когда и с кем', лена.L && лена.Rl && лена.Tr && лена.S && лена.G && лена.Prg && лена.Th && лена.SxL === 'dt: 01.10; pr: Марк', JSON.stringify(лена));
+    проверить('вне сцены: без внешности, одежды, вещей, реплик, отметин', ['Ap', 'C', 'I', 'Ln', 'Mrk', 'Ex', 'D'].every(k => !(k in лена)) && JSON.parse(стр).cs.find(c => c.N === 'Ева').Ap === 'е');
+    const лег = S.легендаСнимка(стр);
+    проверить('вне сцены: модели — кто это и что они продолжают жить', /Away from the scene right now: Лена\./.test(лег) && /text and call/.test(лег) && /enters the scene/.test(лег));
+    проверить('вне сцены: при трёх персонажах и меньше — никто', S.внеСцены({ ...сн, cs: сн.cs.slice(1) }, сцена).length === 0);
+    наст.hudAwayShort = false;
+    const безВне = S.внеСцены(сн, сцена).length;
+    наст.hudAwayShort = true;
+    проверить('вне сцены: выключается настройкой', безВне === 0 && css('settings-ui.js').includes("'hud-away-short', 'hudAwayShort'"));
+    проверить('снимок: вернувшимся в сцену — прежняя карточка, сцена знает, кто где', css('index.js').includes('дополнитьКарточкиСнимка(объектСнимка, чатДляРешения)') && (css('index.js').match(/строкаСнимка\(.*главный:/g) || []).length === 3);
+
+    // Карточка: короткая запись получает прежнюю внешность и вещи; маршрут и настроения дня — целиком.
+    const Co = await модуль('render/carryover.js');
+    const ход = (о) => ({ is_user: false, mes: блок(о) });
+    const чат = [
+      ход({ sc: { Dt: '01.11.24', T: '08:00' }, cs: [{ N: 'Лена', Ap: 'рыжая', C: 'платье', I: 'сумка: в руке', Fr: 'темнота: low', Th: 'утро' }], me: { rt: { us: ['08:00 - кухня - stayed'] }, md: { us: { nw: 'сонная', hs: ['08:00 - сонная'] } } } }),
+      { is_user: true, mes: 'дальше' },
+      ход({ sc: { Dt: '01.11.24', T: '09:00' }, cs: [{ N: 'Лена', L: 'кафе', Th: 'днём' }], me: { rt: { us: ['09:00 - кафе - arrived'] }, md: { us: { nw: 'бодрая', hs: ['09:00 - бодрая'] } } } }),
+    ];
+    const было = globalThis.SillyTavern;
+    globalThis.SillyTavern = { getContext: () => ({ chat: чат, name1: 'Софи', name2: 'Тристан' }) };
+    const P = await модуль('hud-parser.js');
+    const текущий = P.parseHUDComplex(чат[2].mes);
+    const эл = { getAttribute: () => '2' };
+    const черты = Co.вернутьЧерты(текущий, эл);
+    const перенос = Co.mergeCarryOver(текущий, эл);
+    const снимокЧата = { cs: [{ N: 'Лена', L: 'кафе', Th: 'x' }] };
+    Co.дополнитьКарточкиСнимка(снимокЧата, чат.slice(0, 2));
+    globalThis.SillyTavern = было;
+    const л = черты.characters[0];
+    проверить('карточка: у записанного вне сцены — прежние внешность, одежда, вещи, страхи; мысль — своя', л['Внешность'] === 'рыжая' && л['Одежда'] === 'платье' && /сумка/.test(л['Инвентарь']) && /темнота/.test(л['Страхи']) && л['Мысли'] === 'днём', JSON.stringify(л));
+    проверить('карточка: маршрут и смены настроения дня — из прошлых ходов и текущего', перенос.memory.route.user.length === 2 && перенос.memory.mood.user.history.length === 2 && перенос.memory.mood.user.current === 'бодрая', JSON.stringify(перенос.memory));
+    проверить('снимок: короткой записи — прежняя карточка из истории', снимокЧата.cs[0].Ap === 'рыжая' && снимокЧата.cs[0].C === 'платье' && снимокЧата.cs[0].Th === 'x', JSON.stringify(снимокЧата));
+  }
+
+  {
+    // Вне сцены: пометка карточки, настройка «дополнять прошлым», напоминание вернувшимся.
+    const S = await модуль('hud-snapshot.js');
+    const Co = await модуль('render/carryover.js');
+    const P = await модуль('hud-parser.js');
+    const Ch = await модуль('render/character.js');
+    const { settings: наст } = await модуль('settings.js');
+    const блок = (о) => '[HUD]\n```json\n' + JSON.stringify(о) + '\n```\n[/HUD]';
+    const чат = [
+      { is_user: false, mes: блок({ sc: { Dt: '01.11.24' }, cs: [{ N: 'Лена', Ap: 'рыжая', C: 'платье', Ln: '«Ну»', Th: 'утро' }] }) },
+      { is_user: true, mes: 'дальше' },
+      { is_user: false, mes: блок({ sc: { Dt: '01.11.24' }, cs: [{ N: 'Лена', L: 'кафе', Th: 'днём' }] }) },
+    ];
+    const было = globalThis.SillyTavern;
+    globalThis.SillyTavern = { getContext: () => ({ chat: чат, name1: 'Софи', name2: 'Тристан' }) };
+    const эл = { getAttribute: () => '2' };
+    const сДоп = Co.вернутьЧерты(P.parseHUDComplex(чат[2].mes), эл).characters[0];
+    наст.awayFillFromPast = false;
+    const безДоп = Co.вернутьЧерты(P.parseHUDComplex(чат[2].mes), эл).characters[0];
+    наст.awayFillFromPast = true;
+    globalThis.SillyTavern = было;
+    проверить('вне сцены: карточка помечена, взятое из прошлых ходов перечислено', сДоп.__вне && сДоп.__вне.поля.includes('Внешность') && сДоп['Внешность'] === 'рыжая' && !Object.keys(сДоп).includes('__вне'), JSON.stringify(сДоп.__вне));
+    проверить('вне сцены: «дополнять прошлым» выключено — только присланное, пометка остаётся', безДоп.__вне && !безДоп.__вне.поля.length && безДоп['Внешность'] !== 'рыжая' && css('settings-ui.js').includes("['hud-away-fill', 'awayFillFromPast']"));
+    const html = Ch.buildCharacterHTML(сДоп, 'aw', true, false);
+    проверить('вне сцены: на карточке плашка и строки «прежнее»', html.includes('hud-away-note') && /hud-row[^"]* is-past/.test(html) && css('css/misc.css').includes(".hud-row.is-past .hud-key::after"));
+    const полный = блок({ us: { L: 'Бостон, дом' }, cs: [{ N: 'A', L: 'Бостон, дом', Ap: 'a' }, { N: 'B', L: 'Бостон, дом', Ap: 'b' }, { N: 'C', L: 'Бостон, дом', Ap: 'c' }, { N: 'Лена', L: 'Бостон, дом', Th: 'x' }] });
+    const сн = S.собратьСнимок(полный);
+    const короткие = S.короткиеВСнимке(сн);
+    const лег = S.легендаСнимка(S.строкаСнимка(сн, false, { тексты: [''], главный: 'A', короткие }));
+    проверить('вернулась в сцену: модели — мягкое напоминание писать целиком', JSON.stringify(короткие) === '["Лена"]' && /Back in the scene now: Лена\./.test(лег) && /by the general rules/.test(лег) && !/Away from the scene/.test(лег), лег.slice(-400));
+    проверить('вернулась в сцену: в запросе кто был коротким — до возврата карточки', /const короткие = объектСнимка \? короткиеВСнимке\(объектСнимка\) : \[\];\s*\n\s*if \(объектСнимка\) дополнитьКарточкиСнимка/.test(css('index.js')));
+  }
+  {
+    // Календарь телефона: расписания, счётчик, чужие календари.
+    const C = await модуль('render/calendar.js');
+    const сегодня = { y: 2024, mo: 11, d: 5 }; // вторник
+    const р = C.разобратьРасписание('08:30 - кампус; завтра 07:00 - тренировка; в пятницу 19:30–22:00 - покер; 10.11 - матч; через 3 дня - примерка; вечером - ужин; на выходных - девичник; 15 ноября - совет; empty', сегодня);
+    const д = (x) => `${x.день.d}.${x.день.mo}`;
+    проверить('календарь: даты в расписании — завтра, день недели, дата, «через N дней», выходные', р.map(x => д(x) + ' ' + (x.время || x.часть) + ' ' + x.название).join(' | ') === '5.11 08:30 кампус | 6.11 07:00 тренировка | 8.11 19:30 покер | 10.11  матч | 8.11  примерка | 5.11 вечером ужин | 9.11  девичник | 15.11  совет', р.map(x => д(x) + ' ' + (x.время || x.часть) + ' ' + x.название).join(' | '));
+    проверить('календарь: диапазон времени — с концом', р[2].до === '22:00');
+    проверить('календарь: счётчик — дни и недели', JSON.stringify(C.счётчикДо(23)) === JSON.stringify({ главное: 'Через 23 дня', недели: '3 недели и 2 дня' }) && C.счётчикДо(14).недели === '2 недели' && C.счётчикДо(1).главное === 'Завтра' && C.счётчикДо(-5).главное === '5 дней назад' && C.счётчикДо(5).недели === '');
+    const h = C.buildCalendarApp([{ date: '07.11', title: 'ДР Лейлы', kind: 'birthday' }], [
+      { 'Имя': 'Тристан', 'Расписание': '14:00 - юрист' }, { 'Имя': 'Brandon Kane', 'Расписание': '12:00 - порт' }, { 'Имя': 'Атлас', 'Расписание': 'empty' },
+    ], '05.11.2024', 'Тристан').replace(/​/g, '');
+    проверить('календарь: свой, дни рождения и чужие — фишками; пустое расписание — без фишки', /data-cal="0"[^>]*>.*Мой/.test(h) && h.includes('Дни рождения') && h.includes('Brandon') && !h.includes('Атлас'));
+    проверить('календарь: чужое дело — с именем владельца, своё — без', /hud-cal-ev c\d t-plan"><span class="hud-cal-ev-time"><b>12:00<\/b><\/span><span class="hud-cal-ev-body"><span class="hud-cal-ev-title">порт<\/span><span class="hud-cal-who">B/.test(h) && /юрист<\/span><\/span>/.test(h));
+    проверить('календарь: день — кнопкой с датой; сегодня выбран; лист — счётчик и дела только выбранного дня', h.includes('data-date="2024-11-05" data-label="Вторник, 5 ноября"') && /is-today is-selected/.test(h) && /data-for="2024-11-07" hidden/.test(h) && /data-for="2024-11-05">/.test(h));
+    проверить('календарь: нажатия — общим обработчиком; hidden главнее display', css('events.js').includes('if (обработатьКликКалендаря(e)) return;') && css('css/themes.css').includes('.hud-cal [hidden] { display: none !important; }'));
+    проверить('календарь: альманах берёт его по-старому из phone.js', css('render/phone.js').includes("export { buildCalendarApp, parseDayMonth } from './calendar.js"));
+  }
 
   // Находки по настоящим чатам.
   проверить('дневник: «звериная осада», «раскаленная тьма», ocean_retreat — не «ровно»', тема('звериная осада') === 'control' && тема('раскаленная тьма') === 'angry' && тема('ocean_retreat') === 'peace');
