@@ -200,6 +200,13 @@
     100% { transform: scale(1.2) translateY(-4px); opacity: 1; filter: drop-shadow(0 0 4px #4facfe); }
 }
 
+/* Значки свёрнутой шапки (render/topbar-icons.js): метки — акцентом темы,
+   кнопки — своим цветом; рисунок (линия, тушь, пиксель…) — общий класс .hud-ico. */
+.hud-preview-tag .hud-tb-ico { width: 1.15em; height: 1.15em; vertical-align: -0.22em; margin-right: 1px; color: var(--hud-accent-text, var(--hud-accent)); }
+.hud-regen-btn .hud-tb-ico, .hud-ask-btn .hud-tb-ico { width: 17px; height: 17px; }
+.hud-ask-btn:has(.hud-tb-ico) { display: inline-flex; align-items: center; opacity: .75; }
+.hud-toggle-indicator .hud-tb-ico { display: block; width: 16px; height: 16px; }
+.hud-create-btn .hud-tb-ico { width: 15px; height: 15px; }
 .hud-toggle-indicator { transition: transform var(--hud-transition); }
 .hud-toggle-input:checked ~ .hud-os-topbar .hud-toggle-indicator { transform: rotate(180deg); }
 
@@ -6103,6 +6110,7 @@ body.no-blur .hud-scene-time-group, body.no-blur .hud-weather-item, body.no-blur
 .hud-phone-app[data-phone-app="calls"]    > span { background: linear-gradient(160deg, #ff8a80, #d8404a); }
 .hud-phone-app[data-phone-app="weather"]  > span { background: linear-gradient(160deg, #6fdcff, #1b8fd0); }
 .hud-phone-app[data-phone-app="health"]   > span { background: linear-gradient(160deg, #ff8fc4, #d6467f); }
+.hud-phone-app[data-phone-app="music"]    > span { background: linear-gradient(160deg, #ff8a6a, #e0315b); }
 .hud-phone-app[data-phone-app="wallet"]   > span { background: linear-gradient(160deg, #4b5266, #1b1e28); color: #ffd76b; }
 .hud-phone-app[data-phone-app="calendar"] > span { background: linear-gradient(160deg, #ffffff, #e4e6ee); color: #e0453a; }
 

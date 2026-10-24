@@ -1196,6 +1196,14 @@
   color: inherit; background: rgba(0,0,0,.25); border: 1px solid var(--hud-border, rgba(255,255,255,.16));
 }
 .hud-arc-chron small { opacity: .65; }
+.hud-arc-chron select:disabled { opacity: .6; cursor: progress; }
+/* Кольцо загрузки, пока ищутся чаты и летописи. */
+.hud-arc-spin {
+  display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; border-radius: 50%;
+  border: 1.5px solid currentColor; border-right-color: transparent; animation: hud-arc-spin .8s linear infinite;
+}
+@keyframes hud-arc-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .hud-arc-spin { animation: none; border-right-color: currentColor; opacity: .5; } }
 .hud-arc-quick button {
   cursor: pointer; padding: 5px 10px; border-radius: 7px;
   font-size: 11.5px; font-family: inherit; color: inherit;
@@ -1257,6 +1265,33 @@
 }
 .hud-arc-card-head { display: flex; align-items: center; gap: 7px; font-size: 13px; margin-bottom: 7px; }
 .hud-arc-card-head b { font-weight: 700; }
+/* Архив → Саундтрек: дни сюжета, главы подборок, треки со ссылками поиска. */
+.hud-arc-st-day { margin-bottom: 14px; }
+.hud-arc-st-date { margin: 0 0 7px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 60%, currentColor); }
+.hud-arc-st-ico { width: 15px; height: 15px; flex: none; color: var(--hud-accent, #8c5ad2); }
+.hud-arc-st-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: 11px; opacity: .8; margin-bottom: 8px; }
+.hud-arc-st-meta i { font-style: normal; opacity: .6; }
+.hud-arc-st-mt { display: none; margin-left: auto; padding: 2px 9px; border-radius: 999px; font: inherit; font-size: 10.5px; cursor: pointer; color: inherit; background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 18%, transparent); border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 45%, transparent); }
+:root.hud-has-moodtube .hud-arc-st-mt { display: inline-block; }
+.hud-arc-st-sub { margin: 8px 0 5px; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
+.hud-arc-st-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.hud-arc-st-list li { display: grid; grid-template-columns: 30px minmax(0, 1fr); grid-template-areas: "art tt" "go go"; gap: 4px 8px; align-items: center; margin: 0; padding: 5px 7px; border-radius: 8px; background: rgba(255,255,255,.035); }
+.hud-arc-st-list li.is-unfound { opacity: .6; }
+.hud-arc-st-list img, .hud-arc-st-blank { grid-area: art; width: 30px; height: 30px; border-radius: 5px; object-fit: cover; background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 20%, transparent); }
+.hud-arc-st-tt { grid-area: tt; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; font-size: 12px; }
+.hud-arc-st-tt b { overflow-wrap: anywhere; }
+.hud-arc-st-tt em { font-style: normal; font-size: 11px; opacity: .7; overflow-wrap: anywhere; }
+.hud-arc-st-go { grid-area: go; display: flex; flex-wrap: wrap; gap: 4px; }
+.hud-arc-st-go .hud-music-svc { --svc: rgba(255,255,255,.3); padding: 1px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 600; text-decoration: none !important; color: inherit !important; background: color-mix(in srgb, var(--svc) 14%, transparent); border: 1px solid color-mix(in srgb, var(--svc) 60%, transparent); }
+.hud-arc-st-go .is-ya { --svc: #ffcc00; } .hud-arc-st-go .is-sp { --svc: #1db954; } .hud-arc-st-go .is-yt { --svc: #ff3d3d; } .hud-arc-st-go .is-ap { --svc: #fa57c1; } .hud-arc-st-go .is-sc { --svc: #ff5500; } .hud-arc-st-go .is-ne { --svc: #e60026; } .hud-arc-st-go .is-qq { --svc: #31c27c; }
+.hud-arc-st-phone { margin-top: 8px; font-size: 11px; font-style: italic; opacity: .75; overflow-wrap: anywhere; }
+/* Ширина — по самой карточке главы, а не по окну: архив бывает и узким. */
+.hud-arc-st { container: hud-arc-st / inline-size; }
+.hud-arc-st .hud-arc-card-head { flex-wrap: wrap; }
+@container hud-arc-st (min-width: 480px) {
+  .hud-arc-st-list li { grid-template-columns: 30px minmax(0, 1fr) auto; grid-template-areas: "art tt go"; }
+  .hud-arc-st-go { justify-content: flex-end; }
+}
 .hud-arc-tag {
   margin-left: auto; padding: 2px 7px; border-radius: 999px;
   font-size: 10px; letter-spacing: .03em; opacity: .75;

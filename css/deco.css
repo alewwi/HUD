@@ -65,7 +65,8 @@
 }
 :root.hud-deco-polaroid .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap::after {
   content: attr(data-name); position: absolute; bottom: 4px; left: 4px; right: 4px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  font: italic 14px/1 'Segoe Script', 'Brush Script MT', cursive; color: #4a4038;
+  /* Подпись — веб-шрифтом с кириллицей: Segoe Script есть только на Windows. */
+  font: 15px/1 'Marck Script', 'Caveat', cursive; color: #4a4038;
 }
 
 /* Почтовая марка со штемпелем («桃色密信») */

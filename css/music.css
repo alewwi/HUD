@@ -1,0 +1,288 @@
+/* =========================================================================
+   МУЗЫКА СЦЕНЫ (render/music.js) — полоса «сейчас играет» над вкладками,
+   рядом с поворотом сюжета. Поверхность и чернила — из темы (--x-*), цвет —
+   акцент. Обложка по виду: пластинка, кассета, свиток с нотами. Крутится
+   только под мышью и когда плейлист раскрыт касанием.
+   ========================================================================= */
+.hud-music {
+  --mu: var(--hud-accent, #c31f38);
+  container: hud-music / inline-size;
+  position: relative; margin: 8px 12px 4px; border-radius: 14px; overflow: hidden; color: var(--x-ink);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--mu) 18%, var(--x-surf)), var(--x-surf2));
+  box-shadow: 0 10px 20px -12px rgba(0,0,0,.55), inset 0 0 0 1px color-mix(in srgb, var(--mu) 38%, transparent);
+}
+.hud-music, .hud-music * { text-shadow: none !important; box-sizing: border-box; }
+.hud-music svg { display: block; }
+
+/* --- Полоса --- */
+.hud-music-bar { position: relative; display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 7px 10px; cursor: pointer; user-select: none; -webkit-tap-highlight-color: transparent; }
+.hud-music-now { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.25; }
+.hud-music-now :is(small, b, em) { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud-music-now small { font-size: .62em; letter-spacing: .14em; text-transform: uppercase; color: color-mix(in srgb, var(--mu) 55%, var(--x-ink)); }
+.hud-music-now b { font-size: .92em; color: var(--x-ink) !important; }
+.hud-music-now em { font-style: normal; font-size: .78em; color: var(--x-ink-soft); }
+.hud-music-tag-inline { display: none; font-style: normal; text-transform: none; letter-spacing: .02em; }
+.hud-music-tag {
+  flex: none; max-width: 38%; padding: 3px 9px; border-radius: 99px; font-size: .7em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  background: color-mix(in srgb, var(--mu) 16%, transparent); border: 1px solid color-mix(in srgb, var(--mu) 34%, transparent);
+  color: color-mix(in srgb, var(--mu) 40%, var(--x-ink));
+}
+.hud-music-chev, .hud-music-act { flex: none; width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; color: var(--x-ink-soft); }
+.hud-music-chev svg, .hud-music-act svg { width: 16px; height: 16px; transition: transform .25s ease; }
+.hud-music.is-open .hud-music-chev svg { transform: rotate(180deg); }
+button.hud-music-act { border: 0; padding: 0; cursor: pointer; color: var(--x-ink); background: color-mix(in srgb, var(--mu) 20%, transparent); }
+.hud-music.is-empty .hud-music-act { background: color-mix(in srgb, var(--mu) 20%, transparent); color: var(--x-ink); }
+.hud-music.is-error .hud-music-now small { color: color-mix(in srgb, #e0603a 70%, var(--x-ink)); }
+.hud-music.is-error .hud-music-now b { white-space: normal; font-weight: 500; font-size: .8em; }
+.hud-music.is-empty:not(.is-error) .hud-music-now b { white-space: normal; }
+.hud-music.is-busy .hud-music-now b { animation: hud-music-pulse 1.4s ease-in-out infinite; }
+@keyframes hud-music-pulse { 50% { opacity: .45; } }
+
+/* --- Обложка: пластинка --- */
+.hud-music-disc {
+  flex: none; position: relative; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center;
+  background: repeating-radial-gradient(circle, #121214 0 1px, #222226 1px 2.3px);
+  box-shadow: 0 3px 8px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.07);
+}
+/* Блик неподвижен — крутится только «яблоко» с обложкой. */
+.hud-music-disc::after {
+  content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(from 20deg, transparent 0 18%, rgba(255,255,255,.16) 24%, transparent 30% 68%, rgba(255,255,255,.1) 74%, transparent 80%);
+}
+.hud-music-label-art {
+  position: relative; width: 19px; height: 19px; border-radius: 50%; overflow: hidden;
+  background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--mu) 55%, #fff), var(--mu));
+  box-shadow: 0 0 0 1px rgba(0,0,0,.45);
+}
+.hud-music-label-art img { width: 100%; height: 100%; object-fit: cover; }
+.hud-music-label-art::after { content: ''; position: absolute; left: 50%; top: 50%; width: 3px; height: 3px; margin: -1.5px 0 0 -1.5px; border-radius: 50%; background: #111; }
+
+/* --- Обложка: кассета --- */
+.hud-music-tape {
+  flex: none; position: relative; width: 50px; height: 34px; border-radius: 4px; overflow: hidden;
+  background: linear-gradient(180deg, #34343a, #1c1c20);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.09), 0 3px 8px rgba(0,0,0,.45);
+}
+.hud-music-tape-art {
+  position: absolute; left: 3px; right: 3px; top: 3px; height: 12px; border-radius: 2px; overflow: hidden;
+  background: linear-gradient(90deg, var(--mu), color-mix(in srgb, var(--mu) 45%, #fff));
+}
+.hud-music-tape-art img { width: 100%; height: 100%; object-fit: cover; opacity: .9; }
+.hud-music-tape::before {
+  content: ''; position: absolute; left: 10px; right: 10px; bottom: 4px; height: 13px; border-radius: 7px;
+  background: rgba(0,0,0,.6); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12);
+}
+.hud-music-tape i {
+  position: absolute; bottom: 5.5px; width: 10px; height: 10px; border-radius: 50%;
+  background: radial-gradient(circle, #26262a 0 1.6px, transparent 2px), repeating-conic-gradient(#e6e1d6 0 22deg, #8c867a 22deg 60deg);
+}
+.hud-music-tape i.r1 { left: 12px; }
+.hud-music-tape i.r2 { right: 12px; }
+
+/* --- Обложка: свиток с нотами (средневековье) --- */
+.hud-music-scroll { flex: none; width: 44px; height: 33px; }
+.hud-music-scroll svg { width: 100%; height: 100%; overflow: visible; }
+.hud-music-scroll .sc-paper { fill: #e8d6a4; stroke: #a07d43; stroke-width: .8; }
+.hud-music-scroll .sc-roll { fill: #b98b4c; stroke: #6f4e22; stroke-width: .8; }
+.hud-music-scroll .sc-staff { fill: none; stroke: rgba(90,58,24,.5); stroke-width: .7; }
+.hud-music-scroll .sc-notes { fill: #4a3214; stroke: #4a3214; stroke-width: 1; transform-box: fill-box; transform-origin: center; }
+.hud-music.is-scroll { --mu: color-mix(in srgb, var(--hud-accent, #8a5a2b) 55%, #b98b4c); }
+
+/* --- Плейлист --- */
+.hud-music-list { display: none; padding: 2px 10px 10px; border-top: 1px dashed var(--x-line); }
+.hud-music.is-open .hud-music-list { display: block; }
+.hud-music-sec { display: flex; align-items: baseline; flex-wrap: wrap; gap: 2px 8px; margin: 10px 0 6px; }
+.hud-music-sec b { display: inline-flex; align-items: center; gap: 5px; font-size: .72em; letter-spacing: .12em; text-transform: uppercase; color: color-mix(in srgb, var(--mu) 55%, var(--x-ink)) !important; }
+.hud-music-sec b svg { width: 13px; height: 13px; }
+.hud-music-sec span { font-size: .72em; color: var(--x-ink-soft); }
+/* Часть подбирается отдельно: «заново» в заголовке, крупная кнопка в пустой. */
+.hud-music-sec { align-items: center; }
+.hud-music-sec .hud-music-re { margin-left: auto; width: 26px; height: 26px; }
+.hud-music-sec .hud-music-re svg { width: 14px; height: 14px; }
+.hud-music-blank { display: flex; justify-content: center; padding: 10px 6px 12px; border-radius: 10px; border: 1px dashed color-mix(in srgb, var(--mu) 40%, transparent); background: color-mix(in srgb, var(--mu) 5%, transparent); }
+.hud-music-get { padding: 7px 14px; font-size: .78em; font-weight: 600; }
+.hud-music-wait { display: flex; align-items: center; gap: 8px; padding: 10px 8px; font-size: .78em; color: var(--x-ink-soft); }
+.hud-music-wait i { width: 14px; height: 14px; border-radius: 50%; border: 2px solid color-mix(in srgb, var(--mu) 30%, transparent); border-top-color: var(--mu); animation: hud-music-spin .9s linear infinite; }
+.hud-music :is(.hud-music-btn, .hud-music-act):disabled { opacity: .45; cursor: default; }
+.hud-music-tracks { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
+.hud-music-tr {
+  display: grid; grid-template-columns: 16px 34px minmax(0, 1fr); grid-template-areas: "n art tt" "n art go";
+  column-gap: 8px; row-gap: 5px; align-items: center; margin: 0; padding: 6px 8px; border-radius: 10px;
+  background: color-mix(in srgb, var(--mu) 7%, transparent);
+}
+.hud-music-tr.is-now { background: color-mix(in srgb, var(--mu) 18%, transparent); box-shadow: inset 3px 0 0 var(--mu); }
+.hud-music-n { grid-area: n; font-size: .72em; text-align: right; color: var(--x-ink-soft); font-variant-numeric: tabular-nums; }
+.hud-music-art { grid-area: art; width: 34px; height: 34px; border-radius: 6px; overflow: hidden; display: grid; place-items: center; background: color-mix(in srgb, var(--mu) 20%, transparent); }
+.hud-music-art img { width: 100%; height: 100%; object-fit: cover; }
+.hud-music-art.is-blank svg { width: 16px; height: 16px; color: var(--x-ink-soft); }
+.hud-music-tt { grid-area: tt; min-width: 0; display: flex; flex-direction: column; cursor: pointer; line-height: 1.3; }
+.hud-music-tt b { font-size: .86em; overflow-wrap: anywhere; color: var(--x-ink) !important; }
+.hud-music-tt em { font-style: normal; font-size: .76em; overflow-wrap: anywhere; color: var(--x-ink-soft); }
+.hud-music-tt small { font-size: .7em; font-style: italic; color: var(--x-ink-soft); opacity: .85; }
+.hud-music-flag { align-self: flex-start; margin-top: 3px; padding: 1px 7px; border-radius: 99px; font-size: .6em; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #fff !important; background: color-mix(in srgb, #c9612b 85%, #000); }
+.hud-music-tr.is-unfound :is(.hud-music-tt b, .hud-music-tt em, .hud-music-art) { opacity: .62; }
+.hud-music-go { grid-area: go; display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; }
+.hud-music-svc, .hud-music-go .hud-music-mt {
+  --svc: var(--x-line); display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 99px;
+  font: inherit; font-size: .68em; font-weight: 600; line-height: 1.5; text-decoration: none !important; cursor: pointer;
+  color: var(--x-ink) !important; background: color-mix(in srgb, var(--svc) 14%, transparent); border: 1px solid color-mix(in srgb, var(--svc) 60%, transparent);
+}
+.hud-music-svc.is-ya { --svc: #ffcc00; }
+.hud-music-svc.is-sp { --svc: #1db954; }
+.hud-music-svc.is-yt { --svc: #ff3d3d; }
+.hud-music-svc.is-ap { --svc: #fa57c1; }
+.hud-music-svc.is-sc { --svc: #ff5500; }
+.hud-music-svc.is-ne { --svc: #e60026; }
+.hud-music-svc.is-qq { --svc: #31c27c; }
+.hud-music-go .hud-music-mt { --svc: var(--mu); }
+.hud-music-mt svg { width: 12px; height: 12px; }
+/* Кнопки MoodTube — только когда он стоит (класс ставит render/music.js). */
+.hud-music .hud-music-mt { display: none; }
+:root.hud-has-moodtube .hud-music .hud-music-mt { display: inline-flex; }
+/* Громкость и число треков — одна тонкая строка над кнопками плейлиста. */
+.hud-music-tune { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin-top: 10px; padding: 6px 9px; border-radius: 10px; background: color-mix(in srgb, var(--mu) 7%, transparent); font-size: .76em; color: var(--x-ink-soft); }
+.hud-music-vol { flex: 1 1 140px; min-width: 0; display: flex; align-items: center; gap: 7px; margin: 0; cursor: default; }
+.hud-music-vol-ico svg { width: 14px; height: 14px; }
+.hud-music-vol input[type="range"] { flex: 1; min-width: 60px; height: 16px; margin: 0; padding: 0; background: transparent; accent-color: var(--mu); cursor: pointer; }
+.hud-music-vol output { min-width: 2.2em; text-align: right; font-variant-numeric: tabular-nums; color: var(--x-ink); }
+.hud-music-cnt { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; }
+.hud-music-cnt button { width: 22px; height: 22px; display: grid; place-items: center; padding: 0; border-radius: 50%; font: inherit; font-size: 14px; line-height: 1; cursor: pointer; color: var(--x-ink); background: color-mix(in srgb, var(--mu) 16%, transparent); border: 1px solid color-mix(in srgb, var(--mu) 40%, transparent); }
+.hud-music-cnt button:disabled { opacity: .4; cursor: default; }
+.hud-music-cnt b { min-width: 1.4em; text-align: center; color: var(--x-ink) !important; font-variant-numeric: tabular-nums; }
+.hud-music-cnt small { font-size: 1em; }
+.hud-music-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; }
+.hud-music-btn {
+  display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 99px; font: inherit; font-size: .74em; cursor: pointer;
+  color: var(--x-ink); background: color-mix(in srgb, var(--mu) 16%, transparent); border: 1px solid color-mix(in srgb, var(--mu) 45%, transparent);
+}
+.hud-music-btn svg { width: 13px; height: 13px; }
+.hud-music-meta { flex-basis: 100%; font-size: .68em; line-height: 1.4; color: var(--x-ink-soft); }
+
+/* Широкая карточка: ссылки в той же строке, справа. */
+@container hud-music (min-width: 540px) {
+  .hud-music-tr { grid-template-columns: 16px 34px minmax(0, 1fr) auto; grid-template-areas: "n art tt go"; }
+  .hud-music-go { justify-content: flex-end; max-width: 300px; }
+}
+
+/* Узкая карточка (телефон): метка сцены встаёт в подпись над названием
+   вместо «Сейчас играет»; в плейлисте обложка и название — одной строкой,
+   ссылки под ними во всю ширину. */
+@container hud-music (max-width: 360px) {
+  .hud-music-tag { display: none; }
+  .hud-music-tag-inline { display: inline; }
+  .hud-music-now small.has-label .hud-music-kind { display: none; }
+  .hud-music-bar { gap: 8px; padding: 6px 8px; }
+  .hud-music-list { padding: 2px 6px 8px; }
+  .hud-music-tr { grid-template-columns: 30px minmax(0, 1fr); grid-template-areas: "art tt" "go go"; column-gap: 8px; padding: 6px 7px; }
+  .hud-music-n { display: none; }
+  .hud-music-art { width: 30px; height: 30px; align-self: start; }
+  .hud-music-art-wrap { align-self: start; }
+  .hud-music-svc, .hud-music-go .hud-music-mt { padding: 1px 7px; font-size: .64em; }
+  .hud-music-go .hud-music-mt span { display: none; }
+}
+
+/* --- Приложение «Музыка» в телефоне персонажа ---
+   Экран телефона тёмный во всех темах — чернила светлые, акцент — цвет плитки. */
+.hud-mphone { --mp: #ff5f6d; color: #f4f2f7; font-size: 13px; }
+.hud-mphone, .hud-mphone * { box-sizing: border-box; text-shadow: none !important; }
+.hud-mphone svg { display: block; }
+.hud-mphone-now { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding: 4px 6px 12px; }
+.hud-mphone-cover { position: relative; width: min(70%, 170px); aspect-ratio: 1; margin-bottom: 10px; border-radius: 14px; overflow: hidden; display: grid; place-items: center;
+  background: linear-gradient(150deg, color-mix(in srgb, var(--mp) 70%, #fff), color-mix(in srgb, var(--mp) 60%, #000));
+  box-shadow: 0 14px 28px -10px rgba(0,0,0,.75), 0 0 0 1px rgba(255,255,255,.08); }
+.hud-mphone-cover img { width: 100%; height: 100%; object-fit: cover; }
+.hud-mphone-cover .is-blank svg { width: 40%; height: 40%; color: rgba(255,255,255,.85); }
+.hud-mphone-now small { font-size: 10.5px; letter-spacing: .06em; color: rgba(255,255,255,.6); }
+.hud-mphone-now b { font-size: 15px; line-height: 1.25; color: #fff !important; overflow-wrap: anywhere; }
+.hud-mphone-now em { font-style: normal; font-size: 12.5px; color: color-mix(in srgb, var(--mp) 55%, #fff); overflow-wrap: anywhere; }
+.hud-mphone-bar { width: 80%; height: 3px; margin: 9px 0 8px; border-radius: 3px; background: rgba(255,255,255,.18); overflow: hidden; }
+.hud-mphone-bar i { display: block; width: 38%; height: 100%; border-radius: inherit; background: #fff; }
+.hud-mphone-go { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
+.hud-mphone :is(.hud-music-svc, .hud-music-mt) {
+  --svc: rgba(255,255,255,.4); display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 99px; font: inherit; font-size: 10.5px; font-weight: 600;
+  text-decoration: none !important; cursor: pointer; color: #fff !important; background: color-mix(in srgb, var(--svc) 18%, transparent); border: 1px solid color-mix(in srgb, var(--svc) 60%, transparent);
+}
+.hud-mphone .is-ya { --svc: #ffcc00; } .hud-mphone .is-sp { --svc: #1db954; } .hud-mphone .is-yt { --svc: #ff3d3d; } .hud-mphone .is-ap { --svc: #fa57c1; } .hud-mphone .is-sc { --svc: #ff5500; } .hud-mphone .is-ne { --svc: #e60026; } .hud-mphone .is-qq { --svc: #31c27c; }
+.hud-mphone .hud-music-mt svg { width: 12px; height: 12px; }
+.hud-mphone .hud-music-mt { display: none; }
+:root.hud-has-moodtube .hud-mphone .hud-music-mt { display: inline-flex; }
+.hud-mphone-sec { margin: 4px 2px 6px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+.hud-mphone-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; }
+.hud-mphone-list li { display: grid; grid-template-columns: 36px minmax(0, 1fr); grid-template-areas: "art tt" "go go"; gap: 4px 9px; align-items: center; margin: 0; padding: 7px 2px; border-bottom: 1px solid rgba(255,255,255,.08); }
+.hud-mphone-list li.is-unfound { opacity: .55; }
+.hud-mphone-art { grid-area: art; position: relative; width: 36px; height: 36px; }
+.hud-mphone-list img, .hud-mphone-mini { width: 36px; height: 36px; border-radius: 6px; object-fit: cover; display: grid; place-items: center; background: color-mix(in srgb, var(--mp) 35%, #222); }
+.hud-mphone-mini svg { width: 16px; height: 16px; color: rgba(255,255,255,.8); }
+.hud-mphone-tt { grid-area: tt; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+.hud-mphone-tt b { font-size: 13px; color: #fff !important; overflow-wrap: anywhere; }
+.hud-mphone-tt em { font-style: normal; font-size: 11.5px; color: rgba(255,255,255,.6); overflow-wrap: anywhere; }
+.hud-mphone-list .hud-mphone-go { grid-area: go; justify-content: flex-start; padding-left: 45px; }
+.hud-mphone-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 10px; margin-top: 12px; }
+.hud-mphone-foot small { font-size: 10.5px; color: rgba(255,255,255,.5); }
+.hud-mphone-get { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 99px; border: 0; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; color: #fff; background: linear-gradient(160deg, #ff8a6a, #e0315b); box-shadow: 0 6px 14px -6px rgba(224,49,91,.8); }
+.hud-mphone-get svg { width: 14px; height: 14px; }
+.hud-mphone-get:disabled { opacity: .5; cursor: default; }
+.hud-mphone-empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 26px 10px; text-align: center; }
+.hud-mphone-empty p { margin: 0; font-size: 12.5px; line-height: 1.5; color: rgba(255,255,255,.7); }
+.hud-mphone-disc { width: 84px; height: 84px; border-radius: 50%; background: radial-gradient(circle, #ff5f6d 0 13px, #111 13.5px 15px, transparent 15.5px), repeating-radial-gradient(circle, #141416 0 1px, #26262b 1px 2.4px); box-shadow: 0 10px 22px -8px rgba(0,0,0,.8); }
+.hud-mphone-wait { display: flex; align-items: center; justify-content: center; gap: 9px; padding: 40px 10px; font-size: 12.5px; color: rgba(255,255,255,.75); }
+.hud-mphone-wait i { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,.25); border-top-color: #fff; animation: hud-music-spin .9s linear infinite; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-mphone :is(.hud-music-svc, .hud-music-mt):hover { background: color-mix(in srgb, var(--svc) 35%, transparent); }
+  .hud-mphone-get:not(:disabled):hover { filter: brightness(1.08); }
+}
+
+/* --- Встроенный плеер: отрывки по 30 секунд ---
+   Значки play, pause и загрузка лежат в кнопке разом; видно один — по
+   состоянию: is-on — этот трек выбран, у полосы is-playing / is-paused / is-loading. */
+[data-mu="play"] { position: relative; }
+[data-mu="play"] svg { width: 14px; height: 14px; }
+[data-mu="play"] :is(.i-pause, .i-load) { display: none; }
+:is(.hud-music, .hud-mphone).is-playing [data-mu="play"].is-on .i-play { display: none; }
+:is(.hud-music, .hud-mphone).is-playing [data-mu="play"].is-on .i-pause { display: block; }
+:is(.hud-music, .hud-mphone).is-loading [data-mu="play"].is-on .i-play { display: none; }
+:is(.hud-music, .hud-mphone).is-loading [data-mu="play"].is-on .i-load { display: block; width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; animation: hud-music-spin .8s linear infinite; }
+button.hud-music-play { color: #fff; background: var(--mu); box-shadow: 0 3px 8px -3px color-mix(in srgb, var(--mu) 80%, #000); }
+button.hud-music-play svg { width: 13px; height: 13px; margin-left: 1px; }
+/* Обложка трека — кнопка: на телефоне значок виден всегда, мышью — по наведению. */
+.hud-music-art-wrap { grid-area: art; position: relative; }
+.hud-music-artplay { position: absolute; inset: 0; display: grid; place-items: center; padding: 0; border: 0; border-radius: 6px; cursor: pointer; color: #fff; background: rgba(0,0,0,.38); }
+.hud-music-artplay svg { width: 14px; height: 14px; filter: drop-shadow(0 1px 2px rgba(0,0,0,.6)); }
+.hud-music-artplay.is-on { background: color-mix(in srgb, var(--mu, #e0315b) 55%, rgba(0,0,0,.35)); }
+.hud-mphone-bigplay { position: absolute; right: 8px; bottom: 8px; width: 42px; height: 42px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; cursor: pointer; color: #fff; background: linear-gradient(160deg, #ff8a6a, #e0315b); box-shadow: 0 6px 14px -4px rgba(0,0,0,.7); }
+.hud-mphone-bigplay svg { width: 18px; height: 18px; }
+.hud-mphone-bigplay svg.i-play { margin-left: 2px; }
+.hud-mphone-hint { margin-bottom: 6px; font-size: 10px !important; color: rgba(255,255,255,.45) !important; }
+/* Ход трека — полоска внизу полосы и под обложкой в телефоне; длина
+   (--mu-dur) — настоящая: 30 с у отрывка, минуты у полного трека. */
+.hud-music-prog { position: absolute; left: 10px; right: 10px; bottom: 0; height: 2px; border-radius: 2px; overflow: hidden; opacity: 0; background: color-mix(in srgb, var(--mu) 25%, transparent); }
+.hud-music-prog b { display: block; width: 100%; height: 100%; background: var(--mu); transform-origin: left; transform: scaleX(0); }
+:is(.hud-music, .hud-mphone):is(.is-playing, .is-paused) :is(.hud-music-prog b, .hud-mphone-bar i) { animation: hud-music-prog var(--mu-dur, 30s) linear forwards; }
+:is(.hud-music, .hud-mphone).is-paused :is(.hud-music-prog b, .hud-mphone-bar i) { animation-play-state: paused; }
+.hud-music:is(.is-playing, .is-paused, .is-loading) .hud-music-prog { opacity: 1; }
+:is(.hud-mphone):is(.is-playing, .is-paused) .hud-mphone-bar i { width: 100%; transform-origin: left; }
+@keyframes hud-music-prog { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+/* Пока играет, кассета и пластинка крутятся сами: звук включили нажатием. */
+.hud-music.is-playing :is(.hud-music-label-art, .hud-music-tape i) { animation: hud-music-spin 2.2s linear infinite; }
+.hud-music.is-playing .sc-notes { animation: hud-music-bob .8s ease-in-out infinite alternate; }
+
+/* --- Движение: под мышью и в раскрытом плейлисте --- */
+@keyframes hud-music-spin { to { transform: rotate(360deg); } }
+@keyframes hud-music-bob { from { transform: translateY(.6px); } to { transform: translateY(-1.4px); } }
+.hud-music.fx-active :is(.hud-music-label-art, .hud-music-tape i) { animation: hud-music-spin 2.2s linear infinite; }
+.hud-music.fx-active .sc-notes { animation: hud-music-bob .8s ease-in-out infinite alternate; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-music-artplay:not(.is-on) { opacity: 0; transition: opacity .15s ease; }
+  :is(.hud-music-tr, .hud-mphone-list li):hover .hud-music-artplay, .hud-music-artplay:focus-visible { opacity: 1; }
+  .hud-music-bar:hover { background: color-mix(in srgb, var(--mu) 8%, transparent); }
+  .hud-music-bar:hover :is(.hud-music-label-art, .hud-music-tape i) { animation: hud-music-spin 2.2s linear infinite; }
+  .hud-music-bar:hover .sc-notes { animation: hud-music-bob .8s ease-in-out infinite alternate; }
+  .hud-music-tt:hover b { text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--mu) 60%, transparent); text-underline-offset: 2px; }
+  .hud-music-svc:hover, .hud-music-go .hud-music-mt:hover { background: color-mix(in srgb, var(--svc) 30%, transparent); }
+  .hud-music-btn:hover { background: color-mix(in srgb, var(--mu) 30%, transparent); }
+}
+.hud-music :is(.hud-music-bar, .hud-music-tt, .hud-music-btn, .hud-music-svc, .hud-music-act):focus-visible { outline: 2px solid var(--mu); outline-offset: 2px; }
+@media (prefers-reduced-motion: reduce) {
+  .hud-music, .hud-music * { animation: none !important; transition: none !important; }
+}
+.hud-historical .hud-music.is-empty { display: none; }

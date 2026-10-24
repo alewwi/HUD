@@ -386,7 +386,20 @@
 .hud-twist h5 { margin: 0 0 6px; padding-right: 70px; display: flex; align-items: center; gap: 8px; font-family: Georgia, serif; font-size: 1.08em; }
 .hud-twist h5 svg { width: 21px; height: 21px; flex: none; }
 .hud-twist p { margin: 0; line-height: 1.5; font-size: .9em; }
-.hud-twist-hint { display: block; margin-top: 9px; padding-top: 7px; border-top: 1px dashed var(--x-line); font-size: .8em; font-style: italic; color: var(--x-ink-soft) !important; }
+/* «Куда может повести»: заголовок с компасом и направления пунктами — каждое
+   своей стрелкой от общей оси, как развилка. */
+.hud-twist-hint { margin-top: 9px; padding-top: 8px; border-top: 1px dashed var(--x-line); font-size: .8em; color: var(--x-ink-soft) !important; overflow-wrap: break-word; }
+.hud-twist-hint-head { display: flex; align-items: center; flex-wrap: wrap; gap: 2px 7px; margin-bottom: 6px; }
+.hud-twist-hint-head svg { flex: none; width: 15px; height: 15px; color: var(--tw); }
+.hud-twist-hint-head b { font-weight: 700; color: var(--x-ink) !important; }
+.hud-twist-hint-head small { font-size: .9em; font-style: italic; opacity: .75; }
+.hud-twist-ways { list-style: none; margin: 0; padding: 0 0 0 7px; display: flex; flex-direction: column; gap: 5px; border-left: 1.5px solid color-mix(in srgb, var(--tw) 45%, transparent); }
+.hud-twist-way { position: relative; display: flex; align-items: flex-start; gap: 7px; margin: 0; font-style: italic; line-height: 1.45; }
+.hud-twist-way.is-one { padding-left: 22px; }
+.hud-twist-ways .hud-twist-way::before { content: ''; position: absolute; left: -7px; top: .72em; width: 6px; border-top: 1.5px solid color-mix(in srgb, var(--tw) 45%, transparent); }
+/* Номер — цветом текста карточки на заливке цвета поворота: белый на розовом
+   и жёлтом читался плохо. */
+.hud-twist-n { flex: none; display: grid; place-items: center; width: 16px; height: 16px; border-radius: 50%; font-size: .8em; font-weight: 800; font-style: normal; color: var(--x-ink) !important; background: color-mix(in srgb, var(--tw) 28%, transparent); box-shadow: inset 0 0 0 1.5px var(--tw); }
 .hud-historical .hud-twist { display: none; }
 
 /* =========================================================================

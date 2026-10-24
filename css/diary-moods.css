@@ -611,29 +611,40 @@
    в base.css). Почерк темы встаёт поверх, только пока включён «Почерк по
    настроению» (diaryMoodHand): выключатель — переменная-заслонка --hud-dm-gate.
    Пустая — шрифт темы действует; initial (index.js) — объявление темы
-   становится недействительным, и остаётся шрифт пользователя. Размер
-   дневника тоже стоит с !important, поэтому чужие по росту шрифты
-   выравниваем по высоте строчных: font-size-adjust. */
+   становится недействительным, и остаётся шрифт пользователя.
+   Почерки — веб-шрифты с кириллицей, которые HUD и так грузит (base.css,
+   @import Google Fonts): одинаковые на ПК и телефоне. Раньше здесь стояли
+   шрифты Windows и Mac (Ink Free, Segoe Script, Bahnschrift…) с подгонкой
+   font-size-adjust: на телефоне их нет, подставлялся запасной шрифт без
+   кириллицы, подгонка раздувала текст, а буквы рисовал системный рубленый —
+   «огромные и квадратные». Размер дневника стоит с !important, поэтому у
+   каждого почерка свой постоянный множитель --hud-dm-k: строчные у шрифтов
+   разного роста, а у Caveat (шрифт по умолчанию) они очень низкие — множитель
+   стоит посередине между ровным размером и точным выравниванием, чтобы текст
+   не мельчал. */
 :root { --hud-dm-gate: ; }
-.hud-diary-entry[class*="hud-diary-mood-"] :is(.hud-diary-text, .hud-diary-about-user) { font-family: var(--hud-dm-font, var(--hud-font-diary)) !important; font-size-adjust: var(--hud-dm-adjust, none); }
-.hud-diary-mood-love :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Segoe Script', 'Snell Roundhand', 'Brush Script MT', cursive; --hud-dm-adjust: var(--hud-dm-gate) .41; font-style: normal; }
-.hud-diary-mood-cozy :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Segoe Print', 'Bradley Hand', 'Comic Neue', cursive; --hud-dm-adjust: var(--hud-dm-gate) .41; font-style: normal; }
+.hud-diary-entry[class*="hud-diary-mood-"] :is(.hud-diary-text, .hud-diary-about-user) {
+  font-family: var(--hud-dm-font, var(--hud-font-diary)) !important;
+  font-size: calc(var(--hud-font-size-diary, 16px) * var(--hud-dm-k, 1)) !important;
+}
+.hud-diary-mood-love :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Marck Script', 'Caveat', cursive; --hud-dm-k: var(--hud-dm-gate) .95; font-style: normal; }
+.hud-diary-mood-cozy :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Neucha', 'Caveat', cursive; --hud-dm-k: var(--hud-dm-gate) .84; font-style: normal; }
 .hud-diary-mood-panic :is(.hud-diary-text, .hud-diary-about-user),
-.hud-diary-mood-madness :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Ink Free', 'Chalkboard SE', 'Segoe Print', cursive; --hud-dm-adjust: var(--hud-dm-gate) .41; font-style: normal; }
+.hud-diary-mood-madness :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Pangolin', 'Caveat', cursive; --hud-dm-k: var(--hud-dm-gate) .82; font-style: normal; }
 .hud-diary-mood-madness .hud-diary-text { word-spacing: .12em; }
-.hud-diary-mood-calc :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) Consolas, 'Cascadia Mono', 'SF Mono', 'Courier New', monospace; --hud-dm-adjust: var(--hud-dm-gate) .39; font-style: normal; letter-spacing: -.01em; }
-.hud-diary-mood-control :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Segoe UI', system-ui, sans-serif; --hud-dm-adjust: var(--hud-dm-gate) .41; font-style: normal; font-weight: 500; letter-spacing: .01em; }
-.hud-diary-mood-contempt :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Palatino Linotype', 'Book Antiqua', Palatino, Georgia, serif; --hud-dm-adjust: var(--hud-dm-gate) .41; font-style: normal; letter-spacing: .02em; }
-.hud-diary-mood-resolve :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) Bahnschrift, 'DIN Alternate', 'Arial Narrow', sans-serif; --hud-dm-adjust: var(--hud-dm-gate) .41; font-style: normal; font-weight: 500; }
-.hud-diary-mood-stress :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) Bahnschrift, 'Arial Narrow', sans-serif; --hud-dm-adjust: var(--hud-dm-gate) .41; font-stretch: 75%; font-style: normal; }
-.hud-diary-mood-cold :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Segoe UI Light', 'Helvetica Neue', system-ui, sans-serif; --hud-dm-adjust: var(--hud-dm-gate) .41; font-weight: 300; font-style: normal; letter-spacing: .03em; }
-.hud-diary-mood-thrill :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Segoe UI', system-ui, sans-serif; --hud-dm-adjust: var(--hud-dm-gate) .41; font-weight: 600; }
+.hud-diary-mood-calc :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Cascadia Mono', Consolas, 'SF Mono', Menlo, 'Roboto Mono', 'Droid Sans Mono', monospace; --hud-dm-k: var(--hud-dm-gate) .87; font-style: normal; letter-spacing: -.01em; }
+.hud-diary-mood-control :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Exo 2', sans-serif; --hud-dm-k: var(--hud-dm-gate) .87; font-style: normal; letter-spacing: .01em; }
+.hud-diary-mood-contempt :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Cormorant Garamond', 'Lora', serif; --hud-dm-k: var(--hud-dm-gate) .96; font-style: normal; letter-spacing: .02em; }
+.hud-diary-mood-resolve :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Oswald', sans-serif; --hud-dm-k: var(--hud-dm-gate) .81; font-style: normal; letter-spacing: .01em; }
+.hud-diary-mood-stress :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Oswald', sans-serif; --hud-dm-k: var(--hud-dm-gate) .81; font-style: normal; letter-spacing: -.01em; }
+.hud-diary-mood-cold :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Jura', sans-serif; --hud-dm-k: var(--hud-dm-gate) .86; font-style: normal; letter-spacing: .03em; }
+.hud-diary-mood-thrill :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Comfortaa', sans-serif; --hud-dm-k: var(--hud-dm-gate) .83; }
 .hud-diary-mood-respect :is(.hud-diary-text, .hud-diary-about-user),
 .hud-diary-mood-devotion :is(.hud-diary-text, .hud-diary-about-user),
-.hud-diary-mood-longing :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) Georgia, 'Times New Roman', serif; --hud-dm-adjust: var(--hud-dm-gate) .41; }
+.hud-diary-mood-longing :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Lora', Georgia, serif; --hud-dm-k: var(--hud-dm-gate) .86; }
 .hud-diary-mood-respect .hud-diary-text::first-letter,
-.hud-diary-mood-devotion .hud-diary-text::first-letter { font-family: Gabriola, 'Palatino Linotype', Georgia, serif; font-size: 2.7em; line-height: .7; }
-.hud-diary-mood-irony :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Trebuchet MS', 'Segoe UI', sans-serif; --hud-dm-adjust: var(--hud-dm-gate) .41; }
+.hud-diary-mood-devotion .hud-diary-text::first-letter { font-family: 'Cormorant Garamond', 'Lora', serif; font-size: 2.7em; line-height: .7; }
+.hud-diary-mood-irony :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Philosopher', sans-serif; --hud-dm-k: var(--hud-dm-gate) .89; }
 .hud-diary-mood-bored .hud-diary-text { letter-spacing: .06em; word-spacing: .2em; }
 .hud-diary-mood-apathy .hud-diary-text { font-weight: 300; }
 /* Каждая строка придавлена пером — одержимость возвращается к одному. */
