@@ -6,14 +6,19 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe } from '../utils.js?v=23.64.2';
-import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.64.2';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.67.0';
+import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.67.0';
+import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.67.0';
 
 let окноОткрыто = false;
 
 // Ссылка на сообщение: по клику чат прокручивается к нему и оно мигает.
 // Номер — это индекс в чате, тот же, что показывает ST.
-const ссылка = (at) => `<button type="button" class="hud-arc-ref" data-mes="${at}" title="Перейти к сообщению">#${at}</button>`;
+// Дробный номер — ход летописи, которого в чате нет (history-analyzer.js):
+// стоит между сообщениями, перейти к нему некуда.
+const ссылка = (at) => Number.isInteger(at)
+  ? `<button type="button" class="hud-arc-ref" data-mes="${at}" title="Перейти к сообщению">#${at}</button>`
+  : `<span class="hud-arc-ref is-chron" title="Ход из летописи — в этом чате такого сообщения нет">летопись${at > 0 ? ', после #' + Math.floor(at) : ''}</span>`;
 
 const ЯРЛЫКИ_СТАТУСА = {
   unknown: 'никто не знает', suspected: 'подозревают', partial: 'знают частично',
@@ -126,10 +131,11 @@ function вкладкаСтатистики(отчёт) {
   const доля = s.totalMessages ? Math.round(s.withHud / s.totalMessages * 100) : 0;
   const плитки = [
     плитка(s.totalMessages, 'сообщений в отрезке'),
-    плитка(s.withHud, 'из них с HUD', доля + '% отрезка'),
+    // Из летописи — HUD, вычищенные из сообщений (chronicle.js).
+    плитка(s.withHud, 'из них с HUD', доля + '% отрезка' + (s.fromChronicle ? ', ' + s.fromChronicle + ' — из летописи' : '') + (s.chronicleOnly ? ', ещё ' + s.chronicleOnly + ' — из летописи, которых в чате нет' : '')),
     плитка(s.brokenHud, 'битых блоков', s.brokenHud ? 'разобрать не удалось' : 'все разобрались'),
     плитка(s.uniqueCharacters, 'персонажей'),
-    плитка(s.storyDays === null ? '—' : s.storyDays, 'дней в сюжете', s.storyDays === null ? 'даты не разобрались' : ''),
+    плитка(s.storyDays === null ? '—' : s.storyDays, 'дней в сюжете', s.storyDays === null ? 'даты не разобрались' : (s.datesFromTags ? 'часть дат — из тега <time>' : '')),
     плитка(s.uniqueLocations, 'локаций', s.locationChanges + ' переходов'),
     плитка(s.moodChanges, 'смен настроения'),
     плитка(s.secretsTotal, 'секретов', s.secretsRevealedToSomeone + ' хоть кому-то известны'),
@@ -371,6 +377,10 @@ export function openArchiveDialog() {
           <button type="button" class="hud-arc-run">Анализировать</button>
         </div>
         <div class="hud-arc-progress" hidden><div class="hud-arc-bar"></div><span></span></div>
+        <div class="hud-arc-chron" title="Летопись — выжимки HUD, которые архив берёт, когда HUD вычищен из сообщений. Своя ведётся по копии чата всегда. Если HUD узнал чат не так или старые HUD остались в другом чате — выберите тот чат (или его летопись): HUD прочитает его файл, его ходы закроют пропуски своей, а ходы, которых здесь нет, архив добавит без дублей. Сам выбранный чат не меняется.">
+          <label>Летопись: своя + <select class="hud-arc-chron-sel"><option value="">ничего</option></select></label>
+          <small class="hud-arc-chron-info"></small>
+        </div>
       </div>
       <div class="hud-arc-tabs" hidden>
         <button type="button" class="active" data-tab="secrets">Секреты</button>
@@ -532,11 +542,70 @@ export function openArchiveDialog() {
     const сохранён = await writeCache(a, b, отчёт);
     мета.textContent = `сообщений с HUD: ${отчёт.stats.withHud} из ${отчёт.stats.totalMessages}`
       + (отчёт.stats.brokenHud ? ` · битых: ${отчёт.stats.brokenHud}` : '')
+      + (отчёт.stats.fromChronicle ? ` · из летописи: ${отчёт.stats.fromChronicle}` : '')
+      + (отчёт.stats.chronicleOnly ? ` · вне чата: ${отчёт.stats.chronicleOnly}` : '')
       + (сохранён ? '' : ' · кэш не поместился');
     $('.hud-arc-export').disabled = false;
     показать();
   };
   $('.hud-arc-run').addEventListener('click', () => запустить(true));
+
+  // --- Летопись: своя и добавленная к ней вручную (chronicle-store.js) ---
+  const выборЛетописи = $('.hud-arc-chron-sel');
+  const инфоЛетописи = $('.hud-arc-chron-info');
+  const ctxЛ = () => window.SillyTavern?.getContext?.();
+  const диапазонДат = (л) => л.с ? ' · ' + л.с + (л.по && л.по !== л.с ? ' – ' + л.по : '') : '';
+  const показатьСовпадения = async () => {
+    const c = ctxЛ(), доп = выбраннаяЛетопись(c);
+    if (!доп) {
+      const { совпало } = await совпаденийСЧатом(свойФайлЛетописи(c));
+      инфоЛетописи.textContent = совпало ? `своя совпадает с сообщениями чата: ${совпало}` : 'в своей пока нет ходов этого чата';
+      return;
+    }
+    const { совпало, новых, вне } = await совпаденийСЧатом(доп);
+    инфоЛетописи.textContent = `совпадает с сообщениями чата: ${совпало}, из них нет в своей: ${новых}`
+      + (вне ? `; ходов, которых в чате нет: ${вне} — архив добавит их без дублей` : '');
+  };
+  // В списке — чаты персонажа (их файл HUD прочитает сам) и летописи из
+  // указателя, у которых здесь нет чата. Значение: «chat:<id>» или «chron:<файл>».
+  const заполнитьСписок = async () => {
+    const c = ctxЛ();
+    const своя = свойФайлЛетописи(c), текущая = выбраннаяЛетопись(c);
+    const идЧата = String((typeof c?.getCurrentChatId === 'function' && c.getCurrentChatId()) || '');
+    const [список, чаты] = await Promise.all([списокЛетописей(), чатыПерсонажа().catch(() => [])]);
+    const поФайлу = new Map(список.map(л => [л.файл, л]));
+    const моя = поФайлу.get(своя);
+    const летописьЧата = (л) => л ? ` · летопись: ${л.ходов || 0} ход.${диапазонДат(л)}` : '';
+    const другиеЧаты = чаты.filter(ч => ч.id !== идЧата);
+    const опцииЧатов = другиеЧаты.map(ч => `<option value="chat:${escapeHtml(ч.id)}">${escapeHtml(ч.id)} · ${ч.сообщений} сообщ.${ч.летопись === своя ? ' · копия этого чата' : escapeHtml(летописьЧата(поФайлу.get(ч.летопись)))}</option>`).join('');
+    const уЧатов = new Set(чаты.map(ч => ч.летопись));
+    const чужие = список.filter(л => л.файл !== своя && !уЧатов.has(л.файл));
+    if (текущая && !уЧатов.has(текущая) && !чужие.some(л => л.файл === текущая)) чужие.unshift({ файл: текущая });
+    const опцииЛетописей = чужие.map(л => `<option value="chron:${escapeHtml(л.файл)}">${escapeHtml(`${л.чат || л.файл}${л.персонаж ? ' — ' + имяБезПриставки(л.персонаж) : ''} · ${л.ходов || 0} ход.${диапазонДат(л)}`)}</option>`).join('');
+    выборЛетописи.innerHTML = `<option value="">ничего${моя ? ` (своя: ${моя.ходов || 0} ход.${диапазонДат(моя)})` : ''}</option>`
+      + (опцииЧатов ? `<optgroup label="Чаты персонажа">${опцииЧатов}</optgroup>` : '')
+      + (опцииЛетописей ? `<optgroup label="Другие летописи">${опцииЛетописей}</optgroup>` : '');
+    const выбранныйЧат = текущая && другиеЧаты.find(ч => ч.летопись === текущая);
+    выборЛетописи.value = выбранныйЧат ? 'chat:' + выбранныйЧат.id : (текущая ? 'chron:' + текущая : '');
+    await показатьСовпадения();
+  };
+  заполнитьСписок().catch(e => { инфоЛетописи.textContent = 'список летописей не загрузился'; console.warn('[TavernOS HUD] летописи', e); });
+  выборЛетописи.addEventListener('change', async () => {
+    const v = выборЛетописи.value;
+    выборЛетописи.disabled = true;
+    try {
+      if (v.startsWith('chat:')) {
+        инфоЛетописи.textContent = 'читаю чат…';
+        const итог = await летописьИзЧата(v.slice(5), (i, n) => { инфоЛетописи.textContent = `читаю чат: ${i} из ${n}`; });
+        await выбратьЛетопись(итог.файл);
+      } else await выбратьЛетопись(v.startsWith('chron:') ? v.slice(6) : null);
+      await заполнитьСписок();
+    } catch (e) {
+      инфоЛетописи.textContent = 'не получилось: ' + (e && e.message || e);
+      console.warn('[TavernOS HUD] летопись из чата', e);
+    } finally { выборЛетописи.disabled = false; }
+    if (отчёт) запустить(false);
+  });
 
   // --- Экспорт ---
   $('.hud-arc-export').addEventListener('click', () => {

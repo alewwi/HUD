@@ -14,15 +14,15 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.64.2';
-import { проставитьДень } from './msg-feed.js?v=23.64.2';
-import { normalizeJSONData } from '../schema.js?v=23.64.2';
-import { settings } from '../settings.js?v=23.64.2';
-import { статусРужья } from '../codes.js?v=23.64.2';
-import { extractHudBlock } from '../hud-block.js?v=23.64.2';
-import { namesLikelySame } from '../names.js?v=23.64.2';
-import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.64.2';
-import { readParsed, writeParsed } from '../store.js?v=23.64.2';
+import { parseHUDComplex } from '../hud-parser.js?v=23.67.0';
+import { проставитьДень } from './msg-feed.js?v=23.67.0';
+import { normalizeJSONData } from '../schema.js?v=23.67.0';
+import { settings } from '../settings.js?v=23.67.0';
+import { статусРужья } from '../codes.js?v=23.67.0';
+import { extractHudBlock } from '../hud-block.js?v=23.67.0';
+import { namesLikelySame } from '../names.js?v=23.67.0';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.67.0';
+import { readParsed, writeParsed } from '../store.js?v=23.67.0';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -563,15 +563,32 @@ export function mergeCarryOver(data, messageElement) {
   const начало = Math.max(0, индекс - ходов);
   let былиПрошлые = false;
   const воспоминания = new Map();
+  // Маршрут и истории настроений — за тот же день, что и текущий ход: модель
+  // видит в снимке только их хвост (hud-snapshot.js, ХВОСТ_ИСТОРИИ) и пишет
+  // хвост с новым, а день целиком собирается здесь.
+  const деньХода = текст(data.scene && data.scene['Дата']);
+  const день = { route: { user: [], char: [] }, mood: { user: [], char: [] } };
+  const копитьДень = (ход) => {
+    if (!деньХода || текст(ход.scene && ход.scene['Дата']) !== деньХода) return;
+    const пам = ход.memory || {};
+    for (const кто of ['user', 'char']) {
+      const путь = пам.route && пам.route[кто];
+      if (Array.isArray(путь)) день.route[кто] = склеитьСтроки(день.route[кто], путь, МАРШРУТ, { поВремени: true });
+      const ист = пам.mood && пам.mood[кто] && пам.mood[кто].history;
+      if (Array.isArray(ист)) день.mood[кто] = склеитьСтроки(день.mood[кто], ист, НАСТРОЕНИЙ, { поВремени: true });
+    }
+  };
   for (let i = начало; i < индекс && i < chat.length; i++) {
     const прошлый = разобратьХод(chat[i]);
     if (!прошлый) continue;
     былиПрошлые = true;
     наложить(накоплено, прошлый, предел, пределСообщений);
     копитьВоспоминания(воспоминания, прошлый);
+    копитьДень(прошлый);
   }
   if (!былиПрошлые) return data;
   копитьВоспоминания(воспоминания, data);
+  копитьДень(data);
 
   // Текущий ход кладём последним: его значения главнее.
   наложить(накоплено, data, предел, пределСообщений);
@@ -585,6 +602,16 @@ export function mergeCarryOver(data, messageElement) {
   итог.memory = { ...(data.memory || {}) };
   for (const поле of ['timeline', 'important', 'secrets', 'guns']) {
     if (накоплено.memory[поле].length) итог.memory[поле] = накоплено.memory[поле];
+  }
+  const пам = data.memory || {};
+  // Маршрут и смены настроения дня: длиннее присланного — значит, модель
+  // писала хвост; подменяем, сохраняя её «сейчас».
+  for (const кто of ['user', 'char']) {
+    const путь = пам.route && пам.route[кто];
+    if (день.route[кто].length > (Array.isArray(путь) ? путь.length : 0)) итог.memory.route = { ...(итог.memory.route || пам.route || {}), [кто]: день.route[кто] };
+    const наст = пам.mood && пам.mood[кто];
+    const ист = наст && наст.history;
+    if (наст && день.mood[кто].length > (Array.isArray(ист) ? ист.length : 0)) итог.memory.mood = { ...(итог.memory.mood || пам.mood), [кто]: { ...наст, history: день.mood[кто] } };
   }
   итог.phone = { ...(data.phone || {}) };
   for (const поле of ['contacts', 'notes', 'gallery', 'maps', 'calendar', 'search', 'callLog', 'healthLog']) {
@@ -610,6 +637,10 @@ export function mergeCarryOver(data, messageElement) {
   return итог;
 }
 
+// Столько, сколько просит схема: маршрут до 20 строк, смены настроения до 12.
+const МАРШРУТ = 20;
+const НАСТРОЕНИЙ = 12;
+
 // --- Общие воспоминания: копятся по ходам ----------------------------------
 // Эпизоды через «;». Почти тот же эпизод в новой формулировке («Семь суток
 // пустого взгляда Софи за столом и…» каждый ход) — одно воспоминание: место
@@ -634,6 +665,29 @@ export function дополнитьВоспоминанияСнимка(сним�
     if (!c || typeof c !== 'object' || !c.N) continue;
     const свои = [...карта.entries()].find(([к]) => namesLikelySame(к, String(c.N)));
     if (свои && свои[1].length > 1) c.Mm = свои[1].slice(-6).join('; ');
+  }
+  return снимок;
+}
+/**
+ * Снимок для модели: у тех, кто в прошлом HUD был записан коротко (вне сцены,
+ * без внешности), — прежняя карточка из последнего хода, где они были целиком.
+ * Остались вне сцены — строкаСнимка уберёт её снова; вошли в сцену — модель
+ * видит, как они выглядят и что при них, и не выдумывает заново.
+ */
+export function дополнитьКарточкиСнимка(снимок, chat) {
+  if (!снимок || !Array.isArray(снимок.cs) || !Array.isArray(chat)) return снимок;
+  const нужно = снимок.cs.filter(c => c && typeof c === 'object' && c.N && пустоЗначение(c.Ap));
+  if (!нужно.length) return снимок;
+  const ждут = new Set(нужно);
+  for (let j = chat.length - 1; j >= 0 && j >= chat.length - ГЛУБИНА_КАРТОЧКИ && ждут.size; j--) {
+    const ход = чертыХода(chat[j]);
+    if (!ход) continue;
+    for (const c of [...ждут]) {
+      const запись = ход.find(з => namesLikelySame(з.имя, String(c.N)) && з.поля['Внешность'] !== undefined);
+      if (!запись) continue;
+      for (const [код, поле] of Object.entries(КАРТОЧКА)) if (пустоЗначение(c[код]) && запись.поля[поле] !== undefined) c[код] = запись.поля[поле];
+      ждут.delete(c);
+    }
   }
   return снимок;
 }
@@ -663,8 +717,35 @@ function копитьВоспоминания(карта, ход) {
 // сообщения без этих ключей отсеиваем простой проверкой текста, без разбора.
 
 const УСТОЙЧИВЫЕ = ['Кинк', 'Фетиш', 'Никогда не сделает', 'Не возбуждает', 'Последний секс', 'Количество партнеров', 'Регулярность секса'];
-const ЕСТЬ_ЧЕРТЫ = /"(?:Kn|Ft|NG|NT|SxL|SxC|SxR|Kink|Fet|NoGo|NoTurn|SexLast|SexCount|SexReg)"|Кинк|Фетиш|Никогда не сделает|Не возбуждает|Последний секс|Количество партнеров|Регулярность секса/;
+const ЕСТЬ_ЧЕРТЫ = /"(?:Kn|Ft|NG|NT|SxL|SxC|SxR|Kink|Fet|NoGo|NoTurn|SexLast|SexCount|SexReg|Ap)"|Кинк|Фетиш|Никогда не сделает|Не возбуждает|Последний секс|Количество партнеров|Регулярность секса|Внешность/;
 const ГЛУБИНА_ЧЕРТ = 300;
+// Карточка того, кто вне сцены (hud-snapshot.js, ВНЕ_СЦЕНЫ_БЕЗ): модель пишет
+// его коротко — без внешности, одежды, вещей, реплик, страхов и отметин. Такую
+// запись видно по отсутствию внешности; остальное берём из последнего хода,
+// где он был целиком. Глубина — как у переноса: прежняя карточка недавняя.
+// Общие воспоминания копит перенос (копитьВоспоминания), мысли, ожидание и
+// подтекст — свежие каждого хода, их не возвращаем.
+const КАРТОЧКА = { Ap: 'Внешность', C: 'Одежда', I: 'Инвентарь', Ln: 'Реплики', Fr: 'Страхи', Mrk: 'Следы на теле' };
+const ПОЛЯ_КАРТОЧКИ = Object.values(КАРТОЧКА);
+const ГЛУБИНА_КАРТОЧКИ = 40;
+const короткаяЗапись = (c) => c && пустоЗначение(c['Внешность']);
+// Запись вне сцены целиком — без внешности и без одежды: по ней карточка
+// ставит пометку «вне сцены». Одной пропущенной внешности мало — модель
+// забывает её и у тех, кто в кадре.
+const записьВнеСцены = (c) => короткаяЗапись(c) && пустоЗначение(c['Одежда']);
+// Пометка для карточки (character.js): вне сцены и какие поля взяты из
+// прошлых ходов. Неперечисляемая — другие виды перебирают поля персонажа и
+// не должны её видеть.
+function пометитьВнеСцены(data, вернули = new Map()) {
+  if (!data || !Array.isArray(data.characters) || !data.characters.some(записьВнеСцены)) return data;
+  const characters = data.characters.map((c, i) => {
+    if (!записьВнеСцены(c)) return c;
+    const копия = { ...c, ...(вернули.get(i) || {}) };
+    Object.defineProperty(копия, '__вне', { value: { поля: Object.keys(вернули.get(i) || {}).filter(п => ПОЛЯ_КАРТОЧКИ.includes(п)) }, enumerable: false });
+    return копия;
+  });
+  return { ...data, characters };
+}
 // «dt: …; pr: …; en: …» без «ak» — короткая запись вне сцены.
 const частиИстории = (v) => текст(Array.isArray(v) ? v.join('; ') : v).split(';').map(s => s.trim()).filter(Boolean);
 const короткаяИстория = (v) => { const ч = частиИстории(v); return ч.some(s => /^dt\s*[:：]/i.test(s)) && !ч.some(s => /^ak\s*[:：]/i.test(s)); };
@@ -689,7 +770,7 @@ function чертыХода(mes) {
   if (чертыУ.has(d)) return чертыУ.get(d);
   let out = (Array.isArray(d.characters) ? d.characters : []).map(c => ({
     имя: текст(c && c['Имя']),
-    поля: Object.fromEntries(УСТОЙЧИВЫЕ.filter(п => c && !пустоЗначение(c[п])).map(п => [п, c[п]])),
+    поля: Object.fromEntries(УСТОЙЧИВЫЕ.concat(короткаяЗапись(c) ? [] : ПОЛЯ_КАРТОЧКИ).filter(п => c && !пустоЗначение(c[п])).map(п => [п, c[п]])),
   })).filter(x => x.имя && Object.keys(x.поля).length);
   if (!out.length) out = null;
   чертыУ.set(d, out);
@@ -703,23 +784,28 @@ function чертыХода(mes) {
 export function вернутьЧерты(data, messageElement) {
   if (!data || !Array.isArray(data.characters) || !data.characters.length) return data;
   const индекс = Number(messageElement && messageElement.getAttribute('mesid'));
-  if (!Number.isInteger(индекс) || индекс <= 0) return data;
+  if (!Number.isInteger(индекс) || индекс <= 0) return пометитьВнеСцены(data);
   let chat = null;
   try {
     const ctx = window.SillyTavern && window.SillyTavern.getContext && window.SillyTavern.getContext();
     chat = ctx && Array.isArray(ctx.chat) ? ctx.chat : (Array.isArray(window.chat) ? window.chat : null);
   } catch (_) { chat = Array.isArray(window.chat) ? window.chat : null; }
-  if (!chat) return data;
+  if (!chat) return пометитьВнеСцены(data);
+  // Карточку того, кто вне сцены, дополнять прошлыми ходами — настройка
+  // awayFillFromPast; выключена — видно ровно то, что прислала модель.
+  const дополнятьВне = settings.awayFillFromPast !== false;
 
   // Вне сцены модель пишет «Последний секс» коротко — когда и с кем. Если
   // дата та же, что у полной записи раньше, показываем полную; новая дата —
   // значит, была новая встреча, и короткая запись правдивее старой.
   const нужно = data.characters
-    .map((c, i) => ({ i, имя: текст(c && c['Имя']), поля: УСТОЙЧИВЫЕ.filter(п => c && (пустоЗначение(c[п]) || (п === 'Последний секс' && короткаяИстория(c[п])))), найдено: {}, дата: c && датаИстории(c['Последний секс']) }))
+    .map((c, i) => ({ i, имя: текст(c && c['Имя']), поля: УСТОЙЧИВЫЕ.filter(п => c && (пустоЗначение(c[п]) || (п === 'Последний секс' && короткаяИстория(c[п])))).concat(короткаяЗапись(c) && дополнятьВне ? ПОЛЯ_КАРТОЧКИ.filter(п => пустоЗначение(c[п])) : []), найдено: {}, дата: c && датаИстории(c['Последний секс']) }))
     .filter(x => x.имя && x.поля.length);
-  if (!нужно.length) return data;
+  if (!нужно.length) return пометитьВнеСцены(data);
 
   for (let j = Math.min(индекс, chat.length) - 1; j >= 0 && j >= индекс - ГЛУБИНА_ЧЕРТ; j--) {
+    // Карточку ищем неглубоко: не нашлась — так и останется пустой.
+    if (j === индекс - ГЛУБИНА_КАРТОЧКИ - 1) for (const x of нужно) for (const п of ПОЛЯ_КАРТОЧКИ) if (x.поля.includes(п) && !(п in x.найдено)) x.найдено[п] = undefined;
     const ход = чертыХода(chat[j]);
     if (!ход) continue;
     for (const x of нужно) {
@@ -737,13 +823,17 @@ export function вернутьЧерты(data, messageElement) {
     }
     if (нужно.every(x => x.поля.every(п => п in x.найдено))) break;
   }
-  if (!нужно.some(x => Object.keys(x.найдено).length)) return data;
+  if (!нужно.some(x => Object.keys(x.найдено).length)) return пометитьВнеСцены(data);
   const characters = data.characters.slice();
+  const вернули = new Map();
   for (const x of нужно) {
     const найдено = Object.fromEntries(Object.entries(x.найдено).filter(([, v]) => v !== undefined));
-    if (Object.keys(найдено).length) characters[x.i] = { ...characters[x.i], ...найдено };
+    if (Object.keys(найдено).length) { characters[x.i] = { ...characters[x.i], ...найдено }; вернули.set(x.i, найдено); }
   }
-  return { ...data, characters };
+  // Пометку ставим по присланному моделью: вернув одежду, запись уже не
+  // выглядела бы короткой.
+  const помечено = пометитьВнеСцены(data, вернули);
+  return { ...data, characters: characters.map((c, i) => (помечено.characters[i] && помечено.characters[i].__вне ? помечено.characters[i] : c)) };
 }
 
 // Разбор хода нужен и истории близости: таймеру следов и графикам пульса.

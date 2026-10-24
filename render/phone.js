@@ -6,17 +6,18 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.64.2';
-import { settings } from '../settings.js?v=23.64.2';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.64.2';
-import { G_ICONS } from './icons.js?v=23.64.2';
-import { buildMessengerHTML } from './messenger.js?v=23.64.2';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.64.2';
-import { сортироватьЧаты } from './msg-feed.js?v=23.64.2';
-import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.64.2';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.67.0';
+import { settings } from '../settings.js?v=23.67.0';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.67.0';
+import { G_ICONS } from './icons.js?v=23.67.0';
+import { buildMessengerHTML } from './messenger.js?v=23.67.0';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.67.0';
+import { сортироватьЧаты } from './msg-feed.js?v=23.67.0';
+import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.67.0';
+import { buildCalendarApp } from './calendar.js?v=23.67.0';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.64.2';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.67.0';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -127,102 +128,10 @@ function buildWalletApp(wallet, owner) {
   </div>`;
 }
 
-// --- Календарь --------------------------------------------------------------
-const MONTHS_RU = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
-const MONTHS_NOM = ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'];
-
-// Дата сцены приходит в разном виде: «16.01.2025», «16.01», «ЧЕТВЕРГ, 16
-// ЯНВАРЯ 2025». Разбираем все три.
-export function parseDayMonth(str) {
-  const s = String(str || '').toLowerCase();
-  let m = s.match(/(\d{1,2})\s*[.\/-]\s*(\d{1,2})(?:\s*[.\/-]\s*(\d{2,4}))?/);
-  if (m) {
-    const y = m[3] ? (m[3].length === 2 ? 2000 + +m[3] : +m[3]) : null;
-    return { d: +m[1], mo: +m[2], y };
-  }
-  m = s.match(/(\d{1,2})\s+([а-яё]+)(?:\s+(\d{4}))?/);
-  if (m) {
-    const idx = MONTHS_RU.findIndex(name => m[2].startsWith(name.slice(0, 4)));
-    if (idx >= 0) return { d: +m[1], mo: idx + 1, y: m[3] ? +m[3] : null };
-  }
-  return null;
-}
-
-// владелец — хозяин телефона (или шкатулки): в календаре только ЕГО расписание.
-// Чужие дела в своём телефоне человек не видит. Не нашли хозяина среди героев
-// — расписаний нет, остаются события календаря (phn.cl).
-export function buildCalendarApp(events, characters, sceneDate, владелец = null) {
-  const list = [];
-  (Array.isArray(events) ? events : []).forEach(e => {
-    const dm = parseDayMonth(e.date);
-    if (!dm) return;
-    const kind = String(e.kind || '').toLowerCase();
-    list.push({ ...dm, title: e.title || '', time: e.time || '',
-      kind: /birth|день рожд/.test(kind) ? 'birthday' : /holiday|праздн|фестив/.test(kind) ? 'holiday' : 'event' });
-  });
-
-  // Расписание хозяина: пункты со временем чч:мм ложатся на дату сцены.
-  const today = parseDayMonth(sceneDate);
-  const чьё = (Array.isArray(characters) ? characters : []).filter(ch => ch && (владелец === null || (ch['Имя'] && namesLikelySame(ch['Имя'], владелец))));
-  if (today) {
-    чьё.forEach(ch => {
-      const raw = ch && (ch['Расписание'] || ch['расписание']);
-      if (!raw) return;
-      String(raw).split(/[;\n]/).map(x => x.trim()).filter(Boolean).forEach(item => {
-        const t = item.match(/\b(\d{1,2}:\d{2})\b/);
-        if (!t) return;
-        const title = item.replace(t[0], '').replace(/^[\s—–\-:.]+|[\s—–\-:.]+$/g, '') || 'Дело';
-        // Своё расписание — без имени: «Ричард: встреча» в своём же телефоне лишнее.
-        const who = владелец === null && ch['Имя'] ? String(ch['Имя']).split(' ')[0] + ': ' : '';
-        list.push({ d: today.d, mo: today.mo, y: today.y, title: who + title, time: t[1], kind: 'plan' });
-      });
-    });
-  }
-
-  const base = today || (list.length ? { d: list[0].d, mo: list[0].mo, y: list[0].y } : null);
-  if (!base) return emptyApp(G_ICONS.cal, 'В календаре пока пусто');
-  const year = base.y || new Date().getFullYear();
-  const month = base.mo;
-
-  // События этого месяца, разложенные по числам.
-  const byDay = new Map();
-  list.forEach(e => {
-    if (e.mo !== month) return;
-    if (e.y && base.y && e.y !== base.y) return;
-    if (!byDay.has(e.d)) byDay.set(e.d, []);
-    byDay.get(e.d).push(e);
-  });
-
-  const daysInMonth = new Date(year, month, 0).getDate();
-  // getDay(): 0 — воскресенье. Неделя начинается с понедельника.
-  const shift = (new Date(year, month - 1, 1).getDay() + 6) % 7;
-  let cells = '';
-  for (let i = 0; i < shift; i++) cells += '<span class="hud-cal-day is-empty"></span>';
-  for (let d = 1; d <= daysInMonth; d++) {
-    const evs = byDay.get(d) || [];
-    const kinds = [...new Set(evs.map(e => e.kind))];
-    const dots = kinds.map(k => `<i class="hud-cal-dot k-${k}"></i>`).join('');
-    const isToday = today && today.d === d;
-    cells += `<span class="hud-cal-day${isToday ? ' is-today' : ''}${evs.length ? ' has-ev' : ''}"${evs.length ? ` title="${escapeHtml(evs.map(e => (e.time ? e.time + ' ' : '') + e.title).join(' · '))}"` : ''}>
-      <b>${d}</b>${dots ? `<span class="hud-cal-dots">${dots}</span>` : ''}</span>`;
-  }
-
-  const agenda = [...byDay.keys()].sort((a, b) => a - b).map(d => {
-    const evs = byDay.get(d).slice().sort((a, b) => String(a.time).localeCompare(String(b.time)));
-    return `<div class="hud-cal-row${today && today.d === d ? ' is-today' : ''}">
-      <span class="hud-cal-row-day">${d} ${MONTHS_RU[month - 1]}</span>
-      <span class="hud-cal-row-items">${evs.map(e =>
-        `<span class="hud-cal-item k-${e.kind}">${e.time ? `<b>${escapeHtml(e.time)}</b> ` : ''}${defeatWI(escapeHtml(e.title))}</span>`).join('')}</span>
-    </div>`;
-  }).join('');
-
-  return `<div class="hud-cal">
-    <div class="hud-cal-head">${MONTHS_NOM[month - 1]} ${year}</div>
-    <div class="hud-cal-week"><span>Пн</span><span>Вт</span><span>Ср</span><span>Чт</span><span>Пт</span><span>Сб</span><span>Вс</span></div>
-    <div class="hud-cal-grid">${cells}</div>
-    ${agenda ? `<div class="hud-cal-agenda">${agenda}</div>` : '<div class="hud-cal-agenda hud-cal-empty">На этот месяц записей нет</div>'}
-  </div>`;
-}
+// --- Календарь ---------------------------------------------------------------
+// Живёт в render/calendar.js; отсюда его по-прежнему берёт альманах
+// (render/medieval.js).
+export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.67.0';
 
 // --- Экраны приложений ------------------------------------------------------
 // Каждый билдер получает свой кусок data.phone и возвращает внутренности
