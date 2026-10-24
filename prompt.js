@@ -5,10 +5,10 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.67.0';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.67.0';
-import { parseSceneDate } from './history-analyzer.js?v=23.67.0';
-import { возрастТочно } from './render/babies.js?v=23.67.0';
+import { settings } from './settings.js?v=23.75.0';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.75.0';
+import { parseSceneDate } from './history-analyzer.js?v=23.75.0';
+import { возрастТочно } from './render/babies.js?v=23.75.0';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -131,7 +131,7 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
   "Dt": "[date: day of the week and the full date with year, in the setting's own calendar]",
   "At": "[atmosphere: one short sensory phrase — a smell, sound or light that sets the scene]",
   "Md": "[mood: the overall emotional tone of the scene in a few words]"${повороты ? `,
-  "Tw": "[plot twist, ONLY on the turn when something genuinely unexpected changes the course of the story — otherwise omit: 'ttl: a short title; hap: what happened, one sentence; hnt: where it may lead; ton: good, bad or neutral']"` : ''}
+  "Tw": "[plot twist, ONLY on the turn when something genuinely unexpected changes the course of the story — otherwise omit: 'ttl: a short title; hap: what happened, one sentence; hnt: a compass, not a recap and not a plan — 1 to 3 directions the story could take from here, numbered «1) …; 2) …», each one sentence of who might do what; only what has NOT happened yet, never what hap or the reply already showed, never a settled fact. They are mere possibilities: the wind may blow somewhere else entirely, so never steer your story toward them, now or in later turns. E.g. «1) Софи может поехать и узнать, кто её ждёт; 2) или промолчать — и тогда письмо найдёт Тристан»; ton: good, bad or neutral']"` : ''}
  },
  "cs": [
   {

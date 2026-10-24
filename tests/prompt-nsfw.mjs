@@ -98,6 +98,7 @@ const новое = await globalThis.__prompt({ nsfw: false });
 проверить('состояние тела (Bs) и поворот (Tw) в схеме', /"Bs": "\[body state/.test(новое) && /"Tw": "\[plot twist, ONLY/.test(новое) && /"lv": "\[OPTIONAL needs/.test(новое));
 Object.assign(S.settings, { enableBodyState: false, enableTwists: false });
 const безНового = await globalThis.__prompt({ nsfw: false });
+проверить('поворот: «куда может повести» — компас, не пересказ: пронумерованные направления, лишь варианты, не подталкивать к ним', /hnt: a compass, not a recap and not a plan — 1 to 3 directions[^"]*numbered «1\) …; 2\) …»[^"]*NOT happened yet[^"]*mere possibilities: the wind may blow somewhere else entirely, so never steer your story toward them/.test(новое));
 проверить('выключены — полей Bs и Tw нет', !/"Bs":/.test(безНового) && !/"Tw":/.test(безНового));
 Object.assign(S.settings, { enableBodyState: true, enableTwists: true });
 console.log(`\nпроверок: ${проб}, провалов: ${провалов}`);

@@ -617,8 +617,8 @@ const settings = S.settings;
 }
 
 // --- Настройки ---------------------------------------------------------------
-проверить('настройки: рискованное выключено по умолчанию', ['containerQueries', 'lightFollowsTime', 'bodyDiaryHand', 'startingStyle', 'themeSwitchFade', 'cornerShape'].every(к => S.defaultSettings[к] === 'off') && S.defaultSettings.iconSet === 'emoji' && S.defaultSettings.silhouetteLook === 'neutral');
-проверить('кастомизация: раздел «Новое оформление» со всеми выключателями', ['autoAccentText', 'customDetailMode', 'containerQueries', 'iconSet', 'iconStyle', 'lightFollowsTime', 'silhouetteLook', 'bodyDiaryHand', 'startingStyle', 'themeSwitchFade', 'cornerShape'].every(к => css('customize.js').includes(`в('${к}'`)));
+проверить('настройки: рискованное выключено по умолчанию', ['containerQueries', 'lightFollowsTime', 'bodyDiaryHand', 'startingStyle', 'themeSwitchFade', 'cornerShape'].every(к => S.defaultSettings[к] === 'off') && S.defaultSettings.iconSet === 'header' && S.defaultSettings.silhouetteLook === 'neutral');
+проверить('кастомизация: раздел «Новое оформление» со всеми выключателями', ['autoAccentText', 'customDetailMode', 'containerQueries', 'iconStyle', 'lightFollowsTime', 'silhouetteLook', 'bodyDiaryHand', 'startingStyle', 'themeSwitchFade', 'cornerShape'].every(к => css('customize.js').includes(`в('${к}'`)));
 
 // --- Безопасность и скорость (аудит 2026-10-16) -------------------------------
 {
@@ -935,6 +935,98 @@ const settings = S.settings;
   const чисто = JSON.parse(HB.телоБезHUD(JSON.stringify({ messages: [{ role: 'assistant', content: сБлоком }, { role: 'assistant', content: '[HUD]\n```json\n{"sc":{"T":"1"}}\n```\n[/HUD]' }] })));
   проверить('чужой запрос: блоки [HUD] вырезаны, [HUD_SUMMARY] на месте', чисто.messages[0].content === 'Он ушёл.\n\n[HUD_SUMMARY] 21:00 · дома [/HUD_SUMMARY]' && чисто.messages[1].content === '…', JSON.stringify(чисто));
   проверить('чужой запрос без HUD — тело не трогаем', HB.телоБезHUD(JSON.stringify({ messages: [{ role: 'user', content: 'привет' }] })) === null);
+  {
+    // С заменой: на месте блока — сводка; прошлый блок виден следующей замене; упала — блок убран.
+    const вызовы = [];
+    const замена = (блок, прошлый) => { вызовы.push([/"T":"(\d+)/.exec(блок)[1], прошлый ? /"T":"(\d+)/.exec(прошлый)[1] : '']); if (блок.includes('"T":"3"')) throw new Error('битый'); return `[HUD_SUMMARY] T${/"T":"(\d+)/.exec(блок)[1]} [/HUD_SUMMARY]`; };
+    const б = (t) => '[HUD]\n```json\n{"sc":{"T":"' + t + '"}}\n```\n[/HUD]';
+    const св = JSON.parse(HB.телоБезHUD(JSON.stringify({ messages: [{ role: 'assistant', content: 'Утро.\n\n' + б(1) }, { role: 'assistant', content: б(2) + '\n\nВечер.' }, { role: 'assistant', content: 'Ночь. ' + б(3) }] }), замена));
+    проверить('чужой запрос: на месте [HUD] — сводка, по порядку и с прошлым блоком', св.messages[0].content === 'Утро.\n\n[HUD_SUMMARY] T1 [/HUD_SUMMARY]' && св.messages[1].content === '[HUD_SUMMARY] T2 [/HUD_SUMMARY]\n\nВечер.' && св.messages[2].content === 'Ночь.' && JSON.stringify(вызовы) === '[["1",""],["2","1"],["3","2"]]', JSON.stringify([св.messages, вызовы]));
+    // Связка с MemoryBooks: правило regex, отметка, маркеры → сводки.
+    const MB = await модуль('memorybooks-link.js');
+    const п = MB.правилоHUD();
+    const рег = new RegExp(п.findRegex.slice(1, п.findRegex.lastIndexOf('/')), п.findRegex.slice(п.findRegex.lastIndexOf('/') + 1));
+    const сообщ = (проза, t) => проза + '\n\n' + б(t);
+    const сцена = `Tristan: ${сообщ('Он закрыл дверь и долго смотрел на неё, не говоря ни слова.', 1)}\nСофи: ок\nTristan: ${сообщ('Утром кофе остыл, а она так и не вышла из комнаты, только шаги.', 2)}`;
+    const сМетками = сцена.replace(рег, п.replaceString);
+    проверить('MemoryBooks: правило выключено, блок [HUD] → метка, [HUD_SUMMARY] не трогает', п.disabled === true && Array.isArray(п.placement) && !п.placement.length && сМетками.split(MB.МЕТКА_HUD).length === 3 && !сМетками.includes('```json') && '[HUD_SUMMARY] x [/HUD_SUMMARY]'.replace(рег, '') === '[HUD_SUMMARY] x [/HUD_SUMMARY]');
+    const сПланом = '<plan>в конце — `[HUD] ... [/HUD]` с JSON</plan>\nОна ушла не оглядываясь, дверь хлопнула громко.\n\n' + б(5);
+    проверить('MemoryBooks: упоминание «[HUD]» в плане не съедает текст ответа', сПланом.replace(рег, п.replaceString) === '<plan>в конце — `[HUD] ... [/HUD]` с JSON</plan>\nОна ушла не оглядываясь, дверь хлопнула громко.\n\n' + MB.МЕТКА_HUD);
+    const чатMB = [{ mes: сообщ('Он закрыл дверь и долго смотрел на неё, не говоря ни слова.', 1) }, { is_user: true, mes: 'ок' }, { mes: сообщ('Утром кофе остыл, а она так и не вышла из комнаты, только шаги.', 2) }];
+    const пары = [];
+    const сводкиMB = MB.сводкиВместоМеток(сМетками, чатMB, (блок, прошлый) => { пары.push([/"T":"(\d)/.exec(блок)[1], прошлый ? /"T":"(\d)/.exec(прошлый)[1] : '']); return `[HUD_SUMMARY] T${/"T":"(\d)/.exec(блок)[1]} [/HUD_SUMMARY]`; });
+    проверить('MemoryBooks: метка → сводка своего сообщения, по тексту перед ней', сводкиMB.includes('ни слова.\n\n\n[HUD_SUMMARY] T1 [/HUD_SUMMARY]\n'.replace(/\n{3,}/g, '\n\n')) && сводкиMB.includes('[HUD_SUMMARY] T2 [/HUD_SUMMARY]') && !сводкиMB.includes(MB.МЕТКА_HUD) && JSON.stringify(пары) === '[["1",""],["2","1"]]', сводкиMB);
+    проверить('MemoryBooks: метку не узнать — убираем', MB.сводкиВместоМеток('Кто-то: не из этого чата совсем ' + MB.МЕТКА_HUD, чатMB, () => 'X') === 'Кто-то: не из этого чата совсем ');
+    const ext = { regex: [{ id: 'a', scriptName: 'чужое' }], STMemoryBooks: { moduleSettings: { useRegex: false, selectedRegexOutgoing: ['idx:0'] } } };
+    const ключ1 = MB.подключитьMemoryBooks(ext, '');
+    const ключ2 = MB.подключитьMemoryBooks(ext, ключ1);
+    const до = JSON.stringify(ext.STMemoryBooks.moduleSettings);
+    ext.regex.splice(0, 1); // правило выше удалили — номер сдвинулся
+    const ключ3 = MB.подключитьMemoryBooks(ext, ключ2);
+    проверить('MemoryBooks: правило заводится один раз, отметка ставится и поправляется при сдвиге', ключ1 === 'idx:1' && ключ2 === 'idx:1' && до === JSON.stringify({ useRegex: true, selectedRegexOutgoing: ['idx:0', 'idx:1'] }) && ключ3 === 'idx:0' && JSON.stringify(ext.STMemoryBooks.moduleSettings.selectedRegexOutgoing) === '["idx:0"]' && ext.regex.length === 1, JSON.stringify([ключ1, ключ2, ключ3, ext]));
+    const ext2 = { regex: [MB.правилоHUD(), { id: 'b' }], STMemoryBooks: { moduleSettings: { useRegex: true, selectedRegexOutgoing: ['idx:0', 'idx:1'] } } };
+    MB.отключитьMemoryBooks(ext2, 'idx:0');
+    проверить('MemoryBooks: выключение убирает правило и отметку, чужие отметки сдвигаются на место', ext2.regex.length === 1 && ext2.regex[0].id === 'b' && JSON.stringify(ext2.STMemoryBooks.moduleSettings.selectedRegexOutgoing) === '["idx:0"]');
+    {
+      // Настройки — каждая в своём разделе: блок по смыслу, «… в промпте» — у своей функции.
+      const су = css('settings-ui.js');
+      const разметка = су.slice(су.indexOf('wrapper.innerHTML'), су.indexOf('container.appendChild(wrapper)'));
+      const раздел = (заголовок) => { const i = разметка.indexOf(заголовок); let глубина = 0, j = i; for (; j < разметка.length; j++) { if (разметка.startsWith('`)}', j)) { if (--глубина === 0) break; } else if (разметка.startsWith(", `\n", j)) глубина++; } return разметка.slice(i, j); };
+      const где = { "('🔞 Близость'": ['hud-enable-intimacy-extras', 'hud-nsfw-prompt', 'hud-enable-tempo', 'hud-enable-sceneclock', 'hud-enable-underwear', 'hud-enable-heatmap'],
+        "('⚔️ Бой и споры'": ['hud-enable-combat', 'hud-combat-prompt', 'hud-enable-duel'],
+        "('🧺 Быт'": ['hud-enable-life', 'hud-life-to-model', 'hud-sleep-norm'],
+        "('🧠 Память и сюжет'": ['hud-enable-memory', 'hud-enable-guns', 'hud-enable-twists'],
+        "('💊 Тело и здоровье'": ['hud-enable-illness', 'hud-enable-bodystate', 'hud-enable-menstruation', 'hud-enable-pregnancy', 'hud-enable-babies'],
+        "('✨ Отображение'": ['hud-memory-max-height', 'hud-carry-over', 'hud-away-fill'],
+        "('🤖 Генерация'": ['hud-auto-inject', 'hud-snapshot', 'hud-away-short', 'hud-complete-check', 'hud-regen-profile'],
+        "('🔗 MemoryBooks'": ['hud-mb-link'] };
+      const мимо = Object.entries(где).flatMap(([з, ids]) => ids.filter(id => !раздел(з).includes("'" + id + "'") && !раздел(з).includes('"' + id + '"')).map(id => id + ' не в ' + з));
+      проверить('настройки: каждая в своём разделе', !мимо.length, мимо.join('; '));
+      // Сводка хода [HUD_SUMMARY] в тексте — карточкой; нажатие — полный HUD сообщения.
+      const SC = await модуль('render/summary-card.js');
+      const нов = SC.разобратьСводку('[HUD_SUMMARY] Понедельник, 25.10.2024 · 16:35 | вечер · промозглый речной туман, сумерки | Brandon Kane — Колдуэлл-Холл, коридор; Leila — комната 308 | Событие: 16:32 - Брэндон видит шрамы | Новое: сработало: письмо | Одежда: Brandon Kane: пальто; Софи: худи [/HUD_SUMMARY]');
+      проверить('сводка: новый формат — дата, время, сутки, погода, люди, событие, новое, одежда', нов.дата === 'Понедельник, 25.10.2024' && нов.время === '16:35' && нов.сутки === 'вечер' && нов.погода === 'промозглый речной туман, сумерки' && нов.люди.length === 2 && нов.люди[0].место === 'Колдуэлл-Холл, коридор' && нов.событие.startsWith('16:32') && нов.новое === 'сработало: письмо' && нов.одежда.length === 2 && !нов.прочее.length, JSON.stringify(нов));
+      const общ = SC.разобратьСводку('[HUD_SUMMARY] 07.11.2024 · 14:48 · пасмурно | Пентхаус Тристана: Tristan (гостиная), Брэндон (лифт) [/HUD_SUMMARY]');
+      проверить('сводка: люди в одном месте — место заголовком, у каждого своя точка', общ.люди.length === 1 && общ.люди[0].место === 'Пентхаус Тристана' && общ.люди[0].кто.map(ч => ч.имя + '/' + ч.точка).join() === 'Tristan/гостиная,Брэндон/лифт', JSON.stringify(общ.люди));
+      const стар = SC.разобратьСводку('[HUD_SUMMARY] Дата: Суббота, 09.11.2024. Время: 14:46 | День. Погода: +29°C, солнце, бриз. Tristan Kingsley (Возраст: 24, 08.01.2000, Место: Салон Escalade); Shini (Место: Диван рядом) [/HUD_SUMMARY]');
+      проверить('сводка: старый формат с метками «Дата: … Время: … Погода: … Имя (Место: …)»', стар.дата === 'Суббота, 09.11.2024' && стар.время === '14:46' && стар.сутки === 'День' && стар.погода === '+29°C, солнце, бриз' && стар.люди.map(г => г.кто[0].имя + '@' + г.место).join() === 'Tristan Kingsley@Салон Escalade,Shini@Диван рядом', JSON.stringify(стар));
+      проверить('сводка: событие — когда отдельно от текста', JSON.stringify(SC.разобратьСобытие('25.10, 16:32 - Брэндон видит шрамы')) === JSON.stringify({ когда: '16:32 · 25.10', время: '16:32', что: 'Брэндон видит шрамы' }) && SC.разобратьСобытие('без времени').что === 'без времени');
+      const сСобытием = SC.карточкаСводки('[HUD_SUMMARY] 25.10.2024 · 16:35 | Событие: 25.10, 16:32 - Брэндон видит шрамы [/HUD_SUMMARY]');
+      проверить('сводка: событие — блоком со значком, временем над текстом', сСобытием.includes('class="hud-sum-event"') && сСобытием.includes('<span class="hud-sum-event-when">Событие · 16:32 · 25.10</span><p>Брэндон видит шрамы</p>') && css('css/misc.css').includes('.hud-sum-event-ico'));
+      проверить('сводка: погода по словам — для значка', SC.видПогоды('густой мокрый снег') === 'weather-snow' && SC.видПогоды('промозглый речной туман') === 'weather-fog' && SC.видПогоды('пасмурный день') === 'weather-cloudy' && SC.видПогоды('ясно') === 'weather-clear');
+      const карт = SC.карточкаСводки('[HUD_SUMMARY] 25.10.2024 · 16:35 | Brandon — коридор [/HUD_SUMMARY]', true);
+      const безHUD = SC.карточкаСводки('[HUD_SUMMARY] 25.10.2024 · 16:35 | Brandon — коридор [/HUD_SUMMARY]', false);
+      проверить('сводка: с полным HUD в сообщении — кнопка «открыть полный HUD», без — просто карточка', карт.includes('class="hud-sum can-open"') && карт.includes('role="button"') && карт.includes('открыть полный HUD') && !безHUD.includes('can-open') && !безHUD.includes('открыть полный HUD'));
+      проверить('сводка: исходная строка хранится в карточке, текст сообщения не правится', карт.includes('data-raw="[HUD_SUMMARY] 25.10.2024 · 16:35 | Brandon — коридор [/HUD_SUMMARY]"') && !/\.mes\s*=|swipes\[/.test(css('render/summary-card.js')));
+      проверить('сводка: после разбора сообщения, по нажатию и Enter, с выключателем в «Отображении»', инд.includes("try { оформитьСводки(messageElement); }") && css('events.js').includes("e.target.closest('.hud-sum.can-open')") && раздел("('✨ Отображение'").includes("'hud-summary-cards'") && css('css/misc.css').includes('.hud-sum.can-open'));
+      // Значки свёрнутой шапки: рисунки по делу, эмодзи — по выбору.
+      const TI = await модуль('render/topbar-icons.js');
+      const { settings: настр } = await модуль('settings.js');
+      const конец = (svg, n) => [...svg.matchAll(/M12 12L([\d.]+) ([\d.]+)/g)][n].slice(1).map(Number);
+      const [чх, чу] = конец(TI.значокЧасов('09:00'), 0), [мх, му] = конец(TI.значокЧасов('09:00'), 1);
+      проверить('шапка: стрелки часов — на времени сцены (09:00)', Math.abs(чх - 7.4) < .1 && Math.abs(чу - 12) < .1 && Math.abs(мх - 12) < .1 && му < 6, [чх, чу, мх, му].join());
+      проверить('шапка: погода — по сцене и времени суток', TI.значокПогоды('weather-clear', 'phase-night').includes('M19.5 14.6') && TI.значокПогоды('weather-clear', 'phase-day').includes('r="4"') && /M8\.5 17l-1 3/.test(TI.значокПогоды('weather-rain')) && TI.значокПогоды('weather-cloudy', 'phase-night').includes('M11.4 6.2') && TI.значокПогоды('weather-fog').includes('M4 17.5h16'));
+      проверить('шапка: календарь — листок с отмеченным днём, без нечитаемого числа', TI.значокДаты().includes('fill="currentColor"') && !/<text/.test(TI.значокДаты()));
+      const было = настр.iconSet;
+      настр.iconSet = 'emoji';
+      const эмодзи = ['время', 'погода', 'дата', 'спросить', 'обновить', 'раскрыть', 'создать'].map(к => TI.меткаШапки(к)).join(' ');
+      настр.iconSet = 'header';
+      const рисунки = ['время', 'погода', 'дата', 'спросить', 'обновить', 'раскрыть', 'создать'].every(к => TI.меткаШапки(к).startsWith('<svg class="hud-ico hud-tb-ico'));
+      настр.iconSet = было;
+      проверить('шапка: «Эмодзи везде» — прежние эмодзи, иначе рисунки', эмодзи === '🕒 🌤️ 📅 ❓ 🔄 ▼ ➕' && рисунки, эмодзи);
+      const шапка = инд.slice(инд.indexOf('let subTags = [];'), инд.indexOf('<div class="hud-os-wrapper">'));
+      проверить('шапка: в разметке карточки эмодзи нет — только метки', !/[🕒🌤📅❓🔄▼]/u.test(шапка) && (шапка.match(/меткаШапки\('/g) || []).length === 6 && инд.includes("${меткаШапки('создать')} Создать HUD"));
+      проверить('значки: выбор в «Отображении», три варианта; в «Новом оформлении» дубля нет; разовый переход на рисунки в шапке', раздел("('✨ Отображение'").includes('data-key="iconSet"') && /value="emoji"[\s\S]*value="header"[\s\S]*value="svg"/.test(раздел("('✨ Отображение'")) && !css('customize.js').includes("в('iconSet'") && инд.includes("if (settings.iconSetHeaderMigration !== 1) {"));
+      const близость = раздел("('🔞 Близость'");
+      проверить('настройки: «Усиления» — не внутри подписи «Часть про близость»', !близость.includes('hud-adapt-prompt') && /🔞 Часть про близость:\s*<select id="hud-nsfw-prompt"/.test(близость));
+      // Раздел вырезан точно, а не до конца разметки: иначе проверка выше прошла бы зря.
+      const порядок = [...разметка.matchAll(/\$\{группа\('([^']+)'/g)].map(m => m[1]).join(' → ');
+      проверить('настройки: разделы по порядку — что показывает, как просит модель, вид, служебное', порядок === '🧩 Блоки HUD → 🤖 Генерация → 📚 Лорбуки → ✨ Отображение → 🖼️ Аватарки персонажей → ❓ Ассистент → 🎵 Музыка сцены → ⚡ Производительность → 🧹 Обслуживание', порядок);
+      проверить('настройки: в «Близости» нет боя, споров и быта', близость.length < 4000 && !['hud-enable-duel', 'hud-enable-combat', 'hud-enable-life', 'hud-sleep-norm'].some(id => близость.includes(id)), близость.length);
+    }
+    проверить('MemoryBooks: метки в чужом запросе — сводками; галка в настройках; сверка при загрузке', инд.includes('сводкиВместоМеток(t, чат, вСводку)') && css('settings-ui.js').includes("галка('hud-mb-link'") && инд.includes('сверитьMemoryBooks(); } catch'));
+    проверить('чужой запрос (MemoryBooks, саммари): сводка с одеждой вместо полного HUD', инд.includes("const вСводку = (блок, прошлый) => сводкаHUD(блок, прошлый, { одежда: true });") && инд.includes('телоБезHUD(исходное, вСводку)') && /if \(опции\.одежда\) \{[\s\S]{0,400}части\.push\(`Одежда: /.test(инд) && инд.includes('await прогретьРазборыСводки(блоки)'));
+  }
   проверить('билеты: подписка на GENERATE_AFTER_DATA и конец генерации', инд.includes('es.on(et.GENERATE_AFTER_DATA') && инд.includes('et.GENERATION_ENDED, et.GENERATION_STOPPED') && инд.includes('билетыГенерации.перехватчик(type)'));
 
   // Летопись: архив и дни сюжета переживают чистку HUD из сообщений.
@@ -1036,6 +1128,9 @@ const settings = S.settings;
     const указатель9 = сервер['hud-chronicle-index.json'] ? JSON.parse(сервер['hud-chronicle-index.json']) : null;
     проверить('летопись: чаты персонажа — с файлом летописи каждого', чаты9.length === 2 && чаты9[0].летопись === 'hud-chronicle-old9.json' && чаты9[0].сообщений === 3, JSON.stringify(чаты9));
     проверить('летопись: из файла чата — HUD его ходов, под его integrity и с его подписью', из9.файл === 'hud-chronicle-old9.json' && из9.ходов === 2 && записано9 && записано9.ходы.length === 2 && указатель9 && указатель9.летописи['hud-chronicle-old9.json'].чат === 'old 9', JSON.stringify([из9, указатель9]));
+    const арх = css('render/archive.js');
+    проверить('архив: пока ищутся чаты — список закрыт, «ищу чаты…» и кольцо; открыт только после загрузки', арх.includes('<select class="hud-arc-chron-sel" disabled><option value="">ищу чаты…</option></select>') && арх.includes('<i class="hud-arc-spin" aria-hidden="true"></i>ищу другие чаты персонажа и летописи…') && /const заполнитьСписок = async \(\) => \{\s*ищу\(/.test(арх) && /найдено других чатов[\s\S]{0,200}выборЛетописи\.disabled = false;\s*\};/.test(арх) && css('css/themes.css').includes('@keyframes hud-arc-spin'));
+    проверить('архив: без добавленной — «только своя», не «ничего»', арх.includes('<option value="">только своя') && !арх.includes('<option value="">ничего'));
     проверить('архив: в списке — чаты персонажа, чат читается при выборе', css('render/archive.js').includes('летописьИзЧата(') && css('render/archive.js').includes('Чаты персонажа'));
     проверить('архив: у хода вне чата — подпись «летопись», не ссылка', css('render/archive.js').includes('is-chron') && css('css/themes.css').includes('.hud-arc-ref.is-chron'));
   }
@@ -1152,6 +1247,16 @@ const settings = S.settings;
   проверить('дневник: «звериная осада», «раскаленная тьма», ocean_retreat — не «ровно»', тема('звериная осада') === 'control' && тема('раскаленная тьма') === 'angry' && тема('ocean_retreat') === 'peace');
   const брайль = D.buildDiaryHTML([{ author: 'А', time: '1', text: 'Я⠀бросил⠀всё', mood: 'panic' }], 'b', true);
   проверить('дневник: U+2800 вместо пробелов — обычными пробелами', брайль.includes('бросил всё') && !брайль.includes('⠀'));
+  {
+    // Почерки настроений — веб-шрифтами с кириллицей, без подгонки размера:
+    // системные шрифты Windows и Mac на телефоне подменялись и раздувались.
+    const dmCss = css('css/diary-moods.css').replace(/\/\*[\s\S]*?\*\//g, '');
+    const загружаемые = (css('css/base.css').match(/fonts\.googleapis\.com\/css2\?([^']+)/) || [, ''])[1].split('&').map(x => x.replace(/^family=/, '').replace(/\+/g, ' ')).filter(Boolean);
+    const почерки = [...dmCss.matchAll(/--hud-dm-font:\s*var\(--hud-dm-gate\)\s*'([^']+)'/g)].map(m => m[1]);
+    const чужие = почерки.filter(ш => !загружаемые.includes(ш) && ш !== 'Cascadia Mono');
+    проверить('дневник: почерки — загружаемые веб-шрифты с кириллицей', почерки.length >= 12 && !чужие.length, чужие.join(', '));
+    проверить('дневник: без подгонки размера и без шрифтов Windows и Mac', !/font-size-adjust|--hud-dm-adjust/.test(dmCss) && !/Ink Free|Segoe Script|Segoe Print|Bahnschrift|Chalkboard|Gabriola/.test(dmCss) && /calc\(var\(--hud-font-size-diary, 16px\) \* var\(--hud-dm-k, 1\)\) !important/.test(dmCss));
+  }
   const N = await модуль('names.js');
   проверить('сны: позиция имени — и транслитом', N.гдеУпомянут('Потом Тристан бежит', 'Tristan Kingsley') === 6 && N.гдеУпомянут('никого нет', 'Tristan Kingsley') === -1);
   проверить('сны: снится тому, кто назван первым, даже латиницей в списке', Dr.разобратьСон({ text: 'Тристан бежит по коридорам, на полу лежит Софи' }, ['Tristan Kingsley', 'Софи']).кто === 'Tristan Kingsley');
@@ -1171,6 +1276,179 @@ const settings = S.settings;
   проверить('сны: у каждого типа сна своё движение в облаках и на небе', ['nightmare', 'memory', 'wish', 'dream'].every(т => dv.includes(`.hud-dv-cloud.t-${т} .hud-dv-fx::before`) && dv.includes(`.hud-dv-sky.t-${т} .hud-dv-fx::before`)));
   проверить('сны: нажатие на сонник и облака оживляет их', css('events.js').includes('.hud-dv-catch, .hud-dv-cloud, .hud-dv-entry,') && css('events.js').includes("небо.classList.toggle('fx-active', небо.classList.toggle('is-clear'))"));
   проверить('дневник: в новых листах нет эмодзи', !/\p{Extended_Pictographic}/u.test(dm.replace(/\/\*[\s\S]*?\*\//g, '')));
+}
+
+// --- Музыка сцены (render/music.js) -----------------------------------------
+{
+  const M = await модуль('render/music.js');
+  const hud = (место, время, md, extra = {}) => ({ scene: { 'Время': время, 'Настроение': md, 'Дата': '12.10.2026', 'Погода': 'дождь' }, characters: [{ 'Имя': 'Лилиан', 'Место': место, ...extra }], user: {} });
+  const а = M.сценаИзHUD(hud('Квартира Лилиан, гостиная', '23:40', 'тревожное'), 'modern');
+  проверить('музыка: та же сцена другими словами — без нового запроса', M.чемОтличается(а, M.сценаИзHUD(hud('гостиная квартиры Лилиан', '23:55', 'напряжённое'), 'modern')) === '');
+  проверить('музыка: другое место — новая подборка', M.чемОтличается(а, M.сценаИзHUD(hud('Ночной клуб «Орбита»', '23:55', 'тревожное'), 'modern')) === 'сменилось место');
+  проверить('музыка: ночь, близость, бой, настроение, эпоха — поводы', M.чемОтличается(M.сценаИзHUD(hud('Кухня', '18:00', 'спокойное'), 'modern'), M.сценаИзHUD(hud('Кухня', '23:10', 'спокойное'), 'modern')) === 'наступила ночь'
+    && M.чемОтличается(а, M.сценаИзHUD(hud('Квартира Лилиан, гостиная', '23:40', 'тревожное', { 'Фаза близости': 'прелюдия' }), 'modern')) === 'началась близость'
+    && M.чемОтличается(а, M.сценаИзHUD({ ...hud('Квартира Лилиан, гостиная', '23:40', 'тревожное'), combat: { st: 'идёт бой' } }, 'modern')) === 'начался бой'
+    && M.чемОтличается(а, M.сценаИзHUD(hud('Квартира Лилиан', '23:40', 'весёлое, игривое'), 'modern')) === 'сменилось настроение'
+    && M.чемОтличается(а, M.сценаИзHUD(hud('Квартира Лилиан, гостиная', '23:40', 'тревожное'), 'medieval')) === 'сменилась эпоха');
+  проверить('музыка: «нет» в фазе близости — не близость', M.сценаИзHUD(hud('Кухня', '12:00', '', { 'Фаза близости': 'нет' })).близость === false);
+  const п = M.промптМузыки({ сцена: M.сценаИзHUD(hud('Таверна «Хромой гусь»', 'вечер', 'весёлое'), 'medieval'), проза: 'Бард взял лютню.', сколько: 6, средневековье: 'period' });
+  проверить('музыка: промпт — JSON, эпоха, запас треков, проза, без инструкции HUD', /ONLY one JSON/.test(п.system) && /medieval/.test(п.system) && /soundtrack: 9 tracks/.test(п.system) && п.user.includes('Бард взял лютню.') && п.user.includes('Таверна') && !/\[HUD\]/.test(п.system + п.user));
+  проверить('музыка: средневековье — киношный саундтрек по выбору', /film\/TV\/game scores/.test(M.промптМузыки({ сцена: M.сценаИзHUD(hud('Замок', 'ночь', ''), 'medieval'), средневековье: 'score' }).system));
+  const тики = '`'.repeat(3);
+  const ответ = M.разобратьОтвет('<think>хм</think>' + тики + 'json\n{"label":"дождливая ночь в машине","soundtrack":[{"artist":"Hans Zimmer","title":"Time","why":"тихое напряжение"},"Max Richter - On the Nature of Daylight",{"artist":"hans zimmer","title":"Time"}],"scene":{"source":"радио в машине","tracks":[{"artist":"The Weeknd","title":"Blinding Lights"}]},}\n' + тики);
+  проверить('музыка: ответ разбирается — строки, повторы, висячая запятая, think', ответ.label === 'дождливая ночь в машине' && ответ.soundtrack.length === 2 && ответ.soundtrack[1].a === 'Max Richter' && ответ.scene.src === 'радио в машине' && ответ.scene.tracks[0].t === 'Blinding Lights');
+  let брак = ''; try { M.разобратьОтвет('Вот вам музыка!'); } catch (e) { брак = e.message; }
+  проверить('музыка: ответ без JSON — понятная ошибка', /нет JSON/.test(брак));
+  const выдача = [{ artistName: 'Hans Zimmer', trackName: 'Time (Inception Soundtrack)', artworkUrl100: 'https://is1.mzstatic.com/x/100x100bb.jpg', trackViewUrl: 'https://music.apple.com/us/album/time/1' }, { artistName: 'Pink Floyd', trackName: 'Time' }];
+  const н = M.совпадение({ a: 'hans zimmer', t: 'Time' }, выдача);
+  проверить('музыка: сверка — исполнитель и название, обложка 200px', н && н.a === 'Hans Zimmer' && /200x200bb/.test(н.art) && н.url.startsWith('https://music.apple.com/'));
+  проверить('музыка: чужой «Time» не засчитан, выдуманный не найден', M.совпадение({ a: 'Pink Floyd', t: 'Time' }, [выдача[0]]) === null && M.совпадение({ a: 'Lunar Echo', t: 'Rain on Glass' }, выдача) === null);
+  проверить('музыка: ё и регистр не мешают', !!M.совпадение({ a: 'Сплин', t: 'Выхода нет' }, [{ artistName: 'СПЛИН', trackName: 'Выхода нет' }]));
+  const отбор = M.отобрать([{ a: '1', t: 'a', ok: true }, { a: '2', t: 'b', ok: false }, { a: '3', t: 'c', ok: true }, { a: '4', t: 'd', ok: null }, { a: '5', t: 'e', ok: true }, { a: '6', t: 'f', ok: true }], 4);
+  проверить('музыка: выдуманные отброшены, если найденных хватает', отбор.length === 4 && отбор.every(т => т.ok !== false));
+  проверить('музыка: найденных мало — выдуманные остаются с пометкой', M.отобрать([{ a: '1', t: 'a', ok: true }, { a: '2', t: 'b', ok: false }], 8).length === 2);
+
+  const м = { v: 1, swipe: 1, label: 'дождливая ночь в машине', why: 'сменилось место', soundtrack: [{ a: 'Hans Zimmer', t: 'Time', ok: true, art: 'https://is1.mzstatic.com/x/200x200bb.jpg', url: 'https://music.apple.com/us/album/time/1' }, { a: 'Lunar Echo', t: 'Rain <b>on</b> Glass', ok: false }], scene: { src: 'радио в машине', tracks: [{ a: 'The Weeknd', t: 'Blinding Lights', ok: true }] } };
+  const чат = [{ is_user: true, mes: 'привет' }, { mes: 'ход', swipe_id: 1, swipes: ['a', 'b'], extra: { hud_music: м } }, { mes: 'новый ход', swipe_id: 0, swipes: ['c'], extra: { hud_music: { ...м, swipe: 1 } } }];
+  проверить('музыка: подборка своя у каждого свайпа', M.музыкаХода(чат[1]) === м && M.музыкаХода(чат[2]) === null && M.музыкаХода({ swipe_id: 0, extra: {}, swipe_info: [{ extra: { hud_music: { ...м, swipe: 0 } } }] }).label === м.label);
+  const было = { enableMusic: settings.enableMusic, musicStyle: settings.musicStyle, era: settings.era, themePreset: settings.themePreset };
+  settings.enableMusic = false;
+  проверить('музыка: выключена — полосы нет', M.полосаМузыки(1, { chat: чат }) === '');
+  settings.enableMusic = true; settings.musicStyle = 'auto'; settings.era = 'modern'; settings.themePreset = 'noir';
+  const полоса = M.полосаМузыки(1, { chat: чат });
+  проверить('музыка: полоса — сейчас играет, метка, обе группы, ссылки', полоса.includes('Сейчас играет') && полоса.includes('hud-music is-vinyl') && полоса.includes('дождливая ночь в машине') && полоса.includes('Саундтрек') && полоса.includes('В сцене') && полоса.includes('радио в машине')
+    && полоса.includes('music.yandex.ru/search?text=Hans%20Zimmer%20Time') && полоса.includes('open.spotify.com/search/') && полоса.includes('youtube.com/results?search_query=') && полоса.includes('music.apple.com'));
+  проверить('музыка: ссылки открываются в новой вкладке без referrer', (полоса.match(/<a /g) || []).length === (полоса.match(/rel="noopener noreferrer"/g) || []).length);
+  проверить('музыка: имя трека экранировано, выдуманный помечен', полоса.includes('Rain &lt;b&gt;on&lt;/b&gt; Glass') && полоса.includes('не найден') && полоса.includes('is-unfound'));
+  проверить('музыка: без эмодзи', !/\p{Extended_Pictographic}/u.test(полоса));
+  проверить('музыка: пустая полоса только у последнего хода', M.полосаМузыки(2, { chat: чат }).includes('Подобрать музыку к сцене') && M.полосаМузыки(1, { chat: [...чат.slice(0, 1), { mes: 'x' }, { mes: 'y' }] }) === '');
+  settings.era = 'medieval';
+  проверить('музыка: средневековье — свиток', M.полосаМузыки(1, { chat: чат }).includes('hud-music is-scroll'));
+  settings.era = 'modern'; settings.themePreset = 'cyberpunk';
+  проверить('музыка: кассета у прочих тем', M.видПолосы() === 'cassette');
+  Object.assign(settings, было);
+
+  const mcБез = css('css/music.css').replace(/\/\*[\s\S]*?\*\//g, '');
+  проверить('музыка: наведение — только мышь', !/:hover/.test(mcБез.replace(/@media \(hover: hover\) and \(pointer: fine\) \{(?:[^{}]*\{[^}]*\})*[^}]*\}/g, '')));
+  const крутят = [...mcБез.matchAll(/([^{}]+)\{[^{}]*animation:\s*hud-music-(?:spin|bob)[^}]*\}/g)];
+  // Спиннеры загрузки крутятся всегда; кассета и пластинка — под мышью, в раскрытом и пока играет звук, включённый нажатием.
+  проверить('музыка: крутится только под мышью и в раскрытом', крутят.length >= 4 && крутят.every(([, с]) => /fx-active|:hover|hud-music-wait|hud-mphone-wait|is-playing|is-loading/.test(с)));
+  проверить('музыка: стили — по включённой музыке', css('css-loader.js').includes("['music', (s) => s.enableMusic === true]"));
+  проверить('музыка: полоса в карточке над вкладками, клики в events.js', css('index.js').includes("html += полосаМузыки(Number(renderTargetMes.getAttribute('mesid')))") && (css('events.js').match(/действиеМузыки\(e\)/g) || []).length === 2);
+  проверить('музыка: запрос без инструкции HUD', css('render/music.js').includes('window.__tavernOSHudSkipInject = (window.__tavernOSHudSkipInject || 0) + 1'));
+  // Подбор по частям: в запросе только запрошенное, отдельная «в сцене» обязательна.
+  const сцена_ = M.сценаИзHUD(hud('Бар «Синий час»', '22:10', 'тоскливое'), 'modern');
+  const тольСцена = M.промптМузыки({ сцена: сцена_, части: ['scene'] });
+  проверить('музыка: часть «в сцене» — без саундтрека в запросе, треки обязательны', !/"soundtrack"/.test(тольСцена.system) && /"scene"/.test(тольСцена.system) && /always return 1-3 tracks/.test(тольСцена.system));
+  const тольСаунд = M.промптМузыки({ сцена: сцена_, части: ['soundtrack'] });
+  проверить('музыка: часть «саундтрек» — без музыки в сцене', /"soundtrack"/.test(тольСаунд.system) && !/"scene"/.test(тольСаунд.system));
+  const сТелефоном = M.промптМузыки({ сцена: сцена_, части: ['soundtrack', 'scene', 'phone'], телефон: { владелец: 'Тристан', о: 'age 24', прежние: ['Arctic Monkeys — 505'] } });
+  проверить('музыка: телефон — вкус владельца и его прежняя библиотека', /"phone"/.test(сТелефоном.system) && /what Тристан personally listens/.test(сТелефоном.system) && сТелефоном.user.includes('PHONE OWNER: Тристан (age 24)') && сТелефоном.user.includes('Arctic Monkeys — 505'));
+  проверить('музыка: без владельца телефона части «phone» нет', !/"phone"/.test(M.промптМузыки({ сцена: сцена_, части: ['phone', 'soundtrack'] }).system));
+  проверить('музыка: владелец телефона — явный, по перепискам, первый персонаж', M.владелецТелефона({ phone: { owner: 'Атлас' } }) === 'Атлас' && M.владелецТелефона({ chatsMap: { a: { owner: 'Брэндон' }, b: { owner: 'Брэндон' }, c: { owner: 'Лейла' } } }) === 'Брэндон' && M.владелецТелефона({ characters: [{ 'Имя': 'Тристан' }] }) === 'Тристан');
+  const тел = M.разобратьОтвет('{"label":"x","phone":{"tracks":[{"artist":"Arctic Monkeys","title":"505"}]}}');
+  проверить('музыка: ответ только с телефоном разбирается', тел.phone.tracks[0].t === '505' && !тел.soundtrack.length);
+  settings.enableMusic = true;
+  const пустая = M.полосаМузыки(2, { chat: [{ mes: 'a' }, { mes: 'b' }, { mes: 'c' }], открыта: true });
+  проверить('музыка: пустой плейлист — кнопки «Подобрать саундтрек» и «Подобрать музыку в сцене»', пустая.includes('data-part="soundtrack"') && пустая.includes('Подобрать саундтрек') && пустая.includes('data-part="scene"') && пустая.includes('Подобрать музыку в сцене') && пустая.includes('is-open') && пустая.includes('data-mu="open"'));
+  const половина = M.полосаМузыки(1, { chat: [{ mes: 'a' }, { mes: 'b', extra: { hud_music: { swipe: 0, label: 'бар', soundtrack: [{ a: 'Max Richter', t: 'Sarajevo', ok: true }], scene: null } } }] });
+  проверить('музыка: есть саундтрек, нет сцены — «заново» у саундтрека, «подобрать» у сцены', /data-mu="part" data-part="soundtrack"[^>]*><svg/.test(половина) && половина.includes('Подобрать музыку в сцене') && половина.includes('Подобрать всё заново'));
+  settings.enableMusic = было.enableMusic;
+  const md = await модуль('render/music-data.js');
+  const кр = md.музыкаДляЛетописи({ label: 'бар', why: 'сменилось место', from: 3, at: 1, сцена: { место: 'x' }, soundtrack: [{ a: 'A', t: 'B', ok: true, url: 'https://music.apple.com/x', why: 'длинно' }, { a: 'C', t: 'D', ok: false }], scene: null, phone: { owner: 'Т', tracks: [{ a: 'E', t: 'F' }] } });
+  проверить('музыка: в летописи кратко — без ссылок, времени и сцены, копия равна оригиналу', JSON.stringify(кр) === '{"label":"бар","soundtrack":[{"a":"A","t":"B"},{"a":"C","t":"D","ok":false}],"why":"сменилось место","phone":{"owner":"Т","tracks":[{"a":"E","t":"F"}]}}');
+  const Ch = await модуль('chronicle.js');
+  const мета = {};
+  const выж = (n, mu) => ({ ...Ch.выжимкаHUD({ scene: { 'Дата': '01.11.2024', 'Время': n } }, mu) });
+  Ch.дописатьЛетопись(мета, new Map([['1', выж('10:00', кр)], ['2', выж('10:05', кр)], ['3', выж('10:10', null)]]), ['1', '2', '3']);
+  const ходы = мета[Ch.КЛЮЧ_ЛЕТОПИСИ].ходы;
+  const прочли = Ch.прочитатьЛетопись(мета);
+  проверить('музыка: летопись хранит подборку один раз и читает её по ходам', 'mu' in ходы[0][1] && !('mu' in ходы[1][1]) && ходы[2][1].mu === null && прочли.get('2').music.label === 'бар' && !прочли.get('3').music);
+  // Телефон персонажа: что слушает он сам, с прежнего хода — если на этом нет.
+  const тч = [{ mes: 'a' }, { mes: 'b', extra: { hud_music: { swipe: 0, soundtrack: [], scene: null, phone: { owner: 'Тристан', tracks: [{ a: 'Arctic Monkeys', t: '505', art: 'https://is1.mzstatic.com/a/200x200bb.jpg', ok: true }, { a: 'Lana Del Rey', t: 'Video Games', ok: true }] } } } }, { mes: 'c' }];
+  const экран = M.приложениеМузыки(2, 'Тристан', { chat: тч });
+  проверить('музыка: телефон — последний трек крупно, «Недавно», ссылки, библиотека с прошлого хода', экран.includes('Последнее, что слушал(а) Тристан') && экран.includes('505') && экран.includes('Недавно') && экран.includes('Video Games') && экран.includes('music.yandex.ru') && экран.includes('библиотека с хода 2') && экран.includes('data-part="phone"'));
+  проверить('музыка: телефон пуст — кнопка «Подобрать музыку»', M.приложениеМузыки(0, 'Софи', { chat: [{ mes: 'a' }] }).includes('Подобрать музыку') && !/\p{Extended_Pictographic}/u.test(экран));
+  проверить('музыка: приложение в телефоне — плитка, значок, галка', css('render/phone.js').includes("id: 'music', icon: G_ICONS.music, label: 'Музыка'") && css('render/icons.js').includes('music:') && S.defaultSettings.phoneAppMusic === true && css('settings-ui.js').includes("['phoneAppMusic','🎵 Музыка']"));
+
+  // Архив: главы саундтрека по дням.
+  const A = await модуль('render/archive.js');
+  const отчётА = { soundtrack: [
+    { from: 3, to: 7, date: '31.10.2024', place: 'Особняк Регентов', label: 'морозная ночь самайна', why: 'сменилось место', soundtrack: [{ a: 'Hans Zimmer', t: 'Time' }], scene: { src: 'радио в гольф-каре', tracks: [{ a: 'Bobby Pickett', t: 'Monster Mash' }] }, phone: { owner: 'Тристан', tracks: [{ a: 'Arctic Monkeys', t: '505' }] } },
+    { from: 8, to: 8, date: '', place: 'Кухня', label: 'утро после', why: 'ночь прошла', soundtrack: [{ a: 'Nils Frahm', t: 'Says', ok: false }], scene: null, phone: null },
+  ], stats: { soundtrackTracks: 3 } };
+  const вкладка = A.вкладкаСаундтрека(отчётА, '');
+  проверить('архив: саундтрек — день, главы, ходы, сцена, телефон, ссылки', вкладка.includes('31.10.2024') && вкладка.includes('морозная ночь самайна') && вкладка.includes('data-mes="3"') && вкладка.includes('data-mes="7"') && вкладка.includes('радио в гольф-каре') && вкладка.includes('В телефоне у Тристан') && вкладка.includes('open.spotify.com') && (вкладка.match(/hud-arc-st-day/g) || []).length === 1);
+  проверить('архив: поиск по треку и старый отчёт без саундтрека', A.вкладкаСаундтрека(отчётА, 'says').includes('утро после') && !A.вкладкаСаундтрека(отчётА, 'says').includes('самайна') && A.вкладкаСаундтрека({}, '').includes('пересчитать'));
+  проверить('архив: вкладка «Саундтрек» в окне', css('render/archive.js').includes('data-tab="soundtrack">Саундтрек'));
+
+  // Анализатор: подряд одна подборка — одна глава; новая — новая глава.
+  const H = await модуль('history-analyzer.js');
+  const ход = (время, место, музыка) => ({ mes: '[HUD]{"sc":{"T":"' + время + '","Dt":"01.11.2024"},"cs":[{"N":"Тристан","L":"' + место + '"}]}[/HUD]', send_date: 'd' + время, extra: музыка ? { hud_music: { swipe: 0, ...музыка } } : {} });
+  const п1 = { label: 'бар', soundtrack: [{ a: 'A', t: 'B', ok: true }], scene: null };
+  const п2 = { label: 'дождь', soundtrack: [{ a: 'C', t: 'D', ok: true }], scene: null };
+  const стараяCtx = globalThis.SillyTavern.getContext;
+  globalThis.SillyTavern.getContext = () => ({ chat: [ход('20:00', 'Бар', п1), ход('20:10', 'Бар', { ...п1, from: 0 }), ход('21:00', 'Улица', п2), ход('21:30', 'Улица', null)], name1: 'Софи', name2: 'Тристан' });
+  let отчётH = null;
+  try { отчётH = await H.analyzeChat(0, 3); } catch (e) { отчётH = { ошибка: e.message }; }
+  globalThis.SillyTavern.getContext = стараяCtx;
+  проверить('архив: анализатор собирает главы саундтрека', отчётH && Array.isArray(отчётH.soundtrack) && отчётH.soundtrack.length === 2 && отчётH.soundtrack[0].from === 0 && отчётH.soundtrack[0].to === 1 && отчётH.soundtrack[1].label === 'дождь' && отчётH.stats.soundtrackChapters === 2 && отчётH.stats.soundtrackTracks === 2, JSON.stringify(отчётH && (отчётH.soundtrack || отчётH)).slice(0, 300));
+
+  // Промпт: вайб важнее жанра, песни со словами на равных.
+  const правило = M.промптМузыки({ сцена: сцена_, части: ['soundtrack'] }).system;
+  проверить('музыка: саундтрек — песни со словами на равных с инструменталом', /songs with vocals and instrumentals are equally welcome/.test(правило) && !/Prefer instrumental/.test(правило));
+  проверить('музыка: таймаут подборки — настройка, 0 — без таймера', S.defaultSettings.musicTimeout === 120 && css('render/music.js').includes('...(ждать ? [') && css('settings-ui.js').includes("число('hud-music-timeout', 0, 3600"));
+  // Плеер: отрывок из каталога, кнопки ▶ в полосе, у треков и в телефоне.
+  const сПревью = M.совпадение({ a: 'Hans Zimmer', t: 'Time' }, [{ artistName: 'Hans Zimmer', trackName: 'Time', previewUrl: 'https://audio-ssl.itunes.apple.com/x.m4a' }]);
+  const чужоеПревью = M.совпадение({ a: 'Hans Zimmer', t: 'Time' }, [{ artistName: 'Hans Zimmer', trackName: 'Time', previewUrl: 'https://evil.example/x.m4a' }]);
+  проверить('музыка: отрывок берётся только с серверов Apple', сПревью.pv === 'https://audio-ssl.itunes.apple.com/x.m4a' && чужоеПревью.pv === '');
+  settings.enableMusic = true; settings.musicPlayer = true;
+  const сИгрой = M.полосаМузыки(1, { chat: чат, открыта: true });
+  const телИгра = M.приложениеМузыки(2, 'Тристан', { chat: тч });
+  проверить('музыка: кнопки ▶ — в полосе, у каждого трека, в телефоне', /hud-music-play" data-mu="play" data-g="s" data-i="0"/.test(сИгрой) && (сИгрой.match(/class="hud-music-artplay[^"]*" data-mu="play"/g) || []).length === 3 && телИгра.includes('hud-mphone-bigplay') && телИгра.includes('data-g="p" data-i="1"') && сИгрой.includes('hud-music-prog'));
+  settings.musicPlayer = false;
+  проверить('музыка: плеер выключен — кнопок ▶ нет', !M.полосаМузыки(1, { chat: чат, открыта: true }).includes('data-mu="play"') && !M.приложениеМузыки(2, 'Тристан', { chat: тч }).includes('data-mu="play"'));
+  settings.musicPlayer = true; settings.enableMusic = было.enableMusic;
+  проверить('музыка: «сейчас играет» не сохраняет файл чата', !/now: \[группа === 'c' \? 'c' : 's', i\] \}\);\n  сохранитьЧат/.test(css('render/music.js')));
+  проверить('музыка: плеер — один звук, MoodTube на паузу, тишина при смене чата', css('render/music.js').includes('мт.togglePlayPause()') && css('render/music.js').includes('остановитьИгру(); обновитьСтрокуСцены();') && css('render/music.js').includes('navigator.mediaSession'));
+
+  проверить('музыка: полные треки — по выбору, по умолчанию отрывки', S.defaultSettings.musicSource === 'preview' && !M.полныйИсточник());
+  проверить('музыка: полный поток — только с серверов NetEase, 320 кбит/с, запасной отрывок', css('render/music.js').includes(String.raw`(?:126\.net|163\.com)`) && css('render/music.js').includes("br: '320'") && css('render/music.js').includes('игра.запасные && игра.запасные.length'));
+  // Свой промпт и контекст истории.
+  const своё = M.промптМузыки({ сцена: сцена_, части: ['soundtrack'], правила: '- Только русский рок 90-х.' });
+  проверить('музыка: свои правила вкуса заменяют встроенные, формат ответа остаётся', своё.system.includes('Только русский рок 90-х') && !своё.system.includes('equally welcome') && /ONLY one JSON/.test(своё.system) && /"soundtrack"/.test(своё.system));
+  проверить('музыка: пустые правила — встроенные', M.промптМузыки({ сцена: сцена_, правила: '  ' }).system.includes(M.ПРАВИЛА_МУЗЫКИ));
+  const сКонтекстом = M.промптМузыки({ сцена: сцена_, контекст: { сообщения: [{ name: 'Софи', text: 'Включи что-нибудь' }, { name: 'Тристан', text: 'Он поставил пластинку' }], карточка: { name: 'Тристан', text: 'Наследник, любит джаз' }, персона: 'Студентка-искусствовед', лор: [{ name: 'Мир', entries: ['В Кембридже дождь круглый год'] }] } }).user;
+  проверить('музыка: в запросе — сообщения по порядку, карточка, персона, лорбук', /RECENT STORY \(oldest first\):\n\[Софи\]: Включи что-нибудь\n\n\[Тристан\]: Он поставил пластинку/.test(сКонтекстом) && сКонтекстом.includes('CHARACTER CARD (Тристан):\nНаследник, любит джаз') && сКонтекстом.includes('PLAYER PERSONA:') && сКонтекстом.includes('LORE:\n- В Кембридже дождь круглый год'));
+  проверить('музыка: без сообщений — кусок последнего ответа, как раньше', M.промптМузыки({ сцена: сцена_, проза: 'Хлопнула дверь' }).user.includes('LAST STORY TEXT (excerpt):\nХлопнула дверь'));
+  проверить('музыка: настройки промпта и контекста по умолчанию', S.defaultSettings.musicPrompt === '' && S.defaultSettings.musicContextMessages === 1 && S.defaultSettings.musicIncludeCard === false && Array.isArray(S.defaultSettings.musicLorebooks) && css('settings-ui.js').includes("id=\"hud-music-prompt\"") && css('settings-ui.js').includes("id=\"hud-music-lorebooks\""));
+  // Поиск по сервисам: iTunes, затем NetEase и QQ; русские — сначала витрина России.
+  const шаги = (т) => M.шагиПоиска(т).map(([и]) => и).join(',');
+  проверить('музыка: поиск по очереди — iTunes, iTunes, NetEase, QQ', шаги({ a: 'Hans Zimmer', t: 'Time' }) === 'iTunes,iTunes,NetEase,QQ');
+  settings.musicSearchNetease = false; settings.musicSearchQQ = false;
+  проверить('музыка: NetEase и QQ выключаются', шаги({ a: 'A', t: 'B' }) === 'iTunes,iTunes');
+  delete settings.musicSearchNetease; delete settings.musicSearchQQ;
+  проверить('музыка: ссылки — и SoundCloud, страницы NetEase и QQ', M.ссылкиТрека({ a: 'A', t: 'B' }).includes('soundcloud.com/search/sounds?q=A%20B') && M.ссылкиТрека({ a: 'A', t: 'B', url: 'https://music.163.com/song?id=1' }).includes('>NetEase<') && M.ссылкиТрека({ a: 'A', t: 'B', url: 'https://y.qq.com/n/ryqq/songDetail/x' }).includes('>QQ<'));
+  проверить('музыка: источник «через MoodTube» — playQuery', css('render/music.js').includes("api.playQuery(т.a + ' - ' + т.t)") && css('settings-ui.js').includes('value="moodtube"'));
+
+  // YouTube через зеркала: выбор видео.
+  const выдачаYT = [
+    { videoId: 'aaaaaaaaaaa', title: 'Time - Hans Zimmer (Piano Cover)', author: 'Kyle Landry', lengthSeconds: 345 },
+    { videoId: 'bbbbbbbbbbb', title: 'Hans Zimmer - Time 1 HOUR', author: 'Loops', lengthSeconds: 3600 },
+    { videoId: 'ccccccccccc', title: 'Time', author: 'Hans Zimmer - Topic', lengthSeconds: 276 },
+    { videoId: 'ddddddddddd', title: 'Hans Zimmer - Time (Official Audio)', author: 'WaterTower Music', lengthSeconds: 275 },
+  ];
+  проверить('музыка: YouTube — сам релиз, а не кавер и не часовая версия', M.лучшееВидео({ a: 'Hans Zimmer', t: 'Time' }, выдачаYT) === 'ccccccccccc' && M.лучшееВидео({ a: 'Hans Zimmer', t: 'Time' }, выдачаYT.slice(0, 2)) === '');
+  проверить('музыка: YouTube — чужая песня с тем же названием не берётся', M.лучшееВидео({ a: 'Pink Floyd', t: 'Time' }, выдачаYT) === '');
+  проверить('музыка: источник «YouTube через зеркала» — звук через зеркало', S.defaultSettings.musicSource === 'preview' && css('settings-ui.js').includes('value="youtube"') && css('render/music.js').includes("itag: '140', local: 'true'") && css('render/music.js').includes('api.invidious.io/instances.json'));
+  // Громкость и число треков — в плейлисте, а не в настройках.
+  settings.enableMusic = true; settings.musicPlayer = true;
+  const сНастройками = M.полосаМузыки(1, { chat: чат, открыта: true });
+  проверить('музыка: в плейлисте — ползунок громкости и число треков', сНастройками.includes('data-mu-set="volume"') && /data-mu="count" data-d="-1"/.test(сНастройками) && /data-mu="count" data-d="1"/.test(сНастройками) && сНастройками.includes('hud-music-tune'));
+  settings.enableMusic = было.enableMusic;
+  проверить('музыка: громкость и число треков ушли из настроек расширения', !css('settings-ui.js').includes("число('hud-music-count'") && !css('settings-ui.js').includes("число('hud-music-volume'") && !css('settings-ui.js').includes("getElementById('hud-music-count')"));
+
+  проверить('музыка: по умолчанию выключена', S.defaultSettings.enableMusic === false && S.defaultSettings.musicSceneLine === false);
 }
 
 console.log(`\nпроверок: ${всего}, провалов: ${провалы.length}`);

@@ -93,7 +93,7 @@ const разметка = fs.readFileSync(path.join(КОРЕНЬ, 'customize.js')
 проверить('«Подробно»: склонение', D.подписьПодробно(1) === 'Подробно · 1 настройка' && D.подписьПодробно(3) === 'Подробно · 3 настройки' && D.подписьПодробно(11) === 'Подробно · 11 настроек' && D.подписьПодробно(72) === 'Подробно · 72 настройки' && D.подписьПодробно(65) === 'Подробно · 65 настроек');
 проверить('«Подробно»: плоский режим не раскладывает', D.разложитьПодробно({ querySelector: () => null }, { режим: 'flat' }) === null);
 const S = await модуль('settings.js');
-проверить('настройки волны 3: умолчания', S.defaultSettings.autoAccentText === 'on' && S.defaultSettings.customDetailMode === 'split' && S.defaultSettings.containerQueries === 'off' && S.defaultSettings.iconSet === 'emoji' && S.defaultSettings.lightFollowsTime === 'off' && S.defaultSettings.silhouetteLook === 'neutral' && S.defaultSettings.bodyDiaryHand === 'off');
+проверить('настройки волны 3: умолчания', S.defaultSettings.autoAccentText === 'on' && S.defaultSettings.customDetailMode === 'split' && S.defaultSettings.containerQueries === 'off' && S.defaultSettings.iconSet === 'header' && S.defaultSettings.lightFollowsTime === 'off' && S.defaultSettings.silhouetteLook === 'neutral' && S.defaultSettings.bodyDiaryHand === 'off');
 
 console.log(`\nпроверок: ${всего}, провалов: ${провалы.length}`);
 if (провалы.length) { console.log(провалы.map(п => ' ✗ ' + п).join('\n')); process.exitCode = 1; }

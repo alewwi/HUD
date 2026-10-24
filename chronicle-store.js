@@ -13,9 +13,10 @@
 // Пополняется сама: при открытии чата — фоном, по кусочку, все HUD, которых в
 // летописи ещё нет; после каждого ответа, свайпа и правки — последние ходы.
 
-import { прочитатьЛетопись, дописатьЛетопись, выжимкаHUD, ключСообщения, КЛЮЧ_ЛЕТОПИСИ } from './chronicle.js?v=23.67.0';
-import { extractHudBlock } from './hud-block.js?v=23.67.0';
-import { parseHUDComplex } from './hud-parser.js?v=23.67.0';
+import { прочитатьЛетопись, дописатьЛетопись, выжимкаHUD, ключСообщения, КЛЮЧ_ЛЕТОПИСИ } from './chronicle.js?v=23.75.0';
+import { extractHudBlock } from './hud-block.js?v=23.75.0';
+import { parseHUDComplex } from './hud-parser.js?v=23.75.0';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.75.0';
 
 const кэш = new Map();   // имя файла → { хранилище: { [КЛЮЧ_ЛЕТОПИСИ]: … }, карта, загрузка, таймер }
 const ctx = () => { try { return window.SillyTavern?.getContext?.() || null; } catch (_) { return null; } };
@@ -261,11 +262,11 @@ export async function дописатьВЛетопись(новые) {
 }
 
 const текстСообщения = (m) => String((m && (m.mes ?? m.message)) || '');
-/** Выжимка HUD сообщения или null (нет HUD, не разобрался). */
+/** Выжимка HUD сообщения (с музыкой хода, если она подобрана) или null. */
 export function выжимкаСообщения(m) {
   const блок = extractHudBlock(текстСообщения(m));
   if (!блок) return null;
-  try { return выжимкаHUD(parseHUDComplex(блок)); } catch (_) { return null; }
+  try { return выжимкаHUD(parseHUDComplex(блок), музыкаДляЛетописи(музыкаХода(m))); } catch (_) { return null; }
 }
 
 /**

@@ -45,8 +45,9 @@ function человек(c) {
 }
 
 /** Выжимка разобранного HUD (normalizeJSONData) — в той же форме, что его
- *  читает архив: scene, user, characters, memory.secrets, memory.guns. */
-export function выжимкаHUD(data) {
+ *  читает архив: scene, user, characters, memory.secrets, memory.guns.
+ *  музыка — краткая подборка хода (render/music-data.js), если она есть. */
+export function выжимкаHUD(data, музыка = null) {
   if (!data || typeof data !== 'object') return null;
   const sc = data.scene && typeof data.scene === 'object' ? data.scene : {};
   const scene = {};
@@ -72,13 +73,15 @@ export function выжимкаHUD(data) {
   if (user) выжимка.user = user;
   выжимка.characters = characters;
   выжимка.memory = { secrets, guns, mood };
+  if (музыка) выжимка.music = музыка;
   return выжимка;
 }
 
 // Части выжимки, которые хранятся разницей: меняется одна — пишется одна.
-const ЧАСТИ = { sc: (в) => в.scene, us: (в) => в.user || null, cs: (в) => в.characters, sec: (в) => в.memory.secrets, gun: (в) => в.memory.guns, md: (в) => в.memory.mood || {} };
+// Музыка (mu) одна на всю сцену — пишется, только когда сменилась подборка.
+const ЧАСТИ = { sc: (в) => в.scene, us: (в) => в.user || null, cs: (в) => в.characters, sec: (в) => в.memory.secrets, gun: (в) => в.memory.guns, md: (в) => в.memory.mood || {}, mu: (в) => в.music || null };
 function собрать(части) {
-  return { scene: части.sc || {}, ...(части.us ? { user: части.us } : {}), characters: части.cs || [], memory: { secrets: части.sec || [], guns: части.gun || [], mood: части.md || {} } };
+  return { scene: части.sc || {}, ...(части.us ? { user: части.us } : {}), characters: части.cs || [], memory: { secrets: части.sec || [], guns: части.gun || [], mood: части.md || {} }, ...(части.mu ? { music: части.mu } : {}) };
 }
 
 /** Летопись из метаданных чата: Map ключ → выжимка, в порядке ходов. */
@@ -129,7 +132,7 @@ export function дописатьЛетопись(meta, новые, порядо�
     const разница = {};
     for (const [имя, взять] of Object.entries(ЧАСТИ)) {
       const ч = взять(выж);
-      if (JSON.stringify(ч) !== JSON.stringify(прошлые[имя] ?? (имя === 'us' ? null : undefined))) разница[имя] = ч;
+      if (JSON.stringify(ч) !== JSON.stringify(прошлые[имя] ?? (имя === 'us' || имя === 'mu' ? null : undefined))) разница[имя] = ч;
       прошлые[имя] = ч;
     }
     ходы.push([к, разница]);

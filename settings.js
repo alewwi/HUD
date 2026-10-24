@@ -33,6 +33,7 @@ export const defaultSettings = {
   phoneAppCalls: true,
   phoneAppWeather: true,
   phoneAppHealth: true,
+  phoneAppMusic: true,
   // Эпоха снаряжения: 'modern' — телефон и перехваты, 'medieval' —
   // шкатулка (письма, святцы, кошель, записи, карта, грамоты, памятки) и
   // подслушанное. Вместе пары не работают: в средневековье телефонов нет.
@@ -204,6 +205,28 @@ export const defaultSettings = {
   assistantProfileId: '',
   assistantMaxTokens: 1500,
   assistantSystemPrompt: '',
+  // Музыка сцены (render/music.js): подборка отдельным запросом, полоса над
+  // вкладками. Выключена: запрос стоит денег, проверка ходит в iTunes.
+  enableMusic: false,
+  musicAuto: true,          // новая подборка при смене сцены; иначе только по кнопке
+  musicProfileId: '',
+  musicCount: 8,
+  musicTimeout: 120,
+  musicPlayer: true,        // встроенный плеер: 30-секундные отрывки iTunes
+  musicVolume: 70,
+  musicSource: 'preview',
+  musicSearchNetease: true, // искать треки и обложки ещё в NetEase и QQ (неофициальные посредники)
+  musicSearchQQ: true,
+  musicPrompt: '',          // правила вкуса; пусто — встроенные
+  musicContextMessages: 1,  // сколько последних сообщений уходит в запрос
+  musicIncludeCard: false,
+  musicIncludePersona: false,
+  musicLorebooks: [],
+  musicLoreAll: false,   // preview — отрывки iTunes; full — полные треки через неофициальный сервис        // сколько секунд ждать подборку; 0 — без таймера
+  musicVerify: true,        // сверять треки поиском iTunes (обложки, выдуманные)
+  musicSceneLine: false,    // «в сцене играет…» — модели одной строкой
+  musicMedieval: 'period',  // period — старинная музыка, score — киношный саундтрек
+  musicStyle: 'auto',       // auto | cassette | vinyl | scroll
   performanceMode: true, // Автоматическая оптимизация чатов от 200 сообщений
   // В Performance Mode карточка, уехавшая дальше полутора экранов, сворачивается
   // в заглушку своей высоты и собирается заново при возвращении.
@@ -241,6 +264,12 @@ export const defaultSettings = {
   // одежда, вещи, реплики, страхи, отметины — render/carryover.js).
   // Выключено — видно ровно то, что прислала модель.
   awayFillFromPast: true,
+  // MemoryBooks (memorybooks-link.js): выключенное правило regex Таверны
+  // ставит маркер на место блока HUD до его подсчёта размера сцены, HUD
+  // возвращает на место маркера сводку. Ключ — какую отметку («idx:N») HUD
+  // поставил в настройках MemoryBooks, чтобы поправить её, если номер сдвинется.
+  memoryBooksLink: false,
+  memoryBooksLinkKey: '',
   // Часть промта про близость: 'auto' — только когда сцена идёт или
   // начинается, 'always' — всегда, 'never' — никогда.
   nsfwPrompt: 'auto',
@@ -287,9 +316,15 @@ export const defaultSettings = {
   // Карточка подстраивается под свою ширину (container queries), а не только
   // под ширину окна: узкая колонка чата на широком мониторе.
   containerQueries: 'off',
-  // Значки: 'emoji' — как раньше; 'svg' — один набор SVG. iconStyle — рисунок
-  // набора: 'auto' (по теме) | 'line' | 'duotone' | 'pixel' | 'ink' | 'rounded'.
-  iconSet: 'emoji',
+  // Значки: 'emoji' — эмодзи везде; 'header' — рисунки в шапке свёрнутой
+  // карточки (время, погода, дата, кнопки), остальное эмодзи; 'svg' — рисунки
+  // везде. iconStyle — рисунок набора: 'auto' (по теме) | 'line' | 'duotone' |
+  // 'pixel' | 'ink' | 'rounded'.
+  iconSet: 'header',
+  iconSetHeaderMigration: 1,
+  // Сводки [HUD_SUMMARY] в тексте сообщений — карточкой (render/summary-card.js);
+  // нажатие раскрывает полный HUD сообщения, если он есть. Только вид.
+  summaryCards: true,
   iconStyle: 'auto',
   // Тень и блик карточки — от игрового времени сцены: 'off' | 'subtle' | 'full'.
   lightFollowsTime: 'off',

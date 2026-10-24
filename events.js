@@ -11,21 +11,23 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.67.0';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.67.0';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.67.0';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.67.0';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.67.0';
-import { settings, defaultSettings } from './settings.js?v=23.67.0';
-import { полныйПорядок } from './tabs-order.js?v=23.67.0';
-import { getWorldVotes } from './render/world.js?v=23.67.0';
-import { действиеМира } from './render/world-views.js?v=23.67.0';
-import { раскрытьПорцию } from './render/long-list.js?v=23.67.0';
-import { прогретьИсторию } from './render/carryover.js?v=23.67.0';
-import { подключитьПалитру } from './color-picker.js?v=23.67.0';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.67.0';
-import { замер } from './utils.js?v=23.67.0';
-import { пометитьЭффекты } from './render/fx.js?v=23.67.0';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.75.0';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.75.0';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.75.0';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.75.0';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.75.0';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.75.0';
+import { settings, defaultSettings } from './settings.js?v=23.75.0';
+import { полныйПорядок } from './tabs-order.js?v=23.75.0';
+import { getWorldVotes } from './render/world.js?v=23.75.0';
+import { действиеМира } from './render/world-views.js?v=23.75.0';
+import { действиеМузыки } from './render/music.js?v=23.75.0';
+import { раскрытьПорцию } from './render/long-list.js?v=23.75.0';
+import { прогретьИсторию } from './render/carryover.js?v=23.75.0';
+import { подключитьПалитру } from './color-picker.js?v=23.75.0';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.75.0';
+import { замер } from './utils.js?v=23.75.0';
+import { пометитьЭффекты } from './render/fx.js?v=23.75.0';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -275,6 +277,9 @@ export function initGlobalEvents(ctx) {
   document.addEventListener('click', async function(e) {
     // Календарь телефона (render/calendar.js): день, месяц, фишки календарей.
     if (обработатьКликКалендаря(e)) return;
+    // Сводка хода в тексте (render/summary-card.js) — раскрыть полный HUD сообщения.
+    const сводкаХода = e.target.closest('.hud-sum.can-open');
+    if (сводкаХода) { e.preventDefault(); открытьПолныйHUD(сводкаХода); return; }
 
     // === НАЖАТИЕ НА КНОПКУ ПАПКИ ===
     const uploadBtn = e.target.closest('.hud-bg-upload-btn');
@@ -1188,6 +1193,15 @@ export function initGlobalEvents(ctx) {
     const emulator = lock.closest('.hud-phone-emulator');
     if (emulator && !emulator.classList.contains('unlocked') && e.cancelable) e.preventDefault();
   }, { passive: false });
+
+  // Клавиатура: Enter или пробел на сводке хода раскрывают полный HUD.
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Enter' && e.key !== ' ' && e.key !== 'Spacebar') return;
+    const сводка = e.target.closest && e.target.closest('.hud-sum.can-open');
+    if (!сводка) return;
+    e.preventDefault();
+    открытьПолныйHUD(сводка);
+  });
 
   // Клавиатура: Enter или пробел на экране блокировки снимают замок.
   document.addEventListener('keydown', function (e) {
@@ -2185,6 +2199,8 @@ document.addEventListener('click', (e) => {
 document.addEventListener('click', (e) => {
   // Виды «Мира»: у кликабельных частей своё действие — вид при этом не «оживает».
   if (действиеМира(e)) return;
+  // Полоса музыки сцены (render/music.js): плейлист, ссылки, очередь MoodTube.
+  if (действиеМузыки(e)) return;
   const тайна = e.target.closest && e.target.closest('.hud-v-spoil');
   if (тайна) { тайна.classList.toggle('is-open'); return; }
   // Карта таро рубашкой вверх переворачивается нажатием.
@@ -2214,6 +2230,7 @@ document.addEventListener('click', (e) => {
 document.addEventListener('keydown', (e) => {
   if (e.key !== 'Enter' && e.key !== ' ') return;
   if (действиеМира(e)) return;
+  if (действиеМузыки(e)) return;
   const небо = e.target && e.target.closest && e.target.closest('.hud-dv-sky');
   if (небо) { e.preventDefault(); небо.classList.toggle('fx-active', небо.classList.toggle('is-clear')); return; }
   const тайна = e.target && e.target.closest && e.target.closest('.hud-v-spoil, .hud-v-tarot.is-hidden');

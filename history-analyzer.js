@@ -11,16 +11,17 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=23.67.0';
-import { normalizeJSONData } from './schema.js?v=23.67.0';
-import { parseRelationList } from './render/relations-graph.js?v=23.67.0';
-import { nameLettersOnly, namePhoneticLatin } from './names.js?v=23.67.0';
-import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.67.0';
-import { createDashboard } from './chat-stats.js?v=23.67.0';
-import { статусРужья } from './codes.js?v=23.67.0';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.67.0';
-import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.67.0';
-import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.67.0';
+import { parseHUDComplex } from './hud-parser.js?v=23.75.0';
+import { normalizeJSONData } from './schema.js?v=23.75.0';
+import { parseRelationList } from './render/relations-graph.js?v=23.75.0';
+import { nameLettersOnly, namePhoneticLatin } from './names.js?v=23.75.0';
+import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.75.0';
+import { createDashboard } from './chat-stats.js?v=23.75.0';
+import { статусРужья } from './codes.js?v=23.75.0';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.75.0';
+import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.75.0';
+import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.75.0';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.75.0';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -51,7 +52,7 @@ function ключФакта(fact) {
 // Извлечение блока [HUD] из текста сообщения. Тот же набор написаний, что и в
 // index.js: модель иногда шлёт < > вместо скобок, а ST успевает заэкранировать.
 // Поиск блока — общий, в hud-block.js. Экспорт оставлен: его берут отсюда.
-import { extractHudBlock } from './hud-block.js?v=23.67.0';
+import { extractHudBlock } from './hud-block.js?v=23.75.0';
 export { extractHudBlock };
 
 // Массив сообщений текущего чата.
@@ -212,6 +213,22 @@ function собратьСцену(состояние, data, at) {
   }
 }
 
+// Саундтрек: главы — подряд идущие ходы с одной и той же подборкой (пока
+// сцена та же, ход получает копию прежней). Новая подборка — новая глава.
+function собратьСаундтрек(главы, музыка, data, at) {
+  if (!музыка) return;
+  const подпись = JSON.stringify([музыка.label, (музыка.soundtrack || []).map(т => т.a + '|' + т.t), ((музыка.scene && музыка.scene.tracks) || []).map(т => т.a + '|' + т.t)]);
+  const последняя = главы[главы.length - 1];
+  if (последняя && последняя._подпись === подпись) { последняя.to = at; return; }
+  const scene = data.scene && typeof data.scene === 'object' ? data.scene : {};
+  главы.push({
+    _подпись: подпись, from: at, to: at,
+    date: значимо(scene['Дата']) ? текст(scene['Дата']) : '', place: местоСцены(data),
+    label: музыка.label || '', why: музыка.why || '',
+    soundtrack: музыка.soundtrack || [], scene: музыка.scene || null, phone: музыка.phone || null,
+  });
+}
+
 // Настроения по персонажам — тоже только смены.
 // Настроение живёт в трекере (me.md → memory.mood): игрок и главный
 // персонаж. Раньше архив искал его у персонажей и не находил ни одного.
@@ -295,6 +312,7 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
   const персонажи = new Map();
   const погода = new Map();
   const ружья = new Map();
+  const саундтрек = [];
 
   // Дашборд считает все сообщения, а не только с HUD, — в этом же проходе.
   const дашборд = createDashboard({ userName: getSafeUserName() });
@@ -312,8 +330,9 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
   let датИзТегов = 0;
   let внеЧата = 0;
 
-  const учестьХод = (data, i) => {
+  const учестьХод = (data, i, музыка = null) => {
     сОбработанным++;
+    собратьСаундтрек(саундтрек, музыка, data, i);
     собратьСекреты(секреты, data, i);
     собратьОтношения(отношения, data, i);
     собратьСцену(сцена, data, i);
@@ -364,7 +383,7 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
       if (п && подписиЧата.has(п)) continue;
       if (п) подписиЧата.add(п);
       внеЧата++;
-      учестьХод(в, at);
+      учестьХод(в, at, в.music || null);
     }
   };
 
@@ -381,8 +400,11 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
     // Ходы летописи вне чата — перед этим сообщением, если оно в ней есть. До
     // начала отрезка («последние 50») их не берём: они раньше него.
     if (порядокЛетописи.has(ключ)) вставитьЛишние(порядокЛетописи.get(ключ), i - 0.5, i > from || from === 0);
-    if (data) { const в = выжимкаHUD(data); if (в) вЛетопись.set(ключ, в); }
+    // Музыка хода: из самого сообщения, а у вычищенного — из летописи.
+    let музыка = музыкаДляЛетописи(музыкаХода(chat[i]));
+    if (data) { const в = выжимкаHUD(data, музыка); if (в) вЛетопись.set(ключ, в); }
     else if (chat[i] && !chat[i].is_user && летопись.has(ключ)) { data = летопись.get(ключ); изЛетописи++; }
+    if (!музыка && data && data.music) музыка = data.music;
     дашборд.add(chat[i], data, i);
     if (!data) {
       if (естьHud) битых++;
@@ -392,7 +414,7 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
       }
       continue;
     }
-    учестьХод(data, i);
+    учестьХод(data, i, музыка);
   }
   // Хвост летописи после последнего сообщения — если отрезок до конца чата.
   вставитьЛишние(Infinity, to + 0.5, to === total - 1);
@@ -412,6 +434,8 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
   }).sort((a, b) => a.firstSeen - b.firstSeen);
 
   const ружьяМассив = [...ружья.values()].sort((a, b) => a.firstSeen - b.firstSeen);
+  for (const г of саундтрек) delete г._подпись;
+  const всехТреков = new Set(саундтрек.flatMap(г => [...г.soundtrack, ...((г.scene && г.scene.tracks) || [])].map(т => (т.a + '|' + т.t).toLowerCase())));
 
   const отношенияОбъект = {};
   let пар = 0;
@@ -434,6 +458,7 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
     moods: настроенияМассив,
     dashboard: дашборд.finish(),
     guns: ружьяМассив,
+    soundtrack: саундтрек,
     stats: {
       totalMessages: to - from + 1,
       withHud: сОбработанным,
@@ -455,6 +480,8 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
       secretsRevealedToSomeone: секретыМассив.filter(s => s.knows.length).length,
       relationPairs: пар,
       gunsTotal: ружьяМассив.length,
+      soundtrackChapters: саундтрек.length,
+      soundtrackTracks: всехТреков.size,
       gunsFired: ружьяМассив.filter(g => g.statusHistory.some(h => h.status === 'fired')).length,
       weather: [...погода.entries()].sort((a, b) => b[1] - a[1]).slice(0, 5).map(([k, v]) => ({ kind: k, times: v })),
     },

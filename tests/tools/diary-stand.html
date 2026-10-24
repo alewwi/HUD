@@ -1,6 +1,6 @@
 <!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Дневник и сны — стенд</title>
-<link rel="stylesheet" href="../../css/all.css?v=23.64.1">
-<script>{ const t = new URLSearchParams(location.search).get('t'); if (t) { document.documentElement.classList.add('hud-theme-' + t); for (const f of ['light', t]) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = '../../css/themes/' + f + '.css?v=23.64.1'; document.head.appendChild(l); } } }</script>
+<link rel="stylesheet" href="../../css/all.css?v=23.70.2">
+<script>{ const t = new URLSearchParams(location.search).get('t'); if (t) { document.documentElement.classList.add('hud-theme-' + t); for (const f of ['light', t]) { const l = document.createElement('link'); l.rel = 'stylesheet'; l.href = '../../css/themes/' + f + '.css?v=23.70.2'; document.head.appendChild(l); } } }</script>
 <script>document.addEventListener('click', (e) => { const с = e.target.closest('.hud-dream-entry, .hud-dv'); if (с) { с.classList.toggle('is-awake'); с.classList.toggle('fx-active'); } const в = e.target.closest('.hud-v, .hud-diary-entry, .hud-dv-catch, .hud-dv-cloud, .hud-dv-entry'); if (в) в.classList.toggle('fx-active'); });
 // ?fx=1 — всё движение сразу, как после нажатия на каждый лист.
 if (new URLSearchParams(location.search).has('fx')) addEventListener('DOMContentLoaded', () => document.querySelectorAll('.hud-diary-entry, .hud-dv-catch, .hud-dv-cloud, .hud-dv-entry, .hud-dv-sky').forEach(х => х.classList.add('fx-active')));</script>
