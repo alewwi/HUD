@@ -759,7 +759,7 @@ export const СЛОВАРЬ_EN = {
   "Билеты (как было": "Tickets (as it was",
   "Неон (как было": "Neon (as it was",
   "Один цвет, без значков, одинаковое оформление — и без украшений из тем: рамок, картинок, разделителей, бумаги, печати, эффектов имени, мелочей, особых галочек": "One color, no icons, uniform style — and no theme decorations: frames, images, dividers, paper, seals, name effects, small touches, special checkboxes",
-  "Вернуть всё, как было до «Минимализма»: цвета по смыслу, значки, оформление полей и украшения": "Bring back everything as it was before “Minimalism”: colors by meaning, icons, field styles and decorations",
+  "Вернуть всё, как было до «Минимализма»: цвета по смыслу, значки, оформление полей и украшения — и виды блоков по умолчанию": "Bring back everything as it was before “Minimalism”: colors by meaning, icons, field styles and decorations — and default block views",
   "Все украшения из тем — рамка, углы, разделители, бумага, имя, мелочи — на «Авто»: у каждой темы свои": "All theme decorations — frame, corners, dividers, paper, name, small touches — set to “Auto”: each theme has its own",
   "Насколько далеко расходится свет: ореол карточки, часы, имя, вкладки, аватарка, полоски, плашки, телефон": "How far the light spreads: the card halo, clock, name, tabs, avatar, bars, plates, phone",
   "Свет медленно разгорается и гаснет — на часах, имени, аватарке и активной вкладке": "The light slowly brightens and fades — on the clock, name, avatar and the active tab",

@@ -5,23 +5,23 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.79.0';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО } from './settings.js?v=23.79.0';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.79.0';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.79.0';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.79.0';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.79.0';
-import { hudБлоки } from './hud-block.js?v=23.79.0';
-import { parseHUDComplex } from './hud-parser.js?v=23.79.0';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.79.0';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.79.0';
-import { английский } from './i18n.js?v=23.79.0';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.79.1';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО } from './settings.js?v=23.79.1';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.79.1';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.79.1';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.79.1';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.79.1';
+import { hudБлоки } from './hud-block.js?v=23.79.1';
+import { parseHUDComplex } from './hud-parser.js?v=23.79.1';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.79.1';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.79.1';
+import { английский } from './i18n.js?v=23.79.1';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 const пример = () => (английский() ? ПРИМЕР_EN : ПРИМЕР_RU);
-import { задатьПримерСемьи } from './render/conception.js?v=23.79.0';
-import { привязатьИсторию } from './render/intimacy.js?v=23.79.0';
-import { пометитьЭффекты } from './render/fx.js?v=23.79.0';
-import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.79.0';
+import { задатьПримерСемьи } from './render/conception.js?v=23.79.1';
+import { привязатьИсторию } from './render/intimacy.js?v=23.79.1';
+import { пометитьЭффекты } from './render/fx.js?v=23.79.1';
+import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.79.1';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -205,7 +205,7 @@ export function разметкаПанелиТемы() {
             + (б.ключ === 'postpartumView' ? `<div class="hud-theme-row"><label>Менструальный цикл:</label><select class="hud-theme-select-input hud-custom-rerender" data-key="cycleView">${Object.entries(ВИДЫ_ЦИКЛА).map(([k, имя]) => `<option value="${k}"${(s.cycleView || 'ring') === k ? ' selected' : ''}>${имя}</option>`).join('')}</select></div>`
               + основа.выбор('cycleLibido', 'Влечение под циклом', 'Линия — склонность по фазе, её считает HUD; точки — желание из близости, когда о нём писали', [['phase+actual', 'Фаза и как было'], ['phase', 'Только по фазе'], ['off', 'Не показывать']]) : '')).join('')
           + `</div></details>`).join('')}
-          <div class="hud-theme-row hud-custom-minimal"><button type="button" class="hud-theme-act hud-custom-minimal-btn" title="Один цвет, без значков, одинаковое оформление — и без украшений из тем: рамок, картинок, разделителей, бумаги, печати, эффектов имени, мелочей, особых галочек">◻ Минимализм</button><button type="button" class="hud-theme-act hud-custom-rich-btn" title="Вернуть всё, как было до «Минимализма»: цвета по смыслу, значки, оформление полей и украшения">✦ Как было</button><button type="button" class="hud-theme-act hud-custom-auto-btn" title="Все украшения из тем — рамка, углы, разделители, бумага, имя, мелочи — на «Авто»: у каждой темы свои">✦ Всё по теме</button></div>
+          <div class="hud-theme-row hud-custom-minimal"><button type="button" class="hud-theme-act hud-custom-minimal-btn" title="Один цвет, без значков, одинаковое оформление — и без украшений из тем: рамок, картинок, разделителей, бумаги, печати, эффектов имени, мелочей, особых галочек">◻ Минимализм</button><button type="button" class="hud-theme-act hud-custom-rich-btn" title="Вернуть всё, как было до «Минимализма»: цвета по смыслу, значки, оформление полей и украшения — и виды блоков по умолчанию">✦ Как было</button><button type="button" class="hud-theme-act hud-custom-auto-btn" title="Все украшения из тем — рамка, углы, разделители, бумага, имя, мелочи — на «Авто»: у каждой темы свои">✦ Всё по теме</button></div>
           <div class="hud-theme-presets-note">Вид блока цикла и секций у персонажей и у игрока. Справа видно сразу; карточки в чате перерисуются, когда закроешь окно.</div>
         </details>
         ${разметкаНовинок()}
@@ -635,7 +635,8 @@ export function открытьКастомизацию() {
       }
       // «Минимализм»: один цвет, без значков, одинаковый крой и ни одного
       // украшения из тем. Что стояло до него, запоминаем (minimalBackup) —
-      // «Как было» возвращает именно это, а не заводские значения.
+      // «Как было» возвращает именно это, а не заводские значения; виды
+      // блоков «Как было» ставит по умолчанию.
       // Запоминаем заново, если с прошлого «Минимализма» что-то меняли руками:
       // иначе «Как было» вернуло бы давнее состояние, а не то, что было сейчас.
       const минимализм = !!e.target.closest('.hud-custom-minimal-btn');
@@ -644,8 +645,15 @@ export function открытьКастомизацию() {
       // Без запомненного — все украшения к заводским значениям, а не только
       // цвета и значки: иначе рамки, бумага и печати оставались выключенными.
       const заводские = Object.fromEntries(Object.keys(МИНИМАЛИЗМ).map(к => [к, defaultSettings[к]]).filter(([, v]) => v !== undefined));
+      // И виды блоков — по умолчанию: заводской вид, а где его нет, первый
+      // в списке (тот, что подписан «как было»). Плюс бельё, цикл, сетка
+      // секретов и влечение под циклом — они в тех же разделах «Блоки».
+      const видыБлоков = Object.fromEntries([
+        ...ВИДЫ_БЛОКОВ.map(б => [б.ключ, defaultSettings[б.ключ] ?? Object.keys(б.виды)[0]]),
+        ...['underwearView', 'cycleView', 'secretsGrid', 'cycleLibido'].filter(к => defaultSettings[к] !== undefined).map(к => [к, defaultSettings[к]]),
+      ]);
       const как_было = e.target.closest('.hud-custom-rich-btn')
-        ? { ...заводские, pillColors: 'smart', pillIcons: 'on', pillStyle: 'fields', ...(settings.minimalBackup || {}) } : null;
+        ? { ...заводские, pillColors: 'smart', pillIcons: 'on', pillStyle: 'fields', ...(settings.minimalBackup || {}), ...видыБлоков } : null;
       if (как_было) delete settings.minimalBackup;
       const набор = минимализм ? { ...МИНИМАЛИЗМ }
         : как_было ? как_было
