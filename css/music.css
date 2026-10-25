@@ -145,8 +145,18 @@ button.hud-music-act { border: 0; padding: 0; cursor: pointer; color: var(--x-in
 .hud-music-vol-ico svg { width: 14px; height: 14px; }
 .hud-music-vol input[type="range"] { flex: 1; min-width: 60px; height: 16px; margin: 0; padding: 0; background: transparent; accent-color: var(--mu); cursor: pointer; }
 .hud-music-vol output { min-width: 2.2em; text-align: right; font-variant-numeric: tabular-nums; color: var(--x-ink); }
+/* Пожелание к подборке — отдельной тонкой строкой во всю ширину. */
+.hud-music-wish { order: 3; flex: 1 1 100%; min-width: 0; display: flex; align-items: center; gap: 7px; margin: 0; cursor: text; }
+.hud-music-wish-ico svg { width: 14px; height: 14px; }
+.hud-music-wish input[type="text"] { flex: 1; min-width: 0; height: 26px; margin: 0; padding: 0 9px; border-radius: 8px; font: inherit; font-size: 1em; color: var(--x-ink); background: color-mix(in srgb, var(--x-surf2) 70%, transparent); border: 1px solid color-mix(in srgb, var(--mu) 30%, transparent); outline: none; }
+.hud-music-wish input[type="text"]::placeholder { color: var(--x-ink-soft); opacity: .7; }
+.hud-music-wish input[type="text"]:focus-visible { border-color: var(--mu); box-shadow: 0 0 0 2px color-mix(in srgb, var(--mu) 25%, transparent); }
+.hud-music-wish button { flex: none; width: 22px; height: 22px; display: grid; place-items: center; padding: 0; border-radius: 50%; border: 0; cursor: pointer; color: var(--x-ink-soft); background: color-mix(in srgb, var(--mu) 14%, transparent); }
+.hud-music-wish button[hidden] { display: none; }
+.hud-music-wish button svg { width: 12px; height: 12px; }
 .hud-music-cnt { display: inline-flex; align-items: center; gap: 5px; margin-left: auto; }
-.hud-music-cnt button { width: 22px; height: 22px; display: grid; place-items: center; padding: 0; border-radius: 50%; font: inherit; font-size: 14px; line-height: 1; cursor: pointer; color: var(--x-ink); background: color-mix(in srgb, var(--mu) 16%, transparent); border: 1px solid color-mix(in srgb, var(--mu) 40%, transparent); }
+.hud-music-cnt button { width: 22px; height: 22px; display: grid; place-items: center; padding: 0; border-radius: 50%; font: inherit; line-height: 0; cursor: pointer; color: var(--x-ink); background: color-mix(in srgb, var(--mu) 16%, transparent); border: 1px solid color-mix(in srgb, var(--mu) 40%, transparent); }
+.hud-music-cnt button svg { width: 12px; height: 12px; }
 .hud-music-cnt button:disabled { opacity: .4; cursor: default; }
 .hud-music-cnt b { min-width: 1.4em; text-align: center; color: var(--x-ink) !important; font-variant-numeric: tabular-nums; }
 .hud-music-cnt small { font-size: 1em; }
@@ -243,7 +253,7 @@ button.hud-music-act { border: 0; padding: 0; cursor: pointer; color: var(--x-in
 :is(.hud-music, .hud-mphone).is-loading [data-mu="play"].is-on .i-play { display: none; }
 :is(.hud-music, .hud-mphone).is-loading [data-mu="play"].is-on .i-load { display: block; width: 13px; height: 13px; border-radius: 50%; border: 2px solid rgba(255,255,255,.3); border-top-color: #fff; animation: hud-music-spin .8s linear infinite; }
 button.hud-music-play { color: #fff; background: var(--mu); box-shadow: 0 3px 8px -3px color-mix(in srgb, var(--mu) 80%, #000); }
-button.hud-music-play svg { width: 13px; height: 13px; margin-left: 1px; }
+button.hud-music-play svg { width: 13px; height: 13px; }
 /* Обложка трека — кнопка: на телефоне значок виден всегда, мышью — по наведению. */
 .hud-music-art-wrap { grid-area: art; position: relative; }
 .hud-music-artplay { position: absolute; inset: 0; display: grid; place-items: center; padding: 0; border: 0; border-radius: 6px; cursor: pointer; color: #fff; background: rgba(0,0,0,.38); }
@@ -251,7 +261,6 @@ button.hud-music-play svg { width: 13px; height: 13px; margin-left: 1px; }
 .hud-music-artplay.is-on { background: color-mix(in srgb, var(--mu, #e0315b) 55%, rgba(0,0,0,.35)); }
 .hud-mphone-bigplay { position: absolute; right: 8px; bottom: 8px; width: 42px; height: 42px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; cursor: pointer; color: #fff; background: linear-gradient(160deg, #ff8a6a, #e0315b); box-shadow: 0 6px 14px -4px rgba(0,0,0,.7); }
 .hud-mphone-bigplay svg { width: 18px; height: 18px; }
-.hud-mphone-bigplay svg.i-play { margin-left: 2px; }
 .hud-mphone-hint { margin-bottom: 6px; font-size: 10px !important; color: rgba(255,255,255,.45) !important; }
 /* Ход трека — полоска внизу полосы и под обложкой в телефоне; длина
    (--mu-dur) — настоящая: 30 с у отрывка, минуты у полного трека. */
