@@ -281,6 +281,7 @@ The **🎨 Customization** window with a live preview:
 - **24 ready-made themes in 7 sets** — Kawaii, Dark Academia, Vamp, Cyberpunk, Noir, Middle Ages, Fantasy, Crime, Web 1.0, Cottagecore, Ice, Deep sea, Steampunk, Dieselpunk, Solarpunk, Biopunk, Space opera, Feudal Japan, Ancient Egypt, Western, Pirates, Witchcraft, Voodoo, Space horror. Light and dark.
 - **Your own theme** — palette, glow, glass (frosted, tinted, clear, pearl, liquid), fonts, blur, separate colors for memory, the phone, alerts and intercepts. A theme can be saved to a file and shared — when loading someone else's file, only known fields are taken and their values are checked.
 - **43 blocks with alternative views** — for example, trust as bars, hearts, a shield, a traffic light or orbits; fears as a list, thermometers, skulls, clouds or a radar; secrets as safes, folders, a web or envelopes; the route as a diagram, a strip, a map or tickets.
+- **Tab order** (🗂 Tabs) — arrange the card's tabs (characters, phone, memory, daily life, diary…) in any order: just drag them by the ⠿ handle with a finger or the mouse — it works on phones too; ↑ ↓ buttons are there as well. Any tab can be pinned first or hidden — a hidden block is still written and accumulates, and you can see what it costs in tokens.
 - **Avatars** — one image for any number of name spellings; names listed together count as one person in the graph, chats and intercepts.
 - **Banners, portrait frames, decorative details** — plasters, bows on tabs, wax seals, aged paper, hanko, drop caps and more, each separately.
 
