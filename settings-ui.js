@@ -5,18 +5,19 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { settings } from './settings.js?v=23.79.3';
-import { видБлока } from './render/views.js?v=23.79.3';
-import { escapeHtml } from './utils.js?v=23.79.3';
-import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.79.3';
-import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.79.3';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.79.3';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.79.3';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.79.3';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.79.3';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.79.3';
-import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.79.3';
-import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.79.3';
+import { settings } from './settings.js?v=23.79.4';
+import { видБлока } from './render/views.js?v=23.79.4';
+import { escapeHtml } from './utils.js?v=23.79.4';
+import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.79.4';
+import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.79.4';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.79.4';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.79.4';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.79.4';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.79.4';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.79.4';
+import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.79.4';
+import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.79.4';
+import { меткаШапки } from './render/topbar-icons.js?v=23.79.4';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -600,7 +601,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.79.3');
+      const mod = await import('./render/archive.js?v=23.79.4');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -706,8 +707,18 @@ export function addSettingsUI() {
   });
   // Значки: значение пишет и применяет общий обработчик полей темы
   // (events.js, .hud-theme-select-input); здесь — пересобрать карточки, чтобы
-  // шапки сменили эмодзи на рисунки сразу.
-  wrapper.querySelector('select[data-key="iconSet"]')?.addEventListener('change', () => основа.processAllMessages());
+  // шапки сменили эмодзи на рисунки сразу. processAllMessages уже собранные
+  // карточки пропускает — нужна явная перерисовка, как после «Кастомизации».
+  // Кнопка «создать HUD» у сообщений без карточки — та же метка шапки.
+  wrapper.querySelector('select[data-key="iconSet"]')?.addEventListener('change', () => {
+    основа.перерисоватьКарточкиЧата();
+    const чат = основа.cachedChatContainer || document.getElementById('chat') || document;
+    чат.querySelectorAll('.hud-create-btn').forEach(к => {
+      // Подпись оставляем как есть (в английском режиме она уже переведена).
+      const подпись = [...к.childNodes].filter(у => !(у.nodeType === 1 && у.matches('svg'))).map(у => у.textContent).join('').replace(/^\s*➕\s*/u, '').trim();
+      к.innerHTML = меткаШапки('создать') + ' ' + escapeHtml(подпись);
+    });
+  });
   // Сводки хода — карточкой или текстом: на лету, без пересборки карточек HUD.
   document.getElementById('hud-summary-cards').addEventListener('change', (e) => {
     settings.summaryCards = e.target.checked;
@@ -782,7 +793,7 @@ export function addSettingsUI() {
   [['hud-music-enable', 'enableMusic'], ['hud-music-auto', 'musicAuto'], ['hud-music-verify', 'musicVerify'], ['hud-music-line', 'musicSceneLine'], ['hud-music-player', 'musicPlayer']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.79.3').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
+      import('./render/music.js?v=23.79.4').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
     });
   });
   document.getElementById('hud-music-profile').addEventListener('change', (e) => { settings.musicProfileId = e.target.value || ''; основа.saveSettings(); });
@@ -799,7 +810,7 @@ export function addSettingsUI() {
   [['hud-music-medieval', 'musicMedieval'], ['hud-music-style', 'musicStyle'], ['hud-music-source', 'musicSource']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.value; основа.saveSettings();
-      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.79.3').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.79.4').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
 
