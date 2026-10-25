@@ -36,6 +36,9 @@ const всеCSS = fs.readdirSync(path.join(КОРЕНЬ, 'css')).filter(f => f.e
 
 const S = await модуль('settings.js');
 const settings = S.settings;
+// Тесты темпа и x-ray ниже — про вид X-ray; по умолчанию теперь шкала.
+проверить('по умолчанию сдержанные виды: темп — шкала, «После родов» — дневник', S.defaultSettings.tempoView === 'tube' && S.defaultSettings.postpartumView === 'journal');
+settings.tempoView = 'xray';
 
 // --- Токены ------------------------------------------------------------------
 {

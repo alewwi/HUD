@@ -485,5 +485,3 @@ node tests/tools/docs-shots.mjs [--lang en] # README screenshots (SillyTavern mu
 ```
 
 English interface: a new Russian label in the markup is translated by the `i18n-en.js` dictionary — a whole string in `СЛОВАРЬ_EN`, a string with numbers or substitutions in `ШАБЛОНЫ_EN`. Labels in CSS (`content`) are duplicated in `css/lang-en.css`, Russian examples in the model instruction in `prompt-en.js`. `node tests/i18n.mjs` checks the translator, the instruction without Cyrillic, the CSS and the parsing of English values.
-
-Stands for checking the look without generations are in `tests/tools/*-stand.html` — open them through the SillyTavern server, e.g. `http://127.0.0.1:8000/scripts/extensions/third-party/HUD/tests/tools/theme-stand.html?w=215px`.

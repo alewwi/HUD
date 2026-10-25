@@ -64,6 +64,8 @@ const СНИМКИ = [
   { имя: 'phone-calendar', вкладка: ['Телефон', 'Phone'], шаги: `т.querySelector('.hud-phone-emulator').classList.add('unlocked'); т.querySelector('[data-phone-app="calendar"]').click(); await __shots.ждать(900);`, элемент: '.hud-phone-emulator' },
   { имя: 'phone-health', вкладка: ['Телефон', 'Phone'], шаги: `т.querySelector('.hud-phone-emulator').classList.add('unlocked'); т.querySelector('[data-phone-app="health"]').click(); await __shots.ждать(900);`, элемент: '.hud-phone-emulator' },
   { имя: 'phone-maps', вкладка: ['Телефон', 'Phone'], шаги: `т.querySelector('.hud-phone-emulator').classList.add('unlocked'); т.querySelector('[data-phone-app="maps"]').click(); await __shots.ждать(900);`, элемент: '.hud-phone-emulator' },
+  // Служебный: только по --only scene (проверка фона сцены).
+  { имя: 'scene', вкладка: ['Элеонора', 'Eleanor'], сцена: 'open', элемент: '.hud-scene-widget', служебный: true },
   { имя: 'theme-academia', вкладка: ['Элеонора', 'Eleanor'], сцена: 'open', высота: 938, тема: 'academia' },
   { имя: 'theme-cottage', вкладка: ['Элеонора', 'Eleanor'], сцена: 'open', высота: 938, тема: 'cottage' },
   { имя: 'theme-cyberpunk', вкладка: ['Элеонора', 'Eleanor'], сцена: 'open', высота: 938, тема: 'cyberpunk' },
@@ -189,11 +191,13 @@ window.__shots = {
     // content-visibility: auto (быстрые карточки в чате) рисует копию по
     // заглушке высотой 480 px — для снимка всё содержимое настоящее.
     [к, ...к.querySelectorAll('*')].forEach(э => { if (getComputedStyle(э).contentVisibility === 'auto') { э.style.setProperty('content-visibility', 'visible', 'important'); э.style.setProperty('contain-intrinsic-size', 'none', 'important'); } });
+    // Прокручиваемые контейнеры раскрываем целиком; декор (ветки деревьев в
+    // сцене и т. п.) не трогаем — его max-height держит рисунок в рамках.
     // Тело вкладки в чате ограничено по высоте (настройка, 300 px) и
     // прокручивается — на снимке вкладка целиком.
     к.querySelectorAll('.hud-body').forEach(э => { э.style.setProperty('max-height', 'none', 'important'); э.style.setProperty('overflow', 'visible', 'important'); });
     обёртка.style.setProperty('--hud-memory-max-height', 'none');
-    [...к.querySelectorAll('*')].forEach(э => { const чужой = э.closest('[class*="hud-phone"], .hud-tabs-header'); if (чужой && к.contains(чужой)) return; const cs = getComputedStyle(э); const предел = cs.maxHeight !== 'none' && parseFloat(cs.maxHeight) < 5000; if (предел || /auto|scroll/.test(cs.overflowY)) { э.style.setProperty('max-height', 'none', 'important'); if (cs.overflowY !== 'visible') э.style.setProperty('overflow-y', 'visible', 'important'); } });
+    [...к.querySelectorAll('*')].forEach(э => { const чужой = э.closest('[class*="hud-phone"], .hud-tabs-header, .hud-scene-widget'); if (чужой && к.contains(чужой)) return; const cs = getComputedStyle(э); const предел = cs.maxHeight !== 'none' && parseFloat(cs.maxHeight) < 5000; if ((предел && cs.overflowY !== 'visible') || /auto|scroll/.test(cs.overflowY)) { э.style.setProperty('max-height', 'none', 'important'); if (cs.overflowY !== 'visible') э.style.setProperty('overflow-y', 'visible', 'important'); } });
     // Лента вкладок: активная вкладка — в поле зрения (у копии прокрутка сброшена).
     const вкл = к.querySelector('.hud-tab.active'), лента = вкл && вкл.parentElement;
     if (лента && лента.scrollWidth > лента.clientWidth) лента.scrollLeft = Math.max(0, вкл.offsetLeft + вкл.offsetWidth - лента.clientWidth + 6);
@@ -270,6 +274,12 @@ async function main() {
     return true;`);
   await выполнить(ВСТРАНИЦЕ);
   await выполнить(`await __shots.открыть(); return true;`);
+  if (арг.includes('--eval')) {
+    // Отладка: код в странице после открытия примера (вкладка Элеонора, сцена раскрыта).
+    await выполнить(`await __shots.вкладка(['Элеонора', 'Eleanor']); await __shots.сцена('open'); return true;`);
+    console.log(JSON.stringify(await выполнить(знач('--eval', 'return null;')), null, 1));
+    return;
+  }
   if (арг.includes('--fields')) {
     // Подписи полей открытой вкладки: node docs-shots.mjs --fields Memory
     await выполнить(`await __shots.вкладка([${JSON.stringify(знач('--fields', ''))}]); return true;`);
@@ -278,7 +288,7 @@ async function main() {
   }
   if (арг.includes('--list')) { console.log((await выполнить(`return __shots.вкладки();`)).join('\n')); return; }
   for (const с of СНИМКИ) {
-    if (ТОЛЬКО && !ТОЛЬКО.has(с.имя)) continue;
+    if (ТОЛЬКО ? !ТОЛЬКО.has(с.имя) : с.служебный) continue;
     if (с.тема) await выполнить(`await __shots.тема(${JSON.stringify(с.тема)}); return true;`);
     const прежнийВид = с.вид ? await выполнить(`return await __shots.вид(${JSON.stringify(с.вид[0])}, ${JSON.stringify(с.вид[1])});`) : null;
     await выполнить(`await __shots.вкладка(${JSON.stringify(с.вкладка)}); return true;`);

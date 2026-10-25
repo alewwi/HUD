@@ -110,6 +110,12 @@ const зона = (t) => (Ин.ЗОНЫ.find(([, , rx]) => rx.test(t)) || [])[0];
 const Ж = await м('render/life.js');
 const вид = (t) => Object.entries(Ж.ВИДЫ_БЫТА).filter(([, x]) => x.rx.test(t)).map(([к]) => к).join();
 проверить('быт: английский таймлайн — еда, душ, сон', вид('late dinner, mushroom pasta') === 'eat' && вид('shower after work') === 'wash' && вид('went to bed at 00:30') === 'sleep' && вид('she was late') === '');
+const SB = await м('render/scene-body.js');
+const позаEN = "on the sofa, she's on top, knees on either side of his hips, sinking down slowly and deep, all the way, penis inside her";
+const темпEN = SB.темпИзТекста(позаEN);
+проверить('темп по-английски: «slowly … deep» — медленно и глубоко', темпEN && темпEN.уровень === 1 && темпEN.глубина === 'deep', JSON.stringify(темпEN));
+проверить('проникновение по-английски: «penis inside her» — член в лоно', SB.проникновенияИзТекста(позаEN).some(п => п.чем === 'penis' && п.куда === 'vaginal'));
+проверить('поза по-английски: она сверху, он над ней', SB.позаТела(позаEN, 'f') === 'top' && SB.позаТела('he is on top of her, between her thighs', 'm') === 'over');
 settings.language = 'ru';
 
 console.log(`\nпроверок: ${проб}, провалов: ${провалов}`);

@@ -5,23 +5,23 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.78.6';
-import { settings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО } from './settings.js?v=23.78.6';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.78.6';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.78.6';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.78.6';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.78.6';
-import { hudБлоки } from './hud-block.js?v=23.78.6';
-import { parseHUDComplex } from './hud-parser.js?v=23.78.6';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.78.6';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.78.6';
-import { английский } from './i18n.js?v=23.78.6';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.78.7';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО } from './settings.js?v=23.78.7';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.78.7';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.78.7';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.78.7';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.78.7';
+import { hudБлоки } from './hud-block.js?v=23.78.7';
+import { parseHUDComplex } from './hud-parser.js?v=23.78.7';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.78.7';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.78.7';
+import { английский } from './i18n.js?v=23.78.7';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 const пример = () => (английский() ? ПРИМЕР_EN : ПРИМЕР_RU);
-import { задатьПримерСемьи } from './render/conception.js?v=23.78.6';
-import { привязатьИсторию } from './render/intimacy.js?v=23.78.6';
-import { пометитьЭффекты } from './render/fx.js?v=23.78.6';
-import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.78.6';
+import { задатьПримерСемьи } from './render/conception.js?v=23.78.7';
+import { привязатьИсторию } from './render/intimacy.js?v=23.78.7';
+import { пометитьЭффекты } from './render/fx.js?v=23.78.7';
+import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.78.7';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -636,10 +636,16 @@ export function открытьКастомизацию() {
       // «Минимализм»: один цвет, без значков, одинаковый крой и ни одного
       // украшения из тем. Что стояло до него, запоминаем (minimalBackup) —
       // «Как было» возвращает именно это, а не заводские значения.
+      // Запоминаем заново, если с прошлого «Минимализма» что-то меняли руками:
+      // иначе «Как было» вернуло бы давнее состояние, а не то, что было сейчас.
       const минимализм = !!e.target.closest('.hud-custom-minimal-btn');
-      if (минимализм && !settings.minimalBackup) settings.minimalBackup = Object.fromEntries(Object.keys(МИНИМАЛИЗМ).map(к => [к, settings[к]]));
+      const ужеМинимально = Object.entries(МИНИМАЛИЗМ).every(([к, v]) => settings[к] === v);
+      if (минимализм && (!settings.minimalBackup || !ужеМинимально)) settings.minimalBackup = Object.fromEntries(Object.keys(МИНИМАЛИЗМ).map(к => [к, settings[к]]));
+      // Без запомненного — все украшения к заводским значениям, а не только
+      // цвета и значки: иначе рамки, бумага и печати оставались выключенными.
+      const заводские = Object.fromEntries(Object.keys(МИНИМАЛИЗМ).map(к => [к, defaultSettings[к]]).filter(([, v]) => v !== undefined));
       const как_было = e.target.closest('.hud-custom-rich-btn')
-        ? { pillColors: 'smart', pillIcons: 'on', pillStyle: 'fields', ...(settings.minimalBackup || {}) } : null;
+        ? { ...заводские, pillColors: 'smart', pillIcons: 'on', pillStyle: 'fields', ...(settings.minimalBackup || {}) } : null;
       if (как_было) delete settings.minimalBackup;
       const набор = минимализм ? { ...МИНИМАЛИЗМ }
         : как_было ? как_было

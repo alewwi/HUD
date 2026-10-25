@@ -9,17 +9,17 @@
 //   «Карты»   — сохранённые места на нарисованной схеме города.
 // Кроме «Здоровья» всё строится из того, что уже есть в HUD.
 
-import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.78.6';
-import { английский } from '../i18n.js?v=23.78.6';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.78.6';
-import { G_ICONS } from './icons.js?v=23.78.6';
-import { parseCall } from './msg-parts.js?v=23.78.6';
-import { parseMsgParties } from './phone-common.js?v=23.78.6';
-import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.78.6';
-import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.78.6';
-import { namesLikelySame } from '../names.js?v=23.78.6';
-import { зоныКарты } from './intimacy.js?v=23.78.6';
-import { сводкаБолезней } from './character.js?v=23.78.6';
+import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.78.7';
+import { английский } from '../i18n.js?v=23.78.7';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.78.7';
+import { G_ICONS } from './icons.js?v=23.78.7';
+import { parseCall } from './msg-parts.js?v=23.78.7';
+import { parseMsgParties } from './phone-common.js?v=23.78.7';
+import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.78.7';
+import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.78.7';
+import { namesLikelySame } from '../names.js?v=23.78.7';
+import { зоныКарты } from './intimacy.js?v=23.78.7';
+import { сводкаБолезней } from './character.js?v=23.78.7';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const пусто = (v) => !текст(v) || /^(empty|none|null|нет|пусто)$/i.test(текст(v));

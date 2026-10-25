@@ -124,6 +124,10 @@ export const defaultSettings = {
   enableSceneClock: true,
   // Темп и X-ray в фазе близости (render/intimacy.js, блокТемпаСцены).
   enableTempo: true,
+  // Виды по умолчанию — сдержанные: темп шкалой, а не X-ray; «После родов» —
+  // дневником, а не рисунком груди. Остальные виды — в «Кастомизации».
+  tempoView: 'tube',
+  postpartumView: 'journal',
   sceneClockMin: 15,
   // Вид секций карточки: цвета по смыслу или один, угловые значки, крой полей.
   pillColors: 'smart',
