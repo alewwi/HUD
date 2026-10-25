@@ -441,8 +441,8 @@ export const ПРИМЕР_СЕМЬИ = () => ({
 
 export const ПРИМЕР_БОЯ = {
   st: 'fight',
-  pt: 'Mark Grey: ally; step; bat; wounded | Stranger in a hood: enemy; close; knife; unharmed | The second one by the car: enemy; far; pistol; unharmed | Neighbor with a dog: neutral; across the room; leash; unharmed',
-  in: 'Stranger in a hood; Mark Grey; The second one by the car',
+  pt: 'Mark Grey: ally; step; bat; wounded | Stranger in a hood: enemy; close; knife; unharmed | Lookout by the car: enemy; far; pistol; unharmed | Neighbor with a dog: neutral; across the room; leash; unharmed',
+  in: 'Stranger in a hood; Mark Grey; Lookout by the car',
   cv: 'Mailboxes: cover up to the waist; Bike by the wall: can be knocked over underfoot',
   ad: 'Mark Grey: 88, feels no pain; Stranger in a hood: 70',
   nv: 'Mark Grey: acting; Neighbor with a dog: frozen',

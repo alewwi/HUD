@@ -9,16 +9,17 @@
 //   «Карты»   — сохранённые места на нарисованной схеме города.
 // Кроме «Здоровья» всё строится из того, что уже есть в HUD.
 
-import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.78.1';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.78.1';
-import { G_ICONS } from './icons.js?v=23.78.1';
-import { parseCall } from './msg-parts.js?v=23.78.1';
-import { parseMsgParties } from './phone-common.js?v=23.78.1';
-import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.78.1';
-import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.78.1';
-import { namesLikelySame } from '../names.js?v=23.78.1';
-import { зоныКарты } from './intimacy.js?v=23.78.1';
-import { сводкаБолезней } from './character.js?v=23.78.1';
+import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.78.6';
+import { английский } from '../i18n.js?v=23.78.6';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.78.6';
+import { G_ICONS } from './icons.js?v=23.78.6';
+import { parseCall } from './msg-parts.js?v=23.78.6';
+import { parseMsgParties } from './phone-common.js?v=23.78.6';
+import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.78.6';
+import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.78.6';
+import { namesLikelySame } from '../names.js?v=23.78.6';
+import { зоныКарты } from './intimacy.js?v=23.78.6';
+import { сводкаБолезней } from './character.js?v=23.78.6';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const пусто = (v) => !текст(v) || /^(empty|none|null|нет|пусто)$/i.test(текст(v));
@@ -218,7 +219,7 @@ const ЦЕЛЬ_ШАГОВ = 8000;
 const числоИз = (v) => { const m = текст(v).replace(/[\s ]/g, '').match(/\d+(?:[.,]\d+)?/); return m ? parseFloat(m[0].replace(',', '.')) : null; };
 const минутыИз = (v) => { const m = текст(v).match(/\b(\d{1,2}):(\d{2})\b/); return m && +m[1] < 24 ? +m[1] * 60 + +m[2] : null; };
 const ЧЧММ = (м) => String(Math.floor(м / 60) % 24).padStart(2, '0') + ':' + String(Math.round(м % 60)).padStart(2, '0');
-const тысячи = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, ' ');
+const тысячи = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, английский() ? ',' : ' ');
 
 // «Четверг, 17.10.2024» → «17.10»: неделя уложится без года.
 function деньИз(дата) {
@@ -279,10 +280,11 @@ function разобратьСон(s) {
     const a = минутыИз(m[1]), b = минутыИз(m[2]);
     return { мин: (b - a + 1440) % 1440 || null, с: m[1], до: m[2], заметка: t.replace(m[0], '').replace(/^[\s,;.—-]+|[\s,;.]+$/g, '') };
   }
-  const ч = t.match(/(\d+(?:[.,]\d+)?)\s*(?:h|ч)/i), мм = t.match(/(\d+)\s*(?:m|мин|м)(?![\p{L}])/iu);
+  // «4 часа (на раскладушке)» целиком: иначе «4 ч» откусывалось, а в заметке оставалось «аса».
+  const ч = t.match(/(\d+(?:[.,]\d+)?)\s*(?:hours?|hrs?|h|час(?:а|ов)?|ч)(?![\p{L}])/iu), мм = t.match(/(\d+)\s*(?:minutes?|mins?|m|мин\p{L}*|м)(?![\p{L}])/iu);
   const мин = (ч ? parseFloat(ч[1].replace(',', '.')) * 60 : 0) + (мм ? +мм[1] : 0);
   // «4 ч 10 мин, легла в 03:20» (так пишет «Состояние тела») → 03:20–07:30.
-  const легла = t.match(/(?:лёг|лег|легл\p{L}*|уснул\p{L}*|в)\s*(\d{1,2}[:.]\d{2})/iu);
+  const легла = t.match(/(?:лёг|лег|легл\p{L}*|уснул\p{L}*|в|went to bed at|fell asleep at|at)\s*(\d{1,2}[:.]\d{2})/iu);
   const с = легла && мин ? легла[1].replace('.', ':') : '';
   const до = с ? ЧЧММ(минутыИз(с) + мин) : '';
   const заметка = t.replace(ч ? ч[0] : '', '').replace(мм ? мм[0] : '', '').replace(легла && с ? легла[0] : '', '').replace(/^[\s,;.—-]+|[\s,;.]+$/g, '');

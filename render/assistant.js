@@ -11,12 +11,12 @@
 // флаг window.__tavernOSHudSkipInject: без него перехват запросов в index.js
 // вшил бы в вопрос HUD-инструкцию, и модель ответила бы HUD-блоком.
 
-import { escapeHtml, guardTouchSwipe } from '../utils.js?v=23.78.1';
-import { settings } from '../settings.js?v=23.78.1';
-import { parseHUDComplex } from '../hud-parser.js?v=23.78.1';
-import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.78.1';
-import { ПРОМПТ_АССИСТЕНТА } from './assistant-prompt.js?v=23.78.1';
-import { английский } from '../i18n.js?v=23.78.1';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.78.6';
+import { settings } from '../settings.js?v=23.78.6';
+import { parseHUDComplex } from '../hud-parser.js?v=23.78.6';
+import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.78.6';
+import { ПРОМПТ_АССИСТЕНТА } from './assistant-prompt.js?v=23.78.6';
+import { английский } from '../i18n.js?v=23.78.6';
 
 const ЖДЁМ_МС = 180000;
 
@@ -155,9 +155,10 @@ export function parseAssistantAnswer(raw) {
 }
 
 // Готовые вопросы по именам из HUD — чтобы не начинать с пустого поля.
+// Имя — без приставки карточки капсом: «THE REGENTS  Tristan» → «Tristan», не «THE».
 export function suggestedQuestions(hud) {
   const имена = (hud && Array.isArray(hud.characters) ? hud.characters : [])
-    .map(c => String(c && c['Имя'] || '').trim().split(/\s+/)[0]).filter(Boolean).slice(0, 2);
+    .map(c => имяБезПриставки(String(c && c['Имя'] || '')).split(/\s+/)[0]).filter(Boolean).slice(0, 2);
   const out = [];
   if (имена[0]) out.push(`Почему ${имена[0]} так себя ведёт?`, `Что ${имена[0]} скрывает?`);
   if (имена[1]) out.push(`Как ${имена[1]} относится ко мне на самом деле?`);

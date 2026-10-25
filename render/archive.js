@@ -6,10 +6,11 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.78.1';
-import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.78.1';
-import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.78.1';
-import { ссылкиТрека } from './music.js?v=23.78.1';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.78.6';
+import { английский } from '../i18n.js?v=23.78.6';
+import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.78.6';
+import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.78.6';
+import { ссылкиТрека } from './music.js?v=23.78.6';
 
 let окноОткрыто = false;
 
@@ -233,7 +234,7 @@ function запомнитьВиджет(id, включён) {
   try { localStorage.setItem(КЛЮЧ_ВИДЖЕТОВ, JSON.stringify(v)); } catch (_) {}
 }
 
-const число = (n) => (n === null || n === undefined ? '—' : Number(n).toLocaleString('ru-RU'));
+const число = (n) => (n === null || n === undefined ? '—' : Number(n).toLocaleString(английский() ? 'en-US' : 'ru-RU'));
 const плитка = (значение, подпись, пояснение) => `<div class="hud-arc-tile"><b>${escapeHtml(String(значение))}</b><span>${escapeHtml(подпись)}</span>${пояснение ? `<small>${escapeHtml(пояснение)}</small>` : ''}</div>`;
 const полоса = (подпись, доля, значение, пояснение) => `<div class="hud-dash-bar"${пояснение ? ` title="${escapeHtml(пояснение)}"` : ''}>`
   + `<span class="hud-dash-bar-label">${подпись}</span>`

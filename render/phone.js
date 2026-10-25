@@ -6,19 +6,20 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.78.1';
-import { settings } from '../settings.js?v=23.78.1';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.78.1';
-import { G_ICONS } from './icons.js?v=23.78.1';
-import { buildMessengerHTML } from './messenger.js?v=23.78.1';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.78.1';
-import { сортироватьЧаты } from './msg-feed.js?v=23.78.1';
-import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.78.1';
-import { buildCalendarApp } from './calendar.js?v=23.78.1';
-import { приложениеМузыки } from './music.js?v=23.78.1';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.78.6';
+import { английский } from '../i18n.js?v=23.78.6';
+import { settings } from '../settings.js?v=23.78.6';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.78.6';
+import { G_ICONS } from './icons.js?v=23.78.6';
+import { buildMessengerHTML } from './messenger.js?v=23.78.6';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.78.6';
+import { сортироватьЧаты } from './msg-feed.js?v=23.78.6';
+import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.78.6';
+import { buildCalendarApp } from './calendar.js?v=23.78.6';
+import { приложениеМузыки } from './music.js?v=23.78.6';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.78.1';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.78.6';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -87,7 +88,8 @@ export function money(v) {
   const raw = String(v == null ? '' : v).trim();
   const m = raw.match(/^([+-]?)\s*(\d+)([.,]\d+)?/);
   if (!m) return raw;
-  const groups = m[2].replace(/\B(?=(\d{3})+(?!\d))/g, '\u00A0');
+  // Разряды: в английском интерфейсе — запятая (1,245), в русском — пробел.
+  const groups = m[2].replace(/\B(?=(\d{3})+(?!\d))/g, английский() ? ',' : '\u00A0');
   return m[1] + groups + (m[3] ? m[3].replace(',', '.') : '');
 }
 
@@ -132,7 +134,7 @@ function buildWalletApp(wallet, owner) {
 // --- Календарь ---------------------------------------------------------------
 // Живёт в render/calendar.js; отсюда его по-прежнему берёт альманах
 // (render/medieval.js).
-export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.78.1';
+export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.78.6';
 
 // --- Экраны приложений ------------------------------------------------------
 // Каждый билдер получает свой кусок data.phone и возвращает внутренности

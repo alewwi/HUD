@@ -18,17 +18,17 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.78.1';
-import { settings } from '../settings.js?v=23.78.1';
-import { разобратьХод } from './carryover.js?v=23.78.1';
-import { моментСцены } from './intimacy.js?v=23.78.1';
-import { одеждаПодробно, полПерсонажа } from './scene-body.js?v=23.78.1';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.78.1';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.78.1';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.78.1';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.78.1';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.78.1';
-import { английский } from '../i18n.js?v=23.78.1';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.78.6';
+import { settings } from '../settings.js?v=23.78.6';
+import { разобратьХод } from './carryover.js?v=23.78.6';
+import { моментСцены } from './intimacy.js?v=23.78.6';
+import { одеждаПодробно, полПерсонажа } from './scene-body.js?v=23.78.6';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.78.6';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.78.6';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.78.6';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.78.6';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.78.6';
+import { английский } from '../i18n.js?v=23.78.6';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;
@@ -140,7 +140,9 @@ export function событияТаймлайна(строки) {
       // «приказал увезти Лейлу на завтрак в 08:30», «ждёт к ужину» — еда в
       // планах, а не съеденная: без глагола еды такое не считаем. Иначе HUD
       // просил модель дописать блюдо к событию, где никто не ел.
-      if (вид === 'eat' && /(?<![\p{L}])(?:на|к|ко|до|перед|для)\s+$/iu.test(что.slice(0, найдено.index)) && !ГЛАГОЛ_ЕДЫ.test(что)) continue;
+      // «после обеда», «с ужина», «в обед» — это время суток, а не еда:
+      // «Пока Лейла отогревала ноги… ждущих владелицу после обеда» не ужин.
+      if (вид === 'eat' && /(?<![\p{L}])(?:на|к|ко|до|перед|для|после|с|со|в|во время|after|before|until|till|by|for|since|at)\s+$/iu.test(что.slice(0, найдено.index)) && !ГЛАГОЛ_ЕДЫ.test(что)) continue;
       out.push({ вид, что, время: +м[1] * 60 + +м[2] }); break;
     }
   }
@@ -672,7 +674,7 @@ export function сколькоПрошло(t, сейчас) {
   return дни + ' ' + склон(дни, ['день', 'дня', 'дней']) + ' назад';
 }
 const часы = (ч) => (Math.round(ч * 2) / 2).toString().replace('.', ',') + ' ч';
-const деньги = (n, вал = '') => Math.round(n).toLocaleString('ru-RU').replace(/\s/g, ' ') + (вал ? ' ' + вал : '');
+const деньги = (n, вал = '') => Math.round(n).toLocaleString(английский() ? 'en-US' : 'ru-RU').replace(/\s/g, ' ') + (вал ? ' ' + вал : '');
 // «54200000» и «$» → «54 200 000 $»; «18 400 ₽» и слова оставляем как есть.
 const балансСловами = (д) => {
   const ч = Number(String(д.баланс).replace(/[\s ]/g, '').replace(',', '.'));
