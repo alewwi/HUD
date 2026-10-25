@@ -1,0 +1,39 @@
+/* =========================================================================
+   АНГЛИЙСКИЙ ИНТЕРФЕЙС (i18n.js): подписи, которые живут в CSS (content).
+   Грузится только при language: 'en'; селекторы — те же, что в исходных
+   правилах, с :root.hud-lang-en впереди, чтобы перебить их без !important.
+   ========================================================================= */
+:root.hud-lang-en .hud-phone-notif-stack::after { content: 'tap to expand'; }
+:root.hud-lang-en .hud-phone-notif-stack.is-open::after { content: 'tap a notification to open the chat'; }
+:root.hud-lang-en.hud-deco-stamp .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap::after { content: 'POST\A✦ 1892 ✦'; }
+:root.hud-lang-en.hud-deco-archive .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap::after { content: 'CASE № 17'; }
+:root.hud-lang-en.hud-skin-notebook .hud-os-card .hud-header:not(.has-banner):not(.is-visit)::before { content: 'Character card ✿'; }
+:root.hud-lang-en.hud-skin-evidence .hud-os-card .hud-header::after { content: 'CASE · CLASSIFIED' !important; }
+:root.hud-lang-en .hud-cp-preview::after { content: 'preview'; }
+:root.hud-lang-en .hud-life-nights::after { content: 'norm'; }
+:root.hud-lang-en .hud-letter.st-sealed:not([open]) .hud-letter-side::after { content: 'tap to break the seal'; }
+:root.hud-lang-en .hud-hv-chart .hud-health::before { content: 'MEDICAL CHART'; }
+:root.hud-lang-en .hud-row.is-past .hud-key::after { content: 'earlier'; }
+
+/* Пустые «Мир» и «Дневник» в темах: общий текст и свой у каждой темы. */
+:root.hud-lang-en { --th-empty-world: 'No entries yet.'; --th-empty-diary: 'No entries yet.'; }
+:root.hud-lang-en.hud-theme-academia { --th-empty-world: 'The archive for this day is empty.'; --th-empty-diary: 'Not a single entry. The ink is untouched.'; }
+:root.hud-lang-en.hud-theme-biopunk { --th-empty-world: 'The culture hasn\'t grown yet.'; --th-empty-diary: 'No samples taken yet.'; }
+:root.hud-lang-en.hud-theme-cyberpunk { --th-empty-world: '// NO SIGNAL — no data for this period'; }
+:root.hud-lang-en.hud-theme-dieselpunk { --th-empty-world: 'No reports. The fuel is at zero.'; --th-empty-diary: 'The logbook is empty.'; }
+:root.hud-lang-en.hud-theme-egypt { --th-empty-world: 'The scribe didn\'t come today.'; --th-empty-diary: 'The papyrus is still clean.'; }
+:root.hud-lang-en.hud-theme-fantasy { --th-empty-world: 'The news is still on its way — the raven hasn\'t arrived.'; --th-empty-diary: 'The scroll is clean. The quill is waiting.'; }
+:root.hud-lang-en.hud-theme-japan { --th-empty-world: 'The garden is silent today.'; --th-empty-diary: 'The scroll is still clean.'; }
+:root.hud-lang-en.hud-theme-kawaii { --th-empty-world: 'The town is so-o quiet today.'; --th-empty-diary: 'The diary is still squeaky clean.'; }
+:root.hud-lang-en.hud-theme-mafia { --th-empty-world: 'Nothing in town. Silence is worth more.'; --th-empty-diary: 'No entries. And rightly so.'; }
+:root.hud-lang-en.hud-theme-medieval { --th-empty-world: 'No news has come from the town.'; --th-empty-diary: 'The chronicle is not begun yet.'; }
+:root.hud-lang-en.hud-theme-noir { --th-empty-world: 'No leads, no witnesses.'; --th-empty-diary: 'No entries. The case was never opened.'; }
+:root.hud-lang-en.hud-theme-pirate { --th-empty-world: 'The map is empty so far.'; --th-empty-diary: 'The ship\'s log is clean.'; }
+:root.hud-lang-en.hud-theme-solarpunk { --th-empty-world: 'It\'s quiet in the garden today.'; --th-empty-diary: 'The page is still green.'; }
+:root.hud-lang-en.hud-theme-spacehorror { --th-empty-world: 'Signal lost. No data.'; --th-empty-diary: 'The records are erased.'; }
+:root.hud-lang-en.hud-theme-spaceopera { --th-empty-world: 'This sector is empty.'; --th-empty-diary: 'The ship\'s log is clean.'; }
+:root.hud-lang-en.hud-theme-steampunk { --th-empty-world: 'The boiler has gone cold — no news came.'; --th-empty-diary: 'The journal isn\'t started yet.'; }
+:root.hud-lang-en.hud-theme-vamp { --th-empty-world: 'The city is silent. So it hasn\'t woken up yet.'; --th-empty-diary: 'The pages are empty. For now.'; }
+:root.hud-lang-en.hud-theme-voodoo { --th-empty-world: 'The spirits are silent today.'; --th-empty-diary: 'Not a sign all day.'; }
+:root.hud-lang-en.hud-theme-western { --th-empty-world: 'It\'s quiet in town today.'; --th-empty-diary: 'Not a line all day.'; }
+:root.hud-lang-en.hud-theme-witch { --th-empty-world: 'No circle was drawn today.'; --th-empty-diary: 'The grimoire is still clean.'; }
