@@ -149,7 +149,7 @@ While an argument is going on: who leads and by how much, who conceded what, the
 
 ### 📖 Diary and 🕯 body diary
 
-The character's personal notes in their own words (subjective — they can be wrong and lie to themselves) and the body diary — how they feel, fatigue, bruises and healing.
+The character's personal notes in their own words (subjective — they can be wrong and lie to themselves) and the body diary — an entry about the body during intimacy and after it: what it wants, what it gets, what aches and which marks are left.
 
 <p align="center"><img src="docs/screens/en/diary.webp" alt="Character diaries" width="420"></p>
 

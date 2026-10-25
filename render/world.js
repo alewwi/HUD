@@ -7,12 +7,12 @@
 // settings.showComments напрямую из замыкания index.js. Теперь флаг
 // приходит четвёртым аргументом — модуль не знает про глобальные настройки.
 
-import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.79.2';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.79.2';
-import { buildEconomyHTML, buildEventsHTML, buildCityHTML, разборЭкономики, разборАфиши, разборГорода } from './world-city.js?v=23.79.2';
-import { видБлока } from './views.js?v=23.79.2';
-import { знакЗодиака } from '../i18n.js?v=23.79.2';
-import { видНовостей, видСлухов, видЭкономики, видГорода, видПрогноза, видГороскопа, видАфиши, видОбъявлений, видКомментариев } from './world-views.js?v=23.79.2';
+import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.79.3';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.79.3';
+import { buildEconomyHTML, buildEventsHTML, buildCityHTML, разборЭкономики, разборАфиши, разборГорода } from './world-city.js?v=23.79.3';
+import { видБлока } from './views.js?v=23.79.3';
+import { знакЗодиака } from '../i18n.js?v=23.79.3';
+import { видНовостей, видСлухов, видЭкономики, видГорода, видПрогноза, видГороскопа, видАфиши, видОбъявлений, видКомментариев } from './world-views.js?v=23.79.3';
 
 // Вид блока «Мира» из «Кастомизации»: новый — если выбран и собрался,
 // иначе прежний (render/world-views.js).

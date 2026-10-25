@@ -2300,7 +2300,7 @@ export const СЛОВАРЬ_EN = {
   "Личные записи персонажа своими словами: что он сам думает о случившемся": "The character's personal notes in their own words: what they think about what happened",
   "Появляется, когда модель написала хотя бы одну запись": "Appears when the model wrote at least one entry",
   "Записи субъективны: персонаж может ошибаться, недоговаривать и врать самому себе": "The entries are subjective: the character can be wrong, hold back and lie to themselves",
-  "Телесные следы и ощущения: усталость, синяки, отметины, что болит и что заживает": "Bodily traces and sensations: fatigue, bruises, marks, what hurts and what is healing",
+  "Запись от первого лица о теле во время близости и после неё: чего оно хочет, что получает, где горит, что ноет и какие следы остались": "A first-person entry about the body during intimacy and after it: what it wants, what it gets, where it burns, what aches and which marks are left",
   "Появляется во время близости и какое-то время после неё, пока есть о чём писать": "Appears during intimacy and for a while after it, as long as there's something to write about",
   "Отдельно от обычного дневника: там мысли, здесь тело": "Separate from the regular diary: there — thoughts, here — the body",
   "Этап и очередь, кто на какой дистанции, раны на силуэте, оружие с зарядом, адреналин, выдержка, укрытия; в погоне — шкала дистанции": "Stage and turn order, who is at what distance, wounds on the silhouette, weapons with ammo, adrenaline, nerve, cover; in a chase — a distance bar",
