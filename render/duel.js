@@ -12,11 +12,11 @@
 //   всплыло       — запись памяти (таймлайн, важное), с которой совпадает
 //                   суть спора: «это про тот вечер 12-го».
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки } from '../utils.js?v=23.75.0';
-import { namesLikelySame } from '../names.js?v=23.75.0';
-import { settings } from '../settings.js?v=23.75.0';
-import { getAvatarUrl } from '../avatars.js?v=23.75.0';
-import { ико, медаль } from './view-icons.js?v=23.75.0';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки } from '../utils.js?v=23.78.1';
+import { namesLikelySame } from '../names.js?v=23.78.1';
+import { settings } from '../settings.js?v=23.78.1';
+import { getAvatarUrl } from '../avatars.js?v=23.78.1';
+import { ико, медаль } from './view-icons.js?v=23.78.1';
 
 const текст = (v) => String(снятьЗаглушки(flattenFieldValue(v)) || '').trim();
 const поле = (о, имя) => {
@@ -39,12 +39,12 @@ export const ГРАДУС = [
 // Слова тона по ступеням ГРАДУС (тот же порядок): «приказ» — властный холод,
 // «допрос» и «угроза» — укол, «насилие», «удар», «ярость» — ссора.
 const СИНОНИМЫ_ГРАДУСА = [
-  /(?<![\p{L}])(?:примир|мир(?:ятся|имся|но)|нежн|тепл|прощ)/iu,
-  /(?<![\p{L}])(?:холод|ледян|отстран|молчан|игнор|приказ|доминац|доминир|триумф|властн)/iu,
-  /(?<![\p{L}])(?:спор|препира|торг|возраж)/iu,
-  /(?<![\p{L}])(?:укол|колк|язв|сарказ|насмеш|издёв|издев|допрос|угроз|шантаж)/iu,
-  /(?<![\p{L}])(?:ссор|ярост|гнев|злост|насил|удар|драк|бешен)/iu,
-  /(?<![\p{L}])(?:крик|орёт|орет|вопл|рык|рёв|рев(?![\p{L}]))/iu,
+  /(?<![\p{L}])(?:примир|мир(?:ятся|имся|но)|нежн|тепл|прощ|reconcil|make up|making up|peace|tender|warm|forgiv)/iu,
+  /(?<![\p{L}])(?:холод|ледян|отстран|молчан|игнор|приказ|доминац|доминир|триумф|властн|cold|icy|distant|silen|ignor|order|dominan|triumph|imperious)/iu,
+  /(?<![\p{L}])(?:спор|препира|торг|возраж|argu|bicker|bargain|haggl|object|disput)/iu,
+  /(?<![\p{L}])(?:укол|колк|язв|сарказ|насмеш|издёв|издев|допрос|угроз|шантаж|jab|barb|snide|sarcas|mock|taunt|interrog|threat|blackmail)/iu,
+  /(?<![\p{L}])(?:ссор|ярост|гнев|злост|насил|удар|драк|бешен|quarrel|fury|furious|rage|anger|angry|violen|hit|blow|fight|brawl)/iu,
+  /(?<![\p{L}])(?:крик|орёт|орет|вопл|рык|рёв|рев(?![\p{L}])|shout|yell|scream|roar)/iu,
 ];
 
 // Лицо спорщика: аватарка карточки или буква на акценте (как в сетке секретов).

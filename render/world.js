@@ -7,11 +7,12 @@
 // settings.showComments напрямую из замыкания index.js. Теперь флаг
 // приходит четвёртым аргументом — модуль не знает про глобальные настройки.
 
-import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.75.0';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.75.0';
-import { buildEconomyHTML, buildEventsHTML, buildCityHTML, разборЭкономики, разборАфиши, разборГорода } from './world-city.js?v=23.75.0';
-import { видБлока } from './views.js?v=23.75.0';
-import { видНовостей, видСлухов, видЭкономики, видГорода, видПрогноза, видГороскопа, видАфиши, видОбъявлений, видКомментариев } from './world-views.js?v=23.75.0';
+import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.78.1';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.78.1';
+import { buildEconomyHTML, buildEventsHTML, buildCityHTML, разборЭкономики, разборАфиши, разборГорода } from './world-city.js?v=23.78.1';
+import { видБлока } from './views.js?v=23.78.1';
+import { знакЗодиака } from '../i18n.js?v=23.78.1';
+import { видНовостей, видСлухов, видЭкономики, видГорода, видПрогноза, видГороскопа, видАфиши, видОбъявлений, видКомментариев } from './world-views.js?v=23.78.1';
 
 // Вид блока «Мира» из «Кастомизации»: новый — если выбран и собрался,
 // иначе прежний (render/world-views.js).
@@ -234,7 +235,8 @@ export function buildWorldHTML(worldData, uid, isChecked, showComments) {
       (worldData.prediction && worldData.prediction.length > 0)) {
     const знаки = (worldData.horoscope || []).map(row => {
       const h = parseHoroscopeRow(row);
-      return { ...h, glyph: zodiacGlyph(h.sign), toneLabel: TONE_LABEL[h.tone], index: zodiacIndex(h.sign) };
+      // Имя знака — на языке интерфейса (код «ge» раскрывается в «Близнецы»).
+      return { ...h, sign: знакЗодиака(h.sign), glyph: zodiacGlyph(h.sign), toneLabel: TONE_LABEL[h.tone], index: zodiacIndex(h.sign) };
     });
     html += вМире('horoscopeView', вид => видГороскопа(знаки, worldData.prediction, вид, '🔮 Гороскоп на день'), () => {
       let h = `<div class="hud-world-section hud-world-section-horo" title="Нажмите для анимации">

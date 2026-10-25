@@ -13,25 +13,26 @@
 // уязвимом положении, поэтому по умолчанию оно под покрывалом
 // (underwearVeil): открывается нажатием.
 
-import { escapeHtml, applyTooltips, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.75.0';
-import { settings } from '../settings.js?v=23.75.0';
-import { ико } from './view-icons.js?v=23.75.0';
+import { escapeHtml, applyTooltips, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.78.1';
+import { settings } from '../settings.js?v=23.78.1';
+import { ико } from './view-icons.js?v=23.78.1';
 
 const текст = (v) => String(снятьЗаглушки(flattenFieldValue(v)) || '').trim();
 const пусто = (s) => !s || /^(empty|none|нет|—|-)$/i.test(s.trim());
 
 const ЦВЕТА = [
-  [/черн/i, '#1d1a1f'], [/бел|молочн|айвори/i, '#f2eee8'], [/алы|красн|кармин/i, '#c0283a'], [/бордо|винн|марсал/i, '#6e1a2b'],
-  [/розов|пудр/i, '#e7a3b8'], [/нюд|телесн|бежев|кремов/i, '#d9b9a0'], [/фиолет|лилов|сирен/i, '#7b4fa0'], [/изумр|зел[её]н/i, '#2f7a57'],
-  [/син|сапфир/i, '#2c4a8a'], [/голуб/i, '#86b3dc'], [/сер[её]бр|сер(?:ый|ая|ое|ые)/i, '#a9aeb6'], [/золот/i, '#c9a24a'],
+  [/light blue|baby blue|sky blue|pale blue/i, '#86b3dc'],
+  [/черн|black/i, '#1d1a1f'], [/бел|молочн|айвори|white|ivory|milk/i, '#f2eee8'], [/алы|красн|кармин|scarlet|crimson|(?<![a-z])red(?![a-z])/i, '#c0283a'], [/бордо|винн|марсал|burgundy|wine|maroon/i, '#6e1a2b'],
+  [/розов|пудр|pink|powder|blush/i, '#e7a3b8'], [/нюд|телесн|бежев|кремов|nude|beige|cream|skin-tone/i, '#d9b9a0'], [/фиолет|лилов|сирен|purple|lilac|violet|lavender/i, '#7b4fa0'], [/изумр|зел[её]н|emerald|green/i, '#2f7a57'],
+  [/син|сапфир|navy|blue|sapphire/i, '#2c4a8a'], [/голуб/i, '#86b3dc'], [/сер[её]бр|сер(?:ый|ая|ое|ые)|silver|gr[ae]y/i, '#a9aeb6'], [/золот|gold/i, '#c9a24a'],
 ];
 const СОСТОЯНИЯ = [
-  ['lost', /потерян|потерял|не найти|исчез/i, 'потеряно'],
-  ['off', /снят|сняла|стянут|сорван|на полу|off/i, 'снято'],
-  ['moved', /сдвинут|сдвинул|отодвинут|спущен|приспущ|moved/i, 'сдвинуто'],
+  ['lost', /потерян|потерял|не найти|исчез|lost|missing|can't find/i, 'потеряно'],
+  ['off', /снят|сняла|стянут|сорван|на полу|off|removed|torn|on the floor/i, 'снято'],
+  ['moved', /сдвинут|сдвинул|отодвинут|спущен|приспущ|moved|pushed aside|pulled down|pulled aside|shifted/i, 'сдвинуто'],
   ['on', /.*/, 'на месте'],
 ];
-const СЛУЧАЙНО = /не думая|случайн|просто так|для себя|первое попавш|привычн|не выбирал/i;
+const СЛУЧАЙНО = /не думая|случайн|просто так|для себя|первое попавш|привычн|не выбирал|without thinking|random|by chance|for (?:her|him)self|for myself|habit|whatever|didn't choose/i;
 
 /** «set: чёрное кружево, комплект; for: для Тристана; st: сдвинуто» → разбор. */
 export function разобратьБельё(value) {
@@ -45,7 +46,7 @@ export function разобратьБельё(value) {
   const для = части.for || '';
   const случайно = !для || СЛУЧАЙНО.test(для);
   // Средневековье: сорочка, камиза — одна вещь до колен, а не комплект.
-  const сорочка = /камиз|сорочк|исподн|рубах/i.test(комплект);
+  const сорочка = /камиз|сорочк|исподн|рубах|chemise|shift|smock|undershirt/i.test(комплект);
   return { комплект, цвет, состояние: ст, состояниеСлово: стСлово, для, случайно, сорочка };
 }
 

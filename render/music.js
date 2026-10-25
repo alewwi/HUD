@@ -17,14 +17,15 @@
 // версии HUD, и сохраняется в файле чата. Запрос идёт с флагом
 // window.__tavernOSHudSkipInject: инструкция HUD в него не попадает.
 
-import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки } from '../utils.js?v=23.75.0';
-import { settings } from '../settings.js?v=23.75.0';
-import { parseHUDComplex } from '../hud-parser.js?v=23.75.0';
-import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.75.0';
-import { hudHasCombat } from './combat.js?v=23.75.0';
-import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.75.0';
-import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.75.0';
-import { ключСообщения } from '../chronicle.js?v=23.75.0';
+import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки } from '../utils.js?v=23.78.1';
+import { settings } from '../settings.js?v=23.78.1';
+import { parseHUDComplex } from '../hud-parser.js?v=23.78.1';
+import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.78.1';
+import { hudHasCombat } from './combat.js?v=23.78.1';
+import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.78.1';
+import { английский } from '../i18n.js?v=23.78.1';
+import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.78.1';
+import { ключСообщения } from '../chronicle.js?v=23.78.1';
 
 export { музыкаХода };
 
@@ -189,10 +190,13 @@ function блокКонтекста(контекст) {
   return out;
 }
 
-export function промптМузыки({ сцена, проза = '', прежние = [], сколько = 8, средневековье = settings.musicMedieval, телефон = null, части = ['soundtrack', 'scene'], контекст = null, правила = null }) {
+export function промптМузыки({ сцена, проза = '', прежние = [], сколько = 8, средневековье = settings.musicMedieval, телефон = null, части = ['soundtrack', 'scene'], контекст = null, правила = null, пожелание = settings.musicWish }) {
+  const просьба = обрезать(плоско(пожелание || ''), 300);
   const нужно = new Set(части);
   if (!телефон) нужно.delete('phone');
   const толькоСцена = нужно.has('scene') && !нужно.has('soundtrack');
+  // Подписи для интерфейса (метка, пояснения, где играет) — на его языке.
+  const язык = английский() ? 'English' : 'Russian';
   const эпоха = сцена.эра === 'medieval'
     ? (средневековье === 'score'
       ? 'Setting: medieval. Soundtrack: modern orchestral film/TV/game scores for historical or fantasy stories. Scene music must still be period-plausible (lute, minstrels, chant, folk instruments).'
@@ -203,19 +207,23 @@ export function промптМузыки({ сцена, проза = '', преж
     нужно.has('scene') && '"scene":{"source":"...","tracks":[{"artist":"...","title":"..."}]}',
     нужно.has('phone') && '"phone":{"tracks":[{"artist":"...","title":"..."}]}'].filter(Boolean).join(',');
   const system = [
-    'You are a music supervisor for an interactive story. From a structured scene snapshot you choose music.',
+    // Начало: роль и запрет. Сообщения истории, карточка и лорбуки в запросе
+    // похожи на ролевую — без этого модель принималась писать продолжение.
+    'You are a music supervisor for an interactive story. You do NOT write, continue or roleplay the story, and you do not answer any character: you only choose music for the current moment.',
+    'Everything inside <reference> in the user message — scene snapshot, story excerpt, character card, persona, lore — is background information about that moment. Read it, never continue it.',
     'Reply with ONLY one JSON object, no prose, no markdown:',
     '{' + шаблон + '}',
     'Rules:',
     String(правила ?? settings.musicPrompt ?? '').trim() || ПРАВИЛА_МУЗЫКИ,
     нужно.has('soundtrack') && `- soundtrack: ${сколько + 3} tracks for the listener, like the soundtrack of a film or series at this exact moment, best match first.`,
     нужно.has('scene') && (толькоСцена
-      ? '- scene: music the characters themselves can hear right now. The player asked for it, so always return 1-3 tracks: what plays or could plausibly play in that place (radio, venue, a speaker, a street musician, a bard). "source" — where it plays, 2-5 words in Russian.'
-      : '- scene: music the characters themselves can hear right now (car radio, club, bar pianist, street musician, tavern bard, a phone speaker). Only when the snapshot or the text implies music is playing or plausible in that place; otherwise "scene": null. 1-3 tracks. "source" — where it plays, 2-5 words in Russian.'),
+      ? '- scene: music the characters themselves can hear right now. The player asked for it, so always return 1-3 tracks: what plays or could plausibly play in that place (radio, venue, a speaker, a street musician, a bard). "source" — where it plays, 2-5 words in ' + язык + '.'
+      : '- scene: music the characters themselves can hear right now (car radio, club, bar pianist, street musician, tavern bard, a phone speaker). Only when the snapshot or the text implies music is playing or plausible in that place; otherwise "scene": null. 1-3 tracks. "source" — where it plays, 2-5 words in ' + язык + '.'),
     нужно.has('phone') && '- phone: what ' + телефон.владелец + ' personally listens to on their own phone — 6 tracks, most recently played first. Their own taste by age, background, personality and state, not the scene score. Songs with vocals are fine.' + (телефон.прежние.length ? ' Keep most of their library from before and change 1-3 tracks to reflect the moment.' : ''),
-    '- label: 2-5 lowercase Russian words naming the moment for the interface, e.g. "дождливая ночь в машине".',
-    нужно.has('soundtrack') && '- why: at most 8 Russian words.',
+    '- label: 2-5 lowercase ' + язык + ' words naming the moment for the interface, e.g. ' + (английский() ? '"rainy night in the car"' : '"дождливая ночь в машине"') + '.',
+    нужно.has('soundtrack') && '- why: at most 8 ' + язык + ' words.',
     '- ' + эпоха,
+    просьба && "- The player's wish in the user message has top priority: follow it for the soundtrack" + (нужно.has('phone') ? ' and the phone' : '') + ', even over the taste rules. Scene music still has to be plausible for the place.',
   ].filter(Boolean).join('\n');
   const строки = [];
   const добавить = (к, з) => { if (з) строки.push(к + ': ' + з); };
@@ -242,12 +250,16 @@ export function промптМузыки({ сцена, проза = '', преж
     }
     история = '\nRECENT STORY (oldest first):\n' + взято.join('\n\n');
   } else if (проза) история = '\nLAST STORY TEXT (excerpt):\n' + проза;
-  const user = ['SCENE SNAPSHOT', ...строки,
+  // Справка — внутри <reference>; задание — после неё, последним, чтобы
+  // модель закончила чтение на задании, а не на тексте истории.
+  const user = ['<reference>', 'SCENE SNAPSHOT', ...строки,
     ...блокКонтекста(контекст).map(б => '\n' + б),
     история,
-    прежние.length ? '\nDo not repeat these recently used tracks: ' + прежние.slice(0, 16).join('; ') : '',
     нужно.has('phone') ? '\nPHONE OWNER: ' + телефон.владелец + (телефон.о ? ' (' + телефон.о + ')' : '') + (телефон.прежние.length ? '\nTheir phone library before: ' + телефон.прежние.slice(0, 8).join('; ') : '') : '',
-    '\nReturn the JSON now.'].filter(Boolean).join('\n');
+    '</reference>',
+    прежние.length ? '\nDo not repeat these recently used tracks: ' + прежние.slice(0, 16).join('; ') : '',
+    просьба ? "\nPLAYER'S WISH (top priority, follow it): " + просьба : '',
+    '\nTASK: choose music for this moment. Do not continue the story, do not write prose, dialogue or a reply to any character. Answer with ONLY the JSON object described in the instructions — start with "{" and end with "}".'].filter(Boolean).join('\n');
   return { system, user };
 }
 
@@ -272,17 +284,42 @@ function безПовторов(список) {
 }
 
 /** Ответ модели → { label, soundtrack, scene }. Бросает, если JSON не найден. */
+// Оборванный ответ (кончился лимит): берём целые треки до места обрыва —
+// каждый трек отдельным объектом в своей части.
+function спастиОборванный(текст) {
+  const часть = (ключ, до) => {
+    const i = текст.search(new RegExp('"' + ключ + '"\\s*:'));
+    if (i < 0) return '';
+    const концы = до.map(к => текст.slice(i + 1).search(new RegExp('"' + к + '"\\s*:'))).filter(x => x >= 0);
+    return текст.slice(i, концы.length ? i + 1 + Math.min(...концы) : undefined);
+  };
+  const объекты = (кусок) => (кусок.match(/\{[^{}]*\}/g) || []).map(o => { try { return JSON.parse(o); } catch (_) { return null; } }).filter(Boolean);
+  const метка = (текст.match(/"label"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || '';
+  const саундтрек = объекты(часть('soundtrack', ['scene', 'phone']));
+  const сцена = часть('scene', ['soundtrack', 'phone']);
+  const вСцене = объекты(сцена).filter(o => o.artist || o.title);
+  const источник = (сцена.match(/"source"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || '';
+  const телефон = объекты(часть('phone', ['soundtrack', 'scene']));
+  if (!саундтрек.length && !вСцене.length && !телефон.length) return null;
+  return { label: метка, soundtrack: саундтрек, scene: вСцене.length ? { source: источник, tracks: вСцене } : null, phone: телефон.length ? { tracks: телефон } : null };
+}
+
 export function разобратьОтвет(raw) {
   let t = raw;
   if (t && typeof t === 'object') t = t.content ?? t.text ?? t.choices?.[0]?.message?.content ?? '';
   if (Array.isArray(t)) t = t.map(c => (c && c.text) || '').join('');
   t = String(t || '').replace(/<(think|thinking|reasoning)\b[^>]*>[\s\S]*?<\/\1>/gi, ' ').replace(/```(?:json)?/gi, ' ');
+  // Ответ оборвался на рассуждениях — JSON до конца не дошёл.
+  if (/<(think|thinking|reasoning)\b/i.test(t) && !/<\/(think|thinking|reasoning)>/i.test(t)) throw new Error('ответ оборвался на рассуждениях модели — увеличьте лимит ответа в настройках музыки');
   const от = t.indexOf('{'), до = t.lastIndexOf('}');
-  if (от < 0 || до <= от) throw new Error('модель не прислала подборку (нет JSON)');
-  const кусок = t.slice(от, до + 1);
+  if (от < 0) throw new Error('модель не прислала подборку (нет JSON)');
+  const кусок = до > от ? t.slice(от, до + 1) : t.slice(от);
   let j;
   try { j = JSON.parse(кусок); } catch (_) {
-    try { j = JSON.parse(кусок.replace(/,\s*([}\]])/g, '$1')); } catch (e) { throw new Error('подборка пришла битой: ' + e.message); }
+    try { j = JSON.parse(кусок.replace(/,\s*([}\]])/g, '$1')); } catch (e) {
+      j = спастиОборванный(t.slice(от));
+      if (!j) throw new Error('подборка пришла битой (' + e.message + ') — возможно, не хватило лимита ответа');
+    }
   }
   const саундтрек = безПовторов((Array.isArray(j.soundtrack) ? j.soundtrack : []).map(трекИз).filter(Boolean)).slice(0, 16);
   const сц = j.scene && typeof j.scene === 'object' ? j.scene : null;
@@ -503,7 +540,7 @@ async function собратьКонтекстМузыки(ctx, chat, индек�
   let карточка = null, персона = '';
   if (нуженПомощник) {
     try {
-      const A = await import('./assistant.js?v=23.75.0');
+      const A = await import('./assistant.js?v=23.78.1');
       if (settings.musicIncludeCard === true) карточка = A.карточкаПерсонажа(ctx);
       if (settings.musicIncludePersona === true) персона = A.персонаИгрока(ctx);
     } catch (e) { console.warn('[TavernOS HUD] музыка: карточка и персона', e); }
@@ -523,15 +560,19 @@ const ключХода = (ctx, индекс, message) => String(ctx && typeof ct
 // ПОДБОРКА
 // ---------------------------------------------------------------------------
 
+// Лимит ответа: думающая модель тратит его и на рассуждения, и при малом
+// лимите JSON обрывается. Настройка — не меньше 2048, по умолчанию 8192.
+export const лимитОтвета = () => Math.max(2048, Math.min(65536, parseInt(settings.musicMaxTokens, 10) || 8192));
+
 async function отправить(ctx, system, user, signal) {
   const профиль = String(settings.musicProfileId || '');
   const служба = ctx.ConnectionManagerRequestService;
   if (профиль && служба && typeof служба.sendRequest === 'function') {
-    return служба.sendRequest(профиль, [{ role: 'system', content: system }, { role: 'user', content: user }], 900,
+    return служба.sendRequest(профиль, [{ role: 'system', content: system }, { role: 'user', content: user }], лимитОтвета(),
       { stream: false, signal, extractData: true, includePreset: false, includeInstruct: false });
   }
   if (typeof ctx.generateRaw !== 'function') throw new Error('SillyTavern не отдал функцию генерации');
-  return ctx.generateRaw({ prompt: user, systemPrompt: system, responseLength: 900 });
+  return ctx.generateRaw({ prompt: user, systemPrompt: system, responseLength: лимитОтвета() });
 }
 
 /**
@@ -684,7 +725,10 @@ export function видПолосы() {
 }
 
 const ИКО = {
-  note: 'M9 18V5l11-2v13 M9 18a3 3 0 1 1-6 0a3 3 0 1 1 6 0 M20 16a3 3 0 1 1-6 0a3 3 0 1 1 6 0',
+  note: 'M9.5 18V5l11-2v13 M9.5 18a3 3 0 1 1-6 0a3 3 0 1 1 6 0 M20.5 16a3 3 0 1 1-6 0a3 3 0 1 1 6 0',
+  minus: 'M6 12h12',
+  close: 'M7 7l10 10 M17 7 7 17',
+  plus: 'M12 6v12 M6 12h12',
   chev: 'm6 9 6 6 6-6',
   redo: 'M3 12a9 9 0 0 1 15.5-6.3L21 8 M21 3v5h-5 M21 12a9 9 0 0 1-15.5 6.3L3 16 M3 21v-5h5',
   queue: 'M3 6h12 M3 12h12 M3 18h8 M17 15v6 M14 18h6',
@@ -693,7 +737,7 @@ const ИКО = {
   stop: 'M6 6h12v12H6Z',
   warn: 'M12 3 2 20h20Z M12 10v4 M12 17h.01',
 };
-const ИГРА = '<svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5.2v13.6c0 .8.9 1.3 1.6.9l10.6-6.8a1.05 1.05 0 0 0 0-1.8L9.6 4.3C8.9 3.9 8 4.4 8 5.2Z"/></svg>'
+const ИГРА = '<svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5.6 5.2v13.6c0 .8.9 1.3 1.6.9l10.6-6.8a1.05 1.05 0 0 0 0-1.8L7.2 4.3C6.5 3.9 5.6 4.4 5.6 5.2Z"/></svg>'
   + '<svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.5 4.5h3.6v15H6.5zM13.9 4.5h3.6v15h-3.6z"/></svg>'
   + '<i class="i-load" aria-hidden="true"></i>';
 const плеерВключён = () => settings.musicPlayer !== false;
@@ -747,7 +791,8 @@ const числоТреков = () => Math.max(4, Math.min(12, parseInt(settings.
 function строкаНастроек() {
   return `<div class="hud-music-tune">`
     + (плеерВключён() ? `<label class="hud-music-vol" title="Громкость"><span class="hud-music-vol-ico">${ико('speaker')}</span><input type="range" min="0" max="100" step="5" value="${громкость()}" data-mu-set="volume" aria-label="Громкость"><output>${громкость()}</output></label>` : '')
-    + `<span class="hud-music-cnt" title="Сколько треков в саундтреке — для следующей подборки"><button type="button" data-mu="count" data-d="-1" aria-label="Меньше треков"${числоТреков() <= 4 ? ' disabled' : ''}>−</button><b>${числоТреков()}</b><button type="button" data-mu="count" data-d="1" aria-label="Больше треков"${числоТреков() >= 12 ? ' disabled' : ''}>+</button><small>треков</small></span>`
+    + `<label class="hud-music-wish" title="Пожелание к следующей подборке: что вы хотите услышать. Модель следует ему в первую очередь. Хранится, пока не сотрёте."><span class="hud-music-wish-ico">${ико('note')}</span><input type="text" maxlength="300" data-mu-set="wish" value="${escapeHtml(settings.musicWish || '')}" placeholder="Пожелание: например, музыка для бега" aria-label="Пожелание к музыке"><button type="button" data-mu="wish-clear" title="Стереть пожелание" aria-label="Стереть пожелание"${settings.musicWish ? '' : ' hidden'}>${ико('close')}</button></label>`
+    + `<span class="hud-music-cnt" title="Сколько треков в саундтреке — для следующей подборки"><button type="button" data-mu="count" data-d="-1" aria-label="Меньше треков"${числоТреков() <= 4 ? ' disabled' : ''}>${ико('minus')}</button><b>${числоТреков()}</b><button type="button" data-mu="count" data-d="1" aria-label="Больше треков"${числоТреков() >= 12 ? ' disabled' : ''}>${ико('plus')}</button><small>треков</small></span>`
     + `</div>`;
 }
 
@@ -758,6 +803,18 @@ function поставитьГромкость(v, сохранить) {
   document.querySelectorAll('.hud-music input[data-mu-set="volume"]').forEach(п => { if (Number(п.value) !== settings.musicVolume) п.value = settings.musicVolume; const o = п.parentElement.querySelector('output'); if (o) o.textContent = settings.musicVolume; });
   if (сохранить && основа && typeof основа.saveSettings === 'function') основа.saveSettings();
 }
+// Пожелание: печатаем — в памяти сразу (перерисовка полосы его не потеряет),
+// ушли из поля — сохраняем. Во всех полосах одно и то же.
+function поставитьПожелание(текст, сохранить, откуда = null) {
+  settings.musicWish = String(текст || '').slice(0, 300);
+  document.querySelectorAll('.hud-music input[data-mu-set="wish"]').forEach(п => {
+    if (п !== откуда && п.value !== settings.musicWish) п.value = settings.musicWish;
+    const x = п.parentElement.querySelector('[data-mu="wish-clear"]');
+    if (x) x.hidden = !settings.musicWish;
+  });
+  if (сохранить && основа && typeof основа.saveSettings === 'function') основа.saveSettings();
+}
+
 function сменитьЧислоТреков(шаг) {
   settings.musicCount = Math.max(4, Math.min(12, числоТреков() + шаг));
   document.querySelectorAll('.hud-music-cnt').forEach(эл => {
@@ -1271,6 +1328,7 @@ export function действиеМузыки(e) {
   if (!полоса) return false;
   if (t.closest('a')) return e.type === 'keydown' ? false : true;
   if (t.closest('.hud-music-vol')) return true;
+  if (t.closest('input[data-mu-set="wish"]')) { if (e.type === 'keydown' && e.key === 'Enter') { e.preventDefault(); t.blur(); } return true; }
   const эл = t.closest('[data-mu]');
   if (!эл || !полоса.contains(эл)) return true;
   // Enter на настоящей кнопке браузер сам превращает в click.
@@ -1287,6 +1345,7 @@ export function действиеМузыки(e) {
   else if (д === 'part') подобратьМузыку(индекс, { вручную: true, части: [эл.dataset.part] });
   else if (д === 'play') играть(индекс, эл.dataset.g, Number(эл.dataset.i));
   else if (д === 'count') сменитьЧислоТреков(Number(эл.dataset.d) || 0);
+  else if (д === 'wish-clear') поставитьПожелание('', true);
   else if (д === 'cancel') отменить(индекс);
   else if (д === 'now') поставитьСейчас(индекс, эл.dataset.g, Number(эл.dataset.i));
   else if (д === 'queue') вОчередь(индекс, эл.dataset.g, Number(эл.dataset.i));
@@ -1322,6 +1381,8 @@ export function подключитьМузыку(связь) {
     document.addEventListener(событие, (e) => {
       const п = e.target && e.target.closest && e.target.closest('.hud-music input[data-mu-set="volume"]');
       if (п) поставитьГромкость(п.value, сохранить);
+      const w = e.target && e.target.closest && e.target.closest('.hud-music input[data-mu-set="wish"]');
+      if (w) поставитьПожелание(w.value, сохранить, w);
     });
   }
   const ctx = контекст();

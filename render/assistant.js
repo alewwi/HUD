@@ -11,11 +11,12 @@
 // флаг window.__tavernOSHudSkipInject: без него перехват запросов в index.js
 // вшил бы в вопрос HUD-инструкцию, и модель ответила бы HUD-блоком.
 
-import { escapeHtml, guardTouchSwipe } from '../utils.js?v=23.75.0';
-import { settings } from '../settings.js?v=23.75.0';
-import { parseHUDComplex } from '../hud-parser.js?v=23.75.0';
-import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.75.0';
-import { ПРОМПТ_АССИСТЕНТА } from './assistant-prompt.js?v=23.75.0';
+import { escapeHtml, guardTouchSwipe } from '../utils.js?v=23.78.1';
+import { settings } from '../settings.js?v=23.78.1';
+import { parseHUDComplex } from '../hud-parser.js?v=23.78.1';
+import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.78.1';
+import { ПРОМПТ_АССИСТЕНТА } from './assistant-prompt.js?v=23.78.1';
+import { английский } from '../i18n.js?v=23.78.1';
 
 const ЖДЁМ_МС = 180000;
 
@@ -313,7 +314,8 @@ export function openAssistantDialog({ mesId = null, лорбуки = null, со�
         note: settings.assistantIncludeNote !== false ? заметкиАвтора(ctx) : '',
         lore: записи,
       });
-      const systemPrompt = String(settings.assistantSystemPrompt || '').trim() || ПРОМПТ_АССИСТЕНТА;
+      // Пример ссылок в промпте по умолчанию — на языке интерфейса.
+      const systemPrompt = String(settings.assistantSystemPrompt || '').trim() || (английский() ? ПРОМПТ_АССИСТЕНТА.replace('(HUD: Скрытый подтекст), (сообщение #214), (лорбук: Особняк)', '(HUD: Hidden subtext), (message #214), (lorebook: Mansion)') : ПРОМПТ_АССИСТЕНТА);
       размер.textContent = `Запрос: ≈${Math.round((prompt.length + systemPrompt.length) / 100) / 10} тыс. символов${записи.length ? ', записей лорбука: ' + записи.reduce((a, к) => a + к.entries.length, 0) : ''}.`;
       window.__tavernOSHudSkipInject = (window.__tavernOSHudSkipInject || 0) + 1;
       безHud = true;

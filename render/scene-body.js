@@ -11,7 +11,7 @@
 // Отметки на силуэте + x-ray в разрезе (ниже по файлу).
 // Чистые функции без DOM; встраивает buildHeatMap (render/intimacy.js).
 
-import { settings } from '../settings.js?v=23.75.0';
+import { settings } from '../settings.js?v=23.78.1';
 
 const текст = (v) => String(v ?? '').trim();
 const слово = (s) => new RegExp('(?<![\\p{L}])(?:' + s + ')', 'iu');
@@ -455,8 +455,8 @@ export function полПерсонажа(nsfw, ...прочее) {
   if (/(?:^|;)\s*pn\s*:/i.test(t)) return 'm';
   if (/(?:^|;)\s*(?:lb|ch)\s*:/i.test(t)) return 'f';
   const о = прочее.map(текст).join(' ');
-  if (/мужчин|парень|юнош|\bмуж\b|он сам|брит\p{L}* щетин|щетин|борода/iu.test(о)) return 'm';
-  if (/женщин|девушк|девочк|грудь|бюст|она сама/iu.test(о)) return 'f';
+  if (/мужчин|парень|юнош|\bмуж\b|он сам|брит\p{L}* щетин|щетин|борода/iu.test(о) || /\b(?:man|guy|boy|stubble|beard)\b/i.test(о)) return 'm';
+  if (/женщин|девушк|девочк|грудь|бюст|она сама/iu.test(о) || /\b(?:woman|girl|breasts?|bust)\b/i.test(о)) return 'f';
   return '';
 }
 
@@ -536,7 +536,7 @@ export function блокТемпа(т, тело = {}) {
    кости, органы, каналы, инструмент и ход в такт темпу. Здесь только
    делегирование — сюда приходят из intimacy.js (карта тела) и отсюда же
    берёт картинку блок темпа. */
-import { xrayПенетрации, длинаУзора } from './xray.js?v=23.75.0';
+import { xrayПенетрации, длинаУзора } from './xray.js?v=23.78.1';
 export { xrayПенетрации };
 
 /* =========================================================================

@@ -19,10 +19,10 @@
 // цветом силуэта: это другая величина. Отходняк после адреналина считает HUD
 // по времени сюжета, а не модель.
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.75.0';
-import { namesLikelySame } from '../names.js?v=23.75.0';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.75.0';
-import { медаль } from './view-icons.js?v=23.75.0';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.78.1';
+import { namesLikelySame } from '../names.js?v=23.78.1';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.78.1';
+import { медаль } from './view-icons.js?v=23.78.1';
 
 const текст = (v) => String(снятьЗаглушки(flattenFieldValue(v)) || '').trim();
 const пусто = (s) => !s || /^(empty|none|нет|—|-|null)$/i.test(String(s).trim());
@@ -42,7 +42,7 @@ export const ЭТАПЫ = [
 const СТОРОНЫ = [['ally', /сво|союз|ally|друг/i], ['enemy', /враг|противн|enemy|hostile/i], ['neutral', /нейтр|neutral|случайн/i]];
 const ДИСТАНЦИИ = [['close', /вплотн|рядом|в упор|close/i], ['step', /шаг|step|в двух/i], ['room', /через комнат|комнат|room|на другом конце/i], ['far', /далеко|далек|far|вдали|снаружи/i]];
 const СОСТОЯНИЯ = [['out', /вне строя|без сознан|мёртв|мертв|убит|out/i, 'вне строя'], ['stun', /оглуш|контуж|stun/i, 'оглушён'], ['hurt', /ранен|кровоточ|hurt|wound/i, 'ранен'], ['ok', /.*/, 'цел']];
-export const ВЫДЕРЖКА = [['act', /действ|собран|хладнокр|act/i, 'действует'], ['shake', /дрож|трясёт|трясет|shak/i, 'дрожит'], ['freeze', /замер|оцепен|ступор|freez/i, 'замер'], ['panic', /паник|panic|истерик/i, 'паникует'], ['run', /беж|убега|flee|run/i, 'бежит']];
+export const ВЫДЕРЖКА = [['act', /действ|собран|хладнокр|act/i, 'действует'], ['shake', /дрож|трясёт|трясет|shak/i, 'дрожит'], ['freeze', /замер|оцепен|ступор|freez|froz/i, 'замер'], ['panic', /паник|panic|истерик/i, 'паникует'], ['run', /беж|убега|flee|run/i, 'бежит']];
 
 /** «Софи: своя; вплотную; нож; ранена | Громила: враг; шаг; бита; цел» → участники. */
 export function участникиБоя(pt) {
@@ -63,7 +63,7 @@ export function адреналин(ad) {
   if (пусто(ad)) return [];
   return String(ad).split(/[;|]/).map(ч => ч.trim()).filter(Boolean).map(ч => {
     const м = ч.match(/^([^:：]{1,40})[:：]\s*(\d{1,3})(.*)$/);
-    return м ? { имя: м[1].trim(), уровень: Math.min(100, +м[2]), безБоли: /не чувств|без боли|не замеча|не ощущ/i.test(м[3]), текст: м[3].replace(/^[\s,—–-]+/, '') } : null;
+    return м ? { имя: м[1].trim(), уровень: Math.min(100, +м[2]), безБоли: /не чувств|без боли|не замеча|не ощущ|no pain|feels? nothing|doesn't feel|numb/i.test(м[3]), текст: м[3].replace(/^[\s,—–-]+/, '') } : null;
   }).filter(Boolean);
 }
 export function выдержка(nv) {

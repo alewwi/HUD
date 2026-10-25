@@ -18,16 +18,17 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.75.0';
-import { settings } from '../settings.js?v=23.75.0';
-import { разобратьХод } from './carryover.js?v=23.75.0';
-import { моментСцены } from './intimacy.js?v=23.75.0';
-import { одеждаПодробно, полПерсонажа } from './scene-body.js?v=23.75.0';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.75.0';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.75.0';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.75.0';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.75.0';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.75.0';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.78.1';
+import { settings } from '../settings.js?v=23.78.1';
+import { разобратьХод } from './carryover.js?v=23.78.1';
+import { моментСцены } from './intimacy.js?v=23.78.1';
+import { одеждаПодробно, полПерсонажа } from './scene-body.js?v=23.78.1';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.78.1';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.78.1';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.78.1';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.78.1';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.78.1';
+import { английский } from '../i18n.js?v=23.78.1';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;
@@ -64,6 +65,20 @@ export const ВИДЫ_БЫТА = {
   fix: { значок: '🛠', имя: 'Починили', rx: сл('почини\\p{L}*|отремонтирова\\p{L}*|заменил[аи]? (?:лампу|кран|замок)|настрои(?:л|ла|ли) (?:котёл|котел|бойлер)') },
   wear: { значок: '👕', имя: 'Одежда', rx: сл('переоде\\p{L}*|наде(?:л|ла|ли)|сня(?:л|ла|ли) (?:с себя|платье|рубашк|куртк|пальто)') },
 };
+// Английский интерфейс: таймлайн модель пишет по-английски — те же виды по
+// английским словам, целыми словами.
+const БЫТ_EN = {
+  eat: 'ate|eat(?:s|ing)?|had (?:breakfast|lunch|dinner|supper|a snack|a bite)|breakfast|lunch|dinner|supper|snack(?:ed|ing)?|cooked|grabbed a bite|meal',
+  wash: 'shower(?:ed|ing|s)?|bath(?:ed|ing)?|bathtub|jacuzzi|sauna|washed (?:up|off)|washed (?:her|his|my|their) (?:hair|face|hands|body)|brushed (?:her|his|my|their) teeth|shaved|rinsed off',
+  laundry: 'laundry|did the washing|washing machine',
+  clean: 'cleaned|cleaning|tidied|tidying|vacuumed|mopped|did the dishes|washed the dishes',
+  sleep: 'went to bed|fell asleep|woke up|slept|asleep|napped|nap',
+  buy: 'bought|buys|buying|purchased|ordered|paid for|shopping',
+  break: 'broke(?: down)?|broken|smashed|leak(?:ing|s|ed)?',
+  fix: 'fixed|repaired|replaced the (?:bulb|tap|faucet|lock)',
+  wear: 'changed (?:into|clothes)|put on|took off|got dressed|dressed in',
+};
+for (const [к, rx] of Object.entries(БЫТ_EN)) ВИДЫ_БЫТА[к].rx = new RegExp(ВИДЫ_БЫТА[к].rx.source + '|(?<![\\p{L}])(?:' + rx + ')(?![\\p{L}])', 'iu');
 // Код hk → вид. «wash: стирка» и «wash: уборка кухни» — свои виды.
 function видHk(код, что) {
   const к = код.toLowerCase();
@@ -706,11 +721,55 @@ export function пробелыБыта(ж) {
   const пункты = пустые.slice(-2).map(с => с.источник === 'sat'
     ? `${чм(с.t)} — satiety rose ${с.сытость[0]}→${с.сытость[1]}, no meal recorded`
     : `${чм(с.t)} «${коротко(с.что)}» — dish unknown`);
-  return `Backfill in lg, keeping the original time (it already happened): what exactly was eaten — ${пункты.join('; ')}. Format 'HH:MM - ели <блюдо>'.`;
+  return `Backfill in lg, keeping the original time (it already happened): what exactly was eaten — ${пункты.join('; ')}. Format ${английский() ? "'HH:MM - ate <dish>'" : "'HH:MM - ели <блюдо>'"}.`;
+}
+
+// Английский интерфейс — и итог для модели по-английски: модель пишет HUD
+// на языке интерфейса, и русская строка в запросе сбивала бы её на русский.
+const СВОЙСТВА_EN = { 'тепло': 'warm clothes', 'шапка': 'a hat', 'закрытая обувь': 'closed shoes', 'непромокаемое': 'waterproof clothes', 'лёгкое': 'light clothes', 'плотное': 'thick clothes' };
+const ПРИЧИНЫ_EN = { 'жара': 'heat', 'близость': 'intimacy', 'пот': 'sweat', 'жидкости': 'fluids', 'схватка': 'fight', 'грязь': 'dirt', 'кровь': 'blood' };
+const часыEN = (ч) => (Math.round(ч * 2) / 2) + ' h';
+function прошлоEN(t, сейчас) {
+  if (!t) return '';
+  const мин = Math.max(0, Math.round((сейчас - t) / 60e3));
+  if (мин < 50) return мин <= 5 ? 'just now' : мин + ' min ago';
+  const дни = Math.floor(сейчас / СУТКИ) - Math.floor(t / СУТКИ);
+  if (мин < 20 * 60 || дни < 1) return Math.round(мин / 60) + ' h ago';
+  if (дни === 1) return 'yesterday ' + new Date(t).toISOString().slice(11, 16);
+  return дни + (дни === 1 ? ' day' : ' days') + ' ago';
+}
+function строкаБытаEN(ж, можно) {
+  const части = [];
+  const имя = (x) => String(x || '').split(/\s+/)[0];
+  const еда = ж.последнее('eat');
+  if (можно('eat') && еда && ж.сейчас - еда.t >= 4 * Ч) части.push('no food for ' + Math.round((ж.сейчас - еда.t) / Ч) + ' h');
+  if (можно('sleep')) for (const с of ж.сон) if (с.долг >= 3) части.push(`${имя(с.имя)}'s sleep debt ${часыEN(с.долг)}`);
+  if (можно('sleep') && ж.бой) for (const н of ж.бой.ночи.slice(0, 1)) части.push(`${имя(н.кто)}'s night after the fight: ${часыEN(н.часов)}`);
+  if (ж.бой && ж.бой.отходняк) части.push(ж.бой.отходняк.стадия === 'адреналин' ? `the post-fight adrenaline wears off in ~${ж.бой.отходняк.осталось} min` : 'after the fight — weakness and trembling');
+  if (можно('eat') && ж.бой && ж.бой.аппетит) части.push('no appetite after the fight');
+  const душ = ж.последнее('wash');
+  const б = ж.бой;
+  if (можно('wash') && б && б.мытьёНельзя) { const р = б.мытьёНельзя.рана; части.push(`no washing: ${р.trt || р.nm} — ${р.zn || р.зона}, day ${р.день}${б.мытьёНельзя.обтирался ? '; sponge-bathed' : ''}`); }
+  else if (можно('wash') && ж.надоБы) части.push('could use a shower' + (ж.надоБы.причины.length ? ' (' + ж.надоБы.причины.map(п => ПРИЧИНЫ_EN[п] || п).join(', ') + ')' : ''));
+  else if (можно('wash') && душ && ж.сейчас - душ.t >= 20 * Ч) части.push('shower ' + прошлоEN(душ.t, ж.сейчас));
+  const грязное = ж.гардероб.flatMap(г => г.вещи.filter(в => в.вСтирке).map(в => в.вещь)).slice(0, 2);
+  if (можно('clothes') && грязное.length) части.push(грязное.join(', ') + ' in the laundry');
+  if (можно('clothes')) for (const н of ж.неПоПогоде.slice(0, 2)) части.push(`${имя(н.кто)} not dressed for the weather: ${н.что}`);
+  if (можно('clothes')) for (const п of (ж.поПогоде || []).filter(п => п.нечего.length).slice(0, 2)) части.push(`${имя(п.кто)} has nothing for the weather (${п.погода.join(', ')}): no ${п.нечего.map(н => СВОЙСТВА_EN[н] || н).join(', ')}`);
+  const коротко = (t) => { const w = String(t).split(/\s+/); return w.length > 6 ? w.slice(0, 6).join(' ') + '…' : t; };
+  if (можно('home') && ж.дом.сломано.length) части.push('broken: ' + ж.дом.сломано.slice(-2).map(с => коротко(с.что)).join(', '));
+  if (можно('money') && ж.деньги.баланс) {
+    const еды = ж.хватит.find(х => х.кат === 'еда');
+    части.push('balance ' + балансСловами(ж.деньги) + (еды ? `, lunch ~${деньги(еды.средняя, ж.деньги.валюта)}` : ''));
+  }
+  const долгом = (д) => { const w = String(д.что).split(/\s+/); return w.length <= 10 ? д.что : w.slice(0, 8).join(' ') + '…' + (д.срок ? ' (by ' + д.срок + ')' : ''); };
+  if (можно('money')) for (const д of ж.долги.slice(0, 2)) части.push('debt: ' + долгом(д));
+  return части.length ? 'byt: ' + части.join('; ') : '';
 }
 
 export function строкаБыта(ж, темы = null) {
   if (!ж) return '';
+  if (английский()) return строкаБытаEN(ж, (т) => !темы || темы.includes(т));
   // темы — только эти части (режим «по ключам»): ['eat','sleep','wash','clothes','money','home'].
   const можно = (т) => !темы || темы.includes(т);
   const части = [];
@@ -752,9 +811,18 @@ const ТЕМЫ = [
   ['money', /(?<![\p{L}])(?:деньг\p{L}*|денег|цен[аыу]|стоит|купить|купил\p{L}*|заплат\p{L}*|счёт|счет|карт[аеуы]|долг\p{L}*|должен|должна|кошел\p{L}*|дорог(?:о|ой|ая)|дешев\p{L}*|касс\p{L}*)/iu],
   ['home', /(?<![\p{L}])(?:дом(?:а|ой|е)?(?![\p{L}])|квартир\p{L}*|кухн\p{L}*|убор\p{L}*|сломал\p{L}*|кран\p{L}*|ремонт\p{L}*|почин\p{L}*)/iu],
 ];
+// Те же темы английскими словами — для чатов на английском.
+const ТЕМЫ_EN = {
+  eat: /\b(?:eat\w*|ate|food|hungry|hunger|breakfast|lunch|dinner|supper|kitchen|cook\w*|caf[eé]|restaurant\w*|snack\w*|meal\w*)\b/i,
+  sleep: /\b(?:sleep\w*|slept|tired|exhausted|nap\w*|insomnia|bed(?:time)?|asleep|awake)\b/i,
+  wash: /\b(?:shower\w*|bath\w*|wash\w*|smell\w*|stink\w*|sweat\w*|dirty|grimy)\b/i,
+  clothes: /\b(?:cloth\w*|dress\w*|outfit\w*|wear\w*|wore|put on|take off|shirt\w*|jacket\w*|coat\w*|cold|freezing|rain\w*|snow\w*|hot)\b/i,
+  money: /\b(?:money|cash|price\w*|cost\w*|buy\w*|bought|pay\w*|paid|bill\w*|card|debt\w*|owe\w*|wallet|salary|rent)\b/i,
+  home: /\b(?:home|house|apartment|flat|kitchen|clean\w*|broke\w*|broken|tap|repair\w*|fix\w*)\b/i,
+};
 export function темыБыта(тексты) {
   const весь = (Array.isArray(тексты) ? тексты : [тексты]).map(x => String(x || '')).join('\n');
-  return ТЕМЫ.filter(([, rx]) => rx.test(весь)).map(([т]) => т);
+  return ТЕМЫ.filter(([т, rx]) => rx.test(весь) || (ТЕМЫ_EN[т] && ТЕМЫ_EN[т].test(весь))).map(([т]) => т);
 }
 
 /**

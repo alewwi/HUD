@@ -12,8 +12,9 @@
 // Не разобрали данные — пустая строка, и поле рисуется по-старому.
 // Оформление — css/views-fields.css.
 
-import { escapeHtml, разбитьСписок } from '../utils.js?v=23.75.0';
-import { ИКОНКИ } from './view-icons.js?v=23.75.0';
+import { escapeHtml, разбитьСписок } from '../utils.js?v=23.78.1';
+import { ИКОНКИ } from './view-icons.js?v=23.78.1';
+import { знакЗодиака as знакНаЯзыке } from '../i18n.js?v=23.78.1';
 
 const т = (s) => escapeHtml(String(s ?? '').trim());
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто|—|-)$/i.test(String(v).trim());
@@ -133,12 +134,12 @@ function видВозраста(value, вид) {
       return путь(p);
     }).join('');
     const дата = д ? `${д[1].padStart(2, '0')}${д[2].padStart(2, '0')}${(д[3] || '').slice(-2)}` : '';
-    const мрз1 = ('IDRUS<<AGE<' + n + '<<' + (знак ? знак[0].toUpperCase().replace(/[^A-ZА-Я]/g, '') : '')).padEnd(30, '<').slice(0, 30);
+    const мрз1 = ('IDRUS<<AGE<' + n + '<<' + (знак ? знакНаЯзыке(знак[0]).toUpperCase().replace(/[^A-ZА-Я]/g, '') : '')).padEnd(30, '<').slice(0, 30);
     const мрз2 = ((дата || '000000') + '<' + String(n).padStart(3, '0') + '<<' + String(зерно(value) % 100000).padStart(5, '0')).padEnd(30, '<').slice(0, 30);
     return обёртка('age', 'id', `<div class="pass"><svg class="guill" viewBox="0 0 200 100" preserveAspectRatio="none" aria-hidden="true">${гильош}</svg><i class="holo" aria-hidden="true"></i>`
       + `<div class="pass-head"><span>Удостоверение личности</span><svg class="emb" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="${ИКОНКИ.star}"/></svg></div>`
       + `<div class="pass-body"><span class="photo" aria-hidden="true"><svg viewBox="0 0 100 120"><path d="${БЮСТ}"/></svg><i class="seal"></i></span>`
-      + `<dl><div><dt>Возраст</dt><dd>${т(слово)}</dd></div>${д ? `<div><dt>Дата рождения</dt><dd>${т(д[0])}</dd></div>` : хвост ? `<div><dt>Примечание</dt><dd>${т(хвост)}</dd></div>` : ''}${знак ? `<div><dt>Знак</dt><dd>${знак[0]}</dd></div>` : ''}${остаток ? `<div><dt>Примечание</dt><dd>${т(остаток)}</dd></div>` : ''}</dl><i class="chip" aria-hidden="true"></i></div>`
+      + `<dl><div><dt>Возраст</dt><dd>${т(слово)}</dd></div>${д ? `<div><dt>Дата рождения</dt><dd>${т(д[0])}</dd></div>` : хвост ? `<div><dt>Примечание</dt><dd>${т(хвост)}</dd></div>` : ''}${знак ? `<div><dt>Знак</dt><dd>${знакНаЯзыке(знак[0])}</dd></div>` : ''}${остаток ? `<div><dt>Примечание</dt><dd>${т(остаток)}</dd></div>` : ''}</dl><i class="chip" aria-hidden="true"></i></div>`
       + `<code class="mrz" aria-hidden="true">${escapeHtml(мрз1)}<br>${escapeHtml(мрз2)}</code></div>`);
   }
   if (вид === 'zodiac') {
@@ -157,7 +158,7 @@ function видВозраста(value, вид) {
     const [эл, знач] = СТИХИИ[стихия];
     return обёртка('age', 'zodiac', `<svg class="chart" viewBox="0 0 120 120" aria-hidden="true"><defs><radialGradient id="${id}"><stop offset="0" class="s0"/><stop offset="1" class="s1"/></radialGradient></defs>`
       + `<circle class="sky" cx="60" cy="60" r="57" fill="url(#${id})"/><g class="bg">${фон}</g>${кольцо}<circle class="rim" cx="60" cy="60" r="47"/><circle class="rim" cx="60" cy="60" r="57"/>${линии}${звёзды}</svg>`
-      + `<span class="zod-text"><b class="glyph">${глиф}︎</b><strong>${имя}</strong><small>${СРОКИ_ЗНАКОВ[имя]}</small>`
+      + `<span class="zod-text"><b class="glyph">${глиф}︎</b><strong>${знакНаЯзыке(имя)}</strong><small>${СРОКИ_ЗНАКОВ[имя]}</small>`
       + `<span class="elem el-${эл}"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${ИКОНКИ[знач] || знач}"/></svg>${стихия}</span>`
       + `<em>${т(слово)}${д ? ' · ' + т(д[0]) : ''}</em>${остаток ? `<em>${т(остаток)}</em>` : ''}</span>`);
   }
