@@ -5,6 +5,8 @@
 // и без генераций: подборки ручные, обложки — настоящие из каталога iTunes.
 // Пишет tests/tools/music-stand.html; открывать через сервер Таверны
 // (…/third-party/HUD/tests/tools/music-stand.html), светлая тема — ?t=kawaii.
+// --lang en — английский стенд (music-stand-en.html): интерфейс по-английски,
+// данные подборок — как их пишет модель в английском режиме.
 import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,9 +22,12 @@ globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() {} }
 globalThis.SillyTavern = { getContext: () => ({ chat: [], name1: 'Софи', name2: 'Тристан', characters: [], chatMetadata: {} }) };
 for (const k of ['info', 'debug', 'warn']) console[k] = () => {};
 
+const EN = process.argv.includes('--lang') && process.argv[process.argv.indexOf('--lang') + 1] === 'en';
 const { settings } = await м('settings.js');
+if (EN) settings.language = 'en';
 const M = await м('render/music.js');
 const A = await м('render/archive.js');
+const { G_ICONS } = await м('render/icons.js');
 settings.enableMusic = true;
 
 const пв = (путь) => 'https://audio-ssl.itunes.apple.com/itunes-assets/' + путь;
@@ -65,7 +70,7 @@ for (const [вид, имя] of [['cassette', 'Кассета'], ['vinyl', 'Пл�
 settings.musicStyle = 'auto';
 
 // Телефон персонажа: полный, пустой, подбор.
-const экран = (chat, о = {}) => `<div class="phone"><div class="hud-phone-app-title">Музыка <span>Тристан</span></div>${M.приложениеМузыки(1, 'Тристан', { chat, ...о })}</div>`;
+const экран = (chat, о = {}) => `<div class="phone"><div class="hud-phone-app-view"><div class="hud-phone-app-title"><span class="hud-phone-back" aria-hidden="true">⟨</span>${G_ICONS.music} Музыка<span class="hud-phone-app-owner">Тристан</span></div>${M.приложениеМузыки(1, 'Тристан', { chat, ...о })}</div></div>`;
 ряды.push(`<h1>Телефон персонажа → «Музыка»</h1><div class="row">${экран(ход(полная))}${экран(ход(null))}${экран(ход(null), { занято: ['phone'] })}</div>`);
 
 // Архив → Саундтрек.
@@ -90,9 +95,23 @@ h2 { font-size: 12px; color: #a8a5ad; margin: 18px 0 6px; }
 .hud-os-card { padding: 4px 0; border-radius: 16px; background: linear-gradient(160deg, #241c2c, #120e17); }
 .wide { width: 540px; } .narrow { width: 239px; }
 .phone { width: 300px; min-height: 420px; padding: 10px 12px 18px; border-radius: 30px; border: 9px solid #16171d; background: linear-gradient(180deg, #2b2235, #0d0b12); color: #fff; }
-.phone .hud-phone-app-title { font-weight: 700; font-size: 16px; padding: 4px 2px 12px; } .phone .hud-phone-app-title span { font-size: 11px; opacity: .6; font-weight: 400; margin-left: 6px; }
+.phone { --hud-phone-bg: transparent; } .phone .hud-phone-app-view { display: block; position: static; padding: 0; background: none; overflow: visible; }
 .arc { padding: 12px; border-radius: 12px; background: #1d1824; }
 label.mt { position: sticky; top: 0; z-index: 5; display: inline-flex; gap: 6px; padding: 6px 10px; border-radius: 8px; background: #2a2233; }
 </style><body><label class="mt"><input type="checkbox" id="mt"> MoodTube установлен (показать кнопки очереди)</label><div>${ряды.join('\n')}</div></body>`;
-fs.writeFileSync(path.join(ТУТ, 'music-stand.html'), html);
-console.log('полос и экранов:', ряды.length, '→ tests/tools/music-stand.html');
+// Английский стенд: данные подборок — по-английски (модель пишет на языке
+// интерфейса), переводчик i18n.js переводит подписи HUD в странице.
+const ДАННЫЕ_EN = [
+  ['морозная ночь самайна', 'frosty Samhain night'], ['тихое напряжение', 'quiet tension'], ['нежность и усталость', 'tenderness and fatigue'],
+  ['выдуманный', 'made up'], ['холодный воздух', 'cold air'], ['радио в гольф-каре', 'the golf cart radio'], ['бар «Синий час»', 'the «Blue Hour» bar'],
+  ['сменилось место', 'the place changed'], ['по кнопке', 'by button'], ['модель молчит дольше 120 с', 'the model has been silent for over 120 s'],
+  ['Особняк Регентов, южный парк', 'Regents\' mansion, south park'], ['Гольф-кар', 'Golf cart'], ['Кухня', 'Kitchen'],
+  ['погоня у пруда', 'chase by the pond'], ['утро после', 'the morning after'], ['начался бой', 'a fight started'], ['ночь прошла', 'the night passed'],
+  ['Тристана', 'Tristan'], ['Тристан', 'Tristan'],
+];
+const итог = EN ? ДАННЫЕ_EN.reduce((h, [ru, en]) => h.split(ru).join(en), html)
+  .replace('Object.assign(settings, { enableMusic: true', 'Object.assign(settings, { language: "en", enableMusic: true')
+  .replace('</body>', '<script type="module">import { включитьПереводчик } from "../../i18n.js' + В + '"; включитьПереводчик();</script></body>') : html;
+const файл = EN ? 'music-stand-en.html' : 'music-stand.html';
+fs.writeFileSync(path.join(ТУТ, файл), итог);
+console.log('полос и экранов:', ряды.length, '→ tests/tools/' + файл);

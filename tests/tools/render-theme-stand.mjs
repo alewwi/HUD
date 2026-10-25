@@ -1,5 +1,4 @@
-// Стенд новых блоков в темах: быт, сетка секретов, дуэль, часы сцены, бой и
-// бельё — в разметке настоящей карточки (.mes_text > .hud-os-card …), с
+// Стенд новых блоков в темах: быт, сетка секретов, дуэль и бой — в разметке настоящей карточки (.mes_text > .hud-os-card …), с
 // style.css расширения и файлами тем, как их подключает themes.js. Открывать
 // через сервер Таверны, иначе стили не подтянутся:
 //   node tests/tools/render-theme-stand.mjs
@@ -24,10 +23,7 @@ const { settings } = await м('settings.js');
 const LF = await м('render/life.js');
 const G = await м('render/secrets-grid.js');
 const DU = await м('render/duel.js');
-const SC = await м('render/scene-clock.js');
-const CHR = await м('render/character.js');
 const CB = await м('render/combat.js');
-const UW = await м('render/underwear.js');
 const SH = await м('render/sample-hud.js');
 const { СВЕТЛЫЕ_ТЕМЫ, themeVars } = await м('themes.js');
 
@@ -60,28 +56,13 @@ Object.defineProperty(тристан, '__hudИстория', { value: () => [
 Object.defineProperty(тристан, '__hudХод', { value: () => ({ memory: { timeline: ['12.06 21:00 - объявили помолвку с Викторией на свадьбе Ченнингов'] } }) });
 const дуэль = (вид) => { settings.duelView = вид; const h = DU.buildDuel('ini: Софи, 70; gv: Тристан уступил в деньгах; tn: ссора', тристан); delete settings.duelView; return h; };
 
-// Часы сцены.
-const день = Date.UTC(2028, 5, 15), М = (ч, мин) => день + (ч * 60 + мин) * 60000;
-const т = { 'Имя': 'Тристан', 'Фаза близости': '2 — act', 'Длительность': '95', 'Расписание': '20:05 - продолжение' };
-const ходНачала = { characters: [{ 'Имя': 'Тристан', 'Расписание': '18:30 - ужин с Софи; 19:00 - ужин с родителями; 20:30 - селектор с Лондоном' }, { 'Имя': 'Лена', 'Расписание': '19:45 - встреча с Тристаном в баре' }] };
-Object.defineProperty(т, '__hudМомент', { value: () => М(20, 10) });
-Object.defineProperty(т, '__hudХод', { value: () => ({ characters: [т] }) });
-Object.defineProperty(т, '__hudИстория', { value: () => [
-  { назад: 1, момент: М(19, 20), данные: { 'Имя': 'Тристан', 'Фаза близости': '2 — act' }, ход: { characters: [] } },
-  { назад: 2, момент: М(18, 30), данные: { 'Имя': 'Тристан', 'Фаза близости': '2 — foreplay' }, ход: ходНачала },
-  { назад: 3, момент: М(17, 0), данные: { 'Имя': 'Тристан', 'Фаза близости': '1 — empty' }, ход: { characters: [] } }] });
-const часы = (вид) => { settings.sceneClockView = вид; const h = SC.часыСцены(т, CHR.состояниеСцены); delete settings.sceneClockView; return h; };
-
 // Бой.
 const ходБоя = { combat: { ...SH.ПРИМЕР_БОЯ }, characters: [{ 'Имя': 'Марк Грей', 'Болезни и травмы': SH.ПРИМЕР_БОЯ_РАНЫ, 'Инвентарь': 'пистолет: 4/8 патронов, под курткой; бита: треснула у рукояти' }] };
 const бой = CB.buildCombatHTML(ходБоя.combat, ходБоя, 'cb', true, {});
 
-// Бельё — открытым.
-const бельё = UW.buildUnderwear('set: чёрное кружево, комплект; for: для Тристана; st: сдвинуто').replace('<details class="hud-un-veil">', '<details class="hud-un-veil" open>');
-
 const строка = (ключ, тело) => `<div class="hud-row full-width"><span class="hud-key">${ключ}:</span> ${тело}</div>`;
 const карточка = (заголовок, тело) => `<h2>${заголовок}</h2><div class="mes_text"><div class="hud-os-card no-swipe"><input type="checkbox" class="hud-toggle-input" checked><label class="hud-os-topbar"><div class="hud-os-topbar-left"><span class="hud-os-logo">TavernOS</span></div></label><div class="hud-os-wrapper"><div class="hud-tabs-body">${тело}</div></div></div></div>`;
-const персонаж = `<div class="hud-tab-content active"><div class="hud-body">${строка('Словесная дуэль', дуэль('tug'))}${строка('Словесная дуэль (весы)', дуэль('scales'))}${строка('Фаза близости', часы('dial'))}${строка('Бельё', бельё)}</div></div>`;
+const персонаж = `<div class="hud-tab-content active"><div class="hud-body">${строка('Словесная дуэль', дуэль('tug'))}${строка('Словесная дуэль (весы)', дуэль('scales'))}</div></div>`;
 const память = `<div class="hud-tab-content active"><div class="hud-memory-body">${сетка}</div></div>`;
 
 const темы = [...СВЕТЛЫЕ_ТЕМЫ, 'vamp', 'spacehorror'];
@@ -92,7 +73,7 @@ const html = `<!doctype html><html class="hud-theme-${темы[0]}"><head><meta 
 .wrap { display: grid; gap: 14px; max-width: var(--w, 640px); margin: 12px auto; } h2 { margin: 6px 0 0; font-size: 12px; color: #aaa; }
 .mes_text .hud-tab-content { display: block; opacity: 1 !important; animation: none !important; transform: none !important; } .mes_text :is(.hud-body, .hud-memory-body) { height: auto !important; max-height: none !important; overflow: visible !important; }</style></head><body>
 <div class="bar"><select id="t">${темы.map(т => `<option>${т}</option>`).join('')}</select><select id="w"><option value="640px">640</option><option value="360px">телефон 360</option><option value="215px">карточка 215</option></select></div>
-<div class="wrap">${карточка('Быт', LF.buildLifeHTML(ж, 'life', true))}${карточка('Память — секреты', память)}${карточка('Персонаж — дуэль, часы, бельё', персонаж)}${карточка('Бой', бой)}</div>
+<div class="wrap">${карточка('Быт', LF.buildLifeHTML(ж, 'life', true))}${карточка('Память — секреты', память)}${карточка('Персонаж — дуэль', персонаж)}${карточка('Бой', бой)}</div>
 <script>
 const светлые = ${JSON.stringify(СВЕТЛЫЕ_ТЕМЫ)};
 const пресеты = ${JSON.stringify(Object.fromEntries(темы.map(т => [т, themeVars(т)])))};

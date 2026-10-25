@@ -52,7 +52,7 @@ const темы = ШИРОКИЙ ? ВСЕ_ТЕМЫ : (ПОКАЗАТЕЛЬНЫЕ.
 const ШИРИНЫ = [1280, 390];
 const СНИМКИ = [
   ...темы.flatMap(t => ШИРИНЫ.map(w => ({ стенд: 'theme', файл: 'theme-stand.html', запрос: `?t=${t}&w=${w < 600 ? '215px' : ''}`, вариант: `${t}-${w}`, w }))),
-  ...['life-stand.html', 'combat-stand.html', 'views-stand.html', 'stand.html'].filter(ф => fs.existsSync(path.join(ТУТ, ф)))
+  ...['life-stand.html', 'combat-stand.html', 'views-stand.html'].filter(ф => fs.existsSync(path.join(ТУТ, ф)))
     .flatMap(ф => ШИРИНЫ.map(w => ({ стенд: ф.replace(/-?stand\.html$/, '') || 'stand', файл: ф, запрос: '', вариант: String(w), w }))),
 ];
 
