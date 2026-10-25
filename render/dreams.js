@@ -6,10 +6,10 @@
 // или воспоминание, какие образы в нём — HUD выводит из текста сам.
 // Оформление новых видов — css/dream-views.css.
 
-import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.78.7';
-import { гдеУпомянут } from '../names.js?v=23.78.7';
-import { видБлока } from './views.js?v=23.78.7';
-import { ико } from './view-icons.js?v=23.78.7';
+import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.79.0';
+import { гдеУпомянут } from '../names.js?v=23.79.0';
+import { видБлока } from './views.js?v=23.79.0';
+import { ико } from './view-icons.js?v=23.79.0';
 
 function buildDreamBubblesHtml() {
   let bubbles = '';
@@ -83,7 +83,7 @@ const ОБРАЗЫ = [
 export function разобратьСон(сон, люди = []) {
   const текст = пробелы(сон && сон.text || '');
   // «Сон без привычных кошмаров» — не кошмар: отрицание перед словом не считаем.
-  const безОтрицаний = текст.replace(/(?<![\p{L}])(?:без|нет|ни)\s+(?:\p{L}+\s+)?(?:кошмар|страх|ужас)\p{L}*/giu, '');
+  const безОтрицаний = текст.replace(/(?<![\p{L}])(?:без|нет|ни)\s+(?:\p{L}+\s+)?(?:кошмар|страх|ужас)\p{L}*|(?<![\p{L}])(?:no|without|not a|free of)\s+(?:\p{L}+\s+)?(?:nightmares?|fear|terror|horror)/giu, '');
   const тип = ТИПЫ.find(т => т.rx.test(безОтрицаний)) || ПРОСТО_СОН;
   const образы = ОБРАЗЫ.map(о => { const m = текст.match(о.rx); return m ? { ...о, где: m.index } : null; })
     .filter(Boolean).sort((a, b) => a.где - b.где).slice(0, 3);

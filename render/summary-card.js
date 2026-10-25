@@ -13,9 +13,9 @@
 // выключить (настройка summaryCards). Если в том же сообщении есть полная
 // карточка HUD, нажатие на сводку раскрывает её.
 
-import { escapeHtml } from '../utils.js?v=23.78.7';
-import { значокЧасов, значокПогоды, значокДаты } from './topbar-icons.js?v=23.78.7';
-import { settings } from '../settings.js?v=23.78.7';
+import { escapeHtml } from '../utils.js?v=23.79.0';
+import { значокЧасов, значокПогоды, значокДаты } from './topbar-icons.js?v=23.79.0';
+import { settings } from '../settings.js?v=23.79.0';
 
 const ОТКРЫТЬ = '[HUD_SUMMARY]', ЗАКРЫТЬ = '[/HUD_SUMMARY]';
 // Граница слова — через \p{L}: \b в JS кириллицу словом не считает.
@@ -33,17 +33,18 @@ export function разобратьСводку(текст) {
   const о = { дата: '', время: '', сутки: '', погода: '', люди: [], событие: '', новое: '', одежда: [], прочее: [] };
   // Старый формат, с метками: «Дата: Четверг, 07.11.2024. Время: 17:40 |
   // Вечер. Погода: 0°C, снег. Tristan (Возраст: 24, …, Место: спальня); User (…)».
-  if (/(?<![\p{L}])Дата:/u.test(s)) {
+  // Тот же формат по-английски: «Date: … Time: … | Evening. Weather: … Tristan (Age: 24, …, Location: bedroom)».
+  if (/(?<![\p{L}])(?:Дата|Date):/u.test(s)) {
     const м = (re) => { const x = s.match(re); return x ? x[1].trim() : ''; };
-    о.дата = м(/Дата:\s*(.+?)\.\s*(?=Время:|\||$)/);
-    о.время = м(/Время:\s*(\d{1,2}:\d{2})/);
-    о.сутки = м(/\|\s*([\p{L}]+)\.\s*(?=Погода:)/u);
-    о.погода = м(/Погода:\s*(.+?)\.\s+(?=[^.;()]+\((?:[^()]*?)(?:Возраст|Место)\s*:)/) || м(/Погода:\s*([^.]+)/);
+    о.дата = м(/(?:Дата|Date):\s*(.+?)\.\s*(?=Время:|Time:|\||$)/);
+    о.время = м(/(?:Время|Time):\s*(\d{1,2}:\d{2})/);
+    о.сутки = м(/\|\s*([\p{L}]+)\.\s*(?=Погода:|Weather:)/u);
+    о.погода = м(/(?:Погода|Weather):\s*(.+?)\.\s+(?=[^.;()]+\((?:[^()]*?)(?:Возраст|Место|Age|Location|Place)\s*:)/) || м(/(?:Погода|Weather):\s*([^.]+)/);
     const игрок = (() => { try { return window.SillyTavern?.getContext?.()?.name1 || ''; } catch (_) { return ''; } })();
     for (const x of s.matchAll(/(?:^|;\s*|\.\s+)([^.;()]+?)\s*\(([^()]*)\)/g)) {
       const внутри = x[2];
-      const место = (внутри.match(/Место:\s*(.+)$/) || [])[1];
-      if (!место && !/Возраст:/.test(внутри)) continue;
+      const место = (внутри.match(/(?:Место|Location|Place):\s*(.+)$/) || [])[1];
+      if (!место && !/(?:Возраст|Age):/.test(внутри)) continue;
       const имя = x[1].trim() === 'User' && игрок ? игрок : x[1].trim();
       о.люди.push({ место: (место || '').trim(), кто: [{ имя, точка: '' }] });
     }
@@ -52,15 +53,15 @@ export function разобратьСводку(текст) {
   const части = s.split(/\s+\|\s+/).map(x => x.trim()).filter(Boolean);
   части.forEach((ч, i) => {
     let m;
-    if ((m = ч.match(/^Событие:\s*(.+)$/i))) { о.событие = m[1]; return; }
-    if ((m = ч.match(/^Новое:\s*(.+)$/i))) { о.новое = m[1]; return; }
-    if ((m = ч.match(/^Одежда:\s*(.+)$/i))) { о.одежда = m[1].split(/;\s*/).map(x => { const k = x.indexOf(':'); return k > 0 ? { имя: x.slice(0, k).trim(), что: x.slice(k + 1).trim() } : { имя: '', что: x.trim() }; }).filter(x => x.что); return; }
+    if ((m = ч.match(/^(?:Событие|Event):\s*(.+)$/i))) { о.событие = m[1]; return; }
+    if ((m = ч.match(/^(?:Новое|New):\s*(.+)$/i))) { о.новое = m[1]; return; }
+    if ((m = ч.match(/^(?:Одежда|Clothes|Clothing|Outfits?):\s*(.+)$/i))) { о.одежда = m[1].split(/;\s*/).map(x => { const k = x.indexOf(':'); return k > 0 ? { имя: x.slice(0, k).trim(), что: x.slice(k + 1).trim() } : { имя: '', что: x.trim() }; }).filter(x => x.что); return; }
     // Шапка: «дата · время · погода» — первая часть с датой или временем.
-    if (i === 0 && /\d{1,2}[.:/]\d{2}|\d{1,2}\s+[а-яё]{3,}/i.test(ч)) {
+    if (i === 0 && /\d{1,2}[.:/]\d{2}|\d{1,2}\s+[а-яё]{3,}|\d{1,2}(?:st|nd|rd|th)?\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2}/i.test(ч)) {
       const куски = ч.split(/\s+·\s+/);
       for (const к of куски) {
         if (!о.время && /^\d{1,2}:\d{2}/.test(к)) о.время = к;
-        else if (!о.дата && /\d{1,2}[./]\d{1,2}|\d{1,2}\s+[а-яё]{3,}|^(понедельник|вторник|среда|четверг|пятница|суббота|воскресенье)/i.test(к)) о.дата = к;
+        else if (!о.дата && /\d{1,2}[./]\d{1,2}|\d{1,2}\s+[а-яё]{3,}|\d{1,2}(?:st|nd|rd|th)?\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\s+\d{1,2}|^(понедельник|вторник|среда|четверг|пятница|суббота|воскресенье|monday|tuesday|wednesday|thursday|friday|saturday|sunday)/i.test(к)) о.дата = к;
         else о.погода = о.погода ? о.погода + ', ' + к : к;
       }
       return;

@@ -14,9 +14,9 @@
 // снижают. Рядом с картинкой всегда те же значения словами.
 // Отдельная строка под любым из семи видов цикла (settings.cycleLibido).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.78.7';
-import { settings } from '../settings.js?v=23.78.7';
-import { ико } from './view-icons.js?v=23.78.7';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.79.0';
+import { settings } from '../settings.js?v=23.79.0';
+import { ико } from './view-icons.js?v=23.79.0';
 
 const поле = (о, имя) => {
   if (!о || typeof о !== 'object') return '';
@@ -45,7 +45,7 @@ function числоИз(текст, код) {
 }
 function часыСна(текст) {
   const s = (String(текст || '').match(/(?:^|[;\s])slp\s*:\s*([^;]+)/i) || [])[1] || '';
-  const ч = s.match(/(\d+(?:[.,]\d)?)\s*(?:ч|час|h)/i);
+  const ч = s.match(/(\d+(?:[.,]\d)?)\s*(?:ч|час|h|hours?|hrs?)/i);
   if (ч) return parseFloat(ч[1].replace(',', '.'));
   const и = s.match(/(\d{1,2})[:.](\d{2})\s*[–—-]\s*(\d{1,2})[:.](\d{2})/);
   if (!и) return null;
@@ -67,9 +67,9 @@ export function поправкаВлечения(владелец) {
 
 // Желание из «ds»: число, если оно есть, иначе по словам. Неясно — точки нет:
 // лучше пропуск, чем выдуманная отметка.
-const СИЛЬНО = /неистов|безумн|жажд|пожира|невыносим|сильн|остр|жгуч|пыла|всепоглощ|изныва|вожделен|голод|нестерпим|отчаянн|одержим|умоляет|не может ждать/i;
-const СЛАБО = /нет желани|не хочет|отвращ|отторж|холодн|равнодуш|нежелани|паник|ужас|страх|(?<![а-яё])бол(?:ь|и|ью)(?![а-яё])|сопротивл|принужд|онемел|пусто/i;
-const СРЕДНЕ = /желани|тянет|интерес|любопыт|влечени|тепл|хочет|нужда|ищет/i;
+const СИЛЬНО = /неистов|безумн|жажд|пожира|невыносим|сильн|остр|жгуч|пыла|всепоглощ|изныва|вожделен|голод|нестерпим|отчаянн|одержим|умоляет|не может ждать|frantic|insane|craving|crave|starving|devouring|unbearable|intense|strong|sharp|burning|feverish|consuming|aching for|lust|desperate|obsess|begging|can'?t wait/i;
+const СЛАБО = /нет желани|не хочет|отвращ|отторж|холодн|равнодуш|нежелани|паник|ужас|страх|(?<![а-яё])бол(?:ь|и|ью)(?![а-яё])|сопротивл|принужд|онемел|пусто|no desire|doesn'?t want|disgust|revuls|cold\b|indifferent|unwilling|panic|terror|fear|\bpain\b|resist|forced|numb|empty/i;
+const СРЕДНЕ = /желани|тянет|интерес|любопыт|влечени|тепл|хочет|нужда|ищет|desire|drawn|interest|curious|attract|warm|wants|need|seeking|longing/i;
 export function желаниеИз(nsfw) {
   const ds = (String(nsfw || '').match(/(?:^|;)\s*ds\s*:\s*([^;]+)/i) || [])[1];
   if (!ds) return null;
@@ -79,7 +79,7 @@ export function желаниеИз(nsfw) {
   return v === null ? null : { v, текст: ds.trim() };
 }
 const словоУровня = (v) => v >= .85 ? 'пик' : v >= .62 ? 'высокое' : v >= .4 ? 'среднее' : 'низкое';
-const деньИз = (текст) => { const м = String(текст || '').match(/(?:cyd|день цикла)\s*:\s*(\d{1,2})/i); return м ? +м[1] : null; };
+const деньИз = (текст) => { const м = String(текст || '').match(/(?:cyd|день цикла|cycle day)\s*:\s*(\d{1,2})/i); return м ? +м[1] : null; };
 
 /**
  * В — разбор цикла из buildCycle ({ L, день, ov, отрезки, опоздание });

@@ -4,8 +4,8 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.78.7';
-import { settings } from '../settings.js?v=23.78.7';
+import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.79.0';
+import { settings } from '../settings.js?v=23.79.0';
 
 const есть = (v) => hudHasMeaningfulValue(v) && !/^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -87,10 +87,10 @@ export function титрыСцены({ имена = [], место = '', вре�
 // 'Энергия: 35 — на исходе; Бодрость: 20 — не выспалась; Сытость: 30 — голодна;
 //  Стресс: 80 — на пределе; Сон: 4 ч 10 мин, легла в 03:20; Дела: пары в 09:00'
 const ШКАЛЫ = [
-  { к: 'energy', rx: /энерг|^eng/i, имя: 'Энергия', c: '#f2c14e' },
-  { к: 'awake', rx: /бодр|сонлив|^awk/i, имя: 'Бодрость', c: '#6fb7ff' },
-  { к: 'food', rx: /сыт|голод|^sat/i, имя: 'Сытость', c: '#f08a4b' },
-  { к: 'stress', rx: /стресс|напряж|^str/i, имя: 'Стресс', c: '#ef5a6e' },
+  { к: 'energy', rx: /энерг|^eng|energy/i, имя: 'Энергия', c: '#f2c14e' },
+  { к: 'awake', rx: /бодр|сонлив|^awk|alert|wakeful|sleepiness/i, имя: 'Бодрость', c: '#6fb7ff' },
+  { к: 'food', rx: /сыт|голод|^sat|hunger|fullness|satiety/i, имя: 'Сытость', c: '#f08a4b' },
+  { к: 'stress', rx: /стресс|напряж|^str|tension/i, имя: 'Стресс', c: '#ef5a6e' },
 ];
 export function разобратьСостояниеТела(value) {
   const шкалы = [], текст = { сон: '', дела: '', прочее: [] };
@@ -105,7 +105,7 @@ export function разобратьСостояниеТела(value) {
       return;
     }
     if (/^сон|^slp|sleep/i.test(метка)) текст.сон = тело;
-    else if (/^дел|^dut|работ|учёб|учеб/i.test(метка)) текст.дела = тело;
+    else if (/^дел|^dut|работ|учёб|учеб|work|duties|school|study|classes/i.test(метка)) текст.дела = тело;
     else текст.прочее.push(часть);
   });
   ШКАЛЫ.forEach((ш, i) => { const н = шкалы.findIndex(x => x.к === ш.к); if (н > -1) шкалы[н].i = i; });
@@ -193,7 +193,7 @@ export function направленияПоворота(текст) {
     метки.push(где); с = где + 3;
   }
   if (метки.length >= 2 || (метки.length === 1 && метки[0] === 0)) части = метки.map((от, i) => s.slice(от + 3, метки[i + 1] ?? s.length));
-  else части = s.split(/\s*[;,]?\s*[—–]\s*(?=или\s)/i);
+  else части = s.split(/\s*[;,]?\s*[—–]\s*(?=(?:или|or)\s)/i);
   return части.map(чистить).filter(Boolean).slice(0, 3);
 }
 export function карточкаПоворота(value) {
@@ -245,11 +245,11 @@ export function видСпутника(вид, имя) {
 // Уровни 1-5 из поля lv ('Сытость: 4; Энергия: 3…'); при их отсутствии —
 // по словам из состояния и настроения, чтобы тамагочи не был пустым.
 const ПОТРЕБНОСТИ = [
-  { к: 'food', rx: /сыт|^sat|голод|еда/i, имя: 'Сытость', ик: 'food', c: '#f08a4b' },
-  { к: 'energy', rx: /энерг|^eng|сил/i, имя: 'Энергия', ик: 'bolt', c: '#f2c14e' },
-  { к: 'clean', rx: /чист|^cln/i, имя: 'Чистота', ик: 'drop', c: '#6fb7ff' },
-  { к: 'charge', rx: /заряд|^chg|батар/i, имя: 'Заряд', ик: 'plug', c: '#6fd39a' },
-  { к: 'fix', rx: /исправ|^fix|поломк/i, имя: 'Исправность', ик: 'gear', c: '#8fb8ff' },
+  { к: 'food', rx: /сыт|^sat|голод|еда|hunger|food|fed/i, имя: 'Сытость', ик: 'food', c: '#f08a4b' },
+  { к: 'energy', rx: /энерг|^eng|сил|energy|stamina/i, имя: 'Энергия', ик: 'bolt', c: '#f2c14e' },
+  { к: 'clean', rx: /чист|^cln|clean|hygiene/i, имя: 'Чистота', ик: 'drop', c: '#6fb7ff' },
+  { к: 'charge', rx: /заряд|^chg|батар|charge|battery|power/i, имя: 'Заряд', ик: 'plug', c: '#6fd39a' },
+  { к: 'fix', rx: /исправ|^fix|поломк|condition|repair|integrity/i, имя: 'Исправность', ик: 'gear', c: '#8fb8ff' },
   { к: 'mood', rx: /настро|^joy|mood/i, имя: 'Настроение', ик: 'smile', c: '#b58cff' },
 ];
 export function потребностиСпутника(p, механизм) {
@@ -262,12 +262,12 @@ export function потребностиСпутника(p, механизм) {
   });
   const слова = (String(p.condition || '') + ' ' + String(p.mood || '') + ' ' + String(p.diet || '')).toLowerCase();
   const угадать = (к) => {
-    if (к === 'food') return /голод|не ел|не корм|требует/.test(слова) ? 1 : /сыт|покорм|поел/.test(слова) ? 4 : 3;
-    if (к === 'energy') return /устал|спит|вял|измот/.test(слова) ? 2 : /бодр|носится|игрив|энерг/.test(слова) ? 5 : 3;
-    if (к === 'clean') return /гряз|мокр|в грязи/.test(слова) ? 2 : /вылиз|чист/.test(слова) ? 5 : 4;
-    if (к === 'charge') { const m = слова.match(/(\d{1,3})\s*%/); return m ? огр(Math.round(+m[1] / 20), 0, 5) : /разряж|сел/.test(слова) ? 1 : 3; }
-    if (к === 'fix') return /слом|поврежд|сбой|застрял/.test(слова) ? 2 : 4;
-    if (к === 'mood') return /обиж|зл|рыч|груст|скуч|испуг/.test(слова) ? 1 : /рад|доволь|мурч|счаст|игрив/.test(слова) ? 5 : 3;
+    if (к === 'food') return /голод|не ел|не корм|требует|hungry|starving|unfed|not fed|begging/.test(слова) ? 1 : /сыт|покорм|поел|\bfed\b|full|ate\b/.test(слова) ? 4 : 3;
+    if (к === 'energy') return /устал|спит|вял|измот|tired|sleep|lethargic|sluggish|exhausted/.test(слова) ? 2 : /бодр|носится|игрив|энерг|energetic|zoom|playful|bouncy|lively/.test(слова) ? 5 : 3;
+    if (к === 'clean') return /гряз|мокр|в грязи|dirty|muddy|\bwet\b|filthy/.test(слова) ? 2 : /вылиз|чист|clean|groomed|washed/.test(слова) ? 5 : 4;
+    if (к === 'charge') { const m = слова.match(/(\d{1,3})\s*%/); return m ? огр(Math.round(+m[1] / 20), 0, 5) : /разряж|сел|dead|drained|low battery|discharged|flat\b/.test(слова) ? 1 : 3; }
+    if (к === 'fix') return /слом|поврежд|сбой|застрял|broken|damaged|glitch|malfunction|stuck|error/.test(слова) ? 2 : 4;
+    if (к === 'mood') return /обиж|зл|рыч|груст|скуч|испуг|sulk|angry|growl|hiss|sad|bored|scared|afraid|grumpy/.test(слова) ? 1 : /рад|доволь|мурч|счаст|игрив|happy|content|purr|joy|playful|wagging/.test(слова) ? 5 : 3;
     return 3;
   };
   const набор = механизм ? ['charge', 'fix', 'mood'] : ['food', 'energy', 'clean', 'mood'];

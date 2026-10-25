@@ -10,8 +10,8 @@
 // сверх прежнего. Оформление — css/family-views.css; движение — только под
 // курсором или после касания.
 
-import { escapeHtml, applyTooltips, hudHashSeed } from '../utils.js?v=23.78.7';
-import { settings } from '../settings.js?v=23.78.7';
+import { escapeHtml, applyTooltips, hudHashSeed } from '../utils.js?v=23.79.0';
+import { settings } from '../settings.js?v=23.79.0';
 
 // Выбранный вид семейного блока. Список видов — в views.js (ВИДЫ_БЛОКОВ);
 // здесь только проверка по своему списку, чтобы не тянуть views.js по кругу

@@ -6,15 +6,15 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.78.7';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.78.7';
-import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.78.7';
-import { отложитьРисунок } from './lazy-svg.js?v=23.78.7';
-import { длинныйСписок } from './long-list.js?v=23.78.7';
-import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.78.7';
-import { общиеМеста } from './route-places.js?v=23.78.7';
-import { статусРужья } from '../codes.js?v=23.78.7';
-import { сеткаСекретов } from './secrets-grid.js?v=23.78.7';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.79.0';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.79.0';
+import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.79.0';
+import { отложитьРисунок } from './lazy-svg.js?v=23.79.0';
+import { длинныйСписок } from './long-list.js?v=23.79.0';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.79.0';
+import { общиеМеста } from './route-places.js?v=23.79.0';
+import { статусРужья } from '../codes.js?v=23.79.0';
+import { сеткаСекретов } from './secrets-grid.js?v=23.79.0';
 
 function parseRoutePoint(item) {
   // Модель иногда ставит дату перед временем («09.11, 22:15») — дату отбрасываем.
@@ -200,7 +200,7 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
       const значок = с.ключ === 'fired' ? '💥' : с.ключ === 'building' ? '⏳' : '🔫';
       // В Lorebook — завязка, с кем связана и где нить сейчас. Ключи — имена из
       // «к кому относится»: по ним запись всплывёт, когда нить снова в сцене.
-      const ключи = кто.split(/[;,]|\s+и\s+/).map(x => x.trim()).filter(Boolean);
+      const ключи = кто.split(/[;,]|\s+(?:и|and)\s+/i).map(x => x.trim()).filter(Boolean);
       const запись = [завязка, кто ? 'Связано с: ' + кто : '', 'Статус: ' + с.текст].filter(Boolean).join('\n');
       const новое = isNewLoreItem(завязка);
       return `<div class="hud-gun is-${с.ключ} hud-lore-item${новое ? ' is-new' : ''}"><span class="hud-gun-ico" aria-hidden="true">${значок}</span>`

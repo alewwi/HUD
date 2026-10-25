@@ -12,9 +12,9 @@
 // Не разобрали данные — пустая строка, и поле рисуется по-старому.
 // Оформление — css/views-fields.css.
 
-import { escapeHtml, разбитьСписок } from '../utils.js?v=23.78.7';
-import { ИКОНКИ } from './view-icons.js?v=23.78.7';
-import { знакЗодиака as знакНаЯзыке } from '../i18n.js?v=23.78.7';
+import { escapeHtml, разбитьСписок } from '../utils.js?v=23.79.0';
+import { ИКОНКИ } from './view-icons.js?v=23.79.0';
+import { знакЗодиака as знакНаЯзыке } from '../i18n.js?v=23.79.0';
 
 const т = (s) => escapeHtml(String(s ?? '').trim());
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто|—|-)$/i.test(String(v).trim());
@@ -37,7 +37,7 @@ function куски(value) {
 // Запятая перед придаточным или деепричастием — не новый пункт:
 // «поглядывает в сторону бара, будучи уверенным, что Софи приревновала»
 // раньше давало три пункта «…бара», «Будучи уверенным», «Что Софи…».
-const ПРИДАТОЧНОЕ = /^(?:что|чтобы|будто|словно|будучи|котор\p{L}*|когда|где|куда|откуда|если|пока|потому|поскольку|так как|хотя|ведь|чем|как|ни|не|отчего|зачем|почему|\p{L}+(?:ясь|вшись|вши|ючи|учи)|\p{L}{2,}[аяу]я)(?![\p{L}])/iu;
+const ПРИДАТОЧНОЕ = /^(?:что|чтобы|будто|словно|будучи|котор\p{L}*|когда|где|куда|откуда|если|пока|потому|поскольку|так как|хотя|ведь|чем|как|ни|не|отчего|зачем|почему|\p{L}+(?:ясь|вшись|вши|ючи|учи)|\p{L}{2,}[аяу]я|that|which|who|whom|whose|when|where|while|because|since|although|though|as if|as though|if|unless|until|being|having|hoping|knowing|thinking|believing|wondering|pretending)(?![\p{L}])/iu;
 function склеитьПридаточные(части) {
   const итог = [];
   for (const x of части) {
@@ -112,11 +112,11 @@ function разобратьВозраст(value) {
   let n = +m[1];
   // Возраст малыша («40 дней», «1 год 2 мес. 5 дн., род. 07.09.2024»): слово
   // возраста берём целиком, а не «N лет».
-  const мал = s.match(/^\s*((?:\d{1,3}\s*(?:год[а]?|лет|мес\.?|месяц\w*|нед\.?|недел\w*|дн\.?|дн\w*|день|сут\w*)\s*)+)/i);
-  const малыш = мал && /мес|нед|дн|день|сут/i.test(мал[1]);
+  const мал = s.match(/^\s*((?:\d{1,3}\s*(?:год[а]?|лет|мес\.?|месяц\w*|нед\.?|недел\w*|дн\.?|дн\w*|день|сут\w*|years?|yrs?|months?|mos?\.?|weeks?|wks?\.?|days?)(?![a-z])\s*,?\s*)+)/i);
+  const малыш = мал && /мес|нед|дн|день|сут|month|mo\b|mos\b|week|wk|day/i.test(мал[1]);
   const слово = малыш ? мал[1].trim() : `${n} ${годы(n)}`;
-  if (малыш) { const г = мал[1].match(/(\d+)\s*(?:год|лет)/i); n = г ? +г[1] : 0; }
-  const хвост = (малыш ? s.slice(мал[0].length).replace(/^\s*[,;—–-]?\s*(?:род\.?|родил\w*)?\s*/i, '') : s.slice(m[0].length).replace(/^\s*(?:лет|года?|y\.?o\.?)?\s*[,;—–-]?\s*/i, '')).trim();
+  if (малыш) { const г = мал[1].match(/(\d+)\s*(?:год|лет|years?|yrs?)/i); n = г ? +г[1] : 0; }
+  const хвост = (малыш ? s.slice(мал[0].length).replace(/^\s*[,;—–-]?\s*(?:род\.?|родил\w*|born|b\.)?\s*/i, '') : s.slice(m[0].length).replace(/^\s*(?:лет|года?|y\.?o\.?|years?(?: old)?|yrs?(?: old)?)?\s*[,;—–-]?\s*/i, '')).trim();
   const д = хвост.match(/(\d{1,2})[./-](\d{1,2})(?:[./-](\d{2,4}))?/);
   const знак = д ? знакЗодиака(+д[1], огр(+д[2], 1, 12)) : null;
   const остаток = д ? хвост.replace(д[0], '').replace(/^[\s,;—–-]+|[\s,;—–-]+$/g, '') : '';
@@ -186,17 +186,17 @@ function видВозраста(value, вид) {
 /* =============================== ОДЕЖДА ================================== */
 
 const ВЕЩИ = [
-  [/плать|сарафан/i, 'dress', 'M9 3h6l-1 4 4 13H6l4-13Z M9 3l-2 2 M15 3l2 2'],
-  [/футбол|майк|топ\b|худи|свитер|кофт|водолазк/i, 'tee', 'M8 4 4 7l2 3 2-1v11h8V9l2 1 2-3-4-3c-.6 1.4-2 2-4 2s-3.4-.6-4-2Z'],
-  [/рубаш|блуз/i, 'shirt', 'M8 4 4 7l2 3 2-1v11h8V9l2 1 2-3-4-3-4 4Z M12 8v12 M11 11h.01 M11 14h.01'],
-  [/брюк|штан|джинс|леггинс|шорт/i, 'pants', 'M7 3h10l1 18h-4l-2-11-2 11H6Z M7 6h10'],
-  [/юбк/i, 'skirt', 'M8 5h8l3 14H5Z M8 8h8'],
-  [/пальто|куртк|пиджак|жакет|плащ|мантия|кардиган/i, 'coat', 'M8 3 4 6v15h5V9l3 4 3-4v12h5V6l-4-3-4 6Z'],
-  [/туфл|ботин|сапог|кроссов|кед|босонож|обув|тапк|каблук/i, 'shoe', 'M3 15h5l2-3c3 0 6 1 8 3h3v3H3Z M8 15v3'],
-  [/чулк|носк|колгот/i, 'sock', 'M9 3h5v9l3 5a2.5 2.5 0 0 1-4 3l-4-6Z'],
-  [/бель|бюстг|трус|лиф|корсет/i, 'lingerie', 'M4 8c2 3 6 3 8 0 2 3 6 3 8 0 M4 8l1-4 M20 8l-1-4 M8 14h8l-1 5H9Z'],
-  [/шарф|платок|галстук/i, 'scarf', 'M6 4c4 2 8 2 12 0v4c-4 2-8 2-12 0Z M14 8v12l-3-2'],
-  [/шапк|шляп|кепк|берет|капюшон/i, 'hat', 'M4 16h16 M6 16c0-5 2.5-9 6-9s6 4 6 9'],
+  [/плать|сарафан|\bdress|gown|sundress|nightgown|nightie/i, 'dress', 'M9 3h6l-1 4 4 13H6l4-13Z M9 3l-2 2 M15 3l2 2'],
+  [/футбол|майк|топ\b|худи|свитер|кофт|водолазк|t-shirt|\btee\b|tank|\btop\b|camisole|hoodie|sweater|jumper|sweatshirt|pullover|turtleneck/i, 'tee', 'M8 4 4 7l2 3 2-1v11h8V9l2 1 2-3-4-3c-.6 1.4-2 2-4 2s-3.4-.6-4-2Z'],
+  [/рубаш|блуз|(?<!t-)shirt|blouse/i, 'shirt', 'M8 4 4 7l2 3 2-1v11h8V9l2 1 2-3-4-3-4 4Z M12 8v12 M11 11h.01 M11 14h.01'],
+  [/брюк|штан|джинс|леггинс|шорт|pants|trousers|jeans|leggings|slacks|shorts|joggers|sweatpants/i, 'pants', 'M7 3h10l1 18h-4l-2-11-2 11H6Z M7 6h10'],
+  [/юбк|skirt|kilt/i, 'skirt', 'M8 5h8l3 14H5Z M8 8h8'],
+  [/пальто|куртк|пиджак|жакет|плащ|мантия|кардиган|coat|jacket|blazer|raincoat|trench|cloak|cardigan|parka|cape\b/i, 'coat', 'M8 3 4 6v15h5V9l3 4 3-4v12h5V6l-4-3-4 6Z'],
+  [/туфл|ботин|сапог|кроссов|кед|босонож|обув|тапк|каблук|shoes?\b|boots?\b|sneakers|trainers|sandals|slippers|heels|loafers|pumps|flats\b/i, 'shoe', 'M3 15h5l2-3c3 0 6 1 8 3h3v3H3Z M8 15v3'],
+  [/чулк|носк|колгот|stocking|socks?\b|tights|pantyhose|fishnets/i, 'sock', 'M9 3h5v9l3 5a2.5 2.5 0 0 1-4 3l-4-6Z'],
+  [/бель|бюстг|трус|лиф|корсет|\bbra\b|bralette|panties|knickers|thong|lingerie|underwear|briefs|boxers|corset|bustier/i, 'lingerie', 'M4 8c2 3 6 3 8 0 2 3 6 3 8 0 M4 8l1-4 M20 8l-1-4 M8 14h8l-1 5H9Z'],
+  [/шарф|платок|галстук|scarf|shawl|kerchief|\btie\b|necktie|bow ?tie/i, 'scarf', 'M6 4c4 2 8 2 12 0v4c-4 2-8 2-12 0Z M14 8v12l-3-2'],
+  [/шапк|шляп|кепк|берет|капюшон|\bhat\b|\bcap\b|beanie|beret|hood\b|fedora/i, 'hat', 'M4 16h16 M6 16c0-5 2.5-9 6-9s6 4 6 9'],
 ];
 const вещь = (x) => ВЕЩИ.find(([rx]) => rx.test(x)) || [null, 'item', 'M12 4a2 2 0 0 1 2 2c0 1-2 1.5-2 3 M12 9 3 16h18Z'];
 const УХОД = [
@@ -216,8 +216,8 @@ function видОдежды(value, вид) {
   }
   if (вид === 'layers') {
     // Книга образцов ткани: зубчатые лоскуты внахлёст, у каждого своё плетение.
-    const ткань = (x) => /шёлк|шелк|атлас|сатин/i.test(x) ? 'silk' : /джинс|деним/i.test(x) ? 'denim' : /кружев|чулк|колгот|сетк|капрон/i.test(x) ? 'lace'
-      : /вязан|свитер|кардиган|шерст/i.test(x) ? 'knit' : /кож|замш|лакир/i.test(x) ? 'leather' : /бархат|вельвет/i.test(x) ? 'velvet' : 'linen';
+    const ткань = (x) => /шёлк|шелк|атлас|сатин|silk|satin/i.test(x) ? 'silk' : /джинс|деним|denim|jeans/i.test(x) ? 'denim' : /кружев|чулк|колгот|сетк|капрон|lace|stocking|tights|mesh|nylon|fishnet/i.test(x) ? 'lace'
+      : /вязан|свитер|кардиган|шерст|knit|sweater|cardigan|wool|cashmere/i.test(x) ? 'knit' : /кож|замш|лакир|leather|suede|patent|latex/i.test(x) ? 'leather' : /бархат|вельвет|velvet|velour|corduroy/i.test(x) ? 'velvet' : 'linen';
     const ИМЕНА = { silk: 'шёлк', denim: 'деним', lace: 'кружево', knit: 'вязка', leather: 'кожа', velvet: 'бархат', linen: 'ткань' };
     return обёртка('clothes', 'layers', `<div class="book">${в.map((x, i) => `<div class="swatch f-${ткань(x)}" style="--i:${i};--h:${(i * 61) % 300 - 150}">`
       + `<span class="cloth" aria-hidden="true"></span><span class="lbl"><small>${i === 0 ? 'сверху' : i === в.length - 1 ? 'ближе к телу' : `слой ${i + 1}`} · ${ИМЕНА[ткань(x)]}</small><b>${т(с1(x))}</b></span></div>`).join('')}</div>`);
@@ -234,13 +234,13 @@ function видОдежды(value, вид) {
 /* ============================== ВНЕШНОСТЬ ================================ */
 
 const ПРИМЕТЫ = [
-  ['Рост', /\d{2,3}\s*см|\bрост|высок|невысок|низк|миниатюр/i, 'leg', [0, 0]],
-  ['Сложение', /строй|худ|полн|плотн|широк|хрупк|спортив|мускул|сложен|фигур|изящн|крепк/i, 'torso', [50, 92]],
-  ['Волосы', /волос|стриж|кос[аы]\b|локон|кудр|блонд|брюнет|рыж|шатен|лыс|чёлк|челк/i, 'head', [50, 14]],
-  ['Глаза', /глаз|взгляд|ресниц/i, 'eye', [58, 33]],
-  ['Кожа', /кож[аеи]|загар|веснуш|бледн|смугл/i, 'drop', [38, 42]],
-  ['Приметы', /шрам|родинк|татуир|тату|пирсинг|ожог|щетин|бород|\bус[ыа]?\b|очки/i, 'star', [56, 48]],
-  ['Лицо', /лиц|губ|скул|нос\b|брови|улыб/i, 'mask', [50, 50]],
+  ['Рост', /\d{2,3}\s*см|\bрост|высок|невысок|низк|миниатюр|\d{2,3}\s*cm|\d['’]\s*\d{1,2}|\btall\b|\bshort\b|height|petite|\bfeet\b|\bft\b/i, 'leg', [0, 0]],
+  ['Сложение', /строй|худ|полн|плотн|широк|хрупк|спортив|мускул|сложен|фигур|изящн|крепк|slim|slender|thin|lean|curvy|plump|stocky|broad|fragile|athletic|muscular|built|figure|physique|graceful|sturdy|toned|lithe|wiry|curves/i, 'torso', [50, 92]],
+  ['Волосы', /волос|стриж|кос[аы]\b|локон|кудр|блонд|брюнет|рыж|шатен|лыс|чёлк|челк|hair|haircut|braid|curls|curly|blond|brunette|redhead|ginger|bald|bangs|fringe|ponytail/i, 'head', [50, 14]],
+  ['Глаза', /глаз|взгляд|ресниц|\beyes?\b|gaze|lashes/i, 'eye', [58, 33]],
+  ['Кожа', /кож[аеи]|загар|веснуш|бледн|смугл|\bskin\b|tan\b|tanned|freckle|pale|olive|complexion/i, 'drop', [38, 42]],
+  ['Приметы', /шрам|родинк|татуир|тату|пирсинг|ожог|щетин|бород|\bус[ыа]?\b|очки|scar|mole|birthmark|tattoo|piercing|burn|stubble|beard|mustache|moustache|glasses/i, 'star', [56, 48]],
+  ['Лицо', /лиц|губ|скул|нос\b|брови|улыб|\bface\b|\blips?\b|cheekbone|\bnose\b|brows?\b|smile|jaw/i, 'mask', [50, 50]],
 ];
 const примета = (x) => ПРИМЕТЫ.find(([, rx]) => rx.test(x)) || ['Облик', null, 'diamond', [50, 104]];
 function видВнешности(value, вид) {
@@ -248,7 +248,7 @@ function видВнешности(value, вид) {
   if (!в.length) return '';
   if (вид === 'traits') {
     // Силуэт с пронумерованными метками: где на нём каждая черта.
-    const рост = в.map(x => x.match(/(\d{3})\s*см/)).find(Boolean);
+    const рост = в.map(x => x.match(/(\d{3})\s*(?:см|cm)/)).find(Boolean);
     const точки = в.map((x, i) => { const [имя, , , [px, py]] = примета(x); return имя === 'Рост' ? null : `<g class="dot" style="--i:${i}"><circle cx="${px + (i % 2 ? 3 : -3) * (i > 3)}" cy="${py}" r="4.6"/><text x="${px + (i % 2 ? 3 : -3) * (i > 3)}" y="${py + 2.2}">${i + 1}</text></g>`; }).filter(Boolean).join('');
     const линейка = рост ? `<g class="ruler">${Array.from({ length: 13 }, (_, k) => `<path d="M2 ${8 + k * 9}h${k % 4 ? 3 : 6}"/>`).join('')}<path class="bar" d="M2 8v108"/><text x="9" y="6">${рост[1]}</text></g>` : '';
     const пункт = (x, i) => `<li style="--i:${i}"><b>${i + 1}</b><span><small>${примета(x)[0]}</small>${т(с1(x))}</span></li>`;
@@ -332,13 +332,13 @@ export function видТела(value) {
 /* ============================== ФИЗИОЛОГИЯ =============================== */
 
 const ОЩУЩЕНИЯ = [
-  [/жар|горяч|пыла|знобит|озноб|температур/i, 'flame', 'head'], [/пить|рот|жажд|пересох|слюн|губ/i, 'drop', 'mouth'],
-  [/возбужд|желан|влеч|томлен|страст/i, 'heart', 'pelvis'], [/хмел|вин|пьян|алкогол|коньяк|пив/i, 'cup', 'head'],
-  [/боль|ноет|ныть|тян|спазм|колет|ломит/i, 'bolt', 'belly'], [/устал|сонн|сон\b|вял|изнем|разбит/i, 'moon', 'chest'],
-  [/дрож|трясёт|трясет|мурашк|дыхан|задыха/i, 'wave', 'arms'], [/сердц|пульс|колотит/i, 'hearts', 'chest'], [/голод|сыт|тошн|живот/i, 'box', 'belly'],
+  [/жар|горяч|пыла|знобит|озноб|температур|fever|\bhot\b|burning|flushed|chills|temperature/i, 'flame', 'head'], [/пить|рот|жажд|пересох|слюн|губ|thirst|\bdry\b|mouth|saliva|\blips?\b|parched/i, 'drop', 'mouth'],
+  [/возбужд|желан|влеч|томлен|страст|arous|desire|lust|longing|passion|horny|wanting/i, 'heart', 'pelvis'], [/хмел|вин|пьян|алкогол|коньяк|пив|tipsy|drunk|wine|alcohol|cognac|whisk|beer|buzzed|hungover/i, 'cup', 'head'],
+  [/боль|ноет|ныть|тян|спазм|колет|ломит|pain|ache|aching|sore|cramp|spasm|throb|stab/i, 'bolt', 'belly'], [/устал|сонн|сон\b|вял|изнем|разбит|tired|sleepy|drowsy|exhausted|fatigue|weary|drained|sluggish/i, 'moon', 'chest'],
+  [/дрож|трясёт|трясет|мурашк|дыхан|задыха|trembl|shak|goosebumps|shiver|breath|panting|gasp/i, 'wave', 'arms'], [/сердц|пульс|колотит|heart|pulse|pounding|racing/i, 'hearts', 'chest'], [/голод|сыт|тошн|живот|hungry|hunger|\bfull\b|nause|stomach|belly/i, 'box', 'belly'],
 ];
 const ощущение = (x) => ОЩУЩЕНИЯ.find(([rx]) => rx.test(x)) || [null, 'star', 'chest'];
-const силаОщущения = (x) => /сильн|очень|пылает|остр|невыносим|жутк|бешен|на пределе/i.test(x) ? 3 : /лёгк|легк|слегка|немного|чуть|едва|слаб/i.test(x) ? 1 : 2;
+const силаОщущения = (x) => /сильн|очень|пылает|остр|невыносим|жутк|бешен|на пределе|strong|very|intense|sharp|unbearable|severe|overwhelming|terrible|desperate/i.test(x) ? 3 : /лёгк|легк|слегка|немного|чуть|едва|слаб|slight|mild|faint|a little|a bit|barely|weak|light\b/i.test(x) ? 1 : 2;
 const СИЛА_СЛОВОМ = ['', 'слабо', 'заметно', 'сильно'];
 // Своя кривая у каждого ощущения: жар — рваный, жажда — медленная волна,
 // сердце — кардиограмма, дрожь — частая рябь, боль — пики, усталость — плато.

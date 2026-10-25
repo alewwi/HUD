@@ -11,9 +11,9 @@
 // Модель о последствиях не вспомнит: что с зашитым предплечьем нельзя под
 // душ, что ночь после схватки короткая, что после боя кусок в горло не лезет.
 
-import { settings } from '../settings.js?v=23.78.7';
-import { flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.78.7';
-import { namesLikelySame } from '../names.js?v=23.78.7';
+import { settings } from '../settings.js?v=23.79.0';
+import { flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.79.0';
+import { namesLikelySame } from '../names.js?v=23.79.0';
 
 const Ч = 3600e3, СУТКИ = 864e5;
 const текст = (v) => (v === null || v === undefined ? '' : String(снятьЗаглушки(flattenFieldValue(v)) || '')).trim();
@@ -67,11 +67,11 @@ export function раныИз(значение) {
   }).filter(Boolean);
 }
 // Рана, а не болезнь: есть зона или слово раны.
-const РАНА = /пул|огнестр|порез|резан|нож|колот|рассеч|ран(?:а|ы|у|ен)|шов|швы|ожог|перелом|трещин|вывих|растяж|ушиб|синяк|гематом|ссадин|укус|травм/i;
+const РАНА = /пул|огнестр|порез|резан|нож|колот|рассеч|ран(?:а|ы|у|ен)|шов|швы|ожог|перелом|трещин|вывих|растяж|ушиб|синяк|гематом|ссадин|укус|травм|bullet|gunshot|\bcut\b|slash|knife|stab|wound|stitch|burn|fractur|broken|crack|dislocat|sprain|bruis|hematoma|graze|abrasion|bite|injur/i;
 const ЗАЖИЛО = /healed|зажил|chronic|хрон/i;
 // Ключ раны без стороны, скобок и знаков: одна рана — одна кривая.
 const ключРаны = (nm) => String(nm || '').toLowerCase().replace(/ё/g, 'е').replace(/\([^)]*\)/g, ' ')
-  .replace(/(?<![\p{L}])(?:справа|слева|прав\p{L}*|лев\p{L}*)(?![\p{L}])/gu, ' ').replace(/[^\p{L}\p{N}]+/gu, ' ').trim().slice(0, 40);
+  .replace(/(?<![\p{L}])(?:справа|слева|прав\p{L}*|лев\p{L}*|right|left)(?![\p{L}])/giu, ' ').replace(/[^\p{L}\p{N}]+/gu, ' ').trim().slice(0, 40);
 
 const ЭТАП = (st) => {
   const s = String(st || '').toLowerCase();
@@ -167,7 +167,7 @@ export function новыйУчётБоя() {
       // Гигиена: свежая рана в зоне, где «мыться» мешает, — таймер душа не
       // ругается, а меняет смысл: «мыться нельзя: шов на предплечье, 3-й день».
       const мешаетМыться = всеРаны.filter(р => свой(р.кто) && р.мешает.includes('мыться') && р.день <= днейГигиена + 1 && (р.rc === null || р.rc < 70));
-      const обтирался = события.some(с => с.вид === 'wash' && /обте|обтир|влажн\p{L}* салфет|губк/iu.test(с.что) && мешаетМыться.some(р => с.t >= р.первый));
+      const обтирался = события.some(с => с.вид === 'wash' && /обте|обтир|влажн\p{L}* салфет|губк|sponge bath|sponged|wet wipes?|wiped (?:down|herself|himself)|washcloth/iu.test(с.что) && мешаетМыться.some(р => с.t >= р.первый));
       const мытьёНельзя = мешаетМыться.length ? { рана: мешаетМыться[0], обтирался } : null;
       // Сон: ночь после схватки — пометка к короткой ночи.
       const ночи = [];

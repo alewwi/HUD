@@ -15,13 +15,13 @@
 // Оформление — детское: у девочек бантики и куколки, у мальчиков машинки и
 // динозавры (css/family.css).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.78.7';
-import { parseSceneDate } from '../history-analyzer.js?v=23.78.7';
-import { settings } from '../settings.js?v=23.78.7';
-import { роды, деньРодов, деньРожденияМалыша } from './conception.js?v=23.78.7';
-import { часовМежду } from './fertility.js?v=23.78.7';
-import { buildCharacterHTML } from './character.js?v=23.78.7';
-import { видСемьи, видТрекера, видУхода, подсказкаВехи } from './family-views.js?v=23.78.7';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.79.0';
+import { parseSceneDate } from '../history-analyzer.js?v=23.79.0';
+import { settings } from '../settings.js?v=23.79.0';
+import { роды, деньРодов, деньРожденияМалыша } from './conception.js?v=23.79.0';
+import { часовМежду } from './fertility.js?v=23.79.0';
+import { buildCharacterHTML } from './character.js?v=23.79.0';
+import { видСемьи, видТрекера, видУхода, подсказкаВехи } from './family-views.js?v=23.79.0';
 
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const текст = (о, к) => снятьЗаглушки(flattenFieldValue(о && о[к]));
@@ -40,11 +40,11 @@ export function днейИзТекста(т) {
   const s = String(т || '').toLowerCase();
   let д = 0, нашли = false;
   const взять = (rx, k) => { const m = s.match(rx); if (m) { д += parseFloat(m[1].replace(',', '.')) * k; нашли = true; } };
-  взять(/(\d+(?:[.,]\d+)?)\s*(?:год|лет|г\.)/, 365);
-  взять(/(\d+(?:[.,]\d+)?)\s*(?:мес)/, 30.4);
-  взять(/(\d+(?:[.,]\d+)?)\s*(?:нед)/, 7);
-  взять(/(\d+(?:[.,]\d+)?)\s*(?:дн|ден|сут)/, 1);
-  if (!нашли && /новорожд|только родил/.test(s)) return 0;
+  взять(/(\d+(?:[.,]\d+)?)\s*(?:год|лет|г\.|years?|yrs?|y\.?o)/, 365);
+  взять(/(\d+(?:[.,]\d+)?)\s*(?:мес|months?|mos?\b)/, 30.4);
+  взять(/(\d+(?:[.,]\d+)?)\s*(?:нед|weeks?|wks?\b)/, 7);
+  взять(/(\d+(?:[.,]\d+)?)\s*(?:дн|ден|сут|days?\b)/, 1);
+  if (!нашли && /новорожд|только родил|newborn|just born|born today/.test(s)) return 0;
   return нашли ? Math.round(д) : null;
 }
 export function возрастСловами(д) {

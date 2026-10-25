@@ -12,10 +12,10 @@
 // оказываются рядом вчерашнее «22:30» и сегодняшнее «08:30», и без подписи
 // «Вчера» это читается как один разговор подряд.
 
-import { escapeHtml, defeatWI } from '../utils.js?v=23.78.7';
-import { buildBubbleInner, buildCallRow, msgKey } from './msg-parts.js?v=23.78.7';
-import { avaFace } from './phone-common.js?v=23.78.7';
-import { namesLikelySame } from '../names.js?v=23.78.7';
+import { escapeHtml, defeatWI } from '../utils.js?v=23.79.0';
+import { buildBubbleInner, buildCallRow, msgKey } from './msg-parts.js?v=23.79.0';
+import { avaFace } from './phone-common.js?v=23.79.0';
+import { namesLikelySame } from '../names.js?v=23.79.0';
 
 // Один человек в переписке под разными подписями: «Грей» и «Профессор Грей»,
 // «Butler» и «Private Butler», «Tristan» и «THE REGENTS Tristan Kingsley».
@@ -37,14 +37,14 @@ const МЕСЯЦЫ_РОД = ['января', 'февраля', 'марта', 'а
 // msgTimeOf() отдаёт только часы с минутами, а для дня нужна вся подпись.
 export function полеВремени(raw) {
   const s = String(raw || '');
-  const ДЕНЬ = /(?:вчера|сегодня|завтра|позавчера|\d{1,2}\s*[.\/-]\s*\d{1,2}|\d{1,2}\s+[а-яё]{3,})/i;
+  const ДЕНЬ = /(?:вчера|сегодня|завтра|позавчера|yesterday|today|tomorrow|\d{1,2}\s*[.\/-]\s*\d{1,2}|\d{1,2}\s+[а-яё]{3,}|\d{1,2}(?:st|nd|rd|th)?\s+(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*|(?:jan|feb|mar|apr|may|jun|jul|aug|sep|oct|nov|dec)[a-z]*\.?\s+\d{1,2})/i;
   const части = s.split('|').map(x => x.trim());
   if (части.length > 1) {
     // Поле со временем или с днём — любое из полей после первого.
     const поле = части.slice(1).find(x => /\d{1,2}:\d{2}/.test(x) || ДЕНЬ.test(x));
     if (поле) return поле;
   }
-  const хвост = s.match(/((?:вчера|сегодня|завтра|позавчера)?[,\s]*\d{1,2}:\d{2})\s*(?:✓+|read|unread|доставлен[а-я]*|прочитан[а-я]*|отправлен[а-я]*|draft|черновик)?\s*$/i);
+  const хвост = s.match(/((?:вчера|сегодня|завтра|позавчера|yesterday|today|tomorrow)?[,\s]*\d{1,2}:\d{2})\s*(?:✓+|read|unread|seen|delivered|sent|доставлен[а-я]*|прочитан[а-я]*|отправлен[а-я]*|draft|черновик)?\s*$/i);
   return хвост ? хвост[1].trim() : '';
 }
 
@@ -58,7 +58,17 @@ export function датаСцены(строка) {
     const i = МЕСЯЦЫ_РОД.findIndex(н => m[2].startsWith(н.slice(0, 4)));
     if (i >= 0) return { d: +m[1], mo: i + 1, y: m[3] ? +m[3] : null };
   }
-  return null;
+  const en = датаEN(s);
+  return en ? { d: en.d, mo: en.mo, y: en.y } : null;
+}
+// «17 October 2024», «Oct 17th, 2024» → { d, mo, y } или null.
+const МЕСЯЦЫ_EN = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'];
+function датаEN(s) {
+  const m = s.match(/(?<![\d\p{L}])(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?([a-z]{3,})\.?,?(?:\s+(\d{3,4}))?/iu) || s.match(/(?<![\p{L}])([a-z]{3,})\.?\s+(\d{1,2})(?:st|nd|rd|th)?(?![\d])(?:,?\s+(\d{3,4}))?/iu);
+  if (!m) return null;
+  const [d, слово] = /^\d/.test(m[1]) ? [m[1], m[2]] : [m[2], m[1]];
+  const i = МЕСЯЦЫ_EN.findIndex(н => слово.toLowerCase().startsWith(н));
+  return i >= 0 && +d >= 1 && +d <= 31 ? { d: +d, mo: i + 1, y: m[3] ? +m[3] : null } : null;
 }
 
 const вЧисло = ({ d, mo, y }) => (y || 1970) * 10000 + mo * 100 + d;
@@ -73,7 +83,7 @@ function сдвинуть(дата, дней) {
 export function деньСообщения(поле, сцена) {
   const s = String(поле || '').toLowerCase();
   if (!s) return null;
-  const сдвиг = /позавчера/.test(s) ? -2 : /вчера/.test(s) ? -1 : /завтра/.test(s) ? 1 : /сегодня/.test(s) ? 0 : null;
+  const сдвиг = /позавчера|day before yesterday/.test(s) ? -2 : /вчера|yesterday/.test(s) ? -1 : /завтра|tomorrow/.test(s) ? 1 : /сегодня|today/.test(s) ? 0 : null;
   if (сдвиг !== null) {
     return сцена ? { дата: сдвинуть(сцена, сдвиг) } : { сдвиг };
   }
@@ -87,6 +97,8 @@ export function деньСообщения(поле, сцена) {
     const i = МЕСЯЦЫ_РОД.findIndex(н => m[2].startsWith(н.slice(0, 4)));
     if (i >= 0 && +m[1] <= 31) return { дата: { d: +m[1], mo: i + 1, y: (сцена && сцена.y) || null } };
   }
+  const en = датаEN(s);
+  if (en) return { дата: { d: en.d, mo: en.mo, y: en.y || (сцена && сцена.y) || null } };
   return null;
 }
 
@@ -137,7 +149,7 @@ export function проставитьДень(строка, датаХода) {
   const поле = полеВремени(raw);
   if (!поле || !/\d{1,2}:\d{2}/.test(поле)) return raw;
   // Дата уже есть — значит день известен точно.
-  if (/\d{1,2}\s*[.\/-]\s*\d{1,2}|\d{1,2}\s+[а-яё]{3,}/i.test(поле)) return raw;
+  if (/\d{1,2}\s*[.\/-]\s*\d{1,2}|\d{1,2}\s+[а-яё]{3,}/i.test(поле) || датаEN(поле.toLowerCase())) return raw;
   const день = деньСообщения(поле, сцена);
   const дата = (день && день.дата) || сцена;
   const часы = (поле.match(/\d{1,2}:\d{2}/) || [''])[0];

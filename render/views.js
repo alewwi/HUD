@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.78.7';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.78.7';
-import { namesLikelySame } from '../names.js?v=23.78.7';
-import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.78.7';
-import { settings } from '../settings.js?v=23.78.7';
-import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.78.7';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.78.7';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.79.0';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.79.0';
+import { namesLikelySame } from '../names.js?v=23.79.0';
+import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.79.0';
+import { settings } from '../settings.js?v=23.79.0';
+import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.79.0';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.79.0';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -659,7 +659,7 @@ function разобратьВитал(value) {
     else if (/^(br|дыхание|breath)$/.test(к)) п.дыхание = m[2];
     else if (/^(tmp|temp|температура)$/.test(к)) п.т = m[2];
   });
-  const опис = (v) => String(v || '').replace(/^\s*[\d.,]+\s*(?:°\s*c|°|уд\/мин|в мин)?\s*[,;—–-]?\s*/i, '').trim();
+  const опис = (v) => String(v || '').replace(/^\s*[\d.,]+\s*(?:°\s*[cf]|°|уд\/мин|в мин|bpm|\/min|per min)?\s*[,;—–-]?\s*/i, '').trim();
   return { пульс: число(п.пульс), дыхание: число(п.дыхание), т: число(п.т), описДыхания: опис(п.дыхание),
     опис: { пульс: опис(п.пульс), дыхание: опис(п.дыхание), т: опис(п.т) } };
 }
@@ -749,10 +749,10 @@ const ВЕЩИ = [
 ];
 function вещь(п) {
   const г = ВЕЩИ.find(([, , rx]) => rx.test(п.имя)) || ВЕЩИ.find(([, , rx]) => rx.test(п.текст));
-  const кол = (п.текст.match(/[×x]\s*(\d+)|(\d+)\s*шт/i) || [])[1];
+  const кол = (п.текст.match(/[×x]\s*(\d+)|(\d+)\s*(?:шт|pcs|pieces)/i) || []).slice(1).find(Boolean);
   return { ...п, группа: г ? г[0] : 'Прочее', значок: г ? г[1] : 'box', кол };
 }
-const ВАЖНОЕ = /важн|главн|единствен|дорог|тайн|спрят|семейн|подар|памят|берег|не отдаст|никому|сокровищ|секрет/i;
+const ВАЖНОЕ = /важн|главн|единствен|дорог|тайн|спрят|семейн|подар|памят|берег|не отдаст|никому|сокровищ|секрет|important|precious|only one|treasur|secret|hidden|family|heirloom|gift|keepsake|memento|never part/i;
 
 export function видИнвентаря(value, вид) {
   const вещи = пары(value).map(вещь);
@@ -982,38 +982,38 @@ export function видРужей(guns, вид) {
 function сила(т) {
   const s = String(т || '');
   const n = число(s);
-  if (Number.isFinite(n) && /\d\s*(?:\/\s*(?:5|10)|из)/.test(s)) return огр(Math.round(/10/.test(s) ? n / 2 : n), 1, 5);
-  if (/обязательн|главн|без этого|сводит с ума|обожа|безумн|одержим|мгновенн/i.test(s)) return 5;
-  if (/сильн|охотно|любит|очень|заводит|нравится/i.test(s)) return 4;
-  if (/интерес|хочет попробовать|любопыт|в мечтах|мечта/i.test(s)) return 3;
-  if (/иногда|может|допускает|спокойн|терпит|под настроение/i.test(s)) return 2;
-  if (/редко|нехотя|почти нет|слаб/i.test(s)) return 1;
+  if (Number.isFinite(n) && /\d\s*(?:\/\s*(?:5|10)|из|out of)/.test(s)) return огр(Math.round(/10/.test(s) ? n / 2 : n), 1, 5);
+  if (/обязательн|главн|без этого|сводит с ума|обожа|безумн|одержим|мгновенн|must|essential|can'?t live without|drives (?:her|him) (?:crazy|wild)|adores?|obsess|instant|crazy about|craves?/i.test(s)) return 5;
+  if (/сильн|охотно|любит|очень|заводит|нравится|strong|eager|loves?|very|turns? (?:her|him) on|enjoys?|likes?|really/i.test(s)) return 4;
+  if (/интерес|хочет попробовать|любопыт|в мечтах|мечта|interest|wants to try|curious|fantas|dreams? of|intrigued/i.test(s)) return 3;
+  if (/иногда|может|допускает|спокойн|терпит|под настроение|sometimes|maybe|might|allows|okay with|ok with|tolerat|depends on (?:the )?mood|in the mood/i.test(s)) return 2;
+  if (/редко|нехотя|почти нет|слаб|rarely|reluctant|hardly|barely|weak|seldom/i.test(s)) return 1;
   return 3;
 }
 // «Никогда не сделает» и «Не возбуждает»: сила — насколько твёрдо «нет».
 // «Панический страх», «отвращение» — пять, «смешит», «скучно» — два.
 function силаОтказа(т) {
   const s = String(т || '');
-  if (/пани[кч]|ужас|отвращ|омерз|травм|категорич|ни за что|ни при как|никогда в жизни|жёстк|жестк|табу|hard/i.test(s)) return 5;
-  if (/противн|неприятн|не выносит|бесит|злит|пугает|страх|запрет|против/i.test(s)) return 4;
-  if (/смеш|скучн|равнодуш|всё равно|все равно|не впечатл|нейтральн|не трогает/i.test(s)) return 2;
-  if (/чуть|слегка|скорее нет|пока нет|не сейчас/i.test(s)) return 1;
+  if (/пани[кч]|ужас|отвращ|омерз|травм|категорич|ни за что|ни при как|никогда в жизни|жёстк|жестк|табу|hard|panic|terror|horrif|disgust|revuls|trauma|absolutely not|no way|never ever|taboo/i.test(s)) return 5;
+  if (/противн|неприятн|не выносит|бесит|злит|пугает|страх|запрет|против|dislikes?|unpleasant|can'?t stand|hates?|annoy|scares?|fear|forbidden|against/i.test(s)) return 4;
+  if (/смеш|скучн|равнодуш|всё равно|все равно|не впечатл|нейтральн|не трогает|funny|laugh|boring|bored|indifferent|doesn'?t care|unimpressed|neutral|meh|leaves (?:her|him) cold/i.test(s)) return 2;
+  if (/чуть|слегка|скорее нет|пока нет|не сейчас|slightly|a little|probably not|not yet|not now/i.test(s)) return 1;
   return 3;
 }
-const ГЛУБЬ = /мечт|тайн|стыд|не признаётся|не признается|скрыва|пока только|в фантаз|никому|боится признаться|втайне/i;
+const ГЛУБЬ = /мечт|тайн|стыд|не признаётся|не признается|скрыва|пока только|в фантаз|никому|боится признаться|втайне|secret|shame|ashamed|won'?t admit|hides?|hidden|only in (?:her|his) (?:head|dreams|fantasies)|fantas|afraid to admit|privately/i;
 const ТИПЫ_ВЛЕЧЕНИЙ = [
   ['Связывание', 'rope', /связ|верёв|верев|наручник|фиксац|шибари|bondage|повязк|привяз/i],
   ['Власть и контроль', 'crown', /домин|подчин|контрол|приказ|власт|сверху|снизу|послуш|покорн|на колени|ошейник|поводок|dom|sub|bdsm/i],
-  ['Ревность и «моё»', 'chain', /ревн|собствен|метк|засос|пометит|принадлеж|моя|мой|только е[её]/i],
-  ['Боль и ощущения', 'bolt', /бол|шлеп|шлёп|порк|плеть|плётк|ремень|укус|кус|щекот|лёд|лед|воск|царап|сжат|жар|холод/i],
-  ['На грани', 'flame', /удуш|дыхан|асфикс|кров|нож|опасн|страх|грань|на грани|choke/i],
-  ['Голос и слова', 'speech', /шёпот|шепот|голос|похвал|унижен|грязн|пошл|слова|стон|ругат|дразн|по имени|dirty/i],
-  ['Роли и игры', 'mask', /рол|игр|сценар|незнаком|учител|начальн|медсестр|врач|пленн/i],
-  ['Одежда и образ', 'heel', /чулк|бель|каблук|латекс|кожан|корсет|костюм|форм[аеуы]|платье|рубашк|галстук|очк|помад|духи/i],
-  ['Публичность и риск', 'eye', /публичн|на людях|застать|застукат|риск|подглядыв|вуайер|эксгибиц|камер|зеркал|снимат|втро[её]м|делит/i],
-  ['Нежность и эмоции', 'hearts', /предан|нежн|уязвим|эмоц|забот|ласк|объят|поцел|медленн|aftercare|глаза в глаза/i],
-  ['Тело и детали', 'rose', /ше[яиюе]|рук|ног|пальц|запах|волос|губ|бёдр|бедр|груд|кож|спин|ягодиц|шрам|веснушк/i],
-  ['Темп и обстановка', 'hourglass', /спешк|быстр|темп|долг|утр|ночь|свеч|душ|ванн|кухн|машин|спонтан|внезап/i],
+  ['Ревность и «моё»', 'chain', /ревн|собствен|метк|засос|пометит|принадлеж|моя|мой|только е[её]|jealous|possessive|mark(?:ing|s)? (?:her|him)|hickey|belong|mine\b|claim/i],
+  ['Боль и ощущения', 'bolt', /бол|шлеп|шлёп|порк|плеть|плётк|ремень|укус|кус|щекот|лёд|лед|воск|царап|сжат|жар|холод|pain|spank|whip|flog|belt|bit(?:e|ing)|tickl|\bice\b|wax|scratch|squeez|hot\b|cold\b|pinch|slap/i],
+  ['На грани', 'flame', /удуш|дыхан|асфикс|кров|нож|опасн|страх|грань|на грани|choke|breath ?play|asphyx|blood|knife|danger|fear|edge play|choking/i],
+  ['Голос и слова', 'speech', /шёпот|шепот|голос|похвал|унижен|грязн|пошл|слова|стон|ругат|дразн|по имени|dirty|whisper|voice|praise|humiliat|degrad|filthy|words|moan|curs|swear|teas|name|talk/i],
+  ['Роли и игры', 'mask', /рол|игр|сценар|незнаком|учител|начальн|медсестр|врач|пленн|role|roleplay|games?|scenario|stranger|teacher|boss|nurse|doctor|captive|prisoner/i],
+  ['Одежда и образ', 'heel', /чулк|бель|каблук|латекс|кожан|корсет|костюм|форм[аеуы]|платье|рубашк|галстук|очк|помад|духи|stocking|lingerie|heels|latex|leather|corset|costume|uniform|dress|shirt|\btie\b|glasses|lipstick|perfume/i],
+  ['Публичность и риск', 'eye', /публичн|на людях|застать|застукат|риск|подглядыв|вуайер|эксгибиц|камер|зеркал|снимат|втро[её]м|делит|public|in public|caught|getting caught|risk|peep|voyeur|exhibition|camera|mirror|film|threesome|shar/i],
+  ['Нежность и эмоции', 'hearts', /предан|нежн|уязвим|эмоц|забот|ласк|объят|поцел|медленн|aftercare|глаза в глаза|devot|tender|gentle|vulnerab|emotion|care|caress|cuddl|embrace|kiss|slow|eye contact/i],
+  ['Тело и детали', 'rose', /ше[яиюе]|рук|ног|пальц|запах|волос|губ|бёдр|бедр|груд|кож|спин|ягодиц|шрам|веснушк|neck|hands?\b|legs?\b|feet|fingers|scent|smell|hair|lips|thighs|breasts?|chest|skin|back\b|ass\b|butt|scars?|freckles/i],
+  ['Темп и обстановка', 'hourglass', /спешк|быстр|темп|долг|утр|ночь|свеч|душ|ванн|кухн|машин|спонтан|внезап|quick|rush|fast|pace|long|morning|night|candle|shower|bath|kitchen|\bcar\b|spontan|sudden/i],
 ];
 const СЛОВО_СИЛЫ = ['', 'едва', 'слегка', 'интересно', 'сильно', 'непреодолимо'];
 const СЛОВО_НИКОГДА = ['', 'скорее нет', 'не станет', 'нет', 'против', 'никогда'];
@@ -1094,15 +1094,15 @@ export function видВажного(пункты, вид) {
 }
 
 // Значок сцены для фото-воспоминания — по словам в тексте.
-const СЦЕНЫ = [[/дожд|снег|гроз|ливень|мокр/i, 'wave'], [/ноч|луна|звёзд|звезд|темн/i, 'moon'], [/кофе|чай|кафе|ужин|завтрак|вино|бокал|ресторан/i, 'cup'],
-  [/поцел|обня|любл|сердц|нежн/i, 'heart'], [/дом|квартир|кухн|спальн|комнат/i, 'house'], [/книг|письм|записк|библиот/i, 'book'],
-  [/огон|свеч|камин|костр/i, 'flame'], [/тайн|секрет|ключ/i, 'key'], [/смех|шутк|улыб/i, 'star']];
+const СЦЕНЫ = [[/дожд|снег|гроз|ливень|мокр|rain|snow|storm|downpour|\bwet\b/i, 'wave'], [/ноч|луна|звёзд|звезд|темн|night|moon|stars?\b|dark/i, 'moon'], [/кофе|чай|кафе|ужин|завтрак|вино|бокал|ресторан|coffee|\btea\b|cafe|café|dinner|breakfast|wine|glass|restaurant/i, 'cup'],
+  [/поцел|обня|любл|сердц|нежн|kiss|hug|embrace|love|heart|tender/i, 'heart'], [/дом|квартир|кухн|спальн|комнат|home|house|apartment|flat\b|kitchen|bedroom|room\b/i, 'house'], [/книг|письм|записк|библиот|book|letter|note\b|library/i, 'book'],
+  [/огон|свеч|камин|костр|fire|candle|fireplace|bonfire/i, 'flame'], [/тайн|секрет|ключ|secret|mystery|\bkey\b/i, 'key'], [/смех|шутк|улыб|laugh|joke|smile/i, 'star']];
 
 // Снимок для полароида: маленький пейзаж в тоне темы — небо, холмы,
 // солнце или луна со звёздами, дождь, если о нём речь; в углу — значок сцены.
 function снимок(текст) {
   const h = hudHashSeed(текст), id = новыйId('ph');
-  const ночь = /ноч|луна|звёзд|звезд|темн|вечер|полноч/i.test(текст), дождь = /дожд|ливень|гроз|мокр|снег|туман/i.test(текст);
+  const ночь = /ноч|луна|звёзд|звезд|темн|вечер|полноч|night|moon|stars?\b|dark|evening|midnight/i.test(текст), дождь = /дожд|ливень|гроз|мокр|снег|туман|rain|downpour|storm|\bwet\b|snow|fog|mist/i.test(текст);
   const значок = (СЦЕНЫ.find(([rx]) => rx.test(текст)) || [0, 'star'])[1];
   const холм = (y, амп, фаза, шаг) => { let d = `M0 90V${y}`; for (let x = 0; x <= 120; x += шаг) d += `L${x} ${(y - амп * Math.sin((x + фаза) / 17) - амп * .4 * Math.sin((x + фаза) / 7)).toFixed(1)}`; return d + 'L120 90Z'; };
   const звёзды = ночь ? Array.from({ length: 14 }, (_, i) => { let r = Math.imul(h + i * 97, 2654435761) >>> 0; return `<circle class="st" cx="${r % 120}" cy="${(r >>> 8) % 40}" r="${((r >>> 4) % 3) * .25 + .35}"/>`; }).join('') : '';
@@ -1145,10 +1145,13 @@ export function видВоспоминаний(пункты, вид) {
 // как проявляется. Не разобралось — весь текст идёт в «как».
 export function разобратьРевность(value) {
   const t = String(value || '').trim();
-  const m = t.match(/ревну\S*\s+(.+?)\s+к\s+(.+?)(?=\s*[—–:;,.(]|\s+-\s|$)/i);
+  // По-английски: «jealous over Sophie because of Mark» и «jealous of Mark around Sophie».
+  const мА = t.match(/jealous\S*\s+(?:over|about)\s+(.+?)\s+(?:because of|with|around|near|of)\s+(.+?)(?=\s*[—–:;,.(]|\s+-\s|$)/i);
+  const мБ = !мА && t.match(/jealous\S*\s+of\s+(.+?)\s+(?:over|about|around|with|near)\s+(.+?)(?=\s*[—–:;,.(]|\s+-\s|$)/i);
+  const m = t.match(/ревну\S*\s+(.+?)\s+к\s+(.+?)(?=\s*[—–:;,.(]|\s+-\s|$)/i) || мА || (мБ && [мБ[0], мБ[2], мБ[1]]);
   const деталь = m ? t.slice(t.indexOf(m[0]) + m[0].length).replace(/^[\s—–:;,.-]+/, '') : t;
   const s = t.toLowerCase();
-  const сила = /бешен|ярост|безумн|сходит с ума|до дрожи|невыносим|не контролир/.test(s) ? 5 : /сильн|очень|жгуч|остро|каждое|каждый|постоянно/.test(s) ? 4 : /слегка|чуть|немного|тихо|скрыва|почти не/.test(s) ? 2 : 3;
+  const сила = /бешен|ярост|безумн|сходит с ума|до дрожи|невыносим|не контролир|furious|rage|insane|crazy|losing (?:it|control)|trembling|unbearable|can'?t control/.test(s) ? 5 : /сильн|очень|жгуч|остро|каждое|каждый|постоянно|strong|very|burning|sharp|every|constant/.test(s) ? 4 : /слегка|чуть|немного|тихо|скрыва|почти не|slight|a little|a bit|quiet|hides?|barely/.test(s) ? 2 : 3;
   return { кого: m ? m[1].trim() : '', кКому: m ? m[2].trim() : '', деталь, сила };
 }
 const СЛОВО_РЕВНОСТИ = ['', 'лёгкий укол', 'тлеет', 'царапает', 'жжёт', 'сжигает'];

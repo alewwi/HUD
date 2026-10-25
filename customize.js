@@ -5,23 +5,23 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.78.7';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО } from './settings.js?v=23.78.7';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.78.7';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.78.7';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.78.7';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.78.7';
-import { hudБлоки } from './hud-block.js?v=23.78.7';
-import { parseHUDComplex } from './hud-parser.js?v=23.78.7';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.78.7';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.78.7';
-import { английский } from './i18n.js?v=23.78.7';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.79.0';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО } from './settings.js?v=23.79.0';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.79.0';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.79.0';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.79.0';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.79.0';
+import { hudБлоки } from './hud-block.js?v=23.79.0';
+import { parseHUDComplex } from './hud-parser.js?v=23.79.0';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.79.0';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.79.0';
+import { английский } from './i18n.js?v=23.79.0';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 const пример = () => (английский() ? ПРИМЕР_EN : ПРИМЕР_RU);
-import { задатьПримерСемьи } from './render/conception.js?v=23.78.7';
-import { привязатьИсторию } from './render/intimacy.js?v=23.78.7';
-import { пометитьЭффекты } from './render/fx.js?v=23.78.7';
-import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.78.7';
+import { задатьПримерСемьи } from './render/conception.js?v=23.79.0';
+import { привязатьИсторию } from './render/intimacy.js?v=23.79.0';
+import { пометитьЭффекты } from './render/fx.js?v=23.79.0';
+import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.79.0';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.

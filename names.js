@@ -10,7 +10,7 @@
 // "Майкл Смит", "Michael Smith" и т.п. Граф сначала собирает все реальные
 // имена, затем пытается сопоставить каждую ссылку с уже существующим узлом,
 // и только после этого создаёт новый узел.
-import { settings } from './settings.js?v=23.78.7';
+import { settings } from './settings.js?v=23.79.0';
 
 export function normalizeNameText(name) {
   return String(name ?? '')

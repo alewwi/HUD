@@ -11,17 +11,17 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=23.78.7';
-import { normalizeJSONData } from './schema.js?v=23.78.7';
-import { parseRelationList } from './render/relations-graph.js?v=23.78.7';
-import { nameLettersOnly, namePhoneticLatin } from './names.js?v=23.78.7';
-import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.78.7';
-import { createDashboard } from './chat-stats.js?v=23.78.7';
-import { статусРужья } from './codes.js?v=23.78.7';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.78.7';
-import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.78.7';
-import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.78.7';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.78.7';
+import { parseHUDComplex } from './hud-parser.js?v=23.79.0';
+import { normalizeJSONData } from './schema.js?v=23.79.0';
+import { parseRelationList } from './render/relations-graph.js?v=23.79.0';
+import { nameLettersOnly, namePhoneticLatin } from './names.js?v=23.79.0';
+import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.79.0';
+import { createDashboard } from './chat-stats.js?v=23.79.0';
+import { статусРужья } from './codes.js?v=23.79.0';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.79.0';
+import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.79.0';
+import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.79.0';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.79.0';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -52,7 +52,7 @@ function ключФакта(fact) {
 // Извлечение блока [HUD] из текста сообщения. Тот же набор написаний, что и в
 // index.js: модель иногда шлёт < > вместо скобок, а ST успевает заэкранировать.
 // Поиск блока — общий, в hud-block.js. Экспорт оставлен: его берут отсюда.
-import { extractHudBlock } from './hud-block.js?v=23.78.7';
+import { extractHudBlock } from './hud-block.js?v=23.79.0';
 export { extractHudBlock };
 
 // Массив сообщений текущего чата.
@@ -272,6 +272,13 @@ export function parseSceneDate(raw) {
   if (m) {
     const i = МЕСЯЦЫ.findIndex(x => new RegExp('^(?:' + x + ')').test(m[2]));
     if (i >= 0) return Date.UTC(m[3] ? +m[3] : 2000, i, +m[1]);
+  }
+  // По-английски: «17 October 2024», «October 17th, 2024».
+  m = s.match(/(\d{1,2})(?:st|nd|rd|th)?\s+(?:of\s+)?([a-z]{3,})\.?,?(?:\s+(\d{4}))?/) || s.match(/([a-z]{3,})\.?\s+(\d{1,2})(?:st|nd|rd|th)?(?!\d)(?:,?\s+(\d{4}))?/);
+  if (m) {
+    const [д, слово] = /^\d/.test(m[1]) ? [m[1], m[2]] : [m[2], m[1]];
+    const i = ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].findIndex(x => слово.startsWith(x));
+    if (i >= 0 && +д >= 1 && +д <= 31) return Date.UTC(m[3] ? +m[3] : 2000, i, +д);
   }
   return null;
 }

@@ -7,11 +7,11 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.78.7';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.78.7';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.78.7';
-import { buildFamilyTree } from './family-tree.js?v=23.78.7';
-import { settings } from '../settings.js?v=23.78.7';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.79.0';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.79.0';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.79.0';
+import { buildFamilyTree } from './family-tree.js?v=23.79.0';
+import { settings } from '../settings.js?v=23.79.0';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -188,7 +188,7 @@ const ГРУППЫ_СВЯЗЕЙ = (() => {
   const ан = (тело) => new RegExp('\\b(?:' + тело + ')\\b');
   return [
     // Недоверие — раньше дружбы: в «недоверии» и «не доверяет» есть «довер».
-    ['suspicious', /недовер|(?<![\p{L}])(?:не|без)\s+довер/u, null],
+    ['suspicious', /недовер|(?<![\p{L}])(?:не|без)\s+довер|distrust|mistrust|suspicio|doesn'?t trust|wary/iu, null],
     // Запретное — раньше романтики: «любовница» не должна попасть в «любовь».
     ['forbidden', ру('любовниц|любовник|интрижк|тайн\\p{L}* (?:связ|роман|любов)|скрыт\\p{L}* любов|запретн|измен|адюльт'), ан('affairs?|mistress|lover on the side|forbidden|secret love|adultery')],
     // Подельник — соучастие в чём-то незаконном, не дружба.

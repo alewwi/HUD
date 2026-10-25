@@ -13,13 +13,13 @@
 // секрета, — «при нём об этом нельзя».
 // На узком экране сетку заменяет список по людям (container query).
 
-import { escapeHtml, getSafeUserName } from '../utils.js?v=23.78.7';
-import { settings } from '../settings.js?v=23.78.7';
-import { namesLikelySame } from '../names.js?v=23.78.7';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.78.7';
-import { ико, медаль } from './view-icons.js?v=23.78.7';
-import { правкаСекрета, всплывшиеСекреты, правитьСнимок, правки } from '../snapshot-edits.js?v=23.78.7';
-import { разобратьДуэль } from './duel.js?v=23.78.7';
+import { escapeHtml, getSafeUserName } from '../utils.js?v=23.79.0';
+import { settings } from '../settings.js?v=23.79.0';
+import { namesLikelySame } from '../names.js?v=23.79.0';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.79.0';
+import { ико, медаль } from './view-icons.js?v=23.79.0';
+import { правкаСекрета, всплывшиеСекреты, правитьСнимок, правки } from '../snapshot-edits.js?v=23.79.0';
+import { разобратьДуэль } from './duel.js?v=23.79.0';
 // Склонение по числу: склон(3, ['секрет', 'секрета', 'секретов']).
 const склон = (n, [один, два, пять]) => { const к = Math.abs(n) % 100, е = к % 10; return к > 10 && к < 20 ? пять : е === 1 ? один : е >= 2 && е <= 4 ? два : пять; };
 
@@ -49,7 +49,7 @@ export function ошибающиеся(v) {
 export function клеткаСекрета(сек, человек) {
   const ош = ошибающиеся(сек.wrong).find(о => тот(о.имя, человек));
   // «думает, что отец — Брэндон» → «верит, что отец — Брэндон», без двойного «что».
-  if (ош) return { вид: 'wrong', текст: ош.верит ? 'верит, что ' + ош.верит.replace(/^(?:(?:думает|считает|верит|уверен[аы]?|полагает|решил[аи]?)\s*,?\s*)?что\s+/i, '') : 'введён в заблуждение' };
+  if (ош) return { вид: 'wrong', текст: ош.верит ? 'верит, что ' + ош.верит.replace(/^(?:(?:думает|считает|верит|уверен[аы]?|полагает|решил[аи]?)\s*,?\s*)?что\s+|^(?:(?:thinks|believes|is sure|is convinced|assumes|decided|suspects)\s+)?that\s+/i, '') : 'введён в заблуждение' };
   const зн = списком(сек.knows).find(k => тот(имяЧел(k), человек));
   if (зн) { const src = String((зн && зн.source) || '').trim(); return { вид: 'knows', текст: src ? 'знает: ' + src : 'знает' }; }
   if (списком(сек.unaware ?? сек.hidden).some(k => тот(имяЧел(k), человек))) return { вид: 'not', текст: 'не знает' };
@@ -79,7 +79,7 @@ const СЛОВО_УРОВНЯ = { critical: 'смертельно', high: 'оп�
 
 // Группа, а не человек: «Пять Регентов», «Пресса», «Совет», «все слуги».
 // Числительные и «все» — только целым словом: «Тристан» не «три».
-const ГРУППА = /^(?:(?:\d+|два|две|три|четыре|пять|шесть|семь|восемь|девять|десять|вс[её]|двор)(?![\p{L}])|команд[аы](?![\p{L}])|семь[яи](?![\p{L}])|пресс|совет|слуг|прислуг|охран[аы](?![\p{L}])|полици|друзь|журналист|сосед|персонал|клан|банд[аы]|экипаж|гост[ия]|регент|орден)/iu;
+const ГРУППА = /^(?:(?:\d+|два|две|три|четыре|пять|шесть|семь|восемь|девять|десять|вс[её]|двор)(?![\p{L}])|команд[аы](?![\p{L}])|семь[яи](?![\p{L}])|пресс|совет|слуг|прислуг|охран[аы](?![\p{L}])|полици|друзь|журналист|сосед|персонал|клан|банд[аы]|экипаж|гост[ия]|регент|орден|(?:two|three|four|five|six|seven|eight|nine|ten|all|everyone|the court)(?![\p{L}])|team|family|press|council|servants|staff|guards?|police|friends|journalists|neighbo|personnel|clan|gang|crew|guests|regents|order(?![\p{L}]))/iu;
 export const этоГруппа = (имя) => ГРУППА.test(имяКоротко(имя).trim());
 
 // Лицо в кольце: доля секретов, которые человек знает (--p, 0–100).

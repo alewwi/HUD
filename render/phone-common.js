@@ -4,9 +4,9 @@
 // сообщения и сбор собеседников по строкам переписки. Лежит отдельно,
 // чтобы ни один из двух модулей не пришлось объявлять главным.
 
-import { escapeHtml, инициалыИмени } from '../utils.js?v=23.78.7';
-import { overrideAvatarUrl } from '../avatars.js?v=23.78.7';
-import { namesLikelySame } from '../names.js?v=23.78.7';
+import { escapeHtml, инициалыИмени } from '../utils.js?v=23.79.0';
+import { overrideAvatarUrl } from '../avatars.js?v=23.79.0';
+import { namesLikelySame } from '../names.js?v=23.79.0';
 
 // Обращения без адресата: такие имена в собеседники не годятся.
 const GENERIC_PARTY = /^(все|всем|all|everyone|группа|group|чат|chat|вы|you|user|я|me)$/i;
@@ -25,7 +25,7 @@ export function msgTimeOf(raw) {
   const s = String(raw || '');
   // Поле может нести и день: «Вчера, 22:30», «14.06.1347, 08:30» — дату
   // проставляет перенос с прошлых ходов. На экране остаются одни часы.
-  const ONLY_TIME = /^(?:Вчера|Сегодня|Завтра|Позавчера)?[,\s]*(?:\d{1,2}[.\/-]\d{1,2}(?:[.\/-]\d{2,4})?)?[,\s]*\d{1,2}:\d{2}$/i;
+  const ONLY_TIME = /^(?:Вчера|Сегодня|Завтра|Позавчера|Yesterday|Today|Tomorrow)?[,\s]*(?:\d{1,2}[.\/-]\d{1,2}(?:[.\/-]\d{2,4})?)?[,\s]*\d{1,2}:\d{2}$/i;
   const parts = s.split('|').map(x => x.trim());
   if (parts.length > 1) {
     const field = parts.slice(1).find(x => ONLY_TIME.test(x));

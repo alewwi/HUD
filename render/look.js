@@ -120,10 +120,10 @@ const БЁДРА = [
 ];
 // Грудь 0…3: маленькая, средняя, большая (C), очень большая (D и больше).
 const ГРУДЬ_РАЗМЕР = [
-  [3, слово('[DEFG]-?(?:cup|чашк)|огромн\\p{L}* груд|очень больш\\p{L}* груд|тяжел\\p{L}* груд|массивн\\p{L}* груд')],
+  [3, слово('[DEFG]-?(?:cup|чашк)|огромн\\p{L}* груд|очень больш\\p{L}* груд|тяжел\\p{L}* груд|массивн\\p{L}* груд|huge (?:breasts|tits|bust)|enormous (?:breasts|tits)|heavy (?:breasts|tits)|massive (?:breasts|tits)|very large breasts|busty|voluptuous bust')],
   [2, слово('C-?(?:cup|груд|чашк)|пышн\\p{L}* (?:[\\p{L}-]+ )?груд|налит\\p{L}* (?:[\\p{L}-]+ )?груд|полн\\p{L}* (?:[\\p{L}-]+ )?груд|больш\\p{L}* груд|высок\\p{L}* груд|full breasts|big breasts|large breasts')],
   [0, слово('[AB]-?(?:cup|груд|чашк)|небольш\\p{L}* груд|маленьк\\p{L}* груд|плоск\\p{L}* груд|аккуратн\\p{L}* груд|small breasts|flat chest')],
-  [1, слово('упруг\\p{L}* (?:[\\p{L}-]+ )?груд|округл\\p{L}* груд|красив\\p{L}* груд')],
+  [1, слово('упруг\\p{L}* (?:[\\p{L}-]+ )?груд|округл\\p{L}* груд|красив\\p{L}* груд|(?:firm|perky|round|pert|shapely|medium) (?:[\\p{L}-]+ )?(?:breasts|bust)')],
 ];
 const РЕЛЬЕФ = слово('рельефн|пресс|кубик|мускулист|мускулистый|мощн\\p{L}* торс|атлетическ\\p{L}* торс|подтянут|жилист|sculpted|ripped|six-pack|abs(?![\\p{L}])|muscular');
 const ВЕНЫ = слово('венозн|вздувш\\p{L}* вен|veins|veiny');
@@ -142,8 +142,8 @@ const ДОП_ЗОНЫ = [
   [/(?<![\p{L}])(?:hands?|fingers?|knuckles?|wrists?)(?![\p{L}])/iu, ['hands']], [/(?<![\p{L}])shoulders?(?![\p{L}])/iu, ['shoulders']], [/(?<![\p{L}])lips?(?![\p{L}])/iu, ['lips']],
   [/(?<![\p{L}])ears?(?![\p{L}])/iu, ['ears']], [/(?<![\p{L}])(?:face|eyebrows?|brows?|cheeks?|jaw|forehead)(?![\p{L}])/iu, ['head']], [/(?<![\p{L}])(?:thighs?|legs?)(?![\p{L}])/iu, ['thighs']],
   [/(?<![\p{L}])(?:calf|calves|shins?|ankles?)(?![\p{L}])/iu, ['calves']], [/(?<![\p{L}])(?:ribs?|sides?)(?![\p{L}])/iu, ['waist']], [/(?<![\p{L}])(?:stomach|abdomen|belly|abs)(?![\p{L}])/iu, ['belly']],
-  [/торс/iu, ['chest', 'belly']], [/(?<![\p{L}])тел[оа](?![\p{L}])|всё тело|все тело/iu, ['chest', 'arms', 'back']],
-  [/костяшк/iu, ['hands']], [/бров/iu, ['head']], [/лопатк/iu, ['back']], [/(?<![\p{L}])(?:р[её]бр|ребер)/iu, ['waist']],
+  [/торс/iu, ['chest', 'belly']], [/(?<![\p{L}])тел[оа](?![\p{L}])|всё тело|все тело|(?<![\p{L}])(?:whole|entire|full) body/iu, ['chest', 'arms', 'back']],
+  [/костяшк/iu, ['hands']], [/бров/iu, ['head']], [/лопатк|shoulder blades?/iu, ['back']], [/(?<![\p{L}])(?:р[её]бр|ребер)/iu, ['waist']],
 ];
 // Все зоны куска: «на торсе и руках», «на кистях, шее».
 // После запятой место продолжается («на кистях, шее»), но не описание
@@ -192,7 +192,8 @@ export function разобратьОблик(внешность, тело = '', 
   if (цвет || длина || вид) облик.волосы = { цвет, длина, вид };
 
   for (const [имя, rx] of СЛОЖЕНИЕ) { if (найти(куски, rx)) { облик.сложение = имя; break; } }
-  const рост = всё.match(/(?:рост\s*)?(?<![\d.,])(1[4-9]\d|2[0-2]\d)\s*(?:см|cm)/iu);
+  const футы = всё.match(/(?<![\d.,])([4-7])\s*(?:'|’|ft|feet|foot)\s*(\d{1,2})?\s*(?:"|”|in(?:ches)?)?(?![\p{L}\d])/iu);
+  const рост = всё.match(/(?:рост\s*|height:?\s*)?(?<![\d.,])(1[4-9]\d|2[0-2]\d)\s*(?:см|cm)/iu) || (футы && [футы[0], String(Math.round((+футы[1] * 12 + +(футы[2] || 0)) * 2.54))]);
   if (рост) облик.рост = Number(рост[1]);
   else {
     // «Height: 6 Feet 3 inches», «5'4"», «6 ft 1».
@@ -225,9 +226,9 @@ export function разобратьОблик(внешность, тело = '', 
       if (!зоны.length) зоны = зоныКуска(н.м[0] + где, зона);
       if (!зоны.length) зоны = зоныКуска(к, зона);
       // «Тело в татуировках» без места — торс и руки.
-      if (!зоны.length && тип === 'tattoo' && /тел[оа]|весь|вся/iu.test(к)) зоны = ['chest', 'arms', 'back'];
+      if (!зоны.length && тип === 'tattoo' && /тел[оа]|весь|вся|body|all over|full-body|covered/iu.test(к)) зоны = ['chest', 'arms', 'back'];
       const рукав = тип === 'tattoo' && /забит|полностью|рукав|sleeve/iu.test(к);
-      const сетка = тип === 'scar' && /сетк|сеть|множеств|исполосован/iu.test(к);
+      const сетка = тип === 'scar' && /сетк|сеть|множеств|исполосован|web|network|many|multiple|countless|crisscross|criss-cross|lattice|covered in/iu.test(к);
       for (const z of зоны) {
         if (облик.отметины.length >= 10) break;
         if (!облик.отметины.some(о => о.зона === z && о.тип === тип)) облик.отметины.push({ зона: z, тип, текст: к, рукав, сетка });

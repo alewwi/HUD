@@ -19,10 +19,10 @@
 // цветом силуэта: это другая величина. Отходняк после адреналина считает HUD
 // по времени сюжета, а не модель.
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.78.7';
-import { namesLikelySame } from '../names.js?v=23.78.7';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.78.7';
-import { медаль } from './view-icons.js?v=23.78.7';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.79.0';
+import { namesLikelySame } from '../names.js?v=23.79.0';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.79.0';
+import { медаль } from './view-icons.js?v=23.79.0';
 
 const текст = (v) => String(снятьЗаглушки(flattenFieldValue(v)) || '').trim();
 const пусто = (s) => !s || /^(empty|none|нет|—|-|null)$/i.test(String(s).trim());
@@ -93,20 +93,20 @@ export function hudHasCombat(cb) {
 // Координаты на силуэте 60×132 спереди; «левое» — левое у человека, то есть
 // справа для смотрящего.
 const ЗОНЫ_РАН = [
-  [/голов|лоб|висок|затыл|череп/i, [30, 9]], [/лиц|скул|губ|нос|глаз|челюст/i, [30, 12]], [/ше[яи]|горл/i, [30, 22]],
-  [/лев\p{L}* плеч/iu, [42, 30]], [/прав\p{L}* плеч/iu, [18, 30]], [/(?<!пред)плеч/i, [42, 30]],
-  [/грудь|груд\p{L}*|ребр|рёбр/iu, [30, 38]], [/живот|бок|печен/i, [30, 56]], [/спин|лопат|поясниц/i, [30, 46]],
-  [/лев\p{L}* (?:рук|предплеч|локт)/iu, [47, 52]], [/прав\p{L}* (?:рук|предплеч|локт)/iu, [13, 52]], [/лев\p{L}* (?:кист|ладон|пальц)/iu, [50, 70]], [/прав\p{L}* (?:кист|ладон|пальц)/iu, [10, 70]], [/рук|кист|ладон/i, [47, 52]],
-  [/пах|таз/i, [30, 70]], [/лев\p{L}* бедр/iu, [36, 82]], [/прав\p{L}* бедр/iu, [24, 82]], [/бедр/i, [36, 82]],
-  [/лев\p{L}* (?:колен|голен)/iu, [36, 102]], [/прав\p{L}* (?:колен|голен)/iu, [24, 102]], [/колен|голен/i, [36, 102]],
-  [/лев\p{L}* (?:стоп|лодыж|ног)/iu, [36, 124]], [/прав\p{L}* (?:стоп|лодыж|ног)/iu, [24, 124]], [/стоп|лодыж|ног/i, [36, 118]],
+  [/голов|лоб|висок|затыл|череп|\bhead\b|forehead|temple|skull|scalp/i, [30, 9]], [/лиц|скул|губ|нос|глаз|челюст|\bface\b|cheek|\blips?\b|\bnose\b|\beyes?\b|\bjaw\b|brow/i, [30, 12]], [/ше[яи]|горл|\bneck\b|throat/i, [30, 22]],
+  [/лев\p{L}* плеч|left shoulder/iu, [42, 30]], [/прав\p{L}* плеч|right shoulder/iu, [18, 30]], [/(?<!пред)плеч|shoulder/i, [42, 30]],
+  [/грудь|груд\p{L}*|ребр|рёбр|\bchest\b|breast|\bribs?\b|sternum/iu, [30, 38]], [/живот|бок|печен|belly|stomach|abdom|\bside\b|flank|liver|gut/i, [30, 56]], [/спин|лопат|поясниц|\bback\b|shoulder blade|spine/i, [30, 46]],
+  [/лев\p{L}* (?:рук|предплеч|локт)|left (?:arm|forearm|elbow|bicep)/iu, [47, 52]], [/прав\p{L}* (?:рук|предплеч|локт)|right (?:arm|forearm|elbow|bicep)/iu, [13, 52]], [/лев\p{L}* (?:кист|ладон|пальц)|left (?:hand|palm|wrist|fingers?|thumb)/iu, [50, 70]], [/прав\p{L}* (?:кист|ладон|пальц)|right (?:hand|palm|wrist|fingers?|thumb)/iu, [10, 70]], [/рук|кист|ладон|\barms?\b|forearm|elbow|\bhands?\b|palm|wrist|finger|knuckle/i, [47, 52]],
+  [/пах|таз|groin|pelvi|\bhips?\b/i, [30, 70]], [/лев\p{L}* бедр|left thigh/iu, [36, 82]], [/прав\p{L}* бедр|right thigh/iu, [24, 82]], [/бедр|thigh/i, [36, 82]],
+  [/лев\p{L}* (?:колен|голен)|left (?:knee|shin|calf)/iu, [36, 102]], [/прав\p{L}* (?:колен|голен)|right (?:knee|shin|calf)/iu, [24, 102]], [/колен|голен|knee|\bshin|\bcalf|calves/i, [36, 102]],
+  [/лев\p{L}* (?:стоп|лодыж|ног)|left (?:foot|ankle|leg)/iu, [36, 124]], [/прав\p{L}* (?:стоп|лодыж|ног)|right (?:foot|ankle|leg)/iu, [24, 124]], [/стоп|лодыж|ног|\bfoot\b|\bfeet\b|ankle|\blegs?\b|\btoes?\b/i, [36, 118]],
 ];
 const ВИДЫ_РАН = [
-  ['bullet', /пул|огнестр|выстрел|bullet|gunshot/i, '•', 'пуля'], ['cut', /порез|резан|нож|колот|рассеч|рван/i, '/', 'порез'],
-  ['burn', /ожог|обожж/i, '≋', 'ожог'], ['fracture', /перелом|трещин/i, '⨯', 'перелом'], ['dislocation', /вывих|растяж/i, '↷', 'вывих'],
-  ['bruise', /ушиб|синяк|гематом|удар/i, '◍', 'ушиб'],
+  ['bullet', /пул|огнестр|выстрел|bullet|gunshot/i, '•', 'пуля'], ['cut', /порез|резан|нож|колот|рассеч|рван|\bcut|slash|stab|knife|laceration|gash|torn/i, '/', 'порез'],
+  ['burn', /ожог|обожж|burn|scald/i, '≋', 'ожог'], ['fracture', /перелом|трещин|fractur|broken|crack/i, '⨯', 'перелом'], ['dislocation', /вывих|растяж|dislocat|sprain|strain/i, '↷', 'вывих'],
+  ['bruise', /ушиб|синяк|гематом|удар|bruis|contusion|hematoma|black eye|blow/i, '◍', 'ушиб'],
 ];
-const ТРАВМА = /(?<![\p{L}])(?:ран(?:а|ы|у|ен|ени)|травм|ссадин|рассеч|укус|кровоточ|гематом|синяк|ожог|перелом|порез|колот|огнестр|ушиб|вывих|растяж|сотрясен|контуз|царапин|вмятин|разрыв)/iu;
+const ТРАВМА = /(?<![\p{L}])(?:ран(?:а|ы|у|ен|ени)|травм|ссадин|рассеч|укус|кровоточ|гематом|синяк|ожог|перелом|порез|колот|огнестр|ушиб|вывих|растяж|сотрясен|контуз|царапин|вмятин|разрыв|wound|injur|trauma|graze|abrasion|bite|bleed|bruis|burn|fractur|broken|cut|stab|gunshot|sprain|concussion|scratch|tear|torn)/iu;
 function раныИз(люди) {
   const out = [];
   for (const c of люди) {
@@ -126,15 +126,15 @@ function раныИз(люди) {
       // он не свежий.
       const свежая = /fresh|свеж/.test(стадия);
       if (!вид && !(зона && ТРАВМА.test(что))) continue;
-      if (!свежая && /(?<![\p{L}])(?:рубец|рубц|шрам)/iu.test(что)) continue;
+      if (!свежая && /(?<![\p{L}])(?:рубец|рубц|шрам|scar)/iu.test(что)) continue;
       const точка = (ЗОНЫ_РАН.find(([rx]) => rx.test(зона || что)) || [null, null])[1];
       const rc = parseFloat(п.rc || п['выздоровление']);
       const тяжесть = /fresh|свеж|worsen|ухудш/.test(стадия) || (Number.isFinite(rc) && rc < 30) ? 3 : (Number.isFinite(rc) && rc < 70) ? 2 : 1;
       const симпт = п.sy || п['симптомы'] || '';
       out.push({
         кто: имяКоротко(c['Имя']) || 'Вы', что, зона, точка, вид: вид ? вид[0] : 'wound', знак: вид ? вид[2] : '✚', видСлово: вид ? вид[3] : 'рана',
-        тяжесть, обездвижено: /не двига|обездвиж|не может (?:ходить|наступ|поднять)|не слушается/i.test(симпт),
-        кровь: /обильн\p{L}* кровотеч|сильн\p{L}* кровотеч|кровопотер|хлещ|фонтан/iu.test(симпт) ? 3 : /кровотеч|кровоточ|кровь/i.test(симпт) ? 2 : 0,
+        тяжесть, обездвижено: /не двига|обездвиж|не может (?:ходить|наступ|поднять)|не слушается|can'?t (?:move|walk|stand|lift|put weight)|cannot (?:move|walk|stand|lift)|immobil|unable to (?:move|walk|stand)|won'?t move/i.test(симпт),
+        кровь: /обильн\p{L}* кровотеч|сильн\p{L}* кровотеч|кровопотер|хлещ|фонтан|heavy bleeding|bleeding (?:heavily|badly|profusely)|blood loss|gushing|spurting|hemorrhag/iu.test(симпт) ? 3 : /кровотеч|кровоточ|кровь|bleed|blood/i.test(симпт) ? 2 : 0,
       });
     }
   }
@@ -147,8 +147,8 @@ export const СИЛУЭТ = 'M30 2a8 8 0 1 1 0 16a8 8 0 1 1 0-16Z'
   + 'H31L32 128.5L39 128.5C40 128.5 41.5 128 41.5 126L43 68C44 63 43.5 58 42.5 52L43 40L47 71C47.5 73 50.7 72.5 50.5 70L47 35C46.5 31 46.5 28 45 26C43 23 38 22 33 21.5V17Z';
 
 // --- Оружие из инвентаря ------------------------------------------------------
-const ОРУЖИЕ = /(?<![\p{L}])(?:нож|ножи|кинжал|стилет|пистолет|револьвер|винтовк|ружь[её]|ружьё|автомат|дробовик|обрез|меч|топор|кастет|дубинк|арбалет|шпаг|сабл|глок|беретт|кольт|магнум|граната|электрошок|шокер|бит[аеуы]|молот|катан|лук(?![\p{L}]))/iu;
-const СКРЫТО = /спрят|скрыт|под куртк|под пиджак|под рубаш|в сапог|в ботин|за пояс|в рукав|под юбк|незаметн|в кобуре под/i;
+const ОРУЖИЕ = /(?<![\p{L}])(?:нож|ножи|кинжал|стилет|пистолет|револьвер|винтовк|ружь[её]|ружьё|автомат|дробовик|обрез|меч|топор|кастет|дубинк|арбалет|шпаг|сабл|глок|беретт|кольт|магнум|граната|электрошок|шокер|бит[аеуы]|молот|катан|лук(?![\p{L}])|knife|knives|dagger|stiletto|switchblade|pistol|revolver|rifle|shotgun|gun(?![\p{L}])|handgun|glock|beretta|colt|magnum|sword|axe|hatchet|brass knuckles|baton|club(?![\p{L}])|crossbow|rapier|saber|sabre|grenade|taser|stun gun|bat(?![\p{L}])|hammer|katana|bow(?![\p{L}]))/iu;
+const СКРЫТО = /спрят|скрыт|под куртк|под пиджак|под рубаш|в сапог|в ботин|за пояс|в рукав|под юбк|незаметн|в кобуре под|hidden|conceal|tucked|under (?:the |his |her )?(?:jacket|coat|shirt|skirt)|in (?:the |his |her )?(?:boot|sleeve)|(?:in|at) (?:the |his |her )?waistband|shoulder holster/i;
 function оружиеИз(люди) {
   const out = [];
   for (const c of люди) {
@@ -158,9 +158,9 @@ function оружиеИз(люди) {
       const [что, ...сост] = пункт.split(/[:：]/);
       if (!ОРУЖИЕ.test(что)) continue;
       const сс = сост.join(':').trim();
-      const м = (что + ' ' + сс).match(/(\d{1,2})\s*(?:патрон|заряд|выстрел|пул)|магазин\D{0,12}(\d{1,2})|(\d{1,2})\s*\/\s*(\d{1,2})/i);
-      const словами = /(?<![\p{L}])(один|два|три|четыре|пять|шесть)\s+(?:патрон|заряд)/iu.exec(сс);
-      const ЧИСЛА = { один: 1, два: 2, три: 3, четыре: 4, пять: 5, шесть: 6 };
+      const м = (что + ' ' + сс).match(/(\d{1,2})\s*(?:патрон|заряд|выстрел|пул|rounds?|bullets?|shots?|shells?|cartridges?)|(?:магазин|mag(?:azine)?|clip)\D{0,12}(\d{1,2})|(\d{1,2})\s*\/\s*(\d{1,2})/i);
+      const словами = /(?<![\p{L}])(один|два|три|четыре|пять|шесть|one|two|three|four|five|six)\s+(?:патрон|заряд|rounds?|bullets?|shots?|shells?)/iu.exec(сс);
+      const ЧИСЛА = { один: 1, два: 2, три: 3, четыре: 4, пять: 5, шесть: 6, one: 1, two: 2, three: 3, four: 4, five: 5, six: 6 };
       const заряд = м ? +(м[1] || м[2] || м[3]) : словами ? ЧИСЛА[словами[1].toLowerCase()] : null;
       const из = м && м[4] ? +м[4] : null;
       out.push({ кто: имяКоротко(c['Имя']) || 'Вы', что: что.trim(), состояние: сс, заряд, из, спрятано: СКРЫТО.test(пункт) });
