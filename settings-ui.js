@@ -5,18 +5,18 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { settings } from './settings.js?v=23.75.0';
-import { видБлока } from './render/views.js?v=23.75.0';
-import { escapeHtml } from './utils.js?v=23.75.0';
-import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.75.0';
-import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.75.0';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.75.0';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.75.0';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.75.0';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.75.0';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.75.0';
-import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.75.0';
-import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.75.0';
+import { settings } from './settings.js?v=23.78.1';
+import { видБлока } from './render/views.js?v=23.78.1';
+import { escapeHtml } from './utils.js?v=23.78.1';
+import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.78.1';
+import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.78.1';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.78.1';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.78.1';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.78.1';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.78.1';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.78.1';
+import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.78.1';
+import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.78.1';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -43,6 +43,13 @@ export function addSettingsUI() {
   wrapper.innerHTML = `
       <summary style="font-weight:bold; cursor:pointer; color:var(--hud-accent); outline: none;">📊 TavernOS v${основа.hudVersionLabel()}</summary>
       <div style="padding-top: 12px; display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
+
+      <label class="hud-set-check hud-set-lang" data-i18n-skip title="Язык интерфейса HUD и того, на каком языке модель пишет HUD. Страница перезагрузится. / Language of the HUD interface and of the values the model writes. The page will reload.">🌐 Язык / Language:
+        <select id="hud-language" class="hud-theme-select-input">
+          <option value="ru" ${settings.language !== 'en' ? 'selected' : ''}>RU — Русский</option>
+          <option value="en" ${settings.language === 'en' ? 'selected' : ''}>ENG — English</option>
+        </select>
+      </label>
 
       <div class="hud-set-tools">
         <button type="button" id="hud-open-custom" class="hud-set-tool-btn">🎨 Кастомизация</button>
@@ -265,6 +272,7 @@ export function addSettingsUI() {
         </label>
         <label class="hud-set-check" title="Сколько секунд ждать ответа модели, прежде чем сдаться. Впишите любое число — 30, 300, 900; 0 — без таймера (отменить можно кнопкой в полосе).">⏱️ Ждать подборку: ${число('hud-music-timeout', 0, 3600, settings.musicTimeout ?? 120, 64)} сек.</label>
         ${заметка('Время ожидания — любое число секунд: меньше 120 — быстрее сдаваться, больше — дождаться медленной модели. 0 — ждать без таймера.')}
+        <label class="hud-set-check" title="Сколько токенов модель может потратить на ответ. Думающие модели тратят часть на рассуждения, и при малом лимите подборка обрывается и не разбирается. Не меньше 2048.">📏 Лимит ответа: ${число('hud-music-tokens', 2048, 65536, settings.musicMaxTokens ?? 8192, 76, 512)} токенов</label>
         <label class="hud-set-check" title="Что звучит в средневековом сеттинге">🗝️ Средневековье:
           <select id="hud-music-medieval" style="flex:1; min-width:0; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;"><option value="period" ${settings.musicMedieval === 'period' ? 'selected' : ''}>Старинная музыка: лютня, менестрели</option><option value="score" ${settings.musicMedieval === 'score' ? 'selected' : ''}>Киношный саундтрек</option></select>
         </label>
@@ -275,7 +283,7 @@ export function addSettingsUI() {
         <label class="hud-set-check" title="Откуда играть. YouTube через зеркала — как в MoodTube: ищет трек на YouTube через общедоступные зеркала Invidious, и звук идёт через само зеркало; зеркала бывают медленными и пропадают. NetEase — неофициальный посредник к NetEase Cloud Music (music-api.gdstudio.xyz, как в регексах-плеерах). Обоим уходят исполнитель и название. Не нашлось — играет отрывок.">🎧 Источник:
           <select id="hud-music-source" style="flex:1; min-width:0; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;"><option value="preview" ${settings.musicSource !== 'full' ? 'selected' : ''}>Отрывки 30 с — каталог iTunes</option><option value="youtube" ${settings.musicSource === 'youtube' ? 'selected' : ''}>Полные треки — YouTube через зеркала</option><option value="full" ${settings.musicSource === 'full' ? 'selected' : ''}>Полные треки — NetEase, неофициальный сервис</option><option value="moodtube" ${settings.musicSource === 'moodtube' ? 'selected' : ''}>Полные треки — через MoodTube</option></select>
         </label>
-        ${заметка('Громкость и число треков в саундтреке — прямо в раскрытом плейлисте полосы.')}
+        ${заметка('Громкость, число треков и пожелание к подборке («музыка для бега») — прямо в раскрытом плейлисте полосы.')}
         ${галка('hud-music-verify', settings.musicVerify !== false, '🔎 Проверять треки поиском', 'Каждый трек ищется по сервисам по очереди: сначала каталог iTunes (витрины США и России), потом NetEase и QQ Музыка. Нашёлся — поиск останавливается, трек получает обложку. Не нашёлся нигде — помечается или заменяется: модели любят выдумывать песни. Сервисам уходят только исполнитель и название.')}
         ${галка('hud-music-search-ne', settings.musicSearchNetease !== false, '🔎 Искать ещё в NetEase', 'Если iTunes не нашёл — NetEase Cloud Music через неофициальный посредник (music-api.gdstudio.xyz). Хорошо находит русские и азиатские треки.')}
         ${галка('hud-music-search-qq', settings.musicSearchQQ !== false, '🔎 Искать ещё в QQ Музыке', 'Последний шаг — QQ Музыка через неофициальный посредник (api.vkeys.cn).')}
@@ -510,6 +518,16 @@ export function addSettingsUI() {
   document.getElementById('hud-enable-casket').addEventListener('change', (e) => { settings.enableCasket = e.target.checked; основа.saveSettings(); });
   document.getElementById('hud-enable-overheard').addEventListener('change', (e) => { settings.enableOverheard = e.target.checked; основа.saveSettings(); });
   // Эпоха: показываем переключатели только своей пары.
+  // Язык: сохранить и перезагрузить страницу — так переведётся всё сразу,
+  // и уже собранные карточки, и инструкция для модели.
+  document.getElementById('hud-language').addEventListener('change', (e) => {
+    const новый = e.target.value === 'en' ? 'en' : 'ru';
+    if (новый === (settings.language === 'en' ? 'en' : 'ru')) return;
+    settings.language = новый;
+    основа.saveSettings();
+    основа.showHudToast('loading', новый === 'en' ? 'Language' : 'Язык', новый === 'en' ? 'Switching HUD to English — reloading the page…' : 'HUD переключается на русский — страница перезагрузится…');
+    setTimeout(() => location.reload(), 700);
+  });
   document.getElementById('hud-era').addEventListener('change', (e) => {
     settings.era = e.target.value === 'medieval' ? 'medieval' : 'modern';
     document.querySelectorAll('.hud-era-block').forEach(b => { b.hidden = b.dataset.era !== settings.era; });
@@ -582,7 +600,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.75.0');
+      const mod = await import('./render/archive.js?v=23.78.1');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -764,10 +782,15 @@ export function addSettingsUI() {
   [['hud-music-enable', 'enableMusic'], ['hud-music-auto', 'musicAuto'], ['hud-music-verify', 'musicVerify'], ['hud-music-line', 'musicSceneLine'], ['hud-music-player', 'musicPlayer']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.75.0').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
+      import('./render/music.js?v=23.78.1').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
     });
   });
   document.getElementById('hud-music-profile').addEventListener('change', (e) => { settings.musicProfileId = e.target.value || ''; основа.saveSettings(); });
+  document.getElementById('hud-music-tokens').addEventListener('change', (e) => {
+    let v = parseInt(e.target.value, 10);
+    if (!Number.isFinite(v)) v = 8192; v = Math.max(2048, Math.min(65536, v));
+    settings.musicMaxTokens = v; e.target.value = v; основа.saveSettings();
+  });
   document.getElementById('hud-music-timeout').addEventListener('change', (e) => {
     let v = parseInt(e.target.value, 10);
     if (!Number.isFinite(v) || v < 0) v = 0; if (v > 3600) v = 3600;
@@ -776,7 +799,7 @@ export function addSettingsUI() {
   [['hud-music-medieval', 'musicMedieval'], ['hud-music-style', 'musicStyle'], ['hud-music-source', 'musicSource']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.value; основа.saveSettings();
-      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.75.0').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.78.1').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
 

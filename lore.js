@@ -6,7 +6,8 @@
 // какие ключи активации у неё будут и как выглядит запись в формате World Info.
 // Сеть и диалог выбора книги живут в index.js: там есть контекст SillyTavern.
 
-import { escapeHtml } from './utils.js?v=23.75.0';
+import { escapeHtml } from './utils.js?v=23.78.1';
+import { английский } from './i18n.js?v=23.78.1';
 
 // Уже виденные записи за эту сессию. Карточки отрисовываются сверху вниз,
 // поэтому первая встреча текста и есть его появление в истории. Ключ —
@@ -25,8 +26,8 @@ export function isNewLoreItem(text) {
   return true;
 }
 
-import { namePhoneticLatin, формыИмени } from './names.js?v=23.75.0';
-import { заменитьHudБлоки, hudБлоки } from './hud-block.js?v=23.75.0';
+import { namePhoneticLatin, формыИмени } from './names.js?v=23.78.1';
+import { заменитьHudБлоки, hudБлоки } from './hud-block.js?v=23.78.1';
 
 // Служебные слова, которые в ключи активации не годятся: они встречаются
 // в каждом втором сообщении и запись срабатывала бы постоянно.
@@ -224,8 +225,10 @@ export function buildLoreGenPrompt({ fact, keys, messages, userName, charName })
       'Rules:',
       '- Write "title" and "content" in the language of the story above.',
       '- "content": 2-5 sentences. State what happened, who is involved, who knows and who does not, and why it matters later. No spoilers about the future, no advice to the writer.',
-      '- "keys": AT LEAST 10 activation words, up to 15 — the specific triggers of THIS memory: objects, places, events, actions and distinctive words or short phrases that will literally appear in future messages exactly when this memory matters (e.g. "пистолет", "ящик стола", "сейф", "кабинет отца"). Several grammatical forms of the same word are welcome ("пистолет", "пистолета").',
-      '- Avoid names of people in "keys": the main characters are named in almost every message and would fire the entry all the time. At most one name, and only if the memory cannot be recognised without it. No generic words like "секрет", "он" or "he". No {{macros}}.',
+      '- "keys": AT LEAST 10 activation words, up to 15 — the specific triggers of THIS memory: objects, places, events, actions and distinctive words or short phrases that will literally appear in future messages exactly when this memory matters (e.g. ' + (английский()
+        ? '"pistol", "desk drawer", "safe", "father\'s study"). Several forms of the same word are welcome ("pistol", "pistols").'
+        : '"пистолет", "ящик стола", "сейф", "кабинет отца"). Several grammatical forms of the same word are welcome ("пистолет", "пистолета").'),
+      '- Avoid names of people in "keys": the main characters are named in almost every message and would fire the entry all the time. At most one name, and only if the memory cannot be recognised without it. No generic words like ' + (английский() ? '"secret", "she" or "he"' : '"секрет", "он" or "he"') + '. No {{macros}}.',
       '- Invent nothing that is not in the fact or the story above.',
     ].join('\n'),
   ].filter(Boolean);

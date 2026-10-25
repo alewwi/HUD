@@ -12,13 +12,14 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.75.0';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.75.0';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.75.0';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.75.0';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.75.0';
-import { заменитьHudБлоки } from './hud-block.js?v=23.75.0';
-import { упомянутВТексте } from './names.js?v=23.75.0';
+import { settings } from './settings.js?v=23.78.1';
+import { т } from './i18n.js?v=23.78.1';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.78.1';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.78.1';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.78.1';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.78.1';
+import { заменитьHudБлоки } from './hud-block.js?v=23.78.1';
+import { упомянутВТексте } from './names.js?v=23.78.1';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -407,7 +408,8 @@ export function легендаСнимка(строка) {
   let с;
   try { с = typeof строка === 'string' ? JSON.parse(строка) : строка; } catch (_) { return ''; }
   if (!объект(с)) return '';
-  const имяПоля = (код) => НАЗВАНИЯ_ПОЛЕЙ[код] || String(mapKey(код)).toLowerCase();
+  // Запасные названия — русские; на английском интерфейсе — переводом (i18n.js).
+  const имяПоля = (код) => НАЗВАНИЯ_ПОЛЕЙ[код] || т(String(mapKey(код))).toLowerCase();
   const уже = new Set();
   const поля = (объекты) => {
     const коды = [];
@@ -417,10 +419,10 @@ export function легендаСнимка(строка) {
     const out = новые.map(k => `${k} ${имяПоля(k)}`).join(', ');
     return out || (коды.length ? 'same codes' : '');
   };
-  const подразделы = (о, словарь) => Object.keys(объект(о) ? о : {}).map(k => `${k} ${ПОЯСНЕНИЯ[k] || словарь[k] || k}`).join(', ');
+  const подразделы = (о, словарь) => Object.keys(объект(о) ? о : {}).map(k => `${k} ${ПОЯСНЕНИЯ[k] || (словарь[k] ? т(словарь[k]) : k)}`).join(', ');
   const части = [];
   for (const [код, знач] of Object.entries(с)) {
-    const раздел = НАЗВАНИЯ_РАЗДЕЛОВ[код] || НАЗВАНИЯ_КОДОВ.корень[код] || код;
+    const раздел = НАЗВАНИЯ_РАЗДЕЛОВ[код] || (НАЗВАНИЯ_КОДОВ.корень[код] ? т(НАЗВАНИЯ_КОДОВ.корень[код]) : код);
     let внутри = '';
     if (код === 'sc' || код === 'us') внутри = поля([знач]);
     else if (код === 'cs') внутри = поля(Array.isArray(знач) ? знач : [знач]);
@@ -429,7 +431,7 @@ export function легендаСнимка(строка) {
       const секреты = (Array.isArray(знач.sec) ? знач.sec : []).filter(объект);
       if (секреты.length) {
         const ключи = [...new Set(секреты.flatMap(x => Object.keys(x)))];
-        внутри += `; sec items: ${ключи.map(k => `${k} ${ПОЯСНЕНИЯ[k] || НАЗВАНИЯ_КОДОВ.секрет[k] || k}`).join(', ')}`;
+        внутри += `; sec items: ${ключи.map(k => `${k} ${ПОЯСНЕНИЯ[k] || (НАЗВАНИЯ_КОДОВ.секрет[k] ? т(НАЗВАНИЯ_КОДОВ.секрет[k]) : k)}`).join(', ')}`;
       }
     } else if (код === 'wd') внутри = подразделы(знач, НАЗВАНИЯ_КОДОВ.мир);
     else if (код === 'phn') внутри = подразделы(знач, НАЗВАНИЯ_КОДОВ.телефон);

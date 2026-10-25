@@ -1025,7 +1025,7 @@ const settings = S.settings;
       проверить('настройки: в «Близости» нет боя, споров и быта', близость.length < 4000 && !['hud-enable-duel', 'hud-enable-combat', 'hud-enable-life', 'hud-sleep-norm'].some(id => близость.includes(id)), близость.length);
     }
     проверить('MemoryBooks: метки в чужом запросе — сводками; галка в настройках; сверка при загрузке', инд.includes('сводкиВместоМеток(t, чат, вСводку)') && css('settings-ui.js').includes("галка('hud-mb-link'") && инд.includes('сверитьMemoryBooks(); } catch'));
-    проверить('чужой запрос (MemoryBooks, саммари): сводка с одеждой вместо полного HUD', инд.includes("const вСводку = (блок, прошлый) => сводкаHUD(блок, прошлый, { одежда: true });") && инд.includes('телоБезHUD(исходное, вСводку)') && /if \(опции\.одежда\) \{[\s\S]{0,400}части\.push\(`Одежда: /.test(инд) && инд.includes('await прогретьРазборыСводки(блоки)'));
+    проверить('чужой запрос (MemoryBooks, саммари): сводка с одеждой вместо полного HUD', инд.includes("const вСводку = (блок, прошлый) => сводкаHUD(блок, прошлый, { одежда: true });") && инд.includes('телоБезHUD(исходное, вСводку)') && /if \(опции\.одежда\) \{[\s\S]{0,400}части\.push\(`\$\{английский\(\) \? 'Clothing' : 'Одежда'\}: /.test(инд) && инд.includes('await прогретьРазборыСводки(блоки)'));
   }
   проверить('билеты: подписка на GENERATE_AFTER_DATA и конец генерации', инд.includes('es.on(et.GENERATE_AFTER_DATA') && инд.includes('et.GENERATION_ENDED, et.GENERATION_STOPPED') && инд.includes('билетыГенерации.перехватчик(type)'));
 
@@ -1447,6 +1447,35 @@ const settings = S.settings;
   проверить('музыка: в плейлисте — ползунок громкости и число треков', сНастройками.includes('data-mu-set="volume"') && /data-mu="count" data-d="-1"/.test(сНастройками) && /data-mu="count" data-d="1"/.test(сНастройками) && сНастройками.includes('hud-music-tune'));
   settings.enableMusic = было.enableMusic;
   проверить('музыка: громкость и число треков ушли из настроек расширения', !css('settings-ui.js').includes("число('hud-music-count'") && !css('settings-ui.js').includes("число('hud-music-volume'") && !css('settings-ui.js').includes("getElementById('hud-music-count')"));
+
+  // Значки в кнопках — по центру: рамка рисунка в середине поля 24×24, без отступов «для оптики».
+  const mj = css('render/music.js'), mc = css('css/music.css');
+  проверить('музыка: треугольник «играть» по центру (5,6–18,4 из 24), «−» и «+» — рисунком', mj.includes('d="M5.6 5.2v13.6') && !/svg[^{]*\{[^}]*margin-left/.test(mc.replace(/\/\*[\s\S]*?\*\//g, '')) && mj.includes("${ико('minus')}") && mj.includes("${ико('plus')}"));
+  // Рамка промпта: история — справка, а не просьба продолжить.
+  const рамка = M.промптМузыки({ сцена: сцена_, контекст: { сообщения: [{ name: 'Тристан', text: 'Он открыл дверь.' }] }, пожелание: '' });
+  проверить('музыка: в начале — «не продолжай историю», справка в <reference>', /do NOT write, continue or roleplay the story/.test(рамка.system) && рамка.user.startsWith('<reference>') && рамка.user.indexOf('</reference>') > рамка.user.indexOf('Он открыл дверь.'));
+  проверить('музыка: в конце — задание и «только JSON»', /TASK: choose music for this moment\. Do not continue the story[\s\S]*start with "\{" and end with "\}"\.$/.test(рамка.user));
+  const сПросьбой = M.промптМузыки({ сцена: сцена_, пожелание: 'музыка для бега' });
+  проверить('музыка: пожелание игрока — в запросе и главнее правил вкуса', сПросьбой.user.includes("PLAYER'S WISH (top priority, follow it): музыка для бега") && /wish in the user message has top priority/.test(сПросьбой.system) && сПросьбой.user.indexOf('PLAYER') > сПросьбой.user.indexOf('</reference>') && !рамка.user.includes('WISH') && !/wish/.test(рамка.system));
+  // Лимит ответа: настройка, минимум 2048.
+  const былЛимит = settings.musicMaxTokens;
+  settings.musicMaxTokens = 900;
+  const мин = M.лимитОтвета();
+  delete settings.musicMaxTokens;
+  проверить('музыка: лимит ответа — не меньше 2048, по умолчанию 8192', мин === 2048 && M.лимитОтвета() === 8192 && S.defaultSettings.musicMaxTokens === 8192 && css('settings-ui.js').includes("число('hud-music-tokens', 2048, 65536"));
+  if (былЛимит !== undefined) settings.musicMaxTokens = былЛимит;
+  // Оборванный ответ: целые треки спасаются.
+  const оборван = M.разобратьОтвет('{"label":"бег по набережной","soundtrack":[{"artist":"The Prodigy","title":"Breathe","why":"рвёт с места"},{"artist":"Daft Punk","title":"Harder, Better, Faster, Stronger"},{"artist":"Mo');
+  проверить('музыка: ответ оборвался — целые треки спасаются', оборван.label === 'бег по набережной' && оборван.soundtrack.length === 2 && оборван.soundtrack[1].t === 'Harder, Better, Faster, Stronger');
+  const сСценой = M.разобратьОтвет('{"label":"x","soundtrack":[{"artist":"A","title":"B"}],"scene":{"source":"радио","tracks":[{"artist":"C","title":"D"},{"artist":"E","ti');
+  проверить('музыка: оборван в «в сцене» — части не путаются', сСценой.soundtrack.length === 1 && сСценой.soundtrack[0].a === 'A' && сСценой.scene.src === 'радио' && сСценой.scene.tracks.length === 1 && сСценой.scene.tracks[0].a === 'C');
+  let думал = ''; try { M.разобратьОтвет('<think>Сначала подумаю о сцене, потом выберу...'); } catch (e) { думал = e.message; }
+  проверить('музыка: оборвался на рассуждениях — подсказка поднять лимит', /увеличьте лимит ответа/.test(думал));
+  // Поле пожелания в плейлисте.
+  settings.enableMusic = true; settings.musicWish = 'музыка для <бега>';
+  const сПолем = M.полосаМузыки(1, { chat: чат, открыта: true });
+  проверить('музыка: поле пожелания в плейлисте, экранировано, с кнопкой «стереть»', сПолем.includes('data-mu-set="wish"') && сПолем.includes('value="музыка для &lt;бега&gt;"') && /data-mu="wish-clear"[^>]*>/.test(сПолем) && !/data-mu="wish-clear"[^>]* hidden/.test(сПолем));
+  settings.musicWish = ''; settings.enableMusic = было.enableMusic;
 
   проверить('музыка: по умолчанию выключена', S.defaultSettings.enableMusic === false && S.defaultSettings.musicSceneLine === false);
 }

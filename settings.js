@@ -37,6 +37,8 @@ export const defaultSettings = {
   // Эпоха снаряжения: 'modern' — телефон и перехваты, 'medieval' —
   // шкатулка (письма, святцы, кошель, записи, карта, грамоты, памятки) и
   // подслушанное. Вместе пары не работают: в средневековье телефонов нет.
+  // Язык интерфейса и значений HUD: ru — русский, en — английский (i18n.js).
+  language: 'ru',
   era: 'modern',
   enableCasket: true,
   enableOverheard: true,
@@ -212,6 +214,8 @@ export const defaultSettings = {
   musicProfileId: '',
   musicCount: 8,
   musicTimeout: 120,
+  musicMaxTokens: 8192,     // лимит ответа; думающим моделям нужен запас
+  musicWish: '',            // пожелание к подборке («музыка для бега»)
   musicPlayer: true,        // встроенный плеер: 30-секундные отрывки iTunes
   musicVolume: 70,
   musicSource: 'preview',

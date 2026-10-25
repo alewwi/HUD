@@ -5,10 +5,12 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.75.0';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.75.0';
-import { parseSceneDate } from './history-analyzer.js?v=23.75.0';
-import { возрастТочно } from './render/babies.js?v=23.75.0';
+import { settings } from './settings.js?v=23.78.1';
+import { английский } from './i18n.js?v=23.78.1';
+import { промптНаАнглийском } from './prompt-en.js?v=23.78.1';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.78.1';
+import { parseSceneDate } from './history-analyzer.js?v=23.78.1';
+import { возрастТочно } from './render/babies.js?v=23.78.1';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -486,5 +488,6 @@ Codes: {{hudLastKeys}}
 \`\`\`${канон}
 Update it to match ${чего}: keep what is still true, change what ${чего} changes, remove what has ended or faded, add what is new. Never copy it back unchanged when the story has moved on. Replace every "<new this turn>" with real content — never skip a field because it is short or missing above; however long the chat, the HUD is written in full every turn.{{/if}}`;
   p += `\n</hud_instructions>`;
-  return p;
+  // Английский интерфейс — и HUD по-английски: примеры значений тоже (prompt-en.js).
+  return английский() ? промптНаАнглийском(p) : p;
 }

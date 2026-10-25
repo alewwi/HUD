@@ -18,7 +18,7 @@
 //
 // Стенды (tests/tools) подключают всё разом через css/all.css.
 
-import { settings } from './settings.js?v=23.75.0';
+import { settings } from './settings.js?v=23.78.1';
 
 const ВЕРСИЯ = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
 const МЕТКА = 'data-hud-css';
@@ -43,6 +43,8 @@ export const ЧАСТИ = [
   ['duel', (s) => s.enableVerbalDuel !== false],
   ['combat', (s) => s.enableCombat !== false],
   ['compact'],
+  // Английские подписи, которые живут в CSS (content: '…').
+  ['lang-en', (s) => s.language === 'en'],
   // Платформа: color-scheme, accent-color, вырез экрана, движение в ::before/::after.
   ['platform'],
 ];
