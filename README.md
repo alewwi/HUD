@@ -4,7 +4,7 @@
 
 > Каждый ответ модели получает карточку состояния мира: время и погода сцены, что на ком надето, кто что думает и скрывает, чей телефон разрывается от сообщений, сколько часов персонаж не спал и не ел, кто кому кем приходится — и всё это не теряется от хода к ходу.
 
-<p align="center"><img src="docs/screens/overview.png" alt="Карточка TavernOS: шапка сцены, поворот сюжета и вкладка персонажа" width="560"></p>
+<p align="center"><img src="docs/screens/overview.webp" alt="Карточка TavernOS: шапка сцены, поворот сюжета и вкладка персонажа" width="560"></p>
 
 TavernOS — расширение для [SillyTavern](https://github.com/SillyTavern/SillyTavern), которое просит модель вместе с каждым ответом присылать компактный блок `[HUD]` и превращает его в интерактивную карточку с вкладками прямо под сообщением. Интерфейс на русском или английском (переключатель **🌐 Язык / Language** в самом верху настроек), модель при этом пишет короткие английские коды — так дешевле в токенах.
 
@@ -62,7 +62,7 @@ TavernOS берёт это на себя:
 
 <details><summary>📷 Вкладка персонажа целиком</summary>
 
-<p align="center"><img src="docs/screens/character.png" alt="Вкладка персонажа" width="520"></p>
+<p align="center"><img src="docs/screens/character.webp" alt="Вкладка персонажа" width="520"></p>
 
 </details>
 
@@ -74,17 +74,17 @@ TavernOS берёт это на себя:
 
 Полноценный смартфон с экраном блокировки и уведомлениями: **сообщения** (фото, видео, голосовые с расшифровкой, звонки, ответы на сообщения, удалённые сообщения), **контакты, кошелёк** с транзакциями, **календарь, галерея, заметки, карты, поиск, журнал звонков, погода, здоровье**. Каждое приложение включается отдельно: выключенное не просится у модели и не занимает места в запросе.
 
-<p align="center"><img src="docs/screens/phone.png" alt="Переписка в телефоне персонажа" width="420"></p>
+<p align="center"><img src="docs/screens/phone.webp" alt="Переписка в телефоне персонажа" width="420"></p>
 
 <details><summary>📷 Приложения телефона: рабочий стол, кошелёк, календарь, здоровье, карты</summary>
 
 <table><tr>
-<td align="center"><img src="docs/screens/phone-home.png" alt="Рабочий стол телефона" width="200"><br>Рабочий стол</td>
-<td align="center"><img src="docs/screens/phone-wallet.png" alt="Кошелёк" width="200"><br>Кошелёк</td>
-<td align="center"><img src="docs/screens/phone-calendar.png" alt="Календарь" width="200"><br>Календарь</td>
+<td align="center"><img src="docs/screens/phone-home.webp" alt="Рабочий стол телефона" width="200"><br>Рабочий стол</td>
+<td align="center"><img src="docs/screens/phone-wallet.webp" alt="Кошелёк" width="200"><br>Кошелёк</td>
+<td align="center"><img src="docs/screens/phone-calendar.webp" alt="Календарь" width="200"><br>Календарь</td>
 </tr><tr>
-<td align="center"><img src="docs/screens/phone-health.png" alt="Здоровье" width="200"><br>Здоровье</td>
-<td align="center"><img src="docs/screens/phone-maps.png" alt="Карты" width="200"><br>Карты</td>
+<td align="center"><img src="docs/screens/phone-health.webp" alt="Здоровье" width="200"><br>Здоровье</td>
+<td align="center"><img src="docs/screens/phone-maps.webp" alt="Карты" width="200"><br>Карты</td>
 <td></td>
 </tr></table>
 
@@ -94,7 +94,7 @@ TavernOS берёт это на себя:
 
 Чужие переписки и разговоры, которые ваш персонаж знать не должен, — взгляд поверх плеча автора. Появляются только тогда, когда модель сама решила показать закулисье.
 
-<p align="center"><img src="docs/screens/intercepts.png" alt="Перехваченная переписка" width="420"></p>
+<p align="center"><img src="docs/screens/intercepts.webp" alt="Перехваченная переписка" width="420"></p>
 
 ### 🗝️ Средневековье: шкатулка и подслушанное
 
@@ -113,13 +113,13 @@ TavernOS берёт это на себя:
 
 <details><summary>📷 Вкладка «Память» с графом отношений</summary>
 
-<p align="center"><img src="docs/screens/memory.png" alt="Вкладка Память: граф отношений, таймлайн, секреты" width="520"></p>
+<p align="center"><img src="docs/screens/memory.webp" alt="Вкладка Память: граф отношений, таймлайн, секреты" width="520"></p>
 
 </details>
 
 <details><summary>📷 Генеалогическое дерево</summary>
 
-<p align="center"><img src="docs/screens/family-tree.png" alt="Генеалогическое дерево: мать, дети, супруги" width="480"></p>
+<p align="center"><img src="docs/screens/family-tree.webp" alt="Генеалогическое дерево: мать, дети, супруги" width="480"></p>
 
 </details>
 
@@ -129,7 +129,7 @@ TavernOS берёт это на себя:
 
 <details><summary>📷 Вкладка «Быт»</summary>
 
-<p align="center"><img src="docs/screens/life.png" alt="Вкладка Быт: сытость, сон, сутки, еда, гардероб" width="520"></p>
+<p align="center"><img src="docs/screens/life.webp" alt="Вкладка Быт: сытость, сон, сутки, еда, гардероб" width="520"></p>
 
 </details>
 
@@ -139,7 +139,7 @@ TavernOS берёт это на себя:
 
 <details><summary>📷 Вкладка «Бой»</summary>
 
-<p align="center"><img src="docs/screens/combat.png" alt="Вкладка Бой: кто где, раны, оружие, адреналин, выдержка" width="520"></p>
+<p align="center"><img src="docs/screens/combat.webp" alt="Вкладка Бой: кто где, раны, оружие, адреналин, выдержка" width="520"></p>
 
 </details>
 
@@ -151,17 +151,17 @@ TavernOS берёт это на себя:
 
 Личные записи персонажа своими словами (субъективные — он может ошибаться и врать самому себе) и дневник тела — самочувствие, усталость, ушибы и заживление.
 
-<p align="center"><img src="docs/screens/diary.png" alt="Дневник персонажей" width="420"></p>
+<p align="center"><img src="docs/screens/diary.webp" alt="Дневник персонажей" width="420"></p>
 
 ### 🌙 Сны
 
 Что снилось персонажам этой ночью — образами и намёками, а под каждым сном толкование: какой страх или желание за ним стоит. Сон закрыт дымкой и проясняется в несколько нажатий, как будто вспоминаешь его по утрам. Хороший способ показать то, в чём персонаж не признается даже в дневнике.
 
-<p align="center"><img src="docs/screens/dreams.png" alt="Вкладка Сны: сны под дымкой" width="420"></p>
+<p align="center"><img src="docs/screens/dreams.webp" alt="Вкладка Сны: сны под дымкой" width="420"></p>
 
 <details><summary>📷 Сны после нескольких нажатий — дымка рассеялась</summary>
 
-<p align="center"><img src="docs/screens/dreams-open.png" alt="Открытые сны с толкованием" width="480"></p>
+<p align="center"><img src="docs/screens/dreams-open.webp" alt="Открытые сны с толкованием" width="480"></p>
 
 </details>
 
@@ -173,7 +173,7 @@ TavernOS берёт это на себя:
 
 <details><summary>📷 Карточка цикла</summary>
 
-<p align="center"><img src="docs/screens/cycle.png" alt="Менструальный цикл: день 14 из 28, фазы, ПМС, риск зачатия" width="520"></p>
+<p align="center"><img src="docs/screens/cycle.webp" alt="Менструальный цикл: день 14 из 28, фазы, ПМС, риск зачатия" width="520"></p>
 
 </details>
 
@@ -181,7 +181,7 @@ TavernOS берёт это на себя:
 
 <details><summary>📷 Карточка беременности</summary>
 
-<p align="center"><img src="docs/screens/pregnancy.png" alt="Беременность: 23-я неделя, шкала до родов, малыш, симптомы" width="520"></p>
+<p align="center"><img src="docs/screens/pregnancy.webp" alt="Беременность: 23-я неделя, шкала до родов, малыш, симптомы" width="520"></p>
 
 </details>
 
@@ -195,7 +195,7 @@ TavernOS берёт это на себя:
 
 <details><summary>📷 Вкладка «Детская»</summary>
 
-<p align="center"><img src="docs/screens/nursery.png" alt="Детская: трое малышей, вехи развития, уход, состояние" width="520"></p>
+<p align="center"><img src="docs/screens/nursery.webp" alt="Детская: трое малышей, вехи развития, уход, состояние" width="520"></p>
 
 </details>
 
@@ -205,7 +205,7 @@ TavernOS берёт это на себя:
 
 <details><summary>📷 Вкладка «Мир»</summary>
 
-<p align="center"><img src="docs/screens/world.png" alt="Вкладка Мир: новости, слухи, прогноз" width="520"></p>
+<p align="center"><img src="docs/screens/world.webp" alt="Вкладка Мир: новости, слухи, прогноз" width="520"></p>
 
 </details>
 
@@ -213,11 +213,11 @@ TavernOS берёт это на себя:
 
 Полоса «сейчас играет» над вкладками: **саундтрек** к моменту, как в кино, и музыка **в сцене** — то, что слышат сами герои (радио в машине, оркестр на балу). Подборка — отдельным небольшим запросом по сцене из HUD, заново только при смене сцены или по кнопке; каждую часть можно подобрать отдельно. Треки сверяются поиском, выдуманные помечаются. Кнопка ▶ играет прямо в Таверне: отрывок или полный трек. Громкость, число треков и пожелание («музыка для бега») — прямо в плейлисте. В телефоне персонажа — приложение «Музыка» с тем, что слушает он сам, в архиве — «Саундтрек» по главам. По умолчанию выключено.
 
-<p align="center"><img src="docs/screens/music.png" alt="Музыка сцены: саундтрек и музыка в сцене" width="520"></p>
+<p align="center"><img src="docs/screens/music.webp" alt="Музыка сцены: саундтрек и музыка в сцене" width="520"></p>
 
 <details><summary>📷 «Музыка» в телефоне и саундтрек в архиве</summary>
 
-<p align="center"><img src="docs/screens/music-phone.png" alt="Приложение Музыка в телефоне персонажа" width="300"> <img src="docs/screens/music-archive.png" alt="Архив: саундтрек по главам" width="420"></p>
+<p align="center"><img src="docs/screens/music-phone.webp" alt="Приложение Музыка в телефоне персонажа" width="300"> <img src="docs/screens/music-archive.webp" alt="Архив: саундтрек по главам" width="420"></p>
 
 </details>
 
@@ -225,7 +225,7 @@ TavernOS берёт это на себя:
 
 Животные, фамильяры, дроны: настроение, состояние, рацион, привязанность. Своя вкладка — только когда спутники есть.
 
-<p align="center"><img src="docs/screens/companions.png" alt="Вкладка Спутники" width="420"></p>
+<p align="center"><img src="docs/screens/companions.webp" alt="Вкладка Спутники" width="420"></p>
 
 ### 🗄 Архив HUD
 
@@ -285,21 +285,21 @@ TavernOS берёт это на себя:
 - **Баннеры, рамки портретов, декоративные детали** — пластыри, бантики на вкладках, восковые печати, состаренная бумага, ханко, буквицы и другое, всё по отдельности.
 
 <table><tr>
-<td align="center"><img src="docs/screens/theme-academia.png" alt="Тема Dark Academia" width="260"><br>Dark Academia</td>
-<td align="center"><img src="docs/screens/theme-cottage.png" alt="Тема Коттеджкор" width="260"><br>Коттеджкор</td>
-<td align="center"><img src="docs/screens/theme-cyberpunk.png" alt="Тема Киберпанк" width="260"><br>Киберпанк</td>
+<td align="center"><img src="docs/screens/theme-academia.webp" alt="Тема Dark Academia" width="260"><br>Dark Academia</td>
+<td align="center"><img src="docs/screens/theme-cottage.webp" alt="Тема Коттеджкор" width="260"><br>Коттеджкор</td>
+<td align="center"><img src="docs/screens/theme-cyberpunk.webp" alt="Тема Киберпанк" width="260"><br>Киберпанк</td>
 </tr></table>
 
 Несколько альтернативных видов блоков (переключаются в «Кастомизации» → «Вид блоков»):
 
 <table><tr>
-<td align="center"><img src="docs/screens/view-trust-orbit.png" alt="Доверие орбитами" width="260"><br>Доверие — орбиты</td>
-<td align="center"><img src="docs/screens/view-fears-radar.png" alt="Страхи радаром" width="260"><br>Страхи — радар</td>
-<td align="center"><img src="docs/screens/view-goals-road.png" alt="Цели дорогой" width="260"><br>Цели — дорога</td>
+<td align="center"><img src="docs/screens/view-trust-orbit.webp" alt="Доверие орбитами" width="260"><br>Доверие — орбиты</td>
+<td align="center"><img src="docs/screens/view-fears-radar.webp" alt="Страхи радаром" width="260"><br>Страхи — радар</td>
+<td align="center"><img src="docs/screens/view-goals-road.webp" alt="Цели дорогой" width="260"><br>Цели — дорога</td>
 </tr><tr>
-<td align="center"><img src="docs/screens/view-memories-polaroid.png" alt="Общие воспоминания полароидами" width="260"><br>Воспоминания — полароиды</td>
-<td align="center"><img src="docs/screens/view-secrets-vault.png" alt="Секреты сейфами" width="260"><br>Секреты — сейфы</td>
-<td align="center"><img src="docs/screens/view-route-tickets.png" alt="Маршрут билетами" width="260"><br>Маршрут — билеты</td>
+<td align="center"><img src="docs/screens/view-memories-polaroid.webp" alt="Общие воспоминания полароидами" width="260"><br>Воспоминания — полароиды</td>
+<td align="center"><img src="docs/screens/view-secrets-vault.webp" alt="Секреты сейфами" width="260"><br>Секреты — сейфы</td>
+<td align="center"><img src="docs/screens/view-route-tickets.webp" alt="Маршрут билетами" width="260"><br>Маршрут — билеты</td>
 </tr></table>
 
 ---
@@ -368,7 +368,7 @@ TavernOS берёт это на себя:
 
 ## Установка
 
-1. В SillyTavern откройте **Расширения → Установить расширение** и вставьте адрес этого репозитория.
+1. В SillyTavern откройте **Расширения → Установить расширение** и вставьте адрес репозитория: `https://github.com/alewwi/HUD`
    *Или вручную:* положите папку расширения в `data/<ваш-пользователь>/extensions/HUD` (или в `public/scripts/extensions/third-party/`) и перезагрузите страницу.
 2. В **Расширениях** появится блок **📊 TavernOS**.
 3. Включите **🔌 Сетевой перехват** — без него модель HUD не пишет.

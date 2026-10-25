@@ -8,6 +8,7 @@
 //   node tests/tools/docs-shots.mjs --lang en          английские → docs/screens/en
 //   node tests/tools/docs-shots.mjs --only life,phone  только эти
 //   node tests/tools/docs-shots.mjs --list             вкладки примера (id и подписи)
+//   --png — снимки в PNG вместо WebP (WebP в разы легче, GitHub его показывает)
 //   ST=http://127.0.0.1:8000/  BROWSER=путь\к\chrome.exe
 //
 // Музыка снимается со стенда tests/tools/music-stand.html (готовый плейлист).
@@ -23,6 +24,8 @@ const КОРЕНЬ = path.resolve(ТУТ, '..', '..');
 const арг = process.argv.slice(2);
 const знач = (имя, умолч) => (арг.includes(имя) ? арг[арг.indexOf(имя) + 1] : умолч);
 const ЯЗЫК = знач('--lang', 'ru') === 'en' ? 'en' : 'ru';
+// Формат: webp (по умолчанию, лёгкий — для README на GitHub) или png (--png).
+const ФОРМАТ = арг.includes('--png') ? 'png' : 'webp';
 const ТОЛЬКО = знач('--only', '') ? new Set(знач('--only', '').split(',')) : null;
 const ВЫХОД = path.resolve(КОРЕНЬ, знач('--out', ЯЗЫК === 'en' ? 'docs/screens/en' : 'docs/screens'));
 const ST = (process.env.ST || 'http://127.0.0.1:8000/').replace(/\/?$/, '/');
@@ -110,6 +113,11 @@ async function снять(файл, клип) {
     if (цветов(данные) >= 200) break;
     if (попытка === 3) console.log('    ⚠ кадр почти пустой:', path.basename(файл));
     await ждать(1500);
+  }
+  // Проверка пустоты — по PNG; сохраняем тот же кадр в WebP.
+  if (ФОРМАТ === 'webp') {
+    const р = await cdp('Page.captureScreenshot', { format: 'webp', quality: 90, clip: { x, y, width, height, scale: 1 }, captureBeyondViewport: true });
+    данные = Buffer.from(р.data, 'base64');
   }
   fs.mkdirSync(path.dirname(файл), { recursive: true });
   fs.writeFileSync(файл, данные);
@@ -231,7 +239,7 @@ async function музыка() {
   for (const с of МУЗЫКА) {
     if (ТОЛЬКО && !ТОЛЬКО.has(с.имя)) continue;
     const клип = await выполнить(`scrollTo(0, 0); const э = ${с.найти}; const r = э.getBoundingClientRect(); return { x: r.left + scrollX, y: r.top + scrollY, width: r.width, height: r.height };`);
-    const файл = path.join(ВЫХОД, с.имя + '.png');
+    const файл = path.join(ВЫХОД, с.имя + '.' + ФОРМАТ);
     await снять(файл, клип);
     console.log('✓', path.relative(КОРЕНЬ, файл), Math.round(клип.width) + '×' + Math.round(клип.height));
   }
@@ -281,7 +289,7 @@ async function main() {
     const клип = await выполнить(`return __shots.копия(${JSON.stringify(ЯЗЫК)}, ${JSON.stringify(с.поле ? с.поле : null)}, ${JSON.stringify(с.элемент || null)});`);
     await ждать(700);
     клип.height = Math.min(клип.height, с.высота || 1950);
-    const файл = path.join(ВЫХОД, с.имя + '.png');
+    const файл = path.join(ВЫХОД, с.имя + '.' + ФОРМАТ);
     await снять(файл, клип);
     console.log('✓', path.relative(КОРЕНЬ, файл), Math.round(клип.width) + '×' + Math.round(клип.height));
     if (ЯЗЫК === 'en' && клип.русское && клип.русское.length) console.log('    русское в кадре:', клип.русское.join(' | '));

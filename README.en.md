@@ -4,7 +4,7 @@
 
 > Every model reply gets a card with the state of the world: the time and weather of the scene, who is wearing what, who thinks and hides what, whose phone is blowing up with messages, how many hours a character hasn't slept or eaten, who is related to whom — and none of it gets lost from turn to turn.
 
-<p align="center"><img src="docs/screens/en/overview.png" alt="TavernOS card: scene header, plot twist and a character tab" width="560"></p>
+<p align="center"><img src="docs/screens/en/overview.webp" alt="TavernOS card: scene header, plot twist and a character tab" width="560"></p>
 
 TavernOS is an extension for [SillyTavern](https://github.com/SillyTavern/SillyTavern) that asks the model to send a compact `[HUD]` block with every reply and turns it into an interactive card with tabs right under the message. The interface is in English or Russian: switch **🌐 Язык / Language → ENG** at the very top of the extension settings. The model writes short English codes either way, which saves tokens.
 
@@ -62,7 +62,7 @@ A separate tab for everyone the model described in the turn:
 
 <details><summary>📷 The whole character tab</summary>
 
-<p align="center"><img src="docs/screens/en/character.png" alt="Character tab" width="520"></p>
+<p align="center"><img src="docs/screens/en/character.webp" alt="Character tab" width="520"></p>
 
 </details>
 
@@ -74,17 +74,17 @@ The same set about your character — as the model sees them from outside: cloth
 
 A full smartphone with a lock screen and notifications: **messages** (photos, videos, voice messages with transcripts, calls, replies, deleted messages), **contacts, wallet** with transactions, **calendar, gallery, notes, maps, search, call log, weather, health**. Each app is turned on separately: an app that's off isn't requested from the model and takes no room in the request.
 
-<p align="center"><img src="docs/screens/en/phone.png" alt="A chat in the character's phone" width="420"></p>
+<p align="center"><img src="docs/screens/en/phone.webp" alt="A chat in the character's phone" width="420"></p>
 
 <details><summary>📷 Phone apps: home screen, wallet, calendar, health, maps</summary>
 
 <table><tr>
-<td align="center"><img src="docs/screens/en/phone-home.png" alt="Phone home screen" width="200"><br>Home screen</td>
-<td align="center"><img src="docs/screens/en/phone-wallet.png" alt="Wallet" width="200"><br>Wallet</td>
-<td align="center"><img src="docs/screens/en/phone-calendar.png" alt="Calendar" width="200"><br>Calendar</td>
+<td align="center"><img src="docs/screens/en/phone-home.webp" alt="Phone home screen" width="200"><br>Home screen</td>
+<td align="center"><img src="docs/screens/en/phone-wallet.webp" alt="Wallet" width="200"><br>Wallet</td>
+<td align="center"><img src="docs/screens/en/phone-calendar.webp" alt="Calendar" width="200"><br>Calendar</td>
 </tr><tr>
-<td align="center"><img src="docs/screens/en/phone-health.png" alt="Health" width="200"><br>Health</td>
-<td align="center"><img src="docs/screens/en/phone-maps.png" alt="Maps" width="200"><br>Maps</td>
+<td align="center"><img src="docs/screens/en/phone-health.webp" alt="Health" width="200"><br>Health</td>
+<td align="center"><img src="docs/screens/en/phone-maps.webp" alt="Maps" width="200"><br>Maps</td>
 <td></td>
 </tr></table>
 
@@ -94,7 +94,7 @@ A full smartphone with a lock screen and notifications: **messages** (photos, vi
 
 Other people's chats and conversations your character shouldn't know about — a look over the author's shoulder. They appear only when the model itself decides to show what's behind the scenes.
 
-<p align="center"><img src="docs/screens/en/intercepts.png" alt="An intercepted chat" width="420"></p>
+<p align="center"><img src="docs/screens/en/intercepts.webp" alt="An intercepted chat" width="420"></p>
 
 ### 🗝️ Medieval: the casket and overheard talk
 
@@ -113,13 +113,13 @@ The tab where history accumulates instead of a snapshot:
 
 <details><summary>📷 The Memory tab with the relationship graph</summary>
 
-<p align="center"><img src="docs/screens/en/memory.png" alt="Memory tab: relationship graph, timeline, secrets" width="520"></p>
+<p align="center"><img src="docs/screens/en/memory.webp" alt="Memory tab: relationship graph, timeline, secrets" width="520"></p>
 
 </details>
 
 <details><summary>📷 Family tree</summary>
 
-<p align="center"><img src="docs/screens/en/family-tree.png" alt="Family tree: mother, children, spouses" width="480"></p>
+<p align="center"><img src="docs/screens/en/family-tree.webp" alt="Family tree: mother, children, spouses" width="480"></p>
 
 </details>
 
@@ -129,7 +129,7 @@ Food, sleep, showers, laundry, cleaning, clothing, money and home **across all p
 
 <details><summary>📷 The Daily life tab</summary>
 
-<p align="center"><img src="docs/screens/en/life.png" alt="Daily life tab: satiety, sleep, the day, food, wardrobe" width="520"></p>
+<p align="center"><img src="docs/screens/en/life.webp" alt="Daily life tab: satiety, sleep, the day, food, wardrobe" width="520"></p>
 
 </details>
 
@@ -139,7 +139,7 @@ Appears only while there's danger: stage and turn order, distances, wounds on a 
 
 <details><summary>📷 The Combat tab</summary>
 
-<p align="center"><img src="docs/screens/en/combat.png" alt="Combat tab: who is where, wounds, weapons, adrenaline, composure" width="520"></p>
+<p align="center"><img src="docs/screens/en/combat.webp" alt="Combat tab: who is where, wounds, weapons, adrenaline, composure" width="520"></p>
 
 </details>
 
@@ -151,17 +151,17 @@ While an argument is going on: who leads and by how much, who conceded what, the
 
 The character's personal notes in their own words (subjective — they can be wrong and lie to themselves) and the body diary — how they feel, fatigue, bruises and healing.
 
-<p align="center"><img src="docs/screens/en/diary.png" alt="Character diaries" width="420"></p>
+<p align="center"><img src="docs/screens/en/diary.webp" alt="Character diaries" width="420"></p>
 
 ### 🌙 Dreams
 
 What the characters dreamed tonight — in images and hints, with an interpretation under each dream: what fear or desire is behind it. A dream is veiled in mist and clears up in a few taps, as if you're remembering it in the morning. A good way to show what a character won't admit even in their diary.
 
-<p align="center"><img src="docs/screens/en/dreams.png" alt="Dreams tab: dreams under the mist" width="420"></p>
+<p align="center"><img src="docs/screens/en/dreams.webp" alt="Dreams tab: dreams under the mist" width="420"></p>
 
 <details><summary>📷 Dreams after a few taps — the mist has cleared</summary>
 
-<p align="center"><img src="docs/screens/en/dreams-open.png" alt="Open dreams with interpretations" width="480"></p>
+<p align="center"><img src="docs/screens/en/dreams-open.webp" alt="Open dreams with interpretations" width="480"></p>
 
 </details>
 
@@ -173,7 +173,7 @@ For stories where the body and family matter — three linked blocks. Each is tu
 
 <details><summary>📷 The cycle card</summary>
 
-<p align="center"><img src="docs/screens/en/cycle.png" alt="Menstrual cycle: day 14 of 28, phases, PMS, conception chance" width="520"></p>
+<p align="center"><img src="docs/screens/en/cycle.webp" alt="Menstrual cycle: day 14 of 28, phases, PMS, conception chance" width="520"></p>
 
 </details>
 
@@ -181,7 +181,7 @@ For stories where the body and family matter — three linked blocks. Each is tu
 
 <details><summary>📷 The pregnancy card</summary>
 
-<p align="center"><img src="docs/screens/en/pregnancy.png" alt="Pregnancy: week 23, bar to the birth, the baby, symptoms" width="520"></p>
+<p align="center"><img src="docs/screens/en/pregnancy.webp" alt="Pregnancy: week 23, bar to the birth, the baby, symptoms" width="520"></p>
 
 </details>
 
@@ -195,7 +195,7 @@ When a child grows up (by default at three), they move from the "Nursery" to reg
 
 <details><summary>📷 The Nursery tab</summary>
 
-<p align="center"><img src="docs/screens/en/nursery.png" alt="Nursery: three babies, milestones, care, state" width="520"></p>
+<p align="center"><img src="docs/screens/en/nursery.webp" alt="Nursery: three babies, milestones, care, state" width="520"></p>
 
 </details>
 
@@ -205,7 +205,7 @@ A summary for today: news, rumors, ads, the weather forecast, a horoscope, onlin
 
 <details><summary>📷 The World tab</summary>
 
-<p align="center"><img src="docs/screens/en/world.png" alt="World tab: news, rumors, forecast" width="520"></p>
+<p align="center"><img src="docs/screens/en/world.webp" alt="World tab: news, rumors, forecast" width="520"></p>
 
 </details>
 
@@ -213,11 +213,11 @@ A summary for today: news, rumors, ads, the weather forecast, a horoscope, onlin
 
 A "now playing" strip above the tabs: a **soundtrack** for the moment, like in a movie, and music **in the scene** — what the characters themselves hear (a car radio, an orchestra at a ball). The playlist is picked by a separate small request from the HUD scene, again only when the scene changes or on a button; each part can be picked separately. Tracks are checked by search, and made-up ones are marked. The ▶ button plays right in the Tavern: a clip or a full track. Volume, the number of tracks and a wish ("music for running") live right in the playlist. The character's phone gets a "Music" app with what they listen to themselves, and the archive gets a "Soundtrack" by chapters. Off by default.
 
-<p align="center"><img src="docs/screens/en/music.png" alt="Scene music: soundtrack and in-scene music" width="520"></p>
+<p align="center"><img src="docs/screens/en/music.webp" alt="Scene music: soundtrack and in-scene music" width="520"></p>
 
 <details><summary>📷 "Music" in the phone and the soundtrack in the archive</summary>
 
-<p align="center"><img src="docs/screens/en/music-phone.png" alt="The Music app in the character's phone" width="300"> <img src="docs/screens/en/music-archive.png" alt="Archive: soundtrack by chapters" width="420"></p>
+<p align="center"><img src="docs/screens/en/music-phone.webp" alt="The Music app in the character's phone" width="300"> <img src="docs/screens/en/music-archive.webp" alt="Archive: soundtrack by chapters" width="420"></p>
 
 </details>
 
@@ -225,7 +225,7 @@ A "now playing" strip above the tabs: a **soundtrack** for the moment, like in a
 
 Animals, familiars, drones: mood, condition, diet, attachment. Their own tab — only when there are companions.
 
-<p align="center"><img src="docs/screens/en/companions.png" alt="Companions tab" width="420"></p>
+<p align="center"><img src="docs/screens/en/companions.webp" alt="Companions tab" width="420"></p>
 
 ### 🗄 HUD archive
 
@@ -285,21 +285,21 @@ The **🎨 Customization** window with a live preview:
 - **Banners, portrait frames, decorative details** — plasters, bows on tabs, wax seals, aged paper, hanko, drop caps and more, each separately.
 
 <table><tr>
-<td align="center"><img src="docs/screens/en/theme-academia.png" alt="Dark Academia theme" width="260"><br>Dark Academia</td>
-<td align="center"><img src="docs/screens/en/theme-cottage.png" alt="Cottagecore theme" width="260"><br>Cottagecore</td>
-<td align="center"><img src="docs/screens/en/theme-cyberpunk.png" alt="Cyberpunk theme" width="260"><br>Cyberpunk</td>
+<td align="center"><img src="docs/screens/en/theme-academia.webp" alt="Dark Academia theme" width="260"><br>Dark Academia</td>
+<td align="center"><img src="docs/screens/en/theme-cottage.webp" alt="Cottagecore theme" width="260"><br>Cottagecore</td>
+<td align="center"><img src="docs/screens/en/theme-cyberpunk.webp" alt="Cyberpunk theme" width="260"><br>Cyberpunk</td>
 </tr></table>
 
 A few alternative block views (switched in "Customization" → "Block views"):
 
 <table><tr>
-<td align="center"><img src="docs/screens/en/view-trust-orbit.png" alt="Trust as orbits" width="260"><br>Trust — orbits</td>
-<td align="center"><img src="docs/screens/en/view-fears-radar.png" alt="Fears as a radar" width="260"><br>Fears — radar</td>
-<td align="center"><img src="docs/screens/en/view-goals-road.png" alt="Goals as a road" width="260"><br>Goals — road</td>
+<td align="center"><img src="docs/screens/en/view-trust-orbit.webp" alt="Trust as orbits" width="260"><br>Trust — orbits</td>
+<td align="center"><img src="docs/screens/en/view-fears-radar.webp" alt="Fears as a radar" width="260"><br>Fears — radar</td>
+<td align="center"><img src="docs/screens/en/view-goals-road.webp" alt="Goals as a road" width="260"><br>Goals — road</td>
 </tr><tr>
-<td align="center"><img src="docs/screens/en/view-memories-polaroid.png" alt="Shared memories as polaroids" width="260"><br>Memories — polaroids</td>
-<td align="center"><img src="docs/screens/en/view-secrets-vault.png" alt="Secrets as safes" width="260"><br>Secrets — safes</td>
-<td align="center"><img src="docs/screens/en/view-route-tickets.png" alt="Route as tickets" width="260"><br>Route — tickets</td>
+<td align="center"><img src="docs/screens/en/view-memories-polaroid.webp" alt="Shared memories as polaroids" width="260"><br>Memories — polaroids</td>
+<td align="center"><img src="docs/screens/en/view-secrets-vault.webp" alt="Secrets as safes" width="260"><br>Secrets — safes</td>
+<td align="center"><img src="docs/screens/en/view-route-tickets.webp" alt="Route as tickets" width="260"><br>Route — tickets</td>
 </tr></table>
 
 ---
@@ -368,7 +368,7 @@ The extension is built for chats with hundreds of messages and for phones:
 
 ## Installation
 
-1. In SillyTavern open **Extensions → Install extension** and paste this repository's address.
+1. In SillyTavern open **Extensions → Install extension** and paste the repository address: `https://github.com/alewwi/HUD`
    *Or manually:* put the extension folder into `data/<your-user>/extensions/HUD` (or `public/scripts/extensions/third-party/`) and reload the page.
 2. A **📊 TavernOS** block appears in **Extensions**.
 3. For the English interface, set **🌐 Язык / Language → ENG** at the very top of the block; the page reloads.

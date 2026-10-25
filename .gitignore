@@ -1,0 +1,11 @@
+# Снимки визуальной проверки — локальные, их снимает tests/tools/visual-regress.mjs
+# в папку hud-screens рядом с Таверной. В репозитории — только хеши эталонов.
+tests/screens/**/*.png
+tests/screens/.report/
+# Временные копии стендов и крупные отладочные стенды.
+tests/tools/.vr-*
+tests/tools/.look-big.html
+# Архивы и служебное.
+*.rar
+*.zip
+.claude/
