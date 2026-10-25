@@ -500,7 +500,7 @@ const ПО_ТЕМЕ = {
   paperAged: 'academia medieval western pirate steampunk cottage egypt',
   paperTorn: 'medieval pirate western',
   paperFolds: 'academia steampunk dieselpunk noir mafia',
-  waxSeal: 'academia vamp medieval fantasy cottage mafia witch',
+  waxSeal: 'academia medieval fantasy cottage mafia witch',
   nameHanko: 'japan',
   verticalName: 'japan',
   dayCount: 'vamp academia noir cyberpunk japan kawaii spaceopera spacehorror pirate witch',
