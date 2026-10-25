@@ -17,8 +17,8 @@
 // Словарь — по исходной русской строке. Строка без перевода остаётся русской:
 // ничего не ломается, просто видно, что словарь неполон (tests/i18n.mjs).
 
-import { settings } from './settings.js?v=23.78.1';
-import { СЛОВАРЬ_EN, ШАБЛОНЫ_EN } from './i18n-en.js?v=23.78.1';
+import { settings } from './settings.js?v=23.78.6';
+import { СЛОВАРЬ_EN, ШАБЛОНЫ_EN } from './i18n-en.js?v=23.78.6';
 
 export const язык = () => (settings.language === 'en' ? 'en' : 'ru');
 export const английский = () => язык() === 'en';
@@ -51,7 +51,7 @@ function ядро(s, начало = НАЧАЛО) {
 // Составные строки: «Доверие: Анна — 85; Марк — 55» собирает код из кусков,
 // и целиком её в словаре нет. Переводим по частям — по разделителям, от
 // крупного к мелкому; что не нашлось (имена), остаётся как есть.
-const РАЗДЕЛИТЕЛИ = ['; ', ' · ', ' — ', ': ', ', '];
+const РАЗДЕЛИТЕЛИ = ['; ', ' · ', ' — ', ' → ', ': ', ', '];
 const ГЛУБИНА = 4;
 
 function поШаблонам(суть, глубина) {
@@ -71,9 +71,8 @@ function перевод(s, глубина) {
   if (целиком !== undefined) return s.replace(s.trim(), целиком);
   const [до, суть, после] = ядро(s);
   if (!суть) return null;
-  const v = словарь.get(суть);
-  if (v !== undefined) return до + v + после;
-  // Строка начинается с числа — сначала она же целиком, с числом.
+  // Строка начинается с числа — сначала она же целиком, с числом: «23-я
+  // неделя» → «week 23», а не «23-» + «я неделя» → «23-th week».
   const [до2, суть2, после2] = ядро(s, НАЧАЛО_С_ЦИФРАМИ);
   if (суть2 && суть2 !== суть) {
     const v2 = словарь.get(суть2);
@@ -81,6 +80,8 @@ function перевод(s, глубина) {
     const ш2 = поШаблонам(суть2, глубина);
     if (ш2 !== null) return до2 + ш2 + после2;
   }
+  const v = словарь.get(суть);
+  if (v !== undefined) return до + v + после;
   const ш = поШаблонам(суть, глубина);
   if (ш !== null) return до + ш + после;
   if (глубина >= ГЛУБИНА) return null;
@@ -127,6 +128,9 @@ const АТРИБУТЫ = ['title', 'placeholder', 'aria-label', 'data-tip', 'dat
 const НЕ_ТРОГАТЬ = 'script, style, textarea, input:not([type="button"]):not([type="submit"]), [contenteditable="true"], [data-i18n-skip]';
 // Всё, что создаёт HUD, — в элементах с классом hud-* или id hud-*.
 const СВОЁ = '[class*="hud-"], [id^="hud-"]';
+// На <html> HUD ставит свои классы (hud-lang-en, hud-theme-…) — это не
+// разметка HUD: иначе «своим» стал бы весь интерфейс Таверны.
+const своё = (эл) => { const с = эл && эл.closest(СВОЁ); return !!с && с !== document.documentElement && с !== document.body; };
 const ЧУЖОЕ = '[contenteditable="true"], [data-i18n-skip]';
 
 function перевестиТекст(узел) {
@@ -145,13 +149,13 @@ export function перевестиДерево(корень) {
   if (!английский() || !корень) return;
   if (корень.nodeType === 3) {
     const род = корень.parentElement;
-    if (род && род.closest(СВОЁ) && !род.closest(НЕ_ТРОГАТЬ)) перевестиТекст(корень);
+    if (род && своё(род) && !род.closest(НЕ_ТРОГАТЬ)) перевестиТекст(корень);
     return;
   }
   if (корень.nodeType !== 1) return;
-  const внутриСвоего = !!корень.closest(СВОЁ);
+  const внутриСвоего = своё(корень);
   // Корень вне HUD — переводим только его HUD-потомков.
-  if (!внутриСвоего) { корень.querySelectorAll(СВОЁ).forEach(эл => { if (!эл.parentElement || !эл.parentElement.closest(СВОЁ)) перевестиДерево(эл); }); return; }
+  if (!внутриСвоего) { корень.querySelectorAll(СВОЁ).forEach(эл => { if (!своё(эл.parentElement)) перевестиДерево(эл); }); return; }
   if (корень.closest(НЕ_ТРОГАТЬ)) { if (!корень.closest(ЧУЖОЕ)) перевестиАтрибуты(корень); return; }
   перевестиАтрибуты(корень);
   const обход = document.createTreeWalker(корень, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT, {
@@ -178,7 +182,7 @@ export function включитьПереводчик() {
   // Колбэк наблюдателя — микрозадача: перевод успевает до отрисовки.
   наблюдатель = new MutationObserver((записи) => {
     for (const з of записи) {
-      if (з.type === 'attributes') { if (з.target.nodeType === 1 && з.target.closest(СВОЁ) && !з.target.closest(ЧУЖОЕ)) перевестиАтрибуты(з.target); continue; }
+      if (з.type === 'attributes') { if (з.target.nodeType === 1 && своё(з.target) && !з.target.closest(ЧУЖОЕ)) перевестиАтрибуты(з.target); continue; }
       for (const n of з.addedNodes) перевестиДерево(n);
     }
   });
