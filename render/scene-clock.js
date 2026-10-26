@@ -16,10 +16,10 @@
 // Полоса появляется, только когда есть что сказать, и не про сдвиг меньше
 // порога (settings.sceneClockMin, по умолчанию 15 минут).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.79.4';
-import { settings } from '../settings.js?v=23.79.4';
-import { namesLikelySame } from '../names.js?v=23.79.4';
-import { ико, медаль } from './view-icons.js?v=23.79.4';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.79.5';
+import { settings } from '../settings.js?v=23.79.5';
+import { namesLikelySame } from '../names.js?v=23.79.5';
+import { ико, медаль } from './view-icons.js?v=23.79.5';
 
 const МИН = 60000;
 const поле = (о, имя) => {

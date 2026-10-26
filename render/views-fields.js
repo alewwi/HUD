@@ -12,9 +12,9 @@
 // Не разобрали данные — пустая строка, и поле рисуется по-старому.
 // Оформление — css/views-fields.css.
 
-import { escapeHtml, разбитьСписок } from '../utils.js?v=23.79.4';
-import { ИКОНКИ } from './view-icons.js?v=23.79.4';
-import { знакЗодиака as знакНаЯзыке } from '../i18n.js?v=23.79.4';
+import { escapeHtml, разбитьСписок } from '../utils.js?v=23.79.5';
+import { ИКОНКИ } from './view-icons.js?v=23.79.5';
+import { знакЗодиака as знакНаЯзыке } from '../i18n.js?v=23.79.5';
 
 const т = (s) => escapeHtml(String(s ?? '').trim());
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто|—|-)$/i.test(String(v).trim());

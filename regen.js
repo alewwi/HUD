@@ -5,10 +5,10 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings } from './settings.js?v=23.79.4';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки } from './hud-block.js?v=23.79.4';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.79.4';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.79.4';
+import { настройка, settings, defaultSettings } from './settings.js?v=23.79.5';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки } from './hud-block.js?v=23.79.5';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.79.5';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.79.5';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, getMessageUpdateFunction, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
@@ -122,7 +122,11 @@ export async function handleHudRegenButton(regenBtn) {
           const sourceBody = window.lastTavernRequest?.body;
           const reqBody = sourceBody && typeof sourceBody === 'object' ? sourceBody : {};
           const requestUrl = '/api/backends/chat-completions/generate';
+          // Заголовки — из контекста Таверны: в них X-CSRF-Token. На window
+          // getRequestHeaders в ST 1.18 нет — без токена сервер отвечал
+          // 403 «Invalid CSRF token».
           const requestHeaders =
+              (typeof stContext?.getRequestHeaders === 'function' ? stContext.getRequestHeaders() : null) ||
               (typeof window.getRequestHeaders === 'function' ? window.getRequestHeaders() : null) ||
               { 'Content-Type': 'application/json' };
 

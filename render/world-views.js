@@ -14,9 +14,9 @@
 // пустить эфир, оторвать листок, поставить галочку, лайкнуть. Отметки живут
 // в памяти страницы (как голоса в новостях) и переживают перерисовку карточки.
 
-import { escapeHtml, hudHashSeed } from '../utils.js?v=23.79.4';
-import { ико, ИКОНКИ } from './view-icons.js?v=23.79.4';
-import { знакЗодиака } from '../i18n.js?v=23.79.4';
+import { escapeHtml, hudHashSeed } from '../utils.js?v=23.79.5';
+import { ико, ИКОНКИ } from './view-icons.js?v=23.79.5';
+import { знакЗодиака } from '../i18n.js?v=23.79.5';
 
 const т = (s) => escapeHtml(String(s ?? ''));
 const хэш = (s) => hudHashSeed(String(s ?? ''));
