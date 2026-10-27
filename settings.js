@@ -530,7 +530,7 @@ const ПО_ТЕМЕ = {
   hangPendant: 'japan',
   lineWave: 'japan kawaii witch',
   bgDragon: 'fantasy',
-  themeScene: Object.fromEntries(['biopunk', 'dieselpunk', 'solarpunk', 'voodoo', 'steampunk', 'egypt', 'western', 'noir', 'pirate', 'spaceopera', 'ice', 'ocean', 'spacehorror', 'vamp', 'kawaii'].map(id => [id, id])),
+  themeScene: Object.fromEntries(['biopunk', 'dieselpunk', 'solarpunk', 'voodoo', 'steampunk', 'egypt', 'western', 'noir', 'pirate', 'spaceopera', 'ice', 'ocean', 'spacehorror', 'vamp', 'kawaii', ...['academia', 'cyberpunk', 'medieval', 'fantasy', 'mafia', 'web1', 'cottage', 'japan', 'witch']].map(id => [id, id])),
   inkWash: 'japan',
   peekCat: 'witch',
   dossierTag: 'biopunk',
@@ -541,8 +541,10 @@ const ПО_ТЕМЕ = {
 const ВСЕМ_ТЕМАМ = { lightHeadings: 'on', trustHearts: 'on', themedScroll: 'on', genIndicator: 'on', themedControls: 'on' };
 const ВЫКЛЮЧЕНО = { sectionSkin: '', headerStyle: 'classic', nameStyle: 'plain', groupDividers: 'off', themeScene: 'off' };
 // Темы, у которых есть сцена (css/scenes.css): значками и картинками.
-export const СЦЕНЫ_ЗНАЧКИ = ['biopunk', 'dieselpunk', 'solarpunk', 'voodoo', 'steampunk', 'egypt', 'western', 'noir', 'pirate', 'spaceopera', 'ice', 'ocean', 'spacehorror', 'vamp'];
-export const СЦЕНЫ_КАРТИНКИ = ['vamp', 'noir', 'biopunk', 'spacehorror', 'ocean', 'pirate', 'steampunk', 'egypt', 'western', 'kawaii', 'solarpunk', 'ice', 'voodoo'];
+export const СЦЕНЫ_ЗНАЧКИ = ['biopunk', 'dieselpunk', 'solarpunk', 'voodoo', 'steampunk', 'egypt', 'western', 'noir', 'pirate', 'spaceopera', 'ice', 'ocean', 'spacehorror', 'vamp',
+  'academia', 'cyberpunk', 'medieval', 'fantasy', 'mafia', 'web1', 'cottage', 'japan', 'witch', 'kawaii'];
+export const СЦЕНЫ_КАРТИНКИ = ['vamp', 'noir', 'biopunk', 'spacehorror', 'ocean', 'pirate', 'steampunk', 'egypt', 'western', 'kawaii', 'solarpunk', 'ice', 'voodoo',
+  'academia', 'cyberpunk', 'medieval', 'fantasy', 'mafia', 'web1', 'cottage', 'japan', 'witch'];
 // Украшения «по теме», нарисованные картинками (img/deco/*.webp): при «Без
 // картинок» вместо них — что справа (выключено или простая линия).
 const КАРТИНКИ_УКРАШЕНИЙ = {
@@ -581,7 +583,16 @@ export const СЦЕНЫ_МЕСТА = {
   ice: ['thbc', 'thbc', 'hb'],
   spacehorror: ['hnbc', 'hnbc', 'b'],
   vamp: ['h', 'hnb', 'nb'],
-  kawaii: ['', 'hb', 'hb'],
+  kawaii: ['thabc', 'hb', 'hb'],
+  academia: ['thab', 'thnb', 'thnb'],
+  cyberpunk: ['thabc', 'thnab', 'thnab'],
+  medieval: ['thabc', 'thnab', 'thnab'],
+  fantasy: ['thabc', 'thnab', 'thnab'],
+  mafia: ['thab', 'thnab', 'thnab'],
+  web1: ['thab', 'thnb', 'thnb'],
+  cottage: ['thab', 'thnab', 'thnab'],
+  japan: ['thabc', 'thnab', 'thnab'],
+  witch: ['thab', 'thnab', 'thnab'],
 };
 export const МЕСТА_СЦЕНЫ = ['t', 'h', 'n', 'a', 'b', 'c'];
 // Ключи мест, что выбираются в «Рисунках темы» (портрет и шапка — свои).

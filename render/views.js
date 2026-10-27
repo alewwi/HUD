@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.81.1';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.81.1';
-import { namesLikelySame } from '../names.js?v=23.81.1';
-import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.81.1';
-import { settings } from '../settings.js?v=23.81.1';
-import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.81.1';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.81.1';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы } from '../utils.js?v=23.83.0';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.83.0';
+import { namesLikelySame } from '../names.js?v=23.83.0';
+import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.83.0';
+import { settings } from '../settings.js?v=23.83.0';
+import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.83.0';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.83.0';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -158,7 +158,8 @@ function сердцаСосуды(v, id, всего = 5) {
 /* --- Доверие ---------------------------------------------------------------- */
 
 function разобратьДоверие(value) {
-  return пары(value).map(п => ({ кто: п.имя, v: Number.isFinite(число(п.текст)) ? огр(число(п.текст), 0, 100) : null, сырое: п.текст }));
+  // «Атлас Бомонт, Арес Бомонт: 40» — у каждого своя карточка с тем же числом.
+  return пары(value).flatMap(п => (именаГруппы(п.имя) || [п.имя]).map(кто => ({ кто, v: Number.isFinite(число(п.текст)) ? огр(число(п.текст), 0, 100) : null, сырое: п.текст })));
 }
 const словоДоверия = (v) => v >= 80 ? 'открыт' : v >= 60 ? 'доверяет' : v >= 40 ? 'насторожен' : v >= 20 ? 'закрыт' : 'глухо закрыт';
 const ступень = (v) => v >= 66 ? 'is-high' : v >= 33 ? 'is-mid' : 'is-low';

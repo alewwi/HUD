@@ -4023,6 +4023,34 @@
   display: block; margin-bottom: 1px; font-size: .8em; letter-spacing: .05em;
 }
 
+/* --- Отношения: несколько людей под одной меткой --------------------------
+   «Атлас Бомонт, Арес Бомонт, Брэндон Кейн: предатели» — стопка кружков
+   (каждый своим цветом и аватаркой) и имена бейджами того же цвета. Работает
+   в любом виде плашек: обычном, визитками, в узкой карточке. */
+.hud-pill-who { --тон: calc(var(--hud-tone-base, 330) + var(--тон-сдвиг, 0)); }
+.hud-os-card .hud-detail-pill.has-face.is-group { padding-left: 12px !important; }
+.hud-os-card .hud-detail-pill.has-face.is-group > .hud-pill-faces { display: inline-flex; align-items: center; vertical-align: middle; margin: 0 8px 4px 0; padding-left: 6px; }
+.hud-os-card .hud-detail-pill.has-face.is-group > .hud-pill-faces > .hud-pill-face {
+  position: relative; left: auto; top: auto; transform: none; flex: none;
+  width: 26px; height: 26px; margin-left: -5px; font-size: 9.5px;
+  box-shadow: 0 0 0 2px var(--x-surf, #16121c);
+}
+.hud-os-card .hud-detail-pill.has-face.is-group > .hud-pill-faces > .hud-pill-face:nth-child(2) { z-index: 3; }
+.hud-os-card .hud-detail-pill.has-face.is-group > .hud-pill-faces > .hud-pill-face:nth-child(1) { z-index: 4; }
+.hud-os-card .hud-detail-pill.has-face.is-group > .hud-pill-faces > .hud-pill-face.is-more { color: var(--hud-text, #fff); background: color-mix(in srgb, var(--hud-accent) 30%, var(--x-surf, #16121c)); border-color: color-mix(in srgb, var(--hud-accent) 50%, transparent); }
+.hud-os-card .hud-detail-pill.has-face.is-group > .hud-pill-label.is-group { display: inline-flex !important; flex-wrap: wrap; align-items: center; gap: 4px; vertical-align: middle; margin: 0 0 4px; letter-spacing: 0; }
+.hud-os-card .hud-detail-pill.has-face.is-group > .hud-pill-label.is-group::after { content: none; }
+.hud-pill-label.is-group > .hud-pill-who {
+  display: inline-block; padding: 1px 8px; border-radius: 99px; font-size: .92em; line-height: 1.45; white-space: nowrap;
+  border: 1px solid hsl(var(--тон, 0) 55% 52% / .55); background: hsl(var(--тон, 0) 50% 45% / .16);
+}
+.hud-pill-label.is-group > :is(.hud-pill-and, .hud-pill-sep) { font-size: 0; }
+/* Светлые темы: имя в бейдже — тёмным тоном человека, светлое на светлом не читалось. */
+:root.hud-scheme-light .hud-pill-label.is-group > .hud-pill-who { color: hsl(var(--тон, 0) 45% 28%) !important; background: hsl(var(--тон, 0) 55% 50% / .14); }
+/* Текст отношения — своей строкой под стопкой и именами. */
+.hud-os-card .hud-detail-pill.has-face.is-group > .hud-pill-br { display: block; height: 0; }
+.hud-os-card .hud-detail-pill.has-face.is-group > .hud-pill-faces + .hud-pill-label.is-group { max-width: calc(100% - 4px); }
+
 /* --- Ревность: рваный край и тлеющая кромка ------------------------------ */
 .hud-row.f-jealousy .hud-detail-pill {
   border: 0; box-shadow: none; border-radius: 0 13px 13px 0;

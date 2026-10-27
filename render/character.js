@@ -4,29 +4,29 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.81.1';
-import { иконка } from './hud-icons.js?v=23.81.1';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.81.1';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.81.1';
-import { разобратьСилуСтраха, стадияБолезни } from '../codes.js?v=23.81.1';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, именаГруппы, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.83.0';
+import { иконка } from './hud-icons.js?v=23.83.0';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.83.0';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.83.0';
+import { разобратьСилуСтраха, стадияБолезни } from '../codes.js?v=23.83.0';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  блокТемпаСцены, активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.81.1';
-import { часыСцены } from './scene-clock.js?v=23.81.1';
-import { buildUnderwear } from './underwear.js?v=23.81.1';
-import { buildDuel } from './duel.js?v=23.81.1';
-import { buildPregnancy } from './pregnancy.js?v=23.81.1';
-import { buildPostpartum } from './postpartum.js?v=23.81.1';
-import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды, датаЗачатия } from './conception.js?v=23.81.1';
-import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.81.1';
-import { parseSceneDate } from '../history-analyzer.js?v=23.81.1';
-import { settings, настройка } from '../settings.js?v=23.81.1';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.81.1';
-import { видСостоянияТела } from './extras.js?v=23.81.1';
-import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом } from './views-fields.js?v=23.81.1';
-import { parseRelationList } from './relations-graph.js?v=23.81.1';
-import { отложитьРисунок } from './lazy-svg.js?v=23.81.1';
-import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.81.1';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.81.1';
+  блокТемпаСцены, активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.83.0';
+import { часыСцены } from './scene-clock.js?v=23.83.0';
+import { buildUnderwear } from './underwear.js?v=23.83.0';
+import { buildDuel } from './duel.js?v=23.83.0';
+import { buildPregnancy } from './pregnancy.js?v=23.83.0';
+import { buildPostpartum } from './postpartum.js?v=23.83.0';
+import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды, датаЗачатия, чертыРодителей } from './conception.js?v=23.83.0';
+import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.83.0';
+import { parseSceneDate } from '../history-analyzer.js?v=23.83.0';
+import { settings, настройка } from '../settings.js?v=23.83.0';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.83.0';
+import { видСостоянияТела } from './extras.js?v=23.83.0';
+import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом } from './views-fields.js?v=23.83.0';
+import { parseRelationList } from './relations-graph.js?v=23.83.0';
+import { отложитьРисунок } from './lazy-svg.js?v=23.83.0';
+import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.83.0';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.83.0';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле', 'состояние тела'];
@@ -46,7 +46,9 @@ const FIELD_ORDER = ['Имя', 'Возраст', 'Одежда', 'Внешнос
 // Доверие и отношение — разные вещи: любить и не доверять можно одновременно,
 // поэтому шкала отдельная, а не строка внутри «Отношений».
 function buildTrustMap(value) {
-  return разбитьСписок(value).map(кусок => {
+  // «Атлас Бомонт, Арес Бомонт: 40» — полоска у каждого.
+  const куски = разбитьСписок(value).flatMap(к => { const m = к.match(/^\s*([^:]+):\s*(.+)$/); const г = m && именаГруппы(m[1].trim()); return г ? г.map(и => и + ': ' + m[2]) : [к]; });
+  return куски.map(кусок => {
     const m = кусок.match(/^\s*([^:]+):\s*(.+)$/);
     if (!m) return кусок.trim() ? `<span class="hud-zone"><b>${escapeHtml(кусок.trim())}</b></span>` : '';
     const кто = m[1].trim();
@@ -432,7 +434,13 @@ export function контекстБеременности(данные, кто, v
   if (кто && (родила && !/^(empty|none|нет)$/i.test(родила) || /(?:^|\s)(?:родила|роды\s+(?:прошли|состоялись)|gave\s+birth|has\s+given\s+birth)/i.test(ход))) {
     зарегистрироватьРоды(кто, { когда: родила || String(данные && данные.__датаСцены || ''), дата: parseSceneDate(данные && данные.__датаСцены), отец });
   }
-  return { кто, мама, папа, зачатие: кто ? датаЗачатия(кто) : null };
+  // Черты, вписанные игроком, — первыми: признак берётся из первого текста,
+  // где он назван, остальное — по-прежнему из HUD и карточек.
+  const черты = кто ? чертыРодителей(кто) : { мама: '', папа: '' };
+  const найдено = { мама: мама.slice(), папа: папа.slice() };
+  if (черты.мама) мама.unshift(черты.мама);
+  if (черты.папа) папа.unshift(черты.папа);
+  return { кто, мама, папа, черты, найдено, зачатие: кто ? датаЗачатия(кто) : null };
 }
 
 export function контекстЗачатия(данные, партнёры = [], своёИмя = '') {

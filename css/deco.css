@@ -118,11 +118,12 @@
 :root.hud-deco-wreath .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco { --deco-img: url('../img/deco/wreath.webp'); inset: -28px; z-index: 2; }
 
 /* Орбиты («бабочка — реверс»): задняя половина за портретом, передняя — перед */
-:root.hud-deco-orbit .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin: 26px 38px 26px 34px; }
+:root.hud-deco-orbit .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin: 12px 18px 12px 16px; }
 :root.hud-deco-orbit .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > * { border-radius: 50% !important; border: 2px solid var(--hud-deco-c) !important; box-shadow: 0 0 16px var(--hud-deco-c) !important; }
 :root.hud-deco-orbit .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap::before,
 :root.hud-deco-orbit .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco {
-  content: ''; position: absolute; left: 50%; top: 50%; width: 176px; height: 147px; translate: -50% -50%;
+  /* Внутренняя орбита (r = 31,6 % ширины картинки, центр — 53 % / 50 %) — прямо по краю портрета; в долях портрета — так же у визитки. */
+  content: ''; position: absolute; left: 50%; top: 50%; width: 158%; height: 132%; translate: -53% -50%;
   background: color-mix(in srgb, var(--hud-deco-c) 55%, #fff);
   -webkit-mask: url('../img/deco/orbit.webp') center / contain no-repeat; mask: url('../img/deco/orbit.webp') center / contain no-repeat;
 }

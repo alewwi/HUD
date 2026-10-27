@@ -84,6 +84,41 @@
 .hud-fetus-fate .opts small { font-size: .66em; letter-spacing: .12em; text-transform: uppercase; opacity: .7; }
 .hud-fetus-fate .row { display: flex; flex-wrap: wrap; gap: 5px; }
 .hud-preg-test .hud-fetus { margin-top: 12px; }
+/* Черты родителей: карандашик справа у «на кого похож». Нажал — раскрылась
+   карточка с двумя полями (там уже то, что HUD нашёл сам), «Записать» — свернулась. */
+.hud-fetus .looks-top { position: relative; min-height: 22px; display: flex; flex-direction: column; justify-content: center; }
+.hud-fetus .looks-top > .looks-head { padding-right: 30px; }
+.hud-fetus .looks-top:has(> .hud-fetus-traits[data-set]) > .looks-head { padding-right: 70px; }
+.hud-fetus .looks-empty { font-size: .74em; font-style: italic; opacity: .6; }
+.hud-fetus-traits > summary { position: absolute; top: 0; right: 0; list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 4px;
+  height: 22px; min-width: 22px; box-sizing: border-box; padding: 0 5px; border-radius: 999px; font-size: .72em; color: color-mix(in srgb, currentColor 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--fam-acc) 30%, transparent); background: color-mix(in srgb, var(--fam-acc) 6%, transparent); transition: color .15s, background-color .15s, border-color .15s; }
+.hud-fetus-traits > summary::-webkit-details-marker { display: none; }
+.hud-fetus-traits > summary > svg { width: 12px; height: 12px; flex: none; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.hud-fetus-traits > summary > b { font-weight: 600; letter-spacing: .04em; }
+.hud-fetus-traits[data-set] > summary { color: inherit; border-color: color-mix(in srgb, var(--fam-acc) 60%, transparent); background: color-mix(in srgb, var(--fam-acc) 20%, transparent); }
+.hud-fetus-traits[open] > summary { color: inherit; border-color: var(--fam-acc); background: color-mix(in srgb, var(--fam-acc) 28%, transparent); }
+.hud-fetus-traits > summary:focus-visible { outline: 2px solid var(--fam-acc); outline-offset: 1px; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-fetus-traits > summary:hover { color: inherit; border-color: color-mix(in srgb, var(--fam-acc) 70%, transparent); background: color-mix(in srgb, var(--fam-acc) 18%, transparent); }
+}
+.hud-fetus-traits .pane { margin: 12px 0 4px; padding: 10px 11px; display: flex; flex-wrap: wrap; gap: 8px 10px; border-radius: 12px;
+  background: color-mix(in srgb, var(--fam-acc) 9%, rgba(0, 0, 0, .14)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--fam-acc) 28%, transparent); }
+.hud-fetus-traits[open] .pane { animation: hud-traits-in .18s ease-out; }
+@keyframes hud-traits-in { from { opacity: 0; transform: translateY(-4px); } }
+@media (prefers-reduced-motion: reduce) { .hud-fetus-traits[open] .pane { animation: none; } }
+.hud-fetus-traits .lead { flex: 1 1 100%; margin: 0; font-size: .74em; line-height: 1.35; opacity: .75; }
+.hud-fetus-traits .trait-field { flex: 1 1 170px; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.hud-fetus-traits .trait-field > .who { display: flex; align-items: center; gap: 5px; font-size: .68em; letter-spacing: .12em; text-transform: uppercase; opacity: .8; }
+.hud-fetus-traits .trait-field > .who > i { font-style: normal; letter-spacing: 0; color: var(--fam-acc); }
+.hud-fetus-traits .trait-field > input { width: 100%; box-sizing: border-box; margin: 0; padding: 6px 10px; font: inherit; font-size: .86em; color: inherit; border-radius: 9px;
+  border: 1px solid color-mix(in srgb, var(--fam-acc) 40%, transparent); background: color-mix(in srgb, var(--fam-acc) 6%, rgba(0, 0, 0, .22)); }
+.hud-fetus-traits .trait-field > input::placeholder { color: inherit; opacity: .4; }
+.hud-fetus-traits .trait-field > input:focus { outline: none; border-color: var(--fam-acc); box-shadow: 0 0 0 2px color-mix(in srgb, var(--fam-acc) 25%, transparent); }
+.hud-fetus-traits .trait-field > small { font-size: .7em; opacity: .7; line-height: 1.3; }
+.hud-fetus-traits .trait-field > small.ok { opacity: .9; color: color-mix(in srgb, #6fcf8f 70%, currentColor); }
+.hud-fetus-traits .trait-field > small.warn { opacity: .9; color: color-mix(in srgb, #e0a050 75%, currentColor); }
+.hud-fetus-traits .row { flex: 1 1 100%; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
 
 /* --- Роды ------------------------------------------------------------------- */
 .hud-birth-row { margin-top: 10px; }
@@ -367,3 +402,5 @@
 .hud-cycle-pause span { display: flex; flex-direction: column; gap: 1px; }
 .hud-cycle-pause b { color: var(--fam-ink); }
 .hud-cycle-pause small { font-size: .8em; color: color-mix(in srgb, currentColor 72%, transparent); }
+:root.hud-scheme-light .hud-fetus-traits .trait-field > input { background: color-mix(in srgb, var(--fam-acc) 6%, rgba(255, 255, 255, .78)); }
+:root.hud-scheme-light .hud-fetus-traits .pane { background: color-mix(in srgb, var(--fam-acc) 8%, rgba(255, 255, 255, .5)); }

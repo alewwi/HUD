@@ -5,10 +5,10 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings } from './settings.js?v=23.81.1';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe } from './hud-block.js?v=23.81.1';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.81.1';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.81.1';
+import { настройка, settings, defaultSettings } from './settings.js?v=23.83.0';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe } from './hud-block.js?v=23.83.0';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.83.0';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.83.0';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, getMessageUpdateFunction, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
@@ -109,6 +109,13 @@ export function нуженЛимитБольше(data, извлечь = null) {
 }
 /** Лимит для повтора, когда рассуждения съели весь прежний. */
 export const лимитПовтора = (лимит) => Math.min(32768, лимит * 2);
+/** В разобранном HUD есть основа — сцена или персонажи. */
+export function естьОсноваHUD(р) {
+  if (!р || typeof р !== 'object') return false;
+  const сцена = р.scene ?? р.sc, персонажи = р.characters ?? р.cs;
+  const есть = (v) => Array.isArray(v) ? v.length > 0 : !!v && typeof v === 'object' && Object.keys(v).length > 0;
+  return есть(сцена) || есть(персонажи);
+}
 /** Ответ оборвался по лимиту токенов: OpenAI-формат, Claude, Gemini. */
 export function обрывПоЛимиту(data) {
   if (!data || typeof data !== 'object') return false;
@@ -575,6 +582,9 @@ export async function handleHudRegenButton(regenBtn) {
           if (отменено()) throw new DOMException('Отменено', 'AbortError');
           let newHudText;
           try { newHudText = repairGeneratedHudBlock(aiText); } catch (e) { throw оборвался ? new Error(ОБРЫВ_ДО_HUD) : e; }
+          // Без сцены и персонажей это не HUD, а обломок (кусок настроений, мира…):
+          // записать его — значит затереть прошлый HUD почти пустым.
+          if (!естьОсноваHUD(parseHUDComplex(newHudText))) throw new Error(оборвался ? ОБРЫВ_ДО_HUD : 'в ответе нет сцены и персонажей — HUD не записан');
           // Сохраняем HUD в кодах — тем же форматом, каким его пишет модель.
           // Развёрнутые русские ключи в истории противоречили правилу «только
           // коды» и учили модель обратному. Страховка: если разбор кодовой
@@ -640,6 +650,8 @@ export async function handleHudRegenButton(regenBtn) {
 
           основа.showHudToast('success', 'Успех',
               `HUD вшит в сообщение. В запрос ушло ${freshMessages.length} сообщ., ${Math.round(hudPromptChars / 1000)} тыс. символов — пресет SillyTavern не отправляется.`);
+          // Ответ оборвался, но HUD дочинился: последних разделов может не быть.
+          if (оборвался) основа.showHudToast('info', 'HUD неполный', 'Ответ оборвался по лимиту токенов — последние разделы HUD могли не войти; подними «Лимит токенов HUD» в настройках.');
 
           if (saveFn) {
               saveFn().catch(saveErr => основа.showHudToast('error', 'Не сохранено', 'HUD показан, но не записан: ' + saveErr.message));

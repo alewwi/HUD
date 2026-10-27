@@ -7,11 +7,11 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.81.1';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.81.1';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.81.1';
-import { buildFamilyTree } from './family-tree.js?v=23.81.1';
-import { settings } from '../settings.js?v=23.81.1';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.83.0';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.83.0';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.83.0';
+import { buildFamilyTree } from './family-tree.js?v=23.83.0';
+import { settings } from '../settings.js?v=23.83.0';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -33,7 +33,10 @@ export function parseRelationList(raw) {
     if (!m) m = p.match(/^\s*([^→>-]+?)\s*(?:→|->|—|–|-|=>)\s*(.+)$/);
     if (!m) return null;
     return { target: m[1].trim(), rel: m[2].trim() };
-  }).filter(item => item && hudFilled(item.target) && hudFilled(item.rel));
+  }).filter(item => item && hudFilled(item.target) && hudFilled(item.rel))
+    // «Атлас Бомонт, Арес Бомонт: предатели» — связь с каждым, а не узел с
+    // именем из трёх людей.
+    .flatMap(item => (именаГруппы(item.target) || [item.target]).map(target => ({ target, rel: item.rel })));
 }
 
 export function mergeCharacterRecords(characters) {

@@ -68,7 +68,13 @@
   .hud-os-card .hud-forecast-cell { flex: 1 1 calc(50% - 4px); min-width: 0; }
   .hud-os-card .hud-route-head { flex-wrap: wrap; }
   .hud-os-card .hud-trust-meta span { white-space: normal; }
-  .hud-os-card .hud-pet2-mood { white-space: normal; text-overflow: clip; }
+  /* Настроение спутника целиком — своей строкой под именем: в две строки в
+     углу ленты оно наезжало на имя. */
+  /* Поворот сюжета: ленточка «поворот» уже, заголовок не ужимается в столбик слов. */
+  .hud-os-card .hud-twist h5 { padding-right: 34px; }
+  .hud-os-card .hud-twist-rib { right: -44px; top: 9px; padding: 2px 42px; font-size: .5em; }
+  .hud-os-card .hud-pet2-top { flex-wrap: wrap; }
+  .hud-os-card .hud-pet2-mood { position: static; order: 3; flex: 1 1 100%; max-width: none; margin: 6px 0 0; white-space: normal; text-overflow: clip; border-radius: 10px; }
   /* Строка экономики: значок и название целиком, под названием — цена
      и изменение. В одну строку название сжималось до 30px («Квар/тиры»). */
   .hud-os-card .hud-eco-row:not(.is-note) { display: flex; flex-wrap: wrap; align-items: center; column-gap: 8px; row-gap: 3px; }
@@ -109,7 +115,13 @@
   .hud-os-card .hud-forecast-cell { flex: 1 1 calc(50% - 4px); min-width: 0; }
   .hud-os-card .hud-route-head { flex-wrap: wrap; }
   .hud-os-card .hud-trust-meta span { white-space: normal; }
-  .hud-os-card .hud-pet2-mood { white-space: normal; text-overflow: clip; }
+  /* Настроение спутника целиком — своей строкой под именем: в две строки в
+     углу ленты оно наезжало на имя. */
+  /* Поворот сюжета: ленточка «поворот» уже, заголовок не ужимается в столбик слов. */
+  .hud-os-card .hud-twist h5 { padding-right: 34px; }
+  .hud-os-card .hud-twist-rib { right: -44px; top: 9px; padding: 2px 42px; font-size: .5em; }
+  .hud-os-card .hud-pet2-top { flex-wrap: wrap; }
+  .hud-os-card .hud-pet2-mood { position: static; order: 3; flex: 1 1 100%; max-width: none; margin: 6px 0 0; white-space: normal; text-overflow: clip; border-radius: 10px; }
   /* Строка экономики: значок и название целиком, под названием — цена
      и изменение. В одну строку название сжималось до 30px («Квар/тиры»). */
   .hud-os-card .hud-eco-row:not(.is-note) { display: flex; flex-wrap: wrap; align-items: center; column-gap: 8px; row-gap: 3px; }

@@ -7,9 +7,9 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=23.81.1';
-import { hudБлоки } from './hud-block.js?v=23.81.1';
-import { имяБезПриставки } from './utils.js?v=23.81.1';
+import { normalizeJSONData } from './schema.js?v=23.83.0';
+import { hudБлоки } from './hud-block.js?v=23.83.0';
+import { имяБезПриставки } from './utils.js?v=23.83.0';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';
@@ -108,6 +108,18 @@ export function склеитьРаннийКорень(text) {
     s = s.slice(0, до) + s.slice(до + 1);
   }
   return s;
+}
+
+// Кандидаты в HUD: закрытые объекты и — если корень не закрыт (ответ оборван
+// по лимиту) — весь текст от первой «{»: его дочинит repairTruncatedHudJson.
+// Раньше при оборванном корне в кандидаты шли только вложенные объекты, и
+// выигрывал какой-нибудь кусок вроде {chr, us} из настроений — он и
+// записывался в сообщение вместо HUD.
+function кандидатыHUD(text) {
+  const candidates = extractBalancedJsonCandidates(text);
+  const от = text.indexOf('{');
+  if (от >= 0 && (!candidates.length || конецОбъекта(text, от) < 0)) candidates.unshift(text.slice(от));
+  return candidates;
 }
 
 function extractBalancedJsonCandidates(text) {
@@ -567,11 +579,7 @@ export function repairGeneratedHudBlock(aiText) {
     return `[HUD]\n\`\`\`json\n${JSON.stringify(parsed, null, 2)}\n\`\`\`\n[/HUD]`;
   } catch (initialError) {
     const decoded = склеитьРаннийКорень(decodeHighlightedHudHtml(rawInner));
-    const candidates = extractBalancedJsonCandidates(decoded);
-    if (!candidates.length) {
-      const firstBrace = decoded.indexOf('{');
-      if (firstBrace >= 0) candidates.push(decoded.slice(firstBrace));
-    }
+    const candidates = кандидатыHUD(decoded);
     let lastError = initialError;
     const parsedCandidates = [];
     for (let index = 0; index < candidates.length; index++) {
@@ -799,11 +807,7 @@ export function разобратьHUDСырой(contentEncoded) {
     const старый = разобратьСтарыйФормат(decoded);
     if (старый) return старый;
   }
-  const candidates = extractBalancedJsonCandidates(склеитьРаннийКорень(decoded));
-  if (!candidates.length) {
-    const firstBrace = decoded.indexOf('{');
-    if (firstBrace >= 0) candidates.push(decoded.slice(firstBrace));
-  }
+  const candidates = кандидатыHUD(склеитьРаннийКорень(decoded));
   if (!candidates.length) {
     // Фигурных скобок нет вовсе — возможно, модель ответила YAML.
     const yaml = пробаYaml(decoded);

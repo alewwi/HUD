@@ -3,8 +3,8 @@
 // Мелкие утилиты, общие для всех доменов HUD (дневник, мир, сны, телефон,
 // граф отношений, память). Вынесено из index.js без изменения поведения.
 
-import { МЕТКИ } from './codes.js?v=23.81.1';
-import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.81.1';
+import { МЕТКИ } from './codes.js?v=23.83.0';
+import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.83.0';
 
 // Замеры по шагам для поиска узких мест: включаются только объектом
 // window.__hudProf = {} в консоли, копят { шаг: [мс, …] }. Без него — прямой вызов.
@@ -299,6 +299,28 @@ function инициалы(имя) {
   return String(имя || '').trim() ? инициалыИмени(имя) : '·';
 }
 
+// «Атлас Бомонт, Арес Бомонт и Брэндон Кейн» — несколько людей под одной
+// меткой. Делим, только если каждая часть похожа на имя: с заглавной, не
+// длиннее четырёх слов. «Мама и папа», «друзья, коллеги» — не группа.
+export function именаГруппы(метка) {
+  const части = String(метка || '').split(/\s*(?:,|\s+и\s+|\s+and\s+|\s*&\s*|\s+\+\s+)\s*/i).map(s => s.trim()).filter(Boolean);
+  if (части.length < 2) return null;
+  const имя = (s) => s.length <= 40 && /^[\p{Lu}«"']/u.test(s) && s.split(/\s+/).length <= 4;
+  return части.every(имя) ? части : null;
+}
+
+// Кружок человека: инициалы и, если есть, аватарка поверх них.
+function кружокЛица(имя, лицоПоИмени, стиль = '') {
+  let адрес = null;
+  try { адрес = typeof лицоПоИмени === 'function' ? лицоПоИмени(имя) : null; } catch (_) { адрес = null; }
+  const картинка = адрес
+    ? `<img src="${escapeHtml(String(адрес)).replace(/"/g, '&quot;')}" alt="" loading="lazy"`
+      + ` onerror="this.parentNode.classList.remove('has-img');this.remove()">`
+    : '';
+  return `<i class="hud-pill-face${адрес ? ' has-img' : ''}" aria-hidden="true"${стиль ? ` style="${стиль}"` : ''}>`
+    + `${escapeHtml(инициалы(имя))}${картинка}</i>`;
+}
+
 // лицоПоИмени — необязательная функция «имя → адрес аватарки или null». Нужна
 // списку отношений: сами утилиты об аватарках ничего не знают.
 // Пункты списка разделяет только «;» (и её полноширинный и арабский
@@ -375,21 +397,31 @@ export function buildPillList(value, pillClass, forceSeparate = false, вид = 
             стиль += '--тон-сдвиг:' + сдвиг + ';';
             // Аватарка ложится поверх инициалов. Не загрузилась — картинка
             // убирает себя, и снова видны инициалы.
-            let адрес = null;
-            try { адрес = typeof лицоПоИмени === 'function' ? лицоПоИмени(item.label) : null; } catch (_) { адрес = null; }
-            const картинка = адрес
-              ? `<img src="${escapeHtml(String(адрес)).replace(/"/g, '&quot;')}" alt="" loading="lazy"`
-                + ` onerror="this.parentNode.classList.remove('has-img');this.remove()">`
-              : '';
-            передМеткой = `<i class="hud-pill-face${адрес ? ' has-img' : ''}" aria-hidden="true">`
-              + `${escapeHtml(инициалы(item.label))}${картинка}</i>`;
+            // Несколько людей под одной меткой — стопка кружков, у каждого
+            // свой цвет и аватарка; больше четырёх — «+N».
+            const группа = именаГруппы(item.label);
+            if (группа) {
+                классы += ' is-group';
+                const видно = группа.slice(0, 4);
+                передМеткой = '<span class="hud-pill-faces" aria-hidden="true">'
+                  + видно.map(n => кружокЛица(n, лицоПоИмени, '--тон-сдвиг:' + (hudHashSeed(n) % 81 - 40) + ';')).join('')
+                  + (группа.length > видно.length ? `<i class="hud-pill-face is-more">+${группа.length - видно.length}</i>` : '')
+                  + '</span>';
+                item.группа = группа;
+            } else {
+                передМеткой = кружокЛица(item.label, лицоПоИмени);
+            }
         }
         // Значок знакомой метки. Ставим перед подписью, саму подпись не
         // трогаем: кто читает, а не сканирует, ничего не теряет.
         const значокМетки = item.label
             ? ЗНАЧКИ_МЕТОК[item.label.trim().toLowerCase().replace(/ё/g, 'е')] || ''
             : '';
-        const labelHtml = item.label
+        const labelHtml = item.группа
+            ? `<span class="hud-pill-label is-group">`
+              + item.группа.map(n => `<span class="hud-pill-who" style="--тон-сдвиг:${hudHashSeed(n) % 81 - 40};">${escapeHtml(n)}</span>`).join('<span class="hud-pill-and">, </span>')
+              + `<span class="hud-pill-sep">${escapeHtml(item.sep)}</span></span><span class="hud-pill-br"></span>`
+            : item.label
             ? `<span class="hud-pill-label">`
               + (значокМетки ? `<i class="hud-pill-ico" aria-hidden="true">${значокМетки}</i>` : '')
               + `${escapeHtml(item.label)}${escapeHtml(item.sep)}</span> `
