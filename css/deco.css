@@ -503,7 +503,7 @@
 @keyframes hud-crt-scan { from { background-position: 0 0, 0 0; } to { background-position: 0 48px, 0 0; } }
 
 /* --- Светлее тёмные заголовки на тёмных темах («束素亭亭玉殿春») --------- */
-:root.hud-light-heads:not(:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate))
+:root.hud-light-heads:not(:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty))
   .hud-os-card :is(.hud-row[class*=" kind-"]:not(.nsfw) > .hud-key, .hud-key-block[class*="kind-"] > .hud-key-label) {
   color: oklch(from var(--kind-ink, var(--hud-accent)) max(l, 0.82) c h) !important;
 }
@@ -534,7 +534,7 @@
 :root:is(.hud-deco-wreath, .hud-deco-lattice, .hud-deco-octagon, .hud-deco-fan, .hud-deco-lotus, .hud-deco-roses) .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco::after,
 :root:is(.hud-orn-roses, .hud-orn-plum, .hud-orn-bridge) .hud-os-card .hud-header:not(.has-banner) .hud-head-orn::after { content: none !important; }
 /* Тёмные розы на тёмных темах: светлый контур, чтобы не тонули в фоне. */
-:root:is(.hud-deco-roses, .hud-orn-roses):not(:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate)) .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco, :root:is(.hud-deco-roses, .hud-orn-roses):not(:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate)) .hud-os-card .hud-header:not(.has-banner) .hud-head-orn {
+:root:is(.hud-deco-roses, .hud-orn-roses):not(:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco, :root:is(.hud-deco-roses, .hud-orn-roses):not(:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-os-card .hud-header:not(.has-banner) .hud-head-orn {
   filter: drop-shadow(0 0 1px rgba(255, 236, 236, .75)) drop-shadow(0 0 5px rgba(255, 210, 210, .35)) !important;
 }
 :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco { rotate: 8deg; }

@@ -4,29 +4,29 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.79.6';
-import { иконка } from './hud-icons.js?v=23.79.6';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.79.6';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.79.6';
-import { разобратьСилуСтраха, стадияБолезни } from '../codes.js?v=23.79.6';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.80.0';
+import { иконка } from './hud-icons.js?v=23.80.0';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.80.0';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.80.0';
+import { разобратьСилуСтраха, стадияБолезни } from '../codes.js?v=23.80.0';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  блокТемпаСцены, активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.79.6';
-import { часыСцены } from './scene-clock.js?v=23.79.6';
-import { buildUnderwear } from './underwear.js?v=23.79.6';
-import { buildDuel } from './duel.js?v=23.79.6';
-import { buildPregnancy } from './pregnancy.js?v=23.79.6';
-import { buildPostpartum } from './postpartum.js?v=23.79.6';
-import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды, датаЗачатия } from './conception.js?v=23.79.6';
-import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.79.6';
-import { parseSceneDate } from '../history-analyzer.js?v=23.79.6';
-import { settings, настройка } from '../settings.js?v=23.79.6';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.79.6';
-import { видСостоянияТела } from './extras.js?v=23.79.6';
-import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом } from './views-fields.js?v=23.79.6';
-import { parseRelationList } from './relations-graph.js?v=23.79.6';
-import { отложитьРисунок } from './lazy-svg.js?v=23.79.6';
-import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.79.6';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.79.6';
+  блокТемпаСцены, активныеСледы, карточкаСледа, разобратьСледы, видСледа, тотЖеВред, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия } from './intimacy.js?v=23.80.0';
+import { часыСцены } from './scene-clock.js?v=23.80.0';
+import { buildUnderwear } from './underwear.js?v=23.80.0';
+import { buildDuel } from './duel.js?v=23.80.0';
+import { buildPregnancy } from './pregnancy.js?v=23.80.0';
+import { buildPostpartum } from './postpartum.js?v=23.80.0';
+import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды, датаЗачатия } from './conception.js?v=23.80.0';
+import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.80.0';
+import { parseSceneDate } from '../history-analyzer.js?v=23.80.0';
+import { settings, настройка } from '../settings.js?v=23.80.0';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.80.0';
+import { видСостоянияТела } from './extras.js?v=23.80.0';
+import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом } from './views-fields.js?v=23.80.0';
+import { parseRelationList } from './relations-graph.js?v=23.80.0';
+import { отложитьРисунок } from './lazy-svg.js?v=23.80.0';
+import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.80.0';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.80.0';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле', 'состояние тела'];
@@ -478,13 +478,15 @@ export function контекстЗачатия(данные, партнёры = 
 // для вёрстки (display: contents), и шапка выглядит как раньше.
 function портретВРамке(ава, имя) {
   const коротко = имяДляВкладки(имя);
-  return `<span class="hud-ava-wrap" data-name="${escapeHtml(коротко)}"><span class="hud-ava-in">${ава}</span><i class="hud-ava-deco" aria-hidden="true"></i></span>`;
+  return `<span class="hud-ava-wrap" data-name="${escapeHtml(коротко)}"><span class="hud-ava-in">${ава}</span><i class="hud-ava-deco" aria-hidden="true"></i><i class="hud-scene-a" aria-hidden="true"></i></span>`;
 }
 // Сургуч и картинка в углу шапки: пустые узлы, видны только когда
 // включены (классы на <html>, css/deco.css) — без пересборки карточки.
-const УКРАШЕНИЯ_ШАПКИ = '<i class="hud-head-wax" aria-hidden="true"></i><i class="hud-head-orn" aria-hidden="true"></i><i class="hud-pendant" aria-hidden="true"></i><i class="hud-label-badge" aria-hidden="true"></i>';
-// Лист бумаги поверх вкладки: состаренные края и сгибы письма.
-const СЛОЙ_БУМАГИ = '<i class="hud-paper" aria-hidden="true"></i><i class="hud-dragon" aria-hidden="true"></i>';
+// .hud-scene-h — слой рисунков темы в шапке (css/scenes.css).
+const УКРАШЕНИЯ_ШАПКИ = '<i class="hud-head-wax" aria-hidden="true"></i><i class="hud-head-orn" aria-hidden="true"></i><i class="hud-pendant" aria-hidden="true"></i><i class="hud-label-badge" aria-hidden="true"></i><i class="hud-scene-h" aria-hidden="true"></i>';
+// Лист бумаги поверх вкладки: состаренные края и сгибы письма. Рядом —
+// слой рисунков темы под плашками (css/scenes.css).
+const СЛОЙ_БУМАГИ = '<i class="hud-paper" aria-hidden="true"></i><i class="hud-dragon" aria-hidden="true"></i><i class="hud-scene-b" aria-hidden="true"></i>';
 // Подпись в конце вкладки (Кастомизация → «Мысли, заголовки, подпись»):
 // имя персонажа с виньетками. Узел есть всегда, виден по классу на <html>.
 // Как в шапке — без приставки карточки («THE REGENTS  Tristan Kingsley» → «Tristan Kingsley»).
@@ -556,13 +558,33 @@ const имяСтолбиком = (имя) => настройка('verticalName') 
 // одной колонкой текста шапки. У игрока профиля нет: он не «приходится» сам себе.
 function текстШапки(имя, данные, игрок = false) {
   const профиль = настройка('headerProfile') === 'on' && данные && !игрок ? профильПерсонажа(данные) : null;
-  const заголовок = `<span class="hud-title" title="${escapeHtml(имя)}">${escapeHtml(имяБезПриставки(имя))}</span>`;
+  const заголовок = `<span class="hud-title" title="${escapeHtml(имя)}">${escapeHtml(имяБезПриставки(имя))}</span><i class="hud-scene-n" aria-hidden="true"></i>`;
   const ханко = настройка('nameHanko') === 'on' ? `<span class="hud-hanko" aria-hidden="true">${букваИмени(имя)}</span>` : '';
   const значки = ханко + (профиль && профиль.значки ? профиль.значки : '');
   const строкаИмени = значки ? `<div class="hud-prof-namebar">${заголовок}${значки}</div>` : заголовок;
   const день = настройка('dayCount') === 'on' && данные ? подписьДня(данные.__деньСюжета) : '';
   const визитка = настройка('headerStyle') === 'visit' && данные ? подписьВизитки(данные) : '';
-  return `<div class="hud-header-text">${строкаИмени}${день}${визитка}${профиль ? профиль.счётчики : ''}</div>`;
+  const эпи = настройка('epigraph') === 'on' && данные && !игрок ? эпиграф(данные) : '';
+  const досье = настройка('dossierTag') === 'on' && !игрок ? ярлыкДосье(имя) : '';
+  // Строка хода под именем у «Кольца-затмения»: дата и время — из переменной карточки.
+  const ход = настройка('eclipseRing') === 'on' && !игрок ? '<span class="hud-turnline" aria-hidden="true"></span>' : '';
+  return `<div class="hud-header-text">${досье}${строкаИмени}${эпи}${ход}${день}${визитка}${профиль ? профиль.счётчики : ''}</div>`;
+}
+
+// Эпиграф под именем (Кастомизация → «Шапка и имя»): первая фраза мыслей,
+// иначе реплик, — коротко, в ✧ ✧. Нет ни того ни другого — эпиграфа нет.
+function эпиграф(данные) {
+  const сырое = (полеОбъекта(данные, 'Мысли', 'Th') || полеОбъекта(данные, 'Реплики', 'L')).replace(/[«»"„“”]/g, '').trim();
+  if (!сырое) return '';
+  let фраза = (сырое.match(/^[^.!?…]{4,}[.!?…]?/) || [сырое])[0].trim();
+  if (фраза.length > 90) фраза = фраза.slice(0, 88).replace(/\s+\S*$/, '') + '…';
+  return `<span class="hud-epigraph">✧ ${escapeHtml(фраза)} ✧</span>`;
+}
+// Ярлык-досье на верхней рамке шапки: номер — от имени, одинаковый каждый ход.
+function ярлыкДосье(имя) {
+  const коротко = имяБезПриставки(String(имя || '').trim());
+  let h = 7; for (const ch of коротко) h = (h * 31 + ch.codePointAt(0)) % 997;
+  return `<span class="hud-dossier" aria-hidden="true"><b>ДОСЬЕ ${String(h).padStart(3, '0')}</b> · ${escapeHtml(коротко)} · <i>допуск огр.</i></span>`;
 }
 
 // «♥ +N за ход» у доверия, когда доверие к игроку выросло в этом ходу.

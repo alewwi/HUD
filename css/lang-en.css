@@ -18,6 +18,9 @@
 /* Пустые «Мир» и «Дневник» в темах: общий текст и свой у каждой темы. */
 :root.hud-lang-en { --th-empty-world: 'No entries yet.'; --th-empty-diary: 'No entries yet.'; }
 :root.hud-lang-en.hud-theme-academia { --th-empty-world: 'The archive for this day is empty.'; --th-empty-diary: 'Not a single entry. The ink is untouched.'; }
+:root.hud-lang-en.hud-theme-darkroom { --th-empty-world: 'The roll is empty — not a single frame.'; --th-empty-diary: 'No prints in the album yet.'; }
+:root.hud-lang-en.hud-theme-teaparty { --th-empty-world: 'The tea is not poured yet.'; --th-empty-diary: 'A clean page — not a single entry.'; }
+:root.hud-lang-en.hud-theme-bujo { --th-empty-world: 'The spread is empty — no entries.'; --th-empty-diary: 'The page waits for its first line.'; }
 :root.hud-lang-en.hud-theme-biopunk { --th-empty-world: 'The culture hasn\'t grown yet.'; --th-empty-diary: 'No samples taken yet.'; }
 :root.hud-lang-en.hud-theme-cyberpunk { --th-empty-world: '// NO SIGNAL — no data for this period'; }
 :root.hud-lang-en.hud-theme-dieselpunk { --th-empty-world: 'No reports. The fuel is at zero.'; --th-empty-diary: 'The logbook is empty.'; }
@@ -37,3 +40,9 @@
 :root.hud-lang-en.hud-theme-voodoo { --th-empty-world: 'The spirits are silent today.'; --th-empty-diary: 'Not a sign all day.'; }
 :root.hud-lang-en.hud-theme-western { --th-empty-world: 'It\'s quiet in town today.'; --th-empty-diary: 'Not a line all day.'; }
 :root.hud-lang-en.hud-theme-witch { --th-empty-world: 'No circle was drawn today.'; --th-empty-diary: 'The grimoire is still clean.'; }
+:root.hud-lang-en.hud-theme-teaparty .hud-twist::after { content: 'DRINK ME'; }
+:root.hud-lang-en.hud-scene-western .hud-os-card .hud-header > .hud-scene-h::before { content: 'WANTED'; }
+:root.hud-lang-en.hud-scene-noir .hud-os-card .hud-header-text .hud-scene-n::before { content: 'CASE № 0417 · ' var(--hud-dateline, ''); }
+:root.hud-lang-en.hud-scene-noir:not(.hud-scene-img) .hud-os-card .hud-header > .hud-scene-h::before { content: 'CLASSIFIED'; }
+:root.hud-lang-en.hud-scene-noir .hud-os-card .hud-header > .hud-scene-h::after { content: 'CASE  № 02'; }
+:root.hud-lang-en.hud-scene-spacehorror .hud-os-card .hud-header > .hud-scene-h::after { content: '12 m'; }

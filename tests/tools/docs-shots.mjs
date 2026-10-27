@@ -68,6 +68,19 @@ const СНИМКИ = [
   { имя: 'scene', вкладка: ['Элеонора', 'Eleanor'], сцена: 'open', элемент: '.hud-scene-widget', служебный: true },
   { имя: 'theme-academia', вкладка: ['Элеонора', 'Eleanor'], сцена: 'open', высота: 938, тема: 'academia' },
   { имя: 'theme-cottage', вкладка: ['Элеонора', 'Eleanor'], сцена: 'open', высота: 938, тема: 'cottage' },
+  // Новые темы и рисунки тем — для проверки, в README не идут.
+  ...['darkroom', 'teaparty', 'bujo', 'biopunk', 'dieselpunk', 'solarpunk', 'voodoo', 'steampunk', 'egypt', 'western', 'noir', 'pirate', 'spaceopera', 'ice', 'ocean', 'spacehorror', 'vamp', 'kawaii', 'witch', 'japan', 'fantasy', 'academia'].map(id => ({ имя: 'theme-' + id, вкладка: ['Элеонора', 'Eleanor'], сцена: 'compact', высота: 1950, тема: id, служебный: true })),
+  // Сцена значками («Без картинок»), короткая карточка.
+  ...['noir', 'vamp', 'biopunk'].map(id => ({ имя: 'svg-' + id, вкладка: ['Элеонора', 'Eleanor'], сцена: 'compact', высота: 1950, тема: id, служебный: true,
+    шаги: "await __shots.вид('noImages', 'on'); __shots.тело().querySelectorAll('.hud-tab-content.active .hud-body > :nth-child(n+7), .hud-tab-content.active .hud-twist').forEach(э => э.style.display = 'none'); await __shots.ждать(600);" })),
+  // Рисунки темы при другом оформлении шапки и на узкой карточке.
+  ...['pirate', 'egypt', 'solarpunk', 'western', 'ocean', 'vamp', 'noir', 'steampunk', 'biopunk', 'voodoo', 'spaceopera'].flatMap(id => Object.entries({"frame":"await __shots.вид('avatarDeco', 'theme'); await __shots.вид('headerOrnament', 'theme');","visit":"await __shots.вид('headerStyle', 'visit');","banner":"await __shots.вид('headerStyle', 'banner');","phone":"window.__ширинаКопии = 360;"}).map(([вар, код]) => ({ имя: 'var-' + id + '-' + вар, вкладка: ['Элеонора', 'Eleanor'], сцена: 'compact', высота: 1950, тема: id, служебный: true,
+    шаги: "window.__ширинаКопии = 548; await __shots.вид('avatarDeco', 'none'); await __shots.вид('headerOrnament', 'off'); await __shots.вид('headerStyle', 'classic');" + код + " __shots.тело().querySelectorAll('.hud-tab-content.active .hud-body > :nth-child(n+7), .hud-tab-content.active .hud-twist').forEach(э => э.style.display = 'none'); await __shots.ждать(700);" }))),
+  // То же, но во вкладке только первые плашки: виден угол вкладки с рисунком сцены.
+  ...['biopunk', 'dieselpunk', 'solarpunk', 'voodoo', 'steampunk', 'egypt', 'western', 'noir', 'pirate', 'spaceopera', 'ice', 'ocean', 'spacehorror', 'vamp', 'kawaii', 'witch'].map(id => ({ имя: 'short-' + id, вкладка: ['Элеонора', 'Eleanor'], сцена: 'compact', высота: 1950, тема: id, служебный: true,
+    шаги: "window.__ширинаКопии = 548; __shots.тело().querySelectorAll('.hud-tab-content.active .hud-body > :nth-child(n+7), .hud-tab-content.active .hud-twist').forEach(э => э.style.display = 'none'); await __shots.ждать(400);" })),
+  ...[['darkroom', 'sepia'], ['darkroom', 'cyan'], ['bujo', 'day']].map(([id, пал]) => ({ имя: `theme-${id}-${пал}`, вкладка: ['Элеонора', 'Eleanor'], сцена: 'open', высота: 1100, тема: id, служебный: true,
+    шаги: `document.querySelector('.hud-theme-palette[data-theme-palette="${пал}"]').click(); await __shots.ждать(1500);` })),
   { имя: 'theme-cyberpunk', вкладка: ['Элеонора', 'Eleanor'], сцена: 'open', высота: 938, тема: 'cyberpunk' },
 ];
 
@@ -181,7 +194,7 @@ window.__shots = {
     const обёртка = document.createElement('div');
     обёртка.id = 'hud-shot';
     обёртка.className = 'mes_text';
-    обёртка.style.cssText = 'position:absolute;left:0;top:0;width:548px;z-index:2147483647;padding:0;margin:0;background:var(--SmartThemeBlurTintColor,#16151a)';
+    обёртка.style.cssText = 'position:absolute;left:0;top:0;width:' + (window.__ширинаКопии || 548) + 'px;z-index:2147483647;padding:0;margin:0;background:var(--SmartThemeBlurTintColor,#16151a)';
     const к = исходник.cloneNode(true);
     // Высоту карточке ставит анимация смены вкладки — у копии её не будет.
     к.style.removeProperty('height');
@@ -257,7 +270,7 @@ async function main() {
   await cdp('Page.navigate', { url: ST });
   await дождаться(`document.getElementById('hud-open-custom')`, 60000);
   // Временный профиль: только язык. Остальное — настройки по умолчанию.
-  await выполнить(`localStorage.setItem('hud_settings', JSON.stringify({ language: '${ЯЗЫК}' })); return true;`);
+  await выполнить(`localStorage.setItem('hud_settings', JSON.stringify({ language: '${ЯЗЫК}', sceneMigration: 1 })); return true;`);
   await cdp('Page.reload');
   await ждать(1500);
   await дождаться(`document.getElementById('hud-open-custom')`, 60000);

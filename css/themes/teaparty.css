@@ -1,0 +1,104 @@
+/* Тема «teaparty» (Чаепитие) — правила под :root.hud-theme-teaparty.
+   Светлая: вместе с ней грузится css/themes/light.css. Идея — «爱丽丝的
+   下午茶 / Alice’s afternoon tea»: шапка-ламбрекен с кружевом, гирлянда
+   флажков, карточка — игральная карта с углами Q♥, вкладки-карты веером,
+   портрет-зеркало с короной, карманные часы, шахматный пол. Рисунки —
+   свои, img/scene/teaparty (tests/tools/build-scenes.cjs). */
+
+.hud-theme-teaparty {
+  --hud-radius: 12px;
+  --lt-paper: rgba(255, 253, 249, .78); --lt-paper-2: rgba(255, 253, 249, .5);
+  --lt-ink: #5e3a4a; --lt-ink-soft: rgba(94, 58, 74, .76);
+  --lt-line: rgba(209, 97, 113, .3); --lt-solid: #fff8ee;
+  --hud-text: #5e3a4a; --hud-text-muted: rgba(94, 58, 74, .76);
+  --hud-border: rgba(209, 97, 113, .34);
+  --tp-rose: #d16171; --tp-rose-d: #b44c5f; --tp-gold: #efc983; --tp-gold-d: #c99a55; --tp-paper: #fff8ee; --tp-pink: #eb9bb6; --tp-pink-s: #fbd9e3; --tp-plum: #6e4f63;
+  --th-empty-world: 'Чай ещё не налит.';
+  --th-empty-diary: 'Страница чистая — ни одной записи.';
+}
+.hud-theme-teaparty .hud-key::after,
+.hud-theme-teaparty .hud-key-label::after { content: ' ♥'; margin-left: 4px; font-size: .85em; color: var(--tp-rose); }
+.hud-theme-teaparty .hud-os-logo { color: var(--tp-gold) !important; font-style: italic; letter-spacing: .04em; text-shadow: 0 1px 0 var(--tp-rose-d); }
+.hud-theme-teaparty .hud-os-logo::after { content: ' ♛'; }
+/* Карточка — игральная карта: розовая рамка и золотая линия внутри. */
+.hud-theme-teaparty .hud-os-card {
+  border: 2px solid var(--tp-rose) !important;
+  box-shadow: inset 0 0 0 5px var(--tp-paper), inset 0 0 0 6.5px var(--tp-gold), 0 14px 30px rgba(110, 79, 99, .22) !important;
+}
+.hud-theme-teaparty .hud-os-card::after { background: url('../../img/scene/teaparty/wall.svg') 0 0 / 96px 96px, var(--hud-bg); }
+/* Шапка — розовый ламбрекен со складками, золотым кантом и кружевом. */
+.hud-theme-teaparty .hud-os-topbar {
+  background: repeating-linear-gradient(90deg, rgba(255,255,255,.12) 0 3px, transparent 3px 16px, rgba(110,40,60,.12) 16px 19px, transparent 19px 26px), linear-gradient(180deg, var(--tp-rose), var(--tp-rose-d)) !important;
+  box-shadow: inset 0 -3px 0 var(--tp-gold), inset 0 -4px 0 var(--tp-gold-d) !important; border: 0 !important; padding-bottom: 12px !important;
+}
+.hud-theme-teaparty .hud-os-topbar :is(.hud-ico, .hud-budget-chip, .hud-os-subtitle) { color: #fffdf9 !important; }
+.hud-theme-teaparty .hud-os-topbar::after {
+  inset: auto 4px 0 4px; width: auto; height: 10px; transform: none; opacity: 1;
+  background: url('../../img/scene/teaparty/lace.svg') 0 0 / 20px 10px repeat-x;
+}
+/* Гирлянда флажков под шапкой. */
+.hud-theme-teaparty .hud-os-wrapper::after {
+  inset: 2px 14px auto; height: 28px; opacity: 1; z-index: 2; pointer-events: none;
+  background: url('../../img/scene/teaparty/bunting.svg') 0 0 / 120px 28px repeat-x;
+}
+.hud-theme-teaparty .hud-tabs-header { padding-top: 30px !important; background: transparent !important; border: 0 !important; gap: 4px !important; }
+/* Вкладки — карты веером, у каждой масть; открытая приподнята. */
+.hud-theme-teaparty .hud-tab { background: #fffdf9 !important; border: 1px solid var(--tp-pink) !important; border-radius: 6px !important; box-shadow: 0 2px 0 var(--tp-pink-s), 0 3px 6px rgba(110, 79, 99, .12) !important; transition: transform .2s; }
+.hud-theme-teaparty .hud-tab:nth-child(odd) { rotate: -2deg; } .hud-theme-teaparty .hud-tab:nth-child(even) { rotate: 1.8deg; }
+.hud-theme-teaparty .hud-tab::before { content: ''; display: inline-block; width: 10px; height: 10px; margin-right: 4px; vertical-align: -1px; background: center / contain no-repeat; }
+.hud-theme-teaparty .hud-tab:nth-child(4n+1)::before { background-image: url('../../img/scene/teaparty/suit-heart.svg'); }
+.hud-theme-teaparty .hud-tab:nth-child(4n+2)::before { background-image: url('../../img/scene/teaparty/suit-spade.svg'); }
+.hud-theme-teaparty .hud-tab:nth-child(4n+3)::before { background-image: url('../../img/scene/teaparty/suit-diamond.svg'); }
+.hud-theme-teaparty .hud-tab:nth-child(4n)::before { background-image: url('../../img/scene/teaparty/suit-club.svg'); }
+.hud-theme-teaparty .hud-tab.active { background: var(--tp-rose) !important; color: #fffdf9 !important; border-color: var(--tp-gold) !important; rotate: 0deg; translate: 0 -3px; box-shadow: 0 6px 12px rgba(180, 76, 95, .3), inset 0 0 0 2px var(--tp-paper) !important; }
+.hud-theme-teaparty .hud-tab.active::before { background-image: url('../../img/scene/teaparty/suit-heart-white.svg') !important; }
+/* Углы карты «Q♥» и шахматный пол по низу вкладки. */
+.hud-theme-teaparty .hud-tab-content { position: relative; }
+.hud-theme-teaparty .hud-tab-content::before {
+  content: ''; position: absolute; inset: 6px 6px 22px; pointer-events: none; z-index: 0;
+  background: url('../../img/scene/teaparty/pip-tl.svg') left top / 16px 26px no-repeat, url('../../img/scene/teaparty/pip-br.svg') right bottom / 16px 26px no-repeat;
+}
+.hud-theme-teaparty .hud-tab-content::after {
+  content: ''; position: absolute; left: 6px; right: 6px; bottom: 0; height: 14px; pointer-events: none; opacity: .5; border-top: 2px solid var(--tp-gold);
+  background: conic-gradient(var(--tp-rose) 25%, var(--tp-paper) 0 50%, var(--tp-rose) 0 75%, var(--tp-paper) 0) 0 0 / 14px 14px;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent); mask: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+}
+.hud-theme-teaparty .hud-tabs-body { padding-bottom: 20px !important; }
+.hud-theme-teaparty .hud-header, .hud-theme-teaparty .hud-body { padding-left: 26px !important; }
+/* Портрет — овальное зеркало в золотой раме, с короной. */
+.hud-theme-teaparty .hud-header:not(.has-banner) :is(.hud-avatar, .hud-avatar-placeholder) {
+  border-radius: 50% / 46% !important; box-shadow: 0 0 0 3px var(--tp-paper), 0 0 0 5px var(--tp-gold), 0 0 0 6px var(--tp-gold-d), 0 4px 10px rgba(110, 79, 99, .3) !important;
+}
+.hud-theme-teaparty .hud-header:not(.has-banner) .hud-ava-wrap { display: inline-grid; place-items: center; position: relative; flex-shrink: 0; }
+.hud-theme-teaparty .hud-header:not(.has-banner) .hud-ava-wrap::before {
+  content: ''; position: absolute; left: 50%; top: -14px; width: 30px; height: 20px; translate: -50% 0; rotate: -9deg; z-index: 3; pointer-events: none;
+  background: url('../../img/scene/teaparty/crown.svg') center / contain no-repeat;
+}
+:root.hud-ava-framed.hud-theme-teaparty .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap::before { content: none; }
+/* Имя — курсивом, с золотым росчерком. */
+.hud-theme-teaparty .hud-title { color: var(--tp-rose-d) !important; font-style: italic; padding-bottom: 9px; background: url('../../img/scene/teaparty/flourish.svg') left bottom / 140px 13px no-repeat; }
+/* Карманные часы на цепочке вместо значка шапки — качаются под курсором. */
+.hud-theme-teaparty .hud-header::after {
+  top: 0; right: 16px; width: 30px; height: 52px; transform: none; opacity: 1; transform-origin: 50% 0;
+  background-image: url('../../img/scene/teaparty/watch.svg'); filter: drop-shadow(0 2px 2px rgba(110, 79, 99, .3));
+  animation: hud-tp-swing 3.4s ease-in-out infinite; animation-play-state: paused;
+}
+@media (hover: hover) and (pointer: fine) { .hud-theme-teaparty .hud-os-card:hover .hud-header::after { transform: none; animation-play-state: running; } }
+.hud-theme-teaparty .hud-os-card.fx-bg .hud-header::after { animation-play-state: running; }
+@keyframes hud-tp-swing { 0%, 100% { rotate: 6deg; } 50% { rotate: -6deg; } }
+/* Поля — карточки из кремовой бумаги с розовым пунктиром. */
+.hud-theme-teaparty .hud-body > :is(.hud-row, .hud-key-block) { border: 1px dashed rgba(209, 97, 113, .45) !important; box-shadow: 0 2px 0 var(--tp-pink-s) !important; }
+.hud-theme-teaparty .hud-key, .hud-theme-teaparty .hud-key-label { color: var(--tp-rose-d) !important; font-variant: small-caps; letter-spacing: .05em; }
+.hud-theme-teaparty .hud-age-num { color: var(--tp-rose-d) !important; }
+/* Поворот сюжета — с биркой «Выпей меня». */
+.hud-theme-teaparty .hud-twist { position: relative; overflow: visible !important; border: 1.5px dashed var(--tp-pink) !important; }
+.hud-theme-teaparty .hud-twist::after {
+  content: 'ВЫПЕЙ МЕНЯ'; position: absolute; right: 118px; top: -13px; z-index: 3; padding: 4px 9px 4px 16px; pointer-events: none;
+  font: 700 9.5px/1 Georgia, serif; letter-spacing: .12em; color: var(--tp-plum); background: radial-gradient(circle at 7px 50%, var(--tp-paper) 0 2.2px, var(--tp-gold-d) 2.6px 3.4px, transparent 3.8px), #ffe7cb;
+  border: 1px solid var(--tp-gold-d); clip-path: polygon(9px 0, 100% 0, 100% 100%, 9px 100%, 0 50%); rotate: 6deg;
+}
+/* Значки темы: чашка и чайник. */
+.hud-theme-teaparty .hud-body::after { background-image: url('../../img/scene/teaparty/cup.svg'); }
+.hud-theme-teaparty .hud-world-section::after { background-image: url('../../img/scene/teaparty/teapot.svg'); }
+.hud-theme-teaparty .hud-memory-body::before { background-image: url('../../img/scene/teaparty/cup.svg'); }
+:root.hud-theme-teaparty { --cb-off: '♡'; --cb-on: '♥'; }

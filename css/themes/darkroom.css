@@ -1,0 +1,66 @@
+/* Тема «darkroom» (Фотолаборатория) — правила под :root.hud-theme-darkroom.
+   Грузится только выбранная тема (themes.js, applyThemeClass). Идея —
+   «银盐显影 / Silver Gelatin»: отпечаток с зерном, вкладки — негатив с
+   перфорацией и номерами кадров, открытая обведена красным карандашом,
+   погода сцены тонирована виражом палитры, новая карточка «проявляется». */
+
+.hud-theme-darkroom {
+  --hud-radius: 2px;
+  --dr-film: #0a0608; --dr-perf: #463d43; --dr-pencil: #c2382f;
+  --th-empty-world: 'Плёнка пуста — ни одного кадра.';
+  --th-empty-diary: 'В альбоме ещё нет снимков.';
+}
+.hud-theme-darkroom .hud-key::after,
+.hud-theme-darkroom .hud-key-label::after { content: ' ▪'; margin-left: 4px; font-size: .9em; opacity: .7; }
+.hud-theme-darkroom .hud-os-logo { letter-spacing: .3em; text-transform: uppercase; font-size: .82em; }
+.hud-theme-darkroom .hud-os-logo::after { content: ' ◐'; color: var(--dr-pencil); }
+/* Отпечаток: баритовая бумага с зерном. */
+.hud-theme-darkroom .hud-os-card::after {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5 0 0 0 0 .5 0 0 0 0 .5 0 0 0 .14 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),
+    radial-gradient(circle at 92% 0%, rgba(190, 30, 24, .16), transparent 42%),
+    var(--hud-bg);
+}
+.hud-theme-darkroom .hud-os-card { border: 1px solid color-mix(in srgb, var(--hud-text-muted) 40%, transparent) !important; }
+.hud-theme-darkroom .hud-os-topbar { border-bottom: 1px solid color-mix(in srgb, var(--hud-text-muted) 30%, transparent); }
+/* Вкладки — негатив: перфорация сверху и снизу, кадры через черту. */
+.hud-theme-darkroom .hud-tabs-header {
+  counter-reset: hud-frame 11; gap: 0 !important; padding-top: 12px !important; padding-bottom: 12px !important;
+  background:
+    repeating-linear-gradient(90deg, var(--dr-perf) 0 7px, transparent 7px 17px) 0 3px / 100% 5px no-repeat,
+    repeating-linear-gradient(90deg, var(--dr-perf) 0 7px, transparent 7px 17px) 0 calc(100% - 3px) / 100% 5px no-repeat,
+    var(--dr-film) !important;
+}
+.hud-theme-darkroom .hud-tab { counter-increment: hud-frame; position: relative; background: transparent !important; border: 0 !important; border-left: 1px solid #2e262b !important; border-radius: 0 !important; box-shadow: none !important; }
+.hud-theme-darkroom .hud-tab::before { content: counter(hud-frame) 'A'; position: absolute; right: 3px; bottom: -2px; font: 8px/1 'Courier New', monospace; letter-spacing: .05em; color: var(--dr-pencil); opacity: .75; pointer-events: none; }
+.hud-theme-darkroom .hud-tab.active { color: var(--hud-text) !important; }
+.hud-theme-darkroom .hud-tab.active::after { content: ''; position: absolute; inset: 1px -3px 0; border: 2px solid var(--dr-pencil); border-radius: 48% 52% 45% 55% / 60% 50% 55% 45%; rotate: -2.5deg; opacity: .9; pointer-events: none; }
+:root.hud-tab-bow.hud-theme-darkroom .hud-os-card .hud-tabs-header .hud-tab.active::after { border: 0; }
+/* Погода сцены — в вираже палитры: селен, сепия, цианотипия, платина. */
+.hud-theme-darkroom .hud-scene-widget { filter: grayscale(1) contrast(1.08) sepia(.18) hue-rotate(250deg); }
+:root.hud-theme-darkroom[data-hud-pal="sepia"] .hud-scene-widget { filter: grayscale(1) contrast(1.05) sepia(.8); }
+:root.hud-theme-darkroom[data-hud-pal="cyan"] .hud-scene-widget { filter: grayscale(1) sepia(1) hue-rotate(175deg) saturate(2.4) brightness(.85) contrast(1.1); }
+:root.hud-theme-darkroom[data-hud-pal="platinum"] .hud-scene-widget { filter: grayscale(1) contrast(1.02) sepia(.35); }
+/* Портрет — чёрно-белый контакт; под курсором — в цвете. */
+.hud-theme-darkroom .hud-header:not(.has-banner) .hud-avatar { filter: grayscale(1) contrast(1.05); transition: filter .4s; border-radius: 1px !important; }
+@media (hover: hover) and (pointer: fine) { .hud-theme-darkroom .hud-header:not(.has-banner) .hud-avatar:hover { filter: none; } }
+.hud-theme-darkroom .hud-title { letter-spacing: .04em; }
+.hud-theme-darkroom .hud-key { text-transform: uppercase; letter-spacing: .1em; }
+/* Последняя карточка «проявляется»: выходит из белого за пару секунд. */
+.hud-theme-darkroom .last_mes .hud-os-card > .hud-os-wrapper { animation: hud-develop 3s ease-out both; }
+@keyframes hud-develop { 0% { filter: contrast(.1) brightness(1.8) blur(1.2px); } 55% { filter: contrast(.7) brightness(1.15) blur(.3px); } 100% { filter: none; } }
+@media (prefers-reduced-motion: reduce) { .hud-theme-darkroom .last_mes .hud-os-card > .hud-os-wrapper { animation: none; } }
+/* Краевая маркировка плёнки в конце вкладки: дата и время хода. */
+.hud-theme-darkroom .hud-tabs-body { position: relative; padding-bottom: 26px !important; }
+.hud-theme-darkroom .hud-tabs-body::before {
+  content: 'TAVERNOS 400  ▸ ' var(--hud-dateline, '') '  ▸ 15A'; position: absolute; left: 10px; right: 10px; bottom: 4px; padding-bottom: 8px;
+  font: 10px/1 'Courier New', monospace; letter-spacing: .28em; color: var(--hud-text-muted); white-space: nowrap; overflow: hidden; pointer-events: none;
+  background: repeating-linear-gradient(90deg, #2e262b 0 7px, transparent 7px 17px) left bottom / 100% 5px no-repeat;
+}
+/* Значки темы: фотоаппарат, кассета, плёнка. */
+.hud-theme-darkroom .hud-header::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a89ea4' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='7' width='18' height='12' rx='2'/%3E%3Cpath d='M8 7l1.5-2.5h5L16 7'/%3E%3Ccircle cx='12' cy='13' r='3.6'/%3E%3Ccircle cx='17.6' cy='9.6' r='.7' fill='%23c2382f' stroke='none'/%3E%3C/svg%3E"); }
+.hud-theme-darkroom .hud-body::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a89ea4' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='5' y='5' width='10' height='14' rx='1.5'/%3E%3Cpath d='M7 3h6M7 21h6'/%3E%3Cpath d='M15 9h4v6h-4'/%3E%3Cpath d='M17 9v6' stroke-dasharray='1 1.4'/%3E%3C/svg%3E"); }
+.hud-theme-darkroom .hud-os-topbar::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a89ea4' stroke-width='1.1' stroke-linecap='round'%3E%3Crect x='2' y='6' width='20' height='12' rx='1'/%3E%3Cpath d='M2 9h20M2 15h20M8 9v6M14 9v6' opacity='.7'/%3E%3C/svg%3E"); }
+.hud-theme-darkroom .hud-world-section::after { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a89ea4' stroke-width='1.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 3h8l-1 5H9z'/%3E%3Cpath d='M12 8v6'/%3E%3Cpath d='M5 20h14l-2-6H7z'/%3E%3C/svg%3E"); }
+.hud-theme-darkroom .hud-memory-body::before { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a89ea4' stroke-width='1.1' stroke-linecap='round'%3E%3Crect x='4' y='4' width='12' height='14' rx='1' transform='rotate(-6 10 11)'/%3E%3Crect x='8' y='6' width='12' height='14' rx='1' transform='rotate(6 14 13)'/%3E%3C/svg%3E"); }
+:root.hud-theme-darkroom { --cb-off: '○'; --cb-on: '◉'; }

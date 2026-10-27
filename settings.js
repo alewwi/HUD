@@ -179,6 +179,15 @@ export const defaultSettings = {
   // Бумага вместо зерна: состаренный лист, рваный низ плашек, сгибы
   // письма и сургучная печать в шапке. Каждое — отдельно, 'on' | 'off'.
   paperAged: 'off', paperTorn: 'off', paperFolds: 'off', waxSeal: 'off',
+  // Рисунки темы (css/scenes.css): сцена по краям карточки и под плашками —
+  // свои значки или картинки. off | auto | id темы, у которой есть сцена.
+  // noImages: 'on' — сцена «Авто» рисуется значками, а не картинками; всё
+  // остальное оформление (рамки, угол шапки) не трогает.
+  themeScene: 'auto', noImages: 'off',
+  // Мелкие украшения из стенда идей (css/scenes.css), 'on' | 'off' | 'auto':
+  // тушь (двойная линия и мысли полосой туши), кот на краю карточки, ярлык-
+  // досье, имя в 「」 с эпиграфом из мыслей, кольцо-затмение и подпись хода.
+  inkWash: 'auto', peekCat: 'auto', dossierTag: 'auto', epigraph: 'auto', eclipseRing: 'auto',
   // Титры в конце сцены: on | off.
   sceneCredits: 'off',
   // Фаза луны по игровой дате: плашка в погоде и тень на луне в небе.
@@ -511,10 +520,19 @@ const ПО_ТЕМЕ = {
   hangPendant: 'japan',
   lineWave: 'japan kawaii witch',
   bgDragon: 'fantasy',
+  themeScene: Object.fromEntries(['biopunk', 'dieselpunk', 'solarpunk', 'voodoo', 'steampunk', 'egypt', 'western', 'noir', 'pirate', 'spaceopera', 'ice', 'ocean', 'spacehorror', 'vamp', 'kawaii', 'witch'].map(id => [id, id])),
+  inkWash: 'japan',
+  peekCat: 'witch',
+  dossierTag: 'biopunk',
+  epigraph: 'academia',
+  eclipseRing: 'fantasy',
 };
 // У всех тем сразу: читаемые заголовки, сердечки, прокрутка, плашка генерации.
 const ВСЕМ_ТЕМАМ = { lightHeadings: 'on', trustHearts: 'on', themedScroll: 'on', genIndicator: 'on', themedControls: 'on' };
-const ВЫКЛЮЧЕНО = { sectionSkin: '', headerStyle: 'classic', nameStyle: 'plain', groupDividers: 'off' };
+const ВЫКЛЮЧЕНО = { sectionSkin: '', headerStyle: 'classic', nameStyle: 'plain', groupDividers: 'off', themeScene: 'off' };
+// Темы, у которых есть сцена (css/scenes.css): значками и картинками.
+export const СЦЕНЫ_ЗНАЧКИ = ['biopunk', 'dieselpunk', 'solarpunk', 'voodoo', 'steampunk', 'egypt', 'western', 'noir', 'pirate', 'spaceopera', 'ice', 'ocean', 'spacehorror', 'vamp'];
+export const СЦЕНЫ_КАРТИНКИ = ['vamp', 'noir', 'biopunk', 'spacehorror', 'ocean', 'pirate', 'steampunk', 'egypt', 'western', 'kawaii', 'solarpunk', 'ice', 'voodoo', 'witch'];
 export function настройка(ключ) {
   const v = settings[ключ];
   if (v !== 'auto') return v;
@@ -533,4 +551,9 @@ export const МИНИМАЛИЗМ = {
   pillColors: 'mono', pillIcons: 'off', pillStyle: 'plain',
   avatarDeco: 'none', headerOrnament: 'off',
   ...Object.fromEntries(КЛЮЧИ_АВТО.map(к => [к, к in ВЫКЛЮЧЕНО ? ВЫКЛЮЧЕНО[к] : 'off'])),
+  // Рисунки темы остаются — своими значками, без картинок.
+  themeScene: 'auto', noImages: 'on',
 };
+// «Дефолт» (Кастомизация → Вид блоков): ключи «Отображения» из настроек,
+// которые тоже возвращаются к заводским — вид значков, пояснения, сводки.
+export const КЛЮЧИ_ОТОБРАЖЕНИЯ = ['showHints', 'iconSet', 'summaryCards', 'memoryMaxHeight'];

@@ -281,11 +281,11 @@
 
 /* Светлые темы: белые полутона на светлой бумаге пропадают. Кошелёк и
    сутки остаются тёмными карточками. */
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-life {
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-life {
   --life-sleep: #3f6fb0; --life-warn: #b56a1c;
 }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-life :is(.hud-life-item, .hud-life-wlist li:nth-child(odd)) { box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-life :is(.hud-life-alert, .hud-life-alert.is-cold, .hud-life-night small) { color: inherit; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-life :is(.hud-life-item, .hud-life-wlist li:nth-child(odd)) { box-shadow: inset 0 0 0 1px rgba(0,0,0,.12); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-life :is(.hud-life-alert, .hud-life-alert.is-cold, .hud-life-night small) { color: inherit; }
 
 /* Телефон: четыре кольца в ряд поменьше; в плашке суток — один значок и счётчик. */
 @container (max-width: 460px) {
@@ -327,9 +327,9 @@
 .hud-life-wardrobe-head b { overflow-wrap: break-word; }
 .hud-life .hud-life-prices, .hud-life .hud-life-debts, .hud-life .hud-life-home, .hud-life .hud-life-dreams, .hud-life .hud-life-wlist, .hud-life .hud-life-day-legend, .hud-life .hud-life-meals { grid-template-columns: minmax(0, 1fr); }
 .hud-life :is(ul, ol) > li { min-width: 0; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-life-night b { color: #6a4fc0; }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-life-nights { background: linear-gradient(180deg, rgba(60,80,160,.12), rgba(0,0,0,.03)); }
-:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate) .hud-life-dreams .hud-v-ico { color: #6a4fc0; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-life-night b { color: #6a4fc0; }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-life-nights { background: linear-gradient(180deg, rgba(60,80,160,.12), rgba(0,0,0,.03)); }
+:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-life-dreams .hud-v-ico { color: #6a4fc0; }
 /* «Надо бы» — над краем плитки, не на подписи таймера. */
 .hud-life-nudge { top: -11px; right: 6px; font-size: .6em; padding: 0 7px; }
 .hud-life-timer:has(.hud-life-nudge) { margin-top: 4px; }

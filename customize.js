@@ -5,23 +5,23 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES } from './themes.js?v=23.79.6';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО } from './settings.js?v=23.79.6';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.79.6';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.79.6';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.79.6';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.79.6';
-import { hudБлоки } from './hud-block.js?v=23.79.6';
-import { parseHUDComplex } from './hud-parser.js?v=23.79.6';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.79.6';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.79.6';
-import { английский } from './i18n.js?v=23.79.6';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.80.0';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, КЛЮЧИ_ОТОБРАЖЕНИЯ, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ } from './settings.js?v=23.80.0';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.80.0';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.80.0';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.80.0';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.80.0';
+import { hudБлоки } from './hud-block.js?v=23.80.0';
+import { parseHUDComplex } from './hud-parser.js?v=23.80.0';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.80.0';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.80.0';
+import { английский, т } from './i18n.js?v=23.80.0';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 const пример = () => (английский() ? ПРИМЕР_EN : ПРИМЕР_RU);
-import { задатьПримерСемьи } from './render/conception.js?v=23.79.6';
-import { привязатьИсторию } from './render/intimacy.js?v=23.79.6';
-import { пометитьЭффекты } from './render/fx.js?v=23.79.6';
-import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.79.6';
+import { задатьПримерСемьи } from './render/conception.js?v=23.80.0';
+import { привязатьИсторию } from './render/intimacy.js?v=23.80.0';
+import { пометитьЭффекты } from './render/fx.js?v=23.80.0';
+import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.80.0';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -141,6 +141,18 @@ export function разметкаПанелиТемы() {
             ${основа.выбор('verticalName', 'Имя столбиком', 'Имя сверху вниз между портретом и строкой имени, как подпись на свитке.', [['off', 'Нет'], ['on', 'Да']])}
             ${основа.выбор('dayCount', 'Счёт дней сюжета', 'Под именем — какой сейчас день сюжета, считая от первой даты сцены в чате. У каждой темы своё слово: «Ночь 14-я» у Вампира, «Страница 14» у Академии, «Дубль 14» у Нуара.', [['off', 'Нет'], ['on', 'Показывать']])}
             ${основа.выбор('headerOrnament', 'Картинка в углу шапки', 'Украшение справа в шапке персонажа вместо значка темы. «Авто» — есть у Вампира, Японии, Океана, Каваи, Льда, Уюта, Космооперы, Вуду и Ведьмы.', [['off', 'Нет'], ['theme', 'Авто (по теме)'], ...основа.УГЛЫ_ШАПКИ])}
+            ${основа.выбор('epigraph', 'Эпиграф под именем', 'Имя в скобках 「」, под ним — первая фраза из мыслей (или реплик) персонажа, курсивом.', [['off', 'Нет'], ['on', 'Да']])}
+            ${основа.выбор('dossierTag', 'Ярлык-досье', 'Над именем — чёрная бирка «Досье № … · имя · допуск огр.» с кромкой цвета темы.', [['off', 'Нет'], ['on', 'Да']])}
+            ${основа.выбор('eclipseRing', 'Кольцо-затмение', 'Портрет в золотом кольце с тенью луны, под именем — строка хода с датой и временем, в конце вкладки — разделитель ✧.', [['off', 'Нет'], ['on', 'Да']])}
+          </div></details>
+          <details class="hud-custom-sub hud-smooth"><summary>Рисунки темы</summary>
+          <div class="hud-theme-grid">
+            ${основа.выбор('themeScene', 'Рисунки темы', 'Сцена по краям карточки, в шапке, у портрета и под плашками. «Авто» — у каждой темы своя; можно взять сцену другой темы. Картинки встают на место значков, если «Без картинок» выключено или они выбраны здесь руками.', [['off', 'Нет'],
+              ...СЦЕНЫ_ЗНАЧКИ.map(id => [id, (getTheme(id) || {}).label || id]),
+              ...СЦЕНЫ_КАРТИНКИ.map(id => ['img:' + id, английский() ? т((getTheme(id) || {}).label || id) + ' — pictures' : ((getTheme(id) || {}).label || id) + ' — картинки'])])}
+            ${основа.выбор('noImages', 'Без картинок', 'Рисунки темы — только своими значками, без картинок. Рамки, значки плашек и остальное оформление не меняются. Картинки, выбранные в «Рисунках темы» руками, остаются.', [['off', 'Нет'], ['on', 'Да']])}
+            ${основа.выбор('inkWash', 'Тушь', 'Двойная линия цвета темы, растворяющаяся к краям вкладки; мысли и «Ключевое» — полосой туши.', [['off', 'Нет'], ['on', 'Да']])}
+            ${основа.выбор('peekCat', 'Кот на краю', 'Из-за полосы TavernOS выглядывает чёрный кот с жёлтыми глазами, обведённый цветом темы.', [['off', 'Нет'], ['on', 'Да']])}
           </div></details>
           <details class="hud-custom-sub hud-smooth"><summary>Украшения вкладки</summary>
           <div class="hud-theme-grid">
@@ -205,7 +217,7 @@ export function разметкаПанелиТемы() {
             + (б.ключ === 'postpartumView' ? `<div class="hud-theme-row"><label>Менструальный цикл:</label><select class="hud-theme-select-input hud-custom-rerender" data-key="cycleView">${Object.entries(ВИДЫ_ЦИКЛА).map(([k, имя]) => `<option value="${k}"${(s.cycleView || 'ring') === k ? ' selected' : ''}>${имя}</option>`).join('')}</select></div>`
               + основа.выбор('cycleLibido', 'Влечение под циклом', 'Линия — склонность по фазе, её считает HUD; точки — желание из близости, когда о нём писали', [['phase+actual', 'Фаза и как было'], ['phase', 'Только по фазе'], ['off', 'Не показывать']]) : '')).join('')
           + `</div></details>`).join('')}
-          <div class="hud-theme-row hud-custom-minimal"><button type="button" class="hud-theme-act hud-custom-minimal-btn" title="Один цвет, без значков, одинаковое оформление — и без украшений из тем: рамок, картинок, разделителей, бумаги, печати, эффектов имени, мелочей, особых галочек">◻ Минимализм</button><button type="button" class="hud-theme-act hud-custom-rich-btn" title="Вернуть всё, как было до «Минимализма»: цвета по смыслу, значки, оформление полей и украшения — и виды блоков по умолчанию">✦ Как было</button><button type="button" class="hud-theme-act hud-custom-auto-btn" title="Все украшения из тем — рамка, углы, разделители, бумага, имя, мелочи — на «Авто»: у каждой темы свои">✦ Всё по теме</button></div>
+          <div class="hud-theme-row hud-custom-minimal"><button type="button" class="hud-theme-act hud-custom-minimal-btn" title="Один цвет, без значков, одинаковое оформление — и без украшений из тем: рамок, картинок, разделителей, бумаги, печати, эффектов имени, мелочей, особых галочек. Рисунки темы остаются — значками, без картинок">◻ Минимализм</button><button type="button" class="hud-theme-act hud-custom-rich-btn" title="Вернуть всё, как было до «Минимализма»: цвета по смыслу, значки, оформление полей и украшения — и виды блоков по умолчанию">✦ Как было</button><button type="button" class="hud-theme-act hud-custom-auto-btn" title="Все украшения из тем — рамка, углы, разделители, бумага, имя, мелочи — на «Авто»: у каждой темы свои">✦ Всё по теме</button><button type="button" class="hud-theme-act hud-custom-default-btn" title="Всё оформление — как задумано с самого начала, по умолчанию: виды блоков, украшения, рисунки темы, новое оформление и отображение. Тема и цвета не меняются">⟲ Дефолт</button></div>
           <div class="hud-theme-presets-note">Вид блока цикла и секций у персонажей и у игрока. Справа видно сразу; карточки в чате перерисуются, когда закроешь окно.</div>
         </details>
         ${разметкаНовинок()}
@@ -655,12 +667,21 @@ export function открытьКастомизацию() {
       const как_было = e.target.closest('.hud-custom-rich-btn')
         ? { ...заводские, pillColors: 'smart', pillIcons: 'on', pillStyle: 'fields', ...(settings.minimalBackup || {}), ...видыБлоков } : null;
       if (как_было) delete settings.minimalBackup;
+      // «Дефолт»: заводские значения всего, что настраивается в «Виде блоков»
+      // и «Новом оформлении», плюс «Отображение» — не то, что выбрал игрок.
+      const поУмолчанию = e.target.closest('.hud-custom-default-btn') ? (() => {
+        const ключи = new Set([...Object.keys(МИНИМАЛИЗМ), ...Object.keys(видыБлоков), ...КЛЮЧИ_ОТОБРАЖЕНИЯ,
+          ...[...окно.querySelectorAll('details[data-sec="views"] [data-key], details[data-sec="labs"] [data-key]')].map(п => п.dataset.key)]);
+        delete settings.minimalBackup;
+        return Object.fromEntries([...ключи].filter(к => defaultSettings[к] !== undefined).map(к => [к, defaultSettings[к]]));
+      })() : null;
       const набор = минимализм ? { ...МИНИМАЛИЗМ }
+        : поУмолчанию ? поУмолчанию
         : как_было ? как_было
         : e.target.closest('.hud-custom-auto-btn') ? { ...Object.fromEntries(КЛЮЧИ_АВТО.map(к => [к, 'auto'])), avatarDeco: 'theme', headerOrnament: 'theme' } : null;
       if (набор) {
         Object.assign(settings, набор);
-        for (const [ключ, значение] of Object.entries(набор)) окно.querySelectorAll(`[data-key="${ключ}"]`).forEach(поле => { поле.value = значение; });
+        for (const [ключ, значение] of Object.entries(набор)) document.querySelectorAll(`[data-key="${ключ}"]`).forEach(поле => { if (поле.type === 'checkbox') поле.checked = значение === true || значение === 'on'; else поле.value = значение; });
         основа.saveSettings(); основа.applyThemeColors();
         основа.видыМенялись = true;
         собратьПросмотр(окно);

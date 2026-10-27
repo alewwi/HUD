@@ -18,8 +18,8 @@
 // Ключи в vars — те же, что в settings.js. Незнакомые ключи не пишем: их
 // applyThemeColors() всё равно не читает.
 
-import { settings, defaultSettings } from './settings.js?v=23.79.6';
-import { последнийСтильHUD } from './css-loader.js?v=23.79.6';
+import { settings, defaultSettings } from './settings.js?v=23.80.0';
+import { последнийСтильHUD } from './css-loader.js?v=23.80.0';
 
 const HUD_THEMES = [
   {
@@ -626,6 +626,83 @@ const HUD_THEMES = [
       fontDiary: "'Share Tech Mono', monospace",
     },
   },
+  {
+    id: 'darkroom', label: 'Фотолаборатория', icon: '🎞', category: 'classic',
+    hint: 'Тьма проявочной и красный фонарь. Негатив вкладками, зерно, вираж снимка.',
+    vars: {
+      glassType: 'clear',
+      textColor: '#c3bfc2', textMutedColor: '#8a8388',
+      accentColor: '#d4473d', glowColor: '#be1e18', glowAlpha: 22,
+      cardBgStart: '#1c1519', cardBgEnd: '#0c070b', cardBgAlpha: 94,
+      infoBlockBgStart: '#241c21', infoBlockBgEnd: '#170f13', infoBlockBgAlpha: 70,
+      memoryBgStart: '#1c1519', memoryBgEnd: '#0c070b', memoryBgAlpha: 92,
+      memoryAccent: '#d4473d', memoryGlowAlpha: 16, memoryBlur: 4,
+      topBarBg: '#0c070b', topBarAlpha: 92, tabsBg: '#0c070b', tabsAlpha: 88,
+      phoneBgStart: '#1c1519', phoneBgEnd: '#0c070b', phoneBgAlpha: 96,
+      phoneAccent: '#d4473d', phoneFrameColor: '#2e262b', phoneScreenGlow: 14,
+      msgInBg: '#c3bfc2', msgInAlpha: 10,
+      msgOutStart: '#7a1c18', msgOutEnd: '#3a0e0c', msgOutAlpha: 88,
+      weatherBgColor: '#0c070b', weatherBgAlpha: 60, weatherBlur: 4,
+      sceneOverlayColor: '#3a0e0c', sceneOverlayAlpha: 14,
+      badgeColor: '#d4473d', dramaColor: '#d4473d', dramaBgAlpha: 15,
+      interceptColor: '#a89ea4', interceptBgAlpha: 12,
+      nsfwColor: '#9a3a44', nsfwBgAlpha: 16,
+      clockColor: '#f4f3f4', backdropBlur: 3,
+      fontMain: "'Courier New', monospace", fontHeaders: "'Playfair Display', serif",
+      fontDiary: "'Courier New', monospace",
+    },
+  },
+  {
+    id: 'teaparty', label: 'Чаепитие', icon: '🫖', category: 'cozy',
+    hint: 'Светлая: роза, крем, слива и золото. Ламбрекен с кружевом, флажки, вкладки-карты.',
+    vars: {
+      textColor: '#5e3a4a', textMutedColor: '#8f6980',
+      accentColor: '#c4505f', glowColor: '#eb9bb6', glowAlpha: 30,
+      cardBgStart: '#fff8ee', cardBgEnd: '#fdeee4', cardBgAlpha: 96,
+      infoBlockBgStart: '#fffdf9', infoBlockBgEnd: '#fff6ee', infoBlockBgAlpha: 88,
+      memoryBgStart: '#fff8ee', memoryBgEnd: '#fbe6e6', memoryBgAlpha: 94,
+      memoryAccent: '#b44c5f', memoryGlowAlpha: 20, memoryBlur: 5,
+      topBarBg: '#d16171', topBarAlpha: 96, tabsBg: '#fff8ee', tabsAlpha: 70,
+      phoneBgStart: '#fff8ee', phoneBgEnd: '#fbd9e3', phoneBgAlpha: 95,
+      phoneAccent: '#c4505f', phoneFrameColor: '#efc983', phoneScreenGlow: 18,
+      msgInBg: '#ffffff', msgInAlpha: 80,
+      msgOutStart: '#eb9bb6', msgOutEnd: '#fbd9e3', msgOutAlpha: 90,
+      weatherBgColor: '#ffffff', weatherBgAlpha: 50, weatherBlur: 4,
+      sceneOverlayColor: '#eb9bb6', sceneOverlayAlpha: 10,
+      badgeColor: '#c4505f', dramaColor: '#b44c5f', dramaBgAlpha: 14,
+      interceptColor: '#8f6980', interceptBgAlpha: 14,
+      nsfwColor: '#b44c5f', nsfwBgAlpha: 15,
+      clockColor: '#5e3a4a', backdropBlur: 4,
+      fontMain: "'Lora', serif", fontHeaders: "'Playfair Display', serif",
+      fontDiary: "'Marck Script', cursive",
+    },
+  },
+  {
+    id: 'bujo', label: 'Буллет-джорнал', icon: '📓', category: 'cozy',
+    hint: 'Страница блокнота в кожаной обложке: сетка точек, скотч, резинка, закладка.',
+    vars: {
+      glassType: 'clear',
+      textColor: '#eae0cf', textMutedColor: '#9fb7c4',
+      accentColor: '#94b4c1', glowColor: '#547792', glowAlpha: 18,
+      cardBgStart: '#22364b', cardBgEnd: '#1d2f42', cardBgAlpha: 97,
+      infoBlockBgStart: '#22364b', infoBlockBgEnd: '#1d2f42', infoBlockBgAlpha: 20,
+      memoryBgStart: '#22364b', memoryBgEnd: '#1d2f42', memoryBgAlpha: 95,
+      memoryAccent: '#c9a77c', memoryGlowAlpha: 14, memoryBlur: 3,
+      topBarBg: '#22364b', topBarAlpha: 40, tabsBg: '#22364b', tabsAlpha: 30,
+      phoneBgStart: '#22364b', phoneBgEnd: '#142233', phoneBgAlpha: 96,
+      phoneAccent: '#94b4c1', phoneFrameColor: '#243a52', phoneScreenGlow: 14,
+      msgInBg: '#eae0cf', msgInAlpha: 12,
+      msgOutStart: '#547792', msgOutEnd: '#2f4a63', msgOutAlpha: 88,
+      weatherBgColor: '#1d2f42', weatherBgAlpha: 55, weatherBlur: 3,
+      sceneOverlayColor: '#142233', sceneOverlayAlpha: 14,
+      badgeColor: '#c85a4b', dramaColor: '#c9a77c', dramaBgAlpha: 15,
+      interceptColor: '#94b4c1', interceptBgAlpha: 13,
+      nsfwColor: '#c85a4b', nsfwBgAlpha: 15,
+      clockColor: '#eae0cf', backdropBlur: 2,
+      fontMain: "'Courier New', monospace", fontHeaders: "'Courier New', monospace",
+      fontDiary: "'Caveat', cursive",
+    },
+  },
 ];
 
 // Палитры тем: другие цветовые решения той же темы. Палитра задаёт главные
@@ -708,6 +785,14 @@ const ПАЛИТРЫ = {
   ],
   voodoo: [
     { id: "bloodmoon", label: "Кровавая луна", from: "Red moon", vars: {accentColor: "#c01a1a", glowColor: "#4c0707", cardBgStart: "#1a0404", cardBgEnd: "#000000", textColor: "#e8d8d8", textMutedColor: "#a08080", memoryAccent: "#f3cfcf", phoneAccent: "#c01a1a", topBarBg: "#0a0000", tabsBg: "#050000"} },
+  ],
+  darkroom: [
+    { id: "sepia", label: "Сепия", from: "вираж", vars: {accentColor: "#d4473d", glowColor: "#4d3d2d", cardBgStart: "#22180f", cardBgEnd: "#120c07", textColor: "#d2c3ae", textMutedColor: "#9a8670", memoryAccent: "#c9a77c", phoneAccent: "#d4473d", topBarBg: "#120c07", tabsBg: "#120c07"} },
+    { id: "cyan", label: "Цианотипия", from: "вираж", vars: {accentColor: "#e86a5a", glowColor: "#213e63", cardBgStart: "#0b1a30", cardBgEnd: "#050c18", textColor: "#b6c9e0", textMutedColor: "#6f8fb6", memoryAccent: "#b6c9e0", phoneAccent: "#e86a5a", topBarBg: "#050c18", tabsBg: "#050c18"} },
+    { id: "platinum", label: "Платина", from: "вираж", vars: {accentColor: "#d4473d", glowColor: "#47423c", cardBgStart: "#1d1a17", cardBgEnd: "#0f0d0b", textColor: "#c9c1b6", textMutedColor: "#8f877d", memoryAccent: "#c9c1b6", phoneAccent: "#d4473d", topBarBg: "#0f0d0b", tabsBg: "#0f0d0b"} },
+  ],
+  bujo: [
+    { id: "day", label: "Дневная бумага", from: "Bujo", vars: {accentColor: "#3f6a7c", glowColor: "#b0785a", cardBgStart: "#f5f0e4", cardBgEnd: "#eee7d6", textColor: "#2c3140", textMutedColor: "#5f5c66", memoryAccent: "#b0785a", phoneAccent: "#3f6a7c", topBarBg: "#f5f0e4", tabsBg: "#f5f0e4"} },
   ],
   spacehorror: [
     { id: "redwin", label: "Чёрно-красные окна", from: "Win95 · чёрно-красный", vars: {accentColor: "#ff5555", glowColor: "#550000", cardBgStart: "#303030", cardBgEnd: "#1a1a1a", textColor: "#e0e0e0", textMutedColor: "#b0a0a0", memoryAccent: "#ffcccc", phoneAccent: "#ff5555", topBarBg: "#2a2a2a", tabsBg: "#222222"} },
@@ -881,7 +966,7 @@ export function parseThemeFile(text) {
 // Правила тем живут не в style.css, а в css/themes/<id>.css: грузится только
 // выбранная. Светлым ещё нужен общий слой css/themes/light.css — его
 // селекторы перечисляют эти же темы, новая светлая тема — в оба места.
-export const СВЕТЛЫЕ_ТЕМЫ = ['kawaii', 'medieval', 'web1', 'cottage', 'solarpunk', 'japan', 'egypt', 'western', 'pirate'];
+export const СВЕТЛЫЕ_ТЕМЫ = ['kawaii', 'medieval', 'web1', 'cottage', 'solarpunk', 'japan', 'egypt', 'western', 'pirate', 'teaparty'];
 const ВЕРСИЯ_CSS = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
 const адресCSS = (имя) => new URL('./css/themes/' + имя + '.css' + ВЕРСИЯ_CSS, import.meta.url).href;
 const МЕТКА_CSS = 'data-hud-theme-css';

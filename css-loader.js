@@ -18,7 +18,7 @@
 //
 // Стенды (tests/tools) подключают всё разом через css/all.css.
 
-import { settings } from './settings.js?v=23.79.6';
+import { settings } from './settings.js?v=23.80.0';
 
 const ВЕРСИЯ = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
 const МЕТКА = 'data-hud-css';
@@ -32,7 +32,7 @@ export const ЧАСТИ = [
   ['diary-moods', (s) => s.enableDiary !== false],
   ['extras'],
   ['music', (s) => s.enableMusic === true],
-  ['deco'], ['scene-body'],
+  ['deco'], ['scenes'], ['scene-body'],
   // В xray.css и шкала темпа (.hud-tempo), не только рентген.
   ['xray', (s) => s.enableTempo !== false],
   ['scene-clock', (s) => s.enableSceneClock !== false],
