@@ -168,11 +168,14 @@ export const defaultSettings = {
   // Подвеска на шнуре в шапке, волна под репликами, дракон за плашками — 'on' | 'off';
   // галочки и ползунки по теме в настройках — 'on' | 'off'.
   hangPendant: 'off', lineWave: 'off', bgDragon: 'off', themedControls: 'on',
-  // Украшение портрета (css/deco.css): none — как было; theme — своё у
-  // каждой темы (index.js, РАМКА_ТЕМЫ); иначе id рамки из РАМКИ_ПОРТРЕТА.
-  avatarDeco: 'none',
-  // Картинка в углу шапки: off | theme | roses | plum | bridge | cat.
-  headerOrnament: 'off',
+  // Украшение портрета (css/deco.css) — одно: none — ничего; scene — только
+  // рисунок сцены (css/scenes.css), если он у портрета есть; theme — рисунок
+  // сцены, иначе рамка темы (index.js, РАМКА_ТЕМЫ); id рамки из
+  // РАМКИ_ПОРТРЕТА; scene:id / scene:img:id — рисунок этой темы.
+  avatarDeco: 'scene',
+  // Картинка в углу шапки — одна, так же: off | scene | theme | id угла из
+  // УГЛЫ_ШАПКИ | scene:id | scene:img:id.
+  headerOrnament: 'scene',
   // Подписанные разделители между группами строк: off | line | butterfly |
   // mountain | ripple (картинки перекрашены в цвет темы).
   groupDividers: 'off',
@@ -181,9 +184,16 @@ export const defaultSettings = {
   paperAged: 'off', paperTorn: 'off', paperFolds: 'off', waxSeal: 'off',
   // Рисунки темы (css/scenes.css): сцена по краям карточки и под плашками —
   // свои значки или картинки. off | auto | id темы, у которой есть сцена.
-  // noImages: 'on' — сцена «Авто» рисуется значками, а не картинками; всё
-  // остальное оформление (рамки, угол шапки) не трогает.
+  // noImages: 'on' — всё, что встало «по теме» картинкой, уходит: сцена
+  // рисуется значками, рамка, угол шапки, печать, разделители-картинки,
+  // дракон, бант, пластырь, ноты и подвеска — прячутся. Выбранное руками
+  // остаётся.
   themeScene: 'auto', noImages: 'off',
+  // Места сцены по отдельности: полоса TavernOS с вкладками, у имени, угол
+  // вкладки, вся карточка. 'auto' — как в «Рисунках темы»; 'off'; id темы —
+  // её рисунок значками; 'img:id' — картинками. Портрет и шапка — в
+  // avatarDeco и headerOrnament ('scene:…'), чтобы украшение было одно.
+  sceneBar: 'auto', sceneName: 'auto', sceneCorner: 'auto', sceneCard: 'auto',
   // Мелкие украшения из стенда идей (css/scenes.css), 'on' | 'off' | 'auto':
   // тушь (двойная линия и мысли полосой туши), кот на краю карточки, ярлык-
   // досье, имя в 「」 с эпиграфом из мыслей, кольцо-затмение и подпись хода.
@@ -520,7 +530,7 @@ const ПО_ТЕМЕ = {
   hangPendant: 'japan',
   lineWave: 'japan kawaii witch',
   bgDragon: 'fantasy',
-  themeScene: Object.fromEntries(['biopunk', 'dieselpunk', 'solarpunk', 'voodoo', 'steampunk', 'egypt', 'western', 'noir', 'pirate', 'spaceopera', 'ice', 'ocean', 'spacehorror', 'vamp', 'kawaii', 'witch'].map(id => [id, id])),
+  themeScene: Object.fromEntries(['biopunk', 'dieselpunk', 'solarpunk', 'voodoo', 'steampunk', 'egypt', 'western', 'noir', 'pirate', 'spaceopera', 'ice', 'ocean', 'spacehorror', 'vamp', 'kawaii'].map(id => [id, id])),
   inkWash: 'japan',
   peekCat: 'witch',
   dossierTag: 'biopunk',
@@ -532,15 +542,67 @@ const ВСЕМ_ТЕМАМ = { lightHeadings: 'on', trustHearts: 'on', themedScro
 const ВЫКЛЮЧЕНО = { sectionSkin: '', headerStyle: 'classic', nameStyle: 'plain', groupDividers: 'off', themeScene: 'off' };
 // Темы, у которых есть сцена (css/scenes.css): значками и картинками.
 export const СЦЕНЫ_ЗНАЧКИ = ['biopunk', 'dieselpunk', 'solarpunk', 'voodoo', 'steampunk', 'egypt', 'western', 'noir', 'pirate', 'spaceopera', 'ice', 'ocean', 'spacehorror', 'vamp'];
-export const СЦЕНЫ_КАРТИНКИ = ['vamp', 'noir', 'biopunk', 'spacehorror', 'ocean', 'pirate', 'steampunk', 'egypt', 'western', 'kawaii', 'solarpunk', 'ice', 'voodoo', 'witch'];
+export const СЦЕНЫ_КАРТИНКИ = ['vamp', 'noir', 'biopunk', 'spacehorror', 'ocean', 'pirate', 'steampunk', 'egypt', 'western', 'kawaii', 'solarpunk', 'ice', 'voodoo'];
+// Украшения «по теме», нарисованные картинками (img/deco/*.webp): при «Без
+// картинок» вместо них — что справа (выключено или простая линия).
+const КАРТИНКИ_УКРАШЕНИЙ = {
+  waxSeal: { on: 'off' }, healthPlaster: { on: 'off' }, tabBow: { on: 'off' }, lineNotes: { on: 'off' },
+  hangPendant: { on: 'off' }, bgDragon: { on: 'off' },
+  groupDividers: { butterfly: 'line', mountain: 'line', ripple: 'line', medallion: 'line' },
+};
 export function настройка(ключ) {
   const v = settings[ключ];
   if (v !== 'auto') return v;
   if (ВСЕМ_ТЕМАМ[ключ]) return ВСЕМ_ТЕМАМ[ключ];
   const тема = settings.themePreset || '';
   const правило = ПО_ТЕМЕ[ключ];
-  if (typeof правило === 'string') return правило.split(' ').includes(тема) ? 'on' : 'off';
-  return (правило && правило[тема]) || (ключ in ВЫКЛЮЧЕНО ? ВЫКЛЮЧЕНО[ключ] : 'off');
+  const итог = typeof правило === 'string' ? (правило.split(' ').includes(тема) ? 'on' : 'off')
+    : (правило && правило[тема]) || (ключ in ВЫКЛЮЧЕНО ? ВЫКЛЮЧЕНО[ключ] : 'off');
+  const замена = settings.noImages === 'on' && КАРТИНКИ_УКРАШЕНИЙ[ключ];
+  return замена && замена[итог] ? замена[итог] : итог;
+}
+
+// Места сцены (css/scenes.css: классы hud-s<место>-<id>): t — полоса TavernOS
+// и вкладки, h — шапка, n — у имени, a — портрет, b — угол вкладки, c — вся
+// карточка. У темы: [где есть рисунок значками, где он есть в режиме
+// картинок, где картинки свои]. Сверяется с CSS в tests/unit.mjs.
+export const СЦЕНЫ_МЕСТА = {
+  biopunk: ['thabc', 'thnabc', 'hnb'],
+  solarpunk: ['tabc', 'tha', 'th'],
+  voodoo: ['thab', 'thnab', 'hnb'],
+  egypt: ['thnabc', 'thnabc', 'hnb'],
+  spaceopera: ['thabc', 'thabc', ''],
+  ocean: ['abc', 'habc', 'hb'],
+  pirate: ['thbc', 'thnabc', 'hnab'],
+  western: ['thbc', 'thnabc', 'hnab'],
+  dieselpunk: ['thbc', 'thbc', ''],
+  steampunk: ['hnbc', 'hnbc', 'h'],
+  noir: ['hnabc', 'hnabc', 'hb'],
+  ice: ['thbc', 'thbc', 'hb'],
+  spacehorror: ['hnbc', 'hnbc', 'b'],
+  vamp: ['h', 'hnb', 'nb'],
+  kawaii: ['', 'hb', 'hb'],
+};
+export const МЕСТА_СЦЕНЫ = ['t', 'h', 'n', 'a', 'b', 'c'];
+// Ключи мест, что выбираются в «Рисунках темы» (портрет и шапка — свои).
+export const КЛЮЧИ_МЕСТ = { t: 'sceneBar', n: 'sceneName', b: 'sceneCorner', c: 'sceneCard' };
+// Что стоит в месте: { id, img } или null. Значение — как у ключей мест:
+// 'auto' — по «Рисункам темы» (там id темы встаёт картинками, если они у неё
+// есть и «Без картинок» выключено; 'img:id' — картинками всегда), 'off',
+// 'id' — значками, 'img:id' — картинками.
+export function сценаВМесте(место, значение = 'auto') {
+  const из = (выбор, поТеме) => {
+    const руками = выбор.startsWith('img:');
+    const id = руками ? выбор.slice(4) : выбор;
+    const м = СЦЕНЫ_МЕСТА[id];
+    if (!м) return null;
+    const картинки = руками || (поТеме && СЦЕНЫ_КАРТИНКИ.includes(id) && settings.noImages !== 'on');
+    return (картинки ? м[1] : м[0]).includes(место) ? { id, img: картинки } : null;
+  };
+  const v = String(значение || 'auto');
+  if (v === 'off' || v === 'none') return null;
+  if (v === 'auto') return из(String(настройка('themeScene') || ''), true);
+  return из(v, false);
 }
 // Ключи, у которых в Кастомизации есть «Авто (по теме)».
 export const КЛЮЧИ_АВТО = [...Object.keys(ПО_ТЕМЕ), ...Object.keys(ВСЕМ_ТЕМАМ)];
@@ -549,10 +611,11 @@ export const КЛЮЧИ_АВТО = [...Object.keys(ПО_ТЕМЕ), ...Object.key
 // галочки и ползунки по теме, светлые заголовки.
 export const МИНИМАЛИЗМ = {
   pillColors: 'mono', pillIcons: 'off', pillStyle: 'plain',
-  avatarDeco: 'none', headerOrnament: 'off',
+  // Рамок и картинок угла нет — у портрета и в шапке только рисунок темы.
+  avatarDeco: 'scene', headerOrnament: 'scene',
   ...Object.fromEntries(КЛЮЧИ_АВТО.map(к => [к, к in ВЫКЛЮЧЕНО ? ВЫКЛЮЧЕНО[к] : 'off'])),
   // Рисунки темы остаются — своими значками, без картинок.
-  themeScene: 'auto', noImages: 'on',
+  themeScene: 'auto', noImages: 'on', sceneBar: 'auto', sceneName: 'auto', sceneCorner: 'auto', sceneCard: 'auto',
 };
 // «Дефолт» (Кастомизация → Вид блоков): ключи «Отображения» из настроек,
 // которые тоже возвращаются к заводским — вид значков, пояснения, сводки.

@@ -9,13 +9,14 @@ const ПАПКА = path.join(__dirname, '..', '..', 'img', 'scene');
 const f = (n) => (+n).toFixed(1);
 const кр = (cx, cy, r) => `M${f(cx + r)} ${f(cy)}a${f(r)} ${f(r)} 0 1 0 ${f(-2 * r)} 0a${f(r)} ${f(r)} 0 1 0 ${f(2 * r)} 0`;
 const файлы = {};
-const svg = (имя, viewBox, тело, defs = '') => { файлы[имя] = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}">${defs ? `<defs>${defs}</defs>` : ''}${тело}</svg>`; };
+const svg = (имя, viewBox, тело, defs = '', атр = '') => { файлы[имя] = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}"${атр}>${defs ? `<defs>${defs}</defs>` : ''}${тело}</svg>`; };
 
 // ---------- Тушь: маски линий (белое — видно) ----------
-svg('ink-top.svg', '0 0 200 10', '<path d="M0 2H200M0 7.5H200" stroke="url(#и)" stroke-width="1.6" fill="none"/>',
-  '<linearGradient id="и" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".8" stop-color="#fff"/></linearGradient>');
-svg('ink-corner.svg', '0 0 200 120', '<path d="M3 0V117H200M9 0V111H200" stroke="#fff" stroke-width="2" fill="none" mask="url(#м)"/>',
-  '<radialGradient id="р" cx="0" cy="1" r="1"><stop offset="0" stop-color="#fff"/><stop offset=".72" stop-color="#fff" stop-opacity="0"/></radialGradient><mask id="м"><rect width="200" height="120" fill="url(#р)"/></mask>');
+// Тянутся на всю рамку маски (preserveAspectRatio="none"), толщина линий — постоянная.
+svg('ink-top.svg', '0 0 200 10', '<path d="M0 2H200M0 7.5H200" stroke="url(#и)" stroke-width="1.6" fill="none" vector-effect="non-scaling-stroke"/>',
+  '<linearGradient id="и" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset=".8" stop-color="#fff"/></linearGradient>', ' preserveAspectRatio="none"');
+svg('ink-corner.svg', '0 0 200 120', '<path d="M1.5 0V117H200M5 0V111H200" stroke="#fff" stroke-width="2" fill="none" vector-effect="non-scaling-stroke" mask="url(#м)"/>',
+  '<radialGradient id="р" cx="0" cy="1" r="1"><stop offset="0" stop-color="#fff"/><stop offset=".72" stop-color="#fff" stop-opacity="0"/></radialGradient><mask id="м"><rect width="200" height="120" fill="url(#р)"/></mask>', ' preserveAspectRatio="none"');
 
 // ---------- Кот на краю ----------
 svg('cat.svg', '0 0 120 64', `<g fill="#241a33"><path d="M22 40L18 6L44 24Q60 18 76 24L102 6L98 40Q98 62 60 62Q22 62 22 40Z"/><ellipse cx="34" cy="62" rx="13" ry="7"/><ellipse cx="86" cy="62" rx="13" ry="7"/></g><path d="M24 12L40 25M96 12L80 25" stroke="#3a2b4a" stroke-width="3"/><g fill="#e9c46a"><ellipse cx="46" cy="40" rx="7" ry="8"/><ellipse cx="74" cy="40" rx="7" ry="8"/></g><g fill="#120d18"><ellipse cx="46" cy="40" rx="2.2" ry="6"/><ellipse cx="74" cy="40" rx="2.2" ry="6"/></g><path d="M57 50L63 50L60 53Z" fill="#d98fa7"/><g stroke="#c8b6dc" stroke-width="1.2" opacity=".7"><path d="M40 52L22 50M40 55L23 57M80 52L98 50M80 55L97 57"/></g><g stroke="#3a2b4a" stroke-width="1.6"><path d="M28 62v4M34 63v4M40 62v4M80 62v4M86 63v4M92 62v4"/></g>`);

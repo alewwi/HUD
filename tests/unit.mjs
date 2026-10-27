@@ -1479,5 +1479,51 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   проверить('пилюля: время 12:00 не режется на метку «…12:» и «00»', !время.includes('на 12:</span>') && время.includes('Вызов к Ричарду на 12:00') && время.includes('Встреча:</span>'), время.slice(0, 400));
 }
 
+// ---------------------------------------------------------------------------
+группа('рисунки тем по местам и «Без картинок»');
+{
+  const St = await модуль('settings.js');
+  // Таблица мест (settings.js) — та же, что выходит из правил css/scenes.css.
+  const css = fs.readFileSync(path.join(КОРЕНЬ, 'css/scenes.css'), 'utf8').replace(/\/\*[\s\S]*?\*\//g, '');
+  const части = (с) => { const out = []; let г = 0, н = 0; for (let i = 0; i < с.length; i++) { const c = с[i]; if (c === '(') г++; else if (c === ')') г--; else if (c === ',' && !г) { out.push(с.slice(н, i)); н = i + 1; } } return [...out, с.slice(н)]; };
+  const табл = {};
+  for (const m of css.matchAll(/([^{}]+)\{/g)) {
+    const t = m[1].trim(); if (t.startsWith('@') || /^(from|to|\d)/.test(t)) continue;
+    for (const p of части(t)) for (const x of p.matchAll(/hud-s([thnabc])-(?!(?:on|img)\b)([a-z0-9]+)/g)) {
+      const [, м, id] = x;
+      let г = 0, к = 0; for (; к < p.length; к++) { const c = p[к]; if (c === '(') г++; else if (c === ')') г--; else if (c === ' ' && !г) break; }
+      const корень = p.trim().slice(0, к), прямо = корень.replace(/:is\([^)]*\)/g, '');
+      const запись = ((корень.match(/:is\(([^)]*)\)/) || [])[1] || '').split(',').find(z => z.includes(x[0])) || '';
+      const img = `.hud-s${м}-img`, не = `:not(.hud-s${м}-img)`;
+      const вид = прямо.includes(не) ? 'k' : (прямо.includes(img) || запись.includes(img)) ? 'i' : 'b';
+      ((табл[id] = табл[id] || {})[м] = табл[id][м] || new Set()).add(вид);
+    }
+  }
+  const из = (id, есть) => St.МЕСТА_СЦЕНЫ.filter(м => табл[id][м] && есть(табл[id][м])).join('');
+  const расхождения = Object.keys({ ...табл, ...St.СЦЕНЫ_МЕСТА }).filter(id => !табл[id] || !St.СЦЕНЫ_МЕСТА[id]
+    || JSON.stringify([из(id, в => в.has('b') || в.has('k')), из(id, в => в.has('b') || в.has('i')), из(id, в => в.has('i'))]) !== JSON.stringify(St.СЦЕНЫ_МЕСТА[id]));
+  проверить('таблица мест сцен совпадает с css/scenes.css', !расхождения.length, расхождения.join(', '));
+  проверить('в scenes.css не осталось классов hud-scene-<тема>', !/hud-scene-(?!(?:on|img|tint|[thnabc])\b)[a-z]/.test(css));
+
+  const было = { ...St.settings };
+  Object.assign(St.settings, { themePreset: 'pirate', themeScene: 'auto', noImages: 'off', bgDragon: 'auto', groupDividers: 'auto' });
+  const с = (м, v) => JSON.stringify(St.сценаВМесте(м, v));
+  проверить('пираты «по теме»: у портрета — шляпа картинкой', с('a') === '{"id":"pirate","img":true}');
+  St.settings.noImages = 'on';
+  проверить('«Без картинок»: шляпы-картинки у портрета нет, угол вкладки — значками', с('a') === 'null' && с('b') === '{"id":"pirate","img":false}');
+  проверить('выбранные руками картинки встают и при «Без картинок»', с('a', 'img:pirate') === '{"id":"pirate","img":true}');
+  проверить('рисунок чужой темы в своём месте и «Нет»', с('t', 'egypt') === '{"id":"egypt","img":false}' && с('t', 'off') === 'null' && с('n', 'kawaii') === 'null');
+  St.settings.themePreset = 'fantasy';
+  проверить('«Без картинок»: дракон «по теме» прячется', St.настройка('bgDragon') === 'off');
+  St.settings.themePreset = 'kawaii';
+  проверить('«Без картинок»: бабочки-разделители — простой линией', St.настройка('groupDividers') === 'line');
+  St.settings.noImages = 'off';
+  проверить('без «Без картинок» украшения по теме на месте', St.настройка('groupDividers') === 'butterfly');
+  St.settings.groupDividers = 'butterfly'; St.settings.noImages = 'on';
+  проверить('выбранные руками разделители остаются', St.настройка('groupDividers') === 'butterfly');
+  for (const к of Object.keys(St.settings)) if (!(к in было)) delete St.settings[к];
+  Object.assign(St.settings, было);
+}
+
 console.log(`\nпроверок: ${всего}, провалов: ${провалы.length}`);
 if (провалы.length) { console.log(провалы.map(п => ' ✗ ' + п).join('\n')); process.exitCode = 1; }

@@ -290,7 +290,7 @@
   display: block; position: absolute; right: 14px; top: 50%; width: 58px; height: 58px; margin-top: -29px; rotate: 14deg; z-index: 3; pointer-events: none;
 }
 :root.hud-wax-seal .hud-os-card .hud-header:not(.has-banner) .hud-head-wax::after { filter: grayscale(1) brightness(.6) contrast(1.5); }
-:root.hud-wax-seal.hud-orn-on .hud-os-card .hud-header:not(.has-banner) .hud-head-wax { right: 104px; }
+:root.hud-wax-seal:is(.hud-orn-on, .hud-sh-on) .hud-os-card .hud-header:not(.has-banner) .hud-head-wax { right: 104px; }
 :root.hud-wax-seal:not(.hud-orn-on) .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 70px !important; }
 
 /* На узком экране шапка тесная: картинка угла и печать меньше, печать
@@ -301,7 +301,7 @@
   :root.hud-orn-bridge .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 84px; height: 40px; }
   :root.hud-orn-cat .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 50px; height: 44px; }
   :root.hud-wax-seal .hud-os-card .hud-header:not(.has-banner) .hud-head-wax { width: 42px; height: 42px; margin-top: -21px; right: 8px; }
-  :root.hud-wax-seal.hud-orn-on .hud-os-card .hud-header:not(.has-banner) .hud-head-wax { top: auto; bottom: 0; margin-top: 0; right: 12px; }
+  :root.hud-wax-seal:is(.hud-orn-on, .hud-sh-on) .hud-os-card .hud-header:not(.has-banner) .hud-head-wax { top: auto; bottom: 0; margin-top: 0; right: 12px; }
   :root.hud-wax-seal:not(.hud-orn-on) .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 50px !important; }
   :root.hud-ava-framed .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin-left: 4px; }
   :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin-right: 30px; }
@@ -314,7 +314,7 @@
   :root.hud-orn-bridge .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 84px; height: 40px; }
   :root.hud-orn-cat .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 50px; height: 44px; }
   :root.hud-wax-seal .hud-os-card .hud-header:not(.has-banner) .hud-head-wax { width: 42px; height: 42px; margin-top: -21px; right: 8px; }
-  :root.hud-wax-seal.hud-orn-on .hud-os-card .hud-header:not(.has-banner) .hud-head-wax { top: auto; bottom: 0; margin-top: 0; right: 12px; }
+  :root.hud-wax-seal:is(.hud-orn-on, .hud-sh-on) .hud-os-card .hud-header:not(.has-banner) .hud-head-wax { top: auto; bottom: 0; margin-top: 0; right: 12px; }
   :root.hud-wax-seal:not(.hud-orn-on) .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 50px !important; }
   :root.hud-ava-framed .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin-left: 4px; }
   :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin-right: 30px; }
@@ -795,13 +795,14 @@
 }
 :root.hud-skin-label .hud-os-card .hud-body > :is(.hud-row, .hud-key-block) .hud-value, :root.hud-skin-label .hud-os-card .hud-body > :is(.hud-row, .hud-key-block) .hud-key-item { color: #111 !important; }
 :root.hud-skin-label .hud-os-card .hud-row.f-phys { overflow: visible !important; }
-:root.hud-skin-label .hud-os-card .hud-row.f-phys::after {
+/* Ярлык и наклейка — картинки: при «Без картинок» (hud-skin-noimg) их нет. */
+:root.hud-skin-label:not(.hud-skin-noimg) .hud-os-card .hud-row.f-phys::after {
   -webkit-mask: none !important; mask: none !important; background: #fff url('../img/deco/label-caution.webp') center / 92% no-repeat !important;
   width: 104px !important; height: 28px !important; opacity: 1 !important; top: -12px !important; right: 6px !important; rotate: 4deg; z-index: 3 !important; border: 1.5px solid #111;
 }
 :root.hud-skin-label .hud-os-card .hud-header:not(.has-banner) { position: relative; }
-:root.hud-skin-label:not(.hud-orn-on) .hud-os-card .hud-header:not(.has-banner)::after { visibility: hidden !important; }
-:root.hud-skin-label:not(.hud-orn-on) .hud-os-card .hud-header:not(.has-banner) .hud-label-badge {
+:root.hud-skin-label:not(.hud-orn-on, .hud-skin-noimg) .hud-os-card .hud-header:not(.has-banner)::after { visibility: hidden !important; }
+:root.hud-skin-label:not(.hud-orn-on, .hud-skin-noimg) .hud-os-card .hud-header:not(.has-banner) .hud-label-badge {
   display: block; position: absolute; right: 12px; top: 50%; translate: 0 -50%; width: 58px; height: 44px; z-index: 3; pointer-events: none; opacity: .9;
   background: url('../img/deco/label-seihin.webp') center / contain no-repeat;
 }

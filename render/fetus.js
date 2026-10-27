@@ -6,10 +6,10 @@
 // тройня — и сочетания пола под каждый тип. «↺ Откатить» возвращает кубик.
 // Клики ловит index.js (data-hud-fetus). Оформление — css/family.css.
 
-import { escapeHtml } from '../utils.js?v=23.80.0';
-import { плодыОт, ТИПЫ_ПЛОДОВ, СОЧЕТАНИЯ, словоПолов } from './conception.js?v=23.80.0';
-import { наследование } from './fertility.js?v=23.80.0';
-import { видСемьи, видПлодов } from './family-views.js?v=23.80.0';
+import { escapeHtml } from '../utils.js?v=23.81.0';
+import { плодыОт, ТИПЫ_ПЛОДОВ, СОЧЕТАНИЯ, словоПолов } from './conception.js?v=23.81.0';
+import { наследование } from './fertility.js?v=23.81.0';
+import { видСемьи, видПлодов } from './family-views.js?v=23.81.0';
 
 // Малыш в плодном пузыре: свернувшийся эмбрион (голова, спинка дугой,
 // ручка у лица, ножки), пуповина, объём от градиента и блик.

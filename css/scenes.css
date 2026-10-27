@@ -8,9 +8,14 @@
      .hud-scene-a — у портрета, по центру аватарки;
      .hud-scene-b — во вкладке под плашками (как «Дракон за плашками»);
      .hud-scene-c — во всю карточку, поверх, без нажатий.
-   Видны только по классам на <html> (index.js, applyThemeColors):
-     hud-scene-on + hud-scene-<id> — чья сцена; hud-scene-img — картинками
-     (img/scene/<id>/*.webp), без него — своими значками (*.svg);
+   Видны только по классам на <html> (index.js, applyThemeColors), у
+   каждого места свои — так рисунок любой темы встаёт в любое место:
+     hud-s<место>-<id> — чей рисунок (место — t, h, n, a, b, c, как у узлов;
+     полоса t — вместе с вкладками, имя n — вместе с самой надписью);
+     hud-s<место>-img — картинками (img/scene/<id>/*.webp), без него —
+     своими значками (*.svg); hud-s<место>-on — в месте что-то есть;
+     hud-scene-on / hud-scene-img — хоть где-то; таблица мест — в
+     settings.js (СЦЕНЫ_МЕСТА), сверяется в tests/unit.mjs;
      hud-ink-wash, hud-peek-cat, hud-eclipse, hud-epigraph-on — мелочи.
    Движение — только под курсором или после нажатия на фон карточки
    (events.js, fx-bg): длинный чат с десятками карточек не греет процессор.
@@ -25,17 +30,15 @@
 
 /* --- Слои сцены -------------------------------------------------------- */
 :root.hud-scene-on .hud-os-card .hud-os-topbar { position: relative; }
-:root.hud-scene-on .hud-os-card .hud-os-topbar > :not(.hud-scene-t) { position: relative; z-index: 1; }
+:root.hud-st-on .hud-os-card .hud-os-topbar > :not(.hud-scene-t) { position: relative; z-index: 1; }
 :root.hud-scene-on .hud-os-card .hud-header { position: relative; }
 :root.hud-scene-on .hud-os-card .hud-header > .hud-header-info { position: relative; z-index: 2; }
 :root.hud-scene-on .hud-os-card .hud-tab-content { position: relative; }
-:root.hud-scene-on .hud-os-card .hud-tab-content > :not(.hud-scene-b, .hud-paper, .hud-dragon) { position: relative; z-index: 1; }
+:root.hud-sb-on .hud-os-card .hud-tab-content > :not(.hud-scene-b, .hud-paper, .hud-dragon) { position: relative; z-index: 1; }
 :root.hud-scene-on .hud-os-card .hud-os-wrapper { position: relative; }
 /* Шапка и угол вкладки: значок темы уступает место сцене. */
-:root.hud-scene-on .hud-os-card .hud-header::after,
-:root.hud-scene-on .hud-os-card .hud-body::after { visibility: hidden; }
-/* Выбранная руками картинка в углу шапки встаёт на место рисунка сцены. */
-:root.hud-scene-on.hud-orn-on .hud-os-card .hud-header:not(.has-banner) > .hud-scene-h { display: none !important; }
+:root.hud-sh-on .hud-os-card .hud-header::after,
+:root.hud-sb-on .hud-os-card .hud-body::after { visibility: hidden; }
 
 /* Движение — только под курсором или по нажатию на фон (events.js, fx-bg),
    как у остальных эффектов HUD. С !important: правила тем ниже задают
@@ -51,12 +54,12 @@
 }
 
 /* Общие формы слоёв: темы ниже только задают картинки и места. */
-:root.hud-scene-on .hud-os-card .hud-os-topbar > .hud-scene-t,
-:root.hud-scene-on .hud-os-card .hud-header > .hud-scene-h,
-:root.hud-scene-on .hud-os-card .hud-tab-content > .hud-scene-b,
-:root.hud-scene-on .hud-os-card .hud-os-wrapper > .hud-scene-c { display: block; position: absolute; inset: 0; z-index: 0; background-repeat: no-repeat; }
-:root.hud-scene-on .hud-os-card .hud-os-wrapper > .hud-scene-c { z-index: 6; }
-:root.hud-scene-on .hud-os-card .hud-header > .hud-scene-h { overflow: visible; }
+:root.hud-st-on .hud-os-card .hud-os-topbar > .hud-scene-t,
+:root.hud-sh-on .hud-os-card .hud-header > .hud-scene-h,
+:root.hud-sb-on .hud-os-card .hud-tab-content > .hud-scene-b,
+:root.hud-sc-on .hud-os-card .hud-os-wrapper > .hud-scene-c { display: block; position: absolute; inset: 0; z-index: 0; background-repeat: no-repeat; }
+:root.hud-sc-on .hud-os-card .hud-os-wrapper > .hud-scene-c { z-index: 6; }
+:root.hud-sh-on .hud-os-card .hud-header > .hud-scene-h { overflow: visible; }
 
 /* =========================================================================
    ТУШЬ («到大地尽头», «雨霖铃»): двойная линия, растворяющаяся к краям, и
@@ -67,8 +70,8 @@
 :root.hud-ink-wash .hud-os-card .hud-tab-content > .hud-scene-b { display: block; position: absolute; inset: 0; z-index: 0; }
 :root.hud-ink-wash .hud-os-card .hud-tab-content > .hud-scene-b::before {
   content: ''; inset: 4px 10px 6px 4px; background-color: color-mix(in srgb, var(--hud-accent) 80%, var(--hud-text, #fff));
-  -webkit-mask: url('../img/scene/ink-top.svg') right top / 58% 10px no-repeat, url('../img/scene/ink-corner.svg') left bottom / 60% 46% no-repeat;
-  mask: url('../img/scene/ink-top.svg') right top / 58% 10px no-repeat, url('../img/scene/ink-corner.svg') left bottom / 60% 46% no-repeat;
+  -webkit-mask: url('../img/scene/ink-top.svg') right top / 58% 10px no-repeat, url('../img/scene/ink-corner.svg') left bottom / min(60%, 360px) min(46%, 200px) no-repeat;
+  mask: url('../img/scene/ink-top.svg') right top / 58% 10px no-repeat, url('../img/scene/ink-corner.svg') left bottom / min(60%, 360px) min(46%, 200px) no-repeat;
   opacity: .8;
 }
 :root.hud-ink-wash .hud-os-card .hud-row:is(.f-thoughts, .f-key) .hud-value,
@@ -145,189 +148,189 @@
    ========================================================================= */
 /* Слой у портрета есть только у сцен, где он нужен: обёртка портрета
    становится сеткой по размеру аватарки, рисунок — точно по её центру. */
-:root:is(.hud-scene-biopunk, .hud-scene-solarpunk, .hud-scene-voodoo, .hud-scene-egypt, .hud-scene-spaceopera, .hud-scene-ocean, .hud-scene-pirate.hud-scene-img, .hud-scene-western.hud-scene-img) .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap {
+:root:is(.hud-sa-biopunk, .hud-sa-solarpunk, .hud-sa-voodoo, .hud-sa-egypt, .hud-sa-spaceopera, .hud-sa-ocean, .hud-sa-pirate.hud-sa-img, .hud-sa-western.hud-sa-img) .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap {
   display: inline-grid; place-items: center; position: relative; flex-shrink: 0; isolation: isolate;
 }
-:root:is(.hud-scene-biopunk, .hud-scene-solarpunk, .hud-scene-voodoo, .hud-scene-egypt, .hud-scene-spaceopera, .hud-scene-ocean, .hud-scene-pirate.hud-scene-img, .hud-scene-western.hud-scene-img) .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap > .hud-ava-in { position: relative; z-index: 1; }
-:root:is(.hud-scene-biopunk, .hud-scene-solarpunk, .hud-scene-voodoo, .hud-scene-egypt, .hud-scene-spaceopera, .hud-scene-ocean, .hud-scene-pirate.hud-scene-img, .hud-scene-western.hud-scene-img) .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap > .hud-scene-a {
+:root:is(.hud-sa-biopunk, .hud-sa-solarpunk, .hud-sa-voodoo, .hud-sa-egypt, .hud-sa-spaceopera, .hud-sa-ocean, .hud-sa-pirate.hud-sa-img, .hud-sa-western.hud-sa-img) .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap > .hud-ava-in { position: relative; z-index: 1; }
+:root:is(.hud-sa-biopunk, .hud-sa-solarpunk, .hud-sa-voodoo, .hud-sa-egypt, .hud-sa-spaceopera, .hud-sa-ocean, .hud-sa-pirate.hud-sa-img, .hud-sa-western.hud-sa-img) .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap > .hud-scene-a {
   display: block; position: absolute; left: 50%; top: 50%; translate: -50% -50%; width: calc(100% + 26px); height: calc(100% + 26px); z-index: -1; background: center / contain no-repeat;
 }
 /* Узел у имени — небольшая картинка в строке имени. */
-:root.hud-scene-on .hud-os-card .hud-header-text .hud-scene-n { display: inline-block; vertical-align: middle; width: 0; height: 0; margin-left: 6px; background: center / contain no-repeat; }
+:root.hud-sn-on .hud-os-card .hud-header-text .hud-scene-n { display: inline-block; vertical-align: middle; width: 0; height: 0; margin-left: 6px; background: center / contain no-repeat; }
 @keyframes hud-sc-float { 0%, 100% { translate: 0 0; } 50% { translate: 2px -3px; } }
 @keyframes hud-sc-spin { to { rotate: 360deg; } }
 
 /* ---------- Биопанк: мембрана, вены, слизь с каплей, колонии, ДНК, клетки ---------- */
-:root.hud-scene-biopunk .hud-os-card { animation: hud-sc-membrane 10s ease-in-out infinite; animation-play-state: paused; }
-:root.hud-scene-biopunk .hud-os-card.fx-bg { animation-play-state: running; }
-@media (hover: hover) and (pointer: fine) { :root.hud-scene-biopunk .hud-os-card:hover { animation-play-state: running; } }
+:root.hud-sc-biopunk .hud-os-card { animation: hud-sc-membrane 10s ease-in-out infinite; animation-play-state: paused; }
+:root.hud-sc-biopunk .hud-os-card.fx-bg { animation-play-state: running; }
+@media (hover: hover) and (pointer: fine) { :root.hud-sc-biopunk .hud-os-card:hover { animation-play-state: running; } }
 @keyframes hud-sc-membrane { 0%, 100% { border-radius: 22px 30px 26px 34px / 30px 24px 34px 26px; } 33% { border-radius: 30px 22px 34px 24px / 24px 34px 26px 30px; } 66% { border-radius: 26px 34px 22px 30px / 34px 26px 30px 22px; } }
-:root.hud-scene-biopunk .hud-os-card .hud-os-wrapper > .hud-scene-c::before {
+:root.hud-sc-biopunk .hud-os-card .hud-os-wrapper > .hud-scene-c::before {
   content: ''; left: 0; right: 0; top: 0; height: 14px;
   background: radial-gradient(ellipse 9px 7px at 12px 0, rgba(143, 227, 106, .55) 98%, transparent) 0 0 / 38px 14px repeat-x, radial-gradient(ellipse 5px 12px at 30px 0, rgba(143, 227, 106, .4) 98%, transparent) 0 0 / 61px 14px repeat-x;
 }
-:root.hud-scene-biopunk .hud-os-card .hud-os-wrapper > .hud-scene-c::after {
+:root.hud-sc-biopunk .hud-os-card .hud-os-wrapper > .hud-scene-c::after {
   content: ''; left: 51%; top: 6px; width: 7px; height: 10px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%;
   background: radial-gradient(circle at 35% 35%, #eaffd8, #8fe36a 60%, #3c7a2a); opacity: 0; animation: hud-sc-drip 5s ease-in infinite;
 }
 @keyframes hud-sc-drip { 0% { translate: 0 0; scale: 1 .5; opacity: 0; } 15% { opacity: .95; scale: 1 1; } 70% { opacity: .9; } 100% { translate: 0 110px; scale: 1 1.2; opacity: 0; } }
-:root.hud-scene-biopunk:not(.hud-scene-img) .hud-os-card .hud-tab-content > .hud-scene-b { background: url('../img/scene/biopunk/veins.svg') right 0 top 4px / 220px auto no-repeat; opacity: .55; }
-:root.hud-scene-biopunk:not(.hud-scene-img) .hud-os-card .hud-tab-content > .hud-scene-b::after {
+:root.hud-sb-biopunk:not(.hud-sb-img) .hud-os-card .hud-tab-content > .hud-scene-b { background: url('../img/scene/biopunk/veins.svg') right 0 top 4px / 220px auto no-repeat; opacity: .55; }
+:root.hud-sb-biopunk:not(.hud-sb-img) .hud-os-card .hud-tab-content > .hud-scene-b::after {
   content: ''; right: 4px; bottom: 0; width: 190px; height: 127px; background: url('../img/scene/biopunk/cells.svg') center / contain no-repeat;
   animation: hud-sc-float 7s ease-in-out infinite;
 }
-:root.hud-scene-biopunk .hud-os-card .hud-ava-wrap > .hud-scene-a {
+:root.hud-sa-biopunk .hud-os-card .hud-ava-wrap > .hud-scene-a {
   border-radius: 50%; animation: hud-sc-colony 4.5s ease-in-out infinite;
   background: radial-gradient(circle at 18% 30%, #ff6ba8 0 2px, transparent 3px), radial-gradient(circle at 80% 72%, #8fe36a 0 2.6px, transparent 3.6px), radial-gradient(circle at 72% 16%, #d6ff9a 0 1.5px, transparent 2.5px), radial-gradient(circle at 24% 82%, #ff9ac6 0 1.8px, transparent 2.8px), radial-gradient(circle at 90% 40%, #b8f58a 0 1.2px, transparent 2px) !important;
   box-shadow: 0 0 0 2px rgba(143, 227, 106, .3), 0 0 14px rgba(143, 227, 106, .3);
 }
 @keyframes hud-sc-colony { 50% { scale: 1.06; rotate: 8deg; opacity: .75; } }
-:root.hud-scene-biopunk:not(.hud-scene-img) .hud-os-card .hud-header > .hud-scene-h::after {
+:root.hud-sh-biopunk:not(.hud-sh-img) .hud-os-card .hud-header > .hud-scene-h::after {
   content: ''; right: 14px; top: 50%; width: 92px; height: 38px; margin-top: -19px; opacity: .85;
   background: url('../img/scene/biopunk/dna.svg') 0 0 / 66px 38px repeat-x; animation: hud-sc-dna 6s linear infinite;
   -webkit-mask: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent); mask: linear-gradient(90deg, transparent, #000 18%, #000 82%, transparent);
 }
 @keyframes hud-sc-dna { to { background-position: -66px 0; } }
-:root.hud-scene-biopunk .hud-os-card .hud-tab { border-radius: 999px !important; }
+:root.hud-st-biopunk .hud-os-card .hud-tab { border-radius: 999px !important; }
 
 /* ---------- Дизельпанк: заклёпки, веер, манометр, город ар-деко ---------- */
-:root.hud-scene-dieselpunk .hud-os-card .hud-os-wrapper > .hud-scene-c::before {
+:root.hud-sc-dieselpunk .hud-os-card .hud-os-wrapper > .hud-scene-c::before {
   content: ''; left: 10px; right: 10px; top: 2px; height: 7px;
   background: radial-gradient(circle at 50% 50%, #d8dce0 0 1.2px, #6a7076 1.8px 2.6px, rgba(0, 0, 0, .5) 3.2px, transparent 3.6px) 0 0 / 24px 7px repeat-x;
 }
-:root.hud-scene-dieselpunk .hud-os-card .hud-tab-content > .hud-scene-b { background: url('../img/scene/dieselpunk/fan.svg') left 0 bottom 0 / 92px 92px no-repeat; opacity: .9; }
-:root.hud-scene-dieselpunk .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 4px; bottom: 0; width: 196px; height: 196px; background: url('../img/scene/dieselpunk/city.svg') center bottom / contain no-repeat; opacity: .85; }
-:root.hud-scene-dieselpunk .hud-os-card .hud-header > .hud-scene-h::before { content: ''; right: 16px; top: 50%; width: 42px; height: 42px; margin-top: -21px; background: url('../img/scene/dieselpunk/gauge.svg') center / contain no-repeat; }
-:root.hud-scene-dieselpunk .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 16px; top: 50%; width: 42px; height: 42px; margin-top: -21px; background: url('../img/scene/dieselpunk/needle.svg') center / contain no-repeat; rotate: 40deg; animation: hud-sc-needle 2.4s ease-in-out infinite; }
+:root.hud-sb-dieselpunk .hud-os-card .hud-tab-content > .hud-scene-b { background: url('../img/scene/dieselpunk/fan.svg') left 0 bottom 0 / 92px 92px no-repeat; opacity: .9; }
+:root.hud-sb-dieselpunk .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 4px; bottom: 0; width: 196px; height: 196px; background: url('../img/scene/dieselpunk/city.svg') center bottom / contain no-repeat; opacity: .85; }
+:root.hud-sh-dieselpunk .hud-os-card .hud-header > .hud-scene-h::before { content: ''; right: 16px; top: 50%; width: 42px; height: 42px; margin-top: -21px; background: url('../img/scene/dieselpunk/gauge.svg') center / contain no-repeat; }
+:root.hud-sh-dieselpunk .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 16px; top: 50%; width: 42px; height: 42px; margin-top: -21px; background: url('../img/scene/dieselpunk/needle.svg') center / contain no-repeat; rotate: 40deg; animation: hud-sc-needle 2.4s ease-in-out infinite; }
 @keyframes hud-sc-needle { 0%, 100% { rotate: 38deg; } 40% { rotate: 52deg; } 55% { rotate: 44deg; } 70% { rotate: 58deg; } }
-:root.hud-scene-dieselpunk .hud-os-card .hud-tab.active { text-shadow: 0 0 6px rgba(255, 170, 60, .9); box-shadow: inset 0 0 0 1px rgba(224, 184, 58, .6), 0 0 14px rgba(255, 150, 40, .35) !important; }
+:root.hud-st-dieselpunk .hud-os-card .hud-tab.active { text-shadow: 0 0 6px rgba(255, 170, 60, .9); box-shadow: inset 0 0 0 1px rgba(224, 184, 58, .6), 0 0 14px rgba(255, 150, 40, .35) !important; }
 
 /* ---------- Солярпанк: лоза, пчела, лучи у портрета, ветряки ---------- */
-:root.hud-scene-solarpunk:not(.hud-scene-img) .hud-os-card .hud-os-wrapper > .hud-scene-c::before { content: ''; left: 4px; right: 4px; top: 0; height: 26px; background: url('../img/scene/solarpunk/vine.svg') 0 0 / 140px 26px repeat-x; }
-:root.hud-scene-solarpunk:not(.hud-scene-img) .hud-os-card .hud-os-wrapper > .hud-scene-c::after {
+:root.hud-sc-solarpunk:not(.hud-sc-img) .hud-os-card .hud-os-wrapper > .hud-scene-c::before { content: ''; left: 4px; right: 4px; top: 0; height: 26px; background: url('../img/scene/solarpunk/vine.svg') 0 0 / 140px 26px repeat-x; }
+:root.hud-sc-solarpunk:not(.hud-sc-img) .hud-os-card .hud-os-wrapper > .hud-scene-c::after {
   content: ''; left: 0; top: 0; width: 22px; height: 17px; background: url('../img/scene/solarpunk/bee.svg') center / contain no-repeat;
   offset-path: path('M40 140 C140 60 240 220 360 130 S520 80 470 190 S180 250 40 140'); animation: hud-sc-bee 16s linear infinite;
 }
 @keyframes hud-sc-bee { to { offset-distance: 100%; } }
-:root.hud-scene-solarpunk .hud-os-card .hud-ava-wrap > .hud-scene-a {
+:root.hud-sa-solarpunk .hud-os-card .hud-ava-wrap > .hud-scene-a {
   width: calc(100% + 40px); height: calc(100% + 40px); border-radius: 50%; animation: hud-sc-spin 30s linear infinite;
   background: repeating-conic-gradient(rgba(245, 197, 66, .6) 0 6deg, transparent 6deg 18deg) !important;
   -webkit-mask: radial-gradient(closest-side, transparent 62%, #000 66%, transparent 100%); mask: radial-gradient(closest-side, transparent 62%, #000 66%, transparent 100%);
 }
-:root.hud-scene-solarpunk:not(.hud-scene-img) .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 4px; bottom: 0; width: 236px; height: 142px; background: url('../img/scene/solarpunk/mills.svg') center bottom / contain no-repeat; }
-:root.hud-scene-solarpunk:not(.hud-scene-img) .hud-os-card .hud-tabs-header { padding-top: 18px !important; }
-:root.hud-scene-solarpunk .hud-os-card .hud-tab { border-radius: 14px 2px 14px 2px !important; }
+:root.hud-sb-solarpunk:not(.hud-sb-img) .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 4px; bottom: 0; width: 236px; height: 142px; background: url('../img/scene/solarpunk/mills.svg') center bottom / contain no-repeat; }
+:root.hud-st-solarpunk:not(.hud-st-img) .hud-os-card .hud-tabs-header { padding-top: 18px !important; }
+:root.hud-st-solarpunk .hud-os-card .hud-tab { border-radius: 14px 2px 14px 2px !important; }
 
 /* ---------- Вуду: веве, булавки в портрете, свечи, Барон ---------- */
-:root.hud-scene-voodoo .hud-os-card .hud-header > .hud-scene-h::before { content: ''; right: 8px; top: -8px; width: 116px; height: 116px; opacity: .16; background: url('../img/scene/voodoo/veve.svg') center / contain no-repeat; }
-:root.hud-scene-voodoo .hud-os-card .hud-ava-wrap > .hud-scene-a { background: none !important; z-index: 2; }
-:root.hud-scene-voodoo .hud-os-card .hud-ava-wrap > .hud-scene-a::before,
-:root.hud-scene-voodoo .hud-os-card .hud-ava-wrap > .hud-scene-a::after { content: ''; top: 6px; width: 7px; height: 20px; background: center / contain no-repeat; transform-origin: 50% 100%; }
-:root.hud-scene-voodoo .hud-os-card .hud-ava-wrap > .hud-scene-a::before { left: 34%; rotate: -24deg; background-image: url('../img/scene/voodoo/pin-red.svg'); }
-:root.hud-scene-voodoo .hud-os-card .hud-ava-wrap > .hud-scene-a::after { left: 58%; rotate: 20deg; background-image: url('../img/scene/voodoo/pin-gold.svg'); }
-:root.hud-scene-voodoo:not(.hud-scene-img) .hud-os-card .hud-tab-content > .hud-scene-b { background: url('../img/scene/voodoo/candles-l.svg') left 4px bottom 0 / 62px auto no-repeat, url('../img/scene/voodoo/candles-r.svg') right 6px bottom 0 / 62px auto no-repeat; opacity: .9; }
-:root.hud-scene-voodoo:not(.hud-scene-img) .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 76px; bottom: 6px; width: 70px; height: 84px; background: url('../img/scene/voodoo/baron.svg') center / contain no-repeat; opacity: .5; }
-:root.hud-scene-voodoo .hud-os-card .hud-tab { border-radius: 3px 3px 10px 10px !important; }
+:root.hud-sh-voodoo .hud-os-card .hud-header > .hud-scene-h::before { content: ''; right: 8px; top: -8px; width: 116px; height: 116px; opacity: .16; background: url('../img/scene/voodoo/veve.svg') center / contain no-repeat; }
+:root.hud-sa-voodoo .hud-os-card .hud-ava-wrap > .hud-scene-a { background: none !important; z-index: 2; }
+:root.hud-sa-voodoo .hud-os-card .hud-ava-wrap > .hud-scene-a::before,
+:root.hud-sa-voodoo .hud-os-card .hud-ava-wrap > .hud-scene-a::after { content: ''; top: 6px; width: 7px; height: 20px; background: center / contain no-repeat; transform-origin: 50% 100%; }
+:root.hud-sa-voodoo .hud-os-card .hud-ava-wrap > .hud-scene-a::before { left: 34%; rotate: -24deg; background-image: url('../img/scene/voodoo/pin-red.svg'); }
+:root.hud-sa-voodoo .hud-os-card .hud-ava-wrap > .hud-scene-a::after { left: 58%; rotate: 20deg; background-image: url('../img/scene/voodoo/pin-gold.svg'); }
+:root.hud-sb-voodoo:not(.hud-sb-img) .hud-os-card .hud-tab-content > .hud-scene-b { background: url('../img/scene/voodoo/candles-l.svg') left 4px bottom 0 / 62px auto no-repeat, url('../img/scene/voodoo/candles-r.svg') right 6px bottom 0 / 62px auto no-repeat; opacity: .9; }
+:root.hud-sb-voodoo:not(.hud-sb-img) .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 76px; bottom: 6px; width: 70px; height: 84px; background: url('../img/scene/voodoo/baron.svg') center / contain no-repeat; opacity: .5; }
+:root.hud-st-voodoo .hud-os-card .hud-tab { border-radius: 3px 3px 10px 10px !important; }
 
 /* ---------- Стимпанк: шестерни, труба с паром, табличка имени, дирижабль ---------- */
-:root.hud-scene-steampunk .hud-os-card .hud-tab-content > .hud-scene-b::after {
+:root.hud-sb-steampunk .hud-os-card .hud-tab-content > .hud-scene-b::after {
   content: ''; right: -26px; bottom: -26px; width: 104px; height: 104px; background: url('../img/scene/steampunk/gear-big.svg') center / contain no-repeat; animation: hud-sc-spin 14s linear infinite;
 }
-:root.hud-scene-steampunk .hud-os-card .hud-tab-content > .hud-scene-b::before {
+:root.hud-sb-steampunk .hud-os-card .hud-tab-content > .hud-scene-b::before {
   content: ''; right: 66px; bottom: -18px; width: 60px; height: 60px; background: url('../img/scene/steampunk/gear-mid.svg') center / contain no-repeat; animation: hud-sc-spin 9s linear infinite reverse;
 }
-:root.hud-scene-steampunk .hud-os-card .hud-os-wrapper > .hud-scene-c::before {
+:root.hud-sc-steampunk .hud-os-card .hud-os-wrapper > .hud-scene-c::before {
   content: ''; left: 3px; top: 30px; bottom: 26px; width: 8px; border-radius: 4px; opacity: .9;
   background: linear-gradient(transparent 29%, #5a3a12 29% 31%, transparent 31% 69%, #5a3a12 69% 71%, transparent 71%), linear-gradient(90deg, #6a3d14, #d69b4a 40%, #f2c27a 55%, #8a5a1e);
 }
-:root.hud-scene-steampunk .hud-os-card .hud-os-wrapper > .hud-scene-c::after {
+:root.hud-sc-steampunk .hud-os-card .hud-os-wrapper > .hud-scene-c::after {
   content: ''; left: 4px; top: 14px; width: 26px; height: 26px; border-radius: 50%; filter: blur(2px);
   background: radial-gradient(circle, rgba(240, 236, 230, .7), transparent 70%); opacity: 0; animation: hud-sc-steam 7s ease-out infinite;
 }
 @keyframes hud-sc-steam { 0%, 72% { opacity: 0; translate: 0 0; scale: .4; } 78% { opacity: .9; } 100% { opacity: 0; translate: 18px -18px; scale: 1.8; } }
-:root.hud-scene-steampunk .hud-os-card .hud-body { padding-left: 18px !important; }
-:root.hud-scene-steampunk .hud-os-card .hud-header .hud-title {
+:root.hud-sb-steampunk .hud-os-card .hud-body { padding-left: 18px !important; }
+:root.hud-sn-steampunk .hud-os-card .hud-header .hud-title {
   display: inline-block; padding: 3px 18px; border-radius: 3px; color: #3a2408 !important; -webkit-text-fill-color: #3a2408 !important; text-shadow: 0 1px 0 rgba(255, 240, 210, .6) !important;
   background: radial-gradient(circle at 7px 50%, #5a3a12 0 2px, #f2c27a 2.5px 3.5px, transparent 4px), radial-gradient(circle at calc(100% - 7px) 50%, #5a3a12 0 2px, #f2c27a 2.5px 3.5px, transparent 4px), linear-gradient(180deg, #f2c27a, #c48a3a 55%, #9a6624) !important;
   box-shadow: inset 0 0 0 1px #7a4e18, 0 2px 3px rgba(0, 0, 0, .5);
 }
-:root.hud-scene-steampunk:not(.hud-scene-img) .hud-os-card .hud-header > .hud-scene-h::after {
+:root.hud-sh-steampunk:not(.hud-sh-img) .hud-os-card .hud-header > .hud-scene-h::after {
   content: ''; left: 40%; top: 4px; width: 100px; height: 41px; background: url('../img/scene/steampunk/airship.svg') center / contain no-repeat;
   animation: hud-sc-airship 30s ease-in-out infinite alternate; opacity: .9;
 }
 @keyframes hud-sc-airship { from { translate: 120px 0; } to { translate: -60px 0; } }
 
 /* ---------- Египет: фриз, крылатый диск над портретом, картуш, скарабей, пирамиды ---------- */
-:root.hud-scene-egypt .hud-os-card .hud-os-wrapper > .hud-scene-c::before { content: ''; left: 0; right: 0; top: 0; height: 18px; background: url('../img/scene/egypt/frieze.svg') 0 0 / 98px 18px repeat-x; opacity: .95; }
-:root.hud-scene-egypt .hud-os-card .hud-tabs-header { padding-top: 24px !important; }
-:root.hud-scene-egypt .hud-os-card .hud-ava-wrap > .hud-scene-a { background: none !important; z-index: 2; }
-:root.hud-scene-egypt .hud-os-card .hud-ava-wrap > .hud-scene-a::before { content: ''; left: 50%; top: -10px; width: 96px; height: 24px; translate: -50% 0; background: url('../img/scene/egypt/wings.svg') center / contain no-repeat; }
-:root.hud-scene-egypt .hud-os-card .hud-header:not(.has-banner) { padding-top: 22px !important; }
-:root.hud-scene-egypt .hud-os-card .hud-header .hud-title { display: inline-block; padding: 3px 24px 3px 14px; border: 2px solid #8a6a10; border-radius: 999px; box-shadow: inset 0 0 0 3px rgba(243, 231, 196, .4), inset 0 0 0 4px rgba(138, 106, 16, .45); }
-:root.hud-scene-egypt:not(.hud-scene-img) .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 16px; top: 50%; width: 44px; height: 47px; margin-top: -24px; background: url('../img/scene/egypt/scarab.svg') center / contain no-repeat; }
-:root.hud-scene-egypt:not(.hud-scene-img) .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 4px; bottom: 0; width: 200px; height: 110px; background: url('../img/scene/egypt/pyramids.svg') center bottom / contain no-repeat; opacity: .85; }
-:root.hud-scene-egypt .hud-os-card .hud-tab { border-radius: 999px !important; }
+:root.hud-sc-egypt .hud-os-card .hud-os-wrapper > .hud-scene-c::before { content: ''; left: 0; right: 0; top: 0; height: 18px; background: url('../img/scene/egypt/frieze.svg') 0 0 / 98px 18px repeat-x; opacity: .95; }
+:root.hud-st-egypt .hud-os-card .hud-tabs-header { padding-top: 24px !important; }
+:root.hud-sa-egypt .hud-os-card .hud-ava-wrap > .hud-scene-a { background: none !important; z-index: 2; }
+:root.hud-sa-egypt .hud-os-card .hud-ava-wrap > .hud-scene-a::before { content: ''; left: 50%; top: -10px; width: 96px; height: 24px; translate: -50% 0; background: url('../img/scene/egypt/wings.svg') center / contain no-repeat; }
+:root.hud-sa-egypt .hud-os-card .hud-header:not(.has-banner) { padding-top: 22px !important; }
+:root.hud-sn-egypt .hud-os-card .hud-header .hud-title { display: inline-block; padding: 3px 24px 3px 14px; border: 2px solid #8a6a10; border-radius: 999px; box-shadow: inset 0 0 0 3px rgba(243, 231, 196, .4), inset 0 0 0 4px rgba(138, 106, 16, .45); }
+:root.hud-sh-egypt:not(.hud-sh-img) .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 16px; top: 50%; width: 44px; height: 47px; margin-top: -24px; background: url('../img/scene/egypt/scarab.svg') center / contain no-repeat; }
+:root.hud-sb-egypt:not(.hud-sb-img) .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 4px; bottom: 0; width: 200px; height: 110px; background: url('../img/scene/egypt/pyramids.svg') center bottom / contain no-repeat; opacity: .85; }
+:root.hud-st-egypt .hud-os-card .hud-tab { border-radius: 999px !important; }
 
 /* ---------- Вестерн: верёвка, «Разыскивается», пулевые дыры, звезда, закат, перекати-поле ---------- */
-:root.hud-scene-western .hud-os-card .hud-os-wrapper > .hud-scene-c::before { content: ''; inset: 0; border: 6px solid transparent; border-image: url('../img/scene/western/rope.svg') 4 round; border-radius: 10px; }
-:root.hud-scene-western .hud-os-card .hud-os-wrapper > .hud-scene-c::after { content: ''; left: -40px; bottom: 6px; width: 28px; height: 28px; background: url('../img/scene/western/tumbleweed.svg') center / contain no-repeat; animation: hud-sc-tumble 9s linear infinite; }
+:root.hud-sc-western .hud-os-card .hud-os-wrapper > .hud-scene-c::before { content: ''; inset: 0; border: 6px solid transparent; border-image: url('../img/scene/western/rope.svg') 4 round; border-radius: 10px; }
+:root.hud-sc-western .hud-os-card .hud-os-wrapper > .hud-scene-c::after { content: ''; left: -40px; bottom: 6px; width: 28px; height: 28px; background: url('../img/scene/western/tumbleweed.svg') center / contain no-repeat; animation: hud-sc-tumble 9s linear infinite; }
 @keyframes hud-sc-tumble { 0% { translate: 0 0; rotate: 0deg; } 100% { translate: 720px 0; rotate: 900deg; } }
-:root.hud-scene-western .hud-os-card .hud-header:not(.has-banner, .is-visit) { padding-top: 34px !important; }
-:root.hud-scene-western .hud-os-card .hud-header > .hud-scene-h::before {
+:root.hud-sh-western .hud-os-card .hud-header:not(.has-banner, .is-visit) { padding-top: 34px !important; }
+:root.hud-sh-western .hud-os-card .hud-header > .hud-scene-h::before {
   content: 'РАЗЫСКИВАЕТСЯ'; left: 0; right: 0; top: 6px; text-align: center; font: 900 17px/1 'Rockwell', Georgia, serif; letter-spacing: .32em; color: #5a3a1a; opacity: .85;
   background: radial-gradient(circle at 12px 50%, #d9d4cc 0 2.5px, #5a5248 3px 3.6px, transparent 4px), radial-gradient(circle at calc(100% - 12px) 50%, #d9d4cc 0 2.5px, #5a5248 3px 3.6px, transparent 4px);
 }
-:root.hud-scene-western .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; right: 222px; bottom: 54px; width: 60px; height: 60px; background: url('../img/scene/western/hole.svg') 0 0 / 32px 32px no-repeat, url('../img/scene/western/hole.svg') 26px 30px / 24px 24px no-repeat; opacity: .8; }
-:root.hud-scene-western:not(.hud-scene-img) .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 4px; bottom: 0; width: 200px; height: 100px; background: url('../img/scene/western/desert.svg') center bottom / contain no-repeat; opacity: .8; }
-:root.hud-scene-western:not(.hud-scene-img) .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 18px; bottom: 4px; width: 44px; height: 44px; rotate: 10deg; background: url('../img/scene/western/star.svg') center / contain no-repeat; }
-:root.hud-scene-western .hud-os-card .hud-tab.active::before { content: '★ '; color: #d9a640; }
+:root.hud-sb-western .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; right: 222px; bottom: 54px; width: 60px; height: 60px; background: url('../img/scene/western/hole.svg') 0 0 / 32px 32px no-repeat, url('../img/scene/western/hole.svg') 26px 30px / 24px 24px no-repeat; opacity: .8; }
+:root.hud-sb-western:not(.hud-sb-img) .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 4px; bottom: 0; width: 200px; height: 100px; background: url('../img/scene/western/desert.svg') center bottom / contain no-repeat; opacity: .8; }
+:root.hud-sh-western:not(.hud-sh-img) .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 18px; bottom: 4px; width: 44px; height: 44px; rotate: 10deg; background: url('../img/scene/western/star.svg') center / contain no-repeat; }
+:root.hud-st-western .hud-os-card .hud-tab.active::before { content: '★ '; color: #d9a640; }
 
 /* ---------- Нуар: жалюзи, дождь, снимок для дела, штамп, пепельница ---------- */
-:root.hud-scene-noir .hud-os-card .hud-os-wrapper > .hud-scene-c::before {
+:root.hud-sc-noir .hud-os-card .hud-os-wrapper > .hud-scene-c::before {
   content: ''; inset: 0; mix-blend-mode: screen; opacity: .5;
   background: repeating-linear-gradient(-28deg, rgba(255, 255, 255, .08) 0 14px, transparent 14px 30px);
   -webkit-mask: linear-gradient(115deg, transparent 10%, #000 40%, #000 70%, transparent 95%); mask: linear-gradient(115deg, transparent 10%, #000 40%, #000 70%, transparent 95%);
 }
-:root.hud-scene-noir .hud-os-card .hud-os-wrapper > .hud-scene-c::after {
+:root.hud-sc-noir .hud-os-card .hud-os-wrapper > .hud-scene-c::after {
   content: ''; left: 0; right: 0; top: 0; height: 56px; opacity: .3; animation: hud-sc-rain .6s linear infinite;
   background: repeating-linear-gradient(100deg, transparent 0 6px, rgba(220, 220, 220, .5) 6px 7px, transparent 7px 19px) 0 0 / 120px 56px;
   -webkit-mask: linear-gradient(#000, transparent); mask: linear-gradient(#000, transparent);
 }
 @keyframes hud-sc-rain { to { background-position: -12px 56px; } }
-:root.hud-scene-noir .hud-os-card .hud-header:not(.has-banner) .hud-avatar { filter: grayscale(1) contrast(1.15); border-radius: 2px !important; }
-:root.hud-scene-noir .hud-os-card .hud-header:not(.has-banner) .hud-avatar-placeholder { border-radius: 2px !important; background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .2) 0 1px, transparent 1px 8px), #2a2a2a !important; }
-:root.hud-scene-noir .hud-os-card .hud-header-text { flex-wrap: wrap; flex: 1 1 auto !important; min-width: 0; }
-:root.hud-scene-noir .hud-os-card .hud-header-text .hud-scene-n { display: block; flex: none; align-self: stretch; width: auto !important; min-width: 0; height: auto !important; margin: 3px 0 0; }
-:root.hud-scene-noir .hud-os-card .hud-header-text .hud-scene-n::before { content: 'ДЕЛО № 0417 · ' var(--hud-dateline, ''); position: static; display: inline-block; padding: 1px 8px; background: #111; color: #e8e8e8; border: 1px solid #555; font: 10.5px/1.4 'Courier New', monospace; letter-spacing: .12em; white-space: nowrap; max-width: 100%; box-sizing: border-box; overflow: hidden; text-overflow: ellipsis; vertical-align: top; }
-:root.hud-scene-noir:not(.hud-scene-img) .hud-os-card .hud-header > .hud-scene-h::before {
+:root.hud-sa-noir .hud-os-card .hud-header:not(.has-banner) .hud-avatar { filter: grayscale(1) contrast(1.15); border-radius: 2px !important; }
+:root.hud-sa-noir .hud-os-card .hud-header:not(.has-banner) .hud-avatar-placeholder { border-radius: 2px !important; background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .2) 0 1px, transparent 1px 8px), #2a2a2a !important; }
+:root.hud-sn-noir .hud-os-card .hud-header-text { flex-wrap: wrap; flex: 1 1 auto !important; min-width: 0; }
+:root.hud-sn-noir .hud-os-card .hud-header-text .hud-scene-n { display: block; flex: none; align-self: stretch; width: auto !important; min-width: 0; height: auto !important; margin: 3px 0 0; }
+:root.hud-sn-noir .hud-os-card .hud-header-text .hud-scene-n::before { content: 'ДЕЛО № 0417 · ' var(--hud-dateline, ''); position: static; display: inline-block; padding: 1px 8px; background: #111; color: #e8e8e8; border: 1px solid #555; font: 10.5px/1.4 'Courier New', monospace; letter-spacing: .12em; white-space: nowrap; max-width: 100%; box-sizing: border-box; overflow: hidden; text-overflow: ellipsis; vertical-align: top; }
+:root.hud-sh-noir:not(.hud-sh-img) .hud-os-card .hud-header > .hud-scene-h::before {
   content: 'СЕКРЕТНО'; right: 140px; top: -4px; padding: 3px 10px; border: 2.5px solid #b3121b; border-radius: 3px; color: #b3121b; rotate: -10deg; opacity: .8;
   font: 900 12px/1 'Courier New', monospace; letter-spacing: .2em;
 }
-:root.hud-scene-noir:not(.hud-scene-img) .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 8px; bottom: -4px; width: 150px; height: 122px; background: url('../img/scene/noir/ashtray.svg') center / contain no-repeat; }
-:root.hud-scene-noir .hud-os-card .hud-header .hud-title { text-transform: uppercase; letter-spacing: .1em; }
+:root.hud-sb-noir:not(.hud-sb-img) .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 8px; bottom: -4px; width: 150px; height: 122px; background: url('../img/scene/noir/ashtray.svg') center / contain no-repeat; }
+:root.hud-sn-noir .hud-os-card .hud-header .hud-title { text-transform: uppercase; letter-spacing: .1em; }
 
 /* ---------- Пираты: маршрут к кладу, роза ветров, обожжённые края, волны, сундук, кораблик ---------- */
-:root.hud-scene-pirate .hud-os-card { box-shadow: inset 0 0 26px 6px rgba(110, 60, 20, .4), inset 0 0 4px 2px rgba(60, 30, 10, .55), 0 10px 26px rgba(0, 0, 0, .45) !important; }
-:root.hud-scene-pirate .hud-os-card .hud-tab-content > .hud-scene-b { background: url('../img/scene/pirate/route.svg') 0 60px / 100% calc(100% - 80px) no-repeat; }
-:root.hud-scene-pirate:not(.hud-scene-img) .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 10px; top: -6px; width: 100px; height: 100px; opacity: .3; background: url('../img/scene/pirate/rose.svg') center / contain no-repeat; animation: hud-sc-spin 40s linear infinite; }
-:root.hud-scene-pirate .hud-os-card .hud-os-wrapper > .hud-scene-c::after {
+:root.hud-sc-pirate .hud-os-card { box-shadow: inset 0 0 26px 6px rgba(110, 60, 20, .4), inset 0 0 4px 2px rgba(60, 30, 10, .55), 0 10px 26px rgba(0, 0, 0, .45) !important; }
+:root.hud-sb-pirate .hud-os-card .hud-tab-content > .hud-scene-b { background: url('../img/scene/pirate/route.svg') 0 60px / 100% calc(100% - 80px) no-repeat; }
+:root.hud-sh-pirate:not(.hud-sh-img) .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 10px; top: -6px; width: 100px; height: 100px; opacity: .3; background: url('../img/scene/pirate/rose.svg') center / contain no-repeat; animation: hud-sc-spin 40s linear infinite; }
+:root.hud-sc-pirate .hud-os-card .hud-os-wrapper > .hud-scene-c::after {
   content: ''; left: 0; right: 0; bottom: 0; height: 18px; opacity: .45; animation: hud-sc-waves 4s linear infinite;
   background: radial-gradient(circle at 10px 22px, transparent 9px, #2e5a7a 9.5px 11px, transparent 11.5px) 0 0 / 20px 20px repeat-x, radial-gradient(circle at 0 26px, transparent 9px, rgba(46, 90, 122, .6) 9.5px 11px, transparent 11.5px) 0 4px / 20px 20px repeat-x;
 }
 @keyframes hud-sc-waves { to { background-position: 20px 0, -20px 4px; } }
-:root.hud-scene-pirate:not(.hud-scene-img) .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 52px; bottom: 20px; width: 72px; height: 56px; background: url('../img/scene/pirate/chest.svg') center / contain no-repeat; }
-:root.hud-scene-pirate:not(.hud-scene-img) .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; left: 30%; bottom: 4px; width: 56px; height: 42px; background: url('../img/scene/pirate/boat.svg') center / contain no-repeat; opacity: .7; transform-origin: 50% 90%; animation: hud-sc-rock 4s ease-in-out infinite; }
+:root.hud-sb-pirate:not(.hud-sb-img) .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 52px; bottom: 20px; width: 72px; height: 56px; background: url('../img/scene/pirate/chest.svg') center / contain no-repeat; }
+:root.hud-sb-pirate:not(.hud-sb-img) .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; left: 30%; bottom: 4px; width: 56px; height: 42px; background: url('../img/scene/pirate/boat.svg') center / contain no-repeat; opacity: .7; transform-origin: 50% 90%; animation: hud-sc-rock 4s ease-in-out infinite; }
 @keyframes hud-sc-rock { 0%, 100% { rotate: -4deg; } 50% { rotate: 4deg; translate: 0 -3px; } }
-:root.hud-scene-pirate .hud-os-card .hud-tab.active::before { content: '☠ '; }
+:root.hud-st-pirate .hud-os-card .hud-tab.active::before { content: '☠ '; }
 
 /* ---------- Космоопера: звёзды, прицельные уголки, скан шапки, планета, звездолёт, комета ---------- */
-:root.hud-scene-spaceopera .hud-os-card .hud-tab-content > .hud-scene-b {
+:root.hud-sb-spaceopera .hud-os-card .hud-tab-content > .hud-scene-b {
   opacity: .7; animation: hud-sc-stars 60s linear infinite;
   background: radial-gradient(1px 1px at 20px 30px, #fff, transparent), radial-gradient(1px 1px at 90px 80px, #cfe3ff, transparent), radial-gradient(1.5px 1.5px at 150px 20px, #fff, transparent), radial-gradient(1px 1px at 210px 110px, #b9a0ff, transparent), radial-gradient(1px 1px at 60px 140px, #fff, transparent);
   background-size: 240px 160px;
 }
 @keyframes hud-sc-stars { to { background-position: -240px 0; } }
-:root.hud-scene-spaceopera .hud-os-card .hud-os-wrapper > .hud-scene-c::before {
+:root.hud-sc-spaceopera .hud-os-card .hud-os-wrapper > .hud-scene-c::before {
   content: ''; inset: 4px; opacity: .8;
   background:
     linear-gradient(#7db8ff, #7db8ff) left top / 18px 2px, linear-gradient(#7db8ff, #7db8ff) left top / 2px 18px,
@@ -336,97 +339,97 @@
     linear-gradient(#7db8ff, #7db8ff) right bottom / 18px 2px, linear-gradient(#7db8ff, #7db8ff) right bottom / 2px 18px;
   background-repeat: no-repeat;
 }
-:root.hud-scene-spaceopera .hud-os-card .hud-header > .hud-scene-h { overflow: hidden; }
-:root.hud-scene-spaceopera .hud-os-card .hud-header > .hud-scene-h::before {
+:root.hud-sh-spaceopera .hud-os-card .hud-header > .hud-scene-h { overflow: hidden; }
+:root.hud-sh-spaceopera .hud-os-card .hud-header > .hud-scene-h::before {
   content: ''; left: 0; right: 0; top: 0; height: 2px; background: linear-gradient(90deg, transparent, rgba(125, 184, 255, .9), transparent); box-shadow: 0 0 10px #7db8ff;
   animation: hud-sc-scan 3.6s ease-in-out infinite;
 }
 @keyframes hud-sc-scan { 0% { top: 0; opacity: 0; } 10%, 90% { opacity: 1; } 100% { top: 100%; opacity: 0; } }
-:root.hud-scene-spaceopera .hud-os-card .hud-header > .hud-scene-h::after {
+:root.hud-sh-spaceopera .hud-os-card .hud-header > .hud-scene-h::after {
   content: ''; left: -30%; top: 8px; width: 90px; height: 2px; border-radius: 2px; rotate: 12deg; opacity: 0;
   background: linear-gradient(90deg, transparent, rgba(185, 160, 255, .6), #fff); box-shadow: 0 0 6px #b9a0ff; animation: hud-sc-comet 9s ease-in infinite;
 }
 @keyframes hud-sc-comet { 0%, 70% { translate: 0 0; opacity: 0; } 72% { opacity: 1; } 86% { translate: 640px 120px; opacity: 0; } 100% { opacity: 0; } }
-:root.hud-scene-spaceopera .hud-os-card .hud-ava-wrap > .hud-scene-a { width: calc(100% + 64px); height: calc(100% + 30px); background-image: url('../img/scene/spaceopera/planet.svg') !important; opacity: .9; }
-:root.hud-scene-spaceopera .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 6px; bottom: 2px; width: 186px; height: 84px; background: url('../img/scene/spaceopera/ship.svg') center / contain no-repeat; animation: hud-sc-float 6s ease-in-out infinite; }
-:root.hud-scene-spaceopera .hud-os-card .hud-tab.active::before { content: '● '; color: #7dffb2; text-shadow: 0 0 6px #7dffb2; }
+:root.hud-sa-spaceopera .hud-os-card .hud-ava-wrap > .hud-scene-a { width: calc(100% + 64px); height: calc(100% + 30px); background-image: url('../img/scene/spaceopera/planet.svg') !important; opacity: .9; }
+:root.hud-sb-spaceopera .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 6px; bottom: 2px; width: 186px; height: 84px; background: url('../img/scene/spaceopera/ship.svg') center / contain no-repeat; animation: hud-sc-float 6s ease-in-out infinite; }
+:root.hud-st-spaceopera .hud-os-card .hud-tab.active::before { content: '● '; color: #7dffb2; text-shadow: 0 0 6px #7dffb2; }
 
 /* ---------- Лёд: сосульки, капля, иней, туман, снежинка, сияние ---------- */
-:root.hud-scene-ice .hud-os-card .hud-os-wrapper > .hud-scene-c::before { content: ''; left: 0; right: 0; top: 0; height: 26px; background: url('../img/scene/ice/icicles.svg') 0 0 / 90px 26px repeat-x; }
-:root.hud-scene-ice .hud-os-card .hud-os-wrapper > .hud-scene-c::after { content: ''; left: 63%; top: 22px; width: 4px; height: 6px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #dff8ff; opacity: 0; animation: hud-sc-melt 5.5s ease-in infinite; }
+:root.hud-sc-ice .hud-os-card .hud-os-wrapper > .hud-scene-c::before { content: ''; left: 0; right: 0; top: 0; height: 26px; background: url('../img/scene/ice/icicles.svg') 0 0 / 90px 26px repeat-x; }
+:root.hud-sc-ice .hud-os-card .hud-os-wrapper > .hud-scene-c::after { content: ''; left: 63%; top: 22px; width: 4px; height: 6px; border-radius: 50% 50% 50% 50% / 60% 60% 40% 40%; background: #dff8ff; opacity: 0; animation: hud-sc-melt 5.5s ease-in infinite; }
 @keyframes hud-sc-melt { 0%, 60% { opacity: 0; translate: 0 0; } 65% { opacity: .9; } 100% { opacity: 0; translate: 0 90px; } }
-:root.hud-scene-ice .hud-os-card .hud-tabs-header { padding-top: 20px !important; }
-:root.hud-scene-ice .hud-os-card .hud-tab-content > .hud-scene-b {
+:root.hud-st-ice .hud-os-card .hud-tabs-header { padding-top: 20px !important; }
+:root.hud-sb-ice .hud-os-card .hud-tab-content > .hud-scene-b {
   background: url('../img/scene/ice/frost.svg') left bottom / 120px 120px no-repeat, radial-gradient(ellipse at 30% 100%, rgba(220, 245, 255, .14), transparent 60%) left bottom / 100% 70px no-repeat;
 }
-:root.hud-scene-ice:not(.hud-scene-img) .hud-os-card .hud-tab-content > .hud-scene-b::after {
+:root.hud-sb-ice:not(.hud-sb-img) .hud-os-card .hud-tab-content > .hud-scene-b::after {
   content: ''; right: 18px; bottom: 8px; width: 88px; height: 88px; opacity: .55;
   background: url('../img/scene/ice/flake.svg') center / contain no-repeat; animation: hud-sc-spin 60s linear infinite;
 }
-:root.hud-scene-ice .hud-os-card .hud-header > .hud-scene-h::before {
+:root.hud-sh-ice .hud-os-card .hud-header > .hud-scene-h::before {
   content: ''; left: 14%; right: 24%; top: 8px; bottom: 8px; border-radius: 50%; filter: blur(10px); opacity: .45;
   background: linear-gradient(90deg, rgba(90, 255, 180, 0), rgba(90, 255, 180, .6), rgba(127, 212, 232, .7), rgba(180, 140, 255, .6), rgba(180, 140, 255, 0)) 0 0 / 200% 100%;
   animation: hud-sc-aurora 9s ease-in-out infinite alternate;
 }
 @keyframes hud-sc-aurora { to { background-position: 100% 0; } }
-:root.hud-scene-ice .hud-os-card .hud-tab.active::before { content: '❄︎ '; color: #dff8ff; text-shadow: 0 0 6px #7fd4e8; }
+:root.hud-st-ice .hud-os-card .hud-tab.active::before { content: '❄︎ '; color: #dff8ff; text-shadow: 0 0 6px #7fd4e8; }
 
 /* ---------- Глубина: каустика, пузыри, водоросли, иллюминатор, якорь, рыбки ---------- */
-:root.hud-scene-ocean .hud-os-card .hud-os-wrapper > .hud-scene-c::before {
+:root.hud-sc-ocean .hud-os-card .hud-os-wrapper > .hud-scene-c::before {
   content: ''; inset: 0; mix-blend-mode: screen; opacity: .3; animation: hud-sc-caustic 9s ease-in-out infinite alternate;
   background: radial-gradient(ellipse 60px 22px at 20% 30%, rgba(79, 216, 200, .35), transparent 70%), radial-gradient(ellipse 80px 26px at 70% 18%, rgba(160, 240, 230, .3), transparent 70%), radial-gradient(ellipse 50px 20px at 45% 60%, rgba(79, 216, 200, .3), transparent 70%), radial-gradient(ellipse 70px 24px at 85% 70%, rgba(160, 240, 230, .25), transparent 70%);
 }
 @keyframes hud-sc-caustic { to { background-position: 30px 10px, -40px 14px, 20px -10px, -30px -6px; } }
-:root.hud-scene-ocean .hud-os-card .hud-os-wrapper > .hud-scene-c::after {
+:root.hud-sc-ocean .hud-os-card .hud-os-wrapper > .hud-scene-c::after {
   content: ''; left: 6%; right: 6%; top: 0; bottom: 0; opacity: .55; animation: hud-sc-bubbles 12s linear infinite;
   background: radial-gradient(circle at 30% 30%, rgba(255, 255, 255, .7) 0 1px, rgba(200, 255, 250, .5) 1.5px 3px, transparent 3.5px) 8% 0 / 90px 230px, radial-gradient(circle at 30% 30%, rgba(255, 255, 255, .7) 0 1px, rgba(200, 255, 250, .5) 1.5px 4px, transparent 4.5px) 62% 60px / 130px 310px;
   -webkit-mask: linear-gradient(transparent, #000 30%); mask: linear-gradient(transparent, #000 30%);
 }
 @keyframes hud-sc-bubbles { to { background-position: 8% -230px, 62% -250px; } }
-:root.hud-scene-ocean .hud-os-card .hud-tab-content > .hud-scene-b { background: url('../img/scene/ocean/kelp.svg') left 4px bottom 0 / 26px 110px no-repeat, url('../img/scene/ocean/kelp.svg') left 24px bottom 0 / 22px 80px no-repeat, url('../img/scene/ocean/kelp.svg') right 6px bottom 0 / 26px 120px no-repeat; opacity: .8; }
-:root.hud-scene-ocean .hud-os-card .hud-header:not(.has-banner) :is(.hud-avatar, .hud-avatar-placeholder) { border-radius: 50% !important; box-shadow: 0 0 0 4px #0b2a3a, 0 0 0 8px #b8862e, 0 0 0 9px #6a4a14, inset 0 0 12px rgba(79, 216, 200, .5) !important; }
-:root.hud-scene-ocean .hud-os-card .hud-ava-wrap > .hud-scene-a {
+:root.hud-sb-ocean .hud-os-card .hud-tab-content > .hud-scene-b { background: url('../img/scene/ocean/kelp.svg') left 4px bottom 0 / 26px 110px no-repeat, url('../img/scene/ocean/kelp.svg') left 24px bottom 0 / 22px 80px no-repeat, url('../img/scene/ocean/kelp.svg') right 6px bottom 0 / 26px 120px no-repeat; opacity: .8; }
+:root.hud-sa-ocean .hud-os-card .hud-header:not(.has-banner) :is(.hud-avatar, .hud-avatar-placeholder) { border-radius: 50% !important; box-shadow: 0 0 0 4px #0b2a3a, 0 0 0 8px #b8862e, 0 0 0 9px #6a4a14, inset 0 0 12px rgba(79, 216, 200, .5) !important; }
+:root.hud-sa-ocean .hud-os-card .hud-ava-wrap > .hud-scene-a {
   width: calc(100% + 18px); height: calc(100% + 18px); border-radius: 50%; z-index: 2;
   background: radial-gradient(circle at 50% 3%, #f2d28a 0 1.3px, #6a4a14 1.9px 2.4px, transparent 2.8px), radial-gradient(circle at 50% 97%, #f2d28a 0 1.3px, #6a4a14 1.9px 2.4px, transparent 2.8px), radial-gradient(circle at 3% 50%, #f2d28a 0 1.3px, #6a4a14 1.9px 2.4px, transparent 2.8px), radial-gradient(circle at 97% 50%, #f2d28a 0 1.3px, #6a4a14 1.9px 2.4px, transparent 2.8px), radial-gradient(circle at 15% 15%, #f2d28a 0 1.3px, #6a4a14 1.9px 2.4px, transparent 2.8px), radial-gradient(circle at 85% 15%, #f2d28a 0 1.3px, #6a4a14 1.9px 2.4px, transparent 2.8px), radial-gradient(circle at 15% 85%, #f2d28a 0 1.3px, #6a4a14 1.9px 2.4px, transparent 2.8px), radial-gradient(circle at 85% 85%, #f2d28a 0 1.3px, #6a4a14 1.9px 2.4px, transparent 2.8px) !important;
 }
-:root.hud-scene-ocean:not(.hud-scene-img) .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 54px; bottom: 0; width: 64px; height: 88px; background: url('../img/scene/ocean/anchor.svg') center / contain no-repeat; opacity: .75; }
-:root.hud-scene-ocean:not(.hud-scene-img) .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; right: -150px; top: 34%; width: 140px; height: 40px; background: url('../img/scene/ocean/fish.svg') center / contain no-repeat; opacity: .7; animation: hud-sc-school 22s linear infinite; }
+:root.hud-sb-ocean:not(.hud-sb-img) .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 54px; bottom: 0; width: 64px; height: 88px; background: url('../img/scene/ocean/anchor.svg') center / contain no-repeat; opacity: .75; }
+:root.hud-sb-ocean:not(.hud-sb-img) .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; right: -150px; top: 34%; width: 140px; height: 40px; background: url('../img/scene/ocean/fish.svg') center / contain no-repeat; opacity: .7; animation: hud-sc-school 22s linear infinite; }
 @keyframes hud-sc-school { from { translate: 0 0; } 50% { translate: -380px 8px; } to { translate: -760px 0; } }
 
 /* ---------- Космохоррор: маячок, мигание, следы когтей, детектор, сбой имени, вентиляция ---------- */
-:root.hud-scene-spacehorror .hud-os-card .hud-os-wrapper > .hud-scene-c { background: repeating-linear-gradient(-45deg, #e0b83a 0 8px, #111 8px 16px) left bottom / 100% 6px no-repeat; }
-:root.hud-scene-spacehorror .hud-os-card .hud-os-wrapper > .hud-scene-c::before {
+:root.hud-sc-spacehorror .hud-os-card .hud-os-wrapper > .hud-scene-c { background: repeating-linear-gradient(-45deg, #e0b83a 0 8px, #111 8px 16px) left bottom / 100% 6px no-repeat; }
+:root.hud-sc-spacehorror .hud-os-card .hud-os-wrapper > .hud-scene-c::before {
   content: ''; inset: 0; mix-blend-mode: screen; animation: hud-sc-beacon 3s linear infinite;
   background: conic-gradient(from 0deg at 50% -10%, transparent 0 150deg, rgba(224, 58, 58, .26) 170deg, transparent 190deg 360deg);
 }
 @keyframes hud-sc-beacon { 0%, 100% { translate: -35% 0; opacity: .9; } 50% { translate: 35% 0; opacity: .6; } }
-:root.hud-scene-spacehorror .hud-os-card .hud-os-wrapper > .hud-scene-c::after { content: ''; inset: 0; background: rgba(0, 0, 0, .45); opacity: 0; animation: hud-sc-flicker 7s steps(1) infinite; }
+:root.hud-sc-spacehorror .hud-os-card .hud-os-wrapper > .hud-scene-c::after { content: ''; inset: 0; background: rgba(0, 0, 0, .45); opacity: 0; animation: hud-sc-flicker 7s steps(1) infinite; }
 @keyframes hud-sc-flicker { 0%, 88%, 92%, 95%, 100% { opacity: 0; } 89%, 93% { opacity: 1; } }
-:root.hud-scene-spacehorror .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; right: 172px; bottom: 16px; width: 84px; height: 66px; background: url('../img/scene/spacehorror/claws.svg') center / contain no-repeat; opacity: .55; }
-:root.hud-scene-spacehorror:not(.hud-scene-img) .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 10px; bottom: 8px; width: 148px; height: 102px; background: url('../img/scene/spacehorror/vent.svg') center / contain no-repeat; }
-:root.hud-scene-spacehorror .hud-os-card .hud-header > .hud-scene-h::after {
+:root.hud-sb-spacehorror .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; right: 172px; bottom: 16px; width: 84px; height: 66px; background: url('../img/scene/spacehorror/claws.svg') center / contain no-repeat; opacity: .55; }
+:root.hud-sb-spacehorror:not(.hud-sb-img) .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 10px; bottom: 8px; width: 148px; height: 102px; background: url('../img/scene/spacehorror/vent.svg') center / contain no-repeat; }
+:root.hud-sh-spacehorror .hud-os-card .hud-header > .hud-scene-h::after {
   content: '12 м'; right: 12px; top: 50%; width: 62px; height: 52px; margin-top: -26px; padding-top: 40px; box-sizing: border-box; text-align: center;
   font: 700 10px/1 Consolas, monospace; color: #5aff9a; text-shadow: 0 0 4px #5aff9a; background: url('../img/scene/spacehorror/tracker.svg') center top / 62px 40px no-repeat;
 }
-:root.hud-scene-spacehorror .hud-os-card .hud-header .hud-title { animation: hud-sc-glitch 5s steps(1) infinite; animation-play-state: paused; }
-:root.hud-scene-spacehorror .hud-os-card.fx-bg .hud-header .hud-title { animation-play-state: running; }
-@media (hover: hover) and (pointer: fine) { :root.hud-scene-spacehorror .hud-os-card:hover .hud-header .hud-title { animation-play-state: running; } }
+:root.hud-sn-spacehorror .hud-os-card .hud-header .hud-title { animation: hud-sc-glitch 5s steps(1) infinite; animation-play-state: paused; }
+:root.hud-sn-spacehorror .hud-os-card.fx-bg .hud-header .hud-title { animation-play-state: running; }
+@media (hover: hover) and (pointer: fine) { :root.hud-sn-spacehorror .hud-os-card:hover .hud-header .hud-title { animation-play-state: running; } }
 @keyframes hud-sc-glitch { 0%, 90%, 100% { clip-path: none; translate: 0; } 91% { clip-path: inset(0 0 55% 0); translate: 3px; text-shadow: -2px 0 #e03a3a, 2px 0 #3ae0e0; } 93% { clip-path: inset(45% 0 0 0); translate: -3px; text-shadow: 2px 0 #e03a3a, -2px 0 #3ae0e0; } 95% { clip-path: none; translate: 0; } }
 
 /* ---------- Вампир: летучая мышь в шапке — машет крыльями от плеч ---------- */
 /* Тело — фон самого слоя шапки, крылья — ::before и ::after: перепонки
    залиты цветом темы и вырезаны по рисунку, кости и контур — поверх. */
-:root.hud-scene-vamp .hud-os-card .hud-header > .hud-scene-h { background: url('../img/scene/vamp/bat-body.svg') right 10px center / 112px 67px no-repeat; }
-:root.hud-scene-vamp .hud-os-card .hud-header > .hud-scene-h::before,
-:root.hud-scene-vamp .hud-os-card .hud-header > .hud-scene-h::after {
+:root.hud-sh-vamp .hud-os-card .hud-header > .hud-scene-h { background: url('../img/scene/vamp/bat-body.svg') right 10px center / 112px 67px no-repeat; }
+:root.hud-sh-vamp .hud-os-card .hud-header > .hud-scene-h::before,
+:root.hud-sh-vamp .hud-os-card .hud-header > .hud-scene-h::after {
   content: ''; top: 50%; width: 56px; height: 67px; margin-top: -34px; background-color: var(--hud-accent);
   background-size: contain; background-position: center; background-repeat: no-repeat; animation: hud-sc-wing 1.1s ease-in-out infinite;
 }
-:root.hud-scene-vamp .hud-os-card .hud-header > .hud-scene-h::before {
+:root.hud-sh-vamp .hud-os-card .hud-header > .hud-scene-h::before {
   right: 66px; transform-origin: 93% 35%; background-image: url('../img/scene/vamp/bat-wing-l.svg');
   -webkit-mask: url('../img/scene/vamp/bat-wing-l-mask.svg') center / contain no-repeat; mask: url('../img/scene/vamp/bat-wing-l-mask.svg') center / contain no-repeat;
 }
-:root.hud-scene-vamp .hud-os-card .hud-header > .hud-scene-h::after {
+:root.hud-sh-vamp .hud-os-card .hud-header > .hud-scene-h::after {
   right: 10px; transform-origin: 7% 35%; background-image: url('../img/scene/vamp/bat-wing-r.svg'); animation-name: hud-sc-wing-r;
   -webkit-mask: url('../img/scene/vamp/bat-wing-r-mask.svg') center / contain no-repeat; mask: url('../img/scene/vamp/bat-wing-r-mask.svg') center / contain no-repeat;
 }
@@ -434,7 +437,7 @@
 @keyframes hud-sc-wing-r { 0%, 100% { rotate: 14deg; } 50% { rotate: -22deg; } }
 
 /* =========================================================================
-   СЦЕНЫ ТЕМ КАРТИНКАМИ (img/scene/<id>/*.webp) — при hud-scene-img.
+   СЦЕНЫ ТЕМ КАРТИНКАМИ (img/scene/<id>/*.webp) — при hud-s<место>-img.
    Вырезки со стенда: прозрачные фоны, стекло и просветы насквозь; повёрнуты
    и ужаты заранее, у водяных знаков прозрачность запечена в файл. Разложены
    по всей карточке: шапка справа, у имени, на портрете, под плашками
@@ -445,116 +448,108 @@
    картинок, вырезанный маской по ним же. Сила — --hud-scene-tint. */
 :root.hud-scene-img .hud-os-card { --hud-scene-tint: color-mix(in srgb, var(--hud-accent) 30%, transparent); }
 /* Маска режет собственную тень картинки — тень даёт слой-родитель. */
-:root.hud-scene-img .hud-os-card .hud-header > .hud-scene-h,
-:root.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b { filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .35)); }
-:root.hud-scene-img:is(.hud-scene-biopunk) .hud-os-card .hud-tab-content > .hud-scene-b { filter: drop-shadow(0 0 5px rgba(143, 227, 106, .45)); }
-:root.hud-scene-img:is(.hud-scene-spacehorror, .hud-scene-vamp) .hud-os-card .hud-tab-content > .hud-scene-b { filter: drop-shadow(0 0 8px rgba(224, 58, 58, .35)); }
-:root.hud-scene-img.hud-scene-solarpunk .hud-os-card .hud-header > .hud-scene-h { filter: drop-shadow(0 4px 8px rgba(255, 220, 120, .55)); }
-:root.hud-scene-img.hud-scene-egypt .hud-os-card .hud-header > .hud-scene-h { filter: drop-shadow(0 0 8px rgba(232, 190, 80, .5)); }
-:root.hud-scene-img .hud-os-card .hud-header-text .hud-scene-n { width: 30px; height: 40px; }
+:root.hud-sh-img .hud-os-card .hud-header > .hud-scene-h,
+:root.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b { filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .35)); }
+:root.hud-sb-img:is(.hud-sb-biopunk) .hud-os-card .hud-tab-content > .hud-scene-b { filter: drop-shadow(0 0 5px rgba(143, 227, 106, .45)); }
+:root.hud-sb-img:is(.hud-sb-spacehorror, .hud-sb-vamp) .hud-os-card .hud-tab-content > .hud-scene-b { filter: drop-shadow(0 0 8px rgba(224, 58, 58, .35)); }
+:root.hud-sh-img.hud-sh-solarpunk .hud-os-card .hud-header > .hud-scene-h { filter: drop-shadow(0 4px 8px rgba(255, 220, 120, .55)); }
+:root.hud-sh-img.hud-sh-egypt .hud-os-card .hud-header > .hud-scene-h { filter: drop-shadow(0 0 8px rgba(232, 190, 80, .5)); }
 
 /* ---------- Вампир ---------- */
-:root.hud-scene-vamp.hud-scene-img .hud-os-card .hud-header-text .hud-scene-n { width: 26px; height: 40px; background-image: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/vamp/bottle.webp'); background-blend-mode: color, normal; -webkit-mask: url('../img/scene/vamp/bottle.webp') center / contain no-repeat; mask: url('../img/scene/vamp/bottle.webp') center / contain no-repeat; }
-:root.hud-scene-vamp.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; inset: 0; width: auto; height: auto;
+:root.hud-sn-vamp.hud-sn-img .hud-os-card .hud-header-text .hud-scene-n { width: 26px; height: 40px; background-image: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/vamp/bottle.webp'); background-blend-mode: color, normal; -webkit-mask: url('../img/scene/vamp/bottle.webp') center / contain no-repeat; mask: url('../img/scene/vamp/bottle.webp') center / contain no-repeat; }
+:root.hud-sb-vamp.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; inset: 0; width: auto; height: auto;
   background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/vamp/fangs.webp') left 31% top 92px / 58px auto no-repeat, url('../img/scene/vamp/frame.webp') center top 210px / auto 84px no-repeat, url('../img/scene/vamp/candelabrum.webp') left 6px bottom 0 / auto 124px no-repeat; background-blend-mode: color, normal, normal, normal; -webkit-mask: url('../img/scene/vamp/fangs.webp') left 31% top 92px / 58px auto no-repeat, url('../img/scene/vamp/frame.webp') center top 210px / auto 84px no-repeat, url('../img/scene/vamp/candelabrum.webp') left 6px bottom 0 / auto 124px no-repeat; mask: url('../img/scene/vamp/fangs.webp') left 31% top 92px / 58px auto no-repeat, url('../img/scene/vamp/frame.webp') center top 210px / auto 84px no-repeat, url('../img/scene/vamp/candelabrum.webp') left 6px bottom 0 / auto 124px no-repeat;
 }
-:root.hud-scene-vamp.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 8px; bottom: -8px; width: 128px; height: 118px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/vamp/skull.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/vamp/skull.webp') center / contain no-repeat; mask: url('../img/scene/vamp/skull.webp') center / contain no-repeat; }
+:root.hud-sb-vamp.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 8px; bottom: -8px; width: 128px; height: 118px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/vamp/skull.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/vamp/skull.webp') center / contain no-repeat; mask: url('../img/scene/vamp/skull.webp') center / contain no-repeat; }
 
 /* ---------- Нуар: бирка дела своим рисунком, отпечатки, мел, лупа, лента ---------- */
-:root.hud-scene-noir.hud-scene-img .hud-os-card .hud-header > .hud-scene-h::before { content: ''; inset: 0; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/noir/hand.webp') left 19% center / auto 58px no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/noir/hand.webp') left 19% center / auto 58px no-repeat; mask: url('../img/scene/noir/hand.webp') left 19% center / auto 58px no-repeat; }
-:root.hud-scene-noir .hud-os-card .hud-header > .hud-scene-h::after {
+:root.hud-sh-noir.hud-sh-img .hud-os-card .hud-header > .hud-scene-h::before { content: ''; inset: 0; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/noir/hand.webp') left 19% center / auto 58px no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/noir/hand.webp') left 19% center / auto 58px no-repeat; mask: url('../img/scene/noir/hand.webp') left 19% center / auto 58px no-repeat; }
+:root.hud-sh-noir .hud-os-card .hud-header > .hud-scene-h::after {
   content: 'ДЕЛО  № 02'; right: 22px; top: -2px; padding: 4px 10px 4px 18px; rotate: -8deg; transform-origin: 0 50%; white-space: nowrap;
   font: 700 10.5px/1.2 'Courier New', monospace; letter-spacing: .12em; color: #141414; animation: hud-sc-sway 5s ease-in-out infinite;
   background: radial-gradient(circle at 8px 50%, transparent 2.6px, color-mix(in srgb, var(--hud-accent) 55%, #000) 3px 4.4px, transparent 4.8px), linear-gradient(170deg, color-mix(in srgb, var(--hud-accent) 92%, #fff), color-mix(in srgb, var(--hud-accent) 70%, #000));
   clip-path: polygon(10px 0, 100% 0, 100% 100%, 10px 100%, 0 50%); filter: drop-shadow(2px 4px 4px rgba(0, 0, 0, .6));
 }
 @keyframes hud-sc-sway { 0%, 100% { rotate: -9deg; } 50% { rotate: -4deg; } }
-:root.hud-scene-noir.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; inset: 0; width: auto; height: auto;
+:root.hud-sb-noir.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; inset: 0; width: auto; height: auto;
   background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/noir/chalk.webp') center top 150px / 250px auto no-repeat, url('../img/scene/noir/boot.webp') right 6% top 100px / auto 52px no-repeat, url('../img/scene/noir/lens.webp') left 31% bottom 4px / auto 92px no-repeat; background-blend-mode: color, normal, normal, normal; -webkit-mask: url('../img/scene/noir/chalk.webp') center top 150px / 250px auto no-repeat, url('../img/scene/noir/boot.webp') right 6% top 100px / auto 52px no-repeat, url('../img/scene/noir/lens.webp') left 31% bottom 4px / auto 92px no-repeat; mask: url('../img/scene/noir/chalk.webp') center top 150px / 250px auto no-repeat, url('../img/scene/noir/boot.webp') right 6% top 100px / auto 52px no-repeat, url('../img/scene/noir/lens.webp') left 31% bottom 4px / auto 92px no-repeat;
 }
-:root.hud-scene-noir.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: -22px; bottom: -52px; width: 200px; height: 150px; opacity: .9; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/noir/tape.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/noir/tape.webp') center / contain no-repeat; mask: url('../img/scene/noir/tape.webp') center / contain no-repeat; }
+:root.hud-sb-noir.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: -22px; bottom: -52px; width: 200px; height: 150px; opacity: .9; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/noir/tape.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/noir/tape.webp') center / contain no-repeat; mask: url('../img/scene/noir/tape.webp') center / contain no-repeat; }
 
 /* ---------- Биопанк ---------- */
-:root.hud-scene-biopunk.hud-scene-img .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 16px; top: 50%; width: 54px; height: 54px; margin-top: -27px; border-radius: 50%; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/biopunk/eye.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/biopunk/eye.webp') center / contain no-repeat; mask: url('../img/scene/biopunk/eye.webp') center / contain no-repeat; animation: hud-sc-blink 6s ease-in-out infinite; }
+:root.hud-sh-biopunk.hud-sh-img .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 16px; top: 50%; width: 54px; height: 54px; margin-top: -27px; border-radius: 50%; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/biopunk/eye.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/biopunk/eye.webp') center / contain no-repeat; mask: url('../img/scene/biopunk/eye.webp') center / contain no-repeat; animation: hud-sc-blink 6s ease-in-out infinite; }
 @keyframes hud-sc-blink { 0%, 40%, 100% { scale: 1 1; } 43% { scale: 1 .1; } 46% { scale: 1 1; } }
-:root.hud-scene-biopunk.hud-scene-img .hud-os-card .hud-header-text .hud-scene-n { width: 24px; height: 42px; background-image: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/biopunk/flask.webp'); background-blend-mode: color, normal; -webkit-mask: url('../img/scene/biopunk/flask.webp') center / contain no-repeat; mask: url('../img/scene/biopunk/flask.webp') center / contain no-repeat; }
-:root.hud-scene-biopunk.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; inset: 0; width: auto; height: auto;
+:root.hud-sn-biopunk.hud-sn-img .hud-os-card .hud-header-text .hud-scene-n { width: 24px; height: 42px; background-image: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/biopunk/flask.webp'); background-blend-mode: color, normal; -webkit-mask: url('../img/scene/biopunk/flask.webp') center / contain no-repeat; mask: url('../img/scene/biopunk/flask.webp') center / contain no-repeat; }
+:root.hud-sb-biopunk.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; inset: 0; width: auto; height: auto;
   background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/biopunk/hand.webp') right 4% top 88px / 82px auto no-repeat, url('../img/scene/biopunk/hazard.webp') left 31% top 96px / 66px auto no-repeat, url('../img/scene/biopunk/lily.webp') left 31% top 250px / 84px auto no-repeat; background-blend-mode: color, normal, normal, normal; -webkit-mask: url('../img/scene/biopunk/hand.webp') right 4% top 88px / 82px auto no-repeat, url('../img/scene/biopunk/hazard.webp') left 31% top 96px / 66px auto no-repeat, url('../img/scene/biopunk/lily.webp') left 31% top 250px / 84px auto no-repeat; mask: url('../img/scene/biopunk/hand.webp') right 4% top 88px / 82px auto no-repeat, url('../img/scene/biopunk/hazard.webp') left 31% top 96px / 66px auto no-repeat, url('../img/scene/biopunk/lily.webp') left 31% top 250px / 84px auto no-repeat;
 }
-:root.hud-scene-biopunk.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 60px; bottom: -6px; width: 150px; height: 137px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/biopunk/centipede.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/biopunk/centipede.webp') center / contain no-repeat; mask: url('../img/scene/biopunk/centipede.webp') center / contain no-repeat; animation: hud-sc-crawl 8s ease-in-out infinite alternate; }
+:root.hud-sb-biopunk.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 60px; bottom: -6px; width: 150px; height: 137px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/biopunk/centipede.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/biopunk/centipede.webp') center / contain no-repeat; mask: url('../img/scene/biopunk/centipede.webp') center / contain no-repeat; animation: hud-sc-crawl 8s ease-in-out infinite alternate; }
 @keyframes hud-sc-crawl { from { translate: 40px 0; } to { translate: -60px -4px; } }
 
 /* ---------- Космохоррор ---------- */
-:root.hud-scene-spacehorror.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; inset: 0; width: auto; height: auto; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/spacehorror/emblem.webp') right 30px top 90px / 220px auto no-repeat, url('../img/scene/spacehorror/claws.svg') right 172px bottom 16px / 84px auto no-repeat; background-blend-mode: color, normal, normal; -webkit-mask: url('../img/scene/spacehorror/emblem.webp') right 30px top 90px / 220px auto no-repeat, url('../img/scene/spacehorror/claws.svg') right 172px bottom 16px / 84px auto no-repeat; mask: url('../img/scene/spacehorror/emblem.webp') right 30px top 90px / 220px auto no-repeat, url('../img/scene/spacehorror/claws.svg') right 172px bottom 16px / 84px auto no-repeat; opacity: 1; animation: none; }
-:root.hud-scene-spacehorror.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 10px; bottom: -8px; width: 124px; height: 117px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/spacehorror/skull.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/spacehorror/skull.webp') center / contain no-repeat; mask: url('../img/scene/spacehorror/skull.webp') center / contain no-repeat; }
+:root.hud-sb-spacehorror.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; inset: 0; width: auto; height: auto; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/spacehorror/emblem.webp') right 30px top 90px / 220px auto no-repeat, url('../img/scene/spacehorror/claws.svg') right 172px bottom 16px / 84px auto no-repeat; background-blend-mode: color, normal, normal; -webkit-mask: url('../img/scene/spacehorror/emblem.webp') right 30px top 90px / 220px auto no-repeat, url('../img/scene/spacehorror/claws.svg') right 172px bottom 16px / 84px auto no-repeat; mask: url('../img/scene/spacehorror/emblem.webp') right 30px top 90px / 220px auto no-repeat, url('../img/scene/spacehorror/claws.svg') right 172px bottom 16px / 84px auto no-repeat; opacity: 1; animation: none; }
+:root.hud-sb-spacehorror.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 10px; bottom: -8px; width: 124px; height: 117px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/spacehorror/skull.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/spacehorror/skull.webp') center / contain no-repeat; mask: url('../img/scene/spacehorror/skull.webp') center / contain no-repeat; }
 
 /* ---------- Глубина ---------- */
-:root.hud-scene-ocean.hud-scene-img .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 14px; top: -14px; width: 100px; height: 84px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/ocean/fish.webp') center top / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/ocean/fish.webp') center top / contain no-repeat; mask: url('../img/scene/ocean/fish.webp') center top / contain no-repeat; }
-:root.hud-scene-ocean.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::before { inset: auto auto auto 32%; top: 90px; width: 62px; height: 70px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/ocean/jelly.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/ocean/jelly.webp') center / contain no-repeat; mask: url('../img/scene/ocean/jelly.webp') center / contain no-repeat; animation: hud-sc-jelly 7s ease-in-out infinite; opacity: .9; }
+:root.hud-sh-ocean.hud-sh-img .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 14px; top: -14px; width: 100px; height: 84px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/ocean/fish.webp') center top / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/ocean/fish.webp') center top / contain no-repeat; mask: url('../img/scene/ocean/fish.webp') center top / contain no-repeat; }
+:root.hud-sb-ocean.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::before { inset: auto auto auto 32%; top: 90px; width: 62px; height: 70px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/ocean/jelly.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/ocean/jelly.webp') center / contain no-repeat; mask: url('../img/scene/ocean/jelly.webp') center / contain no-repeat; animation: hud-sc-jelly 7s ease-in-out infinite; opacity: .9; }
 @keyframes hud-sc-jelly { 0%, 100% { translate: 0 0; } 50% { translate: 0 -18px; } }
-:root.hud-scene-ocean.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 34px; bottom: -14px; width: 116px; height: 140px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/ocean/tentacles.webp') center bottom / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/ocean/tentacles.webp') center bottom / contain no-repeat; mask: url('../img/scene/ocean/tentacles.webp') center bottom / contain no-repeat; transform-origin: 50% 100%; animation: hud-sc-sea 6s ease-in-out infinite; }
+:root.hud-sb-ocean.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 34px; bottom: -14px; width: 116px; height: 140px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/ocean/tentacles.webp') center bottom / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/ocean/tentacles.webp') center bottom / contain no-repeat; mask: url('../img/scene/ocean/tentacles.webp') center bottom / contain no-repeat; transform-origin: 50% 100%; animation: hud-sc-sea 6s ease-in-out infinite; }
 @keyframes hud-sc-sea { 0%, 100% { rotate: -3deg; } 50% { rotate: 3deg; translate: 0 -5px; } }
 
 /* ---------- Пираты ---------- */
-:root.hud-scene-pirate.hud-scene-img .hud-os-card .hud-ava-wrap > .hud-scene-a { background: none !important; z-index: 2; overflow: visible; }
-:root.hud-scene-pirate.hud-scene-img .hud-os-card .hud-ava-wrap > .hud-scene-a::after { content: ''; left: 50%; top: -14px; width: 80px; height: 49px; translate: -50% 0; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/pirate/hat.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/pirate/hat.webp') center / contain no-repeat; mask: url('../img/scene/pirate/hat.webp') center / contain no-repeat; }
-:root.hud-scene-pirate.hud-scene-img .hud-os-card .hud-header:not(.has-banner) { padding-top: 22px !important; }
-:root.hud-scene-pirate.hud-scene-img .hud-os-card .hud-header-text .hud-scene-n { width: 34px; height: 34px; background-image: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/pirate/coin.webp'); background-blend-mode: color, normal; -webkit-mask: url('../img/scene/pirate/coin.webp') center / contain no-repeat; mask: url('../img/scene/pirate/coin.webp') center / contain no-repeat; animation: hud-sc-coin 5s ease-in-out infinite; }
+:root.hud-sa-pirate.hud-sa-img .hud-os-card .hud-ava-wrap > .hud-scene-a { background: none !important; z-index: 2; overflow: visible; }
+:root.hud-sa-pirate.hud-sa-img .hud-os-card .hud-ava-wrap > .hud-scene-a::after { content: ''; left: 50%; top: -14px; width: 80px; height: 49px; translate: -50% 0; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/pirate/hat.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/pirate/hat.webp') center / contain no-repeat; mask: url('../img/scene/pirate/hat.webp') center / contain no-repeat; }
+:root.hud-sa-pirate.hud-sa-img .hud-os-card .hud-header:not(.has-banner) { padding-top: 22px !important; }
+:root.hud-sn-pirate.hud-sn-img .hud-os-card .hud-header-text .hud-scene-n { width: 34px; height: 34px; background-image: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/pirate/coin.webp'); background-blend-mode: color, normal; -webkit-mask: url('../img/scene/pirate/coin.webp') center / contain no-repeat; mask: url('../img/scene/pirate/coin.webp') center / contain no-repeat; animation: hud-sc-coin 5s ease-in-out infinite; }
 @keyframes hud-sc-coin { 0%, 84%, 100% { scale: 1 1; } 92% { scale: -1 1; } }
-:root.hud-scene-pirate.hud-scene-img .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: -14px; top: -14px; width: 210px; height: 176px; opacity: .8; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/pirate/net.webp') right top / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/pirate/net.webp') right top / contain no-repeat; mask: url('../img/scene/pirate/net.webp') right top / contain no-repeat; }
-:root.hud-scene-pirate.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; inset: 0; width: auto; height: auto; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/pirate/compass.webp') left 31% top 94px / 60px auto no-repeat, url('../img/scene/pirate/hook.webp') left 34% bottom 10px / 42px auto no-repeat; background-blend-mode: color, normal, normal; -webkit-mask: url('../img/scene/pirate/compass.webp') left 31% top 94px / 60px auto no-repeat, url('../img/scene/pirate/hook.webp') left 34% bottom 10px / 42px auto no-repeat; mask: url('../img/scene/pirate/compass.webp') left 31% top 94px / 60px auto no-repeat, url('../img/scene/pirate/hook.webp') left 34% bottom 10px / 42px auto no-repeat; opacity: .85; }
-:root.hud-scene-pirate.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 14px; bottom: 6px; width: 150px; height: 130px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/pirate/gun.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/pirate/gun.webp') center / contain no-repeat; mask: url('../img/scene/pirate/gun.webp') center / contain no-repeat; }
+:root.hud-sh-pirate.hud-sh-img .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: -14px; top: -14px; width: 210px; height: 176px; opacity: .8; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/pirate/net.webp') right top / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/pirate/net.webp') right top / contain no-repeat; mask: url('../img/scene/pirate/net.webp') right top / contain no-repeat; }
+:root.hud-sb-pirate.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; inset: 0; width: auto; height: auto; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/pirate/compass.webp') left 31% top 94px / 60px auto no-repeat, url('../img/scene/pirate/hook.webp') left 34% bottom 10px / 42px auto no-repeat; background-blend-mode: color, normal, normal; -webkit-mask: url('../img/scene/pirate/compass.webp') left 31% top 94px / 60px auto no-repeat, url('../img/scene/pirate/hook.webp') left 34% bottom 10px / 42px auto no-repeat; mask: url('../img/scene/pirate/compass.webp') left 31% top 94px / 60px auto no-repeat, url('../img/scene/pirate/hook.webp') left 34% bottom 10px / 42px auto no-repeat; opacity: .85; }
+:root.hud-sb-pirate.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 14px; bottom: 6px; width: 150px; height: 130px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/pirate/gun.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/pirate/gun.webp') center / contain no-repeat; mask: url('../img/scene/pirate/gun.webp') center / contain no-repeat; }
 
 /* ---------- Стимпанк: дирижабль картинкой ---------- */
-:root.hud-scene-steampunk.hud-scene-img .hud-os-card .hud-header > .hud-scene-h::after {
+:root.hud-sh-steampunk.hud-sh-img .hud-os-card .hud-header > .hud-scene-h::after {
   content: ''; left: 40%; top: 2px; width: 110px; height: 73px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/steampunk/airship.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/steampunk/airship.webp') center / contain no-repeat; mask: url('../img/scene/steampunk/airship.webp') center / contain no-repeat;
   animation: hud-sc-airship 30s ease-in-out infinite alternate;
 }
 
 /* ---------- Египет ---------- */
-:root.hud-scene-egypt.hud-scene-img .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: -14px; top: 50%; width: 49px; height: 84px; margin-top: -42px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/egypt/sun.webp') right center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/egypt/sun.webp') right center / contain no-repeat; mask: url('../img/scene/egypt/sun.webp') right center / contain no-repeat; animation: hud-sc-sun 6s ease-in-out infinite alternate; }
+:root.hud-sh-egypt.hud-sh-img .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: -14px; top: 50%; width: 49px; height: 84px; margin-top: -42px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/egypt/sun.webp') right center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/egypt/sun.webp') right center / contain no-repeat; mask: url('../img/scene/egypt/sun.webp') right center / contain no-repeat; animation: hud-sc-sun 6s ease-in-out infinite alternate; }
 @keyframes hud-sc-sun { to { filter: brightness(1.14) saturate(1.1); } }
-:root.hud-scene-egypt.hud-scene-img .hud-os-card .hud-header-text .hud-scene-n { width: 20px; height: 38px; background-image: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/egypt/ankh.webp'); background-blend-mode: color, normal; -webkit-mask: url('../img/scene/egypt/ankh.webp') center / contain no-repeat; mask: url('../img/scene/egypt/ankh.webp') center / contain no-repeat; }
-:root.hud-scene-egypt.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; inset: 0; width: auto; height: auto;
+:root.hud-sn-egypt.hud-sn-img .hud-os-card .hud-header-text .hud-scene-n { width: 20px; height: 38px; background-image: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/egypt/ankh.webp'); background-blend-mode: color, normal; -webkit-mask: url('../img/scene/egypt/ankh.webp') center / contain no-repeat; mask: url('../img/scene/egypt/ankh.webp') center / contain no-repeat; }
+:root.hud-sb-egypt.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; inset: 0; width: auto; height: auto;
   background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/egypt/glyphs.webp') center top 84px / auto 300px no-repeat, url('../img/scene/egypt/eye.webp') left 31% top 96px / 78px auto no-repeat, url('../img/scene/egypt/cat.webp') right 5% top 90px / auto 70px no-repeat, url('../img/scene/egypt/snake.webp') left 33% top 250px / auto 82px no-repeat; background-blend-mode: color, normal, normal, normal, normal; -webkit-mask: url('../img/scene/egypt/glyphs.webp') center top 84px / auto 300px no-repeat, url('../img/scene/egypt/eye.webp') left 31% top 96px / 78px auto no-repeat, url('../img/scene/egypt/cat.webp') right 5% top 90px / auto 70px no-repeat, url('../img/scene/egypt/snake.webp') left 33% top 250px / auto 82px no-repeat; mask: url('../img/scene/egypt/glyphs.webp') center top 84px / auto 300px no-repeat, url('../img/scene/egypt/eye.webp') left 31% top 96px / 78px auto no-repeat, url('../img/scene/egypt/cat.webp') right 5% top 90px / auto 70px no-repeat, url('../img/scene/egypt/snake.webp') left 33% top 250px / auto 82px no-repeat;
 }
-:root.hud-scene-egypt.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 22px; bottom: -4px; width: 40px; height: 112px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/egypt/column.webp') center bottom / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/egypt/column.webp') center bottom / contain no-repeat; mask: url('../img/scene/egypt/column.webp') center bottom / contain no-repeat; }
+:root.hud-sb-egypt.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 22px; bottom: -4px; width: 40px; height: 112px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/egypt/column.webp') center bottom / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/egypt/column.webp') center bottom / contain no-repeat; mask: url('../img/scene/egypt/column.webp') center bottom / contain no-repeat; }
 
 /* ---------- Вестерн ---------- */
-:root.hud-scene-western.hud-scene-img .hud-os-card .hud-ava-wrap > .hud-scene-a { background: none !important; z-index: 2; }
-:root.hud-scene-western.hud-scene-img .hud-os-card .hud-ava-wrap > .hud-scene-a::after { content: ''; left: 50%; top: -14px; width: 82px; height: 55px; translate: -50% 0; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/western/hat.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/western/hat.webp') center / contain no-repeat; mask: url('../img/scene/western/hat.webp') center / contain no-repeat; }
-:root.hud-scene-western.hud-scene-img .hud-os-card .hud-header-text .hud-scene-n { width: 22px; height: 42px; background-image: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/western/whiskey.webp'); background-blend-mode: color, normal; -webkit-mask: url('../img/scene/western/whiskey.webp') center / contain no-repeat; mask: url('../img/scene/western/whiskey.webp') center / contain no-repeat; }
-:root.hud-scene-western.hud-scene-img .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 16px; bottom: 0; width: 56px; height: 60px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/western/badge.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/western/badge.webp') center / contain no-repeat; mask: url('../img/scene/western/badge.webp') center / contain no-repeat; }
-:root.hud-scene-western.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; inset: 0; width: auto; height: auto; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/western/horseshoe.webp') left 32% top 94px / 52px auto no-repeat, url('../img/scene/western/revolver.webp') right 4% top 100px / 78px auto no-repeat, url('../img/scene/western/bullets.webp') left 34% bottom 12px / 44px auto no-repeat, url('../img/scene/western/hole.svg') right 250px bottom 84px / 32px 32px no-repeat, url('../img/scene/western/hole.svg') right 226px bottom 60px / 24px 24px no-repeat; background-blend-mode: color, normal, normal, normal, normal, normal; -webkit-mask: url('../img/scene/western/horseshoe.webp') left 32% top 94px / 52px auto no-repeat, url('../img/scene/western/revolver.webp') right 4% top 100px / 78px auto no-repeat, url('../img/scene/western/bullets.webp') left 34% bottom 12px / 44px auto no-repeat, url('../img/scene/western/hole.svg') right 250px bottom 84px / 32px 32px no-repeat, url('../img/scene/western/hole.svg') right 226px bottom 60px / 24px 24px no-repeat; mask: url('../img/scene/western/horseshoe.webp') left 32% top 94px / 52px auto no-repeat, url('../img/scene/western/revolver.webp') right 4% top 100px / 78px auto no-repeat, url('../img/scene/western/bullets.webp') left 34% bottom 12px / 44px auto no-repeat, url('../img/scene/western/hole.svg') right 250px bottom 84px / 32px 32px no-repeat, url('../img/scene/western/hole.svg') right 226px bottom 60px / 24px 24px no-repeat; opacity: 1; }
-:root.hud-scene-western.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 14px; bottom: -4px; width: 71px; height: 104px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/western/cactus.webp') center bottom / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/western/cactus.webp') center bottom / contain no-repeat; mask: url('../img/scene/western/cactus.webp') center bottom / contain no-repeat; }
+:root.hud-sa-western.hud-sa-img .hud-os-card .hud-ava-wrap > .hud-scene-a { background: none !important; z-index: 2; }
+:root.hud-sa-western.hud-sa-img .hud-os-card .hud-ava-wrap > .hud-scene-a::after { content: ''; left: 50%; top: -14px; width: 82px; height: 55px; translate: -50% 0; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/western/hat.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/western/hat.webp') center / contain no-repeat; mask: url('../img/scene/western/hat.webp') center / contain no-repeat; }
+:root.hud-sn-western.hud-sn-img .hud-os-card .hud-header-text .hud-scene-n { width: 22px; height: 42px; background-image: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/western/whiskey.webp'); background-blend-mode: color, normal; -webkit-mask: url('../img/scene/western/whiskey.webp') center / contain no-repeat; mask: url('../img/scene/western/whiskey.webp') center / contain no-repeat; }
+:root.hud-sh-western.hud-sh-img .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 16px; bottom: 0; width: 56px; height: 60px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/western/badge.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/western/badge.webp') center / contain no-repeat; mask: url('../img/scene/western/badge.webp') center / contain no-repeat; }
+:root.hud-sb-western.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::before { content: ''; inset: 0; width: auto; height: auto; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/western/horseshoe.webp') left 32% top 94px / 52px auto no-repeat, url('../img/scene/western/revolver.webp') right 4% top 100px / 78px auto no-repeat, url('../img/scene/western/bullets.webp') left 34% bottom 12px / 44px auto no-repeat, url('../img/scene/western/hole.svg') right 250px bottom 84px / 32px 32px no-repeat, url('../img/scene/western/hole.svg') right 226px bottom 60px / 24px 24px no-repeat; background-blend-mode: color, normal, normal, normal, normal, normal; -webkit-mask: url('../img/scene/western/horseshoe.webp') left 32% top 94px / 52px auto no-repeat, url('../img/scene/western/revolver.webp') right 4% top 100px / 78px auto no-repeat, url('../img/scene/western/bullets.webp') left 34% bottom 12px / 44px auto no-repeat, url('../img/scene/western/hole.svg') right 250px bottom 84px / 32px 32px no-repeat, url('../img/scene/western/hole.svg') right 226px bottom 60px / 24px 24px no-repeat; mask: url('../img/scene/western/horseshoe.webp') left 32% top 94px / 52px auto no-repeat, url('../img/scene/western/revolver.webp') right 4% top 100px / 78px auto no-repeat, url('../img/scene/western/bullets.webp') left 34% bottom 12px / 44px auto no-repeat, url('../img/scene/western/hole.svg') right 250px bottom 84px / 32px 32px no-repeat, url('../img/scene/western/hole.svg') right 226px bottom 60px / 24px 24px no-repeat; opacity: 1; }
+:root.hud-sb-western.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 14px; bottom: -4px; width: 71px; height: 104px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/western/cactus.webp') center bottom / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/western/cactus.webp') center bottom / contain no-repeat; mask: url('../img/scene/western/cactus.webp') center bottom / contain no-repeat; }
 
 /* ---------- Каваи ---------- */
-:root.hud-scene-kawaii.hud-scene-img .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 14px; top: 50%; width: 60px; height: 74px; margin-top: -37px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/kawaii/moon.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/kawaii/moon.webp') center / contain no-repeat; mask: url('../img/scene/kawaii/moon.webp') center / contain no-repeat; }
-:root.hud-scene-kawaii.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 14px; bottom: 2px; width: 100px; height: 96px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/kawaii/bang.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/kawaii/bang.webp') center / contain no-repeat; mask: url('../img/scene/kawaii/bang.webp') center / contain no-repeat; }
+:root.hud-sh-kawaii.hud-sh-img .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 14px; top: 50%; width: 60px; height: 74px; margin-top: -37px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/kawaii/moon.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/kawaii/moon.webp') center / contain no-repeat; mask: url('../img/scene/kawaii/moon.webp') center / contain no-repeat; }
+:root.hud-sb-kawaii.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 14px; bottom: 2px; width: 100px; height: 96px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/kawaii/bang.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/kawaii/bang.webp') center / contain no-repeat; mask: url('../img/scene/kawaii/bang.webp') center / contain no-repeat; }
 
 /* ---------- Солярпанк: гирлянда на полосе TavernOS, фонарь ---------- */
-:root.hud-scene-solarpunk.hud-scene-img .hud-os-card .hud-os-topbar > .hud-scene-t { background: url('../img/scene/solarpunk/garland.svg') center top -16px / 100% 64px no-repeat; opacity: .95; }
-:root.hud-scene-solarpunk.hud-scene-img .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 24px; top: -4px; width: 36px; height: 72px; transform-origin: 50% 0; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/solarpunk/lantern.webp') center top / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/solarpunk/lantern.webp') center top / contain no-repeat; mask: url('../img/scene/solarpunk/lantern.webp') center top / contain no-repeat; animation: hud-sc-lamp 5s ease-in-out infinite; }
+:root.hud-st-solarpunk.hud-st-img .hud-os-card .hud-os-topbar > .hud-scene-t { background: url('../img/scene/solarpunk/garland.svg') center top -16px / 100% 64px no-repeat; opacity: .95; }
+:root.hud-sh-solarpunk.hud-sh-img .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 24px; top: -4px; width: 36px; height: 72px; transform-origin: 50% 0; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/solarpunk/lantern.webp') center top / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/solarpunk/lantern.webp') center top / contain no-repeat; mask: url('../img/scene/solarpunk/lantern.webp') center top / contain no-repeat; animation: hud-sc-lamp 5s ease-in-out infinite; }
 @keyframes hud-sc-lamp { 0%, 100% { rotate: -4deg; } 50% { rotate: 4deg; } }
 
 /* ---------- Лёд ---------- */
-:root.hud-scene-ice.hud-scene-img .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 14px; top: 50%; width: 90px; height: 88px; margin-top: -36px; opacity: .45; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/ice/bow.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/ice/bow.webp') center / contain no-repeat; mask: url('../img/scene/ice/bow.webp') center / contain no-repeat; filter: grayscale(1) sepia(1) hue-rotate(155deg) saturate(3.4) brightness(.82) contrast(1.1); }
-:root.hud-scene-ice.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 16px; bottom: -6px; width: 99px; height: 116px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/ice/crystal.webp') center bottom / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/ice/crystal.webp') center bottom / contain no-repeat; mask: url('../img/scene/ice/crystal.webp') center bottom / contain no-repeat; }
+:root.hud-sh-ice.hud-sh-img .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 14px; top: 50%; width: 90px; height: 88px; margin-top: -36px; opacity: .45; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/ice/bow.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/ice/bow.webp') center / contain no-repeat; mask: url('../img/scene/ice/bow.webp') center / contain no-repeat; filter: grayscale(1) sepia(1) hue-rotate(155deg) saturate(3.4) brightness(.82) contrast(1.1); }
+:root.hud-sb-ice.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 16px; bottom: -6px; width: 99px; height: 116px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/ice/crystal.webp') center bottom / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/ice/crystal.webp') center bottom / contain no-repeat; mask: url('../img/scene/ice/crystal.webp') center bottom / contain no-repeat; }
 
 /* ---------- Вуду ---------- */
-:root.hud-scene-voodoo.hud-scene-img .hud-os-card .hud-header-text .hud-scene-n { width: 46px; height: 50px; background-image: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/voodoo/doll.webp'); background-blend-mode: color, normal; -webkit-mask: url('../img/scene/voodoo/doll.webp') center / contain no-repeat; mask: url('../img/scene/voodoo/doll.webp') center / contain no-repeat; }
-:root.hud-scene-voodoo.hud-scene-img .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 18px; top: -2px; width: 68px; height: 64px; transform-origin: 50% 0; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/voodoo/pentagram.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/voodoo/pentagram.webp') center / contain no-repeat; mask: url('../img/scene/voodoo/pentagram.webp') center / contain no-repeat; animation: hud-sc-sway 6s ease-in-out infinite; }
-:root.hud-scene-voodoo.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 10px; bottom: -2px; width: 79px; height: 104px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/voodoo/candles.webp') center bottom / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/voodoo/candles.webp') center bottom / contain no-repeat; mask: url('../img/scene/voodoo/candles.webp') center bottom / contain no-repeat; }
-
-/* ---------- Ведьмовство: планшетка ездит под плашками ---------- */
-:root.hud-scene-witch.hud-scene-img .hud-os-card .hud-tab-content > .hud-scene-b::after {
-  content: ''; left: 33%; bottom: 10px; width: 50px; height: 63px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/witch/planchette.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/witch/planchette.webp') center / contain no-repeat; mask: url('../img/scene/witch/planchette.webp') center / contain no-repeat;
- animation: hud-sc-planchette 12s ease-in-out infinite;
-}
-@keyframes hud-sc-planchette { 0%, 100% { translate: 0 0; rotate: -24deg; } 33% { translate: 120px -150px; rotate: -10deg; } 66% { translate: 260px -40px; rotate: -32deg; } }
+:root.hud-sn-voodoo.hud-sn-img .hud-os-card .hud-header-text .hud-scene-n { width: 46px; height: 50px; background-image: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/voodoo/doll.webp'); background-blend-mode: color, normal; -webkit-mask: url('../img/scene/voodoo/doll.webp') center / contain no-repeat; mask: url('../img/scene/voodoo/doll.webp') center / contain no-repeat; }
+:root.hud-sh-voodoo.hud-sh-img .hud-os-card .hud-header > .hud-scene-h::after { content: ''; right: 18px; top: -2px; width: 68px; height: 64px; transform-origin: 50% 0; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/voodoo/pentagram.webp') center / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/voodoo/pentagram.webp') center / contain no-repeat; mask: url('../img/scene/voodoo/pentagram.webp') center / contain no-repeat; animation: hud-sc-sway 6s ease-in-out infinite; }
+:root.hud-sb-voodoo.hud-sb-img .hud-os-card .hud-tab-content > .hud-scene-b::after { content: ''; right: 10px; bottom: -2px; width: 79px; height: 104px; background: linear-gradient(var(--hud-scene-tint), var(--hud-scene-tint)), url('../img/scene/voodoo/candles.webp') center bottom / contain no-repeat; background-blend-mode: color, normal; -webkit-mask: url('../img/scene/voodoo/candles.webp') center bottom / contain no-repeat; mask: url('../img/scene/voodoo/candles.webp') center bottom / contain no-repeat; }
 
 /* Стимпанк: дирижабль летит над табличкой имени, а не за ней. */
-:root.hud-scene-steampunk .hud-os-card .hud-header > .hud-scene-h { z-index: 3; }
+:root.hud-sh-steampunk .hud-os-card .hud-header > .hud-scene-h { z-index: 3; }
 
 /* Вестерн с шапкой-визиткой и баннером: «Разыскивается» сверху мешало бы. */
-:root.hud-scene-western .hud-os-card .hud-header:is(.is-visit, .has-banner) > .hud-scene-h::before { content: none; }
+:root.hud-sh-western .hud-os-card .hud-header:is(.is-visit, .has-banner) > .hud-scene-h::before { content: none; }
