@@ -12,11 +12,11 @@
 //   всплыло       — запись памяти (таймлайн, важное), с которой совпадает
 //                   суть спора: «это про тот вечер 12-го».
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки } from '../utils.js?v=23.79.5';
-import { namesLikelySame } from '../names.js?v=23.79.5';
-import { settings } from '../settings.js?v=23.79.5';
-import { getAvatarUrl } from '../avatars.js?v=23.79.5';
-import { ико, медаль } from './view-icons.js?v=23.79.5';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки } from '../utils.js?v=23.79.6';
+import { namesLikelySame } from '../names.js?v=23.79.6';
+import { settings } from '../settings.js?v=23.79.6';
+import { getAvatarUrl } from '../avatars.js?v=23.79.6';
+import { ико, медаль } from './view-icons.js?v=23.79.6';
 
 const текст = (v) => String(снятьЗаглушки(flattenFieldValue(v)) || '').trim();
 const поле = (о, имя) => {

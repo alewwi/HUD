@@ -939,6 +939,52 @@ settings.tempoView = 'xray';
   проверить('чужой запрос: блоки [HUD] вырезаны, [HUD_SUMMARY] на месте', чисто.messages[0].content === 'Он ушёл.\n\n[HUD_SUMMARY] 21:00 · дома [/HUD_SUMMARY]' && чисто.messages[1].content === '…', JSON.stringify(чисто));
   проверить('чужой запрос без HUD — тело не трогаем', HB.телоБезHUD(JSON.stringify({ messages: [{ role: 'user', content: 'привет' }] })) === null);
   {
+    // Перегенерация HUD: поля подключения текущего источника — из настроек Таверны
+    // (без них Custom получал пустой custom_url → «502: Invalid URL»).
+    const R = await модуль('regen.js');
+    const кастом = R.поляПодключения({ chat_completion_source: 'custom', custom_url: 'https://api.example/v1', custom_include_body: '', reverse_proxy: 'http://proxy', openai_model: 'gpt-4-turbo' });
+    проверить('реген: Custom — адрес эндпоинта и его настройки, без прокси', кастом.custom_url === 'https://api.example/v1' && 'custom_include_body' in кастом && !('reverse_proxy' in кастом), JSON.stringify(кастом));
+    const прокси = R.поляПодключения({ chat_completion_source: 'claude', reverse_proxy: 'http://proxy', proxy_password: 'p' });
+    проверить('реген: прокси — только у источников, где его пускает Таверна', прокси.reverse_proxy === 'http://proxy' && прокси.proxy_password === 'p' && !('reverse_proxy' in R.поляПодключения({ chat_completion_source: 'openrouter', reverse_proxy: 'http://proxy' })));
+    проверить('реген: Azure, Vertex, Z.AI — свои поля', R.поляПодключения({ chat_completion_source: 'azure_openai', azure_base_url: 'u', azure_deployment_name: 'd', azure_api_version: 'v' }).azure_deployment_name === 'd' && R.поляПодключения({ chat_completion_source: 'vertexai', vertexai_region: 'r' }).vertexai_region === 'r' && R.поляПодключения({ chat_completion_source: 'zai' }).zai_endpoint === 'common');
+    const рег = css('regen.js');
+    проверить('реген: источник и модель — из текущих настроек Таверны (getChatCompletionModel), чужие поля клона снимаются', /живойИсточник \|\|\s*\n\s*reqBody\.chat_completion_source/.test(рег) && рег.includes('stContext.getChatCompletionModel(живыеНастройки)') && рег.includes('Object.assign(hudRequestBody, поляПодключения(живыеНастройки))') && рег.includes("if (!тотЖеИсточник) ПОЛЯ_ПОДКЛЮЧЕНИЯ.forEach"));
+    проверить('реген: Custom без адреса — понятная ошибка, а не «Invalid URL»', рег.includes("hudSource === 'custom' && !hudRequestBody.custom_url"));
+    проверить('реген: SiliconFlow и MiniMax — свой адрес', R.поляПодключения({ chat_completion_source: 'siliconflow' }).siliconflow_endpoint === 'global' && R.поляПодключения({ chat_completion_source: 'minimax', minimax_endpoint: 'cn' }).minimax_endpoint === 'cn');
+    // Ответ: ошибка провайдера с кодом 200 — её текст, а не «HUD не найден».
+    const ошибка = (f) => { try { f(); return ''; } catch (e) { return e.message; } };
+    проверить('реген: {error:{message}} с кодом 200 — ошибка с текстом провайдера', /API Error: Bad Request/.test(ошибка(() => R.текстОтвета({ error: { message: 'Bad Request' } }))) && /no candidate/.test(ошибка(() => R.текстОтвета({ error: { message: 'Google AI Studio API returned no candidate' } }))));
+    проверить('реген: пустой ответ — своя ошибка', /пустой ответ/.test(ошибка(() => R.текстОтвета({ choices: [{ message: { content: '' } }] }))));
+    проверить('реген: разбор ответа — OpenAI, Claude без thinking, Gemini без thought, профиль',
+      R.текстОтвета({ choices: [{ message: { content: 'A' } }] }) === 'A'
+      && R.текстОтвета({ content: [{ type: 'thinking', thinking: 'x' }, { type: 'text', text: 'B' }] }) === 'B'
+      && R.текстОтвета({ candidates: [{ content: { parts: [{ text: 'дума', thought: true }, { text: 'C' }] } }] }) === 'C'
+      && R.текстОтвета({ content: 'D', reasoning: 'r' }) === 'D'
+      && R.текстОтвета({ choices: [{ message: { content: 'E' } }] }, () => 'E2') === 'E2');
+    проверить('реген: ошибка профиля — с причиной из cause', R.текстОшибки(new Error('API request failed', { cause: new Error('Unauthorized') })) === 'API request failed: Unauthorized');
+    проверить('реген: роли user/assistant — без «model» по имени модели', !рег.includes("'model'") && !рег.includes('isGeminiBackend'));
+    проверить('реген: Text Completion — через generateRaw, профиль — до проверки Custom', рег.includes("основнойAPI !== 'openai'") && рег.includes('stContext.generateRaw({ prompt: freshMessages') && рег.includes('!черезПрофиль && !черезТаверну && hudSource'));
+    проверить('реген: из клона — без tools и JSON-схемы', рег.includes("['tools', 'tool_choice', 'json_schema', 'n', 'logprobs']"));
+    проверить('реген: сменился свайп или чат — HUD не вставляем, текст сообщения — свежий', рег.includes('targetMessage.swipe_id !== свайпВНачале') && рег.includes('oldText = заменитьHudБлоки(основа.текстСообщенияЧата(targetMessage)'));
+    // Живая проверка (GLM, DeepSeek через роутер): пустой ответ приходит как «""»,
+    // а рассуждающая модель тратит весь лимит до HUD.
+    const обрыв = (c, f = 'length') => ({ choices: [{ finish_reason: f, message: { content: c, reasoning: '…' } }] });
+    проверить('реген: «""» — пустой ответ; обрыв по лимиту без текста — про рассуждения', /пустой ответ/.test(ошибка(() => R.текстОтвета({ choices: [{ message: { content: '""' } }] }))) && /на рассуждения/.test(ошибка(() => R.текстОтвета(обрыв('""')))));
+    проверить('реген: повтор с большим лимитом — только при обрыве без целого HUD',
+      R.нуженЛимитБольше(обрыв('""')) && R.нуженЛимитБольше(обрыв('[HUD]\n```json\n{"sc":{"T":"1"')) && !R.нуженЛимитБольше(обрыв('[HUD]\n```json\n{"sc":{}}\n```\n[/HUD]')) && !R.нуженЛимитБольше(обрыв('""', 'stop'))
+      && R.обрывПоЛимиту({ stop_reason: 'max_tokens' }) && R.лимитПовтора(8192) === 16384 && R.лимитПовтора(20000) === 32768);
+    проверить('реген: штрафы за повторы — 0, профиль отдаёт сырой ответ', рег.includes("['frequency_penalty', 'presence_penalty'].forEach") && рег.includes('extractData: false'));
+    const Сн = await модуль('hud-snapshot.js');
+    const сПоворотом = '[HUD]\n```json\n{"sc":{"T":"10:00","Tw":"ttl: Дым; hap: она вышла из дыма"}}\n```\n[/HUD]';
+    // GLM закрыл корень раньше времени: «…"L":"x"}},"me":{…}}» — раньше от HUD оставались sc, cs, us.
+    const Пр = await модуль('hud-parser.js');
+    const рано = '{"sc":{"T":"10:00"},"us":{"L":"склад"}},"me":{"lg":["00:15 - пожар"]},"wd":{"zd":"Овен"}}';
+    const склеено = JSON.parse(Пр.склеитьРаннийКорень(рано));
+    проверить('разбор: корень, закрытый раньше времени, склеивается — разделы после него не теряются', склеено.me && склеено.wd && склеено.us.L === 'склад' && Пр.склеитьРаннийКорень('{"a":1}, а потом «b»: да') === '{"a":1}, а потом «b»: да' && Пр.склеитьРаннийКорень('{"a":"}","b":1}') === '{"a":"}","b":1}');
+    проверить('разбор: такой HUD после починки — со всеми разделами', /"memory"|"Память"|"me"/.test(Пр.repairGeneratedHudBlock('[HUD]\n```json\n' + рано + '\n```\n[/HUD]')));
+    проверить('коды: поворот сюжета — в сохранении после перегенерации есть, в снимке нет', Сн.HUDвКодах(сПоворотом, { сПоворотом: true }).sc.Tw === 'ttl: Дым; hap: она вышла из дыма' && !('Tw' in Сн.HUDвКодах(сПоворотом).sc) && рег.includes('HUDвКодах(внутри, { сПоворотом: true })'));
+  }
+  {
     // С заменой: на месте блока — сводка; прошлый блок виден следующей замене; упала — блок убран.
     const вызовы = [];
     const замена = (блок, прошлый) => { вызовы.push([/"T":"(\d+)/.exec(блок)[1], прошлый ? /"T":"(\d+)/.exec(прошлый)[1] : '']); if (блок.includes('"T":"3"')) throw new Error('битый'); return `[HUD_SUMMARY] T${/"T":"(\d+)/.exec(блок)[1]} [/HUD_SUMMARY]`; };

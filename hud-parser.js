@@ -7,9 +7,9 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=23.79.5';
-import { hudБлоки } from './hud-block.js?v=23.79.5';
-import { имяБезПриставки } from './utils.js?v=23.79.5';
+import { normalizeJSONData } from './schema.js?v=23.79.6';
+import { hudБлоки } from './hud-block.js?v=23.79.6';
+import { имяБезПриставки } from './utils.js?v=23.79.6';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';
@@ -74,6 +74,40 @@ function decodeHighlightedHudHtml(input) {
     .replace(/```(?:json|JSON)?/gi, '')
     .replace(/```/g, '')
     .trim();
+}
+
+// Конец объекта, открытого «{» на позиции от: индекс парной «}» или -1.
+function конецОбъекта(s, от) {
+  let глубина = 0, вСтроке = false, экран = false;
+  for (let j = от; j < s.length; j++) {
+    const ch = s[j];
+    if (вСтроке) {
+      if (экран) экран = false;
+      else if (ch === '\\') экран = true;
+      else if (ch === '"') вСтроке = false;
+      continue;
+    }
+    if (ch === '"') вСтроке = true;
+    else if (ch === '{') глубина++;
+    else if (ch === '}' && --глубина === 0) return j;
+  }
+  return -1;
+}
+
+// Модель закрыла корень раньше времени: «…"L":"…"}},"me":{…}». Первый объект
+// целый, а за ним продолжение «,"ключ":» — целым кандидатом становился только
+// этот кусок, и всё после него пропадало: память, телефон, дневник, мир.
+// Лишнюю «}» убираем, пока за корнем идёт продолжение.
+export function склеитьРаннийКорень(text) {
+  let s = String(text || '');
+  for (let раз = 0; раз < 5; раз++) {
+    const от = s.indexOf('{');
+    if (от < 0) return s;
+    const до = конецОбъекта(s, от);
+    if (до < 0 || !/^\s*,\s*"[^"\n]{1,40}"\s*:/.test(s.slice(до + 1))) return s;
+    s = s.slice(0, до) + s.slice(до + 1);
+  }
+  return s;
 }
 
 function extractBalancedJsonCandidates(text) {
@@ -532,7 +566,7 @@ export function repairGeneratedHudBlock(aiText) {
     const parsed = normalizeJSONData(безМеток(разобратьHUDСырой(rawInner)));
     return `[HUD]\n\`\`\`json\n${JSON.stringify(parsed, null, 2)}\n\`\`\`\n[/HUD]`;
   } catch (initialError) {
-    const decoded = decodeHighlightedHudHtml(rawInner);
+    const decoded = склеитьРаннийКорень(decodeHighlightedHudHtml(rawInner));
     const candidates = extractBalancedJsonCandidates(decoded);
     if (!candidates.length) {
       const firstBrace = decoded.indexOf('{');
@@ -765,7 +799,7 @@ export function разобратьHUDСырой(contentEncoded) {
     const старый = разобратьСтарыйФормат(decoded);
     if (старый) return старый;
   }
-  const candidates = extractBalancedJsonCandidates(decoded);
+  const candidates = extractBalancedJsonCandidates(склеитьРаннийКорень(decoded));
   if (!candidates.length) {
     const firstBrace = decoded.indexOf('{');
     if (firstBrace >= 0) candidates.push(decoded.slice(firstBrace));

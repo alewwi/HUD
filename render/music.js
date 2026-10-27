@@ -17,15 +17,15 @@
 // версии HUD, и сохраняется в файле чата. Запрос идёт с флагом
 // window.__tavernOSHudSkipInject: инструкция HUD в него не попадает.
 
-import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки } from '../utils.js?v=23.79.5';
-import { settings } from '../settings.js?v=23.79.5';
-import { parseHUDComplex } from '../hud-parser.js?v=23.79.5';
-import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.79.5';
-import { hudHasCombat } from './combat.js?v=23.79.5';
-import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.79.5';
-import { английский } from '../i18n.js?v=23.79.5';
-import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.79.5';
-import { ключСообщения } from '../chronicle.js?v=23.79.5';
+import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки } from '../utils.js?v=23.79.6';
+import { settings } from '../settings.js?v=23.79.6';
+import { parseHUDComplex } from '../hud-parser.js?v=23.79.6';
+import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.79.6';
+import { hudHasCombat } from './combat.js?v=23.79.6';
+import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.79.6';
+import { английский } from '../i18n.js?v=23.79.6';
+import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.79.6';
+import { ключСообщения } from '../chronicle.js?v=23.79.6';
 
 export { музыкаХода };
 
@@ -540,7 +540,7 @@ async function собратьКонтекстМузыки(ctx, chat, индек�
   let карточка = null, персона = '';
   if (нуженПомощник) {
     try {
-      const A = await import('./assistant.js?v=23.79.5');
+      const A = await import('./assistant.js?v=23.79.6');
       if (settings.musicIncludeCard === true) карточка = A.карточкаПерсонажа(ctx);
       if (settings.musicIncludePersona === true) персона = A.персонаИгрока(ctx);
     } catch (e) { console.warn('[TavernOS HUD] музыка: карточка и персона', e); }
