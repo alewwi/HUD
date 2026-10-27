@@ -2282,7 +2282,7 @@ export const СЛОВАРЬ_EN = {
   "изменённых полей сохранено для этой темы": "changed fields saved for this theme",
   "Возвращать нечего": "Nothing to restore",
   "Тема возвращена": "Theme restored",
-  "Исходные значения на месте. «↶ Шаг назад» вернёт правки": "The original values are back. «↶ Step back» returns your edits",
+  "Цвета и оформление — как задумано темой. «↶ Шаг назад» вернёт правки": "Colours and design as the theme intends. “↶ Step back” brings your edits back",
   "Своя": "Custom",
   "Своя тема сохранена": "Custom theme saved",
   "Теперь она стоит в ряду рядом с готовыми": "It now sits in the row next to the ready-made ones",

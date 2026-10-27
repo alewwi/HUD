@@ -11,23 +11,23 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.81.0';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.81.0';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.81.0';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.81.0';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.81.0';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.81.0';
-import { settings, defaultSettings } from './settings.js?v=23.81.0';
-import { полныйПорядок } from './tabs-order.js?v=23.81.0';
-import { getWorldVotes } from './render/world.js?v=23.81.0';
-import { действиеМира } from './render/world-views.js?v=23.81.0';
-import { действиеМузыки } from './render/music.js?v=23.81.0';
-import { раскрытьПорцию } from './render/long-list.js?v=23.81.0';
-import { прогретьИсторию } from './render/carryover.js?v=23.81.0';
-import { подключитьПалитру } from './color-picker.js?v=23.81.0';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.81.0';
-import { замер } from './utils.js?v=23.81.0';
-import { пометитьЭффекты } from './render/fx.js?v=23.81.0';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.81.1';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.81.1';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.81.1';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.81.1';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.81.1';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.81.1';
+import { settings, defaultSettings, оформлениеТемы } from './settings.js?v=23.81.1';
+import { полныйПорядок } from './tabs-order.js?v=23.81.1';
+import { getWorldVotes } from './render/world.js?v=23.81.1';
+import { действиеМира } from './render/world-views.js?v=23.81.1';
+import { действиеМузыки } from './render/music.js?v=23.81.1';
+import { раскрытьПорцию } from './render/long-list.js?v=23.81.1';
+import { прогретьИсторию } from './render/carryover.js?v=23.81.1';
+import { подключитьПалитру } from './color-picker.js?v=23.81.1';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.81.1';
+import { замер } from './utils.js?v=23.81.1';
+import { пометитьЭффекты } from './render/fx.js?v=23.81.1';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -192,6 +192,8 @@ let последнийКлюч = '', последнийМомент = 0;
 function снимокВида() {
   const о = { themePreset: settings.themePreset || '', themePalette: settings.themePalette || '' };
   КЛЮЧИ_ВИДА.forEach(k => { о[k] = settings[k]; });
+  // «Вернуть тему» меняет и оформление — «Шаг назад» возвращает и его.
+  Object.keys(оформлениеТемы()).forEach(k => { о[k] = settings[k]; });
   return о;
 }
 function запомнитьШаг(ключ = '') {
@@ -203,6 +205,11 @@ function запомнитьШаг(ключ = '') {
 }
 // Значения темы «как задумано»: заводские для всех ключей вида и сама тема
 // поверх — без пользовательских правок.
+// Кадр своих картинок — прозрачность и сдвиг картинки фона, масштаб и сдвиг
+// портрета: они подогнаны под картинку игрока, тема о них ничего не знает.
+// «Вернуть тему» их не трогает: заводские 80% проявляли размытую картинку
+// фона на всю карточку, и тема окрашивалась в её цвет.
+const КАДР_СВОИХ_КАРТИНОК = ['bgOpacity', 'bgScale', 'bgOffsetY', 'avatarScale', 'avatarOffsetX', 'avatarOffsetY'];
 function исходнаяТема(id, пал = settings.themePalette || "") {
   const о = {};
   КЛЮЧИ_ВИДА.forEach(k => { if (defaultSettings[k] !== undefined) о[k] = defaultSettings[k]; });
@@ -423,9 +430,13 @@ export function initGlobalEvents(ctx) {
         if (!id) { showHudToast('error', 'Тема не выбрана', 'Возвращать нечего.'); return; }
         запомнитьШаг();
         if (settings.themeEdits) delete settings.themeEdits[ключПравок(id, settings.themePalette)];
-        Object.assign(settings, исходнаяТема(id));
-        saveSettings(); applyThemeColors(); syncThemeInputs();
-        showHudToast('success', 'Тема возвращена', 'Исходные значения на месте. «↶ Шаг назад» вернёт правки.');
+        // Цвета и ползунки — как задумано темой, оформление — по теме.
+        const исходная = исходнаяТема(id);
+        КАДР_СВОИХ_КАРТИНОК.forEach(k => { delete исходная[k]; });
+        Object.assign(settings, исходная, оформлениеТемы());
+        saveSettings(); applyThemeColors(); syncThemeInputs(); redrawPalettes();
+        document.dispatchEvent(new CustomEvent('hud-theme-changed', { detail: { разметка: true } }));
+        showHudToast('success', 'Тема возвращена', 'Цвета и оформление — как задумано темой. «↶ Шаг назад» вернёт правки.');
         return;
       }
 
@@ -486,6 +497,7 @@ export function initGlobalEvents(ctx) {
         if (!шаг) { showHudToast('error', 'Отменять нечего', 'С начала сеанса правок вида не было.'); return; }
         Object.assign(settings, шаг);
         saveSettings(); applyThemeColors(); redrawPresets(); syncThemeInputs();
+        document.dispatchEvent(new CustomEvent('hud-theme-changed', { detail: { разметка: true } }));
         showHudToast('success', 'Шаг назад', историяВида.length ? 'Можно отменить ещё ' + историяВида.length + '.' : 'Это была первая правка сеанса.');
         return;
       }

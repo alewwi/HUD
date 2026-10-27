@@ -617,6 +617,16 @@ export const МИНИМАЛИЗМ = {
   // Рисунки темы остаются — своими значками, без картинок.
   themeScene: 'auto', noImages: 'on', sceneBar: 'auto', sceneName: 'auto', sceneCorner: 'auto', sceneCard: 'auto',
 };
+// «Вернуть тему» (events.js): оформление «как задумано темой» — украшения
+// по теме, рисунки сцены во всех местах, у портрета и в шапке «Авто», с
+// картинками; цвета, значки и крой секций — заводские.
+export function оформлениеТемы() {
+  return {
+    ...Object.fromEntries([...КЛЮЧИ_АВТО, ...Object.values(КЛЮЧИ_МЕСТ)].map(к => [к, 'auto'])),
+    avatarDeco: 'theme', headerOrnament: 'theme', avatarShape: 'auto', noImages: 'off',
+    pillColors: defaultSettings.pillColors, pillIcons: defaultSettings.pillIcons, pillStyle: defaultSettings.pillStyle,
+  };
+}
 // «Дефолт» (Кастомизация → Вид блоков): ключи «Отображения» из настроек,
 // которые тоже возвращаются к заводским — вид значков, пояснения, сводки.
 export const КЛЮЧИ_ОТОБРАЖЕНИЯ = ['showHints', 'iconSet', 'summaryCards', 'memoryMaxHeight'];
