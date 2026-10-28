@@ -1959,9 +1959,9 @@ const акцентДляТекста = () => текстНаКарточке(sett
       // стрелки часов на времени сцены, погода — та, что в сцене, с солнцем
       // или луной по времени суток.
       const время = tRaw.split('|')[0].trim();
-      if (hudHasMeaningfulValue(tRaw)) subTags.push(`<span class="hud-preview-tag">${меткаШапки('время', { время })} ${escapeHtml(время)}</span>`);
-      if (hudHasMeaningfulValue(wRaw)) subTags.push(`<span class="hud-preview-tag">${меткаШапки('погода', { вид: wClass, фаза: phaseClass })} ${escapeHtml(wRaw)}</span>`);
-      if (hudHasMeaningfulValue(dRaw)) subTags.push(`<span class="hud-preview-tag">${меткаШапки('дата', { дата: dRaw })} ${escapeHtml(dRaw)}</span>`);
+      if (hudHasMeaningfulValue(tRaw)) subTags.push(`<span class="hud-preview-tag is-time">${меткаШапки('время', { время })} ${escapeHtml(время)}</span>`);
+      if (hudHasMeaningfulValue(wRaw)) subTags.push(`<span class="hud-preview-tag is-weather" title="${escapeHtml(wRaw)}">${меткаШапки('погода', { вид: wClass, фаза: phaseClass })} ${escapeHtml(wRaw)}</span>`);
+      if (hudHasMeaningfulValue(dRaw)) subTags.push(`<span class="hud-preview-tag is-date">${меткаШапки('дата', { дата: dRaw })} ${escapeHtml(dRaw)}</span>`);
       osSubtitleHtml = `<div class="hud-os-subtitle">${subTags.join('')}</div>`;
     }
 

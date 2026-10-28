@@ -9,6 +9,7 @@
 import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки } from '../utils.js?v=23.86.0';
 import { settings } from '../settings.js?v=23.86.0';
 import { ико } from './view-icons.js?v=23.86.0';
+import { английский } from '../i18n.js?v=23.86.0';
 
 // Дневник: словарь эмоциональных синонимов. Раньше всё сводилось к
 // четырём темам (sad / angry / panic / neutral) — «скука», «презрение»,
@@ -303,14 +304,52 @@ function buildDiaryStains(seed) {
   }).join('');
 }
 
-// Штамп настроения рядом с датой: значок темы листа и само слово модели —
-// по-русски как есть («хищный азарт»), английское — именем темы («злость»).
+// Английские слова настроения по-русски — для штампа в русском интерфейсе.
+// Перевод слова, а не имя листа: «longing» — «сильное желание», «melancholy» —
+// «меланхолия», хотя оба лежат на своих листах.
+const НАСТРОЕНИЕ_ПО_РУССКИ = {
+  sadness: 'грусть', sad: 'грусть', sorrow: 'печаль', grief: 'горе', melancholy: 'меланхолия', loneliness: 'одиночество', lonely: 'одиночество',
+  stress: 'напряжение', tension: 'напряжение', tense: 'напряжение', anxiety: 'тревога', anxious: 'тревога', worry: 'беспокойство', worried: 'беспокойство',
+  nervous: 'нервы', restless: 'беспокойство', unease: 'тревога', uneasy: 'тревога', dread: 'ужас', fear: 'страх', afraid: 'страх', terror: 'ужас', scared: 'страх',
+  anger: 'злость', angry: 'злость', rage: 'ярость', fury: 'ярость', furious: 'ярость', irritation: 'раздражение', irritated: 'раздражение', annoyed: 'раздражение', frustration: 'досада', frustrated: 'досада', resentment: 'обида', hurt: 'обида',
+  panic: 'паника', calm: 'спокойствие', peace: 'покой', peaceful: 'покой', serenity: 'безмятежность', relief: 'облегчение', relieved: 'облегчение',
+  guilt: 'вина', guilty: 'вина', shame: 'стыд', ashamed: 'стыд', embarrassment: 'смущение', embarrassed: 'смущение', shy: 'смущение', flustered: 'смущение',
+  longing: 'сильное желание', yearning: 'томление', pining: 'тоска', wistful: 'светлая грусть', nostalgia: 'ностальгия', nostalgic: 'ностальгия',
+  joy: 'радость', happy: 'радость', happiness: 'счастье', delight: 'восторг', excitement: 'волнение', excited: 'волнение', elation: 'ликование', euphoria: 'эйфория', bliss: 'блаженство',
+  triumph: 'триумф', pride: 'гордость', proud: 'гордость', smug: 'самодовольство', satisfaction: 'удовлетворение', satisfied: 'удовлетворение', victory: 'победа',
+  love: 'любовь', affection: 'нежность', tenderness: 'нежность', tender: 'нежность', adoration: 'обожание', devotion: 'преданность', loyalty: 'верность', warmth: 'тепло',
+  cozy: 'уют', cosy: 'уют', comfort: 'уют', lust: 'страсть', desire: 'желание', passion: 'страсть', arousal: 'возбуждение', aroused: 'возбуждение', craving: 'жажда', hunger: 'голод', temptation: 'искушение',
+  obsession: 'одержимость', obsessed: 'одержимость', fixation: 'зацикленность', jealousy: 'ревность', jealous: 'ревность', envy: 'зависть', possessive: 'собственничество', possessiveness: 'собственничество',
+  codependency: 'созависимость', attachment: 'привязанность', realization: 'прозрение', epiphany: 'озарение', clarity: 'ясность', understanding: 'понимание',
+  collapse: 'крах', despair: 'отчаяние', hopeless: 'безнадёжность', hopelessness: 'безнадёжность', devastation: 'опустошение', devastated: 'опустошение', emptiness: 'пустота', numb: 'оцепенение', numbness: 'оцепенение',
+  disgust: 'отвращение', contempt: 'презрение', disdain: 'пренебрежение', disappointment: 'разочарование', disappointed: 'разочарование', betrayal: 'предательство',
+  apathy: 'апатия', tired: 'усталость', exhaustion: 'изнеможение', exhausted: 'изнеможение', fatigue: 'усталость', boredom: 'скука', bored: 'скука',
+  cold: 'холод', coldness: 'холодность', detached: 'отстранённость', detachment: 'отстранённость', indifference: 'безразличие', control: 'контроль', dominance: 'доминирование', power: 'власть',
+  madness: 'безумие', insanity: 'безумие', paranoia: 'паранойя', confusion: 'смятение', confused: 'смятение', resolve: 'решимость', determination: 'решимость', determined: 'решимость', defiance: 'вызов',
+  thrill: 'азарт', adrenaline: 'адреналин', irony: 'ирония', sarcasm: 'сарказм', amusement: 'веселье', amused: 'веселье', playful: 'игривость', mischief: 'озорство',
+  respect: 'уважение', admiration: 'восхищение', awe: 'трепет', curiosity: 'любопытство', curious: 'любопытство', intrigue: 'интерес', interest: 'интерес', surprise: 'удивление', shock: 'шок', shocked: 'шок',
+  protective: 'защита', protection: 'защита', hope: 'надежда', hopeful: 'надежда', gratitude: 'благодарность', grateful: 'благодарность', vulnerability: 'уязвимость', vulnerable: 'уязвимость', loss: 'потеря',
+  bittersweet: 'светлая грусть', neutral: 'ровно',
+};
+// Перевод слова модели: целиком, иначе по последнему знакомому слову
+// («quiet longing» — «сильное желание»). Не знаем — имя листа.
+function настроениеПоРусски(сырое, тема) {
+  const s = сырое.toLowerCase().replace(/[_-]+/g, ' ').replace(/\s+/g, ' ').trim();
+  if (НАСТРОЕНИЕ_ПО_РУССКИ[s]) return НАСТРОЕНИЕ_ПО_РУССКИ[s];
+  const слово = s.split(' ').reverse().find(w => НАСТРОЕНИЕ_ПО_РУССКИ[w]);
+  return слово ? НАСТРОЕНИЕ_ПО_РУССКИ[слово] : тема.имя;
+}
+
+// Штамп настроения рядом с датой: значок темы листа и само слово модели.
+// Русское — как написано («хищный азарт», «тоска» на листе грусти).
+// Английское — в русском интерфейсе переводом слова, в английском — как есть.
 // Без настроения штампа нет.
 export function штампНастроения(mood, key) {
   const тема = ТЕМЫ_ДНЕВНИКА[key];
   const сырое = String(mood ?? '').trim();
   if (!тема || !сырое || /^(empty|none|neutral|нейтрально)$/i.test(сырое)) return '';
-  const слово = /[а-яё]/i.test(сырое) ? сырое.replace(/_/g, ' ').toLowerCase() : тема.имя;
+  const слово = /[а-яё]/i.test(сырое) ? сырое.replace(/_/g, ' ').toLowerCase()
+    : английский() ? сырое.replace(/_/g, ' ').toLowerCase() : настроениеПоРусски(сырое, тема);
   const коротко = слово.length > 28 ? слово.slice(0, 27) + '…' : слово;
   return `<span class="hud-diary-stamp" title="Настроение: ${escapeHtml(слово)} · лист «${тема.имя}»">${ико(тема.значок, 'hud-diary-stamp-ico')}<span>${escapeHtml(коротко)}</span></span>`;
 }

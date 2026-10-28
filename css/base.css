@@ -200,6 +200,14 @@
     100% { transform: scale(1.2) translateY(-4px); opacity: 1; filter: drop-shadow(0 0 4px #4facfe); }
 }
 
+/* Свёрнутая шапка в одну строку: время и дата не сжимаются, длинная погода
+   сжимается с многоточием (целиком — в подсказке). Раньше она резалась
+   посреди слова под значком токенов, а дата пропадала. На телефоне и узкой
+   карточке теги переносятся (ниже, max-width: 600px и @container). */
+.hud-os-subtitle { min-width: 0; }
+.hud-preview-tag { flex: 0 0 auto; }
+.hud-preview-tag.is-weather { flex: 0 1 auto; min-width: 4.5em; overflow: hidden; text-overflow: ellipsis; }
+
 /* Значки свёрнутой шапки (render/topbar-icons.js): метки — акцентом темы,
    кнопки — своим цветом; рисунок (линия, тушь, пиксель…) — общий класс .hud-ico. */
 .hud-preview-tag .hud-tb-ico { width: 1.15em; height: 1.15em; vertical-align: -0.22em; margin-right: 1px; color: var(--hud-accent-text, var(--hud-accent)); }
