@@ -41,7 +41,8 @@ export const ТЕМЫ_ДНЕВНИКА = {
   bored: { имя: 'скука', пример: 'скука', значок: 'clock' }, cold: { имя: 'холод', пример: 'хладнокровие', значок: 'snow' },
   sad: { имя: 'грусть', пример: 'sadness', значок: 'umbrella' },
   // Новые (замер по 22 чатам: эти слова уходили в «ровно»).
-  longing: { имя: 'тоска', пример: 'longing', значок: 'moon' }, control: { имя: 'контроль', пример: 'абсолютная доминация', значок: 'lock' },
+  // «Longing» — сильное желание, тяга, а не тоска: тоска — это грусть.
+  longing: { имя: 'сильное желание', пример: 'longing', значок: 'moon' }, control: { имя: 'контроль', пример: 'абсолютная доминация', значок: 'lock' },
   madness: { имя: 'надлом', пример: 'безумие', значок: 'ghost' }, calc: { имя: 'расчёт', пример: 'холодный расчет', значок: 'chart' },
   resolve: { имя: 'решимость', пример: 'стальная решимость', значок: 'target' }, thrill: { имя: 'азарт', пример: 'хищный азарт', значок: 'dagger' },
   irony: { имя: 'ирония', пример: 'сардоническая ирония', значок: 'lips' }, respect: { имя: 'уважение', пример: 'admiration', значок: 'star' },
@@ -130,8 +131,8 @@ export function normalizeDiaryMood(value) {
       'cozy','cosy','coziness','snug','snugly','snuggle','curled up','blanket','fireplace','hearth','warm socks','hot cocoa','cup of tea','homely','homey','hygge','safe place','nest','tucked in'
     ]},
     { key: 'longing', tests: [
-      'тоск','томлени','скучает по','скучаю по','ждет его','ждет ее','вспоминает его','вспоминает ее','щемящ','разлук',
-      'longing','long for','yearn','yearning','pining','pine for','miss him','miss her','missing him','missing her','wistful'
+      'томлени','страстно хочет','рвется к','тянется к','скучает по','скучаю по','ждет его','ждет ее',
+      'longing','long for','yearn','yearning','pining','pine for','miss him','miss her','missing him','missing her'
     ]},
     { key: 'embarrassment', tests: [
       'смущен','смущ','сконфуж','неловк','неудобн','застенчив','робост','робе','краснеет','покраснел','зарделас','зардел','растерялас','стесня',
@@ -221,7 +222,7 @@ export function normalizeDiaryMood(value) {
       'indifferent','indifference','uncaring','unmoved','detached','detachment','aloof','aloofness','distant','withdrawn','impassive','dispassionate','unfeeling','callous','cold','coldness','icy','frosty','remote','disinterested','disengaged'
     ]},
     { key: 'sad', tests: [
-      'грусть','груст','печаль','печальн','тоска','тосклив','скорб','горе','горев','слез','слеза','слезы','слезами','рыдан','плакс','плачет','плач','разбит','одиночеств','одинок','меланхол','безнад','отчаяни','безысход','больно','тяжело','тяжесть','жалость','сожален','ностальг','сердце разбито','разбитое сердце','обида','обижен','обиженн','горечь','горьк',
+      'грусть','груст','печаль','печальн','тоск','щемящ','разлук','wistful','скорб','горе','горев','слез','слеза','слезы','слезами','рыдан','плакс','плачет','плач','разбит','одиночеств','одинок','меланхол','безнад','отчаяни','безысход','больно','тяжело','тяжесть','жалость','сожален','ностальг','сердце разбито','разбитое сердце','обида','обижен','обиженн','горечь','горьк',
       'sad','sadness','sorrow','sorrowful','sorrowing','grief','grieving','mourning','mourne','melancholy','melancholic','blue','downcast','downhearted','unhappy','misery','miserable','lonely','loneliness','alone','heartbroken','heartbreak','despair','despairing','hopeless','hopelessness','gloom','gloomy','dreary','somber','sombre','regret','regretful','regrets','hurt','hurting','pain','painful','sulk','sullen','doleful','tearful','tears','tear','cry','crying','weeping','weep','sob','sobbing','homesick','nostalgic','nostalgia','bitter','bittersweet'
     ]},
     { key: 'neutral', tests: [

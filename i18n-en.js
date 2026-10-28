@@ -1221,6 +1221,8 @@ export const СЛОВАРЬ_EN = {
   "Вот": "Here",
   "Д": "D",
   "тоска": "longing",
+  "сильное желание": "longing",
+  "Настроение: сильное желание · лист «сильное желание": "Mood: longing · the “longing” page",
   "О ней": "About her",
   "радость": "joy",
   "желание": "desire",

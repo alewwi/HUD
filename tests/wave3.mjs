@@ -812,7 +812,7 @@ settings.tempoView = 'xray';
   const D = await модуль('render/diary.js');
   const тема = (м) => D.normalizeDiaryMood(м);
   const ждём = {
-    'тоска': 'longing', longing: 'longing', 'контроль': 'control', 'самоконтроль': 'control', 'безумие': 'madness',
+    'тоска': 'sad', longing: 'longing', 'скучает по нему': 'longing', 'контроль': 'control', 'самоконтроль': 'control', 'безумие': 'madness',
     'растерзанное самообладание': 'madness', 'холодная рассудительность': 'calc', 'решимость': 'resolve', 'непреклонность': 'resolve',
     'азарт': 'thrill', 'ирония': 'irony', 'уважение': 'respect', 'любопытство': 'curiosity', 'стресс': 'stress', 'напряжение': 'stress',
     'усталость': 'apathy', tired: 'apathy', 'холодное спокойствие': 'cold', 'удовлетворение': 'triumph', 'обладание': 'jealousy',
