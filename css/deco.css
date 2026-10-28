@@ -814,10 +814,11 @@
    и свой ползунок. Выключено — пустая рамка, включено — знак темы в ней
    (сердечко, ромб, звезда…). Цвет — акцент темы. У Вампира, Уюта, Льда
    и Глубины галочки свои (выше в extras.css) — им добавляется ползунок.
+   У стандартной темы и «Своей» галочки таверновские.
    ========================================================================= */
 :root.hud-themed-controls:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-cyberpunk, .hud-theme-noir, .hud-theme-medieval, .hud-theme-fantasy, .hud-theme-mafia,
     .hud-theme-steampunk, .hud-theme-dieselpunk, .hud-theme-solarpunk, .hud-theme-biopunk, .hud-theme-spaceopera, .hud-theme-japan, .hud-theme-egypt,
-    .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo, .hud-theme-spacehorror) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"] {
+    .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo, .hud-theme-spacehorror, .hud-theme-darkroom, .hud-theme-teaparty, .hud-theme-bujo) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"] {
   appearance: none !important; -webkit-appearance: none !important; width: 16px !important; min-width: 16px; height: 16px !important; margin: 0 4px 0 0 !important;
   display: inline-grid !important; place-items: center; background: transparent !important; cursor: pointer; flex: none; overflow: hidden;
   border: 1.5px solid color-mix(in srgb, var(--hud-accent) 55%, transparent) !important; border-radius: 4px !important; box-shadow: none !important; outline: none !important;
@@ -825,14 +826,22 @@
 }
 :root.hud-themed-controls:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-cyberpunk, .hud-theme-noir, .hud-theme-medieval, .hud-theme-fantasy, .hud-theme-mafia,
     .hud-theme-steampunk, .hud-theme-dieselpunk, .hud-theme-solarpunk, .hud-theme-biopunk, .hud-theme-spaceopera, .hud-theme-japan, .hud-theme-egypt,
-    .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo, .hud-theme-spacehorror) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]::before {
+    .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo, .hud-theme-spacehorror, .hud-theme-darkroom, .hud-theme-teaparty, .hud-theme-bujo) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]::before {
   content: '' !important; display: block !important; width: auto !important; height: auto !important; background: none !important; border: none !important;
   box-shadow: none !important; transform: none !important; clip-path: none !important; font: 12px/1 'Segoe UI Symbol', 'Segoe UI', sans-serif; color: var(--hud-accent-text, var(--hud-accent));
 }
-:root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked {
+/* «Включено» — только у тем со своим знаком (--cb-on). У стандартной темы и
+   «Своей» знака нет: галочки остаются таверновскими, а не пустой рамкой. */
+:root.hud-themed-controls:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-cyberpunk, .hud-theme-noir, .hud-theme-medieval, .hud-theme-fantasy, .hud-theme-mafia,
+    .hud-theme-steampunk, .hud-theme-dieselpunk, .hud-theme-solarpunk, .hud-theme-biopunk, .hud-theme-spaceopera, .hud-theme-japan, .hud-theme-egypt,
+    .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo, .hud-theme-spacehorror, .hud-theme-darkroom, .hud-theme-teaparty, .hud-theme-bujo,
+    .hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice, .hud-theme-ocean) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked {
   border-color: var(--hud-accent) !important; background: color-mix(in srgb, var(--hud-accent) 14%, transparent) !important;
 }
-:root.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before {
+:root.hud-themed-controls:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-cyberpunk, .hud-theme-noir, .hud-theme-medieval, .hud-theme-fantasy, .hud-theme-mafia,
+    .hud-theme-steampunk, .hud-theme-dieselpunk, .hud-theme-solarpunk, .hud-theme-biopunk, .hud-theme-spaceopera, .hud-theme-japan, .hud-theme-egypt,
+    .hud-theme-western, .hud-theme-pirate, .hud-theme-witch, .hud-theme-voodoo, .hud-theme-spacehorror, .hud-theme-darkroom, .hud-theme-teaparty, .hud-theme-bujo,
+    .hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice, .hud-theme-ocean) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before {
   content: var(--cb-on) !important; text-shadow: 0 0 6px color-mix(in srgb, var(--hud-accent) 70%, transparent);
 }
 
