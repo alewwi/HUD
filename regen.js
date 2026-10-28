@@ -5,10 +5,10 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings } from './settings.js?v=23.86.0';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe } from './hud-block.js?v=23.86.0';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.86.0';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.86.0';
+import { настройка, settings, defaultSettings } from './settings.js?v=23.87.0';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe } from './hud-block.js?v=23.87.0';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.87.0';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.87.0';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, getMessageUpdateFunction, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
@@ -25,7 +25,20 @@ export function подключить(связь) { основа = связь; }
 export const ПОЛЯ_ПОДКЛЮЧЕНИЯ = ['custom_url', 'custom_include_body', 'custom_exclude_body', 'custom_include_headers',
   'reverse_proxy', 'proxy_password', 'azure_base_url', 'azure_deployment_name', 'azure_api_version',
   'vertexai_auth_mode', 'vertexai_region', 'vertexai_express_project_id', 'zai_endpoint',
-  'siliconflow_endpoint', 'minimax_endpoint'];
+  'siliconflow_endpoint', 'minimax_endpoint', 'nanogpt_provider', 'nanogpt_payg_override',
+  'use_fallback', 'provider', 'quantizations', 'allow_fallbacks', 'middleout', 'workers_ai_account_id'];
+// Ошибка без описания. Сервер Таверны на отсутствующий ключ отвечает 400 с
+// {error: true} — человеку доставалось одно «Bad Request». Поясняем по статусу.
+const ПУСТЫЕ_ОШИБКИ = /^(?:bad request|unauthorized|forbidden|http \d{3}|internal server error|)$/i;
+export function пояснитьОшибку(ошибка, источник = '') {
+  const статус = Number(ошибка && ошибка.status) || 0;
+  const текст = String((ошибка && ошибка.message) || '').trim();
+  if (!ПУСТЫЕ_ОШИБКИ.test(текст)) return текст;
+  const где = источник ? `«${источник}»` : 'этого источника';
+  if (статус === 400) return `сервер Таверны отклонил запрос без пояснения — чаще всего не задан ключ API для ${где} или не выбрана модель; подробности в консоли сервера Таверны`;
+  if (статус === 401 || статус === 403) return `провайдер не принял ключ API для ${где} — проверь ключ и доступ к модели`;
+  return текст || `HTTP ${статус}`;
+}
 // Источники, у которых Таверна пускает запрос через обратный прокси.
 const С_ПРОКСИ = ['claude', 'openai', 'mistralai', 'makersuite', 'vertexai', 'deepseek', 'xai', 'zai', 'moonshot'];
 /** Поля подключения текущего источника из настроек Chat Completion Таверны. */
@@ -52,6 +65,22 @@ export function поляПодключения(s) {
   if (источник === 'zai') out.zai_endpoint = s.zai_endpoint || 'common';
   if (источник === 'siliconflow') out.siliconflow_endpoint = s.siliconflow_endpoint || 'global';
   if (источник === 'minimax') out.minimax_endpoint = s.minimax_endpoint || 'global';
+  // NanoGPT: провайдер (X-Provider) и оплата «pay as you go» — без них в новой
+  // вкладке запрос уходил не туда, куда настроена Таверна.
+  if (источник === 'nanogpt') {
+    out.nanogpt_provider = s.nanogpt_provider;
+    out.nanogpt_payg_override = s.nanogpt_payg_override;
+  }
+  // Cloudflare Workers AI: без аккаунта сервер не знает, куда слать запрос.
+  if (источник === 'workers_ai') out.workers_ai_account_id = s.workers_ai_account_id;
+  // OpenRouter: провайдеры, квантования, запасные модели и middle-out.
+  if (источник === 'openrouter') {
+    out.use_fallback = s.openrouter_use_fallback;
+    out.provider = s.openrouter_providers;
+    out.quantizations = s.openrouter_quantizations;
+    out.allow_fallbacks = s.openrouter_allow_fallbacks;
+    out.middleout = s.openrouter_middleout;
+  }
   if (s.reverse_proxy && С_ПРОКСИ.includes(источник)) {
     out.reverse_proxy = s.reverse_proxy;
     out.proxy_password = s.proxy_password;
@@ -159,6 +188,12 @@ export async function handleHudRegenButton(regenBtn) {
       const ключГенерации = String(mesEl && mesEl.getAttribute('mesid'));
       основа.генерацииHUD.set(ключГенерации, отмена);
       const отменено = () => отмена.signal.aborted;
+      // Предел ожидания ответа (Настройки → Генерация → Перегенерация HUD).
+      // Без него медленный провайдер или рассуждающая модель крутили кнопку
+      // бесконечно и без единой ошибки. 0 — ждать сколько угодно.
+      const пределМин = Math.max(0, Number(settings.hudRegenTimeout ?? 6) || 0);
+      let вышлоВремя = false;
+      const таймерОжидания = пределМин ? setTimeout(() => { вышлоВремя = true; отмена.abort(); }, пределМин * 60000) : 0;
       let loadingToast = основа.showHudToast('loading', 'Загрузка', 'HUD генерируется. Подождите.');
       const убратьИндикатор = настройка('genIndicator') === 'on' ? основа.показатьИндикаторHUD(mesEl) : null;
       if (loadingToast) {
@@ -550,7 +585,11 @@ export async function handleHudRegenButton(regenBtn) {
           };
       } else if (черезТаверну) {
           // generateRaw отменить нельзя: ответ после отмены просто не вставляем.
-          aiText = текстОтвета(await stContext.generateRaw({ prompt: freshMessages, responseLength: hudMaxTokens }));
+          const ответ = stContext.generateRaw({ prompt: freshMessages, responseLength: hudMaxTokens });
+          aiText = текстОтвета(await new Promise((готово, сбой) => {
+              ответ.then(готово, сбой);
+              отмена.signal.addEventListener('abort', () => сбой(new DOMException('Отменено', 'AbortError')), { once: true });
+          }));
       } else {
           // Перехват узнаёт этот запрос по <hud_instructions> в теле и
           // пропускает — глобальный флаг здесь больше не нужен.
@@ -560,7 +599,7 @@ export async function handleHudRegenButton(regenBtn) {
               const res = await fetch(requestUrl, { method: 'POST', headers: requestHeaders, cache: 'no-cache', body: JSON.stringify(hudRequestBody), signal: отмена.signal });
               if (!res.ok) {
                   const apiError = await основа.readHudApiError(res);
-                  throw new Error(`API Error ${apiError.status}: ${apiError.message}`);
+                  throw new Error(`API Error ${apiError.status}: ${пояснитьОшибку(apiError, hudSource)}`);
               }
               return res.json();
           };
@@ -664,9 +703,11 @@ export async function handleHudRegenButton(regenBtn) {
               loadingToast.classList.add('hide');
               setTimeout(() => loadingToast.remove(), 400);
           }
-          if (отменено() || (err && err.name === 'AbortError')) основа.showHudToast('success', 'Отменено', 'Генерация HUD остановлена, сообщение не изменилось.');
+          if (вышлоВремя) основа.showHudToast('error', 'Нет ответа', `Провайдер не ответил за ${пределМин} мин — HUD не записан. Рассуждающие модели думают долго: увеличь «Ждать ответа» или уменьши «Лимит токенов HUD» (Генерация → Перегенерация HUD).`);
+          else if (отменено() || (err && err.name === 'AbortError')) основа.showHudToast('success', 'Отменено', 'Генерация HUD остановлена, сообщение не изменилось.');
           else основа.showHudToast('error', 'Ошибка', 'Не удалось обновить HUD: ' + err.message);
       } finally {
+          if (таймерОжидания) clearTimeout(таймерОжидания);
           if (основа.генерацииHUD.get(ключГенерации) === отмена) основа.генерацииHUD.delete(ключГенерации);
           if (убратьИндикатор) убратьИндикатор();
           regenBtn.removeAttribute('title');

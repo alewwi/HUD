@@ -1972,6 +1972,12 @@ export const СЛОВАРЬ_EN = {
   "шт": "pcs",
   "Обслуживание": "Maintenance",
   "Кэш архива": "Archive cache",
+  "сервер Таверны отклонил запрос без пояснения": "the SillyTavern server rejected the request without a reason",
+  "подробности в консоли сервера Таверны": "details are in the SillyTavern server console",
+  "проверь ключ и доступ к модели": "check the key and access to the model",
+  "Ждать ответа": "Wait for a reply",
+  "Нет ответа": "No reply",
+  "Если провайдер молчит дольше — генерация HUD останавливается с понятной ошибкой, а не крутится бесконечно. Рассуждающим моделям нужно больше. 0 — ждать без предела.": "If the provider stays silent longer, HUD generation stops with a clear error instead of spinning forever. Reasoning models need more. 0 — wait with no limit.",
   "опека": "care",
   "влечение": "attraction",
   "вражда": "hostility",
@@ -4264,6 +4270,10 @@ export const СЛОВАРЬ_EN = {
 };
 
 export const ШАБЛОНЫ_EN = [
+  ["^чаще всего не задан ключ API для «([^»]+)» или не выбрана модель$", "most often no API key is set for «$1» or no model is selected"],
+  ["^чаще всего не задан ключ API для этого источника или не выбрана модель$", "most often no API key is set for this source or no model is selected"],
+  ["^провайдер не принял ключ API для «([^»]+)»$", "the provider did not accept the API key for «$1»"],
+  ["^Провайдер не ответил за (\\d+) мин — HUD не записан\\. Рассуждающие модели думают долго: увеличь «Ждать ответа» или уменьши «Лимит токенов HUD» \\(Генерация → Перегенерация HUD$","The provider did not reply within $1 min — the HUD was not written. Reasoning models think for a long time: raise «Wait for a reply» or lower «HUD token limit» (Generation → HUD regeneration"],
   ["^в сюжете с (\\d{2}\\.\\d{2}\\.\\d{4})$", "in the story since $1"],
   ["^ДОСЬЕ (\\d+)$", "DOSSIER $1"],
   ["^Сколько последних HUD модель видит полностью, остальные сжимаются в сводку \\[HUD_SUMMARY\\]\\. Снимок в конце инструкции считается одним из них: при (\\d+(?:[.,]\\d+)?) \\(рекомендуется\\) — только снимок, при (\\d+(?:[.,]\\d+)?) — снимок и один полный HUD в истории \\(\\+тысячи токенов\\)\\. (\\d+(?:[.,]\\d+)?) = все HUD сжаты в сводку, снимка нет\\. Сводки работают и при выключенном сетевом перехвате$", "How many latest HUDs the model sees in full; the rest are compressed into a [HUD_SUMMARY] summary. The snapshot at the end of the instruction counts as one of them: at $1 (recommended) — only the snapshot, at $2 — the snapshot and one full HUD in the history (+thousands of tokens). $3 = all HUDs compressed into summaries, no snapshot. Summaries work even with the network intercept turned off"],

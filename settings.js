@@ -397,6 +397,8 @@ export const defaultSettings = {
   loreContextMessages: 10,
   regenProfileId: '',
   hudMaxTokens: 8192,
+  // Сколько минут ждать ответа на создание/перегенерацию HUD; 0 — без предела.
+  hudRegenTimeout: 6,
   hudLorebooks: [],
 
   // --- РУЧНЫЕ АВАТАРКИ ---

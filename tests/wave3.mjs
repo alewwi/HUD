@@ -955,6 +955,19 @@ settings.tempoView = 'xray';
     проверить('реген: Custom — адрес эндпоинта и его настройки, без прокси', кастом.custom_url === 'https://api.example/v1' && 'custom_include_body' in кастом && !('reverse_proxy' in кастом), JSON.stringify(кастом));
     const прокси = R.поляПодключения({ chat_completion_source: 'claude', reverse_proxy: 'http://proxy', proxy_password: 'p' });
     проверить('реген: прокси — только у источников, где его пускает Таверна', прокси.reverse_proxy === 'http://proxy' && прокси.proxy_password === 'p' && !('reverse_proxy' in R.поляПодключения({ chat_completion_source: 'openrouter', reverse_proxy: 'http://proxy' })));
+    // NanoGPT и OpenRouter: свои поля подключения — как у самой Таверны (createGenerationParameters).
+    const нано = R.поляПодключения({ chat_completion_source: 'nanogpt', nanogpt_provider: 'deepinfra', nanogpt_payg_override: true, openrouter_providers: ['x'] });
+    const роутер = R.поляПодключения({ chat_completion_source: 'openrouter', openrouter_providers: ['Anthropic'], openrouter_middleout: 'on', openrouter_allow_fallbacks: false, openrouter_use_fallback: true, openrouter_quantizations: ['fp8'] });
+    проверить('реген: NanoGPT — провайдер и оплата, OpenRouter — провайдеры, middle-out, запасные', нано.nanogpt_provider === 'deepinfra' && нано.nanogpt_payg_override === true && !('provider' in нано)
+      && JSON.stringify(роутер.provider) === '["Anthropic"]' && роутер.middleout === 'on' && роутер.allow_fallbacks === false && роутер.use_fallback === true && JSON.stringify(роутер.quantizations) === '["fp8"]' && !('nanogpt_provider' in роутер)
+      && ['nanogpt_provider', 'nanogpt_payg_override', 'provider', 'middleout', 'workers_ai_account_id'].every(к => R.ПОЛЯ_ПОДКЛЮЧЕНИЯ.includes(к))
+      && R.поляПодключения({ chat_completion_source: 'workers_ai', workers_ai_account_id: 'acc1' }).workers_ai_account_id === 'acc1');
+    проверить('реген: ошибка без описания (400 от Таверны при пустом ключе) — пояснение, своя — как есть', /не задан ключ API для «nanogpt»/.test(R.пояснитьОшибку({ status: 400, message: 'Bad Request' }, 'nanogpt'))
+      && /не принял ключ API/.test(R.пояснитьОшибку({ status: 401, message: 'Unauthorized' }, 'openai')) && R.пояснитьОшибку({ status: 500, message: 'Monthly tokens limit exceeded' }, 'x') === 'Monthly tokens limit exceeded');
+    const ре = css('regen.js');
+    проверить('реген: предел ожидания — не крутится вечно, понятная ошибка, generateRaw тоже отменяется', /const пределМин = Math\.max\(0, Number\(settings\.hudRegenTimeout \?\? 6\) \|\| 0\);/.test(ре)
+      && ре.includes('if (вышлоВремя) основа.showHudToast(\'error\', \'Нет ответа\'') && ре.includes('if (таймерОжидания) clearTimeout(таймерОжидания);')
+      && ре.includes("отмена.signal.addEventListener('abort', () => сбой(new DOMException('Отменено', 'AbortError')), { once: true });") && S.defaultSettings.hudRegenTimeout === 6 && css('settings-ui.js').includes("число('hud-regen-timeout', 0, 60"));
     проверить('реген: Azure, Vertex, Z.AI — свои поля', R.поляПодключения({ chat_completion_source: 'azure_openai', azure_base_url: 'u', azure_deployment_name: 'd', azure_api_version: 'v' }).azure_deployment_name === 'd' && R.поляПодключения({ chat_completion_source: 'vertexai', vertexai_region: 'r' }).vertexai_region === 'r' && R.поляПодключения({ chat_completion_source: 'zai' }).zai_endpoint === 'common');
     const рег = css('regen.js');
     проверить('реген: источник и модель — из текущих настроек Таверны (getChatCompletionModel), чужие поля клона снимаются', /живойИсточник \|\|\s*\n\s*reqBody\.chat_completion_source/.test(рег) && рег.includes('stContext.getChatCompletionModel(живыеНастройки)') && рег.includes('Object.assign(hudRequestBody, поляПодключения(живыеНастройки))') && рег.includes("if (!тотЖеИсточник) ПОЛЯ_ПОДКЛЮЧЕНИЯ.forEach"));
