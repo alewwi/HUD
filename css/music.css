@@ -193,7 +193,7 @@ button.hud-music-act { border: 0; padding: 0; cursor: pointer; color: var(--x-in
 
 /* --- Приложение «Музыка» в телефоне персонажа ---
    Экран телефона тёмный во всех темах — чернила светлые, акцент — цвет плитки. */
-.hud-mphone { --mp: #ff5f6d; color: #f4f2f7; font-size: 13px; }
+.hud-mphone { --mp: #ff5f6d; color: #f4f2f7; font-size: 13px; container: hud-mphone / inline-size; }
 .hud-mphone, .hud-mphone * { box-sizing: border-box; text-shadow: none !important; }
 .hud-mphone svg { display: block; }
 .hud-mphone-now { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 2px; padding: 4px 6px 12px; }
@@ -375,6 +375,17 @@ button.hud-music-play svg { width: 13px; height: 13px; }
 }
 .hud-mphone-tab i { font-style: normal; font-size: 10px; padding: 0 5px; border-radius: 99px; background: rgba(255,255,255,.14); }
 .hud-mphone-tab.is-on { color: #fff; background: rgba(255,255,255,.18); box-shadow: 0 1px 3px rgba(0,0,0,.35); }
+/* Узкий телефон (экран приложения ~220 px): три вкладки с числами в строку не
+   влезают и наезжали друг на друга — число становится кружком в углу вкладки,
+   как значок уведомления, и места в строке не занимает. */
+@container hud-mphone (max-width: 260px) {
+  .hud-mphone-tabs { margin-top: 4px; }
+  .hud-mphone-tab { position: relative; padding: 5px 2px; font-size: 10.5px; }
+  .hud-mphone-tab i {
+    position: absolute; top: -5px; right: 0; min-width: 14px; height: 14px; padding: 0 4px; display: grid; place-items: center;
+    font-size: 8.5px; font-weight: 700; line-height: 1; color: #fff; background: var(--mp); box-shadow: 0 0 0 1.5px rgba(0,0,0,.55);
+  }
+}
 .hud-mphone-new { display: flex; flex-direction: column; align-items: stretch; gap: 8px; margin-bottom: 12px; }
 .hud-mphone-new input {
   width: 100%; padding: 7px 10px; border-radius: 10px; font: inherit; font-size: 12.5px; color: #fff;

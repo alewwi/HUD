@@ -295,6 +295,12 @@ export function addSettingsUI() {
           </label>
           ${галка('hud-music-radio', settings.musicRadio !== false, '📻 Радио в сцене', 'Когда в сцене играет радио (машина, бар, клуб), модель называет жанр станции — и в «В сцене» появляется живой эфир: Радио Рекорд (117 жанровых станций, для России и русских жанров) или станции мира из каталога radio-browser.')}
           ${галка('hud-music-float', settings.musicFloat !== false, '📍 Плавающий значок', 'Крошечный полупрозрачный кружок у края, пока играет музыка, а карточка с ней ушла из виду: пауза, «к карточке», стоп.')}
+          ${галка('hud-music-free', settings.musicFree !== false, '🌊 Фон сцены целиком', 'Строка «Фон сцены» в саундтреке: очередь полных свободных треков по настроению сцены, без пауз и без запроса к модели. Источники ниже; наружу уходят только слова настроения («тревожная», «dark ambient»).')}
+          ${галка('hud-music-free-after', settings.musicFreeAfter !== false, '⏭️ После отрывка — фон сцены', 'Если у песни из подборки есть только отрывок 30 с, после него без паузы играет фон сцены целиком. Если полный трек нашёлся (NetEase, YouTube), играет он сам.')}
+          ${галка('hud-music-free-fonau', settings.musicFreeFonau !== false, '🎼 Фонау', 'Российская библиотека музыки без отчислений, ~80 тыс. треков, поиск по-русски; mp3 в облаке СберКлауда.')}
+          ${галка('hud-music-free-audius', settings.musicFreeAudius !== false, '🎛️ Audius', 'Открытый стриминг: инди, электроника, phonk, саундтреки; только треки с открытым потоком.')}
+          ${галка('hud-music-free-incompetech', settings.musicFreeIncompetech !== false, '🎬 Incompetech', 'Кевин Маклауд: 1443 трека для кино и игр, подбираются по «ощущению» сцены (тёмное, загадочное, эпичное…). Каталог встроен в HUD.')}
+          ${галка('hud-music-free-commons', settings.musicFreeCommons !== false, '🏛️ Wikimedia Commons', 'Старинная музыка и классика в свободном доступе — для средневекового сеттинга.')}
           <div class="hud-set-check" id="hud-music-taste" style="flex-wrap:wrap; gap:6px;" title="«Нравится» и «не предлагать» — сердечко и перечёркнутый круг у трека в плейлисте полосы. Модель подбирает ближе к понравившемуся и не предлагает запрещённое. У телефона персонажа свой «Нравится» — в его приложении «Музыка».">❤️ Вкус: <span id="hud-music-taste-n"></span>
             <button type="button" id="hud-music-liked-clear" style="cursor:pointer;">Очистить «нравится»</button>
             <button type="button" id="hud-music-banned-clear" style="cursor:pointer;">Очистить запреты</button>
@@ -832,10 +838,11 @@ export function addSettingsUI() {
   });
   document.getElementById('hud-music-lang-custom').addEventListener('change', (e) => { settings.musicLangCustom = e.target.value.trim().slice(0, 40); основа.saveSettings(); });
   document.getElementById('hud-music-meme').addEventListener('change', (e) => { settings.musicMeme = e.target.value; основа.saveSettings(); });
-  [['hud-music-radio', 'musicRadio'], ['hud-music-float', 'musicFloat']].forEach(([id, ключ]) => {
+  [['hud-music-radio', 'musicRadio'], ['hud-music-float', 'musicFloat'], ['hud-music-free', 'musicFree'], ['hud-music-free-after', 'musicFreeAfter'],
+    ['hud-music-free-fonau', 'musicFreeFonau'], ['hud-music-free-audius', 'musicFreeAudius'], ['hud-music-free-incompetech', 'musicFreeIncompetech'], ['hud-music-free-commons', 'musicFreeCommons']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.86.0').then(м => { м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
+      import('./render/music.js?v=23.86.0').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
     });
   });
   [['hud-music-liked-clear', 'musicLiked'], ['hud-music-banned-clear', 'musicBanned']].forEach(([id, ключ]) => {

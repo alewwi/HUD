@@ -140,7 +140,7 @@ const сЗапретом = M.полосаМузыки(0, { chat: чат, отк�
 проверить('полоса: запрещённый трек зачёркнут и без ▶', /hud-music-tr[^"]*is-banned/.test(сЗапретом) && !/hud-music-artplay[^>]*data-g="s" data-i="0"/.test(сЗапретом));
 settings.musicBanned = [т('Bad', 'Song')];
 settings.musicRadio = false;
-проверить('полоса: радио выключено — строки эфира нет', !/hud-music-radio/.test(M.полосаМузыки(0, { chat: чат, открыта: true })));
+проверить('полоса: радио выключено — строки эфира нет', !/data-mu="radio-next"/.test(M.полосаМузыки(0, { chat: чат, открыта: true })));
 settings.musicRadio = true;
 
 // --- Плейлисты телефона: подставная модель ---------------------------------------------------
@@ -170,11 +170,66 @@ const лайки = экран({ вид: 'liked' });
 проверить('экран: «Нравится» владельца', /Fav/.test(лайки) && /data-g="pf:/.test(лайки));
 проверить('экран: неизвестный плейлист — к списку', /hud-mphone-pls/.test(экран({ вид: 'list', id: 'нет' })));
 
+// --- Фон сцены целиком: Фонау, Audius, Incompetech, Commons ------------------------------------
+const F = await м('render/music-free.js');
+const зСтрах = F.запросФона({ эра: 'modern', род: 'страх', часть: 'ночь', погода: 'ливень' });
+проверить('фон: слова по настроению, ночи и дождю', зСтрах.ru.includes('тревожная') && зСтрах.ru[0] === 'дождь' && зСтрах.ru.length <= 4 && зСтрах.en.includes('rain') && зСтрах.feel.includes('Eerie'), JSON.stringify(зСтрах));
+проверить('фон: бой важнее настроения, без рода — кинематографичное', F.запросФона({ род: 'нежность', бой: true }).feel.includes('Action') && F.запросФона({}).ru.includes('кинематографичная'));
+const фонау = F.трекиФонау([
+  { title: { rendered: 'Lobo Loco &#8211; Next Generation (ID 2042)' }, meta: { type: 'single', stream: 'https://fonaucloud.obs.ru-moscow-1.hc.sbercloud.ru/a.mp3', duration: 102000 } },
+  { title: { rendered: 'Альбом' }, meta: { type: 'album', stream: '' } },
+  { title: { rendered: 'X &#8211; Y' }, meta: { type: 'single', stream: 'http://insecure/a.mp3' } },
+]);
+проверить('Фонау: только синглы с https-потоком, исполнитель и название из «A – B»', фонау.length === 1 && фонау[0].a === 'Lobo Loco' && фонау[0].t === 'Next Generation (ID 2042)' && фонау[0].сек === 102 && фонау[0].src === 'fonau');
+const аудиус = F.трекиAudius({ data: [
+  { id: 'a1', title: 'Open', user: { name: 'U' }, access: { stream: true }, duration: 120, genre: 'Ambient', mood: 'Melancholy', artwork: { '150x150': 'https://x/a.jpg' } },
+  { id: 'a2', title: 'Closed', user: { name: 'U' }, access: { stream: false }, duration: 120 },
+  { id: 'a3', title: 'Loop', user: { name: 'U' }, access: { stream: true }, duration: 30 },
+] });
+проверить('Audius: только открытый поток и не короче минуты; поток через API', аудиус.length === 1 && аудиус[0].поток === 'https://api.audius.co/v1/tracks/a1/stream?app_name=TavernOS-HUD' && аудиус[0].жанр === 'Ambient, Melancholy' && аудиус[0].art === 'https://x/a.jpg');
+const каталог = [
+  ['Dark Hall', 'Dark Hall', 'Dark,Eerie', 'piano', 200], ['Happy', 'Happy', 'Bright,Bouncy', 'guitar', 150],
+  ['Short', 'Short', 'Dark,Eerie', 'piano', 40], ['Cut (60 second)', 'Cut', 'Dark,Eerie', 'piano', 61],
+  ['Tavern', 'The Britons', 'Ren Faire,Medieval', 'lute,recorder', 300], ['Lute Song', 'Lute Song', 'Calming', 'lute', 200],
+];
+const инк = F.трекиIncompetech(каталог, 'https://incompetech.com/m/', { feel: ['Eerie', 'Dark'] }, () => 0.5);
+проверить('Incompetech: по «ощущению», без коротких нарезок', инк.length === 1 && инк[0].t === 'Dark Hall' && инк[0].поток === 'https://incompetech.com/m/Dark%20Hall.mp3' && инк[0].a === 'Kevin MacLeod', JSON.stringify(инк.map(т => т.t)));
+const инкСред = F.трекиIncompetech(каталог, 'https://incompetech.com/m/', { feel: ['Calming'], эра: 'medieval' }, () => 0.5).map(т => т.t).sort().join();
+проверить('Incompetech: в средневековье — только старинные инструменты', инкСред === 'Lute Song,Tavern', инкСред);
+const коммонс = F.трекиCommons({ query: { pages: {
+  1: { title: 'File:Anonymous - Saltarello.ogg', imageinfo: [{ url: 'https://upload.wikimedia.org/a/Saltarello.ogg?utm=1', mime: 'application/ogg', size: 900000 }] },
+  2: { title: 'File:Bach.mid', imageinfo: [{ url: 'https://upload.wikimedia.org/a/Bach.mid', mime: 'audio/midi', size: 900000 }] },
+  3: { title: 'File:Tiny.ogg', imageinfo: [{ url: 'https://upload.wikimedia.org/a/Tiny.ogg', mime: 'audio/ogg', size: 1000 }] },
+} } });
+проверить('Commons: звук без MIDI и обрывков, адрес без хвоста', коммонс.length === 1 && коммонс[0].a === 'Anonymous' && коммонс[0].t === 'Saltarello' && коммонс[0].поток === 'https://upload.wikimedia.org/a/Saltarello.ogg');
+const смесь = F.вперемешку([[т('A', '1'), т('A', '2')], [т('B', '1')], [т('a', '1'), т('C', '1')]], 10);
+проверить('фон: источники через один, без повторов', смесь.map(x => x.a + x.t).join() === 'A1,B1,A2,C1');
+{
+  const былFetch = globalThis.fetch;
+  const куда = [];
+  globalThis.fetch = async (u) => { куда.push(String(u)); return { ok: true, json: async () => (/commons/.test(u) ? { query: { pages: { 1: { title: 'File:Anon - Estampie.ogg', imageinfo: [{ url: 'https://upload.wikimedia.org/e.ogg', mime: 'audio/ogg', size: 2e6 }] } } } } : []) }; };
+  const ср = await F.собратьФон({ эра: 'medieval', род: 'покой' });
+  globalThis.fetch = былFetch;
+  проверить('фон: в средневековье — без Фонау и Audius, со старинной музыкой', !куда.some(u => /fonau|audius/.test(u)) && куда.some(u => /commons\.wikimedia\.org/.test(u) && /origin=\*/.test(u)) && ср.треки.some(x => x.src === 'commons') && ср.треки.some(x => x.src === 'incompetech'), JSON.stringify(куда));
+  globalThis.fetch = async (u) => { куда.push(String(u)); return { ok: true, json: async () => [] }; };
+  куда.length = 0;
+  await F.собратьФон({ эра: 'modern', род: 'страх' }, { источники: { audius: false, commons: false } });
+  globalThis.fetch = былFetch;
+  проверить('фон: выключенный источник не спрашивается; наружу — только слова настроения', куда.length && куда.every(u => /fonau\.ru\/wp-json\/wp\/v2\/station\?search=/.test(u)) && !куда.some(u => /audius/.test(u)), куда.join(' '));
+}
+settings.musicFree = true;
+const сФоном = M.полосаМузыки(0, { chat: чат, открыта: true });
+проверить('полоса: строка «Фон сцены» с ▶ и «следующим»', /hud-music-free/.test(сФоном) && /data-mu="play" data-g="f"/.test(сФоном) && /data-mu="free-next"/.test(сФоном));
+settings.musicFree = false;
+проверить('полоса: фон выключен — строки нет', !/hud-music-free/.test(M.полосаМузыки(0, { chat: чат, открыта: true })));
+settings.musicFree = true;
+проверить('фон: после отрывка — фон сцены; станции и фон забываются при смене чата', /!игра\.полный && фонВключён\(\) && settings\.musicFreeAfter !== false/.test(fs.readFileSync(ROOT + 'render/music.js', 'utf8')) && /радиоХода\.clear\(\); фонХода\.clear\(\)/.test(fs.readFileSync(ROOT + 'render/music.js', 'utf8')));
+
 // --- Подключение -----------------------------------------------------------------------------
 const код = fs.readFileSync(ROOT + 'render/music.js', 'utf8');
 проверить('значок: плавающий — по IntersectionObserver, гаснет без звука', /new IntersectionObserver/.test(код) && /function обновитьЗначок/.test(код) && /settings\.musicFloat === false/.test(код));
 проверить('значок: стиль — крошечный, полупрозрачный, наведение только мышью', /\.hud-mf-dot \{[^}]*width: 26px[^}]*opacity: \.4/.test(fs.readFileSync(ROOT + 'css/music.css', 'utf8')) && /@media \(hover: hover\) and \(pointer: fine\) \{\s*\.hud-mf-dot:hover/.test(fs.readFileSync(ROOT + 'css/music.css', 'utf8')));
-проверить('настройки: язык, мемы, радио, значок, вкус', ['hud-music-lang', 'hud-music-meme', 'hud-music-radio', 'hud-music-float', 'hud-music-liked-clear', 'hud-music-banned-clear'].every(id => fs.readFileSync(ROOT + 'settings-ui.js', 'utf8').includes(id)));
+проверить('настройки: язык, мемы, радио, значок, вкус', ['hud-music-lang', 'hud-music-meme', 'hud-music-radio', 'hud-music-float', 'hud-music-liked-clear', 'hud-music-banned-clear', 'hud-music-free', 'hud-music-free-after', 'hud-music-free-fonau', 'hud-music-free-audius', 'hud-music-free-incompetech', 'hud-music-free-commons'].every(id => fs.readFileSync(ROOT + 'settings-ui.js', 'utf8').includes(id)));
 
 console.log(`\nпроверок: ${проб}, провалов: ${провалов}`);
 process.exitCode = провалов ? 1 : 0;

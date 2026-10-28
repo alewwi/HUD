@@ -74,7 +74,7 @@ for (const [вид, имя] of [['cassette', 'Кассета'], ['vinyl', 'Пл�
 settings.musicStyle = 'auto';
 
 // Телефон персонажа: полный, пустой, подбор.
-const экран = (chat, о = {}) => `<div class="phone"><div class="hud-phone-app-view"><div class="hud-phone-app-title"><span class="hud-phone-back" aria-hidden="true">⟨</span>${G_ICONS.music} Музыка<span class="hud-phone-app-owner">Тристан</span></div>${M.приложениеМузыки(1, 'Тристан', { chat, ...о })}</div></div>`;
+const экран = (chat, о = {}, класс = '') => `<div class="phone${класс}"><div class="hud-phone-app-view"><div class="hud-phone-app-title"><span class="hud-phone-back" aria-hidden="true">⟨</span>${G_ICONS.music} Музыка<span class="hud-phone-app-owner">Тристан</span></div>${M.приложениеМузыки(1, 'Тристан', { chat, ...о })}</div></div>`;
 ряды.push(`<h1>Телефон персонажа → «Музыка»</h1><div class="row">${экран(ход(полная))}${экран(ход(null))}${экран(ход(null), { занято: ['phone'] })}</div>`);
 // Плейлисты владельца с названиями и его «Нравится» (метаданные чата).
 const библиотека = { v: 1, owners: { 'Тристан': { id: 't1', liked: [телефон.tracks[0]], playlists: [
@@ -83,6 +83,8 @@ const библиотека = { v: 1, owners: { 'Тристан': { id: 't1', lik
 ] } } };
 const сЛентой = [...ход(полная), { mes: 'новое', is_user: true }, { mes: 'ещё' }];
 ряды.push(`<h2>Плейлисты, открытый плейлист («Ещё» с новыми сообщениями), «Нравится», сборка плейлиста</h2><div class="row">${экран(сЛентой, { библиотека, вид: { вид: 'lists' } })}${экран(сЛентой, { библиотека, вид: { вид: 'list', id: 'p1' } })}${экран(сЛентой, { библиотека, вид: { вид: 'list', id: 'p2', удалить: 'p2' } })}${экран(сЛентой, { библиотека, вид: { вид: 'liked' } })}${экран(сЛентой, { библиотека, вид: { вид: 'lists' }, плейлист: { что: 'new' } })}${экран(сЛентой, { вид: { вид: 'lists' } })}</div>`);
+// Узкий телефон — экран приложения ~220 px, как в карточке на телефоне.
+ряды.push(`<h2>Узкий телефон (экран приложения ~220 px)</h2><div class="row">${экран(сЛентой, { библиотека, вид: { вид: 'lists' } }, ' is-narrow')}${экран(сЛентой, { библиотека, вид: { вид: 'list', id: 'p1' } }, ' is-narrow')}${экран(сЛентой, { библиотека, вид: { вид: 'liked' } }, ' is-narrow')}${экран(ход(полная), {}, ' is-narrow')}</div>`);
 
 // Архив → Саундтрек.
 const отчёт = { soundtrack: [
@@ -105,8 +107,11 @@ h2 { font-size: 12px; color: #a8a5ad; margin: 18px 0 6px; }
 .row { display: flex; gap: 24px; align-items: flex-start; flex-wrap: wrap; }
 .hud-os-card { padding: 4px 0; border-radius: 16px; background: linear-gradient(160deg, #241c2c, #120e17); }
 .wide { width: 540px; } .narrow { width: 239px; }
-.phone { width: 300px; min-height: 420px; padding: 10px 12px 18px; border-radius: 30px; border: 9px solid #16171d; background: linear-gradient(180deg, #2b2235, #0d0b12); color: #fff; }
-.phone { --hud-phone-bg: transparent; } .phone .hud-phone-app-view { display: block; position: static; padding: 0; background: none; overflow: visible; }
+.phone { width: 300px; min-height: 420px; padding: 10px 0 18px; border-radius: 30px; border: 9px solid #16171d; background: linear-gradient(180deg, #2b2235, #0d0b12); color: #fff; }
+/* Отступы экрана приложения — как в настоящем телефоне (base.css): 10/12 px,
+   на узком — 8 px. Без них стенд показывал всё прижатым к краю. */
+.phone { --hud-phone-bg: transparent; } .phone .hud-phone-app-view { display: block; position: static; padding: 10px 12px 12px; background: none; overflow: visible; }
+.phone.is-narrow { width: 237px; } .phone.is-narrow .hud-phone-app-view { padding: 8px 8px 12px; }
 .arc { padding: 12px; border-radius: 12px; background: #1d1824; }
 label.mt { position: sticky; top: 0; z-index: 5; display: inline-flex; gap: 6px; padding: 6px 10px; border-radius: 8px; background: #2a2233; }
 </style><body><label class="mt"><input type="checkbox" id="mt"> MoodTube установлен (показать кнопки очереди)</label><div>${ряды.join('\n')}</div></body>`;

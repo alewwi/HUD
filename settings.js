@@ -264,6 +264,14 @@ export const defaultSettings = {
   musicMeme: 'off',         // мемный саундтрек: off | auto (в смешной сцене) | on
   musicRadio: true,         // радио в сцене: живой эфир по тегам модели (render/music-radio.js)
   musicFloat: true,         // плавающий значок «что играет», когда карточка ушла из виду
+  // Фон сцены целиком (render/music-free.js): свободные полные треки по
+  // настроению сцены — Фонау, Audius, Incompetech, Wikimedia Commons.
+  musicFree: true,
+  musicFreeAfter: true,     // отрывок 30 с кончился — дальше фон сцены
+  musicFreeFonau: true,
+  musicFreeAudius: true,
+  musicFreeIncompetech: true,
+  musicFreeCommons: true,
   performanceMode: true, // Автоматическая оптимизация чатов от 200 сообщений
   // В Performance Mode карточка, уехавшая дальше полутора экранов, сворачивается
   // в заглушку своей высоты и собирается заново при возвращении.
