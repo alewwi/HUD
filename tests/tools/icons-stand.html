@@ -1,5 +1,5 @@
 <!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Значки — стенд</title>
-<link rel="stylesheet" href="../../css/all.css?v=23.85.0">
+<link rel="stylesheet" href="../../css/all.css?v=23.86.0">
 <style>body { margin: 0; padding: 12px; background: #1d1a22; color: #e8dff0; font: 12px system-ui, sans-serif; }
 .bar { position: sticky; top: 0; z-index: 2; display: flex; gap: 8px; padding: 6px 0 10px; background: #1d1a22; }
 .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(86px, 1fr)); gap: 6px; }
@@ -8,7 +8,7 @@
 .c.new { box-shadow: inset 0 0 0 1px rgba(215,185,255,.35); }</style></head>
 <body><div class="bar"><select id="st"><option>line</option><option>duotone</option><option>pixel</option><option>ink</option><option>rounded</option></select><label><input type="checkbox" id="only" checked> только новые</label></div><div class="grid" id="g"></div>
 <script type="module">
-const V = '?v=23.85.0&t=' + Date.now();
+const V = '?v=23.86.0&t=' + Date.now();
 const { ЕЩЁ, ЕЩЁ_ЭМОДЗИ } = await import('../../render/icon-paths.js' + V);
 const И = await import('../../render/hud-icons.js' + V);
 document.body.insertAdjacentHTML('beforeend', И.разметкаСпрайта());

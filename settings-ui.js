@@ -5,19 +5,19 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { settings } from './settings.js?v=23.85.0';
-import { видБлока } from './render/views.js?v=23.85.0';
-import { escapeHtml } from './utils.js?v=23.85.0';
-import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.85.0';
-import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.85.0';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.85.0';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.85.0';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.85.0';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.85.0';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.85.0';
-import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.85.0';
-import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.85.0';
-import { меткаШапки } from './render/topbar-icons.js?v=23.85.0';
+import { settings } from './settings.js?v=23.86.0';
+import { видБлока } from './render/views.js?v=23.86.0';
+import { escapeHtml } from './utils.js?v=23.86.0';
+import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.86.0';
+import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.86.0';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.86.0';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.86.0';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.86.0';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.86.0';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.86.0';
+import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.86.0';
+import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.86.0';
+import { меткаШапки } from './render/topbar-icons.js?v=23.86.0';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -596,7 +596,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.85.0');
+      const mod = await import('./render/archive.js?v=23.86.0');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -788,7 +788,7 @@ export function addSettingsUI() {
   [['hud-music-enable', 'enableMusic'], ['hud-music-auto', 'musicAuto'], ['hud-music-verify', 'musicVerify'], ['hud-music-line', 'musicSceneLine'], ['hud-music-player', 'musicPlayer']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.85.0').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
+      import('./render/music.js?v=23.86.0').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
     });
   });
   document.getElementById('hud-music-profile').addEventListener('change', (e) => { settings.musicProfileId = e.target.value || ''; основа.saveSettings(); });
@@ -805,7 +805,7 @@ export function addSettingsUI() {
   [['hud-music-medieval', 'musicMedieval'], ['hud-music-style', 'musicStyle'], ['hud-music-source', 'musicSource']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.value; основа.saveSettings();
-      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.85.0').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.86.0').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
 

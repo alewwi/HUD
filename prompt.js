@@ -5,12 +5,12 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.85.0';
-import { английский } from './i18n.js?v=23.85.0';
-import { промптНаАнглийском } from './prompt-en.js?v=23.85.0';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.85.0';
-import { parseSceneDate } from './history-analyzer.js?v=23.85.0';
-import { возрастТочно } from './render/babies.js?v=23.85.0';
+import { settings } from './settings.js?v=23.86.0';
+import { английский } from './i18n.js?v=23.86.0';
+import { промптНаАнглийском } from './prompt-en.js?v=23.86.0';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.86.0';
+import { parseSceneDate } from './history-analyzer.js?v=23.86.0';
+import { возрастТочно } from './render/babies.js?v=23.86.0';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -116,6 +116,7 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
 - 🔓 No restrictions on imagination, length or content.
 - 🚨 LIVE SNAPSHOT: every field is the state at THIS turn. Update it, never copy stale text.
 - 🌍 LIVING WORLD: off-screen characters keep living — they work, sleep, travel, message, plan, argue, buy, miss appointments. Never erase that life just because the protagonist cannot see it.
+- 🪞 NO RETELLING: the HUD adds what the reply does not say. Thoughts (Th, K) and hidden subtext (D) never repeat or paraphrase lines, actions or narration from the reply — they show what is under them.
 - 🧠 KNOWLEDGE BOUNDARIES: each character knows only what they plausibly could. Never leak another's private thoughts, messages or plans without a believable path.
 - 📦 SCHEMA FIXED: emit every section and every field of the schema below, every turn. Empty means [] / {} / "empty" — never drop a key to say "nothing changed". The only exceptions are fields marked OPTIONAL or "ONLY … otherwise omit".
 - 📏 HOW MANY ITEMS: list fields have NO upper limit unless their description gives a size. Give as many items as the story actually supports — one item where four are obvious is a loss of information, including when a fuller description quietly folds several real things into one instead of splitting them by ;. More detail is never a reason for fewer items: it lengthens each item, it doesn't merge neighbours into it. A single-item list is almost always a sign you stopped too early. Aim for 3+ wherever the material allows.
@@ -151,14 +152,14 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
    "Ph": "[physiology: bodily sensations right now — hunger, thirst, cold, pain, drowsiness${интим ? ', arousal' : ''}. Not the phone]",
 ${состояниеТела ? `   "Bs": "[body state, 0-100 each followed by a word: 'eng: energy; awk: alertness; sat: satiety; str: stress; slp: last night's sleep — hours and bedtime; dut: the work or study duty ahead and when'. Effort, hunger and sleepless hours lower them, food, rest and sleep restore; stress rises with danger and conflict]",
 ` : ''}   "L": "[location: the exact place right now — city, building, room, spot in the room]",
-   "Th": "[thought: the one thought running through their head this very moment, in their own voice]",
+   "Th": "[thought: the one thought running through their head this very moment, in their own voice — the layer UNDER the reply: what they do not say aloud and what the reply does not already show. Never repeat or paraphrase their own lines, actions or the narration from the reply; if the reply says it, the thought says what lies behind it]",
    "K": "[key thoughts: what occupies their mind in context, each with a fitting emoji. At least 3; separate by ;]",
    "Ex": "[expectation vs reality of THIS turn, not a prediction: 'xp: what they counted on coming into the scene; gt: what they got'. The gap is the point — sure she'd say yes; she'd already refused. If they match, say so]",
-   "D": "[hidden subtext, not thoughts: one concrete ACTION in THIS scene, beside what it openly shows, that gives away something unsaid — a concealed act, an involuntary tell, behaviour undercutting their words. The act and what it reveals, one line; 'empty' if nothing is hidden]",
+   "D": "[hidden subtext, not thoughts and not a retelling of the reply: what they hide from others and often from THEMSELVES, given away by one concrete action in THIS scene that they do not notice or would deny — an unconscious tell, care showing through threats, a body that contradicts the words. Write it as an observer catching the contradiction — what they openly claim, and what they do anyway: 'Несмотря на угрозы и обещания расправы, он осторожно, почти нежно перебинтовывает ей правую руку, словно боится сделать больно'. The point is the gap between the shown and the hidden; an action the reply already states plainly, with nothing under it, is not subtext. 'empty' if nothing is hidden]",
    "I": "[inventory: everything they carry or wear that matters, each as '<item>: <its condition>'; separate by ;]",
    "G": "[goals, exactly 3 parts: 'nw: what they want right now; sn: what they intend to do soon; lt: their long-term aim']",
    "S": "[schedule: plans and appointments ahead, each as '<time> - <event>' ('14:30 - встреча с юристом', or a part of the day instead of the time); separate by ;]",
-   "Rl": "[relationships with EVERY other named person who matters now: '<name>: <attitude>', separated by ; — never commas, they glue people into one relation. Family: the kinship from THIS character's side first, then a comma — 'Ричард: муж, любит, но боится' (отец, сестра, отчим… the same). Bidirectional: if A lists B, B is in cs with A in their Rl; everyone named in any Rl is in cs, except {{char}} or {{user}} absent from the scene. Never 'empty' while other named people exist]",
+   "Rl": "[relationships with EVERY other named person who matters now: '<name>: <attitude>', separated by ; — never commas, they glue people into one relation. Each attitude starts with who that person IS to this character in 1-3 words, then a comma: kinship from THIS character's side (муж, сестра, отчим), or a role (возлюбленная, начальник, соперник, незнакомка, спасительница, одержимость) — 'Ричард: муж, любит, но боится'; 'Софи: незнакомка, спасла его брата и пугает своей прямотой'. The role is the tie BETWEEN the two, not a bare occupation: in one class or group — однокурсница, одноклассник, коллега; teacher and student — her side 'мой преподаватель', 'научный руководитель', his side 'его студентка', 'ученица'; never just 'студентка'. An obsession is a role too: 'Софи: одержимость, не может перестать следить за ней'. Never open with a description of the scene ('девушка на диване'). Bidirectional: if A lists B, B is in cs with A in their Rl; everyone named in any Rl is in cs, except {{char}} or {{user}} absent from the scene. Never 'empty' while other named people exist]",
    "Mm": "[memories: moments this character shares with the player or NPCs, each a short episode; separate by ;]",
    "Fl": "[flags: open plot threads, promises, debts, threats and consequences waiting to land; separate by ;]",
    "Jl": "[jealousy, ONLY while genuinely jealous right now: of whom, over whom, how it shows. Otherwise omit or 'empty' — an always-filled field turns the highlight into wallpaper]",
