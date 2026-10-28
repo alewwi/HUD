@@ -26,8 +26,11 @@ import { музыкаХода, сохранитьМузыку, номерСва�
 import { английский } from '../i18n.js?v=23.86.0';
 import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.86.0';
 import { ключСообщения } from '../chronicle.js?v=23.86.0';
+import { норм, нормНазв, ключТрека, вСписке, переключить, безЗапрещённых, строкиВкуса, языкПесен, правилоЯзыка, мемныйРежим, правилоМемов,
+  ПРЕДЕЛ_ЛАЙКОВ, ПРЕДЕЛ_ЗАПРЕТОВ, библиотека, записьВладельца, записьПоId, плейлистПоId, новыйПлейлист, дописатьПлейлист, удалитьПлейлист } from './music-lib.js?v=23.86.0';
+import { станцииСцены } from './music-radio.js?v=23.86.0';
 
-export { музыкаХода };
+export { музыкаХода, норм, нормНазв };
 
 const КЛЮЧ_ПРОМПТА = 'hud_music_scene';
 // Свежим считается ход, пришедший в этой вкладке не раньше чем 10 минут назад:
@@ -190,7 +193,10 @@ function блокКонтекста(контекст) {
   return out;
 }
 
-export function промптМузыки({ сцена, проза = '', прежние = [], сколько = 8, средневековье = settings.musicMedieval, телефон = null, части = ['soundtrack', 'scene'], контекст = null, правила = null, пожелание = settings.musicWish }) {
+// вкус — строки «нравится / не предлагать» игрока (music-lib.js, строкиВкуса);
+// у телефона свой вкус — телефон.вкус. языкПесни — язык песен; мемы — мемный
+// саундтрек; радио — к музыке в сцене теги станции и страна (music-radio.js).
+export function промптМузыки({ сцена, проза = '', прежние = [], сколько = 8, средневековье = settings.musicMedieval, телефон = null, части = ['soundtrack', 'scene'], контекст = null, правила = null, пожелание = settings.musicWish, вкус = [], языкПесни = '', мемы = false, радио = false }) {
   const просьба = обрезать(плоско(пожелание || ''), 300);
   const нужно = new Set(части);
   if (!телефон) нужно.delete('phone');
@@ -204,7 +210,7 @@ export function промптМузыки({ сцена, проза = '', преж
     : 'Setting: modern (take the year from the date if given). Scene music must be plausible for that year, country and place.';
   const шаблон = ['"label":"..."',
     нужно.has('soundtrack') && '"soundtrack":[{"artist":"...","title":"...","why":"..."}]',
-    нужно.has('scene') && '"scene":{"source":"...","tracks":[{"artist":"...","title":"..."}]}',
+    нужно.has('scene') && (радио ? '"scene":{"source":"...","radio":"...","country":"..","tracks":[{"artist":"...","title":"..."}]}' : '"scene":{"source":"...","tracks":[{"artist":"...","title":"..."}]}'),
     нужно.has('phone') && '"phone":{"tracks":[{"artist":"...","title":"..."}]}'].filter(Boolean).join(',');
   const system = [
     // Начало: роль и запрет. Сообщения истории, карточка и лорбуки в запросе
@@ -215,14 +221,18 @@ export function промптМузыки({ сцена, проза = '', преж
     '{' + шаблон + '}',
     'Rules:',
     String(правила ?? settings.musicPrompt ?? '').trim() || ПРАВИЛА_МУЗЫКИ,
-    нужно.has('soundtrack') && `- soundtrack: ${сколько + 3} tracks for the listener, like the soundtrack of a film or series at this exact moment, best match first.`,
+    нужно.has('soundtrack') && (мемы ? правилоМемов(сколько + 3) : `- soundtrack: ${сколько + 3} tracks for the listener, like the soundtrack of a film or series at this exact moment, best match first.`),
     нужно.has('scene') && (толькоСцена
       ? '- scene: music the characters themselves can hear right now. The player asked for it, so always return 1-3 tracks: what plays or could plausibly play in that place (radio, venue, a speaker, a street musician, a bard). "source" — where it plays, 2-5 words in ' + язык + '.'
       : '- scene: music the characters themselves can hear right now (car radio, club, bar pianist, street musician, tavern bard, a phone speaker). Only when the snapshot or the text implies music is playing or plausible in that place; otherwise "scene": null. 1-3 tracks. "source" — where it plays, 2-5 words in ' + язык + '.'),
+    нужно.has('scene') && радио && '- radio: when the scene music comes from a radio, a venue\'s speakers or a stream, 1-3 English style tags of such a station for an internet radio directory (e.g. "russian pop", "80s", "lo-fi", "jazz", "rock", "chanson", "slow romantic"); otherwise null. country: ISO 3166 two-letter code of the country the scene is in.',
     нужно.has('phone') && '- phone: what ' + телефон.владелец + ' personally listens to on their own phone — 6 tracks, most recently played first. Their own taste by age, background, personality and state, not the scene score. Songs with vocals are fine.' + (телефон.прежние.length ? ' Keep most of their library from before and change 1-3 tracks to reflect the moment.' : ''),
+    ...вкус.map(с => '- ' + с),
+    ...(нужно.has('phone') && Array.isArray(телефон.вкус) ? телефон.вкус.map(с => '- phone: ' + с) : []),
     '- label: 2-5 lowercase ' + язык + ' words naming the moment for the interface, e.g. ' + (английский() ? '"rainy night in the car"' : '"дождливая ночь в машине"') + '.',
     нужно.has('soundtrack') && '- why: at most 8 ' + язык + ' words.',
     '- ' + эпоха,
+    правилоЯзыка(языкПесни),
     просьба && "- The player's wish in the user message has top priority: follow it for the soundtrack" + (нужно.has('phone') ? ' and the phone' : '') + ', even over the taste rules. Scene music still has to be plausible for the place.',
   ].filter(Boolean).join('\n');
   const строки = [];
@@ -277,7 +287,6 @@ function трекИз(x) {
   const why = плоско(x.why || x.reason || '');
   return { a: обрезать(a, 80), t: обрезать(t, 100), ...(why ? { why: обрезать(why, 80) } : {}) };
 }
-const ключТрека = (т) => норм(т.a) + '|' + нормНазв(т.t);
 function безПовторов(список) {
   const видели = new Set();
   return список.filter(т => { const k = ключТрека(т); if (видели.has(k)) return false; видели.add(k); return true; });
@@ -304,7 +313,9 @@ function спастиОборванный(текст) {
   return { label: метка, soundtrack: саундтрек, scene: вСцене.length ? { source: источник, tracks: вСцене } : null, phone: телефон.length ? { tracks: телефон } : null };
 }
 
-export function разобратьОтвет(raw) {
+// JSON из ответа модели: без рассуждений и разметки; битый — без висячих
+// запятых, оборванный — тем, что спасёт спасти.
+function jsonОтвета(raw, спасти = () => null) {
   let t = raw;
   if (t && typeof t === 'object') t = t.content ?? t.text ?? t.choices?.[0]?.message?.content ?? '';
   if (Array.isArray(t)) t = t.map(c => (c && c.text) || '').join('');
@@ -314,37 +325,53 @@ export function разобратьОтвет(raw) {
   const от = t.indexOf('{'), до = t.lastIndexOf('}');
   if (от < 0) throw new Error('модель не прислала подборку (нет JSON)');
   const кусок = до > от ? t.slice(от, до + 1) : t.slice(от);
-  let j;
-  try { j = JSON.parse(кусок); } catch (_) {
-    try { j = JSON.parse(кусок.replace(/,\s*([}\]])/g, '$1')); } catch (e) {
-      j = спастиОборванный(t.slice(от));
+  try { return JSON.parse(кусок); } catch (_) {
+    try { return JSON.parse(кусок.replace(/,\s*([}\]])/g, '$1')); } catch (e) {
+      const j = спасти(t.slice(от));
       if (!j) throw new Error('подборка пришла битой (' + e.message + ') — возможно, не хватило лимита ответа');
+      return j;
     }
   }
+}
+
+// Теги станции и страна сцены (music-radio.js): короткие и без мусора.
+const тегиРадио = (v) => (typeof v === 'string' && !/^(null|none|нет|-)?$/i.test(v.trim()) ? v.replace(/[^\p{L}\d\s,'/-]/gu, ' ').replace(/\s+/g, ' ').trim().slice(0, 40) : '');
+const странаРадио = (v) => (typeof v === 'string' && /^[a-z]{2}$/i.test(v.trim()) ? v.trim().toUpperCase() : '');
+
+export function разобратьОтвет(raw) {
+  const j = jsonОтвета(raw, спастиОборванный);
   const саундтрек = безПовторов((Array.isArray(j.soundtrack) ? j.soundtrack : []).map(трекИз).filter(Boolean)).slice(0, 16);
   const сц = j.scene && typeof j.scene === 'object' ? j.scene : null;
   const вСцене = сц ? безПовторов((Array.isArray(сц.tracks) ? сц.tracks : []).map(трекИз).filter(Boolean)).slice(0, 4) : [];
   const тел = j.phone && typeof j.phone === 'object' ? j.phone : null;
   const вТелефоне = тел ? безПовторов((Array.isArray(тел.tracks) ? тел.tracks : Array.isArray(тел) ? тел : []).map(трекИз).filter(Boolean)).slice(0, 10) : [];
   if (!саундтрек.length && !вСцене.length && !вТелефоне.length) throw new Error('модель прислала пустую подборку');
+  const радио = сц ? тегиРадио(сц.radio) : '';
   return {
     label: обрезать(плоско(j.label || ''), 48),
     soundtrack: саундтрек,
-    scene: вСцене.length ? { src: обрезать(плоско(сц.source || сц.src || ''), 48), tracks: вСцене } : null,
+    scene: вСцене.length || радио ? { src: обрезать(плоско(сц.source || сц.src || ''), 48), tracks: вСцене, ...(радио ? { radio: радио } : {}), ...(странаРадио(сц.country) ? { country: странаРадио(сц.country) } : {}) } : null,
     phone: вТелефоне.length ? { tracks: вТелефоне } : null,
   };
+}
+
+/** Ответ модели на плейлист телефона → { name, tracks }. */
+export function разобратьПлейлист(raw) {
+  const j = jsonОтвета(raw, (кусок) => {
+    const треки = (кусок.match(/\{[^{}]*\}/g) || []).map(o => { try { return JSON.parse(o); } catch (_) { return null; } }).filter(o => o && (o.artist || o.title));
+    return треки.length ? { name: (кусок.match(/"name"\s*:\s*"((?:[^"\\]|\\.)*)"/) || [])[1] || '', tracks: треки } : null;
+  });
+  const треки = безПовторов((Array.isArray(j.tracks) ? j.tracks : Array.isArray(j.playlist) ? j.playlist : []).map(трекИз).filter(Boolean)).slice(0, 20);
+  if (!треки.length) throw new Error('модель прислала пустой плейлист');
+  return { name: обрезать(плоско(j.name || j.title || ''), 48), tracks: треки.map(({ why, ...т }) => т) };
 }
 
 // ---------------------------------------------------------------------------
 // ПРОВЕРКА ТРЕКОВ (iTunes Search API: открыт для браузера, без ключа)
 // ---------------------------------------------------------------------------
 
-export const норм = (s) => нижн(s).normalize('NFD').replace(/\p{M}/gu, '')
-  .replace(/&/g, ' and ').replace(/^the\s+/, '').replace(/[^\p{L}\d]+/gu, ' ').trim();
-export const нормНазв = (s) => норм(String(s || '')
-  .replace(/\s*[([].*?[)\]]\s*/g, ' ')
-  .replace(/\s+[-–—]\s+.*?(?:remaster|version|live|edit|mix|mono|stereo|from\s).*$/i, '')
-  .replace(/\s+(?:feat|ft)\.?\s.*$/i, ''));
+// Сравнение треков (норм, нормНазв, ключТрека) — в music-lib.js: им пользуются
+// и вкус, и библиотека телефона.
 
 /** Совпадение трека с выдачей поиска: тот же исполнитель и то же название. */
 export function совпадение(трек, выдача) {
@@ -585,7 +612,38 @@ async function отправить(ctx, system, user, signal) {
  * подобрать только их (кнопки «Саундтрек», «В сцене», «Телефон»): остальное
  * у хода остаётся как было.
  */
-export async function подобратьМузыку(индекс, { вручную = false, части = null } = {}) {
+// Запрос к модели с таймером и отменой. Флаг __tavernOSHudSkipInject — чтобы
+// перехват HUD (index.js) не дописал в запрос свою инструкцию.
+async function спросить(ctx, system, user, отмена) {
+  // Сколько ждать ответа: настройка в секундах, 0 — без таймера.
+  const ждать = Math.max(0, Math.min(3600, parseInt(settings.musicTimeout ?? 120, 10) || 0)) * 1000;
+  window.__tavernOSHudSkipInject = (window.__tavernOSHudSkipInject || 0) + 1;
+  let таймер = 0;
+  try {
+    return await Promise.race([
+      отправить(ctx, system, user, отмена.signal),
+      ...(ждать ? [new Promise((_, reject) => { таймер = setTimeout(() => reject(new Error('модель молчит дольше ' + ждать / 1000 + ' с')), ждать); })] : []),
+      new Promise((_, reject) => отмена.signal.addEventListener('abort', () => reject(new Error('отменено')), { once: true })),
+    ]);
+  } finally {
+    // Ответ пришёл — таймер ожидания больше не нужен.
+    clearTimeout(таймер);
+    window.__tavernOSHudSkipInject = Math.max(0, (window.__tavernOSHudSkipInject || 1) - 1);
+  }
+}
+
+// «Нравится» и «не предлагать» игрока — в настройках (общие для телефона и ПК).
+const лайкиИгрока = () => (Array.isArray(settings.musicLiked) ? settings.musicLiked : []);
+const запретыИгрока = () => (Array.isArray(settings.musicBanned) ? settings.musicBanned : []);
+// Библиотека телефона — в метаданных открытого чата.
+const библиотекаЧата = (создать = false) => { const ctx = контекст(); return ctx ? библиотека(ctx.chatMetadata, создать) : null; };
+const лайкиТелефона = (владелец) => { const з = записьВладельца(библиотекаЧата(), владелец); return з ? з.liked : []; };
+
+/**
+ * мемы — мемный саундтрек этой подборки: true/false — по кнопке, null — по
+ * настройке («по тону сцены» решает смешнаяСцена).
+ */
+export async function подобратьМузыку(индекс, { вручную = false, части = null, мемы: мемыКнопкой = null } = {}) {
   const ctx = контекст();
   const chat = ctx && Array.isArray(ctx.chat) ? ctx.chat : null;
   const message = chat && chat[индекс];
@@ -619,36 +677,33 @@ export async function подобратьМузыку(индекс, { вручн�
   идут.set(ключ, { отмена, части: нужно });
   ошибки.delete(ключ);
   обновитьПолосу(индекс);
-  let безHud = false;
   try {
     const сколько = Math.max(4, Math.min(12, parseInt(settings.musicCount, 10) || 8));
     const источник = былоУХода || (прежняя && прежняя.м) || null;
     const прежние = источник ? [...(нужно.includes('soundtrack') ? источник.soundtrack || [] : []), ...(нужно.includes('scene') ? (источник.scene && источник.scene.tracks) || [] : [])].map(т => т.a + ' — ' + т.t) : [];
     const телефонРанее = [былоУХода, прежняя && прежняя.м].map(м => м && м.phone).find(т => т && т.owner === владелец) || null;
-    const телефон = владелец ? { владелец, о: оВладельце(data, владелец), прежние: телефонРанее ? телефонРанее.tracks.map(т => т.a + ' — ' + т.t) : [] } : null;
-    const контекст = await собратьКонтекстМузыки(ctx, chat, индекс);
-    const { system, user } = промптМузыки({ сцена, проза: проза(message), прежние: вручную || причина ? прежние : [], сколько, телефон, части: нужно, контекст });
-    // Сколько ждать ответа: настройка в секундах, 0 — без таймера.
-    const ждать = Math.max(0, Math.min(3600, parseInt(settings.musicTimeout ?? 120, 10) || 0)) * 1000;
-    window.__tavernOSHudSkipInject = (window.__tavernOSHudSkipInject || 0) + 1;
-    безHud = true;
-    const raw = await Promise.race([
-      отправить(ctx, system, user, отмена.signal),
-      ...(ждать ? [new Promise((_, reject) => setTimeout(() => reject(new Error('модель молчит дольше ' + ждать / 1000 + ' с')), ждать))] : []),
-      new Promise((_, reject) => отмена.signal.addEventListener('abort', () => reject(new Error('отменено')), { once: true })),
-    ]);
-    window.__tavernOSHudSkipInject = Math.max(0, (window.__tavernOSHudSkipInject || 1) - 1);
-    безHud = false;
+    // У телефона свой вкус — его «Нравится» из приложения «Музыка».
+    const телефон = владелец ? { владелец, о: оВладельце(data, владелец), прежние: телефонРанее ? телефонРанее.tracks.map(т => т.a + ' — ' + т.t) : [], вкус: строкиВкуса({ лайки: лайкиТелефона(владелец), чьи: владелец }) } : null;
+    // Не «контекст»: это имя функции, ниже она нужна — проверить, что чат тот же.
+    const справка = await собратьКонтекстМузыки(ctx, chat, индекс);
+    const мемы = нужно.includes('soundtrack') && (мемыКнопкой ?? мемныйРежим(settings.musicMeme, сцена));
+    const радио = нужно.includes('scene') && сцена.эра === 'modern' && settings.musicRadio !== false;
+    const { system, user } = промптМузыки({ сцена, проза: проза(message), прежние: вручную || причина ? прежние : [], сколько, телефон, части: нужно, контекст: справка,
+      вкус: строкиВкуса({ лайки: лайкиИгрока(), запреты: запретыИгрока() }), языкПесни: языкПесен(settings), мемы, радио });
+    const raw = await спросить(ctx, system, user, отмена);
     const ответ = разобратьОтвет(raw);
-    let саундтрек = нужно.includes('soundtrack') ? ответ.soundtrack : [];
-    let вСцене = нужно.includes('scene') && ответ.scene ? ответ.scene.tracks : [];
-    let вТелефоне = нужно.includes('phone') && ответ.phone ? ответ.phone.tracks : [];
-    if (частично && !саундтрек.length && !вСцене.length && !вТелефоне.length) {
+    // То, что игрок просил не предлагать, — прочь, даже если модель прислала.
+    let саундтрек = нужно.includes('soundtrack') ? безЗапрещённых(ответ.soundtrack, запретыИгрока()) : [];
+    let вСцене = нужно.includes('scene') && ответ.scene ? безЗапрещённых(ответ.scene.tracks, запретыИгрока()) : [];
+    let вТелефоне = нужно.includes('phone') && ответ.phone ? безЗапрещённых(ответ.phone.tracks, запретыИгрока()) : [];
+    const радиоТеги = нужно.includes('scene') && ответ.scene ? ответ.scene.radio || '' : '';
+    if (частично && !саундтрек.length && !вСцене.length && !вТелефоне.length && !радиоТеги) {
       throw new Error(нужно.includes('scene') ? 'модель не нашла, что могло бы звучать в сцене' : 'модель не прислала треков');
     }
     if (settings.musicVerify !== false) {
-      // Подряд, а не разом: у iTunes предел запросов в минуту.
-      саундтрек = await сверить(саундтрек, отмена.signal);
+      // Подряд, а не разом: у iTunes предел запросов в минуту. Мемных звуков
+      // в каталогах нет — их не сверяем, иначе отбросились бы все.
+      if (!мемы) саундтрек = await сверить(саундтрек, отмена.signal);
       вСцене = await сверить(вСцене, отмена.signal);
       вТелефоне = await сверить(вТелефоне, отмена.signal);
     }
@@ -671,10 +726,13 @@ export async function подобратьМузыку(индекс, { вручн�
       label: (частично && основа_.label) || ответ.label || основа_.label || '',
       dropped: выдуманные.filter(т => !осталось.has(т)).length,
     };
-    if (нужно.includes('soundtrack')) { новая.soundtrack = саундтрек; новая.now = ['s', 0]; }
-    else if (!Array.isArray(новая.soundtrack)) новая.soundtrack = [];
+    if (нужно.includes('soundtrack')) {
+      новая.soundtrack = саундтрек; новая.now = ['s', 0];
+      if (мемы) новая.meme = true; else delete новая.meme;
+    } else if (!Array.isArray(новая.soundtrack)) новая.soundtrack = [];
     if (нужно.includes('scene')) {
-      новая.scene = вСцене.length ? { src: ответ.scene.src, tracks: вСцене } : null;
+      новая.scene = вСцене.length || радиоТеги ? { src: ответ.scene.src, tracks: вСцене, ...(радиоТеги ? { radio: радиоТеги } : {}), ...(ответ.scene.country ? { country: ответ.scene.country } : {}) } : null;
+      радиоХода.delete(Number(индекс));
       if (!нужно.includes('soundtrack') && вСцене.length) новая.now = ['c', 0];
     } else if (новая.scene === undefined) новая.scene = null;
     // Модель забыла про телефон — у владельца остаётся прежняя музыка.
@@ -690,7 +748,6 @@ export async function подобратьМузыку(индекс, { вручн�
       ошибки.set(ключ, e && e.message ? e.message : String(e));
     }
   } finally {
-    if (безHud) window.__tavernOSHudSkipInject = Math.max(0, (window.__tavernOSHudSkipInject || 1) - 1);
     идут.delete(ключ);
     обновитьПолосу(индекс);
   }
@@ -736,6 +793,14 @@ const ИКО = {
   search: 'M11 4a7 7 0 1 1 0 14a7 7 0 1 1 0-14 M20 20l-4-4',
   stop: 'M6 6h12v12H6Z',
   warn: 'M12 3 2 20h20Z M12 10v4 M12 17h.01',
+  heart: 'M12 20s-7-4.4-9.2-8.7A5 5 0 0 1 12 6.2a5 5 0 0 1 9.2 5.1C19 15.6 12 20 12 20Z',
+  ban: 'M12 3.5a8.5 8.5 0 1 1 0 17a8.5 8.5 0 1 1 0-17 M6 6l12 12',
+  radio: 'M3.5 9.5h17v10h-17Z M7 9.5l10-5 M8.5 13a1.8 1.8 0 1 1 0 3.6a1.8 1.8 0 1 1 0-3.6 M13.5 13.2h4 M13.5 16.2h4',
+  meme: 'M12 3.5a8.5 8.5 0 1 1 0 17a8.5 8.5 0 1 1 0-17 M8 14s1.5 2.3 4 2.3 4-2.3 4-2.3 M9 9.8h.01 M15 9.8h.01',
+  back: 'm15 5-7 7 7 7',
+  trash: 'M4 7h16 M9.5 7V4.5h5V7 M6.5 7l1 12.5h9l1-12.5',
+  list: 'M9 6h11 M9 12h11 M9 18h11 M4.5 6h.01 M4.5 12h.01 M4.5 18h.01',
+  up: 'M12 19V6 M6 11l6-6 6 6',
 };
 const ИГРА = '<svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M5.6 5.2v13.6c0 .8.9 1.3 1.6.9l10.6-6.8a1.05 1.05 0 0 0 0-1.8L7.2 4.3C6.5 3.9 5.6 4.4 5.6 5.2Z"/></svg>'
   + '<svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.5 4.5h3.6v15H6.5zM13.9 4.5h3.6v15h-3.6z"/></svg>'
@@ -769,13 +834,19 @@ export function ссылкиТрека(т) {
   ].join('');
 }
 
+// «Нравится» и «не предлагать» у трека. В полосе сцены — ваш вкус
+// (settings), в телефоне «нравится» — вкус владельца (data-mu="plike").
+const кнопкаЛайка = (т, группа, i, есть, действие = 'like') => `<button type="button" class="hud-music-like${есть ? ' is-on' : ''}" data-mu="${действие}" data-g="${группа}" data-i="${i}" aria-pressed="${есть}" title="${есть ? 'Убрать из «Нравится»' : действие === 'plike' ? 'Нравится — так и звучит этот человек: его следующие плейлисты будут ближе к такому' : 'Нравится — следующие подборки будут ближе к такому'}" aria-label="Нравится: ${escapeHtml(т.a + ' — ' + т.t)}">${ико('heart')}</button>`;
+const кнопкаЗапрета = (т, группа, i, есть) => `<button type="button" class="hud-music-ban${есть ? ' is-on' : ''}" data-mu="ban" data-g="${группа}" data-i="${i}" aria-pressed="${есть}" title="${есть ? 'Снова можно предлагать' : 'Не предлагать больше — ни в сцене, ни в телефоне'}" aria-label="Не предлагать: ${escapeHtml(т.a + ' — ' + т.t)}">${ико('ban')}</button>`;
+
 function строкаТрека(т, i, группа, сейчас) {
   const пометка = т.ok === false ? '<span class="hud-music-flag" title="Поиск такого трека не нашёл — возможно, модель его выдумала">не найден</span>' : '';
   const мини = т.art ? `<span class="hud-music-art"><img src="${escapeHtml(т.art)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer"></span>` : `<span class="hud-music-art is-blank">${ико('note')}</span>`;
-  return `<li class="hud-music-tr${т.ok === false ? ' is-unfound' : ''}${сейчас ? ' is-now' : ''}">`
-    + `<span class="hud-music-n" aria-hidden="true">${i + 1}</span>${плеерВключён() ? `<span class="hud-music-art-wrap">${мини}${кнопкаИгры(группа, i, т, 'hud-music-artplay')}</span>` : мини}`
+  const лайк = вСписке(лайкиИгрока(), т), запрет = вСписке(запретыИгрока(), т);
+  return `<li class="hud-music-tr${т.ok === false ? ' is-unfound' : ''}${сейчас ? ' is-now' : ''}${лайк ? ' is-liked' : ''}${запрет ? ' is-banned' : ''}">`
+    + `<span class="hud-music-n" aria-hidden="true">${i + 1}</span>${плеерВключён() ? `<span class="hud-music-art-wrap">${мини}${запрет ? '' : кнопкаИгры(группа, i, т, 'hud-music-artplay')}</span>` : мини}`
     + `<span class="hud-music-tt" role="button" tabindex="0" data-mu="now" data-g="${группа}" data-i="${i}" title="Поставить в «сейчас играет»"><b>${escapeHtml(т.t)}</b><em>${escapeHtml(т.a)}</em>${т.why ? `<small>${escapeHtml(т.why)}</small>` : ''}${пометка}</span>`
-    + `<span class="hud-music-go">${ссылкиТрека(т)}<button type="button" class="hud-music-mt" data-mu="queue" data-g="${группа}" data-i="${i}" title="Отдать в очередь MoodTube">${ико('queue')}<span>MoodTube</span></button></span>`
+    + `<span class="hud-music-go"><span class="hud-music-taste">${кнопкаЛайка(т, группа, i, лайк)}${кнопкаЗапрета(т, группа, i, запрет)}</span>${ссылкиТрека(т)}<button type="button" class="hud-music-mt" data-mu="queue" data-g="${группа}" data-i="${i}" title="Отдать в очередь MoodTube">${ико('queue')}<span>MoodTube</span></button></span>`
     + `</li>`;
 }
 
@@ -827,12 +898,65 @@ function сменитьЧислоТреков(шаг) {
 
 // Часть плейлиста: заголовок с кнопкой «заново», треки, а пока пусто —
 // крупная кнопка «подобрать». Подбирается часть отдельным запросом.
-function частьПлейлиста({ часть, заголовок, пояснение, треки, группа, текущий, занята, класс = '' }) {
+// доп — строка под треками (радио в сцене): есть она — части не пусто.
+function частьПлейлиста({ часть, заголовок, пояснение, треки, группа, текущий, занята, класс = '', доп = '' }) {
   const кнопка = (подпись, крупная) => `<button type="button" class="${крупная ? 'hud-music-btn hud-music-get' : 'hud-music-act hud-music-re'}" data-mu="part" data-part="${часть}" title="Отдельный запрос к модели — только эта часть"${занята ? ' disabled' : ''}>${ико(крупная ? 'note' : 'redo')}${крупная ? escapeHtml(подпись) : ''}</button>`;
-  const голова = `<div class="hud-music-sec${класс}"><b>${ико(часть === 'scene' ? 'speaker' : 'note')}${заголовок}</b><span>${пояснение}</span>${треки.length && !занята ? кнопка('', false) : ''}</div>`;
+  const голова = `<div class="hud-music-sec${класс}"><b>${ико(часть === 'scene' ? 'speaker' : 'note')}${заголовок}</b><span>${пояснение}</span>${(треки.length || доп) && !занята ? кнопка('', false) : ''}</div>`;
   if (занята) return голова + '<div class="hud-music-wait"><i aria-hidden="true"></i>Подбираю…</div>';
-  if (!треки.length) return голова + `<div class="hud-music-blank">${кнопка(часть === 'scene' ? 'Подобрать музыку в сцене' : 'Подобрать саундтрек', true)}</div>`;
-  return голова + `<ol class="hud-music-tracks">${треки.map((т, k) => строкаТрека(т, k, группа, т === текущий)).join('')}</ol>`;
+  if (!треки.length) return голова + (доп || `<div class="hud-music-blank">${кнопка(часть === 'scene' ? 'Подобрать музыку в сцене' : 'Подобрать саундтрек', true)}</div>`);
+  return голова + `<ol class="hud-music-tracks">${треки.map((т, k) => строкаТрека(т, k, группа, т === текущий)).join('')}</ol>` + доп;
+}
+
+// ---------------------------------------------------------------------------
+// РАДИО В СЦЕНЕ (music-radio.js): живой эфир по тегам модели
+// ---------------------------------------------------------------------------
+// Станции ищутся по нажатию и держатся в памяти, пока открыт чат: ход хранит
+// только теги и страну. Играет тот же плеер, группа 'r'.
+const радиоХода = new Map();   // mesid → { станции, k, грузится, ошибка }
+const радиоВключено = () => плеерВключён() && settings.musicRadio !== false;
+const тегиРадиоХода = (м) => (м && м.scene && м.scene.radio) || '';
+
+function радиоСтрока(i, м) {
+  const теги = тегиРадиоХода(м);
+  if (!теги || !радиоВключено()) return '';
+  const р = радиоХода.get(i);
+  const k = р ? р.k : 0;
+  const ст = р && р.станции && р.станции[k];
+  const откуда = ст ? (ст.src === 'record' ? 'Радио Рекорд' : (ст.страна ? ст.страна + ' · ' : '') + 'radio-browser') : '';
+  const под = [escapeHtml(теги), р && р.ошибка ? escapeHtml(р.ошибка) : р && р.грузится ? 'ищу станцию…' : 'живой эфир', откуда].filter(Boolean).join(' · ');
+  const т = { a: ст ? ст.name : 'Радио', t: 'Радио' };
+  return `<div class="hud-music-radio${игра.mesid === i && игра.g === 'r' ? ' is-on' : ''}"><span class="hud-music-radio-ico">${ико('radio')}</span>`
+    + `<span class="hud-music-radio-tt"><b>${escapeHtml(ст ? ст.name : 'Радио в сцене')}</b><em>${под}</em></span>`
+    + кнопкаИгры('r', k, т)
+    + `<button type="button" class="hud-music-act" data-mu="radio-next" title="Другая станция" aria-label="Другая станция"${р && р.грузится ? ' disabled' : ''}>${ико('redo')}</button></div>`;
+}
+
+// Станции хода: Рекорд — сразу из списка, станции мира — запросом.
+async function станцииХода(индекс) {
+  const ctx = контекст();
+  const м = музыкаХода(ctx && ctx.chat && ctx.chat[индекс]);
+  const теги = тегиРадиоХода(м);
+  if (!теги) return null;
+  let р = радиоХода.get(индекс);
+  if (!р) { р = { станции: null, k: 0, грузится: false, ошибка: '' }; радиоХода.set(индекс, р); }
+  if (р.станции || р.грузится) return р;
+  // Полосу не перерисовываем на старте: поиск идёт и заранее, при раскрытии
+  // плейлиста, — перерисовка сбила бы ввод пожелания.
+  р.грузится = true; р.ошибка = '';
+  try { р.станции = await станцииСцены(теги, м.scene.country || ''); } catch (_) { р.станции = []; }
+  р.грузится = false;
+  if (!р.станции.length) р.ошибка = 'станция не нашлась';
+  обновитьПолосу(индекс);
+  return р;
+}
+
+/** Включить радио хода; шаг — другая станция (1 — следующая). */
+async function играйРадио(индекс, шаг = 0) {
+  индекс = Number(индекс);
+  const р = await станцииХода(индекс);
+  if (!р || !р.станции || !р.станции.length) return;
+  р.k = (р.k + шаг + р.станции.length) % р.станции.length;
+  await играть(индекс, 'r', р.k);
 }
 
 /** Полоса музыки для карточки хода; '' — показывать нечего. занято и
@@ -856,7 +980,9 @@ export function полосаМузыки(индекс, { chat = null, откры
   const саундтрек = м && Array.isArray(м.soundtrack) ? м.soundtrack : [];
   const вСцене = м && м.scene && Array.isArray(м.scene.tracks) ? м.scene.tracks : [];
   const [гр, н] = м && Array.isArray(м.now) ? м.now : ['s', 0];
-  const текущий = (гр === 'c' ? вСцене : саундтрек)[н] || саундтрек[0] || вСцене[0] || null;
+  // Играет радио этого хода — оно и «сейчас играет».
+  const радио = игра.mesid === i && игра.g === 'r' ? трекиГруппы(i, 'r')[игра.i] || null : null;
+  const текущий = радио || (гр === 'c' ? вСцене : саундтрек)[н] || саундтрек[0] || вСцене[0] || null;
   const все = [...саундтрек, ...вСцене];
   const найдено = все.filter(т => т.ok === true).length;
   const ненайдено = все.filter(т => т.ok === false).length;
@@ -865,30 +991,33 @@ export function полосаМузыки(индекс, { chat = null, откры
     найдено ? 'проверено поиском: ' + найдено : '',
     ненайдено ? 'не найдено: ' + ненайдено : '',
     м.dropped ? 'отброшено ненайденных: ' + м.dropped : '',
+    м.meme ? 'мемный саундтрек' : '',
   ].filter(Boolean).join(' · ');
   const состояние = (занято ? ' is-busy' : '') + (!все.length && !занято ? ' is-empty' : '') + (ошибка ? ' is-error' : '') + (открыта ? ' is-open' : '') + классИгры(i);
-  const группаТекущего = вСцене.includes(текущий) ? 'c' : 's';
-  const номерТекущего = текущий ? (группаТекущего === 'c' ? вСцене : саундтрек).indexOf(текущий) : -1;
+  const группаТекущего = радио ? 'r' : вСцене.includes(текущий) ? 'c' : 's';
+  const номерТекущего = радио ? игра.i : текущий ? (группаТекущего === 'c' ? вСцене : саундтрек).indexOf(текущий) : -1;
   const подпись = занято ? 'Подбираю: ' + занятыЧасти.map(ч => ИМЕНА_ЧАСТЕЙ[ч]).join(', ')
-    : ошибка ? 'Не получилось' : текущий ? (вСцене.includes(текущий) ? 'Звучит в сцене' : 'Сейчас играет') : 'Музыка сцены';
-  const заглавие = текущий ? текущий.t : ошибка ? обрезать(ошибка, 120) : занято ? 'Подбираю музыку…' : 'Подобрать музыку к сцене';
+    : ошибка ? 'Не получилось' : радио ? 'Радио в сцене' : текущий ? (вСцене.includes(текущий) ? 'Звучит в сцене' : 'Сейчас играет') : 'Музыка сцены';
+  const заглавие = радио ? радио.a : текущий ? текущий.t : ошибка ? обрезать(ошибка, 120) : занято ? 'Подбираю музыку…' : 'Подобрать музыку к сцене';
   const метка = м && м.label;
   return `<div class="hud-music is-${вид}${состояние}" data-mesid="${i}">`
     + `<div class="hud-music-bar" role="button" tabindex="0" data-mu="open" aria-expanded="${открыта}" title="Показать плейлист">`
     + обложка(вид, текущий && текущий.art)
     + `<span class="hud-music-now"><small${метка ? ' class="has-label"' : ''}><span class="hud-music-kind">${escapeHtml(подпись)}</span>${метка ? `<i class="hud-music-tag-inline">${escapeHtml(метка)}</i>` : ''}</small>`
-    + `<b>${escapeHtml(заглавие)}</b>${текущий ? `<em>${escapeHtml(текущий.a)}</em>` : ''}</span>`
+    + `<b>${escapeHtml(заглавие)}</b>${радио ? `<em>${escapeHtml(радио.жанры || тегиРадиоХода(м) || 'живой эфир')}</em>` : текущий ? `<em>${escapeHtml(текущий.a)}</em>` : ''}</span>`
     + (метка ? `<span class="hud-music-tag">${escapeHtml(метка)}</span>` : '')
     + (занято ? `<button type="button" class="hud-music-act" data-mu="cancel" title="Отменить подбор">${ико('stop')}</button>` : '')
     + (текущий ? кнопкаИгры(группаТекущего, номерТекущего, текущий) : '')
     + `<span class="hud-music-chev" aria-hidden="true">${ико('chev')}</span><i class="hud-music-prog" aria-hidden="true"><b></b></i></div>`
     + `<div class="hud-music-list">`
     + частьПлейлиста({ часть: 'soundtrack', заголовок: 'Саундтрек', пояснение: 'для вас, как в кино' + (саундтрек.length ? ' · ' + сЧислом(саундтрек.length, ['трек', 'трека', 'треков']) : ''), треки: саундтрек, группа: 's', текущий, занята: занятыЧасти.includes('soundtrack') })
-    + частьПлейлиста({ часть: 'scene', заголовок: 'В сцене', пояснение: escapeHtml((м && м.scene && м.scene.src) || 'то, что слышат герои') + (settings.musicSceneLine && вСцене.length ? ' · модель знает' : ''), треки: вСцене, группа: 'c', текущий, занята: занятыЧасти.includes('scene'), класс: ' is-scene' })
+    + частьПлейлиста({ часть: 'scene', заголовок: 'В сцене', пояснение: escapeHtml((м && м.scene && м.scene.src) || 'то, что слышат герои') + (settings.musicSceneLine && вСцене.length ? ' · модель знает' : ''), треки: вСцене, группа: 'c', текущий, занята: занятыЧасти.includes('scene'), класс: ' is-scene', доп: радиоСтрока(i, м) })
     + строкаНастроек()
     + `<div class="hud-music-foot">`
     + (саундтрек.length ? `<button type="button" class="hud-music-btn hud-music-mt" data-mu="queue-all">${ико('queue')}Всё в очередь MoodTube</button>` : '')
     + `<button type="button" class="hud-music-btn" data-mu="redo" title="Один отдельный запрос к модели на все части"${занято ? ' disabled' : ''}>${ико('redo')}${все.length ? 'Подобрать всё заново' : 'Подобрать всё сразу'}</button>`
+    // Мемы — разово, только саундтрек: смешная сцена, абсурд, разрядка.
+    + `<button type="button" class="hud-music-btn hud-music-meme${м && м.meme ? ' is-on' : ''}" data-mu="meme" title="${м && м.meme ? 'Подобрать саундтрек заново, без мемов' : 'Мемные звуки и песни вместо саундтрека — для смешной или абсурдной сцены. Один раз, отдельным запросом'}"${занято ? ' disabled' : ''}>${ико('meme')}${м && м.meme ? 'Без мемов' : 'Мемы'}</button>`
     + (мета ? `<span class="hud-music-meta">${мета}</span>` : '') + `</div>`
     + `</div></div>`;
 }
@@ -904,10 +1033,11 @@ export function обновитьПолосу(индекс) {
   mes.querySelectorAll('.hud-mphone').forEach(эк => { эк.outerHTML = приложениеМузыки(индекс, эк.dataset.owner || '', { chat }); });
   const старая = карточка.querySelector('.hud-music');
   const html = полосаМузыки(индекс, { chat, открыта: !!(старая && старая.classList.contains('is-open')) });
-  if (старая) { if (html) старая.outerHTML = html; else старая.remove(); return; }
+  if (старая) { if (html) старая.outerHTML = html; else старая.remove(); if (игра.mesid === Number(индекс)) обновитьЗначок(); return; }
   if (!html) return;
   const якорь = карточка.querySelector('.hud-tabs-header');
   if (якорь) якорь.insertAdjacentHTML('beforebegin', html);
+  if (игра.mesid === Number(индекс)) обновитьЗначок();
 }
 
 // ---------------------------------------------------------------------------
@@ -921,11 +1051,16 @@ export function обновитьПолосу(индекс) {
 
 const игра = { audio: null, mesid: null, g: null, i: -1, играет: false, грузится: false, длина: 30, полный: false, трек: null, запасные: [] };
 
-// Полоса играет саундтрек и музыку в сцене, экран телефона — свои треки.
-const классИгры = (индекс, телефон = false) => игра.mesid !== Number(индекс) || (игра.g === 'p') !== телефон ? '' : игра.грузится ? ' is-loading' : игра.играет ? ' is-playing' : ' is-paused';
+// Полоса играет саундтрек, музыку в сцене и радио; экран телефона — свои
+// треки: недавнее ('p'), плейлисты ('pl:<id>') и «Нравится» ('pf:<id владельца>').
+export const этоТелефон = (г) => typeof г === 'string' && г[0] === 'p';
+const классИгры = (индекс, телефон = false) => игра.mesid !== Number(индекс) || этоТелефон(игра.g) !== телефон ? '' : (игра.g === 'r' ? ' is-live' : '') + (игра.грузится ? ' is-loading' : игра.играет ? ' is-playing' : ' is-paused');
 
 function трекиГруппы(индекс, группа) {
   if (группа === 'p') { const т = музыкаТелефона(индекс); return т ? т.tracks : []; }
+  if (typeof группа === 'string' && группа.startsWith('pl:')) { const н = плейлистПоId(библиотекаЧата(), группа.slice(3)); return н ? н.п.tracks : []; }
+  if (typeof группа === 'string' && группа.startsWith('pf:')) { const н = записьПоId(библиотекаЧата(), группа.slice(3)); return н ? н.з.liked : []; }
+  if (группа === 'r') { const р = радиоХода.get(Number(индекс)); return р && р.станции ? р.станции.map(ст => ({ a: ст.name, t: 'Радио', поток: ст.url, жанры: String(ст.жанры || '').toLowerCase().split(',').map(ж => ж.trim()).filter(Boolean).join(', ') })) : []; }
   const ctx = контекст();
   const м = музыкаХода(ctx && ctx.chat && ctx.chat[индекс]);
   if (!м) return [];
@@ -1036,6 +1171,8 @@ async function полныйТрек(т) {
 // несколько секунд. С готовой ссылкой ▶ играет с первого раза.
 const греются = new Set();
 function прогреть(индекс) {
+  // Станции радио — заранее: телефон включает звук только сразу после нажатия.
+  if (радиоВключено()) станцииХода(Number(индекс)).catch(() => {});
   if (!плеерВключён() || !полныйИсточник()) return;
   const треки = [...трекиГруппы(индекс, 's').slice(0, 3), ...трекиГруппы(индекс, 'c').slice(0, 1)].filter(т => т && т.ok !== false);
   (async () => {
@@ -1063,13 +1200,21 @@ function звук() {
   if (игра.audio) return игра.audio;
   const a = new Audio();
   a.preload = 'none';
-  a.addEventListener('playing', () => { игра.играет = true; игра.грузится = false; отметитьИгру(); });
+  a.addEventListener('playing', () => { игра.играет = true; игра.грузится = false; игра.радиоПопыток = 0; отметитьИгру(); });
   // Полоска хода — по настоящей длине: у отрывка 30 с, у полного трека минуты.
-  a.addEventListener('loadedmetadata', () => { игра.длина = Number.isFinite(a.duration) && a.duration > 0 ? a.duration : 30; отметитьИгру(); });
+  a.addEventListener('loadedmetadata', () => { if (игра.g !== 'r') игра.длина = Number.isFinite(a.duration) && a.duration > 0 ? a.duration : 30; отметитьИгру(); });
   a.addEventListener('pause', () => { игра.играет = false; отметитьИгру(); });
   a.addEventListener('ended', () => { игра.играет = false; следующий(1, true); });
   a.addEventListener('error', () => {
     if (!a.getAttribute('src')) return;
+    // Станция молчит — следующая, но не по кругу бесконечно.
+    if (игра.g === 'r') {
+      игра.радиоПопыток = (игра.радиоПопыток || 0) + 1;
+      if (игра.радиоПопыток <= 4) { показать('info', 'Радио', 'Станция не отвечает — включаю другую.'); играйРадио(игра.mesid, 1); return; }
+      игра.играет = false; игра.грузится = false; отметитьИгру();
+      показать('info', 'Радио', 'Ни одна станция не ответила — попробуйте позже.');
+      return;
+    }
     // Не загрузился: следующее зеркало, а когда они кончились — отрывок.
     if (игра.запасные && игра.запасные.length) { a.src = игра.запасные.shift(); a.play().catch(() => {}); return; }
     if (игра.полный && игра.трек) {
@@ -1091,14 +1236,16 @@ function звук() {
 
 // Отметки на странице без пересборки: полоса, экран телефона, кнопки.
 function отметитьИгру() {
+  обновитьЗначок();
   document.querySelectorAll(':is(.hud-music, .hud-mphone):is(.is-playing, .is-paused, .is-loading)').forEach(эл => эл.classList.remove('is-playing', 'is-paused', 'is-loading'));
   document.querySelectorAll('[data-mu="play"].is-on').forEach(б => б.classList.remove('is-on'));
   if (игра.mesid === null) return;
-  const класс = классИгры(игра.mesid, игра.g === 'p').trim();
-  const где = игра.g === 'p' ? '.hud-mphone' : '.hud-music';
+  const класс = классИгры(игра.mesid, этоТелефон(игра.g)).trim();
+  const где = этоТелефон(игра.g) ? '.hud-mphone' : '.hud-music';
   const длина = Math.round(игра.длина || 30) + 's';
   document.querySelectorAll(`#chat .mes[mesid="${игра.mesid}"] ${где}`).forEach(эл => {
-    эл.classList.add(класс);
+    // Класс бывает и из двух слов: «is-live is-loading» у радио.
+    for (const к of класс.split(' ').filter(Boolean)) эл.classList.add(к);
     if (эл.style.getPropertyValue('--mu-dur') !== длина) эл.style.setProperty('--mu-dur', длина);
     эл.querySelectorAll(`[data-mu="play"][data-g="${игра.g}"][data-i="${игра.i}"]`).forEach(б => б.classList.add('is-on'));
   });
@@ -1109,7 +1256,9 @@ function медиаСессия(т) {
   const ms = typeof navigator !== 'undefined' && navigator.mediaSession;
   if (!ms || typeof MediaMetadata !== 'function') return;
   try {
-    ms.metadata = new MediaMetadata({ title: т.t, artist: т.a, album: 'Музыка сцены — HUD', artwork: т.art ? [{ src: т.art, sizes: '200x200', type: 'image/jpeg' }] : [] });
+    ms.metadata = т.поток
+      ? new MediaMetadata({ title: т.a, artist: т.жанры || 'Радио', album: 'Радио в сцене — HUD', artwork: [] })
+      : new MediaMetadata({ title: т.t, artist: т.a, album: 'Музыка сцены — HUD', artwork: т.art ? [{ src: т.art, sizes: '200x200', type: 'image/jpeg' }] : [] });
     ms.setActionHandler('play', () => игра.audio && игра.audio.play().catch(() => {}));
     ms.setActionHandler('pause', () => игра.audio && игра.audio.pause());
     ms.setActionHandler('nexttrack', () => следующий(1));
@@ -1144,20 +1293,22 @@ export async function играть(индекс, группа, i) {
   a.pause();
   Object.assign(игра, { mesid: индекс, g: группа, i, играет: false, грузится: true });
   // Полоса показывает играющий трек.
-  if (группа !== 'p') поставитьСейчас(индекс, группа, i); else обновитьПолосу(индекс);
+  if (группа === 's' || группа === 'c') поставитьСейчас(индекс, группа, i); else обновитьПолосу(индекс);
   отметитьИгру();
   // Известный отрывок ставим сразу, в том же нажатии: телефоны не дают
   // включить звук после ожидания сети.
   let адреса = [];
-  if (полныйИсточник()) {
+  // Радио — живой эфир: у него свой поток, ни отрывков, ни поиска.
+  if (т.поток) адреса = [т.поток];
+  else if (полныйИсточник()) {
     try { адреса = (await потокиТрека(т)).filter(Boolean); } catch (_) { /* сервис недоступен — отрывок */ }
   }
   const полный = адреса.length > 0;
   if (!полный) { const п = т.pv || await отрывок(т); if (п) адреса = [п]; }
   if (игра.mesid !== индекс || игра.g !== группа || игра.i !== i) return;
-  if (полныйИсточник() && !полный && адреса.length) показать('info', 'Музыка', 'Полной версии «' + т.t + '» не нашлось — играет отрывок 30 с.');
+  if (полныйИсточник() && !полный && адреса.length && !т.поток) показать('info', 'Музыка', 'Полной версии «' + т.t + '» не нашлось — играет отрывок 30 с.');
   // Остальные адреса — запасные: зеркало не отдало звук — следующее, потом отрывок.
-  Object.assign(игра, { полный, трек: т, запасные: адреса.slice(1), длина: полный ? игра.длина : 30 });
+  Object.assign(игра, { полный, трек: т, запасные: адреса.slice(1), длина: т.поток ? 0 : полный ? игра.длина : 30 });
   const адрес = адреса[0] || '';
   if (!адрес) {
     игра.грузится = false; отметитьИгру();
@@ -1178,8 +1329,9 @@ function следующий(шаг, сам = false) {
   if (игра.mesid === null) return;
   const треки = трекиГруппы(игра.mesid, игра.g);
   let n = игра.i + шаг;
-  // Выдуманные (не найденные) пропускаем: отрывка у них нет.
-  while (n >= 0 && n < треки.length && треки[n].ok === false) n += шаг;
+  // Выдуманные (не найденные) пропускаем: отрывка у них нет. И то, что
+  // игрок просил не предлагать.
+  while (n >= 0 && n < треки.length && (треки[n].ok === false || вСписке(запретыИгрока(), треки[n]))) n += шаг;
   if (n >= 0 && n < треки.length) играть(игра.mesid, игра.g, n);
   else if (сам) остановитьИгру();
 }
@@ -1207,8 +1359,217 @@ export function музыкаТелефона(индекс, chat = null) {
   return null;
 }
 
-/** Экран приложения «Музыка»: недавно слушал, обложка последнего трека, ссылки. */
-export function приложениеМузыки(индекс, владелец = '', { chat = null, занято: занятоСтенд = null } = {}) {
+// Библиотека телефона: плейлисты владельца с названиями и его «Нравится» —
+// в метаданных чата (music-lib.js). Ключ владельца — имя без приставки
+// карточки, как его пишет HUD.
+export const ключВладельца = (v) => имяБезПриставки(String(v || '')) || String(v || '').trim();
+
+// Что открыто в «Музыке» телефона: вкладка и плейлист. По ходу и владельцу:
+// перерисовка экрана не должна выкидывать на «Недавно».
+const видыТелефона = new Map();       // `${mesid}|${владелец}` → { вид, id, удалить }
+const темыПлейлистов = new Map();     // владелец → тема нового плейлиста, пока её печатают
+const идутПлейлисты = new Map();      // владелец → { отмена, что: 'new' | 'more', id }
+const ошибкиПлейлистов = new Map();   // владелец → текст ошибки
+
+function сохранитьМетаданные(ctx) {
+  try {
+    if (ctx && typeof ctx.saveMetadata === 'function') Promise.resolve(ctx.saveMetadata()).catch(e => console.warn('[TavernOS HUD] музыка: библиотека не сохранилась', e));
+    else сохранитьЧат(ctx);
+  } catch (e) { console.warn('[TavernOS HUD] музыка: библиотека не сохранилась', e); }
+}
+
+/** Перерисовать экраны «Музыки» в ленте (у одного владельца или у всех). */
+export function обновитьТелефоны(владелец = null) {
+  const ctx = контекст();
+  const chat = ctx && Array.isArray(ctx.chat) ? ctx.chat : [];
+  document.querySelectorAll('#chat .hud-mphone').forEach(эк => {
+    if (владелец && ключВладельца(эк.dataset.owner) !== владелец) return;
+    эк.outerHTML = приложениеМузыки(эк.dataset.mesid, эк.dataset.owner || '', { chat });
+  });
+  отметитьИгру();
+}
+
+// Что знаем о владельце для плейлиста: возраст, роль, статус, тело и душа,
+// цели, мысли — из его карточки в HUD хода.
+function оВладельцеПодробно(data, владелец) {
+  const c = (Array.isArray(data && data.characters) ? data.characters : []).find(x => x && поле(x['Имя']) && ключВладельца(поле(x['Имя'])) === владелец)
+    || (Array.isArray(data && data.characters) ? data.characters : []).find(x => x && поле(x['Имя']) && (поле(x['Имя']).includes(владелец) || владелец.includes(поле(x['Имя']))));
+  if (!c) return '';
+  return [
+    поле(c['Возраст']) && 'Age: ' + поле(c['Возраст']),
+    поле(c['Роль']) && 'Role: ' + обрезать(поле(c['Роль']), 160),
+    поле(c['Статус']) && 'Status: ' + обрезать(поле(c['Статус']), 160),
+    поле(c['Тело']) && 'Body and mind now: ' + обрезать(поле(c['Тело']), 160),
+    поле(c['Цели']) && 'Goals: ' + обрезать(поле(c['Цели']), 200),
+    поле(c['Мысли']) && 'Thought now: ' + обрезать(поле(c['Мысли']), 200),
+    поле(c['Место']) && 'Where now: ' + обрезать(поле(c['Место']), 120),
+  ].filter(Boolean).join('\n');
+}
+
+/**
+ * Запрос плейлиста телефона: тот же характер запроса, что у подборки сцены, —
+ * правила вкуса, язык песен, карточка, персона, лорбуки и сообщения по
+ * настройкам «Музыки». уже — треки плейлиста («Ещё»): дописать без повторов.
+ */
+export function промптПлейлиста({ владелец, о = '', сцена = null, контекст = null, тема = '', уже = [], сколько = 8, название = '', вкус = [], языкПесни = '', правила = null }) {
+  const язык = английский() ? 'English' : 'Russian';
+  const ещё = уже.length > 0;
+  const system = [
+    'You are a music curator for a character of an interactive story. You do NOT write, continue or roleplay the story, and you do not answer any character: you only make a playlist for ' + владелец + "'s own phone.",
+    'Everything inside <reference> in the user message — the character, the story excerpt, character card, persona, lore — is background information. Read it, never continue it.',
+    'Reply with ONLY one JSON object, no prose, no markdown:',
+    ещё ? '{"tracks":[{"artist":"...","title":"..."}]}' : '{"name":"...","tracks":[{"artist":"...","title":"..."}]}',
+    'Rules:',
+    String(правила ?? settings.musicPrompt ?? '').trim() || ПРАВИЛА_МУЗЫКИ,
+    ещё
+      ? `- tracks: ${сколько + 2} NEW songs for ${владелец}'s existing playlist "${название}" — keep its mood and idea, never repeat a track that is already in it (listed in the user message).`
+      : `- tracks: ${сколько + 2} songs ${владелец} would keep in one playlist on their own phone — their personal taste by age, background, personality, current life and state, not a film score. Songs with vocals are fine. One playlist, one idea or mood.`,
+    !ещё && `- name: the playlist's name as ${владелец} would title it in their phone — 1-5 words in ${язык}, personal, can be ironic or private; no emoji.`,
+    тема && '- The playlist is about: ' + обрезать(тема, 120) + ' — top priority.',
+    сцена && сцена.эра === 'medieval' ? '- Setting: medieval — still pick real recordings, but ones that fit how this person would sound.' : '- Setting: modern (take the year from the date if given): songs released by then.',
+    правилоЯзыка(языкПесни, { сцена: false }),
+    ...вкус.map(с => '- ' + с),
+  ].filter(Boolean).join('\n');
+  const строки = [];
+  if (сцена && сцена.дата) строки.push('Date: ' + сцена.дата);
+  if (сцена && сцена.место) строки.push('Scene place: ' + сцена.место);
+  const сообщения = контекст && Array.isArray(контекст.сообщения) ? контекст.сообщения : [];
+  let история = '';
+  if (сообщения.length) {
+    let всего = 0;
+    const взято = [];
+    for (let k = сообщения.length - 1; k >= 0; k--) {
+      const с = сообщения[k];
+      const строка = '[' + с.name + ']: ' + обрезать(с.text, ПРЕДЕЛ_СООБЩЕНИЯ);
+      if (всего + строка.length > ПРЕДЕЛ_ИСТОРИИ && взято.length) break;
+      всего += строка.length;
+      взято.unshift(строка);
+    }
+    история = '\nRECENT STORY (oldest first):\n' + взято.join('\n\n');
+  }
+  const user = ['<reference>', 'PHONE OWNER: ' + владелец, о, ...строки,
+    ...блокКонтекста(контекст).map(б => '\n' + б),
+    история,
+    '</reference>',
+    ещё ? '\nALREADY IN THE PLAYLIST "' + название + '" (never repeat): ' + уже.map(т => т.a + ' — ' + т.t).join('; ') : '',
+    '\nTASK: ' + (ещё ? 'add new songs to this playlist.' : 'make one playlist for ' + владелец + "'s phone and name it.") + ' Do not continue the story, do not write prose. Answer with ONLY the JSON object described in the instructions — start with "{" and end with "}".'].filter(Boolean).join('\n');
+  return { system, user };
+}
+
+// Последний ход с HUD — оттуда возраст, роль, мысли владельца.
+function последнийHUD(chat, до) {
+  for (let k = Math.min(до, chat.length - 1); k >= 0 && k >= до - 40; k--) {
+    const m = chat[k];
+    if (!m || m.is_user) continue;
+    const d = данныеHUD(m);
+    if (d) return d;
+  }
+  return null;
+}
+
+/**
+ * Новый плейлист владельца телефона или «Ещё» в существующий (id).
+ * Контекст — на сейчас: последние сообщения чата, а не момент хода.
+ */
+export async function создатьПлейлист(индекс, владелецСырой, { id = null } = {}) {
+  const владелец = ключВладельца(владелецСырой);
+  const ctx = контекст();
+  const chat = ctx && Array.isArray(ctx.chat) ? ctx.chat : null;
+  if (!владелец || !chat || !chat.length || идутПлейлисты.has(владелец)) return;
+  const б = библиотека(ctx.chatMetadata, true);
+  if (!б) return;
+  const з = записьВладельца(б, владелец, true);
+  const пл = id ? з.playlists.find(п => п && п.id === id) : null;
+  if (id && !пл) return;
+  const тема = пл ? (пл.theme || '') : String(темыПлейлистов.get(владелец) || '').trim();
+  const отмена = new AbortController();
+  идутПлейлисты.set(владелец, { отмена, что: пл ? 'more' : 'new', id });
+  ошибкиПлейлистов.delete(владелец);
+  обновитьТелефоны(владелец);
+  try {
+    const последний = chat.length - 1;
+    const data = последнийHUD(chat, Number.isInteger(Number(индекс)) ? Math.max(Number(индекс), последний) : последний);
+    const справка = await собратьКонтекстМузыки(ctx, chat, последний);
+    const сколько = пл ? 5 : числоТреков();
+    const { system, user } = промптПлейлиста({ владелец, о: оВладельцеПодробно(data, владелец), сцена: data ? сценаИзHUD(data) : null, контекст: справка, тема,
+      уже: пл ? пл.tracks : [], сколько, название: пл ? пл.name : '',
+      вкус: строкиВкуса({ лайки: з.liked, запреты: запретыИгрока(), чьи: владелец }), языкПесни: языкПесен(settings) });
+    const raw = await спросить(ctx, system, user, отмена);
+    const ответ = разобратьПлейлист(raw);
+    let треки = безЗапрещённых(ответ.tracks, запретыИгрока()).filter(т => !вСписке(пл ? пл.tracks : [], т));
+    if (!треки.length) throw new Error(пл ? 'модель прислала только то, что уже есть' : 'модель не прислала треков');
+    if (settings.musicVerify !== false) треки = await сверить(треки, отмена.signal);
+    треки = отобрать(треки, сколько);
+    // Пока ждали, чат могли сменить — библиотека уже другая.
+    const сейчас = контекст();
+    if (!сейчас || сейчас.chatMetadata !== ctx.chatMetadata) return;
+    let открыть = пл;
+    if (пл) {
+      const n = дописатьПлейлист(пл, треки, chat.length);
+      показать('success', 'Музыка', n ? 'В «' + пл.name + '» добавлено треков: ' + n : 'Новых треков не нашлось — всё уже есть в плейлисте.');
+    } else {
+      открыть = новыйПлейлист(з, { name: ответ.name || (английский() ? 'Playlist ' : 'Плейлист ') + (з.playlists.length + 1), tracks: треки, theme: тема, mes: chat.length });
+      темыПлейлистов.delete(владелец);
+    }
+    сохранитьМетаданные(ctx);
+    видыТелефона.set(Number(индекс) + '|' + владелец, { вид: 'list', id: открыть.id });
+  } catch (e) {
+    if (!отмена.signal.aborted) {
+      console.warn('[TavernOS HUD] плейлист не собрался:', e);
+      ошибкиПлейлистов.set(владелец, e && e.message ? e.message : String(e));
+    }
+  } finally {
+    идутПлейлисты.delete(владелец);
+    обновитьТелефоны(владелец);
+  }
+}
+
+// «Нравится» в телефоне — вкус владельца, отдельно от вашего.
+function лайкТелефона(владелец, т) {
+  const ctx = контекст();
+  const з = записьВладельца(библиотека(ctx && ctx.chatMetadata, true), владелец, true);
+  if (!з || !т) return;
+  const р = переключить(з.liked, т, ПРЕДЕЛ_ЛАЙКОВ);
+  з.liked = р.список;
+  сохранитьМетаданные(ctx);
+  обновитьТелефоны(владелец);
+}
+
+function удалитьПлейлистВладельца(индекс, владелец, id) {
+  const ctx = контекст();
+  const з = записьВладельца(библиотека(ctx && ctx.chatMetadata), владелец);
+  if (!з) return;
+  const п = з.playlists.find(x => x && x.id === id);
+  if (игра.g === 'pl:' + id) остановитьИгру();
+  if (!удалитьПлейлист(з, id)) return;
+  сохранитьМетаданные(ctx);
+  видыТелефона.set(Number(индекс) + '|' + владелец, { вид: 'lists' });
+  показать('info', 'Музыка', 'Плейлист «' + (п ? п.name : '') + '» удалён.');
+  обновитьТелефоны(владелец);
+}
+
+// Обложка плейлиста — мозаика из четырёх обложек его треков.
+function мозаика(треки, класс = 'hud-mphone-plcov') {
+  const арт = (треки || []).map(т => т && т.art).filter(Boolean).slice(0, 4);
+  if (!арт.length) return `<span class="${класс} is-blank">${ико('list')}</span>`;
+  const ячейки = арт.length < 4 ? [арт[0]] : арт;
+  return `<span class="${класс}${ячейки.length === 4 ? ' is-grid' : ''}">${ячейки.map(u => `<img src="${escapeHtml(u)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">`).join('')}</span>`;
+}
+
+// Строка трека телефона: обложка с ▶, название, ♡ владельца, ссылки.
+function строкаТелефона(тр, k, группа, лайк) {
+  return `<li class="${тр.ok === false ? 'is-unfound' : ''}${лайк ? ' is-liked' : ''}"><span class="hud-mphone-art">`
+    + (тр.art ? `<img src="${escapeHtml(тр.art)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : `<span class="hud-mphone-mini">${ико('note')}</span>`)
+    + кнопкаИгры(группа, k, тр, 'hud-music-artplay') + '</span>'
+    + `<span class="hud-mphone-tt"><b>${escapeHtml(тр.t)}</b><em>${escapeHtml(тр.a)}</em></span>`
+    + `<span class="hud-mphone-go">${кнопкаЛайка(тр, группа, k, лайк, 'plike')}${ссылкиТрека(тр)}<button type="button" class="hud-music-mt" data-mu="queue" data-g="${группа}" data-i="${k}" title="Отдать в очередь MoodTube">${ико('queue')}</button></span></li>`;
+}
+
+const сЧисломТреков = (n) => сЧислом(n, ['трек', 'трека', 'треков']);
+
+/** Экран приложения «Музыка»: недавнее, плейлисты с названиями, «Нравится».
+ *  занято, библиотека и вид — подмена состояния для стенда (tests/tools). */
+export function приложениеМузыки(индекс, владелец = '', { chat = null, занято: занятоСтенд = null, библиотека: либСтенд = null, вид: видСтенд = null, плейлист: идётСтенд = null } = {}) {
   const i = Number(индекс);
   if (!Number.isInteger(i)) return '';
   const список = chat || (контекст() || {}).chat || [];
@@ -1216,12 +1577,71 @@ export function приложениеМузыки(индекс, владелец 
   const занято = занятоСтенд ? { части: занятоСтенд } : message ? идут.get(ключХода(контекст(), i, message)) : null;
   const ошибка = message ? ошибки.get(ключХода(контекст(), i, message)) : '';
   const т = музыкаТелефона(i, список);
-  const кто = escapeHtml(имяБезПриставки(владелец || (т && т.owner) || '') || владелец || '');
-  const обёртка = (html) => `<div class="hud-mphone${классИгры(i, true)}" data-mesid="${i}" data-owner="${кто}">${html}</div>`;
+  const кто = ключВладельца(владелец || (т && т.owner) || '');
+  const ктоHtml = escapeHtml(кто);
+  const б = либСтенд || библиотекаЧата();
+  const з = записьВладельца(б, кто);
+  const плейлисты = з ? з.playlists : [];
+  const лайки = з ? з.liked : [];
+  const идёт = идётСтенд || идутПлейлисты.get(кто);
+  const ошибкаПлейлиста = ошибкиПлейлистов.get(кто);
+  const сохранённый = видСтенд || видыТелефона.get(i + '|' + кто) || {};
+  let вид = сохранённый.вид || (т || !плейлисты.length ? 'recent' : 'lists');
+  const открытый = вид === 'list' ? плейлисты.find(п => п.id === сохранённый.id) : null;
+  if (вид === 'list' && !открытый) вид = 'lists';
+
+  const вкладка = (v, подпись, n) => `<button type="button" role="tab" class="hud-mphone-tab${вид === v || (v === 'lists' && вид === 'list') ? ' is-on' : ''}" aria-selected="${вид === v || (v === 'lists' && вид === 'list')}" data-mu="mview" data-v="${v}">${подпись}${n ? `<i>${n}</i>` : ''}</button>`;
+  const вкладки = `<div class="hud-mphone-tabs" role="tablist" aria-label="Музыка">${вкладка('recent', 'Недавно')}${вкладка('lists', 'Плейлисты', плейлисты.length)}${вкладка('liked', 'Нравится', лайки.length)}</div>`;
+  const обёртка = (html) => `<div class="hud-mphone${классИгры(i, true)}" data-mesid="${i}" data-owner="${ктоHtml}" data-view="${вид}">${вкладки}${html}</div>`;
+  const лайкнут = (тр) => вСписке(лайки, тр);
+
+  // --- Плейлисты ---
+  if (вид === 'lists') {
+    const новыйИдёт = идёт && идёт.что === 'new';
+    const карточки = плейлисты.map(п => `<li><button type="button" class="hud-mphone-pl" data-mu="mview" data-v="list" data-id="${escapeHtml(п.id)}">${мозаика(п.tracks)}`
+      + `<span class="hud-mphone-pltt"><b>${escapeHtml(п.name)}</b><em>${сЧисломТреков((п.tracks || []).length)}${п.theme ? ' · ' + escapeHtml(обрезать(п.theme, 40)) : ''}</em></span><span class="hud-mphone-chev">${ико('chev')}</span></button></li>`).join('');
+    return обёртка(`<div class="hud-mphone-lists">`
+      + (новыйИдёт ? `<div class="hud-mphone-wait"><i aria-hidden="true"></i>Собираю плейлист ${ктоHtml}…</div>` : '')
+      + (ошибкаПлейлиста && !идёт ? `<p class="hud-mphone-err">Не получилось: ${escapeHtml(обрезать(ошибкаПлейлиста, 140))}</p>` : '')
+      + `<div class="hud-mphone-new"><input type="text" maxlength="120" data-mu-set="pltheme" value="${escapeHtml(темыПлейлистов.get(кто) || '')}" placeholder="О чём плейлист — необязательно" aria-label="Тема плейлиста"${идёт ? ' disabled' : ''}>`
+      + `<button type="button" class="hud-mphone-get" data-mu="pl-new" title="Отдельный запрос к модели: плейлист ${ктоHtml} с названием — по карточке, лорбукам и последним сообщениям"${идёт ? ' disabled' : ''}>${ико('plus')}Создать плейлист</button></div>`
+      + (карточки ? `<ul class="hud-mphone-pls">${карточки}</ul>` : `<p class="hud-mphone-hintline">Здесь соберутся плейлисты ${ктоHtml}: название и треки модель придумает по его карточке, лорбукам и последним сообщениям${лайки.length ? ', а ещё по тому, что вы отметили «Нравится»' : ''}.</p>`)
+      + `</div>`);
+  }
+
+  // --- Открытый плейлист ---
+  if (вид === 'list') {
+    const п = открытый;
+    const группа = 'pl:' + п.id;
+    const ещёИдёт = идёт && идёт.что === 'more' && идёт.id === п.id;
+    const новых = Math.max(0, список.length - (Number(п.mes) || список.length));
+    const удалить = сохранённый.удалить === п.id;
+    return обёртка(`<div class="hud-mphone-plhead"><button type="button" class="hud-mphone-back" data-mu="mview" data-v="lists" aria-label="К плейлистам">${ико('back')}</button>${мозаика(п.tracks, 'hud-mphone-plcov is-big')}`
+      + `<span class="hud-mphone-pltt"><small>Плейлист</small><b>${escapeHtml(п.name)}</b><em>${сЧисломТреков(п.tracks.length)}${п.theme ? ' · ' + escapeHtml(обрезать(п.theme, 60)) : ''}</em></span></div>`
+      + `<ol class="hud-mphone-list">${п.tracks.map((тр, k) => строкаТелефона(тр, k, группа, лайкнут(тр))).join('')}</ol>`
+      + (ошибкаПлейлиста && !идёт ? `<p class="hud-mphone-err">Не получилось: ${escapeHtml(обрезать(ошибкаПлейлиста, 140))}</p>` : '')
+      + `<div class="hud-mphone-foot hud-mphone-plfoot">`
+      + (ещёИдёт ? `<div class="hud-mphone-wait"><i aria-hidden="true"></i>Дописываю…</div>`
+        : `<button type="button" class="hud-mphone-get" data-mu="pl-more" data-id="${escapeHtml(п.id)}" title="Ещё треков в этот плейлист — без повторов${новых ? '; с прошлого раза в чате ' + сЧислом(новых, ['новое сообщение', 'новых сообщения', 'новых сообщений']) : ''}"${идёт ? ' disabled' : ''}>${ико('plus')}Ещё${новых ? `<i class="hud-mphone-new-badge">+${сЧислом(новых, ['сообщение', 'сообщения', 'сообщений'])}</i>` : ''}</button>`)
+      + (удалить
+        ? `<span class="hud-mphone-confirm">Удалить «${escapeHtml(обрезать(п.name, 24))}»?<button type="button" class="hud-mphone-del is-yes" data-mu="pl-del-yes" data-id="${escapeHtml(п.id)}">Удалить</button><button type="button" class="hud-mphone-del" data-mu="pl-del-no">Нет</button></span>`
+        : `<button type="button" class="hud-mphone-del" data-mu="pl-del" data-id="${escapeHtml(п.id)}" title="Удалить плейлист" aria-label="Удалить плейлист">${ико('trash')}</button>`)
+      + `</div>`);
+  }
+
+  // --- Нравится ---
+  if (вид === 'liked') {
+    const группа = 'pf:' + (з ? з.id : '');
+    return обёртка(лайки.length
+      ? `<p class="hud-mphone-hintline">То, что вы отметили у ${ктоHtml}. Его новые плейлисты и музыка в телефоне будут ближе к этому.</p><ol class="hud-mphone-list">${лайки.map((тр, k) => строкаТелефона(тр, k, группа, true)).join('')}</ol>`
+      : `<div class="hud-mphone-empty"><span class="hud-mphone-disc" aria-hidden="true"></span><p>Отмечайте ${ико('heart')} треки в телефоне ${ктоHtml} — его новые плейлисты будут ближе к ним.</p></div>`);
+  }
+
+  // --- Недавно: что слушает сейчас (подбирается вместе с музыкой сцены) ---
   const кнопка = (подпись) => `<button type="button" class="hud-mphone-get" data-mu="part" data-part="phone"${занято ? ' disabled' : ''}>${ико('note')}${подпись}</button>`;
-  if (занято && занято.части.includes('phone')) return обёртка('<div class="hud-mphone-wait"><i aria-hidden="true"></i>Подбираю, что слушает ' + кто + '…</div>');
+  if (занято && занято.части.includes('phone')) return обёртка('<div class="hud-mphone-wait"><i aria-hidden="true"></i>Подбираю, что слушает ' + ктоHtml + '…</div>');
   if (!т) {
-    return обёртка(`<div class="hud-mphone-empty"><span class="hud-mphone-disc" aria-hidden="true"></span><p>${ошибка ? 'Не получилось: ' + escapeHtml(обрезать(ошибка, 120)) : 'Здесь будет то, что слушает ' + кто + ' — по его вкусу, возрасту и настроению.'}</p>${кнопка('Подобрать музыку')}</div>`);
+    return обёртка(`<div class="hud-mphone-empty"><span class="hud-mphone-disc" aria-hidden="true"></span><p>${ошибка ? 'Не получилось: ' + escapeHtml(обрезать(ошибка, 120)) : 'Здесь будет то, что слушает ' + ктоHtml + ' — по его вкусу, возрасту и настроению.'}</p>${кнопка('Подобрать музыку')}</div>`);
   }
   // Наверху — играющий трек; ничего не играет — последний прослушанный.
   // Номера (data-i) остаются номерами в библиотеке.
@@ -1230,17 +1650,12 @@ export function приложениеМузыки(индекс, владелец 
   const первый = т.tracks[n0];
   const остальные = т.tracks.map((тр, k) => [тр, k]).filter(([, k]) => k !== n0);
   const обложкаБольшая = первый.art ? `<img src="${escapeHtml(первый.art)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : `<span class="is-blank">${ико('note')}</span>`;
-  const строка = (тр, k) => `<li class="${тр.ok === false ? 'is-unfound' : ''}"><span class="hud-mphone-art">`
-    + (тр.art ? `<img src="${escapeHtml(тр.art)}" alt="" loading="lazy" decoding="async" referrerpolicy="no-referrer">` : `<span class="hud-mphone-mini">${ико('note')}</span>`)
-    + кнопкаИгры('p', k, тр, 'hud-music-artplay') + '</span>'
-    + `<span class="hud-mphone-tt"><b>${escapeHtml(тр.t)}</b><em>${escapeHtml(тр.a)}</em></span>`
-    + `<span class="hud-mphone-go">${ссылкиТрека(тр)}<button type="button" class="hud-music-mt" data-mu="queue" data-g="p" data-i="${k}" title="Отдать в очередь MoodTube">${ико('queue')}</button></span></li>`;
   return обёртка(`<div class="hud-mphone-now">`
     + `<div class="hud-mphone-cover">${обложкаБольшая}${кнопкаИгры('p', n0, первый, 'hud-mphone-bigplay')}</div>`
-    + `<small>${играетЗдесь >= 0 ? 'Сейчас играет' : 'Последнее, что слушал(а) ' + кто}</small><b>${escapeHtml(первый.t)}</b><em>${escapeHtml(первый.a)}</em>`
+    + `<small>${играетЗдесь >= 0 ? 'Сейчас играет' : 'Последнее, что слушал(а) ' + ктоHtml}</small><b>${escapeHtml(первый.t)}</b><em>${escapeHtml(первый.a)}</em>`
     + `<div class="hud-mphone-bar" aria-hidden="true"><i></i></div>${плеерВключён() ? `<small class="hud-mphone-hint">${settings.musicSource === 'youtube' ? 'Полные треки с YouTube через зеркала' : settings.musicSource === 'full' ? 'Полные треки через неофициальный сервис' : черезMoodTube() ? 'Целиком — в MoodTube' : 'Отрывки по 30 секунд; целиком — по ссылке'}</small>` : ''}`
-    + `<div class="hud-mphone-go">${ссылкиТрека(первый)}<button type="button" class="hud-music-mt" data-mu="queue" data-g="p" data-i="${n0}" title="Отдать в очередь MoodTube">${ико('queue')}</button></div></div>`
-    + (остальные.length ? `<div class="hud-mphone-sec">Недавно</div><ol class="hud-mphone-list">${остальные.map(([тр, k]) => строка(тр, k)).join('')}</ol>` : '')
+    + `<div class="hud-mphone-go">${кнопкаЛайка(первый, 'p', n0, лайкнут(первый), 'plike')}${ссылкиТрека(первый)}<button type="button" class="hud-music-mt" data-mu="queue" data-g="p" data-i="${n0}" title="Отдать в очередь MoodTube">${ико('queue')}</button></div></div>`
+    + (остальные.length ? `<div class="hud-mphone-sec">Недавно</div><ol class="hud-mphone-list">${остальные.map(([тр, k]) => строкаТелефона(тр, k, 'p', лайкнут(тр))).join('')}</ol>` : '')
     + `<div class="hud-mphone-foot">${т.i !== i ? `<small>библиотека с хода ${т.i + 1}</small>` : ''}${кнопка('Обновить')}</div>`);
 }
 
@@ -1254,6 +1669,96 @@ function убратьСтарыеПустые() {
   const ctx = контекст();
   const последний = ctx && Array.isArray(ctx.chat) ? ctx.chat.length - 1 : -1;
   document.querySelectorAll('#chat .hud-music.is-empty:not(.is-error)').forEach(п => { if (Number(п.dataset.mesid) !== последний) п.remove(); });
+}
+
+// ---------------------------------------------------------------------------
+// ПЛАВАЮЩИЙ ЗНАЧОК: что играет, когда карточка уехала из виду
+// ---------------------------------------------------------------------------
+// Крошечный полупрозрачный кружок у правого края над полем ввода. Виден,
+// только пока звук идёт или стоит на паузе, а полоса (или экран телефона) с
+// ним ушли за край ленты — тексту он не мешает. Нажатие раскрывает строку:
+// название, пауза, «к карточке», стоп; через пять секунд без нажатий она
+// сворачивается обратно. Настройка musicFloat.
+let значок = null, наблюдатель = null, наблюдаем = null, видна = false, свернуть = 0;
+
+function элементИгры() {
+  if (игра.mesid === null || typeof document === 'undefined') return null;
+  return document.querySelector(`#chat .mes[mesid="${игра.mesid}"] ${этоТелефон(игра.g) ? '.hud-mphone' : '.hud-music'}`);
+}
+const звукЕсть = () => игра.mesid !== null && !!(игра.audio && игра.audio.getAttribute('src'));
+
+function раскрытьЗначок(да) {
+  if (!значок) return;
+  значок.classList.toggle('is-open', да);
+  const кнопка = значок.querySelector('.hud-mf-dot');
+  if (кнопка) кнопка.setAttribute('aria-expanded', String(да));
+  clearTimeout(свернуть);
+  if (да) свернуть = setTimeout(() => раскрытьЗначок(false), 5000);
+}
+
+function создатьЗначок() {
+  if (значок || typeof document === 'undefined' || !document.body) return значок;
+  значок = document.createElement('div');
+  значок.className = 'hud-music-float';
+  значок.hidden = true;
+  значок.innerHTML = `<button type="button" class="hud-mf-dot" data-mf="open" aria-expanded="false" aria-label="Музыка: что играет" title="Что играет"><i></i><i></i><i></i></button>`
+    + `<div class="hud-mf-panel"><span class="hud-mf-tt"><b></b><em></em></span>`
+    + `<button type="button" class="hud-mf-btn hud-mf-play" data-mf="play" aria-label="Пауза или продолжить">${ИГРА}</button>`
+    + `<button type="button" class="hud-mf-btn" data-mf="go" aria-label="К карточке" title="К карточке">${ико('up')}</button>`
+    + `<button type="button" class="hud-mf-btn" data-mf="stop" aria-label="Остановить" title="Остановить">${ико('close')}</button></div>`;
+  значок.addEventListener('click', (e) => {
+    const б = e.target.closest && e.target.closest('[data-mf]');
+    if (!б) return;
+    e.preventDefault();
+    e.stopPropagation();
+    const д = б.dataset.mf;
+    if (д === 'open') раскрытьЗначок(!значок.classList.contains('is-open'));
+    else if (д === 'play') {
+      const a = игра.audio;
+      if (a && a.getAttribute('src')) { if (a.paused) a.play().catch(() => {}); else a.pause(); }
+      раскрытьЗначок(true);
+    } else if (д === 'go') {
+      const эл = элементИгры();
+      if (эл) эл.scrollIntoView({ block: 'center', behavior: 'smooth' });
+      раскрытьЗначок(false);
+    } else if (д === 'stop') { раскрытьЗначок(false); остановитьИгру(); }
+  });
+  document.body.appendChild(значок);
+  return значок;
+}
+
+function показатьЗначок() {
+  if (!значок) return;
+  значок.hidden = !звукЕсть() || (видна && !!наблюдаем);
+  if (значок.hidden) раскрытьЗначок(false);
+}
+
+/** Значок под текущую игру: что играет, где карточка, виден ли. */
+export function обновитьЗначок() {
+  if (!звукЕсть() || !settings.enableMusic || settings.musicFloat === false) {
+    if (значок) { значок.hidden = true; раскрытьЗначок(false); }
+    if (наблюдатель) наблюдатель.disconnect();
+    наблюдаем = null;
+    return;
+  }
+  if (!создатьЗначок()) return;
+  // Полосу перерисовывают целиком — следим за свежим элементом.
+  const эл = элементИгры();
+  if (эл !== наблюдаем) {
+    if (!наблюдатель && typeof IntersectionObserver === 'function') {
+      наблюдатель = new IntersectionObserver((записи) => { for (const з of записи) if (з.target === наблюдаем) видна = з.isIntersecting; показатьЗначок(); });
+    }
+    if (наблюдатель) { наблюдатель.disconnect(); if (эл) наблюдатель.observe(эл); }
+    наблюдаем = эл;
+    видна = !!эл && !наблюдатель;
+  }
+  const т = игра.трек || трекиГруппы(игра.mesid, игра.g)[игра.i] || null;
+  const b = значок.querySelector('.hud-mf-tt b'), em = значок.querySelector('.hud-mf-tt em');
+  if (b) b.textContent = т ? (т.поток ? т.a : т.t) : '';
+  if (em) em.textContent = т ? (т.поток ? (т.жанры || 'Радио') : т.a) : '';
+  значок.classList.toggle('is-playing', !!игра.играет);
+  значок.classList.toggle('is-loading', !!игра.грузится);
+  показатьЗначок();
 }
 
 // ---------------------------------------------------------------------------
@@ -1305,6 +1810,29 @@ function поставитьСейчас(индекс, группа, i) {
   обновитьПолосу(индекс);
 }
 
+// «Нравится» / «не предлагать» в полосе сцены — ваш вкус, в настройках.
+// Одно исключает другое: понравившееся не бывает запрещённым.
+function отметитьВкус(индекс, группа, i, что) {
+  const т = трекиГруппы(индекс, группа)[i];
+  if (!т) return;
+  if (что === 'like') {
+    const р = переключить(лайкиИгрока(), т, ПРЕДЕЛ_ЛАЙКОВ);
+    settings.musicLiked = р.список;
+    if (р.есть && вСписке(запретыИгрока(), т)) settings.musicBanned = переключить(запретыИгрока(), т, ПРЕДЕЛ_ЗАПРЕТОВ).список;
+  } else {
+    const р = переключить(запретыИгрока(), т, ПРЕДЕЛ_ЗАПРЕТОВ);
+    settings.musicBanned = р.список;
+    if (р.есть) {
+      if (вСписке(лайкиИгрока(), т)) settings.musicLiked = переключить(лайкиИгрока(), т, ПРЕДЕЛ_ЛАЙКОВ).список;
+      показать('info', 'Музыка', 'Больше не предложу: ' + т.a + ' — ' + т.t);
+      // Играет как раз он — дальше.
+      if (игра.mesid === Number(индекс) && игра.g === группа && игра.i === i) следующий(1, true);
+    }
+  }
+  if (основа && typeof основа.saveSettings === 'function') основа.saveSettings();
+  обновитьВсеПолосы();
+}
+
 function вОчередь(индекс, группа, i) {
   const api = moodTube();
   if (!api) { показать('info', 'MoodTube', 'MoodTube не найден — поставьте расширение или откройте трек по ссылке.'); return; }
@@ -1329,6 +1857,11 @@ export function действиеМузыки(e) {
   if (t.closest('a')) return e.type === 'keydown' ? false : true;
   if (t.closest('.hud-music-vol')) return true;
   if (t.closest('input[data-mu-set="wish"]')) { if (e.type === 'keydown' && e.key === 'Enter') { e.preventDefault(); t.blur(); } return true; }
+  // Тема нового плейлиста: Enter — создать.
+  if (t.closest('input[data-mu-set="pltheme"]')) {
+    if (e.type === 'keydown' && e.key === 'Enter') { e.preventDefault(); создатьПлейлист(Number(полоса.dataset.mesid), полоса.dataset.owner || ''); }
+    return true;
+  }
   const эл = t.closest('[data-mu]');
   if (!эл || !полоса.contains(эл)) return true;
   // Enter на настоящей кнопке браузер сам превращает в click.
@@ -1343,7 +1876,25 @@ export function действиеМузыки(e) {
     эл.setAttribute('aria-expanded', String(открыта));
   } else if (д === 'pick' || д === 'redo') подобратьМузыку(индекс, { вручную: true });
   else if (д === 'part') подобратьМузыку(индекс, { вручную: true, части: [эл.dataset.part] });
-  else if (д === 'play') играть(индекс, эл.dataset.g, Number(эл.dataset.i));
+  else if (д === 'play') { if (эл.dataset.g === 'r') играйРадио(индекс, 0); else играть(индекс, эл.dataset.g, Number(эл.dataset.i)); }
+  else if (д === 'radio-next') играйРадио(индекс, 1);
+  else if (д === 'meme') { const м = музыкаХода((контекст() || {}).chat?.[индекс]); подобратьМузыку(индекс, { вручную: true, части: ['soundtrack'], мемы: !(м && м.meme) }); }
+  else if (д === 'like' || д === 'ban') отметитьВкус(индекс, эл.dataset.g, Number(эл.dataset.i), д);
+  else if (д === 'plike') { const т = трекиГруппы(индекс, эл.dataset.g)[Number(эл.dataset.i)]; лайкТелефона(ключВладельца(полоса.dataset.owner), т); }
+  else if (д === 'mview') {
+    const кто = ключВладельца(полоса.dataset.owner);
+    видыТелефона.set(индекс + '|' + кто, { вид: эл.dataset.v, id: эл.dataset.id || '' });
+    обновитьТелефоны(кто);
+  }
+  else if (д === 'pl-new') создатьПлейлист(индекс, полоса.dataset.owner || '');
+  else if (д === 'pl-more') создатьПлейлист(индекс, полоса.dataset.owner || '', { id: эл.dataset.id });
+  else if (д === 'pl-del' || д === 'pl-del-no') {
+    const кто = ключВладельца(полоса.dataset.owner);
+    const был = видыТелефона.get(индекс + '|' + кто) || {};
+    видыТелефона.set(индекс + '|' + кто, { ...был, удалить: д === 'pl-del' ? эл.dataset.id : '' });
+    обновитьТелефоны(кто);
+  }
+  else if (д === 'pl-del-yes') удалитьПлейлистВладельца(индекс, ключВладельца(полоса.dataset.owner), эл.dataset.id);
   else if (д === 'count') сменитьЧислоТреков(Number(эл.dataset.d) || 0);
   else if (д === 'wish-clear') поставитьПожелание('', true);
   else if (д === 'cancel') отменить(индекс);
@@ -1383,6 +1934,8 @@ export function подключитьМузыку(связь) {
       if (п) поставитьГромкость(п.value, сохранить);
       const w = e.target && e.target.closest && e.target.closest('.hud-music input[data-mu-set="wish"]');
       if (w) поставитьПожелание(w.value, сохранить, w);
+      const тм = e.target && e.target.closest && e.target.closest('.hud-mphone input[data-mu-set="pltheme"]');
+      if (тм) { const кто = ключВладельца((тм.closest('.hud-mphone') || {}).dataset?.owner); if (кто) темыПлейлистов.set(кто, тм.value.slice(0, 120)); }
     });
   }
   const ctx = контекст();

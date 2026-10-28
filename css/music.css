@@ -295,3 +295,129 @@ button.hud-music-play svg { width: 13px; height: 13px; }
   .hud-music, .hud-music * { animation: none !important; transition: none !important; }
 }
 .hud-historical .hud-music.is-empty { display: none; }
+
+/* --- Вкус: «нравится» и «не предлагать» у трека (music-lib.js) --- */
+.hud-music-taste { display: inline-flex; gap: 3px; }
+:is(.hud-music, .hud-mphone) :is(.hud-music-like, .hud-music-ban) {
+  width: 24px; height: 22px; display: inline-grid; place-items: center; padding: 0; border-radius: 99px; cursor: pointer;
+  color: var(--x-ink-soft); background: transparent; border: 1px solid color-mix(in srgb, var(--x-line) 70%, transparent);
+}
+:is(.hud-music-like, .hud-music-ban) svg { width: 13px; height: 13px; }
+.hud-music-like.is-on { color: #ff4f7b; border-color: color-mix(in srgb, #ff4f7b 55%, transparent); background: color-mix(in srgb, #ff4f7b 14%, transparent); }
+.hud-music-like.is-on svg path { fill: currentColor; }
+.hud-music-ban.is-on { color: #e0603a; border-color: color-mix(in srgb, #e0603a 55%, transparent); background: color-mix(in srgb, #e0603a 14%, transparent); }
+.hud-music-tr.is-banned :is(.hud-music-tt b, .hud-music-tt em) { text-decoration: line-through; opacity: .55; }
+.hud-music-tr.is-banned .hud-music-art { opacity: .45; }
+.hud-mphone .hud-music-like { color: rgba(255,255,255,.65); border-color: rgba(255,255,255,.25); }
+.hud-mphone .hud-music-like.is-on { color: #ff6b8e; border-color: color-mix(in srgb, #ff6b8e 60%, transparent); background: color-mix(in srgb, #ff6b8e 18%, transparent); }
+.hud-music-meme.is-on { background: color-mix(in srgb, var(--mu) 30%, transparent); }
+
+/* --- Радио в сцене (music-radio.js): живой эфир строкой под треками --- */
+.hud-music-radio {
+  display: flex; align-items: center; gap: 8px; margin-top: 4px; padding: 6px 8px; border-radius: 10px;
+  background: color-mix(in srgb, var(--mu) 7%, transparent); border: 1px dashed color-mix(in srgb, var(--mu) 35%, transparent);
+}
+.hud-music-radio.is-on { background: color-mix(in srgb, var(--mu) 18%, transparent); border-style: solid; }
+.hud-music-radio-ico { flex: none; width: 34px; height: 34px; border-radius: 6px; display: grid; place-items: center; color: var(--mu); background: color-mix(in srgb, var(--mu) 18%, transparent); }
+.hud-music-radio-ico svg { width: 18px; height: 18px; }
+.hud-music-radio-tt { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+.hud-music-radio-tt b { font-size: .86em; color: var(--x-ink) !important; overflow-wrap: anywhere; }
+.hud-music-radio-tt em { font-style: normal; font-size: .72em; color: var(--x-ink-soft); overflow-wrap: anywhere; }
+/* Эфир без конца — полоски хода нет. */
+.hud-music.is-live .hud-music-prog { display: none; }
+
+/* --- Плавающий значок «что играет» (render/music.js, обновитьЗначок) ---
+   Крошечный и полупрозрачный, у правого края над полем ввода; виден, только
+   пока музыка идёт, а карточка с ней ушла из виду. */
+.hud-music-float {
+  /* Выше кнопки Таверны «к последнему сообщению» — она тоже у правого края. */
+  position: fixed; right: 10px; bottom: 150px; z-index: 3000; display: flex; align-items: center; flex-direction: row-reverse; gap: 6px;
+  font: 12px/1.3 system-ui, sans-serif; color: #fff; pointer-events: none;
+}
+.hud-music-float[hidden] { display: none; }
+.hud-music-float > * { pointer-events: auto; }
+.hud-music-float svg { display: block; }
+.hud-mf-dot {
+  width: 26px; height: 26px; display: flex; align-items: flex-end; justify-content: center; gap: 2px; padding: 0 0 7px; border: 0; border-radius: 50%; cursor: pointer;
+  background: color-mix(in srgb, var(--hud-accent, #c31f38) 75%, #000); box-shadow: 0 3px 10px rgba(0,0,0,.45); opacity: .4; transition: opacity .2s ease;
+}
+.hud-mf-dot i { width: 2px; height: 5px; border-radius: 1px; background: #fff; transform-origin: bottom; }
+.hud-music-float.is-playing .hud-mf-dot i { animation: hud-mf-eq .9s ease-in-out infinite alternate; }
+.hud-music-float.is-playing .hud-mf-dot i:nth-child(2) { animation-delay: -.3s; }
+.hud-music-float.is-playing .hud-mf-dot i:nth-child(3) { animation-delay: -.6s; }
+@keyframes hud-mf-eq { from { transform: scaleY(.5); } to { transform: scaleY(1.9); } }
+.hud-music-float.is-open .hud-mf-dot { opacity: 1; }
+.hud-mf-panel {
+  display: none; align-items: center; gap: 4px; max-width: min(280px, calc(100vw - 56px)); padding: 4px 4px 4px 10px; border-radius: 99px;
+  background: rgba(20,16,26,.92); box-shadow: 0 6px 18px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.1);
+}
+.hud-music-float.is-open .hud-mf-panel { display: flex; }
+.hud-mf-tt { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.hud-mf-tt b, .hud-mf-tt em { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.hud-mf-tt b { font-size: 12px; color: #fff; }
+.hud-mf-tt em { font-style: normal; font-size: 10.5px; color: rgba(255,255,255,.6); }
+.hud-mf-btn { flex: none; width: 26px; height: 26px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; cursor: pointer; color: #fff; background: rgba(255,255,255,.1); }
+.hud-mf-btn svg { width: 13px; height: 13px; }
+.hud-mf-play .i-pause, .hud-mf-play .i-load { display: none; }
+.hud-music-float.is-playing .hud-mf-play .i-play { display: none; }
+.hud-music-float.is-playing .hud-mf-play .i-pause { display: block; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-mf-dot:hover { opacity: .9; }
+  .hud-mf-btn:hover { background: rgba(255,255,255,.22); }
+}
+@media (prefers-reduced-motion: reduce) { .hud-mf-dot i { animation: none !important; } }
+
+/* --- «Музыка» в телефоне: вкладки, плейлисты с названиями, «Нравится» --- */
+.hud-mphone-tabs { display: flex; gap: 2px; margin: 0 0 10px; padding: 2px; border-radius: 10px; background: rgba(255,255,255,.08); }
+.hud-mphone-tab {
+  flex: 1; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 5px 4px; border: 0; border-radius: 8px;
+  font: inherit; font-size: 11.5px; font-weight: 600; cursor: pointer; color: rgba(255,255,255,.7); background: transparent; white-space: nowrap;
+}
+.hud-mphone-tab i { font-style: normal; font-size: 10px; padding: 0 5px; border-radius: 99px; background: rgba(255,255,255,.14); }
+.hud-mphone-tab.is-on { color: #fff; background: rgba(255,255,255,.18); box-shadow: 0 1px 3px rgba(0,0,0,.35); }
+.hud-mphone-new { display: flex; flex-direction: column; align-items: stretch; gap: 8px; margin-bottom: 12px; }
+.hud-mphone-new input {
+  width: 100%; padding: 7px 10px; border-radius: 10px; font: inherit; font-size: 12.5px; color: #fff;
+  background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.16);
+}
+.hud-mphone-new input::placeholder { color: rgba(255,255,255,.45); }
+.hud-mphone-new .hud-mphone-get { align-self: center; }
+.hud-mphone-pls { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.hud-mphone-pls li { margin: 0; }
+.hud-mphone-pl {
+  width: 100%; display: flex; align-items: center; gap: 10px; padding: 6px; border: 0; border-radius: 12px; font: inherit; text-align: left; cursor: pointer;
+  color: #fff; background: rgba(255,255,255,.06);
+}
+.hud-mphone-pltt { flex: 1; min-width: 0; display: flex; flex-direction: column; line-height: 1.3; }
+.hud-mphone-pltt small { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.5); }
+.hud-mphone-pltt b { font-size: 13px; color: #fff !important; overflow-wrap: anywhere; }
+.hud-mphone-pltt em { font-style: normal; font-size: 11px; color: rgba(255,255,255,.6); overflow-wrap: anywhere; }
+.hud-mphone-chev { flex: none; color: rgba(255,255,255,.5); transform: rotate(-90deg); }
+.hud-mphone-chev svg { width: 14px; height: 14px; }
+.hud-mphone-plcov {
+  flex: none; width: 44px; height: 44px; border-radius: 8px; overflow: hidden; display: grid; place-items: center;
+  background: linear-gradient(150deg, color-mix(in srgb, var(--mp) 70%, #fff), color-mix(in srgb, var(--mp) 55%, #000));
+}
+.hud-mphone-plcov.is-grid { grid-template-columns: 1fr 1fr; grid-template-rows: 1fr 1fr; }
+.hud-mphone-plcov img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.hud-mphone-plcov.is-blank svg { width: 45%; height: 45%; color: rgba(255,255,255,.9); }
+.hud-mphone-plcov.is-big { width: 64px; height: 64px; border-radius: 10px; box-shadow: 0 8px 18px -8px rgba(0,0,0,.7); }
+.hud-mphone-plhead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.hud-mphone-back { flex: none; width: 28px; height: 28px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; cursor: pointer; color: #fff; background: rgba(255,255,255,.1); }
+.hud-mphone-back svg { width: 15px; height: 15px; }
+.hud-mphone-plfoot { justify-content: space-between; }
+.hud-mphone-new-badge { font-style: normal; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 99px; background: rgba(255,255,255,.22); }
+.hud-mphone-del { display: inline-grid; place-items: center; min-width: 30px; height: 30px; padding: 0 10px; border: 0; border-radius: 99px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; color: rgba(255,255,255,.75); background: rgba(255,255,255,.08); }
+.hud-mphone-del svg { width: 14px; height: 14px; }
+.hud-mphone-del.is-yes { color: #fff; background: #c8432f; }
+.hud-mphone-confirm { display: inline-flex; flex-wrap: wrap; align-items: center; gap: 6px; font-size: 12px; color: rgba(255,255,255,.8); }
+.hud-mphone-err { margin: 0 0 10px; padding: 7px 10px; border-radius: 10px; font-size: 12px; line-height: 1.4; color: #ffd9cf; background: rgba(200,67,47,.25); }
+.hud-mphone-hintline { margin: 4px 2px 10px; font-size: 12px; line-height: 1.5; color: rgba(255,255,255,.62); }
+.hud-mphone-empty p svg { display: inline-block; width: 13px; height: 13px; vertical-align: -2px; }
+.hud-mphone-lists .hud-mphone-wait { padding: 14px 10px; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-mphone-tab:not(.is-on):hover { color: #fff; background: rgba(255,255,255,.08); }
+  .hud-mphone-pl:hover { background: rgba(255,255,255,.12); }
+  .hud-mphone-back:hover, .hud-mphone-del:hover { background: rgba(255,255,255,.2); }
+  .hud-music-like:hover, .hud-music-ban:hover { border-color: currentColor; }
+}

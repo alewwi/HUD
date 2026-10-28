@@ -254,6 +254,16 @@ export const defaultSettings = {
   musicSceneLine: false,    // «в сцене играет…» — модели одной строкой
   musicMedieval: 'period',  // period — старинная музыка, score — киношный саундтрек
   musicStyle: 'auto',       // auto | cassette | vinyl | scroll
+  // Вкус и язык подборки (render/music-lib.js). «Нравится» и «не предлагать» —
+  // из полосы сцены: модели подсказкой, ответ ещё и фильтруется. Свой
+  // «Нравится» у телефона персонажа — в метаданных чата, не здесь.
+  musicLiked: [],
+  musicBanned: [],
+  musicLang: '',            // язык песен: '' — любой, Russian, English… custom — musicLangCustom
+  musicLangCustom: '',
+  musicMeme: 'off',         // мемный саундтрек: off | auto (в смешной сцене) | on
+  musicRadio: true,         // радио в сцене: живой эфир по тегам модели (render/music-radio.js)
+  musicFloat: true,         // плавающий значок «что играет», когда карточка ушла из виду
   performanceMode: true, // Автоматическая оптимизация чатов от 200 сообщений
   // В Performance Mode карточка, уехавшая дальше полутора экранов, сворачивается
   // в заглушку своей высоты и собирается заново при возвращении.

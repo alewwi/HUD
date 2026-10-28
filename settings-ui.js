@@ -10,6 +10,7 @@ import { видБлока } from './render/views.js?v=23.86.0';
 import { escapeHtml } from './utils.js?v=23.86.0';
 import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.86.0';
 import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.86.0';
+import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.86.0';
 import { cacheUsage, clearCache } from './history-analyzer.js?v=23.86.0';
 import { clearReactions, вернутьКарточку } from './events.js?v=23.86.0';
 import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.86.0';
@@ -282,6 +283,23 @@ export function addSettingsUI() {
           <select id="hud-music-source" style="flex:1; min-width:0; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;"><option value="preview" ${settings.musicSource !== 'full' ? 'selected' : ''}>Отрывки 30 с — каталог iTunes</option><option value="youtube" ${settings.musicSource === 'youtube' ? 'selected' : ''}>Полные треки — YouTube через зеркала</option><option value="full" ${settings.musicSource === 'full' ? 'selected' : ''}>Полные треки — NetEase, неофициальный сервис</option><option value="moodtube" ${settings.musicSource === 'moodtube' ? 'selected' : ''}>Полные треки — через MoodTube</option></select>
         </label>
         ${заметка('Громкость, число треков и пожелание к подборке («музыка для бега») — прямо в раскрытом плейлисте полосы.')}
+        ${подгруппа('🎧 Вкус, язык, радио', `
+          <label class="hud-set-check" title="На каком языке песни с вокалом в саундтреке и в телефоне персонажа. Музыка в сцене — по месту: в баре в Берлине может играть и немецкое.">🌐 Язык песен:
+            <select id="hud-music-lang" style="flex:1; min-width:0; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;">${ЯЗЫКИ_ПЕСЕН.map(([k, имя]) => `<option value="${k}" ${(settings.musicLang || '') === k ? 'selected' : ''}>${escapeHtml(имя)}</option>`).join('')}</select>
+          </label>
+          <label class="hud-set-check" id="hud-music-lang-custom-row" title="Язык своими словами, по-английски: например, Ukrainian или Portuguese"${settings.musicLang === 'custom' ? '' : ' hidden'}>✏️ Свой язык:
+            <input type="text" id="hud-music-lang-custom" maxlength="40" value="${escapeHtml(settings.musicLangCustom || '')}" placeholder="Ukrainian" style="flex:1; min-width:0; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;">
+          </label>
+          <label class="hud-set-check" title="Мемные звуки и песни вместо саундтрека: грустный тромбон, «To Be Continued», вайн-бум. В полосе есть ещё разовая кнопка «Мемы».">🤡 Мемный саундтрек:
+            <select id="hud-music-meme" style="flex:1; min-width:0; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;"><option value="off" ${settings.musicMeme !== 'auto' && settings.musicMeme !== 'on' ? 'selected' : ''}>Выключен — только кнопкой</option><option value="auto" ${settings.musicMeme === 'auto' ? 'selected' : ''}>В смешной или абсурдной сцене</option><option value="on" ${settings.musicMeme === 'on' ? 'selected' : ''}>Всегда</option></select>
+          </label>
+          ${галка('hud-music-radio', settings.musicRadio !== false, '📻 Радио в сцене', 'Когда в сцене играет радио (машина, бар, клуб), модель называет жанр станции — и в «В сцене» появляется живой эфир: Радио Рекорд (117 жанровых станций, для России и русских жанров) или станции мира из каталога radio-browser.')}
+          ${галка('hud-music-float', settings.musicFloat !== false, '📍 Плавающий значок', 'Крошечный полупрозрачный кружок у края, пока играет музыка, а карточка с ней ушла из виду: пауза, «к карточке», стоп.')}
+          <div class="hud-set-check" id="hud-music-taste" style="flex-wrap:wrap; gap:6px;" title="«Нравится» и «не предлагать» — сердечко и перечёркнутый круг у трека в плейлисте полосы. Модель подбирает ближе к понравившемуся и не предлагает запрещённое. У телефона персонажа свой «Нравится» — в его приложении «Музыка».">❤️ Вкус: <span id="hud-music-taste-n"></span>
+            <button type="button" id="hud-music-liked-clear" style="cursor:pointer;">Очистить «нравится»</button>
+            <button type="button" id="hud-music-banned-clear" style="cursor:pointer;">Очистить запреты</button>
+          </div>
+        `)}
         ${галка('hud-music-verify', settings.musicVerify !== false, '🔎 Проверять треки поиском', 'Каждый трек ищется по сервисам по очереди: сначала каталог iTunes (витрины США и России), потом NetEase и QQ Музыка. Нашёлся — поиск останавливается, трек получает обложку. Не нашёлся нигде — помечается или заменяется: модели любят выдумывать песни. Сервисам уходят только исполнитель и название.')}
         ${галка('hud-music-search-ne', settings.musicSearchNetease !== false, '🔎 Искать ещё в NetEase', 'Если iTunes не нашёл — NetEase Cloud Music через неофициальный посредник (music-api.gdstudio.xyz). Хорошо находит русские и азиатские треки.')}
         ${галка('hud-music-search-qq', settings.musicSearchQQ !== false, '🔎 Искать ещё в QQ Музыке', 'Последний шаг — QQ Музыка через неофициальный посредник (api.vkeys.cn).')}
@@ -801,6 +819,30 @@ export function addSettingsUI() {
     let v = parseInt(e.target.value, 10);
     if (!Number.isFinite(v) || v < 0) v = 0; if (v > 3600) v = 3600;
     settings.musicTimeout = v; e.target.value = v; основа.saveSettings();
+  });
+  // Вкус, язык, радио (render/music-lib.js, music-radio.js).
+  const вкусМузыки = () => {
+    const n = document.getElementById('hud-music-taste-n');
+    if (n) n.textContent = 'нравится ' + (settings.musicLiked || []).length + ' · не предлагать ' + (settings.musicBanned || []).length;
+  };
+  вкусМузыки();
+  document.getElementById('hud-music-lang').addEventListener('change', (e) => {
+    settings.musicLang = e.target.value; основа.saveSettings();
+    document.getElementById('hud-music-lang-custom-row').hidden = e.target.value !== 'custom';
+  });
+  document.getElementById('hud-music-lang-custom').addEventListener('change', (e) => { settings.musicLangCustom = e.target.value.trim().slice(0, 40); основа.saveSettings(); });
+  document.getElementById('hud-music-meme').addEventListener('change', (e) => { settings.musicMeme = e.target.value; основа.saveSettings(); });
+  [['hud-music-radio', 'musicRadio'], ['hud-music-float', 'musicFloat']].forEach(([id, ключ]) => {
+    document.getElementById(id).addEventListener('change', (e) => {
+      settings[ключ] = e.target.checked; основа.saveSettings();
+      import('./render/music.js?v=23.86.0').then(м => { м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
+    });
+  });
+  [['hud-music-liked-clear', 'musicLiked'], ['hud-music-banned-clear', 'musicBanned']].forEach(([id, ключ]) => {
+    document.getElementById(id).addEventListener('click', () => {
+      settings[ключ] = []; основа.saveSettings(); вкусМузыки();
+      import('./render/music.js?v=23.86.0').then(м => м.обновитьВсеПолосы()).catch(() => {});
+    });
   });
   [['hud-music-medieval', 'musicMedieval'], ['hud-music-style', 'musicStyle'], ['hud-music-source', 'musicSource']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {

@@ -1532,6 +1532,7 @@
 .hud-set-group.hud-set-sub > summary { font-size: 12.5px; padding-top: 7px; padding-bottom: 7px; }
 .hud-set-body > .hud-set-sub { margin-top: 4px; }
 .hud-set-check { display: flex; align-items: center; gap: 10px; cursor: pointer; flex-wrap: wrap; }
+.hud-set-check[hidden] { display: none; }
 .hud-set-num { background: rgba(0,0,0,.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px; }
 
 /* Галочка и подпись в одну строку: без обёртки подпись на узкой панели
