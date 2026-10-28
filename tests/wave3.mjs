@@ -1115,6 +1115,10 @@ settings.tempoView = 'xray';
       const ев = css('events.js');
       проверить('темы: личные правки прошлой темы снимаются при смене темы и палитры', (ев.match(/снятьЛичныеПравки\((прошлая|id), settings\.themePalette\);/g) || []).length === 2
         && /if \(String\(settings\[k\]\) === String\(правки\[k\]\)\) settings\[k\] = defaultSettings\[k\];/.test(ев) && ев.includes('КАДР_СВОИХ_КАРТИНОК.includes(k)'));
+      // «⟲ Дефолт» — только Кастомизация: пояснения, значки, сводки и высота Памяти — основные настройки.
+      const дефолт = css('customize.js').slice(css('customize.js').indexOf("const поУмолчанию = e.target.closest('.hud-custom-default-btn')"), css('customize.js').indexOf('const набор = минимализм'));
+      проверить('кастомизация: «Дефолт» не трогает основные настройки', дефолт.length > 100 && !/КЛЮЧИ_ОТОБРАЖЕНИЯ|showHints|summaryCards|memoryMaxHeight|iconSet/.test(дефолт)
+        && !css('settings.js').includes('КЛЮЧИ_ОТОБРАЖЕНИЯ') && !су.includes("['hud-show-hints', 'showHints']"));
       // Кастомизация: «Нового оформления» отдельным разделом нет — пункты у того, к чему относятся.
       const ку = css('customize.js');
       const подраздел = (имя) => { const i = ку.indexOf('<summary>' + имя + '</summary>'); return i < 0 ? '' : ку.slice(i, ку.indexOf('</div></details>', i)); };

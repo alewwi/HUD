@@ -638,9 +638,6 @@ export function оформлениеТемы() {
     pillColors: defaultSettings.pillColors, pillIcons: defaultSettings.pillIcons, pillStyle: defaultSettings.pillStyle,
   };
 }
-// «Дефолт» (Кастомизация → Вид блоков): ключи «Отображения» из настроек,
-// которые тоже возвращаются к заводским — вид значков, пояснения, сводки.
-export const КЛЮЧИ_ОТОБРАЖЕНИЯ = ['showHints', 'iconSet', 'summaryCards', 'memoryMaxHeight'];
 
 // Поля телефона, которые при наследовании берутся у HUD, и их значения.
 export const НАСЛЕДУЕТ_ТЕЛЕФОН = ['phoneBgStart', 'phoneBgEnd', 'phoneBgAlpha', 'phoneAccent', 'phoneBlur', 'phoneFont', 'phoneFontSize'];

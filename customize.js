@@ -5,23 +5,23 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.84.0';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, КЛЮЧИ_ОТОБРАЖЕНИЯ, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.84.0';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.84.0';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.84.0';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.84.0';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.84.0';
-import { hudБлоки } from './hud-block.js?v=23.84.0';
-import { parseHUDComplex } from './hud-parser.js?v=23.84.0';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.84.0';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.84.0';
-import { английский, т } from './i18n.js?v=23.84.0';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.84.1';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.84.1';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.84.1';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.84.1';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.84.1';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.84.1';
+import { hudБлоки } from './hud-block.js?v=23.84.1';
+import { parseHUDComplex } from './hud-parser.js?v=23.84.1';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.84.1';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.84.1';
+import { английский, т } from './i18n.js?v=23.84.1';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 const пример = () => (английский() ? ПРИМЕР_EN : ПРИМЕР_RU);
-import { задатьПримерСемьи } from './render/conception.js?v=23.84.0';
-import { привязатьИсторию } from './render/intimacy.js?v=23.84.0';
-import { пометитьЭффекты } from './render/fx.js?v=23.84.0';
-import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.84.0';
+import { задатьПримерСемьи } from './render/conception.js?v=23.84.1';
+import { привязатьИсторию } from './render/intimacy.js?v=23.84.1';
+import { пометитьЭффекты } from './render/fx.js?v=23.84.1';
+import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.84.1';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -236,7 +236,7 @@ export function разметкаПанелиТемы() {
             // Силуэт карты тела и почерк дневника тела — сразу за видом карты.
             + (б.ключ === 'bodyMapView' ? пунктыСилуэта() : '')).join('')
           + `</div>${группа === 'Близость' ? обликИгрока() : ''}</details>`).join('')}
-          <div class="hud-theme-row hud-custom-minimal"><button type="button" class="hud-theme-act hud-custom-minimal-btn" title="Один цвет, без значков, одинаковое оформление — и без украшений из тем: рамок, картинок, разделителей, бумаги, печати, эффектов имени, мелочей, особых галочек. Рисунки темы остаются — значками, без картинок">◻ Минимализм</button><button type="button" class="hud-theme-act hud-custom-rich-btn" title="Вернуть всё, как было до «Минимализма»: цвета по смыслу, значки, оформление полей и украшения — и виды блоков по умолчанию">✦ Как было</button><button type="button" class="hud-theme-act hud-custom-auto-btn" title="Все украшения из тем — рамка, углы, разделители, бумага, имя, мелочи — на «Авто»: у каждой темы свои">✦ Всё по теме</button><button type="button" class="hud-theme-act hud-custom-default-btn" title="Всё оформление — как задумано с самого начала, по умолчанию: виды блоков, украшения, рисунки темы, новое оформление и отображение. Тема и цвета не меняются">⟲ Дефолт</button></div>
+          <div class="hud-theme-row hud-custom-minimal"><button type="button" class="hud-theme-act hud-custom-minimal-btn" title="Один цвет, без значков, одинаковое оформление — и без украшений из тем: рамок, картинок, разделителей, бумаги, печати, эффектов имени, мелочей, особых галочек. Рисунки темы остаются — значками, без картинок">◻ Минимализм</button><button type="button" class="hud-theme-act hud-custom-rich-btn" title="Вернуть всё, как было до «Минимализма»: цвета по смыслу, значки, оформление полей и украшения — и виды блоков по умолчанию">✦ Как было</button><button type="button" class="hud-theme-act hud-custom-auto-btn" title="Все украшения из тем — рамка, углы, разделители, бумага, имя, мелочи — на «Авто»: у каждой темы свои">✦ Всё по теме</button><button type="button" class="hud-theme-act hud-custom-default-btn" title="Всё оформление — как задумано с самого начала, по умолчанию: виды блоков, украшения и рисунки темы. Тема, цвета и основные настройки не меняются">⟲ Дефолт</button></div>
           <div class="hud-theme-presets-note">Вид блока цикла и секций у персонажей и у игрока. Справа видно сразу; карточки в чате перерисуются, когда закроешь окно.</div>
         </details>
         <details data-sec="colors" class="hud-smooth"><summary>🎨 Общие цвета & Фоны</summary>
@@ -686,7 +686,7 @@ export function открытьКастомизацию() {
       // «Дефолт»: заводские значения всего, что настраивается в «Виде блоков»
       // и «Новом оформлении», плюс «Отображение» — не то, что выбрал игрок.
       const поУмолчанию = e.target.closest('.hud-custom-default-btn') ? (() => {
-        const ключи = new Set([...Object.keys(МИНИМАЛИЗМ), ...Object.keys(видыБлоков), ...КЛЮЧИ_ОТОБРАЖЕНИЯ,
+        const ключи = new Set([...Object.keys(МИНИМАЛИЗМ), ...Object.keys(видыБлоков),
           ...[...окно.querySelectorAll('details[data-sec="views"] [data-key]')].map(п => п.dataset.key)]);
         delete settings.minimalBackup;
         return Object.fromEntries([...ключи].filter(к => defaultSettings[к] !== undefined).map(к => [к, defaultSettings[к]]));
