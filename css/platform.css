@@ -56,6 +56,31 @@ html.hud-ico-pixel .hud-ico { stroke-width: 2.4; stroke-linecap: square; stroke-
 html.hud-ico-ink .hud-ico { stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; stroke-miterlimit: 1; }
 html.hud-ico-rounded .hud-ico { stroke-width: 2.2; fill: color-mix(in oklch, currentColor 18%, transparent); }
 .hud-tab .hud-ico { margin-right: .05em; }
+/* Кружки статуса (🟡🟠🔴🟣🟤🟢) — рисунок закрашен своим цветом: цвет и есть смысл. */
+.hud-ico:is(.hi-dotY, .hi-dotO, .hi-dotR, .hi-dotP, .hi-dotB, .hi-dotG) { fill: currentColor; stroke: none; }
+.hud-ico.hi-dotY { color: #e8c33a; } .hud-ico.hi-dotO { color: #ef8a3a; } .hud-ico.hi-dotR { color: #e0484f; }
+.hud-ico.hi-dotP { color: #9a6ee0; } .hud-ico.hi-dotB { color: #9a6a46; } .hud-ico.hi-dotG { color: #4fbf72; }
+/* «Рисунки везде»: эмодзи, которые ставит сам CSS. Водяные знаки (data-ico)
+   прячутся — на их месте значок-узел .hud-ico-wm (render/hud-icons.js);
+   вставки content — тем же контуром маской. */
+html.hud-icons-svg :is(.hud-mark, .hud-afisha-main, .hud-city-row)[data-ico]::after { content: none; }
+html.hud-icons-svg :is(.hud-mark, .hud-city-row)[data-ico] { position: relative; }
+.hud-ico-wm { position: absolute; top: 50%; width: 40px; height: 40px; opacity: .08; pointer-events: none; }
+.hud-mark > .hud-ico-wm { right: 64px; width: 44px; height: 44px; opacity: .06; transform: translateY(-50%) rotate(-12deg); }
+.hud-afisha-main > .hud-ico-wm { right: 8px; transform: translateY(-58%) rotate(8deg); }
+.hud-city-row > .hud-ico-wm { right: 10px; opacity: .07; transform: translateY(-50%) rotate(-8deg); }
+/* Псевдоэлементы внутри :is() браузер не принимает — список селекторов. */
+html.hud-icons-svg .hud-heat-row.is-peak b::after, html.hud-icons-svg .hud-letter.st-transit .hud-letter-st::before, html.hud-icons-svg .hud-prg-row.is-risk > p::before {
+  content: ''; display: inline-block; width: 1em; height: 1em; vertical-align: -.14em; background: currentColor; -webkit-mask: var(--hud-ico-m) center / contain no-repeat; mask: var(--hud-ico-m) center / contain no-repeat; }
+html.hud-icons-svg .hud-heat-row.is-peak b::after { --hud-ico-m: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M12%2021a6%206%200%200%201-6-6c0-4%203-5.5%203.5-9.5%201.5%201.5%202.5%203%202.5%205%201.5-1%202-3%202-4.5%202%202%204%204.8%204%209a6%206%200%200%201-6%206Z%27%2F%3E%3C%2Fsvg%3E"); margin-left: .25em; }
+html.hud-icons-svg .hud-letter.st-transit .hud-letter-st::before { --hud-ico-m: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M7%2020.5h11%20M8.5%2020.5c0-3%201.5-5%203-6.5L9%2013.5%206.5%2014.5%205.5%2012l5-6%20.5-2%202%201.5c3.5.5%205.5%203.5%205.5%207.5v7.5%20M10.5%208.5h.01%27%2F%3E%3C%2Fsvg%3E"); margin-right: .3em; }
+html.hud-icons-svg .hud-prg-row.is-risk > p::before { --hud-ico-m: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M12%204%202.5%2020h19Z%20M12%2010v4.5%20M12%2017.2h.01%27%2F%3E%3C%2Fsvg%3E"); margin-right: .3em; }
+html.hud-icons-svg .hud-vit.is-pulse::after { content: ''; display: inline-block; width: .9em; height: .9em; background: currentColor; -webkit-mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M12%2020s-7.5-4.6-7.5-10.2A4.3%204.3%200%200%201%2012%207.2a4.3%204.3%200%200%201%207.5%202.6C19.5%2015.4%2012%2020%2012%2020Z%27%2F%3E%3C%2Fsvg%3E") center / contain no-repeat; mask: url("data:image/svg+xml,%3Csvg%20xmlns%3D%27http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%27%20viewBox%3D%270%200%2024%2024%27%20fill%3D%27none%27%20stroke%3D%27black%27%20stroke-width%3D%272%27%20stroke-linecap%3D%27round%27%20stroke-linejoin%3D%27round%27%3E%3Cpath%20d%3D%27M12%2020s-7.5-4.6-7.5-10.2A4.3%204.3%200%200%201%2012%207.2a4.3%204.3%200%200%201%207.5%202.6C19.5%2015.4%2012%2020%2012%2020Z%27%2F%3E%3C%2Fsvg%3E") center / contain no-repeat; }
+/* Следы на силуэте карты тела: значок спрайта вместо эмодзи-текста (render/intimacy.js). */
+/* Значок в тёмном кружке следа или шрама — светлым тоном его цвета, как читалось эмодзи. */
+.hud-mark-ico > .hud-ico { color: color-mix(in srgb, var(--mk, #d9548a) 30%, #fff); }
+.hud-heat-svg .z-mark-ico { fill: none; stroke: #fff; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+
 @media (forced-colors: active) { .hud-ico { stroke: CanvasText; fill: none; } }
 
 /* Свет по времени хода (render/light.js, настройка lightFollowsTime), слой 1:

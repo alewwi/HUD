@@ -1,0 +1,27 @@
+<!doctype html><html class="hud-theme-witch hud-glass-frosted"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Шрамы — стенд</title>
+<link rel="stylesheet" href="../../css/all.css?v=23.85.0">
+<style>:root { --hud-accent: #c9a3ff; --hud-text: #e8dff0; --ink-hi: #fff; }
+body { margin: 0; padding: 12px; background: #1d1a22; color: #ddd; font: 13px system-ui, sans-serif; }
+.cols { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--w, 300px)), 1fr)); gap: 16px; align-items: start; } h2 { margin: 4px 0 8px; font-size: 12px; color: #aaa; }
+.mes_text .hud-tab-content { display: block; opacity: 1 !important; animation: none !important; }
+.hud-os-card { padding: 10px; background: linear-gradient(135deg, rgba(30,22,40,.97), rgba(18,13,25,.97)); color: var(--hud-text); }</style></head>
+<body><div class="cols" id="cols"></div>
+<script type="module">
+// Здоровье с обычными следами и группой «Навсегда» — во всех видах блока.
+// ?w=215px — ширина как на телефоне.
+const V = '?v=23.85.0&t=' + Date.now();
+const { разобратьСледы, карточкаСледа, группаНавсегда } = await import('../../render/intimacy.js' + V);
+const текст = 'Засос: шея слева — наливается фиолетовым, ноет | 5d; '
+  + 'Шрам: левая бровь — тонкая белая полоса | получен: в 14 лет, драка; Татуировка: внутренняя сторона запястья — маленькая ласточка | с 18 лет; '
+  + 'Пирсинг: пупок — серебряное колечко';
+const все = разобратьСледы(текст);
+const временные = все.filter(с => !с.навсегда).map(с => ({ ...с, срокЧасов: с.часов, осталосьЧ: с.часов * .7 }));
+const навсегда = все.filter(с => с.навсегда).map((с, i) => ({ ...с, начало: i === 2 ? Date.UTC(2024, 2, 12) : null }));
+const виды = { classic: 'Карточки', chart: 'Медкарта', compact: 'Кратко', kit: 'Аптечка' };
+const карточка = (вид) => `<div class="mes_text"><div class="hud-os-card"><div class="hud-tab-content active"><div class="hud-body">`
+  + `<div class="hud-row full-width${вид === 'classic' ? '' : ' hud-hv hud-hv-' + вид}"><span class="hud-key"><i class="hud-key-ico" aria-hidden="true"><span>🩺</span></i>Здоровье:</span> <div class="hud-health">`
+  + `<p class="hud-health-note">Устала, но держится.</p><div class="hud-marks">${временные.map(карточкаСледа).join('')}</div>${группаНавсегда(навсегда)}</div></div>`
+  + `</div></div></div></div>`;
+document.getElementById('cols').innerHTML = Object.entries(виды).map(([к, имя]) => `<div><h2>${имя}</h2>${карточка(к)}</div>`).join('');
+const w = new URLSearchParams(location.search).get('w'); if (w) document.getElementById('cols').style.setProperty('--w', w);
+</script></body></html>

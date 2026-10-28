@@ -40,6 +40,9 @@ const ЗАМЕНЫ = [
   ['fear: Потерять Софи — strength: high', 'fear: Losing Sophie — strength: high'],
   ['Потерять Софи: high', 'Losing Sophie: high'],
   ['Софи: 82; Ричард: 9', 'Sophie: 82; Richard: 9'],
+  ['Шрам: левая бровь — тонкая белая полоса | получен: в 14 лет, драка', 'Scar: left eyebrow — a thin white line | obtained: at 14, a fight'],
+  ["'| получен: <date, age or event>'", "'| obtained: <date, age or event>'"],
+  ["'| получен: <when>'", "'| obtained: <when>'"],
   ['Синяк: левое предплечье — желтеет по краям, ноет при нажатии | 5d; Ссадины: костяшки правой руки — подсохли корочкой | 2d', 'Bruise: left forearm — yellowing at the edges, aches when pressed | 5d; Scrapes: knuckles of the right hand — scabbed over | 2d'],
 
   // Близость.

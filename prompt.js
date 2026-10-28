@@ -5,12 +5,12 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.84.1';
-import { английский } from './i18n.js?v=23.84.1';
-import { промптНаАнглийском } from './prompt-en.js?v=23.84.1';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.84.1';
-import { parseSceneDate } from './history-analyzer.js?v=23.84.1';
-import { возрастТочно } from './render/babies.js?v=23.84.1';
+import { settings } from './settings.js?v=23.85.0';
+import { английский } from './i18n.js?v=23.85.0';
+import { промптНаАнглийском } from './prompt-en.js?v=23.85.0';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.85.0';
+import { parseSceneDate } from './history-analyzer.js?v=23.85.0';
+import { возрастТочно } from './render/babies.js?v=23.85.0';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -189,7 +189,7 @@ ${бельё ? `   "Un": "[OPTIONAL, only when it matters in the scene — under
    "ND": "[after intimacy (phase 3 only) — 'empty' while the act is still going. 'se: how sensitive the body is now — what flinches, what still craves touch; bo: how the body feels after — weakness, trembling, heaviness, warmth, wetness, soreness${близость ? ' (lasting marks go to Mrk)' : ''}; r2: readiness for another round — how soon, what it would take; fe: feelings and thoughts after, 2-3 sentences${близость ? ' — emotions only' : ''}'. Separate by ;]",
    "AC": "[aftercare (phase 3 only): what this character needs now it's over — touch, water, silence, words, or nothing. 2-3 sentences: what exactly, from whom, why it matters now, what would hurt instead, e.g. 'Молча обнять и не говорить ни слова — любые слова разрушат ощущение сейчас']",
    "SxV": "[sex review (phase 3 only), once it has ended: 4-6 sentences in this character's own voice — what worked, what didn't, the best and most awkward moment, how body and heart felt, what to repeat or never again — ending with a rating like ★★★★☆]",` : ''}${следы ? `
-   "Mrk": "[visible body marks and physical aftermath — ${интим ? 'hickeys, bites, scratches, bruises, redness, soreness, heaviness' : 'bruises, scratches, grazes, redness, soreness'} — every turn from appearance until they fade in story time${интим ? ', whatever the intimacy phase' : ''}. Each '<what>: <where> — <how it looks/feels now> | <fade time from appearance: 12h, 3d>':${интим ? `'Засос: шея слева — наливается фиолетовым, ноет | 5d; Следы ногтей: спина — красные полосы | 2d'` : `'Синяк: левое предплечье — желтеет по краям, ноет при нажатии | 5d; Ссадины: костяшки правой руки — подсохли корочкой | 2d'`}. The fade time is set once and counted from sc.Dt and sc.T — keep both accurate; the look changes as it heals. Body only, no feelings. 'empty' when none; separate by ;]",` : ''}
+   "Mrk": "[visible body marks and physical aftermath — ${интим ? 'hickeys, bites, scratches, bruises, redness, soreness, heaviness' : 'bruises, scratches, grazes, redness, soreness'} — every turn from appearance until they fade in story time${интим ? ', whatever the intimacy phase' : ''}. Each '<what>: <where> — <how it looks/feels now> | <fade time from appearance: 12h, 3d>':${интим ? `'Засос: шея слева — наливается фиолетовым, ноет | 5d; Следы ногтей: спина — красные полосы | 2d'` : `'Синяк: левое предплечье — желтеет по краям, ноет при нажатии | 5d; Ссадины: костяшки правой руки — подсохли корочкой | 2d'`}. The fade time is set once and counted from sc.Dt and sc.T — keep both accurate; the look changes as it heals. Marks that never fade — scars, tattoos, piercings, birthmarks — have no fade time: write when they were obtained instead, '| получен: <date, age or event>' ('Шрам: левая бровь — тонкая белая полоса | получен: в 14 лет, драка'). Body only, no feelings. 'empty' when none; separate by ;]",` : ''}
    "Tr": "[trust: how much this character trusts each other named character, 0-100, '<name>: <0-100>': 'Софи: 82; Ричард: 9'. One entry per person they know. Not the same as Rl — one can love and not trust. Separate by ;]",
    "Fr": "[fears: what this character is afraid of RIGHT NOW, each '<what they fear>: <low | moderate | high | panic>': 'Потерять Софи: high; Отец узнает: moderate'. Live fears in this scene, not lifelong phobias unless surfaced. Separate by ;]"
   }
@@ -207,7 +207,7 @@ ${бельё ? `   "Un": "[OPTIONAL, only when it matters in the scene — under
   "Pp": "[after childbirth of {{user}}, ONLY if she has given birth — otherwise omit. Same format as for characters: 'bf: breast, formula or mixed; lfd: last breastfeed HH:MM; brs: breasts; sy: how she feels']",` : ''}${цикл ? `
   "Mns": "[menstrual cycle of {{user}}, ONLY with a uterus — same format and rules as for characters: 'cyd; cyl; phs; nxt; pms; dly; rsn'; while pregnant and until the period returns — only 'phs: paused']",` : ''}
   "Rl": "[relationships: how {{user}} feels about EVERY other named person who matters now — same format and rules as for characters; bidirectional with their Rl; separate by ;]",
-${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and rules as for characters: '<what>: <where> — <how it looks and feels now> | <fade time: 12h, 3d>'; the same mark keeps the same name every turn and is never also in Ill; 'empty' when there are none]",
+${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and rules as for characters: '<what>: <where> — <how it looks and feels now> | <fade time: 12h, 3d>', and for scars, tattoos, piercings, birthmarks '| получен: <when>' instead of a fade time; the same mark keeps the same name every turn and is never also in Ill; 'empty' when there are none]",
 ` : ''}${интим ? `  "UW": "[user intimacy (phase 2 ONLY) — same phases and the same full, vivid descriptions as for characters. Each 'code: value': 'ar: arousal and how it shows; ds: strength of desire and for what; rdy: how ready the body is, what's still missing; tch: where/how {{user}} touches and is touched now; rct: how the body reacts — flush, trembling, arching, clenching, goosebumps, sweat; fac: face, eyes, lips; pb: pubic hair — grooming, shape, feel; an: anatomy — shape, size, colour, how it changes with arousal; lb: wetness — where, how much, sound and feel; ch: breasts and nipples, only if {{user}} is a woman — shape, size, hardness, sensitivity; flu: wetness, sweat, saliva, semen — where and how much; vl: how loud the sounds of the act are and what they are${близость ? '' : '; mk: marks on skin; r2: readiness for the next round'}'. Skip a code only when it does not apply to this body. 'empty' when the scene ends; separate by ;]",
 ` : ''}  "L": "[location: the exact place {{user}} is right now]"
  }`;

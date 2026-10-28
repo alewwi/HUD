@@ -15,8 +15,9 @@
 //    меняются: SVG вписан в 1em и встаёт туда же, где стоял символ;
 //  · значок декоративный (aria-hidden), смысл несёт текст рядом.
 
-import { settings } from '../settings.js?v=23.84.1';
-import { ИКОНКИ } from './view-icons.js?v=23.84.1';
+import { settings } from '../settings.js?v=23.85.0';
+import { ИКОНКИ } from './view-icons.js?v=23.85.0';
+import { ЕЩЁ, ЕЩЁ_ЭМОДЗИ } from './icon-paths.js?v=23.85.0';
 
 // Рисунки, которых не было в view-icons.js. Квадрат 24×24, обводка.
 const ДОП = {
@@ -44,7 +45,7 @@ const ДОП = {
   handshake: 'M3 11.5 7 7.5l3 1.5 2-1.5 3 .5 4 4 M3 11.5l5.5 5.5c.8.8 2 .8 2.8 0l.2-.2 M21 11.8l-5 5 M10.5 9.5 13 12a1.4 1.4 0 0 0 2-2l-2.5-2.3 M12.6 15.6l1.4 1.4 M14.6 13.6l1.4 1.4',
 };
 
-const НАБОР = { ...ИКОНКИ, ...ДОП };
+const НАБОР = { ...ИКОНКИ, ...ДОП, ...ЕЩЁ };
 
 // Эмодзи → значок. Вкладки, затем поля карточки (ЗНАЧКИ_ПОЛЕЙ в character.js).
 // Ключи без вариационного селектора FE0F: 🗝️ и 🗝 — один значок.
@@ -62,6 +63,8 @@ const ЭМОДЗИ = {
   '🧊': 'snow', '🌡': 'thermo', '💗': 'heart', '🫂': 'hearts', '🛡': 'shield', '💥': 'burst',
   '💓': 'pulse', '🔊': 'megaphone', '💋': 'lipstick', '🌸': 'flower', '🤍': 'heart', '😨': 'ghost',
   '💬': 'speech', '🗓': 'calendar', '🔑': 'key', '🔥': 'flame',
+  // Плашки, виды блоков, следы, болезни, телефон, мир, Детская, спутники (icon-paths.js).
+  ...ЕЩЁ_ЭМОДЗИ,
 };
 
 const VS16 = String.fromCodePoint(0xFE0F);
@@ -103,6 +106,91 @@ export function разметкаСпрайта() {
   return `<svg id="hud-icon-sprite" xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true" focusable="false">${символы}</svg>`;
 }
 
+/* «Рисунки везде» — значит везде: не только ярлыки вкладок и подписи полей,
+   но и плашки, виды блоков, следы, телефон, мир. Один проход по тексту
+   готовой карточки меняет каждое эмодзи, у которого есть рисунок, на значок
+   спрайта; наблюдатель досматривает то, что появляется позже (ленивые
+   вкладки, экраны телефона, граф). Эмодзи без рисунка остаётся как было.
+   Исходное эмодзи — в data-emoji: «Эмодзи везде» возвращает его на место. */
+const ПИКТО = /(?:\p{Extended_Pictographic}|\p{Regional_Indicator})(?:\p{Emoji_Modifier}|\u{FE0F}|\u{200D}\p{Extended_Pictographic}\u{FE0F}?)*\u{FE0F}?/gu;
+// Где эмодзи — не значок: поля ввода, списки, сам SVG (у <text> нет места для <svg>).
+const НЕ_ТРОГАТЬ = 'textarea, select, option, input, script, style, svg, [contenteditable="true"], .hud-ico-skip';
+// Чей текст — HUD (настройки и Кастомизация слева — нет: это не карточка).
+const В_КАРТОЧКЕ = '.hud-os-card, .hud-custom-preview-body, .hud-modal-overlay, .hud-rel-graph, .hud-sum, .hud-gen-indicator';
+const SVG_NS = 'http://www.w3.org/2000/svg';
+function значокУзлом(имя, эмодзи) {
+  const svg = document.createElementNS(SVG_NS, 'svg');
+  svg.setAttribute('class', 'hud-ico hi-' + имя); svg.setAttribute('viewBox', '0 0 24 24'); svg.setAttribute('aria-hidden', 'true'); svg.setAttribute('focusable', 'false');
+  svg.dataset.emoji = эмодзи;
+  const use = document.createElementNS(SVG_NS, 'use'); use.setAttribute('href', '#hud-i-' + имя);
+  svg.appendChild(use);
+  return svg;
+}
+/** Эмодзи → значки в тексте узла и его потомков. Возвращает, сколько заменено. */
+export function значкиВ(корень, s = settings) {
+  if (!значкиВключены(s) || !корень || typeof document === 'undefined') return 0;
+  const узлы = [];
+  if (корень.nodeType === 3) узлы.push(корень);
+  else if (корень.nodeType === 1 || корень.nodeType === 11) {
+    const обход = document.createTreeWalker(корень, NodeFilter.SHOW_TEXT);
+    for (let n = обход.nextNode(); n; n = обход.nextNode()) { ПИКТО.lastIndex = 0; if (ПИКТО.test(n.nodeValue)) узлы.push(n); }
+  }
+  let всего = 0;
+  for (const n of узлы) {
+    const р = n.parentElement;
+    if (!р || р.closest(НЕ_ТРОГАТЬ)) continue;
+    const т = n.nodeValue; ПИКТО.lastIndex = 0;
+    const куски = []; let от = 0, было = 0;
+    for (const m of т.matchAll(ПИКТО)) {
+      const имя = имяЗначка(m[0]);
+      if (!имя) continue;
+      if (m.index > от) куски.push(т.slice(от, m.index));
+      куски.push(значокУзлом(имя, m[0])); от = m.index + m[0].length; было++;
+    }
+    if (!было) continue;
+    if (от < т.length) куски.push(т.slice(от));
+    n.replaceWith(...куски);
+    всего += было;
+  }
+  // Водяные знаки (следы, афиша, городские службы) рисует CSS из data-ico —
+  // туда SVG не вставить: кладём значок отдельным узлом, ::after прячет CSS.
+  if (корень.nodeType === 1 || корень.nodeType === 11) {
+    const блоки = [...(корень.matches && корень.matches(ВОДЯНЫЕ) ? [корень] : []), ...корень.querySelectorAll(ВОДЯНЫЕ)];
+    for (const б of блоки) {
+      const имя = имяЗначка(б.dataset.ico);
+      if (!имя || б.querySelector(':scope > .hud-ico-wm')) continue;
+      const з = значокУзлом(имя, б.dataset.ico); з.classList.add('hud-ico-wm');
+      б.appendChild(з); всего++;
+    }
+  }
+  return всего;
+}
+const ВОДЯНЫЕ = '.hud-mark[data-ico], .hud-afisha-main[data-ico], .hud-city-row[data-ico]';
+// «Эмодзи везде»: значки из прохода — обратно в эмодзи (разметка, собранная
+// заново, и так придёт с эмодзи; это — для того, что не перерисовывается).
+function вернутьЭмодзи() {
+  document.querySelectorAll('svg.hud-ico-wm').forEach(з => з.remove());
+  document.querySelectorAll('svg.hud-ico[data-emoji]').forEach(з => з.replaceWith(document.createTextNode(з.dataset.emoji)));
+}
+let наблюдатель = null;
+function следить(вкл) {
+  if (!вкл) { if (наблюдатель) { наблюдатель.disconnect(); наблюдатель = null; } return; }
+  if (наблюдатель || typeof MutationObserver === 'undefined' || !document.body) return;
+  наблюдатель = new MutationObserver((записи) => {
+    for (const з of записи) {
+      if (з.type === 'characterData') { const р = з.target.parentElement; if (р && р.closest(В_КАРТОЧКЕ)) значкиВ(з.target); continue; }
+      for (const n of з.addedNodes) {
+        if (n.nodeType === 1 && n.matches('svg.hud-ico')) continue;
+        const эл = n.nodeType === 1 ? n : n.parentElement;
+        if (!эл) continue;
+        if (эл.closest(В_КАРТОЧКЕ)) значкиВ(n);
+        else if (n.nodeType === 1 && n.querySelectorAll) n.querySelectorAll(В_КАРТОЧКЕ).forEach(к => значкиВ(к));
+      }
+    }
+  });
+  наблюдатель.observe(document.body, { childList: true, subtree: true, characterData: true });
+}
+
 /** Спрайт в документ — один раз; класс рисунка — на <html>. */
 export function подключитьЗначки(s = settings) {
   if (typeof document === 'undefined' || !document.documentElement) return;
@@ -110,7 +198,12 @@ export function подключитьЗначки(s = settings) {
   const вкл = значкиВключены(s);
   // Рисунок по теме — и для значков шапки свёрнутой карточки ('header').
   const рисунки = s.iconSet === 'svg' || s.iconSet === 'header';
+  const было = root.classList.contains('hud-icons-svg');
   root.classList.toggle('hud-icons-svg', вкл);
   СТИЛИ_ЗНАЧКОВ.forEach(ст => root.classList.toggle('hud-ico-' + ст, рисунки && стильЗначков(s) === ст));
   if (вкл && document.body && !document.getElementById('hud-icon-sprite')) document.body.insertAdjacentHTML('beforeend', разметкаСпрайта());
+  следить(вкл);
+  // Включили — пройти то, что уже на странице; выключили — вернуть эмодзи.
+  if (вкл && !было && document.body) document.querySelectorAll(В_КАРТОЧКЕ).forEach(к => значкиВ(к, s));
+  if (!вкл && было) вернутьЭмодзи();
 }

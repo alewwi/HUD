@@ -912,6 +912,25 @@
 .hud-hv-kit .hud-ill, .hud-hv-kit .hud-mark { background: var(--f-inset) !important; border: 0 !important; border-radius: 6px !important; box-shadow: inset 0 4px 0 color-mix(in srgb, var(--t-acc) 40%, #d0313a), inset 0 0 0 1px var(--f-inset-line) !important; padding-top: 12px !important; }
 .hud-hv-kit :is(.hud-ill-row, .hud-mark-rows) span { color: var(--f-paper-soft) !important; }
 
+/* «Навсегда» (шрамы, тату, пирсинг) — в каждом виде своим языком: в медкарте —
+   графой на той же разлинованной бумаге, в кардиограмме — плашками с полосой,
+   в аптечке — вкладышами с цветным верхом, как болезни и следы рядом. */
+.hud-hv-chart .hud-scars { margin-top: 10px; padding: 0; background: none; box-shadow: none; }
+.hud-hv-chart .hud-scars-head { margin-bottom: 2px; border-bottom: 1px solid var(--f-paper-rule); }
+.hud-hv-chart .hud-scars-head > span { color: var(--f-pen); letter-spacing: .2em; }
+.hud-hv-chart .hud-scars-head > small { font: .8em var(--f-hand); opacity: .8; }
+.hud-hv-chart .hud-scars-list { gap: 0; }
+.hud-hv-chart .hud-scar { background: transparent; border: 0; border-bottom: 1px dashed var(--f-paper-rule); border-radius: 0; padding: 7px 0; }
+.hud-hv-chart .hud-scar-body > p { font: .95em/1.4 var(--f-hand); color: var(--f-pen); opacity: 1; }
+.hud-hv-chart .hud-scar-when { padding: 0; background: none; color: var(--f-paper-soft); font-style: italic; }
+.hud-hv-compact .hud-scars { background: none; box-shadow: none; padding: 0; }
+.hud-hv-compact .hud-scar { border-radius: 14px; padding: 7px 12px; background: var(--f-inset); border: 1px solid var(--f-inset-line); box-shadow: inset 3px 0 0 color-mix(in srgb, var(--t-acc) 45%, var(--sc)); }
+.hud-hv-kit .hud-scars { background: none; box-shadow: none; padding: 0; }
+.hud-hv-kit .hud-scars-head > span { color: inherit; opacity: .75; }
+.hud-hv-kit .hud-scar { background: var(--f-inset); border: 0; border-radius: 6px; padding-top: 11px;
+  box-shadow: inset 0 4px 0 color-mix(in srgb, var(--sc) 70%, var(--t-acc)), inset 0 0 0 1px var(--f-inset-line); }
+.hud-hv-kit .hud-scar-when { color: inherit; background: color-mix(in srgb, var(--t-acc) 14%, transparent); }
+
 /* ============== СЛЕДЫ НА ТЕЛЕ: виды строкой-классом ==============
    Описание следа («наливается фиолетовым») видно во всех видах. */
 

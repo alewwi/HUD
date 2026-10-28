@@ -1970,6 +1970,9 @@ export const СЛОВАРЬ_EN = {
   "шт": "pcs",
   "Обслуживание": "Maintenance",
   "Кэш архива": "Archive cache",
+  "Навсегда": "Permanent",
+  "шрамы и отметины": "scars and marks",
+  "получен": "obtained",
   "Отчёты «Архива HUD» лежат в браузере и разбираются заново только после изменения чата. Если их накопилось много или они начали мешать — уберите": "“HUD archive” reports live in the browser and are rebuilt only after the chat changes. If too many have piled up or they get in the way — clear them",
   "кэш пуст": "cache is empty",
   "Почистить кэш": "Clear cache",
@@ -4170,6 +4173,7 @@ export const СЛОВАРЬ_EN = {
 };
 
 export const ШАБЛОНЫ_EN = [
+  ["^в сюжете с (\\d{2}\\.\\d{2}\\.\\d{4})$", "in the story since $1"],
   ["^ДОСЬЕ (\\d+)$", "DOSSIER $1"],
   ["^Сколько последних HUD модель видит полностью, остальные сжимаются в сводку \\[HUD_SUMMARY\\]\\. Снимок в конце инструкции считается одним из них: при (\\d+(?:[.,]\\d+)?) \\(рекомендуется\\) — только снимок, при (\\d+(?:[.,]\\d+)?) — снимок и один полный HUD в истории \\(\\+тысячи токенов\\)\\. (\\d+(?:[.,]\\d+)?) = все HUD сжаты в сводку, снимка нет\\. Сводки работают и при выключенном сетевом перехвате$", "How many latest HUDs the model sees in full; the rest are compressed into a [HUD_SUMMARY] summary. The snapshot at the end of the instruction counts as one of them: at $1 (recommended) — only the snapshot, at $2 — the snapshot and one full HUD in the history (+thousands of tokens). $3 = all HUDs compressed into summaries, no snapshot. Summaries work even with the network intercept turned off"],
   ["^Сколько сообщений уходит модели, когда она пишет запись лорбука по кнопке «Написать моделью» в окне «Запомнить»: последние до того HUD, где нажали кнопку, — и сверх них сообщение, где запись впервые появилась в HUD, с репликой перед ним\\. Больше сообщений — точнее контекст, но дороже запрос\\. (\\d+(?:[.,]\\d+)?) = без контекста сцены, только сам факт$", "How many messages go to the model when it writes a lorebook entry with the “Write with the model” button in the “Remember” window: the latest ones before the HUD where the button was pressed — plus the message where the entry first appeared in the HUD, with the line before it. More messages — more precise context, but a pricier request. $1 = no scene context, only the fact itself"],
