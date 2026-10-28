@@ -621,7 +621,7 @@ settings.tempoView = 'xray';
 
 // --- Настройки ---------------------------------------------------------------
 проверить('настройки: рискованное выключено по умолчанию', ['containerQueries', 'lightFollowsTime', 'bodyDiaryHand', 'startingStyle', 'themeSwitchFade', 'cornerShape'].every(к => S.defaultSettings[к] === 'off') && S.defaultSettings.iconSet === 'header' && S.defaultSettings.silhouetteLook === 'neutral');
-проверить('кастомизация: раздел «Новое оформление» со всеми выключателями', ['autoAccentText', 'customDetailMode', 'containerQueries', 'iconStyle', 'lightFollowsTime', 'silhouetteLook', 'bodyDiaryHand', 'startingStyle', 'themeSwitchFade', 'cornerShape'].every(к => css('customize.js').includes(`в('${к}'`)));
+проверить('кастомизация: все выключатели волны 3 на месте', ['autoAccentText', 'customDetailMode', 'containerQueries', 'iconStyle', 'lightFollowsTime', 'silhouetteLook', 'bodyDiaryHand', 'startingStyle', 'themeSwitchFade', 'cornerShape'].every(к => css('customize.js').includes(`выбор('${к}'`)));
 
 // --- Безопасность и скорость (аудит 2026-10-16) -------------------------------
 {
@@ -632,7 +632,9 @@ settings.tempoView = 'xray';
   проверить('тема из файла: цвет с разметкой отвергнут, обычный принят', вредная && !('accentColor' in вредная.vars) && вредная.vars.cardBgStart === '#112233' && вредная.vars.glowAlpha === 30 && вредная.vars.phoneThemeAuto === false);
   проверить('тема из файла: шрифт и перечисление со скобками отвергнуты, обычный шрифт принят', вредная && !('fontMain' in вредная.vars) && !('glassType' in вредная.vars) && вредная.vars.fontHeaders === "'Lora', serif");
   проверить('тема из файла: значок без угловых скобок', вредная && !/[<>]/.test(вредная.icon));
-  проверить('кастомизация: настройки в разметке панели экранированы', /const s = вАтрибуты\(settings\)/.test(css('customize.js')) && !/value="\$\{settings\./.test(css('customize.js').split('export function разметкаПанелиТемы')[1].split('\nfunction разметкаНовинок')[0]));
+  проверить('кастомизация: настройки в разметке панели экранированы', /const s = вАтрибуты\(settings\.phoneThemeAuto !== false \? \{ \.\.\.settings, \.\.\.унаследованноеТелефоном\(\) \} : settings\)/.test(css('customize.js')) && !/value="\$\{settings\./.test(css('customize.js').split('export function разметкаПанелиТемы')[1].split('\nconst пунктыИнтерфейса')[0]));
+  проверить('телефон по теме HUD: поля показывают унаследованное, тот же выбор наследование не снимает', css('events.js').includes("String(унаследованноеТелефоном()[varKey]) === String(новоеЗначение)) return;")
+    && css('events.js').includes("inp.value = String(k in телефон ? телефон[k] : settings[k]);") && /export function унаследованноеТелефоном\(\)/.test(css('settings.js')));
   // Сырой ответ модели в innerHTML без санитайзера ST не кладём.
   проверить('перегенерация: нет innerHTML = updatedFullText', !/innerHTML\s*=\s*updatedFullText/.test(css('regen.js')));
   // Перехват fetch: генерацией считаются только адреса генерации текста ST.
@@ -1057,14 +1059,15 @@ settings.tempoView = 'xray';
       const су = css('settings-ui.js');
       const разметка = су.slice(су.indexOf('wrapper.innerHTML'), су.indexOf('container.appendChild(wrapper)'));
       const раздел = (заголовок) => { const i = разметка.indexOf(заголовок); let глубина = 0, j = i; for (; j < разметка.length; j++) { if (разметка.startsWith('`)}', j)) { if (--глубина === 0) break; } else if (разметка.startsWith(", `\n", j)) глубина++; } return разметка.slice(i, j); };
-      const где = { "('🔞 Близость'": ['hud-enable-intimacy-extras', 'hud-nsfw-prompt', 'hud-enable-tempo', 'hud-enable-sceneclock', 'hud-enable-underwear', 'hud-enable-heatmap'],
+      const где = { "('🔞 Близость'": ['hud-enable-intimacy-extras', 'hud-nsfw-prompt', 'hud-enable-tempo', 'hud-enable-sceneclock', 'hud-enable-underwear'],
         "('⚔️ Бой и споры'": ['hud-enable-combat', 'hud-combat-prompt', 'hud-enable-duel'],
         "('🧺 Быт'": ['hud-enable-life', 'hud-life-to-model', 'hud-sleep-norm'],
         "('🧠 Память и сюжет'": ['hud-enable-memory', 'hud-enable-guns', 'hud-enable-twists'],
         "('💊 Тело и здоровье'": ['hud-enable-illness', 'hud-enable-bodystate', 'hud-enable-menstruation', 'hud-enable-pregnancy', 'hud-enable-babies'],
         "('✨ Отображение'": ['hud-memory-max-height', 'hud-carry-over', 'hud-away-fill'],
         "('🤖 Генерация'": ['hud-auto-inject', 'hud-snapshot', 'hud-away-short', 'hud-complete-check', 'hud-regen-profile'],
-        "('🔗 MemoryBooks'": ['hud-mb-link'] };
+        "('📚 Лорбуки'": ['hud-lorebooks', 'hud-mb-link'],
+        "('⚡ Производительность'": ['hud-card-limit', 'hud-clear-cache'] };
       const мимо = Object.entries(где).flatMap(([з, ids]) => ids.filter(id => !раздел(з).includes("'" + id + "'") && !раздел(з).includes('"' + id + '"')).map(id => id + ' не в ' + з));
       проверить('настройки: каждая в своём разделе', !мимо.length, мимо.join('; '));
       // Сводка хода [HUD_SUMMARY] в тексте — карточкой; нажатие — полный HUD сообщения.
@@ -1106,7 +1109,19 @@ settings.tempoView = 'xray';
       проверить('настройки: «Усиления» — не внутри подписи «Часть про близость»', !близость.includes('hud-adapt-prompt') && /🔞 Часть про близость:\s*<select id="hud-nsfw-prompt"/.test(близость));
       // Раздел вырезан точно, а не до конца разметки: иначе проверка выше прошла бы зря.
       const порядок = [...разметка.matchAll(/\$\{группа\('([^']+)'/g)].map(m => m[1]).join(' → ');
-      проверить('настройки: разделы по порядку — что показывает, как просит модель, вид, служебное', порядок === '🧩 Блоки HUD → 🤖 Генерация → 📚 Лорбуки → ✨ Отображение → 🖼️ Аватарки персонажей → ❓ Ассистент → 🎵 Музыка сцены → ⚡ Производительность → 🧹 Обслуживание', порядок);
+      проверить('настройки: разделы по порядку — что показывает, как просит модель, вид, служебное', порядок === '🧩 Блоки HUD → 🤖 Генерация → 📚 Лорбуки → ✨ Отображение → 🖼️ Аватарки персонажей → ❓ Ассистент → 🎵 Музыка сцены → ⚡ Производительность', порядок);
+      проверить('настройки: карта тела картинкой — только видом блока в «Кастомизации», без дубля-галки', !су.includes('hud-enable-heatmap') && css('customize.js').includes('пунктыСилуэта()'));
+      // Смена темы и палитры: запомненные личные правки прошлой темы не остаются хвостом.
+      const ев = css('events.js');
+      проверить('темы: личные правки прошлой темы снимаются при смене темы и палитры', (ев.match(/снятьЛичныеПравки\((прошлая|id), settings\.themePalette\);/g) || []).length === 2
+        && /if \(String\(settings\[k\]\) === String\(правки\[k\]\)\) settings\[k\] = defaultSettings\[k\];/.test(ев) && ев.includes('КАДР_СВОИХ_КАРТИНОК.includes(k)'));
+      // Кастомизация: «Нового оформления» отдельным разделом нет — пункты у того, к чему относятся.
+      const ку = css('customize.js');
+      const подраздел = (имя) => { const i = ку.indexOf('<summary>' + имя + '</summary>'); return i < 0 ? '' : ку.slice(i, ку.indexOf('</div></details>', i)); };
+      проверить('кастомизация: пункты «Нового оформления» разнесены по своим разделам', !ку.includes('data-sec="labs"') && подраздел('Интерфейс').includes('${пунктыИнтерфейса()}')
+        && подраздел('Оформление секций').includes("выбор('cornerShape'") && подраздел('Сцена и скрытое').includes("выбор('lightFollowsTime'")
+        && /б\.ключ === 'bodyMapView' \? пунктыСилуэта\(\)/.test(ку) && /группа === 'Близость' \? обликИгрока\(\)/.test(ку)
+        && ['autoAccentText', 'iconStyle', 'containerQueries', 'startingStyle', 'themeSwitchFade', 'customDetailMode', 'silhouetteLook', 'silhouetteStyle', 'silhouetteOutlines', 'bodyDiaryHand'].every(к => (ку.match(new RegExp("выбор\\('" + к + "'", 'g')) || []).length === 1));
       проверить('настройки: в «Близости» нет боя, споров и быта', близость.length < 4000 && !['hud-enable-duel', 'hud-enable-combat', 'hud-enable-life', 'hud-sleep-norm'].some(id => близость.includes(id)), близость.length);
     }
     проверить('MemoryBooks: метки в чужом запросе — сводками; галка в настройках; сверка при загрузке', инд.includes('сводкиВместоМеток(t, чат, вСводку)') && css('settings-ui.js').includes("галка('hud-mb-link'") && инд.includes('сверитьMemoryBooks(); } catch'));

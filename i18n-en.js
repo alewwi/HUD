@@ -1969,6 +1969,7 @@ export const СЛОВАРЬ_EN = {
   "Сразу собирать последних карточек": "Build the latest cards right away",
   "шт": "pcs",
   "Обслуживание": "Maintenance",
+  "Кэш архива": "Archive cache",
   "Отчёты «Архива HUD» лежат в браузере и разбираются заново только после изменения чата. Если их накопилось много или они начали мешать — уберите": "“HUD archive” reports live in the browser and are rebuilt only after the chat changes. If too many have piled up or they get in the way — clear them",
   "кэш пуст": "cache is empty",
   "Почистить кэш": "Clear cache",

@@ -641,3 +641,17 @@ export function оформлениеТемы() {
 // «Дефолт» (Кастомизация → Вид блоков): ключи «Отображения» из настроек,
 // которые тоже возвращаются к заводским — вид значков, пояснения, сводки.
 export const КЛЮЧИ_ОТОБРАЖЕНИЯ = ['showHints', 'iconSet', 'summaryCards', 'memoryMaxHeight'];
+
+// Поля телефона, которые при наследовании берутся у HUD, и их значения.
+export const НАСЛЕДУЕТ_ТЕЛЕФОН = ['phoneBgStart', 'phoneBgEnd', 'phoneBgAlpha', 'phoneAccent', 'phoneBlur', 'phoneFont', 'phoneFontSize'];
+export function унаследованноеТелефоном() {
+  return {
+    phoneBgStart: settings.cardBgStart || '#0a0a0f',
+    phoneBgEnd: settings.cardBgEnd || '#12121a',
+    phoneBgAlpha: 92,
+    phoneAccent: settings.accentColor || '#de859f',
+    phoneBlur: settings.backdropBlur !== undefined ? Number(settings.backdropBlur) + 6 : 14,
+    phoneFont: settings.fontMain || 'inherit',
+    phoneFontSize: settings.fontSizeMain !== undefined ? Number(settings.fontSizeMain) - 1 : 13,
+  };
+}

@@ -11,23 +11,23 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.83.0';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.83.0';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.83.0';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.83.0';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.83.0';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, themeSnapshot, parseThemeFile } from './themes.js?v=23.83.0';
-import { settings, defaultSettings, оформлениеТемы } from './settings.js?v=23.83.0';
-import { полныйПорядок } from './tabs-order.js?v=23.83.0';
-import { getWorldVotes } from './render/world.js?v=23.83.0';
-import { действиеМира } from './render/world-views.js?v=23.83.0';
-import { действиеМузыки } from './render/music.js?v=23.83.0';
-import { раскрытьПорцию } from './render/long-list.js?v=23.83.0';
-import { прогретьИсторию } from './render/carryover.js?v=23.83.0';
-import { подключитьПалитру } from './color-picker.js?v=23.83.0';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.83.0';
-import { замер } from './utils.js?v=23.83.0';
-import { пометитьЭффекты } from './render/fx.js?v=23.83.0';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.84.0';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.84.0';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.84.0';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.84.0';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.84.0';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.84.0';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.84.0';
+import { полныйПорядок } from './tabs-order.js?v=23.84.0';
+import { getWorldVotes } from './render/world.js?v=23.84.0';
+import { действиеМира } from './render/world-views.js?v=23.84.0';
+import { действиеМузыки } from './render/music.js?v=23.84.0';
+import { раскрытьПорцию } from './render/long-list.js?v=23.84.0';
+import { прогретьИсторию } from './render/carryover.js?v=23.84.0';
+import { подключитьПалитру } from './color-picker.js?v=23.84.0';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.84.0';
+import { замер } from './utils.js?v=23.84.0';
+import { пометитьЭффекты } from './render/fx.js?v=23.84.0';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -210,26 +210,24 @@ function запомнитьШаг(ключ = '') {
 // «Вернуть тему» их не трогает: заводские 80% проявляли размытую картинку
 // фона на всю карточку, и тема окрашивалась в её цвет.
 const КАДР_СВОИХ_КАРТИНОК = ['bgOpacity', 'bgScale', 'bgOffsetY', 'avatarScale', 'avatarOffsetX', 'avatarOffsetY'];
+// Личные ключи (рамка портрета, размеры шрифтов, блюр телефона…) темы не
+// задают, и при смене темы сами не сбрасываются. Но «Запомнить правки» хранит
+// их по теме — и такая правка прошлой темы оставалась хвостом в новой: рамка
+// портрета от «Ведьмы» в «Каваи». Снимаем то, что пришло из правок прошлой
+// темы и с тех пор не трогалось; кадр своих картинок остаётся.
+function снятьЛичныеПравки(id, пал) {
+  const правки = (id && settings.themeEdits && settings.themeEdits[ключПравок(id, пал || '')]) || {};
+  ЛИЧНЫЕ_КЛЮЧИ.forEach(k => {
+    if (!(k in правки) || КАДР_СВОИХ_КАРТИНОК.includes(k) || defaultSettings[k] === undefined) return;
+    if (String(settings[k]) === String(правки[k])) settings[k] = defaultSettings[k];
+  });
+}
 function исходнаяТема(id, пал = settings.themePalette || "") {
   const о = {};
   КЛЮЧИ_ВИДА.forEach(k => { if (defaultSettings[k] !== undefined) о[k] = defaultSettings[k]; });
   const t = getTheme(id);
   if (t) Object.assign(о, развернутьПалитру(t, пал ? палитрыТемы(id).find(p => p.id === пал) : null));
   return о;
-}
-
-// Поля телефона, которые при наследовании берутся у HUD, и их значения.
-const НАСЛЕДУЕТ_ТЕЛЕФОН = ['phoneBgStart', 'phoneBgEnd', 'phoneBgAlpha', 'phoneAccent', 'phoneBlur', 'phoneFont', 'phoneFontSize'];
-function унаследованноеТелефоном() {
-  return {
-    phoneBgStart: settings.cardBgStart || '#0a0a0f',
-    phoneBgEnd: settings.cardBgEnd || '#12121a',
-    phoneBgAlpha: 92,
-    phoneAccent: settings.accentColor || '#de859f',
-    phoneBlur: settings.backdropBlur !== undefined ? Number(settings.backdropBlur) + 6 : 14,
-    phoneFont: settings.fontMain || 'inherit',
-    phoneFontSize: settings.fontSizeMain !== undefined ? Number(settings.fontSizeMain) - 1 : 13,
-  };
 }
 
 export function initGlobalEvents(ctx) {
@@ -526,6 +524,7 @@ export function initGlobalEvents(ctx) {
       const pid = palBtn.dataset.themePalette || '';
       if (!getTheme(id)) return;
       запомнитьШаг();
+      снятьЛичныеПравки(id, settings.themePalette);
       THEME_KEYS.forEach(k => { if (defaultSettings[k] !== undefined) settings[k] = defaultSettings[k]; });
       Object.assign(settings, themeVars(id, pid));
       settings.themePalette = pid;
@@ -550,6 +549,7 @@ export function initGlobalEvents(ctx) {
       const незапомнено = прошлая && прошлая !== id && getTheme(прошлая)
         && КЛЮЧИ_ВИДА.some(k => settings[k] !== undefined && String(settings[k]) !== String((themeVars(прошлая, settings.themePalette) || {})[k] ?? defaultSettings[k]));
       запомнитьШаг();
+      снятьЛичныеПравки(прошлая, settings.themePalette);
       // Сначала возвращаем заводские значения всех ключей, которые вообще
       // трогают темы: иначе прошлая тема оставила бы после себя хвосты —
       // например, шрифт от «Киберпанка» в «Средневековье».
@@ -1105,18 +1105,21 @@ export function initGlobalEvents(ctx) {
   // Поля кастомизации подтягиваются к текущим настройкам. Панель целиком
   // не перерисовываем — открытые вкладки схлопнулись бы.
   function syncThemeInputs() {
+    // Телефон наследует тему HUD — его поля показывают то, что он и правда показывает.
+    const телефон = settings.phoneThemeAuto !== false ? унаследованноеТелефоном() : {};
     document.querySelectorAll('.hud-theme-color-input, .hud-theme-range-input, .hud-theme-select-input').forEach(inp => {
       const k = inp.dataset.key;
       if (!k || settings[k] === undefined) return;
       // Пустой цвет — «как в теме»: квадрат показывает цвет темы, а не чёрный.
       if (inp.type === 'color' && !settings[k]) { inp.value = settings.accentColor || '#8c5ad2'; return; }
-      inp.value = String(settings[k]);
+      inp.value = String(k in телефон ? телефон[k] : settings[k]);
       // Подпись-число стоит только за ползунком. За цветом идёт название роли
       // («Основной») или значок контраста — их не трогаем.
       const label = inp.type === 'range' ? inp.nextElementSibling : null;
       if (label && label.tagName === 'SPAN') {
-        label.textContent = /Alpha$|Opacity$|Scale$|Offset[XY]$/.test(k) ? settings[k] + '%'
-          : /Blur$|Radius$|Size$/.test(k) ? settings[k] + 'px' : settings[k];
+        const v = k in телефон ? телефон[k] : settings[k];
+        label.textContent = /Alpha$|Opacity$|Scale$|Offset[XY]$/.test(k) ? v + '%'
+          : /Blur$|Radius$|Size$/.test(k) ? v + 'px' : v;
       }
     });
     document.querySelectorAll('.hud-phone-theme-auto').forEach(c => { c.checked = settings.phoneThemeAuto !== false; });
@@ -1263,6 +1266,10 @@ export function initGlobalEvents(ctx) {
         // Значение читаем до синхронизации полей: она перепишет и это поле.
         // Выпадашки «да/нет» (фаза луны, пелена) хранятся булевыми.
         const новоеЗначение = themeInput.value === 'true' ? true : themeInput.value === 'false' ? false : themeInput.value;
+        // То же, что телефон и так показывает (выбрали тот же шрифт), — не правка:
+        // наследование не снимаем и ничего не пишем.
+        if (НАСЛЕДУЕТ_ТЕЛЕФОН.includes(varKey) && settings.phoneThemeAuto !== false
+          && String(унаследованноеТелефоном()[varKey]) === String(новоеЗначение)) return;
         if (НАСЛЕДУЕТ_ТЕЛЕФОН.includes(varKey) && settings.phoneThemeAuto !== false) {
           Object.assign(settings, унаследованноеТелефоном());
           settings.phoneThemeAuto = false;

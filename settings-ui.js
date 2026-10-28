@@ -5,19 +5,19 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { settings } from './settings.js?v=23.83.0';
-import { видБлока } from './render/views.js?v=23.83.0';
-import { escapeHtml } from './utils.js?v=23.83.0';
-import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.83.0';
-import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.83.0';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.83.0';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.83.0';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.83.0';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.83.0';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.83.0';
-import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.83.0';
-import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.83.0';
-import { меткаШапки } from './render/topbar-icons.js?v=23.83.0';
+import { settings } from './settings.js?v=23.84.0';
+import { видБлока } from './render/views.js?v=23.84.0';
+import { escapeHtml } from './utils.js?v=23.84.0';
+import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.84.0';
+import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.84.0';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.84.0';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.84.0';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.84.0';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.84.0';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.84.0';
+import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.84.0';
+import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.84.0';
+import { меткаШапки } from './render/topbar-icons.js?v=23.84.0';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -130,7 +130,6 @@ export function addSettingsUI() {
           ${галка('hud-enable-tempo', settings.enableTempo !== false, '💓 Темп и X-ray', 'Под полосой сцены: темп толчков, ритм и X-ray в разрезе. Выключите — блока не будет совсем, ни в одном виде. Модель ничего для него не пишет, промт не меняется.')}
           ${галка('hud-enable-sceneclock', settings.enableSceneClock !== false, '🕰 Часы сцены', 'Под полосой сцены: сколько шла близость по времени сюжета и что за это время пропустили по расписанию — ужин, звонок, кто-то ждал. Считает HUD, у модели ничего не просится.')}
           ${галка('hud-enable-underwear', settings.enableUnderwear === true, '🩲 Бельё', 'В близости: какой комплект, кто выбирал и для кого, на месте ли. Просится у модели только в сцене; в карточке — под покрывалом, открывается нажатием.')}
-          ${галка('hud-enable-heatmap', видБлока('bodyMapView') !== 'list', '🫦 Карта тела картинкой', 'Чувствительность зон — картинкой (вид выбирается в «Кастомизации» → «Вид блоков»: силуэт, точки, блоки, созвездие). Выключено — прежний список зон со шкалами.')}
         `)}
 
         ${подгруппа('⚔️ Бой и споры', `
@@ -192,10 +191,8 @@ export function addSettingsUI() {
           <span id="hud-lorebooks-status" style="font-size:11px; opacity:.75;"></span>
         </div>
         <label class="hud-set-check" title="Сколько сообщений уходит модели, когда она пишет запись лорбука по кнопке «Написать моделью» в окне «Запомнить»: последние до того HUD, где нажали кнопку, — и сверх них сообщение, где запись впервые появилась в HUD, с репликой перед ним. Больше сообщений — точнее контекст, но дороже запрос. 0 = без контекста сцены, только сам факт.">📚 В запись лорбука слать ${число('hud-lore-context', 0, 50, settings.loreContextMessages, 40)} сообщ.</label>
-        ${подгруппа('🔗 MemoryBooks', `
-          ${галка('hud-mb-link', settings.memoryBooksLink === true, '📚 MemoryBooks: считать сцену без полного HUD', 'MemoryBooks сам считает размер сцены до отправки — вместе с полными блоками HUD (около двух третей текста) — и длинную сцену отклоняет по порогу. Включено — HUD заводит в Таверне выключенное правило regex (чат оно не трогает) и отмечает его в исходящих правилах MemoryBooks: блок HUD превращается в короткую метку ещё до подсчёта, а в запросе на её месте — сводка: дата, время, место, люди, одежда. Код MemoryBooks не меняется; выключите — правило и отметка уберутся.')}
-          <small class="hud-mb-link-state" style="display:block;opacity:.7;margin:-2px 0 6px 26px"></small>
-        `)}
+        ${галка('hud-mb-link', settings.memoryBooksLink === true, '📚 MemoryBooks: считать сцену без полного HUD', 'MemoryBooks сам считает размер сцены до отправки — вместе с полными блоками HUD (около двух третей текста) — и длинную сцену отклоняет по порогу. Включено — HUD заводит в Таверне выключенное правило regex (чат оно не трогает) и отмечает его в исходящих правилах MemoryBooks: блок HUD превращается в короткую метку ещё до подсчёта, а в запросе на её месте — сводка: дата, время, место, люди, одежда. Код MemoryBooks не меняется; выключите — правило и отметка уберутся.')}
+        <small class="hud-mb-link-state" style="display:block;opacity:.7;margin:-2px 0 6px 26px"></small>
       `)}
 
       ${группа('✨ Отображение', `
@@ -324,18 +321,21 @@ export function addSettingsUI() {
           ${галка('hud-hide-old-cards', settings.hideOldCards === true, '🙈 Прятать старые карточки совсем', 'Карточки сверх лимита пропадают без следа: без полоски «HUD свёрнут», и при прокрутке они не собираются. Прячется только HUD — текст сообщения на месте, а сам блок [HUD] в сообщении не трогается, модель его по-прежнему видит. Работает, когда лимит больше нуля.')}
           ${заметка('🙈 Со включённой галкой старые карточки сверх лимита исчезают целиком — остаётся только текст сообщения. Сам HUD в сообщении не удаляется: модель его видит, а выключив галку, карточки можно вернуть.')}
       `)}
-      `)}
-
-      ${группа('🧹 Обслуживание', `
-        <div style="font-size:12px; opacity:.78;">Отчёты «Архива HUD» лежат в браузере и разбираются заново только после изменения чата. Если их накопилось много или они начали мешать — уберите.</div>
-        <div class="hud-set-apps" style="align-items:center;">
-          <span id="hud-cache-usage" style="font-size:12px; opacity:.78;">считаю…</span>
-          <button type="button" id="hud-clear-cache" class="hud-theme-act danger" title="Убрать отчёты архива и пометки-реакции. Настройки, темы и аватарки останутся.">🧹 Почистить кэш</button>
-        </div>
+        ${подгруппа('🗄 Кэш архива', `
+          <div style="font-size:12px; opacity:.78;">Отчёты «Архива HUD» лежат в браузере и разбираются заново только после изменения чата. Если их накопилось много или они начали мешать — уберите.</div>
+          <div class="hud-set-apps" style="align-items:center;">
+            <span id="hud-cache-usage" style="font-size:12px; opacity:.78;">считаю…</span>
+            <button type="button" id="hud-clear-cache" class="hud-theme-act danger" title="Убрать отчёты архива и пометки-реакции. Настройки, темы и аватарки останутся.">🧹 Почистить кэш</button>
+          </div>
+        `)}
       `)}
 
       </div>`;
   container.appendChild(wrapper);
+  // «⟲ Дефолт» в Кастомизации сбрасывает и эти ключи «Отображения» и
+  // обновляет поля по data-key — без него здесь оставались старые галки.
+  [['hud-show-hints', 'showHints'], ['hud-summary-cards', 'summaryCards'], ['hud-memory-max-height', 'memoryMaxHeight']]
+    .forEach(([id, ключ]) => { const поле = wrapper.querySelector('#' + id); if (поле) поле.dataset.key = ключ; });
 
   // --- Обслуживание -------------------------------------------------------
   // Размер считаем лениво: лезть в IndexedDB на каждой отрисовке настроек
@@ -542,14 +542,13 @@ export function addSettingsUI() {
   document.getElementById('hud-enable-world').addEventListener('change', (e) => { settings.enableWorld = e.target.checked; основа.saveSettings(); });
   [['hud-enable-guns', 'enableGuns'], ['hud-enable-illness', 'enableIllness'], ['hud-enable-pregnancy', 'enablePregnancy'], ['hud-enable-babies', 'enableBabies'],
    ['hud-enable-companions', 'enableCompanions'], ['hud-enable-bodystate', 'enableBodyState'], ['hud-enable-twists', 'enableTwists'], ['hud-enable-perception', 'enablePerception'], ['hud-enable-familytree', 'enableFamilyTree'], ['hud-enable-assistant', 'enableAssistant'],
-   ['hud-enable-menstruation', 'enableMenstruation'], ['hud-enable-sceneclock', 'enableSceneClock'], ['hud-enable-tempo', 'enableTempo'], ['hud-enable-underwear', 'enableUnderwear'], ['hud-enable-duel', 'enableVerbalDuel'], ['hud-enable-combat', 'enableCombat'], ['hud-enable-life', 'enableLife'], ['hud-enable-intimacy-extras', 'enableIntimacyExtras'], ['hud-enable-heatmap', 'enableHeatMap'],
+   ['hud-enable-menstruation', 'enableMenstruation'], ['hud-enable-sceneclock', 'enableSceneClock'], ['hud-enable-tempo', 'enableTempo'], ['hud-enable-underwear', 'enableUnderwear'], ['hud-enable-duel', 'enableVerbalDuel'], ['hud-enable-combat', 'enableCombat'], ['hud-enable-life', 'enableLife'], ['hud-enable-intimacy-extras', 'enableIntimacyExtras'], 
    ['hud-enable-economy', 'enableEconomy'], ['hud-enable-events', 'enableEvents'], ['hud-enable-city', 'enableCity'], ['hud-enable-horoscope', 'enableHoroscope'],
    ['hud-prompt-separate', 'hudPromptSeparate'], ['hud-snapshot', 'hudSnapshot'], ['hud-away-short', 'hudAwayShort'], ['hud-away-fill', 'awayFillFromPast'], ['hud-consistency-check', 'hudConsistencyCheck'], ['hud-fill-gaps', 'hudFillGaps'], ['hud-adapt-prompt', 'hudAdaptPrompt']].forEach(([id, ключ]) => {
     const поле = document.getElementById(id);
     if (поле) поле.addEventListener('change', (e) => {
       settings[ключ] = e.target.checked;
       // Галка карты тела и вид блока — одна настройка с двух сторон.
-      if (ключ === 'enableHeatMap') settings.bodyMapView = e.target.checked ? (видБлока('bodyMapView') === 'list' ? 'both' : видБлока('bodyMapView')) : 'list';
       основа.saveSettings();
     });
   });
@@ -601,7 +600,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.83.0');
+      const mod = await import('./render/archive.js?v=23.84.0');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -793,7 +792,7 @@ export function addSettingsUI() {
   [['hud-music-enable', 'enableMusic'], ['hud-music-auto', 'musicAuto'], ['hud-music-verify', 'musicVerify'], ['hud-music-line', 'musicSceneLine'], ['hud-music-player', 'musicPlayer']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.83.0').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
+      import('./render/music.js?v=23.84.0').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
     });
   });
   document.getElementById('hud-music-profile').addEventListener('change', (e) => { settings.musicProfileId = e.target.value || ''; основа.saveSettings(); });
@@ -810,7 +809,7 @@ export function addSettingsUI() {
   [['hud-music-medieval', 'musicMedieval'], ['hud-music-style', 'musicStyle'], ['hud-music-source', 'musicSource']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.value; основа.saveSettings();
-      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.83.0').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.84.0').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
 
