@@ -6,10 +6,10 @@
 // index.js импортирует отсюда только buildDiaryHTML и hudHasMeaningfulDiary —
 // остальное экспортируется для тестов и внутренних нужд домена.
 
-import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки } from '../utils.js?v=23.88.0';
-import { settings } from '../settings.js?v=23.88.0';
-import { ико } from './view-icons.js?v=23.88.0';
-import { английский } from '../i18n.js?v=23.88.0';
+import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки } from '../utils.js?v=23.88.1';
+import { settings } from '../settings.js?v=23.88.1';
+import { ико } from './view-icons.js?v=23.88.1';
+import { английский } from '../i18n.js?v=23.88.1';
 
 // Дневник: словарь эмоциональных синонимов. Раньше всё сводилось к
 // четырём темам (sad / angry / panic / neutral) — «скука», «презрение»,
@@ -43,7 +43,7 @@ export const ТЕМЫ_ДНЕВНИКА = {
   sad: { имя: 'грусть', пример: 'sadness', значок: 'umbrella' },
   // Новые (замер по 22 чатам: эти слова уходили в «ровно»).
   // «Longing» — сильное желание, тяга, а не тоска: тоска — это грусть.
-  longing: { имя: 'сильное желание', пример: 'longing', значок: 'moon' }, control: { имя: 'контроль', пример: 'абсолютная доминация', значок: 'lock' },
+  longing: { имя: 'сильное желание', пример: 'longing', значок: 'gem' }, control: { имя: 'контроль', пример: 'абсолютная доминация', значок: 'lock' },
   madness: { имя: 'надлом', пример: 'безумие', значок: 'ghost' }, calc: { имя: 'расчёт', пример: 'холодный расчет', значок: 'chart' },
   resolve: { имя: 'решимость', пример: 'стальная решимость', значок: 'target' }, thrill: { имя: 'азарт', пример: 'хищный азарт', значок: 'dagger' },
   irony: { имя: 'ирония', пример: 'сардоническая ирония', значок: 'lips' }, respect: { имя: 'уважение', пример: 'admiration', значок: 'star' },

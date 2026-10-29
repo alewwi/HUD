@@ -17,8 +17,8 @@
 // Словарь — по исходной русской строке. Строка без перевода остаётся русской:
 // ничего не ломается, просто видно, что словарь неполон (tests/i18n.mjs).
 
-import { settings } from './settings.js?v=23.88.0';
-import { СЛОВАРЬ_EN, ШАБЛОНЫ_EN } from './i18n-en.js?v=23.88.0';
+import { settings } from './settings.js?v=23.88.1';
+import { СЛОВАРЬ_EN, ШАБЛОНЫ_EN } from './i18n-en.js?v=23.88.1';
 
 export const язык = () => (settings.language === 'en' ? 'en' : 'ru');
 export const английский = () => язык() === 'en';

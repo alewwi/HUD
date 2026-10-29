@@ -39,10 +39,10 @@
 
 
 /* Группы движения. Скорость темы — множитель --dm-speed. */
-.hud-diary-entry:is(.hud-diary-mood-love, .hud-diary-mood-lust, .hud-diary-mood-cozy, .hud-diary-mood-disgust) .hud-dp {
+.hud-diary-entry:is(.hud-diary-mood-love, .hud-diary-mood-lust, .hud-diary-mood-cozy, .hud-diary-mood-disgust, .hud-diary-mood-longing) .hud-dp {
   top: calc(100% - 14px); animation: hud-dmp-rise calc(var(--pd) * var(--dm-speed, 1)) ease-out var(--pdl) infinite; animation-play-state: paused;
 }
-.hud-diary-entry:is(.hud-diary-mood-joy, .hud-diary-mood-cold, .hud-diary-mood-collapse, .hud-diary-mood-sad, .hud-diary-mood-longing, .hud-diary-mood-disappointment, .hud-diary-mood-apathy) .hud-dp {
+.hud-diary-entry:is(.hud-diary-mood-joy, .hud-diary-mood-cold, .hud-diary-mood-collapse, .hud-diary-mood-sad, .hud-diary-mood-disappointment, .hud-diary-mood-apathy) .hud-dp {
   top: -12px; animation: hud-dmp-fall calc(var(--pd) * var(--dm-speed, 1)) linear var(--pdl) infinite; animation-play-state: paused;
 }
 .hud-diary-entry:is(.hud-diary-mood-triumph, .hud-diary-mood-respect) .hud-dp {
@@ -80,7 +80,7 @@
   -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 24'%3E%3Cpath d='M8 1S1 10 1 15.5a7 7 0 0 0 14 0C15 10 8 1 8 1z'/%3E%3C/svg%3E") center / contain no-repeat;
           mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 24'%3E%3Cpath d='M8 1S1 10 1 15.5a7 7 0 0 0 14 0C15 10 8 1 8 1z'/%3E%3C/svg%3E") center / contain no-repeat; }
 .hud-diary-mood-sad .hud-dp:nth-child(n+4) { display: none; }
-.hud-diary-mood-longing .hud-dp { --pw: 1px; --ph: 18px; --pr: 0; --po: .55; --dm-speed: .32; --dx: -4px; --rot: 0deg; background: linear-gradient(180deg, rgba(200,195,255,0), rgba(200,195,255,.9)); }
+.hud-diary-mood-longing .hud-dp { --pw: 4px; --ph: 4px; --po: .85; --dm-speed: 1.25; --dx: 26px; background: radial-gradient(circle, #ffe0b0, #ff7a6a 55%, rgba(232,68,90,0) 72%); box-shadow: 0 0 6px rgba(255,120,100,.7); }
 .hud-diary-mood-disappointment .hud-dp { --pw: 3px; --ph: 3px; --po: .45; --dm-speed: 2.2; background: #c9b79c; }
 .hud-diary-mood-apathy .hud-dp { --pw: 2px; --ph: 2px; --po: .35; --dm-speed: 3.2; background: #9a9aa2; }
 .hud-diary-mood-triumph .hud-dp, .hud-diary-mood-respect .hud-dp { --pw: 10px; --ph: 10px; --pr: 0; background: #ffe7a0;
@@ -640,8 +640,10 @@
 .hud-diary-mood-cold :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Jura', sans-serif; --hud-dm-k: var(--hud-dm-gate) .86; font-style: normal; letter-spacing: .03em; }
 .hud-diary-mood-thrill :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Comfortaa', sans-serif; --hud-dm-k: var(--hud-dm-gate) .83; }
 .hud-diary-mood-respect :is(.hud-diary-text, .hud-diary-about-user),
-.hud-diary-mood-devotion :is(.hud-diary-text, .hud-diary-about-user),
-.hud-diary-mood-longing :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Lora', Georgia, serif; --hud-dm-k: var(--hud-dm-gate) .86; }
+.hud-diary-mood-devotion :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Lora', Georgia, serif; --hud-dm-k: var(--hud-dm-gate) .86; }
+/* Сильное желание — курсив с наклоном вперёд и крупной рубиновой буквицей. */
+.hud-diary-mood-longing :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Cormorant Garamond', 'Lora', serif; --hud-dm-k: var(--hud-dm-gate) .98; font-style: italic; }
+.hud-diary-mood-longing .hud-diary-text::first-letter { font-family: 'Cormorant Garamond', 'Lora', serif; font-size: 2.6em; line-height: .7; }
 .hud-diary-mood-respect .hud-diary-text::first-letter,
 .hud-diary-mood-devotion .hud-diary-text::first-letter { font-family: 'Cormorant Garamond', 'Lora', serif; font-size: 2.7em; line-height: .7; }
 .hud-diary-mood-irony :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Philosopher', sans-serif; --hud-dm-k: var(--hud-dm-gate) .89; }
@@ -682,7 +684,7 @@
 .hud-diary-mood-apathy { --dm-in: hud-dm-in-fade; --dm-in-d: 2s; --dm-in-e: linear; }
 .hud-diary-mood-bored { --dm-in: hud-dm-in-yawn; --dm-in-d: 1.5s; --dm-in-e: ease-in-out; }
 .hud-diary-mood-cold { --dm-in: hud-dm-in-fade; --dm-in-d: .9s; }
-.hud-diary-mood-longing { --dm-in: hud-dm-in-drift; --dm-in-d: 1.5s; --dm-in-e: ease-out; }
+.hud-diary-mood-longing { --dm-in: hud-dm-in-tug; --dm-in-d: 1s; --dm-in-e: ease-out; }
 .hud-diary-mood-control { --dm-in: hud-dm-in-snap; --dm-in-d: .45s; --dm-in-e: steps(3, end); }
 .hud-diary-mood-calc { --dm-in: hud-dm-in-type; --dm-in-d: .9s; --dm-in-e: steps(12, end); }
 .hud-diary-mood-thrill { --dm-in: hud-dm-in-dash; --dm-in-d: .45s; --dm-in-e: cubic-bezier(.1,.9,.2,1); }
