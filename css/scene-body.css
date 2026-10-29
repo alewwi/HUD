@@ -42,7 +42,7 @@
 .hud-heat-svg .z-pen-tag rect { fill: rgba(14, 10, 16, .82); stroke: var(--pc); stroke-width: .4; }
 .hud-heat-svg .z-pen-tag text { fill: #fff; font-size: 5.4px; font-weight: 700; letter-spacing: .02em; }
 .hud-pen-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
-.hud-pen { --pc: var(--hud-nsfw-color, #d9548a); display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 7px; border-radius: 999px; font-size: .84em;
+.hud-pen { --pc: var(--hud-nsfw-color, #d9548a); display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 7px; border-radius: var(--hud-r-chip); font-size: .84em;
   background: color-mix(in srgb, var(--pc) 16%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pc) 45%, transparent); }
 .hud-pen.p-fingers { --pc: #f0a94a; } .hud-pen.p-tongue { --pc: #ff7aa8; } .hud-pen.p-toy { --pc: #9b7bff; }
 .hud-pen > i { width: 8px; height: 8px; border-radius: 50%; background: var(--pc); box-shadow: 0 0 6px var(--pc); }
@@ -68,7 +68,7 @@
 .hud-tempo-head .bpm { font-size: .8em; color: color-mix(in srgb, currentColor 72%, transparent); }
 .hud-tempo-head .bpm strong { font-size: 1.7em; font-weight: 800; color: color-mix(in srgb, var(--tc) 40%, #fff); margin-right: 4px; text-shadow: 0 0 10px color-mix(in srgb, var(--tc) 60%, transparent); }
 .hud-tempo .chips { display: flex; flex-wrap: wrap; gap: 4px; }
-.hud-tempo .chips i { font-style: normal; font-size: .78em; font-weight: 700; padding: 1px 9px; border-radius: 999px; background: color-mix(in srgb, var(--tc) 22%, transparent); }
+.hud-tempo .chips i { font-style: normal; font-size: .78em; font-weight: 700; padding: 1px 9px; border-radius: var(--hud-r-chip); background: color-mix(in srgb, var(--tc) 22%, transparent); }
 .hud-tempo-meter { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
 .hud-tempo-meter s { height: 5px; border-radius: 4px; background: color-mix(in srgb, currentColor 10%, transparent); text-decoration: none; }
 .hud-tempo-meter s.on { background: linear-gradient(90deg, color-mix(in srgb, var(--tc) 50%, transparent), var(--tc)); box-shadow: 0 0 6px color-mix(in srgb, var(--tc) 50%, transparent); }

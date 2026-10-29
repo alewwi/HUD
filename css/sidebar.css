@@ -1,0 +1,267 @@
+/* Панель HUD сбоку (sidebar.js). Рамка — в цветах темы HUD: фон карточки
+   (--hud-bg) под размытием, акцент, рамка и шрифт заголовков темы; без
+   темы — цвета самой Таверны. z-index ниже выдвижных панелей Таверны
+   (3000+): открыли её панель персонажей — она ложится поверх нашей.
+   Место и размер — в единицах экрана, без right/bottom: у <html> в Таверне
+   transform (translateZ), и он — опора для fixed; на телефоне body fixed, и
+   <html> схлопывается в 0×0 — right: 0 уводил панель за левый край. */
+.hud-side {
+  --hud-side-ww: var(--hud-side-w, 420px);
+  --side-acc: var(--hud-accent, var(--SmartThemeQuoteColor, #de859f));
+  --side-line: var(--hud-border, var(--SmartThemeBorderColor, rgba(255, 255, 255, 0.12)));
+  --side-ink: var(--hud-text, var(--SmartThemeBodyColor, #e6e0ea));
+  --side-mute: var(--hud-text-muted, color-mix(in srgb, var(--side-ink) 62%, transparent));
+  position: fixed; top: var(--topBarBlockSize, 40px);
+  left: calc(100vw - var(--hud-side-ww)); left: calc(100dvw - var(--hud-side-ww));
+  width: var(--hud-side-ww); max-width: 100vw;
+  height: calc(100vh - var(--topBarBlockSize, 40px)); height: calc(100dvh - var(--topBarBlockSize, 40px));
+  z-index: 2990;
+  display: flex; flex-direction: column;
+  container: hud-side / inline-size;
+  color: var(--side-ink);
+  background:
+    radial-gradient(120% 220px at 50% -60px, color-mix(in srgb, var(--side-acc) 16%, transparent), transparent 70%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.18), rgba(0, 0, 0, 0.32)),
+    var(--hud-bg, var(--SmartThemeBlurTintColor, rgba(20, 16, 28, 0.92)));
+  -webkit-backdrop-filter: blur(14px) saturate(1.15);
+  backdrop-filter: blur(14px) saturate(1.15);
+  box-shadow: -14px 0 34px rgba(0, 0, 0, 0.38), -1px 0 0 var(--side-line);
+  transform: translateX(104%); opacity: 0.4; visibility: hidden;
+  transition: transform 0.34s cubic-bezier(0.22, 0.9, 0.25, 1), opacity 0.34s ease, visibility 0s linear 0.34s;
+}
+/* Светящаяся кромка со стороны чата: акцент, гаснущий к концам. */
+.hud-side::before {
+  content: ''; position: absolute; top: 0; bottom: 0; left: 0; width: 1px; pointer-events: none;
+  background: linear-gradient(180deg, transparent, color-mix(in srgb, var(--side-acc) 75%, transparent) 22%, color-mix(in srgb, var(--side-acc) 40%, transparent) 70%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--side-acc) 45%, transparent);
+}
+.hud-side[data-edge="left"] {
+  left: 0; transform: translateX(-104%);
+  box-shadow: 14px 0 34px rgba(0, 0, 0, 0.38), 1px 0 0 var(--side-line);
+}
+.hud-side[data-edge="left"]::before { left: auto; right: 0; }
+.hud-side.is-open {
+  transform: none; opacity: 1; visibility: visible;
+  transition: transform 0.34s cubic-bezier(0.22, 0.9, 0.25, 1), opacity 0.25s ease;
+}
+.hud-side.is-resizing { transition: none; user-select: none; }
+
+/* Ручка ширины — край со стороны чата; посередине — язычок с насечками. */
+.hud-side-grip { position: absolute; top: 0; bottom: 0; left: -6px; width: 12px; cursor: ew-resize; z-index: 3; touch-action: none; }
+.hud-side[data-edge="left"] .hud-side-grip { left: auto; right: -6px; }
+.hud-side-grip > i {
+  position: absolute; top: 50%; left: 3px; width: 6px; height: 46px; margin-top: -23px; border-radius: 6px;
+  background: color-mix(in srgb, var(--side-acc) 30%, rgba(20, 16, 28, 0.9));
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--side-acc) 45%, transparent), 0 2px 8px rgba(0, 0, 0, 0.4);
+  opacity: 0.55; transition: opacity 0.18s, transform 0.18s, background 0.18s;
+}
+.hud-side-grip > i::after {
+  content: ''; position: absolute; left: 2px; right: 2px; top: 15px; bottom: 15px; border-radius: 1px;
+  background: repeating-linear-gradient(180deg, color-mix(in srgb, var(--side-ink) 70%, transparent) 0 1.5px, transparent 1.5px 4px);
+}
+@media (hover: hover) and (pointer: fine) {
+  .hud-side-grip:hover > i { opacity: 1; transform: scaleY(1.12); }
+}
+.hud-side.is-resizing .hud-side-grip > i { opacity: 1; background: var(--side-acc); }
+.hud-side.is-drawer .hud-side-grip { display: none; }
+
+/* Направляющая «до чата» — пока тянут ширину и она прилипла к колонке. */
+.hud-side-guide {
+  position: fixed; top: var(--topBarBlockSize, 40px); z-index: 2991; width: 0; pointer-events: none;
+  height: calc(100vh - var(--topBarBlockSize, 40px)); height: calc(100dvh - var(--topBarBlockSize, 40px));
+  border-left: 1px dashed color-mix(in srgb, var(--hud-accent, #de859f) 80%, transparent);
+  opacity: 0; transition: opacity 0.12s;
+}
+.hud-side-guide.is-on { opacity: 1; }
+.hud-side-guide > span {
+  position: absolute; top: 46%; left: 8px; padding: 3px 8px; border-radius: 999px; white-space: nowrap;
+  font: 600 11px/1.2 var(--hud-font-headers, inherit); letter-spacing: 0.04em;
+  color: #fff; background: var(--hud-accent, #de859f); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+
+/* --- Шапка ------------------------------------------------------------- */
+.hud-side-head {
+  position: relative; z-index: 2; flex: none;
+  padding: 8px 10px 9px;
+  border-bottom: 1px solid color-mix(in srgb, var(--side-line) 70%, transparent);
+  transition: box-shadow 0.2s, background 0.2s;
+}
+.hud-side.is-scrolled .hud-side-head { box-shadow: 0 8px 18px -10px rgba(0, 0, 0, 0.65); background: rgba(0, 0, 0, 0.12); }
+.hud-side-top { display: flex; align-items: center; gap: 2px; min-height: 30px; }
+.hud-side-brand { display: inline-flex; align-items: baseline; gap: 6px; min-width: 0; padding-left: 2px; }
+.hud-side-brand > i { align-self: center; font-size: 13px; color: var(--side-acc); filter: drop-shadow(0 0 6px color-mix(in srgb, var(--side-acc) 55%, transparent)); }
+.hud-side-brand > b {
+  font: 700 14px/1 var(--hud-font-headers, inherit); letter-spacing: 0.06em;
+  background: linear-gradient(90deg, var(--side-ink), color-mix(in srgb, var(--side-acc) 70%, var(--side-ink)));
+  -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.hud-side-brand > small {
+  font: 700 9.5px/1 var(--hud-font-headers, inherit); letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 3px 5px 2px; border-radius: 4px; color: var(--side-acc);
+  border: 1px solid color-mix(in srgb, var(--side-acc) 45%, transparent);
+}
+.hud-side-gap { flex: 1; }
+
+.hud-side-btn {
+  appearance: none; border: 0; padding: 0; margin: 0; background: transparent; color: inherit;
+  width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; flex: none;
+  font-size: 13px; cursor: pointer; opacity: 0.78;
+  transition: background 0.15s, opacity 0.15s, color 0.15s, transform 0.15s;
+}
+.hud-side-btn[hidden] { display: none; }
+.hud-side-btn:disabled { opacity: 0.22; cursor: default; }
+.hud-side-btn.is-on { color: var(--side-acc); opacity: 1; background: color-mix(in srgb, var(--side-acc) 14%, transparent); }
+.hud-side-btn:not(:disabled):active { transform: scale(0.92); }
+.hud-side-btn:focus-visible, .hud-side-last:focus-visible, .hud-side-dot:focus-visible { outline: 2px solid var(--side-acc); outline-offset: 1px; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-side-btn:not(:disabled):hover { background: color-mix(in srgb, var(--side-ink) 10%, transparent); opacity: 1; }
+  .hud-side-btn[data-side="close"]:hover { color: #ff8d8d; }
+}
+
+/* Капсула хода: ‹ #188 · последний ход › и точки ближайших ходов. */
+.hud-side-nav { display: flex; align-items: stretch; gap: 6px; margin-top: 7px; }
+.hud-side-capsule {
+  flex: 1; min-width: 0; display: flex; align-items: center; gap: 2px; padding: 3px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--side-line) 80%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+.hud-side-capsule .hud-side-btn { width: 30px; height: 38px; border-radius: 11px; }
+.hud-side-where { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 2px 4px; }
+.hud-side-label { display: flex; align-items: baseline; justify-content: center; gap: 7px; max-width: 100%; min-width: 0; white-space: nowrap; }
+.hud-side-label b { font: 700 14px/1 var(--hud-font-headers, inherit); font-variant-numeric: tabular-nums; color: var(--side-ink); }
+.hud-side-label small { font-size: 11px; line-height: 1; color: var(--side-mute); overflow: hidden; text-overflow: ellipsis; }
+.hud-side-label small:empty { display: none; }
+.hud-side.is-old .hud-side-label small { color: color-mix(in srgb, var(--side-acc) 75%, var(--side-ink)); }
+.hud-side-dots { display: flex; align-items: center; justify-content: center; gap: 5px; min-height: 6px; }
+.hud-side-dots:empty { display: none; }
+.hud-side-dot {
+  appearance: none; border: 0; padding: 0; margin: 0; cursor: pointer; flex: none; position: relative;
+  width: 6px; height: 6px; border-radius: 999px;
+  background: color-mix(in srgb, var(--side-ink) 28%, transparent);
+  transition: width 0.22s cubic-bezier(0.22, 0.9, 0.25, 1), background 0.2s;
+}
+/* Зона нажатия побольше самой точки. */
+.hud-side-dot::before { content: ''; position: absolute; inset: -7px -3px; }
+.hud-side-dot.is-last:not(.is-cur) { background: transparent; box-shadow: inset 0 0 0 1.5px color-mix(in srgb, var(--side-acc) 80%, transparent); }
+.hud-side-dot.is-cur { width: 18px; background: var(--side-acc); box-shadow: 0 0 8px color-mix(in srgb, var(--side-acc) 60%, transparent); cursor: default; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-side-dot:not(.is-cur):hover { background: color-mix(in srgb, var(--side-acc) 70%, transparent); }
+}
+
+/* «К последнему» — только когда смотрят старый ход. */
+.hud-side-last {
+  appearance: none; border: 0; margin: 0; cursor: pointer; flex: none;
+  display: none; align-items: center; gap: 6px; padding: 0 12px;
+  border-radius: 14px; font: 600 11.5px/1.1 var(--hud-font-headers, inherit); white-space: nowrap;
+  color: color-mix(in srgb, var(--side-acc) 80%, var(--side-ink));
+  background: color-mix(in srgb, var(--side-acc) 14%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--side-acc) 50%, transparent);
+  transition: filter 0.15s, transform 0.15s;
+}
+.hud-side.is-old .hud-side-last { display: inline-flex; animation: hud-side-pop 0.26s cubic-bezier(0.22, 0.9, 0.25, 1); }
+.hud-side-last:active { transform: scale(0.95); }
+@media (hover: hover) and (pointer: fine) { .hud-side-last:hover { background: color-mix(in srgb, var(--side-acc) 24%, transparent); } }
+@keyframes hud-side-pop { from { opacity: 0; transform: translateX(8px) scale(0.92); } }
+/* В узкой панели от надписи остаётся только значок. */
+@container hud-side (max-width: 360px) { .hud-side-last > span { display: none; } .hud-side-last { padding: 0 11px; } }
+
+/* --- Лента ------------------------------------------------------------- */
+.hud-side-scroll {
+  flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
+  overscroll-behavior: contain; padding: 10px clamp(6px, 1.4vw, 10px) 14px;
+  scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--side-acc) 45%, transparent) transparent;
+}
+.hud-side-scroll::-webkit-scrollbar { width: 6px; }
+.hud-side-scroll::-webkit-scrollbar-thumb { border-radius: 6px; background: color-mix(in srgb, var(--side-acc) 40%, transparent); }
+.hud-side-scroll::-webkit-scrollbar-track { background: transparent; }
+.hud-side-mes > .mes_text { padding: 0; margin: 0; width: 100%; max-width: none; }
+
+/* Смена хода: старый въезжает слева, новый — справа. */
+.hud-side-mes.is-in-prev { animation: hud-side-in-prev 0.26s cubic-bezier(0.22, 0.9, 0.25, 1); }
+.hud-side-mes.is-in-next { animation: hud-side-in-next 0.26s cubic-bezier(0.22, 0.9, 0.25, 1); }
+.hud-side-mes.is-in { animation: hud-side-in 0.22s ease; }
+@keyframes hud-side-in-prev { from { opacity: 0; transform: translateX(-18px); } }
+@keyframes hud-side-in-next { from { opacity: 0; transform: translateX(18px); } }
+@keyframes hud-side-in { from { opacity: 0; } }
+
+.hud-side-empty {
+  display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
+  margin: 18px 6px; padding: 34px 18px; border-radius: 16px;
+  border: 1px dashed color-mix(in srgb, var(--side-line) 90%, transparent);
+  background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--side-acc) 10%, transparent), transparent 70%);
+}
+.hud-side-empty[hidden] { display: none; }
+.hud-side-empty > i { font-size: 26px; color: var(--side-acc); opacity: 0.8; margin-bottom: 4px; }
+.hud-side-empty > b { font: 600 14px/1.3 var(--hud-font-headers, inherit); }
+.hud-side-empty > small { font-size: 12px; line-height: 1.4; color: var(--side-mute); }
+
+/* Карточка в панели меряется своей шириной (копии узких правил под
+   @container hud, tests/tools/build-cq.mjs): узкая панель на ПК — как на
+   телефоне. Свернуть её в панели некуда — стрелки сворачивания нет. */
+.hud-side .hud-os-card { container: hud / inline-size; margin: 0; }
+.hud-side .hud-os-card > .hud-os-topbar { cursor: default; }
+.hud-side .hud-os-card > .hud-os-topbar .hud-toggle-indicator { display: none; }
+
+/* Узкий экран (≤1000px, как у Таверны): выезжает поверх чата со
+   скруглённым краем, остаётся полоска чата — тап по ней закрывает. */
+.hud-side.is-drawer {
+  --hud-side-ww: min(440px, calc(100vw - 48px));
+  border-radius: 18px 0 0 0;
+  box-shadow: -18px 0 40px rgba(0, 0, 0, 0.55), -1px 0 0 var(--side-line);
+}
+.hud-side.is-drawer[data-edge="left"] { border-radius: 0 18px 0 0; }
+.hud-side.is-drawer .hud-side-head { padding-top: 10px; }
+.hud-side-backdrop {
+  position: fixed; top: var(--topBarBlockSize, 40px); left: 0; z-index: 2989;
+  width: 100vw; width: 100dvw; height: calc(100vh - var(--topBarBlockSize, 40px)); height: calc(100dvh - var(--topBarBlockSize, 40px));
+  background: radial-gradient(120% 90% at 100% 50%, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.6));
+  -webkit-backdrop-filter: blur(2px); backdrop-filter: blur(2px);
+  opacity: 0; pointer-events: none; transition: opacity 0.3s;
+}
+.hud-side-backdrop.is-on { opacity: 1; pointer-events: auto; }
+.hud-side-backdrop[data-edge="left"] { background: radial-gradient(120% 90% at 0% 50%, rgba(0, 0, 0, 0.35), rgba(0, 0, 0, 0.6)); }
+
+/* «Только сбоку»: в сообщении вместо полосы TavernOS — маленькая кнопка
+   «HUD · 14:26 ›». Это всё ещё .hud-os-card (по классу разбор узнаёт, что
+   карточка стоит), поэтому снимаем с неё всё оформление карточки и тем. */
+#chat .hud-os-card.hud-side-stub {
+  display: block; width: auto; max-width: 100%; min-height: 0; margin: 8px 0 2px !important; padding: 0 !important;
+  border: 0 !important; border-radius: 0 !important; box-shadow: none !important; background: none !important;
+  overflow: visible !important; contain: none; isolation: auto;
+  /* У карточек за экраном content-visibility с заявленной высотой 480px —
+     кнопка в одну строку его не стоит: лента раздувалась на полсотни экранов. */
+  content-visibility: visible; contain-intrinsic-size: none;
+}
+#chat .hud-os-card.hud-side-stub::before, #chat .hud-os-card.hud-side-stub::after { content: none !important; display: none !important; }
+.hud-side-jump {
+  appearance: none; margin: 0; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 7px; max-width: 100%;
+  padding: 5px 12px 5px 10px; border-radius: 999px; white-space: nowrap;
+  font: 600 12px/1.2 var(--hud-font-headers, inherit); letter-spacing: 0.02em;
+  color: var(--hud-text, #e6e0ea);
+  border: 1px solid color-mix(in srgb, var(--hud-accent, #de859f) 38%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--hud-accent, #de859f) 16%, rgba(20, 16, 28, 0.55)), rgba(20, 16, 28, 0.45));
+  box-shadow: 0 2px 10px -4px rgba(0, 0, 0, 0.5);
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+.hud-side-jump > i:first-child { color: var(--hud-accent, #de859f); font-size: 11px; }
+.hud-side-jump > b { font-weight: 700; letter-spacing: 0.08em; }
+.hud-side-jump > span { overflow: hidden; text-overflow: ellipsis; font-weight: 500; font-variant-numeric: tabular-nums; color: var(--hud-text-muted, color-mix(in srgb, currentColor 65%, transparent)); }
+.hud-side-jump > i:last-child { font-size: 9px; opacity: 0.6; transition: transform 0.15s; }
+.hud-side-jump:active { transform: scale(0.97); }
+.hud-side-jump:focus-visible { outline: 2px solid var(--hud-accent, #de859f); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) {
+  .hud-side-jump:hover { border-color: color-mix(in srgb, var(--hud-accent, #de859f) 70%, transparent); }
+  .hud-side-jump:hover > i:last-child { transform: translateX(2px); opacity: 1; }
+}
+/* Этот ход сейчас в панели. */
+.hud-side-stub.is-shown .hud-side-jump {
+  border-color: var(--hud-accent, #de859f);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--hud-accent, #de859f) 40%, transparent), 0 0 14px -2px color-mix(in srgb, var(--hud-accent, #de859f) 60%, transparent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-side, .hud-side.is-open, .hud-side-backdrop, .hud-side-dot { transition: none; }
+  .hud-side-mes, .hud-side-last { animation: none !important; }
+}

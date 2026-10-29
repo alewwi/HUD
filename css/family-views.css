@@ -181,7 +181,7 @@
 .hud-ktv .hud-kid-chip { all: unset; box-sizing: border-box; cursor: pointer; position: relative; color: inherit; font: inherit; }
 .hud-ktv .hud-kid-chip:focus-visible { outline: 2px solid var(--fam-acc); outline-offset: 3px; }
 .hud-ktv .alerts { display: flex; gap: 4px; margin-top: 2px; }
-.hud-ktv .alerts i { font-style: normal; font-size: .8em; padding: 0 5px; border-radius: 999px; background: color-mix(in srgb, #f0a03a 30%, transparent); }
+.hud-ktv .alerts i { font-style: normal; font-size: .8em; padding: 0 5px; border-radius: var(--hud-r-chip); background: color-mix(in srgb, #f0a03a 30%, transparent); }
 .hud-ktv .alerts i.is-late { background: color-mix(in srgb, #e04848 35%, transparent); }
 .hud-ktv .born { font-size: .7em; color: color-mix(in srgb, currentColor 70%, transparent); }
 
@@ -247,7 +247,7 @@
 /* ===================== ВЕХИ И УХОД ===================== */
 .hud-kid-care .kc-view { display: flex; flex-direction: column; gap: 10px; }
 .hud-kid-care .kc-needs { display: flex; flex-wrap: wrap; gap: 6px; }
-.hud-kid-care .kc-needs .need { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 6px; border-radius: 999px; font-size: .82em; background: color-mix(in srgb, var(--c) 14%, transparent); }
+.hud-kid-care .kc-needs .need { display: inline-flex; align-items: center; gap: 6px; padding: 3px 10px 3px 6px; border-radius: var(--hud-r-chip); font-size: .82em; background: color-mix(in srgb, var(--c) 14%, transparent); }
 .hud-kid-care .kc-needs .need i { font-style: normal; }
 .hud-kid-care .kc-needs .need.is-soon { background: color-mix(in srgb, #f0a03a 30%, transparent); }
 .hud-kid-care .kc-needs .need.is-late { background: color-mix(in srgb, #e04848 32%, transparent); }

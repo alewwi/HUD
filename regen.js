@@ -5,10 +5,10 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings } from './settings.js?v=23.87.0';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe } from './hud-block.js?v=23.87.0';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.87.0';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.87.0';
+import { настройка, settings, defaultSettings } from './settings.js?v=23.88.0';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe } from './hud-block.js?v=23.88.0';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.88.0';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.88.0';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, getMessageUpdateFunction, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
@@ -167,7 +167,7 @@ export async function handleHudRegenButton(regenBtn) {
     // (pointerup и click) — первые 0,8 с второе событие не считаем отменой.
     const начато = Number(regenBtn.dataset.hudStartedAt || 0);
     if (Date.now() - начато > 800) {
-      const mes = regenBtn.closest('.mes');
+      const mes = regenBtn.closest('.mes, .hud-side-mes');
       if (mes) основа.отменитьГенерациюHUD(mes.getAttribute('mesid'));
     }
     return;
@@ -183,7 +183,7 @@ export async function handleHudRegenButton(regenBtn) {
       regenBtn.dataset.hudStartedAt = String(Date.now());
       regenBtn.title = 'HUD генерируется — нажми ещё раз, чтобы отменить';
 
-      let mesEl = regenBtn.closest('.mes');
+      let mesEl = regenBtn.closest('.mes, .hud-side-mes');
       const отмена = new AbortController();
       const ключГенерации = String(mesEl && mesEl.getAttribute('mesid'));
       основа.генерацииHUD.set(ключГенерации, отмена);

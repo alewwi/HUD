@@ -150,7 +150,7 @@
 /* Узко (телефон) — черепа уходят строкой под текст, а не сжимают его в столбик. */
 .hud-v-fears.is-skulls .hud-v-skull-text { flex: 1 1 140px; min-width: 0; }
 .hud-v-fears.is-skulls .hud-v-skulls { margin-left: auto; }
-.hud-v-skulls { display: inline-flex; gap: 2px; padding: 4px 8px; border-radius: 99px; background: rgba(0,0,0,.25); box-shadow: inset 0 1px 3px rgba(0,0,0,.4); }
+.hud-v-skulls { display: inline-flex; gap: 2px; padding: 4px 8px; border-radius: var(--hud-r-chip); background: rgba(0,0,0,.25); box-shadow: inset 0 1px 3px rgba(0,0,0,.4); }
 .hud-v-skulls i { font-style: normal; font-size: 14px; }
 .hud-v-fears.is-storm { grid-template-columns: repeat(auto-fill, minmax(min(100%, 130px), 1fr)); }
 .hud-v-storm { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px; }
@@ -419,13 +419,13 @@
 .hud-v-inv.is-groups { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 220px), 1fr)); gap: 8px; }
 .hud-v-group-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; font-size: .72em; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: color-mix(in srgb, var(--v-acc) 50%, #fff); }
 .hud-v-group-head i { font-style: normal; font-size: 1.5em; }
-.hud-v-group-head em { margin-left: auto; font-style: normal; padding: 0 7px; border-radius: 99px; background: color-mix(in srgb, var(--v-acc) 20%, transparent); }
+.hud-v-group-head em { margin-left: auto; font-style: normal; padding: 0 7px; border-radius: var(--hud-r-chip); background: color-mix(in srgb, var(--v-acc) 20%, transparent); }
 .hud-v-row-item { display: flex; flex-direction: column; padding: 6px 0; }
 .hud-v-row-item + .hud-v-row-item { border-top: 1px dashed color-mix(in srgb, var(--v-acc) 22%, transparent); }
 .hud-v-row-item b { font-size: .92em; }
 .hud-v-row-item small { font-size: .78em; color: var(--v-ink-soft); }
 .hud-v-inv.is-weight { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; padding: 12px; border-radius: 16px; background: var(--v-surf); border: 1px solid var(--v-line); }
-.hud-v-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: 999px; border: 1px solid var(--v-line); background: color-mix(in srgb, var(--v-acc) 10%, rgba(255,255,255,.03)); box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
+.hud-v-chip { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; border-radius: var(--hud-r-chip); border: 1px solid var(--v-line); background: color-mix(in srgb, var(--v-acc) 10%, rgba(255,255,255,.03)); box-shadow: inset 0 1px 0 rgba(255,255,255,.06); }
 .hud-v-chip > i { font-style: normal; }
 .hud-v-chip.w1 { font-size: .8em; opacity: .75; }
 .hud-v-chip.w2 { font-size: 1em; }
@@ -528,7 +528,7 @@
 .hud-v-gun-col.is-open { --col: #8fb8ff; } .hud-v-gun-col.is-building { --col: #f0bf55; } .hud-v-gun-col.is-fired { --col: #ef5a6e; }
 .hud-v-gun-col-head { display: flex; align-items: center; gap: 7px; font-size: .74em; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: color-mix(in srgb, var(--col) 60%, #fff); }
 .hud-v-gun-col-head i { font-style: normal; font-size: 1.4em; }
-.hud-v-gun-col-head em { margin-left: auto; font-style: normal; padding: 0 7px; border-radius: 99px; background: color-mix(in srgb, var(--col) 22%, transparent); }
+.hud-v-gun-col-head em { margin-left: auto; font-style: normal; padding: 0 7px; border-radius: var(--hud-r-chip); background: color-mix(in srgb, var(--col) 22%, transparent); }
 .hud-v-gun-card { padding: 9px 11px; border-radius: 11px; font-size: .86em; background: rgba(255,255,255,.04); border: 1px solid color-mix(in srgb, var(--col) 25%, transparent); border-left: 3px solid var(--col); box-shadow: 0 6px 12px -10px rgba(0,0,0,.8); }
 @media (max-width: 600px) { .hud-v-gun-cols { grid-template-columns: 1fr; } }
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */

@@ -19,7 +19,7 @@
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--dt) 45%, transparent);
 }
 .hud-dv-type {
-  display: inline-flex; align-items: center; gap: 4px; margin-left: auto; padding: 1px 8px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 4px; margin-left: auto; padding: 1px 8px; border-radius: var(--hud-r-chip);
   font: 600 10.5px/1.6 system-ui, sans-serif; letter-spacing: .05em; text-transform: lowercase;
   color: var(--dt); background: var(--dt-bg); border: 1px solid color-mix(in srgb, var(--dt) 40%, transparent);
 }

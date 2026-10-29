@@ -222,7 +222,7 @@
 .hud-wv.is-tiles .tile.is-up { --tc: #3ccf9a; } .hud-wv.is-tiles .tile.is-down { --tc: #ff7a7a; }
 .hud-wv.is-tiles .nm { font-size: .74em; line-height: 1.25; color: var(--v-ink-soft); }
 .hud-wv.is-tiles .tile b { font-size: 1.22em; font-weight: 800; line-height: 1.15; color: color-mix(in srgb, var(--tc) 25%, var(--ink-hi, #fff)); }
-.hud-wv.is-tiles .tile em { align-self: flex-start; max-width: 100%; overflow-wrap: anywhere; border-radius: 8px !important; font-style: normal; font-size: .7em; font-weight: 700; padding: 1px 7px; border-radius: 99px; background: color-mix(in srgb, var(--tc) 20%, transparent); color: color-mix(in srgb, var(--tc) 65%, var(--ink-hi, #fff)); }
+.hud-wv.is-tiles .tile em { align-self: flex-start; max-width: 100%; overflow-wrap: anywhere; border-radius: 8px !important; font-style: normal; font-size: .7em; font-weight: 700; padding: 1px 7px; border-radius: var(--hud-r-chip); background: color-mix(in srgb, var(--tc) 20%, transparent); color: color-mix(in srgb, var(--tc) 65%, var(--ink-hi, #fff)); }
 .hud-wv.is-tiles .spark { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 26px; }
 .hud-wv.is-tiles .spark .ln { fill: none; stroke: var(--tc); stroke-width: 1.8; stroke-linejoin: round; vector-effect: non-scaling-stroke; filter: drop-shadow(0 0 3px color-mix(in srgb, var(--tc) 60%, transparent)); }
 
@@ -545,7 +545,7 @@
 .hud-wv.is-alert .siren i { position: absolute; left: 50%; top: -6px; width: 34px; height: 24px; margin-left: -17px; border-radius: 50%; opacity: 0; background: conic-gradient(from 0deg, transparent, rgba(255,60,48,.5) 20deg, transparent 45deg, transparent 180deg, rgba(255,60,48,.5) 200deg, transparent 225deg); }
 .hud-wv-city.is-alert.fx-active .siren i { opacity: 1; animation: hud-wv-turn 1s linear infinite; }
 .hud-wv.is-alert .sys .cnt { display: flex; gap: 4px; margin-left: auto; }
-.hud-wv.is-alert .cnt i { min-width: 18px; padding: 1px 5px; border-radius: 99px; text-align: center; font-style: normal; font-weight: 800; letter-spacing: 0; color: #111; }
+.hud-wv.is-alert .cnt i { min-width: 18px; padding: 1px 5px; border-radius: var(--hud-r-chip); text-align: center; font-style: normal; font-weight: 800; letter-spacing: 0; color: #111; }
 .hud-wv.is-alert .cnt .c-hi { background: #ff3b30; color: #fff; } .hud-wv.is-alert .cnt .c-mid { background: #ffb020; } .hud-wv.is-alert .cnt .c-lo { background: #3d8bff; color: #fff; }
 .hud-wv.is-alert .al { --ac: #3d8bff; position: relative; overflow: hidden; display: grid; grid-template-columns: 10px 34px minmax(0, 1fr) auto; gap: 10px; align-items: start; padding: 9px 10px 9px 0; border-radius: 10px; transition: opacity .3s, filter .2s;
   background: linear-gradient(90deg, color-mix(in srgb, var(--ac) 22%, rgba(0,0,0,.35)), color-mix(in srgb, var(--ac) 6%, rgba(0,0,0,.2))); border: 1px solid color-mix(in srgb, var(--ac) 45%, transparent); }
@@ -867,7 +867,7 @@
    движение на паузе до наведения или .fx-active, а на телефоне наведения нет. */
 .hud-wv :is(.is-pop, .is-ripple, .is-spray, .is-torn, .is-pass, .is-pass *, .is-cut, .is-cut *, .is-tuning *, .is-swing *, .is-spin *, .is-open *, .is-playing *, .is-swap, .is-swap *, .is-scroll *),
 .hud-wv.has-pick .bulbs { animation-play-state: running !important; }
-.hud-wv button.act { all: unset; box-sizing: border-box; display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 99px; cursor: pointer; font: inherit; color: inherit; transition: color .2s, background-color .2s; }
+.hud-wv button.act { all: unset; box-sizing: border-box; display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: var(--hud-r-chip); cursor: pointer; font: inherit; color: inherit; transition: color .2s, background-color .2s; }
 .hud-wv button.act:focus-visible { outline: 2px solid color-mix(in srgb, var(--v-acc) 70%, #fff); outline-offset: 1px; }
 @media (hover: hover) and (pointer: fine) { .hud-wv button.act:hover { background: color-mix(in srgb, currentColor 12%, transparent); } }
 .hud-wv button.act.is-set .hud-v-ico { fill: currentColor; }

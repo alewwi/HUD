@@ -16,7 +16,7 @@
 .hud-xray-head .bpm strong { font-size: 1.7em; font-weight: 800; margin-right: 4px; color: color-mix(in srgb, var(--tc, var(--pc)) 40%, #fff);
   text-shadow: 0 0 10px color-mix(in srgb, var(--tc, var(--pc)) 60%, transparent); }
 .hud-xray-head .chips { display: flex; flex-wrap: wrap; gap: 4px; }
-.hud-xray-head .chips i { font-style: normal; font-size: .76em; font-weight: 700; padding: 1px 9px; border-radius: 999px; background: color-mix(in srgb, var(--tc, var(--pc)) 22%, transparent); }
+.hud-xray-head .chips i { font-style: normal; font-size: .76em; font-weight: 700; padding: 1px 9px; border-radius: var(--hud-r-chip); background: color-mix(in srgb, var(--tc, var(--pc)) 22%, transparent); }
 
 /* --- Ряд: подпись и разрез ----------------------------------------------- */
 .hud-xray-row { --pc: var(--hud-nsfw-color, #d9548a); display: flex; flex-direction: column; gap: 5px; }
@@ -27,7 +27,7 @@
 .hud-xray-cap { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: .84em; }
 .hud-xray-cap > i { width: 8px; height: 8px; border-radius: 50%; background: var(--pc); box-shadow: 0 0 7px var(--pc); }
 .hud-xray-cap b { font-weight: 800; }
-.hud-xray-cap small { font-size: .86em; font-weight: 700; padding: 0 7px; border-radius: 999px; background: color-mix(in srgb, var(--pc) 20%, transparent); }
+.hud-xray-cap small { font-size: .86em; font-weight: 700; padding: 0 7px; border-radius: var(--hud-r-chip); background: color-mix(in srgb, var(--pc) 20%, transparent); }
 .hud-xray-cap span { color: color-mix(in srgb, currentColor 75%, transparent); }
 .hud-xray-cap em { margin-left: auto; font-style: normal; font-weight: 700; font-size: .92em; color: color-mix(in srgb, var(--pc) 45%, #fff); }
 .hud-xray-visual { line-height: 0; }

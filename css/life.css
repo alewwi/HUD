@@ -87,7 +87,7 @@
   background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--v-acc) 45%, #2a2030), color-mix(in srgb, var(--v-acc) 20%, #120d16));
   box-shadow: inset 0 1px 0 rgba(255,255,255,.22), 0 0 0 1px color-mix(in srgb, var(--v-acc) 45%, transparent), 0 4px 10px -2px rgba(0,0,0,.6); }
 .hud-life-day-ev .hud-v-ico { width: 13px; height: 13px; filter: drop-shadow(0 0 3px var(--v-glow)); }
-.hud-life-day-ev b { margin-left: 2px; min-width: 15px; padding: 0 4px; border-radius: var(--hud-r-pill); font: 800 9.5px/15px system-ui, sans-serif; text-align: center; background: #fff; }
+.hud-life-day-ev b { margin-left: 2px; min-width: 15px; padding: 0 4px; border-radius: var(--hud-r-chip); font: 800 9.5px/15px system-ui, sans-serif; text-align: center; background: #fff; }
 .hud-life-day-ev.r1 { top: 27%; } .hud-life-day-ev.r2 { top: 73%; }
 .hud-life-day-ev.is-end, .hud-life-day-ev.is-start { transform: translateY(-50%); }
 @media (hover: hover) and (pointer: fine) { .hud-life-day-ev:hover { z-index: 3; box-shadow: inset 0 1px 0 rgba(255,255,255,.25), 0 0 0 2px var(--v-acc), 0 6px 14px -2px var(--v-glow); } }
@@ -229,7 +229,7 @@
 .hud-life-wallet-cap .hud-v-ico { width: 14px; height: 14px; }
 .hud-life-wallet > b { font-size: 22px; font-weight: 800; letter-spacing: .02em; color: #fff !important; font-variant-numeric: tabular-nums; text-shadow: 0 0 16px var(--v-glow), 0 2px 3px rgba(0,0,0,.5) !important; }
 .hud-life-afford { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 4px; }
-.hud-life-afford span { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: var(--hud-r-pill); font-size: 11.5px; color: #fff; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); cursor: help; }
+.hud-life-afford span { display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px; border-radius: var(--hud-r-chip); font-size: 11.5px; color: #fff; background: rgba(255,255,255,.12); box-shadow: inset 0 0 0 1px rgba(255,255,255,.12); cursor: help; }
 .hud-life-afford .hud-v-ico { width: 13px; height: 13px; }
 .hud-life-afford small { font-size: var(--hud-fs-xs); opacity: .7; }
 .hud-life-spend-box { display: grid; gap: var(--hud-sp-3); }
@@ -246,7 +246,7 @@
 .hud-life-prices-box > summary::-webkit-details-marker { display: none; }
 .hud-life-prices-box > summary::after { content: '▾'; font-size: 9px; transition: transform .2s ease; }
 .hud-life-prices-box:not([open]) > summary::after { transform: rotate(-90deg); }
-.hud-life-prices-box > summary small { padding: 0 6px; border-radius: var(--hud-r-pill); background: color-mix(in srgb, var(--v-acc) 20%, transparent); }
+.hud-life-prices-box > summary small { padding: 0 6px; border-radius: var(--hud-r-chip); background: color-mix(in srgb, var(--v-acc) 20%, transparent); }
 .hud-life-prices { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: var(--hud-sp-2); font-size: var(--hud-fs-md); }
 .hud-life-prices li { display: flex; align-items: baseline; gap: var(--hud-sp-3); }
 .hud-life-prices li > span { min-width: 0; overflow-wrap: break-word; }

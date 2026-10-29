@@ -1630,5 +1630,82 @@ settings.tempoView = 'xray';
   проверить('музыка: по умолчанию выключена', S.defaultSettings.enableMusic === false && S.defaultSettings.musicSceneLine === false);
 }
 
+// --- Панель HUD сбоку (sidebar.js) ---
+{
+  проверить('панель: по умолчанию выключена, своя ширина справа', S.defaultSettings.hudSidebar === 'off' && S.defaultSettings.hudSideFit === 'manual' && S.defaultSettings.hudSideEdge === 'right' && S.defaultSettings.hudSideWidth >= 300);
+  const П = await модуль('sidebar.js');
+  const х = П._дляТестов.ходов;
+  проверить('панель: «1 ход / 3 хода / 5 ходов / 11 ходов / 21 ход назад»', [1, 3, 5, 11, 21, 22].map(х).join('|') === '1 ход назад|3 хода назад|5 ходов назад|11 ходов назад|21 ход назад|22 хода назад', [1, 3, 5, 11, 21, 22].map(х).join('|'));
+  const L = await модуль('css-loader.js');
+  const часть = L.ЧАСТИ.find(([и]) => и === 'sidebar');
+  проверить('панель: sidebar.css грузится только когда панель включена', !!часть && !часть[1]({ hudSidebar: 'off' }) && часть[1]({ hudSidebar: 'side' }) && часть[1]({ hudSidebar: 'both' }));
+  const сб = css('css/sidebar.css');
+  проверить('панель: карточка — контейнер hud (узкие правила по своей ширине)', /\.hud-side \.hud-os-card \{[^}]*container: hud \/ inline-size/.test(сб));
+  // У <html> в Таверне transform: опора fixed — он, на телефоне 0×0. Никаких right/bottom.
+  проверить('панель: место в единицах экрана, без right: 0 и bottom: 0', !/\n\s*(?:right|bottom):\s*0/.test(сб) && /100dvh/.test(сб) && /100dvw/.test(сб));
+  const { СЛОВАРЬ_EN } = await модуль('i18n-en.js');
+  const нужны = ['HUD сбоку', 'Предыдущий ход', 'Следующий ход', 'К последнему ходу', 'Закрыть панель', 'В этом чате пока нет HUD', 'последний ход', 'Где HUD', 'В сообщениях', 'Сбоку и в сообщениях', 'Только сбоку'];
+  проверить('панель: подписи есть в английском словаре', нужны.every(к => к in СЛОВАРЬ_EN), нужны.filter(к => !(к in СЛОВАРЬ_EN)).join(', '));
+  const ix = fs.readFileSync(path.join(КОРЕНЬ, 'index.js'), 'utf8');
+  проверить('панель: «Только сбоку» — в ленте полоса, раскрытие открывает ход в панели', /if \(сбокуТолько\(\)\) return true;/.test(ix) && /if \(сбокуТолько\(\)\) \{\s*т\.checked = false;[\s\S]{0,200}открытьВПанели\(id\)/.test(ix));
+  const сj = fs.readFileSync(path.join(КОРЕНЬ, 'sidebar.js'), 'utf8');
+  проверить('панель: ширина — до «окно минус полоска чата», у колонки прилипает к «до чата»', /window\.innerWidth - ОСТАВИТЬ_ЧАТА/.test(сj) && /Math\.abs\(ширина - место\) <= ПРИЛИПАНИЕ/.test(сj) && /settings\.hudSideFit = прилипла \? 'chat' : 'manual'/.test(сj));
+  проверить('панель: капсула хода с точками и «к последнему»', /hud-side-capsule/.test(сj) && /hud-side-dot/.test(сj) && /data-side="last"/.test(сj) && /ходыВокруг/.test(ix));
+  проверить('панель: «Только сбоку» — в сообщении маленькая кнопка «HUD ›», а не полоса TavernOS', /renderHUD\(selected\.data, \{ шапка: true, заглушка: сбокуТолько\(\) \}\)/.test(ix) && /hud-os-card hud-side-stub/.test(ix) && /data-hud-side-jump/.test(ix) && /открытьВПанели\(id\)/.test(ix));
+  проверить('панель: заглушка без оформления карточки и тем, ход в панели подсвечен', /#chat \.hud-os-card\.hud-side-stub::before, #chat \.hud-os-card\.hud-side-stub::after \{ content: none !important/.test(сб) && /\.hud-side-stub\.is-shown .hud-side-jump/.test(сб) && /отметитьЗаглушку\(показан\)/.test(сj));
+  проверить('панель: кнопка переноса к другому краю, затемнение с той же стороны', /data-side="edge"/.test(сj) && /settings\.hudSideEdge = settings\.hudSideEdge === 'left' \? 'right' : 'left'/.test(сj) && /\.hud-side-backdrop\[data-edge="left"\]/.test(сб));
+  // hud-side-open — класс на <html>, пока панель открыта. Однажды так же
+  // назвали кнопку в сообщении, и её отступы и рамка 999px легли на всю
+  // страницу: Таверна съехала, по краям — розовые дуги.
+  const всеСтили = всеCSS.map(css).join('\n').replace(/\/\*[\s\S]*?\*\//g, '');
+  проверить('панель: класс <html> hud-side-open не стилизуют как элемент', !/(?:^|[\s,{>~+(])\.hud-side-open\b/m.test(всеСтили) && /documentElement\.classList\.add\('hud-side-open'\)/.test(сj) && !/class="hud-side-open"/.test(ix));
+  const rg = fs.readFileSync(path.join(КОРЕНЬ, 'regen.js'), 'utf8');
+  проверить('панель: перегенерация находит сообщение и из панели', (rg.match(/closest\('\.mes, \.hud-side-mes'\)/g) || []).length === 2);
+}
+// --- Ствол лиственного дерева не торчит над кроной ---
+{
+  const б = css('css/base.css'), м = css('css/misc.css');
+  проверить('дерево: ствол весной и осенью кончается в кроне (min от 63% + px)', /:is\(\.hud-bg-tree-spring, \.hud-bg-tree-autumn\) \.hud-bg-tree-trunk \{ height: min\(74%, calc\(63% \+ \d+px\)\); \}/.test(б));
+  проверить('дерево: в марте голые ветви — ствол во всю высоту', /\.season-spring\.month-3 \.hud-bg-tree-spring \.hud-bg-tree-trunk \{ height: 74%; \}/.test(м));
+}
+
+// --- Пилюли с длинным текстом, сжатые карточки, быт, спутник, подтекст ---
+{
+  const ток = css('css/tokens.css');
+  проверить('пилюли: токен --hud-r-chip от размера шрифта (в одну строку — пилюля, в несколько — скругление)', /--hud-r-chip:\s*calc\(0\.65em \+ 8px\)/.test(ток));
+  const пилюля = (ф, сел) => new RegExp(сел.replace(/[.*+?^()|[\]\\]/g, (з) => '\\' + з) + '\\s*\\{[^}]*border-radius:\\s*var\\(--hud-r-chip\\)').test(css(ф));
+  проверить('пилюли: уступки спора, умения спутника, бутылочки — скругление, а не круг', пилюля('css/duel.css', '.hud-duel-gv') && пилюля('css/extras.css', '.hud-pet2-skills span') && пилюля('css/extras.css', '.hud-bs-cell em'));
+  проверить('списки с потолком: карточки не сжимаются (обрезанный таймер следа)', /\.hud-os-card \.is-capped > \* \{[^}]*flex-shrink: 0/.test(css('css/compact.css')));
+  const Ж = await модуль('render/life.js');
+  const из = Ж.кончилосьИз;
+  проверить('быт: «закончилось» — сам запас, а не запись хроники', JSON.stringify(из('утром закончилось молоко')) === '["Молоко"]' && JSON.stringify(из('Кофе закончился ещё вчера')) === '["Кофе"]' && JSON.stringify(из('не осталось ни капли кофе')) === '["Кофе"]' && JSON.stringify(из('we ran out of milk')) === '["Milk"]');
+  проверить('быт: «у Коэна закончились реактивы», «разговор закончился», «закончил в…» — не запасы', !из('12:25 - Тристан уложил ее на диван; у Коэна закончились реактивы для антидота на 24 часа').length && !из('разговор закончился ссорой').length && !из('закончил в презерватив').length);
+  const Э = await модуль('render/extras.js');
+  const у = Э.лучшиеУмения('бесшумная охота; утешает хозяйку; продался в вечное рабство за одну забытую утреннюю булочку с мясом и луком; ворует стейки; выдвигает когтем аптечку; несёт караул у дверей; ворует стейки');
+  проверить('спутник: не больше четырёх умений, короткие вперёд, без повторов', у.length === 4 && !у.some(x => /булочку/.test(x)) && new Set(у).size === у.length, у.join(' | '));
+  const пр = fs.readFileSync(path.join(КОРЕНЬ, 'prompt.js'), 'utf8');
+  проверить('промпт: умения спутника — 3-4 самых характерных', /"skl": "\[OPTIONAL its 3-4 most telling skills/.test(пр));
+  проверить('промпт: скрытый подтекст — новое и скрытое, может вовсе не быть в тексте ответа', /"D": "\[hidden subtext — NEW and HIDDEN/.test(пр) && /does not have to appear in the reply at all/.test(пр) && /true to the character, the story so far, the context and this situation/.test(пр));
+}
+
+// --- Вопросики пояснений: у всех подписей, по-русски и по-английски ---
+{
+  document.addEventListener ||= () => {};
+  const H = await модуль('help.js');
+  const подписи = ['💋 Следы на теле:', '💬 Словесная дуэль:', '🛡️ Защита:', '💥 Готовность к оргазму:', '💓 Пульс, дыхание, температура:', '🔊 Звуки:', '👁 Что о тебе думают:', '🌸 Менструальный цикл:', '🗺️ Мини-карта маршрутов:', '🔫 Ружья Чехова:', '🗝 Кто что знает:', '🤫 Зашифрованные данные:', '💹 Экономика', '🏛 Городские службы', '🎭 Афиша'];
+  const без = подписи.filter(п => !H.findTermHelp(п));
+  проверить('пояснения: у всех подписей полей есть статья', !без.length, без.join(', '));
+  const { СЛОВАРЬ_EN } = await модуль('i18n-en.js');
+  const чисто = (п) => п.replace(/^[^\p{L}]+/u, '').replace(/[:：]\s*$/, '');
+  const англ = подписи.map(чисто).filter(к => СЛОВАРЬ_EN[к]).map(к => СЛОВАРЬ_EN[к]);
+  const безEN = англ.filter(п => !H.findTermHelp(п));
+  проверить('пояснения: английская подпись находит ту же статью', англ.length >= 12 && !безEN.length && H.findTermHelp('Health') && H.findTermHelp('Thoughts:'), безEN.join(', ') + ' / ' + англ.length);
+  проверить('пояснения: «Зашифрованные данные» — статья «Секреты»', H.findTermHelp('Зашифрованные данные').what === H.TERM_HELP['секреты'].what);
+  проверить('пояснения: вкладки «Детская» и «Спутники» со справкой', !!H.TAB_HELP.babies && !!H.TAB_HELP.pets && /значокСправки\('babies'\)/.test(fs.readFileSync(path.join(КОРЕНЬ, 'index.js'), 'utf8')) && /значокСправки\('pets'\)/.test(fs.readFileSync(path.join(КОРЕНЬ, 'index.js'), 'utf8')));
+  const нетПеревода = Object.values(H.TERM_HELP).concat(Object.values(H.TAB_HELP)).flatMap(а => [а.title, а.what, а.why, а.how]).filter(Boolean).map(т => т.replace(/\s+/g, ' ').trim().replace(/[.…!?»"')]+$/, '')).filter(т => !(т in СЛОВАРЬ_EN));
+  проверить('пояснения: каждый текст статьи переведён на английский', !нетПеревода.length, нетПеревода.slice(0, 3).join(' | '));
+  проверить('пояснения: в превью «Кастомизации» тоже вопросики', /attachHelpMarks\(карточка\)/.test(fs.readFileSync(path.join(КОРЕНЬ, 'customize.js'), 'utf8')));
+}
+
 console.log(`\nпроверок: ${всего}, провалов: ${провалы.length}`);
 if (провалы.length) { console.log(провалы.map(п => ' ✗ ' + п).join('\n')); process.exitCode = 1; }

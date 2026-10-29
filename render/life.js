@@ -18,17 +18,17 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.87.0';
-import { settings } from '../settings.js?v=23.87.0';
-import { разобратьХод } from './carryover.js?v=23.87.0';
-import { моментСцены } from './intimacy.js?v=23.87.0';
-import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.87.0';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.87.0';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.87.0';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.87.0';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.87.0';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.87.0';
-import { английский } from '../i18n.js?v=23.87.0';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.0';
+import { settings } from '../settings.js?v=23.88.0';
+import { разобратьХод } from './carryover.js?v=23.88.0';
+import { моментСцены } from './intimacy.js?v=23.88.0';
+import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.88.0';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.0';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.0';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.88.0';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.0';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.88.0';
+import { английский } from '../i18n.js?v=23.88.0';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;
@@ -86,7 +86,35 @@ function видHk(код, что) {
   return ВИДЫ_БЫТА[к] ? к : null;
 }
 // «закончился кофе», «не осталось молока» — что кончилось в доме.
+// Что кончилось — только запасы быта: еда, напитки, деньги, бытовое, аптечка.
+// «У Коэна закончились реактивы», «разговор закончился» — не про дом.
+const ЗАПАСЫ = new RegExp('(?<![\\p{L}])(?:кофе|ча[йяю]|молок|сливк|хлеб|батон|сыр|колбас|мяс[оа]|ед[аыу](?![\\p{L}])|продукт|деньг|наличн|газ(?:а)?(?![\\p{L}])|вод[аыу](?![\\p{L}])|туалетн|бумаг|шампун|мыл[оа]|гел[ья]|зубн|паст[аы]|сахар|сол[ьи](?![\\p{L}])|масл|яйц|круп|макарон|сигарет|табак|корм|лекарств|таблет|бинт|пластыр|бензин|топлив|вин[оа](?![\\p{L}])|пив[оа]|алкогол|виски|патрон|свеч|дров|спич|подгузн|памперс|смес[ьи]|прокладк|тампон|презерватив|смазк|батарейк|порош|салфетк|' +
+  'coffee|tea(?![a-z])|milk|cream|bread|cheese|meat|food|groceries|money|cash|gas(?![a-z])|water|toilet|paper|shampoo|soap|toothpaste|sugar|salt|oil|eggs?(?![a-z])|rice|pasta|cigarettes?|tobacco|pet food|medicine|pills|bandages?|petrol|fuel|wine|beer|booze|whisk(?:e)?y|ammo|bullets|candles|firewood|matches|diapers|formula|pads|tampons|condoms|lube|batteries|detergent|napkins)', 'iu');
 const КОНЧИЛОСЬ = сл('закончил(?:ся|ась|ось|ись)|не осталось|нет больше|кончил(?:ся|ась|ось|ись) (?:кофе|чай|молок|хлеб|еда|продукт|деньг|газ|вод|туалетн|шампун|мыл)|ran out of|out of (?:coffee|tea|milk|bread|food|groceries|money|gas|water|toilet paper|shampoo|soap)|no more (?:coffee|tea|milk|bread|food|money)|(?:coffee|tea|milk|bread|food|groceries|toilet paper|shampoo|soap) (?:ran out|is gone|is finished|are gone)');
+
+/** Запасы, которые кончились, из записи хроники: «закончилось молоко»,
+    «кофе закончился», «не осталось хлеба», «ran out of milk». Только сам
+    запас (до четырёх слов), и только если это запас быта. */
+export function кончилосьИз(ст) {
+  const итог = [];
+  const куски = String(ст || '').replace(/^\s*\d{1,2}[:.]\d{2}\s*[-—–:]?\s*/, '').split(/[;.!?\n]+/);
+  for (const кусок of куски) {
+    const м = кусок.match(КОНЧИЛОСЬ);
+    if (!м) continue;
+    const слова = (т) => т.split(/[,—–()«»"]/)[0].trim().split(/\s+/).filter(Boolean);
+    const после = слова(кусок.slice(м.index + м[0].length).replace(/^\s*(?:ни\s+)?(?:капли|крошки|грамма|ни)\s+/iu, '')).slice(0, 4);
+    const до = кусок.slice(0, м.index).split(/[,—–()«»"]/).pop().trim().split(/\s+/).filter(Boolean).slice(-3);
+    let что = '';
+    if (после.length && ЗАПАСЫ.test(после.slice(0, 2).join(' '))) что = после.join(' ');
+    else if (до.length && ЗАПАСЫ.test(до.join(' '))) что = до.slice(до.findIndex(w => ЗАПАСЫ.test(w))).join(' ');
+    // «out of coffee», «coffee ran out» — запас внутри самой метки.
+    else if (ЗАПАСЫ.test(м[0])) что = м[0].match(ЗАПАСЫ)[0];
+    // Хвост «на 24 часа», «у Коэна», «в холодильнике» — не часть запаса.
+    что = что.replace(/\s+(?:у|в|во|на|для|после|к|из|at|in|for|after|at)\s.*$/iu, '').replace(/^(?:ни|of|the|all)\s+/iu, '').trim();
+    if (что && что.length <= 40) итог.push(что.charAt(0).toUpperCase() + что.slice(1));
+  }
+  return итог;
+}
 
 // Чуть не случилось: «едва не», «чуть было не», «почти не», «чудом не».
 const ЧУТЬ_НЕ = /(?<![\p{L}])(?:едва|чуть|почти|чудом|еле)\s+(?:было\s+|ли\s+)?не(?![\p{L}])|(?<![\p{L}])(?:almost|nearly|narrowly|barely|just about)(?![\p{L}])/iu;
@@ -509,10 +537,9 @@ export function журналБыта(chat, конец = chat ? chat.length : 0, 
         if (сумма < 0) цены.set(норм(что), { что, сумма: Math.abs(сумма), t: tt });
       }
     }
-    // Что кончилось в доме — по таймлайну.
+    // Что кончилось в доме — по таймлайну: сам запас, а не вся запись.
     for (const s of Array.isArray(пам.timeline) ? пам.timeline : []) {
-      const ст = текст(s);
-      if (КОНЧИЛОСЬ.test(ст)) добавить({ вид: 'out', что: ст.replace(/^\s*\d{1,2}[:.]\d{2}\s*[-—–:]?\s*/, ''), t, источник: 'log' });
+      for (const что of кончилосьИз(текст(s))) добавить({ вид: 'out', что, t, источник: 'log' });
     }
     // Для гигиены: жара, близость, нагрузка — всё, что делает душ нужнее.
     const жара = температураИз(поле(d.scene, 'Погода'));
@@ -617,7 +644,8 @@ export function журналБыта(chat, конец = chat ? chat.length : 0, 
   // — одна поломка: общая основа слова и не дальше трёх часов.
   const основы = (т) => норм(т).split(' ').filter(w => w.length >= 4 && ВЕЩЬ_ДОМА.test(w)).map(w => w.slice(0, 4));
   const сломано = сломаноВсё.filter((с, i) => !сломаноВсё.slice(0, i).some(р => Math.abs(р.t - с.t) < 3 * Ч && основы(р.что).some(о => основы(с.что).includes(о))));
-  const закончилось = события.filter(с => с.вид === 'out' && с.t > сейчас - 7 * СУТКИ).slice(-5);
+  const закончилось = события.filter(с => с.вид === 'out' && с.t > сейчас - 7 * СУТКИ)
+    .filter((с, i, все) => все.findIndex(д => д.вид === 'out' && норм(д.что) === норм(с.что)) === i).slice(-5);
   // Траты по дням — последние 7 суток.
   const траты = [];
   for (let k = 6; k >= 0; k--) {

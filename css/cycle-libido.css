@@ -18,7 +18,7 @@
    градиентом цвета фазы, свечение линии и сегодняшней точки. */
 .hud-libido-title { display: inline-flex; align-items: center; gap: 6px; font-size: 10.5px; letter-spacing: .1em; text-transform: uppercase; color: color-mix(in srgb, var(--phase, var(--hud-accent, #d96a8a)) 45%, var(--ink-hi, #fff)); }
 .hud-libido-title .hud-v-ico { width: 14px; height: 14px; filter: drop-shadow(0 0 3px var(--phase, var(--hud-accent, #d96a8a))); }
-.hud-libido-title em { font-style: normal; letter-spacing: .04em; text-transform: none; font-size: 11px; padding: 0 8px; border-radius: 999px;
+.hud-libido-title em { font-style: normal; letter-spacing: .04em; text-transform: none; font-size: 11px; padding: 0 8px; border-radius: var(--hud-r-chip);
   background: color-mix(in srgb, var(--phase, var(--hud-accent, #d96a8a)) 20%, transparent); border: 1px solid color-mix(in srgb, var(--phase, var(--hud-accent, #d96a8a)) 40%, transparent); }
 .hud-libido-svg { color: var(--phase, var(--hud-accent, #d96a8a)); }
 .hud-libido-svg .lib-area { fill: url(#hud-lib-fill); stroke: none; }

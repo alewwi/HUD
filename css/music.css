@@ -119,11 +119,11 @@ button.hud-music-act { border: 0; padding: 0; cursor: pointer; color: var(--x-in
 .hud-music-tt b { font-size: .86em; overflow-wrap: anywhere; color: var(--x-ink) !important; }
 .hud-music-tt em { font-style: normal; font-size: .76em; overflow-wrap: anywhere; color: var(--x-ink-soft); }
 .hud-music-tt small { font-size: .7em; font-style: italic; color: var(--x-ink-soft); opacity: .85; }
-.hud-music-flag { align-self: flex-start; margin-top: 3px; padding: 1px 7px; border-radius: 99px; font-size: .6em; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #fff !important; background: color-mix(in srgb, #c9612b 85%, #000); }
+.hud-music-flag { align-self: flex-start; margin-top: 3px; padding: 1px 7px; border-radius: var(--hud-r-chip); font-size: .6em; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #fff !important; background: color-mix(in srgb, #c9612b 85%, #000); }
 .hud-music-tr.is-unfound :is(.hud-music-tt b, .hud-music-tt em, .hud-music-art) { opacity: .62; }
 .hud-music-go { grid-area: go; display: flex; flex-wrap: wrap; gap: 4px; min-width: 0; }
 .hud-music-svc, .hud-music-go .hud-music-mt {
-  --svc: var(--x-line); display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 99px;
+  --svc: var(--x-line); display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: var(--hud-r-chip);
   font: inherit; font-size: .68em; font-weight: 600; line-height: 1.5; text-decoration: none !important; cursor: pointer;
   color: var(--x-ink) !important; background: color-mix(in srgb, var(--svc) 14%, transparent); border: 1px solid color-mix(in srgb, var(--svc) 60%, transparent);
 }
@@ -162,7 +162,7 @@ button.hud-music-act { border: 0; padding: 0; cursor: pointer; color: var(--x-in
 .hud-music-cnt small { font-size: 1em; }
 .hud-music-foot { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; }
 .hud-music-btn {
-  display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: 99px; font: inherit; font-size: .74em; cursor: pointer;
+  display: inline-flex; align-items: center; gap: 5px; padding: 5px 11px; border-radius: var(--hud-r-chip); font: inherit; font-size: .74em; cursor: pointer;
   color: var(--x-ink); background: color-mix(in srgb, var(--mu) 16%, transparent); border: 1px solid color-mix(in srgb, var(--mu) 45%, transparent);
 }
 .hud-music-btn svg { width: 13px; height: 13px; }
@@ -209,7 +209,7 @@ button.hud-music-act { border: 0; padding: 0; cursor: pointer; color: var(--x-in
 .hud-mphone-bar i { display: block; width: 38%; height: 100%; border-radius: inherit; background: #fff; }
 .hud-mphone-go { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px; }
 .hud-mphone :is(.hud-music-svc, .hud-music-mt) {
-  --svc: rgba(255,255,255,.4); display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: 99px; font: inherit; font-size: 10.5px; font-weight: 600;
+  --svc: rgba(255,255,255,.4); display: inline-flex; align-items: center; gap: 3px; padding: 2px 8px; border-radius: var(--hud-r-chip); font: inherit; font-size: 10.5px; font-weight: 600;
   text-decoration: none !important; cursor: pointer; color: #fff !important; background: color-mix(in srgb, var(--svc) 18%, transparent); border: 1px solid color-mix(in srgb, var(--svc) 60%, transparent);
 }
 .hud-mphone .is-ya { --svc: #ffcc00; } .hud-mphone .is-sp { --svc: #1db954; } .hud-mphone .is-yt { --svc: #ff3d3d; } .hud-mphone .is-ap { --svc: #fa57c1; } .hud-mphone .is-sc { --svc: #ff5500; } .hud-mphone .is-ne { --svc: #e60026; } .hud-mphone .is-qq { --svc: #31c27c; }
@@ -229,7 +229,7 @@ button.hud-music-act { border: 0; padding: 0; cursor: pointer; color: var(--x-in
 .hud-mphone-list .hud-mphone-go { grid-area: go; justify-content: flex-start; padding-left: 45px; }
 .hud-mphone-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 6px 10px; margin-top: 12px; }
 .hud-mphone-foot small { font-size: 10.5px; color: rgba(255,255,255,.5); }
-.hud-mphone-get { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: 99px; border: 0; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; color: #fff; background: linear-gradient(160deg, #ff8a6a, #e0315b); box-shadow: 0 6px 14px -6px rgba(224,49,91,.8); }
+.hud-mphone-get { display: inline-flex; align-items: center; gap: 6px; padding: 7px 16px; border-radius: var(--hud-r-chip); border: 0; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; color: #fff; background: linear-gradient(160deg, #ff8a6a, #e0315b); box-shadow: 0 6px 14px -6px rgba(224,49,91,.8); }
 .hud-mphone-get svg { width: 14px; height: 14px; }
 .hud-mphone-get:disabled { opacity: .5; cursor: default; }
 .hud-mphone-empty { display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 26px 10px; text-align: center; }
@@ -348,7 +348,7 @@ button.hud-music-play svg { width: 13px; height: 13px; }
 @keyframes hud-mf-eq { from { transform: scaleY(.5); } to { transform: scaleY(1.9); } }
 .hud-music-float.is-open .hud-mf-dot { opacity: 1; }
 .hud-mf-panel {
-  display: none; align-items: center; gap: 4px; max-width: min(280px, calc(100vw - 56px)); padding: 4px 4px 4px 10px; border-radius: 99px;
+  display: none; align-items: center; gap: 4px; max-width: min(280px, calc(100vw - 56px)); padding: 4px 4px 4px 10px; border-radius: var(--hud-r-chip);
   background: rgba(20,16,26,.92); box-shadow: 0 6px 18px rgba(0,0,0,.5), inset 0 0 0 1px rgba(255,255,255,.1);
 }
 .hud-music-float.is-open .hud-mf-panel { display: flex; }
@@ -373,7 +373,7 @@ button.hud-music-play svg { width: 13px; height: 13px; }
   flex: 1; min-width: 0; display: inline-flex; align-items: center; justify-content: center; gap: 4px; padding: 5px 4px; border: 0; border-radius: 8px;
   font: inherit; font-size: 11.5px; font-weight: 600; cursor: pointer; color: rgba(255,255,255,.7); background: transparent; white-space: nowrap;
 }
-.hud-mphone-tab i { font-style: normal; font-size: 10px; padding: 0 5px; border-radius: 99px; background: rgba(255,255,255,.14); }
+.hud-mphone-tab i { font-style: normal; font-size: 10px; padding: 0 5px; border-radius: var(--hud-r-chip); background: rgba(255,255,255,.14); }
 .hud-mphone-tab.is-on { color: #fff; background: rgba(255,255,255,.18); box-shadow: 0 1px 3px rgba(0,0,0,.35); }
 /* Узкий телефон (экран приложения ~220 px): три вкладки с числами в строку не
    влезают и наезжали друг на друга — число становится кружком в углу вкладки,
@@ -417,7 +417,7 @@ button.hud-music-play svg { width: 13px; height: 13px; }
 .hud-mphone-back { flex: none; width: 28px; height: 28px; display: grid; place-items: center; padding: 0; border: 0; border-radius: 50%; cursor: pointer; color: #fff; background: rgba(255,255,255,.1); }
 .hud-mphone-back svg { width: 15px; height: 15px; }
 .hud-mphone-plfoot { justify-content: space-between; }
-.hud-mphone-new-badge { font-style: normal; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: 99px; background: rgba(255,255,255,.22); }
+.hud-mphone-new-badge { font-style: normal; font-size: 10px; font-weight: 600; padding: 1px 6px; border-radius: var(--hud-r-chip); background: rgba(255,255,255,.22); }
 .hud-mphone-del { display: inline-grid; place-items: center; min-width: 30px; height: 30px; padding: 0 10px; border: 0; border-radius: 99px; font: inherit; font-size: 12px; font-weight: 600; cursor: pointer; color: rgba(255,255,255,.75); background: rgba(255,255,255,.08); }
 .hud-mphone-del svg { width: 14px; height: 14px; }
 .hud-mphone-del.is-yes { color: #fff; background: #c8432f; }

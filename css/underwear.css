@@ -2,7 +2,7 @@
    открывается нажатием. Комплект — силуэты цветом из текста и бейджи
    «для кого» и «в каком состоянии»; слоем — полоса кожа · бельё · одежда. */
 .hud-un-veil > summary {
-  display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: 999px; cursor: pointer; list-style: none;
+  display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px; border-radius: var(--hud-r-chip); cursor: pointer; list-style: none;
   font-size: 12px; color: var(--hud-text-muted, #c0bdc6); background: rgba(255,255,255,.05); border: 1px dashed rgba(255,255,255,.22);
 }
 .hud-un-veil > summary::-webkit-details-marker { display: none; }
@@ -12,7 +12,7 @@
 .hud-un-svg { width: 86px; height: auto; display: block; }
 .hud-un-text p { margin: 0 0 4px; font-size: 12.5px; }
 .hud-un-badges { display: flex; flex-wrap: wrap; gap: 5px; }
-.hud-un-for, .hud-un-state { padding: 2px 8px; border-radius: 999px; font-size: 11px; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.05); }
+.hud-un-for, .hud-un-state { padding: 2px 8px; border-radius: var(--hud-r-chip); font-size: 11px; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.05); }
 .hud-un-for { border-color: color-mix(in srgb, var(--hud-accent, #d96a8a) 50%, transparent); background: color-mix(in srgb, var(--hud-accent, #d96a8a) 14%, transparent); }
 .hud-un-for.is-random { border-color: rgba(255,255,255,.16); background: rgba(255,255,255,.05); color: var(--hud-text-muted, #a8a5ad); }
 .hud-un-state.is-moved { border-color: #e0a45880; color: #f0c27a; }

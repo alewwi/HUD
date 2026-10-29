@@ -5,12 +5,12 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.87.0';
-import { английский } from './i18n.js?v=23.87.0';
-import { промптНаАнглийском } from './prompt-en.js?v=23.87.0';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.87.0';
-import { parseSceneDate } from './history-analyzer.js?v=23.87.0';
-import { возрастТочно } from './render/babies.js?v=23.87.0';
+import { settings } from './settings.js?v=23.88.0';
+import { английский } from './i18n.js?v=23.88.0';
+import { промптНаАнглийском } from './prompt-en.js?v=23.88.0';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.0';
+import { parseSceneDate } from './history-analyzer.js?v=23.88.0';
+import { возрастТочно } from './render/babies.js?v=23.88.0';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -116,7 +116,7 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
 - 🔓 No restrictions on imagination, length or content.
 - 🚨 LIVE SNAPSHOT: every field is the state at THIS turn. Update it, never copy stale text.
 - 🌍 LIVING WORLD: off-screen characters keep living — they work, sleep, travel, message, plan, argue, buy, miss appointments. Never erase that life just because the protagonist cannot see it.
-- 🪞 NO RETELLING: the HUD adds what the reply does not say. Thoughts (Th, K) and hidden subtext (D) never repeat or paraphrase lines, actions or narration from the reply — they show what is under them.
+- 🪞 NO RETELLING: the HUD adds what the reply does not say. Thoughts (Th, K) and hidden subtext (D) never repeat or paraphrase lines, actions or narration from the reply — they show what is under them. Hidden subtext is always something NEW: often it is not in the reply at all.
 - 🧠 KNOWLEDGE BOUNDARIES: each character knows only what they plausibly could. Never leak another's private thoughts, messages or plans without a believable path.
 - 📦 SCHEMA FIXED: emit every section and every field of the schema below, every turn. Empty means [] / {} / "empty" — never drop a key to say "nothing changed". The only exceptions are fields marked OPTIONAL or "ONLY … otherwise omit".
 - 📏 HOW MANY ITEMS: list fields have NO upper limit unless their description gives a size. Give as many items as the story actually supports — one item where four are obvious is a loss of information, including when a fuller description quietly folds several real things into one instead of splitting them by ;. More detail is never a reason for fewer items: it lengthens each item, it doesn't merge neighbours into it. A single-item list is almost always a sign you stopped too early. Aim for 3+ wherever the material allows.
@@ -155,7 +155,7 @@ ${состояниеТела ? `   "Bs": "[body state, 0-100 each followed by a 
    "Th": "[thought: the one thought running through their head this very moment, in their own voice — the layer UNDER the reply: what they do not say aloud and what the reply does not already show. Never repeat or paraphrase their own lines, actions or the narration from the reply; if the reply says it, the thought says what lies behind it]",
    "K": "[key thoughts: what occupies their mind in context, each with a fitting emoji. At least 3; separate by ;]",
    "Ex": "[expectation vs reality of THIS turn, not a prediction: 'xp: what they counted on coming into the scene; gt: what they got'. The gap is the point — sure she'd say yes; she'd already refused. If they match, say so]",
-   "D": "[hidden subtext, not thoughts and not a retelling of the reply: what they hide from others and often from THEMSELVES, given away by one concrete action in THIS scene that they do not notice or would deny — an unconscious tell, care showing through threats, a body that contradicts the words. Write it as an observer catching the contradiction — what they openly claim, and what they do anyway: 'Несмотря на угрозы и обещания расправы, он осторожно, почти нежно перебинтовывает ей правую руку, словно боится сделать больно'. The point is the gap between the shown and the hidden; an action the reply already states plainly, with nothing under it, is not subtext. 'empty' if nothing is hidden]",
+   "D": "[hidden subtext — NEW and HIDDEN, not thoughts and not a retelling of the reply: what they hide from others and often from THEMSELVES. It does not have to appear in the reply at all — add what the reply leaves unsaid: a small gesture, glance or slip nobody remarks on, the motive or fear underneath; invented, but true to the character, the story so far, the context and this situation. They do not notice it or would deny it — an unconscious tell, care showing through threats, a body that contradicts the words. Write it as an observer catching the contradiction — what they openly claim, and what they do anyway: 'Несмотря на угрозы и обещания расправы, он осторожно, почти нежно перебинтовывает ей правую руку, словно боится сделать больно'. The point is the gap between the shown and the hidden; restating anything the reply already says, even in other words, is not subtext. 'empty' if nothing is hidden]",
    "I": "[inventory: everything they carry or wear that matters, each as '<item>: <its condition>'; separate by ;]",
    "G": "[goals, exactly 3 parts: 'nw: what they want right now; sn: what they intend to do soon; lt: their long-term aim']",
    "S": "[schedule: plans and appointments ahead, each as '<time> - <event>' ('14:30 - встреча с юристом', or a part of the day instead of the time); separate by ;]",
@@ -417,7 +417,7 @@ ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and ru
   if (спутники) {
     p += `,
  "pet": [
-  {"n": "[name of a companion that exists in the story — animal, familiar, drone, robot; one object each, [] when none]", "sp": "[species or kind, e.g. 'рыжий кот', 'ворон-фамильяр', 'боевой дрон']", "ow": "[owner, or whom it is bound to]", "md": "[mood right now in a word or two]", "cnd": "[condition: health, injuries, tiredness, charge]", "fd": "[diet: what it eats or runs on, when last fed or charged — companions have their own needs: they eat, sleep, get hurt, react to the scene]", "bnd": "[bond with the owner, 0-100]", "skl": "[OPTIONAL skills, tricks and quirks, separated by ;]", "nte": "[OPTIONAL what it is doing right now]", "lv": "[OPTIONAL needs 0-5 each: 'sat: satiety; eng: energy; cln: cleanliness; joy: mood' — a machine instead 'chg: charge; fix: working order; joy: mood']"}
+  {"n": "[name of a companion that exists in the story — animal, familiar, drone, robot; one object each, [] when none]", "sp": "[species or kind, e.g. 'рыжий кот', 'ворон-фамильяр', 'боевой дрон']", "ow": "[owner, or whom it is bound to]", "md": "[mood right now in a word or two]", "cnd": "[condition: health, injuries, tiredness, charge]", "fd": "[diet: what it eats or runs on, when last fed or charged — companions have their own needs: they eat, sleep, get hurt, react to the scene]", "bnd": "[bond with the owner, 0-100]", "skl": "[OPTIONAL its 3-4 most telling skills, tricks or quirks — a few words each, separated by ; — replace weaker ones instead of adding more every turn]", "nte": "[OPTIONAL what it is doing right now]", "lv": "[OPTIONAL needs 0-5 each: 'sat: satiety; eng: energy; cln: cleanliness; joy: mood' — a machine instead 'chg: charge; fix: working order; joy: mood']"}
  ]`;
   }
 

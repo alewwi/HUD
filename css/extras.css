@@ -172,7 +172,7 @@
   background: linear-gradient(135deg, rgba(255,255,255,.78), color-mix(in srgb, var(--hud-accent) 14%, rgba(255,255,255,.45))) !important; outline-color: rgba(255,255,255,.9);
   box-shadow: 0 6px 16px color-mix(in srgb, var(--hud-accent) 30%, transparent), inset 0 2px 3px #fff !important; }
 :root.hud-skin-glass .hud-os-card .hud-body > .hud-row > .hud-key {
-  display: inline-block; padding: 3px 12px !important; margin-bottom: 8px; border-radius: 99px !important; border: 1px solid color-mix(in srgb, var(--hud-accent) 40%, rgba(255,255,255,.5));
+  display: inline-block; padding: 3px 12px !important; margin-bottom: 8px; border-radius: var(--hud-r-chip) !important; border: 1px solid color-mix(in srgb, var(--hud-accent) 40%, rgba(255,255,255,.5));
   background: linear-gradient(180deg, rgba(255,255,255,.22), color-mix(in srgb, var(--hud-accent) 18%, transparent)) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.4); }
 :root.hud-skin-glass .hud-os-card .hud-body > .hud-row .hud-detail-pill, :root.hud-skin-glass .hud-os-card .hud-body > .hud-row .hud-v-card, :root.hud-skin-glass .hud-os-card .hud-body > .hud-row .hud-v-chip { border-radius: 10px !important; border: 1px solid rgba(255,255,255,.4) !important; box-shadow: inset 0 1px 1px rgba(255,255,255,.3) !important; }
 
@@ -216,7 +216,7 @@
   content: var(--hud-dateline, ''); position: absolute; top: 10px; right: 38px; padding: 3px 11px; border-radius: 99px; font-size: .78em; color: #fff;
   background: rgba(20,16,36,.45); border: 1px solid rgba(255,255,255,.25); backdrop-filter: blur(4px); white-space: nowrap; }
 .hud-header.has-banner .hud-banner:not([style]) { background: linear-gradient(135deg, color-mix(in srgb, var(--hud-accent) 60%, #000), var(--hud-accent)); }
-.hud-banner-name { position: absolute; top: 10px; left: 14px; padding: 3px 12px; border-radius: 99px; font-size: .8em; font-weight: 700; color: #fff; background: rgba(20,16,36,.45); border: 1px solid rgba(255,255,255,.25); backdrop-filter: blur(4px); }
+.hud-banner-name { position: absolute; top: 10px; left: 14px; padding: 3px 12px; border-radius: var(--hud-r-chip); font-size: .8em; font-weight: 700; color: #fff; background: rgba(20,16,36,.45); border: 1px solid rgba(255,255,255,.25); backdrop-filter: blur(4px); }
 .hud-banner-vert { position: absolute; right: 12px; top: 10px; writing-mode: vertical-rl; font: 9px/1 Georgia, serif; letter-spacing: .3em; color: rgba(255,255,255,.75); text-shadow: 0 1px 3px rgba(0,0,0,.6); max-height: 90px; overflow: hidden; }
 .hud-header.has-banner .hud-header-info { margin-top: -34px; padding-left: 12px; position: relative; z-index: 2; align-items: flex-end; }
 .hud-header.has-banner .hud-header-info .hud-avatar, .hud-header.has-banner .hud-header-info .hud-avatar-placeholder { width: 60px; height: 60px; border-width: 3px; box-shadow: 0 4px 12px rgba(0,0,0,.45); }
@@ -313,7 +313,7 @@
 .hud-wash > .hud-wash-text { display: inline-block; }
 .hud-wash .hud-veil { position: absolute; inset: 0; display: none; place-items: center; font-size: .8em; font-weight: 700;
   background: radial-gradient(circle, transparent, color-mix(in srgb, var(--hud-accent) 25%, transparent)); }
-.hud-wash .hud-veil > span { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: 99px; font-family: inherit;
+.hud-wash .hud-veil > span { display: inline-flex; align-items: center; gap: 6px; padding: 4px 12px; border-radius: var(--hud-r-chip); font-family: inherit;
   background: color-mix(in srgb, var(--x-surf) 88%, transparent); color: var(--x-ink) !important; border: 1px solid var(--x-line); }
 .hud-wash .hud-veil svg { width: 16px; height: 16px; }
 .hud-wash.is-closed > :not(.hud-veil) { filter: blur(5px); opacity: .6; user-select: none; }
@@ -346,7 +346,7 @@
 .hud-bs-flasks .hud-bs-cell svg { width: 44px; height: 60px; }
 .hud-bs-cell b { font-size: 1.02em; font-weight: 800; }
 .hud-bs-cell small { font-size: .6em; letter-spacing: .1em; text-transform: uppercase; opacity: .72; }
-.hud-bs-cell em { font-style: normal; font-size: .7em; line-height: 1.25; padding: 1px 7px; border-radius: 99px; background: color-mix(in srgb, var(--c) 22%, transparent); color: color-mix(in srgb, var(--c) 55%, var(--hud-text, #eee)); border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); }
+.hud-bs-cell em { font-style: normal; font-size: .7em; line-height: 1.25; padding: 1px 7px; border-radius: var(--hud-r-chip); background: color-mix(in srgb, var(--c) 22%, transparent); color: color-mix(in srgb, var(--c) 55%, var(--hud-text, #eee)); border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); }
 .hud-bs .shell { fill: rgba(255,255,255,.06); stroke: color-mix(in srgb, var(--hud-text, #eee) 45%, transparent); stroke-width: 1.4; }
 .hud-bs .cap { fill: color-mix(in srgb, var(--hud-text, #eee) 45%, transparent); }
 .hud-bs .seg { stroke: rgba(0,0,0,.35); stroke-width: 1; }
@@ -365,7 +365,7 @@
 .hud-bs-sleep small { font-size: .66em; opacity: .75; }
 .hud-bs-work { font-size: .76em; padding: 6px 10px; border-radius: 10px; border: 1px dashed color-mix(in srgb, var(--a) 40%, transparent); background: color-mix(in srgb, var(--a) 5%, color-mix(in srgb, var(--x-surf) 70%, transparent)); }
 .hud-bs-chips { display: flex; flex-wrap: wrap; gap: 6px; }
-.hud-bs-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px 4px 5px; border-radius: 99px; font-size: .84em;
+.hud-bs-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px 4px 5px; border-radius: var(--hud-r-chip); font-size: .84em;
   background: linear-gradient(180deg, color-mix(in srgb, var(--c) 22%, rgba(255,255,255,.05)), color-mix(in srgb, var(--c) 10%, rgba(0,0,0,.15))); border: 1px solid color-mix(in srgb, var(--c) 40%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
 .hud-bs-chip i { min-width: 21px; height: 21px; padding: 0 3px; border-radius: 99px; display: grid; place-items: center; font-style: normal; font-size: 11px; font-weight: 800; background: color-mix(in srgb, var(--c) 45%, #000); color: #fff; }
 .hud-bs-note { margin: 8px 0 0; font-size: .82em; opacity: .75; line-height: 1.45; }
@@ -438,7 +438,7 @@
 .hud-pet2-now svg { width: 16px; height: 16px; flex: none; }
 .hud-pet2-extra { display: flex; flex-direction: column; gap: 3px; margin: 8px 14px 0; font-size: .8em; opacity: .9; }
 .hud-pet2-skills { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 14px 14px; }
-.hud-pet2-skills span { padding: 2px 10px; border-radius: 99px; font-size: .72em; background: linear-gradient(180deg, color-mix(in srgb, var(--p) 22%, rgba(255,255,255,.05)), color-mix(in srgb, var(--p) 8%, rgba(0,0,0,.1))); border: 1px solid color-mix(in srgb, var(--p) 40%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
+.hud-pet2-skills span { padding: 2px 10px; border-radius: var(--hud-r-chip); font-size: .72em; background: linear-gradient(180deg, color-mix(in srgb, var(--p) 22%, rgba(255,255,255,.05)), color-mix(in srgb, var(--p) 8%, rgba(0,0,0,.1))); border: 1px solid color-mix(in srgb, var(--p) 40%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
 .hud-pet2-skills span::before { content: '✦ '; opacity: .7; }
 .hud-pet2-pad { height: 12px; }
 

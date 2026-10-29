@@ -33,7 +33,7 @@
 .hud-cb-people { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--hud-sp-2); font-size: var(--hud-fs-md); }
 .hud-cb-people li { display: grid; grid-template-columns: 24px minmax(0, 1fr) auto; column-gap: 7px; align-items: center; }
 .hud-cb-people li small { grid-column: 2; color: var(--hud-text-muted, #a8a5ad); font-size: var(--hud-fs-sm); }
-.hud-cb-people li em { grid-row: 1 / span 2; grid-column: 3; font-style: normal; font-size: var(--hud-fs-sm); padding: 1px 7px; border-radius: var(--hud-r-pill); border: 1px solid rgba(255,255,255,.15); }
+.hud-cb-people li em { grid-row: 1 / span 2; grid-column: 3; font-style: normal; font-size: var(--hud-fs-sm); padding: 1px 7px; border-radius: var(--hud-r-chip); border: 1px solid rgba(255,255,255,.15); }
 .hud-cb-people li.st-hurt em { border-color: #e0a45880; color: #f0c27a; } .hud-cb-people li.st-out em { border-color: #e46a6a80; color: #f29a9a; }
 .hud-cb-people li.st-stun em { border-color: #c38ae880; color: #d8b2f0; }
 .hud-cb-people li.s-enemy b { color: #f29a9a; } .hud-cb-people li.s-ally b { color: #9adbb2; }
@@ -93,7 +93,7 @@
 .hud-cb.is-chase { --v-acc: #c38ae8; } .hud-cb.is-over { --v-acc: #7fc49a; }
 .hud-cb .hud-v-ico { width: 15px; height: 15px; }
 .hud-cb-line { gap: var(--hud-sp-5); }
-.hud-cb-stage { gap: 9px; padding: 4px 14px 4px 4px; border-radius: var(--hud-r-pill); font-size: var(--hud-fs-lg); font-weight: 750; letter-spacing: .02em;
+.hud-cb-stage { gap: 9px; padding: 4px 14px 4px 4px; border-radius: var(--hud-r-chip); font-size: var(--hud-fs-lg); font-weight: 750; letter-spacing: .02em;
   background: radial-gradient(120% 140% at 0% 50%, color-mix(in srgb, var(--v-acc) 30%, transparent), color-mix(in srgb, var(--v-acc) 8%, rgba(0,0,0,.2)));
   border: 1px solid color-mix(in srgb, var(--v-acc) 55%, transparent); box-shadow: 0 0 16px -6px var(--v-glow), inset 0 1px 0 rgba(255,255,255,.1); }
 .hud-cb-stage > span { display: grid; line-height: 1.1; }

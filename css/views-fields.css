@@ -84,7 +84,7 @@
 .hud-f-age.is-zodiac .glyph { font: 400 26px/1 'Segoe UI Symbol', serif; color: var(--f-ink); text-shadow: 0 0 12px var(--v-glow); }
 .hud-f-age.is-zodiac strong { font-family: var(--f-serif); font-size: 1.25em; letter-spacing: .04em; }
 .hud-f-age.is-zodiac small { font-size: .74em; letter-spacing: .06em; }
-.hud-f-age.is-zodiac .elem { display: inline-flex; align-items: center; gap: 5px; margin: 4px 0 2px; padding: 2px 9px 2px 5px; border-radius: 999px; font-size: .74em; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #fff; }
+.hud-f-age.is-zodiac .elem { display: inline-flex; align-items: center; gap: 5px; margin: 4px 0 2px; padding: 2px 9px 2px 5px; border-radius: var(--hud-r-chip); font-size: .74em; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: #fff; }
 .hud-f-age.is-zodiac .elem svg { width: 13px; height: 13px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .hud-f-age.is-zodiac .el-fire { background: linear-gradient(90deg, color-mix(in srgb, var(--t-acc) 30%, #ff7a3d), #c8303e); }
 .hud-f-age.is-zodiac .el-earth { background: linear-gradient(90deg, color-mix(in srgb, var(--t-acc) 30%, #7a9a4a), #4f6b2e); }
@@ -353,7 +353,7 @@
 .hud-f-phys.is-bubbles .cluster { flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 4px; }
 .hud-f-phys.is-bubbles .orb {
   --tone: hsl(from var(--t-acc) calc(h + var(--h)) s l);
-  position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 6px 13px 6px 8px; border-radius: 999px;
+  position: relative; display: inline-flex; align-items: center; gap: 6px; padding: 6px 13px 6px 8px; border-radius: var(--hud-r-chip);
   background: radial-gradient(ellipse at 30% 20%, rgba(255,255,255,.4), transparent 45%), radial-gradient(circle at 70% 80%, color-mix(in srgb, var(--tone) 30%, transparent), transparent 70%), color-mix(in srgb, var(--tone) 14%, var(--f-inset));
   box-shadow: inset 0 0 12px color-mix(in srgb, var(--tone) 30%, transparent);
 }
@@ -802,7 +802,7 @@
 .hud-f-conflict.is-counter .digit s { position: absolute; left: -2px; right: -2px; top: 50%; height: 2px; margin-top: -1px; background: var(--flip-bg); }
 .hud-f-conflict.is-counter .flip small { margin-left: 6px; font-size: .66em; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--flip-ink); opacity: .7; line-height: 1.3; }
 .hud-f-conflict.is-counter .info { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; font-size: .9em; }
-.hud-f-conflict.is-counter .chip { position: relative; isolation: isolate; padding: 2px 11px 2px 20px; border-radius: 999px; font-style: normal; font-size: .76em; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #fff; overflow: hidden; }
+.hud-f-conflict.is-counter .chip { position: relative; isolation: isolate; padding: 2px 11px 2px 20px; border-radius: var(--hud-r-chip); font-style: normal; font-size: .76em; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: #fff; overflow: hidden; }
 .hud-f-conflict.is-counter .chip::before { content: ''; position: absolute; inset: 0; z-index: -1; }
 .hud-f-conflict.is-counter .chip::after { content: ''; position: absolute; left: 8px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: #fff; }
 @media (max-width: 600px) { .hud-f-conflict.is-counter { flex-direction: column; align-items: flex-start; } }
@@ -890,7 +890,9 @@
 .hud-hv-chart .hud-health::after { content: '+'; position: absolute; right: 12px; top: 2px; font: 900 20px/1 sans-serif; color: color-mix(in srgb, var(--t-acc) 50%, #d0313a); }
 .hud-hv-chart .hud-health * { color: inherit; }
 .hud-hv-chart .hud-health-note { font: 1em/1.4 'Segoe Print', 'Bradley Hand', cursive; color: var(--f-pen) !important; }
-.hud-hv-chart .hud-ill, .hud-hv-chart .hud-mark { background: transparent !important; border: 0 !important; border-bottom: 1px dashed var(--f-paper-rule) !important; border-radius: 0 !important; box-shadow: none !important; padding: 8px 0 !important; }
+.hud-hv-chart .hud-ill, .hud-hv-chart .hud-mark { background: transparent !important; border: 0 !important; border-bottom: 1px dashed var(--f-paper-rule) !important; border-radius: 0 !important; box-shadow: none !important; padding: 8px 4px 8px 6px !important; }
+/* Отступ по бокам — под пунктирное кольцо значка (inset: -4px): при нуле
+   карточка с overflow: hidden срезала его левый край. */
 .hud-hv-chart :is(.hud-ill-row, .hud-mark-rows) span { color: var(--f-paper-soft) !important; }
 .hud-hv-chart .hud-ill-stage { border-color: currentColor !important; color: color-mix(in srgb, var(--t-acc) 60%, #d0313a) !important; transform: rotate(-3deg); font-weight: 800; }
 

@@ -846,7 +846,7 @@
 /* Календари: фишка с цветной точкой; скрытый — точка пустая, подпись бледнее. */
 .hud-cal-cals { display: flex; flex-wrap: wrap; gap: 5px; }
 .hud-cal .hud-cal-chip {
-  display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 3px 9px 3px 7px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 5px; max-width: 100%; padding: 3px 9px 3px 7px; border-radius: var(--hud-r-chip);
   font-size: 10.5px; font-weight: 600; line-height: 1.3; overflow-wrap: anywhere;
   background: color-mix(in srgb, var(--cc) 14%, transparent); border: 1px solid color-mix(in srgb, var(--cc) 35%, transparent);
 }
@@ -1136,11 +1136,13 @@
 /* Сетка галочек по приложениям телефона: в две колонки, чтобы восемь строк
    не растягивали панель настроек. */
 .hud-set-apps {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 4px 12px;
-  margin: 2px 0 4px; padding-left: 4px;
+  /* Колонки по ширине: в узкой колонке расширений Таверны две по 1fr
+     вылезали за край — там одна. */
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 118px), 1fr)); gap: 4px 12px;
+  margin: 2px 0 4px; padding-left: 4px; min-width: 0;
 }
 .hud-set-apps label {
-  display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 12.5px;
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; min-width: 0; cursor: pointer; font-size: 12.5px;
 }
 
 /* =========================================================================
@@ -1148,9 +1150,11 @@
    ========================================================================= */
 
 /* Кнопка вызова в панели настроек. */
-.hud-set-tools { display: flex; align-items: flex-start; gap: 10px; margin: 2px 0 8px; }
+/* Колонка расширений Таверны узкая: кнопки переносятся, пояснение — своей
+   строкой под ними, иначе ряд вылезал за край в соседнюю колонку. */
+.hud-set-tools { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 8px 10px; margin: 2px 0 8px; min-width: 0; max-width: 100%; }
 .hud-set-tool-btn {
-  flex: 0 0 auto; cursor: pointer;
+  flex: 0 1 auto; min-width: 0; max-width: 100%; cursor: pointer; white-space: normal; text-align: left;
   padding: 7px 12px; border-radius: 8px;
   font-size: 12.5px; font-weight: 600; font-family: inherit; line-height: 1.2;
   color: var(--hud-text, #e6e6ee);
@@ -1159,7 +1163,7 @@
   transition: background .15s ease;
 }
 @media (hover: hover) and (pointer: fine) { .hud-set-tool-btn:hover { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 34%, transparent); } }
-.hud-set-tool-note { font-size: 11.5px; line-height: 1.45; color: var(--hud-text-muted, rgba(226,232,240,.66)); }
+.hud-set-tool-note { flex: 1 1 100%; min-width: 0; overflow-wrap: anywhere; font-size: 11.5px; line-height: 1.45; color: var(--hud-text-muted, rgba(226,232,240,.66)); }
 
 /* Окно шире обычной модалки: в отчёте длинные цепочки статусов. */
 /* Высота — по видимой части экрана (dvh): 92vh на телефоне считал и место
@@ -1271,7 +1275,7 @@
 .hud-arc-st-ico { width: 15px; height: 15px; flex: none; color: var(--hud-accent, #8c5ad2); }
 .hud-arc-st-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; font-size: 11px; opacity: .8; margin-bottom: 8px; }
 .hud-arc-st-meta i { font-style: normal; opacity: .6; }
-.hud-arc-st-mt { display: none; margin-left: auto; padding: 2px 9px; border-radius: 999px; font: inherit; font-size: 10.5px; cursor: pointer; color: inherit; background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 18%, transparent); border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 45%, transparent); }
+.hud-arc-st-mt { display: none; margin-left: auto; padding: 2px 9px; border-radius: var(--hud-r-chip); font: inherit; font-size: 10.5px; cursor: pointer; color: inherit; background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 18%, transparent); border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 45%, transparent); }
 :root.hud-has-moodtube .hud-arc-st-mt { display: inline-block; }
 .hud-arc-st-sub { margin: 8px 0 5px; font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; opacity: .7; }
 .hud-arc-st-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; }
@@ -1282,7 +1286,7 @@
 .hud-arc-st-tt b { overflow-wrap: anywhere; }
 .hud-arc-st-tt em { font-style: normal; font-size: 11px; opacity: .7; overflow-wrap: anywhere; }
 .hud-arc-st-go { grid-area: go; display: flex; flex-wrap: wrap; gap: 4px; }
-.hud-arc-st-go .hud-music-svc { --svc: rgba(255,255,255,.3); padding: 1px 7px; border-radius: 999px; font-size: 10.5px; font-weight: 600; text-decoration: none !important; color: inherit !important; background: color-mix(in srgb, var(--svc) 14%, transparent); border: 1px solid color-mix(in srgb, var(--svc) 60%, transparent); }
+.hud-arc-st-go .hud-music-svc { --svc: rgba(255,255,255,.3); padding: 1px 7px; border-radius: var(--hud-r-chip); font-size: 10.5px; font-weight: 600; text-decoration: none !important; color: inherit !important; background: color-mix(in srgb, var(--svc) 14%, transparent); border: 1px solid color-mix(in srgb, var(--svc) 60%, transparent); }
 .hud-arc-st-go .is-ya { --svc: #ffcc00; } .hud-arc-st-go .is-sp { --svc: #1db954; } .hud-arc-st-go .is-yt { --svc: #ff3d3d; } .hud-arc-st-go .is-ap { --svc: #fa57c1; } .hud-arc-st-go .is-sc { --svc: #ff5500; } .hud-arc-st-go .is-ne { --svc: #e60026; } .hud-arc-st-go .is-qq { --svc: #31c27c; }
 .hud-arc-st-phone { margin-top: 8px; font-size: 11px; font-style: italic; opacity: .75; overflow-wrap: anywhere; }
 /* Ширина — по самой карточке главы, а не по окну: архив бывает и узким. */
@@ -1293,7 +1297,7 @@
   .hud-arc-st-go { justify-content: flex-end; }
 }
 .hud-arc-tag {
-  margin-left: auto; padding: 2px 7px; border-radius: 999px;
+  margin-left: auto; padding: 2px 7px; border-radius: var(--hud-r-chip);
   font-size: 10px; letter-spacing: .03em; opacity: .75;
   background: rgba(255,255,255,.08);
 }
@@ -1308,12 +1312,12 @@
 .hud-arc-path i { font-style: normal; opacity: .35; }
 .hud-arc-status {
   display: inline-flex; align-items: center; gap: 4px;
-  padding: 2px 8px; border-radius: 999px; font-size: 11.5px;
+  padding: 2px 8px; border-radius: var(--hud-r-chip); font-size: 11.5px;
   background: rgba(255,255,255,.07); border: 1px solid var(--hud-border, rgba(255,255,255,.1));
 }
 .hud-arc-who {
   display: inline-flex; align-items: baseline; gap: 4px;
-  padding: 2px 8px; border-radius: 999px; font-size: 11.5px;
+  padding: 2px 8px; border-radius: var(--hud-r-chip); font-size: 11.5px;
   background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 16%, transparent);
   border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 34%, transparent);
 }

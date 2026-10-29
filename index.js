@@ -1,57 +1,57 @@
 // hud-manager/index.js
-import { hexToRgba, settings, defaultSettings, настройка, КЛЮЧИ_АВТО, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, сценаВМесте } from './settings.js?v=23.87.0';
-import { escapeHtml, getSafeUserName, hudHasMeaningfulValue, имяДляВкладки, имяБезПриставки, убратьПриставкуКарточки, замер } from './utils.js?v=23.87.0';
-import { parseHUDComplex, scoreHudJsonCandidate } from './hud-parser.js?v=23.87.0';
-import { создатьБилеты } from './gen-ticket.js?v=23.87.0';
-import { подключитьЛетопись, летописьЕсли } from './chronicle-store.js?v=23.87.0';
-import { датаИзТегов } from './chronicle.js?v=23.87.0';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, облегчитьКарточку, вернутьКарточку, плавноПоказать } from './events.js?v=23.87.0';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.87.0';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.87.0';
-import { mergeCarryOver, дополнитьВоспоминанияСнимка, дополнитьКарточкиСнимка, вернутьЧерты, сдвигиДоверия, ключБлокаСводки, достатьРазборыСводки, запомнитьРазборСводки } from './render/carryover.js?v=23.87.0';
-import { привязатьИсторию } from './render/intimacy.js?v=23.87.0';
-import { журналБыта, buildLifeHTML, естьБыт, строкаБыта, темыБыта, пробелыБыта } from './render/life.js?v=23.87.0';
-import { строкаЧасовСцены } from './render/scene-clock.js?v=23.87.0';
-import { buildCombatHTML, hudHasCombat } from './render/combat.js?v=23.87.0';
-import { прогнозыЗаживления } from './render/life-combat.js?v=23.87.0';
-import { состояниеСцены } from './render/character.js?v=23.87.0';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.87.0';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.87.0';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.87.0';
-import { buildMemoryHTML } from './render/memory.js?v=23.87.0';
-import { buildPhoneTabsHTML } from './render/phone.js?v=23.87.0';
-import { праздникиСцены } from './render/holidays.js?v=23.87.0';
-import { изменитьСудьбу, откатитьСудьбу, отметитьТест, узнатьПол, изменитьПлоды, откатитьПлоды, задатьЧертыРодителей, зарегистрироватьРоды, роды, поправитьРоды } from './render/conception.js?v=23.87.0';
-import { buildBabiesHTML, hudHasBabies, днейИзТекста } from './render/babies.js?v=23.87.0';
-import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.87.0';
-import { hudHasRelations } from './render/relations-graph.js?v=23.87.0';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.87.0';
-import { чипЛуны, теньЛуны, титрыСцены, карточкаПоворота } from './render/extras.js?v=23.87.0';
-import { полосаМузыки, подключитьМузыку } from './render/music.js?v=23.87.0';
-import { включитьПереводчик, английский } from './i18n.js?v=23.87.0';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.87.0';
-import { applyThemeClass } from './themes.js?v=23.87.0';
-import { упорядочитьВкладки } from './tabs-order.js?v=23.87.0';
-import { подключитьСтили } from './css-loader.js?v=23.87.0';
-import { пометитьЭффекты } from './render/fx.js?v=23.87.0';
-import { namesLikelySame } from './names.js?v=23.87.0';
-import { заменитьВТексте } from './dom-patch.js?v=23.87.0';
-import { ярлыкСЗначком, подключитьЗначки } from './render/hud-icons.js?v=23.87.0';
-import { меткаШапки } from './render/topbar-icons.js?v=23.87.0';
-import { оформитьСводки } from './render/summary-card.js?v=23.87.0';
-import { вычислитьСвет, переменныеСвета } from './render/light.js?v=23.87.0';
-import { текстНаКарточке, фоныКарточки, подложкаЧата, яркость } from './contrast.js?v=23.87.0';
-import { бюджетИнструкции, подписьБюджета, медианаОтвета, оценкаТокенов, точноТокенов, разметкаБюджета, коротко } from './token-budget.js?v=23.87.0';
-import { наблюденияПолей, учестьОтвет, профильМодели, строкаУсиления, слабыеПоля } from './adapt-prompt.js?v=23.87.0';
-import { правитьСнимок, снятьПравку } from './snapshot-edits.js?v=23.87.0';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.87.0';
-import { getChatMessages, parseSceneDate } from './history-analyzer.js?v=23.87.0';
-import { сводкиВместоМеток, МЕТКА_HUD, подключитьMemoryBooks } from './memorybooks-link.js?v=23.87.0';
-import { телоБезHUD, extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ, заменитьHudБлоки, похожНаДанные } from './hud-block.js?v=23.87.0';
-import { собратьСнимок, строкаСнимка, решитьNSFW, решитьБой, последниеТекстыЧата, легендаСнимка, короткиеВСнимке } from './hud-snapshot.js?v=23.87.0';
-import { создатьПроверкуПолноты, чегоНеХватает } from './hud-check.js?v=23.87.0';
-import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.87.0';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.87.0';
+import { hexToRgba, settings, defaultSettings, настройка, КЛЮЧИ_АВТО, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, сценаВМесте } from './settings.js?v=23.88.0';
+import { escapeHtml, getSafeUserName, hudHasMeaningfulValue, имяДляВкладки, имяБезПриставки, убратьПриставкуКарточки, замер } from './utils.js?v=23.88.0';
+import { parseHUDComplex, scoreHudJsonCandidate } from './hud-parser.js?v=23.88.0';
+import { создатьБилеты } from './gen-ticket.js?v=23.88.0';
+import { подключитьЛетопись, летописьЕсли } from './chronicle-store.js?v=23.88.0';
+import { датаИзТегов } from './chronicle.js?v=23.88.0';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, облегчитьКарточку, вернутьКарточку, плавноПоказать } from './events.js?v=23.88.0';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.88.0';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.88.0';
+import { mergeCarryOver, дополнитьВоспоминанияСнимка, дополнитьКарточкиСнимка, вернутьЧерты, сдвигиДоверия, ключБлокаСводки, достатьРазборыСводки, запомнитьРазборСводки } from './render/carryover.js?v=23.88.0';
+import { привязатьИсторию } from './render/intimacy.js?v=23.88.0';
+import { журналБыта, buildLifeHTML, естьБыт, строкаБыта, темыБыта, пробелыБыта } from './render/life.js?v=23.88.0';
+import { строкаЧасовСцены } from './render/scene-clock.js?v=23.88.0';
+import { buildCombatHTML, hudHasCombat } from './render/combat.js?v=23.88.0';
+import { прогнозыЗаживления } from './render/life-combat.js?v=23.88.0';
+import { состояниеСцены } from './render/character.js?v=23.88.0';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.88.0';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.88.0';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.88.0';
+import { buildMemoryHTML } from './render/memory.js?v=23.88.0';
+import { buildPhoneTabsHTML } from './render/phone.js?v=23.88.0';
+import { праздникиСцены } from './render/holidays.js?v=23.88.0';
+import { изменитьСудьбу, откатитьСудьбу, отметитьТест, узнатьПол, изменитьПлоды, откатитьПлоды, задатьЧертыРодителей, зарегистрироватьРоды, роды, поправитьРоды } from './render/conception.js?v=23.88.0';
+import { buildBabiesHTML, hudHasBabies, днейИзТекста } from './render/babies.js?v=23.88.0';
+import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.88.0';
+import { hudHasRelations } from './render/relations-graph.js?v=23.88.0';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.88.0';
+import { чипЛуны, теньЛуны, титрыСцены, карточкаПоворота } from './render/extras.js?v=23.88.0';
+import { полосаМузыки, подключитьМузыку } from './render/music.js?v=23.88.0';
+import { включитьПереводчик, английский } from './i18n.js?v=23.88.0';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.88.0';
+import { applyThemeClass } from './themes.js?v=23.88.0';
+import { упорядочитьВкладки } from './tabs-order.js?v=23.88.0';
+import { подключитьСтили } from './css-loader.js?v=23.88.0';
+import { пометитьЭффекты } from './render/fx.js?v=23.88.0';
+import { namesLikelySame } from './names.js?v=23.88.0';
+import { заменитьВТексте } from './dom-patch.js?v=23.88.0';
+import { ярлыкСЗначком, подключитьЗначки } from './render/hud-icons.js?v=23.88.0';
+import { меткаШапки } from './render/topbar-icons.js?v=23.88.0';
+import { оформитьСводки } from './render/summary-card.js?v=23.88.0';
+import { вычислитьСвет, переменныеСвета } from './render/light.js?v=23.88.0';
+import { текстНаКарточке, фоныКарточки, подложкаЧата, яркость } from './contrast.js?v=23.88.0';
+import { бюджетИнструкции, подписьБюджета, медианаОтвета, оценкаТокенов, точноТокенов, разметкаБюджета, коротко } from './token-budget.js?v=23.88.0';
+import { наблюденияПолей, учестьОтвет, профильМодели, строкаУсиления, слабыеПоля } from './adapt-prompt.js?v=23.88.0';
+import { правитьСнимок, снятьПравку } from './snapshot-edits.js?v=23.88.0';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.88.0';
+import { getChatMessages, parseSceneDate } from './history-analyzer.js?v=23.88.0';
+import { сводкиВместоМеток, МЕТКА_HUD, подключитьMemoryBooks } from './memorybooks-link.js?v=23.88.0';
+import { телоБезHUD, extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ, заменитьHudБлоки, похожНаДанные } from './hud-block.js?v=23.88.0';
+import { собратьСнимок, строкаСнимка, решитьNSFW, решитьБой, последниеТекстыЧата, легендаСнимка, короткиеВСнимке } from './hud-snapshot.js?v=23.88.0';
+import { создатьПроверкуПолноты, чегоНеХватает } from './hud-check.js?v=23.88.0';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.88.0';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.88.0';
 
 // Поколение отрисовки для «живой карточки» (см. processMessage): растёт при
 // смене настроек и явной перерисовке. На уровне модуля — чтобы сохранение
@@ -135,7 +135,7 @@ const ЖИВЫЕ = { поколение: 0 };
   // нужна она только к генерации. Грузится заранее, когда страница затихнет, и
   // в любом случае до первой отправки (обёртка fetch ждёт её).
   let загрузитьПромптОбещание = null;
-  const загрузитьПромпт = () => (загрузитьПромптОбещание ||= import('./prompt.js?v=23.87.0').then(м => { м.подключить(связьПромпта); return м; }));
+  const загрузитьПромпт = () => (загрузитьПромптОбещание ||= import('./prompt.js?v=23.88.0').then(м => { м.подключить(связьПромпта); return м; }));
   const связьПромпта = {
     get последнийСнимокОбъект() { return последнийСнимокОбъект; },
     get сверитьРоды() { return сверитьРоды; },
@@ -1543,7 +1543,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
   // Окно «Кастомизация» и его панель темы (customize.js) вместе с примером HUD
   // грузятся при первом открытии: при старте они не нужны.
   let загрузитьКастомизациюОбещание = null;
-  const загрузитьКастомизацию = () => (загрузитьКастомизациюОбещание ||= import('./customize.js?v=23.87.0').then(м => { м.подключить(связьКастомизации); return м; }));
+  const загрузитьКастомизацию = () => (загрузитьКастомизациюОбещание ||= import('./customize.js?v=23.88.0').then(м => { м.подключить(связьКастомизации); return м; }));
   const связьКастомизации = {
     get applyCardUiState() { return applyCardUiState; },
     get applyThemeColors() { return applyThemeColors; },
@@ -1621,6 +1621,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
   // «Отложенная сборка» у processMessage): без сцены и вкладок.
   function renderHUD(data, опции = {}) {
     if (!data || Object.keys(data).length === 0) return '';
+    if (опции.заглушка) { lastLazyThunks = null; return заглушкаПанели(data); }
     сверитьРоды();
     const hasMemory = Boolean(data.memory && (
       (Array.isArray(data.memory.timeline) && data.memory.timeline.length) ||
@@ -2131,7 +2132,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
 
     if (settings.enableBabies !== false && hudHasBabies(data.babies)) {
       const uid = `babies-${baseId}`;
-      addTab('babies', 'hud-kids-tab', `🍼 Детская`,
+      addTab('babies', 'hud-kids-tab', `🍼 Детская${значокСправки('babies')}`,
         uid, (active) => buildBabiesHTML(data.babies, uid, active, data.scene || {}));
     }
 
@@ -2237,7 +2238,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
 
     if (settings.enableCompanions !== false && hudHasMeaningfulCompanions(data.companions)) {
       const uid = `pets-${baseId}`;
-      addTab('pets', '', `🐾 Спутники`,
+      addTab('pets', '', `🐾 Спутники${значокСправки('pets')}`,
         uid, (active) => buildCompanionsHTML(data.companions, uid, active));
     }
 
@@ -2273,7 +2274,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
     // сообщение. Если считать и её, настоящая карточка перестаёт быть
     // последней и каждый раз сворачивается как «старая».
     const allCards = Array.from(scope.querySelectorAll('.hud-os-card'))
-      .filter(card => !card.closest('.hud-theme-preview'));
+      .filter(card => !card.closest('.hud-theme-preview, .hud-side'));
     if (allCards.length > 0) {
       for (let i = 0; i < allCards.length - 1; i++) {
         if (allCards[i].dataset.userExpanded === 'true') continue; // пользователь сам раскрыл — не трогаем
@@ -2408,6 +2409,8 @@ const акцентДляТекста = () => текстНаКарточке(sett
     return -1;
   }
   function отложитьСборку(messageElement) {
+    // «Только сбоку»: полная карточка живёт в панели, в ленте — полоса.
+    if (сбокуТолько()) return true;
     if (settings.lightenOldCards === false || messageElement.__hudFull) return false;
     // Поле «свёрнута» хранит checked свёртки: true — карточка раскрыта.
     const состояние = messageElement.__hudUiState;
@@ -2450,7 +2453,15 @@ const акцентДляТекста = () => текстНаКарточке(sett
     const т = e.target;
     if (!т || !т.checked || !т.matches || !т.matches('.hud-toggle-input')) return;
     const card = т.closest('.hud-os-card[data-hud-deferred]');
-    if (card) собратьОтложенную(card, true);
+    if (!card) return;
+    if (сбокуТолько()) {
+      т.checked = false;
+      const mes = card.closest('.mes');
+      const id = Number(mes && mes.getAttribute('mesid'));
+      if (Number.isInteger(id)) открытьВПанели(id);
+      return;
+    }
+    собратьОтложенную(card, true);
   }, true);
 
   function ключЖивойКарточки(messageElement) {
@@ -2734,7 +2745,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
       // значит содержимое даёт только перенос: собираем полностью.
       const шапка = отложитьСборку(messageElement);
       let данныеХода = selected.data;
-      if (шапка) rendered = замер('шапка', () => renderHUD(selected.data, { шапка: true }));
+      if (шапка) rendered = замер('шапка', () => renderHUD(selected.data, { шапка: true, заглушка: сбокуТолько() }));
       if (!rendered) {
       данныеХода = замер('сдвигиДоверия', () => сдвигиДоверия(замер('вернутьЧерты', () => вернутьЧерты(замер('mergeCarryOver', () => mergeCarryOver(selected.data, messageElement)), messageElement)), messageElement));
       // Таймеры следов и графики пульса смотрят в прошлые ходы — лениво,
@@ -2800,6 +2811,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
       возвращатьПослеСборки = true;
       кнопкаВерсийHUD(messageElement, textElement);
       freezeOldHUDs();
+      панельЗаметила(Number(messageElement.getAttribute('mesid')));
     }
 
     textElement.querySelectorAll('.hud-regen-btn').forEach(bindHudRegenButton);
@@ -3042,7 +3054,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
     if (возвращаемПрокрутку) return;
     const el = e.target;
     if (!el || el.nodeType !== 1 || !el.closest || !el.closest('.hud-os-card')) return;
-    const mes = el.closest('.mes');
+    const mes = el.closest('.mes, .hud-side-mes');
     if (!mes) return;
     const ключ = ключПрокрутки(el);
     if (!ключ) return;
@@ -3084,7 +3096,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
     const { kto, key, hudFate } = кнопка.dataset;
     const вышло = hudFate === 'undo' ? откатитьСудьбу(kto) : изменитьСудьбу(kto, key, hudFate === 'pos');
     if (!вышло) return;
-    const mes = кнопка.closest('.mes');
+    const mes = кнопка.closest('.mes, .hud-side-mes');
     if (mes) mes.__hudUiState = readCardUiState(mes);
     перерисоватьКарточкиЧата();
   });
@@ -3094,7 +3106,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
     if (!кн || !кн.closest('.hud-os-card')) return;
     e.preventDefault(); e.stopPropagation();
     const путь = кн.dataset.secEdit, значение = кн.dataset.value || '';
-    const mes = кн.closest('.mes');
+    const mes = кн.closest('.mes, .hud-side-mes');
     const вышло = значение ? правитьСнимок(путь, значение, mes ? Number(mes.getAttribute('mesid')) : null) : снятьПравку(путь);
     if (!вышло) return;
     if (mes) mes.__hudUiState = readCardUiState(mes);
@@ -3133,7 +3145,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
       }
     }
     if (!вышло) return;
-    const mes = цель.closest('.mes');
+    const mes = цель.closest('.mes, .hud-side-mes');
     if (mes) mes.__hudUiState = readCardUiState(mes);
     перерисоватьКарточкиЧата();
   });
@@ -3156,7 +3168,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
     const тест = надпись.parentElement;
     setTimeout(() => {
       if (!тест.open || !отметитьТест(тест.dataset.kto)) return;
-      const mes = тест.closest('.mes');
+      const mes = тест.closest('.mes, .hud-side-mes');
       if (mes) mes.__hudUiState = readCardUiState(mes);
       перерисоватьКарточкиЧата();
     }, 0);
@@ -3168,7 +3180,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
     if (возвращаемСостояние) return;
     const card = e.target && e.target.closest && e.target.closest('.hud-os-card');
     if (!card) return;
-    const mes = card.closest('.mes');
+    const mes = card.closest('.mes, .hud-side-mes');
     if (!mes) return;
     setTimeout(() => { if (mes.isConnected) mes.__hudUiState = readCardUiState(mes); }, 0);
   });
@@ -3177,7 +3189,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
     if (возвращаемСостояние) return;
     const card = e.target && e.target.closest && e.target.closest('.hud-os-card');
     if (!card) return;
-    const mes = card.closest('.mes');
+    const mes = card.closest('.mes, .hud-side-mes');
     if (mes) mes.__hudUiState = readCardUiState(mes);
   }, true);
 
@@ -3668,6 +3680,8 @@ const акцентДляТекста = () => текстНаКарточке(sett
   const processingMessages = new WeakSet();
   function safeProcessMessage(messageElement) {
     if (!messageElement || isMessageBeingEdited(messageElement)) return;
+    // Карточка панели — не сообщение ленты: её пересобирает сама панель.
+    if (messageElement.classList && messageElement.classList.contains('hud-side-mes')) { панельЗаметила(Number(messageElement.getAttribute('mesid'))); return; }
     // Пока сообщение разбирается, повторный вызов раньше просто пропадал. Это
     // и ломало возврат свёрнутой карточки: IntersectionObserver возвращал
     // исходник и просил собрать карточку, а разбор в этот момент ещё шёл с
@@ -3761,7 +3775,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
   // Перегенерация HUD по 🔄 / ➕ и досоздание после проверки полноты
   // (regen.js) — грузится при первом нажатии.
   let загрузитьПерегенерациюОбещание = null;
-  const загрузитьПерегенерацию = () => (загрузитьПерегенерациюОбещание ||= import('./regen.js?v=23.87.0').then(м => { м.подключить(связьПерегенерации); return м; }));
+  const загрузитьПерегенерацию = () => (загрузитьПерегенерациюОбещание ||= import('./regen.js?v=23.88.0').then(м => { м.подключить(связьПерегенерации); return м; }));
   const связьПерегенерации = {
     get buildHudLoreContext() { return buildHudLoreContext; },
     get getMessageUpdateFunction() { return getMessageUpdateFunction; },
@@ -3822,10 +3836,10 @@ const акцентДляТекста = () => текстНаКарточке(sett
       e.preventDefault();
       e.stopPropagation();
       if (e.stopImmediatePropagation) e.stopImmediatePropagation();
-      const mes = btn.closest('.mes');
+      const mes = btn.closest('.mes, .hud-side-mes');
       const id = mes ? Number(mes.getAttribute('mesid')) : NaN;
       // Помощник (render/assistant.js) грузится по первому вопросу.
-      import('./render/assistant.js?v=23.87.0').then(({ openAssistantDialog }) => openAssistantDialog({ mesId: Number.isInteger(id) ? id : null, лорбуки: лорбукиДляАссистента, сохранить: saveSettings, профили: списокПрофилей }))
+      import('./render/assistant.js?v=23.88.0').then(({ openAssistantDialog }) => openAssistantDialog({ mesId: Number.isInteger(id) ? id : null, лорбуки: лорбукиДляАссистента, сохранить: saveSettings, профили: списокПрофилей }))
         .catch(e => { console.error('[TavernOS HUD] помощник не загрузился:', e); showHudToast('error', 'Помощник', 'Не загрузился: ' + (e && e.message || e)); });
     };
     btn.addEventListener('click', открыть, true);
@@ -3896,6 +3910,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
     requestAnimationFrame(() => requestAnimationFrame(() => {
       const fresh = document.querySelector(`.mes[mesid="${id}"]`);
       if (fresh && fresh.isConnected) safeProcessMessage(fresh);
+      панельЗаметила(id);
     }));
     const сохранить = (typeof ctx.saveChatConditional === 'function') ? ctx.saveChatConditional.bind(ctx)
       : (typeof ctx.saveChat === 'function') ? ctx.saveChat.bind(ctx) : null;
@@ -4038,6 +4053,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
   function перерисоватьКарточкиЧата() {
     // Явная перерисовка — вид поменялся: живые карточки не возвращаем.
     ЖИВЫЕ.поколение++;
+    панельЗаметила(null, true);
     const ctx = getStContextSafe();
     if (!ctx || !Array.isArray(ctx.chat) || !getMessageUpdateFunction(ctx)) return;
     if (!отложеннаяПерерисовка && typeof IntersectionObserver === 'function') {
@@ -4067,7 +4083,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
   // Панель расширения в «Расширениях» Таверны (settings-ui.js). Она нужна не
   // для первой отрисовки чата — грузится после запуска.
   let загрузитьПанельНастроекОбещание = null;
-  const загрузитьПанельНастроек = () => (загрузитьПанельНастроекОбещание ||= import('./settings-ui.js?v=23.87.0').then(м => { м.подключить(связьНастроек); return м; }));
+  const загрузитьПанельНастроек = () => (загрузитьПанельНастроекОбещание ||= import('./settings-ui.js?v=23.88.0').then(м => { м.подключить(связьНастроек); return м; }));
   const связьНастроек = {
     get applyThemeColors() { return applyThemeColors; },
     get cachedChatContainer() { return cachedChatContainer; },
@@ -4087,8 +4103,165 @@ const акцентДляТекста = () => текстНаКарточке(sett
     get наЭкране() { return наЭкране; },
     get открытьКастомизацию() { return открытьКастомизацию; },
     get списокПрофилей() { return списокПрофилей; },
+    get сверитьПанель() { return сверитьПанель; },
+    get панельЗаметила() { return панельЗаметила; },
   };
   function addSettingsUI(...аргументы) { return загрузитьПанельНастроек().then(м => м.addSettingsUI(...аргументы)); }
+
+  /* ---------------------------------------------------------------------
+     ПАНЕЛЬ HUD СБОКУ (sidebar.js)
+     ---------------------------------------------------------------------
+     Та же карточка, что в сообщении, — в панели у края окна. Собирается из
+     данных сообщения тем же путём, что в чате: перенос из прошлых ходов,
+     черты, доверие. Обёртка .hud-side-mes несёт mesid своего сообщения —
+     по нему кнопки карточки (перегенерация, судьба малышей, версии)
+     находят, с каким сообщением работать. Режим «Только сбоку» оставляет в
+     сообщениях одну полосу заголовка (как у отложенной сборки), и полная
+     карточка в ленте не собирается вовсе — длинные чаты от этого легче. */
+  const сбокуТолько = () => settings.hudSidebar === 'side';
+  let панель = null;
+  let загрузитьПанельОбещание = null;
+  const загрузитьПанель = () => (загрузитьПанельОбещание ||= import('./sidebar.js?v=23.88.0').then(м => { м.подключить(связьПанели); return м; }));
+  const связьПанели = {
+    get getStContextSafe() { return getStContextSafe; },
+    get saveSettings() { return saveSettings; },
+    get readCardUiState() { return readCardUiState; },
+    get applyCardUiState() { return applyCardUiState; },
+    get вернутьПрокрутку() { return вернутьПрокрутку; },
+    get собратьКарточкуПанели() { return собратьКарточкуПанели; },
+    get оживитьКарточкуПанели() { return оживитьКарточкуПанели; },
+    get ключКарточкиПанели() { return ключКарточкиПанели; },
+    get последнийСHud() { return последнийСHud; },
+    get соседСHud() { return соседСHud; },
+    get ходовНазад() { return ходовНазад; },
+    get ходыВокруг() { return ходыВокруг; },
+  };
+  // Включить или убрать панель по настройке hudSidebar.
+  function сверитьПанель() {
+    if (!settings.hudSidebar || settings.hudSidebar === 'off') {
+      if (панель) панель.выключить();
+      return;
+    }
+    загрузитьПанель().then(м => { панель = м; м.включить(); })
+      .catch(e => console.error('[TavernOS HUD] панель сбоку не загрузилась:', e));
+  }
+  function панельЗаметила(id, сила = false) { if (панель) панель.заметить(id, сила); }
+  // «Только сбоку»: в сообщении вместо полосы TavernOS — маленькая кнопка
+  // «HUD · 14:26 ›», она открывает этот ход в панели. Класс .hud-os-card
+  // остаётся: по нему разбор узнаёт, что карточка в сообщении уже стоит.
+  function заглушкаПанели(data) {
+    const сцена = (data && data.scene) || {};
+    const время = (String(сцена['Время'] || '').match(/\d{1,2}[:.]\d{2}/) || [''])[0];
+    const дата = (String(сцена['Дата'] || '').match(/\d{1,2}\.\d{1,2}(?=\.|\b)/) || [''])[0];
+    const когда = [время, дата].filter(Boolean).join(' · ');
+    return `<div class="hud-os-card hud-side-stub no-swipe" data-hud-deferred="1"><button type="button" class="hud-side-jump" data-hud-side-jump title="Открыть HUD этого хода в панели сбоку"><i class="fa-solid fa-table-columns" aria-hidden="true"></i><b>HUD</b>${когда ? `<span>${escapeHtml(когда)}</span>` : ''}<i class="fa-solid fa-chevron-right" aria-hidden="true"></i></button></div>`;
+  }
+  document.addEventListener('click', (e) => {
+    const кн = e.target && e.target.closest && e.target.closest('[data-hud-side-jump]');
+    if (!кн) return;
+    e.preventDefault(); e.stopPropagation();
+    const id = Number(кн.closest('.mes')?.getAttribute('mesid'));
+    if (Number.isInteger(id)) открытьВПанели(id);
+  });
+  function открытьВПанели(id) {
+    загрузитьПанель().then(м => { панель = м; м.включить(); м.открыть(id); })
+      .catch(e => console.error('[TavernOS HUD] панель сбоку не загрузилась:', e));
+  }
+
+  // Ответ ИИ с готовым (закрытым) блоком HUD. Пока блок печатается, он не в
+  // счёт: панель держит прежнюю карточку.
+  // Разбор меток по большому сообщению — не бесплатный, а панель спрашивает
+  // про одни и те же сообщения на каждом обновлении: ответ помним, пока текст
+  // сообщения тот же.
+  const естьHudВСообщении = new WeakMap();
+  function сообщениеСHud(m) {
+    if (!m || typeof m !== 'object' || m.is_user || m.is_system) return false;
+    const текст = текстСообщенияЧата(m);
+    const было = естьHudВСообщении.get(m);
+    if (было && было.текст === текст) return было.есть;
+    const есть = естьHudБлок(текст);
+    естьHudВСообщении.set(m, { текст, есть });
+    return есть;
+  }
+  // До n ходов с HUD вокруг данного, по порядку чата: точки навигации.
+  function ходыВокруг(id, n = 9) {
+    const чат = (getStContextSafe() || {}).chat;
+    if (!Array.isArray(чат) || !сообщениеСHud(чат[id])) return [];
+    const после = [], до = [];
+    for (let j = id + 1; j < чат.length && после.length < Math.floor(n / 2); j++) if (сообщениеСHud(чат[j])) после.push(j);
+    for (let j = id - 1; j >= 0 && до.length < n - 1 - после.length; j--) if (сообщениеСHud(чат[j])) до.unshift(j);
+    // Новых ходов меньше половины — добираем недостающее более старыми.
+    return [...до, id, ...после];
+  }
+  function последнийСHud() {
+    const чат = (getStContextSafe() || {}).chat;
+    if (!Array.isArray(чат)) return null;
+    for (let j = чат.length - 1; j >= 0; j--) if (сообщениеСHud(чат[j])) return j;
+    return null;
+  }
+  // Ближайший ход с HUD до (шаг −1) или после (шаг +1) данного.
+  function соседСHud(id, шаг) {
+    const чат = (getStContextSafe() || {}).chat;
+    if (!Array.isArray(чат)) return null;
+    for (let j = id + шаг; j >= 0 && j < чат.length; j += шаг) if (сообщениеСHud(чат[j])) return j;
+    return null;
+  }
+  // Сколько ходов с HUD после этого — подпись «3 хода назад».
+  function ходовНазад(id) {
+    const чат = (getStContextSafe() || {}).chat;
+    if (!Array.isArray(чат)) return 0;
+    let n = 0;
+    for (let j = чат.length - 1; j > id; j--) if (сообщениеСHud(чат[j])) n++;
+    return n;
+  }
+  // Ключ карточки: номер, свайп, хеш блока и поколение отрисовки (растёт при
+  // смене вида). Пусто — в сообщении нет HUD.
+  function ключКарточкиПанели(id) {
+    const m = ((getStContextSafe() || {}).chat || [])[id];
+    if (!сообщениеСHud(m)) return '';
+    const т = текстСообщенияЧата(m);
+    let h = 2166136261;
+    for (let i = 0; i < т.length; i++) { h ^= т.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; }
+    return [id, m.swipe_id ?? '', т.length, h, ЖИВЫЕ.поколение].join('|');
+  }
+  // Разметка карточки для панели. Блоков несколько — берём лучший, как в чате.
+  function собратьКарточкуПанели(id, обёртка) {
+    const m = ((getStContextSafe() || {}).chat || [])[id];
+    if (!m) return null;
+    const кандидаты = hudБлоки(текстСообщенияЧата(m)).map((б, index) => {
+      try { const data = parseHUDComplex(б.inner); return data ? { index, data, score: scoreHudJsonCandidate(data) } : null; } catch (_) { return null; }
+    }).filter(Boolean).sort((a, b) => b.score - a.score || a.index - b.index);
+    if (!кандидаты.length) return null;
+    // Настоящее сообщение — ради погоды предыдущих ходов и полосы музыки;
+    // его нет в ленте (свёрнуто, не загружено) — сгодится и обёртка с mesid.
+    const место = document.querySelector(`#chat .mes[mesid="${id}"]`) || обёртка;
+    let html = '';
+    renderTargetMes = место;
+    lastLazyThunks = null;
+    try {
+      const данные = сдвигиДоверия(вернутьЧерты(mergeCarryOver(кандидаты[0].data, место), место), место);
+      привязатьИсторию(данные, id);
+      html = renderHUD(данные);
+    } finally { renderTargetMes = null; }
+    const лень = lastLazyThunks;
+    lastLazyThunks = null;
+    return html && /hud-os-card/.test(html) ? { html, лень } : null;
+  }
+  // То, что processMessage делает с новой карточкой после вставки.
+  function оживитьКарточкуПанели(обёртка, лень) {
+    const текст = обёртка.querySelector('.mes_text');
+    const card = текст && текст.querySelector('.hud-os-card');
+    if (!card) return;
+    if (лень) card.__hudLazy = лень;
+    текст.querySelectorAll('.hud-regen-btn').forEach(bindHudRegenButton);
+    кнопкаВерсийHUD(обёртка, текст);
+    if (settings.tokenBudget !== 'off' && текст.querySelector('.hud-budget-chip')) обновитьЧипыБюджетаПозже(300);
+    refreshReactions(текст);
+    if (settings.showHints === false) removeHelpMarks(текст);
+    else attachHelpMarks(текст);
+    centerFieldIcons(текст);
+    пометитьЭффекты(текст);
+  }
 
 
   
@@ -4194,7 +4367,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
 
   // Окно «В лорбук» (lore-dialog.js) — грузится при первом открытии.
   let загрузитьЛорОбещание = null;
-  const загрузитьЛор = () => (загрузитьЛорОбещание ||= import('./lore-dialog.js?v=23.87.0').then(м => { м.подключить(связьЛора); return м; }));
+  const загрузитьЛор = () => (загрузитьЛорОбещание ||= import('./lore-dialog.js?v=23.88.0').then(м => { м.подключить(связьЛора); return м; }));
   const связьЛора = {
     get getAvailableHudLorebooks() { return getAvailableHudLorebooks; },
     get getMainProtagonistNames() { return getMainProtagonistNames; },
@@ -4341,6 +4514,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
     if (isPerformanceModeActive(chatContainer)) setupPerformanceObserver();
     chatContainer.addEventListener('scroll', schedulePerformanceRefresh, { passive: true });
     addSettingsUI();
+    сверитьПанель();
     // Инструкция HUD нужна к первой генерации — подтягиваем, когда страница затихнет.
     (window.requestIdleCallback || ((f) => setTimeout(f, 2000)))(() => { загрузитьПромпт().catch(() => {}); });
   }

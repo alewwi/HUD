@@ -16,7 +16,10 @@
   scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--hud-accent, #c31f38) 45%, transparent) transparent;
   -webkit-mask: linear-gradient(180deg, #000 calc(100% - 28px), transparent); mask: linear-gradient(180deg, #000 calc(100% - 28px), transparent);
 }
-.hud-os-card .is-capped > * { scroll-snap-align: start; }
+/* Список — flex-колонка с потолком по высоте, а у карточки (след, болезнь)
+   overflow: hidden, и её минимальная высота — ноль: потолок сжимал её, и
+   низ — таймер, описание — обрезался. Карточки не сжимаются, список листается. */
+.hud-os-card .is-capped > * { scroll-snap-align: start; flex-shrink: 0; }
 .hud-os-card .is-capped-x {
   display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: flex-start;
   gap: 10px; overflow-x: auto !important; overflow-y: hidden !important; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;

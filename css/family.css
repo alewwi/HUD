@@ -16,7 +16,7 @@
 
 /* --- Цикл: причины сниженного шанса, кровотечение, сбой, попытки ---------- */
 .hud-fert-reasons { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
-.hud-fert-reasons span { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px 2px 6px; border-radius: 999px; font-size: .74em;
+.hud-fert-reasons span { display: inline-flex; align-items: center; gap: 5px; padding: 2px 9px 2px 6px; border-radius: var(--hud-r-chip); font-size: .74em;
   background: var(--fam-inset); box-shadow: inset 0 0 0 1px var(--fam-line); }
 .hud-fert-reasons i { font-style: normal; font-weight: 800; color: var(--fam-ink); }
 .hud-fert-reasons b { font-weight: 800; color: var(--fam-ink); }
@@ -64,7 +64,7 @@
 .hud-fetus .looks-head { font-size: .64em; letter-spacing: .12em; text-transform: uppercase; color: color-mix(in srgb, currentColor 65%, transparent); }
 .hud-fetus .looks-row { display: flex; flex-wrap: wrap; align-items: center; gap: 5px; }
 .hud-fetus .looks-row > b { display: grid; place-items: center; width: 18px; height: 18px; border-radius: 50%; font-size: .7em; background: color-mix(in srgb, var(--fam-acc) 25%, transparent); }
-.hud-fetus .trait { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px 2px 4px; border-radius: 999px; font-size: .78em;
+.hud-fetus .trait { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px 2px 4px; border-radius: var(--hud-r-chip); font-size: .78em;
   background: color-mix(in srgb, var(--fam-acc) 9%, transparent); box-shadow: inset 0 0 0 1px var(--fam-line); }
 .hud-fetus .trait > i { width: 14px; height: 14px; border-radius: 50%; flex: none; box-shadow: inset 0 0 0 1.5px rgba(255,255,255,.35), 0 1px 2px rgba(0,0,0,.35);
   background: radial-gradient(circle at 35% 35%, color-mix(in srgb, var(--sw) 55%, #fff), var(--sw) 60%); }
@@ -76,7 +76,7 @@
 @media (hover: hover) and (pointer: fine) { .hud-fetus-btn:hover { border-style: solid; background: color-mix(in srgb, var(--fam-acc) 22%, transparent); box-shadow: 0 0 10px color-mix(in srgb, var(--fam-acc) 40%, transparent); } }
 .hud-fetus-btn.is-on { border-style: solid; background: color-mix(in srgb, var(--fam-acc) 30%, transparent); font-weight: 700; }
 .hud-fetus-btn.is-roll { border-style: solid; align-self: flex-start; }
-.hud-fetus-fate > summary { list-style: none; cursor: pointer; display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: .78em;
+.hud-fetus-fate > summary { list-style: none; cursor: pointer; display: inline-block; padding: 3px 10px; border-radius: var(--hud-r-chip); font-size: .78em;
   border: 1px dashed color-mix(in srgb, var(--fam-acc) 55%, transparent); background: color-mix(in srgb, var(--fam-acc) 8%, transparent); }
 .hud-fetus-fate > summary::-webkit-details-marker { display: none; }
 .hud-fetus-fate[open] > summary { border-style: solid; background: color-mix(in srgb, var(--fam-acc) 22%, transparent); }
@@ -122,7 +122,7 @@
 
 /* --- Роды ------------------------------------------------------------------- */
 .hud-birth-row { margin-top: 10px; }
-.hud-birth-btn { padding: 6px 14px; border-radius: 999px; font: inherit; font-size: .84em; cursor: pointer; color: inherit;
+.hud-birth-btn { padding: 6px 14px; border-radius: var(--hud-r-chip); font: inherit; font-size: .84em; cursor: pointer; color: inherit;
   border: 1px solid color-mix(in srgb, var(--fam-acc) 50%, transparent); background: linear-gradient(90deg, color-mix(in srgb, var(--fam-girl) 22%, transparent), color-mix(in srgb, var(--fam-boy) 22%, transparent)); transition: box-shadow .2s; }
 @media (hover: hover) and (pointer: fine) { .hud-birth-btn:hover { box-shadow: 0 0 14px color-mix(in srgb, var(--fam-acc) 40%, transparent); } }
 
@@ -169,7 +169,7 @@
 .hud-pp-milk .info > b .ico { flex: none; width: 11px; height: 15px; background: linear-gradient(180deg, #fffdf7, color-mix(in srgb, #fff2d6 80%, var(--fam-acc)));
   clip-path: path('M5.5 0C5.5 0 0 7 0 10A5.5 5.5 0 0 0 11 10C11 7 5.5 0 5.5 0Z'); filter: drop-shadow(0 0 3px color-mix(in srgb, var(--fam-acc) 60%, transparent)); }
 .hud-pp-milk .chips { display: flex; flex-wrap: wrap; gap: 5px; }
-.hud-pp-milk .chips > span { padding: 2px 9px; border-radius: 999px; font-size: .76em; background: color-mix(in srgb, var(--fam-acc) 12%, transparent); box-shadow: inset 0 0 0 1px var(--fam-line); }
+.hud-pp-milk .chips > span { padding: 2px 9px; border-radius: var(--hud-r-chip); font-size: .76em; background: color-mix(in srgb, var(--fam-acc) 12%, transparent); box-shadow: inset 0 0 0 1px var(--fam-line); }
 .hud-pp-milk .fill-meter { display: flex; flex-direction: column; gap: 4px; }
 .hud-pp-milk .fill-meter .lbl { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 2px 8px; font-size: .82em; }
 .hud-pp-milk .fill-meter .lbl b { color: color-mix(in srgb, var(--milk-tone) 55%, currentColor); }
@@ -230,7 +230,7 @@
 .hud-kid-chip .who small { font-size: .74em; opacity: .8; }
 .hud-kid-chip .who em { font-style: normal; font-size: .74em; color: color-mix(in srgb, var(--c) 55%, currentColor); }
 .hud-kid-chip .alerts { display: flex; gap: 4px; margin-top: 2px; }
-.hud-kid-chip .alerts i { font-style: normal; font-size: .82em; padding: 0 5px; border-radius: 999px; background: color-mix(in srgb, #f0a03a 30%, transparent); }
+.hud-kid-chip .alerts i { font-style: normal; font-size: .82em; padding: 0 5px; border-radius: var(--hud-r-chip); background: color-mix(in srgb, #f0a03a 30%, transparent); }
 .hud-kid-chip .alerts i.is-late { background: color-mix(in srgb, #e04848 35%, transparent); }
 
 /* Вкладки по именам. */
@@ -261,7 +261,7 @@
 .hud-kid-care .hud-key .is-key { width: 16px; height: 16px; margin-right: 5px; vertical-align: -3px; color: var(--c); }
 .hud-kid-care-body { display: flex; flex-direction: column; gap: 10px; }
 .hud-kid-care .needs { display: flex; flex-wrap: wrap; gap: 6px; }
-.hud-kid-care .need { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px 4px 6px; border-radius: 999px; font-size: .84em; background: color-mix(in srgb, var(--c) 14%, transparent); }
+.hud-kid-care .need { display: inline-flex; align-items: center; gap: 6px; padding: 4px 11px 4px 6px; border-radius: var(--hud-r-chip); font-size: .84em; background: color-mix(in srgb, var(--c) 14%, transparent); }
 .hud-kid-care .need i { font-style: normal; }
 .hud-kid-care .need.is-soon { background: color-mix(in srgb, #f0a03a 30%, transparent); }
 .hud-kid-care .need.is-late { background: color-mix(in srgb, #e04848 32%, transparent); }
@@ -387,7 +387,7 @@
 }
 
 /* Беременность: всегда видны срок и шкала, остальное — под «Подробнее». */
-.hud-prg-more > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 5px 12px; border-radius: 999px;
+.hud-prg-more > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; padding: 5px 12px; border-radius: var(--hud-r-chip);
   font-size: .74em; letter-spacing: .1em; text-transform: uppercase; border: 1px dashed var(--fam-line); background: color-mix(in srgb, var(--fam-acc) 6%, transparent); transition: background .2s; }
 .hud-prg-more > summary::-webkit-details-marker { display: none; }
 .hud-prg-more > summary::after { content: '▾'; transition: rotate .25s; }

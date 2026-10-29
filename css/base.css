@@ -5382,6 +5382,10 @@ body.no-blur .hud-scene-time-group, body.no-blur .hud-weather-item, body.no-blur
 :is(.hud-bg-tree-spring, .hud-bg-tree-autumn) .hud-bg-tree-branch.br2 { max-height: 36px; bottom: calc(63% - 32px); }
 :is(.hud-bg-tree-spring, .hud-bg-tree-autumn) .hud-bg-tree-branch.br3 { max-height: 26px; bottom: calc(63% - 22px); }
 :is(.hud-bg-tree-spring, .hud-bg-tree-autumn) .hud-bg-tree-branch::after { display: none; }
+/* Ствол — тоже до кроны, а не до 74% дерева: крона высотой ~74px стоит по
+   центру на 63% от земли, и на высоком виджете (узкая карточка, панель
+   сбоку) верх ствола торчал над листвой палкой. Конец — чуть выше центра. */
+:is(.hud-bg-tree-spring, .hud-bg-tree-autumn) .hud-bg-tree-trunk { height: min(74%, calc(63% + 16px)); }
 .hud-bg-tree.bt1 { left:2%; height:68%; transform:scale(0.82); opacity:0.62; }
 .hud-bg-tree.bt2 { left:20%; height:82%; transform:scale(1.05); opacity:0.72; }
 .hud-bg-tree.bt3 { left:62%; height:76%; transform:scale(0.94); opacity:0.66; }
@@ -6376,7 +6380,7 @@ body.no-blur .hud-scene-time-group, body.no-blur .hud-weather-item, body.no-blur
 .hud-phone-app-view .hud-phone-inputfield {
   background: rgba(255,255,255,.07);
   border: 1px solid rgba(255,255,255,.09);
-  border-radius: 999px;
+  border-radius: var(--hud-r-chip);
   padding: 8px 14px;
 }
 .hud-phone-app-view .hud-phone-attach,

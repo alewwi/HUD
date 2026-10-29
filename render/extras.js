@@ -4,8 +4,19 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.87.0';
-import { settings } from '../settings.js?v=23.87.0';
+import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.88.0';
+import { settings } from '../settings.js?v=23.88.0';
+
+// Умения спутника — не больше четырёх: модель копит их ходами, и в карточке
+// выстраивалась стена пилюль. Короткие (до шести слов) — вперёд, в порядке
+// модели; длинные истории — только если коротких не хватило.
+export const УМЕНИЙ_СПУТНИКА = 4;
+export function лучшиеУмения(текст, n = УМЕНИЙ_СПУТНИКА) {
+  const все = [...new Set(String(текст ?? '').split(/[;\n]/).map(s => s.trim()).filter(Boolean))];
+  const коротко = (у) => у.split(/\s+/).length <= 6;
+  const выбор = [...все.filter(коротко), ...все.filter(у => !коротко(у))].slice(0, n);
+  return все.filter(у => выбор.includes(у));
+}
 
 const есть = (v) => hudHasMeaningfulValue(v) && !/^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -288,7 +299,7 @@ export function карточкаСпутника(p, значок, связь, с
   const цвет = тип.цвет;
   const плитка = (к, подпись, текст) => есть(текст) ? `<div class="hud-pet2-tile"><span>${ик(к, цвет)}${подпись}</span><p>${escapeHtml(String(текст))}</p></div>` : '';
   const плитки = плитка('cond', 'Состояние', p.condition) + плитка('food', 'Рацион', p.diet) + плитка('smile', 'Настроение', p.mood);
-  const умения = есть(p.skills) ? String(p.skills).split(/[;\n]/).map(s => s.trim()).filter(Boolean) : [];
+  const умения = есть(p.skills) ? лучшиеУмения(p.skills) : [];
   return `<div class="hud-pet2" style="--p:${цвет}"><div class="hud-pet2-band"></div><div class="hud-pet2-top"><div class="hud-pet2-ava" aria-hidden="true">${значок}</div>`
     + `<div class="hud-pet2-nm"><b>${escapeHtml(p.name)}</b>${есть(p.species) ? `<small>${escapeHtml(p.species)}</small>` : ''}</div>${есть(p.mood) ? `<span class="hud-pet2-mood">${escapeHtml(p.mood)}</span>` : ''}</div>`
     + (есть(p.owner) ? `<div class="hud-pet2-own"><i>${имяХозяина(p.owner) ? escapeHtml(инициалы(имяХозяина(p.owner))) : '🐾'}</i><span>хозяин: <b>${escapeHtml(p.owner)}</b></span></div>` : '')
@@ -319,7 +330,7 @@ export function тамагочи(p, связь, связьHTML = '') {
   // Всё, что есть в карточке, есть и здесь: хозяин, состояние, рацион,
   // настроение (если «Сейчас» уже занято им), прочие поля и умения.
   const строка = (подпись, текст) => есть(текст) ? `<span><b>${подпись}:</b> ${escapeHtml(String(текст))}</span>` : '';
-  const умения = есть(p.skills) ? String(p.skills).split(/[;\n]/).map(s => s.trim()).filter(Boolean) : [];
+  const умения = есть(p.skills) ? лучшиеУмения(p.skills) : [];
   const сведения = строка('Хозяин', p.owner) + строка('Состояние', p.condition) + строка('Рацион', p.diet)
     + (есть(p.note) ? строка('Настроение', p.mood) : '')
     + (Array.isArray(p.extra) ? p.extra.map(д => строка(escapeHtml(д.key), д.value)).join('') : '');

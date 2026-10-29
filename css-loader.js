@@ -18,7 +18,7 @@
 //
 // Стенды (tests/tools) подключают всё разом через css/all.css.
 
-import { settings } from './settings.js?v=23.87.0';
+import { settings } from './settings.js?v=23.88.0';
 
 const ВЕРСИЯ = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
 const МЕТКА = 'data-hud-css';
@@ -45,6 +45,8 @@ export const ЧАСТИ = [
   ['compact'],
   // Английские подписи, которые живут в CSS (content: '…').
   ['lang-en', (s) => s.language === 'en'],
+  // Панель HUD сбоку (sidebar.js) — только когда она включена.
+  ['sidebar', (s) => !!s.hudSidebar && s.hudSidebar !== 'off'],
   // Платформа: color-scheme, accent-color, вырез экрана, движение в ::before/::after.
   ['platform'],
 ];

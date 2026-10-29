@@ -370,6 +370,15 @@ export const defaultSettings = {
   // Сводки [HUD_SUMMARY] в тексте сообщений — карточкой (render/summary-card.js);
   // нажатие раскрывает полный HUD сообщения, если он есть. Только вид.
   summaryCards: true,
+  // Панель HUD сбоку (sidebar.js): 'off' — только в сообщениях; 'both' — и
+  // в панели, и в сообщениях; 'side' — в панели, в сообщениях одна полоса.
+  // hudSideFit: 'manual' — своя ширина hudSideWidth; 'chat' — до колонки
+  // чата. hudSideEdge: 'right' | 'left'. hudSideOpen — была открыта (ПК).
+  hudSidebar: 'off',
+  hudSideOpen: true,
+  hudSideWidth: 420,
+  hudSideFit: 'manual',
+  hudSideEdge: 'right',
   iconStyle: 'auto',
   // Тень и блик карточки — от игрового времени сцены: 'off' | 'subtle' | 'full'.
   lightFollowsTime: 'off',

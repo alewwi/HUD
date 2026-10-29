@@ -11,23 +11,23 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.87.0';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.87.0';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.87.0';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.87.0';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.87.0';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.87.0';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.87.0';
-import { полныйПорядок } from './tabs-order.js?v=23.87.0';
-import { getWorldVotes } from './render/world.js?v=23.87.0';
-import { действиеМира } from './render/world-views.js?v=23.87.0';
-import { действиеМузыки } from './render/music.js?v=23.87.0';
-import { раскрытьПорцию } from './render/long-list.js?v=23.87.0';
-import { прогретьИсторию } from './render/carryover.js?v=23.87.0';
-import { подключитьПалитру } from './color-picker.js?v=23.87.0';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.87.0';
-import { замер } from './utils.js?v=23.87.0';
-import { пометитьЭффекты } from './render/fx.js?v=23.87.0';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.0';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.88.0';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.88.0';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.88.0';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.88.0';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.88.0';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.88.0';
+import { полныйПорядок } from './tabs-order.js?v=23.88.0';
+import { getWorldVotes } from './render/world.js?v=23.88.0';
+import { действиеМира } from './render/world-views.js?v=23.88.0';
+import { действиеМузыки } from './render/music.js?v=23.88.0';
+import { раскрытьПорцию } from './render/long-list.js?v=23.88.0';
+import { прогретьИсторию } from './render/carryover.js?v=23.88.0';
+import { подключитьПалитру } from './color-picker.js?v=23.88.0';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.88.0';
+import { замер } from './utils.js?v=23.88.0';
+import { пометитьЭффекты } from './render/fx.js?v=23.88.0';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -610,7 +610,7 @@ export function initGlobalEvents(ctx) {
       e.stopPropagation();
       if (ctx.openLoreDialog) {
         // Номер сообщения с этим HUD: контекст для модели — до него, а не хвост чата.
-        const сообщение = remember.closest('.mes[mesid]');
+        const сообщение = remember.closest('.mes[mesid], .hud-side-mes[mesid]');
         const откуда = сообщение ? Number(сообщение.getAttribute('mesid')) : NaN;
         ctx.openLoreDialog(remember.dataset.loreText || '', remember.dataset.loreKeys || '', Number.isInteger(откуда) ? откуда : null);
       }
