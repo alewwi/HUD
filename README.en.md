@@ -240,6 +240,16 @@ A summary of the whole chat history, via the **🗄 HUD archive** button in the 
 
 The archive also works for chats the HUD has been cleaned out of: the HUD keeps a **chronicle** — short summaries of every turn in a separate file on your SillyTavern. You can attach another chat's chronicle of the same character (say, an old copy) to your own — its turns fill the gaps without duplicates. There's search within the report and JSON export.
 
+### 🗂 HUD on the side
+
+The card can live in a panel at the window edge instead of the messages. Turn it on in the settings: **✨ Display → Where the HUD is**.
+
+- **In messages** — as before.
+- **On the side and in messages** — a panel with the HUD of the latest reply; cards in chat stay.
+- **Only on the side** — messages get a small button with the scene time and date from that turn's HUD instead of the card; it opens the turn in the panel, and the button of the turn currently in the panel is highlighted. Full cards are not built in the feed, so long chats get noticeably lighter.
+
+The panel opens from an icon in the Tavern top bar and sits on the right or the left (a button in the panel header or the "Edge" setting). It follows the latest reply: a new reply, a swipe, a regeneration or an edit update it on their own. Arrows and dots page through past turns, "to the latest" jumps back; the open tab stays as you page. Drag the edge to resize it — from narrow to almost the whole window, over the chat; near the chat column it snaps to it ("up to the chat"), and from then on the panel takes all the room up to the column. On phones the panel slides out over the chat and closes with a tap outside it. All views, themes and card buttons work in the panel too.
+
 ### 🔞 Adult scenes (18+, optional)
 
 For stories with adult content, the extension has a separate set of blocks. They appear only during an intimate scene and shortly after it. Each can be turned off separately in the settings, or you can turn off this whole part at once: then the model doesn't get a word about it. Outside such scenes these blocks simply don't exist — neither on screen nor in the request.
@@ -363,6 +373,7 @@ The extension is built for chats with hundreds of messages and for phones:
 - **Lighter old cards** — a collapsed card keeps only its title on the page; when a chat opens, only the last few are built in full.
 - **Virtualization** — in chats over 200 messages, cards far from the screen turn back into text and are rebuilt on scrolling.
 - **Card limit** — you can keep only the last N in memory.
+- **Only on the side** — a single full card is built, in the side panel; messages get a small button instead of the card.
 - **Parse cache** in IndexedDB and a background worker for heavy history parsing.
 
 ---
@@ -396,7 +407,7 @@ All settings are in the **📊 TavernOS** block in "Extensions" and in the "Cust
 | Section | What you configure |
 |---|---|
 | 🧩 HUD blocks | Network intercept; the player block; era (phone or casket) and individual apps; intercepts or overheard talk; memory and Chekhov's guns; illnesses, pregnancy, birth and babies, the cycle; "what they think of you"; family tree; body state; plot twists; companions; adult-scene blocks (each separately); verbal duel; combat (decide itself, always, never); daily life and the sleep norm; diary, dreams, world, economy, events, city services, horoscope. |
-| ✨ Display | Question-mark hints; lists from past turns: how many turns to look back, the item limit per list and messages per chat. |
+| ✨ Display | Where the HUD is: in messages, on the side and in messages, only on the side; panel width (custom or up to the chat) and edge (right or left). Question-mark hints; lists from past turns: how many turns to look back, the item limit per list and messages per chat. |
 | ⚡ Performance | Lighter old cards, how many cards to build at once, lazy tabs, Performance Mode, virtualization, card limit. |
 | 🖼️ Avatars | Images for character names, pinned avatars. |
 | 📚 Lorebooks | Which lorebooks to add to the HUD regeneration request; how many messages to send when saving to a lorebook. |
@@ -430,7 +441,7 @@ Settings are grouped — expand the one you need. Below is the essential part of
 
 **📚 Lorebooks** — which lorebooks to add to HUD regeneration; how many messages to send when saving to a lorebook; the MemoryBooks link.
 
-**✨ Display** — question-mark hints, the icon set, `[HUD_SUMMARY]` lines shown as a card. *Lists from past turns* — how many turns to look back and how many items to keep on screen (on screen only, nothing goes to the request).
+**✨ Display** — where the HUD is (in messages or in the side panel, see “🗂 HUD on the side”), question-mark hints, the icon set, `[HUD_SUMMARY]` lines shown as a card. *Lists from past turns* — how many turns to look back and how many items to keep on screen (on screen only, nothing goes to the request).
 
 **🖼️ Character avatars** — your own image for a name (or several spellings of one name), pinned player and character avatars.
 
