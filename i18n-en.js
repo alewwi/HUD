@@ -4364,9 +4364,18 @@ export const СЛОВАРЬ_EN = {
   "Животные, фамильяры, дроны и роботы рядом с героями: настроение, сытость, привязанность, умения": "Animals, familiars, drones and robots next to the heroes: mood, satiety, bond, skills",
   "Появляется, когда в истории есть спутник": "It appears when there is a companion in the story",
   "У спутников свои нужды — они едят, спят, устают и реагируют на сцену": "Companions have their own needs — they eat, sleep, get tired and react to the scene",
+  // Ошибки подбора музыки (render/music.js)
+  "ответ оборвался на рассуждениях модели — увеличьте лимит ответа в настройках музыки": "the reply cut off in the model’s reasoning — raise the reply limit in the music settings",
+  "модель не прислала подборку (нет JSON)": "the model sent no playlist (no JSON)",
+  "модель прислала пустую подборку": "the model sent an empty playlist",
+  "отменено": "cancelled",
+  "HUD в каждом ответе (сетевой перехват": "HUD in every reply (network intercept",
+  "Включено — схема HUD уходит в каждый запрос, и основная модель пишет HUD вместе с ответом. Выключено — ответы приходят без HUD, а под каждым появляется кнопка «➕ Создать HUD»: HUD пишется отдельным запросом, только когда нажмёте, — можно другим, более дешёвым профилем подключения (Генерация → Перегенерация HUD)": "On — the HUD schema goes into every request, and the main model writes the HUD along with the reply. Off — replies come without a HUD, and each gets a “➕ Create HUD” button: the HUD is written by a separate request only when you press it — optionally with another, cheaper connection profile (Generation → HUD regeneration)",
 };
 
 export const ШАБЛОНЫ_EN = [
+  ["^модель молчит дольше (\\d+) с$", "the model has been silent for over $1 s"],
+  ["^подборка пришла битой \\((.+)\\) — возможно, не хватило лимита ответа$", "the playlist came back broken ($1) — the reply limit may have been too low"],
   ["^(\\d+) (?:ход|хода|ходов) назад$", "$1 turns back"],
   ["^чаще всего не задан ключ API для «([^»]+)» или не выбрана модель$", "most often no API key is set for «$1» or no model is selected"],
   ["^чаще всего не задан ключ API для этого источника или не выбрана модель$", "most often no API key is set for this source or no model is selected"],

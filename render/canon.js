@@ -19,9 +19,9 @@
 // картинок (names.js: алиасыИмени). Чего нет ни в карточке, ни в лорбуках —
 // берётся из истории чата.
 
-import { settings } from '../settings.js?v=23.88.1';
-import { namesLikelySame, алиасыИмени } from '../names.js?v=23.88.1';
-import { имяБезПриставки } from '../utils.js?v=23.88.1';
+import { settings } from '../settings.js?v=23.88.2';
+import { namesLikelySame, алиасыИмени } from '../names.js?v=23.88.2';
+import { имяБезПриставки } from '../utils.js?v=23.88.2';
 
 const контекст = () => { try { return window.SillyTavern && window.SillyTavern.getContext && window.SillyTavern.getContext(); } catch (_) { return null; } };
 const чистоеИмя = (н) => имяБезПриставки(String(н || '')).trim();

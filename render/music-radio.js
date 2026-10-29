@@ -15,7 +15,7 @@
 // из России первые два закрыты, у FMA API больше нет, ccMixter не отдаёт
 // данные браузеру.
 
-import { СТАНЦИИ_РЕКОРДА, ПОТОК_РЕКОРДА } from './music-stations.js?v=23.88.1';
+import { СТАНЦИИ_РЕКОРДА, ПОТОК_РЕКОРДА } from './music-stations.js?v=23.88.2';
 
 const нижн = (s) => String(s || '').toLowerCase().replace(/ё/g, 'е');
 

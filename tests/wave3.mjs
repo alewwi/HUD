@@ -1707,5 +1707,29 @@ settings.tempoView = 'xray';
   проверить('пояснения: в превью «Кастомизации» тоже вопросики', /attachHelpMarks\(карточка\)/.test(fs.readFileSync(path.join(КОРЕНЬ, 'customize.js'), 'utf8')));
 }
 
+// --- По отзыву: карта «МИР», «ton: neutral», generateRaw старой Таверны, секреты ---
+{
+  const Т = await модуль('render/phone.js');
+  проверить('кошелёк: «МИР» только при рублях, у выдуманной валюты — карта без бренда', Т.системыКарт('₽').includes(2) && !Т.системыКарт('$').includes(2) && !Т.системыКарт('USD').includes(2) && Т.системыКарт('золотые').length === 0 && Т.системыКарт('кредиты').length === 0 && Т.системыКарт('').length === 0);
+  const Э = await модуль('render/extras.js');
+  const п = Э.разобратьПоворот('ttl: Письмо; hap: Нашлось письмо; hnt: 1) Софи может поехать; 2) или промолчать, ton: neutral');
+  проверить('поворот: «ton: neutral», приклеенный к направлению, не уходит в текст', п.тон === 'neutral' && !/ton/i.test(п.куда) && /промолчать$/.test(п.куда), JSON.stringify(п));
+  const Д = await модуль('render/duel.js');
+  проверить('дуэль: «ton:» вместо «tn:» тоже тон', Д.разобратьДуэль('ini: Софи, 70; ton: ссора').тон === 'ссора');
+  const У = await модуль('utils.js');
+  let пришло = null;
+  const стараяТаверна = { generateRaw(prompt, api, instructOverride, quietToLoud, systemPrompt, responseLength) { пришло = [prompt, systemPrompt, responseLength]; return 'ok'; } };
+  const новаяТаверна = { generateRaw({ prompt, systemPrompt, responseLength } = {}) { пришло = { prompt, systemPrompt, responseLength }; return 'ok'; } };
+  У.генерацияТаверны(стараяТаверна, { prompt: 'p', systemPrompt: 's', responseLength: 9 });
+  const старое = JSON.stringify(пришло);
+  У.генерацияТаверны(новаяТаверна, { prompt: 'p', systemPrompt: 's', responseLength: 9 });
+  проверить('generateRaw: старая Таверна — по местам, новая — объектом', старое === '["p","s",9]' && пришло.prompt === 'p' && пришло.systemPrompt === 's' && пришло.responseLength === 9, старое);
+  const ix = fs.readFileSync(path.join(КОРЕНЬ, 'index.js'), 'utf8');
+  проверить('копия запроса во вкладке — без заголовков и пароля прокси', /JSON\.stringify\(\{ url: reqData && reqData\.url, body: тело \}\)/.test(ix) && /proxy_password/.test(ix.match(/const СЕКРЕТНЫЕ_ПОЛЯ = [^\n]+/)[0]));
+  const кто = ['render/music.js', 'render/assistant.js', 'lore-dialog.js'].filter(ф => /ctx\.generateRaw\(/.test(fs.readFileSync(path.join(КОРЕНЬ, ф), 'utf8')));
+  проверить('музыка, помощник и лорбук зовут генерацию через генерацияТаверны', !кто.length, кто.join(', '));
+  проверить('настройка «HUD в каждом ответе» объясняет режим «только по кнопке»', /HUD в каждом ответе \(сетевой перехват\)[\s\S]{0,200}Выключено — ответы приходят без HUD/.test(fs.readFileSync(path.join(КОРЕНЬ, 'settings-ui.js'), 'utf8')));
+}
+
 console.log(`\nпроверок: ${всего}, провалов: ${провалы.length}`);
 if (провалы.length) { console.log(провалы.map(п => ' ✗ ' + п).join('\n')); process.exitCode = 1; }

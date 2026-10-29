@@ -3,8 +3,8 @@
 // Мелкие утилиты, общие для всех доменов HUD (дневник, мир, сны, телефон,
 // граф отношений, память). Вынесено из index.js без изменения поведения.
 
-import { МЕТКИ } from './codes.js?v=23.88.1';
-import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.88.1';
+import { МЕТКИ } from './codes.js?v=23.88.2';
+import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.88.2';
 
 // Замеры по шагам для поиска узких мест: включаются только объектом
 // window.__hudProf = {} в консоли, копят { шаг: [мс, …] }. Без него — прямой вызов.
@@ -92,6 +92,18 @@ export function имяДляВкладки(имя) {
   while (i < слова.length - 1 && /^[\p{Lu}\d'’&.-]{2,}$/u.test(слова[i]) && /\p{Ll}/u.test(слова.slice(i + 1).join(' '))) i++;
   return слова[i] || '';
 }
+/** Генерация через Таверну, одной подписью для любых её версий. До 1.13
+    generateRaw принимал аргументы по местам (prompt, api, instructOverride,
+    quietToLoud, systemPrompt, responseLength), с 1.13 — один объект. Объект в
+    старой Таверне падал «… is not a function» — так ломались музыка,
+    помощник и «Написать моделью». Старую подпись узнаём по числу аргументов. */
+export function генерацияТаверны(ctx, { prompt = '', systemPrompt = '', responseLength = null } = {}) {
+  const f = ctx && ctx.generateRaw;
+  if (typeof f !== 'function') throw new Error('SillyTavern не отдал функцию генерации');
+  if (f.length >= 2) return f.call(ctx, prompt, null, false, false, systemPrompt, responseLength);
+  return f.call(ctx, { prompt, systemPrompt, responseLength });
+}
+
 export function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>"']/g, з => СУЩНОСТИ[з]); }
 
 // Схема ждёт строку «Метка: значение; ...», но модель нередко отдаёт объект

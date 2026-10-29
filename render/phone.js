@@ -6,20 +6,20 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.88.1';
-import { английский } from '../i18n.js?v=23.88.1';
-import { settings } from '../settings.js?v=23.88.1';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.88.1';
-import { G_ICONS } from './icons.js?v=23.88.1';
-import { buildMessengerHTML } from './messenger.js?v=23.88.1';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.88.1';
-import { сортироватьЧаты } from './msg-feed.js?v=23.88.1';
-import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.88.1';
-import { buildCalendarApp } from './calendar.js?v=23.88.1';
-import { приложениеМузыки } from './music.js?v=23.88.1';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.88.2';
+import { английский } from '../i18n.js?v=23.88.2';
+import { settings } from '../settings.js?v=23.88.2';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.88.2';
+import { G_ICONS } from './icons.js?v=23.88.2';
+import { buildMessengerHTML } from './messenger.js?v=23.88.2';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.88.2';
+import { сортироватьЧаты } from './msg-feed.js?v=23.88.2';
+import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.88.2';
+import { buildCalendarApp } from './calendar.js?v=23.88.2';
+import { приложениеМузыки } from './music.js?v=23.88.2';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.88.1';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.88.2';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -65,16 +65,30 @@ const CARD_SYSTEMS = [
   { name: 'UNION',      tone: 'union' },
 ];
 
-function walletCards(owner) {
+// Платёжные системы — по валюте кошелька. «МИР» раньше выпадал любому
+// владельцу — и в фэнтези с золотом, и в английском интерфейсе. Валюта
+// выдуманная или не названа — карта без бренда: в чужом мире VISA и МИР
+// так же неуместны.
+export function системыКарт(currency) {
+  const c = String(currency || '').trim().toLowerCase();
+  if (/₽|руб|rub|\bр\.?$/.test(c)) return [0, 1, 2];
+  if (/[$€£]|usd|eur|gbp|доллар|евро|фунт|dollar|euro|pound|cad|aud|chf|франк/.test(c)) return [0, 1];
+  if (/[¥元]|cny|rmb|юан|yuan/.test(c)) return [3, 0];
+  if (/jpy|иен|yen|₩|krw|вон|won|₹|inr|руп|₸|тенге|kzt|₴|грив|uah|byn|бел\.? руб/.test(c)) return [0, 1];
+  return [];
+}
+
+function walletCards(owner, currency) {
   const rnd = walletRng(hudHashSeed(String(owner || 'owner')) + 7);
   const count = rnd() < 0.45 ? 2 : 1;
   const cards = [];
   const used = new Set();
+  const свои = системыКарт(currency);
   for (let i = 0; i < count; i++) {
-    let si = Math.floor(rnd() * CARD_SYSTEMS.length);
-    while (used.has(si) && used.size < CARD_SYSTEMS.length) si = (si + 1) % CARD_SYSTEMS.length;
+    let si = Math.floor(rnd() * Math.max(1, свои.length));
+    while (used.has(si) && used.size < свои.length) si = (si + 1) % свои.length;
     used.add(si);
-    const sys = CARD_SYSTEMS[si];
+    const sys = свои.length ? CARD_SYSTEMS[свои[si]] : { name: '', tone: 'plain' };
     const last4 = String(1000 + Math.floor(rnd() * 9000));
     const mm = String(1 + Math.floor(rnd() * 12)).padStart(2, '0');
     const yy = String(26 + Math.floor(rnd() * 6));
@@ -98,9 +112,9 @@ function buildWalletApp(wallet, owner) {
   const tx = Array.isArray(w.transactions) ? w.transactions : [];
   if (!w.balance && !tx.length) return emptyApp(G_ICONS.card, 'Счёт пока не заведён');
   const holder = cardHolder(owner);
-  const cards = walletCards(owner).map(c => `
+  const cards = walletCards(owner, w.currency).map(c => `
     <div class="hud-wallet-card tone-${c.tone}">
-      <span class="hud-wallet-sys">${escapeHtml(c.system)}</span>
+      ${c.system ? `<span class="hud-wallet-sys">${escapeHtml(c.system === 'МИР' && английский() ? 'MIR' : c.system)}</span>` : ''}
       <span class="hud-wallet-chip"></span>
       <span class="hud-wallet-num">•••• •••• •••• ${escapeHtml(c.last4)}</span>
       <span class="hud-wallet-holder">${escapeHtml(holder)}</span>
@@ -134,7 +148,7 @@ function buildWalletApp(wallet, owner) {
 // --- Календарь ---------------------------------------------------------------
 // Живёт в render/calendar.js; отсюда его по-прежнему берёт альманах
 // (render/medieval.js).
-export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.88.1';
+export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.88.2';
 
 // --- Экраны приложений ------------------------------------------------------
 // Каждый билдер получает свой кусок data.phone и возвращает внутренности

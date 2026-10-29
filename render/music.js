@@ -17,19 +17,19 @@
 // версии HUD, и сохраняется в файле чата. Запрос идёт с флагом
 // window.__tavernOSHudSkipInject: инструкция HUD в него не попадает.
 
-import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки } from '../utils.js?v=23.88.1';
-import { settings } from '../settings.js?v=23.88.1';
-import { parseHUDComplex } from '../hud-parser.js?v=23.88.1';
-import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.88.1';
-import { hudHasCombat } from './combat.js?v=23.88.1';
-import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.88.1';
-import { английский } from '../i18n.js?v=23.88.1';
-import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.88.1';
-import { ключСообщения } from '../chronicle.js?v=23.88.1';
+import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.88.2';
+import { settings } from '../settings.js?v=23.88.2';
+import { parseHUDComplex } from '../hud-parser.js?v=23.88.2';
+import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.88.2';
+import { hudHasCombat } from './combat.js?v=23.88.2';
+import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.88.2';
+import { английский } from '../i18n.js?v=23.88.2';
+import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.88.2';
+import { ключСообщения } from '../chronicle.js?v=23.88.2';
 import { норм, нормНазв, ключТрека, вСписке, переключить, безЗапрещённых, строкиВкуса, языкПесен, правилоЯзыка, мемныйРежим, правилоМемов,
-  ПРЕДЕЛ_ЛАЙКОВ, ПРЕДЕЛ_ЗАПРЕТОВ, библиотека, записьВладельца, записьПоId, плейлистПоId, новыйПлейлист, дописатьПлейлист, удалитьПлейлист } from './music-lib.js?v=23.88.1';
-import { станцииСцены } from './music-radio.js?v=23.88.1';
-import { собратьФон, ИМЕНА_ИСТОЧНИКОВ } from './music-free.js?v=23.88.1';
+  ПРЕДЕЛ_ЛАЙКОВ, ПРЕДЕЛ_ЗАПРЕТОВ, библиотека, записьВладельца, записьПоId, плейлистПоId, новыйПлейлист, дописатьПлейлист, удалитьПлейлист } from './music-lib.js?v=23.88.2';
+import { станцииСцены } from './music-radio.js?v=23.88.2';
+import { собратьФон, ИМЕНА_ИСТОЧНИКОВ } from './music-free.js?v=23.88.2';
 
 export { музыкаХода, норм, нормНазв };
 
@@ -568,7 +568,7 @@ async function собратьКонтекстМузыки(ctx, chat, индек�
   let карточка = null, персона = '';
   if (нуженПомощник) {
     try {
-      const A = await import('./assistant.js?v=23.88.1');
+      const A = await import('./assistant.js?v=23.88.2');
       if (settings.musicIncludeCard === true) карточка = A.карточкаПерсонажа(ctx);
       if (settings.musicIncludePersona === true) персона = A.персонаИгрока(ctx);
     } catch (e) { console.warn('[TavernOS HUD] музыка: карточка и персона', e); }
@@ -599,8 +599,7 @@ async function отправить(ctx, system, user, signal) {
     return служба.sendRequest(профиль, [{ role: 'system', content: system }, { role: 'user', content: user }], лимитОтвета(),
       { stream: false, signal, extractData: true, includePreset: false, includeInstruct: false });
   }
-  if (typeof ctx.generateRaw !== 'function') throw new Error('SillyTavern не отдал функцию генерации');
-  return ctx.generateRaw({ prompt: user, systemPrompt: system, responseLength: лимитОтвета() });
+  return генерацияТаверны(ctx, { prompt: user, systemPrompt: system, responseLength: лимитОтвета() });
 }
 
 /**

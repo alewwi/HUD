@@ -12,11 +12,11 @@
 //   всплыло       — запись памяти (таймлайн, важное), с которой совпадает
 //                   суть спора: «это про тот вечер 12-го».
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки } from '../utils.js?v=23.88.1';
-import { namesLikelySame } from '../names.js?v=23.88.1';
-import { settings } from '../settings.js?v=23.88.1';
-import { getAvatarUrl } from '../avatars.js?v=23.88.1';
-import { ико, медаль } from './view-icons.js?v=23.88.1';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки } from '../utils.js?v=23.88.2';
+import { namesLikelySame } from '../names.js?v=23.88.2';
+import { settings } from '../settings.js?v=23.88.2';
+import { getAvatarUrl } from '../avatars.js?v=23.88.2';
+import { ико, медаль } from './view-icons.js?v=23.88.2';
 
 const текст = (v) => String(снятьЗаглушки(flattenFieldValue(v)) || '').trim();
 const поле = (о, имя) => {
@@ -60,7 +60,7 @@ export function разобратьДуэль(value) {
   const s = текст(value);
   if (пусто(s)) return null;
   const ч = {};
-  s.split(';').forEach(x => { const м = x.match(/^\s*(ini|gv|tn)\s*[:：]\s*(.+)$/i); if (м) ч[м[1].toLowerCase()] = м[2].trim(); });
+  s.split(';').forEach(x => { const м = x.match(/^\s*(ini|gv|tn|tone?)\s*[:：]\s*(.+)$/i); if (м) ч[/^ton/i.test(м[1]) ? 'tn' : м[1].toLowerCase()] = м[2].trim(); });
   if (!ч.ini && !ч.gv && !ч.tn) return null;
   const м = String(ч.ini || '').match(/^(.*?)[,:—–-]?\s*(\d{1,3})\s*%?\s*$/);
   const ведёт = м ? м[1].replace(/[,:—–-]\s*$/, '').trim() : String(ч.ini || '').trim();

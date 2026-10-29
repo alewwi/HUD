@@ -794,6 +794,8 @@
 .hud-wallet-card.tone-mc    { background: linear-gradient(140deg, #7a2a1c, #2a0d08); }
 .hud-wallet-card.tone-mir   { background: linear-gradient(140deg, #12603a, #05241a); }
 .hud-wallet-card.tone-union { background: linear-gradient(140deg, #4a2a6b, #1a0d2a); }
+/* Валюта выдуманная (золото, кредиты) — карта без платёжной системы, в цвет темы. */
+.hud-wallet-card.tone-plain { background: linear-gradient(140deg, color-mix(in srgb, var(--hud-accent, #8c5ad2) 45%, #1a1420), #120e18); }
 
 .hud-wallet-sys { position: absolute; right: 12px; top: 10px; font: 800 12px/1 sans-serif; letter-spacing: .14em; opacity: .92; }
 .hud-wallet-chip {

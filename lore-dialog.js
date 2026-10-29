@@ -4,9 +4,9 @@
 // с помощью модели) и записать её через SillyTavern. Вынесено из index.js и
 // грузится через import() при первом открытии окна (загрузитьЛор).
 
-import { guardTouchSwipe, escapeHtml } from './utils.js?v=23.88.1';
-import { settings } from './settings.js?v=23.88.1';
-import { окноКонтекстаЛора, buildLoreGenPrompt, parseLoreGenResponse, loreAlreadyHas, buildLoreEntry } from './lore.js?v=23.88.1';
+import { guardTouchSwipe, escapeHtml, генерацияТаверны } from './utils.js?v=23.88.2';
+import { settings } from './settings.js?v=23.88.2';
+import { окноКонтекстаЛора, buildLoreGenPrompt, parseLoreGenResponse, loreAlreadyHas, buildLoreEntry } from './lore.js?v=23.88.2';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // getAvailableHudLorebooks, getMainProtagonistNames, getStContextSafe, getStRequestHeadersSafe, loadHudLorebook, showHudToast.
@@ -161,7 +161,7 @@ export async function openLoreDialog(text, keys, откуда = null) {
       window.__tavernOSHudSkipInject = (window.__tavernOSHudSkipInject || 0) + 1;
       безHud = true;
       const raw = await Promise.race([
-        ctx.generateRaw({
+        генерацияТаверны(ctx, {
           prompt,
           systemPrompt: 'You are a precise assistant maintaining a lorebook for an ongoing story. Mature fictional content is expected. Answer only in the requested format.',
         }),
