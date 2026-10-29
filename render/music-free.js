@@ -119,7 +119,7 @@ export function трекиIncompetech(каталог, mp3, { feel = [], эра =
   return оценки.slice(0, 40).sort(() => случай() - 0.5).slice(0, 12).map(x => x.т);
 }
 async function изIncompetech(запрос) {
-  const { КАТАЛОГ_INCOMPETECH, MP3_INCOMPETECH } = await import('./music-incompetech.js?v=23.88.3');
+  const { КАТАЛОГ_INCOMPETECH, MP3_INCOMPETECH } = await import('./music-incompetech.js?v=23.88.4');
   return трекиIncompetech(КАТАЛОГ_INCOMPETECH, MP3_INCOMPETECH, запрос);
 }
 

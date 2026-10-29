@@ -143,6 +143,53 @@
   .hud-theme-bujo .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 8px; }
   .hud-theme-bujo .hud-os-card .hud-header::after { display: none; }
   .hud-theme-bujo .hud-os-card .hud-header .hud-title { padding: 2px 7px; letter-spacing: 0; }
+  /* Виды блоков в узкой карточке (обход всех видов, 2026-10-30). */
+  /* Возраст «Годовые кольца»: бирка рядом с кругом сжималась до буквы в строке — бирка под кругом. */
+  .hud-os-card .hud-f-age.is-rings { flex-wrap: wrap; justify-content: center; }
+  .hud-os-card .hud-f-age.is-rings .label { flex: 1 1 100%; }
+  /* Ожидание «Поворот»: рельс 84px оставлял тексту ~60px — рельс уже, текст во всю ширину. */
+  .hud-os-card .hud-f-exp.is-arrow { grid-template-columns: 40px minmax(0, 1fr); gap: 6px; }
+  .hud-os-card .hud-f-exp.is-arrow .rail { width: 40px; height: 64px; }
+  /* Роль «Визитка»: капитель 1.08em рвала «Реставр / атор». */
+  .hud-os-card .hud-f-role.is-stack .front b { font-size: .92em; letter-spacing: .02em; }
+  /* Флаги «Доска детектива»: две записки в ряд — по слогу в строке. Одна. */
+  .hud-os-card .hud-f-flags.is-pins .cork { grid-template-columns: minmax(0, 1fr); padding: 16px 12px 12px; }
+  .hud-os-card .hud-f-flags.is-pins .card::after { display: none !important; }
+  /* Инвентарь «Карточки»: бирка группы уходила за край карточки. */
+  .hud-os-card .hud-v-item .hud-v-tag { max-width: 100%; white-space: normal; border-radius: 10px; overflow-wrap: anywhere; }
+  /* Воспоминания «Бусины»: колонка бусины 26px + отступ — тексту мало. */
+  .hud-os-card .hud-v-beads li { grid-template-columns: 16px minmax(0, 1fr); gap: 6px; }
+  .hud-os-card .hud-v-beads { padding-left: 0; }
+  /* Расписание «Билеты»: корешок 74px и крупный шрифт — «Перезво / нить». */
+  .hud-os-card .hud-f-sched.is-tickets .stub { width: 50px; padding: 6px 3px; }
+  .hud-os-card .hud-f-sched.is-tickets .main { padding: 8px 10px 9px; }
+  .hud-os-card .hud-f-sched.is-tickets .ev { font-size: .98em; }
+  /* Одежда «Слои»: образец ткани слева отнимал треть ширины. */
+  .hud-os-card .hud-f-clothes.is-layers .swatch { gap: 8px; margin-left: calc(var(--i) * 8px); padding-right: 10px; }
+  .hud-os-card .hud-f-clothes.is-layers .cloth { width: 32px; height: 30px; }
+  /* Важное «Свиток»: поля 30px и колонка номера 34px — тексту оставалось ~30px, по букве в строку. */
+  .hud-os-card .hud-v-scroll { padding: 16px 12px 14px !important; }
+  .hud-os-card .hud-v-scroll li { grid-template-columns: 20px minmax(0, 1fr) auto; gap: 6px; }
+  /* Маршрут «Лента»: время отдельной колонкой 46px — «квартир / а». Время над местом. */
+  .hud-os-card .hud-v-route.is-timeline li { grid-template-columns: 18px minmax(0, 1fr); column-gap: 8px; }
+  .hud-os-card .hud-v-route.is-timeline li::before { left: 8px; }
+  .hud-os-card .hud-v-route.is-timeline li > .t { grid-column: 2; grid-row: 1; text-align: left; padding-top: 0; }
+  .hud-os-card .hud-v-route.is-timeline li > .dot { grid-column: 1; grid-row: 1 / span 2; margin-left: 0; }
+  .hud-os-card .hud-v-route.is-timeline li > :not(.t):not(.dot) { grid-column: 2; }
+  /* Городские службы «Знаки» и «Оповещение»: «КОММУНАЛЬН / ЫЕ» капсом с разрядкой. */
+  .hud-os-card .hud-wv.is-signs .txt b, .hud-os-card .hud-wv.is-alert .kd { letter-spacing: .04em; }
+  /* Кинки «Шкалы» и «Звёзды»: имя делило строку с плашкой/звёздами — «Домини / рование». Плашка под именем. */
+  .hud-os-card .hud-v-kink-head { flex-wrap: wrap; gap: 4px 8px; }
+  .hud-os-card .hud-v-kink-head b { flex: 1 1 100%; }
+  /* Сводка быта «Полоски»: колонка имени 80px и числа 48px — бирка «пора поесть» шла по букве. */
+  .hud-os-card .hud-life-gauges.is-bars .hud-life-gauge { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'name num' 'bar bar' 'tag tag'; row-gap: 4px; }
+  /* Секреты «Шкалы»: колонки 92 + 130px шире узкой карточки — «секретно» уезжал за край. */
+  .hud-os-card .hud-v-meter { grid-template-columns: minmax(0, 1fr) auto; row-gap: 3px; }
+  .hud-os-card .hud-v-meter > :is(.hud-v-segments, .hud-v-mini-bar) { grid-column: 1 / -1; grid-row: 2; }
+  .hud-os-card .hud-v-meter > em { grid-column: 2; grid-row: 1; }
+  /* Гардероб «Список»: метки справа («на себе · не носили 3 дн.») сжимали название до буквы. Метки — строкой ниже. */
+  .hud-os-card .hud-life-wlist li { grid-template-columns: 18px 10px minmax(0, 1fr); row-gap: 1px; }
+  .hud-os-card .hud-life-wlist li > :nth-child(n+4) { grid-column: 3; justify-self: start; }
   /* Вампиры: крылья рисунка шапки шире значка — места справа больше. */
   /* Вампиры: летучая мышь шапки (122px) ложилась прямо на имя. На телефоне
      она вдвое меньше и в углу, имени — место слева от неё. */
@@ -254,6 +301,53 @@
   .hud-theme-bujo .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 8px; }
   .hud-theme-bujo .hud-os-card .hud-header::after { display: none; }
   .hud-theme-bujo .hud-os-card .hud-header .hud-title { padding: 2px 7px; letter-spacing: 0; }
+  /* Виды блоков в узкой карточке (обход всех видов, 2026-10-30). */
+  /* Возраст «Годовые кольца»: бирка рядом с кругом сжималась до буквы в строке — бирка под кругом. */
+  .hud-os-card .hud-f-age.is-rings { flex-wrap: wrap; justify-content: center; }
+  .hud-os-card .hud-f-age.is-rings .label { flex: 1 1 100%; }
+  /* Ожидание «Поворот»: рельс 84px оставлял тексту ~60px — рельс уже, текст во всю ширину. */
+  .hud-os-card .hud-f-exp.is-arrow { grid-template-columns: 40px minmax(0, 1fr); gap: 6px; }
+  .hud-os-card .hud-f-exp.is-arrow .rail { width: 40px; height: 64px; }
+  /* Роль «Визитка»: капитель 1.08em рвала «Реставр / атор». */
+  .hud-os-card .hud-f-role.is-stack .front b { font-size: .92em; letter-spacing: .02em; }
+  /* Флаги «Доска детектива»: две записки в ряд — по слогу в строке. Одна. */
+  .hud-os-card .hud-f-flags.is-pins .cork { grid-template-columns: minmax(0, 1fr); padding: 16px 12px 12px; }
+  .hud-os-card .hud-f-flags.is-pins .card::after { display: none !important; }
+  /* Инвентарь «Карточки»: бирка группы уходила за край карточки. */
+  .hud-os-card .hud-v-item .hud-v-tag { max-width: 100%; white-space: normal; border-radius: 10px; overflow-wrap: anywhere; }
+  /* Воспоминания «Бусины»: колонка бусины 26px + отступ — тексту мало. */
+  .hud-os-card .hud-v-beads li { grid-template-columns: 16px minmax(0, 1fr); gap: 6px; }
+  .hud-os-card .hud-v-beads { padding-left: 0; }
+  /* Расписание «Билеты»: корешок 74px и крупный шрифт — «Перезво / нить». */
+  .hud-os-card .hud-f-sched.is-tickets .stub { width: 50px; padding: 6px 3px; }
+  .hud-os-card .hud-f-sched.is-tickets .main { padding: 8px 10px 9px; }
+  .hud-os-card .hud-f-sched.is-tickets .ev { font-size: .98em; }
+  /* Одежда «Слои»: образец ткани слева отнимал треть ширины. */
+  .hud-os-card .hud-f-clothes.is-layers .swatch { gap: 8px; margin-left: calc(var(--i) * 8px); padding-right: 10px; }
+  .hud-os-card .hud-f-clothes.is-layers .cloth { width: 32px; height: 30px; }
+  /* Важное «Свиток»: поля 30px и колонка номера 34px — тексту оставалось ~30px, по букве в строку. */
+  .hud-os-card .hud-v-scroll { padding: 16px 12px 14px !important; }
+  .hud-os-card .hud-v-scroll li { grid-template-columns: 20px minmax(0, 1fr) auto; gap: 6px; }
+  /* Маршрут «Лента»: время отдельной колонкой 46px — «квартир / а». Время над местом. */
+  .hud-os-card .hud-v-route.is-timeline li { grid-template-columns: 18px minmax(0, 1fr); column-gap: 8px; }
+  .hud-os-card .hud-v-route.is-timeline li::before { left: 8px; }
+  .hud-os-card .hud-v-route.is-timeline li > .t { grid-column: 2; grid-row: 1; text-align: left; padding-top: 0; }
+  .hud-os-card .hud-v-route.is-timeline li > .dot { grid-column: 1; grid-row: 1 / span 2; margin-left: 0; }
+  .hud-os-card .hud-v-route.is-timeline li > :not(.t):not(.dot) { grid-column: 2; }
+  /* Городские службы «Знаки» и «Оповещение»: «КОММУНАЛЬН / ЫЕ» капсом с разрядкой. */
+  .hud-os-card .hud-wv.is-signs .txt b, .hud-os-card .hud-wv.is-alert .kd { letter-spacing: .04em; }
+  /* Кинки «Шкалы» и «Звёзды»: имя делило строку с плашкой/звёздами — «Домини / рование». Плашка под именем. */
+  .hud-os-card .hud-v-kink-head { flex-wrap: wrap; gap: 4px 8px; }
+  .hud-os-card .hud-v-kink-head b { flex: 1 1 100%; }
+  /* Сводка быта «Полоски»: колонка имени 80px и числа 48px — бирка «пора поесть» шла по букве. */
+  .hud-os-card .hud-life-gauges.is-bars .hud-life-gauge { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: 'name num' 'bar bar' 'tag tag'; row-gap: 4px; }
+  /* Секреты «Шкалы»: колонки 92 + 130px шире узкой карточки — «секретно» уезжал за край. */
+  .hud-os-card .hud-v-meter { grid-template-columns: minmax(0, 1fr) auto; row-gap: 3px; }
+  .hud-os-card .hud-v-meter > :is(.hud-v-segments, .hud-v-mini-bar) { grid-column: 1 / -1; grid-row: 2; }
+  .hud-os-card .hud-v-meter > em { grid-column: 2; grid-row: 1; }
+  /* Гардероб «Список»: метки справа («на себе · не носили 3 дн.») сжимали название до буквы. Метки — строкой ниже. */
+  .hud-os-card .hud-life-wlist li { grid-template-columns: 18px 10px minmax(0, 1fr); row-gap: 1px; }
+  .hud-os-card .hud-life-wlist li > :nth-child(n+4) { grid-column: 3; justify-self: start; }
   /* Вампиры: крылья рисунка шапки шире значка — места справа больше. */
   /* Вампиры: летучая мышь шапки (122px) ложилась прямо на имя. На телефоне
      она вдвое меньше и в углу, имени — место слева от неё. */

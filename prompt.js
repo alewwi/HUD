@@ -5,12 +5,12 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.88.3';
-import { английский } from './i18n.js?v=23.88.3';
-import { промптНаАнглийском } from './prompt-en.js?v=23.88.3';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.3';
-import { parseSceneDate } from './history-analyzer.js?v=23.88.3';
-import { возрастТочно } from './render/babies.js?v=23.88.3';
+import { settings } from './settings.js?v=23.88.4';
+import { английский } from './i18n.js?v=23.88.4';
+import { промптНаАнглийском } from './prompt-en.js?v=23.88.4';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.4';
+import { parseSceneDate } from './history-analyzer.js?v=23.88.4';
+import { возрастТочно } from './render/babies.js?v=23.88.4';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.

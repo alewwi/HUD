@@ -5,24 +5,24 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.88.3';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.88.3';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.88.3';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.88.3';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.88.3';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.88.3';
-import { hudБлоки } from './hud-block.js?v=23.88.3';
-import { parseHUDComplex } from './hud-parser.js?v=23.88.3';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.88.3';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.88.3';
-import { английский, т } from './i18n.js?v=23.88.3';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.88.4';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.88.4';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.88.4';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.88.4';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.88.4';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.88.4';
+import { hudБлоки } from './hud-block.js?v=23.88.4';
+import { parseHUDComplex } from './hud-parser.js?v=23.88.4';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.88.4';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.88.4';
+import { английский, т } from './i18n.js?v=23.88.4';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 const пример = () => (английский() ? ПРИМЕР_EN : ПРИМЕР_RU);
-import { задатьПримерСемьи } from './render/conception.js?v=23.88.3';
-import { привязатьИсторию } from './render/intimacy.js?v=23.88.3';
-import { пометитьЭффекты } from './render/fx.js?v=23.88.3';
-import { attachHelpMarks } from './help.js?v=23.88.3';
-import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.88.3';
+import { задатьПримерСемьи } from './render/conception.js?v=23.88.4';
+import { привязатьИсторию } from './render/intimacy.js?v=23.88.4';
+import { пометитьЭффекты } from './render/fx.js?v=23.88.4';
+import { attachHelpMarks } from './help.js?v=23.88.4';
+import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.88.4';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
