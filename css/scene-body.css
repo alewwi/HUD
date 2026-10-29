@@ -72,7 +72,9 @@
 .hud-tempo-meter { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; }
 .hud-tempo-meter s { height: 5px; border-radius: 4px; background: color-mix(in srgb, currentColor 10%, transparent); text-decoration: none; }
 .hud-tempo-meter s.on { background: linear-gradient(90deg, color-mix(in srgb, var(--tc) 50%, transparent), var(--tc)); box-shadow: 0 0 6px color-mix(in srgb, var(--tc) 50%, transparent); }
-.hud-tempo-scale { display: flex; justify-content: space-between; font-size: .62em; letter-spacing: .06em; color: color-mix(in srgb, currentColor 55%, transparent); margin-top: -3px; }
+.hud-tempo-scale { display: flex; justify-content: space-between; gap: 6px; flex-wrap: wrap; font-size: .62em; letter-spacing: .06em; color: color-mix(in srgb, currentColor 55%, transparent); margin-top: -3px; }
+/* На телефоне шкала узкая: без зазора «медленно» и «неистово» сливались в одно слово. */
+.hud-tempo-scale > span:last-child { margin-left: auto; }
 @media (max-width: 420px) { .hud-tempo-visual > svg { width: 84px; height: 84px; } }
 
 /* Шкала. */

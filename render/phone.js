@@ -6,20 +6,20 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.88.2';
-import { английский } from '../i18n.js?v=23.88.2';
-import { settings } from '../settings.js?v=23.88.2';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.88.2';
-import { G_ICONS } from './icons.js?v=23.88.2';
-import { buildMessengerHTML } from './messenger.js?v=23.88.2';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.88.2';
-import { сортироватьЧаты } from './msg-feed.js?v=23.88.2';
-import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.88.2';
-import { buildCalendarApp } from './calendar.js?v=23.88.2';
-import { приложениеМузыки } from './music.js?v=23.88.2';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.88.3';
+import { английский } from '../i18n.js?v=23.88.3';
+import { settings } from '../settings.js?v=23.88.3';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.88.3';
+import { G_ICONS } from './icons.js?v=23.88.3';
+import { buildMessengerHTML } from './messenger.js?v=23.88.3';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.88.3';
+import { сортироватьЧаты } from './msg-feed.js?v=23.88.3';
+import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.88.3';
+import { buildCalendarApp } from './calendar.js?v=23.88.3';
+import { приложениеМузыки } from './music.js?v=23.88.3';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.88.2';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.88.3';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -148,7 +148,7 @@ function buildWalletApp(wallet, owner) {
 // --- Календарь ---------------------------------------------------------------
 // Живёт в render/calendar.js; отсюда его по-прежнему берёт альманах
 // (render/medieval.js).
-export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.88.2';
+export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.88.3';
 
 // --- Экраны приложений ------------------------------------------------------
 // Каждый билдер получает свой кусок data.phone и возвращает внутренности
@@ -350,6 +350,10 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   // Сколько карточек показывать на домашнем экране — настройка «Карточек
   // уведомлений». Раньше было жёстко три.
   const MAX_NOTIF = Math.max(1, Math.min(5, Number(settings.phoneNotifMax) || 3));
+  // Новые сверху, как на настоящем телефоне: шли в порядке чатов, и 06:25
+  // стояло над 13:20. Без времени — в конце, порядок чатов между ними тот же.
+  const минутыУв = (t) => { const м = String(t || '').match(/(\d{1,2}):(\d{2})/); return м ? +м[1] * 60 + +м[2] : -1; };
+  notifItems.sort((a, b) => минутыУв(b.time) - минутыУв(a.time));
   const shown = notifItems.slice(0, MAX_NOTIF);
   const hiddenCount = notifItems.length - shown.length;
 

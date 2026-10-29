@@ -6007,17 +6007,23 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
 /* Событие — гибкая колонка: на узкой карточке сжимается и переносит длинное
    слово, а не уезжает за край строки с горизонтальной прокруткой. */
 .hud-schedule-event { flex: 1 1 0; min-width: 0; width: auto; overflow-wrap: anywhere; }
+/* Одна колонка «когда» на всё расписание: у каждой строки была своя ширина,
+   и события начинались с разного отступа («21:30» и «воскресенье 14:00»). */
+.hud-schedule-container { display: grid; grid-template-columns: max-content minmax(0, 1fr); }
+.hud-schedule-item { display: grid; grid-column: 1 / -1; grid-template-columns: subgrid; }
 /* На телефоне карточка ~210–240px: колонка времени съедала половину, и
    событие рвалось по слогам. Время — над событием, событию вся ширина. */
 @media (max-width: 600px) {
-  .hud-schedule-item { flex-direction: column; gap: 4px; padding: 10px 0 10px 8px; }
+  .hud-schedule-container { display: flex; }
+  .hud-schedule-item { display: flex; flex-direction: column; gap: 4px; padding: 10px 0 10px 8px; }
   .hud-schedule-item::before { top: 13px; }
   .hud-schedule-time { margin-top: 0; max-width: none; }
   .hud-schedule-event { flex: 0 0 auto; width: 100%; box-sizing: border-box; }
 }
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) {
-  .hud-schedule-item { flex-direction: column; gap: 4px; padding: 10px 0 10px 8px; }
+  .hud-schedule-container { display: flex; }
+  .hud-schedule-item { display: flex; flex-direction: column; gap: 4px; padding: 10px 0 10px 8px; }
   .hud-schedule-item::before { top: 13px; }
   .hud-schedule-time { margin-top: 0; max-width: none; }
   .hud-schedule-event { flex: 0 0 auto; width: 100%; box-sizing: border-box; }
@@ -6081,6 +6087,10 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
 .hud-heat-organ span, .hud-heat-cloth span { color: var(--hud-text-muted, #c3c2b7); }
 .hud-heat-cloth small { font-size: 10px; padding: 0 6px; border-radius: var(--hud-r-chip); background: rgba(255, 255, 255, .08); }
 .hud-heat-cloth.is-half small { background: color-mix(in srgb, var(--heat) 22%, transparent); }
+/* Одна сетка на весь список одежды: у каждой строки были свои колонки, и
+   описание «Платья» начиналось правее, чем у «Чулок». */
+.hud-heat-clothes { display: grid; grid-template-columns: auto auto minmax(0, 1fr); }
+.hud-heat-clothes > .hud-heat-cloth { grid-column: 1 / -1; grid-template-columns: subgrid; }
 .hud-heat-cloth.is-off { opacity: .6; }
 .hud-heat-cloth.is-off b { text-decoration: line-through; }
 
@@ -6418,6 +6428,8 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 .hud-fear em, .hud-prot-kicker, .hud-phone-time { white-space: nowrap; }
 .hud-fear em { flex: none; }
 .hud-prot-kicker { white-space: normal; overflow-wrap: break-word; max-width: 100%; }
+/* «КОНТРАЦЕПЦИЯ» с разрядкой .12em не влезала в узкую карточку и рвалась на «…ЦИ / Я». */
+.hud-prot-kicker { letter-spacing: .05em; }
 
 /* На телефоне вложенная прокрутка в строках карточки (отношения, ключ, цели,
    NSFW — 140px) без видимой полосы выглядела обрезанным краем: карточка

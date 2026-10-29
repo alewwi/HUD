@@ -39,9 +39,248 @@
 .hud-os-card .is-capped.is-end, .hud-os-card .is-capped-x.is-end { -webkit-mask: none; mask: none; }
 /* След в ленте вбок — узкий, как на телефоне: таймер на своей строке,
    иначе «сойдёт через 2 дн. 11 ч» сжимал название до буквы в строке. */
-.hud-os-card .hud-marks.is-capped-x > .hud-mark { grid-template-columns: 34px minmax(0, 1fr) !important; }
+.hud-os-card .hud-marks.is-capped-x > .hud-mark { grid-template-columns: 30px minmax(0, 1fr) !important; align-items: start; }
+/* Значок — наверху у названия, а не посреди высокого текста; описание и
+   «Симптомы» — во всю ширину, без пустой колонки под значком слева. */
+.hud-os-card .hud-marks.is-capped-x > .hud-mark > .hud-mark-ico { align-self: start; margin-top: 2px; }
+.hud-os-card .hud-marks.is-capped-x > .hud-mark > :is(.hud-mark-look, .hud-mark-rows, .hud-mark-heal) { grid-column: 1 / -1; }
+.hud-os-card .hud-marks.is-capped-x .hud-mark-stage { display: table; margin: 4px 0 2px; }
 .hud-os-card .hud-marks.is-capped-x > .hud-mark > .hud-mark-timer { grid-column: 1 / -1; justify-content: flex-start; }
 .hud-os-card .hud-marks.is-capped-x .hud-mark-timer small { white-space: normal; }
+/* «Симптомы / Лечение» в узкой карточке ленты: подпись в 7.5em оставляла
+   тексту ~45px, и «под повязкой» срезалось справа. Подпись — над текстом. */
+.hud-os-card .is-capped-x :is(.hud-ill-row, .hud-pet-row) { grid-template-columns: minmax(0, 1fr); gap: 0; margin-top: 6px; }
+/* Узкая карточка ленты: длинное слово рвалось посреди без дефиса (Edge и
+   Chrome на Windows не переносят русский по слогам). Ярлык — без разрядки и
+   чуть мельче; у записи памяти «✚» уходит в угол, а не отнимает у текста
+   колонку: с отступом под него тексту оставалось 85px из 160. */
+.hud-os-card .is-capped-x .hud-pill-label { letter-spacing: 0 !important; font-size: .84em !important; }
+.hud-os-card .is-capped-x > .hud-lore-item { position: relative; padding-right: 14px !important; }
+.hud-os-card .is-capped-x > .hud-lore-item .hud-remember { position: absolute; top: 6px; right: 5px; }
+.hud-os-card .is-capped-x > .hud-lore-item .hud-lore-text { padding-right: 12px; }
+/* На телефоне колонка и без ленты узкая (~200px): то же самое. */
+@media (max-width: 600px) {
+  .hud-os-card .hud-lore-item { position: relative; padding-right: 14px !important; }
+  .hud-os-card .hud-lore-item > .hud-remember { position: absolute; top: 6px; right: 5px; }
+  .hud-os-card .hud-lore-item > .hud-lore-text { padding-right: 12px; }
+  /* Карта тела: имени зоны оставалось 45px между полоской и числом —
+     «Больш / ой палец». Полоска уходит на вторую строку, имя — во всю ширину. */
+  .hud-os-card .hud-heat-row { grid-template-columns: 10px minmax(0, 1fr) 22px; }
+  .hud-os-card .hud-heat-row > .hud-heat-bar { grid-column: 2 / -1; grid-row: 2; }
+  .hud-os-card .hud-heat-row > em { grid-column: 3; grid-row: 1; }
+  /* Звуки: до 22px на карточке шириной 200px — по слову в строке. */
+  .hud-os-card .hud-sound { font-size: calc(11px + var(--г, 5) * .55px); }
+  /* Одежда и органы под картой: третья колонка с описанием сжималась до
+     25px — «шелк / овая» по слогу в строке. Описание — строкой ниже. */
+  .hud-os-card :is(.hud-heat-cloth, .hud-heat-organ) { grid-template-columns: auto minmax(0, 1fr); }
+  .hud-os-card :is(.hud-heat-cloth, .hud-heat-organ) > span { grid-column: 1 / -1; }
+  /* Фазы цикла: «Фолликулярная» не влезала и рвалась на «…рна / я». */
+  .hud-os-card .hud-cycle-legend li { gap: 5px; font-size: 11px; }
+  /* Маршруты: колонки «время · номер · место» оставляли месту 71px —
+     «кофемашин / ой)». Время — строкой над местом, колонка времени уходит. */
+  .hud-os-card :is(.hud-route-stop, .hud-route-leg) { grid-template-columns: 18px minmax(0, 1fr); column-gap: 8px; row-gap: 0; }
+  .hud-os-card .hud-route-stop > .hud-route-time { grid-column: 2; grid-row: 1; text-align: left; }
+  .hud-os-card .hud-route-stop > .hud-route-pin { grid-column: 1; grid-row: 1 / span 2; align-self: start; margin-top: 2px; }
+  .hud-os-card .hud-route-stop > .hud-route-info { grid-column: 2; grid-row: 2; }
+  .hud-os-card .hud-route-leg > .hud-route-leg-line { grid-column: 1; }
+  .hud-os-card .hud-route-leg > .hud-route-leg-time { grid-column: 2; }
+  /* Заголовки «Мира» капсом с разрядкой 2px: «КОММЕНТАРИ / И» на 200px. */
+  .hud-os-card .hud-world-title { letter-spacing: .5px; font-size: 1.05em; }
+  .hud-os-card .hud-afisha-title { font-size: 12.5px; }
+  /* «ПЕРЕХВАТ (Лейла Санчес-Дэвис)» с разрядкой 1px рвалось на «САНЧЕС- / ДЭВИС)»
+     и наезжало на часы. Разрядка меньше, строки — ровными половинами. */
+  .hud-os-card .intercept-status { letter-spacing: .3px; text-align: center; text-wrap: balance; line-height: 1.25; min-width: 0; }
+  /* Переписка на узком экране: пузыри шли «ровно» — входящий из-за
+     аватарки начинался правее исходящего. Теперь входящие прижаты влево,
+     исходящие уже и прижаты вправо: видно, кто пишет, а кому. */
+  .hud-os-card .hud-msg-wrapper { max-width: 82%; gap: 5px; }
+  .hud-os-card .hud-msg-wrapper.outgoing { max-width: 74%; }
+  /* Аватарка входящих держала пустую колонку у каждого пузыря (видна только
+     у последнего в серии) — имя и так подписано над пузырём. */
+  .hud-os-card .hud-msg-wrapper.incoming .hud-msg-avatar { display: none; }
+  .hud-os-card .hud-phone-chat-area { padding-left: 8px; padding-right: 8px; }
+  /* Визитки отношений: лицо слева отнимало 52px из ~170, и «настороженность»
+     рвалась. Лицо — в строку с именем, текст — под ними во всю ширину. */
+  .hud-os-card .hud-row.f-relations .hud-detail-pill.has-face:not(.is-group) {
+    padding: 8px 11px 9px !important; border-radius: 14px; min-height: 0;
+    background: radial-gradient(circle at 24px 22px, hsl(var(--тон, 0) 50% 45% / .3) 0 16px, transparent 21px), linear-gradient(180deg, hsl(var(--тон, 0) 45% 30% / .26), transparent 70%);
+  }
+  .hud-os-card .hud-row.f-relations .hud-detail-pill.has-face:not(.is-group) .hud-pill-face { position: relative; left: auto; top: auto; transform: none; display: inline-grid; vertical-align: middle; width: 28px; height: 28px; margin: 0 7px 4px 0; }
+  .hud-os-card .hud-row.f-relations .hud-detail-pill.has-face:not(.is-group) .hud-pill-label { display: inline; vertical-align: middle; }
+  .hud-os-card .hud-row.f-relations .hud-detail-pill.has-face:not(.is-group) .hud-pill-label::after { content: ''; display: block; }
+  /* «Состояние тела»: батарейки шли по одной в ряд в карточке ребёнка (143px)
+     или по три, и подпись «не выспалась» рвалась. По две в ряд, луна над текстом. */
+  .hud-os-card .hud-kid-card { padding: 8px 6px; }
+  .hud-os-card .hud-bs-bat, .hud-os-card .hud-bs-flasks { gap: 8px 6px; padding: 9px 8px; }
+  .hud-os-card .hud-bs-cell { flex: 1 1 62px; min-width: 56px; }
+  /* Подпись под батарейкой («не выспалась») была шире ячейки и наезжала на соседнюю. */
+  .hud-os-card .hud-bs-cell em { max-width: 100%; box-sizing: border-box; padding: 1px 5px; border-radius: 8px; }
+  .hud-os-card .hud-bs-sleep { flex-direction: column; align-items: flex-start; gap: 4px; }
+  /* Шкала суток: «12:00» наезжало на «сейчас 21:40» — поздние подписи прячем, засечки остаются. */
+  .hud-os-card .hud-life-day-tick.is-late:not(.is-minor) { font-size: 0; }
+  /* Узкая карточка — пилюли по центру, а не со сдвигом вправо под значком:
+     подсказка гардероба, поза в «Фазе близости», плашка «Защиты». */
+  .hud-os-card .hud-life-hint { display: block; text-align: left; }
+  .hud-os-card .hud-life-hint > .hud-v-ico { display: inline-block; vertical-align: -2px; margin-right: 5px; }
+  .hud-os-card .hud-life-hint > span { display: inline; }
+  .hud-os-card .hud-life-hint .is-find { display: table; margin: 6px auto 0; text-align: center; }
+  .hud-os-card .hud-scene-strip { padding-left: 0; justify-content: center; }
+  .hud-os-card .hud-scene-strip::before { display: none; }
+  .hud-os-card .hud-prot { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; }
+  .hud-os-card .hud-prot-text { align-items: center; }
+  .hud-os-card .hud-prot > em { grid-column: 1; justify-self: center; }
+  /* Шапка персонажа в темах: место под значок или рисунок справа было
+     рассчитано на широкую карточку (92–120px из ~140 у текста), и имя шло
+     по букве в строку («Tris / tan»), или его закрывали щит, часы, крылья,
+     штамп «ДЕЛО». На телефоне — 48px под значок, имя переносится по словам. */
+  :is(.hud-theme-kawaii, .hud-theme-vamp, .hud-theme-ice) .hud-os-card .hud-header:not(.has-banner) .hud-header-text,
+  :root.hud-sn-on .hud-os-card .hud-header:not(.has-banner) .hud-header-text,
+  .hud-theme-teaparty .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 48px; }
+  .hud-os-card .hud-header .hud-title { min-width: 0; max-width: 100%; overflow-wrap: break-word; }
+  :root.hud-sn-noir .hud-os-card .hud-header .hud-title { flex: 1 1 100%; letter-spacing: .04em; }
+  /* Ежедневник: дата рамкой справа съедала 120px — на телефоне её нет
+     (дата есть в виджете сцены), наклейка с именем — во всю ширину. */
+  .hud-theme-bujo .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 8px; }
+  .hud-theme-bujo .hud-os-card .hud-header::after { display: none; }
+  .hud-theme-bujo .hud-os-card .hud-header .hud-title { padding: 2px 7px; letter-spacing: 0; }
+  /* Вампиры: крылья рисунка шапки шире значка — места справа больше. */
+  /* Вампиры: летучая мышь шапки (122px) ложилась прямо на имя. На телефоне
+     она вдвое меньше и в углу, имени — место слева от неё. */
+  :root.hud-sn-vamp .hud-os-card .hud-header:not(.has-banner) .hud-header-text,
+  :root.hud-sh-vamp .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 56px; }
+  :root.hud-sh-vamp .hud-os-card .hud-header > .hud-scene-h { background-size: 50px 30px; background-position: right 4px top 6px; }
+  :root.hud-sh-vamp .hud-os-card .hud-header > .hud-scene-h::before,
+  :root.hud-sh-vamp .hud-os-card .hud-header > .hud-scene-h::after { width: 25px; height: 30px; top: 6px; margin-top: 0; }
+  :root.hud-sh-vamp .hud-os-card .hud-header > .hud-scene-h::before { right: 29px; }
+  :root.hud-sh-vamp .hud-os-card .hud-header > .hud-scene-h::after { right: 4px; }
+  /* Нуар: штамп «СЕКРЕТНО» стоял в 140px от края — ровно на имени. В угол. */
+  :root.hud-sh-noir:not(.hud-sh-img) .hud-os-card .hud-header > .hud-scene-h::before { right: 4px; top: -8px; font-size: 9px; padding: 2px 6px; }
+  /* Ярлык «ДЕЛО № 02» на шнурке ложился на имя; номер дела и так есть строкой под именем. */
+  :root.hud-sh-noir .hud-os-card .hud-header > .hud-scene-h::after { display: none; }
+  .hud-os-card .hud-prot-note { justify-self: stretch; text-align: left; }
+  /* Билет афиши: корешок 62px оставлял названию ~70px — «Старинны / е».
+     Корешок уже, вырезы билета — на новой линии отрыва. */
+  .hud-os-card .hud-afisha-stub { width: 44px; padding: 6px 2px; }
+  .hud-os-card .hud-afisha-stub > i { font-size: 18px; }
+  .hud-os-card .hud-afisha-kind { font-size: 7.5px; letter-spacing: .04em; }
+  .hud-os-card .hud-afisha-main { padding: 8px 9px 18px; }
+  .hud-os-card .hud-afisha-card {
+    -webkit-mask: radial-gradient(circle 6px at 44px 0, transparent 97%, #000) top / 100% 51% no-repeat, radial-gradient(circle 6px at 44px 100%, transparent 97%, #000) bottom / 100% 51% no-repeat;
+            mask: radial-gradient(circle 6px at 44px 0, transparent 97%, #000) top / 100% 51% no-repeat, radial-gradient(circle 6px at 44px 100%, transparent 97%, #000) bottom / 100% 51% no-repeat;
+  }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-os-card .hud-lore-item { position: relative; padding-right: 14px !important; }
+  .hud-os-card .hud-lore-item > .hud-remember { position: absolute; top: 6px; right: 5px; }
+  .hud-os-card .hud-lore-item > .hud-lore-text { padding-right: 12px; }
+  /* Карта тела: имени зоны оставалось 45px между полоской и числом —
+     «Больш / ой палец». Полоска уходит на вторую строку, имя — во всю ширину. */
+  .hud-os-card .hud-heat-row { grid-template-columns: 10px minmax(0, 1fr) 22px; }
+  .hud-os-card .hud-heat-row > .hud-heat-bar { grid-column: 2 / -1; grid-row: 2; }
+  .hud-os-card .hud-heat-row > em { grid-column: 3; grid-row: 1; }
+  /* Звуки: до 22px на карточке шириной 200px — по слову в строке. */
+  .hud-os-card .hud-sound { font-size: calc(11px + var(--г, 5) * .55px); }
+  /* Одежда и органы под картой: третья колонка с описанием сжималась до
+     25px — «шелк / овая» по слогу в строке. Описание — строкой ниже. */
+  .hud-os-card :is(.hud-heat-cloth, .hud-heat-organ) { grid-template-columns: auto minmax(0, 1fr); }
+  .hud-os-card :is(.hud-heat-cloth, .hud-heat-organ) > span { grid-column: 1 / -1; }
+  /* Фазы цикла: «Фолликулярная» не влезала и рвалась на «…рна / я». */
+  .hud-os-card .hud-cycle-legend li { gap: 5px; font-size: 11px; }
+  /* Маршруты: колонки «время · номер · место» оставляли месту 71px —
+     «кофемашин / ой)». Время — строкой над местом, колонка времени уходит. */
+  .hud-os-card :is(.hud-route-stop, .hud-route-leg) { grid-template-columns: 18px minmax(0, 1fr); column-gap: 8px; row-gap: 0; }
+  .hud-os-card .hud-route-stop > .hud-route-time { grid-column: 2; grid-row: 1; text-align: left; }
+  .hud-os-card .hud-route-stop > .hud-route-pin { grid-column: 1; grid-row: 1 / span 2; align-self: start; margin-top: 2px; }
+  .hud-os-card .hud-route-stop > .hud-route-info { grid-column: 2; grid-row: 2; }
+  .hud-os-card .hud-route-leg > .hud-route-leg-line { grid-column: 1; }
+  .hud-os-card .hud-route-leg > .hud-route-leg-time { grid-column: 2; }
+  /* Заголовки «Мира» капсом с разрядкой 2px: «КОММЕНТАРИ / И» на 200px. */
+  .hud-os-card .hud-world-title { letter-spacing: .5px; font-size: 1.05em; }
+  .hud-os-card .hud-afisha-title { font-size: 12.5px; }
+  /* «ПЕРЕХВАТ (Лейла Санчес-Дэвис)» с разрядкой 1px рвалось на «САНЧЕС- / ДЭВИС)»
+     и наезжало на часы. Разрядка меньше, строки — ровными половинами. */
+  .hud-os-card .intercept-status { letter-spacing: .3px; text-align: center; text-wrap: balance; line-height: 1.25; min-width: 0; }
+  /* Переписка на узком экране: пузыри шли «ровно» — входящий из-за
+     аватарки начинался правее исходящего. Теперь входящие прижаты влево,
+     исходящие уже и прижаты вправо: видно, кто пишет, а кому. */
+  .hud-os-card .hud-msg-wrapper { max-width: 82%; gap: 5px; }
+  .hud-os-card .hud-msg-wrapper.outgoing { max-width: 74%; }
+  /* Аватарка входящих держала пустую колонку у каждого пузыря (видна только
+     у последнего в серии) — имя и так подписано над пузырём. */
+  .hud-os-card .hud-msg-wrapper.incoming .hud-msg-avatar { display: none; }
+  .hud-os-card .hud-phone-chat-area { padding-left: 8px; padding-right: 8px; }
+  /* Визитки отношений: лицо слева отнимало 52px из ~170, и «настороженность»
+     рвалась. Лицо — в строку с именем, текст — под ними во всю ширину. */
+  .hud-os-card .hud-row.f-relations .hud-detail-pill.has-face:not(.is-group) {
+    padding: 8px 11px 9px !important; border-radius: 14px; min-height: 0;
+    background: radial-gradient(circle at 24px 22px, hsl(var(--тон, 0) 50% 45% / .3) 0 16px, transparent 21px), linear-gradient(180deg, hsl(var(--тон, 0) 45% 30% / .26), transparent 70%);
+  }
+  .hud-os-card .hud-row.f-relations .hud-detail-pill.has-face:not(.is-group) .hud-pill-face { position: relative; left: auto; top: auto; transform: none; display: inline-grid; vertical-align: middle; width: 28px; height: 28px; margin: 0 7px 4px 0; }
+  .hud-os-card .hud-row.f-relations .hud-detail-pill.has-face:not(.is-group) .hud-pill-label { display: inline; vertical-align: middle; }
+  .hud-os-card .hud-row.f-relations .hud-detail-pill.has-face:not(.is-group) .hud-pill-label::after { content: ''; display: block; }
+  /* «Состояние тела»: батарейки шли по одной в ряд в карточке ребёнка (143px)
+     или по три, и подпись «не выспалась» рвалась. По две в ряд, луна над текстом. */
+  .hud-os-card .hud-kid-card { padding: 8px 6px; }
+  .hud-os-card .hud-bs-bat, .hud-os-card .hud-bs-flasks { gap: 8px 6px; padding: 9px 8px; }
+  .hud-os-card .hud-bs-cell { flex: 1 1 62px; min-width: 56px; }
+  /* Подпись под батарейкой («не выспалась») была шире ячейки и наезжала на соседнюю. */
+  .hud-os-card .hud-bs-cell em { max-width: 100%; box-sizing: border-box; padding: 1px 5px; border-radius: 8px; }
+  .hud-os-card .hud-bs-sleep { flex-direction: column; align-items: flex-start; gap: 4px; }
+  /* Шкала суток: «12:00» наезжало на «сейчас 21:40» — поздние подписи прячем, засечки остаются. */
+  .hud-os-card .hud-life-day-tick.is-late:not(.is-minor) { font-size: 0; }
+  /* Узкая карточка — пилюли по центру, а не со сдвигом вправо под значком:
+     подсказка гардероба, поза в «Фазе близости», плашка «Защиты». */
+  .hud-os-card .hud-life-hint { display: block; text-align: left; }
+  .hud-os-card .hud-life-hint > .hud-v-ico { display: inline-block; vertical-align: -2px; margin-right: 5px; }
+  .hud-os-card .hud-life-hint > span { display: inline; }
+  .hud-os-card .hud-life-hint .is-find { display: table; margin: 6px auto 0; text-align: center; }
+  .hud-os-card .hud-scene-strip { padding-left: 0; justify-content: center; }
+  .hud-os-card .hud-scene-strip::before { display: none; }
+  .hud-os-card .hud-prot { grid-template-columns: minmax(0, 1fr); justify-items: center; text-align: center; }
+  .hud-os-card .hud-prot-text { align-items: center; }
+  .hud-os-card .hud-prot > em { grid-column: 1; justify-self: center; }
+  /* Шапка персонажа в темах: место под значок или рисунок справа было
+     рассчитано на широкую карточку (92–120px из ~140 у текста), и имя шло
+     по букве в строку («Tris / tan»), или его закрывали щит, часы, крылья,
+     штамп «ДЕЛО». На телефоне — 48px под значок, имя переносится по словам. */
+  :is(.hud-theme-kawaii, .hud-theme-vamp, .hud-theme-ice) .hud-os-card .hud-header:not(.has-banner) .hud-header-text,
+  :root.hud-sn-on .hud-os-card .hud-header:not(.has-banner) .hud-header-text,
+  .hud-theme-teaparty .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 48px; }
+  .hud-os-card .hud-header .hud-title { min-width: 0; max-width: 100%; overflow-wrap: break-word; }
+  :root.hud-sn-noir .hud-os-card .hud-header .hud-title { flex: 1 1 100%; letter-spacing: .04em; }
+  /* Ежедневник: дата рамкой справа съедала 120px — на телефоне её нет
+     (дата есть в виджете сцены), наклейка с именем — во всю ширину. */
+  .hud-theme-bujo .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 8px; }
+  .hud-theme-bujo .hud-os-card .hud-header::after { display: none; }
+  .hud-theme-bujo .hud-os-card .hud-header .hud-title { padding: 2px 7px; letter-spacing: 0; }
+  /* Вампиры: крылья рисунка шапки шире значка — места справа больше. */
+  /* Вампиры: летучая мышь шапки (122px) ложилась прямо на имя. На телефоне
+     она вдвое меньше и в углу, имени — место слева от неё. */
+  :root.hud-sn-vamp .hud-os-card .hud-header:not(.has-banner) .hud-header-text,
+  :root.hud-sh-vamp .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 56px; }
+  :root.hud-sh-vamp .hud-os-card .hud-header > .hud-scene-h { background-size: 50px 30px; background-position: right 4px top 6px; }
+  :root.hud-sh-vamp .hud-os-card .hud-header > .hud-scene-h::before,
+  :root.hud-sh-vamp .hud-os-card .hud-header > .hud-scene-h::after { width: 25px; height: 30px; top: 6px; margin-top: 0; }
+  :root.hud-sh-vamp .hud-os-card .hud-header > .hud-scene-h::before { right: 29px; }
+  :root.hud-sh-vamp .hud-os-card .hud-header > .hud-scene-h::after { right: 4px; }
+  /* Нуар: штамп «СЕКРЕТНО» стоял в 140px от края — ровно на имени. В угол. */
+  :root.hud-sh-noir:not(.hud-sh-img) .hud-os-card .hud-header > .hud-scene-h::before { right: 4px; top: -8px; font-size: 9px; padding: 2px 6px; }
+  /* Ярлык «ДЕЛО № 02» на шнурке ложился на имя; номер дела и так есть строкой под именем. */
+  :root.hud-sh-noir .hud-os-card .hud-header > .hud-scene-h::after { display: none; }
+  .hud-os-card .hud-prot-note { justify-self: stretch; text-align: left; }
+  /* Билет афиши: корешок 62px оставлял названию ~70px — «Старинны / е».
+     Корешок уже, вырезы билета — на новой линии отрыва. */
+  .hud-os-card .hud-afisha-stub { width: 44px; padding: 6px 2px; }
+  .hud-os-card .hud-afisha-stub > i { font-size: 18px; }
+  .hud-os-card .hud-afisha-kind { font-size: 7.5px; letter-spacing: .04em; }
+  .hud-os-card .hud-afisha-main { padding: 8px 9px 18px; }
+  .hud-os-card .hud-afisha-card {
+    -webkit-mask: radial-gradient(circle 6px at 44px 0, transparent 97%, #000) top / 100% 51% no-repeat, radial-gradient(circle 6px at 44px 100%, transparent 97%, #000) bottom / 100% 51% no-repeat;
+            mask: radial-gradient(circle 6px at 44px 0, transparent 97%, #000) top / 100% 51% no-repeat, radial-gradient(circle 6px at 44px 100%, transparent 97%, #000) bottom / 100% 51% no-repeat;
+  }
+} }
+/* cq ↑ */
 /* Визитка отношений в ленте вбок узкая (160px): лицо слева съедало половину
    ширины, и текст шёл столбиком по слову. В ленте лицо — в строку с именем,
    текст — под ними во всю ширину. */

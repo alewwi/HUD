@@ -985,7 +985,7 @@ settings.tempoView = 'xray';
       && R.текстОтвета({ choices: [{ message: { content: 'E' } }] }, () => 'E2') === 'E2');
     проверить('реген: ошибка профиля — с причиной из cause', R.текстОшибки(new Error('API request failed', { cause: new Error('Unauthorized') })) === 'API request failed: Unauthorized');
     проверить('реген: роли user/assistant — без «model» по имени модели', !рег.includes("'model'") && !рег.includes('isGeminiBackend'));
-    проверить('реген: Text Completion — через generateRaw, профиль — до проверки Custom', рег.includes("основнойAPI !== 'openai'") && рег.includes('stContext.generateRaw({ prompt: freshMessages') && рег.includes('!черезПрофиль && !черезТаверну && hudSource'));
+    проверить('реген: Text Completion — через generateRaw, профиль — до проверки Custom', рег.includes("основнойAPI !== 'openai'") && рег.includes('генерацияТаверны(stContext, { prompt: freshMessages') && рег.includes('!черезПрофиль && !черезТаверну && hudSource'));
     проверить('реген: из клона — без tools и JSON-схемы', рег.includes("['tools', 'tool_choice', 'json_schema', 'n', 'logprobs']"));
     проверить('реген: сменился свайп или чат — HUD не вставляем, текст сообщения — свежий', рег.includes('targetMessage.swipe_id !== свайпВНачале') && рег.includes('oldText = заменитьHudБлоки(основа.текстСообщенияЧата(targetMessage)'));
     // Живая проверка (GLM, DeepSeek через роутер): пустой ответ приходит как «""»,
@@ -1726,7 +1726,9 @@ settings.tempoView = 'xray';
   проверить('generateRaw: старая Таверна — по местам, новая — объектом', старое === '["p","s",9]' && пришло.prompt === 'p' && пришло.systemPrompt === 's' && пришло.responseLength === 9, старое);
   const ix = fs.readFileSync(path.join(КОРЕНЬ, 'index.js'), 'utf8');
   проверить('копия запроса во вкладке — без заголовков и пароля прокси', /JSON\.stringify\(\{ url: reqData && reqData\.url, body: тело \}\)/.test(ix) && /proxy_password/.test(ix.match(/const СЕКРЕТНЫЕ_ПОЛЯ = [^\n]+/)[0]));
-  const кто = ['render/music.js', 'render/assistant.js', 'lore-dialog.js'].filter(ф => /ctx\.generateRaw\(/.test(fs.readFileSync(path.join(КОРЕНЬ, ф), 'utf8')));
+  const secretPattern = new RegExp(ix.match(/const СЕКРЕТНЫЕ_ПОЛЯ = \/(.+)\/i;/)[1], 'i');
+  проверить('кеш: Custom-заголовки и тело с вложенными секретами исключены', ['custom_include_headers', 'custom_include_body', 'proxy_password', 'api_key'].every(k => secretPattern.test(k)) && !secretPattern.test('custom_url'));
+  const кто = ['render/music.js', 'render/assistant.js', 'lore-dialog.js', 'regen.js'].filter(ф => /(?:ctx|stContext)\.generateRaw\(/.test(fs.readFileSync(path.join(КОРЕНЬ, ф), 'utf8')));
   проверить('музыка, помощник и лорбук зовут генерацию через генерацияТаверны', !кто.length, кто.join(', '));
   проверить('настройка «HUD в каждом ответе» объясняет режим «только по кнопке»', /HUD в каждом ответе \(сетевой перехват\)[\s\S]{0,200}Выключено — ответы приходят без HUD/.test(fs.readFileSync(path.join(КОРЕНЬ, 'settings-ui.js'), 'utf8')));
 }

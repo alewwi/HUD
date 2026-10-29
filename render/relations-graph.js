@@ -7,11 +7,11 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.88.2';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.88.2';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.88.2';
-import { buildFamilyTree } from './family-tree.js?v=23.88.2';
-import { settings } from '../settings.js?v=23.88.2';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.88.3';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.88.3';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.88.3';
+import { buildFamilyTree } from './family-tree.js?v=23.88.3';
+import { settings } from '../settings.js?v=23.88.3';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -304,7 +304,11 @@ export function buildRelGraphHTML(hudData, uid) {
 
   // Small graphs: one perfectly even ellipse. This gives 2 nodes a line of
   // opposition, 3 a triangle, 4 a square, etc. — no privileged center node.
-  if (n <= 12) {
+  // Двое — в ряд и ближе: столбиком через весь холст 760 по высоте граф
+  // почти не подрезался, и подписи оставались мелкими.
+  if (n === 2) {
+    placeRing(orderedNodes, 230, 0, Math.PI);
+  } else if (n <= 12) {
     const rx = n <= 3 ? 315 : n <= 6 ? 330 : 345;
     const ry = n <= 3 ? 285 : n <= 6 ? 300 : 320;
     placeRing(orderedNodes, rx, ry, -Math.PI / 2);
@@ -314,6 +318,29 @@ export function buildRelGraphHTML(hudData, uid) {
     const innerCount = Math.ceil(n / 2);
     placeRing(orderedNodes.slice(0, innerCount), 200, 175, -Math.PI / 2);
     placeRing(orderedNodes.slice(innerCount), 350, 315, -Math.PI / 2 + Math.PI / Math.max(2, n - innerCount));
+  }
+
+  // Холст подрезаем по узлам с запасом под подписи, сохраняя пропорции
+  // 1000×760: у двух-трёх персонажей пустые поля съедали половину ширины,
+  // и в карточке 525px имена выходили по 5–8px. Не мельче 560×426 — один
+  // узел не раздувается во весь блок.
+  let vb = [0, 0, W, H];
+  if (orderedNodes.length) {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const nd of orderedNodes) {
+      const p = pos[nd.id]; if (!p) continue; const r = nodeRadius(nd);
+      x0 = Math.min(x0, p.x - r - 95); x1 = Math.max(x1, p.x + r + 95);
+      y0 = Math.min(y0, p.y - r - 34); y1 = Math.max(y1, p.y + r + 46);
+    }
+    if (isFinite(x0)) {
+      let w = Math.max(x1 - x0, 560), h = Math.max(y1 - y0, 426);
+      if (w / h > W / H) h = w * H / W; else w = h * W / H;
+      if (w < W - 1) {
+        const mx = (x0 + x1) / 2, my = (y0 + y1) / 2;
+        const vx = Math.max(0, Math.min(W - w, mx - w / 2)), vy = Math.max(0, Math.min(H - h, my - h / 2));
+        vb = [vx, vy, Math.min(w, W), Math.min(h, H)].map(v => +v.toFixed(1));
+      }
+    }
   }
 
   const markerBase = `hud-rel-${uid}`.replace(/[^a-zA-Z0-9_-]/g, '');
@@ -337,7 +364,7 @@ export function buildRelGraphHTML(hudData, uid) {
       <button class="hud-rel-graph-close" type="button" aria-label="Закрыть граф отношений">✕</button>
     </div>
     <div class="hud-rel-stage">
-    <svg viewBox="0 0 ${W} ${H}" class="hud-rel-svg" role="img" aria-label="Граф отношений персонажей">
+    <svg viewBox="${vb.join(' ')}" class="hud-rel-svg" role="img" aria-label="Граф отношений персонажей">
     <defs>
       <filter id="${markerBase}-glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="3" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
       <radialGradient id="${markerBase}-core" cx="35%" cy="30%"><stop offset="0%" stop-color="#fff" stop-opacity=".32"/><stop offset="100%" stop-color="#fff" stop-opacity="0"/></radialGradient>

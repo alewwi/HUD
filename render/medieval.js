@@ -12,11 +12,11 @@
 // Переключение разделов шкатулки — на радиокнопках и CSS, без скриптов:
 // карточка HUD перерисовывается целиком, и состояние не нужно восстанавливать.
 
-import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=23.88.2';
-import { settings } from '../settings.js?v=23.88.2';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.88.2';
-import { namesLikelySame } from '../names.js?v=23.88.2';
-import { buildCalendarApp, parseDayMonth } from './phone.js?v=23.88.2';
+import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=23.88.3';
+import { settings } from '../settings.js?v=23.88.3';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.88.3';
+import { namesLikelySame } from '../names.js?v=23.88.3';
+import { buildCalendarApp, parseDayMonth } from './phone.js?v=23.88.3';
 
 const т = (v) => defeatWI(escapeHtml(String(v ?? '')));
 
@@ -219,7 +219,7 @@ function buildMap(maps) {
   }
   const метки = точки.map((p, i) => `<g class="hud-map-pt${i === n - 1 ? ' is-last' : ''}">
       <circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="${i === n - 1 ? 5 : 3.6}"/>
-      <text x="${p.x.toFixed(1)}" y="${(p.y + (p.y > 150 ? -10 : 16)).toFixed(1)}" text-anchor="${p.x > W - 80 ? 'end' : p.x < 80 ? 'start' : 'middle'}" dx="${p.x > W - 80 ? 6 : p.x < 80 ? -6 : 0}">${escapeHtml(String(p.m.place || '').slice(0, 22))}</text>
+      <text x="${p.x.toFixed(1)}" y="${(p.y + (p.y > 150 ? -10 : 16)).toFixed(1)}" text-anchor="${p.x > W - 80 ? 'end' : p.x < 80 ? 'start' : 'middle'}" dx="${p.x > W - 80 ? 6 : p.x < 80 ? -6 : 0}">${escapeHtml((т => т.length > 22 ? т.slice(0, 21).trimEnd() + '…' : т)(String(p.m.place || '')))}</text>
     </g>`).join('');
   const роза = `<g class="hud-map-rose" transform="translate(${W - 24} 24)"><circle r="11"/><path d="M0 -15 L3 0 L0 15 L-3 0 Z"/><path d="M-15 0 L0 3 L15 0 L0 -3 Z" opacity=".55"/><text y="-17" text-anchor="middle">С</text></g>`;
   const список = maps.map((m, i) => `<div class="hud-map-row"><b>${i + 1}</b><span>${т(m.place || 'Место')}${m.note ? `<small>${т(m.note)}</small>` : ''}</span></div>`).join('');

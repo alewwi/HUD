@@ -3,8 +3,8 @@
 // Мелкие утилиты, общие для всех доменов HUD (дневник, мир, сны, телефон,
 // граф отношений, память). Вынесено из index.js без изменения поведения.
 
-import { МЕТКИ } from './codes.js?v=23.88.2';
-import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.88.2';
+import { МЕТКИ } from './codes.js?v=23.88.3';
+import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.88.3';
 
 // Замеры по шагам для поиска узких мест: включаются только объектом
 // window.__hudProf = {} в консоли, копят { шаг: [мс, …] }. Без него — прямой вызов.
@@ -373,7 +373,9 @@ export function buildPillList(value, pillClass, forceSeparate = false, вид = 
             // текста: на экране было «ожидал: ожидал, что…». Повтор снимаем.
             const повтор = label && String(match[3]).match(new RegExp('^' + label.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(?![\\p{L}])[\\s,:—–-]*', 'iu'));
             const text = повтор && повтор[0].length < String(match[3]).length ? String(match[3]).slice(повтор[0].length) : match[3];
-            items.push({ label, sep: match[2], text });
+            // Тире отбивается пробелом с двух сторон: было «ПОЛГОДА— никого».
+            const sep = /^\s*[—–]\s*$/.test(match[2]) ? ' ' + match[2].trim() : match[2];
+            items.push({ label, sep, text });
         }
         else if (items.length > 0 && items[items.length - 1].label && /(?:kink|fetish|nogo|noturn)-pill/.test(pillClass)
             && chunk.split(/\s+/).length <= 4 && !/[.!?…]$/.test(chunk)) {
@@ -434,7 +436,9 @@ export function buildPillList(value, pillClass, forceSeparate = false, вид = 
               + item.группа.map(n => `<span class="hud-pill-who" style="--тон-сдвиг:${hudHashSeed(n) % 81 - 40};">${escapeHtml(n)}</span>`).join('<span class="hud-pill-and">, </span>')
               + `<span class="hud-pill-sep">${escapeHtml(item.sep)}</span></span><span class="hud-pill-br"></span>`
             : item.label
-            ? `<span class="hud-pill-label">`
+            // Подпись-предложение («Контраст полной груди…») капсом не
+            // читается: длинная — в обычном регистре.
+            ? `<span class="hud-pill-label${item.label.length > 32 ? ' is-long' : ''}">`
               + (значокМетки ? `<i class="hud-pill-ico" aria-hidden="true">${значокМетки}</i>` : '')
               + `${escapeHtml(item.label)}${escapeHtml(item.sep)}</span> `
             : '';

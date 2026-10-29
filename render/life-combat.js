@@ -11,9 +11,9 @@
 // Модель о последствиях не вспомнит: что с зашитым предплечьем нельзя под
 // душ, что ночь после схватки короткая, что после боя кусок в горло не лезет.
 
-import { settings } from '../settings.js?v=23.88.2';
-import { flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.88.2';
-import { namesLikelySame } from '../names.js?v=23.88.2';
+import { settings } from '../settings.js?v=23.88.3';
+import { flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.88.3';
+import { namesLikelySame } from '../names.js?v=23.88.3';
 
 const Ч = 3600e3, СУТКИ = 864e5;
 const текст = (v) => (v === null || v === undefined ? '' : String(снятьЗаглушки(flattenFieldValue(v)) || '')).trim();
@@ -69,6 +69,9 @@ export function раныИз(значение) {
 // Рана, а не болезнь: есть зона или слово раны.
 const РАНА = /пул|огнестр|порез|резан|нож|колот|рассеч|ран(?:а|ы|у|ен)|шов|швы|ожог|перелом|трещин|вывих|растяж|ушиб|синяк|гематом|ссадин|укус|травм|bullet|gunshot|\bcut\b|slash|knife|stab|wound|stitch|burn|fractur|broken|crack|dislocat|sprain|bruis|hematoma|graze|abrasion|bite|injur/i;
 const ЗАЖИЛО = /healed|зажил|chronic|хрон/i;
+// С зоной, но болезнь, а не рана: «пептидный сбой (уши и хвост), голова» —
+// не «мешает: свет, читать» после схватки.
+const НЕ_РАНА = /сбой|синдром|расстройств|болезн|инфекц|простуд|грипп|лихорад|аллерги|мигрен|птср|дисморф|невроз|депресс|трансформ|териантроп|отравлен|интоксик|беремен|токсикоз|syndrome|disorder|disease|infection|\bflu\b|fever|allerg|migraine|ptsd|transform|poison|pregnan/i;
 // Ключ раны без стороны, скобок и знаков: одна рана — одна кривая.
 const ключРаны = (nm) => String(nm || '').toLowerCase().replace(/ё/g, 'е').replace(/\([^)]*\)/g, ' ')
   .replace(/(?<![\p{L}])(?:справа|слева|прав\p{L}*|лев\p{L}*|right|left)(?![\p{L}])/giu, ' ').replace(/[^\p{L}\p{N}]+/gu, ' ').trim().slice(0, 40);
@@ -131,7 +134,7 @@ export function новыйУчётБоя() {
         const имя = имяКоротко(c['Имя']);
         видели.set(имя, Math.max(t, видели.get(имя) ?? t));
         for (const р of раныИз(поле(c, 'Болезни и травмы'))) {
-          if (!р.зона && !РАНА.test(р.nm)) continue;
+          if (!РАНА.test(р.nm) && (!р.зона || НЕ_РАНА.test(р.nm))) continue;
           const к = имя + '|' + ключРаны(р.nm);
           const было = раны.get(к) || { кто: имя, nm: р.nm, первый: t, точки: [] };
           Object.assign(было, { зона: р.зона || было.зона, zn: р.zn || было.zn, trt: р.trt || было.trt, sg: р.sg || было.sg, последний: t });

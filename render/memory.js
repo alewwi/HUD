@@ -6,15 +6,15 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.88.2';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.2';
-import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.88.2';
-import { отложитьРисунок } from './lazy-svg.js?v=23.88.2';
-import { длинныйСписок } from './long-list.js?v=23.88.2';
-import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.88.2';
-import { общиеМеста } from './route-places.js?v=23.88.2';
-import { статусРужья } from '../codes.js?v=23.88.2';
-import { сеткаСекретов } from './secrets-grid.js?v=23.88.2';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.88.3';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.3';
+import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.88.3';
+import { отложитьРисунок } from './lazy-svg.js?v=23.88.3';
+import { длинныйСписок } from './long-list.js?v=23.88.3';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.88.3';
+import { общиеМеста } from './route-places.js?v=23.88.3';
+import { статусРужья } from '../codes.js?v=23.88.3';
+import { сеткаСекретов } from './secrets-grid.js?v=23.88.3';
 
 function parseRoutePoint(item) {
   // Модель иногда ставит дату перед временем («09.11, 22:15») — дату отбрасываем.
@@ -157,7 +157,7 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
   // 3. ЭМОЦИИ (Горизонтальные чипы с прокруткой)
   const buildMoodHTML = (historyArr, currentMood, entityLabel) => {
       if (!currentMood && (!historyArr || historyArr.length === 0)) return '';
-      let mHtml = `<div class="hud-mood-group"><div class="hud-mood-current">${escapeHtml(entityLabel)}${currentMood ? `: <span style="font-weight:normal; opacity:0.9;">${escapeHtml(currentMood)}</span>` : ''}</div><div class="hud-mood-history">`;
+      let mHtml = `<div class="hud-mood-group"><div class="hud-mood-current">${escapeHtml(entityLabel)}${currentMood ? `: <span class="hud-mood-now">${escapeHtml(currentMood)}</span>` : ''}</div><div class="hud-mood-history">`;
       (historyArr || []).forEach(item => {
            let match = String(item).match(/^\[?([\d]{1,2}\s*:\s*\d{2})\]?\s*[-—–:]?\s*(.*)$/);
            mHtml += match

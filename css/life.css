@@ -377,3 +377,7 @@
 /* Метки, которые переносятся на несколько строк, — скругление 10px, а не 999px:
    иначе на узкой карточке длинная метка становится овалом и наезжает на соседей. */
 .hud-life-hint .is-find { display: inline-block; margin-top: 4px; white-space: normal; border-radius: 10px; line-height: 1.35; background: color-mix(in srgb, #e6c25a 30%, transparent); }
+
+/* Пилюли быта — свободный текст («Шини сгрыз правую туфлю…», раны из журнала
+   схваток): капсом, как ярлык, длинная фраза не читалась. */
+.hud-life-pills .hud-v-tag, .hud-life-hint .is-find { text-transform: none; letter-spacing: .01em; }
