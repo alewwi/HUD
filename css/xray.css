@@ -719,3 +719,25 @@
 .xr-hj-cast { fill: #3a1c14; opacity: .28; filter: blur(4px); }
 .xr-hj .xr-vol-edge { stroke-width: .45; stroke-opacity: .48; }
 .xr-hj.is-f { --edge: #c08a76; --rim: #d9a08a; }
+
+/* --- Свой темп у проникновения -------------------------------------------
+   Два проникновения с разным ритмом («пальцы медленно кругами, член
+   неистово») — у строки свой ход: своя анимация --k и --sw со своей
+   длительностью (--beat на строке) и узором. Пауза и запуск — как у всего
+   блока: под курсором и по нажатию. Остальные строки идут от корня. */
+@media (prefers-reduced-motion: no-preference) {
+  .hud-xray-row.has-beat { animation: hud-tk var(--beat, 1s) cubic-bezier(.5, 0, .3, 1) infinite, hud-tsw calc(var(--beat1, 1s) * 2) infinite; animation-play-state: paused, paused; }
+  .hud-xray-row.has-beat.is-ragged { animation-name: hud-tk-ragged, hud-tsw-ragged; animation-duration: var(--beat, 3s), var(--beat, 3s); }
+  .hud-xray-row.has-beat.is-tease { animation-name: hud-tk-tease, hud-tsw; animation-timing-function: cubic-bezier(.37, 0, .63, 1), ease-in-out; }
+  .hud-xray-row.has-beat.is-grind { animation-name: hud-tk-grind, hud-tsw-grind; animation-duration: var(--beat, 1.5s), var(--beat, 1.5s); }
+  .hud-xray-row.has-beat.is-build { animation-name: hud-tk-build, hud-tsw; }
+  .hud-xray-row.has-beat.is-long { animation-name: hud-tk-long, hud-tsw; }
+  .hud-xray-row.has-beat.is-rub { animation-name: hud-tk-rub, hud-tsw; animation-timing-function: cubic-bezier(.37, 0, .63, 1); }
+  :is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .hud-xray-row.has-beat { animation-play-state: running, running; }
+}
+@media (prefers-reduced-motion: no-preference) and (hover: hover) and (pointer: fine) {
+  :is(.hud-tempo, .hud-xray.is-standalone):hover .hud-xray-row.has-beat { animation-play-state: running, running; }
+}
+.hud-xray-row.has-beat.l0 { animation: none; }
+/* Подпись своего темпа у строки: «медленно · кругами». */
+.hud-xray-own { font-style: normal; font-size: .78em; margin-left: 6px; padding: 0 6px; border-radius: var(--hud-r-chip); background: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 22%, transparent); color: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 45%, var(--ink-hi, #fff)); white-space: nowrap; }

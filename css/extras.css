@@ -422,6 +422,7 @@
   background: color-mix(in srgb, var(--p) 45%, rgba(0,0,0,.35)); border: 1px solid color-mix(in srgb, var(--p) 45%, transparent); }
 .hud-pet2-own { display: flex; align-items: center; gap: 8px; margin: 10px 14px 0; font-size: .8em; opacity: .9; }
 .hud-pet2-own i { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 8px; font-weight: 800; color: #fff; background: var(--hud-accent); flex: none; }
+.hud-pet2-own i.has-img { background-size: cover; background-position: center; color: transparent; }
 .hud-pet2-bondrow { margin: 10px 14px 0; }
 .hud-pet2-bondrow > .hud-pet-bond { margin-top: 0; }
 .hud-tama-stats > .hud-pet-bond { margin-top: 2px; }

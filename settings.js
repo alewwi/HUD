@@ -299,6 +299,8 @@ export const defaultSettings = {
   // Инструкция HUD — отдельным сообщением в самом конце запроса, после всего,
   // что собрал SillyTavern. Выключено — дописывается к последнему сообщению.
   hudPromptSeparate: true,
+  // Opt-in for string prompts: fixed prefix, untouched HUD history.
+  hudCacheStable: false,
   // Снимок последнего HUD в конце инструкции: модель обновляет его, а не
   // собирает мир заново. Считается одним из развёрнутых HUD (hudsToKeep).
   hudSnapshot: true,

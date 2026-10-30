@@ -4469,7 +4469,7 @@ body.no-blur .hud-scene-time-group, body.no-blur .hud-weather-item, body.no-blur
 .hud-mood-history { display: flex; overflow-x: auto; gap: 8px; padding-bottom: 8px; scrollbar-width: none; width: 100%; }
 .hud-mood-history::-webkit-scrollbar { display: none; }
 .hud-mood-chip { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.1); border-radius: 16px; padding: 8px 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 100px; flex-shrink: 0; }
-.hud-mood-chip-time { font-family: monospace; font-size: 0.75em; color: var(--hud-accent-text, var(--hud-accent)); opacity: 0.9; margin-bottom: 2px; }
+.hud-mood-chip-time, :is(em, i).hud-mood-chip-time { font-family: monospace; font-size: 0.75em; color: var(--hud-accent-text, var(--hud-accent)); opacity: 0.9; margin-bottom: 2px; }
 .hud-mood-chip-val { font-size: 0.85em; color: #e2e8f0; text-align: center; line-height: 1.2;}
 
 /* Дизайн: СЕКРЕТЫ (Интерактивные спойлеры) */

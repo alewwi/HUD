@@ -4,8 +4,9 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.88.5';
-import { settings } from '../settings.js?v=23.88.5';
+import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.88.6';
+import { settings } from '../settings.js?v=23.88.6';
+import { аватаркаПоИмени } from './views.js?v=23.88.6';
 
 // Умения спутника — не больше четырёх: модель копит их ходами, и в карточке
 // выстраивалась стена пилюль. Короткие (до шести слов) — вперёд, в порядке
@@ -294,6 +295,13 @@ const инициалы = (имя) => инициалыИмени(имя || '?');
 // Хозяин бывает фразой: «на попечении Софи Ховард в комнате 307» давало
 // кружок «НЗ», «прибрежная стая старого причала» — «ПП». Инициалы — только
 // от имени: всё поле, если это имя, иначе имя внутри фразы; нет имени — лапка.
+// Кружок хозяина: фото (ручная аватарка, персона, карточка), иначе инициалы.
+// data-ava-* — чтобы refreshAvatarFaces менял картинку без перерисовки.
+function лицоХозяина(имя) {
+  if (!имя) return '<i>🐾</i>';
+  const url = аватаркаПоИмени(имя);
+  return `<i class="${url ? 'has-img' : ''}" data-ava-name="${escapeHtml(имя)}" data-ava-auto="1" data-ava-bg=""${url ? ` style="background-image:url('${escapeHtml(url)}')"` : ''}>${escapeHtml(инициалы(имя))}</i>`;
+}
 function имяХозяина(s) {
   const t = String(s || '').trim();
   if (/^(?:\p{Lu}[\p{L}'’.-]*\s*){1,3}$/u.test(t)) return t;
@@ -308,7 +316,7 @@ export function карточкаСпутника(p, значок, связь, с
   const умения = есть(p.skills) ? лучшиеУмения(p.skills) : [];
   return `<div class="hud-pet2" style="--p:${цвет}"><div class="hud-pet2-band"></div><div class="hud-pet2-top"><div class="hud-pet2-ava" aria-hidden="true">${значок}</div>`
     + `<div class="hud-pet2-nm"><b>${escapeHtml(p.name)}</b>${есть(p.species) ? `<small>${escapeHtml(p.species)}</small>` : ''}</div>${есть(p.mood) ? `<span class="hud-pet2-mood">${escapeHtml(p.mood)}</span>` : ''}</div>`
-    + (есть(p.owner) ? `<div class="hud-pet2-own"><i>${имяХозяина(p.owner) ? escapeHtml(инициалы(имяХозяина(p.owner))) : '🐾'}</i><span>хозяин: <b>${escapeHtml(p.owner)}</b></span></div>` : '')
+    + (есть(p.owner) ? `<div class="hud-pet2-own">${лицоХозяина(имяХозяина(p.owner))}<span>хозяин: <b>${escapeHtml(p.owner)}</b></span></div>` : '')
     + (связьHTML ? `<div class="hud-pet2-bondrow">${связьHTML}</div>` : '')
     + (плитки ? `<div class="hud-pet2-tiles">${плитки}</div>` : '')
     + (есть(p.note) ? `<div class="hud-pet2-now">${ик('note', цвет)}<span>Сейчас: ${escapeHtml(String(p.note))}</span></div>` : '')

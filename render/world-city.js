@@ -5,7 +5,10 @@
 // Оформление — в духе остальной вкладки, газетной полосы: биржевая сводка,
 // театральные билеты, сводка происшествий.
 
-import { escapeHtml, applyTooltips } from '../utils.js?v=23.88.5';
+import { escapeHtml, applyTooltips } from '../utils.js?v=23.88.6';
+import { settings } from '../settings.js?v=23.88.6';
+// В средневековье — свои заголовки и без «ADMIT ONE» на билетах.
+const средневековье = () => settings.era === 'medieval';
 
 const части = (строка) => String(строка ?? '').split('|').map(s => s.trim());
 
@@ -49,7 +52,7 @@ export function buildEconomyHTML(rows) {
       + (п.изменение ? `<em class="hud-eco-chg is-${п.куда}"><i aria-hidden="true">${п.знак}</i>${escapeHtml(п.изменение)}</em>` : '<em></em>')
       + `</div>`;
   }).join('');
-  return `<div class="hud-world-section hud-world-section-eco"><div class="hud-world-title">💹 Экономика</div><div class="hud-eco-list">${строки}</div></div>`;
+  return `<div class="hud-world-section hud-world-section-eco"><div class="hud-world-title">${средневековье() ? '⚖️ Торг и цены' : '💹 Экономика'}</div><div class="hud-eco-list">${строки}</div></div>`;
 }
 
 const ВИДЫ_АФИШИ = [
@@ -85,9 +88,9 @@ export function buildEventsHTML(rows) {
   const карточки = разборАфиши(rows).map(({ ключ, значок, подпись, название, где }) => {
     // Билет: корешок с видом события, линия отрыва, основная часть.
     return `<div class="hud-afisha-card is-${ключ}"><div class="hud-afisha-stub"><i aria-hidden="true">${значок}</i><span class="hud-afisha-kind">${escapeHtml(подпись)}</span></div>`
-      + `<div class="hud-afisha-main" data-ico="${значок}"><b class="hud-afisha-title">${escapeHtml(название)}</b>${где ? `<span class="hud-afisha-when">${escapeHtml(где)}</span>` : ''}<span class="hud-afisha-admit" aria-hidden="true">ADMIT ONE</span></div></div>`;
+      + `<div class="hud-afisha-main" data-ico="${значок}"><b class="hud-afisha-title">${escapeHtml(название)}</b>${где ? `<span class="hud-afisha-when">${escapeHtml(где)}</span>` : ''}${средневековье() ? '' : '<span class="hud-afisha-admit" aria-hidden="true">ADMIT ONE</span>'}</div></div>`;
   }).join('');
-  return `<div class="hud-world-section hud-world-section-afisha"><div class="hud-world-title">🎭 Афиша</div><div class="hud-afisha-grid">${карточки}</div></div>`;
+  return `<div class="hud-world-section hud-world-section-afisha"><div class="hud-world-title">${средневековье() ? '🎪 Празднества и ярмарки' : '🎭 Афиша'}</div><div class="hud-afisha-grid">${карточки}</div></div>`;
 }
 
 const ВИДЫ_ГОРОДА = [
@@ -121,5 +124,5 @@ export function buildCityHTML(rows) {
     const шкала = баллы ? `<span class="hud-city-pips" title="Пробки: ${баллы} из 10 баллов" aria-hidden="true">${Array.from({ length: 10 }, (_, i) => `<i class="${i < Number(баллы) ? 'on' : ''}${i >= 7 ? ' hi' : i >= 4 ? ' mid' : ''}"></i>`).join('')}</span>` : '';
     return `<div class="hud-city-row is-${ключ}" data-ico="${значок}"><span class="hud-city-kind"><i aria-hidden="true">${значок}</i>${escapeHtml(подпись)}${ключ === 'emergency' ? '<b class="hud-city-stamp">срочно</b>' : ''}</span><p>${applyTooltips(текст)}${шкала}</p></div>`;
   }).join('');
-  return `<div class="hud-world-section hud-world-section-city"><div class="hud-world-title">🏛 Городские службы</div><div class="hud-city-list">${строки}</div></div>`;
+  return `<div class="hud-world-section hud-world-section-city"><div class="hud-world-title">${средневековье() ? '🏰 Стража и ратуша' : '🏛 Городские службы'}</div><div class="hud-city-list">${строки}</div></div>`;
 }

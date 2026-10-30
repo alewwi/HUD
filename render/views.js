@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы } from '../utils.js?v=23.88.5';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.5';
-import { namesLikelySame } from '../names.js?v=23.88.5';
-import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.88.5';
-import { settings } from '../settings.js?v=23.88.5';
-import { зоныКарты, ПЯТНА } from './intimacy.js?v=23.88.5';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.5';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы } from '../utils.js?v=23.88.6';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.88.6';
+import { namesLikelySame } from '../names.js?v=23.88.6';
+import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.88.6';
+import { settings } from '../settings.js?v=23.88.6';
+import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.88.6';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.6';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -121,21 +121,15 @@ function пары(value) {
 const подпись = (текст) => текст && !пусто(текст) ? `<p class="hud-v-note">${applyTooltips(текст)}</p>` : '';
 // Аватарка по имени: ручная, персона игрока, карточка или сообщение в
 // Таверне — что найдётся. Нет — кружок с инициалами в тоне акцента.
-function аватарка(имя) {
-  try {
-    let url = overrideAvatarUrl(имя);
-    const игрок = getSafeUserName();
-    if (!url && игрок && namesLikelySame(имя, игрок)) url = getUserAvatarUrl();
-    if (!url) { const a = getAvatarUrl(имя, false); url = a && a.url; }
-    return url || '';
-  } catch (_) { return ''; }
-}
+function аватарка(имя) { return фотоПоИмени(имя); }
 // Кружок-лицо. data-ava-* — чтобы refreshAvatarFaces менял картинку без
 // перерисовки; data-ava-bg пуст: без картинки заливку даёт CSS.
 function лицо(имя, класс = 'hud-v-face', текст = инициалы(имя)) {
   const url = аватарка(имя);
   return `<i class="${класс}${url ? ' has-img' : ''}" data-ava-name="${escapeHtml(имя)}" data-ava-auto="1" data-ava-bg="" style="${тон(имя)}${url ? `;background-image:url('${escapeHtml(url)}')` : ''}" aria-hidden="true">${escapeHtml(текст)}</i>`;
 }
+// Для блоков вне views.js (спутник, его хозяин): то же лицо и тот же поиск фото.
+export { лицо as лицоЧеловека, аватарка as аватаркаПоИмени };
 // То же лицо внутри SVG: кружок с инициалами, поверх — картинка по кругу.
 function лицоSvg(имя, x, y, r, класс = '') {
   const url = аватарка(имя), id = новыйId('fc');
@@ -676,7 +670,7 @@ export function видПоказателей(value, вид) {
   const есть = ПРИБОРЫ.filter(пр => Number.isFinite(в[пр.к]));
   if (!есть.length) return '';
   const доля = (пр) => огр((в[пр.к] - пр.lo) / (пр.hi - пр.lo), 0, 1);
-  const цифры = (класс = '') => `<div class="hud-v-vit-nums ${класс}">${есть.map((пр, i) => `<span class="r${i}${в[пр.к] > пр.норма ? ' is-up' : ''}"><i class="dot"></i><small>${пр.имя}</small><b>${показ(в[пр.к], пр)}</b><em>${пр.ед}</em>${в[пр.к] > пр.норма ? '<i class="up">↑ выше нормы</i>' : ''}</span>`).join('')}</div>`;
+  const цифры = (класс = '') => `<div class="hud-v-vit-nums ${класс}">${есть.map((пр, i) => `<span class="r${i}${в[пр.к] > пр.норма ? ' is-up' : ''}"><i class="dot"></i><small>${пр.имя}</small><b>${показ(в[пр.к], пр)}</b><em>${единица(пр.ед)}</em>${в[пр.к] > пр.норма ? '<i class="up">↑ выше нормы</i>' : ''}</span>`).join('')}</div>`;
   // Пояснения модели к цифрам («частое, срывается на выдохе») — во всех видах, не только в плитках.
   const заметки = () => { const с = есть.filter(пр => в.опис[пр.к] && !пусто(в.опис[пр.к])); return с.length ? `<div class="hud-v-vit-notes">${с.map(пр => `<p class="hud-v-note"><b>${пр.имя}:</b> ${applyTooltips(в.опис[пр.к])}</p>`).join('')}</div>` : ''; };
   const такт = Number.isFinite(в.пульс) ? (60 / огр(в.пульс, 30, 220)).toFixed(3) : '1';
@@ -699,11 +693,11 @@ export function видПоказателей(value, вид) {
       const нормаД = огр((пр.норма - пр.lo) / (пр.hi - пр.lo), 0, 1);
       const дуга = (a0, a1) => { const p = (a) => [30 + 24 * Math.cos((a - 90) * Math.PI / 180), 32 + 24 * Math.sin((a - 90) * Math.PI / 180)]; const [x0, y0] = p(a0), [x1, y1] = p(a1); return `M${x0.toFixed(1)} ${y0.toFixed(1)}A24 24 0 ${a1 - a0 > 180 ? 1 : 0} 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`; };
       const деления = Array.from({ length: 9 }, (_, k) => { const a = (-120 + k * 30 - 90) * Math.PI / 180; return `<line class="tk" x1="${(30 + 19 * Math.cos(a)).toFixed(1)}" y1="${(32 + 19 * Math.sin(a)).toFixed(1)}" x2="${(30 + 21.5 * Math.cos(a)).toFixed(1)}" y2="${(32 + 21.5 * Math.sin(a)).toFixed(1)}"/>`; }).join('');
-      return `<div class="hud-v-card hud-v-dial r${i}${в[пр.к] > пр.норма ? ' is-up' : ''}" title="${пр.имя}: ${показ(в[пр.к], пр)} ${пр.ед}"><svg viewBox="0 0 60 50" aria-hidden="true">`
+      return `<div class="hud-v-card hud-v-dial r${i}${в[пр.к] > пр.норма ? ' is-up' : ''}" title="${пр.имя}: ${показ(в[пр.к], пр)} ${единица(пр.ед)}"><svg viewBox="0 0 60 50" aria-hidden="true">`
         + `<defs><linearGradient id="${id}${i}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" class="s0"/><stop offset="1" class="s1"/></linearGradient></defs>`
         + `<path class="arc" d="${дуга(-120, 120)}"/><path class="val" stroke="url(#${id}${i})" d="${дуга(-120, -120 + Math.max(1, доля(пр) * 240))}"/><path class="hot" d="${дуга(-120 + нормаД * 240, 120)}"/>${деления}`
         + `<g transform="rotate(${угол.toFixed(1)} 30 32)"><path class="needle" d="M30 11 31.6 32h-3.2Z"/></g><circle class="hub" cx="30" cy="32" r="3.2"/><circle class="hub-in" cx="30" cy="32" r="1.3"/></svg>`
-        + `<b>${показ(в[пр.к], пр)}<small> ${пр.ед}</small></b><span>${пр.имя}</span>${в[пр.к] > пр.норма ? '<i class="up">↑ выше нормы</i>' : ''}</div>`;
+        + `<b>${показ(в[пр.к], пр)}<small> ${единица(пр.ед)}</small></b><span>${пр.имя}</span>${в[пр.к] > пр.норма ? '<i class="up">↑ выше нормы</i>' : ''}</div>`;
     }).join('')}${заметки()}</div>`;
   }
   if (вид === 'ecg') {
@@ -715,7 +709,7 @@ export function видПоказателей(value, вид) {
       + `<span class="hud-v-monitor-bpm"><i aria-hidden="true">♥</i>${Number.isFinite(в.пульс) ? Math.round(в.пульс) : '—'}</span></div>${цифры('is-row')}${заметки()}</div>`;
   }
   if (вид === 'rings') {
-    const кольца = есть.map((пр, i) => { const r = 27 - i * 7.5; const д = 2 * Math.PI * r; return `<circle class="track" cx="34" cy="34" r="${r}"/><circle class="val r${i}" cx="34" cy="34" r="${r}" stroke-dasharray="${(д * доля(пр)).toFixed(1)} ${д.toFixed(1)}" transform="rotate(-90 34 34)"><title>${пр.имя}: ${показ(в[пр.к], пр)} ${пр.ед}</title></circle>`; }).join('');
+    const кольца = есть.map((пр, i) => { const r = 27 - i * 7.5; const д = 2 * Math.PI * r; return `<circle class="track" cx="34" cy="34" r="${r}"/><circle class="val r${i}" cx="34" cy="34" r="${r}" stroke-dasharray="${(д * доля(пр)).toFixed(1)} ${д.toFixed(1)}" transform="rotate(-90 34 34)"><title>${пр.имя}: ${показ(в[пр.к], пр)} ${единица(пр.ед)}</title></circle>`; }).join('');
     return `<div class="hud-v hud-v-vit is-rings"><svg class="hud-v-rings" viewBox="0 0 68 68" aria-hidden="true">${кольца}<text x="34" y="38">${Number.isFinite(в.пульс) ? Math.round(в.пульс) : ''}</text></svg>${цифры('is-legend')}${заметки()}</div>`;
   }
   if (вид === 'pulse') {

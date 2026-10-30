@@ -15,13 +15,14 @@
 // Оформление — детское: у девочек бантики и куколки, у мальчиков машинки и
 // динозавры (css/family.css).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.88.5';
-import { parseSceneDate } from '../history-analyzer.js?v=23.88.5';
-import { settings } from '../settings.js?v=23.88.5';
-import { роды, деньРодов, деньРожденияМалыша } from './conception.js?v=23.88.5';
-import { часовМежду } from './fertility.js?v=23.88.5';
-import { buildCharacterHTML } from './character.js?v=23.88.5';
-import { видСемьи, видТрекера, видУхода, подсказкаВехи } from './family-views.js?v=23.88.5';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.88.6';
+import { английский } from '../i18n.js?v=23.88.6';
+import { parseSceneDate } from '../history-analyzer.js?v=23.88.6';
+import { settings } from '../settings.js?v=23.88.6';
+import { роды, деньРодов, деньРожденияМалыша } from './conception.js?v=23.88.6';
+import { часовМежду } from './fertility.js?v=23.88.6';
+import { buildCharacterHTML } from './character.js?v=23.88.6';
+import { видСемьи, видТрекера, видУхода, подсказкаВехи } from './family-views.js?v=23.88.6';
 
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const текст = (о, к) => снятьЗаглушки(flattenFieldValue(о && о[к]));
@@ -55,6 +56,18 @@ export function возрастСловами(д) {
   if (д < 365) { const м = Math.floor(д / 30.4); return `${м} ${скл(м, 'месяц', 'месяца', 'месяцев')}`; }
   const г = Math.floor(д / 365), м = Math.floor((д - г * 365) / 30.4);
   return `${г} ${скл(г, 'год', 'года', 'лет')}${м ? ` ${м} мес.` : ''}`;
+}
+// Английский интерфейс: «1 yr 2 mo», «3 weeks» — словарь эти склейки
+// с числами целиком не узнаёт.
+function возрастEN(д, точно) {
+  if (д === null || д === undefined) return 'age not given';
+  if (д < 1) return 'first day';
+  const мн = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+  if (!точно && д < 14) return мн(д, 'day');
+  if (!точно && д < 60) return мн(Math.floor(д / 7), 'week');
+  if (!точно && д < 365) return мн(Math.floor(д / 30.4), 'month');
+  const г = Math.floor(д / 365), м = Math.floor((д - г * 365) / 30.4), дн = Math.round(д - г * 365 - м * 30.4);
+  return [г && `${г} yr`, м && `${м} mo`, точно && дн && `${дн} d`].filter(Boolean).join(' ');
 }
 // Точный возраст: годы, месяцы и дни — «1 год 2 мес. 5 дн.».
 export function возрастТочно(д) {

@@ -38,7 +38,7 @@
 }
 .hud-v-num { font-style: normal; font-weight: 800; font-size: 1.05em; color: color-mix(in srgb, var(--v-acc) 45%, #fff); text-shadow: 0 0 10px var(--v-glow); }
 .hud-v-num.is-small { font-size: .85em; }
-.hud-v-tag {
+.hud-v-tag, :is(em, i).hud-v-tag {
   display: inline-block; align-self: flex-start; border-radius: 999px; font-size: .68em; font-weight: 700; font-style: normal;
   letter-spacing: .06em; text-transform: uppercase; white-space: nowrap;
   color: color-mix(in srgb, var(--v-acc) 50%, #fff); background: color-mix(in srgb, var(--v-acc) 18%, transparent);
@@ -825,7 +825,7 @@
    ЗНАЧКИ ВМЕСТО ЭМОДЗИ (render/view-icons.js)
    ========================================================================= */
 .hud-v-ico { width: 1.2em; height: 1.2em; flex: none; vertical-align: -.22em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
-.hud-v-medal {
+.hud-v-medal, :is(em, i).hud-v-medal {
   flex: none; width: 30px; height: 30px; border-radius: 50%; display: inline-grid; place-items: center; font-style: normal;
   color: color-mix(in srgb, var(--v-acc) 35%, #fff);
   background: radial-gradient(circle at 35% 30%, color-mix(in srgb, var(--v-acc) 45%, rgba(255,255,255,.15)), color-mix(in srgb, var(--v-acc) 22%, rgba(0,0,0,.45)));

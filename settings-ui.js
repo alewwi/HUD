@@ -5,20 +5,20 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { settings } from './settings.js?v=23.88.5';
-import { видБлока } from './render/views.js?v=23.88.5';
-import { escapeHtml } from './utils.js?v=23.88.5';
-import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.88.5';
-import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.88.5';
-import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.88.5';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.88.5';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.88.5';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.5';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.88.5';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.88.5';
-import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.88.5';
-import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.88.5';
-import { меткаШапки } from './render/topbar-icons.js?v=23.88.5';
+import { settings } from './settings.js?v=23.88.6';
+import { видБлока } from './render/views.js?v=23.88.6';
+import { escapeHtml } from './utils.js?v=23.88.6';
+import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.88.6';
+import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.88.6';
+import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.88.6';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.88.6';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.88.6';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.6';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.88.6';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.88.6';
+import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.88.6';
+import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.88.6';
+import { меткаШапки } from './render/topbar-icons.js?v=23.88.6';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -152,6 +152,7 @@ export function addSettingsUI() {
 
       ${группа('🤖 Генерация', `
         ${галка('hud-auto-inject', settings.autoInject, '🔌 HUD в каждом ответе (сетевой перехват)', 'Включено — схема HUD уходит в каждый запрос, и основная модель пишет HUD вместе с ответом. Выключено — ответы приходят без HUD, а под каждым появляется кнопка «➕ Создать HUD»: HUD пишется отдельным запросом, только когда нажмёте, — можно другим, более дешёвым профилем подключения (Генерация → Перегенерация HUD).')}
+        ${галка('hud-cache-stable', settings.hudCacheStable, '⚡ Совместимость с кэшем KoboldCpp', 'Для текстовых подключений: постоянная инструкция в начале, полные HUD в истории без сводок и снимка. Занимает больше контекста. Адаптивные добавки и скрытые факты из интерфейса не отправляются. Автодосоздание HUD заменяется предупреждением. Изменение настроек или истории потребует пересчёта. Встроенный «Summarize» Таверны на основном подключении тоже сбивает кэш: включайте его реже или на другом подключении.')}
         ${галка('hud-prompt-separate', settings.hudPromptSeparate !== false, '🧩 Инструкция HUD отдельным сообщением', 'Задача, правила, схема и снимок уходят последним сообщением — после пресета, карточки, лорбуков и истории. Выключите, если бэкенд не принимает системное сообщение в конце: тогда инструкция дописывается к последнему сообщению, как раньше.')}
         ${галка('hud-snapshot', settings.hudSnapshot !== false, '📸 Снимок последнего HUD в конце инструкции', 'Последний HUD в коротких кодах, без пустых полей: модель обновляет его под новый ответ, а не собирает мир заново. Последний HUD не дублируется: из истории он вырезается и переезжает в снимок. Снимок считается одним из развёрнутых HUD.')}
         <label class="hud-set-check" title="Сколько последних HUD модель видит полностью, остальные сжимаются в сводку [HUD_SUMMARY]. Снимок в конце инструкции считается одним из них: при 1 (рекомендуется) — только снимок, при 2 — снимок и один полный HUD в истории (+тысячи токенов). 0 = все HUD сжаты в сводку, снимка нет. Сводки работают и при выключенном сетевом перехвате.">💾 Сколько развернутых HUD оставлять: ${число('hud-keep-count', 0, 10, settings.hudsToKeep, 40)}</label>
@@ -580,7 +581,7 @@ export function addSettingsUI() {
    ['hud-enable-companions', 'enableCompanions'], ['hud-enable-bodystate', 'enableBodyState'], ['hud-enable-twists', 'enableTwists'], ['hud-enable-perception', 'enablePerception'], ['hud-enable-familytree', 'enableFamilyTree'], ['hud-enable-assistant', 'enableAssistant'],
    ['hud-enable-menstruation', 'enableMenstruation'], ['hud-enable-sceneclock', 'enableSceneClock'], ['hud-enable-tempo', 'enableTempo'], ['hud-enable-underwear', 'enableUnderwear'], ['hud-enable-duel', 'enableVerbalDuel'], ['hud-enable-combat', 'enableCombat'], ['hud-enable-life', 'enableLife'], ['hud-enable-intimacy-extras', 'enableIntimacyExtras'], 
    ['hud-enable-economy', 'enableEconomy'], ['hud-enable-events', 'enableEvents'], ['hud-enable-city', 'enableCity'], ['hud-enable-horoscope', 'enableHoroscope'],
-   ['hud-prompt-separate', 'hudPromptSeparate'], ['hud-snapshot', 'hudSnapshot'], ['hud-away-short', 'hudAwayShort'], ['hud-away-fill', 'awayFillFromPast'], ['hud-consistency-check', 'hudConsistencyCheck'], ['hud-fill-gaps', 'hudFillGaps'], ['hud-adapt-prompt', 'hudAdaptPrompt']].forEach(([id, ключ]) => {
+   ['hud-cache-stable', 'hudCacheStable'], ['hud-prompt-separate', 'hudPromptSeparate'], ['hud-snapshot', 'hudSnapshot'], ['hud-away-short', 'hudAwayShort'], ['hud-away-fill', 'awayFillFromPast'], ['hud-consistency-check', 'hudConsistencyCheck'], ['hud-fill-gaps', 'hudFillGaps'], ['hud-adapt-prompt', 'hudAdaptPrompt']].forEach(([id, ключ]) => {
     const поле = document.getElementById(id);
     if (поле) поле.addEventListener('change', (e) => {
       settings[ключ] = e.target.checked;
@@ -636,7 +637,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.88.5');
+      const mod = await import('./render/archive.js?v=23.88.6');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -851,7 +852,7 @@ export function addSettingsUI() {
   [['hud-music-enable', 'enableMusic'], ['hud-music-auto', 'musicAuto'], ['hud-music-verify', 'musicVerify'], ['hud-music-line', 'musicSceneLine'], ['hud-music-player', 'musicPlayer']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.88.5').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
+      import('./render/music.js?v=23.88.6').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
     });
   });
   document.getElementById('hud-music-profile').addEventListener('change', (e) => { settings.musicProfileId = e.target.value || ''; основа.saveSettings(); });
@@ -881,19 +882,19 @@ export function addSettingsUI() {
     ['hud-music-free-fonau', 'musicFreeFonau'], ['hud-music-free-audius', 'musicFreeAudius'], ['hud-music-free-incompetech', 'musicFreeIncompetech'], ['hud-music-free-commons', 'musicFreeCommons']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.88.5').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
+      import('./render/music.js?v=23.88.6').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
     });
   });
   [['hud-music-liked-clear', 'musicLiked'], ['hud-music-banned-clear', 'musicBanned']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('click', () => {
       settings[ключ] = []; основа.saveSettings(); вкусМузыки();
-      import('./render/music.js?v=23.88.5').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      import('./render/music.js?v=23.88.6').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
   [['hud-music-medieval', 'musicMedieval'], ['hud-music-style', 'musicStyle'], ['hud-music-source', 'musicSource']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.value; основа.saveSettings();
-      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.88.5').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.88.6').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
 

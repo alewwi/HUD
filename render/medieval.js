@@ -12,11 +12,12 @@
 // Переключение разделов шкатулки — на радиокнопках и CSS, без скриптов:
 // карточка HUD перерисовывается целиком, и состояние не нужно восстанавливать.
 
-import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=23.88.5';
-import { settings } from '../settings.js?v=23.88.5';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.88.5';
-import { namesLikelySame } from '../names.js?v=23.88.5';
-import { buildCalendarApp, parseDayMonth } from './phone.js?v=23.88.5';
+import { escapeHtml, defeatWI, hudHashSeed, hudHasMeaningfulValue } from '../utils.js?v=23.88.6';
+import { английский } from '../i18n.js?v=23.88.6';
+import { settings } from '../settings.js?v=23.88.6';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.88.6';
+import { namesLikelySame } from '../names.js?v=23.88.6';
+import { buildCalendarApp, parseDayMonth } from './phone.js?v=23.88.6';
 
 const т = (v) => defeatWI(escapeHtml(String(v ?? '')));
 
@@ -327,7 +328,10 @@ function реплика(строка) {
   const что = m ? m[2] : s;
   const куски = что.split(ПРОВАЛ);
   const провалы = что.match(ПРОВАЛ) || [];
-  const html = куски.map((к, i) => т(к) + (i < провалы.length ? '<span class="hud-ov-muffle" title="Не расслышать">неразборчиво</span>' : '')).join('');
+  // Провал размыт; нажатие или мышь проявляет, что там: подсказку модели
+  // («[неразборчиво — про деньги]») или само «неразборчиво».
+  const подсказка = (п) => т(String(п).replace(/^\[\s*(?:неразборчиво|не расслышать|не слышно|inaudible|\.{2,}|…)\s*[:—–,-]?\s*/i, '').replace(/\]$/, '').trim() || (английский() ? 'inaudible' : 'неразборчиво'));
+  const html = куски.map((к, i) => т(к) + (i < провалы.length ? `<span class="hud-ov-muffle" tabindex="0" role="button" title="${английский() ? "Can’t make it out — tap" : "Не расслышать — нажмите"}">${подсказка(провалы[i])}</span>` : '')).join('');
   return { кто, html };
 }
 

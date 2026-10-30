@@ -7,17 +7,34 @@
 // settings.showComments напрямую из замыкания index.js. Теперь флаг
 // приходит четвёртым аргументом — модуль не знает про глобальные настройки.
 
-import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.88.5';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.88.5';
-import { buildEconomyHTML, buildEventsHTML, buildCityHTML, разборЭкономики, разборАфиши, разборГорода } from './world-city.js?v=23.88.5';
-import { видБлока } from './views.js?v=23.88.5';
-import { знакЗодиака } from '../i18n.js?v=23.88.5';
-import { видНовостей, видСлухов, видЭкономики, видГорода, видПрогноза, видГороскопа, видАфиши, видОбъявлений, видКомментариев } from './world-views.js?v=23.88.5';
+import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.88.6';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.88.6';
+import { buildEconomyHTML, buildEventsHTML, buildCityHTML, разборЭкономики, разборАфиши, разборГорода } from './world-city.js?v=23.88.6';
+import { видБлока } from './views.js?v=23.88.6';
+import { settings } from '../settings.js?v=23.88.6';
+
+// Заголовки разделов «Мира» по эпохе: в средневековье нет «новостей»,
+// «афиши» и «комментариев Сети» — есть глашатай, ярмарки и пересуды.
+const СРЕДНЕВЕКОВЬЕ = {
+  '📰 Главные новости': '📜 Вести глашатая',
+  '🗣️ Слухи': '🗣️ Молва',
+  '💹 Экономика': '⚖️ Торг и цены',
+  '🏛 Городские службы': '🏰 Стража и ратуша',
+  '🌦️ Прогноз погоды': '🌦️ Приметы погоды',
+  '🔮 Гороскоп на день': '🔮 Слово звездочёта',
+  '🎭 Афиша': '🎪 Празднества и ярмарки',
+  '📌 Доска объявлений': '📌 Грамоты на столбе',
+  '💬 Комментарии Сети': '💬 Пересуды',
+};
+const З = (заголовок) => (settings.era === 'medieval' && СРЕДНЕВЕКОВЬЕ[заголовок]) || заголовок;
+import { знакЗодиака } from '../i18n.js?v=23.88.6';
+import { видНовостей, видСлухов, видЭкономики, видГорода, видПрогноза, видГороскопа, видАфиши, видОбъявлений, видКомментариев } from './world-views.js?v=23.88.6';
 
 // Вид блока «Мира» из «Кастомизации»: новый — если выбран и собрался,
 // иначе прежний (render/world-views.js).
 function вМире(ключ, новый, прежний) {
-  const вид = видБлока(ключ);
+  // Неоновая доска объявлений в средневековье — отрывные листки на столбе.
+  const вид = ключ === 'adsView' && settings.era === 'medieval' && (видБлока(ключ) || 'classic') === 'classic' ? 'tearoff' : видБлока(ключ);
   if (вид && вид !== 'classic') {
     const html = новый(вид);
     if (html) return html;
@@ -171,17 +188,17 @@ export function buildWorldHTML(worldData, uid, isChecked, showComments) {
       const voteKey = `hl-${idx}-${hudHashSeed(title + '\n' + body)}`;
       return { title, body, voteKey, votes: getWorldVotes(voteKey) };
     });
-    html += вМире('newsView', вид => видНовостей(статьи, вид, '📰 Главные новости'), () => {
-      let h = `<div class="hud-world-section hud-world-section-news"><div class="hud-world-title">📰 Главные новости</div>`;
+    html += вМире('newsView', вид => видНовостей(статьи, вид, З('📰 Главные новости')), () => {
+      let h = `<div class="hud-world-section hud-world-section-news"><div class="hud-world-title">${З('📰 Главные новости')}</div>`;
       статьи.forEach(({ title, body, voteKey, votes }) => {
         const colClass = body.length > 220 ? ' article-text-columns' : '';
         h += `<details class="hud-news-article">
         <summary><span class="hud-news-headline">${escapeHtml(title)}</span>
-          <span class="hud-news-stats">
+          ${settings.era === 'medieval' ? '' : `<span class="hud-news-stats">
             <button type="button" class="hud-news-vote hud-news-upvote${votes.votedUp ? ' is-on' : ''}" data-vote-key="${voteKey}" data-vote-kind="up" aria-pressed="${votes.votedUp ? 'true' : 'false'}">▲ <span class="hud-news-vote-n">${votes.up}</span></button>
             <span class="hud-news-stats-sep">|</span>
             <button type="button" class="hud-news-vote hud-news-cmt${votes.votedC ? ' is-on' : ''}" data-vote-key="${voteKey}" data-vote-kind="comments" aria-pressed="${votes.votedC ? 'true' : 'false'}">💬 <span class="hud-news-vote-n">${votes.comments}</span></button>
-          </span>
+          </span>`}
         </summary>
         <div class="article-text${colClass}">${escapeHtml(body)}</div>
       </details>`;
@@ -190,16 +207,16 @@ export function buildWorldHTML(worldData, uid, isChecked, showComments) {
     });
   }
   if (worldData.rumors && worldData.rumors.length > 0) {
-    html += вМире('rumorsView', вид => видСлухов(worldData.rumors, вид, '🗣️ Слухи'),
-      () => `<div class="hud-world-section"><div class="hud-world-title">🗣️ Слухи</div><ul class="hud-world-list">${worldData.rumors.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul></div>`);
+    html += вМире('rumorsView', вид => видСлухов(worldData.rumors, вид, З('🗣️ Слухи')),
+      () => `<div class="hud-world-section"><div class="hud-world-title">${З('🗣️ Слухи')}</div><ul class="hud-world-list">${worldData.rumors.map(r => `<li>${escapeHtml(r)}</li>`).join('')}</ul></div>`);
   }
   // Прогноз погоды — после новостей и слухов, перед объявлениями.
   // Экономика и городские службы — сразу за слухами: это та же лента города.
   if (Array.isArray(worldData.economy) && worldData.economy.length) {
-    html += вМире('economyView', вид => видЭкономики(разборЭкономики(worldData.economy), вид, '💹 Экономика'), () => buildEconomyHTML(worldData.economy));
+    html += вМире('economyView', вид => видЭкономики(разборЭкономики(worldData.economy), вид, З('💹 Экономика')), () => buildEconomyHTML(worldData.economy));
   }
   if (Array.isArray(worldData.city) && worldData.city.length) {
-    html += вМире('cityView', вид => видГорода(разборГорода(worldData.city), вид, '🏛 Городские службы'), () => buildCityHTML(worldData.city));
+    html += вМире('cityView', вид => видГорода(разборГорода(worldData.city), вид, З('🏛 Городские службы')), () => buildCityHTML(worldData.city));
   }
 
   if (worldData.forecast && worldData.forecast.length > 0) {
@@ -209,8 +226,8 @@ export function buildWorldHTML(worldData, uid, isChecked, showComments) {
       const t = parseTempC(f.temp);
       return { ...f, icon: look.icon, label: look.label, t, warmth: tempWarmth(t) };
     });
-    html += вМире('forecastView', вид => видПрогноза(ячейки, вид, '🌦️ Прогноз погоды', W_ICONS), () => {
-      let h = `<div class="hud-world-section hud-world-section-forecast" title="Нажмите для анимации"><div class="hud-world-title">🌦️ Прогноз погоды</div><div class="hud-forecast-row">`;
+    html += вМире('forecastView', вид => видПрогноза(ячейки, вид, З('🌦️ Прогноз погоды'), W_ICONS), () => {
+      let h = `<div class="hud-world-section hud-world-section-forecast" title="Нажмите для анимации"><div class="hud-world-title">${З('🌦️ Прогноз погоды')}</div><div class="hud-forecast-row">`;
       const notes = [];
       ячейки.forEach(f => {
         if (f.note) notes.push(f.note);
@@ -238,10 +255,10 @@ export function buildWorldHTML(worldData, uid, isChecked, showComments) {
       // Имя знака — на языке интерфейса (код «ge» раскрывается в «Близнецы»).
       return { ...h, sign: знакЗодиака(h.sign), glyph: zodiacGlyph(h.sign), toneLabel: TONE_LABEL[h.tone], index: zodiacIndex(h.sign) };
     });
-    html += вМире('horoscopeView', вид => видГороскопа(знаки, worldData.prediction, вид, '🔮 Гороскоп на день'), () => {
+    html += вМире('horoscopeView', вид => видГороскопа(знаки, worldData.prediction, вид, З('🔮 Гороскоп на день')), () => {
       let h = `<div class="hud-world-section hud-world-section-horo" title="Нажмите для анимации">
       <span class="hud-horo-stars" aria-hidden="true"></span>
-      <div class="hud-world-title">🔮 Гороскоп на день</div>`;
+      <div class="hud-world-title">${З('🔮 Гороскоп на день')}</div>`;
       if (знаки.length) {
         h += `<div class="hud-horo-grid">`;
         знаки.forEach(з => {
@@ -262,26 +279,26 @@ export function buildWorldHTML(worldData, uid, isChecked, showComments) {
   }
 
   if (Array.isArray(worldData.events) && worldData.events.length) {
-    html += вМире('eventsView', вид => видАфиши(разборАфиши(worldData.events), вид, '🎭 Афиша'), () => buildEventsHTML(worldData.events));
+    html += вМире('eventsView', вид => видАфиши(разборАфиши(worldData.events), вид, З('🎭 Афиша')), () => buildEventsHTML(worldData.events));
   }
 
   if (worldData.ads && worldData.ads.length > 0) {
-    html += вМире('adsView', вид => видОбъявлений(worldData.ads, вид, '📌 Доска объявлений'),
-      () => `<div class="hud-world-section hud-world-section-ads"><div class="hud-world-title">📌 Доска объявлений</div><div class="hud-ads-grid">${worldData.ads.map((ad, i) => `<div class="hud-ad-card hud-ad-neon n${(i % 4) + 1}">${escapeHtml(ad)}</div>`).join('')}</div></div>`);
+    html += вМире('adsView', вид => видОбъявлений(worldData.ads, вид, З('📌 Доска объявлений')),
+      () => `<div class="hud-world-section hud-world-section-ads"><div class="hud-world-title">${З('📌 Доска объявлений')}</div><div class="hud-ads-grid">${worldData.ads.map((ad, i) => `<div class="hud-ad-card hud-ad-neon n${(i % 4) + 1}">${escapeHtml(ad)}</div>`).join('')}</div></div>`);
   }
   if (worldData.comments && worldData.comments.length > 0 && showComments) {
     const комментарии = worldData.comments.map(c => {
       const parsed = parseWorldComment(c);
       return { ...parsed, color: HUD_AVATAR_COLORS[hudHashSeed(parsed.name) % HUD_AVATAR_COLORS.length], initials: commentInitials(parsed.name) };
     });
-    html += вМире('commentsView', вид => видКомментариев(комментарии, вид, '💬 Комментарии Сети'),
-      () => `<div class="hud-world-section"><div class="hud-world-title">💬 Комментарии Сети</div><div class="hud-comments-list">${комментарии.map(к => `<div class="hud-comment"><span class="hud-comment-avatar" style="background:${к.color}" aria-hidden="true">${escapeHtml(к.initials)}</span><div class="hud-comment-body"><span class="hud-comment-name">${escapeHtml(к.name)}</span><span class="hud-comment-text">${escapeHtml(к.text)}</span></div></div>`).join('')}</div></div>`);
+    html += вМире('commentsView', вид => видКомментариев(комментарии, вид, З('💬 Комментарии Сети')),
+      () => `<div class="hud-world-section"><div class="hud-world-title">${З('💬 Комментарии Сети')}</div><div class="hud-comments-list">${комментарии.map(к => `<div class="hud-comment"><span class="hud-comment-avatar" style="background:${к.color}" aria-hidden="true">${escapeHtml(к.initials)}</span><div class="hud-comment-body"><span class="hud-comment-name">${escapeHtml(к.name)}</span><span class="hud-comment-text">${escapeHtml(к.text)}</span></div></div>`).join('')}</div></div>`);
   }
   html += `</div>`;
   if (headlineTitles.length > 0) {
     const seq = headlineTitles.map(t => `<span class="hud-breaking-item">${escapeHtml(t)}</span>`).join('<span class="hud-breaking-dot">◆</span>');
     const loop = `<span class="hud-breaking-seq">${seq}<span class="hud-breaking-dot">◆</span></span>`;
-    html += `<div class="hud-breaking-news" aria-hidden="true"><span class="hud-breaking-label">📺 СРОЧНО</span><div class="hud-breaking-track"><div class="hud-breaking-marquee">${loop}${loop}</div></div></div>`;
+    html += `<div class="hud-breaking-news" aria-hidden="true"><span class="hud-breaking-label">${settings.era === 'medieval' ? '📯 ВНЕМЛИТЕ' : '📺 СРОЧНО'}</span><div class="hud-breaking-track"><div class="hud-breaking-marquee">${loop}${loop}</div></div></div>`;
   }
   return html + `</div></div>`;
 }

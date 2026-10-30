@@ -40,6 +40,9 @@ const M = await м('render/memory.js');
 const LF = await м('render/life.js');
 const CB = await м('render/combat.js');
 const { привязатьИсторию } = await м('render/intimacy.js');
+// --xray: блок темпа — разрезом (как в карточке с видом X-ray), чтобы сводка видела, что он рисует.
+if (process.argv.includes('--xray')) (await м('settings.js')).settings.tempoView = 'xray';
+const SB = await м('render/scene-body.js');
 
 const МУСОР = /(?<![\p{L}-])(?:undefined|NaN|\[object Object\]|null)(?![\p{L}-])/u;
 // Видимый текст без тегов — мусор в атрибутах (классы) нас не беспокоит.
@@ -95,7 +98,10 @@ for (let i = с; i < чат.length; i++) {
         const слово = (h.match(/hud-tempo-head"><b>Темп<\/b>(?:<span class="bpm"><strong>(\d+)<\/strong>)?/) || []);
         const заголовок = (h.match(/class="hud-xray-head[^"]*"[^>]*>([\s\S]{0,160}?)<\/(?:div|header)>/) || [])[1];
         темп.push({ где, кто: c['Имя'], фаза: фаза.slice(0, 40), класс: т ? т[1] : '(нет блока)', вМинуту: слово[1] || '', шапка: заголовок ? текстHtml(заголовок).replace(/\s+/g, ' ').trim() : '',
-          поза: полеИз(c, 'Поза').slice(0, 120), nsfw: (полеИз(c, 'NSFW') || '').slice(0, 220), оргазм: полеИз(c, 'Готовность к оргазму').slice(0, 120) });
+          поза: полеИз(c, 'Поза').slice(0, 120), nsfw: (полеИз(c, 'NSFW') || '').slice(0, 220), оргазм: полеИз(c, 'Готовность к оргазму').slice(0, 120),
+          // Что нарисовано в разрезе: член, пальцы, кулак, игрушка, язык (render/xray.js).
+          рисует: [...h.matchAll(/hud-xray-row p-(\w+) k-(\w+)/g)].map(м => м[1] + '→' + м[2]),
+          почему: SB.проникновенияИзТекста(полеИз(c, 'NSFW') || полеИз(c, 'NSFW (Юзер)'), полеИз(c, 'Поза'), полеИз(c, 'Готовность к оргазму')).map(п => п.ключ + ' ← «' + п.текст + '»') });
       });
     } finally { m.mes = былоMes; m.swipe_id = былоId; }
   }
@@ -105,4 +111,5 @@ console.log(`сообщений: ${чат.length}, ошибок: ${ошибки.
 console.log('новые блоки (сколько раз отрисованы):', JSON.stringify(новые));
 if (ошибки.length) console.log('\n— ОШИБКИ\n' + ошибки.slice(0, 40).join('\n'));
 if (мусор.length) console.log('\n— МУСОР В ТЕКСТЕ\n' + мусор.slice(0, 40).join('\n'));
+if (аргументы.includes('--xray')) for (const т of темп) console.log(`${т.где} · ${т.кто} · рисует: ${т.рисует.join('+') || '—'} · ${т.класс.slice(0, 40)}\n    поза: ${т.поза}\n    nsfw: ${т.nsfw}\n    ${(т.почему || []).join('\n    ')}`);
 if (вJson) fs.writeFileSync(вJson, JSON.stringify({ ошибки, мусор, темп, новые }, null, 1));

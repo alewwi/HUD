@@ -6,6 +6,8 @@
 // Шаблоны — для строк с числами и вставками («3 трека», «с хода 5»).
 
 export const СЛОВАРЬ_EN = {
+  "Совместимость с кэшем KoboldCpp": "KoboldCpp cache compatibility",
+  "Для текстовых подключений: постоянная инструкция в начале, полные HUD в истории без сводок и снимка. Занимает больше контекста. Адаптивные добавки и скрытые факты из интерфейса не отправляются. Автодосоздание HUD заменяется предупреждением. Изменение настроек или истории потребует пересчёта. Встроенный «Summarize» Таверны на основном подключении тоже сбивает кэш: включайте его реже или на другом подключении": "For text completion connections: fixed instructions at the start and full HUD history, without summaries or a snapshot. Uses more context. Adaptive additions and hidden facts from the interface are not sent. Automatic HUD repair becomes a warning. Changing settings or history requires reprocessing. SillyTavern’s built-in Summarize on the main connection also breaks the cache: run it less often or on another connection.",
   "Кастомизация HUD": "HUD customization",
   "пример со всеми блоками": "sample with every block",
   "Пример": "Sample",
@@ -369,6 +371,24 @@ export const СЛОВАРЬ_EN = {
   "Лапа": "Paw",
   "Жетон": "Tag",
   "Главные новости": "Top news",
+  "Низ живота": "Lower belly",
+  "Горло": "Throat",
+  "Сердце и дыхание": "Heart and breath",
+  "Ноги": "Legs",
+  "четверг": "Thursday",
+  "ударов": "beats",
+  "вдохов": "breaths",
+  "по приметам": "by the signs",
+  "ВНЕМЛИТЕ": "HEAR YE",
+  "Вести глашатая": "Herald's news",
+  "Молва": "Word of mouth",
+  "Торг и цены": "Trade and prices",
+  "Стража и ратуша": "Watch and town hall",
+  "Приметы погоды": "Weather signs",
+  "Слово звездочёта": "The stargazer's word",
+  "Празднества и ярмарки": "Feasts and fairs",
+  "Грамоты на столбе": "Notices on the post",
+  "Пересуды": "Gossip",
   "Первая полоса": "Front page",
   "Эфир": "On air",
   "Радиоприёмник": "Radio",
@@ -4374,6 +4394,12 @@ export const СЛОВАРЬ_EN = {
 };
 
 export const ШАБЛОНЫ_EN = [
+  ["^≈ (\\d+(?:[.,]\\d+)?) (?:обед|обедов)$", "≈ $1 lunches"],
+  ["^(\\d+) (?:год|года|лет) (\\d+) мес\\.$", "$1 yr $2 mo"],
+  ["^(\\d+) мес\\.$", "$1 mo"],
+  ["^(\\d+) мес\\. (\\d+) (?:дн\\.|день|дня|дней)$", "$1 mo $2 d"],
+  ["^до «взрослой» карточки — (\\d+) (?:год|года|лет) (\\d+) мес\\.$", "until the “grown-up” card — $1 yr $2 mo"],
+  ["^до «взрослой» карточки — (\\d+) мес\\.$", "until the “grown-up” card — $1 mo"],
   ["^модель молчит дольше (\\d+) с$", "the model has been silent for over $1 s"],
   ["^подборка пришла битой \\((.+)\\) — возможно, не хватило лимита ответа$", "the playlist came back broken ($1) — the reply limit may have been too low"],
   ["^(\\d+) (?:ход|хода|ходов) назад$", "$1 turns back"],

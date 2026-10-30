@@ -147,6 +147,13 @@
   .hud-os-card .hud-header-text > .hud-dossier i { display: none; }
   /* Ярлыки пилюль с разрядкой (лунное стекло, Окна 95) рвали «Прикосновения:». */
   .hud-os-card .hud-pill-label { letter-spacing: .02em !important; }
+  /* Письма в шкатулке: «Печать не сломана · Вчера» справа забирала всю ширину — «От: Элеонора» шло по букве. Статус — строкой ниже. */
+  .hud-os-card .hud-letter-head { flex-wrap: wrap; }
+  .hud-os-card .hud-letter-head > .hud-letter-who { flex: 1 1 0; min-width: 0; }
+  .hud-os-card .hud-letter-head > .hud-letter-side { flex: 1 1 100%; flex-direction: row; flex-wrap: wrap; justify-content: flex-end; align-items: baseline; gap: 2px 8px; padding-left: 46px; }
+  .hud-os-card .hud-letter-head > .hud-letter-side::after { flex: 1 1 100%; text-align: right; }
+  /* Подписи под батарейками в карточке ребёнка — мельче, чтобы слово не рвалось. */
+  .hud-os-card .hud-kid-card .hud-bs-cell em { font-size: .62em; padding: 1px 3px; }
   /* Цикл «Капсула»: плашка фазы, полоса (не уже 50px) и число не помещались в строку — бегунок уходил за край. Полоса — второй строкой. */
   .hud-os-card .hud-cyc-caps { flex-wrap: wrap; justify-content: space-between; row-gap: 10px; }
   .hud-os-card .hud-cyc-caps .bar { flex: 1 1 100%; order: 3; }
@@ -312,6 +319,13 @@
   .hud-os-card .hud-header-text > .hud-dossier i { display: none; }
   /* Ярлыки пилюль с разрядкой (лунное стекло, Окна 95) рвали «Прикосновения:». */
   .hud-os-card .hud-pill-label { letter-spacing: .02em !important; }
+  /* Письма в шкатулке: «Печать не сломана · Вчера» справа забирала всю ширину — «От: Элеонора» шло по букве. Статус — строкой ниже. */
+  .hud-os-card .hud-letter-head { flex-wrap: wrap; }
+  .hud-os-card .hud-letter-head > .hud-letter-who { flex: 1 1 0; min-width: 0; }
+  .hud-os-card .hud-letter-head > .hud-letter-side { flex: 1 1 100%; flex-direction: row; flex-wrap: wrap; justify-content: flex-end; align-items: baseline; gap: 2px 8px; padding-left: 46px; }
+  .hud-os-card .hud-letter-head > .hud-letter-side::after { flex: 1 1 100%; text-align: right; }
+  /* Подписи под батарейками в карточке ребёнка — мельче, чтобы слово не рвалось. */
+  .hud-os-card .hud-kid-card .hud-bs-cell em { font-size: .62em; padding: 1px 3px; }
   /* Цикл «Капсула»: плашка фазы, полоса (не уже 50px) и число не помещались в строку — бегунок уходил за край. Полоса — второй строкой. */
   .hud-os-card .hud-cyc-caps { flex-wrap: wrap; justify-content: space-between; row-gap: 10px; }
   .hud-os-card .hud-cyc-caps .bar { flex: 1 1 100%; order: 3; }

@@ -9,10 +9,10 @@
 // честно бывает 'empty', комментариев может не быть вовсе. Ложная тревога
 // здесь стоит лишнего запроса к модели, поэтому лучше промолчать.
 
-import { settings } from './settings.js?v=23.88.5';
-import { extractHudBlock } from './hud-block.js?v=23.88.5';
-import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.88.5';
-import { противоречияБыта } from './render/life.js?v=23.88.5';
+import { settings } from './settings.js?v=23.88.6';
+import { extractHudBlock } from './hud-block.js?v=23.88.6';
+import { HUDвКодах, непусто } from './hud-snapshot.js?v=23.88.6';
+import { противоречияБыта } from './render/life.js?v=23.88.6';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const МЕТКА = /<\s*new this turn\b[^>]*>/i;
@@ -91,7 +91,9 @@ export function создатьПроверкуПолноты({ чат, ключ�
     остановлено() { остановленоВ = Date.now(); },
 
     async послеОтвета(messageId, type) {
-      const режим = settings.hudCompleteCheck || 'regen';
+      // A repair request replaces the backend cache and edits the last reply.
+      const выбранныйРежим = settings.hudCompleteCheck || 'regen';
+      const режим = settings.hudCacheStable && выбранныйРежим === 'regen' ? 'warn' : выбранныйРежим;
       if (режим === 'off' || !settings.autoInject) return 'выключено';
       if (!ПРОВЕРЯЕМ.has(type)) return 'не тот тип';
       if (Date.now() - остановленоВ < 5000) return 'остановлено';

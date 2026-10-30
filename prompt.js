@@ -5,12 +5,12 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.88.5';
-import { английский } from './i18n.js?v=23.88.5';
-import { промптНаАнглийском } from './prompt-en.js?v=23.88.5';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.5';
-import { parseSceneDate } from './history-analyzer.js?v=23.88.5';
-import { возрастТочно } from './render/babies.js?v=23.88.5';
+import { settings } from './settings.js?v=23.88.6';
+import { английский } from './i18n.js?v=23.88.6';
+import { промптНаАнглийском } from './prompt-en.js?v=23.88.6';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.6';
+import { parseSceneDate } from './history-analyzer.js?v=23.88.6';
+import { возрастТочно } from './render/babies.js?v=23.88.6';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -27,7 +27,7 @@ export function подключить(связь) { основа = связь; }
    и модели не из чего решить, что писать её нужно всегда.
    nsfw  — нужна ли часть про близость (решает hud-snapshot.js);
    режим — 'reply': обычный ответ с HUD в конце; 'regen': только HUD. */
-export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой = false } = {}) {
+export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой = false, cacheStable = false } = {}) {
   // Что включено. Правила и поля собираются только из включённых разделов:
   // модель не должна читать про телефон, которого у неё не просят.
   const болезни = settings.enableIllness !== false;
@@ -35,20 +35,20 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
   // После родов промт беременности уступает место послеродовому периоду и
   // трекеру малышей — замена, а не прибавка. Беременность остаётся, пока
   // кто-то ещё беременен: HUD знает о зачатии или Prg есть в прошлом HUD.
-  if (беременность) основа.сверитьРоды();
-  const родыБыли = беременность && роды().length > 0;
+  if (беременность && !cacheStable) основа.сверитьРоды();
+  const родыБыли = !cacheStable && беременность && роды().length > 0;
   // Снимок нужен и без родов: по его дате HUD считает срок беременности.
-  const снимокТекст = беременность ? JSON.stringify(основа.последнийСнимокОбъект() || {}) : '';
+  const снимокТекст = беременность && !cacheStable ? JSON.stringify(основа.последнийСнимокОбъект() || {}) : '';
   const prgВСнимке = /"Prg"\s*:\s*"(?!(?:empty|none)")(?![^"]*brn\s*:)/i.test(снимокТекст);
   const беременностьВПромпт = беременность && (!родыБыли || естьЗачатия() || prgВСнимке);
 
   const порогМалышей = Math.max(1, Number(settings.babyGraduateYears) || 3) * 365;
   const датаСнимка = (() => { const m = снимокТекст.match(/"Dt"\s*:\s*"([^"]+)"/); return m ? parseSceneDate(m[1]) : null; })();
   const возрастРодов = (р) => { const д = деньРодов(р, датаСнимка); return д !== null && д !== undefined && датаСнимка !== null ? (датаСнимка - д) / 864e5 : 0; };
-  const малышиВПромпт = родыБыли && settings.enableBabies !== false && роды().some(р => возрастРодов(р) < порогМалышей);
+  const малышиВПромпт = settings.enableBabies !== false && (cacheStable ? беременность : родыБыли && роды().some(р => возрастРодов(р) < порогМалышей));
   const выросли = родыБыли ? роды().filter(р => возрастРодов(р) >= порогМалышей) : [];
   // Послеродовое — пока идёт восстановление и кормление: до двух лет с родов.
-  const послеродовоеВПромпт = родыБыли && роды().some(р => возрастРодов(р) < 730);
+  const послеродовоеВПромпт = cacheStable ? беременность : родыБыли && роды().some(р => возрастРодов(р) < 730);
   const цикл = settings.enableMenstruation !== false;
   // Интимная часть целиком — только когда сцена идёт или начинается.
   const интим = nsfw !== false;
@@ -473,7 +473,7 @@ ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and ru
   p += `\n}\n\`\`\`\n[/HUD]`;
   // Скрытые факты: итог «кубика» зачатия. Знает автор, персонажи — нет,
   // пока нет теста или признаков (render/conception.js).
-  if (беременность) p += скрытыеФактыЗачатия(датаСнимка);
+  if (беременность && !cacheStable) p += скрытыеФактыЗачатия(датаСнимка);
   if (выросли.length) p += `\n\n## 👶 GROWN CHILDREN\nChildren born${выросли.map(р => р.когда || 'earlier').join(', ')} are now older than ${Math.max(1, Number(settings.babyGraduateYears) || 3)} years: track them in cs as regular characters, never in bb.`;
 
   // Снимок — макросом {{hudLast}}: блок исчезает целиком, когда прошлого HUD
@@ -488,6 +488,12 @@ Codes: {{hudLastKeys}}
 {{hudLast}}
 \`\`\`${канон}
 Update it to match ${чего}: keep what is still true, change what ${чего} changes, remove what has ended or faded, add what is new. Never copy it back unchanged when the story has moved on. Replace every "<new this turn>" with real content — never skip a field because it is short or missing above; however long the chat, the HUD is written in full every turn.{{/if}}`;
+  if (cacheStable) {
+    // No scene-dependent macros or state in the reusable prefix.
+    p = p.replace(/\{\{if hudLast\}\}[\s\S]*?\{\{\/if\}\}/g, '')
+      .replace('the story and every instruction above', 'the story and the conversation instructions');
+    p += '\nUse the most recent HUD in the conversation as the previous state. Update it after your reply and preserve established facts. Conditional fields (intimacy, combat, pregnancy, postpartum and babies) apply only when supported by the story; omit them otherwise. Do not invent events to fill the schema.';
+  }
   p += `\n</hud_instructions>`;
   // Английский интерфейс — и HUD по-английски: примеры значений тоже (prompt-en.js).
   return английский() ? промптНаАнглийском(p) : p;

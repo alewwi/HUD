@@ -1733,5 +1733,24 @@ settings.tempoView = 'xray';
   проверить('настройка «HUD в каждом ответе» объясняет режим «только по кнопке»', /HUD в каждом ответе \(сетевой перехват\)[\s\S]{0,200}Выключено — ответы приходят без HUD/.test(fs.readFileSync(path.join(КОРЕНЬ, 'settings-ui.js'), 'utf8')));
 }
 
+// --- KoboldCpp: кэш контекста (отзыв Maxim, 30.10.2026) ---
+{
+  const ix = fs.readFileSync(path.join(КОРЕНЬ, 'index.js'), 'utf8');
+  // Text Completion шлёт negative_prompt вместе с prompt: это не картинка.
+  проверить('Text Completion с negative_prompt — не картинка: инструкция в ответ', ix.includes('(hasImageParams && !hasTextParams) || !hasTextParams') && !/if \(hasImageParams \|\| !hasTextParams\)/.test(ix));
+  // Инструкция встаёт перед началом ответа («Имя:» / выход Instruct), а не после.
+  проверить('Text Completion: инструкция перед «Имя:», не внутри ответа', ix.includes('parsedBody.prompt = вставитьПередОтветом(parsedBody.prompt, dynamicPrompt)') && !ix.includes("parsedBody.prompt += '\n\n' + dynamicPrompt"));
+  const тело = ix.slice(ix.indexOf('function вставитьПередОтветом'), ix.indexOf('if (!window.__tavernOSFetchPatched)'));
+  const вставить = new Function('getStContextSafe', тело + '; return вставитьПередОтветом;')(() => ({ name2: 'Seraphina', powerUserSettings: { instruct: { enabled: false } } }));
+  const итог = вставить('Story\nSofi: hi\nSeraphina:', 'INSTR');
+  проверить('вставка перед «Seraphina:» — промпт кончается началом ответа', итог.endsWith('\nSeraphina:') && итог.includes('Sofi: hi\n\nINSTR\nSeraphina:'), итог);
+  const инстр = new Function('getStContextSafe', тело + '; return вставитьПередОтветом;')(() => ({ name2: 'Seraphina', powerUserSettings: { instruct: { enabled: true, output_sequence: '<|im_start|>assistant' } } }));
+  const итог2 = инстр('<|im_start|>user\nhi<|im_end|>\n<|im_start|>assistant\n', 'INSTR');
+  проверить('Instruct: вставка перед выходной последовательностью', итог2.endsWith('<|im_start|>assistant\n') && итог2.indexOf('INSTR') < итог2.lastIndexOf('<|im_start|>assistant'), итог2);
+  // Режим кэша: инструкция — вставкой расширения Таверны (учтена в бюджете, стоит в начале).
+  проверить('режим кэша: инструкция через setExtensionPrompt до сборки промпта', ix.includes("ctx.setExtensionPrompt(КЛЮЧ_ПРЕФИКСА, текстПрефикса, 0, 0)") && ix.includes('es.on(et.GENERATION_STARTED, (тип, _п, dryRun) => префиксКэша(тип, dryRun))'));
+}
+
 console.log(`\nпроверок: ${всего}, провалов: ${провалы.length}`);
 if (провалы.length) { console.log(провалы.map(п => ' ✗ ' + п).join('\n')); process.exitCode = 1; }
+

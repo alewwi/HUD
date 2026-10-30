@@ -4,9 +4,9 @@
 // сообщения и сбор собеседников по строкам переписки. Лежит отдельно,
 // чтобы ни один из двух модулей не пришлось объявлять главным.
 
-import { escapeHtml, инициалыИмени } from '../utils.js?v=23.88.5';
-import { overrideAvatarUrl } from '../avatars.js?v=23.88.5';
-import { namesLikelySame } from '../names.js?v=23.88.5';
+import { escapeHtml, инициалыИмени } from '../utils.js?v=23.88.6';
+import { overrideAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.88.6';
+import { namesLikelySame } from '../names.js?v=23.88.6';
 
 // Обращения без адресата: такие имена в собеседники не годятся.
 const GENERIC_PARTY = /^(все|всем|all|everyone|группа|group|чат|chat|вы|you|user|я|me)$/i;
@@ -39,7 +39,7 @@ export function avaFace(name, cls, fallbackBg, inner) {
   const url = overrideAvatarUrl(name);
   const letter = String(name || '').trim() ? инициалыИмени(name, 1) : '?';
   const bg = fallbackBg && fallbackBg !== 'transparent' ? fallbackBg : 'none';
-  return `<span class="${cls}${url ? ' has-img' : ''}" data-ava-name="${escapeHtml(String(name || ''))}` +
+  return `<span class="${cls}${url ? ' has-img' : ''}" data-ava-auto="1" data-ava-name="${escapeHtml(String(name || ''))}` +
     `" data-ava-bg="${escapeHtml(bg)}" style="background-image:${url ? `url('${url}')` : bg}"` +
     `>${escapeHtml(letter)}${inner || ''}</span>`;
 }

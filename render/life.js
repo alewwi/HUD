@@ -18,17 +18,17 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.5';
-import { settings } from '../settings.js?v=23.88.5';
-import { разобратьХод } from './carryover.js?v=23.88.5';
-import { моментСцены } from './intimacy.js?v=23.88.5';
-import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.88.5';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.5';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.5';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.88.5';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.5';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.88.5';
-import { английский } from '../i18n.js?v=23.88.5';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.6';
+import { settings } from '../settings.js?v=23.88.6';
+import { разобратьХод } from './carryover.js?v=23.88.6';
+import { моментСцены } from './intimacy.js?v=23.88.6';
+import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.88.6';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.6';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.6';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.88.6';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.6';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.88.6';
+import { английский } from '../i18n.js?v=23.88.6';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;
@@ -998,6 +998,9 @@ export function естьБыт(ж) {
 const дм = (ms) => new Date(ms).toISOString().slice(5, 10).split('-').reverse().join('.');
 const чм = (ms) => new Date(ms).toISOString().slice(11, 16);
 const ДНИ = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', 'сб'];
+// Шапка «Быта» в английском интерфейсе — английская дата: «Thursday, October 17».
+const ДНИ_EN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const МЕСЯЦЫ_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const МЕСЯЦЫ = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const ДЕНЬ_НЕДЕЛИ = ['воскресенье', 'понедельник', 'вторник', 'среда', 'четверг', 'пятница', 'суббота'];
 // Вид из «Кастомизации»: неизвестное значение — первый вид.
@@ -1056,7 +1059,7 @@ function сводкаБыта(ж) {
   const вид = видБыта('lifeGaugeView', ВИДЫ_СВОДКИ);
   const д = new Date(ж.сейчас);
   const шапка = `<div class="hud-life-hero-head">${ж.главный ? лицоБыта(ж.главный) : ''}<span><b>${escapeHtml(ж.главный || 'Быт')}</b>`
-    + `<small>${ДЕНЬ_НЕДЕЛИ[д.getUTCDay()]}, ${д.getUTCDate()} ${МЕСЯЦЫ[д.getUTCMonth()]} · ${чм(ж.сейчас)}${местоВШапке(ж)}</small></span></div>`;
+    + `<small>${английский() ? `${ДНИ_EN[д.getUTCDay()]}, ${МЕСЯЦЫ_EN[д.getUTCMonth()]} ${д.getUTCDate()}` : `${ДЕНЬ_НЕДЕЛИ[д.getUTCDay()]}, ${д.getUTCDate()} ${МЕСЯЦЫ[д.getUTCMonth()]}`} · ${чм(ж.сейчас)}${местоВШапке(ж)}</small></span></div>`;
   if (вид === 'off') return `<div class="hud-v-card hud-life-hero is-plain">${шапка}</div>`;
   const т = ж.тело || {};
   const ночь = ночьГлавного(ж);

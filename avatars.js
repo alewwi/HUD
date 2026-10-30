@@ -10,7 +10,9 @@
 // реально добавляются новые сообщения (см. invalidateAvatarCache()).
 // Ручные аватарки читаются прямо из настроек: модуль и так знает про DOM
 // и глобали SillyTavern, ещё одна зависимость ничего не усложняет.
-import { settings } from './settings.js?v=23.88.5';
+import { settings } from './settings.js?v=23.88.6';
+import { getSafeUserName } from './utils.js?v=23.88.6';
+import { namesLikelySame } from './names.js?v=23.88.6';
 
 /**
  * Палитра для плейсхолдеров аватарок: цвет выбирается по хэшу имени.
@@ -217,8 +219,9 @@ export function refreshAvatarFaces(root) {
     // собеседник в журнале звонков), тоже обновляется: картинку персонажа
     // могли поменять, пока карточка висит в чате.
     if (!url && el.hasAttribute('data-ava-auto')) {
-      const найдено = getAvatarUrl(name, el.getAttribute('data-ava-primary') === '1');
-      url = найдено && найдено.url;
+      // Как при отрисовке (фотоПоИмени): иначе у игрока здесь фото пропадало.
+      if (el.getAttribute('data-ava-primary') === '1') { const найдено = getAvatarUrl(name, true); url = найдено && найдено.url; }
+      else url = фотоПоИмени(name);
     }
     if (el.tagName === 'IMG' || el.classList.contains('hud-avatar-placeholder')) {
       if (el.tagName === 'IMG' && url && el.getAttribute('src') === url) return;
@@ -296,4 +299,18 @@ export function getUserAvatarUrl() {
       const src = изУзла(document.querySelector('.mes[is_user="true"] .avatar img'));
       if (src) return src;
   } catch (e) {} return null;
+}
+
+// Фото по имени — одно для всех кружков: ручная аватарка, персона игрока,
+// карточка или сообщение в Таверне — что найдётся. Нет — пустая строка, и
+// кружок рисует инициалы. Прежде телефон и перехваты брали только ручную
+// аватарку: у игрока и у персонажа с карточкой там оставались инициалы.
+export function фотоПоИмени(имя) {
+  try {
+    let url = overrideAvatarUrl(имя);
+    const игрок = getSafeUserName();
+    if (!url && игрок && namesLikelySame(имя, игрок)) url = getUserAvatarUrl();
+    if (!url) { const a = getAvatarUrl(имя, false); url = a && a.url; }
+    return url || '';
+  } catch (_) { return ''; }
 }

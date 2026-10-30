@@ -613,7 +613,7 @@
    Кружок вынут из потока: рядом с ним лежит голый текстовый узел, а его
    ни сеткой, ни флексом не приструнить. */
 .hud-detail-pill.has-face { position: relative; padding-left: 40px; }
-.hud-pill-face {
+.hud-pill-face, :is(em, i).hud-pill-face {
   position: absolute; left: 10px; top: 7px;
   width: 22px; height: 22px; border-radius: 50%;
   display: flex; align-items: center; justify-content: center;
@@ -1310,7 +1310,7 @@
 .hud-ill.is-chronic { --ill: #9a8ad8; }
 .hud-ill.is-healed { --ill: #6fb7e8; }
 .hud-ill-head { display: flex; gap: 8px; flex-wrap: wrap; }
-.hud-ill-stage {
+.hud-ill-stage, :is(em, i).hud-ill-stage {
   font-style: normal; font-size: 10.5px; padding: 1px 8px; border-radius: var(--hud-r-chip); color: var(--ill);
   border: 1px solid currentColor; text-transform: uppercase; letter-spacing: .06em;
 }
@@ -1345,7 +1345,7 @@
 .hud-gun-body { min-width: 0; }
 .hud-gun-body p { margin: 0; line-height: 1.4; }
 .hud-gun-body small { display: block; margin-top: 2px; opacity: .6; }
-.hud-gun-status {
+.hud-gun-status, :is(em, i).hud-gun-status {
   flex: 0 0 auto; font-style: normal; font-size: 10px; text-transform: uppercase; letter-spacing: .06em;
   color: var(--gun); border: 1px solid currentColor; border-radius: var(--hud-r-chip); padding: 1px 7px;
 }
@@ -1585,7 +1585,7 @@
 .hud-prot.is-good { --st: #0ca30c; }
 .hud-prot.is-serious { --st: #ec835a; }
 .hud-prot.is-critical { --st: #d03b3b; }
-.hud-prot-ico {
+.hud-prot-ico, :is(em, i).hud-prot-ico {
   font-style: normal;
   font-size: 11px; font-weight: 700; background: var(--st); color: #111;
 }
@@ -1698,7 +1698,7 @@
 }
 .hud-eco-row:last-child { border-bottom: 0; }
 .hud-eco-val { font-weight: 650; font-variant-numeric: tabular-nums; text-align: right; }
-.hud-eco-chg { font-style: normal; font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); text-align: right; white-space: nowrap; }
+.hud-eco-chg, :is(em, i).hud-eco-chg { font-style: normal; font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); text-align: right; white-space: nowrap; }
 .hud-eco-chg i { font-style: normal; margin-right: 3px; font-size: 9px; }
 .hud-eco-row.is-note { grid-template-columns: 1fr; color: var(--hud-text-muted, #c3c2b7); }
 .hud-afisha-grid { display: grid; }
@@ -1979,7 +1979,7 @@
 
 /* --- Мир: биржевая сводка ----------------------------------------------- */
 .hud-eco-row { grid-template-columns: 26px auto minmax(12px, 1fr) auto minmax(64px, auto); gap: 8px; padding: 7px 2px; border-bottom: 1px dashed rgba(255,255,255,.12); }
-.hud-eco-ico {
+.hud-eco-ico, :is(em, i).hud-eco-ico {
   width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; font-style: normal; font-size: 12px; font-weight: 700;
   font-family: Georgia, serif; color: #1e1e1e; background: radial-gradient(circle at 35% 30%, #fff, #cfc8b8);
 }
@@ -3210,7 +3210,7 @@
 .hud-health { display: flex; flex-direction: column; gap: 8px; }
 .hud-health-note { margin: 0; line-height: 1.45; }
 .hud-health > .hud-marks, .hud-health > .hud-ill-list { width: 100%; }
-.hud-mark-stage {
+.hud-mark-stage, :is(em, i).hud-mark-stage {
   display: inline-block; vertical-align: 1px; margin-left: 7px; padding: 0 7px; border-radius: 999px;
   border: 1px solid currentColor; font-style: normal; font-weight: 600; font-size: 10px;
   text-transform: uppercase; letter-spacing: .06em; color: #e3a54a; white-space: nowrap;
@@ -4382,7 +4382,7 @@
 .hud-cask-lid, .hud-letter-who b, .hud-doc-title, .hud-quill-note header b, .hud-ledger-title, .hud-ov-head b, .hud-almanac .hud-cal-head { font-family: var(--hud-font-headers, inherit); }
 .hud-letter-sheet, .hud-quill-note p, .hud-ov-sheet p { font-family: var(--hud-font-diary, inherit); }
 /* Светлая тема: ларец светлого дерева, надписи тёмные. */
-:is(.hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-cask, :is(.hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-overheard {
+:is(.hud-scheme-light, .hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-cask, :is(.hud-scheme-light, .hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-overheard {
   --wood: color-mix(in oklab, var(--hud-accent, #b08a4a) 26%, #fbf6ee);
   --wood-2: color-mix(in oklab, var(--hud-accent, #b08a4a) 40%, #f1e6da);
   --brass: color-mix(in oklab, var(--hud-accent, #b08a4a) 78%, #2a1d12);
@@ -4390,7 +4390,22 @@
   --parch: color-mix(in oklab, #fffaf0 84%, var(--hud-accent, #b08a4a) 16%);
   --parch-2: color-mix(in oklab, #f6ecd9 80%, var(--hud-accent, #b08a4a) 20%);
 }
-:is(.hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-cask {
+/* Бумага и чернила — от самой темы (и своей тоже): чернила — её текст,
+   подписи — её приглушённый текст, бумага — лист обратной светлоты к тексту
+   с оттенком акцента (светлота — скачком: тёмный текст даёт почти белый лист,
+   светлый — тёмный, без мутной середины). На тёмной теме лист тёмный, на светлой — светлый:
+   средневековые блоки больше не выпадают пятном, текст — цвета карточки.
+   Без относительных цветов в браузере — прежний пергамент. */
+@supports (color: oklch(from red l c h)) {
+  :is(html, .hud-os-card) .hud-cask, :is(html, .hud-os-card) .hud-overheard {
+    --parch: color-mix(in oklab, oklch(from var(--hud-text, #2a1d12) clamp(.21, calc((.62 - l) * 6 + .5), .95) calc(c * .35) h) 88%, var(--hud-accent, #b08a4a) 14%);
+    --parch-2: color-mix(in oklab, oklch(from var(--hud-text, #2a1d12) clamp(.17, calc((.62 - l) * 6 + .44), .89) calc(c * .4) h) 82%, var(--hud-accent, #b08a4a) 20%);
+    --ink: var(--hud-text, #2a1d12);
+    --ink-soft: var(--hud-text-muted, color-mix(in oklab, var(--hud-text, #2a1d12) 70%, transparent));
+    --ink-red: color-mix(in oklab, var(--hud-accent, #8e1b1b) 78%, var(--hud-text, #2a1d12));
+  }
+}
+:is(.hud-scheme-light, .hud-kinds-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-cask {
   background:
     repeating-linear-gradient(92deg, rgba(0,0,0,.025) 0 2px, transparent 2px 9px),
     linear-gradient(180deg, var(--wood), var(--wood-2));
@@ -4429,7 +4444,7 @@
 }
 .hud-cask-tab span { font-size: 1.05em; }
 @media (hover: hover) and (pointer: fine) { .hud-cask-tab:hover { color: #fff; background: rgba(255,255,255,.1); } }
-.hud-cask-badge {
+.hud-cask-badge, :is(em, i).hud-cask-badge {
   font-style: normal; min-width: 16px; height: 16px; padding: 0 4px; border-radius: 8px; font-size: .72em; line-height: 16px; text-align: center;
   background: var(--ink-red); color: #fbe9d0; font-family: sans-serif;
 }
@@ -4457,11 +4472,11 @@
 .hud-cask-views { color: var(--ink); }
 .hud-letter-sheet, .hud-quill-note, .hud-purse, .hud-almanac, .hud-parch-map, .hud-doc, .hud-keep, .hud-cask-empty, .hud-ov {
   background:
-    radial-gradient(120% 90% at 50% 40%, transparent 55%, rgba(120,84,40,.22) 100%),
+    radial-gradient(120% 90% at 50% 40%, transparent 55%, color-mix(in srgb, var(--ink) 22%, transparent) 100%),
     radial-gradient(circle at 18% 22%, rgba(150,110,60,.10) 0 18%, transparent 30%),
     linear-gradient(170deg, var(--parch), var(--parch-2));
   color: var(--ink);
-  box-shadow: 0 2px 6px rgba(0,0,0,.3), inset 0 0 0 1px rgba(90,60,30,.15);
+  box-shadow: 0 2px 6px rgba(0,0,0,.3), inset 0 0 0 1px color-mix(in srgb, var(--ink) 15%, transparent);
 }
 .hud-cask-empty {
   display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 22px 12px; border-radius: 4px;
@@ -4475,30 +4490,32 @@
 .hud-letter > summary::-webkit-details-marker { display: none; }
 .hud-letter-head {
   display: flex; align-items: center; gap: 10px; cursor: pointer; padding: 9px 11px; border-radius: 4px;
-  background: linear-gradient(175deg, #e9dbb8, #d6c193); color: var(--ink);
+  background: linear-gradient(175deg, var(--parch-2), color-mix(in oklab, var(--parch-2) 82%, var(--ink) 18%)); color: var(--ink);
   box-shadow: 0 2px 5px rgba(0,0,0,.3);
   /* Клапан конверта: тонкий треугольник-сгиб. */
   background-image:
-    linear-gradient(160deg, transparent 49.4%, rgba(90,60,30,.18) 50%, transparent 50.6%),
-    linear-gradient(20deg, transparent 49.4%, rgba(90,60,30,.18) 50%, transparent 50.6%),
-    linear-gradient(175deg, #e9dbb8, #d6c193);
+    linear-gradient(160deg, transparent 49.4%, color-mix(in srgb, var(--ink) 18%, transparent) 50%, transparent 50.6%),
+    linear-gradient(20deg, transparent 49.4%, color-mix(in srgb, var(--ink) 18%, transparent) 50%, transparent 50.6%),
+    linear-gradient(175deg, var(--parch-2), color-mix(in oklab, var(--parch-2) 82%, var(--ink) 18%));
 }
 .hud-letter[open] > .hud-letter-head { border-radius: 4px 4px 0 0; box-shadow: none; }
 .hud-letter-who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .hud-letter-who b { font-size: 1.02em; }
 .hud-letter-who small { font-size: .8em; font-style: italic; color: var(--ink-soft); }
 .hud-letter-side { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; font-size: .82em; color: var(--ink-soft); }
-.hud-letter-st { font-style: normal; font-variant: small-caps; letter-spacing: .06em; color: var(--ink-red); }
+/* Глобальное small Таверны красило дату письма светлым по пергаменту. */
+.hud-letter-side small { color: inherit; }
+.hud-letter-st, :is(em, i).hud-letter-st { font-style: normal; font-variant: small-caps; letter-spacing: .06em; color: var(--ink-red); }
 .hud-letter-sheet { padding: 12px 16px 12px; border-radius: 0 0 4px 4px; font-size: 1.04em; line-height: 1.5; }
 .hud-letter-sheet p { margin: 0 0 .5em; text-indent: 1.2em; }
 .hud-letter-sheet p:first-of-type { text-indent: 0; }
 .hud-letter-sheet footer { margin-top: 6px; font-size: .82em; font-style: italic; color: var(--ink-soft); text-align: right; }
 .hud-letter-opened { font-size: .78em; font-variant: small-caps; letter-spacing: .08em; color: var(--ink-red); margin-bottom: 6px; }
 .hud-letter-blank { font-style: italic; color: var(--ink-soft); }
-.hud-letter.is-out .hud-letter-head { background-image: linear-gradient(175deg, #efe4c9, #e0cfa6); }
+.hud-letter.is-out .hud-letter-head { background-image: linear-gradient(175deg, var(--parch), var(--parch-2)); }
 .hud-letter.st-sealed .hud-letter-head { box-shadow: 0 2px 5px rgba(0,0,0,.3), 0 0 0 1px rgba(142,27,27,.35); }
 .hud-letter.st-sealed:not([open]) .hud-letter-side::after { content: 'нажмите, чтобы вскрыть'; font-size: .85em; font-style: italic; }
-.hud-letter.st-draft .hud-letter-sheet { background-image: repeating-linear-gradient(180deg, transparent 0 1.45em, rgba(90,60,30,.12) 1.45em calc(1.45em + 1px)), linear-gradient(170deg, var(--parch), var(--parch-2)); }
+.hud-letter.st-draft .hud-letter-sheet { background-image: repeating-linear-gradient(180deg, transparent 0 1.45em, color-mix(in srgb, var(--ink) 12%, transparent) 1.45em calc(1.45em + 1px)), linear-gradient(170deg, var(--parch), var(--parch-2)); }
 .hud-letter.st-draft .hud-letter-sheet p:last-child::after { content: ' —'; color: var(--ink-soft); }
 .hud-letter.st-burned .hud-letter-sheet {
   color: #4a3624;
@@ -4547,11 +4564,11 @@
 .hud-coins small { font-size: .8em; color: var(--ink-soft); }
 .hud-purse-cur { font-style: italic; color: var(--ink-soft); }
 .hud-purse-raw { font-size: 1.2em; font-weight: 700; }
-.hud-ledger { border-top: 2px double rgba(90,60,30,.35); padding-top: 8px; }
+.hud-ledger { border-top: 2px double color-mix(in srgb, var(--ink) 35%, transparent); padding-top: 8px; }
 .hud-ledger-title { font-variant: small-caps; letter-spacing: .08em; color: var(--ink-red); text-align: center; margin-bottom: 6px; }
 .hud-ledger-row {
   display: grid; grid-template-columns: 1fr auto; gap: 2px 10px; padding: 5px 2px;
-  border-bottom: 1px solid rgba(90,60,30,.18);
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
 }
 .hud-ledger-what small { display: block; font-size: .82em; font-style: italic; color: var(--ink-soft); }
 .hud-ledger-sum { font-weight: 700; white-space: nowrap; }
@@ -4565,7 +4582,7 @@
 .hud-almanac-moon { display: flex; align-items: center; justify-content: center; gap: 8px; font-style: italic; color: var(--ink-soft); margin-bottom: 6px; }
 .hud-moon-disc {
   --lit: .5; --side: 1; width: 18px; height: 18px; border-radius: 50%; position: relative; overflow: hidden;
-  background: #2b2418; box-shadow: 0 0 0 1px rgba(90,60,30,.4);
+  background: #2b2418; box-shadow: 0 0 0 1px color-mix(in srgb, var(--ink) 40%, transparent);
 }
 .hud-moon-disc::after {
   content: ''; position: absolute; inset: 0; border-radius: 50%; background: #f4ebd2;
@@ -4574,27 +4591,27 @@
 .hud-almanac .hud-cal { color: var(--ink); background: none; }
 .hud-almanac .hud-cal-head {
   font-size: 1.35em; text-align: center; color: var(--ink-red); letter-spacing: .06em; font-variant: small-caps;
-  border-bottom: 1px solid rgba(90,60,30,.25); padding-bottom: 4px; margin-bottom: 6px;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 25%, transparent); padding-bottom: 4px; margin-bottom: 6px;
 }
 .hud-almanac .hud-cal-head::first-letter { font-size: 1.4em; }
 .hud-almanac .hud-cal-week span { color: var(--ink-soft); font-variant: small-caps; }
 .hud-almanac .hud-cal-week span:last-child { color: var(--ink-red); }
-.hud-almanac .hud-cal-day { color: var(--ink); background: transparent; border-color: rgba(90,60,30,.12); }
+.hud-almanac .hud-cal-day { color: var(--ink); background: transparent; border-color: color-mix(in srgb, var(--ink) 12%, transparent); }
 .hud-almanac .hud-cal-day:nth-child(7n) b { color: var(--ink-red); }
 /* Праздник — «красный день календаря»: дата красными чернилами. */
 .hud-almanac .hud-cal-day.has-ev b { color: var(--ink-red); text-decoration: underline wavy rgba(142,27,27,.5); text-underline-offset: 3px; }
 .hud-almanac .hud-cal-day.is-today { background: rgba(142,27,27,.14); box-shadow: inset 0 0 0 1px rgba(142,27,27,.5); border-radius: 50%; }
 .hud-almanac .hud-cal-dot { background: var(--ink-red) !important; }
-.hud-almanac .hud-cal-row, .hud-almanac .hud-cal-agenda { color: var(--ink); background: transparent; border-color: rgba(90,60,30,.2); }
+.hud-almanac .hud-cal-row, .hud-almanac .hud-cal-agenda { color: var(--ink); background: transparent; border-color: color-mix(in srgb, var(--ink) 20%, transparent); }
 .hud-almanac .hud-cal-row-day { color: var(--ink-red); font-variant: small-caps; }
-.hud-almanac .hud-cal-item { color: var(--ink); background: rgba(90,60,30,.07); border-color: rgba(90,60,30,.18); }
+.hud-almanac .hud-cal-item { color: var(--ink); background: color-mix(in srgb, var(--ink) 7%, transparent); border-color: color-mix(in srgb, var(--ink) 18%, transparent); }
 .hud-almanac .hud-phone-empty-app { color: var(--ink-soft); }
 
 /* --- Записи пером ---------------------------------------------------------------- */
 .hud-quill-note { border-radius: 3px; padding: 11px 14px 10px; margin-bottom: 10px; line-height: 1.5; }
 .hud-quill-note:nth-child(odd) { transform: rotate(-.35deg); }
 .hud-quill-note:nth-child(even) { transform: rotate(.3deg); }
-.hud-quill-note header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; border-bottom: 1px solid rgba(90,60,30,.22); padding-bottom: 3px; margin-bottom: 6px; }
+.hud-quill-note header { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; border-bottom: 1px solid color-mix(in srgb, var(--ink) 22%, transparent); padding-bottom: 3px; margin-bottom: 6px; }
 .hud-quill-note header small { font-style: italic; color: var(--ink-soft); font-size: .82em; }
 .hud-quill-note p { margin: 0; white-space: pre-line; }
 .hud-dropcap {
@@ -4606,22 +4623,22 @@
 
 /* --- Карта пером ------------------------------------------------------------------ */
 .hud-parch-map { border-radius: 4px; padding: 8px; }
-.hud-map-deco path { fill: none; stroke: rgba(90,60,30,.45); stroke-width: 1.1; stroke-linejoin: round; }
+.hud-map-deco path { fill: none; stroke: color-mix(in srgb, var(--ink) 45%, transparent); stroke-width: 1.1; stroke-linejoin: round; }
 .hud-map-road { fill: none; stroke: var(--ink-red); stroke-width: 1.6; stroke-dasharray: 5 4; stroke-linecap: round; opacity: .8; }
 .hud-map-pt circle { fill: var(--parch); stroke: var(--ink); stroke-width: 1.5; }
 .hud-map-pt.is-last circle { fill: var(--ink-red); stroke: #2b0a0a; }
 .hud-map-pt text { font: italic 10.5px 'Cormorant Garamond', Georgia, serif; fill: var(--ink); paint-order: stroke; stroke: var(--parch); stroke-width: 3px; }
-.hud-map-rose circle { fill: none; stroke: rgba(90,60,30,.5); }
+.hud-map-rose circle { fill: none; stroke: color-mix(in srgb, var(--ink) 50%, transparent); }
 .hud-map-rose path { fill: var(--ink); }
 .hud-map-rose text { font: 700 8px Georgia, serif; fill: var(--ink-red); }
-.hud-map-list { margin-top: 6px; border-top: 1px solid rgba(90,60,30,.22); }
-.hud-map-row { border-bottom: 1px dotted rgba(90,60,30,.22); }
+.hud-map-list { margin-top: 6px; border-top: 1px solid color-mix(in srgb, var(--ink) 22%, transparent); }
+.hud-map-row { border-bottom: 1px dotted color-mix(in srgb, var(--ink) 22%, transparent); }
 .hud-map-row b { color: var(--ink-red); min-width: 1.2em; font-variant: oldstyle-nums; }
 .hud-map-row small { font-style: italic; color: var(--ink-soft); }
 
 /* --- Грамоты ------------------------------------------------------------------- */
 .hud-docs { display: flex; flex-direction: column; gap: 12px; }
-.hud-doc { position: relative; border-radius: 2px; padding: 12px 14px 10px; border-top: 6px double rgba(90,60,30,.35); }
+.hud-doc { position: relative; border-radius: 2px; padding: 12px 14px 10px; border-top: 6px double color-mix(in srgb, var(--ink) 35%, transparent); }
 .hud-doc-kind { font-variant: small-caps; letter-spacing: .1em; color: var(--ink-red); font-size: .86em; }
 .hud-doc-title { display: block; font-size: 1.12em; margin: 2px 0 4px; }
 .hud-doc p { margin: 0 0 6px; line-height: 1.45; }
@@ -4643,7 +4660,7 @@
 .hud-keep { border-radius: 6px; padding: 10px; text-align: center; display: flex; flex-direction: column; align-items: center; gap: 3px; }
 .hud-keep-icon {
   width: 44px; height: 44px; display: grid; place-items: center; font-size: 1.5em; border-radius: 50%;
-  background: radial-gradient(circle, rgba(255,255,255,.5), rgba(201,162,74,.25) 70%); box-shadow: inset 0 0 0 1px rgba(90,60,30,.25);
+  background: radial-gradient(circle, rgba(255,255,255,.5), rgba(201,162,74,.25) 70%); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ink) 25%, transparent);
 }
 .hud-keep p { margin: 0; font-size: .9em; line-height: 1.35; }
 .hud-keep small { font-style: italic; color: var(--ink-soft); }
@@ -4651,7 +4668,7 @@
 /* --- Подслушанное ----------------------------------------------------------------- */
 .hud-overheard { display: flex; flex-direction: column; gap: 12px; padding: 4px 0; }
 .hud-ov { border-radius: 4px; padding: 11px 13px 12px; }
-.hud-ov-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; border-bottom: 1px solid rgba(90,60,30,.25); padding-bottom: 5px; margin-bottom: 8px; }
+.hud-ov-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; border-bottom: 1px solid color-mix(in srgb, var(--ink) 25%, transparent); padding-bottom: 5px; margin-bottom: 8px; }
 .hud-ov-kind { font-variant: small-caps; letter-spacing: .08em; color: var(--ink-red); font-size: .9em; }
 .hud-ov-head small { color: var(--ink-soft); font-style: italic; }
 .hud-ov-head em { flex-basis: 100%; font-size: .86em; color: var(--ink-soft); }
@@ -4662,9 +4679,13 @@
 .hud-ov-line b::after { content: '.'; }
 .hud-ov-muffle {
   display: inline-block; padding: 0 4px; margin: 0 2px; border-radius: 3px; font-size: .8em; font-style: italic;
-  color: transparent; text-shadow: 0 0 5px rgba(58,42,24,.75); background: rgba(90,60,30,.08); user-select: none;
+  color: transparent; text-shadow: 0 0 5px color-mix(in srgb, var(--ink) 75%, transparent); background: color-mix(in srgb, var(--ink) 8%, transparent); user-select: none;
+  cursor: pointer; transition: color .25s ease, text-shadow .25s ease; outline: none;
 }
-.hud-ov-talk { border-left: 4px solid rgba(90,60,30,.35); }
+/* Нажатие (is-heard, events.js) или мышь — проступает, что расслышали. */
+.hud-ov-muffle.is-heard, .hud-ov-muffle:focus-visible { color: color-mix(in srgb, var(--ink, #3a2a18) 70%, transparent); text-shadow: none; }
+@media (hover: hover) and (pointer: fine) { .hud-ov-muffle:hover { color: color-mix(in srgb, var(--ink, #3a2a18) 70%, transparent); text-shadow: none; } }
+.hud-ov-talk { border-left: 4px solid color-mix(in srgb, var(--ink) 35%, transparent); }
 /* Чужое письмо — лист с приподнятой печатью. */
 .hud-ov-sheet { position: relative; padding-right: 44px; line-height: 1.5; }
 .hud-ov-sheet .hud-seal { position: absolute; right: 0; top: -2px; }

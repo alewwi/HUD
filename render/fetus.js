@@ -6,10 +6,11 @@
 // тройня — и сочетания пола под каждый тип. «↺ Откатить» возвращает кубик.
 // Клики ловит index.js (data-hud-fetus). Оформление — css/family.css.
 
-import { escapeHtml } from '../utils.js?v=23.88.5';
-import { плодыОт, ТИПЫ_ПЛОДОВ, СОЧЕТАНИЯ, словоПолов } from './conception.js?v=23.88.5';
-import { наследование, узнатьЧерты } from './fertility.js?v=23.88.5';
-import { видСемьи, видПлодов } from './family-views.js?v=23.88.5';
+import { escapeHtml } from '../utils.js?v=23.88.6';
+import { settings } from '../settings.js?v=23.88.6';
+import { плодыОт, ТИПЫ_ПЛОДОВ, СОЧЕТАНИЯ, словоПолов } from './conception.js?v=23.88.6';
+import { наследование, узнатьЧерты } from './fertility.js?v=23.88.6';
+import { видСемьи, видПлодов } from './family-views.js?v=23.88.6';
 
 // Малыш в плодном пузыре: свернувшийся эмбрион (голова, спинка дугой,
 // ручка у лица, ножки), пуповина, объём от градиента и блик.
@@ -75,7 +76,7 @@ export function блокПлодов(кто, { вСюжете = false, полИ�
   const полы = п.полы || Array(п.число).fill('');
   const полСюжета = String(полИзСюжета || '').trim();
   const подписьПола = полСюжета
-    ? `<span class="sex is-story">по УЗИ: <b>${escapeHtml(полСюжета)}</b></span>`
+    ? `<span class="sex is-story">${settings.era === 'medieval' ? 'по приметам' : 'по УЗИ'}: <b>${escapeHtml(полСюжета)}</b></span>`
     : п.полы
       ? `<span class="sex"><b>${escapeHtml(п.словоПолов)}</b>${п.судьбаПола ? '<i class="fate-mark" title="Изменено судьбой">✦︎</i>' : ''}</span>`
       : `<button type="button" class="hud-fetus-btn is-roll" data-hud-fetus="roll" ${данные} title="Бросить кубик на пол — увидишь только ты и HUD">🎲 Узнать пол</button>`;
