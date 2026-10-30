@@ -212,3 +212,49 @@ export function телоБезHUD(тело, замена = null) {
   if (typeof данные.prompt === 'string') данные.prompt = чистить(данные.prompt);
   return изменено ? JSON.stringify(данные) : null;
 }
+
+// Навсегда убрать HUD из самого сообщения — для «Очистить чат от HUD» в
+// настройках, перед удалением расширения. Блок вырезается вместе с пробелами
+// вокруг; между текстом до и после — один разделитель, какой стоял (не больше
+// пустой строки). Остальной текст не трогаем: ни отступы, ни переносы.
+// [HUD_SUMMARY] блоком не считается и остаётся. Сообщение, в котором кроме
+// HUD ничего не было, получает «…»: пустое Таверна показывает странно.
+export function текстБезHUD(текст) {
+  const s = String(текст ?? '');
+  const блоки = hudБлоки(s);
+  if (!блоки.length) return s;
+  let out = '', с = 0;
+  for (const б of блоки) {
+    const до = s.slice(с, б.index);
+    const после = s.slice(б.index + б.length);
+    const хвост = до.match(/\s*$/)[0];
+    const голова = после.match(/^\s*/)[0];
+    const строк = Math.max((хвост.match(/\n/g) || []).length, (голова.match(/\n/g) || []).length);
+    const сшив = строк > 1 ? '\n\n' : строк ? '\n' : (хвост || голова ? ' ' : '');
+    out += до.slice(0, до.length - хвост.length) + (out || до.trim() ? сшив : '');
+    с = б.index + б.length + голова.length;
+  }
+  out = (out + s.slice(с)).replace(/\s+$/, '');
+  return out.trim() ? out : '…';
+}
+
+/**
+ * Сообщение чата без HUD: текст, все свайпы и то, что HUD хранит в extra
+ * (прежние версии HUD, подборки музыки), у сообщения и у каждого свайпа.
+ * Меняет сообщение на месте. Возвращает, сколько блоков убрано.
+ */
+export function вычиститьHUDИзСообщения(m) {
+  if (!m || typeof m !== 'object') return 0;
+  let убрано = 0;
+  const текст = (t) => { if (typeof t !== 'string') return t; const n = hudБлоки(t).length; if (!n) return t; убрано += n; return текстБезHUD(t); };
+  const extra = (e) => { if (!e || typeof e !== 'object') return; for (const к of ['hud_versions', 'hud_music']) if (к in e) { delete e[к]; убрано++; } };
+  const свайпы = Array.isArray(m.swipes) ? m.swipes : null;
+  const текущий = свайпы && Number.isInteger(m.swipe_id) ? m.swipe_id : -1;
+  if (свайпы) свайпы.forEach((t, i) => { свайпы[i] = текст(t); });
+  // Текущий свайп и mes — один и тот же текст: второй раз не считаем.
+  if (текущий >= 0 && typeof свайпы[текущий] === 'string' && hudБлоки(m.mes || '').length) m.mes = свайпы[текущий];
+  else m.mes = текст(m.mes);
+  extra(m.extra);
+  if (Array.isArray(m.swipe_info)) m.swipe_info.forEach(и => extra(и && и.extra));
+  return убрано;
+}
