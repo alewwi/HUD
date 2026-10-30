@@ -14,8 +14,8 @@
 // Правка живёт, пока её не снимут; если модель потом пишет в то же поле
 // другое — это показывается как расхождение, а не чинится молча.
 
-import { settings } from './settings.js?v=23.88.4';
-import { namesLikelySame, упомянутВТексте } from './names.js?v=23.88.4';
+import { settings } from './settings.js?v=23.88.5';
+import { namesLikelySame, упомянутВТексте } from './names.js?v=23.88.5';
 
 const КЛЮЧ = 'tavernosHudEdits';
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);

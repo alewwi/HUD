@@ -12,7 +12,7 @@
 // округлый) — по теме, тем же классом на <html>, что у остальных значков
 // (render/hud-icons.js, css/platform.css).
 
-import { settings } from '../settings.js?v=23.88.4';
+import { settings } from '../settings.js?v=23.88.5';
 
 export const значкиШапки = (s = settings) => s.iconSet !== 'emoji';
 

@@ -143,6 +143,13 @@
   .hud-theme-bujo .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 8px; }
   .hud-theme-bujo .hud-os-card .hud-header::after { display: none; }
   .hud-theme-bujo .hud-os-card .hud-header .hud-title { padding: 2px 7px; letter-spacing: 0; }
+  /* Ярлык-досье «ДОСЬЕ 525 · имя · допуск огр.» в одну строку не влезал — «допуск» уезжал за край. На телефоне его нет. */
+  .hud-os-card .hud-header-text > .hud-dossier i { display: none; }
+  /* Ярлыки пилюль с разрядкой (лунное стекло, Окна 95) рвали «Прикосновения:». */
+  .hud-os-card .hud-pill-label { letter-spacing: .02em !important; }
+  /* Цикл «Капсула»: плашка фазы, полоса (не уже 50px) и число не помещались в строку — бегунок уходил за край. Полоса — второй строкой. */
+  .hud-os-card .hud-cyc-caps { flex-wrap: wrap; justify-content: space-between; row-gap: 10px; }
+  .hud-os-card .hud-cyc-caps .bar { flex: 1 1 100%; order: 3; }
   /* Виды блоков в узкой карточке (обход всех видов, 2026-10-30). */
   /* Возраст «Годовые кольца»: бирка рядом с кругом сжималась до буквы в строке — бирка под кругом. */
   .hud-os-card .hud-f-age.is-rings { flex-wrap: wrap; justify-content: center; }
@@ -301,6 +308,13 @@
   .hud-theme-bujo .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 8px; }
   .hud-theme-bujo .hud-os-card .hud-header::after { display: none; }
   .hud-theme-bujo .hud-os-card .hud-header .hud-title { padding: 2px 7px; letter-spacing: 0; }
+  /* Ярлык-досье «ДОСЬЕ 525 · имя · допуск огр.» в одну строку не влезал — «допуск» уезжал за край. На телефоне его нет. */
+  .hud-os-card .hud-header-text > .hud-dossier i { display: none; }
+  /* Ярлыки пилюль с разрядкой (лунное стекло, Окна 95) рвали «Прикосновения:». */
+  .hud-os-card .hud-pill-label { letter-spacing: .02em !important; }
+  /* Цикл «Капсула»: плашка фазы, полоса (не уже 50px) и число не помещались в строку — бегунок уходил за край. Полоса — второй строкой. */
+  .hud-os-card .hud-cyc-caps { flex-wrap: wrap; justify-content: space-between; row-gap: 10px; }
+  .hud-os-card .hud-cyc-caps .bar { flex: 1 1 100%; order: 3; }
   /* Виды блоков в узкой карточке (обход всех видов, 2026-10-30). */
   /* Возраст «Годовые кольца»: бирка рядом с кругом сжималась до буквы в строке — бирка под кругом. */
   .hud-os-card .hud-f-age.is-rings { flex-wrap: wrap; justify-content: center; }
