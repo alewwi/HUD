@@ -182,7 +182,7 @@ What the characters dreamed tonight — in images and hints, with an interpretat
 
 For stories where the body and family matter — three linked blocks. Each is turned on separately in the "Characters" group and appears only for those it concerns.
 
-**Menstrual cycle.** A ring with the cycle day and current phase, the expected period, the PMS window, delays and cycle disruption from stress. Under the ring — tips for the phase and the conception chance with protection taken into account; you can "take a test" right from this block. The cycle is tracked for everyone who has one, including your character.
+**Menstrual cycle.** A ring with the cycle day and current phase, the expected period, the PMS window, delays and cycle disruption from stress. Under the ring — tips for the phase and the conception chance with protection taken into account; you can "take a test" right from this block. A small "? why N%" button smoothly unfolds how the number was reached: the cycle day and where ovulation is, the chance for that day, what protection leaves, what else lowers it (breastfeeding, illness) and the result as a multiplication. The same breakdown sits in the scene modifiers — for your own chance and your partner's. The cycle is tracked for everyone who has one, including your character.
 
 <details><summary>📷 The cycle card</summary>
 
@@ -239,6 +239,18 @@ A "now playing" strip above the tabs: a **soundtrack** for the moment, like in a
 Animals, familiars, drones: mood, condition, diet, attachment. Their own tab — only when there are companions.
 
 <p align="center"><img src="docs/screens/en/companions.webp" alt="Companions tab" width="420"></p>
+
+### 📊 Custom stats
+
+Missing something? Add it yourself: hunger, mana, standing at court, a bounty, rumours. Add as many stats as you like. For each one you set:
+- **name and meaning** — describe in a small box what the stat means and what changes it; the model reads that as a rule and writes the stat every turn;
+- **view** — a number, a percent ring, a 0–10 scale, stars, a description or a tag list;
+- **icon and colour** — the theme accent (default), the colour of one of the field groups, or your own;
+- **whose it is** — every character, the player, or one value for the whole story (then also the tab: characters, player, memory, daily life, world).
+
+On the card a stat is a block in the theme's style. Choose its place in the settings ("after the Role field") or right on the card: press and hold the block and drag it. The shared custom-stats prompt can be rewritten completely, and one checkbox switches them all off while keeping the list.
+
+**Deep tuning.** In "HUD blocks" every section is split into groups, and any field — or even a single sub-label inside a field — can be switched off. Switched-off parts are cut cleanly out of the instruction: the model doesn't write them and no tokens are spent.
 
 ### 🗄 HUD archive
 
@@ -422,7 +434,8 @@ All settings are in the **📊 TavernOS** block in "Extensions" and in the "Cust
 
 | Section | What you configure |
 |---|---|
-| 🧩 HUD blocks | HUD in every reply (network intercept) or only on the button; the player block; era (phone or casket) and individual apps; intercepts or overheard talk; memory and Chekhov's guns; illnesses, pregnancy, birth and babies, the cycle; "what they think of you"; family tree; body state; plot twists; companions; adult-scene blocks (each separately); verbal duel; combat (decide itself, always, never); daily life and the sleep norm; diary, dreams, world, economy, events, city services, horoscope. |
+| 🧩 HUD blocks | HUD in every reply (network intercept) or only on the button; the player block; era (phone or casket) and individual apps; intercepts or overheard talk; memory and Chekhov's guns; illnesses, pregnancy, birth and babies, the cycle; "what they think of you"; family tree; body state; plot twists; companions; adult-scene blocks (each separately); verbal duel; combat (decide itself, always, never); daily life and the sleep norm; diary, dreams, world, economy, events, city services, horoscope. "Deep tuning" — switch off single fields and sub-labels; they are cut from the instruction. |
+| 📊 Custom stats | Master switch; the list of stats: name, meaning, view, icon, colour, whose, tab and place; the shared prompt with a "Restore the default text" button. |
 | ✨ Display | Where the HUD is: in messages, on the side and in messages, only on the side; panel width (custom or up to the chat) and edge (right or left). Question-mark hints; lists from past turns: how many turns to look back, the item limit per list and messages per chat. |
 | ⚡ Performance | Lighter old cards, how many cards to build at once, lazy tabs, Performance Mode, virtualization, card limit. |
 | 🖼️ Avatars | Images for character names, pinned avatars. |
