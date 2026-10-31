@@ -8,6 +8,7 @@
 //   node tests/tools/docs-shots.mjs --lang en          английские → docs/screens/en
 //   node tests/tools/docs-shots.mjs --only life,phone  только эти
 //   node tests/tools/docs-shots.mjs --list             вкладки примера (id и подписи)
+//   node tests/tools/docs-shots.mjs --era medieval     снимки средневековья (шкатулка, подслушанное)
 //   --png — снимки в PNG вместо WebP (WebP в разы легче, GitHub его показывает)
 //   ST=http://127.0.0.1:8000/  BROWSER=путь\к\chrome.exe
 //
@@ -26,6 +27,8 @@ const знач = (имя, умолч) => (арг.includes(имя) ? арг[ар�
 const ЯЗЫК = знач('--lang', 'ru') === 'en' ? 'en' : 'ru';
 // Формат: webp (по умолчанию, лёгкий — для README на GitHub) или png (--png).
 const ФОРМАТ = арг.includes('--png') ? 'png' : 'webp';
+// Эпоха профиля: снимки с полем «эпоха» идут только в своём проходе.
+const ЭПОХА = знач('--era', 'modern') === 'medieval' ? 'medieval' : 'modern';
 const ТОЛЬКО = знач('--only', '') ? new Set(знач('--only', '').split(',')) : null;
 const ВЫХОД = path.resolve(КОРЕНЬ, знач('--out', ЯЗЫК === 'en' ? 'docs/screens/en' : 'docs/screens'));
 const ST = (process.env.ST || 'http://127.0.0.1:8000/').replace(/\/?$/, '/');
@@ -82,6 +85,11 @@ const СНИМКИ = [
   ...[['darkroom', 'sepia'], ['darkroom', 'cyan'], ['bujo', 'day']].map(([id, пал]) => ({ имя: `theme-${id}-${пал}`, вкладка: ['Элеонора', 'Eleanor'], сцена: 'open', высота: 1100, тема: id, служебный: true,
     шаги: `document.querySelector('.hud-theme-palette[data-theme-palette="${пал}"]').click(); await __shots.ждать(1500);` })),
   { имя: 'theme-cyberpunk', вкладка: ['Элеонора', 'Eleanor'], сцена: 'open', высота: 938, тема: 'cyberpunk' },
+  // Средневековье (--era medieval): тема «Средневековье», шкатулка вместо телефона.
+  { имя: 'medieval-casket', эпоха: 'medieval', вкладка: ['Шкатулка', 'Casket'], тема: 'medieval', элемент: '.hud-tab-content.active' },
+  { имя: 'medieval-purse', эпоха: 'medieval', вкладка: ['Шкатулка', 'Casket'], тема: 'medieval', шаги: "т.querySelector('.hud-tab-content.active input.hud-cask-radio[id$=\"-purse\"]').checked = true; await __shots.ждать(900);", элемент: '.hud-tab-content.active' },
+  { имя: 'medieval-docs', эпоха: 'medieval', вкладка: ['Шкатулка', 'Casket'], тема: 'medieval', шаги: "т.querySelector('.hud-tab-content.active input.hud-cask-radio[id$=\"-docs\"]').checked = true; await __shots.ждать(900);", элемент: '.hud-tab-content.active' },
+  { имя: 'medieval-overheard', эпоха: 'medieval', вкладка: ['Подслушанное', 'Overheard'], тема: 'medieval', элемент: '.hud-tab-content.active' },
 ];
 
 // --- CDP ----------------------------------------------------------------------
@@ -102,7 +110,8 @@ async function подключиться() {
   }
   if (!сокет) throw new Error('браузер не ответил');
   await new Promise((ок, нет) => { сокет.onopen = ок; сокет.onerror = нет; });
-  сокет.onmessage = (e) => { const м = JSON.parse(e.data); if (м.id && ответы.has(м.id)) { const [ок, нет] = ответы.get(м.id); ответы.delete(м.id); м.error ? нет(new Error(м.error.message)) : ок(м.result); } };
+  сокет.onmessage = (e) => { const м = JSON.parse(e.data);
+    if (м.id && ответы.has(м.id)) { const [ок, нет] = ответы.get(м.id); ответы.delete(м.id); м.error ? нет(new Error(м.error.message)) : ок(м.result); } };
 }
 const cdp = (method, params = {}) => new Promise((ок, нет) => { const id = ++номер; ответы.set(id, [ок, нет]); сокет.send(JSON.stringify({ id, method, params })); });
 async function выполнить(код) {
@@ -150,8 +159,9 @@ window.__shots = {
     if (!document.querySelector('.hud-custom-sample')) document.getElementById('hud-open-custom').click();
     for (let i = 0; i < 40 && !document.querySelector('.hud-custom-sample'); i++) await this.ждать(250);
     await this.ждать(800);
-    const подпись = document.querySelector('.hud-custom-dialog, [class*="hud-custom"]').textContent;
-    if (!/every block|со всеми блоками|всеми блоками/i.test(подпись)) { document.querySelector('.hud-custom-sample').click(); await this.ждать(2500); }
+    // Кнопка «Пример» — большой пример со всеми блоками вместо HUD открытого чата.
+    const кнопка = document.querySelector('.hud-custom-sample');
+    if (кнопка.getAttribute('aria-pressed') !== 'true') { кнопка.click(); await this.ждать(2500); }
   },
   async тема(id) {
     const кнопка = document.querySelector('.hud-theme-preset[data-theme-preset="' + (id === 'default' ? '' : id) + '"]');
@@ -266,11 +276,21 @@ async function main() {
   await подключиться();
   await cdp('Page.enable');
   await cdp('Runtime.enable');
+  // Временный профиль не должен ничего писать в Таверну: настройки HUD
+  // теперь хранятся и на сервере (тема примера уехала бы на все устройства),
+  // а открытый чат Таверна пересохраняет с бэкапом.
+  await cdp('Page.addScriptToEvaluateOnNewDocument', { source: `(() => {
+    const запись = \/\\/api\\/(settings\\/save|chats\\/(group\\/)?save|characters\\/(edit|merge-attributes)|files\\/upload|backups)\/;
+    const f = window.fetch.bind(window);
+    window.fetch = (вход, опц) => { const url = typeof вход === 'string' ? вход : (вход && вход.url) || ''; return запись.test(url) ? Promise.resolve(new Response('{}', { status: 200, headers: { 'Content-Type': 'application/json' } })) : f(вход, опц); };
+    navigator.sendBeacon = () => true;
+  })();` });
   await cdp('Emulation.setDeviceMetricsOverride', { width: 1400, height: 4200, deviceScaleFactor: 2, mobile: false });
   await cdp('Page.navigate', { url: ST });
   await дождаться(`document.getElementById('hud-open-custom')`, 60000);
-  // Временный профиль: только язык. Остальное — настройки по умолчанию.
-  await выполнить(`localStorage.setItem('hud_settings', JSON.stringify({ language: '${ЯЗЫК}', sceneMigration: 1 })); return true;`);
+  // Временный профиль: только язык и эпоха. Остальное — настройки по умолчанию;
+  // savedAt из будущего — чтобы серверная копия настроек HUD не взяла верх.
+  await выполнить(`localStorage.setItem('hud_settings', JSON.stringify({ language: '${ЯЗЫК}', sceneMigration: 1, era: '${ЭПОХА}', savedAt: 9e15 })); return true;`);
   await cdp('Page.reload');
   await ждать(1500);
   await дождаться(`document.getElementById('hud-open-custom')`, 60000);
@@ -302,6 +322,7 @@ async function main() {
   if (арг.includes('--list')) { console.log((await выполнить(`return __shots.вкладки();`)).join('\n')); return; }
   for (const с of СНИМКИ) {
     if (ТОЛЬКО ? !ТОЛЬКО.has(с.имя) : с.служебный) continue;
+    if ((с.эпоха || 'modern') !== ЭПОХА) continue;
     if (с.тема) await выполнить(`await __shots.тема(${JSON.stringify(с.тема)}); return true;`);
     const прежнийВид = с.вид ? await выполнить(`return await __shots.вид(${JSON.stringify(с.вид[0])}, ${JSON.stringify(с.вид[1])});`) : null;
     await выполнить(`await __shots.вкладка(${JSON.stringify(с.вкладка)}); return true;`);
@@ -319,7 +340,7 @@ async function main() {
     if (с.тема) await выполнить(`await __shots.тема('default').catch(() => {}); return true;`).catch(() => {});
     if (с.вид) await выполнить(`await __shots.вид(${JSON.stringify(с.вид[0])}, ${JSON.stringify(прежнийВид)}); return true;`);
   }
-  if (!ТОЛЬКО || МУЗЫКА.some(м => ТОЛЬКО.has(м.имя))) await музыка();
+  if (ЭПОХА === 'modern' && (!ТОЛЬКО || МУЗЫКА.some(м => ТОЛЬКО.has(м.имя)))) await музыка();
 }
 try { await main(); }
 catch (e) { console.error('✗', e.message); process.exitCode = 1; }

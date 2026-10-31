@@ -26,7 +26,7 @@ TavernOS takes care of it:
 - **Continuity without extra tokens.** Chats, secrets, notes and events carry over from past turns *on screen only* — not a single extra character goes to the model. Old HUDs in the history shrink into short summaries; the latest one goes to the model as a snapshot so it updates the world instead of inventing it anew.
 - **A second layer of the story.** Thoughts, subtext, "expectation vs reality", fears, intercepted chats of others, diaries, dreams — what isn't in the reply text itself.
 - **The HUD counts what the model doesn't need to.** How many hours since eating and sleeping, the sleep debt for the week, that it's time for a shower, whether the money will last, what a character missed on their schedule while busy. The model writes nothing extra for this.
-- **Beautiful.** 24 themes, 43 blocks with alternative views, weather and time of day in the background, avatars — a card you want to open, not a spreadsheet.
+- **Beautiful.** 27 themes, 43 blocks with alternative views, weather and time of day in the background, avatars — a card you want to open, not a spreadsheet.
 
 ---
 
@@ -98,7 +98,20 @@ Other people's chats and conversations your character shouldn't know about — a
 
 ### 🗝️ Medieval: the casket and overheard talk
 
-For settings before phones, the smartphone is replaced by a **casket**: sealed letters (the seal breaks when opened), a church calendar with the moon phase, a purse with a ledger, quill notes, a map, charters and keepsakes. Intercepts are replaced by **overheard** talk: conversations through a wall and other people's letters opened in secret. The era is switched with one setting.
+For settings before phones, the smartphone is replaced by a **casket**: sealed letters (the seal breaks when opened), a church calendar with the moon phase, a purse with a ledger, quill notes, a map, charters and keepsakes. Intercepts are replaced by **overheard** talk: conversations through a wall and other people's letters opened in secret. The era is switched with one setting: **🧩 HUD blocks → Era**.
+
+- **Period language** — labels and units fit the time: a saints' calendar instead of a calendar app, a purse with gold, silver and copper coins instead of a bank card, letters with wax seals instead of chats.
+- **Parchment with any theme** — the casket and overheard talk look like aged paper with wax seals in dark, light and custom themes alike.
+- **Inaudible** — what the character couldn't make out through the wall is blurred; tap it to see what was actually said.
+- **Period music** — scene music can pick old music or a film-style soundtrack.
+
+<table><tr>
+<td align="center"><img src="docs/screens/en/medieval-casket.webp" alt="Casket: sealed letters" width="400"><br>Letters: a draft and an unopened one</td>
+<td align="center"><img src="docs/screens/en/medieval-overheard.webp" alt="Overheard: a talk in the stable and a letter opened in secret" width="400"><br>Overheard</td>
+</tr><tr>
+<td align="center"><img src="docs/screens/en/medieval-purse.webp" alt="Purse: coins and a ledger" width="400"><br>Purse</td>
+<td align="center"><img src="docs/screens/en/medieval-docs.webp" alt="Charters with a guild seal" width="400"><br>Charters</td>
+</tr></table>
 
 ### 🧠 Memory
 
@@ -262,7 +275,7 @@ What they give:
 
 The cycle, pregnancy and the "Nursery" are not part of this: they're described above under "Health and family" and are turned on separately.
 
-This part of the instruction is the largest, so by default it goes to the model **only while a scene is actually happening** (you can choose "always" or "never"). There are deliberately no screenshots of these blocks in the README.
+This part of the instruction is the largest, so by default it goes to the model **only while a scene is actually happening** (you can choose "always" or "never"). HUD tells that a scene is happening both from the text and from the last HUD: arousal in physiology, body, thoughts or subtext, desire in the diary or the body diary. There are deliberately no screenshots of these blocks in the README.
 
 ---
 
@@ -288,11 +301,11 @@ This part of the instruction is the largest, so by default it goes to the model 
 
 The **🎨 Customization** window with a live preview:
 
-- **24 ready-made themes in 7 sets** — Kawaii, Dark Academia, Vamp, Cyberpunk, Noir, Middle Ages, Fantasy, Crime, Web 1.0, Cottagecore, Ice, Deep sea, Steampunk, Dieselpunk, Solarpunk, Biopunk, Space opera, Feudal Japan, Ancient Egypt, Western, Pirates, Witchcraft, Voodoo, Space horror. Light and dark.
+- **27 ready-made themes in 7 sets** — Kawaii, Dark Academia, Vamp, Cyberpunk, Noir, Middle Ages, Fantasy, Crime, Web 1.0, Cottagecore, Ice, Deep sea, Steampunk, Dieselpunk, Solarpunk, Biopunk, Space opera, Feudal Japan, Ancient Egypt, Western, Pirates, Witchcraft, Voodoo, Space horror, Darkroom, Tea Party, Bullet Journal. Light and dark; many themes have spare palettes — the same drawings in other colors.
 - **Your own theme** — palette, glow, glass (frosted, tinted, clear, pearl, liquid), fonts, blur, separate colors for memory, the phone, alerts and intercepts. A theme can be saved to a file and shared — when loading someone else's file, only known fields are taken and their values are checked.
 - **43 blocks with alternative views** — for example, trust as bars, hearts, a shield, a traffic light or orbits; fears as a list, thermometers, skulls, clouds or a radar; secrets as safes, folders, a web or envelopes; the route as a diagram, a strip, a map or tickets.
 - **Tab order** — arrange the card's tabs (characters, phone, memory, daily life, diary…) in any order right in the chat: press and hold a tab for half a second and drag it along the strip — with a finger or the mouse, it works on phones too (a short tap still opens the tab, and a swipe scrolls the strip). The same in Customization → 🗂 Tabs: by the ⠿ handle or with ↑ ↓ buttons. Any tab can be pinned first or hidden — a hidden block is still written and accumulates, and you can see what it costs in tokens.
-- **Avatars** — one image for any number of name spellings; names listed together count as one person in the graph, chats and intercepts.
+- **Avatars** — one image for any number of name spellings; names listed together count as one person in the graph, chats and intercepts. Photos show wherever there used to be initials: in intercepts, the phone, pets and other avatar circles.
 - **Banners, portrait frames, decorative details** — plasters, bows on tabs, wax seals, aged paper, hanko, drop caps and more, each separately.
 
 <table><tr>
@@ -358,7 +371,7 @@ What's more, in those other requests the `[HUD]` blocks are cut out of the histo
 ## Security and privacy
 
 - **The HUD has no servers.** No accounts, analytics, telemetry or "cloud" — the extension sends nothing to anyone.
-- **Everything is stored only in your SillyTavern.** HUD blocks live inside your chat messages; the archive chronicle is a file on your own SillyTavern server (`user/files`); settings are in the browser (`localStorage`), the parse cache in the browser's IndexedDB.
+- **Everything is stored only in your SillyTavern.** HUD blocks live inside your chat messages; the archive chronicle is a file on your own SillyTavern server (`user/files`); settings are in the browser (`localStorage`) with a copy in your SillyTavern extension settings (`settings.json`), the parse cache in the browser's IndexedDB.
 - **The model sees only what goes through your API** in SillyTavern — the same channel as normal replies.
 - **The only exception is scene music, and only if you turn it on.** To find a track, the HUD sends the catalog (iTunes, optionally NetEase and QQ Music) **only the artist and track title** — no chat text, no character names. Full tracks, if you pick such a source, play from YouTube mirrors (Invidious) or through MoodTube. Radio in the scene asks the radio-browser.info catalog **only for the station genre and a country code**; the scene background asks Fonau, Audius and Wikimedia Commons **only for mood words** ("тревожная", "dark ambient"); streams play straight from the stations (Radio Record from its own server). With music off, not a single external request is made.
 - A theme can be loaded from someone else's file — only known fields are taken and their values are checked, so a file can't inject its own markup.
@@ -375,6 +388,7 @@ The extension is built for chats with hundreds of messages and for phones:
 - **Card limit** — you can keep only the last N in memory.
 - **Only on the side** — a single full card is built, in the side panel; messages get a small button instead of the card.
 - **Parse cache** in IndexedDB and a background worker for heavy history parsing.
+- **KoboldCpp context cache** — in Text Completion the HUD instruction is a regular SillyTavern extension prompt placed before the reply prefix: it counts toward the context budget and stays the same between turns, so KoboldCpp doesn't reprocess the whole chat on every reply. Requests with a negative prompt also get the instruction and no longer need a second repair request.
 
 ---
 
@@ -404,6 +418,8 @@ All settings are in the **📊 TavernOS** block in "Extensions" and in the "Cust
 
 **🌐 Язык / Language** — the very first item, outside any group: RU or ENG. It changes the interface language (cards, windows, settings, notifications) and the language in which the model writes HUD values. The page reloads after you choose. Translation is a layer over the markup driven by a dictionary (`i18n.js`, `i18n-en.js`); character names and chat message text aren't translated.
 
+**The same settings on every device.** HUD settings are kept both in the browser and in SillyTavern's extension settings, so a PC and a phone opening the same SillyTavern see the same thing: on load, the copy saved later wins. Backgrounds and banners uploaded as files stay on their own device — heavy images aren't sent to the server.
+
 | Section | What you configure |
 |---|---|
 | 🧩 HUD blocks | HUD in every reply (network intercept) or only on the button; the player block; era (phone or casket) and individual apps; intercepts or overheard talk; memory and Chekhov's guns; illnesses, pregnancy, birth and babies, the cycle; "what they think of you"; family tree; body state; plot twists; companions; adult-scene blocks (each separately); verbal duel; combat (decide itself, always, never); daily life and the sleep norm; diary, dreams, world, economy, events, city services, horoscope. |
@@ -414,6 +430,7 @@ All settings are in the **📊 TavernOS** block in "Extensions" and in the "Cust
 | 🤖 Generation | HUD token limit; the instruction as a separate message; a snapshot of the latest HUD; completeness check; "Fill in what was skipped"; contradictions with daily life; the adult-scene part (auto, always, never); boosts; how many expanded HUDs to keep; context and profile for regeneration. |
 | ❓ Assistant | The "Ask about the story" button; what the assistant sees (messages, HUD, author's notes, card, persona, lorebooks); profile, reply limit and system prompt. |
 | 🎵 Scene music | Picking music for the scene; refreshing when the scene changes; connection profile; the Middle Ages (period music or a movie soundtrack); strip style (cassette, vinyl, scroll); how long to wait for a playlist (any number of seconds, 0 — no timer); reply limit (from 2048 tokens — with room for thinking models); the built-in player and source (clips, YouTube via mirrors, NetEase, MoodTube); checking tracks by search and fallback services (NetEase, QQ); the prompt: your own taste rules, how many messages to read, the character card, the persona, your lorebooks; in-scene music — to the model as one line; song language, meme soundtrack, radio in the scene, floating icon, clearing likes and bans; scene background in full, "after a clip — background", background sources (Fonau, Audius, Incompetech, Wikimedia Commons). |
+| ⚠️ !!DANGER!! Remove HUD from chat | The very last item. Permanently cuts `[HUD]` blocks out of every message and swipe of the open chat, together with saved HUD versions and music picks. Asks first and shows how many messages and blocks it will touch. |
 
 ### Mini-guide: what does what
 
@@ -453,6 +470,8 @@ Settings are grouped — expand the one you need. Below is the essential part of
 
 **🧹 Maintenance** — "Clear cache": removes saved archive reports and reaction marks; settings, themes and avatars stay.
 
+**⚠️ !!DANGER!! Remove HUD from chat** — at the very end of the settings, set apart on purpose. Permanently removes the HUD from the open chat: `[HUD]` blocks in every message and swipe, saved HUD versions, music picks. Reply text, `[HUD_SUMMARY]` summaries and HUD mentions inside `<plan>` stay. Everything HUD remembered from those cards goes with them: the phone, the diary, relationships. A window with the number of messages and blocks comes first; it can't be undone, so save a copy of the chat first (chat menu → "Manage chat files" → export).
+
 The look (themes, colors, fonts, the view of each block) is in the **🎨 Customization** window, the button at the top of the settings.
 
 ### Macros
@@ -481,6 +500,12 @@ The parser fixes typical breakage: a truncated reply, missing commas, quotes ins
 **Can I use it without adult content?**
 Yes. All such blocks can be turned off separately, and the corresponding part of the instruction can be turned off entirely — the model won't know about it.
 
+**How do I remove the HUD from a chat or uninstall the extension?**
+Open the chat and press **⚠️ !!DANGER!! Remove HUD from chat** at the end of the settings: blocks are cut out of every message and swipe, reply text stays. Do this in every chat where you no longer want the HUD, then remove the extension. To only hide the blocks without touching files, add a Regex extension rule with "Alter Chat Display" and "Alter Outgoing Prompt": `/\[HUD\](?:(?!\[HUD\])[\s\S])*?\[\/HUD\]/gi` with an empty replacement.
+
+**Settings differ between my PC and phone.**
+Since version 23.88.7 HUD settings are stored in SillyTavern too, and the fresher copy wins on load. Change any setting on the device whose look you like — the other one picks it up after a page reload. Backgrounds and banners uploaded as files move only by hand.
+
 **It's slow in a long chat.**
 Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last N cards at once" and set a card limit.
 
@@ -493,7 +518,7 @@ node tests/run.mjs                          # all test suites
 node tests/tools/audit-chat.mjs "<chat.jsonl>"  # run a real chat: parse and draw every turn
 node tests/tools/build-cq.mjs               # rebuild style copies for the narrow card
 node bump-version.cjs 23.61.1               # change the asset version (otherwise phones keep old modules)
-node tests/tools/docs-shots.mjs [--lang en] # README screenshots (SillyTavern must be running)
+node tests/tools/docs-shots.mjs [--lang en] [--era medieval] # README screenshots (SillyTavern must be running)
 ```
 
 English interface: a new Russian label in the markup is translated by the `i18n-en.js` dictionary — a whole string in `СЛОВАРЬ_EN`, a string with numbers or substitutions in `ШАБЛОНЫ_EN`. Labels in CSS (`content`) are duplicated in `css/lang-en.css`, Russian examples in the model instruction in `prompt-en.js`. `node tests/i18n.mjs` checks the translator, the instruction without Cyrillic, the CSS and the parsing of English values.
