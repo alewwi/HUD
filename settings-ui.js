@@ -671,14 +671,14 @@ export function addSettingsUI() {
     основа.saveSettings();
   });
   document.getElementById('hud-enable-user').addEventListener('change', (e) => { settings.enableUserBlock = e.target.checked; основа.saveSettings(); });
-  
-  // === ВОТ СЮДА ВСТАВЛЯЕМ НАШУ НОВУЮ ГАЛОЧКУ ===
   document.getElementById('hud-user-all-fields').addEventListener('change', (e) => {
     settings.userAllFields = e.target.checked; основа.saveSettings();
     // В «Глубокой настройке» у игрока другой список полей — дерево соберётся заново.
     const дерево = document.getElementById('hud-fine-tree'); if (дерево) дерево.innerHTML = '';
     const глубокая = document.getElementById('hud-fine'); if (глубокая && глубокая.open) глубокая.dispatchEvent(new Event('toggle'));
   });
+  
+  // === ВОТ СЮДА ВСТАВЛЯЕМ НАШУ НОВУЮ ГАЛОЧКУ ===
   document.getElementById('hud-enable-memory').addEventListener('change', (e) => { settings.enableMemory = e.target.checked; основа.saveSettings(); });
   document.getElementById('hud-performance-mode').addEventListener('change', (e) => {
     settings.performanceMode = e.target.checked;

@@ -2119,8 +2119,8 @@ const акцентДляТекста = () => текстНаКарточке(sett
         <div class="hud-os-topbar-right">
             ${settings.tokenBudget !== 'off' ? '<span class="hud-budget-chip" role="button" tabindex="0" aria-expanded="false" title="Сколько HUD стоит токенов: нажмите — разбивка по блокам">≈…</span>' : ''}
             ${settings.enableAssistant !== false ? '<span class="hud-ask-btn" role="button" tabindex="0" title="Спросить про сюжет: модель ответит по HUD и последним сообщениям, в чат ничего не попадёт">' + меткаШапки('спросить') + '</span>' : ''}
-            <span class="hud-regen-btn" title="Перегенерировать только HUD">${меткаШапки('обновить')}</span>
             <span class="hud-edit-btn" role="button" tabindex="0" aria-pressed="false" title="Исправить поле или стат: нажмите, затем на строку в карточке">✎</span>
+            <span class="hud-regen-btn" title="Перегенерировать только HUD">${меткаШапки('обновить')}</span>
             <span class="hud-toggle-indicator">${меткаШапки('раскрыть')}</span>
         </div>
       </label>
@@ -3263,7 +3263,6 @@ const акцентДляТекста = () => текстНаКарточке(sett
     if (mes) mes.__hudUiState = readCardUiState(mes);
     перерисоватьКарточкиЧата();
   });
-  // Малыши в животе: «Узнать пол», «Изменить судьбу» (число, пол), «Откатить».
   // Правка поля прямо в карточке (field-edit.js): ✎ в шапке включает режим,
   // нажатие на строку поля или блок своего стата открывает под ней окошко.
   // Новое значение пишется в HUD сообщения — прежний уходит в версии «↶».
@@ -3290,6 +3289,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
     if (e.stopImmediatePropagation) e.stopImmediatePropagation();
     открытьПравкуПоля(строка);
   }, true);
+  // Малыши в животе: «Узнать пол», «Изменить судьбу» (число, пол), «Откатить».
   // Роды: «Роды состоялись». Вкладки детей в «Детской» — без перерисовки.
   document.addEventListener('click', (e) => {
     const цель = e.target && e.target.closest && e.target.closest('[data-hud-fetus], [data-hud-birth], .hud-kid-tab, .hud-kid-chip');
@@ -4155,7 +4155,6 @@ const акцентДляТекста = () => текстНаКарточке(sett
     });
   }
 
-  function bindHudRegenButton(regenBtn) {
   // Что правим: владелец (имя персонажа, 'user' или 'story'), код поля или имя стата.
   function целиПравки(строка) {
     const вкладка = строка.closest('.hud-tab-content');
@@ -4233,6 +4232,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
     showHudToast('success', 'Исправлено', 'Значение обновлено в HUD этого сообщения.');
   }
 
+  function bindHudRegenButton(regenBtn) {
     if (!regenBtn || regenBtn.dataset.hudClickBound === 'true') return;
     regenBtn.dataset.hudClickBound = 'true';
     // Соседняя кнопка «❓» живёт в той же панели и собирается вместе с ней.
