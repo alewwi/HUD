@@ -4,31 +4,31 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, именаГруппы, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.88.8';
-import { иконка } from './hud-icons.js?v=23.88.8';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.8';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.8';
-import { разобратьСилуСтраха, стадияБолезни } from '../codes.js?v=23.88.8';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, именаГруппы, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.88.9';
+import { иконка } from './hud-icons.js?v=23.88.9';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.9';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.9';
+import { разобратьСилуСтраха, стадияБолезни } from '../codes.js?v=23.88.9';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  блокТемпаСцены, активныеСледы, карточкаСледа, группаНавсегда, разобратьСледы, видСледа, тотЖеВред, повязкаНаРане, тоЖеМесто, видПодШрамом, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия, почемуРиск } from './intimacy.js?v=23.88.8';
-import { часыСцены } from './scene-clock.js?v=23.88.8';
-import { полПерсонажа } from './scene-body.js?v=23.88.8';
-import { buildUnderwear } from './underwear.js?v=23.88.8';
-import { buildDuel } from './duel.js?v=23.88.8';
-import { buildPregnancy } from './pregnancy.js?v=23.88.8';
-import { buildPostpartum } from './postpartum.js?v=23.88.8';
-import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды, датаЗачатия, чертыРодителей } from './conception.js?v=23.88.8';
-import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.88.8';
-import { parseSceneDate } from '../history-analyzer.js?v=23.88.8';
-import { settings, настройка } from '../settings.js?v=23.88.8';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.8';
-import { видСостоянияТела } from './extras.js?v=23.88.8';
-import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом } from './views-fields.js?v=23.88.8';
-import { parseRelationList } from './relations-graph.js?v=23.88.8';
-import { раскладкаСтатов, пометитьСтроку } from '../custom-stats.js?v=23.88.8';
-import { отложитьРисунок } from './lazy-svg.js?v=23.88.8';
-import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.88.8';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.88.8';
+  блокТемпаСцены, активныеСледы, карточкаСледа, группаНавсегда, разобратьСледы, видСледа, тотЖеВред, повязкаНаРане, тоЖеМесто, видПодШрамом, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия, почемуРиск } from './intimacy.js?v=23.88.9';
+import { часыСцены } from './scene-clock.js?v=23.88.9';
+import { полПерсонажа } from './scene-body.js?v=23.88.9';
+import { buildUnderwear } from './underwear.js?v=23.88.9';
+import { buildDuel } from './duel.js?v=23.88.9';
+import { buildPregnancy } from './pregnancy.js?v=23.88.9';
+import { buildPostpartum } from './postpartum.js?v=23.88.9';
+import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды, датаЗачатия, чертыРодителей } from './conception.js?v=23.88.9';
+import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.88.9';
+import { parseSceneDate } from '../history-analyzer.js?v=23.88.9';
+import { settings, настройка } from '../settings.js?v=23.88.9';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.9';
+import { видСостоянияТела } from './extras.js?v=23.88.9';
+import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом } from './views-fields.js?v=23.88.9';
+import { parseRelationList } from './relations-graph.js?v=23.88.9';
+import { раскладкаСтатов, пометитьСтроку } from '../custom-stats.js?v=23.88.9';
+import { отложитьРисунок } from './lazy-svg.js?v=23.88.9';
+import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.88.9';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.88.9';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле', 'состояние тела'];
@@ -1214,8 +1214,20 @@ export function buildUserHTML(userData, uid, isChecked, characters, свои = [
   const вБлизости = Object.entries(userData).some(([k, v]) => (k === 'UW' || k.toLowerCase().includes('nsfw')) && !пустоеПоле(снятьЗаглушки(flattenFieldValue(v))))
     || (Array.isArray(characters) ? characters : []).some(c => c && !пустоеПоле(полеОбъекта(c, 'Фаза близости', 'SS')));
   let здоровье = null, здоровьеПоказано = false;
+  // Остальные поля — те же, что у персонажей (роль, мысли, инвентарь, доверие…):
+  // рисует их сборщик карточки персонажа, перед близостью игрока.
+  const своиМетки = new Set(order.map(к => mapKey(к).toLowerCase()));
+  const прочие = { 'Имя': personaName };
+  for (const [k, v] of Object.entries(userData)) {
+    if (k.startsWith('__')) { прочие[k] = v; continue; }
+    if (k === 'Cst' || k === 'Имя' || order.includes(k) || своиМетки.has(k.toLowerCase())) continue;
+    прочие[k] = v;
+  }
+  const меткиПрочих = new Set(Object.keys(прочие).filter(k => !k.startsWith('__') && k !== 'Имя').map(k => k.toLowerCase()));
+  const статыПрочих = свои.filter(б => меткиПрочих.has(б.after));
+  const прочиеHtml = меткиПрочих.size ? строкиКарточки(прочие, personaName, uid, статыПрочих, { игрок: true }) : '';
   // Свои статы — как у персонажа: после своего поля, по data-k строки.
-  const раскладка = раскладкаСтатов(свои);
+  const раскладка = раскладкаСтатов(свои.filter(б => !статыПрочих.includes(б)));
   rows += раскладка.после('^');
   let полеКлюч = '', полеНачало = 0;
   const закрытьПоле = () => {
@@ -1223,8 +1235,11 @@ export function buildUserHTML(userData, uid, isChecked, characters, свои = [
     rows = rows.slice(0, полеНачало) + пометитьСтроку(rows.slice(полеНачало), полеКлюч) + раскладка.после(полеКлюч);
     полеКлюч = '';
   };
+  let прочиеВставлены = false;
+  const вставитьПрочие = () => { if (прочиеВставлены) return; прочиеВставлены = true; закрытьПоле(); rows += прочиеHtml; };
   order.forEach(shortKey => {
     закрытьПоле();
+    if (shortKey === 'UW') вставитьПрочие();
     const label = mapKey(shortKey); let value = null;
     полеКлюч = label.toLowerCase(); полеНачало = rows.length;
     for (const [k, v] of Object.entries(userData)) { if (k === shortKey || k.toLowerCase() === label.toLowerCase()) { value = v; break; } }
@@ -1259,6 +1274,7 @@ export function buildUserHTML(userData, uid, isChecked, characters, свои = [
     }
   });
   закрытьПоле();
+  вставитьПрочие();
   rows += раскладка.остаток();
   // Силуэт игрока (настройка silhouetteLook). Облик — по старшинству: ручной
   // «Мой облик» (кастомизация), поле «Внешность» игрока, описание персоны
@@ -1290,7 +1306,7 @@ export function buildUserHTML(userData, uid, isChecked, characters, свои = [
     : '';
   const плашки = плашкаБеременности(userData, 'user', personaName) + плашкиСостояния(userData, personaName);
   if (!rows && !восприятие && !плашки) return '';
-  return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}">${СЛОЙ_БУМАГИ}<div class="hud-header hud-user-header${баннерИгрока ? ' has-banner' : визитка ? ' is-visit' : ''}">${баннерИгрока}${визитка ? полосаВизитки(avatarUrl) : ''}${УКРАШЕНИЯ_ШАПКИ}<div class="hud-header-info">${портретВРамке(avatarHtml, personaName)}${имяСтолбиком(personaName)}${текстШапки(personaName, userData, true)}</div></div><div class="hud-body hud-user-body">${плашки}${восприятие}${сРазделителями(rows)}${подписьВкладки(personaName)}</div></div>`;
+  return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}" data-who="user">${СЛОЙ_БУМАГИ}<div class="hud-header hud-user-header${баннерИгрока ? ' has-banner' : визитка ? ' is-visit' : ''}">${баннерИгрока}${визитка ? полосаВизитки(avatarUrl) : ''}${УКРАШЕНИЯ_ШАПКИ}<div class="hud-header-info">${портретВРамке(avatarHtml, personaName)}${имяСтолбиком(personaName)}${текстШапки(personaName, userData, true)}</div></div><div class="hud-body hud-user-body">${плашки}${восприятие}${сРазделителями(rows)}${подписьВкладки(personaName)}</div></div>`;
 }
 
 // свои — блоки своих статов [{ after, html }] (custom-stats.js): встают после
@@ -1311,14 +1327,24 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary, свои
     ? `<div class="hud-banner"${avatar ? ` style="background-image:url('${String(avatar.url).replace(/'/g, '%27')}')"` : ''} aria-hidden="true"><span class="hud-banner-name">${escapeHtml(charName)}</span><span class="hud-banner-vert">${escapeHtml(String(charName).toUpperCase())}</span></div>`
     : '';
   const визитка = настройка('headerStyle') === 'visit';
-  let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}">${СЛОЙ_БУМАГИ}<div class="hud-header${баннер ? ' has-banner' : визитка ? ' is-visit' : ''}">${баннер}${визитка ? полосаВизитки(avatar && avatar.url) : ''}<i class="hud-ghost-letter" aria-hidden="true">${буква}</i>${УКРАШЕНИЯ_ШАПКИ}<div class="hud-header-info">${портретВРамке(avatarHtml, charName)}${имяСтолбиком(charName)}${текстШапки(charName, charData)}</div></div><div class="hud-body">`;
+  // data-who — чья это вкладка: по нему правка поля (✎) находит запись в HUD.
+  let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}" data-who="${escapeHtml(charName)}">${СЛОЙ_БУМАГИ}<div class="hud-header${баннер ? ' has-banner' : визитка ? ' is-visit' : ''}">${баннер}${визитка ? полосаВизитки(avatar && avatar.url) : ''}<i class="hud-ghost-letter" aria-hidden="true">${буква}</i>${УКРАШЕНИЯ_ШАПКИ}<div class="hud-header-info">${портретВРамке(avatarHtml, charName)}${имяСтолбиком(charName)}${текстШапки(charName, charData)}</div></div><div class="hud-body">`;
+  html += строкиКарточки(charData, charName, uid, свои);
+  return сРазделителями(html) + подписьВкладки(charName) + `</div></div>`;
+}
+
+// Строки полей карточки персонажа, без шапки. Игрок берёт отсюда поля, которых
+// нет в его собственном порядке (buildUserHTML): они выглядят так же, как у
+// персонажей. игрок — без пометки «вне сцены» и плашек: их рисует сам игрок.
+export function строкиКарточки(charData, charName, uid, свои = [], { игрок = false } = {}) {
+  let html = '';
   // Вне сцены (render/carryover.js, пометитьВнеСцены): модель пишет только
   // живое, остальное карточка может взять из прошлых ходов — такие строки
   // помечены «прежнее», чтобы было видно, что это не новости этого хода.
-  const вне = charData && charData.__вне;
+  const вне = !игрок && charData && charData.__вне;
   if (вне) html += `<div class="hud-away-note"><svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 14V3.5a1 1 0 0 1 1-1h5l4 2v9.5"/><path d="M9 2.5v12"/><circle cx="11.2" cy="8.6" r=".7"/></svg><span><b>Вне сцены</b>${вне.поля.length ? ` · из прошлых ходов: ${escapeHtml(вне.поля.map(п => п.toLowerCase()).join(', '))}` : ' · только то, что изменилось вдали'}</span></div>`;
   // Тест «+» у героини с циклом — то же напоминание, что у {{user}}.
-  html += плашкаБеременности(charData, 'char:' + String(charData['Имя'] || '').trim(), charName) + плашкиСостояния(charData, charName);
+  if (!игрок) html += плашкаБеременности(charData, 'char:' + String(charData['Имя'] || '').trim(), charName) + плашкиСостояния(charData, charName);
 
   // Фаза, поза, раунд и длительность рисуются одной полосой — один раз.
   let сценаПоказана = false;
@@ -1336,7 +1362,7 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary, свои
   let здоровье = null, здоровьеПоказано = false;
   // Следы на теле отслеживаются и после акта: строку проверяем, даже если
   // модель в этом ходу их не упомянула, — активные найдутся в прошлых ходах.
-  const поляКарточки = 'Следы на теле' in charData ? charData : { ...charData, 'Следы на теле': '' };
+  const поляКарточки = игрок || 'Следы на теле' in charData ? charData : { ...charData, 'Следы на теле': '' };
   let телоПоказано = false;
   // Строки полей помечаются data-k, свои статы встают после своего поля.
   const раскладка = раскладкаСтатов(свои);
@@ -1530,5 +1556,5 @@ export function buildCharacterHTML(charData, uid, isChecked, isPrimary, свои
   }
   закрытьПоле();
   html += раскладка.остаток();
-  return сРазделителями(html) + подписьВкладки(charName) + `</div></div>`;
+  return html;
 }

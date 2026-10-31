@@ -345,6 +345,18 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   const п = К.промптСвоихСтатов(s);
   проверить('промт: имена, где писать, пояснение, формат', п.includes('"Голод" — in EVERY character object in "cs", inside its "Cst" object') && п.includes('What it tracks: насколько голоден') && п.includes('"Розыск" — in the top-level "cst" object') && п.includes('0-100'));
   проверить('без игрока статы игрока не просим', !К.промптСвоихСтатов(s, { игрок: false }).includes('Мана'));
+  {
+    // Шаблон us/cs называет поле "Cst": правило «в us только перечисленные поля»
+    // иначе отсекало статы игрока.
+    const Ст = await модуль('settings.js'); const Пр = await модуль('prompt.js');
+    const было = [Ст.settings.customStats, Ст.settings.enableUserBlock];
+    Ст.settings.customStats = s.customStats; Ст.settings.enableUserBlock = true;
+    const весь = Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true });
+    const us = весь.slice(весь.indexOf('"us": {'), весь.indexOf('\n }', весь.indexOf('"us": {')));
+    проверить('в шаблоне us и cs есть поле Cst, когда есть статы игрока и персонажей', us.includes('"Cst"') && весь.slice(весь.indexOf('"cs": ['), весь.indexOf('"us": {')).includes('"Cst"'));
+    Ст.settings.customStats = []; проверить('без своих статов поля Cst в шаблоне нет', !Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true }).includes('"Cst": {"[custom'));
+    [Ст.settings.customStats, Ст.settings.enableUserBlock] = было;
+  }
   проверить('свой промт: {{stats}} заменяется, без него — список в конце', К.промптСвоихСтатов({ ...s, customStatsPrompt: 'МОИ: {{stats}} КОНЕЦ' }).includes('МОИ: - "Голод"') && /^\n\nМОИ$\n- "Голод"/m.test('\n\n' + К.промптСвоихСтатов({ ...s, customStatsPrompt: 'МОИ' }).trim()));
   проверить('нет статов — промт пуст', К.промптСвоихСтатов({}) === '');
   равно('число и пояснение', [К.числоИПояснение('70 — сыт'), К.числоИПояснение('7/10: устал'), К.числоИПояснение('4★'), К.числоИПояснение('нет числа')].map(x => [x.число, x.пояснение]), [[70, 'сыт'], [7, 'устал'], [4, ''], [null, 'нет числа']]);
@@ -367,6 +379,33 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   проверить('вкладка без полей: начало и конец', вк === '<div class="hud-tab-content active" id="x">[в]<div>мир</div>[к]</div>', вк);
   const д = Sch.normalizeJSONData(P.parseHUDComplex(hud({ sc: { T: '10:00' }, cs: [{ N: 'Лилиан', Cst: { Голод: '70 — сыта', Место: 'x' } }], us: { A: '20', Cst: { Мана: 5 } }, cst: { Розыск: '3' } })));
   проверить('разбор: Cst персонажа и игрока, cst истории — без перевода имён', д.characters[0].Cst && д.characters[0].Cst['Голод'] === '70 — сыта' && д.characters[0].Cst['Место'] === 'x' && д.custom['Розыск'] === '3', JSON.stringify([д.characters[0].Cst, д.user && д.user.Cst, д.custom]));
+}
+
+группа('правка поля в карточке и поля игрока');
+{
+  const Р = await модуль('field-edit.js');
+  проверить('код поля по data-k: у персонажа и игрока одни коды', Р.кодПоля('char', 'роль') === 'R' && Р.кодПоля('user', 'роль') === 'R' && Р.кодПоля('user', 'мысли') === 'Th' && Р.кодПоля('user', 'nope') === '');
+  const сырой = { cs: [{ N: 'Лилиан', R: 'травница', G: { nw: 'спать', sn: 'есть' }, Cst: { Голод: '70' } }], us: { A: '20' }, cst: { Розыск: '3' } };
+  проверить('значение для окошка: объект — «метка: значение; …»', Р.текущееЗначение(сырой, { кто: 'Лилиан', код: 'G' }) === 'nw: спать; sn: есть');
+  проверить('правка поля персонажа, стата, стата истории и нового поля игрока',
+    Р.применитьПравку(сырой, { кто: 'Лилиан', код: 'R', значение: 'ведьма' }) && сырой.cs[0].R === 'ведьма'
+    && Р.применитьПравку(сырой, { кто: 'Лилиан', стат: 'голод', значение: '20 — поела' }) && сырой.cs[0].Cst['Голод'] === '20 — поела'
+    && Р.применитьПравку(сырой, { кто: 'story', стат: 'Розыск', значение: '5' }) && сырой.cst['Розыск'] === '5'
+    && Р.применитьПравку(сырой, { кто: 'user', код: 'Th', значение: '' }) && сырой.us.Th === 'empty');
+  проверить('чужое имя — некуда писать', !Р.применитьПравку(сырой, { кто: 'Марк', код: 'R', значение: 'x' }));
+  const Ст = await модуль('settings.js'); const Пр = await модуль('prompt.js');
+  const было = [Ст.settings.enableUserBlock, Ст.settings.userAllFields]; Ст.settings.enableUserBlock = true; Ст.settings.userAllFields = true;
+  const весь = Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true });
+  Ст.settings.userAllFields = false;
+  const безПолей = Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true });
+  проверить('без галочки «все поля» — у игрока только его основа', !безПолей.slice(безПолей.indexOf('"us": {')).split(String.fromCharCode(10) + ' }')[0].includes('"Th":'));
+  const us = весь.slice(весь.indexOf('"us": {'), весь.indexOf(String.fromCharCode(10) + ' }', весь.indexOf('"us": {')));
+  проверить('игроку в шаблоне — поля персонажей (роль, мысли, инвентарь, доверие), без W', ['"R":', '"Th":', '"I":', '"Tr":', '"G":'].every(к => us.includes(к)) && !us.includes('"W":') && !us.includes('"N":'));
+  [Ст.settings.enableUserBlock, Ст.settings.userAllFields] = было;
+  const Ch = await модуль('render/character.js');
+  const д = Sch.normalizeJSONData(P.parseHUDComplex(hud({ sc: { T: '10:00' }, cs: [{ N: 'Лилиан' }], us: { A: '20', R: 'студентка-архивист', Th: 'только бы не опоздать', I: 'ключ; фонарь' } })));
+  const карточка = Ch.buildUserHTML(д.user, 'uu', true, д.characters);
+  проверить('карточка игрока рисует поля персонажей', /Роль/.test(карточка) && /студентка-архивист/.test(карточка) && /только бы не опоздать/.test(карточка) && /фонарь/.test(карточка) && карточка.includes('data-who="user"'));
 }
 
 группа('hud-block: удалить HUD из чата');

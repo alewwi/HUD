@@ -6,11 +6,11 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.8';
-import { английский } from '../i18n.js?v=23.88.8';
-import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.8';
-import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.88.8';
-import { ссылкиТрека } from './music.js?v=23.88.8';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.9';
+import { английский } from '../i18n.js?v=23.88.9';
+import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.9';
+import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.88.9';
+import { ссылкиТрека } from './music.js?v=23.88.9';
 
 let окноОткрыто = false;
 
@@ -401,7 +401,7 @@ export function openArchiveDialog() {
       <div class="hud-modal-head hud-arc-head"><span>🗄 Архив HUD <small>сводка по сохранённым HUD-блокам</small></span><button type="button" class="hud-arc-x" aria-label="Закрыть" title="Закрыть">✕</button></div>
       <div class="hud-arc-controls">
         <div class="hud-arc-range">
-          <label>с <input type="number" class="hud-arc-from" min="0" max="${последний}" value="${начало}"></label>
+          <label>${английский() ? 'from' : 'с'} <input type="number" class="hud-arc-from" min="0" max="${последний}" value="${начало}"></label>
           <label>по <input type="number" class="hud-arc-to" min="0" max="${последний}" value="${последний}"></label>
           <span class="hud-arc-total">всего ${chat.length} сообщ.</span>
         </div>
@@ -638,14 +638,16 @@ export function openArchiveDialog() {
     const [список, чаты] = await Promise.all([списокЛетописей(), чатыПерсонажа().catch(() => { чатыНеПрочитались = true; return []; })]);
     const поФайлу = new Map(список.map(л => [л.файл, л]));
     const моя = поФайлу.get(своя);
-    const летописьЧата = (л) => л ? ` · летопись: ${л.ходов || 0} ход.${диапазонДат(л)}` : '';
+    // «N ход.» словарь по-английски видел как «N turn.» — число ходов собираем сразу на языке.
+    const ходовЛетописи = (n) => (английский() ? `${n || 0} turns` : `${n || 0} ход.`);
+    const летописьЧата = (л) => л ? ` · летопись: ${ходовЛетописи(л.ходов)}${диапазонДат(л)}` : '';
     const другиеЧаты = чаты.filter(ч => ч.id !== идЧата);
     const опцииЧатов = другиеЧаты.map(ч => `<option value="chat:${escapeHtml(ч.id)}">${escapeHtml(ч.id)} · ${ч.сообщений} сообщ.${ч.летопись === своя ? ' · копия этого чата' : escapeHtml(летописьЧата(поФайлу.get(ч.летопись)))}</option>`).join('');
     const уЧатов = new Set(чаты.map(ч => ч.летопись));
     const чужие = список.filter(л => л.файл !== своя && !уЧатов.has(л.файл));
     if (текущая && !уЧатов.has(текущая) && !чужие.some(л => л.файл === текущая)) чужие.unshift({ файл: текущая });
-    const опцииЛетописей = чужие.map(л => `<option value="chron:${escapeHtml(л.файл)}">${escapeHtml(`${л.чат || л.файл}${л.персонаж ? ' — ' + имяБезПриставки(л.персонаж) : ''} · ${л.ходов || 0} ход.${диапазонДат(л)}`)}</option>`).join('');
-    выборЛетописи.innerHTML = `<option value="">только своя${моя ? ` (${моя.ходов || 0} ход.${диапазонДат(моя)})` : ''}</option>`
+    const опцииЛетописей = чужие.map(л => `<option value="chron:${escapeHtml(л.файл)}">${escapeHtml(`${л.чат || л.файл}${л.персонаж ? ' — ' + имяБезПриставки(л.персонаж) : ''} · ${ходовЛетописи(л.ходов)}${диапазонДат(л)}`)}</option>`).join('');
+    выборЛетописи.innerHTML = `<option value="">только своя${моя ? ` (${ходовЛетописи(моя.ходов)}${диапазонДат(моя)})` : ''}</option>`
       + (опцииЧатов ? `<optgroup label="Чаты персонажа">${опцииЧатов}</optgroup>` : '')
       + (опцииЛетописей ? `<optgroup label="Другие летописи">${опцииЛетописей}</optgroup>` : '');
     const выбранныйЧат = текущая && другиеЧаты.find(ч => ч.летопись === текущая);

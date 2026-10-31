@@ -5503,6 +5503,39 @@ html.hud-custom-open body { overflow: hidden; }
 .hud-versions-btn small { font-size: .62em; font-weight: 700; opacity: .85; }
 .hud-versions-btn:focus-visible { opacity: 1; background: rgba(127, 127, 127, .15); outline: none; }
 @media (hover: hover) and (pointer: fine) { .hud-versions-btn:hover { opacity: 1; background: rgba(127, 127, 127, .15); outline: none; } }
+/* Правка поля (index.js, field-edit.js): ✎ в шапке включает режим — строки
+   полей и блоки своих статов обведены пунктиром; нажатие открывает окошко. */
+.hud-edit-btn {
+  display: inline-flex; align-items: center; justify-content: center; height: 24px; min-width: 24px; padding: 0 5px; border-radius: 6px;
+  font-size: 1.05em; line-height: 1; cursor: pointer; opacity: .6; transition: opacity .2s, background .2s, color .2s;
+}
+.hud-edit-btn:focus-visible { opacity: 1; background: rgba(127, 127, 127, .15); outline: none; }
+@media (hover: hover) and (pointer: fine) { .hud-edit-btn:hover { opacity: 1; background: rgba(127, 127, 127, .15); } }
+.hud-os-card.hud-edit-mode .hud-edit-btn { opacity: 1; color: var(--hud-accent-text, var(--hud-accent, #c31f38)); background: color-mix(in oklab, var(--hud-accent, #c31f38) 18%, transparent); }
+.hud-os-card.hud-edit-mode :is(.hud-row[data-k], .hud-key-block[data-k], .hud-cst[data-cst] > .hud-v-card) {
+  outline: 1px dashed color-mix(in oklab, var(--hud-accent, #c31f38) 60%, transparent); outline-offset: 2px; cursor: text;
+}
+@media (hover: hover) and (pointer: fine) {
+  .hud-os-card.hud-edit-mode :is(.hud-row[data-k], .hud-key-block[data-k], .hud-cst[data-cst] > .hud-v-card):hover { outline-style: solid; }
+}
+.hud-edit-box {
+  grid-column: 1 / -1; display: flex; flex-direction: column; gap: 6px; margin: 4px 0 8px; padding: 10px; min-width: 0;
+  border: 1px solid color-mix(in oklab, var(--hud-accent, #c31f38) 50%, transparent); border-radius: var(--hud-r-lg, 10px);
+  background: color-mix(in oklab, var(--hud-accent, #c31f38) 8%, var(--hud-card-inner-bg, rgba(0, 0, 0, .25)));
+}
+.hud-edit-box label { display: flex; flex-direction: column; gap: 4px; margin: 0; font-size: 12px; font-weight: 700; }
+.hud-edit-box textarea {
+  width: 100%; min-width: 0; box-sizing: border-box; resize: vertical; padding: 6px 8px; font: inherit; font-size: 13px; font-weight: 400; line-height: 1.4;
+  color: var(--hud-text, inherit); background: rgba(0, 0, 0, .18); border: 1px solid var(--hud-border, rgba(127, 127, 127, .35)); border-radius: 6px;
+}
+.hud-edit-acts { display: flex; flex-wrap: wrap; gap: 6px; }
+.hud-edit-acts button {
+  padding: 4px 12px; border-radius: 6px; font: inherit; font-size: 12px; cursor: pointer; color: var(--hud-text, inherit);
+  background: rgba(127, 127, 127, .15); border: 1px solid var(--hud-border, rgba(127, 127, 127, .35));
+}
+.hud-edit-acts .hud-edit-save { background: var(--hud-accent, #c31f38); border-color: transparent; color: var(--hud-accent-ink, #fff); }
+.hud-edit-acts button:disabled { opacity: .5; cursor: default; }
+.hud-edit-box small { font-size: 11px; opacity: .7; line-height: 1.35; }
 .hud-versions-pop {
   position: fixed; z-index: 10040; min-width: 220px; max-width: min(320px, calc(100vw - 16px)); max-height: 60vh; overflow-y: auto;
   display: flex; flex-direction: column; gap: 4px; padding: 8px;

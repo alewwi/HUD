@@ -12,15 +12,15 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.88.8';
-import { т } from './i18n.js?v=23.88.8';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.88.8';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.88.8';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.88.8';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.88.8';
-import { заменитьHudБлоки } from './hud-block.js?v=23.88.8';
-import { упомянутВТексте } from './names.js?v=23.88.8';
-import { списокВыключенного, убратьВыключенное } from './deep-fields.js?v=23.88.8';
+import { settings } from './settings.js?v=23.88.9';
+import { т } from './i18n.js?v=23.88.9';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.88.9';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.88.9';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.88.9';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.88.9';
+import { заменитьHudБлоки } from './hud-block.js?v=23.88.9';
+import { упомянутВТексте } from './names.js?v=23.88.9';
+import { списокВыключенного, убратьВыключенное } from './deep-fields.js?v=23.88.9';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -29,12 +29,13 @@ const ПОЛЯ_СЦЕНЫ = ['T', 'Wt', 'Dt', 'At', 'Md', 'Tw'];
 const ПОЛЯ_ПЕРСОНАЖА = ['N', 'A', 'C', 'Ap', 'R', 'B', 'H', 'Ill', 'Prg', 'Mns', 'Ph', 'Bs', 'L', 'Th', 'K', 'Ex', 'D', 'I', 'G', 'S', 'Rl', 'Mm', 'Fl',
   'Jl', 'St', 'Eo', 'X', 'SxL', 'SxC', 'SxR', 'Ln', 'Tr', 'Fr', 'SS', 'Pos', 'Rnd', 'Dur', 'Prt', 'Org', 'Vit', 'Snd', 'BM', 'W', 'Kn', 'Ft',
   'NG', 'NT', 'ND', 'Mrk', 'AC', 'SxV'];
-const ПОЛЯ_ИГРОКА = ['A', 'C', 'Ap', 'H', 'Ill', 'Prg', 'Mns', 'Rl', 'L', 'Mrk', 'UW'];
+// Игрок ведёт те же поля, что и персонажи; вместо W — своя близость UW.
+const ПОЛЯ_ИГРОКА = [...ПОЛЯ_ПЕРСОНАЖА.filter(к => к !== 'N' && к !== 'W'), 'Pp', 'UW'];
 
 // Поля близости. Вне сцены их нет ни в схеме, ни в снимке; устойчивые черты
 // (кинки, фетиши, последний секс) HUD на экране берёт из прошлых ходов.
 export const NSFW_ПЕРСОНАЖА = ['SS', 'Pos', 'Rnd', 'Dur', 'Prt', 'Org', 'Vit', 'Snd', 'BM', 'W', 'Kn', 'Ft', 'NG', 'NT', 'ND', 'AC', 'SxV', 'SxL', 'SxC', 'SxR'];
-export const NSFW_ИГРОКА = ['UW'];
+export const NSFW_ИГРОКА = [...NSFW_ПЕРСОНАЖА.filter(к => к !== 'W'), 'UW'];
 // По ним видно, что сцена идёт прямо сейчас.
 const ИДЁТ_СЦЕНА = ['SS', 'W', 'ND', 'AC', 'SxV', 'Pos', 'Org'];
 
@@ -191,6 +192,7 @@ export function собратьСнимок(текстБлока) {
   delete к.dy; delete к.bd; delete к.dr;
   убрать(к.wd, ['zd', 'fate', 'com']);
   (Array.isArray(к.cs) ? к.cs : []).forEach(c => убрать(c, СВЕЖИЕ_ПЕРСОНАЖА));
+  убрать(к.us, СВЕЖИЕ_ПЕРСОНАЖА);
 
   // Выключенное в настройках модели не показываем: иначе она перепишет его в ответ.
   const выкл = (ключ) => settings[ключ] === false;

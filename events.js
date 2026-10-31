@@ -11,23 +11,23 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.8';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.88.8';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.88.8';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.88.8';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.88.8';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.88.8';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.88.8';
-import { полныйПорядок } from './tabs-order.js?v=23.88.8';
-import { getWorldVotes } from './render/world.js?v=23.88.8';
-import { действиеМира } from './render/world-views.js?v=23.88.8';
-import { действиеМузыки } from './render/music.js?v=23.88.8';
-import { раскрытьПорцию } from './render/long-list.js?v=23.88.8';
-import { прогретьИсторию } from './render/carryover.js?v=23.88.8';
-import { подключитьПалитру } from './color-picker.js?v=23.88.8';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.88.8';
-import { замер } from './utils.js?v=23.88.8';
-import { пометитьЭффекты } from './render/fx.js?v=23.88.8';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.9';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.88.9';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.88.9';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.88.9';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.88.9';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.88.9';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.88.9';
+import { полныйПорядок } from './tabs-order.js?v=23.88.9';
+import { getWorldVotes } from './render/world.js?v=23.88.9';
+import { действиеМира } from './render/world-views.js?v=23.88.9';
+import { действиеМузыки } from './render/music.js?v=23.88.9';
+import { раскрытьПорцию } from './render/long-list.js?v=23.88.9';
+import { прогретьИсторию } from './render/carryover.js?v=23.88.9';
+import { подключитьПалитру } from './color-picker.js?v=23.88.9';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.88.9';
+import { замер } from './utils.js?v=23.88.9';
+import { пометитьЭффекты } from './render/fx.js?v=23.88.9';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
