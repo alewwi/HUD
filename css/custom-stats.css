@@ -1,0 +1,107 @@
+/* Свои статы (custom-stats.js): блок с именем стата, которое дал пользователь,
+   и видом на выбор — число, проценты, шкала, звёзды, описание, метки.
+   Язык — общий для новых блоков (views.css): стекло .hud-v-card, медаль со
+   знаком, кольцо .hud-v-ring, метки .hud-v-tag. Цвет — только акцент темы
+   (--v-acc от --kind / --hud-accent) и текущий цвет текста: своих оттенков
+   нет, блок перекрашивается с любой темой, в том числе собранной вручную.
+   На светлых темах «белое» в смесях — --ink-hi (почти чёрный, views.css).
+   Блок встаёт строкой карточки во всю ширину и перетаскивается долгим
+   нажатием (events.js). */
+
+.hud-cst { grid-column: 1 / -1; margin: 4px 0; --cst-hi: var(--ink-hi, #fff); }
+.hud-tab-content > .hud-cst { margin: 6px 0 8px; }
+.hud-cst .hud-v-card { padding: 9px 12px 11px; overflow: hidden; isolation: isolate; }
+/* Свет из угла и полоса акцента слева: блок читается как свой, но в теме. */
+.hud-cst .hud-v-card::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none; border-radius: inherit;
+  background:
+    radial-gradient(120% 90% at 0% 0%, color-mix(in srgb, var(--v-acc) 16%, transparent), transparent 55%),
+    linear-gradient(90deg, color-mix(in srgb, var(--v-acc) 70%, transparent) 0 3px, transparent 3px);
+}
+/* Знак стата крупно и почти прозрачно — водяной знак справа. */
+.hud-cst-mark {
+  position: absolute; right: -10px; bottom: -14px; z-index: -1; width: 74px; height: 74px; pointer-events: none;
+  fill: none; stroke: var(--v-acc); stroke-width: 1.2; opacity: .1; transform: rotate(-12deg);
+}
+
+.hud-cst-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; min-width: 0; }
+.hud-cst .hud-cst-medal { width: 24px; height: 24px; }
+.hud-cst .hud-cst-medal .hud-v-ico { width: 14px; height: 14px; }
+.hud-cst-name {
+  flex: 1 1 auto; min-width: 0; overflow-wrap: anywhere; font-size: .78em; font-weight: 800; letter-spacing: .1em; text-transform: uppercase;
+  color: color-mix(in srgb, var(--v-acc) 55%, var(--cst-hi));
+}
+/* Ручка: шесть точек фоном — без эмодзи и шрифта. */
+.hud-cst-grip {
+  flex: none; width: 10px; height: 16px; opacity: .4; cursor: grab;
+  background: radial-gradient(circle, currentColor 1.2px, transparent 1.6px) 0 0 / 5px 5px;
+}
+@media (hover: hover) and (pointer: fine) { .hud-cst:hover .hud-cst-grip { opacity: .8; } }
+
+.hud-cst-meter { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.hud-cst-side { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.hud-cst-why { margin: 0; }
+.hud-cst > .hud-v-card > .hud-cst-why { margin-top: 7px; }
+
+/* Проценты: кольцо и полоса рядом. */
+.hud-cst-ring { --size: 50px; flex: none; }
+/* Лицо кольца — сплошной акцент: число и «%» в одну строку по общей базовой линии, строка — по центру круга (align-content), цвет текста — по
+   светлоте акцента (светлый акцент нуар-темы — тёмные цифры, тёмный — белые). */
+.hud-cst-ring .hud-v-ring-face { display: flex; flex-wrap: wrap; align-content: center; align-items: baseline; justify-content: center; line-height: 1; font-size: .9em; color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.35); }
+@supports (color: oklch(from red l c h)) {
+  .hud-cst-ring .hud-v-ring-face { color: oklch(from var(--v-acc) clamp(0, calc((.72 - l) * 1000), 1) 0 0); text-shadow: none; }
+}
+.hud-cst-ring .hud-v-ring-face small { font-size: .62em; opacity: .8; margin-left: 1px; }
+.hud-cst-bar { height: 6px; width: 100%; }
+
+/* Число: крупно, светом акцента. */
+.hud-cst-score {
+  flex: none; font-style: normal; font-weight: 800; line-height: 1; letter-spacing: -.02em; font-size: 1.35em;
+  color: color-mix(in srgb, var(--v-acc) 35%, var(--cst-hi)) !important; text-shadow: 0 0 12px var(--v-glow);
+}
+.hud-cst-score small { font-size: .55em; font-weight: 700; opacity: .65; margin-left: 2px; letter-spacing: 0; }
+.hud-cst-score.is-big { font-size: 2em; }
+.hud-cst-meter.is-num { align-items: baseline; flex-wrap: wrap; gap: 4px 12px; }
+.hud-cst-meter.is-num > .hud-cst-why { flex: 1 1 8em; }
+
+/* Шкала: десять столбиков растут слева направо. */
+.hud-cst-eq { flex: 1 1 auto; min-width: 0; height: 22px; display: flex; align-items: flex-end; gap: 3px; }
+.hud-cst-eq > i { flex: 1 1 0; min-width: 0; border-radius: 3px 3px 2px 2px; background: color-mix(in srgb, currentColor 10%, transparent); }
+.hud-cst-eq > i.is-on { background: linear-gradient(180deg, color-mix(in srgb, var(--v-acc) 45%, var(--cst-hi)), var(--v-acc)); box-shadow: 0 0 8px -2px var(--v-glow); }
+.hud-cst-eq > i:nth-child(1) { height: 30%; } .hud-cst-eq > i:nth-child(2) { height: 37%; }
+.hud-cst-eq > i:nth-child(3) { height: 44%; } .hud-cst-eq > i:nth-child(4) { height: 51%; }
+.hud-cst-eq > i:nth-child(5) { height: 58%; } .hud-cst-eq > i:nth-child(6) { height: 65%; }
+.hud-cst-eq > i:nth-child(7) { height: 72%; } .hud-cst-eq > i:nth-child(8) { height: 79%; }
+.hud-cst-eq > i:nth-child(9) { height: 86%; } .hud-cst-eq > i:nth-child(10) { height: 100%; }
+
+/* Звёзды: линейная звезда, горящие — залиты акцентом. */
+.hud-cst-stars { flex: none; display: inline-flex; gap: 3px; }
+.hud-cst-stars > i { display: inline-grid; place-items: center; }
+.hud-cst-stars .hud-v-ico { width: 20px; height: 20px; fill: none; stroke: color-mix(in srgb, currentColor 30%, transparent); stroke-width: 1.6; }
+.hud-cst-stars > i.is-on .hud-v-ico { fill: color-mix(in srgb, var(--v-acc) 70%, var(--cst-hi)); stroke: var(--v-acc); filter: drop-shadow(0 0 4px var(--v-glow)); }
+.hud-cst-v-stars .hud-cst-meter { flex-wrap: wrap; gap: 6px 12px; }
+.hud-cst-v-stars .hud-cst-why { flex: 1 1 8em; }
+
+/* Описание: цитата с чертой акцента. */
+.hud-cst-text {
+  margin: 0; padding: 2px 0 2px 10px; border-left: 2px solid color-mix(in srgb, var(--v-acc) 60%, transparent);
+  font-size: .9em; line-height: 1.5; font-style: italic; overflow-wrap: break-word;
+}
+
+.hud-cst-tags { display: flex; flex-wrap: wrap; gap: 5px; min-width: 0; }
+.hud-cst-tags > .hud-v-tag { max-width: 100%; overflow-wrap: anywhere; }
+
+/* Уровень: низкое приглушено, высокое светится сильнее — тем же акцентом. */
+.hud-cst.lv-1 .hud-v-ring, .hud-cst.lv-1 .hud-cst-eq > i.is-on, .hud-cst.lv-1 .hud-v-mini-bar > i { filter: saturate(.55) brightness(.9); }
+.hud-cst.lv-3 .hud-v-card { border-color: color-mix(in srgb, var(--v-acc) 50%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 10px 22px -14px var(--v-glow); }
+
+/* Перетаскивание: блок приподнят и пропускает указатель к строкам под ним. */
+.hud-cst.is-lifted { position: relative; z-index: 5; cursor: grabbing; pointer-events: none; }
+.hud-cst.is-lifted .hud-v-card { transform: translateY(-2px) scale(1.015); box-shadow: 0 16px 28px -12px var(--v-glow), 0 0 0 1px color-mix(in srgb, var(--v-acc) 60%, transparent); }
+.is-cst-dragging { touch-action: none; user-select: none; -webkit-user-select: none; }
+
+@media (prefers-reduced-motion: reduce) { .hud-cst.is-lifted .hud-v-card { transform: none; } }
+
+/* Нуар — только чёрное и белое: цвет группы гасим, как у строк карточки
+   (misc.css). Свой цвет пользователь выбрал сам — его оставляем. */
+.hud-theme-noir .hud-cst[class*=" kind-"] { --kind: #d4d4d4; }

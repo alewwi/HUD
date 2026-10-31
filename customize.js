@@ -5,24 +5,24 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.88.7';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.88.7';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.88.7';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.88.7';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.88.7';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.88.7';
-import { hudБлоки } from './hud-block.js?v=23.88.7';
-import { parseHUDComplex } from './hud-parser.js?v=23.88.7';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.88.7';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.88.7';
-import { английский, т } from './i18n.js?v=23.88.7';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.88.8';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.88.8';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.88.8';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.88.8';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.88.8';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.88.8';
+import { hudБлоки } from './hud-block.js?v=23.88.8';
+import { parseHUDComplex } from './hud-parser.js?v=23.88.8';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.88.8';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.88.8';
+import { английский, т } from './i18n.js?v=23.88.8';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 const пример = () => (английский() ? ПРИМЕР_EN : ПРИМЕР_RU);
-import { задатьПримерСемьи } from './render/conception.js?v=23.88.7';
-import { привязатьИсторию } from './render/intimacy.js?v=23.88.7';
-import { пометитьЭффекты } from './render/fx.js?v=23.88.7';
-import { attachHelpMarks } from './help.js?v=23.88.7';
-import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.88.7';
+import { задатьПримерСемьи } from './render/conception.js?v=23.88.8';
+import { привязатьИсторию } from './render/intimacy.js?v=23.88.8';
+import { пометитьЭффекты } from './render/fx.js?v=23.88.8';
+import { attachHelpMarks } from './help.js?v=23.88.8';
+import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.88.8';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -206,7 +206,7 @@ export function разметкаПанелиТемы() {
             ${основа.выбор('paperAged', 'Состаренный лист', 'Тёплый свет и подпалённые края по всей вкладке.', [['off', 'Нет'], ['on', 'Да']])}
             ${основа.выбор('paperTorn', 'Рваный край плашек', 'Низ каждой плашки — как у оторванного листка. Внешнее свечение плашек при этом не видно.', [['off', 'Нет'], ['on', 'Да']])}
             ${основа.выбор('paperFolds', 'Сгибы письма', 'Линии сгиба, как у сложенного письма.', [['off', 'Нет'], ['on', 'Да']])}
-            ${основа.выбор('waxSeal', 'Сургучная печать', 'Печать с розой в шапке персонажа, цвета темы (или «Рамки портрета»).', [['off', 'Нет'], ['on', 'Да']])}
+            ${основа.выбор('waxSeal', 'Сургучная печать', 'Печать с розой в углу каждого листа дневника, цвета темы.', [['off', 'Нет'], ['on', 'Да']])}
           </div></details>
           <details class="hud-custom-sub hud-smooth"><summary>Сцена и скрытое</summary>
           <div class="hud-theme-grid">

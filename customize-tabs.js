@@ -9,8 +9,8 @@
 // HTML5 drag-and-drop (тот на телефоне не работает): захват указателя,
 // touch-action: none на ручке, обмен местами при пересечении середины соседа.
 
-import { settings } from './settings.js?v=23.88.7';
-import { ВКЛАДКИ, полныйПорядок, сдвинуть } from './tabs-order.js?v=23.88.7';
+import { settings } from './settings.js?v=23.88.8';
+import { ВКЛАДКИ, полныйПорядок, сдвинуть } from './tabs-order.js?v=23.88.8';
 
 const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const массив = (v) => Array.isArray(v) ? v.slice() : [];

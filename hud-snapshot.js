@@ -12,14 +12,15 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.88.7';
-import { т } from './i18n.js?v=23.88.7';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.88.7';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.88.7';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.88.7';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.88.7';
-import { заменитьHudБлоки } from './hud-block.js?v=23.88.7';
-import { упомянутВТексте } from './names.js?v=23.88.7';
+import { settings } from './settings.js?v=23.88.8';
+import { т } from './i18n.js?v=23.88.8';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.88.8';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.88.8';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.88.8';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.88.8';
+import { заменитьHudБлоки } from './hud-block.js?v=23.88.8';
+import { упомянутВТексте } from './names.js?v=23.88.8';
+import { списокВыключенного, убратьВыключенное } from './deep-fields.js?v=23.88.8';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -176,6 +177,8 @@ const МЕТКА_СНОВ = '<new this turn — only if someone slept; otherwise
 export function собратьСнимок(текстБлока) {
   const к = HUDвКодах(текстБлока);
   if (!к) return null;
+  // Глубокая настройка: выключенное модель не видит и в снимке.
+  убратьВыключенное(к, списокВыключенного(settings));
 
   // Не состояние, а свежий текст хода: запись дневника, дневник тела, сны,
   // гороскоп, «судьба» и комментарии модель каждый ход пишет заново. В снимке

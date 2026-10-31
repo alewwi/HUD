@@ -5,12 +5,14 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.88.7';
-import { английский } from './i18n.js?v=23.88.7';
-import { промптНаАнглийском } from './prompt-en.js?v=23.88.7';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.7';
-import { parseSceneDate } from './history-analyzer.js?v=23.88.7';
-import { возрастТочно } from './render/babies.js?v=23.88.7';
+import { settings } from './settings.js?v=23.88.8';
+import { английский } from './i18n.js?v=23.88.8';
+import { промптНаАнглийском } from './prompt-en.js?v=23.88.8';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.8';
+import { parseSceneDate } from './history-analyzer.js?v=23.88.8';
+import { возрастТочно } from './render/babies.js?v=23.88.8';
+import { списокВыключенного, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.8';
+import { промптСвоихСтатов } from './custom-stats.js?v=23.88.8';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -471,6 +473,15 @@ ${следы ? `  "Mrk": "[visible body marks on {{user}} — same format and ru
   }
 
   p += `\n}\n\`\`\`\n[/HUD]`;
+  // Глубокая настройка (deep-fields.js): выключенные поля и метки — вон из
+  // схемы, и отдельным правилом «не писать».
+  const выключено = списокВыключенного(settings);
+  if (выключено.length) {
+    p = вырезатьИзПромпта(p, выключено);
+    p = p.replace(/(- ⚠️ FORMATTING:[^\n]*)/, (всё) => всё + правилоВыключенного(выключено));
+  }
+  // Свои статы пользователя (custom-stats.js) — сразу после схемы.
+  p += промптСвоихСтатов(settings, { игрок });
   // Скрытые факты: итог «кубика» зачатия. Знает автор, персонажи — нет,
   // пока нет теста или признаков (render/conception.js).
   if (беременность && !cacheStable) p += скрытыеФактыЗачатия(датаСнимка);

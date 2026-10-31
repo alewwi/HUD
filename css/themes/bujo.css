@@ -34,10 +34,11 @@
     repeating-linear-gradient(0deg, rgba(255, 255, 255, .08) 0 2px, transparent 2px 4px) right 14px top 0 / 10px 100% no-repeat,
     linear-gradient(90deg, #3d1f24, #6e3438 45%, #3d1f24) right 14px top 0 / 10px 100% no-repeat;
 }
-/* Ленточка-закладка свисает снизу. */
+/* Ленточка-закладка свисает из-под листа: в полосе под вкладкой, у номера
+   страницы, а не поверх последних строк (карточка обрезает всё за краем). */
 .hud-theme-bujo .hud-tab-content { position: relative; }
 .hud-theme-bujo .hud-tab-content::after {
-  content: ''; position: absolute; left: 22%; bottom: -2px; width: 12px; height: 46px; pointer-events: none; z-index: 2;
+  content: ''; position: absolute; left: 22%; top: 100%; width: 12px; height: 24px; pointer-events: none; z-index: 2;
   background: linear-gradient(90deg, #a34236, #c85a4b 50%, #a34236); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%);
 }
 /* Васи-скотч «приклеивает» страницу сверху. */

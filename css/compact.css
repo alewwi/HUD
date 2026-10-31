@@ -465,6 +465,13 @@
   .hud-os-card .hud-fear b { flex: 1 1 calc(100% - 26px); }
   .hud-os-card .hud-kids-head { padding-top: 60px; }
   .hud-os-card .hud-kids-head .title { padding-right: 0; }
+  /* Имя в шапке: не уже 120px. Широкая рамка портрета (кинолента, марка,
+     полароид, арка) и картинка в углу оставляли имени 20–60px, и «Начальник
+     охраны» рвался посреди слов. Не хватает места рядом — имя встаёт строкой
+     под портретом во всю ширину; хватает — раскладка прежняя. */
+  .hud-os-card .hud-header:not(.has-banner):not(.is-visit) .hud-header-info { flex-wrap: wrap; row-gap: 8px; }
+  .hud-os-card .hud-header:not(.has-banner):not(.is-visit) .hud-header-text { flex: 1 1 120px; min-width: max(120px, min-content); }
+  .hud-os-card .hud-header:not(.has-banner):not(.is-visit) .hud-title { overflow-wrap: normal; word-break: normal; }
 }
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) {
@@ -512,5 +519,12 @@
   .hud-os-card .hud-fear b { flex: 1 1 calc(100% - 26px); }
   .hud-os-card .hud-kids-head { padding-top: 60px; }
   .hud-os-card .hud-kids-head .title { padding-right: 0; }
+  /* Имя в шапке: не уже 120px. Широкая рамка портрета (кинолента, марка,
+     полароид, арка) и картинка в углу оставляли имени 20–60px, и «Начальник
+     охраны» рвался посреди слов. Не хватает места рядом — имя встаёт строкой
+     под портретом во всю ширину; хватает — раскладка прежняя. */
+  .hud-os-card .hud-header:not(.has-banner):not(.is-visit) .hud-header-info { flex-wrap: wrap; row-gap: 8px; }
+  .hud-os-card .hud-header:not(.has-banner):not(.is-visit) .hud-header-text { flex: 1 1 120px; min-width: max(120px, min-content); }
+  .hud-os-card .hud-header:not(.has-banner):not(.is-visit) .hud-title { overflow-wrap: normal; word-break: normal; }
 } }
 /* cq ↑ */

@@ -377,12 +377,17 @@
 .hud-twist { --tw: color-mix(in srgb, var(--hud-accent) 70%, #8a8aa0); position: relative; margin: 10px 12px 4px; padding: 14px 16px 12px; border-radius: 14px; overflow: hidden; color: var(--x-ink);
   background: linear-gradient(160deg, color-mix(in srgb, var(--tw) 26%, var(--x-surf)), var(--x-surf2));
   box-shadow: 0 12px 22px -12px rgba(0,0,0,.55), inset 0 0 0 1px color-mix(in srgb, var(--tw) 50%, transparent); }
-.hud-twist.is-good { --tw: #d4a13c; }
+/* Хороший поворот — тот же акцент темы, только светлее (к цвету текста),
+   плохой — акцент целиком, неясный — приглушённый. Своего золота нет: оно
+   выходило оранжевой карточкой в любой теме, хоть зелёной, хоть красной. */
+.hud-twist.is-good { --tw: color-mix(in oklab, var(--hud-accent) 62%, var(--hud-text, #fff)); }
 .hud-twist.is-bad { --tw: var(--hud-accent); }
 .hud-twist, .hud-twist * { text-shadow: none !important; }
 .hud-twist h5, .hud-twist p { color: var(--x-ink) !important; }
 .hud-twist h5 svg { color: var(--tw); }
 .hud-twist-rib { position: absolute; right: -34px; top: 13px; transform: rotate(35deg); padding: 3px 40px; font-size: .56em; font-weight: 900; letter-spacing: .2em; background: var(--tw); color: #fff !important; }
+/* Надпись на ленте — тёмная на светлом цвете поворота, белая на тёмном. */
+@supports (color: oklch(from red l c h)) { .hud-twist-rib { color: oklch(from var(--tw) clamp(0, calc((.7 - l) * 1000), 1) 0 0) !important; } }
 .hud-twist h5 { margin: 0 0 6px; padding-right: 70px; display: flex; align-items: center; gap: 8px; font-family: Georgia, serif; font-size: 1.08em; }
 .hud-twist h5 svg { width: 21px; height: 21px; flex: none; }
 .hud-twist p { margin: 0; line-height: 1.5; font-size: .9em; }

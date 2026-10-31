@@ -12,10 +12,10 @@
 // оказываются рядом вчерашнее «22:30» и сегодняшнее «08:30», и без подписи
 // «Вчера» это читается как один разговор подряд.
 
-import { escapeHtml, defeatWI } from '../utils.js?v=23.88.7';
-import { buildBubbleInner, buildCallRow, msgKey } from './msg-parts.js?v=23.88.7';
-import { avaFace } from './phone-common.js?v=23.88.7';
-import { namesLikelySame } from '../names.js?v=23.88.7';
+import { escapeHtml, defeatWI } from '../utils.js?v=23.88.8';
+import { buildBubbleInner, buildCallRow, msgKey } from './msg-parts.js?v=23.88.8';
+import { avaFace } from './phone-common.js?v=23.88.8';
+import { namesLikelySame } from '../names.js?v=23.88.8';
 
 // Один человек в переписке под разными подписями: «Грей» и «Профессор Грей»,
 // «Butler» и «Private Butler», «Tristan» и «THE REGENTS Tristan Kingsley».

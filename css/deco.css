@@ -13,21 +13,21 @@
 
 /* Цвет считается на самих украшениях: темы задают акцент на карточке,
    и с :root он пришёл бы исходным, а не темы. */
-.hud-ava-wrap, .hud-ava-deco, .hud-head-orn, .hud-head-wax, .hud-group-div {
+.hud-ava-wrap, .hud-ava-deco, .hud-head-orn, .hud-head-wax, .hud-diary-wax, .hud-group-div {
   --hud-deco-c: var(--hud-ava-frame, var(--hud-accent));
 }
 
 /* Обёртки портрета без рамки прозрачны для вёрстки. */
 .hud-ava-wrap, .hud-ava-in { display: contents; }
-.hud-ava-deco, .hud-head-wax, .hud-head-orn, .hud-paper { display: none; }
+.hud-ava-deco, .hud-head-wax, .hud-head-orn, .hud-diary-wax, .hud-paper { display: none; }
 
 /* Перекраска картинки в цвет темы. Без --deco-img маска и слой
    недействительны и выключаются сами: скрепка и котик остаются как есть. */
-.hud-ava-deco, .hud-head-orn, .hud-head-wax {
+.hud-ava-deco, .hud-head-orn, .hud-head-wax, .hud-diary-wax {
   background-color: var(--hud-deco-c);
   -webkit-mask: var(--deco-img) center / contain no-repeat; mask: var(--deco-img) center / contain no-repeat;
 }
-.hud-ava-deco::after, .hud-head-orn::after, .hud-head-wax::after {
+.hud-ava-deco::after, .hud-head-orn::after, .hud-head-wax::after, .hud-diary-wax::after {
   content: ''; position: absolute; inset: 0;
   background: var(--deco-img) center / contain no-repeat;
   mix-blend-mode: luminosity;
@@ -54,7 +54,7 @@
 
 /* Полароид со скотчем («醉江南», «月_有关于你») */
 :root.hud-deco-polaroid .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap {
-  background: #fbf8f1; padding: 7px 7px 26px; transform: rotate(-4deg); box-shadow: 0 8px 18px rgba(0,0,0,.45); transition: transform .3s;
+  background: #fbf8f1; background: color-mix(in oklab, var(--hud-deco-c) 24%, #fbf8f1); padding: 7px 7px 26px; transform: rotate(-4deg); box-shadow: 0 8px 18px rgba(0,0,0,.45); transition: transform .3s;
 }
 @media (hover: hover) and (pointer: fine) { :root.hud-deco-polaroid .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap:hover { transform: none; } }
 :root.hud-deco-polaroid .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > * { border-radius: 0 !important; border: 0 !important; box-shadow: inset 0 0 0 1px rgba(0,0,0,.1) !important; }
@@ -69,10 +69,12 @@
   font: 15px/1 'Marck Script', 'Caveat', cursive; color: #4a4038;
 }
 
-/* Почтовая марка со штемпелем («桃色密信») */
+/* Почтовая марка со штемпелем («桃色密信»). Бумага марки, полароида и
+   архивного фото — светлая, но с оттенком цвета темы: белая рамка в тёмной
+   золотой или зелёной теме выглядела чужой. */
 :root.hud-deco-stamp .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { filter: drop-shadow(0 3px 4px rgba(0,0,0,.35)); margin-right: 60px; }
 :root.hud-deco-stamp .hud-os-card .hud-header:not(.has-banner) .hud-ava-in {
-  padding: 8px; background: #fbf6ea;
+  padding: 8px; background: #fbf6ea; background: color-mix(in oklab, var(--hud-deco-c) 26%, #fbf6ea);
   -webkit-mask: radial-gradient(circle closest-side, #0000 62%, #000 68%) -5px -5px / 10px 10px, linear-gradient(#000 0 0) center / calc(100% - 10px) calc(100% - 10px) no-repeat;
           mask: radial-gradient(circle closest-side, #0000 62%, #000 68%) -5px -5px / 10px 10px, linear-gradient(#000 0 0) center / calc(100% - 10px) calc(100% - 10px) no-repeat;
 }
@@ -90,7 +92,7 @@
 /* Архивное фото со скрепкой и биркой («临时档案») */
 :root.hud-deco-archive .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { rotate: 2deg; }
 :root.hud-deco-archive .hud-os-card .hud-header:not(.has-banner) .hud-ava-in > * {
-  border-radius: 2px !important; border: 5px solid #f2eee6 !important; box-shadow: 0 6px 14px rgba(0,0,0,.55) !important; filter: grayscale(.35) contrast(1.05);
+  border-radius: 2px !important; border: 5px solid color-mix(in oklab, var(--hud-deco-c) 24%, #f2eee6) !important; box-shadow: 0 6px 14px rgba(0,0,0,.55) !important; filter: grayscale(.35) contrast(1.05);
 }
 :root.hud-deco-archive .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco {
   left: 8px; top: -26px; width: 24px; height: 56px; z-index: 3; rotate: -8deg;
@@ -269,8 +271,8 @@
    КАРТИНКА В УГЛУ ШАПКИ
    Встаёт на место значка темы справа от имени — значок прячется.
    ========================================================================= */
-:root:is(.hud-orn-on, .hud-wax-seal) .hud-os-card .hud-header:not(.has-banner) { position: relative; }
-:root:is(.hud-orn-on, .hud-wax-seal) .hud-os-card .hud-header:not(.has-banner)::after { visibility: hidden !important; }
+:root.hud-orn-on .hud-os-card .hud-header:not(.has-banner) { position: relative; }
+:root.hud-orn-on .hud-os-card .hud-header:not(.has-banner)::after { visibility: hidden !important; }
 :root.hud-orn-on .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 96px !important; }
 :root.hud-orn-on .hud-os-card .hud-header:not(.has-banner) .hud-head-orn {
   display: block; position: absolute; right: 2px; top: -8px; width: 96px; height: 96px; z-index: 3; pointer-events: none;
@@ -286,24 +288,23 @@
 /* =========================================================================
    СУРГУЧНАЯ ПЕЧАТЬ («桃色密信») — цвета темы
    ========================================================================= */
-:root.hud-wax-seal .hud-os-card .hud-header:not(.has-banner) .hud-head-wax {
+/* Печать живёт на листах дневника, в правом нижнем углу, как на запечатанном
+   письме. В шапке её больше нет: там она теснила имя и сбивала центровку. */
+:root.hud-wax-seal .hud-os-card .hud-diary-entry > .hud-diary-wax {
   --deco-img: url('../img/deco/seal.webp');
-  display: block; position: absolute; right: 14px; top: 50%; width: 58px; height: 58px; margin-top: -29px; rotate: 14deg; z-index: 3; pointer-events: none;
+  display: block; position: absolute; right: 10px; bottom: 8px; width: 50px; height: 50px; rotate: -14deg; z-index: 3; pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgba(0,0,0,.35));
 }
-:root.hud-wax-seal .hud-os-card .hud-header:not(.has-banner) .hud-head-wax::after { filter: grayscale(1) brightness(.6) contrast(1.5); }
-:root.hud-wax-seal:is(.hud-orn-on, .hud-sh-on) .hud-os-card .hud-header:not(.has-banner) .hud-head-wax { right: 104px; }
-:root.hud-wax-seal:not(.hud-orn-on) .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 70px !important; }
+:root.hud-wax-seal .hud-os-card .hud-diary-entry > .hud-diary-wax::after { filter: grayscale(1) brightness(.6) contrast(1.5); }
+:root.hud-wax-seal .hud-os-card .hud-diary-entry { padding-bottom: 62px; }
 
-/* На узком экране шапка тесная: картинка угла и печать меньше, печать
-   уходит вниз, под картинку, и имя не ломается по буквам. */
+/* На узком экране шапка тесная: картинка угла меньше, и имя не ломается
+   по буквам. */
 @media (max-width: 600px) {
   :root.hud-orn-on .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 58px !important; }
   :root.hud-orn-on .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 60px; height: 60px; top: -4px; right: 0; }
   :root.hud-orn-bridge .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 84px; height: 40px; }
   :root.hud-orn-cat .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 50px; height: 44px; }
-  :root.hud-wax-seal .hud-os-card .hud-header:not(.has-banner) .hud-head-wax { width: 42px; height: 42px; margin-top: -21px; right: 8px; }
-  :root.hud-wax-seal:is(.hud-orn-on, .hud-sh-on) .hud-os-card .hud-header:not(.has-banner) .hud-head-wax { top: auto; bottom: 0; margin-top: 0; right: 12px; }
-  :root.hud-wax-seal:not(.hud-orn-on) .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 50px !important; }
   :root.hud-ava-framed .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin-left: 4px; }
   :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin-right: 30px; }
   :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco { right: -26px; bottom: -18px; width: 66px; height: 66px; }
@@ -314,9 +315,6 @@
   :root.hud-orn-on .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 60px; height: 60px; top: -4px; right: 0; }
   :root.hud-orn-bridge .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 84px; height: 40px; }
   :root.hud-orn-cat .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 50px; height: 44px; }
-  :root.hud-wax-seal .hud-os-card .hud-header:not(.has-banner) .hud-head-wax { width: 42px; height: 42px; margin-top: -21px; right: 8px; }
-  :root.hud-wax-seal:is(.hud-orn-on, .hud-sh-on) .hud-os-card .hud-header:not(.has-banner) .hud-head-wax { top: auto; bottom: 0; margin-top: 0; right: 12px; }
-  :root.hud-wax-seal:not(.hud-orn-on) .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 50px !important; }
   :root.hud-ava-framed .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin-left: 4px; }
   :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin-right: 30px; }
   :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco { right: -26px; bottom: -18px; width: 66px; height: 66px; }

@@ -210,6 +210,12 @@ export const defaultSettings = {
   // Новые блоки промта: состояние тела у персонажей и поворот сюжета в сцене.
   enableBodyState: true,
   enableTwists: true,
+  // Глубокая настройка (deep-fields.js): выключенные поля и метки, пути кодов.
+  fieldsOff: [],
+  // Свои статы (custom-stats.js) и свой промт для них ('' — общий шаблон).
+  customStats: [],
+  customStatsOn: true,
+  customStatsPrompt: '',
   enableIntimacyExtras: true,
   enableHeatMap: true,
   enableEconomy: true,
@@ -560,7 +566,8 @@ const ПО_ТЕМЕ = {
   dropCap: 'academia medieval fantasy witch vamp cottage',
   hangPendant: 'japan',
   lineWave: 'japan kawaii witch',
-  bgDragon: 'fantasy',
+  // Дракона за плашками («bgDragon») ни одна тема сама не включает: у «Фэнтези»
+  // он спорил с замком и кристаллом. Включить можно руками в «Виде блоков».
   themeScene: Object.fromEntries(['biopunk', 'dieselpunk', 'solarpunk', 'voodoo', 'steampunk', 'egypt', 'western', 'noir', 'pirate', 'spaceopera', 'ice', 'ocean', 'spacehorror', 'vamp', 'kawaii', ...['academia', 'cyberpunk', 'medieval', 'fantasy', 'mafia', 'web1', 'cottage', 'japan', 'witch']].map(id => [id, id])),
   inkWash: 'japan',
   peekCat: 'witch',
@@ -616,7 +623,7 @@ export const СЦЕНЫ_МЕСТА = {
   vamp: ['h', 'hnb', 'nb'],
   kawaii: ['thabc', 'hb', 'hb'],
   academia: ['thab', 'thnb', 'thnb'],
-  cyberpunk: ['thabc', 'thnab', 'thnab'],
+  cyberpunk: ['thabc', 'thab', 'thab'],
   medieval: ['thabc', 'thnab', 'thnab'],
   fantasy: ['thabc', 'thnab', 'thnab'],
   mafia: ['thab', 'thnab', 'thnab'],

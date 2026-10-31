@@ -81,3 +81,17 @@
 /* --- из css/deco.css --- */
 :root.hud-theme-medieval { --cb-off: '◇';   --cb-on: '◆'; }
 :root.hud-theme-medieval { --thumb: url("data:image/svg+xml,%3Csvg%20xmlns%3D'http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg'%20viewBox%3D'0%200%2024%2024'%3E%3Cpath%20d%3D'M12%201c2%202.5%202.5%205%200%208-2.5-3-2-5.5%200-8zM12%209v13M5%207c3%200%205%202.5%205%206-3%200-5.5-2-5-6zM19%207c-3%200-5%202.5-5%206%203%200%205.5-2%205-6zM7%2016h10'%20stroke%3D'black'%20stroke-width%3D'2'%20fill%3D'black'%2F%3E%3C%2Fsvg%3E"); --trk: repeating-linear-gradient(60deg, color-mix(in srgb, var(--hud-accent) 80%, #000) 0 2px, color-mix(in srgb, var(--hud-accent) 45%, #fff) 2px 4px); --trk-h: 4px; }
+
+/* Портрет и имя — по центру шапки, а не прижаты влево с пустотой справа.
+   Только на широком экране: на телефоне центр загонял имя под картинку угла. */
+@media (min-width: 601px) {
+  .hud-theme-medieval .hud-os-card .hud-header:not(.has-banner):not(.is-visit) .hud-header-info { justify-content: center; }
+  .hud-theme-medieval .hud-os-card .hud-header:not(.has-banner):not(.is-visit) .hud-header-text { flex: 0 1 auto; width: auto; min-width: 0; }
+}
+
+/* Имя — по середине портрета, кинжал сразу за ним в той же строке, а не
+   под именем. Прочее в шапке (если есть) — своей строкой ниже. */
+.hud-theme-medieval .hud-os-card .hud-header:not(.has-banner):not(.is-visit) .hud-header-text { flex-direction: row; flex-wrap: wrap; align-items: center; column-gap: 8px; }
+.hud-theme-medieval .hud-os-card .hud-header:not(.has-banner):not(.is-visit) .hud-header-text > :not(.hud-title, .hud-scene-n) { flex-basis: 100%; }
+.hud-theme-medieval .hud-os-card .hud-header:not(.has-banner):not(.is-visit) .hud-header-text > .hud-title { flex: 0 1 auto; min-width: 0; }
+.hud-theme-medieval .hud-os-card .hud-header:not(.has-banner):not(.is-visit) .hud-header-text > .hud-scene-n { flex: none; margin: 0 !important; }

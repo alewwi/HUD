@@ -13,21 +13,22 @@
 // карточки ненадёжны — у неё content-visibility, и браузер может не
 // двигать их время.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.88.7';
-import { namesLikelySame } from '../names.js?v=23.88.7';
-import { разобратьХод } from './carryover.js?v=23.88.7';
-import { parseSceneDate } from '../history-analyzer.js?v=23.88.7';
-import { исходЗачатия } from './conception.js?v=23.88.7';
-import { блокПлодов } from './fetus.js?v=23.88.7';
-import { кровотечение } from './fertility.js?v=23.88.7';
-import { settings } from '../settings.js?v=23.88.7';
-import { имяЗначка, значкиВключены } from './hud-icons.js?v=23.88.7';
-import { одеждаПодробно, слойОдежды, темпИзТекста, темпыПроникновений, блокТемпа, позаТела, полПерсонажа, проникновенияИзТекста, меткиПроникновения, строкиПроникновения, членИзТекста, семяИзТекста, влагаИзТекста, финалСцены, вышелИзТекста, снаружиИзТекста, движениеИзОргазма } from './scene-body.js?v=23.88.7';
-import { ощущенияИзТекста } from './body-layers.js?v=23.88.7';
-import { полосаВлечения } from './cycle-libido.js?v=23.88.7';
-import { обликИзТекстов, естьОблик, причёска, волосыСзади, лицо, масштабСложения, масштабРоста, стильОблика, меткиОтметин, нуженКонтур } from './look.js?v=23.88.7';
-import { канонОблика, полИзКанона, подтянутьЛор } from './canon.js?v=23.88.7';
-import { силуэтТела, силуэтБезРук, открытоеТело, очертанияТела, defsОбъёма, слоиОбъёма, кромка, параметрыФигуры, деталиФигуры, кФигуре, грудьФигуры } from './body-art.js?v=23.88.7';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.88.8';
+import { namesLikelySame } from '../names.js?v=23.88.8';
+import { разобратьХод } from './carryover.js?v=23.88.8';
+import { parseSceneDate } from '../history-analyzer.js?v=23.88.8';
+import { исходЗачатия } from './conception.js?v=23.88.8';
+import { блокПлодов } from './fetus.js?v=23.88.8';
+import { кровотечение } from './fertility.js?v=23.88.8';
+import { settings } from '../settings.js?v=23.88.8';
+import { английский } from '../i18n.js?v=23.88.8';
+import { имяЗначка, значкиВключены } from './hud-icons.js?v=23.88.8';
+import { одеждаПодробно, слойОдежды, темпИзТекста, темпыПроникновений, блокТемпа, позаТела, полПерсонажа, проникновенияИзТекста, меткиПроникновения, строкиПроникновения, членИзТекста, семяИзТекста, влагаИзТекста, финалСцены, вышелИзТекста, снаружиИзТекста, движениеИзОргазма } from './scene-body.js?v=23.88.8';
+import { ощущенияИзТекста } from './body-layers.js?v=23.88.8';
+import { полосаВлечения } from './cycle-libido.js?v=23.88.8';
+import { обликИзТекстов, естьОблик, причёска, волосыСзади, лицо, масштабСложения, масштабРоста, стильОблика, меткиОтметин, нуженКонтур } from './look.js?v=23.88.8';
+import { канонОблика, полИзКанона, подтянутьЛор } from './canon.js?v=23.88.8';
+import { силуэтТела, силуэтБезРук, открытоеТело, очертанияТела, defsОбъёма, слоиОбъёма, кромка, параметрыФигуры, деталиФигуры, кФигуре, грудьФигуры } from './body-art.js?v=23.88.8';
 
 const пусто = (v) => { const s = String(v ?? '').trim(); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
 const число = (s) => { const m = String(s ?? '').replace(/(\d),(\d)/g, '$1.$2').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };
@@ -1086,7 +1087,45 @@ export function рискЗачатия(день, L, фаза, контекст =
   return {
     шанс: итог, базовый: шанс, защита, причины: пл ? пл.причины : [],
     бросок: был ? бросок(секс + '|' + (день || фаза || '')) : null,
+    // Для пояснения «почему столько» (почемуРиск ниже).
+    день: день || null, L, ov, фаза,
   };
+}
+
+// «Почему N%»: раскрывающийся разбор под процентом — день цикла и где
+// овуляция, шанс этого дня по таблице, что оставила защита, что срезали
+// болезни и кормление, и итоговое умножение. Раскрывается плавно
+// (details.hud-smooth, events.js). подпись — чей шанс, если их несколько.
+const множитель = (x) => '×' + String(+x.toFixed(2)).replace('.', ',');
+export function почемуРиск(р, подпись = '') {
+  if (!р) return '';
+  const ен = английский();
+  const п = (x) => Math.round(x * 100) + '%';
+  const шаги = [];
+  if (р.день && Number.isFinite(р.ov)) {
+    const до = р.день - р.ov;
+    const где = до === 0 ? (ен ? 'the day of ovulation' : 'день овуляции')
+      : до < 0 ? (ен ? `${-до} d before ovulation` : `за ${-до} дн. до овуляции`)
+      : (ен ? `${до} d after ovulation` : `${до} дн. после овуляции`);
+    шаги.push(ен ? `Cycle day ${р.день} of ${р.L}, ovulation around day ${р.ov}: ${где}.` : `День цикла ${р.день} из ${р.L}, овуляция около ${р.ov}-го дня: ${где}.`);
+  } else {
+    шаги.push(ен ? 'The cycle day is unknown, only the phase: the chance is taken by phase.' : 'День цикла неизвестен, известна только фаза — шанс взят по ней.');
+  }
+  шаги.push(р.базовый > ВНЕ_ОКНА
+    ? (ен ? `One act on such a day gives ${п(р.базовый)}: the fertile window is five days before ovulation and the day after (Wilcox, 1995).`
+      : `Один раз в такой день — ${п(р.базовый)}: окно зачатия — пять дней до овуляции и день после (данные Уилкокса, 1995).`)
+    : (ен ? `Outside the fertile window: ${п(р.базовый)}, not zero because a cycle can shift.` : `Вне окна зачатия — ${п(р.базовый)}: не ноль, потому что цикл может сдвинуться.`));
+  шаги.push(р.защита
+    ? (ен ? `Protection — ${escapeHtml(р.защита.имя)}: ${множитель(р.защита.доля)} of the chance remains.` : `Защита — ${escapeHtml(р.защита.имя)}: от шанса остаётся ${множитель(р.защита.доля)}.`)
+    : (ен ? 'No protection named — the chance is not reduced.' : 'Защита не названа — шанс не уменьшается.'));
+  for (const пр of р.причины || []) шаги.push(пр.доля === 0
+    ? (ен ? `${escapeHtml(пр.имя)}: conception is impossible.` : `${escapeHtml(пр.имя)}: зачатие невозможно.`)
+    : `${escapeHtml(пр.имя)}: ${множитель(пр.доля)}.`);
+  const доли = [р.защита && р.защита.доля !== 1 ? р.защита.доля : null, ...(р.причины || []).map(пр => пр.доля)].filter(x => x !== null && x !== 1);
+  const итог = доли.length ? `${п(р.базовый)} ${доли.map(множитель).join(' ')} = ${п(р.шанс)}` : `${п(р.шанс)}`;
+  return `<details class="hud-why hud-smooth"><summary><i class="hud-why-ico" aria-hidden="true">?</i>${ен ? 'why' : 'почему'} ${п(р.шанс)}${подпись ? ` · ${escapeHtml(подпись)}` : ''}</summary>`
+    + `<ol class="hud-why-steps">${шаги.map(ш => `<li>${ш}</li>`).join('')}</ol>`
+    + `<p class="hud-why-sum">${ен ? 'Total' : 'Итого'}: <b>${итог}</b></p></details>`;
 }
 
 // Полоса риска и кнопка «Сделать тест». Сам бросок кубика игроку не
@@ -1129,6 +1168,7 @@ function блокРиска(р, исход, была) {
     + `<div class="hud-conception-head"><span>Риск зачатия</span><b>${проц}%</b></div>`
     + `<i class="hud-conception-bar" aria-hidden="true"><i style="width:${Math.min(100, проц * 3)}%"></i></i>`
     + `<small>${р.защита ? `${escapeHtml(р.защита.имя)}: из ${Math.round(р.базовый * 100)}% остаётся ${проц}%` : `без защиты — ${Math.round(р.базовый * 100)}% в этот день цикла`}</small>`
+    + почемуРиск(р)
     + (р.причины && р.причины.length ? `<div class="hud-fert-reasons">${р.причины.map(п => `<span class="${п.доля === 0 ? 'is-zero' : ''}"><i aria-hidden="true">${п.доля === 0 ? '⊘' : '↓'}</i>${escapeHtml(п.имя)}<b>${п.доля === 0 ? 'зачатие невозможно' : '×' + String(п.доля).replace('.', ',')}</b></span>`).join('')}</div>` : '')
     + тест + `</div>`;
 }

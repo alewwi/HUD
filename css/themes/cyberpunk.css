@@ -100,3 +100,22 @@ html.hud-theme-cyberpunk body.noShadows .hud-os-card :is(.hud-row:not(.nsfw) > .
   61% { background-position: 0 0, 0 0, 0 84%; }
   63% { background-position: 0 0, 0 0, 0 46%; }
 }
+
+/* Портрет и имя — по центру шапки, а не прижаты влево с пустотой справа.
+   Только на широком экране: на телефоне центр загонял имя под картинку угла. */
+@media (min-width: 601px) {
+  .hud-theme-cyberpunk .hud-os-card .hud-header:not(.has-banner):not(.is-visit) .hud-header-info { justify-content: center; }
+  .hud-theme-cyberpunk .hud-os-card .hud-header:not(.has-banner):not(.is-visit) .hud-header-text { flex: 0 1 auto; width: auto; min-width: 0; }
+}
+
+/* Телефон: очки в углу шапки меньше и у верхнего края — иначе они ложились
+   на «Цикл», бейдж вражды и уровень. */
+@media (max-width: 600px) {
+  :root.hud-sh-cyberpunk.hud-sh-img .hud-os-card .hud-header > .hud-scene-h::after { width: 60px; height: 28px; top: 6px; right: 6px; margin-top: 0; opacity: .85; }
+  /* Имя, уровень, метка и «Цикл» — столбиком по центру друг друга (место под
+     очки справа — scenes.css); счётчики под ними — на всю ширину шапки. */
+  .hud-theme-cyberpunk .hud-os-card .hud-header:not(.has-banner):not(.is-visit) .hud-header-text { align-items: center; }
+  .hud-theme-cyberpunk .hud-os-card .hud-header:not(.has-banner):not(.is-visit) .hud-prof-namebar { justify-content: center; text-align: center; }
+  .hud-theme-cyberpunk .hud-os-card .hud-header:not(.has-banner):not(.is-visit) .hud-header-text > .hud-day { align-self: center; }
+  .hud-theme-cyberpunk .hud-os-card .hud-header:not(.has-banner):not(.is-visit) .hud-header-text > .hud-prof-stats { align-self: stretch; width: auto; margin-right: -72px; }
+}

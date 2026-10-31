@@ -6,10 +6,10 @@
 // index.js импортирует отсюда только buildDiaryHTML и hudHasMeaningfulDiary —
 // остальное экспортируется для тестов и внутренних нужд домена.
 
-import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки } from '../utils.js?v=23.88.7';
-import { settings } from '../settings.js?v=23.88.7';
-import { ико } from './view-icons.js?v=23.88.7';
-import { английский } from '../i18n.js?v=23.88.7';
+import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки } from '../utils.js?v=23.88.8';
+import { settings } from '../settings.js?v=23.88.8';
+import { ико } from './view-icons.js?v=23.88.8';
+import { английский } from '../i18n.js?v=23.88.8';
 
 // Дневник: словарь эмоциональных синонимов. Раньше всё сводилось к
 // четырём темам (sad / angry / panic / neutral) — «скука», «презрение»,
@@ -289,7 +289,9 @@ function buildDiaryPaper(seed) {
   return '<span class="hud-diary-paper"></span><span class="hud-diary-holes"></span>'
     + `<span class="hud-diary-crease" style="top:${creaseTop}%;"></span>`
     + ring
-    + '<span class="hud-diary-curl"></span>';
+    + '<span class="hud-diary-curl"></span>'
+    // Сургучная печать (настройка waxSeal, css/deco.css) — в углу листа.
+    + '<i class="hud-diary-wax" aria-hidden="true"></i>';
 }
 
 function buildDiaryStains(seed) {
@@ -376,19 +378,21 @@ export function buildDiaryHTML(diaryData, uid, isChecked) {
     // Бумажные слои идут отдельными узлами, а не псевдоэлементами: ::before и
     // ::after у записи уже заняты полем и настроенческими кляксами.
     const paper = buildDiaryPaper(seed);
+    // Текст записи и «О ней» — слова модели: data-i18n-skip, чтобы английский
+    // словарь их не трогал (выделенное слово отдельным узлом выходило «eyes»).
 
     if (typeof entry === 'string') {
       let parts = entry.split('|'); let time = parts[0].trim(); let text = parts.length > 1 ? parts.slice(1).join('|').trim() : '';
       if (!text) { text = time; time = 'Скрытая запись'; }
-      html += `<div class="hud-diary-entry hud-diary-mood-${moodKey}">${paper}${sticker}${stains}<span class="hud-diary-damage" aria-hidden="true"></span>${живойСлой(moodKey)}<div class="hud-diary-time">${escapeHtml(time)}${штамп}</div><div class="hud-diary-text">${renderDiaryText(text)}</div></div>`;
+      html += `<div class="hud-diary-entry hud-diary-mood-${moodKey}">${paper}${sticker}${stains}<span class="hud-diary-damage" aria-hidden="true"></span>${живойСлой(moodKey)}<div class="hud-diary-time">${escapeHtml(time)}${штамп}</div><div class="hud-diary-text" data-i18n-skip>${renderDiaryText(text)}</div></div>`;
     } else {
       const author = entry && entry.author && entry.author.toLowerCase() !== 'none' && entry.author.toLowerCase() !== 'empty' ? entry.author : '';
       const time = entry && entry.time ? entry.time : 'Скрытая запись';
       const aboutUser = entry && entry.aboutUser && entry.aboutUser.toLowerCase() !== 'none' && entry.aboutUser.toLowerCase() !== 'empty' ? entry.aboutUser : '';
       const text = entry && entry.text ? entry.text : '';
-      html += `<div class="hud-diary-entry hud-diary-mood-${moodKey}">${paper}${sticker}${stains}<span class="hud-diary-damage" aria-hidden="true"></span>${живойСлой(moodKey)}${author ? `<div class="hud-diary-author">${escapeHtml(имяБезПриставки(author))}</div>` : ''}<div class="hud-diary-time">${escapeHtml(time)}${штамп}</div><div class="hud-diary-text">${renderDiaryText(text)}</div>${aboutUser ? (settings.diaryVeil === false
-        ? `<div class="hud-diary-about-user"><span class="hud-diary-about-label">О ней:</span> ${renderDiaryText(aboutUser)}</div>`
-        : `<div class="hud-diary-about-user hud-wash is-closed" role="button" tabindex="0" aria-expanded="false"><span class="hud-diary-about-label">О ней:</span> <span class="hud-wash-text">${renderDiaryText(aboutUser)}</span><span class="hud-veil"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 3.5s6 6.4 6 10.5a6 6 0 0 1-12 0c0-4.1 6-10.5 6-10.5Z"/></svg>нажми, чтобы прочесть</span></span></div>`) : ''}</div>`;
+      html += `<div class="hud-diary-entry hud-diary-mood-${moodKey}">${paper}${sticker}${stains}<span class="hud-diary-damage" aria-hidden="true"></span>${живойСлой(moodKey)}${author ? `<div class="hud-diary-author">${escapeHtml(имяБезПриставки(author))}</div>` : ''}<div class="hud-diary-time">${escapeHtml(time)}${штамп}</div><div class="hud-diary-text" data-i18n-skip>${renderDiaryText(text)}</div>${aboutUser ? (settings.diaryVeil === false
+        ? `<div class="hud-diary-about-user"><span class="hud-diary-about-label">О ней:</span> <span data-i18n-skip>${renderDiaryText(aboutUser)}</span></div>`
+        : `<div class="hud-diary-about-user hud-wash is-closed" role="button" tabindex="0" aria-expanded="false"><span class="hud-diary-about-label">О ней:</span> <span class="hud-wash-text" data-i18n-skip>${renderDiaryText(aboutUser)}</span><span class="hud-veil"><span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M12 3.5s6 6.4 6 10.5a6 6 0 0 1-12 0c0-4.1 6-10.5 6-10.5Z"/></svg>нажми, чтобы прочесть</span></span></div>`) : ''}</div>`;
     }
   });
   return html + `</div></div>`;
@@ -469,7 +473,7 @@ export function buildBodyDiaryHTML(items, uid, isChecked, накалАвтора
     html += `<div class="hud-diary-entry hud-body-entry"${почерк}>${buildWaxDrops(seed)}` +
       (author ? `<div class="hud-diary-author">${escapeHtml(имяБезПриставки(author))}</div>` : "") +
       (time ? `<div class="hud-diary-time">${escapeHtml(time)}</div>` : "") +
-      `<div class="hud-diary-text">${renderDiaryText(e.text || "")}</div>` +
+      `<div class="hud-diary-text" data-i18n-skip>${renderDiaryText(e.text || "")}</div>` +
       (mood ? `<div class="hud-body-mood">${escapeHtml(mood)}</div>` : "") +
       `</div>`;
   });

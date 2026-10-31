@@ -11,23 +11,23 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.7';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.88.7';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.88.7';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.88.7';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.88.7';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.88.7';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.88.7';
-import { полныйПорядок } from './tabs-order.js?v=23.88.7';
-import { getWorldVotes } from './render/world.js?v=23.88.7';
-import { действиеМира } from './render/world-views.js?v=23.88.7';
-import { действиеМузыки } from './render/music.js?v=23.88.7';
-import { раскрытьПорцию } from './render/long-list.js?v=23.88.7';
-import { прогретьИсторию } from './render/carryover.js?v=23.88.7';
-import { подключитьПалитру } from './color-picker.js?v=23.88.7';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.88.7';
-import { замер } from './utils.js?v=23.88.7';
-import { пометитьЭффекты } from './render/fx.js?v=23.88.7';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.8';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.88.8';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.88.8';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.88.8';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.88.8';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.88.8';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.88.8';
+import { полныйПорядок } from './tabs-order.js?v=23.88.8';
+import { getWorldVotes } from './render/world.js?v=23.88.8';
+import { действиеМира } from './render/world-views.js?v=23.88.8';
+import { действиеМузыки } from './render/music.js?v=23.88.8';
+import { раскрытьПорцию } from './render/long-list.js?v=23.88.8';
+import { прогретьИсторию } from './render/carryover.js?v=23.88.8';
+import { подключитьПалитру } from './color-picker.js?v=23.88.8';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.88.8';
+import { замер } from './utils.js?v=23.88.8';
+import { пометитьЭффекты } from './render/fx.js?v=23.88.8';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -2162,8 +2162,88 @@ document.addEventListener('click', (e) => {
   if (полоса && полоса.__hudБезКлика && Date.now() - полоса.__hudБезКлика < 400) { e.preventDefault(); e.stopPropagation(); полоса.__hudБезКлика = 0; }
 }, true);
 
+// --- Свои статы: перестановка долгим нажатием (custom-stats.js) -------------
+// Зажал блок стата — он приподнимается и едет за пальцем между строками
+// вкладки. Отпустил — место запоминается в стате (after): после строки поля
+// с data-k, '^' — в начале, '' — в конце. Во вкладках без строк полей (память,
+// быт, мир) — только начало или конец, по тому, к какому краю ближе.
+let тягаСтата = null;
+function местоСтата(блок) {
+  const родитель = блок.parentElement;
+  if (!родитель) return '';
+  const строки = [...родитель.children];
+  if (!строки.some(у => у.hasAttribute('data-k'))) {
+    const i = строки.indexOf(блок);
+    return i < строки.length / 2 ? '^' : '';
+  }
+  const дальше = строки.slice(строки.indexOf(блок) + 1);
+  if (!дальше.some(у => у.hasAttribute('data-k'))) return '';
+  for (let у = блок.previousElementSibling; у; у = у.previousElementSibling) if (у.hasAttribute('data-k')) return у.getAttribute('data-k');
+  return '^';
+}
+function снятьТягуСтата(сохранить) {
+  const т = тягаСтата;
+  if (!т) return;
+  тягаСтата = null;
+  clearTimeout(т.таймер);
+  cancelAnimationFrame(т.кадр);
+  т.блок.classList.remove('is-lifted');
+  т.родитель.classList.remove('is-cst-dragging');
+  if (!т.активна) return;
+  if (!сохранить) { т.родитель.insertBefore(т.блок, т.след && т.след.parentElement === т.родитель ? т.след : null); return; }
+  const стат = (Array.isArray(settings.customStats) ? settings.customStats : []).find(с => с && с.id === т.блок.dataset.cst);
+  if (!стат) return;
+  стат.after = местоСтата(т.блок);
+  try { сохранитьНастройки && сохранитьНастройки(); } catch (_) { /* сохранится со следующим */ }
+}
+document.addEventListener('pointerdown', (e) => {
+  if (тягаСтата) { снятьТягуСтата(false); return; }
+  const блок = e.target.closest && e.target.closest('.hud-cst[data-cst]');
+  if (!блок || !блок.parentElement || (e.pointerType === 'mouse' && e.button !== 0)) return;
+  тягаСтата = { блок, родитель: блок.parentElement, след: блок.nextElementSibling, id: e.pointerId, x0: e.clientX, y0: e.clientY, y: e.clientY, активна: false };
+  тягаСтата.таймер = setTimeout(() => {
+    const т = тягаСтата;
+    if (!т || т.блок !== блок) return;
+    т.активна = true;
+    блок.classList.add('is-lifted');
+    т.родитель.classList.add('is-cst-dragging');
+    try { navigator.vibrate && navigator.vibrate(12); } catch (_) { /* нет вибро */ }
+    // Автопрокрутка ленты у краёв: блок можно дотащить за пределы экрана.
+    const лента = блок.closest('#chat') || document.scrollingElement;
+    const шаг = () => {
+      if (!тягаСтата || !тягаСтата.активна) return;
+      const п = лента.getBoundingClientRect ? лента.getBoundingClientRect() : { top: 0, bottom: innerHeight };
+      if (тягаСтата.y < Math.max(0, п.top) + КРАЙ) лента.scrollTop -= 8;
+      else if (тягаСтата.y > Math.min(innerHeight, п.bottom) - КРАЙ) лента.scrollTop += 8;
+      тягаСтата.кадр = requestAnimationFrame(шаг);
+    };
+    тягаСтата.кадр = requestAnimationFrame(шаг);
+  }, ДОЛГО);
+}, true);
+document.addEventListener('pointermove', (e) => {
+  const т = тягаСтата;
+  if (!т || e.pointerId !== т.id) return;
+  if (!т.активна) {
+    if (Math.abs(e.clientX - т.x0) > ДРОЖЬ || Math.abs(e.clientY - т.y0) > ДРОЖЬ) снятьТягуСтата(false);
+    return;
+  }
+  т.y = e.clientY;
+  // Под пальцем — блок сам (он поднят и пропускает указатель насквозь, см.
+  // custom-stats.css), ищем строку той же вкладки под ним.
+  let под = document.elementFromPoint(e.clientX, e.clientY);
+  while (под && под.parentElement !== т.родитель) под = под.parentElement;
+  if (!под || под === т.блок) return;
+  const р = под.getBoundingClientRect();
+  if (e.clientY < р.top + р.height / 2) { if (под.previousElementSibling !== т.блок) т.родитель.insertBefore(т.блок, под); }
+  else if (под.nextElementSibling !== т.блок) т.родитель.insertBefore(т.блок, под.nextElementSibling);
+}, true);
+document.addEventListener('pointerup', (e) => { if (тягаСтата && e.pointerId === тягаСтата.id) снятьТягуСтата(тягаСтата.активна); }, true);
+document.addEventListener('pointercancel', (e) => { if (тягаСтата && e.pointerId === тягаСтата.id) снятьТягуСтата(false); }, true);
+document.addEventListener('touchmove', (e) => { if (тягаСтата && тягаСтата.активна && e.cancelable) e.preventDefault(); }, { passive: false, capture: true });
+document.addEventListener('contextmenu', (e) => { if (тягаСтата && тягаСтата.активна) e.preventDefault(); }, true);
+
 let таймерСписков = 0;
-const ужатьПозже = (мс = 120) => { clearTimeout(таймерСписков); таймерСписков = setTimeout(ужатьСписки, мс); };
+const ужатьПозже =(мс = 120) => { clearTimeout(таймерСписков); таймерСписков = setTimeout(ужатьСписки, мс); };
 if (typeof MutationObserver !== 'undefined') new MutationObserver((записи) => замер('наблюдательСписков', () => {
   if (записи.some(з => [...з.addedNodes].some(у => у.nodeType === 1 && (у.matches?.('.hud-os-card, .hud-tab-content, .mes, .mes_text, .hud-rel-graph') || у.querySelector?.('.hud-os-card, .hud-rel-graph'))))) ужатьПозже();
 })).observe(document.body, { childList: true, subtree: true });

@@ -7,10 +7,11 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.88.7';
-import { mapKey } from './utils.js?v=23.88.7';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.88.7';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.88.7';
+import { settings } from './settings.js?v=23.88.8';
+import { mapKey } from './utils.js?v=23.88.8';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.88.8';
+import { списокВыключенного, убратьВыключенное } from './deep-fields.js?v=23.88.8';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.88.8';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -94,8 +95,11 @@ function normalizeHUDSchema(parsed) {
   const root = (parsed && typeof parsed === 'object') ? parsed : {};
   // Модель пишет разделы короткими кодами (chats, taps, log, tx…). Разворачиваем
   // их первыми, чтобы дальше работать с привычными названиями.
+  // Глубокая настройка (deep-fields.js): выключенное убираем, пока ключи —
+  // коды промта. Так оно уходит и из старых сообщений, где модель его писала.
+  убратьВыключенное(root, списокВыключенного(settings));
   развернутьКоды(root);
-  root.scene = fillMissingObjectFields(root.scene, HUD_SCENE_DEFAULTS);
+  root.scene =fillMissingObjectFields(root.scene, HUD_SCENE_DEFAULTS);
   root.characters = Array.isArray(root.characters) ? root.characters.map(c => fillMissingObjectFields(c, HUD_CHARACTER_DEFAULTS)) : [];
   if (settings.enableUserBlock) root.user = fillMissingObjectFields(root.user, HUD_USER_DEFAULTS);
   if (settings.enableMemory) {
@@ -111,6 +115,26 @@ function normalizeHUDSchema(parsed) {
   if (settings.enableDreams && !Array.isArray(root.dreams)) root.dreams = [];
   if (settings.enableWorld) root.world = fillMissingObjectFields(root.world, HUD_WORLD_DEFAULTS);
   return root;
+}
+
+// Свои статы (custom-stats.js): "Cst" у персонажа и игрока, "cst" в корне.
+// Имена статов — содержание, а не коды: mapKey их не трогает, значения — строкой.
+function своиЗначения(v) {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return {};
+  const out = {};
+  for (const [к, з] of Object.entries(v)) {
+    const имя = String(к).trim();
+    if (!имя) continue;
+    out[имя] = Array.isArray(з) ? з.map(x => String(x ?? '')).join('; ') : (з && typeof з === 'object' ? Object.values(з).map(x => String(x ?? '')).join('; ') : String(з ?? ''));
+  }
+  return out;
+}
+function сосвоими(сырой, готовый) {
+  if (!готовый || typeof готовый !== 'object') return готовый;
+  delete готовый.Cst;
+  const свои = сырой && typeof сырой === 'object' ? своиЗначения(сырой.Cst) : {};
+  if (Object.keys(свои).length) готовый.Cst = свои;
+  return готовый;
 }
 
 export function normalizeJSONData(parsed) {
@@ -419,7 +443,9 @@ export function normalizeJSONData(parsed) {
   };
   return {
     // Фаза близости приходит кодом (fp, cx…); шкала фаз узнаёт полные слова.
-    scene: mapKeys(parsed.scene), characters: chars.map(mapKeys).map(c => { if (c['Фаза близости']) c['Фаза близости'] = фазаБлизости(c['Фаза близости']); return c; }), user: mapKeys(parsed.user), memory: memoryParsed, chatsMap: chatsMap, phone: phoneParsed, intercepts: interceptsParsed, satchel: satchelParsed, letters: lettersParsed, overheard: overheardParsed, diary: diaryParsed, bodyDiary: bodyDiaryParsed, dreams: dreamsParsed, companions: companionsParsed, combat: боевой(parsed.combat),
+    scene: mapKeys(parsed.scene), characters: chars.map(c => сосвоими(c, mapKeys(c))).map(c => { if (c['Фаза близости']) c['Фаза близости'] = фазаБлизости(c['Фаза близости']); return c; }), user: сосвоими(parsed.user, mapKeys(parsed.user)),
+    // Свои статы всей истории (custom-stats.js): корневой "cst".
+    custom: своиЗначения(parsed.cst || parsed.custom), memory: memoryParsed, chatsMap: chatsMap, phone: phoneParsed, intercepts: interceptsParsed, satchel: satchelParsed, letters: lettersParsed, overheard: overheardParsed, diary: diaryParsed, bodyDiary: bodyDiaryParsed, dreams: dreamsParsed, companions: companionsParsed, combat: боевой(parsed.combat),
     // Малыши (bb): та же карточка, что у персонажа, только своё поле «Нужды».
     babies: (Array.isArray(parsed.babies) ? parsed.babies : (parsed.babies && typeof parsed.babies === 'object' ? [parsed.babies] : [])).filter(b => b && typeof b === 'object').map(mapKeys).filter(b => b['Имя']),
     world: { headlines: cleanArray(world.headlines), rumors: cleanArray(world.rumors),

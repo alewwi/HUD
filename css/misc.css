@@ -1538,6 +1538,30 @@
 /* Галочка и подпись в одну строку: без обёртки подпись на узкой панели
    уезжала целиком на следующую строку, а галочка оставалась одна. */
 .hud-set-check > input[type="checkbox"] { flex: none; margin: 0; }
+
+/* Глубокая настройка (settings-deep.js): поле, под ним — его метки лесенкой. */
+.hud-fine-count { font-weight: 400; opacity: .65; font-size: .92em; }
+.hud-fine-tree { display: flex; flex-direction: column; gap: 4px; margin: 6px 0; }
+.hud-fine-field { display: flex; flex-direction: column; gap: 3px; padding: 2px 0; }
+.hud-fine-subs { display: flex; flex-wrap: wrap; gap: 3px 12px; margin-left: 24px; padding-left: 8px; border-left: 1px solid var(--hud-border); }
+.hud-fine-subs[data-off] { opacity: .4; pointer-events: none; }
+.hud-fine-item.is-sub { font-size: .92em; gap: 6px; }
+
+/* Свои статы: карточка редактора на каждый стат. */
+.hud-cst-list { display: flex; flex-direction: column; gap: 8px; margin: 6px 0; }
+.hud-cst-ed { display: flex; flex-direction: column; gap: 6px; padding: 8px; border: 1px solid var(--hud-border); border-radius: 8px; background: rgba(0,0,0,.14); min-width: 0; }
+.hud-cst-ed-top { display: flex; gap: 6px; align-items: center; min-width: 0; }
+.hud-cst-ed-name { flex: 1 1 auto; min-width: 0; margin: 0 !important; font-weight: 600; }
+.hud-cst-ed-hint, .hud-cst-prompt { width: 100%; min-width: 0; margin: 0 !important; resize: vertical; font-size: 12.5px; line-height: 1.4; }
+.hud-cst-ed-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 6px 10px; }
+.hud-cst-ed-row > label { display: flex; flex-direction: column; gap: 2px; font-size: 12px; opacity: .9; min-width: 0; }
+.hud-cst-ed-row > label[hidden] { display: none; }
+.hud-cst-ed-row select { width: 100%; max-width: none; min-width: 0; }
+/* Цвет: кружок-образец (тот же --kind, что у блока на карточке), выбор и палитра своего. */
+.hud-cst-ed-color { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.hud-cst-ed-color > select { flex: 1 1 auto; }
+.hud-cst-ed-dot { flex: none; width: 14px; height: 14px; border-radius: 50%; background: var(--kind, var(--hud-accent, #c31f38)); box-shadow: 0 0 0 1px rgba(255,255,255,.25), 0 0 6px -1px var(--kind, var(--hud-accent, #c31f38)); }
+.hud-cst-ed-color > input[type="color"] { flex: none; width: 32px; height: 26px; padding: 0 2px; border: 1px solid var(--hud-border); border-radius: 6px; background: transparent; cursor: pointer; }
 .hud-set-check > span { flex: 1 1 0; min-width: 0; }
 
 /* --- Сцена на телефоне -------------------------------------------------
@@ -5099,6 +5123,32 @@
 .hud-conception-bar > i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--phase, var(--hud-accent)) 55%, transparent), var(--phase, var(--hud-accent))); }
 .hud-conception.is-low  .hud-conception-bar > i { opacity: .55; }
 .hud-conception small { display: block; font-size: .78em; opacity: .75; }
+/* «почему N%» (render/intimacy.js, почемуРиск): маленькая кнопка, под ней
+   плавно раскрывается разбор по шагам (details.hud-smooth, events.js). Цвет —
+   фаза цикла или акцент темы. */
+.hud-why { margin-top: 6px; }
+.hud-why > summary {
+  list-style: none; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; max-width: 100%;
+  padding: 2px 9px 2px 3px; border-radius: 999px; font-size: .74em; letter-spacing: .02em; user-select: none;
+  color: color-mix(in srgb, var(--phase, var(--hud-accent)) 70%, currentColor);
+  border: 1px solid color-mix(in srgb, var(--phase, var(--hud-accent)) 35%, transparent);
+  background: color-mix(in srgb, var(--phase, var(--hud-accent)) 8%, transparent);
+}
+.hud-why > summary::-webkit-details-marker { display: none; }
+.hud-why-ico {
+  flex: none; width: 15px; height: 15px; border-radius: 50%; display: inline-grid; place-items: center;
+  font-style: normal; font-weight: 800; font-size: .85em; line-height: 1;
+  color: var(--hud-bg-solid, #fff); background: var(--phase, var(--hud-accent));
+  transition: rotate .25s ease;
+}
+@supports (color: oklch(from red l c h)) { .hud-why-ico { color: oklch(from var(--phase, var(--hud-accent)) clamp(0, calc((.7 - l) * 1000), 1) 0 0); } }
+.hud-why[open] > summary .hud-why-ico { rotate: 180deg; }
+@media (hover: hover) and (pointer: fine) { .hud-why > summary:hover { background: color-mix(in srgb, var(--phase, var(--hud-accent)) 16%, transparent); } }
+.hud-why-steps { margin: 7px 0 0; padding: 0 0 0 18px; display: flex; flex-direction: column; gap: 4px; font-size: .8em; line-height: 1.45; overflow-wrap: break-word; }
+.hud-why-steps > li::marker { color: var(--phase, var(--hud-accent)); font-weight: 700; }
+.hud-why-sum { margin: 6px 0 2px; font-size: .82em; }
+.hud-why-sum b { font-variant-numeric: tabular-nums; color: var(--phase, var(--hud-accent)); }
+.hud-scene-mods-why { flex: 1 1 100%; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 /* Тест на беременность: кнопка раскрывает тест-полоску. Контрольная линия
    есть всегда, вторая — только при «+». Итог берётся из скрытого броска. */
 .hud-preg-test { margin-top: 9px; }
