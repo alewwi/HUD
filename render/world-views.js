@@ -14,9 +14,9 @@
 // пустить эфир, оторвать листок, поставить галочку, лайкнуть. Отметки живут
 // в памяти страницы (как голоса в новостях) и переживают перерисовку карточки.
 
-import { escapeHtml, hudHashSeed } from '../utils.js?v=23.88.12';
-import { ико, ИКОНКИ } from './view-icons.js?v=23.88.12';
-import { знакЗодиака } from '../i18n.js?v=23.88.12';
+import { escapeHtml, hudHashSeed } from '../utils.js?v=23.88.13';
+import { ико, ИКОНКИ } from './view-icons.js?v=23.88.13';
+import { знакЗодиака } from '../i18n.js?v=23.88.13';
 
 const т = (s) => escapeHtml(String(s ?? ''));
 const хэш = (s) => hudHashSeed(String(s ?? ''));
@@ -445,7 +445,7 @@ export function видКомментариев(комментарии, вид, �
   if (вид === 'forum') {
     // Форум: карточка участника и пост; нажатие на «+» прибавляет репутацию.
     return секция('cmt', заголовок, корень('cmt', вид,
-      все.map((к, i) => { const х = хэш(к.name); return `<article class="post"><aside><span class="ava" style="--c:${к.color}">${т(к.initials)}</span><b>${т(к.name)}</b><small>${ЗВАНИЯ[х % ЗВАНИЯ.length]}</small><span class="stars" aria-hidden="true">${ико('star').repeat(1 + х % 5)}</span><small>сообщений: ${12 + х % 3000}</small></aside><div class="body"><span class="no">#${i + 1}</span><p>${т(к.text)}</p><div class="foot">${счётчик('rep', к.name + к.text, х % 60, 'heart')}<span class="quote">${ико('reply')}цитировать</span></div></div></article>`; }).join('')));
+      все.map((к, i) => { const х = хэш(к.name); return `<article class="post"><aside><span class="ava" style="--c:${к.color}">${т(к.initials)}</span><b>${т(к.name).replace(/([_.])/g, '$1<wbr>')}</b><small>${ЗВАНИЯ[х % ЗВАНИЯ.length]}</small><span class="stars" aria-hidden="true">${ико('star').repeat(1 + х % 5)}</span><small>сообщений: ${12 + х % 3000}</small></aside><div class="body"><span class="no">#${i + 1}</span><p>${т(к.text)}</p><div class="foot">${счётчик('rep', к.name + к.text, х % 60, 'heart')}<span class="quote">${ико('reply')}цитировать</span></div></div></article>`; }).join('')));
   }
   if (вид === 'threads') {
     // Ветка: аватары на нити, @ник, текст; лайк и репост нажимаются.

@@ -11,23 +11,23 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.12';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.88.12';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.88.12';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.88.12';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.88.12';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.88.12';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.88.12';
-import { полныйПорядок } from './tabs-order.js?v=23.88.12';
-import { getWorldVotes } from './render/world.js?v=23.88.12';
-import { действиеМира } from './render/world-views.js?v=23.88.12';
-import { действиеМузыки } from './render/music.js?v=23.88.12';
-import { раскрытьПорцию } from './render/long-list.js?v=23.88.12';
-import { прогретьИсторию } from './render/carryover.js?v=23.88.12';
-import { подключитьПалитру } from './color-picker.js?v=23.88.12';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.88.12';
-import { замер } from './utils.js?v=23.88.12';
-import { пометитьЭффекты } from './render/fx.js?v=23.88.12';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.13';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.88.13';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.88.13';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.88.13';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.88.13';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.88.13';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.88.13';
+import { полныйПорядок } from './tabs-order.js?v=23.88.13';
+import { getWorldVotes } from './render/world.js?v=23.88.13';
+import { действиеМира } from './render/world-views.js?v=23.88.13';
+import { действиеМузыки } from './render/music.js?v=23.88.13';
+import { раскрытьПорцию } from './render/long-list.js?v=23.88.13';
+import { прогретьИсторию } from './render/carryover.js?v=23.88.13';
+import { подключитьПалитру } from './color-picker.js?v=23.88.13';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.88.13';
+import { замер } from './utils.js?v=23.88.13';
+import { пометитьЭффекты } from './render/fx.js?v=23.88.13';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -1957,8 +1957,11 @@ document.addEventListener('click', (e) => {
 // На телефоне — вниз: высоту под три карточки меряем по месту, карточки
 // разной высоты. На широком экране списки столбиком идут вбок по три в ряд,
 // сетки и виды блоков — тоже вниз. Скрытые вкладки меряем, когда откроют.
-const СПИСКИ = '.hud-vertical-container, .hud-ill-list, .hud-marks, .hud-guns, .hud-v-vaults, .hud-v-envs, .hud-v-files, .hud-v-webs, .hud-v-secbars, .hud-v-inv.is-cards, .hud-v-inv.is-groups, .hud-mood-history';
-const ВБОК = '.hud-vertical-container, .hud-ill-list, .hud-marks';
+const СПИСКИ = '.hud-vertical-container, .hud-inventory-grid, .hud-life-items, .hud-bodymap, .hud-heat-list, .hud-v-bm-legend, .hud-ill-list, .hud-marks, .hud-guns, .hud-v-vaults, .hud-v-envs, .hud-v-files, .hud-v-webs, .hud-v-secbars, .hud-v-inv.is-cards, .hud-v-inv.is-groups, .hud-mood-history';
+const ВБОК = '.hud-vertical-container, .hud-inventory-grid, .hud-life-items, .hud-bodymap, .hud-ill-list, .hud-marks';
+// Пилюли: на широком экране — вбок уже от трёх и в любой ячейке (в узкой —
+// по две в ряд, is-x2), чтобы на виду всегда было две-три, а не столбик.
+const ПИЛЮЛИ = '.hud-vertical-container, .hud-inventory-grid, .hud-life-items, .hud-bodymap';
 // Свои ленты вбок на широком экране (история настроения): там их не трогаем,
 // на телефоне они столбиком (css/compact.css) и ужимаются, как остальные.
 const ЛЕНТЫ = '.hud-mood-history';
@@ -1988,18 +1991,20 @@ function ужатьСпискиСразу() {
   const мерить = [];
   for (const п of план) {
     const { с, дети } = п;
-    if (дети.length < 4 || (широкий && с.matches(ЛЕНТЫ))) { if (с.classList.contains('is-capped') || с.classList.contains('is-capped-x')) { с.classList.remove('is-capped', 'is-capped-x', 'is-end'); с.style.maxHeight = ''; } continue; }
+    const пилюли = широкий && с.matches(ПИЛЮЛИ);
+    if (дети.length < (пилюли ? 3 : 4) || (широкий && с.matches(ЛЕНТЫ))) { if (с.classList.contains('is-capped') || с.classList.contains('is-capped-x')) { с.classList.remove('is-capped', 'is-capped-x', 'is-end', 'is-x2'); с.style.maxHeight = ''; } continue; }
     // Вбок — только когда в ряд помещаются хотя бы две карточки (по 160px).
     // В половинной ячейке узкой карточки (240px) лента вбок показывала
     // полторы карточки с текстом, обрезанным посреди слова, — там вниз.
-    if (широкий && с.matches(ВБОК) && (п.ширина === 0 || п.ширина >= 340)) {
+    if (широкий && с.matches(ВБОК) && (пилюли || п.ширина === 0 || п.ширина >= 340)) {
       if (!с.classList.contains('is-capped-x')) { с.classList.remove('is-capped'); с.style.maxHeight = ''; с.classList.add('is-capped-x'); }
+      if (п.ширина) с.classList.toggle('is-x2', пилюли && п.ширина < 340);
       continue;
     }
     if (!п.виден) continue;
     п.ключ = дети.length + '|' + п.ширина;
     if (с.classList.contains('is-capped') && с.dataset.cap === п.ключ) continue;
-    с.classList.remove('is-capped-x');
+    с.classList.remove('is-capped-x', 'is-x2');
     с.classList.add('is-capped');
     с.style.maxHeight = 'none';
     мерить.push(п);
@@ -2010,10 +2015,15 @@ function ужатьСпискиСразу() {
     const верх = п.с.getBoundingClientRect().top;
     const низ = Math.max(...п.дети.slice(0, 3).map(x => x.getBoundingClientRect().bottom));
     // Три карточки целиком и краешек четвёртой — видно, что дальше есть ещё.
-    п.высота = Math.ceil(низ - верх + 34);
+    // Краешек — доля её высоты: ровные 34px показывали маленькую пилюлю
+    // инвентаря почти целиком, и казалось, что видно четыре.
+    const четвёртая = п.дети[3].getBoundingClientRect();
+    п.краешек = Math.round(Math.min(28, Math.max(10, четвёртая.height * 0.4)));
+    п.высота = Math.ceil(четвёртая.top - верх + п.краешек);
   }
   // 4. Записи: потолки.
-  for (const п of мерить) { п.с.style.maxHeight = п.высота + 'px'; п.с.dataset.cap = п.ключ; }
+  // Затухание внизу — на высоту краешка, чтобы третья карточка не бледнела.
+  for (const п of мерить) { п.с.style.maxHeight = п.высота + 'px'; п.с.style.setProperty('--cap-fade', п.краешек + 'px'); п.с.dataset.cap = п.ключ; }
   // 5. Чтения, потом записи: долистан ли список до конца.
   const концы = мерить.map(п => п.с.scrollHeight - п.с.clientHeight < 4);
   мерить.forEach((п, i) => п.с.classList.toggle('is-end', концы[i]));

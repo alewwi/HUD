@@ -13,13 +13,13 @@
 // секрета, — «при нём об этом нельзя».
 // На узком экране сетку заменяет список по людям (container query).
 
-import { escapeHtml, getSafeUserName } from '../utils.js?v=23.88.12';
-import { settings } from '../settings.js?v=23.88.12';
-import { namesLikelySame } from '../names.js?v=23.88.12';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.12';
-import { ико, медаль } from './view-icons.js?v=23.88.12';
-import { правкаСекрета, всплывшиеСекреты, правитьСнимок, правки } from '../snapshot-edits.js?v=23.88.12';
-import { разобратьДуэль } from './duel.js?v=23.88.12';
+import { escapeHtml, getSafeUserName } from '../utils.js?v=23.88.13';
+import { settings } from '../settings.js?v=23.88.13';
+import { namesLikelySame } from '../names.js?v=23.88.13';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.13';
+import { ико, медаль } from './view-icons.js?v=23.88.13';
+import { правкаСекрета, всплывшиеСекреты, правитьСнимок, правки } from '../snapshot-edits.js?v=23.88.13';
+import { разобратьДуэль } from './duel.js?v=23.88.13';
 // Склонение по числу: склон(3, ['секрет', 'секрета', 'секретов']).
 const склон = (n, [один, два, пять]) => { const к = Math.abs(n) % 100, е = к % 10; return к > 10 && к < 20 ? пять : е === 1 ? один : е >= 2 && е <= 4 ? два : пять; };
 

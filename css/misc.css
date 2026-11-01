@@ -6537,13 +6537,14 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 
 /* На телефоне вложенная прокрутка в строках карточки (отношения, ключ, цели,
    NSFW — 140px) без видимой полосы выглядела обрезанным краем: карточка
-   и так прокручивается целиком, поэтому списки раскрываем. */
+   и так прокручивается целиком, поэтому списки раскрываем. Длинные (is-capped,
+   events.js) — нет: там видно три, остальное листается вниз. */
 @media (max-width: 600px) {
-  .hud-os-card .hud-body .hud-vertical-container, .hud-os-card .hud-body .hud-key-list { max-height: none !important; overflow-y: visible !important; }
+  .hud-os-card .hud-body .hud-vertical-container:not(.is-capped), .hud-os-card .hud-body .hud-key-list:not(.is-capped) { max-height: none !important; overflow-y: visible !important; }
 }
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) {
-  .hud-os-card .hud-body .hud-vertical-container, .hud-os-card .hud-body .hud-key-list { max-height: none !important; overflow-y: visible !important; }
+  .hud-os-card .hud-body .hud-vertical-container:not(.is-capped), .hud-os-card .hud-body .hud-key-list:not(.is-capped) { max-height: none !important; overflow-y: visible !important; }
 } }
 /* cq ↑ */
 

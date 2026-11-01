@@ -1044,3 +1044,13 @@
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) { .hud-f-role.is-ribbon { gap: 10px; } .hud-f-role.is-ribbon .medal { width: 66px; height: 76px; } .hud-f-role.is-ribbon .title b { font-size: 1.1em; } } }
 /* cq ↑ */
+
+/* Подложка «Субтитров» — полупрозрачный оттенок акцента темы: кадр был
+   чёрным. Полосы кадра и текст — от цвета текста темы. */
+.hud-f-lines.is-subtitles .frame { background: color-mix(in srgb, var(--t-acc) 12%, color-mix(in srgb, currentColor 5%, transparent)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--t-acc) 30%, transparent); }
+.hud-f-lines.is-subtitles .frame::after { background: radial-gradient(currentColor .5px, transparent .8px) 0 0 / 3px 3px; opacity: .08; }
+.hud-f-lines.is-subtitles .bar { background: color-mix(in srgb, currentColor 12%, transparent); }
+.hud-f-lines.is-subtitles .badge { border-color: color-mix(in srgb, currentColor 50%, transparent); color: color-mix(in srgb, currentColor 65%, transparent); }
+.hud-f-lines.is-subtitles .subs small { color: color-mix(in srgb, currentColor 50%, transparent); }
+.hud-f-lines.is-subtitles .subs span { color: var(--hud-text, currentColor); text-shadow: none; }
+.hud-f-lines.is-subtitles .subs em { color: var(--t-acc); }

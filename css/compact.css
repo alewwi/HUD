@@ -14,7 +14,7 @@
   overflow-y: auto !important; overflow-x: hidden !important; overscroll-behavior-y: auto; scroll-snap-type: y proximity;
   padding-bottom: 22px !important; box-sizing: border-box;
   scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--hud-accent, #c31f38) 45%, transparent) transparent;
-  -webkit-mask: linear-gradient(180deg, #000 calc(100% - 28px), transparent); mask: linear-gradient(180deg, #000 calc(100% - 28px), transparent);
+  -webkit-mask: linear-gradient(180deg, #000 calc(100% - var(--cap-fade, 28px)), transparent); mask: linear-gradient(180deg, #000 calc(100% - var(--cap-fade, 28px)), transparent);
 }
 /* Список — flex-колонка с потолком по высоте, а у карточки (след, болезнь)
    overflow: hidden, и её минимальная высота — ноль: потолок сжимал её, и
@@ -36,6 +36,9 @@
   flex: 0 0 max(160px, (100% - 20px) / 3.15) !important; max-width: max(160px, (100% - 20px) / 3.15) !important; min-width: 0;
   margin: 0 !important; scroll-snap-align: start; box-sizing: border-box;
 }
+/* Пилюли в узкой ячейке широкой карточки (is-x2, events.js): две в ряд и
+   краешек третьей — раньше там был столбик, листавшийся вниз. */
+.hud-os-card .is-capped-x.is-x2 > * { flex-basis: calc((100% - 10px) / 2.15) !important; max-width: calc((100% - 10px) / 2.15) !important; }
 .hud-os-card .is-capped.is-end, .hud-os-card .is-capped-x.is-end { -webkit-mask: none; mask: none; }
 /* След в ленте вбок — узкий, как на телефоне: таймер на своей строке,
    иначе «сойдёт через 2 дн. 11 ч» сжимал название до буквы в строке. */

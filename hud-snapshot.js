@@ -12,15 +12,15 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.88.12';
-import { т } from './i18n.js?v=23.88.12';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.88.12';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.88.12';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.88.12';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.88.12';
-import { заменитьHudБлоки } from './hud-block.js?v=23.88.12';
-import { упомянутВТексте } from './names.js?v=23.88.12';
-import { списокВыключенного, убратьВыключенное } from './deep-fields.js?v=23.88.12';
+import { settings } from './settings.js?v=23.88.13';
+import { т } from './i18n.js?v=23.88.13';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.88.13';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.88.13';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.88.13';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.88.13';
+import { заменитьHudБлоки } from './hud-block.js?v=23.88.13';
+import { упомянутВТексте } from './names.js?v=23.88.13';
+import { списокВыключенного, убратьВыключенное } from './deep-fields.js?v=23.88.13';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 

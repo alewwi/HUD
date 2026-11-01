@@ -1036,3 +1036,39 @@
 @keyframes hud-wv-hop { 30% { transform: translateY(-8px); } 60% { transform: translateY(0); } 80% { transform: translateY(-3px); } }
 @keyframes hud-wv-eqbar { from { height: 20%; } to { height: 100%; } }
 @keyframes hud-wv-lcd { from { opacity: 0; transform: translateY(6px); } }
+
+/* Подложка под цвет темы: табло курсов, диспетчерская, тревога, афиша-вывеска,
+   стрим-чат и форум были чёрными (тёмно-синими) плашками поверх карточки.
+   Теперь — полупрозрачный оттенок акцента; «экранный» светлый текст — цвета текста
+   темы, подсветка — акцент темы. Сигнальные цвета (рост/падение, лампочки,
+   «в эфире») остаются. */
+.hud-wv.is-board .led, .hud-wv.is-dispatch .console, .hud-wv.is-alert .sys, .hud-wv.is-marquee .board, .hud-wv.is-stream .chat, .hud-wv.is-forum .post {
+  background: color-mix(in srgb, var(--v-acc) 12%, color-mix(in srgb, currentColor 5%, transparent)); color: var(--hud-text, currentColor); border-color: var(--v-line); box-shadow: none; }
+.hud-wv.is-board .led::after { display: none; }
+.hud-wv.is-board .hd, .hud-wv.is-dispatch .hd { color: var(--v-acc); border-color: var(--v-line); }
+.hud-wv.is-board .tk { border-color: color-mix(in srgb, currentColor 10%, transparent); }
+.hud-wv.is-board .nm { color: var(--v-acc); text-shadow: none !important; }
+.hud-wv.is-board .tk b { color: inherit; text-shadow: none !important; }
+.hud-wv.is-board .is-up em { color: color-mix(in srgb, #1fbf63 80%, currentColor); text-shadow: none !important; }
+.hud-wv.is-board .is-down em { color: color-mix(in srgb, #e5484d 85%, currentColor); text-shadow: none !important; }
+.hud-wv.is-board .is-flat em { color: var(--v-ink-soft); }
+.hud-wv.is-dispatch .wave i { background: var(--v-acc); }
+.hud-wv.is-dispatch .call { border-color: color-mix(in srgb, currentColor 12%, transparent); }
+.hud-wv.is-dispatch .ch { color: var(--v-acc); border-color: var(--v-line); }
+.hud-wv.is-dispatch .call b { color: inherit; text-shadow: none !important; }
+.hud-wv.is-dispatch .call p { color: var(--v-ink-soft); }
+.hud-wv.is-alert .sys { background: repeating-linear-gradient(-45deg, color-mix(in srgb, currentColor 6%, transparent) 0 8px, transparent 8px 16px); }
+.hud-wv.is-marquee .sign { background: color-mix(in srgb, var(--v-acc) 12%, color-mix(in srgb, currentColor 5%, transparent)); box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--v-acc) 55%, #8a6a20); }
+.hud-wv.is-marquee .sign .board { background: transparent; }
+.hud-wv.is-marquee .now, .hud-wv.is-marquee .k { color: var(--v-acc); text-shadow: none !important; }
+.hud-wv.is-marquee .ln { border-color: color-mix(in srgb, currentColor 12%, transparent); }
+.hud-wv.is-marquee .ln small { color: var(--v-ink-soft); }
+.hud-wv.is-stream .hd { color: var(--v-ink-soft); border-color: var(--v-line); }
+.hud-wv.is-stream .live { color: inherit; }
+.hud-wv.is-stream .chat > p:nth-of-type(odd) { background: color-mix(in srgb, currentColor 4%, transparent); }
+.hud-wv.is-stream .nick { color: color-mix(in srgb, var(--c, var(--v-acc)) 75%, currentColor); }
+.hud-wv.is-stream .nick::after { color: inherit; }
+.hud-wv.is-stream .typing i { background: currentColor; }
+.hud-wv.is-forum aside { background: color-mix(in srgb, var(--v-acc) 8%, transparent); border-color: var(--v-line); }
+.hud-wv.is-forum aside b { color: var(--v-acc); }
+.hud-wv.is-forum aside small, .hud-wv.is-forum .no { color: var(--v-ink-soft); }

@@ -1543,3 +1543,15 @@
    не помещались в строку, число уходило за край. Теперь строка переносится. */
 .hud-v-bond { flex-wrap: wrap; row-gap: 4px; }
 .hud-v-bond .hud-v-hearts { flex-wrap: wrap; max-width: 100%; }
+
+/* Подложка под цвет темы: монитор ЭКГ, звёздное небо и карта маршрута были
+   чёрными плашками. Теперь — полупрозрачный оттенок акцента, а линии,
+   звёзды и кварталы — от цвета текста темы, чтобы читались и на светлых. */
+.hud-v-monitor, .hud-v-sky, .hud-v-map { background: color-mix(in srgb, var(--v-acc) 12%, color-mix(in srgb, currentColor 5%, transparent)); box-shadow: inset 0 0 0 1px var(--v-line); }
+.hud-v-sky .bgstar { fill: currentColor; }
+.hud-v-sky .ghost { stroke: currentColor; }
+.hud-v-sky .lines line { stroke: color-mix(in srgb, currentColor 45%, transparent); }
+.hud-v-sky .star path { fill: color-mix(in srgb, currentColor calc(35% + var(--h) * 40%), var(--v-acc)); filter: none; }
+.hud-v-map .road { stroke: color-mix(in srgb, currentColor 10%, transparent); }
+.hud-v-map .block { fill: color-mix(in srgb, currentColor 5%, transparent); stroke: color-mix(in srgb, currentColor 9%, transparent); }
+.hud-v-map .trail { stroke: var(--v-acc); }
