@@ -66,8 +66,10 @@
 :root.hud-sb-on .hud-os-card { --hud-pill-base: color-mix(in srgb, var(--hud-accent) 8%, rgba(14, 12, 19, .78)); }
 :root.hud-sb-on.hud-scheme-light .hud-os-card { --hud-pill-base: color-mix(in srgb, var(--hud-accent) 6%, rgba(255, 252, 246, .8)); }
 /* С !important и сильнее оформлений секций («Стикеры», «Лунное стекло»…): они
-   задают фон строки сокращённым background с !important и сбрасывали подложку. */
-:root.hud-sb-on .hud-os-card .hud-tab-content .hud-body > .hud-row, :root.hud-sb-on .hud-os-card .hud-tab-content .hud-body .hud-v { background-color: var(--hud-pill-base) !important; }
+   задают фон строки сокращённым background с !important и сбрасывали подложку.
+   Только верхнему слою: вид поля внутри строки (.hud-row .hud-v) лёг бы
+   второй подложкой поверх строки — 78 % на 78 %, почти чёрная плашка. */
+:root.hud-sb-on .hud-os-card .hud-tab-content .hud-body > .hud-row, :root.hud-sb-on .hud-os-card .hud-tab-content .hud-body .hud-v:not(.hud-row .hud-v, .hud-v .hud-v) { background-color: var(--hud-pill-base) !important; }
 
 /* =========================================================================
    ТУШЬ («到大地尽头», «雨霖铃»): двойная линия, растворяющаяся к краям, и
