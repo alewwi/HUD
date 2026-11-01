@@ -12,8 +12,8 @@
 // переформулировка давала бы новый бросок — лишний шанс. Поэтому ключ —
 // время близости и партнёр, а первый бросок по этому ключу запоминается.
 
-import { namesLikelySame } from '../names.js?v=23.88.9';
-import { settings } from '../settings.js?v=23.88.9';
+import { namesLikelySame } from '../names.js?v=23.88.10';
+import { settings } from '../settings.js?v=23.88.10';
 
 const КЛЮЧ = 'tavernosHudConception';
 

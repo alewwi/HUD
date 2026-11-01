@@ -13,22 +13,22 @@
 // карточки ненадёжны — у неё content-visibility, и браузер может не
 // двигать их время.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.88.9';
-import { namesLikelySame } from '../names.js?v=23.88.9';
-import { разобратьХод } from './carryover.js?v=23.88.9';
-import { parseSceneDate } from '../history-analyzer.js?v=23.88.9';
-import { исходЗачатия } from './conception.js?v=23.88.9';
-import { блокПлодов } from './fetus.js?v=23.88.9';
-import { кровотечение } from './fertility.js?v=23.88.9';
-import { settings } from '../settings.js?v=23.88.9';
-import { английский } from '../i18n.js?v=23.88.9';
-import { имяЗначка, значкиВключены } from './hud-icons.js?v=23.88.9';
-import { одеждаПодробно, слойОдежды, темпИзТекста, темпыПроникновений, блокТемпа, позаТела, полПерсонажа, проникновенияИзТекста, меткиПроникновения, строкиПроникновения, членИзТекста, семяИзТекста, влагаИзТекста, финалСцены, вышелИзТекста, снаружиИзТекста, движениеИзОргазма } from './scene-body.js?v=23.88.9';
-import { ощущенияИзТекста } from './body-layers.js?v=23.88.9';
-import { полосаВлечения } from './cycle-libido.js?v=23.88.9';
-import { обликИзТекстов, естьОблик, причёска, волосыСзади, лицо, масштабСложения, масштабРоста, стильОблика, меткиОтметин, нуженКонтур } from './look.js?v=23.88.9';
-import { канонОблика, полИзКанона, подтянутьЛор } from './canon.js?v=23.88.9';
-import { силуэтТела, силуэтБезРук, открытоеТело, очертанияТела, defsОбъёма, слоиОбъёма, кромка, параметрыФигуры, деталиФигуры, кФигуре, грудьФигуры } from './body-art.js?v=23.88.9';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.88.10';
+import { namesLikelySame } from '../names.js?v=23.88.10';
+import { разобратьХод } from './carryover.js?v=23.88.10';
+import { parseSceneDate } from '../history-analyzer.js?v=23.88.10';
+import { исходЗачатия } from './conception.js?v=23.88.10';
+import { блокПлодов } from './fetus.js?v=23.88.10';
+import { кровотечение } from './fertility.js?v=23.88.10';
+import { settings } from '../settings.js?v=23.88.10';
+import { английский } from '../i18n.js?v=23.88.10';
+import { имяЗначка, значкиВключены } from './hud-icons.js?v=23.88.10';
+import { одеждаПодробно, слойОдежды, темпИзТекста, темпыПроникновений, блокТемпа, позаТела, полПерсонажа, проникновенияИзТекста, меткиПроникновения, строкиПроникновения, членИзТекста, семяИзТекста, влагаИзТекста, финалСцены, вышелИзТекста, снаружиИзТекста, движениеИзОргазма } from './scene-body.js?v=23.88.10';
+import { ощущенияИзТекста } from './body-layers.js?v=23.88.10';
+import { полосаВлечения } from './cycle-libido.js?v=23.88.10';
+import { обликИзТекстов, естьОблик, причёска, волосыСзади, лицо, масштабСложения, масштабРоста, стильОблика, меткиОтметин, нуженКонтур } from './look.js?v=23.88.10';
+import { канонОблика, полИзКанона, подтянутьЛор } from './canon.js?v=23.88.10';
+import { силуэтТела, силуэтБезРук, открытоеТело, очертанияТела, defsОбъёма, слоиОбъёма, кромка, параметрыФигуры, деталиФигуры, кФигуре, грудьФигуры } from './body-art.js?v=23.88.10';
 
 const пусто = (v) => { const s = String(v ?? '').trim(); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
 const число = (s) => { const m = String(s ?? '').replace(/(\d),(\d)/g, '$1.$2').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };
@@ -1053,6 +1053,9 @@ const ЗАЩИТА_ЗАЧАТИЯ = [
   [/презерватив|кондом|condom/i, .15, 'презерватив'],
   [/прерван|вынул|вытащ|успел выйти|кончил (?:на|снаружи)|withdraw|pull(?:ed)?.out/i, .25, 'прерванный акт'],
   [/спермицид|свеч|spermicid/i, .3, 'спермицид'],
+  // Средства без аптеки: отвар трав, кишечный чехол — то, что пишут в средневековье.
+  [/отвар|настой|снадоб|пижм|сильфи|herbal|pennyroyal|silphium/i, .7, 'травяной отвар'],
+  [/кишк|чехол из|sheath|gut/i, .3, 'кишечный чехол'],
 ];
 function защитаИз(текст) {
   const s = String(текст || '');
@@ -1116,8 +1119,9 @@ export function почемуРиск(р, подпись = '') {
     шаги.push(ен ? 'The cycle day is unknown, only the phase: the chance is taken by phase.' : 'День цикла неизвестен, известна только фаза — шанс взят по ней.');
   }
   шаги.push(р.базовый > ВНЕ_ОКНА
-    ? (ен ? `One act on such a day gives ${п(р.базовый)}: the fertile window is five days before ovulation and the day after (Wilcox, 1995).`
-      : `Один раз в такой день — ${п(р.базовый)}: окно зачатия — пять дней до овуляции и день после (данные Уилкокса, 1995).`)
+    // В средневековье ссылка на исследование 1995 года — анахронизм: без неё.
+    ? (ен ? `One act on such a day gives ${п(р.базовый)}: the fertile window is five days before ovulation and the day after${settings.era === 'medieval' ? '' : ' (Wilcox, 1995)'}.`
+      : `Один раз в такой день — ${п(р.базовый)}: окно зачатия — пять дней до овуляции и день после${settings.era === 'medieval' ? '' : ' (данные Уилкокса, 1995)'}.`)
     : (ен ? `Outside the fertile window: ${п(р.базовый)}, not zero because a cycle can shift.` : `Вне окна зачатия — ${п(р.базовый)}: не ноль, потому что цикл может сдвинуться.`));
   шаги.push(р.защита
     ? (ен ? `Protection — ${escapeHtml(р.защита.имя)}: ${множитель(р.защита.доля)} of the chance remains.` : `Защита — ${escapeHtml(р.защита.имя)}: от шанса остаётся ${множитель(р.защита.доля)}.`)
@@ -1158,9 +1162,10 @@ function когдаТеста(исход) {
 }
 function блокТеста(исход, была) {
   return (была || исход.беременна) ? `<details class="hud-preg-test"${исход.кто ? ` data-kto="${escapeHtml(исход.кто)}"` : ''}>`
-    + `<summary><i aria-hidden="true">🧪</i>Сделать тест</summary>`
+    // В средневековье теста-полоски нет: спрашивают повитуху.
+    + (settings.era === 'medieval' ? `<summary><i aria-hidden="true">🌾</i>Спросить повитуху</summary>` : `<summary><i aria-hidden="true">🧪</i>Сделать тест</summary>`)
     + `<div class="hud-test ${исход.беременна ? 'is-pos' : 'is-neg'}">`
-    + `<span class="hud-test-stick" aria-hidden="true"><i class="hud-test-window"><b class="c-line"></b>${исход.беременна ? '<b class="t-line"></b>' : ''}</i></span>`
+    + (settings.era === 'medieval' ? '' : `<span class="hud-test-stick" aria-hidden="true"><i class="hud-test-window"><b class="c-line"></b>${исход.беременна ? '<b class="t-line"></b>' : ''}</i></span>`)
     + `<div class="hud-test-result"><strong>${исход.беременна ? '+' : '−'}</strong><p>${исход.беременна ? 'Получилось — беременность' : 'Не получилось'}</p>${когдаТеста(исход)}${кнопкаСудьбы(исход)}</div>`
     + `</div>${исход.беременна && исход.кто ? блокПлодов(исход.кто) : ''}</details>` : '';
 }

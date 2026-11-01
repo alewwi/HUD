@@ -12,9 +12,9 @@
 // Не разобрали данные — пустая строка, и поле рисуется по-старому.
 // Оформление — css/views-fields.css.
 
-import { escapeHtml, разбитьСписок } from '../utils.js?v=23.88.9';
-import { ИКОНКИ } from './view-icons.js?v=23.88.9';
-import { знакЗодиака as знакНаЯзыке } from '../i18n.js?v=23.88.9';
+import { escapeHtml, разбитьСписок } from '../utils.js?v=23.88.10';
+import { ИКОНКИ } from './view-icons.js?v=23.88.10';
+import { знакЗодиака as знакНаЯзыке } from '../i18n.js?v=23.88.10';
 
 const т = (s) => escapeHtml(String(s ?? '').trim());
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто|—|-)$/i.test(String(v).trim());
@@ -112,9 +112,9 @@ function разобратьВозраст(value) {
   let n = +m[1];
   // Возраст малыша («40 дней», «1 год 2 мес. 5 дн., род. 07.09.2024»): слово
   // возраста берём целиком, а не «N лет».
-  const мал = s.match(/^\s*((?:\d{1,3}\s*(?:год[а]?|лет|мес\.?|месяц\w*|нед\.?|недел\w*|дн\.?|дн\w*|день|сут\w*|years?|yrs?|months?|mos?\.?|weeks?|wks?\.?|days?)(?![a-z])\s*,?\s*)+)/i);
+  const мал = s.match(/^\s*((?:\d{1,3}\s*(?:год[а]?|лет|месяц[а-яё]*|мес\.?|недел[а-яё]*|нед\.?|дн[а-яё]*\.?|день|сут[а-яё]*|years?|yrs?|months?|mos?\.?|weeks?|wks?\.?|days?)(?![a-zа-яё])\s*,?\s*)+)/i);
   const малыш = мал && /мес|нед|дн|день|сут|month|mo\b|mos\b|week|wk|day/i.test(мал[1]);
-  const слово = малыш ? мал[1].trim() : `${n} ${годы(n)}`;
+  const слово = малыш ? мал[1].replace(/[\s,]+$/, '') : `${n} ${годы(n)}`;
   if (малыш) { const г = мал[1].match(/(\d+)\s*(?:год|лет|years?|yrs?)/i); n = г ? +г[1] : 0; }
   const хвост = (малыш ? s.slice(мал[0].length).replace(/^\s*[,;—–-]?\s*(?:род\.?|родил\w*|born|b\.)?\s*/i, '') : s.slice(m[0].length).replace(/^\s*(?:лет|года?|y\.?o\.?|years?(?: old)?|yrs?(?: old)?)?\s*[,;—–-]?\s*/i, '')).trim();
   const д = хвост.match(/(\d{1,2})[./-](\d{1,2})(?:[./-](\d{2,4}))?/);

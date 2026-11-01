@@ -1,0 +1,472 @@
+/* Эпоха «Средневековье»: выбранные виды блоков в обличье эпохи.
+   Разметку строит render/era-medieval.js поверх обычных видов; здесь — вид.
+   Пергамент, чернила, воск, золото и дерево выводятся из --hud-text и
+   --hud-accent, поэтому любая тема (и своя) получает свой пергамент.
+   Переменные с префиксом --e-: у темы «Средневековье» свои --wood и --parch. */
+:root {
+  --e-tex-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.8' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .2 0 0 0 0 .1 0 0 0 .11 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --e-tex-fibre: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='f'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.012 .35' numOctaves='2' seed='4'/%3E%3CfeColorMatrix values='0 0 0 0 .3 0 0 0 0 .2 0 0 0 0 .1 0 0 0 .07 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23f)'/%3E%3C/svg%3E");
+  --e-tex-corner: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3E%3Cg fill='none' stroke='%23000' stroke-linecap='round'%3E%3Cpath d='M2 28V9Q2 2 9 2h19' stroke-width='1.3'/%3E%3Cpath d='M5.5 28V11q0-5.5 5.5-5.5h17' stroke-width='.6'/%3E%3Cpath d='M9 9c3-3 7-1 5 2s-5 0-3-2' stroke-width='.9'/%3E%3C/g%3E%3Ccircle cx='9' cy='9' r='1.4'/%3E%3C/svg%3E");
+  --e-tex-torn: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 22 8' preserveAspectRatio='none'%3E%3Cpath d='M0 8L0 5L3 2L6 4.5L9 1L12 3.5L15 0.5L18 4L22 2L22 8Z'/%3E%3C/svg%3E");
+  --e-tex-lily: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M12 1c-2 3-3 6-1 10-3-3-7-2-8 1 2-1 5-1 6 2l-2 1h4v4h2v-4h4l-2-1c1-3 4-3 6-2-1-3-5-4-8-1 2-4 1-7-1-10z'/%3E%3C/svg%3E");
+}
+/* Запасной пергамент — до @supports, чтобы выведенный из темы его перебивал. */
+.era { --parch: #efe2c4; --parch-2: #e0cda4; }
+@supports (color: oklch(from red l c h)) {
+  .era { --parch: color-mix(in oklab, oklch(from var(--hud-text, #2a1d12) clamp(.21, calc((.62 - l) * 6 + .5), .95) calc(c * .35) h) 86%, var(--hud-accent, #b08a4a) 14%);
+         --parch-2: color-mix(in oklab, oklch(from var(--hud-text, #2a1d12) clamp(.17, calc((.62 - l) * 6 + .43), .88) calc(c * .4) h) 80%, var(--hud-accent, #b08a4a) 20%); }
+}
+.era {
+  /* Лист полупрозрачный: сквозь него проступает фон темы, блок не выпадает из карточки. */
+  --e-sheet: radial-gradient(130% 100% at 28% 18%, color-mix(in oklab, var(--parch) 55%, transparent), color-mix(in oklab, var(--parch-2) 64%, transparent));
+  --ink: var(--hud-text, #2a1d12);
+  --ink-soft: color-mix(in oklab, var(--hud-text, #2a1d12) 60%, transparent);
+  --ink-red: color-mix(in oklab, var(--hud-accent, #8e1b1b) 75%, var(--hud-text, #2a1d12));
+  /* киноварь: красная, но тянется к цвету текста — на тёмном листе светлее, на светлом темнее */
+  --e-rubric: color-mix(in oklab, color-mix(in oklab, #b3261e 55%, var(--hud-accent)) 68%, var(--hud-text, #2a1d12));
+  --e-gold: color-mix(in oklab, #d4a03c 72%, var(--hud-accent));
+  --e-gold-hi: color-mix(in oklab, var(--e-gold) 55%, #fff6d8);
+  --e-gold-lo: color-mix(in oklab, var(--e-gold) 60%, #2a1806);
+  --e-wax: var(--ink-red); --e-wax-hi: color-mix(in oklab, var(--e-wax) 62%, #fff); --e-wax-lo: color-mix(in oklab, var(--e-wax) 58%, #000);
+  --e-iron: color-mix(in oklab, var(--ink) 48%, var(--parch-2));
+  --e-wood: color-mix(in oklab, var(--e-gold) 38%, #5b3a1e); --e-wood-hi: color-mix(in oklab, var(--e-wood) 70%, #f1d9a8); --e-wood-lo: color-mix(in oklab, var(--e-wood) 65%, #120a03);
+  --e-line: color-mix(in oklab, var(--ink) 20%, transparent);
+  --fh: var(--hud-font-headers, 'Kurale', 'Cormorant Garamond', Georgia, serif);
+  --fd: var(--hud-font-diary, 'Kurale', Georgia, serif);
+  position: relative; color: var(--ink); font-family: var(--hud-font-main, 'Kurale', Georgia, serif);
+  width: 100%; min-width: 0; box-sizing: border-box;
+}
+.hud-row:has(> .era) { grid-column: 1 / -1; }
+.era .sheet, .era.sheet {
+  position: relative; isolation: isolate;
+  background: var(--e-tex-fibre), var(--e-tex-noise), var(--e-sheet);
+  border-radius: 3px 7px 4px 6px;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--e-gold) 35%, transparent), inset 0 0 22px color-mix(in oklab, var(--ink) 16%, transparent), 0 1px 0 color-mix(in oklab, var(--ink) 8%, transparent), 0 2px 5px rgba(0,0,0,.12);
+}
+.era .orn::before, .era .orn::after, .era.orn::before, .era.orn::after {
+  content: ''; position: absolute; width: 22px; height: 22px; background: var(--e-gold); opacity: .75; pointer-events: none; z-index: 1;
+  -webkit-mask: var(--e-tex-corner) center / contain no-repeat; mask: var(--e-tex-corner) center / contain no-repeat;
+}
+.era .orn::before, .era.orn::before { left: 4px; top: 4px; }
+.era .orn::after, .era.orn::after { right: 4px; bottom: 4px; transform: rotate(180deg); }
+.era .cap { font-family: var(--fh); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--ink-soft); }
+.era .rule { display: block; height: 9px; margin: 4px auto 2px; width: min(100%, 220px); color: var(--e-gold); }
+.era svg { overflow: visible; }
+
+/* ── Тело: свечи ── */
+/* Свечи и сон — рядом, пока хватает места; в узкой карточке сон уходит вниз. */
+.era-cand { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 12px 14px 10px; margin-top: 8px; }
+.era-cand .row4 { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 4px; align-items: end; position: relative; }
+.era-cand .row4::after { content: ''; position: absolute; left: 4%; right: 4%; bottom: 66px; height: 1px; background: linear-gradient(90deg, transparent, var(--e-line), transparent); }
+.era-cand figure { margin: 0; display: grid; justify-items: center; gap: 1px; text-align: center; min-width: 0; }
+.era-cand figure svg { width: 46px; height: 92px; }
+.era-cand .halo { animation: era-glow 2.4s ease-in-out infinite alternate; transform-box: fill-box; transform-origin: center; }
+.era-cand .flame { transform-box: fill-box; transform-origin: 50% 100%; animation: era-flick 1.7s ease-in-out infinite alternate; }
+.era-cand .is-red .flame { animation-duration: .7s; }
+@keyframes era-flick { 0% { transform: scale(1, 1) skewX(0); } 35% { transform: scale(.93, 1.08) skewX(4deg); } 70% { transform: scale(1.04, .96) skewX(-3deg); } 100% { transform: scale(.98, 1.03) skewX(1deg); } }
+@keyframes era-glow { from { opacity: .55; transform: scale(.94); } to { opacity: .85; transform: scale(1.05); } }
+.era-cand b { font-family: var(--fh); font-size: 19px; font-weight: 400; line-height: 1; margin-top: 2px; }
+.era-cand .nm { font-family: var(--fh); font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-soft); }
+.era-cand .st { font-family: var(--hud-font-main, Georgia, serif); font-style: italic; font-size: 12.5px; color: var(--e-rubric); line-height: 1.15; }
+.era-cand .row4 { flex: 3 1 260px; min-width: 0; }
+.era-cand .side { flex: 1 1 170px; min-width: 0; display: grid; gap: 10px; align-content: center; }
+.era-cand .night { position: relative; display: grid; grid-template-columns: 30px 1fr; gap: 8px; align-items: center; padding: 10px 12px; border-radius: 6px; overflow: hidden;
+  background: radial-gradient(90% 120% at 15% 20%, color-mix(in oklab, #2b3a66 70%, var(--hud-accent)), color-mix(in oklab, #10162c 85%, var(--hud-accent))); color: #efe6cf;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--e-gold) 45%, transparent), inset 0 0 14px rgba(0,0,0,.45); }
+.era-cand .night::before { content: ''; position: absolute; inset: 0; background: radial-gradient(1px 1px at 70% 25%, #fff, transparent), radial-gradient(1px 1px at 85% 60%, #fff9, transparent), radial-gradient(1.2px 1.2px at 55% 75%, #fffa, transparent), radial-gradient(1px 1px at 92% 18%, #fff8, transparent); }
+.era-cand .night svg { width: 28px; height: 28px; }
+.era-cand .night b { display: block; font-family: var(--fh); font-weight: 400; font-size: 16px; line-height: 1.1; color: #fff4dc; }
+.era-cand .night span { font-family: var(--hud-font-main, Georgia, serif); font-style: italic; font-size: 12.5px; color: color-mix(in oklab, #efe6cf 75%, transparent); }
+.era-cand .duty { position: relative; padding: 12px 12px 10px 14px; font-family: var(--fd); font-size: 12.5px; line-height: 1.3; transform: rotate(-1.2deg);
+  clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%); }
+.era-cand .duty::before { content: ''; position: absolute; left: 50%; top: 4px; width: 8px; height: 8px; margin-left: -4px; border-radius: 50%; z-index: 2;
+  background: radial-gradient(circle at 35% 30%, #f3f3f3, #8a8a8a 45%, #2b2b2b); box-shadow: 1px 2px 2px rgba(0,0,0,.45); }
+.era-cand .duty::after { content: ''; position: absolute; right: 0; bottom: 0; width: 12px; height: 12px; background: linear-gradient(135deg, color-mix(in oklab, var(--parch-2) 70%, #000) 50%, transparent 50%); }
+.era-cand .duty span { display: block; font-family: var(--fh); font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--e-rubric); margin-bottom: 2px; }
+
+/* ── Доверие: фонари ── */
+/* Колонка не уже 220px: иначе «присматривается» рвётся посреди слова. */
+.era-lamp { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr)); gap: 8px; }
+.era-lamp .p { display: grid; grid-template-columns: 40px minmax(0, 1fr) auto; align-items: center; gap: 12px; padding: 10px 14px 10px 10px; }
+.era-lamp .p.sheet { background: radial-gradient(70px 60px at 30px 50%, color-mix(in oklab, var(--e-gold) calc(var(--v) * .45%), transparent), transparent), var(--e-tex-noise), var(--e-sheet); }
+.era-lamp svg { width: 40px; height: 64px; }
+.era-lamp .fl { transform-box: fill-box; transform-origin: 50% 100%; animation: era-flick 1.9s ease-in-out infinite alternate; }
+.era-lamp .who { display: block; overflow-wrap: normal; font-family: var(--fh); font-size: 15px; line-height: 1.15; }
+.era-lamp .lab { display: block; font-family: var(--hud-font-main, Georgia, serif); font-style: italic; font-size: 12.5px; color: var(--ink-soft); }
+.era-lamp .num { font-family: var(--fh); font-weight: 400; font-size: 21px; color: var(--ink); text-align: center; line-height: 1; }
+.era-lamp .num span { display: block; font-size: 8.5px; letter-spacing: .14em; color: var(--ink-soft); text-transform: uppercase; margin-top: 2px; }
+
+/* ── Статус: лента с печатью ── */
+.era-seal { display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: center; padding: 6px 0; }
+.era-seal > svg { width: 64px; height: 64px; z-index: 2; filter: drop-shadow(0 2px 2px rgba(0,0,0,.4)); }
+.era-seal .band { position: relative; margin-left: -18px; padding: 10px 34px 10px 30px; clip-path: polygon(0 0, 100% 0, calc(100% - 16px) 50%, 100% 100%, 0 100%); }
+.era-seal .band.sheet { box-shadow: inset 0 3px 0 -1px color-mix(in oklab, var(--e-gold) 60%, transparent), inset 0 -3px 0 -1px color-mix(in oklab, var(--e-gold) 60%, transparent), inset 0 0 18px color-mix(in oklab, var(--ink) 16%, transparent); }
+.era-seal .t { display: block; font-family: var(--fh); font-size: 19px; line-height: 1.15; }
+.era-seal .s { display: block; font-family: var(--hud-font-main, Georgia, serif); font-style: italic; font-size: 13.5px; color: var(--ink-soft); margin-top: 2px; }
+
+/* ── Место: дорожный указатель ── */
+.era-post { display: grid; grid-template-columns: 22px minmax(0, 1fr); gap: 6px 0; padding: 2px 0 8px; max-width: 520px; }
+.era-post .pole { grid-row: 1 / span 2; position: relative; width: 9px; justify-self: center; margin-top: -4px; border-radius: 2px 2px 0 0;
+  background: repeating-linear-gradient(180deg, transparent 0 9px, color-mix(in oklab, var(--e-wood-lo) 40%, transparent) 9px 10px), linear-gradient(90deg, var(--e-wood-lo), var(--e-wood-hi) 45%, var(--e-wood) 70%, var(--e-wood-lo)); }
+.era-post .pole::before { content: ''; position: absolute; left: -3px; right: -3px; top: -6px; height: 7px; border-radius: 50% 50% 2px 2px; background: linear-gradient(90deg, var(--e-wood-lo), var(--e-wood-hi), var(--e-wood-lo)); }
+.era-post .pole::after { content: ''; position: absolute; left: -9px; right: -9px; bottom: -8px; height: 9px; border-radius: 50%;
+  background: radial-gradient(4px 3px at 20% 50%, color-mix(in oklab, #6f8a3a 80%, var(--hud-accent)), transparent), radial-gradient(5px 4px at 75% 40%, color-mix(in oklab, #6f8a3a 70%, var(--hud-accent)), transparent), radial-gradient(closest-side, color-mix(in oklab, var(--ink) 25%, transparent), transparent); }
+.era-post .board { position: relative; margin-left: -12px; padding: 7px 26px 7px 18px; color: #fbf1da; font-size: 12.5px; line-height: 1.25; text-shadow: 0 -1px 0 rgba(0,0,0,.55), 0 1px 0 rgba(255,240,210,.18);
+  background: radial-gradient(3px 3px at 9px 50%, #d9d2c2, #3c3127 70%, transparent 75%), repeating-linear-gradient(177deg, transparent 0 4px, color-mix(in oklab, var(--e-wood-lo) 35%, transparent) 4px 5px, transparent 5px 11px), linear-gradient(180deg, var(--e-wood-hi), var(--e-wood) 55%, var(--e-wood-lo));
+  box-shadow: 0 2px 3px rgba(0,0,0,.35); clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%); }
+.era-post .board.back { justify-self: start; padding: 6px 18px 6px 26px; font-size: 12px; opacity: .92; margin-left: -12px;
+  background: radial-gradient(3px 3px at calc(100% - 9px) 50%, #d9d2c2, #3c3127 70%, transparent 75%), repeating-linear-gradient(183deg, transparent 0 4px, color-mix(in oklab, var(--e-wood-lo) 35%, transparent) 4px 5px, transparent 5px 11px), linear-gradient(180deg, var(--e-wood-hi), var(--e-wood) 55%, var(--e-wood-lo));
+  clip-path: polygon(14px 0, 100% 0, 100% 100%, 14px 100%, 0 50%); transform: rotate(-2deg); }
+.era-post .board.here { justify-self: start; font-family: var(--fh); font-size: 15px; transform: rotate(1deg); }
+.era-post .board.here span { display: block; font-family: var(--hud-font-main, Georgia, serif); font-style: italic; font-size: 10.5px; letter-spacing: .12em; text-transform: lowercase; color: color-mix(in oklab, var(--e-gold-hi) 80%, #fff); }
+
+/* ── Реплики: ленты ── */
+.era-band { display: grid; gap: 10px; padding: 2px 0; }
+.era-band .r { display: grid; grid-template-columns: 34px minmax(0, 1fr); align-items: center; gap: 4px; }
+.era-band .medal { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-family: var(--fh); font-size: 13px; color: var(--e-wax-hi); background: var(--e-wax) center / cover;
+  box-shadow: 0 0 0 2px var(--e-gold), 0 0 0 3px var(--e-gold-lo), 0 2px 4px rgba(0,0,0,.4); }
+.era-band .scroll { position: relative; margin: 0 14px 0 16px; padding: 8px 14px; font-family: var(--fd); font-style: italic; font-size: 15px; line-height: 1.3; border-radius: 0; }
+.era-band .scroll::before, .era-band .scroll::after { content: ''; position: absolute; top: -4px; bottom: -4px; width: 12px; border-radius: 7px / 4px; z-index: 1;
+  background: linear-gradient(90deg, color-mix(in oklab, var(--parch-2) 78%, #000) 0, color-mix(in oklab, var(--parch) 80%, #fff) 40%, var(--parch-2) 72%, color-mix(in oklab, var(--parch-2) 75%, #000)); box-shadow: 0 1px 3px rgba(0,0,0,.35); }
+.era-band .scroll::before { left: -10px; } .era-band .scroll::after { right: -10px; }
+.era-band .tail { position: absolute; left: -26px; top: 50%; width: 18px; height: 10px; margin-top: -5px; background: var(--parch-2); clip-path: polygon(0 50%, 100% 0, 100% 100%); opacity: .8; }
+
+/* ── Расписание: часослов ── */
+.era-hours { padding: 10px 14px 8px 32px; }
+.era-hours::before { content: ''; position: absolute; left: 20px; top: 8px; bottom: 8px; width: 4px; border-left: 1px solid var(--e-rubric); border-right: 1px solid var(--e-rubric); opacity: .55; }
+.era-hours .head { display: flex; align-items: center; gap: 8px; margin-bottom: 2px; }
+.era-hours .head .rule { flex: 1; width: auto; min-width: 0; margin: 0; }
+.era-hours .h { display: grid; grid-template-columns: 34px minmax(0, 1fr) 30px; align-items: center; gap: 12px; padding: 9px 0; border-bottom: 1px solid var(--e-line); }
+.era-hours .h:last-child { border-bottom: 0; }
+.era-hours .ini { position: relative; width: 34px; height: 34px; display: grid; place-items: center; font-family: var(--fh); font-size: 14px; color: var(--e-gold-hi);
+  background: radial-gradient(circle at 30% 25%, color-mix(in oklab, var(--hud-accent) 70%, #fff 10%), color-mix(in oklab, var(--hud-accent) 70%, #000 30%));
+  box-shadow: inset 0 0 0 1.5px var(--e-gold), inset 0 0 0 3px color-mix(in oklab, var(--hud-accent) 60%, #000), inset 0 0 0 3.6px color-mix(in oklab, var(--e-gold) 60%, transparent), 0 1px 3px rgba(0,0,0,.35); text-shadow: 0 1px 1px rgba(0,0,0,.45); }
+.era-hours .ini i { position: absolute; left: -22px; top: 50%; transform: translateY(-50%); font-family: var(--fh); font-style: normal; font-size: 10px; color: var(--e-rubric); }
+.era-hours .what { font-family: var(--fh); font-size: 15.5px; line-height: 1.2; }
+.era-hours .what span { display: block; font-family: var(--hud-font-main, Georgia, serif); font-size: 12.5px; font-style: italic; color: var(--ink-soft); }
+.era-hours .what span b { font-weight: 400; color: var(--e-rubric); }
+.era-hours .h > svg { width: 26px; height: 30px; justify-self: center; }
+
+/* ── Физиология: лист лекаря ── */
+.era-leech { display: grid; grid-template-columns: 128px minmax(0, 1fr); gap: 6px 16px; padding: 12px 16px; align-items: center; }
+.era-leech .top { grid-column: 1 / -1; text-align: center; }
+.era-leech > svg { width: 128px; height: 158px; color: var(--ink); }
+.era-leech ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; }
+.era-leech li { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto; align-items: baseline; gap: 6px; font-size: 13.5px; padding-bottom: 5px; border-bottom: 1px dotted var(--e-line); }
+.era-leech li > i { font-family: var(--fh); font-style: normal; font-size: 11px; color: var(--e-rubric); }
+.era-leech .drops { display: inline-flex; gap: 2px; align-self: center; }
+.era-leech .drops svg { width: 7px; height: 10px; }
+
+/* ── Возраст: запись о рождении ── */
+.era-birth { display: grid; grid-template-columns: 70px minmax(0, 1fr); gap: 4px 16px; padding: 14px 18px 18px; max-width: 460px; }
+.era-birth .top { grid-column: 1 / -1; text-align: center; }
+.era-birth .top b { display: block; font-family: var(--fh); font-weight: 400; font-size: 17px; letter-spacing: .04em; }
+.era-birth .oval { width: 66px; height: 84px; border-radius: 50%; background: color-mix(in oklab, var(--parch-2) 70%, #000) center 20% / cover; display: grid; place-items: center; font-family: var(--fh); font-size: 24px; color: var(--ink-soft);
+  box-shadow: 0 0 0 2px var(--e-gold), 0 0 0 4px var(--parch), 0 0 0 5px color-mix(in oklab, var(--e-gold) 70%, transparent), 0 3px 8px rgba(0,0,0,.35); margin: 6px 0 0 2px; }
+.era-birth dl { margin: 4px 0 0; display: grid; gap: 7px; }
+.era-birth dl div { display: flex; align-items: baseline; gap: 6px; }
+.era-birth dt { font-family: var(--hud-font-main, Georgia, serif); font-style: italic; font-size: 13px; color: var(--ink-soft); white-space: nowrap; }
+.era-birth dl div::after { content: ''; order: 1; flex: 1; min-width: 10px; border-bottom: 1px dotted color-mix(in oklab, var(--ink) 35%, transparent); transform: translateY(-3px); }
+.era-birth dd { order: 2; margin: 0; font-family: var(--fh); font-size: 15px; text-align: right; display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; }
+.era-birth .sign { grid-column: 1 / -1; display: flex; align-items: flex-end; justify-content: space-between; margin-top: 8px; }
+.era-birth .sign > span { font-family: var(--hud-font-main, Georgia, serif); font-style: italic; font-size: 11px; color: var(--ink-soft); }
+.era-birth .sign > span:first-child svg { display: block; width: 92px; height: 22px; color: var(--ink); }
+.era-birth .seal { position: relative; width: 58px; height: 58px; margin: -18px -6px -14px 0; }
+.era-birth .seal svg { width: 58px; height: 58px; filter: drop-shadow(0 2px 2px rgba(0,0,0,.4)); position: relative; z-index: 1; }
+.era-birth .seal::before, .era-birth .seal::after { content: ''; position: absolute; top: 34px; width: 13px; height: 30px; background: linear-gradient(90deg, var(--e-wax-lo), var(--e-wax)); clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%); }
+.era-birth .seal::before { left: 14px; transform: rotate(14deg); } .era-birth .seal::after { left: 30px; transform: rotate(-12deg); }
+.era-birth .zod { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; margin: 0; flex: none; border-radius: 50%; font-family: 'Segoe UI Symbol', 'Noto Sans Symbols', serif; font-size: 11px; line-height: 1; padding-top: 1px; box-sizing: border-box; color: var(--e-gold-lo); background: radial-gradient(circle at 35% 30%, var(--e-gold-hi), var(--e-gold)); }
+
+/* ── Воспоминания: миниатюры (только стили поверх тех же полароидов) ── */
+.era-mini .hud-v-polaroid { transform: none !important; border-radius: 52px 52px 5px 5px !important; padding: 9px 9px 10px !important; border: 3px solid transparent !important;
+  background: var(--e-tex-noise) padding-box, var(--e-sheet) padding-box, linear-gradient(140deg, var(--e-gold-hi), var(--e-gold-lo) 35%, var(--e-gold-hi) 55%, var(--e-gold-lo)) border-box !important;
+  box-shadow: inset 0 0 0 2px var(--parch), inset 0 0 0 3px color-mix(in oklab, var(--e-gold) 55%, transparent), 0 3px 8px rgba(0,0,0,.3) !important; overflow: visible !important; }
+.era-mini .hud-v-polaroid::before { content: ''; position: absolute; left: 50%; top: -13px; width: 20px; height: 20px; margin-left: -10px; background: linear-gradient(var(--e-gold-hi), var(--e-gold-lo)); z-index: 2;
+  -webkit-mask: var(--e-tex-lily) center / contain no-repeat; mask: var(--e-tex-lily) center / contain no-repeat; filter: drop-shadow(0 1px 1px rgba(0,0,0,.4)); }
+.era-mini .hud-v-polaroid .tape { display: none !important; }
+.era-mini .hud-v-polaroid > svg { border-radius: 44px 44px 2px 2px; box-shadow: 0 0 0 1px color-mix(in oklab, var(--e-gold) 60%, transparent); }
+.era-mini .hud-v-polaroid .hud-lore-text { font-family: var(--fd) !important; font-style: italic; color: var(--ink) !important; }
+.era-mini .hud-v-polaroid .hud-lore-text::first-letter { font-family: var(--fh); font-style: normal; font-size: 1.7em; color: var(--e-rubric); }
+
+/* ── Восковые печати писем ── */
+.hud-seal.era-wax { --e-wax-hi: color-mix(in oklab, var(--e-wax) 62%, #fff); --e-wax-lo: color-mix(in oklab, var(--e-wax) 55%, #000);
+  position: relative; display: inline-block; flex: none; width: 38px !important; height: 38px !important; background: none !important; box-shadow: none !important; border: 0 !important; border-radius: 0 !important; color: transparent !important; }
+.hud-seal.era-wax svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hud-seal.era-wax svg:first-child { filter: drop-shadow(0 1.5px 1.5px rgba(0,0,0,.45)); }
+.hud-seal.era-wax::before, .hud-seal.era-wax::after { display: none !important; }
+
+/* ── Шкатулка: полупрозрачное дерево в тон темы, латунные скобы, ровные кожаные закладки ── */
+.hud-cask.era-skin {
+  --e-cwood: color-mix(in oklab, var(--hud-accent) 38%, color-mix(in oklab, var(--hud-text) 22%, #3a2414));
+  --e-leather: color-mix(in oklab, var(--hud-accent) 46%, #3b1d10); --e-leather-hi: color-mix(in oklab, var(--e-leather) 72%, #f0d2a4);
+  --e-brass: linear-gradient(135deg, var(--e-gold-hi), var(--e-gold) 50%, var(--e-gold-lo));
+  padding: 16px 16px 18px !important; border-radius: 12px !important; border: 0 !important; color: var(--hud-text);
+  background:
+    radial-gradient(circle at 10px 10px, var(--e-gold-hi) 0 1.5px, var(--e-gold-lo) 2.5px 3.5px, transparent 4px),
+    radial-gradient(circle at calc(100% - 10px) 10px, var(--e-gold-hi) 0 1.5px, var(--e-gold-lo) 2.5px 3.5px, transparent 4px),
+    radial-gradient(circle at 10px calc(100% - 10px), var(--e-gold-hi) 0 1.5px, var(--e-gold-lo) 2.5px 3.5px, transparent 4px),
+    radial-gradient(circle at calc(100% - 10px) calc(100% - 10px), var(--e-gold-hi) 0 1.5px, var(--e-gold-lo) 2.5px 3.5px, transparent 4px),
+    linear-gradient(var(--e-gold), var(--e-gold)) 5px 5px / 26px 3px no-repeat, linear-gradient(var(--e-gold), var(--e-gold)) 5px 5px / 3px 26px no-repeat,
+    linear-gradient(var(--e-gold), var(--e-gold)) calc(100% - 5px) 5px / 26px 3px no-repeat, linear-gradient(var(--e-gold), var(--e-gold)) calc(100% - 5px) 5px / 3px 26px no-repeat,
+    linear-gradient(var(--e-gold), var(--e-gold)) 5px calc(100% - 5px) / 26px 3px no-repeat, linear-gradient(var(--e-gold), var(--e-gold)) 5px calc(100% - 5px) / 3px 26px no-repeat,
+    linear-gradient(var(--e-gold), var(--e-gold)) calc(100% - 5px) calc(100% - 5px) / 26px 3px no-repeat, linear-gradient(var(--e-gold), var(--e-gold)) calc(100% - 5px) calc(100% - 5px) / 3px 26px no-repeat,
+    repeating-linear-gradient(91deg, transparent 0 7px, color-mix(in oklab, var(--e-cwood) 22%, transparent) 7px 8px, transparent 8px 21px),
+    linear-gradient(180deg, color-mix(in oklab, var(--e-cwood) 34%, transparent), color-mix(in oklab, var(--e-cwood) 52%, transparent)) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--e-gold) 55%, transparent), inset 0 0 0 4px color-mix(in oklab, var(--e-cwood) 35%, transparent), inset 0 0 30px color-mix(in oklab, var(--e-cwood) 45%, transparent), 0 4px 14px rgba(0,0,0,.28) !important;
+  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); }
+.hud-cask.era-skin .hud-cask-lid { display: flex; align-items: center; justify-content: center; gap: 10px; padding: 0 0 12px !important; margin: 0 0 12px !important; border: 0 !important; background: none !important;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--e-gold) 70%, transparent) 20%, color-mix(in oklab, var(--e-gold) 70%, transparent) 80%, transparent) 0 100% / 100% 1px no-repeat !important; color: var(--hud-text); }
+.hud-cask.era-skin .hud-cask-lid b { font-family: var(--fh); font-size: 17px; letter-spacing: .16em; text-transform: uppercase; color: var(--hud-text) !important; text-shadow: 0 1px 0 color-mix(in oklab, var(--e-cwood) 60%, transparent); }
+.hud-cask.era-skin .hud-cask-lid small { font-family: var(--fd); font-style: italic; color: color-mix(in oklab, var(--hud-text) 70%, transparent) !important; }
+.hud-cask.era-skin .hud-cask-lock { width: 18px !important; height: 24px !important; border-radius: 9px 9px 4px 4px !important; border: 0 !important;
+  background: radial-gradient(3px 3px at 50% 40%, #1b1208 90%, transparent), linear-gradient(#1b1208, #1b1208) 50% 58% / 2px 7px no-repeat, var(--e-brass) !important;
+  box-shadow: 0 1px 2px rgba(0,0,0,.5), inset 0 0 0 1px color-mix(in oklab, var(--e-gold-lo) 80%, #000) !important; }
+.hud-cask.era-skin .hud-cask-tabs { display: flex !important; flex-wrap: wrap; justify-content: center; gap: 8px !important; width: 100%; box-sizing: border-box; padding: 0 4px !important; margin: 0 0 14px !important; }
+.hud-cask.era-skin .hud-cask-tab { flex: 0 0 calc((100% - 24.5px) / 4); min-width: 0; overflow: hidden; box-sizing: border-box; height: 34px; margin: 0 !important; padding: 0 8px !important; justify-content: center; gap: 6px;
+  position: relative; border: 0 !important; border-radius: 4px !important; clip-path: none !important; color: #f8e8c8 !important; font-family: var(--fh); font-size: 13px; white-space: nowrap; text-shadow: 0 1px 1px rgba(0,0,0,.55);
+  background: radial-gradient(2px 2px at 6px 6px, var(--e-gold-hi), transparent), radial-gradient(2px 2px at calc(100% - 6px) 6px, var(--e-gold-hi), transparent), radial-gradient(2px 2px at 6px calc(100% - 6px), var(--e-gold-hi), transparent), radial-gradient(2px 2px at calc(100% - 6px) calc(100% - 6px), var(--e-gold-hi), transparent),
+    var(--e-tex-noise), radial-gradient(130% 90% at 30% 15%, var(--e-leather-hi), var(--e-leather) 62%, color-mix(in oklab, var(--e-leather) 62%, #000)) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--e-leather) 55%, #000), inset 0 1px 0 color-mix(in oklab, #fff 18%, transparent), 0 2px 4px rgba(0,0,0,.35) !important;
+  outline: 1px dashed color-mix(in oklab, #f8e8c8 38%, transparent); outline-offset: -4px; transform: none !important; transition: transform .2s, box-shadow .2s; }
+.hud-cask.era-skin .hud-cask-tab > span { display: inline-flex; color: var(--e-gold-hi); }
+.hud-cask.era-skin .hud-cask-tab svg { width: 14px; height: 14px; }
+@media (hover: hover) and (pointer: fine) { .hud-cask.era-skin .hud-cask-tab:hover { transform: translateY(-1px) !important; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--e-leather) 55%, #000), 0 4px 7px rgba(0,0,0,.4) !important; } }
+.hud-cask.era-skin .hud-cask-badge { position: static; background: var(--e-brass) !important; color: #2a1806 !important; font-family: var(--fh) !important; box-shadow: 0 0 0 1px var(--e-gold-lo), 0 1px 2px rgba(0,0,0,.4); text-shadow: none; }
+.hud-cask.era-skin .hud-cask-radio:nth-of-type(1):checked ~ .hud-cask-tabs .hud-cask-tab:nth-child(1),
+.hud-cask.era-skin .hud-cask-radio:nth-of-type(2):checked ~ .hud-cask-tabs .hud-cask-tab:nth-child(2),
+.hud-cask.era-skin .hud-cask-radio:nth-of-type(3):checked ~ .hud-cask-tabs .hud-cask-tab:nth-child(3),
+.hud-cask.era-skin .hud-cask-radio:nth-of-type(4):checked ~ .hud-cask-tabs .hud-cask-tab:nth-child(4),
+.hud-cask.era-skin .hud-cask-radio:nth-of-type(5):checked ~ .hud-cask-tabs .hud-cask-tab:nth-child(5),
+.hud-cask.era-skin .hud-cask-radio:nth-of-type(6):checked ~ .hud-cask-tabs .hud-cask-tab:nth-child(6),
+.hud-cask.era-skin .hud-cask-radio:nth-of-type(7):checked ~ .hud-cask-tabs .hud-cask-tab:nth-child(7) {
+  padding: 0 8px !important; margin: 0 !important; color: var(--ink) !important; text-shadow: none;
+  background: var(--e-tex-noise), var(--e-sheet) !important;
+  outline-color: color-mix(in oklab, var(--e-gold) 75%, transparent); box-shadow: 0 0 0 1.5px var(--e-gold), 0 0 10px color-mix(in oklab, var(--e-gold) 40%, transparent), 0 3px 5px rgba(0,0,0,.35) !important; }
+.hud-cask.era-skin .hud-cask-views { padding: 12px !important; border-radius: 4px 8px 5px 7px !important; border: 0 !important;
+  background: var(--e-tex-fibre), var(--e-tex-noise), var(--e-sheet) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--e-gold) 40%, transparent), inset 0 0 22px color-mix(in oklab, var(--ink) 18%, transparent), 0 2px 6px rgba(0,0,0,.4) !important; }
+
+/* ── Письма: сложенный лист со сгибами, линованный лист внутри ── */
+.era-skin .hud-letter { margin: 0 0 12px !important; border: 0 !important; border-radius: 3px !important; overflow: visible !important;
+  background: linear-gradient(135deg, transparent calc(50% - .5px), color-mix(in oklab, var(--ink) 9%, transparent) 50%, transparent calc(50% + .5px)), linear-gradient(45deg, transparent calc(50% - .5px), color-mix(in oklab, var(--ink) 9%, transparent) 50%, transparent calc(50% + .5px)), var(--e-tex-noise), var(--e-sheet) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--e-gold) 30%, transparent), inset 0 0 16px color-mix(in oklab, var(--ink) 14%, transparent), 0 2px 5px rgba(0,0,0,.12) !important; }
+.era-skin .hud-letter-head { display: flex !important; align-items: center; gap: 12px; padding: 10px 12px !important; background: none !important; border: 0 !important; }
+.era-skin .hud-letter-head::before, .era-skin .hud-letter-head::after { display: none !important; }
+.era-skin .hud-letter-who b { font-family: var(--fh); font-size: 15px; font-weight: 400 !important; color: var(--ink) !important; }
+.era-skin .hud-letter-who small, .era-skin .hud-letter-side small { font-family: var(--hud-font-main, Georgia, serif); font-style: italic; color: var(--ink-soft) !important; }
+.era-skin :is(i, em).hud-letter-st { font-family: var(--fh); font-style: normal; font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--e-rubric) !important; }
+.era-skin .hud-letter-sheet { position: relative; margin: 0 10px 10px !important; padding: 10px 14px 10px 30px !important; border: 0 !important; border-radius: 2px !important; transform: rotate(-.4deg);
+  background: linear-gradient(90deg, transparent 20px, color-mix(in oklab, var(--e-rubric) 45%, transparent) 20px 21px, transparent 21px), repeating-linear-gradient(180deg, transparent 0 23px, color-mix(in oklab, var(--ink) 12%, transparent) 23px 24px), var(--e-tex-noise), linear-gradient(color-mix(in oklab, color-mix(in oklab, var(--parch) 80%, #fff) 62%, transparent), color-mix(in oklab, var(--parch) 58%, transparent)) !important;
+  box-shadow: 0 2px 5px rgba(0,0,0,.22), inset 0 0 12px color-mix(in oklab, var(--ink) 10%, transparent) !important; }
+.era-skin .hud-letter-sheet p { font-family: var(--fd); font-size: 15px; line-height: 24px !important; margin: 0 !important; color: var(--ink) !important; }
+.era-skin .hud-letter-sheet footer { font-family: var(--hud-font-main, Georgia, serif); font-style: italic; font-size: 12px; color: var(--ink-soft) !important; text-align: right; margin-top: 4px; border: 0 !important; }
+.era-skin .hud-letter-opened { font-family: var(--fh); font-size: 9.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--e-rubric) !important; background: none !important; border: 0 !important; padding: 0 0 2px !important; }
+
+/* ── Подслушанное: рваный лист, рубрики, имена красным ── */
+.hud-overheard.era-skin { display: grid; gap: 14px; background: none !important; }
+.era-skin .hud-ov { position: relative; padding: 18px 16px 14px !important; border: 0 !important; border-radius: 0 0 4px 6px !important;
+  background: var(--e-tex-fibre), var(--e-tex-noise), var(--e-sheet) !important;
+  box-shadow: inset 0 0 22px color-mix(in oklab, var(--ink) 16%, transparent), 0 2px 5px rgba(0,0,0,.12) !important;
+  -webkit-mask: linear-gradient(#000, #000) 0 7px / 100% calc(100% - 7px) no-repeat, var(--e-tex-torn) 0 0 / 22px 8px repeat-x;
+  mask: linear-gradient(#000, #000) 0 7px / 100% calc(100% - 7px) no-repeat, var(--e-tex-torn) 0 0 / 22px 8px repeat-x; }
+.era-skin .hud-ov::before { display: none !important; }
+.era-skin .hud-ov-head { display: flex !important; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; padding-bottom: 8px !important; margin-bottom: 8px !important; border: 0 !important;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--e-gold) 55%, transparent), transparent) 0 100% / 100% 1px no-repeat !important; }
+.era-skin .hud-ov-kind { font-family: var(--fh); font-size: 10px !important; letter-spacing: .18em; text-transform: uppercase; color: var(--e-rubric) !important; }
+.era-skin .hud-ov-kind svg { color: var(--e-rubric); }
+.era-skin .hud-ov-head b { font-family: var(--fh); font-weight: 400 !important; font-size: 15.5px; color: var(--ink) !important; }
+.era-skin .hud-ov-head small { font-family: var(--hud-font-main, Georgia, serif); font-style: italic; color: var(--ink-soft) !important; }
+.era-skin :is(em, i).hud-ov-head, .era-skin .hud-ov-head em { flex-basis: 100%; font-family: var(--fd); color: var(--ink-soft) !important; }
+.era-skin .hud-ov-line { display: grid !important; grid-template-columns: 74px minmax(0, 1fr); gap: 10px; padding: 5px 0 !important; border-bottom: 1px dotted color-mix(in oklab, var(--ink) 18%, transparent); }
+.era-skin .hud-ov-line:last-child { border-bottom: 0; }
+.era-skin .hud-ov-line > b { font-family: var(--fh); font-weight: 400 !important; font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--e-rubric) !important; text-align: right; }
+.era-skin .hud-ov-line > span { font-family: var(--fd); font-size: 15px; color: var(--ink) !important; }
+.era-skin .hud-ov-sheet { position: relative; padding: 4px 48px 4px 2px !important; background: none !important; border: 0 !important; box-shadow: none !important; }
+.era-skin .hud-ov-sheet .hud-seal.era-wax { position: absolute !important; right: 0; top: 0; transform: rotate(14deg); }
+.era-skin .hud-ov-route { font-family: var(--fh); font-size: 14px; color: var(--ink) !important; margin-bottom: 6px; }
+.era-skin .hud-ov-route small { display: block; font-family: var(--hud-font-main, Georgia, serif); font-style: italic; font-size: 12px; color: var(--ink-soft) !important; }
+.era-skin .hud-ov-sheet p { font-family: var(--fd); font-size: 15px; color: var(--ink) !important; margin: 0 0 4px !important; }
+
+/* ── Мир: заголовки чернилами, плашки служб, без пастельных полосок ── */
+.hud-world-container.era-skin { background: none !important; }
+.era-skin .hud-news-headline { color: var(--ink-red) !important; font-family: var(--fh) !important; text-shadow: none !important; }
+.era-skin .hud-news-article .article-text::first-letter { color: var(--e-rubric) !important; text-shadow: none !important; }
+.era-skin .hud-city-row { border: 0 !important; border-left: 3px double color-mix(in oklab, var(--e-gold) 70%, transparent) !important; background: none !important; }
+.era-skin .hud-city-kind { background: var(--e-sheet) !important; color: var(--ink) !important; border: 1px solid color-mix(in oklab, var(--e-gold) 60%, transparent) !important; box-shadow: 0 1px 2px rgba(0,0,0,.2) !important; border-radius: 3px !important; }
+.era-skin .hud-city-kind > :first-child:not(:only-child) { filter: sepia(1) saturate(.6); opacity: .7; }
+.era-skin .hud-fc-bar { display: none !important; }
+.era-skin .hud-forecast-cell { background: var(--e-tex-noise), var(--e-sheet) !important; border: 0 !important; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--e-gold) 35%, transparent), inset 0 0 12px color-mix(in oklab, var(--ink) 12%, transparent) !important; }
+.era-skin .hud-fc-ico, .era-skin .hud-forecast-icon { filter: sepia(.9) saturate(.8); }
+.era-skin .hud-forecast-temp { font-family: var(--fh) !important; }
+.era-skin .hud-eco-ico { background: radial-gradient(circle at 35% 30%, var(--e-gold-hi), var(--e-gold) 55%, var(--e-gold-lo)) !important; color: var(--e-gold-lo) !important; box-shadow: 0 1px 2px rgba(0,0,0,.35), inset 0 0 0 1.5px color-mix(in oklab, var(--e-gold-lo) 70%, transparent) !important; }
+.era-skin .hud-eco-val { font-family: var(--fh) !important; }
+.era-skin .hud-afisha-card { background: var(--e-tex-noise), var(--e-sheet) !important; border: 0 !important; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--e-gold) 40%, transparent), 0 2px 5px rgba(0,0,0,.2) !important; }
+.era-skin .hud-afisha-stub { background: radial-gradient(circle at 40% 30%, var(--e-wax-hi), var(--e-wax) 55%, var(--e-wax-lo)) !important; color: color-mix(in oklab, var(--e-wax) 30%, #fff) !important; border: 0 !important; }
+.era-skin .hud-afisha-stub::before, .era-skin .hud-afisha-stub::after { display: none !important; }
+.era-skin .hud-afisha-title { color: var(--ink) !important; text-shadow: none !important; }
+.era-skin .hud-wv-ads { background: repeating-linear-gradient(0deg, transparent 0 36px, color-mix(in oklab, var(--e-wood-lo) 60%, transparent) 36px 38px), repeating-linear-gradient(90deg, transparent 0 9px, color-mix(in oklab, var(--e-wood-lo) 22%, transparent) 9px 10px, transparent 10px 23px), linear-gradient(var(--e-wood-hi), var(--e-wood) 50%, var(--e-wood-lo)) !important; box-shadow: inset 0 0 18px rgba(0,0,0,.45) !important; }
+
+/* ── Быт: кошель вместо банковской карты ── */
+.hud-life-wallet.era-skin { --e-leather: color-mix(in oklab, var(--hud-accent) 25%, #5b301a); color: #f6e4c4 !important; border: 0 !important; overflow: hidden;
+  background: radial-gradient(90px 50px at 85% 0, color-mix(in oklab, var(--e-leather) 60%, #000), transparent), var(--e-tex-noise), radial-gradient(120% 110% at 25% 15%, color-mix(in oklab, var(--e-leather) 70%, #e2b98a), var(--e-leather) 55%, color-mix(in oklab, var(--e-leather) 60%, #000)) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--e-leather) 50%, #000), 0 3px 8px rgba(0,0,0,.35) !important; outline: 1.5px dashed color-mix(in oklab, #f6e4c4 40%, transparent); outline-offset: -6px; }
+.hud-life-wallet.era-skin .hud-life-wallet-chip { width: 26px !important; height: 26px !important; border-radius: 50% !important; background: radial-gradient(circle at 35% 30%, var(--e-gold-hi), var(--e-gold) 55%, var(--e-gold-lo)) !important; box-shadow: 0 1px 2px rgba(0,0,0,.5), 8px 4px 0 -2px var(--e-gold-lo), 10px 3px 0 -2px var(--e-gold) !important; border: 0 !important; }
+.hud-life-wallet.era-skin .hud-life-wallet-chip::before, .hud-life-wallet.era-skin .hud-life-wallet-chip::after { display: none !important; }
+.hud-life-wallet.era-skin .hud-life-wallet-cap { color: var(--e-gold-hi) !important; font-family: var(--fh); letter-spacing: .14em; }
+.hud-life-wallet.era-skin > b { font-family: var(--fh) !important; color: #fff1d6 !important; text-shadow: 0 1px 2px rgba(0,0,0,.6); }
+
+/* ── Память: летопись на полосках пергамента ── */
+.hud-timeline-container.era-skin { background: none !important; }
+.era-skin .hud-timeline-content { border: 0 !important; border-radius: 2px 6px 3px 5px !important; color: var(--ink) !important; font-family: var(--fd) !important; font-size: 14px !important;
+  background: var(--e-tex-noise), var(--e-sheet) !important; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--e-gold) 30%, transparent), inset 0 0 10px color-mix(in oklab, var(--ink) 12%, transparent), 0 1px 3px rgba(0,0,0,.18) !important; }
+.era-skin .hud-timeline-time, .era-skin .hud-route-time, .era-skin .hud-route-leg-time, .era-skin .hud-route-span { font-family: var(--fh) !important; color: var(--e-rubric) !important; letter-spacing: .04em; }
+.era-skin .hud-route-pin { border-color: var(--e-gold) !important; background: var(--parch) !important; box-shadow: 0 0 0 2px color-mix(in oklab, var(--e-gold) 35%, transparent) !important; }
+.era-skin .hud-route-leg-line { border-color: color-mix(in oklab, var(--e-gold) 70%, transparent) !important; border-style: dotted !important; }
+.hud-route-map.era-skin { background: var(--e-tex-noise), var(--e-sheet) !important; border: 0 !important; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--e-gold) 40%, transparent), inset 0 0 18px color-mix(in oklab, var(--ink) 14%, transparent) !important; }
+/* ── Письмо раскрывается плавно: лист выезжает по высоте, печать вздрагивает ── */
+.era-skin .hud-letter { interpolate-size: allow-keywords; }
+.era-skin .hud-letter::details-content { block-size: 0; overflow: clip; opacity: 0; transition: block-size .55s cubic-bezier(.3,.7,.2,1), opacity .4s ease, content-visibility .55s allow-discrete; }
+.era-skin .hud-letter[open]::details-content { block-size: auto; opacity: 1; }
+.era-skin .hud-letter[open] .hud-letter-sheet { animation: era-unfold .6s cubic-bezier(.3,.7,.2,1) both; transform-origin: 50% 0; }
+@keyframes era-unfold { from { transform: perspective(500px) rotateX(-28deg) translateY(-6px) rotate(-.4deg); opacity: 0; } to { transform: perspective(500px) rotateX(0) translateY(0) rotate(-.4deg); opacity: 1; } }
+.era-skin .hud-letter .hud-seal.era-wax svg:first-child { transition: transform .5s cubic-bezier(.3,1.6,.4,1); }
+.era-skin .hud-letter[open] .hud-seal.era-wax svg:first-child { transform: rotate(-8deg) scale(.96); }
+.era-skin .hud-letter-head { cursor: pointer; }
+@media (hover: hover) and (pointer: fine) { .era-skin .hud-letter-head:hover .hud-seal.era-wax svg:first-child { transform: rotate(6deg) scale(1.06); } }
+
+/* ── Святцы: настенный лист на гвозде — планка, шнурок, сетка чернилами ── */
+.era-skin .hud-almanac { position: relative; margin: 34px 6px 8px !important; padding: 20px 16px 16px !important; border: 0 !important; border-radius: 2px 2px 4px 4px !important; overflow: visible !important; transform: rotate(-.6deg); transform-origin: 50% -30px;
+  background: var(--e-tex-fibre), var(--e-tex-noise), var(--e-sheet) !important;
+  box-shadow: inset 0 0 26px color-mix(in oklab, var(--ink) 16%, transparent), 0 12px 18px -8px rgba(0,0,0,.45), 0 2px 4px rgba(0,0,0,.2) !important; animation: era-hang 7s ease-in-out infinite alternate; }
+@keyframes era-hang { from { transform: rotate(-.7deg); } to { transform: rotate(.5deg); } }
+/* планка */
+.era-skin .hud-almanac::before { content: ''; position: absolute; left: -8px; right: -8px; top: -9px; height: 14px; border-radius: 7px; z-index: 2;
+  background: repeating-linear-gradient(90deg, transparent 0 11px, color-mix(in oklab, var(--e-wood-lo) 30%, transparent) 11px 12px, transparent 12px 27px), linear-gradient(180deg, var(--e-wood-hi), var(--e-wood) 55%, var(--e-wood-lo));
+  box-shadow: 0 3px 4px rgba(0,0,0,.35), inset 0 1px 0 color-mix(in oklab, #fff 25%, transparent); }
+/* шнурок и гвоздь */
+.era-skin .hud-almanac::after { content: ''; position: absolute; left: 50%; top: -34px; width: 70%; height: 30px; transform: translateX(-50%); z-index: 1; pointer-events: none;
+  background: radial-gradient(5px 5px at 50% 4px, #e8e2d6, #6b6257 55%, #2b261f 70%, transparent 74%),
+    linear-gradient(to top right, transparent calc(50% - 1px), color-mix(in oklab, var(--e-wax) 75%, #3a1c10) calc(50% - 1px) calc(50% + .8px), transparent calc(50% + .8px)) 0 0 / 50% 100% no-repeat,
+    linear-gradient(to top left, transparent calc(50% - 1px), color-mix(in oklab, var(--e-wax) 75%, #3a1c10) calc(50% - 1px) calc(50% + .8px), transparent calc(50% + .8px)) 100% 0 / 50% 100% no-repeat; }
+.era-skin .hud-almanac-moon { justify-content: flex-end !important; font-family: var(--hud-font-main, Georgia, serif); font-size: 12px; color: var(--ink-soft) !important; margin: -6px 0 2px !important; }
+.era-skin .hud-cal-bar { position: relative; justify-content: center; gap: 14px; padding: 6px 0 10px !important; margin-bottom: 4px;
+  background: linear-gradient(90deg, transparent, color-mix(in oklab, var(--e-gold) 70%, transparent) 15%, color-mix(in oklab, var(--e-gold) 70%, transparent) 85%, transparent) 0 100% / 100% 1px no-repeat !important; }
+.era-skin .hud-cal-head { font-family: var(--fh) !important; font-size: 24px !important; font-weight: 400 !important; letter-spacing: .04em; color: var(--ink) !important; border: 0 !important; text-decoration: none !important; }
+.era-skin .hud-cal-head::first-letter { color: var(--e-rubric); font-size: 1.35em; }
+.era-skin .hud-cal-head small { font-family: var(--hud-font-main, Georgia, serif); font-style: italic; font-size: 14px; color: var(--ink-soft) !important; }
+.era-skin .hud-cal-nav { width: 26px; height: 26px; border-radius: 50% !important; border: 1px solid color-mix(in oklab, var(--e-gold) 60%, transparent) !important; background: none !important; color: var(--e-rubric) !important; font-family: var(--fh); }
+.era-skin .hud-cal-nav:disabled { opacity: .3; }
+.era-skin .hud-cal-chip { border-radius: 2px !important; border: 0 !important; background: none !important; font-family: var(--hud-font-main, Georgia, serif); font-style: italic; color: var(--ink) !important; padding: 2px 6px !important; box-shadow: none !important; }
+.era-skin .hud-cal-chip i { width: 7px !important; height: 11px !important; border-radius: 0 !important; clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 75%, 0 100%); }
+.era-skin .hud-cal-chip[aria-pressed="false"] { opacity: .4; text-decoration: line-through; }
+.era-skin .hud-cal-week { opacity: 1 !important; }
+.era-skin .hud-cal-week span { opacity: 1 !important; font-family: var(--fh) !important; font-size: 10px !important; letter-spacing: .14em; color: var(--e-rubric) !important; text-transform: uppercase; }
+.era-skin .hud-cal-grid { gap: 0 !important; border-top: 1px solid color-mix(in oklab, var(--ink) 30%, transparent); border-left: 1px solid color-mix(in oklab, var(--ink) 30%, transparent); }
+.era-skin .hud-cal-day { position: relative; min-height: 38px; border-radius: 0 !important; border: 0 !important; border-right: 1px solid color-mix(in oklab, var(--ink) 30%, transparent) !important; border-bottom: 1px solid color-mix(in oklab, var(--ink) 30%, transparent) !important;
+  background: none !important; box-shadow: none !important; color: var(--ink) !important; align-items: flex-start !important; justify-content: flex-start !important; padding: 3px 4px !important; }
+.era-skin .hud-cal-day b { font-family: var(--fh); font-weight: 400 !important; font-size: 14px; }
+.era-skin .hud-cal-day.is-weekend b { color: var(--e-rubric); }
+.era-skin .hud-cal-day.is-past b { opacity: .45; }
+.era-skin .hud-cal-day.is-past::after { content: ''; position: absolute; inset: 9px 8px; background: linear-gradient(to top right, transparent calc(50% - .6px), color-mix(in oklab, var(--ink) 28%, transparent) calc(50% - .6px) calc(50% + .6px), transparent calc(50% + .6px)); pointer-events: none; }
+.era-skin .hud-cal-day.is-empty { background: repeating-linear-gradient(135deg, transparent 0 4px, color-mix(in oklab, var(--ink) 7%, transparent) 4px 5px) !important; }
+.era-skin .hud-cal-day.is-today { background: none !important; }
+.era-skin .hud-cal-day.is-today b { color: var(--e-rubric) !important; opacity: 1; background: none !important; box-shadow: none !important; width: auto !important; height: auto !important; }
+/* под святцами — не пергамент, а стена шкатулки: лист висит на дереве */
+.hud-cask.era-skin .hud-cask-radio:nth-of-type(2):checked ~ .hud-cask-views { background: none !important; box-shadow: none !important; padding: 4px 0 0 !important; }
+.era-skin .hud-cal-day.is-today::before { content: ''; position: absolute; left: 50%; top: 50%; width: 34px; height: 28px; margin: -15px 0 0 -17px; border: 1.6px solid var(--e-rubric); border-radius: 52% 46% 55% 43% / 50% 58% 42% 50%; transform: rotate(-8deg); opacity: .85; pointer-events: none; }
+.era-skin .hud-cal-day.is-selected:not(.is-today) { background: color-mix(in oklab, var(--e-gold) 16%, transparent) !important; }
+.era-skin .hud-cal-day > *:not(b):not(.hud-cal-dots) { display: none; }
+.era-skin .hud-cal-dots { position: absolute; right: 4px; bottom: 4px; gap: 2px; }
+.era-skin .hud-cal-dot { width: 5px !important; height: 5px !important; border-radius: 50% !important; box-shadow: 0 0 0 .5px rgba(0,0,0,.35); }
+@media (hover: hover) and (pointer: fine) { .era-skin .hud-cal-day:not(.is-empty):hover { background: color-mix(in oklab, var(--e-gold) 12%, transparent) !important; } }
+/* день и «скоро» — подколотые листки */
+.era-skin .hud-cal-sheet { position: relative; margin-top: 14px !important; padding: 12px 14px 10px !important; border: 0 !important; border-radius: 2px !important; transform: rotate(.5deg);
+  background: var(--e-tex-noise), linear-gradient(color-mix(in oklab, color-mix(in oklab, var(--parch) 80%, #fff) 62%, transparent), color-mix(in oklab, var(--parch) 58%, transparent)) !important; box-shadow: 0 2px 5px rgba(0,0,0,.12) !important; }
+.era-skin .hud-cal-sheet::before { content: ''; position: absolute; left: 50%; top: -5px; width: 9px; height: 9px; margin-left: -4.5px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #f3f3f3, #8a8a8a 45%, #2b2b2b); box-shadow: 1px 2px 2px rgba(0,0,0,.45); }
+.era-skin .hud-cal-sheet-date { font-family: var(--fh) !important; font-weight: 400 !important; color: var(--ink) !important; }
+.era-skin .hud-cal-count { font-family: var(--hud-font-main, Georgia, serif); font-style: italic; color: var(--e-rubric) !important; background: none !important; border: 0 !important; }
+.era-skin .hud-cal-ev-time { font-family: var(--fh) !important; color: var(--e-rubric) !important; }
+.era-skin .hud-cal-ev-title { font-family: var(--fd); font-size: 14px; color: var(--ink) !important; }
+.era-skin .hud-cal-ev { border-color: color-mix(in oklab, var(--e-gold) 60%, transparent) !important; }
+.era-skin .hud-cal-soon { margin-top: 14px; padding-top: 10px; border-top: 1px dashed color-mix(in oklab, var(--ink) 25%, transparent); }
+.era-skin .hud-cal-soon-head { font-family: var(--fh) !important; letter-spacing: .2em; color: var(--e-rubric) !important; }
+.era-skin .hud-cal-soon-day { font-family: var(--fh) !important; font-weight: 400 !important; }
+.era-skin .hud-cal-soon-when { font-family: var(--hud-font-main, Georgia, serif); font-style: italic; }
+
+/* ── Украшения ── */
+.era-lamp .p > svg { transform-origin: 50% 4px; animation: era-sway 5.5s ease-in-out infinite alternate; }
+.era-lamp .p:nth-child(2n) > svg { animation-duration: 6.4s; animation-delay: -2s; }
+@keyframes era-sway { from { transform: rotate(-2.4deg); } to { transform: rotate(2.4deg); } }
+.era-cand .smoke { fill: none; stroke: color-mix(in oklab, var(--ink) 35%, transparent); stroke-width: .9; stroke-linecap: round; opacity: 0; transform-box: fill-box; transform-origin: 50% 100%; animation: era-smoke 4s ease-out infinite; }
+@keyframes era-smoke { 0% { opacity: 0; transform: translateY(2px) scale(.8); } 30% { opacity: .55; } 100% { opacity: 0; transform: translateY(-10px) scale(1.25) skewX(10deg); } }
+@media (hover: hover) and (pointer: fine) { .era-cand figure:hover .flame { animation-duration: .5s; } .era-cand figure:hover .halo { opacity: 1; } }
+.era-hours .ini { overflow: hidden; }
+.era-hours .ini::after { content: ''; position: absolute; inset: -40%; background: linear-gradient(115deg, transparent 40%, color-mix(in oklab, #fff 55%, transparent) 50%, transparent 60%); transform: translateX(-70%); animation: era-gleam 7s ease-in-out infinite; }
+.era-hours .h:nth-child(3) .ini::after { animation-delay: 1.2s; } .era-hours .h:nth-child(4) .ini::after { animation-delay: 2.4s; }
+@keyframes era-gleam { 0%, 70% { transform: translateX(-70%); } 85%, 100% { transform: translateX(70%); } }
+.era-seal .band::after { content: ''; position: absolute; inset: 4px 18px 4px 4px; background: var(--ink); opacity: .06; pointer-events: none;
+  -webkit-mask: var(--e-tex-lily) 0 0 / 22px 22px repeat; mask: var(--e-tex-lily) 0 0 / 22px 22px repeat; }
+.era-band .r:nth-child(odd) .scroll { transform: rotate(-.5deg); } .era-band .r:nth-child(even) .scroll { transform: rotate(.45deg); }
+.era-band .scroll { box-shadow: inset 0 0 14px color-mix(in oklab, var(--ink) 14%, transparent), 0 3px 5px rgba(0,0,0,.22); }
+.era-band .scroll::before, .era-band .scroll::after { background-image: radial-gradient(3px 2.2px at 50% 3px, color-mix(in oklab, var(--parch-2) 40%, #000), transparent), radial-gradient(3px 2.2px at 50% calc(100% - 3px), color-mix(in oklab, var(--parch-2) 40%, #000), transparent), linear-gradient(90deg, color-mix(in oklab, var(--parch-2) 78%, #000) 0, color-mix(in oklab, var(--parch) 80%, #fff) 40%, var(--parch-2) 72%, color-mix(in oklab, var(--parch-2) 75%, #000)) !important; }
+.era-skin .hud-letter-sheet::after { content: ''; position: absolute; right: 22px; bottom: 26px; width: 9px; height: 7px; border-radius: 50% 40% 55% 45%; background: color-mix(in oklab, var(--ink) 55%, transparent); box-shadow: 6px 3px 0 -2px color-mix(in oklab, var(--ink) 45%, transparent), -4px 4px 0 -2.5px color-mix(in oklab, var(--ink) 40%, transparent); opacity: .55; }
+.era-skin .hud-letter-sheet { -webkit-mask: linear-gradient(#000, #000) 0 0 / 100% calc(100% - 5px) no-repeat, var(--e-tex-torn) 0 100% / 18px 6px repeat-x; mask: linear-gradient(#000, #000) 0 0 / 100% calc(100% - 5px) no-repeat, var(--e-tex-torn) 0 100% / 18px 6px repeat-x; }
+.era-skin .hud-ov-talk::after { content: ''; position: absolute; right: 14px; top: 14px; width: 26px; height: 22px; pointer-events: none; opacity: .5;
+  background: radial-gradient(9px 8px at 45% 45%, color-mix(in oklab, var(--e-wax) 55%, transparent), transparent 70%), radial-gradient(3px 3px at 80% 80%, color-mix(in oklab, var(--e-wax) 60%, transparent), transparent 75%), radial-gradient(2.5px 3.5px at 20% 85%, color-mix(in oklab, var(--e-wax) 55%, transparent), transparent 75%); }
+.era-skin .hud-world-title { display: flex !important; align-items: center; justify-content: center; gap: 10px; }
+.era-skin .hud-world-title::before, .era-skin .hud-world-title::after { content: '' !important; display: block !important; position: static !important; flex: none; width: 16px; height: 16px; background: var(--e-gold) !important; opacity: .85;
+  -webkit-mask: var(--e-tex-lily) center / contain no-repeat; mask: var(--e-tex-lily) center / contain no-repeat; }
+.hud-life-wallet.era-skin::before { content: ''; position: absolute; left: 50%; top: 0; width: 46%; height: 9px; transform: translateX(-50%); border-radius: 0 0 50% 50%;
+  border: 2px solid color-mix(in oklab, var(--e-gold) 70%, #3a220f); border-top: 0; opacity: .8; pointer-events: none; }
+.era-mini .hud-v-polaroid::after { content: ''; position: absolute; inset: 5px; border-radius: 47px 47px 3px 3px; pointer-events: none; box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--e-gold) 35%, transparent); }
+@media (hover: hover) and (pointer: fine) { .era-mini .hud-v-polaroid:hover { box-shadow: inset 0 0 0 2px var(--parch), inset 0 0 0 3px color-mix(in oklab, var(--e-gold) 70%, transparent), 0 0 14px color-mix(in oklab, var(--e-gold) 35%, transparent), 0 4px 10px rgba(0,0,0,.3) !important; } }
+@media (prefers-reduced-motion: reduce) { .era *, .era { animation: none !important; } }
+
+@media (max-width: 600px) {
+  .hud-cask.era-skin .hud-cask-tabs { gap: 6px !important; padding: 0 !important; }
+  .hud-cask.era-skin .hud-cask-tab { flex-basis: calc((100% - 12.5px) / 3); padding: 0 4px !important; gap: 4px; font-size: 12px; }
+  .hud-cask.era-skin .hud-cask-tab svg { width: 12px; height: 12px; }
+  .era-cand { padding: 12px 10px 10px; }
+  .era-cand .row4::after { display: none; }
+  .era-cand figure svg { width: 40px; height: 82px; }
+  .era-cand .side { grid-template-columns: minmax(0, 1fr); }
+  .era-leech { grid-template-columns: 72px minmax(0, 1fr); gap: 6px 10px; padding: 10px 10px; }
+  .era-leech > svg { width: 72px; height: 92px; }
+  .era-leech li { font-size: 12.5px; }
+  .era-hours { padding: 8px 10px 6px 26px; }
+  .era-hours::before { left: 15px; }
+  .era-hours .h { grid-template-columns: 30px minmax(0, 1fr) 22px; gap: 9px; }
+  .era-hours .ini { width: 30px; height: 30px; font-size: 12.5px; }
+  .era-hours .ini i { left: -19px; }
+  .era-hours .what { font-size: 14px; }
+  .era-hours .h > svg { width: 20px; height: 24px; }
+  .era-birth { grid-template-columns: 56px minmax(0, 1fr); gap: 4px 12px; padding: 12px 12px 16px; }
+  .era-birth .oval { width: 54px; height: 70px; }
+  .era-birth dl div { flex-wrap: wrap; } .era-birth dl div::after { display: none; } .era-birth dd { text-align: left; justify-content: flex-start; flex-basis: 100%; }
+  .era-seal .band { padding-left: 26px; }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-cask.era-skin .hud-cask-tabs { gap: 6px !important; padding: 0 !important; }
+  .hud-cask.era-skin .hud-cask-tab { flex-basis: calc((100% - 12.5px) / 3); padding: 0 4px !important; gap: 4px; font-size: 12px; }
+  .hud-cask.era-skin .hud-cask-tab svg { width: 12px; height: 12px; }
+  .era-cand { padding: 12px 10px 10px; }
+  .era-cand .row4::after { display: none; }
+  .era-cand figure svg { width: 40px; height: 82px; }
+  .era-cand .side { grid-template-columns: minmax(0, 1fr); }
+  .era-leech { grid-template-columns: 72px minmax(0, 1fr); gap: 6px 10px; padding: 10px 10px; }
+  .era-leech > svg { width: 72px; height: 92px; }
+  .era-leech li { font-size: 12.5px; }
+  .era-hours { padding: 8px 10px 6px 26px; }
+  .era-hours::before { left: 15px; }
+  .era-hours .h { grid-template-columns: 30px minmax(0, 1fr) 22px; gap: 9px; }
+  .era-hours .ini { width: 30px; height: 30px; font-size: 12.5px; }
+  .era-hours .ini i { left: -19px; }
+  .era-hours .what { font-size: 14px; }
+  .era-hours .h > svg { width: 20px; height: 24px; }
+  .era-birth { grid-template-columns: 56px minmax(0, 1fr); gap: 4px 12px; padding: 12px 12px 16px; }
+  .era-birth .oval { width: 54px; height: 70px; }
+  .era-birth dl div { flex-wrap: wrap; } .era-birth dl div::after { display: none; } .era-birth dd { text-align: left; justify-content: flex-start; flex-basis: 100%; }
+  .era-seal .band { padding-left: 26px; }
+} }
+/* cq ↑ */
