@@ -38,6 +38,11 @@ const п = (s) => I.перевести(s);
 const случаи = [
   ['🎨 Кастомизация', '🎨 Customization'],
   ['6 держится 2 ч', '6 holding 2 h'],
+  // Шаблон с точкой в конце и составная строка с числом в начале.
+  ['1 год 2 мес.', '1 yr 2 mo'],
+  ['1 год 2 мес. · кроха 1–3 года', '1 yr 2 mo · toddler 1–3 years'],
+  ['до «взрослой» карточки — 1 год 10 мес.', 'until the “grown-up” card — 1 yr 10 mo'],
+  ['17.10: 6,240 шагов · сон 4 ч 10 мин', '17.10: 6,240 steps · sleep 4 h 10 min'],
   ['Lower back: 6 держится 2 ч — aching', 'Lower back: 6 holding 2 h — aching'],
   ['заживёт примерно к воскресенью', 'will heal by about Sunday'],
   ['Доверие: Anna — 85; Mark — 55', 'Trust: Anna — 85; Mark — 55'],
