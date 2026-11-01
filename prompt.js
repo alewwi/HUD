@@ -5,14 +5,14 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.88.17';
-import { английский } from './i18n.js?v=23.88.17';
-import { промптНаАнглийском } from './prompt-en.js?v=23.88.17';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.17';
-import { parseSceneDate } from './history-analyzer.js?v=23.88.17';
-import { возрастТочно } from './render/babies.js?v=23.88.17';
-import { списокВыключенного, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.17';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.17';
+import { settings } from './settings.js?v=23.88.18';
+import { английский } from './i18n.js?v=23.88.18';
+import { промптНаАнглийском } from './prompt-en.js?v=23.88.18';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.18';
+import { parseSceneDate } from './history-analyzer.js?v=23.88.18';
+import { возрастТочно } from './render/babies.js?v=23.88.18';
+import { списокВыключенного, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.18';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.18';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.

@@ -9,10 +9,10 @@
 // силуэт живота и советы по триместру. Для этого модели не нужно писать ни
 // одного лишнего слова.
 
-import { escapeHtml, applyTooltips, перевестиМетку } from '../utils.js?v=23.88.17';
-import { parseSceneDate } from '../history-analyzer.js?v=23.88.17';
-import { блокПлодов } from './fetus.js?v=23.88.17';
-import { началоСрока } from './conception.js?v=23.88.17';
+import { escapeHtml, applyTooltips, перевестиМетку } from '../utils.js?v=23.88.18';
+import { parseSceneDate } from '../history-analyzer.js?v=23.88.18';
+import { блокПлодов } from './fetus.js?v=23.88.18';
+import { началоСрока } from './conception.js?v=23.88.18';
 
 // Размер малыша по неделям: сравнение, рост (до 20-й недели — от темени до
 // копчика, дальше — во весь рост) и вес. Средние значения, у живого
