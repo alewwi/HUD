@@ -6,11 +6,11 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.10';
-import { английский } from '../i18n.js?v=23.88.10';
-import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.10';
-import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.88.10';
-import { ссылкиТрека } from './music.js?v=23.88.10';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.11';
+import { английский } from '../i18n.js?v=23.88.11';
+import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.11';
+import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.88.11';
+import { ссылкиТрека } from './music.js?v=23.88.11';
 
 let окноОткрыто = false;
 

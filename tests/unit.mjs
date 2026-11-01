@@ -354,7 +354,9 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
     const весь = Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true });
     const us = весь.slice(весь.indexOf('"us": {'), весь.indexOf('\n }', весь.indexOf('"us": {')));
     проверить('в шаблоне us и cs есть поле Cst, когда есть статы игрока и персонажей', us.includes('"Cst"') && весь.slice(весь.indexOf('"cs": ['), весь.indexOf('"us": {')).includes('"Cst"'));
-    Ст.settings.customStats = []; проверить('без своих статов поля Cst в шаблоне нет', !Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true }).includes('"Cst": {"[custom'));
+    const шаблонCs = весь.slice(весь.indexOf('"cs": ['), весь.indexOf('"us": {'));
+    проверить('в шаблоне — имена статов своего владельца: Мана у игрока, Голод у персонажей', us.includes('"Cst": {"Мана": "[a number 0-10') && !us.includes('Голод') && шаблонCs.includes('"Cst": {"Голод": "[a number 0-100') && !шаблонCs.includes('Мана'));
+    Ст.settings.customStats = []; проверить('без своих статов поля Cst в шаблоне нет', !Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true }).includes('"Cst": {'));
     [Ст.settings.customStats, Ст.settings.enableUserBlock] = было;
   }
   проверить('свой промт: {{stats}} заменяется, без него — список в конце', К.промптСвоихСтатов({ ...s, customStatsPrompt: 'МОИ: {{stats}} КОНЕЦ' }).includes('МОИ: - "Голод"') && /^\n\nМОИ$\n- "Голод"/m.test('\n\n' + К.промптСвоихСтатов({ ...s, customStatsPrompt: 'МОИ' }).trim()));
@@ -379,6 +381,26 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   проверить('вкладка без полей: начало и конец', вк === '<div class="hud-tab-content active" id="x">[в]<div>мир</div>[к]</div>', вк);
   const д = Sch.normalizeJSONData(P.parseHUDComplex(hud({ sc: { T: '10:00' }, cs: [{ N: 'Лилиан', Cst: { Голод: '70 — сыта', Место: 'x' } }], us: { A: '20', Cst: { Мана: 5 } }, cst: { Розыск: '3' } })));
   проверить('разбор: Cst персонажа и игрока, cst истории — без перевода имён', д.characters[0].Cst && д.characters[0].Cst['Голод'] === '70 — сыта' && д.characters[0].Cst['Место'] === 'x' && д.custom['Розыск'] === '3', JSON.stringify([д.characters[0].Cst, д.user && д.user.Cst, д.custom]));
+}
+
+группа('group-cards: карточки участников группы');
+{
+  const Г = await модуль('group-cards.js');
+  const персонаж = (имя, описание, характер = '') => ({ name: имя, avatar: имя + '.png', data: { description: описание, personality: характер } });
+  const ctx = (режим, говорит) => ({
+    groupId: 'g1', characterId: говорит,
+    characters: [персонаж('Анна', 'Рыжая, 25 лет.'), персонаж('Борис', 'Высокий, седой.', 'Ворчун'), персонаж('Вера', 'Слепая гадалка.'), персонаж('Глеб', 'Не в группе.')],
+    groups: [{ id: 'g1', members: ['Анна.png', 'Борис.png', 'Вера.png'], disabled_members: [], generation_mode: режим }],
+  });
+  const ответ = Г.карточкиГруппы(ctx(0, 1));
+  проверить('ответ по очереди: карточки всех, кроме говорящего', ответ.includes('### Анна') && ответ.includes('### Вера') && !ответ.includes('### Борис') && !ответ.includes('Глеб'), ответ);
+  проверить('перегенерация: карточки всех участников, характер тоже', /### Борис\nВысокий, седой\.\nPersonality: Ворчун/.test(Г.карточкиГруппы(ctx(0, 1), { всех: true })));
+  проверить('склеенные карточки Таверна кладёт сама — в ответе пусто', Г.карточкиГруппы(ctx(1, 1)) === '' && Г.карточкиГруппы(ctx(1, 1), { всех: true }).includes('### Анна'));
+  const выкл = ctx(0, 0); выкл.groups[0].disabled_members = ['Вера.png'];
+  проверить('выключенный участник не попадает', !Г.карточкиГруппы(выкл).includes('Вера'));
+  проверить('не группа — пусто', Г.карточкиГруппы({ characterId: 0, characters: [персонаж('Анна', 'x')] }) === '' && Г.карточкиГруппы(null) === '');
+  const длинное = Г.карточкиГруппы({ ...ctx(0, 1), characters: [персонаж('Анна', 'Очень длинное описание. '.repeat(300))].concat(ctx(0, 1).characters.slice(1)) });
+  проверить('длинное описание обрезано', длинное.length < 3000 && длинное.includes(' …'), String(длинное.length));
 }
 
 группа('правка поля в карточке и поля игрока');

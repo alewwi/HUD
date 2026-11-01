@@ -6,15 +6,15 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.88.10';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.10';
-import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.88.10';
-import { отложитьРисунок } from './lazy-svg.js?v=23.88.10';
-import { длинныйСписок } from './long-list.js?v=23.88.10';
-import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.88.10';
-import { общиеМеста } from './route-places.js?v=23.88.10';
-import { статусРужья } from '../codes.js?v=23.88.10';
-import { сеткаСекретов } from './secrets-grid.js?v=23.88.10';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.88.11';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.11';
+import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.88.11';
+import { отложитьРисунок } from './lazy-svg.js?v=23.88.11';
+import { длинныйСписок } from './long-list.js?v=23.88.11';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.88.11';
+import { общиеМеста } from './route-places.js?v=23.88.11';
+import { статусРужья } from '../codes.js?v=23.88.11';
+import { сеткаСекретов } from './secrets-grid.js?v=23.88.11';
 
 function parseRoutePoint(item) {
   // Модель иногда ставит дату перед временем («09.11, 22:15») — дату отбрасываем.
