@@ -14,15 +14,15 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.88.16';
-import { проставитьДень } from './msg-feed.js?v=23.88.16';
-import { normalizeJSONData } from '../schema.js?v=23.88.16';
-import { settings } from '../settings.js?v=23.88.16';
-import { статусРужья } from '../codes.js?v=23.88.16';
-import { extractHudBlock } from '../hud-block.js?v=23.88.16';
-import { namesLikelySame } from '../names.js?v=23.88.16';
-import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.88.16';
-import { readParsed, writeParsed } from '../store.js?v=23.88.16';
+import { parseHUDComplex } from '../hud-parser.js?v=23.88.17';
+import { проставитьДень } from './msg-feed.js?v=23.88.17';
+import { normalizeJSONData } from '../schema.js?v=23.88.17';
+import { settings } from '../settings.js?v=23.88.17';
+import { статусРужья } from '../codes.js?v=23.88.17';
+import { extractHudBlock } from '../hud-block.js?v=23.88.17';
+import { namesLikelySame } from '../names.js?v=23.88.17';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.88.17';
+import { readParsed, writeParsed } from '../store.js?v=23.88.17';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
