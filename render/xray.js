@@ -887,6 +887,10 @@ function разрез(п, id, пол, т, член, кончил, влага) {
   const наПовороте = (svg) => поворот ? `<g transform="translate(${ф(-И.корень)} 0)"><g class="xr-pivot"><g transform="translate(${ф(И.корень)} 0)">${svg}</g></g></g>` : svg;
   // Влага: в лоне — своя, сзади — только лубрикант, во рту — нет.
   const мокро = влага && (куда === 'vaginal' || (куда === 'anal' && влага.лубрикант)) ? влагаКартинка(р, U, влага.уровень, кончик, true, И.края) : null;
+  // Тело того, кто проникает, тает к левому краю кадра. Маска — в координатах
+  // группы, сдвинутой на кончик: у длинного члена (21,6 см) постоянные
+  // −300…−200 попадали прямо в кадр, и половина тела уходила в черноту.
+  const таетДо = Math.min(-200, лево - кончик + 24), таетОт = таетДо - 100;
   const svg = `<svg class="xr-film${сцена.тёмный ? ' is-dark' : ''}${мокро ? ` is-wet w${влага.уровень}${влага.лубрикант ? ' is-lube' : ''}` : ''}" viewBox="${vb.map(ф).join(' ')}" role="img" aria-label="${экран(`${ИМЯ_ЧЕМ[п.чем] || п.чем} — ${ИМЯ_КУДА[куда]}, ${см(глубинаСм)} см`)}">
   <defs>
     ${градиентыРук(id)}
@@ -896,8 +900,8 @@ function разрез(п, id, пол, т, член, кончил, влага) {
     <radialGradient id="${id}-bd" cx=".62" cy=".5" r=".55"><stop class="xr-bd0" offset="0"/><stop class="xr-bd1" offset=".6"/><stop class="xr-bd2" offset="1"/></radialGradient>
     <radialGradient id="${id}-g"><stop class="xr-g0" offset="0"/><stop class="xr-g1" offset="1"/></radialGradient>
     <radialGradient id="${id}-fl"><stop class="xr-fl0" offset="0"/><stop class="xr-fl1" offset=".55"/><stop class="xr-fl2" offset="1"/></radialGradient>
-    <linearGradient id="${id}-f" gradientUnits="userSpaceOnUse" x1="-300" y1="0" x2="-200" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient>
-    <mask id="${id}-m" maskUnits="userSpaceOnUse" x="-500" y="-160" width="560" height="320"><rect x="-500" y="-160" width="560" height="320" fill="url(#${id}-f)"/></mask>
+    <linearGradient id="${id}-f" gradientUnits="userSpaceOnUse" x1="${ф(таетОт)}" y1="0" x2="${ф(таетДо)}" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#fff"/></linearGradient>
+    <mask id="${id}-m" maskUnits="userSpaceOnUse" x="${ф(таетОт - 400)}" y="-160" width="${ф(460 - таетОт)}" height="320"><rect x="${ф(таетОт - 400)}" y="-160" width="${ф(460 - таетОт)}" height="320" fill="url(#${id}-f)"/></mask>
     <clipPath id="${id}-c"><path d="${сцена.контур}"/></clipPath>
     ${снаружи ? `<clipPath id="${id}-out"><path clip-rule="evenodd" transform="translate(${ф(-кончик)} 0)" d="M-2000 -1000 H2000 V1000 H-2000 Z ${сцена.контур}"/></clipPath>` : ''}
     ${И.пальцы && тр ? `<clipPath id="${id}-fc"><path d="${d`M-2000 -400 H${-кончик + 2} V${-р - 2} H600 V${р + 2} H${-кончик + 2} V400 H-2000 Z`}"/></clipPath>` : ''}
