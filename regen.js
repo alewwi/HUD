@@ -5,11 +5,11 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings } from './settings.js?v=23.88.14';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe } from './hud-block.js?v=23.88.14';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.88.14';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.88.14';
-import { генерацияТаверны } from './utils.js?v=23.88.14';
+import { настройка, settings, defaultSettings } from './settings.js?v=23.88.15';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe } from './hud-block.js?v=23.88.15';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.88.15';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.88.15';
+import { генерацияТаверны } from './utils.js?v=23.88.15';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, getMessageUpdateFunction, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
