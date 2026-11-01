@@ -248,7 +248,7 @@ Missing something? Add it yourself: hunger, mana, standing at court, a bounty, r
 - **icon and colour** — the theme accent (default), the colour of one of the field groups, or your own;
 - **whose it is** — every character, the player, or one value for the whole story (then also the tab: characters, player, memory, daily life, world).
 
-On the card a stat is a block in the theme's style. Choose its place in the settings ("after the Role field") or right on the card: press and hold the block and drag it. The shared custom-stats prompt can be rewritten completely, and one checkbox switches them all off while keeping the list.
+On the card a stat is a block in the theme's style. Choose its place in the settings ("after the Role field") or right on the card: press and hold the block and drag it. The shared custom-stats prompt can be rewritten completely, and one checkbox switches them all off while keeping the list. Each stat's name sits right in its owner's schema — a character's or the player's — so the model doesn't skip it.
 
 **Deep tuning.** In "HUD blocks" every section is split into groups, and any field — or even a single sub-label inside a field — can be switched off. Switched-off parts are cut cleanly out of the instruction: the model doesn't write them and no tokens are spent.
 
@@ -357,6 +357,7 @@ A few alternative block views (switched in "Customization" → "Block views"):
 3. **Card.** The block is parsed (repairing truncated and malformed JSON, with a YAML fallback) and becomes a card in place of the raw text.
 4. **Saving context.** In later requests, old HUDs in the history are replaced with short `[HUD_SUMMARY]` summaries, and the latest HUD goes to the model as a snapshot at the end of the instruction — the model updates it for the new reply.
 5. **Continuity.** Chats, secrets, notes, the calendar and calls are gathered from past turns right before drawing. This works on screen only: message text and the request to the model don't change.
+6. **Group chats.** In "swap" mode SillyTavern sends only the card of the character who is speaking. The HUD describes everyone, so the instruction also carries the cards of the other group members — looks and personality stay true to their cards. A HUD regeneration carries the cards of all members. With "Join character cards" SillyTavern sends them itself, and the HUD adds nothing.
 
 ### Which requests get the HUD
 
