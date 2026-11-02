@@ -402,6 +402,7 @@ The extension is built for chats with hundreds of messages and for phones:
 - **Only on the side** — a single full card is built, in the side panel; messages get a small button instead of the card.
 - **Parse cache** in IndexedDB and a background worker for heavy history parsing.
 - **KoboldCpp context cache** — in Text Completion the HUD instruction is a regular SillyTavern extension prompt placed before the reply prefix: it counts toward the context budget and stays the same between turns, so KoboldCpp doesn't reprocess the whole chat on every reply. Requests with a negative prompt also get the instruction and no longer need a second repair request.
+- **🗜 Unload the chat** (⚡ Performance) — full HUDs of old turns, inactive swipes and message copies move into SillyTavern files, and a turn summary stays in their place. SillyTavern rewrites the whole chat on every save, so a lighter file saves noticeably faster: a 111-reply chat went from 67 to 29 MB. The model sees the same summaries as before; daily life, the archive and lists from past turns read the full blocks from the file; «Restore all» brings the chat back byte for byte, and every summary has a «bring back the full HUD» button.
 
 ---
 

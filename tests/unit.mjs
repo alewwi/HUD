@@ -446,6 +446,71 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   const n = B.вычиститьHUDИзСообщения(m);
   проверить('сообщение: текст, все свайпы и extra HUD', n === 4 && m.mes === 'Б' && m.swipes.join('|') === 'А|Б' && !('hud_versions' in m.extra) && m.extra.api === 'x' && !('hud_music' in m.swipe_info[0].extra), JSON.stringify(m).slice(0, 300));
   проверить('повторная очистка ничего не находит', B.вычиститьHUDИзСообщения(m) === 0);
+  const сКопией = { mes: 'А\n' + блок, extra: { display_text: 'А\n' + блок + '\n<comics>' } };
+  B.вычиститьHUDИзСообщения(сКопией);
+  проверить('копия для показа (display_text) — тоже без HUD', сКопией.extra.display_text === 'А\n<comics>');
+}
+
+// ---------------------------------------------------------------------------
+группа('offload: метки разгрузки');
+{
+  const O = await модуль('offload.js');
+  const м = B.заглушкаHUD('0abc', '[HUD_SUMMARY] 01.01 · 10:00 [/HUD_SUMMARY]');
+  проверить('метка: сводка без своих тегов', м === '[HUD_OFF:0abc] 01.01 · 10:00 [/HUD_OFF]');
+  проверить('в теле запроса — [HUD_SUMMARY]', B.заглушкиВСводки(JSON.stringify({ c: 'Ответ.\n' + м })) === JSON.stringify({ c: 'Ответ.\n[HUD_SUMMARY] 01.01 · 10:00 [/HUD_SUMMARY]' }));
+  проверить('метка без сводки в запросе исчезает', B.заглушкиВСводки('А [HUD_OFF:0abc][/HUD_OFF]') === 'А ');
+  проверить('скобки и кавычки сводки не ломают метку', B.заглушкиHUD(B.заглушкаHUD('0f12', 'Пн [x] "q"'))[0]?.сводка === 'Пн x "q"');
+  проверить('метка — тоже HUD для «Удалить HUD»', B.текстБезHUD('Ответ.\n\n' + м) === 'Ответ.');
+  проверить('метка не блок: «Создать HUD» её не перепишет', !B.естьHudБлок(м));
+  const к = O.ключБлока('abc');
+  проверить('ключ стабилен; с солью другой, кусок тот же', к === O.ключБлока('abc') && O.ключБлока('abc', 3) !== к && O.ключБлока('abc', 3)[0] === к[0]);
+
+  // Чат: 50 сообщений, у ответов HUD; у №1 и №48 по два свайпа, у последнего — тоже.
+  const ход = (i) => hud({ sc: { T: '10:' + String(i).padStart(2, '0'), Dt: '01.01.2024' }, cs: [{ N: 'Лилиан', Md: 'ход ' + i }] });
+  const чат = Array.from({ length: 50 }, (_, i) => i % 2 === 0
+    ? { name: 'Софи', is_user: true, mes: 'Реплика ' + i, send_date: 'd' + i }
+    : { name: 'Лилиан', is_user: false, mes: 'Ответ ' + i + '\n\n' + ход(i), send_date: 'd' + i });
+  for (const i of [1, 47, 49]) {
+    const m = чат[i];
+    m.swipes = [m.mes, 'Свайп ' + i + '\n\n' + ход(i + 100)];
+    m.swipe_id = 0;
+    m.swipe_info = [{ extra: {} }, { extra: { display_text: m.swipes[1] + '\n<comics>' } }];
+  }
+  чат[1].extra = { display_text: чат[1].mes + '\n<comics>' };
+  const план = O.планРазгрузки(чат, { оставить: 40 });
+  const где = (i) => план.filter(п => п.номер === i).length;
+  проверить('старые ответы — в план (mes, свайпы, display_text)', где(1) === 5 && где(9) === 1);
+  проверить('последние 40 — не трогаем, кроме неактивных свайпов', где(11) === 0 && где(47) === 2);
+  проверить('свайпы последнего сообщения не трогаем', где(49) === 0);
+
+  // Полный цикл на подменённых файлах Таверны.
+  const файлы = new Map();
+  const былFetch = globalThis.fetch, былST = globalThis.SillyTavern;
+  globalThis.fetch = async (url, o = {}) => {
+    if (String(url).startsWith('/user/files/')) { const и = String(url).slice(12); return файлы.has(и) ? new Response(файлы.get(и), { status: 200 }) : new Response('нет', { status: 404 }); }
+    if (url === '/api/files/upload') { const т = JSON.parse(o.body); файлы.set(т.name, Buffer.from(т.data, 'base64').toString('utf8')); return new Response('{}', { status: 200 }); }
+    return new Response('', { status: 404 });
+  };
+  let сохранений = 0;
+  globalThis.SillyTavern = { getContext: () => ({ chat: чат, chatMetadata: { integrity: 'offload-test' }, characters: [{ avatar: 'Лилиан.png' }], characterId: 0, getCurrentChatId: () => 'c1', saveChat: async () => { сохранений++; } }) };
+  O.подключитьРазгрузку({ сводкаHUD: (б) => '[HUD_SUMMARY] сводка ' + (б.match(/10:\d\d/) || [''])[0] + ' [/HUD_SUMMARY]' });
+  const исходный = JSON.stringify(чат);
+  try {
+    const итог = await O.разгрузитьЧат({ оставить: 40 });
+    проверить('разгрузка: блоки вынесены, чат сохранён', итог.блоков === 11 && итог.байт > 0 && сохранений === 1);
+    проверить('на месте блока — метка со сводкой', /^Ответ 1\n\n\[HUD_OFF:[0-9a-z]+\] сводка 10:01 \[\/HUD_OFF\]$/.test(чат[1].mes));
+    проверить('свежие ответы и последний — как были', чат[11].mes === JSON.parse(исходный)[11].mes && JSON.stringify(чат[49]) === JSON.stringify(JSON.parse(исходный)[49]));
+    проверить('копия для показа тоже с меткой, хвост на месте', B.естьЗаглушкаHUD(чат[1].extra.display_text) && чат[1].extra.display_text.endsWith('<comics>'));
+    проверить('файлы — по персонажу, кусками', [...файлы.keys()].some(и => /^hud-offload-[a-zA-Z0-9_-]+-[0-9a-f]\.json$/.test(и)));
+    проверить('летопись записана до разгрузки', [...файлы.keys()].some(и => и.startsWith('hud-chronicle-offload-test')));
+    проверить('читатели видят полный HUD (развернутьHUD)', O.развернутьHUD(чат[1].mes) === JSON.parse(исходный)[1].mes);
+    const ещё = await O.разгрузитьЧат({ оставить: 40 });
+    проверить('повторная разгрузка ничего не находит', ещё.блоков === 0);
+    const назад = await O.вернутьHUDВЧат();
+    проверить('«Вернуть всё» — чат байт в байт как был', назад.нет === 0 && JSON.stringify(чат) === исходный);
+  } finally {
+    globalThis.fetch = былFetch; globalThis.SillyTavern = былST;
+  }
 }
 
 // ---------------------------------------------------------------------------

@@ -7062,6 +7062,11 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 .hud-sum-open { align-self: flex-end; display: inline-flex; align-items: center; gap: 2px; font-size: .8em; font-weight: 600; color: var(--hud-accent-text, var(--hud-accent, #d96a8a)); }
 .hud-sum-open svg { width: 1em; height: 1em; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 .hud-sum.can-open { cursor: pointer; transition: border-color .15s ease, background-color .15s ease; }
+/* Сводка на месте выгруженного HUD (offload.js): кнопка «вернуть полный HUD». */
+button.hud-sum-restore { background: none; border: 0; padding: 2px 0; font-family: inherit; line-height: inherit; cursor: pointer; }
+button.hud-sum-restore:focus-visible { outline: 2px solid var(--hud-accent, #d96a8a); outline-offset: 2px; border-radius: 4px; }
+button.hud-sum-restore.is-busy { opacity: .55; pointer-events: none; }
+button.hud-sum-restore.is-missing { color: var(--hud-muted-text, #9a95a6); text-decoration: line-through; pointer-events: none; }
 .hud-sum.can-open:focus-visible { outline: 2px solid var(--hud-accent, #d96a8a); outline-offset: 2px; }
 @media (hover: hover) and (pointer: fine) {
   .hud-sum.can-open:hover { border-color: color-mix(in srgb, var(--hud-accent, #d96a8a) 60%, transparent); background: color-mix(in srgb, var(--hud-accent, #d96a8a) 11%, transparent); }

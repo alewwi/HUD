@@ -11,17 +11,17 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=23.88.18';
-import { normalizeJSONData } from './schema.js?v=23.88.18';
-import { parseRelationList } from './render/relations-graph.js?v=23.88.18';
-import { nameLettersOnly, namePhoneticLatin } from './names.js?v=23.88.18';
-import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.88.18';
-import { createDashboard } from './chat-stats.js?v=23.88.18';
-import { статусРужья } from './codes.js?v=23.88.18';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.88.18';
-import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.88.18';
-import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.88.18';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.88.18';
+import { parseHUDComplex } from './hud-parser.js?v=23.88.19';
+import { normalizeJSONData } from './schema.js?v=23.88.19';
+import { parseRelationList } from './render/relations-graph.js?v=23.88.19';
+import { nameLettersOnly, namePhoneticLatin } from './names.js?v=23.88.19';
+import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.88.19';
+import { createDashboard } from './chat-stats.js?v=23.88.19';
+import { статусРужья } from './codes.js?v=23.88.19';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.88.19';
+import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.88.19';
+import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.88.19';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.88.19';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -52,7 +52,8 @@ function ключФакта(fact) {
 // Извлечение блока [HUD] из текста сообщения. Тот же набор написаний, что и в
 // index.js: модель иногда шлёт < > вместо скобок, а ST успевает заэкранировать.
 // Поиск блока — общий, в hud-block.js. Экспорт оставлен: его берут отсюда.
-import { extractHudBlock } from './hud-block.js?v=23.88.18';
+import { extractHudBlock } from './hud-block.js?v=23.88.19';
+import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.88.19';
 export { extractHudBlock };
 
 // Массив сообщений текущего чата.
@@ -70,7 +71,8 @@ export function getChatMessages() {
 // Разбор одного сообщения. Битый HUD — не ошибка выполнения, а обычное дело:
 // возвращаем null и считаем такие сообщения отдельно.
 function разобрать(mes) {
-  const raw = текст(mes && (mes.mes ?? mes.message ?? ''));
+  // Выгруженный ход (offload.js) — с полным HUD из файла.
+  const raw = развернутьHUD(текст(mes && (mes.mes ?? mes.message ?? '')));
   if (!raw) return null;
   const block = extractHudBlock(raw);
   if (!block) return null;
@@ -323,6 +325,9 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
 
   // Дашборд считает все сообщения, а не только с HUD, — в этом же проходе.
   const дашборд = createDashboard({ userName: getSafeUserName() });
+  // Блоки выгруженных ходов (offload.js) — из файла, до прохода. Не
+  // загрузились — эти ходы возьмём из летописи, как у вычищенного чата.
+  try { await подгрузитьЧат(chat); } catch (_) { /* летопись подстрахует */ }
 
   // Летопись (chronicle.js): выжимки HUD, которые остались после чистки
   // сообщений. HUD в сообщении есть — он и главный, и пополняет летопись; нет —
@@ -400,7 +405,7 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
       await передышка();
       if (shouldStop()) return null;
     }
-    const raw = текст(chat[i] && (chat[i].mes ?? ''));
+    const raw = развернутьHUD(текст(chat[i] && (chat[i].mes ?? '')));
     const естьHud = !!raw && !!extractHudBlock(raw);
     let data = естьHud ? разобрать(chat[i]) : null;
     const ключ = ключСообщения(chat[i], i);

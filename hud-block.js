@@ -221,7 +221,8 @@ export function телоБезHUD(тело, замена = null) {
 // HUD ничего не было, получает «…»: пустое Таверна показывает странно.
 export function текстБезHUD(текст) {
   const s = String(текст ?? '');
-  const блоки = hudБлоки(s);
+  // Метки разгрузки (offload.js) — тоже HUD: убираются вместе с блоками.
+  const блоки = [...hudБлоки(s), ...заглушкиHUD(s)].sort((а, б) => а.index - б.index);
   if (!блоки.length) return s;
   let out = '', с = 0;
   for (const б of блоки) {
@@ -246,15 +247,61 @@ export function текстБезHUD(текст) {
 export function вычиститьHUDИзСообщения(m) {
   if (!m || typeof m !== 'object') return 0;
   let убрано = 0;
-  const текст = (t) => { if (typeof t !== 'string') return t; const n = hudБлоки(t).length; if (!n) return t; убрано += n; return текстБезHUD(t); };
-  const extra = (e) => { if (!e || typeof e !== 'object') return; for (const к of ['hud_versions', 'hud_music']) if (к in e) { delete e[к]; убрано++; } };
+  const сколько = (t) => hudБлоки(t).length + заглушкиHUD(t).length;
+  const текст = (t) => { if (typeof t !== 'string') return t; const n = сколько(t); if (!n) return t; убрано += n; return текстБезHUD(t); };
+  // display_text — копия сообщения, которую Таверна показывает вместо mes
+  // (её ведут другие расширения): HUD в ней тоже, но в счёт её не берём.
+  const extra = (e) => {
+    if (!e || typeof e !== 'object') return;
+    for (const к of ['hud_versions', 'hud_music']) if (к in e) { delete e[к]; убрано++; }
+    if (typeof e.display_text === 'string' && сколько(e.display_text)) e.display_text = текстБезHUD(e.display_text);
+  };
   const свайпы = Array.isArray(m.swipes) ? m.swipes : null;
   const текущий = свайпы && Number.isInteger(m.swipe_id) ? m.swipe_id : -1;
   if (свайпы) свайпы.forEach((t, i) => { свайпы[i] = текст(t); });
   // Текущий свайп и mes — один и тот же текст: второй раз не считаем.
-  if (текущий >= 0 && typeof свайпы[текущий] === 'string' && hudБлоки(m.mes || '').length) m.mes = свайпы[текущий];
+  if (текущий >= 0 && typeof свайпы[текущий] === 'string' && сколько(m.mes || '')) m.mes = свайпы[текущий];
   else m.mes = текст(m.mes);
   extra(m.extra);
   if (Array.isArray(m.swipe_info)) m.swipe_info.forEach(и => extra(и && и.extra));
   return убрано;
+}
+
+// --- Метки разгрузки (offload.js) ----------------------------------------------
+// «Разгрузить чат» уносит полный блок старого хода в файл, а на его месте
+// оставляет метку: [HUD_OFF:ключ] сводка хода [/HUD_OFF]. Ключ — адрес блока
+// в файле, сводка — то же, что модель и так получала вместо старого HUD.
+// В запросе метка становится обычной [HUD_SUMMARY] (заглушкиВСводки).
+const МЕТКА_РАЗГРУЗКИ = /\[HUD_OFF:([0-9a-z]{4,24})\]([^\[\]]*?)\[\/HUD_OFF\]/g;
+
+/** В тексте есть метка разгрузки? Дешёвая проверка перед разбором. */
+export const естьЗаглушкаHUD = (text) => typeof text === 'string' && text.includes('[HUD_OFF:');
+
+/** Все метки разгрузки: [{ index, length, full, ключ, сводка }]. */
+export function заглушкиHUD(text) {
+  const s = String(text ?? '');
+  if (!s.includes('[HUD_OFF:')) return [];
+  return [...s.matchAll(МЕТКА_РАЗГРУЗКИ)].map(m => ({ index: m.index, length: m[0].length, full: m[0], ключ: m[1], сводка: m[2].trim() }));
+}
+
+/** Метка разгрузки для блока: сводка без своих тегов [HUD_SUMMARY]. */
+export function заглушкаHUD(ключ, сводка = '') {
+  const с = String(сводка || '').replace(/\[\/?HUD_SUMMARY\]/g, '').replace(/[\[\]]/g, '').replace(/\s+/g, ' ').trim();
+  return `[HUD_OFF:${ключ}]${с ? ' ' + с + ' ' : ''}[/HUD_OFF]`;
+}
+
+/**
+ * Метки в тексте запроса — сводками [HUD_SUMMARY], как у старых HUD до
+ * разгрузки; метка без сводки исчезает. Годится и для JSON-тела: кавычки и
+ * переносы внутри сводки там экранированы, а квадратных скобок в ней нет.
+ */
+export function заглушкиВСводки(text) {
+  if (!естьЗаглушкаHUD(text)) return text;
+  return text.replace(МЕТКА_РАЗГРУЗКИ, (_, __, с) => (с.trim() ? `[HUD_SUMMARY] ${с.trim()} [/HUD_SUMMARY]` : ''));
+}
+
+/** Заменить метки: замена(метка) → строка (полный блок) или null — оставить метку. */
+export function развернутьЗаглушки(text, замена) {
+  if (!естьЗаглушкаHUD(text)) return text;
+  return text.replace(МЕТКА_РАЗГРУЗКИ, (весь, ключ, с) => { const н = замена({ ключ, сводка: с.trim(), full: весь }); return typeof н === 'string' ? н : весь; });
 }

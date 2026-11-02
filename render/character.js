@@ -4,31 +4,31 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, именаГруппы, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.88.18';
-import { иконка } from './hud-icons.js?v=23.88.18';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.18';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.18';
-import { разобратьСилуСтраха, стадияБолезни } from '../codes.js?v=23.88.18';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, именаГруппы, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.88.19';
+import { иконка } from './hud-icons.js?v=23.88.19';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.19';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.19';
+import { разобратьСилуСтраха, стадияБолезни } from '../codes.js?v=23.88.19';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  блокТемпаСцены, активныеСледы, карточкаСледа, группаНавсегда, разобратьСледы, видСледа, тотЖеВред, повязкаНаРане, тоЖеМесто, видПодШрамом, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия, почемуРиск } from './intimacy.js?v=23.88.18';
-import { часыСцены } from './scene-clock.js?v=23.88.18';
-import { полПерсонажа } from './scene-body.js?v=23.88.18';
-import { buildUnderwear } from './underwear.js?v=23.88.18';
-import { buildDuel } from './duel.js?v=23.88.18';
-import { buildPregnancy } from './pregnancy.js?v=23.88.18';
-import { buildPostpartum } from './postpartum.js?v=23.88.18';
-import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды, датаЗачатия, чертыРодителей } from './conception.js?v=23.88.18';
-import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.88.18';
-import { parseSceneDate } from '../history-analyzer.js?v=23.88.18';
-import { settings, настройка } from '../settings.js?v=23.88.18';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.18';
-import { видСостоянияТела } from './extras.js?v=23.88.18';
-import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом } from './views-fields.js?v=23.88.18';
-import { parseRelationList } from './relations-graph.js?v=23.88.18';
-import { раскладкаСтатов, пометитьСтроку } from '../custom-stats.js?v=23.88.18';
-import { отложитьРисунок } from './lazy-svg.js?v=23.88.18';
-import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.88.18';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.88.18';
+  блокТемпаСцены, активныеСледы, карточкаСледа, группаНавсегда, разобратьСледы, видСледа, тотЖеВред, повязкаНаРане, тоЖеМесто, видПодШрамом, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия, почемуРиск } from './intimacy.js?v=23.88.19';
+import { часыСцены } from './scene-clock.js?v=23.88.19';
+import { полПерсонажа } from './scene-body.js?v=23.88.19';
+import { buildUnderwear } from './underwear.js?v=23.88.19';
+import { buildDuel } from './duel.js?v=23.88.19';
+import { buildPregnancy } from './pregnancy.js?v=23.88.19';
+import { buildPostpartum } from './postpartum.js?v=23.88.19';
+import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды, датаЗачатия, чертыРодителей } from './conception.js?v=23.88.19';
+import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.88.19';
+import { parseSceneDate } from '../history-analyzer.js?v=23.88.19';
+import { settings, настройка } from '../settings.js?v=23.88.19';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.19';
+import { видСостоянияТела } from './extras.js?v=23.88.19';
+import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом } from './views-fields.js?v=23.88.19';
+import { parseRelationList } from './relations-graph.js?v=23.88.19';
+import { раскладкаСтатов, пометитьСтроку } from '../custom-stats.js?v=23.88.19';
+import { отложитьРисунок } from './lazy-svg.js?v=23.88.19';
+import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.88.19';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.88.19';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле', 'состояние тела'];

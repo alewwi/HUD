@@ -14,15 +14,16 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.88.18';
-import { проставитьДень } from './msg-feed.js?v=23.88.18';
-import { normalizeJSONData } from '../schema.js?v=23.88.18';
-import { settings } from '../settings.js?v=23.88.18';
-import { статусРужья } from '../codes.js?v=23.88.18';
-import { extractHudBlock } from '../hud-block.js?v=23.88.18';
-import { namesLikelySame } from '../names.js?v=23.88.18';
-import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.88.18';
-import { readParsed, writeParsed } from '../store.js?v=23.88.18';
+import { parseHUDComplex } from '../hud-parser.js?v=23.88.19';
+import { проставитьДень } from './msg-feed.js?v=23.88.19';
+import { normalizeJSONData } from '../schema.js?v=23.88.19';
+import { settings } from '../settings.js?v=23.88.19';
+import { статусРужья } from '../codes.js?v=23.88.19';
+import { extractHudBlock } from '../hud-block.js?v=23.88.19';
+import { развернутьHUD } from '../offload.js?v=23.88.19';
+import { namesLikelySame } from '../names.js?v=23.88.19';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.88.19';
+import { readParsed, writeParsed } from '../store.js?v=23.88.19';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -132,7 +133,9 @@ function ключСообщения(mes, raw) {
   return k;
 }
 function разобратьХод(mes) {
-  const raw = текст(mes && mes.mes);
+  // Выгруженный ход (offload.js) — с полным HUD из файла: тот же текст, что
+  // до разгрузки, и тот же ключ разбора.
+  const raw = развернутьHUD(текст(mes && mes.mes));
   if (!raw) return null;
   // Ключ — хэш всего текста: хвост в шестьдесят знаков совпадал у правок,
   // сделанных в середине блока без изменения длины, и кэш отдавал старый
@@ -212,7 +215,7 @@ async function прогреть(chat) {
   // От свежих к старым: последним карточкам нужны ближние ходы, и ждущая
   // прогрева первая сборка (events.js) получает их в первой же пачке потока.
   for (const mes of chat.slice(-ПРОГРЕВ_ХОДОВ).reverse()) {
-    const raw = текст(mes && mes.mes);
+    const raw = развернутьHUD(текст(mes && mes.mes));
     // Без «HUD» в тексте блока нет — такие ходы разбираются мгновенно и так.
     if (!raw || !/hud/i.test(raw)) continue;
     const k = ключХода(raw, fp);

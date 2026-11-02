@@ -13,11 +13,12 @@
 // выключить (настройка summaryCards). Если в том же сообщении есть полная
 // карточка HUD, нажатие на сводку раскрывает её.
 
-import { escapeHtml } from '../utils.js?v=23.88.18';
-import { значокЧасов, значокПогоды, значокДаты } from './topbar-icons.js?v=23.88.18';
-import { settings } from '../settings.js?v=23.88.18';
+import { escapeHtml } from '../utils.js?v=23.88.19';
+import { значокЧасов, значокПогоды, значокДаты } from './topbar-icons.js?v=23.88.19';
+import { settings } from '../settings.js?v=23.88.19';
 
 const ОТКРЫТЬ = '[HUD_SUMMARY]', ЗАКРЫТЬ = '[/HUD_SUMMARY]';
+const МЕТКА = '[HUD_OFF:';
 // Граница слова — через \p{L}: \b в JS кириллицу словом не считает.
 const ЧАСТЬ_СУТОК = /^(утро|утром|день|днём|днем|вечер|вечером|ночь|ночью|полдень|полночь|рассвет|закат|сумерки|morning|day|afternoon|evening|night|dawn|dusk)(?![\p{L}])/iu;
 
@@ -130,8 +131,12 @@ function событиеХода(текст) {
 }
 
 // --- Карточка -------------------------------------------------------------------
-/** Разметка карточки сводки. можноОткрыть — в сообщении есть полная карточка HUD. */
-export function карточкаСводки(текст, можноОткрыть = false) {
+/**
+ * Разметка карточки сводки. можноОткрыть — в сообщении есть полная карточка
+ * HUD. ключРазгрузки — сводка стоит на месте выгруженного HUD (offload.js):
+ * карточка с кнопкой «вернуть полный HUD».
+ */
+export function карточкаСводки(текст, можноОткрыть = false, ключРазгрузки = '') {
   const о = разобратьСводку(текст);
   const чип = (значок, т) => `<span class="hud-sum-chip">${значок}<span>${escapeHtml(т)}</span></span>`;
   const погодаТекст = [о.сутки, о.погода].filter(Boolean).join(' · ');
@@ -148,8 +153,12 @@ export function карточкаСводки(текст, можноОткрыт�
   const строка = (метка, т, класс) => т ? `<p class="hud-sum-line ${класс}"><i>${метка}</i><span>${escapeHtml(т)}</span></p>` : '';
   const одежда = о.одежда.length ? `<p class="hud-sum-line is-wear"><i>Одежда</i><span>${о.одежда.map(x => (x.имя ? `<b>${escapeHtml(x.имя)}</b> ` : '') + escapeHtml(x.что)).join('<br>')}</span></p>` : '';
   const прочее = о.прочее.map(т => `<p class="hud-sum-line is-other"><span>${escapeHtml(т)}</span></p>`).join('');
-  const открыть = можноОткрыть ? '<span class="hud-sum-open">открыть полный HUD<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>' : '';
-  return `<div class="hud-sum${можноОткрыть ? ' can-open' : ''}" data-raw="${escapeHtml(String(текст || '').trim())}"${можноОткрыть ? ' role="button" tabindex="0" title="Сводка хода — нажмите, чтобы открыть полный HUD этого сообщения"' : ' title="Сводка хода (полного HUD в этом сообщении нет)"'}>`
+  const открыть = ключРазгрузки
+    ? '<button type="button" class="hud-sum-open hud-sum-restore" title="Полный HUD этого хода лежит в файле — вернуть его в сообщение">вернуть полный HUD<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>'
+    : можноОткрыть ? '<span class="hud-sum-open">открыть полный HUD<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></span>' : '';
+  const подсказка = ключРазгрузки ? ' title="Сводка хода — полный HUD выгружен в файл (🗜 Разгрузить чат)"'
+    : можноОткрыть ? ' role="button" tabindex="0" title="Сводка хода — нажмите, чтобы открыть полный HUD этого сообщения"' : ' title="Сводка хода (полного HUD в этом сообщении нет)"';
+  return `<div class="hud-sum${можноОткрыть && !ключРазгрузки ? ' can-open' : ''}${ключРазгрузки ? ' is-offloaded' : ''}" data-raw="${escapeHtml(String(текст || '').trim())}"${ключРазгрузки ? ` data-hud-off="${escapeHtml(ключРазгрузки)}"` : ''}${подсказка}>`
     + `<div class="hud-sum-head"><span class="hud-sum-label">Сводка хода</span>${шапка}</div>`
     + (люди ? `<ul class="hud-sum-people">${люди}</ul>` : '')
     + событиеХода(о.событие) + строка('Новое', о.новое, 'is-new') + одежда + прочее + открыть
@@ -166,24 +175,37 @@ const вКарточке = (узел) => !!(узел && узел.closest && уз
  */
 export function оформитьСводки(messageElement) {
   const текст = messageElement && messageElement.querySelector && messageElement.querySelector('.mes_text');
-  if (!текст || settings.summaryCards === false) return 0;
-  if (!(текст.textContent || '').includes(ОТКРЫТЬ)) return 0;
+  if (!текст) return 0;
+  const весьТекст = текст.textContent || '';
+  // Метки выгруженного HUD (offload.js) — карточкой всегда: это не текст
+  // игрока, а место, где лежал HUD. Сводки игрока — по настройке.
+  const сводки = settings.summaryCards !== false && весьТекст.includes(ОТКРЫТЬ);
+  const метки = весьТекст.includes(МЕТКА);
+  if (!сводки && !метки) return 0;
   const можноОткрыть = !!текст.querySelector('.hud-os-card');
+  const ищем = (с) => (сводки && с.includes(ОТКРЫТЬ)) || (метки && с.includes(МЕТКА));
   let сделано = 0;
   for (let попытка = 0; попытка < 20; попытка++) {
     const ход = document.createTreeWalker(текст, NodeFilter.SHOW_TEXT);
     let узел = null;
-    while ((узел = ход.nextNode()) && !(узел.textContent.includes(ОТКРЫТЬ) && !вКарточке(узел.parentElement))) {}
+    while ((узел = ход.nextNode()) && !(ищем(узел.textContent) && !вКарточке(узел.parentElement))) {}
     if (!узел) break;
     const абзац = узел.parentElement.closest('p, li, blockquote, div') || узел.parentElement;
     if (!текст.contains(абзац) || абзац === текст) break;
     const весь = абзац.textContent;
-    const a = весь.indexOf(ОТКРЫТЬ), b = весь.indexOf(ЗАКРЫТЬ, a);
-    if (b < 0) break;
-    const сводка = весь.slice(a, b + ЗАКРЫТЬ.length);
-    const до = весь.slice(0, a).trim(), после = весь.slice(b + ЗАКРЫТЬ.length).trim();
+    let a, b, сводка, ключ = '';
+    const м = метки ? весь.match(/\[HUD_OFF:([0-9a-z]{4,24})\]([^[\]]*?)\[\/HUD_OFF\]/) : null;
+    if (м && (!сводки || весь.indexOf(ОТКРЫТЬ) < 0 || м.index < весь.indexOf(ОТКРЫТЬ))) {
+      a = м.index; b = a + м[0].length; ключ = м[1];
+      сводка = ОТКРЫТЬ + ' ' + м[2].trim() + ' ' + ЗАКРЫТЬ;
+    } else {
+      a = весь.indexOf(ОТКРЫТЬ); const конец = весь.indexOf(ЗАКРЫТЬ, a);
+      if (a < 0 || конец < 0) break;
+      b = конец + ЗАКРЫТЬ.length; сводка = весь.slice(a, b);
+    }
+    const до = весь.slice(0, a).trim(), после = весь.slice(b).trim();
     const обёртка = document.createElement('div');
-    обёртка.innerHTML = карточкаСводки(сводка, можноОткрыть);
+    обёртка.innerHTML = карточкаСводки(сводка, можноОткрыть, ключ);
     const карточка = обёртка.firstElementChild;
     // Текст вокруг сводки в том же абзаце остаётся на месте (без
     // оформления внутри абзаца — сводка обычно стоит одна).

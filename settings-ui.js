@@ -5,23 +5,24 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { settings } from './settings.js?v=23.88.18';
-import { видБлока } from './render/views.js?v=23.88.18';
-import { escapeHtml } from './utils.js?v=23.88.18';
-import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.88.18';
-import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.88.18';
-import { т } from './i18n.js?v=23.88.18';
-import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.88.18';
-import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.88.18';
-import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.88.18';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.88.18';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.88.18';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.18';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.88.18';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.88.18';
-import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.88.18';
-import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.88.18';
-import { меткаШапки } from './render/topbar-icons.js?v=23.88.18';
+import { settings } from './settings.js?v=23.88.19';
+import { видБлока } from './render/views.js?v=23.88.19';
+import { escapeHtml } from './utils.js?v=23.88.19';
+import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.88.19';
+import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате } from './offload.js?v=23.88.19';
+import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.88.19';
+import { т } from './i18n.js?v=23.88.19';
+import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.88.19';
+import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.88.19';
+import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.88.19';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.88.19';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.88.19';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.19';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.88.19';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.88.19';
+import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.88.19';
+import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.88.19';
+import { меткаШапки } from './render/topbar-icons.js?v=23.88.19';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -363,6 +364,18 @@ export function addSettingsUI() {
           ${заметка('Включается само только в чатах от 200 сообщений на странице. Старые блоки остаются рабочими и догружаются при прокрутке.')}
         `)}
 
+        ${подгруппа('🗜 Разгрузить чат', `
+          ${заметка('Таверна при каждом сохранении переписывает файл чата целиком. В длинном чате бо́льшая часть файла — полные блоки HUD: в старых ответах, в каждом свайпе и в копиях сообщений, которые ведут другие расширения. «Разгрузить» уносит их в отдельные файлы Таверны, а на месте блока оставляет сводку хода. Последние 40 сообщений и свайпы двух последних не трогаются.')}
+          ${заметка('Ничего не теряется: модель и так получает старые HUD сводками, быт, архив и списки из прошлых ходов читают полные блоки из файла, свайп на выгруженный вариант возвращает его HUD сам, а у сводки в ленте есть кнопка «вернуть полный HUD». «Вернуть всё» ставит блоки обратно во весь чат.')}
+          <div class="hud-set-apps" style="align-items:center;">
+            <span id="hud-offload-usage" style="font-size:12px; opacity:.78;">откройте чат</span>
+          </div>
+          <div class="hud-set-apps">
+            <button type="button" id="hud-offload-run" class="hud-theme-act" title="Унести полные HUD старых ходов и неактивных свайпов в файлы Таверны">🗜 Разгрузить</button>
+            <button type="button" id="hud-offload-back" class="hud-theme-act" title="Поставить выгруженные HUD обратно во все сообщения чата">↩ Вернуть всё</button>
+          </div>
+        `)}
+
         ${подгруппа('🧹 Лимит карточек', `
           ${заметка('Каждая собранная карточка HUD — это сотни элементов страницы. Если вписать число, в памяти останутся только последние N карточек, а <b>самые старые</b> свернутся до тонкой полоски. Текст сообщения никуда не денется: долистаете до него — карточка соберётся заново.<br>0 — ограничение выключено.')}
           <label class="hud-set-check">🧹 Держать в памяти карточек: ${число('hud-card-limit', 0, 2000, settings.hudCardLimit || 0, 80, 10)} шт.</label>
@@ -418,6 +431,67 @@ export function addSettingsUI() {
     } finally {
       кнопка.disabled = false;
       показатьОбъём();
+    }
+  });
+
+  // --- Разгрузить чат (offload.js) -------------------------------------------
+  // Сколько уйдёт — считаем, когда раскрыли подгруппу: план — это проход по
+  // всем блокам чата со сводками, на каждой отрисовке настроек он ни к чему.
+  const метаРазгрузки = document.getElementById('hud-offload-usage');
+  const показатьРазгрузку = () => {
+    const ctx = window.SillyTavern?.getContext?.();
+    const чат = ctx && Array.isArray(ctx.chat) ? ctx.chat : null;
+    if (!метаРазгрузки) return;
+    if (!чат || !чат.length) { метаРазгрузки.textContent = 'откройте чат'; return; }
+    const { блоков, байт } = оценитьРазгрузку(чат);
+    const выгружено = ключиВЧате(чат).size;
+    // Части переводим по отдельности: склейка шаблоном словаря не найдётся.
+    const части = [];
+    if (блоков) части.push(т(`можно вынести блоков: ${блоков} · примерно ${(байт / 1048576).toFixed(байт > 1048576 ? 1 : 2)} МБ`));
+    else части.push(т('выносить нечего'));
+    if (выгружено) части.push(т(`уже в файле: ${выгружено}`));
+    метаРазгрузки.textContent = части.join(' · ');
+  };
+  метаРазгрузки?.closest('details')?.addEventListener('toggle', (e) => { if (e.currentTarget.open) показатьРазгрузку(); });
+  document.getElementById('hud-offload-run').addEventListener('click', async (e) => {
+    const кнопка = e.currentTarget;
+    const ctx = window.SillyTavern?.getContext?.();
+    if (!ctx || !Array.isArray(ctx.chat) || !ctx.chat.length) return основа.showHudToast('info', 'Чат не открыт', 'Откройте чат, который нужно разгрузить.');
+    кнопка.disabled = true;
+    метаРазгрузки.textContent = 'выношу…';
+    try {
+      const { сообщений, блоков, байт } = await разгрузитьЧат();
+      if (!блоков) основа.showHudToast('info', 'Выносить нечего', 'Старых HUD в этом чате нет — или они уже в файле.');
+      else {
+        if (typeof ctx.reloadCurrentChat === 'function') await ctx.reloadCurrentChat();
+        основа.showHudToast('success', 'Чат разгружен', `Вынесено блоков: ${блоков} из ${сообщений} сообщ. — файл чата легче примерно на ${(байт / 1048576).toFixed(1)} МБ.`);
+      }
+    } catch (err) {
+      console.error('[TavernOS HUD] разгрузка не удалась:', err);
+      основа.showHudToast('error', 'Разгрузить не вышло', 'Сообщения не тронуты. ' + т(String(err && err.message || err)));
+    } finally {
+      кнопка.disabled = false;
+      показатьРазгрузку();
+    }
+  });
+  document.getElementById('hud-offload-back').addEventListener('click', async (e) => {
+    const кнопка = e.currentTarget;
+    const ctx = window.SillyTavern?.getContext?.();
+    if (!ctx || !Array.isArray(ctx.chat) || !ctx.chat.length) return основа.showHudToast('info', 'Чат не открыт', 'Откройте чат, в который нужно вернуть HUD.');
+    кнопка.disabled = true;
+    try {
+      const { сообщений, блоков, нет } = await вернутьHUDВЧат();
+      if (!блоков && !нет) основа.showHudToast('info', 'Возвращать нечего', 'В этом чате нет выгруженных HUD.');
+      else {
+        if (блоков && typeof ctx.reloadCurrentChat === 'function') await ctx.reloadCurrentChat();
+        основа.showHudToast(нет ? 'info' : 'success', 'HUD возвращён', `Вернулось блоков: ${блоков} в ${сообщений} сообщ.` + (нет ? ` Не нашлось в файле: ${нет} — на их месте остались сводки.` : ''));
+      }
+    } catch (err) {
+      console.error('[TavernOS HUD] возврат HUD не удался:', err);
+      основа.showHudToast('error', 'Вернуть не вышло', т(String(err && err.message || err)));
+    } finally {
+      кнопка.disabled = false;
+      показатьРазгрузку();
     }
   });
 
@@ -695,7 +769,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.88.18');
+      const mod = await import('./render/archive.js?v=23.88.19');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -910,7 +984,7 @@ export function addSettingsUI() {
   [['hud-music-enable', 'enableMusic'], ['hud-music-auto', 'musicAuto'], ['hud-music-verify', 'musicVerify'], ['hud-music-line', 'musicSceneLine'], ['hud-music-player', 'musicPlayer']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.88.18').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
+      import('./render/music.js?v=23.88.19').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
     });
   });
   document.getElementById('hud-music-profile').addEventListener('change', (e) => { settings.musicProfileId = e.target.value || ''; основа.saveSettings(); });
@@ -940,19 +1014,19 @@ export function addSettingsUI() {
     ['hud-music-free-fonau', 'musicFreeFonau'], ['hud-music-free-audius', 'musicFreeAudius'], ['hud-music-free-incompetech', 'musicFreeIncompetech'], ['hud-music-free-commons', 'musicFreeCommons']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.88.18').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
+      import('./render/music.js?v=23.88.19').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
     });
   });
   [['hud-music-liked-clear', 'musicLiked'], ['hud-music-banned-clear', 'musicBanned']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('click', () => {
       settings[ключ] = []; основа.saveSettings(); вкусМузыки();
-      import('./render/music.js?v=23.88.18').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      import('./render/music.js?v=23.88.19').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
   [['hud-music-medieval', 'musicMedieval'], ['hud-music-style', 'musicStyle'], ['hud-music-source', 'musicSource']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.value; основа.saveSettings();
-      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.88.18').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.88.19').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
 

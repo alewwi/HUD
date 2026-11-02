@@ -13,10 +13,11 @@
 // Пополняется сама: при открытии чата — фоном, по кусочку, все HUD, которых в
 // летописи ещё нет; после каждого ответа, свайпа и правки — последние ходы.
 
-import { прочитатьЛетопись, дописатьЛетопись, выжимкаHUD, ключСообщения, КЛЮЧ_ЛЕТОПИСИ } from './chronicle.js?v=23.88.18';
-import { extractHudBlock } from './hud-block.js?v=23.88.18';
-import { parseHUDComplex } from './hud-parser.js?v=23.88.18';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.88.18';
+import { прочитатьЛетопись, дописатьЛетопись, выжимкаHUD, ключСообщения, КЛЮЧ_ЛЕТОПИСИ } from './chronicle.js?v=23.88.19';
+import { extractHudBlock } from './hud-block.js?v=23.88.19';
+import { развернутьHUD } from './offload.js?v=23.88.19';
+import { parseHUDComplex } from './hud-parser.js?v=23.88.19';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.88.19';
 
 const кэш = new Map();   // имя файла → { хранилище: { [КЛЮЧ_ЛЕТОПИСИ]: … }, карта, загрузка, таймер }
 const ctx = () => { try { return window.SillyTavern?.getContext?.() || null; } catch (_) { return null; } };
@@ -108,14 +109,15 @@ function вBase64(s) {
 }
 async function сохранить(имя, подпись) {
   const з = кэш.get(имя);
-  if (!з) return;
+  if (!з) return false;
   const c = ctx();
   const заголовки = c && typeof c.getRequestHeaders === 'function' ? c.getRequestHeaders() : { 'Content-Type': 'application/json' };
   try {
     const r = await fetch('/api/files/upload', { method: 'POST', headers: заголовки, body: JSON.stringify({ name: имя, data: вBase64(JSON.stringify(з.хранилище[КЛЮЧ_ЛЕТОПИСИ] || { v: 1, ходы: [] })) }) });
-    if (!r.ok) console.warn('[TavernOS HUD] летопись не сохранилась', r.status);
-    else await отметитьВУказателе(имя, з.карта, подпись);
-  } catch (e) { console.warn('[TavernOS HUD] летопись не сохранилась', e); }
+    if (!r.ok) { console.warn('[TavernOS HUD] летопись не сохранилась', r.status); return false; }
+    await отметитьВУказателе(имя, з.карта, подпись);
+    return true;
+  } catch (e) { console.warn('[TavernOS HUD] летопись не сохранилась', e); return false; }
 }
 
 // --- Указатель летописей -----------------------------------------------------
@@ -261,7 +263,20 @@ export async function дописатьВЛетопись(новые) {
   return true;
 }
 
-const текстСообщения = (m) => String((m && (m.mes ?? m.message)) || '');
+/**
+ * Записать свою летопись открытого чата сейчас, не дожидаясь отложенной
+ * записи (разгрузка чата уносит HUD только после неё). true — файл сохранён.
+ */
+export async function сохранитьЛетописьСейчас() {
+  const имя = свойФайлЛетописи();
+  if (!имя) return false;
+  const з = await запись(имя).загрузка;
+  clearTimeout(з.таймер);
+  return сохранить(имя);
+}
+
+// Выгруженный ход (offload.js) — с полным HUD из файла, если тот загружен.
+const текстСообщения = (m) => развернутьHUD(String((m && (m.mes ?? m.message)) || ''));
 /** Выжимка HUD сообщения (с музыкой хода, если она подобрана) или null. */
 export function выжимкаСообщения(m) {
   const блок = extractHudBlock(текстСообщения(m));
