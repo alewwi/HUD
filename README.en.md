@@ -439,7 +439,7 @@ All settings are in the **📊 TavernOS** block in "Extensions" and in the "Cust
 | 🧩 HUD blocks | HUD in every reply (network intercept) or only on the button; the player block; era (phone or casket) and individual apps; intercepts or overheard talk; memory and Chekhov's guns; illnesses, pregnancy, birth and babies, the cycle; "what they think of you"; family tree; body state; plot twists; companions; adult-scene blocks (each separately); verbal duel; combat (decide itself, always, never); daily life and the sleep norm; diary, dreams, world, economy, events, city services, horoscope. "Deep tuning" — switch off single fields and sub-labels; they are cut from the instruction. |
 | 📊 Custom stats | Master switch; the list of stats: name, meaning, view, icon, colour, whose, tab and place; the shared prompt with a "Restore the default text" button. |
 | ✨ Display | Where the HUD is: in messages, on the side and in messages, only on the side; panel width (custom or up to the chat) and edge (right or left). Question-mark hints; lists from past turns: how many turns to look back, the item limit per list and messages per chat. |
-| ⚡ Performance | Lighter old cards, how many cards to build at once, lazy tabs, Performance Mode, virtualization, card limit. |
+| ⚡ Performance | Lighter old cards, how many cards to build at once, lazy tabs, Performance Mode, virtualization, card limit; 🗜 unload the chat and restore all. |
 | 🖼️ Avatars | Images for character names, pinned avatars. |
 | 📚 Lorebooks | Which lorebooks to add to the HUD regeneration request; how many messages to send when saving to a lorebook. |
 | 🤖 Generation | HUD token limit; the instruction as a separate message; a snapshot of the latest HUD; completeness check; "Fill in what was skipped"; contradictions with daily life; the adult-scene part (auto, always, never); boosts; how many expanded HUDs to keep; context and profile for regeneration. |
@@ -481,7 +481,7 @@ Settings are grouped — expand the one you need. Below is the essential part of
 
 **🎵 Scene music** — on/off and auto-refresh when the scene changes, profile, strip style, medieval music, the built-in player and sound source, checking tracks by search, how long to wait for a playlist, reply limit, your own prompt and context for picking.
 
-**⚡ Performance** — lighter old cards, lazy tabs, speeding up two SillyTavern rules; for chats over 200 messages — Performance Mode and virtualization; a card limit.
+**⚡ Performance** — lighter old cards, lazy tabs, speeding up two SillyTavern rules; for chats over 200 messages — Performance Mode and virtualization; a card limit. *🗜 Unload the chat* — full HUDs of old turns into separate SillyTavern files with turn summaries in their place; «↩ Restore all» puts them back.
 
 **🧹 Maintenance** — "Clear cache": removes saved archive reports and reaction marks; settings, themes and avatars stay.
 
@@ -522,7 +522,7 @@ Open the chat and press **⚠️ !!DANGER!! Remove HUD from chat** at the end of
 Since version 23.88.7 HUD settings are stored in SillyTavern too, and the fresher copy wins on load. Change any setting on the device whose look you like — the other one picks it up after a page reload. Backgrounds and banners uploaded as files move only by hand.
 
 **It's slow in a long chat.**
-Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last N cards at once" and set a card limit.
+Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last N cards at once" and set a card limit. If the chat itself is slow to save and open, press **🗜 Unload** (⚡ Performance → 🗜 Unload the chat): the chat file gets several times lighter, and everything comes back with one button.
 
 ---
 
