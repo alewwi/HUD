@@ -2,12 +2,12 @@
    ДЛИННЫЕ СПИСКИ — ВИДНО ТРИ, ОСТАЛЬНОЕ ЛИСТАЕТСЯ
    Пилюли и карточки («В близости», болезни, следы, ключ, инвентарь,
    секреты, ружья…) больше не разворачиваются на несколько экранов.
-   Классы ставит events.js (ужатьСписки), когда карточек четыре и больше:
+   Классы ставит events.js (ужатьСписки), когда карточек больше трёх:
      • is-capped — листается вниз: высота ровно под три карточки плюс
        краешек четвёртой, внизу затухание (на телефоне — всегда; на широком
-       экране — у сеток и видов блоков);
+       экране — только у листов бумаги и осей, которые вбок не лягут);
      • is-capped-x — листается вбок: три карточки в ряд, справа краешек
-       следующей (широкий экран, списки столбиком).
+       следующей (широкий экран: пилюли, карточки, виды блоков).
    Долистал до конца — затухание пропадает (is-end).
    ========================================================================= */
 .hud-os-card .is-capped {
@@ -19,7 +19,19 @@
 /* Список — flex-колонка с потолком по высоте, а у карточки (след, болезнь)
    overflow: hidden, и её минимальная высота — ноль: потолок сжимал её, и
    низ — таймер, описание — обрезался. Карточки не сжимаются, список листается. */
-.hud-os-card .is-capped > * { scroll-snap-align: start; flex-shrink: 0; }
+.hud-os-card .is-capped > * { scroll-snap-align: start; flex-shrink: 0; max-width: 100%; }
+/* Сетка в две колонки показывала бы две плашки и краешек: в списке — одна
+   колонка. Строки — по содержимому: иначе потолок сжимал карточки с
+   overflow: hidden, и в список влезали все («Сердца» доверия). */
+.hud-os-card .is-capped { grid-template-columns: minmax(0, 1fr) !important; grid-auto-rows: max-content; }
+/* Ряд чипов, ставший списком: чипы столбиком, иначе длинный уходил за край. */
+.hud-os-card .hud-v-inv.is-weight.is-capped { flex-direction: column; flex-wrap: nowrap; align-items: stretch; }
+/* Узкая плашка ленты: название и шкала — друг под другом, а не столбик букв. */
+.hud-os-card .is-capped-x .hud-v-kink-head { flex-wrap: wrap; gap: 4px; }
+.hud-os-card .is-capped-x .hud-v-kink-head b { flex: 1 1 100%; min-width: 0; }
+.hud-os-card .is-capped-x .hud-v-who-line { flex-wrap: wrap; }
+.hud-os-card .is-capped-x .hud-v-who-text { flex: 1 1 100%; }
+.hud-os-card .is-capped-x .hud-v-who-text small { letter-spacing: 0; white-space: normal; }
 .hud-os-card .is-capped-x {
   display: flex !important; flex-direction: row !important; flex-wrap: nowrap !important; align-items: flex-start;
   gap: 10px; overflow-x: auto !important; overflow-y: hidden !important; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
@@ -30,15 +42,18 @@
   scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--hud-accent, #c31f38) 45%, transparent) transparent;
   -webkit-mask: linear-gradient(90deg, #000 calc(100% - 28px), transparent); mask: linear-gradient(90deg, #000 calc(100% - 28px), transparent);
 }
-/* Не уже 160px: в узкой карточке широкого окна треть — это 90px, и в
-   карточке секрета пропадал статус «НЕ РАСКРЫТ». Там — две в ряд. */
+/* Не уже 125px: в узкой карточке широкого окна треть — это 90px, и в
+   карточке секрета пропадал статус «НЕ РАСКРЫТ». Там — две в ряд. С 415px
+   карточки видно три целиком и краешек четвёртой. */
 .hud-os-card .is-capped-x > * {
-  flex: 0 0 max(160px, (100% - 20px) / 3.15) !important; max-width: max(160px, (100% - 20px) / 3.15) !important; min-width: 0;
+  flex: 0 0 max(125px, (100% - 20px) / 3.15) !important; max-width: max(125px, (100% - 20px) / 3.15) !important; min-width: 0;
   margin: 0 !important; scroll-snap-align: start; box-sizing: border-box;
 }
 /* Пилюли в узкой ячейке широкой карточки (is-x2, events.js): две в ряд и
    краешек третьей — раньше там был столбик, листавшийся вниз. */
 .hud-os-card .is-capped-x.is-x2 > * { flex-basis: calc((100% - 10px) / 2.15) !important; max-width: calc((100% - 10px) / 2.15) !important; }
+/* Три пилюли (is-fit): ровный ряд без краешка следующей. */
+.hud-os-card .is-capped-x.is-fit > * { flex-basis: max(125px, (100% - 20px) / 3) !important; max-width: max(125px, (100% - 20px) / 3) !important; }
 .hud-os-card .is-capped.is-end, .hud-os-card .is-capped-x.is-end { -webkit-mask: none; mask: none; }
 /* След в ленте вбок — узкий, как на телефоне: таймер на своей строке,
    иначе «сойдёт через 2 дн. 11 ч» сжимал название до буквы в строке. */

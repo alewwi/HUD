@@ -13,9 +13,9 @@
 // уязвимом положении, поэтому по умолчанию оно под покрывалом
 // (underwearVeil): открывается нажатием.
 
-import { escapeHtml, applyTooltips, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.88.19';
-import { settings } from '../settings.js?v=23.88.19';
-import { ико } from './view-icons.js?v=23.88.19';
+import { escapeHtml, applyTooltips, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.88.43';
+import { settings } from '../settings.js?v=23.88.43';
+import { ико } from './view-icons.js?v=23.88.43';
 
 const текст = (v) => String(снятьЗаглушки(flattenFieldValue(v)) || '').trim();
 const пусто = (s) => !s || /^(empty|none|нет|—|-)$/i.test(s.trim());

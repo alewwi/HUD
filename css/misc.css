@@ -7090,3 +7090,32 @@ button.hud-sum-restore.is-missing { color: var(--hud-muted-text, #9a95a6); text-
 .hud-sum-event-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
 .hud-sum-event-when { font-size: .72em; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--hud-accent-text, var(--hud-accent, #d96a8a)); }
 .hud-sum-event-body p { margin: 0; font-size: 1.03em; font-style: italic; line-height: 1.45; }
+
+/* =========================================================================
+   УДАЛЕНИЕ ИЗ HUD (hud-erase.js): корзина в заголовке блока и окно выбора
+   ========================================================================= */
+.hud-os-card .hud-erase-open {
+  display: inline-grid; place-items: center; width: 22px; height: 22px; margin: 0 0 0 6px; padding: 0; vertical-align: middle;
+  border: 1px solid color-mix(in srgb, currentColor 22%, transparent); border-radius: 7px; background: transparent; color: inherit;
+  opacity: .6; cursor: pointer; transition: opacity .15s ease, color .15s ease, border-color .15s ease;
+}
+.hud-os-card .hud-erase-open svg, .hud-os-card .hud-fetus-btn.is-erase svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.hud-os-card .hud-fetus-btn.is-erase { display: inline-flex; align-items: center; gap: 5px; }
+.hud-os-card .hud-erase-open:focus-visible { opacity: 1; }
+.hud-os-card .hud-state-plaque .hud-erase-open { flex: none; margin-left: 0; }
+@media (hover: hover) and (pointer: fine) { .hud-os-card .hud-erase-open:hover { opacity: 1; color: #e0566b; border-color: currentColor; } }
+/* Режим удаления: корзина горит, плашки блока обведены. Рамка внутри плашки:
+   снаружи её срезала бы лента с прокруткой. */
+.hud-os-card .hud-row.is-erasing .hud-erase-open { opacity: 1; color: #e0566b; border-color: currentColor; background: rgba(224, 86, 107, .14); }
+.hud-os-card .hud-erase-item { outline: 1.5px dashed #e0566b; outline-offset: -2px; cursor: pointer; }
+@media (hover: hover) and (pointer: fine) { .hud-os-card .hud-erase-item:hover { outline-style: solid; outline-width: 2px; } }
+.hud-erase-box { text-align: left; font-size: 14px; line-height: 1.4; min-width: 0; }
+.hud-erase-box > b { display: block; font-size: 1.1em; margin-bottom: 6px; }
+.hud-erase-box > p { margin: 0 0 10px; opacity: .85; }
+.hud-erase-box > p.is-item { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 4; overflow: hidden; padding: 6px 8px; border-radius: 8px; background: rgba(127, 127, 127, .12); opacity: 1; overflow-wrap: anywhere; }
+.hud-erase-list { display: grid; gap: 4px; max-height: 36vh; overflow-y: auto; overflow-x: hidden; margin: 0 0 10px; padding: 0; }
+.hud-erase-list label { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 8px; align-items: start; margin: 0; padding: 6px 8px; border-radius: 8px; background: rgba(127, 127, 127, .12); cursor: pointer; overflow-wrap: anywhere; }
+.hud-erase-list input { margin: 2px 0 0; width: 16px; height: 16px; }
+.hud-erase-list small { display: block; margin-top: 2px; opacity: .65; font-size: .85em; }
+.hud-erase-box .hud-erase-all { display: inline-block; width: auto; margin: 0 0 10px; padding: 3px 10px; font-size: .9em; }
+.hud-erase-box > p.is-warn { color: #e0566b; opacity: 1; margin-bottom: 0; }

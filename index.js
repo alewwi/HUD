@@ -1,62 +1,63 @@
 // hud-manager/index.js
-import { hexToRgba, settings, defaultSettings, настройка, КЛЮЧИ_АВТО, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, сценаВМесте } from './settings.js?v=23.88.19';
-import { escapeHtml, getSafeUserName, hudHasMeaningfulValue, имяДляВкладки, имяБезПриставки, убратьПриставкуКарточки, замер, mapKey } from './utils.js?v=23.88.19';
-import { parseHUDComplex, scoreHudJsonCandidate } from './hud-parser.js?v=23.88.19';
-import { создатьБилеты } from './gen-ticket.js?v=23.88.19';
-import { подключитьЛетопись, летописьЕсли } from './chronicle-store.js?v=23.88.19';
-import { датаИзТегов } from './chronicle.js?v=23.88.19';
-import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, облегчитьКарточку, вернутьКарточку, плавноПоказать } from './events.js?v=23.88.19';
-import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.88.19';
-import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.88.19';
-import { mergeCarryOver, дополнитьВоспоминанияСнимка, дополнитьКарточкиСнимка, вернутьЧерты, сдвигиДоверия, ключБлокаСводки, достатьРазборыСводки, запомнитьРазборСводки } from './render/carryover.js?v=23.88.19';
-import { привязатьИсторию } from './render/intimacy.js?v=23.88.19';
-import { журналБыта, buildLifeHTML, естьБыт, строкаБыта, темыБыта, пробелыБыта } from './render/life.js?v=23.88.19';
-import { строкаЧасовСцены } from './render/scene-clock.js?v=23.88.19';
-import { buildCombatHTML, hudHasCombat } from './render/combat.js?v=23.88.19';
-import { прогнозыЗаживления } from './render/life-combat.js?v=23.88.19';
-import { состояниеСцены } from './render/character.js?v=23.88.19';
-import { своиСтаты, вкладкаСтата, значениеСтата, блокСтата, вставитьВВкладку } from './custom-stats.js?v=23.88.19';
-import { карточкиГруппы } from './group-cards.js?v=23.88.19';
-import { кодПоля, текущееЗначение, применитьПравку } from './field-edit.js?v=23.88.19';
-import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.88.19';
-import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.88.19';
-import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.88.19';
-import { buildMemoryHTML } from './render/memory.js?v=23.88.19';
-import { buildPhoneTabsHTML } from './render/phone.js?v=23.88.19';
-import { праздникиСцены } from './render/holidays.js?v=23.88.19';
-import { изменитьСудьбу, откатитьСудьбу, отметитьТест, узнатьПол, изменитьПлоды, откатитьПлоды, задатьЧертыРодителей, зарегистрироватьРоды, роды, поправитьРоды } from './render/conception.js?v=23.88.19';
-import { buildBabiesHTML, hudHasBabies, днейИзТекста } from './render/babies.js?v=23.88.19';
-import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.88.19';
-import { hudHasRelations } from './render/relations-graph.js?v=23.88.19';
-import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.88.19';
-import { чипЛуны, теньЛуны, титрыСцены, карточкаПоворота } from './render/extras.js?v=23.88.19';
-import { полосаМузыки, подключитьМузыку } from './render/music.js?v=23.88.19';
-import { включитьПереводчик, английский } from './i18n.js?v=23.88.19';
-import { включитьЭпоху } from './render/era-medieval.js?v=23.88.19';
-import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.88.19';
-import { applyThemeClass } from './themes.js?v=23.88.19';
-import { упорядочитьВкладки } from './tabs-order.js?v=23.88.19';
-import { подключитьСтили } from './css-loader.js?v=23.88.19';
-import { пометитьЭффекты } from './render/fx.js?v=23.88.19';
-import { namesLikelySame } from './names.js?v=23.88.19';
-import { заменитьВТексте } from './dom-patch.js?v=23.88.19';
-import { ярлыкСЗначком, подключитьЗначки } from './render/hud-icons.js?v=23.88.19';
-import { меткаШапки } from './render/topbar-icons.js?v=23.88.19';
-import { оформитьСводки } from './render/summary-card.js?v=23.88.19';
-import { вычислитьСвет, переменныеСвета } from './render/light.js?v=23.88.19';
-import { текстНаКарточке, фоныКарточки, подложкаЧата, яркость } from './contrast.js?v=23.88.19';
-import { бюджетИнструкции, подписьБюджета, медианаОтвета, оценкаТокенов, точноТокенов, разметкаБюджета, коротко } from './token-budget.js?v=23.88.19';
-import { наблюденияПолей, учестьОтвет, профильМодели, строкаУсиления, слабыеПоля } from './adapt-prompt.js?v=23.88.19';
-import { правитьСнимок, снятьПравку } from './snapshot-edits.js?v=23.88.19';
-import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.88.19';
-import { getChatMessages, parseSceneDate } from './history-analyzer.js?v=23.88.19';
-import { сводкиВместоМеток, МЕТКА_HUD, подключитьMemoryBooks } from './memorybooks-link.js?v=23.88.19';
-import { телоБезHUD, extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ, заменитьHudБлоки, похожНаДанные, естьЗаглушкаHUD, заглушкиВСводки, заглушкиHUD } from './hud-block.js?v=23.88.19';
-import { подключитьРазгрузку } from './offload.js?v=23.88.19';
-import { собратьСнимок, строкаСнимка, решитьNSFW, решитьБой, последниеТекстыЧата, легендаСнимка, короткиеВСнимке, HUDвКодах } from './hud-snapshot.js?v=23.88.19';
-import { создатьПроверкуПолноты, чегоНеХватает } from './hud-check.js?v=23.88.19';
-import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.88.19';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.88.19';
+import { hexToRgba, settings, defaultSettings, настройка, КЛЮЧИ_АВТО, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, сценаВМесте } from './settings.js?v=23.88.43';
+import { escapeHtml, getSafeUserName, hudHasMeaningfulValue, имяДляВкладки, имяБезПриставки, убратьПриставкуКарточки, замер, mapKey } from './utils.js?v=23.88.43';
+import { parseHUDComplex, scoreHudJsonCandidate } from './hud-parser.js?v=23.88.43';
+import { создатьБилеты } from './gen-ticket.js?v=23.88.43';
+import { подключитьЛетопись, летописьЕсли } from './chronicle-store.js?v=23.88.43';
+import { датаИзТегов } from './chronicle.js?v=23.88.43';
+import { initGlobalEvents, initObserver, initTavernOSEvents, refreshReactions, облегчитьКарточку, вернутьКарточку, плавноПоказать } from './events.js?v=23.88.43';
+import { buildUserHTML, buildCharacterHTML, buildPerceptionHTML } from './render/character.js?v=23.88.43';
+import { buildCompanionsHTML, hudHasMeaningfulCompanions } from './render/companions.js?v=23.88.43';
+import { mergeCarryOver, дополнитьВоспоминанияСнимка, дополнитьКарточкиСнимка, вернутьЧерты, сдвигиДоверия, ключБлокаСводки, достатьРазборыСводки, запомнитьРазборСводки } from './render/carryover.js?v=23.88.43';
+import { привязатьИсторию } from './render/intimacy.js?v=23.88.43';
+import { журналБыта, buildLifeHTML, естьБыт, строкаБыта, темыБыта, пробелыБыта } from './render/life.js?v=23.88.43';
+import { строкаЧасовСцены } from './render/scene-clock.js?v=23.88.43';
+import { buildCombatHTML, hudHasCombat } from './render/combat.js?v=23.88.43';
+import { прогнозыЗаживления } from './render/life-combat.js?v=23.88.43';
+import { состояниеСцены } from './render/character.js?v=23.88.43';
+import { своиСтаты, вкладкаСтата, значениеСтата, блокСтата, вставитьВВкладку } from './custom-stats.js?v=23.88.43';
+import { карточкиГруппы } from './group-cards.js?v=23.88.43';
+import { кодПоля, текущееЗначение, применитьПравку } from './field-edit.js?v=23.88.43';
+import { buildDiaryHTML, hudHasMeaningfulDiary, buildBodyDiaryHTML, hudHasMeaningfulBodyDiary } from './render/diary.js?v=23.88.43';
+import { buildDreamHTML, hudHasMeaningfulDreams } from './render/dreams.js?v=23.88.43';
+import { buildInterceptsHTML, hudHasMeaningfulIntercepts } from './render/intercepts.js?v=23.88.43';
+import { buildMemoryHTML } from './render/memory.js?v=23.88.43';
+import { buildPhoneTabsHTML } from './render/phone.js?v=23.88.43';
+import { праздникиСцены } from './render/holidays.js?v=23.88.43';
+import { изменитьСудьбу, откатитьСудьбу, отметитьТест, узнатьПол, изменитьПлоды, откатитьПлоды, задатьЧертыРодителей, зарегистрироватьРоды, роды, поправитьРоды } from './render/conception.js?v=23.88.43';
+import { buildBabiesHTML, hudHasBabies, днейИзТекста } from './render/babies.js?v=23.88.43';
+import { buildCasketHTML, hudHasCasket, buildOverheardHTML, hudHasMeaningfulOverheard } from './render/medieval.js?v=23.88.43';
+import { hudHasRelations } from './render/relations-graph.js?v=23.88.43';
+import { buildLightningSvg, buildSeasonSceneHtml } from './render/scene.js?v=23.88.43';
+import { чипЛуны, теньЛуны, титрыСцены, карточкаПоворота } from './render/extras.js?v=23.88.43';
+import { полосаМузыки, подключитьМузыку } from './render/music.js?v=23.88.43';
+import { включитьПереводчик, английский, т } from './i18n.js?v=23.88.43';
+import { стеретьИзЧата, вариантыПункта, журналУдалений, вернутьУдаление, запомнитьМетку, чужаяМетка, принятьМетку } from './hud-erase.js?v=23.88.43';
+import { включитьЭпоху } from './render/era-medieval.js?v=23.88.43';
+import { buildWorldHTML, hudHasMeaningfulWorld } from './render/world.js?v=23.88.43';
+import { applyThemeClass } from './themes.js?v=23.88.43';
+import { упорядочитьВкладки } from './tabs-order.js?v=23.88.43';
+import { подключитьСтили } from './css-loader.js?v=23.88.43';
+import { пометитьЭффекты } from './render/fx.js?v=23.88.43';
+import { namesLikelySame } from './names.js?v=23.88.43';
+import { заменитьВТексте } from './dom-patch.js?v=23.88.43';
+import { ярлыкСЗначком, подключитьЗначки } from './render/hud-icons.js?v=23.88.43';
+import { меткаШапки } from './render/topbar-icons.js?v=23.88.43';
+import { оформитьСводки } from './render/summary-card.js?v=23.88.43';
+import { вычислитьСвет, переменныеСвета } from './render/light.js?v=23.88.43';
+import { текстНаКарточке, фоныКарточки, подложкаЧата, яркость } from './contrast.js?v=23.88.43';
+import { бюджетИнструкции, подписьБюджета, медианаОтвета, оценкаТокенов, точноТокенов, разметкаБюджета, коротко } from './token-budget.js?v=23.88.43';
+import { наблюденияПолей, учестьОтвет, профильМодели, строкаУсиления, слабыеПоля } from './adapt-prompt.js?v=23.88.43';
+import { правитьСнимок, снятьПравку } from './snapshot-edits.js?v=23.88.43';
+import { TAB_HELP, findTermHelp, buildHintHTML, attachHelpMarks, removeHelpMarks, centerFieldIcons } from './help.js?v=23.88.43';
+import { getChatMessages, parseSceneDate } from './history-analyzer.js?v=23.88.43';
+import { сводкиВместоМеток, МЕТКА_HUD, подключитьMemoryBooks } from './memorybooks-link.js?v=23.88.43';
+import { телоБезHUD, extractHudBlock, hudOpenRe, hudCloseRe, последнийHudБлок, меткаСДанными, естьHudБлок, hudБлоки, маскаРассуждений, ТЕГИ_РАССУЖДЕНИЙ, заменитьHudБлоки, похожНаДанные, естьЗаглушкаHUD, заглушкиВСводки, заглушкиHUD } from './hud-block.js?v=23.88.43';
+import { подключитьРазгрузку } from './offload.js?v=23.88.43';
+import { собратьСнимок, строкаСнимка, решитьNSFW, решитьБой, последниеТекстыЧата, легендаСнимка, короткиеВСнимке, HUDвКодах } from './hud-snapshot.js?v=23.88.43';
+import { создатьПроверкуПолноты, чегоНеХватает } from './hud-check.js?v=23.88.43';
+import { обновитьПалитруГрупп, следитьЗаТемой } from './palette.js?v=23.88.43';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.88.43';
 
 // Поколение отрисовки для «живой карточки» (см. processMessage): растёт при
 // смене настроек и явной перерисовке. На уровне модуля — чтобы сохранение
@@ -140,7 +141,7 @@ const ЖИВЫЕ = { поколение: 0 };
   // нужна она только к генерации. Грузится заранее, когда страница затихнет, и
   // в любом случае до первой отправки (обёртка fetch ждёт её).
   let загрузитьПромптОбещание = null;
-  const загрузитьПромпт = () => (загрузитьПромптОбещание ||= import('./prompt.js?v=23.88.19').then(м => { м.подключить(связьПромпта); return м; }));
+  const загрузитьПромпт = () => (загрузитьПромптОбещание ||= import('./prompt.js?v=23.88.43').then(м => { м.подключить(связьПромпта); return м; }));
   const связьПромпта = {
     get последнийСнимокОбъект() { return последнийСнимокОбъект; },
     get сверитьРоды() { return сверитьРоды; },
@@ -642,6 +643,9 @@ const ЖИВЫЕ = { поколение: 0 };
 
       const originalFetch = window.fetch;
       window.fetch = async function(resource, options) {
+    // Сохранение чата поверх чужого удаления — самое опасное место, поэтому
+    // проверка стоит прямо здесь: она успевает раньше записи.
+    if (options && options.method === 'POST' && /\/api\/chats\/(?:group\/)?save(?:[?#]|$)/.test(typeof resource === 'string' ? resource : '')) await сторожСохранения();
     // Сводки старых HUD делаем и без «Сетевого перехвата»: полные HUD в истории
     // стоят тысячи токенов, даже когда модель новых уже не пишет. Сама
     // инструкция и снимок — только при включённом перехвате.
@@ -1696,7 +1700,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
   // Окно «Кастомизация» и его панель темы (customize.js) вместе с примером HUD
   // грузятся при первом открытии: при старте они не нужны.
   let загрузитьКастомизациюОбещание = null;
-  const загрузитьКастомизацию = () => (загрузитьКастомизациюОбещание ||= import('./customize.js?v=23.88.19').then(м => { м.подключить(связьКастомизации); return м; }));
+  const загрузитьКастомизацию = () => (загрузитьКастомизациюОбещание ||= import('./customize.js?v=23.88.43').then(м => { м.подключить(связьКастомизации); return м; }));
   const связьКастомизации = {
     get applyCardUiState() { return applyCardUiState; },
     get applyThemeColors() { return applyThemeColors; },
@@ -3344,6 +3348,24 @@ const акцентДляТекста = () => текстНаКарточке(sett
     перерисоватьКарточкиЧата();
   });
 
+  // Корзина блока включает режим удаления: плашки блока подсвечиваются, и
+  // нажатие на плашку спрашивает про неё одну. «Убрать беременность» спрашивает
+  // сразу. Ловим раньше всех: у плашек свои нажатия (секрет раскрывается).
+  document.addEventListener('click', (e) => {
+    const t = e.target && e.target.closest ? e.target : null;
+    if (!t) return;
+    const кнопка = t.closest('[data-hud-erase]');
+    const ряд = кнопка ? null : t.closest('.hud-row.is-erasing');
+    if (ряд) пометитьПункты(ряд);   // «Показать ранние» могло добавить плашек
+    const пункт = ряд ? t.closest('.hud-erase-item') : null;
+    if (!(кнопка && кнопка.closest('.hud-os-card')) && !пункт) return;
+    e.preventDefault(); e.stopPropagation();
+    if (e.stopImmediatePropagation) e.stopImmediatePropagation();
+    if (пункт) void спроситьИСтереть(ряд.querySelector('[data-hud-erase]'), пункт.dataset.eraseText);
+    else if (кнопка.dataset.hudErase === 'pregnancy') void спроситьИСтереть(кнопка);
+    else переключитьУдаление(кнопка);
+  }, true);
+
   // Черты родителей: Enter в поле — то же, что «Сохранить».
   document.addEventListener('keydown', (e) => {
     if (e.key !== 'Enter' || e.isComposing) return;
@@ -3972,7 +3994,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
   // Перегенерация HUD по 🔄 / ➕ и досоздание после проверки полноты
   // (regen.js) — грузится при первом нажатии.
   let загрузитьПерегенерациюОбещание = null;
-  const загрузитьПерегенерацию = () => (загрузитьПерегенерациюОбещание ||= import('./regen.js?v=23.88.19').then(м => { м.подключить(связьПерегенерации); return м; }));
+  const загрузитьПерегенерацию = () => (загрузитьПерегенерациюОбещание ||= import('./regen.js?v=23.88.43').then(м => { м.подключить(связьПерегенерации); return м; }));
   const связьПерегенерации = {
     get buildHudLoreContext() { return buildHudLoreContext; },
     get getMessageUpdateFunction() { return getMessageUpdateFunction; },
@@ -4036,7 +4058,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
       const mes = btn.closest('.mes, .hud-side-mes');
       const id = mes ? Number(mes.getAttribute('mesid')) : NaN;
       // Помощник (render/assistant.js) грузится по первому вопросу.
-      import('./render/assistant.js?v=23.88.19').then(({ openAssistantDialog }) => openAssistantDialog({ mesId: Number.isInteger(id) ? id : null, лорбуки: лорбукиДляАссистента, сохранить: saveSettings, профили: списокПрофилей }))
+      import('./render/assistant.js?v=23.88.43').then(({ openAssistantDialog }) => openAssistantDialog({ mesId: Number.isInteger(id) ? id : null, лорбуки: лорбукиДляАссистента, сохранить: saveSettings, профили: списокПрофилей }))
         .catch(e => { console.error('[TavernOS HUD] помощник не загрузился:', e); showHudToast('error', 'Помощник', 'Не загрузился: ' + (e && e.message || e)); });
     };
     btn.addEventListener('click', открыть, true);
@@ -4121,19 +4143,20 @@ const акцентДляТекста = () => текстНаКарточке(sett
     const id = Number(messageElement && messageElement.getAttribute('mesid'));
     const message = ctx && Array.isArray(ctx.chat) && Number.isInteger(id) ? ctx.chat[id] : null;
     const список = версииHUD(message);
+    const всего = список.length + журналУдалений(ctx).length;
     textElement.querySelectorAll('.hud-os-card').forEach(card => {
       if (card.closest('.hud-theme-preview')) return;
       const место = card.querySelector(':scope > .hud-os-topbar .hud-os-topbar-right');
       if (!место) return;
       const было = место.querySelector('.hud-versions-btn');
-      if (!список.length) { if (было) было.remove(); return; }
-      if (было) { было.querySelector('small').textContent = список.length; return; }
+      if (!всего) { if (было) было.remove(); return; }
+      if (было) { было.querySelector('small').textContent = всего; return; }
       const кнопка = document.createElement('span');
       кнопка.className = 'hud-versions-btn';
       кнопка.setAttribute('role', 'button');
       кнопка.tabIndex = 0;
-      кнопка.title = 'Прошлые версии HUD — вернуть одну из них';
-      кнопка.innerHTML = '↶<small>' + список.length + '</small>';
+      кнопка.title = 'Прошлые версии HUD и удалённое — вернуть';
+      кнопка.innerHTML = '↶<small>' + всего + '</small>';
       const регенерация = место.querySelector('.hud-regen-btn');
       место.insertBefore(кнопка, регенерация || место.firstChild);
       const открыть = (e) => {
@@ -4148,12 +4171,20 @@ const акцентДляТекста = () => текстНаКарточке(sett
         окно.className = 'hud-versions-pop';
         окно.dataset.mes = String(id);
         окно.setAttribute('role', 'menu');
-        окно.innerHTML = '<b>Прошлые версии HUD</b>' + свежие.map((v, i) => ({ v, i })).reverse().map(({ v, i }) => {
+        окно.innerHTML = (свежие.length ? '<b>Прошлые версии HUD</b>' : '') + свежие.map((v, i) => ({ v, i })).reverse().map(({ v, i }) => {
           const п = подписьВерсии(v);
           return `<button type="button" role="menuitem" data-version="${i}"><span>${escapeHtml(п.сцена)}</span><small>${escapeHtml([п.когда, п.заметка].filter(Boolean).join(' · '))}</small></button>`;
         }).join('');
+        const удалённое = журналУдалений(getStContextSafe()).slice().reverse();
+        if (удалённое.length) окно.insertAdjacentHTML('beforeend', '<b>Удалённое из HUD</b>' + удалённое.map(з => {
+          const t = new Date(з.когда || 0);
+          const когда = isNaN(t) ? '' : String(t.getHours()).padStart(2, '0') + ':' + String(t.getMinutes()).padStart(2, '0');
+          return `<button type="button" role="menuitem" data-erased="${escapeHtml(з.id)}"><span>${escapeHtml(з.подпись || 'Удаление')}</span><small>${escapeHtml([когда, ИМЕНА_УДАЛЕНИЯ[з.цель && з.цель.вид] || ''].filter(Boolean).join(' · '))}</small></button>`;
+        }).join(''));
         окно.addEventListener('click', (ev) => {
           ev.preventDefault(); ev.stopPropagation();
+          const удалено = ev.target.closest('[data-erased]');
+          if (удалено) { окно.remove(); void вернутьУдалённое(удалено.dataset.erased); return; }
           const пункт = ev.target.closest('[data-version]');
           if (!пункт) return;
           окно.remove();
@@ -4250,6 +4281,216 @@ const акцентДляТекста = () => текстНаКарточке(sett
       : (typeof ctx.saveChat === 'function') ? ctx.saveChat.bind(ctx) : null;
     if (сохранитьЧат) Promise.resolve(сохранитьЧат()).catch(e => showHudToast('error', 'Не сохранено', 'Правка видна, но не записана: ' + e.message));
     showHudToast('success', 'Исправлено', 'Значение обновлено в HUD этого сообщения.');
+  }
+
+  // Плашки блока: у видов разная разметка (карточка, строка легенды, лист),
+  // поэтому плашку ищем по тексту пункта: узел с точно этим текстом, иначе самый
+  // глубокий, где он есть, а от него — вверх, пока рядом не появится соседний
+  // пункт. Сравниваем текст целиком: у версий одного секрета общее начало бывает
+  // длиннее двухсот знаков.
+  const текстУзла = (у) => String(у.textContent || '').replace(/\s+/g, ' ').trim().toLowerCase();
+  function пометитьПункты(ряд) {
+    const кнопка = ряд.querySelector('[data-hud-erase]');
+    let пункты = [];
+    try { пункты = JSON.parse(кнопка.dataset.items || '[]'); } catch (_) { return; }
+    const метки = пункты.map(текст => ({ текст, ключ: String(текст).replace(/\s+/g, ' ').trim().toLowerCase() }));
+    const узлы = [...ряд.querySelectorAll('*')].filter(у => !у.closest('svg, template, .hud-key')).map(у => ({ у, т: текстУзла(у) })).reverse();
+    const занято = new Set();
+    // Сперва длинные: короткая версия пункта входит в текст длинной.
+    for (const м of [...метки].sort((x, y) => y.ключ.length - x.ключ.length)) {
+      const свободен = ({ у }) => !занято.has(у) && ![...занято].some(з => з.contains(у) || у.contains(з));
+      const найден = узлы.find(н => н.т === м.ключ && свободен(н)) || узлы.find(н => н.т.includes(м.ключ) && свободен(н));
+      if (!найден) continue;
+      let у = найден.у;
+      for (let верх = у.parentElement; верх && верх !== ряд; верх = верх.parentElement) {
+        const т = текстУзла(верх);
+        if ([...занято].some(з => верх.contains(з)) || метки.some(д => д !== м && !м.ключ.includes(д.ключ) && т.includes(д.ключ))) break;
+        // Рядом версия покороче, которая входит в этот текст: её узел — сосед.
+        if (метки.some(д => д !== м && м.ключ.includes(д.ключ) && т.split(д.ключ).length > 2)) break;
+        у = верх;
+      }
+      занято.add(у);
+      у.classList.add('hud-erase-item');
+      у.dataset.eraseText = м.текст;
+    }
+  }
+  function снятьУдаление(ряд) {
+    ряд.classList.remove('is-erasing');
+    ряд.querySelector('[data-hud-erase]')?.setAttribute('aria-pressed', 'false');
+    ряд.querySelectorAll('.hud-erase-item').forEach(у => { у.classList.remove('hud-erase-item'); delete у.dataset.eraseText; });
+  }
+  function включитьУдаление(кнопка) {
+    const ряд = кнопка.closest('.hud-row');
+    if (!ряд) return;
+    ряд.classList.add('is-erasing');
+    кнопка.setAttribute('aria-pressed', 'true');
+    пометитьПункты(ряд);
+  }
+  function переключитьУдаление(кнопка) {
+    const ряд = кнопка.closest('.hud-row');
+    if (!ряд) return;
+    const был = ряд.classList.contains('is-erasing');
+    document.querySelectorAll('.hud-row.is-erasing').forEach(снятьУдаление);
+    if (был) return;
+    включитьУдаление(кнопка);
+    showHudToast('info', 'Режим удаления', 'Нажмите на плашку, которую нужно удалить. Выйти — снова на корзину.');
+  }
+
+  const ИМЕНА_УДАЛЕНИЯ = { important: 'Важное', guns: 'Ружья Чехова', secrets: 'Секреты', pregnancy: 'Беременность' };
+  // Пока модель пишет, Таверна перезапишет последнее сообщение своим текстом.
+  const идётОтвет = () => { const стоп = document.getElementById('mes_stop'); return !!стоп && getComputedStyle(стоп).display !== 'none'; };
+  async function вернутьУдалённое(id) {
+    if (идётОтвет()) { showHudToast('info', 'Подождите', 'Дождитесь конца ответа модели.'); return; }
+    try {
+      await вернутьУдаление(id, { сводка: сводкаHUD });
+      перерисоватьКарточкиЧата();
+      showHudToast('success', 'Возвращено', 'Удалённое снова в HUD этого чата.');
+    } catch (err) {
+      console.error('[TavernOS HUD] возврат удалённого не удался:', err);
+      showHudToast('error', 'Вернуть не вышло', String((err && err.message) || err));
+    }
+  }
+
+  // Чат изменён на другом устройстве: своим сохранением это устройство вернуло
+  // бы удалённое. Подсказка — когда на вкладку вернулись и раз в минуту; сторож
+  // в fetch — перед каждым сохранением, его не обойти нажатием «Позже».
+  let отложенная = '', окноМетки = null;
+  function спроситьПроМетку(метка, приСохранении) {
+    if (окноМетки) return окноМетки;
+    окноМетки = (async () => {
+      const ctx = getStContextSafe();
+      const окно = document.createElement('div');
+      окно.className = 'hud-erase-box';
+      окно.innerHTML = '<b></b><p></p><p class="is-warn"></p>';
+      окно.children[0].textContent = т('Чат изменён на другом устройстве');
+      окно.children[1].textContent = т('Там что-то удалили из HUD или вернули. Здесь открыта старая копия чата.');
+      окно.children[2].textContent = т(приСохранении ? 'Сохранение перепишет чат этой копией и отменит те изменения. Обновление заберёт свежий чат, а то, что написано здесь после них, пропадёт.' : 'Если продолжить без обновления, следующее сохранение спросит ещё раз.');
+      const спросить = () => ctx.callGenericPopup(окно, ctx.POPUP_TYPE.CONFIRM, '', { okButton: т('Обновить чат'), cancelButton: т(приСохранении ? 'Сохранить поверх' : 'Позже') });
+      let обновить = await спросить();
+      // Esc и клик мимо окна — не выбор: «Сохранить поверх» случайно не нажать.
+      while (приСохранении && (обновить === null || обновить === undefined)) обновить = await спросить();
+      if (обновить) { window.location.reload(); return new Promise(() => {}); }
+      if (приСохранении) принятьМетку(метка); else отложенная = метка;
+    })().finally(() => { окноМетки = null; });
+    return окноМетки;
+  }
+  async function сторожСохранения() {
+    try {
+      const ctx = getStContextSafe();
+      if (!ctx || typeof ctx.callGenericPopup !== 'function' || !ctx.POPUP_TYPE) return;
+      const метка = await чужаяМетка(ctx);
+      if (метка) await спроситьПроМетку(метка, true);
+    } catch (e) { console.warn('[TavernOS HUD] проверка чата:', e); }
+  }
+  async function проверитьЧатИзвне() {
+    if (окноМетки || document.hidden) return;
+    const ctx = getStContextSafe();
+    if (!ctx || !Array.isArray(ctx.chat) || !ctx.chat.length || typeof ctx.callGenericPopup !== 'function' || !ctx.POPUP_TYPE) return;
+    try {
+      const метка = await чужаяМетка(ctx);
+      if (метка && метка !== отложенная && !окноМетки) await спроситьПроМетку(метка, false);
+    } catch (e) { console.warn('[TavernOS HUD] проверка чата:', e); }
+  }
+  function следитьЗаЧатом() {
+    if (typeof window.addEventListener !== 'function') return;
+    document.addEventListener('visibilitychange', () => { void проверитьЧатИзвне(); });
+    window.addEventListener('focus', () => { void проверитьЧатИзвне(); });
+    setInterval(() => { void проверитьЧатИзвне(); }, 60000);
+    const ctx = getStContextSafe();
+    const es = ctx && ctx.eventSource, et = ctx && (ctx.event_types || ctx.eventTypes);
+    if (es && et && et.CHAT_CHANGED) es.on(et.CHAT_CHANGED, () => { отложенная = ''; void запомнитьМетку(); });
+    void запомнитьМетку();
+  }
+
+  // Окно Таверны — не разметка HUD: подписи переводим сами (т).
+  const ВОПРОСЫ_УДАЛЕНИЯ = {
+    important: 'Удалить из «Важного»?',
+    guns: 'Удалить из «Ружей Чехова»?',
+    secrets: 'Удалить из «Секретов»?',
+    pregnancy: 'Убрать беременность?',
+  };
+  // Варианты длинные и отличаются хвостом: общее с нажатым начало сворачиваем.
+  function хвостВарианта(текст, образец) {
+    let общих = 0;
+    while (общих < текст.length && текст[общих] === образец[общих]) общих++;
+    return общих > 40 ? '…' + текст.slice(общих - 25) : текст;
+  }
+  function окноУдаления(вид, подпись, варианты = []) {
+    const окно = document.createElement('div');
+    окно.className = 'hud-erase-box';
+    const абзац = (тег, надпись, класс = '') => { const у = document.createElement(тег); у.textContent = надпись; if (класс) у.className = класс; окно.append(у); return у; };
+    абзац('b', т(ВОПРОСЫ_УДАЛЕНИЯ[вид]));
+    if (вид === 'pregnancy') {
+      абзац('p', подпись, 'is-item');
+      абзац('p', т('HUD забудет её целиком: срок, малышей, итог кубика и записи во всех сообщениях этого чата. Беременность других персонажей и родившихся детей это не тронет.'));
+    } else {
+      if (варианты.length > 1) абзац('p', т('В чате есть похожие формулировки. Удалятся только отмеченные: снимите галочку с того, что нужно оставить.'));
+      const список = document.createElement('div');
+      список.className = 'hud-erase-list';
+      варианты.forEach((в, i) => {
+        const строка = document.createElement('label');
+        const галка = document.createElement('input');
+        галка.type = 'checkbox'; галка.value = в.текст; галка.checked = true;
+        const текст = document.createElement('span');
+        текст.textContent = i ? хвостВарианта(в.текст, варианты[0].текст) : в.текст;
+        текст.title = в.текст;
+        const сколько = document.createElement('small');
+        сколько.textContent = в.сообщений ? т(`в ${в.сообщений} сообщ.`) : т('только в архиве');
+        текст.append(сколько);
+        строка.append(галка, текст);
+        список.append(строка);
+      });
+      окно.append(список);
+      if (варианты.length > 2) {
+        const все = document.createElement('button');
+        все.type = 'button'; все.className = 'hud-erase-all menu_button'; все.textContent = т('Снять все');
+        все.addEventListener('click', () => {
+          const галки = [...список.querySelectorAll('input')];
+          const снять = галки.some(г => г.checked);
+          галки.forEach(г => { г.checked = !снять; });
+          все.textContent = т(снять ? 'Выбрать все' : 'Снять все');
+        });
+        окно.append(все);
+      }
+    }
+    абзац('p', т('Это удалит информацию из HUD во всём чате. Вернуть можно через «↶» в шапке карточки. Текст сообщений не изменится.'), 'is-warn');
+    return окно;
+  }
+
+  async function спроситьИСтереть(кнопка, текст = '') {
+    if (кнопка.closest('.hud-custom-preview-body')) { showHudToast('info', 'Это пример', 'В просмотре удалять нечего: откройте карточку в чате.'); return; }
+    const ctx = getStContextSafe();
+    if (!ctx || typeof ctx.callGenericPopup !== 'function' || !ctx.POPUP_TYPE) { showHudToast('error', 'Не вышло', 'Эта версия Таверны не умеет показывать окно подтверждения.'); return; }
+    if (идётОтвет()) { showHudToast('info', 'Подождите', 'Дождитесь конца ответа модели.'); return; }
+    const вид = кнопка.dataset.hudErase;
+    if (!ВОПРОСЫ_УДАЛЕНИЯ[вид]) return;
+    const кто = String(кнопка.dataset.kto || '');
+    const подпись = вид !== 'pregnancy' ? текст : кто === 'user' ? ctx.name1 : кто.replace(/^char:/, '');
+    const mes = кнопка.closest('.mes, .hud-side-mes');
+    try {
+      const чат = ctx.chat;
+      const варианты = вид === 'pregnancy' ? [] : await вариантыПункта(вид, текст);
+      const окно = окноУдаления(вид, подпись, варианты);
+      const да = await ctx.callGenericPopup(окно, ctx.POPUP_TYPE.CONFIRM, '', { okButton: т('Удалить'), cancelButton: т('Отмена') });
+      if (!да) return;
+      if (getStContextSafe()?.chat !== чат) throw new Error('чат сменился, пока шёл вопрос');
+      const галки = [...окно.querySelectorAll('.hud-erase-list input')];
+      const тексты = галки.filter(г => г.checked).map(г => г.value);
+      if (вид !== 'pregnancy' && !тексты.length) { showHudToast('info', 'Ничего не выбрано', 'Отметьте то, что нужно удалить.'); return; }
+      if (mes) mes.__hudUiState = readCardUiState(mes);
+      await стеретьИзЧата(вид === 'pregnancy' ? { вид, кто } : { вид, тексты, точно: true, остаются: галки.filter(г => !г.checked).map(г => г.value) }, { сводка: сводкаHUD, подпись });
+      перерисоватьКарточкиЧата();
+      showHudToast('success', 'Удалено', 'Информация убрана из HUD этого чата.');
+      // Карточка собралась заново: режим остаётся, чтобы удалить следующую плашку.
+      if (вид !== 'pregnancy' && mes) setTimeout(() => {
+        const свежая = mes.isConnected ? mes : document.querySelector(`.mes[mesid="${mes.getAttribute('mesid')}"]`);
+        const новая = свежая && свежая.querySelector(`.hud-erase-open[data-hud-erase="${вид}"]`);
+        if (новая) включитьУдаление(новая);
+      }, 500);
+    } catch (err) {
+      console.error('[TavernOS HUD] удаление из HUD не удалось:', err);
+      showHudToast('error', 'Удалить не вышло', String((err && err.message) || err));
+    }
   }
 
   function bindHudRegenButton(regenBtn) {
@@ -4357,7 +4598,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
   // Панель расширения в «Расширениях» Таверны (settings-ui.js). Она нужна не
   // для первой отрисовки чата — грузится после запуска.
   let загрузитьПанельНастроекОбещание = null;
-  const загрузитьПанельНастроек = () => (загрузитьПанельНастроекОбещание ||= import('./settings-ui.js?v=23.88.19').then(м => { м.подключить(связьНастроек); return м; }));
+  const загрузитьПанельНастроек = () => (загрузитьПанельНастроекОбещание ||= import('./settings-ui.js?v=23.88.43').then(м => { м.подключить(связьНастроек); return м; }));
   const связьНастроек = {
     get applyThemeColors() { return applyThemeColors; },
     get cachedChatContainer() { return cachedChatContainer; },
@@ -4395,7 +4636,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
   const сбокуТолько = () => settings.hudSidebar === 'side';
   let панель = null;
   let загрузитьПанельОбещание = null;
-  const загрузитьПанель = () => (загрузитьПанельОбещание ||= import('./sidebar.js?v=23.88.19').then(м => { м.подключить(связьПанели); return м; }));
+  const загрузитьПанель = () => (загрузитьПанельОбещание ||= import('./sidebar.js?v=23.88.43').then(м => { м.подключить(связьПанели); return м; }));
   const связьПанели = {
     get getStContextSafe() { return getStContextSafe; },
     get saveSettings() { return saveSettings; },
@@ -4641,7 +4882,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
 
   // Окно «В лорбук» (lore-dialog.js) — грузится при первом открытии.
   let загрузитьЛорОбещание = null;
-  const загрузитьЛор = () => (загрузитьЛорОбещание ||= import('./lore-dialog.js?v=23.88.19').then(м => { м.подключить(связьЛора); return м; }));
+  const загрузитьЛор = () => (загрузитьЛорОбещание ||= import('./lore-dialog.js?v=23.88.43').then(м => { м.подключить(связьЛора); return м; }));
   const связьЛора = {
     get getAvailableHudLorebooks() { return getAvailableHudLorebooks; },
     get getMainProtagonistNames() { return getMainProtagonistNames; },
@@ -4754,6 +4995,7 @@ const акцентДляТекста = () => текстНаКарточке(sett
 
   let initRetries = 0;
   function initApp() {
+    следитьЗаЧатом();
     const chatContainer = document.querySelector('#chat') || document.querySelector('#chat-container');
     if (!chatContainer) {
       if (initRetries < 40) { initRetries++; setTimeout(initApp, 500); }

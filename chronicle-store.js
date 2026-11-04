@@ -13,11 +13,11 @@
 // Пополняется сама: при открытии чата — фоном, по кусочку, все HUD, которых в
 // летописи ещё нет; после каждого ответа, свайпа и правки — последние ходы.
 
-import { прочитатьЛетопись, дописатьЛетопись, выжимкаHUD, ключСообщения, КЛЮЧ_ЛЕТОПИСИ } from './chronicle.js?v=23.88.19';
-import { extractHudBlock } from './hud-block.js?v=23.88.19';
-import { развернутьHUD } from './offload.js?v=23.88.19';
-import { parseHUDComplex } from './hud-parser.js?v=23.88.19';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.88.19';
+import { прочитатьЛетопись, дописатьЛетопись, выжимкаHUD, ключСообщения, КЛЮЧ_ЛЕТОПИСИ } from './chronicle.js?v=23.88.43';
+import { extractHudBlock } from './hud-block.js?v=23.88.43';
+import { развернутьHUD } from './offload.js?v=23.88.43';
+import { parseHUDComplex } from './hud-parser.js?v=23.88.43';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.88.43';
 
 const кэш = new Map();   // имя файла → { хранилище: { [КЛЮЧ_ЛЕТОПИСИ]: … }, карта, загрузка, таймер }
 const ctx = () => { try { return window.SillyTavern?.getContext?.() || null; } catch (_) { return null; } };
@@ -277,6 +277,49 @@ export async function сохранитьЛетописьСейчас() {
 
 // Выгруженный ход (offload.js) — с полным HUD из файла, если тот загружен.
 const текстСообщения = (m) => развернутьHUD(String((m && (m.mes ?? m.message)) || ''));
+/**
+ * Удалить свою летопись и её строку в указателе. Выбранную чужую не трогаем.
+ * true — файл убран или его и не было.
+ */
+export async function убратьЛетопись() {
+  const c = ctx();
+  const имя = свойФайлЛетописи(c);
+  if (!имя) return false;
+  const заголовки = c && typeof c.getRequestHeaders === 'function' ? c.getRequestHeaders() : { 'Content-Type': 'application/json' };
+  const з = кэш.get(имя);
+  if (з) clearTimeout(з.таймер);
+  const r = await fetch('/api/files/delete', { method: 'POST', headers: заголовки, body: JSON.stringify({ path: 'user/files/' + имя }) });
+  if (!r.ok && r.status !== 404) throw new Error('файл ' + имя + ': HTTP ' + r.status);
+  кэш.delete(имя);
+  const указатель = await прочитатьУказатель();
+  if (указатель && указатель.летописи && имя in указатель.летописи) {
+    delete указатель.летописи[имя];
+    await fetch('/api/files/upload', { method: 'POST', headers: заголовки, body: JSON.stringify({ name: ФАЙЛ_УКАЗАТЕЛЯ, data: вBase64(JSON.stringify(указатель)) }) });
+  }
+  return true;
+}
+
+/** Выжимки всех ходов своей летописи. */
+export async function выжимкиЛетописи() {
+  const имя = свойФайлЛетописи();
+  return имя ? [...(await запись(имя).загрузка).карта.values()] : [];
+}
+
+/**
+ * Убрать из своей летописи то, что удалили из HUD. правка(выжимка) → новая
+ * выжимка или null. Выбранная чужая летопись только читается и не меняется.
+ */
+export async function стеретьВЛетописи(правка) {
+  const имя = свойФайлЛетописи();
+  if (!имя) return;
+  const карта = (await запись(имя).загрузка).карта;
+  const новые = new Map();
+  for (const [к, в] of карта) { const стало = правка(в); if (стало) новые.set(к, стало); }
+  if (!новые.size) return;
+  await дописатьВЛетопись(новые);
+  await сохранитьЛетописьСейчас();
+}
+
 /** Выжимка HUD сообщения (с музыкой хода, если она подобрана) или null. */
 export function выжимкаСообщения(m) {
   const блок = extractHudBlock(текстСообщения(m));

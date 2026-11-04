@@ -6,15 +6,16 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.88.19';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.19';
-import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.88.19';
-import { отложитьРисунок } from './lazy-svg.js?v=23.88.19';
-import { длинныйСписок } from './long-list.js?v=23.88.19';
-import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.88.19';
-import { общиеМеста } from './route-places.js?v=23.88.19';
-import { статусРужья } from '../codes.js?v=23.88.19';
-import { сеткаСекретов } from './secrets-grid.js?v=23.88.19';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.88.43';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.43';
+import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.88.43';
+import { отложитьРисунок } from './lazy-svg.js?v=23.88.43';
+import { длинныйСписок } from './long-list.js?v=23.88.43';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.88.43';
+import { общиеМеста } from './route-places.js?v=23.88.43';
+import { статусРужья } from '../codes.js?v=23.88.43';
+import { сеткаСекретов } from './secrets-grid.js?v=23.88.43';
+import { кнопкаУдаления } from './erase-button.js?v=23.88.43';
 
 function parseRoutePoint(item) {
   // Модель иногда ставит дату перед временем («09.11, 22:15») — дату отбрасываем.
@@ -180,7 +181,7 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
     const пункты = memoryData.important.map(item => { const isNew = isNewLoreItem(item); return { текст: String(item), isNew, кнопка: loreButtonHTML(item, [], isNew) }; });
     const важное = пункты.map(п => `<div class="hud-detail-pill drama-alert hud-lore-item${п.isNew ? ' is-new' : ''}">` +
       `<span class="hud-lore-text">${escapeHtml(п.текст)}</span>` + п.кнопка + `</div>`);
-    html += `<div class="hud-row full-width"><span class="hud-key">❗ Важное:</span> ${видВажного(пункты, видБлока('importantView')) || длинныйСписок(важное, 'hud-vertical-container', 'ранние')}</div>`;
+    html += `<div class="hud-row full-width"><span class="hud-key">❗ Важное:${кнопкаУдаления('important', пункты.map(п => п.текст))}</span> ${видВажного(пункты, видБлока('importantView')) || длинныйСписок(важное, 'hud-vertical-container', 'ранние')}</div>`;
   }
   if (Array.isArray(memoryData.recently_learned) && memoryData.recently_learned.length > 0) {
     html += `<div class="hud-row full-width"><span class="hud-key">💡 Недавно узнали:</span> <div class="hud-vertical-container">${buildPillList(memoryData.recently_learned.join('; '), 'hud-detail-pill')}</div></div>`;
@@ -190,8 +191,9 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
   }
 
   // Ружья Чехова: незакрытые нити. Строка «завязка | к кому относится | статус».
+  const удалитьРужья = кнопкаУдаления('guns', (Array.isArray(memoryData.guns) ? memoryData.guns : []).map(строка => String(строка).split('|')[0]));
   const ружьяИначе = Array.isArray(memoryData.guns) && memoryData.guns.length ? видРужей(memoryData.guns, видБлока('gunsView')) : '';
-  if (ружьяИначе) html += `<div class="hud-row full-width"><span class="hud-key">🔫 Ружья Чехова:</span> ${ружьяИначе}</div>`;
+  if (ружьяИначе) html += `<div class="hud-row full-width"><span class="hud-key">🔫 Ружья Чехова:${удалитьРужья}</span> ${ружьяИначе}</div>`;
   else if (Array.isArray(memoryData.guns) && memoryData.guns.length > 0) {
     const ружья = memoryData.guns.map(строка => {
       const [завязка = '', кто = '', статусСырой = ''] = String(строка).split('|').map(s => s.trim());
@@ -208,7 +210,7 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
         + `<em class="hud-gun-status">${escapeHtml(с.текст)}</em>`
         + loreButtonHTML(запись, ключи, новое) + `</div>`;
     }).filter(Boolean).join('');
-    if (ружья) html += `<div class="hud-row full-width"><span class="hud-key">🔫 Ружья Чехова:</span> <div class="hud-guns">${ружья}</div></div>`;
+    if (ружья) html += `<div class="hud-row full-width"><span class="hud-key">🔫 Ружья Чехова:${удалитьРужья}</span> <div class="hud-guns">${ружья}</div></div>`;
   }
 
   // 4. СЕКРЕТЫ (Кастомный скрытый спойлер + Уровни)
@@ -236,8 +238,9 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
   // Сетка «кто что знает» — над любым видом секретов (render/secrets-grid.js).
   const сетка = сеткаСекретов(memoryData.secrets, hudData);
   if (сетка) html += `<div class="hud-row full-width"><span class="hud-key">🗝 Кто что знает:</span> ${сетка}</div>`;
+  const удалитьСекреты = кнопкаУдаления('secrets', (Array.isArray(memoryData.secrets) ? memoryData.secrets : []).map(с => с && с.fact));
   const секретыИначе = Array.isArray(memoryData.secrets) && memoryData.secrets.length ? видСекретов(memoryData.secrets, видБлока('secretsView'), memoryData.secrets.map(кнопкаСекрета)) : '';
-  if (секретыИначе) html += `<div class="hud-row full-width"><span class="hud-key">🤫 Зашифрованные данные:</span> ${секретыИначе}</div>`;
+  if (секретыИначе) html += `<div class="hud-row full-width"><span class="hud-key">🤫 Зашифрованные данные:${удалитьСекреты}</span> ${секретыИначе}</div>`;
   else if (Array.isArray(memoryData.secrets) && memoryData.secrets.length > 0) {
     let secHtml = memoryData.secrets.map(s => {
        let lvlStr = String(s.level || '').toLowerCase();
@@ -309,7 +312,7 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
           </div>
        </details>`;
     }).join('');
-    html += `<div class="hud-row full-width"><span class="hud-key">🤫 Зашифрованные данные:</span> <div class="hud-vertical-container" style="max-height: none;">${secHtml}</div></div>`;
+    html += `<div class="hud-row full-width"><span class="hud-key">🤫 Зашифрованные данные:${удалитьСекреты}</span> <div class="hud-vertical-container" style="max-height: none;">${secHtml}</div></div>`;
   }
 
   return html + `</div></div>`;

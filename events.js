@@ -11,23 +11,23 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.19';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.88.19';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.88.19';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.88.19';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.88.19';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.88.19';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.88.19';
-import { полныйПорядок } from './tabs-order.js?v=23.88.19';
-import { getWorldVotes } from './render/world.js?v=23.88.19';
-import { действиеМира } from './render/world-views.js?v=23.88.19';
-import { действиеМузыки } from './render/music.js?v=23.88.19';
-import { раскрытьПорцию } from './render/long-list.js?v=23.88.19';
-import { прогретьИсторию } from './render/carryover.js?v=23.88.19';
-import { подключитьПалитру } from './color-picker.js?v=23.88.19';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.88.19';
-import { замер } from './utils.js?v=23.88.19';
-import { пометитьЭффекты } from './render/fx.js?v=23.88.19';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.43';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.88.43';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.88.43';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.88.43';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.88.43';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.88.43';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.88.43';
+import { полныйПорядок } from './tabs-order.js?v=23.88.43';
+import { getWorldVotes } from './render/world.js?v=23.88.43';
+import { действиеМира } from './render/world-views.js?v=23.88.43';
+import { действиеМузыки } from './render/music.js?v=23.88.43';
+import { раскрытьПорцию } from './render/long-list.js?v=23.88.43';
+import { прогретьИсторию } from './render/carryover.js?v=23.88.43';
+import { подключитьПалитру } from './color-picker.js?v=23.88.43';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.88.43';
+import { замер } from './utils.js?v=23.88.43';
+import { пометитьЭффекты } from './render/fx.js?v=23.88.43';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -1955,10 +1955,17 @@ document.addEventListener('click', (e) => {
 
 // Длинные списки карточек: видно три, остальное листается (css/compact.css).
 // На телефоне — вниз: высоту под три карточки меряем по месту, карточки
-// разной высоты. На широком экране списки столбиком идут вбок по три в ряд,
-// сетки и виды блоков — тоже вниз. Скрытые вкладки меряем, когда откроют.
-const СПИСКИ = '.hud-vertical-container, .hud-inventory-grid, .hud-life-items, .hud-bodymap, .hud-heat-list, .hud-v-bm-legend, .hud-ill-list, .hud-marks, .hud-guns, .hud-v-vaults, .hud-v-envs, .hud-v-files, .hud-v-webs, .hud-v-secbars, .hud-v-inv.is-cards, .hud-v-inv.is-groups, .hud-mood-history';
-const ВБОК = '.hud-vertical-container, .hud-inventory-grid, .hud-life-items, .hud-bodymap, .hud-ill-list, .hud-marks';
+// разной высоты. На широком экране — вбок, по три в ряд. Скрытые вкладки
+// меряем, когда откроют.
+// ВБОК — плашки и карточки: пилюли, виды блоков, поля персонажа.
+const ВБОК = '.hud-vertical-container, .hud-inventory-grid, .hud-life-items, .hud-bodymap, .hud-ill-list, .hud-marks, .hud-guns, .hud-heat-list, .hud-scars-list, .hud-schedule-container, .hud-lines, .hud-perc-list, .hud-life-wounds, .hud-life-timers, .hud-life-wlist, '
+  + '.hud-v-bm-legend, .hud-v-vaults, .hud-v-envs, .hud-v-files, .hud-v-webs, .hud-v-secbars, .hud-v-inv.is-cards, .hud-v-inv.is-groups, .hud-v-inv.is-weight, .hud-v-trust:not(.is-spectrum):not(.is-orbit), .hud-v-fears, .hud-v-kinks, .hud-v-mem.is-polaroid, .hud-v-board, .hud-v-fuses, .hud-v-imp.is-bookmarks, .hud-v-tickets, '
+  + '.hud-f-clothes, .hud-f-key, .hud-f-sched, .hud-f-lines, .hud-f > .rack, .hud-f > .cork, .hud-f > .book';
+// Только вниз и на широком экране: лист бумаги или ось, которые вбок не лягут.
+const ВНИЗ = '.hud-v-scroll > ol, .hud-v-notebook, .hud-v-drum-legend, .hud-v-gun-col, .hud-v-beads, .hud-v-receipt ol, .hud-v-menu, .hud-f > ol, .hud-f > ul, .hud-f .page, .hud-f .form, .hud-f .grid ul, .hud-f .subs, .hud-mood-history';
+const СПИСКИ = ВБОК + ', ' + ВНИЗ;
+// Не пункты списка: шапка колонки, шапка листа. Их в счёт не берём.
+const НЕ_ПУНКТ = '.hud-v-gun-col-head, .hud-f .page > .head, .hud-f .form > .head';
 // Пилюли: на широком экране — вбок уже от трёх и в любой ячейке (в узкой —
 // по две в ряд, is-x2), чтобы на виду всегда было две-три, а не столбик.
 const ПИЛЮЛИ = '.hud-vertical-container, .hud-inventory-grid, .hud-life-items, .hud-bodymap';
@@ -1978,8 +1985,10 @@ function ужатьСпискиСразу() {
   const раскрытые = [...document.querySelectorAll('.hud-os-card')].filter(к => к.querySelector(':scope > .hud-toggle-input:checked'));
   const план = [...new Set(раскрытые.flatMap(к => [...к.querySelectorAll(СПИСКИ)]))].map(с => ({
     с,
-    дети: [...с.children].filter(x => { if (x.nodeType !== 1) return false; const ст = getComputedStyle(x); return ст.display !== 'none' && ст.position !== 'absolute'; }),
+    дети: [...с.children].filter(x => { if (x.nodeType !== 1 || x.matches(НЕ_ПУНКТ)) return false; const ст = getComputedStyle(x); return ст.display !== 'none' && ст.position !== 'absolute'; }),
     виден: !!с.offsetParent,
+    // В узкой панели лента стоит столбиком, как на телефоне: её тоже ужимаем.
+    столбиком: с.matches(ЛЕНТЫ) && getComputedStyle(с).flexDirection === 'column',
     ширина: с.clientWidth,
   }));
   // Свёрнутый граф отношений в карточке уже 760px: граф 1000px сжат вдвое, и
@@ -1988,27 +1997,32 @@ function ужатьСпискиСразу() {
   const графы = раскрытые.flatMap(к => [...к.querySelectorAll('.hud-rel-graph:not(.is-expanded)')]).map(г => [г, г.clientWidth]);
   for (const [г, ш] of графы) if (ш) г.classList.toggle('is-narrow', ш < 760);
   // 2. Записи: классы; у тех, что будем мерить, снимаем потолок.
-  const мерить = [];
+  const мерить = [], ленты = [];
   for (const п of план) {
     const { с, дети } = п;
     const пилюли = широкий && с.matches(ПИЛЮЛИ);
-    if (дети.length < (пилюли ? 3 : 4) || (широкий && с.matches(ЛЕНТЫ))) { if (с.classList.contains('is-capped') || с.classList.contains('is-capped-x')) { с.classList.remove('is-capped', 'is-capped-x', 'is-end', 'is-x2'); с.style.maxHeight = ''; } continue; }
+    if (дети.length < (пилюли ? 3 : 4) || (широкий && с.matches(ЛЕНТЫ) && !п.столбиком)) { if (с.classList.contains('is-capped') || с.classList.contains('is-capped-x')) { с.classList.remove('is-capped', 'is-capped-x', 'is-end', 'is-x2', 'is-fit'); с.style.maxHeight = ''; } continue; }
     // Вбок — только когда в ряд помещаются хотя бы две карточки (по 160px).
     // В половинной ячейке узкой карточки (240px) лента вбок показывала
     // полторы карточки с текстом, обрезанным посреди слова, — там вниз.
     if (широкий && с.matches(ВБОК) && (пилюли || п.ширина === 0 || п.ширина >= 340)) {
       if (!с.classList.contains('is-capped-x')) { с.classList.remove('is-capped'); с.style.maxHeight = ''; с.classList.add('is-capped-x'); }
       if (п.ширина) с.classList.toggle('is-x2', пилюли && п.ширина < 340);
+      // Три пилюли — ровный ряд во всю ширину: листать нечего.
+      с.classList.toggle('is-fit', дети.length <= 3);
+      if (п.виден) ленты.push(с);
       continue;
     }
     if (!п.виден) continue;
     п.ключ = дети.length + '|' + п.ширина;
     if (с.classList.contains('is-capped') && с.dataset.cap === п.ключ) continue;
-    с.classList.remove('is-capped-x', 'is-x2');
+    с.classList.remove('is-capped-x', 'is-x2', 'is-fit');
     с.classList.add('is-capped');
     с.style.maxHeight = 'none';
     мерить.push(п);
   }
+  // Лента, где всё уместилось, — без затухания справа.
+  if (ленты.length) { const концы = ленты.map(с => с.scrollWidth - с.clientWidth - с.scrollLeft < 4); ленты.forEach((с, i) => с.classList.toggle('is-end', концы[i])); }
   if (!мерить.length) return;
   // 3. Чтения: одна вёрстка на все списки.
   for (const п of мерить) {

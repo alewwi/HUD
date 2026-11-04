@@ -4,13 +4,15 @@
 // зачатии, пол — кубик по кнопке «Узнать пол», если в сюжете ещё не было УЗИ.
 // «✦ Изменить судьбу» открывает выбор: один малыш, близнецы, двойняшки,
 // тройня — и сочетания пола под каждый тип. «↺ Откатить» возвращает кубик.
+// «Убрать беременность» стирает её из HUD совсем (hud-erase.js).
 // Клики ловит index.js (data-hud-fetus). Оформление — css/family.css.
 
-import { escapeHtml } from '../utils.js?v=23.88.19';
-import { settings } from '../settings.js?v=23.88.19';
-import { плодыОт, ТИПЫ_ПЛОДОВ, СОЧЕТАНИЯ, словоПолов } from './conception.js?v=23.88.19';
-import { наследование, узнатьЧерты } from './fertility.js?v=23.88.19';
-import { видСемьи, видПлодов } from './family-views.js?v=23.88.19';
+import { escapeHtml } from '../utils.js?v=23.88.43';
+import { settings } from '../settings.js?v=23.88.43';
+import { плодыОт, ТИПЫ_ПЛОДОВ, СОЧЕТАНИЯ, словоПолов } from './conception.js?v=23.88.43';
+import { наследование, узнатьЧерты } from './fertility.js?v=23.88.43';
+import { видСемьи, видПлодов } from './family-views.js?v=23.88.43';
+import { ЗНАЧОК_КОРЗИНЫ } from './erase-button.js?v=23.88.43';
 
 // Малыш в плодном пузыре: свернувшийся эмбрион (голова, спинка дугой,
 // ручка у лица, ножки), пуповина, объём от градиента и блик.
@@ -97,11 +99,12 @@ export function блокПлодов(кто, { вСюжете = false, полИ�
   const судьба = `<details class="hud-fetus-fate"><summary>✦︎ Изменить судьбу</summary><div class="opts"><small>сколько</small><div class="row">${Object.keys(ТИПЫ_ПЛОДОВ).map(кнопкаТипа).join('')}</div>`
     + (полСюжета ? '' : `<small>пол</small><div class="row">${СОЧЕТАНИЯ[п.тип].map(кнопкаПола).join('')}</div>`) + `</div></details>`;
   const откат = (п.судьбаТипа || п.судьбаПола) ? `<button type="button" class="hud-fetus-btn is-undo" data-hud-fetus="undo" ${данные} title="Вернуть то, что выпало на кубике">↺ Откатить</button>` : '';
+  const стереть = `<button type="button" class="hud-fetus-btn is-erase" data-hud-erase="pregnancy" ${данные} title="Удалить беременность из HUD">${ЗНАЧОК_КОРЗИНЫ}Убрать беременность</button>`;
   // Другие виды (Кастомизация → Блоки: Семья) — render/family-views.js.
   const вид = видСемьи('fetusView');
-  if (вид !== 'classic') return видПлодов(вид, { п, полы, кто: п.кто, неделя, подписьПола, строкаПохож, acts: судьба + откат });
+  if (вид !== 'classic') return видПлодов(вид, { п, полы, кто: п.кто, неделя, подписьПола, строкаПохож, acts: судьба + откат + стереть });
   return `<div class="hud-fetus${п.число > 1 ? ' is-multi' : ''}"><div class="womb-row"><div class="wombs">${полы.map(значокМалыша).join('')}</div>`
     + `<svg class="beat" viewBox="0 0 64 14" preserveAspectRatio="none" aria-hidden="true"><path pathLength="100" d="M0 7h16l2.4-4 3.6 9 3-11 2.6 9 1.8-3H64"/></svg></div>`
     + `<div class="txt"><b class="kind">${п.имяТипа}${п.судьбаТипа ? '<i class="fate-mark" title="Изменено судьбой">✦︎</i>' : ''}</b>${п.пояснение ? `<small>${п.пояснение}</small>` : ''}${подписьПола}${строкаПохож}`
-    + `<div class="acts">${судьба}${откат}</div></div></div>`;
+    + `<div class="acts">${судьба}${откат}${стереть}</div></div></div>`;
 }

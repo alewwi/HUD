@@ -120,6 +120,8 @@ The tab where history accumulates instead of a snapshot:
 - **Timeline** and **important** — what happened and in what order.
 - **Secrets** — who hides what from whom, the danger and exposure level. A secret can be added to a lorebook with one button — then the model remembers it even without the HUD.
 - **Chekhov's guns** — open plot threads: promises, threats, hints, mysteries.
+- **Long lists.** Up to three items stay as they are. With more, they scroll right on PC and down on phones: this covers character pills and block views. Paper sheets and axes that can't lie sideways (scroll, notebook) scroll down on PC too.
+- **Deleting items.** Important, Chekhov's guns and secrets have a trash icon in the header: it turns on delete mode, items get highlighted, and tapping one opens a window with every similar wording from the chat: only the checked ones are removed from the HUD of the whole chat. Message text and `[HUD_SUMMARY]` stay. Bring deleted items back with ↶ in the card header: the last 30 deletions are kept, in any order. The item also returns to blocks edited or regenerated after the deletion and to the latest HUD of the chat, so the model sees it again.
 - **Emotions** — how the main characters' mood changed; **route** — where they've been during this stretch.
 - **Relationship graph** — a web of everyone's ties: romance, friendship, conflict, jealousy, fear, suspicion, family, parents and children, superiors, mentors, duty, the forbidden, accomplices, shared groups. Nodes with avatars; tapping a node or a link highlights its surroundings; the graph opens full screen.
 - **Family tree** — a second view of the same graph when the relationships include kinship.
@@ -191,6 +193,8 @@ For stories where the body and family matter — three linked blocks. Each is tu
 </details>
 
 **Pregnancy.** The term in weeks and the trimester, a bar to the birth, the baby's size compared to a fruit, what it can already do and the next milestone. The father, symptoms, cravings, who already knows, how the pregnancy is going, the next doctor's visit and tips for the term, including warning signs. The number and sex of the babies are decided by a die roll, and you can "change fate" if you want. This goes to the model as a hidden fact or not at all, as you choose.
+
+**Remove pregnancy.** The button next to Change fate erases the pregnancy from the HUD of the whole chat as if it never happened: the term, the babies, the dice result. Children already born and message text stay. Bring it back with ↶ in the card header.
 
 <details><summary>📷 The pregnancy card</summary>
 
@@ -485,6 +489,8 @@ Settings are grouped — expand the one you need. Below is the essential part of
 
 **🧹 Maintenance** — "Clear cache": removes saved archive reports and reaction marks; settings, themes and avatars stay.
 
+**🧳 Before removing the extension** — a button next to the section below. Puts offloaded HUDs back into the open chat and removes service files from disk: offload files and this chat's chronicle. The chat and its HUD stay intact. If other chats of the character are offloaded, HUD names them and keeps the offload files.
+
 **⚠️ !!DANGER!! Remove HUD from chat** — at the very end of the settings, set apart on purpose. Permanently removes the HUD from the open chat: `[HUD]` blocks in every message and swipe, saved HUD versions, music picks. Reply text, `[HUD_SUMMARY]` summaries and HUD mentions inside `<plan>` stay. Everything HUD remembered from those cards goes with them: the phone, the diary, relationships. A window with the number of messages and blocks comes first; it can't be undone, so save a copy of the chat first (chat menu → "Manage chat files" → export).
 
 The look (themes, colors, fonts, the view of each block) is in the **🎨 Customization** window, the button at the top of the settings.
@@ -516,7 +522,14 @@ The parser fixes typical breakage: a truncated reply, missing commas, quotes ins
 Yes. All such blocks can be turned off separately, and the corresponding part of the instruction can be turned off entirely — the model won't know about it.
 
 **How do I remove the HUD from a chat or uninstall the extension?**
+To remove only the extension, first press **🧳 Remove service files** at the end of the settings with the chat open: HUD returns to the messages, offload files and the chronicle leave the disk, and the chat stays whole. SillyTavern itself deletes only the extension folder. To remove HUD from a chat entirely:
 Open the chat and press **⚠️ !!DANGER!! Remove HUD from chat** at the end of the settings: blocks are cut out of every message and swipe, reply text stays. Do this in every chat where you no longer want the HUD, then remove the extension. To only hide the blocks without touching files, add a Regex extension rule with "Alter Chat Display" and "Alter Outgoing Prompt": `/\[HUD\](?:(?!\[HUD\])[\s\S])*?\[\/HUD\]/gi` with an empty replacement.
+
+**The chat is open on two devices.**
+SillyTavern silently accepts a save of an old copy: the last save wins. So after a deletion or restore on another device, HUD offers to update the chat, and asks again before saving over it. HUD doesn't track text edits and new messages: for those it's still best to reload the page when switching devices.
+
+**What carries over to another device?**
+Everything lives on the SillyTavern server, so every device sees the same thing: chats, HUD, the deletion journal, settings, the chronicle. Only reactions and the parse cache stay in the browser. Moving to another server, a plain chat export doesn't take HUD files: first put offloaded HUDs back into the chat with **↩ Restore all** or **🧳 Remove service files**.
 
 **Settings differ between my PC and phone.**
 Since version 23.88.7 HUD settings are stored in SillyTavern too, and the fresher copy wins on load. Change any setting on the device whose look you like — the other one picks it up after a page reload. Backgrounds and banners uploaded as files move only by hand.

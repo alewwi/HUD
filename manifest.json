@@ -4,10 +4,10 @@
   "loading_order": 10,
   "requires": [],
   "optional": [],
-  "js": "index.js?v=23.88.19",
-  "css": "style.css?v=23.88.19",
+  "js": "index.js?v=23.88.43",
+  "css": "style.css?v=23.88.43",
   "author": "TavernOS Team",
-  "version": "23.88.19",
+  "version": "23.88.43",
   "auto_update": false,
   "minimum_client_version": "1.12.0",
   "generate_interceptor": "tavernOSGenerateInterceptor"
