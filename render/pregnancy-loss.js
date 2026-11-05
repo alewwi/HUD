@@ -5,9 +5,9 @@
 // одного из двойни и кубик исхода угрозы. Логика и запись —
 // render/conception.js, клики ловит index.js. Оформление — css/misc.css.
 
-import { escapeHtml } from '../utils.js?v=23.88.55';
-import { ВИДЫ_ПОТЕРИ, дм, восстановлениеПосле } from './conception.js?v=23.88.55';
-import { ЗНАЧОК_КОРЗИНЫ } from './erase-button.js?v=23.88.55';
+import { escapeHtml } from '../utils.js?v=23.88.58';
+import { ВИДЫ_ПОТЕРИ, дм, восстановлениеПосле } from './conception.js?v=23.88.58';
+import { ЗНАЧОК_КОРЗИНЫ } from './erase-button.js?v=23.88.58';
 
 const ДЕНЬ = 864e5;
 const Р = 25, ДЛИНА = 2 * Math.PI * Р;

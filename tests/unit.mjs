@@ -2245,5 +2245,53 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   globalThis.SillyTavern.getContext = был;
 }
 
+группа('Значки телефона: наборы на всех темах');
+{
+  const Th = await модуль('themes.js');
+  const Pi = await модуль('render/phone-icons.js');
+  const Vw = await модуль('render/views.js');
+  const папка = path.join(КОРЕНЬ, 'render', 'phone-icons');
+  const наборы = fs.readdirSync(папка).filter(f => !f.startsWith('_')).map(f => f.slice(0, -3));
+  const загрузить = (f) => import('file:///' + path.join(папка, f + '.js').replace(/\\/g, '/'));
+  const общее = await загрузить('_style');
+  const ПРИЛОЖЕНИЯ = ['calls', 'weather', 'health', 'messages', 'contacts', 'wallet', 'calendar', 'gallery', 'notes', 'maps', 'search', 'music'];
+  const выбор = Vw.ВИДЫ_БЛОКОВ.find(б => б.ключ === 'phoneIconsView');
+  проверить('в выборе есть авто, обычные и все наборы', выбор && выбор.виды.auto && выбор.виды.plain && наборы.every(н => выбор.виды[н]) && Object.keys(выбор.виды).length === наборы.length + 2);
+  const темы = [...fs.readFileSync(path.join(КОРЕНЬ, 'themes.js'), 'utf8').matchAll(/^\s+id: '(\w+)'/gm)].map(м => м[1]).filter(id => id !== 'custom');
+  проверить('у каждой темы есть свой набор', темы.every(т => наборы.includes(т)));
+  const плохие = [], чужиеСсылки = [], повторы = [];
+  for (const имя of наборы) {
+    const н = (await загрузить(имя)).default;
+    const есть = new Set([...(н.defs + общее.ФИЛЬТРЫ).matchAll(/id="([^"]+)"/g)].map(м => м[1]));
+    const рисунки = new Set();
+    for (const id of ПРИЛОЖЕНИЯ) {
+      const a = н.иконки[id];
+      if (!a || /undefined|NaN/.test(a)) { плохие.push(имя + '/' + id); continue; }
+      if (рисунки.has(a)) повторы.push(имя + '/' + id);
+      рисунки.add(a);
+      if (/ style="/.test(a)) плохие.push(имя + '/' + id + ' style');
+      for (const м of (a + н.vars).matchAll(/url\(#([^)]+)\)/g)) if (!есть.has(м[1])) чужиеСсылки.push(имя + '/' + id + ' → ' + м[1]);
+    }
+  }
+  проверить('все наборы: двенадцать целых рисунков без встроенных стилей', !плохие.length, плохие.slice(0, 5).join());
+  проверить('все ссылки на градиенты, фильтры и вырезки находятся', !чужиеСсылки.length, чужиеСсылки.slice(0, 5).join());
+  проверить('внутри набора нет двух одинаковых значков', !повторы.length, повторы.slice(0, 5).join());
+  проверить('стили значков только под .hud-pi', общее.СТИЛЬ.split(/\r?\n/).every(п => п.split('{')[0].replace(/\([^()]*\)/g, '').split(',').every(с => с.trim().startsWith('.hud-pi'))));
+  const акцент = (т) => Th.getTheme(т).vars.accentColor;
+  const фильтры = [];
+  for (const набор of наборы) for (const тема of наборы) фильтры.push([набор, тема, Pi.оттенокНабора(набор, акцент(тема), акцент(набор))]);
+  проверить('свой набор в своей теме не перекрашивается', фильтры.filter(([н, т]) => н === т).every(([, , ф]) => ф === ''));
+  проверить('729 пар: фильтр всегда разбирается', фильтры.every(([, , ф]) => /^(|grayscale\(1\)|sepia\(\.85\) saturate\(2\.4\) hue-rotate\(-?\d+deg\)|hue-rotate\(-?\d+deg\) saturate\([\d.]+\))$/.test(ф)));
+  проверить('насыщенность не выходит за предел', фильтры.every(([, , ф]) => { const м = ф.match(/^hue-rotate.*saturate\(([\d.]+)\)/); return !м || (+м[1] >= .5 && +м[1] <= 1.2); }));
+  const яркость = (c) => { const [r, g, b] = [1, 3, 5].map(i => parseInt(c.slice(i, i + 2), 16)); return (r * .3 + g * .59 + b * .11) / 255; };
+  const фонТемы = (т) => { const в = Th.getTheme(т).vars; return [в.cardBgStart, в.cardBgEnd]; };
+  const плитки = [];
+  for (const имя of наборы) { const н = (await загрузить(имя)).default; for (const тема of наборы) плитки.push([н.свет, Pi.плиткаНабора(!!н.свет, акцент(тема), ...фонТемы(тема))]); }
+  проверить('729 пар: плитка — настоящий цвет', плитки.every(([, c]) => /^#[0-9a-f]{6}$/.test(c)));
+  проверить('плитка держит светлоту рисунка: тёмный набор не на светлом и наоборот', плитки.every(([свет, c]) => (свет ? яркость(c) > .45 : яркость(c) < .62)));
+  проверить('Биопанк в Vamp уходит в красный', /^hue-rotate\(-\d+deg\)/.test(Pi.оттенокНабора('biopunk', акцент('vamp'), акцент('biopunk'))));
+  проверить('бесцветный набор получает цвет, цветной в серой теме — серый', Pi.оттенокНабора('noir', '#c31f38', '#d8d8d8').startsWith('sepia') && Pi.оттенокНабора('vamp', '#d8d8d8', акцент('vamp')) === 'grayscale(1)');
+}
+
 console.log(`\nпроверок: ${всего}, провалов: ${провалы.length}`);
 if (провалы.length) { console.log(провалы.map(п => ' ✗ ' + п).join('\n')); process.exitCode = 1; }

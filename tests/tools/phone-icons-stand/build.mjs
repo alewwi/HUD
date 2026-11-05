@@ -429,9 +429,9 @@ function иконка(id, i, p) {
     const d = ФОРМЫ[набор.форма] || ФОРМЫ.round;
     return `<svg class="ico i-${id}" viewBox="0 0 120 120" role="img" aria-label="${и.имя}">
     <path class="tile" d="${d}"/><path class="tile-tex" d="${d}"/><path class="tile-glow" d="${d}"/>
-    <g class="back" clip-path="url(#${p.id}-form)">${набор.фон || ''}</g>
+    <g class="pi-body"><g class="back" clip-path="url(#${p.id}-form)">${набор.фон || ''}</g>
     <g class="art" data-k="${p.id}/${id}"${посадка(p.id + '/' + id, набор)}>${набор.иконки[id]}</g>
-    <g class="front">${набор.перед || ''}</g>
+    <g class="front">${набор.перед || ''}</g></g>
     <path class="tile-vig" d="${d}"/><path class="tile-sheen" d="${d}"/>
     <path class="tile-rim" d="${d}"/>
   </svg>`;
@@ -444,9 +444,9 @@ function иконка(id, i, p) {
     <rect class="tile" x="2" y="2" width="116" height="116" rx="${r}"/>
     <rect class="tile-tex" x="2" y="2" width="116" height="116" rx="${r}"/>
     <rect class="tile-glow" x="2" y="2" width="116" height="116" rx="${r}"/>
-    ${плиткаСем(p.сем, p)}
+    <g class="pi-body">${плиткаСем(p.сем, p)}
     <g class="back">${фон(p.сем, i, p)}</g>
-    <g class="art" transform="translate(${ф(tx)} ${ф(ty)}) scale(${ф(k * 1000) / 1000})">${и.тело()}</g>
+    <g class="art" transform="translate(${ф(tx)} ${ф(ty)}) scale(${ф(k * 1000) / 1000})">${и.тело()}</g></g>
     <rect class="tile-vig" x="2" y="2" width="116" height="116" rx="${r}"/><rect class="tile-sheen" x="2" y="2" width="116" height="116" rx="${r}"/>
     <rect class="tile-rim" x="2.5" y="2.5" width="115" height="115" rx="${r - .5}"/>
   </svg>`;
@@ -790,7 +790,7 @@ if (!БЕЗ_ОБМЕРА) {
       иконки[id] = сПриставкой(внутри);
     });
     fs.writeFileSync(path.join(ПАПКА, т[0] + '.js'), '// Собрано tests/tools/phone-icons-stand/build.mjs — руками не править.\n'
-      + 'export default ' + JSON.stringify({ сем: т[2], свет: p.light, defs: сПриставкой(defs(p) + вырезки.join('')), vars: сПриставкой(varsТемы(p)), иконки }) + ';\n');
+      + 'export default ' + JSON.stringify({ сем: т[2], свет: p.light || т[0] === 'mafia', defs: сПриставкой(defs(p) + вырезки.join('')), vars: сПриставкой(varsТемы(p)), иконки }) + ';\n');
   }
   console.log('наборы HUD:', ТЕМЫ.length);
 }

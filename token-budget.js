@@ -11,9 +11,9 @@
 // (index.js → загрузитьПромпт), и статический импорт здесь тянул бы его при
 // старте. Сборщик приходит параметром.
 
-import { settings } from './settings.js?v=23.88.55';
-import { английский } from './i18n.js?v=23.88.55';
-import { extractHudBlock } from './hud-block.js?v=23.88.55';
+import { settings } from './settings.js?v=23.88.58';
+import { английский } from './i18n.js?v=23.88.58';
+import { extractHudBlock } from './hud-block.js?v=23.88.58';
 
 // Раздел = подпись + флаг, выключение которого убирает его из инструкции.
 // «Близость» и «Бой» — не флаги, а состояние сцены (hud-snapshot.js решает

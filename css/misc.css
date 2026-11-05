@@ -7177,4 +7177,4 @@ button.hud-sum-restore.is-missing { color: var(--hud-muted-text, #9a95a6); text-
    ========================================================================= */
 .hud-phone-app > span.has-pi { background: none !important; box-shadow: none !important; border: 0 !important; backdrop-filter: none !important; overflow: visible; position: relative; }
 .hud-phone-app > span.has-pi > :not(svg.hud-pi):not(.hud-unread-badge) { display: none; }
-.hud-phone-app > span > svg.hud-pi { width: 100%; height: 100%; display: block; filter: var(--hud-pi-tint, none) drop-shadow(0 3px 4px rgba(0, 0, 0, .4)); }
+.hud-phone-app > span > svg.hud-pi { width: 100%; height: 100%; display: block; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .4)); }
