@@ -2,15 +2,22 @@
 //
 // Конец беременности на карточке: плашка с кольцом срока вместо трекера,
 // кнопка «Выкидыш или аборт» на случай, если модель этого не поняла, потеря
-// одного из двойни и кубик исхода угрозы. Логика и запись —
+// одного из двойни, кубик исхода угрозы и осмотры. Логика и запись —
 // render/conception.js, клики ловит index.js. Оформление — css/misc.css.
 
-import { escapeHtml } from '../utils.js?v=23.88.59';
-import { ВИДЫ_ПОТЕРИ, дм, восстановлениеПосле } from './conception.js?v=23.88.59';
-import { ЗНАЧОК_КОРЗИНЫ } from './erase-button.js?v=23.88.59';
+import { escapeHtml } from '../utils.js?v=23.88.68';
+import { ВИДЫ_ПОТЕРИ, дм, восстановлениеПосле } from './conception.js?v=23.88.68';
+import { ЗНАЧОК_КОРЗИНЫ } from './erase-button.js?v=23.88.68';
 
 const ДЕНЬ = 864e5;
 const Р = 25, ДЛИНА = 2 * Math.PI * Р;
+const ИКОНКИ = {
+  shield: 'M12 3l7 3v5.5c0 4.5-3 8-7 9.5-4-1.5-7-5-7-9.5V6Z M12 8.5v4 M12 15.2v.3',
+  ok: 'M12 3l7 3v5.5c0 4.5-3 8-7 9.5-4-1.5-7-5-7-9.5V6Z M8.7 12l2.4 2.4 4.3-4.6',
+  pulse: 'M3 12h4l2-5 3.5 10 2.5-7 1.5 2H21',
+  drop: 'M12 3c3.5 4.7 6 7.5 6 11a6 6 0 0 1-12 0c0-3.5 2.5-6.3 6-11Z',
+};
+const значок = (имя) => `<i class="hud-note-ico" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="${ИКОНКИ[имя]}"/></svg></i>`;
 
 // Кольцо сорока недель: дуга обрывается там, где закончился срок.
 function кольцо(неделя) {
@@ -53,7 +60,7 @@ export function блокПотери(п, { кто = '', сценаMs = null } = 
     Number.isFinite(п.циклК) && (сцена === null || сцена < п.циклК) ? пункт('Цикл', `≈ ${дм(п.циклК)}`) : '',
   ].filter(Boolean).join('');
   const доля = дней !== null && Number.isFinite(п.циклК) && п.циклК > дата ? Math.min(100, Math.round(дней * ДЕНЬ / (п.циклК - дата) * 100)) : 0;
-  return `<div class="hud-state-plaque is-loss is-${п.вид || 'miscarriage'}" role="status"><div class="hud-loss-top">${кольцо(п.неделя)}`
+  return `<div class="hud-state-plaque is-loss is-${п.вид || 'miscarriage'}" role="status"><span class="hud-note-eye hud-section-title">Конец беременности</span><div class="hud-loss-top">${кольцо(п.неделя)}`
     + `<div class="hud-loss-name"><b>${имя}</b>${срок ? `<small>${срок}</small>` : ''}</div>`
     + (дней !== null ? `<span class="hud-state-timer">${дней ? `${дней} дн. назад` : 'сегодня'}</span>` : '')
     + `</div>`
@@ -65,8 +72,27 @@ export function блокПотери(п, { кто = '', сценаMs = null } = 
 
 /** Один из двойни или тройни: строка в карточке идущей беременности. */
 export function блокЧастичнойПотери(п, кто) {
-  return `<div class="hud-loss-part"><div><b>${п.часть === 1 ? 'Один малыш потерян' : 'Двое малышей потеряны'}</b>`
-    + `<small>${Number.isFinite(п.дата) ? `<span>${дм(п.дата)}</span><span> · </span>` : ''}<span>Осталось малышей: ${п.осталось}</span></small></div>${кнопкаОтменыПотери(кто)}</div>`;
+  const точки = Array.from({ length: п.было || (п.часть + п.осталось) }, (_, i) => `<i class="${i < п.осталось ? 'is-on' : ''}"></i>`).join('');
+  return `<div class="hud-note-card is-part">${значок('drop')}<div class="hud-note-body"><span class="hud-note-eye hud-section-title">Потеря малыша</span><b>${п.часть === 1 ? 'Один малыш потерян' : 'Двое малышей потеряны'}</b>`
+    + `<small>${Number.isFinite(п.дата) ? `<span>${дм(п.дата)}</span><span> · </span>` : ''}<span>Осталось малышей: ${п.осталось}</span></small></div><span class="hud-note-dots" aria-hidden="true">${точки}</span>${кнопкаОтменыПотери(кто)}</div>`;
+}
+
+/** Осмотры: скрининг по неделям. Итог открывает игрок, судьба его убирает. */
+export function блокОсмотров(осмотры, кто) {
+  if (!Array.isArray(осмотры) || !осмотры.length) return '';
+  const к = escapeHtml(кто);
+  return осмотры.map(о => {
+    const шапка = `<span class="hud-note-eye hud-section-title">Осмотр</span>`;
+    if (!о.проверено) {
+      return `<div class="hud-note-card is-wait">${значок('pulse')}<div class="hud-note-body">${шапка}<b>${о.порог}-я неделя</b><small>Результаты уже есть. Модель узнает их только после вас.</small></div>`
+        + `<button type="button" class="hud-fetus-btn is-roll" data-hud-exam="open" data-val="${о.порог}" data-kto="${к}">Посмотреть</button></div>`;
+    }
+    const итог = о.снято ? [] : [о.осложнениеИмя, о.находкаИмя].filter(Boolean);
+    return `<div class="hud-note-card ${итог.length ? 'is-warn' : 'is-good'}">${значок('pulse')}<div class="hud-note-body">${шапка}<b>${о.порог}-я неделя${о.снято ? '<i class="fate-mark" title="Изменено судьбой">✦︎</i>' : ''}</b>`
+      + (итог.length ? `<span class="hud-note-tags">${итог.map(т => `<em>${т}</em>`).join('')}</span>` : `<small>На осмотре всё в норме</small>`) + `</div>`
+      + ((о.осложнениеИмя || о.находкаИмя) ? `<button type="button" class="hud-fetus-btn is-undo" data-hud-exam="${о.снято ? 'back' : 'clear'}" data-val="${о.порог}" data-kto="${к}">${о.снято ? '↺ Откатить' : '✦︎ Изменить судьбу'}</button>` : '')
+      + `</div>`;
+  }).join('');
 }
 
 const ИТОГИ = { keep: 'Беременность сохранится', one: 'Один малыш не выживет', all: 'Беременность не сохранить' };
@@ -74,14 +100,16 @@ const ИТОГИ = { keep: 'Беременность сохранится', one:
 export function блокУгрозы(у) {
   if (!у) return '';
   const кто = escapeHtml(у.кто);
+  const шапка = `<span class="hud-note-eye hud-section-title">Угроза беременности</span>`;
   if (!у.проверено) {
-    return `<div class="hud-threat"><div><b>Угроза беременности</b><small>Исход решит кубик. Модель узнает его только после того, как узнаете вы.</small></div>`
+    return `<div class="hud-note-card is-wait">${значок('shield')}<div class="hud-note-body">${шапка}<small>Исход решит кубик. Модель узнает его только после того, как узнаете вы.</small></div>`
       + `<button type="button" class="hud-fetus-btn is-roll" data-hud-threat="roll" data-kto="${кто}">Узнать исход</button></div>`;
   }
   const итог = у.судьба || у.итог;
   const кнопка = (код, надпись) => `<button type="button" class="hud-fetus-btn${код === итог ? ' is-on' : ''}" data-hud-threat="fate" data-val="${код}" data-kto="${кто}">${надпись}</button>`;
   const выбор = у.плодов > 1 ? кнопка('keep', 'Сохранить') + кнопка('one', 'Потерять одного') + кнопка('all', 'Потерять всех') : кнопка('keep', 'Сохранить') + кнопка('all', 'Потерять');
-  return `<div class="hud-threat is-${итог}"><div><b>${ИТОГИ[итог]}${у.судьба ? '<i class="fate-mark" title="Изменено судьбой">✦︎</i>' : ''}</b><small>шанс потери ${у.шанс}% · на кубике ${у.бросок}</small></div>`
+  const шкала = `<i class="hud-note-dice" aria-hidden="true"><b style="width:${у.шанс}%"></b><s style="left:${у.бросок}%"></s></i>`;
+  return `<div class="hud-note-card ${итог === 'keep' ? 'is-good' : 'is-warn'}">${значок(итог === 'keep' ? 'ok' : 'shield')}<div class="hud-note-body">${шапка}<b>${ИТОГИ[итог]}${у.судьба ? '<i class="fate-mark" title="Изменено судьбой">✦︎</i>' : ''}</b><small>шанс потери ${у.шанс}% · на кубике ${у.бросок}</small>${шкала}</div>`
     + `<div class="acts"><details class="hud-fetus-fate"><summary>✦︎ Изменить судьбу</summary><div class="opts"><div class="row">${выбор}</div></div></details>`
     + (у.судьба ? `<button type="button" class="hud-fetus-btn is-undo" data-hud-threat="undo" data-kto="${кто}" title="Вернуть то, что выпало на кубике">↺ Откатить</button>` : '')
     + `</div></div>`;

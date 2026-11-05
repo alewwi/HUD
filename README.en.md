@@ -56,7 +56,11 @@ A separate tab for everyone the model described in the turn:
 - **Look and state** — clothing, appearance, role, body, physiology, health, inventory, place.
 - **Inner life** — mood, thoughts, goals, schedule, fears, lines, hidden subtext, "expectation vs reality", the key point of the turn, flag monitor, jealousy, conflict depth, exposure risk.
 - **Relationships and trust** — toward each person on a 0–100 scale; trust shifts are visible from turn to turn.
+- **Relationship scars** — the model briefly writes why trust moved. A deep wound or a drop of 15 or more leaves a scar: the character remembers the hurt until trust returns. You can remove a scar with its cross. After a big shift a character stays under the impression for a few turns, and if someone is named a rival, their gain costs the player.
 - **Body state** — energy, alertness, satiety, stress, sleep and plans for tomorrow.
+- **Weight and height** — a line on the card: weight, height, BMI and change. The model writes them once, then HUD asks to update them weekly in story time.
+- **Neglected state** — a plate when a person goes several days with almost no food, water or sleep. The model shows it in the story and in time records it as an illness, and undernourishment lowers the chance of conception and disturbs the cycle.
+- **Living details** — the model shows hunger, tiredness, stress and pain through small details instead of naming them, with pauses between them.
 - **Illnesses and injuries** — stage, symptoms, treatment and a recovery bar; body marks with a healing timer.
 - **Shared memories** — accumulate across turns: the same memory reworded isn't duplicated.
 
@@ -123,6 +127,10 @@ The tab where history accumulates instead of a snapshot:
 - **Long lists.** Up to three items stay as they are. With more, they scroll right on PC and down on phones: this covers character pills and block views. Paper sheets and axes that can't lie sideways (scroll, notebook) scroll down on PC too.
 - **Phone icons.** Every theme has its own set of twelve app icons. Pick one in Customize → Blocks: Phone: Auto by theme, Regular, or any other set; a set from another theme adapts to the theme colors, both the drawing and the tile.
 - **Deleting items.** Important, Chekhov's guns and secrets have a trash icon in the header: it turns on delete mode, items get highlighted, and tapping one opens a window with every similar wording from the chat: only the checked ones are removed from the HUD of the whole chat. Message text and `[HUD_SUMMARY]` stay. Bring deleted items back with ↶ in the card header: the last 30 deletions are kept, in any order. The item also returns to blocks edited or regenerated after the deletion and to the latest HUD of the chat, so the model sees it again.
+- **One-time nudge.** A star button in a block header: tap a pill and it goes to the model in the next reply. HUD sends nothing by itself, the nudge simply joins the request. It works from an old card too, holds for one reply and all its swipes, and a new message clears it. The queue (up to three) shows above the input.
+- **Deadlines on threads.** A gun can have a date and a task kind: main, side, small. The deadline shows in the phone calendar, and an overdue thread asks for a resolution. Overdue calendar plans are marked too, and the model settles whether they happened or were missed.
+- **Earlier items.** Old Important items fold away, and the thirty newest stay in view.
+- **Invitations.** When the model writes an invitation, HUD looks for your answer in your message. If it can't tell, it shows an Accept and Decline card. Promised and didn't come: the character is hurt.
 - **Emotions** — how the main characters' mood changed; **route** — where they've been during this stretch.
 - **Relationship graph** — a web of everyone's ties: romance, friendship, conflict, jealousy, fear, suspicion, family, parents and children, superiors, mentors, duty, the forbidden, accomplices, shared groups. Nodes with avatars; tapping a node or a link highlights its surroundings; the graph opens full screen.
 - **Family tree** — a second view of the same graph when the relationships include kinship.
@@ -142,6 +150,8 @@ The tab where history accumulates instead of a snapshot:
 ### 🧺 Daily life
 
 Food, sleep, showers, laundry, cleaning, clothing, money and home **across all past turns**: how long since the last time, the sleep debt for the week, what's in the laundry, familiar prices, what broke, who owes whom. "Could use a shower" is computed from hours, heat and exertion; "not dressed for the weather" — when a character is out in the frost without outerwear or in the heat in a coat. The HUD derives all this from what the model writes anyway. The daily-life summary can be shown to the model as one line, only when it's on topic, or via a macro — or kept just for you.
+
+**Weight and calories.** In Daily life everyone has a card: weight, a curve, a calorie norm that accounts for activity and pregnancy, and how much the person eats on average.
 
 <details><summary>📷 The Daily life tab</summary>
 
@@ -211,6 +221,8 @@ For stories where the body and family matter — three linked blocks. Each is tu
 - **Threat dice.** If the pregnancy field mentions a threatened miscarriage, HUD rolls for the outcome. The chance depends on the term and severity. You reveal the result with a button and can change fate; the model gets it only after that.
 - **What stays in the history.** The Pregnancies tab in the archive shows all births and losses of the chat and who knows about them. Losses also appear in the archive Timeline, and a miscarriage in the calendar as a memorial date; an abortion doesn't go there.
 
+**Check-ups.** At weeks 12, 20 and 30 the dice decide what was found: complications and the baby's traits. You reveal the result and can change fate, and the model learns only what you revealed. Serious findings have their own checkbox. Disclosure depends on the era: in the Middle Ages there are no check-ups, and nobody knows anything before the birth. The event log is in the archive and downloads as a file.
+
 **Birth and the "Nursery".** After the "The birth happened" button, pregnancy is replaced by the postpartum period: recovery and feeding. A **"Nursery"** tab appears with a card for each baby:
 - **developmental milestones** on an age scale: what the baby can already do, what's about to appear, what comes later;
 - **care norms by age:** feeding, sleep, diapers, teeth;
@@ -228,6 +240,10 @@ When a child grows up (by default at three), they move from the "Nursery" to reg
 ### 🌍 World
 
 A summary for today: news, rumors, ads, the weather forecast, a horoscope, online comments, exchange rates and prices, events (cinema, theater, concerts), city services (traffic, transport, incidents). The world deliberately doesn't carry over from past turns so news from different days doesn't mix.
+
+**Online comments** come from ordinary people of this world under their nicknames: a city forum, a chat, the darknet. They know only what is public or leaked, can be wrong, and never address the reader.
+
+**Holidays of the era.** Holidays follow the era, place and faith: Russia, Europe with each country's own day, the USA, the Middle Ages. They show in the phone calendar, a light background appears in the scene a few days ahead, and a short recap follows the next day. In a fantasy world you can turn them off in the settings.
 
 <details><summary>📷 The World tab</summary>
 
@@ -272,6 +288,7 @@ A summary of the whole chat history, via the **🗄 HUD archive** button in the 
 - **Secrets** — every secret across the history: who knows and who doesn't, when it appeared and when it was last mentioned.
 - **Guns** — Chekhov's guns: which threads are still hanging, which fired and when.
 - **Relationships** — how pairs changed: shifts in attitude and trust by turn.
+- **Trust** — on the same tab: a pair's chart, the reasons for shifts, and scars.
 - **Timeline** — scenes by story day: where, how many turns, how much time passed.
 - **Pregnancies** — all births, miscarriages and abortions of the chat: the term, the father and who knows.
 - **Soundtrack** — music chapters by day (if scene music is on).
@@ -551,14 +568,14 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.53**:
+The latest version is **23.88.68**:
 
-- Miscarriage and abortion: marked by the model or with a button in the card, for one character only, with Cancel.
-- Twins and triplets: only some of the babies can be lost.
-- Threat dice: HUD rolls the outcome of a threatened miscarriage, and you can change fate.
-- Recovery and the chance of conception depend on the term and complications.
-- Pregnancies tab in the archive, losses in the Timeline, memorial dates in the calendar.
-- Delete from HUD per pill, undo, and a warning about a stale copy on another device.
+- One-time nudge for the model: a pill goes into the next reply and holds across its swipes.
+- Relationship scars, lingering impressions, trust reasons and a chart in the archive.
+- Living details, neglected state, weight and calories.
+- Pregnancy check-ups, disclosure modes and a log.
+- Holidays of the era, invitations, deadlines on plot threads.
+- Network comments now come from people inside the world.
 
 The full history is in [CHANGELOG.en.md](CHANGELOG.en.md).
 

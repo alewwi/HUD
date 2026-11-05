@@ -79,6 +79,13 @@ export const defaultSettings = {
   // сводка «что о тебе думают» считается из карточек и в промт не идёт.
   enableCompanions: true,
   enableIllness: true,
+  enableScars: true,
+  enableBodyCues: true,
+  enableNeglect: true,
+  enableWeight: true,
+  enableEraHolidays: true,
+  pregnancySerious: false,
+  pregnancyReveal: 'auto',
   enablePregnancy: true,
   // Роды и малыши: вкладка «Детская», послеродовой период; с какого возраста
   // ребёнок уходит в обычные карточки; число и пол малышей — модели скрытым

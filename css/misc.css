@@ -6662,6 +6662,97 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 }
 .hud-state-plaque.is-preg .hud-state-timer { background: color-mix(in srgb, var(--hud-nsfw-color, #d9548a) 28%, transparent); }
 
+/* Разовая подсказка: кнопка в заголовке, выбор плашки и полоса над вводом. */
+.hud-hint-open { all: unset; cursor: pointer; display: inline-flex; width: 22px; height: 22px; align-items: center; justify-content: center; margin-left: 6px; border-radius: 50%; opacity: .75; vertical-align: middle; transition: transform .2s ease, opacity .2s ease; }
+.hud-hint-open svg { width: 15px; height: 15px; fill: currentColor; }
+.hud-hint-open[aria-pressed="true"] { opacity: 1; color: var(--hud-accent, #c31f38); background: color-mix(in srgb, var(--hud-accent, #c31f38) 18%, transparent); transform: rotate(18deg) scale(1.1); }
+@media (hover: hover) and (pointer: fine) { .hud-hint-open:hover { opacity: 1; transform: scale(1.12); } }
+.hud-hint-box { display: flex; justify-content: flex-end; margin-bottom: -18px; position: relative; z-index: 1; }
+.hud-hint-item { cursor: pointer; position: relative; outline: 1px solid color-mix(in srgb, var(--hud-accent, #c31f38) 75%, transparent); outline-offset: 2px; box-shadow: 0 0 0 3px color-mix(in srgb, var(--hud-accent, #c31f38) 14%, transparent), 0 0 16px color-mix(in srgb, var(--hud-accent, #c31f38) 28%, transparent); }
+#hud-hints-bar { display: flex; flex-wrap: wrap; gap: 6px; padding: 5px 8px; }
+.hud-hint-chip { display: inline-flex; align-items: center; gap: 7px; max-width: 100%; padding: 3px 5px 3px 10px; border-radius: 999px; font-size: 12px; letter-spacing: .01em;
+  border: 1px solid color-mix(in srgb, var(--SmartThemeQuoteColor, #e0a050) 45%, transparent);
+  background: linear-gradient(100deg, color-mix(in srgb, var(--SmartThemeQuoteColor, #e0a050) 24%, transparent), color-mix(in srgb, var(--SmartThemeBodyColor, #ddd) 7%, transparent)); }
+.hud-hint-chip::before { content: '✦'; font-size: 11px; color: var(--SmartThemeQuoteColor, #e0a050); }
+.hud-hint-chip > span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 60vw; }
+.hud-hint-chip > button { all: unset; cursor: pointer; width: 18px; height: 18px; line-height: 18px; text-align: center; border-radius: 50%; background: color-mix(in srgb, var(--SmartThemeBodyColor, #ddd) 12%, transparent); }
+/* Причины и шрамы под шкалой доверия: шрам — зашитая полоска со стежками. */
+.hud-trust-why, .hud-trust-scars { display: flex; flex-wrap: wrap; gap: 5px 7px; margin-top: 7px; font-size: 11.5px; }
+.hud-trust-why > span { display: inline-block; min-width: 0; max-width: 100%; padding: 2px 9px; border-radius: 8px; background: color-mix(in srgb, var(--hud-text-muted, #c3c2b7) 9%, transparent); }
+.hud-trust-why .up::before { content: "▲ "; font-size: 8px; color: #7fc08a; }
+.hud-trust-why .down::before { content: "▼ "; font-size: 8px; color: #e08a8a; }
+.hud-trust-scar { position: relative; display: inline-flex; align-items: center; gap: 6px; min-width: 0; max-width: 100%; padding: 4px 5px 5px 10px; border-radius: 9px;
+  background: linear-gradient(100deg, color-mix(in srgb, #d6a8c0 17%, transparent), color-mix(in srgb, #d6a8c0 5%, transparent)); border: 1px solid color-mix(in srgb, #d6a8c0 30%, transparent); }
+.hud-trust-scar::after { content: ''; position: absolute; left: 8px; right: 26px; bottom: 2px; height: 3px; opacity: .7;
+  background: repeating-linear-gradient(100deg, transparent 0 4px, #d6a8c0 4px 5px, transparent 5px 9px); }
+.hud-trust-scar > button { all: unset; cursor: pointer; flex: none; width: 17px; height: 17px; line-height: 17px; text-align: center; border-radius: 50%; opacity: .7; }
+.hud-state-plaque.is-neglect { flex-wrap: wrap; border-color: color-mix(in srgb, #c9a35a 45%, transparent); background: linear-gradient(120deg, color-mix(in srgb, #c9a35a 16%, transparent), color-mix(in srgb, #c9a35a 4%, transparent)); }
+.hud-state-plaque.is-neglect > i svg { width: 22px; height: 22px; fill: none; stroke: #c9a35a; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+.hud-state-plaque.is-neglect .hud-neglect-days { flex-direction: row; flex-wrap: wrap; gap: 4px 6px; margin-top: 3px; }
+.hud-neglect-days em { font-style: normal; font-size: 11px; padding: 1px 8px; border-radius: 999px; background: color-mix(in srgb, #c9a35a 20%, transparent); }
+/* Приглашение: конверт с клапаном. */
+.hud-invite { position: relative; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 7px 10px; padding: 11px 13px 10px; margin-bottom: 7px; border-radius: 13px; overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--hud-accent, #c31f38) 30%, transparent); background: linear-gradient(160deg, color-mix(in srgb, var(--hud-accent, #c31f38) 12%, transparent), transparent 70%); }
+.hud-invite::before { content: ''; position: absolute; left: 0; right: 0; top: 0; height: 15px; opacity: .55; background: linear-gradient(to bottom right, transparent 49%, color-mix(in srgb, var(--hud-accent, #c31f38) 45%, transparent) 50%, transparent 52%) left / 50.1% 100% no-repeat, linear-gradient(to bottom left, transparent 49%, color-mix(in srgb, var(--hud-accent, #c31f38) 45%, transparent) 50%, transparent 52%) right / 50.1% 100% no-repeat; }
+.hud-invite > div { flex: 1 1 150px; min-width: 0; }
+.hud-invite small { display: block; margin-top: 1px; color: var(--hud-text-muted, #c3c2b7); }
+.hud-invite .hud-invite-when { display: inline-block; margin-top: 4px; padding: 1px 8px; border-radius: 999px; font-size: 11px; background: color-mix(in srgb, var(--hud-accent, #c31f38) 18%, transparent); }
+/* Сроки нитей. */
+.hud-gun-tags { display: flex; flex-wrap: wrap; gap: 3px 4px; margin-top: 5px; }
+.hud-gun-due { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 999px; font-size: 10.5px; line-height: 1.5; background: color-mix(in srgb, var(--hud-text-muted, #c3c2b7) 13%, transparent); }
+.hud-gun-due svg { width: 10px; height: 10px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; }
+.hud-gun-due.is-main { color: color-mix(in srgb, #e6c26a 80%, currentColor); background: color-mix(in srgb, #e6c26a 16%, transparent); }
+.hud-gun-due.is-side { color: color-mix(in srgb, #8fb7e0 80%, currentColor); background: color-mix(in srgb, #8fb7e0 15%, transparent); }
+.hud-gun-due.is-late { color: color-mix(in srgb, #e88a8a 85%, currentColor); background: color-mix(in srgb, #e88a8a 18%, transparent); }
+/* Вес: своя карточка у каждого, с кривой и шкалой еды к норме. */
+.hud-weight { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 7px; }
+.hud-weight li { display: flex; flex-direction: column; gap: 3px; min-width: 0; padding: 8px 10px; border-radius: 11px; background: color-mix(in srgb, var(--hud-text-muted, #c3c2b7) 8%, transparent); border: 1px solid color-mix(in srgb, var(--hud-text-muted, #c3c2b7) 16%, transparent); }
+.hud-weight .top { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
+.hud-weight .top b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; }
+.hud-weight .kg { flex: none; font-size: 17px; font-weight: 600; }
+.hud-weight .kg small { font-size: 10.5px; font-weight: 400; }
+.hud-weight .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 7px; }
+.hud-weight small { font-size: 11px; color: var(--hud-text-muted, #c3c2b7); }
+.hud-weight em { font-style: normal; font-size: 11px; padding: 0 6px; border-radius: 999px; background: color-mix(in srgb, var(--hud-text-muted, #c3c2b7) 14%, transparent); }
+.hud-weight em.up { color: #e6b36a; }
+.hud-weight em.down { color: #8fc0e0; }
+.hud-weight svg { display: block; width: 100%; height: 24px; }
+.hud-weight svg path { fill: none; stroke: var(--hud-accent, #c31f38); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.hud-weight .kcal { display: block; height: 4px; margin-top: 2px; border-radius: 4px; overflow: hidden; background: color-mix(in srgb, var(--hud-text-muted, #c3c2b7) 16%, transparent); }
+.hud-weight .kcal > b { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--hud-accent, #c31f38) 45%, transparent), var(--hud-accent, #c31f38)); }
+.hud-body-stats { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-bottom: 8px; padding: 6px 12px; border-radius: 11px; background: color-mix(in srgb, var(--hud-text-muted, #c3c2b7) 8%, transparent); border: 1px solid color-mix(in srgb, var(--hud-text-muted, #c3c2b7) 15%, transparent); }
+.hud-body-stats .chips { display: flex; flex-wrap: wrap; align-items: baseline; gap: 3px 8px; font-size: 12.5px; }
+.hud-body-stats b { font-weight: 600; }
+.hud-body-stats em { font-style: normal; font-size: 11px; color: var(--hud-text-muted, #c3c2b7); }
+.hud-body-stats em.up { color: #e6b36a; }
+.hud-body-stats em.down { color: #8fc0e0; }
+.hud-cal-ev.is-overdue .hud-cal-ev-title::after { content: ' · просрочено'; font-size: .82em; color: color-mix(in srgb, #e88a8a 85%, currentColor); }
+/* Карточки внутри беременности: угроза, осмотр, потеря малыша. */
+.hud-note-card { --note: var(--hud-text-muted, #c3c2b7); position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 11px; margin-top: 9px; padding: 10px 12px 10px 14px; border-radius: 13px; overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--note) 30%, transparent); background: linear-gradient(115deg, color-mix(in srgb, var(--note) 13%, transparent), color-mix(in srgb, var(--note) 3%, transparent) 75%); }
+.hud-note-card::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px; background: var(--note); opacity: .85; }
+.hud-note-card.is-wait { --note: #e0a050; }
+.hud-note-card.is-good { --note: #7fc08a; }
+.hud-note-card.is-warn { --note: #d6a8c0; }
+.hud-note-card.is-part { --note: #b9b1d8; }
+.hud-note-ico { flex: none; display: inline-flex; width: 30px; height: 30px; align-items: center; justify-content: center; border-radius: 50%; background: color-mix(in srgb, var(--note) 17%, transparent); }
+.hud-note-ico svg { width: 18px; height: 18px; fill: none; stroke: var(--note); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.hud-note-body { flex: 1 1 140px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.hud-note-body > b { font-size: 13.5px; font-weight: 600; }
+.hud-note-body > small { font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); }
+.hud-note-eye { font-size: 9.5px; letter-spacing: .13em; text-transform: uppercase; color: var(--hud-text-muted, #c3c2b7); }
+.hud-note-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 2px; }
+.hud-note-tags em { font-style: normal; font-size: 11.5px; padding: 1px 9px; border-radius: 999px; background: color-mix(in srgb, var(--note) 20%, transparent); }
+.hud-note-dots { display: inline-flex; gap: 4px; flex: none; }
+.hud-note-dots i { width: 9px; height: 9px; border-radius: 50%; border: 1px solid var(--note); }
+.hud-note-dots i.is-on { background: var(--note); }
+.hud-note-dice { position: relative; display: block; height: 5px; margin-top: 5px; border-radius: 5px; background: color-mix(in srgb, #7fc08a 28%, transparent); }
+.hud-note-dice > b { display: block; height: 100%; border-radius: inherit; background: color-mix(in srgb, #d6a8c0 60%, transparent); }
+.hud-note-dice > s { position: absolute; top: -3px; width: 2px; height: 11px; border-radius: 2px; background: currentColor; }
+.hud-note-card .acts { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px; }
+.hud-note-card .row { display: flex; flex-wrap: wrap; gap: 5px; }
+.hud-state-plaque.is-loss > .hud-note-eye { display: block; margin-bottom: 7px; }
+
 /* Конец беременности: кольцо сорока недель, дуга обрывается на сроке. Цвет
    у каждого исхода свой, без тревожного красного. На узкой карточке всё
    уходит в столбик. */
@@ -6697,16 +6788,6 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 .hud-loss-facts span { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; color: var(--hud-text-muted, #c3c2b7); }
 .hud-state-plaque.is-loss .hud-loss-facts b { font-size: 12.5px; font-weight: 500; letter-spacing: 0; }
 .hud-state-plaque.is-loss > .hud-loss-acts { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 10px; }
-.hud-loss-part, .hud-threat { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; margin-top: 10px; padding: 9px 12px; border-radius: 12px;
-  border: 1px solid color-mix(in srgb, var(--hud-text-muted, #c3c2b7) 26%, transparent); background: color-mix(in srgb, var(--hud-text-muted, #c3c2b7) 7%, transparent); }
-.hud-loss-part > div, .hud-threat > div:first-child { flex: 1 1 150px; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
-.hud-loss-part b, .hud-threat b { font-size: 13px; }
-.hud-loss-part small, .hud-threat small { font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); }
-.hud-threat { border-color: color-mix(in srgb, #e0a050 45%, transparent); }
-.hud-threat.is-keep { border-color: color-mix(in srgb, #7fc08a 45%, transparent); }
-.hud-threat.is-all, .hud-threat.is-one { border-color: color-mix(in srgb, #d6a8c0 45%, transparent); }
-.hud-threat .acts { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 6px; }
-.hud-threat .row { display: flex; flex-wrap: wrap; gap: 5px; }
 .hud-loss-btn { padding: 5px 12px; border-radius: var(--hud-r-chip, 999px); font: inherit; font-size: .8em; cursor: pointer; color: inherit; flex: none;
   border: 1px solid color-mix(in srgb, currentColor 32%, transparent); background: transparent; }
 @media (hover: hover) and (pointer: fine) { .hud-loss-btn:hover { background: color-mix(in srgb, currentColor 10%, transparent); } }

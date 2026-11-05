@@ -4,6 +4,63 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.68 — 2026-11-05
+
+### Added
+- The neglected state now counts water too, lowers the chance of conception and disturbs the cycle.
+- The calorie norm accounts for activity, which the model writes with the weight.
+- Overdue plans are marked in the phone calendar, and the model settles once whether they happened or were missed.
+- Holidays follow faith if the card, persona or roles name it: Orthodox or Western Easter.
+
+### Changed
+- Only clear agreements go into the phone calendar.
+- The help for network comments now describes people inside the world.
+
+## 23.88.67 — 2026-11-05
+
+### Added
+- **European holidays:** a shared list plus a national day for France, Germany, Italy, Spain, Ireland and the UK. Independence Day for the USA and Victory Day for Russia.
+- **Weight and height on the character card.**
+
+### Changed
+- In the sample, the miscarriage now belongs to a separate person, Mira Sol, and everyone has a weight.
+
+### Fixed
+- Brackets in a name no longer count as a reason for a trust shift.
+- "Going to sleep" no longer counts as accepting an invitation.
+- Weight finds a person under another spelling of the name, and the request pauses for two weeks after three unanswered asks.
+- A thread deadline understands a date without a year.
+- Deleted messages take their scars along, and Remove pregnancy also clears the log.
+- No pregnancy signs show while nobody knows about it.
+
+## 23.88.66 — 2026-11-05
+
+### Changed
+- New plates look better: threat and check-ups with icons and a dice bar, a stitched scar, an envelope invitation, colored thread deadlines, weight cards with a curve and a food bar.
+- The HUD sample shows everything new: scars, trust reasons, weight, an invitation, a threat, check-ups, a loss, thread deadlines.
+- All new blocks have help question marks.
+
+## 23.88.63 — 2026-11-05
+
+### Added
+- **One-time nudge for the model.** A star button on Important, guns, secrets, rumors, news and shared memories: the pill you tap goes into the request for the next reply. HUD never creates a message itself. The nudge holds for one reply and all its swipes, and a new message clears it. The queue shows above the input.
+- **Relationship scars.** The model briefly writes why trust moved, right in the trust field. A deep wound or a drop of 15 or more leaves a scar: the model remembers the hurt until trust returns. After a big shift a character stays under the impression for a few turns, and a rival's gain costs the player.
+- **Trust chart in the archive:** a pair's shifts and reasons on the Relationships tab.
+- **Living details.** The model shows hunger, tiredness, stress and more through small details, with pauses between them.
+- **Neglected state.** Days without food and sleep show on the card and in the story.
+- **Weight and calories.** The model writes height and weight once, HUD asks to update them weekly in story time. Daily life shows the weight, its change and a calorie norm that accounts for pregnancy.
+- **Pregnancy check-ups** at weeks 12, 20 and 30: complications and the baby's traits; you reveal the result and can change fate. Serious findings have their own checkbox.
+- **Pregnancy disclosure modes:** by era, modern, medieval, omniscient.
+- **Pregnancy log** in the archive, with a file download.
+- **Holidays of the era** in the phone calendar, a light background before them and a short recap after.
+- **Invitations.** HUD reads the player's answer itself, and shows an Accept and Decline card if it can't. Promised and didn't come: the character is hurt.
+- **Deadlines on plot threads:** a date and task kind on a gun, the deadline in the calendar, and an overdue thread asks for a resolution.
+
+### Changed
+- **Network comments** now come from ordinary people inside the world: their own nicknames and places, no knowledge of private scenes, no talking to the reader.
+- Older Important items fold away.
+- The model records plans only from clear agreements.
+
 ## 23.88.59 — 2026-11-05
 
 ### Fixed

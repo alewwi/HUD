@@ -13,22 +13,22 @@
 // карточки ненадёжны — у неё content-visibility, и браузер может не
 // двигать их время.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.59';
-import { namesLikelySame } from '../names.js?v=23.88.59';
-import { разобратьХод } from './carryover.js?v=23.88.59';
-import { parseSceneDate } from '../history-analyzer.js?v=23.88.59';
-import { исходЗачатия } from './conception.js?v=23.88.59';
-import { блокПлодов } from './fetus.js?v=23.88.59';
-import { кровотечение } from './fertility.js?v=23.88.59';
-import { settings } from '../settings.js?v=23.88.59';
-import { английский } from '../i18n.js?v=23.88.59';
-import { имяЗначка, значкиВключены } from './hud-icons.js?v=23.88.59';
-import { одеждаПодробно, слойОдежды, темпИзТекста, темпыПроникновений, блокТемпа, позаТела, полПерсонажа, проникновенияИзТекста, меткиПроникновения, строкиПроникновения, членИзТекста, членИзКанона, семяИзТекста, влагаИзТекста, финалСцены, вышелИзТекста, снаружиИзТекста, движениеИзОргазма } from './scene-body.js?v=23.88.59';
-import { ощущенияИзТекста } from './body-layers.js?v=23.88.59';
-import { полосаВлечения } from './cycle-libido.js?v=23.88.59';
-import { обликИзТекстов, естьОблик, причёска, волосыСзади, лицо, масштабСложения, масштабРоста, стильОблика, меткиОтметин, нуженКонтур } from './look.js?v=23.88.59';
-import { канонОблика, полИзКанона, подтянутьЛор } from './canon.js?v=23.88.59';
-import { силуэтТела, силуэтБезРук, открытоеТело, очертанияТела, defsОбъёма, слоиОбъёма, кромка, параметрыФигуры, деталиФигуры, кФигуре, грудьФигуры } from './body-art.js?v=23.88.59';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.68';
+import { namesLikelySame } from '../names.js?v=23.88.68';
+import { разобратьХод } from './carryover.js?v=23.88.68';
+import { parseSceneDate } from '../history-analyzer.js?v=23.88.68';
+import { исходЗачатия } from './conception.js?v=23.88.68';
+import { блокПлодов } from './fetus.js?v=23.88.68';
+import { кровотечение } from './fertility.js?v=23.88.68';
+import { settings } from '../settings.js?v=23.88.68';
+import { английский } from '../i18n.js?v=23.88.68';
+import { имяЗначка, значкиВключены } from './hud-icons.js?v=23.88.68';
+import { одеждаПодробно, слойОдежды, темпИзТекста, темпыПроникновений, блокТемпа, позаТела, полПерсонажа, проникновенияИзТекста, меткиПроникновения, строкиПроникновения, членИзТекста, членИзКанона, семяИзТекста, влагаИзТекста, финалСцены, вышелИзТекста, снаружиИзТекста, движениеИзОргазма } from './scene-body.js?v=23.88.68';
+import { ощущенияИзТекста } from './body-layers.js?v=23.88.68';
+import { полосаВлечения } from './cycle-libido.js?v=23.88.68';
+import { обликИзТекстов, естьОблик, причёска, волосыСзади, лицо, масштабСложения, масштабРоста, стильОблика, меткиОтметин, нуженКонтур } from './look.js?v=23.88.68';
+import { канонОблика, полИзКанона, подтянутьЛор } from './canon.js?v=23.88.68';
+import { силуэтТела, силуэтБезРук, открытоеТело, очертанияТела, defsОбъёма, слоиОбъёма, кромка, параметрыФигуры, деталиФигуры, кФигуре, грудьФигуры } from './body-art.js?v=23.88.68';
 
 const пусто = (v) => { const s = String(v ?? '').trim(); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
 const число = (s) => { const m = String(s ?? '').replace(/(\d),(\d)/g, '$1.$2').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };

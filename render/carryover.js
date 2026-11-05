@@ -14,16 +14,17 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.88.59';
-import { проставитьДень } from './msg-feed.js?v=23.88.59';
-import { normalizeJSONData } from '../schema.js?v=23.88.59';
-import { settings } from '../settings.js?v=23.88.59';
-import { статусРужья } from '../codes.js?v=23.88.59';
-import { extractHudBlock } from '../hud-block.js?v=23.88.59';
-import { развернутьHUD } from '../offload.js?v=23.88.59';
-import { namesLikelySame } from '../names.js?v=23.88.59';
-import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.88.59';
-import { readParsed, writeParsed } from '../store.js?v=23.88.59';
+import { parseHUDComplex } from '../hud-parser.js?v=23.88.68';
+import { проставитьДень } from './msg-feed.js?v=23.88.68';
+import { normalizeJSONData } from '../schema.js?v=23.88.68';
+import { settings } from '../settings.js?v=23.88.68';
+import { статусРужья } from '../codes.js?v=23.88.68';
+import { extractHudBlock } from '../hud-block.js?v=23.88.68';
+import { развернутьHUD } from '../offload.js?v=23.88.68';
+import { namesLikelySame } from '../names.js?v=23.88.68';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.88.68';
+import { readParsed, writeParsed } from '../store.js?v=23.88.68';
+import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.88.68';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -853,7 +854,7 @@ const разобратьДоверие = (v) => {
   const о = {};
   текст(Array.isArray(v) ? v.join('; ') : v).split(/[;\n]/).forEach(ч => {
     const m = ч.match(/^\s*([^:：]{1,40})[:：]\s*(-?\d{1,3})/);
-    if (m) о[ключ(m[1])] = { имя: m[1].trim(), v: +m[2] };
+    if (m) о[ключ(m[1])] = { имя: m[1].trim(), v: +m[2], ...разобратьПричину(ч) };
   });
   return о;
 };
@@ -884,7 +885,7 @@ export function сдвигиДоверия(data, messageElement) {
       return з ? разобратьДоверие(з['Доверие']) : null;
     });
     const сдвиги = {};
-    for (const [к, { имя: кто, v }] of Object.entries(сейчас)) {
+    for (const [к, { имя: кто, v, почему, рана }] of Object.entries(сейчас)) {
       const значения = история.map(h => (h && h[к] ? h[к].v : null));
       const первое = значения.findIndex(x => x !== null);
       if (первое < 0) continue;
@@ -895,7 +896,9 @@ export function сдвигиДоверия(data, messageElement) {
         const другое = значения.findIndex(x => x !== null && x !== v);
         назад = другое < 0 ? -1 : другое;
       }
-      сдвиги[кто] = { d, назад };
+      сдвиги[кто] = { d, назад, почему };
+      // Шрамы и повороты: запись на этот ход, свайп её заменит.
+      сверитьСдвиг({ кто: имя, кому: кто, индекс, d, было: значения[первое], стало: v, почему, рана });
     }
     if (!Object.keys(сдвиги).length) return c;
     были = true;

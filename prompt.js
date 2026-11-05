@@ -5,14 +5,14 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.88.59';
-import { английский } from './i18n.js?v=23.88.59';
-import { промптНаАнглийском } from './prompt-en.js?v=23.88.59';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.59';
-import { parseSceneDate } from './history-analyzer.js?v=23.88.59';
-import { возрастТочно } from './render/babies.js?v=23.88.59';
-import { списокВыключенного, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.59';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.59';
+import { settings } from './settings.js?v=23.88.68';
+import { английский } from './i18n.js?v=23.88.68';
+import { промптНаАнглийском } from './prompt-en.js?v=23.88.68';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.68';
+import { parseSceneDate } from './history-analyzer.js?v=23.88.68';
+import { возрастТочно } from './render/babies.js?v=23.88.68';
+import { списокВыключенного, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.68';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.68';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -168,7 +168,7 @@ ${состояниеТела ? `   "Bs": "[body state, 0-100 each followed by a 
    "D": "[hidden subtext — NEW and HIDDEN, not thoughts and not a retelling of the reply: what they hide from others and often from THEMSELVES. It does not have to appear in the reply at all — add what the reply leaves unsaid: a small gesture, glance or slip nobody remarks on, the motive or fear underneath; invented, but true to the character, the story so far, the context and this situation. They do not notice it or would deny it — an unconscious tell, care showing through threats, a body that contradicts the words. Write it as an observer catching the contradiction — what they openly claim, and what they do anyway: 'Несмотря на угрозы и обещания расправы, он осторожно, почти нежно перебинтовывает ей правую руку, словно боится сделать больно'. The point is the gap between the shown and the hidden; restating anything the reply already says, even in other words, is not subtext. 'empty' if nothing is hidden]",
    "I": "[inventory: everything they carry or wear that matters, each as '<item>: <its condition>'; separate by ;]",
    "G": "[goals, exactly 3 parts: 'nw: what they want right now; sn: what they intend to do soon; lt: their long-term aim']",
-   "S": "[schedule: plans and appointments ahead, each as '<time> - <event>' ('14:30 - встреча с юристом', or a part of the day instead of the time); separate by ;]",
+   "S": "[schedule: plans and appointments ahead, each as '<time> - <event>' ('14:30 - встреча с юристом', or a part of the day instead of the time). Only what someone clearly said, agreed or promised: never a passing mood or your own plot ideas. Separate by ;]",
    "Rl": "[relationships with EVERY other named person who matters now: '<name>: <attitude>', separated by ; — never commas, they glue people into one relation. Each attitude starts with who that person IS to this character in 1-3 words, then a comma: kinship from THIS character's side (муж, сестра, отчим), or a role (возлюбленная, начальник, соперник, незнакомка, спасительница, одержимость) — 'Ричард: муж, любит, но боится'; 'Софи: незнакомка, спасла его брата и пугает своей прямотой'. The role is the tie BETWEEN the two, not a bare occupation: in one class or group — однокурсница, одноклассник, коллега; teacher and student — her side 'мой преподаватель', 'научный руководитель', his side 'его студентка', 'ученица'; never just 'студентка'. An obsession is a role too: 'Софи: одержимость, не может перестать следить за ней'. Never open with a description of the scene ('девушка на диване'). Bidirectional: if A lists B, B is in cs with A in their Rl; everyone named in any Rl is in cs, except {{char}} or {{user}} absent from the scene. Never 'empty' while other named people exist]",
    "Mm": "[memories: moments this character shares with the player or NPCs, each a short episode; separate by ;]",
    "Fl": "[flags: open plot threads, promises, debts, threats and consequences waiting to land; separate by ;]",
@@ -201,7 +201,7 @@ ${бельё ? `   "Un": "[OPTIONAL, only when it matters in the scene — under
    "AC": "[aftercare (phase 3 only): what this character needs now it's over — touch, water, silence, words, or nothing. 2-3 sentences: what exactly, from whom, why it matters now, what would hurt instead, e.g. 'Молча обнять и не говорить ни слова — любые слова разрушат ощущение сейчас']",
    "SxV": "[sex review (phase 3 only), once it has ended: 4-6 sentences in this character's own voice — what worked, what didn't, the best and most awkward moment, how body and heart felt, what to repeat or never again — ending with a rating like ★★★★☆]",` : ''}${следы ? `
    "Mrk": "[visible body marks and physical aftermath — ${интим ? 'hickeys, bites, scratches, bruises, redness, soreness, heaviness' : 'bruises, scratches, grazes, redness, soreness'} — every turn from appearance until they fade in story time${интим ? ', whatever the intimacy phase' : ''}. Each '<what>: <where> — <how it looks/feels now> | <fade time from appearance: 12h, 3d>':${интим ? `'Засос: шея слева — наливается фиолетовым, ноет | 5d; Следы ногтей: спина — красные полосы | 2d'` : `'Синяк: левое предплечье — желтеет по краям, ноет при нажатии | 5d; Ссадины: костяшки правой руки — подсохли корочкой | 2d'`}. The fade time is set once and counted from sc.Dt and sc.T — keep both accurate; the look changes as it heals. Marks that never fade — scars, tattoos, piercings, birthmarks — have no fade time: write when they were obtained instead, '| получен: <date, age or event>' ('Шрам: левая бровь — тонкая белая полоса | получен: в 14 лет, драка'). Body only, no feelings. 'empty' when none; separate by ;]",` : ''}
-   "Tr": "[trust: how much this character trusts each other named character, 0-100, '<name>: <0-100>': 'Софи: 82; Ричард: 9'. One entry per person they know. Not the same as Rl — one can love and not trust. Separate by ;]",
+   "Tr": "[trust: how much this character trusts each other named character, 0-100, '<name>: <0-100>': 'Софи: 82; Ричард: 9'. One entry per person they know. Not the same as Rl — one can love and not trust. Only when a value moves by 5 or more THIS turn, add why in a few words in brackets: 'Софи: 82 (спасла ему жизнь)'; a deep wound starts with !: 'Софи: 40 (!ударила при всех)'. Separate by ;]",
    "Fr": "[fears: what this character is afraid of RIGHT NOW, each '<what they fear>: <low | moderate | high | panic>': 'Потерять Софи: high; Отец узнает: moderate'. Live fears in this scene, not lifelong phobias unless surfaced. Separate by ;]"${своиЧьи.has('chars') ? полеСвоих('chars') : ''}
   }
  ]`;
@@ -246,7 +246,8 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
   },
   "fct": ["[fact: an important or newly learned fact, stated plainly, people by their real names]", "facts: as many lines as matter"],${ружья ? `${быт ? `
   "hk": "[OPTIONAL — only in a turn where any of this happened: 'eat: what, where, with whom; wash: what; buy: what and how much; fix: what; break: what household object actually broke (not an injury, not a near miss); wear: what was put on or taken off', separated by ;]",` : ''}
-  "gun": ["[a setup planted and not yet paid off — promise, threat, hint, unexplained object, open mystery, debt, foreshadowing] | [who or what it is tied to] | [open | building | fired]", "chekhov's guns: one line per unresolved thread, from the Fl flags and what the story left hanging — never invent plot to fill it. Keep each until it pays off: mark it fired that turn, drop it the next"],` : ''}
+  "gun": ["[a setup planted and not yet paid off — promise, threat, hint, unexplained object, open mystery, debt, foreshadowing] | [who or what it is tied to] | [open | building | fired] | [deadline date, only if the story set one] | [main, side or short, only for a task someone must do]", "chekhov's guns: one line per unresolved thread, from the Fl flags and what the story left hanging — never invent plot to fill it. Keep each until it pays off: mark it fired that turn, drop it the next"],
+  "inv": ["[only on a turn someone in the story invites {{user}} somewhere: who | what | date and time]"],` : ''}
   "sec": [
    {
     "f": "[fact: the secret itself, stated plainly]",
@@ -298,7 +299,7 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
    "hl": {"sl": "[owner's sleep LAST night as a watch logs it: 'HH:MM–HH:MM', e.g. '00:40–07:10', plus one word if bad — 'прерывистый'. Same all day; a new night → new value]", "st": "[steps TODAY: a plain number that only grows — walking, stairs, errands add, sitting adds nothing; 0 on a new day]", "hr": "[pulse RIGHT NOW, bpm, a plain number: ~60–75 at rest, higher when walking, nervous or excited; the same as the owner's vitals if written this turn]"}`);
     if (settings.phoneAppCalendar !== false) ph.push(`
    "cl": [
-    {"dt": "[date: '16.01' or '16.01.2025', the same date system as sc.Dt; one object per entry, as many as there are]", "ti": "[title: e.g. 'День рождения [имя]', 'Совет директоров', 'Фестиваль огней']", "kd": "[kind: birthday | holiday | event]", "tm": "[OPTIONAL time: HH:MM]"}
+    {"dt": "[date: '16.01' or '16.01.2025', the same date system as sc.Dt; one object per entry, as many as there are; an event only if someone clearly promised or agreed to it, never a passing mood or your own plot idea]", "ti": "[title: e.g. 'День рождения [имя]', 'Совет директоров', 'Фестиваль огней']", "kd": "[kind: birthday | holiday | event]", "tm": "[OPTIONAL time: HH:MM]"}
    ]`);
     // Сообщения — такой же модуль, как остальные: выключены, значит и
     // переписок у модели не просим.
@@ -483,7 +484,7 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
   "ad": ["[classified ad: short, in the voice of whoever posted it]", "ads: one line per ad"]`;
     if (settings.showComments) {
       p += `,
-  "com": ["[name: comment]", "comments: one line per comment, as many as the thread gets"]`;
+  "com": ["[nickname: comment]", "comments: ordinary people of this world posting under nicknames wherever this place and era talk: a city forum, a chat, a darknet board, a tavern wall. They live in the story's world, know only what is public or leaked, argue and get things wrong; they never see private scenes or thoughts, never address the reader and do not know this is a story. One line per comment, as many as the thread gets"]`;
     }
     p += `\n }`;
   }

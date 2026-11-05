@@ -1273,6 +1273,11 @@
 .hud-arc-card-head b { font-weight: 700; }
 .hud-arc-preg dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 3px 14px; margin: 0; font-size: 12.5px; }
 .hud-arc-preg dt { opacity: .68; }
+.hud-arc-trust { display: block; width: 100%; height: 42px; margin-bottom: 6px; }
+.hud-arc-trust path { fill: none; stroke: currentColor; stroke-width: 1.4; vector-effect: non-scaling-stroke; opacity: .8; }
+.hud-arc-row label.is-up { color: #7fc08a; }
+.hud-arc-row label.is-down { color: #e08a8a; }
+.hud-arc-preglog ul { margin: 6px 0; padding-left: 16px; font-size: 12px; }
 .hud-arc-preg dd { margin: 0; }
 /* Архив → Саундтрек: дни сюжета, главы подборок, треки со ссылками поиска. */
 .hud-arc-st-day { margin-bottom: 14px; }

@@ -12,16 +12,17 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.88.59';
-import { т } from './i18n.js?v=23.88.59';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.88.59';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.88.59';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.88.59';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.88.59';
-import { заменитьHudБлоки } from './hud-block.js?v=23.88.59';
-import { упомянутВТексте } from './names.js?v=23.88.59';
-import { списокВыключенного, убратьВыключенное } from './deep-fields.js?v=23.88.59';
-import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.88.59';
+import { settings } from './settings.js?v=23.88.68';
+import { т } from './i18n.js?v=23.88.68';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.88.68';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.88.68';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.88.68';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.88.68';
+import { заменитьHudБлоки } from './hud-block.js?v=23.88.68';
+import { упомянутВТексте } from './names.js?v=23.88.68';
+import { списокВыключенного, убратьВыключенное } from './deep-fields.js?v=23.88.68';
+import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.88.68';
+import { доверияБезПричин } from './turn-notes.js?v=23.88.68';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -232,6 +233,8 @@ export function собратьСнимок(текстБлока) {
   }
   const поПерсонажам = (ключи) => { (Array.isArray(к.cs) ? к.cs : []).forEach(c => убрать(c, ключи)); убрать(к.us, ключи); };
   if (выкл('enableIllness')) поПерсонажам(['Ill']);
+  // Причины сдвигов доверия — только на свой ход: в снимке им незачем повторяться.
+  (Array.isArray(к.cs) ? к.cs : []).forEach(c => { if (объект(c) && c.Tr) c.Tr = доверияБезПричин(c.Tr); });
   if (выкл('enablePregnancy')) поПерсонажам(['Prg']);
   // Беременность, закрытая потерей: иначе модель перепишет Prg из снимка.
   const сценаМс = датаИзТекста(объект(к.sc) ? к.sc.Dt : '');

@@ -18,17 +18,18 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.59';
-import { settings } from '../settings.js?v=23.88.59';
-import { разобратьХод } from './carryover.js?v=23.88.59';
-import { моментСцены } from './intimacy.js?v=23.88.59';
-import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.88.59';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.59';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.59';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.88.59';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.59';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.88.59';
-import { английский } from '../i18n.js?v=23.88.59';
+import { весЧата, нормаКалорий } from '../turn-notes.js?v=23.88.68';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.68';
+import { settings } from '../settings.js?v=23.88.68';
+import { разобратьХод } from './carryover.js?v=23.88.68';
+import { моментСцены } from './intimacy.js?v=23.88.68';
+import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.88.68';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.68';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.68';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.88.68';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.68';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.88.68';
+import { английский } from '../i18n.js?v=23.88.68';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;
@@ -1257,6 +1258,29 @@ function послеСхватки(ж) {
     + тревоги.join('') + (раны ? `<ul class="hud-life-wounds">${раны}</ul>` : '') + (журнал ? `<span class="hud-life-sub">${ико('swords')}Журнал схваток</span><ul class="hud-life-fights">${журнал}</ul>` : '') + `</section>`;
 }
 
+// Вес из просьбы раз в неделю (turn-notes.js): сейчас, сдвиг, кривая и норма.
+function криваяВеса(история) {
+  if (история.length < 2) return '';
+  const все = история.map(х => х.вес), мин = Math.min(...все), макс = Math.max(...все), шаг = 100 / (все.length - 1);
+  const y = (v) => (20 - (макс > мин ? (v - мин) / (макс - мин) : .5) * 16).toFixed(1);
+  return `<svg viewBox="0 0 100 24" preserveAspectRatio="none" aria-hidden="true"><path d="M${все.map((v, i) => `${(i * шаг).toFixed(1)} ${y(v)}`).join('L')}"/></svg>`;
+}
+function весБыта() {
+  const все = Object.entries(весЧата());
+  if (!все.length) return '';
+  return `<ul class="hud-weight">${все.map(([имя, з]) => {
+    const прошлый = з.история.length > 1 ? з.история[з.история.length - 2].вес : null;
+    const сдвиг = прошлый !== null ? Math.round((з.вес - прошлый) * 10) / 10 : 0;
+    const норма = нормаКалорий({ вес: з.вес, рост: з.рост, возраст: з.возраст || 30, женщина: з.женщина !== false, неделя: з.неделя || 0, активность: з.активность });
+    const имт = з.рост ? Math.round(з.вес / (з.рост / 100) ** 2 * 10) / 10 : null;
+    return `<li><div class="top"><b>${escapeHtml(имя)}</b><span class="kg">${з.вес} <small>кг</small></span></div>`
+      + `<div class="meta">${з.рост ? `<small>${з.рост} см</small>` : ''}${имт ? `<small>ИМТ ${имт}</small>` : ''}${сдвиг ? `<em class="${сдвиг > 0 ? 'up' : 'down'}">${сдвиг > 0 ? '+' : ''}${сдвиг} кг</em>` : ''}</div>`
+      + криваяВеса(з.история)
+      + (норма && з.ккал ? `<i class="kcal" aria-hidden="true"><b style="width:${Math.min(100, Math.round(з.ккал / норма * 100))}%"></b></i>` : '')
+      + (норма || з.ккал ? `<small>${[норма ? `норма около ${норма} ккал` : '', з.ккал ? `ест около ${з.ккал} ккал` : ''].filter(Boolean).join(' · ')}</small>` : '') + `</li>`;
+  }).join('')}</ul>`;
+}
+
 export function buildLifeHTML(ж, uid, active) {
   if (!ж) return '';
   const раздел = (ик, заголовок, тело, доп = '') => тело ? `<section class="hud-v-card hud-life-sec"><div class="hud-v-head"><b>${медаль(ик)}${заголовок}</b>${доп ? `<span>${доп}</span>` : ''}</div>${тело}</section>` : '';
@@ -1289,6 +1313,7 @@ export function buildLifeHTML(ж, uid, active) {
     + послеСхватки(ж)
     + (сутки ? раздел('clock', 'Сутки', сутки, 'последние 24 часа') : '')
     + раздел('fork', 'Еда', голод + (еды ? `<ul class="hud-life-meals">${еды}</ul>` : '') + любимое)
+    + (весБыта() ? раздел('fork', 'Вес', весБыта()) : '')
     + раздел('bed', 'Сон', сон + сны, норма)
     + раздел('hanger', 'Гардероб', гардеробБыта(ж))
     + раздел('wallet', 'Деньги', деньгиБыта(ж))

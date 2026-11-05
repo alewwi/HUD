@@ -6,12 +6,13 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.59';
-import { английский } from '../i18n.js?v=23.88.59';
-import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.59';
-import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.88.59';
-import { ссылкиТрека } from './music.js?v=23.88.59';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм } from './conception.js?v=23.88.59';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.68';
+import { английский } from '../i18n.js?v=23.88.68';
+import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.68';
+import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.88.68';
+import { ссылкиТрека } from './music.js?v=23.88.68';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей } from './conception.js?v=23.88.68';
+import { сдвигиЧата } from '../turn-notes.js?v=23.88.68';
 
 let окноОткрыто = false;
 
@@ -79,10 +80,29 @@ function вкладкаРужей(отчёт, поиск) {
   }).join('');
 }
 
+// Доверие пары: график сдвигов и за что. Копится в чате (turn-notes.js).
+function графикДоверия(записи) {
+  const точки = [записи[0].было, ...записи.map(з => з.стало)];
+  const x = (i) => (i / Math.max(1, точки.length - 1) * 200).toFixed(1), y = (v) => (40 - Math.max(0, Math.min(100, v)) * .38).toFixed(1);
+  return `<svg class="hud-arc-trust" viewBox="0 0 200 42" preserveAspectRatio="none" aria-hidden="true"><path d="M${точки.map((v, i) => `${x(i)} ${y(v)}`).join('L')}"/></svg>`;
+}
+function поворотыДоверия(поиск) {
+  const пары = new Map();
+  for (const з of сдвигиЧата()) {
+    const имя = `${з.кто} → ${з.кому}`;
+    if (поиск && !(имя + ' ' + з.почему).toLowerCase().includes(поиск)) continue;
+    if (!пары.has(имя)) пары.set(имя, []);
+    пары.get(имя).push(з);
+  }
+  return [...пары].map(([имя, записи]) => `<div class="hud-arc-card"><div class="hud-arc-card-head">🤍 <b>${escapeHtml(имя)}</b></div>${графикДоверия(записи)}`
+    + записи.slice(-8).map(з => `<div class="hud-arc-row"><label class="${з.d > 0 ? 'is-up' : 'is-down'}">${з.d > 0 ? '+' : ''}${з.d}${з.шрам ? ' 🩹' : ''}</label><div class="hud-arc-path">${escapeHtml(з.почему || 'без причины')} ${ссылка(з.индекс)}</div></div>`).join('')
+    + `</div>`).join('');
+}
 function вкладкаОтношений(отчёт, поиск) {
   const имена = Object.keys(отчёт.relations);
-  if (!имена.length) return '<div class="hud-arc-empty">В этом отрезке отношения не менялись</div>';
-  const куски = [];
+  const повороты = поворотыДоверия(поиск);
+  if (!имена.length) return повороты || '<div class="hud-arc-empty">В этом отрезке отношения не менялись</div>';
+  const куски = повороты ? [повороты] : [];
   for (const субъект of имена) {
     const цели = отчёт.relations[субъект];
     const строки = Object.keys(цели).filter(цель => !поиск ||
@@ -113,7 +133,13 @@ function вкладкаБеременностей(поиск) {
     + `<dl>${Number.isFinite(з.дата) ? `<dt>Когда</dt><dd>${дм(з.дата)}</dd>` : ''}`
     + (Number.isFinite(з.неделя) ? `<dt>Срок</dt><dd>${з.неделя}-я неделя</dd>` : '')
     + (з.отец ? `<dt>Отец</dt><dd>${escapeHtml(имяБезПриставки(з.отец))}</dd>` : '')
-    + `<dt>Кто знает</dt><dd>${з.знают ? escapeHtml(з.знают) : 'не записано'}</dd></dl></section>`).join('');
+    + `<dt>Кто знает</dt><dd>${з.знают ? escapeHtml(з.знают) : 'не записано'}</dd></dl></section>`).join('') + журналБеременностейHTML();
+}
+function журналБеременностейHTML() {
+  const журнал = журналБеременностей();
+  if (!журнал.length) return '';
+  return `<details class="hud-arc-card hud-arc-preglog"><summary>Журнал событий</summary><ul>${журнал.slice(-40).reverse().map(з => `<li>${Number.isFinite(з.дата) ? `<time>${дм(з.дата)}</time> ` : ''}<b>${escapeHtml(имяМатери(з.кто))}</b> ${escapeHtml(з.что)}</li>`).join('')}</ul>`
+    + `<button type="button" class="hud-arc-again" data-arc-preglog="1">Скачать журнал</button></details>`;
 }
 
 function вкладкаХронологии(отчёт, поиск) {
@@ -552,6 +578,16 @@ export function openArchiveDialog() {
     if (!г || !api || typeof api.enqueueMany !== 'function') return;
     const треки = (г.soundtrack || []).filter(т => т.ok !== false).map(т => т.a + ' - ' + т.t);
     try { api.enqueueMany(треки); мт.textContent = 'в очереди: ' + треки.length; } catch (_) { мт.textContent = 'MoodTube не принял'; }
+  });
+
+  // Журнал беременностей — файлом, для разбора странностей.
+  тело.addEventListener('click', (e) => {
+    if (!e.target.closest('[data-arc-preglog]')) return;
+    const ссылкаНаФайл = document.createElement('a');
+    ссылкаНаФайл.href = URL.createObjectURL(new Blob([JSON.stringify(журналБеременностей(), null, 2)], { type: 'application/json' }));
+    ссылкаНаФайл.download = 'hud-pregnancy-log.json';
+    ссылкаНаФайл.click();
+    setTimeout(() => URL.revokeObjectURL(ссылкаНаФайл.href), 5000);
   });
 
   // Клик по номеру сообщения — прокрутка к нему в чате.

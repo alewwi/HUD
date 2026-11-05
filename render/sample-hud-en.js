@@ -110,7 +110,7 @@ export const ПРИМЕР_HUD = {
       NG: 'Rudeness to his wife: never',
       NT: 'Work talk in bed: kills it at once',
       Mrk: 'Scratches: shoulder — two pink lines | 1d; Split skin: knuckles of the right hand — punched a wall, dried blood | 3d',
-      Tr: 'Anna Grey: 95; Lilian Grey: 70; Eleanor Grey: 60; {{user}}: 30',
+      Tr: 'Anna Grey: 95; Lilian Grey: 70 (owned up about the letter); Eleanor Grey: 60 (!read his letters without asking); {{user}}: 30',
       Fr: 'Something happened to my sister: moderate',
     },
     {
@@ -122,7 +122,7 @@ export const ПРИМЕР_HUD = {
       B: 'sleepy, happy, her lower back pulls a little',
       H: 'the pregnancy is going well, mild anemia',
       Ill: 'nm: anemia of pregnancy; sg: stable; rc: 80%; sy: tired by the evening; trt: iron supplements',
-      Prg: 'wk: 22; due: 20.02.2025; fa: Mark Grey; sy: heartburn, movements in the evenings, lower back pulls; knw: Mark Grey, Lilian Grey, Eleanor Grey; cnd: no complications; gnd: girl; bnm: Sophia; vis: ultrasound on Friday, 10:30; crv: pickles with honey',
+      Prg: 'wk: 22; due: 20.02.2025; fa: Mark Grey; sy: heartburn, movements in the evenings, lower back pulls; knw: Mark Grey, Lilian Grey, Eleanor Grey; cnd: threatened miscarriage after a fall, under observation; gnd: girl; bnm: Sophia; vis: ultrasound on Friday, 10:30; crv: pickles with honey',
       Ph: 'sleepy and craving something salty',
       L: 'her and Mark\'s apartment on Forest Street, bedroom',
       Th: 'The baby is kicking — probably can\'t sleep either.',
@@ -170,8 +170,22 @@ export const ПРИМЕР_HUD = {
       Fl: 'wants to meet «this {{user}}»',
       St: 'widow',
       SS: 'empty',
-      Tr: 'Mark Grey: 80; Anna Grey: 65; Lilian Grey: 50',
+      Tr: 'Mark Grey: 80; Anna Grey: 65; Lilian Grey: 50 (took her side at dinner)',
       Fr: 'My daughter will repeat my mistake: high',
+    },
+    {
+      N: 'Mira Sol',
+      A: '28, 02.04.1996',
+      C: 'an oversized grey sweater, jeans, warm socks',
+      Ap: 'F, 165 cm, dark jaw-length hair, brown eyes, pale skin',
+      R: "{{user}}'s colleague at the paper",
+      B: 'pale, running on strong tea',
+      H: 'recovering after a loss',
+      Mns: 'phs: paused',
+      L: 'Moscow, her own flat, the kitchen',
+      Th: 'Tell no one. Not yet.',
+      Tr: '{{user}}: 60',
+      Rl: '{{user}}: colleague, the only one who noticed',
     },
     {
       N: 'Kira Lis',
@@ -230,6 +244,8 @@ export const ПРИМЕР_HUD = {
       'Mark is against his sister\'s relationship with {{user}}',
     ],
     gun: [
+      'Repay the workshop loan | Lilian Grey | building | 25.10.2024 | main',
+      'Hand the atlas to the client | Lilian Grey | open | 15.10.2024 | short',
       'The confession letter in the bag | Lilian Grey | fired',
       'The missing earring | Lilian Grey | open',
       'Mark\'s talk with Oleg about «checking up» on {{user}} | Mark Grey | building',
@@ -430,8 +446,36 @@ export const ПРИМЕР_HUD = {
   ],
 };
 
+const Д = (г, м, ч) => Date.UTC(г, м - 1, ч);
+/** Заметки хода примера: шрамы, вес, приглашение, запущенное состояние. */
+export const ПРИМЕР_ЗАМЕТОК = (игрок = '') => ({
+  сдвиги: [{ id: 'пример', кто: 'Mark Grey', кому: 'Eleanor Grey', индекс: 1, d: -25, было: 85, стало: 60, почему: 'read his letters without asking', шрам: true }],
+  приглашения: [{ id: 'пример', кто: 'Eleanor Grey', что: 'family dinner on Saturday', когда: '19.10.2024, 19:00', дата: Д(2024, 10, 19), индекс: 0, ответ: '', ждёт: true }],
+  запущено: { 'Kira Lis': { сон: Д(2024, 10, 14), еда: Д(2024, 10, 15) } },
+  вес: {
+    'Mark Grey': { рост: 186, вес: 84, ккал: 2700, дата: Д(2024, 10, 17), возраст: 29, женщина: false, неделя: 0, история: [{ вес: 84, дата: Д(2024, 10, 17) }] },
+    'Eleanor Grey': { рост: 163, вес: 63, ккал: 1700, дата: Д(2024, 10, 17), возраст: 56, женщина: true, неделя: 0, история: [{ вес: 63, дата: Д(2024, 10, 17) }] },
+    'Kira Lis': { рост: 170, вес: 66, ккал: 2300, дата: Д(2024, 10, 17), возраст: 30, женщина: true, неделя: 0, история: [{ вес: 66, дата: Д(2024, 10, 17) }] },
+    'Mira Sol': { рост: 165, вес: 52, ккал: 1300, дата: Д(2024, 10, 17), возраст: 28, женщина: true, неделя: 0, история: [{ вес: 56, дата: Д(2024, 9, 20) }, { вес: 54, дата: Д(2024, 10, 3) }, { вес: 52, дата: Д(2024, 10, 17) }] },
+    [игрок || '{{user}}']: { рост: 170, вес: 58, ккал: 2000, дата: Д(2024, 10, 17), возраст: 26, женщина: true, неделя: 0, история: [{ вес: 58, дата: Д(2024, 10, 17) }] },
+    'Lilian Grey': { рост: 168, вес: 57, ккал: 1900, дата: Д(2024, 10, 17), возраст: 25, женщина: true, неделя: 0, история: [{ вес: 58.5, дата: Д(2024, 9, 26) }, { вес: 57.8, дата: Д(2024, 10, 3) }, { вес: 57, дата: Д(2024, 10, 17) }] },
+    'Anna Grey': { рост: 165, вес: 68, ккал: 2300, дата: Д(2024, 10, 17), возраст: 30, женщина: true, неделя: 22, история: [{ вес: 64, дата: Д(2024, 9, 1) }, { вес: 66, дата: Д(2024, 10, 1) }, { вес: 68, дата: Д(2024, 10, 17) }] },
+  },
+});
+
 export const ПРИМЕР_СЕМЬИ = () => ({
-  броски: {}, судьба: {}, плоды: {},
+  броски: {}, судьба: {},
+  // Угроза и осмотры у Анны, потеря одного из двойни, выкидыш у Миры.
+  плоды: { 'char:Anna Grey': { ключ: 'пример', тип: 'fraternal', полы: ['f', 'm'], судьба: { тип: 'one', полы: ['f'] }, вСюжете: true } },
+  беременности: { 'char:Anna Grey': { lmp: Д(2024, 5, 16), от: 'модель' } },
+  угрозы: { 'char:Anna Grey': { ключ: 'пример', шанс: 30, бросок: 64, итог: 'keep', плодов: 1, проверено: true, судьба: null, видели: Д(2024, 10, 17) } },
+  осмотры: { 'char:Anna Grey': [{ порог: 12, осложнение: '', находка: '', проверено: true, снято: false }, { порог: 20, осложнение: 'anemia', находка: 'polydactyly', проверено: true, снято: false }] },
+  журнал: [{ кто: 'char:Anna Grey', что: 'check-up at week 20 opened', дата: Д(2024, 10, 1) }, { кто: 'char:Mira Sol', что: 'Miscarriage, marked with the button', дата: Д(2024, 9, 28) }],
+  потери: [
+    { id: 'пример1', кто: 'char:Anna Grey', когда: '02.09.2024', дата: Д(2024, 9, 2), вид: 'miscarriage', неделя: 16, часть: 1, осталось: 1, было: 2, знают: 'Mark Grey', отец: 'Mark Grey' },
+    { id: 'пример2', кто: 'char:Mira Sol', когда: '28.09.2024', дата: Д(2024, 9, 28), вид: 'miscarriage', неделя: 7, lmp: Д(2024, 8, 12), циклК: Д(2024, 11, 2), знают: '{{user}}', отец: '', было: 1 },
+  ],
+
   зачатие: { user: { когда: '22.09.2024, 23:10', проверено: true } },
   роды: [
     { кто: 'char:Anna Grey', когда: '12.08.2023, 05:40', дата: null, отец: 'Mark Grey', тип: 'fraternal', полы: ['f', 'm'], число: 2 },
