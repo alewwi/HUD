@@ -12,15 +12,16 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.88.43';
-import { т } from './i18n.js?v=23.88.43';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.88.43';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.88.43';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.88.43';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.88.43';
-import { заменитьHudБлоки } from './hud-block.js?v=23.88.43';
-import { упомянутВТексте } from './names.js?v=23.88.43';
-import { списокВыключенного, убратьВыключенное } from './deep-fields.js?v=23.88.43';
+import { settings } from './settings.js?v=23.88.53';
+import { т } from './i18n.js?v=23.88.53';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.88.53';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.88.53';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.88.53';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.88.53';
+import { заменитьHudБлоки } from './hud-block.js?v=23.88.53';
+import { упомянутВТексте } from './names.js?v=23.88.53';
+import { списокВыключенного, убратьВыключенное } from './deep-fields.js?v=23.88.53';
+import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.88.53';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -232,6 +233,15 @@ export function собратьСнимок(текстБлока) {
   const поПерсонажам = (ключи) => { (Array.isArray(к.cs) ? к.cs : []).forEach(c => убрать(c, ключи)); убрать(к.us, ключи); };
   if (выкл('enableIllness')) поПерсонажам(['Ill']);
   if (выкл('enablePregnancy')) поПерсонажам(['Prg']);
+  // Беременность, закрытая потерей: иначе модель перепишет Prg из снимка.
+  const сценаМс = датаИзТекста(объект(к.sc) ? к.sc.Dt : '');
+  const безПотерянной = (о, кто) => {
+    if (!объект(о) || !('Prg' in о)) return;
+    const неделя = parseInt((String(о.Prg).match(/(?:^|;)\s*wk\s*:\s*(\d+)/i) || [])[1], 10);
+    if (закрывшаяПотеря(кто, сценаМс, Number.isFinite(неделя) ? неделя : null)) delete о.Prg;
+  };
+  (Array.isArray(к.cs) ? к.cs : []).forEach(c => безПотерянной(c, 'char:' + String((c && c.N) || '').trim()));
+  безПотерянной(к.us, 'user');
   if (выкл('enableMenstruation')) поПерсонажам(['Mns']);
   if (выкл('enableIntimacyExtras')) поПерсонажам(['Pos', 'Rnd', 'Dur', 'Prt', 'Org', 'Vit', 'Snd', 'Mrk']);
 

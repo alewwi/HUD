@@ -1271,6 +1271,9 @@
 }
 .hud-arc-card-head { display: flex; align-items: center; gap: 7px; font-size: 13px; margin-bottom: 7px; }
 .hud-arc-card-head b { font-weight: 700; }
+.hud-arc-preg dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 3px 14px; margin: 0; font-size: 12.5px; }
+.hud-arc-preg dt { opacity: .68; }
+.hud-arc-preg dd { margin: 0; }
 /* Архив → Саундтрек: дни сюжета, главы подборок, треки со ссылками поиска. */
 .hud-arc-st-day { margin-bottom: 14px; }
 .hud-arc-st-date { margin: 0 0 7px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 60%, currentColor); }

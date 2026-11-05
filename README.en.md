@@ -202,6 +202,14 @@ For stories where the body and family matter — three linked blocks. Each is tu
 
 </details>
 
+**Miscarriage and abortion.** The model marks a miscarriage, abortion, missed miscarriage or stillbirth with `lost`, while a threat or bleeding stays in the "how it's going" line. If the model missed it, the **Miscarriage or abortion** button next to "The birth happened" lets you pick the kind and date. For a character without a pregnancy field, the button sits on the positive test plate. HUD closes the pregnancy for this character only: a plate replaces the countdown, and the model learns on the next turn that the pregnancy is over. Unlike Remove pregnancy, the history stays: older cards show the term as it was. **Cancel** on the plate brings everything back as it was before the mark. If you regenerate or delete the turn where the model wrote about the loss, HUD removes the mark itself. A mark made with the button stays until you cancel it.
+
+- **Recovery depends on the term.** Before week 13 the cycle returns in about 5 weeks, from week 13 in 6, from week 22 in 8. Milk appears only late: from week 16 a little may come in, from week 22 it comes in on day 2–5 and is gone in 1–2 weeks.
+- **Chance of conception.** Ovulation comes before the first period, so getting pregnant again can happen soon. Before the first ovulation there is almost no chance, until the first period it's a bit lower, then normal. After surgery, trauma or infection it stays slightly lower for about three more months.
+- **Twins and triplets.** Not all babies have to be lost: the pregnancy goes on with those who remain.
+- **Threat dice.** If the pregnancy field mentions a threatened miscarriage, HUD rolls for the outcome. The chance depends on the term and severity. You reveal the result with a button and can change fate; the model gets it only after that.
+- **What stays in the history.** The Pregnancies tab in the archive shows all births and losses of the chat and who knows about them. Losses also appear in the archive Timeline, and a miscarriage in the calendar as a memorial date; an abortion doesn't go there.
+
 **Birth and the "Nursery".** After the "The birth happened" button, pregnancy is replaced by the postpartum period: recovery and feeding. A **"Nursery"** tab appears with a card for each baby:
 - **developmental milestones** on an age scale: what the baby can already do, what's about to appear, what comes later;
 - **care norms by age:** feeding, sleep, diapers, teeth;
@@ -264,6 +272,7 @@ A summary of the whole chat history, via the **🗄 HUD archive** button in the 
 - **Guns** — Chekhov's guns: which threads are still hanging, which fired and when.
 - **Relationships** — how pairs changed: shifts in attitude and trust by turn.
 - **Timeline** — scenes by story day: where, how many turns, how much time passed.
+- **Pregnancies** — all births, miscarriages and abortions of the chat: the term, the father and who knows.
 - **Soundtrack** — music chapters by day (if scene music is on).
 - **Statistics** and **Dashboard** — how many messages and days, who talks more, the model's reply length, repetition, dull zones, scene rhythm, dialogue vs description, who mentions whom. Dashboard widgets are picked with checkboxes.
 
@@ -308,7 +317,7 @@ This part of the instruction is the largest, so by default it goes to the model 
 | ❓ **Ask about the story** | A window for questions to an assistant: why a character behaves like this, what they hide, what could happen next. It answers from the HUD, recent messages, author's notes, the card, the persona and lorebooks — whatever you choose. Nothing is written to the chat. |
 | 🎵 **Scene music** | A "now playing" strip above the tabs: a soundtrack for the moment and the music the characters hear. Picked by a separate small request from the HUD scene, again only when the scene changes or on a button; "Soundtrack" and "In the scene" can also be picked separately. Tracks are checked by search in turn — iTunes, NetEase, QQ Music, until the first hit; made-up ones are marked. The ▶ button plays a track right in the Tavern: a 30-second iTunes clip or, optionally, the full track — from YouTube via Invidious mirrors, via an unofficial NetEase service, or via MoodTube; the next one starts by itself. Volume, track count and a wish for the playlist ("music for running") are right in the open playlist. There are also links to Yandex Music, Spotify, YouTube and SoundCloud, and the MoodTube queue. A track's ♡ "like" and ⊘ "don't suggest" are your taste: the model leans toward what you liked and never suggests what you banned. Song language; a meme soundtrack (one-off button, in a funny scene, or always). Radio in the scene: the model names the station genre and a live broadcast plays — Radio Record (117 genre stations, for Russia and Russian genres) or world stations from the radio-browser catalog. A floating "now playing" icon while the music's card is out of view. Scene background in full: a queue of full free tracks matching the scene's mood with no model request — Fonau (a Russian library, search in Russian), Audius, Incompetech (catalog built in), in the Middle Ages Wikimedia Commons; it follows a song's clip right away. The playlist is stored in the turn and in the chronicle; the archive has a "Soundtrack" tab with chapters by day. The character's phone has a "Music" app: what they listen to now, named playlists (a separate request from the card, lorebooks and latest messages; "More" adds without repeats) and their own "Liked" — it goes only into their requests. Off by default. |
 | 📚 **Save to Lorebook** | A secret or fact from the HUD becomes a lorebook entry with one button — you can let the model write it from the scene context. |
-| 🗄 **HUD archive** | A summary of the whole chat history: secrets, Chekhov's guns, relationships, timeline, statistics and a dashboard — how everything changed and how many days passed. With JSON export. |
+| 🗄 **HUD archive** | A summary of the whole chat history: secrets, Chekhov's guns, relationships, timeline, past pregnancies, statistics and a dashboard — how everything changed and how many days passed. With JSON export. |
 | ≈ **Token budget** | A "≈4.1k" chip in the card: how much the HUD instruction costs and what weighs how much in it. |
 
 ---
@@ -538,6 +547,19 @@ Since version 23.88.7 HUD settings are stored in SillyTavern too, and the freshe
 Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last N cards at once" and set a card limit. If the chat itself is slow to save and open, press **🗜 Unload** (⚡ Performance → 🗜 Unload the chat): the chat file gets several times lighter, and everything comes back with one button.
 
 ---
+
+## Changelog
+
+The latest version is **23.88.53**:
+
+- Miscarriage and abortion: marked by the model or with a button in the card, for one character only, with Cancel.
+- Twins and triplets: only some of the babies can be lost.
+- Threat dice: HUD rolls the outcome of a threatened miscarriage, and you can change fate.
+- Recovery and the chance of conception depend on the term and complications.
+- Pregnancies tab in the archive, losses in the Timeline, memorial dates in the calendar.
+- Delete from HUD per pill, undo, and a warning about a stale copy on another device.
+
+The full history is in [CHANGELOG.en.md](CHANGELOG.en.md).
 
 ## Development
 

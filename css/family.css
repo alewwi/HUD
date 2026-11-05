@@ -121,7 +121,7 @@
 .hud-fetus-traits .row { flex: 1 1 100%; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
 
 /* --- Роды ------------------------------------------------------------------- */
-.hud-birth-row { margin-top: 10px; }
+.hud-birth-row { margin-top: 10px; display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; }
 .hud-birth-btn { padding: 6px 14px; border-radius: var(--hud-r-chip); font: inherit; font-size: .84em; cursor: pointer; color: inherit;
   border: 1px solid color-mix(in srgb, var(--fam-acc) 50%, transparent); background: linear-gradient(90deg, color-mix(in srgb, var(--fam-girl) 22%, transparent), color-mix(in srgb, var(--fam-boy) 22%, transparent)); transition: box-shadow .2s; }
 @media (hover: hover) and (pointer: fine) { .hud-birth-btn:hover { box-shadow: 0 0 14px color-mix(in srgb, var(--fam-acc) 40%, transparent); } }

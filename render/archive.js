@@ -6,11 +6,12 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.43';
-import { английский } from '../i18n.js?v=23.88.43';
-import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.43';
-import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.88.43';
-import { ссылкиТрека } from './music.js?v=23.88.43';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.53';
+import { английский } from '../i18n.js?v=23.88.53';
+import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.53';
+import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.88.53';
+import { ссылкиТрека } from './music.js?v=23.88.53';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм } from './conception.js?v=23.88.53';
 
 let окноОткрыто = false;
 
@@ -100,12 +101,28 @@ function вкладкаОтношений(отчёт, поиск) {
   return куски.length ? куски.join('') : '<div class="hud-arc-empty">По запросу ничего не нашлось</div>';
 }
 
+// Прошлые беременности: роды, выкидыши, аборты. Считает не отчёт, а записи
+// чата (render/conception.js), поэтому показываются за весь чат.
+const имяМатери = (кто) => кто === 'user' ? (window.SillyTavern?.getContext?.()?.name1 || 'Игрок') : имяБезПриставки(String(кто).replace(/^char:/, ''));
+const названиеИсхода = (з) => з.вид === 'birth' ? (з.было > 1 ? 'Роды, ' + з.было : 'Роды')
+  : (ВИДЫ_ПОТЕРИ[з.вид] || ВИДЫ_ПОТЕРИ.miscarriage).имя + (з.часть ? ` одного из ${з.было}` : '');
+function вкладкаБеременностей(поиск) {
+  const все = историяБеременностей().filter(з => !поиск || [имяМатери(з.кто), названиеИсхода(з), з.отец, з.знают].join(' ').toLowerCase().includes(поиск));
+  if (!все.length) return `<div class="hud-arc-empty">${поиск ? 'По запросу ничего не нашлось' : 'Родов и потерь в этом чате пока не было'}</div>`;
+  return все.map(з => `<section class="hud-arc-card hud-arc-preg is-${з.вид}"><div class="hud-arc-card-head"><b>${escapeHtml(названиеИсхода(з))}</b><span>${escapeHtml(имяМатери(з.кто))}</span></div>`
+    + `<dl>${Number.isFinite(з.дата) ? `<dt>Когда</dt><dd>${дм(з.дата)}</dd>` : ''}`
+    + (Number.isFinite(з.неделя) ? `<dt>Срок</dt><dd>${з.неделя}-я неделя</dd>` : '')
+    + (з.отец ? `<dt>Отец</dt><dd>${escapeHtml(имяБезПриставки(з.отец))}</dd>` : '')
+    + `<dt>Кто знает</dt><dd>${з.знают ? escapeHtml(з.знают) : 'не записано'}</dd></dl></section>`).join('');
+}
+
 function вкладкаХронологии(отчёт, поиск) {
   // Даты и локации — один поток событий: так видно, что переезд случился
-  // в тот же вечер, а не «когда-то между».
+  // в тот же вечер, а не «когда-то между». Потери — там же, у своего хода.
   const события = [
     ...отчёт.dates.map(d => ({ at: d.at, kind: 'date', text: d.date + (d.time ? `, ${d.time}` : '') })),
     ...отчёт.locations.map(l => ({ at: l.at, kind: 'place', text: l.place })),
+    ...историяБеременностей().filter(з => Number.isInteger(з.сообщение)).map(з => ({ at: з.сообщение, kind: 'life', text: `${названиеИсхода(з)} · ${имяМатери(з.кто)}` })),
   ].filter(e => !поиск || e.text.toLowerCase().includes(поиск))
    .sort((a, b) => a.at - b.at || (a.kind === 'date' ? -1 : 1));
 
@@ -119,7 +136,7 @@ function вкладкаХронологии(отчёт, поиск) {
   return шапка + '<div class="hud-arc-timeline">' + события.map(e => `
     <div class="hud-arc-event is-${e.kind}">
       <span class="hud-arc-dot"></span>
-      <span class="hud-arc-when">${e.kind === 'date' ? '📅' : '📍'} ${escapeHtml(e.text)}</span>
+      <span class="hud-arc-when">${e.kind === 'date' ? '📅' : e.kind === 'life' ? '🥀' : '📍'} ${escapeHtml(e.text)}</span>
       ${ссылка(e.at)}
     </div>`).join('') + '</div>';
 }
@@ -426,6 +443,7 @@ export function openArchiveDialog() {
         <button type="button" data-tab="guns">Ружья</button>
         <button type="button" data-tab="relations">Отношения</button>
         <button type="button" data-tab="timeline">Хронология</button>
+        <button type="button" data-tab="pregnancies">Беременности</button>
         <button type="button" data-tab="soundtrack">Саундтрек</button>
         <button type="button" data-tab="stats">Статистика</button>
         <button type="button" data-tab="dash">Дашборд</button>
@@ -504,6 +522,7 @@ export function openArchiveDialog() {
       : активная === 'guns' ? вкладкаРужей(отчёт, поиск)
       : активная === 'relations' ? вкладкаОтношений(отчёт, поиск)
       : активная === 'timeline' ? вкладкаХронологии(отчёт, поиск)
+      : активная === 'pregnancies' ? вкладкаБеременностей(поиск)
       : активная === 'soundtrack' ? вкладкаСаундтрека(отчёт, поиск)
       : активная === 'dash' ? buildDashboardHTML(отчёт)
       : вкладкаСтатистики(отчёт);

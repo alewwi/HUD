@@ -12,9 +12,9 @@
 // Не разобрали данные — пустая строка, и поле рисуется по-старому.
 // Оформление — css/views-fields.css.
 
-import { escapeHtml, разбитьСписок } from '../utils.js?v=23.88.43';
-import { ИКОНКИ } from './view-icons.js?v=23.88.43';
-import { знакЗодиака as знакНаЯзыке } from '../i18n.js?v=23.88.43';
+import { escapeHtml, разбитьСписок } from '../utils.js?v=23.88.53';
+import { ИКОНКИ } from './view-icons.js?v=23.88.53';
+import { знакЗодиака as знакНаЯзыке } from '../i18n.js?v=23.88.53';
 
 const т = (s) => escapeHtml(String(s ?? '').trim());
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто|—|-)$/i.test(String(v).trim());
@@ -33,6 +33,16 @@ function куски(value) {
   let ч = разбитьСписок(s).map(x => x.trim()).filter(Boolean);
   if (ч.length < 2) ч = склеитьПридаточные(s.split(/,\s*(?![^()]*\))/).map(x => x.trim()).filter(Boolean));
   return ч.filter(x => !пусто(x)).map(x => x.replace(/[.;]+$/, ''));
+}
+// Тело и физиология — обычно фразы: запятая там идёт внутри мысли («сидит в
+// машине, удерживая её на коленях»), пункты разделяет «;». По запятым режем
+// только настоящий короткий перечень: «голод, жажда, лёгкий озноб».
+function фразы(value) {
+  const чисто = (ч) => ч.map(x => x.trim()).filter(x => x && !пусто(x)).map(x => x.replace(/[.;]+$/, ''));
+  const в = чисто(разбитьСписок(value));
+  if (в.length !== 1) return в;
+  const перечень = склеитьПридаточные(в[0].split(/,\s*(?![^()]*\))/).map(x => x.trim()).filter(Boolean));
+  return перечень.every(x => слов(x) <= 3) ? чисто(перечень) : в;
 }
 // Запятая перед придаточным или деепричастием — не новый пункт:
 // «поглядывает в сторону бара, будучи уверенным, что Софи приревновала»
@@ -333,7 +343,7 @@ function видРоли(value, вид) {
 const СИЛУЭТ = 'M12 2.6a2.6 2.6 0 1 1 0 5.2 2.6 2.6 0 0 1 0-5.2Z M8.4 9.4h7.2l1.6 6.2-1.8.4-1.2-4v11.4h-2V17h-.4v6.4h-2V12l-1.2 4-1.8-.4Z';
 // Тело: силуэт и ощущения столбиком по «позвоночнику».
 export function видТела(value) {
-  const в = куски(value);
+  const в = фразы(value);
   if (!в.length) return '';
   return `<div class="hud-v hud-f hud-f-body"><svg class="hud-f-fig" viewBox="0 0 24 26" aria-hidden="true"><path d="${СИЛУЭТ}"/></svg>`
     + `<ul>${в.map((x, i) => `<li style="--i:${i}">${т(с1(x))}</li>`).join('')}</ul></div>`;
@@ -371,7 +381,7 @@ const ТОЧКИ_ТЕЛА = { head: [50, 14], mouth: [50, 22], chest: [50, 44], 
 // Фигура для тепловизора: симметричная, ось — x = 50.
 const ФИГУРА = 'M50 4a11 11 0 1 0 0 22a11 11 0 1 0 0-22Z M38 30H62C68 30 72 34 73 40L78 70L72 72L66 48V76L69 118H60L56 82H44L40 118H31L34 76V48L28 72L22 70L27 40C28 34 32 30 38 30Z';
 function видФизиологии(value, вид) {
-  const в = куски(value);
+  const в = фразы(value);
   if (!в.length) return '';
   if (вид === 'sensors') {
     // Пульт датчиков: дуга-шкала, значок, своя кривая и слово силы.

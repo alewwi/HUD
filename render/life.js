@@ -18,17 +18,17 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.43';
-import { settings } from '../settings.js?v=23.88.43';
-import { разобратьХод } from './carryover.js?v=23.88.43';
-import { моментСцены } from './intimacy.js?v=23.88.43';
-import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.88.43';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.43';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.43';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.88.43';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.43';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.88.43';
-import { английский } from '../i18n.js?v=23.88.43';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.53';
+import { settings } from '../settings.js?v=23.88.53';
+import { разобратьХод } from './carryover.js?v=23.88.53';
+import { моментСцены } from './intimacy.js?v=23.88.53';
+import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.88.53';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.53';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.53';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.88.53';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.53';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.88.53';
+import { английский } from '../i18n.js?v=23.88.53';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;
