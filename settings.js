@@ -34,6 +34,8 @@ export const defaultSettings = {
   phoneAppWeather: true,
   phoneAppHealth: true,
   phoneAppMusic: true,
+  // Значки приложений: auto — набор темы, plain — обычные, иначе имя набора.
+  phoneIconsView: 'auto',
   // Эпоха снаряжения: 'modern' — телефон и перехваты, 'medieval' —
   // шкатулка (письма, святцы, кошель, записи, карта, грамоты, памятки) и
   // подслушанное. Вместе пары не работают: в средневековье телефонов нет.

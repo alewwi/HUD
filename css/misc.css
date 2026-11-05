@@ -7170,3 +7170,11 @@ button.hud-sum-restore.is-missing { color: var(--hud-muted-text, #9a95a6); text-
 .hud-erase-list small { display: block; margin-top: 2px; opacity: .65; font-size: .85em; }
 .hud-erase-box .hud-erase-all { display: inline-block; width: auto; margin: 0 0 10px; padding: 3px 10px; font-size: .9em; }
 .hud-erase-box > p.is-warn { color: #e0566b; opacity: 1; margin-bottom: 0; }
+
+/* =========================================================================
+   ЗНАЧКИ ПРИЛОЖЕНИЙ: наборы по темам (render/phone-icons.js)
+   Рисунок заполняет ячейку; обычный значок лежит в разметке и только прячется.
+   ========================================================================= */
+.hud-phone-app > span.has-pi { background: none !important; box-shadow: none !important; border: 0 !important; backdrop-filter: none !important; overflow: visible; position: relative; }
+.hud-phone-app > span.has-pi > :not(svg.hud-pi):not(.hud-unread-badge) { display: none; }
+.hud-phone-app > span > svg.hud-pi { width: 100%; height: 100%; display: block; filter: var(--hud-pi-tint, none) drop-shadow(0 3px 4px rgba(0, 0, 0, .4)); }

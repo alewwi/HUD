@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы } from '../utils.js?v=23.88.53';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.88.53';
-import { namesLikelySame } from '../names.js?v=23.88.53';
-import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.88.53';
-import { settings } from '../settings.js?v=23.88.53';
-import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.88.53';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.53';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы } from '../utils.js?v=23.88.55';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.88.55';
+import { namesLikelySame } from '../names.js?v=23.88.55';
+import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.88.55';
+import { settings } from '../settings.js?v=23.88.55';
+import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.88.55';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.55';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -69,6 +69,8 @@ export const ВИДЫ_БЛОКОВ = [
   { ключ: 'dreamsView', группа: 'Сны', поле: 'Сны', виды: { classic: 'Разбитое стекло', clouds: 'Облака', book: 'Сонник', night: 'Ночное небо', catcher: 'Ловец снов' } },
   { ключ: 'petView', группа: 'Спутники', поле: 'Спутник', виды: { card: 'Карточка', tama: 'Тамагочи', classic: 'Прежний' }, новый: true },
   { ключ: 'bondView', группа: 'Спутники', поле: 'Привязанность', виды: { bars: 'Полоска', hearts: 'Сердца', paw: 'Лапа', tag: 'Жетон' } },
+  // Значки приложений телефона (render/phone-icons.js): авто — набор темы.
+  { ключ: 'phoneIconsView', группа: 'Телефон', поле: 'Иконки приложений', виды: { auto: 'Авто по теме', plain: 'Обычные', vamp: 'Vamp', voodoo: 'Вуду', spacehorror: 'Космохоррор', cyberpunk: 'Киберпанк', spaceopera: 'Космоопера', biopunk: 'Биопанк', steampunk: 'Стимпанк', dieselpunk: 'Дизельпанк', western: 'Вестерн', pirate: 'Пираты', academia: 'Dark Academia', medieval: 'Средневековье', egypt: 'Древний Египет', bujo: 'Буллет-джорнал', witch: 'Ведьмовство', fantasy: 'Фэнтези', kawaii: 'Каваи', teaparty: 'Чаепитие', cottage: 'Коттеджкор', solarpunk: 'Солярпанк', ice: 'Лёд', ocean: 'Глубина', noir: 'Нуар', mafia: 'Криминал', darkroom: 'Фотолаборатория', japan: 'Феодальная Япония', web1: 'Web 1.0' }, новый: true },
   // Вкладка «Мир» (render/world-views.js) — в порядке её блоков.
   { ключ: 'newsView', группа: 'Мир', поле: 'Главные новости', виды: { classic: 'Лента', front: 'Первая полоса', tv: 'Эфир', radio: 'Радиоприёмник' } },
   { ключ: 'rumorsView', группа: 'Мир', поле: 'Слухи', виды: { classic: 'Список', whisper: 'Шёпот', graffiti: 'Граффити', chain: 'Сарафанное радио' } },

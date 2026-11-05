@@ -3543,6 +3543,8 @@ export const СЛОВАРЬ_EN = {
   "Вернуть то, что выпало на кубике": "Restore what the die rolled",
   "↺ Откатить": "↺ Roll back",
   "Откатить": "Roll back",
+  "Иконки приложений": "App icons",
+  "Авто по теме": "Auto by theme",
   "Удалить плашки: включить режим": "Delete items: turn on the mode",
   "Режим удаления": "Delete mode",
   "Нажмите на плашку, которую нужно удалить. Выйти — снова на корзину.": "Tap the item to delete. Tap the trash again to leave.",
