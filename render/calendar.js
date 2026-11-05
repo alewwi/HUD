@@ -14,10 +14,10 @@
 // обработчик кликов (events.js). Своего состояния у календаря нет: всё в
 // классах и data-атрибутах разметки.
 
-import { escapeHtml, defeatWI, имяБезПриставки } from '../utils.js?v=23.88.58';
-import { namesLikelySame } from '../names.js?v=23.88.58';
-import { G_ICONS } from './icons.js?v=23.88.58';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ } from './conception.js?v=23.88.58';
+import { escapeHtml, defeatWI, имяБезПриставки } from '../utils.js?v=23.88.59';
+import { namesLikelySame } from '../names.js?v=23.88.59';
+import { G_ICONS } from './icons.js?v=23.88.59';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ } from './conception.js?v=23.88.59';
 
 const МЕСЯЦЫ_РОД = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const МЕСЯЦЫ = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];

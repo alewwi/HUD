@@ -352,7 +352,7 @@ function палитра([id, , сем, A, bg1, bg2, доп = {}]) {
   });
   if (сем === 'retro') Object.assign(p, {
     main: ['#0000a8', '#0000a8', '#0000a8'], dark: ['#000080', '#000080'], second: ['#ffffff', '#ffffff', '#ffffff'],
-    leather: ['#808080', '#808080'], tile: ['#c0c0c0', '#c0c0c0', '#c0c0c0'], ink: '#000', gold: '#ffff00',
+    leather: ['#808080', '#808080'], tile: ['#c0c0c0', '#c0c0c0', '#c0c0c0'], ink: '#000000', gold: '#ffff00',
     glowA: 0, rim: '#000', shade: '#000040', sky: ['#008080', '#008080'], label: '#000',
   });
   return { ...p, light, сем, id };
@@ -790,7 +790,7 @@ if (!БЕЗ_ОБМЕРА) {
       иконки[id] = сПриставкой(внутри);
     });
     fs.writeFileSync(path.join(ПАПКА, т[0] + '.js'), '// Собрано tests/tools/phone-icons-stand/build.mjs — руками не править.\n'
-      + 'export default ' + JSON.stringify({ сем: т[2], свет: p.light || т[0] === 'mafia', defs: сПриставкой(defs(p) + вырезки.join('')), vars: сПриставкой(varsТемы(p)), иконки }) + ';\n');
+      + 'export default ' + JSON.stringify({ сем: т[2], свет: p.light || т[0] === 'mafia', опора: т[3], главный: { medieval: '#2f5fa8' }[т[0]] || (т[6] && т[6].main) || т[3], defs: сПриставкой(defs(p) + вырезки.join('')), vars: сПриставкой(varsТемы(p)), иконки }) + ';\n');
   }
   console.log('наборы HUD:', ТЕМЫ.length);
 }
