@@ -6,19 +6,19 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { parseSceneDate } from '../history-analyzer.js?v=23.88.80';
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.88.80';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.80';
-import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.88.80';
-import { отложитьРисунок } from './lazy-svg.js?v=23.88.80';
-import { длинныйСписок } from './long-list.js?v=23.88.80';
-import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.88.80';
-import { общиеМеста } from './route-places.js?v=23.88.80';
-import { статусРужья } from '../codes.js?v=23.88.80';
-import { сеткаСекретов, вопросыСекретов } from './secrets-grid.js?v=23.88.80';
-import { кнопкаУдаления, кнопкаПодсказки } from './erase-button.js?v=23.88.80';
-import { приглашенияБезОтвета, разобратьНить } from '../turn-notes.js?v=23.88.80';
-import { дм } from './conception.js?v=23.88.80';
+import { parseSceneDate } from '../history-analyzer.js?v=23.88.81';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.88.81';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.81';
+import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.88.81';
+import { отложитьРисунок } from './lazy-svg.js?v=23.88.81';
+import { длинныйСписок } from './long-list.js?v=23.88.81';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.88.81';
+import { общиеМеста } from './route-places.js?v=23.88.81';
+import { статусРужья } from '../codes.js?v=23.88.81';
+import { сеткаСекретов, вопросыСекретов } from './secrets-grid.js?v=23.88.81';
+import { кнопкаУдаления, кнопкаПодсказки } from './erase-button.js?v=23.88.81';
+import { приглашенияБезОтвета, разобратьНить } from '../turn-notes.js?v=23.88.81';
+import { дм } from './conception.js?v=23.88.81';
 
 function parseRoutePoint(item) {
   // Модель иногда ставит дату перед временем («09.11, 22:15») — дату отбрасываем.

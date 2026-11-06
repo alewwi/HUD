@@ -4420,11 +4420,11 @@ body.no-blur .hud-scene-time-group, body.no-blur .hud-weather-item, body.no-blur
   }
 }
 
+/* Тело вкладки отдаёт прокрутку чату: иначе палец на карточке не мог листать
+   ход дальше. Переписка телефона — отдельный экран, она держит свою. */
 @media (max-width: 480px) {
-  .hud-memory-body, .hud-phone-chat-area, .hud-body {
-    overscroll-behavior: contain;
-    touch-action: pan-y;
-  }
+  .hud-memory-body, .hud-phone-chat-area, .hud-body { touch-action: pan-y; }
+  .hud-phone-chat-area { overscroll-behavior: contain; }
 }
 
 .hud-phone-empty {

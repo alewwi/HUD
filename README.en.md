@@ -572,8 +572,11 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.80**:
+The latest version is **23.88.81**:
 
+- Chats open much faster: on a long chat the text appears about 13 seconds sooner.
+- A swipe scrolls through the whole turn: the list, the tab and the chat.
+- The Unconscious plate no longer shows for someone else's state from thoughts and subtext.
 - The code is now released under GNU AGPL-3.0.
 - An "Are you sure?" question before deleting: the dialog says whether it can be undone.
 - The Body field asks for a state, not a retelling of actions.

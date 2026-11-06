@@ -16,24 +16,26 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.80';
-import { уверены } from './confirm-erase.js?v=23.88.80';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.88.80';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.88.80';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.88.80';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.88.80';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.88.80';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.88.80';
-import { полныйПорядок } from './tabs-order.js?v=23.88.80';
-import { getWorldVotes } from './render/world.js?v=23.88.80';
-import { действиеМира } from './render/world-views.js?v=23.88.80';
-import { действиеМузыки } from './render/music.js?v=23.88.80';
-import { раскрытьПорцию } from './render/long-list.js?v=23.88.80';
-import { прогретьИсторию } from './render/carryover.js?v=23.88.80';
-import { подключитьПалитру } from './color-picker.js?v=23.88.80';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.88.80';
-import { замер } from './utils.js?v=23.88.80';
-import { пометитьЭффекты } from './render/fx.js?v=23.88.80';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.81';
+import { уверены } from './confirm-erase.js?v=23.88.81';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.88.81';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.88.81';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.88.81';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.88.81';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.88.81';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.88.81';
+import { полныйПорядок } from './tabs-order.js?v=23.88.81';
+import { getWorldVotes } from './render/world.js?v=23.88.81';
+import { действиеМира } from './render/world-views.js?v=23.88.81';
+import { действиеМузыки } from './render/music.js?v=23.88.81';
+import { раскрытьПорцию } from './render/long-list.js?v=23.88.81';
+import { прогретьИсторию } from './render/carryover.js?v=23.88.81';
+import { подключитьПалитру } from './color-picker.js?v=23.88.81';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.88.81';
+import { замер } from './utils.js?v=23.88.81';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.88.81';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.88.81';
+import { пометитьЭффекты } from './render/fx.js?v=23.88.81';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -237,6 +239,8 @@ function исходнаяТема(id, пал = settings.themePalette || "") {
 }
 
 export function initGlobalEvents(ctx) {
+  подключитьЦепочкуПрокрутки();
+  подключитьПропускПодсветки();
   подключитьПалитру();
   подключитьЗаменуЭмодзи();
   // settings и getWorldVotes раньше брались из ctx, но index.js их туда не
@@ -1588,18 +1592,23 @@ export function initObserver(ctx, chatContainer) {
       }
       try { performance.mark('hud:пачка:' + ЖДУЩИЕ.size); } catch (_) {}
       разборНачат = 0;
-      const пачка = [...ЖДУЩИЕ];
+      // Снизу вверх и с передышками: чат открывается на последнем ходе, его
+      // карточка нужна первой. Иначе вся сотня шла одним куском и экран стоял
+      // две секунды, а последний ход собирался самым последним.
+      const пачка = [...ЖДУЩИЕ].reverse();
       ЖДУЩИЕ.clear();
       if (аватаркиМенялись) { invalidateAvatarCache(); аватаркиМенялись = false; }
 
       const performanceActive = isPerformanceModeActive(chatContainer);
-      пачка.forEach(mes => {
-        if (!mes.isConnected) return;
+      let кусок = performance.now();
+      for (const mes of пачка) {
+        if (!mes.isConnected) continue;
         // В Performance Mode старые сообщения не гоняем через полный процессор на каждую
         // внутреннюю мутацию. IntersectionObserver обработает их, когда они приблизятся к экрану.
-        if (performanceActive && mes.classList.contains('hud-perf-older') && !mes.classList.contains('hud-perf-visible')) return;
+        if (performanceActive && mes.classList.contains('hud-perf-older') && !mes.classList.contains('hud-perf-visible')) continue;
         safeProcessMessage(mes);
-      });
+        if (performance.now() - кусок > РАЗБОР_КУСОК) { await new Promise(r => setTimeout(r)); кусок = performance.now(); }
+      }
       if (performanceActive) refreshPerformanceMessageClasses();
       schedulePerformanceRefresh();
     };
@@ -1992,6 +2001,7 @@ const ЛЕНТЫ = '.hud-mood-history';
 // ленты мерились честно. Чтения и записи разведены по фазам: запись между
 // чтениями заставляет браузер пересчитать вёрстку заново на каждом списке —
 // в длинном чате это давало секунды. Теперь пересчётов три на весь проход.
+const РАЗБОР_КУСОК = 40;   // мс разбора подряд, потом кадр браузеру
 function ужатьСписки() { замер('ужатьСписки', ужатьСпискиСразу); }
 function ужатьСпискиСразу() {
   if (typeof window.matchMedia !== 'function' || !document.querySelectorAll) return;

@@ -4,6 +4,17 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.81 — 2026-11-06
+
+### Changed
+- **Chats open faster.** Tavern no longer colors the HUD block as code, since a card replaces it right away. On a 300-turn chat the text appeared about 13 seconds sooner: after 7 seconds instead of 20.
+- The card of the latest turn is built first, and older turns follow in small portions, so the screen freezes less.
+
+### Fixed
+- **A finger scrolls through the whole turn.** At the end of a list the swipe carries on into the tab body and then the chat. On phones the feed no longer stops at the tab body.
+- **The Unconscious plate no longer shows for someone else's state.** Thoughts and subtext no longer count: "drunk Tristan passed out" in Ares's thoughts doesn't give Ares the plate. Another person's name or "our lord" next to the word doesn't count in other fields either.
+- The plate now also understands the Russian slang «отрубился» and «в отрубе».
+
 ## 23.88.80 — 2026-11-06
 
 ### Added
