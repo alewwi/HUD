@@ -10,11 +10,12 @@
 // Дерево глубокой настройки большое (две с половиной сотни галочек), поэтому
 // собирается при первом раскрытии, а не вместе со всеми настройками.
 
-import { settings } from './settings.js?v=23.88.77';
-import { escapeHtml, mapKey } from './utils.js?v=23.88.77';
-import { т, английский } from './i18n.js?v=23.88.77';
-import { КАТАЛОГ, списокВыключенного, каталогДляНастроек } from './deep-fields.js?v=23.88.77';
-import { ВИДЫ_СТАТОВ, ЧЬИ_СТАТЫ, ВКЛАДКИ_ИСТОРИИ, ШАБЛОН_СВОИХ, ЗНАКИ_СТАТОВ, ЦВЕТА_СТАТОВ, СВОЙ_ЦВЕТ, цветСтата } from './custom-stats.js?v=23.88.77';
+import { settings } from './settings.js?v=23.88.79';
+import { escapeHtml, mapKey } from './utils.js?v=23.88.79';
+import { т, английский } from './i18n.js?v=23.88.79';
+import { уверены } from './confirm-erase.js?v=23.88.79';
+import { КАТАЛОГ, списокВыключенного, каталогДляНастроек } from './deep-fields.js?v=23.88.79';
+import { ВИДЫ_СТАТОВ, ЧЬИ_СТАТЫ, ВКЛАДКИ_ИСТОРИИ, ШАБЛОН_СВОИХ, ЗНАКИ_СТАТОВ, ЦВЕТА_СТАТОВ, СВОЙ_ЦВЕТ, цветСтата } from './custom-stats.js?v=23.88.79';
 
 // --- Глубокая настройка -------------------------------------------------------
 
@@ -183,10 +184,12 @@ export function подключитьРазделы(основа) {
   };
   список.addEventListener('input', (e) => { if (e.target.matches('input, textarea')) правка(e); });
   список.addEventListener('change', (e) => { if (e.target.matches('select')) правка(e); });
-  список.addEventListener('click', (e) => {
+  список.addEventListener('click', async (e) => {
     const del = e.target.closest('.hud-cst-ed-del');
     if (!del) return;
     const ред = del.closest('.hud-cst-ed');
+    const имя = ред.querySelector('[data-f="name"]')?.value.trim() || '';
+    if (имя && !await уверены({ что: имя, текст: 'Стат исчезнет из HUD и перестанет уходить модели. Его значения в прошлых ходах показываться не будут.' })) return;
     settings.customStats = списокСтатов().filter(с => с && с.id !== ред.dataset.id);
     показать();
     сохранить();
@@ -200,7 +203,8 @@ export function подключитьРазделы(основа) {
       settings.customStatsPrompt = промт.value.trim() === ШАБЛОН_СВОИХ.trim() ? '' : промт.value;
       основа.saveSettings();
     });
-    document.getElementById('hud-cst-prompt-reset')?.addEventListener('click', () => {
+    document.getElementById('hud-cst-prompt-reset')?.addEventListener('click', async () => {
+      if (settings.customStatsPrompt && !await уверены({ текст: 'Ваш текст промпта заменится встроенным.', кнопка: 'Вернуть встроенный' })) return;
       settings.customStatsPrompt = '';
       промт.value = ШАБЛОН_СВОИХ;
       основа.saveSettings();

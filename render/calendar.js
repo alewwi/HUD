@@ -14,13 +14,13 @@
 // обработчик кликов (events.js). Своего состояния у календаря нет: всё в
 // классах и data-атрибутах разметки.
 
-import { escapeHtml, defeatWI, имяБезПриставки } from '../utils.js?v=23.88.77';
-import { namesLikelySame } from '../names.js?v=23.88.77';
-import { G_ICONS } from './icons.js?v=23.88.77';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ } from './conception.js?v=23.88.77';
-import { праздникиГода } from './holidays.js?v=23.88.77';
-import { срокиНитей } from '../turn-notes.js?v=23.88.77';
-import { settings } from '../settings.js?v=23.88.77';
+import { escapeHtml, defeatWI, имяБезПриставки } from '../utils.js?v=23.88.79';
+import { namesLikelySame } from '../names.js?v=23.88.79';
+import { G_ICONS } from './icons.js?v=23.88.79';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ } from './conception.js?v=23.88.79';
+import { праздникиГода } from './holidays.js?v=23.88.79';
+import { срокиНитей } from '../turn-notes.js?v=23.88.79';
+import { settings } from '../settings.js?v=23.88.79';
 
 const МЕСЯЦЫ_РОД = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const МЕСЯЦЫ = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];

@@ -572,8 +572,11 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.77**:
+The latest version is **23.88.79**:
 
+- An "Are you sure?" question before deleting: the dialog says whether it can be undone.
+- The Body field asks for a state, not a retelling of actions.
+- After answering a badge, the card stays on the same tab.
 - Notes about a pregnancy loss and losing one of twins go out only until HUD has recorded them.
 - Swipe looks at the HUD of the previous message.
 - Notes about scars and the neglected state go to the model once every three replies.

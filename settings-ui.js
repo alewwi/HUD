@@ -5,27 +5,28 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { settings, defaultSettings } from './settings.js?v=23.88.77';
-import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.88.77';
-import { видБлока } from './render/views.js?v=23.88.77';
-import { escapeHtml } from './utils.js?v=23.88.77';
-import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.88.77';
-import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.88.77';
-import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.88.77';
-import { убратьМетку } from './hud-erase.js?v=23.88.77';
-import { убратьЛетопись } from './chronicle-store.js?v=23.88.77';
-import { т } from './i18n.js?v=23.88.77';
-import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.88.77';
-import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.88.77';
-import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.88.77';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.88.77';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.88.77';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.77';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.88.77';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.88.77';
-import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.88.77';
-import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.88.77';
-import { меткаШапки } from './render/topbar-icons.js?v=23.88.77';
+import { settings, defaultSettings } from './settings.js?v=23.88.79';
+import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.88.79';
+import { видБлока } from './render/views.js?v=23.88.79';
+import { escapeHtml } from './utils.js?v=23.88.79';
+import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.88.79';
+import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.88.79';
+import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.88.79';
+import { убратьМетку } from './hud-erase.js?v=23.88.79';
+import { убратьЛетопись } from './chronicle-store.js?v=23.88.79';
+import { т } from './i18n.js?v=23.88.79';
+import { уверены } from './confirm-erase.js?v=23.88.79';
+import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.88.79';
+import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.88.79';
+import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.88.79';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.88.79';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.88.79';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.79';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.88.79';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.88.79';
+import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.88.79';
+import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.88.79';
+import { меткаШапки } from './render/topbar-icons.js?v=23.88.79';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -453,6 +454,7 @@ export function addSettingsUI() {
   показатьОбъём();
   document.getElementById('hud-clear-cache').addEventListener('click', async (e) => {
     const кнопка = e.currentTarget;
+    if (!await уверены({ текст: 'Отчёты архива соберутся заново, а пометки-реакции на сообщениях пропадут. Настройки, темы и аватарки останутся.', итог: 'Реакции вернуть будет нельзя.', кнопка: 'Очистить' })) return;
     кнопка.disabled = true;
     try {
       const убрано = await clearCache();
@@ -760,7 +762,7 @@ export function addSettingsUI() {
 
   const avaHost = document.getElementById('hud-settings-wrapper');
   if (avaHost) {
-    avaHost.addEventListener('click', (e) => {
+    avaHost.addEventListener('click', async (e) => {
       const row = e.target.closest('.hud-ava-row');
       if (!row) return;
       const role = row.dataset.avaRole, id = row.dataset.avaId;
@@ -770,6 +772,7 @@ export function addSettingsUI() {
         return;
       }
       if (e.target.closest('.hud-ava-del')) {
+        if (!await уверены({ текст: 'Аватарка удалится из настроек HUD. Чтобы она снова появилась, файл придётся загрузить заново.' })) return;
         if (role === 'char') { settings.avatarCharImg = ''; settings.avatarCharNames = ''; }
         else if (role === 'user') { settings.avatarUserImg = ''; settings.avatarUserNames = ''; }
         else settings.avatarOverrides = (settings.avatarOverrides || []).filter(r => r.id !== id);
@@ -887,7 +890,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.88.77');
+      const mod = await import('./render/archive.js?v=23.88.79');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -1099,11 +1102,14 @@ export function addSettingsUI() {
     settings.musicPrompt = промптМузыки.value.trim() === ПРАВИЛА_МУЗЫКИ.trim() ? '' : промптМузыки.value;
     основа.saveSettings();
   });
-  document.getElementById('hud-music-prompt-reset').addEventListener('click', () => { промптМузыки.value = ПРАВИЛА_МУЗЫКИ; settings.musicPrompt = ''; основа.saveSettings(); });
+  document.getElementById('hud-music-prompt-reset').addEventListener('click', async () => {
+    if (settings.musicPrompt && !await уверены({ текст: 'Ваш текст промпта заменится встроенным.', кнопка: 'Вернуть встроенный' })) return;
+    промптМузыки.value = ПРАВИЛА_МУЗЫКИ; settings.musicPrompt = ''; основа.saveSettings();
+  });
   [['hud-music-enable', 'enableMusic'], ['hud-music-auto', 'musicAuto'], ['hud-music-verify', 'musicVerify'], ['hud-music-line', 'musicSceneLine'], ['hud-music-player', 'musicPlayer']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.88.77').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
+      import('./render/music.js?v=23.88.79').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
     });
   });
   document.getElementById('hud-music-profile').addEventListener('change', (e) => { settings.musicProfileId = e.target.value || ''; основа.saveSettings(); });
@@ -1133,19 +1139,20 @@ export function addSettingsUI() {
     ['hud-music-free-fonau', 'musicFreeFonau'], ['hud-music-free-audius', 'musicFreeAudius'], ['hud-music-free-incompetech', 'musicFreeIncompetech'], ['hud-music-free-commons', 'musicFreeCommons']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.88.77').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
+      import('./render/music.js?v=23.88.79').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
     });
   });
   [['hud-music-liked-clear', 'musicLiked'], ['hud-music-banned-clear', 'musicBanned']].forEach(([id, ключ]) => {
-    document.getElementById(id).addEventListener('click', () => {
+    document.getElementById(id).addEventListener('click', async () => {
+      if ((settings[ключ] || []).length && !await уверены({ текст: ключ === 'musicLiked' ? 'Весь список понравившихся треков очистится.' : 'Весь список запрещённых треков очистится.', кнопка: 'Очистить' })) return;
       settings[ключ] = []; основа.saveSettings(); вкусМузыки();
-      import('./render/music.js?v=23.88.77').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      import('./render/music.js?v=23.88.79').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
   [['hud-music-medieval', 'musicMedieval'], ['hud-music-style', 'musicStyle'], ['hud-music-source', 'musicSource']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.value; основа.saveSettings();
-      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.88.77').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.88.79').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
 
@@ -1175,7 +1182,8 @@ export function addSettingsUI() {
     settings.assistantSystemPrompt = системныйПромпт.value.trim() === ПРОМПТ_АССИСТЕНТА.trim() ? '' : системныйПромпт.value;
     основа.saveSettings();
   });
-  document.getElementById('hud-ask-system-reset').addEventListener('click', () => {
+  document.getElementById('hud-ask-system-reset').addEventListener('click', async () => {
+    if (settings.assistantSystemPrompt && !await уверены({ текст: 'Ваш текст промпта заменится встроенным.', кнопка: 'Вернуть встроенный' })) return;
     системныйПромпт.value = ПРОМПТ_АССИСТЕНТА; settings.assistantSystemPrompt = ''; основа.saveSettings();
   });
 }

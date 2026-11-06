@@ -4,6 +4,21 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.79 — 2026-11-06
+
+### Added
+- An "Are you sure?" question before deleting: a scar, your stat, your theme, images, avatars, music lists, clearing the cache and restoring a built-in prompt. The dialog says plainly whether it can be undone.
+- Dialogs for deleting pills, a pregnancy and a loss now ask the same way and explain what gets erased and how to bring it back with ↶.
+
+### Changed
+- The Body field asks the model for the person's state, not a retelling of their actions. Physiology asks for sensations, not actions.
+
+## 23.88.78 — 2026-11-06
+
+### Fixed
+- After answering a question with a badge, the card jumped back to the first tab: the number on the badge changed the tab label.
+- The Unconscious plaque squeezed its text into a thin column on a narrow card.
+
 ## 23.88.77 — 2026-11-06
 
 ### Changed

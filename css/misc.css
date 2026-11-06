@@ -6208,6 +6208,9 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
   background: linear-gradient(120deg, color-mix(in srgb, var(--hud-accent, #c31f38) 20%, transparent), color-mix(in srgb, var(--hud-accent, #c31f38) 6%, transparent));
 }
 .hud-state-plaque > i { font-style: normal; font-size: 20px; }
+/* Длинная причина и таймер: на узкой карточке таймер уходит вниз, а не сжимает текст. */
+.hud-state-plaque.is-out { flex-wrap: wrap; }
+.hud-state-plaque.is-out > div { flex: 1 1 130px; }
 .hud-state-plaque > div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
 .hud-state-plaque b { font-size: 13px; letter-spacing: .02em; }
 .hud-state-plaque small { font-size: 11.5px; color: var(--hud-text-muted, #c3c2b7); }
@@ -7251,6 +7254,7 @@ button.hud-sum-restore.is-missing { color: var(--hud-muted-text, #9a95a6); text-
 .hud-erase-list small { display: block; margin-top: 2px; opacity: .65; font-size: .85em; }
 .hud-erase-box .hud-erase-all { display: inline-block; width: auto; margin: 0 0 10px; padding: 3px 10px; font-size: .9em; }
 .hud-erase-box > p.is-warn { color: #e0566b; opacity: 1; margin-bottom: 0; }
+.hud-erase-box > p.is-lead { opacity: 1; margin-bottom: 6px; }
 
 /* =========================================================================
    ЗНАЧКИ ПРИЛОЖЕНИЙ: наборы по темам (render/phone-icons.js)

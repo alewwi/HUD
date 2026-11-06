@@ -18,18 +18,18 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { весЧата, нормаКалорий } from '../turn-notes.js?v=23.88.77';
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.77';
-import { settings } from '../settings.js?v=23.88.77';
-import { разобратьХод } from './carryover.js?v=23.88.77';
-import { моментСцены } from './intimacy.js?v=23.88.77';
-import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.88.77';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.77';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.77';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.88.77';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.77';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.88.77';
-import { английский } from '../i18n.js?v=23.88.77';
+import { весЧата, нормаКалорий } from '../turn-notes.js?v=23.88.79';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.79';
+import { settings } from '../settings.js?v=23.88.79';
+import { разобратьХод } from './carryover.js?v=23.88.79';
+import { моментСцены } from './intimacy.js?v=23.88.79';
+import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.88.79';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.79';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.79';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.88.79';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.79';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.88.79';
+import { английский } from '../i18n.js?v=23.88.79';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;

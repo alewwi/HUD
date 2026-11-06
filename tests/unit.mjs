@@ -2524,6 +2524,14 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
     проверить('запущенное: новый день — сразу', /3 days with almost no food/.test(голод7('13.05.2027')));
     globalThis.SillyTavern.getContext = старый;
   }
+  проверить('значок: число не входит в надпись вкладки', /querySelector\('\.hud-tab-attn'\)[\s\S]{0,120}replace\(значок\.textContent, ''\)/.test(fs.readFileSync(path.join(КОРЕНЬ, 'index.js'), 'utf8')));
+  {
+    const Ф = (имя) => fs.readFileSync(path.join(КОРЕНЬ, имя), 'utf8');
+    проверить('удаление: шрам спрашивает, прежде чем убрать', /async function спроситьПроШрам[\s\S]{0,420}await уверены[\s\S]{0,260}убратьШрам\(/.test(Ф('index.js')) && !/hudScar\) \{\s*вышло = убратьШрам/.test(Ф('index.js')));
+    проверить('удаление: своя тема, картинки, стат, аватарка, кэш спрашивают', /act === 'forget'\) \{\s*if \(!await уверены/.test(Ф('events.js')) && /settings\[ключ\] && !await уверены/.test(Ф('events.js')) && /settings\.bgImage && !await уверены/.test(Ф('events.js')) && /имя && !await уверены/.test(Ф('settings-deep.js')) && /hud-ava-del'\)\) \{\s*if \(!await уверены/.test(Ф('settings-ui.js')) && /hud-clear-cache'\)[\s\S]{0,160}await уверены/.test(Ф('settings-ui.js')));
+    const промптТела = (Ф('prompt.js').match(/"B": "\[body and mind[^\n]*/) || [''])[0];
+    проверить('тело: промпт просит состояние, а не пересказ', /not an action/.test(промптТела) && /no retelling/.test(промптТела));
+  }
   // Приглашения.
   const ч2 = [{ is_user: false, mes: '"inv": ["Коэн | ужин | 05.04.2027"]' }, { is_user: true, mes: 'хм, посмотрим' }, { is_user: false, mes: '"inv": ["Арес | поездка | 06.04.2027"]' }, { is_user: true, mes: 'Да, приду!' }];
   N.сверитьПриглашения(ч2);
