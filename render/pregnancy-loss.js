@@ -5,10 +5,10 @@
 // одного из двойни, кубик исхода угрозы и осмотры. Логика и запись —
 // render/conception.js, клики ловит index.js. Оформление — css/misc.css.
 
-import { escapeHtml } from '../utils.js?v=23.88.81';
-import { ВИДЫ_ПОТЕРИ, дм, восстановлениеПосле } from './conception.js?v=23.88.81';
-import { ЗНАЧОК_КОРЗИНЫ } from './erase-button.js?v=23.88.81';
-import { подождатьДо, ДНЕЙ_ОСЛОЖНЕНИЕ } from './rest-hint.js?v=23.88.81';
+import { escapeHtml } from '../utils.js?v=23.88.82';
+import { ВИДЫ_ПОТЕРИ, дм, восстановлениеПосле } from './conception.js?v=23.88.82';
+import { ЗНАЧОК_КОРЗИНЫ } from './erase-button.js?v=23.88.82';
+import { подождатьДо, ДНЕЙ_ОСЛОЖНЕНИЕ } from './rest-hint.js?v=23.88.82';
 
 const ДЕНЬ = 864e5;
 const Р = 25, ДЛИНА = 2 * Math.PI * Р;

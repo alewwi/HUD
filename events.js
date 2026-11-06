@@ -16,26 +16,26 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.81';
-import { уверены } from './confirm-erase.js?v=23.88.81';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.88.81';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.88.81';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.88.81';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.88.81';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.88.81';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.88.81';
-import { полныйПорядок } from './tabs-order.js?v=23.88.81';
-import { getWorldVotes } from './render/world.js?v=23.88.81';
-import { действиеМира } from './render/world-views.js?v=23.88.81';
-import { действиеМузыки } from './render/music.js?v=23.88.81';
-import { раскрытьПорцию } from './render/long-list.js?v=23.88.81';
-import { прогретьИсторию } from './render/carryover.js?v=23.88.81';
-import { подключитьПалитру } from './color-picker.js?v=23.88.81';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.88.81';
-import { замер } from './utils.js?v=23.88.81';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.88.81';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.88.81';
-import { пометитьЭффекты } from './render/fx.js?v=23.88.81';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.82';
+import { уверены } from './confirm-erase.js?v=23.88.82';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.88.82';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.88.82';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.88.82';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.88.82';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.88.82';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.88.82';
+import { полныйПорядок } from './tabs-order.js?v=23.88.82';
+import { getWorldVotes } from './render/world.js?v=23.88.82';
+import { действиеМира } from './render/world-views.js?v=23.88.82';
+import { действиеМузыки } from './render/music.js?v=23.88.82';
+import { раскрытьПорцию } from './render/long-list.js?v=23.88.82';
+import { прогретьИсторию } from './render/carryover.js?v=23.88.82';
+import { подключитьПалитру } from './color-picker.js?v=23.88.82';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.88.82';
+import { замер } from './utils.js?v=23.88.82';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.88.82';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.88.82';
+import { пометитьЭффекты } from './render/fx.js?v=23.88.82';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -2002,6 +2002,12 @@ const ЛЕНТЫ = '.hud-mood-history';
 // чтениями заставляет браузер пересчитать вёрстку заново на каждом списке —
 // в длинном чате это давало секунды. Теперь пересчётов три на весь проход.
 const РАЗБОР_КУСОК = 40;   // мс разбора подряд, потом кадр браузеру
+const ЗАЗОР_ОКНА = 24;     // столько окна вкладки остаётся вокруг списка
+// Потолок окна вкладки, а не текущая высота: при смене вкладки высота едет.
+function окноВкладки(с) {
+  const тело = с.closest('.hud-body, .hud-memory-body');
+  return (тело && parseFloat(getComputedStyle(тело).maxHeight)) || 0;
+}
 function ужатьСписки() { замер('ужатьСписки', ужатьСпискиСразу); }
 function ужатьСпискиСразу() {
   if (typeof window.matchMedia !== 'function' || !document.querySelectorAll) return;
@@ -2015,6 +2021,7 @@ function ужатьСпискиСразу() {
     // В узкой панели лента стоит столбиком, как на телефоне: её тоже ужимаем.
     столбиком: с.matches(ЛЕНТЫ) && getComputedStyle(с).flexDirection === 'column',
     ширина: с.clientWidth,
+    окно: окноВкладки(с),
   }));
   // Свёрнутый граф отношений в карточке уже 760px: граф 1000px сжат вдвое, и
   // подписи двух десятков связей сливались в кашу. Там подпись видна только у
@@ -2039,7 +2046,7 @@ function ужатьСпискиСразу() {
       continue;
     }
     if (!п.виден) continue;
-    п.ключ = дети.length + '|' + п.ширина;
+    п.ключ = дети.length + '|' + п.ширина + '|' + п.окно;
     if (с.classList.contains('is-capped') && с.dataset.cap === п.ключ) continue;
     с.classList.remove('is-capped-x', 'is-x2', 'is-fit');
     с.classList.add('is-capped');
@@ -2059,6 +2066,9 @@ function ужатьСпискиСразу() {
     const четвёртая = п.дети[3].getBoundingClientRect();
     п.краешек = Math.round(Math.min(28, Math.max(10, четвёртая.height * 0.4)));
     п.высота = Math.ceil(четвёртая.top - верх + п.краешек);
+    // Окно вкладки — 300px, а три карточки ран выходили на 800: низ списка стоял
+    // за краем, и его прокрутку не было видно. Список целиком помещается в окно.
+    if (п.окно) п.высота = Math.min(п.высота, п.окно - ЗАЗОР_ОКНА);
   }
   // 4. Записи: потолки.
   // Затухание внизу — на высоту краешка, чтобы третья карточка не бледнела.

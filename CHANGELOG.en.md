@@ -4,6 +4,13 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.82 — 2026-11-06
+
+### Fixed
+- **Plate lists now follow the finger.** Wounds, illnesses, marks and other lists no longer skip half a card: a 220-pixel swipe used to carry the list 460 pixels.
+- A long list now fits inside the tab window, so you can see it scroll. The window was 300 pixels, while a list could reach 1250.
+- If a list is only partly visible, the swipe moves the tab instead of scrolling plates out of sight.
+
 ## 23.88.81 — 2026-11-06
 
 ### Changed

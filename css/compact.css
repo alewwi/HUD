@@ -11,7 +11,7 @@
    Долистал до конца — затухание пропадает (is-end).
    ========================================================================= */
 .hud-os-card .is-capped {
-  overflow-y: auto !important; overflow-x: hidden !important; overscroll-behavior-y: auto; scroll-snap-type: y proximity;
+  overflow-y: auto !important; overflow-x: hidden !important; overscroll-behavior-y: auto;
   padding-bottom: 22px !important; box-sizing: border-box;
   scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--hud-accent, #c31f38) 45%, transparent) transparent;
   -webkit-mask: linear-gradient(180deg, #000 calc(100% - var(--cap-fade, 28px)), transparent); mask: linear-gradient(180deg, #000 calc(100% - var(--cap-fade, 28px)), transparent);
@@ -19,7 +19,11 @@
 /* Список — flex-колонка с потолком по высоте, а у карточки (след, болезнь)
    overflow: hidden, и её минимальная высота — ноль: потолок сжимал её, и
    низ — таймер, описание — обрезался. Карточки не сжимаются, список листается. */
-.hud-os-card .is-capped > * { scroll-snap-align: start; flex-shrink: 0; max-width: 100%; }
+.hud-os-card .is-capped > * { flex-shrink: 0; max-width: 100%; }
+/* Без примагничивания вниз: карточки бывают выше окна, и свайп в 220px уносил
+   список на 460, мимо половины карточки. */
+/* Список виден не весь: свайп ведёт вкладка (scroll-chain.js). */
+.hud-os-card .is-capped.is-through { overflow-y: hidden !important; }
 /* Сетка в две колонки показывала бы две плашки и краешек: в списке — одна
    колонка. Строки — по содержимому: иначе потолок сжимал карточки с
    overflow: hidden, и в список влезали все («Сердца» доверия). */

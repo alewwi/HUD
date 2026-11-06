@@ -6,13 +6,13 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.81';
-import { английский } from '../i18n.js?v=23.88.81';
-import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.81';
-import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.88.81';
-import { ссылкиТрека } from './music.js?v=23.88.81';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей } from './conception.js?v=23.88.81';
-import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.88.81';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.82';
+import { английский } from '../i18n.js?v=23.88.82';
+import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.82';
+import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.88.82';
+import { ссылкиТрека } from './music.js?v=23.88.82';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей } from './conception.js?v=23.88.82';
+import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.88.82';
 
 let окноОткрыто = false;
 
