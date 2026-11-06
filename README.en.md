@@ -572,8 +572,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.79**:
+The latest version is **23.88.80**:
 
+- The code is now released under GNU AGPL-3.0.
 - An "Are you sure?" question before deleting: the dialog says whether it can be undone.
 - The Body field asks for a state, not a retelling of actions.
 - After answering a badge, the card stays on the same tab.
@@ -603,3 +604,9 @@ node tests/tools/docs-shots.mjs [--lang en] [--era medieval] # README screenshot
 ```
 
 English interface: a new Russian label in the markup is translated by the `i18n-en.js` dictionary — a whole string in `СЛОВАРЬ_EN`, a string with numbers or substitutions in `ШАБЛОНЫ_EN`. Labels in CSS (`content`) are duplicated in `css/lang-en.css`, Russian examples in the model instruction in `prompt-en.js`. `node tests/i18n.mjs` checks the translator, the instruction without Cyrillic, the CSS and the parsing of English values.
+
+---
+
+## License
+
+The TavernOS HUD code is released under [GNU AGPL-3.0](LICENSE): you can copy and change it, but changed versions must stay open under the same license. Images in `img/` and screenshots in `docs/screens/` are not covered, and some of them belong to other authors. See [NOTICE.md](NOTICE.md).

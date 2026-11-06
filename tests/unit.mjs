@@ -2532,6 +2532,7 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
     const промптТела = (Ф('prompt.js').match(/"B": "\[body and mind[^\n]*/) || [''])[0];
     проверить('тело: промпт просит состояние, а не пересказ', /not an action/.test(промптТела) && /no retelling/.test(промптТела));
   }
+  проверить('авторство: уведомление в основных файлах, автор в манифесте', ['index.js', 'prompt.js', 'events.js', 'render/character.js', 'render/conception.js', 'turn-notes.js', 'hud-parser.js', 'settings.js', 'css/base.css', 'css/misc.css'].every(ф => fs.readFileSync(path.join(КОРЕНЬ, ф), 'utf8').includes('TavernOS HUD © 2026 alewwi')) && JSON.parse(fs.readFileSync(path.join(КОРЕНЬ, 'manifest.json'), 'utf8')).author === 'alewwi');
   // Приглашения.
   const ч2 = [{ is_user: false, mes: '"inv": ["Коэн | ужин | 05.04.2027"]' }, { is_user: true, mes: 'хм, посмотрим' }, { is_user: false, mes: '"inv": ["Арес | поездка | 06.04.2027"]' }, { is_user: true, mes: 'Да, приду!' }];
   N.сверитьПриглашения(ч2);

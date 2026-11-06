@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы } from '../utils.js?v=23.88.79';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.88.79';
-import { namesLikelySame } from '../names.js?v=23.88.79';
-import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.88.79';
-import { settings } from '../settings.js?v=23.88.79';
-import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.88.79';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.79';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы } from '../utils.js?v=23.88.80';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.88.80';
+import { namesLikelySame } from '../names.js?v=23.88.80';
+import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.88.80';
+import { settings } from '../settings.js?v=23.88.80';
+import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.88.80';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.80';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.

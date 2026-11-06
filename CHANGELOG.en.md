@@ -4,6 +4,12 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.80 — 2026-11-06
+
+### Added
+- License: the code is released under GNU AGPL-3.0. Images and screenshots are not covered, see NOTICE.md.
+- The manifest author is now alewwi, and the code carries a credit notice.
+
 ## 23.88.79 — 2026-11-06
 
 ### Added
