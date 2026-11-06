@@ -6,13 +6,13 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.68';
-import { английский } from '../i18n.js?v=23.88.68';
-import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.68';
-import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.88.68';
-import { ссылкиТрека } from './music.js?v=23.88.68';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей } from './conception.js?v=23.88.68';
-import { сдвигиЧата } from '../turn-notes.js?v=23.88.68';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.73';
+import { английский } from '../i18n.js?v=23.88.73';
+import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.73';
+import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.88.73';
+import { ссылкиТрека } from './music.js?v=23.88.73';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей } from './conception.js?v=23.88.73';
+import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.88.73';
 
 let окноОткрыто = false;
 
@@ -95,7 +95,7 @@ function поворотыДоверия(поиск) {
     пары.get(имя).push(з);
   }
   return [...пары].map(([имя, записи]) => `<div class="hud-arc-card"><div class="hud-arc-card-head">🤍 <b>${escapeHtml(имя)}</b></div>${графикДоверия(записи)}`
-    + записи.slice(-8).map(з => `<div class="hud-arc-row"><label class="${з.d > 0 ? 'is-up' : 'is-down'}">${з.d > 0 ? '+' : ''}${з.d}${з.шрам ? ' 🩹' : ''}</label><div class="hud-arc-path">${escapeHtml(з.почему || 'без причины')} ${ссылка(з.индекс)}</div></div>`).join('')
+    + записи.filter(з => з.почему || з.шрам || Math.abs(з.d) >= 15).slice(-8).map(з => `<div class="hud-arc-row"><label class="${з.d > 0 ? 'is-up' : 'is-down'}">${з.d > 0 ? '+' : ''}${з.d}${з.шрам ? ' 🩹' : ''}</label><div class="hud-arc-path">${escapeHtml(чистаяПричина(з.почему) || 'без причины')} ${ссылка(з.индекс)}</div></div>`).join('')
     + `</div>`).join('');
 }
 function вкладкаОтношений(отчёт, поиск) {

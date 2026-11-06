@@ -13,13 +13,13 @@
 // секрета, — «при нём об этом нельзя».
 // На узком экране сетку заменяет список по людям (container query).
 
-import { escapeHtml, getSafeUserName } from '../utils.js?v=23.88.68';
-import { settings } from '../settings.js?v=23.88.68';
-import { namesLikelySame } from '../names.js?v=23.88.68';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.68';
-import { ико, медаль } from './view-icons.js?v=23.88.68';
-import { правкаСекрета, всплывшиеСекреты, правитьСнимок, правки } from '../snapshot-edits.js?v=23.88.68';
-import { разобратьДуэль } from './duel.js?v=23.88.68';
+import { escapeHtml, getSafeUserName } from '../utils.js?v=23.88.73';
+import { settings } from '../settings.js?v=23.88.73';
+import { namesLikelySame } from '../names.js?v=23.88.73';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.73';
+import { ико, медаль } from './view-icons.js?v=23.88.73';
+import { правкаСекрета, всплывшиеСекреты, правитьСнимок, правки } from '../snapshot-edits.js?v=23.88.73';
+import { разобратьДуэль } from './duel.js?v=23.88.73';
 // Склонение по числу: склон(3, ['секрет', 'секрета', 'секретов']).
 const склон = (n, [один, два, пять]) => { const к = Math.abs(n) % 100, е = к % 10; return к > 10 && к < 20 ? пять : е === 1 ? один : е >= 2 && е <= 4 ? два : пять; };
 
@@ -121,6 +121,31 @@ export function предупрежденияСекретов(секреты, hud
   return out;
 }
 
+// Больше трёх вопросов разом не показываем: следующие приходят после ответа.
+const ВОПРОСОВ_СРАЗУ = 3;
+// Всплыло в споре (snapshot-edits.js): уступка в дуэли — «знает», совпала
+// только суть — «подозревает». По умолчанию спрашиваем; «auto» — сразу.
+function предложенияСпора(секреты, люди, hudData, всеПравки) {
+  const персонажи = Array.isArray(hudData && hudData.characters) ? hudData.characters : [];
+  const дуэли = персонажи.map(c => {
+    const д = разобратьДуэль(c && c['Словесная дуэль']);
+    const суть = String((c && c['Глубина конфликта']) || '').replace(/;\s*(?:dys|sg)\s*:.*$/i, '').replace(/^\s*wy\s*[:：]\s*/i, '');
+    return { уступка: д && д.уступка || '', суть: д ? суть : '' };
+  }).filter(д => д.уступка || д.суть);
+  const вСцене = люди.filter(п => п.игрок || персонажи.some(c => тот(c && c['Имя'], п.имя))).map(п => п.имя);
+  return дуэли.length ? всплывшиеСекреты(секреты, дуэли, вСцене, клеткаСекрета, всеПравки) : [];
+}
+
+/** Сколько вопросов «всплыло в споре» ждёт игрока. Вкладка может быть ещё не собрана. */
+export function вопросыСекретов(секретыВсе, hudData) {
+  const режим = settings.secretsGrid || 'auto';
+  if (settings.secretsAutoRaise === 'auto') return 0;
+  const секреты = (Array.isArray(секретыВсе) ? секретыВсе : []).filter(с => с && typeof с === 'object' && String(с.fact || '').trim());
+  if (режим === 'off' || !секреты.length || (режим === 'auto' && секреты.length < 3)) return 0;
+  const люди = людиСекретов(секреты, hudData);
+  return люди.length < 2 ? 0 : Math.min(ВОПРОСОВ_СРАЗУ, предложенияСпора(секреты, люди, hudData, правки()).length);
+}
+
 export function сеткаСекретов(секретыВсе, hudData) {
   const режим = settings.secretsGrid || 'auto';
   const секреты = (Array.isArray(секретыВсе) ? секретыВсе : []).filter(с => с && typeof с === 'object' && String(с.fact || '').trim());
@@ -129,16 +154,8 @@ export function сеткаСекретов(секретыВсе, hudData) {
   const люди = людиСекретов(секреты, hudData);
   if (люди.length < 2) return '';
   // Таблица состояний: одна на всю отрисовку.
-  // Всплыло в споре (snapshot-edits.js): уступка в дуэли — «знает», совпала
-  // только суть — «подозревает». По умолчанию спрашиваем; «auto» — сразу.
   const всеПравки = правки();
-  const дуэли = (Array.isArray(hudData && hudData.characters) ? hudData.characters : []).map(c => {
-    const д = разобратьДуэль(c && c['Словесная дуэль']);
-    const суть = String((c && c['Глубина конфликта']) || '').replace(/;\s*(?:dys|sg)\s*:.*$/i, '').replace(/^\s*wy\s*[:：]\s*/i, '');
-    return { уступка: д && д.уступка || '', суть: д ? суть : '' };
-  }).filter(д => д.уступка || д.суть);
-  const вСцене = люди.filter(п => п.игрок || (Array.isArray(hudData && hudData.characters) ? hudData.characters : []).some(c => тот(c && c['Имя'], п.имя))).map(п => п.имя);
-  let предложения = дуэли.length ? всплывшиеСекреты(секреты, дуэли, вСцене, клеткаСекрета, всеПравки) : [];
+  let предложения = предложенияСпора(секреты, люди, hudData, всеПравки);
   if (предложения.length && settings.secretsAutoRaise === 'auto') { предложения.forEach(п => правитьСнимок(п.путь, п.значение)); предложения = []; }
   const клетка = секреты.map(с => люди.map(п => клеткаСПравкой(с, п.имя, правки())));
   const предложено = (с, имя) => предложения.some(п => п.факт === с.fact && тот(п.кто, имя));
@@ -173,7 +190,7 @@ export function сеткаСекретов(секретыВсе, hudData) {
   // «Не знают: Тристан, Лена» — без падежей: «при Тристан» звучало бы неграмотно.
   const предупр = предупреждения.map(п => `<div class="hud-sgrid-warn">${медаль('alert')}<span><small>в сцене — нельзя</small><b>«${escapeHtml(заголовок(п.секрет.fact))}»</b><em>${п.кто.length === 1 ? 'не знает' : 'не знают'}: ${escapeHtml(п.кто.join(', '))}</em></span><span class="hud-sgrid-warn-faces">${п.полные.slice(0, 3).map(имя => лицо(имя, false)).join('')}</span></div>`).join('');
   const легенда = `<div class="hud-sgrid-legend">${Object.entries(ЗНАКИ).map(([к, [, с]]) => `<span class="is-${к}"><i class="hud-sgrid-cell is-${к}">${значокСостояния(к)}</i>${с}</span>`).join('')}</div>`;
-  const подъём = предложения.slice(0, 3).map(п => `<div class="hud-sgrid-raise">${медаль('speech')}<span><small>всплыло в споре</small><b>«${escapeHtml(заголовок(п.факт))}»</b><em>при ${escapeHtml(имяКоротко(п.кто))} — отметить «${п.значение === 'known' ? 'знает' : 'подозревает'}»?</em></span>`
+  const подъём = предложения.slice(0, ВОПРОСОВ_СРАЗУ).map(п => `<div class="hud-sgrid-raise">${медаль('speech')}<span><small>всплыло в споре</small><b>«${escapeHtml(заголовок(п.факт))}»</b><em>при ${escapeHtml(имяКоротко(п.кто))} — отметить «${п.значение === 'known' ? 'знает' : 'подозревает'}»?</em></span>`
     + `<span class="hud-sgrid-raise-btns"><button type="button" data-sec-edit="${escapeHtml(п.путь)}" data-value="${п.значение}">отметить</button><button type="button" data-sec-edit="${escapeHtml(п.путь)}" data-value="dismissed" title="Не спрашивать про это снова">нет</button></span></div>`).join('');
   return `<div class="hud-sgrid-wrap hud-v hud-v-card">${итог}${предупр}${подъём}<div class="hud-sgrid" style="--cols:${люди.length}" role="table" aria-label="Кто что знает">`
     + `<div class="hud-sgrid-top">${шапка}</div>${строки}</div><div class="hud-sgrid-people">${поЛюдям}</div>${легенда}</div>`;

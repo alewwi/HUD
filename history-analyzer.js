@@ -11,17 +11,17 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=23.88.68';
-import { normalizeJSONData } from './schema.js?v=23.88.68';
-import { parseRelationList } from './render/relations-graph.js?v=23.88.68';
-import { nameLettersOnly, namePhoneticLatin } from './names.js?v=23.88.68';
-import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.88.68';
-import { createDashboard } from './chat-stats.js?v=23.88.68';
-import { статусРужья } from './codes.js?v=23.88.68';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.88.68';
-import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.88.68';
-import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.88.68';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.88.68';
+import { parseHUDComplex } from './hud-parser.js?v=23.88.73';
+import { normalizeJSONData } from './schema.js?v=23.88.73';
+import { parseRelationList } from './render/relations-graph.js?v=23.88.73';
+import { nameLettersOnly, namePhoneticLatin } from './names.js?v=23.88.73';
+import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.88.73';
+import { createDashboard } from './chat-stats.js?v=23.88.73';
+import { статусРужья } from './codes.js?v=23.88.73';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.88.73';
+import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.88.73';
+import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.88.73';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.88.73';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -52,8 +52,8 @@ function ключФакта(fact) {
 // Извлечение блока [HUD] из текста сообщения. Тот же набор написаний, что и в
 // index.js: модель иногда шлёт < > вместо скобок, а ST успевает заэкранировать.
 // Поиск блока — общий, в hud-block.js. Экспорт оставлен: его берут отсюда.
-import { extractHudBlock } from './hud-block.js?v=23.88.68';
-import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.88.68';
+import { extractHudBlock } from './hud-block.js?v=23.88.73';
+import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.88.73';
 export { extractHudBlock };
 
 // Массив сообщений текущего чата.

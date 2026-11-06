@@ -6726,7 +6726,7 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 .hud-body-stats em { font-style: normal; font-size: 11px; color: var(--hud-text-muted, #c3c2b7); }
 .hud-body-stats em.up { color: #e6b36a; }
 .hud-body-stats em.down { color: #8fc0e0; }
-.hud-cal-ev.is-overdue .hud-cal-ev-title::after { content: ' · просрочено'; font-size: .82em; color: color-mix(in srgb, #e88a8a 85%, currentColor); }
+.hud-cal-ev.is-overdue .hud-cal-ev-title::after { content: ' · дата прошла'; font-size: .82em; color: color-mix(in srgb, #e88a8a 85%, currentColor); }
 /* Карточки внутри беременности: угроза, осмотр, потеря малыша. */
 .hud-note-card { --note: var(--hud-text-muted, #c3c2b7); position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 11px; margin-top: 9px; padding: 10px 12px 10px 14px; border-radius: 13px; overflow: hidden;
   border: 1px solid color-mix(in srgb, var(--note) 30%, transparent); background: linear-gradient(115deg, color-mix(in srgb, var(--note) 13%, transparent), color-mix(in srgb, var(--note) 3%, transparent) 75%); }
@@ -7259,3 +7259,20 @@ button.hud-sum-restore.is-missing { color: var(--hud-muted-text, #9a95a6); text-
 .hud-phone-app > span.has-pi { background: none !important; box-shadow: none !important; border: 0 !important; backdrop-filter: none !important; overflow: visible; position: relative; }
 .hud-phone-app > span.has-pi > :not(svg.hud-pi):not(.hud-unread-badge) { display: none; }
 .hud-phone-app > span > svg.hud-pi { width: 100%; height: 100%; display: block; filter: drop-shadow(0 3px 4px rgba(0, 0, 0, .4)); }
+
+/* Значок «ждёт вашего ответа»: на вкладке и в шапке свёрнутой карточки. Цвет один
+   на все темы: это сигнал, а не оформление. */
+.hud-tab-attn, .hud-os-attn {
+  display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
+  min-width: 16px; height: 16px; padding: 0 4px; margin-left: 5px; border-radius: 999px;
+  font-size: 10px; font-weight: 700; font-style: normal; line-height: 1; letter-spacing: 0;
+  font-variant-numeric: tabular-nums; vertical-align: middle;
+  color: #fff; background: #d0313a; box-shadow: 0 0 0 1px rgba(0, 0, 0, .25);
+}
+.hud-os-attn { gap: 3px; height: 18px; padding: 0 6px; margin: 0; flex: none; pointer-events: none; }
+.hud-os-attn svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+.hud-side-jump > .hud-tab-attn { flex: none; overflow: visible; color: #fff; font-weight: 700; }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-tab-attn, .hud-os-attn { animation: hud-attn-pulse 1.6s ease-in-out 3; }
+}
+@keyframes hud-attn-pulse { 50% { transform: scale(1.18); } }

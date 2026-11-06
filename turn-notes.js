@@ -15,10 +15,10 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.88.68';
-import { namesLikelySame } from './names.js?v=23.88.68';
-import { датаИзТекста, дм } from './render/conception.js?v=23.88.68';
-import { праздникиГода } from './render/holidays.js?v=23.88.68';
+import { settings } from './settings.js?v=23.88.73';
+import { namesLikelySame } from './names.js?v=23.88.73';
+import { датаИзТекста, дм } from './render/conception.js?v=23.88.73';
+import { праздникиГода } from './render/holidays.js?v=23.88.73';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -101,12 +101,13 @@ const ПОРОГ_СДВИГА = 5, ПОРОГ_ШРАМА = 15, ПОРОГ_ИНЕ
 const ЗАЖИВАЕТ = 25, ХОДОВ_ИНЕРЦИИ = 6, ПРЕДЕЛ_СДВИГОВ = 200;
 const чисто = (имя) => String(имя || '').trim();
 
+export const чистаяПричина = (т) => String(т ?? '').trim().replace(/^[+\-−–]?\s*\d+\s*(?:за|for)?\s*/iu, '');
 /** «82 (спасла ему жизнь)», «40 (!ударила при всех)» → { число, почему, рана }. */
 export function разобратьПричину(сырое) {
   const s = String(сырое ?? '');
   // Только скобки после числа: «Софи (жена): 82» — не причина.
   const m = s.match(/\d\s*\(\s*(!?)\s*([^()]{2,160})\)/);
-  return { почему: m ? m[2].trim() : '', рана: !!(m && m[1]) };
+  return { почему: m ? чистаяПричина(m[2]) : '', рана: !!(m && m[1]) };
 }
 /** Доверие без причин: для шкал и для снимка модели. */
 export const доверияБезПричин = (значение) => String(значение ?? '').replace(/(\d)\s*\([^()]*\)/g, '$1');
@@ -117,7 +118,7 @@ export const доверияБезПричин = (значение) => String(з�
  */
 export function сверитьСдвиг({ кто, кому, индекс, d, было, стало, почему = '', рана = false }) {
   const х = хранилище();
-  if (!х || !Number.isInteger(индекс)) return;
+  if (!х || пример || !Number.isInteger(индекс)) return;
   const тот = (з) => з.индекс === индекс && namesLikelySame(з.кто, кто) && namesLikelySame(з.кому, кому);
   const есть = х.сдвиги.find(тот);
   if (есть && есть.убран) return;
@@ -142,10 +143,16 @@ const доверие = (значение, кому) => {
 };
 /** Шрамы, которые ещё болят. уровень(кто, кому) — доверие сейчас или null. */
 export function живыеШрамы(уровень = () => null) {
-  return сдвигиЧата().filter(з => {
-    if (!з.шрам) return false;
+  // Одна рана на пару: модель повторяет её на следующих ходах.
+  const пары = new Map();
+  for (const з of сдвигиЧата()) {
+    if (!з.шрам) continue;
+    const ключ = `${з.кто}|${з.кому}`, был = пары.get(ключ);
+    пары.set(ключ, был ? { ...з, было: Math.max(был.было, з.было), стало: Math.min(был.стало, з.стало), почему: з.почему || был.почему } : з);
+  }
+  return [...пары.values()].filter(з => {
     const сейчас = уровень(з.кто, з.кому);
-    return сейчас === null || (сейчас < з.стало + ЗАЖИВАЕТ && сейчас < з.было);
+    return сейчас === null || (сейчас < з.стало + ЗАЖИВАЕТ && (з.было <= з.стало || сейчас < з.было));
   });
 }
 export function шрамыЧеловека(кто, значениеДоверия) {
@@ -155,7 +162,7 @@ export function убратьШрам(id) {
   const х = хранилище();
   const з = х && х.сдвиги.find(е => е.id === id);
   if (!з) return false;
-  з.убран = true;
+  for (const е of х.сдвиги) if (е.шрам && е.кто === з.кто && е.кому === з.кому) е.убран = true;
   сохранить();
   return true;
 }
@@ -241,7 +248,7 @@ function заметкаЗапущенного(х, снимок, сцена, им
       return Math.round((сцена - запись[ключ]) / ДЕНЬ);
     };
     const голод = следить('еда', с.сытость !== null && с.сытость <= 15);
-    const сон = следить('сон', (с.сон !== null && с.сон <= 15) || (с.энергия !== null && с.энергия <= 10));
+    const сон = следить('сон', (с.сон !== null && с.сон <= 2) || (с.энергия !== null && с.энергия <= 10));
     const вода = следить('вода', /жажд|обезвож|пересохл|thirst|dehydrat|parched/i.test(с.текст));
     if (Object.keys(запись).length) х.запущено[имя] = запись; else delete х.запущено[имя];
     if (голод >= 2) строки.push(`${имя} has gone ${голод} days with almost no food: weak, dizzy, thinner, and it shows.${голод >= 4 ? ' If it goes on, write it in Ill.' : ''}`);
@@ -281,7 +288,7 @@ function записатьВес(х, имя, строка, сцена, индек
 /** Забирает «wg» из свежих ответов. Вызывается перед запросом и перед «Бытом». */
 export function собратьВес(чат, сцена = null) {
   const х = хранилище();
-  if (!х || !Array.isArray(чат)) return;
+  if (!х || пример || !Array.isArray(чат)) return;
   let было = false;
   for (let i = Math.max(0, чат.length - 12); i < чат.length; i++) {
     const м = чат[i];
@@ -368,7 +375,7 @@ export function разобратьОтвет(текст) {
 /** Новые приглашения из ответов и ответы игрока на них. */
 export function сверитьПриглашения(чат) {
   const х = хранилище();
-  if (!х || !Array.isArray(чат)) return;
+  if (!х || пример || !Array.isArray(чат)) return;
   let было = false;
   чат.slice(-16).forEach((м, i, хвост) => {
     if (!м || м.is_user || typeof м.mes !== 'string') return;
@@ -448,13 +455,15 @@ function заметкаСроков(х, снимок, цель, сцена) {
   }
   // Планы из календаря телефона: прошла дата, и неясно, сделали или сорвали.
   const год = new Date(сцена).getUTCFullYear();
+  let планов = 0;
   for (const з of Array.isArray(снимок?.phn?.cl) ? снимок.phn.cl : Array.isArray(снимок?.sm?.cl) ? снимок.sm.cl : []) {
     if (!з || !з.ti || /birth|holiday|день рожд|праздн/i.test(String(з.kd || ''))) continue;
     const дата = датаИзТекста(з.dt, год);
-    if (дата === null || дата >= сцена) continue;
+    if (дата === null || дата >= сцена || сцена - дата > 7 * ДЕНЬ || планов >= 2 || /сорван|отмен|перенес|cancel/i.test(String(з.ti))) continue;
     const ключ = 'план ' + String(з.ti).slice(0, 60) + дата;
     if (х.разовые[ключ] && х.разовые[ключ] !== цель) continue;
     х.разовые[ключ] = цель;
+    планов++;
     строки.push(`The plan «${з.ti}» was set for ${дм(дата)} and the day has passed: in this reply settle whether it happened or was missed, then drop it from the calendar.`);
   }
   return строки;
@@ -479,7 +488,7 @@ export function заметкиХода({ чат, снимок = null, тип = '
     const запись = х.вес[имя];
     if (!запись) continue;
     запись.возраст = parseInt(з.A, 10) || запись.возраст;
-    запись.женщина = !/^\s*(?:м|муж|m|male)\b/iu.test(String(з.Ap ?? ''));
+    запись.женщина = !/^\s*(?:м|муж\p{L}*|m|male)(?![\p{L}])/iu.test(String(з.Ap ?? ''));
     запись.неделя = метка(з.Prg, 'wk') ?? 0;
   }
   const части = [подсказкиХода(х, цель)];

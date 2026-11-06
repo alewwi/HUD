@@ -5,26 +5,27 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { settings } from './settings.js?v=23.88.68';
-import { видБлока } from './render/views.js?v=23.88.68';
-import { escapeHtml } from './utils.js?v=23.88.68';
-import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.88.68';
-import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.88.68';
-import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.88.68';
-import { убратьМетку } from './hud-erase.js?v=23.88.68';
-import { убратьЛетопись } from './chronicle-store.js?v=23.88.68';
-import { т } from './i18n.js?v=23.88.68';
-import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.88.68';
-import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.88.68';
-import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.88.68';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.88.68';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.88.68';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.68';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.88.68';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.88.68';
-import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.88.68';
-import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.88.68';
-import { меткаШапки } from './render/topbar-icons.js?v=23.88.68';
+import { settings, defaultSettings } from './settings.js?v=23.88.73';
+import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.88.73';
+import { видБлока } from './render/views.js?v=23.88.73';
+import { escapeHtml } from './utils.js?v=23.88.73';
+import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.88.73';
+import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.88.73';
+import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.88.73';
+import { убратьМетку } from './hud-erase.js?v=23.88.73';
+import { убратьЛетопись } from './chronicle-store.js?v=23.88.73';
+import { т } from './i18n.js?v=23.88.73';
+import { ПРОМПТ_АССИСТЕНТА } from './render/assistant-prompt.js?v=23.88.73';
+import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.88.73';
+import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.88.73';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.88.73';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.88.73';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.73';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.88.73';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.88.73';
+import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.88.73';
+import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.88.73';
+import { меткаШапки } from './render/topbar-icons.js?v=23.88.73';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -406,6 +407,15 @@ export function addSettingsUI() {
         `)}
       `)}
 
+      ${группа('💾 Настройки в файл', `
+        ${заметка('Все настройки HUD одним файлом: основные, кастомизация, свои темы и статы, картинки. Чаты и записи HUD в файл не входят. Загружайте только свои файлы или файлы от тех, кому доверяете: в настройках есть и промпты.')}
+        <div class="hud-set-apps" style="align-items:center;">
+          <button type="button" id="hud-settings-export" class="hud-theme-act">⭳ Сохранить в файл</button>
+          <button type="button" id="hud-settings-import" class="hud-theme-act">⭱ Загрузить из файла</button>
+          <input type="file" id="hud-settings-file" accept="application/json,.json" style="display:none">
+        </div>
+      `)}
+
       ${группа('🧳 Перед удалением расширения', `
         ${заметка('Возвращает выгруженные HUD в открытый чат и убирает служебные файлы HUD с диска: файлы разгрузки и летопись этого чата. Сам чат и его HUD остаются целыми, на телефон ничего не скачивается.')}
         ${заметка('Если выгружены другие чаты этого персонажа, файлы разгрузки останутся, и HUD назовёт эти чаты: откройте каждый и нажмите кнопку там.')}
@@ -519,6 +529,52 @@ export function addSettingsUI() {
   });
 
   // --- Перед удалением расширения --------------------------------------------
+  // Настройки файлом (settings-file.js). Загрузка заканчивается перезагрузкой
+  // страницы: так разом обновятся панели, карточки и язык, как при смене языка.
+  document.getElementById('hud-settings-export').addEventListener('click', () => {
+    const версия = new URL(import.meta.url).searchParams.get('v') || '';
+    const дата = new Date();
+    const файл = собратьФайл(settings, версия, { хранилище: localStorage, дата });
+    const ссылка = document.createElement('a');
+    ссылка.href = URL.createObjectURL(new Blob([JSON.stringify(файл, null, 2)], { type: 'application/json' }));
+    ссылка.download = 'tavernos-hud-settings-' + дата.toISOString().slice(0, 10) + '.json';
+    document.body.appendChild(ссылка); ссылка.click(); ссылка.remove();
+    setTimeout(() => URL.revokeObjectURL(ссылка.href), 1000);
+    основа.showHudToast('success', 'Настройки сохранены в файл', 'В файле основные настройки и кастомизация.');
+    if (файл.removed.length) основа.showHudToast('info', 'Часть полей не вошла в файл', т('Похоже на ключи или пароли:') + ' ' + файл.removed.join(', '));
+  });
+  const полеНастроек = document.getElementById('hud-settings-file');
+  document.getElementById('hud-settings-import').addEventListener('click', () => полеНастроек.click());
+  полеНастроек.addEventListener('change', async () => {
+    const файл = полеНастроек.files && полеНастроек.files[0];
+    полеНастроек.value = '';
+    if (!файл) return;
+    let разбор = null;
+    try { разбор = разобратьФайл(await файл.text(), defaultSettings); } catch (err) { console.error('[TavernOS HUD] файл настроек не прочитался:', err); }
+    if (!разбор) return основа.showHudToast('error', 'Не похоже на настройки HUD', 'Нужен файл, сохранённый кнопкой «Сохранить в файл».');
+    const ctx = window.SillyTavern?.getContext?.();
+    const окно = document.createElement('div');
+    окно.className = 'hud-erase-box';
+    окно.innerHTML = '<b></b><p></p>';
+    окно.querySelector('b').textContent = т('Загрузить настройки из файла?');
+    окно.querySelector('p').textContent = т('Текущие настройки и кастомизация заменятся, страница перезагрузится. Чтобы вернуть их, сначала сохраните их в файл.');
+    const да = typeof ctx?.callGenericPopup === 'function' && ctx.POPUP_TYPE
+      ? await ctx.callGenericPopup(окно, ctx.POPUP_TYPE.CONFIRM, '', { okButton: т('Загрузить'), cancelButton: т('Отмена') })
+      : window.confirm(окно.textContent);
+    if (!да) return;
+    // Сначала проба записи: если картинки не влезут в браузер, текущие настройки остаются.
+    try { localStorage.setItem('hud_settings', JSON.stringify({ ...разбор.настройки, savedAt: Date.now() })); }
+    catch (err) {
+      console.error('[TavernOS HUD] настройки из файла не записались:', err);
+      return основа.showHudToast('error', 'Настройки не загружены', 'Файл не поместился в хранилище браузера. Текущие настройки остались.');
+    }
+    применитьНастройки(settings, разбор, defaultSettings);
+    for (const [ключ, значение] of Object.entries(разбор.местные)) { try { localStorage.setItem(ключ, значение); } catch (_) { /* вид окна — не повод останавливаться */ } }
+    основа.saveSettings();
+    основа.showHudToast('loading', 'Настройки загружены', 'Страница перезагружается…');
+    setTimeout(() => location.reload(), 700);
+  });
+
   // Чат остаётся самодостаточным: сперва HUD возвращается в сообщения, и только
   // если вернулось всё, файлы удаляются. Общие с другими чатами файлы разгрузки
   // остаются, пока в тех чатах есть метки.
@@ -831,7 +887,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.88.68');
+      const mod = await import('./render/archive.js?v=23.88.73');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -1047,7 +1103,7 @@ export function addSettingsUI() {
   [['hud-music-enable', 'enableMusic'], ['hud-music-auto', 'musicAuto'], ['hud-music-verify', 'musicVerify'], ['hud-music-line', 'musicSceneLine'], ['hud-music-player', 'musicPlayer']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.88.68').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
+      import('./render/music.js?v=23.88.73').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
     });
   });
   document.getElementById('hud-music-profile').addEventListener('change', (e) => { settings.musicProfileId = e.target.value || ''; основа.saveSettings(); });
@@ -1077,19 +1133,19 @@ export function addSettingsUI() {
     ['hud-music-free-fonau', 'musicFreeFonau'], ['hud-music-free-audius', 'musicFreeAudius'], ['hud-music-free-incompetech', 'musicFreeIncompetech'], ['hud-music-free-commons', 'musicFreeCommons']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.88.68').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
+      import('./render/music.js?v=23.88.73').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
     });
   });
   [['hud-music-liked-clear', 'musicLiked'], ['hud-music-banned-clear', 'musicBanned']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('click', () => {
       settings[ключ] = []; основа.saveSettings(); вкусМузыки();
-      import('./render/music.js?v=23.88.68').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      import('./render/music.js?v=23.88.73').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
   [['hud-music-medieval', 'musicMedieval'], ['hud-music-style', 'musicStyle'], ['hud-music-source', 'musicSource']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.value; основа.saveSettings();
-      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.88.68').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.88.73').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
 

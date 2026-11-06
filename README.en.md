@@ -130,6 +130,7 @@ The tab where history accumulates instead of a snapshot:
 - **One-time nudge.** A star button in a block header: tap a pill and it goes to the model in the next reply. HUD sends nothing by itself, the nudge simply joins the request. It works from an old card too, holds for one reply and all its swipes, and a new message clears it. The queue (up to three) shows above the input.
 - **Deadlines on threads.** A gun can have a date and a task kind: main, side, small. The deadline shows in the phone calendar, and an overdue thread asks for a resolution. Overdue calendar plans are marked too, and the model settles whether they happened or were missed.
 - **Earlier items.** Old Important items fold away, and the thirty newest stay in view.
+- **Answer badge.** When HUD is waiting for your decision, a red badge with a number appears on the tab: invitations and "came up in an argument" in Memory, a closed threat outcome and check-up for a pregnant character. The same number shows in the header of a collapsed card and on the stub when the side panel is closed. The badge goes away once you answer.
 - **Invitations.** When the model writes an invitation, HUD looks for your answer in your message. If it can't tell, it shows an Accept and Decline card. Promised and didn't come: the character is hurt.
 - **Emotions** — how the main characters' mood changed; **route** — where they've been during this stretch.
 - **Relationship graph** — a web of everyone's ties: romance, friendship, conflict, jealousy, fear, suspicion, family, parents and children, superiors, mentors, duty, the forbidden, accomplices, shared groups. Nodes with avatars; tapping a node or a link highlights its surroundings; the graph opens full screen.
@@ -516,6 +517,8 @@ Settings are grouped — expand the one you need. Below is the essential part of
 
 **🧹 Maintenance** — "Clear cache": removes saved archive reports and reaction marks; settings, themes and avatars stay.
 
+**💾 Settings file** — all HUD settings in one file: main settings, customization, your themes and stats, images. "Save to file" exports them, "Load from file" replaces the current ones and reloads the page. Chats and HUD records are not included. API keys and passwords stay out too: HUD does not store them, and if a key was pasted into a text field, that field is not saved.
+
 **🧳 Before removing the extension** — a button next to the section below. Puts offloaded HUDs back into the open chat and removes service files from disk: offload files and this chat's chronicle. The chat and its HUD stay intact. If other chats of the character are offloaded, HUD names them and keeps the offload files.
 
 **⚠️ !!DANGER!! Remove HUD from chat** — at the very end of the settings, set apart on purpose. Permanently removes the HUD from the open chat: `[HUD]` blocks in every message and swipe, saved HUD versions, music picks. Reply text, `[HUD_SUMMARY]` summaries and HUD mentions inside `<plan>` stay. Everything HUD remembered from those cards goes with them: the phone, the diary, relationships. A window with the number of messages and blocks comes first; it can't be undone, so save a copy of the chat first (chat menu → "Manage chat files" → export).
@@ -568,8 +571,10 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.68**:
+The latest version is **23.88.73**:
 
+- Settings and customization save to a file and load back.
+- A badge on the tab where HUD is waiting for your answer.
 - One-time nudge for the model: a pill goes into the next reply and holds across its swipes.
 - Relationship scars, lingering impressions, trust reasons and a chart in the archive.
 - Living details, neglected state, weight and calories.

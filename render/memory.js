@@ -6,19 +6,19 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { parseSceneDate } from '../history-analyzer.js?v=23.88.68';
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.88.68';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.68';
-import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.88.68';
-import { отложитьРисунок } from './lazy-svg.js?v=23.88.68';
-import { длинныйСписок } from './long-list.js?v=23.88.68';
-import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.88.68';
-import { общиеМеста } from './route-places.js?v=23.88.68';
-import { статусРужья } from '../codes.js?v=23.88.68';
-import { сеткаСекретов } from './secrets-grid.js?v=23.88.68';
-import { кнопкаУдаления, кнопкаПодсказки } from './erase-button.js?v=23.88.68';
-import { приглашенияБезОтвета, разобратьНить } from '../turn-notes.js?v=23.88.68';
-import { дм } from './conception.js?v=23.88.68';
+import { parseSceneDate } from '../history-analyzer.js?v=23.88.73';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.88.73';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.73';
+import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.88.73';
+import { отложитьРисунок } from './lazy-svg.js?v=23.88.73';
+import { длинныйСписок } from './long-list.js?v=23.88.73';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.88.73';
+import { общиеМеста } from './route-places.js?v=23.88.73';
+import { статусРужья } from '../codes.js?v=23.88.73';
+import { сеткаСекретов, вопросыСекретов } from './secrets-grid.js?v=23.88.73';
+import { кнопкаУдаления, кнопкаПодсказки } from './erase-button.js?v=23.88.73';
+import { приглашенияБезОтвета, разобратьНить } from '../turn-notes.js?v=23.88.73';
+import { дм } from './conception.js?v=23.88.73';
 
 function parseRoutePoint(item) {
   // Модель иногда ставит дату перед временем («09.11, 22:15») — дату отбрасываем.
@@ -107,6 +107,8 @@ function блокПриглашений() {
   return `<div class="hud-row full-width"><span class="hud-key">✉️ Приглашения:</span> ${все.map(п => `<div class="hud-invite"><div><b>${escapeHtml(п.кто)}</b><small>${escapeHtml(п.что)}</small>${п.когда ? `<span class="hud-invite-when">${escapeHtml(п.когда)}</span>` : ''}</div>`
     + `<button type="button" class="hud-fetus-btn is-on" data-hud-invite="${escapeHtml(п.id)}" data-val="yes">Принять</button><button type="button" class="hud-fetus-btn" data-hud-invite="${escapeHtml(п.id)}" data-val="no">Отклонить</button></div>`).join('')}</div>`;
 }
+/** Сколько вопросов к игроку лежит в Памяти: приглашения и «всплыло в споре». */
+export const вопросыПамяти = (memoryData, hudData) => приглашенияБезОтвета().length + вопросыСекретов(memoryData && memoryData.secrets, hudData);
 // Срок нити и её вид: цветные метки, красная, если дата прошла.
 const ЧАСЫ = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
 function меткаСрока(строка, сцена = null) {
@@ -197,6 +199,7 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
     html += `<div class="hud-row full-width" style="overflow:hidden;"><span class="hud-key">🎭 Эмоции:</span> ${moodHtml}</div>`;
   }
 
+  html += блокПриглашений();
   if (Array.isArray(memoryData.important) && memoryData.important.length > 0) {
     // Каждый пункт можно унести в Lorebook: это ровно тот сорт фактов, что
     // должен пережить откат чата и остаться в мире.
@@ -206,7 +209,6 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
     const давнее = давних ? пункты.splice(0, давних) : [];
     const важное = пункты.map(п => `<div class="hud-detail-pill drama-alert hud-lore-item${п.isNew ? ' is-new' : ''}">` +
       `<span class="hud-lore-text">${escapeHtml(п.текст)}</span>` + п.кнопка + `</div>`);
-    html += блокПриглашений();
     html += `<div class="hud-row full-width"><span class="hud-key">❗ Важное:${кнопкаПодсказки('important', [...давнее, ...пункты].map(п => п.текст))}${кнопкаУдаления('important', [...давнее, ...пункты].map(п => п.текст))}</span> ${видВажного(пункты, видБлока('importantView')) || длинныйСписок(важное, 'hud-vertical-container', 'ранние')}${блокДавнего(давнее)}</div>`;
   }
   if (Array.isArray(memoryData.recently_learned) && memoryData.recently_learned.length > 0) {

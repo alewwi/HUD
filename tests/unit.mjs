@@ -2326,6 +2326,37 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   const чат = [{ is_user: true, mes: 'a' }, { is_user: false, mes: 'b' }];
   globalThis.SillyTavern.getContext = () => ({ chat: чат, chatMetadata: мета, name1: 'Софи', saveMetadataDebounced() {} });
   const N = await модуль('turn-notes.js');
+  {
+    const Ф = await модуль('settings-file.js');
+    const образец = { era: 'modern', hudLorebooks: [], themeEdits: {}, bgImage: '', enableMemory: true };
+    const настройки = { era: 'medieval', hudLorebooks: ['a'], themeEdits: { x: 1 }, bgImage: 'data:image/png;base64,AA', savedAt: 5, localOnly: ['bgImage'], свой: 1 };
+    const хранилище = { getItem: (к) => (к === 'hud-scene-compact' ? '1' : null) };
+    const файл = Ф.собратьФайл(настройки, '1.2.3', { хранилище, дата: new Date('2026-11-06T10:00:00Z') });
+    проверить('файл настроек: всё, кроме следа браузера', файл.settings.bgImage === настройки.bgImage && файл.settings.свой === 1 && !('savedAt' in файл.settings) && !('localOnly' in файл.settings) && файл.local['hud-scene-compact'] === '1' && файл.version === '1.2.3');
+    const разбор = Ф.разобратьФайл(JSON.stringify(файл), образец);
+    проверить('файл настроек: читается обратно', разбор.настройки.era === 'medieval' && разбор.местные['hud-scene-compact'] === '1' && разбор.пропущено === 0);
+    проверить('файл настроек: чужой файл и мусор — нет', Ф.разобратьФайл('{"era":"x"}', образец) === null && Ф.разобратьФайл('не json', образец) === null && Ф.разобратьФайл('{"format":"tavernos-hud-settings","settings":[]}', образец) === null);
+    const плохой = Ф.разобратьФайл('{"format":"tavernos-hud-settings","settings":{"__proto__":{"x":1},"hudLorebooks":"строка","era":"modern","savedAt":9},"local":{"чужой":"1"}}', образец);
+    проверить('файл настроек: не тот вид пропущен, прототип не тронут', плохой.пропущено === 2 && !('hudLorebooks' in плохой.настройки) && !('savedAt' in плохой.настройки) && ({}).x === undefined && !Object.keys(плохой.местные).length);
+    const Н = await модуль('settings.js');
+    const подозрительные = Object.keys(Н.defaultSettings).filter(Ф.секретноеИмя);
+    проверить('файл настроек: среди настроек HUD нет полей для ключей', подозрительные.length === 0, подозрительные.join());
+    const целиком = Ф.собратьФайл(Н.defaultSettings, '1');
+    проверить('файл настроек: обычные настройки не теряются', целиком.removed.length === 0 && Object.keys(целиком.settings).length === Object.keys(Н.defaultSettings).filter(к => к !== 'savedAt' && к !== 'localOnly').length);
+    const КЛЮЧ = 'sk-or-v1-' + 'a1b2c3d4'.repeat(4);
+    const опасные = Ф.собратьФайл({ era: 'modern', hudMaxTokens: 8192, tokenBudget: 'chip', secretsGrid: 'auto', memoryBooksLinkKey: 'hud-rule', apiKey: 'любое', proxy_password: 'x', вложенное: { authToken: 'y', можно: 1 },
+      musicPrompt: 'мой ключ ' + КЛЮЧ, bgImage: 'https://site.test/a.png?token=abcdef123456', userImg: 'https://user:pass@site.test/a.png', список: ['ok', 'Bearer ' + 'a'.repeat(24)], картинка: 'data:image/png;base64,' + КЛЮЧ, пустойКлюч: '', apiKeyOld: '' }, '1');
+    const текст = JSON.stringify(опасные.settings);
+    проверить('файл настроек: ключи не уходят ни по имени, ни по значению', !/любое|authToken|proxy_password|site\.test|Bearer/.test(текст) && !текст.replace(/data:image[^"]*/, '').includes('sk-or') && опасные.removed.length === 7, опасные.removed.join());
+    проверить('файл настроек: похожие на ключ имена целы', опасные.settings.hudMaxTokens === 8192 && опасные.settings.tokenBudget === 'chip' && опасные.settings.secretsGrid === 'auto' && опасные.settings.memoryBooksLinkKey === 'hud-rule' && опасные.settings.вложенное.можно === 1 && опасные.settings.картинка.startsWith('data:'));
+    проверить('файл настроек: в списке убранного нет значений', !JSON.stringify(опасные.removed).includes('sk-or'));
+    const чужой = Ф.разобратьФайл(JSON.stringify({ format: Ф.МЕТКА_ФАЙЛА, settings: { apiKey: 'x', musicPrompt: КЛЮЧ, era: 'modern' } }), образец);
+    проверить('файл настроек: при загрузке ключи тоже не принимаются', !('apiKey' in чужой.настройки) && !('musicPrompt' in чужой.настройки) && чужой.настройки.era === 'modern' && чужой.пропущено === 2);
+    const живые = { era: 'modern', hudLorebooks: ['b'], themeEdits: { y: 2 }, bgImage: 'старая', enableMemory: false, лишнее: 1, savedAt: 7 };
+    const книги = живые.hudLorebooks;
+    Ф.применитьНастройки(живые, { настройки: { era: 'medieval' } }, образец);
+    проверить('файл настроек: чего нет в файле — по умолчанию', живые.era === 'medieval' && живые.enableMemory === true && живые.bgImage === '' && живые.hudLorebooks.length === 0 && живые.hudLorebooks !== книги && живые.hudLorebooks !== образец.hudLorebooks && !('лишнее' in живые) && живые.savedAt === 7);
+  }
   проверить('цель: новый ответ и свайп', N.цельХода(чат, 'normal') === 2 && N.цельХода(чат, 'swipe') === 1 && N.цельХода([...чат, { is_user: true }], 'normal') === 3);
   проверить('подсказка добавляется', N.добавитьПодсказку('guns', 'письмо в сейфе') && !N.добавитьПодсказку('guns', 'письмо в сейфе') && !N.добавитьПодсказку('нет', 'x'));
   // Нажали на старом ответе, игрок свайпает последний: уходит и держится на свайпах.
@@ -2393,9 +2424,38 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   проверить('активность меняет норму', N.нормаКалорий({ вес: 60, рост: 165, активность: 'high' }) > N.нормаКалорий({ вес: 60, рост: 165, активность: 'low' }));
   {
     const ч3 = [{ is_user: true, mes: 'a' }];
-    const сн = { sc: { Dt: '10.05.2027' }, us: { N: 'x' }, phn: { cl: [{ dt: '01.05.2027', ti: 'Встреча с юристом', kd: 'event' }, { dt: '01.05.2027', ti: 'День рождения Коэна', kd: 'birthday' }] } };
+    const сн = { sc: { Dt: '10.05.2027' }, us: { N: 'x' }, phn: { cl: [{ dt: '05.05.2027', ti: 'Встреча с юристом', kd: 'event' }, { dt: '05.05.2027', ti: 'День рождения Коэна', kd: 'birthday' }] } };
     const з = N.заметкиХода({ чат: ч3, снимок: сн, тип: 'normal' });
     проверить('просроченный план спрашивает, день рождения нет', /«Встреча с юристом» was set/.test(з) && !/День рождения Коэна/.test(з));
+  }
+  проверить('причина без числа в начале', N.разобратьПричину('60 (-5 за жестокий упрек)').почему === 'жестокий упрек');
+  {
+    const м5 = {};
+    const чат5 = [{ is_user: true, mes: 'a' }];
+    const старый = globalThis.SillyTavern.getContext;
+    globalThis.SillyTavern.getContext = () => ({ chat: чат5, chatMetadata: м5, name1: 'Софи', saveMetadataDebounced() {} });
+    N.сверитьСдвиг({ кто: 'Ева', кому: 'Вэнс', индекс: 1, d: -50, было: 50, стало: 0, почему: '' });
+    N.сверитьСдвиг({ кто: 'Ева', кому: 'Вэнс', индекс: 3, d: 0, было: 0, стало: 0, почему: 'использовал вслепую', рана: true });
+    const шрамы = N.шрамыЧеловека('Ева', 'Вэнс: 0');
+    проверить('одна рана на пару, с причиной', шрамы.length === 1 && шрамы[0].почему === 'использовал вслепую' && шрамы[0].было === 50);
+    N.сверитьСдвиг({ кто: 'Ева', кому: 'Лор', индекс: 3, d: 0, было: 0, стало: 0, почему: 'предал', рана: true });
+    проверить('рана при нулевом доверии живёт', N.шрамыЧеловека('Ева', 'Вэнс: 0; Лор: 0').some(з => з.кому === 'Лор'));
+    проверить('шрам снимается у всей пары', N.убратьШрам(шрамы[0].id) && !N.шрамыЧеловека('Ева', 'Вэнс: 0; Лор: 0').some(з => з.кому === 'Вэнс'));
+    const сн = { sc: { Dt: '10.05.2027' }, cs: [{ N: 'Брэндон', Ap: 'М, 188 см', A: '26', Bs: 'eng: 72; slp: 5 часов' }] };
+    N.заметкиХода({ чат: чат5, снимок: сн, тип: 'normal' });
+    проверить('часы сна — не бессонница', !N.запущенноеУ('Брэндон'));
+    const сн2 = { sc: { Dt: '10.05.2027' }, phn: { cl: Array.from({ length: 6 }, (_, i) => ({ dt: '0' + (i + 4) + '.05.2027', ti: 'План ' + i, kd: 'event' })).concat({ dt: '01.01.2027', ti: 'Старое', kd: 'event' }) } };
+    const з5 = N.заметкиХода({ чат: [...чат5, { is_user: true, mes: 'b' }], снимок: сн2, тип: 'normal' });
+    проверить('просрочка не заливает запрос', (з5.match(/The plan/g) || []).length === 2 && !/Старое/.test(з5));
+    globalThis.SillyTavern.getContext = старый;
+  }
+  {
+    const Ч = await модуль('render/character.js');
+    проверить('значок: закрытый кубик и осмотр считаются, открытые нет', Ч.вопросыВРазметке('<b data-hud-threat="roll"></b><b data-hud-exam="open"></b><b data-hud-threat="fate"></b>') === 2);
+    const С = await модуль('render/secrets-grid.js');
+    const было = globalThis.SillyTavern.getContext;
+    проверить('значок: без дуэли вопросов о секретах нет', С.вопросыСекретов([{ fact: 'а', knows: ['Ева'], unaware: ['Лор'] }, { fact: 'б', knows: ['Ева'] }, { fact: 'в', knows: ['Лор'] }], { characters: [{ Имя: 'Ева' }] }) === 0);
+    globalThis.SillyTavern.getContext = было;
   }
   // Приглашения.
   const ч2 = [{ is_user: false, mes: '"inv": ["Коэн | ужин | 05.04.2027"]' }, { is_user: true, mes: 'хм, посмотрим' }, { is_user: false, mes: '"inv": ["Арес | поездка | 06.04.2027"]' }, { is_user: true, mes: 'Да, приду!' }];

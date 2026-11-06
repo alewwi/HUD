@@ -4,6 +4,28 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.73 — 2026-11-06
+
+### Added
+- Settings file: all settings, customization, your themes and stats and images save to one file and load back. API keys and passwords stay out of the file.
+- A badge on the tab where HUD is waiting for your answer: invitations, "came up in an argument", a closed threat outcome and check-up. The same number shows in the header of a collapsed card and on the stub when the side panel is closed, and a tab with a badge goes straight to the question.
+
+### Fixed
+- Invitations did not show in Memory when it had no Important block.
+
+## 23.88.70 — 2026-11-06
+
+### Fixed
+- Nudges and turn notes lost the generation type: a nudge dropped on the first swipe of a new reply, and notes were rebuilt.
+- Sleep hours were read as a scale, so almost everyone landed in the neglected state.
+- A wound at zero trust did not show, and repeats made duplicates. Now there is one scar per pair.
+- Men were counted as women in the calorie norm.
+- A reason like "-5 for the reproach" loses the number.
+- Overdue plans no longer flood the request: only the last week and two per turn at most.
+- The sample no longer mixes the real chat into weights.
+- The Miscarriage or abortion button finds the father and who knows in past turns.
+- The archive keeps trust rows with a reason, a scar or a big shift.
+
 ## 23.88.68 — 2026-11-05
 
 ### Added
