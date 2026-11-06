@@ -12,8 +12,8 @@
 // переформулировка давала бы новый бросок — лишний шанс. Поэтому ключ —
 // время близости и партнёр, а первый бросок по этому ключу запоминается.
 
-import { namesLikelySame } from '../names.js?v=23.88.73';
-import { settings } from '../settings.js?v=23.88.73';
+import { namesLikelySame } from '../names.js?v=23.88.77';
+import { settings } from '../settings.js?v=23.88.77';
 
 const КЛЮЧ = 'tavernosHudConception';
 
@@ -233,7 +233,7 @@ export function откатитьСудьбу(кто) {
  * Беременность уходит, только когда игрок сделал тест в HUD; прежние
  * итоги до «изменения судьбы» не уходят вовсе.
  */
-export function скрытыеФактыЗачатия(сценаMs = null) {
+export function скрытыеФактыЗачатия(сценаMs = null, снимок = null) {
   const х = хранилище();
   if (!х) return '';
   const имя = (кто) => кто === 'user' ? '{{user}}' : String(кто).replace(/^char:/, '');
@@ -266,6 +266,7 @@ export function скрытыеФактыЗачатия(сценаMs = null) {
   for (const кто of new Set((х.потери || []).map(п => п && п.кто).filter(Boolean))) {
     const п = закрывшаяПотеря(кто, сценаMs);
     if (!п || (Number.isFinite(сценаMs) && Number.isFinite(п.циклК) && сценаMs > п.циклК + 14 * ДЕНЬ_МС)) continue;
+    if (потеряЗаписана(п, кто, снимок, сценаMs)) continue;
     const вид = (ВИДЫ_ПОТЕРИ[п.вид] || ВИДЫ_ПОТЕРИ.miscarriage).модели;
     const в = восстановлениеПосле(п.вид, п.неделя);
     const цикл = Number.isFinite(п.циклК) ? ` In Mns write only 'phs: paused' until the first period, about ${дм(п.циклК)}; then the cycle goes on as usual.` : '';
@@ -277,6 +278,11 @@ export function скрытыеФактыЗачатия(сценаMs = null) {
   // Один из двойни или тройни: беременность идёт дальше.
   for (const п of х.потери || []) {
     if (!п || п.отменена || !п.часть || потеряЧья(п.кто) || !х.плоды[п.кто]) continue;
+    // Малыши родились или это уже другая беременность: история закрыта.
+    const б = (х.беременности || {})[п.кто];
+    if (Number.isFinite(п.дата) && (х.роды.some(р => р.кто === п.кто && (деньРодов(р) ?? -Infinity) >= п.дата) || (б && Number.isFinite(б.lmp) && б.lmp > п.дата))) continue;
+    if (Number.isFinite(сценаMs) && Number.isFinite(п.дата) && сценаMs < п.дата) continue;
+    if (потеряЗаписана(п, п.кто, снимок, сценаMs)) continue;
     строки.push(`${имя(п.кто)} lost ${п.часть === 1 ? 'one' : 'two'} of her babies${Number.isFinite(п.дата) ? ` on ${дм(п.дата)}` : ''}${Number.isFinite(п.неделя) ? `, at week ${п.неделя}` : ''}. The pregnancy goes on with ${п.осталось === 1 ? 'one baby' : `${п.осталось} babies`}: keep Prg, and say how many are left. Do not write lost for this again.`);
   }
   // Осмотры: только то, что игрок уже открыл.
@@ -583,9 +589,41 @@ export function восстановлениеПосле(вид, неделя = nu
   const н = Number.isFinite(неделя) ? неделя : 0;
   const поздно = н >= 22 || вид === 'stillbirth', средне = н >= 13;
   return { цикл: поздно ? 56 : средне ? 42 : 35, овуляция: поздно ? 28 : средне ? 21 : 14, кровь: поздно ? 35 : средне ? 14 : 10,
+    близость: поздно ? 42 : средне ? 21 : 14, // только напоминание игроку (render/rest-hint.js), модели не идёт
     молоко: поздно ? 'есть' : н >= 16 ? 'может' : '' };
 }
 const ОСЛОЖНЕНИЕ = /выскабл|кюретаж|операц|хирург|травм|ранени|пулев|разрыв|инфекц|сепсис|curettage|d&c|surgery|surgical|trauma|gunshot|wound|rupture|infection|sepsis/iu;
+// Что говорит о потере в здоровье, пока идёт кровь.
+const СЛОВА_ПОТЕРИ = /выкидыш|аборт|прерыван|потер\p{L}* (?:беремен|реб[её]н|малыш|плод)|кровотеч|кровянист|выскабл|кюретаж|miscarr|abortion|bleeding|pregnancy loss|curettage/iu;
+/**
+ * Напоминать ли модели о потере. Заметка нужна, только пока HUD её не держит:
+ * модель ещё пишет живую беременность, забыла кровотечение, пока оно идёт, или
+ * вернула цикл раньше срока. Отмена и новая беременность сюда не доходят:
+ * их отсекает закрывшаяПотеря. Без снимка напоминаем, человека вне сцены — нет.
+ */
+export function потеряЗаписана(п, кто, снимок, сценаMs = null) {
+  if (!снимок || typeof снимок !== 'object') return false;
+  const имя = String(кто).replace(/^char:/, '');
+  const з = кто === 'user' ? снимок.us : (Array.isArray(снимок.cs) ? снимок.cs : []).find(c => c && namesLikelySame(String(c.N || '').trim(), имя));
+  if (!з || typeof з !== 'object') return true;
+  const prg = String(з.Prg ?? '').trim();
+  if (МЕТКА_ПОТЕРИ.test(prg)) return true;
+  const вЗдоровье = СЛОВА_ПОТЕРИ.test([з.Ill, з.H, з.Ph].map(v => String(v ?? '')).join(' '));
+  // Один из двойни: беременность идёт дальше, Prg остаётся и сама ничего не значит.
+  if (п.часть) {
+    if (вЗдоровье || СЛОВА_ПОТЕРИ.test(prg) || частьПотери(prg)) return true;
+    if (!Number.isFinite(сценаMs) || !Number.isFinite(п.дата)) return true;
+    if ((сценаMs - п.дата) / ДЕНЬ_МС < восстановлениеПосле(п.вид, п.неделя).кровь) return false;
+    return !(п.осталось === 1 && /двойн|близнец|близняш|тройн|twins|triplets/i.test(prg));
+  }
+  if (prg && !/^(?:empty|none)$/i.test(prg)) return /(?:^|;)\s*brn\s*:\s*(?!empty|none)/i.test(prg);
+  if (!Number.isFinite(сценаMs) || !Number.isFinite(п.дата)) return true;
+  const цикл = String(з.Mns ?? '').trim();
+  if (цикл && !/paus|пауз/i.test(цикл) && Number.isFinite(п.циклК) && сценаMs < п.циклК) return false;
+  const дней = (сценаMs - п.дата) / ДЕНЬ_МС;
+  return дней >= восстановлениеПосле(п.вид, п.неделя).кровь || вЗдоровье;
+}
+
 /**
  * Шанс зачатия после потери или аборта. Овуляция приходит раньше первых
  * месячных, поэтому зачать можно уже до них: сама потеря шанс надолго не

@@ -15,10 +15,10 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.88.73';
-import { namesLikelySame } from './names.js?v=23.88.73';
-import { датаИзТекста, дм } from './render/conception.js?v=23.88.73';
-import { праздникиГода } from './render/holidays.js?v=23.88.73';
+import { settings } from './settings.js?v=23.88.77';
+import { namesLikelySame } from './names.js?v=23.88.77';
+import { датаИзТекста, дм } from './render/conception.js?v=23.88.77';
+import { праздникиГода } from './render/holidays.js?v=23.88.77';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -28,13 +28,13 @@ function контекст() { try { return window.SillyTavern?.getContext?.() ||
 let пример = null;
 export function задатьПримерЗаметок(набор) { пример = набор || null; }
 function хранилище() {
-  if (пример) { for (const к of ['подсказки', 'сдвиги', 'приглашения', 'сроки']) пример[к] ||= []; for (const к of ['детали', 'запущено', 'вес', 'разовые']) пример[к] ||= {}; return пример; }
+  if (пример) { for (const к of ['подсказки', 'сдвиги', 'приглашения', 'сроки']) пример[к] ||= []; for (const к of ['детали', 'запущено', 'вес', 'разовые', 'повторы', 'снятыеШрамы']) пример[к] ||= {}; return пример; }
   const ctx = контекст();
   const мета = ctx && (ctx.chatMetadata || ctx.chat_metadata);
   if (!мета) return null;
   const х = (мета[КЛЮЧ] && typeof мета[КЛЮЧ] === 'object') ? мета[КЛЮЧ] : (мета[КЛЮЧ] = {});
   for (const к of ['подсказки', 'сдвиги', 'приглашения', 'сроки']) if (!Array.isArray(х[к])) х[к] = [];
-  for (const к of ['детали', 'запущено', 'вес', 'разовые']) if (!х[к] || typeof х[к] !== 'object') х[к] = {};
+  for (const к of ['детали', 'запущено', 'вес', 'разовые', 'повторы', 'снятыеШрамы']) if (!х[к] || typeof х[к] !== 'object') х[к] = {};
   return х;
 }
 function сохранить() {
@@ -43,6 +43,19 @@ function сохранить() {
   try { (ctx?.saveMetadataDebounced || ctx?.saveMetadata)?.call(ctx); } catch (_) {}
 }
 const вкл = (ключ) => settings[ключ] !== false;
+
+// То, что держится много ходов, модель и так видит в HUD. Напоминаем раз в три
+// ответа и сразу, если текст изменился. Свайп того же ответа получает то же.
+const РАЗ_В_ОТВЕТОВ = 3;
+function пораНапомнить(х, чат, цель, ключ, текст) {
+  const был = х.повторы[ключ];
+  if (был && был.текст === текст && цель > был.цель) {
+    const ответов = чат.slice(был.цель, цель).filter(м => м && !м.is_user).length;
+    if (ответов < РАЗ_В_ОТВЕТОВ) return false;
+  }
+  х.повторы[ключ] = { цель, текст };
+  return true;
+}
 
 /** Номер сообщения, которое пишет модель. */
 export function цельХода(чат, тип = 'normal') {
@@ -122,6 +135,8 @@ export function сверитьСдвиг({ кто, кому, индекс, d, б
   const тот = (з) => з.индекс === индекс && namesLikelySame(з.кто, кто) && namesLikelySame(з.кому, кому);
   const есть = х.сдвиги.find(тот);
   if (есть && есть.убран) return;
+  // Снятая рана: модель может повторять отметку, а настоящее падение доверия — новый шрам.
+  if (рана && х.снятыеШрамы[`${чисто(кто)}|${чисто(кому)}`]) рана = false;
   if (Math.abs(d) < ПОРОГ_СДВИГА && !рана) {
     if (есть) { х.сдвиги.splice(х.сдвиги.indexOf(есть), 1); сохранить(); }
     return;
@@ -163,25 +178,30 @@ export function убратьШрам(id) {
   const з = х && х.сдвиги.find(е => е.id === id);
   if (!з) return false;
   for (const е of х.сдвиги) if (е.шрам && е.кто === з.кто && е.кому === з.кому) е.убран = true;
+  х.снятыеШрамы[`${з.кто}|${з.кому}`] = true;
   сохранить();
   return true;
 }
-function заметкаОтношений(х, снимок, длина, имяИгрока) {
+function заметкаОтношений(х, снимок, чат, цель, имяИгрока) {
+  const длина = чат.length;
   const люди = Array.isArray(снимок?.cs) ? снимок.cs : [];
   const найти = (имя) => люди.find(c => c && namesLikelySame(чисто(c.N), имя));
   const строки = [];
   const уровень = (кто, кому) => { const c = найти(кто); return c ? доверие(c.Tr, кому) : null; };
   for (const з of живыеШрамы(уровень).filter(е => найти(е.кто)).slice(-3)) {
-    строки.push(`${з.кто} still carries a wound from ${з.кому}${з.почему ? `: ${з.почему}` : ''} (trust fell from ${з.было} to ${з.стало}). Making up does not erase it: let it show in small flinches and guarded moments until trust is truly rebuilt.`);
+    const текст = `${з.кто} still carries a wound from ${з.кому}${з.почему ? `: ${з.почему}` : ''} (trust fell from ${з.было} to ${з.стало}). Kind words do not erase it: let it show in small flinches and guarded moments.`;
+    if (пораНапомнить(х, чат, цель, `шрам|${з.кто}|${з.кому}`, текст)) строки.push(текст);
   }
   for (const з of сдвигиЧата().filter(е => Math.abs(е.d) >= ПОРОГ_ИНЕРЦИИ && длина - е.индекс <= ХОДОВ_ИНЕРЦИИ && найти(е.кто)).slice(-2)) {
-    строки.push(`${з.кто} is still under the impression of what happened with ${з.кому}${з.почему ? ` (${з.почему})` : ''}: it colours the next few moments.`);
+    const текст = `${з.кто} is still under the impression of what happened with ${з.кому}${з.почему ? ` (${з.почему})` : ''}: it colours the next few moments.`;
+    if (пораНапомнить(х, чат, цель, `след|${з.id}`, текст)) строки.push(текст);
   }
   // Соперник: тот, кого игрок сам называет соперником, сблизился с кем-то.
   const отношения = String(снимок?.us?.Rl || '');
   for (const з of сдвигиЧата().filter(е => е.d >= ПОРОГ_СДВИГА && длина - е.индекс <= 2)) {
     const кусок = отношения.split(/[;\n]/).find(ч => namesLikelySame((ч.split(/[:：]/)[0] || '').trim(), з.кому));
-    if (кусок && /соперни|rival/i.test(кусок)) строки.push(`${з.кому}, ${имяИгрока}'s rival, gained ground with ${з.кто}: it costs ${имяИгрока} some of ${з.кто}'s warmth.`);
+    const текст = `${з.кому}, ${имяИгрока}'s rival, gained ground with ${з.кто}: it costs ${имяИгрока} some of ${з.кто}'s warmth.`;
+    if (кусок && /соперни|rival/i.test(кусок) && пораНапомнить(х, чат, цель, `соперник|${з.id}`, текст)) строки.push(текст);
   }
   return строки;
 }
@@ -237,7 +257,7 @@ export function запущенноеУ(имя) {
   const х = хранилище();
   return х ? х.запущено[чисто(имя)] || null : null;
 }
-function заметкаЗапущенного(х, снимок, сцена, имяИгрока) {
+function заметкаЗапущенного(х, снимок, чат, цель, сцена, имяИгрока) {
   const строки = [];
   if (!Number.isFinite(сцена)) return строки;
   for (const { имя, з } of людиСнимка(снимок, имяИгрока)) {
@@ -251,9 +271,10 @@ function заметкаЗапущенного(х, снимок, сцена, им
     const сон = следить('сон', (с.сон !== null && с.сон <= 2) || (с.энергия !== null && с.энергия <= 10));
     const вода = следить('вода', /жажд|обезвож|пересохл|thirst|dehydrat|parched/i.test(с.текст));
     if (Object.keys(запись).length) х.запущено[имя] = запись; else delete х.запущено[имя];
-    if (голод >= 2) строки.push(`${имя} has gone ${голод} days with almost no food: weak, dizzy, thinner, and it shows.${голод >= 4 ? ' If it goes on, write it in Ill.' : ''}`);
-    if (вода >= 2) строки.push(`${имя} has gone ${вода} days short of water: cracked lips, headache, dizziness.${вода >= 3 ? ' If it goes on, write it in Ill.' : ''}`);
-    if (сон >= 2) строки.push(`${имя} has gone ${сон} days nearly without sleep: slow thinking, shaking hands, mistakes.${сон >= 4 ? ' If it goes on, write it in Ill.' : ''}`);
+    const напомнить = (ключ, текст) => { if (пораНапомнить(х, чат, цель, `запущено|${имя}|${ключ}`, текст)) строки.push(текст); };
+    if (голод >= 2) напомнить('еда', `${имя} has gone ${голод} days with almost no food: weak, dizzy, thinner, and it shows.${голод >= 4 ? ' If it goes on, write it in Ill.' : ''}`);
+    if (вода >= 2) напомнить('вода', `${имя} has gone ${вода} days short of water: cracked lips, headache, dizziness.${вода >= 3 ? ' If it goes on, write it in Ill.' : ''}`);
+    if (сон >= 2) напомнить('сон', `${имя} has gone ${сон} days nearly without sleep: slow thinking, shaking hands, mistakes.${сон >= 4 ? ' If it goes on, write it in Ill.' : ''}`);
   }
   return строки;
 }
@@ -494,9 +515,9 @@ export function заметкиХода({ чат, снимок = null, тип = '
   const части = [подсказкиХода(х, цель)];
   if (снимок) {
     const строки = [];
-    if (вкл('enableScars')) строки.push(...заметкаОтношений(х, снимок, чат.length, игрок));
+    if (вкл('enableScars')) строки.push(...заметкаОтношений(х, снимок, чат, цель, игрок));
     if (вкл('enableBodyCues')) { const д = заметкаДеталей(х, снимок, цель, игрок); if (д) строки.push(д); }
-    if (вкл('enableNeglect')) строки.push(...заметкаЗапущенного(х, снимок, сцена, игрок));
+    if (вкл('enableNeglect')) строки.push(...заметкаЗапущенного(х, снимок, чат, цель, сцена, игрок));
     if (вкл('enableWeight')) { const в = заметкаВеса(х, снимок, цель, сцена, игрок); if (в) строки.push(в); }
     if (вкл('enableEraHolidays')) { const п = заметкаПраздников(х, снимок, цель, сцена); if (п) строки.push(п); }
     строки.push(...заметкаПриглашений(х, цель, сцена, игрок), ...заметкаСроков(х, снимок, цель, сцена));

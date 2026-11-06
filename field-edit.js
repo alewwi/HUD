@@ -8,9 +8,9 @@
 // Здесь — чистая часть: какое поле у строки, что показать в окошке и как
 // подменить значение в объекте HUD. Кнопки и запись в чат — index.js.
 
-import { mapKey } from './utils.js?v=23.88.73';
-import { КАТАЛОГ } from './deep-fields.js?v=23.88.73';
-import { namesLikelySame } from './names.js?v=23.88.73';
+import { mapKey } from './utils.js?v=23.88.77';
+import { КАТАЛОГ } from './deep-fields.js?v=23.88.77';
+import { namesLikelySame } from './names.js?v=23.88.77';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const поляРаздела = (код) => (КАТАЛОГ.find(р => р.код === код) || { группы: [] }).группы.flatMap(г => г.поля.map(п => п[0]));

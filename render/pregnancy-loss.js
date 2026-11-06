@@ -5,9 +5,10 @@
 // одного из двойни, кубик исхода угрозы и осмотры. Логика и запись —
 // render/conception.js, клики ловит index.js. Оформление — css/misc.css.
 
-import { escapeHtml } from '../utils.js?v=23.88.73';
-import { ВИДЫ_ПОТЕРИ, дм, восстановлениеПосле } from './conception.js?v=23.88.73';
-import { ЗНАЧОК_КОРЗИНЫ } from './erase-button.js?v=23.88.73';
+import { escapeHtml } from '../utils.js?v=23.88.77';
+import { ВИДЫ_ПОТЕРИ, дм, восстановлениеПосле } from './conception.js?v=23.88.77';
+import { ЗНАЧОК_КОРЗИНЫ } from './erase-button.js?v=23.88.77';
+import { подождатьДо, ДНЕЙ_ОСЛОЖНЕНИЕ } from './rest-hint.js?v=23.88.77';
 
 const ДЕНЬ = 864e5;
 const Р = 25, ДЛИНА = 2 * Math.PI * Р;
@@ -59,12 +60,14 @@ export function блокПотери(п, { кто = '', сценаMs = null } = 
     в.молоко === 'может' && идёт(10) ? пункт('Молоко', 'может прийти немного') : '',
     Number.isFinite(п.циклК) && (сцена === null || сцена < п.циклК) ? пункт('Цикл', `≈ ${дм(п.циклК)}`) : '',
   ].filter(Boolean).join('');
+  const близостьДо = дата === null ? null : дата + (в.близость + (п.осложнение ? ДНЕЙ_ОСЛОЖНЕНИЕ : 0)) * ДЕНЬ;
   const доля = дней !== null && Number.isFinite(п.циклК) && п.циклК > дата ? Math.min(100, Math.round(дней * ДЕНЬ / (п.циклК - дата) * 100)) : 0;
   return `<div class="hud-state-plaque is-loss is-${п.вид || 'miscarriage'}" role="status"><span class="hud-note-eye hud-section-title">Конец беременности</span><div class="hud-loss-top">${кольцо(п.неделя)}`
     + `<div class="hud-loss-name"><b>${имя}</b>${срок ? `<small>${срок}</small>` : ''}</div>`
     + (дней !== null ? `<span class="hud-state-timer">${дней ? `${дней} дн. назад` : 'сегодня'}</span>` : '')
     + `</div>`
     + (факты ? `<i class="hud-loss-way" aria-hidden="true"><b style="width:${доля}%"></b></i><ul class="hud-loss-facts">${факты}</ul>` : '')
+    + (близостьДо !== null && (сцена === null || сцена < близостьДо) ? подождатьДо(дм(близостьДо)) : '')
     + (кто ? `<div class="hud-loss-acts">${кнопкаОтменыПотери(кто)}`
       + `<button type="button" class="hud-erase-open" data-hud-erase="pregnancy" data-kto="${escapeHtml(кто)}" title="Удалить беременность из HUD" aria-label="Удалить беременность из HUD">${ЗНАЧОК_КОРЗИНЫ}</button></div>` : '')
     + `</div>`;

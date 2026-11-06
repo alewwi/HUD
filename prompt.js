@@ -5,14 +5,14 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.88.73';
-import { английский } from './i18n.js?v=23.88.73';
-import { промптНаАнглийском } from './prompt-en.js?v=23.88.73';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.73';
-import { parseSceneDate } from './history-analyzer.js?v=23.88.73';
-import { возрастТочно } from './render/babies.js?v=23.88.73';
-import { списокВыключенного, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.73';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.73';
+import { settings } from './settings.js?v=23.88.77';
+import { английский } from './i18n.js?v=23.88.77';
+import { промптНаАнглийском } from './prompt-en.js?v=23.88.77';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.77';
+import { parseSceneDate } from './history-analyzer.js?v=23.88.77';
+import { возрастТочно } from './render/babies.js?v=23.88.77';
+import { списокВыключенного, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.77';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.77';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -29,7 +29,7 @@ export function подключить(связь) { основа = связь; }
    и модели не из чего решить, что писать её нужно всегда.
    nsfw  — нужна ли часть про близость (решает hud-snapshot.js);
    режим — 'reply': обычный ответ с HUD в конце; 'regen': только HUD. */
-export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой = false, cacheStable = false } = {}) {
+export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой = false, cacheStable = false, тип = 'normal' } = {}) {
   // Что включено. Правила и поля собираются только из включённых разделов:
   // модель не должна читать про телефон, которого у неё не просят.
   const болезни = settings.enableIllness !== false;
@@ -40,7 +40,7 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
   if (беременность && !cacheStable) основа.сверитьРоды();
   const родыБыли = !cacheStable && беременность && роды().length > 0;
   // Снимок нужен и без родов: по его дате HUD считает срок беременности.
-  const снимокТекст = беременность && !cacheStable ? JSON.stringify(основа.последнийСнимокОбъект() || {}) : '';
+  const снимокТекст = беременность && !cacheStable ? JSON.stringify(основа.последнийСнимокОбъект(тип) || {}) : '';
   const prgВСнимке = /"Prg"\s*:\s*"(?!(?:empty|none)")(?![^"]*(?:brn|lost)\s*:)/i.test(снимокТекст);
   const беременностьВПромпт = беременность && (!родыБыли || естьЗачатия() || prgВСнимке);
 
@@ -501,7 +501,7 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
   p += промптСвоихСтатов(settings, { игрок });
   // Скрытые факты: итог «кубика» зачатия. Знает автор, персонажи — нет,
   // пока нет теста или признаков (render/conception.js).
-  if (беременность && !cacheStable) p += скрытыеФактыЗачатия(датаСнимка);
+  if (беременность && !cacheStable) p += скрытыеФактыЗачатия(датаСнимка, основа.последнийHUDКакЕсть(тип));
   if (выросли.length) p += `\n\n## 👶 GROWN CHILDREN\nChildren born${выросли.map(р => р.когда || 'earlier').join(', ')} are now older than ${Math.max(1, Number(settings.babyGraduateYears) || 3)} years: track them in cs as regular characters, never in bb.`;
 
   // Снимок — макросом {{hudLast}}: блок исчезает целиком, когда прошлого HUD

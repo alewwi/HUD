@@ -24,7 +24,7 @@ export const ПРИМЕР_HUD = {
       R: 'book restorer, {{user}}\'s longtime friend, Mark\'s younger sister',
       B: 'trembling with arousal, head spinning, shoulders finally relaxed',
       H: 'generally alert, the wrist aches a little',
-      Ill: 'nm: migraine; sg: chronic; rc: 70%; sy: pressure in the temples when the weather changes; trt: sumatriptan, quiet and darkness | nm: left wrist sprain; sg: healing; rc: 55%; sy: aches under load; trt: elastic bandage, ointment',
+      Ill: 'nm: migraine; sg: chronic; rc: 70%; sy: pressure in the temples when the weather changes; trt: sumatriptan, quiet and darkness | nm: left wrist sprain; sg: healing; rc: 55%; sy: aches under load; trt: elastic bandage, ointment | nm: burn on the belly; sg: fresh; rc: 20%; sy: stings at a touch; trt: ointment, dressing; zn: belly',
       Mns: 'cyd: 14; cyl: 28; phs: ovulation; nxt: 01.11.2024; pms: 25.10–31.10; dly: 0',
       Ph: 'hot, dry mouth, strong arousal, slightly tipsy from the wine',
       Bs: 'eng: 35 — running low; awk: 20 — short on sleep; sat: 30 — hungry; str: 80 — at the limit; slp: 4 h 10 min, went to bed at 03:20; dut: hand in the atlas report on Friday',
@@ -473,7 +473,7 @@ export const ПРИМЕР_СЕМЬИ = () => ({
   журнал: [{ кто: 'char:Anna Grey', что: 'check-up at week 20 opened', дата: Д(2024, 10, 1) }, { кто: 'char:Mira Sol', что: 'Miscarriage, marked with the button', дата: Д(2024, 9, 28) }],
   потери: [
     { id: 'пример1', кто: 'char:Anna Grey', когда: '02.09.2024', дата: Д(2024, 9, 2), вид: 'miscarriage', неделя: 16, часть: 1, осталось: 1, было: 2, знают: 'Mark Grey', отец: 'Mark Grey' },
-    { id: 'пример2', кто: 'char:Mira Sol', когда: '28.09.2024', дата: Д(2024, 9, 28), вид: 'miscarriage', неделя: 7, lmp: Д(2024, 8, 12), циклК: Д(2024, 11, 2), знают: '{{user}}', отец: '', было: 1 },
+    { id: 'пример2', кто: 'char:Mira Sol', когда: '28.09.2024', дата: Д(2024, 9, 28), вид: 'miscarriage', неделя: 7, осложнение: true, lmp: Д(2024, 8, 12), циклК: Д(2024, 11, 2), знают: '{{user}}', отец: '', было: 1 },
   ],
 
   зачатие: { user: { когда: '22.09.2024, 23:10', проверено: true } },

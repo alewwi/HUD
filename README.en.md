@@ -56,7 +56,7 @@ A separate tab for everyone the model described in the turn:
 - **Look and state** — clothing, appearance, role, body, physiology, health, inventory, place.
 - **Inner life** — mood, thoughts, goals, schedule, fears, lines, hidden subtext, "expectation vs reality", the key point of the turn, flag monitor, jealousy, conflict depth, exposure risk.
 - **Relationships and trust** — toward each person on a 0–100 scale; trust shifts are visible from turn to turn.
-- **Relationship scars** — the model briefly writes why trust moved. A deep wound or a drop of 15 or more leaves a scar: the character remembers the hurt until trust returns. You can remove a scar with its cross. After a big shift a character stays under the impression for a few turns, and if someone is named a rival, their gain costs the player.
+- **Relationship scars** — the model briefly writes why trust moved. A deep wound or a drop of 15 or more leaves a scar: the character remembers the hurt until trust returns. You can remove a scar with its cross: the model stops being reminded, and only a new fall in trust can bring it back. Reminders about scars and the neglected state go out once every three replies, and at once if something changes. After a big shift a character stays under the impression for a few turns, and if someone is named a rival, their gain costs the player.
 - **Body state** — energy, alertness, satiety, stress, sleep and plans for tomorrow.
 - **Weight and height** — a line on the card: weight, height, BMI and change. The model writes them once, then HUD asks to update them weekly in story time.
 - **Neglected state** — a plate when a person goes several days with almost no food, water or sleep. The model shows it in the story and in time records it as an illness, and undernourishment lowers the chance of conception and disturbs the cycle.
@@ -220,6 +220,7 @@ For stories where the body and family matter — three linked blocks. Each is tu
 - **Chance of conception.** Ovulation comes before the first period, so getting pregnant again can happen soon. Before the first ovulation there is almost no chance, until the first period it's a bit lower, then normal. After surgery, trauma or infection it stays slightly lower for about three more months.
 - **Twins and triplets.** Not all babies have to be lost: the pregnancy goes on with those who remain.
 - **Threat dice.** If the pregnancy field mentions a threatened miscarriage, HUD rolls for the outcome. The chance depends on the term and severity. You reveal the result with a button and can change fate; the model gets it only after that.
+- **Intimacy reminder.** A translucent line just for you: the date to wait until after a loss or abortion (two to six weeks depending on the term, longer with a complication) and after childbirth (six weeks). A fresh wound on the torso says intimacy would hurt. The model does not see these reminders.
 - **What stays in the history.** The Pregnancies tab in the archive shows all births and losses of the chat and who knows about them. Losses also appear in the archive Timeline, and a miscarriage in the calendar as a memorial date; an abortion doesn't go there.
 
 **Check-ups.** At weeks 12, 20 and 30 the dice decide what was found: complications and the baby's traits. You reveal the result and can change fate, and the model learns only what you revealed. Serious findings have their own checkbox. Disclosure depends on the era: in the Middle Ages there are no check-ups, and nobody knows anything before the birth. The event log is in the archive and downloads as a file.
@@ -571,8 +572,12 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.73**:
+The latest version is **23.88.77**:
 
+- Notes about a pregnancy loss and losing one of twins go out only until HUD has recorded them.
+- Swipe looks at the HUD of the previous message.
+- Notes about scars and the neglected state go to the model once every three replies.
+- Translucent intimacy reminders after a loss, childbirth and a fresh wound, just for you.
 - Settings and customization save to a file and load back.
 - A badge on the tab where HUD is waiting for your answer.
 - One-time nudge for the model: a pill goes into the next reply and holds across its swipes.

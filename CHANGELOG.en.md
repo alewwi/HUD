@@ -4,6 +4,29 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.77 — 2026-11-06
+
+### Changed
+- The note about losing one of twins or triplets works the same way: it goes out only until HUD has recorded the loss, and comes back if it forgets before recovery ends. It no longer goes out after the birth or in a new pregnancy.
+- Swipe and Continue look at the HUD of the previous message, not at the reply being rewritten.
+
+## 23.88.76 — 2026-11-06
+
+### Changed
+- The "pregnancy is over" note goes to the model only until HUD has recorded the loss. If the model forgets it before recovery ends, the reminder comes back. A cancelled loss or a new pregnancy gives no reminders.
+
+## 23.88.75 — 2026-11-06
+
+### Changed
+- This Turn notes about scars, lingering impressions, rivals and the neglected state go to the model once every three replies, and at once if they change.
+- A scar no longer tells the model that trust will be rebuilt.
+- A removed scar does not come back when the same wound is repeated: only a new fall in trust brings it back.
+
+## 23.88.74 — 2026-11-06
+
+### Added
+- Translucent intimacy reminders: on the loss plaque, in the postpartum card and on a fresh wound on the torso. The date depends on the term and complications, and the line goes away once it has passed. The model does not see them.
+
 ## 23.88.73 — 2026-11-06
 
 ### Added
