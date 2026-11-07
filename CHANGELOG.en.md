@@ -4,6 +4,16 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.88 — 2026-11-07
+
+### Fixed
+- **Archive: the chosen chat no longer drops.** If you picked a copy or a branch of the open chat, the list showed "only own" again after the archive was closed. Now the chosen chat is remembered in the chat itself and stays chosen the next time the archive opens and after a page reload. You can pick another chat or "only own" in the same place.
+- If the chosen chat got new messages since last time, the archive reads it again before the analysis, and the old cached report is not shown.
+- The hint under the list no longer shows a negative number of turns missing from the chat.
+- **Calendar: no more miscarriage.** A pregnancy loss stood in the calendar as a memorial date and a year later as an anniversary: an old miscarriage sat in Soon half a year ahead and looked like a new event. Now losses don't go to the calendar at all; they stay in the archive's Pregnancies tab and Timeline.
+- **English mode: the HUD no longer carries Russian forward.** If a chat started in Russian, the model updated the last HUD and kept Russian values mixed with English ones. The instruction now ends with a short line: write every HUD value in the language chosen in the settings, even if earlier HUDs used another one. The line is there in both modes, Russian and English.
+- In English mode the built-in assistant prompt in the settings field is shown in English too: its example references are no longer Russian.
+
 ## 23.88.87 — 2026-11-07
 
 ### Added

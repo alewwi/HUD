@@ -10,6 +10,9 @@
 const ЗАМЕНЫ = [
   // Язык и коды.
   ['- 🌍 LANG: write values in Russian; character names follow "N".', '- 🌍 LANG: write values in English; character names follow "N".'],
+  // Последняя строка инструкции (prompt.js): начало чата могло пройти на
+  // русском, и модель, обновляя прошлый HUD, тащила русские значения дальше.
+  ['Write all HUD values in Russian, even if', 'Write all HUD values in English, even if'],
   ['the HUD expands them into Russian itself', 'the HUD expands them into words itself'],
   ['The place is in Russian words', 'The place is in English words'],
 

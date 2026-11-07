@@ -14,13 +14,12 @@
 // обработчик кликов (events.js). Своего состояния у календаря нет: всё в
 // классах и data-атрибутах разметки.
 
-import { escapeHtml, defeatWI, имяБезПриставки } from '../utils.js?v=23.88.87';
-import { namesLikelySame } from '../names.js?v=23.88.87';
-import { G_ICONS } from './icons.js?v=23.88.87';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ } from './conception.js?v=23.88.87';
-import { праздникиГода } from './holidays.js?v=23.88.87';
-import { срокиНитей } from '../turn-notes.js?v=23.88.87';
-import { settings } from '../settings.js?v=23.88.87';
+import { escapeHtml, defeatWI, имяБезПриставки } from '../utils.js?v=23.88.88';
+import { namesLikelySame } from '../names.js?v=23.88.88';
+import { G_ICONS } from './icons.js?v=23.88.88';
+import { праздникиГода } from './holidays.js?v=23.88.88';
+import { срокиНитей } from '../turn-notes.js?v=23.88.88';
+import { settings } from '../settings.js?v=23.88.88';
 
 const МЕСЯЦЫ_РОД = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const МЕСЯЦЫ = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
@@ -192,16 +191,6 @@ export function buildCalendarApp(events, characters, sceneDate, владелец
     список.push({ день: { d: д.getUTCDate(), mo: д.getUTCMonth() + 1, y: д.getUTCFullYear() }, время: '', до: '', часть: '', порядок: '', название: н.завязка, тип: 'event', кал: к.id, кто: '' });
   }
 
-  // Памятные даты: день потери и его годовщина. Аборт и роды сюда не идут:
-  // первое — личное решение, у вторых свои дни рождения.
-  if (сегодня) for (const п of историяБеременностей()) {
-    if (!Number.isFinite(п.дата) || п.вид === 'birth' || п.вид === 'abortion') continue;
-    const д = new Date(п.дата), имя = п.кто === 'user' ? '' : кратко(String(п.кто).replace(/^char:/, ''));
-    const к = календарь('mem', 'Памятные даты', '#b9a3c9');
-    const запись = (y) => список.push({ день: { d: д.getUTCDate(), mo: д.getUTCMonth() + 1, y }, время: '', до: '', часть: '', порядок: '', название: (ВИДЫ_ПОТЕРИ[п.вид] || ВИДЫ_ПОТЕРИ.miscarriage).имя, тип: 'event', кал: к.id, кто: имя });
-    запись(д.getUTCFullYear());
-    if (сегодня.y > д.getUTCFullYear()) запись(сегодня.y);
-  }
 
   // Расписания из карточек: хозяина — в «Мой», остальных — в их календари.
   let цвет = 0;
@@ -277,7 +266,7 @@ export function buildCalendarApp(events, characters, sceneDate, владелец
     const кто = e.кто ? `<span class="hud-cal-who">${defeatWI(escapeHtml(e.кто))}</span>` : '';
     const когда = e.время ? `<b>${escapeHtml(e.время)}</b>${e.до ? `<small>${escapeHtml(e.до)}</small>` : ''}` : e.часть ? `<b class="is-part">${escapeHtml(e.часть)}</b>` : '<b class="is-allday">весь день</b>';
     const днейНазад = (Date.UTC(сегодняДень.y, сегодняДень.mo - 1, сегодняДень.d) - Date.UTC(e.день.y, e.день.mo - 1, e.день.d)) / 864e5;
-    const просрочено = (e.тип === 'event' || e.тип === 'plan') && e.кал !== 'mem' && днейНазад > 0 && днейНазад <= 7;
+    const просрочено = (e.тип === 'event' || e.тип === 'plan') && днейНазад > 0 && днейНазад <= 7;
     return `<li class="hud-cal-ev ${цветКал(e.кал)} t-${e.тип}${e.время || e.часть ? '' : ' is-allday'}${просрочено ? ' is-overdue' : ''}"><span class="hud-cal-ev-time">${когда}</span><span class="hud-cal-ev-body"><span class="hud-cal-ev-title">${defeatWI(escapeHtml(e.название))}</span>${кто}</span></li>`;
   };
   const дниHTML = [...поДням.entries()].map(([к, дела]) => `<ul class="hud-cal-dayev" data-for="${к}"${к === ключСегодня ? '' : ' hidden'}>${дела.map(делоHTML).join('')}</ul>`).join('');

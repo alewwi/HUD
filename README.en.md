@@ -223,7 +223,7 @@ For stories where the body and family matter — three linked blocks. Each is tu
 - **Twins and triplets.** Not all babies have to be lost: the pregnancy goes on with those who remain.
 - **Threat dice.** If the pregnancy field mentions a threatened miscarriage, HUD rolls for the outcome. The chance depends on the term and severity. You reveal the result with a button and can change fate; the model gets it only after that.
 - **Intimacy reminder.** A translucent line just for you: the date to wait until after a loss or abortion (two to six weeks depending on the term, longer with a complication) and after childbirth (six weeks). A fresh wound on the torso says intimacy would hurt. The model does not see these reminders.
-- **What stays in the history.** The Pregnancies tab in the archive shows all births and losses of the chat and who knows about them. Losses also appear in the archive Timeline, and a miscarriage in the calendar as a memorial date; an abortion doesn't go there.
+- **What stays in the history.** The Pregnancies tab in the archive shows all births and losses of the chat and who knows about them. Losses also appear in the archive Timeline. They don't go to the phone calendar.
 
 **Check-ups.** At weeks 12, 20 and 30 the dice decide what was found: complications and the baby's traits. You reveal the result and can change fate, and the model learns only what you revealed. Serious findings have their own checkbox. Disclosure depends on the era: in the Middle Ages there are no check-ups, and nobody knows anything before the birth. The event log is in the archive and downloads as a file.
 
@@ -302,7 +302,7 @@ A summary of the whole chat history, via the **🗄 HUD archive** button in the 
 - **Soundtrack** — music chapters by day (if scene music is on).
 - **Statistics** and **Dashboard** — how many messages and days, who talks more, the model's reply length, repetition, dull zones, scene rhythm, dialogue vs description, who mentions whom. Dashboard widgets are picked with checkboxes.
 
-The archive also works for chats the HUD has been cleaned out of: the HUD keeps a **chronicle** — short summaries of every turn in a separate file on your SillyTavern. You can attach another chat's chronicle of the same character (say, an old copy) to your own — its turns fill the gaps without duplicates. One chat can be attached: the next one replaces the previous one. A branch of the open chat is already part of its chronicle, and HUD says so. There's search within the report and JSON export.
+The archive also works for chats the HUD has been cleaned out of: the HUD keeps a **chronicle** — short summaries of every turn in a separate file on your SillyTavern. You can attach another chat's chronicle of the same character (say, an old copy) to your own — its turns fill the gaps without duplicates. One chat can be attached: the next one replaces the previous one. A branch of the open chat is already part of its chronicle, and HUD says so. The chosen chat is remembered and stays chosen the next time the archive opens, and if it got new messages, the archive reads it again before the analysis. There's search within the report and JSON export.
 
 ### 🗂 HUD on the side
 
@@ -592,8 +592,11 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.87**:
+The latest version is **23.88.88**:
 
+- In English mode the model rewrites in English the Russian values left over from the start of a chat.
+- In the archive the chosen chat no longer drops when it closes, and a chat that grew is read again before the analysis.
+- Pregnancy losses no longer appear in the phone calendar.
 - You can remove a person from Daily life by hand: the model stops counting their weight and sleep, and you can bring them back at the bottom of the tab.
 - Adding other chats in the archive is clear again, and the model no longer reads stale hidden facts.
 - Every new feature has a switch in the main settings, and fine tuning gained "Model notes" and "On-screen hints".

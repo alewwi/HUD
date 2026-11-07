@@ -10,14 +10,14 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.88.87';
-import { английский, т } from './i18n.js?v=23.88.87';
-import { промптНаАнглийском } from './prompt-en.js?v=23.88.87';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.87';
-import { parseSceneDate } from './history-analyzer.js?v=23.88.87';
-import { возрастТочно } from './render/babies.js?v=23.88.87';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.87';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.87';
+import { settings } from './settings.js?v=23.88.88';
+import { английский, т } from './i18n.js?v=23.88.88';
+import { промптНаАнглийском } from './prompt-en.js?v=23.88.88';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.88';
+import { parseSceneDate } from './history-analyzer.js?v=23.88.88';
+import { возрастТочно } from './render/babies.js?v=23.88.88';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.88';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.88';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -531,6 +531,10 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
       .replace('the story and every instruction above', 'the story and the conversation instructions');
     p += '\nUse the most recent HUD in the conversation as the previous state. Update it after your reply and preserve established facts. Conditional fields (intimacy, combat, pregnancy, postpartum and babies) apply only when supported by the story; omit them otherwise. Do not invent events to fill the schema.';
   }
+  // Язык — ещё раз последней строкой: конец инструкции модель помнит лучше
+  // середины, а прошлые HUD чата могли быть на другом языке. prompt-en.js
+  // меняет Russian на English.
+  p += '\n\n🌍 Write all HUD values in Russian, even if earlier HUDs used another language.';
   p += `\n</hud_instructions>`;
   // Английский интерфейс — и HUD по-английски: примеры значений тоже (prompt-en.js).
   return английский() ? промптНаАнглийском(p) : p;

@@ -33,12 +33,15 @@ export function ключСообщения(m, i) {
 }
 
 // Человек: только то, что читает архив и его сводка.
-function человек(c) {
+// игрок — блок игрока: имени у него в HUD часто нет, архив возьмёт имя персоны.
+function человек(c, игрок = false) {
   if (!c || typeof c !== 'object') return null;
   const имя = или(c['Имя'] || c.N || c.name);
-  if (!имя) return null;
-  const о = { Имя: имя };
-  for (const [к, ч] of [['Настроение', c['Настроение'] || c.Md], ['Отношения', c['Отношения'] || c.Rel], ['Место', c['Место']]]) if (или(ч)) о[к] = или(ч);
+  if (!имя && !игрок) return null;
+  const о = имя ? { Имя: имя } : {};
+  // Беременность — для вкладки архива: срок, отец, исход.
+  for (const [к, ч] of [['Настроение', c['Настроение'] || c.Md], ['Отношения', c['Отношения'] || c.Rel], ['Место', c['Место']], ['Беременность', c['Беременность']]]) if (или(ч)) о[к] = или(ч).slice(0, к === 'Беременность' ? 400 : 4000);
+  if (игрок && !Object.keys(о).length) return null;
   // Близость — только признак: сам текст архиву не нужен.
   if (или(c['Фаза близости']) || или(c['NSFW']) || или(c['NSFW (Юзер)'])) о.NSFW = '1';
   return о;
@@ -52,7 +55,7 @@ export function выжимкаHUD(data, музыка = null) {
   const sc = data.scene && typeof data.scene === 'object' ? data.scene : {};
   const scene = {};
   for (const к of ['Дата', 'Время', 'Место', 'Погода']) if (или(sc[к])) scene[к] = или(sc[к]);
-  const user = человек(data.user);
+  const user = человек(data.user, true);
   const characters = (Array.isArray(data.characters) ? data.characters : []).map(человек).filter(Boolean);
   const mem = data.memory && typeof data.memory === 'object' ? data.memory : {};
   const secrets = (Array.isArray(mem.secrets) ? mem.secrets : []).filter(s => s && или(s.fact)).map(s => {

@@ -6,23 +6,55 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.87';
-import { английский } from '../i18n.js?v=23.88.87';
-import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.87';
-import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.88.87';
-import { ссылкиТрека } from './music.js?v=23.88.87';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей } from './conception.js?v=23.88.87';
-import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.88.87';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.88';
+import { английский } from '../i18n.js?v=23.88.88';
+import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.88';
+import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.88.88';
+import { ссылкиТрека } from './music.js?v=23.88.88';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей } from './conception.js?v=23.88.88';
+import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.88.88';
+import { ико } from './view-icons.js?v=23.88.88';
+import { namesLikelySame } from '../names.js?v=23.88.88';
 
 let окноОткрыто = false;
+// Дата и время ходов открытого отчёта (history-analyzer.js → moments).
+let моменты = {};
+
+// «14.10.2024, 22:18» — дата и время хода по HUD. Год пишем, только если
+// модель его указала; время — часы и минуты, иначе часть суток («вечер»).
+function момент(at, часть = 'all') {
+  const м = моменты && (моменты[String(at)] || null);
+  if (!м) return '';
+  let день = '';
+  if (часть !== 'time' && м.date) {
+    const ms = parseSceneDate(м.date);
+    if (ms !== null) {
+      const d = new Date(ms), z = (n) => String(n).padStart(2, '0');
+      const год = d.getUTCFullYear();
+      день = `${z(d.getUTCDate())}.${z(d.getUTCMonth() + 1)}` + (год !== 2000 || /2000/.test(м.date) ? '.' + год : '');
+    } else день = м.date.length > 22 ? м.date.slice(0, 21) + '…' : м.date;
+  }
+  const t = String(м.time || '').match(/(\d{1,2})[:.](\d{2})/);
+  const время = t ? `${t[1].padStart(2, '0')}:${t[2]}` : String(м.time || '').split('|')[0].trim().slice(0, 16);
+  return [день, время].filter(Boolean).join(', ');
+}
 
 // Ссылка на сообщение: по клику чат прокручивается к нему и оно мигает.
-// Номер — это индекс в чате, тот же, что показывает ST.
+// Номер — это индекс в чате, тот же, что показывает ST. Рядом — дата и время
+// хода (часть: 'all' — то и другое, 'time' — только время, 'none' — номер).
 // Дробный номер — ход летописи, которого в чате нет (history-analyzer.js):
 // стоит между сообщениями, перейти к нему некуда.
-const ссылка = (at) => Number.isInteger(at)
-  ? `<button type="button" class="hud-arc-ref" data-mes="${at}" title="Перейти к сообщению">#${at}</button>`
-  : `<span class="hud-arc-ref is-chron" title="Ход из летописи — в этом чате такого сообщения нет">летопись${at > 0 ? ', после #' + Math.floor(at) : ''}</span>`;
+const ссылка = (at, часть = 'all') => {
+  const когда = часть === 'none' ? '' : момент(at, часть);
+  const время = когда ? `<time>${escapeHtml(когда)}</time>` : '';
+  return Number.isInteger(at)
+    ? `<button type="button" class="hud-arc-ref" data-mes="${at}" title="Перейти к сообщению"><b>#${at}</b>${время}</button>`
+    : `<span class="hud-arc-ref is-chron" title="Ход из летописи — в этом чате такого сообщения нет"><b>летопись${at > 0 ? ', после #' + Math.floor(at) : ''}</b>${время}</span>`;
+};
+const значок = (имя) => ико(имя, 'hud-arc-ico');
+const пусто = (поиск, пустой) => `<div class="hud-arc-empty">${поиск ? 'По запросу ничего не нашлось' : пустой}</div>`;
+// «THE REGENTS  Tristan Kingsley, Коэн» → «Tristan Kingsley, Коэн».
+const безПриставок = (s) => String(s || '').split(/\s*,\s*/).map(x => имяБезПриставки(x)).join(', ');
 
 const ЯРЛЫКИ_СТАТУСА = {
   unknown: 'никто не знает', suspected: 'подозревают', partial: 'знают частично',
@@ -34,49 +66,63 @@ const ЯРЛЫКИ_УРОВНЯ = { low: 'низкий', medium: 'средний
 
 // --- Вкладки отчёта ----------------------------------------------------------
 
-function вкладкаСекретов(отчёт, поиск) {
-  const список = отчёт.secrets.filter(s => !поиск || (
-    s.fact.toLowerCase().includes(поиск) ||
-    s.knows.some(k => k.name.toLowerCase().includes(поиск)) ||
-    s.unaware.some(n => n.toLowerCase().includes(поиск))));
-  if (!список.length) return `<div class="hud-arc-empty">${поиск ? 'По запросу ничего не нашлось' : 'В этом отрезке секретов не было'}</div>`;
+// История записи: шаги по ходам, раскрываются под карточкой.
+const историяHTML = (заголовок, число, шаги) => `<details class="hud-arc-more"><summary>${значок('clock')}<span>${заголовок}</span>${число ? `<i class="hud-arc-count">${число}</i>` : ''}</summary>`
+  + `<ol class="hud-arc-steps">${шаги.map(ш => `<li class="is-${ш.вид}"><span class="hud-arc-step-at">${ссылка(ш.at)}</span><span class="hud-arc-step-what">${ш.html}</span></li>`).join('')}</ol></details>`;
 
-  return список.map(s => {
-    const путь = s.statusHistory.map(h => `<span class="hud-arc-status">${escapeHtml(статус(h.status))} ${ссылка(h.at)}</span>`).join('<i>→</i>');
+function вкладкаСекретов(отчёт, поиск) {
+  const список = отчёт.secrets.filter(s => !поиск || [s.fact, s.firstFact, ...s.knows.flatMap(k => [k.name, k.source]), ...s.unaware]
+    .some(x => String(x || '').toLowerCase().includes(поиск)));
+  if (!список.length) return пусто(поиск, 'В этом отрезке секретов не было');
+  const известны = список.filter(s => s.knows.length).length;
+  const шапка = `<div class="hud-arc-note">Секретов: <b>${список.length}</b>, хоть кому-то известны: ${известны}. Сверху — секрет на последний момент, ниже — кто и когда о нём узнал.</div>`;
+
+  return шапка + список.map(s => {
+    const последний = s.statusHistory[s.statusHistory.length - 1] || { status: 'unknown', at: s.firstSeen };
     const знают = s.knows.length
-      ? s.knows.map(k => `<span class="hud-arc-who">${escapeHtml(k.name)}${k.source ? ` <em>${escapeHtml(k.source)}</em>` : ''} <small>с ${ссылка(k.since)}</small></span>`).join('')
+      ? s.knows.map(k => `<span class="hud-arc-who">${escapeHtml(k.name)}</span>`).join('')
       : '<span class="hud-arc-who is-none">никто</span>';
-    const неЗнают = s.unaware.length
-      ? s.unaware.map(n => `<span class="hud-arc-who is-out">${escapeHtml(n)}</span>`).join('')
-      : '';
+    const неЗнают = s.unaware.map(n => `<span class="hud-arc-who is-out">${escapeHtml(n)}</span>`).join('');
     const уровень = s.level ? (ЯРЛЫКИ_УРОВНЯ[s.level] || s.level) : '';
-    return `<div class="hud-arc-card">
-      <div class="hud-arc-card-head">🔒 <b>${escapeHtml(s.fact)}</b>${уровень ? `<span class="hud-arc-tag">${escapeHtml(уровень)}</span>` : ''}</div>
-      <div class="hud-arc-row"><label>Статус</label><div class="hud-arc-path">${путь}</div></div>
+    // Шаги: появился, смены статуса, кто узнал и как — по порядку ходов.
+    const шаги = [
+      { at: s.firstSeen, вид: 'start', порядок: 0, html: `<b>Секрет появился</b>${s.firstFact && s.firstFact !== s.fact ? `<em>${escapeHtml(s.firstFact)}</em>` : ''}` },
+      ...s.statusHistory.slice(1).map(h => ({ at: h.at, вид: 'status', порядок: 1, html: `<b>${escapeHtml(статус(h.status))}</b>` })),
+      ...s.knows.map(k => ({ at: k.since, вид: 'learn', порядок: 2,
+        html: `<b>${escapeHtml(k.name)}</b>${k.since === s.firstSeen ? '<small>в курсе с самого начала</small>' : ''}<em>${k.source ? escapeHtml(k.source) : 'как узнал(а) — не записано'}</em>` })),
+    ].sort((a, b) => a.at - b.at || a.порядок - b.порядок);
+    return `<article class="hud-arc-card hud-arc-secret lvl-${escapeHtml(s.level || 'none')}">
+      <div class="hud-arc-card-head"><i class="hud-arc-medal">${значок('lock')}</i><b>${escapeHtml(s.fact)}</b>${уровень ? `<span class="hud-arc-tag">${escapeHtml(уровень)}</span>` : ''}</div>
+      <div class="hud-arc-state"><span class="hud-arc-badge is-${escapeHtml(последний.status)}">${escapeHtml(статус(последний.status))}</span><span class="hud-arc-since">${ссылка(последний.at)}</span></div>
       <div class="hud-arc-row"><label>Знают</label><div>${знают}</div></div>
       ${неЗнают ? `<div class="hud-arc-row"><label>Не знают</label><div>${неЗнают}</div></div>` : ''}
-      <div class="hud-arc-foot">появился в ${ссылка(s.firstSeen)}, последнее упоминание ${ссылка(s.lastSeen)}</div>
-    </div>`;
+      ${историяHTML('Кто и когда узнал', s.knows.length, шаги)}
+      <div class="hud-arc-foot">появился ${ссылка(s.firstSeen)} · последнее упоминание ${ссылка(s.lastSeen)}</div>
+    </article>`;
   }).join('');
 }
 
-const ЯРЛЫКИ_РУЖЬЯ = { open: '🔫 висит', building: '⏳ назревает', fired: '💥 выстрелило' };
+const ЯРЛЫКИ_РУЖЬЯ = { open: 'висит', building: 'назревает', fired: 'выстрелило' };
 
 function вкладкаРужей(отчёт, поиск) {
   if (!Array.isArray(отчёт.guns)) return '<div class="hud-arc-empty">Этот отчёт посчитан до появления ружей — нажмите «пересчитать».</div>';
-  const список = отчёт.guns.filter(g => !поиск || g.setup.toLowerCase().includes(поиск) || String(g.tiedTo || '').toLowerCase().includes(поиск));
-  if (!список.length) return `<div class="hud-arc-empty">${поиск ? 'По запросу ничего не нашлось' : 'В этом отрезке ружей не было'}</div>`;
+  const список = отчёт.guns.filter(g => !поиск || [g.setup, g.firstSetup, g.tiedTo].some(x => String(x || '').toLowerCase().includes(поиск)));
+  if (!список.length) return пусто(поиск, 'В этом отрезке ружей не было');
   const открытых = список.filter(g => (g.statusHistory[g.statusHistory.length - 1] || {}).status !== 'fired').length;
   const шапка = `<div class="hud-arc-note">Незакрытых нитей: <b>${открытых}</b> из ${список.length}. Выстрелившие остаются здесь вместе с моментом, когда это случилось.</div>`;
   return шапка + список.map(g => {
-    const путь = g.statusHistory.map(h => `<span class="hud-arc-status">${escapeHtml(ЯРЛЫКИ_РУЖЬЯ[h.status] || h.status)} ${ссылка(h.at)}</span>`).join('<i>→</i>');
-    const выстрел = g.statusHistory.find(h => h.status === 'fired');
-    return `<div class="hud-arc-card">
-      <div class="hud-arc-card-head">🔫 <b>${escapeHtml(g.setup)}</b>${выстрел ? '<span class="hud-arc-tag">выстрелило</span>' : ''}</div>
-      ${g.tiedTo ? `<div class="hud-arc-row"><label>Связано с</label><div><span class="hud-arc-who">${escapeHtml(g.tiedTo)}</span></div></div>` : ''}
-      <div class="hud-arc-row"><label>Статус</label><div class="hud-arc-path">${путь}</div></div>
-      <div class="hud-arc-foot">появилось в ${ссылка(g.firstSeen)}, последнее упоминание ${ссылка(g.lastSeen)}</div>
-    </div>`;
+    const последний = g.statusHistory[g.statusHistory.length - 1] || { status: 'open', at: g.firstSeen };
+    const шаги = [
+      { at: g.firstSeen, вид: 'start', html: `<b>Нить появилась</b>${g.firstSetup && g.firstSetup !== g.setup ? `<em>${escapeHtml(g.firstSetup)}</em>` : ''}` },
+      ...g.statusHistory.slice(1).map(h => ({ at: h.at, вид: 'status', html: `<b>${escapeHtml(ЯРЛЫКИ_РУЖЬЯ[h.status] || h.status)}</b>` })),
+    ];
+    return `<article class="hud-arc-card hud-arc-gun is-${escapeHtml(последний.status)}">
+      <div class="hud-arc-card-head"><i class="hud-arc-medal">${значок(последний.status === 'fired' ? 'burst' : 'target')}</i><b>${escapeHtml(g.setup)}</b></div>
+      <div class="hud-arc-state"><span class="hud-arc-badge is-${escapeHtml(последний.status)}">${escapeHtml(ЯРЛЫКИ_РУЖЬЯ[последний.status] || последний.status)}</span><span class="hud-arc-since">${ссылка(последний.at)}</span></div>
+      ${g.tiedTo ? `<div class="hud-arc-row"><label>Связано с</label><div>${g.tiedTo.split(/\s*,\s*/).map(x => `<span class="hud-arc-who">${escapeHtml(x)}</span>`).join('')}</div></div>` : ''}
+      ${шаги.length > 1 || шаги[0].html.includes('<em>') ? историяHTML('История нити', 0, шаги) : ''}
+      <div class="hud-arc-foot">появилась ${ссылка(g.firstSeen)} · последнее упоминание ${ссылка(g.lastSeen)}</div>
+    </article>`;
   }).join('');
 }
 
@@ -89,12 +135,12 @@ function графикДоверия(записи) {
 function поворотыДоверия(поиск) {
   const пары = new Map();
   for (const з of сдвигиЧата()) {
-    const имя = `${з.кто} → ${з.кому}`;
+    const имя = `${имяБезПриставки(з.кто)} → ${имяБезПриставки(з.кому)}`;
     if (поиск && !(имя + ' ' + з.почему).toLowerCase().includes(поиск)) continue;
     if (!пары.has(имя)) пары.set(имя, []);
     пары.get(имя).push(з);
   }
-  return [...пары].map(([имя, записи]) => `<div class="hud-arc-card"><div class="hud-arc-card-head">🤍 <b>${escapeHtml(имя)}</b></div>${графикДоверия(записи)}`
+  return [...пары].map(([имя, записи]) => `<div class="hud-arc-card"><div class="hud-arc-card-head"><i class="hud-arc-medal">${значок('heart')}</i><b>${escapeHtml(имя)}</b><span class="hud-arc-tag">доверие</span></div>${графикДоверия(записи)}`
     + записи.filter(з => з.почему || з.шрам || Math.abs(з.d) >= 15).slice(-8).map(з => `<div class="hud-arc-row"><label class="${з.d > 0 ? 'is-up' : 'is-down'}">${з.d > 0 ? '+' : ''}${з.d}${з.шрам ? ' 🩹' : ''}</label><div class="hud-arc-path">${escapeHtml(чистаяПричина(з.почему) || 'без причины')} ${ссылка(з.индекс)}</div></div>`).join('')
     + `</div>`).join('');
 }
@@ -110,11 +156,11 @@ function вкладкаОтношений(отчёт, поиск) {
       цели[цель].some(c => c.rel.toLowerCase().includes(поиск)));
     if (!строки.length) continue;
     куски.push(`<div class="hud-arc-card">
-      <div class="hud-arc-card-head">👤 <b>${escapeHtml(субъект)}</b></div>
+      <div class="hud-arc-card-head"><i class="hud-arc-medal">${значок('head')}</i><b>${escapeHtml(имяБезПриставки(субъект))}</b></div>
       ${строки.map(цель => {
         const путь = цели[цель].map(c => `<span class="hud-arc-status">${escapeHtml(c.rel)} ${ссылка(c.at)}</span>`).join('<i>→</i>');
         const менялось = цели[цель].length > 1 ? `<span class="hud-arc-tag">${цели[цель].length - 1} смен${цели[цель].length - 1 === 1 ? 'а' : ''}</span>` : '';
-        return `<div class="hud-arc-row"><label>→ ${escapeHtml(цель)}</label><div class="hud-arc-path">${путь}${менялось}</div></div>`;
+        return `<div class="hud-arc-row"><label>→ ${escapeHtml(имяБезПриставки(цель))}</label><div class="hud-arc-path">${путь}${менялось}</div></div>`;
       }).join('')}
     </div>`);
   }
@@ -126,14 +172,64 @@ function вкладкаОтношений(отчёт, поиск) {
 const имяМатери = (кто) => кто === 'user' ? (window.SillyTavern?.getContext?.()?.name1 || 'Игрок') : имяБезПриставки(String(кто).replace(/^char:/, ''));
 const названиеИсхода = (з) => з.вид === 'birth' ? (з.было > 1 ? 'Роды, ' + з.было : 'Роды')
   : (ВИДЫ_ПОТЕРИ[з.вид] || ВИДЫ_ПОТЕРИ.miscarriage).имя + (з.часть ? ` одного из ${з.было}` : '');
-function вкладкаБеременностей(поиск) {
-  const все = историяБеременностей().filter(з => !поиск || [имяМатери(з.кто), названиеИсхода(з), з.отец, з.знают].join(' ').toLowerCase().includes(поиск));
-  if (!все.length) return `<div class="hud-arc-empty">${поиск ? 'По запросу ничего не нашлось' : 'Родов и потерь в этом чате пока не было'}</div>`;
-  return все.map(з => `<section class="hud-arc-card hud-arc-preg is-${з.вид}"><div class="hud-arc-card-head"><b>${escapeHtml(названиеИсхода(з))}</b><span>${escapeHtml(имяМатери(з.кто))}</span></div>`
-    + `<dl>${Number.isFinite(з.дата) ? `<dt>Когда</dt><dd>${дм(з.дата)}</dd>` : ''}`
-    + (Number.isFinite(з.неделя) ? `<dt>Срок</dt><dd>${з.неделя}-я неделя</dd>` : '')
-    + (з.отец ? `<dt>Отец</dt><dd>${escapeHtml(имяБезПриставки(з.отец))}</dd>` : '')
-    + `<dt>Кто знает</dt><dd>${з.знают ? escapeHtml(з.знают) : 'не записано'}</dd></dl></section>`).join('') + журналБеременностейHTML();
+// Все беременности: из HUD по ходам (отчёт.pregnancies) и записи исходов
+// (роды и потери из render/conception.js). Исход из записей точнее — он
+// отмечен кнопкой или меткой модели, поэтому стоит поверх того, что в HUD.
+const ЭТО_ИГРОК = (з, имя) => з.кто === 'user' ? (э) => э.player || namesLikelySame(э.name, имя) : (э) => namesLikelySame(э.name, имя);
+function беременностиОтчёта(отчёт) {
+  const эпизоды = (Array.isArray(отчёт && отчёт.pregnancies) ? отчёт.pregnancies : []).map(э => ({ ...э, запись: null }));
+  const свободные = [];
+  for (const з of историяБеременностей()) {
+    const имя = имяМатери(з.кто), чья = ЭТО_ИГРОК(з, имя);
+    // Та беременность, в чьих ходах (или вскоре после) записан исход.
+    const к = Number.isInteger(з.сообщение) ? з.сообщение : null;
+    const э = эпизоды.filter(x => !x.запись && чья(x)).find(x => к !== null ? к >= x.from - 2 && к <= x.to + 30 : !!x.outcome);
+    if (э) э.запись = з; else свободные.push(з);
+  }
+  return { эпизоды, свободные };
+}
+const срокТекстом = (с, по) => с !== null && по !== null && с !== по ? `с ${с}-й по ${по}-ю неделю` : (по ?? с) !== null ? `${по ?? с}-я неделя` : '';
+function вкладкаБеременностей(отчёт, поиск) {
+  const { эпизоды, свободные } = беременностиОтчёта(отчёт);
+  const есть = (...части) => !поиск || части.join(' ').toLowerCase().includes(поиск);
+  const карточки = [];
+  for (const э of эпизоды) {
+    const з = э.запись;
+    const исход = з ? названиеИсхода(з) : э.outcome ? (э.outcome.kind === 'birth' ? 'Роды' : 'Потеря') : '';
+    // Без исхода и давно без вестей — не «идёт»: модель могла просто забыть.
+    const молчит = !исход && отчёт.range && э.to < отчёт.range.to - 40;
+    const вид = з ? з.вид : э.outcome ? э.outcome.kind : молчит ? 'quiet' : 'going';
+    const ярлык = исход || (молчит ? 'нет вестей' : 'идёт');
+    if (!есть(э.name, ярлык, э.father, э.knows, э.state, э.due)) continue;
+    const когдаИсход = з && Number.isFinite(з.дата) ? дм(з.дата) : э.outcome ? э.outcome.date : '';
+    const период = э.dateFrom && э.dateTo && э.dateFrom !== э.dateTo ? `${э.dateFrom} — ${э.dateTo}` : (э.dateTo || э.dateFrom);
+    карточки.push(`<article class="hud-arc-card hud-arc-preg is-${escapeHtml(вид)}">`
+      + `<div class="hud-arc-card-head"><i class="hud-arc-medal">${значок(вид === 'going' ? 'hearts' : вид === 'birth' ? 'star' : 'heartbreak')}</i><b>${escapeHtml(э.name)}</b><span class="hud-arc-badge is-${escapeHtml(вид)}">${escapeHtml(ярлык)}</span></div>`
+      + `<dl>`
+      + (срокТекстом(э.weekFrom, з && Number.isFinite(з.неделя) ? з.неделя : э.weekTo) ? `<dt>Срок</dt><dd>${escapeHtml(срокТекстом(э.weekFrom, з && Number.isFinite(з.неделя) ? з.неделя : э.weekTo))}</dd>` : '')
+      + (период ? `<dt>В сюжете</dt><dd>${escapeHtml(период)}</dd>` : '')
+      + (когдаИсход ? `<dt>${escapeHtml(исход || 'Исход')}</dt><dd>${escapeHtml(когдаИсход)}</dd>` : '')
+      + (э.due && вид === 'going' ? `<dt>Роды ожидаются</dt><dd>${escapeHtml(э.due)}</dd>` : '')
+      + ((з && з.отец) || э.father ? `<dt>Отец</dt><dd>${escapeHtml(имяБезПриставки((з && з.отец) || э.father))}</dd>` : '')
+      + `<dt>Кто знает</dt><dd>${escapeHtml(безПриставок((з && з.знают) || э.knows) || 'не записано')}</dd>`
+      + (э.state && вид === 'going' ? `<dt>Как проходит</dt><dd>${escapeHtml(э.state)}</dd>` : '')
+      + `</dl><div class="hud-arc-foot">ходы ${ссылка(э.from)} — ${ссылка(э.to)}${з && Number.isInteger(з.сообщение) && з.сообщение !== э.to ? ` · исход ${ссылка(з.сообщение)}` : ''}</div></article>`);
+  }
+  // Исходы, у которых в отрезке нет ходов с беременностью (HUD вычищен или
+  // отрезок короче): как раньше, только запись.
+  for (const з of свободные) {
+    if (!есть(имяМатери(з.кто), названиеИсхода(з), з.отец, з.знают)) continue;
+    карточки.push(`<article class="hud-arc-card hud-arc-preg is-${з.вид}"><div class="hud-arc-card-head"><i class="hud-arc-medal">${значок(з.вид === 'birth' ? 'star' : 'heartbreak')}</i><b>${escapeHtml(имяМатери(з.кто))}</b><span class="hud-arc-badge is-${з.вид}">${escapeHtml(названиеИсхода(з))}</span></div>`
+      + `<dl>${Number.isFinite(з.дата) ? `<dt>Когда</dt><dd>${дм(з.дата)}</dd>` : ''}`
+      + (Number.isFinite(з.неделя) ? `<dt>Срок</dt><dd>${з.неделя}-я неделя</dd>` : '')
+      + (з.отец ? `<dt>Отец</dt><dd>${escapeHtml(имяБезПриставки(з.отец))}</dd>` : '')
+      + `<dt>Кто знает</dt><dd>${з.знают ? escapeHtml(безПриставок(з.знают)) : 'не записано'}</dd></dl>`
+      + (Number.isInteger(з.сообщение) ? `<div class="hud-arc-foot">исход ${ссылка(з.сообщение)}</div>` : '') + `</article>`);
+  }
+  if (!карточки.length) return пусто(поиск, 'Беременностей в этом отрезке не было');
+  const идут = эпизоды.filter(э => !э.запись && !э.outcome).length;
+  const шапка = `<div class="hud-arc-note">Беременностей: <b>${карточки.length}</b>${идут ? `, идут сейчас: ${идут}` : ''}. Срок и даты — по HUD ходов, исход — по отметке родов или потери.</div>`;
+  return шапка + карточки.join('') + журналБеременностейHTML();
 }
 function журналБеременностейHTML() {
   const журнал = журналБеременностей();
@@ -152,19 +248,18 @@ function вкладкаХронологии(отчёт, поиск) {
   ].filter(e => !поиск || e.text.toLowerCase().includes(поиск))
    .sort((a, b) => a.at - b.at || (a.kind === 'date' ? -1 : 1));
 
-  if (!события.length) return `<div class="hud-arc-empty">${поиск ? 'По запросу ничего не нашлось' : 'В этом отрезке сцена не менялась'}</div>`;
+  if (!события.length) return пусто(поиск, 'В этом отрезке сцена не менялась');
 
   const дней = отчёт.stats.storyDays;
   const шапка = `<div class="hud-arc-note">${дней === null
     ? 'Длительность сюжета посчитать не вышло: даты в HUD записаны в свободной форме.'
-    : `В сюжете прошло <b>${дней}</b> ${дней === 1 ? 'день' : (дней < 5 ? 'дня' : 'дней')} — по датам из HUD.`}</div>`;
+    : `В сюжете прошло <b>${дней}</b> ${склон(дней, 'день', 'дня', 'дней')} — по датам из HUD.`}</div>`;
 
-  return шапка + '<div class="hud-arc-timeline">' + события.map(e => `
-    <div class="hud-arc-event is-${e.kind}">
-      <span class="hud-arc-dot"></span>
-      <span class="hud-arc-when">${e.kind === 'date' ? '📅' : e.kind === 'life' ? '🥀' : '📍'} ${escapeHtml(e.text)}</span>
-      ${ссылка(e.at)}
-    </div>`).join('') + '</div>';
+  // Дата сцены — заголовок дня; места и исходы — под ней, со временем хода.
+  const ИКОНКИ_СОБЫТИЙ = { date: 'calendar', place: 'pin', life: 'heartbreak' };
+  return шапка + '<div class="hud-arc-timeline">' + события.map(e => e.kind === 'date'
+    ? `<div class="hud-arc-event is-date"><span class="hud-arc-dot"></span><span class="hud-arc-when">${значок('calendar')}<b>${escapeHtml(e.text)}</b></span>${ссылка(e.at, 'none')}</div>`
+    : `<div class="hud-arc-event is-${e.kind}"><span class="hud-arc-dot"></span><span class="hud-arc-when">${значок(ИКОНКИ_СОБЫТИЙ[e.kind])}${escapeHtml(e.text)}</span>${ссылка(e.at, 'time')}</div>`).join('') + '</div>';
 }
 
 // Саундтрек: главы по дням сюжета. Глава — подряд идущие ходы с одной
@@ -226,17 +321,17 @@ function вкладкаСтатистики(отчёт) {
   ].join('');
 
   const погода = s.weather.length
-    ? `<div class="hud-arc-card"><div class="hud-arc-card-head">🌦 Погода</div>
+    ? `<div class="hud-arc-card"><div class="hud-arc-card-head"><i class="hud-arc-medal">${значок('cloud')}</i><b>Погода</b></div>
         <div class="hud-arc-row"><div>${s.weather.map(w => `<span class="hud-arc-who">${escapeHtml(w.kind)} <small>×${w.times}</small></span>`).join('')}</div></div></div>`
     : '';
 
   const люди = s.characters.length
-    ? `<div class="hud-arc-card"><div class="hud-arc-card-head">🎭 Кто встречался</div>
+    ? `<div class="hud-arc-card"><div class="hud-arc-card-head"><i class="hud-arc-medal">${значок('mask')}</i><b>Кто встречался</b></div>
         <div class="hud-arc-row"><div>${s.characters.map(n => `<span class="hud-arc-who">${escapeHtml(n)}</span>`).join('')}</div></div></div>`
     : '';
 
   const настроения = отчёт.moods.length
-    ? `<div class="hud-arc-card"><div class="hud-arc-card-head">🎚 Настроение по персонажам</div>
+    ? `<div class="hud-arc-card"><div class="hud-arc-card-head"><i class="hud-arc-medal">${значок('wave')}</i><b>Настроение по персонажам</b></div>
         ${отчёт.moods.slice(0, 8).map(m => `<div class="hud-arc-row"><label>${escapeHtml(m.name)}</label>
           <div class="hud-arc-path">${m.changes.slice(-6).map(c => `<span class="hud-arc-status">${escapeHtml(c.mood)} ${ссылка(c.at)}</span>`).join('<i>→</i>')}
           ${m.changes.length > 6 ? `<span class="hud-arc-tag">всего ${m.changes.length}</span>` : ''}</div></div>`).join('')}
@@ -441,7 +536,7 @@ export function openArchiveDialog() {
   overlay.className = 'hud-modal-overlay hud-arc-overlay';
   overlay.innerHTML = `
     <div class="hud-modal hud-arc-modal" role="dialog" aria-modal="true" aria-label="Архив HUD">
-      <div class="hud-modal-head hud-arc-head"><span>🗄 Архив HUD <small>сводка по сохранённым HUD-блокам</small></span><button type="button" class="hud-arc-x" aria-label="Закрыть" title="Закрыть">✕</button></div>
+      <div class="hud-modal-head hud-arc-head"><i class="hud-arc-medal">${значок('book')}</i><span>Архив HUD <small>сводка по сохранённым HUD-блокам</small></span><button type="button" class="hud-arc-x" aria-label="Закрыть" title="Закрыть">✕</button></div>
       <div class="hud-arc-controls">
         <div class="hud-arc-range">
           <label>${английский() ? 'from' : 'с'} <input type="number" class="hud-arc-from" min="0" max="${последний}" value="${начало}"></label>
@@ -465,14 +560,14 @@ export function openArchiveDialog() {
         </div>
       </div>
       <div class="hud-arc-tabs" hidden>
-        <button type="button" class="active" data-tab="secrets">Секреты</button>
-        <button type="button" data-tab="guns">Ружья</button>
-        <button type="button" data-tab="relations">Отношения</button>
-        <button type="button" data-tab="timeline">Хронология</button>
-        <button type="button" data-tab="pregnancies">Беременности</button>
-        <button type="button" data-tab="soundtrack">Саундтрек</button>
-        <button type="button" data-tab="stats">Статистика</button>
-        <button type="button" data-tab="dash">Дашборд</button>
+        <button type="button" class="active" data-tab="secrets">${значок('lock')}<span>Секреты</span></button>
+        <button type="button" data-tab="guns">${значок('target')}<span>Ружья</span></button>
+        <button type="button" data-tab="relations">${значок('heart')}<span>Отношения</span></button>
+        <button type="button" data-tab="timeline">${значок('calendar')}<span>Хронология</span></button>
+        <button type="button" data-tab="pregnancies">${значок('hearts')}<span>Беременности</span></button>
+        <button type="button" data-tab="soundtrack">${значок('music')}<span>Саундтрек</span></button>
+        <button type="button" data-tab="stats">${значок('chart')}<span>Статистика</span></button>
+        <button type="button" data-tab="dash">${значок('frame')}<span>Дашборд</span></button>
         <input type="search" class="hud-arc-search" placeholder="Поиск по отчёту…">
       </div>
       <div class="hud-modal-body hud-arc-body"><div class="hud-arc-empty">Выберите диапазон и нажмите «Анализировать».</div></div>
@@ -541,14 +636,24 @@ export function openArchiveDialog() {
   // --- Показ отчёта ---
   const показать = () => {
     if (!отчёт) return;
+    моменты = отчёт.moments || {};
     const поиск = ($('.hud-arc-search').value || '').trim().toLowerCase();
     вкладки.hidden = false;
+    // Число записей на вкладках: видно, где что есть, не открывая.
+    const числа = { secrets: отчёт.secrets.length, guns: (отчёт.guns || []).length, pregnancies: беременностиОтчёта(отчёт).эпизоды.length + беременностиОтчёта(отчёт).свободные.length };
+    вкладки.querySelectorAll('[data-tab]').forEach(b => {
+      let n = b.querySelector('.hud-arc-count');
+      if (!(b.dataset.tab in числа)) return;
+      if (!n) { n = document.createElement('i'); n.className = 'hud-arc-count'; b.append(n); }
+      n.textContent = числа[b.dataset.tab];
+      n.hidden = !числа[b.dataset.tab];
+    });
     тело.innerHTML =
       активная === 'secrets' ? вкладкаСекретов(отчёт, поиск)
       : активная === 'guns' ? вкладкаРужей(отчёт, поиск)
       : активная === 'relations' ? вкладкаОтношений(отчёт, поиск)
       : активная === 'timeline' ? вкладкаХронологии(отчёт, поиск)
-      : активная === 'pregnancies' ? вкладкаБеременностей(поиск)
+      : активная === 'pregnancies' ? вкладкаБеременностей(отчёт, поиск)
       : активная === 'soundtrack' ? вкладкаСаундтрека(отчёт, поиск)
       : активная === 'dash' ? buildDashboardHTML(отчёт)
       : вкладкаСтатистики(отчёт);
@@ -592,7 +697,7 @@ export function openArchiveDialog() {
 
   // Клик по номеру сообщения — прокрутка к нему в чате.
   тело.addEventListener('click', (e) => {
-    const btn = e.target.closest('.hud-arc-ref');
+    const btn = e.target.closest('.hud-arc-ref[data-mes]');
     if (!btn) return;
     const el = document.querySelector(`#chat .mes[mesid="${btn.dataset.mes}"]`);
     if (!el) { btn.classList.add('is-missing'); setTimeout(() => btn.classList.remove('is-missing'), 900); return; }
@@ -607,7 +712,11 @@ export function openArchiveDialog() {
     if (идётАнализ) return;
     const [a, b] = диапазон();
 
-    if (изКэша !== false) {
+    // Добавленный чат вырос с прошлого раза: сначала перечитываем его, и
+    // старый отчёт из кэша уже не годится.
+    let освежён = false;
+    try { освежён = await освежитьЧат(); } catch (e) { console.warn('[TavernOS HUD] добавленный чат не перечитался', e); }
+    if (изКэша !== false && !освежён) {
       const кэш = await readCache(a, b);
       if (кэш && !кэш.stale) {
         отчёт = кэш.report;
@@ -690,7 +799,7 @@ export function openArchiveDialog() {
   const заполнитьСписок = async () => {
     if (!найденныеЧаты) ищу('ищу другие чаты персонажа и летописи…');
     const c = ctxЛ();
-    const своя = свойФайлЛетописи(c), текущая = выбраннаяЛетопись(c);
+    const своя = свойФайлЛетописи(c), текущая = выбраннаяЛетопись(c), чатВыбран = выбранныйЧат(c);
     const идЧата = String((typeof c?.getCurrentChatId === 'function' && c.getCurrentChatId()) || '');
     let чатыНеПрочитались = false;
     const [список, чаты] = await Promise.all([списокЛетописей(), найденныеЧаты || чатыПерсонажа().catch(() => { чатыНеПрочитались = true; return []; })]);
@@ -709,13 +818,37 @@ export function openArchiveDialog() {
     выборЛетописи.innerHTML = `<option value="">только своя${моя ? ` (${ходовЛетописи(моя.ходов)}${диапазонДат(моя)})` : ''}</option>`
       + (опцииЧатов ? `<optgroup label="Чаты персонажа">${опцииЧатов}</optgroup>` : '')
       + (опцииЛетописей ? `<optgroup label="Другие летописи">${опцииЛетописей}</optgroup>` : '');
-    const выбранныйЧат = текущая && другиеЧаты.find(ч => ч.летопись === текущая);
-    выборЛетописи.value = выбранныйЧат ? 'chat:' + выбранныйЧат.id : (текущая ? 'chron:' + текущая : '');
+    // Сначала тот чат, что выбрали сами: копия этого чата делит с ним летопись,
+    // и по одной летописи её было бы не найти.
+    const этотЧат = (чатВыбран && другиеЧаты.find(ч => ч.id === чатВыбран.id)) || (текущая && другиеЧаты.find(ч => ч.летопись === текущая));
+    выборЛетописи.value = этотЧат ? 'chat:' + этотЧат.id : (текущая ? 'chron:' + текущая : '');
     await показатьСовпадения();
     // Что нашлось — первой строкой подсказки, чтобы пустой список не казался поломкой.
     const найдено = чатыНеПрочитались ? 'чаты персонажа не прочитались' : `найдено других чатов: ${другиеЧаты.length}${чужие.length ? `, летописей: ${чужие.length}` : ''}`;
     инфоЛетописи.textContent = найдено + ' · ' + инфоЛетописи.textContent;
     выборЛетописи.disabled = false;
+  };
+  // Собрать летопись из чата персонажа и запомнить выбор.
+  const добавитьЧат = async (id) => {
+    const итог = await летописьИзЧата(id, (i, n) => { инфоЛетописи.innerHTML = `<i class="hud-arc-spin" aria-hidden="true"></i>читаю чат: ${i} из ${n} сообщений`; });
+    const ч = (найденныеЧаты || []).find(x => x.id === id);
+    await выбратьЛетопись(итог.файл, { id, сообщений: ч ? ч.сообщений : 0 });
+    return итог;
+  };
+  // Перед анализом: если в выбранном чате с тех пор прибавились сообщения.
+  const освежитьЧат = async () => {
+    const в = выбранныйЧат(ctxЛ());
+    const ч = в && найденныеЧаты && найденныеЧаты.find(x => x.id === в.id);
+    // Открытый чат пишет свою летопись сам: перечитывать его файл незачем.
+    const открыт = String((typeof ctxЛ()?.getCurrentChatId === 'function' && ctxЛ().getCurrentChatId()) || '');
+    if (!ч || ч.id === открыт || ч.сообщений === в.сообщений) return false;
+    выборЛетописи.disabled = true;
+    try {
+      const итог = await добавитьЧат(в.id);
+      await заполнитьСписок();
+      инфоЛетописи.textContent = `чат добавлен, ходов: ${итог.ходов}` + ' · ' + инфоЛетописи.textContent;
+    } finally { выборЛетописи.disabled = false; }
+    return true;
   };
   заполнитьСписок().catch(e => { выборЛетописи.disabled = false; инфоЛетописи.textContent = 'список летописей не загрузился'; console.warn('[TavernOS HUD] летописи', e); });
   выборЛетописи.addEventListener('change', async () => {
@@ -726,8 +859,7 @@ export function openArchiveDialog() {
       if (v.startsWith('chat:')) {
         // Список не трогаем: выбранный чат остаётся на виду, пока он читается.
         инфоЛетописи.innerHTML = '<i class="hud-arc-spin" aria-hidden="true"></i>читаю выбранный чат…';
-        const итог = await летописьИзЧата(v.slice(5), (i, n) => { инфоЛетописи.innerHTML = `<i class="hud-arc-spin" aria-hidden="true"></i>читаю чат: ${i} из ${n} сообщений`; });
-        await выбратьЛетопись(итог.файл);
+        const итог = await добавитьЧат(v.slice(5));
         // Копия или ветка открытого чата: летопись у них одна, отдельного выбора нет.
         if (итог.файл === свойФайлЛетописи(ctxЛ())) итогЧата = `это ветка открытого чата: её ходы вошли в свою летопись, новых: ${итог.новых}`;
         else итогЧата = `чат добавлен, ходов: ${итог.ходов}`;

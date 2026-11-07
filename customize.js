@@ -5,25 +5,25 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.88.87';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.88.87';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.88.87';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.88.87';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.88.87';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.88.87';
-import { hudБлоки } from './hud-block.js?v=23.88.87';
-import { parseHUDComplex } from './hud-parser.js?v=23.88.87';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.88.87';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.88.87';
-import { английский, т } from './i18n.js?v=23.88.87';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.88.88';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.88.88';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.88.88';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.88.88';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.88.88';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.88.88';
+import { hudБлоки } from './hud-block.js?v=23.88.88';
+import { parseHUDComplex } from './hud-parser.js?v=23.88.88';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.88.88';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.88.88';
+import { английский, т } from './i18n.js?v=23.88.88';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 const пример = () => (английский() ? ПРИМЕР_EN : ПРИМЕР_RU);
-import { задатьПримерСемьи } from './render/conception.js?v=23.88.87';
-import { задатьПримерЗаметок } from './turn-notes.js?v=23.88.87';
-import { привязатьИсторию } from './render/intimacy.js?v=23.88.87';
-import { пометитьЭффекты } from './render/fx.js?v=23.88.87';
-import { attachHelpMarks } from './help.js?v=23.88.87';
-import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.88.87';
+import { задатьПримерСемьи } from './render/conception.js?v=23.88.88';
+import { задатьПримерЗаметок } from './turn-notes.js?v=23.88.88';
+import { привязатьИсторию } from './render/intimacy.js?v=23.88.88';
+import { пометитьЭффекты } from './render/fx.js?v=23.88.88';
+import { attachHelpMarks } from './help.js?v=23.88.88';
+import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.88.88';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.

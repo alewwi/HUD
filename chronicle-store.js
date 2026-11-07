@@ -13,11 +13,11 @@
 // Пополняется сама: при открытии чата — фоном, по кусочку, все HUD, которых в
 // летописи ещё нет; после каждого ответа, свайпа и правки — последние ходы.
 
-import { прочитатьЛетопись, дописатьЛетопись, выжимкаHUD, ключСообщения, КЛЮЧ_ЛЕТОПИСИ } from './chronicle.js?v=23.88.87';
-import { extractHudBlock } from './hud-block.js?v=23.88.87';
-import { развернутьHUD } from './offload.js?v=23.88.87';
-import { parseHUDComplex } from './hud-parser.js?v=23.88.87';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.88.87';
+import { прочитатьЛетопись, дописатьЛетопись, выжимкаHUD, ключСообщения, КЛЮЧ_ЛЕТОПИСИ } from './chronicle.js?v=23.88.88';
+import { extractHudBlock } from './hud-block.js?v=23.88.88';
+import { развернутьHUD } from './offload.js?v=23.88.88';
+import { parseHUDComplex } from './hud-parser.js?v=23.88.88';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.88.88';
 
 const кэш = new Map();   // имя файла → { хранилище: { [КЛЮЧ_ЛЕТОПИСИ]: … }, карта, загрузка, таймер }
 const ctx = () => { try { return window.SillyTavern?.getContext?.() || null; } catch (_) { return null; } };
@@ -28,6 +28,9 @@ const ctx = () => { try { return window.SillyTavern?.getContext?.() || null; } c
 // своей, а пишется по-прежнему только в свою — чужая не портится.
 // Хранится коротким указателем в метаданных чата.
 export const КЛЮЧ_ВЫБОРА = 'tavernosHudChronicleFile';
+// Какой чат персонажа выбран в архиве и сколько в нём было сообщений. У копии
+// открытого чата летопись своя, и без этой записи выбор терялся при закрытии.
+export const КЛЮЧ_ЧАТА = 'tavernosHudChronicleChat';
 const ИМЯ_ЛЕТОПИСИ = /^hud-chronicle-[a-zA-Z0-9_-]{1,120}\.json$/;
 // Указатель всех летописей: какая от какого чата, сколько ходов, какие даты.
 // Списка файлов у Таверны нет — без него выбирать было бы не из чего.
@@ -37,6 +40,11 @@ export const ФАЙЛ_УКАЗАТЕЛЯ = 'hud-chronicle-index.json';
 export function выбраннаяЛетопись(c = ctx()) {
   const выбор = c && c.chatMetadata && c.chatMetadata[КЛЮЧ_ВЫБОРА];
   return typeof выбор === 'string' && ИМЯ_ЛЕТОПИСИ.test(выбор) && выбор !== свойФайлЛетописи(c) ? выбор : null;
+}
+/** Чат персонажа, выбранный в архиве: { id, сообщений } или null. */
+export function выбранныйЧат(c = ctx()) {
+  const в = c && c.chatMetadata && c.chatMetadata[КЛЮЧ_ЧАТА];
+  return в && typeof в === 'object' && typeof в.id === 'string' && в.id ? { id: в.id, сообщений: Number(в.сообщений) || 0 } : null;
 }
 /** Своя летопись чата — по его integrity (у копий он общий). */
 export function свойФайлЛетописи(c = ctx()) {
@@ -178,7 +186,7 @@ export async function совпаденийСЧатом(имя) {
     совпало++;
     if (своя && !своя.has(к)) новых++;
   });
-  return { совпало, новых, вне: карта.size - совпало };
+  return { совпало, новых, вне: Math.max(0, карта.size - совпало) };
 }
 // --- Летопись из файла другого чата ------------------------------------------
 // Неочищенный чат, который с HUD ни разу не открывали, летописи не имеет —
@@ -239,12 +247,18 @@ export async function летописьИзЧата(id, наХод = null) {
   return { файл: имя, ходов: з.карта.size, новых: з.карта.size - было };
 }
 
-/** Добавить чату летопись к своей (null — только своя). Указатель — в метаданные чата. */
-export async function выбратьЛетопись(имя) {
+/**
+ * Добавить чату летопись к своей (null — только своя). Указатель — в метаданные
+ * чата. чат — { id, сообщений }, если летопись собрана из чата персонажа:
+ * его покажет список и при следующем открытии архива.
+ */
+export async function выбратьЛетопись(имя, чат = null) {
   const c = ctx();
   if (!c || !c.chatMetadata) return false;
   if (имя && ИМЯ_ЛЕТОПИСИ.test(имя) && имя !== свойФайлЛетописи(c)) c.chatMetadata[КЛЮЧ_ВЫБОРА] = имя;
   else delete c.chatMetadata[КЛЮЧ_ВЫБОРА];
+  if (имя && чат && typeof чат.id === 'string' && чат.id) c.chatMetadata[КЛЮЧ_ЧАТА] = { id: чат.id, сообщений: Number(чат.сообщений) || 0 };
+  else delete c.chatMetadata[КЛЮЧ_ЧАТА];
   try { if (typeof c.saveMetadata === 'function') await c.saveMetadata(); } catch (e) { console.warn('[TavernOS HUD] выбор летописи не сохранился', e); }
   return true;
 }

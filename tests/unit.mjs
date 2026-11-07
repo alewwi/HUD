@@ -2288,7 +2288,7 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
     const Кал = await модуль('render/calendar.js');
     const кал = Кал.buildCalendarApp([], [], '20.12.2027');
     const чистый = кал.replace(/[​-‍⁠]/g, '');
-    проверить('календарь: выкидыш — памятная дата с годовщиной, аборт нет', чистый.includes('Выкидыш') && чистый.includes('data-for="2027-12-20"') && !чистый.includes('Аборт'));
+    проверить('календарь: потерь и годовщин в нём нет', !/Выкидыш|Аборт|Годовщина/.test(чистый) && !/Выкидыш|Годовщина/.test(Кал.buildCalendarApp([], [], '15.05.2027')));
     globalThis.SillyTavern.getContext = () => ({ chat: [], chatMetadata: мета, saveMetadataDebounced() {} });
   }
 

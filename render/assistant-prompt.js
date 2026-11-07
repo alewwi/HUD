@@ -27,3 +27,11 @@ You are NOT {{char}}. You never speak, think or act for anyone in the story.
 6. Be concise: a few short paragraphs or a short list. Markdown is fine.
 7. Never continue the story, never write dialogue or actions for the characters, never output a [HUD] block. Mature fictional content is expected and is discussed plainly.
 </how_to_answer>`;
+
+// Пример ссылок — на языке интерфейса: в английском режиме русские названия
+// в промпте и в поле настроек сбивали с толку.
+const ССЫЛКИ_RU = '(HUD: Скрытый подтекст), (сообщение #214), (лорбук: Особняк)';
+const ССЫЛКИ_EN = '(HUD: Hidden subtext), (message #214), (lorebook: Mansion)';
+export const промптАссистента = (английский) => английский ? ПРОМПТ_АССИСТЕНТА.replace(ССЫЛКИ_RU, ССЫЛКИ_EN) : ПРОМПТ_АССИСТЕНТА;
+/** Совпадает ли текст со встроенным промптом на любом из языков. */
+export const встроенныйПромптАссистента = (текст) => [false, true].some(а => String(текст || '').trim() === промптАссистента(а).trim());

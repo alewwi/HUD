@@ -11,17 +11,17 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=23.88.87';
-import { normalizeJSONData } from './schema.js?v=23.88.87';
-import { parseRelationList } from './render/relations-graph.js?v=23.88.87';
-import { nameLettersOnly, namePhoneticLatin } from './names.js?v=23.88.87';
-import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.88.87';
-import { createDashboard } from './chat-stats.js?v=23.88.87';
-import { статусРужья } from './codes.js?v=23.88.87';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.88.87';
-import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.88.87';
-import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.88.87';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.88.87';
+import { parseHUDComplex } from './hud-parser.js?v=23.88.88';
+import { normalizeJSONData } from './schema.js?v=23.88.88';
+import { parseRelationList } from './render/relations-graph.js?v=23.88.88';
+import { nameLettersOnly, namePhoneticLatin } from './names.js?v=23.88.88';
+import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.88.88';
+import { createDashboard } from './chat-stats.js?v=23.88.88';
+import { статусРужья } from './codes.js?v=23.88.88';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.88.88';
+import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.88.88';
+import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.88.88';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.88.88';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -49,11 +49,73 @@ function ключФакта(fact) {
     .trim();
 }
 
+// Похожесть формулировок. Модель каждый ход переписывает секрет и ружьё
+// своими словами: «кот с раненой лапой» через ход становится «котом с
+// перевязанной лапой, съевшим говядину». По точному тексту это десяток
+// разных секретов, и архив показывал их все. Сравниваем основы слов.
+function основыСлов(t) {
+  const слова = текст(t).toLowerCase().replace(/ё/g, 'е').match(/[\p{L}\d]+/gu) || [];
+  return слова.filter(w => w.length >= 4).map(w => w.slice(0, 5));
+}
+// Вес слова: имена героев («Софи», «Тристан», «Регенты») есть почти в каждой
+// формулировке и ничего не говорят о том, тот ли это секрет. Редкие слова
+// («карцер», «рысь», «рояль») говорят. Вес — по тому, в скольких разных
+// формулировках слово уже встречалось.
+function весСлова(слова, w) {
+  return Math.log(1 + (слова.N + 1) / ((слова.df.get(w) || 0) + 1));
+}
+function похожесть(а, б, слова) {
+  if (!а.length || !б.length) return 0;
+  // То же начало: модель обычно дописывает подробности в хвост.
+  if (а.length >= 4 && б.length >= 4 && а.slice(0, 4).every((x, i) => x === б[i])) return 1;
+  const A = new Set(а), B = new Set(б);
+  if (Math.min(A.size, B.size) < 3) return 0;
+  let общих = 0, всегоА = 0, всегоБ = 0;
+  for (const x of A) { const в = весСлова(слова, x); всегоА += в; if (B.has(x)) общих += в; }
+  for (const x of B) всегоБ += весСлова(слова, x);
+  return общих / Math.min(всегоА, всегоБ);
+}
+// Порог: похожая на любую прежнюю — 0.5; на ту, что была в прошлом ходе и
+// в этом не нашлась, — 0.45: модель только что переписала её своими словами.
+const ПОРОГ_ПОХОЖЕСТИ = 0.5, ПОРОГ_СОСЕДНЕЙ = 0.45, СОСЕДНИЙ_ХОД = 4;
+const словарь = (накоп) => (накоп._слова ||= { N: 0, df: new Map() });
+// Запись, на которую похожа формулировка. занятые — уже совпавшие в этом
+// ходе: два секрета одного HUD — разные секреты, склеивать их нельзя.
+function найтиПохожую(накоп, ключ, основы, занятые, at) {
+  const слова = словарь(накоп);
+  let лучшая = null, лучший = 0;
+  for (const item of накоп.values()) {
+    if (занятые.has(item)) continue;
+    if (item._ключи.has(ключ)) return item;
+    const соседняя = at - item.lastSeen > 0 && at - item.lastSeen <= СОСЕДНИЙ_ХОД;
+    for (const в of item._основы) {
+      const п = похожесть(основы, в, слова);
+      const запас = п - (соседняя ? ПОРОГ_СОСЕДНЕЙ : ПОРОГ_ПОХОЖЕСТИ);
+      if (запас >= 0 && (лучшая === null || запас > лучший)) { лучший = запас; лучшая = item; }
+    }
+  }
+  return лучшая;
+}
+// Запомнить формулировку записи: первая и пять свежих — модель уводит текст
+// понемногу, и сравнивать надо с последними словами, а не с первыми.
+function запомнитьФормулировку(накоп, item, ключ, основы) {
+  if (item._ключи.has(ключ)) return;
+  item._ключи.add(ключ);
+  if (item._основы.length >= 6) item._основы.splice(1, 1);
+  item._основы.push(основы);
+  const слова = словарь(накоп);
+  слова.N++;
+  for (const w of new Set(основы)) слова.df.set(w, (слова.df.get(w) || 0) + 1);
+}
+// Имя без приставки карточки: «THE REGENTS  Tristan Kingsley» и «Tristan
+// Kingsley» — один человек, и в отчёте он должен быть один раз.
+const чистоеИмя = (имя) => имяБезПриставки(текст(имя));
+
 // Извлечение блока [HUD] из текста сообщения. Тот же набор написаний, что и в
 // index.js: модель иногда шлёт < > вместо скобок, а ST успевает заэкранировать.
 // Поиск блока — общий, в hud-block.js. Экспорт оставлен: его берут отсюда.
-import { extractHudBlock } from './hud-block.js?v=23.88.87';
-import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.88.87';
+import { extractHudBlock } from './hud-block.js?v=23.88.88';
+import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.88.88';
 export { extractHudBlock };
 
 // Массив сообщений текущего чата.
@@ -93,15 +155,19 @@ const ВЕС_УРОВНЯ = { low: 0, medium: 1, high: 2, critical: 3 };
 // храним историю статусов и момент, когда каждый персонаж узнал.
 function собратьСекреты(накоп, data, at) {
   const secrets = (data.memory && Array.isArray(data.memory.secrets)) ? data.memory.secrets : [];
+  const занятые = new Set();
   for (const s of secrets) {
     const key = ключФакта(s.fact);
     if (!key) continue;
-    let item = накоп.get(key);
+    const основы = основыСлов(s.fact);
+    let item = найтиПохожую(накоп, key, основы, занятые, at);
     if (!item) {
-      item = { fact: текст(s.fact), level: текст(s.level), firstSeen: at, lastSeen: at,
-        statusHistory: [], knows: [], unaware: [], _знали: new Map() };
+      item = { fact: текст(s.fact), firstFact: текст(s.fact), level: текст(s.level), firstSeen: at, lastSeen: at,
+        statusHistory: [], knows: [], unaware: [], _знали: new Map(), _ключи: new Set(), _основы: [] };
       накоп.set(key, item);
     }
+    занятые.add(item);
+    запомнитьФормулировку(накоп, item, key, основы);
     item.lastSeen = at;
     // Уровень берём самый высокий за всё время, а не последний. Модель часто
     // опускает поле, и схема подставляет «medium» — последним значением такой
@@ -111,25 +177,29 @@ function собратьСекреты(накоп, data, at) {
       if (ВЕС_УРОВНЯ[новый] === undefined) { if (!item.level) item.level = новый; }
       else if ((ВЕС_УРОВНЯ[item.level] ?? -1) < ВЕС_УРОВНЯ[новый]) item.level = новый;
     }
-    // Формулировку берём самую длинную: короткая обычно обрезана моделью.
-    if (текст(s.fact).length > item.fact.length) item.fact = текст(s.fact);
+    // Формулировка — свежая: архив показывает секрет на последний момент.
+    // Первая остаётся в firstFact для истории.
+    item.fact = текст(s.fact);
 
     const status = текст(s.status).toLowerCase() || 'unknown';
     const прошлый = item.statusHistory[item.statusHistory.length - 1];
     if (!прошлый || прошлый.status !== status) item.statusHistory.push({ status, at });
 
     for (const k of (Array.isArray(s.knows) ? s.knows : [])) {
-      const имя = текст(k && k.name);
+      const имя = чистоеИмя(k && k.name);
       const kk = ключИмени(имя);
       if (!kk) continue;
-      if (!item._знали.has(kk)) {
-        item._знали.set(kk, true);
-        item.knows.push({ name: имя, source: текст(k && k.source), since: at });
-      }
+      const откуда = текст(k && k.source);
+      const был = item._знали.get(kk);
+      if (!был) {
+        const запись = { name: имя, source: значимо(откуда) ? откуда : '', since: at };
+        item._знали.set(kk, запись);
+        item.knows.push(запись);
+      } else if (!был.source && значимо(откуда)) был.source = откуда;
     }
     // «Не знают» — состояние на последний ход, а не история: список тает по
     // мере того, как секрет расходится.
-    item.unaware = (Array.isArray(s.hidden) ? s.hidden : []).map(текст).filter(Boolean);
+    item.unaware = (Array.isArray(s.hidden) ? s.hidden : []).map(чистоеИмя).filter(Boolean);
   }
 }
 
@@ -141,7 +211,7 @@ function собратьОтношения(накоп, data, at) {
   if (Array.isArray(data.characters)) персонажи.push(...data.characters);
 
   for (const c of персонажи) {
-    const субъект = текст(c['Имя'] || c.N || c.name);
+    const субъект = чистоеИмя(c['Имя'] || c.N || c.name);
     if (!субъект) continue;
     const пары = parseRelationList(c['Отношения'] || c.Rel || '');
     if (!пары.length) continue;
@@ -150,10 +220,11 @@ function собратьОтношения(накоп, data, at) {
     let ветка = накоп.get(sk);
     if (!ветка) { ветка = { name: субъект, targets: new Map() }; накоп.set(sk, ветка); }
     for (const пара of пары) {
-      const tk = ключИмени(пара.target);
+      const цель = чистоеИмя(пара.target);
+      const tk = ключИмени(цель);
       if (!tk || tk === sk) continue;
       let линия = ветка.targets.get(tk);
-      if (!линия) { линия = { name: пара.target, changes: [] }; ветка.targets.set(tk, линия); }
+      if (!линия) { линия = { name: цель, changes: [] }; ветка.targets.set(tk, линия); }
       const прошлый = линия.changes[линия.changes.length - 1];
       const rel = текст(пара.rel);
       if (!прошлый || прошлый.rel.toLowerCase() !== rel.toLowerCase()) линия.changes.push({ rel, at });
@@ -165,19 +236,23 @@ function собратьОтношения(накоп, data, at) {
 // она появилась, когда стала назревать и когда выстрелила.
 function собратьРужья(накоп, data, at) {
   const ружья = (data.memory && Array.isArray(data.memory.guns)) ? data.memory.guns : [];
+  const занятые = new Set();
   for (const строка of ружья) {
     const [завязка = '', кто = '', статус = ''] = String(строка).split('|').map(текст);
     const key = ключФакта(завязка);
     if (!key) continue;
-    let item = накоп.get(key);
+    const основы = основыСлов(завязка);
+    let item = найтиПохожую(накоп, key, основы, занятые, at);
     if (!item) {
-      item = { setup: завязка, tiedTo: кто, firstSeen: at, lastSeen: at, statusHistory: [] };
+      item = { setup: завязка, firstSetup: завязка, tiedTo: кто, firstSeen: at, lastSeen: at, statusHistory: [], _ключи: new Set(), _основы: [] };
       накоп.set(key, item);
     }
+    занятые.add(item);
+    запомнитьФормулировку(накоп, item, key, основы);
     item.lastSeen = at;
-    // Формулировку берём самую полную, связь — свежую.
-    if (завязка.length > item.setup.length) item.setup = завязка;
-    if (кто) item.tiedTo = кто;
+    // Формулировка и связь — свежие: нить на последний момент.
+    item.setup = завязка;
+    if (кто) item.tiedTo = кто.split(/\s*(?:,|\sи\s|\sand\s)\s*/).map(чистоеИмя).filter(Boolean).join(', ');
     const s = статусРужья(статус).ключ;
     const прошлый = item.statusHistory[item.statusHistory.length - 1];
     if (!прошлый || прошлый.status !== s) item.statusHistory.push({ status: s, at });
@@ -209,10 +284,25 @@ function собратьСцену(состояние, data, at) {
     состояние.dates.push({ date: дата, time: значимо(время) ? время : '', at });
     состояние.последняяДата = дата;
   }
-  if (значимо(место) && место.toLowerCase() !== состояние.последнееМесто.toLowerCase()) {
+  if (значимо(место) && !тоЖеМесто(место, состояние.последнееМесто)) {
     состояние.locations.push({ place: место, at });
-    состояние.последнееМесто = место;
   }
+  if (значимо(место)) состояние.последнееМесто = место;
+}
+// «Край причала в трёх с половиной метрах позади Софи» и «край причала в трёх
+// метрах позади Софи» — одно место: то же начало адреса и почти те же слова.
+function тоЖеМесто(а, б) {
+  if (!а || !б) return false;
+  if (а.toLowerCase() === б.toLowerCase()) return true;
+  const [а1, ...а2] = а.split(',').map(x => x.trim().toLowerCase());
+  const [б1, ...б2] = б.split(',').map(x => x.trim().toLowerCase());
+  if (а1 !== б1) return false;
+  const х = основыСлов(а2.join(' ')), у = основыСлов(б2.join(' '));
+  if (!х.length || !у.length) return false;
+  const A = new Set(х), B = new Set(у);
+  let общих = 0;
+  for (const w of A) if (B.has(w)) общих++;
+  return общих / Math.min(A.size, B.size) >= ПОРОГ_ПОХОЖЕСТИ;
 }
 
 // Саундтрек: главы — подряд идущие ходы с одной и той же подборкой (пока
@@ -247,7 +337,7 @@ function собратьНастроения(накоп, data, at) {
   if (значимо(сейчас(трекер.user))) персонажи.push({ 'Имя': текст(data.user && data.user['Имя']) || getSafeUserName(), 'Настроение': сейчас(трекер.user) });
   if (значимо(сейчас(трекер.char))) персонажи.push({ 'Имя': имяГлавного(data), 'Настроение': сейчас(трекер.char) });
   for (const c of персонажи) {
-    const имя = текст(c['Имя'] || c.N || c.name);
+    const имя = чистоеИмя(c['Имя'] || c.N || c.name);
     const настроение = текст(c['Настроение'] || c.Md);
     if (!имя || !значимо(настроение)) continue;
     const k = ключИмени(имя);
@@ -256,6 +346,65 @@ function собратьНастроения(накоп, data, at) {
     if (!линия) { линия = { name: имя, changes: [] }; накоп.set(k, линия); }
     const прошлый = линия.changes[линия.changes.length - 1];
     if (!прошлый || прошлый.mood.toLowerCase() !== настроение.toLowerCase()) линия.changes.push({ mood: настроение, at });
+  }
+}
+
+// Беременности по ходам: у каждого человека — свои, одна за другой. Поле
+// Беременность — строка кодов «wk: 6; due: 07.08.2027; fa: …; knw: …; lost: …».
+const ПОЛЯ_БЕРЕМЕННОСТИ = {
+  wk: 'неделя', 'неделя': 'неделя', due: 'роды', 'роды': 'роды', fa: 'отец', 'отец': 'отец',
+  knw: 'знают', 'кто знает': 'знают', cnd: 'как', 'как проходит': 'как',
+  lost: 'потеря', 'потеря': 'потеря', brn: 'родила', 'родила': 'родила',
+};
+export function меткиБеременности(v) {
+  const о = {};
+  for (const кусок of текст(v).split(';')) {
+    const м = кусок.match(/^\s*([^:：]{1,20})[:：]\s*([\s\S]*)$/);
+    if (!м) continue;
+    const к = ПОЛЯ_БЕРЕМЕННОСТИ[м[1].trim().toLowerCase()];
+    if (к && значимо(м[2])) о[к] = текст(м[2]);
+  }
+  const н = parseInt(String(о.неделя || '').replace(/[^\d]/g, ''), 10);
+  о.неделя = Number.isFinite(н) && н > 0 && н <= 45 ? н : null;
+  return о;
+}
+const ДЕНЬ_МС = 86400000;
+function собратьБеременности(накоп, data, at, игрок) {
+  const люди = [];
+  if (data.user && typeof data.user === 'object') люди.push({ ...data.user, 'Имя': текст(data.user['Имя']) || игрок, __игрок: true });
+  if (Array.isArray(data.characters)) люди.push(...data.characters);
+  const дата = текст(data.scene && data.scene['Дата']);
+  const датаMs = значимо(дата) ? parseSceneDate(дата) : null;
+  for (const c of люди) {
+    const поле = c && c['Беременность'];
+    if (!значимо(поле)) continue;
+    const имя = чистоеИмя(c['Имя'] || c.N || c.name);
+    const k = ключИмени(имя);
+    if (!k) continue;
+    const п = меткиБеременности(поле);
+    if (!накоп.has(k)) накоп.set(k, []);
+    const все = накоп.get(k);
+    let эп = все[все.length - 1];
+    const разрыв = эп && датаMs !== null && эп._датаMs !== null ? (датаMs - эп._датаMs) / ДЕНЬ_МС : 0;
+    // Новая беременность: срок упал (после исхода — на неделю и больше, без
+    // исхода — сильно: модель иногда путается на пару недель), или после
+    // исхода прошло больше полутора месяцев сюжета.
+    const новая = !эп
+      || (эп.outcome && ((п.неделя !== null && эп.weekTo !== null && п.неделя < эп.weekTo - 1) || разрыв > 45))
+      || (!эп.outcome && п.неделя !== null && эп.weekTo !== null && п.неделя < эп.weekTo - 4);
+    if (новая) {
+      эп = { name: имя, player: !!c.__игрок, from: at, to: at, dateFrom: значимо(дата) ? дата : '', dateTo: '', weekFrom: п.неделя, weekTo: п.неделя,
+        due: '', father: '', knows: '', state: '', outcome: null, _датаMs: датаMs };
+      все.push(эп);
+    }
+    эп.to = at;
+    if (значимо(дата)) { эп.dateTo = дата; эп._датаMs = датаMs; if (!эп.dateFrom) эп.dateFrom = дата; }
+    if (п.неделя !== null) { эп.weekTo = п.неделя; if (эп.weekFrom === null) эп.weekFrom = п.неделя; }
+    if (п.роды) эп.due = п.роды;
+    if (п.отец) эп.father = чистоеИмя(п.отец);
+    if (п.знают) эп.knows = п.знают;
+    if (п.как) эп.state = п.как;
+    if (!эп.outcome && (п.потеря || п.родила)) эп.outcome = { kind: п.родила ? 'birth' : 'loss', text: п.родила || п.потеря, at, date: значимо(дата) ? дата : '' };
   }
 }
 
@@ -322,6 +471,17 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
   const погода = new Map();
   const ружья = new Map();
   const саундтрек = [];
+  const беременности = new Map();
+  // Дата и время каждого хода: архив пишет их рядом с номером. Ход без даты
+  // берёт день прошлого хода — сцена идёт дальше, пока модель не сменит дату.
+  const моменты = {};
+  let деньСцены = '';
+  const отметить = (at, scene) => {
+    const д = текст(scene && scene['Дата']), t = текст(scene && scene['Время']);
+    if (значимо(д)) деньСцены = д;
+    if (деньСцены || значимо(t)) моменты[at] = { date: деньСцены, time: значимо(t) ? t : '' };
+  };
+  const игрок = getSafeUserName();
 
   // Дашборд считает все сообщения, а не только с HUD, — в этом же проходе.
   const дашборд = createDashboard({ userName: getSafeUserName() });
@@ -344,17 +504,19 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
 
   const учестьХод = (data, i, музыка = null) => {
     сОбработанным++;
+    отметить(i, data.scene);
     собратьСаундтрек(саундтрек, музыка, data, i);
     собратьСекреты(секреты, data, i);
     собратьОтношения(отношения, data, i);
     собратьСцену(сцена, data, i);
     собратьНастроения(настроения, data, i);
     собратьРужья(ружья, data, i);
+    собратьБеременности(беременности, data, i, игрок);
 
     const имена = [];
-    if (data.user && значимо(data.user['Имя'])) имена.push(текст(data.user['Имя']));
+    if (data.user && значимо(data.user['Имя'])) имена.push(чистоеИмя(data.user['Имя']));
     if (Array.isArray(data.characters)) for (const c of data.characters) {
-      if (значимо(c['Имя'])) имена.push(текст(c['Имя']));
+      if (значимо(c['Имя'])) имена.push(чистоеИмя(c['Имя']));
     }
     for (const имя of имена) {
       const k = ключИмени(имя);
@@ -422,7 +584,7 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
       if (естьHud) битых++;
       else if (chat[i] && !chat[i].is_user) {
         const д = датаИзТегов(raw);
-        if (д) { собратьСцену(сцена, { scene: { 'Дата': д.дата, 'Время': д.время } }, i); датИзТегов++; }
+        if (д) { собратьСцену(сцена, { scene: { 'Дата': д.дата, 'Время': д.время } }, i); отметить(i, { 'Дата': д.дата, 'Время': д.время }); датИзТегов++; }
       }
       continue;
     }
@@ -441,11 +603,12 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
     : (метки.length === 1 ? 1 : null);
 
   const секретыМассив = [...секреты.values()].map(s => {
-    delete s._знали;
+    delete s._знали; delete s._ключи; delete s._основы;
     return s;
   }).sort((a, b) => a.firstSeen - b.firstSeen);
 
-  const ружьяМассив = [...ружья.values()].sort((a, b) => a.firstSeen - b.firstSeen);
+  const ружьяМассив = [...ружья.values()].map(g => { delete g._ключи; delete g._основы; return g; }).sort((a, b) => a.firstSeen - b.firstSeen);
+  const беременностиМассив = [...беременности.values()].flat().map(э => { delete э._датаMs; return э; }).sort((a, b) => a.from - b.from);
   for (const г of саундтрек) delete г._подпись;
   const всехТреков = new Set(саундтрек.flatMap(г => [...г.soundtrack, ...((г.scene && г.scene.tracks) || [])].map(т => (т.a + '|' + т.t).toLowerCase())));
 
@@ -461,8 +624,11 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
   const сменНастроения = настроенияМассив.reduce((n, x) => n + Math.max(0, x.changes.length - 1), 0);
 
   return {
+    version: ВЕРСИЯ_ОТЧЁТА,
     range: { from, to, chatLength: total },
     generatedAt: new Date().toISOString(),
+    moments: моменты,
+    pregnancies: беременностиМассив,
     secrets: секретыМассив,
     relations: отношенияОбъект,
     dates: сцена.dates,
@@ -538,10 +704,13 @@ function ключКэша(from, to) {
   return ПРЕФИКС + id + '_' + from + '_' + to;
 }
 
+// Отчёт старого устройства (без дат у ходов, с дублями секретов) считаем
+// устаревшим: пересчёт быстрее, чем объяснять, почему в нём другое.
+export const ВЕРСИЯ_ОТЧЁТА = 2;
 export async function readCache(from, to) {
   const payload = await readEntry(ключКэша(from, to));
   if (!payload || !payload.report) return null;
-  payload.stale = payload.signature !== chatSignature();
+  payload.stale = payload.signature !== chatSignature() || payload.report.version !== ВЕРСИЯ_ОТЧЁТА;
   return payload;
 }
 
