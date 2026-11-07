@@ -20,10 +20,11 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.88.84';
-import { namesLikelySame } from './names.js?v=23.88.84';
-import { датаИзТекста, дм } from './render/conception.js?v=23.88.84';
-import { праздникиГода } from './render/holidays.js?v=23.88.84';
+import { settings } from './settings.js?v=23.88.85';
+import { полеВкл } from './deep-fields.js?v=23.88.85';
+import { namesLikelySame } from './names.js?v=23.88.85';
+import { датаИзТекста, дм } from './render/conception.js?v=23.88.85';
+import { праздникиГода } from './render/holidays.js?v=23.88.85';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -48,6 +49,9 @@ function сохранить() {
   try { (ctx?.saveMetadataDebounced || ctx?.saveMetadata)?.call(ctx); } catch (_) {}
 }
 const вкл = (ключ) => settings[ключ] !== false;
+// Глубокая настройка заметок: 'cue.hunger' — одна примета, 'cue' — вся заметка.
+const нота = (путь) => полеВкл(settings, 'nt.' + путь);
+const приглашенияВкл = () => вкл('enableInvitations') && полеВкл(settings, 'me.inv');
 
 // То, что держится много ходов, модель и так видит в HUD. Напоминаем раз в три
 // ответа и сразу, если текст изменился. Свайп того же ответа получает то же.
@@ -102,6 +106,7 @@ export function убратьПодсказку(id) {
 }
 // Свайпы того же сообщения получают ту же подсказку; новое сообщение её снимает.
 function подсказкиХода(х, цель) {
+  if (!вкл('enableHintButtons')) return '';
   const живые = х.подсказки.filter(п => п.цель === null || п.цель === цель);
   const менялось = живые.length !== х.подсказки.length || живые.some(п => п.цель === null);
   живые.forEach(п => { п.цель = цель; });
@@ -195,17 +200,17 @@ function заметкаОтношений(х, снимок, чат, цель, и
   const уровень = (кто, кому) => { const c = найти(кто); return c ? доверие(c.Tr, кому) : null; };
   // Свайп переписывает ответ цель: то, что случилось в нём, ещё не случилось.
   const сдвиги = сдвигиЧата().filter(е => е.индекс < цель);
-  for (const з of живыеШрамы(уровень, цель).filter(е => найти(е.кто)).slice(-3)) {
+  for (const з of нота('scar') ? живыеШрамы(уровень, цель).filter(е => найти(е.кто)).slice(-3) : []) {
     const текст = `${з.кто} still carries a wound from ${з.кому}${з.почему ? `: ${з.почему}` : ''} (trust fell from ${з.было} to ${з.стало}). Kind words do not erase it: let it show in small flinches and guarded moments.`;
     if (пораНапомнить(х, чат, цель, `шрам|${з.кто}|${з.кому}`, текст)) строки.push(текст);
   }
-  for (const з of сдвиги.filter(е => Math.abs(е.d) >= ПОРОГ_ИНЕРЦИИ && длина - е.индекс <= ХОДОВ_ИНЕРЦИИ && найти(е.кто)).slice(-2)) {
+  for (const з of нота('after') ? сдвиги.filter(е => Math.abs(е.d) >= ПОРОГ_ИНЕРЦИИ && длина - е.индекс <= ХОДОВ_ИНЕРЦИИ && найти(е.кто)).slice(-2) : []) {
     const текст = `${з.кто} is still under the impression of what happened with ${з.кому}${з.почему ? ` (${з.почему})` : ''}: it colours the next few moments.`;
     if (пораНапомнить(х, чат, цель, `след|${з.id}`, текст)) строки.push(текст);
   }
   // Соперник: тот, кого игрок сам называет соперником, сблизился с кем-то.
   const отношения = String(снимок?.us?.Rl || '');
-  for (const з of сдвиги.filter(е => е.d >= ПОРОГ_СДВИГА && длина - е.индекс <= 2)) {
+  for (const з of нота('rival') ? сдвиги.filter(е => е.d >= ПОРОГ_СДВИГА && длина - е.индекс <= 2) : []) {
     const кусок = отношения.split(/[;\n]/).find(ч => namesLikelySame((ч.split(/[:：]/)[0] || '').trim(), з.кому));
     const текст = `${з.кому}, ${имяИгрока}'s rival, gained ground with ${з.кто}: it costs ${имяИгрока} some of ${з.кто}'s warmth.`;
     if (кусок && /соперни|rival/i.test(кусок) && пораНапомнить(х, чат, цель, `соперник|${з.id}`, текст)) строки.push(текст);
@@ -227,6 +232,7 @@ const ДЕТАЛИ = [
   ['беременность', (с) => с.срок >= 5 && с.знают, ['a hand resting on the stomach without thinking', 'turns away from a strong smell', 'tires sooner than usual']],
 ];
 const ДЕТАЛЕЙ_ЗА_ХОД = 2, ПАУЗА_СООБЩЕНИЙ = 6;
+const КОД_ДЕТАЛИ = { голод: 'hunger', усталость: 'tired', стресс: 'stress', боль: 'pain', похмелье: 'hang', холод: 'cold', пмс: 'pms', беременность: 'preg' };
 function состояние(з) {
   return { сытость: метка(з.Bs, 'sat'), энергия: метка(з.Bs, 'eng'), стресс: метка(з.Bs, 'str'), сон: метка(з.Bs, 'slp'),
     текст: [з.Ph, з.H, з.Ill].map(v => String(v ?? '')).join(' '), цикл: String(з.Mns ?? ''), срок: метка(з.Prg, 'wk') ?? 0,
@@ -245,7 +251,7 @@ function заметкаДеталей(х, снимок, цель, имяИгро
     if (строки.length >= ДЕТАЛЕЙ_ЗА_ХОД) break;
     const с = состояние(з);
     for (const [ключ, условие, варианты] of ДЕТАЛИ) {
-      if (!условие(с)) continue;
+      if (!нота('cue.' + КОД_ДЕТАЛИ[ключ]) || !условие(с)) continue;
       const след = `${имя}|${ключ}`, был = х.детали[след];
       if (был && цель - был.цель < ПАУЗА_СООБЩЕНИЙ) continue;
       const показов = (был?.показов || 0) + 1;
@@ -262,7 +268,7 @@ function заметкаДеталей(х, снимок, цель, имяИгро
 /** Дни подряд без еды и сна по шкалам состояния тела. */
 export function запущенноеУ(имя) {
   const х = хранилище();
-  return х ? х.запущено[чисто(имя)] || null : null;
+  return х && вкл('enableNeglect') ? х.запущено[чисто(имя)] || null : null;
 }
 function заметкаЗапущенного(х, снимок, чат, цель, сцена, имяИгрока) {
   const строки = [];
@@ -278,7 +284,8 @@ function заметкаЗапущенного(х, снимок, чат, цель
     const сон = следить('сон', (с.сон !== null && с.сон <= 2) || (с.энергия !== null && с.энергия <= 10));
     const вода = следить('вода', /жажд|обезвож|пересохл|thirst|dehydrat|parched/i.test(с.текст));
     if (Object.keys(запись).length) х.запущено[имя] = запись; else delete х.запущено[имя];
-    const напомнить = (ключ, текст) => { if (пораНапомнить(х, чат, цель, `запущено|${имя}|${ключ}`, текст)) строки.push(текст); };
+    const КОД = { еда: 'food', вода: 'water', сон: 'sleep' };
+    const напомнить = (ключ, текст) => { if (нота('neg.' + КОД[ключ]) && пораНапомнить(х, чат, цель, `запущено|${имя}|${ключ}`, текст)) строки.push(текст); };
     if (голод >= 2) напомнить('еда', `${имя} has gone ${голод} days with almost no food: weak, dizzy, thinner, and it shows.${голод >= 4 ? ' If it goes on, write it in Ill.' : ''}`);
     if (вода >= 2) напомнить('вода', `${имя} has gone ${вода} days short of water: cracked lips, headache, dizziness.${вода >= 3 ? ' If it goes on, write it in Ill.' : ''}`);
     if (сон >= 2) напомнить('сон', `${имя} has gone ${сон} days nearly without sleep: slow thinking, shaking hands, mistakes.${сон >= 4 ? ' If it goes on, write it in Ill.' : ''}`);
@@ -345,7 +352,7 @@ export function собратьВес(чат, сцена = null) {
   }
   if (было) сохранить();
 }
-export function весЧата() { const х = хранилище(); return х ? { ...х.вес } : {}; }
+export function весЧата() { const х = хранилище(); return х && вкл('enableWeight') ? { ...х.вес } : {}; }
 /** Вес одного человека для карточки. */
 export function весЧеловека(имя) {
   const х = хранилище();
@@ -396,7 +403,8 @@ function заметкаВеса(х, снимок, цель, сцена, имяИ
       const спрошен = (х.разовые.спрошенВес ||= {});
       нужны.forEach(({ имя }) => { молчит[имя] = (молчит[имя] || 0) >= 3 ? 1 : (молчит[имя] || 0) + 1; спрошен[имя] = сцена; });
       const кто = нужны.map(({ имя }) => { const ключ = Object.keys(х.вес).find(к => namesLikelySame(к, имя)); const з = ключ ? х.вес[ключ] : null; return з ? `${имя} (was ${з.вес} kg, ${з.рост || '?'} cm on ${Number.isFinite(з.дата) ? дм(з.дата) : 'an earlier day'})` : имя; }).join(', ');
-      текст = `ONLY THIS TURN: add to the root of your HUD JSON "wg": {"<name>": "<height> cm; <weight> kg; ~<average daily intake> kcal; <activity: low, normal or high>"} for ${кто}. Base it on the body they have and what they ate and did lately. Never write wg on other turns.`;
+      const формат = [нота('wg.h') ? '<height> cm' : '', '<weight> kg', нота('wg.kc') ? '~<average daily intake> kcal' : '', нота('wg.act') ? '<activity: low, normal or high>' : ''].filter(Boolean).join('; ');
+      текст = `ONLY THIS TURN: add to the root of your HUD JSON "wg": {"<name>": "${формат}"} for ${кто}. Base it on the body they have and what they ate and did lately. Never write wg on other turns.`;
     }
   }
   х.разовые.вес = { цель, текст };
@@ -413,9 +421,9 @@ function заметкаПраздников(х, снимок, цель, сцен
   const дни = [...праздникиГода(год - 1, снимок), ...праздникиГода(год, снимок), ...праздникиГода(год + 1, снимок)];
   const вперёд = дни.map(п => ({ ...п, через: Math.round((п.дата - сцена) / ДЕНЬ) }));
   const сегодня = вперёд.find(п => п.через === 0);
-  if (сегодня) return `Today is ${сегодня.модели}: if this setting has it, people around mark it the way this place and era do. It can stay in the background.`;
+  if (сегодня && нота('hol.now')) return `Today is ${сегодня.модели}: if this setting has it, people around mark it the way this place and era do. It can stay in the background.`;
   const вчера = вперёд.find(п => п.через === -1);
-  if (вчера) {
+  if (вчера && нота('hol.past')) {
     const ключ = 'итог ' + вчера.модели + вчера.дата;
     if (!х.разовые[ключ] || х.разовые[ключ] === цель) {
       х.разовые[ключ] = цель;
@@ -424,7 +432,7 @@ function заметкаПраздников(х, снимок, цель, сцен
     }
   }
   const скоро = вперёд.filter(п => п.через > 0 && п.через <= ДНЕЙ_ПОДГОТОВКИ).sort((а, б) => а.через - б.через)[0];
-  return скоро ? `${скоро.модели} is in ${скоро.через} ${скоро.через === 1 ? 'day' : 'days'}: let small signs of it show in passing, only if the setting has this holiday.` : '';
+  return скоро && нота('hol.soon') ? `${скоро.модели} is in ${скоро.через} ${скоро.через === 1 ? 'day' : 'days'}: let small signs of it show in passing, only if the setting has this holiday.` : '';
 }
 
 /* --- Приглашения ------------------------------------------------------------- */
@@ -439,7 +447,7 @@ export function разобратьОтвет(текст) {
 /** Новые приглашения из ответов и ответы игрока на них. */
 export function сверитьПриглашения(чат) {
   const х = хранилище();
-  if (!х || пример || !Array.isArray(чат)) return;
+  if (!х || пример || !Array.isArray(чат) || !приглашенияВкл()) return;
   let было = false;
   const вХвосте = new Set();
   чат.slice(-16).forEach((м, i, хвост) => {
@@ -475,7 +483,7 @@ export function сверитьПриглашения(чат) {
 /** Карточки решений: только те, где HUD сам не понял ответ. */
 export function приглашенияБезОтвета() {
   const х = хранилище();
-  return х ? х.приглашения.filter(п => !п.ответ && п.ждёт) : [];
+  return х && приглашенияВкл() ? х.приглашения.filter(п => !п.ответ && п.ждёт) : [];
 }
 export function ответитьНаПриглашение(id, ответ) {
   const х = хранилище();
@@ -488,13 +496,14 @@ export function ответитьНаПриглашение(id, ответ) {
 }
 function заметкаПриглашений(х, цель, сцена, имяИгрока) {
   const строки = [];
+  if (!приглашенияВкл()) return строки;
   for (const п of х.приглашения) {
-    if (п.сообщить || п.сообщено === цель) {
+    if (нота('inv.ans') && (п.сообщить || п.сообщено === цель)) {
       п.сообщить = false;
       п.сообщено = цель;
       строки.push(`${имяИгрока} ${п.ответ === 'yes' ? 'accepted' : 'declined'} ${п.кто}'s invitation: ${п.что}.`);
     }
-    if (п.ответ === 'yes' && Number.isFinite(п.дата) && Number.isFinite(сцена) && сцена > п.дата && (!п.проверено || п.проверено === цель)) {
+    if (нота('inv.late') && п.ответ === 'yes' && Number.isFinite(п.дата) && Number.isFinite(сцена) && сцена > п.дата && (!п.проверено || п.проверено === цель)) {
       п.проверено = цель;
       строки.push(`${имяИгрока} promised ${п.кто} to come: ${п.что} (${п.когда}). If that never happened, ${п.кто} is hurt and lets it show, and trust drops.`);
     }
@@ -507,15 +516,17 @@ function заметкаПриглашений(х, цель, сцена, имяИ
 /** Ружьё с датой: «завязка | кто | статус | срок | main». */
 export function разобратьНить(строка, год = null) {
   const [завязка = '', кто = '', статус = '', срок = '', вид = ''] = String(строка ?? '').split('|').map(s => s.trim());
-  return { завязка, кто, статус, срок, дата: датаИзТекста(срок, год), вид: /^(?:main|side|short)$/i.test(вид) ? вид.toLowerCase() : '' };
+  const сроки = вкл('enableDeadlines');
+  return { завязка, кто, статус, срок: сроки ? срок : '', дата: сроки ? датаИзТекста(срок, год) : null, вид: /^(?:main|side|short)$/i.test(вид) ? вид.toLowerCase() : '' };
 }
 export function срокиНитей() { const х = хранилище(); return х ? х.сроки.slice() : []; }
 function заметкаСроков(х, снимок, цель, сцена) {
+  if (!вкл('enableDeadlines')) { х.сроки = []; return []; }
   const нити = (Array.isArray(снимок?.me?.gun) ? снимок.me.gun : []).map(с => разобратьНить(с, Number.isFinite(сцена) ? new Date(сцена).getUTCFullYear() : null)).filter(н => н.завязка && Number.isFinite(н.дата) && !/fired/i.test(н.статус));
   х.сроки = нити.map(н => ({ завязка: н.завязка, кто: н.кто, дата: н.дата, вид: н.вид }));
   if (!Number.isFinite(сцена)) return [];
   const строки = [];
-  for (const н of нити) {
+  for (const н of нота('due.gun') ? нити : []) {
     if (н.дата >= сцена) continue;
     const ключ = 'срок ' + н.завязка.slice(0, 60);
     if (х.разовые[ключ] && х.разовые[ключ] !== цель) continue;
@@ -525,7 +536,7 @@ function заметкаСроков(х, снимок, цель, сцена) {
   // Планы из календаря телефона: прошла дата, и неясно, сделали или сорвали.
   const год = new Date(сцена).getUTCFullYear();
   let планов = 0;
-  for (const з of Array.isArray(снимок?.phn?.cl) ? снимок.phn.cl : Array.isArray(снимок?.sm?.cl) ? снимок.sm.cl : []) {
+  for (const з of !нота('due.plan') ? [] : Array.isArray(снимок?.phn?.cl) ? снимок.phn.cl : Array.isArray(снимок?.sm?.cl) ? снимок.sm.cl : []) {
     if (!з || !з.ti || /birth|holiday|день рожд|праздн/i.test(String(з.kd || ''))) continue;
     const дата = датаИзТекста(з.dt, год);
     if (дата === null || дата >= сцена || сцена - дата > 7 * ДЕНЬ || планов >= 2 || /сорван|отмен|перенес|cancel/i.test(String(з.ti))) continue;
@@ -567,10 +578,10 @@ export function заметкиХода({ чат, снимок = null, тип = '
   if (снимок) {
     const строки = [];
     if (вкл('enableScars')) строки.push(...заметкаОтношений(х, снимок, чат, цель, игрок));
-    if (вкл('enableBodyCues')) { const д = заметкаДеталей(х, снимок, цель, игрок); if (д) строки.push(д); }
-    if (вкл('enableNeglect')) строки.push(...заметкаЗапущенного(х, снимок, чат, цель, сцена, игрок));
-    if (вкл('enableWeight')) { const в = заметкаВеса(х, снимок, цель, сцена, игрок); if (в) строки.push(в); }
-    if (вкл('enableEraHolidays')) { const п = заметкаПраздников(х, снимок, цель, сцена); if (п) строки.push(п); }
+    if (вкл('enableBodyCues') && нота('cue')) { const д = заметкаДеталей(х, снимок, цель, игрок); if (д) строки.push(д); }
+    if (вкл('enableNeglect') && нота('neg')) строки.push(...заметкаЗапущенного(х, снимок, чат, цель, сцена, игрок));
+    if (вкл('enableWeight') && нота('wg')) { const в = заметкаВеса(х, снимок, цель, сцена, игрок); if (в) строки.push(в); }
+    if (вкл('enableEraHolidays') && нота('hol')) { const п = заметкаПраздников(х, снимок, цель, сцена); if (п) строки.push(п); }
     строки.push(...заметкаПриглашений(х, цель, сцена, игрок), ...заметкаСроков(х, снимок, цель, сцена));
     if (строки.length) части.push(`## 📝 THIS TURN\n- ${строки.join('\n- ')}`);
   }

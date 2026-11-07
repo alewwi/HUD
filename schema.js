@@ -7,11 +7,11 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.88.84';
-import { mapKey } from './utils.js?v=23.88.84';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.88.84';
-import { списокВыключенного, убратьВыключенное } from './deep-fields.js?v=23.88.84';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.88.84';
+import { settings } from './settings.js?v=23.88.85';
+import { mapKey } from './utils.js?v=23.88.85';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.88.85';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.88.85';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.88.85';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -97,7 +97,7 @@ function normalizeHUDSchema(parsed) {
   // их первыми, чтобы дальше работать с привычными названиями.
   // Глубокая настройка (deep-fields.js): выключенное убираем, пока ключи —
   // коды промта. Так оно уходит и из старых сообщений, где модель его писала.
-  убратьВыключенное(root, списокВыключенного(settings));
+  убратьВыключенное(root, выключеноВОтвете(settings));
   развернутьКоды(root);
   root.scene =fillMissingObjectFields(root.scene, HUD_SCENE_DEFAULTS);
   root.characters = Array.isArray(root.characters) ? root.characters.map(c => fillMissingObjectFields(c, HUD_CHARACTER_DEFAULTS)) : [];

@@ -6,19 +6,21 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { parseSceneDate } from '../history-analyzer.js?v=23.88.84';
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.88.84';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.84';
-import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.88.84';
-import { отложитьРисунок } from './lazy-svg.js?v=23.88.84';
-import { длинныйСписок } from './long-list.js?v=23.88.84';
-import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.88.84';
-import { общиеМеста } from './route-places.js?v=23.88.84';
-import { статусРужья } from '../codes.js?v=23.88.84';
-import { сеткаСекретов, вопросыСекретов } from './secrets-grid.js?v=23.88.84';
-import { кнопкаУдаления, кнопкаПодсказки } from './erase-button.js?v=23.88.84';
-import { приглашенияБезОтвета, разобратьНить } from '../turn-notes.js?v=23.88.84';
-import { дм } from './conception.js?v=23.88.84';
+import { parseSceneDate } from '../history-analyzer.js?v=23.88.85';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.88.85';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.85';
+import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.88.85';
+import { отложитьРисунок } from './lazy-svg.js?v=23.88.85';
+import { длинныйСписок } from './long-list.js?v=23.88.85';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.88.85';
+import { общиеМеста } from './route-places.js?v=23.88.85';
+import { статусРужья } from '../codes.js?v=23.88.85';
+import { сеткаСекретов, вопросыСекретов } from './secrets-grid.js?v=23.88.85';
+import { кнопкаУдаления, кнопкаПодсказки } from './erase-button.js?v=23.88.85';
+import { приглашенияБезОтвета, разобратьНить } from '../turn-notes.js?v=23.88.85';
+import { дм } from './conception.js?v=23.88.85';
+import { settings } from '../settings.js?v=23.88.85';
+import { полеВкл } from '../deep-fields.js?v=23.88.85';
 
 function parseRoutePoint(item) {
   // Модель иногда ставит дату перед временем («09.11, 22:15») — дату отбрасываем.
@@ -108,7 +110,7 @@ function блокПриглашений() {
     + `<button type="button" class="hud-fetus-btn is-on" data-hud-invite="${escapeHtml(п.id)}" data-val="yes">Принять</button><button type="button" class="hud-fetus-btn" data-hud-invite="${escapeHtml(п.id)}" data-val="no">Отклонить</button></div>`).join('')}</div>`;
 }
 /** Сколько вопросов к игроку лежит в Памяти: приглашения и «всплыло в споре». */
-export const вопросыПамяти = (memoryData, hudData) => приглашенияБезОтвета().length + вопросыСекретов(memoryData && memoryData.secrets, hudData);
+export const вопросыПамяти = (memoryData, hudData) => (settings.enableAttnBadges === false || !полеВкл(settings, 'ui.attn.mem') ? 0 : приглашенияБезОтвета().length + вопросыСекретов(memoryData && memoryData.secrets, hudData));
 // Срок нити и её вид: цветные метки, красная, если дата прошла.
 const ЧАСЫ = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
 function меткаСрока(строка, сцена = null) {

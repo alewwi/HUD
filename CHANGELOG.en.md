@@ -4,6 +4,19 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.85 — 2026-11-07
+
+### Added
+- **New switches in the main settings:** question badges, one-time nudges, invitations, thread deadlines, pregnancy check-ups, the threat die, miscarriage and abortion, intimacy reminders.
+- **Deep settings, "Model notes" section:** scars, impressions, rivals, each body detail, neglect, the weight request, holidays, deadlines and invitations separately.
+- **Deep settings, "On-screen hints" section:** intimacy reminders, question badges, one-time nudges, check-ups by week and the threat die.
+- Invitations are now in deep settings among the Memory fields.
+
+### Fixed
+- With Neglect turned off, it no longer shows on the card or affects the cycle and the chance of conception.
+- With Weight turned off, it also leaves Daily life, not just the card.
+- With Scars turned off, the model is no longer asked to write the reason for a trust shift.
+
 ## 23.88.84 — 2026-11-07
 
 A logic check of the new features on a real chat.

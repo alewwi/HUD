@@ -17,8 +17,9 @@
 // переформулировка давала бы новый бросок — лишний шанс. Поэтому ключ —
 // время близости и партнёр, а первый бросок по этому ключу запоминается.
 
-import { namesLikelySame } from '../names.js?v=23.88.84';
-import { settings } from '../settings.js?v=23.88.84';
+import { namesLikelySame } from '../names.js?v=23.88.85';
+import { settings } from '../settings.js?v=23.88.85';
+import { полеВкл } from '../deep-fields.js?v=23.88.85';
 
 const КЛЮЧ = 'tavernosHudConception';
 
@@ -295,17 +296,17 @@ export function скрытыеФактыЗачатия(сценаMs = null, сн
     строки.push(`${имя(п.кто)} lost ${п.часть === 1 ? 'one' : 'two'} of her babies${Number.isFinite(п.дата) ? ` on ${дм(п.дата)}` : ''}${Number.isFinite(п.неделя) ? `, at week ${п.неделя}` : ''}. The pregnancy goes on with ${п.осталось === 1 ? 'one baby' : `${п.осталось} babies`}: keep Prg, and say how many are left. Do not write lost for this again.`);
   }
   // Осмотры: только то, что игрок уже открыл.
-  for (const [кто, список] of Object.entries(х.осмотры || {})) {
+  for (const [кто, список] of settings.enablePregnancyExams === false ? [] : Object.entries(х.осмотры || {})) {
     if (потеряЧья(кто)) continue;
     for (const о of Array.isArray(список) ? список : []) {
-      if (!о.проверено || о.снято) continue;
+      if (!о.проверено || о.снято || !полеВкл(settings, 'ui.exam.' + о.порог)) continue;
       const к = КАТАЛОГ_ОСМОТРОВ[о.осложнение], ф = КАТАЛОГ_ОСМОТРОВ[о.находка];
       if (к) строки.push(`${имя(кто)} has ${к.модели}, found at week ${о.порог}: let the doctors and her body show it, and treat it as real.`);
       if (ф) строки.push(`${имя(кто)}'s baby has ${ф.модели}, seen at the week ${о.порог} scan.`);
     }
   }
   // Исход угрозы: только после того, как игрок его узнал.
-  for (const [кто, у] of Object.entries(х.угрозы || {})) {
+  for (const [кто, у] of settings.enableThreatDice === false || !полеВкл(settings, 'ui.thr') ? [] : Object.entries(х.угрозы || {})) {
     if (!у || !у.проверено || потеряЧья(кто) || (Number.isFinite(сценаMs) && Number.isFinite(у.видели) && сценаMs > у.видели + 14 * ДЕНЬ_МС)) continue;
     const итог = у.судьба || у.итог;
     строки.push(итог === 'keep' ? `${имя(кто)}'s threatened pregnancy SURVIVES: the danger passes in the coming days, whatever the doctors fear. Do not write lost.`

@@ -5,10 +5,12 @@
 // одного из двойни, кубик исхода угрозы и осмотры. Логика и запись —
 // render/conception.js, клики ловит index.js. Оформление — css/misc.css.
 
-import { escapeHtml } from '../utils.js?v=23.88.84';
-import { ВИДЫ_ПОТЕРИ, дм, восстановлениеПосле } from './conception.js?v=23.88.84';
-import { ЗНАЧОК_КОРЗИНЫ } from './erase-button.js?v=23.88.84';
-import { подождатьДо, ДНЕЙ_ОСЛОЖНЕНИЕ } from './rest-hint.js?v=23.88.84';
+import { escapeHtml } from '../utils.js?v=23.88.85';
+import { settings } from '../settings.js?v=23.88.85';
+import { полеВкл } from '../deep-fields.js?v=23.88.85';
+import { ВИДЫ_ПОТЕРИ, дм, восстановлениеПосле } from './conception.js?v=23.88.85';
+import { ЗНАЧОК_КОРЗИНЫ } from './erase-button.js?v=23.88.85';
+import { подождатьДо, ДНЕЙ_ОСЛОЖНЕНИЕ } from './rest-hint.js?v=23.88.85';
 
 const ДЕНЬ = 864e5;
 const Р = 25, ДЛИНА = 2 * Math.PI * Р;
@@ -37,6 +39,7 @@ function кольцо(неделя) {
 }
 
 export function кнопкаПотери(кто) {
+  if (settings.enablePregnancyLoss === false || !полеВкл(settings, (кто === 'user' ? 'us' : 'cs') + '.Prg.lost')) return '';
   return `<button type="button" class="hud-loss-btn" data-hud-loss="mark" data-kto="${escapeHtml(кто)}" title="Отметить выкидыш или аборт, если модель этого не заметила">Выкидыш или аборт</button>`;
 }
 export function кнопкаОтменыПотери(кто) {
@@ -82,9 +85,9 @@ export function блокЧастичнойПотери(п, кто) {
 
 /** Осмотры: скрининг по неделям. Итог открывает игрок, судьба его убирает. */
 export function блокОсмотров(осмотры, кто) {
-  if (!Array.isArray(осмотры) || !осмотры.length) return '';
+  if (settings.enablePregnancyExams === false || !Array.isArray(осмотры) || !осмотры.length) return '';
   const к = escapeHtml(кто);
-  return осмотры.map(о => {
+  return осмотры.filter(о => полеВкл(settings, 'ui.exam.' + о.порог)).map(о => {
     const шапка = `<span class="hud-note-eye hud-section-title">Осмотр</span>`;
     if (!о.проверено) {
       return `<div class="hud-note-card is-wait">${значок('pulse')}<div class="hud-note-body">${шапка}<b>${о.порог}-я неделя</b><small>Результаты уже есть. Модель узнает их только после вас.</small></div>`
@@ -101,7 +104,7 @@ export function блокОсмотров(осмотры, кто) {
 const ИТОГИ = { keep: 'Беременность сохранится', one: 'Один малыш не выживет', all: 'Беременность не сохранить' };
 /** Исход угрозы: кубик, как у зачатия. у — запись из исходУгрозы(). */
 export function блокУгрозы(у) {
-  if (!у) return '';
+  if (!у || settings.enableThreatDice === false || !полеВкл(settings, 'ui.thr')) return '';
   const кто = escapeHtml(у.кто);
   const шапка = `<span class="hud-note-eye hud-section-title">Угроза беременности</span>`;
   if (!у.проверено) {

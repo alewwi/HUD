@@ -2522,6 +2522,33 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
     проверить('вес: удалённый ответ уходит из истории', N.весЧеловека('Весовая').вес === 48 && N.весЧеловека('Весовая').история.length === 1, JSON.stringify(N.весЧеловека('Весовая').история));
     N.собратьВес(ч3, Д(12));
     проверить('вес: после отката новый ответ принят', N.весЧеловека('Весовая').вес === 55 && N.сдвигВеса(N.весЧеловека('Весовая')) === 7);
+    {
+      const Н = await модуль('settings.js'), Д2 = await модуль('deep-fields.js');
+      const S = Н.settings, было = { ...S }, вернуть = () => { for (const к of Object.keys(S)) if (!(к in было)) delete S[к]; Object.assign(S, было); };
+      проверить('галки: все новые включены по умолчанию', ['enableRestHints', 'enableAttnBadges', 'enableHintButtons', 'enableInvitations', 'enableDeadlines', 'enablePregnancyExams', 'enableThreatDice', 'enablePregnancyLoss'].every(к => Н.defaultSettings[к] === true));
+      проверить('галки: подпути выключаются сверху', !Д2.полеВкл({ fieldsOff: ['nt.cue'] }, 'nt.cue.hunger') && Д2.полеВкл({ fieldsOff: ['nt.cue.hunger'] }, 'nt.cue') && Д2.полеВкл({}, 'ui.rest.loss'));
+      проверить('галки: заметки и экран не уходят в разбор ответа', Д2.выключеноВОтвете({ fieldsOff: ['nt.scar', 'ui.thr', 'me.fct'] }).join() === 'me.fct');
+      проверить('галки: приглашения и потеря режут поля модели', Д2.выключеноВОтвете({ enableInvitations: false, enablePregnancyLoss: false }).join() === 'me.inv,cs.Prg.lost,us.Prg.lost');
+      const R = await модуль('render/rest-hint.js');
+      S.enableRestHints = false;
+      проверить('галка: напоминания о близости', R.подождатьДо('1.1') === '' && R.больноПриБлизости() === '');
+      S.enableRestHints = true; S.fieldsOff = ['ui.rest.birth'];
+      проверить('глубокая: роды отдельно от потери', R.подождатьДо('1.1', 'birth') === '' && R.подождатьДо('1.1', 'loss') !== '');
+      вернуть();
+      const Е = await модуль('render/erase-button.js');
+      S.enableHintButtons = false;
+      проверить('галка: разовые подсказки', Е.кнопкаПодсказки('guns', ['a']) === '');
+      S.enableHintButtons = true; S.fieldsOff = ['ui.hint.guns'];
+      проверить('глубокая: подсказка по виду', Е.кнопкаПодсказки('guns', ['a']) === '' && Е.кнопкаПодсказки('secrets', ['a']) !== '');
+      вернуть();
+      S.enableDeadlines = false;
+      проверить('галка: сроки нитей', N.разобратьНить('а | б | open | 12.03.2024 | main').дата === null && N.разобратьНить('а | б | open | 12.03.2024 | main').вид === 'main');
+      вернуть();
+      S.enableWeight = false;
+      проверить('галка: вес пропадает из быта', Object.keys(N.весЧата()).length === 0);
+      вернуть();
+      проверить('галки: настройки вернулись', S.enableWeight === true && !S.fieldsOff?.length);
+    }
     проверить('вес: старая запись со свайпами не даёт ложной прибавки', N.сдвигВеса({ история: [{ вес: 47, дата: 5 }, { вес: 48, дата: 5 }, { вес: 47, дата: 5 }, { вес: 48, дата: 5 }] }) === 0);
   }
   {

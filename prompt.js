@@ -10,14 +10,14 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.88.84';
-import { английский, т } from './i18n.js?v=23.88.84';
-import { промптНаАнглийском } from './prompt-en.js?v=23.88.84';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.84';
-import { parseSceneDate } from './history-analyzer.js?v=23.88.84';
-import { возрастТочно } from './render/babies.js?v=23.88.84';
-import { списокВыключенного, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.84';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.84';
+import { settings } from './settings.js?v=23.88.85';
+import { английский, т } from './i18n.js?v=23.88.85';
+import { промптНаАнглийском } from './prompt-en.js?v=23.88.85';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.85';
+import { parseSceneDate } from './history-analyzer.js?v=23.88.85';
+import { возрастТочно } from './render/babies.js?v=23.88.85';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.85';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.85';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -165,7 +165,7 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
    "B": "[body and mind: the STATE this person is in right now, in a phrase or two — tired, tense, tipsy, calm, shaken, drained but alert. A state, not an action: no retelling of what they did or are doing, no place, no objects, no who-did-what to whom. Wrong: 'locked the door and stands before her with a belt'. Right: 'composed, rage on a short leash'. Asleep or unconscious is a state too]",
    "H": "[health: ${болезни ? 'overall physical state in a phrase — pain, stamina, how they hold up; specific illnesses and injuries go to Ill, never its codes here' : 'wounds, pain, illness, stamina'}. 'empty' when all is well.]",${болезни ? `
    "Ill": "[illnesses, injuries, traumas, ONLY if any. One group per condition, separated by |: 'nm: diagnosis or wound; sg: fresh, worsening, stable, healing, chronic or healed; rc: recovery 0-100%; sy: symptoms now; trt: treatment; zn: body zone of a wound — голова, грудь, спина, левое плечо, правое бедро…'. Track each until it heals, updating sg, rc and sy with story time; a scratch gone by tomorrow stays in H. The SAME name every turn, ONE field only${следы ? (интим ? ' — marks left by intimacy (hickeys, bites, scratches, soreness) go to Mrk unless they become a real injury, and nothing is in both Ill and Mrk' : ' — marks that simply fade (bruises, grazes, redness) go to Mrk, and nothing is in both Ill and Mrk') : ''}]",` : ''}${беременностьВПромпт ? `
-   "Prg": "[pregnancy, ONLY once one exists in the story, known or not — never invent one. 'wk: week, a number; due: due date; fa: father, if known; sy: symptoms, how the body changes; knw: who knows; cnd: how it is going; gnd: baby's sex once an ultrasound shows it (~18-20 wk), else omit; bnm: chosen name, if any; vis: next doctor's visit or test; crv: cravings; brn: ONLY on the birth turn — its date and time; drop Prg from the next turn; lost: ONLY on the turn a pregnancy really ends without a live birth — its date and what happened (miscarriage, abortion, missed miscarriage, stillbirth); then drop Prg from the next turn, no Pp. With twins or triplets, if only some are lost, write 'one of the twins' there and keep Prg. A threat, bleeding or surgery with the outcome unknown is not lost: that stays in cnd'. Advances with story time]",` : ''}${послеродовоеВПромпт ? `
+   "Prg": "[pregnancy, ONLY once one exists in the story, known or not — never invent one. 'wk: week, a number; due: due date; fa: father, if known; sy: symptoms, how the body changes; knw: who knows; cnd: how it is going; gnd: baby's sex once an ultrasound shows it (~18-20 wk), else omit; bnm: chosen name, if any; vis: next doctor's visit or test; crv: cravings; brn: ONLY on the birth turn — its date and time; drop Prg from the next turn; lost: ONLY on the turn a pregnancy really ends without a live birth — its date and what happened (miscarriage, abortion, missed miscarriage, stillbirth); then drop Prg from the next turn, no Pp. With twins or triplets, if only some are lost, write «one of the twins» there and keep Prg. A threat, bleeding or surgery with the outcome unknown is not lost: that stays in cnd'. Advances with story time]",` : ''}${послеродовоеВПромпт ? `
    "Pp": "[after childbirth, ONLY for a woman who has given birth in the story — otherwise omit. 'bf: breast, formula or mixed; lfd: time of the last breastfeed as HH:MM; brs: breasts — fullness, pain, leaking, nipples; sy: how she feels — healing, bleeding, tiredness, mood'. Keep it while she recovers and feeds]",` : ''}${цикл ? `
    "Mns": "[menstrual cycle, ONLY for someone with a uterus. 'cyd: cycle day, a number; cyl: cycle length, days; phs: menstrual, follicular, ovulation, luteal or late; nxt: next period date; pms: PMS window, dates; dly: days late, 0 if none; rsn: reason for a delay — stress, illness, contraception, pregnancy; empty if none'. Moves with story days: the day grows, the phase follows, the period comes on time unless something delays it. From a known pregnancy (Prg) until the period returns after birth — only 'phs: paused', no day count or delay]",` : ''}
    "Ph": "[physiology: bodily sensations right now — hunger, thirst, cold, pain, drowsiness${интим ? ', arousal' : ''}. What the body feels, not what it does. Not the phone]",
@@ -210,7 +210,7 @@ ${бельё ? `   "Un": "[OPTIONAL, only when it matters in the scene — under
    "AC": "[aftercare (phase 3 only): what this character needs now it's over — touch, water, silence, words, or nothing. 2-3 sentences: what exactly, from whom, why it matters now, what would hurt instead, e.g. 'Молча обнять и не говорить ни слова — любые слова разрушат ощущение сейчас']",
    "SxV": "[sex review (phase 3 only), once it has ended: 4-6 sentences in this character's own voice — what worked, what didn't, the best and most awkward moment, how body and heart felt, what to repeat or never again — ending with a rating like ★★★★☆]",` : ''}${следы ? `
    "Mrk": "[visible body marks and physical aftermath — ${интим ? 'hickeys, bites, scratches, bruises, redness, soreness, heaviness' : 'bruises, scratches, grazes, redness, soreness'} — every turn from appearance until they fade in story time${интим ? ', whatever the intimacy phase' : ''}. Each '<what>: <where> — <how it looks/feels now> | <fade time from appearance: 12h, 3d>':${интим ? `'Засос: шея слева — наливается фиолетовым, ноет | 5d; Следы ногтей: спина — красные полосы | 2d'` : `'Синяк: левое предплечье — желтеет по краям, ноет при нажатии | 5d; Ссадины: костяшки правой руки — подсохли корочкой | 2d'`}. The fade time is set once and counted from sc.Dt and sc.T — keep both accurate; the look changes as it heals. Marks that never fade — scars, tattoos, piercings, birthmarks — have no fade time: write when they were obtained instead, '| получен: <date, age or event>' ('Шрам: левая бровь — тонкая белая полоса | получен: в 14 лет, драка'). Body only, no feelings. 'empty' when none; separate by ;]",` : ''}
-   "Tr": "[trust: how much this character trusts each other named character, 0-100, '<name>: <0-100>': 'Софи: 82; Ричард: 9'. One entry per person they know. Not the same as Rl — one can love and not trust. Only when a value moves by 5 or more THIS turn, add why in a few words in brackets: 'Софи: 82 (спасла ему жизнь)'; a deep wound starts with !: 'Софи: 40 (!ударила при всех)'. Separate by ;]",
+   "Tr": "[trust: how much this character trusts each other named character, 0-100, '<name>: <0-100>': 'Софи: 82; Ричард: 9'. One entry per person they know. Not the same as Rl — one can love and not trust.${settings.enableScars === false ? '' : " Only when a value moves by 5 or more THIS turn, add why in a few words in brackets: 'Софи: 82 (спасла ему жизнь)'; a deep wound starts with !: 'Софи: 40 (!ударила при всех)'."} Separate by ;]",
    "Fr": "[fears: what this character is afraid of RIGHT NOW, each '<what they fear>: <low | moderate | high | panic>': 'Потерять Софи: high; Отец узнает: moderate'. Live fears in this scene, not lifelong phobias unless surfaced. Separate by ;]"${своиЧьи.has('chars') ? полеСвоих('chars') : ''}
   }
  ]`;
@@ -255,7 +255,7 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
   },
   "fct": ["[fact: an important or newly learned fact, stated plainly, people by their real names]", "facts: as many lines as matter"],${ружья ? `${быт ? `
   "hk": "[OPTIONAL — only in a turn where any of this happened: 'eat: what, where, with whom; wash: what; buy: what and how much; fix: what; break: what household object actually broke (not an injury, not a near miss); wear: what was put on or taken off', separated by ;]",` : ''}
-  "gun": ["[a setup planted and not yet paid off — promise, threat, hint, unexplained object, open mystery, debt, foreshadowing] | [who or what it is tied to] | [open | building | fired] | [deadline date, only if the story set one] | [main, side or short, only for a task someone must do]", "chekhov's guns: one line per unresolved thread, from the Fl flags and what the story left hanging — never invent plot to fill it. Keep each until it pays off: mark it fired that turn, drop it the next"],
+  "gun": ["[a setup planted and not yet paid off — promise, threat, hint, unexplained object, open mystery, debt, foreshadowing] | [who or what it is tied to] | [open | building | fired] | ${settings.enableDeadlines === false ? '[leave this part empty]' : '[deadline date, only if the story set one]'} | [main, side or short, only for a task someone must do]", "chekhov's guns: one line per unresolved thread, from the Fl flags and what the story left hanging — never invent plot to fill it. Keep each until it pays off: mark it fired that turn, drop it the next"],
   "inv": ["[only on a turn someone in the story invites {{user}} somewhere: who | what | date and time]"],` : ''}
   "sec": [
    {
@@ -501,7 +501,7 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
   p += `\n}\n\`\`\`\n[/HUD]`;
   // Глубокая настройка (deep-fields.js): выключенные поля и метки — вон из
   // схемы, и отдельным правилом «не писать».
-  const выключено = списокВыключенного(settings);
+  const выключено = выключеноВОтвете(settings);
   if (выключено.length) {
     p = вырезатьИзПромпта(p, выключено);
     p = p.replace(/(- ⚠️ FORMATTING:[^\n]*)/, (всё) => всё + правилоВыключенного(выключено));
