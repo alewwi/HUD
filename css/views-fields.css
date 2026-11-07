@@ -484,7 +484,7 @@
 .hud-f-status.is-stamp .band { grid-area: 1 / 1; align-self: center; max-width: 92%; padding: 4px 12px; transform: rotate(-12deg);
   border-top: 2px solid var(--ink); border-bottom: 2px solid var(--ink); color: var(--f-ink); text-align: center; transition: transform .4s cubic-bezier(.3,1.4,.5,1); }
 .hud-f-status.is-stamp .band b { font: 900 .92em/1.2 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; }
-.hud-f-status.is-stamp .note { margin-top: 6px; font-family: var(--f-hand); font-size: .86em; text-align: center; }
+.hud-f-status.is-stamp .note { margin-top: 6px; font-family: var(--f-hand); font-size: .86em; text-align: center; color: var(--hud-text); }
 
 /* Неоновая вывеска */
 .hud-f-status.is-toggles .board { position: relative; display: flex; flex-direction: column; align-items: center; gap: 10px; padding: 22px 16px 18px; border-radius: 12px; text-align: center;
@@ -559,6 +559,7 @@
 .hud-f-exp.is-split small { display: flex; align-items: center; gap: 5px; margin-bottom: 4px; font-size: .66em; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: inherit; opacity: .75; }
 .hud-f-exp.is-split small svg { width: 14px; height: 14px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
 .hud-f-exp.is-split .dream p { font-family: var(--f-serif); font-style: italic; }
+.hud-f-exp.is-split .dream, .hud-f-exp.is-split .dream * { text-shadow: none; }
 .hud-f-exp.is-split .real p { font-weight: 600; }
 .hud-f-exp.is-split .real small { color: color-mix(in srgb, var(--t-acc) 45%, #fff); opacity: 1; }
 .hud-f-exp.is-split .sp i { position: absolute; left: var(--x); top: var(--y); width: 6px; height: 6px; background: #fff; clip-path: polygon(50% 0, 62% 38%, 100% 50%, 62% 62%, 50% 100%, 38% 62%, 0 50%, 38% 38%); opacity: .8; }

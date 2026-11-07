@@ -4,6 +4,34 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.83 — 2026-11-07
+
+A big check: 28 themes, both eras, both languages, all block views, PC and phone.
+
+### Fixed
+- **The Customize window on light themes.** All ten light themes showed a grey veil and pale, blurry labels: the SillyTavern tint and text shadow were made for a dark surface.
+- **The banner header in a narrow card.** The date ran over the name, and in Vamp, Kawaii and Ice the name broke into a column of two letters.
+- **Bullet Journal.** The tape covered the title and the question counter, the Twist label had no visible text, and on phones the name broke letter by letter.
+- The trust bars and the body map in a strip no longer tear labels apart.
+- The Moon and Flower cycle views in a narrow card: the text moves under the picture instead of squeezing into a column.
+- A long name in a plate with people wraps instead of being cut off.
+- Tea Party: the labels on a collapsed card are readable again.
+- On light themes the weight change, the pulse on the ECG monitor and the forum labels are now visible.
+- The text on the profession plate is visible again in Web 1.0.
+- Newspaper: "Price" and "Stop the press" are no longer white on paper. Paper blocks no longer have a dirty halo around the letters.
+- The note under the status stamp is readable on dark themes.
+- Companions: three tiles in a row no longer cut words.
+- Narrow card: the horoscope no longer clips signs, pregnancy no longer squeezes text to 55 pixels, ultrasound labels no longer overlap, and the state batteries no longer cut words.
+- The Twist text no longer runs under the corner ribbon.
+- The Customize window no longer shows a stray checkbox above the card.
+- Turning off appearance or clothes in deep settings no longer marks every character as off-scene.
+- If the model sends an object instead of a string, most fields now show it as text, not "[object Object]".
+
+### English interface
+- Translated: the due date countdown with an estimate, sleep debt, API key errors, the "before the edit" version label, calendar tasks, "secret" in kinks, the "loss" label and ages over three.
+- The baby's age in the model instruction is now in English.
+- On the trust orbits, "свои" is no longer translated as "custom".
+
 ## 23.88.82 — 2026-11-06
 
 ### Fixed

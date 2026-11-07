@@ -10,14 +10,14 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.88.82';
-import { английский } from './i18n.js?v=23.88.82';
-import { промптНаАнглийском } from './prompt-en.js?v=23.88.82';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.82';
-import { parseSceneDate } from './history-analyzer.js?v=23.88.82';
-import { возрастТочно } from './render/babies.js?v=23.88.82';
-import { списокВыключенного, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.82';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.82';
+import { settings } from './settings.js?v=23.88.83';
+import { английский, т } from './i18n.js?v=23.88.83';
+import { промптНаАнглийском } from './prompt-en.js?v=23.88.83';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.83';
+import { parseSceneDate } from './history-analyzer.js?v=23.88.83';
+import { возрастТочно } from './render/babies.js?v=23.88.83';
+import { списокВыключенного, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.83';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.83';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -468,8 +468,8 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
     const дм = (ms) => { const d = new Date(ms), z = (n) => String(n).padStart(2, '0'); return `${z(d.getUTCDate())}.${z(d.getUTCMonth() + 1)}.${d.getUTCFullYear()}`; };
     const точные = датаСнимка === null ? [] : [
       ...роды().map(р => { const д = деньРодов(р, датаСнимка); if (д === null || д > датаСнимка) return ''; const дн = Math.round((датаСнимка - д) / 864e5);
-        return `${р.число > 1 ? (р.число === 2 ? 'twins' : 'triplets') : 'a baby'} born ${дм(д)} — ${возрастТочно(дн)}`; }),
-      ...малышиБезРодов().map(м => м.дата <= датаСнимка ? `${м.имя} born ${дм(м.дата)} — ${возрастТочно(Math.round((датаСнимка - м.дата) / 864e5))}` : ''),
+        return `${р.число > 1 ? (р.число === 2 ? 'twins' : 'triplets') : 'a baby'} born ${дм(д)} — ${т(возрастТочно(дн))}`; }),
+      ...малышиБезРодов().map(м => м.дата <= датаСнимка ? `${м.имя} born ${дм(м.дата)} — ${т(возрастТочно(Math.round((датаСнимка - м.дата) / 864e5)))}` : ''),
     ].filter(Boolean);
     var возрастМалышей = точные.length ? `exact, the HUD counts it from the birth date: ${точные.join('; ')} (on the scene date of the last HUD; add the days that pass). Never invent another age or birthday` : "days, weeks or months since birth, e.g. '12 дней', '3 месяца'";
     p += `,

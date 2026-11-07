@@ -34,7 +34,9 @@
 .hud-fv-us .scale path, .hud-fv-us .cross { stroke: rgba(255,255,255,.55); stroke-width: .8; fill: none; }
 .hud-fv-us .sweep { fill: rgba(255,255,255,.06); }
 .hud-fv-us .us-corner { position: absolute; font: 600 .62em/1.35 ui-monospace, Consolas, monospace; color: rgba(235,235,235,.82); letter-spacing: .04em; text-shadow: 0 0 4px #000; }
-.hud-fv-us .tl { left: 6px; top: 5px; } .hud-fv-us .tr { right: 22px; top: 5px; text-align: right; } .hud-fv-us .bl { left: 6px; bottom: 5px; color: color-mix(in srgb, var(--fam-acc) 30%, #fff); }
+.hud-fv-us .tl { left: 6px; top: 5px; } .hud-fv-us .tr { right: 22px; top: 5px; text-align: right; }
+/* Подписи экрана не наезжают друг на друга в узкой карточке. */
+.hud-fv-us :is(.tl, .tr) { max-width: 44%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; } .hud-fv-us .bl { left: 6px; bottom: 5px; color: color-mix(in srgb, var(--fam-acc) 30%, #fff); }
 .hud-fv-us .us-caption { display: flex; flex-direction: column; gap: 5px; padding: 8px 2px 0; font-family: var(--fam-hand); }
 .hud-fv-us .us-caption .sex { font-size: .92em; }
 

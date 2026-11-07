@@ -572,8 +572,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.82**:
+The latest version is **23.88.83**:
 
+- A big check of all themes, eras and block views: the Customize window on light themes, the header in a narrow card, Bullet Journal, translation.
 - Plate lists follow the finger and fit inside the tab window.
 - Chats open much faster: on a long chat the text appears about 13 seconds sooner.
 - A swipe scrolls through the whole turn: the list, the tab and the chat.

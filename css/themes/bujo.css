@@ -45,8 +45,9 @@
 .hud-theme-bujo .hud-os-topbar { background: transparent !important; border-bottom: 1.5px dashed var(--bj-line) !important; }
 .hud-theme-bujo .hud-os-topbar::after {
   inset: -4px 0 auto 0; width: auto; height: 34px; transform: none; opacity: 1;
-  background: url('../../img/scene/bujo/tape-a.svg') left 48px top 0 / 100px 33px no-repeat, url('../../img/scene/bujo/tape-b.svg') right 92px top 0 / 76px 25px no-repeat;
+  background: url('../../img/scene/bujo/tape-a.svg') left 34% top 0 / 100px 33px no-repeat, url('../../img/scene/bujo/tape-b.svg') left 58% top 0 / 76px 25px no-repeat;
 }
+@media (max-width: 600px) { .hud-theme-bujo .hud-os-topbar::after { background: url('../../img/scene/bujo/tape-b.svg') center top / 60px 20px no-repeat; } }
 /* Вкладки и поля — пунктиром прямо по странице; открытая — наклейка. */
 .hud-theme-bujo .hud-tabs-header { background: transparent !important; border: 0 !important; padding-left: 20px !important; gap: 6px !important; }
 .hud-theme-bujo .hud-tab { background: transparent !important; border: 1.5px dashed var(--bj-line) !important; border-radius: 3px !important; box-shadow: none !important; }
@@ -59,7 +60,7 @@
 .hud-theme-bujo .hud-twist { background: transparent !important; border: 1.5px dashed var(--bj-line) !important; box-shadow: none !important; color: var(--hud-text) !important; }
 .hud-theme-bujo .hud-twist :is(h5, b, strong) { color: var(--hud-text) !important; }
 .hud-theme-bujo .hud-twist :is(p, span, small, li) { color: var(--hud-text-muted) !important; }
-.hud-theme-bujo .hud-twist-rib { background: var(--bj-tag) !important; color: var(--bj-tag-ink) !important; }
+.hud-theme-bujo .hud-twist .hud-twist-rib { background: var(--bj-tag) !important; color: var(--bj-tag-ink) !important; }
 /* Имя — наклейка, портрет — фото с белым полем. */
 .hud-theme-bujo .hud-header-text { flex: 0 1 auto !important; }
 .hud-theme-bujo .hud-title { display: inline-block; width: fit-content; max-width: 100%; background: var(--bj-tag); color: var(--bj-tag-ink) !important; padding: 2px 12px; rotate: -1.5deg; box-shadow: 2px 2px 0 rgba(0, 0, 0, .25); text-shadow: none !important; }

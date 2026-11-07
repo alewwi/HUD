@@ -828,6 +828,8 @@
   content: '' !important; display: block !important; width: auto !important; height: auto !important; background: none !important; border: none !important;
   box-shadow: none !important; transform: none !important; clip-path: none !important; font: 12px/1 'Segoe UI Symbol', 'Segoe UI', sans-serif; color: var(--hud-accent-text, var(--hud-accent));
 }
+/* Галка сворачивания карточки — служебная, в просмотре окна её не рисуем. */
+:root.hud-themed-controls.hud-themed-controls.hud-themed-controls :is(#hud-settings-wrapper, .hud-custom-dialog) input.hud-toggle-input[type="checkbox"] { display: none !important; }
 /* «Включено» — только у тем со своим знаком (--cb-on). У стандартной темы и
    «Своей» знака нет: галочки остаются таверновскими, а не пустой рамкой. */
 :root.hud-themed-controls:is(.hud-theme-kawaii, .hud-theme-academia, .hud-theme-cyberpunk, .hud-theme-noir, .hud-theme-medieval, .hud-theme-fantasy, .hud-theme-mafia,

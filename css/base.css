@@ -147,7 +147,7 @@
 .hud-toggle-input { display: none !important; }
 
 .hud-os-topbar {
-    padding: 10px 16px; display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; column-gap: 10px;
     cursor: pointer; user-select: none; border-bottom: 1px solid var(--hud-border); font-size: 0.9em; font-weight: bold; color: var(--hud-text-muted);
     transition: background 0.2s, filter 0.2s;
 }
@@ -8703,13 +8703,13 @@ body.no-blur .hud-scene-time-group, body.no-blur .hud-weather-item, body.no-blur
 .hud-horo-disclaimer { margin-top: 7px; font-size: .72em; opacity: .45; }
 
 @media (max-width: 600px) {
-  .hud-horo-grid { grid-template-columns: 1fr 1fr; }
+  .hud-horo-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 122px), 1fr)); }
   .hud-forecast-cell { flex-basis: 68px; min-width: 68px; padding: 8px 6px; }
   .hud-fc-ico { width: 26px; height: 26px; }
 }
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) {
-  .hud-horo-grid { grid-template-columns: 1fr 1fr; }
+  .hud-horo-grid { grid-template-columns: repeat(auto-fit, minmax(min(100%, 122px), 1fr)); }
   .hud-forecast-cell { flex-basis: 68px; min-width: 68px; padding: 8px 6px; }
   .hud-fc-ico { width: 26px; height: 26px; }
 } }

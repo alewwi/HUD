@@ -295,6 +295,7 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   равно('вложенный объект — в одну пилюлю', U.flattenFieldValue({ a: { b: 'c' } }), 'a: b — c');
   // Режет только по разделителям; пробелы по краям обрезают сами вызывающие.
   равно('разбить список по «;», «；» и переводу строки', U.разбитьСписок('раз; два；три\nчетыре').map(x => x.trim()), ['раз', 'два', 'три', 'четыре']);
+  проверить('escapeHtml: объект от модели разворачивается, а не пишет [object Object]', U.escapeHtml({ day: '<b>' }) === 'day: &lt;b&gt;' && U.escapeHtml(['a', 'b']) === 'a; b', U.escapeHtml({ day: '<b>' }));
   проверить('экранирование HTML', U.escapeHtml('<b>"x"</b>') === '&lt;b&gt;&quot;x&quot;&lt;/b&gt;', U.escapeHtml('<b>"x"</b>'));
   проверить('defeatWI: невидимый пробел после первой буквы', U.defeatWI('Марк') === 'М​арк');
   проверить('хэш стабилен и неотрицателен', U.hudHashSeed('abc') === U.hudHashSeed('abc') && U.hudHashSeed('abc') >= 0);

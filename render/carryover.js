@@ -14,17 +14,17 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.88.82';
-import { проставитьДень } from './msg-feed.js?v=23.88.82';
-import { normalizeJSONData } from '../schema.js?v=23.88.82';
-import { settings } from '../settings.js?v=23.88.82';
-import { статусРужья } from '../codes.js?v=23.88.82';
-import { extractHudBlock } from '../hud-block.js?v=23.88.82';
-import { развернутьHUD } from '../offload.js?v=23.88.82';
-import { namesLikelySame } from '../names.js?v=23.88.82';
-import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.88.82';
-import { readParsed, writeParsed } from '../store.js?v=23.88.82';
-import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.88.82';
+import { parseHUDComplex } from '../hud-parser.js?v=23.88.83';
+import { проставитьДень } from './msg-feed.js?v=23.88.83';
+import { normalizeJSONData } from '../schema.js?v=23.88.83';
+import { settings } from '../settings.js?v=23.88.83';
+import { статусРужья } from '../codes.js?v=23.88.83';
+import { extractHudBlock } from '../hud-block.js?v=23.88.83';
+import { развернутьHUD } from '../offload.js?v=23.88.83';
+import { namesLikelySame } from '../names.js?v=23.88.83';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.88.83';
+import { readParsed, writeParsed } from '../store.js?v=23.88.83';
+import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.88.83';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -738,7 +738,8 @@ const короткаяЗапись = (c) => c && пустоЗначение(c['�
 // Запись вне сцены целиком — без внешности и без одежды: по ней карточка
 // ставит пометку «вне сцены». Одной пропущенной внешности мало — модель
 // забывает её и у тех, кто в кадре.
-const записьВнеСцены = (c) => короткаяЗапись(c) && пустоЗначение(c['Одежда']);
+const поляСценыВыключены = () => { const выкл = settings && settings.fieldsOff; return Array.isArray(выкл) && (выкл.includes('cs.Ap') || выкл.includes('cs.C')); };
+const записьВнеСцены = (c) => !поляСценыВыключены() && короткаяЗапись(c) && пустоЗначение(c['Одежда']);
 // Пометка для карточки (character.js): вне сцены и какие поля взяты из
 // прошлых ходов. Неперечисляемая — другие виды перебирают поля персонажа и
 // не должны её видеть.

@@ -34,6 +34,8 @@
 .hud-wv-fc .w-storm .hud-fc-ico .ic-bolt { fill: currentColor; stroke: none; }
 
 /* --- Главные новости: первая полоса -------------------------------------- */
+/* Бумага светлая: тень букв от Таверны здесь лежит грязным ореолом. */
+.hud-wv.is-front *, .hud-wv.is-tearoff .note *, .hud-wv.is-classified .paper *, .hud-wv.is-column .poster * { text-shadow: none; }
 .hud-wv-news.is-front {
   --pp: #f3ecdc; --pp2: #e4d9c1; --ink: #231d17; --soft: #5b5045;
   padding: 12px 14px 14px; border-radius: 3px; color: var(--ink);
@@ -44,7 +46,7 @@
 .hud-wv.is-front .mast { text-align: center; border-bottom: 3px double var(--ink); padding-bottom: 6px; margin-bottom: 10px; }
 .hud-wv.is-front .mast small { display: block; font-size: .6em; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--soft); border-bottom: 1px solid color-mix(in srgb, var(--ink) 30%, transparent); padding-bottom: 4px; margin-bottom: 4px; }
 .hud-wv.is-front .mast .rule { display: flex; justify-content: space-between; margin-top: 4px; font: italic .56em/1 Georgia, serif; color: var(--soft); }
-.hud-wv.is-front .mast .rule i { font-style: italic; }
+.hud-wv.is-front .mast .rule i { font-style: italic; color: inherit; }
 .hud-wv.is-front .mast b { display: block; font: 400 2em/1.05 'Old English Text MT', 'UnifrakturMaguntia', 'Times New Roman', serif; letter-spacing: .01em; }
 .hud-wv.is-front .lead h4 { font: 800 1.3em/1.15 Georgia, serif; margin-bottom: 6px; }
 .hud-wv.is-front .lead p { font-size: .94em; text-align: justify; hyphens: auto; }

@@ -726,3 +726,18 @@
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-diary-stamp { color: color-mix(in srgb, var(--dm) 50%, var(--lt-ink)); background: color-mix(in srgb, var(--dm) 18%, var(--lt-paper)); }
 /* Сны, облака: грозовая туча кошмара на светлой бумаге — серо-сиреневая, а не чёрная, иначе чернила текста на ней пропадают. */
 :is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-dv-cloud.t-nightmare .hud-dv-puff { background: radial-gradient(120% 90% at 30% 0%, rgba(150,110,130,.30), rgba(110,90,110,.16) 70%); }
+
+/* Окно кастомизации на светлой теме. Тон, тень букв и цвет small/summary у
+   Таверны рассчитаны на тёмную поверхность: поверх светлой выходила серая
+   пелена и мутные бледные подписи. Карточка в просмотре остаётся как есть. */
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-custom-dialog { background: var(--x-surf); }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) :is(.hud-custom-head, .hud-custom-settings) * { text-shadow: none; }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-custom-settings :is(small, summary) { color: var(--x-ink); }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-custom-settings :is(.hud-theme-preset, .hud-theme-act, .hud-theme-row) { background: rgba(255,255,255,.55); }
+
+/* Цвета, подобранные под тёмную подложку, на светлой почти пропадали. */
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) :is(.hud-weight, .hud-body-stats) em.up { color: #a4551a; }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) :is(.hud-weight, .hud-body-stats) em.down { color: #2a6a96; }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-v-monitor-bpm { color: color-mix(in srgb, var(--v-acc) 70%, #000); text-shadow: none; }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-wv.is-forum :is(aside small, .no, .body .foot) { color: var(--x-ink-soft); }
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-os-card .hud-prof-pill { color: #fff !important; }

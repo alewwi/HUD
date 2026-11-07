@@ -3,8 +3,8 @@
 // Мелкие утилиты, общие для всех доменов HUD (дневник, мир, сны, телефон,
 // граф отношений, память). Вынесено из index.js без изменения поведения.
 
-import { МЕТКИ } from './codes.js?v=23.88.82';
-import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.88.82';
+import { МЕТКИ } from './codes.js?v=23.88.83';
+import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.88.83';
 
 // Замеры по шагам для поиска узких мест: включаются только объектом
 // window.__hudProf = {} в консоли, копят { шаг: [мс, …] }. Без него — прямой вызов.
@@ -104,7 +104,7 @@ export function генерацияТаверны(ctx, { prompt = '', systemPromp
   return f.call(ctx, { prompt, systemPrompt, responseLength });
 }
 
-export function escapeHtml(str) { if (!str) return ''; return String(str).replace(/[&<>"']/g, з => СУЩНОСТИ[з]); }
+export function escapeHtml(str) { if (!str) return ''; return String(typeof str === 'object' ? flattenFieldValue(str) : str).replace(/[&<>"']/g, з => СУЩНОСТИ[з]); }
 
 // Схема ждёт строку «Метка: значение; ...», но модель нередко отдаёт объект
 // или массив объектов. Прямой String() на таком значении даёт «[object
