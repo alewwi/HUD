@@ -6,15 +6,15 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.89';
-import { английский } from '../i18n.js?v=23.88.89';
-import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.89';
-import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.88.89';
-import { ссылкиТрека } from './music.js?v=23.88.89';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей } from './conception.js?v=23.88.89';
-import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.88.89';
-import { ико } from './view-icons.js?v=23.88.89';
-import { namesLikelySame } from '../names.js?v=23.88.89';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.90';
+import { английский } from '../i18n.js?v=23.88.90';
+import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.90';
+import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.88.90';
+import { ссылкиТрека } from './music.js?v=23.88.90';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности } from './conception.js?v=23.88.90';
+import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.88.90';
+import { ико } from './view-icons.js?v=23.88.90';
+import { namesLikelySame } from '../names.js?v=23.88.90';
 
 let окноОткрыто = false;
 // Дата и время ходов открытого отчёта (history-analyzer.js → moments).
@@ -192,6 +192,28 @@ function беременностиОтчёта(отчёт) {
   return { эпизоды, свободные };
 }
 const срокТекстом = (с, по) => с !== null && по !== null && с !== по ? `с ${с}-й по ${по}-ю неделю` : (по ?? с) !== null ? `${по ?? с}-я неделя` : '';
+// Осмотры, угроза и осложнение — из записей беременности (render/conception.js).
+// Неоткрытое игроком не раскрываем: «не открыт», как в карточке.
+const ИСХОДЫ_УГРОЗЫ = { keep: 'беременность сохранится', one: 'один малыш не выживет', all: 'беременность не сохранить' };
+const метка = (вид, текст) => `<span class="hud-arc-badge is-${вид}">${escapeHtml(текст)}</span>`;
+// Неделя и итог — отдельными словами: так каждое переводится само.
+const меткаОсмотра = (вид, неделя, итог) => `<span class="hud-arc-badge is-${вид}"><span>${неделя}-я неделя:</span> <span>${escapeHtml(итог)}</span></span>`;
+function осложненияHTML(кто, з) {
+  let список = [];
+  try { список = осложненияБеременности(кто, з && з.был ? з.был : null); } catch (_) { список = []; }
+  const осмотры = список.filter(о => о.вид === 'exam').sort((a, b) => a.порог - b.порог).map(о => о.закрыт ? меткаОсмотра('unknown', о.порог, 'не открыт')
+    : о.что.length ? о.что.map(т => меткаОсмотра('known', о.порог, т)).join('') : меткаОсмотра('birth', о.порог, 'в норме')).join('');
+  const у = список.find(о => о.вид === 'threat');
+  const угроза = у ? (у.закрыт ? метка('unknown', 'исход не открыт') : метка(у.итог === 'keep' ? 'birth' : 'known', ИСХОДЫ_УГРОЗЫ[у.итог] || у.итог)) : '';
+  return (осмотры ? '<dt>Осмотры</dt><dd class="hud-arc-tags">' + осмотры + '</dd>' : '')
+    + (угроза ? '<dt>Угроза прерывания</dt><dd class="hud-arc-tags">' + угроза + '</dd>' : '')
+    + (з && з.осложнение ? '<dt>Осложнение</dt><dd class="hud-arc-tags">' + метка('known', 'операция, травма или инфекция') + '</dd>' : '');
+}
+// «08.12.2026, 18:35 — самопроизвольный выкидыш…» → то, что после даты.
+const чтоСлучилось = (з, э) => {
+  const т = (з && з.текст ? з.текст.replace(/^[^—]*\d[^—]*—\s*/, '') : (э && э.outcome ? э.outcome.text : '')).trim();
+  return т && !/^\d{1,2}[./]\d{1,2}(?:[./]\d{2,4})?(?:,?\s*\d{1,2}:\d{2})?$/.test(т) ? т : '';
+};
 export function вкладкаБеременностей(отчёт, поиск) {
   моменты = (отчёт && отчёт.moments) || {};
   const { эпизоды, свободные } = беременностиОтчёта(отчёт);
@@ -204,7 +226,7 @@ export function вкладкаБеременностей(отчёт, поиск)
     const молчит = !исход && отчёт.range && э.to < отчёт.range.to - 40;
     const вид = з ? з.вид : э.outcome ? э.outcome.kind : молчит ? 'quiet' : 'going';
     const ярлык = исход || (молчит ? 'нет вестей' : 'идёт');
-    if (!есть(э.name, ярлык, э.father, э.knows, э.state, э.due)) continue;
+    if (!есть(э.name, ярлык, э.father, э.knows, э.state, э.due, э.symptoms, чтоСлучилось(з, э))) continue;
     const когдаИсход = з && Number.isFinite(з.дата) ? дм(з.дата) : э.outcome ? э.outcome.date : '';
     const период = э.dateFrom && э.dateTo && э.dateFrom !== э.dateTo ? `${э.dateFrom} — ${э.dateTo}` : (э.dateTo || э.dateFrom);
     карточки.push(`<article class="hud-arc-card hud-arc-preg is-${escapeHtml(вид)}">`
@@ -216,8 +238,12 @@ export function вкладкаБеременностей(отчёт, поиск)
       + (э.due && вид === 'going' ? `<dt>Роды ожидаются</dt><dd>${escapeHtml(э.due)}</dd>` : '')
       + ((з && з.отец) || э.father ? `<dt>Отец</dt><dd>${escapeHtml(имяБезПриставки((з && з.отец) || э.father))}</dd>` : '')
       + `<dt>Кто знает</dt><dd>${escapeHtml(безПриставок((з && з.знают) || э.knows) || 'не записано')}</dd>`
-      + (э.state && вид === 'going' ? `<dt>Как проходит</dt><dd>${escapeHtml(э.state)}</dd>` : '')
-      + `</dl><div class="hud-arc-foot">ходы ${ссылка(э.from)} — ${ссылка(э.to)}${з && Number.isInteger(з.сообщение) && з.сообщение !== э.to ? ` · исход ${ссылка(з.сообщение)}` : ''}</div></article>`);
+      + (э.state ? `<dt>${вид === 'going' ? 'Как проходит' : 'Как проходила'}</dt><dd>${escapeHtml(э.state)}</dd>` : '')
+      + (э.symptoms ? `<dt>Симптомы</dt><dd>${escapeHtml(э.symptoms)}</dd>` : '')
+      + (э.visit && вид === 'going' ? `<dt>Визит к врачу</dt><dd>${escapeHtml(э.visit)}</dd>` : '')
+      + осложненияHTML(з ? з.кто : (э.player ? 'user' : э.name), з)
+      + (чтоСлучилось(з, э) ? `<dt>Что случилось</dt><dd>${escapeHtml(чтоСлучилось(з, э))}</dd>` : '')
+      + `</dl>${Array.isArray(э.course) && э.course.length > 1 ? историяHTML(вид === 'going' ? 'Как проходит' : 'Как проходила', э.course.length, э.course.map((c, i) => ({ at: c.at, вид: i ? 'status' : 'start', html: `<b>${escapeHtml(c.text)}</b>` }))) : ''}<div class="hud-arc-foot">ходы ${ссылка(э.from)} — ${ссылка(э.to)}${з && Number.isInteger(з.сообщение) && з.сообщение !== э.to ? ` · исход ${ссылка(з.сообщение)}` : ''}</div></article>`);
   }
   // Исходы, у которых в отрезке нет ходов с беременностью (HUD вычищен или
   // отрезок короче): как раньше, только запись.
@@ -227,7 +253,9 @@ export function вкладкаБеременностей(отчёт, поиск)
       + `<dl>${Number.isFinite(з.дата) ? `<dt>Когда</dt><dd>${дм(з.дата)}</dd>` : ''}`
       + (Number.isFinite(з.неделя) ? `<dt>Срок</dt><dd>${з.неделя}-я неделя</dd>` : '')
       + (з.отец ? `<dt>Отец</dt><dd>${escapeHtml(имяБезПриставки(з.отец))}</dd>` : '')
-      + `<dt>Кто знает</dt><dd>${з.знают ? escapeHtml(безПриставок(з.знают)) : 'не записано'}</dd></dl>`
+      + `<dt>Кто знает</dt><dd>${з.знают ? escapeHtml(безПриставок(з.знают)) : 'не записано'}</dd>`
+      + осложненияHTML(з.кто, з)
+      + (чтоСлучилось(з, null) ? `<dt>Что случилось</dt><dd>${escapeHtml(чтоСлучилось(з, null))}</dd>` : '') + `</dl>`
       + (Number.isInteger(з.сообщение) ? `<div class="hud-arc-foot">исход ${ссылка(з.сообщение)}</div>` : '') + `</article>`);
   }
   if (!карточки.length) return пусто(поиск, 'Беременностей в этом отрезке не было');
@@ -405,7 +433,7 @@ const РИСУНКИ = {
     if (!д.speakers.length) return '';
     const максимум = Math.max(...д.speakers.map(s => s.share)) || 1;
     return `<div class="hud-dash-bars">` + д.speakers.map(s => полоса(
-      escapeHtml(s.name) + (s.isUser ? ' <em>вы</em>' : ''), s.share / максимум * 100,
+      escapeHtml(имяБезПриставки(s.name)) + (s.isUser ? ' <em>вы</em>' : ''), s.share / максимум * 100,
       `${число(s.share)}% · ${число(s.count)}`, `${s.name}: ${s.count} сообщений, ${s.share}%`)).join('') + `</div>`;
   },
   heatmap(д) {
@@ -504,7 +532,7 @@ const РИСУНКИ = {
   mentions(д) {
     if (!д.mentions.length) return '';
     const максимум = д.mentions[0].count || 1;
-    return `<div class="hud-dash-bars">${д.mentions.map(m => полоса(`${escapeHtml(m.from)} <em>→</em> ${escapeHtml(m.to)}`, m.count / максимум * 100,
+    return `<div class="hud-dash-bars">${д.mentions.map(m => полоса(`${escapeHtml(имяБезПриставки(m.from))} <em>→</em> ${escapeHtml(имяБезПриставки(m.to))}`, m.count / максимум * 100,
       `${число(m.count)} ${склон(m.count, 'сообщение', 'сообщения', 'сообщений')}`)).join('')}</div>`
       + `<div class="hud-dash-foot">Сколько сообщений одного говорящего называют другого по имени.</div>`;
   },

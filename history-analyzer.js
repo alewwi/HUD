@@ -11,17 +11,17 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=23.88.89';
-import { normalizeJSONData } from './schema.js?v=23.88.89';
-import { parseRelationList } from './render/relations-graph.js?v=23.88.89';
-import { nameLettersOnly, namePhoneticLatin } from './names.js?v=23.88.89';
-import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.88.89';
-import { createDashboard } from './chat-stats.js?v=23.88.89';
-import { статусРужья } from './codes.js?v=23.88.89';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.88.89';
-import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.88.89';
-import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.88.89';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.88.89';
+import { parseHUDComplex } from './hud-parser.js?v=23.88.90';
+import { normalizeJSONData } from './schema.js?v=23.88.90';
+import { parseRelationList } from './render/relations-graph.js?v=23.88.90';
+import { nameLettersOnly, namePhoneticLatin } from './names.js?v=23.88.90';
+import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.88.90';
+import { createDashboard } from './chat-stats.js?v=23.88.90';
+import { статусРужья } from './codes.js?v=23.88.90';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.88.90';
+import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.88.90';
+import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.88.90';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.88.90';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -114,8 +114,8 @@ const чистоеИмя = (имя) => имяБезПриставки(текст
 // Извлечение блока [HUD] из текста сообщения. Тот же набор написаний, что и в
 // index.js: модель иногда шлёт < > вместо скобок, а ST успевает заэкранировать.
 // Поиск блока — общий, в hud-block.js. Экспорт оставлен: его берут отсюда.
-import { extractHudBlock } from './hud-block.js?v=23.88.89';
-import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.88.89';
+import { extractHudBlock } from './hud-block.js?v=23.88.90';
+import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.88.90';
 export { extractHudBlock };
 
 // Массив сообщений текущего чата.
@@ -355,6 +355,7 @@ const ПОЛЯ_БЕРЕМЕННОСТИ = {
   wk: 'неделя', 'неделя': 'неделя', due: 'роды', 'роды': 'роды', fa: 'отец', 'отец': 'отец',
   knw: 'знают', 'кто знает': 'знают', cnd: 'как', 'как проходит': 'как',
   lost: 'потеря', 'потеря': 'потеря', brn: 'родила', 'родила': 'родила',
+  sy: 'симптомы', 'симптомы': 'симптомы', vis: 'визит', 'визит к врачу': 'визит',
 };
 export function меткиБеременности(v) {
   const о = {};
@@ -394,7 +395,7 @@ function собратьБеременности(накоп, data, at, игрок
       || (!эп.outcome && п.неделя !== null && эп.weekTo !== null && п.неделя < эп.weekTo - 4);
     if (новая) {
       эп = { name: имя, player: !!c.__игрок, from: at, to: at, dateFrom: значимо(дата) ? дата : '', dateTo: '', weekFrom: п.неделя, weekTo: п.неделя,
-        due: '', father: '', knows: '', state: '', outcome: null, _датаMs: датаMs };
+        due: '', father: '', knows: '', state: '', symptoms: '', visit: '', course: [], outcome: null, _датаMs: датаMs };
       все.push(эп);
     }
     эп.to = at;
@@ -403,7 +404,11 @@ function собратьБеременности(накоп, data, at, игрок
     if (п.роды) эп.due = п.роды;
     if (п.отец) эп.father = чистоеИмя(п.отец);
     if (п.знают) эп.knows = п.знают;
+    // Как проходит — история: «угроза прерывания», «тонус», «стабильно». Пишем смены.
+    if (п.как && п.как !== эп.state) { эп.course.push({ text: п.как, at }); if (эп.course.length > 15) эп.course.shift(); }
     if (п.как) эп.state = п.как;
+    if (п.симптомы) эп.symptoms = п.симптомы;
+    if (п.визит) эп.visit = п.визит;
     if (!эп.outcome && (п.потеря || п.родила)) эп.outcome = { kind: п.родила ? 'birth' : 'loss', text: п.родила || п.потеря, at, date: значимо(дата) ? дата : '' };
   }
 }

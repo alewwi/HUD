@@ -298,7 +298,7 @@ A summary of the whole chat history, via the **🗄 HUD archive** button in the 
 - **Relationships** — how pairs changed: shifts in attitude and trust by turn.
 - **Trust** — on the same tab: a pair's chart, the reasons for shifts, and scars.
 - **Timeline** — scenes by story day: where, how many turns, how much time passed.
-- **Pregnancies** — every pregnancy of the chat by turns: from which week to which, dates, the father, who knows, how it goes, the expected birth and the outcome (birth, miscarriage, abortion).
+- **Pregnancies** — every pregnancy of the chat by turns: from which week to which, dates, the father, who knows, the expected birth and the outcome (birth, miscarriage, abortion). It also shows how it went (with a history by turns), symptoms, check-ups, the threat of loss and complications. Check-ups and threat outcomes you have not opened stay hidden.
 
 Every turn number shows the scene date and time of that turn. Tabs show the number of records.
 - **Soundtrack** — music chapters by day (if scene music is on).
@@ -594,8 +594,10 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.89**:
+The latest version is **23.88.90**:
 
+- Archive: a pregnancy shows how it went, symptoms, check-ups, the threat of loss and complications; the dashboard sees hidden turns, so NSFW scene frequency is no longer empty.
+- Dreams split more accurately into nightmares and ordinary ones; companions and archive checkboxes follow the theme colours.
 - The model writes a shorter HUD: "nc" for what did not change, the world once a day, memory as updates; the HUD expands it into a full one itself. An experimental provider cache for Chat Completion.
 - Archive: no duplicate secrets and guns, a "who learned it and when" history for secrets, date and time at turns, all pregnancies, a new look.
 - In English mode the model rewrites in English the Russian values left over from the start of a chat.

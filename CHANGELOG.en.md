@@ -4,6 +4,27 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.90 — 2026-11-08
+
+### Added
+- **Archive: complications and the course of a pregnancy.** A pregnancy card now has:
+  - how it goes or went, with a history that expands below: "developing steadily", "kept despite the crisis", "ended" — with date and time;
+  - symptoms and the doctor visit;
+  - check-ups at weeks 12, 20 and 30: "all normal" or what was found;
+  - the threat of loss and its outcome;
+  - the complication of a loss (surgery, injury or infection) and what happened, in the model's words.
+- The archive does not reveal check-ups and threat outcomes you have not opened: they read "not opened", as on the card.
+
+### Fixed
+- **Dreams: nightmares and ordinary dreams.** HUD looked for a nightmare by a single word. "Кровать" (bed) matched as "кровь" (blood), "намертво" (tightly) as death, and warm protective dreams became nightmares. A dream with "scarlet water rising to the ribs", a fall "in a cold sweat" or a collar "pressing on the throat" did not count as a nightmare. Now HUD weighs fear against calm: strong fear (blood, death, choking, a chase, a fall into the abyss) weighs more than a hint (behind the back, a cell, icy fingers). Warmth and safety reduce it. "Without nightmares", "instead of choking", "not letting her fall" do not count as fear. A dream where the fear resolves into calm ("but when she turns, he shields her") is ordinary. On 52 dreams from the chats, 6 were corrected: four became nightmares, two stopped being ones.
+- "Last night…" at the start of a dream no longer makes it a memory.
+- **Trust reasons without a leading comma.** When the model wrote "+15, stood up for her", the reason in the archive and on the card started with a comma. The number and the marks after it are now removed; "for what" stays.
+- **Dashboard checkboxes and archive sliders match the theme.** The archive window used plain browser checkboxes instead of the theme ones from the settings.
+- **Companions in theme colours.** The card and the tamagotchi were always orange (for a cat) or in the species colour. Now the band, border, tiles, mood and skills use the theme colours; the species colour stays only on the pixel pet.
+- **The archive dashboard did not see hidden turns.** Messages hidden with /hide were skipped entirely, so in a chat with a hidden history the dashboard saw only the latest turns: "NSFW scene frequency" was empty although the HUD had intimacy, and "Chat health" and "Who talks more" counted a small part of the messages. Hidden turns now count as history; SillyTavern service messages (help, narrator) do not.
+- "Who talks more" and "Who mentions whom" show the name without the card prefix.
+- English interface: no Russian hint about dates from the tag is left in the archive statistics.
+
 ## 23.88.89 — 2026-11-07
 
 HUD archive. Part of these changes already went out in 23.88.88 without notes: here is all of it together.

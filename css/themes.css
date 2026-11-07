@@ -1285,6 +1285,8 @@
 .hud-arc-row label.is-down { color: #e08a8a; }
 .hud-arc-preglog ul { margin: 6px 0; padding-left: 16px; font-size: 12px; }
 .hud-arc-preg dd { margin: 0; }
+.hud-arc-preg dd.hud-arc-tags { display: flex; flex-wrap: wrap; gap: 4px 6px; }
+.hud-arc-preg dd.hud-arc-tags .hud-arc-badge { white-space: normal; }
 /* Архив → Саундтрек: дни сюжета, главы подборок, треки со ссылками поиска. */
 .hud-arc-st-day { margin-bottom: 14px; }
 .hud-arc-st-date { margin: 0 0 7px; font-size: 11px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 60%, currentColor); }

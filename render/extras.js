@@ -4,9 +4,9 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.88.89';
-import { settings } from '../settings.js?v=23.88.89';
-import { аватаркаПоИмени } from './views.js?v=23.88.89';
+import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.88.90';
+import { settings } from '../settings.js?v=23.88.90';
+import { аватаркаПоИмени } from './views.js?v=23.88.90';
 
 // Умения спутника — не больше четырёх: модель копит их ходами, и в карточке
 // выстраивалась стена пилюль. Короткие (до шести слов) — вперёд, в порядке
@@ -309,17 +309,16 @@ function имяХозяина(s) {
   return '';
 }
 export function карточкаСпутника(p, значок, связь, связьHTML = '') {
-  const тип = СПРАЙТЫ[видСпутника(p.species, p.name)];
-  const цвет = тип.цвет;
-  const плитка = (к, подпись, текст) => есть(текст) ? `<div class="hud-pet2-tile"><span>${ик(к, цвет)}${подпись}</span><p>${escapeHtml(String(текст))}</p></div>` : '';
+  const плитка = (к, подпись, текст) => есть(текст) ? `<div class="hud-pet2-tile"><span>${ик(к)}${подпись}</span><p>${escapeHtml(String(текст))}</p></div>` : '';
   const плитки = плитка('cond', 'Состояние', p.condition) + плитка('food', 'Рацион', p.diet) + плитка('smile', 'Настроение', p.mood);
   const умения = есть(p.skills) ? лучшиеУмения(p.skills) : [];
-  return `<div class="hud-pet2" style="--p:${цвет}"><div class="hud-pet2-band"></div><div class="hud-pet2-top"><div class="hud-pet2-ava" aria-hidden="true">${значок}</div>`
+  // Цвет карточки — цвет темы (css/extras.css, --p); у вида свой только спрайт.
+  return `<div class="hud-pet2"><div class="hud-pet2-band"></div><div class="hud-pet2-top"><div class="hud-pet2-ava" aria-hidden="true">${значок}</div>`
     + `<div class="hud-pet2-nm"><b>${escapeHtml(p.name)}</b>${есть(p.species) ? `<small>${escapeHtml(p.species)}</small>` : ''}</div>${есть(p.mood) ? `<span class="hud-pet2-mood">${escapeHtml(p.mood)}</span>` : ''}</div>`
     + (есть(p.owner) ? `<div class="hud-pet2-own">${лицоХозяина(имяХозяина(p.owner))}<span>хозяин: <b>${escapeHtml(p.owner)}</b></span></div>` : '')
     + (связьHTML ? `<div class="hud-pet2-bondrow">${связьHTML}</div>` : '')
     + (плитки ? `<div class="hud-pet2-tiles">${плитки}</div>` : '')
-    + (есть(p.note) ? `<div class="hud-pet2-now">${ик('note', цвет)}<span>Сейчас: ${escapeHtml(String(p.note))}</span></div>` : '')
+    + (есть(p.note) ? `<div class="hud-pet2-now">${ик('note')}<span>Сейчас: ${escapeHtml(String(p.note))}</span></div>` : '')
     + (Array.isArray(p.extra) && p.extra.length ? `<div class="hud-pet2-extra">${p.extra.map(д => `<span><b>${escapeHtml(д.key)}:</b> ${escapeHtml(String(д.value))}</span>`).join('')}</div>` : '')
     + (умения.length ? `<div class="hud-pet2-skills">${умения.map(у => `<span>${escapeHtml(у)}</span>`).join('')}</div>` : '<div class="hud-pet2-pad"></div>') + `</div>`;
 }
@@ -349,7 +348,7 @@ export function тамагочи(p, связь, связьHTML = '') {
     + (есть(p.note) ? строка('Настроение', p.mood) : '')
     + (Array.isArray(p.extra) ? p.extra.map(д => строка(escapeHtml(д.key), д.value)).join('') : '');
   const низ = (сведения || умения.length) ? `<div class="hud-tama-info">${сведения}${умения.length ? `<div class="hud-tama-skills">${умения.map(у => `<i>${escapeHtml(у)}</i>`).join('')}</div>` : ''}</div>` : '';
-  return `<div class="hud-tama" style="--p:${тип.цвет}">${dev}<div class="hud-tama-stats"><b>${escapeHtml(p.name)}</b>${есть(p.species) ? `<small>${escapeHtml(p.species)}</small>` : ''}`
+  return `<div class="hud-tama">${dev}<div class="hud-tama-stats"><b>${escapeHtml(p.name)}</b>${есть(p.species) ? `<small>${escapeHtml(p.species)}</small>` : ''}`
     + статы.map(s => `<div class="hud-tama-st" style="--c:${s.c}">${ик(s.ик, s.c)}<span>${s.имя}</span><span class="hud-tama-px">${Array.from({ length: 5 }, (_, i) => `<i${i < s.n ? '' : ' class="off"'}></i>`).join('')}</span></div>`).join('')
     + (связьHTML || '') + (реплика ? `<div class="hud-tama-say">${escapeHtml(реплика)}</div>` : '') + `</div>${низ}</div>`;
 }

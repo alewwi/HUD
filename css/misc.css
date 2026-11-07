@@ -1365,7 +1365,7 @@
 .hud-pet-title small { opacity: .65; }
 .hud-pet-mood { font-style: normal; font-size: 10.5px; padding: 2px 8px; border-radius: var(--hud-r-chip); background: rgba(255,255,255,.08); }
 .hud-pet-owner { margin-top: 6px; font-size: .85em; opacity: .75; }
-.hud-pet-bond > i > i { background: linear-gradient(90deg, #ff8fb1, #ff5c8a); }
+.hud-pet-bond > i > i { background: linear-gradient(90deg, color-mix(in srgb, var(--hud-accent, #ff5c8a) 55%, #fff), var(--hud-accent, #ff5c8a)); }
 .hud-pet-skills { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
 .hud-pet-skill { font-size: 10.5px; padding: 2px 8px; border-radius: var(--hud-r-chip); border: 1px solid var(--hud-border, rgba(255,255,255,.15)); }
 .hud-pet-empty { opacity: .6; padding: 12px; }
@@ -1436,8 +1436,9 @@
   padding: 3px 9px; border-radius: var(--hud-r-chip); font-size: 11px;
   border: 1px solid var(--hud-border, rgba(255,255,255,.14)); opacity: .6;
 }
-.hud-dash-chip input { margin: 0; accent-color: #3987e5; }
-.hud-dash-chip.is-on { opacity: 1; background: rgba(57,135,229,.12); border-color: rgba(57,135,229,.45); }
+.hud-dash-chip input { margin: 0; accent-color: var(--hud-accent, #8c5ad2); }
+/* Выбранный виджет — в цвет темы, как галочки настроек. */
+.hud-dash-chip.is-on { opacity: 1; background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 14%, transparent); border-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 48%, transparent); }
 .hud-dash-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr)); gap: 10px; align-items: start; }
 .hud-dash-card { margin: 0; min-width: 0; }
 .hud-dash-grid .hud-arc-tiles { grid-template-columns: repeat(auto-fill, minmax(110px, 1fr)); margin-bottom: 8px; }

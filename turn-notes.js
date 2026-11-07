@@ -20,11 +20,11 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.88.89';
-import { полеВкл } from './deep-fields.js?v=23.88.89';
-import { namesLikelySame } from './names.js?v=23.88.89';
-import { датаИзТекста, дм } from './render/conception.js?v=23.88.89';
-import { праздникиГода } from './render/holidays.js?v=23.88.89';
+import { settings } from './settings.js?v=23.88.90';
+import { полеВкл } from './deep-fields.js?v=23.88.90';
+import { namesLikelySame } from './names.js?v=23.88.90';
+import { датаИзТекста, дм } from './render/conception.js?v=23.88.90';
+import { праздникиГода } from './render/holidays.js?v=23.88.90';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -124,7 +124,9 @@ const ПОРОГ_СДВИГА = 5, ПОРОГ_ШРАМА = 15, ПОРОГ_ИНЕ
 const ЗАЖИВАЕТ = 25, ХОДОВ_ИНЕРЦИИ = 6, ПРЕДЕЛ_СДВИГОВ = 200;
 const чисто = (имя) => String(имя || '').trim();
 
-export const чистаяПричина = (т) => String(т ?? '').trim().replace(/^[+\-−–]?\s*\d+\s*(?:за|for)?\s*/iu, '');
+// «+15, встал на защиту» → «встал на защиту»; «-5 за упрёк» → «за упрёк»: число
+// модель пишет и в причину, а запятая после него оставалась началом строки.
+export const чистаяПричина = (т) => String(т ?? '').trim().replace(/^[+\-−–]?\s*\d+\s*/u, '').replace(/^[\s,;:.·—–-]+/u, '').trim();
 /** «82 (спасла ему жизнь)», «40 (!ударила при всех)» → { число, почему, рана }. */
 export function разобратьПричину(сырое) {
   const s = String(сырое ?? '');

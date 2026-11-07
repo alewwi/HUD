@@ -9,9 +9,9 @@
 // Текст сообщения здесь только считается, на экран не выводится, поэтому
 // разметку режем регуляркой — DOM на тысячу сообщений не нужен.
 
-import { hudFilled } from './utils.js?v=23.88.89';
+import { hudFilled } from './utils.js?v=23.88.90';
 
-import { заменитьHudБлоки } from './hud-block.js?v=23.88.89';
+import { заменитьHudБлоки } from './hud-block.js?v=23.88.90';
 
 // Служебные вставки других расширений и размышления модели — не проза.
 const СЛУЖЕБНОЕ = /<(think|thinking|plan|comics|img|script|style|details|summary)\b[^>]*>[\s\S]*?<\/\1>/gi;
@@ -107,7 +107,13 @@ export function createDashboard({ userName = '' } = {}) {
   };
 
   function add(mes, data, at) {
-    if (!mes || mes.is_system) return;
+    if (!mes) return;
+    // Скрытое /hide сообщение — тоже история чата: у него is_system, но это
+    // реплика героя или игрока. Без него дашборд со скрытой историей видел
+    // только последние ходы: «Частота NSFW-сцен» была пустой. Служебные
+    // сообщения Таверны (рассказчик, справка) — только их HUD, если он есть.
+    const служебное = mes.is_system && ((mes.extra && mes.extra.type) || /^(SillyTavern System|System)$/i.test(String(mes.name || '')));
+    if (служебное) { учестьHUD(data, at); return; }
     const текст = чистыйТекст(mes.mes);
     if (!текст && !data) return;
     const игрок = !!mes.is_user;
@@ -160,7 +166,10 @@ export function createDashboard({ userName = '' } = {}) {
       const д = Math.min(текст.length, вКавычках + реплики);
       диалог += д; описание += текст.length - д;
     }
+    учестьHUD(data, at);
+  }
 
+  function учестьHUD(data, at) {
     if (data) {
       hudХодов++;
       const мин = минутыИз(data.scene && data.scene['Время']);
@@ -168,7 +177,7 @@ export function createDashboard({ userName = '' } = {}) {
       (Array.isArray(data.characters) ? data.characters : []).forEach(c => c && заполнено(c['Имя']) && запомнитьИмя(c['Имя']));
       const персонажи = Array.isArray(data.characters) ? data.characters : [];
       const nsfw = персонажи.some(c => c && (заполнено(c['Фаза близости']) || заполнено(c['NSFW'])))
-        || !!(data.user && заполнено(data.user['NSFW (Юзер)']));
+        || !!(data.user && (заполнено(data.user['NSFW (Юзер)']) || заполнено(data.user['NSFW'])));
       if (nsfw) { nsfwХодов++; if (!nsfwБыл) nsfwСерий++; }
       nsfwБыл = nsfw;
       const место = (персонажи[0] && персонажи[0]['Место']) || (data.user && data.user['Место']) || '';

@@ -25,27 +25,27 @@
 /* --- Галочки настроек под тему ----------------------------------------------
    Выключено — пустая рамка, включено — знак темы в ней: звезда у Вампира,
    точка у Уюта, капля льда у Льда, звезда-роза у Глубины. */
-:root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice, .hud-theme-ocean) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"] {
+:root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice, .hud-theme-ocean) :is(#hud-settings-wrapper, .hud-custom-dialog, .hud-arc-modal) input[type="checkbox"] {
   appearance: none !important; -webkit-appearance: none !important; width: 16px !important; height: 16px !important; margin: 0 4px 0 0 !important;
   display: inline-grid !important; place-items: center; background: transparent !important; border: none !important; box-shadow: none !important; cursor: pointer; flex: none;
 }
-:root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice, .hud-theme-ocean) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]::before {
+:root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice, .hud-theme-ocean) :is(#hud-settings-wrapper, .hud-custom-dialog, .hud-arc-modal) input[type="checkbox"]::before {
   content: '' !important; display: block !important; box-shadow: none !important; transform: none !important; clip-path: none !important;
 }
-:root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"] {
+:root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog, .hud-arc-modal) input[type="checkbox"] {
   border: 1.5px solid var(--cb-frame) !important; border-radius: 4px !important; overflow: hidden; transition: border-color .2s, background-color .2s;
 }
-:root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked {
+:root:is(.hud-theme-vamp, .hud-theme-cottage, .hud-theme-ice) :is(#hud-settings-wrapper, .hud-custom-dialog, .hud-arc-modal) input[type="checkbox"]:checked {
   border-color: var(--cb-ink) !important; background: color-mix(in srgb, var(--cb-ink) 14%, transparent) !important;
 }
 
-:root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
-:root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { content: '★' !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
-:root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { content: '●' !important; }
-:root.hud-theme-ice :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { width: 9px; height: 9px; border-radius: 50%; transform: none !important; background: radial-gradient(circle, #e6f4ff, #6fa8d8) !important; box-shadow: 0 0 8px #9fd0ff !important; }
-:root.hud-theme-ocean :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"] { border: 1px solid #94b4c1 !important; border-radius: 2px !important; width: 14px !important; height: 14px !important; }
-:root.hud-theme-ocean :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked { background: #0f1b27 !important; border-color: #0f1b27 !important; }
-:root.hud-theme-ocean :is(#hud-settings-wrapper, .hud-custom-dialog) input[type="checkbox"]:checked::before { width: 10px; height: 10px; background: #eae0cf !important; clip-path: polygon(50% 0, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0 50%, 35% 35%) !important; }
+:root:is(.hud-theme-vamp, .hud-theme-cottage) :is(#hud-settings-wrapper, .hud-custom-dialog, .hud-arc-modal) input[type="checkbox"]::before { font-size: 12px; line-height: 1; color: var(--cb-ink); background: none !important; width: auto; height: auto; }
+:root.hud-theme-vamp :is(#hud-settings-wrapper, .hud-custom-dialog, .hud-arc-modal) input[type="checkbox"]:checked::before { content: '★' !important; text-shadow: 0 0 6px rgba(201,186,130,.6); }
+:root.hud-theme-cottage :is(#hud-settings-wrapper, .hud-custom-dialog, .hud-arc-modal) input[type="checkbox"]:checked::before { content: '●' !important; }
+:root.hud-theme-ice :is(#hud-settings-wrapper, .hud-custom-dialog, .hud-arc-modal) input[type="checkbox"]:checked::before { width: 9px; height: 9px; border-radius: 50%; transform: none !important; background: radial-gradient(circle, #e6f4ff, #6fa8d8) !important; box-shadow: 0 0 8px #9fd0ff !important; }
+:root.hud-theme-ocean :is(#hud-settings-wrapper, .hud-custom-dialog, .hud-arc-modal) input[type="checkbox"] { border: 1px solid #94b4c1 !important; border-radius: 2px !important; width: 14px !important; height: 14px !important; }
+:root.hud-theme-ocean :is(#hud-settings-wrapper, .hud-custom-dialog, .hud-arc-modal) input[type="checkbox"]:checked { background: #0f1b27 !important; border-color: #0f1b27 !important; }
+:root.hud-theme-ocean :is(#hud-settings-wrapper, .hud-custom-dialog, .hud-arc-modal) input[type="checkbox"]:checked::before { width: 10px; height: 10px; background: #eae0cf !important; clip-path: polygon(50% 0, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0 50%, 35% 35%) !important; }
 
 /* =========================================================================
    СТИЛИ СЕКЦИЙ (Кастомизация → Вид блоков → Стиль секций)
@@ -413,7 +413,8 @@
    ========================================================================= */
 .hud-body.hud-pets:is(.hud-pets-card, .hud-pets-tama) { display: grid !important; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)) !important; gap: 14px; }
 .hud-body.hud-pets.hud-pets-tama { grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)) !important; }
-.hud-pet2 { --p: #e8883a; position: relative; border-radius: 18px; overflow: hidden; min-width: 0;
+/* Спутник — в цветах темы: раньше у кошки карточка всегда была рыжей. */
+.hud-pet2 { --p: var(--hud-accent, #e8883a); position: relative; border-radius: 18px; overflow: hidden; min-width: 0;
   background: linear-gradient(180deg, color-mix(in srgb, var(--p) 10%, rgba(255,255,255,.04)), color-mix(in srgb, var(--p) 4%, rgba(0,0,0,.28)));
   border: 1px solid color-mix(in srgb, var(--p) 35%, transparent); box-shadow: 0 12px 22px -14px rgba(0,0,0,.8); }
 .hud-pet2-band { height: 54px; background: radial-gradient(circle at 12px 12px, rgba(255,255,255,.14) 0 3px, transparent 3.5px) 0 0 / 26px 22px, linear-gradient(120deg, color-mix(in srgb, var(--p) 75%, #000), color-mix(in srgb, var(--p) 45%, var(--hud-accent))); }
@@ -439,17 +440,17 @@
 .hud-pet2-tiles { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 14px 0; }
 .hud-pet2-tile { flex: 1 1 112px; padding: 8px 9px; border-radius: 12px; background: rgba(0,0,0,.18); border: 1px solid color-mix(in srgb, var(--p) 22%, transparent); min-width: 0; }
 .hud-pet2-tile span { display: flex; align-items: center; gap: 4px; font-size: .56em; font-weight: 800; letter-spacing: .04em; white-space: nowrap; flex-wrap: wrap; row-gap: 2px; text-transform: uppercase; opacity: .78; }
-.hud-pet2-tile svg { width: 13px; height: 13px; flex: none; }
+.hud-pet2-tile svg { width: 13px; height: 13px; flex: none; color: var(--p); }
 .hud-pet2-tile p { margin: 4px 0 0; font-size: .8em; line-height: 1.35; overflow-wrap: anywhere; }
 .hud-pet2-now { display: flex; gap: 8px; align-items: flex-start; margin: 10px 14px 0; padding: 8px 10px; border-radius: 12px; font-size: .84em; font-style: italic; background: color-mix(in srgb, var(--p) 12%, transparent); border-left: 3px solid var(--p); }
-.hud-pet2-now svg { width: 16px; height: 16px; flex: none; }
+.hud-pet2-now svg { width: 16px; height: 16px; flex: none; color: var(--p); }
 .hud-pet2-extra { display: flex; flex-direction: column; gap: 3px; margin: 8px 14px 0; font-size: .8em; opacity: .9; }
 .hud-pet2-skills { display: flex; flex-wrap: wrap; gap: 6px; margin: 10px 14px 14px; }
 .hud-pet2-skills span { padding: 2px 10px; border-radius: var(--hud-r-chip); font-size: .72em; background: linear-gradient(180deg, color-mix(in srgb, var(--p) 22%, rgba(255,255,255,.05)), color-mix(in srgb, var(--p) 8%, rgba(0,0,0,.1))); border: 1px solid color-mix(in srgb, var(--p) 40%, transparent); box-shadow: inset 0 1px 0 rgba(255,255,255,.12); }
 .hud-pet2-skills span::before { content: '✦ '; opacity: .7; }
 .hud-pet2-pad { height: 12px; }
 
-.hud-tama { --p: #e8883a; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 12px; border-radius: 18px; min-width: 0;
+.hud-tama { --p: var(--hud-accent, #e8883a); display: flex; flex-wrap: wrap; gap: 12px; align-items: center; padding: 12px; border-radius: 18px; min-width: 0;
   background: color-mix(in srgb, var(--p) 6%, rgba(0,0,0,.2)); border: 1px solid color-mix(in srgb, var(--p) 25%, transparent); }
 .hud-tama-dev { width: 118px; height: 136px; flex: none; filter: drop-shadow(0 10px 14px rgba(0,0,0,.45)); overflow: visible; }
 .hud-tama-stats { min-width: 0; display: flex; flex-direction: column; gap: 5px; font-family: 'Courier New', monospace; }
