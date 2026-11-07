@@ -7,7 +7,13 @@ All notable changes to TavernOS HUD, newest first, starting from version 23.88.7
 ## 23.88.87 — 2026-11-07
 
 ### Added
-- **Remove a person from Daily life by hand.** Each person in weight, sleep and wardrobe now has a trash button. After the "Are you sure?" question, their weight, sleep, wardrobe and wounds leave the tab and the card, the model stops counting them and no longer asks for their weight, and the summary follows the next person in the scene. The records stay: bring the person back at the bottom of Daily life, under Not counted.
+- **Remove a person from Daily life by hand.** Each person in weight, sleep and wardrobe now has a trash button. After the "Are you sure?" question, their weight, sleep, wardrobe and wounds leave the tab and the card, the model stops counting them and no longer asks for their weight, and the summary follows the next person in the scene. The records stay: bring the person back at the bottom of Daily life, under Not counted. Each chat has its own list, and you can remove yourself too.
+
+### Changed
+- On the weight card the number sits on the right, next to the button, not in the middle.
+
+### Documentation
+- Both READMEs now cover removing a person from Daily life, the checkboxes for new features, the Model notes and On-screen hints sections, the question before deleting, swipe behaviour, fast chat opening and attaching another chat to the archive.
 
 ## 23.88.86 — 2026-11-07
 
@@ -24,9 +30,9 @@ All notable changes to TavernOS HUD, newest first, starting from version 23.88.7
 
 ### Added
 - **New switches in the main settings:** question badges, one-time nudges, invitations, thread deadlines, pregnancy check-ups, the threat die, miscarriage and abortion, intimacy reminders.
-- **Deep settings, "Model notes" section:** scars, impressions, rivals, each body detail, neglect, the weight request, holidays, deadlines and invitations separately.
-- **Deep settings, "On-screen hints" section:** intimacy reminders, question badges, one-time nudges, check-ups by week and the threat die.
-- Invitations are now in deep settings among the Memory fields.
+- **Fine tuning, "Model notes" section:** scars, impressions, rivals, each body detail, neglect, the weight request, holidays, deadlines and invitations separately.
+- **Fine tuning, "On-screen hints" section:** intimacy reminders, question badges, one-time nudges, check-ups by week and the threat die.
+- Invitations are now in fine tuning among the Memory fields.
 
 ### Fixed
 - With Neglect turned off, it no longer shows on the card or affects the cycle and the chance of conception.
@@ -66,7 +72,7 @@ A big check: 28 themes, both eras, both languages, all block views, PC and phone
 - Narrow card: the horoscope no longer clips signs, pregnancy no longer squeezes text to 55 pixels, ultrasound labels no longer overlap, and the state batteries no longer cut words.
 - The Twist text no longer runs under the corner ribbon.
 - The Customize window no longer shows a stray checkbox above the card.
-- Turning off appearance or clothes in deep settings no longer marks every character as off-scene.
+- Turning off appearance or clothes in fine tuning no longer marks every character as off-scene.
 - If the model sends an object instead of a string, most fields now show it as text, not "[object Object]".
 
 ### English interface

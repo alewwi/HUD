@@ -56,9 +56,9 @@ A separate tab for everyone the model described in the turn:
 - **Look and state** — clothing, appearance, role, body, physiology, health, inventory, place.
 - **Inner life** — mood, thoughts, goals, schedule, fears, lines, hidden subtext, "expectation vs reality", the key point of the turn, flag monitor, jealousy, conflict depth, exposure risk.
 - **Relationships and trust** — toward each person on a 0–100 scale; trust shifts are visible from turn to turn.
-- **Relationship scars** — the model briefly writes why trust moved. A deep wound or a drop of 15 or more leaves a scar: the character remembers the hurt until trust returns. You can remove a scar with its cross: the model stops being reminded, and only a new fall in trust can bring it back. Reminders about scars and the neglected state go out once every three replies, and at once if something changes. After a big shift a character stays under the impression for a few turns, and if someone is named a rival, their gain costs the player.
+- **Relationship scars** — the model briefly writes why trust moved. A deep wound or a drop of 15 or more leaves a scar: the character remembers the hurt until trust returns. You can remove a scar with its cross, after an "Are you sure?" question: the model stops being reminded, and only a new fall in trust can bring it back. Reminders about scars and the neglected state go out once every three replies, and at once if something changes. After a big shift a character stays under the impression for a few turns, and if someone is named a rival, their gain costs the player.
 - **Body state** — energy, alertness, satiety, stress, sleep and plans for tomorrow.
-- **Weight and height** — a line on the card: weight, height, BMI and change. The model writes them once, then HUD asks to update them weekly in story time.
+- **Weight and height** — a line on the card: weight, height, BMI and change. The model writes them once, then HUD asks to update them weekly in story time. If someone should not be counted, remove them in Daily life.
 - **Neglected state** — a plate when a person goes several days with almost no food, water or sleep. The model shows it in the story and in time records it as an illness, and undernourishment lowers the chance of conception and disturbs the cycle.
 - **Living details** — the model shows hunger, tiredness, stress and pain through small details instead of naming them, with pauses between them.
 - **Illnesses and injuries** — stage, symptoms, treatment and a recovery bar; body marks with a healing timer.
@@ -124,7 +124,7 @@ The tab where history accumulates instead of a snapshot:
 - **Timeline** and **important** — what happened and in what order.
 - **Secrets** — who hides what from whom, the danger and exposure level. A secret can be added to a lorebook with one button — then the model remembers it even without the HUD.
 - **Chekhov's guns** — open plot threads: promises, threats, hints, mysteries.
-- **Long lists.** Up to three items stay as they are. With more, they scroll right on PC and down on phones: this covers character pills and block views. Paper sheets and axes that can't lie sideways (scroll, notebook) scroll down on PC too.
+- **Long lists.** Up to three items stay as they are. With more, they scroll right on PC and down on phones: this covers character pills and block views. Paper sheets and axes that can't lie sideways (scroll, notebook) scroll down on PC too. On phones a finger carries through the whole turn: at the end of a list the swipe continues in the tab, then in the chat.
 - **Phone icons.** Every theme has its own set of twelve app icons. Pick one in Customize → Blocks: Phone: Auto by theme, Regular, or any other set; a set from another theme adapts to the theme colors, both the drawing and the tile.
 - **Deleting items.** Important, Chekhov's guns and secrets have a trash icon in the header: it turns on delete mode, items get highlighted, and tapping one opens a window with every similar wording from the chat: only the checked ones are removed from the HUD of the whole chat. Message text and `[HUD_SUMMARY]` stay. Bring deleted items back with ↶ in the card header: the last 30 deletions are kept, in any order. The item also returns to blocks edited or regenerated after the deletion and to the latest HUD of the chat, so the model sees it again.
 - **One-time nudge.** A star button in a block header: tap a pill and it goes to the model in the next reply. HUD sends nothing by itself, the nudge simply joins the request. It works from an old card too, holds for one reply and all its swipes, and a new message clears it. The queue (up to three) shows above the input.
@@ -152,7 +152,9 @@ The tab where history accumulates instead of a snapshot:
 
 Food, sleep, showers, laundry, cleaning, clothing, money and home **across all past turns**: how long since the last time, the sleep debt for the week, what's in the laundry, familiar prices, what broke, who owes whom. "Could use a shower" is computed from hours, heat and exertion; "not dressed for the weather" — when a character is out in the frost without outerwear or in the heat in a coat. The HUD derives all this from what the model writes anyway. The daily-life summary can be shown to the model as one line, only when it's on topic, or via a macro — or kept just for you.
 
-**Weight and calories.** In Daily life everyone has a card: weight, a curve, a calorie norm that accounts for activity and pregnancy, and how much the person eats on average.
+**Weight and calories.** In Daily life everyone has a card: weight, a curve, a calorie norm that accounts for activity and pregnancy, and how much the person eats on average. Swipes create no fake gain: the last number of a story day counts. If you delete a reply with a weight, the record rolls back.
+
+**Remove a person from Daily life.** If someone should no longer be counted, say a character who died or left, press the trash button next to their name in weight, sleep or wardrobe. After the "Are you sure?" question, their weight, sleep, wardrobe and wounds leave the tab, and the weight line leaves their card. The model stops counting their weight and sleep and no longer asks for their weight, and the summary moves to the next person in the scene. The records stay: bring the person back at the bottom of the tab, under Not counted. Each chat has its own list, and you can remove yourself too.
 
 <details><summary>📷 The Daily life tab</summary>
 
@@ -281,7 +283,11 @@ Missing something? Add it yourself: hunger, mana, standing at court, a bounty, r
 
 On the card a stat is a block in the theme's style. Choose its place in the settings ("after the Role field") or right on the card: press and hold the block and drag it. The shared custom-stats prompt can be rewritten completely, and one checkbox switches them all off while keeping the list. Each stat's name sits right in its owner's schema — a character's or the player's — so the model doesn't skip it.
 
-**Deep tuning.** In "HUD blocks" every section is split into groups, and any field — or even a single sub-label inside a field — can be switched off. Switched-off parts are cut cleanly out of the instruction: the model doesn't write them and no tokens are spent.
+**Fine tuning.** In "HUD blocks" every section is split into groups, and any field — or even a single sub-label inside a field — can be switched off. Switched-off parts are cut cleanly out of the instruction: the model doesn't write them and no tokens are spent.
+
+Two sections are not about reply fields:
+- **Model notes** — what HUD adds for the model on a turn: scars, the impression after a trust shift, the rival, living details, the neglected state, the request to write the weight, holidays, deadlines and invitations. Single parts can be switched off inside, for example only the calories in the weight request.
+- **On-screen hints** — what only you see: intimacy reminders, question badges, one-time nudges, check-ups and the threat die.
 
 ### 🗄 HUD archive
 
@@ -296,7 +302,7 @@ A summary of the whole chat history, via the **🗄 HUD archive** button in the 
 - **Soundtrack** — music chapters by day (if scene music is on).
 - **Statistics** and **Dashboard** — how many messages and days, who talks more, the model's reply length, repetition, dull zones, scene rhythm, dialogue vs description, who mentions whom. Dashboard widgets are picked with checkboxes.
 
-The archive also works for chats the HUD has been cleaned out of: the HUD keeps a **chronicle** — short summaries of every turn in a separate file on your SillyTavern. You can attach another chat's chronicle of the same character (say, an old copy) to your own — its turns fill the gaps without duplicates. There's search within the report and JSON export.
+The archive also works for chats the HUD has been cleaned out of: the HUD keeps a **chronicle** — short summaries of every turn in a separate file on your SillyTavern. You can attach another chat's chronicle of the same character (say, an old copy) to your own — its turns fill the gaps without duplicates. One chat can be attached: the next one replaces the previous one. A branch of the open chat is already part of its chronicle, and HUD says so. There's search within the report and JSON export.
 
 ### 🗂 HUD on the side
 
@@ -338,6 +344,7 @@ This part of the instruction is the largest, so by default it goes to the model 
 | 🎵 **Scene music** | A "now playing" strip above the tabs: a soundtrack for the moment and the music the characters hear. Picked by a separate small request from the HUD scene, again only when the scene changes or on a button; "Soundtrack" and "In the scene" can also be picked separately. Tracks are checked by search in turn — iTunes, NetEase, QQ Music, until the first hit; made-up ones are marked. The ▶ button plays a track right in the Tavern: a 30-second iTunes clip or, optionally, the full track — from YouTube via Invidious mirrors, via an unofficial NetEase service, or via MoodTube; the next one starts by itself. Volume, track count and a wish for the playlist ("music for running") are right in the open playlist. There are also links to Yandex Music, Spotify, YouTube and SoundCloud, and the MoodTube queue. A track's ♡ "like" and ⊘ "don't suggest" are your taste: the model leans toward what you liked and never suggests what you banned. Song language; a meme soundtrack (one-off button, in a funny scene, or always). Radio in the scene: the model names the station genre and a live broadcast plays — Radio Record (117 genre stations, for Russia and Russian genres) or world stations from the radio-browser catalog. A floating "now playing" icon while the music's card is out of view. Scene background in full: a queue of full free tracks matching the scene's mood with no model request — Fonau (a Russian library, search in Russian), Audius, Incompetech (catalog built in), in the Middle Ages Wikimedia Commons; it follows a song's clip right away. The playlist is stored in the turn and in the chronicle; the archive has a "Soundtrack" tab with chapters by day. The character's phone has a "Music" app: what they listen to now, named playlists (a separate request from the card, lorebooks and latest messages; "More" adds without repeats) and their own "Liked" — it goes only into their requests. Off by default. |
 | 📚 **Save to Lorebook** | A secret or fact from the HUD becomes a lorebook entry with one button — you can let the model write it from the scene context. |
 | 🗄 **HUD archive** | A summary of the whole chat history: secrets, Chekhov's guns, relationships, timeline, past pregnancies, statistics and a dashboard — how everything changed and how many days passed. With JSON export. |
+| 🗑 **Question before deleting** | Before deleting a scar, a custom stat, a theme, a picture, a person from Daily life and other important things, HUD asks "Are you sure?" and says whether it can be undone. |
 | ≈ **Token budget** | A "≈4.1k" chip in the card: how much the HUD instruction costs and what weighs how much in it. |
 
 ---
@@ -403,6 +410,8 @@ The HUD instruction goes **only to chat reply requests** — a normal message, a
 - **MemoryBooks** — writing a memory to a lorebook;
 - **the HUD's own service requests** — "Ask about the story", saving to a lorebook, picking music.
 
+**A swipe** reads the HUD of the previous message, not of the reply being replaced. Scars, impressions and invitations from the reply being replaced do not reach the model as things that already happened.
+
 What's more, in those other requests the `[HUD]` blocks are cut out of the history and replaced with a short `[HUD_SUMMARY]` — date, time, who is where and wearing what. Summaries and memories know when and where things happened without dragging in the whole HUD.
 
 ---
@@ -428,6 +437,7 @@ What's more, in those other requests the `[HUD]` blocks are cut out of the histo
 
 The extension is built for chats with hundreds of messages and for phones:
 
+- **Fast chat opening** — SillyTavern no longer colours HUD blocks as code, the latest turn's card is built first, and old turns are parsed after it in small portions.
 - **Lazy tabs** — only the open tab is built, the rest on switching.
 - **Lighter old cards** — a collapsed card keeps only its title on the page; when a chat opens, only the last few are built in full.
 - **Virtualization** — in chats over 200 messages, cards far from the screen turn back into text and are rebuilt on scrolling.
@@ -469,7 +479,7 @@ All settings are in the **📊 TavernOS** block in "Extensions" and in the "Cust
 
 | Section | What you configure |
 |---|---|
-| 🧩 HUD blocks | HUD in every reply (network intercept) or only on the button; the player block; era (phone or casket) and individual apps; intercepts or overheard talk; memory and Chekhov's guns; illnesses, pregnancy, birth and babies, the cycle; "what they think of you"; family tree; body state; plot twists; companions; adult-scene blocks (each separately); verbal duel; combat (decide itself, always, never); daily life and the sleep norm; diary, dreams, world, economy, events, city services, horoscope. "Deep tuning" — switch off single fields and sub-labels; they are cut from the instruction. |
+| 🧩 HUD blocks | HUD in every reply (network intercept) or only on the button; the player block; era (phone or casket) and individual apps; intercepts or overheard talk; memory and Chekhov's guns; illnesses, pregnancy, birth and babies, the cycle; "what they think of you"; family tree; body state; plot twists; companions; adult-scene blocks (each separately); verbal duel; combat (decide itself, always, never); daily life and the sleep norm; diary, dreams, world, economy, events, city services, horoscope. "Fine tuning" — switch off single fields and sub-labels; they are cut from the instruction. Checkboxes for the new features: question badges, one-time nudges, invitations, thread deadlines, scars, era holidays, living details, the neglected state, weight, check-ups, the threat die, miscarriage and abortion, intimacy reminders. |
 | 📊 Custom stats | Master switch; the list of stats: name, meaning, view, icon, colour, whose, tab and place; the shared prompt with a "Restore the default text" button. |
 | ✨ Display | Where the HUD is: in messages, on the side and in messages, only on the side; panel width (custom or up to the chat) and edge (right or left). Question-mark hints; lists from past turns: how many turns to look back, the item limit per list and messages per chat. |
 | ⚡ Performance | Lighter old cards, how many cards to build at once, lazy tabs, Performance Mode, virtualization, card limit; 🗜 unload the chat and restore all. |
@@ -491,6 +501,13 @@ Settings are grouped — expand the one you need. Below is the essential part of
 - *Memory and plot* — timeline, secrets, routes; Chekhov's guns; plot twist cards.
 - *Characters* — the player block, "What they think of you", the family tree, companions.
 - *Body and health* — illnesses and injuries, body state (energy, sleep, stress), the cycle, pregnancy, birth and the "Nursery". The number and sex of babies can go to the model as a hidden fact or not at all.
+  Each new feature has its own checkbox here:
+  - for the screen: question badges, one-time nudges, intimacy reminders;
+  - for the story: invitations, thread deadlines, relationship scars, era holidays;
+  - for the body: living details, the neglected state, weight and calories;
+  - for pregnancy: check-ups, serious findings, the threat die, miscarriage and abortion.
+
+  A switched-off feature leaves the screen and the request to the model. Single parts are switched off in Fine tuning, in the Model notes and On-screen hints sections.
 - *Daily life* — the daily-life tab; "Daily life → model" decides whether the model sees the summary (one line, on topic only, or via the `{{hudByt}}` macro); the sleep norm.
 - *Intimacy* — the adult-scene parts and the "decide itself / always / never" mode.
 - *Combat and arguments* — combat (decide itself, always, never) and the verbal duel.
@@ -565,6 +582,9 @@ Everything lives on the SillyTavern server, so every device sees the same thing:
 **Settings differ between my PC and phone.**
 Since version 23.88.7 HUD settings are stored in SillyTavern too, and the fresher copy wins on load. Change any setting on the device whose look you like — the other one picks it up after a page reload. Backgrounds and banners uploaded as files move only by hand.
 
+**A character died or left, but Daily life still counts them.**
+Press the trash button next to their name in weight, sleep or wardrobe. The model stops counting their weight and sleep. Bring the person back at the bottom of Daily life, under Not counted.
+
 **It's slow in a long chat.**
 Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last N cards at once" and set a card limit. If the chat itself is slow to save and open, press **🗜 Unload** (⚡ Performance → 🗜 Unload the chat): the chat file gets several times lighter, and everything comes back with one button.
 
@@ -576,7 +596,7 @@ The latest version is **23.88.87**:
 
 - You can remove a person from Daily life by hand: the model stops counting their weight and sleep, and you can bring them back at the bottom of the tab.
 - Adding other chats in the archive is clear again, and the model no longer reads stale hidden facts.
-- Every new feature has a switch in the main settings, and deep settings gained "Model notes" and "On-screen hints".
+- Every new feature has a switch in the main settings, and fine tuning gained "Model notes" and "On-screen hints".
 - Weight: swipes no longer create a fake gain, and deleting messages rolls the record back.
 - A swipe no longer tells the model what happened in the reply being replaced, and a refusal no longer counts as acceptance.
 - A big check of all themes, eras and block views: the Customize window on light themes, the header in a narrow card, Bullet Journal, translation.
