@@ -18,18 +18,18 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { весЧата, нормаКалорий } from '../turn-notes.js?v=23.88.83';
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.83';
-import { settings } from '../settings.js?v=23.88.83';
-import { разобратьХод } from './carryover.js?v=23.88.83';
-import { моментСцены } from './intimacy.js?v=23.88.83';
-import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.88.83';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.83';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.83';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.88.83';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.83';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.88.83';
-import { английский } from '../i18n.js?v=23.88.83';
+import { весЧата, нормаКалорий, историяВеса, сдвигВеса } from '../turn-notes.js?v=23.88.84';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.84';
+import { settings } from '../settings.js?v=23.88.84';
+import { разобратьХод } from './carryover.js?v=23.88.84';
+import { моментСцены } from './intimacy.js?v=23.88.84';
+import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.88.84';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.84';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.84';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.88.84';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.84';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.88.84';
+import { английский } from '../i18n.js?v=23.88.84';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;
@@ -1269,13 +1269,12 @@ function весБыта() {
   const все = Object.entries(весЧата());
   if (!все.length) return '';
   return `<ul class="hud-weight">${все.map(([имя, з]) => {
-    const прошлый = з.история.length > 1 ? з.история[з.история.length - 2].вес : null;
-    const сдвиг = прошлый !== null ? Math.round((з.вес - прошлый) * 10) / 10 : 0;
+    const сдвиг = сдвигВеса(з);
     const норма = нормаКалорий({ вес: з.вес, рост: з.рост, возраст: з.возраст || 30, женщина: з.женщина !== false, неделя: з.неделя || 0, активность: з.активность });
     const имт = з.рост ? Math.round(з.вес / (з.рост / 100) ** 2 * 10) / 10 : null;
     return `<li><div class="top"><b>${escapeHtml(имя)}</b><span class="kg">${з.вес} <small>кг</small></span></div>`
       + `<div class="meta">${з.рост ? `<small>${з.рост} см</small>` : ''}${имт ? `<small>ИМТ ${имт}</small>` : ''}${сдвиг ? `<em class="${сдвиг > 0 ? 'up' : 'down'}">${сдвиг > 0 ? '+' : ''}${сдвиг} кг</em>` : ''}</div>`
-      + криваяВеса(з.история)
+      + криваяВеса(историяВеса(з))
       + (норма && з.ккал ? `<i class="kcal" aria-hidden="true"><b style="width:${Math.min(100, Math.round(з.ккал / норма * 100))}%"></b></i>` : '')
       + (норма || з.ккал ? `<small>${[норма ? `норма около ${норма} ккал` : '', з.ккал ? `ест около ${з.ккал} ккал` : ''].filter(Boolean).join(' · ')}</small>` : '') + `</li>`;
   }).join('')}</ul>`;

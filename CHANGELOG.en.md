@@ -4,6 +4,19 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.84 — 2026-11-07
+
+A logic check of the new features on a real chat.
+
+### Fixed
+- **Weight: swipes no longer create a fake gain.** Every swipe went into the history: one day could collect "47, 48, 47, 48 kg", and the card showed +1 kg. Now one turn is one record, and the change is counted from the previous day. Old chat records are read the same way.
+- **Weight after deleting messages.** If a reply with a weight is deleted, a new weight from an earlier place in the chat is no longer rejected, and the deleted one leaves the history.
+- A baby's weight under 10 kg is now recorded.
+- The calorie norm no longer treats a man as a woman when the appearance does not start with the sex, such as "tall man", and it finds a person by a short name.
+- **Swipes and model notes.** A wound, an impression or a rival from the reply being replaced no longer reaches the model as something that already happened.
+- **Invitations.** "Не приеду" and "не согласна" counted as acceptance, so the model was told the player had promised to come. Unclear answers now ask the player, and "can't be there" and "won't be there" count as refusals.
+- An invitation from a reply that was swiped away or deleted no longer stays as an open question.
+
 ## 23.88.83 — 2026-11-07
 
 A big check: 28 themes, both eras, both languages, all block views, PC and phone.

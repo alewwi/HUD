@@ -572,8 +572,10 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.83**:
+The latest version is **23.88.84**:
 
+- Weight: swipes no longer create a fake gain, and deleting messages rolls the record back.
+- A swipe no longer tells the model what happened in the reply being replaced, and a refusal no longer counts as acceptance.
 - A big check of all themes, eras and block views: the Customize window on light themes, the header in a narrow card, Bullet Journal, translation.
 - Plate lists follow the finger and fit inside the tab window.
 - Chats open much faster: on a long chat the text appears about 13 seconds sooner.
