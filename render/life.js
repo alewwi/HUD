@@ -18,18 +18,18 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { весЧата, нормаКалорий, историяВеса, сдвигВеса } from '../turn-notes.js?v=23.88.86';
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.86';
-import { settings } from '../settings.js?v=23.88.86';
-import { разобратьХод } from './carryover.js?v=23.88.86';
-import { моментСцены } from './intimacy.js?v=23.88.86';
-import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.88.86';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.86';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.86';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.88.86';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.86';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.88.86';
-import { английский } from '../i18n.js?v=23.88.86';
+import { весЧата, нормаКалорий, историяВеса, сдвигВеса, снятыеИзБыта } from '../turn-notes.js?v=23.88.87';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.87';
+import { settings } from '../settings.js?v=23.88.87';
+import { разобратьХод } from './carryover.js?v=23.88.87';
+import { моментСцены } from './intimacy.js?v=23.88.87';
+import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.88.87';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.87';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.87';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.88.87';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.87';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.88.87';
+import { английский } from '../i18n.js?v=23.88.87';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;
@@ -423,6 +423,9 @@ export function журналБыта(chat, конец = chat ? chat.length : 0, 
   const тотЖеКлюч = (карта, имя) => [...карта.keys()].find(к => к !== 'Вы' && namesLikelySame(к, имя)) || имя;
   let имяИгрока = 'Вы';
   try { const н = getSafeUserName(); if (н && н !== 'User') имяИгрока = н; } catch (_) { /* без Таверны */ }
+  // Убранные руками: быт их не считает, сводка идёт за следующим в сцене.
+  const снятые = снятыеИзБыта();
+  const снят = (имя) => снятые.some(н => namesLikelySame(н, имя === 'Вы' ? имяИгрока : имя));
   const ночи = new Map();   // имя → Map(дата → сон)
   const шкаф = new Map();   // имя → Map(вещь → запись)
   const ходыШкафа = new Map();   // имя → номера ходов, где названа его одежда
@@ -443,7 +446,7 @@ export function журналБыта(chat, конец = chat ? chat.length : 0, 
   for (const { d, t, j } of ходы) {
     const сутки = Math.floor(t / СУТКИ) * СУТКИ;
     const люди = (Array.isArray(d.characters) ? d.characters : []).filter(c => c && c['Имя']);
-    const главный = люди[0];
+    const главный = люди.find(c => !снят(имяКоротко(c['Имя']))) || люди[0];
     // hk — точнее всего: модель сама назвала быт хода.
     const пам = d.memory || {};
     // У блока игрока в HUD нет имени — берём имя персоны: «Софи смывает…» — её мытьё.
@@ -609,7 +612,7 @@ export function журналБыта(chat, конец = chat ? chat.length : 0, 
   // В быте — только те, у кого есть карточка в этом HUD (персонажи хода и
   // игрок). Кто ушёл из сцены, тот не копит здесь сон, гардероб, душ и раны.
   const вHUD = последнийХод ? [...(последнийХод.кто || []).map(c => c.__игрок ? 'Вы' : имяКоротко(c['Имя'])), ...(последнийХод.кто || []).some(c => c.__игрок) ? [имяИгрока] : []].filter(Boolean) : [];
-  const естьКарточка = (имя) => !вHUD.length || !имя || вHUD.some(н => н === имя || namesLikelySame(н, имя));
+  const естьКарточка = (имя) => !снят(имя) && (!вHUD.length || !имя || вHUD.some(н => н === имя || namesLikelySame(н, имя)));
   for (let k = события.length - 1; k >= 0; k--) { const с = события[k]; if (с.вид === 'wash' && с.кто && с.кто !== '~' && !естьКарточка(с.кто)) события.splice(k, 1); }
   // Душ — свой у каждого: сводка про главного, чужое мытьё ему не в счёт.
   const главноеИмя = последнийХод ? последнийХод.имя : '';
@@ -993,7 +996,7 @@ export function противоречияБыта(chat, индекс) {
 const ТАЙМЕРЫ = [['eat', 'ели', 8 * Ч], ['wash', 'душ', 36 * Ч], ['laundry', 'стирка', 7 * СУТКИ], ['clean', 'уборка', 7 * СУТКИ]];
 
 export function естьБыт(ж) {
-  return !!ж && (ж.события.length > 0 || ж.сон.length > 0 || ж.гардероб.some(г => г.вещи.length) || !!ж.деньги.баланс || !!ж.бой);
+  return !!ж && (ж.события.length > 0 || ж.сон.length > 0 || ж.гардероб.some(г => г.вещи.length) || !!ж.деньги.баланс || !!ж.бой || снятыеИзБыта().length > 0);
 }
 
 const дм = (ms) => new Date(ms).toISOString().slice(5, 10).split('-').reverse().join('.');
@@ -1023,6 +1026,8 @@ const икоСобытия = (вид, класс = '') => ико(ИКОНКА_С
 const ЯНТАРЬ = '#e0a458', КРАСНЫЙ = '#e46a6a';
 const тон = (v, п = {}) => (v < 30 ? 'is-low' : v < 60 || п.тревога ? 'is-mid' : 'is-ok');
 const цветТона = (т) => (т === 'is-low' ? `--v-acc:${КРАСНЫЙ};` : т === 'is-mid' ? `--v-acc:${ЯНТАРЬ};` : '');
+
+const кнопкаСнять = (имя) => `<button type="button" class="hud-life-off" data-hud-life-off="${escapeHtml(имя)}" title="Убрать из быта" aria-label="Убрать из быта">${ико('trash')}</button>`;
 
 function лицоБыта(имя) {
   let url = '';
@@ -1183,7 +1188,7 @@ function гардеробБыта(ж) {
   const люди = ж.гардероб.filter(г => г.вещи.length).map(г => {
     const вещи = г.вещи.slice(0, 14);
     const на = г.вещи.filter(в => в.наСебе).length;
-    const шапка = `${лицоБыта(г.имя)}<b>${escapeHtml(г.имя)}</b><small>${г.вещи.length} ${склон(г.вещи.length, ['вещь', 'вещи', 'вещей'])}${на ? ` · на себе ${на}` : ''}</small>`;
+    const шапка = `${лицоБыта(г.имя)}<b>${escapeHtml(г.имя)}</b><small>${г.вещи.length} ${склон(г.вещи.length, ['вещь', 'вещи', 'вещей'])}${на ? ` · на себе ${на}` : ''}</small>${кнопкаСнять(г.имя)}`;
     let тело;
     if (вид === 'rail') {
       тело = `<div class="hud-life-rail">${вещи.map(в => `<span class="hud-life-hanger${классы(в)}"${цвет(в)} title="${escapeHtml(подсказка(в))}">`
@@ -1272,12 +1277,18 @@ function весБыта() {
     const сдвиг = сдвигВеса(з);
     const норма = нормаКалорий({ вес: з.вес, рост: з.рост, возраст: з.возраст || 30, женщина: з.женщина !== false, неделя: з.неделя || 0, активность: з.активность });
     const имт = з.рост ? Math.round(з.вес / (з.рост / 100) ** 2 * 10) / 10 : null;
-    return `<li><div class="top"><b>${escapeHtml(имя)}</b><span class="kg">${з.вес} <small>кг</small></span></div>`
+    return `<li><div class="top"><b>${escapeHtml(имя)}</b><span class="kg">${з.вес} <small>кг</small></span>${кнопкаСнять(имя)}</div>`
       + `<div class="meta">${з.рост ? `<small>${з.рост} см</small>` : ''}${имт ? `<small>ИМТ ${имт}</small>` : ''}${сдвиг ? `<em class="${сдвиг > 0 ? 'up' : 'down'}">${сдвиг > 0 ? '+' : ''}${сдвиг} кг</em>` : ''}</div>`
       + криваяВеса(историяВеса(з))
       + (норма && з.ккал ? `<i class="kcal" aria-hidden="true"><b style="width:${Math.min(100, Math.round(з.ккал / норма * 100))}%"></b></i>` : '')
       + (норма || з.ккал ? `<small>${[норма ? `норма около ${норма} ккал` : '', з.ккал ? `ест около ${з.ккал} ккал` : ''].filter(Boolean).join(' · ')}</small>` : '') + `</li>`;
   }).join('')}</ul>`;
+}
+
+function снятыеБыта() {
+  const все = снятыеИзБыта();
+  if (!все.length) return '';
+  return `<ul class="hud-life-offlist">${все.map(имя => `<li><b>${escapeHtml(имя)}</b><button type="button" data-hud-life-on="${escapeHtml(имя)}">Вернуть</button></li>`).join('')}</ul>`;
 }
 
 export function buildLifeHTML(ж, uid, active) {
@@ -1293,7 +1304,7 @@ export function buildLifeHTML(ж, uid, active) {
   const сон = ж.сон.map(с => {
     const полосы = с.ночи.map(н => `<span class="hud-life-night${н.часов < ж.норма - 1 ? ' is-short' : ''}${н.сон ? ' has-dream' : ''}" style="--h:${Math.min(1, н.часов / 12).toFixed(2)}" title="${escapeHtml(дм(н.сутки) + ': ' + н.текст + (н.сон ? ' · снилось: ' + н.сон : ''))}"><i></i><small>${часы(н.часов)}</small>${н.сон ? `<b>${ико('moonstar')}</b>` : ''}<em>${ДНИ[new Date(н.сутки).getUTCDay()]}</em></span>`).join('');
     const долг = с.долг >= 1 ? `<span class="hud-v-tag${с.долг >= 3 ? ' s5' : ''}">долг ${часы(с.долг)}</span>` : `<span class="hud-v-tag">высыпается</span>`;
-    return `<div class="hud-life-sleep"><div class="hud-life-sleep-head">${лицоБыта(с.имя)}<b>${escapeHtml(с.имя)}</b>${долг}</div><div class="hud-life-nights" style="--norm:${(ж.норма / 12).toFixed(2)}">${полосы}</div></div>`;
+    return `<div class="hud-life-sleep"><div class="hud-life-sleep-head">${лицоБыта(с.имя)}<b>${escapeHtml(с.имя)}</b>${долг}${кнопкаСнять(с.имя)}</div><div class="hud-life-nights" style="--norm:${(ж.норма / 12).toFixed(2)}">${полосы}</div></div>`;
   }).join('');
   const ночиСнов = ж.сныНочей.filter(с => !ж.сон.some(x => x.ночи.some(н => н.сутки === с.сутки)));
   const сны = ночиСнов.length ? `<ul class="hud-life-dreams">${ночиСнов.map(с => `<li>${ико('moonstar')}<time>${дм(с.сутки)}</time><span>${escapeHtml(с.текст.length > 90 ? с.текст.slice(0, 90) + '…' : с.текст)}</span></li>`).join('')}</ul>` : '';
@@ -1317,5 +1328,6 @@ export function buildLifeHTML(ж, uid, active) {
     + раздел('hanger', 'Гардероб', гардеробБыта(ж))
     + раздел('wallet', 'Деньги', деньгиБыта(ж))
     + раздел('house', 'Дом', дом)
+    + раздел('trash', 'Не считаются', снятыеБыта())
     + `</div></div>`;
 }

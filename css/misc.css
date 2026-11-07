@@ -6715,8 +6715,8 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 /* Вес: своя карточка у каждого, с кривой и шкалой еды к норме. */
 .hud-weight { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr)); gap: 7px; }
 .hud-weight li { display: flex; flex-direction: column; gap: 3px; min-width: 0; padding: 8px 10px; border-radius: 11px; background: color-mix(in srgb, var(--hud-text-muted, #c3c2b7) 8%, transparent); border: 1px solid color-mix(in srgb, var(--hud-text-muted, #c3c2b7) 16%, transparent); }
-.hud-weight .top { display: flex; justify-content: space-between; align-items: baseline; gap: 6px; }
-.hud-weight .top b { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; }
+.hud-weight .top { display: flex; align-items: baseline; gap: 6px; }
+.hud-weight .top b { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12.5px; }
 .hud-weight .kg { flex: none; font-size: 17px; font-weight: 600; }
 .hud-weight .kg small { font-size: 10.5px; font-weight: 400; }
 .hud-weight .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 2px 7px; }
@@ -6724,8 +6724,8 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 .hud-weight em { font-style: normal; font-size: 11px; padding: 0 6px; border-radius: 999px; background: color-mix(in srgb, var(--hud-text-muted, #c3c2b7) 14%, transparent); }
 .hud-weight em.up { color: #e6b36a; }
 .hud-weight em.down { color: #8fc0e0; }
-.hud-weight svg { display: block; width: 100%; height: 24px; }
-.hud-weight svg path { fill: none; stroke: var(--hud-accent, #c31f38); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
+.hud-weight li > svg { display: block; width: 100%; height: 24px; }
+.hud-weight li > svg path { fill: none; stroke: var(--hud-accent, #c31f38); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
 .hud-weight .kcal { display: block; height: 4px; margin-top: 2px; border-radius: 4px; overflow: hidden; background: color-mix(in srgb, var(--hud-text-muted, #c3c2b7) 16%, transparent); }
 .hud-weight .kcal > b { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--hud-accent, #c31f38) 45%, transparent), var(--hud-accent, #c31f38)); }
 .hud-body-stats { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin-bottom: 8px; padding: 6px 12px; border-radius: 11px; background: color-mix(in srgb, var(--hud-text-muted, #c3c2b7) 8%, transparent); border: 1px solid color-mix(in srgb, var(--hud-text-muted, #c3c2b7) 15%, transparent); }

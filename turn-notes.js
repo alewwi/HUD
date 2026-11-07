@@ -20,11 +20,11 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.88.86';
-import { полеВкл } from './deep-fields.js?v=23.88.86';
-import { namesLikelySame } from './names.js?v=23.88.86';
-import { датаИзТекста, дм } from './render/conception.js?v=23.88.86';
-import { праздникиГода } from './render/holidays.js?v=23.88.86';
+import { settings } from './settings.js?v=23.88.87';
+import { полеВкл } from './deep-fields.js?v=23.88.87';
+import { namesLikelySame } from './names.js?v=23.88.87';
+import { датаИзТекста, дм } from './render/conception.js?v=23.88.87';
+import { праздникиГода } from './render/holidays.js?v=23.88.87';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -34,13 +34,13 @@ function контекст() { try { return window.SillyTavern?.getContext?.() ||
 let пример = null;
 export function задатьПримерЗаметок(набор) { пример = набор || null; }
 function хранилище() {
-  if (пример) { for (const к of ['подсказки', 'сдвиги', 'приглашения', 'сроки']) пример[к] ||= []; for (const к of ['детали', 'запущено', 'вес', 'разовые', 'повторы', 'снятыеШрамы']) пример[к] ||= {}; return пример; }
+  if (пример) { for (const к of ['подсказки', 'сдвиги', 'приглашения', 'сроки']) пример[к] ||= []; for (const к of ['детали', 'запущено', 'вес', 'разовые', 'повторы', 'снятыеШрамы', 'снятыеИзБыта']) пример[к] ||= {}; return пример; }
   const ctx = контекст();
   const мета = ctx && (ctx.chatMetadata || ctx.chat_metadata);
   if (!мета) return null;
   const х = (мета[КЛЮЧ] && typeof мета[КЛЮЧ] === 'object') ? мета[КЛЮЧ] : (мета[КЛЮЧ] = {});
   for (const к of ['подсказки', 'сдвиги', 'приглашения', 'сроки']) if (!Array.isArray(х[к])) х[к] = [];
-  for (const к of ['детали', 'запущено', 'вес', 'разовые', 'повторы', 'снятыеШрамы']) if (!х[к] || typeof х[к] !== 'object') х[к] = {};
+  for (const к of ['детали', 'запущено', 'вес', 'разовые', 'повторы', 'снятыеШрамы', 'снятыеИзБыта']) if (!х[к] || typeof х[к] !== 'object') х[к] = {};
   return х;
 }
 function сохранить() {
@@ -307,7 +307,30 @@ function заметкаЗапущенного(х, снимок, чат, цель
 
 const ДНЕЙ_ДО_ОБНОВЛЕНИЯ = 7, ДНЕЙ_ДО_ПОВТОРА = 2, ДНЕЙ_ПАУЗЫ = 14, ЛЮДЕЙ_В_ПРОСЬБЕ = 4;
 const ВЕС_В_ТЕКСТЕ = /"wg"\s*:\s*(\{[^{}]*\})/;
+// Кого убрали из «Быта» руками. Записи остаются: человека можно вернуть.
+const снятИзБыта = (х, имя) => Object.keys(х.снятыеИзБыта).some(к => namesLikelySame(к, имя));
+export function снятыеИзБыта() { const х = хранилище(); return х ? Object.keys(х.снятыеИзБыта) : []; }
+export function убратьИзБыта(имя) {
+  const х = хранилище();
+  const кто = чисто(имя);
+  if (!х || !кто || снятИзБыта(х, кто)) return false;
+  х.снятыеИзБыта[кто] = true;
+  // Просьба на этот ход уже собрана и могла назвать этого человека.
+  delete х.разовые.вес;
+  сохранить();
+  return true;
+}
+export function вернутьВБыт(имя) {
+  const х = хранилище();
+  const ключи = х ? Object.keys(х.снятыеИзБыта).filter(к => namesLikelySame(к, имя)) : [];
+  if (!ключи.length) return false;
+  ключи.forEach(к => delete х.снятыеИзБыта[к]);
+  delete х.разовые.вес;
+  сохранить();
+  return true;
+}
 function записатьВес(х, имя, строка, сцена, индекс) {
+  if (снятИзБыта(х, имя)) return false;
   const s = String(строка ?? '');
   const рост = +(s.match(/(\d{2,3})\s*(?:см|cm)/i) || [])[1] || null;
   const вес = parseFloat(((s.match(/(?<![\d.,])(\d{1,3}(?:[.,]\d{1,2})?)\s*(?:кг|kg)/i) || [])[1] || '').replace(',', '.')) || null;
@@ -370,12 +393,15 @@ export function собратьВес(чат, сцена = null) {
   }
   if (было) сохранить();
 }
-export function весЧата() { const х = хранилище(); return х && вкл('enableWeight') ? { ...х.вес } : {}; }
+export function весЧата() {
+  const х = хранилище();
+  return х && вкл('enableWeight') ? Object.fromEntries(Object.entries(х.вес).filter(([имя]) => !снятИзБыта(х, имя))) : {};
+}
 /** Вес одного человека для карточки. */
 export function весЧеловека(имя) {
   const х = хранилище();
   const ключ = х && Object.keys(х.вес).find(к => namesLikelySame(к, имя));
-  return ключ ? х.вес[ключ] : null;
+  return ключ && !снятИзБыта(х, ключ) ? х.вес[ключ] : null;
 }
 /**
  * История по дням сюжета: последнее число дня. Старые записи хранят и свайпы,
@@ -408,7 +434,7 @@ function заметкаВеса(х, снимок, цель, сцена, имяИ
   let текст = '';
   if (Number.isFinite(сцена)) {
     const молчит = (х.разовые.молчитВес ||= {});
-    const нужны = людиСнимка(снимок, имяИгрока).slice(0, ЛЮДЕЙ_В_ПРОСЬБЕ).filter(({ имя }) => {
+    const нужны = людиСнимка(снимок, имяИгрока).filter(({ имя }) => !снятИзБыта(х, имя)).slice(0, ЛЮДЕЙ_В_ПРОСЬБЕ).filter(({ имя }) => {
       const ключ = Object.keys(х.вес).find(к => namesLikelySame(к, имя));
       const з = ключ ? х.вес[ключ] : null;
       const спрошено = (х.разовые.спрошенВес || {})[имя];

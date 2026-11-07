@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.87 — 2026-11-07
+
+### Added
+- **Remove a person from Daily life by hand.** Each person in weight, sleep and wardrobe now has a trash button. After the "Are you sure?" question, their weight, sleep, wardrobe and wounds leave the tab and the card, the model stops counting them and no longer asks for their weight, and the summary follows the next person in the scene. The records stay: bring the person back at the bottom of Daily life, under Not counted.
+
 ## 23.88.86 — 2026-11-07
 
 ### Fixed

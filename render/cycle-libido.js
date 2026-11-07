@@ -14,9 +14,9 @@
 // снижают. Рядом с картинкой всегда те же значения словами.
 // Отдельная строка под любым из семи видов цикла (settings.cycleLibido).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.88.86';
-import { settings } from '../settings.js?v=23.88.86';
-import { ико } from './view-icons.js?v=23.88.86';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.88.87';
+import { settings } from '../settings.js?v=23.88.87';
+import { ико } from './view-icons.js?v=23.88.87';
 
 const поле = (о, имя) => {
   if (!о || typeof о !== 'object') return '';
