@@ -4094,7 +4094,7 @@
 .hud-os-card .hud-detail-pill.has-face.is-group > .hud-pill-label.is-group { display: inline-flex !important; flex-wrap: wrap; align-items: center; gap: 4px; vertical-align: middle; margin: 0 0 4px; letter-spacing: 0; }
 .hud-os-card .hud-detail-pill.has-face.is-group > .hud-pill-label.is-group::after { content: none; }
 .hud-pill-label.is-group > .hud-pill-who {
-  display: inline-block; max-width: 100%; box-sizing: border-box; padding: 1px 8px; border-radius: 12px; font-size: .92em; line-height: 1.45; white-space: normal;
+  display: inline-block; max-width: 100%; box-sizing: border-box; padding: 1px 8px; border-radius: 12px; font-size: .92em; line-height: 1.45; white-space: normal; overflow-wrap: break-word; word-break: normal;
   border: 1px solid hsl(var(--тон, 0) 55% 52% / .55); background: hsl(var(--тон, 0) 50% 45% / .16);
 }
 .hud-pill-label.is-group > :is(.hud-pill-and, .hud-pill-sep) { font-size: 0; }

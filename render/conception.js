@@ -17,9 +17,9 @@
 // переформулировка давала бы новый бросок — лишний шанс. Поэтому ключ —
 // время близости и партнёр, а первый бросок по этому ключу запоминается.
 
-import { namesLikelySame } from '../names.js?v=23.88.85';
-import { settings } from '../settings.js?v=23.88.85';
-import { полеВкл } from '../deep-fields.js?v=23.88.85';
+import { namesLikelySame } from '../names.js?v=23.88.86';
+import { settings } from '../settings.js?v=23.88.86';
+import { полеВкл } from '../deep-fields.js?v=23.88.86';
 
 const КЛЮЧ = 'tavernosHudConception';
 
@@ -249,8 +249,15 @@ export function скрытыеФактыЗачатия(сценаMs = null, сн
   const имя = (кто) => кто === 'user' ? '{{user}}' : String(кто).replace(/^char:/, '');
   const при = (когда) => когда ? ` (the encounter «${когда}»)` : '';
   const строки = [];
+  const прг = (кто) => {
+    if (!снимок || typeof снимок !== 'object') return '';
+    const имя2 = String(кто).replace(/^char:/, '');
+    const з = кто === 'user' ? снимок.us : (Array.isArray(снимок.cs) ? снимок.cs : []).find(c => c && namesLikelySame(String(c.N || '').trim(), имя2));
+    const текст = String((з && з.Prg) ?? '').trim();
+    return /^(?:empty|none)$/i.test(текст) ? '' : текст;
+  };
   for (const [кто, з] of Object.entries(х.зачатие || {})) {
-    if (!з.проверено) continue;
+    if (!з.проверено || /(?:^|;)\s*wk\s*[:：]/i.test(прг(кто))) continue;
     const зачMs = датаИзТекста(з.когда);
     const срок = зачMs !== null && Number.isFinite(сценаMs) && сценаMs >= зачMs
       ? ` Conceived on ${дм(зачMs)}: on the scene date it is week ${Math.floor(((сценаMs - зачMs) / ДЕНЬ_МС + 14) / 7) + 1} (counted from the last period, as doctors do), due date ${дм(зачMs + 266 * ДЕНЬ_МС)} — use exactly these numbers in Prg (wk, due).` : '';
@@ -326,6 +333,8 @@ export function скрытыеФактыЗачатия(сценаMs = null, сн
     // Кубик времён прошлой беременности после родов ничего не значит: про
     // кормление и возвращение цикла модели говорит «После родов» (Pp).
     const датаКубика = датаИзТекста(когда);
+    // Близость давно позади: тревоге из-за неё взяться неоткуда.
+    if (датаКубика !== null && Number.isFinite(сценаMs) && сценаMs - датаКубика > 60 * ДЕНЬ_МС) continue;
     if (х.роды.some(р => р.кто === кто && (датаКубика === null || (деньРодов(р) ?? 0) >= датаКубика))) continue;
     // Близости до потери: про цикл после неё уже сказано выше.
     const потеря = потеряЧья(кто);
@@ -338,6 +347,8 @@ export function скрытыеФактыЗачатия(сценаMs = null, сн
       const п = плодыОт(кто);
       const зач = (х.зачатие || {})[кто];
       if (!п || !((зач && зач.проверено) || з.вСюжете) || потеряЧья(кто)) continue;
+      // Модель уже пишет число малышей в Prg: «никто не знает» ей только мешает.
+      if (п.тип !== 'one' && /двойн|близнец|близняш|тройн|двум\p{L}* плод|двух плод|трём плод|трех плод|трёх плод|twins|triplets/iu.test(прг(кто))) continue;
       const сколько = { one: 'a single baby', identical: 'identical twins', fraternal: 'fraternal twins', triplets: 'triplets' }[п.тип];
       const пол = п.полы ? п.полы.map(x => x === 'f' ? 'girl' : 'boy').join(' and ') : '';
       if (п.тип === 'one' && !пол) continue;

@@ -572,8 +572,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.85**:
+The latest version is **23.88.86**:
 
+- Adding other chats in the archive is clear again, and the model no longer reads stale hidden facts.
 - Every new feature has a switch in the main settings, and deep settings gained "Model notes" and "On-screen hints".
 - Weight: swipes no longer create a fake gain, and deleting messages rolls the record back.
 - A swipe no longer tells the model what happened in the reply being replaced, and a refusal no longer counts as acceptance.

@@ -6,13 +6,13 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.85';
-import { английский } from '../i18n.js?v=23.88.85';
-import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.85';
-import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.88.85';
-import { ссылкиТрека } from './music.js?v=23.88.85';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей } from './conception.js?v=23.88.85';
-import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.88.85';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.86';
+import { английский } from '../i18n.js?v=23.88.86';
+import { выбраннаяЛетопись, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.86';
+import { analyzeChat, getChatMessages, readCache, writeCache } from '../history-analyzer.js?v=23.88.86';
+import { ссылкиТрека } from './music.js?v=23.88.86';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей } from './conception.js?v=23.88.86';
+import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.88.86';
 
 let окноОткрыто = false;
 
@@ -684,13 +684,17 @@ export function openArchiveDialog() {
     выборЛетописи.innerHTML = '<option value="">ищу чаты…</option>';
     инфоЛетописи.innerHTML = `<i class="hud-arc-spin" aria-hidden="true"></i>${escapeHtml(текст)}`;
   };
+  // Чаты персонажа читаются с диска целиком: на 18 чатах это минуты, поэтому
+  // после выбора список собирается из уже найденного, а не ищется заново.
+  let найденныеЧаты = null;
   const заполнитьСписок = async () => {
-    ищу('ищу другие чаты персонажа и летописи…');
+    if (!найденныеЧаты) ищу('ищу другие чаты персонажа и летописи…');
     const c = ctxЛ();
     const своя = свойФайлЛетописи(c), текущая = выбраннаяЛетопись(c);
     const идЧата = String((typeof c?.getCurrentChatId === 'function' && c.getCurrentChatId()) || '');
     let чатыНеПрочитались = false;
-    const [список, чаты] = await Promise.all([списокЛетописей(), чатыПерсонажа().catch(() => { чатыНеПрочитались = true; return []; })]);
+    const [список, чаты] = await Promise.all([списокЛетописей(), найденныеЧаты || чатыПерсонажа().catch(() => { чатыНеПрочитались = true; return []; })]);
+    if (!чатыНеПрочитались) найденныеЧаты = чаты;
     const поФайлу = new Map(список.map(л => [л.файл, л]));
     const моя = поФайлу.get(своя);
     // «N ход.» словарь по-английски видел как «N turn.» — число ходов собираем сразу на языке.
@@ -717,14 +721,22 @@ export function openArchiveDialog() {
   выборЛетописи.addEventListener('change', async () => {
     const v = выборЛетописи.value;
     выборЛетописи.disabled = true;
+    let итогЧата = '';
     try {
       if (v.startsWith('chat:')) {
-        ищу('читаю выбранный чат…');
+        // Список не трогаем: выбранный чат остаётся на виду, пока он читается.
+        инфоЛетописи.innerHTML = '<i class="hud-arc-spin" aria-hidden="true"></i>читаю выбранный чат…';
         const итог = await летописьИзЧата(v.slice(5), (i, n) => { инфоЛетописи.innerHTML = `<i class="hud-arc-spin" aria-hidden="true"></i>читаю чат: ${i} из ${n} сообщений`; });
         await выбратьЛетопись(итог.файл);
+        // Копия или ветка открытого чата: летопись у них одна, отдельного выбора нет.
+        if (итог.файл === свойФайлЛетописи(ctxЛ())) итогЧата = `это ветка открытого чата: её ходы вошли в свою летопись, новых: ${итог.новых}`;
+        else итогЧата = `чат добавлен, ходов: ${итог.ходов}`;
       } else await выбратьЛетопись(v.startsWith('chron:') ? v.slice(6) : null);
       await заполнитьСписок();
+      if (итогЧата) инфоЛетописи.textContent = итогЧата + ' · ' + инфоЛетописи.textContent;
     } catch (e) {
+      // Список возвращаем: иначе выбрать другой чат было бы не из чего.
+      try { await заполнитьСписок(); } catch (_) { /* покажем саму ошибку */ }
       инфоЛетописи.textContent = 'не получилось: ' + (e && e.message || e);
       console.warn('[TavernOS HUD] летопись из чата', e);
     } finally { выборЛетописи.disabled = false; }

@@ -16,26 +16,26 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.85';
-import { уверены } from './confirm-erase.js?v=23.88.85';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.88.85';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.88.85';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.88.85';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.88.85';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.88.85';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.88.85';
-import { полныйПорядок } from './tabs-order.js?v=23.88.85';
-import { getWorldVotes } from './render/world.js?v=23.88.85';
-import { действиеМира } from './render/world-views.js?v=23.88.85';
-import { действиеМузыки } from './render/music.js?v=23.88.85';
-import { раскрытьПорцию } from './render/long-list.js?v=23.88.85';
-import { прогретьИсторию } from './render/carryover.js?v=23.88.85';
-import { подключитьПалитру } from './color-picker.js?v=23.88.85';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.88.85';
-import { замер } from './utils.js?v=23.88.85';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.88.85';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.88.85';
-import { пометитьЭффекты } from './render/fx.js?v=23.88.85';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.86';
+import { уверены } from './confirm-erase.js?v=23.88.86';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.88.86';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.88.86';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.88.86';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.88.86';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.88.86';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.88.86';
+import { полныйПорядок } from './tabs-order.js?v=23.88.86';
+import { getWorldVotes } from './render/world.js?v=23.88.86';
+import { действиеМира } from './render/world-views.js?v=23.88.86';
+import { действиеМузыки } from './render/music.js?v=23.88.86';
+import { раскрытьПорцию } from './render/long-list.js?v=23.88.86';
+import { прогретьИсторию } from './render/carryover.js?v=23.88.86';
+import { подключитьПалитру } from './color-picker.js?v=23.88.86';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.88.86';
+import { замер } from './utils.js?v=23.88.86';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.88.86';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.88.86';
+import { пометитьЭффекты } from './render/fx.js?v=23.88.86';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -2037,7 +2037,9 @@ function ужатьСпискиСразу() {
     // Вбок — только когда в ряд помещаются хотя бы две карточки (по 160px).
     // В половинной ячейке узкой карточки (240px) лента вбок показывала
     // полторы карточки с текстом, обрезанным посреди слова, — там вниз.
-    if (широкий && с.matches(ВБОК) && (пилюли || п.ширина === 0 || п.ширина >= 340)) {
+    // Длинный текст в узкой ячейке: две пилюли в ряд дали бы столбики шириной в слово.
+    const длинные = пилюли && п.ширина > 0 && п.ширина < 340 && дети.some(д => (д.textContent || '').length > 60);
+    if (широкий && с.matches(ВБОК) && !длинные && (пилюли || п.ширина === 0 || п.ширина >= 340)) {
       if (!с.classList.contains('is-capped-x')) { с.classList.remove('is-capped'); с.style.maxHeight = ''; с.classList.add('is-capped-x'); }
       if (п.ширина) с.classList.toggle('is-x2', пилюли && п.ширина < 340);
       // Три пилюли — ровный ряд во всю ширину: листать нечего.

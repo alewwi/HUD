@@ -4,6 +4,17 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.86 — 2026-11-07
+
+### Fixed
+- **Archive: adding another chat.** The list no longer falls back to "looking for chats" and searches again: the chosen chat stays visible while it is read. A branch or copy of the open chat now says that its turns went into its own chronicle, which used to look like a reset to "own only". If a chat cannot be read, the list comes back.
+- **Stale lines in the model's hidden facts.** The model no longer reads "no signs, nobody knows" about a pregnancy already in the HUD or twins the HUD already writes. An old encounter no longer keeps "not pregnant" alive for years.
+- **Neglect after a time jump.** Someone who was out of the scene or went through a jump no longer shows as "150 days without sleep": the count starts over.
+- Plates with long text in a narrow cell on PC no longer squeeze into word-wide columns.
+- Names in plates with people wrap by word.
+- Weight: calories and activity update when a swipe changes only them.
+- A trust shift no longer stays on the place of a player message when the chat has shifted.
+
 ## 23.88.85 — 2026-11-07
 
 ### Added
