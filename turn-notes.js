@@ -20,11 +20,11 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.88.90';
-import { полеВкл } from './deep-fields.js?v=23.88.90';
-import { namesLikelySame } from './names.js?v=23.88.90';
-import { датаИзТекста, дм } from './render/conception.js?v=23.88.90';
-import { праздникиГода } from './render/holidays.js?v=23.88.90';
+import { settings } from './settings.js?v=23.88.91';
+import { полеВкл } from './deep-fields.js?v=23.88.91';
+import { namesLikelySame } from './names.js?v=23.88.91';
+import { датаИзТекста, дм } from './render/conception.js?v=23.88.91';
+import { праздникиГода } from './render/holidays.js?v=23.88.91';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -55,12 +55,15 @@ const приглашенияВкл = () => вкл('enableInvitations') && пол
 
 // То, что держится много ходов, модель и так видит в HUD. Напоминаем раз в три
 // ответа и сразу, если текст изменился. Свайп того же ответа получает то же.
+// Шрам доверия — реже, раз в восемь: это напоминание, что рана есть, а не
+// просьба показывать её в каждой сцене.
 const РАЗ_В_ОТВЕТОВ = 3;
-function пораНапомнить(х, чат, цель, ключ, текст) {
+const РАЗ_ШРАМА = 8;
+function пораНапомнить(х, чат, цель, ключ, текст, раз = РАЗ_В_ОТВЕТОВ) {
   const был = х.повторы[ключ];
   if (был && был.текст === текст && цель > был.цель) {
     const ответов = чат.slice(был.цель, цель).filter(м => м && !м.is_user).length;
-    if (ответов < РАЗ_В_ОТВЕТОВ) return false;
+    if (ответов < раз) return false;
   }
   х.повторы[ключ] = { цель, текст };
   return true;
@@ -203,8 +206,8 @@ function заметкаОтношений(х, снимок, чат, цель, и
   // Свайп переписывает ответ цель: то, что случилось в нём, ещё не случилось.
   const сдвиги = сдвигиЧата().filter(е => е.индекс < цель);
   for (const з of нота('scar') ? живыеШрамы(уровень, цель).filter(е => найти(е.кто)).slice(-3) : []) {
-    const текст = `${з.кто} still carries a wound from ${з.кому}${з.почему ? `: ${з.почему}` : ''} (trust fell from ${з.было} to ${з.стало}). Kind words do not erase it: let it show in small flinches and guarded moments.`;
-    if (пораНапомнить(х, чат, цель, `шрам|${з.кто}|${з.кому}`, текст)) строки.push(текст);
+    const текст = `Reminder: ${з.кто} still carries a wound from ${з.кому}${з.почему ? `: ${з.почему}` : ''} (trust fell from ${з.было} to ${з.стало}). Kind words do not erase it; let it show now and then in small flinches and guarded moments.`;
+    if (пораНапомнить(х, чат, цель, `шрам|${з.кто}|${з.кому}`, текст, РАЗ_ШРАМА)) строки.push(текст);
   }
   for (const з of нота('after') ? сдвиги.filter(е => Math.abs(е.d) >= ПОРОГ_ИНЕРЦИИ && длина - е.индекс <= ХОДОВ_ИНЕРЦИИ && найти(е.кто)).slice(-2) : []) {
     const текст = `${з.кто} is still under the impression of what happened with ${з.кому}${з.почему ? ` (${з.почему})` : ''}: it colours the next few moments.`;

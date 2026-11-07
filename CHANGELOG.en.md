@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.91 — 2026-11-08
+
+### Changed
+- **Trust scars are rarer, as a reminder.** The note "she still carries a wound from him" goes to the model once every eight replies instead of every three, and is worded as a reminder: the wound is there and may show now and then, not in every scene. A new or changed scar still arrives right away.
+
 ## 23.88.90 — 2026-11-08
 
 ### Added
