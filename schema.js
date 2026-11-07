@@ -7,11 +7,11 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.88.91';
-import { mapKey } from './utils.js?v=23.88.91';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.88.91';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.88.91';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.88.91';
+import { settings } from './settings.js?v=23.88.92';
+import { mapKey } from './utils.js?v=23.88.92';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.88.92';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.88.92';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.88.92';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -135,6 +135,17 @@ function сосвоими(сырой, готовый) {
   const свои = сырой && typeof сырой === 'object' ? своиЗначения(сырой.Cst) : {};
   if (Object.keys(свои).length) готовый.Cst = свои;
   return готовый;
+}
+
+// «(!…)» — метка раны доверия: модель пишет её в «Доверии» («40 (!ударила при
+// всех)»), и там она становится шрамом. В «Отношения» модель иногда
+// переносит её тем же видом — «лидер (!пять месяцев скрывал…)», — и на экране
+// оставалось «(!…» как есть. Рана живёт в «Доверии», в отношениях её нет.
+const МЕТКА_РАНЫ = /\s*\(\s*!\s*[^()]{1,300}\)/g;
+export const безМеткиРаныВТексте = (v) => typeof v === 'string' ? v.replace(МЕТКА_РАНЫ, '').replace(/\s+([;,.])/g, '$1') : v;
+function безМеткиРаны(c) {
+  if (c && typeof c === 'object' && typeof c['Отношения'] === 'string') c['Отношения'] = безМеткиРаныВТексте(c['Отношения']);
+  return c;
 }
 
 export function normalizeJSONData(parsed) {
@@ -443,7 +454,7 @@ export function normalizeJSONData(parsed) {
   };
   return {
     // Фаза близости приходит кодом (fp, cx…); шкала фаз узнаёт полные слова.
-    scene: mapKeys(parsed.scene), characters: chars.map(c => сосвоими(c, mapKeys(c))).map(c => { if (c['Фаза близости']) c['Фаза близости'] = фазаБлизости(c['Фаза близости']); return c; }), user: сосвоими(parsed.user, mapKeys(parsed.user)),
+    scene: mapKeys(parsed.scene), characters: chars.map(c => сосвоими(c, mapKeys(c))).map(c => { if (c['Фаза близости']) c['Фаза близости'] = фазаБлизости(c['Фаза близости']); return безМеткиРаны(c); }), user: безМеткиРаны(сосвоими(parsed.user, mapKeys(parsed.user))),
     // Свои статы всей истории (custom-stats.js): корневой "cst".
     custom: своиЗначения(parsed.cst || parsed.custom), memory: memoryParsed, chatsMap: chatsMap, phone: phoneParsed, intercepts: interceptsParsed, satchel: satchelParsed, letters: lettersParsed, overheard: overheardParsed, diary: diaryParsed, bodyDiary: bodyDiaryParsed, dreams: dreamsParsed, companions: companionsParsed, combat: боевой(parsed.combat),
     // Малыши (bb): та же карточка, что у персонажа, только своё поле «Нужды».

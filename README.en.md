@@ -594,8 +594,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.91**:
+The latest version is **23.88.92**:
 
+- Conception risk is counted by the day of intimacy, not by today, and shown in two lines: today and on the day of intimacy. "(!…)" no longer shows in Relationships.
 - Trust scars are reminded to the model less often — once every eight replies.
 - Archive: a pregnancy shows how it went, symptoms, check-ups, the threat of loss and complications; the dashboard sees hidden turns, so NSFW scene frequency is no longer empty.
 - Dreams split more accurately into nightmares and ordinary ones; companions and archive checkboxes follow the theme colours.

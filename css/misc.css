@@ -5128,6 +5128,12 @@
 .hud-conception-bar > i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, color-mix(in srgb, var(--phase, var(--hud-accent)) 55%, transparent), var(--phase, var(--hud-accent))); }
 .hud-conception.is-low  .hud-conception-bar > i { opacity: .55; }
 .hud-conception small { display: block; font-size: .78em; opacity: .75; }
+/* Два риска (render/intimacy.js, блокРиска): сегодня и в день близости —
+   разделены пунктиром; дата близости — мелко рядом с заголовком. */
+.hud-conception-sec + .hud-conception-sec { margin-top: 9px; padding-top: 8px; border-top: 1px dashed color-mix(in srgb, var(--phase, var(--hud-accent)) 30%, transparent); }
+.hud-conception-head .hud-conception-when { font-style: normal; font-size: .9em; opacity: .7; letter-spacing: 0; white-space: nowrap; }
+.hud-conception .hud-conception-old { margin-top: 4px; font-style: italic; }
+.hud-conception-title { font-size: .72em; letter-spacing: .08em; text-transform: uppercase; opacity: .7; margin-bottom: 4px; }
 /* «почему N%» (render/intimacy.js, почемуРиск): маленькая кнопка, под ней
    плавно раскрывается разбор по шагам (details.hud-smooth, events.js). Цвет —
    фаза цикла или акцент темы. */

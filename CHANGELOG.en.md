@@ -4,6 +4,15 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.92 — 2026-11-08
+
+### Fixed
+- **Conception risk is counted by the day of intimacy, not by today.** Before, the risk and the dice used today's cycle day: a month after intimacy the block showed today's risk, and if the model rewrote the "Last sex" record, a new roll was made for it and the test changed. Now the risk of an act uses the cycle day on the day it happened. A roll is made only for a recent act, at most a week old. An old act seen for the first time gets no roll of its own, and a roll made earlier stays valid.
+- **The "(!…)" mark no longer shows in Relationships.** It is the trust-wound mark: the model sometimes carried it over from Trust into Relationships, where it showed as is, e.g. "leader (!hid for five months…)". Now it is removed, and ordinary brackets stay. The model is told the mark lives only in Trust.
+
+### Changed
+- **The cycle block shows two conception risks.** "Today" is the risk if intimacy happens today, without protection. "On the day of intimacy", with its date, is the risk of that act, and the test belongs to it. If the act was today, there is one line. If the last act is older than a week and has no roll, only "Today" stays, with a note that its risk is not counted.
+
 ## 23.88.91 — 2026-11-08
 
 ### Changed

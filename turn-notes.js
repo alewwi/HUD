@@ -20,11 +20,11 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.88.91';
-import { полеВкл } from './deep-fields.js?v=23.88.91';
-import { namesLikelySame } from './names.js?v=23.88.91';
-import { датаИзТекста, дм } from './render/conception.js?v=23.88.91';
-import { праздникиГода } from './render/holidays.js?v=23.88.91';
+import { settings } from './settings.js?v=23.88.92';
+import { полеВкл } from './deep-fields.js?v=23.88.92';
+import { namesLikelySame } from './names.js?v=23.88.92';
+import { датаИзТекста, дм } from './render/conception.js?v=23.88.92';
+import { праздникиГода } from './render/holidays.js?v=23.88.92';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;

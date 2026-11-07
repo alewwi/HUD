@@ -10,14 +10,14 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.88.91';
-import { английский, т } from './i18n.js?v=23.88.91';
-import { промптНаАнглийском } from './prompt-en.js?v=23.88.91';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.91';
-import { parseSceneDate } from './history-analyzer.js?v=23.88.91';
-import { возрастТочно } from './render/babies.js?v=23.88.91';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.91';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.91';
+import { settings } from './settings.js?v=23.88.92';
+import { английский, т } from './i18n.js?v=23.88.92';
+import { промптНаАнглийском } from './prompt-en.js?v=23.88.92';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.92';
+import { parseSceneDate } from './history-analyzer.js?v=23.88.92';
+import { возрастТочно } from './render/babies.js?v=23.88.92';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.92';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.92';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -190,7 +190,7 @@ ${состояниеТела ? `   "Bs": "[body state, 0-100 each followed by a 
    "I": "[inventory: everything they carry or wear that matters, each as '<item>: <its condition>'; separate by ;]",
    "G": "[goals, exactly 3 parts: 'nw: what they want right now; sn: what they intend to do soon; lt: their long-term aim']",
    "S": "[schedule: plans and appointments ahead, each as '<time> - <event>' ('14:30 - встреча с юристом', or a part of the day instead of the time). Only what someone clearly said, agreed or promised: never a passing mood or your own plot ideas. Separate by ;]",
-   "Rl": "[relationships with EVERY other named person who matters now: '<name>: <attitude>', separated by ; — never commas, they glue people into one relation. Each attitude starts with who that person IS to this character in 1-3 words, then a comma: kinship from THIS character's side (муж, сестра, отчим), or a role (возлюбленная, начальник, соперник, незнакомка, спасительница, одержимость) — 'Ричард: муж, любит, но боится'; 'Софи: незнакомка, спасла его брата и пугает своей прямотой'. The role is the tie BETWEEN the two, not a bare occupation: in one class or group — однокурсница, одноклассник, коллега; teacher and student — her side 'мой преподаватель', 'научный руководитель', his side 'его студентка', 'ученица'; never just 'студентка'. An obsession is a role too: 'Софи: одержимость, не может перестать следить за ней'. Never open with a description of the scene ('девушка на диване'). Bidirectional: if A lists B, B is in cs with A in their Rl; everyone named in any Rl is in cs, except {{char}} or {{user}} absent from the scene. Never 'empty' while other named people exist]",
+   "Rl": "[relationships with EVERY other named person who matters now: '<name>: <attitude>', separated by ; — never commas, they glue people into one relation. The '(!…)' wound mark belongs only to Tr, never here. Each attitude starts with who that person IS to this character in 1-3 words, then a comma: kinship from THIS character's side (муж, сестра, отчим), or a role (возлюбленная, начальник, соперник, незнакомка, спасительница, одержимость) — 'Ричард: муж, любит, но боится'; 'Софи: незнакомка, спасла его брата и пугает своей прямотой'. The role is the tie BETWEEN the two, not a bare occupation: in one class or group — однокурсница, одноклассник, коллега; teacher and student — her side 'мой преподаватель', 'научный руководитель', his side 'его студентка', 'ученица'; never just 'студентка'. An obsession is a role too: 'Софи: одержимость, не может перестать следить за ней'. Never open with a description of the scene ('девушка на диване'). Bidirectional: if A lists B, B is in cs with A in their Rl; everyone named in any Rl is in cs, except {{char}} or {{user}} absent from the scene. Never 'empty' while other named people exist]",
    "Mm": "[memories: moments this character shares with the player or NPCs, each a short episode; separate by ;]",
    "Fl": "[flags: open plot threads, promises, debts, threats and consequences waiting to land; separate by ;]",
    "Jl": "[jealousy, ONLY while genuinely jealous right now: of whom, over whom, how it shows. Otherwise omit or 'empty' — an always-filled field turns the highlight into wallpaper]",
