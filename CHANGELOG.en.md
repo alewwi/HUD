@@ -8,7 +8,7 @@ All notable changes to TavernOS HUD, newest first, starting from version 23.88.7
 
 ### Fixed
 - **Conception risk is counted by the day of intimacy, not by today.** Before, the risk and the dice used today's cycle day: a month after intimacy the block showed today's risk, and if the model rewrote the "Last sex" record, a new roll was made for it and the test changed. Now the risk of an act uses the cycle day on the day it happened. A roll is made only for a recent act, at most a week old. An old act seen for the first time gets no roll of its own, and a roll made earlier stays valid.
-- **The "(!…)" mark no longer shows in Relationships.** It is the trust-wound mark: the model sometimes carried it over from Trust into Relationships, where it showed as is, e.g. "leader (!hid for five months…)". Now it is removed, and ordinary brackets stay. The model is told the mark lives only in Trust.
+- **The "(!…)" mark no longer shows in Relationships.** It is the trust-wound mark: the model sometimes carried it over from Trust into Relationships, where it showed as is, e.g. "childhood friend (!lied about the main thing)". Now it is removed, and ordinary brackets stay. The model is told the mark lives only in Trust.
 
 ### Changed
 - **The cycle block shows two conception risks.** "Today" is the risk if intimacy happens today, without protection. "On the day of intimacy", with its date, is the risk of that act, and the test belongs to it. If the act was today, there is one line. If the last act is older than a week and has no roll, only "Today" stays, with a note that its risk is not counted.
@@ -55,7 +55,7 @@ All notable changes to TavernOS HUD, newest first, starting from version 23.88.7
   - **"nc" for what did not change.** Appearance, clothing, kinks, fetishes, no-gos and last sex are written as a short "nc" (no change) when they are word for word the same as in the last HUD.
   - **World once per story day.** News, rumors, forecast, rates, events, city, ads and the horoscope are written in the first HUD of a new day or when something in them changes. Comments are written every turn.
   - **Memory as updates only.** In facts, guns, secrets and the day log the model writes only what is new or changed. An item is removed with a minus in front of it, and a fired gun goes away after one turn, as before.
-  - Right after the reply the HUD expands all this into a full HUD and saves it in the message, so the card, the archive and the snapshot for the next turn see everything in full. On the Tristan chat these fields take about 14,000 characters of each reply, most of it repeated.
+  - Right after the reply the HUD expands all this into a full HUD and saves it in the message, so the card, the archive and the snapshot for the next turn see everything in full. On a long test chat these fields took about 14,000 characters of each reply, most of it repeated.
 - **Provider cache for Chat Completion** (switch in Generation, off). The constant part of the instruction — task, rules and schema — goes to the start of the request, so providers with a cache (DeepSeek, OpenAI, Gemini, OpenRouter, Claude with caching on) read it more cheaply: that is 9–12 thousand tokens every turn. The last HUD snapshot and the turn notes stay at the end. Experimental: if the model starts writing the HUD worse, turn it off.
 
 ### Changed
@@ -162,7 +162,7 @@ A big check: 28 themes, both eras, both languages, all block views, PC and phone
 
 ### Fixed
 - **A finger scrolls through the whole turn.** At the end of a list the swipe carries on into the tab body and then the chat. On phones the feed no longer stops at the tab body.
-- **The Unconscious plate no longer shows for someone else's state.** Thoughts and subtext no longer count: "drunk Tristan passed out" in Ares's thoughts doesn't give Ares the plate. Another person's name or "our lord" next to the word doesn't count in other fields either.
+- **The Unconscious plate no longer shows for someone else's state.** Thoughts and subtext no longer count: "he passed out" in another character's thoughts doesn't give that character the plate. Another person's name or "our lord" next to the word doesn't count in other fields either.
 - The plate now also understands the Russian slang «отрубился» and «в отрубе».
 
 ## 23.88.80 — 2026-11-06
