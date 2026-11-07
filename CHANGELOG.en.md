@@ -32,12 +32,10 @@ All notable changes to TavernOS HUD, newest first, starting from version 23.88.7
 
 ## 23.88.89 — 2026-11-07
 
-HUD archive. Part of these changes already went out in 23.88.88 without notes: here is all of it together.
-
 ### Fixed
 - **Duplicate secrets and guns.** The model rewrites a secret in its own words every turn, and the archive merged only identical text: one secret about the cat turned into a dozen cards. Now similar wordings gather into one record. Rare words are compared, while character names that appear almost everywhere weigh almost nothing. Two secrets of the same turn are never merged. On the test chat secrets went from 94 to 25, guns from 337 to 201.
 - The same place in a row no longer repeats in the Timeline when the model rewrote only the tail of the address ("three metres" and "three and a half metres").
-- A name with the card prefix ("THE REGENTS Tristan Kingsley") and without it is now one person in secrets, relationships and statistics.
+- A name with the card prefix and without it is now one person in secrets, relationships and statistics.
 - A cached report from the old format is recalculated by itself.
 
 ### Added
