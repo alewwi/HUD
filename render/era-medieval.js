@@ -13,9 +13,9 @@
 //
 // Текст модели в новую разметку идёт только через escapeHtml.
 
-import { escapeHtml } from '../utils.js?v=23.88.88';
-import { settings } from '../settings.js?v=23.88.88';
-import { английский } from '../i18n.js?v=23.88.88';
+import { escapeHtml } from '../utils.js?v=23.88.89';
+import { settings } from '../settings.js?v=23.88.89';
+import { английский } from '../i18n.js?v=23.88.89';
 
 const включено = () => settings.era === 'medieval';
 let счёт = 0;

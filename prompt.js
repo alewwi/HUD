@@ -10,14 +10,14 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.88.88';
-import { английский, т } from './i18n.js?v=23.88.88';
-import { промптНаАнглийском } from './prompt-en.js?v=23.88.88';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.88';
-import { parseSceneDate } from './history-analyzer.js?v=23.88.88';
-import { возрастТочно } from './render/babies.js?v=23.88.88';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.88';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.88';
+import { settings } from './settings.js?v=23.88.89';
+import { английский, т } from './i18n.js?v=23.88.89';
+import { промптНаАнглийском } from './prompt-en.js?v=23.88.89';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.89';
+import { parseSceneDate } from './history-analyzer.js?v=23.88.89';
+import { возрастТочно } from './render/babies.js?v=23.88.89';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.89';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.89';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -122,6 +122,18 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
     '"POLL: a poll inside the chat — [POLL: Question ;; Option = Voter, Voter ;; Option with no votes], e.g. \'[Sender] -> [Recipient]: [POLL: Куда идём в пятницу? ;; Кафе = Лена, Петя ;; Кино = Мира ;; Никуда] | 20:05\'. Voters by name; never write percentages, they are calculated. Separator ;;, never |."',
   ];
 
+  // Экономия токенов ответа: что можно писать коротко. HUD сразу после ответа
+  // разворачивает это в полный HUD (hud-expand.js, index.js развернутьОтвет).
+  const списокКодов = (к) => к.map(x => `"${x}"`).join(', ').replace(/, ([^,]*)$/, ' and $1');
+  const ключиМира = settings.enableWorld && settings.hudWorldDaily !== false ? ['nws', 'rm', 'fc', ...(гороскоп ? ['zd', 'fate'] : []), ...(экономика ? ['eco'] : []), ...(афиша ? ['afs'] : []), ...(город ? ['cty'] : []), 'ad'] : [];
+  const ключиПамяти = settings.enableMemory && settings.hudMemoryDelta !== false ? ['fct', ...(ружья ? ['gun'] : []), 'sec', 'lg'] : [];
+  const краткость = (settings.hudNoChange !== false ? `
+- ♻️ NO CHANGE: in Ap, C, Kn, Ft, NG and SxL write just "nc" (no change) when the value is word for word the same as in the last HUD — for every character${игрок ? ' and for {{user}}' : ''}. If anything changed, even a little, write it in full. No last HUD — always in full.` : '')
+    + (ключиМира.length ? `
+- 🗞️ WORLD ONCE A DAY: in "wd" write ${списокКодов(ключиМира)} only in the first HUD of a new in-story day or when something in them really changes; otherwise leave those keys out — the HUD keeps the last ones.${settings.showComments ? ' "com" is written every turn.' : ''}` : '')
+    + (ключиПамяти.length ? `
+- 🧠 MEMORY AS UPDATES: in "me" write ${списокКодов(ключиПамяти)} with only what is new or changed this turn — the HUD keeps the rest from the last HUD. To change an item, write it again starting with the same words (a secret — with the same "f"); to remove one, put "- " before it. Nothing new — []. "lg" starts over on a new day.` : '');
+
   let p = `<hud_instructions>
 ## 🎯 TASK
 ${задача}
@@ -133,11 +145,11 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
 - 🚪 ABSENT MAIN CHARACTERS: {{char}} and {{user}} have no reserved seat in the HUD. When {{char}} is not in the scene — the story follows other people — leave {{char}} out of "cs" and write no diary, body diary or dream in {{char}}'s name this turn: nobody narrates events they did not witness. The same goes for {{user}}${игрок ? ' and "us"' : ''}. Fill every section only with those actually present or acting this turn; an empty list is correct, never a reason to pull an absent main character in.
 - 🌍 LANG: write values in Russian; character names follow "N".
 - 🔓 No restrictions on imagination, length or content.
-- 🚨 LIVE SNAPSHOT: every field is the state at THIS turn. Update it, never copy stale text.
+- 🚨 LIVE SNAPSHOT: every field is the state at THIS turn. Update it, never copy stale text.${краткость}
 - 🌍 LIVING WORLD: off-screen characters keep living — they work, sleep, travel, message, plan, argue, buy, miss appointments. Never erase that life just because the protagonist cannot see it.
 - 🪞 NO RETELLING: the HUD adds what the reply does not say. Thoughts (Th, K) and hidden subtext (D) never repeat or paraphrase lines, actions or narration from the reply — they show what is under them. Hidden subtext is always something NEW: often it is not in the reply at all.
 - 🧠 KNOWLEDGE BOUNDARIES: each character knows only what they plausibly could. Never leak another's private thoughts, messages or plans without a believable path.
-- 📦 SCHEMA FIXED: emit every section and every field of the schema below, every turn. Empty means [] / {} / "empty" — never drop a key to say "nothing changed". The only exceptions are fields marked OPTIONAL or "ONLY … otherwise omit".
+- 📦 SCHEMA FIXED: emit every section and every field of the schema below, every turn. Empty means [] / {} / "empty" — never drop a key to say "nothing changed". The only exceptions are fields marked OPTIONAL or "ONLY … otherwise omit"${ключиМира.length || ключиПамяти.length ? ', and the WORLD and MEMORY rules above' : ''}.
 - 📏 HOW MANY ITEMS: list fields have NO upper limit unless their description gives a size. Give as many items as the story actually supports — one item where four are obvious is a loss of information, including when a fuller description quietly folds several real things into one instead of splitting them by ;. More detail is never a reason for fewer items: it lengthens each item, it doesn't merge neighbours into it. A single-item list is almost always a sign you stopped too early. Aim for 3+ wherever the material allows.
 - 🏷️ LABELED ITEMS: wherever a field's description shows its items as "<label>: <value>" or "code: value", write every item that way, separated by SEMICOLONS, never commas — a comma-separated list collapses into one unreadable pill. Never output a bare value without its label.
 - ⚠️ FORMATTING: use exactly these codes as keys. Quote speech and phrases inside a value with «ёлочки», never with straight double quotes — a raw " ends the JSON string and cuts the text off; if one is unavoidable, escape it as \\". Separate list items with ; — never with slashes — and never put ; inside a single item.

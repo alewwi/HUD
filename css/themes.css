@@ -1171,6 +1171,9 @@
 /* Высота — по видимой части экрана (dvh): 92vh на телефоне считал и место
    под панелью браузера, и низ окна с «Закрыть» уходил за край. */
 .hud-arc-modal { width: min(860px, 100%); max-height: 92vh; max-height: calc(100dvh - 32px); }
+/* Под окном архива — чат: при прозрачном фоне темы его строки просвечивали
+   сквозь отчёт. Размываем и затемняем сильнее, чем у малых окон. */
+.hud-arc-overlay { background: rgba(6, 6, 10, .74); backdrop-filter: blur(12px) saturate(.8); -webkit-backdrop-filter: blur(12px) saturate(.8); }
 .hud-arc-head { display: flex; align-items: center; gap: 8px; }
 .hud-arc-head > span { flex: 1; min-width: 0; }
 .hud-arc-x {
@@ -1249,7 +1252,7 @@
 .hud-arc-tabs button.active {
   background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 24%, transparent);
   border-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 55%, transparent);
-  color: var(--hud-accent-text, var(--hud-text, inherit)); font-weight: 700;
+  color: var(--hud-text, inherit); font-weight: 700;
 }
 .hud-arc-tabs button.active .hud-arc-ico { opacity: 1; }
 .hud-arc-search {
@@ -1473,6 +1476,12 @@
 
 @media (max-width: 600px) {
   :is(.hud-arc-secret, .hud-arc-gun, .hud-arc-preg) > :not(.hud-arc-card-head) { margin-left: 0; }
+  /* Ярлык уровня — под текстом: рядом он сжимал секрет в столбик. */
+  .hud-arc-card-head { flex-wrap: wrap; row-gap: 6px; }
+  .hud-arc-card-head > b { flex: 1 1 calc(100% - 40px); }
+  .hud-arc-card-head > .hud-arc-tag { order: 3; margin-left: 36px; }
+  /* Шапка и низ окна прилипают к краям: под ними — размытый отчёт, а не текст насквозь. */
+  .hud-arc-modal > .hud-arc-head, .hud-arc-modal > .hud-modal-foot { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
   .hud-arc-card { padding: 11px 12px; }
   .hud-arc-steps { padding-left: 22px; }
   .hud-arc-steps::before { left: 11px; }
@@ -1496,6 +1505,12 @@
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) {
   :is(.hud-arc-secret, .hud-arc-gun, .hud-arc-preg) > :not(.hud-arc-card-head) { margin-left: 0; }
+  /* Ярлык уровня — под текстом: рядом он сжимал секрет в столбик. */
+  .hud-arc-card-head { flex-wrap: wrap; row-gap: 6px; }
+  .hud-arc-card-head > b { flex: 1 1 calc(100% - 40px); }
+  .hud-arc-card-head > .hud-arc-tag { order: 3; margin-left: 36px; }
+  /* Шапка и низ окна прилипают к краям: под ними — размытый отчёт, а не текст насквозь. */
+  .hud-arc-modal > .hud-arc-head, .hud-arc-modal > .hud-modal-foot { backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); }
   .hud-arc-card { padding: 11px 12px; }
   .hud-arc-steps { padding-left: 22px; }
   .hud-arc-steps::before { left: 11px; }

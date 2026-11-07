@@ -15,9 +15,9 @@
 //    меняются: SVG вписан в 1em и встаёт туда же, где стоял символ;
 //  · значок декоративный (aria-hidden), смысл несёт текст рядом.
 
-import { settings } from '../settings.js?v=23.88.88';
-import { ИКОНКИ } from './view-icons.js?v=23.88.88';
-import { ЕЩЁ, ЕЩЁ_ЭМОДЗИ } from './icon-paths.js?v=23.88.88';
+import { settings } from '../settings.js?v=23.88.89';
+import { ИКОНКИ } from './view-icons.js?v=23.88.89';
+import { ЕЩЁ, ЕЩЁ_ЭМОДЗИ } from './icon-paths.js?v=23.88.89';
 
 // Рисунки, которых не было в view-icons.js. Квадрат 24×24, обводка.
 const ДОП = {

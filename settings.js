@@ -333,6 +333,13 @@ export const defaultSettings = {
   hudPromptSeparate: true,
   // Opt-in for string prompts: fixed prefix, untouched HUD history.
   hudCacheStable: false,
+  // Экономия токенов ответа (prompt.js + hud-expand.js): «nc» вместо постоянных
+  // полей и одежды, мир раз в сюжетный день, память обновлениями.
+  hudNoChange: true,
+  hudWorldDaily: true,
+  hudMemoryDelta: true,
+  // Chat Completion: постоянная схема HUD — в начало запроса, чтобы провайдер её кэшировал.
+  hudPromptCache: false,
   // Снимок последнего HUD в конце инструкции: модель обновляет его, а не
   // собирает мир заново. Считается одним из развёрнутых HUD (hudsToKeep).
   hudSnapshot: true,

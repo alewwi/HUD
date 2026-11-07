@@ -293,12 +293,14 @@ Two sections are not about reply fields:
 
 A summary of the whole chat history, via the **🗄 HUD archive** button in the settings. Choose a range (the whole chat, the last 50 or 200 messages) and press "Analyze". Tabs:
 
-- **Secrets** — every secret across the history: who knows and who doesn't, when it appeared and when it was last mentioned.
-- **Guns** — Chekhov's guns: which threads are still hanging, which fired and when.
+- **Secrets** — every secret as of the latest moment: the latest wording, the status, who knows and who doesn't. Below, "Who learned it and when" expands: date and time, the name, how they learned, status changes and the first wording. If the model rewrote a secret in its own words, it is still one card. It also shows when it appeared and when it was last mentioned.
+- **Guns** — Chekhov's guns: which threads are still hanging, which fired and when; the thread history is under the card.
 - **Relationships** — how pairs changed: shifts in attitude and trust by turn.
 - **Trust** — on the same tab: a pair's chart, the reasons for shifts, and scars.
 - **Timeline** — scenes by story day: where, how many turns, how much time passed.
-- **Pregnancies** — all births, miscarriages and abortions of the chat: the term, the father and who knows.
+- **Pregnancies** — every pregnancy of the chat by turns: from which week to which, dates, the father, who knows, how it goes, the expected birth and the outcome (birth, miscarriage, abortion).
+
+Every turn number shows the scene date and time of that turn. Tabs show the number of records.
 - **Soundtrack** — music chapters by day (if scene music is on).
 - **Statistics** and **Dashboard** — how many messages and days, who talks more, the model's reply length, repetition, dull zones, scene rhythm, dialogue vs description, who mentions whom. Dashboard widgets are picked with checkboxes.
 
@@ -592,8 +594,10 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.88**:
+The latest version is **23.88.89**:
 
+- The model writes a shorter HUD: "nc" for what did not change, the world once a day, memory as updates; the HUD expands it into a full one itself. An experimental provider cache for Chat Completion.
+- Archive: no duplicate secrets and guns, a "who learned it and when" history for secrets, date and time at turns, all pregnancies, a new look.
 - In English mode the model rewrites in English the Russian values left over from the start of a chat.
 - In the archive the chosen chat no longer drops when it closes, and a chat that grew is read again before the analysis.
 - Pregnancy losses no longer appear in the phone calendar.

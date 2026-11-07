@@ -4,6 +4,30 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.89 — 2026-11-07
+
+HUD archive. Part of these changes already went out in 23.88.88 without notes: here is all of it together.
+
+### Fixed
+- **Duplicate secrets and guns.** The model rewrites a secret in its own words every turn, and the archive merged only identical text: one secret about the cat turned into a dozen cards. Now similar wordings gather into one record. Rare words are compared, while character names that appear almost everywhere weigh almost nothing. Two secrets of the same turn are never merged. On the test chat secrets went from 94 to 25, guns from 337 to 201.
+- The same place in a row no longer repeats in the Timeline when the model rewrote only the tail of the address ("three metres" and "three and a half metres").
+- A name with the card prefix ("THE REGENTS Tristan Kingsley") and without it is now one person in secrets, relationships and statistics.
+- A cached report from the old format is recalculated by itself.
+
+### Added
+- **A secret as of the latest moment, and its history.** On top: the latest wording, the status and who knows. Below, "Who learned it and when" expands: date and time, the name, how they learned, status changes and the first wording. Guns work the same way: the state on top, "Thread history" below.
+- **Date and time next to turns.** Every turn number in the archive now shows the scene date and time of that turn.
+- **All pregnancies.** The tab shows not only outcomes but every pregnancy by turns: from which week to which, story dates, the father, who knows, how it goes, the expected birth. The outcome (birth, miscarriage, abortion) comes from the mark. A pregnancy that left the HUD long ago without an outcome reads "no news". The chronicle now keeps the pregnancy field too, so this works in cleaned chats.
+- **Fewer reply tokens: the model writes a shorter HUD.** Three new switches in Generation, all on:
+  - **"nc" for what did not change.** Appearance, clothing, kinks, fetishes, no-gos and last sex are written as a short "nc" (no change) when they are word for word the same as in the last HUD.
+  - **World once per story day.** News, rumors, forecast, rates, events, city, ads and the horoscope are written in the first HUD of a new day or when something in them changes. Comments are written every turn.
+  - **Memory as updates only.** In facts, guns, secrets and the day log the model writes only what is new or changed. An item is removed with a minus in front of it, and a fired gun goes away after one turn, as before.
+  - Right after the reply the HUD expands all this into a full HUD and saves it in the message, so the card, the archive and the snapshot for the next turn see everything in full. On the Tristan chat these fields take about 14,000 characters of each reply, most of it repeated.
+- **Provider cache for Chat Completion** (switch in Generation, off). The constant part of the instruction — task, rules and schema — goes to the start of the request, so providers with a cache (DeepSeek, OpenAI, Gemini, OpenRouter, Claude with caching on) read it more cheaply: that is 9–12 thousand tokens every turn. The last HUD snapshot and the turn notes stay at the end. Experimental: if the model starts writing the HUD worse, turn it off.
+
+### Changed
+- **The archive looks better.** Tabs are pills with icons and record counts. Cards have icons instead of emoji and a coloured stripe by the secret level or the state. The status is a coloured badge. In the Timeline the date is a day header with places under it and their time. The chat under the archive window is blurred and no longer shows through the report.
+
 ## 23.88.88 — 2026-11-07
 
 ### Fixed

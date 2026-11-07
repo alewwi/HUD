@@ -6,15 +6,15 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.88';
-import { английский } from '../i18n.js?v=23.88.88';
-import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.88';
-import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.88.88';
-import { ссылкиТрека } from './music.js?v=23.88.88';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей } from './conception.js?v=23.88.88';
-import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.88.88';
-import { ико } from './view-icons.js?v=23.88.88';
-import { namesLikelySame } from '../names.js?v=23.88.88';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.88.89';
+import { английский } from '../i18n.js?v=23.88.89';
+import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.88.89';
+import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.88.89';
+import { ссылкиТрека } from './music.js?v=23.88.89';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей } from './conception.js?v=23.88.89';
+import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.88.89';
+import { ико } from './view-icons.js?v=23.88.89';
+import { namesLikelySame } from '../names.js?v=23.88.89';
 
 let окноОткрыто = false;
 // Дата и время ходов открытого отчёта (history-analyzer.js → moments).
@@ -70,7 +70,8 @@ const ЯРЛЫКИ_УРОВНЯ = { low: 'низкий', medium: 'средний
 const историяHTML = (заголовок, число, шаги) => `<details class="hud-arc-more"><summary>${значок('clock')}<span>${заголовок}</span>${число ? `<i class="hud-arc-count">${число}</i>` : ''}</summary>`
   + `<ol class="hud-arc-steps">${шаги.map(ш => `<li class="is-${ш.вид}"><span class="hud-arc-step-at">${ссылка(ш.at)}</span><span class="hud-arc-step-what">${ш.html}</span></li>`).join('')}</ol></details>`;
 
-function вкладкаСекретов(отчёт, поиск) {
+export function вкладкаСекретов(отчёт, поиск) {
+  моменты = (отчёт && отчёт.moments) || {};
   const список = отчёт.secrets.filter(s => !поиск || [s.fact, s.firstFact, ...s.knows.flatMap(k => [k.name, k.source]), ...s.unaware]
     .some(x => String(x || '').toLowerCase().includes(поиск)));
   if (!список.length) return пусто(поиск, 'В этом отрезке секретов не было');
@@ -105,6 +106,7 @@ function вкладкаСекретов(отчёт, поиск) {
 const ЯРЛЫКИ_РУЖЬЯ = { open: 'висит', building: 'назревает', fired: 'выстрелило' };
 
 function вкладкаРужей(отчёт, поиск) {
+  моменты = (отчёт && отчёт.moments) || {};
   if (!Array.isArray(отчёт.guns)) return '<div class="hud-arc-empty">Этот отчёт посчитан до появления ружей — нажмите «пересчитать».</div>';
   const список = отчёт.guns.filter(g => !поиск || [g.setup, g.firstSetup, g.tiedTo].some(x => String(x || '').toLowerCase().includes(поиск)));
   if (!список.length) return пусто(поиск, 'В этом отрезке ружей не было');
@@ -145,6 +147,7 @@ function поворотыДоверия(поиск) {
     + `</div>`).join('');
 }
 function вкладкаОтношений(отчёт, поиск) {
+  моменты = (отчёт && отчёт.moments) || {};
   const имена = Object.keys(отчёт.relations);
   const повороты = поворотыДоверия(поиск);
   if (!имена.length) return повороты || '<div class="hud-arc-empty">В этом отрезке отношения не менялись</div>';
@@ -189,7 +192,8 @@ function беременностиОтчёта(отчёт) {
   return { эпизоды, свободные };
 }
 const срокТекстом = (с, по) => с !== null && по !== null && с !== по ? `с ${с}-й по ${по}-ю неделю` : (по ?? с) !== null ? `${по ?? с}-я неделя` : '';
-function вкладкаБеременностей(отчёт, поиск) {
+export function вкладкаБеременностей(отчёт, поиск) {
+  моменты = (отчёт && отчёт.moments) || {};
   const { эпизоды, свободные } = беременностиОтчёта(отчёт);
   const есть = (...части) => !поиск || части.join(' ').toLowerCase().includes(поиск);
   const карточки = [];
@@ -239,10 +243,11 @@ function журналБеременностейHTML() {
 }
 
 function вкладкаХронологии(отчёт, поиск) {
+  моменты = (отчёт && отчёт.moments) || {};
   // Даты и локации — один поток событий: так видно, что переезд случился
   // в тот же вечер, а не «когда-то между». Потери — там же, у своего хода.
   const события = [
-    ...отчёт.dates.map(d => ({ at: d.at, kind: 'date', text: d.date + (d.time ? `, ${d.time}` : '') })),
+    ...отчёт.dates.map(d => ({ at: d.at, kind: 'date', text: d.date + (d.time ? `, ${String(d.time).split(/\s*\|\s*/).filter(Boolean).join(' · ')}` : '') })),
     ...отчёт.locations.map(l => ({ at: l.at, kind: 'place', text: l.place })),
     ...историяБеременностей().filter(з => Number.isInteger(з.сообщение)).map(з => ({ at: з.сообщение, kind: 'life', text: `${названиеИсхода(з)} · ${имяМатери(з.кто)}` })),
   ].filter(e => !поиск || e.text.toLowerCase().includes(поиск))
@@ -271,6 +276,7 @@ function трекиГлавы(треки) {
     + `<span class="hud-arc-st-tt"><b>${escapeHtml(т.t)}</b><em>${escapeHtml(т.a)}</em></span><span class="hud-arc-st-go">${ссылкиТрека(т)}</span></li>`).join('') + '</ol>';
 }
 export function вкладкаСаундтрека(отчёт, поиск) {
+  моменты = (отчёт && отчёт.moments) || {};
   if (!Array.isArray(отчёт.soundtrack)) return '<div class="hud-arc-empty">Отчёт посчитан до появления саундтрека — нажмите «пересчитать».</div>';
   const есть = (г) => !поиск || [г.label, г.place, г.date, ...(г.soundtrack || []).flatMap(т => [т.a, т.t]), ...((г.scene && г.scene.tracks) || []).flatMap(т => [т.a, т.t])]
     .some(x => String(x || '').toLowerCase().includes(поиск));
@@ -300,6 +306,7 @@ export function вкладкаСаундтрека(отчёт, поиск) {
 }
 
 function вкладкаСтатистики(отчёт) {
+  моменты = (отчёт && отчёт.moments) || {};
   const s = отчёт.stats;
   const плитка = (значение, подпись, пояснение) => `<div class="hud-arc-tile">
     <b>${escapeHtml(String(значение))}</b><span>${escapeHtml(подпись)}</span>
