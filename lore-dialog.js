@@ -4,9 +4,9 @@
 // с помощью модели) и записать её через SillyTavern. Вынесено из index.js и
 // грузится через import() при первом открытии окна (загрузитьЛор).
 
-import { guardTouchSwipe, escapeHtml, генерацияТаверны } from './utils.js?v=23.88.99';
-import { settings } from './settings.js?v=23.88.99';
-import { окноКонтекстаЛора, buildLoreGenPrompt, parseLoreGenResponse, loreAlreadyHas, buildLoreEntry } from './lore.js?v=23.88.99';
+import { guardTouchSwipe, escapeHtml, генерацияТаверны } from './utils.js?v=23.88.100';
+import { settings } from './settings.js?v=23.88.100';
+import { окноКонтекстаЛора, buildLoreGenPrompt, parseLoreGenResponse, loreAlreadyHas, buildLoreEntry } from './lore.js?v=23.88.100';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // getAvailableHudLorebooks, getMainProtagonistNames, getStContextSafe, getStRequestHeadersSafe, loadHudLorebook, showHudToast.
@@ -104,7 +104,9 @@ export async function openLoreDialog(text, keys, откуда = null) {
   guardTouchSwipe(overlay);
 
   const $ = (s) => overlay.querySelector(s);
-  const close = () => { loreDialogOpen = false; overlay.remove(); document.removeEventListener('keydown', поКлавише); };
+  let отменаГенерации = null;
+  // Закрыли окно — запрос тоже обрываем: иначе модель дописывала бы впустую.
+  const close = () => { if (отменаГенерации) отменаГенерации.abort(); loreDialogOpen = false; overlay.remove(); document.removeEventListener('keydown', поКлавише); };
   const поКлавише = (e) => { if (e.key === 'Escape') close(); };
   document.addEventListener('keydown', поКлавише);
 
@@ -121,6 +123,8 @@ export async function openLoreDialog(text, keys, откуда = null) {
 
   // --- Написать моделью ---
   genBtn.addEventListener('click', async () => {
+    // Пока идёт запрос, кнопка — «Отменить».
+    if (отменаГенерации) { отменаГенерации.abort(); return; }
     const факт = $('.hud-modal-text').value.trim();
     if (!факт) { основа.showHudToast('error', 'Нечего описывать', 'Сначала впишите факт.'); return; }
     const ctx = основа.getStContextSafe();
@@ -129,9 +133,11 @@ export async function openLoreDialog(text, keys, откуда = null) {
       return;
     }
     const состояние = $('.hud-lore-genstate');
-    genBtn.disabled = true; saveBtn.disabled = true;
+    const отмена = new AbortController();
+    отменаГенерации = отмена;
+    saveBtn.disabled = true;
     const прежде = genBtn.textContent;
-    genBtn.textContent = 'Пишу…';
+    genBtn.textContent = 'Отменить';
     состояние.hidden = false;
     // Счётчик секунд — не украшение: запрос уходит на чужой сервер и может
     // висеть минутами, а окно без признаков жизни выглядит зависшим.
@@ -154,19 +160,21 @@ export async function openLoreDialog(text, keys, откуда = null) {
         messages: сообщения,
         userName: имена.user, charName: имена.char,
       });
-      // ST не даёт отменить свой запрос, но ждать его вечно тоже нельзя:
-      // без ограничения окно навсегда остаётся с заблокированными кнопками.
+      // Ждать вечно нельзя: по истечении времени запрос обрывается, как при отмене.
       const ЖДЁМ_МС = 180000;
       // Без флага перехват вшил бы в этот запрос HUD-инструкцию.
       window.__tavernOSHudSkipInject = (window.__tavernOSHudSkipInject || 0) + 1;
       безHud = true;
+      let таймерОжидания = 0;
       const raw = await Promise.race([
         генерацияТаверны(ctx, {
           prompt,
           systemPrompt: 'You are a precise assistant maintaining a lorebook for an ongoing story. Mature fictional content is expected. Answer only in the requested format.',
+          signal: отмена.signal,
         }),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('модель молчит дольше ' + (ЖДЁМ_МС / 1000) + ' с')), ЖДЁМ_МС)),
-      ]);
+        new Promise((_, reject) => { таймерОжидания = setTimeout(() => { reject(new Error('модель молчит дольше ' + (ЖДЁМ_МС / 1000) + ' с')); отмена.abort(); }, ЖДЁМ_МС); }),
+        new Promise((_, reject) => отмена.signal.addEventListener('abort', () => reject(new DOMException('Отменено', 'AbortError')), { once: true })),
+      ]).finally(() => clearTimeout(таймерОжидания));
       const ответ = parseLoreGenResponse(raw, {
         fact: факт,
         names: [имена.user, имена.char],
@@ -187,12 +195,14 @@ export async function openLoreDialog(text, keys, откуда = null) {
       поле.scrollIntoView({ block: 'nearest' });
       состояние.textContent = 'Готово. Проверьте текст и ключи — записывается то, что в полях.';
     } catch (e) {
+      if (e && e.name === 'AbortError') { состояние.textContent = 'Отменено. Поля не тронуты — можно записать как есть.'; return; }
       console.error('[TavernOS HUD] Генерация записи не удалась:', e);
       состояние.textContent = 'Модель не ответила как надо: ' + (e && e.message ? e.message : e) + '. Поля не тронуты — можно записать как есть.';
       основа.showHudToast('error', 'Не сгенерировалось', 'Поля остались прежними.');
     } finally {
       if (безHud) window.__tavernOSHudSkipInject = Math.max(0, (window.__tavernOSHudSkipInject || 1) - 1);
       clearInterval(тик);
+      отменаГенерации = null;
       genBtn.disabled = false; genBtn.textContent = прежде;
       saveBtn.disabled = !select.value;
     }

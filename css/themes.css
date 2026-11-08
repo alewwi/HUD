@@ -1084,6 +1084,22 @@
    поле «Что записываем» превращалось в одну строку. Не помещается —
    пусть тело прокручивается, для этого у него и стоит overflow. */
 .hud-modal-body > * { flex: 0 0 auto; }
+/* Окно «Что нового» */
+.hud-whatsnew { width: min(640px, 100%); }
+.hud-whatsnew .hud-modal-body { gap: 12px; font-size: 13px; line-height: 1.45; }
+.hud-wn-badge { display: inline-block; padding: 3px 10px; border-radius: 999px; font-weight: 700; font-size: 12.5px; color: var(--hud-accent-text, var(--hud-accent, #d8b4fe)); background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 16%, transparent); border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 38%, transparent); }
+.hud-modal.hud-whatsnew :is(.hud-wn-badge, summary) small { margin-left: 6px; font-size: .85em; font-weight: 400; color: inherit; opacity: .7; }
+.hud-whatsnew h4 { margin: 10px 0 2px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; opacity: .65; }
+.hud-whatsnew ul { margin: 2px 0; padding-left: 18px; }
+.hud-whatsnew li { margin: 4px 0; }
+.hud-whatsnew code { padding: 0 4px; border-radius: 4px; font-size: .92em; background: rgba(0, 0, 0, .28); }
+.hud-wn-past { padding-top: 10px; border-top: 1px solid var(--hud-border, rgba(255,255,255,.12)); }
+.hud-wn-past-title { margin-bottom: 4px; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; opacity: .6; }
+.hud-wn-past summary { padding: 5px 0; cursor: pointer; font-weight: 600; }
+.hud-wn-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; padding: 10px 16px; border-top: 1px solid var(--hud-border, rgba(255,255,255,.12)); }
+.hud-wn-auto { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; cursor: pointer; }
+.hud-wn-close { min-height: 34px; padding: 4px 18px; border-radius: 8px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; color: #fff; background: var(--hud-accent, #8c5ad2); border: 0; }
+.hud-set-whatsnew { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
 .hud-modal-label { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; opacity: .55; margin-top: 6px; }
 .hud-modal-label i { font-style: normal; text-transform: none; letter-spacing: 0; opacity: .8; }
 .hud-modal-text, .hud-modal-keys, .hud-modal-book, .hud-modal-title {

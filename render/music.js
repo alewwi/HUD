@@ -17,19 +17,19 @@
 // версии HUD, и сохраняется в файле чата. Запрос идёт с флагом
 // window.__tavernOSHudSkipInject: инструкция HUD в него не попадает.
 
-import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.88.99';
-import { settings } from '../settings.js?v=23.88.99';
-import { parseHUDComplex } from '../hud-parser.js?v=23.88.99';
-import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.88.99';
-import { hudHasCombat } from './combat.js?v=23.88.99';
-import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.88.99';
-import { английский } from '../i18n.js?v=23.88.99';
-import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.88.99';
-import { ключСообщения } from '../chronicle.js?v=23.88.99';
+import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.88.100';
+import { settings } from '../settings.js?v=23.88.100';
+import { parseHUDComplex } from '../hud-parser.js?v=23.88.100';
+import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.88.100';
+import { hudHasCombat } from './combat.js?v=23.88.100';
+import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.88.100';
+import { английский } from '../i18n.js?v=23.88.100';
+import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.88.100';
+import { ключСообщения } from '../chronicle.js?v=23.88.100';
 import { норм, нормНазв, ключТрека, вСписке, переключить, безЗапрещённых, строкиВкуса, языкПесен, правилоЯзыка, мемныйРежим, правилоМемов,
-  ПРЕДЕЛ_ЛАЙКОВ, ПРЕДЕЛ_ЗАПРЕТОВ, библиотека, записьВладельца, записьПоId, плейлистПоId, новыйПлейлист, дописатьПлейлист, удалитьПлейлист } from './music-lib.js?v=23.88.99';
-import { станцииСцены } from './music-radio.js?v=23.88.99';
-import { собратьФон, ИМЕНА_ИСТОЧНИКОВ } from './music-free.js?v=23.88.99';
+  ПРЕДЕЛ_ЛАЙКОВ, ПРЕДЕЛ_ЗАПРЕТОВ, библиотека, записьВладельца, записьПоId, плейлистПоId, новыйПлейлист, дописатьПлейлист, удалитьПлейлист } from './music-lib.js?v=23.88.100';
+import { станцииСцены } from './music-radio.js?v=23.88.100';
+import { собратьФон, ИМЕНА_ИСТОЧНИКОВ } from './music-free.js?v=23.88.100';
 
 export { музыкаХода, норм, нормНазв };
 
@@ -568,7 +568,7 @@ async function собратьКонтекстМузыки(ctx, chat, индек�
   let карточка = null, персона = '';
   if (нуженПомощник) {
     try {
-      const A = await import('./assistant.js?v=23.88.99');
+      const A = await import('./assistant.js?v=23.88.100');
       if (settings.musicIncludeCard === true) карточка = A.карточкаПерсонажа(ctx);
       if (settings.musicIncludePersona === true) персона = A.персонаИгрока(ctx);
     } catch (e) { console.warn('[TavernOS HUD] музыка: карточка и персона', e); }
@@ -595,11 +595,13 @@ export const лимитОтвета = () => Math.max(2048, Math.min(65536, parse
 async function отправить(ctx, system, user, signal) {
   const профиль = String(settings.musicProfileId || '');
   const служба = ctx.ConnectionManagerRequestService;
-  if (профиль && служба && typeof служба.sendRequest === 'function') {
+  // Профиль берётся заново на каждый запрос; удалили — идём через модель чата, а не падаем.
+  const профильЖив = !!профиль && !!(ctx.extensionSettings?.connectionManager?.profiles || []).some(п => String(п.id) === профиль);
+  if (профильЖив && служба && typeof служба.sendRequest === 'function') {
     return служба.sendRequest(профиль, [{ role: 'system', content: system }, { role: 'user', content: user }], лимитОтвета(),
       { stream: false, signal, extractData: true, includePreset: false, includeInstruct: false });
   }
-  return генерацияТаверны(ctx, { prompt: user, systemPrompt: system, responseLength: лимитОтвета() });
+  return генерацияТаверны(ctx, { prompt: user, systemPrompt: system, responseLength: лимитОтвета(), signal });
 }
 
 /**
@@ -707,6 +709,8 @@ export async function подобратьМузыку(индекс, { вручн�
       вСцене = await сверить(вСцене, отмена.signal);
       вТелефоне = await сверить(вТелефоне, отмена.signal);
     }
+    // Отменили во время сверки — подборку не записываем.
+    if (отмена.signal.aborted) throw new Error('отменено');
     const выдуманные = [...саундтрек, ...вСцене, ...вТелефоне].filter(т => т.ok === false);
     саундтрек = отобрать(саундтрек, сколько);
     вСцене = отобрать(вСцене, 3);
@@ -1715,6 +1719,7 @@ export async function создатьПлейлист(индекс, владел�
     let треки = безЗапрещённых(ответ.tracks, запретыИгрока()).filter(т => !вСписке(пл ? пл.tracks : [], т));
     if (!треки.length) throw new Error(пл ? 'модель прислала только то, что уже есть' : 'модель не прислала треков');
     if (settings.musicVerify !== false) треки = await сверить(треки, отмена.signal);
+    if (отмена.signal.aborted) throw new Error('отменено');
     треки = отобрать(треки, сколько);
     // Пока ждали, чат могли сменить — библиотека уже другая.
     const сейчас = контекст();

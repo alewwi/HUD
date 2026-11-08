@@ -5,11 +5,11 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings } from './settings.js?v=23.88.99';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe } from './hud-block.js?v=23.88.99';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.88.99';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.88.99';
-import { генерацияТаверны } from './utils.js?v=23.88.99';
+import { настройка, settings, defaultSettings } from './settings.js?v=23.88.100';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe } from './hud-block.js?v=23.88.100';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.88.100';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.88.100';
+import { генерацияТаверны } from './utils.js?v=23.88.100';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, getMessageUpdateFunction, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
@@ -585,8 +585,8 @@ export async function handleHudRegenButton(regenBtn) {
               }
           };
       } else if (черезТаверну) {
-          // generateRaw отменить нельзя: ответ после отмены просто не вставляем.
-          const ответ = генерацияТаверны(stContext, { prompt: freshMessages, responseLength: hudMaxTokens });
+          // Сигнал обрывает сам запрос (utils.js, перехват в index.js).
+          const ответ = генерацияТаверны(stContext, { prompt: freshMessages, responseLength: hudMaxTokens, signal: отмена.signal });
           aiText = текстОтвета(await new Promise((готово, сбой) => {
               ответ.then(готово, сбой);
               отмена.signal.addEventListener('abort', () => сбой(new DOMException('Отменено', 'AbortError')), { once: true });

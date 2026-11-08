@@ -3,8 +3,8 @@
 // Мелкие утилиты, общие для всех доменов HUD (дневник, мир, сны, телефон,
 // граф отношений, память). Вынесено из index.js без изменения поведения.
 
-import { МЕТКИ } from './codes.js?v=23.88.99';
-import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.88.99';
+import { МЕТКИ } from './codes.js?v=23.88.100';
+import { НАЗВАНИЯ_ПОЛЕЙ } from './key-names.js?v=23.88.100';
 
 // Замеры по шагам для поиска узких мест: включаются только объектом
 // window.__hudProf = {} в консоли, копят { шаг: [мс, …] }. Без него — прямой вызов.
@@ -97,11 +97,29 @@ export function имяДляВкладки(имя) {
     quietToLoud, systemPrompt, responseLength), с 1.13 — один объект. Объект в
     старой Таверне падал «… is not a function» — так ломались музыка,
     помощник и «Написать моделью». Старую подпись узнаём по числу аргументов. */
-export function генерацияТаверны(ctx, { prompt = '', systemPrompt = '', responseLength = null } = {}) {
+// generateRaw не принимает сигнал отмены: его свой запрос можно оборвать только
+// на выходе. Сигнал ждёт в очереди, ближайший наш fetch к генерации забирает его
+// (index.js). Иначе «Отмена» гасила бы окно, а модель писала и тратила токены.
+const ждущиеОтмены = [];
+export function взятьОтменуЗапроса() { return ждущиеОтмены.shift() || null; }
+export function соединитьСигналы(а, б) {
+  if (!а) return б;
+  if (!б) return а;
+  if (typeof AbortSignal !== 'undefined' && typeof AbortSignal.any === 'function') return AbortSignal.any([а, б]);
+  const c = new AbortController();
+  for (const с of [а, б]) { if (с.aborted) c.abort(с.reason); else с.addEventListener('abort', () => c.abort(с.reason), { once: true }); }
+  return c.signal;
+}
+export function генерацияТаверны(ctx, { prompt = '', systemPrompt = '', responseLength = null, signal = null } = {}) {
   const f = ctx && ctx.generateRaw;
   if (typeof f !== 'function') throw new Error('SillyTavern не отдал функцию генерации');
-  if (f.length >= 2) return f.call(ctx, prompt, null, false, false, systemPrompt, responseLength);
-  return f.call(ctx, { prompt, systemPrompt, responseLength });
+  if (signal) ждущиеОтмены.push(signal);
+  const снять = () => { const i = ждущиеОтмены.indexOf(signal); if (i >= 0) ждущиеОтмены.splice(i, 1); };
+  let ответ;
+  try { ответ = f.length >= 2 ? f.call(ctx, prompt, null, false, false, systemPrompt, responseLength) : f.call(ctx, { prompt, systemPrompt, responseLength }); }
+  catch (e) { снять(); throw e; }
+  if (signal) Promise.resolve(ответ).then(снять, снять);
+  return ответ;
 }
 
 export function escapeHtml(str) { if (!str) return ''; return String(typeof str === 'object' ? flattenFieldValue(str) : str).replace(/[&<>"']/g, з => СУЩНОСТИ[з]); }

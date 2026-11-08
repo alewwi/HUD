@@ -11,12 +11,12 @@
 // флаг window.__tavernOSHudSkipInject: без него перехват запросов в index.js
 // вшил бы в вопрос HUD-инструкцию, и модель ответила бы HUD-блоком.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.88.99';
-import { settings } from '../settings.js?v=23.88.99';
-import { parseHUDComplex } from '../hud-parser.js?v=23.88.99';
-import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.88.99';
-import { ПРОМПТ_АССИСТЕНТА, промптАссистента } from './assistant-prompt.js?v=23.88.99';
-import { английский } from '../i18n.js?v=23.88.99';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.88.100';
+import { settings } from '../settings.js?v=23.88.100';
+import { parseHUDComplex } from '../hud-parser.js?v=23.88.100';
+import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.88.100';
+import { ПРОМПТ_АССИСТЕНТА, промптАссистента } from './assistant-prompt.js?v=23.88.100';
+import { английский, т } from '../i18n.js?v=23.88.100';
 
 const ЖДЁМ_МС = 180000;
 
@@ -183,7 +183,7 @@ export function разметкаОтвета(текст) {
 const вАбзацы = (s) => escapeHtml(s).replace(/\n{2,}/g, '<br><br>').replace(/\n/g, '<br>');
 
 // Запрос: выбранный профиль подключения или текущая модель чата.
-async function отправить(ctx, systemPrompt, prompt, профили) {
+async function отправить(ctx, systemPrompt, prompt, профили, signal) {
   const профиль = String(settings.assistantProfileId || '');
   const токены = Math.max(256, Math.min(16000, parseInt(settings.assistantMaxTokens, 10) || 1500));
   const служба = ctx.ConnectionManagerRequestService;
@@ -191,9 +191,9 @@ async function отправить(ctx, systemPrompt, prompt, профили) {
     const есть = (typeof профили === 'function' ? профили() : []).some(p => String(p.id) === профиль);
     if (!есть) throw new Error('профиль подключения из настроек ассистента не найден — выберите другой');
     return служба.sendRequest(профиль, [{ role: 'system', content: systemPrompt }, { role: 'user', content: prompt }], токены,
-      { stream: false, extractData: true, includePreset: false, includeInstruct: false });
+      { stream: false, extractData: true, includePreset: false, includeInstruct: false, signal });
   }
-  return генерацияТаверны(ctx, { prompt, systemPrompt, responseLength: токены });
+  return генерацияТаверны(ctx, { prompt, systemPrompt, responseLength: токены, signal });
 }
 
 let окноОткрыто = false;
@@ -255,7 +255,9 @@ export function openAssistantDialog({ mesId = null, лорбуки = null, со�
   const история = [];
   let занято = false;
 
-  const закрыть = () => { окноОткрыто = false; overlay.remove(); document.removeEventListener('keydown', поКлавише); };
+  // Запрос идёт — он обрывается и кнопкой, и закрытием окна.
+  let отмена = null;
+  const закрыть = () => { if (отмена) отмена.abort(); окноОткрыто = false; overlay.remove(); document.removeEventListener('keydown', поКлавише); };
   const поКлавише = (e) => { if (e.key === 'Escape') закрыть(); };
   document.addEventListener('keydown', поКлавише);
   overlay.addEventListener('click', (e) => { if (e.target === overlay) закрыть(); });
@@ -286,7 +288,11 @@ export function openAssistantDialog({ mesId = null, лорбуки = null, со�
     const вопрос = поле.value.trim();
     if (!вопрос || занято) return;
     if (!ctx) { реплика('hud-ask-a is-error', 'SillyTavern недоступен — спросить не получится.'); return; }
-    занято = true; кнопка.disabled = true; поле.value = '';
+    занято = true; поле.value = '';
+    const запрос = new AbortController();
+    отмена = запрос;
+    const подписьКнопки = кнопка.textContent;
+    кнопка.textContent = т('Отменить');
     реплика('hud-ask-q', вАбзацы(вопрос));
     const ожидание = реплика('hud-ask-a is-wait', '<span class="hud-ask-typing" aria-hidden="true"><i></i><i></i><i></i></span><span class="hud-ask-wait-text">Думаю…</span>');
     let секунд = 0;
@@ -316,30 +322,41 @@ export function openAssistantDialog({ mesId = null, лорбуки = null, со�
       });
       // Пример ссылок в промпте по умолчанию — на языке интерфейса.
       const systemPrompt = String(settings.assistantSystemPrompt || '').trim() || промптАссистента(английский());
+      // Отменили, пока собирали лорбуки: до модели запрос не доходит.
+      запрос.signal.throwIfAborted();
       размер.textContent = `Запрос: ≈${Math.round((prompt.length + systemPrompt.length) / 100) / 10} тыс. символов${записи.length ? ', записей лорбука: ' + записи.reduce((a, к) => a + к.entries.length, 0) : ''}.`;
       window.__tavernOSHudSkipInject = (window.__tavernOSHudSkipInject || 0) + 1;
       безHud = true;
+      let таймерОжидания = 0;
       const raw = await Promise.race([
-        отправить(ctx, systemPrompt, prompt, профили),
-        new Promise((_, reject) => setTimeout(() => reject(new Error('модель молчит дольше ' + (ЖДЁМ_МС / 1000) + ' с')), ЖДЁМ_МС)),
-      ]);
+        отправить(ctx, systemPrompt, prompt, профили, запрос.signal),
+        new Promise((_, reject) => { таймерОжидания = setTimeout(() => { reject(new Error('модель молчит дольше ' + (ЖДЁМ_МС / 1000) + ' с')); запрос.abort(); }, ЖДЁМ_МС); }),
+        new Promise((_, reject) => запрос.signal.addEventListener('abort', () => reject(new DOMException('Отменено', 'AbortError')), { once: true })),
+      ]).finally(() => clearTimeout(таймерОжидания));
       const ответ = parseAssistantAnswer(raw);
       if (!ответ) throw new Error('модель вернула пустой ответ');
       ожидание.className = 'hud-ask-a';
       ожидание.innerHTML = разметкаОтвета(ответ);
       история.push({ q: вопрос, a: ответ });
     } catch (e) {
+      if (e && e.name === 'AbortError') {
+        ожидание.className = 'hud-ask-a is-error';
+        ожидание.textContent = т('Отменено');
+        // Вопрос возвращаем в поле: его можно поправить и задать снова.
+        if (!поле.value) поле.value = вопрос;
+        return;
+      }
       console.error('[TavernOS HUD] Вопрос про сюжет не удался:', e);
       ожидание.className = 'hud-ask-a is-error';
       ожидание.textContent = 'Не получилось: ' + (e && e.message ? e.message : e);
     } finally {
       if (безHud) window.__tavernOSHudSkipInject = Math.max(0, (window.__tavernOSHudSkipInject || 1) - 1);
       clearInterval(тик);
-      занято = false; кнопка.disabled = false;
+      занято = false; отмена = null; кнопка.textContent = подписьКнопки;
       журнал.scrollTop = журнал.scrollHeight;
     }
   };
-  кнопка.addEventListener('click', спросить);
+  кнопка.addEventListener('click', () => { if (отмена) отмена.abort(); else спросить(); });
   поле.addEventListener('keydown', (e) => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) { e.preventDefault(); спросить(); } });
   setTimeout(() => поле.focus(), 30);
 }

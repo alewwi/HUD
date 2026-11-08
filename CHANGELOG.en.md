@@ -4,6 +4,18 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.100 — 2026-11-08
+
+### Added
+- **"What's new" window.** After an update the HUD shows once what changed, right in SillyTavern. All versions since the last time are expanded, with a collapsed history below. The text comes from this changelog in the interface language. At the top of the settings there is a "📰 What's new" button and a checkbox that turns off the automatic window.
+- **Cancel for lorebook entries.** While the model writes an entry, the "Write with the model" button becomes "Cancel". Closing the window and the timeout also stop the request, and the fields stay untouched.
+
+### Changed
+- **Profile lists update on their own.** When a profile is created, changed, deleted or switched in the Connection Manager, the regeneration, assistant and music lists pick it up at once. Music also has its own 🔄 button. If the profile chosen for music was deleted, music goes through the chat model.
+
+### Fixed
+- **Cancel now really stops the model.** Before, with a request through the chat model, the button only removed the waiting state while the model kept writing and spending tokens. Now the request stops for music, playlists, the assistant and HUD regeneration. In the assistant window the "Ask" button becomes "Cancel" during a request, and the question returns to the field after cancelling. A music selection cancelled during track checking is not saved.
+
 ## 23.88.99 — 2026-11-08
 
 ### Changed

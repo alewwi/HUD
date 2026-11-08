@@ -110,6 +110,9 @@ export const defaultSettings = {
   enablePerception: true,
   // Генеалогическое дерево в графе отношений: считается из родства в Rl.
   enableFamilyTree: true,
+  // Окно «Что нового» после обновления; lastSeenVersion — какую версию уже показали.
+  whatsNewAuto: true,
+  lastSeenVersion: '',
   // Сколько сообщений с HUD просматривать для генеалогического дерева; 0 — только текущий HUD.
   familyTreeDepth: 100,
   // Кнопка «❓» на карточке: вопросы о сюжете, ответ не пишется в чат.

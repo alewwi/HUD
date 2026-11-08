@@ -594,8 +594,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.99**:
+The latest version is **23.88.100**:
 
+- A "What's new" window after updates. Cancel really stops the model for music, the assistant, lorebook entries and regeneration; profile lists update on their own.
 - Family tree settings now live under "HUD blocks → Memory and plot".
 - On phones, long pill lists open with a "More N" button and scroll together with the whole HUD.
 - Family tree: families as separate branches, couples under their parents, no former spouses without a shared child; a "Whole tree" and "Normal size" button.
