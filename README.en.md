@@ -594,8 +594,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.100**:
+The latest version is **23.88.101**:
 
+- HUD finds a character's sex more accurately, no longer mistakes sleep for unconsciousness, and recognises snowstorms and blizzards.
 - A "What's new" window after updates. Cancel really stops the model for music, the assistant, lorebook entries and regeneration; profile lists update on their own.
 - Family tree settings now live under "HUD blocks → Memory and plot".
 - On phones, long pill lists open with a "More N" button and scroll together with the whole HUD.

@@ -9,36 +9,36 @@
 // и правилами вёрстки (полноширинные / драматические / обрезаемые ключи).
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, именаГруппы, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.88.100';
-import { иконка } from './hud-icons.js?v=23.88.100';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.100';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.100';
-import { разобратьСилуСтраха, страхиБезГолойСилы, стадияБолезни } from '../codes.js?v=23.88.100';
+import { escapeHtml, defeatWI, applyTooltips, buildPillList, инициалыИмени, именаГруппы, getSafeUserName, mapKey, flattenFieldValue, перевестиМетку, снятьЗаглушки, разбитьСписок, имяБезПриставки, имяДляВкладки } from '../utils.js?v=23.88.101';
+import { иконка } from './hud-icons.js?v=23.88.101';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.101';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.101';
+import { разобратьСилуСтраха, страхиБезГолойСилы, стадияБолезни } from '../codes.js?v=23.88.101';
 import { buildSceneStrip, buildProtection, buildOrgasm, buildVitals, buildSounds, buildHeatMap, buildCycle, трендПоРусски,
-  блокТемпаСцены, активныеСледы, карточкаСледа, группаНавсегда, разобратьСледы, видСледа, тотЖеВред, повязкаНаРане, тоЖеМесто, видПодШрамом, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия, почемуРиск } from './intimacy.js?v=23.88.100';
-import { часыСцены } from './scene-clock.js?v=23.88.100';
-import { полПерсонажа } from './scene-body.js?v=23.88.100';
-import { buildUnderwear } from './underwear.js?v=23.88.100';
-import { buildDuel } from './duel.js?v=23.88.100';
-import { ЗНАЧОК_КОРЗИНЫ, кнопкаПодсказки } from './erase-button.js?v=23.88.100';
-import { buildPregnancy } from './pregnancy.js?v=23.88.100';
-import { мешаетБлизости, больноПриБлизости } from './rest-hint.js?v=23.88.100';
-import { buildPostpartum } from './postpartum.js?v=23.88.100';
-import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды, зарегистрироватьПотерю, закрывшаяПотеря, послеПотери, видПотери, словаПотери, частьПотери, датаИзТекста, дм as деньМесяц, датаЗачатия, чертыРодителей } from './conception.js?v=23.88.100';
-import { блокПотери, кнопкаПотери } from './pregnancy-loss.js?v=23.88.100';
-import { доверияБезПричин, чистаяПричина, шрамыЧеловека, запущенноеУ, весЧеловека, сдвигВеса, срокСдвигаВеса } from '../turn-notes.js?v=23.88.100';
-import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.88.100';
-import { parseSceneDate } from '../history-analyzer.js?v=23.88.100';
-import { settings, настройка } from '../settings.js?v=23.88.100';
-import { полеВкл } from '../deep-fields.js?v=23.88.100';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.100';
-import { видСостоянияТела } from './extras.js?v=23.88.100';
-import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом } from './views-fields.js?v=23.88.100';
-import { parseRelationList } from './relations-graph.js?v=23.88.100';
-import { раскладкаСтатов, пометитьСтроку } from '../custom-stats.js?v=23.88.100';
-import { отложитьРисунок } from './lazy-svg.js?v=23.88.100';
-import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.88.100';
-import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.88.100';
+  блокТемпаСцены, активныеСледы, карточкаСледа, группаНавсегда, разобратьСледы, видСледа, тотЖеВред, повязкаНаРане, тоЖеМесто, видПодШрамом, историяВладельца, моментВладельца, зонаПоСлову, циклСейчас, модификаторыФазы, рискЗачатия, почемуРиск } from './intimacy.js?v=23.88.101';
+import { часыСцены } from './scene-clock.js?v=23.88.101';
+import { полПерсонажа } from './scene-body.js?v=23.88.101';
+import { buildUnderwear } from './underwear.js?v=23.88.101';
+import { buildDuel } from './duel.js?v=23.88.101';
+import { ЗНАЧОК_КОРЗИНЫ, кнопкаПодсказки } from './erase-button.js?v=23.88.101';
+import { buildPregnancy } from './pregnancy.js?v=23.88.101';
+import { мешаетБлизости, больноПриБлизости } from './rest-hint.js?v=23.88.101';
+import { buildPostpartum } from './postpartum.js?v=23.88.101';
+import { состояниеЗачатия, родыЧьи, близостиБезЗачатия, зарегистрироватьРоды, зарегистрироватьПотерю, закрывшаяПотеря, послеПотери, видПотери, словаПотери, частьПотери, датаИзТекста, дм as деньМесяц, датаЗачатия, чертыРодителей } from './conception.js?v=23.88.101';
+import { блокПотери, кнопкаПотери } from './pregnancy-loss.js?v=23.88.101';
+import { доверияБезПричин, чистаяПричина, шрамыЧеловека, запущенноеУ, весЧеловека, сдвигВеса, срокСдвигаВеса } from '../turn-notes.js?v=23.88.101';
+import { плодовитость, сбойЦикла, пытаются, послеродовое, видКормления, часовМежду } from './fertility.js?v=23.88.101';
+import { parseSceneDate } from '../history-analyzer.js?v=23.88.101';
+import { settings, настройка } from '../settings.js?v=23.88.101';
+import { полеВкл } from '../deep-fields.js?v=23.88.101';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.101';
+import { видСостоянияТела } from './extras.js?v=23.88.101';
+import { видПоля, видТела, ВИД_ПОЛЯ, ШИРОКИЕ_ВИДЫ, разобратьРасписание, времяЦеликом } from './views-fields.js?v=23.88.101';
+import { parseRelationList } from './relations-graph.js?v=23.88.101';
+import { раскладкаСтатов, пометитьСтроку } from '../custom-stats.js?v=23.88.101';
+import { отложитьРисунок } from './lazy-svg.js?v=23.88.101';
+import { обликИзТекстов, сУчётомРучного, естьОблик } from './look.js?v=23.88.101';
+import { видБлока, видДоверия, видСтрахов, видОргазма, видРазоблачения, видКартыТела, видПоказателей, видИнвентаря, видВлечений, видВоспоминаний, видРевности } from './views.js?v=23.88.101';
 
 const FULL_WIDTH_KEYS = ['мысли', 'ключ', 'ожидание vs реальность', 'отношения', 'общие воспоминания', 'флаг-монитор', 'социальное разоблачение', 'детализация nsfw', 'отзыв о сексе', 'nsfw', 'сновидение', 'расписание', 'скрытый подтекст', 'последний секс', 'кинк', 'фетиш', 'никогда не сделает', 'не возбуждает', 'болезни и травмы', 'беременность',
   'цикл', 'защита', 'готовность к оргазму', 'жизненные показатели', 'звуки', 'следы на теле', 'состояние тела'];
@@ -1122,6 +1122,8 @@ const чужойОбморок = (текст, m, имя, пол) => {
   return (пол === 'm' && ЖЕН.test(рядом) && !МУЖ.test(рядом)) || (пол === 'f' && МУЖ.test(рядом) && !ЖЕН.test(рядом));
 };
 
+const СОН_РЯДОМ = /(?<![\p{L}])(?:сон|сна|сне|спать|спит|уснул\p{L}*|заснул\p{L}*|sleep\p{L}*|asleep)(?![\p{L}])/iu;
+const ПРОВАЛ_В_СОН = /провал\p{L}* в сон|(?<![\p{L}])(?:уснул|заснул|засыпа)\p{L}*|(?<![\p{L}])спит(?![\p{L}])|fell asleep|asleep/iu;
 export function безСознания(о) {
   // Пробелы бывают «невидимыми» (U+2800, неразрывный) — для проверок они те же пробелы.
   const текст = ПОЛЯ_СОСТОЯНИЯ.map(([к, код]) => полеОбъекта(о, к, код)).filter(Boolean).join(' ; ').replace(/[⠀   ]/g, ' ');
@@ -1131,6 +1133,10 @@ export function безСознания(о) {
   for (const m of текст.matchAll(ПРОВАЛ)) {
     if (НЕ_ПЕРЕД.test(текст.slice(Math.max(0, m.index - 30), m.index))) continue;
     if (чужойОбморок(текст, m, имя, пол)) continue;
+    // «Вырубился в глубокий пьяный сон», «вырубилась на лекции» при «провале в
+    // сон за партой» — это сон, а не потеря сознания. Только для разговорных
+    // слов: «без сознания» и «обморок» сном не бывают.
+    if (/^(?:отключил|вырубил|отрубил)/iu.test(m[0]) && (СОН_РЯДОМ.test(текст.slice(m.index, m.index + m[0].length + 40)) || ПРОВАЛ_В_СОН.test(текст))) continue;
     // Кусок вокруг совпадения — для подсказки: «потеряла сознание от удара».
     const начало = Math.max(0, текст.lastIndexOf(';', m.index) + 1, текст.lastIndexOf(',', m.index) + 1, текст.lastIndexOf('|', m.index) + 1);
     const конецТочка = [текст.indexOf(';', m.index), текст.indexOf(',', m.index), текст.indexOf('|', m.index)].filter(i => i > 0);

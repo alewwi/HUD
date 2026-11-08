@@ -4,9 +4,9 @@
 // поворот сюжета, спутник карточкой и тамагочи. Всё здесь — чистые функции
 // «данные → разметка»; оформление живёт в css/extras.css.
 
-import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.88.100';
-import { settings } from '../settings.js?v=23.88.100';
-import { аватаркаПоИмени } from './views.js?v=23.88.100';
+import { escapeHtml, hudHasMeaningfulValue, инициалыИмени } from '../utils.js?v=23.88.101';
+import { settings } from '../settings.js?v=23.88.101';
+import { аватаркаПоИмени } from './views.js?v=23.88.101';
 
 // Умения спутника — не больше четырёх: модель копит их ходами, и в карточке
 // выстраивалась стена пилюль. Короткие (до шести слов) — вперёд, в порядке

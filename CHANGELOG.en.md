@@ -4,6 +4,18 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.101 — 2026-11-09
+
+A check of the places where HUD draws a conclusion itself, without a field from the model.
+
+### Fixed
+- **Character sex.** Without an "M/F" mark in Appearance the sex was almost never found, and a "tattooed chest" on a man or "women around" made him a woman. Now HUD reads words about the person themself (only "woman", "man", not "women" around), the role at the start of a part ("Wife of…", "Heir…", "fake husband"; on a tie the first role wins) and short participles of the state (masculine or feminine forms, at least two ahead). The sex feeds the body in the scene, the calorie norm and daily life. On the test chats the sex was found in 1672 records instead of 675, with no errors (there were 5).
+- **"Unconscious" is not put on sleep.** "Passed out into a deep drunken sleep" or "dropped off in class" when the body says she fell asleep is sleep. Colloquial "passed out", "switched off" next to sleep no longer give the plate; "unconscious" and "fainted" work as before.
+- **Weather for clothes.** "Snowstorm" and "snow squall" now count as snow, and blizzard, storm and squall also as wind.
+- **The daily-life line for the model.** Instead of one entry per person ("sleep debt for Anna 7 h; sleep debt for Mark 14 h") it is one: "sleep debt: Anna 7 h, Mark 14 h". The same for "night after the fight: Name 4 h".
+- A breakage in daily life does not count when a cheekbone or a nose is broken rather than a thing; "bath" in a mention ("the truth about that bath") is not washing.
+- Contrast check: family tree branch labels take their colour the same way as the rest of the text.
+
 ## 23.88.100 — 2026-11-08
 
 ### Added
