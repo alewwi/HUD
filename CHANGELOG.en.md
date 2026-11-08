@@ -4,6 +4,16 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.97 — 2026-11-08
+
+### Changed
+- **The family tree can be read by its layout.** Before, it ran as one long line and shrank to tiny labels. Now each unconnected family is its own branch with a label of surnames, and branches go in rows from top to bottom. A couple stands under their parents, each with a straight line down. A wife's brother and a husband's twin stand next to the person they are related to.
+- **Former spouses with no child together are not shown in the tree.** A former wife or husband with a shared child stays. If such a person has their own relatives in the tree, they stay in their own branch, with no marriage line.
+
+### Fixed
+- **The tree's "Fit" button is replaced with "Whole tree" and "Normal size".** Before, it often did nothing: the tree already opened fitted to width, and height was ignored. Now the button shows the whole tree by width and height, and a second press returns the full size where labels can be read.
+- **English interface of the tree and Health.** Kinship labels on lines and couples and the "No sleep" label no longer stay in Russian.
+
 ## 23.88.96 — 2026-11-08
 
 ### Fixed

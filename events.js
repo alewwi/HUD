@@ -16,26 +16,26 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.96';
-import { уверены } from './confirm-erase.js?v=23.88.96';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.88.96';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.88.96';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.88.96';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.88.96';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.88.96';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.88.96';
-import { полныйПорядок } from './tabs-order.js?v=23.88.96';
-import { getWorldVotes } from './render/world.js?v=23.88.96';
-import { действиеМира } from './render/world-views.js?v=23.88.96';
-import { действиеМузыки } from './render/music.js?v=23.88.96';
-import { раскрытьПорцию } from './render/long-list.js?v=23.88.96';
-import { прогретьИсторию } from './render/carryover.js?v=23.88.96';
-import { подключитьПалитру } from './color-picker.js?v=23.88.96';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.88.96';
-import { замер } from './utils.js?v=23.88.96';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.88.96';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.88.96';
-import { пометитьЭффекты } from './render/fx.js?v=23.88.96';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.97';
+import { уверены } from './confirm-erase.js?v=23.88.97';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.88.97';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.88.97';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.88.97';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.88.97';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.88.97';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.88.97';
+import { полныйПорядок } from './tabs-order.js?v=23.88.97';
+import { getWorldVotes } from './render/world.js?v=23.88.97';
+import { действиеМира } from './render/world-views.js?v=23.88.97';
+import { действиеМузыки } from './render/music.js?v=23.88.97';
+import { раскрытьПорцию } from './render/long-list.js?v=23.88.97';
+import { прогретьИсторию } from './render/carryover.js?v=23.88.97';
+import { подключитьПалитру } from './color-picker.js?v=23.88.97';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.88.97';
+import { замер } from './utils.js?v=23.88.97';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.88.97';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.88.97';
+import { пометитьЭффекты } from './render/fx.js?v=23.88.97';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -917,7 +917,8 @@ export function initGlobalEvents(ctx) {
         e.preventDefault();
         const шаг = zoomBtn.dataset.famZoom;
         const сейчас = Number(relGraph.dataset.famZoom || 1);
-        if (шаг === 'fit') семьяМасштаб(relGraph, 'fit'); else семьяЗум(relGraph, шаг === 'in' ? сейчас * 1.25 : сейчас / 1.25);
+        // «Всё дерево» ↔ обычный размер: второе нажатие возвращает, как было читать.
+        if (шаг === 'fit') семьяМасштаб(relGraph, relGraph.dataset.famFit ? 1 : 'fit'); else семьяЗум(relGraph, шаг === 'in' ? сейчас * 1.25 : сейчас / 1.25);
         return;
       }
       const clickedNode = e.target.closest('.hud-rel-node');
@@ -1807,8 +1808,14 @@ function вернутьПоСобытию(e) {
 // Масштаб генеалогического дерева. Размер svg ставим сами (width/height в px),
 // сцена .hud-fam-scroll прокручивается. 'start' — вписать, но не мельче 0,6
 // (шрифт иначе нечитаем) и встать на «вас» или героя; 'fit' — вписать в ширину.
+// Во сколько раз дерево целиком — и по ширине, и по высоте — входит в окно.
+function семьяВмещает(окно, svg) {
+  const { width: w0, height: h0 } = svg.viewBox.baseVal;
+  const высота = parseFloat(getComputedStyle(окно).maxHeight) || окно.clientHeight || 520;
+  return Math.max(.1, Math.min((окно.clientWidth - 12) / w0, (высота - 12) / h0));
+}
 const семьяПредел = (граф, окно, w0) => ({
-  мин: Math.min(.3, Math.max(.1, (окно.clientWidth - 12) / w0)), макс: 2,
+  мин: Math.min(.3, семьяВмещает(окно, граф.querySelector('.hud-fam-svg'))), макс: 2,
 });
 function семьяРазмер(граф, z) {
   const svg = граф.querySelector('.hud-fam-svg'), окно = граф.querySelector('.hud-fam-scroll');
@@ -1830,6 +1837,7 @@ function семьяЗум(граф, z, clientX, clientY) {
   const ax = (clientX ?? r.left + r.width / 2) - r.left, ay = (clientY ?? r.top + r.height / 2) - r.top;
   const px = (окно.scrollLeft + ax) / было, py = (окно.scrollTop + ay) / было;
   граф.dataset.famManual = '1';
+  delete граф.dataset.famFit;
   const сейчас = семьяРазмер(граф, z);
   if (!сейчас) return;
   окно.scrollLeft = px * сейчас.z - ax;
@@ -1839,9 +1847,10 @@ function семьяМасштаб(граф, зум, центрировать = t
   const окно = граф.querySelector('.hud-fam-scroll'), svg = граф.querySelector('.hud-fam-svg');
   if (!окно || !svg || !svg.viewBox || !svg.viewBox.baseVal) return;
   const w0 = svg.viewBox.baseVal.width;
-  const вмещает = Math.min(1, Math.max(.1, (окно.clientWidth - 12) / w0));
+  const вмещает = Math.min(1.4, семьяВмещает(окно, svg));
   if (зум !== 'start') граф.dataset.famManual = '1';
-  const z = зум === 'fit' ? вмещает : зум === 'start' ? Math.max(.6, вмещает) : Number(зум);
+  const z = зум === 'fit' ? вмещает : зум === 'start' ? Math.max(.6, Math.min(1, Math.max(.1, (окно.clientWidth - 12) / w0))) : Number(зум);
+  if (зум === 'fit') граф.dataset.famFit = '1'; else delete граф.dataset.famFit;
   const сейчас = семьяРазмер(граф, z);
   if (!сейчас) return;
   if (зум !== 'fit' && зум !== 'start' && !центрировать) return;

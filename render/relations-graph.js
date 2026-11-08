@@ -7,11 +7,11 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.88.96';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.88.96';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.88.96';
-import { buildFamilyTree, родствоИз, ложныеБлизнецы } from './family-tree.js?v=23.88.96';
-import { settings } from '../settings.js?v=23.88.96';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.88.97';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.88.97';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.88.97';
+import { buildFamilyTree, родствоИз, ложныеБлизнецы } from './family-tree.js?v=23.88.97';
+import { settings } from '../settings.js?v=23.88.97';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -529,7 +529,7 @@ export function buildRelGraphHTML(hudData, uid, дайХоды = null) {
   // ним — прокручиваемая сцена. Масштаб ставит events.js (семьяМасштаб).
   if (семья) svg += `<div class="hud-family-stage"><div class="hud-fam-zoom" role="group" aria-label="Масштаб дерева">`
     + `<button type="button" class="hud-fam-zoom-btn" data-fam-zoom="out" aria-label="Мельче">−</button>`
-    + `<button type="button" class="hud-fam-zoom-btn is-fit" data-fam-zoom="fit" aria-label="Вписать в ширину">Вписать</button>`
+    + `<button type="button" class="hud-fam-zoom-btn is-fit" data-fam-zoom="fit" aria-label="Показать всё дерево"><span class="to-all">Всё дерево</span><span class="to-normal">Обычный размер</span></button>`
     + `<button type="button" class="hud-fam-zoom-btn" data-fam-zoom="in" aria-label="Крупнее">+</button></div>`
     + `<div class="hud-fam-scroll">${семья.svg}</div></div>`;
 
