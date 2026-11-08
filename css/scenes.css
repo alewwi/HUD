@@ -70,6 +70,9 @@
    Только верхнему слою: вид поля внутри строки (.hud-row .hud-v) лёг бы
    второй подложкой поверх строки — 78 % на 78 %, почти чёрная плашка. */
 :root.hud-sb-on .hud-os-card .hud-tab-content .hud-body > .hud-row, :root.hud-sb-on .hud-os-card .hud-tab-content .hud-body .hud-v:not(.hud-row .hud-v, .hud-v .hud-v) { background-color: var(--hud-pill-base) !important; }
+/* «Место» и «Роль» — почти без текста поверх рисунка: подложка легче, рисунок виднее. */
+:root.hud-sb-on .hud-os-card .hud-tab-content .hud-body > .hud-row:is(.f-where, .f-role) { background-color: color-mix(in srgb, var(--hud-accent) 8%, rgba(14, 12, 19, .5)) !important; }
+:root.hud-sb-on.hud-scheme-light .hud-os-card .hud-tab-content .hud-body > .hud-row:is(.f-where, .f-role) { background-color: color-mix(in srgb, var(--hud-accent) 6%, rgba(255, 252, 246, .52)) !important; }
 
 /* =========================================================================
    ТУШЬ («到大地尽头», «雨霖铃»): двойная линия, растворяющаяся к краям, и

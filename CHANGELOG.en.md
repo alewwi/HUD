@@ -4,6 +4,20 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.93 — 2026-11-08
+
+### Changed
+- **The "First-aid kit" view of Health is a real kit now.** The line about how the person feels stays on top, as before, and the cards of illnesses, marks and "Forever" lie in a closed case: a handle, latches, a cross and a label with the number of entries. A tap opens the case to full width and shows everything. The open case stays open after the HUD redraws. The case takes its color from the theme accent, including a custom theme you built yourself; in Vamp it is dark wine.
+- **Cycle: badges are small chips.** "Fertile window", "PMS window" and "until the period" in the Moon and Flower views stood as a separate full-height column, like big empty tiles. Now they are chips under the dates next to the disc.
+- **The libido chart spans the full width.** Before, it took at most 420 pixels and left half of a wide card empty. The height is fixed, and the "today" circles and dots are not squashed.
+- **Relationships: cards in the strip are one height.** In the sideways strip, short cards stood over empty space next to a tall one; now all stretch to the tallest, like the Trust cards.
+- **Place and Role have a lighter background.** The backing under them is lighter, so the theme picture shows through better. The cards themselves are unchanged.
+
+### Fixed
+- **A morning "after the fog" is no longer foggy.** The weather "clear sunny morning after the fog" turned on the fog scene: the HUD found the word "fog" before "clear", and the whole scene went pale and milky. Now "after the fog", "the fog lifted" and the Russian equivalents do not count as fog, the same as "after the rain" already did.
+- **Schedule: day and time apart for a long date too.** A line like "Sunday, 16.05.2027, 07:15 — breakfast" was not parsed: the part before the time was longer than 24 characters, so everything went as one text under "during the day" with a dash. Now the date is on top, the time is large, and the event is below. Without clock time, a part of the day counts as the time: "…, afternoon — moving" shows "afternoon" large.
+- **Place: the "you are here" circle is not clipped.** The pulsing halo around the last stop went past the edge of the list and was cut off.
+
 ## 23.88.92 — 2026-11-08
 
 ### Fixed

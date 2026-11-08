@@ -594,8 +594,10 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.92**:
+The latest version is **23.88.93**:
 
+- The "First-aid kit" view of Health is a closed case in the theme color that opens on a tap. Cycle badges are small chips, the libido chart and Relationships cards stretch, Place and Role have a lighter background.
+- A morning "after the fog" is no longer foggy; the schedule splits day and time for a long date too and takes a part of the day ("in the evening") as the time.
 - Conception risk is counted by the day of intimacy, not by today, and shown in two lines: today and on the day of intimacy. "(!…)" no longer shows in Relationships.
 - Trust scars are reminded to the model less often — once every eight replies.
 - Archive: a pregnancy shows how it went, symptoms, check-ups, the threat of loss and complications; the dashboard sees hidden turns, so NSFW scene frequency is no longer empty.

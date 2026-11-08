@@ -14,9 +14,9 @@
 // снижают. Рядом с картинкой всегда те же значения словами.
 // Отдельная строка под любым из семи видов цикла (settings.cycleLibido).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.88.92';
-import { settings } from '../settings.js?v=23.88.92';
-import { ико } from './view-icons.js?v=23.88.92';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.88.93';
+import { settings } from '../settings.js?v=23.88.93';
+import { ико } from './view-icons.js?v=23.88.93';
 
 const поле = (о, имя) => {
   if (!о || typeof о !== 'object') return '';
@@ -115,18 +115,21 @@ export function полосаВлечения(В, владелец) {
   }
   const пмс = `<rect class="lib-pms" x="${X(L - 6).toFixed(1)}" y="8" width="${(X(L) - X(L - 6)).toFixed(1)}" height="40" rx="3"><title>Окно ПМС</title></rect>`;
   const отрезки = (В.отрезки || []).map(([k, a, b]) => `<rect class="lib-seg" x="${X(a).toFixed(1)}" y="48" width="${Math.max(1, X(b) - X(a)).toFixed(1)}" height="3" rx="1.5" style="fill:var(--cyc-${k})"/>`).join('');
-  const метки = точки.map(т => `<circle class="lib-dot" cx="${X(т.d).toFixed(1)}" cy="${Y(т.v).toFixed(1)}" r="3"><title>${escapeHtml(`День ${т.d} (${т.когда}): ${т.текст}`)}</title></circle>`).join('');
-  const svg = `<svg class="hud-libido-svg" viewBox="0 0 280 54" role="img" aria-label="Влечение по дням цикла: сегодня ${словоУровня(сегодня)}">`
+  // Кружки — HTML поверх растянутого SVG: в процентах, чтобы не сплющивались.
+  const где = (x, y) => `left:${(x / 280 * 100).toFixed(2)}%;top:${(y / 54 * 100).toFixed(2)}%`;
+  const метки = точки.map(т => `<i class="lib-dot" style="${где(X(т.d), Y(т.v))}" title="${escapeHtml(`День ${т.d} (${т.когда}): ${т.текст}`)}"></i>`).join('');
+  const svg = `<svg class="hud-libido-svg" viewBox="0 0 280 54" preserveAspectRatio="none" role="img" aria-label="Влечение по дням цикла: сегодня ${словоУровня(сегодня)}">`
     + пмс + отрезки
     // Заливка под линией — градиентом цвета фазы: видно, где пик, издалека.
     + `<defs><linearGradient id="hud-lib-fill" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="currentColor" stop-opacity=".35"/><stop offset="1" stop-color="currentColor" stop-opacity="0"/></linearGradient></defs>`
     + `<path class="lib-area" d="${путь} L${X(L).toFixed(1)} 48 L${X(1).toFixed(1)} 48 Z"/><path class="lib-line" d="${путь}"/>`
     + `<path class="lib-now" d="M${X(день).toFixed(1)} 6V48"/>`
-    + `<circle class="lib-today" cx="${X(день).toFixed(1)}" cy="${Y(фон).toFixed(1)}" r="3.4"><title>Фон по фазе: ${словоУровня(фон)}</title></circle>`
-    + (п.доля < .95 ? `<circle class="lib-adj" cx="${X(день).toFixed(1)}" cy="${Y(сегодня).toFixed(1)}" r="3.4"><title>С поправкой: ${escapeHtml(п.причины.join(', '))}</title></circle>` : '')
-    + метки + `</svg>`;
+    + `</svg>`
+    + `<i class="lib-today" style="${где(X(день), Y(фон))}" title="Фон по фазе: ${словоУровня(фон)}"></i>`
+    + (п.доля < .95 ? `<i class="lib-adj" style="${где(X(день), Y(сегодня))}" title="С поправкой: ${escapeHtml(п.причины.join(', '))}"></i>` : '')
+    + метки;
   const слова = `<b>Влечение по фазе: ${словоУровня(фон)}</b>`
     + (п.доля < .95 ? ` · сегодня ниже: ${escapeHtml(п.причины.join(', '))}` : '')
     + (точки.length ? ` · точки — как было на деле` : '');
-  return `<div class="hud-libido"><span class="hud-libido-title">${ико('flame')}Влечение<em>${словоУровня(сегодня)}</em></span>${svg}<p class="hud-libido-text">${слова}</p></div>`;
+  return `<div class="hud-libido"><span class="hud-libido-title">${ико('flame')}Влечение<em>${словоУровня(сегодня)}</em></span><div class="hud-libido-plot">${svg}</div><p class="hud-libido-text">${слова}</p></div>`;
 }

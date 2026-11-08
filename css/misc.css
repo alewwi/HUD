@@ -5277,9 +5277,10 @@
 
 /* Лунный диск */
 /* Подпись уходит под диск, когда рядом ей меньше 150 пикселей: от ширины карточки, а не окна. */
-.hud-cyc.v-moon { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 14px; align-items: center; }
-.hud-cyc.v-moon > .hud-cycle-badges { flex: 1 1 100%; }
-.hud-cyc-moon-side, .hud-cyc-flower-side { flex: 1 1 150px; }
+.hud-cyc.v-moon { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 8px 14px; align-items: center; }
+/* Значки — маленькие чипы под подписью, а не отдельный столбец во всю высоту. */
+:is(.hud-cyc-moon-side, .hud-cyc-flower-side) > .hud-cycle-badges { margin-top: 3px; align-items: flex-start; }
+.hud-cyc-moon-side, .hud-cyc-flower-side { flex: 1 1 150px; max-width: 360px; }
 .hud-cyc-moon, .hud-cyc-flower { flex: none; }
 .hud-cyc-moon { width: 124px; height: 124px; display: block; }
 .hud-cyc-moon .m-shadow { fill: var(--cyc-shadow); }
@@ -5320,8 +5321,7 @@
 .hud-cyc-caps-sub { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; font-size: .84em; color: var(--hud-text-muted, #b8a9ad); padding: 0 8px; }
 
 /* Цветок */
-.hud-cyc.v-flower { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px 12px; align-items: center; }
-.hud-cyc.v-flower > .hud-cycle-badges { flex: 1 1 100%; }
+.hud-cyc.v-flower { display: flex; flex-direction: row; flex-wrap: wrap; justify-content: center; gap: 8px 12px; align-items: center; }
 .hud-cyc-flower { width: 140px; height: 140px; display: block; }
 .hud-cyc-flower ellipse { opacity: .85; }
 .hud-cyc-flower ellipse.is-today { opacity: 1; stroke: var(--hud-text, #fff); stroke-width: 1.3; filter: drop-shadow(0 0 5px var(--cyc-ovulation)); }

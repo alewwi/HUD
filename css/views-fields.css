@@ -399,8 +399,9 @@
 /* ================================ МЕСТО =================================== */
 
 /* Линия метро */
-.hud-f-place.is-crumbs .line { list-style: none; margin: 0; padding: 2px 0 2px 6px; position: relative; display: flex; flex-direction: column; gap: 10px; }
-.hud-f-place.is-crumbs .line::before { content: ''; position: absolute; left: 13px; top: 10px; bottom: 12px; width: 6px; border-radius: 3px; background: linear-gradient(180deg, color-mix(in srgb, var(--t-acc) 40%, transparent), var(--t-acc)); }
+/* Отступ слева и снизу — под ореол «вы здесь» (пульс 14px): лента бывает с прокруткой и обрезала его по своему краю. */
+.hud-f-place.is-crumbs .line { list-style: none; margin: 0; padding: 4px 0 16px 18px; position: relative; display: flex; flex-direction: column; gap: 10px; }
+.hud-f-place.is-crumbs .line::before { content: ''; position: absolute; left: 25px; top: 12px; bottom: 26px; width: 6px; border-radius: 3px; background: linear-gradient(180deg, color-mix(in srgb, var(--t-acc) 40%, transparent), var(--t-acc)); }
 .hud-f-place.is-crumbs li { position: relative; display: flex; align-items: center; gap: 12px; }
 .hud-f-place.is-crumbs .st { flex: none; position: relative; width: 20px; height: 20px; border-radius: 50%; background: var(--f-paper); border: 4px solid color-mix(in srgb, var(--t-acc) 80%, #000); box-sizing: border-box; z-index: 1; }
 .hud-f-place.is-crumbs li > span { display: flex; flex-direction: column; font-size: .92em; }
@@ -905,13 +906,45 @@
 .hud-hv-compact .hud-ill-meter { height: 5px; }
 .hud-hv-compact .hud-ill-meter > i { background: linear-gradient(90deg, color-mix(in srgb, var(--t-acc) 50%, transparent), var(--t-acc)) !important; box-shadow: 0 0 6px var(--t-acc); }
 
-/* Аптечка */
-.hud-hv-kit .hud-health { position: relative; margin-top: 16px; padding: 16px 12px 12px; border-radius: 16px; color: var(--f-paper-ink);
-  background: linear-gradient(180deg, var(--f-paper), var(--f-paper-2)); box-shadow: inset 0 2px 0 rgba(255,255,255,.12), inset 0 0 0 1px var(--f-paper-edge), var(--f-shadow); }
-.hud-hv-kit .hud-health::before { content: ''; position: absolute; top: -14px; left: 50%; width: 64px; height: 18px; margin-left: -32px; border-radius: 10px 10px 0 0; border: 5px solid color-mix(in srgb, var(--t-acc) 30%, #8a8278); border-bottom: 0; box-sizing: border-box; }
-.hud-hv-kit .hud-health::after { content: ''; position: absolute; right: 12px; top: 12px; width: 26px; height: 26px; border-radius: 6px; background: linear-gradient(#fff, #fff) center / 6px 16px no-repeat, linear-gradient(#fff, #fff) center / 16px 6px no-repeat, color-mix(in srgb, var(--t-acc) 40%, #d0313a); box-shadow: 0 2px 4px rgba(0,0,0,.3); }
+/* Аптечка: фраза о самочувствии снаружи; карточки — в закрытом кейсе с
+   ручкой, защёлками и крестом. Нажатие открывает кейс во всю ширину. */
+.hud-hv-kit > .hud-health-note { margin: 0 0 4px; font-weight: 600; }
+.hud-kit-case { --kit: color-mix(in oklab, var(--t-acc) 80%, #1c0b10); --kit-hi: color-mix(in srgb, var(--kit) 72%, #fff); --kit-lo: color-mix(in srgb, var(--kit) 70%, #000);
+  position: relative; width: min(100%, 300px); margin: 18px auto 2px; border-radius: 16px; box-sizing: border-box;
+  background: linear-gradient(180deg, var(--kit-hi), var(--kit) 42%, var(--kit-lo));
+  box-shadow: inset 0 2px 0 rgba(255,255,255,.35), inset 0 -3px 0 rgba(0,0,0,.25), 0 6px 14px rgba(0,0,0,.35);
+  transition: width .35s cubic-bezier(.22,.8,.26,1); }
+.hud-kit-case[open] { width: 100%; }
+/* Цвет кейса — акцент темы (и своей, собранной вручную), чуть глубже. У вампира — тёмная кровь. */
+.hud-theme-vamp .hud-kit-case { --kit: color-mix(in oklab, var(--t-acc) 42%, #1e050a); --kit-hi: color-mix(in oklab, var(--kit) 78%, #fff 22%); }
+.hud-kit-case > summary { list-style: none; cursor: pointer; position: relative; display: flex; align-items: center; gap: 14px; min-height: 84px; padding: 12px 18px; box-sizing: border-box;
+  color: #fff; user-select: none; -webkit-tap-highlight-color: transparent; }
+.hud-kit-case > summary::-webkit-details-marker { display: none; }
+.hud-kit-case > summary::marker { content: ''; }
+/* Шов крышки посередине и ручка сверху. */
+.hud-kit-case > summary::after { content: ''; position: absolute; left: 10px; right: 10px; top: 50%; height: 0; border-top: 1px solid rgba(0,0,0,.28); border-bottom: 1px solid rgba(255,255,255,.18); }
+.hud-kit-case .handle { position: absolute; top: -15px; left: 50%; width: 70px; height: 19px; margin-left: -35px; box-sizing: border-box; border-radius: 11px 11px 0 0;
+  border: 6px solid color-mix(in srgb, var(--kit) 45%, #3a3036); border-bottom: 0; }
+.hud-kit-case .latch { position: absolute; top: calc(50% - 7px); width: 12px; height: 14px; border-radius: 3px; z-index: 1;
+  background: linear-gradient(180deg, #e9e4dc, #a39a90); box-shadow: 0 1px 2px rgba(0,0,0,.4), inset 0 -2px 0 rgba(0,0,0,.2); }
+.hud-kit-case .latch.l { left: 16px; } .hud-kit-case .latch.r { right: 16px; }
+.hud-kit-case .cross { position: relative; z-index: 1; flex: none; width: 46px; height: 46px; border-radius: 50%; margin-left: auto;
+  background: linear-gradient(var(--kit), var(--kit)) center / 10px 26px no-repeat, linear-gradient(var(--kit), var(--kit)) center / 26px 10px no-repeat, #fbf8f3;
+  box-shadow: 0 2px 5px rgba(0,0,0,.35), inset 0 -2px 0 rgba(0,0,0,.12); }
+.hud-kit-case .lbl { position: relative; z-index: 1; display: flex; flex-direction: column; margin-right: auto; padding: 4px 10px; border-radius: 8px; background: rgba(0,0,0,.3); text-shadow: 0 1px 2px rgba(0,0,0,.45); }
+.hud-kit-case .lbl b { font-size: .95em; letter-spacing: .14em; text-transform: uppercase; }
+.hud-kit-case .lbl small { font-size: .78em; opacity: .85; }
+/* Открытый: крышка — полосой сверху, внутри — бумага с карточками. */
+.hud-kit-case[open] > summary { min-height: 58px; }
+.hud-kit-case[open] .latch { transform: translateY(-5px) rotate(-18deg); }
+.hud-kit-case > .hud-health { margin: 0 8px 8px; padding: 12px; border-radius: 10px; color: var(--f-paper-ink);
+  background: linear-gradient(180deg, var(--f-paper), var(--f-paper-2)); box-shadow: inset 0 3px 6px rgba(0,0,0,.35), inset 0 0 0 1px var(--f-paper-edge); }
+.hud-kit-case[open] > .hud-health { animation: hud-kit-open .35s ease-out; }
+@keyframes hud-kit-open { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: none; } }
+@media (hover: hover) and (pointer: fine) { .hud-kit-case:not([open]) > summary:hover .cross { transform: rotate(90deg); } }
+.hud-kit-case .cross { transition: transform .5s cubic-bezier(.22,.8,.26,1); }
+@media (prefers-reduced-motion: reduce) { .hud-kit-case, .hud-kit-case .cross { transition: none; } .hud-kit-case[open] > .hud-health { animation: none; } }
 .hud-hv-kit .hud-health * { color: inherit; }
-.hud-hv-kit .hud-health-note { padding-right: 34px; font-weight: 600; }
 .hud-hv-kit .hud-ill, .hud-hv-kit .hud-mark { background: var(--f-inset) !important; border: 0 !important; border-radius: 6px !important; box-shadow: inset 0 4px 0 color-mix(in srgb, var(--t-acc) 40%, #d0313a), inset 0 0 0 1px var(--f-inset-line) !important; padding-top: 12px !important; }
 .hud-hv-kit :is(.hud-ill-row, .hud-mark-rows) span { color: var(--f-paper-soft) !important; }
 

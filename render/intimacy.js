@@ -13,22 +13,22 @@
 // карточки ненадёжны — у неё content-visibility, и браузер может не
 // двигать их время.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.92';
-import { namesLikelySame } from '../names.js?v=23.88.92';
-import { разобратьХод } from './carryover.js?v=23.88.92';
-import { parseSceneDate } from '../history-analyzer.js?v=23.88.92';
-import { исходЗачатия, датаИзТекста } from './conception.js?v=23.88.92';
-import { блокПлодов } from './fetus.js?v=23.88.92';
-import { кровотечение } from './fertility.js?v=23.88.92';
-import { settings } from '../settings.js?v=23.88.92';
-import { английский } from '../i18n.js?v=23.88.92';
-import { имяЗначка, значкиВключены } from './hud-icons.js?v=23.88.92';
-import { одеждаПодробно, слойОдежды, темпИзТекста, темпыПроникновений, блокТемпа, позаТела, полПерсонажа, проникновенияИзТекста, меткиПроникновения, строкиПроникновения, членИзТекста, членИзКанона, семяИзТекста, влагаИзТекста, финалСцены, вышелИзТекста, снаружиИзТекста, движениеИзОргазма } from './scene-body.js?v=23.88.92';
-import { ощущенияИзТекста } from './body-layers.js?v=23.88.92';
-import { полосаВлечения } from './cycle-libido.js?v=23.88.92';
-import { обликИзТекстов, естьОблик, причёска, волосыСзади, лицо, масштабСложения, масштабРоста, стильОблика, меткиОтметин, нуженКонтур } from './look.js?v=23.88.92';
-import { канонОблика, полИзКанона, подтянутьЛор } from './canon.js?v=23.88.92';
-import { силуэтТела, силуэтБезРук, открытоеТело, очертанияТела, defsОбъёма, слоиОбъёма, кромка, параметрыФигуры, деталиФигуры, кФигуре, грудьФигуры } from './body-art.js?v=23.88.92';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.93';
+import { namesLikelySame } from '../names.js?v=23.88.93';
+import { разобратьХод } from './carryover.js?v=23.88.93';
+import { parseSceneDate } from '../history-analyzer.js?v=23.88.93';
+import { исходЗачатия, датаИзТекста } from './conception.js?v=23.88.93';
+import { блокПлодов } from './fetus.js?v=23.88.93';
+import { кровотечение } from './fertility.js?v=23.88.93';
+import { settings } from '../settings.js?v=23.88.93';
+import { английский } from '../i18n.js?v=23.88.93';
+import { имяЗначка, значкиВключены } from './hud-icons.js?v=23.88.93';
+import { одеждаПодробно, слойОдежды, темпИзТекста, темпыПроникновений, блокТемпа, позаТела, полПерсонажа, проникновенияИзТекста, меткиПроникновения, строкиПроникновения, членИзТекста, членИзКанона, семяИзТекста, влагаИзТекста, финалСцены, вышелИзТекста, снаружиИзТекста, движениеИзОргазма } from './scene-body.js?v=23.88.93';
+import { ощущенияИзТекста } from './body-layers.js?v=23.88.93';
+import { полосаВлечения } from './cycle-libido.js?v=23.88.93';
+import { обликИзТекстов, естьОблик, причёска, волосыСзади, лицо, масштабСложения, масштабРоста, стильОблика, меткиОтметин, нуженКонтур } from './look.js?v=23.88.93';
+import { канонОблика, полИзКанона, подтянутьЛор } from './canon.js?v=23.88.93';
+import { силуэтТела, силуэтБезРук, открытоеТело, очертанияТела, defsОбъёма, слоиОбъёма, кромка, параметрыФигуры, деталиФигуры, кФигуре, грудьФигуры } from './body-art.js?v=23.88.93';
 
 const пусто = (v) => { const s = String(v ?? '').trim(); return !s || /^(empty|none|null|нет|пусто)$/i.test(s); };
 const число = (s) => { const m = String(s ?? '').replace(/(\d),(\d)/g, '$1.$2').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };
@@ -1382,8 +1382,7 @@ function видЛуна(В) {
       <circle class="m-rim" cx="${c}" cy="${c}" r="${R}"/>
       <text class="m-day" x="${c}" y="${c + 6}">${день || '—'}</text>${день ? `<text class="m-sub" x="${c}" y="${c + 20}">из ${L}</text>` : ''}
     </svg>
-    <div class="hud-cyc-moon-side">${В.фазаHtml}<span class="hud-cyc-sub">луна цикла: ${луна}</span><div class="hud-cyc-stats">${строки}</div></div>
-    ${В.значкиHtml}</div>`;
+    <div class="hud-cyc-moon-side">${В.фазаHtml}<span class="hud-cyc-sub">луна цикла: ${луна}</span><div class="hud-cyc-stats">${строки}</div>${В.значкиHtml}</div></div>`;
 }
 
 const ПОЯСНЕНИЕ_ГОРМОНОВ = {
@@ -1443,8 +1442,7 @@ function видЦветок(В) {
   return `<div class="hud-cycle-top hud-cyc v-flower">
     <svg class="hud-cyc-flower" viewBox="0 0 144 144" role="img" aria-label="Цветок цикла${день ? ': день ' + день + ' из ' + L : ''}">${лепестки}
       <circle class="f-core" cx="${c}" cy="${c}" r="16"/><text class="f-day" x="${c}" y="${c + 6}">${день || '—'}</text></svg>
-    <div class="hud-cyc-flower-side">${В.фазаHtml}<ul class="hud-cyc-phases">${список}</ul>${В.следующие ? `<span class="hud-cyc-sub">следующие ${escapeHtml(В.следующие)}</span>` : ''}</div>
-    ${В.значкиHtml}</div>`;
+    <div class="hud-cyc-flower-side">${В.фазаHtml}<ul class="hud-cyc-phases">${список}</ul>${В.следующие ? `<span class="hud-cyc-sub">следующие ${escapeHtml(В.следующие)}</span>` : ''}${В.значкиHtml}</div></div>`;
 }
 
 const ВИДЫ = { ring: видКольцо, strip: видПолоса, calendar: видКалендарь, moon: видЛуна, hormones: видГормоны, capsule: видКапсула, flower: видЦветок };
