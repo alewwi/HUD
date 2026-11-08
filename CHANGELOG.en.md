@@ -4,6 +4,17 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.96 — 2026-11-08
+
+### Fixed
+- **Weight returns to the previous HUD when a message is deleted.** The rollback happens right at deletion, and the card of the last turn is redrawn. Before, the weight stayed from the deleted reply if another message or a swipe with no weight took its place. Calories, activity and height return with the weight. If the second reply of a story day is deleted, the weight of the first one returns. After a rollback the model is asked about the weight again without waiting two days.
+- **Trust scars and event marks roll back the same way.** A scar lives as long as the reply it appeared in.
+- **Deleting a message higher in the chat loses nothing.** Weight and scars follow their reply as its number shifts. Before, scars could disappear for no reason.
+- **Family tree.**
+  - "Son-in-law" and "daughter-in-law" used for a sister's husband or a brother's wife no longer give the person a second, unknown spouse. In Russian one word covers both meanings.
+  - Labels and cards no longer show the prefix from the card title: instead of "father · TITLE" there is a name.
+  - Notes in brackets after a name, such as "(in absentia)", do not create a separate person.
+
 ## 23.88.95 — 2026-11-08
 
 ### Added

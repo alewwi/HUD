@@ -594,8 +594,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.95**:
+The latest version is **23.88.96**:
 
+- When a message is deleted, weight and scars return to the previous HUD at once; deleting higher in the chat loses nothing. The family tree has no extra spouses and no card prefix in its labels.
 - The family tree takes relatives from past HUDs (0 to 500, no copies), and someone else's "twin" no longer becomes kinship.
 - `nc` is also allowed in health, status, inventory, marks and illnesses, only if nothing changed, and no longer shows on screen. Weight is updated with "up, down or as before". Reminders go only about people in the last HUD.
 - Weight: every 3 story days, in tenths, with a rate limit, and the change shows its period. Fears with no subject are hidden.

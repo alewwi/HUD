@@ -7,11 +7,11 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.88.95';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.88.95';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.88.95';
-import { buildFamilyTree, родствоИз, ложныеБлизнецы } from './family-tree.js?v=23.88.95';
-import { settings } from '../settings.js?v=23.88.95';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.88.96';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.88.96';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.88.96';
+import { buildFamilyTree, родствоИз, ложныеБлизнецы } from './family-tree.js?v=23.88.96';
+import { settings } from '../settings.js?v=23.88.96';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -120,8 +120,10 @@ function collectRelationGraph(hudData) {
     parseRelationList(relRaw).forEach(({ target, rel }) => {
       // Сначала ищем уже известного NPC. Таким образом "Майкл" не станет
       // вторым узлом рядом с уже существующим "Michael".
-      const existing = resolveExisting(target);
-      const to = existing ? existing.id : addNode(target, {});
+      // «Ричард Кингсли (заочно)» — тот же Ричард Кингсли.
+      const имяЦели = String(target).replace(/\s*\([^()]*\)\s*$/, '').trim() || target;
+      const existing = resolveExisting(имяЦели);
+      const to = existing ? existing.id : addNode(имяЦели, {});
       if (from && to && from !== to) {
         const duplicate = edges.some(e => e.from === from && e.to === to && e.label === rel);
         if (!duplicate) edges.push({ from, to, label: rel });
