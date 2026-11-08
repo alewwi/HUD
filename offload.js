@@ -24,9 +24,9 @@
 // Файлы: user/files/hud-offload-<персонаж>-<0…f>.json, 16 кусков по первой
 // цифре ключа: при возврате одного хода читается одна шестнадцатая.
 
-import { hudБлоки, extractHudBlock, заглушкиHUD, заглушкаHUD, развернутьЗаглушки, естьЗаглушкаHUD } from './hud-block.js?v=23.88.93';
+import { hudБлоки, extractHudBlock, заглушкиHUD, заглушкаHUD, развернутьЗаглушки, естьЗаглушкаHUD } from './hud-block.js?v=23.88.94';
 
-import { settings } from './settings.js?v=23.88.93';
+import { settings } from './settings.js?v=23.88.94';
 
 const ctx = () => { try { return window.SillyTavern?.getContext?.() || null; } catch (_) { return null; } };
 
@@ -279,8 +279,8 @@ export async function разгрузитьЧат({ оставить = ОСТАВ
 
   // 1. Летопись — до разгрузки: архив по истории берёт из неё ходы, если
   //    файла с блоками почему-то не окажется.
-  const Л = await import('./chronicle-store.js?v=23.88.93');
-  const { ключСообщения } = await import('./chronicle.js?v=23.88.93');
+  const Л = await import('./chronicle-store.js?v=23.88.94');
+  const { ключСообщения } = await import('./chronicle.js?v=23.88.94');
   await Л.пополнитьЛетопись({ все: true });
   if (!(await Л.сохранитьЛетописьСейчас())) throw new Error('летопись не сохранилась');
   const летопись = await Л.летописьЧата();

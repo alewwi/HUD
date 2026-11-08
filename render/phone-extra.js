@@ -9,17 +9,17 @@
 //   «Карты»   — сохранённые места на нарисованной схеме города.
 // Кроме «Здоровья» всё строится из того, что уже есть в HUD.
 
-import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.88.93';
-import { английский } from '../i18n.js?v=23.88.93';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.93';
-import { G_ICONS } from './icons.js?v=23.88.93';
-import { parseCall } from './msg-parts.js?v=23.88.93';
-import { parseMsgParties } from './phone-common.js?v=23.88.93';
-import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.88.93';
-import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.88.93';
-import { namesLikelySame } from '../names.js?v=23.88.93';
-import { зоныКарты } from './intimacy.js?v=23.88.93';
-import { сводкаБолезней } from './character.js?v=23.88.93';
+import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.88.94';
+import { английский } from '../i18n.js?v=23.88.94';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.94';
+import { G_ICONS } from './icons.js?v=23.88.94';
+import { parseCall } from './msg-parts.js?v=23.88.94';
+import { parseMsgParties } from './phone-common.js?v=23.88.94';
+import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.88.94';
+import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.88.94';
+import { namesLikelySame } from '../names.js?v=23.88.94';
+import { зоныКарты } from './intimacy.js?v=23.88.94';
+import { сводкаБолезней } from './character.js?v=23.88.94';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const пусто = (v) => !текст(v) || /^(empty|none|null|нет|пусто)$/i.test(текст(v));
@@ -218,13 +218,29 @@ export function buildCallsApp(chatsMap, журнал, владелец, сцен
 const ЦЕЛЬ_ШАГОВ = 8000;
 const числоИз = (v) => { const m = текст(v).replace(/[\s ]/g, '').match(/\d+(?:[.,]\d+)?/); return m ? parseFloat(m[0].replace(',', '.')) : null; };
 const минутыИз = (v) => { const m = текст(v).match(/\b(\d{1,2}):(\d{2})\b/); return m && +m[1] < 24 ? +m[1] * 60 + +m[2] : null; };
-const ЧЧММ = (м) => String(Math.floor(м / 60) % 24).padStart(2, '0') + ':' + String(Math.round(м % 60)).padStart(2, '0');
+const ЧЧММ = (м0) => { const м = Math.round(м0); return String(Math.floor(м / 60) % 24).padStart(2, '0') + ':' + String(м % 60).padStart(2, '0'); };
+// «8,500» и «8 500» — восемь с половиной тысяч шагов, а не 8,5.
+const шагиИз = (v) => { const m = текст(v).replace(/[\s ]/g, '').match(/\d{1,3}(?:[.,]\d{3})+(?!\d)|\d+/); return m ? +m[0].replace(/[.,]/g, '') : null; };
+// «hr: 0» модель пишет, когда часы сняты или данных нет: живого пульса 0 не бывает.
+const годныйПульс = (n) => (n !== null && n >= 25 && n <= 260 ? n : null);
+const СОН_БЕЗ_ДАННЫХ = /нет данных|нет синхрон|не синхрон|не записан|no data|not synced|not recorded/iu;
+const годныйСон = (s) => (s && !СОН_БЕЗ_ДАННЫХ.test(s) ? s : '');
+const безСкобок = (s) => String(s || '').replace(/^\(([^()]*)\)$/, '$1').trim();
 const тысячи = (n) => String(Math.round(n)).replace(/\B(?=(\d{3})+(?!\d))/g, английский() ? ',' : ' ');
 
 // «Четверг, 17.10.2024» → «17.10»: неделя уложится без года.
 function деньИз(дата) {
   const m = текст(дата).match(/\b(\d{1,2})[./](\d{1,2})(?:[./]\d{2,4})?\b/);
   return m ? m[1].padStart(2, '0') + '.' + m[2].padStart(2, '0') : '';
+}
+
+// Тело чужого человека телефону показывать нельзя: первая карточка — только
+// когда хозяин вообще неизвестен. Телефон игрока — его блок (user).
+function телоХозяина(characters, владелец, user) {
+  const о = карточкаВладельца(characters, владелец);
+  if (о) return о;
+  if (!владелец) return Array.isArray(characters) ? characters[0] || null : null;
+  return user && typeof user === 'object' && namesLikelySame(getSafeUserName(), владелец) ? user : null;
 }
 
 function карточкаВладельца(characters, владелец) {
@@ -237,7 +253,7 @@ function витал(о) {
   const v = поле(о, 'Жизненные показатели');
   const взять = (rx) => { const m = v.match(rx); return m ? m[1].trim() : ''; };
   return {
-    пульс: числоИз(взять(/(?:^|[;\n])\s*(?:hr|пульс)\s*[:：]\s*([^;\n]+)/i)),
+    пульс: годныйПульс(числоИз(взять(/(?:^|[;\n])\s*(?:hr|пульс)\s*[:：]\s*([^;\n]+)/i))),
     дыхание: взять(/(?:^|[;\n])\s*(?:br|дыхание)\s*[:：]\s*([^;\n]+)/i),
     t: числоИз(взять(/(?:^|[;\n])\s*(?:tmp|температура)\s*[:：]\s*([^;\n]+)/i)),
   };
@@ -249,16 +265,16 @@ export function записьЗдоровья(ход) {
   const тел = ход.phone && typeof ход.phone === 'object' ? ход.phone : {};
   const зд = тел.health && typeof тел.health === 'object' ? тел.health : {};
   const сц = ход.scene && typeof ход.scene === 'object' ? ход.scene : {};
-  const о = карточкаВладельца(ход.characters, тел.owner) || (Array.isArray(ход.characters) ? ход.characters[0] : null);
+  const о = телоХозяина(ход.characters, тел.owner, ход.user);
   const изСцены = витал(о).пульс;
-  const пульс = изСцены ?? числоИз(зд.pulse);
-  const шаги = числоИз(зд.steps);
+  const пульс = изСцены ?? годныйПульс(числоИз(зд.pulse));
+  const шаги = шагиИз(зд.steps);
   // Сон хозяина — тот же, что в «Быте»: из его «Состояния тела» (slp). Часы
   // телефона (phn.hl) — только если там о сне ни слова. Раньше они жили
   // порознь, и одна и та же ночь в двух вкладках длилась по-разному.
-  const хозяин = карточкаВладельца(ход.characters, тел.owner);
+  const хозяин = о;
   const slp = ((поле(хозяин, 'Состояние тела').match(/(?:^|[;\s])slp\s*:\s*([^;]+)/i) || [])[1] || '').trim();
-  const сон = slp || (пусто(зд.sleep) ? '' : текст(зд.sleep));
+  const сон = годныйСон(slp) || (пусто(зд.sleep) ? '' : годныйСон(текст(зд.sleep)));
   if (пульс === null && шаги === null && !сон) return null;
   return { день: деньИз(сц['Дата']), мин: минутыИз(сц['Время']), пульс, шаги, сон, сцена: изСцены !== null };
 }
@@ -278,8 +294,11 @@ function разобратьСон(s) {
   const m = t.match(/(\d{1,2}:\d{2})\s*[-–—]\s*(\d{1,2}:\d{2})/);
   if (m) {
     const a = минутыИз(m[1]), b = минутыИз(m[2]);
-    return { мин: (b - a + 1440) % 1440 || null, с: m[1], до: m[2], заметка: t.replace(m[0], '').replace(/^[\s,;.—-]+|[\s,;.]+$/g, '') };
+    return { мин: (b - a + 1440) % 1440 || null, с: m[1], до: m[2], заметка: безСкобок(t.replace(m[0], '').replace(/^[\s,;.—-]+|[\s,;.]+$/g, '')) };
   }
+  // «без сна (ночное дежурство)» — короткое значение и заметка, а не вся фраза крупно.
+  const бессонница = t.match(/^(?:без сна|не спал\p{L}*|no sleep|didn'?t sleep)(?![\p{L}])/iu);
+  if (бессонница) return { мин: null, с: '', до: '', ярлык: 'Без сна', заметка: безСкобок(t.slice(бессонница[0].length).replace(/^[\s,;.—-]+|[\s,;.]+$/g, '')) };
   // «4 часа (на раскладушке)» целиком: иначе «4 ч» откусывалось, а в заметке оставалось «аса».
   const ч = t.match(/(\d+(?:[.,]\d+)?)\s*(?:hours?|hrs?|h|час(?:а|ов)?|ч)(?![\p{L}])/iu), мм = t.match(/(\d+)\s*(?:minutes?|mins?|m|мин\p{L}*|м)(?![\p{L}])/iu);
   const мин = (ч ? parseFloat(ч[1].replace(',', '.')) * 60 : 0) + (мм ? +мм[1] : 0);
@@ -287,10 +306,10 @@ function разобратьСон(s) {
   const легла = t.match(/(?:лёг|лег|легл\p{L}*|уснул\p{L}*|в|went to bed at|fell asleep at|at)\s*(\d{1,2}[:.]\d{2})/iu);
   const с = легла && мин ? легла[1].replace('.', ':') : '';
   const до = с ? ЧЧММ(минутыИз(с) + мин) : '';
-  const заметка = t.replace(ч ? ч[0] : '', '').replace(мм ? мм[0] : '', '').replace(легла && с ? легла[0] : '', '').replace(/^[\s,;.—-]+|[\s,;.]+$/g, '');
+  const заметка = безСкобок(t.replace(ч ? ч[0] : '', '').replace(мм ? мм[0] : '', '').replace(легла && с ? легла[0] : '', '').replace(/^[\s,;.—-]+|[\s,;.]+$/g, ''));
   return { мин: мин || null, с, до, заметка };
 }
-const длительность = (м) => Math.floor(м / 60) + ' ч' + (м % 60 ? ' ' + Math.round(м % 60) + ' мин' : '');
+const длительность = (м0) => { const м = Math.round(м0); return Math.floor(м / 60) + ' ч' + (м % 60 ? ' ' + (м % 60) + ' мин' : ''); };
 
 function графикПульса(точки) {
   const W = 300, H = 112, L = 26, R = 8, T = 10, B = 20;
@@ -315,11 +334,13 @@ function кольцоШагов(шаги) {
     + `<circle class="hl-ring" cx="38" cy="38" r="${r}" stroke-dasharray="${(длина * доля).toFixed(1)} ${длина.toFixed(1)}" transform="rotate(-90 38 38)"/></svg>`;
 }
 
-export function buildHealthApp(phone, scene, characters, владелец) {
+export function buildHealthApp(phone, scene, characters, владелец, user = null) {
   const тел = phone && typeof phone === 'object' ? phone : {};
-  const о = карточкаВладельца(characters, владелец) || (Array.isArray(characters) ? characters[0] : null);
-  const сейчас = записьЗдоровья({ phone: { ...тел, owner: владелец }, scene, characters });
-  const журнал = склеитьЗдоровье(Array.isArray(тел.healthLog) ? тел.healthLog : [], сейчас);
+  const о = телоХозяина(characters, владелец, user);
+  const сейчас = записьЗдоровья({ phone: { ...тел, owner: владелец }, scene, characters, user });
+  // Старые записи журнала могли сохранить «пульс 0» и «Нет данных» — на экран не идут.
+  const журнал = склеитьЗдоровье(Array.isArray(тел.healthLog) ? тел.healthLog : [], сейчас)
+    .map(з => ({ ...з, пульс: годныйПульс(з.пульс), сон: годныйСон(з.сон) }));
 
   const в = витал(о);
   let болезни = [], зоны = [];
@@ -330,7 +351,9 @@ export function buildHealthApp(phone, scene, characters, владелец) {
   const день = сейчас ? сейчас.день : (журнал[журнал.length - 1] || {}).день;
   const сегодня = журнал.filter(з => з.день === день);
   const последнее = (ключ) => { for (let i = сегодня.length - 1; i >= 0; i--) if (сегодня[i][ключ] !== null && сегодня[i][ключ] !== '') return сегодня[i][ключ]; return null; };
-  const шаги = последнее('шаги'), сонТекст = последнее('сон');
+  // Шаги за день только растут: берём наибольшее, как в столбиках «по дням».
+  const шагиДня = сегодня.map(з => з.шаги).filter(v => v !== null && v !== undefined);
+  const шаги = шагиДня.length ? Math.max(...шагиДня) : null, сонТекст = последнее('сон');
   const пульсы = сегодня.filter(з => з.пульс !== null && з.мин !== null).sort((a, b) => a.мин - b.мин);
   const пульсСейчас = (сейчас && сейчас.пульс) ?? последнее('пульс');
   const плитки = [];
@@ -343,7 +366,7 @@ export function buildHealthApp(phone, scene, characters, владелец) {
     const с = разобратьСон(сонТекст);
     const доля = с.мин ? Math.min(1, с.мин / 480) : 0;
     плитки.push(`<div class="hud-hl-tile is-sleep"><span class="hud-hl-kicker">Сон</span>
-      <span class="hud-hl-val"><b>${с.мин ? escapeHtml(длительность(с.мин)) : escapeHtml(сонТекст)}</b>${с.с ? `<small>${escapeHtml(с.с)} – ${escapeHtml(с.до)}</small>` : ''}</span>
+      <span class="hud-hl-val${с.мин || с.ярлык ? '' : ' is-words'}"><b>${с.мин ? escapeHtml(длительность(с.мин)) : escapeHtml(с.ярлык || сонТекст)}</b>${с.с ? `<small>${escapeHtml(с.с)} – ${escapeHtml(с.до)}</small>` : ''}</span>
       ${с.мин ? `<span class="hud-hl-bar" title="${Math.round(доля * 100)}% от 8 часов"><i style="width:${(доля * 100).toFixed(0)}%"></i></span>` : ''}
       ${с.заметка ? `<small class="hud-hl-note">${escapeHtml(с.заметка)}</small>` : ''}</div>`);
   }
@@ -385,7 +408,8 @@ export function buildHealthApp(phone, scene, characters, владелец) {
   if (болезни.length) {
     тело.push(`<div class="hud-hl-ills">${болезни.map(б => `<span class="hud-hl-ill"><i aria-hidden="true">${б.значок}</i><em>${escapeHtml(б.что)}</em>${б.стадия ? `<small>${escapeHtml(б.стадия)}</small>` : ''}${б.выздоровление !== null ? `<b>${Math.round(б.выздоровление)}%</b>` : ''}</span>`).join('')}</div>`);
   }
-  const блокТела = `<div class="hud-hl-card"><div class="hud-hl-title">Тело сейчас</div>${тело.length ? тело.join('') : '<small class="hud-hl-note">Жалоб нет</small>'}</div>`;
+  // Нет карточки хозяина — про его тело ничего не известно, а «Жалоб нет» было бы выдумкой.
+  const блокТела = о ? `<div class="hud-hl-card"><div class="hud-hl-title">Тело сейчас</div>${тело.length ? тело.join('') : '<small class="hud-hl-note">Жалоб нет</small>'}</div>` : '';
 
   return `<div class="hud-hl">${плитки.length ? `<div class="hud-hl-tiles">${плитки.join('')}</div>` : ''}${график}${столбцы}${блокТела}</div>`;
 }

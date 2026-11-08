@@ -6,21 +6,21 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.88.93';
-import { английский } from '../i18n.js?v=23.88.93';
-import { settings } from '../settings.js?v=23.88.93';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.88.93';
-import { G_ICONS } from './icons.js?v=23.88.93';
-import { значокПриложения, естьНабор } from './phone-icons.js?v=23.88.93';
-import { buildMessengerHTML } from './messenger.js?v=23.88.93';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.88.93';
-import { сортироватьЧаты } from './msg-feed.js?v=23.88.93';
-import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.88.93';
-import { buildCalendarApp } from './calendar.js?v=23.88.93';
-import { приложениеМузыки } from './music.js?v=23.88.93';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.88.94';
+import { английский } from '../i18n.js?v=23.88.94';
+import { settings } from '../settings.js?v=23.88.94';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.88.94';
+import { G_ICONS } from './icons.js?v=23.88.94';
+import { значокПриложения, естьНабор } from './phone-icons.js?v=23.88.94';
+import { buildMessengerHTML } from './messenger.js?v=23.88.94';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.88.94';
+import { сортироватьЧаты } from './msg-feed.js?v=23.88.94';
+import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.88.94';
+import { buildCalendarApp } from './calendar.js?v=23.88.94';
+import { приложениеМузыки } from './music.js?v=23.88.94';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.88.93';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.88.94';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -149,7 +149,7 @@ function buildWalletApp(wallet, owner) {
 // --- Календарь ---------------------------------------------------------------
 // Живёт в render/calendar.js; отсюда его по-прежнему берёт альманах
 // (render/medieval.js).
-export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.88.93';
+export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.88.94';
 
 // --- Экраны приложений ------------------------------------------------------
 // Каждый билдер получает свой кусок data.phone и возвращает внутренности
@@ -271,7 +271,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
     on('phoneAppCalls') && { id: 'calls',    icon: G_ICONS.handset, label: 'Звонки', badge: пропущенных,
       body: экранЗвонков },
     on('phoneAppWeather') && { id: 'weather', icon: G_ICONS.weather, label: 'Погода', body: buildWeatherApp(доп.scene, доп.world, местоВладельца) },
-    on('phoneAppHealth') && { id: 'health', icon: G_ICONS.health, label: 'Здоровье', body: buildHealthApp(phone, доп.scene, characters, phoneOwner) },
+    on('phoneAppHealth') && { id: 'health', icon: G_ICONS.health, label: 'Здоровье', body: buildHealthApp(phone, доп.scene, characters, phoneOwner, доп.user) },
     on('phoneAppMessages') && { id: 'messages', icon: G_ICONS.chat, label: 'Сообщения', badge: unread,
       body: messenger || emptyApp(G_ICONS.chat, 'В текущем повествовании нет переписок') },
     on('phoneAppContacts') && { id: 'contacts', icon: G_ICONS.person, label: 'Контакты',  body: buildContactsApp(phone.contacts) },

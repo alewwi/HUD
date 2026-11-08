@@ -4,6 +4,32 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.94 — 2026-11-08
+
+### Changed
+- **Weight is more realistic.** The model is asked every 3 story days instead of weekly, and in tenths: 48.6 kg. The model's number now shows where the body is heading, and the HUD decides how far it could have moved: 0.25 kg for water and food plus 0.15 kg a day. That is at most 0.4 kg in a day, 1.3 kg in a week and almost 5 kg in a month. Swipes count from the previous day and do not add up. It can move faster only after childbirth, amputation or major surgery: the model marks such a record with the word `sudden`. Old records are not recalculated.
+- **The weight change shows its period:** "-0.6 kg over 3 d", "-2 kg over 5 mo". Before, "-2 kg" looked like a one-day loss.
+- **Music: going back to a track without waiting.** The last five tracks stay in memory with their downloaded start. First, second, then first again starts at once with no network, from the beginning. The memory lasts 15 minutes, because links to full tracks expire.
+- **Music starts faster.** YouTube mirrors are asked all at once instead of one by one, and a silent mirror is replaced by the next one after 7 seconds. The link to the next track is prepared in advance, and NetEase does not search again for a track it already found.
+
+### Fixed
+- **Fears with no subject.** The model sometimes wrote only the strength in the field, and the screen showed a bare "low". Such an entry is now hidden, and the model is told not to write it.
+- **Health on the phone.**
+  - "Pulse 0", which the model writes when the watch is silent, no longer draws a point at zero.
+  - "No data" no longer counts as sleep, and "no sleep (night shift)" is shown briefly, with the reason in small print.
+  - If the phone's owner is not found, another person's pulse and body are not shown. The player's phone takes the data from the player's block.
+  - Steps "8,500" are read as 8500. Today's value is the highest one, as in the bars by day.
+- **Life.**
+  - The temperature "-4.5°C" was read as +5, which caused a false "not dressed for the weather". Decimals and the sign now count, and Celsius wins over Fahrenheit.
+  - The "main person" changed every turn because the model lists people in a different order, and the satiety of different people produced a false "ate". Now there is one main person: the hero of the card.
+  - The transactions "Yesterday" and "12.10" are read as dates, and one purchase counts once.
+  - The date in a timeline entry "20:42 (15.05) - dinner" sets the day of the event and stays out of the text.
+  - An item like "dry dark hoodie" in Russian no longer drops out of "wearing".
+  - "Worn N times" counts separate outings, not turns.
+  - "In the laundry" clears after washing, and "ran out" clears after buying.
+  - The summary shows only the main person's night, never someone else's. A night after midnight is not counted twice.
+  - A balance of "1,500" is read as 1500. "After a shower and dinner" now counts as both food and washing. Long entries in "Broken" are shortened.
+
 ## 23.88.93 — 2026-11-08
 
 ### Changed

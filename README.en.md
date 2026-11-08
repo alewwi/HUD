@@ -594,8 +594,11 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.93**:
+The latest version is **23.88.94**:
 
+- Weight: every 3 story days, in tenths, with a rate limit, and the change shows its period. Fears with no subject are hidden.
+- Music: going back to a track that already played needs no waiting, and YouTube mirrors are asked all at once.
+- Fixed Health on the phone (pulse 0, "no data", another person's body) and Life (decimal temperatures, one main person, transaction dates and repeats, items being worn, laundry).
 - The "First-aid kit" view of Health is a closed case in the theme color that opens on a tap. Cycle badges are small chips, the libido chart and Relationships cards stretch, Place and Role have a lighter background.
 - A morning "after the fog" is no longer foggy; the schedule splits day and time for a long date too and takes a part of the day ("in the evening") as the time.
 - Conception risk is counted by the day of intimacy, not by today, and shown in two lines: today and on the day of intimacy. "(!…)" no longer shows in Relationships.

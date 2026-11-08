@@ -17,19 +17,19 @@
 // версии HUD, и сохраняется в файле чата. Запрос идёт с флагом
 // window.__tavernOSHudSkipInject: инструкция HUD в него не попадает.
 
-import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.88.93';
-import { settings } from '../settings.js?v=23.88.93';
-import { parseHUDComplex } from '../hud-parser.js?v=23.88.93';
-import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.88.93';
-import { hudHasCombat } from './combat.js?v=23.88.93';
-import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.88.93';
-import { английский } from '../i18n.js?v=23.88.93';
-import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.88.93';
-import { ключСообщения } from '../chronicle.js?v=23.88.93';
+import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.88.94';
+import { settings } from '../settings.js?v=23.88.94';
+import { parseHUDComplex } from '../hud-parser.js?v=23.88.94';
+import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.88.94';
+import { hudHasCombat } from './combat.js?v=23.88.94';
+import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.88.94';
+import { английский } from '../i18n.js?v=23.88.94';
+import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.88.94';
+import { ключСообщения } from '../chronicle.js?v=23.88.94';
 import { норм, нормНазв, ключТрека, вСписке, переключить, безЗапрещённых, строкиВкуса, языкПесен, правилоЯзыка, мемныйРежим, правилоМемов,
-  ПРЕДЕЛ_ЛАЙКОВ, ПРЕДЕЛ_ЗАПРЕТОВ, библиотека, записьВладельца, записьПоId, плейлистПоId, новыйПлейлист, дописатьПлейлист, удалитьПлейлист } from './music-lib.js?v=23.88.93';
-import { станцииСцены } from './music-radio.js?v=23.88.93';
-import { собратьФон, ИМЕНА_ИСТОЧНИКОВ } from './music-free.js?v=23.88.93';
+  ПРЕДЕЛ_ЛАЙКОВ, ПРЕДЕЛ_ЗАПРЕТОВ, библиотека, записьВладельца, записьПоId, плейлистПоId, новыйПлейлист, дописатьПлейлист, удалитьПлейлист } from './music-lib.js?v=23.88.94';
+import { станцииСцены } from './music-radio.js?v=23.88.94';
+import { собратьФон, ИМЕНА_ИСТОЧНИКОВ } from './music-free.js?v=23.88.94';
 
 export { музыкаХода, норм, нормНазв };
 
@@ -568,7 +568,7 @@ async function собратьКонтекстМузыки(ctx, chat, индек�
   let карточка = null, персона = '';
   if (нуженПомощник) {
     try {
-      const A = await import('./assistant.js?v=23.88.93');
+      const A = await import('./assistant.js?v=23.88.94');
       if (settings.musicIncludeCard === true) карточка = A.карточкаПерсонажа(ctx);
       if (settings.musicIncludePersona === true) персона = A.персонаИгрока(ctx);
     } catch (e) { console.warn('[TavernOS HUD] музыка: карточка и персона', e); }
@@ -1165,6 +1165,7 @@ function трекиГруппы(индекс, группа) {
 // держим в памяти десять минут. Не нашёлся — играем отрывок iTunes.
 const ПОСРЕДНИК = 'https://music-api.gdstudio.xyz/api.php';
 const полныеСсылки = new Map();   // ключ трека → { адрес, когда }
+const номераNetEase = new Map();  // ключ трека → номер на NetEase
 // Полный трек: NetEase (full) или YouTube через зеркала (youtube).
 export const полныйИсточник = () => settings.musicSource === 'full' || settings.musicSource === 'youtube';
 
@@ -1216,15 +1217,15 @@ async function потокиYouTube(т) {
   const зерк = await зеркалаInvidious();
   let н = видеоYouTube.get(k);
   if (!н) {
-    for (const з of зерк.slice(0, 5)) {
-      try {
+    // Зеркала — наперегонки: по очереди мёртвое съедало восемь секунд ожидания.
+    try {
+      н = await Promise.any(зерк.slice(0, 4).map(async з => {
         const j = await получить(з + '/api/v1/search?' + new URLSearchParams({ q: т.a + ' ' + т.t, type: 'video', fields: 'videoId,title,author,lengthSeconds' }));
-        if (!Array.isArray(j)) continue;
-        н = { id: лучшееВидео(т, j), зеркало: з };
-        видеоYouTube.set(k, н);
-        break;
-      } catch (_) { /* следующее зеркало */ }
-    }
+        if (!Array.isArray(j)) throw new Error('не выдача');
+        return { id: лучшееВидео(т, j), зеркало: з };
+      }));
+      видеоYouTube.set(k, н);
+    } catch (_) { /* ни одно зеркало не ответило */ }
   }
   if (!н || !н.id) return [];
   // Сначала зеркало, которое нашло видео, потом остальные — запасными.
@@ -1246,10 +1247,13 @@ async function полныйТрек(т) {
   const было = полныеСсылки.get(ключ);
   if (было && Date.now() - было.когда < 10 * 60 * 1000) return было.адрес;
   const ждать = (мс) => { const c = new AbortController(); setTimeout(() => c.abort(), мс); return c.signal; };
-  const поиск = т.ne ? [{ id: т.ne, name: т.t, artist: [т.a] }] : await fetch(ПОСРЕДНИК + '?' + new URLSearchParams({ types: 'search', count: '8', source: 'netease', name: т.a + ' ' + т.t }), { credentials: 'omit', referrerPolicy: 'no-referrer', signal: ждать(6000) }).then(r => r.json());
+  // Нашли однажды — номер трека помним, поиск второй раз не нужен: живёт недолго только ссылка.
+  const номер = т.ne || номераNetEase.get(ключ);
+  const поиск = номер ? [{ id: номер, name: т.t, artist: [т.a] }] : await fetch(ПОСРЕДНИК + '?' + new URLSearchParams({ types: 'search', count: '8', source: 'netease', name: т.a + ' ' + т.t }), { credentials: 'omit', referrerPolicy: 'no-referrer', signal: ждать(6000) }).then(r => r.json());
   // Тот же исполнитель и то же название — по тем же правилам, что и сверка iTunes.
   const найден = (Array.isArray(поиск) ? поиск : []).find(x => x && x.id && совпадение(т, [{ artistName: (Array.isArray(x.artist) ? x.artist : [x.artist]).filter(Boolean).join(', '), trackName: x.name }]));
   if (!найден || !найден.id) return '';
+  номераNetEase.set(ключ, найден.id);
   // 320 кбит/с, а не FLAC: на телефоне трек в 45 МБ — это лишний трафик.
   const поток = await fetch(ПОСРЕДНИК + '?' + new URLSearchParams({ types: 'url', id: String(найден.id), source: 'netease', br: '320' }), { credentials: 'omit', referrerPolicy: 'no-referrer', signal: ждать(6000) }).then(r => r.json());
   const адрес = поток && typeof поток.url === 'string' && /^https:\/\/[\w.-]+\.(?:126\.net|163\.com)\//.test(поток.url) ? поток.url : '';
@@ -1288,15 +1292,86 @@ async function отрывок(т) {
   return '';
 }
 
+// Уже игравшие треки держим в памяти вместе с их <audio>: в нём лежит скачанное
+// начало, и при возврате к треку звук идёт сразу, без поиска и сети. Fetch с
+// кэшем тут не годится: CDN музыки не отдают CORS. Живой эфир не кэшируем.
+const ЗВУКОВ_В_ПАМЯТИ = 5, ЖИВЁТ_ЗВУК = 15 * 60 * 1000;   // ссылки на полный трек живут недолго
+const готовыеЗвуки = new Map();   // источник|ключ трека → { a, полный, когда, тронут }
+const свободныеЗвуки = [];
+// Пустой WAV: телефон разрешает звук элементу только в нажатии, а адрес трека
+// приходит из сети позже. Новый элемент получает разрешение этой тишиной.
+const ТИШИНА = 'data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=';
+const ключЗвука = (т) => (т.радио ? '' : (settings.musicSource || '') + '|' + ключТрека(т));
+function очиститьЗвук(a) {
+  a.__разогрев = false;
+  a.pause();
+  a.removeAttribute('src');
+  try { a.load(); } catch (_) { /* пусто */ }
+}
+function забытьЗвук(a) { for (const [к, з] of готовыеЗвуки) if (з.a === a) готовыеЗвуки.delete(к); }
+function вернутьЗвук(a) { забытьЗвук(a); очиститьЗвук(a); if (!свободныеЗвуки.includes(a)) свободныеЗвуки.push(a); }
+/** Готовый трек или null; протухший освобождает свой элемент. */
+function взятьГотовый(ключ) {
+  const з = ключ ? готовыеЗвуки.get(ключ) : null;
+  if (!з) return null;
+  if (Date.now() - з.когда < ЖИВЁТ_ЗВУК && !з.a.error && з.a.readyState >= 1 && з.a.getAttribute('src')) return з;
+  if (з.a !== игра.audio) вернутьЗвук(з.a); else готовыеЗвуки.delete(ключ);
+  return null;
+}
+/** Элемент под новый трек, синхронно, в том же нажатии. Играющий остаётся со своим буфером. */
+function звукПодНовый() {
+  const текущий = звук();
+  if (![...готовыеЗвуки.values()].some(з => з.a === текущий)) return текущий;
+  if (свободныеЗвуки.length) return свободныеЗвуки.pop();
+  if (готовыеЗвуки.size + 1 < ЗВУКОВ_В_ПАМЯТИ) {
+    const a = создатьЗвук();
+    a.__разогрев = true;
+    a.src = ТИШИНА;
+    a.play().catch(() => {});
+    return a;
+  }
+  // Память кончилась: уступает тот, к кому дольше всего не возвращались.
+  const [ключ, старый] = [...готовыеЗвуки].filter(([, з]) => з.a !== текущий).sort((x, y) => x[1].тронут - y[1].тронут)[0];
+  готовыеЗвуки.delete(ключ);
+  очиститьЗвук(старый.a);
+  return старый.a;
+}
+// Зеркало молчит, а ошибки не шлёт: без сторожа ждали бы минутами.
+function сторожЗапуска(a, т) {
+  clearTimeout(игра.сторож);
+  if (!игра.запасные || !игра.запасные.length) return;
+  игра.сторож = setTimeout(() => {
+    if (игра.audio !== a || игра.трек !== т || !игра.грузится || !игра.запасные.length) return;
+    a.src = игра.запасные.shift();
+    a.play().catch(() => {});
+    сторожЗапуска(a, т);
+  }, 7000);
+}
+// Следующий трек готовим заранее — только ссылку, без скачивания звука.
+function прогретьСоседа(индекс, группа, i) {
+  const т = трекиГруппы(индекс, группа)[i + 1];
+  if (!т || т.радио || т.поток || т.ok === false) return;
+  const k = ключТрека(т);
+  if (греются.has(k)) return;
+  греются.add(k);
+  (полныйИсточник() ? потокиТрека(т) : т.pv ? Promise.resolve() : отрывок(т)).catch(() => {}).finally(() => греются.delete(k));
+}
+
 function звук() {
-  if (игра.audio) return игра.audio;
+  if (!игра.audio) игра.audio = создатьЗвук();
+  return игра.audio;
+}
+function создатьЗвук() {
   const a = new Audio();
   a.preload = 'none';
-  a.addEventListener('playing', () => { игра.играет = true; игра.грузится = false; игра.радиоПопыток = 0; игра.фонПопыток = 0; отметитьИгру(); });
+  // Отстрелявший элемент молчит: состояние плеера — только у текущего.
+  const свой = () => игра.audio === a && !a.__разогрев;
+  a.addEventListener('playing', () => { if (!свой()) return; игра.играет = true; игра.грузится = false; игра.радиоПопыток = 0; игра.фонПопыток = 0; отметитьИгру(); });
   // Полоска хода — по настоящей длине: у отрывка 30 с, у полного трека минуты.
-  a.addEventListener('loadedmetadata', () => { if (игра.g !== 'r') игра.длина = Number.isFinite(a.duration) && a.duration > 0 ? a.duration : 30; отметитьИгру(); });
-  a.addEventListener('pause', () => { игра.играет = false; отметитьИгру(); });
+  a.addEventListener('loadedmetadata', () => { if (!свой()) return; if (игра.g !== 'r') игра.длина = Number.isFinite(a.duration) && a.duration > 0 ? a.duration : 30; отметитьИгру(); });
+  a.addEventListener('pause', () => { if (!свой()) return; игра.играет = false; отметитьИгру(); });
   a.addEventListener('ended', () => {
+    if (!свой()) return;
     игра.играет = false;
     // Отрывок кончился (полного трека нет) — дальше фон сцены целиком, без пауз.
     if ((игра.g === 's' || игра.g === 'c') && !игра.полный && фонВключён() && settings.musicFreeAfter !== false) { играйФон(игра.mesid, фонХода.has(игра.mesid) ? 1 : 0); return; }
@@ -1304,6 +1379,8 @@ function звук() {
   });
   a.addEventListener('error', () => {
     if (!a.getAttribute('src')) return;
+    if (a.__разогрев) return;
+    if (игра.audio !== a) { вернутьЗвук(a); return; }
     // Свободный трек не загрузился — следующий, но не бесконечно.
     if (игра.g === 'f') {
       игра.фонПопыток = (игра.фонПопыток || 0) + 1;
@@ -1321,7 +1398,9 @@ function звук() {
       return;
     }
     // Не загрузился: следующее зеркало, а когда они кончились — отрывок.
-    if (игра.запасные && игра.запасные.length) { a.src = игра.запасные.shift(); a.play().catch(() => {}); return; }
+    if (игра.запасные && игра.запасные.length) { a.src = игра.запасные.shift(); a.play().catch(() => {}); сторожЗапуска(a, игра.трек); return; }
+    // Дальше у элемента не тот звук, что записан за треком.
+    забытьЗвук(a);
     if (игра.полный && игра.трек) {
       const т = игра.трек;
       игра.полный = false;
@@ -1335,7 +1414,6 @@ function звук() {
     игра.играет = false; игра.грузится = false; отметитьИгру();
     показать('info', 'Музыка', 'Трек не загрузился — откройте его по ссылке.');
   });
-  игра.audio = a;
   return a;
 }
 
@@ -1376,9 +1454,9 @@ export async function играть(индекс, группа, i) {
   индекс = Number(индекс); i = Number(i);
   const т = трекиГруппы(индекс, группа)[i];
   if (!т) return;
-  const a = звук();
-  if (игра.mesid === индекс && игра.g === группа && игра.i === i && a.getAttribute('src')) {
-    if (a.paused) a.play().catch(() => {}); else a.pause();
+  const прежний = звук();
+  if (игра.mesid === индекс && игра.g === группа && игра.i === i && прежний.getAttribute('src') && !прежний.__разогрев) {
+    if (прежний.paused) прежний.play().catch(() => {}); else прежний.pause();
     return;
   }
   if (черезMoodTube()) {
@@ -1395,11 +1473,34 @@ export async function играть(индекс, группа, i) {
   // MoodTube играет своё — ставим на паузу: две музыки разом не нужны.
   const мт = moodTube();
   try { if (мт && мт.isPlaying && мт.isPlaying() && мт.togglePlayPause) мт.togglePlayPause(); } catch (_) { /* не помешает */ }
-  a.pause();
+  прежний.pause();
+  clearTimeout(игра.сторож);
   Object.assign(игра, { mesid: индекс, g: группа, i, играет: false, грузится: true });
   // Полоса показывает играющий трек.
   if (группа === 's' || группа === 'c') поставитьСейчас(индекс, группа, i); else обновитьПолосу(индекс);
   отметитьИгру();
+  const ключЗ = ключЗвука(т);
+  const громкость = Math.max(0, Math.min(100, Number(settings.musicVolume ?? 70))) / 100;
+  // Этот трек уже играл — его начало скачано: включаем сразу, в том же нажатии.
+  const готов = взятьГотовый(ключЗ);
+  if (готов) {
+    игра.audio = готов.a;
+    готов.тронут = Date.now();
+    Object.assign(игра, { полный: готов.полный, трек: т, запасные: [], длина: Number.isFinite(готов.a.duration) && готов.a.duration > 0 ? готов.a.duration : 30 });
+    try { готов.a.currentTime = 0; } catch (_) { /* метаданные ещё не пришли */ }
+    готов.a.volume = громкость;
+    медиаСессия(т);
+    прогретьСоседа(индекс, группа, i);
+    try { await готов.a.play(); }
+    catch (e) {
+      if (игра.audio !== готов.a) return;
+      игра.грузится = false; отметитьИгру();
+      if (e && e.name !== 'AbortError') показать('info', 'Музыка', 'Браузер не дал включить звук — нажмите ещё раз.');
+    }
+    return;
+  }
+  const a = звукПодНовый();
+  игра.audio = a;
   // Известный отрывок ставим сразу, в том же нажатии: телефоны не дают
   // включить звук после ожидания сети.
   let адреса = [];
@@ -1410,21 +1511,27 @@ export async function играть(индекс, группа, i) {
   }
   const полный = адреса.length > 0;
   if (!полный) { const п = т.pv || await отрывок(т); if (п) адреса = [п]; }
-  if (игра.mesid !== индекс || игра.g !== группа || игра.i !== i) return;
+  if (игра.mesid !== индекс || игра.g !== группа || игра.i !== i) { if (игра.audio !== a) вернутьЗвук(a); return; }
   if (полныйИсточник() && !полный && адреса.length && !т.поток) показать('info', 'Музыка', 'Полной версии «' + т.t + '» не нашлось — играет отрывок 30 с.');
   // Остальные адреса — запасные: зеркало не отдало звук — следующее, потом отрывок.
   Object.assign(игра, { полный, трек: т, запасные: адреса.slice(1), длина: группа === 'r' ? 0 : полный ? игра.длина : 30 });
   const адрес = адреса[0] || '';
   if (!адрес) {
+    очиститьЗвук(a);
     игра.грузится = false; отметитьИгру();
     показать('info', 'Музыка', 'У «' + т.t + '» нет отрывка в каталоге — откройте трек по ссылке.');
     return;
   }
+  a.__разогрев = false;
   a.src = адрес;
-  a.volume = Math.max(0, Math.min(100, Number(settings.musicVolume ?? 70))) / 100;
+  a.volume = громкость;
+  if (ключЗ) готовыеЗвуки.set(ключЗ, { a, полный, когда: Date.now(), тронут: Date.now() });
   медиаСессия(т);
+  сторожЗапуска(a, т);
+  прогретьСоседа(индекс, группа, i);
   try { await a.play(); }
   catch (e) {
+    if (игра.audio !== a) return;
     игра.грузится = false; отметитьИгру();
     if (e && e.name !== 'AbortError') показать('info', 'Музыка', 'Браузер не дал включить звук — нажмите ещё раз.');
   }
@@ -1445,7 +1552,10 @@ function следующий(шаг, сам = false) {
 /** Остановить и забыть играющий трек (смена чата, выключили плеер). */
 export function остановитьИгру() {
   const a = игра.audio;
-  if (a) { a.pause(); a.removeAttribute('src'); try { a.load(); } catch (_) { /* пусто */ } }
+  clearTimeout(игра.сторож);
+  for (const з of готовыеЗвуки.values()) очиститьЗвук(з.a);
+  готовыеЗвуки.clear();
+  if (a) очиститьЗвук(a);
   Object.assign(игра, { mesid: null, g: null, i: -1, играет: false, грузится: false });
   отметитьИгру();
 }

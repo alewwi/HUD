@@ -6261,6 +6261,7 @@ html:not(.hud-phone-noglow) body.noShadows .hud-phone-emulator .hud-wx-temp { te
 .hud-hl-val { display: flex; flex-direction: column; min-width: 0; }
 .hud-hl-val b { font-size: 1.5em; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
 .hud-hl-val small { font-size: .72em; opacity: .7; }
+.hud-hl-val.is-words b { font-size: .95em; font-weight: 600; line-height: 1.25; overflow-wrap: anywhere; }
 .hud-hl-note { display: block; font-size: .7em; opacity: .6; margin-top: 2px; }
 .hud-hl-bar { display: block; height: 5px; border-radius: 99px; background: color-mix(in srgb, currentColor 12%, transparent); overflow: hidden; }
 .hud-hl-bar i { display: block; height: 100%; border-radius: inherit; background: color-mix(in oklab, var(--hud-phone-accent) 75%, #fff); }

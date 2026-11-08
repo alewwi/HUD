@@ -20,11 +20,11 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.88.93';
-import { полеВкл } from './deep-fields.js?v=23.88.93';
-import { namesLikelySame } from './names.js?v=23.88.93';
-import { датаИзТекста, дм } from './render/conception.js?v=23.88.93';
-import { праздникиГода } from './render/holidays.js?v=23.88.93';
+import { settings } from './settings.js?v=23.88.94';
+import { полеВкл } from './deep-fields.js?v=23.88.94';
+import { namesLikelySame } from './names.js?v=23.88.94';
+import { датаИзТекста, дм } from './render/conception.js?v=23.88.94';
+import { праздникиГода } from './render/holidays.js?v=23.88.94';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -310,7 +310,7 @@ function заметкаЗапущенного(х, снимок, чат, цель
 
 /* --- Вес --------------------------------------------------------------------- */
 
-const ДНЕЙ_ДО_ОБНОВЛЕНИЯ = 7, ДНЕЙ_ДО_ПОВТОРА = 2, ДНЕЙ_ПАУЗЫ = 14, ЛЮДЕЙ_В_ПРОСЬБЕ = 4;
+const ДНЕЙ_ДО_ОБНОВЛЕНИЯ = 3, ДНЕЙ_ДО_ПОВТОРА = 2, ДНЕЙ_ПАУЗЫ = 14, ЛЮДЕЙ_В_ПРОСЬБЕ = 4;
 const ВЕС_В_ТЕКСТЕ = /"wg"\s*:\s*(\{[^{}]*\})/;
 // Кого убрали из «Быта» руками. Записи остаются: человека можно вернуть.
 const снятИзБыта = (х, имя) => Object.keys(х.снятыеИзБыта).some(к => namesLikelySame(к, имя));
@@ -334,13 +334,23 @@ export function вернутьВБыт(имя) {
   сохранить();
   return true;
 }
+// Сколько тело может измениться: 0,25 кг воды и еды плюс 0,15 кг в сутки
+// (около килограмма в неделю, столько даёт и жёсткий голод). За день — не
+// больше 0,4 кг, за три дня — 0,7, за месяц — почти 5. Шире — только роды,
+// ампутация, большая операция: модель помечает их словом sudden.
+const ВЕС_ВОДА = 0.25, ВЕС_В_СУТКИ = 0.15, ВЕС_РЕЗКО = 15;
+const РЕЗКАЯ_ПЕРЕМЕНА = /(?:^|;)\s*sudden\s*(?:;|$)/i;
+export function весВПределе(новый, прежний, дней, резко = false) {
+  const предел = резко ? ВЕС_РЕЗКО : ВЕС_ВОДА + ВЕС_В_СУТКИ * Math.max(0, дней);
+  return Math.round(Math.min(прежний + предел, Math.max(прежний - предел, новый)) * 10) / 10;
+}
 function записатьВес(х, имя, строка, сцена, индекс) {
   if (снятИзБыта(х, имя)) return false;
   const s = String(строка ?? '');
   const рост = +(s.match(/(\d{2,3})\s*(?:см|cm)/i) || [])[1] || null;
-  const вес = parseFloat(((s.match(/(?<![\d.,])(\d{1,3}(?:[.,]\d{1,2})?)\s*(?:кг|kg)/i) || [])[1] || '').replace(',', '.')) || null;
+  const сырой = parseFloat(((s.match(/(?<![\d.,])(\d{1,3}(?:[.,]\d{1,2})?)\s*(?:кг|kg)/i) || [])[1] || '').replace(',', '.')) || null;
   const ккал = +(s.match(/(\d{3,4})\s*(?:ккал|kcal)/i) || [])[1] || null;
-  if (!вес) return false;
+  if (!сырой) return false;
   // Модель пишет имя как хочет: «Софи» и «Софи Ховард» — один человек.
   const ключ = Object.keys(х.вес).find(к => namesLikelySame(к, имя)) || имя;
   const з = х.вес[ключ] ||= { рост: null, вес: null, ккал: null, дата: null, история: [] };
@@ -348,7 +358,9 @@ function записатьВес(х, имя, строка, сцена, индек
   if (Number.isInteger(з.индекс) && индекс < з.индекс) return false;
   const тотЖеОтвет = индекс === з.индекс;
   const а0 = s.match(/(?:^|;)\s*(low|normal|high)\s*(?:;|$)/i);
-  if (тотЖеОтвет && з.вес === вес) {
+  // Сверяем с числом модели, а не с поправленным: тот же ответ, прочитанный
+  // днём позже, получил бы предел шире и другой вес.
+  if (тотЖеОтвет && (з.сырой === undefined ? з.вес === сырой : з.сырой === сырой)) {
     const было = JSON.stringify([з.рост, з.ккал, з.активность]);
     if (рост) з.рост = рост;
     if (ккал) з.ккал = ккал;
@@ -361,6 +373,11 @@ function записатьВес(х, имя, строка, сцена, индек
   if (ккал) з.ккал = ккал;
   const а = s.match(/(?:^|;)\s*(low|normal|high)\s*(?:;|$)/i);
   if (а) з.активность = а[1].toLowerCase();
+  // Число модели — куда движется тело; сколько оно успело пройти, решает HUD.
+  // База — последний другой день: свайпы и второе число за день не копятся.
+  const база = Number.isFinite(сцена) ? [...з.история].reverse().find(е => Number.isFinite(е.дата) && е.дата !== сцена && Number.isFinite(е.вес)) : null;
+  const вес = база ? весВПределе(сырой, база.вес, (сцена - база.дата) / ДЕНЬ, РЕЗКАЯ_ПЕРЕМЕНА.test(s)) : сырой;
+  з.сырой = сырой;
   з.вес = вес;
   з.дата = сцена ?? з.дата;
   // Свайп и второе число за тот же день сюжета — та же запись, а не прибавка.
@@ -385,6 +402,7 @@ export function собратьВес(чат, сцена = null) {
     const посл = з.история.at(-1);
     if (!посл) { delete х.вес[имя]; было = true; continue; }
     з.вес = посл.вес;
+    delete з.сырой;
     з.дата = посл.дата ?? з.дата;
     з.индекс = Number.isInteger(посл.индекс) ? посл.индекс : -1;
     было = true;
@@ -426,6 +444,13 @@ export function сдвигВеса(з) {
   const дни = историяВеса(з);
   return дни.length > 1 ? Math.round((дни.at(-1).вес - дни.at(-2).вес) * 10) / 10 : 0;
 }
+/** За какой срок набежал сдвиг: «+1 кг» без срока читается как «за день». */
+export function срокСдвигаВеса(з) {
+  const дни = историяВеса(з);
+  if (дни.length < 2 || !Number.isFinite(дни.at(-1).дата) || !Number.isFinite(дни.at(-2).дата)) return '';
+  const n = Math.round((дни.at(-1).дата - дни.at(-2).дата) / ДЕНЬ);
+  return n <= 0 ? '' : n >= 60 ? ` за ${Math.round(n / 30)} мес.` : ` за ${n} дн.`;
+}
 /** Норма ккал: Миффлин — Сан-Жеор и активность; беременность добавляет. */
 const АКТИВНОСТЬ = { low: 1.25, normal: 1.4, high: 1.7 };
 export function нормаКалорий({ вес, рост, возраст = 30, женщина = true, неделя = 0, активность = 'normal' }) {
@@ -452,8 +477,8 @@ function заметкаВеса(х, снимок, цель, сцена, имяИ
       const спрошен = (х.разовые.спрошенВес ||= {});
       нужны.forEach(({ имя }) => { молчит[имя] = (молчит[имя] || 0) >= 3 ? 1 : (молчит[имя] || 0) + 1; спрошен[имя] = сцена; });
       const кто = нужны.map(({ имя }) => { const ключ = Object.keys(х.вес).find(к => namesLikelySame(к, имя)); const з = ключ ? х.вес[ключ] : null; return з ? `${имя} (was ${з.вес} kg, ${з.рост || '?'} cm on ${Number.isFinite(з.дата) ? дм(з.дата) : 'an earlier day'})` : имя; }).join(', ');
-      const формат = [нота('wg.h') ? '<height> cm' : '', '<weight> kg', нота('wg.kc') ? '~<average daily intake> kcal' : '', нота('wg.act') ? '<activity: low, normal or high>' : ''].filter(Boolean).join('; ');
-      текст = `ONLY THIS TURN: add to the root of your HUD JSON "wg": {"<name>": "${формат}"} for ${кто}. Base it on the body they have and what they ate and did lately. Never write wg on other turns.`;
+      const формат = [нота('wg.h') ? '<height> cm' : '', '<weight, one decimal, like 48.6> kg', нота('wg.kc') ? '~<average daily intake> kcal' : '', нота('wg.act') ? '<activity: low, normal or high>' : ''].filter(Boolean).join('; ');
+      текст = `ONLY THIS TURN: add to the root of your HUD JSON "wg": {"<name>": "${формат}"} for ${кто}. Base it on the body they have and what they ate and did lately. A body changes slowly: about 0.1 kg a day, 0.15 at most even when starving, and water moves it only by 0.2-0.3, so stay close to the earlier number unless a lot of time has passed. Only after childbirth, amputation or major surgery may it jump: then end that line with "; sudden". Never write wg on other turns.`;
     }
   }
   х.разовые.вес = { цель, текст };

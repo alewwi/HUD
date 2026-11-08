@@ -10,14 +10,14 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.88.93';
-import { английский, т } from './i18n.js?v=23.88.93';
-import { промптНаАнглийском } from './prompt-en.js?v=23.88.93';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.93';
-import { parseSceneDate } from './history-analyzer.js?v=23.88.93';
-import { возрастТочно } from './render/babies.js?v=23.88.93';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.93';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.93';
+import { settings } from './settings.js?v=23.88.94';
+import { английский, т } from './i18n.js?v=23.88.94';
+import { промптНаАнглийском } from './prompt-en.js?v=23.88.94';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.94';
+import { parseSceneDate } from './history-analyzer.js?v=23.88.94';
+import { возрастТочно } from './render/babies.js?v=23.88.94';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.94';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.94';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -223,7 +223,7 @@ ${бельё ? `   "Un": "[OPTIONAL, only when it matters in the scene — under
    "SxV": "[sex review (phase 3 only), once it has ended: 4-6 sentences in this character's own voice — what worked, what didn't, the best and most awkward moment, how body and heart felt, what to repeat or never again — ending with a rating like ★★★★☆]",` : ''}${следы ? `
    "Mrk": "[visible body marks and physical aftermath — ${интим ? 'hickeys, bites, scratches, bruises, redness, soreness, heaviness' : 'bruises, scratches, grazes, redness, soreness'} — every turn from appearance until they fade in story time${интим ? ', whatever the intimacy phase' : ''}. Each '<what>: <where> — <how it looks/feels now> | <fade time from appearance: 12h, 3d>':${интим ? `'Засос: шея слева — наливается фиолетовым, ноет | 5d; Следы ногтей: спина — красные полосы | 2d'` : `'Синяк: левое предплечье — желтеет по краям, ноет при нажатии | 5d; Ссадины: костяшки правой руки — подсохли корочкой | 2d'`}. The fade time is set once and counted from sc.Dt and sc.T — keep both accurate; the look changes as it heals. Marks that never fade — scars, tattoos, piercings, birthmarks — have no fade time: write when they were obtained instead, '| получен: <date, age or event>' ('Шрам: левая бровь — тонкая белая полоса | получен: в 14 лет, драка'). Body only, no feelings. 'empty' when none; separate by ;]",` : ''}
    "Tr": "[trust: how much this character trusts each other named character, 0-100, '<name>: <0-100>': 'Софи: 82; Ричард: 9'. One entry per person they know. Not the same as Rl — one can love and not trust.${settings.enableScars === false ? '' : " Only when a value moves by 5 or more THIS turn, add why in a few words in brackets: 'Софи: 82 (спасла ему жизнь)'; a deep wound starts with !: 'Софи: 40 (!ударила при всех)'."} Separate by ;]",
-   "Fr": "[fears: what this character is afraid of RIGHT NOW, each '<what they fear>: <low | moderate | high | panic>': 'Потерять Софи: high; Отец узнает: moderate'. Live fears in this scene, not lifelong phobias unless surfaced. Separate by ;]"${своиЧьи.has('chars') ? полеСвоих('chars') : ''}
+   "Fr": "[fears: what this character is afraid of RIGHT NOW, each '<what they fear>: <low | moderate | high | panic>': 'Потерять Софи: high; Отец узнает: moderate'. Live fears in this scene, not lifelong phobias unless surfaced. Never the level alone: no live fear — write empty. Separate by ;]"${своиЧьи.has('chars') ? полеСвоих('chars') : ''}
   }
  ]`;
 
