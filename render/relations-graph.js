@@ -7,11 +7,11 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.88.94';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.88.94';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.88.94';
-import { buildFamilyTree } from './family-tree.js?v=23.88.94';
-import { settings } from '../settings.js?v=23.88.94';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.88.95';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.88.95';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.88.95';
+import { buildFamilyTree, родствоИз, ложныеБлизнецы } from './family-tree.js?v=23.88.95';
+import { settings } from '../settings.js?v=23.88.95';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -266,9 +266,52 @@ function relNodeRoleClass(node) {
   return 'is-secondary';
 }
 
-export function buildRelGraphHTML(hudData, uid) {
+// Дерево видит и родню из прошлых HUD: кто-то давно вышел из сцены, а родство
+// осталось. Пара людей — одна запись родства, самая свежая: без копий и без
+// старого «жена» рядом с новым «бывшая жена». Граф остаётся про текущий ход.
+function деревоСИсторией(nodes, edges, дайХоды) {
+  const глубина = Math.max(0, Math.min(500, Math.round(Number(settings.familyTreeDepth ?? 100)) || 0));
+  if (!глубина || typeof дайХоды !== 'function') return { nodes, edges };
+  const люди = nodes.map(n => ({ ...n }));
+  const рёбра = [...edges];
+  const узел = (имя) => {
+    const чисто = String(имя || '').replace(/\s*\([^()]*\)\s*$/, '').trim();
+    if (!hudFilled(чисто)) return null;
+    let n = люди.find(x => namesLikelySame(чисто, x.name));
+    if (n) return n;
+    const основа = nameIdentityKey(чисто) || чисто.toLowerCase();
+    let id = основа, ещё = 2;
+    while (люди.some(x => x.id === id)) id = `${основа}-${ещё++}`;
+    n = { id, name: чисто, isUser: false, isPrimary: false };
+    люди.push(n);
+    return n;
+  };
+  const ключ = (a, b) => a + '|' + b;
+  const занято = new Set(edges.filter(e => родствоИз(e.label)).map(e => ключ(e.from, e.to)));
+  const игрок = getSafeUserName();
+  for (const d of дайХоды(глубина) || []) {
+    const записи = [...(d.user && игрок ? [[игрок, d.user]] : []), ...(Array.isArray(d.characters) ? d.characters : []).map(c => [c && (c['Имя'] || c.N), c])];
+    for (const [имя, запись] of записи) {
+      if (!запись) continue;
+      for (const { target, rel } of parseRelationList(hudRelField(запись))) {
+        if (!родствоИз(rel)) continue;
+        const от = узел(имя), к = узел(target);
+        if (!от || !к || от === к || занято.has(ключ(от.id, к.id))) continue;
+        занято.add(ключ(от.id, к.id));
+        рёбра.push({ from: от.id, to: к.id, label: rel });
+      }
+    }
+  }
+  return { nodes: люди, edges: рёбра };
+}
+
+export function buildRelGraphHTML(hudData, uid, дайХоды = null) {
   const { nodes, edges } = collectRelationGraph(hudData || {});
   if (nodes.length < 2 && !edges.length) return '';
+  // Чужое «младший близнец» — не родство: связь судим по остальному тексту.
+  const родня = деревоСИсторией(nodes, edges, дайХоды);   // настоящий близнец мог выйти из сцены, а пара всё равно известна
+  const чужиеБлизнецы = ложныеБлизнецы(родня.edges);
+  const видСвязи = (e) => classifyRelationVisual(чужиеБлизнецы.has(e) ? String(e.label || '').replace(/(?:(?:младш|старш)\p{L}*\s+)?(?:(?:брат|сестра)-)?близн\p{L}*|(?:(?:older|younger)\s+)?twin(?:\s+(?:brother|sister))?/giu, ' ') : (e.label || e.rel || ''));
 
   // Responsive virtual canvas: every person gets an equal, deterministic place.
   // User and {{char}} are no longer glued to a single hub position, so the whole
@@ -351,7 +394,7 @@ export function buildRelGraphHTML(hudData, uid) {
   // когда в «Отношениях» нашлось родство.
   let семья = null;
   if (settings.enableFamilyTree !== false) {
-    try { семья = buildFamilyTree(nodes, edges, markerBase); }
+    try { семья = buildFamilyTree(родня.nodes, родня.edges, markerBase); }
     catch (err) { console.warn('[TavernOS HUD] Family tree render failed:', err); семья = null; }
   }
 
@@ -417,7 +460,7 @@ export function buildRelGraphHTML(hudData, uid) {
   // своему началу, иначе оба значка и подписи ложатся в одну середину.
   const t = bidirectional ? .36 : .5;
   const lp = { x: start.x + (end.x - start.x) * t, y: start.y + (end.y - start.y) * t };
-    const type = classifyRelationVisual(e.label);
+    const type = видСвязи(e);
     const meta = relationVisualMeta(type);
     // Directional key: A=>B and B=>A are distinct clickable relations.
     const edgeKey = `${e.from}=>${e.to}`;
@@ -493,7 +536,7 @@ export function buildRelGraphHTML(hudData, uid) {
   // в привычном порядке.
   const порядокТипов = ['love','forbidden','friend','group','family','parent','child','sibling',
     'boss','subordinate','mentor','student','debt','accomplice','jealous','fear','suspicious','hostile','neutral','other'];
-  const встречаются = new Set(edges.map(e => classifyRelationVisual(e.label || e.rel || '')));
+  const встречаются = new Set(edges.map(видСвязи));
   const legendTypes = порядокТипов.filter(t => встречаются.has(t));
   const legend = legendTypes.map(type => {
     const meta = relationVisualMeta(type);

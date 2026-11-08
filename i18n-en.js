@@ -1961,6 +1961,8 @@ export const СЛОВАРЬ_EN = {
   "строкой при снимке": "as a line with the snapshot",
   "при снимке, только по теме": "with the snapshot, only when relevant",
   "Норма сна": "Sleep norm",
+  "Сообщений с HUD для дерева": "HUD messages for the family tree",
+  "Сколько сообщений с HUD просматривать для генеалогического дерева: родня из них попадает в дерево без повторов. 0 — только текущий HUD": "How many HUD messages to scan for the family tree: relatives from them join the tree without duplicates. 0 — the current HUD only",
   "ч": "h",
   "Близость": "Intimacy",
   "Часть про близость": "Intimacy part",

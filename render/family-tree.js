@@ -8,9 +8,9 @@
 // Модуль не знает про граф отношений: получает готовые узлы и рёбра и отдаёт
 // SVG. Так нет круговой зависимости с relations-graph.js.
 
-import { escapeHtml, hudHashSeed, commentInitials } from '../utils.js?v=23.88.94';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.88.94';
-import { найтиПоИмени } from '../names.js?v=23.88.94';
+import { escapeHtml, hudHashSeed, commentInitials } from '../utils.js?v=23.88.95';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.88.95';
+import { найтиПоИмени } from '../names.js?v=23.88.95';
 
 // Кем «кому» приходится тому, у кого записано отношение. Ищем только в
 // первых словах: дальше идёт чувство, где «любит как сына» или «брат по
@@ -24,7 +24,7 @@ const РОДСТВО = [
   ['grandchild', /^(?:внук|внучка|правнук|правнучка|grandson|granddaughter|grandchild)$/],
   ['parent', /^(?:отец|папа|мать|мама|отчим|мачеха|приемный отец|приемная мать|father|mother|dad|mom|stepfather|stepmother|parent)$/],
   ['child', /^(?:сын|сынок|дочь|дочка|пасынок|падчерица|приемный сын|приемная дочь|son|daughter|stepson|stepdaughter|child)$/],
-  ['sibling', /^(?:брат|сестра|сводный брат|сводная сестра|единокровный брат|единокровная сестра|близнец|близняшка|brother|sister|twin|sibling|half[- ]brother|half[- ]sister|stepbrother|stepsister)$/],
+  ['sibling', /^(?:брат|сестра|сводный брат|сводная сестра|единокровный брат|единокровная сестра|близнец|близняшка|брат-близнец|сестра-близнец|брат близнец|сестра близнец|brother|sister|twin|twin brother|twin sister|sibling|half[- ]brother|half[- ]sister|stepbrother|stepsister)$/],
   ['uncle', /^(?:дядя|тетя|uncle|aunt)$/],
   ['nephew', /^(?:племянник|племянница|nephew|niece)$/],
   ['cousin', /^(?:кузен|кузина|двоюродный брат|двоюродная сестра|cousin)$/],
@@ -47,7 +47,8 @@ export function родствоИз(отношение) {
     const найдено = РОДСТВО.find(([, rx]) => rx.test(кусок));
     if (!найдено) continue;
     const следом = слова[n];
-    if (!следом) return { тип: найдено[0], слово: кусок, чей: '' };
+    // «брат и главная опора» — родство, дальше уже про чувства.
+    if (!следом || /^(?:и|а|но|который|которая|которые|кто|and|but|who|whom|that)$/.test(следом)) return { тип: найдено[0], слово: кусок, чей: '' };
     // «Брат по оружию», «как сестра» — оборот, а не родство.
     if (/^(?:по|как|of|in|like)$/.test(следом)) return null;
     // «Сестра Брэндона» — родство с Брэндоном. Имя — одно-два слова с заглавной.
@@ -62,11 +63,29 @@ export function родствоИз(отношение) {
   return null;
 }
 
+// «Арес: младший близнец» в отношениях Лейлы — кто он вообще, а не кем ей
+// приходится. Близнец — пара: взаимная запись правдива, а чужая не считается,
+// если у этого человека уже есть подтверждённый близнец или так его называют
+// сразу несколько людей.
+const СЛОВО_БЛИЗНЕЦА = /близн|twin/;
+export function ложныеБлизнецы(рёбра) {
+  const список = Array.isArray(рёбра) ? рёбра : [];
+  const родня = (e) => { const р = родствоИз(e.label); return р && р.тип === 'sibling' && !р.чей ? р : null; };
+  const все = список.filter(e => { const р = родня(e); return !!р && СЛОВО_БЛИЗНЕЦА.test(р.слово); });
+  const ответный = (e) => список.some(x => x.from === e.to && x.to === e.from && родня(x));
+  const подтверждены = new Set();
+  все.filter(ответный).forEach(e => { подтверждены.add(e.from); подтверждены.add(e.to); });
+  const спорные = все.filter(e => !ответный(e));
+  const заявок = new Map();
+  спорные.forEach(e => заявок.set(e.to, (заявок.get(e.to) || 0) + 1));
+  return new Set(спорные.filter(e => подтверждены.has(e.to) || подтверждены.has(e.from) || заявок.get(e.to) > 1));
+}
+
 // Пол по слову родства о человеке: «сын», «жена», «брат» его выдают. Нужен,
 // чтобы достроить недостающую сторону подписи: у отца «Tristan: сын» не
 // записано, но Софи назвала Тристана мужем — значит, отцу он сын.
-const МУЖСКОЕ = /^(?:отец|папа|отчим|приемный отец|сын|сынок|пасынок|приемный сын|муж|бывший муж|супруг|брат|сводный брат|единокровный брат|двоюродный брат|кузен|дед|дедушка|прадед|внук|правнук|дядя|племянник|свекор|тесть|зять|father|dad|stepfather|son|stepson|husband|ex[- ]?husband|brother|half[- ]brother|stepbrother|grandfather|grandpa|grandson|uncle|nephew|son[- ]in[- ]law|father[- ]in[- ]law)$/;
-const ЖЕНСКОЕ = /^(?:мать|мама|мачеха|приемная мать|дочь|дочка|падчерица|приемная дочь|жена|бывшая жена|супруга|сестра|сводная сестра|единокровная сестра|двоюродная сестра|кузина|бабушка|бабуля|прабабушка|внучка|правнучка|тетя|племянница|свекровь|теща|невестка|сноха|mother|mom|stepmother|daughter|stepdaughter|wife|ex[- ]?wife|sister|half[- ]sister|stepsister|grandmother|grandma|granddaughter|aunt|niece|daughter[- ]in[- ]law|mother[- ]in[- ]law)$/;
+const МУЖСКОЕ = /^(?:отец|папа|отчим|приемный отец|сын|сынок|пасынок|приемный сын|муж|бывший муж|супруг|брат|брат-близнец|брат близнец|twin brother|сводный брат|единокровный брат|двоюродный брат|кузен|дед|дедушка|прадед|внук|правнук|дядя|племянник|свекор|тесть|зять|father|dad|stepfather|son|stepson|husband|ex[- ]?husband|brother|half[- ]brother|stepbrother|grandfather|grandpa|grandson|uncle|nephew|son[- ]in[- ]law|father[- ]in[- ]law)$/;
+const ЖЕНСКОЕ = /^(?:мать|мама|мачеха|приемная мать|дочь|дочка|падчерица|приемная дочь|жена|бывшая жена|супруга|сестра|сестра-близнец|сестра близнец|twin sister|сводная сестра|единокровная сестра|двоюродная сестра|кузина|бабушка|бабуля|прабабушка|внучка|правнучка|тетя|племянница|свекровь|теща|невестка|сноха|mother|mom|stepmother|daughter|stepdaughter|wife|ex[- ]?wife|sister|half[- ]sister|stepsister|grandmother|grandma|granddaughter|aunt|niece|daughter[- ]in[- ]law|mother[- ]in[- ]law)$/;
 const полПоСлову = (слово) => МУЖСКОЕ.test(слово) ? 'м' : ЖЕНСКОЕ.test(слово) ? 'ж' : '';
 
 // Слово для роли по полу: «отец/мать», «сын/дочь», «муж/жена». Приёмное
@@ -134,7 +153,9 @@ export function buildFamilyTree(nodes, edges, idBase) {
 
   const отложенные = [];
   let найдено = 0;
+  const чужиеБлизнецы = ложныеБлизнецы(edges);
   for (const e of edges || []) {
+    if (чужиеБлизнецы.has(e)) continue;
     const р = родствоИз(e.label);
     if (!р || !люди.has(e.from) || !люди.has(e.to) || e.from === e.to) continue;
     let кто = e.from;

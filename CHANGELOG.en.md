@@ -4,6 +4,21 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.95 — 2026-11-08
+
+### Added
+- **Relatives from past HUDs in the family tree.** The settings now have a "HUD messages for the family tree" field next to the tree checkbox: 0 to 500, 100 by default. Relatives who left the scene long ago stay in the tree. One pair of people gives one record, the most recent: no copies and no old "wife" next to a new "ex-wife". At 0 the tree reads only the current HUD.
+
+### Changed
+- **`nc` is also allowed in health, status, inventory, body marks and illnesses.** The rule for the model is strict: `nc` only if nothing in the field has changed since the last HUD. The slightest shift, or any doubt, means the field is written in full. An empty field stays empty.
+- **Weight is now asked as an update.** If a weight is already recorded, the model answers whether it went up, went down or stayed as before, and "as before" is normal. `same` keeps the weight and updates the date, `up` and `down` come with a new number. With no number, the HUD moves the weight by 0.3 kg. Someone with no weight yet is asked for height and weight as before.
+- **Reminders follow the last HUD.** A trust wound, the mark of an event and the rival reminder go to the model only if both people are in the last HUD. The request to fill in what was eaten is not sent about someone who is not there.
+
+### Fixed
+- **`nc` no longer shows on screen.** The model sometimes wrote `nc` in fields the HUD did not expand, and it stood on the card as is. Now `nc` is replaced by the previous value in any field: for characters, the player, the scene, the world and the phone. Optional fields come only from the last turn, so a long-past illness does not return. Replies already received are repaired when shown.
+- **Someone else's "twin" in the tree and graph.** An entry like "X: younger twin" in a third person's relationships made that person X's twin. Now a twin is a pair: a mutual record is true, and someone else's does not count if the person already has a confirmed twin or several people call them that.
+- **"Twin brother" and "twin sister" written with a hyphen in Russian now count as kinship.** Before, such an entry did not reach the tree, and neither did "older brother and main support".
+
 ## 23.88.94 — 2026-11-08
 
 ### Changed

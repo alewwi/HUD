@@ -10,14 +10,14 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.88.94';
-import { английский, т } from './i18n.js?v=23.88.94';
-import { промптНаАнглийском } from './prompt-en.js?v=23.88.94';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.94';
-import { parseSceneDate } from './history-analyzer.js?v=23.88.94';
-import { возрастТочно } from './render/babies.js?v=23.88.94';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.94';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.94';
+import { settings } from './settings.js?v=23.88.95';
+import { английский, т } from './i18n.js?v=23.88.95';
+import { промптНаАнглийском } from './prompt-en.js?v=23.88.95';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.95';
+import { parseSceneDate } from './history-analyzer.js?v=23.88.95';
+import { возрастТочно } from './render/babies.js?v=23.88.95';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.95';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.95';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -128,7 +128,7 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
   const ключиМира = settings.enableWorld && settings.hudWorldDaily !== false ? ['nws', 'rm', 'fc', ...(гороскоп ? ['zd', 'fate'] : []), ...(экономика ? ['eco'] : []), ...(афиша ? ['afs'] : []), ...(город ? ['cty'] : []), 'ad'] : [];
   const ключиПамяти = settings.enableMemory && settings.hudMemoryDelta !== false ? ['fct', ...(ружья ? ['gun'] : []), 'sec', 'lg'] : [];
   const краткость = (settings.hudNoChange !== false ? `
-- ♻️ NO CHANGE: in Ap, C, Kn, Ft, NG and SxL write just "nc" (no change) when the value is word for word the same as in the last HUD — for every character${игрок ? ' and for {{user}}' : ''}. If anything changed, even a little, write it in full. No last HUD — always in full.` : '')
+- ♻️ NO CHANGE: in Ap, C, Kn, Ft, NG, SxL, H, St, I, Mrk and Ill write just "nc" (no change) ONLY when nothing in that field has changed since the last HUD and the value would be word for word the same — for every character${игрок ? ' and for {{user}}' : ''}. The slightest shift — an item used or moved, a bruise fading, a symptom easing, one new detail of status or health — means the field is written in full with the update. If unsure, write it in full. No last HUD — always in full. A field that was empty stays empty, never nc. These eleven fields only: never write nc anywhere else.` : '')
     + (ключиМира.length ? `
 - 🗞️ WORLD ONCE A DAY: in "wd" write ${списокКодов(ключиМира)} only in the first HUD of a new in-story day or when something in them really changes; otherwise leave those keys out — the HUD keeps the last ones.${settings.showComments ? ' "com" is written every turn.' : ''}` : '')
     + (ключиПамяти.length ? `

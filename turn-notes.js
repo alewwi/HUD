@@ -20,11 +20,11 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.88.94';
-import { полеВкл } from './deep-fields.js?v=23.88.94';
-import { namesLikelySame } from './names.js?v=23.88.94';
-import { датаИзТекста, дм } from './render/conception.js?v=23.88.94';
-import { праздникиГода } from './render/holidays.js?v=23.88.94';
+import { settings } from './settings.js?v=23.88.95';
+import { полеВкл } from './deep-fields.js?v=23.88.95';
+import { namesLikelySame } from './names.js?v=23.88.95';
+import { датаИзТекста, дм } from './render/conception.js?v=23.88.95';
+import { праздникиГода } from './render/holidays.js?v=23.88.95';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -201,21 +201,23 @@ function заметкаОтношений(х, снимок, чат, цель, и
   const длина = чат.length;
   const люди = Array.isArray(снимок?.cs) ? снимок.cs : [];
   const найти = (имя) => люди.find(c => c && namesLikelySame(чисто(c.N), имя));
+  // Рана и след — между двумя людьми: второй тоже должен быть в последнем HUD.
+  const вHUD = (имя) => !!найти(имя) || namesLikelySame(имя, имяИгрока);
   const строки = [];
   const уровень = (кто, кому) => { const c = найти(кто); return c ? доверие(c.Tr, кому) : null; };
   // Свайп переписывает ответ цель: то, что случилось в нём, ещё не случилось.
   const сдвиги = сдвигиЧата().filter(е => е.индекс < цель);
-  for (const з of нота('scar') ? живыеШрамы(уровень, цель).filter(е => найти(е.кто)).slice(-3) : []) {
+  for (const з of нота('scar') ? живыеШрамы(уровень, цель).filter(е => найти(е.кто) && вHUD(е.кому)).slice(-3) : []) {
     const текст = `Reminder: ${з.кто} still carries a wound from ${з.кому}${з.почему ? `: ${з.почему}` : ''} (trust fell from ${з.было} to ${з.стало}). Kind words do not erase it; let it show now and then in small flinches and guarded moments.`;
     if (пораНапомнить(х, чат, цель, `шрам|${з.кто}|${з.кому}`, текст, РАЗ_ШРАМА)) строки.push(текст);
   }
-  for (const з of нота('after') ? сдвиги.filter(е => Math.abs(е.d) >= ПОРОГ_ИНЕРЦИИ && длина - е.индекс <= ХОДОВ_ИНЕРЦИИ && найти(е.кто)).slice(-2) : []) {
+  for (const з of нота('after') ? сдвиги.filter(е => Math.abs(е.d) >= ПОРОГ_ИНЕРЦИИ && длина - е.индекс <= ХОДОВ_ИНЕРЦИИ && найти(е.кто) && вHUD(е.кому)).slice(-2) : []) {
     const текст = `${з.кто} is still under the impression of what happened with ${з.кому}${з.почему ? ` (${з.почему})` : ''}: it colours the next few moments.`;
     if (пораНапомнить(х, чат, цель, `след|${з.id}`, текст)) строки.push(текст);
   }
   // Соперник: тот, кого игрок сам называет соперником, сблизился с кем-то.
   const отношения = String(снимок?.us?.Rl || '');
-  for (const з of нота('rival') ? сдвиги.filter(е => е.d >= ПОРОГ_СДВИГА && длина - е.индекс <= 2) : []) {
+  for (const з of нота('rival') ? сдвиги.filter(е => е.d >= ПОРОГ_СДВИГА && длина - е.индекс <= 2 && найти(е.кто) && вHUD(е.кому)) : []) {
     const кусок = отношения.split(/[;\n]/).find(ч => namesLikelySame((ч.split(/[:：]/)[0] || '').trim(), з.кому));
     const текст = `${з.кому}, ${имяИгрока}'s rival, gained ground with ${з.кто}: it costs ${имяИгрока} some of ${з.кто}'s warmth.`;
     if (кусок && /соперни|rival/i.test(кусок) && пораНапомнить(х, чат, цель, `соперник|${з.id}`, текст)) строки.push(текст);
@@ -339,6 +341,9 @@ export function вернутьВБыт(имя) {
 // больше 0,4 кг, за три дня — 0,7, за месяц — почти 5. Шире — только роды,
 // ампутация, большая операция: модель помечает их словом sudden.
 const ВЕС_ВОДА = 0.25, ВЕС_В_СУТКИ = 0.15, ВЕС_РЕЗКО = 15;
+// Модель сказала только «up»/«down», без числа: шаг небольшой, дальше HUD сам ограничит.
+const ВЕС_ШАГ = 0.3;
+const ВЕС_НАПРАВЛЕНИЕ = /^\s*(?:(same|unchanged|as before|прежн\p{L}*|без изменений|не изменил\p{L}*|так же|такой же)|(up|увеличил\p{L}*|вырос\p{L}*|больше)|(down|уменьшил\p{L}*|снизил\p{L}*|похудел\p{L}*|меньше))(?![\p{L}])/iu;
 const РЕЗКАЯ_ПЕРЕМЕНА = /(?:^|;)\s*sudden\s*(?:;|$)/i;
 export function весВПределе(новый, прежний, дней, резко = false) {
   const предел = резко ? ВЕС_РЕЗКО : ВЕС_ВОДА + ВЕС_В_СУТКИ * Math.max(0, дней);
@@ -348,16 +353,29 @@ function записатьВес(х, имя, строка, сцена, индек
   if (снятИзБыта(х, имя)) return false;
   const s = String(строка ?? '');
   const рост = +(s.match(/(\d{2,3})\s*(?:см|cm)/i) || [])[1] || null;
-  const сырой = parseFloat(((s.match(/(?<![\d.,])(\d{1,3}(?:[.,]\d{1,2})?)\s*(?:кг|kg)/i) || [])[1] || '').replace(',', '.')) || null;
+  const число = parseFloat(((s.match(/(?<![\d.,])(\d{1,3}(?:[.,]\d{1,2})?)\s*(?:кг|kg)/i) || [])[1] || '').replace(',', '.')) || null;
+  const н = s.match(ВЕС_НАПРАВЛЕНИЕ);
+  const направление = н ? (н[1] ? 'same' : н[2] ? 'up' : 'down') : '';
   const ккал = +(s.match(/(\d{3,4})\s*(?:ккал|kcal)/i) || [])[1] || null;
-  if (!сырой) return false;
+  if (!число && !направление) return false;
   // Модель пишет имя как хочет: «Софи» и «Софи Ховард» — один человек.
   const ключ = Object.keys(х.вес).find(к => namesLikelySame(к, имя)) || имя;
+  // «same» без прежнего веса — сравнивать не с чем.
+  if (!число && !(х.вес[ключ] && Number.isFinite(х.вес[ключ].вес))) return false;
   const з = х.вес[ключ] ||= { рост: null, вес: null, ккал: null, дата: null, история: [] };
   // Тот же ответ читается снова каждый ход: дата веса не должна ползти за сценой.
   if (Number.isInteger(з.индекс) && индекс < з.индекс) return false;
   const тотЖеОтвет = индекс === з.индекс;
   const а0 = s.match(/(?:^|;)\s*(low|normal|high)\s*(?:;|$)/i);
+  // Опора — вес до этого ответа: свайп и повторное чтение считают от неё, а не от самих себя.
+  const опора = тотЖеОтвет && Number.isFinite(з.опора) ? з.опора : з.вес;
+  let сырой = число;
+  if (направление && Number.isFinite(опора)) {
+    const знак = направление === 'up' ? 1 : -1;
+    if (направление === 'same') сырой = опора;
+    else if (!число || (число - опора) * знак <= 0) сырой = Math.round((опора + знак * ВЕС_ШАГ) * 10) / 10;
+  }
+  if (!сырой) return false;
   // Сверяем с числом модели, а не с поправленным: тот же ответ, прочитанный
   // днём позже, получил бы предел шире и другой вес.
   if (тотЖеОтвет && (з.сырой === undefined ? з.вес === сырой : з.сырой === сырой)) {
@@ -378,6 +396,7 @@ function записатьВес(х, имя, строка, сцена, индек
   const база = Number.isFinite(сцена) ? [...з.история].reverse().find(е => Number.isFinite(е.дата) && е.дата !== сцена && Number.isFinite(е.вес)) : null;
   const вес = база ? весВПределе(сырой, база.вес, (сцена - база.дата) / ДЕНЬ, РЕЗКАЯ_ПЕРЕМЕНА.test(s)) : сырой;
   з.сырой = сырой;
+  з.опора = опора;
   з.вес = вес;
   з.дата = сцена ?? з.дата;
   // Свайп и второе число за тот же день сюжета — та же запись, а не прибавка.
@@ -403,6 +422,7 @@ export function собратьВес(чат, сцена = null) {
     if (!посл) { delete х.вес[имя]; было = true; continue; }
     з.вес = посл.вес;
     delete з.сырой;
+    delete з.опора;
     з.дата = посл.дата ?? з.дата;
     з.индекс = Number.isInteger(посл.индекс) ? посл.индекс : -1;
     было = true;
@@ -476,9 +496,13 @@ function заметкаВеса(х, снимок, цель, сцена, имяИ
     if (нужны.length) {
       const спрошен = (х.разовые.спрошенВес ||= {});
       нужны.forEach(({ имя }) => { молчит[имя] = (молчит[имя] || 0) >= 3 ? 1 : (молчит[имя] || 0) + 1; спрошен[имя] = сцена; });
-      const кто = нужны.map(({ имя }) => { const ключ = Object.keys(х.вес).find(к => namesLikelySame(к, имя)); const з = ключ ? х.вес[ключ] : null; return з ? `${имя} (was ${з.вес} kg, ${з.рост || '?'} cm on ${Number.isFinite(з.дата) ? дм(з.дата) : 'an earlier day'})` : имя; }).join(', ');
-      const формат = [нота('wg.h') ? '<height> cm' : '', '<weight, one decimal, like 48.6> kg', нота('wg.kc') ? '~<average daily intake> kcal' : '', нота('wg.act') ? '<activity: low, normal or high>' : ''].filter(Boolean).join('; ');
-      текст = `ONLY THIS TURN: add to the root of your HUD JSON "wg": {"<name>": "${формат}"} for ${кто}. Base it on the body they have and what they ate and did lately. A body changes slowly: about 0.1 kg a day, 0.15 at most even when starving, and water moves it only by 0.2-0.3, so stay close to the earlier number unless a lot of time has passed. Only after childbirth, amputation or major surgery may it jump: then end that line with "; sudden". Never write wg on other turns.`;
+      const запись = (имя) => { const ключ = Object.keys(х.вес).find(к => namesLikelySame(к, имя)); return ключ ? х.вес[ключ] : null; };
+      const новые = нужны.filter(({ имя }) => !запись(имя)).map(({ имя }) => имя).join(', ');
+      const обновить = нужны.filter(({ имя }) => запись(имя)).map(({ имя }) => { const з = запись(имя); return `${имя} (was ${з.вес} kg, ${з.рост || '?'} cm on ${Number.isFinite(з.дата) ? дм(з.дата) : 'an earlier day'})`; }).join(', ');
+      const хвост = [нота('wg.kc') ? '~<average daily intake> kcal' : '', нота('wg.act') ? '<activity: low, normal or high>' : ''].filter(Boolean).map(x => '; ' + x).join('');
+      const просьбаНовых = новые ? ` For ${новые}: "${нота('wg.h') ? '<height> cm; ' : ''}<weight, one decimal, like 48.6> kg${хвост}".` : '';
+      const просьбаОбновить = обновить ? ` Update ${обновить}: did the weight go up, go down or stay as before? Staying as before is normal and fine: then write "same${хвост}". If it changed: "up; <new weight, one decimal> kg${хвост}" or "down; <new weight, one decimal> kg${хвост}".` : '';
+      текст = `ONLY THIS TURN: add to the root of your HUD JSON "wg": {"<name>": "<value>"}.${просьбаНовых}${просьбаОбновить} Base it on the body they have and what they ate and did lately. A body changes slowly: about 0.1 kg a day, 0.15 at most even when starving, and water moves it only by 0.2-0.3. Only after childbirth, amputation or major surgery may it jump: then end that line with "; sudden". Never write wg on other turns.`;
     }
   }
   х.разовые.вес = { цель, текст };

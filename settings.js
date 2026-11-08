@@ -110,6 +110,8 @@ export const defaultSettings = {
   enablePerception: true,
   // Генеалогическое дерево в графе отношений: считается из родства в Rl.
   enableFamilyTree: true,
+  // Сколько сообщений с HUD просматривать для генеалогического дерева; 0 — только текущий HUD.
+  familyTreeDepth: 100,
   // Кнопка «❓» на карточке: вопросы о сюжете, ответ не пишется в чат.
   enableAssistant: true,
   enableMenstruation: true,

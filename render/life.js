@@ -18,18 +18,18 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { весЧата, нормаКалорий, историяВеса, сдвигВеса, срокСдвигаВеса, снятыеИзБыта } from '../turn-notes.js?v=23.88.94';
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.94';
-import { settings } from '../settings.js?v=23.88.94';
-import { разобратьХод } from './carryover.js?v=23.88.94';
-import { моментСцены } from './intimacy.js?v=23.88.94';
-import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.88.94';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.94';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.94';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.88.94';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.94';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.88.94';
-import { английский } from '../i18n.js?v=23.88.94';
+import { весЧата, нормаКалорий, историяВеса, сдвигВеса, срокСдвигаВеса, снятыеИзБыта } from '../turn-notes.js?v=23.88.95';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.88.95';
+import { settings } from '../settings.js?v=23.88.95';
+import { разобратьХод } from './carryover.js?v=23.88.95';
+import { моментСцены } from './intimacy.js?v=23.88.95';
+import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.88.95';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.95';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.88.95';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.88.95';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.88.95';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.88.95';
+import { английский } from '../i18n.js?v=23.88.95';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;
@@ -799,7 +799,7 @@ export function журналБыта(chat, конец = chat ? chat.length : 0, 
   }
   const бой = учётБоя.итог(сейчас, { главный: главноеИмя, события, сон, голод, норма, естьКарточка });
   return {
-    бой,
+    бой, вПоследнемHUD: естьКарточка,
     сейчас, здесь: последнийХод ? последнийХод.место : '', события, последнее, сон, норма, любимое, гардероб, траты,
     поПогоде,
     надоБы, свежесть, тело: силы[силы.length - 1] || null, главный: последнийХод ? последнийХод.имя : '', голод, неПоПогоде, хватит, долги: [...долги.values()].filter(д => естьКарточка(д.кто)).sort((a, b) => b.t - a.t).slice(0, 8), сныНочей,
@@ -919,6 +919,7 @@ export function пробелыБыта(ж) {
   if (!ж) return '';
   const от = ж.сейчас - 20 * Ч;
   const пустые = ж.события.filter(с => с.вид === 'eat' && с.t >= от && с.t <= ж.сейчас
+    && (!с.кто || с.кто === '~' || !ж.вПоследнемHUD || ж.вПоследнемHUD(с.кто))
     && (с.источник === 'sat' || (с.источник === 'log' && !естьБлюдо(с.что)))).sort((a, b) => a.t - b.t);
   // «Атлас объявил за парадным ужином…» и «Тристан прервал ужин…» через пять
   // минут — один и тот же ужин: просим про него один раз.

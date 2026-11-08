@@ -594,8 +594,10 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.94**:
+The latest version is **23.88.95**:
 
+- The family tree takes relatives from past HUDs (0 to 500, no copies), and someone else's "twin" no longer becomes kinship.
+- `nc` is also allowed in health, status, inventory, marks and illnesses, only if nothing changed, and no longer shows on screen. Weight is updated with "up, down or as before". Reminders go only about people in the last HUD.
 - Weight: every 3 story days, in tenths, with a rate limit, and the change shows its period. Fears with no subject are hidden.
 - Music: going back to a track that already played needs no waiting, and YouTube mirrors are asked all at once.
 - Fixed Health on the phone (pulse 0, "no data", another person's body) and Life (decimal temperatures, one main person, transaction dates and repeats, items being worn, laundry).
