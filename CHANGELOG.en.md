@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.98 — 2026-11-08
+
+### Changed
+- **On phones, long lists no longer scroll separately from the HUD.** Rows with four or more pills were small windows with their own scrolling, and a finger landed either in the list or beside it. Now three pills and the edge of the fourth are visible, with a "More N" button below. A swipe always scrolls the whole HUD, and an expanded list scrolls with it. "Collapse" folds it back. On desktop nothing changes.
+
 ## 23.88.97 — 2026-11-08
 
 ### Changed

@@ -594,8 +594,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.97**:
+The latest version is **23.88.98**:
 
+- On phones, long pill lists open with a "More N" button and scroll together with the whole HUD.
 - Family tree: families as separate branches, couples under their parents, no former spouses without a shared child; a "Whole tree" and "Normal size" button.
 - When a message is deleted, weight and scars return to the previous HUD at once; deleting higher in the chat loses nothing. The family tree has no extra spouses and no card prefix in its labels.
 - The family tree takes relatives from past HUDs (0 to 500, no copies), and someone else's "twin" no longer becomes kinship.

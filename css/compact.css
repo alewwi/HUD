@@ -22,6 +22,12 @@
 .hud-os-card .is-capped > * { flex-shrink: 0; max-width: 100%; }
 /* Без примагничивания вниз: карточки бывают выше окна, и свайп в 220px уносил
    список на 460, мимо половины карточки. */
+/* Телефон: своей прокрутки у списка нет — три плашки и кнопка «Ещё N» (events.js). */
+.hud-os-card .is-capped.is-cap-more { overflow: hidden !important; padding-bottom: 0 !important; }
+.hud-os-card .is-capped.is-cap-more.is-cap-open { overflow: visible !important; -webkit-mask: none; mask: none; padding-bottom: 2px !important; }
+.hud-os-card .hud-cap-more { display: block; align-self: center; grid-column: 1 / -1; width: fit-content; min-height: 36px; margin: 6px auto 0; padding: 4px 16px; }
+.hud-cap-more .to-less, .is-cap-open + .hud-cap-more .to-more { display: none; }
+.is-cap-open + .hud-cap-more .to-less { display: inline; }
 /* Список виден не весь: свайп ведёт вкладка (scroll-chain.js). */
 .hud-os-card .is-capped.is-through { overflow-y: hidden !important; }
 /* Сетка в две колонки показывала бы две плашки и краешек: в списке — одна

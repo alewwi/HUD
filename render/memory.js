@@ -6,21 +6,21 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { parseSceneDate } from '../history-analyzer.js?v=23.88.97';
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.88.97';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.97';
-import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.88.97';
-import { отложитьРисунок } from './lazy-svg.js?v=23.88.97';
-import { длинныйСписок } from './long-list.js?v=23.88.97';
-import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.88.97';
-import { общиеМеста } from './route-places.js?v=23.88.97';
-import { статусРужья } from '../codes.js?v=23.88.97';
-import { сеткаСекретов, вопросыСекретов } from './secrets-grid.js?v=23.88.97';
-import { кнопкаУдаления, кнопкаПодсказки } from './erase-button.js?v=23.88.97';
-import { приглашенияБезОтвета, разобратьНить } from '../turn-notes.js?v=23.88.97';
-import { дм } from './conception.js?v=23.88.97';
-import { settings } from '../settings.js?v=23.88.97';
-import { полеВкл } from '../deep-fields.js?v=23.88.97';
+import { parseSceneDate } from '../history-analyzer.js?v=23.88.98';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.88.98';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.88.98';
+import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.88.98';
+import { отложитьРисунок } from './lazy-svg.js?v=23.88.98';
+import { длинныйСписок } from './long-list.js?v=23.88.98';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.88.98';
+import { общиеМеста } from './route-places.js?v=23.88.98';
+import { статусРужья } from '../codes.js?v=23.88.98';
+import { сеткаСекретов, вопросыСекретов } from './secrets-grid.js?v=23.88.98';
+import { кнопкаУдаления, кнопкаПодсказки } from './erase-button.js?v=23.88.98';
+import { приглашенияБезОтвета, разобратьНить } from '../turn-notes.js?v=23.88.98';
+import { дм } from './conception.js?v=23.88.98';
+import { settings } from '../settings.js?v=23.88.98';
+import { полеВкл } from '../deep-fields.js?v=23.88.98';
 
 function parseRoutePoint(item) {
   // Модель иногда ставит дату перед временем («09.11, 22:15») — дату отбрасываем.
