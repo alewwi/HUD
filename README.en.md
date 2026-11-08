@@ -500,8 +500,8 @@ Settings are grouped — expand the one you need. Below is the essential part of
 
 **🧩 HUD blocks** — what goes into the card at all. Every block you turn off disappears both from the screen and from the model's instruction, so it saves tokens.
 - *Era* — "modern" (phone and intercepts) or "medieval" (casket and overheard talk); phone apps and casket sections are turned on one by one.
-- *Memory and plot* — timeline, secrets, routes; Chekhov's guns; plot twist cards.
-- *Characters* — the player block, "What they think of you", the family tree, companions.
+- *Memory and plot* — timeline, secrets, routes; Chekhov's guns; plot twist cards; the family tree and how many HUD messages to scan for it.
+- *Characters* — the player block, "What they think of you", companions.
 - *Body and health* — illnesses and injuries, body state (energy, sleep, stress), the cycle, pregnancy, birth and the "Nursery". The number and sex of babies can go to the model as a hidden fact or not at all.
   Each new feature has its own checkbox here:
   - for the screen: question badges, one-time nudges, intimacy reminders;
@@ -594,8 +594,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.98**:
+The latest version is **23.88.99**:
 
+- Family tree settings now live under "HUD blocks → Memory and plot".
 - On phones, long pill lists open with a "More N" button and scroll together with the whole HUD.
 - Family tree: families as separate branches, couples under their parents, no former spouses without a shared child; a "Whole tree" and "Normal size" button.
 - When a message is deleted, weight and scars return to the previous HUD at once; deleting higher in the chat loses nothing. The family tree has no extra spouses and no card prefix in its labels.

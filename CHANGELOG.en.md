@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.99 — 2026-11-08
+
+### Changed
+- **Family tree settings moved to "Memory and plot".** The tree checkbox and the "HUD messages for the family tree" field are now under "HUD blocks → Memory and plot" instead of "Characters". Setting values do not change.
+
 ## 23.88.98 — 2026-11-08
 
 ### Changed

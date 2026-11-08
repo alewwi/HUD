@@ -5,9 +5,9 @@
 // index.js находит плашки в любом виде блока, даже без своих кнопок у пунктов.
 // Логика удаления — hud-erase.js.
 
-import { escapeHtml } from '../utils.js?v=23.88.98';
-import { settings } from '../settings.js?v=23.88.98';
-import { полеВкл } from '../deep-fields.js?v=23.88.98';
+import { escapeHtml } from '../utils.js?v=23.88.99';
+import { settings } from '../settings.js?v=23.88.99';
+import { полеВкл } from '../deep-fields.js?v=23.88.99';
 
 export const ЗНАЧОК_КОРЗИНЫ = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M9.5 7V4.5h5V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5"/></svg>';
 

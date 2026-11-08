@@ -5,28 +5,28 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { settings, defaultSettings } from './settings.js?v=23.88.98';
-import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.88.98';
-import { видБлока } from './render/views.js?v=23.88.98';
-import { escapeHtml } from './utils.js?v=23.88.98';
-import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.88.98';
-import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.88.98';
-import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.88.98';
-import { убратьМетку } from './hud-erase.js?v=23.88.98';
-import { убратьЛетопись } from './chronicle-store.js?v=23.88.98';
-import { т, английский } from './i18n.js?v=23.88.98';
-import { уверены } from './confirm-erase.js?v=23.88.98';
-import { промптАссистента, встроенныйПромптАссистента } from './render/assistant-prompt.js?v=23.88.98';
-import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.88.98';
-import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.88.98';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.88.98';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.88.98';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.98';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.88.98';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.88.98';
-import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.88.98';
-import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.88.98';
-import { меткаШапки } from './render/topbar-icons.js?v=23.88.98';
+import { settings, defaultSettings } from './settings.js?v=23.88.99';
+import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.88.99';
+import { видБлока } from './render/views.js?v=23.88.99';
+import { escapeHtml } from './utils.js?v=23.88.99';
+import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.88.99';
+import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.88.99';
+import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.88.99';
+import { убратьМетку } from './hud-erase.js?v=23.88.99';
+import { убратьЛетопись } from './chronicle-store.js?v=23.88.99';
+import { т, английский } from './i18n.js?v=23.88.99';
+import { уверены } from './confirm-erase.js?v=23.88.99';
+import { промптАссистента, встроенныйПромптАссистента } from './render/assistant-prompt.js?v=23.88.99';
+import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.88.99';
+import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.88.99';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.88.99';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.88.99';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.99';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.88.99';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.88.99';
+import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.88.99';
+import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.88.99';
+import { меткаШапки } from './render/topbar-icons.js?v=23.88.99';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -102,14 +102,14 @@ export function addSettingsUI() {
           ${галка('hud-enable-memory', settings.enableMemory, '🧠 Память (события, настроение, маршрут, секреты)', 'Таймлайн, настроение двух главных персонажей, маршруты и секреты')}
           ${галка('hud-enable-guns', settings.enableGuns !== false, '🔫 Ружья Чехова', 'Незакрытые сюжетные нити во вкладке памяти: обещания, угрозы, намёки, загадки. Просится у модели.')}
           ${галка('hud-enable-twists', settings.enableTwists !== false, '🎟️ Повороты сюжета', 'Когда в сцене случается настоящий поворот, над вкладками появляется карточка: что случилось и куда может повести.')}
+          ${галка('hud-enable-familytree', settings.enableFamilyTree !== false, '🌳 Генеалогическое дерево', 'Вторым видом в графе отношений: родители, дети, супруги, братья и сёстры по родству из «Отношений». Появляется, только когда родство есть.')}
+          <label class="hud-set-check" title="Сколько сообщений с HUD просматривать для генеалогического дерева: родня из них попадает в дерево без повторов. 0 — только текущий HUD">🌳 Сообщений с HUD для дерева: ${число('hud-family-depth', 0, 500, settings.familyTreeDepth ?? 100, 60)}</label>
         `)}
 
         ${подгруппа('👤 Персонажи', `
           ${галка('hud-enable-user', settings.enableUserBlock, '👤 {{user}} — блок игрока', 'Отдельный блок {{user}}: одежда, внешность, здоровье, отношения, локация.')}
           ${галка('hud-user-all-fields', settings.userAllFields === true, '🧾 Все поля игрока, как у персонажей', 'Игроку — те же поля, что персонажам: роль, статус, состояние тела, мысли, подтекст, инвентарь, цели, расписание, доверие, страхи, близость и другие. Выключено — только одежда, внешность, здоровье, отношения и место. Отдельные поля — в «Глубокой настройке».')}
           ${галка('hud-enable-perception', settings.enablePerception !== false, '👁 Что о тебе думают', 'Как к вам относится каждый персонаж и насколько доверяет. Считается из карточек, модель ничего не дописывает.')}
-          ${галка('hud-enable-familytree', settings.enableFamilyTree !== false, '🌳 Генеалогическое дерево', 'Вторым видом в графе отношений: родители, дети, супруги, братья и сёстры по родству из «Отношений». Появляется, только когда родство есть.')}
-          <label class="hud-set-check" title="Сколько сообщений с HUD просматривать для генеалогического дерева: родня из них попадает в дерево без повторов. 0 — только текущий HUD">🌳 Сообщений с HUD для дерева: ${число('hud-family-depth', 0, 500, settings.familyTreeDepth ?? 100, 60)}</label>
           ${галка('hud-enable-companions', settings.enableCompanions !== false, '🐾 Спутники', 'Животные, фамильяры, дроны: настроение, состояние, рацион, привязанность. Своя вкладка, появляется, только когда спутники есть.')}
         `)}
 
@@ -905,7 +905,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.88.98');
+      const mod = await import('./render/archive.js?v=23.88.99');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -1124,7 +1124,7 @@ export function addSettingsUI() {
   [['hud-music-enable', 'enableMusic'], ['hud-music-auto', 'musicAuto'], ['hud-music-verify', 'musicVerify'], ['hud-music-line', 'musicSceneLine'], ['hud-music-player', 'musicPlayer']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.88.98').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
+      import('./render/music.js?v=23.88.99').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
     });
   });
   document.getElementById('hud-music-profile').addEventListener('change', (e) => { settings.musicProfileId = e.target.value || ''; основа.saveSettings(); });
@@ -1154,20 +1154,20 @@ export function addSettingsUI() {
     ['hud-music-free-fonau', 'musicFreeFonau'], ['hud-music-free-audius', 'musicFreeAudius'], ['hud-music-free-incompetech', 'musicFreeIncompetech'], ['hud-music-free-commons', 'musicFreeCommons']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.88.98').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
+      import('./render/music.js?v=23.88.99').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
     });
   });
   [['hud-music-liked-clear', 'musicLiked'], ['hud-music-banned-clear', 'musicBanned']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('click', async () => {
       if ((settings[ключ] || []).length && !await уверены({ текст: ключ === 'musicLiked' ? 'Весь список понравившихся треков очистится.' : 'Весь список запрещённых треков очистится.', кнопка: 'Очистить' })) return;
       settings[ключ] = []; основа.saveSettings(); вкусМузыки();
-      import('./render/music.js?v=23.88.98').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      import('./render/music.js?v=23.88.99').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
   [['hud-music-medieval', 'musicMedieval'], ['hud-music-style', 'musicStyle'], ['hud-music-source', 'musicSource']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.value; основа.saveSettings();
-      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.88.98').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.88.99').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
 
