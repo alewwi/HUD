@@ -10,7 +10,7 @@
 // "Майкл Смит", "Michael Smith" и т.п. Граф сначала собирает все реальные
 // имена, затем пытается сопоставить каждую ссылку с уже существующим узлом,
 // и только после этого создаёт новый узел.
-import { settings } from './settings.js?v=23.88.101';
+import { settings } from './settings.js?v=23.88.102';
 
 export function normalizeNameText(name) {
   return String(name ?? '')
@@ -243,7 +243,9 @@ function первыеСловаСовпадают(a, b, исхA = '', исхB = 
     // s и z в транслитерации путаются: «Изольда» (izolda) — Isolde.
     const сa = согласные(a).replace(/z(?!h)/g, 's'), сb = согласные(b).replace(/z(?!h)/g, 's');
     const началоТо = a[0] === b[0] || (/^[aeiouy]/.test(a) && /^[aeiouy]/.test(b));
-    if (сa && сa === сb && началоТо) return levenshtein(a, b) <= 2;
+    // У коротких имён две согласные на всех: «Leila» и «Лола», «Koen» и «Кейн»
+    // по ним совпадали — две правки им не прощаем.
+    if (сa && сa === сb && началоТо) return levenshtein(a, b) <= (сa.length === 2 ? 1 : 2);
   }
   return false;
 }
@@ -264,7 +266,17 @@ export function namesLikelySame(a, b) {
   }
   return v;
 }
+// Приставка карточки («THE REGENTS  Tristan Kingsley») — не часть имени: по
+// общему первому слову «the» Коэн и Тристан из одной карточки сходили за одного.
+// Слова капслоком впереди, если дальше есть строчные буквы (как имяБезПриставки).
+function безПриставки(имя) {
+  const слова = String(имя ?? '').trim().split(/\s+/).filter(Boolean);
+  let i = 0;
+  while (i < слова.length - 1 && /^[\p{Lu}\d'’&.-]{2,}$/u.test(слова[i]) && /\p{Ll}/u.test(слова.slice(i + 1).join(' '))) i++;
+  return слова.slice(i).join(' ');
+}
 function сравнитьИмена(a, b) {
+  a = безПриставки(a); b = безПриставки(b);
   const A = normalizeNameText(a), B = normalizeNameText(b);
   if (!A || !B) return false;
   if (A === B) return true;

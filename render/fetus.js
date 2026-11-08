@@ -7,12 +7,12 @@
 // «Убрать беременность» стирает её из HUD совсем (hud-erase.js).
 // Клики ловит index.js (data-hud-fetus). Оформление — css/family.css.
 
-import { escapeHtml } from '../utils.js?v=23.88.101';
-import { settings } from '../settings.js?v=23.88.101';
-import { плодыОт, ТИПЫ_ПЛОДОВ, СОЧЕТАНИЯ, словоПолов } from './conception.js?v=23.88.101';
-import { наследование, узнатьЧерты } from './fertility.js?v=23.88.101';
-import { видСемьи, видПлодов } from './family-views.js?v=23.88.101';
-import { ЗНАЧОК_КОРЗИНЫ } from './erase-button.js?v=23.88.101';
+import { escapeHtml } from '../utils.js?v=23.88.102';
+import { settings } from '../settings.js?v=23.88.102';
+import { плодыОт, ТИПЫ_ПЛОДОВ, СОЧЕТАНИЯ, словоПолов } from './conception.js?v=23.88.102';
+import { наследование, узнатьЧерты } from './fertility.js?v=23.88.102';
+import { видСемьи, видПлодов } from './family-views.js?v=23.88.102';
+import { ЗНАЧОК_КОРЗИНЫ } from './erase-button.js?v=23.88.102';
 
 // Малыш в плодном пузыре: свернувшийся эмбрион (голова, спинка дугой,
 // ручка у лица, ножки), пуповина, объём от градиента и блик.

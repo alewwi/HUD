@@ -4,6 +4,19 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.102 — 2026-11-09
+
+A second check of the conclusions HUD draws itself.
+
+### Fixed
+- **Names.** Two characters of one card ("THE CLUB  Mark Grey" and "THE CLUB  Anna Grey") counted as one person by the shared first word of the prefix: the prefix no longer takes part in the comparison. Short names with two consonants no longer merge on two edits: "Leila" and "Lola", "Koen" and "Kane" are different people, "Leila" and "Лейла" are one.
+- **Protection during intimacy.**
+  - Oral sex alone ("oral", "cunnilingus") now carries no conception risk, even when the field says "none: no protection". "Oral contraceptives" are still pills.
+  - "No ejaculation inside" and "ejaculation control" are withdrawal, not "no protection".
+  - An emergency pill (ulipristal, Ella, Postinor) is emergency contraception, not ordinary pills.
+- **Sleep.** "slp: 7" means seven hours: a bare number used to be lost, and the night dropped out of Daily life. "slp: 0" works as before, without an empty night.
+- **Debts in Money.** "A debt of honour", "forever in her debt", "the struggle between duty and desire", "must be back for breakfast" counted as money debts. Now a debt needs money nearby: an amount, a currency, a loan, an IOU, interest, a lender, a bookmaker.
+
 ## 23.88.101 — 2026-11-09
 
 A check of the places where HUD draws a conclusion itself, without a field from the model.
