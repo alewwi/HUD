@@ -15,14 +15,14 @@
 // Оформление — детское: у девочек бантики и куколки, у мальчиков машинки и
 // динозавры (css/family.css).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.88.103';
-import { английский } from '../i18n.js?v=23.88.103';
-import { parseSceneDate } from '../history-analyzer.js?v=23.88.103';
-import { settings } from '../settings.js?v=23.88.103';
-import { роды, деньРодов, деньРожденияМалыша } from './conception.js?v=23.88.103';
-import { часовМежду } from './fertility.js?v=23.88.103';
-import { buildCharacterHTML } from './character.js?v=23.88.103';
-import { видСемьи, видТрекера, видУхода, подсказкаВехи } from './family-views.js?v=23.88.103';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.89.1';
+import { английский } from '../i18n.js?v=23.89.1';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.1';
+import { settings } from '../settings.js?v=23.89.1';
+import { роды, деньРодов, деньРожденияМалыша } from './conception.js?v=23.89.1';
+import { часовМежду } from './fertility.js?v=23.89.1';
+import { buildCharacterHTML } from './character.js?v=23.89.1';
+import { видСемьи, видТрекера, видУхода, подсказкаВехи } from './family-views.js?v=23.89.1';
 
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const текст = (о, к) => снятьЗаглушки(flattenFieldValue(о && о[к]));

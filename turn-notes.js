@@ -20,12 +20,13 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.88.103';
-import { полеВкл } from './deep-fields.js?v=23.88.103';
-import { естьЗаглушкаHUD } from './hud-block.js?v=23.88.103';
-import { namesLikelySame } from './names.js?v=23.88.103';
-import { датаИзТекста, дм } from './render/conception.js?v=23.88.103';
-import { праздникиГода } from './render/holidays.js?v=23.88.103';
+import { settings } from './settings.js?v=23.89.1';
+import { статусОбещания } from './hud-expand.js?v=23.89.1';
+import { полеВкл } from './deep-fields.js?v=23.89.1';
+import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.1';
+import { namesLikelySame } from './names.js?v=23.89.1';
+import { датаИзТекста, дм } from './render/conception.js?v=23.89.1';
+import { праздникиГода } from './render/holidays.js?v=23.89.1';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -699,6 +700,17 @@ function заметкаСроков(х, снимок, цель, сцена) {
     х.разовые[ключ] = цель;
     строки.push(`The deadline of this thread passed on ${дм(н.дата)}: «${н.завязка}». Resolve it in the story: it either happened or failed, then mark it fired or drop it.`);
   }
+  // Обещания с прошедшим сроком: сдержали или нарушили — один раз на обещание.
+  for (const с of settings.promisesList === false ? [] : Array.isArray(снимок?.me?.prm) ? снимок.me.prm : []) {
+    const [кто = '', что = '', срок = '', статус = ''] = String(с).split('|').map(x => x.trim());
+    if (!что || статусОбещания(статус) !== 'open') continue;
+    const дата = датаИзТекста(срок, new Date(сцена).getUTCFullYear());
+    if (дата === null || дата >= сцена) continue;
+    const ключ = 'обещание ' + (кто + что).slice(0, 60);
+    if (х.разовые[ключ] && х.разовые[ключ] !== цель) continue;
+    х.разовые[ключ] = цель;
+    строки.push(`The promise «${кто}: ${что}» was due on ${дм(дата)}. Settle it in the story: was it kept or broken? Mark it kept or broken in prm, then drop it the next turn.`);
+  }
   // Планы из календаря телефона: прошла дата, и неясно, сделали или сорвали.
   const год = new Date(сцена).getUTCFullYear();
   let планов = 0;
@@ -711,6 +723,49 @@ function заметкаСроков(х, снимок, цель, сцена) {
     х.разовые[ключ] = цель;
     планов++;
     строки.push(`The plan «${з.ti}» was set for ${дм(дата)} and the day has passed: in this reply settle whether it happened or was missed, then drop it from the calendar.`);
+  }
+  return строки;
+}
+
+/* --- Кто что знает --------------------------------------------------------------- */
+// В сцене и тот, кто знает секрет, и тот, кто не знает: модель любила
+// «проговорить» его через персонажа, которому знать неоткуда. Напоминание —
+// редкое, как у шрамов: раз в восемь ответов на секрет, не больше двух строк.
+function заметкаЗнаний(х, снимок, чат, цель, игрок) {
+  if (settings.knowledgeLine === false || !вкл('enableMemory')) return [];
+  const тут = [...(Array.isArray(снимок?.cs) ? снимок.cs : []).map(c => чисто(c && c.N)).filter(Boolean), игрок];
+  const имяИз = (x) => чисто(x && typeof x === 'object' ? (x.n || x.N || x.name) : x);
+  const среди = (список, имя) => (Array.isArray(список) ? список : []).some(x => namesLikelySame(имяИз(x), имя));
+  const строки = [];
+  for (const с of Array.isArray(снимок?.me?.sec) ? снимок.me.sec : []) {
+    if (!с || !с.f || строки.length >= 2) continue;
+    const не = тут.filter(и => среди(с.hd, и)), да = тут.filter(и => среди(с.knw, и) && !не.includes(и));
+    if (!не.length || !да.length) continue;
+    const текст = `${не.join(', ')} ${не.length > 1 ? 'do' : 'does'} not know: «${String(с.f).trim()}»; ${да.join(', ')} ${да.length > 1 ? 'know' : 'knows'} it. Do not let it slip to them unless the story itself reveals it.`;
+    if (пораНапомнить(х, чат, цель, `знание|${String(с.f).trim().slice(0, 60)}`, текст, РАЗ_ШРАМА)) строки.push(текст);
+  }
+  return строки;
+}
+
+/* --- Замки доверия -------------------------------------------------------------- */
+// Стадии доверия разделены порогами 20, 40, 60, 80, и одной болтовнёй их не
+// перейти — нужно событие (идея «замков» из движка симпатии LIWE). Правило
+// стоит в описании Tr (prompt.js); здесь — напоминание, когда доверие уже у
+// самого порога: раз в восемь ответов на пару, не больше двух строк.
+const ЗАМКИ = [[20, 'acquaintance'], [40, 'friend'], [60, 'close'], [80, 'bound for life']];
+function заметкаЗамков(х, снимок, чат, цель) {
+  if (settings.trustLocks === false) return [];
+  const строки = [];
+  for (const c of Array.isArray(снимок?.cs) ? снимок.cs : []) {
+    if (!c || !c.N || строки.length >= 2) continue;
+    for (const ч of String(Array.isArray(c.Tr) ? c.Tr.join('; ') : c.Tr ?? '').split(/[;\n]/)) {
+      const м = ч.match(/^\s*([^:：(]{1,40}?)\s*[:：]\s*(\d{1,3})/);
+      if (!м || строки.length >= 2) continue;
+      const v = +м[2], замок = ЗАМКИ.find(([п]) => v >= п - 3 && v < п);
+      if (!замок) continue;
+      const текст = `${чисто(c.N)}'s trust in ${м[1].trim()} is ${v}, right below the "${замок[1]}" line at ${замок[0]}. It crosses that line only after a key event in the story: real help with nothing to gain, danger faced together, a secret shared, support in a weak moment, a sacrifice. Ordinary kindness keeps it below.`;
+      if (пораНапомнить(х, чат, цель, `замок|${чисто(c.N)}|${м[1].trim()}|${замок[0]}`, текст, РАЗ_ШРАМА)) строки.push(текст);
+    }
   }
   return строки;
 }
@@ -745,6 +800,8 @@ export function заметкиХода({ чат, снимок = null, тип = '
   if (снимок) {
     const строки = [];
     if (вкл('enableScars')) строки.push(...заметкаОтношений(х, снимок, чат, цель, игрок));
+    строки.push(...заметкаЗнаний(х, снимок, чат, цель, игрок));
+    строки.push(...заметкаЗамков(х, снимок, чат, цель));
     if (вкл('enableBodyCues') && нота('cue')) { const д = заметкаДеталей(х, снимок, цель, игрок); if (д) строки.push(д); }
     if (вкл('enableNeglect') && нота('neg')) строки.push(...заметкаЗапущенного(х, снимок, чат, цель, сцена, игрок));
     if (вкл('enableWeight') && нота('wg')) { const в = заметкаВеса(х, снимок, цель, сцена, игрок); if (в) строки.push(в); }

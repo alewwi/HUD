@@ -5,32 +5,32 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { показатьЧтоНового } from './whats-new.js?v=23.88.103';
-import { settings, defaultSettings } from './settings.js?v=23.88.103';
-import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.88.103';
-import { видБлока } from './render/views.js?v=23.88.103';
-import { escapeHtml } from './utils.js?v=23.88.103';
-import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.88.103';
-import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.88.103';
-import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.88.103';
-import { убратьМетку } from './hud-erase.js?v=23.88.103';
-import { убратьЛетопись } from './chronicle-store.js?v=23.88.103';
-import { т, английский } from './i18n.js?v=23.88.103';
-import { уверены } from './confirm-erase.js?v=23.88.103';
-import { промптАссистента, встроенныйПромптАссистента } from './render/assistant-prompt.js?v=23.88.103';
-import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.88.103';
-import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.88.103';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.88.103';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.88.103';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.88.103';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.88.103';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.88.103';
-import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.88.103';
-import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.88.103';
-import { меткаШапки } from './render/topbar-icons.js?v=23.88.103';
+import { показатьЧтоНового } from './whats-new.js?v=23.89.1';
+import { settings, defaultSettings } from './settings.js?v=23.89.1';
+import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.89.1';
+import { видБлока } from './render/views.js?v=23.89.1';
+import { escapeHtml } from './utils.js?v=23.89.1';
+import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.89.1';
+import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.89.1';
+import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.89.1';
+import { убратьМетку } from './hud-erase.js?v=23.89.1';
+import { убратьЛетопись } from './chronicle-store.js?v=23.89.1';
+import { т, английский } from './i18n.js?v=23.89.1';
+import { уверены } from './confirm-erase.js?v=23.89.1';
+import { промптАссистента, встроенныйПромптАссистента } from './render/assistant-prompt.js?v=23.89.1';
+import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.89.1';
+import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.89.1';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.89.1';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.89.1';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.1';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.89.1';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.89.1';
+import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.89.1';
+import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.89.1';
+import { меткаШапки } from './render/topbar-icons.js?v=23.89.1';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
-// applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
+// applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, getStContextSafe, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
 let основа = null;
 export function подключить(связь) { основа = связь; }
 
@@ -123,6 +123,10 @@ export function addSettingsUI() {
           ${галка('hud-enable-hints', settings.enableHintButtons !== false, '✨ Разовые подсказки', 'Кнопка со звёздочкой: выбранная плашка уходит модели в следующий ответ')}
           ${галка('hud-enable-invites', settings.enableInvitations !== false, '💌 Приглашения', 'Модель записывает приглашения, HUD понимает ответ или спрашивает вас')}
           ${галка('hud-enable-deadlines', settings.enableDeadlines !== false, '⏳ Сроки нитей', 'Дата у ружья, срок в календаре, просроченная нить и план просят развязки')}
+          ${галка('hud-knowledge-line', settings.knowledgeLine !== false, '🙈 Кто чего не знает', 'В карточке персонажа — строка «Не знает» по секретам, где он среди тех, кто не в курсе. Когда в сцене и тот, кто знает, и тот, кто нет, модель раз в восемь ответов получает напоминание не проговориться.')}
+          ${галка('hud-trust-locks', settings.trustLocks !== false, '🔒 Замки доверия', 'Доверие растёт стадиями с порогами 20, 40, 60 и 80. Перейти порог можно только в ход с ключевым событием: помощь без выгоды, общая опасность, общий секрет, поддержка в слабости, жертва. Одними разговорами доверие останавливается под порогом. Когда оно у самого порога, модель получает напоминание раз в восемь ответов.')}
+          ${галка('hud-promises', settings.promisesList !== false, '🤝 Обещания', 'Список в «Памяти»: кто кому что обещал, к какому сроку, сдержано ли. Обещание с прошедшим сроком модель получает напоминанием: сдержали или нарушили.')}
+          ${галка('hud-meanwhile', settings.meanwhile !== false, '🕰 Тем временем', '1–2 важных человека вне кадра: где они сейчас, что делают и думают, что знают о главном, чего не знают и о чём догадываются. Свёрнутым блоком в «Памяти». Модель продолжает их прошлую запись. Стоит немного токенов ответа.')}
           ${галка('hud-enable-scars', settings.enableScars !== false, '🩹 Шрамы отношений', 'Резкое падение доверия оставляет шрам: модель помнит обиду, пока доверие не вернётся')}
           ${галка('hud-enable-era-holidays', settings.enableEraHolidays !== false, '🎉 Праздники эпохи', 'Праздники в календаре телефона и лёгкий фон в сцене')}
           ${галка('hud-enable-cues', settings.enableBodyCues !== false, '🌿 Живые детали', 'Голод, усталость и другое модель показывает мелкими приметами, а не называет')}
@@ -847,7 +851,7 @@ export function addSettingsUI() {
   document.getElementById('hud-enable-dreams').addEventListener('change', (e) => { settings.enableDreams = e.target.checked; основа.saveSettings(); });
   document.getElementById('hud-enable-world').addEventListener('change', (e) => { settings.enableWorld = e.target.checked; основа.saveSettings(); });
   [['hud-enable-exams', 'enablePregnancyExams'], ['hud-enable-threat', 'enableThreatDice'], ['hud-enable-loss', 'enablePregnancyLoss'], ['hud-enable-rest', 'enableRestHints'], ['hud-enable-attn', 'enableAttnBadges'], ['hud-enable-hints', 'enableHintButtons'], ['hud-enable-invites', 'enableInvitations'], ['hud-enable-deadlines', 'enableDeadlines'],
-   ['hud-enable-era-holidays', 'enableEraHolidays'], ['hud-enable-scars', 'enableScars'], ['hud-enable-cues', 'enableBodyCues'], ['hud-enable-neglect', 'enableNeglect'], ['hud-enable-weight', 'enableWeight'], ['hud-preg-serious', 'pregnancySerious'], ['hud-enable-guns', 'enableGuns'], ['hud-enable-illness', 'enableIllness'], ['hud-enable-pregnancy', 'enablePregnancy'], ['hud-enable-babies', 'enableBabies'],
+   ['hud-enable-era-holidays', 'enableEraHolidays'], ['hud-enable-scars', 'enableScars'], ['hud-knowledge-line', 'knowledgeLine'], ['hud-trust-locks', 'trustLocks'], ['hud-promises', 'promisesList'], ['hud-meanwhile', 'meanwhile'], ['hud-enable-cues', 'enableBodyCues'], ['hud-enable-neglect', 'enableNeglect'], ['hud-enable-weight', 'enableWeight'], ['hud-preg-serious', 'pregnancySerious'], ['hud-enable-guns', 'enableGuns'], ['hud-enable-illness', 'enableIllness'], ['hud-enable-pregnancy', 'enablePregnancy'], ['hud-enable-babies', 'enableBabies'],
    ['hud-enable-companions', 'enableCompanions'], ['hud-enable-bodystate', 'enableBodyState'], ['hud-enable-twists', 'enableTwists'], ['hud-enable-perception', 'enablePerception'], ['hud-enable-familytree', 'enableFamilyTree'], ['hud-enable-assistant', 'enableAssistant'],
    ['hud-enable-menstruation', 'enableMenstruation'], ['hud-enable-sceneclock', 'enableSceneClock'], ['hud-enable-tempo', 'enableTempo'], ['hud-enable-underwear', 'enableUnderwear'], ['hud-enable-duel', 'enableVerbalDuel'], ['hud-enable-combat', 'enableCombat'], ['hud-enable-life', 'enableLife'], ['hud-enable-intimacy-extras', 'enableIntimacyExtras'], 
    ['hud-enable-economy', 'enableEconomy'], ['hud-enable-events', 'enableEvents'], ['hud-enable-city', 'enableCity'], ['hud-enable-horoscope', 'enableHoroscope'],
@@ -913,7 +917,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.88.103');
+      const mod = await import('./render/archive.js?v=23.89.1');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -1134,7 +1138,7 @@ export function addSettingsUI() {
   [['hud-music-enable', 'enableMusic'], ['hud-music-auto', 'musicAuto'], ['hud-music-verify', 'musicVerify'], ['hud-music-line', 'musicSceneLine'], ['hud-music-player', 'musicPlayer']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.88.103').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
+      import('./render/music.js?v=23.89.1').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
     });
   });
   document.getElementById('hud-music-profile').addEventListener('change', (e) => { settings.musicProfileId = e.target.value || ''; основа.saveSettings(); });
@@ -1164,20 +1168,20 @@ export function addSettingsUI() {
     ['hud-music-free-fonau', 'musicFreeFonau'], ['hud-music-free-audius', 'musicFreeAudius'], ['hud-music-free-incompetech', 'musicFreeIncompetech'], ['hud-music-free-commons', 'musicFreeCommons']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.88.103').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
+      import('./render/music.js?v=23.89.1').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
     });
   });
   [['hud-music-liked-clear', 'musicLiked'], ['hud-music-banned-clear', 'musicBanned']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('click', async () => {
       if ((settings[ключ] || []).length && !await уверены({ текст: ключ === 'musicLiked' ? 'Весь список понравившихся треков очистится.' : 'Весь список запрещённых треков очистится.', кнопка: 'Очистить' })) return;
       settings[ключ] = []; основа.saveSettings(); вкусМузыки();
-      import('./render/music.js?v=23.88.103').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      import('./render/music.js?v=23.89.1').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
   [['hud-music-medieval', 'musicMedieval'], ['hud-music-style', 'musicStyle'], ['hud-music-source', 'musicSource']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.value; основа.saveSettings();
-      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.88.103').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.89.1').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
 

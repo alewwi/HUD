@@ -129,8 +129,13 @@
 /* Кадр покоя — посреди толчка, а не до упора: у длинного члена основание
    пряталось за лобком, и он читался коротким. Только пока анимации нет
    (иначе своё --k строки перекрыло бы унаследованное от анимации) и пока
-   сцена идёт: финал, трение, «дразнит» и «замерли» (l0) — на глубине. */
-:is(.hud-tempo, .hud-xray.is-standalone):not(.fx-tap, .fx-on, :hover, .l0) .hud-xray-row.p-penis:not(.is-finish, .is-rub, .is-tz, .k-hand) { --k: .35; }
+   сцена идёт: финал, трение, «дразнит» и «замерли» (l0) — на глубине.
+   «:not(:hover)» у предка Chrome при наведении не пересчитывает: строка
+   оставалась с кадром покоя, и под курсором ходил только таз. Поэтому кадр
+   покоя — всегда, а пока идёт движение, строка явно берёт ритм блока. */
+:is(.hud-tempo, .hud-xray.is-standalone):not(.l0) .hud-xray-row.p-penis:not(.is-finish, .is-rub, .is-tz, .k-hand) { --k: .35; }
+:is(.hud-tempo, .hud-xray.is-standalone):is(.fx-tap, .fx-on) .hud-xray-row.p-penis:not(.is-finish, .is-rub, .is-tz, .k-hand) { --k: inherit; }
+@media (hover: hover) and (pointer: fine) { :is(.hud-tempo, .hud-xray.is-standalone):hover .hud-xray-row.p-penis:not(.is-finish, .is-rub, .is-tz, .k-hand) { --k: inherit; } }
 
 /* --- Линейка ------------------------------------------------------------- */
 .xr-ruler-line { stroke: rgba(255,222,230,.4); stroke-width: .6; }

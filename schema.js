@@ -7,11 +7,11 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.88.103';
-import { mapKey } from './utils.js?v=23.88.103';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.88.103';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.88.103';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.88.103';
+import { settings } from './settings.js?v=23.89.1';
+import { mapKey } from './utils.js?v=23.89.1';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.89.1';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.1';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.89.1';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -61,6 +61,7 @@ function fillMemoryFields(obj, defaults) {
       else if (n === 'important' || n === 'важное') canonicalKey = 'important';
       else if (n === 'secrets' || n === 'секреты') canonicalKey = 'secrets';
       else if (n === 'guns' || n === 'ружья' || n === 'ружья чехова') canonicalKey = 'guns';
+      else if (n === 'promises' || n === 'обещания') canonicalKey = 'promises';
       else if (n === 'household' || n === 'быт') canonicalKey = 'household';
       if (!(canonicalKey in out) || key === canonicalKey) out[canonicalKey] = value;
     }
@@ -294,6 +295,8 @@ export function normalizeJSONData(parsed) {
       memoryParsed.important = typeof parsed.memory.important === 'string' ? parsed.memory.important.split(';').map(s=>s.trim()).filter(Boolean) : cleanArray(parsed.memory.important);
       // Ружья Чехова: строка «завязка | к кому относится | статус».
       memoryParsed.guns = cleanArray(parsed.memory.guns).filter(valid);
+      // Обещания: «кто → кому | что | срок | open / kept / broken».
+      memoryParsed.promises = cleanArray(parsed.memory.promises).filter(valid);
       // Быт хода (hk): «eat: …; wash: …» — строкой; render/life.js копит.
       const быт = parsed.memory.household;
       if (быт !== undefined && быт !== null) memoryParsed.household = Array.isArray(быт) ? cleanArray(быт).join('; ') : toStr(быт);
@@ -456,6 +459,9 @@ export function normalizeJSONData(parsed) {
     // Фаза близости приходит кодом (fp, cx…); шкала фаз узнаёт полные слова.
     scene: mapKeys(parsed.scene), characters: chars.map(c => сосвоими(c, mapKeys(c))).map(c => { if (c['Фаза близости']) c['Фаза близости'] = фазаБлизости(c['Фаза близости']); return безМеткиРаны(c); }), user: безМеткиРаны(сосвоими(parsed.user, mapKeys(parsed.user))),
     // Свои статы всей истории (custom-stats.js): корневой "cst".
+    // «Тем временем» (render/memory.js): кто вне кадра, где он и что знает.
+    meanwhile: (Array.isArray(parsed.meanwhile) ? parsed.meanwhile : parsed.meanwhile && typeof parsed.meanwhile === 'object' ? [parsed.meanwhile] : [])
+      .filter(o => o && typeof o === 'object').map(o => ({ имя: toStr(o.N ?? o.name), где: toStr(o.at), текст: toStr(o.tx), знает: toStr(o.kn), неЗнает: toStr(o.nk), догадки: toStr(o.gs) })).filter(o => o.имя && o.текст).slice(0, 3),
     custom: своиЗначения(parsed.cst || parsed.custom), memory: memoryParsed, chatsMap: chatsMap, phone: phoneParsed, intercepts: interceptsParsed, satchel: satchelParsed, letters: lettersParsed, overheard: overheardParsed, diary: diaryParsed, bodyDiary: bodyDiaryParsed, dreams: dreamsParsed, companions: companionsParsed, combat: боевой(parsed.combat),
     // Малыши (bb): та же карточка, что у персонажа, только своё поле «Нужды».
     babies: (Array.isArray(parsed.babies) ? parsed.babies : (parsed.babies && typeof parsed.babies === 'object' ? [parsed.babies] : [])).filter(b => b && typeof b === 'object').map(mapKeys).filter(b => b['Имя']),

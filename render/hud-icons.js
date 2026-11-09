@@ -15,9 +15,9 @@
 //    меняются: SVG вписан в 1em и встаёт туда же, где стоял символ;
 //  · значок декоративный (aria-hidden), смысл несёт текст рядом.
 
-import { settings } from '../settings.js?v=23.88.103';
-import { ИКОНКИ } from './view-icons.js?v=23.88.103';
-import { ЕЩЁ, ЕЩЁ_ЭМОДЗИ } from './icon-paths.js?v=23.88.103';
+import { settings } from '../settings.js?v=23.89.1';
+import { ИКОНКИ } from './view-icons.js?v=23.89.1';
+import { ЕЩЁ, ЕЩЁ_ЭМОДЗИ } from './icon-paths.js?v=23.89.1';
 
 // Рисунки, которых не было в view-icons.js. Квадрат 24×24, обводка.
 const ДОП = {
@@ -55,7 +55,7 @@ const ЭМОДЗИ = {
   '🧺': 'basket', '👂': 'ear', '📡': 'antenna', '📖': 'book', '🕯': 'candle', '🌙': 'moon',
   '🐾': 'paw', '🌍': 'globe',
   // Поля карточки
-  '⏳': 'hourglass', '👕': 'shirt', '🩲': 'briefs', '🎭': 'mask', '📍': 'pin', '🎯': 'target',
+  '🙈': 'lock', '⏳': 'hourglass', '👕': 'shirt', '🩲': 'briefs', '🎭': 'mask', '📍': 'pin', '🎯': 'target',
   '🎒': 'bag', '📌': 'pin', '🧍': 'torso', '🪞': 'mirror', '🩺': 'stetho', '🩹': 'bandage',
   '💭': 'thought', '🔮': 'gem', '🎞': 'film', '🚩': 'flag', '👁': 'eye', '🩸': 'drop',
   '🔋': 'battery', '👁‍🗨': 'eye', '🤝': 'handshake', '💔': 'heartbreak', '🛏': 'bed',

@@ -85,6 +85,11 @@ export const defaultSettings = {
   enableCompanions: true,
   enableIllness: true,
   enableScars: true,
+  // Кто чего не знает (карточка, заметки хода), замки доверия, обещания, «Тем временем».
+  knowledgeLine: true,
+  trustLocks: true,
+  promisesList: true,
+  meanwhile: true,
   enableRestHints: true,
   enableAttnBadges: true,
   enableHintButtons: true,

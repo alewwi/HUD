@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы } from '../utils.js?v=23.88.103';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.88.103';
-import { namesLikelySame } from '../names.js?v=23.88.103';
-import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.88.103';
-import { settings } from '../settings.js?v=23.88.103';
-import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.88.103';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.88.103';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы } from '../utils.js?v=23.89.1';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.1';
+import { namesLikelySame } from '../names.js?v=23.89.1';
+import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.89.1';
+import { settings } from '../settings.js?v=23.89.1';
+import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.89.1';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.1';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -1142,14 +1142,34 @@ export function видВоспоминаний(пункты, вид) {
 // как проявляется. Не разобралось — весь текст идёт в «как».
 export function разобратьРевность(value) {
   const t = String(value || '').trim();
-  // По-английски: «jealous over Sophie because of Mark» и «jealous of Mark around Sophie».
-  const мА = t.match(/jealous\S*\s+(?:over|about)\s+(.+?)\s+(?:because of|with|around|near|of)\s+(.+?)(?=\s*[—–:;,.(]|\s+-\s|$)/i);
-  const мБ = !мА && t.match(/jealous\S*\s+of\s+(.+?)\s+(?:over|about|around|with|near)\s+(.+?)(?=\s*[—–:;,.(]|\s+-\s|$)/i);
-  const m = t.match(/ревну\S*\s+(.+?)\s+к\s+(.+?)(?=\s*[—–:;,.(]|\s+-\s|$)/i) || мА || (мБ && [мБ[0], мБ[2], мБ[1]]);
-  const деталь = m ? t.slice(t.indexOf(m[0]) + m[0].length).replace(/^[\s—–:;,.-]+/, '') : t;
+  // Конец имени: тире, двоеточие, точка с запятой, скобка, запятая, точка.
+  const КОН = String.raw`(?=\s*[—–:;,.()]|\s+-\s|$)`;
+  const р = (s) => new RegExp(s, 'iu');
+  // Имя или короткая фраза («коллеге Мире»), не полпредложения.
+  const коротко = (s) => !!s && s.trim().split(/\s+/).length <= 4;
+  // [весь кусок, кого (за кого боится), к кому (соперник)] — порядок разный.
+  const варианты = [
+    // Формат из инструкции: «Софи → Мира: …» (и «->», «=>»).
+    () => { const м = t.match(р(String.raw`^(.+?)\s*(?:→|->|=>|⟶)\s*(.+?)${КОН}`)); return м && [м[0], м[1], м[2]]; },
+    () => { const м = t.match(р(String.raw`ревну\S*\s+(?!к\s)(.+?)\s+к\s+(.+?)${КОН}`)); return м && [м[0], м[1], м[2]]; },
+    // «ревнует к Мире из-за Софи», «к Мире, из-за Софи», «ревность к Мире (из-за Софи)».
+    () => { const м = t.match(р(String.raw`(?:^|ревну\S*\s+|ревност\S*\s+)к\s+(.+?)[,\s(]+(?:из-за|за|по поводу)\s+(.+?)${КОН}`)); return м && [м[0], м[2], м[1]]; },
+    // «из-за Софи к Мире».
+    () => { const м = t.match(р(String.raw`(?:^|ревну\S*\s+|ревност\S*\s+)из-за\s+(.+?)\s+к\s+(.+?)${КОН}`)); return м && [м[0], м[1], м[2]]; },
+    // По-английски: «jealous over Sophie because of Mark», «over Sophie, of Mark».
+    () => { const м = t.match(р(String.raw`(?:jealous\S*\s+)?(?:^|\s)(?:over|about)\s+(.+?)[,\s]+(?:because of|with|around|near|of)\s+(.+?)${КОН}`)); return м && [м[0], м[1], м[2]]; },
+    // «jealous of Mark over Sophie», «of Mark, over Sophie».
+    () => { const м = t.match(р(String.raw`(?:jealous\S*\s+)?(?:^|\s)of\s+(.+?)[,\s(]+(?:over|about|around|with|near|because of)\s+(.+?)${КОН}`)); return м && [м[0], м[2], м[1]]; },
+  ];
+  let m = null;
+  for (const в of варианты) { const х = в(); if (х && коротко(х[1]) && коротко(х[2])) { m = х; break; } }
+  // Соперник без второго имени: «ревнует к Мире — …», «jealous of Mark».
+  if (!m) { const м = t.match(р(String.raw`^(?:ревну\S*|ревност\S*|jealous\S*)\s+(?:к|of)\s+(.+?)${КОН}`)); if (м && коротко(м[1])) m = [м[0], '', м[1]]; }
+  const деталь = m ? t.slice(t.indexOf(m[0]) + m[0].length).replace(/^[\s—–:;,.)-]+/, '') : t;
   const s = t.toLowerCase();
   const сила = /бешен|ярост|безумн|сходит с ума|до дрожи|невыносим|не контролир|furious|rage|insane|crazy|losing (?:it|control)|trembling|unbearable|can'?t control/.test(s) ? 5 : /сильн|очень|жгуч|остро|каждое|каждый|постоянно|strong|very|burning|sharp|every|constant/.test(s) ? 4 : /слегка|чуть|немного|тихо|скрыва|почти не|slight|a little|a bit|quiet|hides?|barely/.test(s) ? 2 : 3;
-  return { кого: m ? m[1].trim() : '', кКому: m ? m[2].trim() : '', деталь, сила };
+  const снять = (x) => String(x || '').trim().replace(/^(?:ревну\S*|ревност\S*|jealous\S*(?:\s+(?:over|about))?)\s+/iu, '').trim();
+  return { кого: m ? снять(m[1]) : '', кКому: m ? снять(m[2]) : '', деталь, сила };
 }
 const СЛОВО_РЕВНОСТИ = ['', 'лёгкий укол', 'тлеет', 'царапает', 'жжёт', 'сжигает'];
 // Имя из «коллеге Мире»: последнее слово с заглавной, иначе всё целиком.
@@ -1158,7 +1178,8 @@ const имяИз = (фраза) => { const м = String(фраза || '').match(/
 export function видРевности(value, вид, владелец = '') {
   if (пусто(value)) return '';
   const р = разобратьРевность(value);
-  const заголовок = р.кого ? `<span class="who">${лицо(р.кого)}<b>${escapeHtml(р.кого)}</b></span><i class="to" aria-hidden="true">${ико('eye')}</i><span class="who is-rival">${лицо(имяИз(р.кКому))}<b>${escapeHtml(р.кКому)}</b></span>` : '';
+  // Без второго имени («ревнует к Мире») — только глаз и соперник.
+  const заголовок = р.кКому ? `${р.кого ? `<span class="who">${лицо(р.кого)}<b>${escapeHtml(р.кого)}</b></span>` : ''}<i class="to" aria-hidden="true">${ико('eye')}</i><span class="who is-rival">${лицо(имяИз(р.кКому))}<b>${escapeHtml(р.кКому)}</b></span>` : '';
   const уровень = `<span class="hud-v-tag s${р.сила}">${СЛОВО_РЕВНОСТИ[р.сила]}</span>`;
   if (вид === 'triangle' && р.кого) {
     // Треугольник: владелец наверху, объект и соперник внизу. К объекту —

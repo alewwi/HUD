@@ -17,16 +17,16 @@
 // в кодах (hud-snapshot.js, HUDвКодах).
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { namesLikelySame } from './names.js?v=23.88.103';
+import { namesLikelySame } from './names.js?v=23.89.1';
 
 export const NC = /^\s*(?:nc|n\/c|no change|unchanged)\s*\.?\s*$/i;
 export const ПОЛЯ_NC = ['Ap', 'C', 'Kn', 'Ft', 'NG', 'SxL'];
 export const МИР_ДНЯ = ['nws', 'rm', 'fc', 'zd', 'fate', 'eco', 'afs', 'cty', 'ad'];
-export const ПАМЯТЬ_ОБНОВЛЕНИЯМИ = ['fct', 'gun', 'sec', 'lg'];
+export const ПАМЯТЬ_ОБНОВЛЕНИЯМИ = ['fct', 'prm', 'gun', 'sec', 'lg'];
 
 // Сколько держим в развёрнутом списке: модель пишет только новое, и без
 // предела список рос бы с каждым ходом — а с ним снимок для модели.
-const ПРЕДЕЛ = { fct: 25, gun: 20, sec: 25, lg: 5 };
+const ПРЕДЕЛ = { fct: 25, prm: 20, gun: 20, sec: 25, lg: 5 };
 
 const объект = (v) => !!v && typeof v === 'object' && !Array.isArray(v);
 const ПУСТО = /^\s*(?:empty|none|null|нет|пусто)?\s*$/i;
@@ -104,29 +104,78 @@ export function тотЖеПункт(а, б) {
   return n >= 3 && ка.slice(0, n).join(' ') === кб.slice(0, n).join(' ');
 }
 const УБРАТЬ = /^\s*[-−–]\s+/;
-const текстПункта = (поле, x) => поле === 'sec' ? (объект(x) ? String(x.f ?? '') : String(x ?? '')) : поле === 'gun' ? String(x ?? '').split('|')[0] : String(x ?? '');
+const текстПункта = (поле, x) => поле === 'sec' ? (объект(x) ? String(x.f ?? '') : String(x ?? '')) : поле === 'gun' ? String(x ?? '').split('|')[0] : поле === 'prm' ? String(x ?? '').split('|').slice(0, 2).join(' ') : String(x ?? '');
 const безМинуса = (поле, x) => {
   if (поле === 'sec' && объект(x)) return { ...x, f: String(x.f ?? '').replace(УБРАТЬ, '') };
   return typeof x === 'string' ? x.replace(УБРАТЬ, '') : x;
 };
 const сработало = (x) => /^\s*(?:fired|сработал[оа]?|выстрелил[оа]?)\b/i.test(String(x ?? '').split('|')[2] || '');
+// Обещание исполнено или нарушено — видно один ход, как сработавшее ружьё.
+/** Статус обещания: 'kept', 'broken' или 'open'. «Не сдержано» — нарушено, поэтому сперва нарушенное. */
+export function статусОбещания(текст) {
+  const s = String(текст ?? '').trim().toLowerCase();
+  if (/^(?:broken|failed|not kept|нарушен|сорван|не сдержан|не выполнен|провален)/.test(s)) return 'broken';
+  if (/^(?:kept|fulfilled|done|completed|исполнен|сдержан|выполнен|сделан)/.test(s)) return 'kept';
+  return 'open';
+}
+const решено = (x) => статусОбещания(String(x ?? '').split('|')[3] || '') !== 'open';
 const время = (x) => { const m = String(x ?? '').match(/(\d{1,2}):(\d{2})/); return m ? +m[1] * 60 + +m[2] : -1; };
 const списком = (v) => (Array.isArray(v) ? v.filter(x => !пусто(x)) : пусто(v) ? [] : [v]);
 const деньСцены = (h) => нормаТекста(h && объект(h.sc) ? (h.sc.Dt ?? '') : '');
 
+// --- Номера записей ([f3 · 5 days ago], memory-age.js) ---------------------------
+// В снимке у фактов, ружей и секретов стоят номер и давность. Номер — позиция
+// в прошлом HUD: «[f3] новый текст» меняет третий факт, «- [f3]» убирает его.
+// Пометки в сообщение не идут: если модель их переписала, они снимаются.
+export const МЕТКА_ЗАПИСИ = /^\s*\[\s*([fgsp]\d{1,3})?\s*(?:·\s*)?(?:today|yesterday|a year ago|\d+ (?:days?|weeks?|months?|years?) ago)?\s*\]\s*/i;
+const ДАВНОСТЬ_ЭПИЗОДА = /(^|;\s*)\[(?:today|yesterday|a year ago|\d+ (?:days?|weeks?|months?|years?) ago)\]\s*/gi;
+export const безМетки = (s) => typeof s === 'string' ? s.replace(МЕТКА_ЗАПИСИ, '') : s;
+export const безДавности = (s) => typeof s === 'string' ? s.replace(ДАВНОСТЬ_ЭПИЗОДА, '$1') : s;
+/** «[f3] …», «- [f3]», секрет с "id": "s3" → индекс 2 в прошлом списке; иначе -1. */
+function индексПоНомеру(поле, x) {
+  const буква = поле === 'fct' ? 'f' : поле === 'gun' ? 'g' : поле === 'sec' ? 's' : поле === 'prm' ? 'p' : '';
+  if (!буква) return -1;
+  const с = поле === 'sec' && объект(x) ? String(x.id ?? '') + ' ' + String(x.f ?? '') : String(x ?? '');
+  const м = с.match(new RegExp(`(?:^|\\[)\\s*${буква}(\\d{1,3})\\b`, 'i'));
+  return м ? +м[1] - 1 : -1;
+}
+function чистыйПункт(поле, x) {
+  if (поле === 'sec' && объект(x)) { const { id, age, ...прочее } = x; return { ...прочее, f: безМетки(String(прочее.f ?? '')) }; }
+  return безМетки(x);
+}
+// Модель переписала пометки и без «памяти обновлениями» — снимаем везде.
+function снятьПометки(hud) {
+  let было = false;
+  const me = объект(hud.me) ? hud.me : null;
+  if (me) for (const к of ['fct', 'prm', 'gun', 'sec']) {
+    if (!Array.isArray(me[к])) continue;
+    // «- [f3]» без прошлого списка (первый ход, память не обновлениями)
+    // убирать нечего — пустая команда, а не пункт.
+    const чисто = me[к].filter(x => !/^\s*[-−–]\s*\[\s*[fgsp]\d{1,3}[^\]]*\]\s*$/i.test(к === 'sec' && объект(x) ? String(x.f ?? '') : String(x ?? ''))).map(x => чистыйПункт(к, x));
+    if (JSON.stringify(чисто) !== JSON.stringify(me[к])) { me[к] = чисто; было = true; }
+  }
+  for (const c of люди(hud)) if (объект(c) && typeof c.Mm === 'string') { const м = безДавности(c.Mm); if (м !== c.Mm) { c.Mm = м; было = true; } }
+  return было;
+}
+
 function развернутьПоле(поле, новое, старое, { новыйДень }) {
   const итог = (поле === 'lg' && новыйДень) ? [] : списком(старое).map(копия);
+  // Номера — по прошлому списку, каким его видела модель; до правок этого хода.
+  const поНомеру = итог.slice();
   const тронуто = new Set();
   for (const сырой of списком(новое)) {
-    const убрать = УБРАТЬ.test(текстПункта(поле, сырой)) || (поле === 'sec' && объект(сырой) && УБРАТЬ.test(String(сырой.f ?? '')));
-    const пункт = безМинуса(поле, сырой);
-    const i = итог.findIndex(x => тотЖеПункт(текстПункта(поле, x), текстПункта(поле, пункт)));
+    const номер = индексПоНомеру(поле, сырой);
+    const текст = текстПункта(поле, сырой).replace(МЕТКА_ЗАПИСИ, '');
+    const убрать = УБРАТЬ.test(текстПункта(поле, сырой)) || УБРАТЬ.test(текст) || (поле === 'sec' && объект(сырой) && номер >= 0 && !String(сырой.f ?? '').replace(МЕТКА_ЗАПИСИ, '').replace(УБРАТЬ, '').trim());
+    const пункт = чистыйПункт(поле, безМинуса(поле, сырой));
+    const поИд = номер >= 0 && поНомеру[номер] !== undefined ? итог.indexOf(поНомеру[номер]) : -1;
+    const i = поИд >= 0 ? поИд : итог.findIndex(x => тотЖеПункт(текстПункта(поле, x), текстПункта(поле, пункт)));
     if (убрать) { if (i >= 0) итог.splice(i, 1); continue; }
     if (i >= 0) { итог[i] = копия(пункт); тронуто.add(итог[i]); }
     else { const к = копия(пункт); итог.push(к); тронуто.add(к); }
   }
   // Сработавшее ружьё живёт один ход, как и раньше: в следующем его уже нет.
-  let out = поле === 'gun' ? итог.filter(x => тронуто.has(x) || !сработало(x)) : итог;
+  let out = поле === 'gun' ? итог.filter(x => тронуто.has(x) || !сработало(x)) : поле === 'prm' ? итог.filter(x => тронуто.has(x) || !решено(x)) : итог;
   if (поле === 'lg') out = out.map((x, i) => [x, i]).sort((а, б) => (время(а[0]) - время(б[0])) || (а[1] - б[1])).map(([x]) => x);
   return out.slice(-ПРЕДЕЛ[поле]);
 }
@@ -166,6 +215,7 @@ export function развернутьКраткое(hud, прошлые, { мир
   if (развернутьУзел(hud, до, { мимо: ['cs', 'us'] })) было = true;
   if (мир.length && развернутьМир(hud, до, мир)) было = true;
   if (память.length && развернутьПамять(hud, до, память)) было = true;
+  if (снятьПометки(hud)) было = true;
   return было;
 }
 

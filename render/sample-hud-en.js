@@ -39,7 +39,7 @@ export const ПРИМЕР_HUD = {
       Rl: 'Mark Grey: brother, loves him, but tired of his protectiveness; Anna Grey: sister-in-law, best friend; Eleanor Grey: mother, respects her, but fears her judgment; {{user}}: the person she loves, a long secret crush',
       Mm: 'The first meeting in the library; the downpour they argued about Dickens under; a night on the roof with a thermos',
       Fl: 'the confession letter was never handed over; promised Anna to help with the nursery; Mark knows nothing',
-      Jl: 'Jealous of {{user}}\'s colleague Mira — she texts too often, and Lilian notices every notification',
+      Jl: '{{user}} → Mira: the colleague texts too often, and Lilian notices every notification',
       St: 'not married, the relationship with {{user}} is just beginning',
       Eo: '60%: her voice breaks, her cheeks burn; on a video call this afternoon Anna read everything in her eyes',
       X: 'wy: Mark is against her relationship with {{user}}; dys: 3; sg: cold war',
@@ -243,6 +243,12 @@ export const ПРИМЕР_HUD = {
       'Anna is expecting a girl, she will be named Sophia',
       'Mark is against his sister\'s relationship with {{user}}',
     ],
+    prm: [
+      'Mark Grey → Lilian Grey | not tell their parents until Sunday | 20.10.2024 | open',
+      'Oleg → Mark Grey | look into {{user}} | 15.10.2024 | open',
+      'Anna Grey → Lilian Grey | keep quiet about her guess | open | kept',
+      'Mark Grey → Anna Grey | be home for dinner | 16.10.2024 | broken',
+    ],
     gun: [
       'Repay the workshop loan | Lilian Grey | building | 25.10.2024 | main',
       'Hand the atlas to the client | Lilian Grey | open | 15.10.2024 | short',
@@ -339,6 +345,11 @@ export const ПРИМЕР_HUD = {
   dr: [
     { tx: 'Mark dreams he is looking for his sister in a library, the shelves grow higher and higher, and behind each one he hears her laugh.', mn: 'The fear of losing control over her life — and the understanding that she is already an adult.' },
     { tx: 'Anna dreams Sophia is already born and plays that very lullaby on the piano.', mn: 'The wish to pass music on to her daughter and the fear of not getting back to her students in time.' },
+  ],
+
+  mw: [
+    { N: 'Oleg', at: '21:40 · a car across from the Grey house', tx: 'Oleg sits in the car and rereads what he found on {{user}}. He does not want to call Mark yet: first he needs to work out who benefits from all this.', kn: 'Mark asked him to look into {{user}}', nk: 'that Lilian and {{user}} are already together', gs: 'suspects Mark wants an excuse, not the truth' },
+    { N: 'Mira', at: '21:40 · the newsroom', tx: 'Mira stayed late at the newsroom and finishes her piece, glancing at the phone. There has been no reply from {{user}} for over an hour, and it stings.', kn: 'that {{user}} has an important meeting today', nk: 'who the meeting is with', gs: 'thinks there is someone new' },
   ],
 
   pet: [

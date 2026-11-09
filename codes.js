@@ -24,13 +24,13 @@ const объект = (v) => v !== null && typeof v === 'object' && !Array.isArra
 const КОРЕНЬ = {
   sc: 'scene', cs: 'characters', us: 'user', me: 'memory', cm: 'chatsMap', phn: 'phone',
   tp: 'intercepts', dy: 'diary', bd: 'bodyDiary', dr: 'dreams', wd: 'world',
-  pet: 'companions', bb: 'babies', cb: 'combat',
+  pet: 'companions', bb: 'babies', cb: 'combat', mw: 'meanwhile',
   // Средневековье: шкатулка вместо телефона, письма вместо переписок,
   // подслушанное вместо перехватов.
   sm: 'satchel', lt: 'letters', ov: 'overheard',
   ph: 'phone', chats: 'chatsMap', taps: 'intercepts', bdiary: 'bodyDiary',
 };
-const ПАМЯТЬ = { lg: 'timeline', md: 'mood', rt: 'route', fct: 'important', sec: 'secrets', gun: 'guns', hk: 'household', fc: 'important', sc: 'secrets', log: 'timeline', facts: 'important' };
+const ПАМЯТЬ = { lg: 'timeline', md: 'mood', rt: 'route', fct: 'important', sec: 'secrets', gun: 'guns', prm: 'promises', hk: 'household', fc: 'important', sc: 'secrets', log: 'timeline', facts: 'important' };
 // us — тот же юзер, что и в корне; chr, а не c: иначе совпадало с полем C (одежда).
 const ДВОЕ = { us: 'user', chr: 'char', u: 'user', c: 'char' };
 const НАСТРОЕНИЕ = { nw: 'current', hs: 'history', now: 'current', hist: 'history' };

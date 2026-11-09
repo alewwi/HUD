@@ -10,14 +10,14 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.88.103';
-import { английский, т } from './i18n.js?v=23.88.103';
-import { промптНаАнглийском } from './prompt-en.js?v=23.88.103';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.88.103';
-import { parseSceneDate } from './history-analyzer.js?v=23.88.103';
-import { возрастТочно } from './render/babies.js?v=23.88.103';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.88.103';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.88.103';
+import { settings } from './settings.js?v=23.89.1';
+import { английский, т } from './i18n.js?v=23.89.1';
+import { промптНаАнглийском } from './prompt-en.js?v=23.89.1';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.89.1';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.1';
+import { возрастТочно } from './render/babies.js?v=23.89.1';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.1';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.1';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -126,13 +126,13 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
   // разворачивает это в полный HUD (hud-expand.js, index.js развернутьОтвет).
   const списокКодов = (к) => к.map(x => `"${x}"`).join(', ').replace(/, ([^,]*)$/, ' and $1');
   const ключиМира = settings.enableWorld && settings.hudWorldDaily !== false ? ['nws', 'rm', 'fc', ...(гороскоп ? ['zd', 'fate'] : []), ...(экономика ? ['eco'] : []), ...(афиша ? ['afs'] : []), ...(город ? ['cty'] : []), 'ad'] : [];
-  const ключиПамяти = settings.enableMemory && settings.hudMemoryDelta !== false ? ['fct', ...(ружья ? ['gun'] : []), 'sec', 'lg'] : [];
+  const ключиПамяти = settings.enableMemory && settings.hudMemoryDelta !== false ? ['fct', ...(settings.promisesList === false ? [] : ['prm']), ...(ружья ? ['gun'] : []), 'sec', 'lg'] : [];
   const краткость = (settings.hudNoChange !== false ? `
 - ♻️ NO CHANGE: in Ap, C, Kn, Ft, NG, SxL, H, St, I, Mrk and Ill write just "nc" (no change) ONLY when nothing in that field has changed since the last HUD and the value would be word for word the same — for every character${игрок ? ' and for {{user}}' : ''}. The slightest shift — an item used or moved, a bruise fading, a symptom easing, one new detail of status or health — means the field is written in full with the update. If unsure, write it in full. No last HUD — always in full. A field that was empty stays empty, never nc. These eleven fields only: never write nc anywhere else.` : '')
     + (ключиМира.length ? `
 - 🗞️ WORLD ONCE A DAY: in "wd" write ${списокКодов(ключиМира)} only in the first HUD of a new in-story day or when something in them really changes; otherwise leave those keys out — the HUD keeps the last ones.${settings.showComments ? ' "com" is written every turn.' : ''}` : '')
     + (ключиПамяти.length ? `
-- 🧠 MEMORY AS UPDATES: in "me" write ${списокКодов(ключиПамяти)} with only what is new or changed this turn — the HUD keeps the rest from the last HUD. To change an item, write it again starting with the same words (a secret — with the same "f"); to remove one, put "- " before it. Nothing new — []. "lg" starts over on a new day.` : '');
+- 🧠 MEMORY AS UPDATES: in "me" write ${списокКодов(ключиПамяти)} with only what is new or changed this turn — the HUD keeps the rest from the last HUD. To change an item, write it again starting with its id from the last HUD — '[f2] new text' (a secret — the same "id"); to remove one, write '- [f2]'. New items get no id. Nothing new — []. "lg" starts over on a new day.` : '');
 
   let p = `<hud_instructions>
 ## 🎯 TASK
@@ -193,7 +193,7 @@ ${состояниеТела ? `   "Bs": "[body state, 0-100 each followed by a 
    "Rl": "[relationships with EVERY other named person who matters now: '<name>: <attitude>', separated by ; — never commas, they glue people into one relation. The '(!…)' wound mark belongs only to Tr, never here. Each attitude starts with who that person IS to this character in 1-3 words, then a comma: kinship from THIS character's side (муж, сестра, отчим), or a role (возлюбленная, начальник, соперник, незнакомка, спасительница, одержимость) — 'Ричард: муж, любит, но боится'; 'Софи: незнакомка, спасла его брата и пугает своей прямотой'. The role is the tie BETWEEN the two, not a bare occupation: in one class or group — однокурсница, одноклассник, коллега; teacher and student — her side 'мой преподаватель', 'научный руководитель', his side 'его студентка', 'ученица'; never just 'студентка'. An obsession is a role too: 'Софи: одержимость, не может перестать следить за ней'. Never open with a description of the scene ('девушка на диване'). Bidirectional: if A lists B, B is in cs with A in their Rl; everyone named in any Rl is in cs, except {{char}} or {{user}} absent from the scene. Never 'empty' while other named people exist]",
    "Mm": "[memories: moments this character shares with the player or NPCs, each a short episode; separate by ;]",
    "Fl": "[flags: open plot threads, promises, debts, threats and consequences waiting to land; separate by ;]",
-   "Jl": "[jealousy, ONLY while genuinely jealous right now: of whom, over whom, how it shows. Otherwise omit or 'empty' — an always-filled field turns the highlight into wallpaper]",
+   "Jl": "[jealousy, ONLY while genuinely jealous right now: '<the one they fear losing> → <the rival>: how it shows'. Otherwise omit or 'empty' — an always-filled field turns the highlight into wallpaper]",
    "St": "[status: social and romantic status — single, married, engaged, in a secret affair, widowed — plus social standing if it matters]",
    "Eo": "[exposure: how much of the mask has slipped before those present — a bouncing leg, a cracking voice, eyes darting to the door; what leaked and who noticed. May start with 0-100% (0 nobody suspects, 100 everyone sees through). 'empty' when there is nothing to hide]",
    "X": "[conflict depth as 'wy: what the conflict is about; dys: how many days it has been going on; sg: its stage — brewing, open, cold war, reconciliation']",
@@ -222,7 +222,7 @@ ${бельё ? `   "Un": "[OPTIONAL, only when it matters in the scene — under
    "AC": "[aftercare (phase 3 only): what this character needs now it's over — touch, water, silence, words, or nothing. 2-3 sentences: what exactly, from whom, why it matters now, what would hurt instead, e.g. 'Молча обнять и не говорить ни слова — любые слова разрушат ощущение сейчас']",
    "SxV": "[sex review (phase 3 only), once it has ended: 4-6 sentences in this character's own voice — what worked, what didn't, the best and most awkward moment, how body and heart felt, what to repeat or never again — ending with a rating like ★★★★☆]",` : ''}${следы ? `
    "Mrk": "[visible body marks and physical aftermath — ${интим ? 'hickeys, bites, scratches, bruises, redness, soreness, heaviness' : 'bruises, scratches, grazes, redness, soreness'} — every turn from appearance until they fade in story time${интим ? ', whatever the intimacy phase' : ''}. Each '<what>: <where> — <how it looks/feels now> | <fade time from appearance: 12h, 3d>':${интим ? `'Засос: шея слева — наливается фиолетовым, ноет | 5d; Следы ногтей: спина — красные полосы | 2d'` : `'Синяк: левое предплечье — желтеет по краям, ноет при нажатии | 5d; Ссадины: костяшки правой руки — подсохли корочкой | 2d'`}. The fade time is set once and counted from sc.Dt and sc.T — keep both accurate; the look changes as it heals. Marks that never fade — scars, tattoos, piercings, birthmarks — have no fade time: write when they were obtained instead, '| получен: <date, age or event>' ('Шрам: левая бровь — тонкая белая полоса | получен: в 14 лет, драка'). Body only, no feelings. 'empty' when none; separate by ;]",` : ''}
-   "Tr": "[trust: how much this character trusts each other named character, 0-100, '<name>: <0-100>': 'Софи: 82; Ричард: 9'. One entry per person they know. Not the same as Rl — one can love and not trust.${settings.enableScars === false ? '' : " Only when a value moves by 5 or more THIS turn, add why in a few words in brackets: 'Софи: 82 (спасла ему жизнь)'; a deep wound starts with !: 'Софи: 40 (!ударила при всех)'."} Separate by ;]",
+   "Tr": "[trust: how much this character trusts each other named character, 0-100, '<name>: <0-100>': 'Софи: 82; Ричард: 9'. One entry per person they know. Not the same as Rl — one can love and not trust.${settings.trustLocks === false ? '' : ' Trust grows by stages with lines at 20, 40, 60 and 80: it crosses a line upward only on a turn with a key event (real help with nothing to gain, danger faced together, a secret shared, support in a weak moment, a sacrifice); talk alone stops just below it. Falling needs no event.'}${settings.enableScars === false ? '' : " Only when a value moves by 5 or more THIS turn, add why in a few words in brackets: 'Софи: 82 (спасла ему жизнь)'; a deep wound starts with !: 'Софи: 40 (!ударила при всех)'."} Separate by ;]",
    "Fr": "[fears: what this character is afraid of RIGHT NOW, each '<what they fear>: <low | moderate | high | panic>': 'Потерять Софи: high; Отец узнает: moderate'. Live fears in this scene, not lifelong phobias unless surfaced. Never the level alone: no live fear — write empty. Separate by ;]"${своиЧьи.has('chars') ? полеСвоих('chars') : ''}
   }
  ]`;
@@ -265,7 +265,8 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
    "us": ["[HH:MM] - [place] - [arrived | left | stayed | moving]", "route: one line per movement, up to 20; [] when absent from the scene. Time only, no date. The place is in Russian words even when the story is set abroad: 'вход в Колдуэлл-холл', not 'Caldwell Hall entrance'"],
    "chr": ["[HH:MM] - [place] - [arrived | left | stayed | moving]", "route: one line per movement, up to 20; [] when absent from the scene"]
   },
-  "fct": ["[fact: an important or newly learned fact, stated plainly, people by their real names]", "facts: as many lines as matter"],${ружья ? `${быт ? `
+  "fct": ["[fact: an important or newly learned fact, stated plainly, people by their real names]", "facts: as many lines as matter"],${settings.promisesList === false ? '' : `
+  "prm": ["[who] → [to whom] | [what exactly was promised or agreed] | [by when: a date, or open] | [open | kept | broken]", "promises: one line per promise or agreement between people that still binds someone; mark kept or broken on the turn it resolves, drop it the next. A promise goes here, not into gun"],`}${ружья ? `${быт ? `
   "hk": "[OPTIONAL — only in a turn where any of this happened: 'eat: what, where, with whom; wash: what; buy: what and how much; fix: what; break: what household object actually broke (not an injury, not a near miss); wear: what was put on or taken off', separated by ;]",` : ''}
   "gun": ["[a setup planted and not yet paid off — promise, threat, hint, unexplained object, open mystery, debt, foreshadowing] | [who or what it is tied to] | [open | building | fired] | ${settings.enableDeadlines === false ? '[leave this part empty]' : '[deadline date, only if the story set one]'} | [main, side or short, only for a task someone must do]", "chekhov's guns: one line per unresolved thread, from the Fl flags and what the story left hanging — never invent plot to fill it. Keep each until it pays off: mark it fired that turn, drop it the next"],
   "inv": ["[only on a turn someone in the story invites {{user}} somewhere: who | what | date and time]"],` : ''}
@@ -454,6 +455,16 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
  ]`;
   }
 
+  // «Тем временем» (идея npc-parallel): 1–2 важных человека вне кадра — где
+  // они, что делают и думают, что знают и чего нет. Одним полем, без
+  // отдельных запросов; модель продолжает их прошлую запись.
+  if (settings.meanwhile !== false) {
+    p += `,
+ "mw": [
+  {"N": "[OPTIONAL — an important character who is NOT in the scene right now and whose life matters to the story; at most 2 objects, [] when nobody fits; never someone present]", "at": "[time · place where they are right now]", "tx": "[2-3 sentences in third person: what they are doing and thinking at this moment, picking up where their last mw entry stopped; mostly ordinary life, now and then a small seed of the plot]", "kn": "[what they know about the main events, one short line]", "nk": "[what they do NOT know, one short line]", "gs": "[what they only guess or sense, one short line or empty]"}
+ ]`;
+  }
+
   if (спутники) {
     p += `,
  "pet": [
@@ -531,7 +542,7 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
   const канон = режим === 'regen' ? '' : `
 It is also canon for the prose of your reply: do not contradict it — what people wear, their injuries and health, who is where, relationships, who knows which secret (people in hd do NOT know it and must not act on it), open threads in gun.`;
   p += `\n\n{{if hudLast}}## 📸 LAST HUD — the state before ${чего}
-To save space, empty fields are left out, and the texts written fresh every turn (Th, Ex, D, diary, dreams, horoscope, comments) are cut down to "<new this turn>". That mark means the opposite of optional: the field is REQUIRED in your HUD, written anew and in full in the schema's format. The schema above, not this copy, decides which fields you write.
+To save space, empty fields are left out, and the texts written fresh every turn (Th, Ex, D, diary, dreams, horoscope, comments) are cut down to "<new this turn>". That mark means the opposite of optional: the field is REQUIRED in your HUD, written anew and in full in the schema's format. The schema above, not this copy, decides which fields you write. Memory items here start with [id · age]: the age is how long ago it first came up in story time, so never call older things "yesterday"; never copy the [ … ] part into your HUD.
 Codes: {{hudLastKeys}}
 \`\`\`json
 {{hudLast}}

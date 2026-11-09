@@ -594,8 +594,10 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.103**:
+The latest version is **23.89.1**:
 
+- Music and assistant settings work again: since 23.88.100 they did nothing. X-ray moves in one rhythm under the cursor, the body map uses rows on wide screens, and the samples show the new blocks.
+- Ages on memory entries ("not everything was yesterday"), memory edits by number, "Does not know" in the card, trust locks, promises, "Meanwhile" and the zodiac sign by date of birth. On phones long lists open smoothly, and the button says how many of how many are hidden. Jealousy in chat shows the names (who they fear losing, and to whom), as in the sample.
 - Underwear sits right under clothing and is drawn as what is worn: men get boxers or briefs, not a bra. Rounds of one act and acts in one fertile window add up as in real life.
 - Music no longer picks covers and remixes instead of the song and tries several versions of a full track; x-ray in a second round shows thrusts, not ejaculation.
 - Characters of one card no longer merge by name; oral sex carries no conception risk; a moral "debt" no longer counts as money owed.

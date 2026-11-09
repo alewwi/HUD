@@ -7305,3 +7305,82 @@ button.hud-sum-restore.is-missing { color: var(--hud-muted-text, #9a95a6); text-
 }
 .hud-state-plaque > .hud-rest-hint { flex: none; flex-direction: row; width: 100%; }
 .hud-rest-hint svg { flex: none; width: 12px; height: 12px; margin-top: 2px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linejoin: round; }
+
+
+/* =========================================================================
+   Обещания и «Тем временем» (render/memory.js) — языком видов блоков:
+   стеклянная карточка .hud-v-card, SVG-иконки, цвет по смыслу.
+   ========================================================================= */
+.hud-promises { display: grid; gap: 8px; }
+.hud-promise {
+  --pr: #4fa894;
+  display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; align-items: start;
+  padding: 10px 12px; border-left: 3px solid var(--pr);
+}
+.hud-promise.is-kept { --pr: #58a56a; }
+.hud-promise.is-broken { --pr: #cf555f; }
+.hud-promise.is-overdue { --pr: #d69a3c; }
+.hud-promise:is(.is-kept, .is-broken) { opacity: .82; }
+.hud-promise-ico {
+  width: 34px; height: 34px; border-radius: 50%; display: grid; place-items: center;
+  color: var(--pr); background: color-mix(in srgb, var(--pr) 16%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--pr) 40%, transparent);
+}
+.hud-promise-ico { font-size: 16px; line-height: 1; font-style: normal; }
+.hud-promise-ico .hud-ico { width: 18px; height: 18px; }
+.hud-promise-body { min-width: 0; }
+.hud-promise-body > p { margin: 1px 0 3px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; }
+.hud-promise-who { display: block; opacity: .72; }
+.hud-promise-who i { font-style: normal; opacity: .7; margin: 0 2px; }
+.hud-promise-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 7px; }
+.hud-promise-due, .hud-promise-state {
+  display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: var(--hud-r-chip, 999px);
+  font-size: .78em; border: 1px solid color-mix(in srgb, var(--pr) 45%, transparent);
+}
+.hud-promise-due > i { font-style: normal; font-size: .95em; opacity: .85; }
+.hud-promise-due .hud-ico { width: 12px; height: 12px; opacity: .85; }
+.hud-promise-state { color: color-mix(in srgb, var(--pr) 82%, currentColor); text-transform: uppercase; letter-spacing: .06em; font-weight: 700; }
+
+.hud-mw > summary { cursor: pointer; list-style: none; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.hud-mw > summary::-webkit-details-marker { display: none; }
+.hud-mw-names { opacity: .72; }
+.hud-mw-list { display: grid; gap: 10px; margin-top: 8px; }
+.hud-mw-card { padding: 12px; }
+.hud-mw-head { display: flex; gap: 10px; align-items: center; margin-bottom: 9px; min-width: 0; }
+.hud-mw-face {
+  width: 38px; height: 38px; border-radius: 50%; object-fit: cover; flex: none;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--hud-accent, #c31f38) 45%, transparent);
+}
+.hud-mw-face.is-initials { display: grid; place-items: center; font-size: .78em; font-weight: 700; letter-spacing: .04em; background: color-mix(in srgb, var(--hud-accent, #c31f38) 20%, transparent); }
+.hud-mw-who { min-width: 0; display: grid; gap: 2px; }
+.hud-mw-who > b { overflow-wrap: anywhere; }
+.hud-mw-where { display: flex; flex-wrap: wrap; gap: 2px 10px; opacity: .74; }
+.hud-mw-where span { display: inline-flex; align-items: center; gap: 4px; }
+.hud-mw-where i { font-style: normal; font-size: .95em; }
+.hud-mw-where .hud-ico { width: 12px; height: 12px; }
+.hud-mw-text {
+  margin: 0 0 9px; padding-left: 10px; font-style: italic; line-height: 1.45;
+  border-left: 2px solid color-mix(in srgb, var(--hud-accent, #c31f38) 38%, transparent);
+}
+.hud-mw-island { display: grid; gap: 5px; padding-top: 8px; font-size: .86em; border-top: 1px dashed color-mix(in srgb, currentColor 20%, transparent); }
+.hud-mw-know { --kn: #3f9e68; line-height: 1.4; }
+.hud-mw-know.is-no { --kn: #cf4f57; }
+.hud-mw-know.is-guess { --kn: #b98a2a; }
+.hud-mw-know > i { font-style: normal; margin-right: 5px; }
+.hud-mw-know .hud-ico { width: 13px; height: 13px; vertical-align: -2px; margin-right: 5px; color: var(--kn); }
+.hud-mw-know b { font-weight: 700; margin-right: 5px; color: color-mix(in srgb, var(--kn) 82%, currentColor); }
+
+/* «Не знает» в карточке (render/character.js, f-unaware): пунктир и курсив —
+   то, что от человека скрыто. */
+.hud-os-card .hud-row.f-unaware .hud-detail-pill { border-style: dashed !important; font-style: italic; }
+.hud-age-sign { letter-spacing: 0; white-space: nowrap; margin-left: 6px; padding: 0 6px; border-radius: var(--hud-r-chip, 999px); background: color-mix(in srgb, var(--hud-accent, #c31f38) 14%, transparent); }
+
+/* Светлый фон карточки (hud-scheme-light ставит index.js по яркости фона), а
+   тема красит текст светлым — бывает, когда у тёмной темы поменяли фон на
+   светлый. Новые блоки тогда берут цвет текста из настроек, а не от темы. */
+html.hud-scheme-light .hud-os-card :is(.hud-promise, .hud-mw-card, .hud-mw > summary) { color: var(--hud-text, #2a1d12) !important; }
+html.hud-scheme-light .hud-os-card :is(.hud-promise-who, .hud-mw-where, .hud-mw-names) { color: var(--hud-text-muted, color-mix(in srgb, var(--hud-text, #2a1d12) 70%, transparent)) !important; opacity: 1; }
+html.hud-scheme-light .hud-os-card .hud-row.f-unaware .hud-detail-pill { color: var(--hud-text, #2a1d12) !important; }
+html.hud-scheme-light .hud-mw-know.is-yes { --kn: #2e7d50; }
+html.hud-scheme-light .hud-mw-know.is-no { --kn: #b23a43; }
+html.hud-scheme-light .hud-mw-know.is-guess { --kn: #8f6a14; }

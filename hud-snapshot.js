@@ -12,17 +12,17 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.88.103';
-import { т } from './i18n.js?v=23.88.103';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.88.103';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.88.103';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.88.103';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.88.103';
-import { заменитьHudБлоки } from './hud-block.js?v=23.88.103';
-import { упомянутВТексте } from './names.js?v=23.88.103';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.88.103';
-import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.88.103';
-import { доверияБезПричин } from './turn-notes.js?v=23.88.103';
+import { settings } from './settings.js?v=23.89.1';
+import { т } from './i18n.js?v=23.89.1';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.1';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.89.1';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.1';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.89.1';
+import { заменитьHudБлоки } from './hud-block.js?v=23.89.1';
+import { упомянутВТексте } from './names.js?v=23.89.1';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.1';
+import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.1';
+import { доверияБезПричин } from './turn-notes.js?v=23.89.1';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -374,6 +374,9 @@ export function строкаСнимка(снимок, nsfw, сцена = null) 
   const копия = JSON.parse(JSON.stringify(снимок));
   // Правки игрока (snapshot-edits.js): «отметил, что Лена знает» — модели.
   try { наложитьНаСнимок(копия); } catch (_) { /* без правок */ }
+  // Номер и давность у записей памяти (memory-age.js) — после правок игрока:
+  // те сверяют записи по тексту, а пометка его меняет.
+  if (сцена && typeof сцена.пометить === "function") { try { сцена.пометить(копия); } catch (_) { /* без пометок */ } }
   // Вне сцены — живое без кадра; близость у них не идёт (её нет в кадре),
   // от неё — только «когда и с кем», как вне сцены у всех.
   const вне = сцена ? внеСцены(копия, сцена) : [];

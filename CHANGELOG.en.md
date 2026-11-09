@@ -4,6 +4,45 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.1 — 2026-11-09
+
+### Fixed
+- **Music and assistant settings work again.** Since 23.88.100 the settings panel stopped while wiring them up: their checkboxes and fields could be clicked but changed nothing. Choosing another connection profile did not stick, the 🔄 button brought back the original one, and requests went to it. Profile lists now really update on their own.
+- **X-ray under the cursor.** On mouse hover the penis stayed in place and only the hips moved. Now everything moves in one rhythm, same as on tap.
+- **Body map on wide screens.** The list of zones was squeezed into a sideways strip, with labels stretched into narrow columns. It is now full-width rows: three in view, the rest scrolls down.
+
+### Changed
+- **The samples caught up with the new blocks.** The Customization sample now shows promises with every status and Meanwhile in both languages, and jealousy is written with names, as the instruction asks.
+
+## 23.89.0 — 2026-11-09
+
+Ideas from the Chinese SillyTavern community: "knowledge isolation", the "yesterday curse", affection locks, promises and parallel scenes. Only ideas were taken, no code.
+
+### Added
+- **Not everything was yesterday.** In the snapshot for the model, facts, promises, guns and secrets carry a number and an age — "[f3 · 5 days ago]", and shared memories carry an age. The HUD finds when an entry first appeared and counts by scene dates. The model no longer calls something from a week ago "yesterday". The marks never reach the message.
+- **Memory as updates — by number.** The model can change an entry by its number — "[f3] new text", remove it — "- [f3]", a secret keeps its "id". Before, entries were matched by their first words, and one rewritten in other words got duplicated.
+- **Who does not know what.** The character card gets a "Does not know" line from the secrets where they are among those not told. When someone who knows a secret and someone who does not are both in the scene, the model gets a reminder not to let it slip, once every eight replies.
+- **Trust locks.** Trust grows in stages with lines at 20, 40, 60 and 80. A line can be crossed only on a turn with a key event: help with nothing to gain, danger faced together, a shared secret, support in a weak moment, a sacrifice. Talk alone keeps trust just below the line. When trust is right at the line, the model gets a reminder once every eight replies.
+- **Promises.** A new list in Memory: who promised whom what, by when, kept or broken. A promise past its date is marked "overdue", and the model gets a reminder to settle whether it was kept. A kept or broken one shows for one turn, then goes.
+- **Meanwhile.** 1–2 important people off screen: where they are, what they are doing and thinking, what they know about the main events, what they do not, and what they guess. A collapsed block in Memory. The model continues their last entry, with no extra requests.
+- **Zodiac sign by date of birth.** In Age, the sign next to the date of birth is counted from the date itself, not taken from the model.
+- New switches in the main settings: "Who does not know what", "Trust locks", "Promises", "Meanwhile". All on.
+- Icons of promises and Meanwhile follow the Icons setting: emoji, pictures in the collapsed header, or pictures everywhere.
+
+### Checked and fixed before release
+- Ages come from a ledger kept in the chat itself, like the music cache: for each memory entry, the date it first appeared. Each new turn adds to the ledger from the latest messages, and old HUDs are no longer parsed. A full pass over history (up to 150 messages) happens once, for an old chat without a ledger. Opening a long chat does not slow down, and the budget estimate leaves the marks out.
+- When the card background is light but the theme colors text light (a dark theme with a light background), text in promises, Meanwhile and "Does not know" takes the text color from the settings and stays readable.
+- An entry the model rewrote in its own words is recognized by shared word roots instead of counting as new ("today").
+- "- [f3]" on a first turn or without memory updates no longer stays as an empty list item.
+- Promise status understands "fulfilled", "failed" and the Russian "выполнено", "не сдержано", "сорвано".
+- Whoever is in the scene right now is left out of Meanwhile, even if the model wrote them there.
+- The zodiac sign also understands dates like 1989-09-22.
+- **Jealousy in chat shows the names, as in the sample.** The "who, over whom" names used to appear only when the model wrote exactly "jealous of X over Y" in one fixed form, and the instruction never asked for it. Now the model writes "the one they fear losing → the rival: how it shows", and the HUD also understands other forms: "of Y over X", "over X because of Y", Russian forms, and a rival alone ("jealous of Y"). A long phrase is not taken for names.
+
+### Changed
+- **Phone: long lists open smoothly.** The button under a list opens and closes it smoothly instead of with a jump, and its arrow turns along. When the system asks for less motion it happens at once, as before.
+- The button says honestly how many are hidden and how many there are: "4 more of 7", and when open, "Collapse 4". The number used to be "all minus three" and was wrong when cards sit two to a row.
+
 ## 23.88.103 — 2026-11-09
 
 ### Changed

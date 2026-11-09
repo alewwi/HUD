@@ -26,8 +26,14 @@
 .hud-os-card .is-capped.is-cap-more { overflow: hidden !important; padding-bottom: 0 !important; }
 .hud-os-card .is-capped.is-cap-more.is-cap-open { overflow: visible !important; -webkit-mask: none; mask: none; padding-bottom: 2px !important; }
 .hud-os-card .hud-cap-more { display: block; align-self: center; grid-column: 1 / -1; width: fit-content; min-height: 36px; margin: 6px auto 0; padding: 4px 16px; }
-.hud-cap-more .to-less, .is-cap-open + .hud-cap-more .to-more { display: none; }
-.is-cap-open + .hud-cap-more .to-less { display: inline; }
+/* Раскрытие и сворачивание едут по высоте (events.js, раскрытьСписок). */
+.hud-os-card .is-capped.is-cap-more.is-cap-anim { overflow: hidden !important; transition: max-height .36s cubic-bezier(.22, .72, .2, 1); }
+@media (prefers-reduced-motion: reduce) { .hud-os-card .is-capped.is-cap-more.is-cap-anim { transition: none; } }
+.hud-cap-more .to-less, .hud-cap-more.is-open .to-more { display: none; }
+.hud-cap-more.is-open .to-less { display: inline; }
+.hud-cap-more small { margin-left: 3px; font-size: .92em; opacity: .72; font-variant-numeric: tabular-nums; }
+.hud-cap-chev { width: 10px; height: 10px; margin-left: 6px; vertical-align: -1px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; transition: transform .3s ease; }
+.hud-cap-more.is-open .hud-cap-chev { transform: rotate(180deg); }
 /* Список виден не весь: свайп ведёт вкладка (scroll-chain.js). */
 .hud-os-card .is-capped.is-through { overflow-y: hidden !important; }
 /* Сетка в две колонки показывала бы две плашки и краешек: в списке — одна

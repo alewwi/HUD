@@ -12,9 +12,9 @@
 // Не разобрали данные — пустая строка, и поле рисуется по-старому.
 // Оформление — css/views-fields.css.
 
-import { escapeHtml, разбитьСписок } from '../utils.js?v=23.88.103';
-import { ИКОНКИ } from './view-icons.js?v=23.88.103';
-import { знакЗодиака as знакНаЯзыке } from '../i18n.js?v=23.88.103';
+import { escapeHtml, разбитьСписок } from '../utils.js?v=23.89.1';
+import { ИКОНКИ } from './view-icons.js?v=23.89.1';
+import { знакЗодиака as знакНаЯзыке } from '../i18n.js?v=23.89.1';
 
 const т = (s) => escapeHtml(String(s ?? '').trim());
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто|—|-)$/i.test(String(v).trim());
@@ -124,6 +124,17 @@ const СТИХИИ = { огонь: ['fire', 'flame'], земля: ['earth', 'M3 
 function знакЗодиака(д, м) {
   const [, граница, ...этот] = ЗНАКИ[м - 1];
   return д < граница ? этот : ЗНАКИ[м % 12].slice(2);
+}
+/** Знак зодиака по дате рождения из «Возраста» («22.09.1989») — считает HUD, а не модель. */
+export function знакПоДатеРождения(текст) {
+  const s = String(текст || '');
+  const iso = s.match(/(?<!\d)\d{4}-(\d{1,2})-(\d{1,2})(?!\d)/);
+  const м = iso ? [null, iso[2], iso[1]] : s.match(/(?<!\d)(\d{1,2})[./](\d{1,2})[./](\d{2,4})(?!\d)/);
+  if (!м) return null;
+  const д = +м[1], мес = +м[2];
+  if (мес < 1 || мес > 12 || д < 1 || д > 31) return null;
+  const [имя, символ] = знакЗодиака(д, мес);
+  return { имя: знакНаЯзыке(имя), символ };
 }
 function разобратьВозраст(value) {
   const s = String(value).trim();
