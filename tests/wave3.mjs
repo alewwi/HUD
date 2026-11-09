@@ -512,6 +512,17 @@ settings.tempoView = 'xray';
       && /hud-xray/.test(Im.блокТемпаСцены(акт)) && !/hud-xray/.test(Im.блокТемпаСцены({ ...акт, 'Фаза близости': '3 — afterglow' })));
   }
   {
+    // Второй раунд: семя внутри с первого раза, толчки снова идут — не финал.
+    const М = { 'Имя': 'Tristan', 'Внешность': 'М', 'Фаза близости': '2 — act' };
+    const второй = Im.блокТемпаСцены({ ...М, 'Поза': 'она на четвереньках, он сзади', 'NSFW': 'ar: возбуждение второго раунда; tch: его член раз за разом прошивает ее сзади до упора в заполненное спермой первого раунда влагалище; pn: 8.5 дюймов внутри', 'Готовность к оргазму': '68: стремительно гонит его ко второму пику' });
+    проверить('x-ray: второй раунд — толчки идут, семя лежит с прошлого раза', /is-seed/.test(второй) && !/is-finish|is-after|is-climax/.test(второй) && второй.includes('семя внутри') && !второй.includes('кончил внутрь'));
+    const медленно = Im.блокТемпаСцены({ ...М, 'Поза': 'он сверху, глубоко внутри нее', 'NSFW': 'ar: переходящее во второй раунд; tch: член остается внутри в горячей смеси спермы и смазки; rct: медленные глубокие движения тазом внутри нее; pn: залит спермой до основания', 'Готовность к оргазму': '35: только что мощно кончил глубоко внутрь нее, но член остается плотным, набирая тонус для второго раунда' });
+    проверить('x-ray: «кончил, но медленные движения тазом» — второй раунд, а не «после»', /is-seed/.test(медленно) && !/is-after/.test(медленно));
+    const пауза = Im.блокТемпаСцены({ ...М, 'Поза': 'он сверху, оставаясь полутвердым членом глубоко внутри нее', 'NSFW': 'tch: его член остается полностью погруженным в заполненное спермой лоно; rct: тяжелые толчки сердца; pn: полутвердый, снова набирает плотность внутри нее', 'Готовность к оргазму': '35: только что мощно кончил глубоко внутрь нее, уже чувствует новый прилив крови к стволу' });
+    проверить('x-ray: пауза между раундами («толчки сердца», «остаётся внутри») — после, семя', /is-after/.test(пауза) && /is-finish/.test(пауза) && !/is-seed/.test(пауза));
+    проверить('семя: желание и прошлые толчки — не семя и не темп', SB.семяИзТекста('ds: заставить Тристана кончить внутрь') === null && SB.семяИзТекста('умоляет его излиться в неё') === null && SB.темпИзТекста('an: припухшая от жестких глубоких толчков') === null);
+  }
+  {
     // Сообщение 305: «Последний секс» записан только у Тристана («pr: Долорес…»),
     // у самой Долорес поля нет — тест на беременность всё равно должен быть.
     const Chr = await модуль('render/character.js');
@@ -1531,6 +1542,20 @@ settings.tempoView = 'xray';
   проверить('музыка: сверка — исполнитель и название, обложка 200px', н && н.a === 'Hans Zimmer' && /200x200bb/.test(н.art) && н.url.startsWith('https://music.apple.com/'));
   проверить('музыка: чужой «Time» не засчитан, выдуманный не найден', M.совпадение({ a: 'Pink Floyd', t: 'Time' }, [выдача[0]]) === null && M.совпадение({ a: 'Lunar Echo', t: 'Rain on Glass' }, выдача) === null);
   проверить('музыка: ё и регистр не мешают', !!M.совпадение({ a: 'Сплин', t: 'Выхода нет' }, [{ artistName: 'СПЛИН', trackName: 'Выхода нет' }]));
+  // Версии: каверы и ремиксы — только если модель их назвала; живая — последний запасной.
+  const вып = (т, ...строки) => (M.совпадение(т, строки.map(([a, t, al]) => ({ artistName: a, trackName: t, collectionName: al }))) || {}).t || null;
+  проверить('музыка: студийная версия выше живой', вып({ a: 'Земфира', t: 'Искала' }, ['Земфира', 'искала (live)'], ['Земфира', 'Искала']) === 'Искала');
+  проверить('музыка: живая — если другой нет', вып({ a: 'Земфира', t: 'Искала' }, ['Земфира', 'искала (live)']) === 'искала (live)');
+  проверить('музыка: ремикс, кавер, edit, минус — не берутся', вып({ a: 'Taylor Swift', t: 'Love Story' }, ['Taylor Swift', 'Love Story (Digital Dog Remix)']) === null && вып({ a: 'Coldplay', t: 'Yellow' }, ['Coldplay', 'Yellow (Piano Cover)']) === null && вып({ a: 'Сплин', t: 'Выхода нет' }, ['Сплин', 'Выхода нет (edit гр. Сплин)']) === null && вып({ a: 'Кино', t: 'Группа крови' }, ['Кино', 'Группа крови (минус)']) === null && вып({ a: 'Coldplay', t: 'Yellow' }, ['Coldplay', 'Yellow - Sped Up']) === null);
+  проверить('музыка: ремикс — если модель его и просила', вып({ a: 'Taylor Swift', t: 'Love Story (Remix)' }, ['Taylor Swift', 'Love Story (Digital Dog Remix)']) === 'Love Story (Digital Dog Remix)');
+  проверить('музыка: ремастер, stereo mix, radio edit, саундтрек — это сама песня', вып({ a: 'Coldplay', t: 'Yellow' }, ['Coldplay', 'Yellow (Remastered 2009)']) && вып({ a: 'The Beatles', t: 'Help!' }, ['The Beatles', 'Help! - 2009 Stereo Mix']) && вып({ a: 'Coldplay', t: 'Yellow' }, ['Coldplay', 'Yellow (Radio Edit)']) && вып({ a: 'Hans Zimmer', t: 'Time' }, ['Hans Zimmer', 'Time (From Inception)']));
+  проверить('музыка: альбом ремиксов и концертный альбом', вып({ a: 'Taylor Swift', t: 'Love Story' }, ['Taylor Swift', 'Love Story', 'Love Story (Remixes)']) === null && M.совпаденияВыдачи({ a: 'Coldplay', t: 'Yellow' }, [{ artistName: 'Coldplay', trackName: 'Yellow', collectionName: 'Live 2003' }, { artistName: 'Coldplay', trackName: 'Yellow', collectionName: 'Parachutes' }])[0].r.collectionName === 'Parachutes');
+  проверить('музыка: то же название выше продолжения', вып({ a: 'Hans Zimmer', t: 'Time' }, ['Hans Zimmer', 'Time Lapse'], ['Hans Zimmer', 'Time']) === 'Time');
+  проверить('музыка: модель просила живую — живая не штрафуется', M.версияТрека({ a: 'Coldplay', t: 'Yellow (Live)' }, 'Yellow (Live in Buenos Aires)').живая === false && M.версияТрека({ a: 'Coldplay', t: 'Yellow' }, 'Yellow (Live)').живая === true);
+  проверить('музыка: исполнитель — соавторы и «and/+» засчитаны', M.тотЖеИсполнитель('Hans Zimmer', 'Martin Jacoby, Hans Zimmer') && M.тотЖеИсполнитель('Hans Zimmer & Lisa Gerrard', 'Hans Zimmer') && M.тотЖеИсполнитель('Florence and the Machine', 'Florence + The Machine') && M.тотЖеИсполнитель('Weeknd', 'The Weeknd') && M.тотЖеИсполнитель('Eminem ft. Rihanna', 'Eminem, Rihanna') && M.тотЖеИсполнитель('Hans Zimmer', 'Hans Zimmer and James Newton Howard') && M.тотЖеИсполнитель('группа Кино', 'КИНО'));
+  проверить('музыка: одно общее слово — не тот исполнитель', !M.тотЖеИсполнитель('Lunar Echo', 'Echo') && !M.тотЖеИсполнитель('Lunar Echo', 'Lunar Beats') && !M.тотЖеИсполнитель('Rammstein', 'Rammstein Tribute Band') && вып({ a: 'Lunar Echo', t: 'Rain on Glass' }, ['Echo', 'Rain on Glass'], ['Lonely Echo', 'Rain on Glass']) === null);
+  проверить('музыка: модель просила live/remix — такая версия первой', вып({ a: 'Coldplay', t: 'Yellow (Live)' }, ['Coldplay', 'Yellow'], ['Coldplay', 'Yellow (Live in Buenos Aires)']) === 'Yellow (Live in Buenos Aires)' && вып({ a: 'Taylor Swift', t: 'Love Story (Remix)' }, ['Taylor Swift', 'Love Story'], ['Taylor Swift', 'Love Story (Digital Dog Remix)']) === 'Love Story (Digital Dog Remix)');
+  проверить('музыка: китайские метки кавера и минуса', M.версияТрека({ a: '周杰伦', t: '晴天' }, '晴天 (原唱 周杰伦)') === null && M.версияТрека({ a: '周杰伦', t: '晴天' }, '晴天 (伴奏)') === null && M.версияТрека({ a: '周杰伦', t: '晴天' }, '晴天 (女声版)') === null);
   const отбор = M.отобрать([{ a: '1', t: 'a', ok: true }, { a: '2', t: 'b', ok: false }, { a: '3', t: 'c', ok: true }, { a: '4', t: 'd', ok: null }, { a: '5', t: 'e', ok: true }, { a: '6', t: 'f', ok: true }], 4);
   проверить('музыка: выдуманные отброшены, если найденных хватает', отбор.length === 4 && отбор.every(т => т.ok !== false));
   проверить('музыка: найденных мало — выдуманные остаются с пометкой', M.отобрать([{ a: '1', t: 'a', ok: true }, { a: '2', t: 'b', ok: false }], 8).length === 2);
@@ -1727,6 +1752,11 @@ settings.tempoView = 'xray';
   ];
   проверить('музыка: YouTube — сам релиз, а не кавер и не часовая версия', M.лучшееВидео({ a: 'Hans Zimmer', t: 'Time' }, выдачаYT) === 'ccccccccccc' && M.лучшееВидео({ a: 'Hans Zimmer', t: 'Time' }, выдачаYT.slice(0, 2)) === '');
   проверить('музыка: YouTube — чужая песня с тем же названием не берётся', M.лучшееВидео({ a: 'Pink Floyd', t: 'Time' }, выдачаYT) === '');
+  const живоеYT = { videoId: 'eeeeeeeeeee', title: 'Hans Zimmer - Time (Live in Prague)', author: 'Hans Zimmer', lengthSeconds: 420 };
+  проверить('музыка: YouTube — живая только без студийной', M.лучшееВидео({ a: 'Hans Zimmer', t: 'Time' }, [живоеYT, ...выдачаYT]) === 'ccccccccccc' && M.лучшееВидео({ a: 'Hans Zimmer', t: 'Time' }, [живоеYT, выдачаYT[0]]) === 'eeeeeeeeeee');
+  // Полный трек: версии наперегонки, отрывок пропускается, запасной посредник — по прямому адресу.
+  const муз = css('render/music.js');
+  проверить('музыка: полный трек — отрывок пропускается, Meting по пересылке, повтор запроса', муз.includes('сек && сек < ОТРЫВОК_СЕК') && муз.includes("method: 'HEAD'") && муз.includes('ЗВУК_NETEASE.test(адрес)') && муз.includes('a.duration < ОТРЫВОК_СЕК && игра.запасные') && /async function получитьСПовтором[\s\S]{0,400}setTimeout\(r, 700\)/.test(муз) && муз.includes('ЗАПАС_NETEASE'));
   проверить('музыка: источник «YouTube через зеркала» — звук через зеркало', S.defaultSettings.musicSource === 'preview' && css('settings-ui.js').includes('value="youtube"') && css('render/music.js').includes("itag: '140', local: 'true'") && css('render/music.js').includes('api.invidious.io/instances.json'));
   // Громкость и число треков — в плейлисте, а не в настройках.
   settings.enableMusic = true; settings.musicPlayer = true;

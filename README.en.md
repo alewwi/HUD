@@ -594,8 +594,10 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.88.102**:
+The latest version is **23.88.103**:
 
+- Underwear sits right under clothing and is drawn as what is worn: men get boxers or briefs, not a bra. Rounds of one act and acts in one fertile window add up as in real life.
+- Music no longer picks covers and remixes instead of the song and tries several versions of a full track; x-ray in a second round shows thrusts, not ejaculation.
 - Characters of one card no longer merge by name; oral sex carries no conception risk; a moral "debt" no longer counts as money owed.
 - HUD finds a character's sex more accurately, no longer mistakes sleep for unconsciousness, and recognises snowstorms and blizzards.
 - A "What's new" window after updates. Cancel really stops the model for music, the assistant, lorebook entries and regeneration; profile lists update on their own.

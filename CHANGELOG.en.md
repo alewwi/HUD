@@ -4,6 +4,25 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.88.103 — 2026-11-09
+
+### Changed
+- **Underwear sits right under clothing, not at the very bottom of the card.** The Underwear row was missing from the field order and slid to the end.
+- **Underwear is drawn as what is worn.** The picture used to be always the same — a bra and panties, men in boxers included. Now the silhouette comes from the words: bra, bralette, panties, thong, boxers, briefs, bodysuit, corset, chemise. With no garment named, a woman gets a set and a man gets briefs. A man gets a bra only if one is named.
+- The silhouettes have more volume: a sheen on top, shade below, a waistband, lace stitching, a bow. Trim is light on dark underwear and dark on light, so black underwear shows on a dark card. "Dark" and "light" with no colour are now dark and light rather than the theme accent; "ivory" is light.
+- **Rounds of one act add to the conception chance.** Every ejaculation counts, but each next one adds less: the second round adds 15% of the first's chance, the third 7%, then 3% each. At the cycle peak this is a few percent, not a doubling, as in real life: each next one has fewer sperm, and there is one egg. If more rounds appear, the threshold of the same act rises and the dice stay the same.
+- **Acts within one fertile window no longer roll independent dice.** Six acts in a row in the window gave about 80% per cycle, while in real life it is about 37%. Now the window has one roll and the threshold is the combined chance of all its acts (Schwartz model, viable cycle 38%). An act every day of the window gives about 37%, every other day about 35%, a single act its own chance as before. Under the act's risk you can see the combined figure.
+- **Music: finding a track.**
+  - Covers, remixes, edits, sped-up and slowed versions, karaoke and backing tracks are no longer taken instead of the song. The exception is when the model wrote it itself, for example "(Remix)": then that version comes first. A live recording is taken only if there is no studio one. A remaster, "Stereo Mix" or "Radio Edit" is the song itself.
+  - The artist has to match by name, not by one shared word: a made-up "Lunar Echo" no longer finds a song by "Echo". Co-artists, "feat.", "and" and "+" still count.
+  - A full track tries several versions: if the first gives no sound, the next one plays, and only then the 30-second preview. A paid song that the service served as a preview instead of the whole thing is skipped for another version.
+  - A network or server hiccup gets one more try a second later. If the main proxy does not answer, the search goes through a backup, and the sound comes by a direct NetEase link via Meting.
+
+### Fixed
+- Two acts at the same time with the same partner on different days counted as one and shared a roll: the act key had no date.
+- **X-ray in the second round.** With semen left inside from before ("filled with the first round's cum"), x-ray stopped the thrusts and showed ejaculation although the second round was already going. Now the penis moves at its own pace, the semen lies still in the canal, and the label says "semen inside". A pause between rounds ("stays inside, hardening again") is still "after".
+- X-ray recognises thrusts written as "прошивает", "пробивает", "раз за разом", "снова входит до упора", "движения тазом". "Heartbeat thuds" and "swollen from the thrusts" are not thrusts. A wish to "make him come inside" no longer draws semen.
+
 ## 23.88.102 — 2026-11-09
 
 A second check of the conclusions HUD draws itself.

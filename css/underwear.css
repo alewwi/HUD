@@ -10,6 +10,8 @@
 .hud-un-veil[open] > summary { margin-bottom: 6px; opacity: .7; }
 .hud-un-card { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 10px; align-items: center; }
 .hud-un-svg { width: 86px; height: auto; display: block; }
+/* Одна вещь (боди, сорочка, только боксёры) — уже, чтобы не раздувалась. */
+.hud-un-svg.is-one { width: 52px; margin: 0 17px; }
 .hud-un-text p { margin: 0 0 4px; font-size: 12.5px; }
 .hud-un-badges { display: flex; flex-wrap: wrap; gap: 5px; }
 .hud-un-for, .hud-un-state { padding: 2px 8px; border-radius: var(--hud-r-chip); font-size: 11px; border: 1px solid rgba(255,255,255,.16); background: rgba(255,255,255,.05); }

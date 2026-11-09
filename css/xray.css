@@ -208,6 +208,9 @@
 
 /* --- Семя: кончили внутрь ------------------------------------------------- */
 .hud-xray-row.is-finish { --k: 1; }
+/* Семя с прошлого раунда, толчки снова идут: лужа и канал — сразу итогом, без
+   струй, брызг и пульсации головки. */
+.hud-xray-row.is-seed :is(.xr-cum-pool, .xr-cum-canal, .xr-cum-film, .xr-cum-drop, .xr-cum-jet, .xr-cum-streak, .xr-cum-drip) { animation: none !important; }
 .hud-xray-cap small.is-cum { background: rgba(255,250,240,.16); color: #fff6ea; }
 .xr-cum-pool { fill: #fbf7ef; fill-opacity: .93; stroke: #fff; stroke-opacity: .7; stroke-width: .5; transform-origin: 0% 50% !important;
   transform-box: fill-box; transform-origin: 100% 50%; filter: drop-shadow(0 0 2px rgba(255,255,255,.45)); }

@@ -17,19 +17,19 @@
 // версии HUD, и сохраняется в файле чата. Запрос идёт с флагом
 // window.__tavernOSHudSkipInject: инструкция HUD в него не попадает.
 
-import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.88.102';
-import { settings } from '../settings.js?v=23.88.102';
-import { parseHUDComplex } from '../hud-parser.js?v=23.88.102';
-import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.88.102';
-import { hudHasCombat } from './combat.js?v=23.88.102';
-import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.88.102';
-import { английский } from '../i18n.js?v=23.88.102';
-import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.88.102';
-import { ключСообщения } from '../chronicle.js?v=23.88.102';
+import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.88.103';
+import { settings } from '../settings.js?v=23.88.103';
+import { parseHUDComplex } from '../hud-parser.js?v=23.88.103';
+import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.88.103';
+import { hudHasCombat } from './combat.js?v=23.88.103';
+import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.88.103';
+import { английский } from '../i18n.js?v=23.88.103';
+import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.88.103';
+import { ключСообщения } from '../chronicle.js?v=23.88.103';
 import { норм, нормНазв, ключТрека, вСписке, переключить, безЗапрещённых, строкиВкуса, языкПесен, правилоЯзыка, мемныйРежим, правилоМемов,
-  ПРЕДЕЛ_ЛАЙКОВ, ПРЕДЕЛ_ЗАПРЕТОВ, библиотека, записьВладельца, записьПоId, плейлистПоId, новыйПлейлист, дописатьПлейлист, удалитьПлейлист } from './music-lib.js?v=23.88.102';
-import { станцииСцены } from './music-radio.js?v=23.88.102';
-import { собратьФон, ИМЕНА_ИСТОЧНИКОВ } from './music-free.js?v=23.88.102';
+  ПРЕДЕЛ_ЛАЙКОВ, ПРЕДЕЛ_ЗАПРЕТОВ, библиотека, записьВладельца, записьПоId, плейлистПоId, новыйПлейлист, дописатьПлейлист, удалитьПлейлист } from './music-lib.js?v=23.88.103';
+import { станцииСцены } from './music-radio.js?v=23.88.103';
+import { собратьФон, ИМЕНА_ИСТОЧНИКОВ } from './music-free.js?v=23.88.103';
 
 export { музыкаХода, норм, нормНазв };
 
@@ -374,27 +374,92 @@ export function разобратьПлейлист(raw) {
 // Сравнение треков (норм, нормНазв, ключТрека) — в music-lib.js: им пользуются
 // и вкус, и библиотека телефона.
 
+// Чужие версии песни. Каверы, ремиксы, караоке, ускоренные и прочие переделки
+// не берём, если модель сама их не назвала; живая запись — последний запасной
+// вариант, когда студийной нет. Метки ищем в сыром названии: нормНазв скобки срезает.
+// Русские слова — без \b: он понимает только латиницу.
+const ПЕРЕДЕЛКИ = [
+  ['cover', /\bcover(?:ed)?\b|кавер|翻唱|原唱|originally performed|in the style of|\btribute\b/i],
+  // «Stereo Mix», «2009 Mix», «Original Mix» — это сама песня, не ремикс.
+  ['remix', /\bre-?mix|\brmx\b|ремикс|\bbootleg\b|\bmash-?up\b|мэшап|\bdj\b|\brework\b|(?<!(?:original|stereo|mono|album|single|\d{4})\s)\bmix\b/i],
+  ['edit', /\bedit\b(?<!(?:radio|single|album|clean|explicit) edit)/i],
+  ['speed', /sped[\s-]?up|speed[\s-]?up|slowed|\breverb\b|nightcore|daycore|\b8d\b|bass boosted|ускорен|замедлен/i],
+  ['karaoke', /karaoke|караоке|伴奏|instrumental|инструментал|(?<![а-яё])минус(?![а-яё])|backing track|\ba ?cappella\b|акапелл/i],
+  ['gender', /女声版|男声版|female version|male version|женская версия|мужская версия/i],
+  ['reaction', /\breaction\b|реакция|\btutorial\b|\blesson\b|(?<![а-яё])разбор(?![а-яё])|how to play/i],
+];
+const ЖИВЬЁМ = /\blive\b|\bunplugged\b|живь[её]м|现场|\bacoustic\b|акустик|\bdemo\b/i;
+const меткиВерсии = (s) => {
+  const x = String(s || '');
+  return new Set(ПЕРЕДЕЛКИ.filter(([, re]) => re.test(x)).map(([м]) => м));
+};
+
+/** Чем выдача отличается от трека модели: null — чужая переделка (не берём),
+ *  { живая } — живая запись, иначе подходит. Что модель назвала сама — разрешено. */
+export function версияТрека(трек, название, альбом = '') {
+  const своё = меткиВерсии(трек && трек.t);
+  for (const м of меткиВерсии(название)) if (!своё.has(м)) return null;
+  // Альбом ремиксов с «чистым» названием трека — тоже ремикс.
+  if (/\bremix(?:es|ed)\b|ремиксы/i.test(альбом) && !своё.has('remix')) return null;
+  const модельЖивьём = ЖИВЬЁМ.test(String(трек && трек.t || ''));
+  const живая = !модельЖивьём && (ЖИВЬЁМ.test(String(название || '')) || /\blive\b|\bunplugged\b|现场/i.test(String(альбом || '')));
+  return { живая };
+}
+
+// Исполнители: «Hans Zimmer» — это и «Martin Jacoby, Hans Zimmer», и «Hans
+// Zimmer & Lisa Gerrard»; «Florence and the Machine» — «Florence + The Machine».
+// Но одно общее слово — не тот же исполнитель: «Echo» ≠ «Lunar Echo».
+const СЛУЖЕБНЫЕ_ИМЕНА = new Set(['the', 'and', 'группа', 'гр']);
+const чистоеИмя = (s) => норм(s).split(' ').filter(w => w && !СЛУЖЕБНЫЕ_ИМЕНА.has(w)).join(' ');
+const частиИмени = (s) => String(s || '').split(/\s*(?:[,;/&+、，]|\bfeat\.?|\bft\.|\bfeaturing\b|\bvs\.?)\s*/i).map(чистоеИмя).filter(Boolean);
+export function тотЖеИсполнитель(модель, выдача) {
+  const м = чистоеИмя(модель), в = чистоеИмя(выдача);
+  if (!м || !в) return false;
+  if (м === в) return true;
+  const чм = [м, ...частиИмени(модель)], чв = [в, ...частиИмени(выдача)];
+  if (чм.some(x => чв.includes(x))) return true;
+  // Имя из двух слов и больше целиком внутри другого: «Hans Zimmer and James Newton Howard».
+  const внутри = (к, д) => { const кс = к.split(' '), дс = new Set(д.split(' ')); return кс.length >= 2 && кс.every(w => дс.has(w)); };
+  return чм.some(x => чв.some(y => внутри(x, y) || внутри(y, x)));
+}
+
+/** Все годные совпадения из выдачи, лучшие первыми: то же название выше
+ *  продолжения, тот же исполнитель выше соавторства, живые записи — в конце;
+ *  что модель назвала сама (live, remix) — выше. */
+export function совпаденияВыдачи(трек, выдача) {
+  const na = норм(трек.a), nt = нормНазв(трек.t);
+  if (!na || !nt) return [];
+  const своё = меткиВерсии(трек.t), модельЖивьём = ЖИВЬЁМ.test(String(трек.t || ''));
+  const годные = [];
+  (Array.isArray(выдача) ? выдача : []).forEach((r, порядок) => {
+    const ra = норм(r && r.artistName), rt = нормНазв(r && r.trackName);
+    if (!ra || !rt) return;
+    const точно = rt === nt;
+    const название = точно || rt.startsWith(nt + ' ') || nt.startsWith(rt + ' ');
+    if (!название || !тотЖеИсполнитель(трек.a, r.artistName)) return;
+    const в = версияТрека(трек, r.trackName, r.collectionName);
+    if (!в) return;
+    const метки = меткиВерсии(r.trackName);
+    const просил = [...своё].filter(м => метки.has(м)).length + (модельЖивьём && ЖИВЬЁМ.test(String(r.trackName || '') + ' ' + String(r.collectionName || '')) ? 1 : 0);
+    const очки = (в.живая ? 0 : 100) + просил * 20 + (точно ? 10 : 0) + (ra === na ? 3 : 0);
+    годные.push({ r, очки, порядок, живая: в.живая });
+  });
+  // Равные — в порядке выдачи сервиса: она уже по популярности.
+  return годные.sort((x, y) => y.очки - x.очки || x.порядок - y.порядок);
+}
+
 /** Совпадение трека с выдачей поиска: тот же исполнитель и то же название. */
 export function совпадение(трек, выдача) {
-  const na = норм(трек.a), nt = нормНазв(трек.t);
-  if (!na || !nt) return null;
-  const словаА = new Set(na.split(' ').filter(w => w.length > 2));
-  for (const r of Array.isArray(выдача) ? выдача : []) {
-    const ra = норм(r && r.artistName), rt = нормНазв(r && r.trackName);
-    if (!ra || !rt) continue;
-    const исполнитель = ra.includes(na) || na.includes(ra) || ra.split(' ').some(w => w.length > 2 && словаА.has(w));
-    const название = rt === nt || rt.startsWith(nt + ' ') || nt.startsWith(rt + ' ');
-    if (исполнитель && название) {
-      return {
-        a: String(r.artistName), t: String(r.trackName),
-        art: String(r.artworkUrl100 || '').replace(/\/\d+x\d+bb\./, '/200x200bb.'),
-        url: String(r.trackViewUrl || ''),
-        // 30-секундный отрывок — его играет встроенный плеер.
-        pv: /^https:\/\/[\w.-]+\.apple\.com\//.test(String(r.previewUrl || '')) ? String(r.previewUrl) : '',
-      };
-    }
-  }
-  return null;
+  const лучшее = совпаденияВыдачи(трек, выдача)[0];
+  if (!лучшее) return null;
+  const r = лучшее.r;
+  return {
+    a: String(r.artistName), t: String(r.trackName),
+    art: String(r.artworkUrl100 || '').replace(/\/\d+x\d+bb\./, '/200x200bb.'),
+    url: String(r.trackViewUrl || ''),
+    // 30-секундный отрывок — его играет встроенный плеер.
+    pv: /^https:\/\/[\w.-]+\.apple\.com\//.test(String(r.previewUrl || '')) ? String(r.previewUrl) : '',
+  };
 }
 
 // Где искать: сначала каталог iTunes (официальный, витрины США и России),
@@ -411,9 +476,50 @@ const жди = (мс, внешний) => {
   c.signal.addEventListener('abort', () => clearTimeout(т), { once: true });
   return c.signal;
 };
-const получить = (url, signal) => fetch(url, { signal: жди(8000, signal), credentials: 'omit', referrerPolicy: 'no-referrer' })
+const получить = (url, signal, мс = 8000) => fetch(url, { signal: жди(мс, signal), credentials: 'omit', referrerPolicy: 'no-referrer' })
   .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); });
+// Посредник иногда спотыкается на одном запросе: сеть или ошибка сервера —
+// ещё раз через 0,7 с. Таймаут и «не найдено» (4xx) не повторяем.
+async function получитьСПовтором(url, signal, мс = 8000) {
+  try { return await получить(url, signal, мс); }
+  catch (e) {
+    if ((signal && signal.aborted) || (e && e.name === 'AbortError') || /HTTP 4(?!29)\d\d/.test(String(e && e.message))) throw e;
+    await new Promise(r => setTimeout(r, 700));
+    if (signal && signal.aborted) throw e;
+    return получить(url, signal, мс);
+  }
+}
 const списокИмён = (x) => (Array.isArray(x) ? x : [x]).map(v => typeof v === 'string' ? v : v && v.name).filter(Boolean).join(', ');
+
+// Поиск на NetEase — общий для сверки и полного трека: годные версии, лучшие
+// первыми. gdstudio не ответил — тот же каталог через vkeys.
+const ЗАПАС_NETEASE = 'https://api.vkeys.cn/v2/music/netease';
+const обложкаNetEase = (u) => { const s = String(u || '').replace(/^http:\/\//, 'https://'); return /^https:\/\/[\w.-]+\.126\.net\//.test(s) ? s : ''; };
+// «Yellow» и «Yellow (Live)» — один трек для вкуса, но разные версии для поиска.
+const ключВерсии = (т) => ключТрека(т) + "|" + нижн(т && т.t).trim();
+const версииNetEase = new Map();   // ключ трека → [{ id, pic, обложка, … }]
+async function искатьNetEase(трек, signal) {
+  const ключ = ключВерсии(трек);
+  if (версииNetEase.has(ключ)) return версииNetEase.get(ключ);
+  const имя = трек.a + ' ' + трек.t;
+  let строки = null, ошибка = null;
+  try {
+    const j = await получитьСПовтором(ПОИСК_NETEASE + '?' + new URLSearchParams({ types: 'search', count: '10', source: 'netease', name: имя }), signal, 6000);
+    строки = (Array.isArray(j) ? j : []).filter(x => x && x.id)
+      .map(x => ({ id: String(x.id), pic: x.pic_id ? String(x.pic_id) : '', artistName: списокИмён(x.artist), trackName: x.name, collectionName: String(x.album || '') }));
+  } catch (e) { if (signal && signal.aborted) throw e; ошибка = e; }
+  if (!строки) {
+    try {
+      const j = await получить(ЗАПАС_NETEASE + '?' + new URLSearchParams({ word: имя }), signal, 6000);
+      строки = (Array.isArray(j && j.data) ? j.data : []).filter(x => x && x.id)
+        .map(x => ({ id: String(x.id), обложка: обложкаNetEase(x.cover), artistName: String(x.singer || ''), trackName: x.song, collectionName: String(x.album || '') }));
+    } catch (e) { throw (signal && signal.aborted) ? e : (ошибка || e); }
+  }
+  const годные = совпаденияВыдачи(трек, строки).map(с => с.r);
+  if (версииNetEase.size > 300) версииNetEase.delete(версииNetEase.keys().next().value);
+  версииNetEase.set(ключ, годные);
+  return годные;
+}
 
 async function вiTunes(трек, signal, страна) {
   const p = new URLSearchParams({ term: трек.a + ' ' + трек.t, entity: 'song', media: 'music', limit: '10' });
@@ -423,13 +529,12 @@ async function вiTunes(трек, signal, страна) {
   return н ? { ...н, src: 'apple' } : null;
 }
 async function вNetEase(трек, signal) {
-  const j = await получить(ПОИСК_NETEASE + '?' + new URLSearchParams({ types: 'search', count: '8', source: 'netease', name: трек.a + ' ' + трек.t }), signal);
-  const x = (Array.isArray(j) ? j : []).find(x => x && x.id && совпадение(трек, [{ artistName: списокИмён(x.artist), trackName: x.name }]));
+  const x = (await искатьNetEase(трек, signal))[0];
   if (!x) return null;
-  let art = '';
-  if (x.pic_id) {
+  let art = x.обложка || '';
+  if (!art && x.pic) {
     try {
-      const pic = await получить(ПОИСК_NETEASE + '?' + new URLSearchParams({ types: 'pic', id: String(x.pic_id), source: 'netease', size: '300' }), signal);
+      const pic = await получить(ПОИСК_NETEASE + '?' + new URLSearchParams({ types: 'pic', id: x.pic, source: 'netease', size: '300' }), signal);
       if (pic && /^https:\/\/[\w.-]+\.126\.net\//.test(String(pic.url || ''))) art = String(pic.url);
     } catch (_) { /* без обложки */ }
   }
@@ -437,8 +542,10 @@ async function вNetEase(трек, signal) {
 }
 async function вQQ(трек, signal) {
   const j = await получить(ПОИСК_QQ + '?' + new URLSearchParams({ word: трек.a + ' ' + трек.t }), signal);
-  const x = (Array.isArray(j && j.data) ? j.data : []).find(x => x && совпадение(трек, [{ artistName: x.singer || списокИмён(x.singer_list), trackName: x.song }]));
-  if (!x) return null;
+  const лучшее = совпаденияВыдачи(трек, (Array.isArray(j && j.data) ? j.data : []).filter(Boolean)
+    .map(x => ({ x, artistName: x.singer || списокИмён(x.singer_list), trackName: x.song, collectionName: String(x.album || '') })))[0];
+  if (!лучшее) return null;
+  const x = лучшее.r.x;
   const art = /^https:\/\/[\w.-]+\.qq\.com\//.test(String(x.cover || '')) ? String(x.cover).replace(/R800x800/, 'R300x300') : '';
   return { art, url: x.mid ? 'https://y.qq.com/n/ryqq/songDetail/' + encodeURIComponent(x.mid) : '', src: 'qq' };
 }
@@ -457,7 +564,7 @@ export function шагиПоиска(трек) {
 // Ищем по очереди; нашли — стоп. Все сервисы недоступны — ошибка (трек не
 // «выдуман», просто проверить не удалось).
 async function искатьТрек(трек, signal) {
-  const ключ = ключТрека(трек);
+  const ключ = ключВерсии(трек);
   if (кэшПоиска.has(ключ)) return кэшПоиска.get(ключ);
   let ответили = 0, ошибка = null;
   for (const [, шаг] of шагиПоиска(трек)) {
@@ -568,7 +675,7 @@ async function собратьКонтекстМузыки(ctx, chat, индек�
   let карточка = null, персона = '';
   if (нуженПомощник) {
     try {
-      const A = await import('./assistant.js?v=23.88.102');
+      const A = await import('./assistant.js?v=23.88.103');
       if (settings.musicIncludeCard === true) карточка = A.карточкаПерсонажа(ctx);
       if (settings.musicIncludePersona === true) персона = A.персонаИгрока(ctx);
     } catch (e) { console.warn('[TavernOS HUD] музыка: карточка и персона', e); }
@@ -1168,8 +1275,7 @@ function трекиГруппы(индекс, группа) {
 // ссылка на поток живёт недолго — поэтому её не храним, а берём при игре и
 // держим в памяти десять минут. Не нашёлся — играем отрывок iTunes.
 const ПОСРЕДНИК = 'https://music-api.gdstudio.xyz/api.php';
-const полныеСсылки = new Map();   // ключ трека → { адрес, когда }
-const номераNetEase = new Map();  // ключ трека → номер на NetEase
+const полныеСсылки = new Map();   // ключ трека → { адреса, когда }
 // Полный трек: NetEase (full) или YouTube через зеркала (youtube).
 export const полныйИсточник = () => settings.musicSource === 'full' || settings.musicSource === 'youtube';
 
@@ -1194,25 +1300,26 @@ async function зеркалаInvidious() {
 }
 
 /** Лучшее видео из выдачи: то же название и исполнитель, без каверов,
- *  ремиксов и часовых зацикленных версий; канал «… - Topic» — сам релиз. */
+ *  ремиксов и часовых зацикленных версий; канал «… - Topic» — сам релиз.
+ *  Живая запись — только если студийной в выдаче нет. */
 export function лучшееВидео(т, выдача) {
   const nt = нормНазв(т.t), na = норм(т.a), исходник = нижн(т.t);
-  const очки = (v) => {
+  const оценка = (v) => {
     const название = норм(v.title), канал = норм(v.author).replace(/ topic$/, '');
     // Название и исполнитель — обязательны: «Time» у другого артиста — не тот трек.
-    if (!название.includes(nt)) return -99;
-    if (!(канал.includes(na) || (канал && na.includes(канал)) || название.includes(na))) return -99;
+    if (!название.includes(nt)) return null;
+    if (!(канал.includes(na) || (канал && na.includes(канал)) || название.includes(na))) return null;
+    const в = версияТрека(т, v.title);
+    if (!в) return null;
     let о = 6;
     if (/ topic$/.test(норм(v.author))) о += 2;
     if (/official audio|\baudio\b/.test(название)) о += 1;
-    for (const слово of ['live', 'cover', 'karaoke', 'remix', 'sped up', 'slowed', 'nightcore', 'reaction', '8d', 'lyrics', 'instrumental']) {
-      if (название.includes(слово) && !исходник.includes(слово)) о -= 3;
-    }
-    return о;
+    if (название.includes('lyrics') && !исходник.includes('lyrics')) о -= 3;
+    return о >= 5 ? { v, о, живая: в.живая } : null;
   };
   const годные = (Array.isArray(выдача) ? выдача : []).filter(v => v && /^[\w-]{11}$/.test(String(v.videoId || '')) && (!v.lengthSeconds || (v.lengthSeconds >= 45 && v.lengthSeconds <= 900)));
-  const лучшее = годные.map(v => [очки(v), v]).sort((a, b) => b[0] - a[0])[0];
-  return лучшее && лучшее[0] >= 5 ? String(лучшее[1].videoId) : '';
+  const лучшее = годные.map(оценка).filter(Boolean).sort((x, y) => (x.живая - y.живая) || y.о - x.о)[0];
+  return лучшее ? String(лучшее.v.videoId) : '';
 }
 
 const видеоYouTube = new Map();   // ключ трека → { id, зеркало }
@@ -1239,30 +1346,61 @@ async function потокиYouTube(т) {
 
 // Адреса полного трека по выбранному источнику; пусто — играет отрывок.
 async function потокиТрека(т) {
-  if (settings.musicSource === 'full') { const u = await полныйТрек(т); return u ? [u] : []; }
+  if (settings.musicSource === 'full') return полныеТреки(т);
   if (settings.musicSource === 'youtube') return потокиYouTube(т);
   return [];
 }
 // MoodTube играет трек целиком своим плеером (YouTube через зеркала Piped и
 // Invidious или Spotify Premium). Наш звук при этом молчит.
 const черезMoodTube = () => settings.musicSource === 'moodtube';
-async function полныйТрек(т) {
-  const ключ = ключТрека(т);
+// Звук берём только с серверов NetEase. Платный трек без подписки сервис отдаёт
+// 30-секундным отрывком — такую версию пропускаем и берём следующую.
+const ЗВУК_NETEASE = /^https:\/\/[\w.-]+\.(?:126\.net|163\.com)\//;
+const ОТРЫВОК_СЕК = 40;
+const ЗАПАС_ЗВУКА = 'https://api.qijieya.cn/meting/';
+async function ссылкаNetEase(id) {
+  try {
+    // 320 кбит/с, а не FLAC: на телефоне трек в 45 МБ — это лишний трафик.
+    const j = await получитьСПовтором(ПОСРЕДНИК + '?' + new URLSearchParams({ types: 'url', id: String(id), source: 'netease', br: '320' }), null, 6000);
+    const адрес = j && typeof j.url === 'string' ? j.url.replace(/^http:\/\//, 'https://') : '';
+    if (ЗВУК_NETEASE.test(адрес)) {
+      const сек = Number(j.size) > 0 && Number(j.br) > 0 ? Number(j.size) * 8 / (Number(j.br) * 1000) : 0;
+      return сек && сек < ОТРЫВОК_СЕК ? '' : адрес;
+    }
+  } catch (_) { /* посредник не ответил — запасной */ }
+  return черезMeting(id);
+}
+// Запасной посредник (Meting) отдаёт ссылку на себя и пересылает на файл
+// NetEase. Идём по пересылке сами и в плеер кладём уже прямой адрес: звук
+// идёт мимо посредника, а чужой адрес не пройдёт проверку.
+async function черезMeting(id) {
+  try {
+    const r = await fetch(ЗАПАС_ЗВУКА + '?' + new URLSearchParams({ server: 'netease', type: 'url', id: String(id) }), { method: 'HEAD', signal: жди(6000), credentials: 'omit', referrerPolicy: 'no-referrer' });
+    const адрес = String(r.url || '');
+    if (!r.ok || !ЗВУК_NETEASE.test(адрес) || /\/404\b/.test(адрес) || !/^audio\/|octet-stream/i.test(r.headers.get('content-type') || '')) return '';
+    // ~30 с при 320 кбит/с — меньше 1,3 МБ: отрывок.
+    const размер = Number(r.headers.get('content-length'));
+    return размер > 0 && размер < 1300000 ? '' : адрес;
+  } catch (_) { return ''; }
+}
+/** Адреса полного трека, лучшая версия первой, остальные — запасные. */
+async function полныеТреки(т) {
+  const ключ = ключВерсии(т);
   const было = полныеСсылки.get(ключ);
-  if (было && Date.now() - было.когда < 10 * 60 * 1000) return было.адрес;
-  const ждать = (мс) => { const c = new AbortController(); setTimeout(() => c.abort(), мс); return c.signal; };
-  // Нашли однажды — номер трека помним, поиск второй раз не нужен: живёт недолго только ссылка.
-  const номер = т.ne || номераNetEase.get(ключ);
-  const поиск = номер ? [{ id: номер, name: т.t, artist: [т.a] }] : await fetch(ПОСРЕДНИК + '?' + new URLSearchParams({ types: 'search', count: '8', source: 'netease', name: т.a + ' ' + т.t }), { credentials: 'omit', referrerPolicy: 'no-referrer', signal: ждать(6000) }).then(r => r.json());
-  // Тот же исполнитель и то же название — по тем же правилам, что и сверка iTunes.
-  const найден = (Array.isArray(поиск) ? поиск : []).find(x => x && x.id && совпадение(т, [{ artistName: (Array.isArray(x.artist) ? x.artist : [x.artist]).filter(Boolean).join(', '), trackName: x.name }]));
-  if (!найден || !найден.id) return '';
-  номераNetEase.set(ключ, найден.id);
-  // 320 кбит/с, а не FLAC: на телефоне трек в 45 МБ — это лишний трафик.
-  const поток = await fetch(ПОСРЕДНИК + '?' + new URLSearchParams({ types: 'url', id: String(найден.id), source: 'netease', br: '320' }), { credentials: 'omit', referrerPolicy: 'no-referrer', signal: ждать(6000) }).then(r => r.json());
-  const адрес = поток && typeof поток.url === 'string' && /^https:\/\/[\w.-]+\.(?:126\.net|163\.com)\//.test(поток.url) ? поток.url : '';
-  if (адрес) полныеСсылки.set(ключ, { адрес, когда: Date.now() });
-  return адрес;
+  if (было && Date.now() - было.когда < 10 * 60 * 1000) return было.адреса;
+  // Тот же исполнитель и то же название — по тем же правилам, что и сверка.
+  // Сохранённый номер — только если поиск не ответил: его могла выбрать старая сверка.
+  let номера = [];
+  try { номера = (await искатьNetEase(т)).map(x => x.id); }
+  catch (e) { if (!т.ne) throw e; номера = [String(т.ne)]; }
+  // Версии по три наперегонки, пока не найдутся адреса.
+  const адреса = [];
+  for (let i = 0; i < Math.min(номера.length, 6) && !адреса.length; i += 3) {
+    адреса.push(...(await Promise.all(номера.slice(i, i + 3).map(id => ссылкаNetEase(id)))).filter(Boolean));
+  }
+  const разные = [...new Set(адреса)];
+  if (разные.length) полныеСсылки.set(ключ, { адреса: разные, когда: Date.now() });
+  return разные;
 }
 
 // Раскрыли плейлист — заранее находим полные треки первых строк: телефон
@@ -1372,7 +1510,17 @@ function создатьЗвук() {
   const свой = () => игра.audio === a && !a.__разогрев;
   a.addEventListener('playing', () => { if (!свой()) return; игра.играет = true; игра.грузится = false; игра.радиоПопыток = 0; игра.фонПопыток = 0; отметитьИгру(); });
   // Полоска хода — по настоящей длине: у отрывка 30 с, у полного трека минуты.
-  a.addEventListener('loadedmetadata', () => { if (!свой()) return; if (игра.g !== 'r') игра.длина = Number.isFinite(a.duration) && a.duration > 0 ? a.duration : 30; отметитьИгру(); });
+  a.addEventListener('loadedmetadata', () => {
+    if (!свой()) return;
+    // Вместо полного трека пришёл 30-секундный отрывок — следующая версия, если есть.
+    if (игра.полный && игра.g !== 'r' && игра.g !== 'f' && a.duration > 0 && a.duration < ОТРЫВОК_СЕК && игра.запасные && игра.запасные.length) {
+      const было = игра.трек && полныеСсылки.get(ключВерсии(игра.трек));
+      if (было) было.адреса = было.адреса.filter(u => u !== a.src);
+      a.src = игра.запасные.shift(); a.play().catch(() => {}); сторожЗапуска(a, игра.трек); return;
+    }
+    if (игра.g !== 'r') игра.длина = Number.isFinite(a.duration) && a.duration > 0 ? a.duration : 30;
+    отметитьИгру();
+  });
   a.addEventListener('pause', () => { if (!свой()) return; игра.играет = false; отметитьИгру(); });
   a.addEventListener('ended', () => {
     if (!свой()) return;
