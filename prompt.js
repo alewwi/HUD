@@ -10,14 +10,14 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.89.2';
-import { английский, т } from './i18n.js?v=23.89.2';
-import { промптНаАнглийском } from './prompt-en.js?v=23.89.2';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.89.2';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.2';
-import { возрастТочно } from './render/babies.js?v=23.89.2';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.2';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.2';
+import { settings } from './settings.js?v=23.89.3';
+import { английский, т } from './i18n.js?v=23.89.3';
+import { промптНаАнглийском } from './prompt-en.js?v=23.89.3';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.89.3';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.3';
+import { возрастТочно } from './render/babies.js?v=23.89.3';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.3';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.3';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -119,6 +119,7 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
     '"CALL: a call is an EVENT, not a line — \'[Sender] -> [Recipient]: [CALL: incoming, missed]\' or \'[CALL: outgoing, answered, 4:12]\'. Direction incoming/outgoing as seen from the owner; outcome answered/declined/missed; duration only when answered. Text after the tag becomes a short note."',
     '"REPLY: quoting an earlier line — [REPLY: Who :: what they said], e.g. \'[Sender] -> [Recipient]: [REPLY: Лена :: Ты придёшь?] Да, буду к восьми | 20:01\'. The name before :: is optional. Separator is ::, never |, because | already splits the line into text, time and status."',
     '"FORWARD: a message passed on from someone else — [FWD: who it came from], e.g. \'[Sender] -> [Recipient]: [FWD: Отдел кадров] Совещание переносится | 20:03\'."',
+    '"SOMEONE ELSE AT THE PHONE: only when the scene really puts the owner\'s phone in another person\'s hands, never guessed and never the owner — [BY: who] before a message they typed from it; the line still goes out under the owner\'s name, e.g. \'[Sender] -> [Recipient]: [BY: Лена] Не пиши ему больше | 23:10\'. Something they did there without typing — read the chat, blocked this contact — is [BY: who :: what they did] with no text after it, what they did worded to follow their name in the past tense, and a block named as a block, e.g. \'[Sender] -> [Recipient]: [BY: Лена :: прочла всю переписку и заблокировала контакт] | 23:12\'."',
     '"POLL: a poll inside the chat — [POLL: Question ;; Option = Voter, Voter ;; Option with no votes], e.g. \'[Sender] -> [Recipient]: [POLL: Куда идём в пятницу? ;; Кафе = Лена, Петя ;; Кино = Мира ;; Никуда] | 20:05\'. Voters by name; never write percentages, they are calculated. Separator ;;, never |."',
   ];
 
@@ -290,7 +291,7 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
     const ph = [];
     if (settings.phoneAppContacts !== false) ph.push(`
    "ct": [
-    {"n": "[name as saved on the device, nicknames included; one object per contact, as many as the phone holds]", "nte": "[OPTIONAL note: short tag, e.g. 'Не брать трубку', 'Универ']"}
+    {"n": "[name as saved on the device, nicknames included; one object per contact, as many as the phone holds]", "nte": "[OPTIONAL note: short tag, e.g. 'Не брать трубку', 'Универ']", "rn": "[OPTIONAL real name: ONLY when the contact is saved under a cover name, a code or anything that hides who it is — the person's real name as used in the story; otherwise leave it out. Chats, calls and message lines still use the saved name]"}
    ]`);
     if (settings.phoneAppGallery !== false) ph.push(`
    "gl": [
@@ -314,14 +315,14 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
     "bl": "[balance of the phone owner: a plain number, no currency sign, e.g. '18400'. Set the start once, fitting the setting and the owner's station; then it changes ONLY through trx: previous balance + every amount listed this turn. No money moved → same balance, empty trx. Never reset or round it]",
     "cu": "[currency: whatever the setting uses — ₽, \$, €, кредиты, эдди, крышки. Same one every turn.]",
     "trx": [
-     {"ti": "[title as a bank prints it — 'Кофейня на углу', 'Перевод от [имя]', 'Аренда'; one object per transaction that actually happened — never invent spending]", "am": "[amount: a signed number, no currency sign — '-450', '+12000']", "tm": "[time: 'Сегодня, 14:30', 'Вчера', '12.10']", "nte": "[OPTIONAL note: one short line]"}
+     {"ti": "[title as a bank prints it — 'Кофейня на углу', 'Перевод от [имя]', 'Аренда'; one object per transaction that actually happened — never invent spending. Only the owner's own money: when someone else pays the bill, treats them or buys them a gift, the owner's balance does not move and there is no line for it; money handed to the owner is a '+' line]", "am": "[amount: a signed number, no currency sign — '-450', '+12000']", "tm": "[time: 'Сегодня, 14:30', 'Вчера', '12.10']", "nte": "[OPTIONAL note: one short line]"}
     ]
    }`);
     if (settings.phoneAppHealth !== false) ph.push(`
    "hl": {"sl": "[owner's sleep LAST night as a watch logs it: 'HH:MM–HH:MM', e.g. '00:40–07:10', plus one word if bad — 'прерывистый'. Same all day; a new night → new value]", "st": "[steps TODAY: a plain number that only grows — walking, stairs, errands add, sitting adds nothing; 0 on a new day]", "hr": "[pulse RIGHT NOW, bpm, a plain number: ~60–75 at rest, higher when walking, nervous or excited; the same as the owner's vitals if written this turn]"}`);
     if (settings.phoneAppCalendar !== false) ph.push(`
    "cl": [
-    {"dt": "[date: '16.01' or '16.01.2025', the same date system as sc.Dt; one object per entry, as many as there are; an event only if someone clearly promised or agreed to it, never a passing mood or your own plot idea]", "ti": "[title: e.g. 'День рождения [имя]', 'Совет директоров', 'Фестиваль огней']", "kd": "[kind: birthday | holiday | event]", "tm": "[OPTIONAL time: HH:MM]"}
+    {"dt": "[date: '16.01' or '16.01.2025', the same date system as sc.Dt; one object per entry, as many as there are; an event only if someone clearly promised or agreed to it, never a passing mood or your own plot idea]", "ti": "[title: e.g. 'День рождения [имя]', 'Совет директоров', 'Фестиваль огней']", "kd": "[kind: birthday | holiday | event]", "tm": "[OPTIONAL time: HH:MM]", "st": "[OPTIONAL: done | cancelled | moved — only when the story itself finished, called off or rescheduled this entry; time passing closes nothing, and an open entry has no st. A moved entry keeps its title and takes the new date in dt, never a second entry]", "wa": "[OPTIONAL, only with moved: the old date]"}
    ]`);
     // Сообщения — такой же модуль, как остальные: выключены, значит и
     // переписок у модели не просим.
@@ -366,7 +367,7 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
     const sm = [];
     if (settings.castAppCalendar !== false) sm.push(`
    "cl": [
-    {"dt": "[date: '16.01' or '16.01.1347', the same date system as sc.Dt; one object per entry]", "ti": "[title: a feast, fair, tourney, saint's day, court day, wedding, execution, market day]", "kd": "[kind: birthday | holiday | event]", "tm": "[OPTIONAL time as people of the age tell it: 'к вечерне', 'на рассвете', 'в полдень']"}
+    {"dt": "[date: '16.01' or '16.01.1347', the same date system as sc.Dt; one object per entry]", "ti": "[title: a feast, fair, tourney, saint's day, court day, wedding, execution, market day]", "kd": "[kind: birthday | holiday | event]", "tm": "[OPTIONAL time as people of the age tell it: 'к вечерне', 'на рассвете', 'в полдень']", "st": "[OPTIONAL: done | cancelled | moved — only when the story itself finished, called off or rescheduled this entry; a moved entry takes the new date in dt, never a second entry]", "wa": "[OPTIONAL, only with moved: the old date]"}
    ]`);
     if (settings.castAppPurse !== false) sm.push(`
    "wl": {

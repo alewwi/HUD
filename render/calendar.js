@@ -14,12 +14,12 @@
 // обработчик кликов (events.js). Своего состояния у календаря нет: всё в
 // классах и data-атрибутах разметки.
 
-import { escapeHtml, defeatWI, имяБезПриставки } from '../utils.js?v=23.89.2';
-import { namesLikelySame } from '../names.js?v=23.89.2';
-import { G_ICONS } from './icons.js?v=23.89.2';
-import { праздникиГода } from './holidays.js?v=23.89.2';
-import { срокиНитей } from '../turn-notes.js?v=23.89.2';
-import { settings } from '../settings.js?v=23.89.2';
+import { escapeHtml, defeatWI, имяБезПриставки } from '../utils.js?v=23.89.3';
+import { namesLikelySame } from '../names.js?v=23.89.3';
+import { G_ICONS } from './icons.js?v=23.89.3';
+import { праздникиГода } from './holidays.js?v=23.89.3';
+import { срокиНитей } from '../turn-notes.js?v=23.89.3';
+import { settings } from '../settings.js?v=23.89.3';
 
 const МЕСЯЦЫ_РОД = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const МЕСЯЦЫ = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
@@ -147,7 +147,8 @@ export function разобратьРасписание(сырое, сегодн�
     // Часть дня, если нет часов.
     let часть = '', порядок = время;
     if (!время) for (const [re, слово, ч] of ЧАСТИ_ДНЯ) if (re.test(s)) { часть = слово; порядок = ч; s = s.replace(re, ' '); break; }
-    const название = s.replace(/\s+/g, ' ').replace(/^[\s—–\-:.,|]+|[\s—–\-:.,|]+$/g, '').trim();
+    // День уже разобран по дате; слово «Вторник, ,» от него — не часть названия.
+    const название = s.replace(/\s+/g, ' ').replace(/^[\s—–\-:.,|·]+/, '').replace(/^(?:понедельник|вторник|среда|среду|четверг|пятница|пятницу|суббота|субботу|воскресенье|monday|tuesday|wednesday|thursday|friday|saturday|sunday)(?![\p{L}])[\s—–\-:.,|·]*/iu, '').replace(/^[\s—–\-:.,|·]+|[\s—–\-:.,|·]+$/g, '').trim();
     out.push({ день: день || { ...сегодня }, время, до, часть, порядок, название: название || 'Дело' });
   });
   return out;
@@ -155,6 +156,10 @@ export function разобратьРасписание(сырое, сегодн�
 
 // --- Сборка -------------------------------------------------------------------
 const ТИПЫ = { birthday: 'Дни рождения', holiday: 'Праздники' };
+const короткаяДата = (о) => `${String(о.d).padStart(2, '0')}.${String(о.mo).padStart(2, '0')}`;
+// Закрытое дело: день остаётся кликабельным, но точки и «Скоро» — только у живых.
+const закрыто = (e) => e.статус === 'done' || e.статус === 'cancelled' || e.статус === 'moved-away';
+const подписьСтатуса = (e) => e.статус === 'done' ? 'Сделано' : e.статус === 'cancelled' ? 'Отменено' : e.статус === 'moved-away' ? `Перенесено на ${e.наДату}` : e.статус === 'moved' ? (e.сДаты ? `Перенесено с ${e.сДаты}` : 'Перенесено') : '';
 const кратко = (имя) => (имяБезПриставки(String(имя || '')) || String(имя || '')).split(/\s+/)[0];
 
 /**
@@ -177,7 +182,13 @@ export function buildCalendarApp(events, characters, sceneDate, владелец
     const тип = /birth|день рожд/.test(kind) ? 'birthday' : /holiday|праздн|фестив/.test(kind) ? 'holiday' : 'event';
     const к = тип === 'event' ? календарь('own', 'Мой', 'var(--hud-cal-own)') : календарь(тип === 'birthday' ? 'bd' : 'hol', ТИПЫ[тип], тип === 'birthday' ? '#ff9ec8' : '#ffc94d');
     const время = String(e.time || '').match(/(\d{1,2}):(\d{2})/);
-    список.push({ день: { d: dm.d, mo: dm.mo, y: dm.y || (сегодня ? сегодня.y : new Date().getFullYear()) }, время: время ? `${время[1].padStart(2, '0')}:${время[2]}` : '', до: '', часть: '', порядок: время ? время[0] : '', название: String(e.title || '').trim() || 'Событие', тип, кал: к.id, кто: '' });
+    const статус = ['done', 'cancelled', 'moved'].includes(e.status) ? e.status : '';
+    const год = dm.y || (сегодня ? сегодня.y : new Date().getFullYear());
+    const было = статус === 'moved' ? parseDayMonth(e.movedFrom) : null;
+    const запись = { время: время ? `${время[1].padStart(2, '0')}:${время[2]}` : '', до: '', часть: '', порядок: время ? время[0] : '', название: String(e.title || '').trim() || 'Событие', тип, кал: к.id, кто: '' };
+    список.push({ ...запись, день: { d: dm.d, mo: dm.mo, y: год }, статус, сДаты: было ? короткаяДата(было) : '' });
+    // На старый день — след: «перенесено на 20.10».
+    if (было && (было.d !== dm.d || было.mo !== dm.mo)) список.push({ ...запись, день: { d: было.d, mo: было.mo, y: было.y || (было.mo > dm.mo + 6 ? год - 1 : год) }, статус: 'moved-away', наДату: короткаяДата(dm) });
   });
 
   // Праздники эпохи и сроки сюжетных нитей.
@@ -243,7 +254,7 @@ export function buildCalendarApp(events, characters, sceneDate, владелец
     for (let d = 1; d <= вМесяце; d++) {
       const к = ключДня(y, mo, d);
       const дела = поДням.get(к) || [];
-      const кал = [...new Set(дела.map(e => e.кал))].slice(0, 4);
+      const кал = [...new Set(дела.filter(e => !закрыто(e)).map(e => e.кал))].slice(0, 4);
       const точки = кал.map(id => `<i class="hud-cal-dot ${цветКал(id)}"></i>`).join('');
       const выходной = (сдвигНед + d - 1) % 7 >= 5;
       const прошло = к < ключСегодня;
@@ -266,14 +277,15 @@ export function buildCalendarApp(events, characters, sceneDate, владелец
     const кто = e.кто ? `<span class="hud-cal-who">${defeatWI(escapeHtml(e.кто))}</span>` : '';
     const когда = e.время ? `<b>${escapeHtml(e.время)}</b>${e.до ? `<small>${escapeHtml(e.до)}</small>` : ''}` : e.часть ? `<b class="is-part">${escapeHtml(e.часть)}</b>` : '<b class="is-allday">весь день</b>';
     const днейНазад = (Date.UTC(сегодняДень.y, сегодняДень.mo - 1, сегодняДень.d) - Date.UTC(e.день.y, e.день.mo - 1, e.день.d)) / 864e5;
-    const просрочено = (e.тип === 'event' || e.тип === 'plan') && днейНазад > 0 && днейНазад <= 7;
-    return `<li class="hud-cal-ev ${цветКал(e.кал)} t-${e.тип}${e.время || e.часть ? '' : ' is-allday'}${просрочено ? ' is-overdue' : ''}"><span class="hud-cal-ev-time">${когда}</span><span class="hud-cal-ev-body"><span class="hud-cal-ev-title">${defeatWI(escapeHtml(e.название))}</span>${кто}</span></li>`;
+    const просрочено = !закрыто(e) && (e.тип === 'event' || e.тип === 'plan') && днейНазад > 0 && днейНазад <= 7;
+    const статус = подписьСтатуса(e);
+    return `<li class="hud-cal-ev ${цветКал(e.кал)} t-${e.тип}${e.время || e.часть ? '' : ' is-allday'}${просрочено ? ' is-overdue' : ''}${e.статус ? ' is-' + e.статус : ''}"><span class="hud-cal-ev-time">${когда}</span><span class="hud-cal-ev-body"><span class="hud-cal-ev-title">${defeatWI(escapeHtml(e.название))}</span>${статус ? `<span class="hud-cal-state">${escapeHtml(статус)}</span>` : ''}${кто}</span></li>`;
   };
   const дниHTML = [...поДням.entries()].map(([к, дела]) => `<ul class="hud-cal-dayev" data-for="${к}"${к === ключСегодня ? '' : ' hidden'}>${дела.map(делоHTML).join('')}</ul>`).join('');
   const сч = счётчикДо(0);
 
   // Скоро: ближайшие дни с делами после сегодняшнего (сегодня — в листе выше).
-  const скоро = [...поДням.entries()].filter(([к]) => к > ключСегодня).sort(([a], [b]) => a.localeCompare(b)).slice(0, 6).map(([к, дела]) => {
+  const скоро = [...поДням.entries()].map(([к, дела]) => [к, дела.filter(e => !закрыто(e))]).filter(([к, дела]) => к > ключСегодня && дела.length).sort(([a], [b]) => a.localeCompare(b)).slice(0, 6).map(([к, дела]) => {
     const о = изКлюча(к), р = разницаДней(сегодняДень, о);
     const когда = р === 0 ? 'Сегодня' : р === 1 ? 'Завтра' : `${о.d} ${МЕСЯЦЫ_РОД[о.mo - 1]}`;
     return `<button type="button" class="hud-cal-soon-day" data-date="${к}"><span class="hud-cal-soon-when">${когда}<small>${р > 1 ? escapeHtml(счётчикДо(р).главное.toLowerCase()) : ДНИ[вДату(о).getDay()].toLowerCase()}</small></span><span class="hud-cal-soon-list">${дела.slice(0, 3).map(e => `<span class="hud-cal-soon-item ${цветКал(e.кал)}">${e.время ? `<b>${escapeHtml(e.время)}</b> ` : ''}${defeatWI(escapeHtml(e.название))}${e.кто ? ` <em>· ${defeatWI(escapeHtml(e.кто))}</em>` : ''}</span>`).join('')}${дела.length > 3 ? `<span class="hud-cal-soon-more">ещё ${дела.length - 3}</span>` : ''}</span></button>`;
@@ -293,6 +305,43 @@ export function buildCalendarApp(events, characters, sceneDate, владелец
     </div>
     ${скоро ? `<div class="hud-cal-soon"><div class="hud-cal-soon-head">Скоро</div>${скоро}</div>` : ''}
   </div>`;
+}
+
+// --- Ближайшее дело -------------------------------------------------------------
+// Для домашнего экрана и экрана блокировки: день рождения сегодня или завтра и
+// самое близкое живое дело на две недели вперёд. Всё из уже записанного.
+export function ближайшиеДела(events, characters, sceneDate, sceneTime, владелец = null) {
+  const сырое = parseDayMonth(sceneDate);
+  if (!сырое) return [];
+  const сегодня = { ...сырое, y: сырое.y || new Date().getFullYear() };
+  const сейчас = (String(sceneTime || '').match(/\b\d{1,2}:\d{2}\b/) || [''])[0].padStart(5, '0');
+  const когдаСтрокой = (р, время) => [р === 0 ? 'Сегодня' : р === 1 ? 'Завтра' : счётчикДо(р).главное, время].filter(Boolean).join(' · ');
+  const рождения = [], дела = [];
+  (Array.isArray(events) ? events : []).forEach(e => {
+    const dm = parseDayMonth(e && e.date);
+    if (!dm || e.status === 'done' || e.status === 'cancelled') return;
+    const вид = String(e.kind || '').toLowerCase();
+    const название = String(e.title || '').trim();
+    if (!название || /holiday|праздн|фестив/.test(вид)) return;
+    const время = (String(e.time || '').match(/(\d{1,2}):(\d{2})/) || [''])[0].padStart(5, '0').replace(/^0+$/, '').trim();
+    if (/birth|день рожд/.test(вид)) {
+      // Годовщина: год записи не важен, а через Новый год — уже следующий.
+      const р = [сегодня.y, сегодня.y + 1].map(y => разницаДней(сегодня, { y, mo: dm.mo, d: dm.d })).find(х => х >= 0);
+      if (р <= 1) рождения.push({ р, когда: когдаСтрокой(р, ''), название, тип: 'birthday' });
+      return;
+    }
+    const р = разницаДней(сегодня, { y: dm.y || сегодня.y, mo: dm.mo, d: dm.d });
+    if (р < 0 || р > 14 || (р === 0 && время && сейчас.includes(':') && время < сейчас)) return;
+    дела.push({ р, порядок: время, когда: когдаСтрокой(р, время), название, тип: 'event' });
+  });
+  const хозяин = (Array.isArray(characters) ? characters : []).find(c => владелец && c && c['Имя'] && namesLikelySame(c['Имя'], владелец));
+  if (хозяин) разобратьРасписание(хозяин['Расписание'] || хозяин['расписание'], сегодня).forEach(п => {
+    const р = разницаДней(сегодня, п.день);
+    if (р < 0 || р > 14 || (р === 0 && п.порядок && сейчас.includes(':') && п.порядок < сейчас)) return;
+    дела.push({ р, порядок: п.порядок, когда: когдаСтрокой(р, п.время || п.часть), название: п.название, тип: 'event' });
+  });
+  дела.sort((a, b) => a.р - b.р || String(a.порядок).localeCompare(String(b.порядок)));
+  return [...рождения.sort((a, b) => a.р - b.р).slice(0, 1), ...дела.slice(0, 1)];
 }
 
 // --- Нажатия ------------------------------------------------------------------

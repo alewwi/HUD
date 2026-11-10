@@ -6,14 +6,17 @@
 // Вынесено из phone.js: тот разросся до девятисот строк и держал в себе
 // разом мессенджер, кошелёк, календарь и сборку самого аппарата.
 
-import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.89.2';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.2';
-import { G_ICONS } from './icons.js?v=23.89.2';
-import { собратьЛенту } from './msg-feed.js?v=23.89.2';
-import { avaFace, msgTimeOf, collectCounterparts } from './phone-common.js?v=23.89.2';
-import { namesLikelySame } from '../names.js?v=23.89.2';
+import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.89.3';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.3';
+import { G_ICONS } from './icons.js?v=23.89.3';
+import { собратьЛенту } from './msg-feed.js?v=23.89.3';
+import { avaFace, msgTimeOf, collectCounterparts, контактСНастоящимИменем, меткаЛожногоИмени, ложноеИмяHTML } from './phone-common.js?v=23.89.3';
+import { безШапокСообщения, заКадромHTML, начинаетсяСТега } from './msg-parts.js?v=23.89.3';
+import { ключФонаЧата, обновитьФоныЧатов } from './phone-settings.js?v=23.89.3';
+import { namesLikelySame } from '../names.js?v=23.89.3';
 
-export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate) {
+export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, контакты = null) {
+  обновитьФоныЧатов();
   const chatKeys = Object.keys(chatsMap || {});
   if (chatKeys.length === 0) return '';
   // Список чатов — первый экран приложения, как в настоящем мессенджере.
@@ -76,6 +79,10 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate) {
       }
     }
     if (!displayChatName) displayChatName = 'Без названия';
+    // Контакт под чужим именем: в телефоне — как сохранено. Кто это на деле,
+    // открывается по нажатию; лицо тоже по записи, иначе буква выдаст имя.
+    const личность = isGroupChat ? null : контактСНастоящимИменем(контакты, displayChatName);
+    if (личность) displayChatName = личность.сохранён;
 
     // Пустая строка честнее выдуманного «12:00»: если во всех сообщениях
     // времени нет, лучше не показывать никакого, чем неверное.
@@ -96,8 +103,8 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate) {
       // Имя отправителя может быть с дефисом («Ченнинг-Уинтроп»): [^:-] на нём
       // обрывалось, и превью оставалось сырым «Имя -> Кому: [CALL: …]».
       const mm = p.match(/^(.+?)(?:\s*(?:->|→)\s*([^:]+?))?\s*:\s*(.*)$/);
-      if (mm) p = mm[3];
-      p = p.replace(/\[(?:VOICE|ГОЛОС)_?\d{0,2}:?\d{0,2}\]/gi, '🎤 Голосовое сообщение')
+      if (mm && !начинаетсяСТега(p)) p = mm[3];
+      p = безШапокСообщения(p).replace(/\[(?:VOICE|ГОЛОС)_?\d{0,2}:?\d{0,2}\]/gi, '🎤 Голосовое сообщение')
            .replace(/\[(?:VIDEO|ВИДЕО|VID|РОЛИК)[ _]?\d{0,2}:?\d{0,2}\s*:?\s*([^\]]*)\]/gi, (mm, d) => '🎬 Видео' + (d.trim() ? ': ' + d.trim() : ''))
            .replace(/\[(?:PHOTO|ФОТО|IMG|СНИМОК)\s*:?\s*([^\]]*)\]/gi, (mm, d) => '📷 Фото' + (d.trim() ? ': ' + d.trim() : ''))
            .replace(/\[(?:CALL|ЗВОНОК)\s*:?\s*([^\]]*)\]/gi, (mm, b) => /пропущ|missed/i.test(b) ? '📞 Пропущенный звонок' : '📞 Звонок')
@@ -110,7 +117,7 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate) {
     chatList += `<button class="hud-phone-chat-row" data-chat-target="subchat-${uid}-${idx}">
       ${avaFace(displayChatName, 'hud-phone-chat-ava', `linear-gradient(150deg, ${avaColor}, rgba(0,0,0,.55))`, isGroup ? '<i class="hud-phone-chat-group">👥</i>' : '')}
       <span class="hud-phone-chat-meta">
-        <b>${defeatWI(escapeHtml(displayChatName))}</b>
+        <b>${личность ? меткаЛожногоИмени() : ''}${defeatWI(escapeHtml(displayChatName))}</b>
         <small>${preview ? escapeHtml(preview) : 'Нет сообщений'}</small>
       </span>
       <span class="hud-phone-chat-side">
@@ -119,16 +126,21 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate) {
       </span>
     </button>`;
 
+    // Лента нужна раньше шапки: «в сети» считается из неё.
+    const лента = собратьЛенту(chatObj.messages, { owner: activeOwner, сцена: sceneDate, черновикВПоле: true, блокВПоле: true, цветаИмён: isGroupChat, имяНаЭкране: (кто) => (контактСНастоящимИменем(контакты, кто) || { сохранён: кто }).сохранён });
+    const строкаВСети = !isGroupChat && лента.вСети && !лента.блокировка ? `<span class="hud-phone-online">в сети: ${escapeHtml(лента.вСети)}</span>` : '';
+    const ключФона = ключФонаЧата(displayChatName);
+
     chatBodies += `<div class="hud-phone-subbody" id="subchat-${uid}-${idx}">
-      <div class="hud-phone-header"><span class="hud-phone-back">⟨</span><div class="hud-phone-title-group" ${chatObj.participants ? 'style="cursor:pointer;" title="Нажми, чтобы увидеть участников"' : ''}><span class="hud-phone-name">${defeatWI(escapeHtml(displayChatName))} ${chatObj.participants ? '<span style="font-size:0.8em; opacity:0.7;">▾</span>' : ''}</span>${chatObj.participants ? `<div class="hud-phone-participants-list">${G_ICONS.people} Участники: ${escapeHtml(chatObj.participants)}</div>` : ''}</div><span class="hud-phone-options">⋮</span></div>
-      <div class="hud-phone-chat-area">`;
+      <div class="hud-phone-header"><span class="hud-phone-back">⟨</span><div class="hud-phone-title-group" ${chatObj.participants ? 'style="cursor:pointer;" title="Нажми, чтобы увидеть участников"' : ''}><span class="hud-phone-name">${defeatWI(escapeHtml(displayChatName))} ${chatObj.participants ? '<span style="font-size:0.8em; opacity:0.7;">▾</span>' : ''}</span>${строкаВСети}${личность ? ложноеИмяHTML(личность) : ''}${chatObj.participants ? `<div class="hud-phone-participants-list">${G_ICONS.people} Участники: ${escapeHtml(chatObj.participants)}</div>` : ''}</div><span class="hud-phone-options" data-chat-bg="${ключФона}" role="button" tabindex="0" aria-label="Фон этого чата" title="Фон этого чата">⋮</span></div>
+      <div class="hud-phone-chat-area" data-bgk="${ключФона}">`;
 		
     // Сообщения, разделители дней и черновик — общая лента (msg-feed.js):
     // ровно то же самое рисуют перехваты.
-    const лента = собратьЛенту(chatObj.messages, { owner: activeOwner, сцена: sceneDate, черновикВПоле: true });
     const activeDraft = лента.draft;
     chatBodies += лента.html;
-    chatBodies += `</div><div class="hud-phone-input-bar"><span class="hud-phone-attach">+</span><div class="hud-phone-inputfield ${activeDraft ? 'draft-active' : 'placeholder'}">${activeDraft ? escapeHtml(activeDraft) : 'Сообщение...'}</div><span class="hud-phone-send disabled">↑</span></div></div>`;
+    if (лента.блокировка) chatBodies += `</div><div class="hud-phone-input-bar is-blocked">${заКадромHTML(лента.блокировка, лента.блокировка.время)}</div></div>`;
+    else chatBodies += `</div><div class="hud-phone-input-bar"><span class="hud-phone-attach">+</span><div class="hud-phone-inputfield ${activeDraft ? 'draft-active' : 'placeholder'}">${activeDraft ? escapeHtml(activeDraft) : 'Сообщение...'}</div><span class="hud-phone-send disabled">↑</span></div></div>`;
   });
   return chatList + `</div>` + `<div class="hud-phone-chat-stage">` + chatBodies + `</div>`;
 }

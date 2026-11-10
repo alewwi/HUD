@@ -277,8 +277,13 @@ export const ПРИМЕР_HUD = {
     ] },
     'Mark': { ow: 'Lilian Grey', ms: [
       'Mark -> Lilian: [FWD: Mom] Don\'t forget about Sunday lunch! | 16:10 | Read',
+      'Lilian -> Mark: [BY: Anna] She is busy today, leave her alone | 16:40 | Read',
       'Mark -> Lilian: [CALL: incoming, declined] | 20:50',
       'Mark -> Lilian: Where are you? Why aren\'t you picking up? | 21:30 | Unread',
+    ] },
+    'Car service': { ow: 'Lilian Grey', ms: [
+      'Car service -> Lilian: The car is ready, pick it up tonight | 18:02 | Read',
+      'Lilian -> Car service: [BY: Anna :: read the whole chat and blocked the contact] | 19:12',
     ] },
     'The Grey family': { ow: 'Lilian Grey', pp: 'Lilian Grey; Mark Grey; Anna Grey; Eleanor Grey', ms: [
       'Eleanor -> The Grey family: [POLL: A name for the baby girl? ;; Sophia = Anna, Lilian ;; Eva = Mark ;; Alice] | 12:00 | Read',
@@ -289,7 +294,7 @@ export const ПРИМЕР_HUD = {
 
   phn: {
     ow: 'Lilian Grey',
-    ct: [{ n: '{{user}} ❤️', nte: 'never let go' }, { n: 'Mark', nte: 'brother' }, { n: 'Anna', nte: 'sister-in-law' }, { n: 'Mom', nte: 'don\'t pick up after ten' }, { n: 'Mira', nte: '{{user}}\'s colleague' }],
+    ct: [{ n: 'Car service', nte: 'texts only', rn: 'Eric Weiss' }, { n: '{{user}} ❤️', nte: 'never let go' }, { n: 'Mark', nte: 'brother' }, { n: 'Anna', nte: 'sister-in-law' }, { n: 'Mom', nte: 'don\'t pick up after ten' }, { n: 'Mira', nte: '{{user}}\'s colleague' }],
     gl: [
       { ti: 'Two glasses', tm: '18:48', dsc: 'Candles on the windowsill, rain behind the glass', mt: 'not sent to mom' },
       { ti: 'Sophia\'s ultrasound', tm: '12:05', dsc: 'A picture from Anna, a tiny profile' },
@@ -308,6 +313,8 @@ export const ПРИМЕР_HUD = {
     ] },
     cl: [
       { dt: '18.10', ti: 'Atlas delivery', kd: 'event', tm: '10:00' },
+      { dt: '19.10', ti: 'Dress fitting', kd: 'event', tm: '12:00', st: 'cancelled' },
+      { dt: '22.10', ti: 'Dinner with Mira', kd: 'event', tm: '19:00', st: 'moved', wa: '17.10' },
       { dt: '20.10', ti: 'Lunch at mom\'s', kd: 'event', tm: '14:00' },
       { dt: '31.10', ti: 'Halloween', kd: 'holiday' },
       { dt: '11.07', ti: '{{user}}\'s birthday', kd: 'birthday' },

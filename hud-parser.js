@@ -12,9 +12,9 @@
 // Здесь это по очереди чинится, кандидаты оцениваются и лучший отдаётся в
 // нормализацию схемы.
 
-import { normalizeJSONData } from './schema.js?v=23.89.2';
-import { hudБлоки } from './hud-block.js?v=23.89.2';
-import { имяБезПриставки } from './utils.js?v=23.89.2';
+import { normalizeJSONData } from './schema.js?v=23.89.3';
+import { hudБлоки } from './hud-block.js?v=23.89.3';
+import { имяБезПриставки } from './utils.js?v=23.89.3';
 
 function decodeHighlightedHudHtml(input) {
   if (typeof input !== 'string') return '';
@@ -460,7 +460,23 @@ export function scoreHudJsonCandidate(parsed) {
   return score;
 }
 
+// Невидимые пробелы между частями JSON (U+2800, U+2007, U+3000…) для JSON.parse —
+// недопустимые знаки: модели, пишущие ими весь ответ, теряли HUD целиком. Заменяем
+// только вне строк, текст внутри значений не трогаем.
+const ПРОБЕЛ_НЕ_JSON = /[\u00a0\u1680\u2000-\u200a\u202f\u205f\u2800\u3000]/;
+function пробелыМеждуТокенами(текст) {
+  if (typeof текст !== 'string' || !ПРОБЕЛ_НЕ_JSON.test(текст)) return текст;
+  let out = '', вСтроке = false, экран = false;
+  for (const ч of текст) {
+    if (вСтроке) { out += ч; if (экран) экран = false; else if (ч === '\\') экран = true; else if (ч === '"') вСтроке = false; continue; }
+    if (ч === '"') вСтроке = true;
+    out += ПРОБЕЛ_НЕ_JSON.test(ч) ? ' ' : ч;
+  }
+  return out;
+}
+
 function tryParseHudJsonCandidate(candidate) {
+  candidate = пробелыМеждуТокенами(candidate);
   const raw = String(candidate || '');
   const controlSafe = repairHudJsonControlChars(raw);
   const stateful = repairHudJsonUnterminatedString(controlSafe);

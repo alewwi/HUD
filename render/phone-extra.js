@@ -9,17 +9,18 @@
 //   «Карты»   — сохранённые места на нарисованной схеме города.
 // Кроме «Здоровья» всё строится из того, что уже есть в HUD.
 
-import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.89.2';
-import { английский } from '../i18n.js?v=23.89.2';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.2';
-import { G_ICONS } from './icons.js?v=23.89.2';
-import { parseCall } from './msg-parts.js?v=23.89.2';
-import { parseMsgParties } from './phone-common.js?v=23.89.2';
-import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.89.2';
-import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.89.2';
-import { namesLikelySame } from '../names.js?v=23.89.2';
-import { зоныКарты } from './intimacy.js?v=23.89.2';
-import { сводкаБолезней } from './character.js?v=23.89.2';
+import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.89.3';
+import { английский } from '../i18n.js?v=23.89.3';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.3';
+import { G_ICONS } from './icons.js?v=23.89.3';
+import { parseCall, безШапокСообщения } from './msg-parts.js?v=23.89.3';
+import { контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.89.3';
+import { parseMsgParties } from './phone-common.js?v=23.89.3';
+import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.89.3';
+import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.89.3';
+import { namesLikelySame } from '../names.js?v=23.89.3';
+import { зоныКарты } from './intimacy.js?v=23.89.3';
+import { сводкаБолезней } from './character.js?v=23.89.3';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const пусто = (v) => !текст(v) || /^(empty|none|null|нет|пусто)$/i.test(текст(v));
@@ -126,7 +127,7 @@ function разобратьЗвонок(запись, владелец, сцен
   if (запись.группа || !кто || ОБЩИЙ_АДРЕСАТ.test(кто) || (владелец && namesLikelySame(кто, владелец))) кто = запись.чат;
   const день = дниСообщений([запись.строка], сцена)[0] || {};
   const часы = (полеВремени(запись.строка).match(/\d{1,2}:\d{2}/) || [''])[0];
-  const заметка = String(запись.строка.split('|')[0]).replace(/^[^:]*:\s*/, '').replace(call.tag, '').trim();
+  const заметка = безШапокСообщения(String(запись.строка.split('|')[0]).replace(/^[^:]*:\s*/, '').replace(call.tag, '').trim());
   return {
     кто: текст(кто) || 'Неизвестный', dir, outcome: call.outcome, dur: call.dur, заметка, часы,
     деньКлюч: день.ключ || '', деньПодпись: день.подпись || '',
@@ -136,7 +137,7 @@ function разобратьЗвонок(запись, владелец, сцен
 
 const ИСХОД = { answered: '', declined: 'отклонён', missed: 'пропущен' };
 
-export function buildCallsApp(chatsMap, журнал, владелец, сцена, uid = '') {
+export function buildCallsApp(chatsMap, журнал, владелец, сцена, uid = '', контакты = null) {
   // Звонки текущих переписок плюс журнал прошлых ходов; повторы — одна запись.
   const все = [...(Array.isArray(журнал) ? журнал : []), ...звонкиИзЧатов(chatsMap)];
   const виден = new Set();
@@ -183,10 +184,11 @@ export function buildCallsApp(chatsMap, журнал, владелец, сцен
       const вид = з.dir === 'out' ? 'Исходящий' : 'Входящий';
       const исход = ИСХОД[з.outcome];
       const подпись = [исход ? `${вид}, ${исход}` : вид, з.outcome === 'answered' && з.dur ? з.dur : ''].filter(Boolean).join(' · ');
+      const личность = контактСНастоящимИменем(контакты, з.кто);
       return `<div class="hud-calls-row is-${з.outcome} dir-${з.dir} kind-${видЗвонка(з)}">
-      ${лицо(з.кто, 'hud-calls-ava')}
+      ${лицо(личность ? личность.сохранён : з.кто, 'hud-calls-ava')}
       <span class="hud-calls-body">
-        <b>${defeatWI(escapeHtml(з.кто))}${з.раз > 1 ? ` <em>(${з.раз})</em>` : ''}</b>
+        <b>${defeatWI(escapeHtml(личность ? личность.сохранён : з.кто))}${з.раз > 1 ? ` <em>(${з.раз})</em>` : ''}</b>${личность ? ложноеИмяHTML(личность) : ''}
         <small><i class="hud-calls-ico">${значок}</i>${escapeHtml(подпись)}</small>
         ${з.заметка ? `<span class="hud-calls-note">${defeatWI(escapeHtml(з.заметка))}</span>` : ''}
       </span>

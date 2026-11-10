@@ -4,9 +4,10 @@
 // сообщения и сбор собеседников по строкам переписки. Лежит отдельно,
 // чтобы ни один из двух модулей не пришлось объявлять главным.
 
-import { escapeHtml, инициалыИмени } from '../utils.js?v=23.89.2';
-import { overrideAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.2';
-import { namesLikelySame } from '../names.js?v=23.89.2';
+import { escapeHtml, defeatWI, инициалыИмени } from '../utils.js?v=23.89.3';
+import { overrideAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.3';
+import { namesLikelySame } from '../names.js?v=23.89.3';
+import { G_ICONS } from './icons.js?v=23.89.3';
 
 // Обращения без адресата: такие имена в собеседники не годятся.
 const GENERIC_PARTY = /^(все|всем|all|everyone|группа|group|чат|chat|вы|you|user|я|me)$/i;
@@ -43,6 +44,35 @@ export function avaFace(name, cls, fallbackBg, inner) {
     `" data-ava-bg="${escapeHtml(bg)}" style="background-image:${url ? `url('${url}')` : bg}"` +
     `>${escapeHtml(letter)}${inner || ''}</span>`;
 }
+// Контакт, записанный не своим именем: { сохранён, настоящее } или null.
+// Ищем и по записи в телефоне, и по настоящему имени: чат или звонок модель
+// может назвать любым из них, а на экране телефона всегда то, как сохранено.
+const настоящееИмяЗаписи = (c) => { const v = String((c && c.realName) || '').trim(); return /^(?:empty|none|нет|пусто|unknown|n\/a|неизвест\S*|—|-)?$/i.test(v) ? '' : v; };
+// Строже обычного сравнения имён: namesLikelySame считает «Эрик Вайс» и «Эрик
+// Смит» одним человеком, и чужой чат подписался бы ложным именем. Полное имя —
+// только целиком, одно слово — только если оно есть в настоящем имени.
+const словаИмени = (s) => String(s || '').toLowerCase().replace(/ё/g, 'е').split(/\s+/).filter(Boolean);
+const этоОнПоИмени = (настоящее, имя) => {
+  const н = словаИмени(настоящее), и = словаИмени(имя);
+  if (!н.length || !и.length) return false;
+  return н.join(' ') === и.join(' ') || (и.length === 1 && н.includes(и[0])) || (н.length === 1 && и.includes(н[0]));
+};
+export function контактСНастоящимИменем(контакты, имя) {
+  const список = (Array.isArray(контакты) ? контакты : []).filter(c => c && c.name);
+  const ищем = String(имя || '').trim().toLowerCase();
+  if (!ищем) return null;
+  const точно = список.find(c => String(c.name).trim().toLowerCase() === ищем);
+  const запись = точно || список.find(c => этоОнПоИмени(настоящееИмяЗаписи(c), имя));
+  const настоящее = настоящееИмяЗаписи(запись);
+  return настоящее && !namesLikelySame(настоящее, запись.name) ? { сохранён: String(запись.name).trim(), настоящее } : null;
+}
+
+// Отметка рядом с именем там, где нажатие занято (строка чата открывает чат).
+export const меткаЛожногоИмени = () => `<span class="hud-fake-mark" title="Записан под ложным именем">${G_ICONS.mask}</span>`;
+// Закрытая плашка: что имя ложное, видно сразу, кто это — только по нажатию.
+export const ложноеИмяHTML = (личность) => `<details class="hud-fake-name" data-reveal="1"><summary>${G_ICONS.mask}<span>ложное имя</span></summary>`
+  + `<span class="hud-phone-real">на деле: ${defeatWI(escapeHtml(личность.настоящее))}</span></details>`;
+
 // Все реальные участники переписки, кроме владельца телефона.
 // Имена схлопываются нечётко: «Тристан», «Tristan» и «Tristan Kingsley» — один человек.
 export function collectCounterparts(messages, owner) {

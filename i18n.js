@@ -17,8 +17,8 @@
 // Словарь — по исходной русской строке. Строка без перевода остаётся русской:
 // ничего не ломается, просто видно, что словарь неполон (tests/i18n.mjs).
 
-import { settings } from './settings.js?v=23.89.2';
-import { СЛОВАРЬ_EN, ШАБЛОНЫ_EN } from './i18n-en.js?v=23.89.2';
+import { settings } from './settings.js?v=23.89.3';
+import { СЛОВАРЬ_EN, ШАБЛОНЫ_EN } from './i18n-en.js?v=23.89.3';
 
 export const язык = () => (settings.language === 'en' ? 'en' : 'ru');
 export const английский = () => язык() === 'en';
@@ -156,14 +156,16 @@ const СВОЁ = '[class*="hud-"], [id^="hud-"]';
 const своё = (эл) => { const с = эл && эл.closest(СВОЁ); return !!с && с !== document.documentElement && с !== document.body; };
 const ЧУЖОЕ = '[contenteditable="true"], [data-i18n-skip]';
 
+// Русские исходники переведённого: чтобы вернуть язык без перезагрузки.
+const русскийТекст = new WeakMap(), русскиеАтрибуты = new WeakMap();
 function перевестиТекст(узел) {
   const p = перевести(узел.nodeValue);
-  if (p !== null && p !== узел.nodeValue) узел.nodeValue = p;
+  if (p !== null && p !== узел.nodeValue) { русскийТекст.set(узел, узел.nodeValue); узел.nodeValue = p; }
 }
 function перевестиАтрибуты(эл) {
   for (const a of АТРИБУТЫ) {
     const v = эл.getAttribute(a);
-    if (v && КИРИЛЛИЦА.test(v)) { const p = перевести(v); if (p !== null && p !== v) эл.setAttribute(a, p); }
+    if (v && КИРИЛЛИЦА.test(v)) { const p = перевести(v); if (p !== null && p !== v) { if (!русскиеАтрибуты.has(эл)) русскиеАтрибуты.set(эл, {}); русскиеАтрибуты.get(эл)[a] = v; эл.setAttribute(a, p); } }
   }
 }
 
@@ -195,12 +197,25 @@ export function перевестиДерево(корень) {
 }
 
 let наблюдатель = null;
+// Обратный ход: всё, что переводчик успел поменять, — как было.
+function вернутьРусский() {
+  const обход = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+  for (let n = обход.nextNode(); n; n = обход.nextNode()) {
+    if (n.nodeType === 3) { if (русскийТекст.has(n)) { n.nodeValue = русскийТекст.get(n); русскийТекст.delete(n); } continue; }
+    const было = русскиеАтрибуты.get(n);
+    if (было) { for (const [a, v] of Object.entries(было)) n.setAttribute(a, v); русскиеАтрибуты.delete(n); }
+  }
+}
 /** Включить перевод страницы: всё уже вставленное и всё, что появится. */
 export function включитьПереводчик() {
   if (typeof document === 'undefined') return;
   document.documentElement.classList.toggle('hud-lang-en', английский());
   document.documentElement.classList.toggle('hud-lang-ru', !английский());
-  if (!английский() || наблюдатель) return;
+  if (!английский()) {
+    if (наблюдатель) { наблюдатель.disconnect(); наблюдатель = null; вернутьРусский(); }
+    return;
+  }
+  if (наблюдатель) return;
   перевестиДерево(document.body);
   // Колбэк наблюдателя — микрозадача: перевод успевает до отрисовки.
   наблюдатель = new MutationObserver((записи) => {

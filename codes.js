@@ -43,11 +43,11 @@ const ТЕЛЕФОН = {
   pics: 'gallery', cal: 'calendar',
 };
 const ПОЛЯ_ТЕЛЕФОНА = {
-  contacts: { n: 'name', nte: 'note', nt: 'note' },
+  contacts: { n: 'name', nte: 'note', nt: 'note', rn: 'realName' },
   gallery: { ti: 'title', tm: 'time', dsc: 'desc', mt: 'meta', ds: 'desc' },
   notes: { ti: 'title', tm: 'time', tx: 'text', ftr: 'footer', ft: 'footer' },
   maps: { pl: 'place', nte: 'note', nt: 'note' },
-  calendar: { dt: 'date', ti: 'title', kd: 'kind', tm: 'time' },
+  calendar: { dt: 'date', ti: 'title', kd: 'kind', tm: 'time', st: 'status', wa: 'movedFrom' },
 };
 const ШКАТУЛКА = { ow: 'owner', cl: 'calendar', wl: 'wallet', nb: 'notes', mp: 'maps', doc: 'documents', kp: 'keepsakes' };
 const ПОЛЯ_ШКАТУЛКИ = {

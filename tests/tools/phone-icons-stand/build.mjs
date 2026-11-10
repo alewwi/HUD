@@ -16,12 +16,14 @@ import { ПРАВКИ } from './sets-fix.mjs';
 import { ЛИЦА, ЛИЦО_VAMP } from './sets-faces.mjs';
 import { ЕЩЁ } from './sets-more.mjs';
 import { ПОЛИРОВКА } from './sets-polish.mjs';
+import { ПРИЛОЖЕНИЯ, VAMP_СЛУХИ, VAMP_НАСТРОЙКИ } from './sets-apps.mjs';
 
 const НАБОРЫ = { ...НАБОРЫ_А, ...НАБОРЫ_Б, ...НАБОРЫ_В, ...НАБОРЫ_Г };
 for (const [тема, иконки] of Object.entries(ПРАВКИ)) Object.assign(НАБОРЫ[тема].иконки, иконки);
 for (const [тема, лицо] of Object.entries(ЛИЦА)) if (лицо) НАБОРЫ[тема].иконки.contacts = лицо;
 for (const [тема, иконки] of Object.entries(ЕЩЁ)) Object.assign(НАБОРЫ[тема].иконки, иконки);
 for (const [тема, иконки] of Object.entries(ПОЛИРОВКА)) Object.assign(НАБОРЫ[тема].иконки, иконки);
+for (const [тема, иконки] of Object.entries(ПРИЛОЖЕНИЯ)) Object.assign(НАБОРЫ[тема].иконки, иконки);
 const ЗДЕСЬ = path.dirname(fileURLToPath(import.meta.url));
 // Рамки рисунков из браузера (measure.mjs). HUD_RAW — сборка для самого обмера.
 const БЕЗ_ОБМЕРА = !!process.env.HUD_RAW;
@@ -675,7 +677,7 @@ const CSS_НАБОРА = `
 .th-noir .art { filter: drop-shadow(0 0 3px rgba(255,255,255,.45)); }
 .th-medieval .art { filter: url(#vol) drop-shadow(0 0 4px rgba(255,220,150,.55)); }
 .th-medieval .art .glass.p { fill: #f4efe0; }
-.th-medieval .tile { fill: #1f2d52; } .th-medieval .tile-glow { fill: #6f8ed8; opacity: .45; }
+.th-medieval .tile { fill: #c48f3e; } .th-medieval .tile-glow { fill: #f4d58c; opacity: .55; }
 .th-web1 .tile-vig, .th-web1 .tile-sheen, .th-bujo .tile-sheen { display: none; }
 .th-mafia .tile-vig { opacity: .18; }
 
@@ -694,7 +696,10 @@ const CSS_НАБОРА = `
 .th-vamp .tile-rim { stroke-opacity: .4; }
 `;
 
-const ПОРЯДОК = ['calls', 'weather', 'health', 'messages', 'contacts', 'wallet', 'calendar', 'gallery', 'notes', 'maps', 'search', 'music'];
+const vampЗначок = (з, блик, капли) => ({ рамка: з.рамка, имя: з.имя, тело: () => `<path class="b-fill" fill-rule="evenodd" d="${з.контур}"/><path class="b-rim" d="${з.контур}"/><path class="hi" d="${блик}"/>${потёки(капли)}` });
+ИКОНКИ.rumors = vampЗначок(VAMP_СЛУХИ, 'M22 42c7-1 13 1 18 4', [[46, 62, 8, 2.4], [60, 72, 11, 3], [74, 62, 7, 2.4]]);
+ИКОНКИ.settings = vampЗначок(VAMP_НАСТРОЙКИ, 'M36 42c5-7 12-10 20-11', [[48, 92, 8, 2.4], [62, 96, 11, 3], [74, 92, 6, 2.2]]);
+const ПОРЯДОК = ['calls', 'weather', 'health', 'messages', 'contacts', 'wallet', 'calendar', 'gallery', 'notes', 'maps', 'search', 'music', 'rumors', 'settings'];
 
 const CSS_СТЕНДА = `
 :root { color-scheme: dark; }

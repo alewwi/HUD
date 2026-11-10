@@ -39,6 +39,8 @@ export const defaultSettings = {
   phoneAppWeather: true,
   phoneAppHealth: true,
   phoneAppMusic: true,
+  phoneAppRumors: true,
+  phoneAppSettings: true,
   // Значки приложений: auto — набор темы, plain — обычные, иначе имя набора.
   phoneIconsView: 'auto',
   // Эпоха снаряжения: 'modern' — телефон и перехваты, 'medieval' —
@@ -534,6 +536,7 @@ export const defaultSettings = {
   phoneFrameColor: '#16171d',
   phoneScreenGlow: 35,
   phoneNotifMax: 3,
+  phoneDevice: 'iphone', phoneCracks: 'off', phoneNotifStyle: 'stack', phoneLockClock: 'classic',
   weatherBgColor: '#000000', weatherBgAlpha: 40, weatherBlur: 6, // Цвета погоды
 
   badgeColor: '#ff3b30',

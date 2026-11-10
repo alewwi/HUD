@@ -7,11 +7,11 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.89.2';
-import { mapKey } from './utils.js?v=23.89.2';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.89.2';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.2';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.89.2';
+import { settings } from './settings.js?v=23.89.3';
+import { mapKey } from './utils.js?v=23.89.3';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.89.3';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.3';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.89.3';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -388,6 +388,15 @@ export function normalizeJSONData(parsed) {
 
   // Телефонная ОС: контакты, галерея, заметки, карты, поисковые запросы.
   // Каждая секция необязательна — приложение без данных покажет пустой экран.
+  // Судьба записи календаря: модель пишет слово как придётся.
+  const статусСобытия = (v) => {
+    const s = String(v || '').toLowerCase();
+    if (/cancel|called off|abandon|отмен|сорвал/.test(s)) return 'cancelled';
+    if (/moved|resched|postpon|перен[её]с/.test(s)) return 'moved';
+    if (/\bnot\b|\bincomplete|undone|(?<![\p{L}])не\s/u.test(s)) return 'open';
+    if (/done|complete|finish|сделан|выполн|состоял/.test(s)) return 'done';
+    return /open|открыт|запланир/.test(s) ? 'open' : '';
+  };
   const phoneSection = (arr, fields) => (Array.isArray(arr) ? arr : [])
     .map(item => {
       if (typeof item === 'string') return { [fields[0]]: toStr(item) };
@@ -400,7 +409,7 @@ export function normalizeJSONData(parsed) {
   const rawPhone = (parsed.phone && typeof parsed.phone === 'object' && !Array.isArray(parsed.phone)) ? parsed.phone : {};
   const phoneParsed = {
     owner: toStr(rawPhone.owner),
-    contacts: phoneSection(rawPhone.contacts, ['name', 'note']),
+    contacts: phoneSection(rawPhone.contacts, ['name', 'note', 'realName']),
     gallery:  phoneSection(rawPhone.gallery,  ['title', 'time', 'desc', 'meta']),
     notes:    phoneSection(rawPhone.notes,    ['title', 'time', 'text', 'footer']),
     maps:     phoneSection(rawPhone.maps,     ['place', 'note']),
@@ -413,7 +422,7 @@ export function normalizeJSONData(parsed) {
       const balance = toStr(w.balance), currency = toStr(w.currency);
       return (balance || currency || tx.length) ? { balance, currency, transactions: tx } : null;
     })(),
-    calendar: phoneSection(rawPhone.calendar, ['date', 'title', 'kind', 'time']).map(с => ({ ...с, kind: видСобытия(с.kind) })),
+    calendar: phoneSection(rawPhone.calendar, ['date', 'title', 'kind', 'time', 'status', 'movedFrom']).map(с => ({ ...с, kind: видСобытия(с.kind), status: статусСобытия(с.status) })),
     // Здоровье: сон прошлой ночи, шаги за день, пульс сейчас — строками.
     health: (() => {
       const h = (rawPhone.health && typeof rawPhone.health === 'object' && !Array.isArray(rawPhone.health)) ? rawPhone.health : {};
@@ -437,7 +446,7 @@ export function normalizeJSONData(parsed) {
       const balance = toStr(w.balance), currency = toStr(w.currency);
       return (balance || currency || tx.length) ? { balance, currency, transactions: tx } : null;
     })(),
-    calendar: phoneSection(rawSatchel.calendar, ['date', 'title', 'kind', 'time']).map(с => ({ ...с, kind: видСобытия(с.kind) })),
+    calendar: phoneSection(rawSatchel.calendar, ['date', 'title', 'kind', 'time', 'status', 'movedFrom']).map(с => ({ ...с, kind: видСобытия(с.kind), status: статусСобытия(с.status) })),
   };
   const lettersParsed = phoneSection(parsed.letters, ['text', 'from', 'to', 'time', 'status', 'seal', 'via'])
     .filter(l => valid(l.text) || valid(l.from));

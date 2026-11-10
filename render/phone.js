@@ -6,21 +6,22 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.89.2';
-import { английский } from '../i18n.js?v=23.89.2';
-import { settings } from '../settings.js?v=23.89.2';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.89.2';
-import { G_ICONS } from './icons.js?v=23.89.2';
-import { значокПриложения, естьНабор } from './phone-icons.js?v=23.89.2';
-import { buildMessengerHTML } from './messenger.js?v=23.89.2';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties } from './phone-common.js?v=23.89.2';
-import { сортироватьЧаты } from './msg-feed.js?v=23.89.2';
-import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.89.2';
-import { buildCalendarApp } from './calendar.js?v=23.89.2';
-import { приложениеМузыки } from './music.js?v=23.89.2';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.89.3';
+import { английский } from '../i18n.js?v=23.89.3';
+import { settings } from '../settings.js?v=23.89.3';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.89.3';
+import { G_ICONS } from './icons.js?v=23.89.3';
+import { значокПриложения, естьНабор } from './phone-icons.js?v=23.89.3';
+import { buildMessengerHTML } from './messenger.js?v=23.89.3';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties, контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.89.3';
+import { безШапокСообщения } from './msg-parts.js?v=23.89.3';
+import { сортироватьЧаты } from './msg-feed.js?v=23.89.3';
+import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.89.3';
+import { buildCalendarApp } from './calendar.js?v=23.89.3';
+import { приложениеМузыки } from './music.js?v=23.89.3';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.89.2';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.89.3';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -149,7 +150,36 @@ function buildWalletApp(wallet, owner) {
 // --- Календарь ---------------------------------------------------------------
 // Живёт в render/calendar.js; отсюда его по-прежнему берёт альманах
 // (render/medieval.js).
-export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.89.2';
+export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.89.3';
+import { ближайшиеДела } from './calendar.js?v=23.89.3';
+
+// Слухи города: то, что модель и так пишет в мир, — последние десять, свежие
+// сверху. Автор комментария скрыт до нажатия.
+function buildRumorsApp(rumors, talk) {
+  const слухи = (Array.isArray(rumors) ? rumors : []).filter(Boolean).slice(-10).reverse();
+  const речи = (Array.isArray(talk) ? talk : []).filter(Boolean).slice(-10).reverse();
+  if (!слухи.length && !речи.length) return emptyApp(G_ICONS.chat, 'Город пока молчит');
+  const карточкиСлухов = слухи.map(с => `<li class="hud-rumor">${defeatWI(escapeHtml(String(с)))}</li>`).join('');
+  const карточкиРечей = речи.map(с => {
+    const м = String(с).match(/^([^:\n]{1,40}):\s*([\s\S]+)$/);
+    return `<li class="hud-rumor is-talk">${м
+      ? `<details class="hud-rumor-author" data-reveal="1"><summary>Аноним</summary><span>${defeatWI(escapeHtml(м[1].trim()))}</span></details>${defeatWI(escapeHtml(м[2].trim()))}`
+      : defeatWI(escapeHtml(String(с)))}</li>`;
+  }).join('');
+  return `<div class="hud-rumors">${слухи.length ? `<h4>Говорят</h4><ul>${карточкиСлухов}</ul>` : ''}${речи.length ? `<h4>Пишут в сети</h4><ul>${карточкиРечей}</ul>` : ''}</div>`;
+}
+
+// Часы блокировки. Цифры разбиты на части, а циферблат лежит рядом: какой из
+// видов показать, решают стили, поэтому смена вида не требует перерисовки.
+function часыБлокировки(время) {
+  const м = String(время || '').match(/(\d{1,2}):(\d{2})/);
+  const цифры = м ? `<span class="h">${м[1]}</span><i class="c">:</i><span class="m">${м[2]}</span>` : '--:--';
+  const минуты = м ? +м[2] : 0, часы = м ? (+м[1] % 12) + минуты / 60 : 0;
+  const риски = Array.from({ length: 12 }, (_, i) => `<line x1="50" y1="5" x2="50" y2="${i % 3 ? 9 : 13}" transform="rotate(${i * 30} 50 50)"/>`).join('');
+  return `<div class="hud-phone-lock-time">${цифры}</div><svg class="hud-phone-lock-analog" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48"/><g class="t">${риски}</g><line class="hh" x1="50" y1="52" x2="50" y2="27" transform="rotate(${часы * 30} 50 50)"/><line class="mm" x1="50" y1="54" x2="50" y2="14" transform="rotate(${минуты * 6} 50 50)"/><circle class="p" cx="50" cy="50" r="2.6"/></svg>`;
+}
+
+const ДЕЛО_ИКОНКА = (д) => д.тип === 'birthday' ? '<i class="hud-phone-next-dot is-birthday"></i>' : '<i class="hud-phone-next-dot"></i>';
 
 // --- Экраны приложений ------------------------------------------------------
 // Каждый билдер получает свой кусок data.phone и возвращает внутренности
@@ -163,9 +193,10 @@ function buildContactsApp(contacts) {
   if (!contacts || !contacts.length) return emptyApp(G_ICONS.person, 'Список контактов пуст');
   return `<div class="hud-phone-contacts">` + contacts.map(c => {
     const name = c.name || 'Без имени';
+    const личность = контактСНастоящимИменем(contacts, c.name);
     return `<div class="hud-phone-contact">
       ${avaFace(name, 'hud-phone-contact-avatar', `linear-gradient(150deg, ${HUD_AVATAR_COLORS[hudHashSeed(name) % HUD_AVATAR_COLORS.length]}, rgba(0,0,0,.5))`)}
-      <div><b>${defeatWI(escapeHtml(name))}</b>${c.note ? `<small>${escapeHtml(c.note)}</small>` : ''}</div>
+      <div><b>${defeatWI(escapeHtml(name))}</b>${личность ? ложноеИмяHTML(личность) : ''}${c.note ? `<small>${escapeHtml(c.note)}</small>` : ''}</div>
     </div>`;
   }).join('') + `</div>`;
 }
@@ -229,7 +260,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   const phoneOwner = (phone.owner && !/^(empty|none)$/i.test(phone.owner) ? phone.owner : '') || topChatOwner || mainCharName || '';
 
   // Мессенджер собираем уже зная владельца: он задаёт и подпись, и сторону пузырей.
-  const messenger = buildMessengerHTML(chatsMap, uid, phoneOwner, sceneDate);
+  const messenger = buildMessengerHTML(chatsMap, uid, phoneOwner, sceneDate, phone.contacts);
 
 
   // Часы телефона — те же, что на плашке погоды: одно время сцены на весь HUD.
@@ -265,7 +296,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   const владелецКарточка = (Array.isArray(characters) ? characters : []).find(c => c && c['Имя'] && namesLikelySame(c['Имя'], phoneOwner));
   const местоВладельца = владелецКарточка ? String(владелецКарточка['Место'] || '').trim() : '';
   // Пропущенные сегодня — значком на «Звонках»; журнал считает их сам.
-  const экранЗвонков = on('phoneAppCalls') ? buildCallsApp(chatsMap, phone.callLog, phoneOwner, sceneDate, uid) : '';
+  const экранЗвонков = on('phoneAppCalls') ? buildCallsApp(chatsMap, phone.callLog, phoneOwner, sceneDate, uid, phone.contacts) : '';
   const пропущенных = (экранЗвонков.match(/hud-calls-row [^"]*kind-miss/g) || []).length;
   const apps = [
     on('phoneAppCalls') && { id: 'calls',    icon: G_ICONS.handset, label: 'Звонки', badge: пропущенных,
@@ -281,9 +312,11 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
     on('phoneAppNotes') && { id: 'notes',    icon: G_ICONS.note, label: 'Заметки',   body: buildNotesApp(phone.notes) },
     on('phoneAppMaps') && { id: 'maps',     icon: G_ICONS.map, label: 'Карты',     body: buildMapsApp(phone.maps, местоВладельца) },
     on('phoneAppSearch') && { id: 'search',   icon: G_ICONS.glass, label: 'Поиск',     body: buildSearchApp(phone.search) },
+    on('phoneAppRumors') && settings.enableWorld !== false && { id: 'rumors', icon: G_ICONS.people, label: 'Слухи', body: buildRumorsApp(phone.rumors && phone.rumors.length ? phone.rumors : (доп.world && доп.world.rumors), phone.cityTalk && phone.cityTalk.length ? phone.cityTalk : (доп.world && доп.world.comments)) },
     // «Музыка» (render/music.js) — что слушает владелец; подбирается вместе с
     // музыкой сцены, поэтому живёт, только пока та включена.
     settings.enableMusic === true && on('phoneAppMusic') && Number.isInteger(доп.mesId) && { id: 'music', icon: G_ICONS.music, label: 'Музыка', body: приложениеМузыки(доп.mesId, phoneOwner) },
+    on('phoneAppSettings') && { id: 'settings', icon: G_ICONS.gear, label: 'Настройки', body: '<div data-pset-host="1"></div>' },
   ].filter(Boolean);
 
   // Обычный значок остаётся в разметке: набор ложится поверх и может уехать.
@@ -327,7 +360,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
       // обрывалось, и уведомление показывало сырое «Имя -> Кому: [CALL: …]».
       const mm = body.match(/^(.+?)(?:\s*(?:->|→)\s*([^:]+?))?\s*:\s*(.*)$/);
       if (mm) body = mm[3];
-      lastText = body.replace(/\[(?:VIDEO|ВИДЕО|VID|РОЛИК)[ _]?\d{0,2}:?\d{0,2}\s*:?\s*[^\]]*\]/gi, '🎬 Видео')
+      lastText = безШапокСообщения(body).replace(/\[(?:VIDEO|ВИДЕО|VID|РОЛИК)[ _]?\d{0,2}:?\d{0,2}\s*:?\s*[^\]]*\]/gi, '🎬 Видео')
                      .replace(/\[(?:VOICE|ГОЛОС)_?\d{0,2}:?\d{0,2}\]/gi, '🎤 Голосовое сообщение')
                      .replace(/\[(?:PHOTO|ФОТО|IMG|СНИМОК)\s*:?\s*[^\]]*\]/gi, '📷 Фото')
                      .replace(/\[(?:CALL|ЗВОНОК)\s*:?\s*([^\]]*)\]/gi, (_, b) => /пропущ|missed|no answer/i.test(b) ? '📞 Пропущенный звонок' : /отклон|declined|rejected/i.test(b) ? '📞 Отклонённый звонок' : '📞 Звонок')
@@ -344,7 +377,10 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
       if (!c.participants && parts.length === 1) title = parts[0];
       else if (lastSender) title = lastSender;
     }
-    const who = c.participants && lastSender ? lastSender : '';
+    // Контакт под ложным именем и здесь записан так, как в телефоне.
+    const какВТелефоне = (имя) => (контактСНастоящимИменем(phone.contacts, имя) || { сохранён: имя }).сохранён;
+    if (title && !c.participants) title = какВТелефоне(title);
+    const who = c.participants && lastSender ? какВТелефоне(lastSender) : '';
     // chatIdx связывает уведомление с конкретной перепиской: по нему открывается
     // нужный чат и снимается непрочитанное, когда в него зашли.
     notifItems.push({ title: title || 'Сообщение', who, text: lastText, time: lastTime, count: unreadHere, target: `subchat-${uid}-${chatIdx}` });
@@ -390,6 +426,11 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   // под ними те же уведомления, что и на домашнем экране, внизу — язычок
   // свайпа. Разблокировка живёт в events.js (жест тянут пальцем, поэтому
   // это pointer-события, а не клик).
+  // Ближайшее дело: на домашнем экране ведёт в календарь, на блокировке — просто строка.
+  const дела = on('phoneAppCalendar') ? ближайшиеДела(phone.calendar, characters, sceneDate, sceneTime, phoneOwner) : [];
+  const текстДела = (д) => `<b>${escapeHtml(д.когда)}</b><small>${defeatWI(escapeHtml(д.название))}</small>`;
+  const виджет = дела.length ? `<button type="button" class="hud-phone-widget" data-phone-app="calendar">${дела.map(д => `<span class="hud-phone-next">${ДЕЛО_ИКОНКА(д)}${текстДела(д)}</span>`).join('')}</button>` : '';
+  const строкаДела = дела.length ? `<div class="hud-phone-lock-next">${дела.map(д => `<span class="hud-phone-next">${ДЕЛО_ИКОНКА(д)}${текстДела(д)}</span>`).join('')}</div>` : '';
   const statusGlyphs = '<span class="hud-phone-status-glyphs"><span class="hud-phone-sig"><i></i><i></i><i></i><i></i></span><span class="hud-phone-bat"></span></span>';
   const lockDate = String(sceneDate || '').trim();
   const lockNotifs = shown.length
@@ -405,12 +446,14 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   const lockScreen = `<div class="hud-phone-lockscreen" data-phone-uid="${uid}" role="button" tabindex="0"
         aria-label="Экран блокировки. Проведите вверх, чтобы разблокировать">
       <div class="hud-phone-statusline"><span>${escapeHtml(latestTime || '')}</span>${statusGlyphs}</div>
-      <div class="hud-phone-lock-time">${escapeHtml(latestTime || '--:--')}</div>
+      ${часыБлокировки(latestTime)}
       ${lockDate ? `<div class="hud-phone-lock-day">${defeatWI(escapeHtml(lockDate))}</div>` : ''}
+      ${строкаДела}
       <div class="hud-phone-lock-notifications">${lockNotifs}</div>
       <div class="hud-phone-lock-swipe">
         <span class="hud-phone-lock-arrow"></span>
         <span class="hud-phone-lock-hint">Проведите вверх</span>
+        <span class="hud-phone-lock-hint-keys">Нажмите OK</span>
         <span class="hud-phone-lock-bar"></span>
       </div>
     </div>`;
@@ -420,15 +463,20 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
       <span class="hud-phone-btn-side vol-up"></span><span class="hud-phone-btn-side vol-down"></span><span class="hud-phone-btn-side power"></span>
     <div class="hud-phone-emulator" data-phone-uid="${uid}">
       <span class="hud-phone-glass"></span>
+      <span class="hud-phone-cracks" aria-hidden="true"></span>
       ${lockScreen}
       <div class="hud-phone-unlocked">
         <div class="hud-phone-top-status"><span>${escapeHtml(latestTime || "")}</span><span class="hud-phone-status-glyphs"><span class="hud-phone-sig"><i></i><i></i><i></i><i></i></span><span class="hud-phone-bat"></span></span></div>
         <div class="hud-phone-home-wrap">
-          <div class="hud-phone-home-screen">${notice}<div class="hud-phone-app-grid">${grid}</div></div>
+          <div class="hud-phone-home-screen">${виджет}${notice}<div class="hud-phone-app-grid">${grid}</div></div>
           ${views}
         </div>
-        <div class="hud-phone-bottom-bar"><button class="hud-phone-home-btn" data-phone-home="${uid}"></button></div>
+        <div class="hud-phone-bottom-bar"><button type="button" class="hud-phone-nav-btn is-back" data-nav="back" aria-label="Назад"></button><button class="hud-phone-home-btn" data-phone-home="${uid}"></button><button type="button" class="hud-phone-nav-btn is-recent" data-nav="home" aria-label="Домой"></button></div>
       </div>
+    </div>
+    <div class="hud-phone-keys" aria-hidden="true">
+      <div class="hud-phone-soft"><button type="button" data-key="back">Назад</button><button type="button" class="is-ok" data-key="ok">OK</button><button type="button" data-key="home">Домой</button></div>
+      <div class="hud-phone-digits">${['1', '2', '3', '4', '5', '6', '7', '8', '9', '*', '0', '#'].map(к => `<button type="button" data-key="${к}">${к}</button>`).join('')}</div>
     </div>
     </div>
   </div>`;

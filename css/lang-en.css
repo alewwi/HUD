@@ -47,3 +47,4 @@
 :root.hud-lang-en.hud-sh-noir .hud-os-card .hud-header > .hud-scene-h::after { content: 'CASE  № 02'; }
 :root.hud-lang-en.hud-sh-spacehorror .hud-os-card .hud-header > .hud-scene-h::after { content: '12 m'; }
 :root.hud-lang-en .hud-cal-ev.is-overdue .hud-cal-ev-title::after { content: " · date passed"; }
+:root.hud-lang-en .mes.hud-wait .mes_text::after { content: "Building HUD…"; }

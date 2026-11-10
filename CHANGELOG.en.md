@@ -4,6 +4,34 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.3 — 2026-11-10
+
+The phone gets its own looks, settings and new apps, and HUD no longer flashes raw code.
+
+### Added
+- **Phone types:** iPhone, Android and Keypad. The keypad phone has a monochrome screen, a numbered menu and a working keypad: a digit opens an item, OK unlocks. Separately, a cracked or shattered screen.
+- **A Settings app in the phone.** Everything about the phone in one place: type, clock, notifications, theme, message colors, icons, which apps to show. The values are shared with the main settings and Customization.
+- **A Rumors app.** The last 10 rumors and 10 city comments, taken from what the model already writes. A comment's author is hidden until tapped.
+- **Appearance.** Notification styles (stack, pill, timer ring, bubble), five lock screen clocks, and a background for a single chat: a ready-made one or your own photo.
+- **The next plan** on the home and lock screens, and a birthday today or tomorrow.
+- **"Last seen 23:10"** in a private chat's header, and a name color for each group member.
+- **The phone in someone else's hands.** The `[BY: who]` tag shows "Not the owner: who". What the person did off-screen stays hidden until tapped; a blocked contact replaces the input field.
+- **A contact under a false name.** A mask badge is visible at once, the real name only on tap.
+- **What became of calendar entries:** done, cancelled, moved. A move does not create a second entry and leaves a trace on the old day.
+- **Who paid.** When someone else pays the bill, the phone owner's money is not spent.
+- **Rumors and Settings icons** in every theme set, with each theme's own objects.
+
+### Changed
+- **No raw code and no reloads.** Settings and looks apply at once. Changing the language and loading settings from a file no longer reload the page. While a chat opens, a "Building HUD…" plate replaces the raw block.
+- **Medieval:** icon tiles are warm parchment instead of blue.
+
+### Fixed
+- **Invisible spaces between JSON parts** (U+2800, U+2007, U+3000) no longer break HUD parsing.
+- **Phone body corners and the notification backing.** Blur leaked past the rounding, and a rectangle sat under the round pill.
+- **Previews and notifications** no longer show raw forward and reply tags.
+- **The open tab** is kept when cards are rebuilt.
+- **Schedule:** leftovers like a weekday with commas no longer get into a plan's title.
+
 ## 23.89.2 — 2026-11-10
 
 A review of what HUD decides on its own, without the model writing it.

@@ -497,6 +497,50 @@
 }
 .hud-msg-fwd .hud-g-ico { width: 13px; height: 13px; }
 
+/* Пока карточка собирается — заглушка вместо голого кода (raw-guard.js). */
+.hud-raw-wait { display: none !important; }
+.mes.hud-wait .mes_text::after {
+  content: 'HUD собирается…'; display: flex; align-items: center; justify-content: center; min-height: 88px; margin-top: 8px;
+  border-radius: 14px; border: 1px solid color-mix(in srgb, currentColor 14%, transparent); background: color-mix(in srgb, currentColor 6%, transparent);
+  font-size: 12px; letter-spacing: .04em; animation: hud-wait-pulse 1s ease-in-out infinite alternate;
+}
+@keyframes hud-wait-pulse { from { opacity: .35; } to { opacity: .8; } }
+@media (prefers-reduced-motion: reduce) { .mes.hud-wait .mes_text::after { animation: none; opacity: .6; } }
+
+/* «Вместо владельца»: телефон оказался у другого человека. */
+.hud-msg-by {
+  display: flex; align-items: flex-start; gap: 5px;
+  width: fit-content; max-width: 100%; box-sizing: border-box;
+  margin: 0 0 5px; padding: 3px 8px; border-radius: 9px;
+  background: rgba(0, 0, 0, .26); color: inherit;
+  font-size: .8em; font-weight: 600; font-style: italic; line-height: 1.3; overflow-wrap: anywhere;
+}
+.hud-msg-by > span { min-width: 0; }
+.hud-msg-by .hud-g-ico { flex: 0 0 13px; width: 13px; height: 13px; margin-top: 1px; fill: currentColor; opacity: 1; }
+
+/* Контакт под ложным именем: отметка сразу, кто это — по нажатию. */
+.hud-fake-name { display: block; margin: 2px 0 1px; font-weight: 400; }
+.hud-fake-name > summary, .hud-offscreen > summary { list-style: none; cursor: pointer; }
+.hud-fake-name > summary::-webkit-details-marker, .hud-offscreen > summary::-webkit-details-marker { display: none; }
+.hud-fake-name > summary {
+  display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 9px;
+  border: 1px dashed color-mix(in srgb, #e3ad4f 65%, transparent);
+  color: color-mix(in srgb, #e3ad4f 85%, currentColor); font-size: 10px; line-height: 1.4; font-style: italic;
+}
+.hud-fake-name .hud-g-ico, .hud-fake-mark .hud-g-ico { width: 13px; height: 13px; opacity: 1; fill: currentColor; }
+.hud-fake-mark { display: inline-flex; vertical-align: -2px; margin-right: 4px; color: color-mix(in srgb, #e3ad4f 85%, currentColor); }
+.hud-phone-real { display: block; margin-top: 3px; font-size: 10.5px; line-height: 1.3; font-style: italic; opacity: .8; overflow-wrap: anywhere; font-weight: 400; }
+
+/* Что сделали с телефоном за кадром: закрыто, открывается по нажатию. */
+.hud-offscreen { width: fit-content; max-width: 88%; box-sizing: border-box; margin: 8px auto; text-align: center; font-size: .8em; }
+.hud-offscreen > summary { display: inline-flex; align-items: center; justify-content: center; gap: 5px; padding: 3px 11px; border-radius: 11px; background: color-mix(in srgb, currentColor 10%, transparent); opacity: .85; }
+.hud-offscreen .hud-g-ico { flex: 0 0 13px; width: 13px; height: 13px; opacity: 1; fill: currentColor; }
+.hud-offscreen-text { margin-top: 5px; font-style: italic; line-height: 1.35; opacity: .85; overflow-wrap: anywhere; }
+.hud-offscreen-text small { opacity: .6; font-style: normal; white-space: nowrap; }
+.hud-phone-input-bar.is-blocked { justify-content: center; }
+.hud-phone-input-bar.is-blocked .hud-offscreen { margin: 0 auto; max-width: 100%; }
+.hud-phone-input-bar.is-blocked .hud-offscreen > summary { color: color-mix(in srgb, #e88a8a 85%, currentColor); opacity: 1; }
+
 /* Опрос. Проценты и ширину полос считает расширение — модель присылает
    только голоса, иначе она делит в уме и ошибается. */
 .hud-poll { display: block; min-width: 190px; }
@@ -6746,6 +6790,10 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
 .hud-body-stats em { font-style: normal; font-size: 11px; color: var(--hud-text-muted, #c3c2b7); }
 .hud-body-stats em.up { color: #e6b36a; }
 .hud-body-stats em.down { color: #8fc0e0; }
+.hud-cal-state { display: block; margin-top: 1px; font-size: 10.5px; line-height: 1.3; font-weight: 600; opacity: .75; }
+.hud-cal-ev:is(.is-done, .is-cancelled, .is-moved-away) .hud-cal-ev-title { opacity: .6; }
+.hud-cal-ev:is(.is-cancelled, .is-moved-away) .hud-cal-ev-title { text-decoration: line-through; }
+.hud-cal-ev.is-cancelled .hud-cal-state { color: color-mix(in srgb, #e88a8a 85%, currentColor); opacity: 1; }
 .hud-cal-ev.is-overdue .hud-cal-ev-title::after { content: ' · дата прошла'; font-size: .82em; color: color-mix(in srgb, #e88a8a 85%, currentColor); }
 /* Карточки внутри беременности: угроза, осмотр, потеря малыша. */
 .hud-note-card { --note: var(--hud-text-muted, #c3c2b7); position: relative; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 11px; margin-top: 9px; padding: 10px 12px 10px 14px; border-radius: 13px; overflow: hidden;

@@ -12,10 +12,10 @@
 // оказываются рядом вчерашнее «22:30» и сегодняшнее «08:30», и без подписи
 // «Вчера» это читается как один разговор подряд.
 
-import { escapeHtml, defeatWI } from '../utils.js?v=23.89.2';
-import { buildBubbleInner, buildCallRow, msgKey } from './msg-parts.js?v=23.89.2';
-import { avaFace } from './phone-common.js?v=23.89.2';
-import { namesLikelySame } from '../names.js?v=23.89.2';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.3';
+import { buildBubbleInner, buildCallRow, msgKey, действиеЗаКадром, заКадромHTML, безШапокСообщения, начинаетсяСТега } from './msg-parts.js?v=23.89.3';
+import { avaFace } from './phone-common.js?v=23.89.3';
+import { namesLikelySame } from '../names.js?v=23.89.3';
 
 // Один человек в переписке под разными подписями: «Грей» и «Профессор Грей»,
 // «Butler» и «Private Butler», «Tristan» и «THE REGENTS Tristan Kingsley».
@@ -214,7 +214,7 @@ export function разобратьСообщение(raw) {
   тело = тело.replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]\s*|✓+/gi, '').trim();
   let кто = 'Unknown', текст = тело;
   // Дефис — часть фамилии («Ченнинг-Уинтроп»), из имени его не исключаем.
-  const m = тело.match(/^([^:]+?)(?:\s*(?:->|→)\s*([^:]+?))?\s*:\s*([\s\S]*)$/);
+  const m = начинаетсяСТега(тело) ? null : тело.match(/^([^:]+?)(?:\s*(?:->|→)\s*([^:]+?))?\s*:\s*([\s\S]*)$/);
   if (m) { кто = m[1].trim(); текст = m[3].trim(); }
   // Время в поле дня: «Вчера, 14:30» → на пузыре только часы.
   const часы = (String(время).match(/\d{1,2}:\d{2}/) || [''])[0] || (/\d/.test(время) ? '' : время);
@@ -232,26 +232,47 @@ function отметка(статус, исходящее) {
   return /unread|не прочитан/.test(s) ? '<span class="msg-status unread-dot"></span>' : '';
 }
 
+// Цвета имён в группах: различимые на тёмном фоне.
+const ЦВЕТА_ИМЁН = ['#5fb8ff', '#8fd18a', '#c59bff', '#ffb36b', '#55d6c2', '#f07a7a', '#d8c25a', '#ff8fb8'];
+
 /**
  * Лента сообщений одной переписки.
  * messages — строки от модели; owner — чьи сообщения считаем исходящими;
  * сцена — дата сцены (для «Сегодня» и «Вчера»); лицо — сборщик кружка
  * отправителя; черновикВПоле — телефон забирает черновик в строку ввода,
  * перехват показывает его пузырём: чужой недописанный текст — находка.
- * Возвращает { html, draft }.
+ * блокВПоле — телефон показывает блокировку вместо строки ввода;
+ * имяНаЭкране — как подписать отправителя (контакт сохранён под другим именем).
+ * цветаИмён — у каждого участника группы свой цвет имени.
+ * Возвращает { html, draft, блокировка, вСети }.
  */
-export function собратьЛенту(messages, { owner = '', сцена = '', лицо = null, черновикВПоле = false } = {}) {
+export function собратьЛенту(messages, { owner = '', сцена = '', лицо = null, черновикВПоле = false, блокВПоле = false, имяНаЭкране = null, цветаИмён = false } = {}) {
   const строки = Array.isArray(messages) ? messages : [];
   const дни = дниСообщений(строки, сцена);
   const кружок = лицо || ((имя) => avaFace(имя, 'hud-msg-avatar', 'rgba(255,255,255,0.1)'));
-  let html = '', draft = '', прошлыйДень = '';
+  let html = '', draft = '', прошлыйДень = '', блокировка = null, вСети = '';
+  // Чат продолжился после блокировки — значит, она уже не действует.
+  let последняяНастоящая = -1;
+  строки.forEach((raw, i) => { if (!String(raw || '').trim()) return; const р = разобратьСообщение(raw); if (!р.черновик && !действиеЗаКадром(р.текст)) последняяНастоящая = i; });
   строки.forEach((raw, i) => {
     if (!String(raw || '').trim()) return;
-    const { кто, текст, время, статус, удалено, черновик } = разобратьСообщение(raw);
+    const разобрано = разобратьСообщение(raw);
+    const { текст, время, статус, удалено, черновик } = разобрано;
+    // Тег без отправителя: писали с телефона владельца.
+    const кто = разобрано.кто === 'Unknown' && owner && /^\[BY\s*:/i.test(текст) ? owner : разобрано.кто;
+    const подпись = имяНаЭкране ? имяНаЭкране(кто) : кто;
     let исходящее = Boolean(owner && тотЖеВПереписке(кто, owner));
     if (/^(?:user|you|вы|я|player)$/i.test(кто.trim())) исходящее = true;
 
-    if (черновик && исходящее && черновикВПоле) { draft = текст; return; }
+    if (черновик && исходящее && черновикВПоле) { draft = безШапокСообщения(текст); return; }
+
+    // Что сделали с телефоном без текста. Блокировка — вместо строки ввода,
+    // пока её не сняли; остальное — закрытой строкой в ленте.
+    const заКадром = действиеЗаКадром(текст);
+    // Сам владелец за кадром ни к чему: сделанное им видно и так.
+    if (заКадром && !заКадром.блок && owner && тотЖеВПереписке(заКадром.кто, owner)) return;
+    if (заКадром && блокВПоле && заКадром.блок === 'unblock') блокировка = null;
+    if (заКадром && блокВПоле && заКадром.блок === 'block' && i > последняяНастоящая) { блокировка = { ...заКадром, время }; return; }
 
     // Разделитель дня — перед первым сообщением этого дня.
     const день = дни[i] || { ключ: '', подпись: '' };
@@ -262,30 +283,36 @@ export function собратьЛенту(messages, { owner = '', сцена = ''
 
     if (удалено) {
       html += `<div class="hud-msg-wrapper ${исходящее ? 'outgoing' : 'incoming'}">
-        ${!исходящее ? кружок(кто) : ''}
+        ${!исходящее ? кружок(подпись) : ''}
         <div class="hud-msg-content" style="max-width: 100%;">
-          <span class="hud-msg-sender">${escapeHtml(кто)}</span>
-          <details class="hud-msg-deleted-details">
+          <span class="hud-msg-sender">${escapeHtml(подпись)}</span>
+          <details class="hud-msg-deleted-details" data-reveal="1">
             <summary>🚫 Сообщение удалено</summary>
-            <div class="hud-msg-deleted-text">${defeatWI(escapeHtml(текст))}</div>
+            <div class="hud-msg-deleted-text">${defeatWI(escapeHtml(безШапокСообщения(текст)))}</div>
           </details>
         </div>
       </div>`;
       return;
     }
 
+    if (заКадром) { html += заКадромHTML(заКадром, время); return; }
+
+    // Когда собеседник был в сети — по его последнему сообщению.
+    if (!исходящее && время) вСети = день.подпись && !/^(?:сегодня|today)$/i.test(день.подпись) ? день.подпись.toLowerCase() + ' ' + время : время;
+    const стильИмени = цветаИмён && !исходящее ? ` style="color:${ЦВЕТА_ИМЁН[hudHashSeed(String(подпись).toLowerCase()) % ЦВЕТА_ИМЁН.length]}"` : '';
+
     // Звонок — событие во всю ширину, а не реплика.
-    const звонок = buildCallRow(текст, { sender: кто, time: время, outgoing: исходящее });
+    const звонок = buildCallRow(текст, { sender: подпись, time: время, outgoing: исходящее });
     if (звонок) { html += звонок; return; }
 
-    const внутри = buildBubbleInner(текст);
+    const внутри = buildBubbleInner(текст, { владелец: owner });
     const мета = (время || отметка(статус, исходящее))
       ? `<div class="hud-msg-meta" style="display: flex; justify-content: flex-end; align-items: center; gap: 4px; font-size: 0.75em; opacity: 0.6; margin-top: 4px;"><span class="hud-msg-time">${escapeHtml(время)}</span>${отметка(статус, исходящее)}</div>`
       : '';
     html += `<div class="hud-msg-wrapper ${исходящее ? 'outgoing' : 'incoming'}${черновик ? ' is-draft' : ''}">
-      ${!исходящее ? кружок(кто) : ''}
+      ${!исходящее ? кружок(подпись) : ''}
       <div class="hud-msg-content" style="max-width: 100%;">
-        <span class="hud-msg-sender">${escapeHtml(кто)}</span>
+        <span class="hud-msg-sender"${стильИмени}>${escapeHtml(подпись)}</span>
         <div class="hud-msg-bubble" data-msg-key="${msgKey(текст)}">
           ${черновик ? '<div class="hud-msg-draft-mark">✎ черновик, не отправлено</div>' : ''}
           ${внутри}
@@ -294,5 +321,5 @@ export function собратьЛенту(messages, { owner = '', сцена = ''
       </div>
     </div>`;
   });
-  return { html, draft };
+  return { html, draft, блокировка, вСети };
 }

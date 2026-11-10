@@ -16,26 +16,28 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.2';
-import { уверены } from './confirm-erase.js?v=23.89.2';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.89.2';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.89.2';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.2';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.2';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.2';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.89.2';
-import { полныйПорядок } from './tabs-order.js?v=23.89.2';
-import { getWorldVotes } from './render/world.js?v=23.89.2';
-import { действиеМира } from './render/world-views.js?v=23.89.2';
-import { действиеМузыки } from './render/music.js?v=23.89.2';
-import { раскрытьПорцию } from './render/long-list.js?v=23.89.2';
-import { прогретьИсторию } from './render/carryover.js?v=23.89.2';
-import { подключитьПалитру } from './color-picker.js?v=23.89.2';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.2';
-import { замер } from './utils.js?v=23.89.2';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.2';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.2';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.2';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.3';
+import { уверены } from './confirm-erase.js?v=23.89.3';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.89.3';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.89.3';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.3';
+import { прикрытьСырой } from './raw-guard.js?v=23.89.3';
+import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.3';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.3';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.3';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.89.3';
+import { полныйПорядок } from './tabs-order.js?v=23.89.3';
+import { getWorldVotes } from './render/world.js?v=23.89.3';
+import { действиеМира } from './render/world-views.js?v=23.89.3';
+import { действиеМузыки } from './render/music.js?v=23.89.3';
+import { раскрытьПорцию } from './render/long-list.js?v=23.89.3';
+import { прогретьИсторию } from './render/carryover.js?v=23.89.3';
+import { подключитьПалитру } from './color-picker.js?v=23.89.3';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.3';
+import { замер } from './utils.js?v=23.89.3';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.3';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.3';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.3';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -251,6 +253,8 @@ export function initGlobalEvents(ctx) {
   // новости. settings по своей природе общий живой объект (см. settings.js),
   // а getWorldVotes живёт в домене «Мир» — берём их импортом, а не через ctx.
   const { saveSettings, applyThemeColors, showHudToast } = ctx;
+  подключитьТелефонные({ saveSettings, applyThemeColors, перерисоватьКарточкиЧата: () => ctx.перерисоватьКарточкиЧата?.({ сохранитьВид: true }) });
+  document.body.addEventListener('change', изменениеНастроек);
   сохранитьНастройки = saveSettings;
 
   if (window.hudEventsInitialized) return;
@@ -292,6 +296,7 @@ export function initGlobalEvents(ctx) {
   document.addEventListener('click', async function(e) {
     // Календарь телефона (render/calendar.js): день, месяц, фишки календарей.
     if (обработатьКликКалендаря(e)) return;
+    if (кликТелефона(e)) return;
     // Сводка хода в тексте (render/summary-card.js) — раскрыть полный HUD сообщения.
     const сводкаХода = e.target.closest('.hud-sum.can-open');
     if (сводкаХода) { e.preventDefault(); открытьПолныйHUD(сводкаХода); return; }
@@ -848,7 +853,7 @@ export function initGlobalEvents(ctx) {
     // Иконка приложения ИЛИ стопка уведомлений на домашнем экране несут
     // data-phone-app и открывают соответствующий экран. Открытое с иконки
     // приложение всегда показывает список, а не последнюю переписку.
-    const phoneApp = e.target.closest('.hud-phone-app, .hud-phone-notif-stack');
+    const phoneApp = e.target.closest('.hud-phone-app, .hud-phone-notif-stack, .hud-phone-widget');
     if (phoneApp) {
       e.preventDefault();
       const emulator = phoneApp.closest('.hud-phone-emulator');
@@ -858,6 +863,7 @@ export function initGlobalEvents(ctx) {
           const on = v.dataset.phoneView === appId;
           v.classList.toggle('active', on);
           if (on) openChat(v, null);
+          if (on && appId === 'settings') наполнитьНастройки(v);
         });
       }
       return;
@@ -1569,6 +1575,8 @@ export function initObserver(ctx, chatContainer) {
     // карточка встаёт на место сразу, не дожидаясь тишины. Полный разбор
     // ниже всё равно пройдёт и выйдет рано: карточка уже на месте.
     if (вернутьЖивуюСразу) touchedMessages.forEach(mes => { if (mes.isConnected) вернутьЖивуюСразу(mes); });
+    // Карточки ещё нет — вместо голого кода заглушка, до отрисовки кадра.
+    touchedMessages.forEach(mes => { if (mes.isConnected) прикрытьСырой(mes); });
     touchedMessages.forEach(mes => ЖДУЩИЕ.add(mes));
     if (avatarChanged) аватаркиМенялись = true;
 

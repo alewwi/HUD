@@ -24,6 +24,8 @@ const ЗАМЕНЫ = [
   ['[VIDEO_0:23: снимает на бегу, кричит и смеётся] Смотри! | 18:22', '[VIDEO_0:23: filming on the run, shouting and laughing] Look! | 18:22'],
   ['[REPLY: Лена :: Ты придёшь?] Да, буду к восьми | 20:01', '[REPLY: Lena :: Are you coming?] Yes, I\'ll be there by eight | 20:01'],
   ['[FWD: Отдел кадров] Совещание переносится | 20:03', '[FWD: HR] The meeting is postponed | 20:03'],
+  ['[BY: Лена] Не пиши ему больше | 23:10', '[BY: Lena] Stop texting him | 23:10'],
+  ['[BY: Лена :: прочла всю переписку и заблокировала контакт] | 23:12', '[BY: Lena :: read the whole chat and blocked the contact] | 23:12'],
   ['[POLL: Куда идём в пятницу? ;; Кафе = Лена, Петя ;; Кино = Мира ;; Никуда] | 20:05', '[POLL: Where are we going on Friday? ;; Café = Lena, Pete ;; Cinema = Mira ;; Nowhere] | 20:05'],
 
   // Сцена.

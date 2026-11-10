@@ -7,9 +7,10 @@
 // жил в phone.js, и в перехватах теги оставались сырым текстом посреди
 // сообщения просто потому, что до них не доходили руки.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.2';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.2';
-import { G_ICONS } from './icons.js?v=23.89.2';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.3';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.3';
+import { G_ICONS } from './icons.js?v=23.89.3';
+import { namesLikelySame } from '../names.js?v=23.89.3';
 
 // Звонок: [CALL: исходящий, принят, 4:12]. Порядок слов внутри не важен —
 // разбираем по смыслу, а не по позиции: модели путают порядок постоянно.
@@ -64,6 +65,61 @@ function parseForward(text) {
   const m = String(text || '').match(/\[(?:FWD|FORWARD|ПЕРЕСЛАНО|ПЕРЕСЛАЛ[АО]?)\s*:?\s*([^\]]*)\]/i);
   if (!m) return null;
   return { tag: m[0], from: (m[1] || '').trim() };
+}
+
+// Телефон оказался у другого человека. [BY: кто] — он набрал это
+// сообщение; [BY: кто :: что сделал] — сделал что-то без текста (заблокировал,
+// прочёл переписку).
+function parseBy(text) {
+  const m = String(text || '').match(/\[(?:BY|ЧУЖАЯ РУКА)\s*:\s*([^\]]*)\]/i);
+  if (!m) return null;
+  const тело = (m[1] || '').trim();
+  const черта = тело.indexOf('::');
+  const who = (черта > -1 ? тело.slice(0, черта) : тело).trim();
+  return who ? { tag: m[0], who, what: черта > -1 ? тело.slice(черта + 2).trim() : '' } : null;
+}
+// Блокировка контакта. «Заблокировала телефон» — это экран, а не контакт;
+// «хотела заблокировать» — не случилось; из нескольких действий важно последнее.
+const БЛОК_УСТРОЙСТВА = /(?:за|раз)блок\S*\s+(?:\S+\s+)?(?:телефон|экран|устройств|смартфон|мобильн)\S*|(?:un)?(?:b?lock)\S*\s+(?:the\s+|her\s+|his\s+|their\s+)?(?:phone|screen|device)/giu;
+const НЕ_СЛУЧИЛОСЬ = /(?<![\p{L}])(?:хотел\S*|собирал\S*|пыта\S*|попыта\S*|чуть не|почти|не стал\S*|не смог\S*|не заблок\S*|не блок\S*|tried|wanted|almost|nearly|didn'?t|did not|failed)(?![\p{L}])/iu;
+function видБлокировки(что) {
+  const s = String(что || '').toLowerCase().replace(БЛОК_УСТРОЙСТВА, ' ');
+  if (НЕ_СЛУЧИЛОСЬ.test(s)) return '';
+  const все = [...s.matchAll(/разблок|unblock|заблок|ч[её]рн\S* спис|black.?list|(?<![a-z])block/gu)];
+  if (!все.length) return '';
+  return /^(?:разблок|unblock)/.test(все[все.length - 1][0]) ? 'unblock' : 'block';
+}
+
+// Строка начинается с тега, отправитель не написан. Иначе двоеточие тега
+// принималось за конец имени отправителя.
+export const начинаетсяСТега = (s) => /^\[(?:BY|FWD|FORWARD|ПЕРЕСЛАНО|REPLY|ОТВЕТ|RE)\s*:/i.test(String(s || ''));
+const ЗАГОЛОВОК_БЛОКА = 'Контакт заблокирован', ЗАГОЛОВОК_ЗА_КАДРОМ = 'Кто-то брал этот телефон';
+
+/** Строка без текста, только с тем, что сделали за кадром: { фраза, блок } или null. */
+export function действиеЗаКадром(строка) {
+  const by = parseBy(строка);
+  if (!by || !by.what || String(строка).replace(by.tag, '').trim()) return null;
+  return { кто: by.who, фраза: by.who + ' ' + by.what, блок: видБлокировки(by.what) };
+}
+
+/** То, что за кадром: закрыто, раскрывается по нажатию. */
+export function заКадромHTML(д, время = '') {
+  const заголовок = д.блок === 'block' ? ЗАГОЛОВОК_БЛОКА : ЗАГОЛОВОК_ЗА_КАДРОМ;
+  return `<details class="hud-offscreen${д.блок === 'block' ? ' is-block' : ''}" data-reveal="1"><summary>${д.блок === 'block' ? G_ICONS.block : ''}<span>${заголовок}</span></summary>`
+    + `<div class="hud-offscreen-text">${defeatWI(escapeHtml(д.фраза))}${время ? ` <small>${escapeHtml(время)}</small>` : ''}</div></details>`;
+}
+
+/** Текст для превью и уведомлений: без служебных шапок над сообщением. */
+export function безШапокСообщения(строка) {
+  let p = String(строка || '');
+  const by = parseBy(p);
+  if (by) p = p.replace(by.tag, '').trim();
+  const forward = parseForward(p);
+  if (forward) p = p.replace(forward.tag, '').trim();
+  const reply = parseReply(p);
+  if (reply) p = p.replace(reply.tag, '').trim();
+  if (p || !by) return p;
+  return видБлокировки(by.what) === 'block' ? ЗАГОЛОВОК_БЛОКА : ЗАГОЛОВОК_ЗА_КАДРОМ;
 }
 
 // Опрос: [POLL: Вопрос ;; Вариант = Кто, Кто ;; Вариант без голосов].
@@ -162,8 +218,14 @@ export function msgKey(rawMessage) {
 // Один сборщик на оба мессенджера — личный телефон и перехваты. Раньше разбор
 // жил прямо в цикле телефона, и в перехватах снимки с роликами оставались
 // сырым тегом [PHOTO: ...] посреди текста.
-export function buildBubbleInner(rawMessage) {
+export function buildBubbleInner(rawMessage, { владелец = '' } = {}) {
   let message = String(rawMessage || '');
+
+  // Подпись «вместо владельца» — самой первой: она про всё сообщение. Сам
+  // владелец вместо себя писать не может, такой тег просто снимаем.
+  const найденаРука = parseBy(message);
+  if (найденаРука) message = message.replace(найденаРука.tag, '').trim();
+  const рука = найденаРука && !(владелец && namesLikelySame(найденаРука.who, владелец)) ? найденаРука : null;
 
   // Шапки снимаем первыми: «переслано» и цитата стоят над содержимым
   // пузыря, каким бы оно ни было — текстом, снимком или голосовым.
@@ -172,7 +234,10 @@ export function buildBubbleInner(rawMessage) {
   const reply = parseReply(message);
   if (reply) message = message.replace(reply.tag, '').trim();
 
-  const шапка = (forward
+  const шапка = (рука
+    ? `<div class="hud-msg-by" title="Это написал не владелец телефона">${G_ICONS.pen}<span>Вместо владельца: ${defeatWI(escapeHtml(рука.who))}</span></div>`
+    : '')
+  + (forward
     ? `<div class="hud-msg-fwd">${G_ICONS.forward} Переслано${forward.from ? ' от ' + defeatWI(escapeHtml(forward.from)) : ''}</div>`
     : '')
   + (reply
@@ -251,7 +316,7 @@ export function buildCallRow(rawMessage, { sender = '', time = '', outgoing = fa
   const call = parseCall(rawMessage);
   if (!call) return '';
   const dir = call.dir || (outgoing ? 'out' : 'in');
-  const note = String(rawMessage || '').replace(call.tag, '').trim();
+  const note = безШапокСообщения(String(rawMessage || '').replace(call.tag, '').trim());
   return `<div class="hud-call-row is-${call.outcome} dir-${dir}">
       <span class="hud-call-ico">${call.outcome === 'missed' ? G_ICONS.callMiss : dir === 'out' ? G_ICONS.callOut : G_ICONS.callIn}</span>
       <span class="hud-call-body">

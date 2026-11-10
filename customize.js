@@ -5,25 +5,25 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.2';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.2';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.2';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.89.2';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.2';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.2';
-import { hudБлоки } from './hud-block.js?v=23.89.2';
-import { parseHUDComplex } from './hud-parser.js?v=23.89.2';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.2';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.2';
-import { английский, т } from './i18n.js?v=23.89.2';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.3';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.3';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.3';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.89.3';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.3';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.3';
+import { hudБлоки } from './hud-block.js?v=23.89.3';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.3';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.3';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.3';
+import { английский, т } from './i18n.js?v=23.89.3';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 const пример = () => (английский() ? ПРИМЕР_EN : ПРИМЕР_RU);
-import { задатьПримерСемьи } from './render/conception.js?v=23.89.2';
-import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.2';
-import { привязатьИсторию } from './render/intimacy.js?v=23.89.2';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.2';
-import { attachHelpMarks } from './help.js?v=23.89.2';
-import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.2';
+import { задатьПримерСемьи } from './render/conception.js?v=23.89.3';
+import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.3';
+import { привязатьИсторию } from './render/intimacy.js?v=23.89.3';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.3';
+import { attachHelpMarks } from './help.js?v=23.89.3';
+import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.3';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -300,7 +300,7 @@ export function разметкаПанелиТемы() {
             <div class="hud-theme-row"><label>Цвет корпуса:</label> <input type="color" class="hud-theme-color-input" data-key="phoneFrameColor" value="${s.phoneFrameColor}"></div>
             <div class="hud-theme-row"><label>Свечение экрана:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneScreenGlow" min="0" max="100" value="${s.phoneScreenGlow}"> <span style="font-size:0.8em;opacity:0.7">${s.phoneScreenGlow}%</span></div></div>
             <div class="hud-theme-row" title="Свет корпуса, значков, уведомлений, пузырей и приложений — тем же цветом, что «Свечение» HUD"><label>Свечение телефона:</label> <select class="hud-theme-select-input" data-key="phoneGlow"><option value="on"${s.phoneGlow !== 'off' ? ' selected' : ''}>Включено</option><option value="off"${s.phoneGlow === 'off' ? ' selected' : ''}>Выключено</option></select></div>
-            <div class="hud-theme-row"><label>Карточек уведомлений:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneNotifMax" min="1" max="5" value="${s.phoneNotifMax}"> <span style="font-size:0.8em;opacity:0.7">${s.phoneNotifMax}</span></div></div>
+            <div class="hud-theme-row"><label>Вид телефона:</label> <select class="hud-theme-select-input" data-key="phoneDevice"><option value="iphone"${(settings.phoneDevice || 'iphone') === 'iphone' ? ' selected' : ''}>Айфон</option><option value="android"${(settings.phoneDevice || 'iphone') === 'android' ? ' selected' : ''}>Андроид</option><option value="keypad"${(settings.phoneDevice || 'iphone') === 'keypad' ? ' selected' : ''}>Кнопочный</option></select></div><div class="hud-theme-row"><label>Состояние экрана:</label> <select class="hud-theme-select-input" data-key="phoneCracks"><option value="off"${(settings.phoneCracks || 'off') === 'off' ? ' selected' : ''}>Целый</option><option value="light"${(settings.phoneCracks || 'off') === 'light' ? ' selected' : ''}>Трещина</option><option value="heavy"${(settings.phoneCracks || 'off') === 'heavy' ? ' selected' : ''}>Разбит</option></select></div><div class="hud-theme-row"><label>Часы блокировки:</label> <select class="hud-theme-select-input" data-key="phoneLockClock"><option value="classic"${(settings.phoneLockClock || 'classic') === 'classic' ? ' selected' : ''}>Обычные</option><option value="stacked"${(settings.phoneLockClock || 'classic') === 'stacked' ? ' selected' : ''}>В два ряда</option><option value="thin"${(settings.phoneLockClock || 'classic') === 'thin' ? ' selected' : ''}>Тонкие</option><option value="mono"${(settings.phoneLockClock || 'classic') === 'mono' ? ' selected' : ''}>Табло</option><option value="analog"${(settings.phoneLockClock || 'classic') === 'analog' ? ' selected' : ''}>Со стрелками</option></select></div><div class="hud-theme-row"><label>Стиль уведомлений:</label> <select class="hud-theme-select-input" data-key="phoneNotifStyle"><option value="stack"${(settings.phoneNotifStyle || 'stack') === 'stack' ? ' selected' : ''}>Стопка</option><option value="pill"${(settings.phoneNotifStyle || 'stack') === 'pill' ? ' selected' : ''}>Пилюля</option><option value="ring"${(settings.phoneNotifStyle || 'stack') === 'ring' ? ' selected' : ''}>Таймер-кольцо</option><option value="bubble"${(settings.phoneNotifStyle || 'stack') === 'bubble' ? ' selected' : ''}>Пузырь</option></select></div><div class="hud-theme-row"><label>Карточек уведомлений:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneNotifMax" min="1" max="5" value="${s.phoneNotifMax}"> <span style="font-size:0.8em;opacity:0.7">${s.phoneNotifMax}</span></div></div>
           </div>
         </details>
         <details data-sec="bars" class="hud-smooth"><summary>🗂️ Верхние плашки & Табы</summary>
