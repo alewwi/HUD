@@ -5,25 +5,26 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.3';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.3';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.3';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.89.3';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.3';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.3';
-import { hudБлоки } from './hud-block.js?v=23.89.3';
-import { parseHUDComplex } from './hud-parser.js?v=23.89.3';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.3';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.3';
-import { английский, т } from './i18n.js?v=23.89.3';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.4';
+import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.4';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.4';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.4';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.89.4';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.4';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.4';
+import { hudБлоки } from './hud-block.js?v=23.89.4';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.4';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.4';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.4';
+import { английский, т } from './i18n.js?v=23.89.4';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 const пример = () => (английский() ? ПРИМЕР_EN : ПРИМЕР_RU);
-import { задатьПримерСемьи } from './render/conception.js?v=23.89.3';
-import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.3';
-import { привязатьИсторию } from './render/intimacy.js?v=23.89.3';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.3';
-import { attachHelpMarks } from './help.js?v=23.89.3';
-import { разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.3';
+import { задатьПримерСемьи } from './render/conception.js?v=23.89.4';
+import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.4';
+import { привязатьИсторию } from './render/intimacy.js?v=23.89.4';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.4';
+import { attachHelpMarks } from './help.js?v=23.89.4';
+import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.4';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -167,6 +168,7 @@ export function разметкаПанелиТемы() {
             ${[['t', 'Полоса и вкладки', 'Рисунок на полосе TavernOS и форма вкладок'], ['n', 'У имени', 'Картинка рядом с именем и вид самой надписи'],
               ['b', 'Угол вкладки', 'Рисунки во вкладке под плашками, чаще всего в правом нижнем углу'], ['c', 'Вся карточка', 'Слой поверх всей карточки: частицы, блики, дымка — сквозь него всё нажимается']]
               .map(([место, подпись, пояснение]) => основа.выбор(КЛЮЧИ_МЕСТ[место], подпись, пояснение + '. «Авто» — как в «Рисунках темы».', [['auto', 'Авто (как в «Рисунках темы»)'], ['off', 'Нет'], ...рисункиМеста(место)])).join('')}
+            <div class="hud-theme-row hud-scene-pieces-row" title="Нажмите на картинку, чтобы убрать только её"><label>Картинки темы по одной:</label><div class="hud-scene-pieces"></div></div>
             ${основа.выбор('inkWash', 'Тушь', 'Двойная линия цвета темы, растворяющаяся к краям вкладки; мысли и «Ключевое» — полосой туши.', [['off', 'Нет'], ['on', 'Да']])}
             ${основа.выбор('peekCat', 'Кот на краю', 'Из-за полосы TavernOS выглядывает чёрный кот с жёлтыми глазами, обведённый цветом темы.', [['off', 'Нет'], ['on', 'Да']])}
           </div></details>
@@ -534,6 +536,7 @@ export function собратьПросмотр(окно) {
     setTimeout(() => { старые.forEach(узел => узел.remove()); вернуть(); }, 420);
   }
   окно.querySelector('.hud-custom-source').textContent = откуда;
+  заполнитьКартинки(окно);
 }
 
 export function закрытьКастомизацию() {
@@ -619,6 +622,7 @@ export function открытьКастомизацию() {
         <header class="hud-custom-head">
           <b id="hud-custom-title">🎨 Кастомизация HUD</b>
           <span class="hud-custom-source"></span>
+          <button type="button" class="hud-custom-linknav" aria-pressed="${settings.customClickNav !== false}" aria-label="Клик ведёт к настройке" title="Нажмите на любую часть примера — откроется настройка, которая за неё отвечает">🎯<span> Клик ведёт к настройке</span></button>
           <button type="button" class="hud-custom-sample" aria-pressed="false" title="Показать большой пример со всеми блоками вместо HUD из чата">Пример</button>
           <button type="button" class="hud-custom-refresh" title="Взять свежий HUD из чата">↻</button>
           <button type="button" class="hud-custom-close" aria-label="Закрыть">✕</button>
@@ -657,6 +661,12 @@ export function открытьКастомизацию() {
     ['input', 'change', 'click'].forEach(тип => окно.addEventListener(тип, значкиПозже));
     окно.addEventListener('click', (e) => {
       if (e.target === окно || e.target.closest('.hud-custom-close')) { закрытьКастомизацию(); return; }
+      const режимСсылок = e.target.closest('.hud-custom-linknav');
+      if (режимСсылок) { settings.customClickNav = settings.customClickNav === false; режимСсылок.setAttribute('aria-pressed', String(settings.customClickNav)); основа.saveSettings(); return; }
+      const кусок = e.target.closest('[data-piece]');
+      if (кусок) { переключитьКартинку(кусок, () => { основа.applyThemeColors(); основа.saveSettings(); }); return; }
+      if (e.target.closest('.hud-theme-preset')) setTimeout(() => заполнитьКартинки(окно), 500);
+      нажатиеВПримере(окно, e, () => { const панель = окно.querySelector('.hud-custom-settings .hud-theme-panel'); if (панель) задатьОткрыто(панель, true); });
       const подробно = e.target.closest('.hud-detail-toggle');
       if (подробно) { переключитьПодробно(подробно, основа.saveSettings); return; }
       if (e.target.closest('.hud-custom-refresh')) собратьПросмотр(окно);

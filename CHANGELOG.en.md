@@ -4,6 +4,19 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.4 — 2026-11-10
+
+Tab height is set by one setting, and in Customization a click on the sample leads to the right setting.
+
+### Added
+- **Maximum tab height.** A new setting "📏 Max height of tabs (0 = default)" sits right under the Memory height. A number from 200 to 1500 px sets one height for every tab: character, "you", diary, world, dreams, companions, daily life. Anything taller scrolls inside the tab. 0 keeps each tab as it was (220–460 px). Less than 200 is raised to 200. Intercepts never go below 340 px, otherwise there is hardly room for the chat. The phone keeps its own height, and Memory has its own setting.
+- **A click leads to the setting.** In Customization, clicking any part of the sample opens the setting behind it: the section opens, the panel scrolls, the field lights up. The 🎯 "Click opens its setting" button in the window header turns this on and off.
+- When a card's settings sit in different sections, a short menu by section opens at the click. A section with more than three settings is one line with a counter and opens them all at once.
+- **Theme pictures one by one.** Theme drawings get a list of the pictures now on the card. A click hides or brings back one picture and leaves the rest. Each theme has its own list.
+
+### Changed
+- The Memory height limit is raised from 600 to 1500 px.
+
 ## 23.89.3 — 2026-11-10
 
 The phone gets its own looks, settings and new apps, and HUD no longer flashes raw code.

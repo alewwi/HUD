@@ -18,8 +18,8 @@
 // Ключи в vars — те же, что в settings.js. Незнакомые ключи не пишем: их
 // applyThemeColors() всё равно не читает.
 
-import { settings, defaultSettings } from './settings.js?v=23.89.3';
-import { последнийСтильHUD } from './css-loader.js?v=23.89.3';
+import { settings, defaultSettings } from './settings.js?v=23.89.4';
+import { последнийСтильHUD } from './css-loader.js?v=23.89.4';
 
 const HUD_THEMES = [
   {
@@ -846,7 +846,7 @@ export const THEME_KEYS = [...new Set(HUD_THEMES.flatMap(t => Object.keys(t.vars
 // ночной сцены — личные предпочтения. Раньше «Запомнить правки», «Своя тема»,
 // файл темы и откат видели только THEME_KEYS, и шестнадцать ползунков
 // не сохранялись и не откатывались вовсе.
-export const ЛИЧНЫЕ_КЛЮЧИ = ['bgOpacity', 'bgScale', 'bgOffsetY', 'phoneBlur', 'phoneFont', 'phoneFontSize', 'phoneNotifAlpha', 'phoneNotifMax', 'phoneDevice', 'phoneCracks', 'phoneNotifStyle', 'phoneLockClock',
+export const ЛИЧНЫЕ_КЛЮЧИ = ['bgOpacity', 'bgScale', 'bgOffsetY', 'phoneBlur', 'phoneFont', 'phoneFontSize', 'phoneNotifAlpha', 'phoneNotifMax', 'phoneDevice', 'phoneCracks', 'phoneNotifStyle', 'phoneLockClock', 'sceneHidden',
   'sceneTextColor', 'sceneDarkness', 'fontSizeClock', 'fontSizeMain', 'fontSizeHeaders', 'fontSizeDiary', 'phoneThemeAuto', 'glowSize', 'glowBreath', 'glowMobile', 'phoneGlow',
   'avatarFrameColor', 'avatarScale', 'avatarOffsetX', 'avatarOffsetY'].filter(k => !THEME_KEYS.includes(k));
 export const КЛЮЧИ_ВИДА = [...THEME_KEYS, ...ЛИЧНЫЕ_КЛЮЧИ];

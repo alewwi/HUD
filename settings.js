@@ -501,7 +501,7 @@ export const defaultSettings = {
   cardBgStart: '#0f0f14', cardBgEnd: '#0f0f14', cardBgAlpha: 15,
   infoBlockBgStart: '#000000', infoBlockBgEnd: '#000000', infoBlockBgAlpha: 15,
   memoryBgStart: '#15121c', memoryBgEnd: '#0d0d14', memoryBgAlpha: 22,
-  memoryAccent: '#8c5ad2', memoryGlowAlpha: 28, memoryBlur: 8, memoryMaxHeight: 300,
+  memoryAccent: '#8c5ad2', memoryGlowAlpha: 28, memoryBlur: 8, memoryMaxHeight: 300, tabMaxHeight: 0,
 
   topBarBg: '#0f0f14', topBarAlpha: 25,
   tabsBg: '#000000', tabsAlpha: 15,
@@ -536,6 +536,7 @@ export const defaultSettings = {
   phoneFrameColor: '#16171d',
   phoneScreenGlow: 35,
   phoneNotifMax: 3,
+  sceneHidden: [], customClickNav: true,
   phoneDevice: 'iphone', phoneCracks: 'off', phoneNotifStyle: 'stack', phoneLockClock: 'classic',
   weatherBgColor: '#000000', weatherBgAlpha: 40, weatherBlur: 6, // Цвета погоды
 

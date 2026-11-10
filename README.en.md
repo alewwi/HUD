@@ -594,8 +594,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.3**:
+The latest version is **23.89.4**:
 
+- One setting sets the height of every tab; in Customization a click on the sample leads to the right setting; theme pictures can be hidden one by one.
 - Phone: iPhone, Android or keypad, cracks, Settings and Rumors apps, notification and clock styles, a chat background, the next plan, "last seen", false contact names, someone else at the phone, calendar statuses. Settings, language and settings files apply without a reload, and a loading plate replaces raw code.
 - The combat block and intimacy turn on more accurately in the prompt: only the story counts, without HUD memory, the model's reasoning or stray words. Music reads the scene's mood better, dreams in Daily life go to the one who had them, and "broken" lists only what gets repaired.
 - Music and assistant settings work again: since 23.88.100 they did nothing. X-ray moves in one rhythm under the cursor, the body map uses rows on wide screens, and the samples show the new blocks.

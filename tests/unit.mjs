@@ -2051,6 +2051,24 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   проверить('накопление: перенос не трогает другие даты с тем же названием', тёзки.some(с => с.date === '01.11') && !тёзки.some(с => с.date === '08.11'), JSON.stringify(тёзки));
 }
 
+группа('Кастомизация: каждая настройка находится нажатием');
+{
+  const Сс = await модуль('render/views.js'), Лк = await модуль('customize-links.js');
+  const исходник = fs.readFileSync(path.join(КОРЕНЬ, 'customize.js'), 'utf8');
+  const часть = исходник.slice(исходник.indexOf('export function разметкаПанелиТемы'), исходник.indexOf('export function снятьПрокрутки'));
+  const вПанели = new Set([...часть.matchAll(/data-key="([A-Za-z0-9_]+)"/g), ...часть.matchAll(/выбор\('([A-Za-z0-9_]+)'/g)].map(м => м[1]));
+  for (const б of Сс.ВИДЫ_БЛОКОВ) вПанели.add(б.ключ);
+  // Места рисунков: их выбор собирается из списка, а нажатие ведёт к картинкам.
+  ['sceneBar', 'sceneName', 'sceneCorner', 'sceneCard', 'themeScene', 'noImages'].forEach(к => вПанели.add(к));
+  const цели = new Set([...Лк.КАРТА.flatMap(([, к]) => к), ...Лк.ОБЩИЕ_ТЕКСТ]);
+  const исходникСсылок = fs.readFileSync(path.join(КОРЕНЬ, 'customize-links.js'), 'utf8');
+  for (const м of исходникСсылок.matchAll(/'([a-z][A-Za-z0-9]+)'/g)) цели.add(м[1]);
+  const места = new Set(['sceneBar', 'sceneName', 'sceneCorner', 'sceneCard', 'themeScene', 'noImages']);
+  const нет = [...вПанели].filter(к => !цели.has(к) && !места.has(к));
+  проверить('у каждой настройки есть место на примере', нет.length === 0, 'нет: ' + нет.join(', '));
+  проверить('ключ картинки: тема, место, часть', Лк.ключКартинки('vamp', 'b', 'before') === 'vamp:b:before');
+}
+
 группа('заглушка вместо голого кода');
 {
   const Рг = await модуль('raw-guard.js');

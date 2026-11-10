@@ -1863,13 +1863,14 @@
 .hud-title { font-weight: bold; color: var(--hud-accent-text, var(--hud-accent)); }
 
 .hud-tab.hud-user-tab { font-style: italic; }
-.hud-user-body { max-height: 220px; }
+.hud-user-body { max-height: var(--hud-tab-max-height, 220px); }
 
 .hud-body { 
     display: grid; 
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); 
     gap: 8px 12px; 
-    max-height: 300px; 
+    /* --hud-tab-max-height есть, только если задана высота вкладок (настройка). */
+    max-height: var(--hud-tab-max-height, 300px); 
     overflow-y: auto; 
     overflow-x: hidden;
     padding-right: 6px; 
@@ -1998,6 +1999,10 @@
 
 .hud-phone-subbody { display: none; flex-direction: column; height: calc(380px - 35px); }
 .hud-phone-subbody.active { display: flex; }
+/* Высота вкладок задана в настройках: перехваты не ровно 380px, а по переписке, но не выше заданной.
+   Не ниже 340px: на 200px шапка, собеседник и «Доступ закрыт» оставляли переписке 60px. */
+:root.hud-tab-h .hud-phone-mockup.intercept-mode { height: auto; max-height: max(var(--hud-tab-max-height), 340px); }
+:root.hud-tab-h .hud-phone-mockup.intercept-mode .hud-phone-subbody { height: auto; min-height: 0; max-height: calc(max(var(--hud-tab-max-height), 340px) - 35px); }
 
 .hud-phone-statusbar { display: flex; justify-content: space-between; align-items: center; padding: 4px 16px; font-size: 0.7em; color: rgba(255,255,255,0.7); background: rgba(0,0,0,0.3); border-bottom: 1px solid rgba(255,255,255,0.05); }
 .hud-phone-owner-label { opacity: 0.6; font-size: 0.95em; text-transform: uppercase; letter-spacing: 1px; font-weight: bold; transition: color 0.3s; }
@@ -2078,7 +2083,7 @@
 /* =========================================
    ДНЕВНИК (Тетрадный лист и курсив)
    ========================================= */
-.hud-diary-container { display: flex; flex-direction: column; gap: 16px; max-height: 380px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 6px; }
+.hud-diary-container { display: flex; flex-direction: column; gap: 16px; max-height: var(--hud-tab-max-height, 380px); overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 6px; }
 
 /* Прокручиваемая колонка на flex: по умолчанию flex-элементы СЖИМАЮТСЯ.
    При max-height содержимое не выходило за край, а расплющивалось — от
@@ -2871,7 +2876,7 @@
 /* =========================================
    МИР (Газетная верстка и Доска объявлений)
    ========================================= */
-.hud-world-container { display: flex; flex-direction: column; max-height: 380px; overflow: hidden; padding-right: 0; }
+.hud-world-container { display: flex; flex-direction: column; max-height: var(--hud-tab-max-height, 380px); overflow: hidden; padding-right: 0; }
 .hud-world-scroll { display: flex; flex-direction: column; gap: 16px; flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 6px; }
 .hud-world-section { 
     background: #1e1e1e; /* Темная газетная бумага */
@@ -3154,7 +3159,7 @@
     50% { box-shadow: 4px 0 10px rgba(0,0,0,0.45), 0 0 10px 2px rgba(239, 68, 68, 0.55); }
 }
 
-.hud-dream-container { display: flex; flex-direction: column; gap: 12px; max-height: 380px; overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 6px; background: linear-gradient(135deg, rgba(8, 30, 45, 0.8), rgba(15, 23, 42, 0.9)); border-radius: 12px; padding: 16px; border: 1px solid rgba(45, 212, 191, 0.3); box-shadow: inset 0 0 30px rgba(45, 212, 191, 0.15); position: relative; overflow-x: hidden; }
+.hud-dream-container { display: flex; flex-direction: column; gap: 12px; max-height: var(--hud-tab-max-height, 380px); overflow-y: auto; -webkit-overflow-scrolling: touch; padding-right: 6px; background: linear-gradient(135deg, rgba(8, 30, 45, 0.8), rgba(15, 23, 42, 0.9)); border-radius: 12px; padding: 16px; border: 1px solid rgba(45, 212, 191, 0.3); box-shadow: inset 0 0 30px rgba(45, 212, 191, 0.15); position: relative; overflow-x: hidden; }
 .hud-dream-moon { font-size: 1.1em; color: #5eead4; font-weight: bold; letter-spacing: 2px; margin-bottom: 8px; text-shadow: 0 0 10px rgba(94, 234, 212, 0.6); animation: moonPulse 4s infinite alternate ease-in-out; animation-play-state: paused; cursor: pointer; display: inline-block; }
 @keyframes moonPulse { 0% { opacity: 0.8; text-shadow: 0 0 8px rgba(94, 234, 212, 0.4); } 100% { opacity: 1; text-shadow: 0 0 16px rgba(94, 234, 212, 0.8); } }
 .hud-dream-moon.fx-active { animation-play-state: running; }
