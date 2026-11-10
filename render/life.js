@@ -18,18 +18,18 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { весЧата, нормаКалорий, историяВеса, сдвигВеса, срокСдвигаВеса, снятыеИзБыта } from '../turn-notes.js?v=23.89.1';
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.1';
-import { settings } from '../settings.js?v=23.89.1';
-import { разобратьХод } from './carryover.js?v=23.89.1';
-import { моментСцены } from './intimacy.js?v=23.89.1';
-import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.89.1';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.1';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.1';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.89.1';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.1';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.89.1';
-import { английский } from '../i18n.js?v=23.89.1';
+import { весЧата, нормаКалорий, историяВеса, сдвигВеса, срокСдвигаВеса, снятыеИзБыта } from '../turn-notes.js?v=23.89.2';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.2';
+import { settings } from '../settings.js?v=23.89.2';
+import { разобратьХод } from './carryover.js?v=23.89.2';
+import { моментСцены } from './intimacy.js?v=23.89.2';
+import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.89.2';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.2';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.2';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.89.2';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.2';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.89.2';
+import { английский } from '../i18n.js?v=23.89.2';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;
@@ -145,6 +145,7 @@ export function событияHk(значение) {
     return { вид, что, сумма: вид === 'buy' && деньги ? Math.abs(parseFloat(деньги[1].replace(/\s/g, '').replace(',', '.'))) : null };
   }).filter(Boolean);
 }
+const НЕ_ЧИНЯТ = сл('стаканчик\\p{L}*|бумажн\\p{L}*|одноразов\\p{L}*|флакон\\p{L}*|ампул\\p{L}*|бутылк\\p{L}*|пакет\\p{L}*|трус(?:ы|ов|ики|иков)|бель[её]|лифчик\\p{L}*|бюстгальтер\\p{L}*|колгот\\p{L}*|чулк\\p{L}*|чулок|рубашк\\p{L}*|сорочк\\p{L}*|блузк\\p{L}*|футболк\\p{L}*|плать\\p{L}*|на (?:брусчатк\\p{L}*|асфальт\\p{L}*|тротуар\\p{L}*|мостов\\p{L}*)|paper cup|disposable|vial|bottle|panties|underwear|bra(?![\\p{L}])|stockings|tights|shirt|blouse|dress(?![\\p{L}])|on the (?:pavement|sidewalk|street)');
 const ВЕЩЬ_ДОМА = сл('кран|замок|замк|двер|окн|машин|телефон|ноутбук|компьютер|экран|стул|кресл|стол|кровать|диван|шкаф|ламп|свет|холодильник|плит|духовк|микроволн|котёл|котел|бойлер|кондиционер|отоплен|батаре|лифт|кофемашин|чайник|розетк|выключател|ручк|ножк|ваз|чашк|бокал|тарелк|зеркал|стекл|труб|унитаз|душев|раковин|стиральн|посудомо|телевизор|роутер|интернет|вай-фай|wi-fi|часы|очки|каблук|зонт|faucet|tap(?![\\p{L}])|lock|door|window|car(?![\\p{L}])|phone|laptop|computer|screen|chair|table|bed(?![\\p{L}])|sofa|couch|wardrobe|lamp|light|fridge|stove|oven|microwave|boiler|heater|heating|air conditioner|elevator|lift|coffee machine|kettle|socket|switch|handle|vase|cup|mug|glass|plate|mirror|tv|washing machine|dishwasher|pipe|sink|toilet');
 /** «13:20 - обедали в кафе с Леной» → [{ вид, что, время }]. */
 export function событияТаймлайна(строки) {
@@ -731,7 +732,9 @@ export function журналБыта(chat, конец = chat ? chat.length : 0, 
   }));
   // Дом: место, где чаще всего ночуют; сломано, пока не починили.
   const дом = [...местаНочью].sort((a, b) => b[1] - a[1])[0];
-  const сломаноВсё = события.filter(с => с.вид === 'break').filter(с => !события.some(ф => ф.вид === 'fix' && ф.t > с.t && норм(ф.что).split(' ').some(w => w.length > 3 && норм(с.что).includes(w))));
+  // «Сломано» — то, что ждёт починки. Выроненный на улице стаканчик кофе,
+  // разбитый флакон, порванное бельё — событие дня, но чинить там нечего.
+  const сломаноВсё = события.filter(с => с.вид === 'break' && !НЕ_ЧИНЯТ.test(с.что)).filter(с => !события.some(ф => ф.вид === 'fix' && ф.t > с.t && норм(ф.что).split(' ').some(w => w.length > 3 && норм(с.что).includes(w))));
   // Одна вещь из hk и из хроники («лиможская чашка» и «Тристан разбил чашку»)
   // — одна поломка: общая основа слова и не дальше трёх часов.
   const основы = (т) => норм(т).split(' ').filter(w => w.length >= 4 && ВЕЩЬ_ДОМА.test(w)).map(w => w.slice(0, 4));
@@ -746,7 +749,15 @@ export function журналБыта(chat, конец = chat ? chat.length : 0, 
     траты.push({ сутки: от, сумма: события.filter(с => с.вид === 'buy' && с.сумма && с.t >= от && с.t < от + СУТКИ).reduce((s, с) => s + с.сумма, 0) });
   }
   // Сны — метками на ночах того же журнала; ночь со сном, но без slp — тоже ночь.
-  for (const с of сон) for (const н of с.ночи) if (сны.has(н.сутки)) н.сон = сны.get(н.сутки);
+  // У сна нет автора. Чей он — по имени в тексте; не назван никто — того, кто
+  // в эту ночь спал один. Раньше сон вешался на ночь каждого, даже на «0 часов».
+  for (const [сутки, текст] of сны) {
+    const спали = сон.filter(с => с.ночи.some(н => н.сутки === сутки && н.часов > 0));
+    const т = норм(текст);
+    const названные = спали.filter(с => { const и = норм(имяКоротко(с.имя)).split(' ')[0]; return и.length >= 3 && т.includes(и.slice(0, Math.max(3, и.length - 1))); });
+    const чьи = названные.length ? названные : спали.length === 1 ? спали : [];
+    for (const с of чьи) for (const н of с.ночи) if (н.сутки === сутки) н.сон = текст;
+  }
   const сныНочей = [...сны].filter(([сутки]) => сутки > сейчас - 7 * СУТКИ).map(([сутки, текст]) => ({ сутки, текст }));
   // Гигиена: «надо бы» растёт с часами после душа, жарой, близостью, нагрузкой.
   const душ = последнее('wash');
@@ -1399,7 +1410,7 @@ export function buildLifeHTML(ж, uid, active) {
     const долг = с.долг >= 1 ? `<span class="hud-v-tag${с.долг >= 3 ? ' s5' : ''}">долг ${часы(с.долг)}</span>` : `<span class="hud-v-tag">высыпается</span>`;
     return `<div class="hud-life-sleep"><div class="hud-life-sleep-head">${лицоБыта(с.имя)}<b>${escapeHtml(с.имя)}</b>${долг}${кнопкаСнять(с.имя)}</div><div class="hud-life-nights" style="--norm:${(ж.норма / 12).toFixed(2)}">${полосы}</div></div>`;
   }).join('');
-  const ночиСнов = ж.сныНочей.filter(с => !ж.сон.some(x => x.ночи.some(н => н.сутки === с.сутки)));
+  const ночиСнов = ж.сныНочей.filter(с => !ж.сон.some(x => x.ночи.some(н => н.сутки === с.сутки && н.сон)));
   const сны = ночиСнов.length ? `<ul class="hud-life-dreams">${ночиСнов.map(с => `<li>${ико('moonstar')}<time>${дм(с.сутки)}</time><span>${escapeHtml(с.текст.length > 90 ? с.текст.slice(0, 90) + '…' : с.текст)}</span></li>`).join('')}</ul>` : '';
   // Дом.
   const д = ж.дом;

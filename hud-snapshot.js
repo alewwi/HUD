@@ -12,17 +12,17 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.89.1';
-import { т } from './i18n.js?v=23.89.1';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.1';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.89.1';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.1';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.89.1';
-import { заменитьHudБлоки } from './hud-block.js?v=23.89.1';
-import { упомянутВТексте } from './names.js?v=23.89.1';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.1';
-import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.1';
-import { доверияБезПричин } from './turn-notes.js?v=23.89.1';
+import { settings } from './settings.js?v=23.89.2';
+import { т } from './i18n.js?v=23.89.2';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.2';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.89.2';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.2';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.89.2';
+import { заменитьHudБлоки } from './hud-block.js?v=23.89.2';
+import { упомянутВТексте } from './names.js?v=23.89.2';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.2';
+import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.2';
+import { доверияБезПричин } from './turn-notes.js?v=23.89.2';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -288,7 +288,11 @@ export function близостьВСнимке(снимок) {
 // «голая» бывает в ванной, «стон» — от боли, а вместе они уже сцена.
 // «Член» сам по себе не берём: «член совета» — обычная фраза; его узнают
 // по глаголам рядом («встал», «набух», «вошёл в…»).
-const СИЛЬНЫЕ = /(?<![\p{L}])(?:секс|трах|выеб|отъеб|минет|отсос|куннилинг|куни(?![\p{L}])|оргазм|кончил|кончила|кончает|кончить|кончаю|клитор|вагин|влагалищ|эрекци|стояк|презерватив|пенетрац|дроч|онанир|мастурбац|дилдо|вибратор(?![\p{L}])|страпон|фистинг|fisting|римминг|догги(?![\p{L}])|раком(?![\p{L}])|член\s+(?:встал|набух|уперся|д[её]рнулся|дрогнул)|тв[её]рд\p{L}*\s+член|sex(?![\p{L}])|fuck|cock(?![\p{L}])|pussy|orgasm|blowjob|condom|cunnilingus|erection|dick(?![\p{L}])|cum(?![\p{L}])|cumming|clit(?![\p{L}])|vagina|penis|handjob|deepthroat|dildo|vibrator|strap-?on|masturbat|jerk(?:s|ed|ing)? (?:him |himself |her )?off|creampie|doggy(?![\p{L}])|rimming|horny|penetrat)/iu;
+const СИЛЬНЫЕ = /(?<![\p{L}])(?:секс(?!олог|изм|ист)|трах|выеб(?![ыо]ва|он)|отъеб(?!ис|ит)|минет|отсос|куннилинг|куни(?![\p{L}])|оргазм|кончил(?:а|и)?(?![\p{L}])|конча(?:ет|ют|ю)(?![\p{L}])|кончить(?![\p{L}])|клитор|вагин|влагалищ|эрекци|стояк|презерватив|пенетрац|дроч|онанир|мастурбац|дилдо|вибратор(?![\p{L}])|страпон|фистинг|fisting|римминг|догги(?![\p{L}])|(?<!(?:бол\p{L}+|умер\p{L}*|бор\p{L}+|диагноз\p{L}*|с|от)\s)раком(?![\p{L}])|член\s+(?:встал|набух|уперся|д[её]рнулся|дрогнул)|тв[её]рд\p{L}*\s+член|sex(?![\p{L}])|fuck|cock(?![\p{L}])|pussy|orgasm|blowjob|condom|cunnilingus|erection|dick(?![\p{L}])|cum(?![\p{L}])|cumming|clit(?![\p{L}])|vagina|penis|handjob|deepthroat|dildo|vibrator|strap-?on|masturbat|jerk(?:s|ed|ing)? (?:him |himself |her )?off|creampie|doggy(?![\p{L}])|rimming|horny|penetrat\p{L}* (?:her|him|me)(?![\p{L}])|penetration(?![\p{L}]))/iu;
+// Брань — не сцена: «what the fuck», «fucking idiot», «Fuck.» в ссоре или в
+// перестрелке включали часть про близость на следующий ход.
+const БРАНЬ = /(?<![\p{L}])(?:what the fuck|the fuck|for fuck'?s sake|fucked up|fuck(?:ing)? (?:hell|off|no|yes|it|this|that|knows|sake|you)(?![\p{L}])|fuck(?=\s*(?:[.,!?…—"'*]|$))|fucking (?!(?:her|him|me|you|them|each|into)(?![\p{L}])))/giu;
+const сильное = (т) => СИЛЬНЫЕ.test(String(т).replace(БРАНЬ, ' '));
 const СЛАБЫЕ = [
   // «обнажённая правда», «обнажённый клинок» — не про тело.
   /(?<![\p{L}])(?:голая|голый|голые|голой|обнаж[её]нн\p{L}*(?![\s\u2800]+(?:правд|истин|нерв|душ|клин|меч|шпаг|зуб|провод|корн))|нагишом|naked|nude)/iu,
@@ -324,15 +328,25 @@ export function желаниеВХУД(к) {
   if (!объект(к)) return false;
   const строка = (v) => (Array.isArray(v) ? v.map(строка).join(' ') : объект(v) ? Object.values(v).map(строка).join(' ') : String(v ?? ''));
   const люди = [...(Array.isArray(к.cs) ? к.cs : []), к.us].filter(объект);
-  if (люди.some(c => ПОЛЯ_ТЕЛА_СЕЙЧАС.some(п => непусто(c[п]) && СИЛЬНЫЕ.test(строка(c[п]))))) return true;
-  const записи = [...(Array.isArray(к.dy) ? к.dy : []), ...(Array.isArray(к.bd) ? к.bd : [])].filter(объект);
-  return записи.some(з => (непусто(з.md) && ЖЕЛАНИЕ_НАСТРОЕНИЕ.test(строка(з.md))) || (непусто(з.tx) && СИЛЬНЫЕ.test(строка(з.tx))));
+  if (люди.some(c => ПОЛЯ_ТЕЛА_СЕЙЧАС.some(п => непусто(c[п]) && сильное(строка(c[п]))))) return true;
+  // Настроение — только у обычного дневника. Дневник тела пишется лишь в
+  // близости, и его «desire» держало бы её часть в промте само собой: сцена
+  // кончилась, а запись с таким настроением просит близость на следующий ход.
+  const есть = (список, сНастроением) => (Array.isArray(список) ? список : []).filter(объект).some(з => (сНастроением && непусто(з.md) && ЖЕЛАНИЕ_НАСТРОЕНИЕ.test(строка(з.md))) || (непусто(з.tx) && сильное(строка(з.tx))));
+  return есть(к.dy, true) || есть(к.bd, false);
 }
 
+// Текст сообщений для решений «близость» и «бой»: без HUD-блока и без
+// рассуждений модели. В <plan> и <thinking> она разбирает ход словами вроде
+// «does not attack», «even at gunpoint» — это не сцена. Ники зрителей и метки
+// через подчёркивание («too_busy_chasing_the_ghost») — тоже не рассказ.
+const РАССУЖДЕНИЯ = /<(plan|think|thinking|reasoning|analysis)\b[^>]*>[\s\S]*?<\/\1\s*>/gi;
+export const текстДляРешений = (тексты) => заменитьHudБлоки((Array.isArray(тексты) ? тексты : [тексты]).filter(Boolean).join('\n'), ' ').replace(РАССУЖДЕНИЯ, ' ').replace(/<!--[\s\S]*?-->/g, ' ').replace(/[\p{L}\d]+(?:_[\p{L}\d]+)+/gu, ' ');
+
 export function словаБлизости(тексты) {
-  const текст = заменитьHudБлоки((Array.isArray(тексты) ? тексты : [тексты]).filter(Boolean).join('\n'), ' ');
+  const текст = текстДляРешений(тексты);
   if (!текст.trim()) return false;
-  if (СИЛЬНЫЕ.test(текст)) return true;
+  if (сильное(текст)) return true;
   return СЛАБЫЕ.filter(rx => rx.test(текст)).length >= 2;
 }
 
@@ -351,8 +365,8 @@ export function решитьNSFW(снимок, тексты) {
 /* Бой в промте — только когда он нужен (combatPrompt: 'auto'): в прошлом HUD
    бой не кончился, или в последних сообщениях опасность — выстрел, нож,
    драка, погоня, — или свежая рана. В мирных ходах блок не стоит ничего. */
-const ОПАСНОСТЬ_СИЛЬНО = /(?<![\p{L}])(?:выстрел\p{L}*|стреля\p{L}*|напал\p{L}*|нападени\p{L}*|драк\p{L}*|дерут\p{L}*|погон\p{L}*|гонятся|засад\p{L}*|взрыв\p{L}*|перестрелк\p{L}*|атаков\p{L}*|бросился на|замахнул\p{L}*|gunshot|gunfire|shots? (?:fired|rang)|shoot(?:s|ing)?(?![\p{L}])|fired (?:at|a shot)|attack(?:s|ed|ing)?(?![\p{L}])|ambush|explosion|exploded|firefight|shootout|chase|chasing|lunge[sd]? at|threw a punch|swung at|brawl|fistfight)/iu;
-const ОПАСНОСТЬ = /(?<![\p{L}])(?:пистолет\p{L}*|револьвер\p{L}*|винтовк\p{L}*|автомат(?![\p{L}])|ружь\p{L}*|нож(?:ом|и|а)?(?![\p{L}])|кинжал\p{L}*|клинок|меч(?:ом|а)?(?![\p{L}])|кастет\p{L}*|прицел\p{L}*|курок|граната|ранен\p{L}*|кулаком|удар(?:ил|ила|ом)|gun(?![\p{L}])|guns|pistol|revolver|rifle|shotgun|knife|knives|dagger|blade|sword|brass knuckles|trigger|grenade|wounded|punch(?:ed|es)?|fight(?:s|ing)?(?![\p{L}])|bleeding)/giu;
+const ОПАСНОСТЬ_СИЛЬНО = /(?<![\p{L}])(?:(?<!пушечный |без единого |ни одного )выстрел\p{L}*|стреля\p{L}*|напал\p{L}*|нападени\p{L}*|драк(?:а|и|у|е|ой|ою|ам|ами|ах)?(?![\p{L}])|дерут\p{L}*|погон(?:я|и|ю|е|ей|ями|ях)(?![\p{L}])|гонятся|засад\p{L}*|(?<!(?:после|до|со дня|с момента|со времени|пережил\p{L}*|помн\p{L}*|вспомина\p{L}*)\s(?:\p{L}+\s)?)взрыв(?:а|у|ом|е|ы|ов|ами|чатк\p{L}*)?(?![\p{L}])(?!\s+(?:смеха|хохота|эмоций|аплодисментов|гнева|ярости))|перестрелк\p{L}*|атаков\p{L}*|бросился на|замахнул\p{L}*|gunshot|gunfire|shots? (?:fired|rang)|shoot(?:s|ing)?(?![\p{L}])|fired (?:at|a shot)|(?<!(?:panic|heart|anxiety|asthma)\s)attack(?:s|ed|ing)?(?![\p{L}])|ambush|explosion|exploded|firefight|shootout|chase|chasing|lunge[sd]? at|threw a punch|swung at|brawl|fistfight)/iu;
+const ОПАСНОСТЬ = /(?<![\p{L}])(?:(?<!под дулом (?:\p{L}+ )?|под )пистолет\p{L}*|револьвер\p{L}*|винтовк\p{L}*|автомат(?![\p{L}])|ружь\p{L}*|нож(?:ом|и|а)?(?![\p{L}])|кинжал\p{L}*|клинок|меч(?:ом|а)?(?![\p{L}])|кастет\p{L}*|(?<!под )прицел\p{L}*|курок|граната|ранен\p{L}*|кулаком|ударил\p{L}* (?:его|е[её]|ему|ей|в лицо|по лицу|в челюсть|в живот|ногой|локтем|коленом|прикладом|рукоять\p{L}*)|gun(?![\p{L}])|guns|pistol|revolver|rifle|shotgun|knife|knives|dagger|blade|sword|brass knuckles|trigger|grenade|wounded|punch(?:ed|es)?|fight(?:s|ing)?(?![\p{L}])|bleeding)/giu;
 export function решитьБой(снимок, тексты) {
   if (settings.enableCombat === false) return false;
   const режим = settings.combatPrompt || 'auto';
@@ -360,12 +374,20 @@ export function решитьБой(снимок, тексты) {
   if (режим === 'never') return false;
   const cb = объект(снимок) ? снимок.cb : null;
   if (объект(cb) && непусто(cb.st) && !/кончен|закончен|over/i.test(String(cb.st))) return true;
-  const весь = (Array.isArray(тексты) ? тексты : []).join('\n');
+  // Только проза: в самом HUD-блоке прошлого ответа — память, воспоминания,
+  // раны. Одно «взрыв в ангаре» в памяти держало блок боя в промте десятки
+  // мирных ходов подряд.
+  const весь = текстДляРешений(Array.isArray(тексты) ? тексты : []);
   if (ОПАСНОСТЬ_СИЛЬНО.test(весь)) return true;
   if (new Set((весь.match(ОПАСНОСТЬ) || []).map(w => w.toLowerCase().slice(0, 5))).size >= 2) return true;
   // Свежая рана в прошлом HUD.
   const люди = объект(снимок) ? [...(Array.isArray(снимок.cs) ? снимок.cs : []), снимок.us].filter(объект) : [];
-  return люди.some(c => /(?:^|;|\|)\s*sg\s*:\s*fresh/i.test(String(c.Ill || '')) && /пул|огнестр|ножев|порез|колот|перелом|gunshot|bullet|stab|knife|cut(?![a-z])|fracture|broken/i.test(String(c.Ill || '')));
+  // Только что полученная: модель оставляет «fresh» на десятки ходов (перелом
+  // носа с «rc: 36%» — всё ещё fresh), а бой давно кончился.
+  const только = (з) => { const м = з.match(/(?:^|;)\s*rc\s*:\s*(\d+)/i); return !м || +м[1] <= 10; };
+  // «Свежая» и «рана» — в одной записи: свежая мигрень рядом с заживающим
+  // переломом боем не была.
+  return люди.some(c => String(Array.isArray(c.Ill) ? c.Ill.join(' | ') : c.Ill || '').split('|').some(з => /(?:^|;)\s*sg\s*:\s*fresh/i.test(з) && только(з) && /пул|огнестр|ножев|порез|колот|перелом|gunshot|bullet|stab|knife|cut(?![a-z])|fracture|broken/i.test(з)));
 }
 
 // Строка снимка для промта: компактный JSON. Без близости — без её полей.

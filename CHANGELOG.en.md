@@ -4,6 +4,20 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.2 — 2026-11-10
+
+A review of what HUD decides on its own, without the model writing it.
+
+### Fixed
+- **The combat block no longer stays in the prompt without combat.** HUD read not only the story but also the HUD block of the last reply and the model's reasoning: one "explosion" in memory or "does not attack" in a plan kept the combat block on for dozens of peaceful turns. Now only the story counts, without viewers' nicknames.
+- **More accurate combat words.** "Dragon", "epaulettes", "panic attack", "burst of laughter", "not within a cannon shot", "not even at gunpoint" and "the smell hit her nose" no longer count as danger.
+- **A fresh wound turns combat on only right after it happens.** The model keeps an injury at the "fresh" stage long after the fight is over. Now the wound must be at 10% recovery or less, and "fresh" and the wound itself must be in the same entry.
+- **Intimacy no longer starts from stray words.** "The jokes ran out", swearing, "has cancer", "the bullet penetrated the wall" are not a scene.
+- **The body diary no longer extends intimacy by itself.** It is written only during intimacy, and its "desire" mood asked for that part of the prompt again the next morning. Now only the text of the entry counts.
+- **Mood for music.** Words are matched from the start of the word ("burnt" is not grief, "restless" is not calm), whichever comes first in the text decides, and "a collapsed romantic illusion" or "without fear" no longer count as what they name.
+- **Dreams in Daily life.** A dream was attached to everyone who slept that night, even to someone who did not sleep at all. Now it belongs to the person named in it; if that is unclear, it goes to the common list of dreams.
+- **"Broken" means only what gets repaired.** A cup dropped in the street, a smashed vial and torn underwear stay events of the day, but no longer hang as broken things at home or go to the model.
+
 ## 23.89.1 — 2026-11-09
 
 ### Fixed

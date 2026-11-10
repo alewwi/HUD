@@ -17,19 +17,19 @@
 // версии HUD, и сохраняется в файле чата. Запрос идёт с флагом
 // window.__tavernOSHudSkipInject: инструкция HUD в него не попадает.
 
-import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.89.1';
-import { settings } from '../settings.js?v=23.89.1';
-import { parseHUDComplex } from '../hud-parser.js?v=23.89.1';
-import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.89.1';
-import { hudHasCombat } from './combat.js?v=23.89.1';
-import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.89.1';
-import { английский } from '../i18n.js?v=23.89.1';
-import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.89.1';
-import { ключСообщения } from '../chronicle.js?v=23.89.1';
+import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.89.2';
+import { settings } from '../settings.js?v=23.89.2';
+import { parseHUDComplex } from '../hud-parser.js?v=23.89.2';
+import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.89.2';
+import { hudHasCombat } from './combat.js?v=23.89.2';
+import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.89.2';
+import { английский } from '../i18n.js?v=23.89.2';
+import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.89.2';
+import { ключСообщения } from '../chronicle.js?v=23.89.2';
 import { норм, нормНазв, ключТрека, вСписке, переключить, безЗапрещённых, строкиВкуса, языкПесен, правилоЯзыка, мемныйРежим, правилоМемов,
-  ПРЕДЕЛ_ЛАЙКОВ, ПРЕДЕЛ_ЗАПРЕТОВ, библиотека, записьВладельца, записьПоId, плейлистПоId, новыйПлейлист, дописатьПлейлист, удалитьПлейлист } from './music-lib.js?v=23.89.1';
-import { станцииСцены } from './music-radio.js?v=23.89.1';
-import { собратьФон, ИМЕНА_ИСТОЧНИКОВ } from './music-free.js?v=23.89.1';
+  ПРЕДЕЛ_ЛАЙКОВ, ПРЕДЕЛ_ЗАПРЕТОВ, библиотека, записьВладельца, записьПоId, плейлистПоId, новыйПлейлист, дописатьПлейлист, удалитьПлейлист } from './music-lib.js?v=23.89.2';
+import { станцииСцены } from './music-radio.js?v=23.89.2';
+import { собратьФон, ИМЕНА_ИСТОЧНИКОВ } from './music-free.js?v=23.89.2';
 
 export { музыкаХода, норм, нормНазв };
 
@@ -83,19 +83,36 @@ export function частьСуток(t) {
 }
 
 // Настроение — родом, а не словом: «тревожное» и «напряжённое» — одна музыка.
+// Слова — с начала слова: «беспокойство» не покой, «безопасно» не страх,
+// «горелого» не горе, «funeral» не fun.
+const род = (слова) => new RegExp('(?<![\\p{L}])(?:' + слова + ')', 'giu');
 const НАСТРОЕНИЯ = [
-  ['страх', /страх|ужас|жут|тревож|тревог|опасн|паник|угроз|напряж|fear|dread|tense|danger|horror|anxi/],
-  ['ярость', /ярост|гнев|злост|злой|агресс|бешен|rage|anger|angry|fury/],
-  ['грусть', /груст|печал|тоск|скорб|горе|сл[её]з|одиноч|меланх|мрачн|угрюм|sad|grief|lonely|melanchol|sorrow/],
-  ['страсть', /страст|возбужд|похот|эрот|чувствен|lust|passion|sensual|erotic|aroused/],
-  ['нежность', /нежн|романт|ласк|уют|любов|tender|romantic|cozy|love/],
-  ['веселье', /весел|радост|игрив|смех|праздн|азарт|беззабот|cheer|joy|playful|fun|festive|happy/],
-  ['тайна', /таинств|загадоч|мистич|интриг|подозр|mysteri|intrigu|eerie|suspic/],
-  ['подъём', /торжеств|эпич|триумф|воодушев|решительн|epic|triumph|heroic/],
-  ['неловкость', /неловк|смущ|awkward|embarrass/],
-  ['покой', /спокой|умиротвор|тих|сонн|расслаб|ленив|calm|peace|quiet|relax|serene|sleepy/],
+  ['страх', род('страх|ужас|жут|тревож|встревож|тревог|опасн|паник|угроз|напряж|наэлектриз|противосто|ультиматум|fear|dread|tense|tension|danger|horror|anxi|standoff')],
+  ['ярость', род('ярост|гнев|злост|злой|злая|злое|агресс|бешен|взбеш|rage|anger|angry|fury|furious')],
+  ['грусть', род('груст|печал|тоск|скорб|гор(?:е|я|ем|ю)(?![\\p{L}])|горест|горечь|сл[её]з|одиноч|меланх|мрачн|угрюм|оцепенен|опустош|sad(?:ness)?(?![\\p{L}])|grief|lonely|melanchol|sorrow|numb')],
+  ['страсть', род('страст|возбужд|похот|эрот|чувствен|lust|passion|sensual|erotic|aroused')],
+  ['нежность', род('нежн|романт|ласк|нег(?:а|и|у|ой|е)(?![\\p{L}])|истом|уют|любов|tender|romantic|cozy|love(?![\\p{L}])|loving')],
+  ['веселье', род('весел|радост|игрив|смех|праздн|азарт|беззабот|cheer|joy|playful|fun(?![\\p{L}])|festive|happy')],
+  ['тайна', род('таинств|загадоч|мистич|интриг|подозр|mysteri|intrigu|eerie|suspic')],
+  ['подъём', род('торжеств|эпич|триумф|воодушев|решительн|epic(?![\\p{L}])|triumph|heroic')],
+  ['неловкость', род('неловк|смущ|awkward|embarrass')],
+  ['покой', род('спокой|умиротвор|тих(?:ий|ая|ое|ие|о|ой|ого|ом|ую)(?![\\p{L}])|тишин|затишь|сонн|расслаб|ленив|calm|peace|quiet|relax|serene|sleepy')],
 ];
-export function родНастроения(s) { const t = нижн(s); const н = НАСТРОЕНИЯ.find(([, rx]) => rx.test(t)); return н ? н[0] : ''; }
+// «Рухнувшая романтическая иллюзия», «разрушенный барьер страха», «отступающая
+// паника», «без страха» — названо то, чего уже нет.
+const УЖЕ_НЕТ = /(?<![\p{L}])(?:рухнувш\p{L}*|разрушенн\p{L}*|крушени\p{L}*|отступающ\p{L}*|уходящ\p{L}*|без|нет|ни|вместо|конец|shattered|broken|fading|gone|without|no)(?![\p{L}])/iu;
+/** Род настроения — по слову, которое стоит в тексте раньше всех: «холодное торжество… мрачное открытие» — подъём, а не грусть. */
+export function родНастроения(s) {
+  const t = нижн(s);
+  let лучший = '', где = Infinity;
+  for (const [имя, rx] of НАСТРОЕНИЯ) for (const м of t.matchAll(rx)) {
+    if (м.index >= где) break;
+    const начало = Math.max(0, t.lastIndexOf(',', м.index) + 1, t.lastIndexOf(' и ', м.index) + 1, t.lastIndexOf(';', м.index) + 1);
+    if (УЖЕ_НЕТ.test(t.slice(начало, м.index))) continue;
+    лучший = имя; где = м.index; break;
+  }
+  return лучший;
+}
 
 const НЕТ_БЛИЗОСТИ = /^(?:нет|none|no|off|вне сцены|нет сцены|—|-|n\/a)$/i;
 
@@ -675,7 +692,7 @@ async function собратьКонтекстМузыки(ctx, chat, индек�
   let карточка = null, персона = '';
   if (нуженПомощник) {
     try {
-      const A = await import('./assistant.js?v=23.89.1');
+      const A = await import('./assistant.js?v=23.89.2');
       if (settings.musicIncludeCard === true) карточка = A.карточкаПерсонажа(ctx);
       if (settings.musicIncludePersona === true) персона = A.персонаИгрока(ctx);
     } catch (e) { console.warn('[TavernOS HUD] музыка: карточка и персона', e); }
