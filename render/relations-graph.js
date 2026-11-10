@@ -7,11 +7,11 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.4';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.4';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.4';
-import { buildFamilyTree, родствоИз, ложныеБлизнецы } from './family-tree.js?v=23.89.4';
-import { settings } from '../settings.js?v=23.89.4';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.5';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.5';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.5';
+import { buildFamilyTree, родствоИз, ложныеБлизнецы } from './family-tree.js?v=23.89.5';
+import { settings } from '../settings.js?v=23.89.5';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -34,7 +34,7 @@ export function parseRelationList(raw) {
     if (!m) return null;
     return { target: m[1].trim(), rel: m[2].trim() };
   }).filter(item => item && hudFilled(item.target) && hudFilled(item.rel))
-    // «Атлас Бомонт, Арес Бомонт: предатели» — связь с каждым, а не узел с
+    // «Остин Ларош, Дарен Ларош: предатели» — связь с каждым, а не узел с
     // именем из трёх людей.
     .flatMap(item => (именаГруппы(item.target) || [item.target]).map(target => ({ target, rel: item.rel })));
 }
@@ -120,7 +120,7 @@ function collectRelationGraph(hudData) {
     parseRelationList(relRaw).forEach(({ target, rel }) => {
       // Сначала ищем уже известного NPC. Таким образом "Майкл" не станет
       // вторым узлом рядом с уже существующим "Michael".
-      // «Ричард Кингсли (заочно)» — тот же Ричард Кингсли.
+      // «Леонард Хартли (заочно)» — тот же Леонард Хартли.
       const имяЦели = String(target).replace(/\s*\([^()]*\)\s*$/, '').trim() || target;
       const existing = resolveExisting(имяЦели);
       const to = existing ? existing.id : addNode(имяЦели, {});

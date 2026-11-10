@@ -16,10 +16,10 @@
 // Полоса появляется, только когда есть что сказать, и не про сдвиг меньше
 // порога (settings.sceneClockMin, по умолчанию 15 минут).
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.89.4';
-import { settings } from '../settings.js?v=23.89.4';
-import { namesLikelySame } from '../names.js?v=23.89.4';
-import { ико, медаль } from './view-icons.js?v=23.89.4';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.89.5';
+import { settings } from '../settings.js?v=23.89.5';
+import { namesLikelySame } from '../names.js?v=23.89.5';
+import { ико, медаль } from './view-icons.js?v=23.89.5';
 
 const МИН = 60000;
 const поле = (о, имя) => {
@@ -58,22 +58,22 @@ function моментПункта(п, начало) {
 }
 
 const имяКоротко = (имя) => String(имя || '').replace(/^.*\s{2,}/, '').trim().split(/\s+/)[0] || '';
-// «встреча с Тристаном» упоминает «THE REGENTS  Tristan Kingsley»: слова с
+// «встреча с Дамианом» упоминает «THE LANTERNS  Damian Hartley»: слова с
 // заглавной сравниваем с именем без приставки карточки, с учётом латиницы и
-// падежей (names.js). Окончания не обрезаем: «Кристин» сошла бы за Tristan.
+// падежей (names.js). Окончания не обрезаем: «Кристин» сошла бы за Damian.
 const упоминает = (текст, имя) => {
   const кор = имяКоротко(имя);
   if (кор.length < 3) return false;
   return String(текст).split(/[^\p{L}-]+/u).some(w => w.length >= 3 && /^\p{Lu}/u.test(w) && namesLikelySame(w, кор));
 };
 
-// Пункт — сама сцена, а не пропущенное дело: «00:00 - обладание Софи»,
-// «22:00 - глубокое соитие в мастер-спальне», «ночной покой рядом с Софи»,
+// Пункт — сама сцена, а не пропущенное дело: «00:00 - обладание Мари»,
+// «22:00 - глубокое соитие в мастер-спальне», «ночной покой рядом с Мари»,
 // «20:30 - второй раунд на кровати из ясеня» (живой чат, 370).
 const ПРО_СЦЕНУ = /соити|секс|близост|обладан|прелюд|ласк|постел|поцел|оргазм|интим|кунни|минет|фрикци|толчк|страст|любов|посткоит|захват|раунд|кроват|ночн\p{L}*\s+(?:отдых|покой)|в\s+спальн|в\s+мастер-спальн|(?<![\p{L}])(?:sex|making love|made love|intimacy|intimate|foreplay|caress|kiss|orgasm|cunnilingus|blowjob|thrust|passion|lovemaking|afterglow|aftercare|round (?:two|2)|second round|in bed|bedroom)/iu;
-// Ждать могут встречи, а не «дежурство над спящей Софи».
+// Ждать могут встречи, а не «дежурство над спящей Мари».
 const ВСТРЕЧА = /встреч|ждёт|ждет|ждать|ожида|ужин|обед|завтрак|кофе|звон|созвон|свидани|при[её]м|сбор|совещан|селектор|заехать|забрать|приехать|прийти|зайти|договор|(?<![\p{L}])(?:meet|meeting|waits?|waiting|expect|dinner|lunch|breakfast|coffee|call(?![\p{L}])|calls|date(?![\p{L}])|appointment|reception|briefing|pick (?:up|him|her)|drop by|come over|arrive|agreed)/iu;
-// Партнёры сцены — их имена в пункте значат «это про сцену»: «pr: Софи, …».
+// Партнёры сцены — их имена в пункте значат «это про сцену»: «pr: Мари, …».
 function партнёрыСцены(c, игрок) {
   const имена = [игрок];
   const nsfw = поле(c, 'NSFW') + ' ; ' + поле(c, 'Последний секс');

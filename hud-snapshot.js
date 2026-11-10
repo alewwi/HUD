@@ -12,17 +12,17 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.89.4';
-import { т } from './i18n.js?v=23.89.4';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.4';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.89.4';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.4';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.89.4';
-import { заменитьHudБлоки } from './hud-block.js?v=23.89.4';
-import { упомянутВТексте } from './names.js?v=23.89.4';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.4';
-import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.4';
-import { доверияБезПричин } from './turn-notes.js?v=23.89.4';
+import { settings } from './settings.js?v=23.89.5';
+import { т } from './i18n.js?v=23.89.5';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.5';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.89.5';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.5';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.89.5';
+import { заменитьHudБлоки } from './hud-block.js?v=23.89.5';
+import { упомянутВТексте } from './names.js?v=23.89.5';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.5';
+import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.5';
+import { доверияБезПричин } from './turn-notes.js?v=23.89.5';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
@@ -153,7 +153,7 @@ export function внеСцены(снимок, { тексты = [], главны
   if (cs.length <= 3) return [];
   const текст = (Array.isArray(тексты) ? тексты : [тексты]).join('\n');
   const имяГлавного = имяБезПриставки(String(главный || ''));
-  // Имена — без приставки карточки («THE REGENTS  Tristan Kingsley»): иначе
+  // Имена — без приставки карточки («THE LANTERNS  Damian Hartley»): иначе
   // сравнивалось бы первое слово, «THE».
   const имя = (c) => имяБезПриставки(String(c.N)) || String(c.N);
   const этоГлавный = (c) => имяГлавного && (упомянутВТексте(имяГлавного, имя(c)) || упомянутВТексте(имя(c), имяГлавного));

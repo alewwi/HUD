@@ -14,7 +14,7 @@ globalThis.sessionStorage = { getItem: () => null, setItem() {}, removeItem() {}
 const узел = () => { let t = ''; return { style: { setProperty() {}, removeProperty() {} }, dataset: {}, classList: { add() {}, remove() {}, toggle() {}, contains: () => false }, set innerHTML(x) { t = String(x); }, get innerHTML() { return t; }, set textContent(x) { t = String(x); }, get textContent() { return t; }, get value() { return t; }, querySelector: () => null, querySelectorAll: () => [], appendChild() {}, setAttribute() {}, getAttribute: () => null, addEventListener() {} }; };
 globalThis.document = { createElement: узел, querySelector: () => null, querySelectorAll: () => [], getElementById: () => null, documentElement: узел(), body: узел(), addEventListener() {}, head: узел() };
 const чат = [];
-globalThis.SillyTavern = { getContext: () => ({ chat: чат, chatMetadata: {}, name1: 'Софи', name2: 'Тристан' }) };
+globalThis.SillyTavern = { getContext: () => ({ chat: чат, chatMetadata: {}, name1: 'Мари', name2: 'Дамиан' }) };
 console.info = () => {}; console.warn = () => {}; console.debug = () => {};
 const v = JSON.parse(fs.readFileSync(ROOT + 'manifest.json', 'utf8')).version;
 // Инструкция живёт в prompt.js и грузится из index.js через import():
@@ -78,7 +78,7 @@ const hud = (cs, us) => ({ sc: { T: '10:00' }, cs, us });
     !Sn.словаБлизости('What the fuck is that? Fuck. You fucking idiot, fuck off!') && Sn.словаБлизости('He was fucking her against the wall.'));
   проверить('«болен раком», «пуля penetrated the wall» — не близость',
     !Sn.словаБлизости('Её отец болен раком.') && !Sn.словаБлизости('The bullet penetrated the wall.') && Sn.словаБлизости('Он поставил её раком.'));
-  const сПланом = '<plan>Sophie does not attack; she would not wear it even at gunpoint. No sex, no blowjob here. The gunshot is offscreen.</plan>\nОни молча пили чай у окна.';
+  const сПланом = '<plan>Marie does not attack; she would not wear it even at gunpoint. No sex, no blowjob here. The gunshot is offscreen.</plan>\nОни молча пили чай у окна.';
   проверить('рассуждения модели (<plan>) не включают ни близость, ни бой', !Sn.словаБлизости([сПланом]) && !Sn.решитьБой(null, [сПланом]));
   const сHUD = 'Они молча пили чай.\n' + блок({ cs: [{ N: 'Марк' }], mem: { tl: ['взрыв в ангаре, перестрелка, погоня'] } });
   проверить('бой: слова из HUD-блока прошлого ответа (память) не считаются', !Sn.решитьБой(null, [сHUD]) && Sn.решитьБой(null, ['В ангаре прогремел взрыв.']));
@@ -97,10 +97,10 @@ const hud = (cs, us) => ({ sc: { T: '10:00' }, cs, us });
   проверить('метка желания не попадает в строку снимка', !Sn.строкаСнимка(сн, true).includes('желание'));
 }
 проверить('UW у игрока — включено', Sn.решитьNSFW(hud([{ N: 'Лилиан' }], { UW: 'ar: сильное' }), []));
-проверить('фаза «1 — empty» и «0: empty» — не сцена (чат THE REGENTS)', !Sn.решитьNSFW(hud([{ N: 'Эванджелин', SS: '1 — empty', Rnd: '0', Org: '0: empty', Vit: 'hr: 118' }]), ['Утро.']));
-проверить('фаза «2 — act» — сцена', Sn.решитьNSFW(hud([{ N: 'Эванджелин', SS: '2 — act' }]), []));
-проверить('«соскользнула», «обнажённая правда», «один толчок» — не близость', !Sn.решитьNSFW(hud([{ N: 'Лейла' }]), ['Сумка соскользнула лямкой с плеча. Была лишь страшная, обнаженная правда. Один толчок — и она рассыплется.']));
-проверить('«соски» и «толчками» вместе — близость', Sn.решитьNSFW(hud([{ N: 'Лейла' }]), ['Он двигался толчками, пальцы сжали её соски.']));
+проверить('фаза «1 — empty» и «0: empty» — не сцена (чат THE LANTERNS)', !Sn.решитьNSFW(hud([{ N: 'Анджел', SS: '1 — empty', Rnd: '0', Org: '0: empty', Vit: 'hr: 118' }]), ['Утро.']));
+проверить('фаза «2 — act» — сцена', Sn.решитьNSFW(hud([{ N: 'Анджел', SS: '2 — act' }]), []));
+проверить('«соскользнула», «обнажённая правда», «один толчок» — не близость', !Sn.решитьNSFW(hud([{ N: 'Ясмина' }]), ['Сумка соскользнула лямкой с плеча. Была лишь страшная, обнаженная правда. Один толчок — и она рассыплется.']));
+проверить('«соски» и «толчками» вместе — близость', Sn.решитьNSFW(hud([{ N: 'Ясмина' }]), ['Он двигался толчками, пальцы сжали её соски.']));
 // Расширенный словарь близости.
 проверить('новое сильное слово «куни» — включено', Sn.решитьNSFW(hud([{ N: 'Лилиан' }]), ['Она опустилась ниже и сделала куни.']));
 проверить('новое сильное слово «дрочит» — включено', Sn.решитьNSFW(hud([{ N: 'Лилиан' }]), ['Он дрочил в душе, думая о ней.']));

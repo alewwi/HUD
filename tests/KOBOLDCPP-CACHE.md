@@ -5,7 +5,7 @@ Enable **Generation → KoboldCpp cache compatibility** and keep **HUD in every 
 ## What was wrong (all text completion users, report by Maxim, 30.10.2026)
 
 - SillyTavern's text completion request carries `negative_prompt` (CFG). HUD took it for an image request and sent the reply **without** the HUD instruction. The completeness check then generated the HUD with a second, entirely different request every turn, which replaced KoboldCpp's single cache. The next turn reprocessed almost the whole prompt. Fixed: a request with text fields is never treated as an image request.
-- In text completion the instruction was appended after the reply prefix (`Seraphina:`), that is, inside the character's turn. Fixed: it goes before the prefix (plain or Instruct output sequence).
+- In text completion the instruction was appended after the reply prefix (`Isadora:`), that is, inside the character's turn. Fixed: it goes before the prefix (plain or Instruct output sequence).
 
 ## What the mode does
 

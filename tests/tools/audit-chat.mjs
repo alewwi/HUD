@@ -30,7 +30,7 @@ for (const k of ['info', 'debug', 'warn', 'log']) if (k !== 'log') console[k] = 
 const строки = fs.readFileSync(файл, 'utf8').split(/\r?\n/).filter(Boolean).map(s => JSON.parse(s));
 const шапка = строки[0] && строки[0].chat_metadata ? строки.shift() : null;
 const чат = строки;
-globalThis.SillyTavern = { getContext: () => ({ chat: чат, name1: (шапка && шапка.user_name) || 'Софи', name2: (шапка && шапка.character_name) || '' }) };
+globalThis.SillyTavern = { getContext: () => ({ chat: чат, name1: (шапка && шапка.user_name) || 'Мари', name2: (шапка && шапка.character_name) || '' }) };
 
 const { extractHudBlock } = await м('hud-block.js');
 const { parseHUDComplex } = await м('hud-parser.js');

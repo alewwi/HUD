@@ -8,7 +8,7 @@ globalThis.window = globalThis;
 globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
 globalThis.sessionStorage = globalThis.localStorage;
 globalThis.document = { createElement: () => ({ style: {}, set textContent(x) { this.t = String(x); }, get innerHTML() { return String(this.t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); } }), querySelector: () => null, querySelectorAll: () => [], documentElement: { classList: { add() {}, remove() {}, contains: () => false } } };
-globalThis.SillyTavern = { getContext: () => ({ chat: [], name1: 'Софи', name2: 'Марк' }) };
+globalThis.SillyTavern = { getContext: () => ({ chat: [], name1: 'Мари', name2: 'Марк' }) };
 const v = JSON.parse(fs.readFileSync(ROOT + 'manifest.json', 'utf8')).version;
 const CB = await import('file:///' + ROOT + 'render/combat.js?v=' + v);
 const SH = await import('file:///' + ROOT + 'render/sample-hud.js?v=' + v);

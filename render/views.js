@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы } from '../utils.js?v=23.89.4';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.4';
-import { namesLikelySame } from '../names.js?v=23.89.4';
-import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.89.4';
-import { settings } from '../settings.js?v=23.89.4';
-import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.89.4';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.4';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы } from '../utils.js?v=23.89.5';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.5';
+import { namesLikelySame } from '../names.js?v=23.89.5';
+import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.89.5';
+import { settings } from '../settings.js?v=23.89.5';
+import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.89.5';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.5';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -154,7 +154,7 @@ function сердцаСосуды(v, id, всего = 5) {
 /* --- Доверие ---------------------------------------------------------------- */
 
 function разобратьДоверие(value) {
-  // «Атлас Бомонт, Арес Бомонт: 40» — у каждого своя карточка с тем же числом.
+  // «Остин Ларош, Дарен Ларош: 40» — у каждого своя карточка с тем же числом.
   return пары(value).flatMap(п => (именаГруппы(п.имя) || [п.имя]).map(кто => ({ кто, v: Number.isFinite(число(п.текст)) ? огр(число(п.текст), 0, 100) : null, сырое: п.текст })));
 }
 const словоДоверия = (v) => v >= 80 ? 'открыт' : v >= 60 ? 'доверяет' : v >= 40 ? 'насторожен' : v >= 20 ? 'закрыт' : 'глухо закрыт';
@@ -1138,7 +1138,7 @@ export function видВоспоминаний(пункты, вид) {
 
 /* --- Ревность --------------------------------------------------------------- */
 
-// «Ревнует Софи к коллеге Мире — та слишком часто пишет…» → кого, к кому,
+// «Ревнует Мари к коллеге Мире — та слишком часто пишет…» → кого, к кому,
 // как проявляется. Не разобралось — весь текст идёт в «как».
 export function разобратьРевность(value) {
   const t = String(value || '').trim();
@@ -1149,16 +1149,16 @@ export function разобратьРевность(value) {
   const коротко = (s) => !!s && s.trim().split(/\s+/).length <= 4;
   // [весь кусок, кого (за кого боится), к кому (соперник)] — порядок разный.
   const варианты = [
-    // Формат из инструкции: «Софи → Мира: …» (и «->», «=>»).
+    // Формат из инструкции: «Мари → Мира: …» (и «->», «=>»).
     () => { const м = t.match(р(String.raw`^(.+?)\s*(?:→|->|=>|⟶)\s*(.+?)${КОН}`)); return м && [м[0], м[1], м[2]]; },
     () => { const м = t.match(р(String.raw`ревну\S*\s+(?!к\s)(.+?)\s+к\s+(.+?)${КОН}`)); return м && [м[0], м[1], м[2]]; },
-    // «ревнует к Мире из-за Софи», «к Мире, из-за Софи», «ревность к Мире (из-за Софи)».
+    // «ревнует к Мире из-за Мари», «к Мире, из-за Мари», «ревность к Мире (из-за Мари)».
     () => { const м = t.match(р(String.raw`(?:^|ревну\S*\s+|ревност\S*\s+)к\s+(.+?)[,\s(]+(?:из-за|за|по поводу)\s+(.+?)${КОН}`)); return м && [м[0], м[2], м[1]]; },
-    // «из-за Софи к Мире».
+    // «из-за Мари к Мире».
     () => { const м = t.match(р(String.raw`(?:^|ревну\S*\s+|ревност\S*\s+)из-за\s+(.+?)\s+к\s+(.+?)${КОН}`)); return м && [м[0], м[1], м[2]]; },
-    // По-английски: «jealous over Sophie because of Mark», «over Sophie, of Mark».
+    // По-английски: «jealous over Marie because of Mark», «over Marie, of Mark».
     () => { const м = t.match(р(String.raw`(?:jealous\S*\s+)?(?:^|\s)(?:over|about)\s+(.+?)[,\s]+(?:because of|with|around|near|of)\s+(.+?)${КОН}`)); return м && [м[0], м[1], м[2]]; },
-    // «jealous of Mark over Sophie», «of Mark, over Sophie».
+    // «jealous of Mark over Marie», «of Mark, over Marie».
     () => { const м = t.match(р(String.raw`(?:jealous\S*\s+)?(?:^|\s)of\s+(.+?)[,\s(]+(?:over|about|around|with|near|because of)\s+(.+?)${КОН}`)); return м && [м[0], м[2], м[1]]; },
   ];
   let m = null;

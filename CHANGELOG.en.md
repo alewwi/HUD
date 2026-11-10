@@ -4,6 +4,18 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.5 — 2026-11-10
+
+Theme "Reset" brings back the whole look, and the Customization sample became one coherent made-up story.
+
+### Changed
+- **Theme "Reset" — the whole look back to the defaults.** It used to bring back only the colors and fonts that themes set, while the header corner picture, the portrait decoration, drawings by place, paper and seal, block views and pictures hidden one by one stayed. Now all Customization styling is reset. Window behavior is left alone: Detailed mode, "Click opens its setting", animations, the budget. "↶ Step back" brings everything back.
+- **The Customization sample is one coherent story.** Times, people and events agree across blocks: who called whom and when, promises and deadlines, diaries no later than the scene, dreams only for those asleep, height and age as on the cards. A new twist — the brother's spare key.
+- **The player in the sample has no ties to anyone in it.** They spend their own evening at home, and no sex is set in their looks. Lilian's partner is a new character, Artyom, with his own card.
+- Blocks the sample lacked are in: a chase in combat, someone misled in the secrets grid ("wrong"), "broken" and "changed clothes" in daily life, a hidden pregnancy with its reminder.
+- The examples in the model instructions and in the tests use made-up people. Unused lines were removed from the English dictionary.
+- The README screenshots were retaken on the new sample.
+
 ## 23.89.4 — 2026-11-10
 
 Tab height is set by one setting, and in Customization a click on the sample leads to the right setting.
@@ -122,7 +134,7 @@ Ideas from the Chinese SillyTavern community: "knowledge isolation", the "yester
 A second check of the conclusions HUD draws itself.
 
 ### Fixed
-- **Names.** Two characters of one card ("THE CLUB  Mark Grey" and "THE CLUB  Anna Grey") counted as one person by the shared first word of the prefix: the prefix no longer takes part in the comparison. Short names with two consonants no longer merge on two edits: "Leila" and "Lola", "Koen" and "Kane" are different people, "Leila" and "Лейла" are one.
+- **Names.** Two characters of one card ("THE CLUB  Mark Grey" and "THE CLUB  Anna Grey") counted as one person by the shared first word of the prefix: the prefix no longer takes part in the comparison. Short names with two consonants no longer merge on two edits: "Nina" and "Нона", "Kim" and "Кай" are different people, "Nina" and "Нина" are one.
 - **Protection during intimacy.**
   - Oral sex alone ("oral", "cunnilingus") now carries no conception risk, even when the field says "none: no protection". "Oral contraceptives" are still pills.
   - "No ejaculation inside" and "ejaculation control" are withdrawal, not "no protection".

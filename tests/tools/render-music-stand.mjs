@@ -19,7 +19,7 @@ const м = (f) => import('file:///' + path.join(КОРЕНЬ, f).replace(/\\/g, 
 globalThis.window = globalThis;
 globalThis.document = { createElement: () => ({ style: {}, classList: { add() {} }, set innerHTML(v) { this.value = v; } }), querySelector: () => null, querySelectorAll: () => [], documentElement: { style: {}, classList: { contains: () => false, toggle() {} } } };
 globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
-globalThis.SillyTavern = { getContext: () => ({ chat: [], name1: 'Софи', name2: 'Тристан', characters: [], chatMetadata: {} }) };
+globalThis.SillyTavern = { getContext: () => ({ chat: [], name1: 'Мари', name2: 'Дамиан', characters: [], chatMetadata: {} }) };
 for (const k of ['info', 'debug', 'warn']) console[k] = () => {};
 
 const EN = process.argv.includes('--lang') && process.argv[process.argv.indexOf('--lang') + 1] === 'en';
@@ -40,7 +40,7 @@ const саундтрек = [
   { a: 'Jóhann Jóhannsson', t: 'The Sun’s Gone Dim and the Sky’s Turned Black', pv: пв('AudioPreview221/v4/29/cf/bf/29cfbfbb-63f5-d0b3-1090-d5f08189ca98/mzaf_17075014693963707999.plus.aac.p.m4a'), ok: true },
 ];
 const сцена = { src: 'радио в гольф-каре', tracks: [{ a: 'Bobby "Boris" Pickett', t: 'Monster Mash', pv: пв('AudioPreview221/v4/ac/1e/45/ac1e4508-6a0c-ded2-c3e0-715df9e27e58/mzaf_1451444538093662860.plus.aac.p.m4a'), ok: true, art: обл('Music211/v4/96/4e/2e/964e2e34-975a-f9da-ea23-326fdce09941/07UMGIM07880.rgb.jpg') }] };
-const телефон = { owner: 'Тристан', tracks: [{ a: 'Arctic Monkeys', t: '505', pv: пв('AudioPreview221/v4/d1/0d/ab/d10dabc8-cceb-e718-401f-01516b009460/mzaf_13845311225859403599.plus.aac.p.m4a'), ok: true, art: обл('Music124/v4/82/90/14/829014ad-a301-62ab-bee6-f4cca4457411/mzi.hozudery.jpg') }, { a: 'Lana Del Rey', t: 'Video Games', pv: пв('AudioPreview211/v4/67/07/50/670750ec-42f9-fcf2-feef-9c4faa873ce8/mzaf_16864780503903222714.plus.aac.p.m4a'), ok: true, art: обл('Music211/v4/59/10/66/591066ea-3c85-3dfe-ef82-ffdbbcdfc8b9/12UMGIM00033.rgb.jpg') }, { a: 'The Neighbourhood', t: 'Sweater Weather', pv: пв('AudioPreview221/v4/8c/37/20/8c372047-2727-8054-9411-0e4867643dd8/mzaf_10169659262182214119.plus.aac.p.m4a'), ok: true }, { a: 'Joy Division', t: 'Disorder', pv: пв('AudioPreview211/v4/4d/cc/89/4dcc8922-012f-c11f-b061-caef7bafe7e2/mzaf_11167643022210339253.plus.aac.p.m4a'), ok: true }] };
+const телефон = { owner: 'Дамиан', tracks: [{ a: 'Arctic Monkeys', t: '505', pv: пв('AudioPreview221/v4/d1/0d/ab/d10dabc8-cceb-e718-401f-01516b009460/mzaf_13845311225859403599.plus.aac.p.m4a'), ok: true, art: обл('Music124/v4/82/90/14/829014ad-a301-62ab-bee6-f4cca4457411/mzi.hozudery.jpg') }, { a: 'Lana Del Rey', t: 'Video Games', pv: пв('AudioPreview211/v4/67/07/50/670750ec-42f9-fcf2-feef-9c4faa873ce8/mzaf_16864780503903222714.plus.aac.p.m4a'), ok: true, art: обл('Music211/v4/59/10/66/591066ea-3c85-3dfe-ef82-ffdbbcdfc8b9/12UMGIM00033.rgb.jpg') }, { a: 'The Neighbourhood', t: 'Sweater Weather', pv: пв('AudioPreview221/v4/8c/37/20/8c372047-2727-8054-9411-0e4867643dd8/mzaf_10169659262182214119.plus.aac.p.m4a'), ok: true }, { a: 'Joy Division', t: 'Disorder', pv: пв('AudioPreview211/v4/4d/cc/89/4dcc8922-012f-c11f-b061-caef7bafe7e2/mzaf_11167643022210339253.plus.aac.p.m4a'), ok: true }] };
 const ход = (музыка) => [{ mes: 'привет', is_user: true }, { mes: 'ход', extra: музыка ? { hud_music: { swipe: 0, ...музыка } } : {} }];
 const полная = { label: 'морозная ночь самайна', why: 'сменилось место', soundtrack: саундтрек, scene: сцена, phone: телефон };
 
@@ -63,7 +63,7 @@ const полоса = (chat, о) => M.полосаМузыки(1, { chat, ...о }
 const ряды = [];
 settings.musicPlayer = true;
 const живой = ход(полная);
-ряды.push(`<h1>Живой плеер <small>▶ играет 30-секундный отрывок; следующий — сам</small></h1><div id="chat"><div class="mes" mesid="1"><div class="row"><div class="hud-os-card wide">${M.полосаМузыки(1, { chat: живой, открыта: true })}</div><div class="hud-os-card phone">${M.приложениеМузыки(1, 'Тристан', { chat: живой })}</div></div></div></div>`);
+ряды.push(`<h1>Живой плеер <small>▶ играет 30-секундный отрывок; следующий — сам</small></h1><div id="chat"><div class="mes" mesid="1"><div class="row"><div class="hud-os-card wide">${M.полосаМузыки(1, { chat: живой, открыта: true })}</div><div class="hud-os-card phone">${M.приложениеМузыки(1, 'Дамиан', { chat: живой })}</div></div></div></div>`);
 for (const [вид, имя] of [['cassette', 'Кассета'], ['vinyl', 'Пластинка'], ['scroll', 'Свиток (средневековье)']]) {
   settings.musicStyle = вид;
   ряды.push(`<h1>${имя} <small>musicStyle=${вид}</small></h1>`);
@@ -74,10 +74,10 @@ for (const [вид, имя] of [['cassette', 'Кассета'], ['vinyl', 'Пл�
 settings.musicStyle = 'auto';
 
 // Телефон персонажа: полный, пустой, подбор.
-const экран = (chat, о = {}, класс = '') => `<div class="phone${класс}"><div class="hud-phone-app-view"><div class="hud-phone-app-title"><span class="hud-phone-back" aria-hidden="true">⟨</span>${G_ICONS.music} Музыка<span class="hud-phone-app-owner">Тристан</span></div>${M.приложениеМузыки(1, 'Тристан', { chat, ...о })}</div></div>`;
+const экран = (chat, о = {}, класс = '') => `<div class="phone${класс}"><div class="hud-phone-app-view"><div class="hud-phone-app-title"><span class="hud-phone-back" aria-hidden="true">⟨</span>${G_ICONS.music} Музыка<span class="hud-phone-app-owner">Дамиан</span></div>${M.приложениеМузыки(1, 'Дамиан', { chat, ...о })}</div></div>`;
 ряды.push(`<h1>Телефон персонажа → «Музыка»</h1><div class="row">${экран(ход(полная))}${экран(ход(null))}${экран(ход(null), { занято: ['phone'] })}</div>`);
 // Плейлисты владельца с названиями и его «Нравится» (метаданные чата).
-const библиотека = { v: 1, owners: { 'Тристан': { id: 't1', liked: [телефон.tracks[0]], playlists: [
+const библиотека = { v: 1, owners: { 'Дамиан': { id: 't1', liked: [телефон.tracks[0]], playlists: [
   { id: 'p1', name: 'Ночная трасса', theme: 'для дороги ночью', tracks: [...телефон.tracks, ...саундтрек.filter(x => x.ok)], mes: 1 },
   { id: 'p2', name: 'не трогать', tracks: саундтрек.slice(0, 2), mes: 2 },
 ] } } };
@@ -88,7 +88,7 @@ const сЛентой = [...ход(полная), { mes: 'новое', is_user: t
 
 // Архив → Саундтрек.
 const отчёт = { soundtrack: [
-  { from: 96, to: 103, date: '31.10.2024', place: 'Особняк Регентов, южный парк', ...полная },
+  { from: 96, to: 103, date: '31.10.2024', place: 'Особняк Фонарщиков, южный парк', ...полная },
   { from: 104, to: 104, date: '31.10.2024', place: 'Гольф-кар', label: 'погоня у пруда', why: 'начался бой', soundtrack: саундтрек.slice(3), scene: null, phone: null },
   { from: 105, to: 109, date: '01.11.2024', place: 'Кухня', label: 'утро после', why: 'ночь прошла', soundtrack: саундтрек.slice(0, 2), scene: null, phone: телефон },
 ], stats: { soundtrackTracks: 7 } };
@@ -121,9 +121,9 @@ const ДАННЫЕ_EN = [
   ['морозная ночь самайна', 'frosty Samhain night'], ['тихое напряжение', 'quiet tension'], ['нежность и усталость', 'tenderness and fatigue'],
   ['выдуманный', 'made up'], ['холодный воздух', 'cold air'], ['радио в гольф-каре', 'the golf cart radio'], ['бар «Синий час»', 'the «Blue Hour» bar'],
   ['сменилось место', 'the place changed'], ['по кнопке', 'by button'], ['модель молчит дольше 120 с', 'the model has been silent for over 120 s'],
-  ['Особняк Регентов, южный парк', 'Regents\' mansion, south park'], ['Гольф-кар', 'Golf cart'], ['Кухня', 'Kitchen'],
+  ['Особняк Фонарщиков, южный парк', 'Lanterns\' mansion, south park'], ['Гольф-кар', 'Golf cart'], ['Кухня', 'Kitchen'],
   ['погоня у пруда', 'chase by the pond'], ['утро после', 'the morning after'], ['начался бой', 'a fight started'], ['ночь прошла', 'the night passed'],
-  ['Тристана', 'Tristan'], ['Тристан', 'Tristan'],
+  ['Дамиана', 'Damian'], ['Дамиан', 'Damian'],
 ];
 const итог = EN ? ДАННЫЕ_EN.reduce((h, [ru, en]) => h.split(ru).join(en), html)
   .replace('Object.assign(settings, { enableMusic: true', 'Object.assign(settings, { language: "en", enableMusic: true')

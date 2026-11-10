@@ -13,13 +13,13 @@
 // секрета, — «при нём об этом нельзя».
 // На узком экране сетку заменяет список по людям (container query).
 
-import { escapeHtml, getSafeUserName } from '../utils.js?v=23.89.4';
-import { settings } from '../settings.js?v=23.89.4';
-import { namesLikelySame } from '../names.js?v=23.89.4';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.4';
-import { ико, медаль } from './view-icons.js?v=23.89.4';
-import { правкаСекрета, всплывшиеСекреты, правитьСнимок, правки } from '../snapshot-edits.js?v=23.89.4';
-import { разобратьДуэль } from './duel.js?v=23.89.4';
+import { escapeHtml, getSafeUserName } from '../utils.js?v=23.89.5';
+import { settings } from '../settings.js?v=23.89.5';
+import { namesLikelySame } from '../names.js?v=23.89.5';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.5';
+import { ико, медаль } from './view-icons.js?v=23.89.5';
+import { правкаСекрета, всплывшиеСекреты, правитьСнимок, правки } from '../snapshot-edits.js?v=23.89.5';
+import { разобратьДуэль } from './duel.js?v=23.89.5';
 // Склонение по числу: склон(3, ['секрет', 'секрета', 'секретов']).
 const склон = (n, [один, два, пять]) => { const к = Math.abs(n) % 100, е = к % 10; return к > 10 && к < 20 ? пять : е === 1 ? один : е >= 2 && е <= 4 ? два : пять; };
 
@@ -28,13 +28,13 @@ const пустоеИмя = (n) => !n || /^(none|empty|null|нет|никто|в�
 const имяЧел = (x) => String((x && typeof x === 'object' ? (x.name || x.who || x.n) : x) || '').trim();
 const списком = (v) => (Array.isArray(v) ? v : (v ? [v] : []));
 const имяКоротко = (имя) => String(имя || '').replace(/^.*\s{2,}/, '').trim();
-// Сравниваем без приставки карточки: «THE REGENTS  Tristan Kingsley» и «Тристан».
+// Сравниваем без приставки карточки: «THE LANTERNS  Damian Hartley» и «Дамиан».
 const тот = (a, b) => a && b && (namesLikelySame(имяКоротко(a), имяКоротко(b)) || namesLikelySame(a, b));
 
 const ВЕС = { critical: 0, high: 1, medium: 2, low: 3 };
 const уровень = (s) => { const l = String(s.level || '').toLowerCase(); return l.includes('crit') ? 'critical' : l.includes('high') ? 'high' : l.includes('low') ? 'low' : 'medium'; };
 
-/** «Лена: думает, что он в Цюрихе; Коэн: что это шантаж» → [{ имя, верит }]. */
+/** «Лена: думает, что он в Цюрихе; Нолан: что это шантаж» → [{ имя, верит }]. */
 export function ошибающиеся(v) {
   return списком(v).flatMap(x => {
     if (x && typeof x === 'object') return [{ имя: имяЧел(x), верит: String(x.belief || x.b || x.v || '').trim() }];
@@ -48,7 +48,7 @@ export function ошибающиеся(v) {
 /** Состояние клетки: { вид: 'knows' | 'suspects' | 'not' | 'wrong', текст }. */
 export function клеткаСекрета(сек, человек) {
   const ош = ошибающиеся(сек.wrong).find(о => тот(о.имя, человек));
-  // «думает, что отец — Брэндон» → «верит, что отец — Брэндон», без двойного «что».
+  // «думает, что отец — Гордон» → «верит, что отец — Гордон», без двойного «что».
   if (ош) return { вид: 'wrong', текст: ош.верит ? 'верит, что ' + ош.верит.replace(/^(?:(?:думает|считает|верит|уверен[аы]?|полагает|решил[аи]?)\s*,?\s*)?что\s+|^(?:(?:thinks|believes|is sure|is convinced|assumes|decided|suspects)\s+)?that\s+/i, '') : 'введён в заблуждение' };
   const зн = списком(сек.knows).find(k => тот(имяЧел(k), человек));
   if (зн) { const src = String((зн && зн.source) || '').trim(); return { вид: 'knows', текст: src ? 'знает: ' + src : 'знает' }; }
@@ -77,8 +77,8 @@ const ЗНАКИ = { knows: ['✓', 'знает', 'eye'], suspects: ['?', 'по�
 const значокСостояния = (вид) => (ЗНАКИ[вид][2] ? ико(ЗНАКИ[вид][2]) : `<b>${ЗНАКИ[вид][0]}</b>`);
 const СЛОВО_УРОВНЯ = { critical: 'смертельно', high: 'опасно', medium: 'серьёзно', low: 'мелочь' };
 
-// Группа, а не человек: «Пять Регентов», «Пресса», «Совет», «все слуги».
-// Числительные и «все» — только целым словом: «Тристан» не «три».
+// Группа, а не человек: «Пять Фонарщиков», «Пресса», «Совет», «все слуги».
+// Числительные и «все» — только целым словом: «Дамиан» не «три».
 const ГРУППА = /^(?:(?:\d+|два|две|три|четыре|пять|шесть|семь|восемь|девять|десять|вс[её]|двор)(?![\p{L}])|команд[аы](?![\p{L}])|семь[яи](?![\p{L}])|пресс|совет|слуг|прислуг|охран[аы](?![\p{L}])|полици|друзь|журналист|сосед|персонал|клан|банд[аы]|экипаж|гост[ия]|регент|орден|(?:two|three|four|five|six|seven|eight|nine|ten|all|everyone|the court)(?![\p{L}])|team|family|press|council|servants|staff|guards?|police|friends|journalists|neighbo|personnel|clan|gang|crew|guests|regents|order(?![\p{L}]))/iu;
 export const этоГруппа = (имя) => ГРУППА.test(имяКоротко(имя).trim());
 
@@ -187,7 +187,7 @@ export function сеткаСекретов(секретыВсе, hudData) {
     const пункты = секреты.map((с, i) => { const к = клетка[i][j]; return `<li class="is-${к.вид} lvl-${уровень(с)}">${значокСостояния(к.вид)}<span>${escapeHtml(заголовок(с.fact))}</span><small>${escapeHtml(к.текст)}</small></li>`; }).join('');
     return `<details class="hud-sgrid-person"><summary>${лицо(п.имя, п.игрок, долиЗнания[j])}<b>${escapeHtml(имяКоротко(п.имя))}</b><small>знает ${счёт('knows')} · не знает ${счёт('not')}${счёт('wrong') ? ' · ошибается ' + счёт('wrong') : ''}</small>${полоска}</summary><ul>${пункты}</ul></details>`;
   }).join('');
-  // «Не знают: Тристан, Лена» — без падежей: «при Тристан» звучало бы неграмотно.
+  // «Не знают: Дамиан, Лена» — без падежей: «при Дамиан» звучало бы неграмотно.
   const предупр = предупреждения.map(п => `<div class="hud-sgrid-warn">${медаль('alert')}<span><small>в сцене — нельзя</small><b>«${escapeHtml(заголовок(п.секрет.fact))}»</b><em>${п.кто.length === 1 ? 'не знает' : 'не знают'}: ${escapeHtml(п.кто.join(', '))}</em></span><span class="hud-sgrid-warn-faces">${п.полные.slice(0, 3).map(имя => лицо(имя, false)).join('')}</span></div>`).join('');
   const легенда = `<div class="hud-sgrid-legend">${Object.entries(ЗНАКИ).map(([к, [, с]]) => `<span class="is-${к}"><i class="hud-sgrid-cell is-${к}">${значокСостояния(к)}</i>${с}</span>`).join('')}</div>`;
   const подъём = предложения.slice(0, ВОПРОСОВ_СРАЗУ).map(п => `<div class="hud-sgrid-raise">${медаль('speech')}<span><small>всплыло в споре</small><b>«${escapeHtml(заголовок(п.факт))}»</b><em>при ${escapeHtml(имяКоротко(п.кто))} — отметить «${п.значение === 'known' ? 'знает' : 'подозревает'}»?</em></span>`

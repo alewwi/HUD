@@ -14,9 +14,9 @@
 // фон. Кожа на портретах остаётся живой. Только свой набор в своей теме с
 // родными цветами показывается как нарисован.
 
-import { settings } from '../settings.js?v=23.89.4';
-import { видБлока } from './views.js?v=23.89.4';
-import { getTheme } from '../themes.js?v=23.89.4';
+import { settings } from '../settings.js?v=23.89.5';
+import { видБлока } from './views.js?v=23.89.5';
+import { getTheme } from '../themes.js?v=23.89.5';
 
 const ВЕРСИЯ = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
 const НАБОРЫ = ['kawaii', 'academia', 'vamp', 'cyberpunk', 'noir', 'medieval', 'fantasy', 'mafia', 'web1', 'cottage', 'ice', 'ocean', 'steampunk', 'dieselpunk', 'solarpunk', 'biopunk', 'spaceopera', 'japan', 'egypt', 'western', 'pirate', 'witch', 'voodoo', 'spacehorror', 'darkroom', 'teaparty', 'bujo'];

@@ -15,7 +15,7 @@ globalThis.window = globalThis;
 globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
 globalThis.sessionStorage = globalThis.localStorage;
 globalThis.document = { createElement: () => ({ style: {} }), querySelector: () => null, querySelectorAll: () => [], documentElement: { classList: { add() {}, remove() {}, contains: () => false } } };
-globalThis.SillyTavern = { getContext: () => ({ chat: [], name1: 'Софи', name2: 'Тристан' }) };
+globalThis.SillyTavern = { getContext: () => ({ chat: [], name1: 'Мари', name2: 'Дамиан' }) };
 
 const К = await м('custom-stats.js');
 const { СВЕТЛЫЕ_ТЕМЫ, themeVars } = await м('themes.js');

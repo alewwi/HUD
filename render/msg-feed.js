@@ -12,13 +12,13 @@
 // оказываются рядом вчерашнее «22:30» и сегодняшнее «08:30», и без подписи
 // «Вчера» это читается как один разговор подряд.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.4';
-import { buildBubbleInner, buildCallRow, msgKey, действиеЗаКадром, заКадромHTML, безШапокСообщения, начинаетсяСТега } from './msg-parts.js?v=23.89.4';
-import { avaFace } from './phone-common.js?v=23.89.4';
-import { namesLikelySame } from '../names.js?v=23.89.4';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.5';
+import { buildBubbleInner, buildCallRow, msgKey, действиеЗаКадром, заКадромHTML, безШапокСообщения, начинаетсяСТега } from './msg-parts.js?v=23.89.5';
+import { avaFace } from './phone-common.js?v=23.89.5';
+import { namesLikelySame } from '../names.js?v=23.89.5';
 
 // Один человек в переписке под разными подписями: «Грей» и «Профессор Грей»,
-// «Butler» и «Private Butler», «Tristan» и «THE REGENTS Tristan Kingsley».
+// «Butler» и «Private Butler», «Damian» и «THE LANTERNS Damian Hartley».
 // namesLikelySame такие пары не узнаёт (звание, приставка карточки): тогда —
 // все слова короткой подписи есть в длинной.
 const словаИмени = (s) => String(s || '').toLowerCase().replace(/ё/g, 'е').split(/[^\p{L}\p{N}]+/u).filter(w => w.length > 1);
@@ -213,7 +213,7 @@ export function разобратьСообщение(raw) {
   const черновик = /draft|черновик/.test(низ) || /\[\s*(?:черновик|draft)\s*\]/i.test(тело);
   тело = тело.replace(/\[\s*(?:удалено|deleted?|черновик|draft)\s*\]\s*|✓+/gi, '').trim();
   let кто = 'Unknown', текст = тело;
-  // Дефис — часть фамилии («Ченнинг-Уинтроп»), из имени его не исключаем.
+  // Дефис — часть фамилии («Холлоуэй-Олбрайт»), из имени его не исключаем.
   const m = начинаетсяСТега(тело) ? null : тело.match(/^([^:]+?)(?:\s*(?:->|→)\s*([^:]+?))?\s*:\s*([\s\S]*)$/);
   if (m) { кто = m[1].trim(); текст = m[3].trim(); }
   // Время в поле дня: «Вчера, 14:30» → на пузыре только часы.

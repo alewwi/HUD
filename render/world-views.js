@@ -14,9 +14,9 @@
 // пустить эфир, оторвать листок, поставить галочку, лайкнуть. Отметки живут
 // в памяти страницы (как голоса в новостях) и переживают перерисовку карточки.
 
-import { escapeHtml, hudHashSeed } from '../utils.js?v=23.89.4';
-import { ико, ИКОНКИ } from './view-icons.js?v=23.89.4';
-import { знакЗодиака } from '../i18n.js?v=23.89.4';
+import { escapeHtml, hudHashSeed } from '../utils.js?v=23.89.5';
+import { ико, ИКОНКИ } from './view-icons.js?v=23.89.5';
+import { знакЗодиака } from '../i18n.js?v=23.89.5';
 
 const т = (s) => escapeHtml(String(s ?? ''));
 const хэш = (s) => hudHashSeed(String(s ?? ''));
@@ -99,7 +99,7 @@ export function видСлухов(слухи, вид, заголовок) {
     };
     const рисунки = Object.keys(РИСУНОК);
     return секция('rumors', заголовок, корень('rumors', вид,
-      `<span class="lamp" aria-hidden="true"></span><span class="ghost" aria-hidden="true"><i>ЗДЕСЬ БЫЛ</i><i>REGENTS</i><i>2019</i></span>`
+      `<span class="lamp" aria-hidden="true"></span><span class="ghost" aria-hidden="true"><i>ЗДЕСЬ БЫЛ</i><i>LANTERNS</i><i>2019</i></span>`
       + `<span class="paste" aria-hidden="true"><b>ВСЁ ВРАНЬЁ</b><s></s><s></s></span><span class="slap" aria-hidden="true">слухи</span>`
       + список.map((с) => { const х = хэш(с), р = рисунки[(х >> 3) % рисунки.length]; return `<p class="tag c${х % 5} st-${ПОЧЕРК[(х >> 2) % 4]}" style="--r:${((х % 7) - 3) * .6}deg"${кнопка('spray')}>${т(с)}<svg class="doodle" viewBox="0 0 24 24" aria-hidden="true"><path d="${РИСУНОК[р]}"/></svg><i class="drip" aria-hidden="true"></i></p>`; }).join('')
       + `<span class="walk" aria-hidden="true"><span class="can"></span><span class="cap"></span></span>`));

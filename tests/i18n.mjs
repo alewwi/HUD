@@ -15,7 +15,7 @@ globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() {} }
 globalThis.sessionStorage = { getItem: () => null, setItem() {}, removeItem() {} };
 const узел = () => { let t = ''; return { style: { setProperty() {}, removeProperty() {} }, dataset: {}, classList: { add() {}, remove() {}, toggle() {}, contains: () => false }, set innerHTML(x) { t = String(x); }, get innerHTML() { return t; }, set textContent(x) { t = String(x); }, get textContent() { return t; }, get value() { return t; }, querySelector: () => null, querySelectorAll: () => [], appendChild() {}, setAttribute() {}, getAttribute: () => null, addEventListener() {} }; };
 globalThis.document = { createElement: узел, querySelector: () => null, querySelectorAll: () => [], getElementById: () => null, documentElement: узел(), body: узел(), addEventListener() {}, head: узел() };
-globalThis.SillyTavern = { getContext: () => ({ chat: [], chatMetadata: {}, name1: 'Sophie', name2: 'Tristan' }) };
+globalThis.SillyTavern = { getContext: () => ({ chat: [], chatMetadata: {}, name1: 'Marie', name2: 'Damian' }) };
 console.info = () => {}; console.warn = () => {}; console.debug = () => {};
 const v = JSON.parse(fs.readFileSync(ROOT + 'manifest.json', 'utf8')).version;
 const м = (f) => import('file:///' + ROOT + f + '?v=' + v);
@@ -108,7 +108,7 @@ const случаи = [
   ['Lower back: 6 держится 2 ч — aching', 'Lower back: 6 holding 2 h — aching'],
   ['заживёт примерно к воскресенью', 'will heal by about Sunday'],
   ['Доверие: Anna — 85; Mark — 55', 'Trust: Anna — 85; Mark — 55'],
-  ['Софи', null],
+  ['Мари', null],
   ['голубые глаза', 'blue eyes'],
   ['Сон 03:00–07:00 (примерно)', 'Sleep 03:00–07:00 (approx.)'],
   ['Объявление', 'Notice'],
@@ -215,11 +215,11 @@ const Пр = await м('render/life-prose.js');
 проверить('душ из прозы: «took a long, hot bath» — да; «wanted to», «bathed in moonlight» — нет', Пр.мытьёИзПрозы('She took a long, hot bath before bed.')?.что === 'ванная (по тексту)' && !Пр.мытьёИзПрозы('He wanted to take a shower, but the phone rang again.') && !Пр.мытьёИзПрозы('The garden was bathed in moonlight as she walked home.'));
 проверить('погода для одежды: rain + chilly, scorching heat', Ж.видыПогоды('light rain, chilly').join() === 'холод,дождь' && Ж.видыПогоды('scorching heat').join() === 'жара');
 const Ка = await м('render/calendar.js');
-const рас = Ка.разобратьРасписание("10:00 - court tomorrow; on Friday evening — dinner at Richard's; Nov 15 - Lena's birthday; in 2 weeks - trip", { y: 2024, mo: 10, d: 17 }).map(x => x.день.mo + '/' + x.день.d + (x.часть ? ' ' + x.часть : '')).join(' | ');
+const рас = Ка.разобратьРасписание("10:00 - court tomorrow; on Friday evening — dinner at Leonard's; Nov 15 - Lena's birthday; in 2 weeks - trip", { y: 2024, mo: 10, d: 17 }).map(x => x.день.mo + '/' + x.день.d + (x.часть ? ' ' + x.часть : '')).join(' | ');
 проверить('календарь: tomorrow, on Friday evening, Nov 15, in 2 weeks', рас === '10/18 | 10/18 вечером | 11/15 | 10/31', рас);
 проверить('календарь: дата сцены «October 17th, 2024»', JSON.stringify(Ка.parseDayMonth('Thursday, October 17th, 2024')) === '{"d":17,"mo":10,"y":2024}');
 const Св = await м('render/summary-card.js');
-const св = Св.разобратьСводку('Thursday, 17.10.2024 · 21:40 | evening · light rain | Tristan — living room | Event: the letter arrived | New: Lilian knows');
+const св = Св.разобратьСводку('Thursday, 17.10.2024 · 21:40 | evening · light rain | Damian — living room | Event: the letter arrived | New: Lilian knows');
 проверить('сводка: Event и New по-английски', св.событие === 'the letter arrived' && св.новое === 'Lilian knows' && св.время === '21:40', JSON.stringify(св));
 settings.language = 'ru';
 

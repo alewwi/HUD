@@ -4,10 +4,10 @@
 // сообщения и сбор собеседников по строкам переписки. Лежит отдельно,
 // чтобы ни один из двух модулей не пришлось объявлять главным.
 
-import { escapeHtml, defeatWI, инициалыИмени } from '../utils.js?v=23.89.4';
-import { overrideAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.4';
-import { namesLikelySame } from '../names.js?v=23.89.4';
-import { G_ICONS } from './icons.js?v=23.89.4';
+import { escapeHtml, defeatWI, инициалыИмени } from '../utils.js?v=23.89.5';
+import { overrideAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.5';
+import { namesLikelySame } from '../names.js?v=23.89.5';
+import { G_ICONS } from './icons.js?v=23.89.5';
 
 // Обращения без адресата: такие имена в собеседники не годятся.
 const GENERIC_PARTY = /^(все|всем|all|everyone|группа|group|чат|chat|вы|you|user|я|me)$/i;
@@ -74,7 +74,7 @@ export const ложноеИмяHTML = (личность) => `<details class="hud
   + `<span class="hud-phone-real">на деле: ${defeatWI(escapeHtml(личность.настоящее))}</span></details>`;
 
 // Все реальные участники переписки, кроме владельца телефона.
-// Имена схлопываются нечётко: «Тристан», «Tristan» и «Tristan Kingsley» — один человек.
+// Имена схлопываются нечётко: «Дамиан», «Damian» и «Damian Hartley» — один человек.
 export function collectCounterparts(messages, owner) {
   const seen = [];
   (Array.isArray(messages) ? messages : []).forEach(msgStr => {

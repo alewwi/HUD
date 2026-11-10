@@ -16,28 +16,29 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.4';
-import { уверены } from './confirm-erase.js?v=23.89.4';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.89.4';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.89.4';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.4';
-import { прикрытьСырой } from './raw-guard.js?v=23.89.4';
-import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.4';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.4';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.4';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном } from './settings.js?v=23.89.4';
-import { полныйПорядок } from './tabs-order.js?v=23.89.4';
-import { getWorldVotes } from './render/world.js?v=23.89.4';
-import { действиеМира } from './render/world-views.js?v=23.89.4';
-import { действиеМузыки } from './render/music.js?v=23.89.4';
-import { раскрытьПорцию } from './render/long-list.js?v=23.89.4';
-import { прогретьИсторию } from './render/carryover.js?v=23.89.4';
-import { подключитьПалитру } from './color-picker.js?v=23.89.4';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.4';
-import { замер } from './utils.js?v=23.89.4';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.4';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.4';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.4';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.5';
+import { уверены } from './confirm-erase.js?v=23.89.5';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.89.5';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.89.5';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.5';
+import { прикрытьСырой } from './raw-guard.js?v=23.89.5';
+import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.5';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.5';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.5';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.5';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.5';
+import { полныйПорядок } from './tabs-order.js?v=23.89.5';
+import { getWorldVotes } from './render/world.js?v=23.89.5';
+import { действиеМира } from './render/world-views.js?v=23.89.5';
+import { действиеМузыки } from './render/music.js?v=23.89.5';
+import { раскрытьПорцию } from './render/long-list.js?v=23.89.5';
+import { прогретьИсторию } from './render/carryover.js?v=23.89.5';
+import { подключитьПалитру } from './color-picker.js?v=23.89.5';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.5';
+import { замер } from './utils.js?v=23.89.5';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.5';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.5';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.5';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -204,8 +205,23 @@ function снимокВида() {
   КЛЮЧИ_ВИДА.forEach(k => { о[k] = settings[k]; });
   // «Вернуть тему» меняет и оформление — «Шаг назад» возвращает и его.
   Object.keys(оформлениеТемы()).forEach(k => { о[k] = settings[k]; });
+  // «Сброс» меняет весь вид — и виды блоков, и картинки по одной: их тоже в шаг.
+  ключиСброса().forEach(k => { if (!(k in о)) о[k] = settings[k] === undefined ? undefined : structuredClone(settings[k]); });
   return о;
 }
+// Что возвращает «Сброс»: весь вид из Кастомизации. Поведение окна и
+// интерфейса (раскладка «Подробно», клик к настройке, анимации, бюджет,
+// автоподъём секретов) — не вид, его сброс не трогает.
+const НЕ_ВИД = new Set(['customDetailMode', 'customClickNav', 'tokenBudget', 'containerQueries', 'startingStyle', 'themeSwitchFade', 'secretsAutoRaise']);
+export function ключиСброса() {
+  const панель = [...document.querySelectorAll('.hud-custom-settings [data-key]')].map(x => x.dataset.key);
+  return [...new Set([...КЛЮЧИ_ВИДА, ...КЛЮЧИ_АВТО, ...Object.values(КЛЮЧИ_МЕСТ), ...ВИДЫ_БЛОКОВ.map(б => б.ключ),
+    'themeScene', 'noImages', 'headerOrnament', 'avatarDeco', 'avatarShape', 'sceneHidden', 'bgImage', ...КЛЮЧИ_ПАНЕЛИ, ...панель])].filter(k => k && !НЕ_ВИД.has(k));
+}
+// Ключи панели Кастомизации, которых нет в списках выше: панель собирается
+// лениво, и при закрытом окне её полей нет в документе. Полноту проверяет tests/unit.mjs.
+export const КЛЮЧИ_ПАНЕЛИ = ['pillColors', 'pillIcons', 'pillStyle', 'cornerShape', 'iconStyle', 'sceneCredits', 'moonPhase', 'subtextVeil', 'diaryMoodHand', 'diaryVeil', 'lightFollowsTime', 'autoAccentText',
+  'silhouetteLook', 'silhouetteStyle', 'silhouetteOutlines', 'bodyDiaryHand', 'secretsGrid', 'cycleLibido', 'cardSignature', 'bgDragon', 'cycleView', 'underwearView'];
 function запомнитьШаг(ключ = '') {
   const сейчас = Date.now();
   if (ключ && ключ === последнийКлюч && сейчас - последнийМомент < 1500) { последнийМомент = сейчас; return; }
@@ -513,7 +529,8 @@ export function initGlobalEvents(ctx) {
         const шаг = историяВида.pop();
         последнийКлюч = '';
         if (!шаг) { showHudToast('error', 'Отменять нечего', 'С начала сеанса правок вида не было.'); return; }
-        Object.assign(settings, шаг);
+        // Ключ, которого тогда не было (вид блока «как по умолчанию»), снова убираем.
+        for (const [k, зн] of Object.entries(шаг)) { if (зн === undefined) delete settings[k]; else settings[k] = зн; }
         saveSettings(); applyThemeColors(); redrawPresets(); syncThemeInputs();
         document.dispatchEvent(new CustomEvent('hud-theme-changed', { detail: { разметка: true } }));
         showHudToast('success', 'Шаг назад', историяВида.length ? 'Можно отменить ещё ' + историяВида.length + '.' : 'Это была первая правка сеанса.');
@@ -575,6 +592,11 @@ export function initGlobalEvents(ctx) {
       // трогают темы: иначе прошлая тема оставила бы после себя хвосты —
       // например, шрифт от «Киберпанка» в «Средневековье».
       THEME_KEYS.forEach(k => { if (defaultSettings[k] !== undefined) settings[k] = defaultSettings[k]; });
+      // «Сброс» — вид, каким он был до любой темы: всё оформление из
+      // Кастомизации к заводскому, а не одни цвета. Раньше оставались картинка
+      // в углу шапки, украшение портрета, рисунки по местам, бумага, виды
+      // блоков — их не трогает ни одна тема. «Шаг назад» вернёт всё.
+      if (!id) for (const k of ключиСброса()) { if (defaultSettings[k] !== undefined) settings[k] = structuredClone(defaultSettings[k]); else delete settings[k]; }
       // Значения темы вместе с правками пользователя поверх неё.
       if (theme) Object.assign(settings, themeVars(id));
       settings.themePreset = theme ? theme.id : '';
@@ -586,8 +608,9 @@ export function initGlobalEvents(ctx) {
       плавнаяСменаТемы(() => {
         applyThemeColors();
         redrawPalettes();
-        // Украшения на «Авто» с разметкой по теме пересобирает index.js.
-        document.dispatchEvent(new CustomEvent('hud-theme-changed'));
+        // Украшения на «Авто» с разметкой по теме пересобирает index.js;
+        // после сброса — всегда: могли поменяться виды блоков.
+        document.dispatchEvent(new CustomEvent('hud-theme-changed', id ? undefined : { detail: { разметка: true } }));
       });
 
       syncThemeInputs();
@@ -595,7 +618,7 @@ export function initGlobalEvents(ctx) {
         b.classList.toggle('active', (b.dataset.themePreset || '') === settings.themePreset);
       });
       showHudToast('success', theme ? theme.label : 'Стандартная тема',
-        (theme ? theme.hint : 'Цвета вернулись к исходным.')
+        (theme ? theme.hint : 'Весь вид вернулся к исходному: цвета, украшения, картинки и виды блоков. «↶ Шаг назад» вернёт как было.')
         + (незапомнено ? ' Правки прошлой темы не запомнены — «↶ Шаг назад» вернёт их.' : ''));
       return;
     }
@@ -1138,7 +1161,8 @@ export function initGlobalEvents(ctx) {
     const телефон = settings.phoneThemeAuto !== false ? унаследованноеТелефоном() : {};
     document.querySelectorAll('.hud-theme-color-input, .hud-theme-range-input, .hud-theme-select-input').forEach(inp => {
       const k = inp.dataset.key;
-      if (!k || settings[k] === undefined) return;
+      if (!k) return;
+      if (settings[k] === undefined) { if (inp.tagName === 'SELECT' && ключиСброса().includes(k) && defaultSettings[k] === undefined) inp.selectedIndex = 0; return; }
       // Пустой цвет — «как в теме»: квадрат показывает цвет темы, а не чёрный.
       if (inp.type === 'color' && !settings[k]) { inp.value = settings.accentColor || '#8c5ad2'; return; }
       inp.value = String(k in телефон ? телефон[k] : settings[k]);

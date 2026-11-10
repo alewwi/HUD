@@ -17,11 +17,11 @@ globalThis.document = { createElement: узел, querySelector: () => null, quer
 for (const k of ['info', 'debug', 'warn']) console[k] = () => {};
 const модуль = (имя) => import('file:///' + path.join(КОРЕНЬ, имя).replace(/\\/g, '/') + '?v=' + ВЕРСИЯ);
 
-const ФАЙЛ = process.argv[2] || path.resolve(КОРЕНЬ, '..', '..', 'chats', 'THE REGENTS  Tristan Kingsley', 'THE_REGENTS_Tristan_Kingsley_2026_09_27@19h28m46s177ms_imported.jsonl');
-const ГЛАВНЫЙ = 'THE REGENTS  Tristan Kingsley';
+const ФАЙЛ = process.argv[2] || path.resolve(КОРЕНЬ, '..', '..', 'chats', 'THE LANTERNS  Damian Hartley', 'THE_REGENTS_Tristan_Kingsley_2026_09_27@19h28m46s177ms_imported.jsonl');
+const ГЛАВНЫЙ = 'THE LANTERNS  Damian Hartley';
 const строки = fs.readFileSync(ФАЙЛ, 'utf8').trim().split('\n').map(s => JSON.parse(s));
 const чат = строки[0] && строки[0].chat_metadata && !('mes' in строки[0]) ? строки.slice(1) : строки;
-globalThis.SillyTavern = { getContext: () => ({ chat: чат, name1: 'Софи', name2: ГЛАВНЫЙ, characters: [], chatMetadata: {} }) };
+globalThis.SillyTavern = { getContext: () => ({ chat: чат, name1: 'Мари', name2: ГЛАВНЫЙ, characters: [], chatMetadata: {} }) };
 
 const S = await модуль('hud-snapshot.js');
 const B = await модуль('hud-block.js');

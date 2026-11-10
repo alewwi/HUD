@@ -36,8 +36,8 @@ for (const k of [1, 2, 3, 4]) список = L.переключить(списо
 проверить('не предлагать: запрещённое убирается из ответа', L.безЗапрещённых([т('A', 'X'), т('B', 'Y')], [т('a', 'x')]).map(x => x.a).join() === 'B');
 const вкусИгрока = L.строкиВкуса({ лайки: [т('A', 'X')], запреты: [т('B', 'Y')] });
 проверить('вкус игрока: подсказка и запрет', вкусИгрока.length === 2 && /player liked/.test(вкусИгрока[0]) && /A — X/.test(вкусИгрока[0]) && /Never suggest/.test(вкусИгрока[1]) && /B — Y/.test(вкусИгрока[1]));
-const вкусТелефона = L.строкиВкуса({ лайки: [т('C', 'Z')], чьи: 'Tristan' });
-проверить('вкус телефона: это вкус владельца, а не игрока', вкусТелефона.length === 1 && /Tristan's own taste/.test(вкусТелефона[0]) && !/player liked/.test(вкусТелефона[0]));
+const вкусТелефона = L.строкиВкуса({ лайки: [т('C', 'Z')], чьи: 'Damian' });
+проверить('вкус телефона: это вкус владельца, а не игрока', вкусТелефона.length === 1 && /Damian's own taste/.test(вкусТелефона[0]) && !/player liked/.test(вкусТелефона[0]));
 
 // --- Язык и мемы ----------------------------------------------------------------------
 проверить('язык песен: свой — буквы без мусора', L.языкПесен({ musicLang: 'custom', musicLangCustom: 'Ukrainian"; drop' }) === 'Ukrainian drop' && L.языкПесен({ musicLang: 'Klingon' }) === '' && L.языкПесен({ musicLang: 'Russian' }) === 'Russian');
@@ -49,8 +49,8 @@ const вкусТелефона = L.строкиВкуса({ лайки: [т('C',
 const meta = {};
 проверить('библиотека: без «создать» — не заводится', L.библиотека(meta) === null && !(L.КЛЮЧ_БИБЛИОТЕКИ in meta));
 const б = L.библиотека(meta, true);
-const з = L.записьВладельца(б, 'Tristan', true);
-проверить('библиотека: запись владельца с id', з && з.id && Array.isArray(з.playlists) && Array.isArray(з.liked) && L.записьПоId(б, з.id).имя === 'Tristan');
+const з = L.записьВладельца(б, 'Damian', true);
+проверить('библиотека: запись владельца с id', з && з.id && Array.isArray(з.playlists) && Array.isArray(з.liked) && L.записьПоId(б, з.id).имя === 'Damian');
 const п = L.новыйПлейлист(з, { name: 'Ночная трасса', tracks: [т('A', 'X'), т('a', 'x'), т('B', 'Y')], theme: 'для дороги', mes: 10 });
 проверить('плейлист: без повторов, с темой и отметкой сообщения', п.tracks.length === 2 && п.theme === 'для дороги' && п.mes === 10 && L.плейлистПоId(б, п.id).п === п);
 const добавлено = L.дописатьПлейлист(п, [т('B', 'Y'), т('C', 'Z')], 14);
@@ -82,8 +82,8 @@ const полный = M.промптМузыки({ сцена, части: ['soun
 проверить('запрос: язык и вкус', /LANGUAGE \(top priority/.test(полный.system) && /- The player liked these tracks/.test(полный.system) && /- Never suggest these/.test(полный.system));
 const простой = M.промптМузыки({ сцена: { ...сцена, эра: 'medieval' }, части: ['soundtrack', 'scene'] });
 проверить('запрос: без радио и мемов — как раньше', !/"radio"/.test(простой.system) && !/MEME/.test(простой.system) && !/LANGUAGE/.test(простой.system));
-const сТелефоном = M.промптМузыки({ сцена, части: ['soundtrack', 'scene', 'phone'], телефон: { владелец: 'Tristan', о: '', прежние: [], вкус: вкусТелефона } });
-проверить('запрос: у телефона свой вкус', /- phone: Tracks marked as liked in Tristan's phone/.test(сТелефоном.system));
+const сТелефоном = M.промптМузыки({ сцена, части: ['soundtrack', 'scene', 'phone'], телефон: { владелец: 'Damian', о: '', прежние: [], вкус: вкусТелефона } });
+проверить('запрос: у телефона свой вкус', /- phone: Tracks marked as liked in Damian's phone/.test(сТелефоном.system));
 
 // --- Разбор -------------------------------------------------------------------------
 const ответ = M.разобратьОтвет('{"label":"бар","soundtrack":[{"artist":"A","title":"B"}],"scene":{"source":"радио в баре","radio":"russian pop!!","country":"ru","tracks":[]}}');
@@ -99,15 +99,15 @@ try { M.разобратьПлейлист('{"name":"x","tracks":[]}'); } catch 
 проверить('разбор плейлиста: пустой — ошибка', /пустой плейлист/.test(пусто));
 
 // --- Запрос плейлиста ------------------------------------------------------------------
-const новый = M.промптПлейлиста({ владелец: 'Tristan', о: 'Age: 24', тема: 'для пробежки', сколько: 6, языкПесни: 'Russian', вкус: вкусТелефона });
-проверить('плейлист: просит название, тему, язык без «музыки в сцене», вкус владельца', /"name":"\.\.\."/.test(новый.system) && /- name: /.test(новый.system) && /about: для пробежки/.test(новый.system) && /sung in Russian/.test(новый.system) && !/Scene music/.test(новый.system) && /Tristan's own taste/.test(новый.system) && /PHONE OWNER: Tristan/.test(новый.user));
-const ещё = M.промптПлейлиста({ владелец: 'Tristan', уже: [т('A', 'X')], название: 'Ночная трасса', сколько: 5 });
+const новый = M.промптПлейлиста({ владелец: 'Damian', о: 'Age: 24', тема: 'для пробежки', сколько: 6, языкПесни: 'Russian', вкус: вкусТелефона });
+проверить('плейлист: просит название, тему, язык без «музыки в сцене», вкус владельца', /"name":"\.\.\."/.test(новый.system) && /- name: /.test(новый.system) && /about: для пробежки/.test(новый.system) && /sung in Russian/.test(новый.system) && !/Scene music/.test(новый.system) && /Damian's own taste/.test(новый.system) && /PHONE OWNER: Damian/.test(новый.user));
+const ещё = M.промптПлейлиста({ владелец: 'Damian', уже: [т('A', 'X')], название: 'Ночная трасса', сколько: 5 });
 проверить('«Ещё»: без названия, с треками, которые уже есть', !/"name"/.test(ещё.system) && /existing playlist "Ночная трасса"/.test(ещё.system) && /ALREADY IN THE PLAYLIST "Ночная трасса" \(never repeat\): A — X/.test(ещё.user));
 
 // --- Подборка целиком: модель подставная ------------------------------------------------
 const блок = (о) => '[HUD]\n```json\n' + JSON.stringify(о) + '\n```\n[/HUD]';
 Object.assign(settings, { enableMusic: true, musicVerify: false, enablePhone: false, musicMeme: 'auto', musicRadio: true, musicLang: '', musicLiked: [т('Liked', 'Song')], musicBanned: [т('Bad', 'Song')], musicContextMessages: 1 });
-const чат = [{ is_user: false, name: 'Тристан', mes: 'Он поскользнулся на банановой кожуре. ' + блок({ sc: { T: '21:00', Dt: '01.11.24', Md: 'нелепое веселье', At: 'полный абсурд' }, cs: [{ N: 'Тристан', L: 'бар «Волна»' }] }) }];
+const чат = [{ is_user: false, name: 'Дамиан', mes: 'Он поскользнулся на банановой кожуре. ' + блок({ sc: { T: '21:00', Dt: '01.11.24', Md: 'нелепое веселье', At: 'полный абсурд' }, cs: [{ N: 'Дамиан', L: 'бар «Волна»' }] }) }];
 const запросы = [];
 const ctx = {
   chat: чат, chatMetadata: {}, getCurrentChatId: () => 'чат-1', saveChatConditional: async () => {}, saveMetadata: async () => {},
@@ -144,25 +144,25 @@ settings.musicRadio = false;
 settings.musicRadio = true;
 
 // --- Плейлисты телефона: подставная модель ---------------------------------------------------
-await M.создатьПлейлист(0, 'THE REGENTS  Tristan');
+await M.создатьПлейлист(0, 'THE LANTERNS  Damian');
 const либ = L.библиотека(ctx.chatMetadata);
-const запись = L.записьВладельца(либ, 'Tristan');
+const запись = L.записьВладельца(либ, 'Damian');
 const плейлист = запись && запись.playlists[0];
 проверить('плейлист: создан с названием модели, ключ владельца — без приставки карточки', !!плейлист && плейлист.name === 'Ночная трасса' && плейлист.tracks.map(x => x.a).join() === 'P1,P2', JSON.stringify(либ));
-проверить('плейлист: запрос — о плейлисте владельца, не о сцене', /make a playlist for Tristan/.test(запросы[запросы.length - 1]) && !/SCENE SNAPSHOT/.test(запросы[запросы.length - 1]));
+проверить('плейлист: запрос — о плейлисте владельца, не о сцене', /make a playlist for Damian/.test(запросы[запросы.length - 1]) && !/SCENE SNAPSHOT/.test(запросы[запросы.length - 1]));
 запись.liked = [т('Fav', 'One')];
-чат.push({ is_user: true, name: 'Софи', mes: 'дальше' }, { is_user: false, name: 'Тристан', mes: 'ход' });
-await M.создатьПлейлист(0, 'Tristan', { id: плейлист.id });
+чат.push({ is_user: true, name: 'Мари', mes: 'дальше' }, { is_user: false, name: 'Дамиан', mes: 'ход' });
+await M.создатьПлейлист(0, 'Damian', { id: плейлист.id });
 проверить('«Ещё»: дописаны только новые, запрещённое прочь', плейлист.tracks.map(x => x.a).join() === 'P1,P2,P9' && плейлист.mes === 3, JSON.stringify(плейлист.tracks));
 проверить('«Ещё»: модели — что уже есть и «Нравится» владельца', /ALREADY IN THE PLAYLIST "Ночная трасса" \(never repeat\): P1 — T1; P2 — T2/.test(запросы[запросы.length - 1]) && /Fav — One/.test(запросы[запросы.length - 1]) && !/Liked — Song/.test(запросы[запросы.length - 1]));
 
 // --- Экран «Музыки» -----------------------------------------------------------------------
 settings.enablePhone = true;
-const экран = (вид) => M.приложениеМузыки(0, 'Tristan', { chat: чат, вид });
+const экран = (вид) => M.приложениеМузыки(0, 'Damian', { chat: чат, вид });
 const списки = экран({ вид: 'lists' });
 проверить('экран: вкладки с числами', /data-v="recent"/.test(списки) && /Плейлисты<i>1<\/i>/.test(списки) && /Нравится<i>1<\/i>/.test(списки));
 проверить('экран: плейлист карточкой, поле темы и «Создать плейлист»', /class="hud-mphone-pl" data-mu="mview" data-v="list" data-id="/.test(списки) && /Ночная трасса/.test(списки) && /data-mu-set="pltheme"/.test(списки) && /data-mu="pl-new"/.test(списки));
-чат.push({ is_user: true, name: 'Софи', mes: 'ещё' });
+чат.push({ is_user: true, name: 'Мари', mes: 'ещё' });
 const открыт = экран({ вид: 'list', id: плейлист.id });
 проверить('экран: открытый плейлист — треки с ▶ и ♡, «Ещё» с числом новых сообщений', /data-g="pl:/.test(открыт) && /data-mu="plike"/.test(открыт) && /data-mu="pl-more"/.test(открыт) && /\+1 сообщение/.test(открыт));
 проверить('экран: удаление — с подтверждением', /data-mu="pl-del"/.test(открыт) && /data-mu="pl-del-yes"/.test(экран({ вид: 'list', id: плейлист.id, удалить: плейлист.id })));

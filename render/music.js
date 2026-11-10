@@ -17,19 +17,19 @@
 // версии HUD, и сохраняется в файле чата. Запрос идёт с флагом
 // window.__tavernOSHudSkipInject: инструкция HUD в него не попадает.
 
-import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.89.4';
-import { settings } from '../settings.js?v=23.89.4';
-import { parseHUDComplex } from '../hud-parser.js?v=23.89.4';
-import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.89.4';
-import { hudHasCombat } from './combat.js?v=23.89.4';
-import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.89.4';
-import { английский } from '../i18n.js?v=23.89.4';
-import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.89.4';
-import { ключСообщения } from '../chronicle.js?v=23.89.4';
+import { escapeHtml, hudHasMeaningfulValue, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.89.5';
+import { settings } from '../settings.js?v=23.89.5';
+import { parseHUDComplex } from '../hud-parser.js?v=23.89.5';
+import { hudБлоки, заменитьHudБлоки } from '../hud-block.js?v=23.89.5';
+import { hudHasCombat } from './combat.js?v=23.89.5';
+import { музыкаХода, сохранитьМузыку, номерСвайпа } from './music-data.js?v=23.89.5';
+import { английский } from '../i18n.js?v=23.89.5';
+import { дописатьВЛетопись, выжимкаСообщения } from '../chronicle-store.js?v=23.89.5';
+import { ключСообщения } from '../chronicle.js?v=23.89.5';
 import { норм, нормНазв, ключТрека, вСписке, переключить, безЗапрещённых, строкиВкуса, языкПесен, правилоЯзыка, мемныйРежим, правилоМемов,
-  ПРЕДЕЛ_ЛАЙКОВ, ПРЕДЕЛ_ЗАПРЕТОВ, библиотека, записьВладельца, записьПоId, плейлистПоId, новыйПлейлист, дописатьПлейлист, удалитьПлейлист } from './music-lib.js?v=23.89.4';
-import { станцииСцены } from './music-radio.js?v=23.89.4';
-import { собратьФон, ИМЕНА_ИСТОЧНИКОВ } from './music-free.js?v=23.89.4';
+  ПРЕДЕЛ_ЛАЙКОВ, ПРЕДЕЛ_ЗАПРЕТОВ, библиотека, записьВладельца, записьПоId, плейлистПоId, новыйПлейлист, дописатьПлейлист, удалитьПлейлист } from './music-lib.js?v=23.89.5';
+import { станцииСцены } from './music-radio.js?v=23.89.5';
+import { собратьФон, ИМЕНА_ИСТОЧНИКОВ } from './music-free.js?v=23.89.5';
 
 export { музыкаХода, норм, нормНазв };
 
@@ -156,7 +156,7 @@ export function чемОтличается(было, стало) {
 // ---------------------------------------------------------------------------
 
 /** Чей телефон: явный владелец, самый частый владелец переписок, первый
- *  персонаж. Без приставки карточки («THE REGENTS  Tristan» — Tristan). */
+ *  персонаж. Без приставки карточки («THE LANTERNS  Damian» — Damian). */
 export function владелецТелефона(data) {
   const имя = владелецКакЕсть(data);
   return имя ? (имяБезПриставки(имя) || имя) : '';
@@ -435,7 +435,7 @@ export function тотЖеИсполнитель(модель, выдача) {
   if (м === в) return true;
   const чм = [м, ...частиИмени(модель)], чв = [в, ...частиИмени(выдача)];
   if (чм.some(x => чв.includes(x))) return true;
-  // Имя из двух слов и больше целиком внутри другого: «Hans Zimmer and James Newton Howard».
+  // Имя из двух слов и больше целиком внутри другого: «Hans Zimmer and James Newton Bennett».
   const внутри = (к, д) => { const кс = к.split(' '), дс = new Set(д.split(' ')); return кс.length >= 2 && кс.every(w => дс.has(w)); };
   return чм.some(x => чв.some(y => внутри(x, y) || внутри(y, x)));
 }
@@ -692,7 +692,7 @@ async function собратьКонтекстМузыки(ctx, chat, индек�
   let карточка = null, персона = '';
   if (нуженПомощник) {
     try {
-      const A = await import('./assistant.js?v=23.89.4');
+      const A = await import('./assistant.js?v=23.89.5');
       if (settings.musicIncludeCard === true) карточка = A.карточкаПерсонажа(ctx);
       if (settings.musicIncludePersona === true) персона = A.персонаИгрока(ctx);
     } catch (e) { console.warn('[TavernOS HUD] музыка: карточка и персона', e); }

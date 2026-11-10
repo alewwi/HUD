@@ -6,15 +6,15 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.4';
-import { английский } from '../i18n.js?v=23.89.4';
-import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.4';
-import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.4';
-import { ссылкиТрека } from './music.js?v=23.89.4';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности } from './conception.js?v=23.89.4';
-import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.4';
-import { ико } from './view-icons.js?v=23.89.4';
-import { namesLikelySame } from '../names.js?v=23.89.4';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.5';
+import { английский } from '../i18n.js?v=23.89.5';
+import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.5';
+import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.5';
+import { ссылкиТрека } from './music.js?v=23.89.5';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности } from './conception.js?v=23.89.5';
+import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.5';
+import { ико } from './view-icons.js?v=23.89.5';
+import { namesLikelySame } from '../names.js?v=23.89.5';
 
 let окноОткрыто = false;
 // Дата и время ходов открытого отчёта (history-analyzer.js → moments).
@@ -53,7 +53,7 @@ const ссылка = (at, часть = 'all') => {
 };
 const значок = (имя) => ико(имя, 'hud-arc-ico');
 const пусто = (поиск, пустой) => `<div class="hud-arc-empty">${поиск ? 'По запросу ничего не нашлось' : пустой}</div>`;
-// «THE REGENTS  Tristan Kingsley, Коэн» → «Tristan Kingsley, Коэн».
+// «THE LANTERNS  Damian Hartley, Нолан» → «Damian Hartley, Нолан».
 const безПриставок = (s) => String(s || '').split(/\s*,\s*/).map(x => имяБезПриставки(x)).join(', ');
 
 const ЯРЛЫКИ_СТАТУСА = {

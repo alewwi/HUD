@@ -686,7 +686,7 @@ export const КАТАЛОГ_INCOMPETECH = [
   ["With Regards","With Regards","Calming,Relaxed,Somber","trombone,tuba,guitar",178],
   ["Senbazuru","Senbazuru","Calming,Relaxed,Uplifting","koto,synth,cello,flute",94],
   ["Amazing Grace 2011","Amazing Grace 2011","Calming,Relaxed,Somber","clarinet,pipe organ,piano",189],
-  ["Melodie Victoria","Melodie Victoria","Bright,Calming,Mystical","music box",241],
+  ["Melodie Valeria","Melodie Valeria","Bright,Calming,Mystical","music box",241],
   ["Tabuk","Tabuk","Calming,Epic,Mysterious","strings,percussion,flute",159],
   ["Comin Round the Mountain","Comin Round the Mountain","Bouncy,Bright,Grooving,Uplifting","guitar,bass,drum kit,synths",174],
   ["Cortosis","Cortosis","Action,Driving,Intense","timpani,basses,trumpets,trombones,tuba,violins,percussion,flute,oboe,clarinet,bass clarinet,cellos",153],

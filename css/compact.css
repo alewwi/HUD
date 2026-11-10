@@ -129,7 +129,7 @@
   /* Заголовки «Мира» капсом с разрядкой 2px: «КОММЕНТАРИ / И» на 200px. */
   .hud-os-card .hud-world-title { letter-spacing: .5px; font-size: 1.05em; }
   .hud-os-card .hud-afisha-title { font-size: 12.5px; }
-  /* «ПЕРЕХВАТ (Лейла Санчес-Дэвис)» с разрядкой 1px рвалось на «САНЧЕС- / ДЭВИС)»
+  /* «ПЕРЕХВАТ (Ясмина Монтес-Харлоу)» с разрядкой 1px рвалось на «САНЧЕС- / ДЭВИС)»
      и наезжало на часы. Разрядка меньше, строки — ровными половинами. */
   .hud-os-card .intercept-status { letter-spacing: .3px; text-align: center; text-wrap: balance; line-height: 1.25; min-width: 0; }
   /* Переписка на узком экране: пузыри шли «ровно» — входящий из-за
@@ -301,7 +301,7 @@
   /* Заголовки «Мира» капсом с разрядкой 2px: «КОММЕНТАРИ / И» на 200px. */
   .hud-os-card .hud-world-title { letter-spacing: .5px; font-size: 1.05em; }
   .hud-os-card .hud-afisha-title { font-size: 12.5px; }
-  /* «ПЕРЕХВАТ (Лейла Санчес-Дэвис)» с разрядкой 1px рвалось на «САНЧЕС- / ДЭВИС)»
+  /* «ПЕРЕХВАТ (Ясмина Монтес-Харлоу)» с разрядкой 1px рвалось на «САНЧЕС- / ДЭВИС)»
      и наезжало на часы. Разрядка меньше, строки — ровными половинами. */
   .hud-os-card .intercept-status { letter-spacing: .3px; text-align: center; text-wrap: balance; line-height: 1.25; min-width: 0; }
   /* Переписка на узком экране: пузыри шли «ровно» — входящий из-за

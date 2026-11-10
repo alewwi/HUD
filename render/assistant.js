@@ -1,7 +1,7 @@
 // hud-manager/render/assistant.js
 //
 // «Спросить про сюжет»: помощник к истории и HUD прямо из карточки.
-// «Почему Софи злится?», «Что может пойти не так?» — модель отвечает по HUD,
+// «Почему Мари злится?», «Что может пойти не так?» — модель отвечает по HUD,
 // последним сообщениям и тому контексту, что выбран в настройках: заметки
 // автора, карточка персонажа, персона игрока, лорбуки. Ответ видит только
 // игрок: в чат ничего не пишется, основной диалог не трогается.
@@ -11,12 +11,12 @@
 // флаг window.__tavernOSHudSkipInject: без него перехват запросов в index.js
 // вшил бы в вопрос HUD-инструкцию, и модель ответила бы HUD-блоком.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.89.4';
-import { settings } from '../settings.js?v=23.89.4';
-import { parseHUDComplex } from '../hud-parser.js?v=23.89.4';
-import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.89.4';
-import { ПРОМПТ_АССИСТЕНТА, промптАссистента } from './assistant-prompt.js?v=23.89.4';
-import { английский, т } from '../i18n.js?v=23.89.4';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.89.5';
+import { settings } from '../settings.js?v=23.89.5';
+import { parseHUDComplex } from '../hud-parser.js?v=23.89.5';
+import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.89.5';
+import { ПРОМПТ_АССИСТЕНТА, промптАссистента } from './assistant-prompt.js?v=23.89.5';
+import { английский, т } from '../i18n.js?v=23.89.5';
 
 const ЖДЁМ_МС = 180000;
 
@@ -155,7 +155,7 @@ export function parseAssistantAnswer(raw) {
 }
 
 // Готовые вопросы по именам из HUD — чтобы не начинать с пустого поля.
-// Имя — без приставки карточки капсом: «THE REGENTS  Tristan» → «Tristan», не «THE».
+// Имя — без приставки карточки капсом: «THE LANTERNS  Damian» → «Damian», не «THE».
 export function suggestedQuestions(hud) {
   const имена = (hud && Array.isArray(hud.characters) ? hud.characters : [])
     .map(c => имяБезПриставки(String(c && c['Имя'] || '')).split(/\s+/)[0]).filter(Boolean).slice(0, 2);
@@ -236,7 +236,7 @@ export function openAssistantDialog({ mesId = null, лорбуки = null, со�
         </div>
         <div class="hud-ask-log" aria-live="polite"></div>
         <div class="hud-ask-chips">${suggestedQuestions(стартовый.hud).map(q => `<button type="button" class="hud-ask-chip">${escapeHtml(q)}</button>`).join('')}</div>
-        <textarea class="hud-modal-text hud-ask-input" rows="3" placeholder="Например: почему Софи злится?"></textarea>
+        <textarea class="hud-modal-text hud-ask-input" rows="3" placeholder="Например: почему Вера злится?"></textarea>
         <div class="hud-modal-note">Ctrl+Enter — отправить. <span class="hud-ask-size"></span></div>
       </div>
       <div class="hud-modal-foot">

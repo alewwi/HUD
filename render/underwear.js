@@ -13,9 +13,9 @@
 // уязвимом положении, поэтому по умолчанию оно под покрывалом
 // (underwearVeil): открывается нажатием.
 
-import { escapeHtml, applyTooltips, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.89.4';
-import { settings } from '../settings.js?v=23.89.4';
-import { ико } from './view-icons.js?v=23.89.4';
+import { escapeHtml, applyTooltips, flattenFieldValue, снятьЗаглушки } from '../utils.js?v=23.89.5';
+import { settings } from '../settings.js?v=23.89.5';
+import { ико } from './view-icons.js?v=23.89.5';
 
 const текст = (v) => String(снятьЗаглушки(flattenFieldValue(v)) || '').trim();
 const пусто = (s) => !s || /^(empty|none|нет|—|-)$/i.test(s.trim());
@@ -36,7 +36,7 @@ const СОСТОЯНИЯ = [
 ];
 const СЛУЧАЙНО = /не думая|случайн|просто так|для себя|первое попавш|привычн|не выбирал|without thinking|random|by chance|for (?:her|him)self|for myself|habit|whatever|didn't choose/i;
 
-/** «set: чёрное кружево, комплект; for: для Тристана; st: сдвинуто» → разбор. */
+/** «set: чёрное кружево, комплект; for: для Дамиана; st: сдвинуто» → разбор. */
 export function разобратьБельё(value) {
   const s = текст(value);
   if (пусто(s)) return null;

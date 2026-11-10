@@ -9,9 +9,9 @@
 // Текст сообщения здесь только считается, на экран не выводится, поэтому
 // разметку режем регуляркой — DOM на тысячу сообщений не нужен.
 
-import { hudFilled } from './utils.js?v=23.89.4';
+import { hudFilled } from './utils.js?v=23.89.5';
 
-import { заменитьHudБлоки } from './hud-block.js?v=23.89.4';
+import { заменитьHudБлоки } from './hud-block.js?v=23.89.5';
 
 // Служебные вставки других расширений и размышления модели — не проза.
 const СЛУЖЕБНОЕ = /<(think|thinking|plan|comics|img|script|style|details|summary)\b[^>]*>[\s\S]*?<\/\1>/gi;
@@ -227,7 +227,7 @@ export function createDashboard({ userName = '' } = {}) {
 
     const сСвайпами = свайпы.filter(s => s.n > 1);
 
-    // Упоминания: имя узнаём по основе — «Софи», «Софией», «Софию».
+    // Упоминания: имя узнаём по основе — «Мари», «Софией», «Софию».
     const образцы = [...имена.entries()].map(([ключ, полное]) => {
       const основа = ключ.length >= 5 ? ключ.slice(0, -1) : ключ;
       return { ключ, полное, rx: new RegExp('(?<![\\p{L}])' + экранRx(основа) + '\\p{L}{0,3}(?![\\p{L}])', 'iu') };

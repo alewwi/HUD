@@ -19,10 +19,10 @@
 // цветом силуэта: это другая величина. Отходняк после адреналина считает HUD
 // по времени сюжета, а не модель.
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.4';
-import { namesLikelySame } from '../names.js?v=23.89.4';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.4';
-import { медаль } from './view-icons.js?v=23.89.4';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.5';
+import { namesLikelySame } from '../names.js?v=23.89.5';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.5';
+import { медаль } from './view-icons.js?v=23.89.5';
 
 const текст = (v) => String(снятьЗаглушки(flattenFieldValue(v)) || '').trim();
 const пусто = (s) => !s || /^(empty|none|нет|—|-|null)$/i.test(String(s).trim());
@@ -44,7 +44,7 @@ const ДИСТАНЦИИ = [['close', /вплотн|рядом|в упор|close
 const СОСТОЯНИЯ = [['out', /вне строя|без сознан|мёртв|мертв|убит|out/i, 'вне строя'], ['stun', /оглуш|контуж|stun/i, 'оглушён'], ['hurt', /ранен|кровоточ|hurt|wound/i, 'ранен'], ['ok', /.*/, 'цел']];
 export const ВЫДЕРЖКА = [['act', /действ|собран|хладнокр|act/i, 'действует'], ['shake', /дрож|трясёт|трясет|shak/i, 'дрожит'], ['freeze', /замер|оцепен|ступор|freez|froz/i, 'замер'], ['panic', /паник|panic|истерик/i, 'паникует'], ['run', /беж|убега|flee|run/i, 'бежит']];
 
-/** «Софи: своя; вплотную; нож; ранена | Громила: враг; шаг; бита; цел» → участники. */
+/** «Мари: своя; вплотную; нож; ранена | Громила: враг; шаг; бита; цел» → участники. */
 export function участникиБоя(pt) {
   if (пусто(pt)) return [];
   return String(pt).split('|').map(ч => ч.trim()).filter(Boolean).map(ч => {
@@ -58,7 +58,7 @@ export function участникиБоя(pt) {
     return { имя: м[1].trim(), сторона, дист, вРуках: пусто(части[2]) ? '' : части[2], состояние: сост[0], состояниеСлово: сост[2], текст: ч };
   }).filter(Boolean);
 }
-/** «Софи: 85, боли не чувствует; Тристан: 40» → [{ имя, ad, бездБоли }]. */
+/** «Мари: 85, боли не чувствует; Дамиан: 40» → [{ имя, ad, бездБоли }]. */
 export function адреналин(ad) {
   if (пусто(ad)) return [];
   return String(ad).split(/[;|]/).map(ч => ч.trim()).filter(Boolean).map(ч => {

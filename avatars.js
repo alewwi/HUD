@@ -10,9 +10,9 @@
 // реально добавляются новые сообщения (см. invalidateAvatarCache()).
 // Ручные аватарки читаются прямо из настроек: модуль и так знает про DOM
 // и глобали SillyTavern, ещё одна зависимость ничего не усложняет.
-import { settings } from './settings.js?v=23.89.4';
-import { getSafeUserName } from './utils.js?v=23.89.4';
-import { namesLikelySame } from './names.js?v=23.89.4';
+import { settings } from './settings.js?v=23.89.5';
+import { getSafeUserName } from './utils.js?v=23.89.5';
+import { namesLikelySame } from './names.js?v=23.89.5';
 
 /**
  * Палитра для плейсхолдеров аватарок: цвет выбирается по хэшу имени.
@@ -32,7 +32,7 @@ export function invalidateAvatarCache() { avatarUrlCache = {}; кэшМиниа�
 
 // --- Ручные аватарки -------------------------------------------------------
 // Нормализация имени для сравнения: регистр, ё/е и лишние пробелы не должны
-// мешать совпадению «Арес Бомонт» и «арес  бомонт».
+// мешать совпадению «Дарен Ларош» и «арес  бомонт».
 function normName(s) {
   return String(s || '').toLowerCase().replace(/ё/g, 'е').replace(/\s+/g, ' ').trim();
 }
@@ -115,7 +115,7 @@ function имяАвтора(mes) {
 function resolveAvatarUrl(characterName, isPrimary) {
   const searchName = (characterName || '').toLowerCase().trim();
   // Все слова имени должны найтись среди слов другого имени. Прежняя
-  // проверка по одному первому слову для «THE REGENTS Tristan Kingsley»
+  // проверка по одному первому слову для «THE LANTERNS Damian Hartley»
   // сводилась к «the» и приклеивала чужую аватарку.
   const слова = словаИмени(characterName);
   const всеСловаЕсть = (другое) => {

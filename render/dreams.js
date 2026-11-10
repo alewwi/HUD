@@ -6,10 +6,10 @@
 // или воспоминание, какие образы в нём — HUD выводит из текста сам.
 // Оформление новых видов — css/dream-views.css.
 
-import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.89.4';
-import { гдеУпомянут } from '../names.js?v=23.89.4';
-import { видБлока } from './views.js?v=23.89.4';
-import { ико } from './view-icons.js?v=23.89.4';
+import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.89.5';
+import { гдеУпомянут } from '../names.js?v=23.89.5';
+import { видБлока } from './views.js?v=23.89.5';
+import { ико } from './view-icons.js?v=23.89.5';
 
 function buildDreamBubblesHtml() {
   let bubbles = '';
@@ -167,7 +167,7 @@ export function разобратьСон(сон, люди = []) {
   return { текст, смысл: значимо(сон && сон.meaning) ? пробелы(сон.meaning) : '', тип, образы, кто: кто ? имяБезПриставки(кто.и) : '' };
 }
 function позицияИмени(текст, имя) {
-  // Позицию даёт само сравнение имён: «Тристан» в тексте и Tristan Kingsley в
+  // Позицию даёт само сравнение имён: «Дамиан» в тексте и Damian Hartley в
   // списке — один человек; раньше транслит считался названным «в конце».
   return гдеУпомянут(текст, имя);
 }

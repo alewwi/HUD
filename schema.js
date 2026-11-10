@@ -7,11 +7,11 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.89.4';
-import { mapKey } from './utils.js?v=23.89.4';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.89.4';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.4';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.89.4';
+import { settings } from './settings.js?v=23.89.5';
+import { mapKey } from './utils.js?v=23.89.5';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.89.5';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.5';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.89.5';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -153,7 +153,7 @@ export function normalizeJSONData(parsed) {
   parsed = normalizeHUDSchema(parsed);
   // Строка для экрана. Модель присылает заглушки («empty», «none») там, где
   // сказать нечего, а схема сама подставляет «empty» недостающим полям — на
-  // экран такое слово попадать не должно: «Эмоции: Софи: empty», пустые
+  // экран такое слово попадать не должно: «Эмоции: Мари: empty», пустые
   // новости с голосованием. Объект или массив вместо строки разворачиваем
   // в текст — иначе на экране оказывалось «[object Object]».
   const ЗАГЛУШКА = /^(?:empty|none|null|undefined|n\/a)$/i;

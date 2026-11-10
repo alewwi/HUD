@@ -6,22 +6,22 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.89.4';
-import { английский } from '../i18n.js?v=23.89.4';
-import { settings } from '../settings.js?v=23.89.4';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.89.4';
-import { G_ICONS } from './icons.js?v=23.89.4';
-import { значокПриложения, естьНабор } from './phone-icons.js?v=23.89.4';
-import { buildMessengerHTML } from './messenger.js?v=23.89.4';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties, контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.89.4';
-import { безШапокСообщения } from './msg-parts.js?v=23.89.4';
-import { сортироватьЧаты } from './msg-feed.js?v=23.89.4';
-import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.89.4';
-import { buildCalendarApp } from './calendar.js?v=23.89.4';
-import { приложениеМузыки } from './music.js?v=23.89.4';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.89.5';
+import { английский } from '../i18n.js?v=23.89.5';
+import { settings } from '../settings.js?v=23.89.5';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.89.5';
+import { G_ICONS } from './icons.js?v=23.89.5';
+import { значокПриложения, естьНабор } from './phone-icons.js?v=23.89.5';
+import { buildMessengerHTML } from './messenger.js?v=23.89.5';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties, контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.89.5';
+import { безШапокСообщения } from './msg-parts.js?v=23.89.5';
+import { сортироватьЧаты } from './msg-feed.js?v=23.89.5';
+import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.89.5';
+import { buildCalendarApp } from './calendar.js?v=23.89.5';
+import { приложениеМузыки } from './music.js?v=23.89.5';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.89.4';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.89.5';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -150,8 +150,8 @@ function buildWalletApp(wallet, owner) {
 // --- Календарь ---------------------------------------------------------------
 // Живёт в render/calendar.js; отсюда его по-прежнему берёт альманах
 // (render/medieval.js).
-export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.89.4';
-import { ближайшиеДела } from './calendar.js?v=23.89.4';
+export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.89.5';
+import { ближайшиеДела } from './calendar.js?v=23.89.5';
 
 // Слухи города: то, что модель и так пишет в мир, — последние десять, свежие
 // сверху. Автор комментария скрыт до нажатия.
@@ -248,8 +248,8 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
   const chatCount = Object.keys(chatsMap || {}).length;
   // Владелец телефона. Приоритет: явное поле phone.owner → самый частый
   // owner среди переписок → имя персоны как последний фолбэк.
-  // Раньше здесь всегда стояла персона игрока, из-за чего телефон Тристана
-  // подписывался именем Софи.
+  // Раньше здесь всегда стояла персона игрока, из-за чего телефон Дамиана
+  // подписывался именем Мари.
   const ownerVotes = Object.create(null);
   Object.values(chatsMap || {}).forEach(c => {
     const o = String((c && c.owner) || '').trim();
@@ -356,7 +356,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
       const parties = parseMsgParties(s);
       lastSender = parties.sender || '';
       let body = s.split('|')[0].replace(/^(?:M|Msg|Сообщение|Chat|Чат):\s*/i, '').trim();
-      // Отправитель с дефисом («Ченнинг-Уинтроп») — тоже имя: [^:-] на нём
+      // Отправитель с дефисом («Холлоуэй-Олбрайт») — тоже имя: [^:-] на нём
       // обрывалось, и уведомление показывало сырое «Имя -> Кому: [CALL: …]».
       const mm = body.match(/^(.+?)(?:\s*(?:->|→)\s*([^:]+?))?\s*:\s*(.*)$/);
       if (mm) body = mm[3];

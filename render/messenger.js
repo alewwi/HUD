@@ -6,14 +6,14 @@
 // Вынесено из phone.js: тот разросся до девятисот строк и держал в себе
 // разом мессенджер, кошелёк, календарь и сборку самого аппарата.
 
-import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.89.4';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.4';
-import { G_ICONS } from './icons.js?v=23.89.4';
-import { собратьЛенту } from './msg-feed.js?v=23.89.4';
-import { avaFace, msgTimeOf, collectCounterparts, контактСНастоящимИменем, меткаЛожногоИмени, ложноеИмяHTML } from './phone-common.js?v=23.89.4';
-import { безШапокСообщения, заКадромHTML, начинаетсяСТега } from './msg-parts.js?v=23.89.4';
-import { ключФонаЧата, обновитьФоныЧатов } from './phone-settings.js?v=23.89.4';
-import { namesLikelySame } from '../names.js?v=23.89.4';
+import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.89.5';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.5';
+import { G_ICONS } from './icons.js?v=23.89.5';
+import { собратьЛенту } from './msg-feed.js?v=23.89.5';
+import { avaFace, msgTimeOf, collectCounterparts, контактСНастоящимИменем, меткаЛожногоИмени, ложноеИмяHTML } from './phone-common.js?v=23.89.5';
+import { безШапокСообщения, заКадромHTML, начинаетсяСТега } from './msg-parts.js?v=23.89.5';
+import { ключФонаЧата, обновитьФоныЧатов } from './phone-settings.js?v=23.89.5';
+import { namesLikelySame } from '../names.js?v=23.89.5';
 
 export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, контакты = null) {
   обновитьФоныЧатов();
@@ -59,7 +59,7 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, ко�
     }
 
     // === УМНОЕ ИМЯ ЧАТА ===
-    // Модель часто называет чат именем владельца телефона («Тристан»), хотя
+    // Модель часто называет чат именем владельца телефона («Дамиан»), хотя
     // в шапке должен стоять собеседник. Разбираем участников из самих
     // сообщений и подставляем того, кто пишет владельцу.
     const counterparts = collectCounterparts(chatObj.messages, activeOwner);
@@ -100,7 +100,7 @@ export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, ко�
     if (Array.isArray(chatObj.messages) && chatObj.messages.length) {
       const lastRaw = String(chatObj.messages[chatObj.messages.length - 1] || '');
       let p = lastRaw.split('|')[0].replace(/^(?:M|Msg|Сообщение|Chat|Чат):\s*/i, '').trim();
-      // Имя отправителя может быть с дефисом («Ченнинг-Уинтроп»): [^:-] на нём
+      // Имя отправителя может быть с дефисом («Холлоуэй-Олбрайт»): [^:-] на нём
       // обрывалось, и превью оставалось сырым «Имя -> Кому: [CALL: …]».
       const mm = p.match(/^(.+?)(?:\s*(?:->|→)\s*([^:]+?))?\s*:\s*(.*)$/);
       if (mm && !начинаетсяСТега(p)) p = mm[3];

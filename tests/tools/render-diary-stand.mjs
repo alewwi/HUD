@@ -15,7 +15,7 @@ const м = (f) => import('file:///' + path.join(КОРЕНЬ, f).replace(/\\/g, 
 globalThis.window = globalThis;
 globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
 globalThis.document = { createElement: () => ({ style: {}, classList: { add() {} }, set innerHTML(v) { this.value = v; } }), querySelector: () => null, querySelectorAll: () => [], documentElement: { style: {}, classList: { contains: () => false } } };
-globalThis.SillyTavern = { getContext: () => ({ chat: [], name1: 'Софи', name2: 'Тристан', characters: [], chatMetadata: {} }) };
+globalThis.SillyTavern = { getContext: () => ({ chat: [], name1: 'Мари', name2: 'Дамиан', characters: [], chatMetadata: {} }) };
 for (const k of ['info', 'debug', 'warn']) console[k] = () => {};
 
 const { settings } = await м('settings.js');
@@ -36,9 +36,9 @@ const листы = ТЕМЫ.map(([ключ, о]) => {
 const сныПример = [
   { text: 'Марку снится, что он ищет сестру в библиотеке, а стеллажи всё выше и выше, и за каждым слышен её смех.', meaning: 'Страх потерять контроль над её жизнью — и понимание, что она уже взрослая.' },
   { text: 'Анне снится, что София уже родилась и играет на рояле ту самую колыбельную.', meaning: 'Желание передать дочери музыку и страх, что не успеет вернуться к ученикам.' },
-  { text: 'Кошмар: Софи падает в ледяную воду с моста, кричит, но звука нет, а Тристан стоит на берегу и не двигается.', meaning: 'Ужас беспомощности и обида: тот, кто должен спасти, смотрит со стороны.' },
+  { text: 'Кошмар: Мари падает в ледяную воду с моста, кричит, но звука нет, а Дамиан стоит на берегу и не двигается.', meaning: 'Ужас беспомощности и обида: тот, кто должен спасти, смотрит со стороны.' },
 ];
-const ЛЮДИ = ['Марк Грей', 'Анна Грей', 'Софи', 'Тристан Кингсли'];
+const ЛЮДИ = ['Марк Грей', 'Анна Грей', 'Мари', 'Дамиан Хартли'];
 const сныБлок = V.ВИДЫ_БЛОКОВ.find(б => б.ключ === 'dreamsView');
 const сны = сныБлок ? Object.entries(сныБлок.виды).map(([вид, имя]) => {
   settings.dreamsView = вид;

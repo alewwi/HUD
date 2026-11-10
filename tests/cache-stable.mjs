@@ -18,7 +18,7 @@ const слушатели = {};
 const eventSource = { on(e, f) { (слушатели[e] ||= []).push(f); }, async emit(e, ...a) { for (const f of слушатели[e] || []) await f(...a); } };
 const eventTypes = { GENERATION_STARTED: 'generation_started', GENERATE_AFTER_DATA: 'generate_after_data', GENERATION_ENDED: 'generation_ended', GENERATION_STOPPED: 'generation_stopped' };
 const вставки = {};
-const ctx = { chat: чат, chatMetadata: {}, name1: 'Софи', name2: 'Тристан', mainApi: 'textgenerationwebui', eventSource, eventTypes, event_types: eventTypes, setExtensionPrompt(key, value, position, depth) { вставки[key] = { value: String(value), position, depth }; } };
+const ctx = { chat: чат, chatMetadata: {}, name1: 'Мари', name2: 'Дамиан', mainApi: 'textgenerationwebui', eventSource, eventTypes, event_types: eventTypes, setExtensionPrompt(key, value, position, depth) { вставки[key] = { value: String(value), position, depth }; } };
 globalThis.SillyTavern = { getContext: () => ctx };
 console.info = () => {}; console.warn = () => {}; console.debug = () => {};
 const v = JSON.parse(fs.readFileSync(ROOT + 'manifest.json', 'utf8')).version;
@@ -47,7 +47,7 @@ const first = await send({ prompt: history, negative_prompt: '' });
 check('request prompt is left byte-for-byte intact (instruction comes from SillyTavern)', first.prompt === history);
 check('instruction is an IN_PROMPT extension prompt', префикс().position === 0 && префикс().value.startsWith('<hud_instructions>'));
 check('no unresolved macros in the prefix', !префикс().value.includes('{{'));
-check('names resolved in the prefix', префикс().value.includes('Софи') || префикс().value.includes('Тристан'));
+check('names resolved in the prefix', префикс().value.includes('Мари') || префикс().value.includes('Дамиан'));
 const текст1 = префикс().value;
 for (const type of ['swipe', 'regenerate', 'continue', 'normal']) {
   await send({ prompt: history }, type);

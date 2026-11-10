@@ -17,7 +17,7 @@ globalThis.window = globalThis;
 globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
 globalThis.sessionStorage = globalThis.localStorage;
 globalThis.document = { createElement: () => ({ style: {}, set textContent(x) { this.t = String(x); }, get innerHTML() { return String(this.t || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); } }), querySelector: () => null, querySelectorAll: () => [], documentElement: { classList: { add() {}, remove() {}, contains: () => false } } };
-globalThis.SillyTavern = { getContext: () => ({ chat: [], name1: 'Софи', name2: 'Тристан' }) };
+globalThis.SillyTavern = { getContext: () => ({ chat: [], name1: 'Мари', name2: 'Дамиан' }) };
 
 const { settings } = await м('settings.js');
 const LF = await м('render/life.js');
@@ -29,7 +29,7 @@ const { СВЕТЛЫЕ_ТЕМЫ, themeVars } = await м('themes.js');
 
 // Быт: плотные сутки.
 const hud = (о) => '[HUD]\n```json\n' + JSON.stringify(о) + '\n```\n[/HUD]';
-const ход = (T, extra = {}) => ({ is_user: false, mes: hud({ sc: { Dt: '15.06.2028', T, Wt: '+24°C' }, cs: [{ N: 'Софи Ховард', Bs: 'eng: 55; sat: 35; slp: 5 ч, легла в 02:10', C: 'графитовый льняной сарафан, шёлковые трусики', L: 'Бостон, Кингсли-Тауэр, спальня', Fl: 'должна Кире 3 000 $ до субботы' }], ...extra }) });
+const ход = (T, extra = {}) => ({ is_user: false, mes: hud({ sc: { Dt: '15.06.2028', T, Wt: '+24°C' }, cs: [{ N: 'Мари Беннет', Bs: 'eng: 55; sat: 35; slp: 5 ч, легла в 02:10', C: 'графитовый льняной сарафан, шёлковые трусики', L: 'Портленд, Хартли-Тауэр, спальня', Fl: 'должна Кире 3 000 $ до субботы' }], ...extra }) });
 const чат = [
   ход('08:00', { me: { hk: 'eat: завтрак, овсянка; wash: душ' } }),
   ход('13:10', { me: { hk: 'eat: обед, салат' }, phn: { wl: { bl: '18400', cu: '$', trx: [{ ti: 'Обед в кафе', am: '-120', tm: '13:00' }] } } }),
@@ -40,21 +40,21 @@ const ж = LF.журналБыта(чат, чат.length);
 
 // Секреты — как в тестах, с группой.
 const сек = [
-  { fact: 'Близнецы — дети Тристана', level: 'critical', status: 'partial', knows: [{ name: 'Софи', source: 'сама мать' }, { name: 'Пять Регентов', source: 'очевидцы' }], hidden: ['Тристан'], wrong: 'Лена: думает, что отец — Брэндон' },
-  { fact: 'Коэн сливает отчёты совету директоров', level: 'low', status: 'unknown', knows: [{ name: 'Коэн', source: 'сам' }] },
-  { fact: 'Шрамы на спине от Сент-Магдален', level: 'high', status: 'known', knows: [{ name: 'Тристан', source: 'увидел' }, { name: 'Софи', source: 'своё тело' }] },
-  { fact: 'Лактация спустя три года', level: 'medium', status: 'partial', knows: [{ name: 'Софи', source: 'тело' }] },
+  { fact: 'Близнецы — дети Дамиана', level: 'critical', status: 'partial', knows: [{ name: 'Мари', source: 'сама мать' }, { name: 'Пять Фонарщиков', source: 'очевидцы' }], hidden: ['Дамиан'], wrong: 'Лена: думает, что отец — Гордон' },
+  { fact: 'Нолан сливает отчёты совету директоров', level: 'low', status: 'unknown', knows: [{ name: 'Нолан', source: 'сам' }] },
+  { fact: 'Шрамы на спине от Сент-Магдален', level: 'high', status: 'known', knows: [{ name: 'Дамиан', source: 'увидел' }, { name: 'Мари', source: 'своё тело' }] },
+  { fact: 'Лактация спустя три года', level: 'medium', status: 'partial', knows: [{ name: 'Мари', source: 'тело' }] },
 ];
-const сетка = G.сеткаСекретов(сек, { characters: [{ 'Имя': 'Тристан' }, { 'Имя': 'Лена' }, { 'Имя': 'Софи' }] });
+const сетка = G.сеткаСекретов(сек, { characters: [{ 'Имя': 'Дамиан' }, { 'Имя': 'Лена' }, { 'Имя': 'Мари' }] });
 
 // Дуэль: четыре хода спора.
-const тристан = { 'Имя': 'Тристан', 'Глубина конфликта': 'wy: свадьба с Викторией; dys: 2; sg: open' };
+const тристан = { 'Имя': 'Дамиан', 'Глубина конфликта': 'wy: свадьба с Валерией; dys: 2; sg: open' };
 Object.defineProperty(тристан, '__hudИстория', { value: () => [
-  { назад: 1, данные: { 'Словесная дуэль': 'ini: Тристан, 55; gv: Софи признала, что знала о помолвке; tn: укол' } },
-  { назад: 2, данные: { 'Словесная дуэль': 'ini: Тристан, 75; tn: спор' } },
+  { назад: 1, данные: { 'Словесная дуэль': 'ini: Дамиан, 55; gv: Мари признала, что знала о помолвке; tn: укол' } },
+  { назад: 2, данные: { 'Словесная дуэль': 'ini: Дамиан, 75; tn: спор' } },
 ] });
-Object.defineProperty(тристан, '__hudХод', { value: () => ({ memory: { timeline: ['12.06 21:00 - объявили помолвку с Викторией на свадьбе Ченнингов'] } }) });
-const дуэль = (вид) => { settings.duelView = вид; const h = DU.buildDuel('ini: Софи, 70; gv: Тристан уступил в деньгах; tn: ссора', тристан); delete settings.duelView; return h; };
+Object.defineProperty(тристан, '__hudХод', { value: () => ({ memory: { timeline: ['12.06 21:00 - объявили помолвку с Валерией на свадьбе Холлоуэйов'] } }) });
+const дуэль = (вид) => { settings.duelView = вид; const h = DU.buildDuel('ini: Мари, 70; gv: Дамиан уступил в деньгах; tn: ссора', тристан); delete settings.duelView; return h; };
 
 // Бой.
 const ходБоя = { combat: { ...SH.ПРИМЕР_БОЯ }, characters: [{ 'Имя': 'Марк Грей', 'Болезни и травмы': SH.ПРИМЕР_БОЯ_РАНЫ, 'Инвентарь': 'пистолет: 4/8 патронов, под курткой; бита: треснула у рукояти' }] };

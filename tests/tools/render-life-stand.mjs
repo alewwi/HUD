@@ -14,7 +14,7 @@ const { settings } = await м('settings.js');
 const LF = await м('render/life.js');
 
 const hud = (о) => '[HUD]\n```json\n' + JSON.stringify(о) + '\n```\n[/HUD]';
-const ход = (T, extra = {}) => ({ is_user: false, mes: hud({ sc: { Dt: '15.06.2028', T, Wt: '+24°C' }, cs: [{ N: 'Софи Ховард', Bs: 'eng: 55; sat: 60; slp: 6 ч, легла в 01:10', C: 'графитовый льняной сарафан, шёлковые трусики', L: 'Бостон, Кингсли-Тауэр, спальня' }], ...extra }) });
+const ход = (T, extra = {}) => ({ is_user: false, mes: hud({ sc: { Dt: '15.06.2028', T, Wt: '+24°C' }, cs: [{ N: 'Мари Беннет', Bs: 'eng: 55; sat: 60; slp: 6 ч, легла в 01:10', C: 'графитовый льняной сарафан, шёлковые трусики', L: 'Портленд, Хартли-Тауэр, спальня' }], ...extra }) });
 const чат = [
   ход('08:00', { me: { hk: 'eat: завтрак, овсянка; wash: душ' } }),
   ход('13:10', { me: { hk: 'eat: обед, салат' }, phn: { wl: { bl: '54200000', cu: '$', trx: [{ ti: 'Обед в кафе', am: '-120', tm: '13:00' }] } } }),

@@ -7,6 +7,7 @@
 //   node tests/tools/docs-shots.mjs                    русские снимки → docs/screens
 //   node tests/tools/docs-shots.mjs --lang en          английские → docs/screens/en
 //   node tests/tools/docs-shots.mjs --only life,phone  только эти
+//   node tests/tools/docs-shots.mjs --from dreams-open  доснять с этого кадра
 //   node tests/tools/docs-shots.mjs --list             вкладки примера (id и подписи)
 //   node tests/tools/docs-shots.mjs --era medieval     снимки средневековья (шкатулка, подслушанное)
 //   --png — снимки в PNG вместо WebP (WebP в разы легче, GitHub его показывает)
@@ -29,6 +30,7 @@ const ЯЗЫК = знач('--lang', 'ru') === 'en' ? 'en' : 'ru';
 const ФОРМАТ = арг.includes('--png') ? 'png' : 'webp';
 // Эпоха профиля: снимки с полем «эпоха» идут только в своём проходе.
 const ЭПОХА = знач('--era', 'modern') === 'medieval' ? 'medieval' : 'modern';
+const ОТ = знач('--from', '');
 const ТОЛЬКО = знач('--only', '') ? new Set(знач('--only', '').split(',')) : null;
 const ВЫХОД = path.resolve(КОРЕНЬ, знач('--out', ЯЗЫК === 'en' ? 'docs/screens/en' : 'docs/screens'));
 const ST = (process.env.ST || 'http://127.0.0.1:8000/').replace(/\/?$/, '/');
@@ -52,6 +54,8 @@ const СНИМКИ = [
   { имя: 'nursery', вкладка: ['Детская', 'Nursery'], сцена: 'compact' },
   { имя: 'world', вкладка: ['Мир', 'World'], сцена: 'compact' },
   { имя: 'companions', вкладка: ['Спутники', 'Companions'], сцена: 'compact' },
+  // Дерево — до кадров с видами: после их смены переключатель «семья» в просмотре пропадал.
+  { имя: 'family-tree', вкладка: ['Память', 'Memory'], шаги: `for (let i = 0; i < 40 && !т.querySelector('.hud-rel-mode[data-rel-mode="family"]'); i++) await __shots.ждать(250); т.querySelector('.hud-rel-mode[data-rel-mode="family"]').click(); await __shots.ждать(1500);`, элемент: '.hud-rel-graph' },
   { имя: 'cycle', вкладка: ['Лилиан', 'Lilian'], поле: ['Менструальный цикл', 'Menstrual cycle'] },
   { имя: 'pregnancy', вкладка: ['Анна', 'Anna'], поле: ['Беременность', 'Pregnancy'] },
   { имя: 'view-trust-orbit', вкладка: ['Лилиан', 'Lilian'], поле: ['Доверие', 'Trust'], вид: ['trustView', 'orbit'] },
@@ -60,7 +64,6 @@ const СНИМКИ = [
   { имя: 'view-memories-polaroid', вкладка: ['Элеонора', 'Eleanor'], поле: ['Общие воспоминания', 'Shared memories'], вид: ['memoriesView', 'polaroid'] },
   { имя: 'view-secrets-vault', вкладка: ['Память', 'Memory'], поле: ['Зашифрованные данные', 'Encrypted data'], вид: ['secretsView', 'vault'] },
   { имя: 'view-route-tickets', вкладка: ['Память', 'Memory'], поле: ['Мини-карта маршрутов', 'Маршрут', 'Route'], вид: ['routeView', 'tickets'] },
-  { имя: 'family-tree', вкладка: ['Память', 'Memory'], шаги: `т.querySelector('.hud-rel-mode[data-rel-mode="family"]').click(); await __shots.ждать(1500);`, элемент: '.hud-rel-graph' },
   { имя: 'dreams-open', вкладка: ['Сны', 'Dreams'], сцена: 'compact', шаги: `for (const з of т.querySelectorAll('.hud-dream-entry')) for (let i = 0; i < 3; i++) { з.click(); await __shots.ждать(250); } await __shots.ждать(1200);`, элемент: '.hud-tab-content.active' },
   { имя: 'phone-home', вкладка: ['Телефон', 'Phone'], шаги: `т.querySelector('.hud-phone-emulator').classList.add('unlocked'); await __shots.ждать(900);`, элемент: '.hud-phone-emulator' },
   { имя: 'phone-wallet', вкладка: ['Телефон', 'Phone'], шаги: `т.querySelector('.hud-phone-emulator').classList.add('unlocked'); т.querySelector('[data-phone-app="wallet"]').click(); await __shots.ждать(900);`, элемент: '.hud-phone-emulator' },
@@ -191,7 +194,7 @@ window.__shots = {
     if ((вид === 'compact') === открыта) { к.click(); await this.ждать(900); }
   },
   async телефон() {
-    const н = [...this.тело().querySelectorAll('.hud-phone-lock-notice')].find(x => /Софи|Sophie/.test(x.textContent)) || this.тело().querySelector('.hud-phone-lock-notice');
+    const н = [...this.тело().querySelectorAll('.hud-phone-lock-notice')].find(x => /Артём|Artyom/.test(x.textContent)) || this.тело().querySelector('.hud-phone-lock-notice');
     if (н) { н.click(); await this.ждать(1500); }
   },
   async шаги(код) {
@@ -227,9 +230,9 @@ window.__shots = {
     // Анимации — в конечное состояние, иначе снимок ловит середину появления.
     обёртка.querySelectorAll('*').forEach(э => { э.getAnimations?.().forEach(а => { try { а.finish(); } catch (_) {} }); });
     if (язык === 'en') {
-      // Имя персоны игрока в примере — из Таверны; в английском примере — Sophie.
+      // Имя персоны игрока — из Таверны: снимки делаются на персоне «Алекс», в английских — Alex.
       const w = document.createTreeWalker(к, NodeFilter.SHOW_TEXT);
-      for (let n = w.nextNode(); n; n = w.nextNode()) { const v = n.nodeValue.replace(/С​?офи/g, 'Sophie').replace(/^СО$/, 'SO'); if (v !== n.nodeValue) n.nodeValue = v; }
+      for (let n = w.nextNode(); n; n = w.nextNode()) { const v = n.nodeValue.replace(/Алекс/g, 'Alex').replace(/^АЛ$/, 'AL'); if (v !== n.nodeValue) n.nodeValue = v; }
     }
     let цель = к;
     if (элемент) {
@@ -265,7 +268,9 @@ async function музыка() {
   await ждать(1500);
   for (const с of МУЗЫКА) {
     if (ТОЛЬКО && !ТОЛЬКО.has(с.имя)) continue;
-    const клип = await выполнить(`scrollTo(0, 0); const э = ${с.найти}; const r = э.getBoundingClientRect(); return { x: r.left + scrollX, y: r.top + scrollY, width: r.width, height: r.height };`);
+    // Стенд длинный: всё, что выше блока, прячем — иначе низ страницы дальше 16 тыс. px,
+    // предела высоты снимка, и кадр выходит пустым. Потом к блоку: content-visibility.
+    const клип = await выполнить(`const э = ${с.найти}; for (let n = э; n && n !== document.body; n = n.parentElement) for (let p = n.previousElementSibling; p; p = p.previousElementSibling) p.style.setProperty('display', 'none', 'important'); scrollTo(0, 0); э.scrollIntoView({ block: 'start' }); [э, ...э.querySelectorAll('*')].forEach(x => { if (getComputedStyle(x).contentVisibility === 'auto') x.style.setProperty('content-visibility', 'visible', 'important'); }); await new Promise(r => setTimeout(r, 1200)); const r = э.getBoundingClientRect(); return { x: r.left + scrollX, y: r.top + scrollY, width: r.width, height: r.height };`);
     const файл = path.join(ВЫХОД, с.имя + '.' + ФОРМАТ);
     await снять(файл, клип);
     console.log('✓', path.relative(КОРЕНЬ, файл), Math.round(клип.width) + '×' + Math.round(клип.height));
@@ -320,7 +325,10 @@ async function main() {
     return;
   }
   if (арг.includes('--list')) { console.log((await выполнить(`return __shots.вкладки();`)).join('\n')); return; }
+  let начато = !ОТ;
   for (const с of СНИМКИ) {
+    // --from имя: доснять с этого кадра (после падения посреди прохода).
+    if (!начато) { if (с.имя !== ОТ) continue; начато = true; }
     if (ТОЛЬКО ? !ТОЛЬКО.has(с.имя) : с.служебный) continue;
     if ((с.эпоха || 'modern') !== ЭПОХА) continue;
     if (с.тема) await выполнить(`await __shots.тема(${JSON.stringify(с.тема)}); return true;`);

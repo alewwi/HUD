@@ -13,26 +13,26 @@ const В = '?v=' + ВЕРСИЯ;
 globalThis.window = globalThis;
 globalThis.localStorage = { getItem: () => null, setItem() {}, removeItem() {} };
 globalThis.document = { createElement: () => ({ style: {}, classList: { add() {} } }), querySelector: () => null, querySelectorAll: () => [], documentElement: { style: {}, classList: { contains: () => false } } };
-globalThis.SillyTavern = { getContext: () => ({ chat: [], name1: 'Софи', name2: 'THE REGENTS  Tristan Kingsley', characters: [] }) };
+globalThis.SillyTavern = { getContext: () => ({ chat: [], name1: 'Мари', name2: 'THE LANTERNS  Damian Hartley', characters: [] }) };
 for (const k of ['info', 'debug', 'warn']) console[k] = () => {};
 const C = await import('file:///' + path.join(КОРЕНЬ, 'render', 'calendar.js').replace(/\\/g, '/') + В);
 
 const события = [
-  { date: '07.11', title: 'День рождения Лейлы', kind: 'birthday' },
+  { date: '07.11', title: 'День рождения Ясмины', kind: 'birthday' },
   { date: '28.11', title: 'День благодарения', kind: 'holiday' },
-  { date: '15.11', title: 'Совет директоров Kingsley Holdings', kind: 'event', time: '10:00' },
-  { date: '03.12', title: 'Благотворительный бал Регентов', kind: 'event', time: '20:00' },
+  { date: '15.11', title: 'Совет директоров Hartley Holdings', kind: 'event', time: '10:00' },
+  { date: '03.12', title: 'Благотворительный бал Фонарщиков', kind: 'event', time: '20:00' },
   { date: '24.12', title: 'Сочельник', kind: 'holiday' },
 ];
 const персонажи = [
-  { 'Имя': 'THE REGENTS  Tristan Kingsley', 'Расписание': '08:30 - отвезти Софи в кампус; 14:00 - встреча с юристом; вечером - ужин в «Ла Мер» с Софи; завтра 07:00 - тренировка; в пятницу 19:30–22:00 - закрытый покер у Бомонтов' },
-  { 'Имя': 'Brandon Kane', 'Расписание': '12:00 - перехватить груз в порту; послезавтра утром - забрать Лейлу из клиники; 10.11 - матч по лакроссу' },
-  { 'Имя': 'Лейла Санчес-Дэвис', 'Расписание': '11:00 - пары по искусству; через 3 дня - примерка платья к балу; на выходных - девичник' },
-  { 'Имя': 'Атлас Бомонт', 'Расписание': 'empty' },
+  { 'Имя': 'THE LANTERNS  Damian Hartley', 'Расписание': '08:30 - отвезти Мари в кампус; 14:00 - встреча с юристом; вечером - ужин в «Ла Мер» с Мари; завтра 07:00 - тренировка; в пятницу 19:30–22:00 - закрытый покер у Ларошов' },
+  { 'Имя': 'Gordon Reid', 'Расписание': '12:00 - перехватить груз в порту; послезавтра утром - забрать Ясмину из клиники; 10.11 - матч по лакроссу' },
+  { 'Имя': 'Ясмина Монтес-Харлоу', 'Расписание': '11:00 - пары по искусству; через 3 дня - примерка платья к балу; на выходных - девичник' },
+  { 'Имя': 'Остин Ларош', 'Расписание': 'empty' },
 ];
-const полный = C.buildCalendarApp(события, персонажи, '05.11.2024', 'THE REGENTS  Tristan Kingsley');
-const пустой = C.buildCalendarApp([], [], '05.11.2024', 'Софи');
-const один = C.buildCalendarApp([{ date: '18.11', title: 'Зачёт по истории', kind: 'event' }], [{ 'Имя': 'Софи', 'Расписание': '09:00 - лекция; 16:00 - кофе с Мирой' }], '05.11.2024', 'Софи');
+const полный = C.buildCalendarApp(события, персонажи, '05.11.2024', 'THE LANTERNS  Damian Hartley');
+const пустой = C.buildCalendarApp([], [], '05.11.2024', 'Мари');
+const один = C.buildCalendarApp([{ date: '18.11', title: 'Зачёт по истории', kind: 'event' }], [{ 'Имя': 'Мари', 'Расписание': '09:00 - лекция; 16:00 - кофе с Мирой' }], '05.11.2024', 'Мари');
 
 const рамка = (подпись, тело, класс = '') => `<figure class="${класс}"><figcaption>${подпись}</figcaption><div class="phone"><div class="hud-phone-app-view active">${тело}</div></div></figure>`;
 const html = `<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Календарь — стенд</title>
@@ -48,7 +48,7 @@ figure { margin: 0; } figcaption { font-size: 12px; color: #a8a5ad; margin-botto
 .phone .hud-phone-app-view { position: static !important; inset: auto !important; display: block !important; transform: none !important; opacity: 1 !important; height: auto !important; overflow: visible !important; }
 </style>
 <div class="wrap">
-${рамка('Хозяин — Тристан; Брэндон и Лейла — свои календари; 05.11.2024', полный)}
+${рамка('Хозяин — Дамиан; Гордон и Ясмина — свои календари; 05.11.2024', полный)}
 ${рамка('Узко (238px)', полный, 'narrow')}
 ${рамка('Только свой календарь', один)}
 ${рамка('Пусто', пустой)}
