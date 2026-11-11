@@ -7,12 +7,12 @@
 // сколько нужно в сутки, наполненность груди по времени с кормления.
 // Оформление — css/family.css.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок } from '../utils.js?v=23.89.7';
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.7';
-import { родыЧьи, словоПолов, деньРодов, дм } from './conception.js?v=23.89.7';
-import { подождатьДо, ДНЕЙ_ПОСЛЕ_РОДОВ } from './rest-hint.js?v=23.89.7';
-import { послеродовое, видКормления, часовМежду } from './fertility.js?v=23.89.7';
-import { видСемьи, видПослеродового } from './family-views.js?v=23.89.7';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок } from '../utils.js?v=23.89.8';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.8';
+import { родыЧьи, словоПолов, деньРодов, дм } from './conception.js?v=23.89.8';
+import { подождатьДо, ДНЕЙ_ПОСЛЕ_РОДОВ } from './rest-hint.js?v=23.89.8';
+import { послеродовое, видКормления, часовМежду } from './fertility.js?v=23.89.8';
+import { видСемьи, видПослеродового } from './family-views.js?v=23.89.8';
 
 function метки(value) {
   const о = {};

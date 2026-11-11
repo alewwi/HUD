@@ -424,6 +424,7 @@ What's more, in those other requests the `[HUD]` blocks are cut out of the histo
 
 - **[MoodTube](https://github.com/moonnsy/MoodTube)** — scene music plays full tracks right in the Tavern through MoodTube: the ▶ button with the "MoodTube" source, queue buttons in the playlist and in the archive soundtrack ("all to the MoodTube queue"). If MoodTube already tells the model its track, the HUD doesn't duplicate its own music line.
 - **[SillyTavern-MemoryBooks](https://github.com/aikohanasaki/SillyTavern-MemoryBooks)** — with **"📚 MemoryBooks: count the scene without the full HUD"** (the "Lorebooks" group), MemoryBooks doesn't get full HUD blocks: the HUD sets up a rule for it and puts a short summary in place of each block. The scene for a memory gets several times shorter, MemoryBooks doesn't reject it for size, and the memory still knows the date, the place and who was wearing what.
+- **SillyTavern chat translation** (the built-in Chat Translation extension) — with **"🛡 Protect HUD during chat translation"** (main settings, on by default) the HUD block is not sent for translation and does not get mangled, and the card of a translated reply is shown in the translation language by the same service. The model still gets the original. If **ExtBlocks** is installed, its blocks are added after the translation instead of wiping it.
 
 ---
 
@@ -596,8 +597,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.7**:
+The latest version is **23.89.8**:
 
+- SillyTavern chat translation no longer mangles the HUD, and the card of a translated reply is shown in the translation language; ExtBlocks no longer wipes the translation.
 - The interface can be translated into any language with a spreadsheet through English; your own translation can be checked right in the HUD settings.
 - The tab height setting is translated in the English interface.
 - Theme "Reset" brings back the whole default look; the Customization sample is one coherent made-up story, and the player in it has no ties to anyone.

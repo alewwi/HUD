@@ -92,6 +92,8 @@ export const defaultSettings = {
   trustLocks: true,
   promisesList: true,
   meanwhile: true,
+  // Защита HUD при переводе чата Таверны: блок HUD не переводится, карточка — на языке перевода (translate-guard.js).
+  chatTranslation: true,
   enableRestHints: true,
   enableAttnBadges: true,
   enableHintButtons: true,

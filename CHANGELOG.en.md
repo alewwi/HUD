@@ -4,6 +4,18 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.8 — 2026-11-11
+
+The HUD no longer breaks when the chat is translated by SillyTavern's built-in translator, and the card of a translated reply is shown in the translation language.
+
+### Added
+- **🛡 Protect HUD during chat translation** (main settings, on by default). For SillyTavern chat translation (the Chat Translation extension: Google, Yandex, Bing, DeepL and others). The HUD block is no longer sent for translation: only the prose goes out, so replies translate faster. The card of a translated reply is shown in the translation language by the same service; translated lines are remembered, so a reload makes no new requests. The message and the model's prompt keep the original. Card lines are sent to the chosen translation service too; if it is down, the card stays in the original.
+
+### Fixed
+- Chat translation mangled the HUD block: "[HUD]" got translated, keys and quotes changed, and translated junk hung above the card. Messages that were already mangled repair themselves when shown.
+- Translated prose stuck to the HUD block ("wind.[HUD]"): line breaks where the text was split are kept now.
+- The ExtBlocks extension keeps its blocks in the same message field as the translation and wiped the translation on edits, on every new reply and when a chat opened. Now the translation stays, and ExtBlocks blocks are added after it.
+
 ## 23.89.7 — 2026-11-11
 
 The HUD interface can be translated into any language, through English, with a spreadsheet.
