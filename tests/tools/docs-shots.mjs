@@ -173,7 +173,10 @@ window.__shots = {
   },
   вкладки() { return [...this.тело().querySelectorAll('.hud-tab')].map(t => t.dataset.tabId + ' · ' + t.textContent.trim()); },
   async вкладка(имена) {
-    const t = [...this.тело().querySelectorAll('.hud-tab')].find(t => имена.some(и => t.textContent.trim().replace(/^\\S+\\s/, '').trim().startsWith(и)));
+    // Сначала точное совпадение: «Мир» по началу подписи находил вкладку «Мира».
+    const подпись = (t) => t.textContent.trim().replace(/^\\S+\\s/, '').replace(/\\s*\\d+$/, '').trim();
+    const вкладки = [...this.тело().querySelectorAll('.hud-tab')];
+    const t = вкладки.find(t => имена.includes(подпись(t))) || вкладки.find(t => имена.some(и => подпись(t).startsWith(и)));
     if (!t) throw new Error('нет вкладки ' + имена.join('/'));
     t.click(); await this.ждать(900);
   },
