@@ -6,15 +6,15 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.5';
-import { английский } from '../i18n.js?v=23.89.5';
-import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.5';
-import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.5';
-import { ссылкиТрека } from './music.js?v=23.89.5';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности } from './conception.js?v=23.89.5';
-import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.5';
-import { ико } from './view-icons.js?v=23.89.5';
-import { namesLikelySame } from '../names.js?v=23.89.5';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.6';
+import { английский } from '../i18n.js?v=23.89.6';
+import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.6';
+import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.6';
+import { ссылкиТрека } from './music.js?v=23.89.6';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности } from './conception.js?v=23.89.6';
+import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.6';
+import { ико } from './view-icons.js?v=23.89.6';
+import { namesLikelySame } from '../names.js?v=23.89.6';
 
 let окноОткрыто = false;
 // Дата и время ходов открытого отчёта (history-analyzer.js → moments).

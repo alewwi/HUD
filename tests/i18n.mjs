@@ -221,6 +221,7 @@ const рас = Ка.разобратьРасписание("10:00 - court tomorr
 const Св = await м('render/summary-card.js');
 const св = Св.разобратьСводку('Thursday, 17.10.2024 · 21:40 | evening · light rain | Damian — living room | Event: the letter arrived | New: Lilian knows');
 проверить('сводка: Event и New по-английски', св.событие === 'the letter arrived' && св.новое === 'Lilian knows' && св.время === '21:40', JSON.stringify(св));
+проверить('подпись со скобкой и двоеточием: «(0 — стандартная): » не теряет скобку', п('📏 Максимальная высота вкладок (0 — стандартная): ') === '📏 Max height of tabs (0 = default): ', String(п('📏 Максимальная высота вкладок (0 — стандартная): ')));
 settings.language = 'ru';
 
 console.log(`\nпроверок: ${проб}, провалов: ${провалов}`);

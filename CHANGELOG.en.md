@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.6 — 2026-11-11
+
+### Fixed
+- In the English interface the "Max height of tabs (0 = default)" setting stayed in Russian. The translation existed, but for labels like "(…):" the translator cut the closing bracket together with the colon and could not find the string. Such labels are translated now.
+
 ## 23.89.5 — 2026-11-10
 
 Theme "Reset" brings back the whole look, and the Customization sample became one coherent made-up story.
