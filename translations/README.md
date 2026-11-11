@@ -11,7 +11,7 @@ A string you leave empty stays in English, so a partial translation already work
 3. **Open it in a spreadsheet:**
    - **Google Sheets:** use File → Import → Upload, and untick "Convert text to numbers, dates, and formulas".
    - **LibreOffice Calc:** open the file, choose UTF-8 and comma as the separator.
-   - **Excel:** use Data → From Text/CSV with UTF-8 encoding, and save as **"CSV UTF-8"**. Plain "CSV" breaks non-Latin letters.
+   - **Excel:** use Data → From Text/CSV with UTF-8 encoding, and save as **"CSV UTF-8"**. Plain "CSV" breaks non-Latin letters. If you double-click the file and everything lands in column A, your Windows expects `;` as the separator. Open the file through Data → From Text/CSV instead, which splits it by commas. A file Excel saves with `;` loads fine.
 4. **Fill in the `translation` column.** Leave every other column as it is.
    - The first row, `@language`, is the name of your language as it should appear in the HUD language menu, for example `中文` or `Español`.
 5. **Check it in your own SillyTavern** (see below) as often as you like.
