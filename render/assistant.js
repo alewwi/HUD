@@ -11,12 +11,12 @@
 // флаг window.__tavernOSHudSkipInject: без него перехват запросов в index.js
 // вшил бы в вопрос HUD-инструкцию, и модель ответила бы HUD-блоком.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.89.8';
-import { settings } from '../settings.js?v=23.89.8';
-import { parseHUDComplex } from '../hud-parser.js?v=23.89.8';
-import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.89.8';
-import { ПРОМПТ_АССИСТЕНТА, промптАссистента } from './assistant-prompt.js?v=23.89.8';
-import { английский, т } from '../i18n.js?v=23.89.8';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки, генерацияТаверны } from '../utils.js?v=23.89.9';
+import { settings } from '../settings.js?v=23.89.9';
+import { parseHUDComplex } from '../hud-parser.js?v=23.89.9';
+import { extractHudBlock, заменитьHudБлоки } from '../hud-block.js?v=23.89.9';
+import { ПРОМПТ_АССИСТЕНТА, промптАссистента } from './assistant-prompt.js?v=23.89.9';
+import { английский, т } from '../i18n.js?v=23.89.9';
 
 const ЖДЁМ_МС = 180000;
 
@@ -191,7 +191,7 @@ async function отправить(ctx, systemPrompt, prompt, профили, sig
     const есть = (typeof профили === 'function' ? профили() : []).some(p => String(p.id) === профиль);
     if (!есть) throw new Error('профиль подключения из настроек ассистента не найден — выберите другой');
     return служба.sendRequest(профиль, [{ role: 'system', content: systemPrompt }, { role: 'user', content: prompt }], токены,
-      { stream: false, extractData: true, includePreset: false, includeInstruct: false, signal });
+      { stream: false, extractData: true, includePreset: false, includeInstruct: true, signal });
   }
   return генерацияТаверны(ctx, { prompt, systemPrompt, responseLength: токены, signal });
 }

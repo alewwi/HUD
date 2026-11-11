@@ -17,9 +17,9 @@
 // переформулировка давала бы новый бросок — лишний шанс. Поэтому ключ —
 // время близости и партнёр, а первый бросок по этому ключу запоминается.
 
-import { namesLikelySame } from '../names.js?v=23.89.8';
-import { settings } from '../settings.js?v=23.89.8';
-import { полеВкл } from '../deep-fields.js?v=23.89.8';
+import { namesLikelySame } from '../names.js?v=23.89.9';
+import { settings } from '../settings.js?v=23.89.9';
+import { полеВкл } from '../deep-fields.js?v=23.89.9';
 
 const КЛЮЧ = 'tavernosHudConception';
 
@@ -1175,6 +1175,13 @@ export function родыЧьи(кто) {
 export function естьЗачатия() {
   const х = хранилище();
   return !!х && Object.keys(х.зачатие || {}).length > 0;
+}
+// Идущие зачатия, которые игрок уже открыл тестом, — для архива: [{ кто, когда }].
+// Неоткрытые не отдаём: это раскрыло бы бросок зачатия.
+export function открытыеЗачатия() {
+  const х = хранилище();
+  if (!х) return [];
+  return Object.entries(х.зачатие || {}).filter(([, з]) => з && з.проверено).map(([кто, з]) => ({ кто, когда: String(з.когда || '') }));
 }
 
 // Близости без зачатия у человека (тексты «когда») — для «пытаются N месяцев».

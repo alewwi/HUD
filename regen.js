@@ -5,11 +5,11 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings } from './settings.js?v=23.89.8';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe } from './hud-block.js?v=23.89.8';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.8';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.8';
-import { генерацияТаверны } from './utils.js?v=23.89.8';
+import { настройка, settings, defaultSettings } from './settings.js?v=23.89.9';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe } from './hud-block.js?v=23.89.9';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.9';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.9';
+import { генерацияТаверны } from './utils.js?v=23.89.9';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, getMessageUpdateFunction, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
@@ -569,15 +569,18 @@ export async function handleHudRegenButton(regenBtn) {
       let запросить = null;
       if (черезПрофиль) {
           // ConnectionManagerRequestService accepts a ChatMessage[] as its prompt.
-          // Disable preset/instruct injection so the selected profile supplies only
-          // the connection details; our HUD messages remain the actual prompt.
+          // Preset off: the profile supplies only the connection details, and our
+          // HUD messages remain the actual prompt. Instruct on: for a Text
+          // Completion profile (a local model) ST formats the messages with the
+          // profile's instruct template; without it they were glued into plain
+          // text with no roles. Chat Completion ignores the flag.
           запросить = async (лимит) => {
               try {
                   return await служба.sendRequest(
                       settings.regenProfileId,
                       freshMessages,
                       лимит,
-                      { stream: false, includePreset: false, includeInstruct: false, extractData: false, signal: отмена.signal }
+                      { stream: false, includePreset: false, includeInstruct: true, extractData: false, signal: отмена.signal }
                   );
               } catch (e) {
                   if (отменено() || (e && e.name === 'AbortError')) throw e;

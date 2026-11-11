@@ -4,6 +4,23 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.9 — 2026-11-11
+
+One model can write the story and another the HUD: the HUD is written by a separate request through the chosen profile. The archive collapses and filters long lists, and pregnancies no longer go missing in it.
+
+### Added
+- **➕ HUD as a separate request after the reply** (Generation → HUD regeneration). After every character reply the HUD is created by a separate request — through the "HUD regen profile" if one is chosen. One model (a local one, for example) can write the story and another the HUD. It works instead of "HUD in every reply": turning one on turns the other off. Before, the chosen profile only worked for the 🔄 and ➕ buttons, and with "HUD in every reply" the main model always wrote the HUD.
+- **Archive: status filters.** Secrets: unrevealed and revealed. Guns: hanging, building, fired. Relationships: changed and trust. Timeline: dates, places and pregnancies. Pregnancies: ongoing, birth, lost. Each filter shows its count.
+
+### Changed
+- **Archive: newest on top, long lists collapsed.** Every tab except statistics and the dashboard shows the latest 10 records first, then "More", "Show all" and "Collapse". The timeline puts the latest day on top and the latest event of a day first. A person's card in Relationships shows the six latest rows, the rest under "More".
+- A connection profile for a text model (Text Completion, local KoboldCpp, llama.cpp and others) gets the HUD, music and assistant questions in the profile's instruct template. Before, the messages were glued into plain text with no roles.
+- The archive timeline marks the start of every pregnancy, not only births and losses.
+
+### Fixed
+- The archive no longer loses a pregnancy when, after a miscarriage, the model kept writing the old term in the HUD without marking the loss: the next pregnancy was merged with the previous one, and the miscarriage covered both. Now a birth or loss marked in the chat is a boundary, and so is a term that dropped after three weeks of story time.
+- A pregnancy confirmed by a test gets into the archive even if the model hasn't put it in the HUD yet. An unconfirmed conception isn't shown, so the roll isn't given away.
+
 ## 23.89.8 — 2026-11-11
 
 The HUD no longer breaks when the chat is translated by SillyTavern's built-in translator, and the card of a translated reply is shown in the translation language.

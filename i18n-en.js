@@ -6,6 +6,26 @@
 // Шаблоны — для строк с числами и вставками («3 трека», «с хода 5»).
 
 export const СЛОВАРЬ_EN = {
+  // Архив: фильтры вкладок и зачатие без ходов.
+  "Нераскрытые": "Unrevealed",
+  "Раскрытые": "Revealed",
+  "Висят": "Hanging",
+  "Назревают": "Building",
+  "Выстрелили": "Fired",
+  "Идут": "Ongoing",
+  "Прервались": "Lost",
+  "Даты": "Dates",
+  "Места": "Places",
+  "Исходы": "Outcomes",
+  "Менялись": "Changed",
+  "Зачатие": "Conception",
+  "по записи зачатия: в HUD ходов беременности ещё нет": "from the conception record: no pregnancy in the turns’ HUD yet",
+  // HUD отдельным запросом после ответа (настройки → перегенерация).
+  "HUD отдельным запросом после ответа": "HUD as a separate request after the reply",
+  "После каждого ответа персонажа HUD сам создаётся отдельным запросом — через профиль ниже, если он выбран, иначе основной моделью. Историю может вести одна модель (например, локальная), а HUD — другая. Вместо «HUD в каждом ответе»: включая одно, выключаете другое": "After every character reply the HUD is created by a separate request — through the profile below if one is chosen, otherwise by the main model. One model (a local one, for example) can write the story and another the HUD. Instead of “HUD in every reply”: turning one on turns the other off",
+  "Через какой сохранённый профиль подключения идут отдельные запросы HUD: 🔄, ➕ и HUD отдельным запросом после ответа. Пока включено «HUD в каждом ответе», HUD пишет основная модель вместе с ответом, и этот профиль работает только по кнопкам": "Which saved connection profile the separate HUD requests use: 🔄, ➕ and HUD as a separate request after the reply. While “HUD in every reply” is on, the main model writes the HUD together with the reply, and this profile works only for the buttons",
+  "HUD отдельным запросом": "HUD as a separate request",
+  "«HUD в каждом ответе» выключен: теперь HUD пишется после ответа отдельным запросом": "“HUD in every reply” is off: the HUD is now written after the reply by a separate request",
   // Свой перевод файлом (настройки → язык).
   "Загрузить перевод (.csv)": "Load a translation (.csv)",
   "Проверить свой перевод: таблица translations/template.csv с заполненной колонкой translation. Хранится только в этом браузере, файлы расширения не меняются": "Test your own translation: the translations/template.csv table with the translation column filled in. Kept only in this browser; the extension files are not changed",

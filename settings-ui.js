@@ -5,33 +5,33 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { показатьЧтоНового } from './whats-new.js?v=23.89.8';
-import { settings, defaultSettings } from './settings.js?v=23.89.8';
-import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.89.8';
-import { видБлока } from './render/views.js?v=23.89.8';
-import { escapeHtml } from './utils.js?v=23.89.8';
-import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.89.8';
-import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.89.8';
-import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.89.8';
-import { убратьМетку } from './hud-erase.js?v=23.89.8';
-import { убратьЛетопись } from './chronicle-store.js?v=23.89.8';
-import { включитьПереводчик, т, английский, кодЯзыка, языкиМеню, файлПеревода, загрузитьФайлПеревода, убратьФайлПеревода } from './i18n.js?v=23.89.8';
+import { показатьЧтоНового } from './whats-new.js?v=23.89.9';
+import { settings, defaultSettings } from './settings.js?v=23.89.9';
+import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.89.9';
+import { видБлока } from './render/views.js?v=23.89.9';
+import { escapeHtml } from './utils.js?v=23.89.9';
+import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.89.9';
+import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.89.9';
+import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.89.9';
+import { убратьМетку } from './hud-erase.js?v=23.89.9';
+import { убратьЛетопись } from './chronicle-store.js?v=23.89.9';
+import { включитьПереводчик, т, английский, кодЯзыка, языкиМеню, файлПеревода, загрузитьФайлПеревода, убратьФайлПеревода } from './i18n.js?v=23.89.9';
 
 // Пункты меню языка: русский, английский, собранные из таблиц и свой файл.
 const optionЯзыков = () => языкиМеню().map(я => `<option value="${escapeHtml(я.code)}" ${кодЯзыка() === я.code ? 'selected' : ''}>${escapeHtml(я.name)}</option>`).join('');
-import { уверены } from './confirm-erase.js?v=23.89.8';
-import { промптАссистента, встроенныйПромптАссистента } from './render/assistant-prompt.js?v=23.89.8';
-import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.89.8';
-import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.89.8';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.89.8';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.89.8';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.8';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.89.8';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.89.8';
-import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.89.8';
-import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.89.8';
-import { меткаШапки } from './render/topbar-icons.js?v=23.89.8';
-import { обновитьПереводКарточек } from './translate-guard.js?v=23.89.8';
+import { уверены } from './confirm-erase.js?v=23.89.9';
+import { промптАссистента, встроенныйПромптАссистента } from './render/assistant-prompt.js?v=23.89.9';
+import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.89.9';
+import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.89.9';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.89.9';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.89.9';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.9';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.89.9';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.89.9';
+import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.89.9';
+import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.89.9';
+import { меткаШапки } from './render/topbar-icons.js?v=23.89.9';
+import { обновитьПереводКарточек } from './translate-guard.js?v=23.89.9';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, getStContextSafe, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -231,7 +231,8 @@ export function addSettingsUI() {
           <label class="hud-set-check" title="Отдельный лимит токенов только для запроса создания/регенерации HUD.">🧠 Лимит токенов HUD: ${число('hud-max-tokens', 256, 32768, settings.hudMaxTokens, 70)}</label>
           <label class="hud-set-check" title="Если провайдер молчит дольше — генерация HUD останавливается с понятной ошибкой, а не крутится бесконечно. Рассуждающим моделям нужно больше. 0 — ждать без предела.">⏱ Ждать ответа: ${число('hud-regen-timeout', 0, 60, settings.hudRegenTimeout ?? 6, 52)} мин</label>
           <label class="hud-set-check" title="Сколько последних сообщений отправлять модели при нажатии на 🔄 (регенерация HUD). 0 = отправлять всю историю чата до этого сообщения.">⚡ При регене HUD слать последние ${число('hud-regen-context', 0, 50, settings.regenContextMessages, 40)} сообщ.</label>
-          <label class="hud-set-check" title="Позволяет перегенерировать HUD (🔄) через ДРУГОЙ сохранённый профиль подключения">
+          ${галка('hud-separate', settings.hudSeparate && !settings.autoInject, '➕ HUD отдельным запросом после ответа', 'После каждого ответа персонажа HUD сам создаётся отдельным запросом — через профиль ниже, если он выбран, иначе основной моделью. Историю может вести одна модель (например, локальная), а HUD — другая. Вместо «HUD в каждом ответе»: включая одно, выключаете другое.')}
+          <label class="hud-set-check" title="Через какой сохранённый профиль подключения идут отдельные запросы HUD: 🔄, ➕ и HUD отдельным запросом после ответа. Пока включено «HUD в каждом ответе», HUD пишет основная модель вместе с ответом, и этот профиль работает только по кнопкам.">
             🧠 Профиль для регена HUD:
             <select id="hud-regen-profile" style="flex:1; min-width:0; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;">
               <option value="">Основной (текущий активный)</option>
@@ -619,7 +620,7 @@ export function addSettingsUI() {
     const новая = document.getElementById('hud-settings-wrapper');
     if (новая && родитель) { родитель.insertBefore(новая, сосед); новая.open = открыта; }
     основа.перерисоватьКарточкиЧата({ сохранитьВид: true });
-    import('./render/music.js?v=23.89.8').then(м => { м.сброситьФон(); м.обновитьСтрокуСцены(); м.обновитьВсеПолосы(); }).catch(() => {});
+    import('./render/music.js?v=23.89.9').then(м => { м.сброситьФон(); м.обновитьСтрокуСцены(); м.обновитьВсеПолосы(); }).catch(() => {});
     основа.showHudToast('success', 'Настройки загружены', 'Всё уже применилось.');
   });
 
@@ -841,7 +842,23 @@ export function addSettingsUI() {
   }
   renderAvatarRows();
 
-  document.getElementById('hud-auto-inject').addEventListener('change', (e) => { settings.autoInject = e.target.checked; основа.saveSettings(); });
+  // «HUD в каждом ответе» и «HUD отдельным запросом» — одно из двух: иначе HUD писался бы дважды.
+  const отдельно = document.getElementById('hud-separate');
+  document.getElementById('hud-auto-inject').addEventListener('change', (e) => {
+    settings.autoInject = e.target.checked;
+    if (settings.autoInject && settings.hudSeparate) { settings.hudSeparate = false; if (отдельно) отдельно.checked = false; }
+    основа.saveSettings();
+  });
+  отдельно?.addEventListener('change', (e) => {
+    settings.hudSeparate = e.target.checked;
+    if (settings.hudSeparate && settings.autoInject) {
+      settings.autoInject = false;
+      const вОтвете = document.getElementById('hud-auto-inject');
+      if (вОтвете) вОтвете.checked = false;
+      основа.showHudToast('info', 'HUD отдельным запросом', '«HUD в каждом ответе» выключен: теперь HUD пишется после ответа отдельным запросом.');
+    }
+    основа.saveSettings();
+  });
   document.getElementById('hud-enable-phone').addEventListener('change', (e) => { settings.enablePhone = e.target.checked; основа.saveSettings(); });
   document.getElementById('hud-enable-intercepts').addEventListener('change', (e) => { settings.enableIntercepts = e.target.checked; основа.saveSettings(); });
   document.getElementById('hud-enable-casket').addEventListener('change', (e) => { settings.enableCasket = e.target.checked; основа.saveSettings(); });
@@ -980,7 +997,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.89.8');
+      const mod = await import('./render/archive.js?v=23.89.9');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -1202,7 +1219,7 @@ export function addSettingsUI() {
   [['hud-music-enable', 'enableMusic'], ['hud-music-auto', 'musicAuto'], ['hud-music-verify', 'musicVerify'], ['hud-music-line', 'musicSceneLine'], ['hud-music-player', 'musicPlayer']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.89.8').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
+      import('./render/music.js?v=23.89.9').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
     });
   });
   document.getElementById('hud-music-profile').addEventListener('change', (e) => { settings.musicProfileId = e.target.value || ''; основа.saveSettings(); });
@@ -1232,20 +1249,20 @@ export function addSettingsUI() {
     ['hud-music-free-fonau', 'musicFreeFonau'], ['hud-music-free-audius', 'musicFreeAudius'], ['hud-music-free-incompetech', 'musicFreeIncompetech'], ['hud-music-free-commons', 'musicFreeCommons']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.89.8').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
+      import('./render/music.js?v=23.89.9').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
     });
   });
   [['hud-music-liked-clear', 'musicLiked'], ['hud-music-banned-clear', 'musicBanned']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('click', async () => {
       if ((settings[ключ] || []).length && !await уверены({ текст: ключ === 'musicLiked' ? 'Весь список понравившихся треков очистится.' : 'Весь список запрещённых треков очистится.', кнопка: 'Очистить' })) return;
       settings[ключ] = []; основа.saveSettings(); вкусМузыки();
-      import('./render/music.js?v=23.89.8').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      import('./render/music.js?v=23.89.9').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
   [['hud-music-medieval', 'musicMedieval'], ['hud-music-style', 'musicStyle'], ['hud-music-source', 'musicSource']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.value; основа.saveSettings();
-      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.89.8').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.89.9').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
 

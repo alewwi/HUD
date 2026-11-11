@@ -11,17 +11,18 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=23.89.8';
-import { normalizeJSONData } from './schema.js?v=23.89.8';
-import { parseRelationList } from './render/relations-graph.js?v=23.89.8';
-import { nameLettersOnly, namePhoneticLatin } from './names.js?v=23.89.8';
-import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.8';
-import { createDashboard } from './chat-stats.js?v=23.89.8';
-import { статусРужья } from './codes.js?v=23.89.8';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.89.8';
-import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.89.8';
-import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.89.8';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.89.8';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.9';
+import { normalizeJSONData } from './schema.js?v=23.89.9';
+import { parseRelationList } from './render/relations-graph.js?v=23.89.9';
+import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.89.9';
+import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.9';
+import { createDashboard } from './chat-stats.js?v=23.89.9';
+import { статусРужья } from './codes.js?v=23.89.9';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.89.9';
+import { историяБеременностей } from './render/conception.js?v=23.89.9';
+import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.89.9';
+import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.89.9';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.89.9';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -114,8 +115,8 @@ const чистоеИмя = (имя) => имяБезПриставки(текст
 // Извлечение блока [HUD] из текста сообщения. Тот же набор написаний, что и в
 // index.js: модель иногда шлёт < > вместо скобок, а ST успевает заэкранировать.
 // Поиск блока — общий, в hud-block.js. Экспорт оставлен: его берут отсюда.
-import { extractHudBlock } from './hud-block.js?v=23.89.8';
-import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.89.8';
+import { extractHudBlock } from './hud-block.js?v=23.89.9';
+import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.89.9';
 export { extractHudBlock };
 
 // Массив сообщений текущего чата.
@@ -370,7 +371,14 @@ export function меткиБеременности(v) {
   return о;
 }
 const ДЕНЬ_МС = 86400000;
-function собратьБеременности(накоп, data, at, игрок) {
+// Роды и потери, отмеченные в чате (кнопкой или меткой, render/conception.js):
+// модель часто и после выкидыша пишет прежний срок без «lost», и следующая
+// беременность склеивалась с прошлой, а её исход ложился на обе.
+function исходыЧата() {
+  try { return историяБеременностей().filter(з => Number.isInteger(з.сообщение)); } catch (_) { return []; }
+}
+const исходЧей = (з, имя, игрок) => (з.кто === 'user' ? игрок : namesLikelySame(String(з.кто).replace(/^char:/, ''), имя));
+function собратьБеременности(накоп, data, at, игрок, исходы = []) {
   const люди = [];
   if (data.user && typeof data.user === 'object') люди.push({ ...data.user, 'Имя': текст(data.user['Имя']) || игрок, __игрок: true });
   if (Array.isArray(data.characters)) люди.push(...data.characters);
@@ -387,12 +395,19 @@ function собратьБеременности(накоп, data, at, игрок
     const все = накоп.get(k);
     let эп = все[все.length - 1];
     const разрыв = эп && датаMs !== null && эп._датаMs !== null ? (датаMs - эп._датаMs) / ДЕНЬ_МС : 0;
+    // Исход из записей чата между прошлым ходом этой беременности и этим.
+    if (эп && !эп.outcome) {
+      const з = исходы.find(з => !з._занят && исходЧей(з, имя, !!c.__игрок) && з.сообщение >= эп.from - 2 && з.сообщение < at);
+      if (з) { з._занят = true; эп.outcome = { kind: з.вид === 'birth' ? 'birth' : 'loss', text: '', at: з.сообщение, date: '', record: true }; }
+    }
+    const упал = (на) => п.неделя !== null && эп.weekTo !== null && п.неделя < эп.weekTo - на;
     // Новая беременность: срок упал (после исхода — на неделю и больше, без
-    // исхода — сильно: модель иногда путается на пару недель), или после
-    // исхода прошло больше полутора месяцев сюжета.
+    // исхода — сильно: модель иногда путается на пару недель — или хоть
+    // немного, но спустя три недели сюжета), или после исхода прошло больше
+    // полутора месяцев сюжета.
     const новая = !эп
-      || (эп.outcome && ((п.неделя !== null && эп.weekTo !== null && п.неделя < эп.weekTo - 1) || разрыв > 45))
-      || (!эп.outcome && п.неделя !== null && эп.weekTo !== null && п.неделя < эп.weekTo - 4);
+      || (эп.outcome && (упал(1) || разрыв > 45))
+      || (!эп.outcome && (упал(4) || (упал(1) && разрыв > 21)));
     if (новая) {
       эп = { name: имя, player: !!c.__игрок, from: at, to: at, dateFrom: значимо(дата) ? дата : '', dateTo: '', weekFrom: п.неделя, weekTo: п.неделя,
         due: '', father: '', knows: '', state: '', symptoms: '', visit: '', course: [], outcome: null, _датаMs: датаMs };
@@ -477,6 +492,7 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
   const ружья = new Map();
   const саундтрек = [];
   const беременности = new Map();
+  const исходыБеременностей = исходыЧата();
   // Дата и время каждого хода: архив пишет их рядом с номером. Ход без даты
   // берёт день прошлого хода — сцена идёт дальше, пока модель не сменит дату.
   const моменты = {};
@@ -516,7 +532,7 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
     собратьСцену(сцена, data, i);
     собратьНастроения(настроения, data, i);
     собратьРужья(ружья, data, i);
-    собратьБеременности(беременности, data, i, игрок);
+    собратьБеременности(беременности, data, i, игрок, исходыБеременностей);
 
     const имена = [];
     if (data.user && значимо(data.user['Имя'])) имена.push(чистоеИмя(data.user['Имя']));
@@ -711,7 +727,8 @@ function ключКэша(from, to) {
 
 // Отчёт старого устройства (без дат у ходов, с дублями секретов) считаем
 // устаревшим: пересчёт быстрее, чем объяснять, почему в нём другое.
-export const ВЕРСИЯ_ОТЧЁТА = 2;
+// 3: беременности делятся по исходам из записей чата.
+export const ВЕРСИЯ_ОТЧЁТА = 3;
 export async function readCache(from, to) {
   const payload = await readEntry(ключКэша(from, to));
   if (!payload || !payload.report) return null;

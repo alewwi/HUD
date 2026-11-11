@@ -1291,6 +1291,24 @@
   border-left: 2px solid var(--hud-accent, #8c5ad2);
 }
 
+/* Фильтр вкладки архива и «Ещё / Показать все / Свернуть» под списком. */
+.hud-arc-filter { display: flex; flex-wrap: wrap; gap: 5px; margin: 0 0 10px; }
+.hud-arc-filter button, .hud-arc-pager button {
+  display: inline-flex; align-items: center; gap: 6px; cursor: pointer; padding: 4px 10px; border-radius: 999px;
+  font: inherit; font-size: 11.5px; color: inherit; background: rgba(255,255,255,.05);
+  border: 1px solid var(--hud-border, rgba(255,255,255,.14));
+}
+.hud-arc-filter button .hud-arc-count { font-style: normal; font-size: 10.5px; opacity: .65; }
+.hud-arc-filter button.is-on {
+  background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 18%, transparent);
+  border-color: color-mix(in srgb, var(--hud-accent, #8c5ad2) 55%, transparent);
+}
+.hud-arc-filter button.is-on .hud-arc-count { opacity: 1; }
+.hud-arc-pager { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 4px 0 12px; }
+.hud-arc-pager button small { opacity: .65; font-size: 10.5px; }
+@media (hover: hover) and (pointer: fine) { .hud-arc-filter button:hover, .hud-arc-pager button:hover { background: rgba(255,255,255,.11); } }
+.hud-arc-timeline + .hud-arc-timeline { margin-top: 6px; }
+
 .hud-arc-card {
   position: relative; margin-bottom: 10px; padding: 12px 14px; border-radius: 12px;
   background: color-mix(in srgb, currentColor 4%, transparent);
