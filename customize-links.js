@@ -9,8 +9,8 @@
 // телефона в примере работают как обычно. Что каждая настройка есть в карте,
 // проверяет tests/unit.mjs.
 
-import { settings } from './settings.js?v=23.89.9';
-import { т } from './i18n.js?v=23.89.9';
+import { settings } from './settings.js?v=23.89.10';
+import { т } from './i18n.js?v=23.89.10';
 
 const ВИДЫ_ПОД_КЛАСС = {
   age: 'ageView', clothes: 'clothesView', looks: 'looksView', role: 'roleView', body: 'bodyStateView', phys: 'physView', health: 'healthView',
@@ -23,7 +23,7 @@ const ДОБАВКИ_К_ВИДУ = { thoughts: ['dropCap', 'thoughtBrackets', 'f
 const ВИДЫ_ПО_ПОДПИСИ = [
   ['бельё', 'underwearView'], ['готовность к оргазму', 'orgView'], ['пульс', 'vitalsView'], ['жизненные показатели', 'vitalsView'], ['карта тела', 'bodyMapView', 'silhouetteStyle', 'silhouetteOutlines', 'silhouetteLook'],
   ['кинк', 'kinkView'], ['фетиш', 'kinkView'], ['никогда не сделает', 'kinkView'], ['не возбуждает', 'kinkView'], ['словесная дуэль', 'duelView'], ['вехи и уход', 'kidCareView'],
-  ['таймлайн', 'routeView'], ['важное', 'importantView'], ['ружья', 'gunsView'], ['кто что знает', 'secretsGrid', 'secretsAutoRaise'], ['зашифрованные', 'secretsView'], ['скрытый подтекст', 'subtextVeil'],
+  ['таймлайн', 'routeView'], ['важное', 'importantView'], ['ружья', 'gunsView'], ['кто что знает', 'secretsGridView', 'secretsGrid', 'secretsAutoRaise'], ['не знает', 'knowsNotView', 'knowledgeLine'], ['зашифрованные', 'secretsView'], ['скрытый подтекст', 'subtextVeil'],
   ['мысли', 'dropCap', 'thoughtBrackets', 'fontMain'],
 ];
 const ТЕКСТ = ['fontMain', 'fontSizeMain', 'textColor', 'textMutedColor'];
@@ -35,6 +35,14 @@ const ПЛАШКИ_ПИЛЮЛЬ = '.hud-key-item, .hud-detail-pill, .hud-invento
 const МИР = { news: 'newsView', rumors: 'rumorsView', eco: 'economyView', city: 'cityView', fc: 'forecastView', afisha: 'eventsView', ads: 'adsView', cmt: 'commentsView' };
 
 export const КАРТА = [
+  // Новые блоки с выбором вида (render/views-plus.js).
+  ['.hud-vp-kin, .hud-vp-seams, .hud-trust-scars', ['trustScarsView', 'enableScars']],
+  ['.hud-vp-engr, .hud-vp-seal, .hud-invite', ['invitesView']],
+  ['.hud-vp-redact, .hud-vp-blind', ['knowsNotView', 'knowledgeLine']],
+  ['.hud-body-stats', ['weightView']],
+  ['.hud-vp-sprig, .hud-vp-path, .hud-state-plaque.is-loss', ['lossView']],
+  ['.hud-vp-quipu, .hud-vp-pairs, .hud-promises', ['promisesView']],
+  ['.hud-mw', ['meanwhileView']],
   // Часы и сцена.
   ['.hud-time-display', ['fontClock', 'fontSizeClock', 'clockColor']],
   ['.hud-date-display', ['fontMain', 'sceneTextColor']],

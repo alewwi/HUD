@@ -597,8 +597,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.9**:
+The latest version is **23.89.10**:
 
+- Eight blocks get a choice of view, "Meanwhile" moves to the World tab, phone rumors become a live feed with tabs, long Memory lists fold.
 - The HUD can be written by a separate request after the reply through another profile: one model (a local one, for example) writes the story, another the HUD. The archive collapses long lists, filters them by status and no longer loses pregnancies.
 - SillyTavern chat translation no longer mangles the HUD, and the card of a translated reply is shown in the translation language; ExtBlocks no longer wipes the translation.
 - The interface can be translated into any language with a spreadsheet through English; your own translation can be checked right in the HUD settings.

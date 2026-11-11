@@ -6,24 +6,25 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.9';
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.89.9';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.89.9';
-import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.89.9';
-import { отложитьРисунок } from './lazy-svg.js?v=23.89.9';
-import { длинныйСписок } from './long-list.js?v=23.89.9';
-import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.89.9';
-import { общиеМеста } from './route-places.js?v=23.89.9';
-import { статусРужья } from '../codes.js?v=23.89.9';
-import { сеткаСекретов, вопросыСекретов } from './secrets-grid.js?v=23.89.9';
-import { кнопкаУдаления, кнопкаПодсказки } from './erase-button.js?v=23.89.9';
-import { приглашенияБезОтвета, разобратьНить } from '../turn-notes.js?v=23.89.9';
-import { дм } from './conception.js?v=23.89.9';
-import { settings } from '../settings.js?v=23.89.9';
-import { статусОбещания } from '../hud-expand.js?v=23.89.9';
-import { getAvatarUrl } from '../avatars.js?v=23.89.9';
-import { namesLikelySame } from '../names.js?v=23.89.9';
-import { полеВкл } from '../deep-fields.js?v=23.89.9';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.10';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.89.10';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.89.10';
+import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.89.10';
+import { отложитьРисунок } from './lazy-svg.js?v=23.89.10';
+import { длинныйСписок } from './long-list.js?v=23.89.10';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.89.10';
+import { общиеМеста } from './route-places.js?v=23.89.10';
+import { статусРужья } from '../codes.js?v=23.89.10';
+import { сеткаСекретов, вопросыСекретов } from './secrets-grid.js?v=23.89.10';
+import { кнопкаУдаления, кнопкаПодсказки } from './erase-button.js?v=23.89.10';
+import { приглашенияБезОтвета, разобратьНить } from '../turn-notes.js?v=23.89.10';
+import { дм } from './conception.js?v=23.89.10';
+import { settings } from '../settings.js?v=23.89.10';
+import { статусОбещания } from '../hud-expand.js?v=23.89.10';
+import { getAvatarUrl } from '../avatars.js?v=23.89.10';
+import { видПриглашений, видОбещаний, видТемВременем } from './views-plus.js?v=23.89.10';
+import { namesLikelySame } from '../names.js?v=23.89.10';
+import { полеВкл } from '../deep-fields.js?v=23.89.10';
 
 function parseRoutePoint(item) {
   // Модель иногда ставит дату перед временем («09.11, 22:15») — дату отбрасываем.
@@ -109,6 +110,8 @@ const блокДавнего = (давнее) => давнее.length ? `<details
 function блокПриглашений() {
   const все = приглашенияБезОтвета();
   if (!все.length) return '';
+  const свой = видПриглашений(все, видБлока('invitesView'));
+  if (свой) return `<div class="hud-row full-width"><span class="hud-key">✉️ Приглашения:</span> ${свой}</div>`;
   return `<div class="hud-row full-width"><span class="hud-key">✉️ Приглашения:</span> ${все.map(п => `<div class="hud-invite"><div><b>${escapeHtml(п.кто)}</b><small>${escapeHtml(п.что)}</small>${п.когда ? `<span class="hud-invite-when">${escapeHtml(п.когда)}</span>` : ''}</div>`
     + `<button type="button" class="hud-fetus-btn is-on" data-hud-invite="${escapeHtml(п.id)}" data-val="yes">Принять</button><button type="button" class="hud-fetus-btn" data-hud-invite="${escapeHtml(п.id)}" data-val="no">Отклонить</button></div>`).join('')}</div>`;
 }
@@ -122,6 +125,45 @@ function меткаСрока(строка, сцена = null) {
   const поздно = Number.isFinite(н.дата) && Number.isFinite(сцена) && сцена > н.дата;
   const метки = [вид ? `<small class="hud-gun-due is-${н.вид}">${вид}</small>` : '', Number.isFinite(н.дата) ? `<small class="hud-gun-due${поздно ? ' is-late' : ''}">${ЧАСЫ}${поздно ? 'просрочено' : 'до'} ${дм(н.дата)}</small>` : ''].join('');
   return метки ? `<span class="hud-gun-tags">${метки}</span>` : '';
+}
+
+/**
+ * «Тем временем» (за кадром). Стоит в «Мире» под газетами; в «Памяти» — только
+ * когда вкладки «Мир» в этом ходе нет. вМире — заголовок в стиле разделов Мира.
+ */
+export function блокТемВременем(hudData, вМире = false) {
+  let out = '';
+  // «Тем временем»: 1–2 важных человека вне кадра — где они, что делают и
+  // думают, и «островок знаний»: знает / не знает / догадывается. Свёрнуто.
+  // Тот, кто сейчас в кадре (в карточке у него есть внешность или одежда),
+  // сюда не попадает, даже если модель его записала.
+  const вКадре = (Array.isArray(hudData && hudData.characters) ? hudData.characters : [])
+    .filter(c => c && (String(c['Внешность'] || '').trim() || String(c['Одежда'] || '').trim())).map(c => String(c['Имя'] || ''));
+  const тем = (settings.meanwhile !== false && hudData && Array.isArray(hudData.meanwhile) ? hudData.meanwhile : [])
+    .filter(т => !вКадре.some(и => namesLikelySame(и, т.имя)));
+  if (тем.length) {
+    const пусто = (x) => !x || /^(empty|none|нет|—|-)$/i.test(String(x).trim());
+    const строка = (класс, значок, подпись, текст) => пусто(текст) ? '' : `<div class="hud-mw-know ${класс}"><i aria-hidden="true">${значок}</i><b>${подпись}</b><span>${applyTooltips(текст)}</span></div>`;
+    const лицо = (имя) => {
+      const адрес = (() => { try { const н = getAvatarUrl(имя, false); return н && н.url; } catch (_) { return ''; } })();
+      return адрес ? `<img class="hud-mw-face" src="${escapeHtml(адрес)}" alt="" loading="lazy">`
+        : `<span class="hud-mw-face is-initials" aria-hidden="true">${escapeHtml(String(имя).trim().split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase())}</span>`;
+    };
+    const где = (т) => {
+      const [первое, ...прочее] = String(т.где || '').split(/\s*·\s*/);
+      const время = /^\d{1,2}:\d{2}$/.test(первое) ? первое : '';
+      const место = время ? прочее.join(' · ') : String(т.где || '');
+      return (время ? `<span><i aria-hidden="true">🕒</i>${escapeHtml(время)}</span>` : '') + (место ? `<span><i aria-hidden="true">📍</i>${escapeHtml(место)}</span>` : '');
+    };
+    const свой = видТемВременем(тем, видБлока('meanwhileView'));
+    const карточки = свой ? '' : тем.map(т => `<div class="hud-v-card hud-mw-card">`
+      + `<div class="hud-mw-head">${лицо(т.имя)}<div class="hud-mw-who"><b>${escapeHtml(т.имя)}</b><small class="hud-mw-where">${где(т)}</small></div></div>`
+      + `<p class="hud-mw-text">${applyTooltips(т.текст)}</p>`
+      + `<div class="hud-mw-island">${строка('is-yes', '👁', 'знает', т.знает)}${строка('is-no', '🔒', 'не знает', т.неЗнает)}${строка('is-guess', '✨', 'догадывается', т.догадки)}</div></div>`).join('');
+    out += `<div class="hud-row full-width"><details class="hud-mw hud-smooth"><summary><span class="hud-key">🕰 Тем временем:</span> <small class="hud-mw-names">${тем.map(т => escapeHtml(т.имя)).join(', ')}</small></summary>${свой || `<div class="hud-v hud-mw-list">${карточки}</div>`}</details></div>`;
+  }
+  if (вМире && out) out = out.replace('<div class="hud-row full-width"><details class="hud-mw hud-smooth">', '<div class="hud-world-section hud-world-section-mw"><details class="hud-mw hud-smooth is-world">').replace('<summary><span class="hud-key">🕰 Тем временем:</span>', '<summary><span class="hud-world-title">🕰 Тем временем</span>');
+  return out;
 }
 
 export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {}) {
@@ -254,6 +296,7 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
   if (settings.promisesList !== false && Array.isArray(memoryData.promises) && memoryData.promises.length) {
     const сцена = parseSceneDate((hudData && hudData.scene || {})['Дата']);
     const ЗНАЧОК = { kept: '✅', broken: '💔', overdue: '⏳', open: '🔗' };
+    const разобранные = [];
     const обещания = memoryData.promises.map(строка => {
       const [кто = '', что = '', срок = '', статус = ''] = String(строка).split('|').map(x => x.trim());
       if (!кто && !что) return '';
@@ -264,42 +307,17 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
       const вид = просрочено ? 'overdue' : ключ;
       const слово = ключ === 'kept' ? 'сдержано' : ключ === 'broken' ? 'нарушено' : просрочено ? 'срок прошёл' : 'в силе';
       const [от = '', кому = ''] = кто.split(/\s*(?:→|->|=>)\s*/);
+      разобранные.push({ от, кому, что, срок, безСрока, вид, слово });
       return `<div class="hud-v-card hud-promise is-${вид}"><span class="hud-promise-ico" aria-hidden="true">${ЗНАЧОК[вид]}</span>`
         + `<div class="hud-promise-body"><p>${applyTooltips(что || кто)}</p>`
         + (что ? `<small class="hud-promise-who">${escapeHtml(от)}${кому ? ` <i aria-hidden="true">→</i> ${escapeHtml(кому)}` : ''}</small>` : '')
         + `<div class="hud-promise-tags">${безСрока ? '' : `<span class="hud-promise-due"><i aria-hidden="true">📅</i>${escapeHtml(срок)}</span>`}<span class="hud-promise-state">${слово}</span></div></div></div>`;
     }).filter(Boolean).join('');
-    if (обещания) html += `<div class="hud-row full-width"><span class="hud-key">🤝 Обещания:</span> <div class="hud-v hud-promises">${обещания}</div></div>`;
+    const свои = обещания ? видОбещаний(разобранные, видБлока('promisesView')) : '';
+    if (обещания) html += `<div class="hud-row full-width"><span class="hud-key">🤝 Обещания:</span> ${свои || `<div class="hud-v hud-promises">${обещания}</div>`}</div>`;
   }
 
-  // «Тем временем»: 1–2 важных человека вне кадра — где они, что делают и
-  // думают, и «островок знаний»: знает / не знает / догадывается. Свёрнуто.
-  // Тот, кто сейчас в кадре (в карточке у него есть внешность или одежда),
-  // сюда не попадает, даже если модель его записала.
-  const вКадре = (Array.isArray(hudData && hudData.characters) ? hudData.characters : [])
-    .filter(c => c && (String(c['Внешность'] || '').trim() || String(c['Одежда'] || '').trim())).map(c => String(c['Имя'] || ''));
-  const тем = (settings.meanwhile !== false && hudData && Array.isArray(hudData.meanwhile) ? hudData.meanwhile : [])
-    .filter(т => !вКадре.some(и => namesLikelySame(и, т.имя)));
-  if (тем.length) {
-    const пусто = (x) => !x || /^(empty|none|нет|—|-)$/i.test(String(x).trim());
-    const строка = (класс, значок, подпись, текст) => пусто(текст) ? '' : `<div class="hud-mw-know ${класс}"><i aria-hidden="true">${значок}</i><b>${подпись}</b><span>${applyTooltips(текст)}</span></div>`;
-    const лицо = (имя) => {
-      const адрес = (() => { try { const н = getAvatarUrl(имя, false); return н && н.url; } catch (_) { return ''; } })();
-      return адрес ? `<img class="hud-mw-face" src="${escapeHtml(адрес)}" alt="" loading="lazy">`
-        : `<span class="hud-mw-face is-initials" aria-hidden="true">${escapeHtml(String(имя).trim().split(/\s+/).slice(0, 2).map(w => w[0] || '').join('').toUpperCase())}</span>`;
-    };
-    const где = (т) => {
-      const [первое, ...прочее] = String(т.где || '').split(/\s*·\s*/);
-      const время = /^\d{1,2}:\d{2}$/.test(первое) ? первое : '';
-      const место = время ? прочее.join(' · ') : String(т.где || '');
-      return (время ? `<span><i aria-hidden="true">🕒</i>${escapeHtml(время)}</span>` : '') + (место ? `<span><i aria-hidden="true">📍</i>${escapeHtml(место)}</span>` : '');
-    };
-    const карточки = тем.map(т => `<div class="hud-v-card hud-mw-card">`
-      + `<div class="hud-mw-head">${лицо(т.имя)}<div class="hud-mw-who"><b>${escapeHtml(т.имя)}</b><small class="hud-mw-where">${где(т)}</small></div></div>`
-      + `<p class="hud-mw-text">${applyTooltips(т.текст)}</p>`
-      + `<div class="hud-mw-island">${строка('is-yes', '👁', 'знает', т.знает)}${строка('is-no', '🔒', 'не знает', т.неЗнает)}${строка('is-guess', '✨', 'догадывается', т.догадки)}</div></div>`).join('');
-    html += `<div class="hud-row full-width"><details class="hud-mw hud-smooth"><summary><span class="hud-key">🕰 Тем временем:</span> <small class="hud-mw-names">${тем.map(т => escapeHtml(т.имя)).join(', ')}</small></summary><div class="hud-v hud-mw-list">${карточки}</div></details></div>`;
-  }
+  if (!extra.темВременемВМире) html += блокТемВременем(hudData);
 
   // 4. СЕКРЕТЫ (Кастомный скрытый спойлер + Уровни)
   // Кнопка «в Лорбук» у каждого секрета — и в списке, и во всех видах:

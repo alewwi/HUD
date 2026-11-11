@@ -1,0 +1,85 @@
+<!doctype html><html class="hud-glass-frosted"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Новые виды — стенд</title>
+<style>
+body { margin: 0; padding: 12px; background: #1d1a22; color: #ddd; font: 13px system-ui, sans-serif; }
+.cols { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--w, 420px)), 1fr)); gap: 16px; align-items: start; }
+h2 { margin: 18px 0 6px; font-size: 13px; color: #c9b8e0; grid-column: 1 / -1; } h3 { margin: 0 0 6px; font-size: 11px; color: #999; font-weight: 600; }
+.mes_text .hud-tab-content { display: block; opacity: 1 !important; animation: none !important; }
+.hud-os-card { padding: 10px; }
+</style></head>
+<body><div class="cols" id="cols">загрузка…</div>
+<script type="module">
+// Стенд дополнительных видов новых блоков (render/views-plus.js). Открывать
+// через сервер Таверны: /scripts/extensions/third-party/HUD/tests/tools/plus-stand.html
+// ?w=215px — ширина карточки как на телефоне; ?t=kawaii — тема.
+// Люди и события выдуманы.
+const P = new URLSearchParams(location.search);
+const V = '?v=23.89.8';
+const ширина = P.get('w') || '';
+if (ширина) document.documentElement.style.setProperty('--w', ширина);
+const тема = P.get('t') || 'default';
+const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '../../css/all.css' + V; document.head.append(css);
+const { settings } = await import('../../settings.js' + V);
+const { themeVars, СВЕТЛЫЕ_ТЕМЫ } = await import('../../themes.js' + V).catch(() => ({}));
+const VP = await import('../../render/views-plus.js' + V);
+const PL = await import('../../render/pregnancy-loss.js' + V);
+const SG = await import('../../render/secrets-grid.js' + V);
+if (тема !== 'default') {
+  // Как applyThemeColors в index.js: цвета пресета — переменными на <html>.
+  const светлая = (СВЕТЛЫЕ_ТЕМЫ || []).includes(тема);
+  document.documentElement.className = 'hud-theme-' + тема + ' hud-glass-frosted' + (светлая ? ' hud-kinds-light' : '');
+  const ссылка = (href) => { const t = document.createElement('link'); t.rel = 'stylesheet'; t.href = href; document.head.append(t); };
+  if (светлая) ссылка('../../css/themes/light.css' + V);
+  ссылка('../../css/themes/' + тема + '.css' + V);
+  const p = themeVars(тема) || {}, r = document.documentElement.style;
+  const rgba = (hex, a) => { const h = String(hex || '#000').replace('#', ''); const n = parseInt(h.length === 3 ? h.split('').map(c => c + c).join('') : h, 16); return 'rgba(' + (n >> 16 & 255) + ',' + (n >> 8 & 255) + ',' + (n & 255) + ',' + ((a ?? 100) / 100) + ')'; };
+  if (p.textColor) r.setProperty('--hud-text', p.textColor); if (p.textMutedColor) r.setProperty('--hud-text-muted', p.textMutedColor);
+  if (p.accentColor) r.setProperty('--hud-accent', p.accentColor);
+  if (p.cardBgStart) r.setProperty('--hud-bg', 'linear-gradient(135deg, ' + rgba(p.cardBgStart, p.cardBgAlpha) + ', ' + rgba(p.cardBgEnd, p.cardBgAlpha) + ')');
+  if (p.infoBlockBgStart) r.setProperty('--hud-card-inner-bg', 'linear-gradient(135deg, ' + rgba(p.infoBlockBgStart, p.infoBlockBgAlpha) + ', ' + rgba(p.infoBlockBgEnd, p.infoBlockBgAlpha) + ')');
+  if (светлая) document.body.style.background = '#e9e4ee';
+}
+const Д = (г, м, ч) => Date.UTC(г, м - 1, ч);
+const кнопка = (з) => `<button type="button" class="hud-vp-x" data-hud-scar="${з.id}" title="Убрать шрам">×</button>`;
+const шрамы = [
+  { id: 's1', кому: 'Нора Вейл', почему: 'прочёл её дневник без спроса', было: 85, стало: 60 },
+  { id: 's2', кому: 'Нора Вейл', почему: 'не пришёл на похороны отца', было: 70, стало: 31 },
+];
+const приглашения = [{ id: 'i1', кто: 'Аделина Хорн', что: 'ужин у неё дома в честь новоселья', когда: '22.10.2024, 19:00' }];
+const неЗнает = 'Тео — не её родной брат; деньги на лечение взяты у Корда; в субботу Ада уезжает навсегда';
+const вес = { рост: 168, вес: 57, история: [{ вес: 58.5, дата: Д(2024, 9, 26) }, { вес: 57.8, дата: Д(2024, 10, 3) }, { вес: 57, дата: Д(2024, 10, 17) }] };
+const обещания = [
+  { от: 'Нора Вейл', кому: 'Тео Вейл', что: 'забрать его с вокзала в пятницу', срок: '18.10.2024', безСрока: false, вид: 'overdue', слово: 'срок прошёл' },
+  { от: 'Нора Вейл', кому: 'Тео Вейл', что: 'никому не говорить про долг', срок: '', безСрока: true, вид: 'open', слово: 'в силе' },
+  { от: 'Тео Вейл', кому: 'Нора Вейл', что: 'бросить курить до зимы', срок: '01.12.2024', безСрока: false, вид: 'kept', слово: 'сдержано' },
+  { от: 'Корд', кому: '', что: 'молчать о складе', срок: '', безСрока: true, вид: 'broken', слово: 'нарушено' },
+];
+const тем = [
+  { имя: 'Аделина Хорн', где: '21:40 · её мастерская на Литейной', текст: 'Перебирает старые письма и не может решиться позвонить.', знает: 'что Нора вернулась в город', неЗнает: 'про долг Корду', догадки: 'что Тео что-то скрывает' },
+  { имя: 'Корд', где: 'склад у порта', текст: 'Пересчитывает деньги и ждёт звонка.', знает: 'всё про долг', неЗнает: 'что склад уже нашли', догадки: '' },
+];
+const секреты = [
+  { fact: 'Тео — не родной брат Норы', level: 'critical', knows: ['Аделина Хорн'], hidden: ['Нора Вейл', 'Тео Вейл'], wrong: [] },
+  { fact: 'Деньги на лечение взяты у Корда', level: 'high', knows: ['Тео Вейл', 'Корд'], hidden: ['Нора Вейл'], status: 'partial' },
+  { fact: 'Склад у порта уже нашла полиция', level: 'medium', knows: ['Аделина Хорн'], hidden: ['Корд'], wrong: [{ name: 'Корд', belief: 'думает, что склад чист' }] },
+  { fact: 'Ада уезжает в субботу навсегда', level: 'low', knows: ['Аделина Хорн', 'Нора Вейл'], hidden: ['Тео Вейл'] },
+];
+const hudData = { characters: [{ 'Имя': 'Нора Вейл' }, { 'Имя': 'Тео Вейл' }] };
+const потеря = { вид: 'miscarriage', неделя: 11, дата: Д(2024, 10, 9), циклК: Д(2024, 11, 13) };
+const сцена = Д(2024, 10, 17);
+
+const карточка = (заголовок, html) => `<div><h3>${заголовок}</h3><div class="mes_text"><div class="hud-os-card"><div class="hud-tab-content">${html}</div></div></div></div>`;
+let out = '';
+const блок = (имя, виды, рисовать) => { out += `<h2>${имя}</h2>`; for (const [в, подпись] of виды) out += карточка(подпись, рисовать(в) || '<i>пусто</i>'); };
+блок('Шрамы доверия', [['kintsugi', 'Кинцуги'], ['seams', 'Швы']], в => VP.видШрамов(шрамы, в, кнопка));
+блок('Приглашения', [['engraved', 'Пригласительная'], ['seal', 'Сургуч']], в => VP.видПриглашений(приглашения, в));
+блок('Не знает', [['redacted', 'Под грифом'], ['blindspot', 'Слепое пятно']], в => VP.видНеЗнает(неЗнает, 'Нора Вейл', в));
+блок('Вес и рост', [['scale', 'Напольные весы'], ['silhouette', 'Силуэт']], в => VP.видВеса(вес, в, { сдвиг: -0.8, срок: ' за 14 дн.', история: вес.история }));
+блок('Конец беременности', [['classic', 'Кольцо (прежний)'], ['sprig', 'Гербарий'], ['path', 'Тропинка']], в => { settings.lossView = в; return PL.блокПотери(потеря, { кто: 'Нора Вейл', сценаMs: сцена }); });
+блок('Обещания', [['knots', 'Узелки'], ['pairs', 'Кто кому']], в => VP.видОбещаний(обещания, в));
+блок('Тем временем', [['cctv', 'Камеры'], ['novel', 'Глава романа']], в => VP.видТемВременем(тем, в));
+settings.secretsGrid = 'on';
+блок('Кто что знает', [['classic', 'Таблица (прежний)'], ['doors', 'Двери'], ['clearance', 'Допуск']], в => { settings.secretsGridView = в; return SG.сеткаСекретов(JSON.parse(JSON.stringify(секреты)), hudData); });
+document.getElementById('cols').innerHTML = out;
+if (P.get('lang') === 'en') { const I = await import('../../i18n.js' + V); const EN = await import('../../i18n-en.js' + V); settings.language = 'en'; I.применитьЯзык('en'); I.перевестиДерево(document.getElementById('cols')); }
+window.__ready = true;
+</script></body></html>

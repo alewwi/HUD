@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы } from '../utils.js?v=23.89.9';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.9';
-import { namesLikelySame } from '../names.js?v=23.89.9';
-import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.89.9';
-import { settings } from '../settings.js?v=23.89.9';
-import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.89.9';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.9';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы, имяБезПриставки } from '../utils.js?v=23.89.10';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.10';
+import { namesLikelySame } from '../names.js?v=23.89.10';
+import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.89.10';
+import { settings } from '../settings.js?v=23.89.10';
+import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.89.10';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.10';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -25,16 +25,19 @@ export const ВИДЫ_БЛОКОВ = [
   { ключ: 'clothesView', группа: 'Облик', поле: 'Одежда', виды: { classic: 'Текст', hanger: 'Вешалка', layers: 'Слои', tags: 'Бирки' } },
   { ключ: 'looksView', группа: 'Облик', поле: 'Внешность', виды: { classic: 'Текст', traits: 'Черты', profile: 'Приметы', sketch: 'Набросок' } },
   { ключ: 'roleView', группа: 'Облик', поле: 'Роль', виды: { classic: 'Карточка', badge: 'Пропуск', ribbon: 'Орден', stack: 'Визитка' } },
+  { ключ: 'weightView', группа: 'Тело и здоровье', поле: 'Вес и рост', виды: { classic: 'Плашки', scale: 'Напольные весы', silhouette: 'Силуэт' }, новый: true },
   { ключ: 'bodyStateView', группа: 'Тело и здоровье', поле: 'Тело и состояние', виды: { batteries: 'Батарейки', flasks: 'Колбы', chips: 'Строка' }, новый: true },
   { ключ: 'physView', группа: 'Тело и здоровье', поле: 'Физиология', виды: { classic: 'Текст', sensors: 'Датчики', bubbles: 'Пузырьки', readout: 'Монитор' } },
   { ключ: 'healthView', группа: 'Тело и здоровье', поле: 'Здоровье', виды: { classic: 'Карточки', chart: 'Медкарта', compact: 'Кратко', kit: 'Аптечка' } },
   { ключ: 'marksView', группа: 'Тело и здоровье', поле: 'Следы на теле', виды: { classic: 'Карточки', compact: 'Строки', badges: 'Эмалевые значки', tags: 'Акварель' } },
   { ключ: 'fetusView', группа: 'Тело и здоровье', поле: 'Малыши в животе', виды: { classic: 'Пузырь', ultrasound: 'УЗИ-снимок', nest: 'Гнездо', letter: 'Письмо аиста' }, новый: true },
   { ключ: 'postpartumView', группа: 'Тело и здоровье', поле: 'После родов', виды: { classic: 'Шкала', journal: 'Дневник', rings: 'Кольца', bottles: 'Бутылочки' }, новый: true },
+  { ключ: 'lossView', группа: 'Тело и здоровье', поле: 'Конец беременности', виды: { classic: 'Кольцо', sprig: 'Гербарий', path: 'Тропинка' }, новый: true },
   { ключ: 'placeView', группа: 'Место и речь', поле: 'Место', виды: { classic: 'Текст', crumbs: 'Линия метро', pin: 'Ключ с биркой', sign: 'Открытка' } },
   { ключ: 'linesView', группа: 'Место и речь', поле: 'Реплики', виды: { classic: 'Облачка', quotes: 'Цитаты', script: 'Голосовые', subtitles: 'Субтитры' } },
   { ключ: 'keyView', группа: 'Мысли и чувства', поле: 'Ключ', виды: { classic: 'Карточки', stickers: 'Стикеры', bullets: 'Бусы', headlines: 'Телеграммы' } },
   { ключ: 'expView', группа: 'Мысли и чувства', поле: 'Ожидание vs Реальность', виды: { classic: 'Как было', split: 'Две половины', photos: 'Два снимка', arrow: 'Поворот' } },
+  { ключ: 'knowsNotView', группа: 'Мысли и чувства', поле: 'Не знает', виды: { classic: 'Список', redacted: 'Под грифом', blindspot: 'Слепое пятно' }, новый: true },
   { ключ: 'fearsView', группа: 'Мысли и чувства', поле: 'Страхи', виды: { list: 'Список', thermometer: 'Термометры', skulls: 'Черепа', storm: 'Тучи', radar: 'Радар', dark: 'Во тьме' } },
   { ключ: 'exposureView', группа: 'Мысли и чувства', поле: 'Разоблачение', виды: { text: 'Текст', bar: 'Шкала', mask: 'Маска', eye: 'Глаз', hourglass: 'Песочные часы' } },
   { ключ: 'inventoryView', группа: 'Планы и вещи', поле: 'Инвентарь', виды: { list: 'Список', grid: 'Слоты', cards: 'Карточки', groups: 'По группам', weight: 'По важности', receipt: 'Опись' } },
@@ -42,6 +45,7 @@ export const ВИДЫ_БЛОКОВ = [
   { ключ: 'scheduleView', группа: 'Планы и вещи', поле: 'Расписание', виды: { classic: 'Лента', calendar: 'Календарь', planner: 'Ежедневник', tickets: 'Билеты' } },
   { ключ: 'flagsView', группа: 'Планы и вещи', поле: 'Флаг-монитор', виды: { classic: 'Вымпелы', checklist: 'Чек-лист', pins: 'Доска детектива', lamps: 'Закладки' } },
   { ключ: 'trustView', группа: 'Связи', поле: 'Доверие', виды: { bars: 'Полоски', hearts: 'Сердца', shield: 'Щит', ring: 'Кольца', traffic: 'Светофор', spectrum: 'Спектр', orbit: 'Орбиты' } },
+  { ключ: 'trustScarsView', группа: 'Связи', поле: 'Шрамы доверия', виды: { classic: 'Плашки', kintsugi: 'Кинцуги', seams: 'Швы' }, новый: true },
   { ключ: 'memoriesView', группа: 'Связи', поле: 'Общие воспоминания', виды: { list: 'Список', polaroid: 'Полароиды', film: 'Плёнка', beads: 'Бусины' } },
   { ключ: 'statusView', группа: 'Связи', поле: 'Статус', виды: { classic: 'Индикатор', badge: 'Профиль', stamp: 'Печать', toggles: 'Неон' } },
   { ключ: 'conflictView', группа: 'Связи', поле: 'Глубина конфликта', виды: { classic: 'Плашки', stages: 'Стадии', counter: 'Счётчик дней', weather: 'Погода' } },
@@ -61,6 +65,9 @@ export const ВИДЫ_БЛОКОВ = [
   { ключ: 'importantView', группа: 'Память', поле: 'Важное', виды: { list: 'Список', scroll: 'Свиток', notebook: 'Блокнот', bookmarks: 'Закладки' } },
   { ключ: 'gunsView', группа: 'Память', поле: 'Ружья Чехова', виды: { list: 'Список', board: 'Доска', timeline: 'Колонки', progress: 'Фитиль', cylinder: 'Барабан' } },
   { ключ: 'secretsView', группа: 'Память', поле: 'Секреты', виды: { list: 'Список', vault: 'Сейфы', files: 'Папки', web: 'Сеть', bars: 'Шкалы', envelopes: 'Конверты' } },
+  { ключ: 'secretsGridView', группа: 'Память', поле: 'Кто что знает', виды: { classic: 'Таблица', doors: 'Двери', clearance: 'Допуск' }, новый: true },
+  { ключ: 'promisesView', группа: 'Память', поле: 'Обещания', виды: { classic: 'Карточки', knots: 'Узелки', pairs: 'Кто кому' }, новый: true },
+  { ключ: 'invitesView', группа: 'Память', поле: 'Приглашения', виды: { classic: 'Карточки', engraved: 'Пригласительная', seal: 'Сургуч' }, новый: true },
   { ключ: 'lifeGaugeView', группа: 'Быт', поле: 'Сводка', виды: { rings: 'Кольца', bars: 'Полоски', off: 'Скрыть' }, новый: true },
   { ключ: 'lifeDayView', группа: 'Быт', поле: 'Сутки', виды: { strip: 'Лента', clock: 'Циферблат', off: 'Скрыть' }, новый: true },
   { ключ: 'wardrobeView', группа: 'Быт', поле: 'Гардероб', виды: { tags: 'Бирки', rail: 'Вешалка', list: 'Список' }, новый: true },
@@ -73,6 +80,7 @@ export const ВИДЫ_БЛОКОВ = [
   { ключ: 'phoneIconsView', группа: 'Телефон', поле: 'Иконки приложений', виды: { auto: 'Авто по теме', plain: 'Обычные', vamp: 'Vamp', voodoo: 'Вуду', spacehorror: 'Космохоррор', cyberpunk: 'Киберпанк', spaceopera: 'Космоопера', biopunk: 'Биопанк', steampunk: 'Стимпанк', dieselpunk: 'Дизельпанк', western: 'Вестерн', pirate: 'Пираты', academia: 'Dark Academia', medieval: 'Средневековье', egypt: 'Древний Египет', bujo: 'Буллет-джорнал', witch: 'Ведьмовство', fantasy: 'Фэнтези', kawaii: 'Каваи', teaparty: 'Чаепитие', cottage: 'Коттеджкор', solarpunk: 'Солярпанк', ice: 'Лёд', ocean: 'Глубина', noir: 'Нуар', mafia: 'Криминал', darkroom: 'Фотолаборатория', japan: 'Феодальная Япония', web1: 'Web 1.0' }, новый: true },
   // Вкладка «Мир» (render/world-views.js) — в порядке её блоков.
   { ключ: 'newsView', группа: 'Мир', поле: 'Главные новости', виды: { classic: 'Лента', front: 'Первая полоса', tv: 'Эфир', radio: 'Радиоприёмник' } },
+  { ключ: 'meanwhileView', группа: 'Мир', поле: 'Тем временем', виды: { classic: 'Карточки', cctv: 'Камеры', novel: 'Глава романа' }, новый: true },
   { ключ: 'rumorsView', группа: 'Мир', поле: 'Слухи', виды: { classic: 'Список', whisper: 'Шёпот', graffiti: 'Граффити', chain: 'Сарафанное радио' } },
   { ключ: 'economyView', группа: 'Мир', поле: 'Экономика', виды: { classic: 'Сводка', board: 'Биржевое табло', tiles: 'Котировки', coins: 'Монетница' } },
   { ключ: 'cityView', группа: 'Мир', поле: 'Городские службы', виды: { classic: 'Сводка', dispatch: 'Диспетчерская', signs: 'Дорожные знаки', alert: 'Оповещение' } },
@@ -103,7 +111,7 @@ const огр = (v, a, b) => Math.max(a, Math.min(b, v));
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто)$/i.test(String(v).trim());
 const число = (s) => { const m = String(s ?? '').replace(',', '.').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : NaN; };
 const инициалы = (имя) => инициалыИмени(имя || '?');
-const первое = (имя) => String(имя || '').trim().split(/\s+/)[0];
+const первое = (имя) => имяБезПриставки(String(имя || '').trim()).split(/\s+/)[0];
 // Id внутри SVG: карточек на странице много, у градиентов свои имена.
 let счётId = 0;
 const новыйId = (п) => `hud-v-${п}-${(++счётId).toString(36)}`;
@@ -616,7 +624,8 @@ export function видМаршрута(точки, кто, вид, опции = 
       места.push(м);
       return м;
     });
-    const r = (seed) => { let x = Math.imul(seed + 7, 2654435761) >>> 0; x ^= x >>> 15; return (x % 1000) / 1000; };
+    // XOR возвращает знаковое число: без >>> 0 доля бывает отрицательной, и кварталы выходят с минусовым размером.
+    const r = (seed) => { let x = Math.imul(seed + 7, 2654435761) >>> 0; x = (x ^ (x >>> 15)) >>> 0; return (x % 1000) / 1000; };
     const кварталы = Array.from({ length: 14 }, (_, i) => `<rect class="block" x="${(r(i) * (W - 40)).toFixed(0)}" y="${(r(i + 50) * (H - 30)).toFixed(0)}" width="${(22 + r(i + 90) * 36).toFixed(0)}" height="${(14 + r(i + 130) * 22).toFixed(0)}" rx="3"/>`).join('');
     const путь = позиции.map((м, i) => (i ? 'L' : 'M') + м.x.toFixed(1) + ' ' + м.y.toFixed(1)).join(' ');
     const пины = места.map(м => { const сейчас = м === позиции[позиции.length - 1]; return `<g class="pin${сейчас ? ' is-now' : ''}" transform="translate(${м.x.toFixed(1)} ${м.y.toFixed(1)})">${сейчас ? '<circle class="pulse" r="9"/>' : ''}<path class="drop" d="M0 0c-5.5-6-8-9.6-8-13a8 8 0 0 1 16 0c0 3.4-2.5 7-8 13Z"/><text y="-10.4">${м.n}</text></g>`; }).join('');

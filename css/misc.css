@@ -7443,6 +7443,10 @@ button.hud-sum-restore.is-missing { color: var(--hud-muted-text, #9a95a6); text-
 .hud-mw > summary { cursor: pointer; list-style: none; display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
 .hud-mw > summary::-webkit-details-marker { display: none; }
 .hud-mw-names { opacity: .72; }
+/* В «Мире» — заголовок как у соседних разделов, имена под ним. */
+.hud-mw.is-world > summary { display: block; text-align: center; }
+.hud-mw.is-world > summary .hud-world-title { display: block; margin-bottom: 4px; }
+.hud-mw.is-world > summary .hud-mw-names { display: block; text-align: center; }
 .hud-mw-list { display: grid; gap: 10px; margin-top: 8px; }
 .hud-mw-card { padding: 12px; }
 .hud-mw-head { display: flex; gap: 10px; align-items: center; margin-bottom: 9px; min-width: 0; }

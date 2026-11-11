@@ -4,6 +4,25 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.10 — 2026-11-11
+
+Eight blocks get a choice of view, "Meanwhile" moves to the World tab, phone rumors look like a live feed, and long Memory lists fold like the character ones.
+
+### Added
+- **Views for eight blocks** (Customization → Block views): two new views next to each old one. Weight and height: "Bathroom scale", "Silhouette". End of pregnancy: "Herbarium", "Path". "Doesn't know": "Redacted", "Blind spot". Trust scars: "Kintsugi", "Stitches". "Who knows what": "Doors", "Clearance". Promises: "Knots", "Who to whom". Invitations: "Invitation card", "Wax seal". "Meanwhile": "Cameras", "Novel chapter".
+- **"Meanwhile" is in the World tab**, right under the headlines. When a turn has no World tab, it stays in Memory.
+
+### Changed
+- **Phone rumors.** "People say" and "Online chatter" tabs with counts. Rumors are whisper bubbles: the fresh one stands out, older ones fade. Comments are a post feed with an anonymous avatar and a post number; tap "Anonymous" to see the nickname.
+- **Memory:** Timeline, Promises and the people in "Who knows what" fold after three items, like character lists: three and a "More N of M" button on phones, three and a scroll on PC.
+
+### Fixed
+- "[g1] fired" and "[p1] kept" mark the gun or promise itself instead of replacing it with the word; leftover "fired" and "-" items are gone.
+- Memory sent as updates no longer brings back removed items or gets cut when carried over.
+- An unanswered invitation or promises show the Memory tab even when the turn has no other memory; the invitation badge finds the card in any view.
+- Initials in "Who knows what" no longer come from prefixes like "THE".
+- A reply translated before 23.89.8 no longer keeps the translated HUD label ("[平视显示器]") above the card.
+
 ## 23.89.9 — 2026-11-11
 
 One model can write the story and another the HUD: the HUD is written by a separate request through the chosen profile. The archive collapses and filters long lists, and pregnancies no longer go missing in it.

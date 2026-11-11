@@ -14,17 +14,17 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.89.9';
-import { проставитьДень } from './msg-feed.js?v=23.89.9';
-import { normalizeJSONData } from '../schema.js?v=23.89.9';
-import { settings } from '../settings.js?v=23.89.9';
-import { статусРужья } from '../codes.js?v=23.89.9';
-import { extractHudBlock } from '../hud-block.js?v=23.89.9';
-import { развернутьHUD } from '../offload.js?v=23.89.9';
-import { namesLikelySame } from '../names.js?v=23.89.9';
-import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.89.9';
-import { readParsed, writeParsed } from '../store.js?v=23.89.9';
-import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.89.9';
+import { parseHUDComplex } from '../hud-parser.js?v=23.89.10';
+import { проставитьДень } from './msg-feed.js?v=23.89.10';
+import { normalizeJSONData } from '../schema.js?v=23.89.10';
+import { settings } from '../settings.js?v=23.89.10';
+import { статусРужья } from '../codes.js?v=23.89.10';
+import { extractHudBlock } from '../hud-block.js?v=23.89.10';
+import { развернутьHUD } from '../offload.js?v=23.89.10';
+import { namesLikelySame } from '../names.js?v=23.89.10';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.89.10';
+import { readParsed, writeParsed } from '../store.js?v=23.89.10';
+import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.89.10';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -623,7 +623,12 @@ export function mergeCarryOver(data, messageElement) {
   if (накоплено.intercepts.length) итог.intercepts = накоплено.intercepts;
 
   итог.memory = { ...(data.memory || {}) };
+  // Память обновлениями (hud-expand.js): важное, секреты и ружья хода — уже
+  // весь список, с тем, что модель убрала или пометила. Склейка вернула бы
+  // убранное и урезала бы список до carryMaxItems — берём ход как есть.
+  const памятьЦеликом = settings.enableMemory !== false && settings.hudMemoryDelta !== false;
   for (const поле of ['timeline', 'important', 'secrets', 'guns']) {
+    if (памятьЦеликом && поле !== 'timeline' && Array.isArray(data.memory && data.memory[поле])) continue;
     if (накоплено.memory[поле].length) итог.memory[поле] = накоплено.memory[поле];
   }
   const пам = data.memory || {};

@@ -1,0 +1,455 @@
+/* =========================================================================
+   ДОПОЛНИТЕЛЬНЫЕ ВИДЫ НОВЫХ БЛОКОВ (render/views-plus.js)
+   Шрамы доверия, приглашения, «Не знает», вес и рост, конец беременности,
+   обещания, «Тем временем», «Кто что знает». Каждый вид — свой материал:
+   золото и керамика, ткань и нитка, тиснёная бумага, сургуч, чёрный маркер,
+   стрелочные весы, гербарий, шнур с узлами, экраны камер, книжная страница,
+   двери и пропуска. Цвет — от акцента темы, где материал не диктует свой.
+   ========================================================================= */
+.hud-vp-cap { display: block; font-size: .66em; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: color-mix(in srgb, var(--v-acc) 55%, var(--ink-hi, #fff)); opacity: .85; }
+.hud-vp-x {
+  flex: none; width: 20px; height: 20px; padding: 0; border-radius: 50%; border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  background: transparent; color: inherit; opacity: .55; font: 700 13px/1 system-ui, sans-serif; cursor: pointer;
+}
+.hud-vp-x:focus-visible { opacity: 1; outline: 2px solid var(--v-acc); }
+@media (hover: hover) and (pointer: fine) { .hud-vp-x:hover { opacity: 1; border-color: var(--v-acc); } }
+
+/* --- Шрамы: кинцуги --- */
+.hud-vp-kin { display: grid; grid-template-columns: minmax(110px, 46%) minmax(0, 1fr); gap: 10px; align-items: center;
+  --gold: #e4b54f; --kin-glaze-hi: color-mix(in srgb, var(--v-acc) 30%, #5d5566); --kin-glaze: color-mix(in srgb, var(--v-acc) 22%, #2f2a36); --kin-glaze-lo: #17141b; }
+.hud-vp-kin-bowl { width: 100%; height: auto; display: block; overflow: visible; }
+.hud-vp-kin-bowl .shadow { fill: rgba(0,0,0,.4); }
+.hud-vp-kin-bowl .body, .hud-vp-kin-bowl .foot { stroke: rgba(255,255,255,.12); stroke-width: .6; }
+.hud-vp-kin-bowl .band { fill: none; stroke: color-mix(in srgb, var(--gold) 45%, transparent); stroke-width: .7; stroke-dasharray: 1.5 2.5; }
+.hud-vp-kin-bowl .gloss { fill: none; stroke: rgba(255,255,255,.09); stroke-width: 9; stroke-linecap: round; filter: blur(2.5px); }
+.hud-vp-kin-bowl .rim { fill: color-mix(in srgb, var(--v-acc) 18%, #4a4252); stroke: rgba(255,255,255,.28); stroke-width: .7; }
+.hud-vp-kin-bowl .seam, .hud-vp-kin-bowl .branch { fill: none; stroke: var(--au, var(--gold)); stroke-linecap: round; stroke-linejoin: round; filter: drop-shadow(0 0 1.6px rgba(255,200,90,.85)); }
+.hud-vp-kin-bowl .branch { stroke-width: .8; opacity: .9; }
+.hud-vp-kin-bowl .sheen { fill: none; stroke: #fffbe6; stroke-linecap: round; stroke-dasharray: 5 400; stroke-dashoffset: 405; opacity: .95; }
+.hud-vp-kin-bowl .dust { fill: #ffe6a3; }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-vp-kin-bowl .sheen { animation: hud-vp-sheen 2.6s ease-in-out infinite; animation-delay: var(--d, 0s); }
+  .hud-vp-kin-bowl .dust { animation: hud-vp-twinkle 1.8s ease-in-out infinite; animation-delay: var(--d, 0s); }
+}
+@keyframes hud-vp-sheen { 0% { stroke-dashoffset: 405; } 70%, 100% { stroke-dashoffset: 300; } }
+@keyframes hud-vp-twinkle { 0%, 100% { opacity: 1; } 50% { opacity: .25; } }
+.hud-vp-kin-side ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 6px; }
+.hud-vp-kin-item { display: grid; grid-template-columns: auto minmax(0, 1fr) auto auto; gap: 6px; align-items: center; font-size: .88em; }
+.hud-vp-kin-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 6px var(--gold); }
+.hud-vp-kin-item div { min-width: 0; display: grid; }
+.hud-vp-kin-item b { font-size: .95em; }
+.hud-vp-kin-item span { font-size: .92em; line-height: 1.35; color: color-mix(in srgb, currentColor 78%, transparent); overflow-wrap: anywhere; }
+.hud-vp-kin-item em { font-style: normal; font-size: .82em; font-weight: 800; color: color-mix(in srgb, var(--gold) 80%, currentColor); white-space: nowrap; }
+.hud-vp-kin-item em i { font-style: normal; opacity: .6; margin: 0 2px; }
+
+/* --- Шрамы: швы --- */
+.hud-vp-seams { display: grid; gap: 8px; }
+.hud-vp-seam { padding: 8px 10px; border-radius: 10px; background: radial-gradient(120% 140% at 0 0, color-mix(in srgb, #c55a52 9%, transparent), transparent 60%), color-mix(in srgb, var(--v-acc) 6%, transparent); border: 1px solid color-mix(in srgb, #c55a52 22%, transparent); }
+.hud-vp-seam-head { display: flex; align-items: center; gap: 6px; }
+.hud-vp-seam-head b { flex: 1; min-width: 0; font-size: .9em; overflow-wrap: anywhere; }
+.hud-vp-seam-head em { font-style: normal; font-weight: 800; font-size: .8em; color: #e0625a; }
+.hud-vp-seam-cut { position: relative; height: 22px; width: var(--w, 60%); margin: 5px 0 2px; }
+.hud-vp-seam-svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.hud-vp-seam-svg path { fill: none; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+/* Рубец: припухший край, сам разрез и блик сверху. */
+.hud-vp-seam-svg .welt { stroke: color-mix(in srgb, #d9786c 55%, transparent); stroke-width: 7; opacity: .35; }
+.hud-vp-seam-svg .cut { stroke: #8f2f30; stroke-width: 2.4; }
+.hud-vp-seam-svg .hi { stroke: #f2a79c; stroke-width: .8; opacity: .55; transform: translateY(-1.4px); }
+/* Нитка поверх рубца и проколы на её концах. */
+.hud-vp-seam-svg .thread { stroke: #efe3cc; stroke-width: 1.6; filter: drop-shadow(0 1px 0 rgba(0,0,0,.45)); }
+.hud-vp-seam-svg .hole { stroke: #4a1518; stroke-width: 3; }
+@keyframes hud-vp-tug { 0%, 100% { transform: rotate(var(--r, 0deg)) scaleY(1); } 50% { transform: rotate(var(--r, 0deg)) scaleY(.7); } }
+.hud-vp-seam p { margin: 2px 0 0; font-size: .86em; line-height: 1.4; color: var(--v-ink-soft); }
+
+/* --- Приглашения: пригласительная --- */
+.hud-vp-engr-list, .hud-vp-seal-list { display: grid; gap: 10px; }
+.hud-vp-engr {
+  position: relative; padding: 16px 14px 12px; text-align: center; color: #3a2e22; border-radius: 4px;
+  background: radial-gradient(120% 90% at 50% 0%, #fffaf0, #f1e6cf); font-family: Georgia, 'Times New Roman', serif;
+  box-shadow: 0 0 0 1px #c9b27c, inset 0 0 0 5px #fbf4e3, inset 0 0 0 6px #c9a85a, 0 10px 20px -10px rgba(0,0,0,.6);
+}
+.hud-vp-engr-orn { display: block; font-size: 18px; line-height: 1; color: #b08a3a; }
+.hud-vp-engr-eye { display: block; margin-top: 4px; font: 700 .62em/1 system-ui, sans-serif; letter-spacing: .3em; text-transform: uppercase; color: #9a7b3d; }
+.hud-vp-engr-who { display: block; margin-top: 8px; font-size: 1.25em; font-style: italic; font-weight: 600; color: #2a1f15; overflow-wrap: anywhere; }
+.hud-vp-engr-ask { display: block; font-size: .78em; font-style: italic; color: #7a6650; }
+.hud-vp-engr-what { margin: 6px 0 0; font-size: 1em; line-height: 1.35; font-variant: small-caps; letter-spacing: .03em; color: #2a1f15; }
+.hud-vp-engr-when { display: inline-block; margin-top: 8px; padding: 2px 10px; border-top: 1px solid #c9a85a; border-bottom: 1px solid #c9a85a; font-size: .8em; color: #5a4630; }
+.hud-vp-engr-rsvp { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; align-items: center; margin-top: 10px; }
+.hud-vp-engr-rsvp small { width: 100%; font: 700 .6em/1 system-ui, sans-serif; letter-spacing: .25em; color: #9a7b3d; }
+.hud-vp-engr .hud-vp-rsvp { padding: 4px 12px; border-radius: 2px; border: 1px solid #b08a3a; background: transparent; color: #4a3826; font: italic .85em Georgia, serif; cursor: pointer; }
+.hud-vp-engr .hud-vp-rsvp.is-yes { background: #b08a3a; color: #fffaf0; }
+@media (hover: hover) and (pointer: fine) { .hud-vp-engr .hud-vp-rsvp:hover { box-shadow: 0 0 0 2px rgba(176,138,58,.35); } }
+
+/* --- Приглашения: сургуч --- */
+.hud-vp-seal { position: relative; display: grid; filter: drop-shadow(0 10px 12px rgba(0,0,0,.45)); }
+.hud-vp-seal-env { position: relative; height: 92px; border-radius: 6px 6px 0 0; overflow: hidden; }
+.hud-vp-seal-env > svg:not(.hud-vp-seal-wax) { position: absolute; inset: 0; width: 100%; height: 100%; }
+.hud-vp-seal-env .back { fill: #cfb487; }
+.hud-vp-seal-env .bottom { fill: #dcc396; }
+.hud-vp-seal-env .side { fill: none; stroke: rgba(90,60,25,.25); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.hud-vp-seal-env .flap { fill: #e6d1a6; }
+.hud-vp-seal-env .flap-edge { fill: none; stroke: rgba(90,60,25,.35); stroke-width: 1; vector-effect: non-scaling-stroke; }
+.hud-vp-seal-twine { position: absolute; left: 0; right: 0; top: 56px; height: 3px; background: repeating-linear-gradient(90deg, #8a6a3e 0 3px, #b99563 3px 6px); box-shadow: 0 1px 1px rgba(0,0,0,.3); }
+.hud-vp-seal-wax { position: absolute; left: 50%; top: 38px; width: 46px; height: 46px; transform: translateX(-50%) rotate(-8deg); overflow: visible; }
+.hud-vp-seal-wax .wax { fill: #a3201b; stroke: #6e1210; stroke-width: .8; filter: drop-shadow(0 2px 2px rgba(0,0,0,.45)); }
+.hud-vp-seal-wax .ring { fill: #b8302a; stroke: #6e1210; stroke-width: .9; }
+.hud-vp-seal-wax .ring2 { fill: none; stroke: rgba(255,190,170,.3); stroke-width: .5; stroke-dasharray: 1 1.4; }
+.hud-vp-seal-wax text { font: italic 700 12px Georgia, serif; fill: #f3c2b2; text-anchor: middle; }
+.hud-vp-seal-wax .shine { fill: none; stroke: rgba(255,230,220,.65); stroke-width: 1.4; stroke-linecap: round; }
+@media (prefers-reduced-motion: no-preference) { .hud-vp-seal-wax { animation: hud-vp-wobble 2.4s ease-in-out infinite; } }
+@keyframes hud-vp-wobble { 0%, 100% { transform: translateX(-50%) rotate(-8deg); } 50% { transform: translateX(-50%) rotate(-2deg) scale(1.04); } }
+.hud-vp-seal-letter { position: relative; margin: -6px 8px 0; padding: 14px 12px 10px; text-align: center; color: #2a1d12; border-radius: 0 0 6px 6px; font-family: Georgia, 'Times New Roman', serif;
+  background: repeating-linear-gradient(180deg, transparent 0 21px, rgba(120,90,50,.12) 21px 22px), linear-gradient(180deg, #fbf5e6, #efe3c8); box-shadow: inset 0 8px 10px -8px rgba(0,0,0,.35); }
+.hud-vp-seal-letter small { font-size: .76em; font-style: italic; color: #6b5338; }
+.hud-vp-seal-letter p { margin: 4px 0 0; font-size: 1em; line-height: 1.4; font-style: italic; }
+.hud-vp-seal-when { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; font-size: .78em; color: #5a4128; }
+.hud-vp-seal-when .hud-v-ico { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.hud-vp-seal-acts { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 8px; }
+.hud-vp-seal .hud-vp-rsvp { padding: 4px 12px; border-radius: 999px; border: 1px solid #8e1a1a; background: transparent; color: #7a1a16; font: .82em Georgia, serif; cursor: pointer; }
+.hud-vp-seal .hud-vp-rsvp.is-yes { background: #8e1a1a; color: #fbe6dc; }
+
+/* --- Не знает: под грифом --- */
+.hud-vp-redact { position: relative; margin-top: 10px; padding: 12px 11px 10px; border-radius: 3px 8px 8px 8px; color: #1d1a16; font-family: 'Courier New', ui-monospace, monospace;
+  background: repeating-linear-gradient(180deg, transparent 0 19px, rgba(60,90,140,.08) 19px 20px), #f3eee2; box-shadow: 0 0 0 1px rgba(0,0,0,.08), 0 10px 18px -10px rgba(0,0,0,.6), 6px 6px 0 -2px #d9c48f, 6px 6px 0 -1px rgba(0,0,0,.15); }
+.hud-vp-redact-tab { position: absolute; left: 0; top: -14px; padding: 2px 10px 3px; border-radius: 6px 6px 0 0; background: #d9c48f; font: 800 .6em/1.2 system-ui, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: #5a4520; }
+.hud-vp-redact-clip { position: absolute; right: 52px; top: -8px; width: 10px; height: 26px; border: 2px solid #9aa0a8; border-radius: 6px; border-bottom-color: transparent; transform: rotate(8deg); }
+.hud-vp-redact-photo { position: absolute; right: 10px; top: -6px; padding: 3px 3px 9px; background: #fff; box-shadow: 0 2px 4px rgba(0,0,0,.3); transform: rotate(4deg); }
+.hud-vp-redact-photo .hud-v-face { width: 30px; height: 30px; border-radius: 1px; background-size: cover; background-position: center; filter: grayscale(.6); }
+.hud-vp-redact-photo .hud-v-face.has-img { color: transparent; text-shadow: none; }
+.hud-vp-redact-stamp { position: absolute; right: 8px; bottom: 8px; padding: 2px 6px; border: 2px solid rgba(180,30,30,.55); border-radius: 3px; font: 900 .7em/1 system-ui, sans-serif; letter-spacing: .16em; text-transform: uppercase; color: rgba(180,30,30,.55); transform: rotate(-12deg); pointer-events: none; }
+.hud-vp-redact-head { display: flex; align-items: center; gap: 6px; padding-bottom: 6px; margin-bottom: 6px; margin-right: 46px; border-bottom: 1px solid rgba(0,0,0,.2); font: 800 .66em/1 system-ui, sans-serif; letter-spacing: .14em; text-transform: uppercase; color: #8a1d1d; }
+.hud-vp-redact-head span { flex: 1; display: inline-flex; align-items: center; gap: 5px; }
+.hud-vp-redact-head .hud-v-ico { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 2; }
+.hud-vp-redact-head em { font-style: normal; padding: 2px 6px; border: 1.5px solid #8a1d1d; border-radius: 3px; }
+.hud-vp-redact-hint { display: block; margin: -2px 0 6px; font: italic .7em system-ui, sans-serif; color: #6a645a; }
+.hud-vp-redact ol { list-style: none; margin: 0; padding: 0 0 18px; display: grid; gap: 5px; }
+.hud-vp-redact li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 7px; align-items: baseline; font-size: .86em; line-height: 1.45; }
+.hud-vp-redact li small { font-size: .78em; color: #6a645a; }
+/* Закрашенное не должно проступать ни в одной теме: цвет — с !important. */
+.hud-vp-redact .hud-vp-redact-bar { -webkit-box-decoration-break: clone; box-decoration-break: clone; padding: 0 2px; border-radius: 1px; background: #121212 !important; color: transparent !important; text-shadow: none !important; cursor: pointer; transition: background .3s ease, color .3s ease; outline: none; }
+.hud-vp-redact .hud-vp-redact-bar:is(:focus, :focus-visible) { background: #f6e7a6 !important; color: #1d1a16 !important; }
+@media (hover: hover) and (pointer: fine) { .hud-vp-redact .hud-vp-redact-bar:hover { background: #f6e7a6 !important; color: #1d1a16 !important; } }
+.hud-vp-redact-scan { position: absolute; left: 0; right: 0; top: 0; height: 16%; opacity: 0; pointer-events: none; background: linear-gradient(180deg, transparent, rgba(120,220,160,.25), transparent); }
+@media (prefers-reduced-motion: no-preference) { .hud-vp-redact-scan { animation: hud-vp-scan 2.8s linear infinite; } }
+@keyframes hud-vp-scan { 0% { top: 0; opacity: 0; } 10%, 85% { opacity: 1; } 100% { top: 84%; opacity: 0; } }
+
+/* --- Не знает: слепое пятно --- */
+.hud-vp-blind { display: grid; grid-template-columns: 64px minmax(0, 1fr); gap: 10px; align-items: center; }
+.hud-vp-blind-eye { width: 64px; height: 64px; display: block; overflow: visible; }
+.hud-vp-blind-eye .lid { fill: color-mix(in srgb, #f4f0f6 88%, var(--v-acc)); stroke: color-mix(in srgb, var(--v-acc) 60%, transparent); stroke-width: 1.2; }
+.hud-vp-blind-eye .is-seen { fill: color-mix(in srgb, var(--v-acc) 70%, #7ab); }
+.hud-vp-blind-eye .is-blind { fill: #15121a; stroke: rgba(255,255,255,.6); stroke-width: .3; }
+.hud-vp-blind-eye .pupil { fill: #0c0a10; }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-vp-blind-eye .pupil { animation: hud-vp-look 3.2s ease-in-out infinite; }
+  .hud-vp-blind-eye .is-blind { animation: hud-vp-twinkle 2.4s ease-in-out infinite; }
+}
+@keyframes hud-vp-look { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-3px, 0); } 60% { transform: translate(3px, 1px); } }
+.hud-vp-blind-side ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 5px; }
+.hud-vp-blind-side li { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 6px; align-items: start; font-size: .88em; line-height: 1.4; }
+.hud-vp-blind-side li .hud-v-ico { width: 14px; height: 14px; margin-top: 2px; fill: none; stroke: color-mix(in srgb, var(--v-acc) 70%, var(--ink-hi, #fff)); stroke-width: 1.6; opacity: .8; }
+
+/* --- Вес: напольные весы --- */
+.hud-body-stats.is-view { display: grid; gap: 4px; }
+.hud-vp-scale { display: grid; gap: 6px; justify-items: center; }
+.hud-vp-scale-plate {
+  position: relative; width: min(100%, 236px); padding: 10px 12px 12px; border-radius: 26px; display: grid; justify-items: center; gap: 6px;
+  background: radial-gradient(120% 80% at 30% 0%, #4a4652, #24212a 55%, #17151b);
+  box-shadow: inset 0 0 0 2px #5e5a66, inset 0 0 0 4px #2a2730, inset 0 2px 0 4px rgba(255,255,255,.12), inset 0 -8px 14px rgba(0,0,0,.5), 0 12px 20px -10px rgba(0,0,0,.75);
+}
+.hud-vp-scale-bezel { position: relative; width: 100%; padding: 4px; border-radius: 64px 64px 10px 10px; background: linear-gradient(160deg, #f3f3f6, #9a9aa3 45%, #e6e6ea 60%, #7d7d86); box-shadow: 0 2px 4px rgba(0,0,0,.5); }
+.hud-vp-scale-dial { width: 100%; height: auto; display: block; background: radial-gradient(70% 120% at 50% 100%, #fbf9f2, #ddd7c8); border-radius: 60px 60px 7px 7px; }
+.hud-vp-scale-dial .zone { fill: none; stroke: #c8bfa9; stroke-width: 2.4; }
+.hud-vp-scale-dial .tick { stroke: #4a463e; stroke-width: .5; } .hud-vp-scale-dial .tick.is-big { stroke-width: 1.3; } .hud-vp-scale-dial .tick.is-small { stroke-width: .35; opacity: .7; }
+.hud-vp-scale-dial text { font: 700 4.6px system-ui, sans-serif; fill: #3d3a33; text-anchor: middle; }
+.hud-vp-scale-dial .needle { stroke: #d33a2c; stroke-width: 1.5; stroke-linecap: round; }
+.hud-vp-scale-dial .tail { stroke: #d33a2c; stroke-width: 2.2; stroke-linecap: round; }
+.hud-vp-scale-dial .needle-g { transform-origin: 60px 46px; }
+.hud-vp-scale-dial .hub { fill: #2a2622; } .hud-vp-scale-dial .hub-cap { fill: #c9c4b8; }
+@media (prefers-reduced-motion: no-preference) { .hud-vp-scale-dial .needle-g { animation: hud-vp-needle 1.8s ease-in-out infinite; } }
+@keyframes hud-vp-needle { 0%, 100% { transform: rotate(0deg); } 20% { transform: rotate(5deg); } 45% { transform: rotate(-3deg); } 70% { transform: rotate(1.5deg); } }
+.hud-vp-scale-glare { position: absolute; inset: 4px; border-radius: 60px 60px 7px 7px; pointer-events: none; background: linear-gradient(125deg, rgba(255,255,255,.55) 0 18%, transparent 30% 100%); mix-blend-mode: screen; }
+.hud-vp-scale-read { padding: 3px 14px; border-radius: 6px; background: #0e1410; box-shadow: inset 0 1px 3px rgba(0,0,0,.8), 0 0 0 1px #3a3d3a; display: inline-flex; align-items: baseline; gap: 3px; }
+.hud-vp-scale-read b { font: 800 1.35em/1.1 ui-monospace, 'Courier New', monospace; color: #8ff0a4; text-shadow: 0 0 8px rgba(120,240,150,.55); }
+.hud-vp-scale-read small { font-size: .7em; color: #8ff0a4; opacity: .7; }
+.hud-vp-scale-grip { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px 9px; width: 70%; }
+.hud-vp-scale-grip i { height: 4px; border-radius: 99px; background: #0f0e12; box-shadow: inset 0 1px 1px rgba(0,0,0,.8), 0 1px 0 rgba(255,255,255,.08); }
+.hud-vp-scale-facts { display: flex; flex-wrap: wrap; gap: 5px; justify-content: center; }
+.hud-vp-scale-facts > span, .hud-vp-shift { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border-radius: 999px; font-size: .78em; font-style: normal; font-weight: 700; background: color-mix(in srgb, currentColor 9%, transparent); border: 1px solid color-mix(in srgb, currentColor 16%, transparent); }
+.hud-vp-scale-facts .hud-v-ico { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.hud-vp-scale-facts .is-ok { color: #5fc98a; } .hud-vp-scale-facts .is-low { color: #6fb3e0; } .hud-vp-scale-facts .is-high { color: #e3b24f; } .hud-vp-scale-facts .is-over { color: #e0625a; }
+.hud-vp-shift.up { color: #e3a04f; } .hud-vp-shift.down { color: #5fb8c9; }
+
+/* --- Вес: силуэт --- */
+.hud-vp-sil { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 12px; align-items: end; }
+.hud-vp-sil-fig { width: 92px; height: auto; display: block; }
+.hud-vp-sil-fig .floor { stroke: color-mix(in srgb, currentColor 30%, transparent); stroke-width: .8; }
+.hud-vp-sil-fig .mark { stroke: color-mix(in srgb, currentColor 35%, transparent); stroke-width: .5; }
+.hud-vp-sil-fig text { font: 700 5px system-ui, sans-serif; fill: color-mix(in srgb, currentColor 55%, transparent); }
+.hud-vp-sil-fig .fig circle, .hud-vp-sil-fig .fig path { fill: color-mix(in srgb, var(--v-acc) 70%, var(--ink-hi, #fff)); }
+.hud-vp-sil-side { min-width: 0; display: grid; gap: 5px; }
+.hud-vp-sil-nums { display: flex; flex-wrap: wrap; gap: 4px 12px; }
+.hud-vp-sil-nums b { font-size: 1.3em; font-weight: 800; color: color-mix(in srgb, var(--v-acc) 40%, var(--ink-hi, #fff)); }
+.hud-vp-sil-nums small { font-size: .6em; font-weight: 600; opacity: .7; }
+.hud-vp-bmi-band { position: relative; display: flex; height: 8px; border-radius: 99px; overflow: visible; margin-top: 12px; }
+.hud-vp-bmi-band > i { height: 100%; } .hud-vp-bmi-band > i:first-child { border-radius: 99px 0 0 99px; } .hud-vp-bmi-band > i:nth-child(4) { border-radius: 0 99px 99px 0; }
+.hud-vp-bmi-band .is-low { background: #6fb3e0; } .hud-vp-bmi-band .is-ok { background: #5fc98a; } .hud-vp-bmi-band .is-high { background: #e3b24f; } .hud-vp-bmi-band .is-over { background: #e0625a; }
+.hud-vp-bmi-pin { position: absolute; top: -3px; width: 0; height: 14px; border-left: 2px solid currentColor; transform: translateX(-1px); }
+.hud-vp-bmi-pin span { position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%); padding: 0 4px; border-radius: 4px; font-size: .68em; font-weight: 800; white-space: nowrap; background: color-mix(in srgb, var(--v-acc) 30%, rgba(0,0,0,.4)); color: var(--ink-hi, #fff); }
+.hud-vp-bmi-scale { display: flex; justify-content: space-between; margin-top: 3px; font-size: .6em; color: var(--v-ink-soft); }
+.hud-vp-sil .hud-vp-shift { justify-self: start; }
+
+/* --- Конец беременности: веточка --- */
+.hud-vp-herb { display: grid; gap: 8px; }
+.hud-vp-herb-sheet { position: relative; display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 10px; align-items: end; padding: 12px 12px 10px; border-radius: 3px; color: #3a3226;
+  background: radial-gradient(90% 70% at 30% 20%, rgba(255,255,255,.5), transparent 60%), repeating-linear-gradient(17deg, rgba(150,120,80,.05) 0 2px, transparent 2px 5px), #efe7d6;
+  box-shadow: 0 10px 18px -10px rgba(0,0,0,.65), inset 0 0 26px rgba(150,120,70,.18); }
+.hud-vp-herb-tape { position: absolute; width: 34px; height: 12px; background: color-mix(in srgb, #c9b5d8 70%, transparent); box-shadow: 0 1px 2px rgba(0,0,0,.12); }
+.hud-vp-herb-tape.t1 { left: 28px; top: 78px; transform: rotate(-24deg); } .hud-vp-herb-tape.t2 { left: 30px; top: 28px; transform: rotate(18deg); }
+.hud-vp-herb-art { width: 84px; height: auto; display: block; overflow: visible; }
+.hud-vp-herb-art .sway { transform-origin: 40px 126px; }
+@media (prefers-reduced-motion: no-preference) { .hud-vp-herb-art .sway { animation: hud-vp-sway 3.6s ease-in-out infinite; } }
+@keyframes hud-vp-sway { 0%, 100% { transform: rotate(0deg); } 30% { transform: rotate(2.5deg); } 70% { transform: rotate(-2deg); } }
+.hud-vp-herb-art .stem, .hud-vp-herb-art .twig { fill: none; stroke: #7f9478; stroke-width: 1.7; stroke-linecap: round; }
+.hud-vp-herb-art .twig { stroke-width: 1.1; }
+.hud-vp-herb-art .leaf { fill: #9fb596; stroke: #7a8f73; stroke-width: .35; }
+.hud-vp-herb-art .vein { fill: none; stroke: #627858; stroke-width: .5; }
+.hud-vp-herb-art .berry { fill: #b493b9; }
+.hud-vp-herb-art .sepal { fill: #7f9478; }
+.hud-vp-herb-art .bud { fill: #d2b3d4; stroke: #a786ab; stroke-width: .5; }
+.hud-vp-herb-art .bud-line { fill: none; stroke: #a786ab; stroke-width: .5; }
+.hud-vp-herb-art .petal { fill: #dcc3de; opacity: .9; }
+.hud-vp-herb-label { align-self: end; display: grid; gap: 2px; padding: 6px 8px; border: 1px solid rgba(90,70,40,.35); background: rgba(255,255,255,.45); font-family: Georgia, 'Times New Roman', serif; }
+.hud-vp-herb-label .hud-section-title { color: #7a6a52 !important; font-family: system-ui, sans-serif; }
+.hud-vp-herb-label b { font-size: 1.05em; font-style: italic; color: #4a3a5a; }
+.hud-vp-herb-label small { font-size: .74em; color: #6a5c48; }
+.hud-vp-herb-facts { list-style: none; margin: 0; padding: 0 2px; display: grid; gap: 3px; }
+.hud-vp-herb-facts li { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 8px; font-size: .84em; line-height: 1.35; padding: 2px 0; border-bottom: 1px dotted color-mix(in srgb, currentColor 18%, transparent); }
+.hud-vp-herb-facts li span { color: var(--v-ink-soft); } .hud-vp-herb-facts li b { font-weight: 600; text-align: right; }
+
+/* --- Конец беременности: тропинка --- */
+.hud-vp-path { padding: 10px 12px; border-radius: 12px; background: color-mix(in srgb, #b8a0c8 12%, transparent); border: 1px solid color-mix(in srgb, #b8a0c8 30%, transparent); }
+.hud-vp-path-head { display: grid; gap: 2px; }
+.hud-vp-path-head b { font-size: 1.02em; } .hud-vp-path-head small { font-size: .78em; color: var(--v-ink-soft); }
+.hud-vp-path-track { position: relative; height: 4px; margin: 18px 12px 26px; border-radius: 99px; background: repeating-linear-gradient(90deg, color-mix(in srgb, currentColor 30%, transparent) 0 6px, transparent 6px 10px); }
+.hud-vp-path-done { position: absolute; left: 0; top: 0; bottom: 0; border-radius: 99px; background: linear-gradient(90deg, #a78bb8, #c8b1d6); }
+.hud-vp-path-pin { position: absolute; top: 50%; transform: translate(-50%, -50%); }
+.hud-vp-path-pin > i, .hud-vp-path-legend li > i { width: 16px; height: 16px; border-radius: 50%; display: grid; place-items: center; font: 800 9px/1 system-ui, sans-serif; font-style: normal; background: #2a2330; color: #e6d4ee; border: 2px solid #c8b1d6; }
+.hud-vp-path-pin.is-past > i, .hud-vp-path-legend li.is-past > i { background: #c8b1d6; color: #2a2330; }
+.hud-vp-path-now { position: absolute; top: 50%; transform: translate(-50%, -50%); width: 0; display: grid; justify-items: center; z-index: 1; }
+.hud-vp-path-now > i { width: 8px; height: 8px; border-radius: 50%; background: #fff; box-shadow: 0 0 0 4px color-mix(in srgb, #c8b1d6 45%, transparent); }
+.hud-vp-path-now small { position: absolute; top: 12px; font-size: .62em; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: color-mix(in srgb, #a78bb8 65%, currentColor); white-space: nowrap; }
+.hud-vp-path-legend { list-style: none; margin: 0 0 6px; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 120px), 1fr)); gap: 4px 10px; }
+.hud-vp-path-legend li { display: grid; grid-template-columns: 16px minmax(0, 1fr); grid-template-areas: 'n b' 'n s'; column-gap: 6px; align-items: center; }
+.hud-vp-path-legend li > i { grid-area: n; } .hud-vp-path-legend li b { grid-area: b; font-size: .78em; } .hud-vp-path-legend li small { grid-area: s; font-size: .7em; color: var(--v-ink-soft); }
+
+/* --- Обещания: узелки --- */
+.hud-vp-quipu { position: relative; display: grid; gap: 8px; padding: 4px 0 4px 2px; }
+.hud-vp-quipu-cord { position: absolute; left: 16px; top: 0; bottom: 0; width: 5px; border-radius: 3px; background: repeating-linear-gradient(160deg, #c79a62 0 3px, #8a6238 3px 5px, #a87d4b 5px 7px); box-shadow: inset -1px 0 1px rgba(0,0,0,.35), 1px 0 2px rgba(0,0,0,.3); }
+.hud-vp-quipu-row { position: relative; display: grid; grid-template-columns: 34px 14px minmax(0, 1fr); align-items: center; }
+.hud-vp-quipu-knot { width: 34px; height: 34px; overflow: visible; }
+.hud-vp-quipu-knot .rope-o { fill: none; stroke: #6e4c28; stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+.hud-vp-quipu-knot .rope-i { fill: none; stroke: #d3a96f; stroke-width: 2.6; stroke-linecap: round; stroke-linejoin: round; stroke-dasharray: 2.2 1.4; }
+.hud-vp-quipu-knot .fray { fill: none; stroke: #b98d58; stroke-width: 1; stroke-linecap: round; }
+.hud-vp-quipu-row.is-kept .rope-i { stroke: #f0cc78; } .hud-vp-quipu-row.is-kept .hud-vp-quipu-knot { filter: drop-shadow(0 0 4px rgba(240,204,120,.55)); }
+.hud-vp-quipu-row.is-overdue .rope-o { stroke: #7a2420; } .hud-vp-quipu-row.is-overdue .rope-i, .hud-vp-quipu-row.is-overdue .fray { stroke: #e0625a; }
+.hud-vp-quipu-row.is-broken .rope-o { stroke: #4a4048; } .hud-vp-quipu-row.is-broken .rope-i, .hud-vp-quipu-row.is-broken .fray { stroke: #8d8090; }
+.hud-vp-quipu-string { height: 1px; align-self: center; background: #b98d58; }
+.hud-vp-quipu-tag { position: relative; min-width: 0; padding: 7px 10px 7px 18px; border-radius: 4px 10px 10px 4px; color: #2e261c; transform-origin: 0 50%;
+  background: linear-gradient(180deg, #f6eedb, #e9dcbd); box-shadow: 0 6px 12px -8px rgba(0,0,0,.7), inset 0 0 12px rgba(150,120,70,.15);
+  clip-path: polygon(8px 0, 100% 0, 100% 100%, 8px 100%, 0 50%); }
+.hud-vp-quipu-tag .hole { position: absolute; left: 7px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: rgba(0,0,0,.25); box-shadow: inset 0 1px 1px rgba(0,0,0,.4); }
+@keyframes hud-vp-swing { 0%, 100% { transform: rotate(0deg); } 30% { transform: rotate(1.4deg); } 70% { transform: rotate(-1.2deg); } }
+.hud-vp-quipu-tag p { margin: 0; font-size: .9em; line-height: 1.35; padding-right: 70px; }
+.hud-vp-quipu-tag small { font-size: .74em; color: #6a5a44; }
+.hud-vp-quipu-tag small i { font-style: normal; opacity: .6; }
+.hud-vp-quipu-tag em { position: absolute; right: 8px; top: 7px; padding: 1px 6px; border-radius: 3px; font-style: normal; font-size: .62em; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; color: #fff; background: #b8894a; }
+.hud-vp-quipu-row.is-kept em { background: #3f9a62; } .hud-vp-quipu-row.is-overdue em { background: #c2433b; } .hud-vp-quipu-row.is-broken em { background: #77707a; }
+.hud-vp-quipu-row.is-broken .hud-vp-quipu-tag { filter: grayscale(.45); opacity: .92; clip-path: polygon(8px 0, 97% 0, 100% 22%, 97.5% 44%, 100% 66%, 97% 86%, 99% 100%, 8px 100%, 0 50%); }
+.hud-vp-quipu-row.is-broken .hud-vp-quipu-tag em { right: 18px; }
+.hud-vp-quipu-row.is-broken .hud-vp-quipu-tag p { text-decoration: line-through; text-decoration-color: rgba(0,0,0,.4); }
+.hud-vp-quipu-row.is-broken .hud-vp-quipu-string { background: repeating-linear-gradient(90deg, #8d8090 0 3px, transparent 3px 6px); }
+
+/* --- Обещания: кто кому --- */
+.hud-vp-pairs { display: grid; gap: 10px; }
+.hud-vp-pair { display: grid; grid-template-columns: 44px minmax(0, 1fr) 44px; gap: 6px; align-items: center; }
+.hud-vp-pair-end { display: grid; justify-items: center; gap: 2px; min-width: 0; }
+.hud-vp-pair-end small { max-width: 100%; font-size: .7em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-vp-pair-end .hud-v-face { width: 32px; height: 32px; background-size: cover; background-position: center; }
+.hud-vp-pair-end .hud-v-face.has-img { color: transparent; text-shadow: none; }
+.hud-vp-pair-all .hud-v-ico { width: 16px; height: 16px; fill: none; stroke: #fff; stroke-width: 1.8; }
+.hud-vp-pair-lane { position: relative; display: grid; gap: 4px; padding: 4px 0 10px; min-width: 0; }
+.hud-vp-pair-arrow { position: absolute; left: 0; right: 4px; bottom: 2px; height: 2px; background: color-mix(in srgb, var(--v-acc) 45%, transparent); }
+.hud-vp-pair-arrow::after { content: ''; position: absolute; right: -5px; top: -4px; border: 5px solid transparent; border-left-color: color-mix(in srgb, var(--v-acc) 45%, transparent); }
+.hud-vp-pair-pill { position: relative; display: grid; padding: 4px 8px; border-radius: 9px; font-size: .82em; line-height: 1.3; background: color-mix(in srgb, var(--v-acc) 8%, transparent); border: 1px solid color-mix(in srgb, var(--v-acc) 40%, transparent); overflow-wrap: anywhere; }
+.hud-vp-pair-pill small { font-size: .78em; font-weight: 700; color: var(--v-ink-soft); }
+.hud-vp-pair-pill.is-kept { border-color: #5fc98a; } .hud-vp-pair-pill.is-kept small { color: #5fc98a; }
+.hud-vp-pair-pill.is-overdue { border-color: #e0625a; } .hud-vp-pair-pill.is-overdue small { color: #e0625a; }
+.hud-vp-pair-pill.is-broken { border-style: dashed; opacity: .65; text-decoration: line-through; }
+
+/* --- Тем временем: камеры --- */
+.hud-vp-cams { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 190px), 1fr)); gap: 10px; margin-top: 6px; }
+.hud-vp-cam { min-width: 0; }
+.hud-vp-cam-screen {
+  position: relative; min-height: 120px; padding: 22px 10px 8px; border-radius: 6px; overflow: hidden; display: grid; justify-items: center; align-content: start; gap: 4px;
+  color: #c8f5d0; background: radial-gradient(120% 90% at 50% 40%, #1d2a22, #070a08); border: 2px solid #2b2f2c; box-shadow: inset 0 0 24px rgba(0,0,0,.8);
+  font-family: ui-monospace, 'Courier New', monospace;
+}
+.hud-vp-cam-screen::after { content: ''; position: absolute; inset: 0; pointer-events: none; background: repeating-linear-gradient(180deg, rgba(255,255,255,.04) 0 1px, transparent 1px 3px); }
+.hud-vp-cam-tl, .hud-vp-cam-tr { position: absolute; top: 5px; font-size: .62em; letter-spacing: .06em; text-transform: uppercase; max-width: 62%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-vp-cam-tl { left: 7px; } .hud-vp-cam-tr { right: 7px; display: inline-flex; align-items: center; gap: 4px; }
+.hud-vp-cam-tr i { width: 6px; height: 6px; border-radius: 50%; background: #ff3b30; }
+@media (prefers-reduced-motion: no-preference) { .hud-vp-cam-tr i { animation: hud-vp-rec 1.2s steps(2) infinite; } }
+@keyframes hud-vp-rec { 50% { opacity: .15; } }
+.hud-vp-cam-face.hud-v-face { width: 42px; height: 42px; filter: grayscale(1) contrast(1.1) sepia(.3) hue-rotate(70deg); background-size: cover; background-position: center; box-shadow: 0 0 0 1px rgba(200,245,208,.35); }
+.hud-vp-cam-face.has-img { color: transparent; text-shadow: none; }
+.hud-vp-cam-name { font-size: .78em; font-weight: 700; letter-spacing: .04em; }
+.hud-vp-cam-sub { position: relative; z-index: 1; margin: 2px 0 0; padding: 3px 6px; font-size: .78em; line-height: 1.35; text-align: center; background: rgba(0,0,0,.55); color: #f4f4f4; font-family: system-ui, sans-serif; }
+.hud-vp-cam-know { list-style: none; margin: 6px 0 0; padding: 0; display: grid; gap: 3px; }
+.hud-vp-cam-know li { display: grid; grid-template-columns: 14px minmax(0, 1fr); gap: 5px; align-items: start; font-size: .8em; line-height: 1.35; }
+.hud-vp-cam-know .hud-v-ico { width: 13px; height: 13px; margin-top: 1px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.hud-vp-cam-know b { font-size: .86em; }
+.hud-vp-cam-know .is-yes { color: #78d29a; } .hud-vp-cam-know .is-no { color: #e48a80; } .hud-vp-cam-know .is-guess { color: #e7c46a; }
+.hud-vp-cam-know span { color: color-mix(in srgb, currentColor 25%, var(--hud-text, #ddd)); }
+
+/* --- Тем временем: глава романа --- */
+.hud-vp-novel { position: relative; margin-top: 6px; padding: 14px 16px 10px 18px; border-radius: 2px 6px 6px 2px; color: #2c241b; font-family: Georgia, 'Times New Roman', serif;
+  background: linear-gradient(90deg, rgba(0,0,0,.22), transparent 14px), radial-gradient(120% 90% at 70% 10%, #fbf6ea, #efe5cf 70%, #e4d6b8);
+  box-shadow: 0 10px 18px -10px rgba(0,0,0,.6), inset 0 0 30px rgba(140,110,60,.18), 3px 3px 0 -1px #e9dfc8, 5px 5px 0 -2px #ddd0b2; }
+.hud-vp-novel-head { display: grid; justify-items: center; gap: 2px; margin-bottom: 10px; font-variant: small-caps; letter-spacing: .16em; font-size: .9em; color: #6b4f2a; }
+.hud-vp-novel-orn { width: min(70%, 150px); height: 12px; }
+.hud-vp-novel-orn path { fill: none; stroke: #a0814a; stroke-width: .8; } .hud-vp-novel-orn circle { fill: #a0814a; }
+.hud-vp-novel-par p { margin: 0; font-size: .95em; line-height: 1.55; }
+.hud-vp-novel-cap { position: relative; float: left; width: 2.5em; height: 2.5em; margin: 3px 8px 0 0; display: grid; place-items: center; overflow: hidden; border-radius: 2px;
+  background: radial-gradient(circle at 30% 25%, #a2392b, #6e1d14); box-shadow: inset 0 0 0 2px #d6b25e, inset 0 0 0 3px #6e1d14, 0 2px 3px rgba(0,0,0,.3); }
+.hud-vp-novel-cap::before { content: ''; position: absolute; inset: 4px; border: 1px dotted rgba(240,210,140,.6); border-radius: 1px; }
+.hud-vp-novel-cap::after { content: ''; position: absolute; top: -40%; left: -60%; width: 40%; height: 180%; background: linear-gradient(90deg, transparent, rgba(255,240,200,.55), transparent); transform: rotate(20deg); }
+@media (prefers-reduced-motion: no-preference) { .hud-vp-novel-cap::after { animation: hud-vp-glint 3s ease-in-out infinite; } }
+@keyframes hud-vp-glint { 0% { left: -60%; } 40%, 100% { left: 130%; } }
+.hud-vp-novel-cap i { position: relative; font-style: normal; font-size: 1.7em; line-height: 1; font-weight: 700; color: #f6dc98; text-shadow: 0 1px 1px rgba(0,0,0,.5); }
+.hud-vp-novel-par p > i { font-style: italic; color: #5a4632; }
+.hud-vp-novel-margin { clear: both; display: grid; gap: 2px; margin-top: 6px; padding: 4px 0 4px 10px; border-left: 2px solid rgba(150,40,30,.5); font-size: .8em; font-style: italic; color: #8a2f22; }
+.hud-vp-novel-margin b { font-style: normal; font-variant: small-caps; color: #6b2418; }
+.hud-vp-novel-break { text-align: center; margin: 8px 0; color: #a0814a; letter-spacing: .4em; }
+.hud-vp-novel-folio { margin-top: 8px; text-align: center; font-size: .72em; letter-spacing: .2em; color: #8a7556; }
+
+/* --- Кто что знает: двери --- */
+.hud-sgrid-wrap.is-view { display: grid; gap: 8px; }
+.hud-vp-doors { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 122px), 1fr)); gap: 14px 10px; }
+.hud-vp-door { min-width: 0; display: grid; gap: 4px; justify-items: center; --lv: color-mix(in srgb, var(--v-acc) 70%, #fff); }
+.hud-vp-door.lvl-critical { --lv: #e0625a; } .hud-vp-door.lvl-high { --lv: #e39a4f; } .hud-vp-door.lvl-low { --lv: #8fb3a0; }
+.hud-vp-door-frame { position: relative; width: 100%; min-height: 108px; padding: 20px 8px 8px; border-radius: 56px 56px 3px 3px; overflow: hidden;
+  background: linear-gradient(180deg, #2b2119, #120d0a); border: 5px solid #6b4a2c; border-bottom-width: 3px; box-shadow: inset 0 0 0 1px rgba(0,0,0,.6), inset 0 -10px 16px rgba(0,0,0,.6), 0 0 0 1px color-mix(in srgb, var(--lv) 55%, transparent), 0 6px 10px -6px rgba(0,0,0,.7); }
+.hud-vp-door-lintel { position: absolute; top: 3px; left: 50%; z-index: 3; transform: translateX(-50%); }
+.hud-vp-door-lintel .hud-v-ico { width: 13px; height: 13px; fill: none; stroke: var(--lv); stroke-width: 2; }
+.hud-vp-door-in { position: relative; z-index: 1; display: flex; flex-wrap: wrap; gap: 4px; justify-content: center; align-content: center; min-height: 64px; }
+.hud-vp-door-light { position: absolute; inset: -20px -8px -8px; z-index: -1; border-radius: 50px 50px 0 0; background: radial-gradient(80% 70% at 50% 100%, rgba(255,214,140,.55), rgba(255,180,90,.12) 60%, transparent 75%); opacity: 0; }
+.hud-vp-door.is-open .hud-vp-door-light { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) { .hud-vp-door.is-open .hud-vp-door-light { animation: hud-vp-flicker 2.2s ease-in-out infinite; } }
+@keyframes hud-vp-flicker { 0%, 100% { opacity: 1; } 30% { opacity: .78; } 55% { opacity: .95; } 75% { opacity: .82; } }
+.hud-vp-door-in small { font-size: .72em; font-style: italic; color: #a59a8c; }
+/* Створка: у закрытой двери закрывает проём, у открытой — откинута влево. */
+.hud-vp-door-leaf { position: absolute; inset: 0; z-index: 2; border-radius: 51px 51px 0 0; transform-origin: 0 50%;
+  background: repeating-linear-gradient(90deg, rgba(0,0,0,.25) 0 1px, transparent 1px 19%), linear-gradient(180deg, #8a5f37, #5e3e22); box-shadow: inset 0 0 0 3px rgba(0,0,0,.25); }
+.hud-vp-door.is-open .hud-vp-door-leaf { transform: scaleX(.2); background: repeating-linear-gradient(90deg, rgba(0,0,0,.3) 0 1px, transparent 1px 40%), linear-gradient(90deg, #6e4a2a, #3e2814); box-shadow: inset -2px 0 0 rgba(0,0,0,.5), 8px 0 12px rgba(0,0,0,.55); }
+.hud-vp-door.is-open .hud-vp-door-leaf > i { opacity: 0; }
+@media (prefers-reduced-motion: no-preference) { .hud-vp-door.is-open .hud-vp-door-leaf { animation: hud-vp-creak 3s ease-in-out infinite; } }
+@keyframes hud-vp-creak { 0%, 100% { transform: scaleX(.2); } 50% { transform: scaleX(.28); } }
+.hud-vp-door-leaf .hinge { position: absolute; left: 0; width: 14px; height: 4px; border-radius: 0 2px 2px 0; background: #2b2b2e; box-shadow: 0 1px 0 rgba(255,255,255,.15); }
+.hud-vp-door-leaf .h1 { top: 34%; } .hud-vp-door-leaf .h2 { bottom: 14%; }
+.hud-vp-door-leaf .knob { position: absolute; right: 10px; top: 58%; width: 7px; height: 7px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #f0d48a, #8a6a2a); box-shadow: 0 1px 2px rgba(0,0,0,.6); }
+.hud-vp-door-face { position: relative; display: inline-block; }
+.hud-vp-door-face .hud-sgrid-ring { width: 26px; height: 26px; }
+.hud-vp-door-face.is-suspects { opacity: .75; } .hud-vp-door-face.is-not { filter: grayscale(1); opacity: .6; }
+.hud-vp-door-badge { position: absolute; right: -3px; bottom: -3px; width: 13px; height: 13px; border-radius: 50%; display: grid; place-items: center; font: 800 9px/1 system-ui, sans-serif; font-style: normal; color: #1a1420; background: #e7c46a; }
+.hud-vp-door-face.is-wrong .hud-vp-door-badge { background: #e0625a; }
+.hud-vp-door-badge .hud-v-ico { width: 9px; height: 9px; fill: none; stroke: currentColor; stroke-width: 2.4; }
+.hud-vp-door-fact { font-size: .78em; line-height: 1.3; text-align: center; overflow-wrap: anywhere; }
+/* Коврик у порога: плетёный, с тёмной каймой. Кто не знает — стоит на нём,
+   приглушённый, но различимый (раньше серые лица тонули в полосах). */
+.hud-vp-door-mat { position: relative; display: flex; flex-wrap: wrap; gap: 3px; justify-content: center; padding: 5px 7px; width: 86%; min-height: 12px; border-radius: 5px;
+  background: repeating-linear-gradient(45deg, rgba(255,255,255,.035) 0 2px, transparent 2px 4px), repeating-linear-gradient(-45deg, rgba(0,0,0,.12) 0 2px, transparent 2px 4px), linear-gradient(180deg, #5a4430, #46341f);
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--lv) 35%, #2a1d12), inset 0 0 0 3px rgba(0,0,0,.35), 0 3px 6px -3px rgba(0,0,0,.6); }
+.hud-vp-door-mat .hud-vp-door-face.is-not { filter: grayscale(.85) brightness(.95); opacity: .82; }
+.hud-vp-door-mat .hud-sgrid-ring { width: 20px; height: 20px; }
+
+/* --- Кто что знает: допуск --- */
+.hud-vp-badges { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 104px), 1fr)); gap: 14px 10px; align-items: start; padding-top: 10px; }
+.hud-vp-badge { --lv: #8a8a96; position: relative; border-radius: 10px; background: linear-gradient(180deg, #f7f8fa, #dde1e8); color: #1c1a22; box-shadow: 0 10px 18px -10px rgba(0,0,0,.7); }
+.hud-vp-badge.lvl-a { --lv: #d9443a; } .hud-vp-badge.lvl-b { --lv: #e08a2f; } .hud-vp-badge.lvl-c { --lv: #d4ad3c; } .hud-vp-badge.lvl-d { --lv: #4f97cc; }
+.hud-vp-badge > summary { position: relative; list-style: none; cursor: pointer; display: grid; justify-items: center; gap: 3px; padding: 14px 0 0; border-radius: 10px; }
+.hud-vp-badge > summary::-webkit-details-marker { display: none; }
+.hud-vp-badge-strap { position: absolute; top: -12px; left: 50%; width: 14px; height: 14px; transform: translateX(-50%); background: var(--lv); clip-path: polygon(0 0, 100% 0, 80% 100%, 20% 100%); }
+.hud-vp-badge-clip { position: absolute; top: 5px; left: 50%; width: 20px; height: 4px; transform: translateX(-50%); border-radius: 3px; background: rgba(0,0,0,.28); box-shadow: inset 0 1px 1px rgba(0,0,0,.4); }
+.hud-vp-badge-org { font: 800 .56em/1 system-ui, sans-serif; letter-spacing: .24em; text-transform: uppercase; color: #6c6a74; }
+.hud-vp-badge-photo { padding: 2px; border-radius: 6px; background: #fff; box-shadow: 0 0 0 1px rgba(0,0,0,.15); }
+.hud-vp-badge-photo .hud-sgrid-ring { width: 40px; height: 40px; }
+.hud-vp-badge-name { max-width: calc(100% - 12px); font-size: .9em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-vp-badge-count { font-size: .68em; color: #5c5a64; }
+.hud-vp-badge-strip { display: flex; gap: 2px; width: calc(100% - 16px); height: 5px; margin-top: 2px; }
+.hud-vp-badge-strip i { flex: 1; border-radius: 2px; background: rgba(0,0,0,.12); }
+.hud-vp-badge-strip .is-knows { background: #3fa86b; } .hud-vp-badge-strip .is-suspects { background: #d4ad3c; } .hud-vp-badge-strip .is-wrong { background: #d9443a; }
+.hud-vp-badge-lvl { display: flex; align-items: baseline; justify-content: center; gap: 5px; width: 100%; margin-top: 6px; padding: 4px 6px; border-radius: 0 0 10px 10px; background: var(--lv); color: #fff; }
+.hud-vp-badge[open] .hud-vp-badge-lvl { border-radius: 0; }
+.hud-vp-badge-lvl b { font: 900 1em/1 system-ui, sans-serif; } .hud-vp-badge-lvl small { font-size: .58em; font-weight: 800; text-transform: uppercase; letter-spacing: .06em; white-space: nowrap; }
+.hud-vp-badge ul { list-style: none; margin: 0; padding: 8px; display: grid; gap: 4px; }
+.hud-vp-badge li { font-size: .74em; line-height: 1.3; }
+.hud-vp-badge li b { display: block; font-size: .82em; text-transform: uppercase; letter-spacing: .05em; }
+.hud-vp-badge li.is-knows b { color: #2f8a56; } .hud-vp-badge li.is-suspects b { color: #a7811c; } .hud-vp-badge li.is-wrong b { color: #b5332b; }
+.hud-vp-badge > p { margin: 0; padding: 8px; font-size: .74em; color: #5c5a64; text-align: center; }
+
+/* --- Движение остальных видов (при наведении или нажатии) --- */
+@media (prefers-reduced-motion: no-preference) {
+  .hud-vp-engr::after { content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; background: linear-gradient(110deg, transparent 30%, rgba(255,240,200,.45) 45%, transparent 60%); background-size: 300% 100%; background-position: 120% 0; animation: hud-vp-gild 3.4s ease-in-out infinite; }
+  .hud-vp-bmi-pin { animation: hud-vp-bob 1.8s ease-in-out infinite; }
+  .hud-vp-path-now > i { animation: hud-vp-pulse 1.8s ease-out infinite; }
+  .hud-vp-pair-arrow { background-image: repeating-linear-gradient(90deg, color-mix(in srgb, var(--v-acc) 70%, #fff) 0 6px, transparent 6px 12px); background-size: 24px 100%; animation: hud-vp-flow 1.2s linear infinite; }
+  .hud-vp-cam-screen::after { animation: hud-vp-roll 4s linear infinite; }
+  .hud-vp-badge { transform-origin: 50% -12px; animation: hud-vp-swing 3.2s ease-in-out infinite; }
+  .hud-vp-badge:nth-child(2n) { animation-delay: -1.1s; }
+}
+@keyframes hud-vp-gild { 0% { background-position: 120% 0; } 60%, 100% { background-position: -20% 0; } }
+@keyframes hud-vp-bob { 0%, 100% { transform: translate(-1px, 0); } 50% { transform: translate(-1px, -3px); } }
+@keyframes hud-vp-pulse { 0% { box-shadow: 0 0 0 4px color-mix(in srgb, #c8b1d6 45%, transparent); } 70% { box-shadow: 0 0 0 9px transparent; } 100% { box-shadow: 0 0 0 4px color-mix(in srgb, #c8b1d6 45%, transparent); } }
+@keyframes hud-vp-flow { from { background-position: 0 0; } to { background-position: 24px 0; } }
+@keyframes hud-vp-roll { from { background-position: 0 0; } to { background-position: 0 30px; } }
+
+/* --- Узкая карточка (телефон) --- */
+@media (max-width: 600px) {
+  .hud-vp-kin { grid-template-columns: minmax(0, 1fr); }
+  .hud-vp-kin-bowl { max-width: 150px; justify-self: center; }
+  .hud-vp-blind { grid-template-columns: 48px minmax(0, 1fr); } .hud-vp-blind-eye { width: 48px; height: 48px; }
+  .hud-vp-sil { grid-template-columns: 58px minmax(0, 1fr); gap: 8px; } .hud-vp-sil-fig { width: 58px; }
+  .hud-vp-bmi-scale span:nth-child(2), .hud-vp-bmi-scale span:nth-child(4) { display: none; }
+  .hud-vp-herb-sheet { grid-template-columns: 64px minmax(0, 1fr); gap: 8px; } .hud-vp-herb-art { width: 64px; } .hud-vp-herb-tape.t1 { left: 18px; top: 58px; } .hud-vp-herb-tape.t2 { left: 20px; top: 20px; }
+  .hud-vp-pair { grid-template-columns: 34px minmax(0, 1fr) 34px; gap: 4px; } .hud-vp-pair-end .hud-v-face { width: 26px; height: 26px; }
+  .hud-vp-quipu-row { grid-template-columns: 34px 8px minmax(0, 1fr); } .hud-vp-quipu-tag p { padding-right: 0; } .hud-vp-quipu-tag em { position: static; display: inline-block; margin-top: 4px; }
+  .hud-vp-doors { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 8px; } .hud-vp-door-frame { min-height: 92px; padding-top: 18px; border-width: 4px; } .hud-vp-door-in { min-height: 50px; } .hud-vp-door-face .hud-sgrid-ring { width: 21px; height: 21px; } .hud-vp-door-out .hud-sgrid-ring { width: 17px; height: 17px; }
+  .hud-vp-badges { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 8px; } .hud-vp-badge-photo .hud-sgrid-ring { width: 32px; height: 32px; }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-vp-kin { grid-template-columns: minmax(0, 1fr); }
+  .hud-vp-kin-bowl { max-width: 150px; justify-self: center; }
+  .hud-vp-blind { grid-template-columns: 48px minmax(0, 1fr); } .hud-vp-blind-eye { width: 48px; height: 48px; }
+  .hud-vp-sil { grid-template-columns: 58px minmax(0, 1fr); gap: 8px; } .hud-vp-sil-fig { width: 58px; }
+  .hud-vp-bmi-scale span:nth-child(2), .hud-vp-bmi-scale span:nth-child(4) { display: none; }
+  .hud-vp-herb-sheet { grid-template-columns: 64px minmax(0, 1fr); gap: 8px; } .hud-vp-herb-art { width: 64px; } .hud-vp-herb-tape.t1 { left: 18px; top: 58px; } .hud-vp-herb-tape.t2 { left: 20px; top: 20px; }
+  .hud-vp-pair { grid-template-columns: 34px minmax(0, 1fr) 34px; gap: 4px; } .hud-vp-pair-end .hud-v-face { width: 26px; height: 26px; }
+  .hud-vp-quipu-row { grid-template-columns: 34px 8px minmax(0, 1fr); } .hud-vp-quipu-tag p { padding-right: 0; } .hud-vp-quipu-tag em { position: static; display: inline-block; margin-top: 4px; }
+  .hud-vp-doors { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 8px; } .hud-vp-door-frame { min-height: 92px; padding-top: 18px; border-width: 4px; } .hud-vp-door-in { min-height: 50px; } .hud-vp-door-face .hud-sgrid-ring { width: 21px; height: 21px; } .hud-vp-door-out .hud-sgrid-ring { width: 17px; height: 17px; }
+  .hud-vp-badges { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 8px; } .hud-vp-badge-photo .hud-sgrid-ring { width: 32px; height: 32px; }
+} }
+/* cq ↑ */
+@container hud (max-width: 300px) {
+  .hud-vp-kin { grid-template-columns: minmax(0, 1fr); }
+  .hud-vp-kin-bowl { max-width: 150px; justify-self: center; }
+  .hud-vp-blind { grid-template-columns: 48px minmax(0, 1fr); } .hud-vp-blind-eye { width: 48px; height: 48px; }
+  .hud-vp-sil { grid-template-columns: 58px minmax(0, 1fr); gap: 8px; } .hud-vp-sil-fig { width: 58px; }
+  .hud-vp-bmi-scale span:nth-child(2), .hud-vp-bmi-scale span:nth-child(4) { display: none; }
+  .hud-vp-herb-sheet { grid-template-columns: 64px minmax(0, 1fr); gap: 8px; } .hud-vp-herb-art { width: 64px; } .hud-vp-herb-tape.t1 { left: 18px; top: 58px; } .hud-vp-herb-tape.t2 { left: 20px; top: 20px; }
+  .hud-vp-pair { grid-template-columns: 34px minmax(0, 1fr) 34px; gap: 4px; } .hud-vp-pair-end .hud-v-face { width: 26px; height: 26px; }
+  .hud-vp-quipu-row { grid-template-columns: 34px 8px minmax(0, 1fr); } .hud-vp-quipu-tag p { padding-right: 0; } .hud-vp-quipu-tag em { position: static; display: inline-block; margin-top: 4px; }
+  .hud-vp-doors { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 8px; } .hud-vp-door-frame { min-height: 92px; padding-top: 18px; border-width: 4px; } .hud-vp-door-in { min-height: 50px; } .hud-vp-door-face .hud-sgrid-ring { width: 21px; height: 21px; } .hud-vp-door-out .hud-sgrid-ring { width: 17px; height: 17px; }
+  .hud-vp-badges { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 8px; } .hud-vp-badge-photo .hud-sgrid-ring { width: 32px; height: 32px; }
+}

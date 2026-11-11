@@ -13,13 +13,15 @@
 // секрета, — «при нём об этом нельзя».
 // На узком экране сетку заменяет список по людям (container query).
 
-import { escapeHtml, getSafeUserName } from '../utils.js?v=23.89.9';
-import { settings } from '../settings.js?v=23.89.9';
-import { namesLikelySame } from '../names.js?v=23.89.9';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.9';
-import { ико, медаль } from './view-icons.js?v=23.89.9';
-import { правкаСекрета, всплывшиеСекреты, правитьСнимок, правки } from '../snapshot-edits.js?v=23.89.9';
-import { разобратьДуэль } from './duel.js?v=23.89.9';
+import { escapeHtml, getSafeUserName } from '../utils.js?v=23.89.10';
+import { settings } from '../settings.js?v=23.89.10';
+import { namesLikelySame } from '../names.js?v=23.89.10';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.10';
+import { ико, медаль } from './view-icons.js?v=23.89.10';
+import { правкаСекрета, всплывшиеСекреты, правитьСнимок, правки } from '../snapshot-edits.js?v=23.89.10';
+import { разобратьДуэль } from './duel.js?v=23.89.10';
+import { видБлока } from './views.js?v=23.89.10';
+import { видСеткиСекретов } from './views-plus.js?v=23.89.10';
 // Склонение по числу: склон(3, ['секрет', 'секрета', 'секретов']).
 const склон = (n, [один, два, пять]) => { const к = Math.abs(n) % 100, е = к % 10; return к > 10 && к < 20 ? пять : е === 1 ? один : е >= 2 && е <= 4 ? два : пять; };
 
@@ -192,6 +194,8 @@ export function сеткаСекретов(секретыВсе, hudData) {
   const легенда = `<div class="hud-sgrid-legend">${Object.entries(ЗНАКИ).map(([к, [, с]]) => `<span class="is-${к}"><i class="hud-sgrid-cell is-${к}">${значокСостояния(к)}</i>${с}</span>`).join('')}</div>`;
   const подъём = предложения.slice(0, ВОПРОСОВ_СРАЗУ).map(п => `<div class="hud-sgrid-raise">${медаль('speech')}<span><small>всплыло в споре</small><b>«${escapeHtml(заголовок(п.факт))}»</b><em>при ${escapeHtml(имяКоротко(п.кто))} — отметить «${п.значение === 'known' ? 'знает' : 'подозревает'}»?</em></span>`
     + `<span class="hud-sgrid-raise-btns"><button type="button" data-sec-edit="${escapeHtml(п.путь)}" data-value="${п.значение}">отметить</button><button type="button" data-sec-edit="${escapeHtml(п.путь)}" data-value="dismissed" title="Не спрашивать про это снова">нет</button></span></div>`).join('');
+  const свой = видСеткиСекретов(видБлока('secretsGridView'), { секреты, люди, клетка, лицоСетки: (имя, игрок) => лицо(имя, игрок), заголовок, уровень });
+  if (свой) return `<div class="hud-sgrid-wrap hud-v hud-v-card is-view">${итог}${предупр}${подъём}${свой}${легенда}</div>`;
   return `<div class="hud-sgrid-wrap hud-v hud-v-card">${итог}${предупр}${подъём}<div class="hud-sgrid" style="--cols:${люди.length}" role="table" aria-label="Кто что знает">`
     + `<div class="hud-sgrid-top">${шапка}</div>${строки}</div><div class="hud-sgrid-people">${поЛюдям}</div>${легенда}</div>`;
 }

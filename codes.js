@@ -118,6 +118,8 @@ export function развернутьКоды(к) {
   const п = к.memory;
   if (объект(п)) {
     переименовать(п, ПАМЯТЬ);
+    // «fired» / «-» отдельным пунктом — обломок старого сокращения «[g1] fired».
+    for (const к of ['guns', 'promises', 'important']) if (Array.isArray(п[к])) п[к] = п[к].filter(x => typeof x !== 'string' || !/^s*(?:[-−–—]|fired|open|building|kept|broken|done|сработал[оа]?|выстрелил[оа]?|исполнен[оа]?|сдержан[оа]?|нарушен[оа]?)?s*$/i.test(x));
     if (объект(п.mood)) {
       переименовать(п.mood, ДВОЕ);
       for (const кто of Object.keys(п.mood)) if (объект(п.mood[кто])) переименовать(п.mood[кто], НАСТРОЕНИЕ);

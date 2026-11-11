@@ -16,29 +16,29 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.9';
-import { уверены } from './confirm-erase.js?v=23.89.9';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.89.9';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.89.9';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.9';
-import { прикрытьСырой } from './raw-guard.js?v=23.89.9';
-import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.9';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.9';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.9';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.9';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.9';
-import { полныйПорядок } from './tabs-order.js?v=23.89.9';
-import { getWorldVotes } from './render/world.js?v=23.89.9';
-import { действиеМира } from './render/world-views.js?v=23.89.9';
-import { действиеМузыки } from './render/music.js?v=23.89.9';
-import { раскрытьПорцию } from './render/long-list.js?v=23.89.9';
-import { прогретьИсторию } from './render/carryover.js?v=23.89.9';
-import { подключитьПалитру } from './color-picker.js?v=23.89.9';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.9';
-import { замер } from './utils.js?v=23.89.9';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.9';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.9';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.9';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.10';
+import { уверены } from './confirm-erase.js?v=23.89.10';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.89.10';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.89.10';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.10';
+import { прикрытьСырой } from './raw-guard.js?v=23.89.10';
+import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.10';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.10';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.10';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.10';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.10';
+import { полныйПорядок } from './tabs-order.js?v=23.89.10';
+import { getWorldVotes } from './render/world.js?v=23.89.10';
+import { действиеМира } from './render/world-views.js?v=23.89.10';
+import { действиеМузыки } from './render/music.js?v=23.89.10';
+import { раскрытьПорцию } from './render/long-list.js?v=23.89.10';
+import { прогретьИсторию } from './render/carryover.js?v=23.89.10';
+import { подключитьПалитру } from './color-picker.js?v=23.89.10';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.10';
+import { замер } from './utils.js?v=23.89.10';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.10';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.10';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.10';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -700,7 +700,12 @@ export function initGlobalEvents(ctx) {
       if (target && tab.querySelector('.hud-tab-attn')) {
         // Свежесобранная вкладка за это время может смениться: ищем уже в ней.
         const id = target.id;
-        setTimeout(() => document.getElementById(id)?.querySelector('.hud-invite, .hud-sgrid-raise, [data-hud-threat="roll"], [data-hud-exam="open"]')?.scrollIntoView({ block: 'nearest' }), 350);
+        // Приглашение в любом виде (карточки, пригласительная, сургуч) — по его кнопке.
+        setTimeout(() => {
+          const вкладка = document.getElementById(id);
+          const кнопка = вкладка?.querySelector('[data-hud-invite]');
+          (кнопка?.closest('.hud-invite, .hud-vp-engr, .hud-vp-seal') || кнопка || вкладка?.querySelector('.hud-sgrid-raise, [data-hud-threat="roll"], [data-hud-exam="open"]'))?.scrollIntoView({ block: 'nearest' });
+        }, 350);
       }
       return;
     }
@@ -2029,7 +2034,9 @@ const ВБОК = '.hud-vertical-container, .hud-inventory-grid, .hud-life-items,
 // Только вниз и на широком экране: лист бумаги или ось, которые вбок не лягут.
 // Список карты тела — строки, ощущения и одежда разной ширины: в ленте вбок
 // подписи сжимались в столбик по букве. Он только вниз.
-const ВНИЗ = '.hud-heat-list, .hud-v-scroll > ol, .hud-v-notebook, .hud-v-drum-legend, .hud-v-gun-col, .hud-v-beads, .hud-v-receipt ol, .hud-v-menu, .hud-f > ol, .hud-f > ul, .hud-f .page, .hud-f .form, .hud-f .grid ul, .hud-f .subs, .hud-mood-history';
+// Память: таймлайн дня (ось), обещания (в узкой колонке вбок текст рвался
+// по слогам) и люди в «Кто что знает» (строки раскрываются).
+const ВНИЗ = '.hud-timeline-container, .hud-promises, .hud-sgrid-people, .hud-heat-list, .hud-v-scroll > ol, .hud-v-notebook, .hud-v-drum-legend, .hud-v-gun-col, .hud-v-beads, .hud-v-receipt ol, .hud-v-menu, .hud-f > ol, .hud-f > ul, .hud-f .page, .hud-f .form, .hud-f .grid ul, .hud-f .subs, .hud-mood-history';
 const СПИСКИ = ВБОК + ', ' + ВНИЗ;
 // Не пункты списка: шапка колонки, шапка листа. Их в счёт не берём.
 const НЕ_ПУНКТ = '.hud-v-gun-col-head, .hud-f .page > .head, .hud-f .form > .head';

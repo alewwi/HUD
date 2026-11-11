@@ -6,22 +6,22 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.89.9';
-import { английский } from '../i18n.js?v=23.89.9';
-import { settings } from '../settings.js?v=23.89.9';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.89.9';
-import { G_ICONS } from './icons.js?v=23.89.9';
-import { значокПриложения, естьНабор } from './phone-icons.js?v=23.89.9';
-import { buildMessengerHTML } from './messenger.js?v=23.89.9';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties, контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.89.9';
-import { безШапокСообщения } from './msg-parts.js?v=23.89.9';
-import { сортироватьЧаты } from './msg-feed.js?v=23.89.9';
-import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.89.9';
-import { buildCalendarApp } from './calendar.js?v=23.89.9';
-import { приложениеМузыки } from './music.js?v=23.89.9';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.89.10';
+import { английский } from '../i18n.js?v=23.89.10';
+import { settings } from '../settings.js?v=23.89.10';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.89.10';
+import { G_ICONS } from './icons.js?v=23.89.10';
+import { значокПриложения, естьНабор } from './phone-icons.js?v=23.89.10';
+import { buildMessengerHTML } from './messenger.js?v=23.89.10';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties, контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.89.10';
+import { безШапокСообщения } from './msg-parts.js?v=23.89.10';
+import { сортироватьЧаты } from './msg-feed.js?v=23.89.10';
+import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.89.10';
+import { buildCalendarApp } from './calendar.js?v=23.89.10';
+import { приложениеМузыки } from './music.js?v=23.89.10';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.89.9';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.89.10';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -150,23 +150,45 @@ function buildWalletApp(wallet, owner) {
 // --- Календарь ---------------------------------------------------------------
 // Живёт в render/calendar.js; отсюда его по-прежнему берёт альманах
 // (render/medieval.js).
-export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.89.9';
-import { ближайшиеДела } from './calendar.js?v=23.89.9';
+export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.89.10';
+import { ближайшиеДела } from './calendar.js?v=23.89.10';
 
 // Слухи города: то, что модель и так пишет в мир, — последние десять, свежие
-// сверху. Автор комментария скрыт до нажатия.
-function buildRumorsApp(rumors, talk) {
+// сверху. Два раздела вкладками (радиокнопками, без скриптов): «Говорят» —
+// облачка шёпота, чем старше слух, тем бледнее; «Пишут в сети» — лента постов.
+// Автор поста скрыт до нажатия, поэтому и аватарка — не по нику, а по тексту.
+const ШЁПОТ = '<svg class="hud-g-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11.2c0-3.5 3.3-6.2 7.6-6.2s7.6 2.7 7.6 6.2-3.3 6.2-7.6 6.2c-.9 0-1.8-.1-2.6-.4L5 19l1.1-3.3A5.8 5.8 0 0 1 4 11.2Z"/><path d="M8.6 11.3h.01M11.6 11.3h.01M14.6 11.3h.01" stroke-width="2.4" stroke-linecap="round"/></svg>';
+const КАВЫЧКА = '<svg class="hud-rumor-q" viewBox="0 0 24 18" aria-hidden="true"><path d="M2 18V10.6C2 5.2 4.6 1.6 9.6 0l1 2.2C7.8 3.4 6.6 5.4 6.5 8.2H10.4V18Zm12.6 0V10.6c0-5.4 2.6-9 7.6-10.6l1 2.2c-2.8 1.2-4 3.2-4.1 6h3.9V18Z"/></svg>';
+function buildRumorsApp(rumors, talk, uid = '') {
   const слухи = (Array.isArray(rumors) ? rumors : []).filter(Boolean).slice(-10).reverse();
   const речи = (Array.isArray(talk) ? talk : []).filter(Boolean).slice(-10).reverse();
   if (!слухи.length && !речи.length) return emptyApp(G_ICONS.chat, 'Город пока молчит');
-  const карточкиСлухов = слухи.map(с => `<li class="hud-rumor">${defeatWI(escapeHtml(String(с)))}</li>`).join('');
+  // Старые слухи остывают: прозрачность по возрасту, свежий — с меткой.
+  const карточкиСлухов = слухи.map((с, i) => `<li class="hud-rumor${i ? '' : ' is-fresh'}${i % 2 ? ' is-right' : ''}" style="--age:${Math.min(i, 6)}">${КАВЫЧКА}${i ? '' : '<span class="hud-rumor-new">свежее</span>'}<p>${defeatWI(escapeHtml(String(с)))}</p></li>`).join('');
   const карточкиРечей = речи.map(с => {
     const м = String(с).match(/^([^:\n]{1,40}):\s*([\s\S]+)$/);
-    return `<li class="hud-rumor is-talk">${м
-      ? `<details class="hud-rumor-author" data-reveal="1"><summary>Аноним</summary><span>${defeatWI(escapeHtml(м[1].trim()))}</span></details>${defeatWI(escapeHtml(м[2].trim()))}`
-      : defeatWI(escapeHtml(String(с)))}</li>`;
+    const текст = м ? м[2].trim() : String(с);
+    const зерно = hudHashSeed(текст);
+    const цвет = HUD_AVATAR_COLORS[зерно % HUD_AVATAR_COLORS.length];
+    const номер = String(1000 + зерно % 9000);
+    return `<li class="hud-post">
+      <span class="hud-post-ava" style="--ava:${цвет}">${G_ICONS.person}</span>
+      <div class="hud-post-body">
+        <div class="hud-post-head">${м
+          ? `<details class="hud-rumor-author" data-reveal="1"><summary>Аноним</summary><span>${defeatWI(escapeHtml(м[1].trim()))}</span></details>`
+          : '<b class="hud-rumor-author">Аноним</b>'}<span class="hud-post-no">#${номер}</span></div>
+        <p>${defeatWI(escapeHtml(текст))}</p>
+      </div>
+    </li>`;
   }).join('');
-  return `<div class="hud-rumors">${слухи.length ? `<h4>Говорят</h4><ul>${карточкиСлухов}</ul>` : ''}${речи.length ? `<h4>Пишут в сети</h4><ul>${карточкиРечей}</ul>` : ''}</div>`;
+  const раздел = (к, иконка, заголовок, коротко, n) => `<label for="${id}-${к}" class="t-${к}" title="${заголовок}">${иконка}<span class="hud-rumors-l">${заголовок}</span><span class="hud-rumors-s">${коротко}</span><span class="hud-rumors-n">${n}</span></label>`;
+  const id = 'hud-rumors-' + (uid || hudHashSeed(слухи.join('|') + речи.join('|')).toString(36));
+  const оба = слухи.length && речи.length;
+  const вкладки = оба
+    ? `<input type="radio" name="${id}" id="${id}-say" class="hud-rumors-in is-say" checked><input type="radio" name="${id}" id="${id}-net" class="hud-rumors-in is-net">
+      <div class="hud-rumors-tabs">${раздел('say', ШЁПОТ, 'Говорят', 'Говорят', слухи.length)}${раздел('net', G_ICONS.chat, 'Пишут в сети', 'В сети', речи.length)}</div>`
+    : `<h4 class="hud-rumors-title">${слухи.length ? ШЁПОТ + '<span>Говорят</span>' : G_ICONS.chat + '<span>Пишут в сети</span>'}</h4>`;
+  return `<div class="hud-rumors${оба ? ' has-tabs' : ''}">${вкладки}${слухи.length ? `<ol class="hud-rumors-say">${карточкиСлухов}</ol>` : ''}${речи.length ? `<ol class="hud-rumors-net">${карточкиРечей}</ol>` : ''}</div>`;
 }
 
 // Часы блокировки. Цифры разбиты на части, а циферблат лежит рядом: какой из
@@ -312,7 +334,7 @@ export function buildPhoneTabsHTML(chatsMap, uid, isChecked, mainCharName, phone
     on('phoneAppNotes') && { id: 'notes',    icon: G_ICONS.note, label: 'Заметки',   body: buildNotesApp(phone.notes) },
     on('phoneAppMaps') && { id: 'maps',     icon: G_ICONS.map, label: 'Карты',     body: buildMapsApp(phone.maps, местоВладельца) },
     on('phoneAppSearch') && { id: 'search',   icon: G_ICONS.glass, label: 'Поиск',     body: buildSearchApp(phone.search) },
-    on('phoneAppRumors') && settings.enableWorld !== false && { id: 'rumors', icon: G_ICONS.people, label: 'Слухи', body: buildRumorsApp(phone.rumors && phone.rumors.length ? phone.rumors : (доп.world && доп.world.rumors), phone.cityTalk && phone.cityTalk.length ? phone.cityTalk : (доп.world && доп.world.comments)) },
+    on('phoneAppRumors') && settings.enableWorld !== false && { id: 'rumors', icon: G_ICONS.people, label: 'Слухи', body: buildRumorsApp(phone.rumors && phone.rumors.length ? phone.rumors : (доп.world && доп.world.rumors), phone.cityTalk && phone.cityTalk.length ? phone.cityTalk : (доп.world && доп.world.comments), uid) },
     // «Музыка» (render/music.js) — что слушает владелец; подбирается вместе с
     // музыкой сцены, поэтому живёт, только пока та включена.
     settings.enableMusic === true && on('phoneAppMusic') && Number.isInteger(доп.mesId) && { id: 'music', icon: G_ICONS.music, label: 'Музыка', body: приложениеМузыки(доп.mesId, phoneOwner) },

@@ -5,12 +5,14 @@
 // одного из двойни, кубик исхода угрозы и осмотры. Логика и запись —
 // render/conception.js, клики ловит index.js. Оформление — css/misc.css.
 
-import { escapeHtml } from '../utils.js?v=23.89.9';
-import { settings } from '../settings.js?v=23.89.9';
-import { полеВкл } from '../deep-fields.js?v=23.89.9';
-import { ВИДЫ_ПОТЕРИ, дм, восстановлениеПосле } from './conception.js?v=23.89.9';
-import { ЗНАЧОК_КОРЗИНЫ } from './erase-button.js?v=23.89.9';
-import { подождатьДо, ДНЕЙ_ОСЛОЖНЕНИЕ } from './rest-hint.js?v=23.89.9';
+import { escapeHtml } from '../utils.js?v=23.89.10';
+import { settings } from '../settings.js?v=23.89.10';
+import { полеВкл } from '../deep-fields.js?v=23.89.10';
+import { ВИДЫ_ПОТЕРИ, дм, восстановлениеПосле } from './conception.js?v=23.89.10';
+import { ЗНАЧОК_КОРЗИНЫ } from './erase-button.js?v=23.89.10';
+import { подождатьДо, ДНЕЙ_ОСЛОЖНЕНИЕ } from './rest-hint.js?v=23.89.10';
+import { видБлока } from './views.js?v=23.89.10';
+import { видПотери } from './views-plus.js?v=23.89.10';
 
 const ДЕНЬ = 864e5;
 const Р = 25, ДЛИНА = 2 * Math.PI * Р;
@@ -65,14 +67,34 @@ export function блокПотери(п, { кто = '', сценаMs = null } = 
   ].filter(Boolean).join('');
   const близостьДо = дата === null ? null : дата + (в.близость + (п.осложнение ? ДНЕЙ_ОСЛОЖНЕНИЕ : 0)) * ДЕНЬ;
   const доля = дней !== null && Number.isFinite(п.циклК) && п.циклК > дата ? Math.min(100, Math.round(дней * ДЕНЬ / (п.циклК - дата) * 100)) : 0;
+  const кнопки = кто ? `<div class="hud-loss-acts">${кнопкаОтменыПотери(кто)}`
+    + `<button type="button" class="hud-erase-open" data-hud-erase="pregnancy" data-kto="${escapeHtml(кто)}" title="Удалить беременность из HUD" aria-label="Удалить беременность из HUD">${ЗНАЧОК_КОРЗИНЫ}</button></div>` : '';
+  const подсказка = близостьДо !== null && (сцена === null || сцена < близостьДо) ? подождатьДо(дм(близостьДо)) : '';
+  const вид = видБлока('lossView');
+  if (вид && вид !== 'classic' && дата !== null) {
+    // Вехи для других видов: те же, что в списке, и те, что уже прошли.
+    const вехи = [
+      идёт(в.кровь) ? { подпись: 'Кровь', текст: `до ${дм(дата + в.кровь * ДЕНЬ)}` } : null,
+      в.молоко === 'есть' && идёт(14) ? { подпись: 'Молоко', текст: 'придёт на 2–5 день, уйдёт за 1–2 недели' } : null,
+      в.молоко === 'может' && идёт(10) ? { подпись: 'Молоко', текст: 'может прийти немного' } : null,
+      Number.isFinite(п.циклК) && (сцена === null || сцена < п.циклК) ? { подпись: 'Цикл', текст: `≈ ${дм(п.циклК)}` } : null,
+    ].filter(Boolean);
+    const день = (ms) => Math.round((ms - дата) / ДЕНЬ);
+    const точки = [
+      { подпись: 'кровь', день: в.кровь, дата: дм(дата + в.кровь * ДЕНЬ) },
+      близостьДо !== null ? { подпись: 'близость', день: день(близостьДо), дата: дм(близостьДо) } : null,
+      Number.isFinite(п.циклК) ? { подпись: 'цикл', день: день(п.циклК), дата: дм(п.циклК) } : null,
+    ].filter(Boolean).sort((a, b) => a.день - b.день);
+    const свой = видПотери({ вид: п.вид || 'miscarriage', имя, неделя: п.неделя, датаТекст: дм(дата), днейНазад: дней, вехи, точки, подсказка, кнопки }, вид);
+    if (свой) return свой;
+  }
   return `<div class="hud-state-plaque is-loss is-${п.вид || 'miscarriage'}" role="status"><span class="hud-note-eye hud-section-title">Конец беременности</span><div class="hud-loss-top">${кольцо(п.неделя)}`
     + `<div class="hud-loss-name"><b>${имя}</b>${срок ? `<small>${срок}</small>` : ''}</div>`
     + (дней !== null ? `<span class="hud-state-timer">${дней ? `${дней} дн. назад` : 'сегодня'}</span>` : '')
     + `</div>`
     + (факты ? `<i class="hud-loss-way" aria-hidden="true"><b style="width:${доля}%"></b></i><ul class="hud-loss-facts">${факты}</ul>` : '')
-    + (близостьДо !== null && (сцена === null || сцена < близостьДо) ? подождатьДо(дм(близостьДо)) : '')
-    + (кто ? `<div class="hud-loss-acts">${кнопкаОтменыПотери(кто)}`
-      + `<button type="button" class="hud-erase-open" data-hud-erase="pregnancy" data-kto="${escapeHtml(кто)}" title="Удалить беременность из HUD" aria-label="Удалить беременность из HUD">${ЗНАЧОК_КОРЗИНЫ}</button></div>` : '')
+    + подсказка
+    + кнопки
     + `</div>`;
 }
 
