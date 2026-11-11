@@ -16,17 +16,85 @@
 //
 // Словарь — по исходной русской строке. Строка без перевода остаётся русской:
 // ничего не ломается, просто видно, что словарь неполон (tests/i18n.mjs).
+//
+// Другие языки — ЧЕРЕЗ английский. HUD работает как в английском режиме
+// (инструкция модели, английские ветки кода), а итог английского словаря
+// заменяется строкой языка из translations/<код>.js — её собирает
+// translations/build.mjs из таблицы переводчика. Строки без перевода
+// остаются английскими. Английские тексты, которые код пишет сам, мимо
+// словаря, переводятся по той же таблице — только строки кода, не всё
+// английское: персонаж по имени Leo не должен стать знаком зодиака.
+// Текст для модели — всегда английский: тМодели().
 
-import { settings } from './settings.js?v=23.89.6';
-import { СЛОВАРЬ_EN, ШАБЛОНЫ_EN } from './i18n-en.js?v=23.89.6';
+import { settings } from './settings.js?v=23.89.7';
+import { СЛОВАРЬ_EN, ШАБЛОНЫ_EN, ЗОДИАК_EN } from './i18n-en.js?v=23.89.7';
+import { ЯЗЫКИ } from './translations/languages.js?v=23.89.7';
 
-export const язык = () => (settings.language === 'en' ? 'en' : 'ru');
+/** Выбранный язык интерфейса: 'ru', 'en' или код из translations/ ('zh', 'es' …). */
+// Свой перевод, загруженный файлом в настройках (код 'file'): переводчик
+// проверяет таблицу у себя, без Node и без правки файлов расширения — иначе
+// обновление расширения из Таверны упёрлось бы в его изменения. Хранится
+// только в этом браузере.
+const КЛЮЧ_ФАЙЛА = 'hud-lang-file';
+let файлЯзыка;
+function прочитатьФайл() {
+  if (файлЯзыка !== undefined) return файлЯзыка;
+  try { const j = JSON.parse(localStorage.getItem(КЛЮЧ_ФАЙЛА) || 'null'); файлЯзыка = j && j.strings ? j : null; } catch { файлЯзыка = null; }
+  return файлЯзыка;
+}
+// Язык, которого больше нет в translations/, — английский: человек выбирал не русский.
+export const кодЯзыка = () => {
+  const к = settings.language;
+  if (!к || к === 'ru') return 'ru';
+  if (к === 'file') return прочитатьФайл() ? 'file' : 'en';
+  return ЯЗЫКИ.some(я => я.code === к) ? к : 'en';
+};
+/** Основа: 'ru' или 'en'. Любой другой язык работает поверх английского. */
+export const язык = () => (кодЯзыка() === 'ru' ? 'ru' : 'en');
 export const английский = () => язык() === 'en';
+/** Языки для меню: русский, английский и собранные из таблиц. */
+export const языкиМеню = () => [{ code: 'ru', name: 'RU — Русский' }, { code: 'en', name: 'ENG — English' },
+  ...ЯЗЫКИ.map(я => ({ code: я.code, name: я.code.toUpperCase() + ' — ' + я.name + (я.done < 100 ? ` (${я.done}%)` : '') })),
+  ...(прочитатьФайл() ? [{ code: 'file', name: '📄 ' + прочитатьФайл().name + ' — file, ' + прочитатьФайл().done + '%' }] : [])];
 
-// Знаки зодиака — по месту: в общем словаре «Близнецы» — дети, «Весы» — вид дуэли.
-const ЗОДИАК_EN = { Овен: 'Aries', Телец: 'Taurus', Близнецы: 'Gemini', Рак: 'Cancer', Лев: 'Leo', Дева: 'Virgo', Весы: 'Libra', Скорпион: 'Scorpio', Стрелец: 'Sagittarius', Козерог: 'Capricorn', Водолей: 'Aquarius', Рыбы: 'Pisces' };
+/** Свой перевод из файла: { name, done, loaded } или null. */
+export const файлПеревода = () => { const ф = прочитатьФайл(); return ф && { name: ф.name, done: ф.done, loaded: ф.loaded }; };
+
+/**
+ * Загрузить таблицу переводчика (текст CSV) как язык 'file'.
+ * Итог: { готово, всего, ошибки: [{english, беда}] } или { ошибка }.
+ */
+export async function загрузитьФайлПеревода(текст) {
+  const [{ собратьЯзык }, { default: мета }] = await Promise.all([
+    import('./translations/table.js?v=23.89.7'), import('./translations/meta.js?v=23.89.7')]);
+  const итог = собратьЯзык(текст, мета, 'file');
+  if (итог.ошибка) return { ошибка: итог.ошибка };
+  const язык = { ...итог.язык, loaded: Date.now() };
+  // Ошибка записи (место в браузере кончилось) — наружу, как есть.
+  localStorage.setItem(КЛЮЧ_ФАЙЛА, JSON.stringify(язык));
+  файлЯзыка = язык;
+  // Тот же код 'file', новое содержимое: словари пересобираются заново.
+  if (загружен === 'file') загружен = '';
+  return { готово: итог.готово, всего: итог.всего, ошибки: итог.ошибки };
+}
+/** Убрать свой перевод; если он был выбран — язык становится английским. */
+export function убратьФайлПеревода() {
+  try { localStorage.removeItem(КЛЮЧ_ФАЙЛА); } catch { /* приватное окно */ }
+  файлЯзыка = null;
+  if (settings.language === 'file') settings.language = 'en';
+  if (загружен === 'file') загружен = '';
+}
+
 /** Имя знака зодиака на языке интерфейса. */
-export const знакЗодиака = (имя) => (английский() && ЗОДИАК_EN[имя]) || имя;
+export function знакЗодиака(имя) {
+  const en = английский() && ЗОДИАК_EN[имя];
+  if (!en) return имя;
+  const x = (цель && цель.get(en)) || en;
+  // Отдельно от словаря: там «Близнецы» — дети, а не знак.
+  if (выданоЗодиак.size > 200) выданоЗодиак.clear();
+  выданоЗодиак.set(x, имя);
+  return x;
+}
 
 const КИРИЛЛИЦА = /[а-яё]/i;
 // Обрамление строки, которое переводить не нужно: эмодзи и значки в начале,
@@ -38,8 +106,108 @@ const КОНЕЦ = /[\s:：.…!?»"')]*$/u;
 // иначе ищется как «держится 2 ч» — шаблон «# держится # ч» его не узнаёт.
 const НАЧАЛО_С_ЦИФРАМИ = /^[\s\p{Extended_Pictographic}‍️⃣\u{1F3FB}-\u{1F3FF}•·▸▾▼▲◂►✦★☆✓✗×—–\-+#№(«"']*/u;
 
-const словарь = new Map(Object.entries(СЛОВАРЬ_EN));
-const шаблоны = ШАБЛОНЫ_EN.map(([rx, замена]) => [rx instanceof RegExp ? rx : new RegExp(rx, 'u'), замена]);
+const словарьEN = new Map(Object.entries(СЛОВАРЬ_EN));
+const шаблоныEN = ШАБЛОНЫ_EN.map(([rx, замена]) => [rx instanceof RegExp ? rx : new RegExp(rx, 'u'), замена]);
+// Действующие: английские или пересобранные под язык из таблицы.
+let словарь = словарьEN, шаблоны = шаблоныEN;
+// Английская строка → строка языка (null — чистый английский).
+let цель = null;
+// Английский, который код пишет сам: строка → строка языка, и такие же с местами {1}, {2} — регулярками.
+let цельКода = null;
+let английскиеШаблоны = [];
+// Что т() выдал по-английски, пока файл языка ещё ехал: английская → русская.
+// Эти строки точно HUD, их переводим заново, когда язык доехал.
+const выданоТ = new Map();
+// Какой язык сейчас в словарях: 'en' или код таблицы.
+let загружен = 'en';
+const кэш = new Map();
+
+const ВЕРСИЯ = (() => { try { return new URL(import.meta.url).searchParams.get('v') || ''; } catch { return ''; } })();
+const загрузки = new Map();
+/** Собранный язык translations/<код>.js или null, если не загрузился. */
+function загрузитьЯзык(код) {
+  if (код === 'file') return Promise.resolve(прочитатьФайл());
+  if (!загрузки.has(код)) {
+    загрузки.set(код, import(`./translations/${код}.js${ВЕРСИЯ ? '?v=' + ВЕРСИЯ : ''}`)
+      .then(m => m.default)
+      .catch(e => { console.error('[TavernOS HUD] язык ' + код, e); загрузки.delete(код); return null; }));
+  }
+  return загрузки.get(код);
+}
+/** Пересобрать словари под язык: русский ключ → строка языка, иначе английская. */
+export function применитьЯзык(код, данные) {
+  кэш.clear();
+  if (!данные || !данные.strings) { словарь = словарьEN; шаблоны = шаблоныEN; цель = null; цельКода = null; английскиеШаблоны = []; загружен = 'en'; поставитьСтили(''); return; }
+  const с = new Map(Object.entries(данные.strings));
+  цельКода = new Map((данные.code_strings || []).filter(en => с.has(en)).map(en => [en, с.get(en)]));
+  const на = (en) => с.get(en) ?? en;
+  словарь = new Map([...словарьEN].map(([ru, en]) => [ru, на(en)]));
+  // В таблице места чисел — {1}, {2}; в шаблонах словаря — $1, $2.
+  шаблоны = шаблоныEN.map(([rx, en]) => {
+    const t = typeof en === 'string' ? с.get(en.replace(/\$(\d)/g, '{$1}')) : undefined;
+    return [rx, t === undefined ? en : t.replace(/\{(\d)\}/g, '$$$1')];
+  });
+  английскиеШаблоны = [...цельКода].filter(([en]) => /\{\d\}/.test(en)).map(([en, перевод]) => {
+    const части = en.split(/\{\d\}/);
+    const номера = (en.match(/\{(\d)\}/g) || []).map(x => x[1]);
+    // Без слов вокруг («{1}h», «{1} — {2}») на месте — только число, иначе «{1}h» узнал бы «Death».
+    const узко = части.join('').replace(/\s/g, '').length < 3;
+    const место = узко ? '(\\d[\\d.,]*)' : '(.+?)';
+    const rx = new RegExp('^' + части.map(ч => ч.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join(место) + '$', 'u');
+    const опора = части.reduce((a, b) => (b.trim().length > a.length ? b.trim() : a), '');
+    return { rx, номера, перевод, опора };
+  });
+  цель = с;
+  загружен = код;
+  поставитьСтили(typeof данные.css === 'string' ? данные.css : '');
+}
+
+// Подписи в CSS (content) — правила с языком из таблицы, отдельным <style>.
+function поставитьСтили(css) {
+  if (typeof document === 'undefined' || !document.getElementById) return;
+  let эл = document.getElementById('hud-lang-css');
+  if (!css) { if (эл) эл.remove(); return; }
+  if (!эл) { if (!document.head) return; эл = document.createElement('style'); эл.id = 'hud-lang-css'; document.head.appendChild(эл); }
+  эл.textContent = css;
+}
+
+function поАнглийскимШаблонам(s, глубина) {
+  for (const ш of английскиеШаблоны) {
+    if (ш.опора && !s.includes(ш.опора)) continue;
+    const m = s.match(ш.rx);
+    if (!m) continue;
+    return ш.перевод.replace(/\{(\d)\}/g, (_, n) => {
+      const g = m[ш.номера.indexOf(n) + 1] ?? '';
+      return (глубина < 2 && поАнглийски(g, глубина + 1)) || g;
+    });
+  }
+  return null;
+}
+
+// Английский текст, который код пишет сам, мимо словаря: целиком, без
+// значков по краям или по частям через разделители.
+function поАнглийски(s, глубина = 0) {
+  const ru = выданоТ.get(s.trim());
+  if (ru !== undefined) { const p = перевод(ru, 0); if (p !== null) return s.replace(s.trim(), () => p.trim()); }
+  const целиком = цельКода.get(s.trim());
+  if (целиком !== undefined) return s.replace(s.trim(), () => целиком);
+  const [до, суть, после] = ядро(s);
+  if (!суть) return null;
+  const v = цельКода.get(суть);
+  if (v !== undefined) return до + v + после;
+  const ш = поАнглийскимШаблонам(s.trim(), глубина);
+  if (ш !== null) return s.replace(s.trim(), () => ш);
+  const шс = поАнглийскимШаблонам(суть, глубина);
+  if (шс !== null) return до + шс + после;
+  if (глубина >= 2) return null;
+  for (const р of РАЗДЕЛИТЕЛИ) {
+    if (!суть.includes(р)) continue;
+    let удалось = false;
+    const куски = суть.split(р).map((к) => { const t = поАнглийски(к, глубина + 1); if (t === null) return к; удалось = true; return t; });
+    if (удалось) return до + куски.join(р) + после;
+  }
+  return null;
+}
 
 // Закрывающая скобка или кавычка, чья пара внутри строки, — часть строки:
 // «Высота вкладок (0 — стандартная): » теряла «)» вместе с двоеточием и не
@@ -140,14 +308,42 @@ function перевод(s, глубина) {
   return null;
 }
 
-const кэш = new Map();
+// Строки языка таблицы, которые код сам вставил в разметку (т(), англ(),
+// знакЗодиака()), — с исходником. Кусок карточки, который при смене языка не
+// пересобирается, иначе так и остался бы на прежнем языке: переводчик
+// страницы не знал бы, откуда эта строка.
+const выданоЯзыком = new Map();
+// То же для знаков зодиака: строка → русское имя знака.
+const выданоЗодиак = new Map();
+function запомнитьВыданное(p, исходная) {
+  if (!английский() || typeof p !== 'string' || p === исходная) return;
+  if (выданоЯзыком.size > 5000) выданоЯзыком.clear();
+  выданоЯзыком.set(p.replace(/\s+/g, ' ').trim(), String(исходная).replace(/\s+/g, ' ').trim());
+}
+// Исходник для значения, которое код вставил уже переведённым, — или undefined.
+const выданное = (v) => (выданоЯзыком.size && v ? выданоЯзыком.get(v.replace(/\s+/g, ' ').trim()) : undefined);
+const сИсходником = (v, ис) => v.replace(v.trim(), () => ис);
+const знакИз = (v) => (выданоЗодиак.size && v ? выданоЗодиак.get(v.trim()) : undefined);
+// Узел со знаком, возвращённым к русскому имени: «Телец» нет в общем словаре.
+const знакиУзлов = new WeakMap();
+
+/** Английская строка из кода на языке таблицы (в английском — как есть). */
+export function англ(en) {
+  if (!цель || typeof en !== 'string') return en;
+  const p = перевести(en);
+  if (p !== null) запомнитьВыданное(p, en);
+  return p === null ? en : p;
+}
+
 /** Перевод строки или null, если в словаре её нет. */
 export function перевести(исходная) {
-  if (typeof исходная !== 'string' || !КИРИЛЛИЦА.test(исходная)) return null;
+  if (typeof исходная !== 'string') return null;
+  const русская = КИРИЛЛИЦА.test(исходная);
+  if (!русская && !цель) return null;
   // Разметка переносит длинные тексты по строкам — сравниваем без лишних пробелов.
   const s = исходная.replace(/\s+/g, ' ');
   if (кэш.has(s)) return кэш.get(s);
-  const p = перевод(s, 0);
+  const p = русская ? перевод(s, 0) : поАнглийски(s);
   if (кэш.size > 4000) кэш.clear();
   кэш.set(s, p);
   return p;
@@ -157,7 +353,26 @@ export function перевести(исходная) {
 export function т(s) {
   if (!английский()) return s;
   const p = перевести(s);
+  if (p !== null && !цель && кодЯзыка() !== 'en' && typeof s === 'string') {
+    if (выданоТ.size > 3000) выданоТ.clear();
+    выданоТ.set(p.trim(), s.replace(/\s+/g, ' '));
+  }
+  if (p !== null) запомнитьВыданное(p, s);
   return p === null ? s : p;
+}
+
+/**
+ * Строка для модели: в русском — как есть, в остальных — по-английски, даже
+ * если интерфейс на языке из таблицы. Модель пишет HUD по-английски, а
+ * разбор понимает только русский и английский.
+ */
+export function тМодели(s) {
+  if (!английский() || typeof s !== 'string' || !КИРИЛЛИЦА.test(s)) return s;
+  if (!цель) return т(s);
+  const было = [словарь, шаблоны, цель, цельКода];
+  словарь = словарьEN; шаблоны = шаблоныEN; цель = null; цельКода = null;
+  try { const p = перевод(s.replace(/\s+/g, ' '), 0); return p === null ? s : p; }
+  finally { [словарь, шаблоны, цель, цельКода] = было; }
 }
 
 // --- Перевод разметки ----------------------------------------------------------
@@ -174,15 +389,49 @@ const своё = (эл) => { const с = эл && эл.closest(СВОЁ); return !
 const ЧУЖОЕ = '[contenteditable="true"], [data-i18n-skip]';
 
 // Русские исходники переведённого: чтобы вернуть язык без перезагрузки.
+// И что именно поставил переводчик, на каком языке: свой перевод не
+// переводится второй раз (исходник тогда затирался бы переводом), а узел,
+// который при смене языка был снят со страницы (карточка в кэше), при
+// возвращении переводится заново из исходника.
 const русскийТекст = new WeakMap(), русскиеАтрибуты = new WeakMap();
+const нашТекст = new WeakMap(), нашиАтрибуты = new WeakMap();
+// Исходник значения: своё прежнее — из памяти, новое от кода — как есть.
+function исходник(сейчас, наш, было) {
+  if (наш && наш[0] === сейчас) return наш[1] === загружен ? null : было;
+  return сейчас;
+}
 function перевестиТекст(узел) {
-  const p = перевести(узел.nodeValue);
-  if (p !== null && p !== узел.nodeValue) { русскийТекст.set(узел, узел.nodeValue); узел.nodeValue = p; }
+  const сейчас = узел.nodeValue;
+  // Знак зодиака, вставленный кодом: заново тем же знакЗодиака() на нынешнем языке.
+  const знак = (!нашТекст.has(узел) && знакИз(сейчас)) || (знакиУзлов.get(узел) === сейчас.trim() && сейчас.trim());
+  if (знак) { знакиУзлов.set(узел, знак); const p = английский() ? знакЗодиака(знак) : знак; if (p !== сейчас.trim()) узел.nodeValue = сИсходником(сейчас, p); return; }
+  let ис = исходник(сейчас, нашТекст.get(узел), русскийТекст.get(узел));
+  if (ис === null) return;
+  if (ис === сейчас) { const в = выданное(сейчас); if (в !== undefined) ис = сИсходником(сейчас, в); }
+  const p = английский() ? перевести(ис) : null;
+  if (p !== null && p !== ис) { русскийТекст.set(узел, ис); нашТекст.set(узел, [p, загружен]); if (p !== сейчас) узел.nodeValue = p; return; }
+  русскийТекст.delete(узел); нашТекст.delete(узел);
+  if (ис !== сейчас) узел.nodeValue = ис;
 }
 function перевестиАтрибуты(эл) {
+  const наши = нашиАтрибуты.get(эл), было = русскиеАтрибуты.get(эл);
   for (const a of АТРИБУТЫ) {
-    const v = эл.getAttribute(a);
-    if (v && КИРИЛЛИЦА.test(v)) { const p = перевести(v); if (p !== null && p !== v) { if (!русскиеАтрибуты.has(эл)) русскиеАтрибуты.set(эл, {}); русскиеАтрибуты.get(эл)[a] = v; эл.setAttribute(a, p); } }
+    const сейчас = эл.getAttribute(a);
+    if (!сейчас || !(цель || (наши && наши[a]) || КИРИЛЛИЦА.test(сейчас) || выданное(сейчас) !== undefined)) continue;
+    let ис = исходник(сейчас, наши && наши[a], было && было[a]);
+    if (ис === null) continue;
+    if (ис === сейчас) { const в = выданное(сейчас); if (в !== undefined) ис = сИсходником(сейчас, в); }
+    const p = английский() ? перевести(ис) : null;
+    if (p !== null && p !== ис) {
+      if (!русскиеАтрибуты.has(эл)) русскиеАтрибуты.set(эл, {});
+      if (!нашиАтрибуты.has(эл)) нашиАтрибуты.set(эл, {});
+      русскиеАтрибуты.get(эл)[a] = ис; нашиАтрибуты.get(эл)[a] = [p, загружен];
+      if (p !== сейчас) эл.setAttribute(a, p);
+    } else {
+      if (было) delete было[a];
+      if (наши) delete наши[a];
+      if (ис !== сейчас) эл.setAttribute(a, ис);
+    }
   }
 }
 
@@ -208,34 +457,76 @@ export function перевестиДерево(корень) {
     },
   });
   for (let n = обход.nextNode(); n; n = обход.nextNode()) {
-    if (n.nodeType === 3) { if (КИРИЛЛИЦА.test(n.nodeValue)) перевестиТекст(n); }
+    if (n.nodeType === 3) { if (цель || нашТекст.has(n) || КИРИЛЛИЦА.test(n.nodeValue) || выданное(n.nodeValue) !== undefined || знакИз(n.nodeValue) || знакиУзлов.has(n)) перевестиТекст(n); }
     else перевестиАтрибуты(n);
   }
 }
 
 let наблюдатель = null;
 // Обратный ход: всё, что переводчик успел поменять, — как было.
-function вернутьРусский() {
-  const обход = document.createTreeWalker(document.body, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
-  for (let n = обход.nextNode(); n; n = обход.nextNode()) {
-    if (n.nodeType === 3) { if (русскийТекст.has(n)) { n.nodeValue = русскийТекст.get(n); русскийТекст.delete(n); } continue; }
+function вернутьРусский(корень = document.body) {
+  const обход = document.createTreeWalker(корень, NodeFilter.SHOW_ELEMENT | NodeFilter.SHOW_TEXT);
+  for (let n = корень; n; n = корень.nodeType === 3 ? null : обход.nextNode()) {
+    if (n.nodeType === 3) {
+      if (русскийТекст.has(n)) { n.nodeValue = русскийТекст.get(n); русскийТекст.delete(n); нашТекст.delete(n); }
+      else {
+        const з = знакИз(n.nodeValue);
+        if (з) { знакиУзлов.set(n, з); n.nodeValue = сИсходником(n.nodeValue, з); continue; }
+        const в = выданное(n.nodeValue); if (в !== undefined) n.nodeValue = сИсходником(n.nodeValue, в);
+      }
+      continue;
+    }
     const было = русскиеАтрибуты.get(n);
-    if (было) { for (const [a, v] of Object.entries(было)) n.setAttribute(a, v); русскиеАтрибуты.delete(n); }
+    if (было) { for (const [a, v] of Object.entries(было)) n.setAttribute(a, v); русскиеАтрибуты.delete(n); нашиАтрибуты.delete(n); }
+    if (выданоЯзыком.size && n.getAttribute) for (const a of АТРИБУТЫ) { const v = n.getAttribute(a); const в = v && выданное(v); if (в !== undefined && в !== null) n.setAttribute(a, сИсходником(v, в)); }
   }
 }
-/** Включить перевод страницы: всё уже вставленное и всё, что появится. */
+let запрос = 0;
+/**
+ * Включить перевод страницы: всё уже вставленное и всё, что появится.
+ * Язык из таблицы грузится отдельным файлом: пока он едет — английский.
+ * Промис — когда страница на нужном языке.
+ */
 export function включитьПереводчик() {
-  if (typeof document === 'undefined') return;
+  if (typeof document === 'undefined') return Promise.resolve();
+  const код = кодЯзыка();
   document.documentElement.classList.toggle('hud-lang-en', английский());
   document.documentElement.classList.toggle('hud-lang-ru', !английский());
+  const мой = ++запрос;
   if (!английский()) {
-    if (наблюдатель) { наблюдатель.disconnect(); наблюдатель = null; вернутьРусский(); }
-    return;
+    // Наблюдатель остаётся (если был): карточка, снятая со страницы переведённой,
+    // при возвращении становится русской. Без перевода за сессию его нет вовсе.
+    if (наблюдатель) вернутьРусский();
+    применитьЯзык('en', null);
+    // Страница сейчас русская: следующий английский пройдёт её заново, а не
+    // решит, что английский уже стоит (наблюдатель-то жив).
+    загружен = 'ru';
+    return Promise.resolve();
   }
-  if (наблюдатель) return;
-  перевестиДерево(document.body);
+  const включить = (данные) => {
+    if (мой !== запрос) return;
+    const нужен = данные ? код : 'en';
+    if (наблюдатель && нужен === загружен) return;
+    // Смена между английским и языком таблицы: сперва всё как было, потом заново.
+    if (наблюдатель) вернутьРусский();
+    применитьЯзык(нужен, данные);
+    перевестиДерево(document.body);
+    if (!наблюдатель) следить();
+  };
+  if (код === 'en') { включить(null); return Promise.resolve(); }
+  const ждём = загрузитьЯзык(код);
+  // Свой файл лежит в браузере — сразу, без промежуточного английского.
+  if (код === 'file') { включить(прочитатьФайл()); return Promise.resolve(); }
+  if (загружен !== код) включить(null);
+  return ждём.then(включить);
+}
+function следить() {
   // Колбэк наблюдателя — микрозадача: перевод успевает до отрисовки.
   наблюдатель = new MutationObserver((записи) => {
+    if (!английский()) {
+      for (const з of записи) for (const n of з.addedNodes) if (n.nodeType === 1 || n.nodeType === 3) вернутьРусский(n);
+      return;
+    }
     for (const з of записи) {
       if (з.type === 'attributes') { if (з.target.nodeType === 1 && своё(з.target) && !з.target.closest(ЧУЖОЕ)) перевестиАтрибуты(з.target); continue; }
       for (const n of з.addedNodes) перевестиДерево(n);

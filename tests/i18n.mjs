@@ -222,6 +222,72 @@ const Св = await м('render/summary-card.js');
 const св = Св.разобратьСводку('Thursday, 17.10.2024 · 21:40 | evening · light rain | Damian — living room | Event: the letter arrived | New: Lilian knows');
 проверить('сводка: Event и New по-английски', св.событие === 'the letter arrived' && св.новое === 'Lilian knows' && св.время === '21:40', JSON.stringify(св));
 проверить('подпись со скобкой и двоеточием: «(0 — стандартная): » не теряет скобку', п('📏 Максимальная высота вкладок (0 — стандартная): ') === '📏 Max height of tabs (0 = default): ', String(п('📏 Максимальная высота вкладок (0 — стандартная): ')));
+// --- Языки из таблиц переводчиков (translations/) -------------------------
+// Через английский: русская строка → английская → строка языка; чего нет в
+// таблице — по-английски; английский текст из кода — тоже по таблице.
+{
+  const { spawnSync } = await import('child_process');
+  const сб = spawnSync(process.execPath, [ROOT + 'translations/build.mjs', '--check'], { encoding: 'utf8' });
+  проверить('таблица строк и собранные языки свежие (node translations/build.mjs)', сб.status === 0, (сб.stdout || '') + (сб.stderr || ''));
+  const Т = await import('file:///' + ROOT + 'translations/build.mjs?check=1');
+  проверить('CSV: точка с запятой, кавычки, BOM', JSON.stringify(Т.разобратьCSV('\uFEFFenglish;translation\r\n"a; ""b""";в\r\n')) === '[["english","translation"],["a; \\"b\\"","в"]]');
+  проверить('шаблон для справки — по-человечески', Т.шаблонПоЛюдски('^(\\d+) (?:год|года|лет) (\\d+) мес\\.$') === '{1} год/года/лет {2} мес.', Т.шаблонПоЛюдски('^(\\d+) (?:год|года|лет) (\\d+) мес\\.$'));
+  проверить('перевод без {1} не принимается', Т.проверитьПеревод('in {1} messages', 'nope') !== null && Т.проверитьПеревод('{1} yr {2} mo', '{2}月{1}年') === null);
+  const строки = Т.собратьСтроки();
+  проверить('в таблице все строки словаря и шаблонов, без повторов', строки.length > 5000 && new Set(строки.map(с => с.english)).size === строки.length);
+  settings.language = 'en';
+  I.применитьЯзык('zz', { strings: { 'Book of Hours': 'ZZ-Hours', '{1} yr {2} mo': '{2} ZM {1} ZY', 'Picture': 'ZZ-Pic', 'Leo': 'ZZ-Leo' }, code_strings: ['Book of Hours', 'Picture'] });
+  проверить('язык из таблицы: строка словаря', п('Часослов') === 'ZZ-Hours', п('Часослов'));
+  проверить('язык из таблицы: шаблон с числами и своим порядком', п('3 года 5 мес.') === '5 ZM 3 ZY', п('3 года 5 мес.'));
+  проверить('язык из таблицы: без перевода — по-английски', п('Запись о рождении') === 'Record of birth', п('Запись о рождении'));
+  проверить('язык из таблицы: английский текст из кода', п('Book of Hours') === 'ZZ-Hours' && п('🖼 Picture: x') === '🖼 ZZ-Pic: x', п('🖼 Picture: x'));
+  проверить('язык из таблицы: незнакомый английский не трогается', п('Lilian knows') === null);
+  проверить('язык из таблицы: знак зодиака', I.знакЗодиака('Лев') === 'ZZ-Leo', I.знакЗодиака('Лев'));
+  проверить('язык из таблицы: имя персонажа «Leo» на странице не становится знаком зодиака', п('Leo') === null && п('👤 Leo') === null, п('Leo'));
+  I.применитьЯзык('zz', { strings: { '{1}h': '{1}ZH', 'the day of ovulation': 'ZOV', 'Cycle day {1} of {2}, ovulation around day {3}: {4}.': 'ZC {3}/{1}/{2} {4}', 'Full reply': 'ZFR', 'Book of Hours': 'ZZ-Hours' },
+    code_strings: ['{1}h', 'the day of ovulation', 'Cycle day {1} of {2}, ovulation around day {3}: {4}.', 'Full reply'] });
+  проверить('тМодели(): для модели — английский, не язык таблицы', I.тМодели('Часослов') === 'Book of Hours' && I.т('Часослов') === 'ZZ-Hours' && п('Часослов') === 'ZZ-Hours', I.тМодели('Часослов'));
+  проверить('язык из таблицы: английский шаблон из кода, свой порядок мест', п('Cycle day 3 of 28, ovulation around day 14: the day of ovulation.') === 'ZC 14/3/28 ZOV', п('Cycle day 3 of 28, ovulation around day 14: the day of ovulation.'));
+  проверить('язык из таблицы: «{1}h» — только число, «Death» не трогается', п('5h') === '5ZH' && п('Death') === null, п('5h'));
+  проверить('англ(): английский литерал кода на языке таблицы', I.англ('Full reply') === 'ZFR' && I.англ('Unknown') === 'Unknown');
+  const сб2 = (await import('file:///' + ROOT + 'translations/build.mjs?check=2')).строкиКода().map(с => с.english);
+  проверить('таблица видит английский из кода, но не инструкции модели', сб2.includes('Cycle day {1} of {2}, ovulation around day {3}: {4}.') && сб2.includes('Full reply') && !сб2.some(x => /HUD values|rainy night/.test(x)), сб2.length);
+  // т() до загрузки файла языка отдал английский — после загрузки эта строка переводится заново.
+  I.применитьЯзык('en', null);
+  settings.language = 'zz-missing';
+  проверить('язык, которого нет в translations/, — английский, не русский', I.кодЯзыка() === 'en' && I.английский());
+  settings.language = 'en';
+  const рано = I.т('Часослов');
+  проверить('английский язык: т() ничего не запоминает', рано === 'Book of Hours');
+  I.применитьЯзык('en', null);
+  const сборка = await import('file:///' + ROOT + 'translations/build.mjs?check=3');
+  проверить('перевод с чужим тегом или «<!--» не принимается', сборка.проверитьПеревод('a <b>x</b>', '<b>y</b> <img src=x onerror=1>') !== null && сборка.проверитьПеревод('x', '<!-- y') !== null && сборка.проверитьПеревод('x', 'a < b, 3<4') === null);
+  проверить('прямые кавычки перевода — типографские (атрибуты title="…")', сборка.отделать('Say hi', ' 说 "你好" ') === '说 “你好”', сборка.отделать('Say hi', ' 说 "你好" '));
+  const css = сборка.собратьCSS(сборка.правилаCSS(), { 'tap to expand': "点击 'x' \\ y" });
+  проверить('CSS-подписи: правило пересобрано, кавычки экранированы, сильнее английского', /^:root:root\.hud-lang-en \.hud-phone-notif-stack::after \{ content: '点击 \\'x\\' \\\\ y'; \}$/.test(css), css);
+  проверить('CSS-подписи попали в таблицу', сборка.собратьСтроки().some(с => с.english === 'tap to expand'));
+  проверить('тост загрузки перевода по-английски', п('Переведено строк: 5 из 10 — 50%') === 'Translated: 5 of 10 — 50%' && п('С ошибками пропущено: 2 — список в консоли, F12') === 'Skipped with errors: 2 — the list is in the console, F12', п('Переведено строк: 5 из 10 — 50%'));
+  // Свой перевод файлом в настройках: без Node, файлы расширения не меняются.
+  {
+    const склад = new Map();
+    const былСклад = globalThis.localStorage;
+    globalThis.localStorage = { getItem: (k) => склад.get(k) ?? null, setItem: (k, v) => склад.set(k, String(v)), removeItem: (k) => склад.delete(k) };
+    const csv = '\uFEFFenglish;translation;context\r\n@language;Zedish;\r\nBook of Hours;ZZ-Hours;\r\nin {1} messages;bad;\r\n';
+    const итог = await I.загрузитьФайлПеревода(csv);
+    проверить('файл перевода: строки посчитаны, ошибочная пропущена', итог.готово === 1 && итог.ошибки.length === 1 && итог.всего > 5000, JSON.stringify({ г: итог.готово, о: итог.ошибки.length }));
+    settings.language = 'file';
+    проверить('файл перевода: язык выбран, пункт в меню с именем', I.кодЯзыка() === 'file' && I.английский() && I.языкиМеню().some(я => я.code === 'file' && я.name.includes('Zedish')), JSON.stringify(I.языкиМеню().slice(-1)));
+    проверить('файл перевода: лежит в браузере', JSON.parse(склад.get('hud-lang-file')).strings['Book of Hours'] === 'ZZ-Hours');
+    const плохой = await I.загрузитьФайлПеревода('a,b\r\n1,2\r\n');
+    проверить('не та таблица — ошибка, прежний файл цел', !!плохой.ошибка && I.файлПеревода() && I.файлПеревода().name === 'Zedish');
+    I.убратьФайлПеревода();
+    проверить('файл перевода убран: язык английский, пункта нет', settings.language === 'en' && I.кодЯзыка() === 'en' && !I.языкиМеню().some(я => я.code === 'file') && !склад.has('hud-lang-file'));
+    globalThis.localStorage = былСклад;
+  }
+  проверить('знак «Близнецы» — Gemini, не Twins', I.знакЗодиака('Близнецы') === 'Gemini' && п('Gemini') === null);
+  I.применитьЯзык('en', null);
+  проверить('обратно на английский', п('Часослов') === 'Book of Hours' && п('Book of Hours') === null);
+}
 settings.language = 'ru';
 
 console.log(`\nпроверок: ${проб}, провалов: ${провалов}`);

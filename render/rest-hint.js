@@ -4,9 +4,9 @@
 // раны. Только на экран: в промпт и заметки модели это не идёт, сцену решает
 // игрок. Сроки потери — в восстановлениеПосле() (render/conception.js).
 
-import { escapeHtml } from '../utils.js?v=23.89.6';
-import { settings } from '../settings.js?v=23.89.6';
-import { полеВкл } from '../deep-fields.js?v=23.89.6';
+import { escapeHtml } from '../utils.js?v=23.89.7';
+import { settings } from '../settings.js?v=23.89.7';
+import { полеВкл } from '../deep-fields.js?v=23.89.7';
 
 /** После родов: обычный срок, когда врач смотрит и разрешает. */
 export const ДНЕЙ_ПОСЛЕ_РОДОВ = 42;

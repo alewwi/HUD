@@ -32,14 +32,14 @@
 // Здесь — логика. Кнопки и окно подтверждения — index.js, разметка кнопки —
 // render/erase-button.js.
 
-import { hudБлоки, развернутьЗаглушки, заглушкаHUD } from './hud-block.js?v=23.89.6';
-import { HUDвКодах } from './hud-snapshot.js?v=23.89.6';
-import { namesLikelySame } from './names.js?v=23.89.6';
-import { ячейки, подготовитьВыгруженные, подгрузитьЧат, развернутьHUD, ключБлока } from './offload.js?v=23.89.6';
-import { ключСекрета, правки, снятьПравку } from './snapshot-edits.js?v=23.89.6';
-import { ключСообщения } from './chronicle.js?v=23.89.6';
-import { стеретьВЛетописи, выжимкиЛетописи, пополнитьЛетопись, сохранитьЛетописьСейчас } from './chronicle-store.js?v=23.89.6';
-import { стеретьБеременность, снимокБеременности, вернутьБеременность } from './render/conception.js?v=23.89.6';
+import { hudБлоки, развернутьЗаглушки, заглушкаHUD } from './hud-block.js?v=23.89.7';
+import { HUDвКодах } from './hud-snapshot.js?v=23.89.7';
+import { namesLikelySame } from './names.js?v=23.89.7';
+import { ячейки, подготовитьВыгруженные, подгрузитьЧат, развернутьHUD, ключБлока } from './offload.js?v=23.89.7';
+import { ключСекрета, правки, снятьПравку } from './snapshot-edits.js?v=23.89.7';
+import { ключСообщения } from './chronicle.js?v=23.89.7';
+import { стеретьВЛетописи, выжимкиЛетописи, пополнитьЛетопись, сохранитьЛетописьСейчас } from './chronicle-store.js?v=23.89.7';
+import { стеретьБеременность, снимокБеременности, вернутьБеременность } from './render/conception.js?v=23.89.7';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const ctx = () => { try { return window.SillyTavern?.getContext?.() || null; } catch (_) { return null; } };

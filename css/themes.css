@@ -1100,6 +1100,11 @@
 .hud-wn-auto { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; cursor: pointer; }
 .hud-wn-close { min-height: 34px; padding: 4px 18px; border-radius: 8px; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; color: #fff; background: var(--hud-accent, #8c5ad2); border: 0; }
 .hud-set-whatsnew { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 12px; }
+/* Свой перевод файлом — под меню языка. */
+.hud-set-lang-file { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0 2px; }
+.hud-set-lang-file .menu_button { width: auto; margin: 0; }
+/* menu_button Таверны ставит display и перебивает hidden. */
+.hud-set-lang-file [hidden] { display: none !important; }
 .hud-modal-label { font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase; opacity: .55; margin-top: 6px; }
 .hud-modal-label i { font-style: normal; text-transform: none; letter-spacing: 0; opacity: .8; }
 .hud-modal-text, .hud-modal-keys, .hud-modal-book, .hud-modal-title {

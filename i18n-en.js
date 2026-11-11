@@ -6,6 +6,15 @@
 // Шаблоны — для строк с числами и вставками («3 трека», «с хода 5»).
 
 export const СЛОВАРЬ_EN = {
+  // Свой перевод файлом (настройки → язык).
+  "Загрузить перевод (.csv)": "Load a translation (.csv)",
+  "Проверить свой перевод: таблица translations/template.csv с заполненной колонкой translation. Хранится только в этом браузере, файлы расширения не меняются": "Test your own translation: the translations/template.csv table with the translation column filled in. Kept only in this browser; the extension files are not changed",
+  "Убрать файл перевода": "Remove the translation file",
+  "Не сохранить в браузере": "Could not save in the browser",
+  "Не тот файл": "Wrong file",
+  "Нужна таблица CSV с колонками english и translation (translations/template.csv)": "Needs a CSV table with english and translation columns (translations/template.csv)",
+  "Перевод загружен": "Translation loaded",
+  "Файл перевода убран": "Translation file removed",
   // Виды в обличье эпохи (render/era-medieval.js).
   "Запись о рождении": "Record of birth",
   "от роду": "aged",
@@ -5078,6 +5087,8 @@ export const СЛОВАРЬ_EN = {
 };
 
 export const ШАБЛОНЫ_EN = [
+  ["^Переведено строк: (\\d+) из (\\d+) — (\\d+)%$", "Translated: $1 of $2 — $3%"],
+  ["^С ошибками пропущено: (\\d+) — список в консоли, F12$", "Skipped with errors: $1 — the list is in the console, F12"],
   ["^Файлов разгрузки: (\\d+), HUD вернулось: (\\d+)\\. Чат цел\\.$", "Offload files: $1, HUDs returned: $2. The chat is intact."],
   ["^Они нужны чатам: (.+)$", "Needed by these chats: $1"],
   ["^поиск по чатам: HTTP (\\d+)$", "chat search: HTTP $1"],
@@ -5804,4 +5815,19 @@ export const ШАБЛОНЫ_EN = [
   ["^Плейлист «(.+?)» удалён$", "Playlist «$1» deleted"],
   ["^Плейлист (\\d+)$", "Playlist $1"],
   ["^нравится (\\d+) · не предлагать (\\d+)$", "liked $1 · banned $2"],
+];
+
+// Знаки зодиака — отдельно, по месту: в общем словаре «Близнецы» — дети, «Весы» — вид дуэли.
+export const ЗОДИАК_EN = { Овен: 'Aries', Телец: 'Taurus', Близнецы: 'Gemini', Рак: 'Cancer', Лев: 'Leo', Дева: 'Virgo', Весы: 'Libra', Скорпион: 'Scorpio', Стрелец: 'Sagittarius', Козерог: 'Capricorn', Водолей: 'Aquarius', Рыбы: 'Pisces' };
+
+// Английские строки, которые код собирает сам из кусков, — для таблиц
+// переводчиков (translations/build.mjs). Остальные английские ветки кода
+// («английский() ? 'EN' : 'RU'», L('ru', 'en')) таблица находит сама.
+// {1}, {2} — места чисел и вставок.
+export const КОД_EN = [
+  '{1} h', '{1} d', '{1} d {2} h', '{1}h', '{1}d',
+  'why {1}', 'Playlist {1}', '1 turn back', '{1} turns back',
+  'Fades in {1} of {2} of story time', 'fades in {1}',
+  '{1} day', '{1} days', '{1} week', '{1} weeks', '{1} month', '{1} months', '{1} yr {2} mo {3} d', '{1} yr', '{1} mo',
+  'Fix HUD (Cut & Regen)', 'Performance Mode',
 ];

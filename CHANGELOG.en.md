@@ -4,6 +4,20 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.7 — 2026-11-11
+
+The HUD interface can be translated into any language, through English, with a spreadsheet.
+
+### Added
+- **Translations into other languages.** Every interface string is in the `translations/template.csv` table: the English text and an empty column for the translation, with the Russian original only for reference. A translator needs neither Russian nor code. A string without a translation stays in English, so even a partial translation works. A built language appears in the 🌐 Language menu by itself. The guide for translators is `translations/README.md`.
+- **Check your own translation right in the HUD.** In the settings under 🌐 Language there is "📄 Load a translation (.csv)": the HUD switches to the file's language at once and says how many strings were taken. Rows with errors (a lost `{1}`, a different tag) go to the console with the reason. The file is kept only in this browser and doesn't touch the extension files, so updates from SillyTavern keep working. "✕ Remove" brings back English.
+
+### Changed
+- With a language from a table, the model gets its instruction and hints in English and writes the HUD in English, because parsing understands Russian and English. CSS labels, English strings the code assembles itself and zodiac signs are translated by the table too.
+
+### Fixed
+- Switching the language without a reload no longer leaves pieces of the previous language: the zodiac sign on the card, settings hints and parts of cards that were off screen at that moment are translated again.
+
 ## 23.89.6 — 2026-11-11
 
 ### Fixed

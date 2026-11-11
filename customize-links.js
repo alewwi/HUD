@@ -9,8 +9,8 @@
 // телефона в примере работают как обычно. Что каждая настройка есть в карте,
 // проверяет tests/unit.mjs.
 
-import { settings } from './settings.js?v=23.89.6';
-import { т } from './i18n.js?v=23.89.6';
+import { settings } from './settings.js?v=23.89.7';
+import { т } from './i18n.js?v=23.89.7';
 
 const ВИДЫ_ПОД_КЛАСС = {
   age: 'ageView', clothes: 'clothesView', looks: 'looksView', role: 'roleView', body: 'bodyStateView', phys: 'physView', health: 'healthView',

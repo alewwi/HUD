@@ -596,8 +596,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.6**:
+The latest version is **23.89.7**:
 
+- The interface can be translated into any language with a spreadsheet through English; your own translation can be checked right in the HUD settings.
 - The tab height setting is translated in the English interface.
 - Theme "Reset" brings back the whole default look; the Customization sample is one coherent made-up story, and the player in it has no ties to anyone.
 - One setting sets the height of every tab; in Customization a click on the sample leads to the right setting; theme pictures can be hidden one by one.
@@ -670,6 +671,8 @@ node tests/tools/docs-shots.mjs [--lang en] [--era medieval] # README screenshot
 ```
 
 English interface: a new Russian label in the markup is translated by the `i18n-en.js` dictionary — a whole string in `СЛОВАРЬ_EN`, a string with numbers or substitutions in `ШАБЛОНЫ_EN`. Labels in CSS (`content`) are duplicated in `css/lang-en.css`, Russian examples in the model instruction in `prompt-en.js`. `node tests/i18n.mjs` checks the translator, the instruction without Cyrillic, the CSS and the parsing of English values.
+
+Other languages go through English: translators fill in a spreadsheet of English strings. The guide is in [translations/README.md](translations/README.md). `node translations/build.mjs` builds the language files, and a new language appears in 🌐 Language by itself.
 
 ---
 
