@@ -216,12 +216,16 @@
 .hud-post { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 9px; padding: 9px 10px; }
 .hud-post + .hud-post { border-top: 1px solid color-mix(in srgb, currentColor 10%, transparent); }
 .hud-post-ava {
-  width: 28px; height: 28px; border-radius: 50%; display: grid; place-items: center; overflow: hidden;
-  background: linear-gradient(150deg, var(--ava, #6b7280), rgba(0,0,0,.45)); color: rgba(255,255,255,.85);
+  width: 28px; height: 28px; border-radius: 50%; display: block; overflow: hidden; flex: none;
+  background: linear-gradient(150deg, var(--ava, #6b7280), rgba(0,0,0,.45)); color: rgba(255,255,255,.72);
 }
-.hud-post-ava .hud-g-ico { width: 17px; height: 17px; margin-top: 5px; fill: currentColor; stroke: none; }
+.hud-post-ava .hud-post-sil { display: block; width: 100%; height: 100%; fill: currentColor; }
 .hud-post-head { display: flex; align-items: baseline; gap: 6px; min-width: 0; margin-bottom: 2px; font-size: 11px; }
 .hud-post-no { margin-left: auto; flex: none; font-size: 10px; opacity: .45; font-variant-numeric: tabular-nums; }
+/* Время записи: дата и время хода, где она появилась (render/rumor-times.js). */
+.hud-rumor-time { display: block; margin-top: 4px; font-size: 9.5px; font-style: normal; letter-spacing: .02em; text-align: right; opacity: .5; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.hud-post-head .hud-rumor-time { display: inline; margin: 0; flex: none; font-size: 10px; text-align: left; opacity: .45; }
+.hud-post-head { flex-wrap: wrap; row-gap: 0; }
 .hud-post-body p { margin: 0; font-size: 12.5px; line-height: 1.4; overflow-wrap: anywhere; }
 .hud-rumor-author { min-width: 0; font-size: 11px; }
 .hud-rumor-author > summary { display: inline; cursor: pointer; list-style: none; font-weight: 700; }
@@ -258,3 +262,18 @@ b.hud-rumor-author { font-weight: 700; }
 .hud-chatbg-swatch { height: 38px; border: 1px solid color-mix(in srgb, currentColor 26%, transparent); border-radius: 9px; cursor: pointer; }
 .hud-chatbg-row { display: flex; flex-wrap: wrap; gap: 6px; }
 .hud-chatbg-row button { flex: 1 1 70px; padding: 5px 4px; color: inherit; font: inherit; border: 1px solid color-mix(in srgb, currentColor 22%, transparent); border-radius: 8px; background: color-mix(in srgb, currentColor 8%, transparent); cursor: pointer; }
+
+/* --- Перегенерация телефона ---------------------------------------------------
+   Крошечный значок в строке состояния рядом со связью: едва заметен, ярче под
+   курсором или фокусом; во время генерации крутится. */
+.hud-phone-emulator .hud-regen-btn.hud-phone-regen {
+  width: 13px; height: 13px; padding: 0; margin: 0 1px 0 0; border-radius: 50%; font-size: inherit;
+  opacity: .32; color: inherit; background: none; transition: opacity .2s;
+}
+.hud-phone-emulator .hud-phone-regen svg { width: 11px; height: 11px; fill: none; stroke: currentColor; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.hud-phone-emulator .hud-phone-regen:focus-visible { opacity: .9; outline: 1px solid currentColor; outline-offset: 1px; }
+.hud-phone-emulator .hud-phone-regen:active { opacity: .9; background: none; }
+@media (hover: hover) and (pointer: fine) { .hud-phone-emulator .hud-phone-regen:hover { opacity: .9; background: none; } }
+.hud-phone-emulator .hud-phone-regen.hud-spinning { opacity: .9; pointer-events: auto; }
+.hud-phone-emulator .hud-phone-regen.hud-spinning svg { animation: hud-phone-regen-spin 1s linear infinite; }
+@keyframes hud-phone-regen-spin { to { rotate: 360deg; } }

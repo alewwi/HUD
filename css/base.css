@@ -4257,7 +4257,8 @@ body.no-blur .hud-scene-time-group, body.no-blur .hud-weather-item, body.no-blur
 .hud-phone-lock-day { margin-top:8px; font-size:15px; color:rgba(255,255,255,.8); }
 .hud-phone-lock-notifications { width:100%; margin-top:34px; display:flex; flex-direction:column; gap:8px; }
 .hud-phone-lock-notice { text-align:left; padding:10px 12px; border:1px solid rgba(255,255,255,.14); border-radius:15px; background:rgba(15,18,25,.46); backdrop-filter:blur(18px); -webkit-backdrop-filter:blur(18px); box-shadow:0 8px 22px rgba(0,0,0,.22); }
-.hud-phone-lock-notice span { display:block; font-size:10px; text-transform:uppercase; opacity:.6; }
+/* Только подпись приложения: аватарка — тоже span, и правило делало её бледной, мелкой и без центровки. */
+.hud-phone-lock-notice > span:not(.hud-phone-lock-face) { display:block; font-size:10px; text-transform:uppercase; opacity:.6; }
 .hud-phone-lock-notice b { display:block; font-size:12px; margin-top:2px; }
 .hud-phone-lock-notice small { display:block; font-size:11px; opacity:.8; margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .hud-phone-lock-notice em { margin-top:-14px; font-size:9px; opacity:.5; font-style:normal; }
@@ -8747,7 +8748,8 @@ body.no-blur .hud-scene-time-group, body.no-blur .hud-weather-item, body.no-blur
 .hud-phone-chat-ava.has-img .hud-phone-chat-group { color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,.8); }
 
 /* Аватарка в карточке уведомления на экране блокировки. */
-.hud-phone-lock-notice.has-face { padding-left: 46px; }
+/* С аватаркой отступ слева — при любом виде уведомлений («Пилюля» ставила свой и прятала текст под кружок). */
+.hud-phone-lock-notice.has-face, [data-hud-phone-notif] .hud-phone-lock-notice.has-face { padding-left: 46px; }
 .hud-phone-lock-face {
   position: absolute; left: 10px; top: 11px;
   width: 28px; height: 28px; border-radius: 50%;
@@ -9221,15 +9223,14 @@ body.no-blur .hud-scene-time-group, body.no-blur .hud-weather-item, body.no-blur
 
 /* --- Контакты --- */
 .hud-phone-contacts { display: flex; flex-direction: column; gap: 2px; }
+/* Строкой: кружок слева, имя справа (старое правило ставило столбиком плитки). */
 .hud-phone-contact {
-  position: relative; padding: 8px 26px 8px 8px; border-radius: 12px;
+  position: relative; padding: 8px 26px 8px 8px; border-radius: 12px; flex-direction: row; align-items: center;
   transition: background .18s ease, transform .18s ease;
 }
-.hud-phone-contact + .hud-phone-contact::before {
-  /* Разделитель начинается после аватарки, как в телефонной книге. */
-  content: ''; position: absolute; left: 46px; right: 10px; top: 0;
-  height: 1px; background: rgba(255,255,255,.08);
-}
+/* У контактов — карточки со своей рамкой (выше): линия-разделитель от
+   прежнего списка ложилась поверх рамки обрывком над каждой карточкой. */
+.hud-phone-contact + .hud-phone-contact::before { content: none; }
 .hud-phone-contact::after {
   content: ''; position: absolute; right: 12px; top: 50%;
   width: 6px; height: 6px; margin-top: -3px;

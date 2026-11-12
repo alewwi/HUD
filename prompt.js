@@ -10,15 +10,15 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.89.10';
+import { settings } from './settings.js?v=23.89.11';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т } from './i18n.js?v=23.89.10';
-import { промптНаАнглийском } from './prompt-en.js?v=23.89.10';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.89.10';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.10';
-import { возрастТочно } from './render/babies.js?v=23.89.10';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.10';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.10';
+import { английский, тМодели as т } from './i18n.js?v=23.89.11';
+import { промптНаАнглийском } from './prompt-en.js?v=23.89.11';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.89.11';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.11';
+import { возрастТочно } from './render/babies.js?v=23.89.11';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.11';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.11';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -563,4 +563,53 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
   p += `\n</hud_instructions>`;
   // Английский интерфейс — и HUD по-английски: примеры значений тоже (prompt-en.js).
   return английский() ? промптНаАнглийском(p) : p;
+}
+
+/**
+ * Инструкция перегенерации одного телефона (regen.js, кнопка в строке
+ * состояния телефона). Из обычной инструкции перегенерации остаются: задача
+ * «только телефон», правила про коды, язык и формат, из схемы — "cm" и "phn",
+ * снимок прошлого HUD и строка про язык. '' — телефона в схеме нет.
+ */
+export function промптТелефона(полный) {
+  const s = String(полный || '');
+  const раздел = (ключ) => {
+    const м = new RegExp(`\n( "${ключ}": \{)`).exec(s);
+    if (!м) return '';
+    const от = м.index + 1;
+    let г = 0, вСтроке = false;
+    for (let i = от + м[1].length - 1; i < s.length; i++) {
+      const c = s[i];
+      if (вСтроке) { if (c === '\\') i++; else if (c === '"') вСтроке = false; continue; }
+      if (c === '"') вСтроке = true;
+      else if (c === '{') г++;
+      else if (c === '}' && !--г) return s.slice(от, i + 1);
+    }
+    return '';
+  };
+  const разделы = [раздел('cm'), раздел('phn')].filter(Boolean);
+  if (!разделы.length) return '';
+  const задача = (/## 🎯 TASK\n[^\n]*\n([\s\S]*?)\n\n## /.exec(s) || [])[1] || '';
+  const правила = ((/## 📐 RULES\n([\s\S]*?)\n\n## /.exec(s) || [])[1] || '').split('\n')
+    .filter(l => /^- (🔤|🌍 LANG|🔓|🧠 KNOWLEDGE|🌍 LIVING|📏|🏷️|⚠️)/u.test(l)).join('\n');
+  const снимок = (/\{\{if hudLast\}\}[\s\S]*?\{\{\/if\}\}/.exec(s) || [''])[0];
+  const язык = (s.match(/\n(🌍 Write all HUD values in [^\n]*)/) || [])[1] || '';
+  return `<hud_instructions>
+## 🎯 TASK
+Output ONLY one [HUD] block with the phone of {{char}} for the latest message of the story above: the keys "cm" and "phn" and nothing else — no "sc", no "cs", no other sections, no prose before or after it. Rebuild the phone from the story: keep the chats, contacts, notes and everything else from the last HUD that is still true, and add what the latest message changes.
+${задача}
+
+## 📐 RULES
+${правила}
+
+## 🧾 SCHEMA
+
+[HUD]
+\`\`\`json
+{
+${разделы.join(',\n')}
+}
+\`\`\`
+[/HUD]${снимок ? '\n\n' + снимок : ''}${язык ? '\n\n' + язык : ''}
+</hud_instructions>`;
 }

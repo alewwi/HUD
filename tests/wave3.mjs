@@ -1842,7 +1842,7 @@ settings.tempoView = 'xray';
   const всеСтили = всеCSS.map(css).join('\n').replace(/\/\*[\s\S]*?\*\//g, '');
   проверить('панель: класс <html> hud-side-open не стилизуют как элемент', !/(?:^|[\s,{>~+(])\.hud-side-open\b/m.test(всеСтили) && /documentElement\.classList\.add\('hud-side-open'\)/.test(сj) && !/class="hud-side-open"/.test(ix));
   const rg = fs.readFileSync(path.join(КОРЕНЬ, 'regen.js'), 'utf8');
-  проверить('панель: перегенерация находит сообщение и из панели', (rg.match(/closest\('\.mes, \.hud-side-mes'\)/g) || []).length === 2);
+  проверить('панель: перегенерация находит сообщение и из панели', (rg.match(/closest\('\.mes, \.hud-side-mes'\)/g) || []).length >= 2 && !/closest\('\.mes'\)/.test(rg));
 }
 // --- Ствол лиственного дерева не торчит над кроной ---
 {

@@ -52,27 +52,27 @@
    ========================================================================= */
 :root:is(.hud-skin-moonglass, .hud-skin-news, .hud-skin-win95, .hud-skin-mac, .hud-skin-bujo, .hud-skin-glass, .hud-skin-evidence) .hud-os-card .hud-body > .hud-row::after,
 :root:is(.hud-skin-news, .hud-skin-win95, .hud-skin-mac, .hud-skin-bujo, .hud-skin-glass) .hud-os-card .hud-body > .hud-row::before,
-:root:is(:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty).hud-skin-stickers) .hud-os-card .hud-body > .hud-row::before { display: none !important; }
+:root:is(:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty).hud-skin-stickers) .hud-os-card .hud-body > .hud-row::before, :root:is(.hud-skin-moonglass, .hud-skin-news, .hud-skin-win95, .hud-skin-mac, .hud-skin-bujo, .hud-skin-glass, .hud-skin-evidence) .hud-os-card .hud-body > .hud-key-block::after, :root:is(.hud-skin-news, .hud-skin-win95, .hud-skin-mac, .hud-skin-bujo, .hud-skin-glass) .hud-os-card .hud-body > .hud-key-block::before, :root:is(:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty).hud-skin-stickers) .hud-os-card .hud-body > .hud-key-block::before { display: none !important; }
 
-:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty).hud-skin-stickers .hud-os-card .hud-body > .hud-row {
+:root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty).hud-skin-stickers .hud-os-card .hud-body > .hud-row, :root:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty).hud-skin-stickers .hud-os-card .hud-body > .hud-key-block {
   border: 2px solid var(--st-b) !important; border-radius: 12px !important; box-shadow: 4px 4px 0 var(--st-b) !important; background: color-mix(in srgb, var(--hud-accent) 9%, var(--st-base)) !important; margin: 0 4px 4px 0; }
 
 /* --- «Лунное стекло» -------------------------------------------------------
    Стекло тонируется акцентом темы. Акцент берём с карточки (--hud-mg):
    внутри строк --hud-accent подменён цветом группы, а стекло одно на всех. */
 :root.hud-skin-moonglass .hud-os-card { --hud-mg: var(--hud-accent); }
-:root.hud-skin-moonglass .hud-os-card .hud-body > .hud-row {
+:root.hud-skin-moonglass .hud-os-card .hud-body > .hud-row, :root.hud-skin-moonglass .hud-os-card .hud-body > .hud-key-block {
   position: relative; overflow: visible; border-radius: 0 !important; background: linear-gradient(145deg, color-mix(in srgb, var(--hud-mg) 22%, transparent), color-mix(in srgb, var(--hud-mg) 12%, rgba(0,0,0,.12))) !important; border: 1px solid color-mix(in srgb, var(--hud-mg) 45%, rgba(255,255,255,.35)) !important;
   outline: 1px solid color-mix(in srgb, var(--hud-mg) 30%, rgba(255,255,255,.12)); outline-offset: 4px; margin: 6px 5px 12px !important; box-shadow: 0 8px 26px rgba(0,0,0,.35), inset 0 0 30px color-mix(in srgb, var(--hud-mg) 14%, transparent), inset 0 1px 0 rgba(255,255,255,.2) !important; }
-:root.hud-skin-moonglass .hud-os-card .hud-body > .hud-row::before {
+:root.hud-skin-moonglass .hud-os-card .hud-body > .hud-row::before, :root.hud-skin-moonglass .hud-os-card .hud-body > .hud-key-block::before {
   content: '☽' !important; display: block !important; position: absolute; left: 20px; right: 20px; top: -13px; height: 12px; line-height: 12px; text-align: center; font-size: 11px;
   color: color-mix(in srgb, var(--hud-mg) 55%, #fff); pointer-events: none; opacity: 1 !important; z-index: 1; background: none !important; border: none !important; }
-:root.hud-skin-moonglass .hud-os-card .hud-body > .hud-row:first-child::before { display: none !important; }
-:root.hud-skin-moonglass .hud-os-card .hud-body > .hud-row::after {
+:root.hud-skin-moonglass .hud-os-card .hud-body > .hud-row:first-child::before, :root.hud-skin-moonglass .hud-os-card .hud-body > .hud-key-block:first-child::before { display: none !important; }
+:root.hud-skin-moonglass .hud-os-card .hud-body > .hud-row::after, :root.hud-skin-moonglass .hud-os-card .hud-body > .hud-key-block::after {
   content: '°˖ ⋆ ☾' !important; display: block !important; position: absolute; top: 5px; right: 12px; left: auto; bottom: auto; width: auto; height: auto; font-size: 11px; letter-spacing: 3px;
   color: color-mix(in srgb, var(--hud-mg) 50%, #fff); text-shadow: 0 0 8px color-mix(in srgb, var(--hud-mg) 70%, transparent); pointer-events: none; background: none !important; opacity: 1 !important; transform: none !important; }
 :root.hud-skin-moonglass .hud-os-card .hud-title { letter-spacing: 4px !important; padding: 3px 12px; border-top: 1px solid color-mix(in srgb, var(--hud-mg) 55%, transparent); border-bottom: 1px solid color-mix(in srgb, var(--hud-mg) 55%, transparent); width: fit-content; }
-:root.hud-skin-moonglass:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-os-card .hud-body > .hud-row {
+:root.hud-skin-moonglass:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-os-card .hud-body > .hud-row, :root.hud-skin-moonglass:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-os-card .hud-body > .hud-key-block {
   background: linear-gradient(145deg, rgba(255,255,255,.72), color-mix(in srgb, var(--hud-mg) 16%, rgba(255,255,255,.55))) !important; border-color: color-mix(in srgb, var(--hud-mg) 45%, transparent) !important; outline-color: color-mix(in srgb, var(--hud-mg) 25%, transparent); }
 
 /* --- «Призрачная буква» ---------------------------------------------------- */
@@ -83,25 +83,25 @@
   font: italic 700 120px/1 Georgia, 'Times New Roman', serif; color: var(--hud-accent-text, var(--hud-accent)); opacity: .18; }
 :root.hud-skin-ghost .hud-os-card .hud-header-info { position: relative; z-index: 1; }
 :root.hud-skin-ghost .hud-os-card .hud-header-text::after { content: var(--hud-dateline, ''); display: block; margin-top: 3px; font-size: .7em; letter-spacing: 3px; opacity: .75; }
-:root.hud-skin-ghost .hud-os-card .hud-body > .hud-row > .hud-key::before { content: '✦ '; display: inline-block; margin-right: 2px; color: var(--hud-accent-text, var(--hud-accent)); }
+:root.hud-skin-ghost .hud-os-card .hud-body > .hud-row > .hud-key::before, :root.hud-skin-ghost .hud-os-card .hud-body > .hud-key-block > .hud-key::before { content: '✦ '; display: inline-block; margin-right: 2px; color: var(--hud-accent-text, var(--hud-accent)); }
 @keyframes hud-ghost-flip { to { transform: perspective(400px) rotateY(360deg); } }
-:root.hud-skin-ghost .hud-os-card .hud-body > .hud-row:is(.fx-hold) > .hud-key::before { animation: hud-ghost-flip 2.4s linear infinite; }
-@media (hover: hover) and (pointer: fine) { :root.hud-skin-ghost .hud-os-card .hud-body > .hud-row:hover > .hud-key::before { animation: hud-ghost-flip 2.4s linear infinite; } }
+:root.hud-skin-ghost .hud-os-card .hud-body > .hud-row:is(.fx-hold) > .hud-key::before, :root.hud-skin-ghost .hud-os-card .hud-body > .hud-key-block:is(.fx-hold) > .hud-key::before { animation: hud-ghost-flip 2.4s linear infinite; }
+@media (hover: hover) and (pointer: fine) { :root.hud-skin-ghost .hud-os-card .hud-body > .hud-row:hover > .hud-key::before, :root.hud-skin-ghost .hud-os-card .hud-body > .hud-key-block:hover > .hud-key::before { animation: hud-ghost-flip 2.4s linear infinite; } }
 :root.hud-skin-ghost .hud-os-card .hud-body > .hud-row.fx-hold:not(:hover):not(.fx-tap):not(.fx-active):not(.fx-on) > .hud-key::before { animation-play-state: paused !important; }
 
 /* --- «Газета» -------------------------------------------------------------- */
 :root.hud-skin-news .hud-os-card { --n-paper: color-mix(in srgb, var(--hud-accent) 5%, #26221e); --n-ink: #ece3d2; --n-rule: rgba(236,227,210,.7); --n-edge: rgba(0,0,0,.45); }
 
-:root.hud-skin-news .hud-os-card .hud-body > .hud-row {
+:root.hud-skin-news .hud-os-card .hud-body > .hud-row, :root.hud-skin-news .hud-os-card .hud-body > .hud-key-block {
   position: relative; isolation: isolate; overflow: visible; background: none !important; border: none !important; box-shadow: none !important; border-radius: 0 !important; padding: 12px 16px 14px !important; color: var(--n-ink); }
-:root.hud-skin-news .hud-os-card .hud-body > .hud-row::before {
+:root.hud-skin-news .hud-os-card .hud-body > .hud-row::before, :root.hud-skin-news .hud-os-card .hud-body > .hud-key-block::before {
   content: '' !important; display: block !important; position: absolute; inset: 0; z-index: -1; background: var(--n-paper) !important; border: 1px solid color-mix(in srgb, var(--n-ink) 22%, transparent);
   box-shadow: inset 0 0 36px var(--n-edge); filter: url(#hud-torn); opacity: 1 !important; transform: none !important; }
-:root.hud-skin-news .hud-os-card .hud-body > .hud-row > .hud-key {
+:root.hud-skin-news .hud-os-card .hud-body > .hud-row > .hud-key, :root.hud-skin-news .hud-os-card .hud-body > .hud-key-block > .hud-key {
   display: block; align-self: stretch; text-align: center; font-family: Georgia, 'Times New Roman', serif !important; font-variant: small-caps; text-transform: none; letter-spacing: .12em;
   font-size: 1em !important; color: var(--n-ink) !important; border-bottom: 3px double var(--n-rule); padding-bottom: 3px; margin-bottom: 8px; text-shadow: none !important; }
-:root.hud-skin-news .hud-os-card .hud-body > .hud-row :is(.hud-value, p, li) { font-family: Georgia, 'Times New Roman', serif; color: var(--n-ink); text-shadow: none !important; }
-:root.hud-skin-news .hud-os-card .hud-body > .hud-row .hud-detail-pill, :root.hud-skin-news .hud-os-card .hud-body > .hud-row .hud-v-card, :root.hud-skin-news .hud-os-card .hud-body > .hud-row .hud-v-chip { border-radius: 0 !important; border: 1px solid color-mix(in srgb, var(--n-ink) 30%, transparent) !important; box-shadow: none !important; }
+:root.hud-skin-news .hud-os-card .hud-body > .hud-row :is(.hud-value, p, li), :root.hud-skin-news .hud-os-card .hud-body > .hud-key-block :is(.hud-value, p, li) { font-family: Georgia, 'Times New Roman', serif; color: var(--n-ink); text-shadow: none !important; }
+:root.hud-skin-news .hud-os-card .hud-body > .hud-row .hud-detail-pill, :root.hud-skin-news .hud-os-card .hud-body > .hud-row .hud-v-card, :root.hud-skin-news .hud-os-card .hud-body > .hud-row .hud-v-chip, :root.hud-skin-news .hud-os-card .hud-body > .hud-key-block .hud-detail-pill, :root.hud-skin-news .hud-os-card .hud-body > .hud-key-block .hud-v-card, :root.hud-skin-news .hud-os-card .hud-body > .hud-key-block .hud-v-chip { border-radius: 0 !important; border: 1px solid color-mix(in srgb, var(--n-ink) 30%, transparent) !important; box-shadow: none !important; }
 :root.hud-skin-news .hud-os-card .hud-title { font-family: Georgia, 'Times New Roman', serif !important; font-size: 1.6em; letter-spacing: .03em; }
 :root.hud-skin-news .hud-os-card .hud-header-text::after {
   content: var(--hud-dateline, ''); display: block; margin-top: 4px; padding: 2px 0; border-top: 1px solid currentColor; border-bottom: 1px solid currentColor;
@@ -114,76 +114,76 @@
   --w-t2: var(--hud-accent); --w-field: #0c0c12; --w-ink: var(--hud-text, #e8e8f0); --w-tink: #fff;
   --w-btns: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 52 14'%3E%3Cg fill='%232a2a36' stroke='%23000'%3E%3Crect x='.5' y='.5' width='15' height='13'/%3E%3Crect x='18.5' y='.5' width='15' height='13'/%3E%3Crect x='36.5' y='.5' width='15' height='13'/%3E%3C/g%3E%3Cg stroke='%23777' fill='none'%3E%3Cpath d='M1.5 12.5v-11h13M19.5 12.5v-11h13M37.5 12.5v-11h13'/%3E%3C/g%3E%3Cg stroke='%23ddd' stroke-width='1.6' fill='none'%3E%3Cpath d='M4 10.5h7'/%3E%3Crect x='22' y='3.5' width='8' height='7'/%3E%3Cpath d='M40.5 3.5l7 7M47.5 3.5l-7 7'/%3E%3C/g%3E%3C/svg%3E"); }
 
-:root.hud-skin-win95 .hud-os-card .hud-body > .hud-row {
+:root.hud-skin-win95 .hud-os-card .hud-body > .hud-row, :root.hud-skin-win95 .hud-os-card .hud-body > .hud-key-block {
   background: var(--w-face) !important; border: 2px solid !important; border-color: var(--w-hi) var(--w-lo) var(--w-lo) var(--w-hi) !important; border-radius: 0 !important;
   box-shadow: 1px 1px 0 #000 !important; padding: 2px 8px 10px !important; color: var(--w-ink); }
-:root.hud-skin-win95 .hud-os-card .hud-body > .hud-row > .hud-key {
+:root.hud-skin-win95 .hud-os-card .hud-body > .hud-row > .hud-key, :root.hud-skin-win95 .hud-os-card .hud-body > .hud-key-block > .hud-key {
   display: flex !important; align-items: center; gap: 6px; align-self: stretch; margin: 0 -6px 8px !important; padding: 3px 60px 3px 7px !important; position: relative;
   background: linear-gradient(90deg, var(--w-t1), var(--w-t2)) !important; color: var(--w-tink) !important; font: bold 12px Tahoma, 'MS Sans Serif', Verdana, sans-serif !important;
   text-transform: none !important; letter-spacing: 0 !important; border-radius: 0 !important; text-shadow: none !important; }
-:root.hud-skin-win95 .hud-os-card .hud-body > .hud-row > .hud-key::after {
+:root.hud-skin-win95 .hud-os-card .hud-body > .hud-row > .hud-key::after, :root.hud-skin-win95 .hud-os-card .hud-body > .hud-key-block > .hud-key::after {
   content: '' !important; position: absolute; right: 4px; top: 50%; transform: translateY(-50%); width: 52px; height: 14px; background: var(--w-btns) no-repeat !important; display: block !important; opacity: 1 !important; }
-:root.hud-skin-win95 .hud-os-card .hud-body > .hud-row .hud-detail-pill, :root.hud-skin-win95 .hud-os-card .hud-body > .hud-row .hud-v-card, :root.hud-skin-win95 .hud-os-card .hud-body > .hud-row .hud-v-chip {
+:root.hud-skin-win95 .hud-os-card .hud-body > .hud-row .hud-detail-pill, :root.hud-skin-win95 .hud-os-card .hud-body > .hud-row .hud-v-card, :root.hud-skin-win95 .hud-os-card .hud-body > .hud-row .hud-v-chip, :root.hud-skin-win95 .hud-os-card .hud-body > .hud-key-block .hud-detail-pill, :root.hud-skin-win95 .hud-os-card .hud-body > .hud-key-block .hud-v-card, :root.hud-skin-win95 .hud-os-card .hud-body > .hud-key-block .hud-v-chip {
   background: var(--w-field) !important; border: 2px solid !important; border-color: var(--w-lo) var(--w-hi) var(--w-hi) var(--w-lo) !important; border-radius: 0 !important; box-shadow: none !important; }
-:root.hud-skin-win95 .hud-os-card .hud-body > .hud-row :is(.hud-value, p) { font-family: Tahoma, Verdana, sans-serif; text-shadow: none !important; }
+:root.hud-skin-win95 .hud-os-card .hud-body > .hud-row :is(.hud-value, p), :root.hud-skin-win95 .hud-os-card .hud-body > .hud-key-block :is(.hud-value, p) { font-family: Tahoma, Verdana, sans-serif; text-shadow: none !important; }
 :root.hud-skin-win95 .hud-os-card .hud-header { background: var(--w-face); border: 2px solid; border-color: var(--w-hi) var(--w-lo) var(--w-lo) var(--w-hi); padding: 6px 8px 0; margin-bottom: 10px; }
 
 /* --- «Ретро-Мак» ----------------------------------------------------------- */
 :root.hud-skin-mac .hud-os-card { --m-line: var(--hud-accent); --m-bg: color-mix(in srgb, var(--hud-accent) 6%, #121214); }
 
-:root.hud-skin-mac .hud-os-card .hud-body > .hud-row {
+:root.hud-skin-mac .hud-os-card .hud-body > .hud-row, :root.hud-skin-mac .hud-os-card .hud-body > .hud-key-block {
   background: var(--m-bg) !important; border: 1.5px solid var(--m-line) !important; border-radius: 0 !important; box-shadow: 4px 4px 0 var(--m-line) !important;
   padding: 0 12px 12px !important; margin: 0 4px 6px 0; }
-:root.hud-skin-mac .hud-os-card .hud-body > .hud-row :is(.hud-key, .hud-value, p, li) { font-family: 'Courier New', Consolas, monospace !important; text-shadow: none !important; }
-:root.hud-skin-mac .hud-os-card .hud-body > .hud-row > .hud-key {
+:root.hud-skin-mac .hud-os-card .hud-body > .hud-row :is(.hud-key, .hud-value, p, li), :root.hud-skin-mac .hud-os-card .hud-body > .hud-key-block :is(.hud-key, .hud-value, p, li) { font-family: 'Courier New', Consolas, monospace !important; text-shadow: none !important; }
+:root.hud-skin-mac .hud-os-card .hud-body > .hud-row > .hud-key, :root.hud-skin-mac .hud-os-card .hud-body > .hud-key-block > .hud-key {
   display: flex !important; align-items: center; gap: 8px; align-self: stretch; margin: 0 -12px 10px !important; padding: 4px 8px !important; border-bottom: 1.5px solid var(--m-line); border-radius: 0 !important;
   background: none !important; color: var(--m-line) !important; letter-spacing: .06em; }
 :root.hud-skin-mac .hud-os-card .hud-body > .hud-row > .hud-key::before,
-:root.hud-skin-mac .hud-os-card .hud-body > .hud-row > .hud-key::after {
+:root.hud-skin-mac .hud-os-card .hud-body > .hud-row > .hud-key::after, :root.hud-skin-mac .hud-os-card .hud-body > .hud-key-block > .hud-key::before, :root.hud-skin-mac .hud-os-card .hud-body > .hud-key-block > .hud-key::after {
   content: '' !important; display: block !important; flex: 1 1 12px; min-width: 12px; height: 11px; position: static !important; opacity: 1 !important; transform: none !important;
   background: repeating-linear-gradient(180deg, var(--m-line) 0 1px, transparent 1px 3px) !important; }
-:root.hud-skin-mac .hud-os-card .hud-body > .hud-row > .hud-key::before {
+:root.hud-skin-mac .hud-os-card .hud-body > .hud-row > .hud-key::before, :root.hud-skin-mac .hud-os-card .hud-body > .hud-key-block > .hud-key::before {
   flex: 0 0 34px; background: linear-gradient(var(--m-bg), var(--m-bg)) 9px 1px / 11px 9px no-repeat, linear-gradient(var(--m-line), var(--m-line)) 7px 0 / 15px 11px no-repeat,
     linear-gradient(var(--m-bg), var(--m-bg)) 5px 0 / 19px 11px no-repeat, repeating-linear-gradient(180deg, var(--m-line) 0 1px, transparent 1px 3px) !important; }
-:root.hud-skin-mac .hud-os-card .hud-body > .hud-row .hud-detail-pill, :root.hud-skin-mac .hud-os-card .hud-body > .hud-row .hud-v-card, :root.hud-skin-mac .hud-os-card .hud-body > .hud-row .hud-v-chip {
+:root.hud-skin-mac .hud-os-card .hud-body > .hud-row .hud-detail-pill, :root.hud-skin-mac .hud-os-card .hud-body > .hud-row .hud-v-card, :root.hud-skin-mac .hud-os-card .hud-body > .hud-row .hud-v-chip, :root.hud-skin-mac .hud-os-card .hud-body > .hud-key-block .hud-detail-pill, :root.hud-skin-mac .hud-os-card .hud-body > .hud-key-block .hud-v-card, :root.hud-skin-mac .hud-os-card .hud-body > .hud-key-block .hud-v-chip {
   border-radius: 0 !important; border: 1px solid color-mix(in srgb, var(--m-line) 60%, transparent) !important; box-shadow: 2px 2px 0 color-mix(in srgb, var(--m-line) 60%, transparent) !important; }
 
 /* --- «Бортовой журнал» ----------------------------------------------------- */
 :root.hud-skin-bujo .hud-os-card { --j-ink: #eae0cf; --j-tape: color-mix(in srgb, var(--hud-accent) 70%, #fff); --j-tape-ink: #13202e; --j-dot: color-mix(in srgb, var(--hud-accent) 30%, transparent); --j-bg: rgba(0,0,0,.18); }
 
-:root.hud-skin-bujo .hud-os-card .hud-body > .hud-row {
+:root.hud-skin-bujo .hud-os-card .hud-body > .hud-row, :root.hud-skin-bujo .hud-os-card .hud-body > .hud-key-block {
   background: radial-gradient(circle, var(--j-dot) 1px, transparent 1.4px) 0 0 / 14px 14px, var(--j-bg) !important; border: 1.5px dashed color-mix(in srgb, var(--j-tape) 60%, transparent) !important;
   border-radius: 3px !important; box-shadow: 4px 4px 0 rgba(0,0,0,.22) !important; padding: 8px 14px 14px !important; }
-:root.hud-skin-bujo .hud-os-card .hud-body > .hud-row > .hud-key {
+:root.hud-skin-bujo .hud-os-card .hud-body > .hud-row > .hud-key, :root.hud-skin-bujo .hud-os-card .hud-body > .hud-key-block > .hud-key {
   display: inline-block; padding: 3px 18px !important; margin: 0 0 10px -4px; transform: rotate(-1.8deg); background: var(--j-tape) !important; color: var(--j-tape-ink) !important;
   font-style: italic; font-weight: 700; font-family: 'Segoe Print', 'Comic Sans MS', cursive !important; border-radius: 0 !important; box-shadow: 0 2px 4px rgba(0,0,0,.3); text-shadow: none !important;
   clip-path: polygon(0 8%, 4% 0, 8% 10%, 12% 0, 88% 0, 92% 10%, 96% 0, 100% 8%, 98% 50%, 100% 92%, 96% 100%, 92% 90%, 88% 100%, 12% 100%, 8% 90%, 4% 100%, 0 92%, 2% 50%); }
-:root.hud-skin-bujo .hud-os-card .hud-body > .hud-row:nth-child(even) > .hud-key { transform: rotate(1.4deg); }
-:root.hud-skin-bujo .hud-os-card .hud-body > .hud-row .hud-detail-pill, :root.hud-skin-bujo .hud-os-card .hud-body > .hud-row .hud-v-card, :root.hud-skin-bujo .hud-os-card .hud-body > .hud-row .hud-v-chip { border-radius: 2px !important; border: 1px dashed color-mix(in srgb, var(--j-tape) 45%, transparent) !important; box-shadow: 2px 2px 0 rgba(0,0,0,.2) !important; }
+:root.hud-skin-bujo .hud-os-card .hud-body > .hud-row:nth-child(even) > .hud-key, :root.hud-skin-bujo .hud-os-card .hud-body > .hud-key-block:nth-child(even) > .hud-key { transform: rotate(1.4deg); }
+:root.hud-skin-bujo .hud-os-card .hud-body > .hud-row .hud-detail-pill, :root.hud-skin-bujo .hud-os-card .hud-body > .hud-row .hud-v-card, :root.hud-skin-bujo .hud-os-card .hud-body > .hud-row .hud-v-chip, :root.hud-skin-bujo .hud-os-card .hud-body > .hud-key-block .hud-detail-pill, :root.hud-skin-bujo .hud-os-card .hud-body > .hud-key-block .hud-v-card, :root.hud-skin-bujo .hud-os-card .hud-body > .hud-key-block .hud-v-chip { border-radius: 2px !important; border: 1px dashed color-mix(in srgb, var(--j-tape) 45%, transparent) !important; box-shadow: 2px 2px 0 rgba(0,0,0,.2) !important; }
 :root.hud-skin-bujo .hud-os-card .hud-header .hud-avatar, :root.hud-skin-bujo .hud-os-card .hud-header .hud-avatar-placeholder { border-radius: 0 !important; transform: rotate(-6deg); outline: 1.5px dashed var(--j-ink); outline-offset: 4px; margin: 6px 8px 6px 4px; }
 :root.hud-skin-bujo .hud-os-card .hud-header-text::after { content: var(--hud-dateline, ''); display: block; margin-top: 3px; font: italic 11px 'Courier New', monospace; opacity: .75; }
 
 /* --- «Стекло» -------------------------------------------------------------- */
-:root.hud-skin-glass .hud-os-card .hud-body > .hud-row {
+:root.hud-skin-glass .hud-os-card .hud-body > .hud-row, :root.hud-skin-glass .hud-os-card .hud-body > .hud-key-block {
   background: linear-gradient(135deg, rgba(255,255,255,.10), color-mix(in srgb, var(--hud-accent) 10%, rgba(255,255,255,.03))) !important; border: 1px solid color-mix(in srgb, var(--hud-accent) 40%, rgba(255,255,255,.4)) !important;
   outline: 1px solid rgba(255,255,255,.28); outline-offset: 2px; border-radius: 14px !important; margin: 3px 3px 8px;
   box-shadow: 0 6px 16px color-mix(in srgb, var(--hud-accent) 22%, transparent), inset 0 1px 1px rgba(255,255,255,.35) !important; }
-:root.hud-skin-glass:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-os-card .hud-body > .hud-row {
+:root.hud-skin-glass:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-os-card .hud-body > .hud-row, :root.hud-skin-glass:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-os-card .hud-body > .hud-key-block {
   background: linear-gradient(135deg, rgba(255,255,255,.78), color-mix(in srgb, var(--hud-accent) 14%, rgba(255,255,255,.45))) !important; outline-color: rgba(255,255,255,.9);
   box-shadow: 0 6px 16px color-mix(in srgb, var(--hud-accent) 30%, transparent), inset 0 2px 3px #fff !important; }
-:root.hud-skin-glass .hud-os-card .hud-body > .hud-row > .hud-key {
+:root.hud-skin-glass .hud-os-card .hud-body > .hud-row > .hud-key, :root.hud-skin-glass .hud-os-card .hud-body > .hud-key-block > .hud-key {
   display: inline-block; padding: 3px 12px !important; margin-bottom: 8px; border-radius: var(--hud-r-chip) !important; border: 1px solid color-mix(in srgb, var(--hud-accent) 40%, rgba(255,255,255,.5));
   background: linear-gradient(180deg, rgba(255,255,255,.22), color-mix(in srgb, var(--hud-accent) 18%, transparent)) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.4); }
-:root.hud-skin-glass .hud-os-card .hud-body > .hud-row .hud-detail-pill, :root.hud-skin-glass .hud-os-card .hud-body > .hud-row .hud-v-card, :root.hud-skin-glass .hud-os-card .hud-body > .hud-row .hud-v-chip { border-radius: 10px !important; border: 1px solid rgba(255,255,255,.4) !important; box-shadow: inset 0 1px 1px rgba(255,255,255,.3) !important; }
+:root.hud-skin-glass .hud-os-card .hud-body > .hud-row .hud-detail-pill, :root.hud-skin-glass .hud-os-card .hud-body > .hud-row .hud-v-card, :root.hud-skin-glass .hud-os-card .hud-body > .hud-row .hud-v-chip, :root.hud-skin-glass .hud-os-card .hud-body > .hud-key-block .hud-detail-pill, :root.hud-skin-glass .hud-os-card .hud-body > .hud-key-block .hud-v-card, :root.hud-skin-glass .hud-os-card .hud-body > .hud-key-block .hud-v-chip { border-radius: 10px !important; border: 1px solid rgba(255,255,255,.4) !important; box-shadow: inset 0 1px 1px rgba(255,255,255,.3) !important; }
 
 /* --- «Улики» --------------------------------------------------------------- */
 :root.hud-skin-evidence .hud-os-card .hud-body { counter-reset: hud-ev; }
-:root.hud-skin-evidence .hud-os-card .hud-body > .hud-row {
+:root.hud-skin-evidence .hud-os-card .hud-body > .hud-row, :root.hud-skin-evidence .hud-os-card .hud-body > .hud-key-block {
   counter-increment: hud-ev; background: radial-gradient(circle, rgba(139,0,0,.18) 1px, transparent 1.5px) 0 0 / 18px 18px, rgba(10,4,4,.5) !important;
   border: 3px double color-mix(in srgb, var(--hud-accent) 70%, #300) !important; border-radius: 4px !important; box-shadow: 0 4px 14px rgba(0,0,0,.5) !important; }
-:root.hud-skin-evidence:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-os-card .hud-body > .hud-row {
+:root.hud-skin-evidence:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-os-card .hud-body > .hud-row, :root.hud-skin-evidence:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty) .hud-os-card .hud-body > .hud-key-block {
   background: radial-gradient(circle, rgba(139,0,0,.12) 1px, transparent 1.5px) 0 0 / 18px 18px, rgba(255,255,255,.5) !important; box-shadow: 0 3px 10px rgba(0,0,0,.12) !important; }
-:root.hud-skin-evidence .hud-os-card .hud-body > .hud-row > .hud-key::before {
+:root.hud-skin-evidence .hud-os-card .hud-body > .hud-row > .hud-key::before, :root.hud-skin-evidence .hud-os-card .hud-body > .hud-key-block > .hud-key::before {
   content: counter(hud-ev) !important; display: inline-grid !important; place-items: end center; width: 22px; height: 20px; margin-right: 8px; padding-bottom: 1px; vertical-align: -3px;
   background: #e8c547 !important; color: #111 !important; font: 900 12px Arial, sans-serif !important; clip-path: polygon(22% 0, 78% 0, 100% 100%, 0 100%); position: static !important; opacity: 1 !important; }
 :root.hud-skin-evidence .hud-os-card .hud-header { position: relative; }

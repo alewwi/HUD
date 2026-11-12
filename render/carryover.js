@@ -14,17 +14,18 @@
 // Работы ровно столько, сколько нужно: заглядываем назад на ограниченное число
 // ходов, разобранные блоки держим в кэше, длину каждого списка обрезаем.
 
-import { parseHUDComplex } from '../hud-parser.js?v=23.89.10';
-import { проставитьДень } from './msg-feed.js?v=23.89.10';
-import { normalizeJSONData } from '../schema.js?v=23.89.10';
-import { settings } from '../settings.js?v=23.89.10';
-import { статусРужья } from '../codes.js?v=23.89.10';
-import { extractHudBlock } from '../hud-block.js?v=23.89.10';
-import { развернутьHUD } from '../offload.js?v=23.89.10';
-import { namesLikelySame } from '../names.js?v=23.89.10';
-import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.89.10';
-import { readParsed, writeParsed } from '../store.js?v=23.89.10';
-import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.89.10';
+import { parseHUDComplex } from '../hud-parser.js?v=23.89.11';
+import { проставитьДень } from './msg-feed.js?v=23.89.11';
+import { normalizeJSONData } from '../schema.js?v=23.89.11';
+import { settings } from '../settings.js?v=23.89.11';
+import { статусРужья } from '../codes.js?v=23.89.11';
+import { extractHudBlock } from '../hud-block.js?v=23.89.11';
+import { развернутьHUD } from '../offload.js?v=23.89.11';
+import { namesLikelySame } from '../names.js?v=23.89.11';
+import { звонкиИзЧатов, записьЗдоровья, склеитьЗдоровье } from './phone-extra.js?v=23.89.11';
+import { readParsed, writeParsed } from '../store.js?v=23.89.11';
+import { разобратьПричину, сверитьСдвиг } from '../turn-notes.js?v=23.89.11';
+import { ключСлуха } from './rumor-times.js?v=23.89.11';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const ключ = (v) => текст(v).toLowerCase().replace(/[ё]/g, 'е').replace(/[«»"'`.,;:!?()\[\]]/g, '').replace(/\s+/g, ' ');
@@ -601,10 +602,22 @@ export function mergeCarryOver(data, messageElement) {
       if (Array.isArray(ист)) день.mood[кто] = склеитьСтроки(день.mood[кто], ист, НАСТРОЕНИЙ, { поВремени: true });
     }
   };
+  // Слухи и комментарии: ход, где каждый появился впервые, — от него время
+  // записи в телефоне (render/rumor-times.js).
+  const слухиВпервые = {};
+  const отметитьСлухи = (ход, номер) => {
+    const сцена = ход.scene || {};
+    const база = { дата: текст(сцена['Дата'] || сцена.Dt), время: текст(сцена['Время'] || сцена.T), ход: номер };
+    for (const s of [...((ход.world && ход.world.rumors) || []), ...((ход.world && ход.world.comments) || [])]) {
+      const к = ключСлуха(s);
+      if (к && !слухиВпервые[к]) слухиВпервые[к] = база;
+    }
+  };
   for (let i = начало; i < индекс && i < chat.length; i++) {
     const прошлый = разобратьХод(chat[i]);
     if (!прошлый) continue;
     былиПрошлые = true;
+    отметитьСлухи(прошлый, i);
     наложить(накоплено, прошлый, предел, пределСообщений);
     копитьВоспоминания(воспоминания, прошлый);
     копитьДень(прошлый);
@@ -614,6 +627,7 @@ export function mergeCarryOver(data, messageElement) {
   копитьДень(data);
 
   // Текущий ход кладём последним: его значения главнее.
+  отметитьСлухи(data, индекс);
   наложить(накоплено, data, предел, пределСообщений);
 
   const итог = { ...data };
@@ -645,6 +659,7 @@ export function mergeCarryOver(data, messageElement) {
   for (const поле of ['contacts', 'notes', 'gallery', 'maps', 'calendar', 'search', 'callLog', 'healthLog', 'rumors', 'cityTalk']) {
     if (накоплено.phone[поле].length) итог.phone[поле] = накоплено.phone[поле];
   }
+  Object.defineProperty(итог.phone, '__слухиВпервые', { value: слухиВпервые, enumerable: false, configurable: true });
   if (накоплено.letters.length) итог.letters = накоплено.letters;
   if (накоплено.overheard.length) итог.overheard = накоплено.overheard;
   итог.satchel = { ...(data.satchel || {}) };

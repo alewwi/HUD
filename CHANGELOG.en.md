@@ -4,6 +4,23 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.11 — 2026-11-12
+
+The phone can be regenerated apart from the rest of the HUD, phone rumors get a date and time, and scars, theme pictures and section styles now work where they stayed silent.
+
+### Added
+- **Regenerate only the phone.** A faint ↻ icon in the phone's status bar. The model gets only the part of the instructions about chats and apps. If it sends the whole HUD or a full message, only the chats and apps are taken, the rest of the HUD stays as it was. Tap again to cancel; the previous phone goes to «↶» on the card, several versions are kept.
+- **Date and time on phone rumors and comments.** The date and hour come from the turn where the entry first appeared, the minutes and seconds are its own and never later than that turn. The time is remembered: old entries keep it, new ones get the new turn's time. Feeds go from newest to oldest.
+- **Every theme picture one by one.** When one theme layer holds several drawings (the Vampire theme's fangs, medallion and candelabrum), each gets its own button and can be hidden alone. Clicking such a drawing in Customization opens a menu: the drawing itself or the block above it.
+
+### Fixed
+- Trust scars of a swiped-away variant stayed when the new swipe came without a HUD (a refusal, a cut reply), and later cards and the model saw them. Only scars the current variant confirms remain now.
+- "Image in the header corner" and "Eclipse ring" didn't work in a banner header.
+- Section styles (Moon glass, Label and others) and Ink wash didn't reach the Key block and its views.
+- Label on dark themes: cards stayed dark while the text turned black and unreadable.
+- Phone: the anonymous icon in Rumors sat below center; in Contacts the circle stood above the name instead of beside it; on the lock screen the notification avatar was faded, off-center and slid under the text with the Pill style.
+- Two generations for one message no longer start at once.
+
 ## 23.89.10 — 2026-11-11
 
 Eight blocks get a choice of view, "Meanwhile" moves to the World tab, phone rumors look like a live feed, and long Memory lists fold like the character ones.

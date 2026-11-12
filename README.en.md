@@ -597,8 +597,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.10**:
+The latest version is **23.89.11**:
 
+- The phone can be regenerated on its own; phone rumors get a date and time; every theme picture can be hidden one by one; fixed swipe scars, the Key block with section styles and Label on dark themes.
 - Eight blocks get a choice of view, "Meanwhile" moves to the World tab, phone rumors become a live feed with tabs, long Memory lists fold.
 - The HUD can be written by a separate request after the reply through another profile: one model (a local one, for example) writes the story, another the HUD. The archive collapses long lists, filters them by status and no longer loses pregnancies.
 - SillyTavern chat translation no longer mangles the HUD, and the card of a translated reply is shown in the translation language; ExtBlocks no longer wipes the translation.

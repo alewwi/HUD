@@ -5,11 +5,12 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings } from './settings.js?v=23.89.10';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe } from './hud-block.js?v=23.89.10';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.10';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.10';
-import { генерацияТаверны } from './utils.js?v=23.89.10';
+import { настройка, settings, defaultSettings } from './settings.js?v=23.89.11';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD } from './hud-block.js?v=23.89.11';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.11';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.11';
+import { генерацияТаверны } from './utils.js?v=23.89.11';
+import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.11';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, getMessageUpdateFunction, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
@@ -173,16 +174,28 @@ export async function handleHudRegenButton(regenBtn) {
     }
     return;
   }
+  // Для этого сообщения генерация уже идёт (другой кнопкой: HUD целиком или
+  // телефон): вторая затёрла бы её отмену и вставила свой ответ поверх.
+  {
+    const mes = regenBtn.closest('.mes, .hud-side-mes');
+    if (mes && основа.генерацииHUD.has(String(mes.getAttribute('mesid')))) {
+      основа.showHudToast('info', 'HUD', 'Для этого сообщения уже идёт генерация — дождись её или отмени.');
+      return;
+    }
+  }
 
       const isCreateBtn = regenBtn.classList.contains('hud-create-btn');
+      // Кнопка в строке состояния телефона: перегенерировать только телефон
+      // (phone-regen.js). Значок крутится сам, звёзд в нём нет — он крошечный.
+      const телефон = regenBtn.classList.contains('hud-phone-regen');
       const originalBtnContent = regenBtn.innerHTML;
       
-      regenBtn.innerHTML = isCreateBtn 
+      if (!телефон) regenBtn.innerHTML = isCreateBtn 
           ? `<div style="display:flex; align-items:center; gap:6px;"><div class="hud-stars"><svg class="hud-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg><svg class="hud-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg><svg class="hud-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div> Создаю...</div>`
           : `<div class="hud-stars"><svg class="hud-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg><svg class="hud-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg><svg class="hud-star" viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg></div>`;
       regenBtn.classList.add('hud-spinning');
       regenBtn.dataset.hudStartedAt = String(Date.now());
-      regenBtn.title = 'HUD генерируется — нажми ещё раз, чтобы отменить';
+      regenBtn.title = телефон ? 'Телефон генерируется — нажми ещё раз, чтобы отменить' : 'HUD генерируется — нажми ещё раз, чтобы отменить';
 
       let mesEl = regenBtn.closest('.mes, .hud-side-mes');
       const отмена = new AbortController();
@@ -195,7 +208,7 @@ export async function handleHudRegenButton(regenBtn) {
       const пределМин = Math.max(0, Number(settings.hudRegenTimeout ?? 6) || 0);
       let вышлоВремя = false;
       const таймерОжидания = пределМин ? setTimeout(() => { вышлоВремя = true; отмена.abort(); }, пределМин * 60000) : 0;
-      let loadingToast = основа.showHudToast('loading', 'Загрузка', 'HUD генерируется. Подождите.');
+      let loadingToast = основа.showHudToast('loading', 'Загрузка', телефон ? 'Телефон генерируется. Подождите.' : 'HUD генерируется. Подождите.');
       const убратьИндикатор = настройка('genIndicator') === 'on' ? основа.показатьИндикаторHUD(mesEl) : null;
       if (loadingToast) {
         const место = loadingToast.querySelector('.hud-toast-content') || loadingToast;
@@ -388,8 +401,15 @@ export async function handleHudRegenButton(regenBtn) {
               }
           }
           const nsfwРеген = решитьNSFW(объектСнимкаРеген, последниеТекстыЧата(chatData, mesIdNum + 1));
-          const { buildDynamicPrompt } = await основа.загрузитьПромпт();
-          const strictBasePrompt = основа.раскрытьИнструкцию(buildDynamicPrompt({ nsfw: nsfwРеген, режим: 'regen', бой: решитьБой(объектСнимкаРеген, последниеТекстыЧата(chatData, mesIdNum + 1)) }), объектСнимкаРеген ? строкаСнимка(объектСнимкаРеген, nsfwРеген) : '');
+          const { buildDynamicPrompt, промптТелефона } = await основа.загрузитьПромпт();
+          // Телефон: в HUD этого сообщения должен быть блок — в него и встанет новый телефон.
+          if (телефон && !extractHudBlock(основа.текстСообщенияЧата(targetMessage))) {
+            throw new Error(естьЗаглушкаHUD(основа.текстСообщенияЧата(targetMessage)) ? 'HUD этого сообщения выгружен — сначала верни его в чат' : 'в сообщении нет HUD — сначала создай HUD целиком');
+          }
+          const инструкцияРеген = buildDynamicPrompt({ nsfw: nsfwРеген, режим: 'regen', бой: решитьБой(объектСнимкаРеген, последниеТекстыЧата(chatData, mesIdNum + 1)) });
+          const инструкция = телефон ? промптТелефона(инструкцияРеген) : инструкцияРеген;
+          if (!инструкция) throw new Error('телефон выключен в настройках — перегенерировать нечего');
+          const strictBasePrompt = основа.раскрытьИнструкцию(инструкция, объектСнимкаРеген ? строкаСнимка(объектСнимкаРеген, nsfwРеген) : '');
 
           for (let i = startIndex; i <= mesIdNum; i++) {
           let msg = chatData[i];
@@ -623,6 +643,33 @@ export async function handleHudRegenButton(regenBtn) {
       }
 
           if (отменено()) throw new DOMException('Отменено', 'AbortError');
+          if (телефон) {
+            // Из ответа — только телефон, даже если модель прислала весь HUD или
+            // целое сообщение. Остальной HUD сообщения не трогаем.
+            if (chatData[mesIdNum] !== targetMessage || targetMessage.swipe_id !== свайпВНачале || ключЧата() !== чатВНачале) {
+              throw new Error('пока телефон генерировался, сообщение сменилось: другой свайп, другой чат или его удалили — HUD не изменён');
+            }
+            const присланное = вырезатьТелефон(aiText);
+            if (!присланное) throw new Error(оборвался ? ОБРЫВ_ДО_HUD : 'в ответе нет телефона — HUD не изменён');
+            const текст = основа.текстСообщенияЧата(targetMessage);
+            const прежний = extractHudBlock(текст);
+            const новый = прежний && вставитьТелефон(прежний, присланное);
+            if (!новый) throw new Error('HUD сообщения не разобрался — телефон не вставлен');
+            основа.запомнитьВерсиюHUD(targetMessage, прежний, 'до перегенерации телефона');
+            основа.updateMessageDataForCurrentSwipe(targetMessage, основа.replaceHudBlockInText(текст, новый));
+            const обновить = основа.getMessageUpdateFunction(stContext);
+            if (обновить) await Promise.resolve(обновить(mesIdNum, targetMessage, { rerenderMessage: true }));
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+              const fresh = document.querySelector(`.mes[mesid="${mesId}"]`) || mesEl;
+              if (fresh && fresh.isConnected) основа.safeProcessMessage(fresh);
+            }));
+            if (loadingToast) { loadingToast.classList.add('hide'); setTimeout(() => loadingToast.remove(), 400); }
+            основа.showHudToast('success', 'Телефон обновлён', 'Телефон вшит в HUD, остальное не тронуто. Прежний телефон — в «↶» на карточке.');
+            const сохранить = (stContext && typeof stContext.saveChatConditional === 'function') ? stContext.saveChatConditional.bind(stContext)
+              : (stContext && typeof stContext.saveChat === 'function') ? stContext.saveChat.bind(stContext) : null;
+            if (сохранить) Promise.resolve(сохранить()).catch(e => основа.showHudToast('error', 'Не сохранено', 'Телефон показан, но не записан: ' + e.message));
+            return;
+          }
           let newHudText;
           try { newHudText = repairGeneratedHudBlock(aiText); } catch (e) { throw оборвался ? new Error(ОБРЫВ_ДО_HUD) : e; }
           // Без сцены и персонажей это не HUD, а обломок (кусок настроений, мира…):
@@ -710,8 +757,8 @@ export async function handleHudRegenButton(regenBtn) {
               setTimeout(() => loadingToast.remove(), 400);
           }
           if (вышлоВремя) основа.showHudToast('error', 'Нет ответа', `Провайдер не ответил за ${пределМин} мин — HUD не записан. Рассуждающие модели думают долго: увеличь «Ждать ответа» или уменьши «Лимит токенов HUD» (Генерация → Перегенерация HUD).`);
-          else if (отменено() || (err && err.name === 'AbortError')) основа.showHudToast('success', 'Отменено', 'Генерация HUD остановлена, сообщение не изменилось.');
-          else основа.showHudToast('error', 'Ошибка', 'Не удалось обновить HUD: ' + err.message);
+          else if (отменено() || (err && err.name === 'AbortError')) основа.showHudToast('success', 'Отменено', телефон ? 'Генерация телефона остановлена, сообщение не изменилось.' : 'Генерация HUD остановлена, сообщение не изменилось.');
+          else основа.showHudToast('error', 'Ошибка', (телефон ? 'Не удалось обновить телефон: ' : 'Не удалось обновить HUD: ') + err.message);
       } finally {
           if (таймерОжидания) clearTimeout(таймерОжидания);
           if (основа.генерацииHUD.get(ключГенерации) === отмена) основа.генерацииHUD.delete(ключГенерации);

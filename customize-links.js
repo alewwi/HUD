@@ -9,8 +9,9 @@
 // телефона в примере работают как обычно. Что каждая настройка есть в карте,
 // проверяет tests/unit.mjs.
 
-import { settings } from './settings.js?v=23.89.10';
-import { т } from './i18n.js?v=23.89.10';
+import { settings } from './settings.js?v=23.89.11';
+import { слои, адресСлоя, файлИз, сПоказаннымиЧастями, запомнитьРазмер, прямоугольникСлоя } from './scene-pieces.js?v=23.89.11';
+import { т } from './i18n.js?v=23.89.11';
 
 const ВИДЫ_ПОД_КЛАСС = {
   age: 'ageView', clothes: 'clothesView', looks: 'looksView', role: 'roleView', body: 'bodyStateView', phys: 'physView', health: 'healthView',
@@ -272,23 +273,36 @@ const темаМеста = (место) => {
 };
 const узелМеста = (карточка, место) => карточка.querySelector(`.hud-tab-content.active .hud-scene-${место}`) || карточка.querySelector(`.hud-scene-${место}`);
 
-/** Какие картинки сейчас есть в карточке, включая спрятанные. */
+/** Какие картинки сейчас есть в карточке, включая спрятанные. Слой с
+    несколькими картинками («Вампир»: клыки, медальон, канделябр в одном слое)
+    даёт по картинке на каждую — с номером слоя, чтобы найти её по нажатию. */
 export function картинкиТемы(карточка) {
   const корень = document.documentElement;
   const скрытые = [...корень.classList].filter(к => /^hud-hide-[thnabc]-/.test(к));
   скрытые.forEach(к => корень.classList.remove(к));
   const итог = [];
   try {
-    for (const место of Object.keys(МЕСТА_КАРТИНОК)) {
-      const узел = узелМеста(карточка, место), тема = темаМеста(место);
-      if (!узел || !тема) continue;
-      for (const часть of ЧАСТИ_КАРТИНКИ) {
-        const с = getComputedStyle(узел, псевдо(часть));
-        if (часть !== 'self' && (с.content === 'none' || с.content === 'normal')) continue;
-        const url = адрес(с.backgroundImage) || адрес(с.webkitMaskImage || с.maskImage);
-        if (url) итог.push({ место, часть, тема, url, ключ: ключКартинки(тема, место, часть), маска: !адрес(с.backgroundImage) });
+    сПоказаннымиЧастями(() => {
+      for (const место of Object.keys(МЕСТА_КАРТИНОК)) {
+        const узел = узелМеста(карточка, место), тема = темаМеста(место);
+        if (!узел || !тема) continue;
+        for (const часть of ЧАСТИ_КАРТИНКИ) {
+          const с = getComputedStyle(узел, псевдо(часть));
+          if (часть !== 'self' && (с.content === 'none' || с.content === 'normal')) continue;
+          const фоны = слои(с.backgroundImage).map(адресСлоя);
+          if (фоны.filter(Boolean).length > 1) {
+            фоны.forEach((url, слой) => {
+              if (!url) return;
+              запомнитьРазмер(url);
+              итог.push({ место, часть, тема, url, слой, ключ: ключКартинки(тема, место, часть) + ':' + файлИз(url), маска: false });
+            });
+            continue;
+          }
+          const url = адрес(с.backgroundImage) || адрес(с.webkitMaskImage || с.maskImage);
+          if (url) итог.push({ место, часть, тема, url, ключ: ключКартинки(тема, место, часть), маска: !адрес(с.backgroundImage) });
+        }
       }
-    }
+    });
   } finally { скрытые.forEach(к => корень.classList.add(к)); }
   return итог;
 }
@@ -316,29 +330,50 @@ export function переключитьКартинку(кнопка, приме�
   применить();
 }
 
-/** Попало ли нажатие в картинку темы. Рисунки живут в псевдоэлементах, поэтому считаем по прямоугольникам. */
+/** Где на экране картинка темы: { left, top, width, height } или null. */
+export function рамкаКартинки(карточка, к) {
+  const узел = узелМеста(карточка, к.место);
+  if (!узел) return null;
+  const рам = узел.getBoundingClientRect();
+  const с = getComputedStyle(узел, псевдо(к.часть));
+  if (к.часть === 'self') return к.слой === undefined ? { left: рам.left, top: рам.top, width: рам.width, height: рам.height } : прямоугольникСлоя(рам, с, к.слой, к.url);
+  const л = parseFloat(с.left) || 0, в0 = parseFloat(с.top) || 0;
+  // Слой на всю вкладку (inset: 0) бывает с шириной auto: тогда от краёв.
+  const ш = parseFloat(с.width) || Math.max(0, рам.width - л - (parseFloat(с.right) || 0));
+  const в = parseFloat(с.height) || Math.max(0, рам.height - в0 - (parseFloat(с.bottom) || 0));
+  const рамка = { left: рам.left + л, top: рам.top + в0, width: ш, height: в };
+  // Картинка из общего слоя: её место внутри слоя — по размеру и позиции слоя.
+  return к.слой === undefined ? рамка : прямоугольникСлоя(рамка, с, к.слой, к.url);
+}
+
+/** Попало ли нажатие в картинку темы. Рисунки живут в псевдоэлементах, поэтому считаем по прямоугольникам.
+    Картинки угла вкладки и всей карточки лежат под плашками: нажатие по
+    плашке над ними находит картинку с пометкой подБлоком — тогда меню
+    предложит и её, и саму плашку. */
 export function картинкаПодНажатием(карточка, e, цель) {
   const внизу = !цель.closest('.hud-body, .hud-tab-content') || цель.matches('.hud-body, .hud-tab-content');
   const карта = карточка.getBoundingClientRect(), подошли = [];
   for (const к of картинкиТемы(карточка)) {
-    if (!внизу && (к.место === 'b' || к.место === 'c')) continue;
-    const узел = узелМеста(карточка, к.место), рам = узел.getBoundingClientRect();
-    const с = getComputedStyle(узел, псевдо(к.часть));
-    const слева = к.часть === 'self' ? рам.left : рам.left + (parseFloat(с.left) || 0), сверху = к.часть === 'self' ? рам.top : рам.top + (parseFloat(с.top) || 0);
-    const ш = к.часть === 'self' ? рам.width : parseFloat(с.width) || 0, в = к.часть === 'self' ? рам.height : parseFloat(с.height) || 0;
+    const подБлоком = !внизу && (к.место === 'b' || к.место === 'c');
+    const п = рамкаКартинки(карточка, к);
+    if (!п) continue;
+    const { left: слева, top: сверху, width: ш, height: в } = п;
     if (!ш || !в || ш * в > карта.width * карта.height * .6) continue;
-    if (e.clientX >= слева && e.clientX <= слева + ш && e.clientY >= сверху && e.clientY <= сверху + в) подошли.push({ к, площадь: ш * в });
+    if (e.clientX >= слева && e.clientX <= слева + ш && e.clientY >= сверху && e.clientY <= сверху + в) подошли.push({ к: подБлоком ? { ...к, подБлоком } : к, площадь: ш * в });
   }
   подошли.sort((a, b) => a.площадь - b.площадь);
   return подошли.length ? подошли[0].к : null;
 }
 
-export function перейтиККартинке(окно, картинка, открытьПодробно, e = null) {
+export function перейтиККартинке(окно, картинка, открытьПодробно, e = null, ещё = []) {
   const панель = окно.querySelector('.hud-custom-settings');
   const кнопка = панель && панель.querySelector(`[data-piece="${картинка.ключ}"]`);
   if (!кнопка) return false;
   const ряды = [{ ключ: картинка.ключ, поле: кнопка, ряд: кнопка, подпись: т('Только эта картинка') + ' · ' + т(МЕСТА_КАРТИНОК[картинка.место]), раздел: разделРяда(кнопка) },
     ...рядыКлючей(панель, [КЛЮЧ_МЕСТА[картинка.место], 'themeScene', 'noImages'])];
+  // Картинка под плашкой: в том же меню — и настройки самой плашки.
+  const свои = new Set(ряды.map(р => р.ключ));
+  for (const р of рядыКлючей(панель, ещё)) if (!свои.has(р.ключ)) ряды.push(р);
   if (e) показатьМеню(окно, e, ряды, открытьПодробно); else открытьРяды(окно, ряды.slice(0, 1), открытьПодробно);
   return true;
 }
@@ -385,10 +420,12 @@ export function нажатиеВПримере(окно, e, открытьПод
   if (!карточка || !тело.contains(карточка)) return false;
   заполнитьКартинки(окно);
   const картинка = картинкаПодНажатием(карточка, e, e.target);
-  if (картинка && перейтиККартинке(окно, картинка, открытьПодробно, e)) return true;
+  if (картинка && !картинка.подБлоком && перейтиККартинке(окно, картинка, открытьПодробно, e)) return true;
   const слой = слойПодНажатием(карточка, e);
   // Внутри вкладки цель — обычно сама плашка; глубже ищем только в контейнерах сцены и шапки.
   const откуда = e.target.matches('.hud-scene-widget, .hud-scene-top, .hud-scene-atm, .hud-header, .hud-os-topbar') ? глубжеПодНажатием(e.target, e) : e.target;
   const ключи = слой || ключиНажатия(откуда, тело.parentElement);
+  // Картинка под плашкой (канделябр за «Здоровьем»): меню с ней и с плашкой.
+  if (картинка && перейтиККартинке(окно, картинка, открытьПодробно, e, ключи || [])) return true;
   return ключи ? перейтиКНастройке(окно, ключи, открытьПодробно, e) : false;
 }

@@ -66,13 +66,15 @@
 :root.hud-sb-on .hud-os-card { --hud-pill-base: color-mix(in srgb, var(--hud-accent) 8%, rgba(14, 12, 19, .78)); }
 :root.hud-sb-on.hud-scheme-light .hud-os-card { --hud-pill-base: color-mix(in srgb, var(--hud-accent) 6%, rgba(255, 252, 246, .8)); }
 /* С !important и сильнее оформлений секций («Стикеры», «Лунное стекло»…): они
+   (кроме «Этикетки»: её белая плашка непрозрачна, под тёмной подложкой чёрный
+   текст становился нечитаемым)
    задают фон строки сокращённым background с !important и сбрасывали подложку.
    Только верхнему слою: вид поля внутри строки (.hud-row .hud-v) лёг бы
    второй подложкой поверх строки — 78 % на 78 %, почти чёрная плашка. */
-:root.hud-sb-on .hud-os-card .hud-tab-content .hud-body > .hud-row, :root.hud-sb-on .hud-os-card .hud-tab-content .hud-body .hud-v:not(.hud-row .hud-v, .hud-v .hud-v) { background-color: var(--hud-pill-base) !important; }
+:root.hud-sb-on:not(.hud-skin-label) .hud-os-card .hud-tab-content .hud-body > .hud-row, :root.hud-sb-on .hud-os-card .hud-tab-content .hud-body .hud-v:not(.hud-row .hud-v, .hud-v .hud-v) { background-color: var(--hud-pill-base) !important; }
 /* «Место» и «Роль» — почти без текста поверх рисунка: подложка легче, рисунок виднее. */
-:root.hud-sb-on .hud-os-card .hud-tab-content .hud-body > .hud-row:is(.f-where, .f-role) { background-color: color-mix(in srgb, var(--hud-accent) 8%, rgba(14, 12, 19, .5)) !important; }
-:root.hud-sb-on.hud-scheme-light .hud-os-card .hud-tab-content .hud-body > .hud-row:is(.f-where, .f-role) { background-color: color-mix(in srgb, var(--hud-accent) 6%, rgba(255, 252, 246, .52)) !important; }
+:root.hud-sb-on:not(.hud-skin-label) .hud-os-card .hud-tab-content .hud-body > .hud-row:is(.f-where, .f-role) { background-color: color-mix(in srgb, var(--hud-accent) 8%, rgba(14, 12, 19, .5)) !important; }
+:root.hud-sb-on.hud-scheme-light:not(.hud-skin-label) .hud-os-card .hud-tab-content .hud-body > .hud-row:is(.f-where, .f-role) { background-color: color-mix(in srgb, var(--hud-accent) 6%, rgba(255, 252, 246, .52)) !important; }
 
 /* =========================================================================
    ТУШЬ («到大地尽头», «雨霖铃»): двойная линия, растворяющаяся к краям, и
@@ -88,7 +90,9 @@
   opacity: .8;
 }
 :root.hud-ink-wash .hud-os-card .hud-row:is(.f-thoughts, .f-key) .hud-value,
-:root.hud-ink-wash .hud-os-card .hud-row.f-key .hud-key-text {
+:root.hud-ink-wash .hud-os-card :is(.hud-row, .hud-key-block).f-key .hud-key-text,
+/* «Ключ» видом блока: стикеры, бусы, телеграмма — те же полосы туши по тексту. */
+:root.hud-ink-wash .hud-os-card .hud-key-block.f-key-view .hud-f-key :is(.note > p, li > p, .strip > span) {
   display: inline; color: #fbf7ee !important; padding: 2px 14px; line-height: 2;
   -webkit-box-decoration-break: clone; box-decoration-break: clone;
   background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--hud-accent) 55%, #10141c) 12%, color-mix(in srgb, var(--hud-accent) 55%, #10141c) 88%, transparent);
@@ -141,7 +145,8 @@
    КОЛЬЦО-ЗАТМЕНИЕ («Ночной архив»): тень луны на портрете, золотое кольцо,
    строка хода под именем и разделитель ✧ в конце вкладки.
    ========================================================================= */
-:root.hud-eclipse .hud-os-card .hud-header:not(.has-banner) :is(.hud-avatar, .hud-avatar-placeholder) {
+/* И в шапке с баннером: раньше там была только строка хода, а кольца не было. */
+:root.hud-eclipse .hud-os-card .hud-header :is(.hud-avatar, .hud-avatar-placeholder) {
   border-radius: 50% !important;
   box-shadow: 0 0 0 3px color-mix(in srgb, var(--hud-accent) 18%, #120e19), 0 0 0 4.5px color-mix(in srgb, var(--hud-accent) 70%, #fff),
     0 0 18px 4px color-mix(in srgb, var(--hud-accent) 40%, transparent), inset -10px -6px 0 2px rgba(16, 13, 24, .72) !important;

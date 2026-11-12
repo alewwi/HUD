@@ -274,16 +274,26 @@
 :root.hud-orn-on .hud-os-card .hud-header:not(.has-banner) { position: relative; }
 :root.hud-orn-on .hud-os-card .hud-header:not(.has-banner)::after { visibility: hidden !important; }
 :root.hud-orn-on .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 96px !important; }
-:root.hud-orn-on .hud-os-card .hud-header:not(.has-banner) .hud-head-orn {
+:root.hud-orn-on .hud-os-card .hud-header .hud-head-orn {
   display: block; position: absolute; right: 2px; top: -8px; width: 96px; height: 96px; z-index: 3; pointer-events: none;
 }
-:root.hud-orn-roses .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { --deco-img: url('../img/deco/roses.webp'); rotate: -10deg; }
-:root.hud-orn-plum .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { --deco-img: url('../img/deco/orn-plum.webp'); width: 74px; height: 96px; top: -4px; right: 8px; }
-:root.hud-orn-bridge .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { --deco-img: url('../img/deco/orn-bridge.webp'); width: 136px; height: 64px; top: auto; bottom: 0; }
-:root.hud-orn-cat .hud-os-card .hud-header:not(.has-banner) .hud-head-orn {
+:root.hud-orn-roses .hud-os-card .hud-header .hud-head-orn { --deco-img: url('../img/deco/roses.webp'); rotate: -10deg; }
+:root.hud-orn-plum .hud-os-card .hud-header .hud-head-orn { --deco-img: url('../img/deco/orn-plum.webp'); width: 74px; height: 96px; top: -4px; right: 8px; }
+:root.hud-orn-bridge .hud-os-card .hud-header .hud-head-orn { --deco-img: url('../img/deco/orn-bridge.webp'); width: 136px; height: 64px; top: auto; bottom: 0; }
+:root.hud-orn-cat .hud-os-card .hud-header .hud-head-orn {
   width: 70px; height: 62px; top: 4px; right: 8px; rotate: 8deg;
   background: url('../img/deco/orn-cat.webp') center / contain no-repeat; filter: drop-shadow(0 3px 4px rgba(0,0,0,.25));
 }
+/* Шапка с баннером: имя и дата стоят на картинке, и угол сверху занят. Картинка
+   угла встаёт справа внизу шапки — на место значка темы, как в обычной шапке.
+   Раньше в шапке с баннером её не было вовсе, и выбор в настройке ничего не менял. */
+:root.hud-orn-on .hud-os-card .hud-header.has-banner { position: relative; }
+:root.hud-orn-on .hud-os-card .hud-header.has-banner::after { visibility: hidden !important; }
+:root.hud-orn-on .hud-os-card .hud-header.has-banner .hud-head-orn { top: auto; bottom: 6px; right: 44px; width: 112px; height: 112px; margin-top: 0; }
+@media (max-width: 600px) { :root.hud-orn-on .hud-os-card .hud-header.has-banner .hud-head-orn { right: 8px; width: 72px; height: 72px; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { :root.hud-orn-on .hud-os-card .hud-header.has-banner .hud-head-orn { right: 8px; width: 72px; height: 72px; } } }
+/* cq ↑ */
 
 /* =========================================================================
    СУРГУЧНАЯ ПЕЧАТЬ («桃色密信») — цвета темы
@@ -302,9 +312,9 @@
    по буквам. */
 @media (max-width: 600px) {
   :root.hud-orn-on .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 58px !important; }
-  :root.hud-orn-on .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 60px; height: 60px; top: -4px; right: 0; }
-  :root.hud-orn-bridge .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 84px; height: 40px; }
-  :root.hud-orn-cat .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 50px; height: 44px; }
+  :root.hud-orn-on .hud-os-card .hud-header .hud-head-orn { width: 60px; height: 60px; top: -4px; right: 0; }
+  :root.hud-orn-bridge .hud-os-card .hud-header .hud-head-orn { width: 84px; height: 40px; }
+  :root.hud-orn-cat .hud-os-card .hud-header .hud-head-orn { width: 50px; height: 44px; }
   :root.hud-ava-framed .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin-left: 4px; }
   :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin-right: 30px; }
   :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco { right: -26px; bottom: -18px; width: 66px; height: 66px; }
@@ -312,9 +322,9 @@
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) {
   :root.hud-orn-on .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 58px !important; }
-  :root.hud-orn-on .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 60px; height: 60px; top: -4px; right: 0; }
-  :root.hud-orn-bridge .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 84px; height: 40px; }
-  :root.hud-orn-cat .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 50px; height: 44px; }
+  :root.hud-orn-on .hud-os-card .hud-header .hud-head-orn { width: 60px; height: 60px; top: -4px; right: 0; }
+  :root.hud-orn-bridge .hud-os-card .hud-header .hud-head-orn { width: 84px; height: 40px; }
+  :root.hud-orn-cat .hud-os-card .hud-header .hud-head-orn { width: 50px; height: 44px; }
   :root.hud-ava-framed .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin-left: 4px; }
   :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-wrap { margin-right: 30px; }
   :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco { right: -26px; bottom: -18px; width: 66px; height: 66px; }
@@ -383,7 +393,7 @@
    ========================================================================= */
 
 /* --- Стиль секций: двойная тонкая рамка («束素亭亭玉殿春») --------------- */
-:root.hud-skin-double .hud-os-card :is(.hud-body > .hud-row, .hud-body > .hud-key-block, .hud-twist) {
+:root.hud-skin-double .hud-os-card :is(.hud-body > .hud-row, .hud-body > .hud-key-block, .hud-twist), :root.hud-skin-double .hud-os-card :is(.hud-body > .hud-key-block, .hud-body > .hud-key-block, .hud-twist) {
   border: 1px solid color-mix(in srgb, var(--hud-accent) 55%, transparent) !important;
   box-shadow: 0 0 0 2px transparent, 0 0 0 3px color-mix(in srgb, var(--hud-accent) 40%, transparent), 0 1px 5px rgba(0,0,0,.22) !important;
   border-radius: 2px !important;
@@ -527,13 +537,13 @@
    узоры разделителей, пластырь, бант, ноты, Сатурн. Венок, окна, веер,
    лотос, розы, арка и мостик остаются такими, какими их нарисовали. */
 :root:is(.hud-deco-wreath, .hud-deco-lattice, .hud-deco-octagon, .hud-deco-fan, .hud-deco-lotus, .hud-deco-roses) .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco,
-:root:is(.hud-orn-roses, .hud-orn-plum, .hud-orn-bridge) .hud-os-card .hud-header:not(.has-banner) .hud-head-orn {
+:root:is(.hud-orn-roses, .hud-orn-plum, .hud-orn-bridge) .hud-os-card .hud-header .hud-head-orn {
   background: var(--deco-img) center / contain no-repeat !important; -webkit-mask: none !important; mask: none !important;
 }
 :root:is(.hud-deco-wreath, .hud-deco-lattice, .hud-deco-octagon, .hud-deco-fan, .hud-deco-lotus, .hud-deco-roses) .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco::after,
-:root:is(.hud-orn-roses, .hud-orn-plum, .hud-orn-bridge) .hud-os-card .hud-header:not(.has-banner) .hud-head-orn::after { content: none !important; }
+:root:is(.hud-orn-roses, .hud-orn-plum, .hud-orn-bridge) .hud-os-card .hud-header .hud-head-orn::after { content: none !important; }
 /* Тёмные розы на тёмных темах: светлый контур, чтобы не тонули в фоне. */
-:root:is(.hud-deco-roses, .hud-orn-roses):not(:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco, :root:is(.hud-deco-roses, .hud-orn-roses):not(:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-os-card .hud-header:not(.has-banner) .hud-head-orn {
+:root:is(.hud-deco-roses, .hud-orn-roses):not(:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco, :root:is(.hud-deco-roses, .hud-orn-roses):not(:is(.hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-os-card .hud-header .hud-head-orn {
   filter: drop-shadow(0 0 1px rgba(255, 236, 236, .75)) drop-shadow(0 0 5px rgba(255, 210, 210, .35)) !important;
 }
 :root.hud-deco-roses .hud-os-card .hud-header:not(.has-banner) .hud-ava-deco { rotate: 8deg; }
@@ -567,7 +577,7 @@
 /* --- Сатурн и звезда в углу шапки («桃色密信», «Starlight mushrooms») -------
    Обе картинки — одним слоем: цвет темы снизу, картинки сверху в режиме
    luminosity, вырезано по обеим. */
-:root.hud-orn-saturn .hud-os-card .hud-header:not(.has-banner) .hud-head-orn {
+:root.hud-orn-saturn .hud-os-card .hud-header .hud-head-orn {
   width: 118px; height: 84px; top: 50%; margin-top: -42px; right: 0;
   background: url('../img/deco/cstar.webp') left 4px top 2px / 22px no-repeat, url('../img/deco/saturn.webp') right center / 92px no-repeat,
     color-mix(in srgb, var(--hud-deco-c) 80%, #fff) !important;
@@ -576,7 +586,7 @@
           mask: url('../img/deco/cstar.webp') left 4px top 2px / 22px no-repeat, url('../img/deco/saturn.webp') right center / 92px no-repeat !important;
   transition: rotate .8s ease;
 }
-:root.hud-orn-saturn .hud-os-card .hud-header:not(.has-banner) .hud-head-orn::after { content: none !important; }
+:root.hud-orn-saturn .hud-os-card .hud-header .hud-head-orn::after { content: none !important; }
 :root.hud-orn-saturn .hud-os-card .hud-header:not(.has-banner):is(.fx-deco) .hud-head-orn { rotate: -8deg; }
 @media (hover: hover) and (pointer: fine) { :root.hud-orn-saturn .hud-os-card .hud-header:not(.has-banner):hover .hud-head-orn { rotate: -8deg; } }
 
@@ -713,31 +723,31 @@
    ========================================================================= */
 
 /* --- Картинки угла шапки: в своих цветах -------------------------------- */
-:root:is(.hud-orn-redbranch, .hud-orn-oni, .hud-orn-hat) .hud-os-card .hud-header:not(.has-banner) .hud-head-orn {
+:root:is(.hud-orn-redbranch, .hud-orn-oni, .hud-orn-hat) .hud-os-card .hud-header .hud-head-orn {
   background: var(--deco-img) center / contain no-repeat !important; -webkit-mask: none !important; mask: none !important;
 }
-:root:is(.hud-orn-redbranch, .hud-orn-oni, .hud-orn-hat) .hud-os-card .hud-header:not(.has-banner) .hud-head-orn::after { content: none !important; }
+:root:is(.hud-orn-redbranch, .hud-orn-oni, .hud-orn-hat) .hud-os-card .hud-header .hud-head-orn::after { content: none !important; }
 /* Ветка красных цветов («red youkai») — светлый контур, чтобы не тонула в тёмном. */
-:root.hud-orn-redbranch .hud-os-card .hud-header:not(.has-banner) .hud-head-orn {
+:root.hud-orn-redbranch .hud-os-card .hud-header .hud-head-orn {
   --deco-img: url('../img/deco/orn-redbranch.webp'); width: 124px; height: 104px; top: -6px; right: -4px;
   filter: drop-shadow(0 0 1px rgba(255, 232, 232, .7)) drop-shadow(0 0 5px rgba(255, 200, 200, .25));
 }
 :root.hud-orn-redbranch .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 120px !important; }
 /* Маска они в цветах («red youkai»). */
-:root.hud-orn-oni .hud-os-card .hud-header:not(.has-banner) .hud-head-orn {
+:root.hud-orn-oni .hud-os-card .hud-header .hud-head-orn {
   --deco-img: url('../img/deco/orn-oni.webp'); width: 80px; height: 100px; top: -4px; filter: drop-shadow(0 3px 5px rgba(0,0,0,.5));
 }
 /* Ведьмина шляпа с луной («Titania-witch»). */
-:root.hud-orn-hat .hud-os-card .hud-header:not(.has-banner) .hud-head-orn {
+:root.hud-orn-hat .hud-os-card .hud-header .hud-head-orn {
   --deco-img: url('../img/deco/orn-hat.webp'); width: 104px; height: 90px; top: 2px; rotate: -8deg; filter: drop-shadow(0 4px 6px rgba(0,0,0,.45));
 }
 @media (max-width: 600px) {
-  :root:is(.hud-orn-redbranch, .hud-orn-oni, .hud-orn-hat) .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 66px; height: 62px; }
+  :root:is(.hud-orn-redbranch, .hud-orn-oni, .hud-orn-hat) .hud-os-card .hud-header .hud-head-orn { width: 66px; height: 62px; }
   :root.hud-orn-redbranch .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 62px !important; }
 }
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) {
-  :root:is(.hud-orn-redbranch, .hud-orn-oni, .hud-orn-hat) .hud-os-card .hud-header:not(.has-banner) .hud-head-orn { width: 66px; height: 62px; }
+  :root:is(.hud-orn-redbranch, .hud-orn-oni, .hud-orn-hat) .hud-os-card .hud-header .hud-head-orn { width: 66px; height: 62px; }
   :root.hud-orn-redbranch .hud-os-card .hud-header:not(.has-banner) .hud-header-text { padding-right: 62px !important; }
 } }
 /* cq ↑ */
@@ -787,12 +797,14 @@
 :root.hud-skin-label .hud-os-card .hud-body > .hud-row, :root.hud-skin-label .hud-os-card .hud-body > .hud-key-block {
   background: #fff !important; border: 2.5px solid #111 !important; border-radius: 0 !important; box-shadow: 3px 3px 0 #111 !important; color: #111;
 }
-:root.hud-skin-label .hud-os-card .hud-body > .hud-row::before { opacity: 0 !important; }
+:root.hud-skin-label .hud-os-card .hud-body > .hud-row::before, :root.hud-skin-label .hud-os-card .hud-body > .hud-key-block::before { opacity: 0 !important; }
 :root.hud-skin-label .hud-os-card .hud-body > .hud-row > .hud-key,
-:root.hud-skin-label .hud-os-card .hud-body > .hud-key-block > .hud-key-label {
+:root.hud-skin-label .hud-os-card .hud-body > .hud-key-block > .hud-key-label, :root.hud-skin-label .hud-os-card .hud-body > .hud-key-block > .hud-key {
   display: inline-block; background: #fff; border: 1.5px solid #111; padding: 3px 10px !important; color: #111 !important; margin: -2px 0 8px -2px; text-shadow: none !important;
 }
 :root.hud-skin-label .hud-os-card .hud-body > :is(.hud-row, .hud-key-block) .hud-value, :root.hud-skin-label .hud-os-card .hud-body > :is(.hud-row, .hud-key-block) .hud-key-item { color: #111 !important; }
+/* Свечение текста тёмных тем на белой этикетке размывало буквы. */
+:root.hud-skin-label .hud-os-card .hud-body > :is(.hud-row, .hud-key-block) :is(.hud-value, .hud-key-item, p, span, b, small, em) { text-shadow: none !important; }
 :root.hud-skin-label .hud-os-card .hud-row.f-phys { overflow: visible !important; }
 /* Ярлык и наклейка — картинки: при «Без картинок» (hud-skin-noimg) их нет. */
 :root.hud-skin-label:not(.hud-skin-noimg) .hud-os-card .hud-row.f-phys::after {
