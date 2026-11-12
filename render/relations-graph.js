@@ -7,11 +7,11 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.11';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.11';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.11';
-import { buildFamilyTree, родствоИз, ложныеБлизнецы } from './family-tree.js?v=23.89.11';
-import { settings } from '../settings.js?v=23.89.11';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.12';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.12';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.12';
+import { buildFamilyTree, родствоИз, ложныеБлизнецы } from './family-tree.js?v=23.89.12';
+import { settings } from '../settings.js?v=23.89.12';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -133,6 +133,8 @@ function collectRelationGraph(hudData) {
 
   addEdgesFrom(userName, hudRelField(hudData.user), { isUser: true });
   (hudData.characters || []).forEach((c, i) => addEdgesFrom(c && (c['Имя'] || c.N || c.name || c.Name), hudRelField(c), { isPrimary: i === 0 }));
+  // Дети из «Детской»: их «Софи: мама» — тоже родство для дерева.
+  (Array.isArray(hudData.babies) ? hudData.babies : []).forEach(b => addEdgesFrom(b && (b['Имя'] || b.N), hudRelField(b), {}));
   return { nodes, edges };
 }
 
@@ -292,7 +294,7 @@ function деревоСИсторией(nodes, edges, дайХоды) {
   const занято = new Set(edges.filter(e => родствоИз(e.label)).map(e => ключ(e.from, e.to)));
   const игрок = getSafeUserName();
   for (const d of дайХоды(глубина) || []) {
-    const записи = [...(d.user && игрок ? [[игрок, d.user]] : []), ...(Array.isArray(d.characters) ? d.characters : []).map(c => [c && (c['Имя'] || c.N), c])];
+    const записи = [...(d.user && игрок ? [[игрок, d.user]] : []), ...[...(Array.isArray(d.characters) ? d.characters : []), ...(Array.isArray(d.babies) ? d.babies : [])].map(c => [c && (c['Имя'] || c.N), c])];
     for (const [имя, запись] of записи) {
       if (!запись) continue;
       for (const { target, rel } of parseRelationList(hudRelField(запись))) {

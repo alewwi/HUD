@@ -597,8 +597,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.11**:
+The latest version is **23.89.12**:
 
+- New views for the diary, body diary, intercepts, thoughts and subtext, plus one more view for eight blocks. The Nursery asks who got a child's age wrong, decides on its own who is a child rather than a character, and no longer shows time-skip children as newborns; children show up in the family tree.
 - The phone can be regenerated on its own; phone rumors get a date and time; every theme picture can be hidden one by one; fixed swipe scars, the Key block with section styles and Label on dark themes.
 - Eight blocks get a choice of view, "Meanwhile" moves to the World tab, phone rumors become a live feed with tabs, long Memory lists fold.
 - The HUD can be written by a separate request after the reply through another profile: one model (a local one, for example) writes the story, another the HUD. The archive collapses long lists, filters them by status and no longer loses pregnancies.

@@ -10,15 +10,15 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.89.11';
+import { settings } from './settings.js?v=23.89.12';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т } from './i18n.js?v=23.89.11';
-import { промптНаАнглийском } from './prompt-en.js?v=23.89.11';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия } from './render/conception.js?v=23.89.11';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.11';
-import { возрастТочно } from './render/babies.js?v=23.89.11';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.11';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.11';
+import { английский, тМодели as т } from './i18n.js?v=23.89.12';
+import { промптНаАнглийском } from './prompt-en.js?v=23.89.12';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.12';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.12';
+import { возрастТочно } from './render/babies.js?v=23.89.12';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.12';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.12';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -496,10 +496,13 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
         return `${р.число > 1 ? (р.число === 2 ? 'twins' : 'triplets') : 'a baby'} born ${дм(д)} — ${т(возрастТочно(дн))}`; }),
       ...малышиБезРодов().map(м => м.дата <= датаСнимка ? `${м.имя} born ${дм(м.дата)} — ${т(возрастТочно(Math.round((датаСнимка - м.дата) / 864e5)))}` : ''),
     ].filter(Boolean);
-    var возрастМалышей = точные.length ? `exact, the HUD counts it from the birth date: ${точные.join('; ')} (on the scene date of the last HUD; add the days that pass). Never invent another age or birthday` : "days, weeks or months since birth, e.g. '12 дней', '3 месяца'";
+    // Игрок сказал, что модель ошиблась в возрасте ребёнка: называем ей верный.
+    const поправки = датаСнимка === null ? [] : спорыВозраста().filter(с => с.ошибся === 'model' && Number.isFinite(с.рождHUD) && с.рождHUD <= датаСнимка)
+      .map(с => `${с.имя} is ${т(возрастТочно(Math.round((датаСнимка - с.рождHUD) / 864e5)))} (born ${дм(с.рождHUD)}), not «${с.текст}» as written before`);
+    var возрастМалышей = (поправки.length ? `CORRECTION: ${поправки.join('; ')} — write exactly this age. ` : '') + (точные.length ? `exact, the HUD counts it from the birth date: ${точные.join('; ')} (on the scene date of the last HUD; add the days that pass). Never invent another age or birthday` : "days, weeks or months since birth, e.g. '12 дней', '3 месяца'");
     p += `,
  "bb": [
-  {"N": "[the child's name — one object per child born in the story younger than ${Math.max(1, Number(settings.babyGraduateYears) || 3)} years; older children go to cs as regular characters]", "sx": "[boy or girl]", "A": "[age: ${возрастМалышей}]", "C": "[what the child is wearing or wrapped in right now]", "Ap": "[appearance: size, hair, eyes, skin, marks — a baby's look changes month to month]", "R": "[who the child is to the family, e.g. 'дочь Веры и Глеба']", "B": "[body and mood right now in a phrase — sleepy, fussy, calm, giggling, teething]",${состояниеТела ? ` "Bs": "[the baby's body state, numbers 0-100 each followed by a word: 'eng: energy; awk: alertness — drops toward the next nap; sat: satiety — 100 right after feeding, falls until the next one; str: fussiness — crying, colic, teething raise it; slp: last night's sleep — hours and how many wakings']",` : ''} "H": "[health in a phrase]", "Ill": "[illnesses, ONLY if any — same format as for characters]", "Mrk": "[visible marks, ONLY if any — rash, bruise, scratch, birthmark]", "Nds": "[needs: 'fed: time of the last feeding HH:MM and what — breast, bottle, purée; slp: asleep or awake and since when HH:MM; dpr: time of the last diaper change HH:MM']", "L": "[where the child is right now and with whom]", "Th": "[the baby's thought right now, in the baby's own voice and simple world. A newborn feels rather than thinks: warmth, hunger, mother's heartbeat, light and sounds. An older baby thinks in short, funny, childlike phrases. 1-2 sentences, first person, no adult vocabulary]", "K": "[what occupies the child right now — impressions, each with an emoji; at least 2; separate by ;]", "I": "[the child's things nearby — toys, pacifier, blanket — each '<item>: <state>'; separate by ;]", "S": "[the child's routine ahead — feeding, nap, bath, walk, doctor — each '<time> - <event>'; separate by ;]", "Rl": "[how the child reacts to each person — calms with whom, smiles at whom; '<name>: <reaction>'; separate by ;]", "Tr": "[attachment 0-100 to each person: '<name>: <0-100>'; separate by ;]", "Fr": "[fears, ONLY if any — loud noises, strangers, the dark: '<what>: <low | moderate | high | panic>']", "Ln": "[ONLY once the child really speaks — words or short phrases they say, in «», separated by ;. Omit before that]"}
+  {"N": "[the child's name — one object per child younger than ${Math.max(1, Number(settings.babyGraduateYears) || 3)} years, born in the story or not; such a child is never in cs; older children go to cs as regular characters]", "sx": "[boy or girl]", "A": "[age: ${возрастМалышей}]", "C": "[what the child is wearing or wrapped in right now]", "Ap": "[appearance: size, hair, eyes, skin, marks — a baby's look changes month to month]", "R": "[who the child is to the family, e.g. 'дочь Веры и Глеба']", "B": "[body and mood right now in a phrase — sleepy, fussy, calm, giggling, teething]",${состояниеТела ? ` "Bs": "[the baby's body state, numbers 0-100 each followed by a word: 'eng: energy; awk: alertness — drops toward the next nap; sat: satiety — 100 right after feeding, falls until the next one; str: fussiness — crying, colic, teething raise it; slp: last night's sleep — hours and how many wakings']",` : ''} "H": "[health in a phrase]", "Ill": "[illnesses, ONLY if any — same format as for characters]", "Mrk": "[visible marks, ONLY if any — rash, bruise, scratch, birthmark]", "Nds": "[needs: 'fed: time of the last feeding HH:MM and what — breast, bottle, purée; slp: asleep or awake and since when HH:MM; dpr: time of the last diaper change HH:MM']", "L": "[where the child is right now and with whom]", "Th": "[the baby's thought right now, in the baby's own voice and simple world. A newborn feels rather than thinks: warmth, hunger, mother's heartbeat, light and sounds. An older baby thinks in short, funny, childlike phrases. 1-2 sentences, first person, no adult vocabulary]", "K": "[what occupies the child right now — impressions, each with an emoji; at least 2; separate by ;]", "I": "[the child's things nearby — toys, pacifier, blanket — each '<item>: <state>'; separate by ;]", "S": "[the child's routine ahead — feeding, nap, bath, walk, doctor — each '<time> - <event>'; separate by ;]", "Rl": "[how the child reacts to each person — calms with whom, smiles at whom; '<name>: <reaction>'; separate by ;]", "Tr": "[attachment 0-100 to each person: '<name>: <0-100>'; separate by ;]", "Fr": "[fears, ONLY if any — loud noises, strangers, the dark: '<what>: <low | moderate | high | panic>']", "Ln": "[ONLY once the child really speaks — words or short phrases they say, in «», separated by ;. Omit before that]"}
  ]`;
   }
 

@@ -13,7 +13,7 @@ h2 { margin: 18px 0 6px; font-size: 13px; color: #c9b8e0; grid-column: 1 / -1; }
 // ?w=215px — ширина карточки как на телефоне; ?t=kawaii — тема.
 // Люди и события выдуманы.
 const P = new URLSearchParams(location.search);
-const V = '?v=23.89.8';
+const V = '?v=' + (await (await fetch('../../manifest.json', { cache: 'no-store' })).json()).version;
 const ширина = P.get('w') || '';
 if (ширина) document.documentElement.style.setProperty('--w', ширина);
 const тема = P.get('t') || 'default';
@@ -23,6 +23,7 @@ const { themeVars, СВЕТЛЫЕ_ТЕМЫ } = await import('../../themes.js' + 
 const VP = await import('../../render/views-plus.js' + V);
 const PL = await import('../../render/pregnancy-loss.js' + V);
 const SG = await import('../../render/secrets-grid.js' + V);
+const VF = await import('../../render/views-fields.js' + V);
 if (тема !== 'default') {
   // Как applyThemeColors в index.js: цвета пресета — переменными на <html>.
   const светлая = (СВЕТЛЫЕ_ТЕМЫ || []).includes(тема);
@@ -69,16 +70,18 @@ const сцена = Д(2024, 10, 17);
 
 const карточка = (заголовок, html) => `<div><h3>${заголовок}</h3><div class="mes_text"><div class="hud-os-card"><div class="hud-tab-content">${html}</div></div></div></div>`;
 let out = '';
-const блок = (имя, виды, рисовать) => { out += `<h2>${имя}</h2>`; for (const [в, подпись] of виды) out += карточка(подпись, рисовать(в) || '<i>пусто</i>'); };
-блок('Шрамы доверия', [['kintsugi', 'Кинцуги'], ['seams', 'Швы']], в => VP.видШрамов(шрамы, в, кнопка));
-блок('Приглашения', [['engraved', 'Пригласительная'], ['seal', 'Сургуч']], в => VP.видПриглашений(приглашения, в));
-блок('Не знает', [['redacted', 'Под грифом'], ['blindspot', 'Слепое пятно']], в => VP.видНеЗнает(неЗнает, 'Нора Вейл', в));
-блок('Вес и рост', [['scale', 'Напольные весы'], ['silhouette', 'Силуэт']], в => VP.видВеса(вес, в, { сдвиг: -0.8, срок: ' за 14 дн.', история: вес.история }));
-блок('Конец беременности', [['classic', 'Кольцо (прежний)'], ['sprig', 'Гербарий'], ['path', 'Тропинка']], в => { settings.lossView = в; return PL.блокПотери(потеря, { кто: 'Нора Вейл', сценаMs: сцена }); });
-блок('Обещания', [['knots', 'Узелки'], ['pairs', 'Кто кому']], в => VP.видОбещаний(обещания, в));
-блок('Тем временем', [['cctv', 'Камеры'], ['novel', 'Глава романа']], в => VP.видТемВременем(тем, в));
+const блок = (имя, виды, рисовать) => { if (P.get('only') && !имя.includes(P.get('only'))) return; out += `<h2>${имя}</h2>`; for (const [в, подпись] of виды) out += карточка(подпись, рисовать(в) || '<i>пусто</i>'); };
+блок('Шрамы доверия', [['kintsugi', 'Кинцуги'], ['seams', 'Швы'], ['patches', 'Заплатки']], в => VP.видШрамов(шрамы, в, кнопка));
+блок('Приглашения', [['engraved', 'Пригласительная'], ['seal', 'Сургуч'], ['plane', 'Самолётик']], в => VP.видПриглашений(приглашения, в));
+блок('Не знает', [['redacted', 'Под грифом'], ['blindspot', 'Слепое пятно'], ['puzzle', 'Пазл']], в => VP.видНеЗнает(неЗнает, 'Нора Вейл', в));
+блок('Вес и рост', [['scale', 'Напольные весы'], ['silhouette', 'Силуэт'], ['tape', 'Сантиметр']], в => VP.видВеса(вес, в, { сдвиг: -0.8, срок: ' за 14 дн.', история: вес.история }));
+блок('Конец беременности', [['classic', 'Кольцо (прежний)'], ['sprig', 'Гербарий'], ['path', 'Тропинка'], ['moon', 'Луна']], в => { settings.lossView = в; return PL.блокПотери(потеря, { кто: 'Нора Вейл', сценаMs: сцена }); });
+блок('Обещания', [['knots', 'Узелки'], ['pairs', 'Кто кому'], ['chain', 'Цепь']], в => VP.видОбещаний(обещания, в));
+блок('Тем временем', [['cctv', 'Камеры'], ['novel', 'Глава романа'], ['city', 'Город ночью']], в => VP.видТемВременем(тем, в));
+блок('Мысли', [['echo', 'Эхо'], ['lamp', 'Фонарь'], ['fog', 'Запотевшее стекло']], в => VF.видПоля('мысли', 'Если сейчас промолчу, он уйдёт насовсем. А если скажу — уйду я.', в));
+блок('Скрытый подтекст', [['ink', 'Симпатические чернила'], ['uv', 'Ультрафиолет'], ['mask', 'За маской']], в => { settings.subtextVeil = P.get('open') ? false : true; return VF.видПоля('скрытый подтекст', 'Она проверяет, заметит ли он, что кольца нет на пальце.', в); });
 settings.secretsGrid = 'on';
-блок('Кто что знает', [['classic', 'Таблица (прежний)'], ['doors', 'Двери'], ['clearance', 'Допуск']], в => { settings.secretsGridView = в; return SG.сеткаСекретов(JSON.parse(JSON.stringify(секреты)), hudData); });
+блок('Кто что знает', [['classic', 'Таблица (прежний)'], ['doors', 'Двери'], ['clearance', 'Допуск'], ['bubbles', 'Пузыри']], в => { settings.secretsGridView = в; return SG.сеткаСекретов(JSON.parse(JSON.stringify(секреты)), hudData); });
 document.getElementById('cols').innerHTML = out;
 if (P.get('lang') === 'en') { const I = await import('../../i18n.js' + V); const EN = await import('../../i18n-en.js' + V); settings.language = 'en'; I.применитьЯзык('en'); I.перевестиДерево(document.getElementById('cols')); }
 window.__ready = true;

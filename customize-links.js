@@ -9,17 +9,17 @@
 // телефона в примере работают как обычно. Что каждая настройка есть в карте,
 // проверяет tests/unit.mjs.
 
-import { settings } from './settings.js?v=23.89.11';
-import { слои, адресСлоя, файлИз, сПоказаннымиЧастями, запомнитьРазмер, прямоугольникСлоя } from './scene-pieces.js?v=23.89.11';
-import { т } from './i18n.js?v=23.89.11';
+import { settings } from './settings.js?v=23.89.12';
+import { слои, адресСлоя, файлИз, сПоказаннымиЧастями, запомнитьРазмер, прямоугольникСлоя } from './scene-pieces.js?v=23.89.12';
+import { т } from './i18n.js?v=23.89.12';
 
 const ВИДЫ_ПОД_КЛАСС = {
   age: 'ageView', clothes: 'clothesView', looks: 'looksView', role: 'roleView', body: 'bodyStateView', phys: 'physView', health: 'healthView',
   marks: 'marksView', cycle: 'cycleView', preg: 'fetusView', x2: 'postpartumView', where: 'placeView', lines: 'linesView', 'key-view': 'keyView', exp: 'expView',
-  thoughts: null, subtext: null, fears: 'fearsView', exposure: 'exposureView', inventory: 'inventoryView', goals: 'goalsView', schedule: 'scheduleView', flags: 'flagsView',
+  thoughts: 'thoughtsView', subtext: 'subtextView', fears: 'fearsView', exposure: 'exposureView', inventory: 'inventoryView', goals: 'goalsView', schedule: 'scheduleView', flags: 'flagsView',
   trust: 'trustView', memories: 'memoriesView', status: 'statusView', conflict: 'conflictView', jealousy: 'jealousyView',
 };
-const ДОБАВКИ_К_ВИДУ = { thoughts: ['dropCap', 'thoughtBrackets', 'fontMain'], subtext: ['subtextVeil'],  health: ['healthPlaster'], trust: ['trustHearts'], lines: ['lineWave', 'lineNotes', 'crtLines', 'thoughtBrackets'], cycle: ['cycleLibido'] };
+const ДОБАВКИ_К_ВИДУ = { thoughts: ['dropCap', 'thoughtBrackets', 'inkWash', 'fontMain'], subtext: ['subtextVeil'],  health: ['healthPlaster'], trust: ['trustHearts'], lines: ['lineWave', 'lineNotes', 'crtLines', 'thoughtBrackets'], cycle: ['cycleLibido'] };
 // Подписи рядов без своего класса: сравнение с началом подписи.
 const ВИДЫ_ПО_ПОДПИСИ = [
   ['бельё', 'underwearView'], ['готовность к оргазму', 'orgView'], ['пульс', 'vitalsView'], ['жизненные показатели', 'vitalsView'], ['карта тела', 'bodyMapView', 'silhouetteStyle', 'silhouetteOutlines', 'silhouetteLook'],
@@ -105,11 +105,14 @@ export const КАРТА = [
   ['.hud-v-bond', ['bondView']],
   ['.hud-pet2, .hud-pets', ['petView']],
   ['.hud-dream-container, .hud-dv', ['dreamsView']],
-  ['.hud-body-diary, .hud-diary-body-hand', ['bodyDiaryHand', 'fontDiary']],
+  ['.hud-jv-silk, .hud-jv-kiss, .hud-jv-therm', ['bodyDiaryView', 'fontDiary']],
+  ['.hud-jv-book, .hud-jv-blog, .hud-jv-type', ['diaryView', 'fontDiary', 'fontSizeDiary']],
+  ['.hud-iv', ['interceptsView']],
+  ['.hud-body-diary, .hud-diary-body-hand', ['bodyDiaryView', 'bodyDiaryHand', 'fontDiary']],
   ['.hud-diary-wax', ['waxSeal']],
   ['.hud-diary-about-label, .hud-diary-about-user', ['diaryVeil']],
-  ['.hud-diary-entry, .hud-diary-container', ['fontDiary', 'fontSizeDiary', 'diaryMoodHand']],
-  ['.hud-phone-mockup.intercept-mode, .hud-intercept-header', ['interceptColor', 'interceptBgAlpha']],
+  ['.hud-diary-entry, .hud-diary-container', ['diaryView', 'fontDiary', 'fontSizeDiary', 'diaryMoodHand']],
+  ['.hud-phone-mockup.intercept-mode, .hud-intercept-header', ['interceptsView', 'interceptColor', 'interceptBgAlpha']],
   // Телефон.
   ['.hud-phone-lock-time, .hud-phone-lock-analog', ['phoneLockClock']],
   ['.hud-phone-notif, .hud-phone-lock-notice, .hud-phone-notif-stack, .hud-phone-home-notice', ['phoneNotifStyle', 'phoneNotifMax', 'phoneNotifAlpha']],

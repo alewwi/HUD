@@ -610,6 +610,7 @@
    Шрифт дневника выбирает пользователь (--hud-font-diary, правило с !important
    в base.css). Почерк темы встаёт поверх, только пока включён «Почерк по
    настроению» (diaryMoodHand): выключатель — переменная-заслонка --hud-dm-gate.
+   .hud-jv-mtext — текст вида «Разворот» (render/views-diary.js): тот же почерк.
    Пустая — шрифт темы действует; initial (index.js) — объявление темы
    становится недействительным, и остаётся шрифт пользователя.
    Почерки — веб-шрифты с кириллицей, которые HUD и так грузит (base.css,
@@ -627,32 +628,32 @@
   font-family: var(--hud-dm-font, var(--hud-font-diary)) !important;
   font-size: calc(var(--hud-font-size-diary, 16px) * var(--hud-dm-k, 1)) !important;
 }
-.hud-diary-mood-love :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Marck Script', 'Caveat', cursive; --hud-dm-k: var(--hud-dm-gate) .95; font-style: normal; }
-.hud-diary-mood-cozy :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Neucha', 'Caveat', cursive; --hud-dm-k: var(--hud-dm-gate) .84; font-style: normal; }
-.hud-diary-mood-panic :is(.hud-diary-text, .hud-diary-about-user),
-.hud-diary-mood-madness :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Pangolin', 'Caveat', cursive; --hud-dm-k: var(--hud-dm-gate) .82; font-style: normal; }
-.hud-diary-mood-madness .hud-diary-text { word-spacing: .12em; }
-.hud-diary-mood-calc :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Cascadia Mono', Consolas, 'SF Mono', Menlo, 'Roboto Mono', 'Droid Sans Mono', monospace; --hud-dm-k: var(--hud-dm-gate) .87; font-style: normal; letter-spacing: -.01em; }
-.hud-diary-mood-control :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Exo 2', sans-serif; --hud-dm-k: var(--hud-dm-gate) .87; font-style: normal; letter-spacing: .01em; }
-.hud-diary-mood-contempt :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Cormorant Garamond', 'Lora', serif; --hud-dm-k: var(--hud-dm-gate) .96; font-style: normal; letter-spacing: .02em; }
-.hud-diary-mood-resolve :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Oswald', sans-serif; --hud-dm-k: var(--hud-dm-gate) .81; font-style: normal; letter-spacing: .01em; }
-.hud-diary-mood-stress :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Oswald', sans-serif; --hud-dm-k: var(--hud-dm-gate) .81; font-style: normal; letter-spacing: -.01em; }
-.hud-diary-mood-cold :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Jura', sans-serif; --hud-dm-k: var(--hud-dm-gate) .86; font-style: normal; letter-spacing: .03em; }
-.hud-diary-mood-thrill :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Comfortaa', sans-serif; --hud-dm-k: var(--hud-dm-gate) .83; }
-.hud-diary-mood-respect :is(.hud-diary-text, .hud-diary-about-user),
-.hud-diary-mood-devotion :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Lora', Georgia, serif; --hud-dm-k: var(--hud-dm-gate) .86; }
+.hud-diary-mood-love :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext) { --hud-dm-font: var(--hud-dm-gate) 'Marck Script', 'Caveat', cursive; --hud-dm-k: var(--hud-dm-gate) .95; font-style: normal; }
+.hud-diary-mood-cozy :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext) { --hud-dm-font: var(--hud-dm-gate) 'Neucha', 'Caveat', cursive; --hud-dm-k: var(--hud-dm-gate) .84; font-style: normal; }
+.hud-diary-mood-panic :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext),
+.hud-diary-mood-madness :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext) { --hud-dm-font: var(--hud-dm-gate) 'Pangolin', 'Caveat', cursive; --hud-dm-k: var(--hud-dm-gate) .82; font-style: normal; }
+.hud-diary-mood-madness :is(.hud-diary-text, .hud-jv-mtext) { word-spacing: .12em; }
+.hud-diary-mood-calc :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext) { --hud-dm-font: var(--hud-dm-gate) 'Cascadia Mono', Consolas, 'SF Mono', Menlo, 'Roboto Mono', 'Droid Sans Mono', monospace; --hud-dm-k: var(--hud-dm-gate) .87; font-style: normal; letter-spacing: -.01em; }
+.hud-diary-mood-control :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext) { --hud-dm-font: var(--hud-dm-gate) 'Exo 2', sans-serif; --hud-dm-k: var(--hud-dm-gate) .87; font-style: normal; letter-spacing: .01em; }
+.hud-diary-mood-contempt :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext) { --hud-dm-font: var(--hud-dm-gate) 'Cormorant Garamond', 'Lora', serif; --hud-dm-k: var(--hud-dm-gate) .96; font-style: normal; letter-spacing: .02em; }
+.hud-diary-mood-resolve :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext) { --hud-dm-font: var(--hud-dm-gate) 'Oswald', sans-serif; --hud-dm-k: var(--hud-dm-gate) .81; font-style: normal; letter-spacing: .01em; }
+.hud-diary-mood-stress :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext) { --hud-dm-font: var(--hud-dm-gate) 'Oswald', sans-serif; --hud-dm-k: var(--hud-dm-gate) .81; font-style: normal; letter-spacing: -.01em; }
+.hud-diary-mood-cold :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext) { --hud-dm-font: var(--hud-dm-gate) 'Jura', sans-serif; --hud-dm-k: var(--hud-dm-gate) .86; font-style: normal; letter-spacing: .03em; }
+.hud-diary-mood-thrill :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext) { --hud-dm-font: var(--hud-dm-gate) 'Comfortaa', sans-serif; --hud-dm-k: var(--hud-dm-gate) .83; }
+.hud-diary-mood-respect :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext),
+.hud-diary-mood-devotion :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext) { --hud-dm-font: var(--hud-dm-gate) 'Lora', Georgia, serif; --hud-dm-k: var(--hud-dm-gate) .86; }
 /* Сильное желание — курсив с наклоном вперёд и крупной рубиновой буквицей. */
-.hud-diary-mood-longing :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Cormorant Garamond', 'Lora', serif; --hud-dm-k: var(--hud-dm-gate) .98; font-style: italic; }
-.hud-diary-mood-longing .hud-diary-text::first-letter { font-family: 'Cormorant Garamond', 'Lora', serif; font-size: 2.6em; line-height: .7; }
-.hud-diary-mood-respect .hud-diary-text::first-letter,
-.hud-diary-mood-devotion .hud-diary-text::first-letter { font-family: 'Cormorant Garamond', 'Lora', serif; font-size: 2.7em; line-height: .7; }
-.hud-diary-mood-irony :is(.hud-diary-text, .hud-diary-about-user) { --hud-dm-font: var(--hud-dm-gate) 'Philosopher', sans-serif; --hud-dm-k: var(--hud-dm-gate) .89; }
-.hud-diary-mood-bored .hud-diary-text { letter-spacing: .06em; word-spacing: .2em; }
-.hud-diary-mood-apathy .hud-diary-text { font-weight: 300; }
+.hud-diary-mood-longing :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext) { --hud-dm-font: var(--hud-dm-gate) 'Cormorant Garamond', 'Lora', serif; --hud-dm-k: var(--hud-dm-gate) .98; font-style: italic; }
+.hud-diary-mood-longing :is(.hud-diary-text, .hud-jv-mtext)::first-letter { font-family: 'Cormorant Garamond', 'Lora', serif; font-size: 2.6em; line-height: .7; }
+.hud-diary-mood-respect :is(.hud-diary-text, .hud-jv-mtext)::first-letter,
+.hud-diary-mood-devotion :is(.hud-diary-text, .hud-jv-mtext)::first-letter { font-family: 'Cormorant Garamond', 'Lora', serif; font-size: 2.7em; line-height: .7; }
+.hud-diary-mood-irony :is(.hud-diary-text, .hud-diary-about-user, .hud-jv-mtext) { --hud-dm-font: var(--hud-dm-gate) 'Philosopher', sans-serif; --hud-dm-k: var(--hud-dm-gate) .89; }
+.hud-diary-mood-bored :is(.hud-diary-text, .hud-jv-mtext) { letter-spacing: .06em; word-spacing: .2em; }
+.hud-diary-mood-apathy :is(.hud-diary-text, .hud-jv-mtext) { font-weight: 300; }
 /* Каждая строка придавлена пером — одержимость возвращается к одному. */
-.hud-diary-mood-obsession .hud-diary-text { text-decoration: underline; text-decoration-color: rgba(143,77,255,.5); text-underline-offset: 5px; }
+.hud-diary-mood-obsession :is(.hud-diary-text, .hud-jv-mtext) { text-decoration: underline; text-decoration-color: rgba(143,77,255,.5); text-underline-offset: 5px; }
 /* Стыд прячется: без буквицы. */
-.hud-diary-mood-shame .hud-diary-text::first-letter { float: none; font-size: 1em; margin: 0; line-height: inherit; }
+.hud-diary-mood-shame :is(.hud-diary-text, .hud-jv-mtext)::first-letter { float: none; font-size: 1em; margin: 0; line-height: inherit; }
 
 /* --- Появление ---------------------------------------------------------------
    Играет, когда вкладка становится видимой, — один раз, без заливки после

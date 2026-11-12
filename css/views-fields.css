@@ -1088,3 +1088,348 @@
 .hud-f-lines.is-subtitles .subs small { color: color-mix(in srgb, currentColor 50%, transparent); }
 .hud-f-lines.is-subtitles .subs span { color: var(--hud-text, currentColor); text-shadow: none; }
 .hud-f-lines.is-subtitles .subs em { color: var(--t-acc); }
+
+/* ================================ МЫСЛИ ==================================== */
+
+/* Эхо: мысль крутится в голове — за ней две тающие копии со сдвигом. */
+.hud-f-thoughts.is-echo .echo { display: flex; align-items: flex-start; gap: 10px; padding: 4px 18px 6px 2px; }
+.hud-f-thoughts.is-echo .rings { flex: none; width: 20px; height: 20px; margin-top: 2px; fill: none; stroke: var(--f-ink); stroke-width: 1.3; stroke-linecap: round; }
+.hud-f-thoughts.is-echo .rings circle { fill: var(--f-ink); stroke: none; }
+.hud-f-thoughts.is-echo .rings path:last-child { opacity: .45; }
+.hud-f-thoughts.is-echo .layers { display: grid; min-width: 0; flex: 1; }
+.hud-f-thoughts.is-echo .layers p { grid-area: 1 / 1; font-family: var(--f-serif); font-style: italic; font-size: 1.08em; line-height: 1.45; overflow-wrap: anywhere; }
+.hud-f-thoughts.is-echo .e1 { position: relative; color: var(--f-ink); }
+.hud-f-thoughts.is-echo .e2 { color: var(--f-ink); opacity: .2; translate: 7px 1.5px; filter: blur(.5px); user-select: none; }
+.hud-f-thoughts.is-echo .e3 { color: var(--f-ink); opacity: .09; translate: 14px 3px; filter: blur(1.1px); user-select: none; }
+
+/* Фонарь: тёмная комната, лампа под жестяным абажуром, конус света с пылинками и круг на «столе».
+   Предмет тёмный и на светлых темах. Качается при наведении или нажатии (views.css: .hud-v * на паузе). */
+.hud-f-thoughts.is-lamp .dark {
+  position: relative; overflow: hidden; padding: 64px 16px 18px; border-radius: 12px; color: #f7e7cc; text-align: center;
+  background: radial-gradient(ellipse 60% 40% at 50% 100%, rgba(120, 80, 40, .35), transparent 70%), linear-gradient(180deg, #050405, #0f0b0c 60%, #17110f);
+  box-shadow: inset 0 0 30px rgba(0,0,0,.95), inset 0 0 0 1px color-mix(in srgb, var(--t-acc) 22%, transparent), var(--f-shadow);
+}
+.hud-f-thoughts.is-lamp .swing { position: absolute; left: 50%; top: 0; width: 64px; margin-left: -32px; transform-origin: 50% 0; z-index: 1; }
+.hud-f-thoughts.is-lamp .cord { display: block; width: 2px; height: 14px; margin: 0 auto; background: linear-gradient(180deg, #2a221d, #4a3c33); }
+.hud-f-thoughts.is-lamp .shade { display: block; width: 64px; height: 40px; overflow: visible; }
+.hud-f-thoughts.is-lamp .shade .cap { fill: #3d3a33; }
+.hud-f-thoughts.is-lamp .shade .shell { fill: #2e3b34; stroke: #1a221d; stroke-width: .8; }
+.hud-f-thoughts.is-lamp .shade .shine { fill: none; stroke: rgba(220, 240, 225, .35); stroke-width: 2; stroke-linecap: round; }
+.hud-f-thoughts.is-lamp .shade .rim { stroke: #b6a073; stroke-width: 2; stroke-linecap: round; }
+.hud-f-thoughts.is-lamp .shade .glow { fill: rgba(255, 210, 130, .55); filter: blur(3px); }
+.hud-f-thoughts.is-lamp .shade .bulb { fill: #fff2c8; filter: drop-shadow(0 0 6px rgba(255, 210, 130, .95)); }
+.hud-f-thoughts.is-lamp .cone { position: absolute; left: 50%; top: 52px; width: 260px; height: 220px; margin-left: -130px; pointer-events: none;
+  background: linear-gradient(180deg, rgba(255, 214, 140, .34), rgba(255, 190, 110, .10) 70%, transparent); clip-path: polygon(44% 0, 56% 0, 100% 100%, 0 100%); filter: blur(2px); }
+.hud-f-thoughts.is-lamp .pool { position: absolute; left: 50%; bottom: -18px; width: 80%; height: 46px; translate: -50% 0; border-radius: 50%; background: radial-gradient(ellipse, rgba(255, 200, 120, .28), transparent 70%); pointer-events: none; }
+.hud-f-thoughts.is-lamp .mote { position: absolute; width: calc(3px * var(--s)); height: calc(3px * var(--s)); border-radius: 50%; background: rgba(255, 236, 190, .85); box-shadow: 0 0 4px rgba(255, 220, 160, .8); pointer-events: none; }
+.hud-f-thoughts.is-lamp p { position: relative; z-index: 2; margin: 0; font-family: var(--f-serif); font-size: 1.06em; line-height: 1.55; overflow-wrap: anywhere; text-shadow: 0 0 12px rgba(255, 190, 110, .45), 0 1px 2px rgba(0,0,0,.8); }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-f-thoughts.is-lamp .swing { animation: hud-f-lamp-swing 4.2s ease-in-out infinite; }
+  .hud-f-thoughts.is-lamp .shade .glow { animation: hud-f-flicker 2.6s ease-in-out infinite; }
+  .hud-f-thoughts.is-lamp .mote { animation: hud-f-mote 6s ease-in-out infinite; animation-delay: var(--d, 0s); }
+}
+@keyframes hud-f-lamp-swing { 0%, 100% { rotate: 0deg; } 30% { rotate: 4deg; } 70% { rotate: -4deg; } }
+@keyframes hud-f-flicker { 0%, 100% { opacity: 1; } 40% { opacity: .7; } 60% { opacity: .95; } 80% { opacity: .8; } }
+@keyframes hud-f-mote { 0%, 100% { translate: 0 0; opacity: .85; } 50% { translate: 8px -14px; opacity: .3; } }
+
+/* Запотевшее стекло: мысль выведена пальцем по туману, по стеклу ползут капли. */
+.hud-f-thoughts.is-fog .glass {
+  position: relative; overflow: hidden; padding: 12px 14px 14px; border-radius: 10px;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255,255,255,.22) 0 1px, transparent 1.6px) 0 0 / 7px 7px,
+    radial-gradient(circle at 70% 60%, rgba(255,255,255,.16) 0 .8px, transparent 1.4px) 0 0 / 5px 6px,
+    linear-gradient(160deg, color-mix(in srgb, var(--t-acc) 12%, #c9d6de), color-mix(in srgb, var(--t-acc) 18%, #9fb0bc));
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,.35), inset 0 0 18px rgba(255,255,255,.35), var(--f-shadow);
+}
+.hud-f-thoughts.is-fog .glass p {
+  position: relative; font-family: var(--f-hand); font-size: 1.1em; line-height: 1.5; overflow-wrap: anywhere;
+  color: color-mix(in srgb, var(--t-acc) 26%, #1c2830); text-shadow: 0 0 2px rgba(255,255,255,.55), 0 0 6px rgba(255,255,255,.25);
+}
+.hud-f-thoughts.is-fog .drop {
+  position: absolute; width: 2px; height: var(--h); border-radius: 2px; opacity: .8;
+  background: linear-gradient(180deg, transparent, rgba(255,255,255,.12) 40%, rgba(60,85,100,.28));
+}
+.hud-f-thoughts.is-fog .drop::after {
+  content: ''; position: absolute; left: 50%; bottom: -3px; width: calc(6px * var(--s)); height: calc(6.5px * var(--s)); translate: -50% 0; border-radius: 50% 50% 50% 50% / 46% 46% 54% 54%;
+  background: radial-gradient(circle at 34% 30%, rgba(255,255,255,.75) 0 14%, rgba(255,255,255,.08) 34%, rgba(50,75,90,.32) 78%, rgba(40,60,74,.45));
+  box-shadow: 0 1px 1px rgba(255,255,255,.35);
+}
+
+/* Тушь (scenes.css) — и по тексту новых видов «Мыслей». */
+:root.hud-ink-wash .hud-os-card .hud-f-thoughts :is(.e1, .dark > p, .glass > p) {
+  display: inline; color: #fbf7ee !important; padding: 2px 14px; line-height: 2; text-shadow: none;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--hud-accent) 55%, #10141c) 12%, color-mix(in srgb, var(--hud-accent) 55%, #10141c) 88%, transparent);
+}
+:root.hud-ink-wash .hud-os-card .hud-f-thoughts.is-echo :is(.e2, .e3) { display: none; }
+
+/* =========================== СКРЫТЫЙ ПОДТЕКСТ ============================== */
+/* Закрыто (.is-closed) — текст спрятан, видна подсказка; нажатие или Enter
+   открывает (events.js, .hud-sv). Переходы — только по нажатию. */
+.hud-sv { cursor: pointer; outline: none; }
+.hud-sv:focus-visible { outline: 1px solid var(--t-acc); outline-offset: 3px; border-radius: 12px; }
+.hud-sv .hint { display: block; margin-top: 8px; font-size: .74em; letter-spacing: .08em; text-transform: uppercase; opacity: .7; transition: opacity .35s; }
+.hud-sv:not(.is-closed) .hint { opacity: 0; height: 0; margin: 0; overflow: hidden; }
+.hud-sv p { overflow-wrap: anywhere; }
+
+/* Симпатические чернила: старое письмо с рваным краем, пятном и линовкой; свеча в подсвечнике
+   с потёками воска. Тепло проявляет буквы бурым, снизу — подпалина. */
+.hud-f-subtext.is-ink .sheet {
+  position: relative; overflow: hidden; padding: 16px 54px 18px 18px; color: #4a2a10; filter: drop-shadow(0 8px 10px rgba(0,0,0,.5));
+  background: repeating-linear-gradient(180deg, transparent 0 23px, rgba(90, 120, 160, .16) 23px 24px), radial-gradient(ellipse at 30% 20%, #f8eed2, #ecdbb2 65%, #d9c08c);
+  box-shadow: inset 0 0 30px rgba(120, 80, 30, .3);
+}
+.hud-f-subtext.is-ink .stain { position: absolute; right: 30%; top: -14px; width: 54px; height: 54px; border-radius: 50%; pointer-events: none; border: 3px solid rgba(140, 90, 40, .16); box-shadow: inset 0 0 8px rgba(140, 90, 40, .12); }
+.hud-f-subtext.is-ink .sheet p { position: relative; font-family: var(--f-hand); font-size: 1.05em; line-height: 24px; color: #6b3a12; transition: color .9s, opacity .9s, text-shadow .9s; }
+.hud-f-subtext.is-ink.is-closed .sheet p { color: #e9d7a8; opacity: .5; text-shadow: none; user-select: none; }
+.hud-f-subtext.is-ink:not(.is-closed) .sheet p { text-shadow: 0 0 1px rgba(107, 58, 18, .5); }
+.hud-f-subtext.is-ink .hint { position: relative; color: #8a6a40; }
+.hud-f-subtext.is-ink .scorch {
+  position: absolute; left: -10%; right: -10%; bottom: -44px; height: 80px; border-radius: 50%; opacity: 0; transition: opacity .9s;
+  background: radial-gradient(ellipse at 70% 100%, rgba(70, 30, 4, .6), rgba(150, 80, 20, .28) 45%, transparent 70%);
+}
+.hud-f-subtext.is-ink:not(.is-closed) .scorch { opacity: 1; }
+.hud-f-subtext.is-ink .candle { position: absolute; right: 12px; bottom: 8px; width: 34px; height: 60px; overflow: visible; }
+.hud-f-subtext.is-ink .flourish { display: block; width: min(150px, 60%); height: 18px; margin: 2px 0 0 auto; fill: none; stroke: #7a4418; stroke-width: 1.4; stroke-linecap: round; opacity: 0; transition: opacity 1.2s .3s; }
+.hud-f-subtext.is-ink:not(.is-closed) .flourish { opacity: .85; }
+.hud-f-subtext.is-ink .blot { position: absolute; left: 10px; bottom: 6px; width: 18px; height: 16px; border-radius: 48% 52% 44% 56% / 55% 45% 55% 45%; background: radial-gradient(circle at 35% 30%, #c0392b, #7a1712 75%); box-shadow: 0 1px 2px rgba(0,0,0,.35), 6px 3px 0 -5px #7a1712; opacity: .85; }
+.hud-f-subtext.is-ink .candle .halo { fill: rgba(255, 190, 90, .25); filter: blur(3px); opacity: .4; transition: opacity .6s; }
+.hud-f-subtext.is-ink .candle .flame { fill: #ffb347; opacity: .5; transition: opacity .6s; }
+.hud-f-subtext.is-ink .candle .core { fill: #fff3c4; opacity: .6; }
+.hud-f-subtext.is-ink .candle .fire { transform-origin: 15px 15px; }
+.hud-f-subtext.is-ink .candle .wick { stroke: #2a1d14; stroke-width: 1.2; }
+.hud-f-subtext.is-ink .candle .stick { fill: #f3e7cb; stroke: #c4a676; stroke-width: .7; }
+.hud-f-subtext.is-ink .candle .drip { fill: #fbf2dc; stroke: #c4a676; stroke-width: .5; }
+.hud-f-subtext.is-ink .candle .shine { stroke: rgba(255,255,255,.7); stroke-width: 1.2; stroke-linecap: round; }
+.hud-f-subtext.is-ink .candle .dish { fill: #a07a3c; stroke: #6e5022; stroke-width: .7; }
+.hud-f-subtext.is-ink .candle .ring { fill: none; stroke: #6e5022; stroke-width: 1.4; stroke-linecap: round; }
+.hud-f-subtext.is-ink:not(.is-closed) .candle :is(.flame, .core) { opacity: 1; }
+.hud-f-subtext.is-ink:not(.is-closed) .candle .halo { opacity: 1; }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-f-subtext.is-ink .candle .fire { animation: hud-f-fire 1.4s ease-in-out infinite; }
+  .hud-f-subtext.is-ink .candle .halo { animation: hud-f-flicker 2s ease-in-out infinite; }
+}
+@keyframes hud-f-fire { 0%, 100% { scale: 1 1; rotate: 0deg; } 30% { scale: .92 1.08; rotate: -3deg; } 60% { scale: 1.05 .95; rotate: 2deg; } }
+
+/* Ультрафиолет: тёмный лист; лампа зажигает текст неоном и проявляет отпечатки. Предмет тёмный и на светлых темах. */
+.hud-f-subtext.is-uv .slate {
+  position: relative; overflow: hidden; padding: 12px 40px 12px 14px; border-radius: 10px; color: #cfe9ff;
+  background: #0d0a16; box-shadow: inset 0 0 0 1px rgba(150, 110, 255, .25), var(--f-shadow); transition: background .6s;
+}
+.hud-f-subtext.is-uv:not(.is-closed) .slate { background: radial-gradient(ellipse at 70% 30%, rgba(120, 70, 255, .45), rgba(70, 30, 170, .25) 55%, transparent 80%), #120b24; }
+.hud-f-subtext.is-uv .slate p { position: relative; font-family: var(--f-mono); font-size: .95em; line-height: 1.55; letter-spacing: .02em; transition: color .6s, text-shadow .6s, opacity .6s; }
+.hud-f-subtext.is-uv.is-closed .slate p { color: #15111f; opacity: .9; user-select: none; }
+.hud-f-subtext.is-uv:not(.is-closed) .slate p { color: #d9f6ff; text-shadow: 0 0 6px rgba(140, 220, 255, .8), 0 0 16px rgba(160, 110, 255, .6); }
+.hud-f-subtext.is-uv .hint { color: #a790e8; }
+.hud-f-subtext.is-uv .torch { position: absolute; right: 10px; top: 10px; width: 20px; height: 20px; fill: none; stroke: #8a78c8; stroke-width: 1.4; stroke-linejoin: round; stroke-linecap: round; transition: stroke .5s; }
+.hud-f-subtext.is-uv .torch .ray { opacity: 0; transition: opacity .5s; }
+.hud-f-subtext.is-uv:not(.is-closed) .torch { stroke: #c9b6ff; filter: drop-shadow(0 0 4px rgba(170, 120, 255, .9)); }
+.hud-f-subtext.is-uv:not(.is-closed) .torch .ray { opacity: 1; }
+.hud-f-subtext.is-uv .print { position: absolute; width: 26px; height: 33px; fill: none; stroke: #b48cff; stroke-width: 1.1; stroke-linecap: round; opacity: 0; transition: opacity .8s; }
+.hud-f-subtext.is-uv .print.p1 { right: 14px; bottom: 6px; rotate: 18deg; }
+.hud-f-subtext.is-uv .print.p2 { left: 46%; top: -8px; rotate: -24deg; scale: .8; }
+.hud-f-subtext.is-uv:not(.is-closed) .print { opacity: .28; }
+
+/* За маской: текст под театральной полумаской на ленте; нажатие отводит её в угол. */
+.hud-f-subtext.is-mask .stage {
+  position: relative; overflow: hidden; min-height: 64px; padding: 12px 14px; border-radius: 12px; color: var(--f-paper-ink);
+  background: radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--t-acc) 22%, var(--f-paper)), var(--f-paper-2)); box-shadow: inset 0 0 0 1px var(--f-paper-edge), var(--f-shadow);
+}
+.hud-f-subtext.is-mask .stage p { position: relative; font-family: var(--f-serif); font-style: italic; font-size: 1.02em; line-height: 1.5; transition: filter .6s, opacity .6s; }
+.hud-f-subtext.is-mask.is-closed .stage p { filter: blur(5px); opacity: .55; user-select: none; }
+.hud-f-subtext.is-mask .mask {
+  position: absolute; left: 50%; top: 50%; width: min(150px, 70%); translate: -50% -58%; z-index: 1;
+  filter: drop-shadow(0 6px 8px rgba(0,0,0,.45)); transition: translate .7s cubic-bezier(.3, 1.3, .5, 1), rotate .7s, width .7s, opacity .7s;
+}
+.hud-f-subtext.is-mask:not(.is-closed) .stage { padding-right: 56px; }
+.hud-f-subtext.is-mask:not(.is-closed) .mask { left: auto; right: 4px; top: 4px; width: 46px; translate: 0 0; rotate: 18deg; opacity: .85; }
+.hud-f-subtext.is-mask .mask .face { fill: color-mix(in srgb, var(--t-acc) 70%, #1a1014); stroke: color-mix(in srgb, var(--t-acc) 40%, #f3d58a); stroke-width: 1.4; }
+.hud-f-subtext.is-mask .mask .eye { fill: #0c080a; }
+.hud-f-subtext.is-mask .mask .trim { fill: none; stroke: #f3d58a; stroke-width: 1.4; stroke-linecap: round; opacity: .8; }
+.hud-f-subtext.is-mask .mask .ribbon { fill: none; stroke: color-mix(in srgb, var(--t-acc) 60%, #f3d58a); stroke-width: 2.4; stroke-linecap: round; }
+.hud-f-subtext.is-mask .hint { position: relative; z-index: 2; text-align: center; color: var(--f-paper-soft); }
+.hud-f-subtext.is-mask.is-closed .stage { padding-top: 58px; }
+
+/* Движение остальных видов «Мыслей» и «Подтекста» — при наведении или нажатии. */
+@media (prefers-reduced-motion: no-preference) {
+  .hud-f-thoughts.is-echo .e2 { animation: hud-f-echo2 3.2s ease-in-out infinite; }
+  .hud-f-thoughts.is-echo .e3 { animation: hud-f-echo3 3.2s ease-in-out infinite; }
+  .hud-f-thoughts.is-echo .rings path { animation: hud-f-ring 1.8s ease-out infinite; transform-origin: 10px 10px; }
+  .hud-f-thoughts.is-echo .rings path:last-child { animation-delay: .4s; }
+  .hud-f-thoughts.is-fog .drop { animation: hud-f-drop 3.6s ease-in infinite; animation-delay: calc(var(--s) * -2s); }
+  .hud-f-subtext.is-uv:not(.is-closed) .slate::after { content: ''; position: absolute; top: 0; bottom: 0; left: -40%; width: 30%; pointer-events: none; background: linear-gradient(90deg, transparent, rgba(170, 120, 255, .3), transparent); animation: hud-f-beam 2.6s ease-in-out infinite; }
+  .hud-f-subtext.is-uv .torch .ray { animation: hud-f-flicker 1.2s ease-in-out infinite; }
+  .hud-f-subtext.is-mask .mask .ribbon { animation: hud-f-flutter 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 50%; }
+  .hud-f-subtext.is-mask .mask .trim { animation: hud-f-flicker 2.2s ease-in-out infinite; }
+  .hud-f-subtext.is-mask.is-closed .mask { animation: hud-f-mask-bob 3s ease-in-out infinite; }
+}
+@keyframes hud-f-echo2 { 0%, 100% { translate: 7px 1.5px; opacity: .2; } 50% { translate: 11px 2.5px; opacity: .12; } }
+@keyframes hud-f-echo3 { 0%, 100% { translate: 14px 3px; opacity: .09; } 50% { translate: 21px 5px; opacity: .04; } }
+@keyframes hud-f-ring { 0%, 100% { scale: 1; opacity: 1; } 60% { scale: 1.25; opacity: .2; } }
+@keyframes hud-f-drop { 0% { translate: 0 0; } 80% { translate: 0 22px; opacity: .8; } 100% { translate: 0 26px; opacity: 0; } }
+@keyframes hud-f-beam { 0% { left: -40%; } 100% { left: 110%; } }
+@keyframes hud-f-flutter { 0%, 100% { scale: 1 1; } 50% { scale: 1 1.35; } }
+@keyframes hud-f-mask-bob { 0%, 100% { translate: -50% 0; rotate: 0deg; } 50% { translate: -50% -4px; rotate: -2deg; } }
+
+/* === МЫСЛИ И ПОДТЕКСТ: БОГАТЫЕ ВИДЫ === */
+/* Эхо, запотевшее стекло, ультрафиолет и маска — с деталями. Правила ниже
+   перекрывают первые версии выше. Движение — при наведении или нажатии
+   (views.css: .hud-v * на паузе); первый кадр каждой анимации — покой. */
+
+/* Эхо: профиль головы, от него волны; за текстом тающие копии, фон — круги на воде. */
+.hud-f-thoughts.is-echo .echo { position: relative; overflow: hidden; align-items: center; padding: 10px 18px 10px 6px; border-radius: 12px;
+  background: radial-gradient(circle at 26px 50%, color-mix(in srgb, var(--t-acc) 22%, transparent), transparent 62%); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--t-acc) 16%, transparent); }
+.hud-f-thoughts.is-echo .ripples { position: absolute; left: -34px; top: 50%; width: 130px; height: 130px; margin-top: -65px; border-radius: 50%; pointer-events: none;
+  background: repeating-radial-gradient(circle, transparent 0 9px, color-mix(in srgb, var(--t-acc) 30%, transparent) 9px 10px); -webkit-mask: radial-gradient(circle, #000 25%, transparent 70%); mask: radial-gradient(circle, #000 25%, transparent 70%); opacity: .7; }
+.hud-f-thoughts.is-echo .head { position: relative; flex: none; width: 40px; height: 47px; overflow: visible; }
+.hud-f-thoughts.is-echo .head .face { fill: color-mix(in srgb, var(--t-acc) 30%, #1a1418); stroke: var(--f-ink); stroke-width: 1.2; stroke-linejoin: round; }
+.hud-f-thoughts.is-echo .head .brain { fill: none; stroke: var(--f-ink); stroke-width: 1; stroke-linecap: round; opacity: .6; }
+.hud-f-thoughts.is-echo .head .w { fill: none; stroke: var(--f-ink); stroke-width: 1.5; stroke-linecap: round; }
+.hud-f-thoughts.is-echo .head .w2 { opacity: .6; } .hud-f-thoughts.is-echo .head .w3 { opacity: .3; }
+.hud-f-thoughts.is-echo .layers { position: relative; }
+
+/* Запотевшее стекло: окно в раме, за ним огни ночного города; посередине туман стёрт пальцем. */
+.hud-f-thoughts.is-fog .glass { position: relative; overflow: hidden; min-height: 86px; padding: 18px 20px 20px; border-radius: 6px;
+  background: linear-gradient(180deg, #111726, #1c2232 60%, #2a2832); box-shadow: inset 0 0 0 1px rgba(255,255,255,.08), var(--f-shadow); }
+.hud-f-thoughts.is-fog .bokeh { position: absolute; width: var(--r); height: var(--r); margin: calc(var(--r) / -2) 0 0 calc(var(--r) / -2); border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, hsl(var(--h) 95% 72% / .85), hsl(var(--h) 90% 60% / .25) 58%, transparent 72%); filter: blur(1.5px); }
+.hud-f-thoughts.is-fog .mist { position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(circle at 20% 30%, rgba(255,255,255,.3) 0 1px, transparent 1.6px) 0 0 / 7px 7px, radial-gradient(circle at 70% 60%, rgba(255,255,255,.22) 0 .8px, transparent 1.4px) 0 0 / 5px 6px, linear-gradient(160deg, rgba(222,232,242,.62), rgba(196,210,224,.5));
+  -webkit-mask: radial-gradient(ellipse 74% 58% at 46% 48%, transparent 48%, #000 82%); mask: radial-gradient(ellipse 74% 58% at 46% 48%, transparent 48%, #000 82%); }
+.hud-f-thoughts.is-fog .glass p { z-index: 1; color: #f1f6fa; text-shadow: 0 0 8px rgba(0,0,0,.65), 0 0 2px rgba(255,255,255,.35); }
+.hud-f-thoughts.is-fog .drop { z-index: 1; }
+.hud-f-thoughts.is-fog .frame { position: absolute; inset: 0; z-index: 2; border: 6px solid #5c4029; border-bottom-width: 10px; border-radius: 6px; pointer-events: none;
+  box-shadow: inset 0 0 0 1px rgba(0,0,0,.45), inset 0 3px 7px rgba(0,0,0,.55), 0 0 0 1px rgba(255,220,180,.12); }
+
+/* Ультрафиолет: улика на тёмном столе — бирка, линейка, отпечатки; фонарь светит конусом. */
+.hud-f-subtext.is-uv .slate { padding: 32px 50px 24px 14px; border-radius: 8px; background: repeating-linear-gradient(90deg, rgba(255,255,255,.008) 0 2px, transparent 2px 6px), #0d0a16; }
+.hud-f-subtext.is-uv .tag { position: absolute; left: 10px; top: 9px; padding: 1px 8px; border: 1px dashed rgba(170,140,255,.55); border-radius: 3px; font: 700 .62em/1.5 var(--f-mono); letter-spacing: .1em; text-transform: uppercase; color: #a790e8; }
+.hud-f-subtext.is-uv .ruler { position: absolute; left: 0; right: 0; bottom: 0; height: 10px; border-top: 1px solid rgba(170,140,255,.25); pointer-events: none;
+  background: repeating-linear-gradient(90deg, rgba(200,190,255,.75) 0 1px, transparent 1px 30px) bottom / 100% 9px no-repeat, repeating-linear-gradient(90deg, rgba(200,190,255,.45) 0 1px, transparent 1px 6px) bottom / 100% 5px no-repeat; }
+.hud-f-subtext.is-uv .torch { right: 6px; top: 6px; width: 32px; height: 32px; fill: none; stroke: none; }
+.hud-f-subtext.is-uv .torch .body { fill: #3a3450; stroke: #8a78c8; stroke-width: 1; }
+.hud-f-subtext.is-uv .torch .grip { fill: #221e32; stroke: #6e62a0; stroke-width: 1; }
+.hud-f-subtext.is-uv .torch .lens { stroke: #6e62a0; stroke-width: 2.4; stroke-linecap: round; transition: stroke .5s; }
+.hud-f-subtext.is-uv .torch .btn { stroke: #e0625a; stroke-width: 2; stroke-linecap: round; }
+.hud-f-subtext.is-uv:not(.is-closed) .torch .lens { stroke: #e2d6ff; filter: drop-shadow(0 0 4px rgba(170,120,255,.95)); }
+.hud-f-subtext.is-uv .cone { position: absolute; right: 22px; top: 20px; width: 240px; height: 170px; transform-origin: 100% 0; rotate: 12deg; pointer-events: none; opacity: 0; transition: opacity .6s;
+  background: linear-gradient(225deg, rgba(170,120,255,.5), rgba(120,70,255,.14) 60%, transparent 82%); clip-path: polygon(100% 0, 0 55%, 26% 100%); }
+.hud-f-subtext.is-uv:not(.is-closed) .cone { opacity: 1; }
+.hud-f-subtext.is-uv .print.p1 { right: 18px; bottom: 12px; }
+.hud-f-subtext.is-uv .print.p3 { left: 8%; bottom: 8px; rotate: 32deg; scale: .7; }
+
+/* За маской: бархатный занавес под прожектором, маска с филигранью, камнем и перьями. */
+.hud-f-subtext.is-mask .stage { min-height: 76px; color: #f6e8dc; padding: 14px 16px;
+  background: radial-gradient(ellipse 60% 85% at 50% 0%, rgba(255,232,195,.26), transparent 70%), repeating-linear-gradient(90deg, #53101b 0 9px, #7c1b2b 9px 17px, #470c17 17px 25px);
+  box-shadow: inset 0 -16px 24px rgba(0,0,0,.55), inset 0 0 0 1px rgba(255,200,150,.16), var(--f-shadow); }
+.hud-f-subtext.is-mask .spot { position: absolute; left: 50%; top: -40px; width: 220px; height: 170px; margin-left: -110px; pointer-events: none; background: radial-gradient(ellipse at 50% 30%, rgba(255,240,210,.32), transparent 66%); }
+.hud-f-subtext.is-mask .stage p { color: #f6e8dc; text-shadow: 0 1px 3px rgba(0,0,0,.7); }
+.hud-f-subtext.is-mask .hint { color: #f0d9c4; }
+.hud-f-subtext.is-mask .mask { width: min(170px, 76%); }
+.hud-f-subtext.is-mask:not(.is-closed) .mask { width: 54px; }
+.hud-f-subtext.is-mask .mask .face { fill: color-mix(in srgb, var(--t-acc) 45%, #2a0f18); stroke: #e8c26a; stroke-width: 1.4; }
+.hud-f-subtext.is-mask .mask .eye { fill: #0b0608; }
+.hud-f-subtext.is-mask .mask .filigree, .hud-f-subtext.is-mask .mask .curl { fill: none; stroke: #f0d080; stroke-width: 1.2; stroke-linecap: round; }
+.hud-f-subtext.is-mask .mask .ribbon { stroke: #e8c26a; }
+.hud-f-subtext.is-mask .mask .gem { fill: #2fb5a2; stroke: #e8c26a; stroke-width: .8; }
+.hud-f-subtext.is-mask .mask .gem-hi { fill: #fff; }
+.hud-f-subtext.is-mask .mask .plume { fill: color-mix(in srgb, var(--t-acc) 40%, #f4e4ff); opacity: .92; }
+.hud-f-subtext.is-mask .mask .plume.p2 { fill: color-mix(in srgb, var(--t-acc) 60%, #ffffff); opacity: .8; }
+.hud-f-subtext.is-mask .mask .rachis { fill: none; stroke: #fff6ff; stroke-width: .6; }
+.hud-f-subtext.is-mask .mask .plumes { transform-box: view-box; transform-origin: 100px 20px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .hud-f-thoughts.is-echo .ripples { animation: hud-f-ripple 2.6s ease-out infinite; }
+  .hud-f-thoughts.is-echo .head .w { animation: hud-f-wave 1.8s ease-out infinite; transform-box: fill-box; transform-origin: 0 50%; }
+  .hud-f-thoughts.is-echo .head .w2 { animation-delay: .25s; } .hud-f-thoughts.is-echo .head .w3 { animation-delay: .5s; }
+  .hud-f-thoughts.is-fog .bokeh { animation: hud-f-flicker 3.2s ease-in-out infinite; animation-delay: var(--d, 0s); }
+  .hud-f-subtext.is-uv:not(.is-closed) .cone { animation: hud-f-cone 3.2s ease-in-out infinite; }
+  .hud-f-subtext.is-uv .torch .btn { animation: hud-f-flicker 1.4s ease-in-out infinite; }
+  .hud-f-subtext.is-mask .mask .plumes { animation: hud-f-plume 2.6s ease-in-out infinite; }
+  .hud-f-subtext.is-mask .mask .gem-hi { animation: hud-f-flicker 1.6s ease-in-out infinite; }
+  .hud-f-subtext.is-mask .spot { animation: hud-f-flicker 3s ease-in-out infinite; }
+}
+@keyframes hud-f-ripple { 0%, 100% { scale: 1; opacity: .7; } 50% { scale: 1.18; opacity: .45; } }
+@keyframes hud-f-wave { 0%, 100% { translate: 0 0; } 50% { translate: 3px 0; } }
+@keyframes hud-f-cone { 0%, 100% { rotate: 12deg; } 50% { rotate: 26deg; } }
+@keyframes hud-f-plume { 0%, 100% { rotate: 0deg; } 50% { rotate: -6deg; } }
+
+/* Ультрафиолет: закрытый текст не должен проступать ни в одной теме (светлые перекрашивают текст). */
+.hud-f-subtext.is-uv.is-closed .slate p { color: #15111f !important; text-shadow: none !important; }
+.hud-f-subtext.is-uv:not(.is-closed) .slate p { color: #d9f6ff !important; }
+
+/* === РАКОВИНА ЭХА И МАСКА-КОЛОМБИНА === */
+/* Эхо: раковина-наутилус с полосками и перламутровым устьем; от устья волны. */
+.hud-f-thoughts.is-echo .head { width: 58px; height: 50px; }
+.hud-f-thoughts.is-echo .head .shell { fill: color-mix(in srgb, var(--t-acc) 18%, #efe2cf); stroke: color-mix(in srgb, var(--t-acc) 35%, #8a6a4a); stroke-width: 1.1; stroke-linejoin: round; }
+.hud-f-thoughts.is-echo .head .stripe { fill: none; stroke: color-mix(in srgb, var(--t-acc) 40%, #9a5a34); stroke-width: 2.2; stroke-linecap: round; opacity: .75; }
+.hud-f-thoughts.is-echo .head .spiral { fill: none; stroke: color-mix(in srgb, var(--t-acc) 35%, #6e4a30); stroke-width: 1; stroke-linecap: round; }
+.hud-f-thoughts.is-echo .head .lip { fill: none; stroke: #fff4ea; stroke-width: 1.6; stroke-linecap: round; opacity: .7; }
+.hud-f-thoughts.is-echo .head .w { stroke: color-mix(in srgb, var(--t-acc) 50%, var(--f-ink)); }
+
+/* Маска-коломбина: тёмный бархат, золотая двойная кайма, вензеля, камень, перья. */
+.hud-f-subtext.is-mask .mask { width: min(190px, 84%); top: 6px; translate: -50% 0; }
+.hud-f-subtext.is-mask:not(.is-closed) .mask { width: 62px; translate: 0 0; }
+.hud-f-subtext.is-mask .mask .face { fill: color-mix(in srgb, var(--t-acc) 42%, #26101a); stroke: none; }
+.hud-f-subtext.is-mask .mask .sheen { fill: none; stroke: rgba(255,240,230,.28); stroke-width: 3; stroke-linecap: round; }
+.hud-f-subtext.is-mask .mask .trim { fill: none; stroke: #e9c46a; stroke-width: 2.2; stroke-linejoin: round; }
+.hud-f-subtext.is-mask .mask .trim-in { fill: none; stroke: #b8902e; stroke-width: .8; stroke-dasharray: 1.4 1.6; opacity: .9; }
+.hud-f-subtext.is-mask .mask .eye { fill: #080406; }
+.hud-f-subtext.is-mask .mask .eye-rim { fill: none; stroke: #f2d27a; stroke-width: 1.3; }
+.hud-f-subtext.is-mask .mask .filigree { fill: none; stroke: #f0d080; stroke-width: 1.1; stroke-linecap: round; }
+.hud-f-subtext.is-mask .mask .dot { fill: #f0d080; }
+.hud-f-subtext.is-mask .mask .gem { fill: #2fb5a2; stroke: #f2d27a; stroke-width: .9; }
+.hud-f-subtext.is-mask .mask .gem-hi { fill: rgba(255,255,255,.85); }
+.hud-f-subtext.is-mask .mask .ribbon { fill: none; stroke: #e9c46a; stroke-width: 2; stroke-linecap: round; opacity: .9; }
+.hud-f-subtext.is-mask .mask .feather .vane { fill: color-mix(in srgb, var(--t-acc) 35%, #f6e9ff); stroke: rgba(255,255,255,.35); stroke-width: .4; }
+.hud-f-subtext.is-mask .mask .feather.f1 .vane { fill: color-mix(in srgb, var(--t-acc) 60%, #ffe9f2); }
+.hud-f-subtext.is-mask .mask .feather.f3 .vane { fill: color-mix(in srgb, var(--t-acc) 20%, #ffffff); }
+.hud-f-subtext.is-mask .mask .feather .rachis { fill: none; stroke: #fff8f0; stroke-width: .7; stroke-linecap: round; }
+.hud-f-subtext.is-mask .mask .plumes { transform-box: view-box; transform-origin: 146px 10px; }
+.hud-f-subtext.is-mask.is-closed .stage { padding-top: calc(min(190px, 84%) * .45 + 12px); }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-f-subtext.is-mask .mask .feather { animation: hud-f-plume 2.8s ease-in-out infinite; transform-box: view-box; transform-origin: 146px 10px; }
+  .hud-f-subtext.is-mask .mask .feather.f2 { animation-delay: .9s; } .hud-f-subtext.is-mask .mask .feather.f3 { animation-delay: 1.8s; }
+}
+
+/* === БАРОЧНАЯ МАСКА === */
+/* Барочная маска: парча с переливом, кружево, золото с градиентом, жемчуг, банты, перья с павлиньим глазом. */
+.hud-f-subtext.is-mask .mask { --mk-hi: color-mix(in srgb, var(--t-acc) 55%, #6a2a44); --mk-mid: color-mix(in srgb, var(--t-acc) 40%, #2c0f1c); --mk-lo: #12060c; width: min(210px, 92%); top: 14px; }
+.hud-f-subtext.is-mask:not(.is-closed) .mask { width: 66px; top: 4px; }
+.hud-f-subtext.is-mask.is-closed .stage { padding-top: calc(min(210px, 92%) * .5 + 18px); }
+.hud-f-subtext.is-mask .mask .face { stroke: none; }
+.hud-f-subtext.is-mask .mask .brocade { stroke: none; }
+.hud-f-subtext.is-mask .mask .trim { fill: none; stroke-width: 2.4; }
+.hud-f-subtext.is-mask .mask .eye-rim { fill: none; stroke-width: 1.6; }
+.hud-f-subtext.is-mask .mask .wing { fill: none; stroke: #0b0608; stroke-width: 1.6; stroke-linecap: round; }
+.hud-f-subtext.is-mask .mask .lace { fill: #f4e6c4; opacity: .92; }
+.hud-f-subtext.is-mask .mask .lace-hole { fill: #3a1420; opacity: .6; }
+.hud-f-subtext.is-mask .mask .lily-band { stroke: #8a5f18; stroke-width: 1.2; stroke-linecap: round; }
+.hud-f-subtext.is-mask .mask .lily-gem { fill: #c62a4a; stroke: #f2d27a; stroke-width: .8; }
+.hud-f-subtext.is-mask .mask .bow { fill: color-mix(in srgb, var(--t-acc) 50%, #f0c8d8); stroke: #e9c46a; stroke-width: .6; }
+.hud-f-subtext.is-mask .mask .pearls .chain { stroke: #e9c46a; stroke-width: .6; }
+.hud-f-subtext.is-mask .mask .pearls .pearl { fill: #fbf6ee; stroke: rgba(160,140,120,.6); stroke-width: .3; }
+.hud-f-subtext.is-mask .mask .pearls .drop { fill: #2fb5a2; stroke: #f2d27a; stroke-width: .5; }
+.hud-f-subtext.is-mask .mask .pearls { transform-box: view-box; }
+.hud-f-subtext.is-mask .mask .pearls.p1 { transform-origin: 23px 41.5px; } .hud-f-subtext.is-mask .mask .pearls.p2 { transform-origin: 137px 41.5px; }
+.hud-f-subtext.is-mask .mask .feather .barbs { fill: none; stroke: rgba(255,255,255,.55); stroke-width: 3.2; stroke-dasharray: .5 1.4; }
+.hud-f-subtext.is-mask .mask .feather.f4 .vane { fill: color-mix(in srgb, var(--t-acc) 25%, #ffe9f6); }
+.hud-f-subtext.is-mask .mask .feather .eye-o { fill: #e3b04a; } .hud-f-subtext.is-mask .mask .feather .eye-m { fill: #1f8fa0; } .hud-f-subtext.is-mask .mask .feather .eye-i { fill: #18204a; }
+.hud-f-subtext.is-mask .mask .spark { fill: #fff6d0; opacity: .9; }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-f-subtext.is-mask .mask .spark { animation: hud-f-flicker 1.8s ease-in-out infinite; animation-delay: var(--d, 0s); }
+  .hud-f-subtext.is-mask .mask .pearls { animation: hud-f-plume 2.2s ease-in-out infinite; }
+  .hud-f-subtext.is-mask .mask .pearls.p2 { animation-delay: 1.1s; }
+  .hud-f-subtext.is-mask .mask .lily-gem { animation: hud-f-flicker 1.4s ease-in-out infinite; }
+  .hud-f-subtext.is-mask .mask .feather.f4 { animation-delay: 2.4s; }
+}
+
+/* === ТЁМНАЯ БУМАГА НА ТЁМНЫХ ТЕМАХ === */
+/* Симпатические чернила: тёмное старое письмо; проявленный текст — тёплой сепией. */
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-f-subtext.is-ink .sheet { color: #e3c9a0; background: repeating-linear-gradient(180deg, transparent 0 23px, rgba(160,190,230,.07) 23px 24px), radial-gradient(ellipse at 30% 20%, #2f261c, #241d15 65%, #1c1610); box-shadow: inset 0 0 30px rgba(0,0,0,.5); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-f-subtext.is-ink .sheet p { color: #e8b77c; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-f-subtext.is-ink.is-closed .sheet p { color: #3a3024; opacity: .7; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-f-subtext.is-ink:not(.is-closed) .sheet p { text-shadow: 0 0 6px rgba(232,160,90,.35); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-f-subtext.is-ink .hint { color: #b0946a; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-f-subtext.is-ink .stain { border-color: rgba(220,170,100,.14); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-f-subtext.is-ink .flourish { stroke: #d09a5a; }

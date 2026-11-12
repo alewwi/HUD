@@ -3,12 +3,14 @@
 // Домен «Перехваты»: чужие переписки, которые видит игрок.
 // Вынесено из index.js без изменения поведения.
 
-import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.89.11';
-import { фотоПоИмени } from '../avatars.js?v=23.89.11';
+import { escapeHtml, defeatWI, hudHasMeaningfulValue, sanitizeText, имяБезПриставки, инициалыИмени } from '../utils.js?v=23.89.12';
+import { фотоПоИмени } from '../avatars.js?v=23.89.12';
 // Снимки, ролики, голосовые и звонки собирает тот же код, что и в личном
 // телефоне. Своя копия разбора здесь означала бы, что новый формат от модели
 // в одном мессенджере работает, а в другом остаётся сырым тегом в тексте.
-import { собратьЛенту, моментПоследнего, тотЖеВПереписке } from './msg-feed.js?v=23.89.11';
+import { собратьЛенту, моментПоследнего, тотЖеВПереписке, разобратьСообщение } from './msg-feed.js?v=23.89.12';
+import { видБлока } from './views.js?v=23.89.12';
+import { видПерехватов, строкаПротокола } from './views-diary.js?v=23.89.12';
 
 // Кружок отправителя в перехвате: фото (ручное, персона, карточка) фоном либо инициал.
 // Разметка и классы прежние — картинку прячет за собой класс has-img.
@@ -63,10 +65,59 @@ export function interceptParticipants(intercept) {
   return имена.length >= 2 ? имена.join('; ') : '';
 }
 
+// Собеседник перехваченной переписки — не владелец телефона. «Анна → Марк»
+// с телефона Анны — Марк; «Austin & Angela» с телефона Остина — Angela.
+export function имяСобеседника(targetName, chatName) {
+  const interceptArrowParts = chatName.split(/\s*(?:→|->|←|↔|↔︎)\s*/).map(s => s.trim()).filter(Boolean);
+  if (interceptArrowParts.length > 1) {
+    const targetNorm = targetName.toLowerCase().replace(/\s+/g, ' ').trim();
+    const targetFirst = targetNorm.split(' ')[0];
+    const targetIndex = interceptArrowParts.findIndex(part => {
+      const partNorm = part.toLowerCase().replace(/\s+/g, ' ').trim();
+      return partNorm === targetNorm || partNorm === targetFirst ||
+        partNorm.startsWith(targetNorm + ' ') || targetNorm.startsWith(partNorm + ' ');
+    });
+    if (targetIndex !== -1) return interceptArrowParts.filter((_, i) => i !== targetIndex).join(' → ').trim();
+    return interceptArrowParts[interceptArrowParts.length - 1];
+  }
+  if (/\s(?:&|and|и)\s/i.test(chatName)) {
+    const части = chatName.split(/\s+(?:&|and|и)\s+/i).map(s => s.trim()).filter(Boolean);
+    const свои = части.filter(ч => тотЖеВПереписке(ч, targetName));
+    if (части.length === 2 && свои.length === 1) return части.find(ч => ч !== свои[0]);
+  }
+  return chatName;
+}
+
+// Звонок в протоколе — по-русски: «outgoing, missed» → «исходящий, пропущен».
+const ЗВОНОК = { outgoing: 'исходящий', incoming: 'входящий', missed: 'пропущен', answered: 'принят', declined: 'сброшен', rejected: 'сброшен', video: 'видео', audio: 'голосом' };
+// Переписка для видов (render/views-diary.js): строки — кто, кому, текст без тегов.
+export function перепискаДляВида(intercept) {
+  const цель = sanitizeText((intercept && intercept.target) || 'Unknown').trim();
+  const чат = имяСобеседника(цель, sanitizeText((intercept && intercept.chatName) || 'Chat').trim());
+  const строки = (Array.isArray(intercept && intercept.messages) ? intercept.messages : []).filter(hudHasMeaningfulValue).map(raw => {
+    const р = разобратьСообщение(raw);
+    const адресат = (String(raw || '').split('|')[0].match(/^\s*[^:]+?\s*(?:->|→)\s*([^:]+?)\s*:/) || [])[1] || '';
+    const кому = адресат && !ВСЕМ.test(адресат.trim()) && !тотЖеВПереписке(адресат, чат) ? адресат.trim() : '';
+    const { текст, вложение } = строкаПротокола(р.текст);
+    return {
+      кто: р.кто === 'Unknown' ? '?' : р.кто, кому, время: р.время, статус: р.статус, удалено: р.удалено, черновик: р.черновик, вложение,
+      текст: текст.replace(/⟨звонок([^⟩]*)⟩/g, (всё, хвост) => '⟨звонок' + хвост.replace(/[a-z]+/gi, w => ЗВОНОК[w.toLowerCase()] || w) + '⟩'),
+      исходящее: тотЖеВПереписке(р.кто, цель),
+    };
+  });
+  return { цель, чат, состав: interceptParticipants(intercept), строки };
+}
+
 export function buildInterceptsHTML(interceptsData, uid, isChecked, sceneDate) {
   let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-phone-mockup intercept-mode">`;
   if (!interceptsData || interceptsData.length === 0) {
     return html + `<div class="hud-phone-empty"><div class="hud-phone-empty-icon">📡</div><div>Нет перехватов</div><small>В текущем повествовании нет доступных скрытых разговоров.</small></div></div></div>`;
+  }
+  // Свой вид (Кастомизация → Вид блоков); «Телефон» — макет ниже. Свежие сверху.
+  const вид = видБлока('interceptsView');
+  if (вид && вид !== 'classic') {
+    const свой = видПерехватов(interceptsData.slice().sort((a, b) => моментПоследнего(b && b.messages, sceneDate) - моментПоследнего(a && a.messages, sceneDate)).map(перепискаДляВида), вид, uid);
+    if (свой) return `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-intercepts-alt">${свой}</div></div>`;
   }
   let chatTabsHeader = `<div class="hud-phone-subtabs">`;
   let chatBodies = ``;
@@ -83,32 +134,10 @@ export function buildInterceptsHTML(interceptsData, uid, isChecked, sceneDate) {
   порядок.forEach((intercept, idx) => {
     // Состав переписки: из поля модели, а если его нет — из самих сообщений.
     const состав = interceptParticipants(intercept);
-    let targetName = sanitizeText(intercept.target || 'Unknown').trim(), chatName = sanitizeText(intercept.chatName || 'Chat').trim();
     // Для перехвата показываем именно контакт, а не владельца телефона.
     // Направление сообщений ниже не меняем: target по-прежнему определяет владельца.
-    const interceptArrowParts = chatName.split(/\s*(?:→|->|←|↔|↔︎)\s*/).map(s => s.trim()).filter(Boolean);
-    if (interceptArrowParts.length > 1) {
-      const targetNorm = targetName.toLowerCase().replace(/\s+/g, ' ').trim();
-      const targetFirst = targetNorm.split(' ')[0];
-      const targetIndex = interceptArrowParts.findIndex(part => {
-        const partNorm = part.toLowerCase().replace(/\s+/g, ' ').trim();
-        return partNorm === targetNorm || partNorm === targetFirst ||
-          partNorm.startsWith(targetNorm + ' ') || targetNorm.startsWith(partNorm + ' ');
-      });
-      if (targetIndex !== -1) {
-        const contactParts = interceptArrowParts.filter((_, i) => i !== targetIndex);
-        chatName = contactParts.join(' → ').trim();
-      } else {
-        chatName = interceptArrowParts[interceptArrowParts.length - 1];
-      }
-    } else if (/\s(?:&|and|и)\s/i.test(chatName)) {
-      // «Austin & Angela» с телефона Остина — контакт Angela. Иначе
-      // две вкладки Остина подписывались «Austin ↔ Austin». Название, где
-      // владельца нет («Reid & Partners»), оставляем как есть.
-      const части = chatName.split(/\s+(?:&|and|и)\s+/i).map(s => s.trim()).filter(Boolean);
-      const свои = части.filter(ч => тотЖеВПереписке(ч, targetName));
-      if (части.length === 2 && свои.length === 1) chatName = части.find(ч => ч !== свои[0]);
-    }
+    const targetName = sanitizeText(intercept.target || 'Unknown').trim();
+    const chatName = имяСобеседника(targetName, sanitizeText(intercept.chatName || 'Chat').trim());
 
     let latestTime = '--:--', unreadCount = 0;
     if (Array.isArray(intercept.messages)) {

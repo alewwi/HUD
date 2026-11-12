@@ -6,16 +6,16 @@
 // прежний, его рисуют сами блоки; здесь только новые. Данные те же —
 // модель ничего нового не пишет. Оформление — css/views-plus.css.
 
-import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени } from '../utils.js?v=23.89.11';
-import { лицоЧеловека as лицо } from './views.js?v=23.89.11';
-import { ико } from './view-icons.js?v=23.89.11';
+import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени } from '../utils.js?v=23.89.12';
+import { лицоЧеловека as лицо } from './views.js?v=23.89.12';
+import { ико } from './view-icons.js?v=23.89.12';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
 const ф = (n) => Number(n).toFixed(1);
 const первое = (имя) => String(имя || '').trim().split(/\s+/)[0];
 // Псевдослучайное, но одинаковое каждый ход: трещины, швы, наклон.
-const сид = (s, i = 0) => { let h = hudHashSeed(String(s) + '#' + i) >>> 0; return () => { h = (h * 1103515245 + 12345) >>> 0; return (h >>> 8) / 16777216; }; };
+const сид = (s, i = 0) => { let h = hudHashSeed(String(s) + '#' + i) >>> 0; return () => { h = (Math.imul(h, 1103515245) + 12345) >>> 0; return (h >>> 8) / 16777216; }; };
 
 // --- Шрамы доверия ----------------------------------------------------------
 // шрамы — [{ id, кому, почему, было, стало }]; кнопка(з) — «убрать шрам».
@@ -84,10 +84,28 @@ function шрамыШвы(шрамы, кнопка) {
   }).join('') + `</div>`;
 }
 
+/** Заплатки: сердце, на котором каждая обида — нашитая заплатка; чем глубже, тем больше и краснее. */
+function шрамыЗаплатки(шрамы, кнопка) {
+  const места = [[34, 30, -14], [64, 34, 12], [48, 52, -6], [30, 50, 18], [68, 56, -16], [50, 28, 8]];
+  const заплатки = шрамы.slice(0, места.length).map((з, i) => {
+    const [x, y, а] = места[i];
+    const глубина = огр(((з.было ?? 80) - (з.стало ?? 60)) / 40, .25, 1);
+    const w = ф(12 + глубина * 10), h = ф(9 + глубина * 7);
+    return '<g class="patch" style="--t:' + ф(глубина) + '" transform="translate(' + x + ' ' + y + ') rotate(' + а + ')"><rect x="' + ф(-w / 2) + '" y="' + ф(-h / 2) + '" width="' + w + '" height="' + h + '" rx="2"/>'
+      + '<rect class="stitch" x="' + ф(-w / 2 + 1.6) + '" y="' + ф(-h / 2 + 1.6) + '" width="' + ф(w - 3.2) + '" height="' + ф(h - 3.2) + '" rx="1.2"/><text y="2.4">' + (i + 1) + '</text></g>';
+  }).join('');
+  const сердце = '<svg class="hud-vp-heart" viewBox="0 0 100 90" aria-hidden="true"><g class="beat"><path class="shape" d="M50 84 C20 64 6 48 6 30 C6 16 17 6 30 6 C39 6 46 11 50 18 C54 11 61 6 70 6 C83 6 94 16 94 30 C94 48 80 64 50 84Z"/>'
+    + '<path class="gloss" d="M20 24 C22 16 28 12 34 12"/>' + заплатки + '</g></svg>';
+  const список = шрамы.map((з, i) => '<li><b class="hud-vp-heart-n">' + (i + 1) + '</b><div><b>' + э(з.кому) + '</b><span>' + (з.почему ? applyTooltips(з.почему) : 'шрам') + '</span></div>'
+    + '<em title="Доверие упало с ' + э(з.было) + ' до ' + э(з.стало) + '">−' + Math.max(0, (з.было ?? 0) - (з.стало ?? 0)) + '</em>' + кнопка(з) + '</li>').join('');
+  return '<div class="hud-v hud-vp-patches hud-v-card">' + сердце + '<div class="hud-vp-patches-side"><span class="hud-vp-cap">заштопано</span><ul>' + список + '</ul></div></div>';
+}
+
 export function видШрамов(шрамы, вид, кнопка = () => '') {
   if (!Array.isArray(шрамы) || !шрамы.length) return '';
   if (вид === 'kintsugi') return шрамыКинцуги(шрамы, кнопка);
   if (вид === 'seams') return шрамыШвы(шрамы, кнопка);
+  if (вид === 'patches') return шрамыЗаплатки(шрамы, кнопка);
   return '';
 }
 
@@ -100,7 +118,7 @@ const кнопкиОтвета = (п, да = 'Принять', нет = 'Отк�
 /** Пригласительная: плотная карточка с тиснением, рамкой и RSVP. */
 function приглашенияГравюра(все) {
   return `<div class="hud-v hud-vp-engr-list">` + все.map(п => `<div class="hud-vp-engr"><span class="hud-vp-engr-orn" aria-hidden="true">❦</span>`
-    + `<small class="hud-vp-engr-eye">приглашение</small><b class="hud-vp-engr-who">${э(п.кто)}</b><span class="hud-vp-engr-ask">просит вас быть</span>`
+    + `<small class="hud-vp-engr-eye">приглашение</small><span class="hud-vp-inv-face">${лицо(п.кто || '?')}</span><b class="hud-vp-engr-who">${э(п.кто)}</b><span class="hud-vp-engr-ask">просит вас быть</span>`
     + `<p class="hud-vp-engr-what">${applyTooltips(п.что)}</p>${п.когда ? `<span class="hud-vp-engr-when">${э(п.когда)}</span>` : ''}`
     + `<div class="hud-vp-engr-rsvp"><small>R.S.V.P.</small>${кнопкиОтвета(п, 'Приду', 'Не смогу')}</div></div>`).join('') + `</div>`;
 }
@@ -117,15 +135,25 @@ function приглашенияСургуч(все) {
     return '<div class="hud-vp-seal"><div class="hud-vp-seal-env" aria-hidden="true"><svg viewBox="0 0 200 96" preserveAspectRatio="none">'
       + '<path class="back" d="M0 0 H200 V96 H0 Z"/><path class="side" d="M0 96 L84 46 M200 96 L116 46"/><path class="bottom" d="M0 96 L100 40 L200 96 Z"/><path class="flap" d="M0 0 H200 L100 60 Z"/><path class="flap-edge" d="M0 0 L100 60 L200 0"/></svg>'
       + '<i class="hud-vp-seal-twine"></i>' + печать + '</div>'
-      + '<div class="hud-vp-seal-letter"><small>от <b>' + э(п.кто) + '</b></small><p>' + applyTooltips(п.что) + '</p>' + (п.когда ? '<span class="hud-vp-seal-when">' + ико('hourglass') + э(п.когда) + '</span>' : '')
+      + '<div class="hud-vp-seal-letter"><small class="hud-vp-inv-from"><span class="hud-vp-inv-face">' + лицо(п.кто || '?') + '</span>от <b>' + э(п.кто) + '</b></small><p>' + applyTooltips(п.что) + '</p>' + (п.когда ? '<span class="hud-vp-seal-when">' + ико('hourglass') + э(п.когда) + '</span>' : '')
       + '<div class="hud-vp-seal-acts">' + кнопкиОтвета(п, 'Принять', 'Отказаться') + '</div></div></div>';
   }).join('') + '</div>';
+}
+
+/** Самолётик: бумажный самолётик прилетел по пунктиру и развернулся в записку со сгибами. */
+function приглашенияСамолётик(все) {
+  return '<div class="hud-v hud-vp-plane-list">' + все.map(п => '<div class="hud-vp-plane"><svg class="hud-vp-plane-sky" viewBox="0 0 200 46" preserveAspectRatio="none" aria-hidden="true">'
+    + '<path class="trail" d="M4 40 C40 40 52 10 92 18 S150 34 170 16"/></svg>'
+    + '<svg class="hud-vp-plane-jet" viewBox="0 0 40 30" aria-hidden="true"><path class="wing" d="M2 14 L38 2 L18 28 L15 18 Z"/><path class="fold" d="M38 2 L15 18 L13 24 Z"/><path class="crease" d="M2 14 L15 18 M38 2 L15 18"/></svg>'
+    + '<div class="hud-vp-plane-note"><small class="hud-vp-inv-from"><span class="hud-vp-inv-face">' + лицо(п.кто || '?') + '</span>от <b>' + э(п.кто) + '</b></small><p>' + applyTooltips(п.что) + '</p>' + (п.когда ? '<span class="hud-vp-plane-when">' + ико('hourglass') + э(п.когда) + '</span>' : '')
+    + '<div class="hud-vp-plane-acts">' + кнопкиОтвета(п, 'Лечу', 'Не в этот раз') + '</div></div></div>').join('') + '</div>';
 }
 
 export function видПриглашений(все, вид) {
   if (!Array.isArray(все) || !все.length) return '';
   if (вид === 'engraved') return приглашенияГравюра(все);
   if (вид === 'seal') return приглашенияСургуч(все);
+  if (вид === 'plane') return приглашенияСамолётик(все);
   return '';
 }
 
@@ -157,11 +185,41 @@ function неЗнаетПятно(факты, имя) {
     + `<ul>${факты.map(ф => `<li>${ико('mask')}<span>${applyTooltips(ф)}</span></li>`).join('')}</ul></div></div>`;
 }
 
+/** Пазл: картина человека с выпавшими кусочками — каждый пропуск то, чего он не знает. */
+function неЗнаетПазл(факты, имя) {
+  const кол = 4, n = факты.length, всего = Math.max(8, Math.ceil((n + 4) / кол) * кол), ряд = всего / кол, s = 24;
+  const r = сид(имя + факты.join('|'));
+  // Выступы: правый край куска и нижний — общие с соседом, поэтому направление одно на двоих.
+  const вправо = Array.from({ length: ряд }, () => Array.from({ length: кол }, () => (r() > .5 ? 1 : -1)));
+  const вниз = Array.from({ length: ряд }, () => Array.from({ length: кол }, () => (r() > .5 ? 1 : -1)));
+  const край = (x0, y0, x1, y1, d) => {
+    if (!d) return 'L' + ф(x1) + ' ' + ф(y1);
+    const dx = x1 - x0, dy = y1 - y0, nx = -dy / s, ny = dx / s, т = (k) => [x0 + dx * k, y0 + dy * k];
+    const [a1, b1] = т(.36), [a2, b2] = т(.64), h = s * .28 * d;
+    return 'L' + ф(a1) + ' ' + ф(b1) + ' C' + ф(a1 + nx * h - dx * .08) + ' ' + ф(b1 + ny * h - dy * .08) + ' ' + ф(a2 + nx * h + dx * .08) + ' ' + ф(b2 + ny * h + dy * .08) + ' ' + ф(a2) + ' ' + ф(b2) + ' L' + ф(x1) + ' ' + ф(y1);
+  };
+  const кусок = (i, j) => {
+    const x = 4 + j * s, y = 4 + i * s;
+    const верх = i ? -вниз[i - 1][j] : 0, право = j < кол - 1 ? вправо[i][j] : 0, низ = i < ряд - 1 ? вниз[i][j] : 0, лево = j ? -вправо[i][j - 1] : 0;
+    return 'M' + x + ' ' + y + край(x, y, x + s, y, -верх) + край(x + s, y, x + s, y + s, -право) + край(x + s, y + s, x, y + s, -низ) + край(x, y + s, x, y, -лево) + 'Z';
+  };
+  // Пропуски — разбросаны, но одинаково каждый ход.
+  const все = Array.from({ length: всего }, (_, k) => k);
+  for (let k = все.length - 1; k > 0; k--) { const m = Math.floor(r() * (k + 1)); [все[k], все[m]] = [все[m], все[k]]; }
+  const пусто = new Map(все.slice(0, n).map((k, i) => [k, i + 1]));
+  const куски = Array.from({ length: всего }, (_, k) => { const i = Math.floor(k / кол), j = k % кол, d = кусок(i, j);
+    return пусто.has(k) ? '<g class="hole"><path d="' + d + '"/><text x="' + (4 + j * s + s / 2) + '" y="' + (4 + i * s + s / 2 + 3.5) + '">' + пусто.get(k) + '</text></g>' : '<path class="piece" style="--k:' + (k % 5) + '" d="' + d + '"/>'; }).join('');
+  const лицоНаПазле = '<div class="hud-vp-puzzle-face">' + лицо(имя || '?') + '</div>';
+  return '<div class="hud-v hud-vp-puzzle hud-v-card"><div class="hud-vp-puzzle-art">' + лицоНаПазле + '<svg viewBox="0 0 ' + (8 + кол * s) + ' ' + (8 + ряд * s) + '" aria-hidden="true">' + куски + '</svg></div>'
+    + '<div class="hud-vp-puzzle-side"><span class="hud-vp-cap"><b>' + э(первое(имя) || 'Он') + '</b> не знает</span><ol>' + факты.map((ф, i) => '<li><b>' + (i + 1) + '</b><span>' + applyTooltips(ф) + '</span></li>').join('') + '</ol></div></div>';
+}
+
 export function видНеЗнает(value, имя, вид) {
   const факты = фактыСписком(value);
   if (!факты.length) return '';
   if (вид === 'redacted') return неЗнаетГриф(факты, имя);
   if (вид === 'blindspot') return неЗнаетПятно(факты, имя);
+  if (вид === 'puzzle') return неЗнаетПазл(факты, имя);
   return '';
 }
 
@@ -206,11 +264,24 @@ function весСилуэт(з, имт, сдвиг, срок) {
     + (имт ? `<span class="hud-vp-cap"><span>ИМТ</span> — <span>${слово}</span></span>${полоса}` : '') + чипСдвига(сдвиг, срок) + `</div></div>`;
 }
 
+/** Сантиметр: жёлтая портновская лента прокручена к росту, красная метка; вес — на бирке. */
+function весСантиметр(з, имт, сдвиг, срок) {
+  const рост = Math.round(Number(з.рост) || 0);
+  const центр = рост || 170, от = центр - 15, до = центр + 15;
+  const x = (см) => ф((см - от) / (до - от) * 100);
+  const деления = Array.from({ length: до - от + 1 }, (_, k) => от + k).map(см => '<i class="' + (см % 10 === 0 ? 'is-big' : см % 5 === 0 ? 'is-mid' : '') + '" style="left:' + x(см) + '%"></i>' + (см % 5 === 0 && !(рост && Math.abs(см - рост) <= 3) ? '<b style="left:' + x(см) + '%">' + см + '</b>' : '')).join('');
+  const [, , слово, класс] = имт ? зонаИМТ(имт) : [0, 0, '', ''];
+  return '<div class="hud-v hud-vp-tape"><div class="hud-vp-tape-row"><svg class="hud-vp-tape-case" viewBox="0 0 40 40" aria-hidden="true"><circle class="body" cx="20" cy="20" r="18"/><circle class="ring" cx="20" cy="20" r="12"/><circle class="hub" cx="20" cy="20" r="3.4"/><path class="slot" d="M36 14 V26"/></svg>'
+    + '<div class="hud-vp-tape-band">' + деления + (рост ? '<span class="hud-vp-tape-mark"><em>' + рост + ' см</em></span>' : '') + '</div></div>'
+    + '<div class="hud-vp-tape-tag"><i class="hole" aria-hidden="true"></i><b>' + э(з.вес) + '<small> кг</small></b>' + (имт ? '<span class="' + класс + '"><span>ИМТ ' + имт + '</span> · <span>' + слово + '</span></span>' : '') + чипСдвига(сдвиг, срок) + '</div></div>';
+}
+
 export function видВеса(з, вид, { сдвиг = 0, срок = '', история = [] } = {}) {
   if (!з || !Number.isFinite(Number(з.вес))) return '';
   const имт = з.рост ? Math.round(з.вес / (з.рост / 100) ** 2 * 10) / 10 : null;
   if (вид === 'scale') return весВесы(з, имт, сдвиг, срок);
   if (вид === 'silhouette') return весСилуэт(з, имт, сдвиг, срок);
+  if (вид === 'tape') return весСантиметр(з, имт, сдвиг, срок);
   return '';
 }
 
@@ -253,10 +324,34 @@ function потеряТропинка(д) {
     + д.подсказка + д.кнопки + `</div>`;
 }
 
+/** Луна: ночное небо, по дуге — фазы луны от дня потери до возвращения цикла; сегодняшняя крупнее и светится. */
+function потеряЛуна(д) {
+  const точки = д.точки.filter(т => Number.isFinite(т.день) && т.день > 0);
+  const конец = Math.max(28, ...точки.map(т => т.день), д.днейНазад || 0);
+  const лун = 9;
+  const r = сид(д.датаТекст);
+  const звёзды = Array.from({ length: 22 }, (_, k) => '<circle class="star" cx="' + ф(r() * 200) + '" cy="' + ф(r() * 70) + '" r="' + ф(.4 + r() * .8) + '" style="--d:' + ф(r() * -3) + 's"/>').join('');
+  const луны = Array.from({ length: лун }, (_, k) => {
+    const t = k / (лун - 1), день = Math.round(t * конец);
+    const x = 14 + t * 172, y = 60 - Math.sin(t * Math.PI) * 38;
+    const фаза = (день % 29.5) / 29.5; // 0 — новолуние, .5 — полнолуние
+    const сейчас = д.днейНазад !== null && Math.abs(день - д.днейНазад) <= конец / (лун - 1) / 2;
+    const R = сейчас ? 8 : 5.5, тень = Math.cos(фаза * 2 * Math.PI) * R, правая = фаза < .5;
+    const серп = 'M' + ф(x) + ' ' + ф(y - R) + ' A' + R + ' ' + R + ' 0 0 ' + (правая ? 1 : 0) + ' ' + ф(x) + ' ' + ф(y + R) + ' A' + ф(Math.abs(тень)) + ' ' + R + ' 0 0 ' + ((тень > 0) === правая ? 0 : 1) + ' ' + ф(x) + ' ' + ф(y - R) + 'Z';
+    const прошло = д.днейНазад !== null && день <= д.днейНазад;
+    return '<g class="moon' + (сейчас ? ' is-now' : '') + (прошло ? ' is-past' : '') + '"><circle class="disc" cx="' + ф(x) + '" cy="' + ф(y) + '" r="' + R + '"/><path class="lit" d="' + серп + '"/>' + (сейчас ? '<circle class="halo" cx="' + ф(x) + '" cy="' + ф(y) + '" r="' + (R + 5) + '"/>' : '') + '</g>';
+  }).join('');
+  const вехи = точки.map(т => '<li class="' + (д.днейНазад !== null && д.днейНазад >= т.день ? 'is-past' : '') + '"><b>' + т.подпись + '</b><small>' + т.дата + '</small></li>').join('');
+  return '<div class="hud-v hud-vp-moon is-' + д.вид + '"><svg class="hud-vp-moon-sky" viewBox="0 0 200 76" aria-hidden="true">' + звёзды + '<path class="arc" d="M14 60 Q100 -16 186 60"/>' + луны + '</svg>'
+    + '<div class="hud-vp-moon-text"><span class="hud-note-eye hud-section-title">Конец беременности</span><b>' + д.имя + '</b><small>' + срокПотери(д, true) + '</small></div>'
+    + (вехи ? '<ul class="hud-vp-moon-marks"><li class="is-past"><b>потеря</b><small>' + д.датаТекст + '</small></li>' + вехи + '</ul>' : '') + д.подсказка + д.кнопки + '</div>';
+}
+
 export function видПотери(д, вид) {
   if (!д) return '';
   if (вид === 'sprig') return потеряВеточка(д);
   if (вид === 'path') return потеряТропинка(д);
+  if (вид === 'moon') return потеряЛуна(д);
   return '';
 }
 
@@ -292,10 +387,24 @@ function обещанияПары(о) {
     + `<div class="hud-vp-pair-end">${пара.кому ? лицо(пара.кому) + `<small>${э(первое(пара.кому))}</small>` : `<i class="hud-v-face hud-vp-pair-all" aria-hidden="true">${ико('hearts')}</i><small>всем</small>`}</div></div>`).join('') + `</div>`;
 }
 
+/** Цепь: каждое обещание — звено. Сдержано — золотое, в силе — стальное, просрочено — ржавое, нарушено — разорвано. */
+function обещанияЦепь(о) {
+  const звенья = о.map((п, i) => {
+    const x = 18 + i * 25, верт = i % 2 === 1;
+    const звено = верт ? '<rect class="link-o" x="' + (x - 6) + '" y="6" width="12" height="28" rx="6"/><rect class="link-i" x="' + (x - 6) + '" y="6" width="12" height="28" rx="6"/>'
+      : '<rect class="link-o" x="' + (x - 15) + '" y="13" width="30" height="14" rx="7"/><rect class="link-i" x="' + (x - 15) + '" y="13" width="30" height="14" rx="7"/>';
+    return '<g class="link is-' + п.вид + '" style="--i:' + i + '">' + звено + (п.вид === 'broken' ? '<path class="gap" d="M' + (x + (верт ? -8 : 4)) + ' ' + (верт ? 16 : 10) + ' l' + (верт ? 16 : 6) + ' ' + (верт ? 4 : 20) + '"/>' : '') + '<text x="' + x + '" y="' + (верт ? 23.5 : 23.5) + '">' + (i + 1) + '</text></g>';
+  }).join('');
+  const ширина = 36 + (о.length - 1) * 25;
+  return '<div class="hud-v hud-vp-chain"><div class="hud-vp-chain-art"><svg viewBox="0 0 ' + ширина + ' 40" aria-hidden="true"><path class="anchor" d="M2 20 H6 M' + (ширина - 6) + ' 20 H' + ширина + '"/>' + звенья + '</svg></div>'
+    + '<ol>' + о.map((п, i) => '<li class="is-' + п.вид + '"><b class="n">' + (i + 1) + '</b><div><p>' + applyTooltips(п.что || п.от) + '</p><small>' + э(п.от) + (п.кому ? ' <i aria-hidden="true">→</i> ' + э(п.кому) : '') + (п.безСрока ? '' : ' · ' + э(п.срок)) + '</small></div><em>' + п.слово + '</em></li>').join('') + '</ol></div>';
+}
+
 export function видОбещаний(о, вид) {
   if (!Array.isArray(о) || !о.length) return '';
   if (вид === 'knots') return обещанияУзелки(о);
   if (вид === 'pairs') return обещанияПары(о);
+  if (вид === 'chain') return обещанияЦепь(о);
   return '';
 }
 
@@ -338,10 +447,33 @@ function темРоман(тем) {
     }).join('<div class="hud-vp-novel-break" aria-hidden="true">⁂</div>') + '<div class="hud-vp-novel-folio">— ' + стр + ' —</div></div>';
 }
 
+/** Город ночью: силуэт домов под звёздами; у каждого человека вне кадра — своё горящее окно с номером. */
+function темГород(тем) {
+  const r = сид(тем.map(т => т.имя).join('|'));
+  let x = 0; const дома = [], окна = [];
+  while (x < 400) {
+    const w = 14 + Math.round(r() * 16), h = 22 + Math.round(r() * 40);
+    дома.push('<rect class="house" x="' + x + '" y="' + (80 - h) + '" width="' + w + '" height="' + h + '"/>' + (r() > .7 ? '<rect class="house" x="' + (x + w / 2 - 1.5) + '" y="' + (80 - h - 6) + '" width="3" height="6"/>' : ''));
+    for (let yy = 80 - h + 5; yy < 74; yy += 7) for (let xx = x + 3; xx < x + w - 4; xx += 6) if (r() > .55) окна.push([xx, yy]);
+    x += w + 1;
+  }
+  const свет = окна.map(([a, b], k) => '<rect class="win" style="--d:' + ф(r() * -6) + 's" x="' + a + '" y="' + b + '" width="3" height="4"/>').join('');
+  // Окна людей: равномерно по ширине, на средней высоте.
+  const свои = тем.map((т, i) => { const cx = ф(140 + (i + .5) / тем.length * 120 - 4), cy = 40 + (i % 2) * 12;
+    return '<g class="person"><rect class="pwin" x="' + cx + '" y="' + cy + '" width="9" height="11" rx="1"/><circle class="pglow" cx="' + ф(+cx + 4.5) + '" cy="' + (cy + 5.5) + '" r="10"/><text x="' + ф(+cx + 4.5) + '" y="' + (cy + 8.6) + '">' + (i + 1) + '</text></g>'; }).join('');
+  const звёзды = Array.from({ length: 18 }, () => '<circle class="star" style="--d:' + ф(r() * -3) + 's" cx="' + ф(r() * 400) + '" cy="' + ф(r() * 30) + '" r="' + ф(.4 + r() * .7) + '"/>').join('');
+  const знание = (т) => [['is-yes', 'знает', т.знает], ['is-no', 'не знает', т.неЗнает], ['is-guess', 'догадывается', т.догадки]].filter(([, , v]) => !пустоМ(v))
+    .map(([к, подпись, v]) => '<span class="' + к + '"><b>' + подпись + '</b> ' + applyTooltips(v) + '</span>').join('');
+  return '<div class="hud-v hud-vp-city"><svg class="hud-vp-city-sky" viewBox="0 0 400 80" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><circle class="moonc" cx="262" cy="15" r="7"/>' + звёзды + дома.join('') + свет + свои + '</svg>'
+    + '<div class="hud-vp-city-list">' + тем.map((т, i) => { const { время, место } = времяИМесто(т.где);
+      return '<div class="hud-vp-city-item"><b class="n">' + (i + 1) + '</b>' + лицо(т.имя) + '<div class="body"><b>' + э(т.имя) + '</b><small>' + э([место, время].filter(Boolean).join(' · ')) + '</small><p>' + applyTooltips(т.текст) + '</p>' + (знание(т) ? '<div class="know">' + знание(т) + '</div>' : '') + '</div></div>'; }).join('') + '</div></div>';
+}
+
 export function видТемВременем(тем, вид) {
   if (!Array.isArray(тем) || !тем.length) return '';
   if (вид === 'cctv') return темКамеры(тем);
   if (вид === 'novel') return темРоман(тем);
+  if (вид === 'city') return темГород(тем);
   return '';
 }
 
@@ -386,11 +518,24 @@ function сеткаДопуск(с, люди, клетка, лицоСетки, 
   }).join('') + `</div>`;
 }
 
+/** Пузыри: каждый секрет — мыльный пузырь, внутри те, кто знает; чем больше знающих, тем он больше. Не знающие — под ним. */
+function сеткаПузыри(с, люди, клетка, лицоСетки, заголовок, уровень) {
+  return '<div class="hud-vp-bubbles">' + с.map((сек, i) => {
+    const внутри = [], снаружи = [];
+    люди.forEach((п, j) => { const к = клетка[i][j]; (к.вид === 'not' ? снаружи : внутри).push({ п, к }); });
+    const лицоК = ({ п, к }) => '<span class="hud-vp-door-face is-' + к.вид + '" title="' + э(п.имя) + ' — ' + э(к.текст) + '">' + лицоСетки(п.имя, п.игрок) + (к.вид === 'wrong' ? '<i class="hud-vp-door-badge">' + ико('mask') + '</i>' : к.вид === 'suspects' ? '<i class="hud-vp-door-badge">?</i>' : '') + '</span>';
+    const размер = 64 + Math.min(4, внутри.length) * 10;
+    return '<div class="hud-vp-bubble lvl-' + уровень(сек) + '" style="--b:' + размер + 'px;--i:' + i + '" title="' + э(сек.fact) + '"><div class="ball"><i class="shine" aria-hidden="true"></i>'
+      + (внутри.length ? внутри.map(лицоК).join('') : '<small>никто</small>') + '</div><b>' + э(заголовок(сек.fact)) + '</b>' + (снаружи.length ? '<div class="out">' + снаружи.map(лицоК).join('') + '</div>' : '') + '</div>';
+  }).join('') + '</div>';
+}
+
 export function видСеткиСекретов(вид, данные) {
   const { секреты, люди, клетка, лицоСетки, заголовок, уровень } = данные || {};
   if (!Array.isArray(секреты) || !секреты.length || !Array.isArray(люди)) return '';
   if (вид === 'doors') return сеткаДвери(секреты, люди, клетка, лицоСетки, заголовок, уровень);
   if (вид === 'clearance') return сеткаДопуск(секреты, люди, клетка, лицоСетки, заголовок);
+  if (вид === 'bubbles') return сеткаПузыри(секреты, люди, клетка, лицоСетки, заголовок, уровень);
   return '';
 }
 

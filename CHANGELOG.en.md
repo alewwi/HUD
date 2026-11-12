@@ -4,6 +4,24 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.12 — 2026-11-13
+
+New views for the diary, body diary, intercepts, thoughts and subtext; the Nursery asks who got the age wrong and decides on its own who is a child; children show up in the family tree.
+
+### Added
+- **Diary views** (Customize → Block views). Diary — "Spread" (a book page with a ribbon bookmark and a drop cap), "Private blog", "Typewriter". Body diary — "Silk", "Kiss", "Thermogram". Intercepts — "Terminal", "Transcript", "Reels", each with its own chat tabs. All 40 diary moods differ in every view by colour, icon and mark; pages stay dark on dark themes.
+- **Thoughts and subtext views.** Thoughts — "Echo", "Lantern", "Misted glass". Hidden subtext — "Invisible ink", "Ultraviolet", "Behind the mask".
+- **One more view** for eight blocks: weight — "Tape measure", end of pregnancy — "Moon", "Doesn't know" — "Puzzle", trust scars — "Patches", "Who knows what" — "Bubbles", promises — "Chain", invitations — "Paper plane", "Meanwhile" — "City at night".
+- **"The age doesn't match".** When a child's age by HUD and in the model's reply differ more than the model's words allow ("2 years" means two to three), the card asks "Who is wrong?". "The model" — HUD keeps its age and gives the model the right one from the next turn. "HUD" — HUD moves the birth date to match the model. On a new jump HUD asks again.
+
+### Changed
+- **The Nursery is the child's card.** A child younger than the age in settings is shown in the Nursery even if the model wrote them as a regular character; an older one gets a regular character card instead of a "grown up" line.
+- Memory height goes up to 1500 px; the tab height setting now applies to intercepts too.
+
+### Fixed
+- Children born during a time skip showed as newborns: the birth was dated to the first scene after the skip. Now the age comes from the model's reply and the birth date is moved (it also reads "born in February 2028").
+- The family tree missed children when the kinship came with a description: "her restless two-year-old son", "beloved mom", "a son he doesn't know". "Sworn sister", "godmother", "a second mom" are not counted as kin. Relations of children from the Nursery go into the tree too.
+
 ## 23.89.11 — 2026-11-12
 
 The phone can be regenerated apart from the rest of the HUD, phone rumors get a date and time, and scars, theme pictures and section styles now work where they stayed silent.

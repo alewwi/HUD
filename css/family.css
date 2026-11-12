@@ -252,6 +252,25 @@
 .hud-kid-card > .d2 { right: -6px; bottom: 18%; transform: rotate(10deg); }
 .hud-kid-card > .d3 { left: 18%; bottom: -8px; transform: rotate(-6deg); }
 .hud-kid-pane { display: block; position: relative; }
+/* «Возраст не сходится»: вопрос игроку, кто ошибся. Над карточкой, поверх игрушек. */
+.hud-kid-age-ask { position: relative; z-index: 3; display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; margin: 0 0 10px; padding: 10px 12px;
+  border-radius: 14px; background: color-mix(in srgb, var(--hud-card-inner-bg, #1c1c26) 88%, var(--c)); border: 1px dashed color-mix(in srgb, var(--c) 70%, transparent); }
+.hud-kid-age-ask > .t { grid-column: 1 / -1; font-size: .9em; letter-spacing: .02em; color: var(--hud-text, inherit); }
+.hud-kid-age-ask > .row { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; font-size: .86em; min-width: 0; }
+.hud-kid-age-ask > .row small { min-width: 8.5em; opacity: .7; }
+.hud-kid-age-ask > .row i { font-style: normal; font-weight: 700; overflow-wrap: anywhere; min-width: 0; }
+.hud-kid-age-ask > .q { font-size: .86em; opacity: .85; }
+.hud-kid-age-ask > .btns { display: flex; gap: 6px; }
+.hud-kid-age-ask button { padding: 4px 12px; border-radius: 10px; font: inherit; font-size: .86em; font-weight: 700; cursor: pointer; color: inherit;
+  background: color-mix(in srgb, var(--c) 22%, transparent); border: 1px solid color-mix(in srgb, var(--c) 60%, transparent); }
+.hud-kid-age-ask button:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) { .hud-kid-age-ask button:hover { background: color-mix(in srgb, var(--c) 40%, transparent); } }
+@media (max-width: 600px) { .hud-kid-age-ask { grid-template-columns: minmax(0, 1fr); } .hud-kid-age-ask > .btns > button { flex: 1; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { .hud-kid-age-ask { grid-template-columns: minmax(0, 1fr); } .hud-kid-age-ask > .btns > button { flex: 1; } } }
+/* cq ↑ */
+.hud-kid-tab > .ask { display: inline-grid; place-items: center; width: 1.2em; height: 1.2em; margin-left: 5px; border-radius: 50%; font-style: normal; font-size: .8em;
+  background: var(--c); color: #1a1a22; vertical-align: 1px; }
 .hud-kid-card .hud-header { border-radius: 16px; }
 .hud-kid-card .hud-row { border-radius: 14px; }
 

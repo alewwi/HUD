@@ -16,29 +16,29 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.11';
-import { уверены } from './confirm-erase.js?v=23.89.11';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.89.11';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.89.11';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.11';
-import { прикрытьСырой } from './raw-guard.js?v=23.89.11';
-import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.11';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.11';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.11';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.11';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.11';
-import { полныйПорядок } from './tabs-order.js?v=23.89.11';
-import { getWorldVotes } from './render/world.js?v=23.89.11';
-import { действиеМира } from './render/world-views.js?v=23.89.11';
-import { действиеМузыки } from './render/music.js?v=23.89.11';
-import { раскрытьПорцию } from './render/long-list.js?v=23.89.11';
-import { прогретьИсторию } from './render/carryover.js?v=23.89.11';
-import { подключитьПалитру } from './color-picker.js?v=23.89.11';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.11';
-import { замер } from './utils.js?v=23.89.11';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.11';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.11';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.11';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.12';
+import { уверены } from './confirm-erase.js?v=23.89.12';
+import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.89.12';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.89.12';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.12';
+import { прикрытьСырой } from './raw-guard.js?v=23.89.12';
+import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.12';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.12';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.12';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.12';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.12';
+import { полныйПорядок } from './tabs-order.js?v=23.89.12';
+import { getWorldVotes } from './render/world.js?v=23.89.12';
+import { действиеМира } from './render/world-views.js?v=23.89.12';
+import { действиеМузыки } from './render/music.js?v=23.89.12';
+import { раскрытьПорцию } from './render/long-list.js?v=23.89.12';
+import { прогретьИсторию } from './render/carryover.js?v=23.89.12';
+import { подключитьПалитру } from './color-picker.js?v=23.89.12';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.12';
+import { замер } from './utils.js?v=23.89.12';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.12';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.12';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.12';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -726,7 +726,8 @@ export function initGlobalEvents(ctx) {
     // Контейнер мессенджера: в личном телефоне это экран приложения внутри
     // эмулятора, в перехватах — старый .hud-phone-mockup. Ищем ближайший,
     // чтобы переключение подвкладок работало в обоих.
-    const phoneScope = (el) => el.closest('.hud-phone-app-view, .hud-phone-mockup');
+    // .hud-iv — виды перехватов (render/views-diary.js): те же вкладки по перепискам.
+    const phoneScope = (el) => el.closest('.hud-phone-app-view, .hud-phone-mockup, .hud-iv');
 
     // Экран «Сообщения» живёт в двух состояниях, и переключает их не класс
     // .active на теле переписки, а is-chat-open на самом экране: без него
@@ -2522,7 +2523,8 @@ document.addEventListener('keydown', (e) => {
    Закрыто — текст размыт, поверх приглашение заглянуть. Нажатие или Enter
    открывает и закрывает; состояние живёт до перерисовки карточки. */
 function переключитьПелену(e) {
-  const узел = e.target && e.target.closest && e.target.closest('.hud-deep, .hud-wash');
+  // .hud-sv — виды «Скрытого подтекста» (чернила, ультрафиолет, маска): так же.
+  const узел = e.target && e.target.closest && e.target.closest('.hud-deep, .hud-wash, .hud-sv');
   if (!узел) return;
   if (e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
   // Ссылки и кнопки лора внутри текста работают как обычно.

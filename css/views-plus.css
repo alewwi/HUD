@@ -7,10 +7,18 @@
    двери и пропуска. Цвет — от акцента темы, где материал не диктует свой.
    ========================================================================= */
 .hud-vp-cap { display: block; font-size: .66em; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: color-mix(in srgb, var(--v-acc) 55%, var(--ink-hi, #fff)); opacity: .85; }
-.hud-vp-x {
-  flex: none; width: 20px; height: 20px; padding: 0; border-radius: 50%; border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
-  background: transparent; color: inherit; opacity: .55; font: 700 13px/1 system-ui, sans-serif; cursor: pointer;
+/* Крестик «убрать шрам» нарисован двумя линиями: символ «×» в разных шрифтах
+   стоит ниже или выше середины, и кнопка выглядела кривой. */
+.hud-vp-x, .hud-trust-scar > button {
+  position: relative; display: inline-block; vertical-align: middle; flex: none; width: 20px; height: 20px; padding: 0; border-radius: 50%; border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+  background: transparent; color: inherit; opacity: .55; font-size: 0; line-height: 0; cursor: pointer; box-sizing: border-box;
 }
+.hud-vp-x::before, .hud-vp-x::after, .hud-trust-scar > button::before, .hud-trust-scar > button::after {
+  content: ''; position: absolute; left: 50%; top: 50%; width: 9px; height: 1.6px; margin: -.8px 0 0 -4.5px; border-radius: 1px; background: currentColor; rotate: 45deg;
+}
+.hud-vp-x::after, .hud-trust-scar > button::after { rotate: -45deg; }
+.hud-trust-scar > button { width: 17px; height: 17px; border-color: transparent; }
+.hud-trust-scar > button::before, .hud-trust-scar > button::after { width: 8px; margin-left: -4px; }
 .hud-vp-x:focus-visible { opacity: 1; outline: 2px solid var(--v-acc); }
 @media (hover: hover) and (pointer: fine) { .hud-vp-x:hover { opacity: 1; border-color: var(--v-acc); } }
 
@@ -259,6 +267,7 @@
   background: linear-gradient(180deg, #f6eedb, #e9dcbd); box-shadow: 0 6px 12px -8px rgba(0,0,0,.7), inset 0 0 12px rgba(150,120,70,.15);
   clip-path: polygon(8px 0, 100% 0, 100% 100%, 8px 100%, 0 50%); }
 .hud-vp-quipu-tag .hole { position: absolute; left: 7px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: rgba(0,0,0,.25); box-shadow: inset 0 1px 1px rgba(0,0,0,.4); }
+@media (prefers-reduced-motion: no-preference) { .hud-vp-quipu-tag { animation: hud-vp-swing 2.8s ease-in-out infinite; animation-delay: calc(var(--i, 0) * .7s); } }
 @keyframes hud-vp-swing { 0%, 100% { transform: rotate(0deg); } 30% { transform: rotate(1.4deg); } 70% { transform: rotate(-1.2deg); } }
 .hud-vp-quipu-tag p { margin: 0; font-size: .9em; line-height: 1.35; padding-right: 70px; }
 .hud-vp-quipu-tag small { font-size: .74em; color: #6a5a44; }
@@ -398,6 +407,15 @@
 .hud-vp-badge li.is-knows b { color: #2f8a56; } .hud-vp-badge li.is-suspects b { color: #a7811c; } .hud-vp-badge li.is-wrong b { color: #b5332b; }
 .hud-vp-badge > p { margin: 0; padding: 8px; font-size: .74em; color: #5c5a64; text-align: center; }
 
+
+/* Лицо того, кто зовёт: фото по имени или инициалы. */
+.hud-vp-inv-face { display: inline-flex; vertical-align: middle; }
+.hud-vp-inv-face .hud-v-face { width: 22px; height: 22px; font-size: 9px; background-size: cover; background-position: center; box-shadow: 0 0 0 1.5px #c9a85a, 0 2px 4px rgba(0,0,0,.4); }
+.hud-vp-inv-face .hud-v-face.has-img { color: transparent; text-shadow: none; }
+.hud-vp-engr .hud-vp-inv-face { display: flex; justify-content: center; margin-top: 8px; }
+.hud-vp-engr .hud-vp-inv-face .hud-v-face { width: 40px; height: 40px; font-size: 14px; box-shadow: 0 0 0 2px #c9a85a, 0 0 0 4px rgba(201,168,90,.3), 0 3px 6px rgba(0,0,0,.35); }
+.hud-vp-inv-from { display: inline-flex; align-items: center; gap: 6px; }
+
 /* --- Движение остальных видов (при наведении или нажатии) --- */
 @media (prefers-reduced-motion: no-preference) {
   .hud-vp-engr::after { content: ''; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; background: linear-gradient(110deg, transparent 30%, rgba(255,240,200,.45) 45%, transparent 60%); background-size: 300% 100%; background-position: 120% 0; animation: hud-vp-gild 3.4s ease-in-out infinite; }
@@ -406,7 +424,7 @@
   .hud-vp-pair-arrow { background-image: repeating-linear-gradient(90deg, color-mix(in srgb, var(--v-acc) 70%, #fff) 0 6px, transparent 6px 12px); background-size: 24px 100%; animation: hud-vp-flow 1.2s linear infinite; }
   .hud-vp-cam-screen::after { animation: hud-vp-roll 4s linear infinite; }
   .hud-vp-badge { transform-origin: 50% -12px; animation: hud-vp-swing 3.2s ease-in-out infinite; }
-  .hud-vp-badge:nth-child(2n) { animation-delay: -1.1s; }
+  .hud-vp-badge:nth-child(2n) { animation-delay: 1.1s; }
 }
 @keyframes hud-vp-gild { 0% { background-position: 120% 0; } 60%, 100% { background-position: -20% 0; } }
 @keyframes hud-vp-bob { 0%, 100% { transform: translate(-1px, 0); } 50% { transform: translate(-1px, -3px); } }
@@ -414,9 +432,192 @@
 @keyframes hud-vp-flow { from { background-position: 0 0; } to { background-position: 24px 0; } }
 @keyframes hud-vp-roll { from { background-position: 0 0; } to { background-position: 0 30px; } }
 
+
+/* =========================================================================
+   ТРЕТИЙ НОВЫЙ ВИД: заплатки, самолётик, пазл, сантиметр, луна, цепь,
+   ночной город, пузыри. Движение — при наведении или нажатии.
+   ========================================================================= */
+
+/* --- Шрамы: заплатки на сердце --- */
+.hud-vp-patches { display: grid; grid-template-columns: minmax(96px, 40%) minmax(0, 1fr); gap: 10px; align-items: center; }
+.hud-vp-heart { width: 100%; max-width: 170px; height: auto; display: block; overflow: visible; justify-self: center; }
+.hud-vp-heart .beat { transform-origin: 50px 46px; }
+.hud-vp-heart .shape { fill: color-mix(in srgb, var(--v-acc) 55%, #5a1c2c); stroke: color-mix(in srgb, #fff 25%, transparent); stroke-width: 1; filter: drop-shadow(0 4px 6px rgba(0,0,0,.45)); }
+.hud-vp-heart .gloss { fill: none; stroke: rgba(255,255,255,.35); stroke-width: 3; stroke-linecap: round; }
+.hud-vp-heart .patch rect:first-child { fill: color-mix(in srgb, #c94a4a calc(var(--t) * 100%), #d9b98a); stroke: rgba(0,0,0,.25); stroke-width: .6; }
+.hud-vp-heart .patch .stitch { fill: none; stroke: #f6ead2; stroke-width: .9; stroke-dasharray: 1.6 1.4; }
+.hud-vp-heart .patch text { font: 800 6px system-ui, sans-serif; fill: rgba(40,20,20,.75); text-anchor: middle; }
+@media (prefers-reduced-motion: no-preference) { .hud-vp-heart .beat { animation: hud-vp-beat 1.3s ease-in-out infinite; } }
+@keyframes hud-vp-beat { 0%, 40%, 100% { transform: scale(1); } 15% { transform: scale(1.06); } 28% { transform: scale(.98); } }
+.hud-vp-patches-side ul { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 6px; }
+.hud-vp-patches-side li { display: grid; grid-template-columns: 18px minmax(0, 1fr) auto auto; gap: 6px; align-items: center; font-size: .88em; }
+.hud-vp-heart-n { width: 18px; height: 18px; border-radius: 4px; display: grid; place-items: center; font-size: .72em; color: #3a2016; background: #d9b98a; box-shadow: inset 0 0 0 1px rgba(0,0,0,.2); }
+.hud-vp-patches-side li > div { min-width: 0; display: grid; }
+.hud-vp-patches-side li > div span { font-size: .9em; line-height: 1.35; color: var(--v-ink-soft); overflow-wrap: anywhere; }
+.hud-vp-patches-side li em { font-style: normal; font-weight: 800; font-size: .8em; color: #e0625a; }
+
+/* --- Приглашения: бумажный самолётик --- */
+.hud-vp-plane-list { display: grid; gap: 10px; }
+.hud-vp-plane { position: relative; padding-top: 34px; }
+.hud-vp-plane-sky { position: absolute; left: 0; top: 0; width: 100%; height: 46px; overflow: visible; }
+.hud-vp-plane-sky .trail { fill: none; stroke: color-mix(in srgb, var(--v-acc) 55%, currentColor); stroke-width: 1.4; stroke-dasharray: 3 4; vector-effect: non-scaling-stroke; opacity: .7; }
+.hud-vp-plane-jet { position: absolute; right: 6%; top: 0; width: 40px; height: 30px; overflow: visible; filter: drop-shadow(0 4px 4px rgba(0,0,0,.35)); }
+.hud-vp-plane-jet .wing { fill: #fbf8f1; stroke: #b9b2a2; stroke-width: .6; }
+.hud-vp-plane-jet .fold { fill: #ddd6c6; }
+.hud-vp-plane-jet .crease { fill: none; stroke: #b9b2a2; stroke-width: .5; }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-vp-plane-jet { animation: hud-vp-fly 3s ease-in-out infinite; }
+  .hud-vp-plane-sky .trail { animation: hud-vp-dash 1.4s linear infinite; }
+}
+@keyframes hud-vp-fly { 0%, 100% { translate: 0 0; rotate: 0deg; } 50% { translate: -6px -4px; rotate: -6deg; } }
+@keyframes hud-vp-dash { to { stroke-dashoffset: -14; } }
+.hud-vp-plane-note { position: relative; padding: 12px 14px 10px; border-radius: 3px; text-align: center; color: #2b2620;
+  background: linear-gradient(135deg, transparent 49.6%, rgba(0,0,0,.07) 50%, transparent 50.4%), linear-gradient(45deg, transparent 49.6%, rgba(0,0,0,.06) 50%, transparent 50.4%), linear-gradient(90deg, transparent 49.7%, rgba(0,0,0,.06) 50%, transparent 50.3%), #fbf8f1;
+  box-shadow: 0 10px 16px -10px rgba(0,0,0,.6); }
+.hud-vp-plane-note small { font-size: .76em; color: #6d6558; }
+.hud-vp-plane-note p { margin: 4px 0 0; font-family: var(--f-hand, 'Segoe Print', cursive); font-size: 1em; line-height: 1.45; }
+.hud-vp-plane-when { display: inline-flex; align-items: center; gap: 4px; margin-top: 6px; font-size: .78em; color: #5d5548; }
+.hud-vp-plane-when .hud-v-ico { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.8; }
+.hud-vp-plane-acts { display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; margin-top: 8px; }
+.hud-vp-plane .hud-vp-rsvp { padding: 4px 12px; border-radius: 999px; border: 1px solid #4f7fb8; background: transparent; color: #2f5f98; font-size: .82em; cursor: pointer; }
+.hud-vp-plane .hud-vp-rsvp.is-yes { background: #4f7fb8; color: #fff; }
+
+/* --- Не знает: пазл --- */
+.hud-vp-puzzle { display: grid; grid-template-columns: minmax(90px, 40%) minmax(0, 1fr); gap: 10px; align-items: center; }
+.hud-vp-puzzle-art { position: relative; }
+.hud-vp-puzzle-art svg { position: relative; width: 100%; height: auto; display: block; overflow: visible; }
+.hud-vp-puzzle-art { max-width: 170px; justify-self: center; width: 100%; }
+.hud-vp-puzzle-face { position: absolute; inset: 4%; display: grid; place-items: center; overflow: hidden; }
+.hud-vp-puzzle-face .hud-v-face { height: 86%; width: auto; aspect-ratio: 1; font-size: 1.6em; background-size: cover; background-position: center; opacity: .55; }
+.hud-vp-puzzle-face .hud-v-face.has-img { color: transparent; text-shadow: none; }
+.hud-vp-puzzle .piece { fill: color-mix(in srgb, var(--v-acc) calc(28% + var(--k) * 4%), rgba(255,255,255,.08)); fill-opacity: .55; stroke: rgba(255,255,255,.35); stroke-width: .6; }
+.hud-vp-puzzle .hole path { fill: #0d0b10; stroke: color-mix(in srgb, var(--v-acc) 70%, #fff); stroke-width: .9; stroke-dasharray: 2 1.6; }
+.hud-vp-puzzle .hole text { font: 800 9px system-ui, sans-serif; fill: color-mix(in srgb, var(--v-acc) 60%, #fff); text-anchor: middle; }
+@media (prefers-reduced-motion: no-preference) { .hud-vp-puzzle .hole path { animation: hud-vp-dash 1.6s linear infinite; } }
+.hud-vp-puzzle-side ol { list-style: none; margin: 4px 0 0; padding: 0; display: grid; gap: 5px; }
+.hud-vp-puzzle-side li { display: grid; grid-template-columns: 18px minmax(0, 1fr); gap: 6px; align-items: start; font-size: .88em; line-height: 1.4; }
+.hud-vp-puzzle-side li > b { width: 18px; height: 18px; border-radius: 4px; display: grid; place-items: center; font-size: .74em; background: #0d0b10; color: color-mix(in srgb, var(--v-acc) 60%, #fff); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--v-acc) 60%, transparent); }
+
+/* --- Вес: сантиметр --- */
+.hud-vp-tape { display: grid; gap: 4px; }
+.hud-vp-tape-row { display: grid; grid-template-columns: 40px minmax(0, 1fr); align-items: center; }
+.hud-vp-tape-case { width: 40px; height: 40px; position: relative; z-index: 1; filter: drop-shadow(0 3px 4px rgba(0,0,0,.45)); }
+.hud-vp-tape-case .body { fill: #c43b3b; stroke: #8a2222; stroke-width: 1; }
+.hud-vp-tape-case .ring { fill: none; stroke: rgba(255,255,255,.35); stroke-width: 1.2; }
+.hud-vp-tape-case .hub { fill: #e8e2d4; stroke: #8a2222; stroke-width: .8; }
+.hud-vp-tape-case .slot { stroke: #6e1a1a; stroke-width: 2.4; stroke-linecap: round; }
+.hud-vp-tape-band { position: relative; height: 30px; margin-left: -4px; border-radius: 0 3px 3px 0; overflow: hidden;
+  background: linear-gradient(180deg, #ffe680, #f2cd3c); box-shadow: inset 0 -2px 0 rgba(0,0,0,.12), 0 4px 8px -4px rgba(0,0,0,.6); }
+.hud-vp-tape-band > i { position: absolute; top: 0; width: 1px; height: 6px; background: #3a2e10; }
+.hud-vp-tape-band > i.is-mid { height: 9px; } .hud-vp-tape-band > i.is-big { height: 13px; width: 1.4px; }
+.hud-vp-tape-band > b { position: absolute; top: 13px; translate: -50% 0; font: 700 9px/1 system-ui, sans-serif; color: #3a2e10; }
+.hud-vp-tape-mark { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: #d33a2c; box-shadow: 0 0 4px rgba(211,58,44,.6); }
+.hud-vp-tape-mark em { position: absolute; bottom: 2px; left: 4px; padding: 0 4px; border-radius: 3px; font-style: normal; font: 800 9px/1.4 system-ui, sans-serif; white-space: nowrap; color: #fff; background: #d33a2c; }
+@media (prefers-reduced-motion: no-preference) { .hud-vp-tape-band { animation: hud-vp-nudge 2.4s ease-in-out infinite; } }
+@keyframes hud-vp-nudge { 0%, 100% { translate: 0 0; } 50% { translate: 3px 0; } }
+.hud-vp-tape-tag { position: relative; justify-self: center; display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 4px 8px; margin-top: 8px; padding: 6px 12px 6px 22px; border-radius: 4px 10px 10px 4px; color: #2e261c;
+  background: linear-gradient(180deg, #f6eedb, #e9dcbd); box-shadow: 0 6px 12px -8px rgba(0,0,0,.7); clip-path: polygon(10px 0, 100% 0, 100% 100%, 10px 100%, 0 50%); }
+.hud-vp-tape-tag .hole { position: absolute; left: 8px; top: 50%; width: 6px; height: 6px; margin-top: -3px; border-radius: 50%; background: rgba(0,0,0,.25); }
+.hud-vp-tape-tag > b { font-size: 1.2em; } .hud-vp-tape-tag > b small { font-size: .62em; opacity: .7; }
+.hud-vp-tape-tag > span { font-size: .78em; font-weight: 700; }
+.hud-vp-tape-tag .is-ok { color: #2f8a56; } .hud-vp-tape-tag .is-low { color: #2f6fa0; } .hud-vp-tape-tag .is-high { color: #a7811c; } .hud-vp-tape-tag .is-over { color: #b5332b; }
+.hud-vp-tape-tag .hud-vp-shift { background: rgba(0,0,0,.06); border-color: rgba(0,0,0,.12); }
+.hud-vp-tape-tag .hud-vp-shift.up { color: #a3601c; } .hud-vp-tape-tag .hud-vp-shift.down { color: #2a7a8a; }
+
+/* --- Конец беременности: луна --- */
+.hud-vp-moon { display: grid; gap: 6px; padding: 10px 12px; border-radius: 12px; color: #ece6f4;
+  background: radial-gradient(120% 90% at 50% 0%, #2a2448, #141026 60%, #0b0916); box-shadow: inset 0 0 0 1px rgba(200,180,230,.2), 0 10px 18px -10px rgba(0,0,0,.7); }
+.hud-vp-moon-sky { width: 100%; max-width: 380px; justify-self: center; height: auto; display: block; overflow: visible; }
+.hud-vp-moon-sky .star { fill: #fff; opacity: .8; }
+.hud-vp-moon-sky .arc { fill: none; stroke: rgba(200,180,230,.25); stroke-width: .8; stroke-dasharray: 2 3; }
+.hud-vp-moon-sky .disc { fill: #2a2540; stroke: rgba(220,210,240,.35); stroke-width: .5; }
+.hud-vp-moon-sky .lit { fill: #d9d2ea; }
+.hud-vp-moon-sky .moon:not(.is-past) .lit { fill: #8f86a8; }
+.hud-vp-moon-sky .is-now .lit { fill: #fff6dc; }
+.hud-vp-moon-sky .halo { fill: none; stroke: rgba(255,240,200,.5); stroke-width: 1.4; }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-vp-moon-sky .star { animation: hud-vp-twinkle 2.6s ease-in-out infinite; animation-delay: var(--d, 0s); }
+  .hud-vp-moon-sky .halo { animation: hud-vp-twinkle 2s ease-in-out infinite; }
+}
+.hud-vp-moon-text { display: grid; gap: 2px; text-align: center; }
+.hud-vp-moon-text .hud-section-title { color: #b8acd2 !important; }
+.hud-vp-moon-text b { font-size: 1.05em; color: #f3ecff; } .hud-vp-moon-text small { font-size: .76em; color: #b8acd2; }
+.hud-vp-moon-marks { list-style: none; margin: 2px 0 0; padding: 0; display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 10px; }
+.hud-vp-moon-marks li { display: grid; justify-items: center; padding: 3px 8px; border-radius: 8px; background: rgba(255,255,255,.05); border: 1px solid rgba(200,180,230,.2); }
+.hud-vp-moon-marks li.is-past { background: rgba(255,240,200,.1); border-color: rgba(255,240,200,.3); }
+.hud-vp-moon-marks b { font-size: .74em; } .hud-vp-moon-marks small { font-size: .66em; color: #b8acd2; }
+.hud-vp-moon .hud-loss-acts .hud-loss-btn { color: #ece6f4; }
+
+/* --- Обещания: цепь --- */
+.hud-vp-chain { display: grid; gap: 8px; }
+.hud-vp-chain-art { overflow-x: auto; scrollbar-width: none; }
+.hud-vp-chain-art svg { height: 58px; width: auto; max-width: 100%; display: block; margin: 0 auto; overflow: visible; }
+.hud-vp-chain .anchor { stroke: #8a8f99; stroke-width: 3; stroke-linecap: round; }
+.hud-vp-chain .link-o { fill: none; stroke: #3c4048; stroke-width: 5; }
+.hud-vp-chain .link-i { fill: none; stroke: #b9c0cc; stroke-width: 2.4; }
+.hud-vp-chain .link text { font: 800 7px system-ui, sans-serif; fill: color-mix(in srgb, currentColor 80%, transparent); text-anchor: middle; }
+.hud-vp-chain .link.is-kept .link-o { stroke: #7a5a18; } .hud-vp-chain .link.is-kept .link-i { stroke: #f0cc78; }
+.hud-vp-chain .link.is-overdue .link-o { stroke: #5a2a16; } .hud-vp-chain .link.is-overdue .link-i { stroke: #c06a3a; stroke-dasharray: 3 1.5; }
+.hud-vp-chain .link.is-broken .link-i { stroke: #6f6a74; } .hud-vp-chain .link.is-broken .link-o { stroke: #2e2a32; }
+.hud-vp-chain .link .gap { stroke: var(--hud-bg-solid, #1b1720); stroke-width: 4; }
+@media (prefers-reduced-motion: no-preference) { .hud-vp-chain .link .link-i { animation: hud-vp-twinkle 2.2s ease-in-out infinite; animation-delay: calc(var(--i) * .25s); } }
+.hud-vp-chain ol { list-style: none; margin: 0; padding: 0; display: grid; gap: 5px; }
+.hud-vp-chain li { display: grid; grid-template-columns: 20px minmax(0, 1fr) auto; gap: 8px; align-items: center; }
+.hud-vp-chain li .n { width: 20px; height: 20px; border-radius: 50%; display: grid; place-items: center; font-size: .72em; border: 2px solid #b9c0cc; }
+.hud-vp-chain li .n { border-color: color-mix(in srgb, #b9c0cc 60%, currentColor); }
+.hud-vp-chain li.is-kept .n { border-color: #e0b452; color: color-mix(in srgb, #e0b452 70%, currentColor); } .hud-vp-chain li.is-overdue .n { border-color: #c06a3a; color: color-mix(in srgb, #e08a5a 75%, currentColor); } .hud-vp-chain li.is-broken .n { border-style: dashed; opacity: .6; }
+.hud-vp-chain li p { margin: 0; font-size: .9em; line-height: 1.35; } .hud-vp-chain li.is-broken p { text-decoration: line-through; opacity: .65; }
+.hud-vp-chain li small { font-size: .74em; color: var(--v-ink-soft); } .hud-vp-chain li small i { font-style: normal; opacity: .6; }
+.hud-vp-chain li em { font-style: normal; font-size: .64em; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; white-space: nowrap; color: color-mix(in srgb, #b9c0cc 50%, currentColor); }
+.hud-vp-chain li.is-kept em { color: color-mix(in srgb, #e0b452 75%, currentColor); } .hud-vp-chain li.is-overdue em { color: #e0625a; } .hud-vp-chain li.is-broken em { color: var(--v-ink-soft); }
+
+/* --- Тем временем: ночной город --- */
+.hud-vp-city { display: grid; gap: 8px; margin-top: 6px; }
+.hud-vp-city-sky { width: 100%; height: 110px; display: block; border-radius: 10px; background: linear-gradient(180deg, #0b1026, #1d1840 70%, #2e2150); box-shadow: inset 0 0 0 1px rgba(160,150,220,.2); }
+.hud-vp-city-sky .moonc { fill: #f3ecd6; filter: drop-shadow(0 0 6px rgba(255,240,200,.7)); }
+.hud-vp-city-sky .star { fill: #fff; opacity: .75; }
+.hud-vp-city-sky .house { fill: #0a0a14; }
+.hud-vp-city-sky .win { fill: #ffd98a; opacity: .55; }
+.hud-vp-city-sky .pwin { fill: #fff0b8; stroke: color-mix(in srgb, var(--v-acc) 70%, #fff); stroke-width: .8; }
+.hud-vp-city-sky .pglow { fill: rgba(255,220,140,.25); }
+.hud-vp-city-sky .person text { font: 900 7px system-ui, sans-serif; fill: #2a1f10; text-anchor: middle; }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-vp-city-sky .win { animation: hud-vp-twinkle 5s steps(2) infinite; animation-delay: var(--d, 0s); }
+  .hud-vp-city-sky .star { animation: hud-vp-twinkle 2.6s ease-in-out infinite; animation-delay: var(--d, 0s); }
+  .hud-vp-city-sky .pglow { animation: hud-vp-twinkle 2.2s ease-in-out infinite; }
+}
+.hud-vp-city-list { display: grid; gap: 8px; }
+.hud-vp-city-item { display: grid; grid-template-columns: 18px 32px minmax(0, 1fr); gap: 8px; align-items: start; }
+.hud-vp-city-item > .n { width: 18px; height: 22px; margin-top: 4px; border-radius: 2px; display: grid; place-items: center; font-size: .72em; color: #2a1f10; background: #fff0b8; box-shadow: 0 0 8px rgba(255,220,140,.5); }
+.hud-vp-city-item > .hud-v-face { width: 32px; height: 32px; background-size: cover; background-position: center; }
+.hud-vp-city-item > .hud-v-face.has-img { color: transparent; text-shadow: none; }
+.hud-vp-city-item .body { min-width: 0; display: grid; gap: 1px; }
+.hud-vp-city-item .body > small { font-size: .74em; color: var(--v-ink-soft); }
+.hud-vp-city-item .body > p { margin: 2px 0 0; font-size: .88em; line-height: 1.4; }
+.hud-vp-city-item .know { display: grid; gap: 1px; margin-top: 3px; font-size: .78em; line-height: 1.35; }
+.hud-vp-city-item .know .is-yes b { color: #5fc98a; } .hud-vp-city-item .know .is-no b { color: #e0625a; } .hud-vp-city-item .know .is-guess b { color: #e7c46a; }
+
+/* --- Кто что знает: пузыри --- */
+.hud-vp-bubbles { display: flex; flex-wrap: wrap; gap: 14px 12px; justify-content: center; align-items: flex-start; }
+.hud-vp-bubble { width: calc(var(--b) + 24px); max-width: 100%; display: grid; justify-items: center; gap: 5px; --lv: color-mix(in srgb, var(--v-acc) 70%, #fff); }
+.hud-vp-bubble.lvl-critical { --lv: #e0625a; } .hud-vp-bubble.lvl-high { --lv: #e39a4f; } .hud-vp-bubble.lvl-low { --lv: #8fb3a0; }
+.hud-vp-bubble .ball { position: relative; width: var(--b); height: var(--b); border-radius: 50%; display: flex; flex-wrap: wrap; align-content: center; justify-content: center; gap: 2px; padding: 10px;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,.28), transparent 35%), radial-gradient(circle at 50% 55%, transparent 55%, color-mix(in srgb, var(--lv) 45%, transparent) 72%, color-mix(in srgb, #8fd0ff 35%, transparent) 86%, transparent 100%);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--lv) 50%, transparent), 0 8px 16px -10px rgba(0,0,0,.7); }
+.hud-vp-bubble .shine { position: absolute; left: 22%; top: 16%; width: 18%; height: 10%; border-radius: 50%; background: rgba(255,255,255,.6); rotate: -30deg; pointer-events: none; }
+.hud-vp-bubble .ball small { font-size: .7em; font-style: italic; opacity: .55; }
+.hud-vp-bubble .ball .hud-sgrid-ring { width: 22px; height: 22px; }
+.hud-vp-bubble > b { font-size: .76em; line-height: 1.3; text-align: center; overflow-wrap: anywhere; }
+.hud-vp-bubble .out { display: flex; flex-wrap: wrap; gap: 2px; justify-content: center; }
+.hud-vp-bubble .out .hud-sgrid-ring { width: 18px; height: 18px; }
+@media (prefers-reduced-motion: no-preference) { .hud-vp-bubble .ball { animation: hud-vp-float 3.4s ease-in-out infinite; animation-delay: calc(var(--i) * .8s); } }
+@keyframes hud-vp-float { 0%, 100% { translate: 0 0; } 50% { translate: 0 -5px; } }
+
 /* --- Узкая карточка (телефон) --- */
 @media (max-width: 600px) {
   .hud-vp-kin { grid-template-columns: minmax(0, 1fr); }
+  .hud-vp-patches, .hud-vp-puzzle { grid-template-columns: minmax(0, 1fr); } .hud-vp-heart, .hud-vp-puzzle-art { max-width: 150px; justify-self: center; }
+  .hud-vp-bubbles { gap: 10px 6px; }
   .hud-vp-kin-bowl { max-width: 150px; justify-self: center; }
   .hud-vp-blind { grid-template-columns: 48px minmax(0, 1fr); } .hud-vp-blind-eye { width: 48px; height: 48px; }
   .hud-vp-sil { grid-template-columns: 58px minmax(0, 1fr); gap: 8px; } .hud-vp-sil-fig { width: 58px; }
@@ -430,6 +631,8 @@
 /* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
 @media (min-width: 601px) { @container hud (max-width: 470px) {
   .hud-vp-kin { grid-template-columns: minmax(0, 1fr); }
+  .hud-vp-patches, .hud-vp-puzzle { grid-template-columns: minmax(0, 1fr); } .hud-vp-heart, .hud-vp-puzzle-art { max-width: 150px; justify-self: center; }
+  .hud-vp-bubbles { gap: 10px 6px; }
   .hud-vp-kin-bowl { max-width: 150px; justify-self: center; }
   .hud-vp-blind { grid-template-columns: 48px minmax(0, 1fr); } .hud-vp-blind-eye { width: 48px; height: 48px; }
   .hud-vp-sil { grid-template-columns: 58px minmax(0, 1fr); gap: 8px; } .hud-vp-sil-fig { width: 58px; }
@@ -443,6 +646,8 @@
 /* cq ↑ */
 @container hud (max-width: 300px) {
   .hud-vp-kin { grid-template-columns: minmax(0, 1fr); }
+  .hud-vp-patches, .hud-vp-puzzle { grid-template-columns: minmax(0, 1fr); } .hud-vp-heart, .hud-vp-puzzle-art { max-width: 150px; justify-self: center; }
+  .hud-vp-bubbles { gap: 10px 6px; }
   .hud-vp-kin-bowl { max-width: 150px; justify-self: center; }
   .hud-vp-blind { grid-template-columns: 48px minmax(0, 1fr); } .hud-vp-blind-eye { width: 48px; height: 48px; }
   .hud-vp-sil { grid-template-columns: 58px minmax(0, 1fr); gap: 8px; } .hud-vp-sil-fig { width: 58px; }
@@ -453,3 +658,66 @@
   .hud-vp-doors { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 8px; } .hud-vp-door-frame { min-height: 92px; padding-top: 18px; border-width: 4px; } .hud-vp-door-in { min-height: 50px; } .hud-vp-door-face .hud-sgrid-ring { width: 21px; height: 21px; } .hud-vp-door-out .hud-sgrid-ring { width: 17px; height: 17px; }
   .hud-vp-badges { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 8px; } .hud-vp-badge-photo .hud-sgrid-ring { width: 32px; height: 32px; }
 }
+
+/* === ТЁМНАЯ БУМАГА НА ТЁМНЫХ ТЕМАХ === */
+/* На тёмных темах бумага, картон и циферблаты — тёмные, с оттенком акцента;
+   на светлых остаются светлыми (правила выше). */
+/* Пригласительная */
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-engr { color: #efe2c8; background: radial-gradient(120% 90% at 50% 0%, color-mix(in srgb, var(--v-acc) 10%, #2c2429), #19141a); box-shadow: 0 0 0 1px #8a7440, inset 0 0 0 5px rgba(0,0,0,.25), inset 0 0 0 6px #b08a3a, 0 10px 20px -10px rgba(0,0,0,.8); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-engr-who, :where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-engr-what { color: #f3e6cc; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-engr-ask { color: #b9a888; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-engr-when { color: #d8c8a8; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-engr .hud-vp-rsvp { color: #f0dfba; border-color: #b08a3a; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-engr .hud-vp-rsvp.is-yes { background: #b08a3a; color: #19141a; }
+/* Сургуч */
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-seal-env .back { fill: #3a2e24; } :where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-seal-env .bottom { fill: #45362a; } :where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-seal-env .flap { fill: #503f2f; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-seal-env :is(.side, .flap-edge) { stroke: rgba(255,230,190,.18); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-seal-letter { color: #eadcc4; background: repeating-linear-gradient(180deg, transparent 0 21px, rgba(255,230,190,.07) 21px 22px), linear-gradient(180deg, #2b231d, #211a15); box-shadow: inset 0 8px 10px -8px rgba(0,0,0,.6); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-seal-letter small { color: #b9a88c; } :where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-seal-when { color: #c8b8a0; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-seal .hud-vp-rsvp { color: #f0b8a8; border-color: #c0473f; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-seal .hud-vp-rsvp.is-yes { color: #fbe6dc; background: #8e1a1a; }
+/* Самолётик */
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-plane-note { color: #e6e9f0; background: linear-gradient(135deg, transparent 49.6%, rgba(255,255,255,.06) 50%, transparent 50.4%), linear-gradient(45deg, transparent 49.6%, rgba(255,255,255,.05) 50%, transparent 50.4%), linear-gradient(90deg, transparent 49.7%, rgba(255,255,255,.05) 50%, transparent 50.3%), linear-gradient(180deg, #262a33, #1d2028); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-plane-note small, :where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-plane-when { color: #a9b0bd; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-plane .hud-vp-rsvp { color: #a9c8ef; border-color: #6f9fd8; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-plane .hud-vp-rsvp.is-yes { color: #fff; background: #4f7fb8; }
+/* Под грифом */
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-redact { color: #e8e0d0; background: repeating-linear-gradient(180deg, transparent 0 19px, rgba(160,190,230,.06) 19px 20px), #25211d; box-shadow: 0 0 0 1px rgba(255,255,255,.06), 0 10px 18px -10px rgba(0,0,0,.8), 6px 6px 0 -2px #5a4a28, 6px 6px 0 -1px rgba(0,0,0,.4); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-redact-tab { background: #5a4a28; color: #f0e2b8; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-redact-head { color: #ec7a70; border-bottom-color: rgba(255,255,255,.12); } :where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-redact-head em { border-color: #ec7a70; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-redact-hint, :where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-redact li small { color: #9a9182; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-redact .hud-vp-redact-bar { background: #050505 !important; box-shadow: 0 0 0 1px rgba(255,255,255,.07); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-redact-photo { background: #e8e0d0; }
+/* Гербарий */
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-herb-sheet { color: #e9e0cf; background: radial-gradient(90% 70% at 30% 20%, rgba(255,255,255,.05), transparent 60%), repeating-linear-gradient(17deg, rgba(255,230,190,.035) 0 2px, transparent 2px 5px), #27231d; box-shadow: 0 10px 18px -10px rgba(0,0,0,.8), inset 0 0 26px rgba(0,0,0,.35); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-herb-label { background: rgba(255,255,255,.04); border-color: rgba(255,230,190,.2); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-herb-label .hud-section-title { color: #b8a98f !important; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-herb-label b { color: #dcc6ea; } :where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-herb-label small { color: #b0a48e; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-herb-tape { background: color-mix(in srgb, #8a76a0 60%, transparent); }
+/* Бирки: узелки и сантиметр */
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) :is(.hud-vp-quipu-tag, .hud-vp-tape-tag) { color: #eadfcc; background: linear-gradient(180deg, #2e2822, #231e19); box-shadow: 0 6px 12px -8px rgba(0,0,0,.8), inset 0 0 0 1px rgba(255,230,190,.1); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) :is(.hud-vp-quipu-tag, .hud-vp-tape-tag) small { color: #b5a78f; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) :is(.hud-vp-quipu-tag, .hud-vp-tape-tag) .hole { background: rgba(0,0,0,.6); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-quipu-row.is-broken .hud-vp-quipu-tag p { text-decoration-color: rgba(255,255,255,.4); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-tape-tag .is-ok { color: #5fc98a; } :where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-tape-tag .is-low { color: #6fb3e0; } :where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-tape-tag .is-high { color: #e3b24f; } :where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-tape-tag .is-over { color: #e0625a; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-tape-tag .hud-vp-shift { background: rgba(255,255,255,.06); border-color: rgba(255,255,255,.12); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-tape-tag .hud-vp-shift.up { color: #e3a04f; } :where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-tape-tag .hud-vp-shift.down { color: #5fb8c9; }
+/* Глава романа */
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-novel { color: #e9dfcc; background: linear-gradient(90deg, rgba(0,0,0,.4), transparent 14px), radial-gradient(120% 90% at 70% 10%, #2c251e, #221c16 70%, #1b1612); box-shadow: 0 10px 18px -10px rgba(0,0,0,.8), inset 0 0 30px rgba(0,0,0,.35), 3px 3px 0 -1px #2e2721, 5px 5px 0 -2px #262019; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-novel-head { color: #d4b47a; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-novel-par p > i { color: #c8b89c; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-novel-margin { color: #e8907e; border-left-color: rgba(232,144,126,.5); } :where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-novel-margin b { color: #f2a896; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-novel-folio { color: #9a8a70; }
+/* Допуск */
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-badge { color: #ece8f2; background: linear-gradient(180deg, color-mix(in srgb, var(--v-acc) 8%, #2c2932), #1d1b22); box-shadow: 0 10px 18px -10px rgba(0,0,0,.8), inset 0 0 0 1px rgba(255,255,255,.08); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-badge-org { color: #9a97a3; } :where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-badge-count, :where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-badge > p { color: #a9a6b2; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-badge-photo { background: #3a3742; box-shadow: 0 0 0 1px rgba(255,255,255,.12); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-badge-clip { background: rgba(255,255,255,.2); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-badge-strip i { background: rgba(255,255,255,.12); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-badge li.is-knows b { color: #5fc98a; } :where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-badge li.is-suspects b { color: #e7c46a; } :where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-badge li.is-wrong b { color: #e0625a; }
+/* Напольные весы: тёмный циферблат со светлыми делениями */
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-scale-dial { background: radial-gradient(70% 120% at 50% 100%, #2b2932, #17161b); }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-scale-dial .zone { stroke: #4a4652; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-scale-dial .tick { stroke: #d8d2c4; } :where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-scale-dial text { fill: #e8e2d4; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-scale-dial .hub-cap { fill: #5a5664; }
+:where(html:not(.hud-kinds-light, .hud-scheme-light, .hud-theme-kawaii, .hud-theme-medieval, .hud-theme-web1, .hud-theme-cottage, .hud-theme-solarpunk, .hud-theme-japan, .hud-theme-egypt, .hud-theme-western, .hud-theme-pirate, .hud-theme-teaparty)) .hud-vp-scale-glare { background: linear-gradient(125deg, rgba(255,255,255,.18) 0 18%, transparent 30% 100%); }

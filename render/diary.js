@@ -6,10 +6,12 @@
 // index.js импортирует отсюда только buildDiaryHTML и hudHasMeaningfulDiary —
 // остальное экспортируется для тестов и внутренних нужд домена.
 
-import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки } from '../utils.js?v=23.89.11';
-import { settings } from '../settings.js?v=23.89.11';
-import { ико } from './view-icons.js?v=23.89.11';
-import { английский } from '../i18n.js?v=23.89.11';
+import { escapeHtml, hudHasMeaningfulValue, hudHashSeed, имяБезПриставки } from '../utils.js?v=23.89.12';
+import { settings } from '../settings.js?v=23.89.12';
+import { ико } from './view-icons.js?v=23.89.12';
+import { английский } from '../i18n.js?v=23.89.12';
+import { видБлока } from './views.js?v=23.89.12';
+import { видДневника, видДневникаТела } from './views-diary.js?v=23.89.12';
 
 // Дневник: словарь эмоциональных синонимов. Раньше всё сводилось к
 // четырём темам (sad / angry / panic / neutral) — «скука», «презрение»,
@@ -346,12 +348,18 @@ function настроениеПоРусски(сырое, тема) {
 // Русское — как написано («хищный азарт», «тоска» на листе грусти).
 // Английское — в русском интерфейсе переводом слова, в английском — как есть.
 // Без настроения штампа нет.
-export function штампНастроения(mood, key) {
+/** Слово настроения для экрана: русское как есть, английское — переводом. Нет — ''. */
+export function словоНастроения(mood, key) {
   const тема = ТЕМЫ_ДНЕВНИКА[key];
   const сырое = String(mood ?? '').trim();
   if (!тема || !сырое || /^(empty|none|neutral|нейтрально)$/i.test(сырое)) return '';
-  const слово = /[а-яё]/i.test(сырое) ? сырое.replace(/_/g, ' ').toLowerCase()
+  return /[а-яё]/i.test(сырое) ? сырое.replace(/_/g, ' ').toLowerCase()
     : английский() ? сырое.replace(/_/g, ' ').toLowerCase() : настроениеПоРусски(сырое, тема);
+}
+export function штампНастроения(mood, key) {
+  const тема = ТЕМЫ_ДНЕВНИКА[key];
+  const слово = словоНастроения(mood, key);
+  if (!слово) return '';
   const коротко = слово.length > 28 ? слово.slice(0, 27) + '…' : слово;
   return `<span class="hud-diary-stamp" title="Настроение: ${escapeHtml(слово)} · лист «${тема.имя}»">${ико(тема.значок, 'hud-diary-stamp-ico')}<span>${escapeHtml(коротко)}</span></span>`;
 }
@@ -362,11 +370,32 @@ const С_ЧАСТИЦАМИ = new Set(['love', 'lust', 'cozy', 'disgust', 'joy',
 const ЧАСТИЦЫ = '<i class="hud-dp"></i>'.repeat(6);
 const живойСлой = (key) => key === 'neutral' ? '' : `<span class="hud-diary-fx" aria-hidden="true">${С_ЧАСТИЦАМИ.has(key) ? ЧАСТИЦЫ : ''}</span>`;
 
+// Запись дневника для видов (render/views-diary.js): те же поля, что у листа.
+const пустоеПоле = (v) => !v || /^(none|empty)$/i.test(String(v).trim());
+export function записьДляВида(entry) {
+  if (typeof entry === 'string') {
+    const parts = entry.split('|'); let time = parts[0].trim(); let text = parts.length > 1 ? parts.slice(1).join('|').trim() : '';
+    if (!text) { text = time; time = 'Скрытая запись'; }
+    return { автор: '', время: time, текст: renderDiaryText(text), оНей: '', ключ: 'neutral', слово: '', значок: 'pause' };
+  }
+  const e = entry || {};
+  const ключ = normalizeDiaryMood(e.mood || e.emotion || '');
+  return {
+    автор: пустоеПоле(e.author) ? '' : String(e.author), время: e.time || 'Скрытая запись', текст: renderDiaryText(e.text || ''),
+    оНей: пустоеПоле(e.aboutUser) ? '' : renderDiaryText(e.aboutUser), ключ, слово: словоНастроения(e.mood || e.emotion || '', ключ),
+    значок: (ТЕМЫ_ДНЕВНИКА[ключ] || {}).значок || 'heart',
+  };
+}
+
 export function buildDiaryHTML(diaryData, uid, isChecked) {
   let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-diary-container">`;
   if (!diaryData || diaryData.length === 0) {
     return html + `<div class="hud-diary-empty">📖 Записей дневника пока нет.</div></div></div>`;
   }
+  // Свой вид дневника (Кастомизация → Вид блоков); «Тетрадь» — лист ниже.
+  const вид = видБлока('diaryView');
+  const свой = вид && вид !== 'classic' ? видДневника(diaryData.map(записьДляВида), вид) : '';
+  if (свой) return html.replace('hud-diary-container', 'hud-diary-container is-alt') + свой + `</div></div>`;
   diaryData.forEach(entry => {
     const seed = typeof entry === 'object' && entry !== null ? `${entry.author || ''}|${entry.time || ''}|${entry.text || ''}` : String(entry || '');
     const moodKey = typeof entry === 'string' ? 'neutral' : normalizeDiaryMood(entry.mood || entry.emotion || '');
@@ -457,6 +486,18 @@ export function buildBodyDiaryHTML(items, uid, isChecked, накалАвтора
   let html = `<div class="hud-tab-content ${isChecked ? "active" : ""}" id="content-${uid}"><div class="hud-diary-container hud-body-diary">`;
   if (!Array.isArray(items) || !items.length) {
     return html + `<div class="hud-diary-empty">Записей пока нет.</div></div></div>`;
+  }
+  // Свой вид (Кастомизация → Вид блоков): накал записи — как у «Почерка тела».
+  const вид = видБлока('bodyDiaryView');
+  if (вид && вид !== 'classic') {
+    const записи = items.map(entry => {
+      const e = (entry && typeof entry === 'object') ? entry : { text: String(entry || '') };
+      const author = пустоеПоле(e.author) ? '' : e.author, mood = пустоеПоле(e.mood) ? '' : e.mood;
+      const н = typeof накалАвтора === 'function' ? (накалАвтора(author) || {}) : {};
+      return { автор: author, время: пустоеПоле(e.time) ? '' : e.time, текст: renderDiaryText(e.text || ''), настроение: mood, накал: почеркЗаписи({ ...н, mood, text: e.text || '' }) };
+    });
+    const свой = видДневникаТела(записи, вид);
+    if (свой) return html.replace('hud-body-diary', 'hud-body-diary is-alt') + свой + `</div></div>`;
   }
   items.forEach(entry => {
     const e = (entry && typeof entry === "object") ? entry : { text: String(entry || "") };
