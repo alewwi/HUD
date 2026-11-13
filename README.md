@@ -687,6 +687,15 @@ node tests/tools/docs-shots.mjs [--lang en] [--era medieval] # снимки дл
 
 ---
 
+## Связь
+
+Вопросы, ошибки, идеи — пишите:
+
+- **Telegram:** [t.me/alewwiHUD](https://t.me/alewwiHUD)
+- **Discord:** `alewwi`
+
+---
+
 ## Лицензия
 
 Код TavernOS HUD выходит под лицензией [GNU AGPL-3.0](LICENSE): его можно копировать и менять, но изменённые версии должны оставаться открытыми под этой же лицензией. Картинки из `img/` и снимки из `docs/screens/` под неё не входят, часть из них принадлежит другим авторам. Подробности в [NOTICE.md](NOTICE.md).

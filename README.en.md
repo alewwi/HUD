@@ -688,6 +688,15 @@ Other languages go through English: translators fill in a spreadsheet of English
 
 ---
 
+## Contact
+
+Questions, bugs, ideas — get in touch:
+
+- **Telegram:** [t.me/alewwiHUD](https://t.me/alewwiHUD)
+- **Discord:** `alewwi`
+
+---
+
 ## License
 
 The TavernOS HUD code is released under [GNU AGPL-3.0](LICENSE): you can copy and change it, but changed versions must stay open under the same license. Images in `img/` and screenshots in `docs/screens/` are not covered, and some of them belong to other authors. See [NOTICE.md](NOTICE.md).
