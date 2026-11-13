@@ -7,7 +7,7 @@
 // место прежних, а всё остальное в блоке остаётся как было, до символа.
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { hudБлоки } from './hud-block.js?v=23.89.20';
+import { hudБлоки } from './hud-block.js?v=23.89.21';
 
 // Код раздела → имена, под которыми модель могла его написать.
 export const РАЗДЕЛЫ_ТЕЛЕФОНА = { cm: ['cm', 'chatsMap', 'chats', 'Переписки'], phn: ['phn', 'phone', 'Телефон'] };

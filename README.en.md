@@ -597,8 +597,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.20**:
+The latest version is **23.89.21**:
 
+- The autumn leaf gust shows only in windy weather.
 - The moving weather scene is lighter: daytime stars and unseen fireflies no longer animate, tree lights blink in groups.
 - No rainbow at night, and the snowman no longer sinks in the drifts on a tall card.
 - Weather scenes polished: bare trees branch, spruces come in tiers, a birdhouse with a chick, a woodpecker on a twig; spring gets fields, a farmstead and a windmill in the distance; medieval winter gets log huts, a castle, a snowman in a pot and a wooden sledge.

@@ -26,9 +26,9 @@
 // английское: персонаж по имени Leo не должен стать знаком зодиака.
 // Текст для модели — всегда английский: тМодели().
 
-import { settings } from './settings.js?v=23.89.20';
-import { СЛОВАРЬ_EN, ШАБЛОНЫ_EN, ЗОДИАК_EN } from './i18n-en.js?v=23.89.20';
-import { ЯЗЫКИ } from './translations/languages.js?v=23.89.20';
+import { settings } from './settings.js?v=23.89.21';
+import { СЛОВАРЬ_EN, ШАБЛОНЫ_EN, ЗОДИАК_EN } from './i18n-en.js?v=23.89.21';
+import { ЯЗЫКИ } from './translations/languages.js?v=23.89.21';
 
 /** Выбранный язык интерфейса: 'ru', 'en' или код из translations/ ('zh', 'es' …). */
 // Свой перевод, загруженный файлом в настройках (код 'file'): переводчик
@@ -91,7 +91,7 @@ export const файлПеревода = () => { const ф = прочитатьФ�
  */
 export async function загрузитьФайлПеревода(текст) {
   const [{ собратьЯзык }, { default: мета }] = await Promise.all([
-    import('./translations/table.js?v=23.89.20'), import('./translations/meta.js?v=23.89.20')]);
+    import('./translations/table.js?v=23.89.21'), import('./translations/meta.js?v=23.89.21')]);
   const итог = собратьЯзык(текст, мета, 'file');
   if (итог.ошибка) return { ошибка: итог.ошибка };
   const язык = { ...итог.язык, loaded: Date.now() };

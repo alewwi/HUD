@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.21 — 2026-11-13
+
+### Changed
+- **The autumn gust of maple leaves** crosses the scene only in windy weather, including wind with rain or a storm. On calm days it is gone, and its seven leaf animations stop.
+
 ## 23.89.20 — 2026-11-13
 
 The moving weather scene puts no more load on the browser than before the new drawings.

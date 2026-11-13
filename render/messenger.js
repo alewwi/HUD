@@ -6,14 +6,14 @@
 // Вынесено из phone.js: тот разросся до девятисот строк и держал в себе
 // разом мессенджер, кошелёк, календарь и сборку самого аппарата.
 
-import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.89.20';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.20';
-import { G_ICONS } from './icons.js?v=23.89.20';
-import { собратьЛенту } from './msg-feed.js?v=23.89.20';
-import { avaFace, msgTimeOf, collectCounterparts, контактСНастоящимИменем, меткаЛожногоИмени, ложноеИмяHTML } from './phone-common.js?v=23.89.20';
-import { безШапокСообщения, заКадромHTML, начинаетсяСТега } from './msg-parts.js?v=23.89.20';
-import { ключФонаЧата, обновитьФоныЧатов } from './phone-settings.js?v=23.89.20';
-import { namesLikelySame } from '../names.js?v=23.89.20';
+import { escapeHtml, defeatWI, hudHashSeed, sanitizeText } from '../utils.js?v=23.89.21';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.21';
+import { G_ICONS } from './icons.js?v=23.89.21';
+import { собратьЛенту } from './msg-feed.js?v=23.89.21';
+import { avaFace, msgTimeOf, collectCounterparts, контактСНастоящимИменем, меткаЛожногоИмени, ложноеИмяHTML } from './phone-common.js?v=23.89.21';
+import { безШапокСообщения, заКадромHTML, начинаетсяСТега } from './msg-parts.js?v=23.89.21';
+import { ключФонаЧата, обновитьФоныЧатов } from './phone-settings.js?v=23.89.21';
+import { namesLikelySame } from '../names.js?v=23.89.21';
 
 export function buildMessengerHTML(chatsMap, uid, mainCharName, sceneDate, контакты = null) {
   обновитьФоныЧатов();

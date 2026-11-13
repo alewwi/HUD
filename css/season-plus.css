@@ -71,6 +71,9 @@
 .hud-sp-lantern .glass { fill: rgba(255, 220, 150, .4); stroke: #2a2420; stroke-width: .6; }
 .hud-sp-lantern .flame { fill: #ffb347; opacity: calc(.4 + var(--scene-night-strength, 0) * .6); }
 .season-autumn .hud-sp-gust { left: 0; right: 0; top: 30%; height: 20%; z-index: 7; }
+/* Порыв с кленовыми листьями — только когда ветрено: в тихую погоду листьям
+   через сцену лететь не с чего, а семь вращений шли бы зря. */
+.season-autumn:not(:is(.weather-wind, .weather-windy, .weather-windy-strong)) .hud-sp-gust { display: none; }
 .hud-sp-gust .sp-leaf { stroke-width: .5; }
 .hud-sp-gust .sp-leaf.c1 { fill: #d9622b; stroke: #9a3a14; } .hud-sp-gust .sp-leaf.c2 { fill: #e7a12e; stroke: #a86a14; }
 .hud-sp-gust .sp-leaf.c3 { fill: #b8352a; stroke: #7a1e16; } .hud-sp-gust .sp-leaf.c4 { fill: #c9a23a; stroke: #8a6a1a; }
