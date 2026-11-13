@@ -740,6 +740,7 @@
 .hud-xmas-tree.is-svg .xs-frost { fill: rgba(242, 247, 252, .92); }
 .hud-xmas-tree.is-svg .xs-garland { fill: none; stroke: #e8c862; stroke-width: .5; opacity: .85; }
 .hud-xmas-tree.is-svg .lt { opacity: calc(.55 + var(--scene-night-strength, 0) * .45); animation: hud-xs-blink 3.4s ease-in-out infinite; }
+.hud-xmas-tree.is-svg .lt circle { fill: inherit; }
 .hud-xmas-tree.is-svg .l1 { fill: #fff3c4; } .hud-xmas-tree.is-svg .l2 { fill: #ffc9c9; animation-delay: .85s; }
 .hud-xmas-tree.is-svg .l3 { fill: #bfe9ff; animation-delay: 1.7s; } .hud-xmas-tree.is-svg .l4 { fill: #ffd7a0; animation-delay: 2.55s; }
 @keyframes hud-xs-blink { 0%, 100% { opacity: calc(.55 + var(--scene-night-strength, 0) * .45); } 50% { opacity: .3; } }
@@ -1022,3 +1023,15 @@
   .season-winter .hud-snowdrift.sd-mid2 { height: min(7.6%, 17px); }
 } }
 /* cq ↑ */
+
+/* =========================================================================
+   ПРОИЗВОДИТЕЛЬНОСТЬ: невидимые слои не анимируются
+   Звёзды днём (класс stars-off ставит index.js при силе звёзд ~0) и
+   светлячки вне летних вечеров и ночей были прозрачными, но их мерцание и
+   полёт (у светлячков — с тенью, то есть с перерисовкой) шли весь кадр, пока
+   сцена в движении. Выключаем слой целиком, когда его не видно.
+   ========================================================================= */
+.hud-scene-widget.stars-off > .hud-fx-stars { display: none; }
+.hud-scene-widget:not(:is(.phase-evening, .phase-night, .phase-deep-night)) > .hud-fx-fireflies,
+.hud-scene-widget:not(:is(.season-summer, .season-spring.month-5.month-late)) > .hud-fx-fireflies,
+.hud-scene-widget:is(.weather-storm, .weather-rain, .weather-intensity-high) > .hud-fx-fireflies { display: none; }

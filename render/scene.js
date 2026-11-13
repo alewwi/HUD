@@ -3,9 +3,9 @@
 // Домен «Сцена»: SVG молнии и сезонные декорации (снег, дождь, роса, листья).
 // Чистые генераторы разметки — модуль ни от чего не зависит.
 
-import { деталиСезона, снеговикSvg, замокSvg, кострSvg, цветокSvg, ёжSvg, нораSvg } from './scene-plus.js?v=23.89.19';
-export { огниСезона } from './scene-plus.js?v=23.89.19';
-import { голоеДеревоSvg, ёлкаSvg, скворечникSvg, скворецSvg, дятелSvg, тыкваФонарьSvg, избаSvg, замокДальнийSvg, снеговикСтаринныйSvg, чайкаSvg, весенниеПоляSvg, хуторSvg, мельницаSvg } from './scene-art.js?v=23.89.19';
+import { деталиСезона, снеговикSvg, замокSvg, кострSvg, цветокSvg, ёжSvg, нораSvg } from './scene-plus.js?v=23.89.20';
+export { огниСезона } from './scene-plus.js?v=23.89.20';
+import { голоеДеревоSvg, ёлкаSvg, скворечникSvg, скворецSvg, дятелSvg, тыкваФонарьSvg, избаSvg, замокДальнийSvg, снеговикСтаринныйSvg, чайкаSvg, весенниеПоляSvg, хуторSvg, мельницаSvg } from './scene-art.js?v=23.89.20';
 
 export function buildLightningSvg() {
   return `<svg viewBox="0 0 140 140" preserveAspectRatio="none" class="hud-bolt-svg">
@@ -136,14 +136,18 @@ function сценаСезона(seasonClass, extra) {
     const скворечник = `<span class="hud-birdhouse is-svg${март ? ' is-empty' : ''}">${скворечникSvg()}${скворец}</span>`;
     // Дятел сидит на сучке у ствола крайнего правого дерева и стучит по коре.
     const дятел = `<span class="hud-woodpecker is-svg">${дятелSvg()}</span>`;
-    let backTrees = '';
+    let backTrees = '', вЛуже = '';
     for (let i = 1; i <= 4; i++) {
       // Вместо гнезда, висевшего в кроне (в марте, без листвы, — просто в
       // воздухе), — дупло в стволе. В апреле-мае из него выглядывают птенцы.
       const nest = i === 2
         ? `<span class="hud-tree-hollow">${март ? '' : '<i class="hud-hollow-chick c1"></i><i class="hud-hollow-chick c2"></i>'}</span>`
         : '';
-      backTrees += `<span class="hud-bg-tree hud-bg-tree-spring bt${i}"><span class="hud-bg-tree-trunk"></span><span class="hud-bg-tree-branch br1"></span><span class="hud-bg-tree-branch br2"></span><span class="hud-bg-tree-branch br3"></span><span class="hud-bg-tree-canopy"></span>${nest}${i === 3 ? скворечник : ''}${i === 4 ? дятел : ''}</span>`;
+      const дерево = `<span class="hud-bg-tree-trunk"></span><span class="hud-bg-tree-branch br1"></span><span class="hud-bg-tree-branch br2"></span><span class="hud-bg-tree-branch br3"></span><span class="hud-bg-tree-canopy"></span>`;
+      backTrees += `<span class="hud-bg-tree hud-bg-tree-spring bt${i}">${дерево}${nest}${i === 3 ? скворечник : ''}${i === 4 ? дятел : ''}</span>`;
+      // В луже отражаются только стволы и кроны: скворечник, птицы и дупло
+      // там всё равно спрятаны, а строились бы зря.
+      вЛуже += `<span class="hud-bg-tree hud-bg-tree-spring bt${i}">${дерево}</span>`;
     }
     // То же для весны: горизонт и трава, иначе луг читается пустым холмом.
     const tufts = Array.from({ length: 6 }, (_, i) => `<span class="hud-grass-tuft gt${i + 1}"></span>`).join('');
@@ -168,7 +172,7 @@ function сценаСезона(seasonClass, extra) {
     // Дальний план: поля лоскутами на холмах, хутор с садом и мельница —
     // весна была пустым холмом в сравнении с другими сезонами.
     const даль = `<div class="hud-sp-fields" aria-hidden="true">${весенниеПоляSvg()}</div><div class="hud-sp-farm" aria-hidden="true">${хуторSvg()}</div><div class="hud-sp-mill" aria-hidden="true">${мельницаSvg()}</div>`;
-    return `<div class="hud-far-hills"></div>${даль}<div class="hud-far-treeline"></div><div class="hud-meadow"></div><div class="hud-spring-puddle">${отражение(backTrees, 'puddle')}</div>${мартовское}<div class="hud-frog"><span class="hud-frog-sac"></span><span class="hud-frog-body"></span><span class="hud-frog-eye e1"></span><span class="hud-frog-eye e2"></span><span class="hud-frog-leg"></span><i class="hud-frog-call c1"></i><i class="hud-frog-call c2"></i></div><div class="hud-blossom-shrub"><span class="hud-shrub-body"></span><span class="hud-shrub-bloom b1"></span><span class="hud-shrub-bloom b2"></span><span class="hud-shrub-bloom b3"></span></div>${майское}<div class="hud-grass">${tufts}${puffs}<span class="hud-snail"></span><span class="hud-sprout sp1"></span><span class="hud-sprout sp2"></span></div><div class="hud-bg-trees">${backTrees}</div>${клин}<div class="hud-flowerbed">${flowers}</div>${лейка}${pollen}${dew}${лепестки}${пух}<div class="hud-butterfly"><span class="hud-butterfly-wing w-left"></span><span class="hud-butterfly-wing w-right"></span></div><div class="hud-bee bee1"><span class="hud-bee-wing"></span></div><div class="hud-bee bee2"><span class="hud-bee-wing"></span></div>`;
+    return `<div class="hud-far-hills"></div>${даль}<div class="hud-far-treeline"></div><div class="hud-meadow"></div><div class="hud-spring-puddle">${отражение(вЛуже, 'puddle')}</div>${мартовское}<div class="hud-frog"><span class="hud-frog-sac"></span><span class="hud-frog-body"></span><span class="hud-frog-eye e1"></span><span class="hud-frog-eye e2"></span><span class="hud-frog-leg"></span><i class="hud-frog-call c1"></i><i class="hud-frog-call c2"></i></div><div class="hud-blossom-shrub"><span class="hud-shrub-body"></span><span class="hud-shrub-bloom b1"></span><span class="hud-shrub-bloom b2"></span><span class="hud-shrub-bloom b3"></span></div>${майское}<div class="hud-grass">${tufts}${puffs}<span class="hud-snail"></span><span class="hud-sprout sp1"></span><span class="hud-sprout sp2"></span></div><div class="hud-bg-trees">${backTrees}</div>${клин}<div class="hud-flowerbed">${flowers}</div>${лейка}${pollen}${dew}${лепестки}${пух}<div class="hud-butterfly"><span class="hud-butterfly-wing w-left"></span><span class="hud-butterfly-wing w-right"></span></div><div class="hud-bee bee1"><span class="hud-bee-wing"></span></div><div class="hud-bee bee2"><span class="hud-bee-wing"></span></div>`;
   }
   if (seasonClass === 'season-summer') {
     // Стрекоза — вид сверху, как её узнают: две пары прозрачных крыльев в

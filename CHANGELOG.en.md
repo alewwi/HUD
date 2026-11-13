@@ -4,6 +4,16 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.20 — 2026-11-13
+
+The moving weather scene puts no more load on the browser than before the new drawings.
+
+### Changed
+- **Stars no longer twinkle for nothing in daylight.** While they can't be seen, the star layer is switched off entirely.
+- **Fireflies** run only on quiet summer evenings and nights, when they are visible; otherwise their layer is off.
+- **New Year tree lights** of one colour blink together: four animations instead of twenty-two.
+- **The spring puddle reflection** builds only trunks and crowns, without the hidden birdhouse and birds.
+
 ## 23.89.19 — 2026-11-13
 
 Two weather scene fixes after a live check of every season, weather and time of day.

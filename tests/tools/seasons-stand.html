@@ -79,7 +79,7 @@ function виджет({ сезон, месяц, число, минуты, пог
   const экстра = { era: средневековье ? 'medieval' : '', dew: ф === 'phase-morning' && /clear|cloudy/.test(погода) && /spring|summer/.test(сезон), deepFreeze: мороз, month: месяц, day: число,
     ...(праздники ? праздникиСцены({ число, месяц, год: 2024, ночь }) : {}), newYear: праздники && ((месяц === 12 && число >= 28) || (месяц === 1 && число <= 13)) };
   const чч = String(Math.floor(минуты / 60)).padStart(2, '0'), мм = String(минуты % 60).padStart(2, '0');
-  const классы = ['hud-scene-widget', ф, погода, сила, мороз ? 'temp-cold temp-freezing' : '', сезон, мокро ? 'scene-wet' : '', `month-${месяц}${число >= 20 ? ' month-late' : ''}`, средневековье ? 'era-medieval' : '', анимация ? 'fx-active' : ''].filter(Boolean).join(' ');
+  const классы = ['hud-scene-widget', ф, погода, сила, мороз ? 'temp-cold temp-freezing' : '', сезон, мокро ? 'scene-wet' : '', `month-${месяц}${число >= 20 ? ' month-late' : ''}`, средневековье ? 'era-medieval' : '', свет.звёзды < .01 ? 'stars-off' : '', анимация ? 'fx-active' : ''].filter(Boolean).join(' ');
   const ff = Array.from({ length: 6 }, (_, i) => `<span class="hud-firefly ff${i + 1}"></span>`).join('');
   return `<div><h3>${подпись} · ${чч}:${мм} · ${ф.replace('phase-', '')}</h3><div class="mes_text"><div class="hud-os-card"><input type="checkbox" class="hud-toggle-input" checked hidden><div class="hud-os-wrapper"><i class="hud-scene-c" aria-hidden="true"></i>
     <div class="${классы}"${сцена}>

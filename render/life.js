@@ -18,18 +18,18 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { весЧата, нормаКалорий, историяВеса, сдвигВеса, срокСдвигаВеса, снятыеИзБыта } from '../turn-notes.js?v=23.89.19';
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.19';
-import { settings } from '../settings.js?v=23.89.19';
-import { разобратьХод } from './carryover.js?v=23.89.19';
-import { моментСцены } from './intimacy.js?v=23.89.19';
-import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.89.19';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.19';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.19';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.89.19';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.19';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.89.19';
-import { английский } from '../i18n.js?v=23.89.19';
+import { весЧата, нормаКалорий, историяВеса, сдвигВеса, срокСдвигаВеса, снятыеИзБыта } from '../turn-notes.js?v=23.89.20';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.20';
+import { settings } from '../settings.js?v=23.89.20';
+import { разобратьХод } from './carryover.js?v=23.89.20';
+import { моментСцены } from './intimacy.js?v=23.89.20';
+import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.89.20';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.20';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.20';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.89.20';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.20';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.89.20';
+import { английский } from '../i18n.js?v=23.89.20';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;

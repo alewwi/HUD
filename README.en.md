@@ -597,8 +597,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.19**:
+The latest version is **23.89.20**:
 
+- The moving weather scene is lighter: daytime stars and unseen fireflies no longer animate, tree lights blink in groups.
 - No rainbow at night, and the snowman no longer sinks in the drifts on a tall card.
 - Weather scenes polished: bare trees branch, spruces come in tiers, a birdhouse with a chick, a woodpecker on a twig; spring gets fields, a farmstead and a windmill in the distance; medieval winter gets log huts, a castle, a snowman in a pot and a wooden sledge.
 - Weather scenes are richer: new details in all four seasons (a palm, a lighthouse, a scarecrow, spruces, a sled, a duck with ducklings and more), the old ones redrawn; the hedgehogs walk in short runs and meet at a new burrow.
