@@ -1,0 +1,119 @@
+<!doctype html><html class="hud-glass-frosted hud-cq"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Сезоны — стенд</title>
+<style>
+body { margin: 0; padding: 12px; background: #1d1a22; color: #ddd; font: 13px system-ui, sans-serif; }
+.bar { position: sticky; top: 0; z-index: 50; display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; padding: 8px 10px; margin: -12px -12px 12px; background: #15121a; border-bottom: 1px solid #333; }
+.bar label { display: inline-flex; gap: 4px; align-items: center; }
+.bar select { background: #222; color: #ddd; border: 1px solid #444; border-radius: 4px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--w, 430px)), var(--w, 430px))); gap: 16px; align-items: start; }
+h2 { grid-column: 1 / -1; margin: 10px 0 0; font-size: 14px; color: #c9b8e0; }
+h3 { margin: 0 0 4px; font-size: 11px; color: #999; font-weight: 600; }
+.mes_text .hud-os-card { width: 100%; }
+</style></head>
+<body>
+<div class="bar">
+  <label>Ширина <select id="w"><option value="215px">215 (телефон)</option><option value="320px">320</option><option value="430px" selected>430</option><option value="600px">600</option></select></label>
+  <label>Погода <select id="weather"><option value="weather-clear">ясно</option><option value="weather-cloudy">облачно</option><option value="weather-rain">дождь</option><option value="weather-storm">гроза</option><option value="weather-snow">снег</option><option value="weather-fog">туман</option><option value="weather-wind">ветер</option><option value="weather-hail">град</option></select></label>
+  <label>Сила <select id="intensity"><option value="">обычно</option><option value="weather-intensity-low">слабо</option><option value="weather-intensity-high">сильно</option><option value="weather-intensity-heavy">очень</option></select></label>
+  <label>Весна <select id="spring"><option value="3">март</option><option value="4" selected>апрель</option><option value="5">май</option><option value="5-late">конец мая</option></select></label>
+  <label><input type="checkbox" id="frost"> мороз</label>
+  <label><input type="checkbox" id="wet"> мокро</label>
+  <label><input type="checkbox" id="holidays"> праздники</label>
+  <label><input type="checkbox" id="anim" checked> анимации</label>
+  <label><input type="checkbox" id="medieval"> средневековье</label>
+</div>
+<div class="grid" id="grid">загрузка…</div>
+<script type="module">
+// Стенд виджета погоды: четыре сезона × время суток, разметка как в index.js
+// (обёртка карточки, слои .hud-fx-*, сцена сезона из render/scene.js, свет из
+// render/light.js). Открывать через сервер Таверны или tests/tools/stand.cmd:
+//   /scripts/extensions/third-party/HUD/tests/tools/seasons-stand.html
+// Параметры: ?w=215px&weather=weather-snow&anim=0 — то же, что в панели сверху.
+if (location.protocol === 'file:') {
+  const путь = '/scripts/extensions/third-party/HUD/tests/tools/seasons-stand.html';
+  document.getElementById('grid').innerHTML = '<div style="grid-column:1/-1;max-width:560px;line-height:1.6">Браузер не даёт стенду загрузить модули из файла. Открой его одним из способов:<br>• двойной клик по <b>tests/tools/stand.cmd</b> (сам запустит сервер и откроет стенд);<br>• при запущенной Таверне: <a style="color:#c9b8e0" href="http://127.0.0.1:8000' + путь + '">127.0.0.1:8000' + путь + '</a></div>';
+  throw new Error('file://');
+}
+const V = '?v=' + (await (await fetch('../../manifest.json', { cache: 'no-store' })).json()).version;
+const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '../../css/all.css' + V; document.head.append(css);
+const { buildSeasonSceneHtml, buildLightningSvg, огниСезона } = await import('../../render/scene.js' + V);
+const { вычислитьСвет } = await import('../../render/light.js' + V);
+const { праздникиСцены } = await import('../../render/holidays.js' + V);
+const { теньЛуны } = await import('../../render/extras.js' + V);
+
+const ВОСХОД = [480, 450, 400, 345, 300, 280, 290, 330, 375, 420, 460, 485];
+const ЗАКАТ = [990, 1040, 1090, 1145, 1190, 1215, 1210, 1165, 1105, 1045, 990, 970];
+const СЕЗОНЫ = [
+  ['season-summer', 'Лето', 7, 15, 'жара, +28°C'],
+  ['season-autumn', 'Осень', 10, 17, 'прохладно, +9°C'],
+  ['season-winter', 'Зима', 1, 20, 'мороз, −12°C'],
+  ['season-spring', 'Весна', 4, 15, 'тепло, +14°C'],
+];
+// Фаза по минутам — как в index.js.
+function фаза(мин, старт, конец) {
+  const длина = конец - старт;
+  if (мин < 120) return 'phase-deep-night';
+  if (мин < старт - 60) return 'phase-night';
+  if (мин < старт) return 'phase-predawn';
+  if (мин < старт + длина * 0.286) return 'phase-morning';
+  if (мин < старт + длина * 0.786) return 'phase-day';
+  if (мин < старт + длина * 0.893) return 'phase-golden';
+  if (мин < конец) return 'phase-sunset';
+  if (мин < конец + 120) return 'phase-evening';
+  return 'phase-night';
+}
+const звёзды = () => {
+  const dot = (l, t, sz, dur, d) => `<span class="hud-star2 dot" style="left:${l}%;top:${t}%;width:${sz}px;height:${sz}px;animation-duration:${dur}s;animation-delay:${d}s;"></span>`;
+  const dia = (l, t, sz, dur, d) => `<span class="hud-star2 diamond" style="left:${l}%;top:${t}%;width:${sz}px;height:${sz}px;animation-duration:${dur}s;animation-delay:${d}s;"></span>`;
+  return dot(12, 22, 2, 2.2, 0) + dia(24, 12, 3, 2.6, .4) + dot(38, 30, 2, 1.9, .9) + dot(50, 10, 2.4, 2.4, .2) + dia(62, 26, 3, 3, 1.2) + dot(74, 14, 2, 2.1, .6) + dot(84, 32, 2.6, 2.8, 1.5) + dia(92, 20, 2.5, 2.3, .3) + dot(6, 38, 1.8, 2, 1.8);
+};
+function виджет({ сезон, месяц, число, минуты, погода, сила, мороз, мокро, праздники, анимация, средневековье, подпись }) {
+  const старт = ВОСХОД[месяц - 1], конец = ЗАКАТ[месяц - 1];
+  const ф = фазаСтенда(минуты, старт, конец);
+  const свет = вычислитьСвет({ минуты, началоДня: старт, конецДня: конец });
+  const { p, cx, cy, cxm } = свет;
+  const дата = `${String(число).padStart(2, '0')}.${String(месяц).padStart(2, '0')}.2024`;
+  const небо = ` style="--cel-x:${cx.toFixed(1)}%;--cel-xm:${cxm.toFixed(1)}%;--cel-y:${cy.toFixed(1)}%;--cel-layer:1;--scene-layer:2;"`;
+  const солнце = ` style="--sun-h:${p.toFixed(3)};--sun-alt:${Math.max(0, Math.sin(p * Math.PI)).toFixed(3)};"`;
+  const сцена = ` style="--cel-x:${cx.toFixed(1)}%;--cel-xm:${cxm.toFixed(1)}%;--cel-y:${cy.toFixed(1)}%;--scene-day-progress:${p.toFixed(3)};--scene-night-strength:${свет.ночь.toFixed(3)};--scene-golden-strength:${свет.золото.toFixed(3)};--scene-sunset-strength:${свет.закат.toFixed(3)};--scene-star-strength:${свет.звёзды.toFixed(3)};${теньЛуны(дата)}"`;
+  const ночь = /phase-(?:evening|night|deep-night|predawn)/.test(ф);
+  const экстра = { dew: ф === 'phase-morning' && /clear|cloudy/.test(погода) && /spring|summer/.test(сезон), deepFreeze: мороз, month: месяц, day: число,
+    ...(праздники ? праздникиСцены({ число, месяц, год: 2024, ночь }) : {}), newYear: праздники && ((месяц === 12 && число >= 28) || (месяц === 1 && число <= 13)) };
+  const чч = String(Math.floor(минуты / 60)).padStart(2, '0'), мм = String(минуты % 60).padStart(2, '0');
+  const классы = ['hud-scene-widget', ф, погода, сила, мороз ? 'temp-cold temp-freezing' : '', сезон, мокро ? 'scene-wet' : '', `month-${месяц}${число >= 20 ? ' month-late' : ''}`, средневековье ? 'era-medieval' : '', анимация ? 'fx-active' : ''].filter(Boolean).join(' ');
+  const ff = Array.from({ length: 6 }, (_, i) => `<span class="hud-firefly ff${i + 1}"></span>`).join('');
+  return `<div><h3>${подпись} · ${чч}:${мм} · ${ф.replace('phase-', '')}</h3><div class="mes_text"><div class="hud-os-card"><input type="checkbox" class="hud-toggle-input" checked hidden><div class="hud-os-wrapper"><i class="hud-scene-c" aria-hidden="true"></i>
+    <div class="${классы}"${сцена}>
+      <div class="hud-fx-bg"></div><div class="hud-fx-stars">${звёзды()}</div><div class="hud-fx-fireflies">${ff}</div><div class="hud-fx-storm-flash"></div>
+      <div class="hud-fx-lightning">${buildLightningSvg()}</div><div class="hud-fx-rainbow"></div><div class="hud-fx-celestial"${небо}></div><div class="hud-fx-cloud-cover"></div>
+      <div class="hud-fx-season-scene"${солнце}>${buildSeasonSceneHtml(сезон, экстра)}</div>
+      <div class="hud-fx-weather"><span class="hud-snow-layer snow-far"></span><span class="hud-snow-layer snow-mid"></span><span class="hud-snow-layer snow-near"></span></div>
+      <div class="hud-fx-frost"></div><div class="hud-fx-temp"></div><div class="hud-fx-daylight"></div><div class="hud-fx-overlay"></div><div class="hud-fx-lights">${огниСезона(сезон)}</div>
+      <div class="hud-scene-top"><div class="hud-scene-time-group"><div class="hud-time-display">${чч}<span class="hud-time-colon">:</span>${мм}</div><div class="hud-date-display">${дата}</div></div>
+      <div class="hud-scene-weather-group"><div class="hud-weather-item">${СЕЗОНЫ.find(с => с[0] === сезон)[4]}</div></div></div>
+    </div></div></div></div></div>`;
+}
+const фазаСтенда = фаза;
+function нарисовать() {
+  const q = (id) => document.getElementById(id);
+  document.documentElement.style.setProperty('--w', q('w').value);
+  const весна = q('spring').value;
+  const опц = { погода: q('weather').value, сила: q('intensity').value, мороз: q('frost').checked, мокро: q('wet').checked, праздники: q('holidays').checked, анимация: q('anim').checked, средневековье: q('medieval').checked };
+  let out = '';
+  for (const [сезон, имя, мес0, число0] of СЕЗОНЫ) {
+    let месяц = мес0, число = число0;
+    if (сезон === 'season-spring') { месяц = +весна.split('-')[0]; число = /late/.test(весна) ? 25 : 15; }
+    if (опц.праздники) { if (сезон === 'season-autumn') { месяц = 10; число = 31; } if (сезон === 'season-winter') { месяц = 12; число = 31; } }
+    out += `<h2>${имя}</h2>`;
+    const старт = ВОСХОД[месяц - 1], конец = ЗАКАТ[месяц - 1];
+    for (const [подпись, минуты] of [['утро', старт + 50], ['день', Math.round((старт + конец) / 2)], ['закат', конец - 25], ['ночь', 23 * 60 + 10]]) {
+      out += виджет({ сезон, месяц, число, минуты, ...опц, подпись });
+    }
+  }
+  q('grid').innerHTML = out;
+  window.__ready = true;
+}
+const P = new URLSearchParams(location.search);
+for (const [k, v] of P) { const эл = document.getElementById(k); if (!эл) continue; if (эл.type === 'checkbox') эл.checked = v === '1'; else эл.value = v; }
+document.querySelectorAll('.bar select, .bar input').forEach(эл => эл.addEventListener('change', нарисовать));
+нарисовать();
+</script></body></html>

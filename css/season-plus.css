@@ -1,0 +1,649 @@
+/* =========================================================================
+   ДЕТАЛИ СЕЗОННЫХ СЦЕН (render/scene-plus.js) — поверх render/scene.js.
+   Лето: пальма, маяк с лучом, воздушный змей, краб, ракушки и морская звезда.
+   Осень: пугало с вороной, порыв кленовых листьев, туман, фонарь на ограде.
+   Зима: заснеженные ели, фонарный столб со снегирём, санки и следы.
+   Весна: кучевые облака, утка с утятами в луже, тюльпаны.
+   Анимации стоят, пока сцена не раскрыта (.fx-active, base.css); первый
+   кадр каждой — спокойная картинка. Свечение ночью — от --scene-night-strength.
+   ========================================================================= */
+.hud-fx-season-scene [class^="hud-sp-"] { position: absolute; pointer-events: none; }
+.hud-fx-season-scene [class^="hud-sp-"] > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+
+/* --- Лето --- */
+.season-summer .hud-sp-palm { left: -10px; bottom: 9%; width: clamp(56px, 17%, 84px); aspect-ratio: 90 / 130; z-index: 4; }
+.hud-sp-palm .trunk { fill: #9a7246; stroke: #5e4022; stroke-width: .6; }
+.hud-sp-palm .trunk-shade { fill: #6e4c2a; opacity: .75; }
+.hud-sp-palm .ring { fill: none; stroke: #4e341a; stroke-width: .8; stroke-linecap: round; opacity: .65; }
+.hud-sp-palm .pinnae { fill: none; stroke-width: 1.5; stroke-linecap: round; }
+.hud-sp-palm .rachis { fill: none; stroke-width: 1; stroke-linecap: round; }
+.hud-sp-palm .back .pinnae { stroke: #2c6e36; }
+.hud-sp-palm .back .rachis { stroke: #3f6a2a; }
+.hud-sp-palm .front .pinnae { stroke: #46a24c; }
+.hud-sp-palm .front .rachis { stroke: #8fa648; }
+.hud-sp-palm .dead { fill: none; stroke: #9a7a44; stroke-width: 1; stroke-linecap: round; opacity: .9; }
+.hud-sp-palm .coco { fill: #5e3c1e; stroke: #3a2410; stroke-width: .5; }
+.hud-sp-palm .coco-hi { fill: none; stroke: #a07a4c; stroke-width: .7; stroke-linecap: round; opacity: .8; }
+.hud-sp-palm .fronds { transform-origin: 40px 33px; transform-box: view-box; }
+.season-summer .hud-sp-lighthouse { left: 74%; bottom: 33.5%; width: clamp(12px, 3.2%, 18px); aspect-ratio: 40 / 60; z-index: 1; }
+.hud-sp-lighthouse .rock { fill: #5b6a74; }
+.hud-sp-lighthouse .tower { fill: #f4f1ea; }
+.hud-sp-lighthouse .stripe { fill: #d4473b; }
+.hud-sp-lighthouse .gallery, .hud-sp-lighthouse .roof { fill: #333a40; }
+.hud-sp-lighthouse .lamp { fill: #ffe8a0; }
+.season-summer .hud-sp-kite { left: 9%; top: 9%; width: clamp(20px, 6%, 32px); aspect-ratio: 50 / 70; z-index: 3; opacity: calc(1 - var(--scene-night-strength, 0)); }
+.hud-sp-kite .sail.s1 { fill: #ff6b6b; } .hud-sp-kite .sail.s2 { fill: #ffd166; }
+.hud-sp-kite .spar { fill: none; stroke: #6a4424; stroke-width: .8; }
+.hud-sp-kite .tail, .hud-sp-kite .string { fill: none; stroke: rgba(255,255,255,.7); stroke-width: .7; }
+.hud-sp-kite .bow { fill: #4cc3d9; }
+.season-summer .hud-sp-shells { left: 36%; bottom: 2.5%; width: clamp(38px, 12%, 60px); aspect-ratio: 60 / 14; z-index: 5; }
+.hud-sp-shells .star { fill: #f08a5d; stroke: #b85a33; stroke-width: .5; }
+.hud-sp-shells .scallop { fill: #fbe2d0; stroke: #d6a888; stroke-width: .5; }
+.hud-sp-shells .scallop-l { fill: none; stroke: #d6a888; stroke-width: .5; }
+.hud-sp-shells .conch { fill: #f6d6b8; stroke: #c49a76; stroke-width: .5; }
+.season-summer .hud-sp-crab { left: 51%; bottom: 3%; width: clamp(18px, 5%, 28px); aspect-ratio: 34 / 20; z-index: 6; }
+.hud-sp-crab .shell, .hud-sp-crab .claw { fill: #e2533e; stroke: #9e2f20; stroke-width: .6; }
+.hud-sp-crab .leg, .hud-sp-crab .eyestalk { fill: none; stroke: #9e2f20; stroke-width: 1.1; stroke-linecap: round; }
+.hud-sp-crab .eye { fill: #1d1d1d; }
+
+.season-summer .hud-sp-cloud { z-index: 1; opacity: calc(.92 - var(--scene-night-strength, 0) * .75); }
+.season-summer .hud-sp-cloud.c1 { left: 62%; top: 6%; width: clamp(46px, 14%, 76px); aspect-ratio: 80 / 32; }
+.season-summer .hud-sp-cloud.c2 { left: 22%; top: 30%; width: clamp(34px, 9%, 52px); aspect-ratio: 80 / 32; opacity: calc(.7 - var(--scene-night-strength, 0) * .55); }
+
+/* --- Осень --- */
+.season-autumn .hud-sp-mist { left: -5%; right: -5%; bottom: 11%; height: 22%; z-index: 3; opacity: calc(.45 + var(--scene-night-strength, 0) * .2); }
+.hud-sp-mist i { position: absolute; left: 0; right: 0; height: 60%; border-radius: 50%; background: radial-gradient(ellipse at 50% 50%, rgba(240, 236, 228, .55), transparent 70%); }
+.hud-sp-mist .m1 { bottom: 0; } .hud-sp-mist .m2 { bottom: 35%; left: 20%; right: -10%; opacity: .7; }
+.phase-morning .hud-sp-mist { opacity: .85; }
+.season-autumn .hud-sp-scarecrow { left: 55%; bottom: 8.5%; width: clamp(28px, 8%, 42px); aspect-ratio: 60 / 80; z-index: 3; }
+.hud-sp-scarecrow .pole { fill: none; stroke: #6a4424; stroke-width: 2.4; stroke-linecap: round; }
+.hud-sp-scarecrow .shirt { fill: #b5432e; stroke: #6e2418; stroke-width: .6; }
+.hud-sp-scarecrow .plaid { fill: none; stroke: rgba(255, 220, 160, .55); stroke-width: .8; }
+.hud-sp-scarecrow .straw { fill: none; stroke: #e7c56a; stroke-width: 1.1; stroke-linecap: round; }
+.hud-sp-scarecrow .head { fill: #d9b98a; stroke: #8a6a40; stroke-width: .6; }
+.hud-sp-scarecrow .stitch, .hud-sp-scarecrow .eyes { fill: none; stroke: #4a3020; stroke-width: .8; stroke-linecap: round; }
+.hud-sp-scarecrow .hat { fill: #7a5a2e; stroke: #4a3418; stroke-width: .6; }
+.hud-sp-scarecrow .band { stroke: #b5432e; stroke-width: 1.4; }
+.hud-sp-scarecrow .crow-b { fill: #1e1c22; } .hud-sp-scarecrow .crow-e { fill: #f0d070; }
+.season-autumn .hud-sp-lantern { left: calc(4% + 60px); bottom: calc(6.5% + 15px); width: 12px; aspect-ratio: 16 / 26; z-index: 5; }
+.hud-sp-lantern .hook, .hud-sp-lantern .frame { fill: none; stroke: #2a2420; stroke-width: .8; }
+.hud-sp-lantern .cap, .hud-sp-lantern .base { fill: #2a2420; }
+.hud-sp-lantern .glass { fill: rgba(255, 220, 150, .4); stroke: #2a2420; stroke-width: .6; }
+.hud-sp-lantern .flame { fill: #ffb347; opacity: calc(.4 + var(--scene-night-strength, 0) * .6); }
+.season-autumn .hud-sp-gust { left: 0; right: 0; top: 30%; height: 20%; z-index: 7; }
+.hud-sp-gust .sp-leaf { stroke-width: .5; }
+.hud-sp-gust .sp-leaf.c1 { fill: #d9622b; stroke: #9a3a14; } .hud-sp-gust .sp-leaf.c2 { fill: #e7a12e; stroke: #a86a14; }
+.hud-sp-gust .sp-leaf.c3 { fill: #b8352a; stroke: #7a1e16; } .hud-sp-gust .sp-leaf.c4 { fill: #c9a23a; stroke: #8a6a1a; }
+
+.season-autumn .hud-sp-pumpkins { left: calc(55% - 6px); bottom: 6.5%; width: clamp(30px, 9%, 46px); aspect-ratio: 40 / 16; z-index: 4; }
+.hud-sp-pumpkins .pk-l, .hud-sp-pumpkins .pk-r { fill: #d96a1e; stroke: #8a3a10; stroke-width: .4; }
+.hud-sp-pumpkins .pk-c { fill: #ec8a2a; stroke: #8a3a10; stroke-width: .4; }
+.hud-sp-pumpkins .pk-stem { fill: none; stroke: #4a6a2a; stroke-width: 1.1; stroke-linecap: round; }
+.hud-sp-pumpkins .pk-vine { fill: none; stroke: #6a8a3a; stroke-width: .5; }
+
+/* --- Зима --- */
+.season-winter .hud-sp-spruce { bottom: 11%; aspect-ratio: 40 / 64; z-index: 1; }
+.season-winter .hud-sp-spruce.e1 { left: 50%; width: clamp(24px, 7%, 36px); }
+.season-winter .hud-sp-spruce.e2 { left: 57%; width: clamp(30px, 9%, 46px); bottom: 10%; }
+.season-winter .hud-sp-spruce.e3 { left: 66%; width: clamp(20px, 6%, 30px); bottom: 12%; }
+.hud-sp-spruce .stem { fill: #4a3322; }
+.hud-sp-spruce .needles { fill: #1f4a3a; stroke: #163628; stroke-width: .6; }
+.hud-sp-spruce .snow { fill: #f2f6fb; }
+.season-winter .hud-sp-lamp { right: 7%; bottom: 5%; width: clamp(26px, 7.5%, 40px); aspect-ratio: 40 / 90; z-index: 5; }
+.hud-sp-lamp .pole, .hud-sp-lamp .base { fill: none; stroke: #2b2e36; stroke-width: 2.2; stroke-linecap: round; }
+.hud-sp-lamp .base { fill: #2b2e36; stroke: none; }
+.hud-sp-lamp .head { fill: #2b2e36; }
+.hud-sp-lamp .light { fill: #ffe7a8; opacity: calc(.5 + var(--scene-night-strength, 0) * .5); }
+.hud-sp-lamp .cap { fill: #f2f6fb; }
+.hud-sp-lamp .bf-belly { fill: #e2533e; } .hud-sp-lamp .bf-back { fill: #4a4f5a; } .hud-sp-lamp .bf-tail { fill: #1f2228; }
+.hud-sp-lamp .bf-eye { fill: #111; } .hud-sp-lamp .bf-beak { fill: #1f2228; }
+.season-winter .hud-sp-sled { right: 16%; bottom: 3%; width: clamp(80px, 26%, 130px); aspect-ratio: 130 / 24; z-index: 5; }
+.hud-sp-sled .step { fill: rgba(120, 140, 170, .35); }
+.hud-sp-sled .rope { fill: none; stroke: #b5432e; stroke-width: 1; }
+.hud-sp-sled .runner { fill: none; stroke: #c43a2c; stroke-width: 1.6; stroke-linecap: round; }
+.hud-sp-sled .slat { fill: #a06a3a; stroke: #6a4424; stroke-width: .5; }
+.hud-sp-sled .leg { stroke: #6a4424; stroke-width: 1.2; }
+.hud-sp-sled .slat-snow { fill: #f2f6fb; }
+.era-medieval .hud-sp-lamp { display: none; }
+
+/* --- Весна --- */
+.season-spring .hud-sp-cloud { z-index: 1; opacity: calc(.95 - var(--scene-night-strength, 0) * .75); }
+.season-spring .hud-sp-cloud.c1 { left: 66%; top: 8%; width: clamp(50px, 15%, 80px); aspect-ratio: 80 / 32; }
+.season-spring .hud-sp-cloud.c2 { left: 4%; top: 26%; width: clamp(38px, 11%, 60px); aspect-ratio: 80 / 32; opacity: calc(.8 - var(--scene-night-strength, 0) * .65); }
+.hud-sp-cloud .shade { fill: rgba(170, 186, 210, .75); }
+.hud-sp-cloud .puff { fill: #ffffff; }
+.hud-sp-cloud .lit { fill: none; stroke: rgba(255, 255, 255, .9); stroke-width: 1.4; stroke-linecap: round; }
+/* Утки посреди луга, в широком просвете между вторым и третьим деревом
+   (стволы в 41px от края дерева, см. base.css у .hud-flower). */
+.season-spring .hud-sp-ducks { left: calc(41% + 41px); bottom: 1.6%; width: clamp(46px, 14%, 66px); aspect-ratio: 64 / 19; z-index: 7; transform: translateX(-50%); }
+.hud-sp-ducks .shadow { fill: rgba(30, 50, 20, .28); }
+.hud-sp-ducks .blades { fill: none; stroke: #4f9a3e; stroke-width: .7; stroke-linecap: round; }
+.hud-sp-ducks .duck-body, .hud-sp-ducks .duck-neck { fill: #9a7650; stroke: #5a4228; stroke-width: .4; }
+.hud-sp-ducks .duck-wing { fill: #6e5236; }
+.hud-sp-ducks .duck-spec { fill: none; stroke: #3f6ab0; stroke-width: 1.1; stroke-linecap: round; }
+.hud-sp-ducks .duck-mottle { fill: none; stroke: #5a4228; stroke-width: .6; stroke-linecap: round; opacity: .7; }
+.hud-sp-ducks .duck-brow { fill: none; stroke: #e8d8b8; stroke-width: .5; stroke-linecap: round; }
+.hud-sp-ducks .duck-leg, .hud-sp-ducks .dl-leg { fill: none; stroke: #e88a20; stroke-width: .8; stroke-linecap: round; stroke-linejoin: round; }
+.hud-sp-ducks .dl-leg { stroke-width: .6; }
+.hud-sp-ducks .duck-beak, .hud-sp-ducks .dl-beak { fill: #f0a030; }
+.hud-sp-ducks .duck-eye { fill: #111; }
+.hud-sp-ducks .dl-body, .hud-sp-ducks .dl-head { fill: #ffd84a; stroke: #c9a020; stroke-width: .3; }
+.hud-sp-ducks .dl-wing { fill: none; stroke: #d9a820; stroke-width: .5; stroke-linecap: round; }
+.hud-sp-ducks .m-head { transform-box: view-box; transform-origin: 52px 10px; }
+.hud-sp-ducks .dl-walk, .hud-sp-ducks .lg1, .hud-sp-ducks .lg2 { transform-box: fill-box; transform-origin: 50% 0%; }
+.hud-sp-ducks .dl-walk { transform-origin: 50% 100%; }
+/* Тюльпаны — между стволами третьего и четвёртого дерева; уже 420px им там тесно. */
+.season-spring .hud-sp-tulips { left: calc(81% - 26px); bottom: 1%; width: 52px; aspect-ratio: 70 / 40; z-index: 7; }
+.hud-sp-tulips .stalk { fill: none; stroke: #3f8a3a; stroke-width: 1.3; stroke-linecap: round; }
+.hud-sp-tulips .tleaf { fill: #4fa046; }
+.hud-sp-tulips .petal-line { fill: none; stroke: rgba(0, 0, 0, .18); stroke-width: .6; }
+.hud-sp-tulips .t1 .bloom { fill: #e8344a; } .hud-sp-tulips .t2 .bloom { fill: #ffcf3a; }
+.hud-sp-tulips .t3 .bloom { fill: #f28ab5; } .hud-sp-tulips .t4 .bloom { fill: #9a5ad6; }
+.hud-sp-tulips .tulip { transform-box: fill-box; transform-origin: 50% 100%; }
+@media (max-width: 470px) { .season-spring .hud-sp-tulips { display: none; } }
+@media (max-width: 390px) { .season-spring .hud-flower:is(.f3, .f5) { display: none; } }
+@container hud (max-width: 420px) { .season-spring .hud-sp-tulips { display: none; } }
+@container hud (max-width: 340px) { .season-spring .hud-flower:is(.f3, .f5) { display: none; } }
+
+/* --- Огни поверх ночного затемнения (index.js: .hud-fx-lights) ---
+   Рамки — те же, что у предметов; видны к вечеру и ночью. */
+.hud-fx-lights { position: absolute; inset: 0; z-index: 10; pointer-events: none; mix-blend-mode: screen; }
+.hud-fx-lights .hud-spl { position: absolute; opacity: var(--scene-night-strength, 0); }
+.hud-fx-lights .hud-spl > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.hud-fx-lights, .hud-fx-lights * { animation-play-state: paused !important; }
+.hud-scene-widget.fx-active .hud-fx-lights, .hud-scene-widget.fx-active .hud-fx-lights * { animation-play-state: running !important; }
+.hud-spl .core { fill: #fff3c8; filter: blur(1px); }
+.hud-spl .halo { fill: rgba(255, 196, 110, .42); filter: blur(5px); }
+.season-summer .hud-spl-lighthouse { left: 74%; bottom: 33.5%; width: clamp(12px, 3.2%, 18px); aspect-ratio: 40 / 60; }
+.hud-spl-lighthouse .beam { fill: rgba(255, 238, 180, .32); filter: blur(1.5px); }
+.hud-spl-lighthouse .beams { transform-origin: 20px 9px; transform-box: view-box; }
+.season-autumn .hud-spl-lantern { left: calc(4% + 60px); bottom: calc(6.5% + 15px); width: 12px; aspect-ratio: 16 / 26; }
+.season-autumn .hud-spl-campfire { right: 20px; bottom: 7px; width: 30px; height: 40px; }
+.hud-spl-campfire .halo { fill: rgba(255, 140, 60, .4); filter: blur(6px); }
+.season-winter .hud-spl-lamp { right: 7%; bottom: 5%; width: clamp(26px, 7.5%, 40px); aspect-ratio: 40 / 90; }
+.hud-spl-lamp .cone { fill: rgba(255, 214, 140, .16); filter: blur(2px); }
+.hud-spl-lamp .pool { fill: rgba(255, 210, 140, .3); filter: blur(3px); }
+.era-medieval .hud-spl-lamp { display: none; }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-spl-lighthouse .beams { animation: hud-sp-beam 6s linear infinite; }
+  .hud-spl .halo { animation: hud-sp-flicker 2.6s ease-in-out infinite; }
+}
+
+/* --- Движение (только у раскрытой сцены) --- */
+@media (prefers-reduced-motion: no-preference) {
+  .hud-sp-palm .fronds { animation: hud-sp-sway 4s ease-in-out infinite; }
+  .hud-sp-kite { animation: hud-sp-kite 3.6s ease-in-out infinite; }
+  .hud-sp-crab { animation: hud-sp-crab 4.4s ease-in-out infinite; }
+  .hud-sp-scarecrow .crow { animation: hud-sp-peck 3s ease-in-out infinite; transform-box: fill-box; transform-origin: 0 100%; }
+  .hud-sp-gust .gust { animation: hud-sp-gust 5s linear infinite; transform-box: fill-box; transform-origin: 50% 50%; }
+  .hud-sp-gust .g2 { animation-delay: .7s; } .hud-sp-gust .g3 { animation-delay: 1.4s; } .hud-sp-gust .g4 { animation-delay: 2.1s; }
+  .hud-sp-gust .g5 { animation-delay: 2.8s; } .hud-sp-gust .g6 { animation-delay: 3.5s; } .hud-sp-gust .g7 { animation-delay: 4.2s; }
+  .hud-sp-mist i { animation: hud-sp-drift 9s ease-in-out infinite; }
+  .hud-sp-lantern .flame, .hud-sp-lamp .light { animation: hud-sp-flicker 2.2s ease-in-out infinite; }
+  .hud-sp-lamp .bullfinch { animation: hud-sp-hop 3.4s ease-in-out infinite; transform-box: fill-box; transform-origin: 50% 100%; }
+  .hud-sp-cloud { animation: hud-sp-drift 12s ease-in-out infinite; }
+  .hud-sp-ducks .m-head { animation: hud-sp-duck-peck 5.5s ease-in-out infinite; }
+  .hud-sp-ducks .mother > .lg1 { animation: hud-sp-duck-step 5.5s ease-in-out infinite; }
+  .hud-sp-ducks .dl-walk { animation: hud-sp-duck-waddle 1.1s ease-in-out infinite; }
+  .hud-sp-ducks .dl-walk .lg1 { animation: hud-sp-duck-leg 1.1s ease-in-out infinite; }
+  .hud-sp-ducks .dl-walk .lg2 { animation: hud-sp-duck-leg 1.1s ease-in-out infinite reverse; }
+  .hud-sp-ducks .d2 .dl-walk, .hud-sp-ducks .d2 .dl-walk :is(.lg1, .lg2) { animation-duration: 1.25s; animation-delay: .3s; }
+  .hud-sp-ducks .d3 .dl-walk, .hud-sp-ducks .d3 .dl-walk :is(.lg1, .lg2) { animation-duration: .95s; animation-delay: .6s; }
+  .hud-sp-tulips .tulip { animation: hud-sp-sway 3.2s ease-in-out infinite; animation-delay: calc(var(--i) * .25s); }
+}
+@keyframes hud-sp-sway { 0%, 100% { transform: rotate(0deg); } 30% { transform: rotate(3deg); } 70% { transform: rotate(-2.5deg); } }
+@keyframes hud-sp-beam { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+@keyframes hud-sp-kite { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(4px, -3px) rotate(6deg); } }
+@keyframes hud-sp-crab { 0%, 100% { transform: translateX(0); } 40% { transform: translateX(10px); } 60% { transform: translateX(10px); } }
+@keyframes hud-sp-peck { 0%, 70%, 100% { transform: rotate(0deg); } 80% { transform: rotate(14deg); } 90% { transform: rotate(0deg); } }
+@keyframes hud-sp-gust { 0% { transform: translate(0, 0) rotate(0deg); } 50% { transform: translate(14px, 6px) rotate(180deg); } 100% { transform: translate(0, 0) rotate(360deg); } }
+@keyframes hud-sp-drift { 0%, 100% { translate: 0 0; } 50% { translate: 8px 0; } }
+@keyframes hud-sp-flicker { 0%, 100% { opacity: 1; } 40% { opacity: .78; } 70% { opacity: .92; } }
+@keyframes hud-sp-hop { 0%, 80%, 100% { transform: translateY(0); } 88% { transform: translateY(-2px); } }
+@keyframes hud-sp-duck-peck { 0%, 52%, 100% { transform: rotate(0); } 60%, 64%, 70% { transform: rotate(58deg); } 62%, 67% { transform: rotate(50deg); } 78% { transform: rotate(-6deg); } 86% { transform: rotate(0); } }
+@keyframes hud-sp-duck-step { 0%, 30%, 100% { transform: rotate(0); } 36% { transform: rotate(-14deg); } 42% { transform: rotate(0); } }
+@keyframes hud-sp-duck-waddle { 0%, 100% { transform: rotate(0) translateY(0); } 25% { transform: rotate(-6deg) translateY(-.4px); } 50% { transform: rotate(0) translateY(0); } 75% { transform: rotate(6deg) translateY(-.4px); } }
+@keyframes hud-sp-duck-leg { 0%, 100% { transform: rotate(0); } 25% { transform: rotate(-22deg); } 75% { transform: rotate(14deg); } }
+@keyframes hud-sp-bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-.8px); } }
+
+/* =========================================================================
+   ПЕРЕРИСОВАННЫЕ СТАРЫЕ ДЕТАЛИ (.is-svg): снеговик, песочный замок, костёр,
+   цветы клумбы. Рамка и движение — прежние (base.css), внутри — SVG.
+   ========================================================================= */
+.is-svg::before, .is-svg::after { display: none !important; }
+.is-svg > .hud-old-svg { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; display: block; }
+/* Снеговик */
+.hud-snowman.is-svg .sm-shadow { fill: rgba(80, 100, 130, .28); }
+.hud-snowman.is-svg .ball { fill: #f7fafd; stroke: #c9d6e4; stroke-width: .6; }
+.hud-snowman.is-svg .ball-sh { fill: rgba(150, 175, 205, .45); }
+.hud-snowman.is-svg .ball-hi { fill: none; stroke: #fff; stroke-width: 1.6; stroke-linecap: round; }
+.hud-snowman.is-svg .coal { fill: #22222a; }
+.hud-snowman.is-svg .carrot { fill: #f07a1e; stroke: #b4520c; stroke-width: .4; }
+.hud-snowman.is-svg .carrot-l { stroke: #b4520c; stroke-width: .4; }
+.hud-snowman.is-svg .smile { fill: none; stroke: #22222a; stroke-width: 1.1; stroke-linecap: round; stroke-dasharray: .1 1.8; }
+.hud-snowman.is-svg .arm { fill: none; stroke: #6a4424; stroke-width: 1.4; stroke-linecap: round; }
+.hud-snowman.is-svg .scarf { fill: #d6342c; stroke: #8e1a14; stroke-width: .4; }
+.hud-snowman.is-svg .scarf-st { fill: none; stroke: rgba(255, 220, 200, .6); stroke-width: .6; stroke-dasharray: 1 1; }
+.hud-snowman.is-svg .fringe { stroke: #d6342c; stroke-width: .8; stroke-linecap: round; }
+.hud-snowman.is-svg .hat, .hud-snowman.is-svg .hat-brim { fill: #23232c; stroke: #0f0f14; stroke-width: .4; }
+.hud-snowman.is-svg .hat-band { fill: #b8302a; }
+.hud-snowman.is-svg .holly { fill: #2e7a3a; } .hud-snowman.is-svg .berry { fill: #e2333a; }
+.hud-snowman.is-svg .stick { stroke: #8a5a30; stroke-width: 1.3; stroke-linecap: round; }
+.hud-snowman.is-svg .bristle { fill: #d9b45a; stroke: #9a7a2a; stroke-width: .4; } .hud-snowman.is-svg .tie { stroke: #b8302a; stroke-width: .8; }
+.hud-snowman.is-svg .sm-tail { transform-box: fill-box; transform-origin: 50% 0; }
+/* Песочный замок */
+.hud-sandcastle.is-svg .sc-shadow { fill: rgba(120, 90, 50, .25); }
+.hud-sandcastle.is-svg .mound { fill: #e3c38a; }
+.hud-sandcastle.is-svg .moat { fill: none; stroke: rgba(80, 160, 190, .55); stroke-width: 1.4; stroke-linecap: round; }
+.hud-sandcastle.is-svg .wall, .hud-sandcastle.is-svg .tower, .hud-sandcastle.is-svg .merlon { fill: #ecd29c; stroke: #b8945a; stroke-width: .5; }
+.hud-sandcastle.is-svg .tower { fill: #f1d9a6; }
+.hud-sandcastle.is-svg .gate, .hud-sandcastle.is-svg .win { fill: #8a6a3e; }
+.hud-sandcastle.is-svg .flag-pole { stroke: #6a4424; stroke-width: .7; }
+.hud-sandcastle.is-svg .flag { fill: #e2533e; }
+.hud-sandcastle.is-svg .shell { fill: #fbe2d0; stroke: #d6a888; stroke-width: .3; }
+.hud-sandcastle.is-svg .grain { stroke: rgba(140, 105, 60, .5); stroke-width: .7; stroke-linecap: round; }
+.hud-sandcastle.is-svg .bk { fill: #3d9ad6; stroke: #22689a; stroke-width: .4; } .hud-sandcastle.is-svg .bk-rim { stroke: #22689a; stroke-width: .8; }
+.hud-sandcastle.is-svg .bk-h { fill: none; stroke: #22689a; stroke-width: .5; }
+.hud-sandcastle.is-svg .sp-h { stroke: #e2533e; stroke-width: 1.2; stroke-linecap: round; } .hud-sandcastle.is-svg .sp-b { fill: #ffcf3a; stroke: #b8902a; stroke-width: .4; }
+/* Костёр */
+.hud-campfire.is-svg { opacity: 1; }
+.hud-campfire.is-svg .glow { fill: rgba(255, 150, 60, .35); filter: blur(2px); }
+.hud-campfire.is-svg .log { fill: #7a4a26; stroke: #4a2a12; stroke-width: .4; } .hud-campfire.is-svg .log.l2 { fill: #8a5a30; }
+.hud-campfire.is-svg .log-end { fill: #c9955a; stroke: #6a4424; stroke-width: .4; }
+.hud-campfire.is-svg .fl-o { fill: #e8562a; } .hud-campfire.is-svg .fl-m { fill: #f8a030; } .hud-campfire.is-svg .fl-i { fill: #fff0a0; }
+.hud-campfire.is-svg .flames { transform-box: fill-box; transform-origin: 50% 100%; }
+.hud-campfire.is-svg .spark { fill: #ffd27a; }
+.hud-campfire.is-svg .smoke { fill: none; stroke: rgba(200, 200, 210, .45); stroke-width: 1.4; stroke-linecap: round; }
+.hud-campfire.is-svg .stone { fill: #7d828a; stroke: #4a4e55; stroke-width: .4; }
+/* Цветы клумбы */
+.hud-flower.is-svg .fl-stem { fill: none; stroke: #3f8a3a; stroke-width: 1.2; stroke-linecap: round; }
+.hud-flower.is-svg .fl-leaf { fill: #4fa046; }
+.hud-flower.is-svg .daisy .pt { fill: #ffffff; stroke: #d9dde6; stroke-width: .3; } .hud-flower.is-svg .daisy .ctr { fill: #f5c330; } .hud-flower.is-svg .daisy .ctr-dot { fill: #fff3a0; }
+.hud-flower.is-svg .poppy .pt { fill: #e2333a; } .hud-flower.is-svg .poppy .pt2 { fill: #c81e2a; } .hud-flower.is-svg .poppy .ctr { fill: #2a1a1a; } .hud-flower.is-svg .poppy .stamen { stroke: #2a1a1a; stroke-width: .5; }
+.hud-flower.is-svg .cornflower .pt { fill: #4a7ae0; stroke: #2a4aa0; stroke-width: .3; } .hud-flower.is-svg .cornflower .ctr { fill: #2a2a6a; }
+.hud-flower.is-svg .buttercup .pt { fill: #ffd23a; stroke: #c9a020; stroke-width: .3; } .hud-flower.is-svg .buttercup .ctr { fill: #e8a020; } .hud-flower.is-svg .buttercup .gloss { fill: none; stroke: #fff6c0; stroke-width: .6; }
+.hud-flower.is-svg .bluebell .arch { fill: none; stroke: #3f8a3a; stroke-width: 1; } .hud-flower.is-svg .bluebell .bell { fill: #8a6ad6; stroke: #5a3aa0; stroke-width: .3; }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-snowman.is-svg .sm-tail { animation: hud-sp-sway 2.6s ease-in-out infinite; }
+  .hud-campfire.is-svg .flames { animation: hud-sp-fire 1.2s ease-in-out infinite; }
+  .hud-campfire.is-svg .spark { animation: hud-sp-spark 2s ease-out infinite; }
+  .hud-campfire.is-svg .spark.k2 { animation-delay: .6s; } .hud-campfire.is-svg .spark.k3 { animation-delay: 1.2s; }
+  .hud-campfire.is-svg .smoke { animation: hud-sp-drift 4s ease-in-out infinite; }
+  .hud-sandcastle.is-svg .flag { animation: hud-sp-flag 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 0 50%; }
+}
+@keyframes hud-sp-fire { 0%, 100% { transform: scale(1, 1); } 30% { transform: scale(.92, 1.08); } 60% { transform: scale(1.06, .94); } }
+@keyframes hud-sp-spark { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-8px); opacity: 0; } }
+@keyframes hud-sp-flag { 0%, 100% { transform: scaleX(1); } 50% { transform: scaleX(.8); } }
+
+/* =========================================================================
+   ЕЖИ И НОРА (осень). Ёж — SVG из render/scene-plus.js (ёжSvg): лапки
+   шагают парами по диагонали только на ходу (--hh-step), тело чуть
+   поднимается на каждом шаге (--hh-bob), голова принюхивается на стоянках.
+   Первый ёж идёт от яблони к норе перебежками с остановками, у норы
+   здоровается со вторым нос к носу, оба уходят внутрь, первый выходит и
+   возвращается. Второй сидит у лаза мордой к первому и ждёт его.
+   Ствол таймлайна — 38 s (на узких 46 s), проценты общие.
+   ========================================================================= */
+@property --hh-step { syntax: '<angle>'; inherits: true; initial-value: 0deg; }
+@property --hh-bob { syntax: '<length>'; inherits: true; initial-value: 0px; }
+.hud-hedgehog.is-svg { width: 32px; height: 18px; z-index: 13; transform-origin: 50% 100%; animation-name: hud-hh-trip; will-change: left, transform, opacity, filter; }
+.hud-hedgehog .hh, .hud-burrow-animal .hh { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 1px 1px rgba(20, 12, 5, .35)); }
+.hh .hh-belly { fill: #a8865c; }
+.hh .hh-spines { fill: #3d2b1b; stroke: #2a1d12; stroke-width: .4; stroke-linejoin: round; }
+.hh .hh-q { fill: none; stroke-linecap: round; }
+.hh .q1 { stroke: #221710; stroke-width: 1; }
+.hh .q2 { stroke: #866445; stroke-width: 1; }
+.hh .q3 { stroke: #c8a878; stroke-width: .8; }
+.hh .hh-face { fill: #c9a67a; }
+.hh .hh-cheek { fill: #9a7650; }
+.hh .hh-ear { fill: #6b4d31; }
+.hh .hh-eye, .hh .hh-nose { fill: #120b06; }
+.hh .hh-glint { fill: #fff; opacity: .85; }
+.hh .hh-whisk { fill: none; stroke: #2a1d12; stroke-width: .3; stroke-linecap: round; opacity: .6; }
+.hh .hh-leg { fill: none; stroke: #3a2a1c; stroke-width: 2.3; stroke-linecap: round; stroke-linejoin: round; }
+.hh .hh-leg.far { stroke: #2a1d12; }
+.hh .hh-leg { transform-box: fill-box; transform-origin: 50% 0%; }
+.hh .hh-leg.a { transform: rotate(var(--hh-step)); }
+.hh .hh-leg.b { transform: rotate(calc(var(--hh-step) * -1)); }
+.hh .hh-torso { transform: translateY(var(--hh-bob)); }
+.hh .hh-head { transform-box: view-box; transform-origin: 43px 27px; }
+/* Наколоты на иглы: нижняя половина яблока утоплена в спину. */
+.hud-hedgehog.is-svg .hud-hedgehog-apple.ha1 { left: 9px; top: 1px; }
+.hud-hedgehog.is-svg .hud-hedgehog-apple.ha2 { left: 15px; top: 0; }
+
+/* Нора: холмик земли с листьями, корень над лазом; второй ёж сидит в
+   устье лаза мордой влево — туда, откуда придёт первый. */
+.hud-burrow.is-svg .hud-burrow-art { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; }
+.hud-burrow-art .b-shadow { fill: rgba(30, 18, 8, .3); }
+.hud-burrow-art .b-earth { fill: #8a6238; }
+.hud-burrow-art .b-lit { fill: #a87c4a; opacity: .75; }
+.hud-burrow-art .b-dark { fill: #6a4a2a; }
+.hud-burrow-art .b-crumb { fill: none; stroke: #5a3e22; stroke-width: .7; stroke-linecap: round; opacity: .7; }
+.hud-burrow-art .b-rim { fill: #4a321c; }
+.hud-burrow-art .b-mid { fill: #2a1c10; }
+.hud-burrow-art .b-deep { fill: #120b06; }
+.hud-burrow-art .b-lip { fill: none; stroke: #b08a5a; stroke-width: .7; stroke-linecap: round; opacity: .55; }
+.hud-burrow-art .b-root { fill: none; stroke: #5a3e22; stroke-width: 1.3; stroke-linecap: round; }
+.hud-burrow-art .b-rootlet { fill: none; stroke: #5a3e22; stroke-width: .8; stroke-linecap: round; }
+.hud-burrow-art .bl.c1 { fill: #d9662a; } .hud-burrow-art .bl.c2 { fill: #e8a030; } .hud-burrow-art .bl.c3 { fill: #b8402a; }
+.hud-burrow-art .bl.c4 { fill: #c98a3a; } .hud-burrow-art .bl.c5 { fill: #8a5a2a; }
+.hud-burrow-art .b-stone { fill: #9a9188; } .hud-burrow-art .b-stone.s2 { fill: #857c72; }
+.hud-burrow-art .b-soil { fill: #9a7044; }
+.hud-burrow-art .b-grass { fill: none; stroke: #a8a050; stroke-width: .7; stroke-linecap: round; }
+.hud-burrow-art .b-grass.g2 { stroke: #6f8f3a; }
+.season-autumn .hud-burrow.is-svg .hud-burrow-animal { width: 28px; height: 16px; left: 15px; bottom: 2px; z-index: 13; transform-origin: 50% 100%; animation-name: hud-hh-companion; will-change: transform, opacity, filter; }
+.hud-burrow-animal .hh { transform: scaleX(-1); }
+.hud-burrow-animal .hh-torso { transform-box: fill-box; transform-origin: 50% 100%; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .hud-hedgehog .hh { animation: hud-hh-gait 38s linear infinite; }
+  .hud-hedgehog .hh-head { animation: hud-hh-walker-head 38s linear infinite; }
+  .hud-burrow-animal .hh-head { animation: hud-hh-companion-head 38s linear infinite; }
+  .hud-burrow-animal .hh-torso { animation: hud-hh-breathe 2.6s ease-in-out infinite; }
+}
+@media (prefers-reduced-motion: reduce) { .hud-hedgehog.is-svg, .season-autumn .hud-burrow.is-svg .hud-burrow-animal { animation: none; } }
+@media (max-width: 600px) {
+  .season-autumn .hud-hedgehog.is-svg { animation-name: hud-hh-trip-narrow; }
+  .season-autumn .hud-hedgehog .hh, .season-autumn .hud-hedgehog .hh-head, .season-autumn .hud-burrow-animal .hh-head { animation-duration: 46s; }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .season-autumn .hud-hedgehog.is-svg { animation-name: hud-hh-trip-narrow; }
+  .season-autumn .hud-hedgehog .hh, .season-autumn .hud-hedgehog .hh-head, .season-autumn .hud-burrow-animal .hh-head { animation-duration: 46s; }
+} }
+/* cq ↑ */
+@keyframes hud-hh-breathe { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.015, 1.035); } }
+/* Второй ёж: ждёт мордой к первому, при встрече тянется к нему, уходит
+   в лаз первым; выглядывает, когда первый ушёл, и снова садится ждать. */
+@keyframes hud-hh-companion {
+  0%, 53%    { transform: none; filter: none; opacity: 1; animation-timing-function: ease-in; }
+  54.5%      { transform: translateY(2px) scale(.74); filter: brightness(.45); opacity: 1; }
+  56%, 76%   { transform: translateY(3px) scale(.6); filter: brightness(.25); opacity: 0; }
+  77.5%, 80% { transform: translateY(2px) scale(.72); filter: brightness(.45); opacity: 1; animation-timing-function: ease-out; }
+  82%        { transform: translateY(1px) scale(.86); filter: brightness(.72); opacity: 1; animation-timing-function: ease-in-out; }
+  84%, 100%  { transform: none; filter: none; opacity: 1; }
+}
+/* Широкая карточка: нора right 14%, ширина 58px; второй ёж — с 15px норы, шириной 28px.
+   Нос к носу: первый ёж кончается за 1px до второго. Лаз — по центру норы. */
+@keyframes hud-hh-trip {
+  0%, 13.9% { left: 20%; transform: none; filter: none; opacity: 1; animation-timing-function: cubic-bezier(.35, 0, .65, 1); }
+  26%, 29.9% { left: calc(43.76% - 27.4px); transform: none; filter: none; opacity: 1; animation-timing-function: cubic-bezier(.35, 0, .65, 1); }
+  41%, 42.9% { left: calc(70.16% - 57.8px); transform: none; filter: none; opacity: 1; animation-timing-function: cubic-bezier(.35, 0, .65, 1); }
+  48%, 55.9% { left: calc(86% - 76px); transform: none; filter: none; opacity: 1; animation-timing-function: cubic-bezier(.35, 0, .65, 1); }
+  58% { left: calc(86% - 45px); transform: none; filter: none; opacity: 1; animation-timing-function: ease-in; }
+  59.5% { left: calc(86% - 45px); transform: translateY(2px) scale(.72); filter: brightness(.45); opacity: 1; animation-timing-function: linear; }
+  61%, 68% { left: calc(86% - 45px); transform: translateY(3px) scale(.6); filter: brightness(.25); opacity: 0; animation-timing-function: linear; }
+  68.1% { left: calc(86% - 45px); transform: translateY(3px) scale(-.6, .6); filter: brightness(.25); opacity: 0; animation-timing-function: linear; }
+  69.5% { left: calc(86% - 45px); transform: translateY(2px) scale(-.72, .72); filter: brightness(.45); opacity: 1; animation-timing-function: ease-out; }
+  71%, 72.9% { left: calc(86% - 45px); transform: scale(-1, 1); filter: none; opacity: 1; animation-timing-function: cubic-bezier(.35, 0, .65, 1); }
+  84%, 86.9% { left: calc(53% - 38px); transform: scale(-1, 1); filter: none; opacity: 1; animation-timing-function: cubic-bezier(.35, 0, .65, 1); }
+  96% { left: 20%; transform: scale(-1, 1); filter: none; opacity: 1; animation-timing-function: ease-in-out; }
+  99%, 100% { left: 20%; transform: none; filter: none; opacity: 1; animation-timing-function: linear; }
+}
+/* Узкая: нора right 18%, scale(.92) от правого края. */
+@keyframes hud-hh-trip-narrow {
+  0%, 13.9% { left: 20%; transform: none; filter: none; opacity: 1; animation-timing-function: cubic-bezier(.35, 0, .65, 1); }
+  26%, 29.9% { left: calc(42.32% - 26.3px); transform: none; filter: none; opacity: 1; animation-timing-function: cubic-bezier(.35, 0, .65, 1); }
+  41%, 42.9% { left: calc(67.12% - 55.5px); transform: none; filter: none; opacity: 1; animation-timing-function: cubic-bezier(.35, 0, .65, 1); }
+  48%, 55.9% { left: calc(82% - 73px); transform: none; filter: none; opacity: 1; animation-timing-function: cubic-bezier(.35, 0, .65, 1); }
+  58% { left: calc(82% - 43px); transform: none; filter: none; opacity: 1; animation-timing-function: ease-in; }
+  59.5% { left: calc(82% - 43px); transform: translateY(2px) scale(.72); filter: brightness(.45); opacity: 1; animation-timing-function: linear; }
+  61%, 68% { left: calc(82% - 43px); transform: translateY(3px) scale(.6); filter: brightness(.25); opacity: 0; animation-timing-function: linear; }
+  68.1% { left: calc(82% - 43px); transform: translateY(3px) scale(-.6, .6); filter: brightness(.25); opacity: 0; animation-timing-function: linear; }
+  69.5% { left: calc(82% - 43px); transform: translateY(2px) scale(-.72, .72); filter: brightness(.45); opacity: 1; animation-timing-function: ease-out; }
+  71%, 72.9% { left: calc(82% - 43px); transform: scale(-1, 1); filter: none; opacity: 1; animation-timing-function: cubic-bezier(.35, 0, .65, 1); }
+  84%, 86.9% { left: calc(51% - 36.5px); transform: scale(-1, 1); filter: none; opacity: 1; animation-timing-function: cubic-bezier(.35, 0, .65, 1); }
+  96% { left: 20%; transform: scale(-1, 1); filter: none; opacity: 1; animation-timing-function: ease-in-out; }
+  99%, 100% { left: 20%; transform: none; filter: none; opacity: 1; animation-timing-function: linear; }
+}
+@keyframes hud-hh-gait {
+  0% { --hh-step: 0deg; --hh-bob: 0px; }
+  14% { --hh-step: 0deg; --hh-bob: 0px; }
+  14.32% { --hh-step: 20deg; --hh-bob: 0px; }
+  14.65% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  14.97% { --hh-step: -20deg; --hh-bob: 0px; }
+  15.3% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  15.63% { --hh-step: 20deg; --hh-bob: 0px; }
+  15.95% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  16.27% { --hh-step: -20deg; --hh-bob: 0px; }
+  16.6% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  16.93% { --hh-step: 20deg; --hh-bob: 0px; }
+  17.25% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  17.57% { --hh-step: -20deg; --hh-bob: 0px; }
+  17.9% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  18.23% { --hh-step: 20deg; --hh-bob: 0px; }
+  18.55% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  18.88% { --hh-step: -20deg; --hh-bob: 0px; }
+  19.2% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  19.52% { --hh-step: 20deg; --hh-bob: 0px; }
+  19.85% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  20.18% { --hh-step: -20deg; --hh-bob: 0px; }
+  20.5% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  20.82% { --hh-step: 20deg; --hh-bob: 0px; }
+  21.15% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  21.48% { --hh-step: -20deg; --hh-bob: 0px; }
+  21.8% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  22.13% { --hh-step: 20deg; --hh-bob: 0px; }
+  22.45% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  22.77% { --hh-step: -20deg; --hh-bob: 0px; }
+  23.1% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  23.43% { --hh-step: 20deg; --hh-bob: 0px; }
+  23.75% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  24.08% { --hh-step: -20deg; --hh-bob: 0px; }
+  24.4% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  24.73% { --hh-step: 20deg; --hh-bob: 0px; }
+  25.05% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  25.38% { --hh-step: -20deg; --hh-bob: 0px; }
+  26% { --hh-step: 0deg; --hh-bob: 0px; }
+  30% { --hh-step: 0deg; --hh-bob: 0px; }
+  30.32% { --hh-step: 20deg; --hh-bob: 0px; }
+  30.65% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  30.98% { --hh-step: -20deg; --hh-bob: 0px; }
+  31.3% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  31.63% { --hh-step: 20deg; --hh-bob: 0px; }
+  31.95% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  32.27% { --hh-step: -20deg; --hh-bob: 0px; }
+  32.6% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  32.92% { --hh-step: 20deg; --hh-bob: 0px; }
+  33.25% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  33.58% { --hh-step: -20deg; --hh-bob: 0px; }
+  33.9% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  34.23% { --hh-step: 20deg; --hh-bob: 0px; }
+  34.55% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  34.88% { --hh-step: -20deg; --hh-bob: 0px; }
+  35.2% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  35.52% { --hh-step: 20deg; --hh-bob: 0px; }
+  35.85% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  36.17% { --hh-step: -20deg; --hh-bob: 0px; }
+  36.5% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  36.83% { --hh-step: 20deg; --hh-bob: 0px; }
+  37.15% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  37.48% { --hh-step: -20deg; --hh-bob: 0px; }
+  37.8% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  38.13% { --hh-step: 20deg; --hh-bob: 0px; }
+  38.45% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  38.77% { --hh-step: -20deg; --hh-bob: 0px; }
+  39.1% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  39.42% { --hh-step: 20deg; --hh-bob: 0px; }
+  39.75% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  40.08% { --hh-step: -20deg; --hh-bob: 0px; }
+  40.4% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  41% { --hh-step: 0deg; --hh-bob: 0px; }
+  43% { --hh-step: 0deg; --hh-bob: 0px; }
+  43.33% { --hh-step: 20deg; --hh-bob: 0px; }
+  43.65% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  43.98% { --hh-step: -20deg; --hh-bob: 0px; }
+  44.3% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  44.63% { --hh-step: 20deg; --hh-bob: 0px; }
+  44.95% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  45.27% { --hh-step: -20deg; --hh-bob: 0px; }
+  45.6% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  45.92% { --hh-step: 20deg; --hh-bob: 0px; }
+  46.25% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  46.58% { --hh-step: -20deg; --hh-bob: 0px; }
+  46.9% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  47.23% { --hh-step: 20deg; --hh-bob: 0px; }
+  47.55% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  48% { --hh-step: 0deg; --hh-bob: 0px; }
+  56% { --hh-step: 0deg; --hh-bob: 0px; }
+  56.33% { --hh-step: 20deg; --hh-bob: 0px; }
+  56.65% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  56.98% { --hh-step: -20deg; --hh-bob: 0px; }
+  57.3% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  57.63% { --hh-step: 20deg; --hh-bob: 0px; }
+  58% { --hh-step: 0deg; --hh-bob: 0px; }
+  73% { --hh-step: 0deg; --hh-bob: 0px; }
+  73.33% { --hh-step: 20deg; --hh-bob: 0px; }
+  73.65% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  73.97% { --hh-step: -20deg; --hh-bob: 0px; }
+  74.3% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  74.63% { --hh-step: 20deg; --hh-bob: 0px; }
+  74.95% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  75.28% { --hh-step: -20deg; --hh-bob: 0px; }
+  75.6% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  75.92% { --hh-step: 20deg; --hh-bob: 0px; }
+  76.25% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  76.58% { --hh-step: -20deg; --hh-bob: 0px; }
+  76.9% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  77.22% { --hh-step: 20deg; --hh-bob: 0px; }
+  77.55% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  77.88% { --hh-step: -20deg; --hh-bob: 0px; }
+  78.2% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  78.53% { --hh-step: 20deg; --hh-bob: 0px; }
+  78.85% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  79.17% { --hh-step: -20deg; --hh-bob: 0px; }
+  79.5% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  79.83% { --hh-step: 20deg; --hh-bob: 0px; }
+  80.15% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  80.47% { --hh-step: -20deg; --hh-bob: 0px; }
+  80.8% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  81.13% { --hh-step: 20deg; --hh-bob: 0px; }
+  81.45% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  81.78% { --hh-step: -20deg; --hh-bob: 0px; }
+  82.1% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  82.42% { --hh-step: 20deg; --hh-bob: 0px; }
+  82.75% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  83.08% { --hh-step: -20deg; --hh-bob: 0px; }
+  83.4% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  84% { --hh-step: 0deg; --hh-bob: 0px; }
+  87% { --hh-step: 0deg; --hh-bob: 0px; }
+  87.33% { --hh-step: 20deg; --hh-bob: 0px; }
+  87.65% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  87.97% { --hh-step: -20deg; --hh-bob: 0px; }
+  88.3% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  88.63% { --hh-step: 20deg; --hh-bob: 0px; }
+  88.95% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  89.28% { --hh-step: -20deg; --hh-bob: 0px; }
+  89.6% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  89.92% { --hh-step: 20deg; --hh-bob: 0px; }
+  90.25% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  90.58% { --hh-step: -20deg; --hh-bob: 0px; }
+  90.9% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  91.22% { --hh-step: 20deg; --hh-bob: 0px; }
+  91.55% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  91.88% { --hh-step: -20deg; --hh-bob: 0px; }
+  92.2% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  92.53% { --hh-step: 20deg; --hh-bob: 0px; }
+  92.85% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  93.17% { --hh-step: -20deg; --hh-bob: 0px; }
+  93.5% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  93.83% { --hh-step: 20deg; --hh-bob: 0px; }
+  94.15% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  94.47% { --hh-step: -20deg; --hh-bob: 0px; }
+  94.8% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  95.13% { --hh-step: 20deg; --hh-bob: 0px; }
+  95.45% { --hh-step: 0deg; --hh-bob: -0.6px; }
+  96% { --hh-step: 0deg; --hh-bob: 0px; }
+  100% { --hh-step: 0deg; --hh-bob: 0px; }
+}
+@keyframes hud-hh-walker-head {
+  0% { transform: rotate(0deg); }
+  1.55% { transform: rotate(0deg); }
+  2% { transform: rotate(10deg); }
+  2.45% { transform: rotate(0deg); }
+  2.75% { transform: rotate(0deg); }
+  3.2% { transform: rotate(12deg); }
+  3.65% { transform: rotate(0deg); }
+  5.15% { transform: rotate(0deg); }
+  5.6% { transform: rotate(16deg); }
+  6.05% { transform: rotate(0deg); }
+  6.35% { transform: rotate(0deg); }
+  6.8% { transform: rotate(14deg); }
+  7.25% { transform: rotate(0deg); }
+  8.55% { transform: rotate(0deg); }
+  9% { transform: rotate(11deg); }
+  9.45% { transform: rotate(0deg); }
+  9.75% { transform: rotate(0deg); }
+  10.2% { transform: rotate(12deg); }
+  10.65% { transform: rotate(0deg); }
+  26.55% { transform: rotate(0deg); }
+  27% { transform: rotate(11deg); }
+  27.45% { transform: rotate(0deg); }
+  27.95% { transform: rotate(0deg); }
+  28.4% { transform: rotate(12deg); }
+  28.85% { transform: rotate(0deg); }
+  41% { transform: rotate(0deg); }
+  41.6% { transform: rotate(-7deg); }
+  42.6% { transform: rotate(-7deg); }
+  43.2% { transform: rotate(0deg); }
+  48.4% { transform: rotate(0deg); }
+  49% { transform: rotate(6deg); }
+  50% { transform: rotate(6deg); }
+  50.4% { transform: rotate(0deg); }
+  50.6% { transform: rotate(0deg); }
+  51% { transform: rotate(3deg); }
+  52.4% { transform: rotate(3deg); }
+  53% { transform: rotate(0deg); }
+  71.4% { transform: rotate(0deg); }
+  72% { transform: rotate(-6deg); }
+  72.6% { transform: rotate(-6deg); }
+  73.2% { transform: rotate(0deg); }
+  84.55% { transform: rotate(0deg); }
+  85% { transform: rotate(11deg); }
+  85.45% { transform: rotate(0deg); }
+  85.75% { transform: rotate(0deg); }
+  86.2% { transform: rotate(12deg); }
+  86.65% { transform: rotate(0deg); }
+  97.15% { transform: rotate(0deg); }
+  97.6% { transform: rotate(9deg); }
+  98.05% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}
+@keyframes hud-hh-companion-head {
+  0% { transform: rotate(0deg); }
+  5.55% { transform: rotate(0deg); }
+  6% { transform: rotate(10deg); }
+  6.45% { transform: rotate(0deg); }
+  6.75% { transform: rotate(0deg); }
+  7.2% { transform: rotate(11deg); }
+  7.65% { transform: rotate(0deg); }
+  20.55% { transform: rotate(0deg); }
+  21% { transform: rotate(10deg); }
+  21.45% { transform: rotate(0deg); }
+  21.75% { transform: rotate(0deg); }
+  22.2% { transform: rotate(11deg); }
+  22.65% { transform: rotate(0deg); }
+  34.55% { transform: rotate(0deg); }
+  35% { transform: rotate(10deg); }
+  35.45% { transform: rotate(0deg); }
+  43.4% { transform: rotate(0deg); }
+  44% { transform: rotate(-8deg); }
+  48.4% { transform: rotate(0deg); }
+  49% { transform: rotate(7deg); }
+  50% { transform: rotate(7deg); }
+  50.4% { transform: rotate(0deg); }
+  50.6% { transform: rotate(0deg); }
+  51% { transform: rotate(4deg); }
+  52.4% { transform: rotate(4deg); }
+  53% { transform: rotate(0deg); }
+  87.55% { transform: rotate(0deg); }
+  88% { transform: rotate(10deg); }
+  88.45% { transform: rotate(0deg); }
+  88.75% { transform: rotate(0deg); }
+  89.2% { transform: rotate(11deg); }
+  89.65% { transform: rotate(0deg); }
+  93.55% { transform: rotate(0deg); }
+  94% { transform: rotate(9deg); }
+  94.45% { transform: rotate(0deg); }
+  100% { transform: rotate(0deg); }
+}

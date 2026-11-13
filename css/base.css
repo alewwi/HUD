@@ -988,11 +988,14 @@
 }
 .hud-flowerbed { position: absolute; left: 0; right: 0; bottom: 6px; height: 46px; }
 .hud-flower { position: absolute; bottom: 0; width: 18px; height: 44px; animation: hud-flower-sway ease-in-out infinite; transform-origin: 50% 100%; }
-.hud-flower.f1 { left: 10%;  animation-duration: 4.6s; }
-.hud-flower.f2 { left: 30%;  animation-duration: 4s;   animation-delay: 0.4s; }
-.hud-flower.f3 { left: 50%;  animation-duration: 5s;   animation-delay: 0.9s; }
-.hud-flower.f4 { left: 68%;  animation-duration: 4.3s; animation-delay: 0.2s; }
-.hud-flower.f5 { left: 86%;  animation-duration: 4.8s; animation-delay: 1.2s; }
+/* Цветы стоят в просветах между стволами. Ствол дерева — в 41px от его
+   левого края (у bt4 — от правого), на любой ширине карточки; от ствола
+   до цветка — не меньше 10px. Узкие карточки прячут f3, f5 (season-plus.css). */
+.hud-flower.f1 { left: calc(2% + 9px);   animation-duration: 4.6s; }
+.hud-flower.f2 { left: calc(11% + 32px); animation-duration: 4s;   animation-delay: 0.4s; }
+.hud-flower.f3 { left: calc(20% + 58px); animation-duration: 5s;   animation-delay: 0.9s; }
+.hud-flower.f4 { left: calc(100% - 29px); animation-duration: 4.3s; animation-delay: 0.2s; }
+.hud-flower.f5 { left: calc(62% - 5px);  animation-duration: 4.8s; animation-delay: 1.2s; }
 @keyframes hud-flower-sway {
     0%   { transform: rotate(-4deg); }
     25%  { transform: rotate(-1.3deg); }
@@ -8278,17 +8281,13 @@ body.no-blur .hud-scene-time-group, body.no-blur .hud-weather-item, body.no-blur
     left: 34%; bottom: 10.4%; z-index: 4;
     transform: scale(.72); transform-origin: 0 100%;
 }
-/* Дальний дом за прудом: мельче, бледнее и чуть размыт — воздушная
-   перспектива дешевле и честнее, чем просто уменьшение. */
+/* Дальний дом за прудом: мельче и чуть светлее по тону. */
 .season-winter .hud-winter-house.h3 {
     left: 77%; bottom: 13.4%; z-index: 2;
     transform: scale(.46); transform-origin: 0 100%;
-    opacity: .62;
-    /* Воздушная перспектива: дальний дом не просто мельче и бледнее, он
-       ещё и светлее и менее контрастен — приближается по тону к небу.
-       Одной прозрачности мало: на светлом дневном фоне тёмный силуэт
-       всё равно читался как ближний. */
-    filter: blur(.4px) brightness(1.5) contrast(.62) saturate(.55)
+    /* Дальний дом непрозрачный: сквозь полупрозрачный силуэт просвечивали
+       деревья и пруд. Даль передаём только тоном — чуть светлее и мягче. */
+    filter: brightness(1.18) contrast(.82) saturate(.7)
             drop-shadow(0 3px 5px rgba(15,18,24,.10));
 }
 

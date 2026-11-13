@@ -4,6 +4,24 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.17 — 2026-11-13
+
+Weather scenes got richer: new details in all four seasons, the old ones redrawn, and the hedgehogs walk like hedgehogs.
+
+### Added
+- **Summer:** a palm with a curved ringed trunk, feathery fronds and coconuts, a lighthouse on the cape (its beam turns at night), a kite, a crab, shells and a starfish, clouds.
+- **Autumn:** a scarecrow with a crow, pumpkins, a lantern on the fence, mist over the meadow, a gust of maple leaves.
+- **Winter:** snowy spruces, a sled with a trail of footprints, a street lamp with a bullfinch (at night, a cone of light and a pool on the snow).
+- **Spring:** a duck leads her ducklings across the grass in the middle of the meadow (the mother pecks at the grass, the ducklings waddle), tulips, clouds.
+- **Night lights on their own layer:** the lighthouse beam and the lantern and campfire glows no longer dim with the darkened scene.
+
+### Changed
+- **Hedgehogs.** The first hedgehog goes from the apple tree to the burrow in short runs, sniffs at every stop, and its legs move only while it walks. At the burrow it greets the second one nose to nose, both go inside, then the first one walks back. The second one sits at the entrance facing the first and waits for it.
+- **The burrow** is a mound of earth with fallen leaves, a root over the entrance, dry grass and pebbles; the entrance darkens with depth.
+- **Snowman, sandcastle, campfire and flowerbed flowers** are redrawn.
+- **Spring flowers and tulips** stand between the trunks and never overlap the trees at any width; on a narrow card the extra ones hide.
+- **The far winter house** is opaque, same size.
+
 ## 23.89.16 — 2026-11-13
 
 Translations into other languages are complete: the HUD is written in the translation language, and the Customization sample is translated along with the interface.
