@@ -6,25 +6,26 @@
 // Вкладка памяти встраивает граф отношений, поэтому модуль зависит от
 // ./relations-graph.js.
 
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.13';
-import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.89.13';
-import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.89.13';
-import { buildRelGraphHTML, hudHasRelations } from './relations-graph.js?v=23.89.13';
-import { отложитьРисунок } from './lazy-svg.js?v=23.89.13';
-import { длинныйСписок } from './long-list.js?v=23.89.13';
-import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.89.13';
-import { общиеМеста } from './route-places.js?v=23.89.13';
-import { статусРужья } from '../codes.js?v=23.89.13';
-import { сеткаСекретов, вопросыСекретов } from './secrets-grid.js?v=23.89.13';
-import { кнопкаУдаления, кнопкаПодсказки } from './erase-button.js?v=23.89.13';
-import { приглашенияБезОтвета, разобратьНить } from '../turn-notes.js?v=23.89.13';
-import { дм } from './conception.js?v=23.89.13';
-import { settings } from '../settings.js?v=23.89.13';
-import { статусОбещания } from '../hud-expand.js?v=23.89.13';
-import { getAvatarUrl } from '../avatars.js?v=23.89.13';
-import { видПриглашений, видОбещаний, видТемВременем } from './views-plus.js?v=23.89.13';
-import { namesLikelySame } from '../names.js?v=23.89.13';
-import { полеВкл } from '../deep-fields.js?v=23.89.13';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.14';
+import { escapeHtml, applyTooltips, buildPillList, getSafeUserName } from '../utils.js?v=23.89.14';
+import { isNewLoreItem, loreButtonHTML } from '../lore.js?v=23.89.14';
+import { buildRelGraphHTML, hudHasRelations, данныеОтношений } from './relations-graph.js?v=23.89.14';
+import { видТаймлайна, видЭмоций, видГрафа, видДрева } from './views-story.js?v=23.89.14';
+import { отложитьРисунок } from './lazy-svg.js?v=23.89.14';
+import { длинныйСписок } from './long-list.js?v=23.89.14';
+import { видБлока, видМаршрута, видСекретов, видРужей, видВажного } from './views.js?v=23.89.14';
+import { общиеМеста } from './route-places.js?v=23.89.14';
+import { статусРужья } from '../codes.js?v=23.89.14';
+import { сеткаСекретов, вопросыСекретов } from './secrets-grid.js?v=23.89.14';
+import { кнопкаУдаления, кнопкаПодсказки } from './erase-button.js?v=23.89.14';
+import { приглашенияБезОтвета, разобратьНить } from '../turn-notes.js?v=23.89.14';
+import { дм } from './conception.js?v=23.89.14';
+import { settings } from '../settings.js?v=23.89.14';
+import { статусОбещания } from '../hud-expand.js?v=23.89.14';
+import { getAvatarUrl } from '../avatars.js?v=23.89.14';
+import { видПриглашений, видОбещаний, видТемВременем } from './views-plus.js?v=23.89.14';
+import { namesLikelySame } from '../names.js?v=23.89.14';
+import { полеВкл } from '../deep-fields.js?v=23.89.14';
 
 function parseRoutePoint(item) {
   // Модель иногда ставит дату перед временем («09.11, 22:15») — дату отбрасываем.
@@ -178,7 +179,18 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
   // Сам рисунок собирается, когда слот показался на экране (render/lazy-svg.js).
   try {
     const сломан = `<div class="hud-memory-relgraph-error" role="status">🕸 Граф отношений временно недоступен</div>`;
-    const граф = () => { try { return buildRelGraphHTML(hudData || {}, uid, extra && extra.ходыДерева) || ''; } catch (e) { console.warn('[TavernOS HUD] Relationship graph render failed:', e); return сломан; } };
+    // Свой вид графа и древа (Кастомизация → Вид блоков, render/views-story.js)
+    // встают в ту же рамку, что прежний граф: «Связи / Семья», невысокое окошко
+    // в карточке и большое окно с масштабом по нажатию.
+    const видГр = видБлока('relGraphView') || 'classic', видДр = видБлока('familyTreeView') || 'classic';
+    const опции = {
+      свой: видГр !== 'classic' ? () => видГрафа(данныеОтношений(hudData || {}), видГр) : null,
+      рисоватьДрево: видДр !== 'classic' ? (данные) => видДрева(данные, видДр) : null,
+    };
+    const граф = () => {
+      try { return buildRelGraphHTML(hudData || {}, uid, extra && extra.ходыДерева, { свой: опции.свой && опции.свой(), рисоватьДрево: опции.рисоватьДрево }) || ''; }
+      catch (e) { console.warn('[TavernOS HUD] Relationship graph render failed:', e); return сломан; }
+    };
     const relGraphHtml = hudHasRelations(hudData || {}) ? отложитьРисунок(uid + '-relgraph', граф, 320) : '';
     if (relGraphHtml) html += `<div class="hud-memory-relgraph-slot">${relGraphHtml}</div>`;
   } catch (e) {
@@ -188,7 +200,9 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
 
   // 1. ТАЙМЛАЙН (Вертикальная линия)
   try {
-  if (Array.isArray(memoryData.timeline) && memoryData.timeline.length > 0) {
+  const свойТаймлайн = Array.isArray(memoryData.timeline) && memoryData.timeline.length > 0 && видБлока('timelineView') !== 'classic' ? видТаймлайна(memoryData.timeline, видБлока('timelineView')) : '';
+  if (свойТаймлайн) html += `<div class="hud-row full-width"><span class="hud-key">⏳ Таймлайн:</span> ${свойТаймлайн}</div>`;
+  else if (Array.isArray(memoryData.timeline) && memoryData.timeline.length > 0) {
     const пункты = memoryData.timeline.map(item => {
       let text = String(item).trim().replace(/\.$/, '');
       let timeMatch = text.match(/^\[?([\d]{1,2}\s*:\s*\d{2})\]?\s*[-—–:]?\s*(.*)$/);
@@ -240,9 +254,12 @@ export function buildMemoryHTML(memoryData, uid, isChecked, hudData, extra = {})
   };
 
   if (memoryData.mood && (memoryData.mood.user?.current || memoryData.mood.char?.current || memoryData.mood.user?.history?.length > 0)) {
-    let moodHtml = '';
-    moodHtml += buildMoodHTML(memoryData.mood.user?.history, memoryData.mood.user?.current, getSafeUserName());
-    moodHtml += buildMoodHTML(memoryData.mood.char?.history, memoryData.mood.char?.current, charLabel);
+    let moodHtml = видБлока('moodView') !== 'classic' ? видЭмоций([
+      { имя: getSafeUserName(), сейчас: memoryData.mood.user?.current, история: memoryData.mood.user?.history },
+      { имя: charLabel, сейчас: memoryData.mood.char?.current, история: memoryData.mood.char?.history },
+    ], видБлока('moodView')) : '';
+    if (!moodHtml) moodHtml += buildMoodHTML(memoryData.mood.user?.history, memoryData.mood.user?.current, getSafeUserName());
+    if (!moodHtml.includes('hud-em ')) moodHtml += buildMoodHTML(memoryData.mood.char?.history, memoryData.mood.char?.current, charLabel);
     html += `<div class="hud-row full-width" style="overflow:hidden;"><span class="hud-key">🎭 Эмоции:</span> ${moodHtml}</div>`;
   }
 

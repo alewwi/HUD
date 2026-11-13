@@ -4,6 +4,23 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.14 — 2026-11-13
+
+New views for seven blocks; Customization follows the card order, every click on the sample leads to its own setting, and changing a view no longer loses the scroll or makes the HUD blink.
+
+### Added
+- **Views for seven blocks** (Customization → Block views). Pregnancy — "Mobile", "Knitting", "Sprout", "Week". Relations — "Lockets", "Address book", "Ivy", "Contents". Combat — "Fighting game", "Tactical tablet", "Chess game", "Summary". Relationship graph — "Coats of arms", "Seating", "Tapestry", "Matrix". Family tree — "Crown", "Book of lineage". Timeline — "Ship's log", "Music staff", "Storyboard", "Day ruler". Emotions — "Stained glass", "Palette", "Swatches", "Gradient".
+
+### Changed
+- **Customization follows the card.** Character blocks come in the order of the rows in the tab: plaques on top, look, body, location, thoughts, things and plans, ties, drama, intimacy. Tab blocks come in the order the player has the tabs (pinned first); move a tab and its section moves too. Memory goes top to bottom, as on the card. "Header and name" comes before "Portrait", the "Details" sections follow the card, "Body handwriting" sits with the body diary.
+- **Desire under the cycle, the "who knows what" grid and "A secret surfaced in an argument" are in the main settings** (HUD blocks → Body and health, Memory and plot): they set what the HUD shows and how it behaves, not the look. "Reset", "Default" and "As it was" in Customization no longer touch them.
+- Kinship words on family tree tags and in "mother → daughter" labels are translated in the English interface.
+
+### Fixed
+- Clicks on the sample went to the wrong place: Relations and the headers of Emotions, Invitations and Promises led to the general background, Pregnancy to the babies in the womb, Timeline to the route, body diary entries to the regular diary.
+- Changing a view in Customization reset the relationship graph to a placeholder: the tree went back to "Ties" and the scroll jumped. Now the graph and tree are built at once, the "Family" view, zoom and scroll stay, and the scroll keeps to the same block.
+- Changing a view made the preview blink: the open tab faded in again and decorations restarted from the first frame. Now only the block itself changes.
+
 ## 23.89.13 — 2026-11-13
 
 The family tree no longer turns a family friend the children call uncle into the mother's brother, and asks whose brother he is.

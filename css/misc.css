@@ -6616,6 +6616,8 @@ html.hud-pills-plain .hud-os-card .hud-row.kind-alarm .hud-detail-pill { backgro
   opacity: 1; transition: opacity .38s cubic-bezier(.4, 0, .2, 1);
 }
 .hud-custom-preview-body > .hud-swap-old.is-leaving { opacity: 0; }
+/* Новая карточка под растворяющейся старой — без переходов: вкладка не проявляется заново, и карточка не «моргает» (customize.js, собратьПросмотр). */
+.hud-custom-preview-body > .hud-swap-new, .hud-custom-preview-body > .hud-swap-new * { transition: none !important; }
 @media (prefers-reduced-motion: reduce) { .hud-custom-preview-body > .hud-swap-old { transition: none; } }
 .hud-custom-minimal { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 6px; }
 

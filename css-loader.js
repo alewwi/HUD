@@ -18,7 +18,7 @@
 //
 // Стенды (tests/tools) подключают всё разом через css/all.css.
 
-import { settings } from './settings.js?v=23.89.13';
+import { settings } from './settings.js?v=23.89.14';
 
 const ВЕРСИЯ = (() => { try { return new URL(import.meta.url).search; } catch (_) { return ''; } })();
 const МЕТКА = 'data-hud-css';
@@ -31,6 +31,7 @@ export const ЧАСТИ = [
   ['dream-views', (s) => s.enableDreams !== false],
   ['diary-moods', (s) => s.enableDiary !== false],
   ['diary-views', (s) => s.enableDiary !== false || s.enableIntercepts !== false],
+  ['story-views'],
   ['extras'],
   // Свои статы (custom-stats.js) — только когда они заведены.
   ['custom-stats', (s) => s.customStatsOn !== false && Array.isArray(s.customStats) && s.customStats.length > 0],

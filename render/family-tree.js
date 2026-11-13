@@ -8,9 +8,9 @@
 // Модуль не знает про граф отношений: получает готовые узлы и рёбра и отдаёт
 // SVG. Так нет круговой зависимости с relations-graph.js.
 
-import { escapeHtml, hudHashSeed, commentInitials, имяБезПриставки } from '../utils.js?v=23.89.13';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.13';
-import { найтиПоИмени } from '../names.js?v=23.89.13';
+import { escapeHtml, hudHashSeed, commentInitials, имяБезПриставки } from '../utils.js?v=23.89.14';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.14';
+import { найтиПоИмени } from '../names.js?v=23.89.14';
 
 // Кем «кому» приходится тому, у кого записано отношение. Ищем только в
 // первых словах: дальше идёт чувство, где «любит как сына» или «брат по
@@ -543,6 +543,8 @@ export function buildFamilyTree(nodes, edges, idBase, опции = {}) {
     return `<g class="hud-fam-kin"><rect x="${f(x - w / 2)}" y="${f(y - 8)}" width="${w}" height="16" rx="8"/>`
       + `<text x="${f(x)}" y="${f(y)}" text-anchor="middle" dominant-baseline="central">${escapeHtml(текст)}</text></g>`;
   };
+  // То же дерево данными — для других видов (render/views-story.js → видДрева).
+  const данные = { люди: [], браки: [], семьи: [], ветки: [], корни: [] };
   const шины = new Map();
   for (const [ребёнок, s] of родители) {
     if (!позиция.has(ребёнок) || люди.get(ребёнок).hidden) continue;
@@ -573,6 +575,8 @@ export function buildFamilyTree(nodes, edges, idBase, опции = {}) {
     путь += `M${f(Math.min(...xs))} ${f(шинаY)}H${f(Math.max(...xs))}`;
     детиЦ.forEach(c => { путь += `M${f(c.x)} ${f(шинаY)}V${f(c.y)}`; });
     линии += `<path class="hud-fam-link${видимыеРодители.length ? '' : ' is-siblings'}" d="${путь}"/>`;
+    const семьяДанные = { родители: видимыеРодители.slice(), дети: [] };
+    данные.семьи.push(семьяДанные);
     // На ветке к каждому ребёнку — кто кому кем: «мать → дочь». У братьев без
     // родителей — кем он приходится соседу по шине: «брат».
     д.forEach(id => {
@@ -593,6 +597,7 @@ export function buildFamilyTree(nodes, edges, idBase, опции = {}) {
         if (сосед) подпись = словоРодства.get(пара(сосед, id));
       }
       if (подпись) метки += пилюля(p.x + W_УЗЛА / 2, шинаY + 11, подпись);
+      семьяДанные.дети.push({ id, подпись });
     });
   });
   блоки.forEach(б => {
@@ -610,6 +615,7 @@ export function buildFamilyTree(nodes, edges, idBase, опции = {}) {
       // Недостающую сторону пары достраиваем по полу: «жена ⚭ …» → «жена ⚭ муж».
       const левый = левыйЗаписано || словоПоРоли('spouse', пол.get(a), правыйЗаписано);
       const правый = правыйЗаписано || словоПоРоли('spouse', пол.get(b), левыйЗаписано);
+      данные.браки.push({ a, b, бывший: !!бывший, слова: левыйЗаписано || правыйЗаписано ? `${левый || '…'} ${бывший ? '✕' : '⚭'} ${правый || '…'}` : '' });
       if (левыйЗаписано || правыйЗаписано) метки += пилюля((x1 + x2) / 2, pa.y - 10, `${левый || '…'} ${бывший ? '✕' : '⚭'} ${правый || '…'}`);
     }
   });
@@ -641,6 +647,8 @@ export function buildFamilyTree(nodes, edges, idBase, опции = {}) {
     const подписьПолная = ч.isUser ? 'это вы' : (ктоИгроку.get(id) || черезРодню || (ч.isPrimary ? 'персонаж' : ''));
     const подпись = подписьПолная.length > КОНЕЦ_ПОДПИСИ ? подписьПолная.slice(0, КОНЕЦ_ПОДПИСИ - 1) + '…' : подписьПолная;
     const tx = ax + r + 9;
+    данные.люди.push({ id, имя: ч.virtual ? '' : ч.name, роль: подписьПолная, неизвестно: !!ч.virtual, вы: !!ч.isUser, герой: !!ч.isPrimary,
+      x: p.x, y: p.y, адрес, цвет, инициалы: ч.virtual ? '?' : commentInitials(ч.name) });
     карточки += `<g class="hud-fam-node${ч.isUser ? ' is-user' : ''}${ч.isPrimary ? ' is-primary' : ''}${ч.virtual ? ' is-unknown' : ''}" data-node-name="${escapeHtml(ч.name)}">`
       + `<title>${escapeHtml(ч.virtual ? 'Звено родства не названо' : ч.name)}</title>`
       + `<rect class="hud-fam-card" x="${f(p.x)}" y="${f(p.y)}" width="${W_УЗЛА}" height="${H_УЗЛА}" rx="14"/>`
@@ -654,7 +662,13 @@ export function buildFamilyTree(nodes, edges, idBase, опции = {}) {
   });
 
   const svg = `<svg class="hud-fam-svg" viewBox="0 0 ${ширинаХолста} ${высотаХолста}" width="${ширинаХолста}" height="${высотаХолста}" role="img" aria-label="Генеалогическое дерево">${подписиВеток}${линии}${карточки}${метки}</svg>`;
+  // Ветки — несвязанные семьи; корни — блоки сверху вниз: супруги вместе,
+  // сватья рядом, дети — под ними. Скрытые звенья (неназванные) не попадают.
+  const видна = (id) => позиция.has(id) && !люди.get(id).hidden;
+  данные.ветки = ветки.map(в => ({ подпись: в.подпись || '', люди: в.все.filter(видна) }));
+  const вДанные = (б) => ({ члены: б.члены.filter(видна), сватья: б.сватья ? б.сватья.члены.filter(видна) : [], дети: б.дети.map(вДанные) });
+  данные.корни = корни.map(вДанные);
   const positions = {};
   позиция.forEach((p, id) => { if (!люди.get(id).hidden) positions[id] = { x: Math.round(p.x), y: Math.round(p.y) }; });
-  return { svg, people: видимые.length, positions, вопросы: вопросы.map(({ id, ...в }) => в) };
+  return { svg, people: видимые.length, positions, вопросы: вопросы.map(({ id, ...в }) => в), данные };
 }

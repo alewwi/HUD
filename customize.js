@@ -5,26 +5,28 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.13';
-import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.13';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.13';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.13';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.89.13';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.13';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.13';
-import { hudБлоки } from './hud-block.js?v=23.89.13';
-import { parseHUDComplex } from './hud-parser.js?v=23.89.13';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.13';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.13';
-import { английский, т } from './i18n.js?v=23.89.13';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.14';
+import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.14';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.14';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.14';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.89.14';
+import { порядокГрупп } from './tabs-order.js?v=23.89.14';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.14';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.14';
+import { hudБлоки } from './hud-block.js?v=23.89.14';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.14';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.14';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.14';
+import { английский, т } from './i18n.js?v=23.89.14';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 const пример = () => (английский() ? ПРИМЕР_EN : ПРИМЕР_RU);
-import { задатьПримерСемьи } from './render/conception.js?v=23.89.13';
-import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.13';
-import { привязатьИсторию } from './render/intimacy.js?v=23.89.13';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.13';
-import { attachHelpMarks } from './help.js?v=23.89.13';
-import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.13';
+import { задатьПримерСемьи } from './render/conception.js?v=23.89.14';
+import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.14';
+import { привязатьИсторию } from './render/intimacy.js?v=23.89.14';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.14';
+import { собратьРисунок } from './render/lazy-svg.js?v=23.89.14';
+import { attachHelpMarks } from './help.js?v=23.89.14';
+import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.14';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -128,15 +130,6 @@ export function разметкаПанелиТемы() {
           <div class="hud-budget-panel hud-custom-budget-body"><p class="hud-budget-note">Откройте раздел — посчитаю.</p></div>
         </details>
         <details data-sec="views" class="hud-custom-views hud-smooth"><summary>🧩 Вид блоков</summary>
-          <details class="hud-custom-sub hud-smooth"><summary>Портрет</summary>
-          <div class="hud-theme-grid">
-            ${основа.выбор('avatarShape', 'Форма портрета', 'Аватарка в шапке персонажа. «Авто» — арка на теме «Вампир», круг на остальных.', [['auto', 'Авто'], ['circle', 'Круг'], ['arch', 'Арка']])}
-            <div class="hud-theme-row" title="Пусто — цвет темы. Свой цвет — нажмите на квадрат."><label>Рамка портрета:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="avatarFrameColor" data-auto="accent" value="${s.avatarFrameColor || s.accentColor || '#8c5ad2'}"><button type="button" class="hud-theme-auto-btn" data-auto-key="avatarFrameColor" title="Вернуть цвет темы">как в теме</button></div></div>
-            <div class="hud-theme-row"><label>Масштаб портрета:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="avatarScale" min="100" max="300" value="${s.avatarScale ?? 100}"> <span style="font-size:0.8em;opacity:0.7">${s.avatarScale ?? 100}%</span></div></div>
-            <div class="hud-theme-row"><label>Портрет: влево-вправо</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="avatarOffsetX" min="0" max="100" value="${s.avatarOffsetX ?? 50}"> <span style="font-size:0.8em;opacity:0.7">${s.avatarOffsetX ?? 50}%</span></div></div>
-            <div class="hud-theme-row"><label>Портрет: вверх-вниз</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="avatarOffsetY" min="0" max="100" value="${s.avatarOffsetY ?? 50}"> <span style="font-size:0.8em;opacity:0.7">${s.avatarOffsetY ?? 50}%</span></div></div>
-            ${основа.выбор('avatarDeco', 'Украшение портрета', 'Одно украшение у портрета: рамка или рисунок темы (любой темы — можно взять чужой). «Авто» — рисунок темы, если он у портрета есть, иначе рамка темы; «Только рисунок темы» — без рамок. Картинки перекрашены в цвет темы (или в «Рамку портрета»). С шапкой-баннером не показывается.', [['none', 'Нет'], ['theme', 'Авто (по теме)'], ['scene', 'Только рисунок темы'], ...основа.РАМКИ_ПОРТРЕТА, ...рисункиМеста('a', 'scene:')])}
-          </div></details>
           <details class="hud-custom-sub hud-smooth"><summary>Шапка и имя</summary>
           <div class="hud-theme-grid">
             ${основа.выбор('headerStyle', 'Шапка персонажа', 'Баннер — аватарка растянута полосой над именем. Визитка — полоса из обоев чата, круглый портрет по центру, под именем занятие и возраст. Виджет погоды не трогает.', [['classic', 'Обычная'], ['banner', 'Баннер'], ['visit', 'Визитка']])}
@@ -158,6 +151,15 @@ export function разметкаПанелиТемы() {
             ${основа.выбор('epigraph', 'Эпиграф под именем', 'Имя в скобках 「」, под ним — первая фраза из мыслей (или реплик) персонажа, курсивом.', [['off', 'Нет'], ['on', 'Да']])}
             ${основа.выбор('dossierTag', 'Ярлык-досье', 'Над именем — чёрная бирка «Досье № … · имя · допуск огр.» с кромкой цвета темы.', [['off', 'Нет'], ['on', 'Да']])}
             ${основа.выбор('eclipseRing', 'Кольцо-затмение', 'Портрет в золотом кольце с тенью луны, под именем — строка хода с датой и временем, в конце вкладки — разделитель ✧.', [['off', 'Нет'], ['on', 'Да']])}
+          </div></details>
+          <details class="hud-custom-sub hud-smooth"><summary>Портрет</summary>
+          <div class="hud-theme-grid">
+            ${основа.выбор('avatarShape', 'Форма портрета', 'Аватарка в шапке персонажа. «Авто» — арка на теме «Вампир», круг на остальных.', [['auto', 'Авто'], ['circle', 'Круг'], ['arch', 'Арка']])}
+            <div class="hud-theme-row" title="Пусто — цвет темы. Свой цвет — нажмите на квадрат."><label>Рамка портрета:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="avatarFrameColor" data-auto="accent" value="${s.avatarFrameColor || s.accentColor || '#8c5ad2'}"><button type="button" class="hud-theme-auto-btn" data-auto-key="avatarFrameColor" title="Вернуть цвет темы">как в теме</button></div></div>
+            <div class="hud-theme-row"><label>Масштаб портрета:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="avatarScale" min="100" max="300" value="${s.avatarScale ?? 100}"> <span style="font-size:0.8em;opacity:0.7">${s.avatarScale ?? 100}%</span></div></div>
+            <div class="hud-theme-row"><label>Портрет: влево-вправо</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="avatarOffsetX" min="0" max="100" value="${s.avatarOffsetX ?? 50}"> <span style="font-size:0.8em;opacity:0.7">${s.avatarOffsetX ?? 50}%</span></div></div>
+            <div class="hud-theme-row"><label>Портрет: вверх-вниз</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="avatarOffsetY" min="0" max="100" value="${s.avatarOffsetY ?? 50}"> <span style="font-size:0.8em;opacity:0.7">${s.avatarOffsetY ?? 50}%</span></div></div>
+            ${основа.выбор('avatarDeco', 'Украшение портрета', 'Одно украшение у портрета: рамка или рисунок темы (любой темы — можно взять чужой). «Авто» — рисунок темы, если он у портрета есть, иначе рамка темы; «Только рисунок темы» — без рамок. Картинки перекрашены в цвет темы (или в «Рамку портрета»). С шапкой-баннером не показывается.', [['none', 'Нет'], ['theme', 'Авто (по теме)'], ['scene', 'Только рисунок темы'], ...основа.РАМКИ_ПОРТРЕТА, ...рисункиМеста('a', 'scene:')])}
           </div></details>
           <details class="hud-custom-sub hud-smooth"><summary>Рисунки темы</summary>
           <div class="hud-theme-grid">
@@ -228,20 +230,34 @@ export function разметкаПанелиТемы() {
             ${основа.выбор('genIndicator', 'Плашка «модель пишет HUD»', 'Пока HUD перегенерируется, над карточкой — круги на воде, пластинка и секундомер. Двигаются под курсором или по нажатию.', [['off', 'Нет'], ['on', 'Да']])}
             ${пунктыИнтерфейса()}
           </div></details>
-          ${[...new Set(ВИДЫ_БЛОКОВ.map(б => б.группа))].map(группа => `<details class="hud-custom-sub hud-smooth hud-custom-views-group"><summary>Блоки: ${группа}</summary><div class="hud-theme-grid">`
+          ${группыПоВкладкам().map(группа => `<details class="hud-custom-sub hud-smooth hud-custom-views-group"><summary>Блоки: ${группа}</summary><div class="hud-theme-grid">`
           // Цикл в карточке идёт сразу после тела — в «Теле и здоровье».
           + ВИДЫ_БЛОКОВ.filter(б => б.группа === группа).map((б, i, все) => `<div class="hud-theme-row"><label>${б.поле}:</label>`
             + `<select class="hud-theme-select-input hud-custom-rerender" data-key="${б.ключ}">${Object.entries(б.виды).map(([k, имя], i) => `<option value="${k}"${видБлока(б.ключ) === k ? ' selected' : ''}>${имя}${i || б.новый ? '' : ' (как было)'}</option>`).join('')}</select></div>`
             + (б.ключ === 'clothesView' ? основа.выбор('underwearView', 'Бельё', 'Комплект с силуэтами или слоем между кожей и одеждой (если бельё включено в настройках)', [['set', 'Комплект'], ['layer', 'Слоем']]) : '')
-            + (б.ключ === 'secretsView' ? основа.выбор('secretsGrid', 'Сетка «кто что знает»', 'Над секретами: кто знает, подозревает, не знает или ошибается, и кого нельзя посвящать в сцене', [['auto', 'От трёх секретов'], ['on', 'Всегда'], ['off', 'Не показывать']])  + основа.выбор('secretsAutoRaise', 'Всплыло в споре', 'Секрет прозвучал в словесной дуэли при том, кто его не знал: спросить, отметить ли «знает / подозревает», отметить сразу или молчать. Отметка — ваша правка: модель её увидит, текст сообщения не меняется', [['ask', 'Спросить'], ['auto', 'Сразу'], ['off', 'Молчать']]): '')
             // Цикл в карточке идёт после беременности и «После родов» — последним в «Теле и здоровье».
-            + (б.ключ === 'postpartumView' ? `<div class="hud-theme-row"><label>Менструальный цикл:</label><select class="hud-theme-select-input hud-custom-rerender" data-key="cycleView">${Object.entries(ВИДЫ_ЦИКЛА).map(([k, имя]) => `<option value="${k}"${(s.cycleView || 'ring') === k ? ' selected' : ''}>${имя}</option>`).join('')}</select></div>`
-              + основа.выбор('cycleLibido', 'Влечение под циклом', 'Линия — склонность по фазе, её считает HUD; точки — желание из близости, когда о нём писали', [['phase+actual', 'Фаза и как было'], ['phase', 'Только по фазе'], ['off', 'Не показывать']]) : '')
-            // Силуэт карты тела и почерк дневника тела — сразу за видом карты.
-            + (б.ключ === 'bodyMapView' ? пунктыСилуэта() : '')).join('')
+            + (б.ключ === 'postpartumView' ? `<div class="hud-theme-row"><label>Менструальный цикл:</label><select class="hud-theme-select-input hud-custom-rerender" data-key="cycleView">${Object.entries(ВИДЫ_ЦИКЛА).map(([k, имя]) => `<option value="${k}"${(s.cycleView || 'ring') === k ? ' selected' : ''}>${имя}</option>`).join('')}</select></div>` : '')
+            // Силуэт карты тела — сразу за видом карты; почерк тела — у дневника тела.
+            + (б.ключ === 'bodyMapView' ? пунктыСилуэта() : '')
+            + (б.ключ === 'bodyDiaryView' ? основа.выбор('bodyDiaryHand', 'Почерк тела', 'Запись дневника тела меняет вид по накалу сцены: на пике — крупнее и рваный ритм, после — ровно и мельче', [['off', 'Нет'], ['on', 'Да']]) : '')).join('')
           + `</div>${группа === 'Близость' ? обликИгрока() : ''}</details>`).join('')}
           <div class="hud-theme-row hud-custom-minimal"><button type="button" class="hud-theme-act hud-custom-minimal-btn" title="Один цвет, без значков, одинаковое оформление — и без украшений из тем: рамок, картинок, разделителей, бумаги, печати, эффектов имени, мелочей, особых галочек. Рисунки темы остаются — значками, без картинок">◻ Минимализм</button><button type="button" class="hud-theme-act hud-custom-rich-btn" title="Вернуть всё, как было до «Минимализма»: цвета по смыслу, значки, оформление полей и украшения — и виды блоков по умолчанию">✦ Как было</button><button type="button" class="hud-theme-act hud-custom-auto-btn" title="Все украшения из тем — рамка, углы, разделители, бумага, имя, мелочи — на «Авто»: у каждой темы свои">✦ Всё по теме</button><button type="button" class="hud-theme-act hud-custom-default-btn" title="Всё оформление — как задумано с самого начала, по умолчанию: виды блоков, украшения и рисунки темы. Тема, цвета и основные настройки не меняются">⟲ Дефолт</button></div>
           <div class="hud-theme-presets-note">Вид блока цикла и секций у персонажей и у игрока. Справа видно сразу; карточки в чате перерисуются, когда закроешь окно.</div>
+        </details>
+        <details data-sec="bars" class="hud-smooth"><summary>🗂️ Верхние плашки & Табы</summary>
+          <div class="hud-theme-grid">
+            <div class="hud-theme-row"><label>Верхняя панель:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="topBarBg" value="${s.topBarBg}"><input type="range" class="hud-theme-range-input" data-key="topBarAlpha" min="0" max="100" value="${s.topBarAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Фон вкладок (Табы):</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="tabsBg" value="${s.tabsBg}"><input type="range" class="hud-theme-range-input" data-key="tabsAlpha" min="0" max="100" value="${s.tabsAlpha}"></div></div>
+          </div>
+        </details>
+        <details data-sec="weather" class="hud-smooth"><summary>🌤️ Виджет погоды</summary>
+          <div class="hud-theme-grid">
+            <div class="hud-theme-row"><label>Оверлей (Оттенок):</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="sceneOverlayColor" value="${s.sceneOverlayColor}"><input type="range" class="hud-theme-range-input" data-key="sceneOverlayAlpha" min="0" max="100" value="${s.sceneOverlayAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Цвет текста:</label> <input type="color" class="hud-theme-color-input" data-key="sceneTextColor" value="${s.sceneTextColor}"></div>
+            <div class="hud-theme-row"><label>Фон плашек:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="weatherBgColor" value="${s.weatherBgColor}"><input type="range" class="hud-theme-range-input" data-key="weatherBgAlpha" min="0" max="100" value="${s.weatherBgAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Блюр плашек:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="weatherBlur" min="0" max="30" value="${s.weatherBlur}"> <span style="font-size:0.8em;opacity:0.7">${s.weatherBlur}px</span></div></div>
+            <div class="hud-theme-row" title="Насколько сильно вечер и ночь притемняют виджет погоды — и в покое, и после касания. 0 — не притемнять вовсе, 100 — исходная сила."><label>Затемнение сцены:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="sceneDarkness" min="0" max="150" value="${s.sceneDarkness}"> <span style="font-size:0.8em;opacity:0.7">${s.sceneDarkness}%</span></div></div>
+          </div>
         </details>
         <details data-sec="colors" class="hud-smooth"><summary>🎨 Общие цвета & Фоны</summary>
           <div class="hud-theme-grid">
@@ -273,13 +289,11 @@ export function разметкаПанелиТемы() {
             <div class="hud-theme-row"><label>Инфоблок (Конец):</label> <input type="color" class="hud-theme-color-input" data-key="infoBlockBgEnd" value="${s.infoBlockBgEnd}"></div>
           </div>
         </details>
-        <details data-sec="memory" class="hud-smooth"><summary>🧠 Память</summary>
+        <details data-sec="drama" class="hud-smooth"><summary>⚠️ Драма & NSFW</summary>
           <div class="hud-theme-grid">
-            <div class="hud-theme-row"><label>Фон (Старт):</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="memoryBgStart" value="${s.memoryBgStart}"><input type="range" class="hud-theme-range-input" data-key="memoryBgAlpha" min="0" max="100" value="${s.memoryBgAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Фон (Конец):</label> <input type="color" class="hud-theme-color-input" data-key="memoryBgEnd" value="${s.memoryBgEnd}"></div>
-            <div class="hud-theme-row"><label>Акцент:</label> <input type="color" class="hud-theme-color-input" data-key="memoryAccent" value="${s.memoryAccent}"></div>
-            <div class="hud-theme-row"><label>Свечение:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="memoryGlowAlpha" min="0" max="100" value="${s.memoryGlowAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Блюр:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="memoryBlur" min="0" max="30" value="${s.memoryBlur}"><span style="font-size:0.8em;opacity:0.7">${s.memoryBlur}px</span></div></div>
+            <div class="hud-theme-row"><label>Цвет Драмы:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="dramaColor" value="${s.dramaColor}"><input type="range" class="hud-theme-range-input" data-key="dramaBgAlpha" min="0" max="100" value="${s.dramaBgAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Цвет NSFW:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="nsfwColor" value="${s.nsfwColor}"><input type="range" class="hud-theme-range-input" data-key="nsfwBgAlpha" min="0" max="100" value="${s.nsfwBgAlpha}"></div></div>
+
           </div>
         </details>
         <details data-sec="phone" class="hud-smooth"><summary>📱 Телефон — настройки темы</summary>
@@ -305,32 +319,19 @@ export function разметкаПанелиТемы() {
             <div class="hud-theme-row"><label>Вид телефона:</label> <select class="hud-theme-select-input" data-key="phoneDevice"><option value="iphone"${(settings.phoneDevice || 'iphone') === 'iphone' ? ' selected' : ''}>Айфон</option><option value="android"${(settings.phoneDevice || 'iphone') === 'android' ? ' selected' : ''}>Андроид</option><option value="keypad"${(settings.phoneDevice || 'iphone') === 'keypad' ? ' selected' : ''}>Кнопочный</option></select></div><div class="hud-theme-row"><label>Состояние экрана:</label> <select class="hud-theme-select-input" data-key="phoneCracks"><option value="off"${(settings.phoneCracks || 'off') === 'off' ? ' selected' : ''}>Целый</option><option value="light"${(settings.phoneCracks || 'off') === 'light' ? ' selected' : ''}>Трещина</option><option value="heavy"${(settings.phoneCracks || 'off') === 'heavy' ? ' selected' : ''}>Разбит</option></select></div><div class="hud-theme-row"><label>Часы блокировки:</label> <select class="hud-theme-select-input" data-key="phoneLockClock"><option value="classic"${(settings.phoneLockClock || 'classic') === 'classic' ? ' selected' : ''}>Обычные</option><option value="stacked"${(settings.phoneLockClock || 'classic') === 'stacked' ? ' selected' : ''}>В два ряда</option><option value="thin"${(settings.phoneLockClock || 'classic') === 'thin' ? ' selected' : ''}>Тонкие</option><option value="mono"${(settings.phoneLockClock || 'classic') === 'mono' ? ' selected' : ''}>Табло</option><option value="analog"${(settings.phoneLockClock || 'classic') === 'analog' ? ' selected' : ''}>Со стрелками</option></select></div><div class="hud-theme-row"><label>Стиль уведомлений:</label> <select class="hud-theme-select-input" data-key="phoneNotifStyle"><option value="stack"${(settings.phoneNotifStyle || 'stack') === 'stack' ? ' selected' : ''}>Стопка</option><option value="pill"${(settings.phoneNotifStyle || 'stack') === 'pill' ? ' selected' : ''}>Пилюля</option><option value="ring"${(settings.phoneNotifStyle || 'stack') === 'ring' ? ' selected' : ''}>Таймер-кольцо</option><option value="bubble"${(settings.phoneNotifStyle || 'stack') === 'bubble' ? ' selected' : ''}>Пузырь</option></select></div><div class="hud-theme-row"><label>Карточек уведомлений:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="phoneNotifMax" min="1" max="5" value="${s.phoneNotifMax}"> <span style="font-size:0.8em;opacity:0.7">${s.phoneNotifMax}</span></div></div>
           </div>
         </details>
-        <details data-sec="bars" class="hud-smooth"><summary>🗂️ Верхние плашки & Табы</summary>
+        <details data-sec="memory" class="hud-smooth"><summary>🧠 Память</summary>
           <div class="hud-theme-grid">
-            <div class="hud-theme-row"><label>Верхняя панель:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="topBarBg" value="${s.topBarBg}"><input type="range" class="hud-theme-range-input" data-key="topBarAlpha" min="0" max="100" value="${s.topBarAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Фон вкладок (Табы):</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="tabsBg" value="${s.tabsBg}"><input type="range" class="hud-theme-range-input" data-key="tabsAlpha" min="0" max="100" value="${s.tabsAlpha}"></div></div>
-          </div>
-        </details>
-        <details data-sec="weather" class="hud-smooth"><summary>🌤️ Виджет погоды</summary>
-          <div class="hud-theme-grid">
-            <div class="hud-theme-row"><label>Оверлей (Оттенок):</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="sceneOverlayColor" value="${s.sceneOverlayColor}"><input type="range" class="hud-theme-range-input" data-key="sceneOverlayAlpha" min="0" max="100" value="${s.sceneOverlayAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Цвет текста:</label> <input type="color" class="hud-theme-color-input" data-key="sceneTextColor" value="${s.sceneTextColor}"></div>
-            <div class="hud-theme-row"><label>Фон плашек:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="weatherBgColor" value="${s.weatherBgColor}"><input type="range" class="hud-theme-range-input" data-key="weatherBgAlpha" min="0" max="100" value="${s.weatherBgAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Блюр плашек:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="weatherBlur" min="0" max="30" value="${s.weatherBlur}"> <span style="font-size:0.8em;opacity:0.7">${s.weatherBlur}px</span></div></div>
-            <div class="hud-theme-row" title="Насколько сильно вечер и ночь притемняют виджет погоды — и в покое, и после касания. 0 — не притемнять вовсе, 100 — исходная сила."><label>Затемнение сцены:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="sceneDarkness" min="0" max="150" value="${s.sceneDarkness}"> <span style="font-size:0.8em;opacity:0.7">${s.sceneDarkness}%</span></div></div>
+            <div class="hud-theme-row"><label>Фон (Старт):</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="memoryBgStart" value="${s.memoryBgStart}"><input type="range" class="hud-theme-range-input" data-key="memoryBgAlpha" min="0" max="100" value="${s.memoryBgAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Фон (Конец):</label> <input type="color" class="hud-theme-color-input" data-key="memoryBgEnd" value="${s.memoryBgEnd}"></div>
+            <div class="hud-theme-row"><label>Акцент:</label> <input type="color" class="hud-theme-color-input" data-key="memoryAccent" value="${s.memoryAccent}"></div>
+            <div class="hud-theme-row"><label>Свечение:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="memoryGlowAlpha" min="0" max="100" value="${s.memoryGlowAlpha}"></div></div>
+            <div class="hud-theme-row"><label>Блюр:</label> <div class="hud-theme-flex"><input type="range" class="hud-theme-range-input" data-key="memoryBlur" min="0" max="30" value="${s.memoryBlur}"><span style="font-size:0.8em;opacity:0.7">${s.memoryBlur}px</span></div></div>
           </div>
         </details>
         <details data-sec="intercepts" class="hud-smooth"><summary>📡 Перехваты</summary>
           <div class="hud-theme-grid">
             <div class="hud-theme-row"><label>Цвет Перехвата:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="interceptColor" value="${s.interceptColor}"><input type="range" class="hud-theme-range-input" data-key="interceptBgAlpha" min="0" max="100" value="${s.interceptBgAlpha}"></div></div>
             <div class="hud-theme-row"><label>Бейдж уведомл.:</label> <input type="color" class="hud-theme-color-input" data-key="badgeColor" value="${s.badgeColor}"></div>
-          </div>
-        </details>
-        <details data-sec="drama" class="hud-smooth"><summary>⚠️ Драма & NSFW</summary>
-          <div class="hud-theme-grid">
-            <div class="hud-theme-row"><label>Цвет Драмы:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="dramaColor" value="${s.dramaColor}"><input type="range" class="hud-theme-range-input" data-key="dramaBgAlpha" min="0" max="100" value="${s.dramaBgAlpha}"></div></div>
-            <div class="hud-theme-row"><label>Цвет NSFW:</label> <div class="hud-theme-flex"><input type="color" class="hud-theme-color-input" data-key="nsfwColor" value="${s.nsfwColor}"><input type="range" class="hud-theme-range-input" data-key="nsfwBgAlpha" min="0" max="100" value="${s.nsfwBgAlpha}"></div></div>
-
           </div>
         </details>
         <details data-sec="fonts" class="hud-smooth"><summary>✍️ Шрифты & Размеры</summary>
@@ -363,6 +364,8 @@ export function разметкаПанелиТемы() {
 // Пункты, что пришли волной 3 отдельным разделом «Новое оформление», живут
 // там, к чему относятся: окно и анимации — в «Интерфейсе», силуэт и почерк
 // тела — у карты тела («Блоки: Близость»), углы — у секций, свет — у сцены.
+// Группы «Блоки: …» — строки персонажа, затем вкладки в порядке игрока (tabs-order.js).
+const группыПоВкладкам = () => порядокГрупп([...new Set(ВИДЫ_БЛОКОВ.map(б => б.группа))], settings);
 const пунктыИнтерфейса = () => [
   основа.выбор('autoAccentText', 'Акцент как текст', 'Если акцент темы плохо читается на фоне карточки (контраст ниже 4,5:1), надписи акцентом чуть темнеют или светлеют. Выбранный цвет не меняется — значок у цвета показывает контраст', [['on', 'Подправлять'], ['off', 'Как выбрано']]),
   основа.выбор('iconStyle', 'Рисунок значков', 'Как нарисованы значки-рисунки (эмодзи или рисунки — в настройках, «Отображение» → «Значки»); «по теме» — пиксель в киберпанке, тушь в нуаре и Японии, округлые в каваи', [['auto', 'По теме'], ['line', 'Линия'], ['duotone', 'Два тона'], ['pixel', 'Пиксель'], ['ink', 'Тушь'], ['rounded', 'Округлые']]),
@@ -375,7 +378,6 @@ const пунктыСилуэта = () => [
   основа.выбор('silhouetteLook', 'Силуэт карты тела', 'Тон кожи, волосы, сложение и шрамы — из описания внешности; у игрока — ещё «Мой облик» ниже', [['neutral', 'Нейтральный'], ['auto', 'По внешности']]),
   основа.выбор('silhouetteStyle', 'Вид тела на карте', 'Контур — тёмное тело и светящаяся линия цвета темы; тепловизор — тепло растекается по тёмно-синему телу; мягкий объём — тон кожи из описания, тень и свет', [['line', 'Контур'], ['thermal', 'Тепловизор'], ['soft', 'Мягкий объём']]),
   основа.выбор('silhouetteOutlines', 'Очертания на силуэте', 'Только линии — изгиб груди, паховые линии — там, где одежды нет или она это место открывает', [['on', 'Показывать'], ['off', 'Не показывать']]),
-  основа.выбор('bodyDiaryHand', 'Почерк тела', 'Запись дневника тела меняет вид по накалу сцены: на пике — крупнее и рваный ритм, после — ровно и мельче', [['off', 'Нет'], ['on', 'Да']]),
 ].join('');
 // «Мой облик» — поля одного объекта settings.userLook, под «Блоками: Близость».
 function обликИгрока() {
@@ -435,24 +437,98 @@ function источникиПросмотра() {
   return источники;
 }
 
+// Якорь прокрутки — самый глубокий узел (до восьми уровней), который
+// пересекает верхний край окна прокрутки, и насколько он ушёл за край.
+// По нему прокрутка возвращается к тому же месту, даже если блок выше
+// сменил вид и стал другой высоты: была на дереве — осталась на дереве.
+function якорьПрокрутки(эл, корень) {
+  const верх = эл.getBoundingClientRect().top + 1;
+  let узел = эл, итог = null;
+  for (let глубина = 0; глубина < 8; глубина++) {
+    const под = Array.from(узел.children).find(р => { const r = р.getBoundingClientRect(); return r.height > 0 && r.top <= верх && r.bottom > верх; });
+    if (!под) break;
+    узел = под;
+    итог = [основа.путьУзла(под, корень), верх - под.getBoundingClientRect().top];
+  }
+  return итог;
+}
+
 export function снятьПрокрутки(корень) {
   return [корень, ...корень.querySelectorAll('*')]
     .filter(эл => эл.scrollTop > 0 || эл.scrollLeft > 0)
-    .map(эл => [основа.путьУзла(эл, корень), эл.scrollTop, эл.scrollLeft, эл.scrollHeight - эл.clientHeight]);
+    .map(эл => [основа.путьУзла(эл, корень), эл.scrollTop, эл.scrollLeft, эл.scrollHeight - эл.clientHeight, эл.scrollTop > 0 ? якорьПрокрутки(эл, корень) : null]);
 }
 
 export function вернутьПрокрутки(корень, снимок) {
   if (!снимок || !снимок.length) return;
-  const нужно = new Map(снимок.map(([путь, сверху, слева, было]) => [путь, [сверху, слева, было]]));
-  for (const эл of [корень, ...корень.querySelectorAll('*')]) {
+  const нужно = new Map(снимок.map(([путь, сверху, слева, было, якорь]) => [путь, [сверху, слева, было, якорь]]));
+  const все = [корень, ...корень.querySelectorAll('*')];
+  let поПути = null;
+  const узелПути = (путь) => {
+    if (!поПути) { поПути = new Map(); for (const эл of все) { const п = основа.путьУзла(эл, корень); if (!поПути.has(п)) поПути.set(п, эл); } }
+    return поПути.get(путь) || null;
+  };
+  for (const эл of все) {
     if (эл.scrollHeight <= эл.clientHeight && эл.scrollWidth <= эл.clientWidth) continue;
     const з = нужно.get(основа.путьУзла(эл, корень));
     if (!з) continue;
-    // Высота изменилась (другое оформление секций) — держим ту же долю:
+    эл.scrollLeft = з[1];
+    // Тот же узел под верхним краем — на то же место.
+    const якорь = з[3] && узелПути(з[3][0]);
+    if (якорь && эл.contains(якорь)) {
+      эл.scrollTop += якорь.getBoundingClientRect().top - (эл.getBoundingClientRect().top + 1) + з[3][1];
+      continue;
+    }
+    // Якоря нет (разметка блока сменилась целиком) — держим ту же долю:
     // была середина — остаётся середина.
     const стало = эл.scrollHeight - эл.clientHeight;
     эл.scrollTop = з[2] > 0 && Math.abs(стало - з[2]) > 2 ? Math.round(з[0] / з[2] * стало) : з[0];
-    эл.scrollLeft = з[1];
+  }
+}
+
+// Граф отношений в «Памяти»: вид «Семья», масштаб и размер дерева живут на
+// самом графе. Новая карточка их не знает — переносим со старой, иначе после
+// смены любого вида дерево возвращалось к «Связям» другой высоты.
+function перенестиГраф(старая, новая) {
+  const старые = старая.querySelectorAll('.hud-rel-graph'), новые = новая.querySelectorAll('.hud-rel-graph');
+  старые.forEach((с, i) => {
+    const н = новые[i];
+    if (!н) return;
+    for (const к of ['famZoom', 'famFit', 'famManual']) if (с.dataset[к] !== undefined) н.dataset[к] = с.dataset[к];
+    const сс = с.querySelector('.hud-fam-svg'), нс = н.querySelector('.hud-fam-svg');
+    if (сс && нс && сс.style.width) { нс.style.width = сс.style.width; нс.style.height = сс.style.height; }
+    const со = с.querySelector('.hud-fam-own'), но = н.querySelector('.hud-fam-own');
+    if (со && но && со.style.getPropertyValue('--ft-zoom')) но.style.setProperty('--ft-zoom', со.style.getPropertyValue('--ft-zoom'));
+    if (с.dataset.relMode !== 'family' || н.dataset.relMode === 'family') return;
+    // Нажатие на «Семью» — тот же путь, что у игрока (events.js), но без
+    // перехода к настройке: это не клик игрока.
+    const кнопка = н.querySelector('.hud-rel-mode[data-rel-mode="family"]');
+    if (!кнопка) return;
+    const было = settings.customClickNav;
+    settings.customClickNav = false;
+    try { кнопка.click(); } finally { settings.customClickNav = было; }
+  });
+}
+
+// Бесконечные украшения (ёжик, листья, звёзды) в новой карточке начинаются с
+// первого кадра — вся карточка «дёргалась». Продолжаем с того же места.
+function снятьАнимации(корень) {
+  const итог = new Map();
+  if (typeof корень.getAnimations !== 'function') return итог;
+  for (const а of корень.getAnimations({ subtree: true })) {
+    const цель = а.effect && а.effect.target;
+    if (!а.animationName || !цель || а.currentTime == null) continue;
+    итог.set(основа.путьУзла(цель, корень) + '|' + а.animationName, а.currentTime);
+  }
+  return итог;
+}
+function вернутьАнимации(корень, снимок) {
+  if (!снимок || !снимок.size || typeof корень.getAnimations !== 'function') return;
+  for (const а of корень.getAnimations({ subtree: true })) {
+    const цель = а.effect && а.effect.target;
+    if (!а.animationName || !цель) continue;
+    const t = снимок.get(основа.путьУзла(цель, корень) + '|' + а.animationName);
+    if (t != null) try { а.currentTime = t; } catch (_) { /* не все анимации дают себя двигать */ }
   }
 }
 
@@ -490,6 +566,7 @@ export function собратьПросмотр(окно) {
   const прежняя = место.querySelector('.hud-os-card');
   const состояние = прежняя ? основа.readCardUiState(место) : null;
   const внутри = прежняя ? снятьПрокрутки(прежняя) : [];
+  const кадры = прежняя ? снятьАнимации(прежняя) : null;
   const снаружи = ['.hud-custom-preview', '.hud-custom-body', '.hud-custom-dialog', '.hud-custom-preview-body']
     .map(с => окно.querySelector(с)).filter(Boolean).map(узел => [узел, узел.scrollTop]);
   // Старая разметка остаётся поверх новой и растворяется: перекрёстный
@@ -508,6 +585,11 @@ export function собратьПросмотр(окно) {
   if (старые.length) место.insertAdjacentHTML('afterbegin', html);
   else место.innerHTML = html;
   const карточка = место.querySelector('.hud-os-card:not(.hud-swap-old)');
+  // Подмена без вспышки: пока новая карточка встаёт под старую, переходы
+  // в ней выключены — открытая вкладка не проявляется заново из прозрачности,
+  // кнопки вкладок не перекрашиваются. Иначе старая гасла, а новая ещё
+  // только разгоралась, и карточка «моргала».
+  if (карточка && прежняя) карточка.classList.add('hud-swap-new');
   if (карточка) {
     if (лень) карточка.__hudLazy = лень;
     пометитьЭффекты(карточка);
@@ -518,6 +600,21 @@ export function собратьПросмотр(окно) {
     if (состояние) {
       место.__hudUiState = { ...состояние, свёрнута: true };
       основа.applyCardUiState(место);
+    }
+    if (прежняя) {
+      // Граф и дерево открытой вкладки — сразу, а не когда «покажутся»:
+      // заготовка в 180px вместо дерева сбивала прокрутку и мелькала пустотой.
+      карточка.querySelectorAll('.hud-tab-content.active [data-lazy-svg]').forEach(з => собратьРисунок(з));
+      перенестиГраф(прежняя, карточка);
+      // Возврат открытой вкладки запускает обычную плавную смену вкладки
+      // (events.js, плавнаяСменаВкладки): панель проявляется из прозрачности,
+      // тело едет по высоте. При подмене это и есть «моргание» — доводим сразу.
+      if (typeof карточка.getAnimations === 'function') {
+        for (const а of карточка.getAnimations({ subtree: true })) if (!а.animationName && !а.transitionProperty) try { а.finish(); } catch (_) { /* бесконечную не довести */ }
+      }
+      вернутьАнимации(карточка, кадры);
+      void карточка.offsetHeight;
+      setTimeout(() => карточка.classList.remove('hud-swap-new'), 60);
     }
   }
   const вернуть = () => {
@@ -691,11 +788,11 @@ export function открытьКастомизацию() {
       // цвета и значки: иначе рамки, бумага и печати оставались выключенными.
       const заводские = Object.fromEntries(Object.keys(МИНИМАЛИЗМ).map(к => [к, defaultSettings[к]]).filter(([, v]) => v !== undefined));
       // И виды блоков — по умолчанию: заводской вид, а где его нет, первый
-      // в списке (тот, что подписан «как было»). Плюс бельё, цикл, сетка
-      // секретов и влечение под циклом — они в тех же разделах «Блоки».
+      // в списке (тот, что подписан «как было»). Плюс бельё и цикл — они в тех же
+      // разделах «Блоки». Сетка секретов и влечение под циклом — не вид, они в основных настройках.
       const видыБлоков = Object.fromEntries([
         ...ВИДЫ_БЛОКОВ.map(б => [б.ключ, defaultSettings[б.ключ] ?? Object.keys(б.виды)[0]]),
-        ...['underwearView', 'cycleView', 'secretsGrid', 'cycleLibido'].filter(к => defaultSettings[к] !== undefined).map(к => [к, defaultSettings[к]]),
+        ...['underwearView', 'cycleView'].filter(к => defaultSettings[к] !== undefined).map(к => [к, defaultSettings[к]]),
       ]);
       const как_было = e.target.closest('.hud-custom-rich-btn')
         ? { ...заводские, pillColors: 'smart', pillIcons: 'on', pillStyle: 'fields', ...(settings.minimalBackup || {}), ...видыБлоков } : null;

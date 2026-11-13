@@ -9,22 +9,22 @@
 // телефона в примере работают как обычно. Что каждая настройка есть в карте,
 // проверяет tests/unit.mjs.
 
-import { settings } from './settings.js?v=23.89.13';
-import { слои, адресСлоя, файлИз, сПоказаннымиЧастями, запомнитьРазмер, прямоугольникСлоя } from './scene-pieces.js?v=23.89.13';
-import { т } from './i18n.js?v=23.89.13';
+import { settings } from './settings.js?v=23.89.14';
+import { слои, адресСлоя, файлИз, сПоказаннымиЧастями, запомнитьРазмер, прямоугольникСлоя } from './scene-pieces.js?v=23.89.14';
+import { т } from './i18n.js?v=23.89.14';
 
 const ВИДЫ_ПОД_КЛАСС = {
   age: 'ageView', clothes: 'clothesView', looks: 'looksView', role: 'roleView', body: 'bodyStateView', phys: 'physView', health: 'healthView',
-  marks: 'marksView', cycle: 'cycleView', preg: 'fetusView', x2: 'postpartumView', where: 'placeView', lines: 'linesView', 'key-view': 'keyView', exp: 'expView',
+  marks: 'marksView', cycle: 'cycleView', preg: 'pregnancyView', x2: 'postpartumView', where: 'placeView', lines: 'linesView', 'key-view': 'keyView', exp: 'expView',
   thoughts: 'thoughtsView', subtext: 'subtextView', fears: 'fearsView', exposure: 'exposureView', inventory: 'inventoryView', goals: 'goalsView', schedule: 'scheduleView', flags: 'flagsView',
   trust: 'trustView', memories: 'memoriesView', status: 'statusView', conflict: 'conflictView', jealousy: 'jealousyView',
 };
-const ДОБАВКИ_К_ВИДУ = { thoughts: ['dropCap', 'thoughtBrackets', 'inkWash', 'fontMain'], subtext: ['subtextVeil'],  health: ['healthPlaster'], trust: ['trustHearts'], lines: ['lineWave', 'lineNotes', 'crtLines', 'thoughtBrackets'], cycle: ['cycleLibido'] };
+const ДОБАВКИ_К_ВИДУ = { thoughts: ['dropCap', 'thoughtBrackets', 'inkWash', 'fontMain'], subtext: ['subtextVeil'],  health: ['healthPlaster'], trust: ['trustHearts'], lines: ['lineWave', 'lineNotes', 'crtLines', 'thoughtBrackets'], cycle: [], preg: ['fetusView'] };
 // Подписи рядов без своего класса: сравнение с началом подписи.
 const ВИДЫ_ПО_ПОДПИСИ = [
   ['бельё', 'underwearView'], ['готовность к оргазму', 'orgView'], ['пульс', 'vitalsView'], ['жизненные показатели', 'vitalsView'], ['карта тела', 'bodyMapView', 'silhouetteStyle', 'silhouetteOutlines', 'silhouetteLook'],
-  ['кинк', 'kinkView'], ['фетиш', 'kinkView'], ['никогда не сделает', 'kinkView'], ['не возбуждает', 'kinkView'], ['словесная дуэль', 'duelView'], ['вехи и уход', 'kidCareView'],
-  ['таймлайн', 'routeView'], ['важное', 'importantView'], ['ружья', 'gunsView'], ['кто что знает', 'secretsGridView', 'secretsGrid', 'secretsAutoRaise'], ['не знает', 'knowsNotView', 'knowledgeLine'], ['зашифрованные', 'secretsView'], ['скрытый подтекст', 'subtextVeil'],
+  ['отношения', 'relationsView'], ['кинк', 'kinkView'], ['фетиш', 'kinkView'], ['никогда не сделает', 'kinkView'], ['не возбуждает', 'kinkView'], ['словесная дуэль', 'duelView'], ['вехи и уход', 'kidCareView'],
+  ['таймлайн', 'timelineView'], ['мини-карта маршрута', 'routeView'], ['эмоции', 'moodView'], ['приглашения', 'invitesView'], ['обещания', 'promisesView'], ['важное', 'importantView'], ['ружья', 'gunsView'], ['кто что знает', 'secretsGridView'], ['не знает', 'knowsNotView', 'knowledgeLine'], ['зашифрованные', 'secretsView'], ['скрытый подтекст', 'subtextVeil'],
   ['мысли', 'dropCap', 'thoughtBrackets', 'fontMain'],
 ];
 const ТЕКСТ = ['fontMain', 'fontSizeMain', 'textColor', 'textMutedColor'];
@@ -33,17 +33,26 @@ const ПОГОДА = ['weatherBgColor', 'weatherBgAlpha', 'weatherBlur', 'sceneT
 const СЦЕНА = ['sceneOverlayColor', 'sceneOverlayAlpha', 'sceneDarkness', 'lightFollowsTime'];
 const ТЕЛЕФОН_ТЕМА = ['phoneBgStart', 'phoneBgEnd', 'phoneBgAlpha', 'phoneAccent', 'phoneBlur', 'phoneScreenGlow', 'phoneGlow'];
 const ПЛАШКИ_ПИЛЮЛЬ = '.hud-key-item, .hud-detail-pill, .hud-inventory-pill, .hud-conflict-pill, .hud-kink-pill, .hud-fetish-pill, .hud-nogo-pill, .hud-noturn-pill, .hud-nsfw-pill';
-const МИР = { news: 'newsView', rumors: 'rumorsView', eco: 'economyView', city: 'cityView', fc: 'forecastView', afisha: 'eventsView', ads: 'adsView', cmt: 'commentsView' };
+const МИР = { horo: 'horoscopeView', news: 'newsView', rumors: 'rumorsView', eco: 'economyView', city: 'cityView', fc: 'forecastView', afisha: 'eventsView', ads: 'adsView', cmt: 'commentsView' };
 
 export const КАРТА = [
   // Новые блоки с выбором вида (render/views-plus.js).
   ['.hud-vp-kin, .hud-vp-seams, .hud-trust-scars', ['trustScarsView', 'enableScars']],
-  ['.hud-vp-engr, .hud-vp-seal, .hud-invite', ['invitesView']],
+  ['.hud-vp-engr, .hud-vp-engr-list, .hud-vp-seal, .hud-vp-seal-list, .hud-vp-plane-list, .hud-invite', ['invitesView']],
   ['.hud-vp-redact, .hud-vp-blind', ['knowsNotView', 'knowledgeLine']],
   ['.hud-body-stats', ['weightView']],
-  ['.hud-vp-sprig, .hud-vp-path, .hud-state-plaque.is-loss', ['lossView']],
-  ['.hud-vp-quipu, .hud-vp-pairs, .hud-promises', ['promisesView']],
+  ['.hud-vp-sprig, .hud-vp-herb, .hud-vp-path, .hud-vp-moon, .hud-state-plaque.is-loss', ['lossView']],
+  ['.hud-vp-quipu, .hud-vp-pairs, .hud-vp-chain, .hud-promises', ['promisesView']],
   ['.hud-mw', ['meanwhileView']],
+  // Виды из render/views-story.js и прежние блоки тех же полей.
+  ['.hud-tl, .hud-timeline-container', ['timelineView']],
+  ['.hud-em, .hud-mood-group', ['moodView']],
+  // Древо — во вкладке «Семья» графа: раньше графа, у вида древа тоже класс .hud-gr.
+  ['.hud-ft, .hud-family-stage', ['familyTreeView']],
+  ['.hud-gr, .hud-memory-relgraph-slot, .hud-rel-graph', ['relGraphView']],
+  ['.hud-rl', ['relationsView']],
+  ['.hud-bt, .hud-cb', ['combatView']],
+  ['.hud-pg, .hud-prg', ['pregnancyView']],
   // Часы и сцена.
   ['.hud-time-display', ['fontClock', 'fontSizeClock', 'clockColor']],
   ['.hud-date-display', ['fontMain', 'sceneTextColor']],
@@ -85,7 +94,8 @@ export const КАРТА = [
   ['.hud-sclock', ['sceneClockView']],
   ['.hud-tempo', ['tempoView']],
   ['.hud-duel', ['duelView']],
-  ['.hud-libido', ['cycleLibido']],
+  // Влечение под циклом — часть блока цикла (что показывать — в основных настройках).
+  ['.hud-libido', ['cycleView']],
   ['.hud-row.drama-alert', ['dramaColor', 'dramaBgAlpha']],
   ['.hud-user-look', ['silhouetteLook', 'silhouetteStyle', 'silhouetteOutlines']],
   // Память.
@@ -107,8 +117,9 @@ export const КАРТА = [
   ['.hud-dream-container, .hud-dv', ['dreamsView']],
   ['.hud-jv-silk, .hud-jv-kiss, .hud-jv-therm', ['bodyDiaryView', 'fontDiary']],
   ['.hud-jv-book, .hud-jv-blog, .hud-jv-type', ['diaryView', 'fontDiary', 'fontSizeDiary']],
-  ['.hud-iv', ['interceptsView']],
-  ['.hud-body-diary, .hud-diary-body-hand', ['bodyDiaryView', 'bodyDiaryHand', 'fontDiary']],
+  ['.hud-iv, .hud-intercepts-alt', ['interceptsView']],
+  // Запись дневника тела носит и класс записи дневника: дневник тела — раньше.
+  ['.hud-body-diary, .hud-diary-body-hand, .hud-body-entry', ['bodyDiaryView', 'bodyDiaryHand', 'fontDiary']],
   ['.hud-diary-wax', ['waxSeal']],
   ['.hud-diary-about-label, .hud-diary-about-user', ['diaryVeil']],
   ['.hud-diary-entry, .hud-diary-container', ['diaryView', 'fontDiary', 'fontSizeDiary', 'diaryMoodHand']],

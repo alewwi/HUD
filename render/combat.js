@@ -19,10 +19,12 @@
 // цветом силуэта: это другая величина. Отходняк после адреналина считает HUD
 // по времени сюжета, а не модель.
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.13';
-import { namesLikelySame } from '../names.js?v=23.89.13';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.13';
-import { медаль } from './view-icons.js?v=23.89.13';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.14';
+import { namesLikelySame } from '../names.js?v=23.89.14';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.14';
+import { медаль } from './view-icons.js?v=23.89.14';
+import { видБлока } from './views.js?v=23.89.14';
+import { видБоя } from './views-story.js?v=23.89.14';
 
 const текст = (v) => String(снятьЗаглушки(flattenFieldValue(v)) || '').trim();
 const пусто = (s) => !s || /^(empty|none|нет|—|-|null)$/i.test(String(s).trim());
@@ -202,11 +204,24 @@ function кольца(участники) {
   return svg;
 }
 
+/** Разбор боя для видов (render/views-story.js): те же части, что у прежней вкладки. */
+export function разборБоя(cb, data) {
+  const люди = [...(Array.isArray(data && data.characters) ? data.characters : []), ...(data && data.user ? [data.user] : [])].filter(Boolean);
+  return {
+    этап: этапБоя(cb.st), участники: участникиБоя(cb.pt), очередь: пусто(cb.in) ? [] : String(cb.in).split(/[;,→>|]/).map(x => x.trim()).filter(Boolean),
+    раны: раныИз(люди), оружие: оружиеИз(люди), адреналин: адреналин(cb.ad), выдержка: выдержка(cb.nv), погоня: погоняИз(cb.ch),
+    укрытия: пусто(cb.cv) ? [] : String(cb.cv).split(";").map(x => x.trim()).filter(Boolean).map(x => { const [что, ...как] = x.split(/[:：]/); return { что: что.trim(), как: как.join(":").trim() }; }),
+  };
+}
+
 /**
  * cb — объект боя хода; data — весь ход (персонажи, игрок); сейчас и история —
  * для отходняка: { момент, ходы: [{ момент, combat }] } от нового к старому.
  */
 export function buildCombatHTML(cb, data, uid, active, время = {}) {
+  // Свой вид боя (Кастомизация → Вид блоков, render/views-story.js); «Кольца» — ниже.
+  const вид = видБлока('combatView');
+  const свой = вид && вид !== 'classic' ? видБоя(разборБоя(cb, data), вид) : '';
   const этап = этапБоя(cb.st);
   const участники = участникиБоя(cb.pt);
   const очередь = пусто(cb.in) ? [] : String(cb.in).split(/[;,→>|]/).map(x => x.trim()).filter(Boolean);
@@ -248,13 +263,24 @@ export function buildCombatHTML(cb, data, uid, active, время = {}) {
       const осталось = Math.round(20 - конченоМин);
       откат = осталось > 0 ? `<small class="hud-cb-later">отпустит примерно через ${осталось} мин</small>` : '<small class="hud-cb-later is-crash">откат: слабость, дрожь, тошнота</small>';
     }
-    return `<div class="hud-cb-ad"><b>${escapeHtml(имяКоротко(а.имя))}</b><span class="hud-cb-adbar"><i style="width:${а.уровень}%"></i></span><em>${а.уровень}</em>${позже}${откат}</div>`;
+    return `<div class="hud-cb-ad lv-${а.уровень >= 70 ? 'hi' : а.уровень >= 40 ? 'mid' : 'lo'}"><b>${escapeHtml(имяКоротко(а.имя))}</b><span class="hud-cb-adbar"><i style="width:${а.уровень}%"></i></span><em>${а.уровень}</em>${позже}${откат}</div>`;
   }).join('');
   const выдержкаHtml = нв.map(н => `<div class="hud-cb-nerve"><b>${escapeHtml(имяКоротко(н.имя))}</b><span>${ВЫДЕРЖКА.map(([к, , слово], i) => `<i class="n-${к}${i === н.ступень ? ' is-now' : ''}" title="${слово}">${i === н.ступень ? слово : ''}</i>`).join('')}</span></div>`).join('');
   const укрытия = пусто(cb.cv) ? '' : `<ul class="hud-cb-cover">${String(cb.cv).split(';').map(x => x.trim()).filter(Boolean).map(x => { const [что, ...как] = x.split(/[:：]/); return `<li><b>${escapeHtml(что.trim())}</b>${как.length ? `<small>${escapeHtml(как.join(':').trim())}</small>` : ''}</li>`; }).join('')}</ul>`;
   const погоняHtml = погоня ? `<div class="hud-cb-chase">${погоня.дистанция !== null ? `<div class="hud-cb-track" aria-label="Дистанция ${погоня.дистанция} из 100"><span>догнали</span><i class="hud-cb-runner" style="left:${погоня.дистанция}%"></i>${(время.событияПогони || []).map(е => `<i class="hud-cb-evt" style="left:${е.д}%" title="${escapeHtml(е.текст)}"></i>`).join('')}<span>оторвались</span></div>` : ''}`
     + `<p>${погоня.куда ? `Куда: ${escapeHtml(погоня.куда)}` : ''}${погоня.мешает ? ` · мешает: ${escapeHtml(погоня.мешает)}` : ''}${погоня.событие ? ` · ${escapeHtml(погоня.событие)}` : ''}</p></div>` : '';
   const раздел = (з, т, тело) => тело ? `<section class="hud-v-card hud-cb-sec"><div class="hud-v-head"><b>${медаль(з)}${т}</b></div>${тело}</section>` : '';
+  // Новый вид показывает людей, ход и погоню по-своему; остальное прежнего
+  // вида — раны с зонами и кровопотерей, заряд оружия, «боль придёт позже» и
+  // откат, выдержка, укрытия — идёт под ним сразу, как в «Кольцах», без
+  // «Подробнее». Разделы одеты в стиль вида (css/story-views.css, .is-view-*).
+  // Укрытия файтинг и планшет уже рисуют сами.
+  if (свой) {
+    const своиУкрытия = вид === 'fight' || вид === 'tac';
+    const ниже = раздел('drop', 'Раны', силуэты) + раздел('dagger', 'Оружие', стволы)
+      + раздел('bolt', 'Адреналин', адреналинHtml) + раздел('head', 'Выдержка', выдержкаHtml) + (своиУкрытия ? '' : раздел('shield', 'Укрытия и что под рукой', укрытия));
+    return `<div class="hud-tab-content${active ? ' active' : ''}" id="content-${uid}"><div class="hud-body hud-cb hud-v hud-cb-alt is-view-${вид}${этап ? ' is-' + этап[0] : ''}">${свой}${ниже}</div></div>`;
+  }
   return `<div class="hud-tab-content${active ? ' active' : ''}" id="content-${uid}"><div class="hud-body hud-cb hud-v${этап ? ' is-' + этап[0] : ''}">${строка}`
     + раздел('run', 'Погоня', погоняHtml) + раздел('target', 'Кто где', схема) + раздел('drop', 'Раны', силуэты) + раздел('dagger', 'Оружие', стволы)
     + раздел('bolt', 'Адреналин', адреналинHtml) + раздел('head', 'Выдержка', выдержкаHtml) + раздел('shield', 'Укрытия и что под рукой', укрытия)

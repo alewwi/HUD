@@ -7,12 +7,12 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.13';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.13';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.13';
-import { buildFamilyTree, родствоИз, ложныеБлизнецы } from './family-tree.js?v=23.89.13';
-import { settings } from '../settings.js?v=23.89.13';
-import { ответыПроДядей } from './family-asks.js?v=23.89.13';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.14';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.14';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.14';
+import { buildFamilyTree, родствоИз, ложныеБлизнецы } from './family-tree.js?v=23.89.14';
+import { settings } from '../settings.js?v=23.89.14';
+import { ответыПроДядей } from './family-asks.js?v=23.89.14';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -80,6 +80,12 @@ export function mergeCharacterRecords(characters) {
 function nameIdentityKey(name) {
   const s = namePhoneticLatin(name);
   return s || nameLettersOnly(name) || normalizeNameText(name);
+}
+
+/** Люди и связи хода для видов графа (render/views-story.js): узлы и пары с типом. */
+export function данныеОтношений(hudData) {
+  const { nodes, edges } = collectRelationGraph(hudData || {});
+  return { nodes, edges: edges.map(e => ({ ...e, тип: classifyRelationVisual(e.label) })) };
 }
 
 function collectRelationGraph(hudData) {
@@ -233,13 +239,13 @@ const ГРУППЫ_СВЯЗЕЙ = (() => {
   ];
 })();
 
-function classifyRelationVisual(label) {
+export function classifyRelationVisual(label) {
   const s = String(label || '').toLowerCase().replace(/ё/g, 'е');
   for (const [type, rx, en] of ГРУППЫ_СВЯЗЕЙ) if (rx.test(s) || (en && en.test(s))) return type;
   return 'other';
 }
 
-function relationVisualMeta(type) {
+export function relationVisualMeta(type) {
   const meta = {
     love:       { icon: '♥', label: 'Романтика' },
     friend:     { icon: '✦', label: 'Дружба / доверие' },
@@ -294,11 +300,17 @@ function деревоСИсторией(nodes, edges, дайХоды) {
   const ключ = (a, b) => a + '|' + b;
   const занято = new Set(edges.filter(e => родствоИз(e.label)).map(e => ключ(e.from, e.to)));
   const игрок = getSafeUserName();
+  // Все имена, что встречались в ходах, — в именительном: «сын Джонатана
+  // Бомонта» говорит о Джонатане, которого нет в графе; его имя берём отсюда.
+  const имена = new Set(nodes.map(n => n.name));
   for (const d of дайХоды(глубина) || []) {
     const записи = [...(d.user && игрок ? [[игрок, d.user]] : []), ...[...(Array.isArray(d.characters) ? d.characters : []), ...(Array.isArray(d.babies) ? d.babies : [])].map(c => [c && (c['Имя'] || c.N), c])];
     for (const [имя, запись] of записи) {
       if (!запись) continue;
+      if (имя) имена.add(String(имя));
       for (const { target, rel } of parseRelationList(hudRelField(запись))) {
+        const цель = String(target || '').replace(/\s*\([^()]*\)\s*$/, '').trim();
+        for (const и of именаГруппы(цель) || [цель]) if (и) имена.add(и);
         if (!родствоИз(rel)) continue;
         const от = узел(имя), к = узел(target);
         if (!от || !к || от === к || занято.has(ключ(от.id, к.id))) continue;
@@ -306,6 +318,16 @@ function деревоСИсторией(nodes, edges, дайХоды) {
         рёбра.push({ from: от.id, to: к.id, label: rel });
       }
     }
+  }
+  // Родство через третьего («младший сын Джонатана Бомонта»), а третьего в
+  // графе нет: добавляем его по имени в именительном, если оно встречалось в
+  // ходах. Иначе дерево молча теряло отца.
+  for (const e of рёбра) {
+    const р = родствоИз(e.label);
+    if (!р || !р.чей || люди.some(x => namesLikelySame(р.чей, x.name))) continue;
+    const слов = р.чей.split(/\s+/).length;
+    const имя = [...имена].find(n => n.split(/\s+/).length >= слов && namesLikelySame(р.чей, n));
+    if (имя) узел(имя);
   }
   return { nodes: люди, edges: рёбра };
 }
@@ -325,7 +347,22 @@ function вопросПроДядю(в) {
     + `</span></div>`;
 }
 
-export function buildRelGraphHTML(hudData, uid, дайХоды = null) {
+// Сцена генеалогического дерева: масштаб (мельче / вписать / крупнее), вопросы
+// про дядей и прокручиваемый рисунок. Масштаб ставит events.js (семьяМасштаб).
+// Свой вид древа (Кастомизация → Вид блоков, render/views-story.js → видДрева)
+// рисует опции.рисоватьДрево — без «вписать», масштаб у него — размер шрифта.
+function сценаСемьи(семья, рисовать) {
+  const своё = typeof рисовать === 'function' ? рисовать(семья.данные) : '';
+  return `<div class="hud-family-stage${своё ? ' is-own' : ''}"><div class="hud-fam-zoom" role="group" aria-label="Масштаб дерева">`
+    + `<button type="button" class="hud-fam-zoom-btn" data-fam-zoom="out" aria-label="Мельче">−</button>`
+    + (своё ? '' : `<button type="button" class="hud-fam-zoom-btn is-fit" data-fam-zoom="fit" aria-label="Показать всё дерево"><span class="to-all">Всё дерево</span><span class="to-normal">Обычный размер</span></button>`)
+    + `<button type="button" class="hud-fam-zoom-btn" data-fam-zoom="in" aria-label="Крупнее">+</button></div>`
+    + (семья.вопросы || []).map(вопросПроДядю).join('')
+    + (своё ? `<div class="hud-fam-scroll hud-fam-own">${своё}</div></div>` : `<div class="hud-fam-scroll">${семья.svg}</div></div>`);
+}
+const кнопкиВида = (семья) => семья ? `<div class="hud-rel-modes" role="tablist" aria-label="Вид графа"><button type="button" class="hud-rel-mode is-active" data-rel-mode="graph" role="tab" aria-selected="true">🕸 Связи</button><button type="button" class="hud-rel-mode" data-rel-mode="family" role="tab" aria-selected="false">🌳 Семья</button></div>` : '';
+
+export function buildRelGraphHTML(hudData, uid, дайХоды = null, опции = {}) {
   const { nodes, edges } = collectRelationGraph(hudData || {});
   if (nodes.length < 2 && !edges.length) return '';
   // Чужое «младший близнец» — не родство: связь судим по остальному тексту.
@@ -418,12 +455,25 @@ export function buildRelGraphHTML(hudData, uid, дайХоды = null) {
     catch (err) { console.warn('[TavernOS HUD] Family tree render failed:', err); семья = null; }
   }
 
+  // Свой вид графа (Гербы, Рассадка, Гобелен, Матрица): та же рамка, что у
+  // прежнего, — «Связи / Семья», в карточке — невысокое окошко, по нажатию —
+  // большое окно с масштабом и перетаскиванием. Легенда и строки связей — у вида.
+  if (опции.свой) {
+    return `<div class="hud-row full-width"><div class="hud-rel-shell"><div class="hud-rel-graph is-own" data-rel-graph-id="${graphId}">`
+      + `<div class="hud-rel-toolbar"><div class="hud-rel-heading"><span class="hud-rel-heading-icon">🕸</span><div><strong>Граф отношений</strong><small>${nodes.length} персонажей · ${edges.length} связей</small></div></div>`
+      + кнопкиВида(семья)
+      + `<button class="hud-rel-graph-close" type="button" aria-label="Закрыть граф отношений">✕</button></div>`
+      + `<div class="hud-rel-stage hud-rel-own"><div class="hud-rel-svg">${опции.свой}</div><span class="hud-rel-own-more" aria-hidden="true">Нажмите, чтобы открыть целиком</span></div>`
+      + (семья ? сценаСемьи(семья, опции.рисоватьДрево) : '')
+      + `</div></div></div>`;
+  }
+
   const markerTypes = ['love','friend','hostile','jealous','fear','suspicious','family','parent','child','sibling',
     'boss','subordinate','mentor','student','debt','forbidden','accomplice','group','neutral','other'];
   let svg = `<div class="hud-rel-graph" data-rel-graph-id="${graphId}" title="Нажмите на персонажа или связь для подробностей">
     <div class="hud-rel-toolbar">
       <div class="hud-rel-heading"><span class="hud-rel-heading-icon">🕸</span><div><strong>Граф отношений</strong><small>${nodes.length} персонажей · ${edges.length} связей</small></div></div>
-      ${семья ? `<div class="hud-rel-modes" role="tablist" aria-label="Вид графа"><button type="button" class="hud-rel-mode is-active" data-rel-mode="graph" role="tab" aria-selected="true">🕸 Связи</button><button type="button" class="hud-rel-mode" data-rel-mode="family" role="tab" aria-selected="false">🌳 Семья</button></div>` : ''}
+      ${кнопкиВида(семья)}
       <button class="hud-rel-graph-close" type="button" aria-label="Закрыть граф отношений">✕</button>
     </div>
     <div class="hud-rel-stage">
@@ -545,12 +595,7 @@ export function buildRelGraphHTML(hudData, uid, дайХоды = null) {
   svg += `</svg></div>`;
   // Дерево шире телефона: сверху — масштаб (мельче / вписать / крупнее), под
   // ним — прокручиваемая сцена. Масштаб ставит events.js (семьяМасштаб).
-  if (семья) svg += `<div class="hud-family-stage"><div class="hud-fam-zoom" role="group" aria-label="Масштаб дерева">`
-    + `<button type="button" class="hud-fam-zoom-btn" data-fam-zoom="out" aria-label="Мельче">−</button>`
-    + `<button type="button" class="hud-fam-zoom-btn is-fit" data-fam-zoom="fit" aria-label="Показать всё дерево"><span class="to-all">Всё дерево</span><span class="to-normal">Обычный размер</span></button>`
-    + `<button type="button" class="hud-fam-zoom-btn" data-fam-zoom="in" aria-label="Крупнее">+</button></div>`
-    + (семья.вопросы || []).map(вопросПроДядю).join('')
-    + `<div class="hud-fam-scroll">${семья.svg}</div></div>`;
+  if (семья) svg += сценаСемьи(семья, опции.рисоватьДрево);
 
   // Типов теперь два десятка, и списком «все подряд» легенда занимала бы
   // пол-экрана. Показываем только те, что действительно есть в этом графе,
@@ -750,11 +795,34 @@ function bindRelGraphViewportHook() {
   relGraphViewportHookBound = true;
   const recenter = () => {
     const open = document.querySelector('.hud-rel-graph.is-expanded');
-    if (open) centerExpandedRelGraph(open);
+    if (open) { centerExpandedRelGraph(open); растянутьСвойВид(open); }
   };
   window.addEventListener('resize', recenter);
   window.addEventListener('orientationchange', recenter);
   if (window.visualViewport) window.visualViewport.addEventListener('resize', recenter);
+}
+
+// Свой вид графа (Гербы, Рассадка, Гобелен, Матрица) в раскрытом окне:
+// рисуется в свою высоту и прилипал к верху, а ниже — пустота. Увеличиваем
+// его (zoom — с переносом строк), пока он помещается в окно по высоте. Не
+// больше чем вдвое с небольшим: крупнее подписи уже грубые. Свёрнутый — как был.
+export function растянутьСвойВид(graphEl) {
+  const вид = graphEl && graphEl.querySelector('.hud-rel-own > .hud-rel-svg > .hud-gr');
+  if (!вид) return;
+  вид.style.removeProperty('zoom');
+  if (!graphEl.classList.contains('is-expanded') || graphEl.dataset.relMode === 'family') return;
+  const сцена = вид.closest('.hud-rel-own');
+  const сс = getComputedStyle(сцена);
+  const место = сцена.clientHeight - (parseFloat(сс.paddingTop) || 0) - (parseFloat(сс.paddingBottom) || 0) - 4;
+  if (место < 80) return;
+  // Масштаб колёсиком/щипком (transform на .hud-rel-svg) в высоту не входит.
+  const щипок = parseFloat(graphEl.dataset.zoom) || 1;
+  const высота = (z) => { вид.style.zoom = String(z); return вид.getBoundingClientRect().height / щипок; };
+  if (высота(1) >= место) { вид.style.removeProperty('zoom'); return; }
+  let мало = 1, много = 2.4;
+  if (высота(много) <= место) мало = много;
+  else for (let i = 0; i < 8; i++) { const z = (мало + много) / 2; if (высота(z) <= место) мало = z; else много = z; }
+  if (мало < 1.04) вид.style.removeProperty('zoom'); else вид.style.zoom = мало.toFixed(3);
 }
 
 // На узком экране холст 1000×760 ужимается втрое, а узлы занимают его не
@@ -832,7 +900,8 @@ export function setRelGraphExpandedState(graphEl, expanded) {
     // Считаем позицию после того, как элемент уже в body и получил размеры.
     bindRelGraphViewportHook();
     centerExpandedRelGraph(graphEl);
-    requestAnimationFrame(() => centerExpandedRelGraph(graphEl));
+    растянутьСвойВид(graphEl);
+    requestAnimationFrame(() => { centerExpandedRelGraph(graphEl); растянутьСвойВид(graphEl); });
   } else {
     // Возвращаем граф в исходную позицию.
     const home = graphEl._hudRelHome;
@@ -844,6 +913,7 @@ export function setRelGraphExpandedState(graphEl, expanded) {
 
     graphEl.classList.remove('is-expanded');
     подогнатьХолст(graphEl, false);
+    растянутьСвойВид(graphEl);
     // Снимаем измеренные координаты, иначе они останутся на свёрнутом графе.
     ['left', 'top', 'transform'].forEach(p => graphEl.style.removeProperty(p));
     graphEl.style.setProperty('--hud-rel-zoom', '1');

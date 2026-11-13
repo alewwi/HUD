@@ -968,11 +968,11 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   const Co = await модуль('render/companions.js');
   const S = await модуль('render/sample-hud.js');
   const W = await модуль('render/world.js');
-  const Dn = await модуль('render/diary.js'), Ip = await модуль('render/intercepts.js');
+  const Dn = await модуль('render/diary.js'), Ip = await модуль('render/intercepts.js'), Cb = await модуль('render/combat.js');
   const д = Sch.normalizeJSONData(P.parseHUDComplex(S.ПРИМЕР_HUD_ТЕКСТ.split('{{user}}').join('Мари')));
   const собрать = () => д.characters.map((c, i) => Ch.buildCharacterHTML(c, 'v' + i, true, i === 0)).join('')
     + M.buildMemoryHTML(д.memory, 'vm', true, д) + Co.buildCompanionsHTML(д.companions, 'vp', true) + W.buildWorldHTML(д.world, 'vw', true, true)
-    + Dn.buildDiaryHTML(д.diary, 'vd', true) + Dn.buildBodyDiaryHTML(д.bodyDiary, 'vb', true) + Ip.buildInterceptsHTML(д.intercepts, 'vi', true, '17.10.2024');
+    + Dn.buildDiaryHTML(д.diary, 'vd', true) + Dn.buildBodyDiaryHTML(д.bodyDiary, 'vb', true) + Ip.buildInterceptsHTML(д.intercepts, 'vi', true, '17.10.2024') + Cb.buildCombatHTML(S.ПРИМЕР_БОЯ, д, 'vc', true);
   const сбои = [], пустые = [];
   for (const б of V.ВИДЫ_БЛОКОВ) {
     for (const вид of Object.keys(б.виды).slice(1)) {
@@ -980,7 +980,8 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
       try {
         const h = собрать();
         if (/undefined|NaN|\[object Object\]/.test(h)) сбои.push(б.ключ + ':' + вид);
-        const своё = { petView: /hud-tama|hud-pet-head/, bodyStateView: /hud-bs-(?:flasks|chips)/, healthView: /hud-hv-/, marksView: /hud-mkv-|hud-marks/, diaryView: /hud-jv-(?:book|blog|type)/, bodyDiaryView: /hud-jv-(?:silk|kiss|therm)/, interceptsView: /hud-iv-(?:term|sten|reel)/ }[б.ключ];
+        const своё = { petView: /hud-tama|hud-pet-head/, bodyStateView: /hud-bs-(?:flasks|chips)/, healthView: /hud-hv-/, marksView: /hud-mkv-|hud-marks/, diaryView: /hud-jv-(?:book|blog|type)/, bodyDiaryView: /hud-jv-(?:silk|kiss|therm)/, interceptsView: /hud-iv-(?:term|sten|reel)/, relationsView: /hud-rl-/, pregnancyView: /hud-pg-/, timelineView: /hud-tl-/, moodView: /hud-em-/, combatView: /hud-bt-/, familyTreeView: /hud-ft-(?:crown|book)/ }[б.ключ];
+        if (б.ключ === 'relGraphView') continue;
         if (!['front', 'list'].includes(вид) && !(своё ? своё.test(h) : /hud-v-|hud-f-|hud-wv-/.test(h)) && б.ключ !== 'bondView') пустые.push(б.ключ + ':' + вид);
       } catch (e) { сбои.push(б.ключ + ':' + вид + ' ' + e.message); }
     }
@@ -1018,7 +1019,9 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   проверить('воспоминания и важное сохраняют кнопку «Запомнить»', ['polaroid', 'film', 'beads'].every(в => V.видВоспоминаний(пп, в).includes('hud-remember')) && ['scroll', 'notebook', 'bookmarks'].every(в => V.видВажного(пп, в).includes('hud-remember')));
   const сек = V.видСекретов([{ fact: 'А', level: 'low', status: 'unknown' }, { fact: 'Б', level: 'low', status: 'part' }], 'envelopes');
   проверить('конверты: целая печать без трещин, расколотая — две половинки', (сек.match(/class="crack"/g) || []).length === 0 && сек.includes('is-broken'));
-  проверить('в кастомизации виды идут группами, как в карточке', V.ВИДЫ_БЛОКОВ.map(б => б.группа).filter((г, i, все) => все.indexOf(г) === i).join() === 'Облик,Тело и здоровье,Место и речь,Мысли и чувства,Планы и вещи,Связи,Близость,Детская,Дневник,Память,Быт,Перехваты,Сны,Спутники,Телефон,Мир');
+  проверить('в кастомизации виды идут группами, как в карточке', V.ВИДЫ_БЛОКОВ.map(б => б.группа).filter((г, i, все) => все.indexOf(г) === i).join() === 'Плашки сверху,Облик,Тело и здоровье,Место,Мысли и чувства,Вещи и планы,Связи,Драма,Близость,Бой,Детская,Телефон,Память,Быт,Перехваты,Дневник,Дневник тела,Сны,Спутники,Мир', V.ВИДЫ_БЛОКОВ.map(б => б.группа).filter((г, i, все) => все.indexOf(г) === i).join());
+  // Строки карточки сверху вниз: «Реплики», «Не знает», «Страхи» и «Флаги» — в «Связях», как в карточке.
+  проверить('порядок строк персонажа — как в карточке', (() => { const п = V.ВИДЫ_БЛОКОВ.map(б => б.ключ); const идут = ['lossView', 'weightView', 'ageView', 'roleView', 'bodyStateView', 'physView', 'marksView', 'placeView', 'thoughtsView', 'subtextView', 'inventoryView', 'scheduleView', 'relationsView', 'trustView', 'knowsNotView', 'fearsView', 'linesView', 'memoriesView', 'flagsView', 'statusView', 'exposureView', 'conflictView', 'jealousyView', 'sceneClockView', 'kinkView']; return идут.every((к, i) => i === 0 || п.indexOf(к) > п.indexOf(идут[i - 1])); })());
   проверить('у каждой группы блоки подряд', V.ВИДЫ_БЛОКОВ.every((б, i, все) => i === 0 || б.группа === все[i - 1].группа || !все.slice(0, i).some(x => x.группа === б.группа)));
   const F = await модуль('render/views-fields.js');
   проверить('виды полей: у каждого поля из таблицы есть вид в «Кастомизации»', Object.values(F.ВИД_ПОЛЯ).every(к => V.ВИДЫ_БЛОКОВ.some(б => б.ключ === к && Object.keys(б.виды)[0] === 'classic')));
@@ -2200,6 +2203,22 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   const нет = [...вПанели].filter(к => !цели.has(к) && !места.has(к));
   проверить('у каждой настройки есть место на примере', нет.length === 0, 'нет: ' + нет.join(', '));
   проверить('ключ картинки: тема, место, часть', Лк.ключКартинки('vamp', 'b', 'before') === 'vamp:b:before');
+  {
+    // Группы вкладок в «Кастомизации» — по порядку вкладок игрока; строки персонажа — первыми.
+    const То = await модуль('tabs-order.js'), группыВидов = [...new Set(Сс.ВИДЫ_БЛОКОВ.map(б => б.группа))];
+    const г = То.порядокГрупп(группыВидов, { tabOrder: ['character', 'bodydiary', 'diary', 'phone', 'memory'], tabPinned: [] });
+    const до = (a, b) => г.indexOf(a) < г.indexOf(b);
+    проверить('кастомизация: группы блоков — по порядку вкладок игрока', г[0] === 'Плашки сверху' && до('Близость', 'Дневник тела') && до('Дневник тела', 'Дневник') && до('Дневник', 'Телефон') && до('Телефон', 'Память') && до('Память', 'Быт'), г.join());
+    const с = То.порядокГрупп(группыВидов, { tabOrder: [], tabPinned: ['world'] });
+    проверить('кастомизация: закреплённая вкладка — её группа первой', с[0] === 'Мир', с.join());
+    const исходникП = fs.readFileSync(path.join(КОРЕНЬ, 'customize.js'), 'utf8');
+    // Пересборка просмотра: граф и дерево собираются сразу, «Семья» и масштаб переносятся,
+    // прокрутка — по якорю, без переходов и плавной смены вкладки («моргания»).
+    проверить('кастомизация: смена вида не сбивает дерево и прокрутку и не моргает',
+      /\[data-lazy-svg\]'\)\.forEach\(з => собратьРисунок\(з\)\)/.test(исходникП) && исходникП.includes('перенестиГраф(прежняя, карточка)') && исходникП.includes('якорьПрокрутки(')
+      && исходникП.includes("classList.add('hud-swap-new')") && /а\.finish\(\)/.test(исходникП) && fs.readFileSync(path.join(КОРЕНЬ, 'css/misc.css'), 'utf8').includes('.hud-swap-new * { transition: none !important; }'));
+    проверить('кастомизация: влечение под циклом и сетка секретов — не в ней, а в основных настройках', !/выбор\('(?:cycleLibido|secretsGrid|secretsAutoRaise)'/.test(исходникП) && ['hud-cycle-libido', 'hud-secrets-grid', 'hud-secrets-raise'].every(id => fs.readFileSync(path.join(КОРЕНЬ, 'settings-ui.js'), 'utf8').includes(id)));
+  }
   // «Сброс» темы возвращает весь вид: каждая настройка панели — в его списке
   // или среди поведения окна (events.js, ключиСброса / НЕ_ВИД).
   {
@@ -3480,6 +3499,78 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   проверить('телефон: в инструкции только cm и phn', тел.includes('"cm": {') && тел.includes('"phn": {') && !тел.includes('"sc": {') && тел.includes('{{if hudLast}}') && тел.includes('🌍 Write all HUD values'));
   проверить('телефон: из правил — коды и формат, без «кто где»', тел.includes('🔤 CODES') && тел.includes('⚠️ FORMATTING') && !тел.includes('WHO GOES WHERE'));
   проверить('телефон: без телефона в схеме — пусто', П.промптТелефона(полный.replace(/ "cm"[\s\S]*?\n "phn": \{\n  "ow": "\[owner \{x\}\]"\n \}/, ' "x": 1')) === '');
+}
+
+// Минималистичные виды «истории»: линейка, градиент, оглавление, матрица, сводка, неделя.
+{
+  const VS = await модуль('render/views-story.js');
+  проверить('минимализм: линейка суток — засечки по времени', (() => { const h = VS.видТаймлайна(['06:00 утро', 'вечер без времени'], 'ruler'); return h.includes('hud-tl-ruler') && (h.match(/class="mk"/g) || []).length === 1 && h.includes('left:25.0%'); })());
+  проверить('минимализм: градиент — полоса и «сейчас»', (() => { const h = VS.видЭмоций([{ имя: 'Вера', сейчас: 'радость', история: ['08:00 тревога', '12:00 радость'] }], 'grad'); return h.includes('hud-em-grad') && h.includes('class="band"') && h.includes('радость'); })());
+  проверить('минимализм: оглавление — имя, отточие, тип', (() => { const h = VS.видОтношений('Глеб: брат; Павел: враг', 'toc'); return h.includes('hud-rl-toc') && (h.match(/class="dots"/g) || []).length === 2; })());
+  проверить('минимализм: матрица — точка на пересечении в обе стороны', (() => { const h = VS.видГрафа({ nodes: [{ id: 'a', name: 'Вера', isUser: true }, { id: 'b', name: 'Глеб' }], edges: [{ from: 'a', to: 'b', label: 'брат', тип: 'sibling' }] }, 'matrix'); return h.includes('hud-gr-matrix') && (h.match(/<td class="g-family"/g) || []).length === 2 && h.includes('Все связи'); })());
+  проверить('минимализм: неделя — число в кольце', VS.видБеременности({ н: 23, триместр: 2, роды: '01.03.2025', отсчёт: 'до родов 19 недель' }, 'week').includes('>23</text>'));
+  const Б = await модуль('render/combat.js');
+  const бой = { st: 'fight', pt: 'Глеб: ally, close, нож, hurt; Павел: enemy, far, пистолет, ok', in: 'Павел; Глеб', ch: 'd: 40; to: к машине; obs: мусорные баки' };
+  const Нб = await модуль('settings.js');
+  const былВид = Нб.settings.combatView;
+  Нб.settings.combatView = 'sheet';
+  const сводка = Б.buildCombatHTML(бой, { characters: [] }, 'u', true);
+  Нб.settings.combatView = былВид;
+  // Виды графа: кто с кем — разметка для подсветки, короткие подписи, большой состав свёрнут.
+  const люди = ['Вера', 'Глеб', 'Павел', 'Нина', 'Олег', 'Ира'].map((name, i) => ({ id: 'p' + i, name, isUser: i === 0 }));
+  const связи = [];
+  for (let i = 0; i < люди.length; i++) for (let j = i + 1; j < люди.length; j++) связи.push({ from: люди[i].id, to: люди[j].id, label: i === 0 && j === 1 ? 'брат, который вечно должен деньги половине района и всем соседям' : 'знакомый', тип: i === 0 && j === 1 ? 'sibling' : 'friend' });
+  const граф = { nodes: люди, edges: связи };
+  for (const вид of ['heraldry', 'table', 'loom', 'matrix']) {
+    const h = VS.видГрафа(граф, вид);
+    проверить(`граф ${вид}: у людей data-gn, у связей data-ga/data-gb, под рисунком место для строк`, (h.match(/data-gn="p\d"/g) || []).length >= люди.length && /data-ga="p0" data-gb="p1"/.test(h) && h.includes('class="hud-gr-say" hidden'));
+  }
+  const гербы = VS.видГрафа(граф, 'heraldry');
+  проверить('граф: длинная подпись на ленте — родом связи, целиком — во «Всех связях»', гербы.includes('<span>семья</span>') && !/<em>[^]*?половине района[^]*?<\/em>/.test(гербы) && гербы.includes('половине района'));
+  проверить('граф: пятнадцать связей — видно шесть, остальное под «Ещё 9 из 15»', (гербы.match(/class="motto [^"]*is-extra/g) || []).length === 9 && гербы.includes('hud-gr-more') && /Ещё <b>9<\/b> <small>из 15<\/small>/.test(гербы));
+  проверить('граф: гобелен большого состава — инициалы на катушках', (() => { const h = VS.видГрафа({ nodes: [...люди, { id: 'p6', name: 'Лев' }], edges: [...связи, { from: 'p6', to: 'p0', label: 'сосед', тип: 'friend' }] }, 'loom'); return h.includes('hud-gr-loom is-many') && h.includes('class="ini"'); })());
+  проверить('минимализм: сводка боя, под ней прежние разделы сразу, без «Подробнее»', сводка.includes('hud-bt-sheet') && !сводка.includes('hud-cb-more') && сводка.includes('is-view-sheet') && /мешает: <span data-i18n-skip>мусорные баки/.test(сводка), сводка.slice(0, 300));
+}
+
+// Генеалогическое дерево: данные для своих видов, Крона и Родословная книга,
+// и рамка прежнего графа у своих видов — «Связи / Семья» есть при любом виде.
+{
+  const VS = await модуль('render/views-story.js'), FT = await модуль('render/family-tree.js'), RG = await модуль('render/relations-graph.js'), Нб = await модуль('settings.js');
+  const люди = [{ id: 'm', name: 'Вера Ильина' }, { id: 'f', name: 'Глеб Ильин' }, { id: 's', name: 'Олег Ильин', isPrimary: true }, { id: 'w', name: 'Нина Ильина' }, { id: 'k', name: 'Тая Ильина', isUser: true }];
+  const рёбра = [
+    { from: 's', to: 'm', label: 'мать' }, { from: 's', to: 'f', label: 'отец' }, { from: 'm', to: 'f', label: 'муж' },
+    { from: 's', to: 'w', label: 'жена' }, { from: 'k', to: 's', label: 'отец' }, { from: 'k', to: 'w', label: 'мать' },
+  ];
+  const д = FT.buildFamilyTree(люди, рёбра, 't').данные;
+  проверить('древо: данные — люди, браки, семьи, корни', д && д.люди.length === 5 && д.браки.length === 2 && д.семьи.some(с => с.дети.some(x => x.id === 'k')) && д.корни.length >= 1, JSON.stringify(д && { л: д.люди.length, б: д.браки.length }));
+  const крона = VS.видДрева(д, 'crown'), книга = VS.видДрева(д, 'book');
+  проверить('древо: крона — у каждого data-gn, супруги через кольцо, табличка с фамилией', (крона.match(/class="fruit[^"]*" data-gn=/g) || []).length === 5 && (крона.match(/class="knot/g) || []).length === 2 && крона.includes('class="plaque"') && крона.includes('Ильин'));
+  проверить('древо: старшие у корней — первая ветвь сверху младшая', крона.indexOf('Тая') < крона.indexOf('Вера'));
+  проверить('древо: книга — дети с отступом под родителями, супруги через ⚭', книга.includes('hud-ft-book') && (книга.match(/<ol class="kids">/g) || []).length === 2 && книга.includes('⚭') && книга.indexOf('Вера') < книга.indexOf('Олег') && книга.indexOf('Олег') < книга.indexOf('Тая'));
+  проверить('древо: всё родство списком для подсветки', /Всё родство: 6/.test(книга) && (книга.match(/<li class="g-family" data-ga=/g) || []).length === 4 && (книга.match(/<li class="g-love" data-ga=/g) || []).length === 2);
+  проверить('древо: пусто — пустая строка', VS.видДрева({ люди: [] }, 'crown') === '' && VS.видДрева(null, 'book') === '');
+  const hud = { characters: [{ 'Имя': 'Олег Ильин', 'Отношения': 'Вера Ильина: мать; Глеб Ильин: отец; Нина Ильина: жена' }, { 'Имя': 'Вера Ильина', 'Отношения': 'Глеб Ильин: муж' }] };
+  const свой = RG.buildRelGraphHTML(hud, 'g1', null, { свой: '<div class="hud-v hud-gr hud-gr-arms">x</div>', рисоватьДрево: (данные) => VS.видДрева(данные, 'book') });
+  проверить('граф своим видом: рамка прежнего графа, «Связи / Семья», древо своим видом', свой.includes('hud-rel-graph is-own') && свой.includes('data-rel-mode="family"') && свой.includes('hud-rel-own') && свой.includes('hud-fam-own') && свой.includes('hud-ft-book') && !свой.includes('hud-fam-svg'));
+  const прежнееДрево = RG.buildRelGraphHTML(hud, 'g2', null, { свой: '<div class="hud-v hud-gr hud-gr-loom">x</div>' });
+  проверить('граф своим видом, древо прежнее: рисунок дерева с масштабом', прежнееДрево.includes('hud-rel-graph is-own') && прежнееДрево.includes('hud-fam-svg') && прежнееДрево.includes('data-fam-zoom="fit"'));
+  {
+    const сФото = VS.видДрева({ люди: [{ id: 'a', имя: 'Анна Ли', x: 0, y: 0, адрес: '/a.png', инициалы: 'АЛ' }, { id: 'b', имя: 'Борис Ли', x: 170, y: 0, инициалы: 'БЛ' }], браки: [{ a: 'a', b: 'b' }], семьи: [], ветки: [{ подпись: 'Ли', люди: ['a', 'b'] }], корни: [] }, 'crown');
+    проверить('древо: блик только на кружке с инициалами, на фото — нет', (сФото.match(/class="gloss"/g) || []).length === 1 && сФото.includes('<image '));
+  }
+  // Отец, о котором известно только «младший сын Джонатана Бомонта»: самого
+  // Джонатана в графе нет, его имя в именительном — из другого хода.
+  {
+    let данные = null;
+    const сейчас = { characters: [{ 'Имя': 'Атлас Бомонт', 'Отношения': 'Арес Бомонт: брат-близнец' }, { 'Имя': 'Арес Бомонт', 'Отношения': 'Атлас Бомонт: брат-близнец' }] };
+    const прошлые = [{ characters: [{ 'Имя': 'Тристан', 'Отношения': 'Арес Бомонт: младший сын Джонатана Бомонта; Атлас Бомонт: партнёр' }] }, { characters: [{ 'Имя': 'Тристан', 'Отношения': 'Ричард Кингсли и Джонатан Бомонт: враги' }] }];
+    RG.buildRelGraphHTML(сейчас, 'g4', (n) => прошлые.slice(0, n), { свой: '<div class="hud-v hud-gr">x</div>', рисоватьДрево: (д) => { данные = д; return '<div class="hud-ft">x</div>'; } });
+    const джонатан = данные && данные.люди.find(ч => ч.имя === 'Джонатан Бомонт');
+    проверить('древо: отец из чужих слов («сын Джонатана Бомонта») встаёт в дерево по имени из другого хода', !!джонатан && данные.семьи.some(с => с.родители.includes(джонатан.id) && с.дети.some(x => /Арес/.test((данные.люди.find(ч => ч.id === x.id) || {}).имя || ''))), JSON.stringify(данные && данные.семьи));
+  }
+  const былоД = Нб.settings.enableFamilyTree; Нб.settings.enableFamilyTree = false;
+  проверить('древо выключено: без «Семьи» и при своём виде графа', !RG.buildRelGraphHTML(hud, 'g3', null, { свой: '<div class="hud-gr">x</div>' }).includes('data-rel-mode="family"'));
+  Нб.settings.enableFamilyTree = былоД;
 }
 
 // Виды «Мыслей» и «Скрытого подтекста».

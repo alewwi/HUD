@@ -17,9 +17,9 @@
 // Конечный вид рисуется сразу, без анимации появления: HUD держит анимации
 // на паузе, пока на вид не навели мышь или не нажали (css/views.css).
 
-import { escapeHtml, hudHashSeed, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.89.13';
-import { лицоЧеловека as лицо } from './views.js?v=23.89.13';
-import { ико } from './view-icons.js?v=23.89.13';
+import { escapeHtml, hudHashSeed, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.89.14';
+import { лицоЧеловека as лицо } from './views.js?v=23.89.14';
+import { ико } from './view-icons.js?v=23.89.14';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -76,7 +76,7 @@ function приметыСтраницы(семья, r) {
     return svg('fear', `<path d="M${точки.map(([x, y]) => ф(x) + ' ' + ф(y)).join(' L')}Z"/>` + Array.from({ length: 6 }, () => `<circle cx="${ф(4 + r() * 52)}" cy="${ф(4 + r() * 52)}" r="${ф(1 + r() * 2.4)}"/>`).join(''));
   }
   if (семья === 'shame') return svg('shame', '<path d="M60 0 22 30M60 0 30 52M60 0 8 12M60 0 44 60M22 30l10 8M30 52l-6-8"/>', '0 0 60 60') + '<i class="smudge" aria-hidden="true"></i>';
-  if (семья === 'dark') return svg('dark', '<path class="vine" d="M10 2c8 10-6 18 2 28s-4 18 4 28"/>' + [[12, 12, 1], [8, 24, -1], [14, 36, 1], [9, 48, -1]].map(([x, y, s]) => `<path class="thorn" d="M${x} ${y}l${s * 6} -2 -${s * 3} 5Z"/>`).join(''), '0 0 30 60');
+  if (семья === 'dark') return svg('dark', '<path class="vine" d="M10 2c8 10-6 18 2 28s-4 18 4 28"/>' + [[12, 12, 1], [8, 24, -1], [14, 36, 1], [9, 48, -1]].map(([x, y, s]) => `<path class="thorn" d="M${x} ${y}l${s * 6} -2 ${-s * 3} 5Z"/>`).join(''), '0 0 30 60');
   return '';
 }
 

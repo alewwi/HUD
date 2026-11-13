@@ -16,29 +16,29 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.13';
-import { уверены } from './confirm-erase.js?v=23.89.13';
-import { applyRelGraphFocus, setRelGraphExpandedState } from './render/relations-graph.js?v=23.89.13';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.89.13';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.13';
-import { прикрытьСырой } from './raw-guard.js?v=23.89.13';
-import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.13';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.13';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.13';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.13';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.13';
-import { полныйПорядок } from './tabs-order.js?v=23.89.13';
-import { getWorldVotes } from './render/world.js?v=23.89.13';
-import { действиеМира } from './render/world-views.js?v=23.89.13';
-import { действиеМузыки } from './render/music.js?v=23.89.13';
-import { раскрытьПорцию } from './render/long-list.js?v=23.89.13';
-import { прогретьИсторию } from './render/carryover.js?v=23.89.13';
-import { подключитьПалитру } from './color-picker.js?v=23.89.13';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.13';
-import { замер } from './utils.js?v=23.89.13';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.13';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.13';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.13';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.14';
+import { уверены } from './confirm-erase.js?v=23.89.14';
+import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.89.14';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.89.14';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.14';
+import { прикрытьСырой } from './raw-guard.js?v=23.89.14';
+import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.14';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.14';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.14';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.14';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.14';
+import { полныйПорядок } from './tabs-order.js?v=23.89.14';
+import { getWorldVotes } from './render/world.js?v=23.89.14';
+import { действиеМира } from './render/world-views.js?v=23.89.14';
+import { действиеМузыки } from './render/music.js?v=23.89.14';
+import { раскрытьПорцию } from './render/long-list.js?v=23.89.14';
+import { прогретьИсторию } from './render/carryover.js?v=23.89.14';
+import { подключитьПалитру } from './color-picker.js?v=23.89.14';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.14';
+import { замер } from './utils.js?v=23.89.14';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.14';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.14';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.14';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -219,9 +219,10 @@ export function ключиСброса() {
     'themeScene', 'noImages', 'headerOrnament', 'avatarDeco', 'avatarShape', 'sceneHidden', 'bgImage', ...КЛЮЧИ_ПАНЕЛИ, ...панель])].filter(k => k && !НЕ_ВИД.has(k));
 }
 // Ключи панели Кастомизации, которых нет в списках выше: панель собирается
-// лениво, и при закрытом окне её полей нет в документе. Полноту проверяет tests/unit.mjs.
+// лениво, и при закрытом окне её полей нет в документе. Сетка «кто что знает»
+// и влечение под циклом — не вид: они в основных настройках, сброс их не трогает. Полноту проверяет tests/unit.mjs.
 export const КЛЮЧИ_ПАНЕЛИ = ['pillColors', 'pillIcons', 'pillStyle', 'cornerShape', 'iconStyle', 'sceneCredits', 'moonPhase', 'subtextVeil', 'diaryMoodHand', 'diaryVeil', 'lightFollowsTime', 'autoAccentText',
-  'silhouetteLook', 'silhouetteStyle', 'silhouetteOutlines', 'bodyDiaryHand', 'secretsGrid', 'cycleLibido', 'cardSignature', 'bgDragon', 'cycleView', 'underwearView'];
+  'silhouetteLook', 'silhouetteStyle', 'silhouetteOutlines', 'bodyDiaryHand', 'cardSignature', 'bgDragon', 'cycleView', 'underwearView'];
 function запомнитьШаг(ключ = '') {
   const сейчас = Date.now();
   if (ключ && ключ === последнийКлюч && сейчас - последнийМомент < 1500) { последнийМомент = сейчас; return; }
@@ -944,6 +945,7 @@ export function initGlobalEvents(ctx) {
           if (!relGraph.dataset.famZoom) семьяМасштаб(relGraph, 'start');
           семьяЖесты(relGraph);
         }
+        растянутьСвойВид(relGraph);
         return;
       }
       // Масштаб дерева: мельче / вписать / крупнее.
@@ -952,10 +954,22 @@ export function initGlobalEvents(ctx) {
         e.preventDefault();
         const шаг = zoomBtn.dataset.famZoom;
         const сейчас = Number(relGraph.dataset.famZoom || 1);
+        // Свой вид древа — разметка, а не рисунок: крупнее и мельче — размер всего вида.
+        const своё = relGraph.querySelector('.hud-fam-own');
+        if (своё) {
+          const z = Math.min(1.8, Math.max(.7, шаг === 'in' ? сейчас * 1.15 : сейчас / 1.15));
+          relGraph.dataset.famZoom = String(+z.toFixed(3));
+          своё.style.setProperty('--ft-zoom', z.toFixed(3));
+          return;
+        }
         // «Всё дерево» ↔ обычный размер: второе нажатие возвращает, как было читать.
         if (шаг === 'fit') семьяМасштаб(relGraph, relGraph.dataset.famFit ? 1 : 'fit'); else семьяЗум(relGraph, шаг === 'in' ? сейчас * 1.25 : сейчас / 1.25);
         return;
       }
+      // Свой вид графа или древа: нажатие на человека, связь, цвет легенды или
+      // список связей — подсветка внутри вида (ниже, фокусВидаГрафа), окно не
+      // раскрывается; нажатие мимо, снявшее подсветку, — тоже.
+      if (e.hudГрафСнял || e.target.closest('.hud-gr [data-gn], .hud-gr [data-ga], .hud-gr [data-gg], .hud-gr-more, .hud-gr summary, .hud-gr-pairs, .hud-gr-say, .hud-ft [data-fn], .hud-ft summary, .hud-ft button')) return;
       const clickedNode = e.target.closest('.hud-rel-node');
       const clickedEdge = e.target.closest('.hud-rel-edge, .hud-rel-edge-hit, .hud-rel-edge-badge');
       const clickedLabel = e.target.closest('.hud-rel-edge-label');
@@ -1903,7 +1917,7 @@ function семьяМасштаб(граф, зум, центрировать = t
 // двойное касание или щелчок по пустому месту — вписать / вернуть.
 function семьяЖесты(граф) {
   const окно = граф.querySelector('.hud-fam-scroll');
-  if (!окно || окно.dataset.famBound) return;
+  if (!окно || окно.dataset.famBound || !граф.querySelector('.hud-fam-svg')) return;
   окно.dataset.famBound = '1';
   // Раскрыли граф на весь экран (или повернули телефон) — пока масштаб не трогали
   // руками, вписываем заново: иначе в большом окне дерево осталось бы мелким.
@@ -2037,7 +2051,9 @@ const ВБОК = '.hud-vertical-container, .hud-inventory-grid, .hud-life-items,
 // подписи сжимались в столбик по букве. Он только вниз.
 // Память: таймлайн дня (ось), обещания (в узкой колонке вбок текст рвался
 // по слогам) и люди в «Кто что знает» (строки раскрываются).
-const ВНИЗ = '.hud-timeline-container, .hud-promises, .hud-sgrid-people, .hud-heat-list, .hud-v-scroll > ol, .hud-v-notebook, .hud-v-drum-legend, .hud-v-gun-col, .hud-v-beads, .hud-v-receipt ol, .hud-v-menu, .hud-f > ol, .hud-f > ul, .hud-f .page, .hud-f .form, .hud-f .grid ul, .hud-f .subs, .hud-mood-history';
+const ВНИЗ = '.hud-timeline-container, .hud-promises, .hud-sgrid-people, .hud-heat-list, .hud-v-scroll > ol, .hud-v-notebook, .hud-v-drum-legend, .hud-v-gun-col, .hud-v-beads, .hud-v-receipt ol, .hud-v-menu, .hud-f > ol, .hud-f > ul, .hud-f .page, .hud-f .form, .hud-f .grid ul, .hud-f .subs, .hud-mood-history'
+  // Виды таймлайна, эмоций и отношений (render/views-story.js) — как прежние списки памяти.
+  + ', .hud-tl-log .page, .hud-tl-st-list, .hud-tl-board .strip, .hud-tl-ruler ol, .hud-em-gl-list, .hud-em-pl-list, .hud-em-sw-set .fan, .hud-rl-ivy ol, .hud-rl-toc ol, .hud-rl-locket, .hud-rl-book .pages';
 const СПИСКИ = ВБОК + ', ' + ВНИЗ;
 // Не пункты списка: шапка колонки, шапка листа. Их в счёт не берём.
 const НЕ_ПУНКТ = '.hud-v-gun-col-head, .hud-f .page > .head, .hud-f .form > .head';
@@ -2047,6 +2063,11 @@ const ПИЛЮЛИ = '.hud-vertical-container, .hud-inventory-grid, .hud-life-it
 // Свои ленты вбок на широком экране (история настроения): там их не трогаем,
 // на телефоне они столбиком (css/compact.css) и ужимаются, как остальные.
 const ЛЕНТЫ = '.hud-mood-history';
+// Сетки в несколько колонок (раскадровка, выкраски, медальоны): «три карточки»
+// для них — три ряда. Четвёртая карточка стоит в первом же ряду, и по ней
+// список сворачивался в полоску в палец высотой. Меньше четырёх рядов — не сворачиваем.
+const СЕТКИ = '.hud-tl-board .strip, .hud-em-sw-set .fan, .hud-rl-locket';
+const верхиРядов = (дети) => [...new Set(дети.map(x => Math.round(x.offsetTop)))].sort((a, b) => a - b);
 // Мерим только раскрытые карточки: свёрнутая прячет содержимое через
 // max-height: 0, а не display: none, и раньше списки всех свёрнутых карточек
 // ленты мерились честно. Чтения и записи разведены по фазам: запись между
@@ -2069,11 +2090,14 @@ function ужатьСпискиСразу() {
     с,
     дети: [...с.children].filter(x => { if (x.nodeType !== 1 || x.matches(НЕ_ПУНКТ)) return false; const ст = getComputedStyle(x); return ст.display !== 'none' && ст.position !== 'absolute'; }),
     виден: !!с.offsetParent,
+    сетка: с.matches(СЕТКИ),
     // В узкой панели лента стоит столбиком, как на телефоне: её тоже ужимаем.
     столбиком: с.matches(ЛЕНТЫ) && getComputedStyle(с).flexDirection === 'column',
     ширина: с.clientWidth,
     окно: окноВкладки(с),
   }));
+  // Ряды сеток — тоже чтение, до записей.
+  for (const п of план) if (п.сетка) п.рядов = верхиРядов(п.дети).length;
   // Свёрнутый граф отношений в карточке уже 760px: граф 1000px сжат вдвое, и
   // подписи двух десятков связей сливались в кашу. Там подпись видна только у
   // выбранной связи (css/base.css, .is-narrow); в развёрнутом — все.
@@ -2084,7 +2108,7 @@ function ужатьСпискиСразу() {
   for (const п of план) {
     const { с, дети } = п;
     const пилюли = широкий && с.matches(ПИЛЮЛИ);
-    if (дети.length < (пилюли ? 3 : 4) || (широкий && с.matches(ЛЕНТЫ) && !п.столбиком)) { if (с.classList.contains('is-capped') || с.classList.contains('is-capped-x')) { с.classList.remove('is-capped', 'is-capped-x', 'is-end', 'is-x2', 'is-fit', 'is-cap-more', 'is-cap-open'); с.style.maxHeight = ''; убратьКнопкуСписка(с); } continue; }
+    if (дети.length < (пилюли ? 3 : 4) || (п.сетка && п.рядов < 4) || (широкий && с.matches(ЛЕНТЫ) && !п.столбиком)) { if (с.classList.contains('is-capped') || с.classList.contains('is-capped-x')) { с.classList.remove('is-capped', 'is-capped-x', 'is-end', 'is-x2', 'is-fit', 'is-cap-more', 'is-cap-open'); с.style.maxHeight = ''; убратьКнопкуСписка(с); } continue; }
     // Вбок — только когда в ряд помещаются хотя бы две карточки (по 160px).
     // В половинной ячейке узкой карточки (240px) лента вбок показывала
     // полторы карточки с текстом, обрезанным посреди слова, — там вниз.
@@ -2118,7 +2142,8 @@ function ужатьСпискиСразу() {
     // Три карточки целиком и краешек четвёртой — видно, что дальше есть ещё.
     // Краешек — доля её высоты: ровные 34px показывали маленькую пилюлю
     // инвентаря почти целиком, и казалось, что видно четыре.
-    const четвёртая = п.дети[3].getBoundingClientRect();
+    const ряды = п.сетка ? верхиРядов(п.дети) : null;
+    const четвёртая = (п.сетка ? п.дети.find(x => Math.round(x.offsetTop) >= ряды[3]) : п.дети[3]).getBoundingClientRect();
     п.краешек = Math.round(Math.min(28, Math.max(10, четвёртая.height * 0.4)));
     п.высота = Math.ceil(четвёртая.top - верх + п.краешек);
     // Окно вкладки — 300px, а три карточки ран выходили на 800: низ списка стоял
@@ -2188,7 +2213,10 @@ function раскрытьСписок(с, кнопка, открыть) {
 }
 document.addEventListener('click', (e) => {
   const кнопка = e.target.closest && e.target.closest('.hud-cap-more');
-  if (!кнопка) return;
+  // «Ещё N из M» в видах графа — только с виду такая же: она открывает
+  // скрытые связи (.is-all у вида, ниже), а не снимает потолок со списка.
+  // Перехваченная здесь, она сжимала ленты в ноль и связей не показывала.
+  if (!кнопка || кнопка.matches('.hud-gr-more')) return;
   e.preventDefault(); e.stopPropagation();
   const с = кнопка.previousElementSibling;
   if (!с) return;
@@ -2536,6 +2564,76 @@ function переключитьПелену(e) {
 }
 document.addEventListener('click', переключитьПелену, true);
 document.addEventListener('keydown', переключитьПелену, true);
+
+/* ---------------------------------------------------------------------
+   ВИДЫ ГРАФА ОТНОШЕНИЙ (гербы, рассадка, гобелен, матрица): кто с кем
+   ---------------------------------------------------------------------
+   Как у прежнего графа: нажатие на человека подсвечивает его связи и тех,
+   с кем он связан; на связь — её и двоих на концах; на цвет в легенде —
+   все связи этого рода. Остальное гаснет, под рисунком — строки выбранных
+   связей. Повторное нажатие или нажатие мимо снимает. Мышью то же видно
+   при наведении, пока ничего не закреплено нажатием (без строк, чтобы
+   рисунок не прыгал под курсором). Разметку ставит render/views-story.js:
+   data-gn у человека, data-ga/data-gb у связи, data-gg у цвета легенды. */
+const ЦЕЛЬ_ГРАФА = '[data-gn], [data-ga], [data-gg]';
+const ключЦелиГрафа = (ц) => !ц ? '' : ц.dataset.gn ? 'n:' + ц.dataset.gn : ц.dataset.gg ? 'g:' + ц.dataset.gg : 'p:' + [ц.dataset.ga, ц.dataset.gb].sort().join('|');
+function фокусВидаГрафа(вид, ключ, строки) {
+  const род = ключ.slice(0, 1), что = ключ.slice(2);
+  const группа = (у) => ((у.getAttribute('class') || '').match(/(?:^|\s)g-(\w+)/) || [])[1] || '';
+  const вФокусе = (у) => род === 'n' ? (у.dataset.ga === что || у.dataset.gb === что)
+    : род === 'p' ? [у.dataset.ga, у.dataset.gb].sort().join('|') === что
+    : род === 'g' ? группа(у) === что : false;
+  const связи = [...вид.querySelectorAll('[data-ga]')];
+  const люди = new Set(род === 'n' ? [что] : []);
+  for (const у of связи) if (вФокусе(у)) { люди.add(у.dataset.ga); люди.add(у.dataset.gb); }
+  вид.classList.toggle('is-focused', Boolean(ключ));
+  for (const у of связи) { const да = Boolean(ключ) && вФокусе(у); у.classList.toggle('is-on', да); у.classList.toggle('is-dim', Boolean(ключ) && !да); }
+  for (const у of вид.querySelectorAll('[data-gn]')) {
+    const да = Boolean(ключ) && люди.has(у.dataset.gn);
+    у.classList.toggle('is-on', да);
+    у.classList.toggle('is-me', род === 'n' && у.dataset.gn === что);
+    у.classList.toggle('is-dim', Boolean(ключ) && !да);
+  }
+  for (const у of вид.querySelectorAll('[data-gg]')) у.classList.toggle('is-on', род === 'g' && у.dataset.gg === что);
+  const сводка = вид.querySelector('.hud-gr-say');
+  if (!сводка) return;
+  const выбранные = строки && ключ ? связи.filter(у => у.matches('.hud-gr-pairs li') && вФокусе(у)) : [];
+  сводка.hidden = !выбранные.length;
+  const список = document.createElement('ul');
+  for (const у of выбранные) {
+    const копия = у.cloneNode(true);
+    копия.removeAttribute('data-ga'); копия.removeAttribute('data-gb'); копия.classList.remove('is-on', 'is-dim');
+    список.append(копия);
+  }
+  сводка.replaceChildren(...(выбранные.length ? [список] : []));
+}
+document.addEventListener('click', (e) => {
+  const вид = e.target.closest && e.target.closest('.hud-gr');
+  if (!вид) return;
+  const ещё = e.target.closest('.hud-gr-more');
+  if (ещё) { const все = вид.classList.toggle('is-all'); ещё.classList.toggle('is-open', все); ещё.setAttribute('aria-expanded', String(все)); const окно = вид.closest('.hud-rel-graph'); if (окно) растянутьСвойВид(окно); return; }
+  if (e.target.closest('summary, a, button, .hud-gr-say')) return;
+  const цель = e.target.closest(ЦЕЛЬ_ГРАФА);
+  const ключ = цель && вид.contains(цель) ? ключЦелиГрафа(цель) : '';
+  const новый = ключ && вид.dataset.gPin !== ключ ? ключ : '';
+  if (!новый && вид.dataset.gPin) e.hudГрафСнял = true;
+  if (новый) вид.dataset.gPin = новый; else delete вид.dataset.gPin;
+  фокусВидаГрафа(вид, новый, true);
+});
+const мышьНаводит = typeof matchMedia === 'function' ? matchMedia('(hover: hover) and (pointer: fine)') : null;
+document.addEventListener('pointerover', (e) => {
+  if (e.pointerType !== 'mouse' || !мышьНаводит || !мышьНаводит.matches) return;
+  const вид = e.target.closest && e.target.closest('.hud-gr');
+  if (!вид || вид.dataset.gPin) return;
+  const цель = e.target.closest(ЦЕЛЬ_ГРАФА);
+  фокусВидаГрафа(вид, цель && вид.contains(цель) && !цель.closest('.hud-gr-pairs') ? ключЦелиГрафа(цель) : '', false);
+}, { passive: true });
+document.addEventListener('pointerout', (e) => {
+  if (e.pointerType !== 'mouse') return;
+  const вид = e.target.closest && e.target.closest('.hud-gr');
+  if (!вид || вид.dataset.gPin || (e.relatedTarget && вид.contains(e.relatedTarget))) return;
+  фокусВидаГрафа(вид, '', false);
+}, { passive: true });
 
 // Разделы «Кастомизации» (details.hud-smooth) раскрываются и сворачиваются
 // плавно: высота едет от строки заголовка до содержимого. Без анимации —
