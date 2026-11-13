@@ -985,7 +985,7 @@
   .season-spring .hud-dandelion.dn2 { left: calc(11% + 37px); }
   .season-spring .hud-sprout.sp1 { left: calc(11% + 28px); }
   .season-spring .hud-grass-tuft.gt5 { left: auto; right: 22px; bottom: 9.6%; }
-  .season-winter .hud-snowdrift.sd-mid2 { bottom: 5.6%; height: 7.6%; }
+  .season-winter .hud-snowdrift.sd-mid2 { bottom: 5.6%; }
   .season-summer .hud-umbrella { right: -16px; }
   .season-summer .hud-towel { right: 2px; bottom: .4%; }
   .season-summer .hud-towel-shadow { right: -2px; bottom: -.6%; }
@@ -995,9 +995,30 @@
   .season-spring .hud-dandelion.dn2 { left: calc(11% + 37px); }
   .season-spring .hud-sprout.sp1 { left: calc(11% + 28px); }
   .season-spring .hud-grass-tuft.gt5 { left: auto; right: 22px; bottom: 9.6%; }
-  .season-winter .hud-snowdrift.sd-mid2 { bottom: 5.6%; height: 7.6%; }
+  .season-winter .hud-snowdrift.sd-mid2 { bottom: 5.6%; }
   .season-summer .hud-umbrella { right: -16px; }
   .season-summer .hud-towel { right: 2px; bottom: .4%; }
   .season-summer .hud-towel-shadow { right: -2px; bottom: -.6%; }
+} }
+/* cq ↑ */
+
+/* --- Зима на высокой карточке: высота сугробов была в процентах от высоты
+   сцены, и на высокой карточке они вырастали вдвое и засыпали снеговика по
+   шляпу. Теперь не выше, чем на обычной карточке. --- */
+.season-winter .hud-snowdrift.sd-back1 { height: min(5.4%, 12px); }
+.season-winter .hud-snowdrift.sd-back2 { height: min(4.4%, 10px); }
+.season-winter .hud-snowdrift.sd-mid1 { height: min(6.2%, 14px); }
+.season-winter .hud-snowdrift.sd-mid2 { height: min(4.8%, 11px); }
+.season-winter .hud-snowdrift.sd-mid3 { height: min(3.6%, 8px); }
+.season-winter .hud-snowdrift.sd-front1 { height: min(11.2%, 26px); }
+.season-winter .hud-snowdrift.sd-front2 { height: min(6.6%, 15px); }
+.season-winter .hud-snowdrift.sd-front3 { height: min(4.4%, 10px); }
+.season-winter .hud-snowdrift.sd-front4 { height: min(5.2%, 12px); }
+@media (max-width: 600px) {
+  .season-winter .hud-snowdrift.sd-mid2 { height: min(7.6%, 17px); }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .season-winter .hud-snowdrift.sd-mid2 { height: min(7.6%, 17px); }
 } }
 /* cq ↑ */

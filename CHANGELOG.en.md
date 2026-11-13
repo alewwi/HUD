@@ -4,6 +4,14 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.19 — 2026-11-13
+
+Two weather scene fixes after a live check of every season, weather and time of day.
+
+### Fixed
+- **No rainbow in the dark.** After rain or a storm in the previous turn it hung in the sky in the evening and at night; now it shows only in daylight.
+- **The snowman no longer sinks in the snow on a tall card.** Snowdrift height was a share of the scene height, so on a tall card the drifts doubled and buried him up to the hat. Now they are no taller than on a regular card.
+
 ## 23.89.18 — 2026-11-13
 
 Weather scenes polished: bare trees, spruces and birds redrawn, the medieval era gets its own winter, spring gets a far view.

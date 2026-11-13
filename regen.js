@@ -5,12 +5,12 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings } from './settings.js?v=23.89.18';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD } from './hud-block.js?v=23.89.18';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.18';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.18';
-import { генерацияТаверны } from './utils.js?v=23.89.18';
-import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.18';
+import { настройка, settings, defaultSettings } from './settings.js?v=23.89.19';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD } from './hud-block.js?v=23.89.19';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.19';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.19';
+import { генерацияТаверны } from './utils.js?v=23.89.19';
+import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.19';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, getMessageUpdateFunction, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.

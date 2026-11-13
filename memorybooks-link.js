@@ -18,7 +18,7 @@
 // глобальные — первыми. Номер сдвигается, если удалить правило выше, — при
 // загрузке HUD сверяет и поправляет отметку (сверитьСMemoryBooks).
 
-import { hudБлоки } from './hud-block.js?v=23.89.18';
+import { hudБлоки } from './hud-block.js?v=23.89.19';
 
 export const МЕТКА_HUD = '[HUD_REF]';
 const ID_ПРАВИЛА = 'tavernos-hud-memorybooks';
