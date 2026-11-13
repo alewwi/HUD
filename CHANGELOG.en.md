@@ -4,6 +4,11 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.22 — 2026-11-14
+
+### Fixed
+- **The family tree no longer makes family friends into uncles.** Children call any grown-up "uncle" ("strict uncle", "kind uncle with cookies"), and that word went straight into the label under the card: "uncle · child" stood under every man, even after the answer "Not family". Now "uncle", "aunt" and "nephew" reach a label only once the kinship is confirmed: the uncle is a parent's sibling, or the player said whose sibling he is. "Not family" removes the word everywhere, including from a twin brother.
+
 ## 23.89.21 — 2026-11-13
 
 ### Changed

@@ -597,8 +597,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.21**:
+The latest version is **23.89.22**:
 
+- The family tree no longer makes uncles out of grown-ups the children merely call "uncle"; "Not family" removes the word from a twin too.
 - The autumn leaf gust shows only in windy weather.
 - The moving weather scene is lighter: daytime stars and unseen fireflies no longer animate, tree lights blink in groups.
 - No rainbow at night, and the snowman no longer sinks in the drifts on a tall card.

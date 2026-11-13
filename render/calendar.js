@@ -14,12 +14,12 @@
 // обработчик кликов (events.js). Своего состояния у календаря нет: всё в
 // классах и data-атрибутах разметки.
 
-import { escapeHtml, defeatWI, имяБезПриставки } from '../utils.js?v=23.89.21';
-import { namesLikelySame } from '../names.js?v=23.89.21';
-import { G_ICONS } from './icons.js?v=23.89.21';
-import { праздникиГода } from './holidays.js?v=23.89.21';
-import { срокиНитей } from '../turn-notes.js?v=23.89.21';
-import { settings } from '../settings.js?v=23.89.21';
+import { escapeHtml, defeatWI, имяБезПриставки } from '../utils.js?v=23.89.22';
+import { namesLikelySame } from '../names.js?v=23.89.22';
+import { G_ICONS } from './icons.js?v=23.89.22';
+import { праздникиГода } from './holidays.js?v=23.89.22';
+import { срокиНитей } from '../turn-notes.js?v=23.89.22';
+import { settings } from '../settings.js?v=23.89.22';
 
 const МЕСЯЦЫ_РОД = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const МЕСЯЦЫ = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
