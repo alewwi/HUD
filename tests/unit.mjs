@@ -417,6 +417,15 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
     && Р.применитьПравку(сырой, { кто: 'user', код: 'Th', значение: '' }) && сырой.us.Th === 'empty');
   проверить('чужое имя — некуда писать', !Р.применитьПравку(сырой, { кто: 'Марк', код: 'R', значение: 'x' }));
   const Ст = await модуль('settings.js'); const Пр = await модуль('prompt.js');
+  {
+    // Язык из таблицы: значения HUD — на нём, ключи и коды — английские.
+    const англ = ['- 🌍 LANG: write values in English; character names follow "N".', 'The place is in English words.', '🌍 Write all HUD values in English, even if earlier HUDs used another language.'].join('\n');
+    const кит = Пр.наЯзыкеТаблицы(англ, 'Chinese (中文)');
+    проверить('язык из таблицы: строка LANG на языке перевода', кит.includes('write values in Chinese (中文) (keys and short codes stay exactly as specified, in English)'));
+    проверить('язык из таблицы: последняя строка тоже', кит.includes('Write all HUD values in Chinese (中文)') && !кит.includes('in English, even if'));
+    проверить('язык из таблицы: место — словами этого языка', кит.includes('The place is in Chinese (中文) words'));
+    проверить('без языка из таблицы инструкция не меняется', Пр.наЯзыкеТаблицы(англ, null) === англ);
+  }
   const было = [Ст.settings.enableUserBlock, Ст.settings.userAllFields]; Ст.settings.enableUserBlock = true; Ст.settings.userAllFields = true;
   const весь = Пр.buildDynamicPrompt({ nsfw: false, cacheStable: true });
   Ст.settings.userAllFields = false;

@@ -13,11 +13,11 @@
 // попадают — hud-expand.js снимает их, если модель всё-таки их переписала.
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { разобратьХод } from './render/carryover.js?v=23.89.15';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.15';
-import { безМетки, безДавности } from './hud-expand.js?v=23.89.15';
+import { разобратьХод } from './render/carryover.js?v=23.89.16';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.16';
+import { безМетки, безДавности } from './hud-expand.js?v=23.89.16';
 
-export { МЕТКА_ЗАПИСИ, безМетки, безДавности } from './hud-expand.js?v=23.89.15';
+export { МЕТКА_ЗАПИСИ, безМетки, безДавности } from './hud-expand.js?v=23.89.16';
 
 const ДЕНЬ = 864e5;
 const объект = (v) => !!v && typeof v === 'object' && !Array.isArray(v);

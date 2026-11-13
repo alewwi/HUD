@@ -597,8 +597,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.15**:
+The latest version is **23.89.16**:
 
+- Translations are complete: with a language from the table the model writes the HUD in that language, and the Customization sample is translated with the interface. A third new view for eight blocks, richer Thoughts and Subtext, dark paper on dark themes; pregnancy exams open per swipe.
 - The family tree question about an "uncle" goes away right after you answer.
 - New views for pregnancy, relations, combat, the graph, the family tree, the timeline and emotions. Customization follows the card and the player's tab order, every click on the sample leads to its own setting, changing a view keeps the scroll and no longer blinks; desire under the cycle and the secrets grid moved to the main settings.
 - The family tree asks whose brother an "uncle" is when the HUD has no kinship, and no longer makes a family friend the mother's brother.

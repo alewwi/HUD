@@ -5,28 +5,39 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.15';
-import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.15';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.15';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.15';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.89.15';
-import { порядокГрупп } from './tabs-order.js?v=23.89.15';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.15';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.15';
-import { hudБлоки } from './hud-block.js?v=23.89.15';
-import { parseHUDComplex } from './hud-parser.js?v=23.89.15';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.15';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.15';
-import { английский, т } from './i18n.js?v=23.89.15';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.16';
+import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.16';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.16';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.16';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.89.16';
+import { порядокГрупп } from './tabs-order.js?v=23.89.16';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.16';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.16';
+import { hudБлоки } from './hud-block.js?v=23.89.16';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.16';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.16';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.16';
+import { перевестиМодуль, отобразитьСтроку } from './render/sample-translate.js?v=23.89.16';
+import { английский, т, строкаТаблицы, ключЯзыкаТаблицы } from './i18n.js?v=23.89.16';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
-const пример = () => (английский() ? ПРИМЕР_EN : ПРИМЕР_RU);
-import { задатьПримерСемьи } from './render/conception.js?v=23.89.15';
-import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.15';
-import { привязатьИсторию } from './render/intimacy.js?v=23.89.15';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.15';
-import { собратьРисунок } from './render/lazy-svg.js?v=23.89.15';
-import { attachHelpMarks } from './help.js?v=23.89.15';
-import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.15';
+// Язык из таблицы переводчика: английский пример с переведёнными кусками
+// (render/sample-translate.js), пересобирается при смене языка или файла.
+let примерТаблицы = null, ключПримера = '';
+const пример = () => {
+  if (!английский()) return ПРИМЕР_RU;
+  const ключ = ключЯзыкаТаблицы();
+  if (!ключ) return ПРИМЕР_EN;
+  if (ключ !== ключПримера) { примерТаблицы = перевестиМодуль(ПРИМЕР_EN, строкаТаблицы); ключПримера = ключ; }
+  return примерТаблицы;
+};
+const текстПримера = (s) => (ключЯзыкаТаблицы() ? отобразитьСтроку(s, (к) => строкаТаблицы(к) || к) : s);
+import { задатьПримерСемьи } from './render/conception.js?v=23.89.16';
+import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.16';
+import { привязатьИсторию } from './render/intimacy.js?v=23.89.16';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.16';
+import { собратьРисунок } from './render/lazy-svg.js?v=23.89.16';
+import { attachHelpMarks } from './help.js?v=23.89.16';
+import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.16';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.
@@ -424,7 +435,7 @@ function источникиПросмотра() {
     if (!данные || settings.enableCombat === false) return данные;
     данные.combat = { ...пример().ПРИМЕР_БОЯ };
     const марк = (данные.characters || []).find(c => /Марк|Mark/.test(c['Имя'] || ''));
-    if (марк) { марк['Болезни и травмы'] = пример().ПРИМЕР_БОЯ_РАНЫ; марк['Инвентарь'] = английский() ? 'bat: cracked at the handle; folding knife: in the jacket pocket, hidden' : 'бита: треснула у рукояти; складной нож: в кармане куртки, спрятан'; }
+    if (марк) { марк['Болезни и травмы'] = пример().ПРИМЕР_БОЯ_РАНЫ; марк['Инвентарь'] = английский() ? текстПримера('bat: cracked at the handle; folding knife: in the jacket pocket, hidden') : 'бита: треснула у рукояти; складной нож: в кармане куртки, спрятан'; }
     return данные;
   };
   // И два прошлых хода для «Быта»: без них журнал примера из одного хода.

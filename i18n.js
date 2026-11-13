@@ -26,9 +26,9 @@
 // английское: персонаж по имени Leo не должен стать знаком зодиака.
 // Текст для модели — всегда английский: тМодели().
 
-import { settings } from './settings.js?v=23.89.15';
-import { СЛОВАРЬ_EN, ШАБЛОНЫ_EN, ЗОДИАК_EN } from './i18n-en.js?v=23.89.15';
-import { ЯЗЫКИ } from './translations/languages.js?v=23.89.15';
+import { settings } from './settings.js?v=23.89.16';
+import { СЛОВАРЬ_EN, ШАБЛОНЫ_EN, ЗОДИАК_EN } from './i18n-en.js?v=23.89.16';
+import { ЯЗЫКИ } from './translations/languages.js?v=23.89.16';
 
 /** Выбранный язык интерфейса: 'ru', 'en' или код из translations/ ('zh', 'es' …). */
 // Свой перевод, загруженный файлом в настройках (код 'file'): переводчик
@@ -57,6 +57,31 @@ export const языкиМеню = () => [{ code: 'ru', name: 'RU — Русск�
   ...ЯЗЫКИ.map(я => ({ code: я.code, name: я.code.toUpperCase() + ' — ' + я.name + (я.done < 100 ? ` (${я.done}%)` : '') })),
   ...(прочитатьФайл() ? [{ code: 'file', name: '📄 ' + прочитатьФайл().name + ' — file, ' + прочитатьФайл().done + '%' }] : [])];
 
+/**
+ * На каком языке модель пишет значения HUD при языке из таблицы (китайский,
+ * испанский…): «Chinese (中文)» или «中文» для своего файла. null — русский
+ * или английский (у них своя инструкция) либо игрок выбрал английский.
+ */
+export function языкЗначенийМодели() {
+  const к = кодЯзыка();
+  if (к === 'ru' || к === 'en' || settings.tableLangValues === false) return null;
+  const родное = к === 'file' ? (прочитатьФайл() || {}).name : (ЯЗЫКИ.find(я => я.code === к) || {}).name;
+  let английское = '';
+  try { if (к !== 'file' && typeof Intl !== 'undefined' && Intl.DisplayNames) английское = new Intl.DisplayNames(['en'], { type: 'language' }).of(к) || ''; } catch (_) { английское = ''; }
+  const имя = String(родное || '').trim();
+  if (английское && имя && английское.toLowerCase() !== имя.toLowerCase()) return `${английское} (${имя})`;
+  return английское || имя || null;
+}
+
+/** Перевод строки из таблицы как есть (пример «Кастомизации»); null — нет перевода или язык не из таблицы. */
+export function строкаТаблицы(en) {
+  if (!цель || загружен === 'en' || загружен === 'ru') return null;
+  const t = цель.get(en);
+  return typeof t === 'string' && t ? t : null;
+}
+/** Ключ текущего языка из таблицы — чтобы пересобрать переведённый пример, когда сменили язык или файл. */
+export const ключЯзыкаТаблицы = () => { const к = кодЯзыка(); return к === 'ru' || к === 'en' ? '' : к + ':' + ((прочитатьФайл() || {}).loaded || ''); };
+
 /** Свой перевод из файла: { name, done, loaded } или null. */
 export const файлПеревода = () => { const ф = прочитатьФайл(); return ф && { name: ф.name, done: ф.done, loaded: ф.loaded }; };
 
@@ -66,7 +91,7 @@ export const файлПеревода = () => { const ф = прочитатьФ�
  */
 export async function загрузитьФайлПеревода(текст) {
   const [{ собратьЯзык }, { default: мета }] = await Promise.all([
-    import('./translations/table.js?v=23.89.15'), import('./translations/meta.js?v=23.89.15')]);
+    import('./translations/table.js?v=23.89.16'), import('./translations/meta.js?v=23.89.16')]);
   const итог = собратьЯзык(текст, мета, 'file');
   if (итог.ошибка) return { ошибка: итог.ошибка };
   const язык = { ...итог.язык, loaded: Date.now() };
@@ -343,7 +368,14 @@ export function перевести(исходная) {
   // Разметка переносит длинные тексты по строкам — сравниваем без лишних пробелов.
   const s = исходная.replace(/\s+/g, ' ');
   if (кэш.has(s)) return кэш.get(s);
-  const p = русская ? перевод(s, 0) : поАнглийски(s);
+  // Невидимый пробел после первой буквы (utils.js, defeatWI — чтобы лорбук не
+  // ловил имена) мешал найти строку: праздники в календаре телефона оставались
+  // по-русски. Ищем без него, в переводе ставим его на то же место.
+  const невидимый = s.includes('​');
+  const чистая = невидимый ? s.replace(/​/g, '') : s;
+  let p = русская ? перевод(чистая, 0) : поАнглийски(чистая);
+  if (невидимый && typeof p === 'string' && p !== чистая && p.length > 1) p = p.charAt(0) + '​' + p.slice(1);
+  else if (невидимый && p === чистая) p = null;
   if (кэш.size > 4000) кэш.clear();
   кэш.set(s, p);
   return p;

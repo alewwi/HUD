@@ -10,15 +10,15 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.89.15';
+import { settings } from './settings.js?v=23.89.16';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т } from './i18n.js?v=23.89.15';
-import { промптНаАнглийском } from './prompt-en.js?v=23.89.15';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.15';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.15';
-import { возрастТочно } from './render/babies.js?v=23.89.15';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.15';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.15';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.16';
+import { промптНаАнглийском } from './prompt-en.js?v=23.89.16';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.16';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.16';
+import { возрастТочно } from './render/babies.js?v=23.89.16';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.16';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.16';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -565,7 +565,19 @@ Update it to match ${чего}: keep what is still true, change what ${чего}
   p += '\n\n🌍 Write all HUD values in Russian, even if earlier HUDs used another language.';
   p += `\n</hud_instructions>`;
   // Английский интерфейс — и HUD по-английски: примеры значений тоже (prompt-en.js).
-  return английский() ? промптНаАнглийском(p) : p;
+  return английский() ? наЯзыкеТаблицы(промптНаАнглийском(p)) : p;
+}
+
+// Язык из таблицы переводчика (китайский, испанский…): инструкция и примеры
+// английские, а значения HUD — на языке перевода, как история. Ключи и
+// короткие коды остаются английскими: по ним HUD разбирает блок.
+export function наЯзыкеТаблицы(p, язык = языкЗначенийМодели()) {
+  if (!язык) return p;
+  const коды = 'keys and short codes stay exactly as specified, in English';
+  return p
+    .replace('- 🌍 LANG: write values in English;', `- 🌍 LANG: write values in ${язык} (${коды});`)
+    .replace('Write all HUD values in English, even if', `Write all HUD values in ${язык} (${коды}), even if`)
+    .replace('The place is in English words', `The place is in ${язык} words`);
 }
 
 /**

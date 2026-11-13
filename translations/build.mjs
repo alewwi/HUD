@@ -27,6 +27,9 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { разобратьCSV, вCSV, проверитьПеревод, отделать, собратьCSS, собратьЯзык, ЛИТЕРАЛ_CSS } from './table.js';
+// Пример «Кастомизации» (выдуманная история) — тоже в таблицу: куски текста английского примера.
+import * as ПРИМЕР_EN from '../render/sample-hud-en.js';
+import { кускиПримера } from '../render/sample-translate.js';
 
 export { разобратьCSV, проверитьПеревод, отделать, собратьCSS, собратьЯзык };
 
@@ -195,6 +198,8 @@ export function собратьСтроки() {
   for (const en of КОД_EN) добавить(en, '(written by code)', вид(en), true);
   for (const с of строкиКода()) добавить(с.english, '(written by code: ' + с.где + ')', вид(с.english), true);
   for (const п of правилаCSS()) for (const s of п.строки) добавить(s, '(CSS label in css/lang-en.css; \\A is a line break)', 'text');
+  // Пример: в самом конце таблицы, чтобы переводчик сначала шёл по интерфейсу.
+  for (const к of кускиПримера(ПРИМЕР_EN)) добавить(к, '(Customization sample: the made-up story in the preview)', 'text');
   return [...поАнгл.values()].map(с => ({ english: с.english, russian: с.ru.join(' | '), kind: с.kind, код: с.код }));
 }
 

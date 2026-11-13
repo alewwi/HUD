@@ -5423,6 +5423,9 @@ export const СЛОВАРЬ_EN = {
   "Город ночью": "City at night",
   "Пузыри": "Bubbles",
   "улика №": "evidence No.",
+  "HUD на языке перевода": "HUD in the translation language",
+  "Для языков из таблицы (китайский, испанский и другие): модель пишет значения HUD на этом языке, как и историю. Выключено — по-английски. Ключи и короткие коды всегда английские. Часть автоматики, которая узнаёт слова (иконки погоды, настроение музыки), понимает только русский и английский.": "For languages from the table (Chinese, Spanish and others): the model writes HUD values in that language, like the story. Off: in English. Keys and short codes are always English. Some automation that recognizes words (weather icons, music mood) understands only Russian and English.",
+  "Пасха": "Easter",
 };
 
 export const ШАБЛОНЫ_EN = [

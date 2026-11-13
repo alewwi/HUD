@@ -48,6 +48,8 @@ export const defaultSettings = {
   // подслушанное. Вместе пары не работают: в средневековье телефонов нет.
   // Язык интерфейса и значений HUD: ru — русский, en — английский (i18n.js).
   language: 'ru',
+  // Язык из таблицы (китайский, испанский…): модель пишет значения HUD на нём, а не по-английски (prompt.js).
+  tableLangValues: true,
   era: 'modern',
   enableCasket: true,
   enableOverheard: true,

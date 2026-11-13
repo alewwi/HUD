@@ -4,6 +4,26 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.16 — 2026-11-13
+
+Translations into other languages are complete: the HUD is written in the translation language, and the Customization sample is translated along with the interface.
+
+### Added
+- **✍️ HUD in the translation language** (under 🌐 Language, on). With a language from the table (Chinese, Spanish and others) the model writes HUD values in that language, like the story, instead of English. Keys and short codes stay English: the HUD reads the block by them. Off: values in English, as before.
+- **The Customization sample in the translation table.** The made-up story of the sample is translated too: its rows are at the end of `translations/template.csv`, marked "Customization sample". With a language from the table the window shows the sample in that language. People's names and codes are not translated: the HUD links people across tabs by them.
+- **A third new view for eight blocks** (shipped in 23.89.12 without a note): trust scars — "Patches" (a heart with sewn-on patches), invitations — "Paper plane", "Does not know" — "Puzzle", weight and height — "Tape measure", end of pregnancy — "Moon", promises — "Chain", "Meanwhile" — "City at night", "Who knows what" — "Bubbles". Invitations show the face of whoever invites.
+- **Richer thoughts and subtext.** "Echo" — a nautilus shell and waves, "Fogged glass" — a framed window with city lights, "Ultraviolet" — evidence with a tag, a ruler and a torch, "Behind the mask" — a baroque Venetian mask with lace, pearls and feathers.
+
+### Changed
+- **Dark themes get dark paper.** Clearance badges, the dossier, the invitation card, notes, tags, the herbarium, the novel page, the ink letter and the scale dial are dark on dark themes and stay as they were on light ones.
+- Lists in values also split on the Chinese commas "，" and "、": Chinese values no longer merge into one pill.
+
+### Fixed
+- **Pregnancy exams and swipes.** An opened exam showed in every swipe of the reply. Now it is open only in the swipe where it was opened: in another swipe the exam is closed again and the model doesn't know the findings; going back opens it.
+- Holidays in the phone calendar ("New Year", "Easter", "Christmas") stayed in Russian in the English interface.
+- The "remove scar" crosses sit exactly in the centre.
+- View animations at rest no longer freeze mid-turn: badges, tags, bubbles and feathers stand straight.
+
 ## 23.89.15 — 2026-11-13
 
 The family tree question about an "uncle" goes away right after you answer.

@@ -54,8 +54,9 @@ What to look at while testing: the settings panel, the tabs and cards of a chat 
 ## What gets translated, and what doesn't
 
 - **Translated:** everything the HUD itself shows: settings, tabs, labels, buttons, hints and notifications.
-- **Not translated:** what the model writes inside the HUD, such as thoughts, descriptions and events. With a language other than Russian selected, the model is asked to write HUD values in English, because the HUD's reading of story values understands only Russian and English.
-- The model instruction stays in English for every language except Russian.
+- **What the model writes inside the HUD** (thoughts, descriptions, events) is not in the table: the model writes it. With your language selected, the model is asked to write HUD values in your language, like the story. Keys and short codes stay in English, because the HUD reads the block by them. If you prefer English values, turn off **✍️ HUD in the translation language** under 🌐 Language. Some automation that recognizes words, such as weather icons and the music mood, understands only Russian and English.
+- The model instruction itself stays in English for every language except Russian.
+- **The Customization sample** (the made-up story in the preview) is in the table too: its rows are at the end, with the context "(Customization sample: …)". Translate them like the rest and the preview shows the story in your language. Names of people ("Lilian Grey", "Mark") are not in the table: the HUD links people across tabs by them. In the sample rows keep `;` and `, ` where they separate list items: the HUD splits lists there. Chinese commas `，` and `、` work as separators too.
 
 ## When the HUD updates
 
