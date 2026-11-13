@@ -8,9 +8,9 @@
 // Модуль не знает про граф отношений: получает готовые узлы и рёбра и отдаёт
 // SVG. Так нет круговой зависимости с relations-graph.js.
 
-import { escapeHtml, hudHashSeed, commentInitials, имяБезПриставки } from '../utils.js?v=23.89.12';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.12';
-import { найтиПоИмени } from '../names.js?v=23.89.12';
+import { escapeHtml, hudHashSeed, commentInitials, имяБезПриставки } from '../utils.js?v=23.89.13';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.13';
+import { найтиПоИмени } from '../names.js?v=23.89.13';
 
 // Кем «кому» приходится тому, у кого записано отношение. Ищем только в
 // первых словах: дальше идёт чувство, где «любит как сына» или «брат по
@@ -48,13 +48,16 @@ export function родствоИз(отношение) {
   for (let пропущено = 0; пропущено <= 4 && слова.length; пропущено++) {
     const р = родствоВНачале(слова, исходные);
     if (р !== undefined) return р;
-    if (!ОПИСАНИЕ.test(слова[0]) || (слова[0] === 'и' || слова[0] === 'and') && !пропущено || НЕ_РОДСТВО.test(слова[0])) return null;
+    if (!(ОПИСАНИЕ.test(слова[0]) || АНГЛ_СЛОВО.test(исходные[0])) || (слова[0] === 'и' || слова[0] === 'and') && !пропущено || НЕ_РОДСТВО.test(слова[0])) return null;
     слова = слова.slice(1); исходные = исходные.slice(1);
   }
   return null;
 }
 const ОПИСАНИЕ = /^(?:[\d.,]+-?\p{L}*|\p{L}+-?(?:летн|месячн|недельн)\p{L}*|\p{L}+(?:ый|ий|ой|ая|яя|ое|ее|ые|ие)|\p{L}{3,}о|ему|ей|им|мне|нам|вам|тебе|и|and|very|dear|beloved|unknown|\p{L}+(?:ed|ful|ous|ive|ish))$/u;
-const НЕ_РОДСТВО = /^(?:назван|крестн|духовн|молочн|будущ|втор|потенциальн|возможн|предполагаем|бывш|почти|god|sworn|future|would|surrogate|second)/;
+const НЕ_РОДСТВО = /^(?:назван|крестн|духовн|молочн|будущ|втор|потенциальн|возможн|предполагаем|бывш|почти|god|sworn|future|would|surrogate|second|a$|an$|the$|not$|no$|like$|as$|of$|for$|to$|with$|from$|by$|in$|on$|at$|former|fake|pseudo|honorary|almost|kind$|sort$|best$|friend|call|name|nickname|treat|consider|act|play|feel|seen$|regard|\p{L}+'s$|her$|his$|him$|their$|them$|its$|your$|my$|our$|me$|us$)/u;
+// По-английски прилагательные без примет: «strict uncle», «icy little niece».
+// Любое строчное латинское слово — описание, кроме слов из НЕ_РОДСТВО.
+const АНГЛ_СЛОВО = /^[a-z][a-z-]*$/;
 // Родство в первых словах: { тип, слово, чей }, null — точно не родство,
 // undefined — родства в начале нет, можно смотреть дальше.
 function родствоВНачале(слова, исходные) {
@@ -140,8 +143,10 @@ const ШИРИНА_РЯДА = 1180, ЗАЗОР_ВЕТОК = 44, ШАПКА_ВЕ�
 const фамилия = (имя) => { const с = имяКарточки(имя).replace(/\s+(?:I{1,3}|IV|VI{0,3}|IX|X|Jr\.?|Sr\.?|младший|старший)$/i, '').trim().split(/\s+/); return с.length > 1 ? с[с.length - 1] : ''; };
 
 // nodes: [{ id, name, isUser, isPrimary }], edges: [{ from, to, label }].
-// Возвращает null, если родства нет, иначе { svg, people, positions }.
-export function buildFamilyTree(nodes, edges, idBase) {
+// опции.дяди — ответы игрока про «дядю» без родства в HUD: [{ имя, родня }]
+// (брат или сестра названного) или [{ имя, нет: true }] (не родня).
+// Возвращает null, если родства нет, иначе { svg, people, positions, вопросы }.
+export function buildFamilyTree(nodes, edges, idBase, опции = {}) {
   const люди = new Map((nodes || []).map(n => [n.id, { ...n }]));
   const родители = new Map();     // ребёнок → Set(родителей)
   const супруги = new Map();      // id → Map(id → бывший ли)
@@ -202,10 +207,19 @@ export function buildFamilyTree(nodes, edges, idBase) {
       case 'exSpouse': брак(кто, кому, true); break;
       case 'sibling': родня(кто, кому); break;
       case 'cousin': кузены.push([кто, кому]); break;
-      default: отложенные.push([р.тип, кто, кому]);
+      default: отложенные.push([р.тип, кто, кому, String(e.label || '')]);
     }
   }
   if (!найдено) return null;
+
+  // Игрок уже ответил, чей брат «дядя», — вписываем навсегда, даже когда
+  // модель о нём больше не пишет.
+  const ответы = (Array.isArray(опции && опции.дяди) ? опции.дяди : []).filter(о => о && о.имя);
+  for (const о of ответы) {
+    if (!о.родня) continue;
+    const a = узелПоИмени(люди, о.имя, null), b = a && узелПоИмени(люди, о.родня, a);
+    if (a && b) родня(a, b);
+  }
 
   // Братья и сёстры делят родителей: кого знают у одного, тот родитель всем.
   const группыБратьев = () => {
@@ -229,8 +243,50 @@ export function buildFamilyTree(nodes, edges, idBase) {
   });
   раздатьРодителей();
 
+  // Дядя — брат одного из родителей, но какого? Родитель, который сам знает
+  // «дядю» не как брата («деловой партнёр», «муж Эвы», чужое «близнец»), —
+  // не тот. Так знают оба — «дядя» лишь обращение детей к другу семьи, родства
+  // нет. Из оставшихся первым — однофамилец дяди.
+  // Брат дяди — тоже брат родителя: кто знает не как брата одного близнеца,
+  // тот и второму не сестра.
+  const сБратьями = (id) => {
+    const его = new Set([id]), стек = [id];
+    while (стек.length) for (const y of (братья.get(стек.pop()) || [])) if (!его.has(y)) { его.add(y); стек.push(y); }
+    return его;
+  };
+  const знакомыНеРоднёй = (a, дядя) => {
+    const его = сБратьями(дядя);
+    return (edges || []).some(e => {
+      if (!((e.from === a && его.has(e.to)) || (его.has(e.from) && e.to === a))) return false;
+      const р = родствоИз(e.label);
+      return чужиеБлизнецы.has(e) || !р || р.тип !== 'sibling' || !!р.чей;
+    });
+  };
+  // Догадка для вопроса: какой родитель скорее брат или сестра «дяди»; null — никакой.
+  const догадкаДяди = (ребёнок, дядя) => {
+    const можно = [...(родители.get(ребёнок) || [])].filter(р => !знакомыНеРоднёй(р, дядя));
+    if (!можно.length) return null;
+    const ф = фамилия(люди.get(дядя).name);
+    return (ф && можно.find(р => фамилия(люди.get(р).name) === ф))
+      || можно.find(р => !(родители.get(р) || new Set()).size) || можно[0];
+  };
+
+  // Ответ игрока про «дядю» или про его брата-близнеца.
+  const ответПро = (id) => {
+    const имена = ответы.map(о => о.имя);
+    for (const x of сБратьями(id)) {
+      const i = имена.length ? найтиПоИмени(люди.get(x).name, имена) : -1;
+      if (i >= 0) return ответы[i];
+    }
+    return null;
+  };
+  // «Дядя» есть, а брата или сестры среди родителей ребёнка в HUD нет —
+  // спрашиваем игрока, как о возрасте в «Детской». Пока не ответил — в дереве
+  // его нет: друг семьи, которого дети зовут дядей, не становится родней.
+  const вопросы = [];
+
   // Дальнее родство достраиваем через ближнее; неизвестное звено — узел «?».
-  for (const [тип, кто, кому] of отложенные) {
+  for (const [тип, кто, кому, ярлык] of отложенные) {
     if (тип === 'grandparent') {
       let мост = первыйРодитель(кто);
       if (!мост) { мост = новыйНеизвестный(); родитель(мост, кто); }
@@ -240,14 +296,26 @@ export function buildFamilyTree(nodes, edges, idBase) {
       let мост = дети.find(c => !детиИз(c).length) || дети[0];
       if (!мост) { мост = новыйНеизвестный(); родитель(кто, мост); }
       родитель(мост, кому);
-    } else if (тип === 'uncle') {
-      let мост = первыйРодитель(кто);
-      if (!мост) { мост = новыйНеизвестный(); родитель(мост, кто); }
-      родня(мост, кому);
-    } else if (тип === 'nephew') {
-      let мост = первыйРодитель(кому);
-      if (!мост) { мост = новыйНеизвестный(); родитель(мост, кому); }
-      родня(мост, кто);
+    } else if (тип === 'uncle' || тип === 'nephew') {
+      const [ребёнок, дядя] = тип === 'uncle' ? [кто, кому] : [кому, кто];
+      if (люди.get(дядя).virtual || люди.get(ребёнок).virtual) continue;
+      const егоРодители = [...(родители.get(ребёнок) || [])];
+      if (ответПро(дядя)) continue;
+      const его = сБратьями(дядя);
+      if (егоРодители.some(р => его.has(р))) continue;
+      if (!егоРодители.length) { const мост = новыйНеизвестный(); родитель(мост, ребёнок); родня(мост, дядя); continue; }
+      if (вопросы.some(в => его.has(в.id))) continue;
+      const видимыеРод = егоРодители.filter(р => !люди.get(р).virtual);
+      if (!видимыеРод.length) continue;
+      const догадка = догадкаДяди(ребёнок, дядя);
+      вопросы.push({
+        id: дядя, дядя: люди.get(дядя).name, ребёнок: люди.get(ребёнок).name,
+        // Чьи это слова: «Атлас: дядя» в записи ребёнка, «Адель: племянница» — в записи дяди.
+        говорит: люди.get(кто).name, оКом: люди.get(кому).name, подпись: ярлык.slice(0, 80),
+        пол: пол.get(дядя) || '',
+        родители: видимыеРод.map(р => люди.get(р).name),
+        совет: догадка && !люди.get(догадка).virtual ? люди.get(догадка).name : '',
+      });
     } else if (тип === 'parentInLaw') {
       let супруг = [...(супруги.get(кто) || new Map())].filter(([, бывший]) => !бывший).map(([id]) => id)[0];
       if (!супруг) { супруг = новыйНеизвестный(); брак(кто, супруг, false); }
@@ -441,7 +509,10 @@ export function buildFamilyTree(nodes, edges, idBase) {
     const ряды = [...new Set(вид.map(id => поколение.get(id)))].sort((a, b) => a - b);
     const счёт = new Map();
     for (const id of вид) { const ф = люди.get(id).virtual ? '' : фамилия(люди.get(id).name); if (ф) счёт.set(ф, (счёт.get(ф) || 0) + 1); }
-    const подпись = [...счёт].sort((a, b) => b[1] - a[1]).slice(0, 2).map(([ф]) => ф).join(' · ');
+    // Ветка главного персонажа — его фамилией первой, даже если детей записали на мать.
+    const главный = вид.map(id => люди.get(id)).find(ч => ч.isPrimary && !ч.virtual);
+    const егоФ = главный ? фамилия(главный.name) : '';
+    const подпись = [...счёт].sort((a, b) => (b[0] === егоФ) - (a[0] === егоФ) || b[1] - a[1]).slice(0, 2).map(([ф]) => ф).join(' · ');
     return { все, x0, ширина: Math.max(...вид.map(id => позиция.get(id).x)) + W_УЗЛА - x0, ряды, подпись };
   }).filter(Boolean);
   const пределРяда = Math.max(ШИРИНА_РЯДА, ...ветки.map(в => в.ширина));
@@ -585,5 +656,5 @@ export function buildFamilyTree(nodes, edges, idBase) {
   const svg = `<svg class="hud-fam-svg" viewBox="0 0 ${ширинаХолста} ${высотаХолста}" width="${ширинаХолста}" height="${высотаХолста}" role="img" aria-label="Генеалогическое дерево">${подписиВеток}${линии}${карточки}${метки}</svg>`;
   const positions = {};
   позиция.forEach((p, id) => { if (!люди.get(id).hidden) positions[id] = { x: Math.round(p.x), y: Math.round(p.y) }; });
-  return { svg, people: видимые.length, positions };
+  return { svg, people: видимые.length, positions, вопросы: вопросы.map(({ id, ...в }) => в) };
 }

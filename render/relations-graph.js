@@ -7,11 +7,12 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.12';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.12';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.12';
-import { buildFamilyTree, родствоИз, ложныеБлизнецы } from './family-tree.js?v=23.89.12';
-import { settings } from '../settings.js?v=23.89.12';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.13';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.13';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.13';
+import { buildFamilyTree, родствоИз, ложныеБлизнецы } from './family-tree.js?v=23.89.13';
+import { settings } from '../settings.js?v=23.89.13';
+import { ответыПроДядей } from './family-asks.js?v=23.89.13';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -309,6 +310,21 @@ function деревоСИсторией(nodes, edges, дайХоды) {
   return { nodes: люди, edges: рёбра };
 }
 
+// «Дядя» без родства в HUD: чьи он брат или сестра — или вовсе не родня.
+// Ответ запоминается в чате (render/family-asks.js), как спор о возрасте в «Детской».
+function вопросПроДядю(в) {
+  const имя = (x) => (имяБезПриставки(String(x || '')) || String(x || '')).split(/\s+/)[0];
+  const кто = в.пол === 'ж' ? 'Чья она сестра?' : в.пол === 'м' ? 'Чей он брат?' : 'Чьи это брат или сестра?';
+  const кнопка = (родня, текст, подсказка) => `<button type="button" class="${(родня || '-') === (в.совет || '-') ? 'is-tip' : ''}" data-fam-kin="${escapeHtml(родня)}" title="${escapeHtml(подсказка)}">${escapeHtml(текст)}</button>`;
+  return `<div class="hud-fam-ask" data-fam-uncle="${escapeHtml(в.дядя)}">`
+    + `<b class="t">${escapeHtml(имя(в.дядя))}: родства в HUD нет</b>`
+    + `<span class="row"><small>Модель пишет</small><i>${escapeHtml(имя(в.говорит))} → ${escapeHtml(имя(в.оКом))}: «${escapeHtml(в.подпись)}»</i></span>`
+    + `<span class="q">${кто}</span><span class="btns">`
+    + в.родители.map(р => кнопка(р, имя(р), `${имя(в.дядя)} и ${имя(р)} — родня. HUD впишет в дерево и запомнит`)).join('')
+    + кнопка('', 'Не родня', `${имя(в.дядя)} — не родня. HUD не впишет в дерево, даже если модель снова так напишет`)
+    + `</span></div>`;
+}
+
 export function buildRelGraphHTML(hudData, uid, дайХоды = null) {
   const { nodes, edges } = collectRelationGraph(hudData || {});
   if (nodes.length < 2 && !edges.length) return '';
@@ -398,7 +414,7 @@ export function buildRelGraphHTML(hudData, uid, дайХоды = null) {
   // когда в «Отношениях» нашлось родство.
   let семья = null;
   if (settings.enableFamilyTree !== false) {
-    try { семья = buildFamilyTree(родня.nodes, родня.edges, markerBase); }
+    try { семья = buildFamilyTree(родня.nodes, родня.edges, markerBase, { дяди: ответыПроДядей() }); }
     catch (err) { console.warn('[TavernOS HUD] Family tree render failed:', err); семья = null; }
   }
 
@@ -533,6 +549,7 @@ export function buildRelGraphHTML(hudData, uid, дайХоды = null) {
     + `<button type="button" class="hud-fam-zoom-btn" data-fam-zoom="out" aria-label="Мельче">−</button>`
     + `<button type="button" class="hud-fam-zoom-btn is-fit" data-fam-zoom="fit" aria-label="Показать всё дерево"><span class="to-all">Всё дерево</span><span class="to-normal">Обычный размер</span></button>`
     + `<button type="button" class="hud-fam-zoom-btn" data-fam-zoom="in" aria-label="Крупнее">+</button></div>`
+    + (семья.вопросы || []).map(вопросПроДядю).join('')
     + `<div class="hud-fam-scroll">${семья.svg}</div></div>`;
 
   // Типов теперь два десятка, и списком «все подряд» легенда занимала бы

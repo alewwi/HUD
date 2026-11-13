@@ -1506,6 +1506,26 @@
 .hud-rel-graph[data-rel-mode="family"] .hud-rel-bottom { display: none; }
 .hud-rel-graph.is-expanded .hud-fam-scroll { max-height: min(70vh, 680px); }
 
+/* «Дядя» без родства в HUD: вопрос игроку над деревом, как спор о возрасте в «Детской». */
+.hud-fam-ask { --c: var(--hud-accent, #8c5ad2); display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px 10px; align-items: center; margin: 0 2px 8px; padding: 10px 12px;
+  /* Фон — как у карточек дерева: --hud-card-inner-bg в темах бывает градиентом, и color-mix с ним пуст. */
+  border-radius: 14px; background: color-mix(in srgb, var(--c) 12%, rgba(12,14,24,.72)); border: 1px dashed color-mix(in srgb, var(--c) 70%, transparent); }
+.hud-fam-ask > .t { grid-column: 1 / -1; font-size: .9em; letter-spacing: .02em; }
+.hud-fam-ask > .row { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 2px 8px; align-items: baseline; font-size: .86em; min-width: 0; }
+.hud-fam-ask > .row small { opacity: .7; }
+.hud-fam-ask > .row i { font-style: normal; font-weight: 700; overflow-wrap: anywhere; min-width: 0; }
+.hud-fam-ask > .q { font-size: .86em; opacity: .85; }
+.hud-fam-ask > .btns { display: flex; flex-wrap: wrap; gap: 6px; justify-content: flex-end; }
+.hud-fam-ask button { padding: 4px 12px; border-radius: 10px; font: inherit; font-size: .86em; font-weight: 700; cursor: pointer; color: inherit;
+  background: color-mix(in srgb, var(--c) 14%, transparent); border: 1px solid color-mix(in srgb, var(--c) 45%, transparent); }
+.hud-fam-ask button.is-tip { background: color-mix(in srgb, var(--c) 30%, transparent); border-color: var(--c); }
+.hud-fam-ask button:focus-visible { outline: 2px solid var(--c); outline-offset: 2px; }
+@media (hover: hover) and (pointer: fine) { .hud-fam-ask button:hover { background: color-mix(in srgb, var(--c) 40%, transparent); } }
+@media (max-width: 600px) { .hud-fam-ask { grid-template-columns: minmax(0, 1fr); } .hud-fam-ask > .btns > button { flex: 1; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { .hud-fam-ask { grid-template-columns: minmax(0, 1fr); } .hud-fam-ask > .btns > button { flex: 1; } } }
+/* cq ↑ */
+
 .hud-fam-svg { display: block; margin: 0 auto; max-width: none; font-family: inherit; }
 .hud-fam-link { fill: none; stroke: rgba(196,181,253,.6); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 .hud-fam-link.is-siblings { stroke-dasharray: 5 4; }

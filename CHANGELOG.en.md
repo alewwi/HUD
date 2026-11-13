@@ -4,6 +4,20 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.13 — 2026-11-13
+
+The family tree no longer turns a family friend the children call uncle into the mother's brother, and asks whose brother he is.
+
+### Added
+- **The tree asks about an "uncle".** When the model calls someone an uncle, aunt or nephew and the HUD has no kinship with the child's parents, a question appears above the tree: whose sibling is this — one of the child's parents — or "Not family". The answer is kept in the chat: family stays in the tree even after the model stops writing it, and "not family" is never asked again and stays out of the tree. Twins are a pair: an answer about one covers the other. One button is highlighted as the likely answer. Records of children from the Nursery count too.
+
+### Changed
+- The main character's branch is labelled with the main character's surname first, even when the children carry the mother's surname.
+
+### Fixed
+- A family friend the children call uncle became the brother of the child's first parent in the tree and dragged that parent into someone else's branch. Now a parent who knows the "uncle" as someone else (a business partner, a friend's husband) is not taken as his sibling, and without kinship in the HUD the "uncle" is added only after an answer.
+- English kinship labels with adjectives — "strict uncle", "icy little niece", "protective older brother" — now count as kinship, like Russian ones. "Called uncle", "like an uncle", "best friend's uncle", "hates her father" do not.
+
 ## 23.89.12 — 2026-11-13
 
 New views for the diary, body diary, intercepts, thoughts and subtext; the Nursery asks who got the age wrong and decides on its own who is a child; children show up in the family tree.

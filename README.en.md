@@ -136,7 +136,7 @@ The tab where history accumulates instead of a snapshot:
 - **Invitations.** When the model writes an invitation, HUD looks for your answer in your message. If it can't tell, it shows an Accept and Decline card. Promised and didn't come: the character is hurt.
 - **Emotions** — how the main characters' mood changed; **route** — where they've been during this stretch.
 - **Relationship graph** — a web of everyone's ties: romance, friendship, conflict, jealousy, fear, suspicion, family, parents and children, superiors, mentors, duty, the forbidden, accomplices, shared groups. Nodes with avatars; tapping a node or a link highlights its surroundings; the graph opens full screen.
-- **Family tree** — a second view of the same graph when the relationships include kinship.
+- **Family tree** — a second view of the same graph when the relationships include kinship. If the model calls someone an uncle or aunt and the HUD has no kinship with the parents, the tree asks whose sibling they are, or "not family", and remembers the answer.
 
 <details><summary>📷 The Memory tab with the relationship graph</summary>
 
@@ -597,8 +597,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.12**:
+The latest version is **23.89.13**:
 
+- The family tree asks whose brother an "uncle" is when the HUD has no kinship, and no longer makes a family friend the mother's brother.
 - New views for the diary, body diary, intercepts, thoughts and subtext, plus one more view for eight blocks. The Nursery asks who got a child's age wrong, decides on its own who is a child rather than a character, and no longer shows time-skip children as newborns; children show up in the family tree.
 - The phone can be regenerated on its own; phone rumors get a date and time; every theme picture can be hidden one by one; fixed swipe scars, the Key block with section styles and Label on dark themes.
 - Eight blocks get a choice of view, "Meanwhile" moves to the World tab, phone rumors become a live feed with tabs, long Memory lists fold.
