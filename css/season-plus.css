@@ -647,3 +647,357 @@
   94.45% { transform: rotate(0deg); }
   100% { transform: rotate(0deg); }
 }
+
+/* =========================================================================
+   РИСУНКИ ИЗ render/scene-art.js И ПРАВКИ ДЕТАЛЕЙ
+   Весна: скворечник с птенцом, скворец с червяком, дятел на сучке; куст и
+   тюльпаны встают слева от правого дерева, а не на его ствол.
+   Зима: голые деревья ветвлением, ели и ёлка ярусами, снегирь на фонаре.
+   Осень: фонарь на последнем столбике ограды, дым костра клубами, ёж целиком.
+   Хэллоуин: тыквы-фонари с прорезями в толщину корки.
+   ========================================================================= */
+
+/* --- Весна: куст и тюльпаны — от правого дерева, в пикселях, как и оно.
+   Дерево прижато к правому краю (bt4: 82px, ×1.12), ствол у земли — 13px;
+   в процентах куст на карточке ~420px попадал прямо на ствол. --- */
+.season-spring .hud-blossom-shrub { left: auto; right: 51px; }
+.season-spring .hud-sp-tulips { left: auto; right: 87px; }
+
+/* --- Весна: скворечник с птенцом --- */
+.hud-birdhouse.is-svg > svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; }
+.hud-bh-art .bh-back { fill: #3c281a; }
+.hud-bh-art .bh-dark { fill: #120b06; }
+.hud-bh-art .bh-front { fill: #a77a4a; }
+.hud-bh-art .bh-plank { fill: none; stroke: rgba(60, 38, 20, .5); stroke-width: .4; }
+.hud-bh-art .bh-rim { fill: none; stroke: rgba(70, 44, 24, .7); stroke-width: .55; }
+.hud-bh-art .bh-roof { fill: #573822; }
+.hud-bh-art .bh-roof-top { fill: #7d5534; }
+.hud-bh-art .bh-perch, .hud-bh-art .bh-perch-end { fill: none; stroke: #573822; stroke-width: .9; stroke-linecap: round; }
+.hud-bh-art .bh-strap { fill: none; stroke: #3a2616; stroke-width: .8; }
+.hud-bh-art .ch-head { fill: #8e7655; }
+.hud-bh-art .ch-fluff { fill: none; stroke: #c9b088; stroke-width: .45; stroke-linecap: round; }
+.hud-bh-art .ch-eye { fill: #0d0906; }
+.hud-bh-art .ch-beak-u { fill: #f4bb38; }
+.hud-bh-art .ch-beak-l { fill: #e89a20; }
+.hud-birdhouse.is-empty .bh-chick { display: none; }
+/* Птенец ждёт в летке; когда скворец подлетает (цикл общий, 11 с), он
+   поднимается и разевает клюв. */
+.hud-bh-art .bh-chick { animation: hud-bh-chick 11s ease-in-out infinite; }
+.hud-bh-art .ch-beak-l { animation: hud-bh-beak 11s ease-in-out infinite; }
+@keyframes hud-bh-chick { 0%, 20%, 56%, 100% { transform: translateY(1px); } 27%, 48% { transform: translateY(-.7px); } }
+@keyframes hud-bh-beak { 0%, 27%, 47%, 100% { transform: translateY(0); } 31%, 35%, 39%, 43% { transform: translateY(.9px); } 33%, 41% { transform: translateY(.3px); } }
+
+/* Скворец: глянцевый, в крапинку, клюв жёлтый; несёт веточку или червяка
+   и садится клювом к летку. */
+.season-spring .hud-starling.is-svg { left: -8px; top: 6.4px; width: 16px; height: 10px; border-radius: 0; background: none; }
+.season-spring .hud-starling.is-svg::before, .season-spring .hud-starling.is-svg::after { content: none; }
+.hud-starling.is-svg > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.hud-st-art .st-body, .hud-st-art .st-tail { fill: #1c2230; }
+.hud-st-art .st-wing { fill: #2c3546; transform-origin: 7.6px 4.4px; animation: hud-st-flap .22s linear infinite alternate; }
+.hud-st-art .st-spec { fill: none; stroke: #dfe6f4; stroke-width: .5; stroke-linecap: round; }
+.hud-st-art .st-beak { fill: #f0c030; }
+.hud-st-art .st-eye { fill: #e9e9ea; }
+.hud-st-art .st-worm { fill: none; stroke: #c8645a; stroke-width: 1.05; stroke-linecap: round; }
+.hud-st-art .st-twig { fill: none; stroke: #6b4a2a; stroke-width: .8; stroke-linecap: round; }
+@keyframes hud-st-flap { from { transform: rotate(-26deg); } to { transform: rotate(22deg); } }
+
+/* --- Весна: дятел на сучке у ствола --- */
+.season-spring .hud-woodpecker.is-svg { left: calc(50% - .5px); width: 18px; height: 16px; border-radius: 0; background: none; }
+.hud-woodpecker.is-svg > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.hud-wp-art .wp-branch { fill: #5a3e28; }
+.hud-wp-art .wp-leaf { fill: #5aa448; }
+.hud-wp-art :is(.wp-tail, .wp-body, .wp-wing, .wp-crown) { fill: #1c1c21; }
+.hud-wp-art .wp-chest, .hud-wp-art .wp-cheek { fill: #efece4; }
+.hud-wp-art .wp-bars { fill: none; stroke: #efece4; stroke-width: .45; stroke-linecap: round; }
+.hud-wp-art .wp-vent, .hud-wp-art .wp-nape { fill: #d52a2e; }
+.hud-wp-art .wp-foot { fill: none; stroke: #4a4038; stroke-width: .55; stroke-linecap: round; }
+.hud-wp-art .wp-eye { fill: #f2efe6; }
+.hud-wp-art .wp-beak { fill: #56493e; }
+.hud-wp-art .wp-bird { transform-origin: 8px 12.2px; animation: hud-wp-peck 2.8s ease-in-out infinite; }
+@keyframes hud-wp-peck { 0%, 58%, 100% { transform: rotate(0); } 62%, 70%, 78% { transform: rotate(-13deg); } 66%, 74%, 82% { transform: rotate(0); } }
+
+/* --- Зима: голые деревья ветвлением (render/scene-art.js) --- */
+.hud-bg-tree.is-art > .hud-tree-art { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; }
+.hud-reflect .hud-bg-tree > .hud-tree-art { display: block !important; }
+.hud-tree-art .bark { fill: #4b4640; }
+.hud-tree-art .tw { fill: none; stroke: #58534c; stroke-width: .6; stroke-linecap: round; }
+.hud-tree-art .sn { fill: none; stroke: #f3f6fa; stroke-linecap: round; }
+.hud-tree-art .s0 { stroke-width: 2.4; } .hud-tree-art .s1 { stroke-width: 1.8; } .hud-tree-art .s2 { stroke-width: 1.2; } .hud-tree-art .s3 { stroke-width: .9; }
+
+/* --- Зима: ели --- */
+.hud-sp-spruce .needles { fill: #1f4a3a; stroke: #163628; stroke-width: .4; stroke-linejoin: round; }
+.hud-sp-spruce .shade { fill: rgba(6, 22, 14, .35); }
+.hud-sp-spruce .tips { fill: none; stroke: #4f8a68; stroke-width: .55; stroke-linecap: round; }
+.hud-sp-spruce .snow-base { fill: #e8eef6; }
+
+/* --- Зима: новогодняя ёлка --- */
+.season-winter .hud-xmas-tree.is-svg > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.hud-xmas-tree.is-svg .xs-shadow { fill: rgba(12, 18, 34, .22); }
+.hud-xmas-tree.is-svg .xs-trunk { fill: #5d4026; }
+.hud-xmas-tree.is-svg .xs-needles { fill: #23573f; stroke: #18402d; stroke-width: .4; stroke-linejoin: round; }
+.hud-xmas-tree.is-svg .xs-shade { fill: rgba(6, 22, 14, .35); }
+.hud-xmas-tree.is-svg .xs-tips { fill: none; stroke: #5c9c74; stroke-width: .55; stroke-linecap: round; }
+.hud-xmas-tree.is-svg .xs-frost { fill: rgba(242, 247, 252, .92); }
+.hud-xmas-tree.is-svg .xs-garland { fill: none; stroke: #e8c862; stroke-width: .5; opacity: .85; }
+.hud-xmas-tree.is-svg .lt { opacity: calc(.55 + var(--scene-night-strength, 0) * .45); animation: hud-xs-blink 3.4s ease-in-out infinite; }
+.hud-xmas-tree.is-svg .l1 { fill: #fff3c4; } .hud-xmas-tree.is-svg .l2 { fill: #ffc9c9; animation-delay: .85s; }
+.hud-xmas-tree.is-svg .l3 { fill: #bfe9ff; animation-delay: 1.7s; } .hud-xmas-tree.is-svg .l4 { fill: #ffd7a0; animation-delay: 2.55s; }
+@keyframes hud-xs-blink { 0%, 100% { opacity: calc(.55 + var(--scene-night-strength, 0) * .45); } 50% { opacity: .3; } }
+.hud-xmas-tree.is-svg .bauble.r circle:not(.hi) { fill: #d23a3a; }
+.hud-xmas-tree.is-svg .bauble.g circle:not(.hi) { fill: #e0b030; }
+.hud-xmas-tree.is-svg .bauble.b circle:not(.hi) { fill: #2f74c0; }
+.hud-xmas-tree.is-svg .bauble .hi { fill: rgba(255, 255, 255, .75); }
+.hud-xmas-tree.is-svg .bauble .cap { fill: none; stroke: #c9b070; stroke-width: .7; }
+.hud-xmas-tree.is-svg .xs-star { fill: #ffd96e; stroke: #e8a52a; stroke-width: .4; stroke-linejoin: round; }
+.hud-xmas-tree.is-svg .xs-star-hi { fill: #fff6d0; }
+
+/* --- Зима: снегирь сидит на шапке фонаря --- */
+.hud-sp-lamp .bf-feet { fill: none; stroke: #1f2228; stroke-width: .5; stroke-linecap: round; }
+
+/* --- Зима: санки — верёвка лежит на снегу --- */
+.season-winter .hud-sp-sled { aspect-ratio: 140 / 24; width: clamp(86px, 28%, 140px); }
+.hud-sp-sled .rope { stroke-width: .9; stroke-linecap: round; }
+.hud-sp-sled .rope-knot { fill: none; stroke: #8a2f20; stroke-width: 1.1; stroke-linecap: round; }
+
+/* --- Осень: фонарь стоит на последнем столбике ограды. Ограда — 74px от
+   4% слева, столбик p3 — 68…71.4px, высота 17px; низ фонаря в рисунке —
+   на 6 из 26 единиц выше края, крючок для подвеса не нужен. --- */
+.season-autumn :is(.hud-sp-lantern, .hud-spl-lantern) { left: calc(4% + 63.7px); bottom: calc(6.5% + 12.5px); }
+.hud-sp-lantern .hook { display: none; }
+
+/* --- Осень: дым костра — клубы поднимаются, растут и тают, чуть сносит
+   ветром в одну сторону. Без движения — стоит столбик из четырёх клубов. --- */
+.hud-campfire.is-svg .smoke { fill: none; stroke: none; }
+.hud-campfire.is-svg .puff { fill: rgba(214, 214, 222, .6); stroke: none; transform-box: fill-box; transform-origin: 50% 50%; }
+.hud-campfire.is-svg .puff.p1 { transform: translate(.4px, -4px) scale(1.1); opacity: .6; }
+.hud-campfire.is-svg .puff.p2 { transform: translate(1.2px, -9px) scale(1.5); opacity: .45; }
+.hud-campfire.is-svg .puff.p3 { transform: translate(2px, -14px) scale(1.9); opacity: .3; }
+.hud-campfire.is-svg .puff.p4 { transform: translate(2.8px, -19px) scale(2.3); opacity: .16; }
+@media (prefers-reduced-motion: no-preference) {
+  .hud-campfire.is-svg .smoke { animation: none; }
+  .hud-campfire.is-svg .puff { animation: hud-fire-smoke 4.8s ease-out infinite; }
+  .hud-campfire.is-svg .puff.p1 { animation-delay: -.6s; } .hud-campfire.is-svg .puff.p2 { animation-delay: -1.8s; }
+  .hud-campfire.is-svg .puff.p3 { animation-delay: -3s; } .hud-campfire.is-svg .puff.p4 { animation-delay: -4.2s; }
+}
+@keyframes hud-fire-smoke {
+  0% { transform: translate(0, 0) scale(.5); opacity: 0; }
+  12% { opacity: .65; }
+  100% { transform: translate(3px, -21px) scale(2.4); opacity: 0; }
+}
+
+/* --- Осень: ёж — один зверёк. Иглы без тёмной обводки, по краю — мягкий
+   ободок тона игл; светлые иглы приглушены, чтобы не рябили отдельными штрихами. --- */
+.hh .hh-spines { stroke: none; }
+.hh .hh-shade { fill: none; stroke: rgba(46, 32, 20, .55); stroke-width: .7; stroke-linejoin: round; }
+.hh .q3 { stroke: #b08e62; opacity: .8; }
+.hh .hh-belly { fill: #9c7a52; }
+.hh .hh-face { fill: #bd9a6e; }
+.hh .hh-leg, .hh .hh-leg.far { stroke: #3a2a1c; }
+
+/* --- Хэллоуин: тыквы-фонари --- */
+.hud-pumpkin.is-svg { border-radius: 0; background: none; box-shadow: none; }
+.hud-pumpkin.is-svg > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.hud-pk-art .pk-body { fill: #e8741a; }
+.hud-pk-art .pk-rib { fill: none; stroke: rgba(120, 45, 0, .45); stroke-width: .6; }
+.hud-pk-art .pk-shine { fill: none; stroke: rgba(255, 222, 160, .6); stroke-width: .6; stroke-linecap: round; }
+.hud-pk-art .pk-stem { fill: #4c5a22; }
+.hud-pk-art .pk-curl { fill: none; stroke: #5a6a2a; stroke-width: .5; stroke-linecap: round; }
+.hud-pk-art .pk-leaf { fill: #5f7a2a; }
+.hud-pk-art .pk-rind { fill: #f6c27a; }
+.hud-pk-art .pk-cut { fill: #3a1500; }
+.hud-scene-widget:is(.phase-sunset, .phase-evening, .phase-night, .phase-deep-night, .phase-predawn) .hud-pk-art .pk-cut { fill: #ffd36b; animation: hud-pumpkin-flicker 2.4s ease-in-out infinite; }
+.hud-scene-widget:is(.phase-sunset, .phase-evening, .phase-night, .phase-deep-night, .phase-predawn) .hud-pk-art .pk-rind { fill: #ff9a3a; }
+.hud-scene-widget:is(.phase-evening, .phase-night, .phase-deep-night) .hud-pumpkin.is-svg { box-shadow: none; filter: drop-shadow(0 0 4px rgba(255, 150, 40, .45)); }
+/* Без движения сцена стоит на первом кадре — пусть это будет кадр, где
+   скворец уже у летка с кормом, а птенец тянется к нему. */
+.season-spring .hud-starling.is-svg, .hud-bh-art .bh-chick, .hud-bh-art .ch-beak-l { animation-delay: -4s; }
+
+/* --- Зима: ветви сливаются со стволом — кора обведена своим же цветом со
+   скруглёнными стыками, на развилках наплывы (render/scene-art.js). --- */
+.hud-tree-art .bark { stroke: #4b4640; stroke-width: .6; stroke-linejoin: round; }
+
+/* =========================================================================
+   СРЕДНЕВЕКОВАЯ ЗИМА (render/scene-art.js): избы вместо домиков, замок на
+   дальнем холме, снеговик в горшке, деревянные салазки.
+   ========================================================================= */
+.hud-winter-house.is-izba > svg { position: absolute; inset: 0; display: block; width: 100%; height: 100%; overflow: visible; z-index: 2; }
+.hud-winter-house.is-izba::before { clip-path: inset(30px 50px 10px 18px); }
+.hud-iz-art .iz-shadow { fill: rgba(30, 40, 60, .18); }
+.hud-iz-art .iz-log { fill: #7a5636; } .hud-iz-art .iz-log.t2 { fill: #6a4a2e; }
+.hud-iz-art .iz-moss { fill: none; stroke: rgba(40, 26, 14, .55); stroke-width: .7; }
+.hud-iz-art .iz-end { fill: #b08a5c; stroke: #5a3e24; stroke-width: .5; }
+.hud-iz-art .iz-ring { fill: none; stroke: rgba(90, 62, 36, .6); stroke-width: .4; }
+.hud-iz-art .iz-gable { fill: #6e5034; }
+.hud-iz-art .iz-soffit { fill: #3a2818; }
+.hud-iz-art .iz-board { fill: none; stroke: rgba(40, 26, 14, .5); stroke-width: .5; }
+.hud-iz-art .iz-dormer { fill: #3a2818; }
+.hud-iz-art .iz-dormer-glow { fill: #ffd58a; opacity: calc(min(1, var(--window-glow, 0)) * .8); }
+.hud-iz-art .iz-trim { fill: #d8c3a0; stroke: #8a6a44; stroke-width: .4; }
+.hud-iz-art .iz-trim-cut { fill: none; stroke: #8a6a44; stroke-width: .5; stroke-linecap: round; }
+.hud-iz-art .iz-glass { fill: #1d1f24; }
+.hud-iz-art .iz-glow { fill: #ffd38a; opacity: min(1, var(--window-glow, 0)); transition: opacity 1.6s ease; }
+.hud-iz-art .iz-mullion { fill: none; stroke: #5a3e24; stroke-width: .8; }
+.hud-iz-art .iz-sill { fill: #8a6a44; } .hud-iz-art .iz-sill-snow { fill: #f3f7fc; }
+.hud-iz-art .iz-door { fill: #4a3220; stroke: #2a1a0e; stroke-width: .5; }
+.hud-iz-art .iz-door-line { fill: none; stroke: rgba(20, 12, 6, .55); stroke-width: .5; }
+.hud-iz-art .iz-hinge { fill: none; stroke: #2a2a2e; stroke-width: 1.1; stroke-linecap: round; }
+.hud-iz-art .iz-ring2 { fill: none; stroke: #2a2a2e; stroke-width: .5; }
+.hud-iz-art .iz-step { fill: #5a3e24; }
+.hud-iz-art .iz-roof { fill: #4e3a28; }
+.hud-iz-art .iz-roof-plank { fill: none; stroke: rgba(20, 12, 6, .45); stroke-width: .5; }
+.hud-iz-art .iz-snow { fill: #f3f7fc; stroke: #d6e2f0; stroke-width: .4; }
+.hud-iz-art .iz-icicle { fill: none; stroke: #e6f0fa; stroke-width: .6; stroke-linejoin: round; }
+.hud-iz-art .iz-ridge { fill: #5a3e24; }
+.hud-iz-art .iz-drift { fill: #eef3f9; }
+/* Дальние избы чуть светлее, как прежние домики. */
+.season-winter .hud-winter-house.is-izba.h3 .iz-log { fill: #7d6a58; }
+
+/* Замок стоит на земле, на пологом снежном холме за деревней: низ холма
+   уходит в снег, а деревья и ели (они позже по слоям) стоят перед ним —
+   на узкой карточке замок прячется за ними, а не висит в небе. */
+.hud-era-castle { position: absolute; left: 49%; bottom: 13%; width: clamp(70px, 21%, 100px); aspect-ratio: 90 / 50; z-index: 1; pointer-events: none; opacity: .9;
+  filter: brightness(calc(1 - var(--scene-night-strength, 0) * .5)); }
+.hud-era-castle > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.hud-castle-art .cs-hill { fill: #e4ebf3; } .hud-castle-art .cs-hill-snow { fill: #f2f6fb; }
+.hud-castle-art .cs-road { fill: none; stroke: rgba(120, 130, 150, .5); stroke-width: 1; stroke-linecap: round; }
+.hud-castle-art :is(.cs-wall, .cs-tower, .cs-keep) { fill: #8f9bb0; }
+.hud-castle-art .cs-keep { fill: #8592a8; }
+.hud-castle-art .cs-crenel { fill: #8f9bb0; }
+.hud-castle-art .cs-cone { fill: #6e7c94; } .hud-castle-art .cs-cone-snow { fill: #f2f6fb; }
+.hud-castle-art .cs-wall-snow { fill: none; stroke: #f2f6fb; stroke-width: 1; stroke-linecap: round; }
+.hud-castle-art .cs-win { fill: #4e586a; }
+.hud-scene-widget:is(.phase-sunset, .phase-evening, .phase-night, .phase-deep-night, .phase-predawn) .hud-castle-art .cs-win { fill: #ffcf7a; }
+.hud-castle-art .cs-gate { fill: #4e586a; }
+.hud-castle-art .cs-pole { fill: none; stroke: #4e586a; stroke-width: .5; }
+.hud-castle-art .cs-flag { fill: #b84a4a; }
+@media (prefers-reduced-motion: no-preference) { .hud-castle-art .cs-flag { animation: hud-sp-flag 1.6s ease-in-out infinite; transform-box: fill-box; transform-origin: 0 50%; } }
+
+/* Снеговик в горшке. */
+.hud-sm-era .pot { fill: #b0643a; stroke: #6e3a1e; stroke-width: .5; }
+.hud-sm-era .pot-rim { fill: #9a5430; stroke: #6e3a1e; stroke-width: .4; }
+.hud-sm-era .pot-band { fill: none; stroke: #6e3a1e; stroke-width: .6; }
+.hud-sm-era .pot-hi { fill: none; stroke: rgba(255, 210, 170, .5); stroke-width: .8; stroke-linecap: round; }
+.hud-sm-era .twig-nose { fill: #7a5634; stroke: #4d321b; stroke-width: .4; }
+.hud-sm-era .twig-nose-k { fill: none; stroke: #4d321b; stroke-width: .5; }
+.hud-sm-era .sash { fill: #a8936a; stroke: #6e5a3a; stroke-width: .4; }
+.hud-sm-era .sash-st { fill: none; stroke: #6e5a3a; stroke-width: .5; stroke-dasharray: 1 1; }
+.hud-sm-era .sm-besom .stick { fill: none; stroke: #8a6440; stroke-width: 1.4; stroke-linecap: round; }
+.hud-sm-era .sm-besom .twigs { fill: none; stroke: #6a4a2a; stroke-width: .6; stroke-linecap: round; }
+.hud-sm-era .sm-besom .tie { fill: none; stroke: #c9a46a; stroke-width: .9; }
+.hud-sm-era .arm { fill: none; stroke: #5a3e24; stroke-width: 1.4; stroke-linecap: round; }
+
+/* Деревянные салазки. */
+.hud-sp-sled.is-era .w-runner { fill: #9a7046; stroke: #5a3e24; stroke-width: .5; }
+.hud-sp-sled.is-era .w-post { fill: none; stroke: #6a4a2a; stroke-width: 1.4; stroke-linecap: round; }
+.hud-sp-sled.is-era .w-deck { fill: #b08454; stroke: #5a3e24; stroke-width: .5; }
+.hud-sp-sled.is-era .w-slat { fill: none; stroke: rgba(60, 38, 20, .55); stroke-width: .5; }
+.hud-sp-sled.is-era .w-rail { fill: none; stroke: #6a4a2a; stroke-width: .9; stroke-linecap: round; }
+.hud-sp-sled.is-era .rope { stroke: #c9a46a; stroke-width: 1; }
+
+/* =========================================================================
+   СРЕДНЕВЕКОВОЕ ЛЕТО: лодка лежит поверх песочного замка, ведёрко и
+   лопатка — деревянные (бадейка на обручах и деревянный совок).
+   ========================================================================= */
+.era-medieval.season-summer .hud-sandcastle { z-index: 6; }
+/* Лодка — поверх замка и обеих сеток: на узкой карточке кол сети
+   приходился перед лодкой, теперь он за ней. */
+.era-medieval.season-summer .hud-rowboat { z-index: 16; }
+.era-medieval .hud-sandcastle.is-svg .bk { fill: #9a7046; stroke: #5a3e24; stroke-width: .4; }
+.era-medieval .hud-sandcastle.is-svg .bk-rim { stroke: #3a3a3e; stroke-width: .9; }
+.era-medieval .hud-sandcastle.is-svg .bk-h { stroke: #c9a46a; }
+.era-medieval .hud-sandcastle.is-svg .sp-h { stroke: #7a5634; }
+.era-medieval .hud-sandcastle.is-svg .sp-b { fill: #a07a4c; stroke: #5a3e24; stroke-width: .4; }
+.era-medieval .hud-sandcastle.is-svg .flag { fill: #b84a4a; }
+
+/* =========================================================================
+   ЛЕТО: чайка одним рисунком — крылья растут из плеч, стык под спиной.
+   ========================================================================= */
+.season-summer .hud-gull-glide.is-svg > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.hud-gl-art .gl-wing { fill: #f4f6fa; stroke: #c3cddb; stroke-width: .25; stroke-linejoin: round; }
+.hud-gl-art .gl-w2 .gl-wing { fill: #dfe5ee; }
+.hud-gl-art .gl-tip { fill: #2a2e36; }
+.hud-gl-art .gl-edge { fill: none; stroke: #b6c2d2; stroke-width: .35; stroke-linecap: round; }
+.hud-gl-art .gl-body { fill: #fbfcff; }
+.hud-gl-art .gl-belly { fill: #d7dfea; }
+.hud-gl-art .gl-tail { fill: #e6ebf2; stroke: #c3cddb; stroke-width: .25; }
+.hud-gl-art .gl-beak { fill: #f0b03c; } .hud-gl-art .gl-spot { fill: #d2452e; }
+.hud-gl-art .gl-eye { fill: #1c1e24; }
+.hud-gl-art .gl-w1 { transform-origin: 15px 5.6px; animation: hud-gl-flap 1.15s ease-in-out infinite alternate; }
+.hud-gl-art .gl-w2 { transform-origin: 16.6px 5.6px; animation: hud-gl-flap2 1.15s ease-in-out infinite alternate; animation-delay: -.06s; }
+@keyframes hud-gl-flap { 0% { transform: rotate(14deg) scaleY(.8); } 100% { transform: rotate(-8deg) scaleY(1); } }
+@keyframes hud-gl-flap2 { 0% { transform: rotate(-14deg) scaleY(.8); } 100% { transform: rotate(8deg) scaleY(1); } }
+
+/* Кораблик всегда на воде: линия горизонта — 34% от низа сцены, низ корпуса
+   поднимается к ней по ходу дня, но не выше. */
+.season-summer .hud-sailboat { bottom: calc(29% + var(--scene-day-progress, .5) * 4.2%); }
+
+/* =========================================================================
+   ВЕСНА: ДАЛЬНИЙ ПЛАН — поля лоскутами на холмах, хутор с садом, мельница.
+   Лежит за дальним лесом: низ построек прячется за кронами.
+   ========================================================================= */
+.season-spring .hud-sp-fields { position: absolute; left: 0; right: 0; bottom: 21%; height: 15%; z-index: 0; pointer-events: none; opacity: .8; }
+.hud-sp-fields > svg, .hud-sp-farm > svg, .hud-sp-mill > svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.hud-fields-art .fd-hill.h1 { fill: #86b46e; } .hud-fields-art .fd-hill.h2 { fill: #74a660; }
+.hud-fields-art .fd-patch.p1 { fill: #a87e56; } .hud-fields-art .fd-patch.p2 { fill: #e4d25a; }
+.hud-fields-art .fd-patch.p3 { fill: #9cc272; } .hud-fields-art .fd-patch.p4 { fill: #c9a26e; } .hud-fields-art .fd-patch.p5 { fill: #e8d86a; }
+.hud-fields-art .fd-rows { fill: none; stroke: rgba(70, 50, 30, .35); stroke-width: .5; vector-effect: non-scaling-stroke; }
+.hud-fields-art .fd-hedge { fill: none; stroke: #5a8a4c; stroke-width: 3; stroke-dasharray: .1 3.4; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.hud-fields-art .fd-road { fill: none; stroke: #d8c49a; stroke-width: 1.6; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.season-spring .hud-sp-farm { position: absolute; left: 33%; bottom: 27%; width: 54px; aspect-ratio: 60 / 30; z-index: 0; pointer-events: none; opacity: .9; }
+.season-spring .hud-sp-mill { position: absolute; left: 52%; bottom: 28.5%; width: 20px; aspect-ratio: 24 / 40; z-index: 0; pointer-events: none; opacity: .88; }
+.hud-farm-art .ft-wall { fill: #efe2c6; } .hud-farm-art .ft-beam { fill: none; stroke: #6a4a2e; stroke-width: .7; }
+.hud-farm-art .ft-roof { fill: #8a4a32; } .hud-farm-art .ft-roof-fill { fill: #a65a3c; }
+.hud-farm-art .ft-chimney { fill: #7a5a4a; } .hud-farm-art .ft-win { fill: #4a5a6a; } .hud-farm-art .ft-door { fill: #6a4a2e; }
+.hud-farm-art .ft-barn { fill: #9a5a3a; } .hud-farm-art .ft-barn-roof { fill: #6a3a26; }
+.hud-farm-art .ft-barn-door { fill: #6a3a26; stroke: #e8d8b8; stroke-width: .4; }
+.hud-farm-art .ft-fence { fill: none; stroke: #8a6a44; stroke-width: .6; }
+.hud-farm-art .ft-ground { fill: #6a9c58; }
+.hud-farm-art .ft-trunk { fill: #6a4a2e; } .hud-farm-art .ft-crown { fill: #7cb25e; } .hud-farm-art .ft-bloom { fill: #fbe4ee; }
+.season-spring.month-3 .hud-farm-art .ft-bloom { display: none; }
+.season-spring.month-3 .hud-farm-art .ft-crown { fill: #8a7a5e; opacity: .55; }
+.hud-mill-art .wm-mound { fill: #74a660; }
+.hud-mill-art .wm-body { fill: #d9c8a4; stroke: #7a5e3a; stroke-width: .4; }
+.hud-mill-art .wm-board { fill: none; stroke: rgba(90, 64, 36, .5); stroke-width: .4; }
+.hud-mill-art .wm-door { fill: #6a4a2e; }
+.hud-mill-art .wm-cap { fill: #8a5a3a; }
+.hud-mill-art .wm-arm { fill: none; stroke: #5a3e24; stroke-width: .8; }
+.hud-mill-art .wm-sail { fill: #f2ead6; stroke: #7a5e3a; stroke-width: .3; }
+.hud-mill-art .wm-lath { fill: none; stroke: #7a5e3a; stroke-width: .3; }
+.hud-mill-art .wm-hub { fill: #3a2818; }
+.hud-mill-art .wm-sails { transform-origin: 12px 10px; animation: hud-wm-turn 9s linear infinite; }
+@keyframes hud-wm-turn { to { transform: rotate(360deg); } }
+.season-spring:is(.phase-evening, .phase-night, .phase-deep-night) :is(.hud-sp-fields, .hud-sp-farm, .hud-sp-mill) { filter: brightness(.55) saturate(.6); }
+/* Узкая карточка: хутор и мельница мельче и ближе к своим просветам между деревьями. */
+@container hud (max-width: 300px) {
+  .season-spring .hud-sp-farm { left: 30%; width: 40px; }
+  .season-spring .hud-sp-mill { left: 54%; width: 15px; }
+}
+
+/* =========================================================================
+   УЗКАЯ КАРТОЧКА (телефон и узкая карточка в широком окне — копия в cq)
+   Весна: одуванчик, пучок травы и росток стояли на стволах — ставим их в
+   просветы, считая от деревьев (ствол — в 41px от левого края дерева, у
+   правого дерева — от правого края). Зима: вал у первого дома ниже и выше —
+   его растушёванный низ больше не открывает основание стены. Лето: зонтик
+   в правом углу (пусть и обрезан), полотенце под ним у самого низа.
+   ========================================================================= */
+@media (max-width: 600px) {
+  .season-spring .hud-dandelion.dn2 { left: calc(11% + 37px); }
+  .season-spring .hud-sprout.sp1 { left: calc(11% + 28px); }
+  .season-spring .hud-grass-tuft.gt5 { left: auto; right: 22px; bottom: 9.6%; }
+  .season-winter .hud-snowdrift.sd-mid2 { bottom: 5.6%; height: 7.6%; }
+  .season-summer .hud-umbrella { right: -16px; }
+  .season-summer .hud-towel { right: 2px; bottom: .4%; }
+  .season-summer .hud-towel-shadow { right: -2px; bottom: -.6%; }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .season-spring .hud-dandelion.dn2 { left: calc(11% + 37px); }
+  .season-spring .hud-sprout.sp1 { left: calc(11% + 28px); }
+  .season-spring .hud-grass-tuft.gt5 { left: auto; right: 22px; bottom: 9.6%; }
+  .season-winter .hud-snowdrift.sd-mid2 { bottom: 5.6%; height: 7.6%; }
+  .season-summer .hud-umbrella { right: -16px; }
+  .season-summer .hud-towel { right: 2px; bottom: .4%; }
+  .season-summer .hud-towel-shadow { right: -2px; bottom: -.6%; }
+} }
+/* cq ↑ */

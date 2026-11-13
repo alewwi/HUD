@@ -597,8 +597,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.17**:
+The latest version is **23.89.18**:
 
+- Weather scenes polished: bare trees branch, spruces come in tiers, a birdhouse with a chick, a woodpecker on a twig; spring gets fields, a farmstead and a windmill in the distance; medieval winter gets log huts, a castle, a snowman in a pot and a wooden sledge.
 - Weather scenes are richer: new details in all four seasons (a palm, a lighthouse, a scarecrow, spruces, a sled, a duck with ducklings and more), the old ones redrawn; the hedgehogs walk in short runs and meet at a new burrow.
 - Translations are complete: with a language from the table the model writes the HUD in that language, and the Customization sample is translated with the interface. A third new view for eight blocks, richer Thoughts and Subtext, dark paper on dark themes; pregnancy exams open per swipe.
 - The family tree question about an "uncle" goes away right after you answer.

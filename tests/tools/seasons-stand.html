@@ -76,7 +76,7 @@ function виджет({ сезон, месяц, число, минуты, пог
   const солнце = ` style="--sun-h:${p.toFixed(3)};--sun-alt:${Math.max(0, Math.sin(p * Math.PI)).toFixed(3)};"`;
   const сцена = ` style="--cel-x:${cx.toFixed(1)}%;--cel-xm:${cxm.toFixed(1)}%;--cel-y:${cy.toFixed(1)}%;--scene-day-progress:${p.toFixed(3)};--scene-night-strength:${свет.ночь.toFixed(3)};--scene-golden-strength:${свет.золото.toFixed(3)};--scene-sunset-strength:${свет.закат.toFixed(3)};--scene-star-strength:${свет.звёзды.toFixed(3)};${теньЛуны(дата)}"`;
   const ночь = /phase-(?:evening|night|deep-night|predawn)/.test(ф);
-  const экстра = { dew: ф === 'phase-morning' && /clear|cloudy/.test(погода) && /spring|summer/.test(сезон), deepFreeze: мороз, month: месяц, day: число,
+  const экстра = { era: средневековье ? 'medieval' : '', dew: ф === 'phase-morning' && /clear|cloudy/.test(погода) && /spring|summer/.test(сезон), deepFreeze: мороз, month: месяц, day: число,
     ...(праздники ? праздникиСцены({ число, месяц, год: 2024, ночь }) : {}), newYear: праздники && ((месяц === 12 && число >= 28) || (месяц === 1 && число <= 13)) };
   const чч = String(Math.floor(минуты / 60)).padStart(2, '0'), мм = String(минуты % 60).padStart(2, '0');
   const классы = ['hud-scene-widget', ф, погода, сила, мороз ? 'temp-cold temp-freezing' : '', сезон, мокро ? 'scene-wet' : '', `month-${месяц}${число >= 20 ? ' month-late' : ''}`, средневековье ? 'era-medieval' : '', анимация ? 'fx-active' : ''].filter(Boolean).join(' ');

@@ -4,6 +4,24 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.18 — 2026-11-13
+
+Weather scenes polished: bare trees, spruces and birds redrawn, the medieval era gets its own winter, spring gets a far view.
+
+### Added
+- **Spring far view:** patchwork fields on the hills (plowed land, rapeseed, winter wheat, boundaries, a hedge, a road), a farmstead with a half-timbered house, a barn and blooming apple trees, a windmill with turning sails.
+- **Medieval winter:** log huts with log ends, a steep plank roof under snow, a ridge horse and a window in a carved frame; a castle on a far hill that hides behind the trees and spruces on a narrow card; a snowman wearing a clay pot, with a sash and a birch besom; a wooden sledge.
+- **A birdhouse** with a chick in the hole: when the starling brings a worm, the chick stretches up and opens its beak (in March the starling carries twigs).
+
+### Changed
+- **Bare winter trees** grow by branching: the trunk tapers, forks have bark swellings, snow lies on top of the thick branches, the branches are shorter. Spruces and the New Year tree are drawn in tiers with drooping boughs and snow caps.
+- **The woodpecker** sits on a twig by the trunk, **the bullfinch** on the lamp's cap, **the sled rope** lies on the snow.
+- **Autumn:** campfire smoke rises in puffs and fades, the lantern stands on the fence post, the hedgehog is drawn as one piece, the dark spot in the tree crown is gone.
+- **Halloween pumpkins** have carved cuts with rind thickness and different faces; they glow from inside in the evening.
+- **The gull** is redrawn with wings growing from the shoulders. **The sailboat** no longer rises above the horizon in the evening.
+- **Medieval summer:** the boat lies over the sand castle and the nets, the bucket and spade are wooden.
+- **Narrow cards:** the spring bush and tulips no longer cover the right tree, grass and a dandelion stand between the trunks; the first winter house's wall base is under the snow; the summer umbrella sits in the right corner with the towel under it.
+
 ## 23.89.17 — 2026-11-13
 
 Weather scenes got richer: new details in all four seasons, the old ones redrawn, and the hedgehogs walk like hedgehogs.

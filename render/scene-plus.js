@@ -6,6 +6,8 @@
 // Движение — как у всей сцены: стоит, пока виджет не раскрыт касанием
 // (.fx-active), и первый кадр каждой анимации — спокойная картинка.
 
+import { ельSvg, салазкиSvg } from './scene-art.js?v=23.89.18';
+
 const лист = (x, y, r, s, цвет) => `<path class="sp-leaf ${цвет}" transform="translate(${x} ${y}) rotate(${r}) scale(${s})" d="M0 -6 L1.6 -2.4 L5 -3.4 L3.6 0 L6 1.6 L2.2 2 L2.6 5.4 L0 3.4 L-2.6 5.4 L-2.2 2 L-6 1.6 L-3.6 0 L-5 -3.4 L-1.6 -2.4Z M0 3.4 V8"/>`;
 
 // Ёж в профиль мордой вправо (viewBox 0 0 64 36, земля — y 35): лапки
@@ -40,14 +42,16 @@ function ёжТело() {
     });
   }
   const лапа = (x, к) => '<path class="hh-leg ' + к + '" d="M' + x + ' 29.5 V34.4 h1.6"/>';
+  // Всё, что стыкуется, уходит под соседнее: лапки — под живот, морда — под
+  // край игл, живот — под иглы. Швов поверх зверька нет, он читается целым.
   кэшЕжа = '<g class="hh-legs">' + лапа(17, 'far b') + лапа(39.5, 'far a') + '</g>'
+    + '<g class="hh-legs near">' + лапа(21, 'a') + лапа(43.5, 'b') + '</g>'
     + '<g class="hh-torso"><path class="hh-belly" d="M7 27 C13 33 30 34.6 44 33.2 C50 32.6 54 31.4 56 29.8 L40 26Z"/>'
-    + '<path class="hh-spines" d="' + край + '"/><path class="hh-q q1" d="' + ряды[0] + '"/><path class="hh-q q2" d="' + ряды[1] + '"/><path class="hh-q q3" d="' + ряды[2] + '"/>'
     + '<g class="hh-head"><path class="hh-face" d="M41 21.5 C45 17.5 52 18.5 57 22.5 C59.5 24.3 61.5 26 62 27.4 C58.5 30.2 52.5 31.6 46.5 31.2 C42 30.6 39.5 26.5 41 21.5Z"/>'
     + '<path class="hh-cheek" d="M44 29.6 C49 31 55 30.4 59.6 28.6 C56.4 30.6 51.6 31.6 46.5 31.2 C45.6 31 44.8 30.4 44 29.6Z"/>'
     + '<ellipse class="hh-ear" cx="44.6" cy="20.6" rx="1.7" ry="1.9"/><circle class="hh-eye" cx="50.8" cy="23.4" r="1.45"/><circle class="hh-glint" cx="51.3" cy="22.9" r=".45"/>'
-    + '<ellipse class="hh-nose" cx="62" cy="27.3" rx="1.8" ry="1.5"/><path class="hh-whisk" d="M60 28.6 l2.6 1.4 M59.6 29.2 l2 2"/></g></g>'
-    + '<g class="hh-legs near">' + лапа(21, 'a') + лапа(43.5, 'b') + '</g>';
+    + '<ellipse class="hh-nose" cx="62" cy="27.3" rx="1.8" ry="1.5"/><path class="hh-whisk" d="M60 28.6 l2.6 1.4 M59.6 29.2 l2 2"/></g>'
+    + '<path class="hh-spines" d="' + край + '"/><path class="hh-shade" d="' + край + '"/><path class="hh-q q1" d="' + ряды[0] + '"/><path class="hh-q q2" d="' + ряды[1] + '"/><path class="hh-q q3" d="' + ряды[2] + '"/></g>';
   return кэшЕжа;
 }
 export function ёжSvg(роль) {
@@ -169,19 +173,20 @@ function осень() {
   return туман + пугало + тыквы + фонарь + порыв;
 }
 
-function зима() {
-  // Заснеженные ели: ярусы с шапками снега.
-  const ель = (класс) => `<div class="hud-sp-spruce ${класс}" aria-hidden="true"><svg viewBox="0 0 40 64"><rect class="stem" x="18" y="54" width="4" height="10"/>`
-    + `<path class="needles" d="M20 2 L30 18 L25 18 L34 32 L28 32 L38 48 L27 48 L30 56 L10 56 L13 48 L2 48 L12 32 L6 32 L15 18 L10 18Z"/>`
-    + `<path class="snow" d="M20 2 L25.5 11 C22 12 18 12 14.5 11Z M13 18 C17 20 23 20 27 18 L29.5 22 C24 24 16 24 10.5 22Z M10 32 C16 35 24 35 30 32 L32.5 36 C25 39 15 39 7.5 36Z M6 48 C14 51 26 51 34 48 L36 52 C26 55 14 55 4 52Z"/></svg></div>`;
+function зима(extra = {}) {
+  // Заснеженные ели: ярусы с провисающими лапами, тень у ствола, светлые
+  // кончики иголок и шапки снега с наплывами (render/scene-art.js).
+  const ель = (класс) => `<div class="hud-sp-spruce ${класс}" aria-hidden="true">${ельSvg()}</div>`;
   const ели = ель('e1') + ель('e2') + ель('e3');
-  // Фонарный столб: тёплый ореол, шапка снега; на кронштейне снегирь.
+  // Фонарный столб: тёплый ореол, шапка снега; на шапке фонаря — снегирь.
   const фонарь = `<div class="hud-sp-lamp" aria-hidden="true"><svg viewBox="0 0 40 90"><path class="pole" d="M18 90 V18 C18 12 22 10 26 12"/>`
     + `<path class="base" d="M14 90 H22 L21 84 H15Z"/><path class="head" d="M21 14 H31 L29 26 H23Z"/><rect class="light" x="23.5" y="16" width="5" height="8" rx="1"/><path class="cap" d="M20 14 C22 9 30 9 32 14Z"/>`
-    + `<g class="bullfinch"><ellipse class="bf-belly" cx="13" cy="15" rx="4.2" ry="3.4"/><path class="bf-back" d="M8.6 14 C9 10.5 12 9.6 14.6 10.6 C16.4 11.4 17 13 16.8 14 C14 12.6 11 12.8 8.6 14Z"/><path class="bf-tail" d="M9 15 L5 17.5 L9.4 17Z"/><circle class="bf-eye" cx="15" cy="12.2" r=".6"/><path class="bf-beak" d="M16.8 12.6 L18.4 13.2 L16.8 13.8Z"/></g></svg></div>`;
-  // Санки и цепочка следов к ним.
+    + `<g transform="translate(12.4 -7.6)"><g class="bullfinch"><path class="bf-feet" d="M12 18.2 v1.2 M14 18.2 v1.2"/><ellipse class="bf-belly" cx="13" cy="15" rx="4.2" ry="3.4"/><path class="bf-back" d="M8.6 14 C9 10.5 12 9.6 14.6 10.6 C16.4 11.4 17 13 16.8 14 C14 12.6 11 12.8 8.6 14Z"/><path class="bf-tail" d="M9 15 L5 17.5 L9.4 17Z"/><circle class="bf-eye" cx="15" cy="12.2" r=".6"/><path class="bf-beak" d="M16.8 12.6 L18.4 13.2 L16.8 13.8Z"/></g></g></svg></div>`;
+  // Санки и цепочка следов к ним. Верёвка привязана к загнутому носу и
+  // свободно лежит на снегу, а не висит дугой в воздухе.
   const следы = Array.from({ length: 7 }, (_, i) => `<ellipse class="step" cx="${(8 + i * 11).toFixed(1)}" cy="${(i % 2 ? 9 : 13).toFixed(1)}" rx="2.6" ry="1.4"/>`).join('');
-  const санки = `<div class="hud-sp-sled" aria-hidden="true"><svg viewBox="0 0 130 24">${следы}<path class="rope" d="M84 14 C90 6 96 8 100 12"/>`
+  // В средневековье — деревянные салазки на гнутых полозьях, верёвка лубяная.
+  const санки = extra.era === 'medieval' ? `<div class="hud-sp-sled is-era" aria-hidden="true">${салазкиSvg(следы)}</div>` : `<div class="hud-sp-sled" aria-hidden="true"><svg viewBox="0 0 140 24">${следы}<path class="rope" d="M125.6 16.6 C128.6 17.6 129.4 21 132 21.8 C134.6 22.6 137 21.4 139.4 22.2"/><path class="rope-knot" d="M124.8 16 L126.4 17.2"/>`
     + `<path class="runner" d="M98 20 H124 C128 20 128 15 124 15"/><path class="runner" d="M98 22 H120"/><path class="slat" d="M100 14 H124 V17 H100Z"/><path class="leg" d="M104 17 V21 M112 17 V21 M120 17 V21"/><path class="slat-snow" d="M100 14 C108 12 116 12 124 14Z"/></svg></div>`;
   return ели + санки + фонарь;
 }
@@ -221,7 +226,7 @@ function весна(extra) {
 export function деталиСезона(seasonClass, extra = {}) {
   if (seasonClass === 'season-summer') return лето();
   if (seasonClass === 'season-autumn') return осень();
-  if (seasonClass === 'season-winter') return зима();
+  if (seasonClass === 'season-winter') return зима(extra);
   if (seasonClass === 'season-spring') return весна(extra);
   return '';
 }
@@ -283,7 +288,8 @@ export function замокSvg() {
 /** Костёр: кольцо камней, крест-накрест поленья, языки пламени в три слоя, искры и дым. */
 export function кострSvg() {
   return '<svg class="hud-old-svg" viewBox="0 0 30 40" aria-hidden="true">'
-    + '<path class="smoke s1" d="M15 14 C12 10 18 8 15 4 C13 1 16 -1 15 -3"/><path class="smoke s2" d="M16 15 C20 11 14 8 18 4"/>'
+    // Дым — мягкие клубы: поднимаются от огня, растут, светлеют и тают.
+    + '<g class="smoke"><circle class="puff p1" cx="15" cy="14" r="2.4"/><circle class="puff p2" cx="15" cy="14" r="2.4"/><circle class="puff p3" cx="15" cy="14" r="2.4"/><circle class="puff p4" cx="15" cy="14" r="2.4"/></g>'
     + '<ellipse class="glow" cx="15" cy="34" rx="13" ry="4"/>'
     + '<path class="log" d="M4 36 L25 31 L26 33.6 L5 38.6Z"/><path class="log l2" d="M5 31 L26 36.4 L25 39 L4 33.6Z"/><circle class="log-end" cx="4.6" cy="37.3" r="1.4"/><circle class="log-end" cx="25.6" cy="37.7" r="1.4"/>'
     + '<g class="flames"><path class="fl-o" d="M15 33 C8 33 7 27 10 22 C10.5 25 12 26 12.5 25 C11.5 21 13 17 16 14 C15.5 18 18 20 19.5 18.5 C21.5 22 23 27 20 31 C19 32.6 17 33 15 33Z"/>'

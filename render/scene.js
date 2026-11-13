@@ -3,8 +3,9 @@
 // Домен «Сцена»: SVG молнии и сезонные декорации (снег, дождь, роса, листья).
 // Чистые генераторы разметки — модуль ни от чего не зависит.
 
-import { деталиСезона, снеговикSvg, замокSvg, кострSvg, цветокSvg, ёжSvg, нораSvg } from './scene-plus.js?v=23.89.17';
-export { огниСезона } from './scene-plus.js?v=23.89.17';
+import { деталиСезона, снеговикSvg, замокSvg, кострSvg, цветокSvg, ёжSvg, нораSvg } from './scene-plus.js?v=23.89.18';
+export { огниСезона } from './scene-plus.js?v=23.89.18';
+import { голоеДеревоSvg, ёлкаSvg, скворечникSvg, скворецSvg, дятелSvg, тыкваФонарьSvg, избаSvg, замокДальнийSvg, снеговикСтаринныйSvg, чайкаSvg, весенниеПоляSvg, хуторSvg, мельницаSvg } from './scene-art.js?v=23.89.18';
 
 export function buildLightningSvg() {
   return `<svg viewBox="0 0 140 140" preserveAspectRatio="none" class="hud-bolt-svg">
@@ -51,7 +52,7 @@ function праздничное(extra) {
   if (extra.halloween) {
     // Три тыквы-фонаря у ограды: у каждой своя резная рожица.
     html += '<div class="hud-pumpkins" aria-hidden="true">'
-      + [1, 2, 3].map(i => `<span class="hud-pumpkin pk${i}"><i class="hud-pumpkin-stem"></i><i class="hud-pumpkin-face"></i></span>`).join('')
+      + [1, 2, 3].map(i => `<span class="hud-pumpkin pk${i} is-svg">${тыкваФонарьSvg(i)}</span>`).join('')
       + '</div>';
   }
   if (extra.easter) {
@@ -113,7 +114,7 @@ function сценаСезона(seasonClass, extra) {
     const mushrooms = '<span class="hud-mushroom m1"></span><span class="hud-mushroom m2"></span><span class="hud-mushroom m3"></span>';
     const groundLeaves = Array.from({ length: 7 }, (_, i) => `<span class="hud-ground-leaf gl${i + 1}"></span>`).join('');
     const dryTufts = Array.from({ length: 5 }, (_, i) => `<span class="hud-dry-tuft dt${i + 1}"></span>`).join('');
-    return `<div class="hud-far-hills"></div><div class="hud-far-treeline"></div><div class="hud-ground hud-ground-autumn"></div><div class="hud-fallen-log"></div><div class="hud-stump"><span class="hud-stump-side"></span><span class="hud-stump-top"></span><span class="hud-stump-moss"></span></div><div class="hud-fence"><span class="hud-fence-rail r1"></span><span class="hud-fence-rail r2"></span><span class="hud-fence-post p1"></span><span class="hud-fence-post p2"></span><span class="hud-fence-post p3"></span></div><div class="hud-autumn-litter">${groundLeaves}${mushrooms}${dryTufts}<span class="hud-acorn ac1"></span><span class="hud-acorn ac2"></span><span class="hud-acorn ac3"></span><span class="hud-crow"></span></div><div class="hud-bg-trees">${backTrees}</div><div class="hud-bird-flock">${birds}</div>${fallenApples}<div class="hud-hedgehog is-svg">${ёжSvg('walker')}<span class="hud-hedgehog-apple ha1"></span><span class="hud-hedgehog-apple ha2"></span></div><div class="hud-burrow is-svg">${нораSvg()}<span class="hud-burrow-animal">${ёжSvg('companion')}</span></div><div class="hud-campfire is-svg">${кострSvg()}</div>`;
+    return `<div class="hud-far-hills"></div><div class="hud-far-treeline"></div><div class="hud-ground hud-ground-autumn"></div><div class="hud-fallen-log"></div><div class="hud-stump"><span class="hud-stump-side"></span><span class="hud-stump-top"></span><span class="hud-stump-moss"></span></div><div class="hud-fence"><span class="hud-fence-rail r1"></span><span class="hud-fence-rail r2"></span><span class="hud-fence-post p1"></span><span class="hud-fence-post p2"></span><span class="hud-fence-post p3"></span></div><div class="hud-autumn-litter">${groundLeaves}${mushrooms}${dryTufts}<span class="hud-acorn ac1"></span><span class="hud-acorn ac2"></span><span class="hud-acorn ac3"></span></div><div class="hud-bg-trees">${backTrees}</div><div class="hud-bird-flock">${birds}</div>${fallenApples}<div class="hud-hedgehog is-svg">${ёжSvg('walker')}<span class="hud-hedgehog-apple ha1"></span><span class="hud-hedgehog-apple ha2"></span></div><div class="hud-burrow is-svg">${нораSvg()}<span class="hud-burrow-animal">${ёжSvg('companion')}</span></div><div class="hud-campfire is-svg">${кострSvg()}</div>`;
   }
   if (seasonClass === 'season-spring') {
     let flowers = '';
@@ -129,11 +130,12 @@ function сценаСезона(seasonClass, extra) {
     const конецМая = май && (extra.day || 0) >= 20;
     // Скворечник живёт на стволе третьего дерева, а не в воздухе рядом с ним:
     // в ветер дерево качается — и скворечник вместе с ним, как гнездо.
-    // Скворец носит в него веточки, пока строится гнездо (март-апрель).
-    const скворец = (март || апрель) ? `<span class="hud-starling"><i class="hud-starling-twig"></i></span>` : '';
-    const скворечник = `<span class="hud-birdhouse"><span class="hud-birdhouse-body"></span><span class="hud-birdhouse-roof"></span><span class="hud-birdhouse-hole"><span class="hud-birdhouse-bird"></span></span><span class="hud-birdhouse-perch"></span>${скворец}</span>`;
-    // Дятел стучит по стволу крайнего правого дерева.
-    const дятел = `<span class="hud-woodpecker"><i class="hud-woodpecker-head"></i><i class="hud-woodpecker-tail"></i></span>`;
+    // Скворец носит в март веточки для гнезда, в апреле-мае — червяков
+    // птенцу: тот поднимается в летке и разевает клюв (render/scene-art.js).
+    const скворец = `<span class="hud-starling is-svg">${скворецSvg(март ? 'ветка' : 'червяк')}</span>`;
+    const скворечник = `<span class="hud-birdhouse is-svg${март ? ' is-empty' : ''}">${скворечникSvg()}${скворец}</span>`;
+    // Дятел сидит на сучке у ствола крайнего правого дерева и стучит по коре.
+    const дятел = `<span class="hud-woodpecker is-svg">${дятелSvg()}</span>`;
     let backTrees = '';
     for (let i = 1; i <= 4; i++) {
       // Вместо гнезда, висевшего в кроне (в марте, без листвы, — просто в
@@ -163,7 +165,10 @@ function сценаСезона(seasonClass, extra) {
     const пух = конецМая ? `<div class="hud-fluff-layer">${[1, 2, 3, 4, 5, 6].map(i => `<i class="hud-fluff fl${i}"></i>`).join('')}</div>` : '';
     // Лейка у клумбы: сад поливают, когда уже есть что поливать.
     const лейка = март ? '' : '<div class="hud-watering-can"><i class="hud-can-body"></i><i class="hud-can-spout"></i><i class="hud-can-handle"></i></div>';
-    return `<div class="hud-far-hills"></div><div class="hud-far-treeline"></div><div class="hud-meadow"></div><div class="hud-spring-puddle">${отражение(backTrees, 'puddle')}</div>${мартовское}<div class="hud-frog"><span class="hud-frog-sac"></span><span class="hud-frog-body"></span><span class="hud-frog-eye e1"></span><span class="hud-frog-eye e2"></span><span class="hud-frog-leg"></span><i class="hud-frog-call c1"></i><i class="hud-frog-call c2"></i></div><div class="hud-blossom-shrub"><span class="hud-shrub-body"></span><span class="hud-shrub-bloom b1"></span><span class="hud-shrub-bloom b2"></span><span class="hud-shrub-bloom b3"></span></div>${майское}<div class="hud-grass">${tufts}${puffs}<span class="hud-snail"></span><span class="hud-sprout sp1"></span><span class="hud-sprout sp2"></span></div><div class="hud-bg-trees">${backTrees}</div>${клин}<div class="hud-flowerbed">${flowers}</div>${лейка}${pollen}${dew}${лепестки}${пух}<div class="hud-butterfly"><span class="hud-butterfly-wing w-left"></span><span class="hud-butterfly-wing w-right"></span></div><div class="hud-bee bee1"><span class="hud-bee-wing"></span></div><div class="hud-bee bee2"><span class="hud-bee-wing"></span></div>`;
+    // Дальний план: поля лоскутами на холмах, хутор с садом и мельница —
+    // весна была пустым холмом в сравнении с другими сезонами.
+    const даль = `<div class="hud-sp-fields" aria-hidden="true">${весенниеПоляSvg()}</div><div class="hud-sp-farm" aria-hidden="true">${хуторSvg()}</div><div class="hud-sp-mill" aria-hidden="true">${мельницаSvg()}</div>`;
+    return `<div class="hud-far-hills"></div>${даль}<div class="hud-far-treeline"></div><div class="hud-meadow"></div><div class="hud-spring-puddle">${отражение(backTrees, 'puddle')}</div>${мартовское}<div class="hud-frog"><span class="hud-frog-sac"></span><span class="hud-frog-body"></span><span class="hud-frog-eye e1"></span><span class="hud-frog-eye e2"></span><span class="hud-frog-leg"></span><i class="hud-frog-call c1"></i><i class="hud-frog-call c2"></i></div><div class="hud-blossom-shrub"><span class="hud-shrub-body"></span><span class="hud-shrub-bloom b1"></span><span class="hud-shrub-bloom b2"></span><span class="hud-shrub-bloom b3"></span></div>${майское}<div class="hud-grass">${tufts}${puffs}<span class="hud-snail"></span><span class="hud-sprout sp1"></span><span class="hud-sprout sp2"></span></div><div class="hud-bg-trees">${backTrees}</div>${клин}<div class="hud-flowerbed">${flowers}</div>${лейка}${pollen}${dew}${лепестки}${пух}<div class="hud-butterfly"><span class="hud-butterfly-wing w-left"></span><span class="hud-butterfly-wing w-right"></span></div><div class="hud-bee bee1"><span class="hud-bee-wing"></span></div><div class="hud-bee bee2"><span class="hud-bee-wing"></span></div>`;
   }
   if (seasonClass === 'season-summer') {
     // Стрекоза — вид сверху, как её узнают: две пары прозрачных крыльев в
@@ -194,7 +199,7 @@ function сценаСезона(seasonClass, extra) {
       + `</svg></div>`;
     let teeth = '';
     for (let i = 1; i <= 6; i++) teeth += `<span class="hud-umbrella-tooth"></span>`;
-    return `<div class="hud-summer-horizon"></div><div class="hud-summer-distant-island"></div><div class="hud-sand"><span class="hud-swash w1"></span><span class="hud-swash w2"></span><span class="hud-swash w3"></span><span class="hud-swash w4"></span></div><div class="hud-sailboat"><span class="hud-sailboat-wake"></span><span class="hud-sailboat-hull"></span><span class="hud-sailboat-sail"></span><span class="hud-sailboat-jib"></span><span class="hud-sailboat-mast"></span><span class="hud-sailboat-lantern"></span></div><div class="hud-gull g1"></div><div class="hud-gull g2"></div><div class="hud-sea"><span class="hud-wave w1"></span><span class="hud-wave w2"></span><span class="hud-sea-night"></span><span class="hud-sea-moonpath"></span><span class="hud-sea-sparkle"></span></div><div class="hud-summer-heat-haze"></div><div class="hud-sandcastle is-svg">${замокSvg()}</div><div class="hud-volleyball-net"><span class="hud-net-post post-left"></span><span class="hud-net-post post-right"></span><span class="hud-net-band"></span><span class="hud-net-mesh"></span></div><div class="hud-volleyball"><span class="hud-volleyball-seam s1"></span><span class="hud-volleyball-seam s2"></span></div>${dragonfly}<div class="hud-summer-cicada-sound c1"></div><div class="hud-summer-cicada-sound c2"></div><div class="hud-towel-shadow"></div><div class="hud-towel"></div><div class="hud-umbrella"><span class="hud-umbrella-canopy"></span><span class="hud-umbrella-valance">${teeth}</span><span class="hud-umbrella-pole"></span></div><div class="hud-surfboard"><span class="hud-surfboard-shadow"></span><span class="hud-surfboard-deck"></span><span class="hud-surfboard-stripe"></span><span class="hud-surfboard-fin"></span></div><div class="hud-rowboat"><span class="hud-rowboat-shadow"></span><span class="hud-rowboat-hull"></span><span class="hud-rowboat-keel"></span><span class="hud-rowboat-oar"></span></div><div class="hud-fishnet"><span class="hud-fishnet-stake k1"></span><span class="hud-fishnet-stake k2"></span><span class="hud-fishnet-stake k3"></span><span class="hud-fishnet-mesh m1"></span><span class="hud-fishnet-mesh m2"></span><span class="hud-fishnet-float"></span></div><div class="hud-gull-glide"><span class="hud-gull-body"></span><span class="hud-gull-wing gw-left"></span><span class="hud-gull-wing gw-right"></span><span class="hud-gull-beak"></span></div>`;
+    return `<div class="hud-summer-horizon"></div><div class="hud-summer-distant-island"></div><div class="hud-sand"><span class="hud-swash w1"></span><span class="hud-swash w2"></span><span class="hud-swash w3"></span><span class="hud-swash w4"></span></div><div class="hud-sailboat"><span class="hud-sailboat-wake"></span><span class="hud-sailboat-hull"></span><span class="hud-sailboat-sail"></span><span class="hud-sailboat-jib"></span><span class="hud-sailboat-mast"></span><span class="hud-sailboat-lantern"></span></div><div class="hud-gull g1"></div><div class="hud-gull g2"></div><div class="hud-sea"><span class="hud-wave w1"></span><span class="hud-wave w2"></span><span class="hud-sea-night"></span><span class="hud-sea-moonpath"></span><span class="hud-sea-sparkle"></span></div><div class="hud-summer-heat-haze"></div><div class="hud-sandcastle is-svg">${замокSvg()}</div><div class="hud-volleyball-net"><span class="hud-net-post post-left"></span><span class="hud-net-post post-right"></span><span class="hud-net-band"></span><span class="hud-net-mesh"></span></div><div class="hud-volleyball"><span class="hud-volleyball-seam s1"></span><span class="hud-volleyball-seam s2"></span></div>${dragonfly}<div class="hud-summer-cicada-sound c1"></div><div class="hud-summer-cicada-sound c2"></div><div class="hud-towel-shadow"></div><div class="hud-towel"></div><div class="hud-umbrella"><span class="hud-umbrella-canopy"></span><span class="hud-umbrella-valance">${teeth}</span><span class="hud-umbrella-pole"></span></div><div class="hud-surfboard"><span class="hud-surfboard-shadow"></span><span class="hud-surfboard-deck"></span><span class="hud-surfboard-stripe"></span><span class="hud-surfboard-fin"></span></div><div class="hud-rowboat"><span class="hud-rowboat-shadow"></span><span class="hud-rowboat-hull"></span><span class="hud-rowboat-keel"></span><span class="hud-rowboat-oar"></span></div><div class="hud-fishnet"><span class="hud-fishnet-stake k1"></span><span class="hud-fishnet-stake k2"></span><span class="hud-fishnet-stake k3"></span><span class="hud-fishnet-mesh m1"></span><span class="hud-fishnet-mesh m2"></span><span class="hud-fishnet-float"></span></div><div class="hud-gull-glide is-svg">${чайкаSvg()}</div>`;
   }
   if (seasonClass === 'season-winter') {
     let icicles = '';
@@ -202,8 +207,12 @@ function сценаСезона(seasonClass, extra) {
     let sparkle = extra.deepFreeze ? (() => { let s=''; for (let i=1;i<=6;i++) s += `<span class="hud-sparkle sp${i}"></span>`; return s; })() : '';
     // Деревня: три одинаковых домика, разведённые по плану классами h1..h3.
     // Размер, высота на склоне и дымка задаются в CSS — здесь только разметка.
+    // В средневековье вместо домиков — избы-срубы (render/scene-art.js), труба
+    // и дым у них прежние; вдали на холме — замок.
+    const старина = extra.era === 'medieval';
     let village = '';
     for (let i = 1; i <= 3; i++) {
+      if (старина) { village += `<div class="hud-winter-house is-izba h${i}">${избаSvg()}<span class="hud-winter-chimney"><span class="hud-winter-smoke sm1"></span><span class="hud-winter-smoke sm2"></span><span class="hud-winter-smoke sm3"></span></span></div>`; continue; }
       village += `<div class="hud-winter-house h${i}"><span class="hud-winter-house-body"></span><span class="hud-winter-house-roof"></span><span class="hud-winter-house-door"></span><span class="hud-winter-warm-window"><span class="hud-window-pane p1"></span><span class="hud-window-pane p2"></span></span><span class="hud-winter-chimney"><span class="hud-winter-smoke sm1"></span><span class="hud-winter-smoke sm2"></span><span class="hud-winter-smoke sm3"></span></span></div>`;
     }
     // Сугробы: дальние (за домами), средние (наметённые к стенам) и передний
@@ -220,22 +229,20 @@ function сценаСезона(seasonClass, extra) {
     drifts = `<div class="hud-snowdrifts">${drifts}</div>`;
 
     // Новогодняя ёлка во дворе: только с 28 декабря по 13 января (флаг
-    // приходит из index.js, там же разбирается число месяца). Ярусы — три
-    // треугольника со снежными макушками, на них гирлянда, шары и звезда.
-    let xmas = '';
-    if (extra.newYear) {
-      let baubles = '';
-      for (let i = 1; i <= 9; i++) baubles += `<span class="hud-xmas-bauble b${i}"></span>`;
-      let lights = '';
-      for (let i = 1; i <= 14; i++) lights += `<span class="hud-xmas-light l${i}"></span>`;
-      xmas = `<div class="hud-xmas-tree"><span class="hud-xmas-shadow"></span><span class="hud-xmas-trunk"></span><span class="hud-xmas-tier t3"></span><span class="hud-xmas-tier t2"></span><span class="hud-xmas-tier t1"></span><span class="hud-xmas-garland g1"></span><span class="hud-xmas-garland g2"></span>${lights}${baubles}<span class="hud-xmas-star"></span></div>`;
-    }
+    // приходит из index.js, там же разбирается число месяца). Ярусы с
+    // провисающими лапами, гирлянда с огоньками, шары и звезда (render/scene-art.js).
+    const xmas = extra.newYear ? `<div class="hud-xmas-tree is-svg">${ёлкаSvg()}</div>` : '';
 
-    let backTrees = '';
+    let backTrees = '', вЛьду = '';
     for (let i = 1; i <= 4; i++) {
-      backTrees += `<span class="hud-bg-tree hud-bg-tree-winter bt${i}"><span class="hud-bg-tree-trunk"></span><span class="hud-bg-tree-branch br1"></span><span class="hud-bg-tree-branch br2"></span><span class="hud-bg-tree-branch br3"></span></span>`;
+      // Голое дерево рисуется ветвлением (render/scene-art.js): ствол сужается,
+      // ветви делятся, снег лежит по верху толстых ветвей. Во льду отражается
+      // облегчённая копия — без прутьев и снега, сквозь размытие их не видно.
+      backTrees += `<span class="hud-bg-tree hud-bg-tree-winter is-art bt${i}">${голоеДеревоSvg(i)}</span>`;
+      вЛьду += `<span class="hud-bg-tree hud-bg-tree-winter is-art bt${i}">${голоеДеревоSvg(i, true)}</span>`;
     }
-    return `<div class="hud-winter-distant-forest"></div><div class="hud-winter-aurora"></div>${village}<div class="hud-icicle-row">${icicles}</div><div class="hud-ground hud-ground-snow"></div><div class="hud-winter-frozen-pond">${отражение(backTrees, 'ice')}</div><div class="hud-bg-trees">${backTrees}</div>${drifts}${xmas}${sparkle}<div class="hud-snowman is-svg">${снеговикSvg()}</div>`;
+    const замок = старина ? `<div class="hud-era-castle" aria-hidden="true">${замокДальнийSvg()}</div>` : '';
+    return `<div class="hud-winter-distant-forest"></div>${замок}<div class="hud-winter-aurora"></div>${village}<div class="hud-icicle-row">${icicles}</div><div class="hud-ground hud-ground-snow"></div><div class="hud-winter-frozen-pond">${отражение(вЛьду, 'ice')}</div><div class="hud-bg-trees">${backTrees}</div>${drifts}${xmas}${sparkle}<div class="hud-snowman is-svg">${старина ? снеговикСтаринныйSvg() : снеговикSvg()}</div>`;
   }
   return '';
 }
