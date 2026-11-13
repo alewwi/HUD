@@ -7,10 +7,10 @@
 // жил в phone.js, и в перехватах теги оставались сырым текстом посреди
 // сообщения просто потому, что до них не доходили руки.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.14';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.14';
-import { G_ICONS } from './icons.js?v=23.89.14';
-import { namesLikelySame } from '../names.js?v=23.89.14';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.15';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.15';
+import { G_ICONS } from './icons.js?v=23.89.15';
+import { namesLikelySame } from '../names.js?v=23.89.15';
 
 // Звонок: [CALL: исходящий, принят, 4:12]. Порядок слов внутри не важен —
 // разбираем по смыслу, а не по позиции: модели путают порядок постоянно.

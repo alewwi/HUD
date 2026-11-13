@@ -3437,6 +3437,7 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
     const промптТела = (Ф('prompt.js').match(/"B": "\[body and mind[^\n]*/) || [''])[0];
     проверить('тело: промпт просит состояние, а не пересказ', /not an action/.test(промптТела) && /no retelling/.test(промптТела));
   }
+  проверить('дерево: ответ про «дядю» убирает плашку и сбрасывает подписи карточек', /ответитьПроДядю\(имя, родня\)[\s\S]{0,1600}\.hud-fam-ask'\)\.forEach\([\s\S]{0,120}\.remove\(\)[\s\S]{0,200}__hudRenderSig = ''[\s\S]{0,40}\}\);\s*перерисоватьКарточкиЧата\(\)/.test(fs.readFileSync(path.join(КОРЕНЬ, 'index.js'), 'utf8')));
   проверить('авторство: уведомление в основных файлах, автор в манифесте', ['index.js', 'prompt.js', 'events.js', 'render/character.js', 'render/conception.js', 'turn-notes.js', 'hud-parser.js', 'settings.js', 'css/base.css', 'css/misc.css'].every(ф => fs.readFileSync(path.join(КОРЕНЬ, ф), 'utf8').includes('TavernOS HUD © 2026 alewwi')) && JSON.parse(fs.readFileSync(path.join(КОРЕНЬ, 'manifest.json'), 'utf8')).author === 'alewwi');
   // Приглашения.
   const ч2 = [{ is_user: false, mes: '"inv": ["Нолан | ужин | 05.04.2027"]' }, { is_user: true, mes: 'хм, посмотрим' }, { is_user: false, mes: '"inv": ["Дарен | поездка | 06.04.2027"]' }, { is_user: true, mes: 'Да, приду!' }];

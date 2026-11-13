@@ -597,8 +597,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.14**:
+The latest version is **23.89.15**:
 
+- The family tree question about an "uncle" goes away right after you answer.
 - New views for pregnancy, relations, combat, the graph, the family tree, the timeline and emotions. Customization follows the card and the player's tab order, every click on the sample leads to its own setting, changing a view keeps the scroll and no longer blinks; desire under the cycle and the secrets grid moved to the main settings.
 - The family tree asks whose brother an "uncle" is when the HUD has no kinship, and no longer makes a family friend the mother's brother.
 - New views for the diary, body diary, intercepts, thoughts and subtext, plus one more view for eight blocks. The Nursery asks who got a child's age wrong, decides on its own who is a child rather than a character, and no longer shows time-skip children as newborns; children show up in the family tree.

@@ -4,6 +4,13 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.15 — 2026-11-13
+
+The family tree question about an "uncle" goes away right after you answer.
+
+### Fixed
+- **The "Whose brother is he?" plate** stayed after a choice: the card was not rebuilt because the tree is drawn lazily and its markup did not change. Now the plate goes away at once and the tree redraws with the answer.
+
 ## 23.89.14 — 2026-11-13
 
 New views for seven blocks; Customization follows the card order, every click on the sample leads to its own setting, and changing a view no longer loses the scroll or makes the HUD blink.
