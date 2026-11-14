@@ -651,8 +651,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.27**:
+The latest version is **23.89.28**:
 
+- Factions and reputation come first in the World tab, above the news.
 - Building up: HUD suggests to the model where what has piled up leads (no sleep, hunger, stress, debts, guns); bets on both sides; factions and reputation in World; the archive gets a mood calendar, a places atlas and a relationship map. Details of the new plates slide out on a tap.
 - Date format, 12/24-hour time, °C/°F and wind units in the settings; scene time, date and weather can be fixed in ✎ mode.
 - Season and holiday screenshots in the README (modern, medieval, New Year, Halloween, Easter); the card shot is re-taken.

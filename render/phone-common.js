@@ -4,10 +4,10 @@
 // сообщения и сбор собеседников по строкам переписки. Лежит отдельно,
 // чтобы ни один из двух модулей не пришлось объявлять главным.
 
-import { escapeHtml, defeatWI, инициалыИмени } from '../utils.js?v=23.89.27';
-import { overrideAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.27';
-import { namesLikelySame } from '../names.js?v=23.89.27';
-import { G_ICONS } from './icons.js?v=23.89.27';
+import { escapeHtml, defeatWI, инициалыИмени } from '../utils.js?v=23.89.28';
+import { overrideAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.28';
+import { namesLikelySame } from '../names.js?v=23.89.28';
+import { G_ICONS } from './icons.js?v=23.89.28';
 
 // Обращения без адресата: такие имена в собеседники не годятся.
 const GENERIC_PARTY = /^(все|всем|all|everyone|группа|group|чат|chat|вы|you|user|я|me)$/i;

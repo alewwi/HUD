@@ -4,6 +4,12 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.28 — 2026-11-14
+
+### Changed
+- **Factions and reputation** now come first in the World tab, above the top news.
+- The World tab screenshot in the README is retaken.
+
 ## 23.89.27 — 2026-11-14
 
 Six new story layers: what is building up, bets, factions and three archive tabs.
