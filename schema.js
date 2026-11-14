@@ -7,11 +7,11 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.89.22';
-import { mapKey } from './utils.js?v=23.89.22';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.89.22';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.22';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.89.22';
+import { settings } from './settings.js?v=23.89.23';
+import { mapKey } from './utils.js?v=23.89.23';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.89.23';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.23';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.89.23';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -260,7 +260,7 @@ export function normalizeJSONData(parsed) {
   // Спутники: животные, фамильяры, дроны. Строка вместо объекта — одно имя.
   const companionsParsed = (Array.isArray(parsed.companions) ? parsed.companions : [])
     .map(p => {
-      if (typeof p === 'string') return { name: toStr(p), species: '', owner: '', mood: '', condition: '', diet: '', bond: '', skills: '', note: '', levels: '', extra: [] };
+      if (typeof p === 'string') return { name: toStr(p), species: '', age: '', eyes: '', wants: '', treat: '', owner: '', mood: '', condition: '', diet: '', bond: '', skills: '', note: '', levels: '', extra: [] };
       if (!p || typeof p !== 'object') return null;
       const один = (k) => toStr(Array.isArray(p[k]) ? p[k].join('; ') : p[k]);
       // Модель не всегда пишет коды из инструкции: «k» вместо «sp», «s» вместо
@@ -271,6 +271,8 @@ export function normalizeJSONData(parsed) {
       const вес = поле('weight', 'wt', 'wgt', 'w', 'вес');
       const вид = поле('species', 'sp', 'kind', 'k', 'type', 'breed', 'вид', 'порода');
       const спутник = { name: поле('name', 'n', 'nm', 'имя'), species: [вид, вес].filter(Boolean).join(' · '), owner: поле('owner', 'ow', 'o', 'master', 'хозяин'),
+        age: поле('age', 'ag', 'возраст', 'years'),
+        eyes: поле('eyes', 'eye', 'ey', 'глаза'), wants: поле('wants', 'wnt', 'want', 'wish', 'хочет', 'желание', 'желания'), treat: поле('treat', 'trt', 'snack', 'favorite', 'fav', 'лакомство'),
         mood: поле('mood', 'md', 'm', 'настроение'), condition: поле('condition', 'cnd', 'health', 'hlt', 'h', 'hp', 'состояние', 'здоровье'), diet: поле('diet', 'fd', 'food', 'f', 'рацион', 'еда'),
         bond: поле('bond', 'bnd', 'b', 'loyalty', 'привязанность'), skills: поле('skills', 'skl', 'sk', 'tricks', 'умения'),
         note: поле('note', 'nte', 'st', 'sts', 's', 'state', 'status', 'doing', 'now', 'act', 'сейчас') };

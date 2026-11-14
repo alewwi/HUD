@@ -70,16 +70,22 @@ export const ВЕЩИ = [
 const СНЯТО = слово('сброшен|снят|сорван|стянут|скинут|на полу|валяется|без (?:него|неё|нее|одежд|бель|трусик|лифчик|обув)|босиком|боса|разделась|раздет|taken off|removed|off(?![\\p{L}])|torn off|on the floor|tossed aside|undressed|naked|barefoot|without (?:a |her |his )?(?:bra|panties|underwear|shoes)');
 const ЧАСТИЧНО = слово('расст[её]гн|спущ|приспущ|задран|сполз|распахн|сдвинут|порван|разорван|мокр|помят|съехал|наполовину|задрал|unbutton|unzip|unhook|undone|loosen|pulled down|pushed aside|pushed up|hiked up|slipp|open(?![\\p{L}])|ripped|torn|wet|soaked|rumpled|crumpled|half(?![\\p{L}])|askew');
 
+// «Левая рука без перчатки», «без белых перчаток», «without gloves» — вещи нет:
+// «без» прямо перед её названием (через одно-два слова). «Платье без рукавов» —
+// «без» после названия, платье на месте.
+const ОТРИЦАНИЕ_ВЕЩИ = /(?:^|[^\p{L}])(?:без|безо|without|no)\s+(?:[\p{L}-]+\s+){0,2}$/iu;
+export const безВещи = (кусок, rx) => { const м = rx.exec(кусок); return !!м && ОТРИЦАНИЕ_ВЕЩИ.test(кусок.slice(0, м.index)); };
+
 export function одеждаИзТекста(t) {
   const out = [];
   for (const кусок of текст(t).split(/[,;\n]/).map(x => x.trim()).filter(Boolean)) {
     if (/^(empty|none|нет|пусто)$/i.test(кусок)) continue;
     const вещи = ВЕЩИ.filter(([, , rx]) => rx.test(кусок));
     if (!вещи.length) continue;
-    const состояние = СНЯТО.test(кусок) ? 'off' : ЧАСТИЧНО.test(кусок) ? 'half' : 'on';
     // В одном куске бывает и «чулки», и «туфли»: берём первую вещь — список
     // режется по запятым, и соседние вещи придут своими кусками.
-    const [id, имя] = вещи[0];
+    const [id, имя, rx] = вещи[0];
+    const состояние = безВещи(кусок, rx) || СНЯТО.test(кусок) ? 'off' : ЧАСТИЧНО.test(кусок) ? 'half' : 'on';
     if (!out.some(в => в.id === id)) out.push({ id, имя, текст: кусок, состояние });
   }
   return out;

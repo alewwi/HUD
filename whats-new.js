@@ -5,9 +5,9 @@
 // вести руками и он бы отставал. Настройка whatsNewAuto выключает показ сам по
 // себе, кнопка в настройках открывает окно в любой момент.
 
-import { settings } from './settings.js?v=23.89.22';
-import { английский, т } from './i18n.js?v=23.89.22';
-import { escapeHtml } from './utils.js?v=23.89.22';
+import { settings } from './settings.js?v=23.89.23';
+import { английский, т } from './i18n.js?v=23.89.23';
+import { escapeHtml } from './utils.js?v=23.89.23';
 
 const ПОЛНЫХ_ВЕРСИЙ = 6;     // столько новых версий раскрыто сразу, если пропущено много
 const ВЕРСИЙ_В_ОКНЕ = 40;    // остальная история — свёрнутыми строками

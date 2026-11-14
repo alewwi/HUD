@@ -597,8 +597,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.22**:
+The latest version is **23.89.23**:
 
+- Companions: age, health, "Wants" and a favourite treat; new animals (a fox, a bear, a horse, a rabbit, rodents, an owl, a bat, a snake); the coat follows the colour in the name, and eye colour is remembered along with it. A "single" status ends a marriage, namesakes no longer merge, "without a glove" means no gloves; "how it changed" also steps through clothes and marks.
 - The family tree no longer makes uncles out of grown-ups the children merely call "uncle"; "Not family" removes the word from a twin too.
 - The autumn leaf gust shows only in windy weather.
 - The moving weather scene is lighter: daytime stars and unseen fireflies no longer animate, tree lights blink in groups.

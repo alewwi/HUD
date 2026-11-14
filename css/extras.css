@@ -653,6 +653,139 @@
   .hud-cp-preview { max-height: 200px; }
 } }
 /* cq ↑ */
+/* =========================================================================
+   СПУТНИК: КАРТОЧКА (render/extras.js, карточкаСпутника)
+   Портрет нарисован по роду (кошка, собака, лиса, медведь, лошадь, кролик,
+   грызун, птица, сова, летучая мышь, змея, робот, дракон, дух) и окрашен по
+   render/pet-looks.js: мех --fur, --fur2, глаза --eye, --eye2 (названные или
+   запомненные), узор полос, пятен, лоскутов поверх меха; полоса сверху — узор
+   рода: следы лап, перья, схема, чешуя, звёзды. Под именем — значки: возраст, здоровье,
+   когда ел; шкалы потребностей; внизу — цепочка следов. Глаза моргают,
+   портрет дышит, следы проступают по очереди.
+   ========================================================================= */
+.hud-pet2 { --pat: rgba(255,255,255,.16); }
+.hud-pet2-band { position: relative; height: 62px; overflow: hidden; }
+.hud-pet2-band .pat { position: absolute; inset: 0; opacity: .9;
+  background: radial-gradient(circle at 50% 60%, var(--pat) 0 2.4px, transparent 2.8px) 0 0 / 22px 20px; }
+/* Следы лап — у зверей. */
+.hud-pet2:is(.k-cat, .k-dog, .k-fox, .k-bear, .k-rabbit, .k-rodent) .hud-pet2-band .pat {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 34'%3E%3Cg fill='%23fff' fill-opacity='.16'%3E%3Cpath d='M9 15c-2.6 0-4.6-1.8-4.6-3.6S6.8 8 9 8s4.6 2 4.6 3.4S11.6 15 9 15Z'/%3E%3Ccircle cx='4.2' cy='5.6' r='1.6'/%3E%3Ccircle cx='7.4' cy='3.2' r='1.6'/%3E%3Ccircle cx='11' cy='3.2' r='1.6'/%3E%3Ccircle cx='14' cy='5.6' r='1.6'/%3E%3Cpath d='M29 31c-2.6 0-4.6-1.8-4.6-3.6S26.8 24 29 24s4.6 2 4.6 3.4S31.6 31 29 31Z'/%3E%3Ccircle cx='24.2' cy='21.6' r='1.6'/%3E%3Ccircle cx='27.4' cy='19.2' r='1.6'/%3E%3Ccircle cx='31' cy='19.2' r='1.6'/%3E%3Ccircle cx='34' cy='21.6' r='1.6'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 40px 34px; transform: rotate(-12deg) scale(1.3); }
+/* Перья — у птиц. */
+.hud-pet2:is(.k-bird, .k-owl) .hud-pet2-band .pat {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 36 30'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.2' stroke-width='1.2' stroke-linecap='round'%3E%3Cpath d='M6 26C10 16 16 9 26 4'/%3E%3Cpath d='M10 19l-4-1M13 15l-4-2M16 11l-3-3M12 20l3 3M15 16l4 2M19 12l4 1'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 36px 30px; }
+/* Схема — у машин. */
+.hud-pet2.k-robot .hud-pet2-band .pat {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 30'%3E%3Cg fill='none' stroke='%23fff' stroke-opacity='.18' stroke-width='1.1'%3E%3Cpath d='M0 8h12l4 4h10l4-4h10M0 22h8l4-4h16l4 4h8M20 12v6'/%3E%3C/g%3E%3Cg fill='%23fff' fill-opacity='.26'%3E%3Ccircle cx='12' cy='8' r='1.6'/%3E%3Ccircle cx='30' cy='8' r='1.6'/%3E%3Ccircle cx='20' cy='18' r='1.6'/%3E%3C/g%3E%3C/svg%3E");
+  background-size: 40px 30px; }
+/* Чешуя — у драконов и змей. */
+.hud-pet2:is(.k-dragon, .k-snake) .hud-pet2-band .pat {
+  background: radial-gradient(circle at 50% 0, transparent 7px, rgba(255,255,255,.16) 7.6px 8.6px, transparent 9.2px) 0 0 / 16px 9px,
+    radial-gradient(circle at 50% 0, transparent 7px, rgba(255,255,255,.16) 7.6px 8.6px, transparent 9.2px) 8px 4.5px / 16px 9px; }
+/* Звёзды — у духов и фамильяров. */
+.hud-pet2:is(.k-spirit, .k-bat) .hud-pet2-band .pat {
+  background: radial-gradient(circle, rgba(255,255,255,.7) 0 1px, transparent 1.6px) 0 0 / 17px 15px,
+    radial-gradient(circle, rgba(255,255,255,.35) 0 1px, transparent 1.6px) 8px 7px / 23px 19px; }
+
+/* Портрет. */
+.hud-pet2-ava { position: relative; font-size: 0; overflow: hidden; }
+.hud-pet2-face { width: 86%; height: 86%; margin-top: 6%; overflow: visible; animation: hud-pet-breathe 4.2s ease-in-out infinite; transform-origin: 50% 90%; }
+.hud-pet2-face .fur { fill: var(--fur); }
+.hud-pet2-face .fur2 { fill: var(--fur2); }
+.hud-pet2-face .inner { fill: #f0a6b4; opacity: .85; }
+.hud-pet2-face .ear { fill: color-mix(in srgb, var(--fur) 78%, #000); }
+.hud-pet2-face .tuft { fill: none; stroke: color-mix(in srgb, var(--fur) 60%, #000); stroke-width: 1.6; stroke-linecap: round; }
+/* Глаза: цвет из внешности (--eye, правый --eye2), иначе цвет рода (--eye-d). Моргают целиком, со зрачком и бликом. */
+.hud-pet2 { --eye-d: #17141a; }
+.hud-pet2.k-cat { --eye-d: #8fd06a; } .hud-pet2:is(.k-fox, .k-owl) { --eye-d: #f2b93a; } .hud-pet2.k-dragon { --eye-d: #f0c24a; }
+.hud-pet2.k-snake { --eye-d: #e0c040; } .hud-pet2.k-robot { --eye-d: #7ff0ff; } .hud-pet2.k-bat { --eye-d: #ff8a6a; }
+.hud-pet2-face .eyes { transform-box: fill-box; transform-origin: 50% 50%; animation: hud-pet-blink 5.6s ease-in-out infinite; }
+.hud-pet2-face .eye { fill: var(--eye, var(--eye-d)); stroke: #17141a; stroke-width: .7; }
+.hud-pet2-face .eye.r { fill: var(--eye2, var(--eye, var(--eye-d))); }
+.hud-pet2-face .eye.bot { stroke: none; }
+.hud-pet2-face .pupil { fill: #0d0b0f; }
+.hud-pet2-face .glint { fill: #fff; opacity: .85; }
+.hud-pet2-face .slit { stroke: #1a1410; stroke-width: 1; }
+.hud-pet2-face .nose { fill: #3a2228; }
+.hud-pet2.k-cat .hud-pet2-face .nose { fill: #e48a9a; }
+.hud-pet2-face .line { fill: none; stroke: color-mix(in srgb, var(--fur) 40%, #000); stroke-width: 1; stroke-linecap: round; }
+.hud-pet2-face .whisk { fill: none; stroke: rgba(255,255,255,.75); stroke-width: .6; stroke-linecap: round; }
+.hud-pet2-face .tongue { fill: #e46a7c; }
+.hud-pet2-face .collar { fill: var(--p); }
+.hud-pet2-face .tag { fill: #f0c862; stroke: #a07a20; stroke-width: .6; }
+.hud-pet2-face .beak { fill: #f2b23a; } .hud-pet2-face .beak2 { fill: #c88a1e; }
+.hud-pet2-face .wing { fill: color-mix(in srgb, var(--fur) 70%, #000); }
+.hud-pet2-face .crest { fill: none; stroke: var(--fur); stroke-width: 2; stroke-linecap: round; }
+.hud-pet2-face .visor { fill: #10161e; }
+.hud-pet2-face .antenna { stroke: color-mix(in srgb, var(--fur) 60%, #000); stroke-width: 1.6; stroke-linecap: round; }
+.hud-pet2-face .led { fill: #ff6a6a; animation: hud-pet-led 1.6s ease-in-out infinite; }
+.hud-pet2-face .bolt { fill: color-mix(in srgb, var(--fur) 50%, #000); }
+.hud-pet2-face .horn { fill: #e8dcc0; stroke: #a89a78; stroke-width: .6; }
+.hud-pet2-face .scale { fill: none; stroke: color-mix(in srgb, var(--fur) 60%, #000); stroke-width: .8; }
+.hud-pet2-face .glow { fill: color-mix(in srgb, var(--fur) 40%, transparent); }
+.hud-pet2-face .spark { fill: #fff; animation: hud-pet-led 2.4s ease-in-out infinite; }
+/* Узоры поверх меха: полосы, пятна, лоскуты. */
+.hud-pet2-face .mark { fill: none; stroke: color-mix(in srgb, var(--fur) 42%, #000); stroke-width: 1.5; stroke-linecap: round; opacity: .85; }
+.hud-pet2-face .mark-f { fill: color-mix(in srgb, var(--fur) 40%, #000); opacity: .85; }
+.hud-pet2-face .patch.a { fill: #2b2629; opacity: .9; } .hud-pet2-face .patch.b { fill: #d9822b; opacity: .9; }
+/* Части новых родов. */
+.hud-pet2-face .tip { fill: #2b2629; }
+.hud-pet2-face .mane { fill: color-mix(in srgb, var(--fur) 55%, #000); }
+.hud-pet2-face .muzzle { fill: color-mix(in srgb, var(--fur2) 70%, var(--fur)); }
+.hud-pet2-face .nostril { fill: none; stroke: #2a1c18; stroke-width: 1; stroke-linecap: round; }
+.hud-pet2-face :is(.tooth, .fang) { fill: #fbf6ec; }
+.hud-pet2-face .wing2 { fill: color-mix(in srgb, var(--fur) 72%, #000); }
+.hud-pet2.k-horse .hud-pet2-face .horn { fill: #f4ecff; stroke: #c8b4e8; }
+.hud-pet2.k-snake .hud-pet2-face .fur2 { fill: none; stroke: var(--fur2); stroke-width: 1.2; stroke-linecap: round; }
+.hud-pet2-face .coil { fill: color-mix(in srgb, var(--fur) 55%, #000); }
+.hud-pet2-face .neck { fill: none; stroke: var(--fur); stroke-width: 5.6; stroke-linecap: round; }
+.hud-pet2-face .belly { fill: none; stroke: var(--fur2); stroke-width: 1.6; stroke-linecap: round; opacity: .8; }
+.hud-pet2.k-snake .hud-pet2-face .tongue { stroke: #e04a5c; stroke-width: 1.1; stroke-linecap: round; }
+.hud-pet2.k-owl .hud-pet2-face .line { stroke: color-mix(in srgb, var(--fur) 45%, #000); }
+.hud-pet2-face .blush { stroke: #ff8aa8; stroke-width: 1.6; stroke-linecap: round; opacity: .7; }
+@keyframes hud-pet-breathe { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-.6px) scale(1.02, 1.03); } }
+@keyframes hud-pet-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(.1); } }
+@keyframes hud-pet-led { 0%, 100% { opacity: 1; } 50% { opacity: .35; } }
+
+/* Имя — под полосой, а не верхом на её краю: блок начинается ниже полосы. */
+.hud-pet2 .hud-pet2-top { align-items: flex-start; margin-top: -34px; }
+.hud-pet2 .hud-pet2-nm { padding-top: 38px; }
+/* Узкая карточка: настроение стоит полной строкой — плитка с ним лишняя. */
+@media (max-width: 600px) { .hud-pet2-tile.is-mood { display: none; } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { .hud-pet2-tile.is-mood { display: none; } } }
+/* cq ↑ */
+
+/* Значки под именем: возраст, здоровье, когда ел. */
+.hud-pet2-chips { display: flex; flex-wrap: wrap; gap: 5px; margin: 9px 14px 0; }
+.hud-pet2-chips .chip { display: inline-flex; align-items: center; gap: 4px; padding: 2px 9px 2px 6px; border-radius: 99px; font-size: .72em; font-weight: 700;
+  background: color-mix(in srgb, var(--p) 16%, rgba(0,0,0,.18)); border: 1px solid color-mix(in srgb, var(--p) 34%, transparent); }
+.hud-pet2-chips .chip svg { width: 13px; height: 13px; flex: none; color: var(--p); }
+.hud-pet2-chips .chip.h-ok { --p: #5cc98a; } .hud-pet2-chips .chip.h-mid { --p: #f0b44a; } .hud-pet2-chips .chip.h-bad { --p: #ef5a6a; }
+.hud-pet2-chips .chip.fed { --p: #f08a4b; }
+
+/* Потребности: значок, подпись, полоса из пяти делений. */
+.hud-pet2-needs { display: grid; grid-template-columns: repeat(auto-fit, minmax(118px, 1fr)); gap: 6px 12px; margin: 12px 14px 0; }
+.hud-pet2-needs .nd { display: grid; grid-template-columns: 15px auto minmax(36px, 1fr); align-items: center; gap: 6px; min-width: 0; font-size: .72em; }
+.hud-pet2-needs .nd svg { width: 15px; height: 15px; color: var(--c); }
+.hud-pet2-needs .nd span { opacity: .82; white-space: nowrap; }
+.hud-pet2-needs .nd b { position: relative; height: 6px; border-radius: 4px; overflow: hidden; background: rgba(255,255,255,.1);
+  -webkit-mask: repeating-linear-gradient(90deg, #000 0 calc(20% - 2px), transparent calc(20% - 2px) 20%); mask: repeating-linear-gradient(90deg, #000 0 calc(20% - 2px), transparent calc(20% - 2px) 20%); }
+.hud-pet2-needs .nd b i { position: absolute; inset: 0 auto 0 0; background: linear-gradient(90deg, color-mix(in srgb, var(--c) 70%, #fff), var(--c)); }
+
+/* Цепочка следов внизу: проступают по очереди и тают. */
+.hud-pet2-trail { display: flex; gap: 10px; justify-content: center; margin: 12px 14px 12px; color: color-mix(in srgb, var(--p) 70%, #fff); opacity: .55; }
+.hud-pet2-trail .pr { width: 12px; height: 11px; fill: currentColor; animation: hud-pet-step 4.8s ease-in-out infinite; animation-delay: calc(var(--i) * .5s); }
+.hud-pet2-trail .pr:nth-child(odd) { transform: translateY(4px) rotate(-8deg); }
+.hud-pet2-trail .pr:nth-child(even) { transform: rotate(8deg); }
+@keyframes hud-pet-step { 0%, 100% { opacity: .25; } 30%, 60% { opacity: 1; } }
+.hud-pet2-skills + .hud-pet2-trail { margin-top: 2px; }
+
+@media (prefers-reduced-motion: reduce) { .hud-pet2-face, .hud-pet2-face .eyes, .hud-pet2-face .led, .hud-pet2-face .spark, .hud-pet2-trail .pr { animation: none; } }
+:root.hud-scheme-light .hud-pet2-needs .nd b { background: rgba(0,0,0,.1); }
+:root.hud-scheme-light .hud-pet2-face .whisk { stroke: rgba(60,40,30,.5); }
+
 /* В окне палитры сцена узкая: плашки встают столбиком, как на телефоне. */
 .hud-cp-preview .hud-scene-top { display: flex !important; flex-direction: column; align-items: center; gap: 8px; text-align: center; }
 .hud-cp-preview .hud-scene-weather-group { flex-direction: row; flex-wrap: wrap; justify-content: center; align-items: center; max-width: 100%; }

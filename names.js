@@ -10,7 +10,7 @@
 // "Майкл Смит", "Michael Smith" и т.п. Граф сначала собирает все реальные
 // имена, затем пытается сопоставить каждую ссылку с уже существующим узлом,
 // и только после этого создаёт новый узел.
-import { settings } from './settings.js?v=23.89.22';
+import { settings } from './settings.js?v=23.89.23';
 
 export function normalizeNameText(name) {
   return String(name ?? '')
@@ -296,6 +296,15 @@ function сравнитьИмена(a, b) {
   const aFirst = namePhoneticLatin(ta[0] || A);
   const bFirst = namePhoneticLatin(tb[0] || B);
   if (aFirst && bFirst && первыеСловаСовпадают(aFirst, bFirst, ta[0] || A, tb[0] || B)) return true;
+
+  // Одна фамилия — ещё не один человек: у «Иды Олдридж» и «Нины Олдридж»
+  // длинная общая фамилия растворяла разницу в именах, и сёстры сливались.
+  // Когда у обоих есть имя и фамилия, имена сверяем отдельно: опечатку
+  // прощаем («Изольда» / «Isolde»), другое имя — нет.
+  if (ta.length >= 2 && tb.length >= 2) {
+    const fa = namePhoneticLatin(ta[0]), fb = namePhoneticLatin(tb[0]);
+    if (fa && fb && fa !== fb && levenshtein(fa, fb) > (Math.min(fa.length, fb.length) >= 6 ? 2 : 1)) return false;
+  }
 
   const ca = nameConsonantSignature(A), cb = nameConsonantSignature(B);
   if (ca && cb) {

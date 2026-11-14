@@ -4,6 +4,21 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.23 — 2026-11-14
+
+### Added
+- **A richer companion card.** Under the name: age, health in one word (healthy, tired, wounded, sick, a malfunction for machines) and when it last ate. Five-step need bars, "Wants" and "Favourite treat" tiles (the model writes them when they are known), and a trail at the bottom: paws, hooves, bird tracks, a wave for a snake, sparks for a spirit. Age, wants and treat show in the tamagotchi and the classic view too.
+- **New animals with their own portraits:** a fox (an arctic fox, a fennec), a bear, a horse and a pony (a unicorn gets a horn, a pegasus wings), a rabbit, rodents (a hamster, a rat, a mouse, a squirrel, a ferret), an owl, a bat, a snake. Dog breeds such as a Dalmatian, a husky or a shepherd are recognised as dogs.
+- **The coat follows any colour in the name.** A black cat is drawn black, an arctic fox white, a bay pony bay; two-tone coats ("black and white") too. Patterns on top of the fur: stripes for tabbies and tigers, spots for spotted animals and Dalmatians, patches for calicos and piebalds.
+- **Eye colour**, wherever it comes up: "sapphire eyes", "green-eyed", "with brown eyes", two colours for heterochromia.
+- **The HUD remembers each companion's coat and eyes** in the chat data. Once the cat's eyes were called blue, they stay blue even when the model doesn't mention them. A new mention replaces the old one, and re-rendering an old message doesn't overwrite a newer one.
+- **The "how it changed" slider on the body map** steps through that turn's clothes and body marks, not only sensitivity: you can see when the coat came off and when the hickey appeared. A turn where the model named no clothes keeps the clothes of the turn next to it.
+
+### Fixed
+- **A "single" or "free" status ends a marriage.** A marriage from old turns stayed on the graph and in the family tree even when the character's status said "single"; now it becomes an ex. And "married to …" in the status adds a marriage when the model didn't write it in the relations.
+- **Namesakes with different first names no longer merge into one person** ("Ida Larsen" and "Nina Larsen"). "Katerina" and "Ekaterina", the Russian and English spellings of one name still match.
+- **"Without a glove" means no gloves.** "Left hand without a glove", "without white gloves", "no gloves" drew gloves on the body; now an item is off when "without" comes right before its name. "A sleeveless dress" stays a dress.
+
 ## 23.89.22 — 2026-11-14
 
 ### Fixed

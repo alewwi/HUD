@@ -16,29 +16,29 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.22';
-import { уверены } from './confirm-erase.js?v=23.89.22';
-import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.89.22';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.89.22';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.22';
-import { прикрытьСырой } from './raw-guard.js?v=23.89.22';
-import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.22';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.22';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.22';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.22';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.22';
-import { полныйПорядок } from './tabs-order.js?v=23.89.22';
-import { getWorldVotes } from './render/world.js?v=23.89.22';
-import { действиеМира } from './render/world-views.js?v=23.89.22';
-import { действиеМузыки } from './render/music.js?v=23.89.22';
-import { раскрытьПорцию } from './render/long-list.js?v=23.89.22';
-import { прогретьИсторию } from './render/carryover.js?v=23.89.22';
-import { подключитьПалитру } from './color-picker.js?v=23.89.22';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.22';
-import { замер } from './utils.js?v=23.89.22';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.22';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.22';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.22';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.23';
+import { уверены } from './confirm-erase.js?v=23.89.23';
+import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.89.23';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.89.23';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.23';
+import { прикрытьСырой } from './raw-guard.js?v=23.89.23';
+import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.23';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.23';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.23';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.23';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.23';
+import { полныйПорядок } from './tabs-order.js?v=23.89.23';
+import { getWorldVotes } from './render/world.js?v=23.89.23';
+import { действиеМира } from './render/world-views.js?v=23.89.23';
+import { действиеМузыки } from './render/music.js?v=23.89.23';
+import { раскрытьПорцию } from './render/long-list.js?v=23.89.23';
+import { прогретьИсторию } from './render/carryover.js?v=23.89.23';
+import { подключитьПалитру } from './color-picker.js?v=23.89.23';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.23';
+import { замер } from './utils.js?v=23.89.23';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.23';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.23';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.23';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -2021,7 +2021,8 @@ document.addEventListener('input', (e) => {
   if (!ползунок) return;
   const карта = ползунок.closest('.hud-heat');
   const кадр = String(ползунок.value);
-  карта.querySelectorAll('.z-frame').forEach(g => g.classList.toggle('is-now', g.dataset.frame === кадр));
+  // Пятна — по кадру (data-frame), одежда, следы и очертания — по нескольким (data-frames).
+  карта.querySelectorAll('.z-frame').forEach(g => g.classList.toggle('is-now', (g.dataset.frames ?? g.dataset.frame ?? '').split(' ').includes(кадр)));
   let подписи = [];
   try { подписи = JSON.parse(ползунок.dataset.labels || '[]'); } catch (_) {}
   const подпись = карта.querySelector('.hud-heat-time-label');

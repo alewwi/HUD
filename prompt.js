@@ -10,15 +10,15 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.89.22';
+import { settings } from './settings.js?v=23.89.23';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.22';
-import { промптНаАнглийском } from './prompt-en.js?v=23.89.22';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.22';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.22';
-import { возрастТочно } from './render/babies.js?v=23.89.22';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.22';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.22';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.23';
+import { промптНаАнглийском } from './prompt-en.js?v=23.89.23';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.23';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.23';
+import { возрастТочно } from './render/babies.js?v=23.89.23';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.23';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.23';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -470,7 +470,7 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
   if (спутники) {
     p += `,
  "pet": [
-  {"n": "[name of a companion that exists in the story — animal, familiar, drone, robot; one object each, [] when none]", "sp": "[species or kind, e.g. 'рыжий кот', 'ворон-фамильяр', 'боевой дрон']", "ow": "[owner, or whom it is bound to]", "md": "[mood right now in a word or two]", "cnd": "[condition: health, injuries, tiredness, charge]", "fd": "[diet: what it eats or runs on, when last fed or charged — companions have their own needs: they eat, sleep, get hurt, react to the scene]", "bnd": "[bond with the owner, 0-100]", "skl": "[OPTIONAL its 3-4 most telling skills, tricks or quirks — a few words each, separated by ; — replace weaker ones instead of adding more every turn]", "nte": "[OPTIONAL what it is doing right now]", "lv": "[OPTIONAL needs 0-5 each: 'sat: satiety; eng: energy; cln: cleanliness; joy: mood' — a machine instead 'chg: charge; fix: working order; joy: mood']"}
+  {"n": "[name of a companion that exists in the story — animal, familiar, drone, robot; one object each, [] when none]", "sp": "[species or kind, e.g. 'рыжий кот', 'ворон-фамильяр', 'боевой дрон']", "ag": "[age, e.g. '3 years', 'kitten, 4 months', 'old, 12 years'; for a machine or spirit — how long it has served or existed]", "eye": "[OPTIONAL eye colour, once known — it is remembered]", "wnt": "[what it wants right now, a few words — food, a walk, attention, to be left alone]", "trt": "[OPTIONAL its favourite treat or snack, if known]", "ow": "[owner, or whom it is bound to]", "md": "[mood right now in a word or two]", "cnd": "[condition: health, injuries, tiredness, charge]", "fd": "[diet: what it eats or runs on, when last fed or charged — companions have their own needs: they eat, sleep, get hurt, react to the scene]", "bnd": "[bond with the owner, 0-100]", "skl": "[OPTIONAL its 3-4 most telling skills, tricks or quirks — a few words each, separated by ; — replace weaker ones instead of adding more every turn]", "nte": "[OPTIONAL what it is doing right now]", "lv": "[OPTIONAL needs 0-5 each: 'sat: satiety; eng: energy; cln: cleanliness; joy: mood' — a machine instead 'chg: charge; fix: working order; joy: mood']"}
  ]`;
   }
 

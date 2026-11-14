@@ -7,12 +7,12 @@
 // index.js импортирует отсюда hudHasRelations, applyRelGraphFocus и
 // setRelGraphExpandedState; render/memory.js — buildRelGraphHTML.
 
-import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.22';
-import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.22';
-import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.22';
-import { buildFamilyTree, родствоИз, ложныеБлизнецы } from './family-tree.js?v=23.89.22';
-import { settings } from '../settings.js?v=23.89.22';
-import { ответыПроДядей } from './family-asks.js?v=23.89.22';
+import { escapeHtml, hudFilled, hudHashSeed, commentInitials, getSafeUserName, guardTouchSwipe, имяБезПриставки, именаГруппы } from '../utils.js?v=23.89.23';
+import { getAvatarUrl, getUserAvatarUrl, HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.23';
+import { normalizeNameText, nameLettersOnly, namePhoneticLatin, namesLikelySame } from '../names.js?v=23.89.23';
+import { buildFamilyTree, родствоИз, ложныеБлизнецы, статусБрака } from './family-tree.js?v=23.89.23';
+import { settings } from '../settings.js?v=23.89.23';
+import { ответыПроДядей } from './family-asks.js?v=23.89.23';
 
 function hudRelField(obj) {
   if (!obj || typeof obj !== 'object') return '';
@@ -142,6 +142,17 @@ function collectRelationGraph(hudData) {
   (hudData.characters || []).forEach((c, i) => addEdgesFrom(c && (c['Имя'] || c.N || c.name || c.Name), hudRelField(c), { isPrimary: i === 0 }));
   // Дети из «Детской»: их «Софи: мама» — тоже родство для дерева.
   (Array.isArray(hudData.babies) ? hudData.babies : []).forEach(b => addEdgesFrom(b && (b['Имя'] || b.N), hudRelField(b), {}));
+  // Статус тоже про отношения: «женат на Виктории», «замужем за Тристаном» —
+  // связь с тем, кто уже есть в графе (имя в статусе в косвенном падеже, новых
+  // людей по нему не заводим), если такой связи ещё нет.
+  [[userName, hudData.user, { isUser: true }], ...(hudData.characters || []).map(c => [c && (c['Имя'] || c.N || c.name || c.Name), c, {}])].forEach(([имя, запись]) => {
+    const с = статусБрака(статусЗаписи(запись));
+    if (!с || с.свободен) return;
+    const от = resolveExisting(String(имя || '')), к = resolveExisting(с.супруг);
+    if (!от || !к || от === к) return;
+    if (edges.some(e => (e.from === от.id && e.to === к.id) || (e.from === к.id && e.to === от.id))) return;
+    edges.push({ from: от.id, to: к.id, label: с.слово });
+  });
   return { nodes, edges };
 }
 
@@ -280,9 +291,20 @@ function relNodeRoleClass(node) {
 // Дерево видит и родню из прошлых HUD: кто-то давно вышел из сцены, а родство
 // осталось. Пара людей — одна запись родства, самая свежая: без копий и без
 // старого «жена» рядом с новым «бывшая жена». Граф остаётся про текущий ход.
-function деревоСИсторией(nodes, edges, дайХоды) {
+// Статус героя («холост, глава компании», «женат на Виктории») — в записи
+// поле «Статус» (St).
+const статусЗаписи = (c) => (c && (c['Статус'] || c.St || c.status || c.Status)) || '';
+// Бывший брак тем же словом: «жена» → «бывшая жена», «wife» → «ex-wife».
+function бывшееСлово(слово) {
+  const w = String(слово || '').toLowerCase();
+  if (/^(husband|wife|spouse)$/.test(w)) return 'ex-' + w;
+  if (/^(жена|супруга)$/.test(w)) return 'бывшая ' + w;
+  return 'бывший ' + (w || 'супруг');
+}
+
+function деревоСИсторией(nodes, edges, дайХоды, hudData = null) {
   const глубина = Math.max(0, Math.min(500, Math.round(Number(settings.familyTreeDepth ?? 100)) || 0));
-  if (!глубина || typeof дайХоды !== 'function') return { nodes, edges };
+  const сИсторией = глубина && typeof дайХоды === 'function';
   const люди = nodes.map(n => ({ ...n }));
   const рёбра = [...edges];
   const узел = (имя) => {
@@ -303,11 +325,24 @@ function деревоСИсторией(nodes, edges, дайХоды) {
   // Все имена, что встречались в ходах, — в именительном: «сын Джонатана
   // Бомонта» говорит о Джонатане, которого нет в графе; его имя берём отсюда.
   const имена = new Set(nodes.map(n => n.name));
-  for (const d of дайХоды(глубина) || []) {
-    const записи = [...(d.user && игрок ? [[игрок, d.user]] : []), ...[...(Array.isArray(d.characters) ? d.characters : []), ...(Array.isArray(d.babies) ? d.babies : [])].map(c => [c && (c['Имя'] || c.N), c])];
+  // Статусы: свежий — первый встреченный (сначала этот ход, потом прошлые от
+  // новых к старым); все — чтобы найти брак, о котором писали только в статусе.
+  const записиХода = (d) => [...(d && d.user && игрок ? [[игрок, d.user]] : []), ...[...(Array.isArray(d && d.characters) ? d.characters : []), ...(Array.isArray(d && d.babies) ? d.babies : [])].map(c => [c && (c['Имя'] || c.N), c])];
+  const свежийСтатус = new Map(), статусы = [];
+  const учестьСтатус = (имя, запись) => {
+    const с = статусБрака(статусЗаписи(запись));
+    if (!имя || !с) return;
+    const есть = [...свежийСтатус.keys()].find(n => namesLikelySame(n, String(имя)));
+    if (!есть) свежийСтатус.set(String(имя), с);
+    if (!с.свободен) статусы.push([String(имя), с]);
+  };
+  for (const [имя, запись] of записиХода(hudData)) учестьСтатус(имя, запись);
+  for (const d of (сИсторией ? дайХоды(глубина) : null) || []) {
+    const записи = записиХода(d);
     for (const [имя, запись] of записи) {
       if (!запись) continue;
       if (имя) имена.add(String(имя));
+      учестьСтатус(имя, запись);
       for (const { target, rel } of parseRelationList(hudRelField(запись))) {
         const цель = String(target || '').replace(/\s*\([^()]*\)\s*$/, '').trim();
         for (const и of именаГруппы(цель) || [цель]) if (и) имена.add(и);
@@ -317,6 +352,33 @@ function деревоСИсторией(nodes, edges, дайХоды) {
         занято.add(ключ(от.id, к.id));
         рёбра.push({ from: от.id, to: к.id, label: rel });
       }
+    }
+  }
+  // Брак из статуса («женат на Виктории»): имя там в косвенном падеже —
+  // супруга ищем среди людей и имён ходов в именительном.
+  for (const [имя, с] of статусы) {
+    const от = узел(имя);
+    const найден = люди.find(x => namesLikelySame(с.супруг, x.name));
+    const имяСупруга = найден ? найден.name : [...имена].find(n => n.split(/\s+/).length >= с.супруг.split(/\s+/).length && namesLikelySame(с.супруг, n));
+    const к = имяСупруга ? узел(имяСупруга) : null;
+    if (!от || !к || от === к) continue;
+    if (рёбра.some(e => ((e.from === от.id && e.to === к.id) || (e.from === к.id && e.to === от.id)) && /spouse/i.test((родствоИз(e.label) || {}).тип || ''))) continue;
+    рёбра.push({ from: от.id, to: к.id, label: с.слово });
+  }
+  // Свежий статус «холост», «разведена», «вдовец»: брак из прошлых ходов —
+  // бывший. Иначе давно ушедшая жена стояла в дереве рядом, как нынешняя.
+  for (const [имя, с] of свежийСтатус) {
+    if (!с.свободен) continue;
+    const он = люди.find(x => namesLikelySame(имя, x.name));
+    if (!он) continue;
+    for (let i = 0; i < рёбра.length; i++) {
+      const e = рёбра[i];
+      const р = родствоИз(e.label);
+      if (!р || р.тип !== 'spouse') continue;
+      // Кто в этом браке. «Виктория: жена Тристана» в чужой записи — брак
+      // Виктории и Тристана; «Эванджелина: жена Атласа» в его — не его брак.
+      const стороны = р.чей ? [e.to, (люди.find(x => namesLikelySame(р.чей, x.name)) || {}).id] : [e.from, e.to];
+      if (стороны.includes(он.id)) рёбра[i] = { ...e, label: бывшееСлово(р.слово) + (р.чей ? ' ' + р.чей : '') };
     }
   }
   // Родство через третьего («младший сын Джонатана Бомонта»), а третьего в
@@ -366,7 +428,7 @@ export function buildRelGraphHTML(hudData, uid, дайХоды = null, опци�
   const { nodes, edges } = collectRelationGraph(hudData || {});
   if (nodes.length < 2 && !edges.length) return '';
   // Чужое «младший близнец» — не родство: связь судим по остальному тексту.
-  const родня = деревоСИсторией(nodes, edges, дайХоды);   // настоящий близнец мог выйти из сцены, а пара всё равно известна
+  const родня = деревоСИсторией(nodes, edges, дайХоды, hudData);   // настоящий близнец мог выйти из сцены, а пара всё равно известна
   const чужиеБлизнецы = ложныеБлизнецы(родня.edges);
   const видСвязи = (e) => classifyRelationVisual(чужиеБлизнецы.has(e) ? String(e.label || '').replace(/(?:(?:младш|старш)\p{L}*\s+)?(?:(?:брат|сестра)-)?близн\p{L}*|(?:(?:older|younger)\s+)?twin(?:\s+(?:brother|sister))?/giu, ' ') : (e.label || e.rel || ''));
 

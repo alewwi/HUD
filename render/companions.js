@@ -4,9 +4,10 @@
 // каждого своё настроение, состояние, рацион и привязанность к хозяину.
 // Вкладка появляется, только когда в HUD есть хоть один спутник.
 
-import { escapeHtml, applyTooltips, hudHasMeaningfulValue } from '../utils.js?v=23.89.22';
-import { видБлока, видПривязанности } from './views.js?v=23.89.22';
-import { карточкаСпутника, тамагочи, лучшиеУмения } from './extras.js?v=23.89.22';
+import { escapeHtml, applyTooltips, hudHasMeaningfulValue } from '../utils.js?v=23.89.23';
+import { видБлока, видПривязанности } from './views.js?v=23.89.23';
+import { карточкаСпутника, тамагочи, лучшиеУмения } from './extras.js?v=23.89.23';
+import { внешностьСпутника } from './pet-looks.js?v=23.89.23';
 
 // Значок по виду. Частное раньше общего: «ворон-фамильяр» — птица, а не дух.
 const ВИДЫ = [
@@ -40,7 +41,7 @@ export function hudHasMeaningfulCompanions(list) {
   return Array.isArray(list) && list.some(p => p && есть(p.name));
 }
 
-export function buildCompanionsHTML(list, uid, isChecked) {
+export function buildCompanionsHTML(list, uid, isChecked, extra = {}) {
   const спутники = (Array.isArray(list) ? list : []).filter(p => p && есть(p.name));
   // Вид спутника: карточка (по умолчанию), тамагочи или прежний список строк.
   const вид = видБлока('petView');
@@ -52,7 +53,10 @@ export function buildCompanionsHTML(list, uid, isChecked) {
     const связьHTML = связь === null ? '' : видСвязи
       || `<div class="hud-pet-bond" title="Привязанность ${Math.round(связь)} из 100"><span>привязанность</span><i><i style="width:${связь}%"></i></i><em>${Math.round(связь)}</em></div>`;
     if (вид === 'tama') return тамагочи(p, связь, видСвязи);
-    if (вид === 'card') return карточкаСпутника(p, значокВида(p.species, p.name), связь, связьHTML);
+    // Окрас и глаза: названное в этом ходе или запомненное раньше (render/pet-looks.js);
+    // помним при любом виде, чтобы карточка знала их и после смены вида.
+    const внешность = внешностьСпутника(p, extra && extra.номер);
+    if (вид === 'card') return карточкаСпутника(p, значокВида(p.species, p.name), связь, связьHTML, внешность);
     const строка = (значок, подпись, текст) => есть(текст)
       ? `<div class="hud-pet-row"><span>${значок} ${escapeHtml(подпись)}</span><p>${applyTooltips(String(текст))}</p></div>`
       : '';
@@ -66,6 +70,9 @@ export function buildCompanionsHTML(list, uid, isChecked) {
       + (есть(p.mood) ? `<em class="hud-pet-mood">${escapeHtml(p.mood)}</em>` : '')
       + `</div>`
       + (есть(p.owner) ? `<div class="hud-pet-owner">хозяин: <b>${escapeHtml(p.owner)}</b></div>` : '')
+      + строка('🎂', 'Возраст', p.age)
+      + строка('💭', 'Хочет', p.wants)
+      + строка('🍬', 'Любимое лакомство', p.treat)
       + (связь !== null && видПривязанности(связь, видБлока('bondView'))
         ? видПривязанности(связь, видБлока('bondView'))
         : связь !== null

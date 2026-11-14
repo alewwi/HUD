@@ -1,0 +1,55 @@
+<!doctype html><html class="hud-glass-frosted hud-cq"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Спутники — стенд</title>
+<style>
+body { margin: 0; padding: 12px; background: #1d1a22; color: #ddd; font: 13px system-ui, sans-serif; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--w, 430px)), var(--w, 430px))); gap: 16px; align-items: start; }
+h2 { grid-column: 1 / -1; margin: 10px 0 0; font-size: 14px; color: #c9b8e0; }
+.mes_text .hud-os-card { width: 100%; }
+</style></head>
+<body>
+<div class="grid" id="grid">загрузка…</div>
+<script type="module">
+// Стенд вкладки «Спутники»: все три вида (Карточка, Тамагочи, Прежний) на
+// выдуманных спутниках разных родов — кошка, собака, птица, робот, дракон,
+// дух. Открывать через tests/tools/stand.cmd или сервер Таверны:
+//   /scripts/extensions/third-party/HUD/tests/tools/pets-stand.html?w=215px
+if (location.protocol === 'file:') { document.getElementById('grid').textContent = 'Откройте через tests/tools/stand.cmd'; throw new Error('file://'); }
+const V = '?v=' + (await (await fetch('../../manifest.json', { cache: 'no-store' })).json()).version;
+const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = '../../css/all.css' + V; document.head.append(css);
+const { buildCompanionsHTML } = await import('../../render/companions.js' + V);
+const { normalizeJSONData } = await import('../../schema.js' + V);
+const { settings } = await import('../../settings.js' + V);
+const P = new URLSearchParams(location.search);
+document.documentElement.style.setProperty('--w', P.get('w') || '430px');
+const pet = [
+  { n: 'Корица', sp: 'рыжая кошка', ag: '3 года', eye: 'янтарные', wnt: 'чтобы открыли дверь', trt: 'сливки', ow: 'Лилиан Грей', md: 'обижена, что заперли в спальне', cnd: 'здорова', fd: 'влажный корм, покормлена в 19:00', bnd: '85', skl: 'открывает двери; ворует ленты', nte: 'царапает дверь спальни', lv: 'sat: 4; eng: 3; cln: 5; joy: 1' },
+  { n: 'Граф', sp: 'серый волкодав', ag: 'старый, 11 лет', ow: 'Марк Олдридж', md: 'дремлет у камина', cnd: 'хромает на заднюю лапу', fd: 'говядина с рисом, ужинал в 20:30', bnd: '96', skl: 'чует ложь; открывает калитку носом; не лает на своих', nte: 'положил морду хозяину на колено', lv: 'sat: 5; eng: 2; cln: 3; joy: 4' },
+  { n: 'Шини', sp: 'канадская рысь-меланист (30 кг)', eye: 'сапфировые', ag: '5 лет', ow: 'Вера Ховард', md: 'невозмутимое дежурство у детской', cnd: 'полностью здорова', fd: 'свежая телятина, в 19:45', bnd: '100', skl: 'охрана детской спальни; мгновенное взятие следа', nte: 'чутко дремлет у порога, положив морду на лапы', lv: 'sat: 4; eng: 4; cln: 5; joy: 5' },
+  { n: 'Вран', sp: 'чёрный ворон-фамильяр', ag: 'больше ста лет', ow: 'ведьма Ирма', md: 'насмешлив', cnd: 'перо в крыле сломано', fd: 'сырое мясо и блестящие пуговицы', bnd: '60', skl: 'говорит три слова; приносит ключи', nte: 'сидит на люстре и передразнивает гостей' },
+  { n: 'Жужа', sp: 'робот-пылесос', ag: 'служит второй год', ow: 'Анна Грей', md: 'ждёт команды', cnd: 'заряд 40%, застряла', fd: 'электричество, зарядка ночью', bnd: '30', nte: 'застряла под кроваткой в коробке', lv: 'chg: 2; fix: 2; joy: 2' },
+  { n: 'Искра', sp: 'изумрудная виверна', ag: 'детёныш, 2 мес.', ow: 'Тео Вейл', md: 'голодна и ревнива', cnd: 'здорова, линяет', fd: 'угли и сушёная рыба', bnd: '72', skl: 'плюётся искрами; прячется в камине' },
+  { n: 'Шёпот', sp: 'дух-хранитель дома', ag: 'с основания дома', ow: 'семья Вейл', md: 'тревожится', cnd: 'мерцает, слабеет к рассвету', bnd: '50', nte: 'гасит свечи в пустых комнатах' },
+  { n: 'Уголёк', sp: 'чёрный кот', ag: 'котёнок, 4 месяца', ow: 'Лилиан Грей', md: 'охотится на шнурки', cnd: 'здоров', wnt: 'поиграть', trt: 'креветки' },
+  { n: 'Тигра', sp: 'полосатая серая кошка', ag: '7 лет', ow: 'бабушка Роза', md: 'греется на подоконнике', nte: 'зелёноглазая, щурится на солнце' },
+  { n: 'Снежок', sp: 'белый песец', ag: '2 года', ow: 'Тео Вейл', md: 'любопытен', cnd: 'здоров', wnt: 'зарыться в снег', trt: 'варёное яйцо' },
+  { n: 'Буран', sp: 'бурый медвежонок', ag: '1 год', ow: 'лесник Ян', md: 'сонный', fd: 'мёд и рыба, в 18:10', trt: 'соты' },
+  { n: 'Лунница', sp: 'белый единорог', ag: 'юная', ow: 'принцесса Ада', md: 'гордая', cnd: 'здорова', ex: 'грива: серебристая', wnt: 'на луг', trt: 'яблоко' },
+  { n: 'Ворчун', sp: 'гнедой пони', ag: '15 лет', ow: 'Марк Олдридж', md: 'упрямится', cnd: 'устал', trt: 'морковка' },
+  { n: 'Пух', sp: 'кролик, пегий', ag: '1 год', ow: 'Анна Грей', md: 'жуёт', wnt: 'на ручки' },
+  { n: 'Кнопка', sp: 'рыжий хомяк', ag: '6 месяцев', ow: 'Соня', md: 'набивает щёки', trt: 'семечки' },
+  { n: 'Филя', sp: 'серая сова-фамильяр', ag: '40 лет', ow: 'ведьма Ирма', md: 'мудро молчит', nte: 'янтарные глаза мерцают в темноте' },
+  { n: 'Нетопырь', sp: 'летучая мышь', ag: 'неизвестно', ow: 'граф Морн', md: 'висит вниз головой', wnt: 'темноты' },
+  { n: 'Шёлк', sp: 'изумрудный полоз', ag: '8 лет', ow: 'алхимик Вен', md: 'дремлет на тёплом камне', eye: 'жёлтый и голубой — гетерохромия' },
+  { n: 'Пятныш', sp: 'далматин', ag: '4 года', ow: 'Тео Вейл', md: 'радуется', trt: 'сыр' },
+];
+const д = normalizeJSONData({ companions: pet });
+let out = '';
+// ?views=card,tama — только эти виды.
+const виды = (P.get('views') || 'card,tama,classic').split(',');
+for (const [вид, имя] of [['card', 'Карточка'], ['tama', 'Тамагочи'], ['classic', 'Прежний']].filter(([в]) => виды.includes(в))) {
+  settings.petView = вид;
+  out += `<h2>${имя}</h2>`;
+  for (const p of д.companions) out += `<div class="mes_text"><div class="hud-os-card"><input type="checkbox" class="hud-toggle-input" checked hidden><div class="hud-os-wrapper">${buildCompanionsHTML([p], 'p' + Math.random().toString(36).slice(2), true)}</div></div></div>`;
+}
+document.getElementById('grid').innerHTML = out;
+window.__ready = true;
+</script></body></html>
