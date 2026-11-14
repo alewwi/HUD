@@ -6,15 +6,17 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.25';
-import { английский } from '../i18n.js?v=23.89.25';
-import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.25';
-import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.25';
-import { ссылкиТрека } from './music.js?v=23.89.25';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности, открытыеЗачатия, датаИзТекста } from './conception.js?v=23.89.25';
-import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.25';
-import { ико } from './view-icons.js?v=23.89.25';
-import { namesLikelySame } from '../names.js?v=23.89.25';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.26';
+import { английский } from '../i18n.js?v=23.89.26';
+import { settings } from '../settings.js?v=23.89.26';
+import { задатьЕдиницы, htmlВФормате } from '../units.js?v=23.89.26';
+import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.26';
+import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.26';
+import { ссылкиТрека } from './music.js?v=23.89.26';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности, открытыеЗачатия, датаИзТекста } from './conception.js?v=23.89.26';
+import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.26';
+import { ико } from './view-icons.js?v=23.89.26';
+import { namesLikelySame } from '../names.js?v=23.89.26';
 
 let окноОткрыто = false;
 // Дата и время ходов открытого отчёта (history-analyzer.js → moments).
@@ -796,7 +798,8 @@ export function openArchiveDialog() {
       n.textContent = числа[b.dataset.tab];
       n.hidden = !числа[b.dataset.tab];
     });
-    тело.innerHTML =
+    задатьЕдиницы(settings);
+    тело.innerHTML = htmlВФормате(
       активная === 'secrets' ? вкладкаСекретов(отчёт, поиск)
       : активная === 'guns' ? вкладкаРужей(отчёт, поиск)
       : активная === 'relations' ? вкладкаОтношений(отчёт, поиск)
@@ -804,7 +807,7 @@ export function openArchiveDialog() {
       : активная === 'pregnancies' ? вкладкаБеременностей(отчёт, поиск)
       : активная === 'soundtrack' ? вкладкаСаундтрека(отчёт, поиск)
       : активная === 'dash' ? buildDashboardHTML(отчёт)
-      : вкладкаСтатистики(отчёт);
+      : вкладкаСтатистики(отчёт));
     тело.scrollTop = прокрутка;
   };
   вкладки.querySelectorAll('[data-tab]').forEach(b => b.addEventListener('click', () => {

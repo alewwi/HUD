@@ -12,10 +12,10 @@
 // Не разобрали данные — пустая строка, и поле рисуется по-старому.
 // Оформление — css/views-fields.css.
 
-import { escapeHtml, разбитьСписок } from '../utils.js?v=23.89.25';
-import { ИКОНКИ } from './view-icons.js?v=23.89.25';
-import { знакЗодиака as знакНаЯзыке } from '../i18n.js?v=23.89.25';
-import { settings } from '../settings.js?v=23.89.25';
+import { escapeHtml, разбитьСписок } from '../utils.js?v=23.89.26';
+import { ИКОНКИ } from './view-icons.js?v=23.89.26';
+import { знакЗодиака as знакНаЯзыке } from '../i18n.js?v=23.89.26';
+import { settings } from '../settings.js?v=23.89.26';
 
 const т = (s) => escapeHtml(String(s ?? '').trim());
 const пусто = (v) => !String(v ?? '').trim() || /^(empty|none|null|нет|пусто|—|-)$/i.test(String(v).trim());
@@ -735,7 +735,7 @@ function видРеплик(value, вид, имя = '') {
     return обёртка('lines', 'script', в.map((x, i) => {
       const r = генератор(x), сек = Math.max(2, Math.round(x.length / 9));
       const столбики = Array.from({ length: 28 }, (_, k) => `<i style="--v:${ф(.25 + r() * .75 * (k > 2 && k < 25 ? 1 : .5))}"></i>`).join('');
-      return `<div class="vm" style="--i:${i}"><span class="ava" aria-hidden="true">${буква}</span><div class="bub"><span class="row"><i class="play" aria-hidden="true"></i><span class="wave" aria-hidden="true">${столбики}</span><small>0:${String(сек).padStart(2, '0')}</small></span><p>${т(x)}</p></div></div>`;
+      return `<div class="vm" style="--i:${i}"><span class="ava" aria-hidden="true">${буква}</span><div class="bub"><span class="row"><i class="play" aria-hidden="true"></i><span class="wave" aria-hidden="true">${столбики}</span><small>\u20600:${String(сек).padStart(2, '0')}</small></span><p>${т(x)}</p></div></div>`;
     }).join(''));
   }
   if (вид === 'subtitles') {

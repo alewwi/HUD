@@ -1710,7 +1710,9 @@
     /* Мощная черная тень под цифрами, чтобы они "горели" */
 }
 .hud-time-colon { opacity: 0.85; }
-.hud-date-display { 
+/* 12-часовой формат (настройка «🕘 Время»): маленькое AM/PM у верха цифр. */
+.hud-time-ampm { display: inline-block; margin-left: .2em; font-size: .36em; letter-spacing: .06em; vertical-align: top; line-height: 1.2; opacity: .85; }
+.hud-date-display {
     font-size: 0.78em; text-transform: uppercase;
     letter-spacing: 1.5px; margin-top: 6px; font-weight: 600; 
 }

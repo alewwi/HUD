@@ -8,9 +8,9 @@
 // Здесь — чистая часть: какое поле у строки, что показать в окошке и как
 // подменить значение в объекте HUD. Кнопки и запись в чат — index.js.
 
-import { mapKey } from './utils.js?v=23.89.25';
-import { КАТАЛОГ } from './deep-fields.js?v=23.89.25';
-import { namesLikelySame } from './names.js?v=23.89.25';
+import { mapKey } from './utils.js?v=23.89.26';
+import { КАТАЛОГ } from './deep-fields.js?v=23.89.26';
+import { namesLikelySame } from './names.js?v=23.89.26';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 const поляРаздела = (код) => (КАТАЛОГ.find(р => р.код === код) || { группы: [] }).группы.flatMap(г => г.поля.map(п => п[0]));
@@ -37,6 +37,8 @@ export function записьВладельца(hud, кто) {
   // У игрока записи может не быть (модель пропустила us) — заведём.
   if (кто === 'user') return объект(hud.us) ? hud.us : (hud.us = {});
   if (кто === 'story') return hud;
+  // Сцена: время, дата, погода, настроение, атмосфера (sc.T, sc.Dt, …).
+  if (кто === 'scene') return объект(hud.sc) ? hud.sc : (hud.sc = {});
   const список = Array.isArray(hud.cs) ? hud.cs : объект(hud.cs) ? [hud.cs] : [];
   const имя = String(кто || '').trim();
   return список.find(c => объект(c) && String(c.N || '').trim() === имя)

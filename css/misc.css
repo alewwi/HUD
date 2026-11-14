@@ -5643,11 +5643,11 @@ html.hud-custom-open body { overflow: hidden; }
 .hud-edit-btn:focus-visible { opacity: 1; background: rgba(127, 127, 127, .15); outline: none; }
 @media (hover: hover) and (pointer: fine) { .hud-edit-btn:hover { opacity: 1; background: rgba(127, 127, 127, .15); } }
 .hud-os-card.hud-edit-mode .hud-edit-btn { opacity: 1; color: var(--hud-accent-text, var(--hud-accent, #c31f38)); background: color-mix(in oklab, var(--hud-accent, #c31f38) 18%, transparent); }
-.hud-os-card.hud-edit-mode :is(.hud-row[data-k], .hud-key-block[data-k], .hud-cst[data-cst] > .hud-v-card) {
+.hud-os-card.hud-edit-mode :is(.hud-row[data-k], .hud-key-block[data-k], .hud-cst[data-cst] > .hud-v-card, .hud-scene-widget [data-scene-k]) {
   outline: 1px dashed color-mix(in oklab, var(--hud-accent, #c31f38) 60%, transparent); outline-offset: 2px; cursor: text;
 }
 @media (hover: hover) and (pointer: fine) {
-  .hud-os-card.hud-edit-mode :is(.hud-row[data-k], .hud-key-block[data-k], .hud-cst[data-cst] > .hud-v-card):hover { outline-style: solid; }
+  .hud-os-card.hud-edit-mode :is(.hud-row[data-k], .hud-key-block[data-k], .hud-cst[data-cst] > .hud-v-card, .hud-scene-widget [data-scene-k]):hover { outline-style: solid; }
 }
 .hud-edit-box {
   grid-column: 1 / -1; display: flex; flex-direction: column; gap: 6px; margin: 4px 0 8px; padding: 10px; min-width: 0;

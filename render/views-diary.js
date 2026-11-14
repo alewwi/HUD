@@ -17,9 +17,10 @@
 // Конечный вид рисуется сразу, без анимации появления: HUD держит анимации
 // на паузе, пока на вид не навели мышь или не нажали (css/views.css).
 
-import { escapeHtml, hudHashSeed, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.89.25';
-import { лицоЧеловека as лицо } from './views.js?v=23.89.25';
-import { ико } from './view-icons.js?v=23.89.25';
+import { escapeHtml, hudHashSeed, инициалыИмени, имяБезПриставки } from '../utils.js?v=23.89.26';
+import { лицоЧеловека as лицо } from './views.js?v=23.89.26';
+import { ико } from './view-icons.js?v=23.89.26';
+import { градусы } from '../units.js?v=23.89.26';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const огр = (v, a, b) => Math.max(a, Math.min(b, v));
@@ -216,8 +217,8 @@ function телоТермограмма(записи) {
       + `<div class="hud-jv-th-heat" aria-hidden="true">${пятна}</div><i class="hud-jv-th-scan" aria-hidden="true"></i>`
       + `<i class="hud-jv-th-cross" aria-hidden="true"></i>`
       + `<header class="hud-jv-th-head"><span class="rec" aria-hidden="true"></span>${з.автор ? `<b data-i18n-skip>${э(имя(з.автор))}</b>` : '<b>объект</b>'}${з.время ? `<time data-i18n-skip>${э(з.время)}</time>` : ''}`
-      + `<span class="temp">${t.toFixed(1)}°</span></header>`
-      + `<div class="hud-jv-th-scale" aria-hidden="true"><i style="--m:${ф(метка)}%"></i><small>39°</small><small>35°</small></div>`
+      + `<span class="temp">${градусы(t, { дробь: true })}</span></header>`
+      + `<div class="hud-jv-th-scale" aria-hidden="true"><i style="--m:${ф(метка)}%"></i><small>${градусы(39, { плюс: false })}</small><small>${градусы(35, { плюс: false })}</small></div>`
       + `<div class="hud-jv-th-text" data-i18n-skip>${з.текст}</div>`
       + (з.настроение ? `<p class="hud-jv-th-mood">${ико('thermo')}${свои(з.настроение)}</p>` : '') + `</article>`;
   }).join('') + `</div>`;

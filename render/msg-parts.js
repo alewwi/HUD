@@ -7,10 +7,11 @@
 // жил в phone.js, и в перехватах теги оставались сырым текстом посреди
 // сообщения просто потому, что до них не доходили руки.
 
-import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.25';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.25';
-import { G_ICONS } from './icons.js?v=23.89.25';
-import { namesLikelySame } from '../names.js?v=23.89.25';
+import { escapeHtml, defeatWI, hudHashSeed } from '../utils.js?v=23.89.26';
+import { ДЛИТ } from '../units.js?v=23.89.26';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.26';
+import { G_ICONS } from './icons.js?v=23.89.26';
+import { namesLikelySame } from '../names.js?v=23.89.26';
 
 // Звонок: [CALL: исходящий, принят, 4:12]. Порядок слов внутри не важен —
 // разбираем по смыслу, а не по позиции: модели путают порядок постоянно.
@@ -321,7 +322,7 @@ export function buildCallRow(rawMessage, { sender = '', time = '', outgoing = fa
       <span class="hud-call-ico">${call.outcome === 'missed' ? G_ICONS.callMiss : dir === 'out' ? G_ICONS.callOut : G_ICONS.callIn}</span>
       <span class="hud-call-body">
         <b>${dir === 'out' ? 'Исходящий' : 'Входящий'} — ${escapeHtml(CALL_WORD[call.outcome])}</b>
-        <small>${defeatWI(escapeHtml(sender))}${call.dur ? ' · ' + escapeHtml(call.dur) : ''}${note ? ' · ' + defeatWI(escapeHtml(note)) : ''}</small>
+        <small>${defeatWI(escapeHtml(sender))}${call.dur ? ' · ' + ДЛИТ + escapeHtml(call.dur) : ''}${note ? ' · ' + defeatWI(escapeHtml(note)) : ''}</small>
       </span>
       ${time ? `<span class="hud-call-time">${escapeHtml(time)}</span>` : ''}
     </div>`;

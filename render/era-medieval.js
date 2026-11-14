@@ -13,9 +13,9 @@
 //
 // Текст модели в новую разметку идёт только через escapeHtml.
 
-import { escapeHtml } from '../utils.js?v=23.89.25';
-import { settings } from '../settings.js?v=23.89.25';
-import { английский } from '../i18n.js?v=23.89.25';
+import { escapeHtml } from '../utils.js?v=23.89.26';
+import { settings } from '../settings.js?v=23.89.26';
+import { английский } from '../i18n.js?v=23.89.26';
 
 const включено = () => settings.era === 'medieval';
 let счёт = 0;
@@ -237,7 +237,7 @@ const ПОДПИСИ_ЭПОХИ = {
   'Траты за 7 дней': 'Траты за седмицу', 'Подгузники': 'Пелёнки', 'Пробки': 'Заторы', 'Коммунальные службы': 'Ратушные службы', 'Транспорт': 'Извоз',
   'сон прошлой ночью': 'сон минувшей ночью', 'Удостоверение личности': 'Запись о рождении',
 };
-const ЗАМЕНЫ = [[/подгузник(?:и|ов)?/g, 'пелёнки'], [/(\d)\s*°C/g, '$1°']];
+const ЗАМЕНЫ = [[/подгузник(?:и|ов)?/g, 'пелёнки'], [/(\d)\s*°[CF]/g, '$1°']];
 const НЕ_ПОДПИСИ = '.hud-letter-sheet, .hud-ov-script, .hud-ov-sheet, .article-text, .hud-v-note, script, style, textarea, input, [contenteditable="true"]';
 function подписи(корень) {
   if (английский()) return;

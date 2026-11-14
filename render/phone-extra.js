@@ -9,18 +9,19 @@
 //   «Карты»   — сохранённые места на нарисованной схеме города.
 // Кроме «Здоровья» всё строится из того, что уже есть в HUD.
 
-import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.89.25';
-import { английский } from '../i18n.js?v=23.89.25';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.25';
-import { G_ICONS } from './icons.js?v=23.89.25';
-import { parseCall, безШапокСообщения } from './msg-parts.js?v=23.89.25';
-import { контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.89.25';
-import { parseMsgParties } from './phone-common.js?v=23.89.25';
-import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.89.25';
-import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.89.25';
-import { namesLikelySame } from '../names.js?v=23.89.25';
-import { зоныКарты } from './intimacy.js?v=23.89.25';
-import { сводкаБолезней } from './character.js?v=23.89.25';
+import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.89.26';
+import { английский } from '../i18n.js?v=23.89.26';
+import { градусы, ДЛИТ } from '../units.js?v=23.89.26';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.26';
+import { G_ICONS } from './icons.js?v=23.89.26';
+import { parseCall, безШапокСообщения } from './msg-parts.js?v=23.89.26';
+import { контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.89.26';
+import { parseMsgParties } from './phone-common.js?v=23.89.26';
+import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.89.26';
+import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.89.26';
+import { namesLikelySame } from '../names.js?v=23.89.26';
+import { зоныКарты } from './intimacy.js?v=23.89.26';
+import { сводкаБолезней } from './character.js?v=23.89.26';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const пусто = (v) => !текст(v) || /^(empty|none|null|нет|пусто)$/i.test(текст(v));
@@ -53,7 +54,7 @@ export function разобратьПогоду(строка) {
 
 const часСцены = (время) => { const m = текст(время).match(/\b(\d{1,2}):\d{2}\b/); return m ? +m[1] : null; };
 const ночь = (час) => час !== null && (час >= 21 || час < 6);
-const знак = (t) => (t > 0 ? '+' : '') + Math.round(t) + '°';
+const знак = (t) => градусы(t);
 
 export function buildWeatherApp(scene, world, место) {
   const sc = scene && typeof scene === 'object' ? scene : {};
@@ -183,7 +184,7 @@ export function buildCallsApp(chatsMap, журнал, владелец, сцен
       const значок = з.outcome === 'missed' ? G_ICONS.callMiss : з.dir === 'out' ? G_ICONS.callOut : G_ICONS.callIn;
       const вид = з.dir === 'out' ? 'Исходящий' : 'Входящий';
       const исход = ИСХОД[з.outcome];
-      const подпись = [исход ? `${вид}, ${исход}` : вид, з.outcome === 'answered' && з.dur ? з.dur : ''].filter(Boolean).join(' · ');
+      const подпись = [исход ? `${вид}, ${исход}` : вид, з.outcome === 'answered' && з.dur ? ДЛИТ + з.dur : ''].filter(Boolean).join(' · ');
       const личность = контактСНастоящимИменем(контакты, з.кто);
       return `<div class="hud-calls-row is-${з.outcome} dir-${з.dir} kind-${видЗвонка(з)}">
       ${лицо(личность ? личность.сохранён : з.кто, 'hud-calls-ava')}
@@ -402,7 +403,7 @@ export function buildHealthApp(phone, scene, characters, владелец, user 
   if (в.пульс !== null || в.дыхание || в.t !== null) {
     тело.push(`<div class="hud-hl-vitals">${[в.пульс !== null ? `<span><small>пульс</small><b>${Math.round(в.пульс)}</b></span>` : '',
       в.дыхание ? `<span><small>дыхание</small><b>${escapeHtml((в.дыхание.match(/\d+/) || [в.дыхание])[0])}</b></span>` : '',
-      в.t !== null ? `<span><small>t°</small><b>${в.t.toFixed(1)}</b></span>` : ''].join('')}</div>`);
+      в.t !== null ? `<span><small>t°</small><b>${градусы(в.t, { дробь: true }).replace('°', '')}</b></span>` : ''].join('')}</div>`);
   }
   if (зоны.length) {
     тело.push(`<div class="hud-hl-zones">${зоны.map(з => `<span class="hud-hl-zone" title="${escapeHtml(з.имя)}: ${з.v} из 10"><em>${escapeHtml(з.имя)}</em><i><b style="width:${Math.max(0, Math.min(10, з.v)) * 10}%"></b></i><small>${з.v}</small></span>`).join('')}</div>`);

@@ -638,8 +638,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.25**:
+The latest version is **23.89.26**:
 
+- Date format, 12/24-hour time, °C/°F and wind units in the settings; scene time, date and weather can be fixed in ✎ mode.
 - Season and holiday screenshots in the README (modern, medieval, New Year, Halloween, Easter); the card shot is re-taken.
 - The treat icon is a sweet, companion tile labels stay with their icons; the English sample shows the new companion fields, and the Companions screenshots are retaken.
 - Companions: age, health, "Wants" and a favourite treat; new animals (a fox, a bear, a horse, a rabbit, rodents, an owl, a bat, a snake); the coat follows the colour in the name, and eye colour is remembered along with it. A "single" status ends a marriage, namesakes no longer merge, "without a glove" means no gloves; "how it changed" also steps through clothes and marks.

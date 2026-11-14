@@ -4,6 +4,21 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.26 — 2026-11-14
+
+Date, time, temperature and wind in the format you are used to; the scene time can be fixed by hand.
+
+### Added
+- **📅 Date format** (in the settings under the language): 17.10.2024, 2024/10/17, 10/17/2024, 2024-10-17 or 2024年10月17日.
+- **🕘 Time:** 24-hour (21:40) or 12-hour (9:40 PM). Call and voice message durations stay as they are, and so do "9:05 in the evening" and "9:40 PM" from the model.
+- **🌡 Temperature:** °C or °F in the weather, forecast, phone, Daily life and body temperature.
+- **💨 Wind:** as the model writes it, m/s, km/h or miles per hour.
+- The model writes as before (day.month.year, 24-hour, °C): the HUD reads month, holidays, time of day, cold and heat from that. The new formats only change what the card, the archive and the versions window show.
+- **Editing the scene header.** In ✎ mode, tap the clock, date, weather, mood or atmosphere: the fix is written into the message's HUD and the model continues from it. Date and time can be typed in the format from the settings.
+
+### Changed
+- Model instruction: the scene time moves on from the previous HUD, not from the real clock or from a "current time" line some presets insert.
+
 ## 23.89.25 — 2026-11-14
 
 Season screenshots in the README and an updated card shot.

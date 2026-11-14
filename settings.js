@@ -50,6 +50,13 @@ export const defaultSettings = {
   language: 'ru',
   // Язык из таблицы (китайский, испанский…): модель пишет значения HUD на нём, а не по-английски (prompt.js).
   tableLangValues: true,
+  // Показ даты и температуры (units.js): dmy 17.10.2024, ymd 2024/10/17, mdy 10/17/2024,
+  // iso 2024-10-17, cjk 2024年10月17日; c — °C, f — °F. Модель пишет как раньше.
+  dateFormat: 'dmy',
+  tempUnit: 'c',
+  // Время: '24' — 21:40, '12' — 9:40 PM. Ветер: auto — как написала модель, ms/kmh/mph — пересчёт.
+  timeFormat: '24',
+  windUnit: 'auto',
   era: 'modern',
   enableCasket: true,
   enableOverheard: true,

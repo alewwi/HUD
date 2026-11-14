@@ -18,18 +18,19 @@
 // 'macro' (макрос {{hudByt}} — куда поставите сами) | 'keys' (строкой при
 // снимке, но только те части, о которых говорили в последних сообщениях).
 
-import { весЧата, нормаКалорий, историяВеса, сдвигВеса, срокСдвигаВеса, снятыеИзБыта } from '../turn-notes.js?v=23.89.25';
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.25';
-import { settings } from '../settings.js?v=23.89.25';
-import { разобратьХод } from './carryover.js?v=23.89.25';
-import { моментСцены } from './intimacy.js?v=23.89.25';
-import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.89.25';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.25';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.25';
-import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.89.25';
-import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.25';
-import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.89.25';
-import { английский } from '../i18n.js?v=23.89.25';
+import { весЧата, нормаКалорий, историяВеса, сдвигВеса, срокСдвигаВеса, снятыеИзБыта } from '../turn-notes.js?v=23.89.26';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, getSafeUserName } from '../utils.js?v=23.89.26';
+import { settings } from '../settings.js?v=23.89.26';
+import { градусы } from '../units.js?v=23.89.26';
+import { разобратьХод } from './carryover.js?v=23.89.26';
+import { моментСцены } from './intimacy.js?v=23.89.26';
+import { одеждаПодробно, полПерсонажа, гдеНазваниеВещи } from './scene-body.js?v=23.89.26';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.26';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.26';
+import { прозаХода, мытьёИзПрозы } from './life-prose.js?v=23.89.26';
+import { namesLikelySame, упомянутВТексте } from '../names.js?v=23.89.26';
+import { новыйУчётБоя, когдаЗаживёт } from './life-combat.js?v=23.89.26';
+import { английский } from '../i18n.js?v=23.89.26';
 
 const ГЛУБИНА = 300;
 const Ч = 3600e3, СУТКИ = 864e5;
@@ -800,9 +801,9 @@ export function журналБыта(chat, конец = chat ? chat.length : 0, 
       const на = г.вещи.filter(в => в.наСебе);
       if (!на.length) continue;
       const есть = (ид) => на.some(в => ид.includes(в.вид));
-      if (т <= 5 && !есть(['outer', 'sweater', 'robe'])) неПоПогоде.push({ кто: г.имя, что: `без верхней одежды при ${т > 0 ? '+' : ''}${т}°`, вещи: на.filter(в => ['tee', 'tank', 'shorts', 'skirt', 'dress', 'shirt'].includes(в.вид)).map(в => в.вещь) });
-      else if (т <= 5 && есть(['shorts'])) неПоПогоде.push({ кто: г.имя, что: `шорты при ${т}°`, вещи: на.filter(в => в.вид === 'shorts').map(в => в.вещь) });
-      else if (т >= 27 && есть(['outer', 'sweater'])) неПоПогоде.push({ кто: г.имя, что: `тепло одет при +${т}°`, вещи: на.filter(в => ['outer', 'sweater'].includes(в.вид)).map(в => в.вещь) });
+      if (т <= 5 && !есть(['outer', 'sweater', 'robe'])) неПоПогоде.push({ кто: г.имя, что: `без верхней одежды при ${градусы(т)}`, вещи: на.filter(в => ['tee', 'tank', 'shorts', 'skirt', 'dress', 'shirt'].includes(в.вид)).map(в => в.вещь) });
+      else if (т <= 5 && есть(['shorts'])) неПоПогоде.push({ кто: г.имя, что: `шорты при ${градусы(т)}`, вещи: на.filter(в => в.вид === 'shorts').map(в => в.вещь) });
+      else if (т >= 27 && есть(['outer', 'sweater'])) неПоПогоде.push({ кто: г.имя, что: `тепло одет при ${градусы(т)}`, вещи: на.filter(в => ['outer', 'sweater'].includes(в.вид)).map(в => в.вещь) });
     }
     for (const н of неПоПогоде) { const г = гардероб.find(x => x.имя === н.кто); if (г) г.вещи.forEach(в => { if (н.вещи.includes(в.вещь)) в.неПоПогоде = true; }); }
   }

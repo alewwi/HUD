@@ -6,23 +6,24 @@
 // Переписки живут в messenger.js, разбор тегов сообщения — в
 // msg-parts.js, значки — в icons.js, общая мелочь — в phone-common.js.
 
-import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.89.25';
-import { английский } from '../i18n.js?v=23.89.25';
-import { settings } from '../settings.js?v=23.89.25';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.89.25';
-import { G_ICONS } from './icons.js?v=23.89.25';
-import { значокПриложения, естьНабор } from './phone-icons.js?v=23.89.25';
-import { buildMessengerHTML } from './messenger.js?v=23.89.25';
-import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties, контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.89.25';
-import { безШапокСообщения } from './msg-parts.js?v=23.89.25';
-import { сортироватьЧаты } from './msg-feed.js?v=23.89.25';
-import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.89.25';
-import { buildCalendarApp } from './calendar.js?v=23.89.25';
-import { приложениеМузыки } from './music.js?v=23.89.25';
-import { временаСлухов, ключСлуха } from './rumor-times.js?v=23.89.25';
+import { escapeHtml, defeatWI, hudHashSeed, guardTouchSwipe, sanitizeText, имяБезПриставки } from '../utils.js?v=23.89.26';
+import { форматВремени } from '../units.js?v=23.89.26';
+import { английский } from '../i18n.js?v=23.89.26';
+import { settings } from '../settings.js?v=23.89.26';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl } from '../avatars.js?v=23.89.26';
+import { G_ICONS } from './icons.js?v=23.89.26';
+import { значокПриложения, естьНабор } from './phone-icons.js?v=23.89.26';
+import { buildMessengerHTML } from './messenger.js?v=23.89.26';
+import { avaFace, msgTimeOf, collectCounterparts, parseMsgParties, контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.89.26';
+import { безШапокСообщения } from './msg-parts.js?v=23.89.26';
+import { сортироватьЧаты } from './msg-feed.js?v=23.89.26';
+import { buildWeatherApp, buildCallsApp, buildMapsApp, buildHealthApp } from './phone-extra.js?v=23.89.26';
+import { buildCalendarApp } from './calendar.js?v=23.89.26';
+import { приложениеМузыки } from './music.js?v=23.89.26';
+import { временаСлухов, ключСлуха } from './rumor-times.js?v=23.89.26';
 
 
-import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.89.25';
+import { namesLikelySame, transliterateCyrillic } from '../names.js?v=23.89.26';
 
 // Мессенджер как приложение телефона: возвращает только внутренности
 // (полоса чатов + тела переписок), без обёртки вкладки.
@@ -151,8 +152,8 @@ function buildWalletApp(wallet, owner) {
 // --- Календарь ---------------------------------------------------------------
 // Живёт в render/calendar.js; отсюда его по-прежнему берёт альманах
 // (render/medieval.js).
-export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.89.25';
-import { ближайшиеДела } from './calendar.js?v=23.89.25';
+export { buildCalendarApp, parseDayMonth } from './calendar.js?v=23.89.26';
+import { ближайшиеДела } from './calendar.js?v=23.89.26';
 
 // Слухи города: то, что модель и так пишет в мир, — последние десять, свежие
 // сверху. Два раздела вкладками (радиокнопками, без скриптов): «Говорят» —
@@ -214,7 +215,9 @@ const КНОПКА_РЕГЕНА = '<span class="hud-regen-btn hud-phone-regen" r
 // видов показать, решают стили, поэтому смена вида не требует перерисовки.
 function часыБлокировки(время) {
   const м = String(время || '').match(/(\d{1,2}):(\d{2})/);
-  const цифры = м ? `<span class="h">${м[1]}</span><i class="c">:</i><span class="m">${м[2]}</span>` : '--:--';
+  // 12-часовой формат: на экране блокировки, как у настоящего телефона, — без AM/PM.
+  const час = м && форматВремени() === '12' ? String((+м[1] % 12) || 12) : м && м[1];
+  const цифры = м ? `<span class="h">${час}</span><i class="c">:</i><span class="m">${м[2]}</span>` : '--:--';
   const минуты = м ? +м[2] : 0, часы = м ? (+м[1] % 12) + минуты / 60 : 0;
   const риски = Array.from({ length: 12 }, (_, i) => `<line x1="50" y1="5" x2="50" y2="${i % 3 ? 9 : 13}" transform="rotate(${i * 30} 50 50)"/>`).join('');
   return `<div class="hud-phone-lock-time">${цифры}</div><svg class="hud-phone-lock-analog" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48"/><g class="t">${риски}</g><line class="hh" x1="50" y1="52" x2="50" y2="27" transform="rotate(${часы * 30} 50 50)"/><line class="mm" x1="50" y1="54" x2="50" y2="14" transform="rotate(${минуты * 6} 50 50)"/><circle class="p" cx="50" cy="50" r="2.6"/></svg>`;
