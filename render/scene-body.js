@@ -11,8 +11,8 @@
 // Отметки на силуэте + x-ray в разрезе (ниже по файлу).
 // Чистые функции без DOM; встраивает buildHeatMap (render/intimacy.js).
 
-import { безВещи } from './body-layers.js?v=23.89.23';
-import { settings } from '../settings.js?v=23.89.23';
+import { безВещи } from './body-layers.js?v=23.89.24';
+import { settings } from '../settings.js?v=23.89.24';
 
 const текст = (v) => String(v ?? '').trim();
 const слово = (s) => new RegExp('(?<![\\p{L}])(?:' + s + ')', 'iu');
@@ -601,7 +601,7 @@ export function блокТемпа(т, тело = {}) {
    кости, органы, каналы, инструмент и ход в такт темпу. Здесь только
    делегирование — сюда приходят из intimacy.js (карта тела) и отсюда же
    берёт картинку блок темпа. */
-import { xrayПенетрации, длинаУзора } from './xray.js?v=23.89.23';
+import { xrayПенетрации, длинаУзора } from './xray.js?v=23.89.24';
 export { xrayПенетрации };
 
 /* =========================================================================

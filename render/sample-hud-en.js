@@ -384,8 +384,8 @@ export const ПРИМЕР_HUD = {
   ],
 
   pet: [
-    { n: 'Cinnamon', sp: 'ginger cat', ow: 'Lilian Grey', md: 'offended at being locked in the bedroom', cnd: 'healthy', fd: 'wet food, fed at 19:00', bnd: '85', skl: 'opens doors; steals ribbons', nte: 'scratching at the bedroom door', lv: 'sat: 4; eng: 3; cln: 5; joy: 1' },
-    { n: 'Zuzu', sp: 'robot vacuum', ow: 'Anna Grey', md: 'waiting for a command', cnd: 'charge 40%', fd: 'electricity, charging at night', bnd: '30', nte: 'stuck under the crib in a box', lv: 'chg: 2; fix: 4; joy: 2' },
+    { n: 'Cinnamon', sp: 'ginger cat', ag: '3 years', eye: 'amber', wnt: 'for the door to open', trt: 'cream', ow: 'Lilian Grey', md: 'offended at being locked in the bedroom', cnd: 'healthy', fd: 'wet food, fed at 19:00', bnd: '85', skl: 'opens doors; steals ribbons', nte: 'scratching at the bedroom door', lv: 'sat: 4; eng: 3; cln: 5; joy: 1' },
+    { n: 'Zuzu', sp: 'robot vacuum', ag: 'in its second year of service', wnt: 'to get to its charger', ow: 'Anna Grey', md: 'waiting for a command', cnd: 'charge 40%', fd: 'electricity, charging at night', bnd: '30', nte: 'stuck under the crib in a box', lv: 'chg: 2; fix: 4; joy: 2' },
   ],
 
   bb: [

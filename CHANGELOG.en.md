@@ -4,6 +4,16 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.24 — 2026-11-14
+
+### Fixed
+- **The "Favourite treat" icon** is a wrapped sweet; the old one looked like a "no entry" sign.
+- **Tile labels on the companion card** wrap by words with the icon kept at the start: "Favourite treat" in a narrow tile no longer breaks away from its icon.
+- **The English sample HUD** shows the companions' age, "Wants" and "Favourite treat", like the Russian one.
+
+### Changed
+- **The Companions tab screenshots in the README** are retaken with the new cards.
+
 ## 23.89.23 — 2026-11-14
 
 ### Added

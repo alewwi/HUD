@@ -13,9 +13,9 @@
 // выключить (настройка summaryCards). Если в том же сообщении есть полная
 // карточка HUD, нажатие на сводку раскрывает её.
 
-import { escapeHtml } from '../utils.js?v=23.89.23';
-import { значокЧасов, значокПогоды, значокДаты } from './topbar-icons.js?v=23.89.23';
-import { settings } from '../settings.js?v=23.89.23';
+import { escapeHtml } from '../utils.js?v=23.89.24';
+import { значокЧасов, значокПогоды, значокДаты } from './topbar-icons.js?v=23.89.24';
+import { settings } from '../settings.js?v=23.89.24';
 
 const ОТКРЫТЬ = '[HUD_SUMMARY]', ЗАКРЫТЬ = '[/HUD_SUMMARY]';
 const МЕТКА = '[HUD_OFF:';

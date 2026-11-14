@@ -439,8 +439,9 @@
 .hud-pet2-bond path.on { fill: var(--p); }
 .hud-pet2-tiles { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 14px 0; }
 .hud-pet2-tile { flex: 1 1 112px; padding: 8px 9px; border-radius: 12px; background: rgba(0,0,0,.18); border: 1px solid color-mix(in srgb, var(--p) 22%, transparent); min-width: 0; }
-.hud-pet2-tile span { display: flex; align-items: center; gap: 4px; font-size: .56em; font-weight: 800; letter-spacing: .04em; white-space: nowrap; flex-wrap: wrap; row-gap: 2px; text-transform: uppercase; opacity: .78; }
-.hud-pet2-tile svg { width: 13px; height: 13px; flex: none; color: var(--p); }
+/* Подпись переносится словами, значок остаётся в её начале: «Любимое лакомство» в узкой плитке. */
+.hud-pet2-tile span { display: block; font-size: .56em; font-weight: 800; letter-spacing: .04em; line-height: 1.35; text-transform: uppercase; opacity: .78; }
+.hud-pet2-tile svg { display: inline-block; width: 13px; height: 13px; margin-right: 4px; vertical-align: -3px; color: var(--p); }
 .hud-pet2-tile p { margin: 4px 0 0; font-size: .8em; line-height: 1.35; overflow-wrap: anywhere; }
 .hud-pet2-now { display: flex; gap: 8px; align-items: flex-start; margin: 10px 14px 0; padding: 8px 10px; border-radius: 12px; font-size: .84em; font-style: italic; background: color-mix(in srgb, var(--p) 12%, transparent); border-left: 3px solid var(--p); }
 .hud-pet2-now svg { width: 16px; height: 16px; flex: none; color: var(--p); }
