@@ -51,6 +51,47 @@ Old cards collapse into a title strip and expand on tap — a long chat stays li
 
 Time, date, weather, place and atmosphere. The time of day is computed from the clock adjusted for the month (in winter the sun sets earlier), with festive decorations around New Year. The moon phase sits on a disc in the header.
 
+The scene background is a seasonal landscape that follows the time of day and the weather: sun and clouds by day, a sunset in the evening, the moon, stars and lights at night. In the medieval era, log houses, a castle, fishing nets and a wooden sled replace the signs of modern life.
+
+**Modern**
+
+<table>
+<tr>
+<td align="center"><img src="docs/screens/seasons/summer.webp" alt="Summer: beach, palm, lighthouse" width="400"><br>Summer</td>
+<td align="center"><img src="docs/screens/seasons/autumn.webp" alt="Autumn: apple trees, scarecrow, hedgehogs at the burrow" width="400"><br>Autumn</td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screens/seasons/winter.webp" alt="Winter: houses, spruces, a street lamp with a bullfinch" width="400"><br>Winter</td>
+<td align="center"><img src="docs/screens/seasons/spring.webp" alt="Spring: blossoming trees, a duck with ducklings" width="400"><br>Spring</td>
+</tr>
+</table>
+
+**Medieval**
+
+<table>
+<tr>
+<td align="center"><img src="docs/screens/seasons/medieval-summer.webp" alt="Medieval summer" width="400"><br>Summer</td>
+<td align="center"><img src="docs/screens/seasons/medieval-autumn.webp" alt="Medieval autumn" width="400"><br>Autumn</td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screens/seasons/medieval-winter.webp" alt="Medieval winter: log houses and a castle" width="400"><br>Winter</td>
+<td align="center"><img src="docs/screens/seasons/medieval-spring.webp" alt="Medieval spring" width="400"><br>Spring</td>
+</tr>
+</table>
+
+**Holidays**
+
+<table>
+<tr>
+<td align="center"><img src="docs/screens/seasons/new-year.webp" alt="A New Year tree in the yard" width="400"><br>New Year</td>
+<td align="center"><img src="docs/screens/seasons/new-year-night.webp" alt="New Year night with fireworks" width="400"><br>New Year night</td>
+</tr>
+<tr>
+<td align="center"><img src="docs/screens/seasons/halloween.webp" alt="Jack-o'-lanterns for Halloween" width="400"><br>Halloween</td>
+<td align="center"><img src="docs/screens/seasons/easter.webp" alt="Painted eggs and a basket for Easter" width="400"><br>Easter</td>
+</tr>
+</table>
+
 ### 👤 Characters
 
 A separate tab for everyone the model described in the turn:
@@ -597,8 +638,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.24**:
+The latest version is **23.89.25**:
 
+- Season and holiday screenshots in the README (modern, medieval, New Year, Halloween, Easter); the card shot is re-taken.
 - The treat icon is a sweet, companion tile labels stay with their icons; the English sample shows the new companion fields, and the Companions screenshots are retaken.
 - Companions: age, health, "Wants" and a favourite treat; new animals (a fox, a bear, a horse, a rabbit, rodents, an owl, a bat, a snake); the coat follows the colour in the name, and eye colour is remembered along with it. A "single" status ends a marriage, namesakes no longer merge, "without a glove" means no gloves; "how it changed" also steps through clothes and marks.
 - The family tree no longer makes uncles out of grown-ups the children merely call "uncle"; "Not family" removes the word from a twin too.

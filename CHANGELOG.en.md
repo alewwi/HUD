@@ -4,6 +4,17 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.25 — 2026-11-14
+
+Season screenshots in the README and an updated card shot.
+
+### Added
+- **Seasons and holidays in the README** (the "🎬 Scene" section): four modern seasons, four medieval ones, New Year by day and at night with fireworks, Halloween and Easter.
+- `tests/tools/season-shots.mjs` re-shoots them from the seasons stand without SillyTavern. With "holidays" ticked, the stand puts spring in Easter week.
+
+### Changed
+- The full card screenshot in the README is re-shot in Russian and English.
+
 ## 23.89.24 — 2026-11-14
 
 ### Fixed
