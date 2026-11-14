@@ -4,6 +4,14 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.31 — 2026-11-15
+
+Every setting in the guide has an explanation, and avatars no longer turn into a long list of buttons.
+
+### Fixed
+- **Explanations for every setting.** The guide takes an item description from its hover tooltip, and 51 buttons and checkboxes had none. Now they all do, including every phone screen and casket compartment, the era, diary, dreams, world, the side panel edge, custom stats and "Turn everything on" in Fine tuning. All explanations are translated into English.
+- **Avatars in the guide.** The "All settings" list showed "Replace the image" and "Delete the entry" buttons for every uploaded avatar. Now the section has only "Add an image" and the panel explanations: how one picture covers several names and why to pin avatars. The guide also picks up the explanations for lorebooks and the archive cache.
+
 ## 23.89.30 — 2026-11-15
 
 The settings get a detailed guide, and block settings sit in their own sections.

@@ -1653,7 +1653,7 @@ settings.tempoView = 'xray';
   const экран = M.приложениеМузыки(2, 'Дамиан', { chat: тч });
   проверить('музыка: телефон — последний трек крупно, «Недавно», ссылки, библиотека с прошлого хода', экран.includes('Последнее, что слушал(а) Дамиан') && экран.includes('505') && экран.includes('Недавно') && экран.includes('Video Games') && экран.includes('music.yandex.ru') && экран.includes('библиотека с хода 2') && экран.includes('data-part="phone"'));
   проверить('музыка: телефон пуст — кнопка «Подобрать музыку»', M.приложениеМузыки(0, 'Мари', { chat: [{ mes: 'a' }] }).includes('Подобрать музыку') && !/\p{Extended_Pictographic}/u.test(экран));
-  проверить('музыка: приложение в телефоне — плитка, значок, галка', css('render/phone.js').includes("id: 'music', icon: G_ICONS.music, label: 'Музыка'") && css('render/icons.js').includes('music:') && S.defaultSettings.phoneAppMusic === true && css('settings-ui.js').includes("['phoneAppMusic','🎵 Музыка']"));
+  проверить('музыка: приложение в телефоне — плитка, значок, галка', css('render/phone.js').includes("id: 'music', icon: G_ICONS.music, label: 'Музыка'") && css('render/icons.js').includes('music:') && S.defaultSettings.phoneAppMusic === true && css('settings-ui.js').includes("['phoneAppMusic','🎵 Музыка'"));
 
   // Архив: главы саундтрека по дням.
   const A = await модуль('render/archive.js');

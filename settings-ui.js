@@ -5,34 +5,34 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { показатьЧтоНового } from './whats-new.js?v=23.89.30';
-import { показатьГайд } from './guide.js?v=23.89.30';
-import { settings, defaultSettings } from './settings.js?v=23.89.30';
-import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.89.30';
-import { видБлока } from './render/views.js?v=23.89.30';
-import { escapeHtml } from './utils.js?v=23.89.30';
-import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.89.30';
-import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.89.30';
-import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.89.30';
-import { убратьМетку } from './hud-erase.js?v=23.89.30';
-import { убратьЛетопись } from './chronicle-store.js?v=23.89.30';
-import { включитьПереводчик, т, английский, кодЯзыка, языкиМеню, файлПеревода, загрузитьФайлПеревода, убратьФайлПеревода } from './i18n.js?v=23.89.30';
+import { показатьЧтоНового } from './whats-new.js?v=23.89.31';
+import { показатьГайд } from './guide.js?v=23.89.31';
+import { settings, defaultSettings } from './settings.js?v=23.89.31';
+import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.89.31';
+import { видБлока } from './render/views.js?v=23.89.31';
+import { escapeHtml } from './utils.js?v=23.89.31';
+import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.89.31';
+import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.89.31';
+import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.89.31';
+import { убратьМетку } from './hud-erase.js?v=23.89.31';
+import { убратьЛетопись } from './chronicle-store.js?v=23.89.31';
+import { включитьПереводчик, т, английский, кодЯзыка, языкиМеню, файлПеревода, загрузитьФайлПеревода, убратьФайлПеревода } from './i18n.js?v=23.89.31';
 
 // Пункты меню языка: русский, английский, собранные из таблиц и свой файл.
 const optionЯзыков = () => языкиМеню().map(я => `<option value="${escapeHtml(я.code)}" ${кодЯзыка() === я.code ? 'selected' : ''}>${escapeHtml(я.name)}</option>`).join('');
-import { уверены } from './confirm-erase.js?v=23.89.30';
-import { промптАссистента, встроенныйПромптАссистента } from './render/assistant-prompt.js?v=23.89.30';
-import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.89.30';
-import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.89.30';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.89.30';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.89.30';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.30';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.89.30';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.89.30';
-import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.89.30';
-import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.89.30';
-import { меткаШапки } from './render/topbar-icons.js?v=23.89.30';
-import { обновитьПереводКарточек } from './translate-guard.js?v=23.89.30';
+import { уверены } from './confirm-erase.js?v=23.89.31';
+import { промптАссистента, встроенныйПромптАссистента } from './render/assistant-prompt.js?v=23.89.31';
+import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.89.31';
+import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.89.31';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.89.31';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.89.31';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.31';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.89.31';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.89.31';
+import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.89.31';
+import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.89.31';
+import { меткаШапки } from './render/topbar-icons.js?v=23.89.31';
+import { обновитьПереводКарточек } from './translate-guard.js?v=23.89.31';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, getStContextSafe, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -61,7 +61,7 @@ export function addSettingsUI() {
       <div style="padding-top: 12px; display: flex; flex-direction: column; gap: 8px; font-size: 13px;">
 
       <div class="hud-set-whatsnew">
-        <button type="button" id="hud-whats-new-open" class="menu_button">📰 Что нового</button>
+        <button type="button" id="hud-whats-new-open" title="Окно с изменениями последних версий HUD" class="menu_button">📰 Что нового</button>
         <label class="hud-set-check" title="После обновления HUD один раз показать, что изменилось"><input type="checkbox" id="hud-whats-new-auto" ${settings.whatsNewAuto !== false ? 'checked' : ''}> Показывать после обновлений</label>
       </div>
       <label class="hud-set-check hud-set-lang" data-i18n-skip title="Язык интерфейса HUD и того, на каком языке модель пишет HUD. Страница перезагрузится. / Language of the HUD interface and of the values the model writes. The page will reload.">🌐 Язык / Language:
@@ -71,7 +71,7 @@ export function addSettingsUI() {
       </label>
       <div class="hud-set-lang-file">
         <button type="button" id="hud-lang-file-load" class="menu_button" title="Проверить свой перевод: таблица translations/template.csv с заполненной колонкой translation. Хранится только в этом браузере, файлы расширения не меняются.">📄 Загрузить перевод (.csv)</button>
-        <button type="button" id="hud-lang-file-remove" class="menu_button" ${файлПеревода() ? '' : 'hidden'}>✕ Убрать файл перевода</button>
+        <button type="button" id="hud-lang-file-remove" title="Убрать загруженный файл перевода и вернуться к встроенному языку" class="menu_button" ${файлПеревода() ? '' : 'hidden'}>✕ Убрать файл перевода</button>
         <input type="file" id="hud-lang-file-input" accept=".csv,.tsv,.txt,text/csv,text/tab-separated-values" hidden>
       </div>
       ${галка('hud-table-lang-values', settings.tableLangValues !== false, '✍️ HUD на языке перевода', 'Для языков из таблицы (китайский, испанский и другие): модель пишет значения HUD на этом языке, как и историю. Выключено — по-английски. Ключи и короткие коды всегда английские. Часть автоматики, которая узнаёт слова (иконки погоды, настроение музыки), понимает только русский и английский.')}
@@ -109,15 +109,15 @@ export function addSettingsUI() {
       </div>
 
       <div class="hud-set-tools">
-        <button type="button" id="hud-open-custom" class="hud-set-tool-btn">🎨 Кастомизация</button>
-        <button type="button" id="hud-open-archive" class="hud-set-tool-btn">🗄 Архив HUD</button>
+        <button type="button" id="hud-open-custom" title="Внешний вид: тема, шрифты, цвета и вид каждого блока" class="hud-set-tool-btn">🎨 Кастомизация</button>
+        <button type="button" id="hud-open-archive" title="Сводка по всей истории чата: отношения, события, места и отчёты" class="hud-set-tool-btn">🗄 Архив HUD</button>
         <button type="button" id="hud-open-guide" class="hud-set-tool-btn" title="Подробное руководство: все настройки, всё, что пишет модель, поломки и решения, контакты">📘 Гайд</button>
         <span class="hud-set-tool-note">Сводка по всей истории чата: как менялись секреты и отношения, сколько прошло дней, где что происходило.</span>
       </div>
 
       ${группа('🧩 Блоки HUD', `
         ${подгруппа('🕰 Эпоха: телефон или шкатулка', `
-          <label class="hud-set-check">Эпоха сеттинга:
+          <label class="hud-set-check" title="Эпоха меняет пару блоков и их оформление: в современности — телефон и перехваты, в средневековье — шкатулка и подслушанное">Эпоха сеттинга:
             <select id="hud-era" class="hud-theme-select-input">
               <option value="modern" ${settings.era !== 'medieval' ? 'selected' : ''}>📱 Современность — телефон и перехваты</option>
               <option value="medieval" ${settings.era === 'medieval' ? 'selected' : ''}>🗝️ Средневековье — шкатулка и подслушанное</option>
@@ -125,24 +125,24 @@ export function addSettingsUI() {
           </label>
           ${заметка('Работает только одна пара. В средневековье (любой век до телефонов) вместо телефона — шкатулка с письмами, святцами, кошелём, записями, картой, грамотами и памятками, а вместо перехватов — подслушанные разговоры и вскрытые чужие письма.')}
           <div class="hud-era-block" data-era="medieval" ${settings.era === 'medieval' ? '' : 'hidden'}>
-          ${галка('hud-enable-casket', settings.enableCasket !== false, '🗝️ Шкатулка персонажа')}
+          ${галка('hud-enable-casket', settings.enableCasket !== false, '🗝️ Шкатулка персонажа', 'Средневековая замена телефона: письма с печатями, святцы, кошель, записи, карта, грамоты и памятки')}
           <div class="hud-set-apps">
-            ${[['castAppLetters','✉️ Письма'],['castAppCalendar','📅 Святцы'],['castAppPurse','💰 Кошель'],
-             ['castAppNotes','🪶 Записи'],['castAppMap','🗺️ Карта'],['castAppDocs','📜 Грамоты'],['castAppKeeps','🎀 Памятки']]
-            .map(([k, label]) => `<label><input type="checkbox" data-phone-app-key="${k}" ${settings[k] !== false ? 'checked' : ''}> ${label}</label>`).join('')}
+            ${[['castAppLetters','✉️ Письма','Письма с печатями: от кого, о чём и как доставлено'],['castAppCalendar','📅 Святцы','Святцы: дата, праздники и фаза луны'],['castAppPurse','💰 Кошель','Кошель: монеты и приходная книга'],
+             ['castAppNotes','🪶 Записи','Записи пером: что персонаж записал для себя'],['castAppMap','🗺️ Карта','Карта: где персонаж и куда путь'],['castAppDocs','📜 Грамоты','Грамоты: документы, которые персонаж носит с собой'],['castAppKeeps','🎀 Памятки','Памятки: вещицы, которые персонаж хранит при себе']]
+            .map(([k, label, tip]) => `<label title="${tip}"><input type="checkbox" data-phone-app-key="${k}" ${settings[k] !== false ? 'checked' : ''}> ${label}</label>`).join('')}
           </div>
-          ${галка('hud-enable-overheard', settings.enableOverheard !== false, '👂 Подслушанное (чужие разговоры и письма)')}
+          ${галка('hud-enable-overheard', settings.enableOverheard !== false, '👂 Подслушанное (чужие разговоры и письма)', 'Средневековая замена перехватов: чужие разговоры, услышанные сквозь стену или от слуги, и чужие письма, вскрытые тайком')}
           </div>
           <div class="hud-era-block" data-era="modern" ${settings.era === 'medieval' ? 'hidden' : ''}>
-          ${галка('hud-enable-phone', settings.enablePhone, '📱 Личный телефон')}
+          ${галка('hud-enable-phone', settings.enablePhone, '📱 Личный телефон', 'Телефон персонажа: переписки, контакты, заметки, календарь, галерея, карты, кошелёк и поиск')}
           ${заметка('Экраны телефона можно включать по одному. Выключенный не просится у модели и не занимает места в запросе — весь телефон целиком стоит около 800 токенов на каждый ход, и половина из них уходит на экраны, которыми вы, возможно, не пользуетесь.')}
           <div class="hud-set-apps">
-            ${[['phoneAppMessages','💬 Сообщения'],['phoneAppContacts','👤 Контакты'],['phoneAppWallet','💳 Кошелёк'],
-             ['phoneAppCalendar','📅 Календарь'],['phoneAppGallery','🖼️ Галерея'],['phoneAppNotes','📝 Заметки'],
-             ['phoneAppMaps','🗺️ Карты'],['phoneAppSearch','🔍 Поиск'],['phoneAppCalls','📞 Звонки'],['phoneAppRumors','🗣️ Слухи'],['phoneAppSettings','⚙️ Настройки'],['phoneAppWeather','🌦️ Погода'],['phoneAppHealth','❤️ Здоровье'],['phoneAppMusic','🎵 Музыка']]
-            .map(([k, label]) => `<label><input type="checkbox" data-phone-app-key="${k}" ${settings[k] !== false ? 'checked' : ''}> ${label}</label>`).join('')}
+            ${[['phoneAppMessages','💬 Сообщения','Переписки персонажа в мессенджерах'],['phoneAppContacts','👤 Контакты','Контакты: кто записан в телефоне и как'],['phoneAppWallet','💳 Кошелёк','Кошелёк: баланс и последние траты'],
+             ['phoneAppCalendar','📅 Календарь','Календарь: дела, встречи и праздники'],['phoneAppGallery','🖼️ Галерея','Галерея: что персонаж снимал'],['phoneAppNotes','📝 Заметки','Заметки персонажа в телефоне'],
+             ['phoneAppMaps','🗺️ Карты','Карты: где персонаж и куда идёт'],['phoneAppSearch','🔍 Поиск','Поиск: что персонаж искал в сети'],['phoneAppCalls','📞 Звонки','Звонки: кто звонил, сколько говорили, пропущенные'],['phoneAppRumors','🗣️ Слухи','Слухи: живая лента того, что говорят вокруг'],['phoneAppSettings','⚙️ Настройки','Настройки телефона: заряд, связь, режим'],['phoneAppWeather','🌦️ Погода','Погода на экране телефона'],['phoneAppHealth','❤️ Здоровье','Здоровье: шаги, сон и пульс по данным телефона'],['phoneAppMusic','🎵 Музыка','Музыка: что персонаж слушает']]
+            .map(([k, label, tip]) => `<label title="${tip}"><input type="checkbox" data-phone-app-key="${k}" ${settings[k] !== false ? 'checked' : ''}> ${label}</label>`).join('')}
           </div>
-          ${галка('hud-enable-intercepts', settings.enableIntercepts, '📡 Перехваты (чужие телефоны)')}
+          ${галка('hud-enable-intercepts', settings.enableIntercepts, '📡 Перехваты (чужие телефоны)', 'Чужие разговоры, которые ваш персонаж знать не должен: переписки между другими, звонки, обрывки')}
         </div>
         `)}
 
@@ -224,9 +224,9 @@ export function addSettingsUI() {
         `)}
 
         ${подгруппа('📖 Дневник, сны и мир', `
-          ${галка('hud-enable-diary', settings.enableDiary, '📖 Дневник')}
-          ${галка('hud-enable-dreams', settings.enableDreams, '🌙 Сновидения')}
-          ${галка('hud-enable-world', settings.enableWorld, '🌍 Мир (новости, слухи)')}
+          ${галка('hud-enable-diary', settings.enableDiary, '📖 Дневник', 'Личные записи персонажа своими словами: что он сам думает о случившемся')}
+          ${галка('hud-enable-dreams', settings.enableDreams, '🌙 Сновидения', 'Что персонажу приснилось и какие образы за этим стоят')}
+          ${галка('hud-enable-world', settings.enableWorld, '🌍 Мир (новости, слухи)', 'Что происходит вокруг: новости, слухи, объявления, прогноз, гороскоп, комментарии')}
           ${галка('hud-enable-economy', settings.enableEconomy !== false, '💹 Экономика', 'Курсы валют, цены и зарплаты мира — по строке на каждое.')}
           ${галка('hud-enable-events', settings.enableEvents !== false, '🎭 Афиша', 'Что идёт в кино, театре, на концертах и на улице — готовые зацепки для сцены.')}
           <label class="hud-set-check" title="Отдельный слой мира: как банды, полиция, гильдии, однокурсники относятся к игроку или персонажу — шкала от −100 до 100 и за что. Работает, когда включён Мир.">🛡 Фракции и репутация:
@@ -299,11 +299,11 @@ export function addSettingsUI() {
       `)}
 
       ${группа('📚 Лорбуки', `
-        <div style="font-size:12px; opacity:.78;">Выбери один или несколько. Их записи + описание карточки чара + Persona добавляются только в отдельный запрос создания/регенерации HUD. Обычный HUD-инжект не меняется.</div>
+        <div data-guide-note style="font-size:12px; opacity:.78;">Выбери один или несколько. Их записи + описание карточки чара + Persona добавляются только в отдельный запрос создания/регенерации HUD. Обычный HUD-инжект не меняется.</div>
         <select id="hud-lorebooks" multiple size="6" style="width:100%; min-height:110px; background:rgba(0,0,0,.3); border:1px solid var(--hud-border); color:#fff; padding:4px; border-radius:5px;"></select>
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-          <button type="button" id="hud-lorebooks-refresh" style="cursor:pointer;">🔄 Обновить список</button>
-          <button type="button" id="hud-lorebooks-clear" style="cursor:pointer;">Очистить выбор</button>
+          <button type="button" id="hud-lorebooks-refresh" title="Заново прочитать список лорбуков Таверны" style="cursor:pointer;">🔄 Обновить список</button>
+          <button type="button" id="hud-lorebooks-clear" title="Снять выбор со всех лорбуков" style="cursor:pointer;">Очистить выбор</button>
           <span id="hud-lorebooks-status" style="font-size:11px; opacity:.75;"></span>
         </div>
         <label class="hud-set-check" title="Сколько сообщений уходит модели, когда она пишет запись лорбука по кнопке «Написать моделью» в окне «Запомнить»: последние до того HUD, где нажали кнопку, — и сверх них сообщение, где запись впервые появилась в HUD, с репликой перед ним. Больше сообщений — точнее контекст, но дороже запрос. 0 = без контекста сцены, только сам факт.">📚 В запись лорбука слать ${число('hud-lore-context', 0, 50, settings.loreContextMessages, 40)} сообщ.</label>
@@ -335,7 +335,7 @@ export function addSettingsUI() {
           <label title="Своя — ширина тянется за край панели, от узкой до почти всего окна, поверх чата. До чата — панель занимает всё место между колонкой чата и краем окна (на ПК); когда тянешь край, у колонки чата ширина прилипает к ней. Если места меньше 300 px — своя ширина поверх чата.">Ширина:
             <select id="hud-side-fit"><option value="manual"${settings.hudSideFit !== 'chat' ? ' selected' : ''}>Своя</option><option value="chat"${settings.hudSideFit === 'chat' ? ' selected' : ''}>До чата</option></select>
           </label>
-          <label>Край:
+          <label title="У какого края окна стоит боковая панель HUD">Край:
             <select id="hud-side-edge"><option value="right"${settings.hudSideEdge !== 'left' ? ' selected' : ''}>Справа</option><option value="left"${settings.hudSideEdge === 'left' ? ' selected' : ''}>Слева</option></select>
           </label>
         </div>
@@ -355,13 +355,13 @@ export function addSettingsUI() {
       `)}
 
       ${группа('🖼️ Аватарки персонажей', `
-        <div style="font-size:12px; opacity:.78;">Одна картинка — на любое число имён: впишите их через запятую, вместе с английским написанием. Аватарка встанет всюду, где сейчас кружок с инициалами: блок персонажей, чаты телефона, перехваты. Заодно HUD запомнит, что это один человек: перечисленные вместе написания сливаются в графе отношений, в шапках чатов и при выборе стороны сообщений, а имена из разных списков считаются разными людьми.</div>
+        <div data-guide-note style="font-size:12px; opacity:.78;">Одна картинка — на любое число имён: впишите их через запятую, вместе с английским написанием. Аватарка встанет всюду, где сейчас кружок с инициалами: блок персонажей, чаты телефона, перехваты. Заодно HUD запомнит, что это один человек: перечисленные вместе написания сливаются в графе отношений, в шапках чатов и при выборе стороны сообщений, а имена из разных списков считаются разными людьми.</div>
         <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-          <button type="button" id="hud-ava-add" style="cursor:pointer;">➕ Добавить изображение</button>
+          <button type="button" id="hud-ava-add" title="Выбрать картинку и вписать имена, у кого она будет аватаркой" style="cursor:pointer;">➕ Добавить изображение</button>
           <span id="hud-ava-status" style="font-size:11px; opacity:.75;"></span>
         </div>
         <div id="hud-ava-list" class="hud-ava-list"></div>
-        <div style="font-size:12px; opacity:.78; margin-top:2px;">Закреплённые аватарки — страховка на случай, когда картинка из чата достаётся не тому: если у {{char}} указаны имена, никто, кроме них, его фото уже не получит.</div>
+        <div data-guide-note style="font-size:12px; opacity:.78; margin-top:2px;">Закреплённые аватарки — страховка на случай, когда картинка из чата достаётся не тому: если у {{char}} указаны имена, никто, кроме них, его фото уже не получит.</div>
         <div id="hud-ava-pinned" class="hud-ava-list"></div>
         <input type="file" id="hud-ava-file" accept="image/*" style="display:none">
       `)}
@@ -379,7 +379,7 @@ export function addSettingsUI() {
           ${заметка('Лорбуки ассистента — отдельно от лорбуков перегенерации HUD. Можно выбрать несколько.')}
           <select id="hud-ask-lorebooks" multiple size="5" style="width:100%; min-height:96px; background:rgba(0,0,0,.3); border:1px solid var(--hud-border); color:#fff; padding:4px; border-radius:5px;"></select>
           <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-            <button type="button" id="hud-ask-refresh" style="cursor:pointer;">🔄 Обновить списки</button>
+            <button type="button" id="hud-ask-refresh" title="Заново прочитать списки лорбуков и профилей Таверны" style="cursor:pointer;">🔄 Обновить списки</button>
             <span id="hud-ask-lorebooks-status" style="font-size:11px; opacity:.75;"></span>
           </div>
           ${галка('hud-ask-lore-all', settings.assistantLoreAll === true, '📚 Все записи выбранных лорбуков', 'Выключено — только записи, чьи ключи встречаются в вопросе и в последних сообщениях, как в самой таверне.')}
@@ -392,7 +392,7 @@ export function addSettingsUI() {
           <label class="hud-set-check" title="Сколько токенов ассистент может потратить на ответ. Думающим моделям нужен запас: часть лимита уходит на рассуждения, и ответ иначе обрывается.">📏 Лимит ответа: ${число('hud-ask-tokens', 256, 16000, settings.assistantMaxTokens ?? 1500, 70)} токенов</label>
           ${заметка('Системный промпт ассистента. Правьте под себя; кнопка ниже возвращает встроенный.')}
           <textarea id="hud-ask-system" rows="8" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,.3); border:1px solid var(--hud-border); color:#fff; padding:6px; border-radius:5px; font-size:12px; resize:vertical;">${escapeHtml(settings.assistantSystemPrompt || промптАссистента(английский()))}</textarea>
-          <button type="button" id="hud-ask-system-reset" class="hud-theme-act" style="align-self:flex-start;">↺ Вернуть встроенный</button>
+          <button type="button" id="hud-ask-system-reset" title="Вернуть встроенную инструкцию ассистента вместо своей" class="hud-theme-act" style="align-self:flex-start;">↺ Вернуть встроенный</button>
         `)}
       `)}
 
@@ -437,8 +437,8 @@ export function addSettingsUI() {
           ${галка('hud-music-free-incompetech', settings.musicFreeIncompetech !== false, '🎬 Incompetech', 'Кевин Маклауд: 1443 трека для кино и игр, подбираются по «ощущению» сцены (тёмное, загадочное, эпичное…). Каталог встроен в HUD.')}
           ${галка('hud-music-free-commons', settings.musicFreeCommons !== false, '🏛️ Wikimedia Commons', 'Старинная музыка и классика в свободном доступе — для средневекового сеттинга.')}
           <div class="hud-set-check" id="hud-music-taste" style="flex-wrap:wrap; gap:6px;" title="«Нравится» и «не предлагать» — сердечко и перечёркнутый круг у трека в плейлисте полосы. Модель подбирает ближе к понравившемуся и не предлагает запрещённое. У телефона персонажа свой «Нравится» — в его приложении «Музыка».">❤️ Вкус: <span id="hud-music-taste-n"></span>
-            <button type="button" id="hud-music-liked-clear" style="cursor:pointer;">Очистить «нравится»</button>
-            <button type="button" id="hud-music-banned-clear" style="cursor:pointer;">Очистить запреты</button>
+            <button type="button" id="hud-music-liked-clear" title="Забыть треки, отмеченные «нравится»" style="cursor:pointer;">Очистить «нравится»</button>
+            <button type="button" id="hud-music-banned-clear" title="Забыть запрещённые треки и исполнителей" style="cursor:pointer;">Очистить запреты</button>
           </div>
         `)}
         ${галка('hud-music-verify', settings.musicVerify !== false, '🔎 Проверять треки поиском', 'Каждый трек ищется по сервисам по очереди: сначала каталог iTunes (витрины США и России), потом NetEase и QQ Музыка. Нашёлся — поиск останавливается, трек получает обложку. Не нашёлся нигде — помечается или заменяется: модели любят выдумывать песни. Сервисам уходят только исполнитель и название.')}
@@ -451,13 +451,13 @@ export function addSettingsUI() {
           ${заметка('Лорбуки для музыки — свои, отдельно от ассистента и перегенерации. По умолчанию берутся только записи, чьи ключи есть в сообщениях выше.')}
           <select id="hud-music-lorebooks" multiple size="4" style="width:100%; min-height:80px; background:rgba(0,0,0,.3); border:1px solid var(--hud-border); color:#fff; padding:4px; border-radius:5px;"></select>
           <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
-            <button type="button" id="hud-music-refresh" style="cursor:pointer;">🔄 Обновить списки</button>
+            <button type="button" id="hud-music-refresh" title="Заново прочитать списки лорбуков и профилей Таверны" style="cursor:pointer;">🔄 Обновить списки</button>
             <span id="hud-music-lorebooks-status" style="font-size:11px; opacity:.75;"></span>
           </div>
           ${галка('hud-music-lore-all', settings.musicLoreAll === true, '📚 Все записи выбранных лорбуков', 'Выключено — только записи, чьи ключи встречаются в последних сообщениях, как в самой таверне.')}
           ${заметка('Правила вкуса — ваш промпт. Формат ответа, части плейлиста (саундтрек, в сцене, телефон) и эпоха добавляются сами. Кнопка ниже возвращает встроенные правила.')}
           <textarea id="hud-music-prompt" rows="6" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,.3); border:1px solid var(--hud-border); color:#fff; padding:6px; border-radius:5px; font-size:12px; resize:vertical;">${escapeHtml(settings.musicPrompt || ПРАВИЛА_МУЗЫКИ)}</textarea>
-          <button type="button" id="hud-music-prompt-reset" class="hud-theme-act" style="align-self:flex-start;">↺ Вернуть встроенные</button>
+          <button type="button" id="hud-music-prompt-reset" title="Вернуть встроенную инструкцию подбора музыки вместо своей" class="hud-theme-act" style="align-self:flex-start;">↺ Вернуть встроенные</button>
         `)}
         ${галка('hud-music-line', settings.musicSceneLine === true, '👂 Музыку в сцене — модели', 'То, что слышат сами герои (радио в машине, пианист в баре), уходит модели одной строкой, чтобы персонажи могли на неё реагировать. Если MoodTube уже сообщает модели свой трек, строка HUD молчит.')}
       `)}
@@ -493,7 +493,7 @@ export function addSettingsUI() {
           ${заметка('🙈 Со включённой галкой старые карточки сверх лимита исчезают целиком — остаётся только текст сообщения. Сам HUD в сообщении не удаляется: модель его видит, а выключив галку, карточки можно вернуть.')}
       `)}
         ${подгруппа('🗄 Кэш архива', `
-          <div style="font-size:12px; opacity:.78;">Отчёты «Архива HUD» лежат в браузере и разбираются заново только после изменения чата. Если их накопилось много или они начали мешать — уберите.</div>
+          <div data-guide-note style="font-size:12px; opacity:.78;">Отчёты «Архива HUD» лежат в браузере и разбираются заново только после изменения чата. Если их накопилось много или они начали мешать — уберите.</div>
           <div class="hud-set-apps" style="align-items:center;">
             <span id="hud-cache-usage" style="font-size:12px; opacity:.78;">считаю…</span>
             <button type="button" id="hud-clear-cache" class="hud-theme-act danger" title="Убрать отчёты архива и пометки-реакции. Настройки, темы и аватарки останутся.">🧹 Почистить кэш</button>
@@ -504,8 +504,8 @@ export function addSettingsUI() {
       ${группа('💾 Настройки в файл', `
         ${заметка('Все настройки HUD одним файлом: основные, кастомизация, свои темы и статы, картинки. Чаты и записи HUD в файл не входят. Загружайте только свои файлы или файлы от тех, кому доверяете: в настройках есть и промпты.')}
         <div class="hud-set-apps" style="align-items:center;">
-          <button type="button" id="hud-settings-export" class="hud-theme-act">⭳ Сохранить в файл</button>
-          <button type="button" id="hud-settings-import" class="hud-theme-act">⭱ Загрузить из файла</button>
+          <button type="button" id="hud-settings-export" title="Скачать все настройки HUD одним файлом" class="hud-theme-act">⭳ Сохранить в файл</button>
+          <button type="button" id="hud-settings-import" title="Загрузить настройки HUD из сохранённого файла" class="hud-theme-act">⭱ Загрузить из файла</button>
           <input type="file" id="hud-settings-file" accept="application/json,.json" style="display:none">
         </div>
       `)}
@@ -514,7 +514,7 @@ export function addSettingsUI() {
         ${заметка('Возвращает выгруженные HUD в открытый чат и убирает служебные файлы HUD с диска: файлы разгрузки и летопись этого чата. Сам чат и его HUD остаются целыми, на телефон ничего не скачивается.')}
         ${заметка('Если выгружены другие чаты этого персонажа, файлы разгрузки останутся, и HUD назовёт эти чаты: откройте каждый и нажмите кнопку там.')}
         <div class="hud-set-apps" style="align-items:center;">
-          <button type="button" id="hud-clean-files" class="hud-theme-act" style="width:100%;">🧳 Убрать служебные файлы</button>
+          <button type="button" id="hud-clean-files" title="Вернуть выгруженные HUD в открытый чат и убрать служебные файлы HUD с диска" class="hud-theme-act" style="width:100%;">🧳 Убрать служебные файлы</button>
         </div>
       `)}
 
@@ -522,7 +522,7 @@ export function addSettingsUI() {
         ${заметка('Навсегда вырезает блоки [HUD] из всех сообщений открытого чата: из текста, из каждого свайпа и прежние версии HUD для «↶», вместе с подборками музыки. Текст ответов остаётся, сводки [HUD_SUMMARY] тоже. Нужно перед удалением расширения: иначе блоки останутся в сообщениях голым текстом и будут уходить модели.')}
         ${заметка('<b>Отменить нельзя.</b> Карточки HUD в этом чате пропадут, а с ними всё, что HUD помнил по ним: телефон, дневник, отношения. Если чат дорог, сначала сохраните копию (меню чата → «Управление файлами чата» → экспорт).')}
         <div class="hud-set-apps" style="align-items:center;">
-          <button type="button" id="hud-strip-chat" class="hud-theme-act danger" style="width:100%;">🗑️ Удалить HUD из этого чата</button>
+          <button type="button" id="hud-strip-chat" title="Навсегда вырезать блоки HUD из всех сообщений открытого чата. Отменить нельзя" class="hud-theme-act danger" style="width:100%;">🗑️ Удалить HUD из этого чата</button>
         </div>
       `)}
 
@@ -679,7 +679,7 @@ export function addSettingsUI() {
     const новая = document.getElementById('hud-settings-wrapper');
     if (новая && родитель) { родитель.insertBefore(новая, сосед); новая.open = открыта; }
     основа.перерисоватьКарточкиЧата({ сохранитьВид: true });
-    import('./render/music.js?v=23.89.30').then(м => { м.сброситьФон(); м.обновитьСтрокуСцены(); м.обновитьВсеПолосы(); }).catch(() => {});
+    import('./render/music.js?v=23.89.31').then(м => { м.сброситьФон(); м.обновитьСтрокуСцены(); м.обновитьВсеПолосы(); }).catch(() => {});
     основа.showHudToast('success', 'Настройки загружены', 'Всё уже применилось.');
   });
 
@@ -1068,7 +1068,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.89.30');
+      const mod = await import('./render/archive.js?v=23.89.31');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -1290,7 +1290,7 @@ export function addSettingsUI() {
   [['hud-music-enable', 'enableMusic'], ['hud-music-auto', 'musicAuto'], ['hud-music-verify', 'musicVerify'], ['hud-music-line', 'musicSceneLine'], ['hud-music-player', 'musicPlayer']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.89.30').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
+      import('./render/music.js?v=23.89.31').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
     });
   });
   document.getElementById('hud-music-profile').addEventListener('change', (e) => { settings.musicProfileId = e.target.value || ''; основа.saveSettings(); });
@@ -1320,20 +1320,20 @@ export function addSettingsUI() {
     ['hud-music-free-fonau', 'musicFreeFonau'], ['hud-music-free-audius', 'musicFreeAudius'], ['hud-music-free-incompetech', 'musicFreeIncompetech'], ['hud-music-free-commons', 'musicFreeCommons']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.89.30').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
+      import('./render/music.js?v=23.89.31').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
     });
   });
   [['hud-music-liked-clear', 'musicLiked'], ['hud-music-banned-clear', 'musicBanned']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('click', async () => {
       if ((settings[ключ] || []).length && !await уверены({ текст: ключ === 'musicLiked' ? 'Весь список понравившихся треков очистится.' : 'Весь список запрещённых треков очистится.', кнопка: 'Очистить' })) return;
       settings[ключ] = []; основа.saveSettings(); вкусМузыки();
-      import('./render/music.js?v=23.89.30').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      import('./render/music.js?v=23.89.31').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
   [['hud-music-medieval', 'musicMedieval'], ['hud-music-style', 'musicStyle'], ['hud-music-source', 'musicSource']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.value; основа.saveSettings();
-      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.89.30').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.89.31').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
 

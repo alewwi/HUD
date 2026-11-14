@@ -13,15 +13,15 @@
 // секрета, — «при нём об этом нельзя».
 // На узком экране сетку заменяет список по людям (container query).
 
-import { escapeHtml, getSafeUserName } from '../utils.js?v=23.89.30';
-import { settings } from '../settings.js?v=23.89.30';
-import { namesLikelySame } from '../names.js?v=23.89.30';
-import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.30';
-import { ико, медаль } from './view-icons.js?v=23.89.30';
-import { правкаСекрета, всплывшиеСекреты, правитьСнимок, правки } from '../snapshot-edits.js?v=23.89.30';
-import { разобратьДуэль } from './duel.js?v=23.89.30';
-import { видБлока } from './views.js?v=23.89.30';
-import { видСеткиСекретов } from './views-plus.js?v=23.89.30';
+import { escapeHtml, getSafeUserName } from '../utils.js?v=23.89.31';
+import { settings } from '../settings.js?v=23.89.31';
+import { namesLikelySame } from '../names.js?v=23.89.31';
+import { getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.31';
+import { ико, медаль } from './view-icons.js?v=23.89.31';
+import { правкаСекрета, всплывшиеСекреты, правитьСнимок, правки } from '../snapshot-edits.js?v=23.89.31';
+import { разобратьДуэль } from './duel.js?v=23.89.31';
+import { видБлока } from './views.js?v=23.89.31';
+import { видСеткиСекретов } from './views-plus.js?v=23.89.31';
 // Склонение по числу: склон(3, ['секрет', 'секрета', 'секретов']).
 const склон = (n, [один, два, пять]) => { const к = Math.abs(n) % 100, е = к % 10; return к > 10 && к < 20 ? пять : е === 1 ? один : е >= 2 && е <= 4 ? два : пять; };
 

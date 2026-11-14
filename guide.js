@@ -11,10 +11,10 @@
 //     настройки» (код и название) и словарь вопросиков (что это).
 // Слева оглавление по разделам, сверху поиск по всему тексту.
 
-import { английский, т } from './i18n.js?v=23.89.30';
-import { escapeHtml } from './utils.js?v=23.89.30';
-import { TAB_HELP, findTermHelp } from './help.js?v=23.89.30';
-import { КАТАЛОГ } from './deep-fields.js?v=23.89.30';
+import { английский, т } from './i18n.js?v=23.89.31';
+import { escapeHtml } from './utils.js?v=23.89.31';
+import { TAB_HELP, findTermHelp } from './help.js?v=23.89.31';
+import { КАТАЛОГ } from './deep-fields.js?v=23.89.31';
 
 let открыто = false;
 const э = (s) => escapeHtml(String(s ?? ''));
@@ -89,10 +89,13 @@ function пунктыУровня(корень) {
   const out = [];
   const обойти = (узел) => {
     for (const ребёнок of узел.children) {
+      // Списки, которые панель заполняет сама (аватарки персонажей), — это данные
+      // игрока, а не настройки: в гайде без них, иначе десятки «Заменить картинку».
+      if (ребёнок.matches('.hud-ava-list, [data-guide-skip]')) continue;
       if (ребёнок.matches('details.hud-set-group')) { out.push(группаНастроек(ребёнок)); continue; }
       if (ребёнок.matches('label.hud-set-check, label')) { out.push(пунктНастройки(ребёнок)); continue; }
       if (ребёнок.matches('button, .menu_button, .hud-set-tool-btn')) { const имя = подписьЭлемента(ребёнок); if (имя) out.push(`<li><b>${э(имя)}</b>${ребёнок.title ? ` — ${э(чисто(ребёнок.title))}` : ''}</li>`); continue; }
-      if (ребёнок.matches('.hud-set-note')) { const т = чисто(ребёнок.textContent); if (т) out.push(`<li class="hud-guide-note">${э(т)}</li>`); continue; }
+      if (ребёнок.matches('.hud-set-note, [data-guide-note]')) { const т = чисто(ребёнок.textContent); if (т) out.push(`<li class="hud-guide-note">${э(т)}</li>`); continue; }
       if (ребёнок.matches('input, select, textarea, [hidden]') || ребёнок.hidden) continue;
       обойти(ребёнок);
     }

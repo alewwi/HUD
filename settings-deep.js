@@ -10,12 +10,12 @@
 // Дерево глубокой настройки большое (две с половиной сотни галочек), поэтому
 // собирается при первом раскрытии, а не вместе со всеми настройками.
 
-import { settings } from './settings.js?v=23.89.30';
-import { escapeHtml, mapKey } from './utils.js?v=23.89.30';
-import { т, английский } from './i18n.js?v=23.89.30';
-import { уверены } from './confirm-erase.js?v=23.89.30';
-import { КАТАЛОГ, списокВыключенного, каталогДляНастроек } from './deep-fields.js?v=23.89.30';
-import { ВИДЫ_СТАТОВ, ЧЬИ_СТАТЫ, ВКЛАДКИ_ИСТОРИИ, ШАБЛОН_СВОИХ, ЗНАКИ_СТАТОВ, ЦВЕТА_СТАТОВ, СВОЙ_ЦВЕТ, цветСтата } from './custom-stats.js?v=23.89.30';
+import { settings } from './settings.js?v=23.89.31';
+import { escapeHtml, mapKey } from './utils.js?v=23.89.31';
+import { т, английский } from './i18n.js?v=23.89.31';
+import { уверены } from './confirm-erase.js?v=23.89.31';
+import { КАТАЛОГ, списокВыключенного, каталогДляНастроек } from './deep-fields.js?v=23.89.31';
+import { ВИДЫ_СТАТОВ, ЧЬИ_СТАТЫ, ВКЛАДКИ_ИСТОРИИ, ШАБЛОН_СВОИХ, ЗНАКИ_СТАТОВ, ЦВЕТА_СТАТОВ, СВОЙ_ЦВЕТ, цветСтата } from './custom-stats.js?v=23.89.31';
 
 // --- Глубокая настройка -------------------------------------------------------
 
@@ -25,7 +25,7 @@ export function разметкаГлубокой() {
     <div class="hud-set-body">
       <div class="hud-set-note">Внутри каждого блока — каждое поле, а где в поле несколько данных, то и каждое из них. Снятая галочка убирает это из промта (модель перестаёт писать) и с карточки — и в старых сообщениях тоже. Блок целиком выключается галочками выше.</div>
       <div class="hud-fine-tree" id="hud-fine-tree"></div>
-      <div class="hud-set-apps"><button type="button" class="hud-theme-act" id="hud-fine-all">Включить всё</button></div>
+      <div class="hud-set-apps"><button type="button" class="hud-theme-act" id="hud-fine-all" title="Снова включить все поля всех блоков в глубокой настройке">Включить всё</button></div>
     </div>
   </details>`;
 }
@@ -96,17 +96,17 @@ function редакторСтата(ст) {
 }
 
 export function разметкаСвоихСтатов() {
-  return `<label class="hud-set-check hud-cst-master"><input type="checkbox" id="hud-cst-on" ${settings.customStatsOn !== false ? 'checked' : ''}> <span>Свои статы включены</span></label>
+  return `<label class="hud-set-check hud-cst-master" title="Главный выключатель своих статов: выключено — модель о них не пишет, карточка их не показывает, список сохраняется"><input type="checkbox" id="hud-cst-on" ${settings.customStatsOn !== false ? 'checked' : ''}> <span>Свои статы включены</span></label>
     <div class="hud-set-note">Выключено — модели не уходит ни строчки о своих статах и карточка их не показывает. Список и настройки ниже сохраняются: включите снова — всё на месте.</div>
     <div class="hud-set-note">Свои статы: модель пишет их каждый ход рядом с остальным HUD, а карточка показывает блоком с вашим названием. Назовите стат, опишите, что он значит, выберите вид и где показывать. Место в карточке можно поменять и прямо там: зажмите блок и тяните.</div>
     <div class="hud-cst-list" id="hud-cst-list"></div>
-    <div class="hud-set-apps"><button type="button" class="hud-theme-act" id="hud-cst-add">➕ Добавить стат</button></div>
+    <div class="hud-set-apps"><button type="button" class="hud-theme-act" id="hud-cst-add" title="Новый стат: название, что он значит для модели, вид, значок, цвет и у кого он есть">➕ Добавить стат</button></div>
     <details class="hud-set-group hud-set-sub">
       <summary>📝 Промт своих статов</summary>
       <div class="hud-set-body">
         <div class="hud-set-note">Общий текст для всех статов. Список статов встаёт на место {{stats}} (если его убрать — в конец). Пусто — общий текст по умолчанию.</div>
         <textarea class="text_pole hud-cst-prompt" id="hud-cst-prompt" rows="6"></textarea>
-        <div class="hud-set-apps"><button type="button" class="hud-theme-act" id="hud-cst-prompt-reset">Вернуть общий текст</button></div>
+        <div class="hud-set-apps"><button type="button" class="hud-theme-act" id="hud-cst-prompt-reset" title="Вернуть общий текст промта своих статов по умолчанию вместо своего">Вернуть общий текст</button></div>
       </div>
     </details>`;
 }

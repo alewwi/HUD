@@ -3882,6 +3882,14 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   проверить('гайд: разделы, обе вставки и контакты в конце', ru.length >= 9 && вставки(ru).join() === 'settings,fields' && ru[ru.length - 1].заголовок === 'Связь' && html(ru).includes('href="https://t.me/alewwiHUD"') && html(ru).includes('<code>alewwi</code>'), ru.map(с => с.заголовок).join(' | '));
   проверить('гайд: английский — то же строение', en.length === ru.length && вставки(en).join() === вставки(ru).join() && html(en).includes('t.me/alewwiHUD'));
   проверить('гайд: списки, вложенность, код и заметка', html(ru).includes('<ol>') && html(ru).includes('<pre><code>') && html(ru).includes('hud-guide-tip') && /<li>[^]*?<ul>/.test(html(ru)));
+  проверить('гайд: аватарки из панели не попадают в список настроек', /\.hud-ava-list, \[data-guide-skip\]'\)\) continue;[\s\S]{0,80}details\.hud-set-group/.test(fs.readFileSync(path.join(КОРЕНЬ, 'guide.js'), 'utf8')));
+  {
+    // Гайд берёт пояснение из title: пункт без него в гайде — голое название.
+    const панель = fs.readFileSync(path.join(КОРЕНЬ, 'settings-ui.js'), 'utf8').split('\n').slice(55, 535);
+    const голые = панель.filter(l => /галка\('[^']+',[^']*?'(?:[^'\\]|\\.)*'\s*\)/.test(l)
+      || /<label(?![^>]*title=)[^>]*>/.test(l) || /<button(?![^>]*title=)[^>]*>/.test(l));
+    проверить('гайд: у каждого пункта настроек есть пояснение', голые.length === 0, голые.map(l => l.trim().slice(0, 80)).join(' | '));
+  }
   const поля = Г.поляМодели();
   проверить('гайд: поля модели — коды и названия из каталога', поля.includes('<code>Ap</code>') && поля.includes('<code>Prg</code>') && поля.includes('<code>wk</code>') && (поля.match(/<details/g) || []).length >= 10);
   проверить('пояснения: «Бельё» с ё и синоним с двумя пробелами находятся', !!H.findTermHelp('🩲 Бельё:') && !!H.findTermHelp('Жизненные показатели'));
