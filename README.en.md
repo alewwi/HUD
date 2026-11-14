@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/screens/banner-en.webp" alt="TavernOS — HUD for SillyTavern: scene card, daily life, companions, world and phone" width="900"></p>
+
 
 # TavernOS HUD — a living dashboard for roleplay chats in SillyTavern
 
