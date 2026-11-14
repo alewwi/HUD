@@ -3869,5 +3869,26 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   } finally { globalThis.SillyTavern = былST; [Н.holidayReminder, Н.holidayPrepDays] = было; }
 }
 
+// ---------------------------------------------------------------------------
+группа('Гайд и пояснения');
+{
+  // help.js на загрузке слушает document (центровка значков) — заглушке нужен метод.
+  if (typeof document.addEventListener !== 'function') document.addEventListener = () => {};
+  const Г = await модуль('guide.js'), H = await модуль('help.js'), VS = await модуль('render/views-story.js');
+  const ru = Г.разобратьГайд(fs.readFileSync(path.join(КОРЕНЬ, 'GUIDE.md'), 'utf8'));
+  const en = Г.разобратьГайд(fs.readFileSync(path.join(КОРЕНЬ, 'GUIDE.en.md'), 'utf8'));
+  const вставки = (р) => р.flatMap(с => с.части.filter(ч => typeof ч !== 'string').map(ч => ч.вставка));
+  const html = (р) => р.map(с => с.части.filter(ч => typeof ч === 'string').join('')).join('');
+  проверить('гайд: разделы, обе вставки и контакты в конце', ru.length >= 9 && вставки(ru).join() === 'settings,fields' && ru[ru.length - 1].заголовок === 'Связь' && html(ru).includes('href="https://t.me/alewwiHUD"') && html(ru).includes('<code>alewwi</code>'), ru.map(с => с.заголовок).join(' | '));
+  проверить('гайд: английский — то же строение', en.length === ru.length && вставки(en).join() === вставки(ru).join() && html(en).includes('t.me/alewwiHUD'));
+  проверить('гайд: списки, вложенность, код и заметка', html(ru).includes('<ol>') && html(ru).includes('<pre><code>') && html(ru).includes('hud-guide-tip') && /<li>[^]*?<ul>/.test(html(ru)));
+  const поля = Г.поляМодели();
+  проверить('гайд: поля модели — коды и названия из каталога', поля.includes('<code>Ap</code>') && поля.includes('<code>Prg</code>') && поля.includes('<code>wk</code>') && (поля.match(/<details/g) || []).length >= 10);
+  проверить('пояснения: «Бельё» с ё и синоним с двумя пробелами находятся', !!H.findTermHelp('🩲 Бельё:') && !!H.findTermHelp('Жизненные показатели'));
+  проверить('пояснения: шапка сцены, быт и бегущая строка со статьями', ['сцена', 'сытость', 'силы', 'свежесть', 'ели', 'душ', 'стирка', 'уборка', '📺 СРОЧНО'].every(к => H.findTermHelp(к)));
+  const бой = { этап: ['fight', '', 'схватка'], участники: [{ имя: 'Корд', сторона: 'enemy', дист: 'close', состояние: 'ok', состояниеСлово: 'цел' }], очередь: ['Корд'], раны: [], оружие: [], адреналин: [], выдержка: [], погоня: { дистанция: 40, куда: '' }, укрытия: [{ что: 'стол', как: 'перевёрнут' }] };
+  проверить('пояснения: в видах боя — места для вопросиков', ['fight', 'tac', 'chess', 'sheet'].every(в => VS.видБоя(бой, в).includes('data-help-term="кто где"')) && VS.видБоя(бой, 'fight').includes('data-help-term="погоня"') && VS.видБоя(бой, 'tac').includes('data-help-term="укрытия и что под рукой"'));
+}
+
 console.log(`\nпроверок: ${всего}, провалов: ${провалы.length}`);
 if (провалы.length) { console.log(провалы.map(п => ' ✗ ' + п).join('\n')); process.exitCode = 1; }

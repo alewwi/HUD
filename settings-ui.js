@@ -5,33 +5,34 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { показатьЧтоНового } from './whats-new.js?v=23.89.29';
-import { settings, defaultSettings } from './settings.js?v=23.89.29';
-import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.89.29';
-import { видБлока } from './render/views.js?v=23.89.29';
-import { escapeHtml } from './utils.js?v=23.89.29';
-import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.89.29';
-import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.89.29';
-import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.89.29';
-import { убратьМетку } from './hud-erase.js?v=23.89.29';
-import { убратьЛетопись } from './chronicle-store.js?v=23.89.29';
-import { включитьПереводчик, т, английский, кодЯзыка, языкиМеню, файлПеревода, загрузитьФайлПеревода, убратьФайлПеревода } from './i18n.js?v=23.89.29';
+import { показатьЧтоНового } from './whats-new.js?v=23.89.30';
+import { показатьГайд } from './guide.js?v=23.89.30';
+import { settings, defaultSettings } from './settings.js?v=23.89.30';
+import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.89.30';
+import { видБлока } from './render/views.js?v=23.89.30';
+import { escapeHtml } from './utils.js?v=23.89.30';
+import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.89.30';
+import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.89.30';
+import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.89.30';
+import { убратьМетку } from './hud-erase.js?v=23.89.30';
+import { убратьЛетопись } from './chronicle-store.js?v=23.89.30';
+import { включитьПереводчик, т, английский, кодЯзыка, языкиМеню, файлПеревода, загрузитьФайлПеревода, убратьФайлПеревода } from './i18n.js?v=23.89.30';
 
 // Пункты меню языка: русский, английский, собранные из таблиц и свой файл.
 const optionЯзыков = () => языкиМеню().map(я => `<option value="${escapeHtml(я.code)}" ${кодЯзыка() === я.code ? 'selected' : ''}>${escapeHtml(я.name)}</option>`).join('');
-import { уверены } from './confirm-erase.js?v=23.89.29';
-import { промптАссистента, встроенныйПромптАссистента } from './render/assistant-prompt.js?v=23.89.29';
-import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.89.29';
-import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.89.29';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.89.29';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.89.29';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.29';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.89.29';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.89.29';
-import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.89.29';
-import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.89.29';
-import { меткаШапки } from './render/topbar-icons.js?v=23.89.29';
-import { обновитьПереводКарточек } from './translate-guard.js?v=23.89.29';
+import { уверены } from './confirm-erase.js?v=23.89.30';
+import { промптАссистента, встроенныйПромптАссистента } from './render/assistant-prompt.js?v=23.89.30';
+import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.89.30';
+import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.89.30';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.89.30';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.89.30';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.30';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.89.30';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.89.30';
+import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.89.30';
+import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.89.30';
+import { меткаШапки } from './render/topbar-icons.js?v=23.89.30';
+import { обновитьПереводКарточек } from './translate-guard.js?v=23.89.30';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, getStContextSafe, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -110,6 +111,7 @@ export function addSettingsUI() {
       <div class="hud-set-tools">
         <button type="button" id="hud-open-custom" class="hud-set-tool-btn">🎨 Кастомизация</button>
         <button type="button" id="hud-open-archive" class="hud-set-tool-btn">🗄 Архив HUD</button>
+        <button type="button" id="hud-open-guide" class="hud-set-tool-btn" title="Подробное руководство: все настройки, всё, что пишет модель, поломки и решения, контакты">📘 Гайд</button>
         <span class="hud-set-tool-note">Сводка по всей истории чата: как менялись секреты и отношения, сколько прошло дней, где что происходило.</span>
       </div>
 
@@ -152,6 +154,11 @@ export function addSettingsUI() {
           ${галка('hud-enable-twists', settings.enableTwists !== false, '🎟️ Повороты сюжета', 'Когда в сцене случается настоящий поворот, над вкладками появляется карточка: что случилось и куда может повести.')}
           ${галка('hud-enable-familytree', settings.enableFamilyTree !== false, '🌳 Генеалогическое дерево', 'Вторым видом в графе отношений: родители, дети, супруги, братья и сёстры по родству из «Отношений». Появляется, только когда родство есть.')}
           <label class="hud-set-check" title="Сколько сообщений с HUD просматривать для генеалогического дерева: родня из них попадает в дерево без повторов. 0 — только текущий HUD">🌳 Сообщений с HUD для дерева: ${число('hud-family-depth', 0, 500, settings.familyTreeDepth ?? 100, 60)}</label>
+          ${галка('hud-enable-invites', settings.enableInvitations !== false, '💌 Приглашения', 'Модель записывает приглашения, HUD понимает ответ или спрашивает вас')}
+          ${галка('hud-enable-deadlines', settings.enableDeadlines !== false, '⏳ Сроки нитей', 'Дата у ружья, срок в календаре, просроченная нить и план просят развязки')}
+          ${галка('hud-promises', settings.promisesList !== false, '🤝 Обещания', 'Список в «Памяти»: кто кому что обещал, к какому сроку, сдержано ли. Обещание с прошедшим сроком модель получает напоминанием: сдержали или нарушили.')}
+          ${галка('hud-bets', settings.betsList !== false, '🎲 Пари', 'Ставки между персонажами: кто с кем поспорил, на что и что поставил. Видны в карточках обоих спорщиков, итог — выиграл или проиграл.')}
+          ${галка('hud-consequences', settings.consequences !== false, '⚡ Последствия', 'Неделя недосыпа или голода, высокий стресс, долги, неразорвавшиеся ружья: в карточке персонажа появляется, что назревает и почему. Можно один раз предложить это модели в следующем ответе.')}
         `)}
 
         ${подгруппа('👤 Персонажи', `
@@ -159,36 +166,20 @@ export function addSettingsUI() {
           ${галка('hud-user-all-fields', settings.userAllFields === true, '🧾 Все поля игрока, как у персонажей', 'Игроку — те же поля, что персонажам: роль, статус, состояние тела, мысли, подтекст, инвентарь, цели, расписание, доверие, страхи, близость и другие. Выключено — только одежда, внешность, здоровье, отношения и место. Отдельные поля — в «Глубокой настройке».')}
           ${галка('hud-enable-perception', settings.enablePerception !== false, '👁 Что о тебе думают', 'Как к вам относится каждый персонаж и насколько доверяет. Считается из карточек, модель ничего не дописывает.')}
           ${галка('hud-enable-companions', settings.enableCompanions !== false, '🐾 Спутники', 'Животные, фамильяры, дроны: настроение, состояние, рацион, привязанность. Своя вкладка, появляется, только когда спутники есть.')}
+          ${галка('hud-knowledge-line', settings.knowledgeLine !== false, '🙈 Кто чего не знает', 'В карточке персонажа — строка «Не знает» по секретам, где он среди тех, кто не в курсе. Когда в сцене и тот, кто знает, и тот, кто нет, модель раз в восемь ответов получает напоминание не проговориться.')}
+          ${галка('hud-trust-locks', settings.trustLocks !== false, '🔒 Замки доверия', 'Доверие растёт стадиями с порогами 20, 40, 60 и 80. Перейти порог можно только в ход с ключевым событием: помощь без выгоды, общая опасность, общий секрет, поддержка в слабости, жертва. Одними разговорами доверие останавливается под порогом. Когда оно у самого порога, модель получает напоминание раз в восемь ответов.')}
+          ${галка('hud-enable-scars', settings.enableScars !== false, '🩹 Шрамы отношений', 'Резкое падение доверия оставляет шрам: модель помнит обиду, пока доверие не вернётся')}
         `)}
 
         ${подгруппа('💊 Тело и здоровье', `
-          ${галка('hud-enable-attn', settings.enableAttnBadges !== false, '🔔 Значки вопросов', 'Число на вкладке и в шапке, когда HUD ждёт вашего ответа')}
-          ${галка('hud-enable-hints', settings.enableHintButtons !== false, '✨ Разовые подсказки', 'Кнопка со звёздочкой: выбранная плашка уходит модели в следующий ответ')}
-          ${галка('hud-enable-invites', settings.enableInvitations !== false, '💌 Приглашения', 'Модель записывает приглашения, HUD понимает ответ или спрашивает вас')}
-          ${галка('hud-enable-deadlines', settings.enableDeadlines !== false, '⏳ Сроки нитей', 'Дата у ружья, срок в календаре, просроченная нить и план просят развязки')}
-          ${галка('hud-knowledge-line', settings.knowledgeLine !== false, '🙈 Кто чего не знает', 'В карточке персонажа — строка «Не знает» по секретам, где он среди тех, кто не в курсе. Когда в сцене и тот, кто знает, и тот, кто нет, модель раз в восемь ответов получает напоминание не проговориться.')}
-          ${галка('hud-trust-locks', settings.trustLocks !== false, '🔒 Замки доверия', 'Доверие растёт стадиями с порогами 20, 40, 60 и 80. Перейти порог можно только в ход с ключевым событием: помощь без выгоды, общая опасность, общий секрет, поддержка в слабости, жертва. Одними разговорами доверие останавливается под порогом. Когда оно у самого порога, модель получает напоминание раз в восемь ответов.')}
-          ${галка('hud-bets', settings.betsList !== false, '🎲 Пари', 'Ставки между персонажами: кто с кем поспорил, на что и что поставил. Видны в карточках обоих спорщиков, итог — выиграл или проиграл.')}
-          ${галка('hud-consequences', settings.consequences !== false, '⚡ Последствия', 'Неделя недосыпа или голода, высокий стресс, долги, неразорвавшиеся ружья: в карточке персонажа появляется, что назревает и почему. Можно один раз предложить это модели в следующем ответе.')}
-          ${галка('hud-promises', settings.promisesList !== false, '🤝 Обещания', 'Список в «Памяти»: кто кому что обещал, к какому сроку, сдержано ли. Обещание с прошедшим сроком модель получает напоминанием: сдержали или нарушили.')}
-          ${галка('hud-chat-translation', settings.chatTranslation !== false, '🛡 Защита HUD при переводе чата', 'Для перевода чата в Таверне (Chat Translation: Google, Yandex, DeepL и другие). Блок HUD не уходит на перевод и не портится, а карточка переведённого ответа показывается на языке перевода тем же сервисом. В сообщении и для модели остаётся оригинал. Строки карточки тоже отправляются этому сервису.')}
-          ${галка('hud-meanwhile', settings.meanwhile !== false, '🕰 Тем временем', '1–2 важных человека вне кадра: где они сейчас, что делают и думают, что знают о главном, чего не знают и о чём догадываются. Свёрнутым блоком в «Мире», под газетами; нет «Мира» в ходе — в «Памяти». Модель продолжает их прошлую запись. Стоит немного токенов ответа.')}
-          ${галка('hud-enable-scars', settings.enableScars !== false, '🩹 Шрамы отношений', 'Резкое падение доверия оставляет шрам: модель помнит обиду, пока доверие не вернётся')}
-          ${галка('hud-enable-era-holidays', settings.enableEraHolidays !== false, '🎉 Праздники эпохи', 'Праздники в календаре телефона и лёгкий фон в сцене')}
-          ${галка('hud-holiday-gen', settings.holidayGen !== false, '✨ Праздники мира', 'Кнопка «Праздники» в календаре телефона: модель находит праздники фандома или придумывает свои по лорбуку, персоне и карточке. Выбранные попадают в календарь; модели — короткое напоминание, вам — предложение начать подготовку.')}
-          <label class="hud-set-check" title="Когда напоминать модели о празднике мира: в сам день или ещё за два дня до него. Напоминание — одна строка о том, что событие в сюжете есть.">🔔 Напоминать модели о празднике:
-            <select id="hud-holiday-reminder" class="hud-theme-select-input">
-              <option value="day" ${(settings.holidayReminder || 'day') === 'day' ? 'selected' : ''}>в день праздника</option>
-              <option value="before" ${settings.holidayReminder === 'before' ? 'selected' : ''}>за 2 дня и в день</option>
-              <option value="off" ${settings.holidayReminder === 'off' ? 'selected' : ''}>не напоминать</option>
-            </select>
-          </label>
-          <label class="hud-set-check" title="За сколько дней до праздника мира над вкладками появится вопрос «Начать подготовку?». «Да» — модель в следующем ответе узнает, что событие скоро. 0 — не предлагать.">🗓 Предлагать подготовку за (дней):
-            <input type="number" id="hud-holiday-prep" class="hud-theme-select-input" min="0" max="60" step="1" value="${Number.isFinite(parseInt(settings.holidayPrepDays, 10)) ? parseInt(settings.holidayPrepDays, 10) : 7}">
-          </label>
           ${галка('hud-enable-cues', settings.enableBodyCues !== false, '🌿 Живые детали', 'Голод, усталость и другое модель показывает мелкими приметами, а не называет')}
           ${галка('hud-enable-neglect', settings.enableNeglect !== false, '🥀 Запущенное состояние', 'Дни подряд без еды и сна видны на карточке и в сюжете')}
           ${галка('hud-enable-weight', settings.enableWeight !== false, '⚖️ Вес и калории', 'Модель пишет рост и вес один раз и обновляет раз в неделю по времени сюжета')}
+          ${галка('hud-enable-illness', settings.enableIllness !== false, '🩹 Болезни и травмы', 'Болезни и травмы со стадией, симптомами, лечением и шкалой выздоровления — у персонажей и у игрока. Просится у модели, пишется только когда есть.')}
+          ${галка('hud-enable-bodystate', settings.enableBodyState !== false, '🔋 Состояние тела', 'Энергия, бодрость, сытость, стресс, сон и дела на завтра у каждого персонажа. Батарейки, колбы или строка — в «Вид блоков».')}
+          ${галка('hud-enable-menstruation', settings.enableMenstruation !== false, '🌸 Менструальный цикл', 'День цикла, фаза, ожидаемые месячные, окно ПМС и задержка — кольцом, с советами по фазе. Только у тех, у кого есть матка, в том числе у игрока.')}
+          <label class="hud-set-check" title="Строка под циклом: линия — склонность по фазе, её считает HUD; точки — желание из близости, когда о нём писали">💗 Влечение под циклом: <select id="hud-cycle-libido" class="hud-set-select"><option value="phase+actual"${(settings.cycleLibido || 'phase+actual') === 'phase+actual' ? ' selected' : ''}>фаза и как было</option><option value="phase"${(settings.cycleLibido || 'phase+actual') === 'phase' ? ' selected' : ''}>только по фазе</option><option value="off"${(settings.cycleLibido || 'phase+actual') === 'off' ? ' selected' : ''}>не показывать</option></select></label>
+          ${галка('hud-enable-pregnancy', settings.enablePregnancy !== false, '🤰 Беременность', 'Срок, триместр, симптомы и дата родов у того, кто беременен. Просится у модели, пишется только когда есть.')}
           ${галка('hud-preg-serious', settings.pregnancySerious === true, '🩺 Тяжёлые находки на скрининге', 'Без этой галочки скрининг находит только безобидные особенности малыша')}
           <label class="hud-set-check" title="Что можно узнать до родов: зависит от эпохи или задаётся вручную"><span>🔎 Раскрытие беременности</span>
             <select id="hud-preg-reveal" class="hud-theme-select-input">
@@ -200,12 +191,6 @@ export function addSettingsUI() {
           ${галка('hud-enable-exams', settings.enablePregnancyExams !== false, '🩺 Осмотры при беременности', 'Результаты осмотра на 12, 20 и 30 неделе: итог открываете вы')}
           ${галка('hud-enable-threat', settings.enableThreatDice !== false, '🎲 Кубик угрозы', 'Если беременности грозит опасность, исход решает кубик')}
           ${галка('hud-enable-loss', settings.enablePregnancyLoss !== false, '💔 Выкидыш и аборт', 'Кнопка и метка потери: HUD закрывает беременность и ведёт восстановление')}
-          ${галка('hud-enable-rest', settings.enableRestHints !== false, '🕊 Напоминания о близости', 'Полупрозрачные подсказки после потери, родов и свежей раны. Модели не уходят')}
-          ${галка('hud-enable-illness', settings.enableIllness !== false, '🩹 Болезни и травмы', 'Болезни и травмы со стадией, симптомами, лечением и шкалой выздоровления — у персонажей и у игрока. Просится у модели, пишется только когда есть.')}
-          ${галка('hud-enable-bodystate', settings.enableBodyState !== false, '🔋 Состояние тела', 'Энергия, бодрость, сытость, стресс, сон и дела на завтра у каждого персонажа. Батарейки, колбы или строка — в «Вид блоков».')}
-          ${галка('hud-enable-menstruation', settings.enableMenstruation !== false, '🌸 Менструальный цикл', 'День цикла, фаза, ожидаемые месячные, окно ПМС и задержка — кольцом, с советами по фазе. Только у тех, у кого есть матка, в том числе у игрока.')}
-          <label class="hud-set-check" title="Строка под циклом: линия — склонность по фазе, её считает HUD; точки — желание из близости, когда о нём писали">💗 Влечение под циклом: <select id="hud-cycle-libido" class="hud-set-select"><option value="phase+actual"${(settings.cycleLibido || 'phase+actual') === 'phase+actual' ? ' selected' : ''}>фаза и как было</option><option value="phase"${(settings.cycleLibido || 'phase+actual') === 'phase' ? ' selected' : ''}>только по фазе</option><option value="off"${(settings.cycleLibido || 'phase+actual') === 'off' ? ' selected' : ''}>не показывать</option></select></label>
-          ${галка('hud-enable-pregnancy', settings.enablePregnancy !== false, '🤰 Беременность', 'Срок, триместр, симптомы и дата родов у того, кто беременен. Просится у модели, пишется только когда есть.')}
           ${галка('hud-enable-babies', settings.enableBabies !== false, '🍼 Роды и малыши', 'После родов промт беременности уходит, вместо него — послеродовой период (кормление, молоко) и вкладка «Детская»: вехи развития, нормы ухода и карточка каждого малыша.')}
           <label class="hud-set-check" title="Когда ребёнок старше — он уходит из «Детской» в обычные карточки персонажей, с тем же промтом">🎓 Из «Детской» в карточки с ${число('hud-baby-years', 1, 12, Math.max(1, Number(settings.babyGraduateYears) || 3), 52)} лет</label>
           <label class="hud-set-check" title="Число малышей и их пол (кубик или «изменить судьбу»): скрытым фактом для модели или только для тебя">👶 Число и пол малышей → модели: <select id="hud-baby-facts" class="hud-set-select"><option value="hidden"${settings.babyFactsToModel !== 'off' ? ' selected' : ''}>скрытым фактом</option><option value="off"${settings.babyFactsToModel === 'off' ? ' selected' : ''}>не отправлять — только для меня</option></select></label>
@@ -227,6 +212,7 @@ export function addSettingsUI() {
           </select>
           </label>
           ${галка('hud-enable-tempo', settings.enableTempo !== false, '💓 Темп и X-ray', 'Под полосой сцены: темп толчков, ритм и X-ray в разрезе. Выключите — блока не будет совсем, ни в одном виде. Модель ничего для него не пишет, промт не меняется.')}
+          ${галка('hud-enable-rest', settings.enableRestHints !== false, '🕊 Напоминания о близости', 'Полупрозрачные подсказки после потери, родов и свежей раны. Модели не уходят')}
           ${галка('hud-enable-sceneclock', settings.enableSceneClock !== false, '🕰 Часы сцены', 'Под полосой сцены: сколько шла близость по времени сюжета и что за это время пропустили по расписанию — ужин, звонок, кто-то ждал. Считает HUD, у модели ничего не просится.')}
           ${галка('hud-enable-underwear', settings.enableUnderwear === true, '🩲 Бельё', 'В близости: какой комплект, кто выбирал и для кого, на месте ли. Просится у модели только в сцене; в карточке — под покрывалом, открывается нажатием.')}
         `)}
@@ -253,6 +239,19 @@ export function addSettingsUI() {
           </label>
           ${галка('hud-enable-city', settings.enableCity !== false, '🏛 Городские службы', 'Пробки, дороги, транспорт, коммунальные службы и ЧП.')}
           ${галка('hud-enable-horoscope', settings.enableHoroscope !== false, '🔮 Гороскоп', 'Знаки зодиака на день и общая удача. Чистое развлечение — прогноз погоды остаётся и без него.')}
+          ${галка('hud-meanwhile', settings.meanwhile !== false, '🕰 Тем временем', '1–2 важных человека вне кадра: где они сейчас, что делают и думают, что знают о главном, чего не знают и о чём догадываются. Свёрнутым блоком в «Мире», под газетами; нет «Мира» в ходе — в «Памяти». Модель продолжает их прошлую запись. Стоит немного токенов ответа.')}
+          ${галка('hud-enable-era-holidays', settings.enableEraHolidays !== false, '🎉 Праздники эпохи', 'Праздники в календаре телефона и лёгкий фон в сцене')}
+          ${галка('hud-holiday-gen', settings.holidayGen !== false, '✨ Праздники мира', 'Кнопка «Праздники» в календаре телефона: модель находит праздники фандома или придумывает свои по лорбуку, персоне и карточке. Выбранные попадают в календарь; модели — короткое напоминание, вам — предложение начать подготовку.')}
+          <label class="hud-set-check" title="Когда напоминать модели о празднике мира: в сам день или ещё за два дня до него. Напоминание — одна строка о том, что событие в сюжете есть.">🔔 Напоминать модели о празднике:
+            <select id="hud-holiday-reminder" class="hud-theme-select-input">
+              <option value="day" ${(settings.holidayReminder || 'day') === 'day' ? 'selected' : ''}>в день праздника</option>
+              <option value="before" ${settings.holidayReminder === 'before' ? 'selected' : ''}>за 2 дня и в день</option>
+              <option value="off" ${settings.holidayReminder === 'off' ? 'selected' : ''}>не напоминать</option>
+            </select>
+          </label>
+          <label class="hud-set-check" title="За сколько дней до праздника мира над вкладками появится вопрос «Начать подготовку?». «Да» — модель в следующем ответе узнает, что событие скоро. 0 — не предлагать.">🗓 Предлагать подготовку за (дней):
+            <input type="number" id="hud-holiday-prep" class="hud-theme-select-input" min="0" max="60" step="1" value="${Number.isFinite(parseInt(settings.holidayPrepDays, 10)) ? parseInt(settings.holidayPrepDays, 10) : 7}">
+          </label>
         `)}
         ${разметкаГлубокой()}
       `)}
@@ -314,6 +313,9 @@ export function addSettingsUI() {
 
       ${группа('✨ Отображение', `
         ${галка('hud-show-hints', settings.showHints !== false, '❔ Показывать пояснения', 'Рядом с названием вкладки и рядом со знакомыми полями появляется маленький вопросик. По нажатию разворачивается объяснение: за что отвечает, почему показалось и как читать.')}
+          ${галка('hud-enable-attn', settings.enableAttnBadges !== false, '🔔 Значки вопросов', 'Число на вкладке и в шапке, когда HUD ждёт вашего ответа')}
+          ${галка('hud-enable-hints', settings.enableHintButtons !== false, '✨ Разовые подсказки', 'Кнопка со звёздочкой: выбранная плашка уходит модели в следующий ответ')}
+          ${галка('hud-chat-translation', settings.chatTranslation !== false, '🛡 Защита HUD при переводе чата', 'Для перевода чата в Таверне (Chat Translation: Google, Yandex, DeepL и другие). Блок HUD не уходит на перевод и не портится, а карточка переведённого ответа показывается на языке перевода тем же сервисом. В сообщении и для модели остаётся оригинал. Строки карточки тоже отправляются этому сервису.')}
 
         <label class="hud-set-check" title="Эмодзи рисует система: на Windows, Android и iPhone они разные, а на Windows 10 часть — квадратики. Рисунки одинаковы везде, в цвет и рисунок темы (линия, тушь, пиксель, округлый — «Кастомизация» → «Рисунок значков»). В свёрнутой шапке часы показывают время сцены, погода — настоящую погоду с солнцем или луной.">🔣 Значки:
           <select class="hud-theme-select-input" data-key="iconSet" style="flex:1; min-width:0; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;">
@@ -338,7 +340,7 @@ export function addSettingsUI() {
           </label>
         </div>
         ${галка('hud-summary-cards', settings.summaryCards !== false, '📋 Сводки хода в тексте — карточкой', 'Строки [HUD_SUMMARY] … [/HUD_SUMMARY] в сообщениях (в старых и вычищенных чатах) показываются карточкой: дата, время и погода значками, люди по местам, событие и новое. Нажатие раскрывает полный HUD этого сообщения, если он в нём есть. Только вид: текст сообщения не меняется.')}
-        <label class="hud-set-check">📏 Максимальная высота Памяти: ${число('hud-memory-max-height', 200, 1500, settings.memoryMaxHeight, 70)} px</label>
+        <label class="hud-set-check" title="Выше этой высоты вкладка «Память» прокручивается внутри карточки, а не растягивает её. Только вид: в запрос это не уходит.">📏 Максимальная высота Памяти: ${число('hud-memory-max-height', 200, 1500, settings.memoryMaxHeight, 70)} px</label>
         <label class="hud-set-check" title="Персонаж, вы, дневник, мир, сны, питомцы и остальные вкладки. Содержимое выше этого значения прокручивается внутри вкладки. Память настраивается отдельно, строкой выше.">📏 Максимальная высота вкладок (0 — стандартная): ${число('hud-tab-max-height', 0, 1500, settings.tabMaxHeight || 0, 70)} px</label>
 
         ${подгруппа('🧷 Списки из прошлых ходов', `
@@ -369,7 +371,7 @@ export function addSettingsUI() {
         ${заметка('Помощник к истории и HUD: объясняет, почему персонажи ведут себя так, что скрывают и что может случиться дальше. Отвечает по тому, что вы ему дадите ниже: больше контекста — точнее ответ, но дороже запрос.')}
 
         ${подгруппа('📥 Что видит ассистент', `
-          <label class="hud-set-check">💬 Последних сообщений: ${число('hud-ask-messages', 0, 60, settings.assistantContextMessages ?? 12, 52)}</label>
+          <label class="hud-set-check" title="Сколько последних сообщений чата прочитает ассистент, отвечая на вопрос про сюжет. 0 — только HUD. Чем больше, тем точнее ответ и тем дороже запрос.">💬 Последних сообщений: ${число('hud-ask-messages', 0, 60, settings.assistantContextMessages ?? 12, 52)}</label>
           ${галка('hud-ask-hud', settings.assistantIncludeHud !== false, '📊 HUD сообщения', 'Снимок состояния истории: мысли, скрытый подтекст, отношения, доверие, страхи, секреты, ружья Чехова.')}
           ${галка('hud-ask-note', settings.assistantIncludeNote !== false, '📝 Заметки автора', 'То, что вписано в Author’s Note этого чата.')}
           ${галка('hud-ask-card', settings.assistantIncludeCard !== false, '🎭 Карточка персонажа', 'Описание, характер и сценарий из карточки.')}
@@ -387,7 +389,7 @@ export function addSettingsUI() {
           <label class="hud-set-check" title="Через какой профиль подключения задавать вопросы. Можно взять модель подешевле, чем для самой истории.">🧠 Профиль:
             <select id="hud-ask-profile" style="flex:1; min-width:0; background: rgba(0,0,0,0.3); border: 1px solid var(--hud-border); color: #fff; padding: 2px 4px; border-radius: 4px;"><option value="">Модель чата (текущее подключение)</option></select>
           </label>
-          <label class="hud-set-check">📏 Лимит ответа: ${число('hud-ask-tokens', 256, 16000, settings.assistantMaxTokens ?? 1500, 70)} токенов</label>
+          <label class="hud-set-check" title="Сколько токенов ассистент может потратить на ответ. Думающим моделям нужен запас: часть лимита уходит на рассуждения, и ответ иначе обрывается.">📏 Лимит ответа: ${число('hud-ask-tokens', 256, 16000, settings.assistantMaxTokens ?? 1500, 70)} токенов</label>
           ${заметка('Системный промпт ассистента. Правьте под себя; кнопка ниже возвращает встроенный.')}
           <textarea id="hud-ask-system" rows="8" style="width:100%; box-sizing:border-box; background:rgba(0,0,0,.3); border:1px solid var(--hud-border); color:#fff; padding:6px; border-radius:5px; font-size:12px; resize:vertical;">${escapeHtml(settings.assistantSystemPrompt || промптАссистента(английский()))}</textarea>
           <button type="button" id="hud-ask-system-reset" class="hud-theme-act" style="align-self:flex-start;">↺ Вернуть встроенный</button>
@@ -486,7 +488,7 @@ export function addSettingsUI() {
 
         ${подгруппа('🧹 Лимит карточек', `
           ${заметка('Каждая собранная карточка HUD — это сотни элементов страницы. Если вписать число, в памяти останутся только последние N карточек, а <b>самые старые</b> свернутся до тонкой полоски. Текст сообщения никуда не денется: долистаете до него — карточка соберётся заново.<br>0 — ограничение выключено.')}
-          <label class="hud-set-check">🧹 Держать в памяти карточек: ${число('hud-card-limit', 0, 2000, settings.hudCardLimit || 0, 80, 10)} шт.</label>
+          <label class="hud-set-check" title="Сколько карточек HUD держать собранными в ленте. Старые сверх этого числа сворачиваются в лёгкие заглушки и раскрываются по нажатию. 0 — без лимита.">🧹 Держать в памяти карточек: ${число('hud-card-limit', 0, 2000, settings.hudCardLimit || 0, 80, 10)} шт.</label>
           ${галка('hud-hide-old-cards', settings.hideOldCards === true, '🙈 Прятать старые карточки совсем', 'Карточки сверх лимита пропадают без следа: без полоски «HUD свёрнут», и при прокрутке они не собираются. Прячется только HUD — текст сообщения на месте, а сам блок [HUD] в сообщении не трогается, модель его по-прежнему видит. Работает, когда лимит больше нуля.')}
           ${заметка('🙈 Со включённой галкой старые карточки сверх лимита исчезают целиком — остаётся только текст сообщения. Сам HUD в сообщении не удаляется: модель его видит, а выключив галку, карточки можно вернуть.')}
       `)}
@@ -677,7 +679,7 @@ export function addSettingsUI() {
     const новая = document.getElementById('hud-settings-wrapper');
     if (новая && родитель) { родитель.insertBefore(новая, сосед); новая.open = открыта; }
     основа.перерисоватьКарточкиЧата({ сохранитьВид: true });
-    import('./render/music.js?v=23.89.29').then(м => { м.сброситьФон(); м.обновитьСтрокуСцены(); м.обновитьВсеПолосы(); }).catch(() => {});
+    import('./render/music.js?v=23.89.30').then(м => { м.сброситьФон(); м.обновитьСтрокуСцены(); м.обновитьВсеПолосы(); }).catch(() => {});
     основа.showHudToast('success', 'Настройки загружены', 'Всё уже применилось.');
   });
 
@@ -1060,12 +1062,13 @@ export function addSettingsUI() {
     основа.processAllMessages();
   });
   document.getElementById('hud-open-custom').addEventListener('click', () => основа.открытьКастомизацию());
+  document.getElementById('hud-open-guide')?.addEventListener('click', () => { показатьГайд(); });
   document.getElementById('hud-open-archive').addEventListener('click', async () => {
     // Модуль архива грузим по требованию: он нужен раз в сессию, а тянет
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.89.29');
+      const mod = await import('./render/archive.js?v=23.89.30');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -1287,7 +1290,7 @@ export function addSettingsUI() {
   [['hud-music-enable', 'enableMusic'], ['hud-music-auto', 'musicAuto'], ['hud-music-verify', 'musicVerify'], ['hud-music-line', 'musicSceneLine'], ['hud-music-player', 'musicPlayer']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.89.29').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
+      import('./render/music.js?v=23.89.30').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
     });
   });
   document.getElementById('hud-music-profile').addEventListener('change', (e) => { settings.musicProfileId = e.target.value || ''; основа.saveSettings(); });
@@ -1317,20 +1320,20 @@ export function addSettingsUI() {
     ['hud-music-free-fonau', 'musicFreeFonau'], ['hud-music-free-audius', 'musicFreeAudius'], ['hud-music-free-incompetech', 'musicFreeIncompetech'], ['hud-music-free-commons', 'musicFreeCommons']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.89.29').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
+      import('./render/music.js?v=23.89.30').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
     });
   });
   [['hud-music-liked-clear', 'musicLiked'], ['hud-music-banned-clear', 'musicBanned']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('click', async () => {
       if ((settings[ключ] || []).length && !await уверены({ текст: ключ === 'musicLiked' ? 'Весь список понравившихся треков очистится.' : 'Весь список запрещённых треков очистится.', кнопка: 'Очистить' })) return;
       settings[ключ] = []; основа.saveSettings(); вкусМузыки();
-      import('./render/music.js?v=23.89.29').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      import('./render/music.js?v=23.89.30').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
   [['hud-music-medieval', 'musicMedieval'], ['hud-music-style', 'musicStyle'], ['hud-music-source', 'musicSource']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.value; основа.saveSettings();
-      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.89.29').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.89.30').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
 

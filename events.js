@@ -16,29 +16,29 @@
 //                              perf-кластером в index.js по мере смены режима.
 // Всё остальное (settings, функции) — стабильные ссылки.
 
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.29';
-import { уверены } from './confirm-erase.js?v=23.89.29';
-import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.89.29';
-import { openPhoneMediaViewer } from './render/phone.js?v=23.89.29';
-import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.29';
-import { прикрытьСырой } from './raw-guard.js?v=23.89.29';
-import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.29';
-import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.29';
-import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.29';
-import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.29';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.29';
-import { полныйПорядок } from './tabs-order.js?v=23.89.29';
-import { getWorldVotes } from './render/world.js?v=23.89.29';
-import { действиеМира } from './render/world-views.js?v=23.89.29';
-import { действиеМузыки } from './render/music.js?v=23.89.29';
-import { раскрытьПорцию } from './render/long-list.js?v=23.89.29';
-import { прогретьИсторию } from './render/carryover.js?v=23.89.29';
-import { подключитьПалитру } from './color-picker.js?v=23.89.29';
-import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.29';
-import { замер } from './utils.js?v=23.89.29';
-import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.29';
-import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.29';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.29';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.30';
+import { уверены } from './confirm-erase.js?v=23.89.30';
+import { applyRelGraphFocus, setRelGraphExpandedState, растянутьСвойВид } from './render/relations-graph.js?v=23.89.30';
+import { openPhoneMediaViewer } from './render/phone.js?v=23.89.30';
+import { обработатьКликКалендаря } from './render/calendar.js?v=23.89.30';
+import { прикрытьСырой } from './raw-guard.js?v=23.89.30';
+import { кликТелефона, изменениеНастроек, наполнитьНастройки, подключитьТелефонные } from './render/phone-settings.js?v=23.89.30';
+import { открытьПолныйHUD } from './render/summary-card.js?v=23.89.30';
+import { getTheme, themeVars, presetRowHTML, paletteRowHTML, палитрыТемы, развернутьПалитру, ключПравок, THEME_KEYS, КЛЮЧИ_ВИДА, ЛИЧНЫЕ_КЛЮЧИ, themeSnapshot, parseThemeFile } from './themes.js?v=23.89.30';
+import { settings, defaultSettings, оформлениеТемы, НАСЛЕДУЕТ_ТЕЛЕФОН, унаследованноеТелефоном, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.30';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.30';
+import { полныйПорядок } from './tabs-order.js?v=23.89.30';
+import { getWorldVotes } from './render/world.js?v=23.89.30';
+import { действиеМира } from './render/world-views.js?v=23.89.30';
+import { действиеМузыки } from './render/music.js?v=23.89.30';
+import { раскрытьПорцию } from './render/long-list.js?v=23.89.30';
+import { прогретьИсторию } from './render/carryover.js?v=23.89.30';
+import { подключитьПалитру } from './color-picker.js?v=23.89.30';
+import { подключитьЗаменуЭмодзи } from './emoji-fallback.js?v=23.89.30';
+import { замер } from './utils.js?v=23.89.30';
+import { подключитьЦепочкуПрокрутки } from './scroll-chain.js?v=23.89.30';
+import { подключитьПропускПодсветки } from './skip-highlight.js?v=23.89.30';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.30';
 
 // Приватен для модуля: initObserver — единственное место создания.
 let observer = null;
@@ -83,6 +83,13 @@ function подсказкаДляЗначка(значок, ctx) {
     // Сам знак нарисован псевдоэлементом, в textContent его нет — чистить
     // подпись не от чего.
     const подпись = значок.parentElement;
+    // Блок без своей подписи (data-help-term, help.js): статья — по ключу,
+    // заголовок — сам ключ с большой буквы.
+    const свой = подпись && подпись.getAttribute('data-help-term');
+    if (свой) {
+      const статья = ctx.findTermHelp(свой);
+      return { ключ: 'term:' + поле, статья: статья && { ...статья, title: свой.charAt(0).toUpperCase() + свой.slice(1) } };
+    }
     const текст = подпись ? подпись.textContent : поле;
     return { ключ: 'term:' + поле, статья: ctx.findTermHelp(текст) };
   }
@@ -96,7 +103,9 @@ function местоПодсказки(значок) {
     const обёртка = значок.closest('.hud-os-wrapper');
     return обёртка && обёртка.querySelector('.hud-tab-hint');
   }
-  const строка = значок.closest('.hud-row, .hud-key-block, .hud-world-section, .hud-memory-secret')
+  // Плитки быта, бегущая строка, шапка сцены и виды боя — подсказка под всем
+  // блоком: внутри плитки или строки во флексе ей не место.
+  const строка = значок.closest('.hud-row, .hud-key-block, .hud-world-section, .hud-memory-secret, .hud-state-plaque, .hud-scene-mods, .hud-twist, .hud-rel-toolbar, .hud-life-hero, .hud-life-timers, .hud-breaking-news, .hud-scene-widget, .hud-bt')
     || значок.parentElement;
   if (!строка || !строка.parentElement) return null;
   let место = строка.nextElementSibling;

@@ -14,13 +14,13 @@
 // обработчик кликов (events.js). Своего состояния у календаря нет: всё в
 // классах и data-атрибутах разметки.
 
-import { escapeHtml, defeatWI, имяБезПриставки } from '../utils.js?v=23.89.29';
-import { namesLikelySame } from '../names.js?v=23.89.29';
-import { G_ICONS } from './icons.js?v=23.89.29';
-import { праздникиГода } from './holidays.js?v=23.89.29';
-import { праздникиМираГода } from './holiday-lore.js?v=23.89.29';
-import { срокиНитей } from '../turn-notes.js?v=23.89.29';
-import { settings } from '../settings.js?v=23.89.29';
+import { escapeHtml, defeatWI, имяБезПриставки } from '../utils.js?v=23.89.30';
+import { namesLikelySame } from '../names.js?v=23.89.30';
+import { G_ICONS } from './icons.js?v=23.89.30';
+import { праздникиГода } from './holidays.js?v=23.89.30';
+import { праздникиМираГода } from './holiday-lore.js?v=23.89.30';
+import { срокиНитей } from '../turn-notes.js?v=23.89.30';
+import { settings } from '../settings.js?v=23.89.30';
 
 const МЕСЯЦЫ_РОД = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const МЕСЯЦЫ = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
@@ -399,7 +399,7 @@ export function обработатьКликКалендаря(e) {
   const генератор = e.target.closest('.hud-cal-gen');
   if (генератор) {
     e.preventDefault();
-    import('./holiday-gen.js?v=23.89.29').then(м => м.открытьГенераторПраздников({ дата: кал.dataset.scene || '' }))
+    import('./holiday-gen.js?v=23.89.30').then(м => м.открытьГенераторПраздников({ дата: кал.dataset.scene || '' }))
       .catch(err => console.error('[TavernOS HUD] окно праздников не загрузилось:', err));
     return true;
   }

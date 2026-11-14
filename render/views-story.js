@@ -17,11 +17,11 @@
 // Конечный вид рисуется сразу: анимации HUD держит на паузе, пока на вид не
 // навели мышь или не нажали (css/views.css), — петли и на паузе законченны.
 
-import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени, имяБезПриставки, getSafeUserName } from '../utils.js?v=23.89.29';
-import { лицоЧеловека as лицо } from './views.js?v=23.89.29';
-import { normalizeDiaryMood } from './diary.js?v=23.89.29';
-import { relationVisualMeta, classifyRelationVisual, parseRelationList } from './relations-graph.js?v=23.89.29';
-import { namesLikelySame } from '../names.js?v=23.89.29';
+import { escapeHtml, applyTooltips, hudHashSeed, инициалыИмени, имяБезПриставки, getSafeUserName } from '../utils.js?v=23.89.30';
+import { лицоЧеловека as лицо } from './views.js?v=23.89.30';
+import { normalizeDiaryMood } from './diary.js?v=23.89.30';
+import { relationVisualMeta, classifyRelationVisual, parseRelationList } from './relations-graph.js?v=23.89.30';
+import { namesLikelySame } from '../names.js?v=23.89.30';
 
 const э = (s) => escapeHtml(String(s ?? ''));
 const ф = (n) => Number(n).toFixed(1);
@@ -750,7 +750,7 @@ const погоняПолоса = (б, класс) => {
   const п = б.погоня; if (!п) return '';
   const текст = [п.куда ? `<span>Куда</span>: <span data-i18n-skip>${э(п.куда)}</span>` : '', п.мешает ? `мешает: <span data-i18n-skip>${э(п.мешает)}</span>` : '', п.событие ? `<span data-i18n-skip>${э(п.событие)}</span>` : ''].filter(Boolean).join(' · ');
   if (п.дистанция === null && !текст) return '';
-  return `<div class="${класс}${п.дистанция === null ? ' is-text' : ''}">` + (п.дистанция !== null ? `<small>догнали</small><span><i style="left:${п.дистанция}%"></i></span><small>оторвались</small>` : '') + (текст ? `<p>${текст}</p>` : '') + `</div>`;
+  return `<div class="${класс}${п.дистанция === null ? ' is-text' : ''}">` + (п.дистанция !== null ? `<small data-help-term="погоня">догнали</small><span><i style="left:${п.дистанция}%"></i></span><small>оторвались</small>` : '') + (текст ? `<p>${текст}</p>` : '') + `</div>`;
 };
 
 /** Файтинг: экран «VS» на арене — металлический баннер раунда, таймер,
@@ -766,12 +766,12 @@ function бойФайтинг(б) {
     + `<small><span>${ДИСТ[п.дист]}</span>${п.ствол ? ` · <span data-i18n-skip>${э(п.ствол)}</span>` : ''}${п.нерв !== null ? ` · <span>${ВЫДЕРЖКА_СЛОВО[п.нерв]}</span>` : ''}</small>`
     + (п.ран ? `<em class="hits" aria-label="Ран: ${п.ран}">${'<i></i>'.repeat(Math.min(5, п.ран))}</em>` : '') + `<em class="st">${п.состояниеСлово}</em></div></div>`;
   const стор = (с) => бб.filter(п => п.сторона === с).map(боец).join('');
-  return `<div class="hud-v hud-bt hud-bt-fight${б.этап ? ' is-' + б.этап[0] : ''}"><i class="floor" aria-hidden="true"></i><header class="top"><span class="round"><small>раунд</small><b>${подписьЭтапа(б)}</b></span><span class="timer" aria-hidden="true">${таймер}</span>`
+  return `<div class="hud-v hud-bt hud-bt-fight${б.этап ? ' is-' + б.этап[0] : ''}"><i class="floor" aria-hidden="true"></i><header class="top"><span class="round" data-help-term="кто где"><small>раунд</small><b>${подписьЭтапа(б)}</b></span><span class="timer" aria-hidden="true">${таймер}</span>`
     + (б.очередь.length ? `<span class="turn"><small>ход</small><b data-i18n-skip>${э(первое(б.очередь[0]))}</b></span>` : '<span></span>') + `</header>`
     + `<div class="arena"><div class="side ally">${стор('ally') || '<i class="none">—</i>'}</div><b class="vs" aria-hidden="true"><span>V</span><span>S</span></b><div class="side enemy">${стор('enemy') || '<i class="none">—</i>'}</div></div>`
     + (бб.some(п => п.сторона === 'neutral') ? `<div class="side neutral">${стор('neutral')}</div>` : '')
     + (б.очередь.length > 1 ? `<div class="combo"><small>комбо</small>${б.очередь.map((к, i) => `<span class="${i ? '' : 'is-now'}" data-i18n-skip>${э(первое(к))}</span>`).join('<i aria-hidden="true">▸</i>')}</div>` : '')
-    + погоняПолоса(б, 'race') + (б.укрытия.length ? `<div class="props">${б.укрытия.map(у => `<span title="${э(у.как)}" data-i18n-skip>${э(у.что)}</span>`).join('')}</div>` : '') + `</div>`;
+    + погоняПолоса(б, 'race') + (б.укрытия.length ? `<div class="props" data-help-term="укрытия и что под рукой">${б.укрытия.map(у => `<span title="${э(у.как)}" data-i18n-skip>${э(у.что)}</span>`).join('')}</div>` : '') + `</div>`;
 }
 
 /** Тактический планшет: защищённый экран операции — поле в клетку с
@@ -796,12 +796,12 @@ function бойПланшет(б) {
   const подписи = 'ABCDEFGHIJKLMNO'.split('').map((л, i) => `<text class="crd" x="${i * 20 + 10}" y="9">${л}</text>`).join('') + Array.from({ length: 9 }, (_, i) => `<text class="crd" x="4" y="${i * 20 + 24}">${i + 1}</text>`).join('');
   const сводка = бб.map(п => `<li class="s-${п.сторона} st-${п.состояние}"><b data-i18n-skip>${э(первое(п.имя))}</b><span><span>${СТОРОНА[п.сторона]}</span> · <span>${ДИСТ[п.дист]}</span></span>${п.ствол ? `<small data-i18n-skip>${э(п.ствол)}</small>` : ''}`
     + (п.ад !== null ? `<i class="ad" style="--bv:${п.ад}%" aria-label="Адреналин"></i>` : '') + `<em><span>${п.состояниеСлово}</span>${п.нерв !== null ? ` · <span>${ВЫДЕРЖКА_СЛОВО[п.нерв]}</span>` : ''}</em></li>`).join('');
-  return `<div class="hud-v hud-bt hud-bt-tac${б.этап ? ' is-' + б.этап[0] : ''}"><div class="bar"><span><i class="led"></i>${подписьЭтапа(б)}</span><span class="op">// <span>операция</span></span>${б.очередь.length ? `<span><span>ход</span>: <b data-i18n-skip>${э(первое(б.очередь[0]))}</b></span>` : ''}</div>`
+  return `<div class="hud-v hud-bt hud-bt-tac${б.этап ? ' is-' + б.этап[0] : ''}"><div class="bar"><span data-help-term="кто где"><i class="led"></i>${подписьЭтапа(б)}</span><span class="op">// <span>операция</span></span>${б.очередь.length ? `<span><span>ход</span>: <b data-i18n-skip>${э(первое(б.очередь[0]))}</b></span>` : ''}</div>`
     + `<svg class="field" viewBox="0 0 ${W} ${H}" role="img" aria-label="Тактическая схема"><defs><pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0V5" stroke="currentColor" stroke-width="2"/></pattern></defs>`
     + `<rect class="bg" width="${W}" height="${H}" rx="8"/>${клетки}${подписи}<path class="mid" d="M150 12V${H - 6}"/>${укрытия}${жетоны}`
     + `<g class="compass" transform="translate(${W - 22} ${H - 22})"><circle r="12"/><path d="M0-10 3 0H-3Z" class="cn"/><path d="M0 10 3 0H-3Z"/><text y="-13">N</text></g>`
     + `<text class="lbl" x="22" y="${H - 8}">свои</text><text class="lbl r" x="${W - 40}" y="${H - 8}">враги</text></svg>`
-    + погоняПолоса(б, 'chase') + (б.укрытия.length ? `<p class="covers"><b>укрытия</b>: ${б.укрытия.map(у => свои(у.что)).join(', ')}</p>` : '') + `<ul class="roster">${сводка}</ul></div>`;
+    + погоняПолоса(б, 'chase') + (б.укрытия.length ? `<p class="covers"><b data-help-term="укрытия и что под рукой">укрытия</b>: ${б.укрытия.map(у => свои(у.что)).join(', ')}</p>` : '') + `<ul class="roster">${сводка}</ul></div>`;
 }
 
 // Фигуры: силуэты в клетке 20×20.
@@ -840,7 +840,7 @@ function бойШахматы(б) {
   const фиг = ({ п, вид, x, y }) => `<g class="pc s-${п.сторона} st-${п.состояние}${п.ходит ? ' is-turn' : ''}" transform="translate(${x} ${y})">${п.ходит ? '<rect class="sel" x="1" y="1" width="18" height="18" rx="2"/>' : ''}<ellipse class="shadow" cx="10.5" cy="17.4" rx="5" ry="1.4"/><path class="${п.состояние === 'stun' ? 'tilt' : ''}" d="${ФИГУРЫ[вид]}"/>${п.ран ? '<circle class="wd" cx="16" cy="4" r="2.2"/>' : ''}<title>${э(первое(п.имя))}</title></g>`;
   const надпись = !б.этап ? 'партия идёт' : { threat: 'шах', fight: 'партия идёт', pause: 'пауза', chase: 'бегство короля', over: 'партия окончена' }[б.этап[0]];
   const своих = бб.filter(п => п.сторона === 'ally' && п.состояние !== 'out').length, чужих = бб.filter(п => п.сторона === 'enemy' && п.состояние !== 'out').length;
-  return `<div class="hud-v hud-bt hud-bt-chess${б.этап ? ' is-' + б.этап[0] : ''}"><header class="banner"><b>${надпись}</b>${б.очередь.length ? `<span><span>ход</span>: <span data-i18n-skip>${э(первое(б.очередь[0]))}</span></span>` : ''}</header>`
+  return `<div class="hud-v hud-bt hud-bt-chess${б.этап ? ' is-' + б.этап[0] : ''}"><header class="banner"><b data-help-term="кто где">${надпись}</b>${б.очередь.length ? `<span><span>ход</span>: <span data-i18n-skip>${э(первое(б.очередь[0]))}</span></span>` : ''}</header>`
     + `<div class="game"><svg class="brd" viewBox="-14 -14 188 188" role="img" aria-label="Расстановка как на доске"><rect class="frame" x="-14" y="-14" width="188" height="188" rx="6"/><rect class="inlay" x="-6" y="-6" width="172" height="172" rx="2"/>${доска}`
     + 'abcdefgh'.split('').map((л, i) => `<text class="crd" x="${i * 20 + 10}" y="169">${л}</text>`).join('') + [8, 7, 6, 5, 4, 3, 2, 1].map((н, i) => `<text class="crd" x="-8" y="${i * 20 + 13}">${н}</text>`).join('')
     + фигуры.map(фиг).join('') + `</svg><div class="side">`
@@ -859,7 +859,7 @@ function бойСводка(б) {
   const строка = (п) => `<li class="s-${п.сторона} st-${п.состояние}${п.ходит ? ' is-turn' : ''}"><i class="side" aria-hidden="true"></i><b data-i18n-skip>${э(первое(п.имя))}</b>`
     + `<span class="hp" aria-label="Состояние"><i style="--bv:${п.hp}%"></i></span><em>${п.состояниеСлово}</em>`
     + `<small><span>${СТОРОНА[п.сторона]}</span> · <span>${ДИСТ[п.дист]}</span>${п.ствол ? ` · <span data-i18n-skip>${э(п.ствол)}</span>` : ''}${п.ран ? ` · <span>ран</span>: ${п.ран}` : ''}</small></li>`;
-  return `<div class="hud-v hud-bt hud-bt-sheet${б.этап ? ' is-' + б.этап[0] : ''}"><header><b>${подписьЭтапа(б)}</b>${б.очередь.length ? `<span><span>ход</span>: <span data-i18n-skip>${б.очередь.map(к => э(первое(к))).join(' → ')}</span></span>` : ''}</header>`
+  return `<div class="hud-v hud-bt hud-bt-sheet${б.этап ? ' is-' + б.этап[0] : ''}"><header><b data-help-term="кто где">${подписьЭтапа(б)}</b>${б.очередь.length ? `<span><span>ход</span>: <span data-i18n-skip>${б.очередь.map(к => э(первое(к))).join(' → ')}</span></span>` : ''}</header>`
     + `<ul>${бб.map(строка).join('')}</ul>` + погоняПолоса(б, 'line') + `</div>`;
 }
 

@@ -12,10 +12,10 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml, генерацияТаверны } from '../utils.js?v=23.89.29';
-import { settings } from '../settings.js?v=23.89.29';
-import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.29';
-import { связьПраздников, разобратьПраздники, праздникиМира, добавитьПраздникиМира, убратьПраздникМира } from './holiday-lore.js?v=23.89.29';
+import { escapeHtml, генерацияТаверны } from '../utils.js?v=23.89.30';
+import { settings } from '../settings.js?v=23.89.30';
+import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.30';
+import { связьПраздников, разобратьПраздники, праздникиМира, добавитьПраздникиМира, убратьПраздникМира } from './holiday-lore.js?v=23.89.30';
 
 const ЖДЁМ_МС = 180000;
 const ЛОР_СИМВОЛОВ = 40000;

@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.29**:
+The latest version is **23.89.30**:
 
+- The settings get a detailed guide with search; block settings sit in their own sections; new "?" explanations for the scene header, life, news, combat and story layers.
 - World holidays: the model finds the fandom's canon or invents holidays from the lorebook, persona and card; you choose what goes into the calendar, and HUD reminds the model and offers to start getting ready a week ahead.
 - Factions and reputation come first in the World tab, above the news.
 - Building up: HUD suggests to the model where what has piled up leads (no sleep, hunger, stress, debts, guns); bets on both sides; factions and reputation in World; the archive gets a mood calendar, a places atlas and a relationship map. Details of the new plates slide out on a tap.

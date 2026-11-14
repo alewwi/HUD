@@ -20,14 +20,14 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.89.29';
-import { статусОбещания } from './hud-expand.js?v=23.89.29';
-import { полеВкл } from './deep-fields.js?v=23.89.29';
-import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.29';
-import { namesLikelySame } from './names.js?v=23.89.29';
-import { датаИзТекста, дм } from './render/conception.js?v=23.89.29';
-import { праздникиГода } from './render/holidays.js?v=23.89.29';
-import { заметкаПраздниковМира } from './render/holiday-lore.js?v=23.89.29';
+import { settings } from './settings.js?v=23.89.30';
+import { статусОбещания } from './hud-expand.js?v=23.89.30';
+import { полеВкл } from './deep-fields.js?v=23.89.30';
+import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.30';
+import { namesLikelySame } from './names.js?v=23.89.30';
+import { датаИзТекста, дм } from './render/conception.js?v=23.89.30';
+import { праздникиГода } from './render/holidays.js?v=23.89.30';
+import { заметкаПраздниковМира } from './render/holiday-lore.js?v=23.89.30';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;

@@ -4,6 +4,17 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.30 — 2026-11-15
+
+The settings get a detailed guide, and block settings sit in their own sections.
+
+### Added
+- **📘 Guide** — a button next to "Archive" in the HUD settings. How the HUD works, a quick start, every setting, everything the model writes, and a search. The settings list is built from the panel itself, so it always matches it. Available in Russian and English.
+- **New "?" explanations** for the scene header, the life tiles, the news ticker, combat and chase views, bets, promises, consequences, factions, "Meanwhile", twists and the relationship graph.
+
+### Fixed
+- **Block settings in their own sections.** Sixteen options had landed in "Body and health" although they do not belong there. Question badges, one-off hints and translation protection moved to "Display"; invitations, thread deadlines, promises, bets and consequences to "Memory and plot"; "Who does not know what", trust locks and scars to "Characters"; "Meanwhile" and holidays to "Diary, dreams and world"; intimacy reminders to "Intimacy". Pregnancy options now sit right under the "Pregnancy" toggle.
+
 ## 23.89.29 — 2026-11-14
 
 ### Added
