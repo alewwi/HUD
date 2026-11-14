@@ -7,12 +7,12 @@
 // сколько нужно в сутки, наполненность груди по времени с кормления.
 // Оформление — css/family.css.
 
-import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок } from '../utils.js?v=23.89.26';
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.26';
-import { родыЧьи, словоПолов, деньРодов, дм } from './conception.js?v=23.89.26';
-import { подождатьДо, ДНЕЙ_ПОСЛЕ_РОДОВ } from './rest-hint.js?v=23.89.26';
-import { послеродовое, видКормления, часовМежду } from './fertility.js?v=23.89.26';
-import { видСемьи, видПослеродового } from './family-views.js?v=23.89.26';
+import { escapeHtml, applyTooltips, перевестиМетку, разбитьСписок } from '../utils.js?v=23.89.27';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.27';
+import { родыЧьи, словоПолов, деньРодов, дм } from './conception.js?v=23.89.27';
+import { подождатьДо, ДНЕЙ_ПОСЛЕ_РОДОВ } from './rest-hint.js?v=23.89.27';
+import { послеродовое, видКормления, часовМежду } from './fertility.js?v=23.89.27';
+import { видСемьи, видПослеродового } from './family-views.js?v=23.89.27';
 
 function метки(value) {
   const о = {};
@@ -82,7 +82,7 @@ export function buildPostpartum(value, { кто = '', сцена = '', врем�
         + `<i class="drop d0" aria-hidden="true"></i><i class="drop d1" aria-hidden="true"></i><i class="drop d2" aria-hidden="true"></i></div>`
         + `<div class="info"><b><i class="ico" aria-hidden="true"></i>${escapeHtml(молоко.стадия)}</b>`
         + `<span class="chips"><span>🤱 ${вид || 'кормит'}</span><span>🍼 ≈ ${молоко.вСутки} мл в сутки</span></span>`
-        + (молоко.слово ? `<span class="fill-meter"><span class="lbl"><b>${escapeHtml(молоко.слово)}</b>${прошло ? `<small>${прошло}</small>` : ''}</span><i style="--v:${пл}%"></i></span>` : '')
+        + (молоко.слово ? `<span class="fill-meter"><span class="lbl"><b>${escapeHtml(молоко.слово)}</b>${прошло ? `<small>${прошло}</small>` : ''}</span><i style="--pp-v:${пл}%"></i></span>` : '')
         + `</div></div>`;
     })() : строка('Кормление', вид))
     + строка('Грудь', п['грудь'])

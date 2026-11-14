@@ -103,6 +103,8 @@ A separate tab for everyone the model described in the turn:
 - **Body state** — energy, alertness, satiety, stress, sleep and plans for tomorrow.
 - **Weight and height** — a line on the card: weight, height, BMI and change. The model writes them once, then HUD asks to update them weekly in story time. If someone should not be counted, remove them in Daily life.
 - **Neglected state** — a plate when a person goes several days with almost no food, water or sleep. The model shows it in the story and in time records it as an illness, and undernourishment lowers the chance of conception and disturbs the cycle.
+- **Building up** — HUD sees where what has piled up is heading: a week of no sleep or food, stress through the roof, a negative balance, a Chekhov's gun past its deadline. A plate appears on the card: what is building up ("Anna snaps under too much stress", "a debt collector comes"), and on a tap, why and a "Suggest to the model" button. The idea goes to the model once, in the next reply; "No thanks" removes it for good.
+- **Bets** — who bet whom, on what and what is staked ("I'll put up my McLaren that…"). The model writes the bet on the card of whoever made it, and HUD shows it on both sides. You see who the bet is with and how it ended; what it is on and the stake slide out on a tap.
 - **Living details** — the model shows hunger, tiredness, stress and pain through small details instead of naming them, with pauses between them.
 - **Illnesses and injuries** — stage, symptoms, treatment and a recovery bar; body marks with a healing timer.
 - **Shared memories** — accumulate across turns: the same memory reworded isn't duplicated.
@@ -110,6 +112,10 @@ A separate tab for everyone the model described in the turn:
 <details><summary>📷 The whole character tab</summary>
 
 <p align="center"><img src="docs/screens/en/character.webp" alt="Character tab" width="520"></p>
+
+<p align="center"><img src="docs/screens/en/consequences.webp" alt="The Building up plate: what is coming, why, and Suggest to the model" width="520"></p>
+
+<p align="center"><img src="docs/screens/en/bets.webp" alt="A bet on the card: with whom, on what and the stake" width="420"></p>
 
 </details>
 
@@ -290,11 +296,15 @@ A summary for today: news, rumors, ads, the weather forecast, a horoscope, onlin
 
 **Online comments** come from ordinary people of this world under their nicknames: a city forum, a chat, the darknet. They know only what is public or leaked, can be wrong, and never address the reader.
 
+**Factions and reputation.** A separate layer of the world: how a gang, the police, a guild, classmates or the café round the corner see you. Each group has a scale from −100 to 100, an attitude in a word ("respect", "despise") and why, and shifts from past turns show like trust scars. In the settings you choose toward whom: the player, the character or both (then two tabs). Card details slide out on a tap.
+
 **Holidays of the era.** Holidays follow the era, place and faith: Russia, Europe with each country's own day, the USA, the Middle Ages. They show in the phone calendar, a light background appears in the scene a few days ahead, and a short recap follows the next day. In a fantasy world you can turn them off in the settings.
 
 <details><summary>📷 The World tab</summary>
 
 <p align="center"><img src="docs/screens/en/world.webp" alt="World tab: news, rumors, forecast" width="520"></p>
+
+<p align="center"><img src="docs/screens/en/factions.webp" alt="Factions and reputation: the scale, the attitude and why" width="520"></p>
 
 </details>
 
@@ -341,6 +351,9 @@ A summary of the whole chat history, via the **🗄 HUD archive** button in the 
 - **Relationships** — how pairs changed: shifts in attitude and trust by turn.
 - **Trust** — on the same tab: a pair's chart, the reasons for shifts, and scars.
 - **Timeline** — scenes by story day: where, how many turns, how much time passed.
+- **Mood** — a calendar: everyone gets a grid of story days, each cell coloured by the mood that ruled that day (the mood tracker and diary entries). A "black week" after a fight shows at once.
+- **Places atlas** — every place of the chat: how many times people went there, who comes most, who lives there (spends the night) and who works there (a shift, a post, staff), the last visit.
+- **Relationship map** — a table of pairs: how many turns two people were in one place, whose trust is falling, who hasn't met in a while.
 - **Pregnancies** — every pregnancy of the chat by turns: from which week to which, dates, the father, who knows, the expected birth and the outcome (birth, miscarriage, abortion). It also shows how it went (with a history by turns), symptoms, check-ups, the threat of loss and complications. Check-ups and threat outcomes you have not opened stay hidden.
 
 Every turn number shows the scene date and time of that turn. Tabs show the number of records. The newest is on top; long lists are collapsed to 10 records with "More" and "Show all", and filters split records by status: revealed secrets, fired guns, ongoing pregnancies and so on.
@@ -638,8 +651,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.26**:
+The latest version is **23.89.27**:
 
+- Building up: HUD suggests to the model where what has piled up leads (no sleep, hunger, stress, debts, guns); bets on both sides; factions and reputation in World; the archive gets a mood calendar, a places atlas and a relationship map. Details of the new plates slide out on a tap.
 - Date format, 12/24-hour time, °C/°F and wind units in the settings; scene time, date and weather can be fixed in ✎ mode.
 - Season and holiday screenshots in the README (modern, medieval, New Year, Halloween, Easter); the card shot is re-taken.
 - The treat icon is a sweet, companion tile labels stay with their icons; the English sample shows the new companion fields, and the Companions screenshots are retaken.

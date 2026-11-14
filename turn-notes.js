@@ -20,13 +20,13 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.89.26';
-import { статусОбещания } from './hud-expand.js?v=23.89.26';
-import { полеВкл } from './deep-fields.js?v=23.89.26';
-import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.26';
-import { namesLikelySame } from './names.js?v=23.89.26';
-import { датаИзТекста, дм } from './render/conception.js?v=23.89.26';
-import { праздникиГода } from './render/holidays.js?v=23.89.26';
+import { settings } from './settings.js?v=23.89.27';
+import { статусОбещания } from './hud-expand.js?v=23.89.27';
+import { полеВкл } from './deep-fields.js?v=23.89.27';
+import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.27';
+import { namesLikelySame } from './names.js?v=23.89.27';
+import { датаИзТекста, дм } from './render/conception.js?v=23.89.27';
+import { праздникиГода } from './render/holidays.js?v=23.89.27';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -35,14 +35,17 @@ function контекст() { try { return window.SillyTavern?.getContext?.() ||
 // Пример в «Кастомизации»: свой набор, в чат ничего не пишется.
 let пример = null;
 export function задатьПримерЗаметок(набор) { пример = набор || null; }
+// Разделы хранилища — одни и те же у чата и у примера: раздел, которого нет
+// у примера, ронял его карточку («последствия» — плашка «Назревает»).
+const СПИСКИ = ['подсказки', 'сдвиги', 'приглашения', 'сроки'];
+const СЛОВАРИ = ['детали', 'запущено', 'вес', 'разовые', 'повторы', 'снятыеШрамы', 'снятыеИзБыта', 'последствия'];
 function хранилище() {
-  if (пример) { for (const к of ['подсказки', 'сдвиги', 'приглашения', 'сроки']) пример[к] ||= []; for (const к of ['детали', 'запущено', 'вес', 'разовые', 'повторы', 'снятыеШрамы', 'снятыеИзБыта']) пример[к] ||= {}; return пример; }
-  const ctx = контекст();
+  const ctx = пример ? null : контекст();
   const мета = ctx && (ctx.chatMetadata || ctx.chat_metadata);
-  if (!мета) return null;
-  const х = (мета[КЛЮЧ] && typeof мета[КЛЮЧ] === 'object') ? мета[КЛЮЧ] : (мета[КЛЮЧ] = {});
-  for (const к of ['подсказки', 'сдвиги', 'приглашения', 'сроки']) if (!Array.isArray(х[к])) х[к] = [];
-  for (const к of ['детали', 'запущено', 'вес', 'разовые', 'повторы', 'снятыеШрамы', 'снятыеИзБыта']) if (!х[к] || typeof х[к] !== 'object') х[к] = {};
+  if (!пример && !мета) return null;
+  const х = пример || ((мета[КЛЮЧ] && typeof мета[КЛЮЧ] === 'object') ? мета[КЛЮЧ] : (мета[КЛЮЧ] = {}));
+  for (const к of СПИСКИ) if (!Array.isArray(х[к])) х[к] = [];
+  for (const к of СЛОВАРИ) if (!х[к] || typeof х[к] !== 'object') х[к] = {};
   return х;
 }
 function сохранить() {
@@ -88,6 +91,8 @@ const ПОДСКАЗКИ = {
   rumor: (т) => `This rumor reaches someone in the scene: «${т}».`,
   news: (т) => `This news reaches the people in the scene: «${т}».`,
   memory: (т) => `Someone remembers this now: «${т}».`,
+  // Последствие накопленного (render/consequences.js): событие, к которому всё шло.
+  consequence: (т) => `What has been building up now has its consequence — let it land in this reply, the way the scene allows: «${т}».`,
 };
 const ПРЕДЕЛ_ПОДСКАЗОК = 3;
 
@@ -121,6 +126,17 @@ function подсказкиХода(х, цель) {
   return `## 🎯 ONE-TIME NUDGE — from the player, for this reply only
 Work it in softly, the way this scene allows. Never force it, never mention this note.
 - ${живые.map(п => ПОДСКАЗКИ[п.вид](п.текст)).join('\n- ')}`;
+}
+
+/* --- Последствия: предлагаются один раз ----------------------------------------- */
+
+/** 'sent' — ушло модели, 'skip' — отказались, null — ещё не предлагали. */
+export function отметкаПоследствия(ключ) { const х = хранилище(); return (х && х.последствия[ключ]) || null; }
+export function отметитьПоследствие(ключ, как) {
+  const х = хранилище();
+  if (!х || !ключ) return;
+  х.последствия[ключ] = как;
+  сохранить();
 }
 
 /* --- Сдвиги доверия ---------------------------------------------------------- */

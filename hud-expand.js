@@ -17,11 +17,11 @@
 // в кодах (hud-snapshot.js, HUDвКодах).
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { namesLikelySame } from './names.js?v=23.89.26';
+import { namesLikelySame } from './names.js?v=23.89.27';
 
 export const NC = /^\s*(?:nc|n\/c|no change|unchanged)\s*\.?\s*$/i;
 export const ПОЛЯ_NC = ['Ap', 'C', 'Kn', 'Ft', 'NG', 'SxL'];
-export const МИР_ДНЯ = ['nws', 'rm', 'fc', 'zd', 'fate', 'eco', 'afs', 'cty', 'ad'];
+export const МИР_ДНЯ = ['nws', 'rm', 'fc', 'zd', 'fate', 'eco', 'afs', 'cty', 'ad', 'rep'];
 export const ПАМЯТЬ_ОБНОВЛЕНИЯМИ = ['fct', 'prm', 'gun', 'sec', 'lg'];
 
 // Сколько держим в развёрнутом списке: модель пишет только новое, и без

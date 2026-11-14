@@ -18,8 +18,8 @@
 // Ключи в vars — те же, что в settings.js. Незнакомые ключи не пишем: их
 // applyThemeColors() всё равно не читает.
 
-import { settings, defaultSettings } from './settings.js?v=23.89.26';
-import { последнийСтильHUD } from './css-loader.js?v=23.89.26';
+import { settings, defaultSettings } from './settings.js?v=23.89.27';
+import { последнийСтильHUD } from './css-loader.js?v=23.89.27';
 
 const HUD_THEMES = [
   {

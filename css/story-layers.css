@@ -1,0 +1,221 @@
+/* =========================================================================
+   СЛОИ ИСТОРИИ: последствия накопленного («Назревает»), пари, фракции и
+   репутация (вкладка «Мир»), календарь настроения, атлас мест и карта
+   отношений (архив). Цвета — от акцента темы; светлые темы — ниже.
+   ========================================================================= */
+
+/* --- Раскрывашка (render/fold.js) ---------------------------------------------
+   Голова — кнопка, подробности выезжают: высота 0fr → 1fr. Только переход
+   (transition), не анимация: замороженные анимации HUD его не трогают. */
+.hud-fold > .hud-fold-head {
+  all: unset; box-sizing: border-box; display: flex; align-items: center; gap: 9px; width: 100%; min-width: 0;
+  cursor: pointer; -webkit-tap-highlight-color: transparent; color: inherit; font: inherit;
+}
+.hud-fold.is-static > .hud-fold-head { cursor: default; }
+.hud-fold > .hud-fold-head:focus-visible { outline: 2px solid color-mix(in srgb, var(--fold-acc, currentColor) 70%, transparent); outline-offset: 3px; border-radius: 8px; }
+.hud-fold-chev { flex: none; width: 16px; height: 16px; margin-left: auto; fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+  opacity: .5; transition: transform .32s cubic-bezier(.3, .7, .2, 1), opacity .2s; }
+.hud-fold.is-open > .hud-fold-head .hud-fold-chev { transform: rotate(180deg); opacity: .9; }
+.hud-fold-body { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .34s cubic-bezier(.3, .7, .2, 1), opacity .26s ease; }
+.hud-fold.is-open > .hud-fold-body { grid-template-rows: 1fr; opacity: 1; }
+.hud-fold-in { min-height: 0; overflow: hidden; }
+@media (hover: hover) and (pointer: fine) { .hud-fold > button.hud-fold-head:hover .hud-fold-chev { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .hud-fold-body, .hud-fold-chev { transition: none; } }
+
+/* --- Назревает (render/consequences.js) --------------------------------- */
+.hud-conseq {
+  --cq: #f0aa3c;
+  grid-column: 1 / -1; position: relative; margin-bottom: 8px; padding: 10px 12px 11px 15px; border-radius: 14px; overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--cq) 42%, transparent);
+  background: radial-gradient(130% 160% at 0 0, color-mix(in srgb, var(--cq) 20%, transparent), transparent 62%),
+    linear-gradient(120deg, color-mix(in srgb, var(--cq) 9%, var(--hud-card-inner-bg, rgba(0, 0, 0, .26))), var(--hud-card-inner-bg, rgba(0, 0, 0, .26)));
+  box-shadow: inset 3px 0 0 var(--cq), 0 6px 22px -14px var(--cq);
+}
+.hud-conseq-top { display: flex; align-items: center; gap: 9px; margin-bottom: 8px; }
+.hud-conseq-ico {
+  position: relative; flex: none; display: grid; place-items: center; width: 26px; height: 26px; border-radius: 50%; color: #2a1a04;
+  background: radial-gradient(circle at 35% 30%, #ffe0a0, var(--cq) 70%);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--cq) 20%, transparent), 0 0 14px color-mix(in srgb, var(--cq) 55%, transparent);
+}
+.hud-conseq-ico svg { width: 14px; height: 14px; fill: currentColor; }
+/* Кольцо расходится от молнии — украшение: в замершем кадре это просто ободок. */
+.hud-conseq-ico::after { content: ""; position: absolute; inset: -3px; border-radius: 50%; border: 1.5px solid var(--cq); opacity: .5; animation: hud-cq-ring 2.6s ease-out infinite; }
+@keyframes hud-cq-ring { from { transform: scale(1); opacity: .5; } to { transform: scale(1.65); opacity: 0; } }
+.hud-conseq-top .hud-section-title { margin: 0; color: color-mix(in srgb, var(--cq) 78%, var(--ink-hi, #fff)); letter-spacing: .14em; }
+.hud-conseq-n { display: inline-grid; place-items: center; min-width: 19px; height: 19px; padding: 0 5px; box-sizing: border-box; border-radius: 999px; font-size: 11px; color: #2a1a04; background: var(--cq); }
+.hud-conseq-list { display: flex; flex-direction: column; gap: 6px; }
+.hud-conseq-item {
+  --fold-acc: var(--cq);
+  padding: 8px 10px; border-radius: 10px; background: rgba(0, 0, 0, .2);
+  border: 1px solid color-mix(in srgb, var(--cq) 20%, transparent);
+  transition: border-color .25s, background-color .25s;
+}
+.hud-conseq-item.is-open { border-color: color-mix(in srgb, var(--cq) 45%, transparent); background: color-mix(in srgb, var(--cq) 8%, rgba(0, 0, 0, .2)); }
+.hud-conseq-item .what { flex: 1; min-width: 0; font-size: 13px; line-height: 1.35; font-weight: 650; text-align: left; }
+.hud-conseq-item .hud-fold-chev { color: var(--cq); }
+.hud-conseq-item .why { margin: 8px 0 0; padding-left: 9px; border-left: 2px solid color-mix(in srgb, var(--cq) 45%, transparent); font-size: 12px; line-height: 1.4; opacity: .85; }
+.hud-conseq-item .done { display: block; font-size: 12px; color: #7fd49a; }
+.hud-conseq-item .acts { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 9px; }
+.hud-conseq-item .acts button {
+  padding: 4px 11px; border-radius: 999px; font: inherit; font-size: 11.5px; white-space: nowrap; cursor: pointer; color: var(--hud-text, inherit);
+  background: rgba(127, 127, 127, .12); border: 1px solid color-mix(in srgb, var(--cq) 40%, transparent); transition: background-color .2s;
+}
+.hud-conseq-item .acts button[data-hud-conseq="send"] { color: #2a1a04; font-weight: 650; border-color: transparent; background: linear-gradient(135deg, #ffd27a, var(--cq)); }
+@media (hover: hover) and (pointer: fine) {
+  .hud-conseq-item .acts button[data-hud-conseq="skip"]:hover { background: color-mix(in srgb, var(--cq) 22%, transparent); }
+  .hud-conseq-item .acts button[data-hud-conseq="send"]:hover { filter: brightness(1.08); }
+}
+
+/* --- Пари (render/bets.js) ------------------------------------------------- */
+.hud-bets { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.hud-bet {
+  --bet: var(--hud-accent, #c31f38); --fold-acc: var(--bet);
+  padding: 7px 10px; border-radius: 12px; min-width: 0;
+  border: 1px solid color-mix(in srgb, var(--bet) 36%, transparent);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--bet) 15%, var(--hud-card-inner-bg, rgba(0, 0, 0, .22))), var(--hud-card-inner-bg, rgba(0, 0, 0, .22)) 70%);
+  transition: border-color .25s;
+}
+.hud-bet.is-open { border-color: color-mix(in srgb, var(--bet) 60%, transparent); }
+.hud-bet.st-won { --bet: #4fbf7a; } .hud-bet.st-lost { --bet: #d9534f; }
+.hud-bet.is-mirror { border-style: dashed; }
+.hud-bet-ico { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; color: var(--bet);
+  background: color-mix(in srgb, var(--bet) 18%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bet) 35%, transparent); }
+.hud-bet-ico svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; }
+.hud-bet-ico svg circle { fill: currentColor; stroke: none; }
+.hud-bet .with { flex: 1; min-width: 0; font-size: 12.5px; line-height: 1.3; text-align: left; overflow-wrap: break-word; }
+.hud-bet .state { flex: none; font-style: normal; font-size: 10.5px; padding: 2px 8px; border-radius: 999px; background: color-mix(in srgb, var(--bet) 25%, transparent); }
+.hud-bet .hud-fold-chev { margin-left: 0; color: var(--bet); }
+.hud-bet .on, .hud-bet .stake { display: grid; grid-template-columns: 62px minmax(0, 1fr); gap: 2px 8px; align-items: baseline; margin: 8px 0 0; font-size: 12.5px; line-height: 1.4; }
+.hud-bet .stake { grid-template-columns: 18px 44px minmax(0, 1fr); }
+.hud-bet .on small, .hud-bet .stake small { font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; opacity: .6; }
+.hud-bet .coin { display: grid; place-items: center; align-self: center; color: #e9be52; }
+.hud-bet .coin svg { width: 16px; height: 16px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; }
+.hud-bet .mirror { margin: 7px 0 0; font-size: 11px; font-style: italic; opacity: .55; }
+
+/* --- Фракции и репутация (render/factions.js) ------------------------------- */
+.hud-rep-list { display: flex; flex-direction: column; gap: 8px; }
+.hud-rep-card {
+  --rep: #9fb0c4; --fold-acc: var(--rep);
+  padding: 10px 12px; border-radius: 13px; min-width: 0;
+  border: 1px solid color-mix(in srgb, var(--rep) 34%, transparent);
+  background: radial-gradient(120% 150% at 0 0, color-mix(in srgb, var(--rep) 13%, transparent), transparent 60%), var(--hud-card-inner-bg, rgba(0, 0, 0, .24));
+  transition: border-color .25s;
+}
+.hud-rep-card.is-open { border-color: color-mix(in srgb, var(--rep) 60%, transparent); }
+.hud-rep-card.is-good { --rep: #4fbf7a; } .hud-rep-card.is-warm { --rep: #9ccf6a; } .hud-rep-card.is-even { --rep: #9fb0c4; }
+.hud-rep-card.is-cold { --rep: #e0a050; } .hud-rep-card.is-bad { --rep: #e05a50; }
+/* Число — у шкалы, как показание прибора: строка названия остаётся свободной и на узкой карточке. */
+.hud-rep-card > .hud-fold-head { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "ico name chev" "bar bar num"; align-items: center; column-gap: 10px; row-gap: 7px; }
+.hud-rep-card.is-static > .hud-fold-head { grid-template-areas: "ico name name" "bar bar num"; }
+.hud-rep-ico { grid-area: ico; display: grid; place-items: center; width: 30px; height: 30px; border-radius: 9px; color: var(--rep);
+  background: linear-gradient(160deg, color-mix(in srgb, var(--rep) 30%, transparent), color-mix(in srgb, var(--rep) 8%, transparent));
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--rep) 40%, transparent), 0 0 12px -4px var(--rep); }
+.hud-rep-ico svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linejoin: round; stroke-linecap: round; }
+.hud-rep-card .name { grid-area: name; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 7px; min-width: 0; text-align: left; }
+.hud-rep-card .who { min-width: 0; max-width: 100%; font-size: 13.5px; line-height: 1.25; overflow-wrap: break-word; hyphens: auto; }
+.hud-rep-card .att { font-style: normal; font-size: 11px; padding: 1px 8px; border-radius: 999px; background: color-mix(in srgb, var(--rep) 24%, transparent); }
+.hud-rep-card .step { white-space: nowrap; font-size: 10.5px; font-weight: 700; font-variant-numeric: tabular-nums; padding: 0 6px; border-radius: 999px; }
+.hud-rep-card .step.up { color: #4fbf7a; background: rgba(79, 191, 122, .14); }
+.hud-rep-card .step.down { color: #e05a50; background: rgba(224, 90, 80, .14); }
+.hud-rep-card .num { grid-area: num; justify-self: end; line-height: 1; font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; color: var(--rep); text-shadow: 0 0 12px color-mix(in srgb, var(--rep) 45%, transparent); }
+.hud-rep-card .hud-fold-chev { grid-area: chev; margin-left: 0; color: var(--rep); }
+.hud-rep-card .bar { grid-area: bar; position: relative; display: block; height: 7px; border-radius: 4px; overflow: hidden;
+  background: linear-gradient(90deg, rgba(224, 90, 80, .14), rgba(127, 127, 127, .16) 50%, rgba(79, 191, 122, .14)); }
+.hud-rep-card .bar .mid { position: absolute; left: 50%; top: 0; bottom: 0; width: 2px; margin-left: -1px; background: rgba(255, 255, 255, .5); }
+.hud-rep-card .bar .fill { position: absolute; top: 0; bottom: 0; width: var(--w); box-shadow: 0 0 8px color-mix(in srgb, var(--rep) 70%, transparent); }
+.hud-rep-card .bar .fill.pos { left: 50%; border-radius: 0 4px 4px 0; background: linear-gradient(90deg, color-mix(in srgb, var(--rep) 65%, transparent), var(--rep)); }
+.hud-rep-card .bar .fill.neg { right: 50%; border-radius: 4px 0 0 4px; background: linear-gradient(270deg, color-mix(in srgb, var(--rep) 65%, transparent), var(--rep)); }
+.hud-rep-card .why { display: grid; gap: 2px; margin: 10px 0 0; padding-left: 9px; border-left: 2px solid color-mix(in srgb, var(--rep) 50%, transparent); font-size: 12px; line-height: 1.4; }
+.hud-rep-card .why > small, .hud-rep-shifts > small { font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase; opacity: .6; }
+.hud-rep-shifts { margin: 9px 0 0; }
+.hud-rep-shifts ul { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 11.5px; }
+.hud-rep-shifts li { padding: 4px 8px; border-radius: 8px; background: rgba(127, 127, 127, .1); }
+.hud-rep-shifts li b { font-variant-numeric: tabular-nums; }
+.hud-rep-shifts li.up b { color: #4fbf7a; }
+.hud-rep-shifts li.down b { color: #e05a50; }
+.hud-rep-shifts li small { opacity: .6; }
+.hud-rep-empty { margin: 4px 0; font-size: 12px; opacity: .6; }
+/* Узкая карточка: у фракции без щита (цвет карточки и так говорит об отношении),
+   у пари подписи над текстом. */
+@media (max-width: 600px) {
+  .hud-rep-card { padding: 9px 10px; }
+  .hud-rep-card > .hud-fold-head { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name chev" "bar num"; column-gap: 8px; }
+  .hud-rep-card.is-static > .hud-fold-head { grid-template-areas: "name name" "bar num"; }
+  .hud-rep-ico { display: none; }
+  .hud-rep-card .who { font-size: 13px; }
+  .hud-bet .on, .hud-bet .stake { grid-template-columns: minmax(0, 1fr); }
+  .hud-bet .stake { grid-template-columns: 18px minmax(0, 1fr); }
+  .hud-bet .stake > span { grid-column: 1 / -1; }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-rep-card { padding: 9px 10px; }
+  .hud-rep-card > .hud-fold-head { grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "name chev" "bar num"; column-gap: 8px; }
+  .hud-rep-card.is-static > .hud-fold-head { grid-template-areas: "name name" "bar num"; }
+  .hud-rep-ico { display: none; }
+  .hud-rep-card .who { font-size: 13px; }
+  .hud-bet .on, .hud-bet .stake { grid-template-columns: minmax(0, 1fr); }
+  .hud-bet .stake { grid-template-columns: 18px minmax(0, 1fr); }
+  .hud-bet .stake > span { grid-column: 1 / -1; }
+} }
+/* cq ↑ */
+/* Две вкладки: к игроку / к персонажу. */
+.hud-rep-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin: 2px 0 8px; }
+.hud-rep-tabs label { padding: 4px 10px; border-radius: 999px; font-size: 11.5px; cursor: pointer; border: 1px solid rgba(127, 127, 127, .35); }
+.hud-rep.is-two .pane-c { display: none; }
+.hud-rep-r.c:checked ~ .pane-u { display: none; }
+.hud-rep-r.c:checked ~ .pane-c { display: flex; }
+.hud-rep-r.u:checked ~ .hud-rep-tabs label[for$="-rep-u"],
+.hud-rep-r.c:checked ~ .hud-rep-tabs label[for$="-rep-c"] { background: color-mix(in srgb, var(--hud-accent, #c31f38) 28%, transparent); border-color: color-mix(in srgb, var(--hud-accent, #c31f38) 60%, transparent); }
+
+/* --- Архив: календарь настроения -------------------------------------------- */
+.hud-arc-mood-row { display: grid; grid-template-columns: minmax(70px, 120px) 1fr; gap: 8px; align-items: center; margin: 6px 0; }
+.hud-arc-mood-row .who { font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hud-arc-mood-grid { display: flex; flex-wrap: wrap; gap: 3px; }
+.hud-arc-mood-grid .cell { width: 14px; height: 14px; border-radius: 3px; background: var(--dm, #9fb0c4); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .15); }
+/* Пропуск дольше недели — метка «N дн.» вместо ряда пустых клеток. */
+.hud-arc-mood-grid .cell-break { display: inline-flex; align-items: center; gap: 2px; height: 14px; padding: 0 5px; border-radius: 3px; font-size: 9px; line-height: 1; opacity: .7; background: rgba(127, 127, 127, .08); box-shadow: inset 0 0 0 1px rgba(127, 127, 127, .2); }
+.hud-arc-mood-grid .cell.is-gap { background: rgba(127, 127, 127, .12); box-shadow: inset 0 0 0 1px rgba(127, 127, 127, .2); }
+.hud-arc-mood-legend { display: flex; flex-wrap: wrap; gap: 6px 12px; margin-top: 10px; font-size: 11px; opacity: .85; }
+.hud-arc-mood-legend span { display: inline-flex; align-items: center; gap: 5px; }
+.hud-arc-mood-legend i { width: 10px; height: 10px; border-radius: 2px; background: var(--dm); }
+
+/* --- Архив: атлас мест ----------------------------------------------------- */
+.hud-arc-place { padding: 8px 0; border-top: 1px dashed rgba(127, 127, 127, .25); }
+.hud-arc-place:first-of-type { border-top: 0; }
+.hud-arc-place .top { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.hud-arc-place .top b { font-size: 13px; }
+.hud-arc-place .visits { position: relative; margin-left: auto; display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; }
+.hud-arc-place .visits i { width: 60px; height: 5px; border-radius: 3px; background: linear-gradient(90deg, var(--hud-accent, #c31f38) var(--arc-v), rgba(127, 127, 127, .2) var(--arc-v)); }
+.hud-arc-place .meta { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-top: 4px; font-size: 11.5px; opacity: .8; }
+.hud-arc-place .meta span { display: inline-flex; align-items: center; gap: 4px; }
+.hud-arc-place .people { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+.hud-arc-place .people span { padding: 1px 8px; border-radius: 999px; font-size: 11px; background: rgba(127, 127, 127, .14); }
+.hud-arc-place .people small { opacity: .6; }
+
+/* --- Архив: карта отношений ------------------------------------------------- */
+.hud-arc-heat-wrap { overflow-x: auto; margin: 6px 0 10px; }
+.hud-arc-heat { border-collapse: separate; border-spacing: 3px; font-size: 11px; }
+.hud-arc-heat th { font-weight: 600; white-space: nowrap; padding: 2px 4px; text-align: right; }
+.hud-arc-heat thead th { height: 74px; vertical-align: bottom; text-align: left; }
+.hud-arc-heat thead th span { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); max-height: 72px; overflow: hidden; text-overflow: ellipsis; }
+.hud-arc-heat td {
+  width: 26px; height: 26px; min-width: 26px; text-align: center; border-radius: 5px; font-variant-numeric: tabular-nums;
+  background: color-mix(in srgb, var(--hud-accent, #c31f38) calc(var(--h, 0) * 85%), rgba(127, 127, 127, .1));
+}
+.hud-arc-heat td.self { background: transparent; }
+.hud-arc-heat td.none { background: rgba(127, 127, 127, .06); }
+.hud-arc-heat td.is-tense { box-shadow: inset 0 0 0 2px #e05a50; }
+.hud-arc-heat td.is-cold { opacity: .45; }
+.hud-arc-heat-list { margin-top: 8px; font-size: 12px; }
+.hud-arc-heat-list b { display: inline-flex; align-items: center; gap: 5px; }
+.hud-arc-heat-list ul { margin: 4px 0 0; padding-left: 18px; }
+.hud-arc-heat-list small { opacity: .6; margin-left: 4px; }
+
+/* Светлые темы: плашка «Назревает» темнее по тексту, клетки календаря с обводкой. */
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-conseq { border-color: rgba(200, 120, 20, .5); background: linear-gradient(120deg, rgba(240, 170, 60, .2), rgba(240, 170, 60, .07)); }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-conseq-item { background: rgba(255, 255, 255, .45); }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-conseq-item.is-open { background: rgba(240, 170, 60, .12); }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-rep-card .bar .mid { background: rgba(0, 0, 0, .35); }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-rep-shifts li { background: rgba(0, 0, 0, .05); }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-arc-heat td.is-tense { box-shadow: inset 0 0 0 2px #c0392b; }

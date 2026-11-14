@@ -6,17 +6,18 @@
 // Отчёт приходит готовым объектом, поэтому окно одинаково рисует и свежий
 // расчёт, и поднятый из кэша.
 
-import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.26';
-import { английский } from '../i18n.js?v=23.89.26';
-import { settings } from '../settings.js?v=23.89.26';
-import { задатьЕдиницы, htmlВФормате } from '../units.js?v=23.89.26';
-import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.26';
-import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.26';
-import { ссылкиТрека } from './music.js?v=23.89.26';
-import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности, открытыеЗачатия, датаИзТекста } from './conception.js?v=23.89.26';
-import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.26';
-import { ико } from './view-icons.js?v=23.89.26';
-import { namesLikelySame } from '../names.js?v=23.89.26';
+import { escapeHtml, guardTouchSwipe, имяБезПриставки } from '../utils.js?v=23.89.27';
+import { английский } from '../i18n.js?v=23.89.27';
+import { settings } from '../settings.js?v=23.89.27';
+import { задатьЕдиницы, htmlВФормате } from '../units.js?v=23.89.27';
+import { вкладкаКалендаря, вкладкаАтласа, вкладкаКартыОтношений } from './archive-maps.js?v=23.89.27';
+import { выбраннаяЛетопись, выбранныйЧат, свойФайлЛетописи, списокЛетописей, совпаденийСЧатом, выбратьЛетопись, чатыПерсонажа, летописьИзЧата } from '../chronicle-store.js?v=23.89.27';
+import { analyzeChat, getChatMessages, readCache, writeCache, parseSceneDate } from '../history-analyzer.js?v=23.89.27';
+import { ссылкиТрека } from './music.js?v=23.89.27';
+import { историяБеременностей, ВИДЫ_ПОТЕРИ, дм, журналБеременностей, осложненияБеременности, открытыеЗачатия, датаИзТекста } from './conception.js?v=23.89.27';
+import { сдвигиЧата, чистаяПричина } from '../turn-notes.js?v=23.89.27';
+import { ико } from './view-icons.js?v=23.89.27';
+import { namesLikelySame } from '../names.js?v=23.89.27';
 
 let окноОткрыто = false;
 // Дата и время ходов открытого отчёта (history-analyzer.js → moments).
@@ -714,6 +715,9 @@ export function openArchiveDialog() {
         <button type="button" data-tab="guns">${значок('target')}<span>Ружья</span></button>
         <button type="button" data-tab="relations">${значок('heart')}<span>Отношения</span></button>
         <button type="button" data-tab="timeline">${значок('calendar')}<span>Хронология</span></button>
+        <button type="button" data-tab="moodcal">${значок('sun')}<span>Настроение</span></button>
+        <button type="button" data-tab="atlas">${значок('pin')}<span>Атлас мест</span></button>
+        <button type="button" data-tab="heat">${значок('chain')}<span>Карта отношений</span></button>
         <button type="button" data-tab="pregnancies">${значок('hearts')}<span>Беременности</span></button>
         <button type="button" data-tab="soundtrack">${значок('music')}<span>Саундтрек</span></button>
         <button type="button" data-tab="stats">${значок('chart')}<span>Статистика</span></button>
@@ -790,7 +794,7 @@ export function openArchiveDialog() {
     const поиск = ($('.hud-arc-search').value || '').trim().toLowerCase();
     вкладки.hidden = false;
     // Число записей на вкладках: видно, где что есть, не открывая.
-    const числа = { secrets: отчёт.secrets.length, guns: (отчёт.guns || []).length, pregnancies: беременностиОтчёта(отчёт).эпизоды.length + беременностиОтчёта(отчёт).свободные.length };
+    const числа = { secrets: отчёт.secrets.length, guns: (отчёт.guns || []).length, atlas: ((отчёт.maps && отчёт.maps.atlas) || []).length, pregnancies: беременностиОтчёта(отчёт).эпизоды.length + беременностиОтчёта(отчёт).свободные.length };
     вкладки.querySelectorAll('[data-tab]').forEach(b => {
       let n = b.querySelector('.hud-arc-count');
       if (!(b.dataset.tab in числа)) return;
@@ -804,6 +808,9 @@ export function openArchiveDialog() {
       : активная === 'guns' ? вкладкаРужей(отчёт, поиск)
       : активная === 'relations' ? вкладкаОтношений(отчёт, поиск)
       : активная === 'timeline' ? вкладкаХронологии(отчёт, поиск)
+      : активная === 'moodcal' ? вкладкаКалендаря(отчёт, поиск)
+      : активная === 'atlas' ? вкладкаАтласа(отчёт, поиск)
+      : активная === 'heat' ? вкладкаКартыОтношений(отчёт, поиск)
       : активная === 'pregnancies' ? вкладкаБеременностей(отчёт, поиск)
       : активная === 'soundtrack' ? вкладкаСаундтрека(отчёт, поиск)
       : активная === 'dash' ? buildDashboardHTML(отчёт)

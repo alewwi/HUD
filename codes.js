@@ -64,7 +64,7 @@ const ЗАПИСЬ = { au: 'author', tm: 'time', tx: 'text', ab: 'aboutUser', md
 const СОН = { tx: 'text', mn: 'meaning' };
 const МИР = {
   nws: 'headlines', rm: 'rumors', fc: 'forecast', zd: 'horoscope', fate: 'prediction', ad: 'ads', com: 'comments',
-  eco: 'economy', afs: 'events', cty: 'city',
+  eco: 'economy', afs: 'events', cty: 'city', rep: 'reputation',
   nw: 'headlines', ft: 'prediction', cm: 'comments', news: 'headlines', stars: 'horoscope',
 };
 const СПУТНИК = {

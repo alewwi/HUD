@@ -12,25 +12,25 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.89.26';
+import { settings } from './settings.js?v=23.89.27';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { тМодели as т } from './i18n.js?v=23.89.26';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.26';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.89.26';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.26';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.89.26';
-import { заменитьHudБлоки } from './hud-block.js?v=23.89.26';
-import { упомянутВТексте } from './names.js?v=23.89.26';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.26';
-import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.26';
-import { доверияБезПричин } from './turn-notes.js?v=23.89.26';
+import { тМодели as т } from './i18n.js?v=23.89.27';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.27';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.89.27';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.27';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.89.27';
+import { заменитьHudБлоки } from './hud-block.js?v=23.89.27';
+import { упомянутВТексте } from './names.js?v=23.89.27';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.27';
+import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.27';
+import { доверияБезПричин } from './turn-notes.js?v=23.89.27';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 
 // Коды полей в том виде, в каком их просит промт.
 const ПОЛЯ_СЦЕНЫ = ['T', 'Wt', 'Dt', 'At', 'Md', 'Tw'];
 const ПОЛЯ_ПЕРСОНАЖА = ['N', 'A', 'C', 'Ap', 'R', 'B', 'H', 'Ill', 'Prg', 'Mns', 'Ph', 'Bs', 'L', 'Th', 'K', 'Ex', 'D', 'I', 'G', 'S', 'Rl', 'Mm', 'Fl',
-  'Jl', 'St', 'Eo', 'X', 'SxL', 'SxC', 'SxR', 'Ln', 'Tr', 'Fr', 'SS', 'Pos', 'Rnd', 'Dur', 'Prt', 'Org', 'Vit', 'Snd', 'BM', 'W', 'Kn', 'Ft',
+  'Jl', 'Bt', 'St', 'Eo', 'X', 'SxL', 'SxC', 'SxR', 'Ln', 'Tr', 'Fr', 'SS', 'Pos', 'Rnd', 'Dur', 'Prt', 'Org', 'Vit', 'Snd', 'BM', 'W', 'Kn', 'Ft',
   'NG', 'NT', 'ND', 'Mrk', 'AC', 'SxV'];
 // Игрок ведёт те же поля, что и персонажи; вместо W — своя близость UW.
 const ПОЛЯ_ИГРОКА = [...ПОЛЯ_ПЕРСОНАЖА.filter(к => к !== 'N' && к !== 'W'), 'Pp', 'UW'];
@@ -230,10 +230,12 @@ export function собратьСнимок(текстБлока) {
     if (выкл('enableEconomy')) убрать(к.wd, ['eco']);
     if (выкл('enableEvents')) убрать(к.wd, ['afs']);
     if (выкл('enableCity')) убрать(к.wd, ['cty']);
+    if (settings.factions === 'off') убрать(к.wd, ['rep']);
     if (выкл('showComments')) убрать(к.wd, ['com']);
   }
   const поПерсонажам = (ключи) => { (Array.isArray(к.cs) ? к.cs : []).forEach(c => убрать(c, ключи)); убрать(к.us, ключи); };
   if (выкл('enableIllness')) поПерсонажам(['Ill']);
+  if (выкл('betsList')) поПерсонажам(['Bt']);
   // Причины сдвигов доверия — только на свой ход: в снимке им незачем повторяться.
   (Array.isArray(к.cs) ? к.cs : []).forEach(c => { if (объект(c) && c.Tr) c.Tr = доверияБезПричин(c.Tr); });
   if (выкл('enablePregnancy')) поПерсонажам(['Prg']);
@@ -464,7 +466,7 @@ const НАЗВАНИЯ_ПОЛЕЙ = {
   T: 'time', Wt: 'weather', Dt: 'date', At: 'atmosphere', Md: 'mood',
   N: 'name', A: 'age', C: 'clothing', Ap: 'appearance', R: 'role', B: 'body and mind', H: 'health', Ill: 'illnesses and injuries',
   Prg: 'pregnancy', Mns: 'cycle', Ph: 'physiology', L: 'location', Th: 'thought', K: 'key thoughts', Ex: 'expectation vs reality',
-  D: 'hidden subtext', I: 'inventory', G: 'goals', S: 'schedule', Rl: 'relationships', Mm: 'memories', Fl: 'flags', Jl: 'jealousy',
+  D: 'hidden subtext', I: 'inventory', G: 'goals', S: 'schedule', Rl: 'relationships', Mm: 'memories', Fl: 'flags', Bt: 'bets', Jl: 'jealousy',
   St: 'status', Eo: 'exposure', X: 'conflict', Ln: 'lines', Tr: 'trust', Fr: 'fears', Mrk: 'body marks',
   SxL: 'last encounter', SxC: 'sex count', SxR: 'sex regularity', SxV: 'sex review', SS: 'scene phase', Pos: 'position', Rnd: 'round',
   Dur: 'duration', Prt: 'protection', Org: 'orgasm readiness', Vit: 'vitals', Snd: 'sounds', BM: 'body map', W: 'intimate state',

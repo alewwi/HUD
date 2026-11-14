@@ -11,18 +11,19 @@
 // упрощённый парсер здесь был бы третьим по счёту и разошёлся бы с ними на
 // первой же правке схемы.
 
-import { parseHUDComplex } from './hud-parser.js?v=23.89.26';
-import { normalizeJSONData } from './schema.js?v=23.89.26';
-import { parseRelationList } from './render/relations-graph.js?v=23.89.26';
-import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.89.26';
-import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.26';
-import { createDashboard } from './chat-stats.js?v=23.89.26';
-import { статусРужья } from './codes.js?v=23.89.26';
-import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.89.26';
-import { историяБеременностей } from './render/conception.js?v=23.89.26';
-import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.89.26';
-import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.89.26';
-import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.89.26';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.27';
+import { normalizeJSONData } from './schema.js?v=23.89.27';
+import { parseRelationList } from './render/relations-graph.js?v=23.89.27';
+import { nameLettersOnly, namePhoneticLatin, namesLikelySame } from './names.js?v=23.89.27';
+import { hudFilled, getSafeUserName, имяБезПриставки } from './utils.js?v=23.89.27';
+import { createDashboard } from './chat-stats.js?v=23.89.27';
+import { статусРужья } from './codes.js?v=23.89.27';
+import { readEntry, writeEntry, clearAll, usage } from './store.js?v=23.89.27';
+import { историяБеременностей } from './render/conception.js?v=23.89.27';
+import { выжимкаHUD, ключСообщения, датаИзТегов } from './chronicle.js?v=23.89.27';
+import { летописьЧата, летописьЕсли, дописатьВЛетопись } from './chronicle-store.js?v=23.89.27';
+import { музыкаХода, музыкаДляЛетописи } from './render/music-data.js?v=23.89.27';
+import { создатьКарты } from './history-maps.js?v=23.89.27';
 
 // --- Мелкие помощники --------------------------------------------------------
 
@@ -115,8 +116,8 @@ const чистоеИмя = (имя) => имяБезПриставки(текст
 // Извлечение блока [HUD] из текста сообщения. Тот же набор написаний, что и в
 // index.js: модель иногда шлёт < > вместо скобок, а ST успевает заэкранировать.
 // Поиск блока — общий, в hud-block.js. Экспорт оставлен: его берут отсюда.
-import { extractHudBlock } from './hud-block.js?v=23.89.26';
-import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.89.26';
+import { extractHudBlock } from './hud-block.js?v=23.89.27';
+import { развернутьHUD, подгрузитьЧат } from './offload.js?v=23.89.27';
 export { extractHudBlock };
 
 // Массив сообщений текущего чата.
@@ -503,6 +504,8 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
     if (деньСцены || значимо(t)) моменты[at] = { date: деньСцены, time: значимо(t) ? t : '' };
   };
   const игрок = getSafeUserName();
+  // Календарь настроения, атлас мест, карта отношений (history-maps.js).
+  const карты = создатьКарты();
 
   // Дашборд считает все сообщения, а не только с HUD, — в этом же проходе.
   const дашборд = createDashboard({ userName: getSafeUserName() });
@@ -533,6 +536,7 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
     собратьНастроения(настроения, data, i);
     собратьРужья(ружья, data, i);
     собратьБеременности(беременности, data, i, игрок, исходыБеременностей);
+    карты.учесть(data, i, деньСцены);
 
     const имена = [];
     if (data.user && значимо(data.user['Имя'])) имена.push(чистоеИмя(data.user['Имя']));
@@ -658,6 +662,7 @@ export async function analyzeChat(startIndex, endIndex, options = {}) {
     dashboard: дашборд.finish(),
     guns: ружьяМассив,
     soundtrack: саундтрек,
+    maps: карты.итог(),
     stats: {
       totalMessages: to - from + 1,
       withHud: сОбработанным,
@@ -728,7 +733,7 @@ function ключКэша(from, to) {
 // Отчёт старого устройства (без дат у ходов, с дублями секретов) считаем
 // устаревшим: пересчёт быстрее, чем объяснять, почему в нём другое.
 // 3: беременности делятся по исходам из записей чата.
-export const ВЕРСИЯ_ОТЧЁТА = 3;
+export const ВЕРСИЯ_ОТЧЁТА = 4;
 export async function readCache(from, to) {
   const payload = await readEntry(ключКэша(from, to));
   if (!payload || !payload.report) return null;

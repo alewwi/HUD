@@ -175,7 +175,7 @@
 .hud-pp-milk .fill-meter .lbl b { color: color-mix(in srgb, var(--milk-tone) 55%, currentColor); }
 .hud-pp-milk .fill-meter .lbl small { font-size: .9em; color: color-mix(in srgb, currentColor 70%, transparent); }
 .hud-pp-milk .fill-meter > i { position: relative; height: 8px; border-radius: 8px; overflow: hidden; background: color-mix(in srgb, currentColor 10%, transparent); }
-.hud-pp-milk .fill-meter > i::before { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--v); border-radius: inherit;
+.hud-pp-milk .fill-meter > i::before { content: ''; position: absolute; inset: 0 auto 0 0; width: var(--pp-v); border-radius: inherit;
   background: linear-gradient(90deg, color-mix(in srgb, #fff8ea 70%, var(--milk-tone)), var(--milk-tone)); box-shadow: 0 0 8px color-mix(in srgb, var(--milk-tone) 50%, transparent); }
 .hud-pp-milk .drop { position: absolute; top: 46px; width: 6px; height: 8px; opacity: 0; pointer-events: none;
   background: color-mix(in srgb, #fffaf0 85%, var(--fam-acc)); clip-path: path('M3 0C3 0 0 4.2 0 5.4A3 3 0 0 0 6 5.4C6 4.2 3 0 3 0Z'); }

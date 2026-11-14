@@ -100,6 +100,14 @@ export const defaultSettings = {
   knowledgeLine: true,
   trustLocks: true,
   promisesList: true,
+  // Пари между персонажами (поле Bt): ставка видна в карточках обоих.
+  betsList: true,
+  // Последствия накопленного (render/consequences.js): недосып, голод, стресс,
+  // долг, неразорвавшееся ружьё → HUD один раз предлагает событие модели.
+  consequences: true,
+  // Фракции и репутация (wd.rep, мир): 'off', 'user' — к игроку, 'char' — к
+  // персонажу, 'both' — к обоим, двумя вкладками.
+  factions: 'user',
   meanwhile: true,
   // Защита HUD при переводе чата Таверны: блок HUD не переводится, карточка — на языке перевода (translate-guard.js).
   chatTranslation: true,

@@ -10,15 +10,15 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.89.26';
+import { settings } from './settings.js?v=23.89.27';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.26';
-import { промптНаАнглийском } from './prompt-en.js?v=23.89.26';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.26';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.26';
-import { возрастТочно } from './render/babies.js?v=23.89.26';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.26';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.26';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.27';
+import { промптНаАнглийском } from './prompt-en.js?v=23.89.27';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.27';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.27';
+import { возрастТочно } from './render/babies.js?v=23.89.27';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.27';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.27';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -127,7 +127,10 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
   // Экономия токенов ответа: что можно писать коротко. HUD сразу после ответа
   // разворачивает это в полный HUD (hud-expand.js, index.js развернутьОтвет).
   const списокКодов = (к) => к.map(x => `"${x}"`).join(', ').replace(/, ([^,]*)$/, ' and $1');
-  const ключиМира = settings.enableWorld && settings.hudWorldDaily !== false ? ['nws', 'rm', 'fc', ...(гороскоп ? ['zd', 'fate'] : []), ...(экономика ? ['eco'] : []), ...(афиша ? ['afs'] : []), ...(город ? ['cty'] : []), 'ad'] : [];
+  // Фракции и репутация (wd.rep) — слой мира; к кому — по настройке.
+  const фракции = !!settings.enableWorld && (settings.factions || 'user') !== 'off';
+  const целиФракций = settings.factions === 'both' ? '{{user}} or {{char}} — a separate row for each' : settings.factions === 'char' ? '{{char}}' : '{{user}}';
+  const ключиМира = settings.enableWorld && settings.hudWorldDaily !== false ? ['nws', 'rm', 'fc', ...(гороскоп ? ['zd', 'fate'] : []), ...(экономика ? ['eco'] : []), ...(афиша ? ['afs'] : []), ...(город ? ['cty'] : []), 'ad', ...(фракции ? ['rep'] : [])] : [];
   const ключиПамяти = settings.enableMemory && settings.hudMemoryDelta !== false ? ['fct', ...(settings.promisesList === false ? [] : ['prm']), ...(ружья ? ['gun'] : []), 'sec', 'lg'] : [];
   const краткость = (settings.hudNoChange !== false ? `
 - ♻️ NO CHANGE: in Ap, C, Kn, Ft, NG, SxL, H, St, I, Mrk and Ill write just "nc" (no change) ONLY when nothing in that field has changed since the last HUD and the value would be word for word the same — for every character${игрок ? ' and for {{user}}' : ''}. The slightest shift — an item used or moved, a bruise fading, a symptom easing, one new detail of status or health — means the field is written in full with the update. If unsure, write it in full. No last HUD — always in full. A field that was empty stays empty, never nc. These eleven fields only: never write nc anywhere else.` : '')
@@ -195,7 +198,8 @@ ${состояниеТела ? `   "Bs": "[body state, 0-100 each followed by a 
    "Rl": "[relationships with EVERY other named person who matters now: '<name>: <attitude>', separated by ; — never commas, they glue people into one relation. The '(!…)' wound mark belongs only to Tr, never here. Each attitude starts with who that person IS to this character in 1-3 words, then a comma: kinship from THIS character's side (муж, сестра, отчим), or a role (возлюбленная, начальник, соперник, незнакомка, спасительница, одержимость) — 'Павел: муж, любит, но боится'; 'Вера: соседка, выручила его с ключами и раздражает своей прямотой'. The role is the tie BETWEEN the two, not a bare occupation: in one class or group — однокурсница, одноклассник, коллега; teacher and student — her side 'мой преподаватель', 'научный руководитель', his side 'его студентка', 'ученица'; never just 'студентка'. An obsession is a role too: 'Вера: одержимость, не может перестать следить за ней'. Never open with a description of the scene ('девушка на диване'). Bidirectional: if A lists B, B is in cs with A in their Rl; everyone named in any Rl is in cs, except {{char}} or {{user}} absent from the scene. Never 'empty' while other named people exist]",
    "Mm": "[memories: moments this character shares with the player or NPCs, each a short episode; separate by ;]",
    "Fl": "[flags: open plot threads, promises, debts, threats and consequences waiting to land; separate by ;]",
-   "Jl": "[jealousy, ONLY while genuinely jealous right now: '<the one they fear losing> → <the rival>: how it shows'. Otherwise omit or 'empty' — an always-filled field turns the highlight into wallpaper]",
+${settings.betsList === false ? '' : `   "Bt": "[OPTIONAL — only while a bet between people is on or has just been settled: '<with whom> | <the stake — what is put up, e.g. «свой макларен»> | <what exactly they bet on> | <open | won | lost>', several bets separated by ;. Written once, in the card of whoever made the bet, from their side; won or lost on the turn it is settled, then drop it]",
+`}   "Jl": "[jealousy, ONLY while genuinely jealous right now: '<the one they fear losing> → <the rival>: how it shows'. Otherwise omit or 'empty' — an always-filled field turns the highlight into wallpaper]",
    "St": "[status: social and romantic status — single, married, engaged, in a secret affair, widowed — plus social standing if it matters]",
    "Eo": "[exposure: how much of the mask has slipped before those present — a bouncing leg, a cracking voice, eyes darting to the door; what leaked and who noticed. May start with 0-100% (0 nobody suspects, 100 everyone sees through). 'empty' when there is nothing to hide]",
    "X": "[conflict depth as 'wy: what the conflict is about; dys: how many days it has been going on; sg: its stage — brewing, open, cold war, reconciliation']",
@@ -518,7 +522,8 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
   "eco": ["[item | value | change since yesterday, e.g. 'Доллар | 92,4 ₽ | +0,3' or 'Хлеб | 64 ₽ | подорожал']", "economy: 3-6 rows of currency rates, prices and wages, ${фон}"],` : ''}${афиша ? `
   "afs": ["[kind | title | where and when]", "events: 2-6 rows of what is on today, ${экономика ? 'fitting the era and place' : фон}; kind is one of: cinema, theatre, concert, exhibition, festival, sport, club, street, lecture"],` : ''}${город ? `
   "cty": ["[kind | what is happening]", "city services: 2-5 rows, ${экономика || афиша ? 'fitting the era and place' : фон}; kind is one of: traffic, roads, weather, transport, repairs, emergency, utilities, police, health, protest"],` : ''}
-  "ad": ["[classified ad: short, in the voice of whoever posted it]", "ads: one line per ad"]`;
+  "ad": ["[classified ad: short, in the voice of whoever posted it]", "ads: one line per ad"]${фракции ? `,
+  "rep": ["[faction or group] | [toward whom: ${целиФракций}] | [standing -100..100] | [attitude in 1-3 words, e.g. уважают, презирают, боятся] | [why: what earned this standing or its latest shift]", "reputation: how groups that matter in the story — gangs, police, guilds, noble houses, a class at the university, a court — regard ${целиФракций}; one row per group${settings.factions === 'both' ? ' and per person' : ''}. The number moves only through events, by steps, never resets; on a shift, why says what caused it"]` : ''}`;
     if (settings.showComments) {
       p += `,
   "com": ["[nickname: comment]", "comments: ordinary people of this world posting under nicknames wherever this place and era talk: a city forum, a chat, a darknet board, a tavern wall. They live in the story's world, know only what is public or leaked, argue and get things wrong; they never see private scenes or thoughts, never address the reader and do not know this is a story. One line per comment, as many as the thread gets"]`;

@@ -4,6 +4,21 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.27 — 2026-11-14
+
+Six new story layers: what is building up, bets, factions and three archive tabs.
+
+### Added
+- **Building up.** HUD sees where what has piled up is heading: days without sleep, food or water, stress from 85, energy down to 10, a negative balance, a Chekhov's gun past its deadline. A plate appears on the person's card: what is building up, and on a tap, why and the "Suggest to the model" and "No thanks" buttons. A suggestion goes to the model once, in the next reply; a refusal is remembered too. Turn it off in the settings (⚡ Consequences).
+- **Bets.** Who bet whom, on what and what is staked. The model writes the bet on the card of whoever made it, and HUD shows it on both sides, on the second card with a dashed frame and the outcome flipped. Turn it off in the settings (🎲 Bets).
+- **Factions and reputation** in the World tab: how gangs, the police, guilds or classmates see the player or the character — a scale from −100 to 100, the attitude in a word, why, and shifts from past turns. In the settings: toward the player, the character, both (two tabs) or off.
+- **Archive: three new tabs.** "Mood" is a calendar of story days, each cell coloured by the day's mood. "Places atlas" lists every place of the chat: visits, who comes most, who lives and who works there, the last visit. "Relationship map" is a table of pairs: turns spent together, whose trust is falling, who hasn't met in a while.
+- The new plates keep their details folded; they slide out on a tap on the title.
+- The sample HUD shows all the new plates, in Russian and English.
+
+### Fixed
+- **The milk bar in the Nursery** for a nursing mother was always empty: its variable shared a name with the scene tempo one.
+
 ## 23.89.26 — 2026-11-14
 
 Date, time, temperature and wind in the format you are used to; the scene time can be fixed by hand.

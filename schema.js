@@ -7,11 +7,11 @@
 // Правила видимости UI намеренно не трогаются: пустые NSFW-значения
 // остаются скрываемыми.
 
-import { settings } from './settings.js?v=23.89.26';
-import { mapKey } from './utils.js?v=23.89.26';
-import { mergeCharacterRecords } from './render/relations-graph.js?v=23.89.26';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.26';
-import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.89.26';
+import { settings } from './settings.js?v=23.89.27';
+import { mapKey } from './utils.js?v=23.89.27';
+import { mergeCharacterRecords } from './render/relations-graph.js?v=23.89.27';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.27';
+import { развернутьКоды, строкаМаршрута, строкаПрогноза, строкаГороскопа, строкаСообщения, настроениеТела, настроениеДневника, уровеньСекрета, огласкаСекрета, видСобытия, фазаБлизости } from './codes.js?v=23.89.27';
 
 // Fixed schema defaults. This repairs omitted non-NSFW keys after generation.
 // UI visibility rules are intentionally left intact: empty NSFW values remain hideable.
@@ -23,7 +23,7 @@ const HUD_CHARACTER_DEFAULTS = { N:'empty', A:'empty', C:'empty', Ap:'empty', R:
 const HUD_USER_DEFAULTS = { A:'empty', C:'empty', Ap:'empty', H:'empty', Rel:'empty', L:'empty', UW:'empty' };
 const HUD_SCENE_DEFAULTS = { T:'empty', Wth:'empty', Dt:'empty', Atm:'empty', Md:'empty' };
 const HUD_MEMORY_DEFAULTS = { timeline:[], mood:{ user:{current:'empty',history:[]}, char:{current:'empty',history:[]} }, route:{user:[],char:[]}, important:[], secrets:[], guns:[] };
-const HUD_WORLD_DEFAULTS = { headlines:[], rumors:[], forecast:[], horoscope:[], prediction:[], ads:[], comments:[], economy:[], events:[], city:[] };
+const HUD_WORLD_DEFAULTS = { headlines:[], rumors:[], forecast:[], horoscope:[], prediction:[], ads:[], comments:[], economy:[], events:[], city:[], reputation:[] };
 const cloneSchemaDefault = v => Array.isArray(v) ? [] : (v && typeof v === 'object' ? Object.fromEntries(Object.entries(v).map(([k,x]) => [k,cloneSchemaDefault(x)])) : v);
 function fillMissingObjectFields(obj, defaults) {
   // Canonicalize aliases BEFORE applying defaults. Otherwise a model that emits
@@ -481,6 +481,6 @@ export function normalizeJSONData(parsed) {
              forecast: cleanArray(world.forecast).map(строкаПрогноза), horoscope: cleanArray(world.horoscope).map(строкаГороскопа),
              prediction: cleanArray(world.prediction),
              ads: cleanArray(world.ads), comments: cleanArray(world.comments),
-             economy: cleanArray(world.economy), events: cleanArray(world.events), city: cleanArray(world.city) }
+             economy: cleanArray(world.economy), events: cleanArray(world.events), city: cleanArray(world.city), reputation: cleanArray(world.reputation) }
   };
 }

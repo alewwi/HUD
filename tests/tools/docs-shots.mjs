@@ -70,6 +70,26 @@ const СНИМКИ = [
   { имя: 'phone-calendar', вкладка: ['Телефон', 'Phone'], шаги: `т.querySelector('.hud-phone-emulator').classList.add('unlocked'); т.querySelector('[data-phone-app="calendar"]').click(); await __shots.ждать(900);`, элемент: '.hud-phone-emulator' },
   { имя: 'phone-health', вкладка: ['Телефон', 'Phone'], шаги: `т.querySelector('.hud-phone-emulator').classList.add('unlocked'); т.querySelector('[data-phone-app="health"]').click(); await __shots.ждать(900);`, элемент: '.hud-phone-emulator' },
   { имя: 'phone-maps', вкладка: ['Телефон', 'Phone'], шаги: `т.querySelector('.hud-phone-emulator').classList.add('unlocked'); т.querySelector('[data-phone-app="maps"]').click(); await __shots.ждать(900);`, элемент: '.hud-phone-emulator' },
+  // Для README: «Назревает», пари и фракции — раскрытыми.
+  { имя: 'consequences', вкладка: ['Лилиан', 'Lilian'], элемент: '.hud-tab-content.active .hud-conseq',
+    шаги: "window.__ширинаКопии = 548; т.querySelectorAll('.hud-tab-content.active .hud-conseq .hud-fold:not(.is-open) > button.hud-fold-head').forEach(к => к.click()); await __shots.ждать(800);" },
+  { имя: 'bets', вкладка: ['Марк', 'Mark'], элемент: '.hud-tab-content.active .hud-bets',
+    шаги: "window.__ширинаКопии = 548; т.querySelectorAll('.hud-tab-content.active .hud-bets .hud-fold:not(.is-open) > button.hud-fold-head').forEach(к => к.click()); await __shots.ждать(800);" },
+  { имя: 'factions', вкладка: ['Мир', 'World'], элемент: '.hud-tab-content.active .hud-rep',
+    шаги: "window.__ширинаКопии = 548; т.querySelector('.hud-tab-content.active .hud-rep .hud-fold:not(.is-open) > button.hud-fold-head')?.click(); await __shots.ждать(800);" },
+  // Служебные: последствия, пари, фракции — проверка вида (--only new-consequences,new-bets,new-bets-mirror,new-factions).
+  { имя: 'new-consequences', вкладка: ['Лилиан', 'Lilian'], элемент: '.hud-tab-content.active .hud-conseq', служебный: true },
+  { имя: 'new-lilian', вкладка: ['Лилиан', 'Lilian'], сцена: 'compact', высота: 1600, служебный: true },
+  { имя: 'new-bets', вкладка: ['Марк', 'Mark'], элемент: '.hud-tab-content.active .hud-bets', служебный: true },
+  { имя: 'new-bets-mirror', вкладка: ['Артём', 'Artyom'], элемент: '.hud-tab-content.active .hud-bets', служебный: true },
+  { имя: 'new-factions', вкладка: ['Мир', 'World'], элемент: '.hud-tab-content.active .hud-rep', служебный: true },
+  // Те же раскрытыми (-open) и раскрытыми на телефонной ширине 215 px (-phone).
+  ...[['new-consequences', ['Лилиан', 'Lilian'], '.hud-conseq'], ['new-bets', ['Марк', 'Mark'], '.hud-bets'], ['new-bets-mirror', ['Артём', 'Artyom'], '.hud-bets'], ['new-factions', ['Мир', 'World'], '.hud-rep']]
+    .flatMap(([имя, вкладка, что]) => [['-open', 548], ['-phone', 215]].map(([хвост, ширина]) => ({ имя: имя + хвост, вкладка, служебный: true, элемент: '.hud-tab-content.active ' + что,
+      шаги: `window.__ширинаКопии = ${ширина}; т.querySelectorAll('.hud-tab-content.active ${что} .hud-fold:not(.is-open) > button.hud-fold-head').forEach(к => к.click()); await __shots.ждать(800);` }))),
+  // Вкладка Марка целиком на телефонной ширине (пари в карточке).
+  { имя: 'new-mark-phone', вкладка: ['Марк', 'Mark'], сцена: 'compact', служебный: true,
+    шаги: "window.__ширинаКопии = 215; т.querySelectorAll('.hud-tab-content.active .hud-fold:not(.is-open) > button.hud-fold-head').forEach(к => к.click()); await __shots.ждать(800);" },
   // Служебный: только по --only scene (проверка фона сцены).
   { имя: 'scene', вкладка: ['Элеонора', 'Eleanor'], сцена: 'open', элемент: '.hud-scene-widget', служебный: true },
   { имя: 'theme-academia', вкладка: ['Элеонора', 'Eleanor'], сцена: 'open', высота: 938, тема: 'academia' },

@@ -7,12 +7,12 @@
 // settings.showComments напрямую из замыкания index.js. Теперь флаг
 // приходит четвёртым аргументом — модуль не знает про глобальные настройки.
 
-import { кнопкаПодсказки } from './erase-button.js?v=23.89.26';
-import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.89.26';
-import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.26';
-import { buildEconomyHTML, buildEventsHTML, buildCityHTML, разборЭкономики, разборАфиши, разборГорода } from './world-city.js?v=23.89.26';
-import { видБлока } from './views.js?v=23.89.26';
-import { settings } from '../settings.js?v=23.89.26';
+import { кнопкаПодсказки } from './erase-button.js?v=23.89.27';
+import { escapeHtml, hudHashSeed, commentInitials, hudHasMeaningfulValue } from '../utils.js?v=23.89.27';
+import { HUD_AVATAR_COLORS } from '../avatars.js?v=23.89.27';
+import { buildEconomyHTML, buildEventsHTML, buildCityHTML, разборЭкономики, разборАфиши, разборГорода } from './world-city.js?v=23.89.27';
+import { видБлока } from './views.js?v=23.89.27';
+import { settings } from '../settings.js?v=23.89.27';
 
 // Заголовки разделов «Мира» по эпохе: в средневековье нет «новостей»,
 // «афиши» и «комментариев Сети» — есть глашатай, ярмарки и пересуды.
@@ -28,8 +28,8 @@ const СРЕДНЕВЕКОВЬЕ = {
   '💬 Комментарии Сети': '💬 Пересуды',
 };
 const З = (заголовок) => (settings.era === 'medieval' && СРЕДНЕВЕКОВЬЕ[заголовок]) || заголовок;
-import { знакЗодиака } from '../i18n.js?v=23.89.26';
-import { видНовостей, видСлухов, видЭкономики, видГорода, видПрогноза, видГороскопа, видАфиши, видОбъявлений, видКомментариев } from './world-views.js?v=23.89.26';
+import { знакЗодиака } from '../i18n.js?v=23.89.27';
+import { видНовостей, видСлухов, видЭкономики, видГорода, видПрогноза, видГороскопа, видАфиши, видОбъявлений, видКомментариев } from './world-views.js?v=23.89.27';
 
 // Вид блока «Мира» из «Кастомизации»: новый — если выбран и собрался,
 // иначе прежний (render/world-views.js).
@@ -174,7 +174,7 @@ function parseWorldComment(raw) {
   return { name: 'Анон', text };
 }
 
-export function buildWorldHTML(worldData, uid, isChecked, showComments, подГазетами = '') {
+export function buildWorldHTML(worldData, uid, isChecked, showComments, подГазетами = '', доп = {}) {
   let html = `<div class="hud-tab-content ${isChecked ? 'active' : ''}" id="content-${uid}"><div class="hud-world-container"><div class="hud-world-scroll">`;
   if (!worldData || !Object.values(worldData).some(arr => Array.isArray(arr) && arr.length > 0)) {
     return html + (подГазетами || `<div class="hud-world-empty">🌍 В этом снимке мира пока нет записей.</div>`) + `</div></div>`;
@@ -210,6 +210,8 @@ export function buildWorldHTML(worldData, uid, isChecked, showComments, подГ
   }
   // «Тем временем» (за кадром) — сразу под газетами.
   if (подГазетами) html += подГазетами;
+  // Фракции и репутация (render/factions.js) — следом: это тоже расклад сил в мире.
+  if (доп.фракции) { try { html += доп.фракции() || ''; } catch (e) { console.warn('[TavernOS HUD] Фракции:', e); } }
   if (worldData.rumors && worldData.rumors.length > 0) {
     html += `<div class="hud-hint-box">${кнопкаПодсказки('rumor', worldData.rumors)}</div>`;
     html += вМире('rumorsView', вид => видСлухов(worldData.rumors, вид, З('🗣️ Слухи')),

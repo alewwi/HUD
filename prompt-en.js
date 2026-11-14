@@ -31,6 +31,9 @@ const ЗАМЕНЫ = [
   // Сцена.
   ['21:40 | поздний вечер', '21:40 | late evening'],
   ['мелкий дождь, +6°C, ветер с реки', 'light rain, +6°C, wind from the river'],
+  // Пари и фракции.
+  ['«свой макларен»', '«his McLaren»'],
+  ['уважают, презирают, боятся', 'respect, despise, fear'],
   ['«1) Вера может первой позвонить брату; 2) или промолчать — и тогда Глеб узнает всё от соседей»', '«1) Vera may call her brother first; 2) or keep quiet — and then Gleb hears it all from the neighbors»'],
   ['«ёлочки»', '«guillemets»'],
 
