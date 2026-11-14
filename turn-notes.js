@@ -20,13 +20,14 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.89.28';
-import { статусОбещания } from './hud-expand.js?v=23.89.28';
-import { полеВкл } from './deep-fields.js?v=23.89.28';
-import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.28';
-import { namesLikelySame } from './names.js?v=23.89.28';
-import { датаИзТекста, дм } from './render/conception.js?v=23.89.28';
-import { праздникиГода } from './render/holidays.js?v=23.89.28';
+import { settings } from './settings.js?v=23.89.29';
+import { статусОбещания } from './hud-expand.js?v=23.89.29';
+import { полеВкл } from './deep-fields.js?v=23.89.29';
+import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.29';
+import { namesLikelySame } from './names.js?v=23.89.29';
+import { датаИзТекста, дм } from './render/conception.js?v=23.89.29';
+import { праздникиГода } from './render/holidays.js?v=23.89.29';
+import { заметкаПраздниковМира } from './render/holiday-lore.js?v=23.89.29';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -93,6 +94,8 @@ const ПОДСКАЗКИ = {
   memory: (т) => `Someone remembers this now: «${т}».`,
   // Последствие накопленного (render/consequences.js): событие, к которому всё шло.
   consequence: (т) => `What has been building up now has its consequence — let it land in this reply, the way the scene allows: «${т}».`,
+  // Праздник мира скоро (render/holiday-lore.js): игрок решил начать подготовку.
+  holiday: (т) => `An event of this world is coming: ${т}. The characters can start getting ready for it.`,
 };
 const ПРЕДЕЛ_ПОДСКАЗОК = 3;
 
@@ -842,6 +845,8 @@ export function заметкиХода({ чат, снимок = null, тип = '
     if (вкл('enableNeglect') && нота('neg')) строки.push(...заметкаЗапущенного(х, снимок, чат, цель, сцена, игрок));
     if (вкл('enableWeight') && нота('wg')) { const в = заметкаВеса(х, снимок, цель, сцена, игрок); if (в) строки.push(в); }
     if (вкл('enableEraHolidays') && нота('hol')) { const п = заметкаПраздников(х, снимок, цель, сцена); if (п) строки.push(п); }
+    // Праздники мира (render/holiday-lore.js): напоминание в день или заранее.
+    { const п = заметкаПраздниковМира(сцена); if (п) строки.push(п); }
     строки.push(...заметкаПриглашений(х, цель, сцена, игрок), ...заметкаСроков(х, снимок, цель, сцена));
     if (строки.length) части.push(`## 📝 THIS TURN\n- ${строки.join('\n- ')}`);
   }

@@ -123,6 +123,18 @@ export const defaultSettings = {
   enableNeglect: true,
   enableWeight: true,
   enableEraHolidays: true,
+  // Праздники мира (render/holiday-lore.js, holiday-gen.js): кнопка в календаре,
+  // напоминание модели (day — в сам день, before — ещё за два дня, off) и
+  // предложение игроку начать подготовку за N дней (0 — не предлагать).
+  holidayGen: true,
+  holidayReminder: 'day',
+  holidayPrepDays: 7,
+  holidayProfileId: '',
+  holidayCount: 0,
+  holidayLorebooks: [],
+  holidayUseLore: true,
+  holidayUsePersona: true,
+  holidayUseCard: true,
   pregnancySerious: false,
   pregnancyReveal: 'auto',
   enablePregnancy: true,

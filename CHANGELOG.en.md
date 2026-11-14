@@ -4,6 +4,13 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.29 — 2026-11-14
+
+### Added
+- **World holidays.** The phone calendar gets a "✦ Holidays" button: the model finds the fandom's holidays or invents its own from the chosen context. In the window you pick the sources (the lorebook and which books, the persona, the card, in any mix), the connection profile and how many holidays — a number or "as many as it finds". For a known universe it takes canon first, and where canon is thin, invents holidays that fit it; for an original one it works from its materials. The answer comes as a JSON list: dates and names are shown neatly, a cross leaves a holiday out, and the rest go into the calendar as a separate "World holidays" calendar. The holidays already added are listed there too and can be removed.
+- **A reminder to the model** of a world holiday: on the day, also two days before, or never (🔔 in the settings). It is one line saying the event exists in the story.
+- **"Start getting ready?"** — a week before a world holiday (the number of days is a setting, 0 turns it off) a plate shows above the tabs of the latest reply. "Yes, start" lets the model know in the next reply that the event is near and preparations can begin; the answer is remembered, so it asks once.
+
 ## 23.89.28 — 2026-11-14
 
 ### Changed

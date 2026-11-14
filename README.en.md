@@ -300,6 +300,12 @@ A summary for today: news, rumors, ads, the weather forecast, a horoscope, onlin
 
 **Holidays of the era.** Holidays follow the era, place and faith: Russia, Europe with each country's own day, the USA, the Middle Ages. They show in the phone calendar, a light background appears in the scene a few days ahead, and a short recap follows the next day. In a fantasy world you can turn them off in the settings.
 
+**World holidays.** A "✦ Holidays" button in the phone calendar: the model finds the fandom's holidays or invents its own from the lorebook, persona and card — you choose the sources, the connection profile and how many holidays (or "as many as it finds"). For a known universe it takes canon first, and where canon is thin, invents holidays that fit it, with nods to the lore; for an original one it works from its materials. The list shows dates and names: leave out what you don't want with a cross, and the rest goes into the calendar in its own colour. HUD reminds the model of a holiday on the day itself or also two days before, and a week ahead (the number is a setting) offers you "Start getting ready?": a "yes" goes to the model once, with the next reply.
+
+<p align="center"><img src="docs/screens/en/holidays-gen.webp" alt="The World holidays window: context sources, profile, found holidays with crosses" width="460"></p>
+
+<p align="center"><img src="docs/screens/en/holidays-prep.webp" alt="A plate above the tabs: a holiday in 5 days, start getting ready?" width="520"></p>
+
 <details><summary>📷 The World tab</summary>
 
 <p align="center"><img src="docs/screens/en/world.webp" alt="World tab: news, rumors, forecast" width="520"></p>
@@ -651,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.28**:
+The latest version is **23.89.29**:
 
+- World holidays: the model finds the fandom's canon or invents holidays from the lorebook, persona and card; you choose what goes into the calendar, and HUD reminds the model and offers to start getting ready a week ahead.
 - Factions and reputation come first in the World tab, above the news.
 - Building up: HUD suggests to the model where what has piled up leads (no sleep, hunger, stress, debts, guns); bets on both sides; factions and reputation in World; the archive gets a mood calendar, a places atlas and a relationship map. Details of the new plates slide out on a tap.
 - Date format, 12/24-hour time, °C/°F and wind units in the settings; scene time, date and weather can be fixed in ✎ mode.

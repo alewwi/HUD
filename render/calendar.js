@@ -14,12 +14,13 @@
 // обработчик кликов (events.js). Своего состояния у календаря нет: всё в
 // классах и data-атрибутах разметки.
 
-import { escapeHtml, defeatWI, имяБезПриставки } from '../utils.js?v=23.89.28';
-import { namesLikelySame } from '../names.js?v=23.89.28';
-import { G_ICONS } from './icons.js?v=23.89.28';
-import { праздникиГода } from './holidays.js?v=23.89.28';
-import { срокиНитей } from '../turn-notes.js?v=23.89.28';
-import { settings } from '../settings.js?v=23.89.28';
+import { escapeHtml, defeatWI, имяБезПриставки } from '../utils.js?v=23.89.29';
+import { namesLikelySame } from '../names.js?v=23.89.29';
+import { G_ICONS } from './icons.js?v=23.89.29';
+import { праздникиГода } from './holidays.js?v=23.89.29';
+import { праздникиМираГода } from './holiday-lore.js?v=23.89.29';
+import { срокиНитей } from '../turn-notes.js?v=23.89.29';
+import { settings } from '../settings.js?v=23.89.29';
 
 const МЕСЯЦЫ_РОД = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const МЕСЯЦЫ = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
@@ -31,6 +32,7 @@ const ДНИ_КОРОТКО = ['вс', 'пн', 'вт', 'ср', 'чт', 'пт', '
 const НАЗАД = 2, ВПЕРЁД = 6;
 // Цвета чужих расписаний — различимые на тёмном и светлом.
 // Розовый — последним: он у дней рождения и часто у самого хозяина (акцент).
+const ЦВЕТ_МИРА = '#c59bff';
 export const ЦВЕТА_КАЛЕНДАРЕЙ = ['#5fb8ff', '#8fd18a', '#c59bff', '#ffb36b', '#55d6c2', '#f07a7a', '#d8c25a', '#ff8fb8'];
 
 // --- Даты --------------------------------------------------------------------
@@ -197,6 +199,12 @@ export function buildCalendarApp(events, characters, sceneDate, владелец
     const к = календарь('hol', ТИПЫ.holiday, '#ffc94d');
     список.push({ день: { d: д.getUTCDate(), mo: д.getUTCMonth() + 1, y: сегодня.y }, время: '', до: '', часть: '', порядок: '', название: п.имя, тип: 'holiday', кал: к.id, кто: '' });
   }
+  // Праздники мира (render/holiday-lore.js) — своим календарём; этот год и следующий.
+  if (сегодня) for (const год of [сегодня.y, сегодня.y + 1]) for (const п of праздникиМираГода(год)) {
+    const д = new Date(п.дата);
+    const к = календарь('world', 'Праздники мира', ЦВЕТ_МИРА);
+    список.push({ день: { d: д.getUTCDate(), mo: д.getUTCMonth() + 1, y: год }, время: '', до: '', часть: '', порядок: '', название: п.имя, тип: 'holiday', кал: к.id, кто: '' });
+  }
   if (сегодня) for (const н of срокиНитей()) {
     const д = new Date(н.дата), к = календарь('own', 'Мой', 'var(--hud-cal-own)');
     список.push({ день: { d: д.getUTCDate(), mo: д.getUTCMonth() + 1, y: д.getUTCFullYear() }, время: '', до: '', часть: '', порядок: '', название: н.завязка, тип: 'event', кал: к.id, кто: '' });
@@ -204,7 +212,9 @@ export function buildCalendarApp(events, characters, sceneDate, владелец
 
 
   // Расписания из карточек: хозяина — в «Мой», остальных — в их календари.
+  // Лиловый — у праздников мира, если они есть: людям достаются остальные цвета.
   let цвет = 0;
+  const палитра = календари.some(к => к.id === 'world') ? ЦВЕТА_КАЛЕНДАРЕЙ.filter(c => c !== ЦВЕТ_МИРА) : ЦВЕТА_КАЛЕНДАРЕЙ;
   (Array.isArray(characters) ? characters : []).forEach(ch => {
     const сырое = ch && (ch['Расписание'] || ch['расписание']);
     if (!сырое || !сегодня) return;
@@ -213,7 +223,7 @@ export function buildCalendarApp(events, characters, sceneDate, владелец
     // Пустое расписание («empty») — без своего календаря.
     const пункты = разобратьРасписание(сырое, сегодня);
     if (!пункты.length) return;
-    const к = свой ? календарь('own', 'Мой', 'var(--hud-cal-own)') : календарь('p:' + имя, кратко(имя) || 'Без имени', ЦВЕТА_КАЛЕНДАРЕЙ[цвет++ % ЦВЕТА_КАЛЕНДАРЕЙ.length]);
+    const к = свой ? календарь('own', 'Мой', 'var(--hud-cal-own)') : календарь('p:' + имя, кратко(имя) || 'Без имени', палитра[цвет++ % палитра.length]);
     пункты.forEach(п => список.push({ ...п, тип: 'plan', кал: к.id, кто: свой ? '' : кратко(имя) }));
   });
 
@@ -223,7 +233,7 @@ export function buildCalendarApp(events, characters, sceneDate, владелец
   const ключСегодня = ключДня(сегодняДень.y, сегодняДень.mo, сегодняДень.d);
 
   // Свой календарь первым, потом праздники и дни рождения, потом люди.
-  const порядокКал = (к) => (к.id === 'own' ? 0 : к.id === 'hol' ? 1 : к.id === 'bd' ? 2 : 3);
+  const порядокКал = (к) => (к.id === 'own' ? 0 : к.id === 'hol' ? 1 : к.id === 'world' ? 1.5 : к.id === 'bd' ? 2 : 3);
   календари.sort((a, b) => порядокКал(a) - порядокКал(b));
   const номер = new Map(календари.map((к, i) => [к.id, i]));
   const поДням = new Map();
@@ -291,9 +301,11 @@ export function buildCalendarApp(events, characters, sceneDate, владелец
     return `<button type="button" class="hud-cal-soon-day" data-date="${к}"><span class="hud-cal-soon-when">${когда}<small>${р > 1 ? escapeHtml(счётчикДо(р).главное.toLowerCase()) : ДНИ[вДату(о).getDay()].toLowerCase()}</small></span><span class="hud-cal-soon-list">${дела.slice(0, 3).map(e => `<span class="hud-cal-soon-item ${цветКал(e.кал)}">${e.время ? `<b>${escapeHtml(e.время)}</b> ` : ''}${defeatWI(escapeHtml(e.название))}${e.кто ? ` <em>· ${defeatWI(escapeHtml(e.кто))}</em>` : ''}</span>`).join('')}${дела.length > 3 ? `<span class="hud-cal-soon-more">ещё ${дела.length - 3}</span>` : ''}</span></button>`;
   }).join('');
 
-  const фишки = календари.length > 1 ? `<div class="hud-cal-cals" role="group" aria-label="Календари">${календари.map((к, i) => `<button type="button" class="hud-cal-chip c${i}" data-cal="${i}" aria-pressed="true"><i aria-hidden="true"></i>${defeatWI(escapeHtml(к.подпись))}</button>`).join('')}</div>` : '';
+  // Кнопка «Праздники мира» (render/holiday-gen.js) — маленькая, в конце ряда календарей.
+  const генератор = settings.holidayGen === false ? '' : `<button type="button" class="hud-cal-gen" title="Сгенерировать праздники мира по лорбуку, персоне и карточке" aria-label="Сгенерировать праздники мира"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3.5l1.6 4.4 4.4 1.6-4.4 1.6L12 15.5l-1.6-4.4L6 9.5l4.4-1.6Z"/><path d="M18.5 14.5l.7 1.8 1.8.7-1.8.7-.7 1.8-.7-1.8-1.8-.7 1.8-.7Z"/></svg><span>Праздники</span></button>`;
+  const фишки = календари.length > 1 || генератор ? `<div class="hud-cal-cals" role="group" aria-label="Календари">${календари.length > 1 ? календари.map((к, i) => `<button type="button" class="hud-cal-chip c${i}" data-cal="${i}" aria-pressed="true"><i aria-hidden="true"></i>${defeatWI(escapeHtml(к.подпись))}</button>`).join('') : ''}${генератор}</div>` : '';
 
-  return `<div class="hud-cal" data-today="${ключСегодня}" style="${стиль}">
+  return `<div class="hud-cal" data-today="${ключСегодня}" data-scene="${escapeHtml(String(sceneDate || ''))}" style="${стиль}">
     ${фишки}
     <div class="hud-cal-months">${месяцы}</div>
     <div class="hud-cal-sheet" aria-live="polite">
@@ -381,6 +393,14 @@ export function обработатьКликКалендаря(e) {
     const сейчас = стрелка.closest('.hud-cal-month');
     const соседний = стрелка.dataset.step === '-1' ? сейчас.previousElementSibling : сейчас.nextElementSibling;
     if (соседний && соседний.classList.contains('hud-cal-month')) показатьМесяц(кал, соседний);
+    return true;
+  }
+  // Праздники мира: окно грузится по первому нажатию.
+  const генератор = e.target.closest('.hud-cal-gen');
+  if (генератор) {
+    e.preventDefault();
+    import('./holiday-gen.js?v=23.89.29').then(м => м.открытьГенераторПраздников({ дата: кал.dataset.scene || '' }))
+      .catch(err => console.error('[TavernOS HUD] окно праздников не загрузилось:', err));
     return true;
   }
   const фишка = e.target.closest('.hud-cal-chip');

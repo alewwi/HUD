@@ -5,33 +5,33 @@
 // грузится через import() в конце запуска (загрузитьПанельНастроек): для
 // первой отрисовки чата она не нужна.
 
-import { показатьЧтоНового } from './whats-new.js?v=23.89.28';
-import { settings, defaultSettings } from './settings.js?v=23.89.28';
-import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.89.28';
-import { видБлока } from './render/views.js?v=23.89.28';
-import { escapeHtml } from './utils.js?v=23.89.28';
-import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.89.28';
-import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.89.28';
-import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.89.28';
-import { убратьМетку } from './hud-erase.js?v=23.89.28';
-import { убратьЛетопись } from './chronicle-store.js?v=23.89.28';
-import { включитьПереводчик, т, английский, кодЯзыка, языкиМеню, файлПеревода, загрузитьФайлПеревода, убратьФайлПеревода } from './i18n.js?v=23.89.28';
+import { показатьЧтоНового } from './whats-new.js?v=23.89.29';
+import { settings, defaultSettings } from './settings.js?v=23.89.29';
+import { собратьФайл, разобратьФайл, применитьНастройки } from './settings-file.js?v=23.89.29';
+import { видБлока } from './render/views.js?v=23.89.29';
+import { escapeHtml } from './utils.js?v=23.89.29';
+import { вычиститьHUDИзСообщения } from './hud-block.js?v=23.89.29';
+import { разгрузитьЧат, вернутьHUDВЧат, оценитьРазгрузку, ключиВЧате, чатыСМетками, убратьФайлыРазгрузки } from './offload.js?v=23.89.29';
+import { разметкаГлубокой, разметкаСвоихСтатов, подключитьРазделы } from './settings-deep.js?v=23.89.29';
+import { убратьМетку } from './hud-erase.js?v=23.89.29';
+import { убратьЛетопись } from './chronicle-store.js?v=23.89.29';
+import { включитьПереводчик, т, английский, кодЯзыка, языкиМеню, файлПеревода, загрузитьФайлПеревода, убратьФайлПеревода } from './i18n.js?v=23.89.29';
 
 // Пункты меню языка: русский, английский, собранные из таблиц и свой файл.
 const optionЯзыков = () => языкиМеню().map(я => `<option value="${escapeHtml(я.code)}" ${кодЯзыка() === я.code ? 'selected' : ''}>${escapeHtml(я.name)}</option>`).join('');
-import { уверены } from './confirm-erase.js?v=23.89.28';
-import { промптАссистента, встроенныйПромптАссистента } from './render/assistant-prompt.js?v=23.89.28';
-import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.89.28';
-import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.89.28';
-import { cacheUsage, clearCache } from './history-analyzer.js?v=23.89.28';
-import { clearReactions, вернутьКарточку } from './events.js?v=23.89.28';
-import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.28';
-import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.89.28';
-import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.89.28';
-import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.89.28';
-import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.89.28';
-import { меткаШапки } from './render/topbar-icons.js?v=23.89.28';
-import { обновитьПереводКарточек } from './translate-guard.js?v=23.89.28';
+import { уверены } from './confirm-erase.js?v=23.89.29';
+import { промптАссистента, встроенныйПромптАссистента } from './render/assistant-prompt.js?v=23.89.29';
+import { ПРАВИЛА_МУЗЫКИ } from './render/music.js?v=23.89.29';
+import { ЯЗЫКИ_ПЕСЕН } from './render/music-lib.js?v=23.89.29';
+import { cacheUsage, clearCache } from './history-analyzer.js?v=23.89.29';
+import { clearReactions, вернутьКарточку } from './events.js?v=23.89.29';
+import { invalidateAvatarCache, refreshAvatarFaces } from './avatars.js?v=23.89.29';
+import { attachHelpMarks, removeHelpMarks } from './help.js?v=23.89.29';
+import { применитьПравкуCSSТаверны } from './st-css-fix.js?v=23.89.29';
+import { подключитьMemoryBooks, отключитьMemoryBooks, состояниеСвязи } from './memorybooks-link.js?v=23.89.29';
+import { оформитьСводки, вернутьСводкиТекстом } from './render/summary-card.js?v=23.89.29';
+import { меткаШапки } from './render/topbar-icons.js?v=23.89.29';
+import { обновитьПереводКарточек } from './translate-guard.js?v=23.89.29';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyThemeColors, cachedChatContainer, enforceCardLimit, getAvailableHudLorebooks, getStContextSafe, hudVersionLabel, processAllMessages, restoreEvictedCard, safeProcessMessage, saveSettings, setupPerformanceObserver, showHudToast, updatePerformanceMode, запланироватьОблегчение, наЭкране, открытьКастомизацию, списокПрофилей.
@@ -175,6 +175,17 @@ export function addSettingsUI() {
           ${галка('hud-meanwhile', settings.meanwhile !== false, '🕰 Тем временем', '1–2 важных человека вне кадра: где они сейчас, что делают и думают, что знают о главном, чего не знают и о чём догадываются. Свёрнутым блоком в «Мире», под газетами; нет «Мира» в ходе — в «Памяти». Модель продолжает их прошлую запись. Стоит немного токенов ответа.')}
           ${галка('hud-enable-scars', settings.enableScars !== false, '🩹 Шрамы отношений', 'Резкое падение доверия оставляет шрам: модель помнит обиду, пока доверие не вернётся')}
           ${галка('hud-enable-era-holidays', settings.enableEraHolidays !== false, '🎉 Праздники эпохи', 'Праздники в календаре телефона и лёгкий фон в сцене')}
+          ${галка('hud-holiday-gen', settings.holidayGen !== false, '✨ Праздники мира', 'Кнопка «Праздники» в календаре телефона: модель находит праздники фандома или придумывает свои по лорбуку, персоне и карточке. Выбранные попадают в календарь; модели — короткое напоминание, вам — предложение начать подготовку.')}
+          <label class="hud-set-check" title="Когда напоминать модели о празднике мира: в сам день или ещё за два дня до него. Напоминание — одна строка о том, что событие в сюжете есть.">🔔 Напоминать модели о празднике:
+            <select id="hud-holiday-reminder" class="hud-theme-select-input">
+              <option value="day" ${(settings.holidayReminder || 'day') === 'day' ? 'selected' : ''}>в день праздника</option>
+              <option value="before" ${settings.holidayReminder === 'before' ? 'selected' : ''}>за 2 дня и в день</option>
+              <option value="off" ${settings.holidayReminder === 'off' ? 'selected' : ''}>не напоминать</option>
+            </select>
+          </label>
+          <label class="hud-set-check" title="За сколько дней до праздника мира над вкладками появится вопрос «Начать подготовку?». «Да» — модель в следующем ответе узнает, что событие скоро. 0 — не предлагать.">🗓 Предлагать подготовку за (дней):
+            <input type="number" id="hud-holiday-prep" class="hud-theme-select-input" min="0" max="60" step="1" value="${Number.isFinite(parseInt(settings.holidayPrepDays, 10)) ? parseInt(settings.holidayPrepDays, 10) : 7}">
+          </label>
           ${галка('hud-enable-cues', settings.enableBodyCues !== false, '🌿 Живые детали', 'Голод, усталость и другое модель показывает мелкими приметами, а не называет')}
           ${галка('hud-enable-neglect', settings.enableNeglect !== false, '🥀 Запущенное состояние', 'Дни подряд без еды и сна видны на карточке и в сюжете')}
           ${галка('hud-enable-weight', settings.enableWeight !== false, '⚖️ Вес и калории', 'Модель пишет рост и вес один раз и обновляет раз в неделю по времени сюжета')}
@@ -666,7 +677,7 @@ export function addSettingsUI() {
     const новая = document.getElementById('hud-settings-wrapper');
     if (новая && родитель) { родитель.insertBefore(новая, сосед); новая.open = открыта; }
     основа.перерисоватьКарточкиЧата({ сохранитьВид: true });
-    import('./render/music.js?v=23.89.28').then(м => { м.сброситьФон(); м.обновитьСтрокуСцены(); м.обновитьВсеПолосы(); }).catch(() => {});
+    import('./render/music.js?v=23.89.29').then(м => { м.сброситьФон(); м.обновитьСтрокуСцены(); м.обновитьВсеПолосы(); }).catch(() => {});
     основа.showHudToast('success', 'Настройки загружены', 'Всё уже применилось.');
   });
 
@@ -983,9 +994,11 @@ export function addSettingsUI() {
   document.getElementById('hud-enable-diary').addEventListener('change', (e) => { settings.enableDiary = e.target.checked; основа.saveSettings(); });
   document.getElementById('hud-enable-dreams').addEventListener('change', (e) => { settings.enableDreams = e.target.checked; основа.saveSettings(); });
   document.getElementById('hud-enable-world').addEventListener('change', (e) => { settings.enableWorld = e.target.checked; основа.saveSettings(); });
+  document.getElementById('hud-holiday-reminder')?.addEventListener('change', (e) => { settings.holidayReminder = e.target.value; основа.saveSettings(); });
+  document.getElementById('hud-holiday-prep')?.addEventListener('change', (e) => { const n = parseInt(e.target.value, 10); settings.holidayPrepDays = Number.isFinite(n) ? Math.max(0, Math.min(60, n)) : 7; e.target.value = settings.holidayPrepDays; основа.saveSettings(); основа.перерисоватьКарточкиЧата({ сохранитьВид: true }); });
   document.getElementById('hud-factions')?.addEventListener('change', (e) => { settings.factions = e.target.value; основа.saveSettings(); основа.перерисоватьКарточкиЧата({ сохранитьВид: true }); });
   [['hud-enable-exams', 'enablePregnancyExams'], ['hud-enable-threat', 'enableThreatDice'], ['hud-enable-loss', 'enablePregnancyLoss'], ['hud-enable-rest', 'enableRestHints'], ['hud-enable-attn', 'enableAttnBadges'], ['hud-enable-hints', 'enableHintButtons'], ['hud-enable-invites', 'enableInvitations'], ['hud-enable-deadlines', 'enableDeadlines'],
-   ['hud-enable-era-holidays', 'enableEraHolidays'], ['hud-enable-scars', 'enableScars'], ['hud-knowledge-line', 'knowledgeLine'], ['hud-trust-locks', 'trustLocks'], ['hud-promises', 'promisesList'], ['hud-bets', 'betsList'], ['hud-consequences', 'consequences'], ['hud-meanwhile', 'meanwhile'], ['hud-chat-translation', 'chatTranslation'], ['hud-table-lang-values', 'tableLangValues'], ['hud-enable-cues', 'enableBodyCues'], ['hud-enable-neglect', 'enableNeglect'], ['hud-enable-weight', 'enableWeight'], ['hud-preg-serious', 'pregnancySerious'], ['hud-enable-guns', 'enableGuns'], ['hud-enable-illness', 'enableIllness'], ['hud-enable-pregnancy', 'enablePregnancy'], ['hud-enable-babies', 'enableBabies'],
+   ['hud-enable-era-holidays', 'enableEraHolidays'], ['hud-holiday-gen', 'holidayGen'], ['hud-enable-scars', 'enableScars'], ['hud-knowledge-line', 'knowledgeLine'], ['hud-trust-locks', 'trustLocks'], ['hud-promises', 'promisesList'], ['hud-bets', 'betsList'], ['hud-consequences', 'consequences'], ['hud-meanwhile', 'meanwhile'], ['hud-chat-translation', 'chatTranslation'], ['hud-table-lang-values', 'tableLangValues'], ['hud-enable-cues', 'enableBodyCues'], ['hud-enable-neglect', 'enableNeglect'], ['hud-enable-weight', 'enableWeight'], ['hud-preg-serious', 'pregnancySerious'], ['hud-enable-guns', 'enableGuns'], ['hud-enable-illness', 'enableIllness'], ['hud-enable-pregnancy', 'enablePregnancy'], ['hud-enable-babies', 'enableBabies'],
    ['hud-enable-companions', 'enableCompanions'], ['hud-enable-bodystate', 'enableBodyState'], ['hud-enable-twists', 'enableTwists'], ['hud-enable-perception', 'enablePerception'], ['hud-enable-familytree', 'enableFamilyTree'], ['hud-enable-assistant', 'enableAssistant'],
    ['hud-enable-menstruation', 'enableMenstruation'], ['hud-enable-sceneclock', 'enableSceneClock'], ['hud-enable-tempo', 'enableTempo'], ['hud-enable-underwear', 'enableUnderwear'], ['hud-enable-duel', 'enableVerbalDuel'], ['hud-enable-combat', 'enableCombat'], ['hud-enable-life', 'enableLife'], ['hud-enable-intimacy-extras', 'enableIntimacyExtras'], 
    ['hud-enable-economy', 'enableEconomy'], ['hud-enable-events', 'enableEvents'], ['hud-enable-city', 'enableCity'], ['hud-enable-horoscope', 'enableHoroscope'],
@@ -1052,7 +1065,7 @@ export function addSettingsUI() {
     // за собой окно и вёрстку отчёта. Версию пишем литералом — её
     // подменяет bump-version.cjs, как и во всех остальных импортах.
     try {
-      const mod = await import('./render/archive.js?v=23.89.28');
+      const mod = await import('./render/archive.js?v=23.89.29');
       mod.openArchiveDialog();
     } catch (e) {
       console.error('[TavernOS HUD] Архив не открылся:', e);
@@ -1274,7 +1287,7 @@ export function addSettingsUI() {
   [['hud-music-enable', 'enableMusic'], ['hud-music-auto', 'musicAuto'], ['hud-music-verify', 'musicVerify'], ['hud-music-line', 'musicSceneLine'], ['hud-music-player', 'musicPlayer']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.89.28').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
+      import('./render/music.js?v=23.89.29').then(м => { м.обновитьСтрокуСцены(); if ((ключ === 'enableMusic' || ключ === 'musicPlayer') && !e.target.checked) м.остановитьИгру(); if (ключ === 'enableMusic' || ключ === 'musicPlayer') м.обновитьВсеПолосы(); }).catch(() => {});
     });
   });
   document.getElementById('hud-music-profile').addEventListener('change', (e) => { settings.musicProfileId = e.target.value || ''; основа.saveSettings(); });
@@ -1304,20 +1317,20 @@ export function addSettingsUI() {
     ['hud-music-free-fonau', 'musicFreeFonau'], ['hud-music-free-audius', 'musicFreeAudius'], ['hud-music-free-incompetech', 'musicFreeIncompetech'], ['hud-music-free-commons', 'musicFreeCommons']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.checked; основа.saveSettings();
-      import('./render/music.js?v=23.89.28').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
+      import('./render/music.js?v=23.89.29').then(м => { if (ключ.startsWith('musicFree')) м.сброситьФон(); м.обновитьВсеПолосы(); м.обновитьЗначок(); }).catch(() => {});
     });
   });
   [['hud-music-liked-clear', 'musicLiked'], ['hud-music-banned-clear', 'musicBanned']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('click', async () => {
       if ((settings[ключ] || []).length && !await уверены({ текст: ключ === 'musicLiked' ? 'Весь список понравившихся треков очистится.' : 'Весь список запрещённых треков очистится.', кнопка: 'Очистить' })) return;
       settings[ключ] = []; основа.saveSettings(); вкусМузыки();
-      import('./render/music.js?v=23.89.28').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      import('./render/music.js?v=23.89.29').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
   [['hud-music-medieval', 'musicMedieval'], ['hud-music-style', 'musicStyle'], ['hud-music-source', 'musicSource']].forEach(([id, ключ]) => {
     document.getElementById(id).addEventListener('change', (e) => {
       settings[ключ] = e.target.value; основа.saveSettings();
-      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.89.28').then(м => м.обновитьВсеПолосы()).catch(() => {});
+      if (ключ === 'musicStyle' || ключ === 'musicSource') import('./render/music.js?v=23.89.29').then(м => м.обновитьВсеПолосы()).catch(() => {});
     });
   });
 

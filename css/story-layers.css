@@ -219,3 +219,109 @@
 :root:is(.hud-scheme-light, .hud-kinds-light) .hud-rep-card .bar .mid { background: rgba(0, 0, 0, .35); }
 :root:is(.hud-scheme-light, .hud-kinds-light) .hud-rep-shifts li { background: rgba(0, 0, 0, .05); }
 :root:is(.hud-scheme-light, .hud-kinds-light) .hud-arc-heat td.is-tense { box-shadow: inset 0 0 0 2px #c0392b; }
+
+/* --- Праздники мира (render/holiday-gen.js, holiday-lore.js) --------------------
+   Кнопка в календаре, окно генератора и плашка «начать подготовку?». */
+.hud-cal .hud-cal-gen {
+  display: inline-flex; align-items: center; gap: 4px; margin-left: auto; padding: 3px 9px 3px 7px; border-radius: var(--hud-r-chip, 999px);
+  font-size: 10.5px; font-weight: 600; line-height: 1.3; color: #c59bff; opacity: .78;
+  border: 1px dashed color-mix(in srgb, #c59bff 45%, transparent); transition: opacity .15s ease, background-color .15s ease;
+}
+.hud-cal .hud-cal-gen svg { width: 13px; height: 13px; fill: currentColor; }
+@media (hover: hover) and (pointer: fine) { .hud-cal .hud-cal-gen:hover { opacity: 1; background: color-mix(in srgb, #c59bff 14%, transparent); } }
+
+.hud-holgen { --hg: #c59bff; width: min(560px, 100%); min-width: 0; max-width: 100%; box-sizing: border-box; }
+.hud-holgen .hud-modal-head { display: flex; align-items: center; gap: 10px; }
+.hud-holgen .hud-modal-x { margin-left: auto; flex: none; width: 28px; height: 28px; border-radius: 50%; border: 0; cursor: pointer; color: inherit; background: rgba(255, 255, 255, .06); font: inherit; }
+.hud-holgen-orb {
+  flex: none; width: 30px; height: 30px; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #fff 0 8%, color-mix(in srgb, var(--hg) 70%, #fff) 20%, var(--hg) 55%, #1a1024 100%);
+  box-shadow: 0 0 16px color-mix(in srgb, var(--hg) 60%, transparent);
+}
+.hud-holgen-title { display: flex; flex-direction: column; }
+.hud-holgen-title small { margin-top: 2px; font-size: 11px; font-weight: 400; letter-spacing: 0; opacity: .6; }
+.hud-holgen .hud-modal-body { gap: 12px; font-size: 13px; }
+.hud-holgen-lbl { display: block; margin-bottom: 6px; font-size: 10.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .65; }
+.hud-holgen-lbl small { margin-left: 6px; font-weight: 400; letter-spacing: 0; text-transform: none; opacity: .8; }
+.hud-holgen-src { display: flex; flex-wrap: wrap; gap: 6px; }
+.hud-holgen-toggle {
+  padding: 4px 11px; border-radius: 999px; font: inherit; font-size: 12px; cursor: pointer; color: inherit; opacity: .55;
+  border: 1px solid rgba(255, 255, 255, .14); background: rgba(255, 255, 255, .04); transition: opacity .15s ease, background-color .15s ease;
+}
+.hud-holgen-toggle[aria-pressed="true"] { opacity: 1; border-color: color-mix(in srgb, var(--hg) 60%, transparent); background: color-mix(in srgb, var(--hg) 20%, transparent); }
+.hud-holgen-books { display: flex; flex-direction: column; gap: 2px; max-height: 150px; overflow: auto; margin-top: 8px; padding: 6px 8px; border-radius: 10px; background: rgba(0, 0, 0, .2); }
+.hud-holgen-book { display: flex; align-items: center; gap: 7px; padding: 3px 2px; font-size: 12.5px; cursor: pointer; }
+.hud-holgen-book input { flex: none; margin: 0; accent-color: var(--hg); }
+.hud-holgen-book span { min-width: 0; overflow-wrap: anywhere; }
+.hud-holgen-book small { margin-left: auto; flex: none; font-size: 10.5px; opacity: .55; }
+.hud-holgen-note { margin: 0; font-size: 12px; opacity: .6; }
+.hud-holgen-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.hud-holgen-field { display: flex; flex-direction: column; min-width: 0; }
+.hud-holgen-field :is(select, input) {
+  width: 100%; box-sizing: border-box; padding: 6px 9px; border-radius: 9px; font: inherit; font-size: 12.5px; color: inherit;
+  background: rgba(0, 0, 0, .25); border: 1px solid rgba(255, 255, 255, .14);
+}
+.hud-holgen-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; }
+.hud-holgen-run, .hud-holgen-add {
+  padding: 7px 16px; border-radius: 999px; border: 0; cursor: pointer; font: inherit; font-size: 12.5px; font-weight: 700; color: #1a0f2a;
+  background: linear-gradient(135deg, #e3cdff, var(--hg)); box-shadow: 0 4px 16px -8px var(--hg);
+}
+.hud-holgen.is-busy .hud-holgen-run { color: inherit; background: rgba(255, 255, 255, .1); box-shadow: none; }
+.hud-holgen-add { margin-top: 10px; }
+.hud-holgen-add:disabled { opacity: .45; cursor: default; }
+.hud-holgen-status { font-size: 12px; opacity: .75; }
+.hud-holgen-list { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+.hud-holgen-list li {
+  display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 10px; padding: 7px 8px 7px 7px; border-radius: 11px;
+  background: color-mix(in srgb, var(--hg) 7%, rgba(0, 0, 0, .22)); border: 1px solid color-mix(in srgb, var(--hg) 22%, transparent);
+  transition: opacity .2s ease, filter .2s ease;
+}
+.hud-holgen-list li.is-off { opacity: .45; filter: grayscale(.8); }
+.hud-holgen-list li.is-off .hud-holgen-name b { text-decoration: line-through; }
+.hud-holgen-date { display: grid; place-items: center; min-width: 52px; padding: 4px 6px; border-radius: 9px; text-align: center; background: color-mix(in srgb, var(--hg) 18%, transparent); }
+.hud-holgen-date b { font-size: 14px; font-variant-numeric: tabular-nums; line-height: 1.1; }
+.hud-holgen-date small { font-size: 9.5px; opacity: .7; }
+.hud-holgen-name { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.hud-holgen-name b { font-size: 13px; line-height: 1.3; overflow-wrap: break-word; }
+.hud-holgen-name small { font-size: 11.5px; line-height: 1.35; opacity: .7; }
+.hud-holgen-x, .hud-holgen-del {
+  flex: none; width: 28px; height: 28px; border-radius: 50%; border: 1px solid rgba(255, 255, 255, .14); cursor: pointer;
+  font: inherit; font-size: 12px; color: inherit; background: rgba(255, 255, 255, .05); transition: background-color .15s ease;
+}
+@media (hover: hover) and (pointer: fine) {
+  .hud-holgen-x:hover, .hud-holgen-del:hover { background: rgba(224, 90, 80, .25); }
+  .hud-holgen-toggle:hover { opacity: 1; }
+}
+.hud-holgen-list.is-have li { background: rgba(0, 0, 0, .16); border-color: rgba(255, 255, 255, .08); }
+@media (max-width: 600px) { .hud-holgen-row { grid-template-columns: minmax(0, 1fr); } }
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) { .hud-holgen-row { grid-template-columns: minmax(0, 1fr); } } }
+/* cq ↑ */
+
+/* Плашка над вкладками: праздник мира скоро, начать подготовку? */
+.hud-holprep {
+  --hp: #c59bff;
+  margin: 0 0 8px; padding: 9px 12px 10px 14px; border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--hp) 40%, transparent);
+  background: radial-gradient(130% 160% at 0 0, color-mix(in srgb, var(--hp) 18%, transparent), transparent 62%), var(--hud-card-inner-bg, rgba(0, 0, 0, .26));
+  box-shadow: inset 3px 0 0 var(--hp);
+}
+.hud-holprep-fold { --fold-acc: var(--hp); }
+.hud-holprep-ico { flex: none; display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; color: var(--hp); background: color-mix(in srgb, var(--hp) 18%, transparent); }
+.hud-holprep-ico svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.hud-holprep-ico svg .star { fill: currentColor; stroke: none; }
+.hud-holprep-what { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; text-align: left; }
+.hud-holprep-what b { font-size: 13px; line-height: 1.3; overflow-wrap: break-word; }
+.hud-holprep-what small { font-size: 11px; opacity: .7; }
+.hud-holprep-fold .hud-fold-chev { color: var(--hp); }
+.hud-holprep-about { margin: 8px 0 0; padding-left: 9px; border-left: 2px solid color-mix(in srgb, var(--hp) 45%, transparent); font-size: 12px; line-height: 1.4; opacity: .85; }
+.hud-holprep-ask { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 8px; margin-top: 9px; font-size: 12px; }
+.hud-holprep-ask > span { margin-right: auto; opacity: .85; }
+.hud-holprep-ask button {
+  padding: 4px 11px; border-radius: 999px; font: inherit; font-size: 11.5px; white-space: nowrap; cursor: pointer; color: var(--hud-text, inherit);
+  background: rgba(127, 127, 127, .12); border: 1px solid color-mix(in srgb, var(--hp) 40%, transparent);
+}
+.hud-holprep-ask button[data-hud-holprep="yes"] { color: #1a0f2a; font-weight: 650; border-color: transparent; background: linear-gradient(135deg, #e3cdff, var(--hp)); }
+.hud-holprep-ask .done { color: #7fd49a; }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-holprep { --hp: #7a4ab8; }
+:root:is(.hud-scheme-light, .hud-kinds-light) .hud-cal .hud-cal-gen { color: #7a4ab8; }
