@@ -1,4 +1,4 @@
-
+<p align="center"><img src="docs/screens/banner.webp" alt="TavernOS — HUD для SillyTavern: карточка сцены, быт, спутники, мир и телефон" width="900"></p>
 
 # TavernOS HUD — живая приборная панель для ролевых чатов в SillyTavern
 
