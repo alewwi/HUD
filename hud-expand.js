@@ -17,10 +17,14 @@
 // в кодах (hud-snapshot.js, HUDвКодах).
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { namesLikelySame } from './names.js?v=23.89.37';
+import { namesLikelySame } from './names.js?v=23.89.38';
 
 export const NC = /^\s*(?:nc|n\/c|no change|unchanged)\s*\.?\s*$/i;
 export const ПОЛЯ_NC = ['Ap', 'C', 'Kn', 'Ft', 'NG', 'SxL'];
+// Где модели разрешено «nc» (prompt.js). Медленные поля — роль, цели,
+// отношения, воспоминания, доверие, страхи, конфликт — меняются редко, а
+// весят больше всего; их прежнее значение берётся из последнего хода.
+export const ПОЛЯ_NC_МОДЕЛИ = ['Ap', 'C', 'Kn', 'Ft', 'NG', 'SxL', 'H', 'St', 'I', 'Mrk', 'Ill', 'R', 'G', 'Rl', 'Mm', 'Tr', 'Fr', 'X'];
 export const МИР_ДНЯ = ['nws', 'rm', 'fc', 'zd', 'fate', 'eco', 'afs', 'cty', 'ad', 'rep'];
 export const ПАМЯТЬ_ОБНОВЛЕНИЯМИ = ['fct', 'prm', 'gun', 'sec', 'lg'];
 

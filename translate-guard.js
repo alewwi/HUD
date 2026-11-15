@@ -16,7 +16,7 @@
 //    сервисом на тот же язык, только для показа. Логика HUD читает
 //    оригинал, как и модель.
 
-import { hudБлоки } from './hud-block.js?v=23.89.37';
+import { hudБлоки } from './hud-block.js?v=23.89.38';
 
 const ПУТЬ = /\/api\/translate\/(google|bing|lingva|deeplx|libre|deepl|onering|yandex)(?:[/?#]|$)/;
 let сырой = null;

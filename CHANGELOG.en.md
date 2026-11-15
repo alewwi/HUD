@@ -4,6 +4,18 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.38 — 2026-11-15
+
+A wish for holiday generation; the model writes unchanged fields briefly; a better opponent in verbal duels and washing in life.
+
+### Added
+- **A wish for world holidays.** The generation window has a field for what holidays you want: "tied to family", "memorial dates". The model first picks and invents holidays that match the wish, as far as the world allows; the wish never overrides canon.
+
+### Fixed
+- **"nc" for slow fields.** Role, goals, relations, memories, trust, fears, conflict and a few more fields can be written as "no change" — the HUD takes their previous value from the last turn. Prompt lines that demanded "everything in full every turn" no longer outweigh this rule.
+- **Opponent in a verbal duel.** When the model names none, the HUD looks for the one named in a concession (in the right form of the name), the one with their own duel against this person in the same HUD, the one mentioned in the conflict, or the player — not the first neighbour in the scene. Concessions show names without the card prefix.
+- **Life.** "Bathroom" as a room, "ban" as a prohibition, telling someone else to wash and a shower cabin in the list of places no longer count as washing. The appetite note after a fight goes away once the person has eaten.
+
 ## 23.89.37 — 2026-11-15
 
 HUD summaries reach the model again and more history fits into the context; old HUDs can be cut out with no summary at all; holidays are written in the extension's language.

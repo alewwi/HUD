@@ -12,13 +12,13 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml, генерацияТаверны } from '../utils.js?v=23.89.37';
-import { settings } from '../settings.js?v=23.89.37';
-import { старина, заклинанияВМире, дарыВМире, магияСкрыта } from '../era.js?v=23.89.37';
-import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.37';
-import { связьПраздников, разобратьПраздники, нормализоватьПраздник, праздникиМира, добавитьПраздникиМира, убратьПраздникМира, скрытыеПраздникиЭпохи, скрытьПраздникЭпохи } from './holiday-lore.js?v=23.89.37';
-import { праздникиГода } from './holidays.js?v=23.89.37';
-import { т, английский, языкЗначенийМодели } from '../i18n.js?v=23.89.37';
+import { escapeHtml, генерацияТаверны } from '../utils.js?v=23.89.38';
+import { settings } from '../settings.js?v=23.89.38';
+import { старина, заклинанияВМире, дарыВМире, магияСкрыта } from '../era.js?v=23.89.38';
+import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.38';
+import { связьПраздников, разобратьПраздники, нормализоватьПраздник, праздникиМира, добавитьПраздникиМира, убратьПраздникМира, скрытыеПраздникиЭпохи, скрытьПраздникЭпохи } from './holiday-lore.js?v=23.89.38';
+import { праздникиГода } from './holidays.js?v=23.89.38';
+import { т, английский, языкЗначенийМодели } from '../i18n.js?v=23.89.38';
 
 export const ЖДЁМ_МС = 180000;
 export const ЛОР_СИМВОЛОВ = 40000;
@@ -50,8 +50,12 @@ export function эпохаПраздников() {
 /** Язык ответа модели — как у значений HUD в настройках расширения: русский, английский или язык таблицы перевода. */
 export const языкПраздников = () => языкЗначенийМодели() || (английский() ? 'English' : 'Russian');
 
-export function промптПраздников({ карточка = '', персона = '', лор = '', дата = '', сколько = 0, эпоха = '', язык = 'Russian' } = {}) {
+export function промптПраздников({ карточка = '', персона = '', лор = '', дата = '', сколько = 0, эпоха = '', язык = 'Russian', пожелание = '' } = {}) {
   const блоки = [];
+  // Пожелание игрока («праздники, связанные с семьёй», «памятные даты») — в
+  // своём теге: модель следует ему, но не принимает его за материалы мира.
+  const желание = String(пожелание || '').trim().slice(0, 300);
+  if (желание) блоки.push(`<player_wish>\n${желание}\n</player_wish>`);
   if (карточка) блоки.push(`<character_card>\n${карточка}\n</character_card>`);
   if (персона) блоки.push(`<player_persona>\n${персона}\n</player_persona>`);
   if (лор) блоки.push(`<lorebook>\n${лор}\n</lorebook>`);
@@ -60,7 +64,7 @@ export function промптПраздников({ карточка = '', пер
 Make a list of holidays, festivals and notable dates that the people of this story's world mark.
 - If these materials come from a known fandom or setting, use its canon holidays first. Where canon gives none or too few, invent new ones that would fit the canon, with nods to its lore — places, history, beliefs, famous people and events — so they feel like they could be canon.
 - If the world is original, rely only on these materials and invent holidays that grow out of them.
-- Mix big public holidays with smaller local or personal ones when the world suggests them.${дата ? `\n- The story's date now: ${дата}.` : ''}${эпоха ? `\n- Era: ${эпоха}.` : ''}
+- Mix big public holidays with smaller local or personal ones when the world suggests them.${желание ? '\n- The player asked for this list: see <player_wish>. Choose and invent holidays that match the wish first, as far as the world allows; the wish never overrides the canon or the world\'s facts.' : ''}${дата ? `\n- The story's date now: ${дата}.` : ''}${эпоха ? `\n- Era: ${эпоха}.` : ''}
 - Give each date on the story's calendar as day and month, "DD.MM". If the world has its own months, map each holiday to a fitting day and month. A one-time event (not repeated every year) gets "DD.MM.YYYY" and "yearly": false.
 - Write names and descriptions in ${язык}, whatever language the materials are in. A canon holiday keeps the name it is known by in ${язык}.
 - ${сколько > 0 ? `Exactly ${сколько} ${сколько === 1 ? 'holiday' : 'holidays'}.` : 'As many as the materials support — usually 5 to 12.'}
@@ -165,6 +169,8 @@ export async function открытьГенераторПраздников({ д�
           <label class="hud-holgen-field"><span class="hud-holgen-lbl">Сколько праздников</span>
             <input type="number" class="hud-holgen-count" min="1" max="30" placeholder="сколько найдёт" value="${parseInt(settings.holidayCount, 10) > 0 ? parseInt(settings.holidayCount, 10) : ''}"></label>
         </div>
+        <label class="hud-holgen-field hud-holgen-wish-field"><span class="hud-holgen-lbl">${подпись('Пожелание')}</span>
+          <textarea class="hud-holgen-wish" rows="2" maxlength="300" placeholder="${подпись('Например: праздники, связанные с семьёй, или памятные даты')}" title="${подпись('Модель учтёт это, когда будет искать и придумывать праздники')}">${escapeHtml(String(settings.holidayWish || ''))}</textarea></label>
         <div class="hud-holgen-actions"><button type="button" class="hud-holgen-run">✨ Сгенерировать</button><span class="hud-holgen-status" aria-live="polite"></span></div>
         <div class="hud-holgen-result" hidden></div>
         <div class="hud-holgen-have"></div>
@@ -270,6 +276,7 @@ export async function открытьГенераторПраздников({ д�
   });
   отписаться = подключитьПрофили(окно, окно.querySelector('.hud-holgen-status'), сохранитьНастройки);
   окно.querySelector('.hud-holgen-count').addEventListener('change', (e) => { const n = parseInt(e.target.value, 10); settings.holidayCount = n > 0 ? Math.min(30, n) : 0; сохранитьНастройки(); });
+  окно.querySelector('.hud-holgen-wish').addEventListener('change', (e) => { settings.holidayWish = String(e.target.value || '').trim().slice(0, 300); сохранитьНастройки(); });
 
   кнопка.addEventListener('click', async () => {
     if (отмена) { отмена.abort(); return; }
@@ -299,6 +306,8 @@ export async function открытьГенераторПраздников({ д�
       const { system, user } = промптПраздников({
         карточка: карта ? `${карта.name}\n${карта.text}` : '', персона, лор, дата,
         сколько: parseInt(settings.holidayCount, 10) || 0, эпоха: эпохаПраздников(), язык: языкПраздников(),
+        // Пожелание берём прямо из поля: «Сгенерировать» могли нажать, не уйдя из него.
+        пожелание: String(окно.querySelector('.hud-holgen-wish')?.value || settings.holidayWish || '').trim().slice(0, 300),
       });
       статус.textContent = 'Модель думает…';
       window.__tavernOSHudSkipInject = (window.__tavernOSHudSkipInject || 0) + 1;

@@ -10,17 +10,18 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.89.37';
-import { старина, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.37';
-import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.37';
+import { settings } from './settings.js?v=23.89.38';
+import { старина, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.38';
+import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.38';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.37';
-import { промптНаАнглийском } from './prompt-en.js?v=23.89.37';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.37';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.37';
-import { возрастТочно } from './render/babies.js?v=23.89.37';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.37';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.37';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.38';
+import { промптНаАнглийском } from './prompt-en.js?v=23.89.38';
+import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.38';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.38';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.38';
+import { возрастТочно } from './render/babies.js?v=23.89.38';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.38';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.38';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -184,12 +185,17 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
   const целиФракций = settings.factions === 'both' ? '{{user}} or {{char}} — a separate row for each' : settings.factions === 'char' ? '{{char}}' : '{{user}}';
   const ключиМира = settings.enableWorld && settings.hudWorldDaily !== false ? ['nws', 'rm', 'fc', ...(гороскоп ? ['zd', 'fate'] : []), ...(экономика ? ['eco'] : []), ...(афиша ? ['afs'] : []), ...(город ? ['cty'] : []), 'ad', ...(фракции ? ['rep'] : [])] : [];
   const ключиПамяти = settings.enableMemory && settings.hudMemoryDelta !== false ? ['fct', ...(settings.promisesList === false ? [] : ['prm']), ...(ружья ? ['gun'] : []), 'sec', 'lg'] : [];
+  // Что не изменилось, модель пишет коротко — и ничто ниже не должно требовать
+  // «всё целиком каждый ход»: раньше такие строки перевешивали, и модель не
+  // писала «nc» вовсе, а память переписывала списком.
+  const ПОЛЯ_NC_ПРОМТА = ПОЛЯ_NC_МОДЕЛИ;
+  const краткоВЦелом = settings.hudNoChange !== false || ключиМира.length > 0 || ключиПамяти.length > 0;
   const краткость = (settings.hudNoChange !== false ? `
-- ♻️ NO CHANGE: in Ap, C, Kn, Ft, NG, SxL, H, St, I, Mrk and Ill write just "nc" (no change) ONLY when nothing in that field has changed since the last HUD and the value would be word for word the same — for every character${игрок ? ' and for {{user}}' : ''}. The slightest shift — an item used or moved, a bruise fading, a symptom easing, one new detail of status or health — means the field is written in full with the update. If unsure, write it in full. No last HUD — always in full. A field that was empty stays empty, never nc. These eleven fields only: never write nc anywhere else.` : '')
+- ♻️ NO CHANGE: in ${ПОЛЯ_NC_ПРОМТА.join(', ').replace(/, ([^,]*)$/, ' and $1')} write just "nc" (no change) when the field is the same as in the last HUD — for every character${игрок ? ' and for {{user}}' : ''}. Copying an unchanged field out in full is a mistake: it only lengthens the reply, and the HUD restores the value from the last HUD by itself. Any real change — an item used or moved, a bruise fading, a symptom easing, a new memory or goal, a shift in a relationship or in trust — means the field is written in full with the update. No last HUD, or the person is not in it — always in full. A field that was empty stays empty, never nc. Only these fields: never write nc anywhere else.` : '')
     + (ключиМира.length ? `
 - 🗞️ WORLD ONCE A DAY: in "wd" write ${списокКодов(ключиМира)} only in the first HUD of a new in-story day or when something in them really changes; otherwise leave those keys out — the HUD keeps the last ones.${settings.showComments ? ' "com" is written every turn.' : ''}` : '')
     + (ключиПамяти.length ? `
-- 🧠 MEMORY AS UPDATES: in "me" write ${списокКодов(ключиПамяти)} with only what is new or changed this turn — the HUD keeps the rest from the last HUD. To change an item, write it again starting with its id from the last HUD — '[f2] new text' (a secret — the same "id"); to remove one, write '- [f2]'. New items get no id. Nothing new — []. "lg" starts over on a new day.` : '');
+- 🧠 MEMORY AS UPDATES: in "me" write ${списокКодов(ключиПамяти)} with only what is new or changed this turn — never list again an item from the last HUD that did not change: the HUD keeps the rest by itself. To change an item, write it again starting with its id from the last HUD — '[f2] new text' (a secret — the same "id"); to remove one, write '- [f2]'. New items get no id. Nothing new — []. "lg" starts over on a new day.` : '');
 
   let p = `<hud_instructions>
 ## 🎯 TASK
@@ -206,7 +212,7 @@ The block holds ONLY valid JSON, starts exactly with [HUD] and ends exactly with
 - 🌍 LIVING WORLD: off-screen characters keep living — they work, sleep, travel, message, plan, argue, buy, miss appointments. Never erase that life just because the protagonist cannot see it.${правилоМагии}
 - 🪞 NO RETELLING: the HUD adds what the reply does not say. Thoughts (Th, K) and hidden subtext (D) never repeat or paraphrase lines, actions or narration from the reply — they show what is under them. Hidden subtext is always something NEW: often it is not in the reply at all.
 - 🧠 KNOWLEDGE BOUNDARIES: each character knows only what they plausibly could. Never leak another's private thoughts, messages or plans without a believable path.
-- 📦 SCHEMA FIXED: emit every section and every field of the schema below, every turn. Empty means [] / {} / "empty" — never drop a key to say "nothing changed". The only exceptions are fields marked OPTIONAL or "ONLY … otherwise omit"${ключиМира.length || ключиПамяти.length ? ', and the WORLD and MEMORY rules above' : ''}.
+- 📦 SCHEMA FIXED: emit every section and every field of the schema below, every turn. Empty means [] / {} / "empty" — never drop a key to say "nothing changed". The only exceptions are fields marked OPTIONAL or "ONLY … otherwise omit"${ключиМира.length || ключиПамяти.length ? ', and the WORLD and MEMORY rules above' : ''}.${settings.hudNoChange !== false ? ' An unchanged field written as "nc" under the NO CHANGE rule is not a dropped field.' : ''}
 - 📏 HOW MANY ITEMS: list fields have NO upper limit unless their description gives a size. Give as many items as the story actually supports — one item where four are obvious is a loss of information, including when a fuller description quietly folds several real things into one instead of splitting them by ;. More detail is never a reason for fewer items: it lengthens each item, it doesn't merge neighbours into it. A single-item list is almost always a sign you stopped too early. Aim for 3+ wherever the material allows.
 - 🏷️ LABELED ITEMS: wherever a field's description shows its items as "<label>: <value>" or "code: value", write every item that way, separated by SEMICOLONS, never commas — a comma-separated list collapses into one unreadable pill. Never output a bare value without its label.
 - ⚠️ FORMATTING: use exactly these codes as keys. Quote speech and phrases inside a value with «ёлочки», never with straight double quotes — a raw " ends the JSON string and cuts the text off; if one is unavoidable, escape it as \\". Separate list items with ; — never with slashes — and never put ; inside a single item.
@@ -257,7 +263,7 @@ ${settings.betsList === false ? '' : `   "Bt": "[OPTIONAL — only while a bet b
    "St": "[status: social and romantic status — single, married, engaged, in a secret affair, widowed — plus social standing if it matters]",
    "Eo": "[exposure: how much of the mask has slipped before those present — a bouncing leg, a cracking voice, eyes darting to the door; what leaked and who noticed. May start with 0-100% (0 nobody suspects, 100 everyone sees through). 'empty' when there is nothing to hide]",
    "X": "[conflict depth as 'wy: what the conflict is about; dys: how many days it has been going on; sg: its stage — brewing, open, cold war, reconciliation']",
-${дуэль ? `   "Vd": "[OPTIONAL — only while an argument is going on this turn: 'ini: who leads the conversation and how firmly — a name, then 0-100; gv: who gave ground this turn and on what, or empty; tn: спор | укол | ссора | крик | холод | примирение']",
+${дуэль ? `   "Vd": "[OPTIONAL — only while an argument is going on this turn: 'ini: who is winning the exchange right now and how firmly — a name, then 0-100, 50 = even; gv: who gave ground to the opponent this turn and on what, or empty; tn: спор | укол | ссора | крик | холод | примирение'. Giving ground costs position: whoever gave ground in gv does not gain on ini that turn, and a big concession hands the lead to the other side]",
 ` : ''}${интим ? `   "SxL": "[last sex: 'dt: when — date, time, place; pr: with whom and who they are to this character; ak: what exactly happened, step by step, in 2-3 sentences; en: how it ended — who came and how, and whether it was protected: a condom, pulled out in time, or finished inside with no protection (a pregnancy risk); what happened right after'. It always describes the MOST RECENT encounter: from phase 2 it already describes the one happening now (en: 'ещё не закончилось' until it ends), and the turn it ends it gets its ending. The date comes from the story's own calendar and time — never keep an older date once a newer encounter has happened, even one skipped past in a time jump]",
    "SxC": "[sex count: lifetime number of sexual partners — a number or an honest estimate]",
    "SxR": "[sex regularity: how often they have sex these days and with whom, how they satisfy themselves in between, how strong their libido is and what feeds or kills it — a sentence or two]",
@@ -329,7 +335,7 @@ ${прочиеИгрока}${следы ? `  "Mrk": "[visible body marks on {{us
   },
   "fct": ["[fact: an important or newly learned fact, stated plainly, people by their real names]", "facts: as many lines as matter"],${settings.promisesList === false ? '' : `
   "prm": ["[who] → [to whom] | [what exactly was promised or agreed] | [by when: a date, or open] | [open | kept | broken]", "promises: one line per promise or agreement between people that still binds someone; mark kept or broken on the turn it resolves, drop it the next. A promise goes here, not into gun"],`}${ружья ? `${быт ? `
-  "hk": "[OPTIONAL — only in a turn where any of this happened: 'eat: what, where, with whom; wash: what; buy: what and how much; fix: what; break: what household object actually broke (not an injury, not a near miss); wear: what was put on or taken off', separated by ;]",` : ''}
+  "hk": "[OPTIONAL — only in a turn where any of this happened: 'eat: what, where, with whom; wash: what; buy: what and how much; fix: what; break: what household thing broke that can be repaired — an appliance, furniture, a lock, a tap (not dishes or glasses, they are just thrown away; not an injury, not a near miss); wear: what was put on or taken off', separated by ;]",` : ''}
   "gun": ["[a setup planted and not yet paid off — promise, threat, hint, unexplained object, open mystery, debt, foreshadowing] | [who or what it is tied to] | [open | building | fired] | ${settings.enableDeadlines === false ? '[leave this part empty]' : '[deadline date, only if the story set one]'} | [main, side or short, only for a task someone must do]", "chekhov's guns: one line per unresolved thread, from the Fl flags and what the story left hanging — never invent plot to fill it. Keep each until it pays off: mark it fired that turn, drop it the next"],
   "inv": ["[only on a turn someone in the story invites {{user}} somewhere: who | what | date and time]"],` : ''}
   "sec": [
@@ -607,7 +613,7 @@ Codes: {{hudLastKeys}}
 \`\`\`json
 {{hudLast}}
 \`\`\`${канон}
-Update it to match ${чего}: keep what is still true, change what ${чего} changes, remove what has ended or faded, add what is new. Never copy it back unchanged when the story has moved on. Replace every "<new this turn>" with real content — never skip a field because it is short or missing above; however long the chat, the HUD is written in full every turn.{{/if}}`;
+Update it to match ${чего}: keep what is still true, change what ${чего} changes, remove what has ended or faded, add what is new. Never copy it back unchanged when the story has moved on. Replace every "<new this turn>" with real content — never skip a field because it is short or missing above${краткоВЦелом ? `. What did not change is written the short way the rules above allow (${[settings.hudNoChange !== false ? '"nc"' : '', ключиМира.length ? 'world keys left out' : '', ключиПамяти.length ? 'memory as updates only' : ''].filter(Boolean).join(', ')}) — never copied out in full` : '; however long the chat, the HUD is written in full every turn'}.{{/if}}`;
   if (cacheStable) {
     // No scene-dependent macros or state in the reusable prefix.
     p = p.replace(/\{\{if hudLast\}\}[\s\S]*?\{\{\/if\}\}/g, '')

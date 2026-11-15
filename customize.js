@@ -5,21 +5,21 @@
 // грузится через import() при первом открытии окна (загрузитьКастомизацию):
 // при старте ни окно, ни пример HUD не нужны.
 
-import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.37';
-import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.37';
-import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.37';
-import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.37';
-import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.89.37';
-import { эпоха, магия, ОБЛИЧЬЯ, современныйВид, магияВМире, заклинанияВМире, магияСкрыта, база, видМагииВМире, подМагию, видПодМагию, отметитьЭпоху } from './era.js?v=23.89.37';
-import { порядокГрупп } from './tabs-order.js?v=23.89.37';
-import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.37';
-import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.37';
-import { hudБлоки } from './hud-block.js?v=23.89.37';
-import { parseHUDComplex } from './hud-parser.js?v=23.89.37';
-import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.37';
-import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.37';
-import { перевестиМодуль, отобразитьСтроку } from './render/sample-translate.js?v=23.89.37';
-import { английский, т, строкаТаблицы, ключЯзыкаТаблицы } from './i18n.js?v=23.89.37';
+import { presetRowHTML, paletteRowHTML, THEME_CATEGORIES, getTheme } from './themes.js?v=23.89.38';
+import { нажатиеВПримере, заполнитьКартинки, переключитьКартинку } from './customize-links.js?v=23.89.38';
+import { settings, defaultSettings, МИНИМАЛИЗМ, КЛЮЧИ_АВТО, СЦЕНЫ_ЗНАЧКИ, СЦЕНЫ_КАРТИНКИ, СЦЕНЫ_МЕСТА, КЛЮЧИ_МЕСТ, унаследованноеТелефоном } from './settings.js?v=23.89.38';
+import { escapeHtml, getSafeUserName, guardTouchSwipe } from './utils.js?v=23.89.38';
+import { ВИДЫ_БЛОКОВ, видБлока } from './render/views.js?v=23.89.38';
+import { эпоха, магия, ОБЛИЧЬЯ, современныйВид, магияВМире, заклинанияВМире, магияСкрыта, база, видМагииВМире, подМагию, видПодМагию, отметитьЭпоху } from './era.js?v=23.89.38';
+import { порядокГрупп } from './tabs-order.js?v=23.89.38';
+import { разметкаВкладок, подключитьВкладки, задатьЦены, списокВкладок } from './customize-tabs.js?v=23.89.38';
+import { ВИДЫ_ЦИКЛА } from './render/intimacy.js?v=23.89.38';
+import { hudБлоки } from './hud-block.js?v=23.89.38';
+import { parseHUDComplex } from './hud-parser.js?v=23.89.38';
+import * as ПРИМЕР_RU from './render/sample-hud.js?v=23.89.38';
+import * as ПРИМЕР_EN from './render/sample-hud-en.js?v=23.89.38';
+import { перевестиМодуль, отобразитьСтроку } from './render/sample-translate.js?v=23.89.38';
+import { английский, т, строкаТаблицы, ключЯзыкаТаблицы } from './i18n.js?v=23.89.38';
 // Пример HUD на языке интерфейса: английский — в режиме ENG (i18n.js).
 // Язык из таблицы переводчика: английский пример с переведёнными кусками
 // (render/sample-translate.js), пересобирается при смене языка или файла.
@@ -32,13 +32,13 @@ const пример = () => {
   return примерТаблицы;
 };
 const текстПримера = (s) => (ключЯзыкаТаблицы() ? отобразитьСтроку(s, (к) => строкаТаблицы(к) || к) : s);
-import { задатьПримерСемьи } from './render/conception.js?v=23.89.37';
-import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.37';
-import { привязатьИсторию } from './render/intimacy.js?v=23.89.37';
-import { пометитьЭффекты } from './render/fx.js?v=23.89.37';
-import { собратьРисунок } from './render/lazy-svg.js?v=23.89.37';
-import { attachHelpMarks } from './help.js?v=23.89.37';
-import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.37';
+import { задатьПримерСемьи } from './render/conception.js?v=23.89.38';
+import { задатьПримерЗаметок } from './turn-notes.js?v=23.89.38';
+import { привязатьИсторию } from './render/intimacy.js?v=23.89.38';
+import { пометитьЭффекты } from './render/fx.js?v=23.89.38';
+import { собратьРисунок } from './render/lazy-svg.js?v=23.89.38';
+import { attachHelpMarks } from './help.js?v=23.89.38';
+import { задатьОткрыто, разложитьПодробно, переключитьПодробно, обновитьЗначкиКонтраста } from './customize-detail.js?v=23.89.38';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // applyCardUiState, applyThemeColors, getStContextSafe, lastLazyThunks, readCardUiState, renderHUD, saveSettings, РАЗДЕЛИТЕЛИ, РАМКИ_ПОРТРЕТА, УГЛЫ_ШАПКИ, видыМенялись, выбор, перерисоватьКарточкиЧата, путьУзла.

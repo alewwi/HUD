@@ -156,6 +156,8 @@ export const defaultSettings = {
   holidayPrepDays: 7,
   holidayProfileId: '',
   holidayCount: 0,
+  // Пожелание к генерации праздников мира: «праздники, связанные с семьёй» (render/holiday-gen.js).
+  holidayWish: '',
   holidayLorebooks: [],
   holidayUseLore: true,
   holidayUsePersona: true,
