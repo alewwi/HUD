@@ -1241,7 +1241,7 @@ settings.tempoView = 'xray';
       проверить('настройки: в «Близости» нет боя, споров и быта', близость.length < 4000 && !['hud-enable-duel', 'hud-enable-combat', 'hud-enable-life', 'hud-sleep-norm'].some(id => близость.includes(id)), близость.length);
     }
     проверить('MemoryBooks: метки в чужом запросе — сводками; галка в настройках; сверка при загрузке', инд.includes('сводкиВместоМеток(t, чат, вСводку)') && css('settings-ui.js').includes("галка('hud-mb-link'") && инд.includes('сверитьMemoryBooks(); } catch'));
-    проверить('чужой запрос (MemoryBooks, саммари): сводка с одеждой вместо полного HUD', инд.includes("const вСводку = (блок, прошлый) => сводкаHUD(блок, прошлый, { одежда: true });") && инд.includes('телоБезHUD(исходное, вСводку)') && /if \(опции\.одежда\) \{[\s\S]{0,400}части\.push\(`\$\{английский\(\) \? 'Clothing' : 'Одежда'\}: /.test(инд) && инд.includes('await прогретьРазборыСводки(блоки)'));
+    проверить('чужой запрос (MemoryBooks, саммари): сводка с одеждой вместо полного HUD', инд.includes("const вСводку = (блок, прошлый) => (безСводок() ? '' : сводкаHUD(блок, прошлый, { одежда: true }));") && инд.includes('телоБезHUD(исходное, вСводку)') && /if \(опции\.одежда\) \{[\s\S]{0,400}части\.push\(`\$\{английский\(\) \? 'Clothing' : 'Одежда'\}: /.test(инд) && инд.includes('await прогретьРазборыСводки(блоки)'));
   }
   проверить('билеты: подписка на GENERATE_AFTER_DATA и конец генерации', инд.includes('es.on(et.GENERATE_AFTER_DATA') && инд.includes('et.GENERATION_ENDED, et.GENERATION_STOPPED') && инд.includes('билетыГенерации.перехватчик(type)'));
 

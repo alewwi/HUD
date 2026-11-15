@@ -13,11 +13,11 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.36';
-import { settings } from '../settings.js?v=23.89.36';
-import { добавитьПодсказку, убратьПодсказкиПраздника, убратьПодсказкиПоКлючу } from '../turn-notes.js?v=23.89.36';
-import { праздникиГода } from './holidays.js?v=23.89.36';
-import { раскрывашка } from './fold.js?v=23.89.36';
+import { escapeHtml } from '../utils.js?v=23.89.37';
+import { settings } from '../settings.js?v=23.89.37';
+import { добавитьПодсказку, убратьПодсказкиПраздника, убратьПодсказкиПоКлючу } from '../turn-notes.js?v=23.89.37';
+import { праздникиГода } from './holidays.js?v=23.89.37';
+import { раскрывашка } from './fold.js?v=23.89.37';
 
 const КЛЮЧ = 'tavernosHudHolidays';
 const ДЕНЬ = 864e5;
@@ -104,7 +104,7 @@ export function сохранитьДеталиПраздника(имя, дат�
   const х = хранилище();
   if (!х || !имя || !дата || !детали) return false;
   if (!х.детали || typeof х.детали !== 'object') х.детали = {};
-  х.детали[ключПраздника(имя, дата)] = { имя: String(имя).trim(), суть: детали.суть || '', обычай: детали.обычай || '', место: детали.место || '', событие: детали.событие || '', когда: Date.now() };
+  х.детали[ключПраздника(имя, дата)] = { имя: String(имя).trim(), суть: детали.суть || '', обычай: детали.обычай || '', место: детали.место || '', событие: детали.событие || '', ...(Number.isFinite(+детали.год) && +детали.год > 0 ? { год: +детали.год } : {}), когда: Date.now() };
   сохранить();
   return true;
 }
@@ -143,9 +143,14 @@ export function заметкаДеталейПраздника(сцена) {
   const имяК = (s) => String(s || '').trim().toLowerCase().replace(/ё/g, 'е');
   const скрытые = скрытыеПраздникиЭпохи();
   let эпохи = null;
+  const год = д.getUTCFullYear();
   const живы = (з) => {
+    // Разовый праздник (событие календаря с годом) — только в свой год.
+    if (з.год && з.год !== год) return false;
     const и = имяК(з.имя);
-    if (х.список.some(п => имяК(п.имя) === и && String(п.дата).slice(0, 5) === день)) return settings.holidayGen !== false;
+    const мира = х.список.filter(п => имяК(п.имя) === и && String(п.дата).slice(0, 5) === день);
+    // Праздник мира с годом в дате — разовый: в другие годы его нет.
+    if (мира.length) return settings.holidayGen !== false && мира.some(п => String(п.дата).length <= 5 || п.ежегодно || +String(п.дата).slice(6) === год);
     эпохи ??= (() => { try { return праздникиГода(д.getUTCFullYear()); } catch (_) { return []; } })();
     const э = эпохи.find(п => (имяК(п.имя) === и || имяК(п.модели) === и) && (() => { const t = new Date(п.дата); return `${дд(t.getUTCDate())}.${дд(t.getUTCMonth() + 1)}` === день; })());
     if (э) return settings.enableEraHolidays !== false && !скрытые.has(э.модели);

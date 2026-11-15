@@ -5,12 +5,12 @@
 // новый блок в сообщение. Вынесено из index.js и грузится через import() при
 // первом нажатии (загрузитьПерегенерацию).
 
-import { настройка, settings, defaultSettings } from './settings.js?v=23.89.36';
-import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD } from './hud-block.js?v=23.89.36';
-import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.36';
-import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.36';
-import { генерацияТаверны } from './utils.js?v=23.89.36';
-import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.36';
+import { настройка, settings, defaultSettings } from './settings.js?v=23.89.37';
+import { заменитьHudБлоки, extractHudBlock, hudБлоки, hudCloseRe, естьЗаглушкаHUD } from './hud-block.js?v=23.89.37';
+import { собратьСнимок, решитьNSFW, решитьБой, последниеТекстыЧата, строкаСнимка, HUDвКодах } from './hud-snapshot.js?v=23.89.37';
+import { repairGeneratedHudBlock, parseHUDComplex } from './hud-parser.js?v=23.89.37';
+import { генерацияТаверны } from './utils.js?v=23.89.37';
+import { вырезатьТелефон, вставитьТелефон } from './phone-regen.js?v=23.89.37';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // buildHudLoreContext, getMessageUpdateFunction, readHudApiError, replaceHudBlockInText, safeProcessMessage, showHudToast, updateMessageDataForCurrentSwipe, генерацииHUD, загрузитьПромпт, запомнитьВерсиюHUD, отменитьГенерациюHUD, показатьИндикаторHUD, раскрытьИнструкцию, сводкаHUD, текстСообщенияЧата.
@@ -484,7 +484,8 @@ export async function handleHudRegenButton(regenBtn) {
           const вСнимке = естьСнимок ? allMatchesRegen[allMatchesRegen.length - 1] : null;
           toSummarize.forEach(rm => {
               let content = freshMessages[rm.mIdx].content;
-              if (rm === вСнимке) {
+              // «Без сводки» (hudSummaryCut): старые блоки вырезаются так же, как снимок.
+              if (rm === вСнимке || settings.hudSummaryCut === true) {
                   const хвостДо = content.slice(0, rm.index).match(/\s*$/)[0];
                   const головаПосле = content.slice(rm.index + rm.length).match(/^\s*/)[0];
                   const до = content.slice(0, rm.index - хвостДо.length);
@@ -496,6 +497,7 @@ export async function handleHudRegenButton(regenBtn) {
               const прошлый = allMatchesRegen[allMatchesRegen.indexOf(rm) - 1];
               const прошлыйТекст = прошлый ? freshMessages[прошлый.mIdx].content.substring(прошлый.index, прошлый.index + прошлый.length) : '';
               let сводка;
+              if (settings.hudSummaryCut === true) { freshMessages[rm.mIdx].content = '…'; return; }
               try { сводка = основа.сводкаHUD(hudBlockText, прошлыйТекст); } catch (_) { return; }
               freshMessages[rm.mIdx].content = content.slice(0, rm.index) + '\n' + сводка + '\n' + content.slice(rm.index + rm.length);
           });

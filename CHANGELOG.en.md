@@ -4,6 +4,20 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.37 — 2026-11-15
+
+HUD summaries reach the model again and more history fits into the context; old HUDs can be cut out with no summary at all; holidays are written in the extension's language.
+
+### Fixed
+- **HUD summaries [HUD_SUMMARY] never reached the model.** SillyTavern measures the history against the context budget before HUD compresses old blocks, and counted them in full — around ten thousand tokens per turn. In a long chat only the last turn fit into the request, and its HUD went into the snapshot, so there were no summaries at all. Now old HUDs are compressed before the count, and the last one, which moves into the snapshot, isn't counted — the request holds several times more history. The chat itself doesn't change. Normal replies, swipes, 🔄 and ➕ were checked.
+- **World holidays** are written in the language from the extension settings, not in the language of the card and lorebook. The connection profile list refreshes by itself and with the "↻" button; a missing profile falls back to the chat model. Stopping in the holiday windows really cuts off the model's reply.
+
+### Added
+- **"✂️ No summary — cut old HUDs out completely"** (Generation): old HUDs reach the model with no short recap. Saves tokens, but the model remembers worse when and where things happened.
+
+### Changed
+- The "How many expanded HUDs to keep" setting is now called **"HUD summary — how many HUDs the model sees in full"**, with a short note on what a summary is and why it's there. "Turn summaries in the text" is now **"HUD summaries in the text — as a card"**.
+
 ## 23.89.36 — 2026-11-15
 
 How a holiday is celebrated, new Spells and Abilities views; a removed or disabled holiday no longer sends anything to the model; the chance of past intimacy no longer grows the next morning.

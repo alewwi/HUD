@@ -529,7 +529,7 @@ Requires SillyTavern **1.12** or newer (tested on 1.18). The extension works wit
 
 - Start with a moderate set of modules and turn on the rest as needed: each module adds fields to the schema. How much each section weighs is shown in the token budget chip.
 - The whole phone is about 800 tokens per turn; turn off the apps you don't use.
-- **"How many expanded HUDs to keep" = 1** — the model sees only the snapshot of the latest HUD, the rest are compressed into summaries. This is the sweet spot of cost and quality.
+- **"HUD summary — how many HUDs the model sees in full" = 1** — the model sees only the snapshot of the latest HUD, the rest are compressed into summaries. This is the sweet spot of cost and quality.
 - Models with a large context and careful format following do well. If the model drops fields, turn on "Fill in what was skipped" and "Boosts".
 
 ---
@@ -550,7 +550,7 @@ All settings are in the **📊 TavernOS** block in "Extensions" and in the "Cust
 | ⚡ Performance | Lighter old cards, how many cards to build at once, lazy tabs, Performance Mode, virtualization, card limit; 🗜 unload the chat and restore all. |
 | 🖼️ Avatars | Images for character names, pinned avatars. |
 | 📚 Lorebooks | Which lorebooks to add to the HUD regeneration request; how many messages to send when saving to a lorebook. |
-| 🤖 Generation | HUD token limit; the instruction as a separate message; a snapshot of the latest HUD; completeness check; "Fill in what was skipped"; contradictions with daily life; the adult-scene part (auto, always, never); boosts; how many expanded HUDs to keep; context and profile for regeneration. |
+| 🤖 Generation | HUD token limit; the instruction as a separate message; a snapshot of the latest HUD; completeness check; "Fill in what was skipped"; contradictions with daily life; the adult-scene part (auto, always, never); boosts; HUD summary (how many HUDs the model sees in full); context and profile for regeneration. |
 | ❓ Assistant | The "Ask about the story" button; what the assistant sees (messages, HUD, author's notes, card, persona, lorebooks); profile, reply limit and system prompt. |
 | 🎵 Scene music | Picking music for the scene; refreshing when the scene changes; connection profile; the Middle Ages (period music or a movie soundtrack); strip style (cassette, vinyl, scroll); how long to wait for a playlist (any number of seconds, 0 — no timer); reply limit (from 2048 tokens — with room for thinking models); the built-in player and source (clips, YouTube via mirrors, NetEase, MoodTube); checking tracks by search and fallback services (NetEase, QQ); the prompt: your own taste rules, how many messages to read, the character card, the persona, your lorebooks; in-scene music — to the model as one line; song language, meme soundtrack, radio in the scene, floating icon, clearing likes and bans; scene background in full, "after a clip — background", background sources (Fonau, Audius, Incompetech, Wikimedia Commons). |
 | ⚠️ !!DANGER!! Remove HUD from chat | The very last item. Permanently cuts `[HUD]` blocks out of every message and swipe of the open chat, together with saved HUD versions and music picks. Asks first and shows how many messages and blocks it will touch. |
@@ -582,7 +582,7 @@ Settings are grouped — expand the one you need. Below is the essential part of
 - *HUD in every reply* — the main switch: on — the model writes the HUD in every reply; off — the HUD only via the “➕ Create HUD” button, as a separate request.
 - *Instruction as a separate message* — the schema goes as the last message after the preset and history. Turn it off if your backend doesn't accept a system message at the end.
 - *Snapshot of the latest HUD* — the model updates the previous HUD instead of rebuilding the world. Helps continuity a lot.
-- *How many expanded HUDs to keep* — the rest in the history shrink into summaries. 1 is the sweet spot.
+- *HUD summary — how many HUDs the model sees in full* — for the rest, the history sent to the model has a short [HUD_SUMMARY] recap instead of the full HUD; the chat itself doesn't change. 1 is the sweet spot.
 - *Reply check* — what to do with an incomplete HUD (warn or complete it), contradictions with daily life, "Fill in what was skipped", "Boosts".
 - *HUD regeneration* — connection profile (can be cheaper than the main one), how many messages to send, token limit.
 
@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.36**:
+The latest version is **23.89.37**:
 
+- HUD summaries reach the model again and the request holds more history; old HUDs can be cut out with no summary; holidays in the extension's language.
 - How a holiday is celebrated; Spells views and the new Grimoire and Atlas of Gifts; a removed or disabled holiday is not sent to the model; past intimacy keeps its chance the next morning.
 - Abilities views: "Grimoire" and "Atlas of Gifts"; the conception chance keeps intimacy the model left out and intimacy past midnight.
 - With hidden magic, single blocks can take the magic look; holiday controls in the calendar.

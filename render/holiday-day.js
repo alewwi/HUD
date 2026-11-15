@@ -15,14 +15,14 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.36';
-import { settings } from '../settings.js?v=23.89.36';
-import { т, английский, языкЗначенийМодели } from '../i18n.js?v=23.89.36';
-import { текстБезHUD } from '../hud-block.js?v=23.89.36';
-import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.36';
-import { связьПраздников, деталиПраздника, сохранитьДеталиПраздника, деталиСтрокой, забытьДеталиПраздника, ключПраздника } from './holiday-lore.js?v=23.89.36';
-import { отправить, эпохаПраздников, своиЛорбуки, ЖДЁМ_МС, ЛОР_СИМВОЛОВ } from './holiday-gen.js?v=23.89.36';
-import { добавитьПодсказку, подсказки } from '../turn-notes.js?v=23.89.36';
+import { escapeHtml } from '../utils.js?v=23.89.37';
+import { settings } from '../settings.js?v=23.89.37';
+import { т } from '../i18n.js?v=23.89.37';
+import { текстБезHUD } from '../hud-block.js?v=23.89.37';
+import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.37';
+import { связьПраздников, деталиПраздника, сохранитьДеталиПраздника, деталиСтрокой, забытьДеталиПраздника, ключПраздника } from './holiday-lore.js?v=23.89.37';
+import { отправить, эпохаПраздников, своиЛорбуки, ЖДЁМ_МС, ЛОР_СИМВОЛОВ, языкПраздников, рядПрофиля, подключитьПрофили } from './holiday-gen.js?v=23.89.37';
+import { добавитьПодсказку, подсказки } from '../turn-notes.js?v=23.89.37';
 
 const СООБЩЕНИЙ_ПО_УМОЛЧАНИЮ = 6;
 const СИМВОЛОВ_СООБЩЕНИЯ = 1500;
@@ -76,12 +76,24 @@ export function разобратьКакПразднуют(ответ) {
   let s = String(ответ ?? '').replace(/<think(?:ing)?\b[^>]*>[\s\S]*?<\/think(?:ing)?>/gi, ' ');
   const код = s.match(/```(?:json)?\s*([\s\S]*?)```/i);
   if (код) s = код[1];
-  const начало = s.indexOf('{'), конец = s.lastIndexOf('}');
-  if (начало < 0 || конец <= начало) return null;
-  let д;
-  try { д = JSON.parse(s.slice(начало, конец + 1).replace(/,\s*([\]}])/g, '$1')); } catch (_) { return null; }
-  if (!д || typeof д !== 'object' || Array.isArray(д)) return null;
-  const поле = (...ключи) => { for (const к of ключи) if (typeof д[к] === 'string' && д[к].trim()) return д[к].trim().slice(0, 400); return ''; };
+  const начало = s.indexOf('{');
+  if (начало < 0) return null;
+  s = s.slice(начало);
+  // Строгий JSON — от первой «{» до каждой следующей «}»: после объекта модель
+  // бывает пишет текст со своими скобками.
+  let д = null;
+  for (let i = s.indexOf('}'); i > 0 && !д; i = s.indexOf('}', i + 1)) {
+    try { const о = JSON.parse(s.slice(0, i + 1).replace(/,\s*([\]}])/g, '$1')); if (о && typeof о === 'object' && !Array.isArray(о)) д = о; } catch (_) { /* дальше */ }
+  }
+  // Не JSON (перевод строки или кавычки внутри значения, обрезанный конец) —
+  // значения по ключам: до кавычки, за которой следующий ключ или «}».
+  if (!д) {
+    д = {};
+    const пара = /"([\p{L}_]+)"\s*:\s*"([\s\S]*?)(?:"\s*(?=,\s*"[\p{L}_]+"\s*:|\s*\})|$)/gu;
+    for (const м of s.matchAll(пара)) д[м[1]] = м[2].replace(/\\n/g, ' ').replace(/\\"/g, '"').replace(/\\\\/g, '\\');
+  }
+  const малые = Object.fromEntries(Object.entries(д).map(([к, з]) => [к.trim().toLowerCase(), з]));
+  const поле = (...ключи) => { for (const к of ключи) if (typeof малые[к] === 'string' && малые[к].trim()) return малые[к].replace(/\s+/g, ' ').trim().slice(0, 400); return ''; };
   const итог = { суть: поле('essence', 'about', 'суть'), обычай: поле('custom', 'tradition', 'обычай'), место: поле('place', 'location', 'место'), событие: поле('event', 'action', 'событие', 'действие') };
   return [итог.обычай, итог.место, итог.событие].filter(Boolean).length >= 2 ? итог : null;
 }
@@ -106,15 +118,18 @@ let открыто = false;
 /**
  * Открыть окно праздника. имя — как в календаре; модели — имя для модели
  * (у праздников эпохи английское); о — короткое описание, если есть; дата —
- * «ДД.ММ»; сцена — «Дата» сцены; откуда — подпись источника; предпросмотр —
+ * «ДД.ММ»; год — у разового праздника (детали уходят модели только в этот год); сцена — «Дата» сцены; откуда — подпись источника; предпросмотр —
  * окно кастомизации: отсюда модели ничего не уходит.
  */
-export async function открытьПраздник({ имя = '', модели = '', о = '', дата = '', сцена = '', откуда = '', предпросмотр = false } = {}) {
-  if (открыто || !имя) return;
+export async function открытьПраздник(параметры = {}) {
+  if (открыто || !параметры.имя) return;
   открыто = true;
+  try { await собратьОкно(параметры); }
+  catch (e) { открыто = false; document.querySelector('.hud-holday')?.closest('.hud-modal-overlay')?.remove(); throw e; }
+}
+async function собратьОкно({ имя = '', модели = '', о = '', дата = '', год = null, сцена = '', откуда = '', предпросмотр = false }) {
   const ctx = контекст();
   const с = связьПраздников();
-  const профили = (() => { try { return с.профили?.() || []; } catch (_) { return []; } })();
   let книгиВсе = [];
   try { книгиВсе = (await с.списокЛорбуков?.()) || []; } catch (_) { книгиВсе = []; }
   const свои = своиЛорбуки(ctx);
@@ -146,7 +161,7 @@ export async function открытьПраздник({ имя = '', модели
           <p class="hud-holgen-note hud-holday-nosrc"${ИСТОЧНИКИ.some(источник) ? ' hidden' : ''}>${э('Без источников модель придумает по названию и описанию праздника.')}</p>
         </div>
         <label class="hud-holgen-field"><span class="hud-holgen-lbl">${э('Профиль подключения')}</span>
-          <select class="hud-holgen-profile"><option value="">${э('модель чата')}</option>${профили.map(p => `<option value="${сыро(p.id)}"${String(p.id) === String(settings.holidayProfileId || '') ? ' selected' : ''}>${сыро(p.name || p.id)}</option>`).join('')}</select></label>
+          ${рядПрофиля()}</label>
         <div class="hud-holgen-actions">
           <button type="button" class="hud-holgen-run hud-holday-run"></button>
           <button type="button" class="hud-holday-tell" hidden title="${э('Суть и детали уйдут модели в следующем ответе. В сам день праздника они уходят и так.')}">💬 ${э('Рассказать модели')}</button>
@@ -172,7 +187,8 @@ export async function открытьПраздник({ имя = '', модели
   };
   показать();
 
-  const закрыть = () => { if (отмена) отмена.abort(); overlay.remove(); открыто = false; document.removeEventListener('keydown', поEsc, true); };
+  let отписаться = () => {};
+  const закрыть = () => { if (отмена) отмена.abort(); overlay.remove(); открыто = false; document.removeEventListener('keydown', поEsc, true); отписаться(); };
   const поEsc = (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); закрыть(); } };
   document.addEventListener('keydown', поEsc, true);
   overlay.addEventListener('click', (e) => { if (e.target === overlay) закрыть(); });
@@ -192,7 +208,7 @@ export async function открытьПраздник({ имя = '', модели
     settings.holidayLorebooks = [...окно.querySelectorAll('.hud-holgen-book input:checked')].map(и => и.value); сохранитьНастройки();
   });
   окно.querySelector('.hud-holday-count').addEventListener('change', (e) => { const n = parseInt(e.target.value, 10); settings.holidayChatCount = n > 0 ? Math.min(30, n) : СООБЩЕНИЙ_ПО_УМОЛЧАНИЮ; e.target.value = сколькоСообщений(); сохранитьНастройки(); });
-  окно.querySelector('.hud-holgen-profile').addEventListener('change', (e) => { settings.holidayProfileId = e.target.value || ''; сохранитьНастройки(); });
+  отписаться = подключитьПрофили(окно, статус, сохранитьНастройки);
 
   рассказать.addEventListener('click', () => {
     if (предпросмотр) { статус.textContent = т('Это предпросмотр: отсюда модели ничего не отправляется.'); return; }
@@ -221,6 +237,7 @@ export async function открытьПраздник({ имя = '', модели
     // Модели в запрос они идут только как «было — придумай другое».
     const было = деталиПраздника(имя, дата);
     if (было) { забытьДеталиПраздника(имя, дата); показать(); }
+    let готово = false;
     try {
       статус.textContent = т('Собираю контекст…');
       const карта = источник('holidayUseCard') ? карточкаПерсонажа(ctx2) : null;
@@ -235,7 +252,7 @@ export async function открытьПраздник({ имя = '', модели
       }
       const { system, user } = промптКакПразднуют({
         имя: модели || имя, дата, о, карточка: карта ? `${карта.name}\n${карта.text}` : '', персона, лор, история, сцена, эпоха: эпохаПраздников(),
-        язык: языкЗначенийМодели() || (английский() ? 'English' : 'Russian'), было,
+        язык: языкПраздников(), было,
       });
       статус.textContent = т('Модель думает…');
       window.__tavernOSHudSkipInject = (window.__tavernOSHudSkipInject || 0) + 1;
@@ -249,13 +266,17 @@ export async function открытьПраздник({ имя = '', модели
       signal.throwIfAborted();
       const детали = разобратьКакПразднуют(текстОтвета(raw));
       if (!детали) throw new Error(т('в ответе модели не нашлось деталей в нужном виде — попробуйте ещё раз или другой профиль'));
-      сохранитьДеталиПраздника(имя, дата, детали);
+      сохранитьДеталиПраздника(имя, дата, { ...детали, год });
+      готово = true;
       статус.textContent = '';
       try { связьПраздников().перерисовать?.(); } catch (_) { /* карточки обновятся со следующим ходом */ }
     } catch (e) {
       статус.textContent = e && e.name === 'AbortError' ? т('Отменено') : т('Не получилось') + ': ' + (e && e.message ? e.message : e);
       if (!(e && e.name === 'AbortError')) console.warn('[TavernOS HUD] Как празднуют:', e);
     } finally {
+      // Ошибка или «Остановить» — прежние детали остаются: окно не теряет то,
+      // что уже было. В очередь подсказок они сами не возвращаются.
+      if (!готово && было && !деталиПраздника(имя, дата)) сохранитьДеталиПраздника(имя, дата, было);
       if (безHud) window.__tavernOSHudSkipInject = Math.max(0, (window.__tavernOSHudSkipInject || 1) - 1);
       отмена = null;
       окно.classList.remove('is-busy');

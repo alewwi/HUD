@@ -12,13 +12,13 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml, генерацияТаверны } from '../utils.js?v=23.89.36';
-import { settings } from '../settings.js?v=23.89.36';
-import { старина, заклинанияВМире, дарыВМире, магияСкрыта } from '../era.js?v=23.89.36';
-import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.36';
-import { связьПраздников, разобратьПраздники, нормализоватьПраздник, праздникиМира, добавитьПраздникиМира, убратьПраздникМира, скрытыеПраздникиЭпохи, скрытьПраздникЭпохи } from './holiday-lore.js?v=23.89.36';
-import { праздникиГода } from './holidays.js?v=23.89.36';
-import { т } from '../i18n.js?v=23.89.36';
+import { escapeHtml, генерацияТаверны } from '../utils.js?v=23.89.37';
+import { settings } from '../settings.js?v=23.89.37';
+import { старина, заклинанияВМире, дарыВМире, магияСкрыта } from '../era.js?v=23.89.37';
+import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.37';
+import { связьПраздников, разобратьПраздники, нормализоватьПраздник, праздникиМира, добавитьПраздникиМира, убратьПраздникМира, скрытыеПраздникиЭпохи, скрытьПраздникЭпохи } from './holiday-lore.js?v=23.89.37';
+import { праздникиГода } from './holidays.js?v=23.89.37';
+import { т, английский, языкЗначенийМодели } from '../i18n.js?v=23.89.37';
 
 export const ЖДЁМ_МС = 180000;
 export const ЛОР_СИМВОЛОВ = 40000;
@@ -47,7 +47,10 @@ export function эпохаПраздников() {
   if (!старина() && !магия) return '';
   return [старина() ? 'medieval' : 'modern', магия].filter(Boolean).join(', ');
 }
-export function промптПраздников({ карточка = '', персона = '', лор = '', дата = '', сколько = 0, эпоха = '' } = {}) {
+/** Язык ответа модели — как у значений HUD в настройках расширения: русский, английский или язык таблицы перевода. */
+export const языкПраздников = () => языкЗначенийМодели() || (английский() ? 'English' : 'Russian');
+
+export function промптПраздников({ карточка = '', персона = '', лор = '', дата = '', сколько = 0, эпоха = '', язык = 'Russian' } = {}) {
   const блоки = [];
   if (карточка) блоки.push(`<character_card>\n${карточка}\n</character_card>`);
   if (персона) блоки.push(`<player_persona>\n${персона}\n</player_persona>`);
@@ -59,7 +62,7 @@ Make a list of holidays, festivals and notable dates that the people of this sto
 - If the world is original, rely only on these materials and invent holidays that grow out of them.
 - Mix big public holidays with smaller local or personal ones when the world suggests them.${дата ? `\n- The story's date now: ${дата}.` : ''}${эпоха ? `\n- Era: ${эпоха}.` : ''}
 - Give each date on the story's calendar as day and month, "DD.MM". If the world has its own months, map each holiday to a fitting day and month. A one-time event (not repeated every year) gets "DD.MM.YYYY" and "yearly": false.
-- Write names and descriptions in the language the materials are written in.
+- Write names and descriptions in ${язык}, whatever language the materials are in. A canon holiday keeps the name it is known by in ${язык}.
 - ${сколько > 0 ? `Exactly ${сколько} ${сколько === 1 ? 'holiday' : 'holidays'}.` : 'As many as the materials support — usually 5 to 12.'}
 
 Answer with JSON only, no other text:
@@ -68,12 +71,50 @@ Answer with JSON only, no other text:
   return { system, user };
 }
 
+/**
+ * Выпадающий список профилей — заново из Connection Manager: профиль могли
+ * создать, переименовать или удалить, пока окно открыто. Удалённый выбранный
+ * профиль сбрасывается на модель чата. true — так и случилось.
+ */
+export function заполнитьПрофили(select) {
+  if (!select) return false;
+  const профили = (() => { try { return связьПраздников().профили?.() || []; } catch (_) { return []; } })();
+  const выбран = String(settings.holidayProfileId || '');
+  const пропал = !!выбран && !профили.some(p => String(p.id) === выбран);
+  select.innerHTML = `<option value="">${escapeHtml(т('модель чата'))}</option>` + профили.map(p => `<option value="${escapeHtml(String(p.id))}">${escapeHtml(p.name || p.id)}</option>`).join('');
+  select.value = пропал ? '' : выбран;
+  if (пропал) { settings.holidayProfileId = ''; try { связьПраздников().сохранить?.(); } catch (_) { /* не критично */ } }
+  return пропал;
+}
+/** Профили меняются в Таверне — список в окне следом. Возвращает «отписаться». */
+export function следитьЗаПрофилями(select, сказать = () => {}) {
+  const ctx = контекст();
+  const es = ctx && ctx.eventSource, et = ctx && (ctx.eventTypes || ctx.event_types);
+  const типы = ['CONNECTION_PROFILE_CREATED', 'CONNECTION_PROFILE_UPDATED', 'CONNECTION_PROFILE_DELETED'].map(к => et && et[к]).filter(Boolean);
+  const обновить = () => { if (select.isConnected && заполнитьПрофили(select)) сказать(т('Выбранного профиля больше нет — запрос пойдёт через модель чата.')); };
+  if (es && typeof es.on === 'function') типы.forEach(тип => es.on(тип, обновить));
+  return () => { if (es) типы.forEach(тип => { try { (es.removeListener || es.off).call(es, тип, обновить); } catch (_) { /* уже снят */ } }); };
+}
+/** Ряд «профиль + ↻» для окна. */
+export const рядПрофиля = () => `<span class="hud-holgen-profile-row"><select class="hud-holgen-profile"></select><button type="button" class="hud-holgen-refresh" title="${escapeHtml(т('Обновить список профилей'))}" aria-label="${escapeHtml(т('Обновить список профилей'))}">↻</button></span>`;
+/** Подключить ряд профиля в окне: заполнить, ↻, выбор, события Таверны. Возвращает «отписаться». */
+export function подключитьПрофили(окно, статус, сохранитьНастройки) {
+  const select = окно.querySelector('.hud-holgen-profile');
+  const сказать = (s) => { if (статус) статус.textContent = s; };
+  if (заполнитьПрофили(select)) сказать(т('Выбранного профиля больше нет — запрос пойдёт через модель чата.'));
+  select.addEventListener('change', () => { settings.holidayProfileId = select.value || ''; сохранитьНастройки(); });
+  окно.querySelector('.hud-holgen-refresh')?.addEventListener('click', () => {
+    сказать(заполнитьПрофили(select) ? т('Выбранного профиля больше нет — запрос пойдёт через модель чата.') : т('Список профилей обновлён.'));
+  });
+  return следитьЗаПрофилями(select, сказать);
+}
+
 export async function отправить(ctx, system, user, signal) {
   const профиль = String(settings.holidayProfileId || '');
   const служба = ctx.ConnectionManagerRequestService;
   const профили = (() => { try { return связьПраздников().профили?.() || []; } catch (_) { return []; } })();
   if (профиль && служба && typeof служба.sendRequest === 'function') {
-    if (!профили.some(p => String(p.id) === профиль)) throw new Error('выбранный профиль подключения не найден — выберите другой');
+    if (!профили.some(p => String(p.id) === профиль)) throw new Error(т('выбранный профиль подключения не найден — нажмите ↻ или выберите другой'));
     return служба.sendRequest(профиль, [{ role: 'system', content: system }, { role: 'user', content: user }], 3000,
       { stream: false, extractData: true, includePreset: false, includeInstruct: true, signal });
   }
@@ -94,7 +135,6 @@ export async function открытьГенераторПраздников({ д�
   открыто = true;
   const ctx = контекст();
   const с = связьПраздников();
-  const профили = (() => { try { return с.профили?.() || []; } catch (_) { return []; } })();
   let книгиВсе = [];
   try { книгиВсе = (await с.списокЛорбуков?.()) || []; } catch (_) { книгиВсе = []; }
   const свои = своиЛорбуки(ctx);
@@ -121,7 +161,7 @@ export async function открытьГенераторПраздников({ д�
         </div>
         <div class="hud-holgen-row">
           <label class="hud-holgen-field"><span class="hud-holgen-lbl">Профиль подключения</span>
-            <select class="hud-holgen-profile"><option value="">модель чата</option>${профили.map(p => `<option value="${escapeHtml(String(p.id))}"${String(p.id) === String(settings.holidayProfileId || '') ? ' selected' : ''}>${escapeHtml(p.name || p.id)}</option>`).join('')}</select></label>
+            ${рядПрофиля()}</label>
           <label class="hud-holgen-field"><span class="hud-holgen-lbl">Сколько праздников</span>
             <input type="number" class="hud-holgen-count" min="1" max="30" placeholder="сколько найдёт" value="${parseInt(settings.holidayCount, 10) > 0 ? parseInt(settings.holidayCount, 10) : ''}"></label>
         </div>
@@ -180,7 +220,8 @@ export async function открытьГенераторПраздников({ д�
   показатьЕсть();
   показатьВстроенные();
 
-  const закрыть = () => { if (отмена) отмена.abort(); overlay.remove(); открыто = false; document.removeEventListener('keydown', поEsc, true); };
+  let отписаться = () => {};
+  const закрыть = () => { if (отмена) отмена.abort(); overlay.remove(); открыто = false; document.removeEventListener('keydown', поEsc, true); отписаться(); };
   const поEsc = (e) => { if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); закрыть(); } };
   document.addEventListener('keydown', поEsc, true);
   overlay.addEventListener('click', (e) => { if (e.target === overlay) закрыть(); });
@@ -227,7 +268,7 @@ export async function открытьГенераторПраздников({ д�
   окно.querySelector('.hud-holgen-books')?.addEventListener('change', () => {
     settings.holidayLorebooks = [...окно.querySelectorAll('.hud-holgen-book input:checked')].map(и => и.value); сохранитьНастройки();
   });
-  окно.querySelector('.hud-holgen-profile').addEventListener('change', (e) => { settings.holidayProfileId = e.target.value || ''; сохранитьНастройки(); });
+  отписаться = подключитьПрофили(окно, окно.querySelector('.hud-holgen-status'), сохранитьНастройки);
   окно.querySelector('.hud-holgen-count').addEventListener('change', (e) => { const n = parseInt(e.target.value, 10); settings.holidayCount = n > 0 ? Math.min(30, n) : 0; сохранитьНастройки(); });
 
   кнопка.addEventListener('click', async () => {
@@ -257,7 +298,7 @@ export async function открытьГенераторПраздников({ д�
       if (!карта && !персона && !лор) throw new Error('в выбранных источниках пусто — нечего читать');
       const { system, user } = промптПраздников({
         карточка: карта ? `${карта.name}\n${карта.text}` : '', персона, лор, дата,
-        сколько: parseInt(settings.holidayCount, 10) || 0, эпоха: эпохаПраздников(),
+        сколько: parseInt(settings.holidayCount, 10) || 0, эпоха: эпохаПраздников(), язык: языкПраздников(),
       });
       статус.textContent = 'Модель думает…';
       window.__tavernOSHudSkipInject = (window.__tavernOSHudSkipInject || 0) + 1;

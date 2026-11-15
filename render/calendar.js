@@ -14,13 +14,13 @@
 // обработчик кликов (events.js). Своего состояния у календаря нет: всё в
 // классах и data-атрибутах разметки.
 
-import { escapeHtml, defeatWI, имяБезПриставки } from '../utils.js?v=23.89.36';
-import { namesLikelySame } from '../names.js?v=23.89.36';
-import { G_ICONS } from './icons.js?v=23.89.36';
-import { праздникиГода } from './holidays.js?v=23.89.36';
-import { праздникиМираГода, скрытыеПраздникиЭпохи, деталиПраздника } from './holiday-lore.js?v=23.89.36';
-import { срокиНитей } from '../turn-notes.js?v=23.89.36';
-import { settings } from '../settings.js?v=23.89.36';
+import { escapeHtml, defeatWI, имяБезПриставки } from '../utils.js?v=23.89.37';
+import { namesLikelySame } from '../names.js?v=23.89.37';
+import { G_ICONS } from './icons.js?v=23.89.37';
+import { праздникиГода } from './holidays.js?v=23.89.37';
+import { праздникиМираГода, скрытыеПраздникиЭпохи, деталиПраздника } from './holiday-lore.js?v=23.89.37';
+import { срокиНитей } from '../turn-notes.js?v=23.89.37';
+import { settings } from '../settings.js?v=23.89.37';
 
 const МЕСЯЦЫ_РОД = ['января', 'февраля', 'марта', 'апреля', 'мая', 'июня', 'июля', 'августа', 'сентября', 'октября', 'ноября', 'декабря'];
 const МЕСЯЦЫ = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
@@ -190,7 +190,7 @@ export function buildCalendarApp(events, characters, sceneDate, владелец
     const год = dm.y || (сегодня ? сегодня.y : new Date().getFullYear());
     const было = статус === 'moved' ? parseDayMonth(e.movedFrom) : null;
     const запись = { время: время ? `${время[1].padStart(2, '0')}:${время[2]}` : '', до: '', часть: '', порядок: время ? время[0] : '', название: String(e.title || '').trim() || 'Событие', тип, кал: к.id, кто: '' };
-    if (тип === 'holiday' && String(e.title || '').trim()) запись.праздник = { имя: String(e.title).trim(), модели: String(e.title).trim(), о: '', откуда: 'из календаря' };
+    if (тип === 'holiday' && String(e.title || '').trim()) запись.праздник = { имя: String(e.title).trim(), модели: String(e.title).trim(), о: '', откуда: 'из календаря', год: dm.y || null };
     список.push({ ...запись, день: { d: dm.d, mo: dm.mo, y: год }, статус, сДаты: было ? короткаяДата(было) : '' });
     // На старый день — след: «перенесено на 20.10».
     if (было && (было.d !== dm.d || было.mo !== dm.mo)) список.push({ ...запись, день: { d: было.d, mo: было.mo, y: было.y || (было.mo > dm.mo + 6 ? год - 1 : год) }, статус: 'moved-away', наДату: короткаяДата(dm) });
@@ -296,7 +296,7 @@ export function buildCalendarApp(events, characters, sceneDate, владелец
     const просрочено = !закрыто(e) && (e.тип === 'event' || e.тип === 'plan') && днейНазад > 0 && днейНазад <= 7;
     const статус = подписьСтатуса(e);
     const п = e.праздник, дата = короткаяДата(e.день);
-    const праздник = п ? ` data-hol-name="${escapeHtml(п.имя)}" data-hol-model="${escapeHtml(п.модели || п.имя)}" data-hol-about="${escapeHtml(п.о || '')}" data-hol-date="${дата}" data-hol-from="${escapeHtml(п.откуда || '')}" role="button" tabindex="0" title="Нажмите: модель придумает, как этот праздник празднуют — обычай, место и событие"` : '';
+    const праздник = п ? ` data-hol-name="${escapeHtml(п.имя)}" data-hol-model="${escapeHtml(п.модели || п.имя)}" data-hol-about="${escapeHtml(п.о || '')}" data-hol-date="${дата}" data-hol-from="${escapeHtml(п.откуда || '')}"${п.год ? ` data-hol-year="${п.год}"` : ''} role="button" tabindex="0" title="Нажмите: модель придумает, как этот праздник празднуют — обычай, место и событие"` : '';
     const готово = п && деталиПраздника(п.имя, дата);
     const ярлык = п ? `<span class="hud-cal-hol-go${готово ? ' is-ready' : ''}">${готово ? '✓ Как празднуют' : '✨ Как празднуют'}</span>` : '';
     return `<li class="hud-cal-ev ${цветКал(e.кал)} t-${e.тип}${e.время || e.часть ? '' : ' is-allday'}${просрочено ? ' is-overdue' : ''}${e.статус ? ' is-' + e.статус : ''}${п ? ' is-hol' : ''}"${праздник}><span class="hud-cal-ev-time">${когда}</span><span class="hud-cal-ev-body"><span class="hud-cal-ev-title">${defeatWI(escapeHtml(e.название))}</span>${статус ? `<span class="hud-cal-state">${escapeHtml(статус)}</span>` : ''}${кто}${ярлык}</span></li>`;
@@ -410,7 +410,7 @@ export function обработатьКликКалендаря(e) {
   if (праздник) {
     e.preventDefault();
     const д = праздник.dataset;
-    import('./holiday-day.js?v=23.89.36').then(м => м.открытьПраздник({ имя: д.holName, модели: д.holModel, о: д.holAbout, дата: д.holDate, откуда: д.holFrom, сцена: кал.dataset.scene || '', предпросмотр: !!кал.closest('.hud-custom-preview-body, .hud-custom-preview') }))
+    import('./holiday-day.js?v=23.89.37').then(м => м.открытьПраздник({ имя: д.holName, модели: д.holModel, о: д.holAbout, дата: д.holDate, откуда: д.holFrom, год: +д.holYear || null, сцена: кал.dataset.scene || '', предпросмотр: !!кал.closest('.hud-custom-preview-body, .hud-custom-preview') }))
       .catch(err => console.error('[TavernOS HUD] окно праздника не загрузилось:', err));
     return true;
   }
@@ -418,7 +418,7 @@ export function обработатьКликКалендаря(e) {
   const генератор = e.target.closest('.hud-cal-gen');
   if (генератор) {
     e.preventDefault();
-    import('./holiday-gen.js?v=23.89.36').then(м => м.открытьГенераторПраздников({ дата: кал.dataset.scene || '', год: parseDayMonth(кал.dataset.scene)?.y }))
+    import('./holiday-gen.js?v=23.89.37').then(м => м.открытьГенераторПраздников({ дата: кал.dataset.scene || '', год: parseDayMonth(кал.dataset.scene)?.y }))
       .catch(err => console.error('[TavernOS HUD] окно праздников не загрузилось:', err));
     return true;
   }
