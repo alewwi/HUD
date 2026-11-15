@@ -7444,3 +7444,101 @@ html.hud-scheme-light .hud-os-card .hud-row.f-unaware .hud-detail-pill { color: 
 html.hud-scheme-light .hud-mw-know.is-yes { --kn: #2e7d50; }
 html.hud-scheme-light .hud-mw-know.is-no { --kn: #b23a43; }
 html.hud-scheme-light .hud-mw-know.is-guess { --kn: #8f6a14; }
+
+/* --- Дождь идёт из туч и ходит вместе с ними ------------------------------
+   Полоса дождя была шире туч (на ПК на 60px правее ближней), повёрнута на
+   10–18° и стояла на месте, пока тучи качались: струи шли косо мимо облака.
+   У грозы своих туч не было вовсе — только тёмные пятна фона. Теперь полоса
+   ровно под тучами, почти отвесная (наклон даёт только ветер, через skewX —
+   верх полосы остаётся под тучей) и качается в такт ближней туче: та же
+   длительность, тот же сдвиг. У грозы — свои тёмные тучи. */
+.hud-scene-widget.weather-rain { --rain-lean-n: 3deg; }
+.hud-scene-widget.weather-rain.weather-intensity-high { --rain-lean-n: 5deg; }
+.hud-scene-widget.weather-rain.weather-intensity-low { --rain-lean-n: 2deg; }
+.hud-scene-widget.weather-storm { --rain-lean-n: 6deg; }
+.weather-storm.weather-windy        { --rain-tilt-extra: 9deg; }
+.weather-storm.weather-windy-strong { --rain-tilt-extra: 20deg; }
+@keyframes hud-rain-follow {
+    0%   { translate: calc(-1 * var(--rc-drift, 6px)) 0; }
+    100% { translate: var(--rc-drift, 6px) 0; }
+}
+/* Тёмные пятна грозы ездили сами по себе и тащили за собой дождь. */
+.hud-scene-widget.weather-storm .hud-fx-weather { animation: none; opacity: 1; }
+.hud-scene-widget.weather-storm .hud-fx-clouds { --rc-body: #757d8d; --rc-shade: #4f5766; --rc-edge: #8a92a1; opacity: .95; }
+.hud-scene-widget.weather-storm .hud-fx-clouds .hud-rain-cloud {
+    display: block; position: absolute; left: 50%; z-index: 2; pointer-events: none;
+    width: var(--rc-w); height: calc(var(--rc-w) * .29);
+    border-radius: 999px;
+    background: var(--rc-body);
+    box-shadow:
+        calc(var(--rc-w) * -.25) calc(var(--rc-w) *  .12) 0 calc(var(--rc-w) * -.02) var(--rc-body),
+        calc(var(--rc-w) *  .31) calc(var(--rc-w) *  .08) 0 calc(var(--rc-w) * -.04) var(--rc-shade),
+        calc(var(--rc-w) * -.12) calc(var(--rc-w) * -.17) 0 calc(var(--rc-w) *  .04) var(--rc-body),
+        calc(var(--rc-w) *  .17) calc(var(--rc-w) * -.21) 0 calc(var(--rc-w) *  .06) var(--rc-edge);
+    filter: blur(1.5px) drop-shadow(0 4px 6px rgba(0,0,0,.4));
+    animation: hud-cloud-drift calc(4.5s * var(--gust, 1)) ease-in-out infinite alternate;
+}
+.hud-scene-widget.weather-storm .hud-fx-clouds .hud-rain-cloud.rc-back {
+    --rc-w: 64px; top: calc(var(--rc-w) * .24 + 6px); margin-left: -92px;
+    --rc-drift: 3px; opacity: .8; filter: blur(2.2px) drop-shadow(0 3px 4px rgba(0,0,0,.3));
+    animation-duration: calc(6.5s * var(--gust, 1));
+}
+.hud-scene-widget.weather-storm .hud-fx-clouds .hud-rain-cloud.rc-front {
+    --rc-w: 84px; top: calc(var(--rc-w) * .24 + 12px); margin-left: -4px;
+    --rc-drift: 6px; animation-delay: -1.7s;
+}
+@media screen and (min-width: 601px) {
+    /* Полоса — от тела дальней тучи до правого края ближней. */
+    .hud-scene-widget.weather-rain .hud-fx-weather::after,
+    .hud-scene-widget.weather-storm .hud-fx-weather::after {
+        top: 32px; height: 110px; width: 180px; margin-left: -124px;
+        transform-origin: 50% 0;
+        transform: skewX(calc(-1 * min(14deg, var(--rain-lean-n, 3deg) + var(--rain-tilt-extra, 0deg) * .5)));
+        --rc-drift: 6px;
+        animation:
+            hud-rain-fall calc(var(--rain-dur, .9s) * var(--gust, 1)) linear infinite,
+            hud-rain-follow calc(6s * var(--gust, 1)) ease-in-out -1.7s infinite alternate;
+    }
+    .hud-scene-widget.weather-rain.weather-intensity-high .hud-fx-weather::after {
+        top: 38px; height: 140px; width: 214px; margin-left: -146px;
+        animation:
+            hud-rain-fall-heavy calc(.55s * var(--gust, 1)) linear infinite,
+            hud-rain-follow calc(3.5s * var(--gust, 1)) ease-in-out -1.7s infinite alternate;
+    }
+    .hud-scene-widget.weather-rain.weather-intensity-low .hud-fx-weather::after {
+        top: 26px; height: 100px; width: 132px; margin-left: -92px;
+        animation:
+            hud-rain-fall-low calc(2.4s * var(--gust, 1)) linear infinite,
+            hud-rain-follow calc(6s * var(--gust, 1)) ease-in-out -1.7s infinite alternate;
+    }
+    .hud-scene-widget.weather-storm.weather-storm .hud-fx-weather::after {
+        top: 42px; height: 150px; width: 240px; margin-left: -166px;
+        animation:
+            hud-rain-fall-heavy calc(.6s * var(--gust, 1)) linear infinite,
+            hud-rain-follow calc(4.5s * var(--gust, 1)) ease-in-out -1.7s infinite alternate;
+    }
+    .hud-scene-widget.weather-storm .hud-fx-clouds .hud-rain-cloud.rc-back { --rc-w: 96px; margin-left: -170px; }
+    .hud-scene-widget.weather-storm .hud-fx-clouds .hud-rain-cloud.rc-front { --rc-w: 124px; margin-left: -46px; }
+}
+/* Телефон и узкая карточка: тучи по краям, дождь на всю ширину (как было),
+   только без косого наклона в 24°. */
+@media screen and (max-width: 600px) {
+    .hud-scene-widget.hud-scene-widget.weather-storm .hud-fx-clouds .hud-rain-cloud.rc-back { --rc-w: 50px; left: 10%; margin-left: calc(var(--rc-w) * -.5); }
+    .hud-scene-widget.hud-scene-widget.weather-storm .hud-fx-clouds .hud-rain-cloud.rc-front { --rc-w: 64px; left: 90%; margin-left: calc(var(--rc-w) * -.5); }
+    .hud-scene-widget.hud-scene-widget.hud-scene-widget:is(.weather-rain, .weather-storm) .hud-fx-weather::after {
+        left: -30%; width: 160%; margin-left: 0; top: 0; height: 100%;
+        transform: skewX(calc(-1 * min(14deg, var(--rain-lean-n, 3deg) + var(--rain-tilt-extra, 0deg) * .5)));
+        translate: none;
+    }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media screen and (min-width: 601px) { @container hud (max-width: 470px) {
+    .hud-scene-widget.hud-scene-widget.weather-storm .hud-fx-clouds .hud-rain-cloud.rc-back { --rc-w: 50px; left: 10%; margin-left: calc(var(--rc-w) * -.5); }
+    .hud-scene-widget.hud-scene-widget.weather-storm .hud-fx-clouds .hud-rain-cloud.rc-front { --rc-w: 64px; left: 90%; margin-left: calc(var(--rc-w) * -.5); }
+    .hud-scene-widget.hud-scene-widget.hud-scene-widget:is(.weather-rain, .weather-storm) .hud-fx-weather::after {
+        left: -30%; width: 160%; margin-left: 0; top: 0; height: 100%;
+        transform: skewX(calc(-1 * min(14deg, var(--rain-lean-n, 3deg) + var(--rain-tilt-extra, 0deg) * .5)));
+        translate: none;
+    }
+} }
+/* cq ↑ */

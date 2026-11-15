@@ -10,9 +10,9 @@
 // реально добавляются новые сообщения (см. invalidateAvatarCache()).
 // Ручные аватарки читаются прямо из настроек: модуль и так знает про DOM
 // и глобали SillyTavern, ещё одна зависимость ничего не усложняет.
-import { settings } from './settings.js?v=23.89.40';
-import { getSafeUserName } from './utils.js?v=23.89.40';
-import { namesLikelySame } from './names.js?v=23.89.40';
+import { settings } from './settings.js?v=23.89.41';
+import { getSafeUserName } from './utils.js?v=23.89.41';
+import { namesLikelySame } from './names.js?v=23.89.41';
 
 /**
  * Палитра для плейсхолдеров аватарок: цвет выбирается по хэшу имени.

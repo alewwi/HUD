@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.40**:
+The latest version is **23.89.41**:
 
+- A past storm is no longer drawn; rain falls straight from the clouds and sways with them, storms get their own clouds.
 - A shorter HUD: "nc" for babies and in characters' lines and flags.
 - Invented names in code examples and tests.
 - A wish for holiday generation; "nc" for slow fields; a better duel opponent and washing in life.

@@ -4,6 +4,12 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.41 — 2026-11-15
+
+### Fixed
+- **A past storm no longer rains.** “A sunny morning after a night storm”, “the storm has passed”, “after the snowfall” drew a storm or snow while the text said clear weather. Past precipitation no longer counts as current.
+- **Rain falls from the clouds.** On PC the rain band was wider than the clouds, fell at a slant and stood still while the clouds swayed. Now it sits right under the clouds, almost vertical (only wind tilts it), and sways with them. Storms got their own dark clouds, and on phones rain no longer slants at 24°.
+
 ## 23.89.40 — 2026-11-15
 
 A shorter HUD: "nc" now also for babies and for characters' typical lines and open threads.
