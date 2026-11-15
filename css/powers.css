@@ -34,6 +34,193 @@
 .hud-pw-row.is-lim > p { color: color-mix(in srgb, currentColor 88%, #ef7a86); }
 .hud-pw-row.is-cost > span { color: #d9a066; opacity: .9; }
 
+/* Гримуар: цветная печать дара, ступени мастерства и три поля на странице. */
+.hud-pw.is-grimoire .hud-pw-list { gap: 12px; }
+.hud-pw.is-grimoire .hud-pw-card {
+  --pw-ink: #f5ead7;
+  --pw-rule: color-mix(in srgb, var(--pw) 34%, #382a26);
+  position: relative; padding: clamp(13px, 3cqi, 20px); color: var(--pw-ink);
+  border: 1px solid var(--pw-rule); border-radius: 12px;
+  background:
+    radial-gradient(ellipse at 5% 0%, color-mix(in srgb, var(--pw) 21%, transparent), transparent 66%),
+    repeating-linear-gradient(118deg, transparent 0 4px, #fff1cf06 5px, transparent 7px),
+    linear-gradient(145deg, #27202a, #211a20 62%, #1b171e);
+  box-shadow: inset 0 0 0 3px #18141a, inset 0 0 0 4px #e9d3a81e, 0 4px 14px #08060c42;
+}
+.hud-pw.is-grimoire .hud-pw-card::before,
+.hud-pw.is-grimoire .hud-pw-card::after {
+  content: ''; position: absolute; width: 12px; height: 12px; pointer-events: none;
+  border: 1px solid var(--pw); opacity: .6;
+}
+.hud-pw.is-grimoire .hud-pw-card::before { top: 7px; left: 7px; border-width: 1px 0 0 1px; }
+.hud-pw.is-grimoire .hud-pw-card::after { right: 7px; bottom: 7px; border-width: 0 1px 1px 0; }
+.hud-pw.is-grimoire .hud-pw-head { column-gap: 13px; row-gap: 8px; }
+.hud-pw.is-grimoire .hud-pw-head > b {
+  flex: 1 1 10ch; font-family: Georgia, serif; font-size: clamp(1.05em, 4cqi, 1.35em);
+  line-height: 1.2; color: var(--pw-ink);
+}
+.hud-pw.is-grimoire .hud-pw-ico {
+  position: relative; width: 44px; height: 44px;
+  border: 1px solid color-mix(in srgb, var(--pw) 64%, transparent);
+  background: radial-gradient(circle, color-mix(in srgb, var(--pw) 28%, #251e2a), #241b25 70%);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--pw) 24%, transparent), inset 0 0 0 4px #160f19ab;
+}
+.hud-pw.is-grimoire .hud-pw-ico::after {
+  content: ''; position: absolute; inset: 4px; border: 1px dashed currentColor; border-radius: 50%; opacity: .45;
+}
+.hud-pw.is-grimoire .hud-pw-ico svg { width: 23px; height: 23px; filter: drop-shadow(0 0 4px currentColor); }
+.hud-pw.is-grimoire .hud-pw-lv {
+  max-width: 100%; flex-wrap: wrap; align-items: center; column-gap: 5px;
+  padding: 4px 8px; border: 1px solid var(--pw-rule); border-radius: 6px; background: #100c1380;
+}
+.hud-pw.is-grimoire .hud-pw-lv > i {
+  width: 7px; height: 7px; transform: rotate(45deg); border-radius: 1px;
+  border: 1px solid color-mix(in srgb, var(--pw) 38%, transparent); background: transparent;
+}
+.hud-pw.is-grimoire .hud-pw-lv > i.on { background: var(--pw); }
+.hud-pw.is-grimoire .hud-pw-lv > em { min-width: 0; overflow-wrap: anywhere; }
+.hud-pw.is-grimoire .hud-pw-details {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 1fr)); gap: 8px;
+  margin-top: 12px; padding-top: 11px; border-top: 1px solid var(--pw-rule);
+}
+.hud-pw.is-grimoire .hud-pw-row {
+  --pw-detail: var(--pw);
+  grid-template-columns: minmax(0, 1fr); align-content: start; gap: 4px; margin: 0; padding: 7px 9px;
+  border: 1px solid color-mix(in srgb, var(--pw-detail) 24%, transparent); border-radius: 6px;
+  background: linear-gradient(140deg, color-mix(in srgb, var(--pw-detail) 8%, #17131b), #19141a);
+}
+.hud-pw.is-grimoire .hud-pw-row.is-lim { --pw-detail: #f2a3a7; }
+.hud-pw.is-grimoire .hud-pw-row.is-cost { --pw-detail: #ecc78d; }
+.hud-pw.is-grimoire .hud-pw-row > span {
+  display: flex; align-items: center; gap: 5px; color: var(--pw-detail); opacity: 1;
+  font-size: .83em; font-weight: 700;
+}
+.hud-pw.is-grimoire .hud-pw-row > span > svg { flex: none; width: 13px; height: 13px; }
+.hud-pw.is-grimoire .hud-pw-row > p { color: var(--pw-ink); }
+
+/* Атлас даров — иллюстрация на развороте и заметки в нижнем поле. */
+.hud-pw.is-atlas .hud-pw-list { gap: 16px; }
+.hud-pw.is-atlas .hud-pw-card {
+  --pw-gold: #edcb8f;
+  --pw-ink: #fff0db;
+  --pw-line: color-mix(in srgb, var(--pw) 42%, #634645);
+  position: relative; padding: 0; overflow: hidden; isolation: isolate;
+  color: var(--pw-ink); border: 1px solid var(--pw-line); border-radius: 16px 16px 11px 11px;
+  background: radial-gradient(ellipse at 8% 100%, color-mix(in srgb, var(--pw) 18%, transparent), transparent 76%), #201831;
+  box-shadow: 0 5px 16px #0a051461;
+}
+.hud-pw.is-atlas .hud-pw-plate {
+  position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(60px, 31%);
+  gap: 8px; align-items: center; isolation: isolate;
+  padding: 11px clamp(12px, 3.8cqi, 24px);
+  background: radial-gradient(ellipse at 84% 50%, color-mix(in srgb, var(--pw) 32%, #211631), transparent 52%),
+    repeating-linear-gradient(122deg, #fff0d50a 0 1px, transparent 2px 6px), linear-gradient(145deg, #17152d, #100d24 58%, #26162b);
+}
+.hud-pw.is-atlas .hud-pw-art {
+  --pw-light: #ffe8af;
+  grid-area: 1 / 2; width: 100%; height: clamp(68px, 18cqi, 110px); justify-self: end;
+  pointer-events: none; overflow: hidden;
+}
+.hud-pw.is-atlas .hud-pw-art.is-tide { --pw-light: #b9ffec; }
+.hud-pw.is-atlas .hud-pw-art.is-ember { --pw-light: #fff0a1; }
+.hud-pw.is-atlas .hud-pw-art.is-veil { --pw-light: #eed4ff; }
+.hud-pw.is-atlas .hud-pw-art.is-grove { --pw-light: #eaffb5; }
+.hud-pw.is-atlas .pw-atlas-map { color: #e9bb82; opacity: .72; stroke-width: .85; }
+.hud-pw.is-atlas .pw-atlas-constellations { opacity: .50; stroke-dasharray: 2 4; }
+.hud-pw.is-atlas .pw-atlas-orbit { color: color-mix(in srgb, var(--pw) 38%, #ffe7b3); opacity: .82; stroke-width: .9; }
+.hud-pw.is-atlas .pw-atlas-orbit ellipse { opacity: .47; }
+.hud-pw.is-atlas .pw-atlas-dots { stroke-dasharray: 1 3; }
+.hud-pw.is-atlas .pw-atlas-emblem {
+  fill: color-mix(in srgb, var(--pw) 68%, #171132); stroke: var(--pw-light); stroke-width: 1.6;
+  filter: drop-shadow(0 0 7px var(--pw));
+}
+.hud-pw.is-atlas .pw-atlas-trace {
+  fill: none; stroke: var(--pw-light); stroke-width: 1.35; stroke-linecap: round; stroke-linejoin: round;
+}
+.hud-pw.is-atlas .hud-pw-plate::before {
+  content: ''; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  background: linear-gradient(180deg, transparent 62%, #120a2280 100%);
+}
+.hud-pw.is-atlas .hud-pw-plate::after {
+  content: ''; position: absolute; inset: 7px; pointer-events: none; border-radius: 10px 10px 2px 2px;
+  border: 1px solid #ffdc9670; box-shadow: 0 0 0 2px #120c23a8, inset 0 0 0 2px #120c2377;
+  mask-image: linear-gradient(#000 16%, #0007 55%, #000 88%);
+}
+.hud-pw.is-atlas .hud-pw-head {
+  grid-area: 1 / 1; display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 6px 10px;
+  color: var(--pw-ink); text-shadow: 0 1px 4px #160a1d;
+}
+.hud-pw.is-atlas .hud-pw-head > b {
+  font-family: Georgia, serif; font-size: clamp(1.14em, 4.3cqi, 1.75em);
+  line-height: 1.13; color: var(--pw-ink);
+}
+.hud-pw.is-atlas .hud-pw-ico {
+  grid-row: span 2; position: relative; width: 33px; height: 33px;
+  border: 1px solid var(--pw-gold); background: radial-gradient(circle, color-mix(in srgb, var(--pw) 54%, #291b37), #261530 69%);
+  box-shadow: 0 0 0 3px #20102a, 0 0 0 4px #e8bc7da8, 0 0 13px var(--pw);
+}
+.hud-pw.is-atlas .hud-pw-ico::after {
+  content: ''; position: absolute; inset: 3px; border-radius: 50%; border: 1px dashed #ffdeb27c;
+}
+.hud-pw.is-atlas .hud-pw-ico svg { width: 19px; height: 19px; filter: drop-shadow(0 0 3px var(--pw)); }
+.hud-pw.is-atlas .hud-pw-lv {
+  grid-column: 2; justify-self: start; flex-wrap: wrap; gap: 5px 8px; min-width: 0; margin: 0; padding: 4px 9px 4px 6px;
+  border-inline-start: 2px solid var(--pw-gold); background: linear-gradient(90deg, #dbc18a28, #dbc18a04);
+}
+.hud-pw.is-atlas .pw-atlas-rank-track { display: inline-flex; align-items: center; gap: 3px; }
+.hud-pw.is-atlas .pw-atlas-rank-track > i {
+  display: block; width: 9px; height: 12px;
+  clip-path: polygon(50% 0, 100% 28%, 83% 72%, 50% 100%, 17% 72%, 0 28%);
+  background: linear-gradient(130deg, #6f5b74, #372e45);
+}
+.hud-pw.is-atlas .pw-atlas-rank-track > i.on { background: linear-gradient(130deg, #fff2b6, var(--pw) 58%, #533d81); }
+.hud-pw.is-atlas .hud-pw-lv > em { min-width: 0; margin: 0; color: var(--pw-ink); overflow-wrap: anywhere; }
+.hud-pw.is-atlas .hud-pw-details {
+  display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 9px 11px;
+  padding: 9px clamp(10px, 3cqi, 17px) 13px; border-top: 1px solid var(--pw-line);
+}
+.hud-pw.is-atlas .hud-pw-row {
+  --pw-note: var(--pw);
+  position: relative; min-width: 0; grid-template-columns: minmax(0, 1fr); align-content: start;
+  gap: 4px; margin: 0; padding: 7px 10px 8px;
+}
+.hud-pw.is-atlas .hud-pw-row.is-can {
+  grid-column: 1 / -1; padding-inline-start: 12px; border-inline-start: 3px double var(--pw-note);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--pw-note) 17%, #171229), transparent 90%);
+}
+.hud-pw.is-atlas .hud-pw-row.is-lim {
+  --pw-note: #ff9caa;
+  border: 1px solid #ee849755; border-radius: 9px 3px 11px 3px;
+  background: linear-gradient(150deg, #6131434f, #1c132b 70%);
+}
+.hud-pw.is-atlas .hud-pw-row.is-lim::after {
+  content: ''; position: absolute; right: 3px; bottom: 3px; width: 10px; height: 10px;
+  border: solid #ee8497a0; border-width: 0 1px 1px 0; transform: skew(-12deg); pointer-events: none;
+}
+.hud-pw.is-atlas .hud-pw-row.is-cost {
+  --pw-note: var(--pw-gold);
+  border-block: 1px solid #f4cf8a59;
+  background: repeating-linear-gradient(135deg, #f5cf900a 0 1px, transparent 1px 6px), linear-gradient(90deg, #67463155, #3a273959);
+}
+.hud-pw.is-atlas .hud-pw-row:only-child { grid-column: 1 / -1; }
+.hud-pw.is-atlas .hud-pw-row > span {
+  display: flex; align-items: center; gap: 7px; color: var(--pw-note); opacity: 1; font-weight: 700;
+}
+.hud-pw.is-atlas .hud-pw-row > span::after {
+  content: ''; flex: 1 1 auto; height: 1px; opacity: .43; background: linear-gradient(90deg, currentColor, transparent);
+}
+.hud-pw.is-atlas .hud-pw-row > span > svg {
+  flex: none; width: 23px; height: 23px; padding: 4px; box-sizing: border-box; border: 1px solid currentColor;
+  border-radius: 50%; background: #1a112650;
+}
+.hud-pw.is-atlas .hud-pw-row.is-lim > span > svg { border-radius: 6px 6px 9px 9px; }
+.hud-pw.is-atlas .hud-pw-row.is-cost > span > svg { border-radius: 5px; }
+.hud-pw.is-atlas .hud-pw-row > p { color: var(--pw-ink); padding-inline-start: 30px; }
+@container (max-width: 400px) {
+  .hud-pw.is-atlas .hud-pw-details { grid-template-columns: minmax(0, 1fr); }
+  .hud-pw.is-atlas .hud-pw-row > p { padding-inline-start: 0; }
+}
+
 /* Мана: полоса с числом и сроком наполнения. */
 .hud-pw-mana {
   display: grid; grid-template-columns: auto minmax(40px, 1fr) auto; align-items: center; gap: 4px 9px;

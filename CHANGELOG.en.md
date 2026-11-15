@@ -4,6 +4,16 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.35 — 2026-11-15
+
+The Abilities block gets a choice of view, and the conception chance no longer loses intimacy the model left out.
+
+### Added
+- **Abilities views** (Customization → Block views → Body and health): "Grimoire" — pages with icons by "Can", "Cannot" and "Cost"; "Atlas of Gifts" — every gift gets an engraving of its element and a mastery scale; "Cards" — the previous look. Clicking the block in the sample leads to this setting.
+
+### Fixed
+- **Conception chance.** When the model leaves out "Last sex", the card takes that person's intimacy record from before the chosen HUD instead of losing it. A restored event is not filled in with today's phase, protection and rounds. Intimacy that ran past midnight counts as the same scene, not as yesterday.
+
 ## 23.89.34 — 2026-11-15
 
 - **Era look.** With hidden magic, compatible blocks can use a magical look individually in Customization → Era look. Available looks follow the era and kind of magic. The phone, casket and intercepted or overheard messages follow the world's settings.

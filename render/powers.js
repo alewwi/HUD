@@ -26,9 +26,11 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { settings } from '../settings.js?v=23.89.34';
-import { магияВМире, заклинанияВМире } from '../era.js?v=23.89.34';
-import { escapeHtml, перевестиМетку } from '../utils.js?v=23.89.34';
+import { settings } from '../settings.js?v=23.89.35';
+import { магияВМире, заклинанияВМире } from '../era.js?v=23.89.35';
+import { escapeHtml, перевестиМетку } from '../utils.js?v=23.89.35';
+import { видБлока } from './views.js?v=23.89.35';
+import { рисунокАтласа } from './power-atlas.js?v=23.89.35';
 
 /* --- Включено ли ----------------------------------------------------------- */
 
@@ -298,15 +300,24 @@ export function манаПолнаяК(мана, сейчас) {
 export function видСпособностей(value, о = null) {
   const дары = разобратьСпособности(value);
   if (!дары.length) return '';
+  const вид = видБлока('abilitiesView');
+  const атлас = вид === 'atlas';
+  const подробный = атлас || вид === 'grimoire';
   const карточки = дары.map(д => {
     const с = стихия(д.что, д.может);
-    const пипсы = д.уровень ? `<span class="hud-pw-lv" title="${э(д.мастерство)}">${[1, 2, 3, 4].map(i => `<i class="${i <= д.уровень.n ? 'on' : ''}"></i>`).join('')}<em>${э(д.уровень.имя)}</em></span>`
+    const ступени = д.уровень ? [1, 2, 3, 4].map(i => `<i aria-hidden="true"${i <= д.уровень.n ? ' class="on"' : ''}></i>`).join('') : '';
+    const пипсы = д.уровень ? `<span class="hud-pw-lv" title="${э(д.мастерство)}">${атлас ? `<span class="pw-atlas-rank-track">${ступени}</span>` : ступени}<em>${э(д.уровень.имя)}</em></span>`
       : д.мастерство ? `<span class="hud-pw-lv"><em>${э(д.мастерство)}</em></span>` : '';
-    return `<div class="hud-pw-card" style="--pw:${с.c}"><div class="hud-pw-head"><span class="hud-pw-ico">${ик(с.ик)}</span><b>${э(д.что)}</b>${пипсы}</div>`
-      + (д.может ? `<div class="hud-pw-row is-can"><span>Может</span><p>${э(д.может)}</p></div>` : '')
-      + (д.предел ? `<div class="hud-pw-row is-lim"><span>Не может</span><p>${э(д.предел)}</p></div>` : '')
-      + (д.цена ? `<div class="hud-pw-row is-cost"><span>Цена</span><p>${э(д.цена)}</p></div>` : '')
-      + `</div>`;
+    const детали = [
+      ['is-can', 'Может', д.может, 'star'],
+      ['is-lim', 'Не может', д.предел, 'shield'],
+      ['is-cost', 'Цена', д.цена, 'hourglass'],
+    ].filter(([, , текст]) => текст).map(([класс, метка, текст, значок]) =>
+      `<div class="hud-pw-row ${класс}"><span>${подробный ? ик(значок) : ''}${метка}</span><p>${э(текст)}</p></div>`).join('');
+    const заголовок = `<div class="hud-pw-head"><span class="hud-pw-ico" aria-hidden="true">${ик(с.ик)}</span><b>${э(д.что)}</b>${пипсы}</div>`;
+    return `<article class="hud-pw-card" style="--pw:${с.c}">`
+      + (атлас ? `<div class="hud-pw-plate">${рисунокАтласа(с.ик)}${заголовок}</div>` : заголовок)
+      + (подробный && детали ? `<div class="hud-pw-details">${детали}</div>` : детали) + '</article>';
   }).join('');
   // Мана и срок, когда наполнится.
   const мана = частьСил('mana') && о ? манаИз(поле(о, 'Состояние тела', 'Bs')) : null;
@@ -318,7 +329,7 @@ export function видСпособностей(value, о = null) {
   const показать = телоИСила() === 'both' || телоИСила() === 'me';
   const ф = показать && о ? телоМеняетСилу(о, о.__датаСцены) : [];
   const тело = ф.length ? `<div class="hud-pw-body"><span class="hud-pw-body-t">Тело и сила</span>${ф.map(x => `<span class="hud-pw-f is-${x.знак}" title="${э(x.как)}">${ик(x.знак)}<b>${э(x.что)}</b><small>${э(x.как)}</small></span>`).join('')}</div>` : '';
-  return `<div class="hud-pw">${полоса}<div class="hud-pw-list">${карточки}</div>${тело}</div>`;
+  return `<div class="hud-pw${подробный ? ' is-' + вид : ''}">${полоса}<div class="hud-pw-list">${карточки}</div>${тело}</div>`;
 }
 
 /** Блок «Чары»: что действует, от кого и сколько осталось по времени сцены. */

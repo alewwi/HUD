@@ -657,8 +657,10 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.33**:
+The latest version is **23.89.35**:
 
+- Abilities views: "Grimoire" and "Atlas of Gifts"; the conception chance keeps intimacy the model left out and intimacy past midnight.
+- With hidden magic, single blocks can take the magic look; holiday controls in the calendar.
 - The world from three settings: era, technology and magic (none, hidden, open; spells or innate powers). Fantasy in both eras with restyled blocks. People who wield magic get mana, abilities with limits, four-stage backlash, timed spells and body-driven power.
 - Each chat keeps its own look: era, theme, fonts and block views are remembered per story, and a look can be copied between chats; a new physician's chart in the Middle Ages.
 - Every setting in the guide has an explanation in Russian and English; avatars no longer turn into a list of buttons.

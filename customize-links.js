@@ -9,12 +9,12 @@
 // телефона в примере работают как обычно. Что каждая настройка есть в карте,
 // проверяет tests/unit.mjs.
 
-import { settings } from './settings.js?v=23.89.34';
-import { слои, адресСлоя, файлИз, сПоказаннымиЧастями, запомнитьРазмер, прямоугольникСлоя } from './scene-pieces.js?v=23.89.34';
-import { т } from './i18n.js?v=23.89.34';
+import { settings } from './settings.js?v=23.89.35';
+import { слои, адресСлоя, файлИз, сПоказаннымиЧастями, запомнитьРазмер, прямоугольникСлоя } from './scene-pieces.js?v=23.89.35';
+import { т } from './i18n.js?v=23.89.35';
 
 const ВИДЫ_ПОД_КЛАСС = {
-  age: 'ageView', clothes: 'clothesView', looks: 'looksView', role: 'roleView', body: 'bodyStateView', phys: 'physView', health: 'healthView',
+  age: 'ageView', clothes: 'clothesView', looks: 'looksView', role: 'roleView', body: 'bodyStateView', phys: 'physView', powers: 'abilitiesView', health: 'healthView',
   marks: 'marksView', cycle: 'cycleView', preg: 'pregnancyView', x2: 'postpartumView', where: 'placeView', lines: 'linesView', 'key-view': 'keyView', exp: 'expView',
   thoughts: 'thoughtsView', subtext: 'subtextView', fears: 'fearsView', exposure: 'exposureView', inventory: 'inventoryView', goals: 'goalsView', schedule: 'scheduleView', flags: 'flagsView',
   trust: 'trustView', memories: 'memoriesView', status: 'statusView', conflict: 'conflictView', jealousy: 'jealousyView',
@@ -25,7 +25,7 @@ const ВИДЫ_ПО_ПОДПИСИ = [
   ['бельё', 'underwearView'], ['готовность к оргазму', 'orgView'], ['пульс', 'vitalsView'], ['жизненные показатели', 'vitalsView'], ['карта тела', 'bodyMapView', 'silhouetteStyle', 'silhouetteOutlines', 'silhouetteLook'],
   ['отношения', 'relationsView'], ['кинк', 'kinkView'], ['фетиш', 'kinkView'], ['никогда не сделает', 'kinkView'], ['не возбуждает', 'kinkView'], ['словесная дуэль', 'duelView'], ['вехи и уход', 'kidCareView'],
   ['таймлайн', 'timelineView'], ['мини-карта маршрута', 'routeView'], ['эмоции', 'moodView'], ['приглашения', 'invitesView'], ['обещания', 'promisesView'], ['важное', 'importantView'], ['ружья', 'gunsView'], ['кто что знает', 'secretsGridView'], ['не знает', 'knowsNotView', 'knowledgeLine'], ['зашифрованные', 'secretsView'], ['скрытый подтекст', 'subtextVeil'],
-  ['мысли', 'dropCap', 'thoughtBrackets', 'fontMain'],
+  ['мысли', 'dropCap', 'thoughtBrackets', 'fontMain'], ['способности', 'abilitiesView'],
 ];
 const ТЕКСТ = ['fontMain', 'fontSizeMain', 'textColor', 'textMutedColor'];
 const БЛОК = ['infoBlockBgStart', 'infoBlockBgAlpha', 'infoBlockBgEnd', 'sectionSkin', 'cornerShape'];

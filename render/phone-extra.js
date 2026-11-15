@@ -9,19 +9,19 @@
 //   «Карты»   — сохранённые места на нарисованной схеме города.
 // Кроме «Здоровья» всё строится из того, что уже есть в HUD.
 
-import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.89.34';
-import { английский } from '../i18n.js?v=23.89.34';
-import { градусы, ДЛИТ } from '../units.js?v=23.89.34';
-import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.34';
-import { G_ICONS } from './icons.js?v=23.89.34';
-import { parseCall, безШапокСообщения } from './msg-parts.js?v=23.89.34';
-import { контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.89.34';
-import { parseMsgParties } from './phone-common.js?v=23.89.34';
-import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.89.34';
-import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.89.34';
-import { namesLikelySame } from '../names.js?v=23.89.34';
-import { зоныКарты } from './intimacy.js?v=23.89.34';
-import { сводкаБолезней } from './character.js?v=23.89.34';
+import { escapeHtml, defeatWI, hudHashSeed, getSafeUserName, инициалыИмени } from '../utils.js?v=23.89.35';
+import { английский } from '../i18n.js?v=23.89.35';
+import { градусы, ДЛИТ } from '../units.js?v=23.89.35';
+import { HUD_AVATAR_COLORS, overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl } from '../avatars.js?v=23.89.35';
+import { G_ICONS } from './icons.js?v=23.89.35';
+import { parseCall, безШапокСообщения } from './msg-parts.js?v=23.89.35';
+import { контактСНастоящимИменем, ложноеИмяHTML } from './phone-common.js?v=23.89.35';
+import { parseMsgParties } from './phone-common.js?v=23.89.35';
+import { дниСообщений, моментПоследнего, полеВремени } from './msg-feed.js?v=23.89.35';
+import { W_ICONS, forecastLook, parseForecastRow, parseTempC } from './world.js?v=23.89.35';
+import { namesLikelySame } from '../names.js?v=23.89.35';
+import { зоныКарты } from './intimacy.js?v=23.89.35';
+import { сводкаБолезней } from './character.js?v=23.89.35';
 
 const текст = (v) => (v === null || v === undefined ? '' : String(v)).trim();
 const пусто = (v) => !текст(v) || /^(empty|none|null|нет|пусто)$/i.test(текст(v));

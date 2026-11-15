@@ -16,12 +16,12 @@
 //
 // Картинка фона в снимок не входит: она тяжёлая (до 3 МБ) и общая.
 
-import { settings, defaultSettings, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.34';
-import { КЛЮЧИ_ВИДА } from './themes.js?v=23.89.34';
-import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.34';
-import { КЛЮЧИ_ПАНЕЛИ } from './events.js?v=23.89.34';
-import { escapeHtml } from './utils.js?v=23.89.34';
-import { база, присутствиеМагии, магияВМире, видМагииВМире, технологии } from './era.js?v=23.89.34';
+import { settings, defaultSettings, КЛЮЧИ_АВТО, КЛЮЧИ_МЕСТ } from './settings.js?v=23.89.35';
+import { КЛЮЧИ_ВИДА } from './themes.js?v=23.89.35';
+import { ВИДЫ_БЛОКОВ } from './render/views.js?v=23.89.35';
+import { КЛЮЧИ_ПАНЕЛИ } from './events.js?v=23.89.35';
+import { escapeHtml } from './utils.js?v=23.89.35';
+import { база, присутствиеМагии, магияВМире, видМагииВМире, технологии } from './era.js?v=23.89.35';
 
 // Эпоха — тоже вид истории: в средневековом чате нет телефона.
 const ЭПОХА = ['era', 'fantasyMagic', 'magicPresence', 'techLevel', 'modernComms', 'eraModern', 'eraMagic'];

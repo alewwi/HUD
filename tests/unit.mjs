@@ -3967,5 +3967,56 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
   } finally { Object.assign(Н, было); }
 }
 
+группа('Способности: обличья блока');
+{
+  const { settings: Н } = await модуль('settings.js');
+  const { buildCharacterHTML, buildUserHTML } = await модуль('render/character.js');
+  const { видСпособностей } = await модуль('render/powers.js');
+  const { КЛЮЧИ_ВИДА_ЧАТА } = await модуль('chat-looks.js');
+  const было = { era: Н.era, magicPresence: Н.magicPresence, abilitiesView: Н.abilitiesView, powersMana: Н.powersMana, noImages: Н.noImages };
+  const способность = 'nm: Вода <ручья>; mst: trained; cn: остудить ожог; lim: не поднять волну; cst: озноб';
+  const дары = способность + ' | nm: Чутьё на духов; mst: редкий дар';
+  const тело = { Bs: 'mn: 35', __датаСцены: '21.06.2026', __времяСцены: '12:00' };
+  const персонаж = () => buildCharacterHTML({ 'Имя': 'Лира', 'Способности': дары, ...тело }, 'pw', true, false);
+  const игрок = () => buildUserHTML({ Ab: дары, ...тело }, 'pw-user', true, []);
+  try {
+    Object.assign(Н, { era: 'medieval', magicPresence: 'hidden', abilitiesView: undefined, powersMana: true });
+    const html = персонаж();
+    проверить('старые настройки дают Гримуар у игрока и персонажа со скрытой магией', html.includes('is-grimoire') && игрок().includes('is-grimoire'));
+    проверить('три поля, ступени, особый ранг и экранированное название', html.includes('Вода &lt;ручья&gt;') && /is-can[\s\S]+is-lim[\s\S]+is-cost/.test(html) && html.includes('редкий дар') && (html.match(/<i aria-hidden="true" class="on">/g) || []).length === 2);
+    проверить('у способности без подробностей нет пустых полей, мана доступна в новом виде', (html.match(/class="hud-pw-details"/g) || []).length === 1 && видСпособностей(дары, тело).includes('hud-pw-mana'));
+    Object.assign(Н, { abilitiesView: 'atlas', noImages: 'off' });
+    const атлас = персонаж();
+    проверить('Атлас даров рисует разные печати воды и духов', атлас.includes('is-atlas') && игрок().includes('is-atlas') && атлас.includes('hud-pw-art is-tide') && атлас.includes('hud-pw-art is-veil') && атлас.includes('озноб'));
+    Н.noImages = 'on';
+    проверить('Векторный Атлас доступен без картинок темы', игрок().includes('hud-pw-art') && !атлас.includes('<img class="hud-pw-art"') && игрок().includes('остудить ожог'));
+    Н.abilitiesView = 'classic';
+    проверить('Карточки переключаются у обоих, а выбор запоминается по чатам', [персонаж(), игрок()].every(х => х.includes('hud-pw-card') && !х.includes('is-grimoire')) && КЛЮЧИ_ВИДА_ЧАТА().includes('abilitiesView'));
+    Н.magicPresence = 'none';
+    проверить('в мире без магии плашка не выводится', !персонаж().includes('hud-pw-card') && !игрок().includes('hud-pw-card'));
+  } finally { Object.assign(Н, было); }
+}
+
+группа('Сохранённый шанс прошлой близости');
+{
+  const { buildCycle } = await модуль('render/intimacy.js');
+  const { задатьПримерСемьи } = await модуль('render/conception.js');
+  const акт = 'dt: 14.06.2030, 23:25; pr: Марк';
+  const к = 'user|23:25|марк|14.06.2030';
+  const запись = { кто: 'user', когда: акт, шанс: .31, бросок: 88, порог: 31 };
+  задатьПримерСемьи({ броски: { [к]: запись }, зачатие: {}, судьба: {}, потери: [], роды: [] });
+  try {
+    const вид = (сцена, секс = '', время = '08:02') => buildCycle('d: 18; len: 29; ph: luteal', { кто: 'user', секс, сцена, владелец: { __времяСцены: время } });
+    const прошлое = /В день близости[\s\S]*?<\/span><b>31%<\/b>/;
+    const сегодня = /Сегодня<\/span><b>2%<\/b>/;
+    const html = вид('15.06.2030', акт);
+    проверить('утром отдельно 2% для сегодня и сохранённые 31% для прошлой близости', сегодня.test(html) && прошлое.test(html) && !html.includes('NaN'));
+    проверить('если поле близости выпало из HUD, недавняя запись остаётся видна', прошлое.test(вид('15.06.2030')) && запись.шанс === .31);
+    const послеПолуночи = buildCycle('day: 17; phs: ovulation', { кто: 'user', секс: акт, сцена: '15.06.2030', сценаБлизости: true, владелец: { __времяСцены: '23:59 → 00:14' } });
+    проверить('та же сцена после полуночи показывает только сохранённый шанс', прошлое.test(послеПолуночи) && !послеПолуночи.includes('is-today'));
+    проверить('в карточке до фактического времени близости будущая запись не появляется', !вид('14.06.2030', '', '22:45').includes('is-act'));
+  } finally { задатьПримерСемьи(null); }
+}
+
 console.log(`\nпроверок: ${всего}, провалов: ${провалы.length}`);
 if (провалы.length) { console.log(провалы.map(п => ' ✗ ' + п).join('\n')); process.exitCode = 1; }

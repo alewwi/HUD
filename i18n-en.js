@@ -2627,6 +2627,7 @@ export const СЛОВАРЬ_EN = {
   "Послания": "Missives",
   "Лунник": "Moon calendar",
   "Гримуар": "Grimoire",
+  "Атлас даров": "Atlas of Gifts",
   "Свитки": "Scrolls",
   "Обереги": "Charms",
   "Ларец чародея": "Sorcerer's coffer",

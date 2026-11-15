@@ -7,13 +7,13 @@
 // старые сборщики, а здесь только новые. Данные те же, что у прежних видов,
 // — модель ничего нового не пишет. Оформление — css/views.css.
 
-import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы, имяБезПриставки } from '../utils.js?v=23.89.34';
-import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.34';
-import { namesLikelySame } from '../names.js?v=23.89.34';
-import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.89.34';
-import { settings } from '../settings.js?v=23.89.34';
-import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.89.34';
-import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.34';
+import { escapeHtml, applyTooltips, разбитьСписок, hudHashSeed, getSafeUserName, инициалыИмени, именаГруппы, имяБезПриставки } from '../utils.js?v=23.89.35';
+import { overrideAvatarUrl, getAvatarUrl, getUserAvatarUrl, фотоПоИмени } from '../avatars.js?v=23.89.35';
+import { namesLikelySame } from '../names.js?v=23.89.35';
+import { разобратьСилуСтраха, статусРужья } from '../codes.js?v=23.89.35';
+import { settings } from '../settings.js?v=23.89.35';
+import { зоныКарты, ПЯТНА, единица } from './intimacy.js?v=23.89.35';
+import { ико, медаль, ИКОНКИ } from './view-icons.js?v=23.89.35';
 
 // Порядок — как строки идут в карточке (character.js → FIELD_ORDER, вкладка
 // «Память» — сверху вниз), чтобы в «Кастомизации» блоки шли так же.
@@ -32,6 +32,7 @@ export const ВИДЫ_БЛОКОВ = [
   { ключ: 'roleView', группа: 'Облик', поле: 'Роль', виды: { classic: 'Карточка', badge: 'Пропуск', ribbon: 'Орден', stack: 'Визитка' } },
   { ключ: 'bodyStateView', группа: 'Облик', поле: 'Тело и состояние', виды: { batteries: 'Батарейки', flasks: 'Колбы', chips: 'Строка' }, новый: true },
   { ключ: 'physView', группа: 'Тело и здоровье', поле: 'Физиология', виды: { classic: 'Текст', sensors: 'Датчики', bubbles: 'Пузырьки', readout: 'Монитор' } },
+  { ключ: 'abilitiesView', группа: 'Тело и здоровье', поле: 'Способности', виды: { grimoire: 'Гримуар', atlas: 'Атлас даров', classic: 'Карточки' }, новый: true },
   { ключ: 'healthView', группа: 'Тело и здоровье', поле: 'Здоровье', виды: { classic: 'Карточки', chart: 'Медкарта', compact: 'Кратко', kit: 'Аптечка' } },
   { ключ: 'marksView', группа: 'Тело и здоровье', поле: 'Следы на теле', виды: { classic: 'Карточки', compact: 'Строки', badges: 'Эмалевые значки', tags: 'Акварель' } },
   { ключ: 'pregnancyView', группа: 'Тело и здоровье', поле: 'Беременность', виды: { classic: 'Шкала', mobile: 'Мобиль', knit: 'Вязание', sprout: 'Росток', week: 'Неделя' }, новый: true },
