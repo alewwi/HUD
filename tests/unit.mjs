@@ -601,6 +601,13 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
     const медленные = { cs: [{ N: 'Анна', Rl: 'nc', Mm: 'nc', Tr: 'nc', G: 'nc', R: 'nc', Fr: 'nc', X: 'nc' }] };
     Р.развернутьКраткое(медленные, [{ cs: [{ N: 'Анна', Rl: 'Борис: друг', Mm: 'встреча у моста', Tr: 'Борис: 70', G: 'nw: уехать', R: 'врач', Fr: 'Темнота: low', X: 'wy: спор о доме; sg: open' }] }], {});
     проверить('nc в медленных полях — прежние отношения, воспоминания, доверие, цели', JSON.stringify(медленные.cs[0]) === JSON.stringify({ N: 'Анна', Rl: 'Борис: друг', Mm: 'встреча у моста', Tr: 'Борис: 70', G: 'nw: уехать', R: 'врач', Fr: 'Темнота: low', X: 'wy: спор о доме; sg: open' }), JSON.stringify(медленные.cs[0]));
+    // Малыши (bb) — списком, как cs: прежнее — у ребёнка с тем же именем, не у соседа.
+    const дети = { bb: [{ N: 'Тома', Ap: 'nc', Rl: 'nc', Ln: 'nc', K: 'новое' }, { N: 'Лея', C: 'nc', Tr: 'nc' }] };
+    const былоДети = [{ bb: [{ N: 'Лея', C: 'пижама с зайцами', Tr: 'мама: 95' }, { N: 'Тома', Ap: 'тёмные кудри', Rl: 'мама: опора', Ln: '«Ещё!»' }] }];
+    проверить('nc у малышей: по имени, каждому своё', Р.развернутьКраткое(дети, былоДети, {}) && JSON.stringify(дети.bb) === JSON.stringify([{ N: 'Тома', Ap: 'тёмные кудри', Rl: 'мама: опора', Ln: '«Ещё!»', K: 'новое' }, { N: 'Лея', C: 'пижама с зайцами', Tr: 'мама: 95' }]), JSON.stringify(дети.bb));
+    const новенький = { bb: [{ N: 'Ника', Ap: 'nc' }] };
+    Р.развернутьКраткое(новенький, былоДети, {});
+    проверить('nc у нового малыша — поле убрано', !('Ap' in новенький.bb[0]), JSON.stringify(новенький.bb));
   }
   проверить('мир дня взят из прошлого, комментарии — свои', ход.wd.nws[0] === 'Мэр | ушёл' && ход.wd.fc.length === 1 && ход.wd.zd.length === 1 && ход.wd.com[0] === 'nik: новое');
   проверить('факты: прежние и новые без повторов', JSON.stringify(ход.me.fct) === JSON.stringify(['Леонард мёртв', 'Кольцо у Мари', 'Дарен знает про письмо']));
@@ -684,7 +691,7 @@ const hud = (obj) => '[HUD]\n```json\n' + JSON.stringify(obj) + '\n```\n[/HUD]';
     проверить('отмена: любой из двух сигналов обрывает запрос', вместе.aborted);
     проверить('отмена: без второго сигнала — первый', Ут.соединитьСигналы(null, а.signal) === а.signal);
   }
-  проверить('промт: nc разрешён и в здоровье, статусе, инвентаре, следах, болезнях и медленных полях — только без изменений', /Ap, C, Kn, Ft, NG, SxL, H, St, I, Mrk, Ill, R, G, Rl, Mm, Tr, Fr and X write just "nc"/.test(с) && /Any real change/.test(с) && /Copying an unchanged field out in full is a mistake/.test(с));
+  проверить('промт: nc разрешён и в здоровье, статусе, инвентаре, следах, болезнях и медленных полях — только без изменений', /Ap, C, Kn, Ft, NG, SxL, H, St, I, Mrk, Ill, R, G, Rl, Mm, Tr, Fr, X, Ln and Fl write just "nc"/.test(с) && /Any real change/.test(с) && /Copying an unchanged field out in full is a mistake/.test(с));
   // Ничто не должно перевешивать краткость: с «пиши всё целиком каждый ход» модель не писала «nc» вовсе.
   проверить('промт: нет требований писать HUD целиком при краткости', !с.includes('If unsure, write it in full') && fs.readFileSync(path.join(КОРЕНЬ, 'prompt.js'), 'utf8').includes("never copied out in full` : '; however long the chat, the HUD is written in full every turn'") && с.includes('is not a dropped field') && с.includes('never list again an item from the last HUD'));
   проверить('промт: правила nc, мира раз в день и памяти обновлениями', с.includes('♻️ NO CHANGE') && с.includes('🗞️ WORLD ONCE A DAY') && с.includes('"com" is written every turn') && с.includes('🧠 MEMORY AS UPDATES') && с.includes('and the WORLD and MEMORY rules above'));

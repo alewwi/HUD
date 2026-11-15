@@ -10,18 +10,18 @@
 // index.js грузит модуль через import() (загрузитьПромпт) заранее, когда
 // страница затихнет, и в любом случае ждёт его перед отправкой запроса.
 
-import { settings } from './settings.js?v=23.89.39';
-import { старина, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.39';
-import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.39';
+import { settings } from './settings.js?v=23.89.40';
+import { старина, основаЭпохи, фэнтези, заклинанияВМире, дарыВМире, магияСкрыта, технологии, письмаВСовременности, естьТелефоны, связь } from './era.js?v=23.89.40';
+import { частьСил, МАНА_В_ЧАС } from './render/powers.js?v=23.89.40';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.39';
-import { промптНаАнглийском } from './prompt-en.js?v=23.89.39';
-import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.39';
-import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.39';
-import { parseSceneDate } from './history-analyzer.js?v=23.89.39';
-import { возрастТочно } from './render/babies.js?v=23.89.39';
-import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.39';
-import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.39';
+import { английский, тМодели as т, языкЗначенийМодели } from './i18n.js?v=23.89.40';
+import { промптНаАнглийском } from './prompt-en.js?v=23.89.40';
+import { ПОЛЯ_NC_МОДЕЛИ } from './hud-expand.js?v=23.89.40';
+import { роды, естьЗачатия, деньРодов, малышиБезРодов, скрытыеФактыЗачатия, спорыВозраста } from './render/conception.js?v=23.89.40';
+import { parseSceneDate } from './history-analyzer.js?v=23.89.40';
+import { возрастТочно } from './render/babies.js?v=23.89.40';
+import { выключеноВОтвете, вырезатьИзПромпта, правилоВыключенного } from './deep-fields.js?v=23.89.40';
+import { промптСвоихСтатов, своиСтаты, ВИДЫ_СТАТОВ } from './custom-stats.js?v=23.89.40';
 
 // Всё нужное из index.js приходит в «основа» (геттеры — значения живые):
 // последнийСнимокОбъект, сверитьРоды.
@@ -191,7 +191,7 @@ export function buildDynamicPrompt({ nsfw = true, режим = 'reply', бой =
   const ПОЛЯ_NC_ПРОМТА = ПОЛЯ_NC_МОДЕЛИ;
   const краткоВЦелом = settings.hudNoChange !== false || ключиМира.length > 0 || ключиПамяти.length > 0;
   const краткость = (settings.hudNoChange !== false ? `
-- ♻️ NO CHANGE: in ${ПОЛЯ_NC_ПРОМТА.join(', ').replace(/, ([^,]*)$/, ' and $1')} write just "nc" (no change) when the field is the same as in the last HUD — for every character${игрок ? ' and for {{user}}' : ''}. Copying an unchanged field out in full is a mistake: it only lengthens the reply, and the HUD restores the value from the last HUD by itself. Any real change — an item used or moved, a bruise fading, a symptom easing, a new memory or goal, a shift in a relationship or in trust — means the field is written in full with the update. No last HUD, or the person is not in it — always in full. A field that was empty stays empty, never nc. Only these fields: never write nc anywhere else.` : '')
+- ♻️ NO CHANGE: in ${ПОЛЯ_NC_ПРОМТА.join(', ').replace(/, ([^,]*)$/, ' and $1')} write just "nc" (no change) when the field is the same as in the last HUD — ${['for every character', игрок ? 'for {{user}}' : '', малышиВПромпт ? 'for every child in "bb"' : ''].filter(Boolean).join(', ').replace(/, ([^,]*)$/, ' and $1')}. Copying an unchanged field out in full is a mistake: it only lengthens the reply, and the HUD restores the value from the last HUD by itself. Any real change — an item used or moved, a bruise fading, a symptom easing, a new memory or goal, a shift in a relationship or in trust — means the field is written in full with the update. No last HUD, or the person is not in it — always in full. A field that was empty stays empty, never nc. Only these fields: never write nc anywhere else.` : '')
     + (ключиМира.length ? `
 - 🗞️ WORLD ONCE A DAY: in "wd" write ${списокКодов(ключиМира)} only in the first HUD of a new in-story day or when something in them really changes; otherwise leave those keys out — the HUD keeps the last ones.${settings.showComments ? ' "com" is written every turn.' : ''}` : '')
     + (ключиПамяти.length ? `

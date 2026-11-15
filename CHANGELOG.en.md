@@ -4,6 +4,14 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.40 — 2026-11-15
+
+A shorter HUD: "nc" now also for babies and for characters' typical lines and open threads.
+
+### Changed
+- **"nc" for babies.** If a child's appearance, clothing, relationships, trust or lines did not change, the model writes "nc" and the HUD fills in that same child's previous value — matched by name. Babies' cards are no longer rewritten in full every turn.
+- **"nc" in Lines and Flags** of characters and the player: typical phrases and open threads rarely change, yet cost hundreds of characters in every reply.
+
 ## 23.89.39 — 2026-11-15
 
 Invented names in code examples and tests.

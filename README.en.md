@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.39**:
+The latest version is **23.89.40**:
 
+- A shorter HUD: "nc" for babies and in characters' lines and flags.
 - Invented names in code examples and tests.
 - A wish for holiday generation; "nc" for slow fields; a better duel opponent and washing in life.
 - HUD summaries reach the model again and the request holds more history; old HUDs can be cut out with no summary; holidays in the extension's language.
