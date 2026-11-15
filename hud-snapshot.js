@@ -12,18 +12,18 @@
 // снимке. Решаем автоматически по снимку (идёт ли сцена) и по словам в
 // последних сообщениях (начинается ли она).
 
-import { settings } from './settings.js?v=23.89.42';
+import { settings } from './settings.js?v=23.89.43';
 // Здесь всё — для модели: по-английски и при языке из таблицы (i18n.js, тМодели).
-import { тМодели as т } from './i18n.js?v=23.89.42';
-import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.42';
-import { mapKey, имяБезПриставки } from './utils.js?v=23.89.42';
-import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.42';
-import { разобратьHUDСырой } from './hud-parser.js?v=23.89.42';
-import { заменитьHudБлоки } from './hud-block.js?v=23.89.42';
-import { упомянутВТексте } from './names.js?v=23.89.42';
-import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.42';
-import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.42';
-import { доверияБезПричин } from './turn-notes.js?v=23.89.42';
+import { тМодели as т } from './i18n.js?v=23.89.43';
+import { наложитьНаСнимок } from './snapshot-edits.js?v=23.89.43';
+import { mapKey, имяБезПриставки } from './utils.js?v=23.89.43';
+import { свернутьКоды, НАЗВАНИЯ_КОДОВ } from './codes.js?v=23.89.43';
+import { разобратьHUDСырой } from './hud-parser.js?v=23.89.43';
+import { заменитьHudБлоки } from './hud-block.js?v=23.89.43';
+import { упомянутВТексте } from './names.js?v=23.89.43';
+import { выключеноВОтвете, убратьВыключенное } from './deep-fields.js?v=23.89.43';
+import { закрывшаяПотеря, датаИзТекста } from './render/conception.js?v=23.89.43';
+import { доверияБезПричин } from './turn-notes.js?v=23.89.43';
 
 const объект = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
 

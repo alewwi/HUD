@@ -2,19 +2,19 @@
 //
 // Фракции и репутация — слой мира (wd.rep): как банды, полиция, гильдии,
 // однокурсники относятся к игроку и/или персонажу. Строка модели:
-// «Гильдия | Мари | 80 | уважают | вытащила их человека со склада».
+// «Гильдия | Лилиан | 80 | уважают | вытащила их человека со склада».
 // Карточка: шкала от −100 до 100, отношение словом, за что — и сдвиги из
 // прошлых ходов, как шрамы у доверия. Настройка factions: user, char или both
 // (тогда — две вкладки).
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.42';
-import { settings } from '../settings.js?v=23.89.42';
-import { namesLikelySame } from '../names.js?v=23.89.42';
-import { раскрывашка } from './fold.js?v=23.89.42';
+import { escapeHtml } from '../utils.js?v=23.89.43';
+import { settings } from '../settings.js?v=23.89.43';
+import { namesLikelySame } from '../names.js?v=23.89.43';
+import { раскрывашка } from './fold.js?v=23.89.43';
 
-/** «Гильдия | Мари | 80 | уважают | за что» → { кто, к, число, как, почему }. */
+/** «Гильдия | Лилиан | 80 | уважают | за что» → { кто, к, число, как, почему }. */
 export function разобратьФракцию(строка) {
   const [кто = '', к = '', число = '', как = '', ...почему] = String(строка ?? '').split('|').map(x => x.trim());
   if (!кто) return null;

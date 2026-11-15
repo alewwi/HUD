@@ -4,6 +4,13 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.43 — 2026-11-15
+
+Invented names in the Factions and reputation examples.
+
+### Changed
+- **Faction examples** in code comments, tests and the theme stand use names from the invented sample HUD — Lilian and Artyom. HUD works the same.
+
 ## 23.89.42 — 2026-11-15
 
 ### Added
