@@ -1,0 +1,50 @@
+/* TavernOS HUD — праздник в листе дня календаря и окно «Как празднуют»
+   (render/holiday-day.js). Окно — то же, что «Праздники мира» (.hud-holgen,
+   story-layers.css), здесь только своё: ярлык на празднике и четыре карточки. */
+.hud-cal-ev.is-hol { cursor: pointer; }
+.hud-cal-hol-go { display: inline-flex; align-items: center; gap: 4px; align-self: flex-start; margin-top: 4px; padding: 2px 9px; border-radius: 999px; font-size: 11px; font-weight: 700; line-height: 1.5;
+  color: var(--hud-accent-text, var(--hud-accent, #c59bff)); background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 22%, transparent); border: 1px solid color-mix(in srgb, var(--hud-accent, #8c5ad2) 45%, transparent); }
+.hud-cal-hol-go.is-ready { color: inherit; background: color-mix(in srgb, #63d49a 16%, transparent); border-color: color-mix(in srgb, #63d49a 45%, transparent); }
+@media (hover: hover) and (pointer: fine) {
+  .hud-cal-ev.is-hol:hover .hud-cal-hol-go { background: color-mix(in srgb, var(--hud-accent, #8c5ad2) 34%, transparent); }
+}
+.hud-cal-ev.is-hol:focus-visible { outline: 2px solid var(--hud-accent, #8c5ad2); outline-offset: 2px; }
+
+.hud-holday-about { margin: 0; font-size: 13px; line-height: 1.45; opacity: .85; }
+.hud-holday-lead { margin: 0; font-size: 12.5px; line-height: 1.45; opacity: .72; }
+.hud-holday-cards { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.hud-holday-cards:empty { display: none; }
+.hud-holday-card { display: grid; grid-template-columns: 28px minmax(0, 1fr); gap: 9px; align-items: start; padding: 10px 11px; border-radius: 12px; min-width: 0;
+  background: color-mix(in srgb, var(--hc, var(--hg, #c59bff)) 12%, rgba(0, 0, 0, .18)); border: 1px solid color-mix(in srgb, var(--hc, var(--hg, #c59bff)) 34%, transparent); }
+.hud-holday-card.is-essence { grid-column: 1 / -1; --hc: #c59bff; }
+/* Событие — тоже во всю ширину: обычай и место парой посередине, без пустой клетки. */
+.hud-holday-card.is-event, .hud-holday-card.is-wide { grid-column: 1 / -1; }
+.hud-holday-card.is-custom { --hc: #ffc56b; }
+.hud-holday-card.is-place { --hc: #6fc3ff; }
+.hud-holday-card.is-event { --hc: #ff8fb3; }
+.hud-holday-ico { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 9px; background: color-mix(in srgb, var(--hc) 24%, transparent); }
+.hud-holday-ico svg { width: 18px; height: 18px; fill: none; stroke: var(--hc); stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+.hud-holday-card > span { display: grid; gap: 3px; min-width: 0; }
+.hud-holday-card b { font-size: 10.5px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--hc); }
+.hud-holday-card span span { font-size: 13px; line-height: 1.45; overflow-wrap: anywhere; }
+.hud-holday-chat { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 12.5px; }
+.hud-holday-chat[hidden] { display: none; }
+/* Список лорбуков выключенного источника: у .hud-holgen-books свой display: flex, он перебивал hidden — и в окне «Праздники мира» тоже. */
+.hud-holgen-books[hidden], .hud-holgen-note[hidden] { display: none; }
+.hud-holday-chat input { width: 64px; padding: 4px 6px; border-radius: 8px; font: inherit; color: inherit; background: rgba(0, 0, 0, .25); border: 1px solid rgba(255, 255, 255, .14); }
+.hud-holday-tell { padding: 7px 12px; border-radius: 10px; font: inherit; font-size: 12.5px; font-weight: 700; cursor: pointer; color: inherit; background: rgba(255, 255, 255, .08); border: 1px solid rgba(255, 255, 255, .16); }
+.hud-holday-tell[hidden] { display: none; }
+/* Светлая схема: та же полупрозрачная карточка, только светлый оттенок; текст — цвета окна. */
+:root.hud-scheme-light .hud-holday-card { background: color-mix(in srgb, var(--hc, #8c5ad2) 16%, rgba(255, 255, 255, .16)); }
+:root.hud-scheme-light .hud-holday-card b { color: color-mix(in srgb, var(--hc) 72%, currentColor); }
+:root.hud-scheme-light .hud-holday-ico svg { stroke: color-mix(in srgb, var(--hc) 72%, currentColor); }
+:root.hud-scheme-light .hud-holday-chat input { background: rgba(0, 0, 0, .05); border-color: rgba(0, 0, 0, .16); }
+:root.hud-scheme-light .hud-holday-tell { background: rgba(0, 0, 0, .05); border-color: rgba(0, 0, 0, .16); }
+@media (max-width: 600px) {
+  .hud-holday-cards { grid-template-columns: minmax(0, 1fr); }
+}
+/* cq ↓ копия блока выше для узкой карточки в широком окне — tests/tools/build-cq.mjs, руками не править */
+@media (min-width: 601px) { @container hud (max-width: 470px) {
+  .hud-holday-cards { grid-template-columns: minmax(0, 1fr); }
+} }
+/* cq ↑ */

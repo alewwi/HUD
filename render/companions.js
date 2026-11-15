@@ -4,10 +4,10 @@
 // каждого своё настроение, состояние, рацион и привязанность к хозяину.
 // Вкладка появляется, только когда в HUD есть хоть один спутник.
 
-import { escapeHtml, applyTooltips, hudHasMeaningfulValue } from '../utils.js?v=23.89.35';
-import { видБлока, видПривязанности } from './views.js?v=23.89.35';
-import { карточкаСпутника, тамагочи, лучшиеУмения } from './extras.js?v=23.89.35';
-import { внешностьСпутника } from './pet-looks.js?v=23.89.35';
+import { escapeHtml, applyTooltips, hudHasMeaningfulValue } from '../utils.js?v=23.89.36';
+import { видБлока, видПривязанности } from './views.js?v=23.89.36';
+import { карточкаСпутника, тамагочи, лучшиеУмения } from './extras.js?v=23.89.36';
+import { внешностьСпутника } from './pet-looks.js?v=23.89.36';
 
 // Значок по виду. Частное раньше общего: «ворон-фамильяр» — птица, а не дух.
 const ВИДЫ = [

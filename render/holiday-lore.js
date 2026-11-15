@@ -13,10 +13,11 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml } from '../utils.js?v=23.89.35';
-import { settings } from '../settings.js?v=23.89.35';
-import { добавитьПодсказку } from '../turn-notes.js?v=23.89.35';
-import { раскрывашка } from './fold.js?v=23.89.35';
+import { escapeHtml } from '../utils.js?v=23.89.36';
+import { settings } from '../settings.js?v=23.89.36';
+import { добавитьПодсказку, убратьПодсказкиПраздника, убратьПодсказкиПоКлючу } from '../turn-notes.js?v=23.89.36';
+import { праздникиГода } from './holidays.js?v=23.89.36';
+import { раскрывашка } from './fold.js?v=23.89.36';
 
 const КЛЮЧ = 'tavernosHudHolidays';
 const ДЕНЬ = 864e5;
@@ -63,7 +64,14 @@ export function добавитьПраздникиМира(новые) {
 export function убратьПраздникМира(id) {
   const х = хранилище();
   if (!х) return;
+  const убран = х.список.find(п => п.id === id);
   х.список = х.список.filter(п => п.id !== id);
+  // Вместе с праздником — ответ на «начать подготовку?», подсказка, ещё не
+  // ушедшая модели, и детали «как празднуют»: убранный праздник в запрос не
+  // попадает ничем.
+  for (const к of Object.keys(х.ответы)) if (к.startsWith(id + '|')) delete х.ответы[к];
+  убратьПодсказкиПраздника(id);
+  if (убран) забытьДеталиПраздника(убран.имя, убран.дата);
   сохранить();
 }
 
@@ -80,6 +88,71 @@ export function скрытьПраздникЭпохи(название, скр�
   if (скрыть) скрытые.add(название); else скрытые.delete(название);
   х.скрытыеЭпохи = [...скрытые];
   сохранить();
+}
+
+// --- Как празднуют: суть и три детали (render/holiday-day.js) -------------------
+// Ключ — название и день: у праздника мира, праздника эпохи и события из
+// календаря телефона детали одни, откуда бы праздник ни пришёл.
+export const ключПраздника = (имя, дата) => String(имя || '').trim().toLowerCase().replace(/ё/g, 'е') + '|' + String(дата || '').slice(0, 5);
+/** { суть, обычай, место, событие, когда } или null. */
+export function деталиПраздника(имя, дата) {
+  const х = хранилище();
+  const д = х && х.детали && х.детали[ключПраздника(имя, дата)];
+  return д && typeof д === 'object' ? { ...д } : null;
+}
+export function сохранитьДеталиПраздника(имя, дата, детали) {
+  const х = хранилище();
+  if (!х || !имя || !дата || !детали) return false;
+  if (!х.детали || typeof х.детали !== 'object') х.детали = {};
+  х.детали[ключПраздника(имя, дата)] = { имя: String(имя).trim(), суть: детали.суть || '', обычай: детали.обычай || '', место: детали.место || '', событие: детали.событие || '', когда: Date.now() };
+  сохранить();
+  return true;
+}
+/**
+ * Забыть детали праздника и снять их подсказку из очереди: «Придумать заново»
+ * и убранный праздник — модели уже не уходит ни старая заметка, ни подсказка.
+ */
+export function забытьДеталиПраздника(имя, дата) {
+  const х = хранилище();
+  if (!х || !имя || !дата) return false;
+  const к = ключПраздника(имя, дата);
+  const было = !!(х.детали && х.детали[к]);
+  if (было) delete х.детали[к];
+  const подсказка = убратьПодсказкиПоКлючу('holidayDetails', { ключ: к });
+  if (было) сохранить();
+  return было || подсказка;
+}
+/** Детали одной строкой — для модели: разовая подсказка и заметка в сам день. */
+export function деталиСтрокой(д) {
+  if (!д) return '';
+  return [д.суть && безТочки(д.суть), д.обычай && 'custom: ' + безТочки(д.обычай), д.место && 'place: ' + безТочки(д.место), д.событие && 'event: ' + безТочки(д.событие)].filter(Boolean).join('; ');
+}
+/**
+ * В сам день праздника — его суть и три детали, если игрок их получил:
+ * модель показывает их в мире вокруг, а участвовать или нет — решает игрок.
+ */
+export function заметкаДеталейПраздника(сцена) {
+  if ((settings.holidayReminder || 'day') === 'off' || !Number.isFinite(сцена)) return '';
+  const х = хранилище();
+  if (!х || !х.детали) return '';
+  const д = new Date(сцена);
+  const день = `${дд(д.getUTCDate())}.${дд(д.getUTCMonth() + 1)}`;
+  // Детали уходят, только пока их праздник жив: праздник мира — когда
+  // «Праздники мира» включены, встроенный — когда праздники эпохи включены и
+  // он не убран крестиком в этом чате. Событие из календаря телефона — всегда.
+  const имяК = (s) => String(s || '').trim().toLowerCase().replace(/ё/g, 'е');
+  const скрытые = скрытыеПраздникиЭпохи();
+  let эпохи = null;
+  const живы = (з) => {
+    const и = имяК(з.имя);
+    if (х.список.some(п => имяК(п.имя) === и && String(п.дата).slice(0, 5) === день)) return settings.holidayGen !== false;
+    эпохи ??= (() => { try { return праздникиГода(д.getUTCFullYear()); } catch (_) { return []; } })();
+    const э = эпохи.find(п => (имяК(п.имя) === и || имяК(п.модели) === и) && (() => { const t = new Date(п.дата); return `${дд(t.getUTCDate())}.${дд(t.getUTCMonth() + 1)}` === день; })());
+    if (э) return settings.enableEraHolidays !== false && !скрытые.has(э.модели);
+    return true;
+  };
+  const сегодня = Object.entries(х.детали).filter(([к, з]) => к.endsWith('|' + день) && з && (з.обычай || з.место || з.событие) && живы(з)).slice(0, 2);
+  return сегодня.map(([, з]) => `How «${з.имя}» is marked here today — ${деталиСтрокой(з)}. Keep these in the world around the player as open chances to take part; never decide whether or how the player joins.`).join(' ');
 }
 
 // --- Даты ----------------------------------------------------------------------
@@ -167,7 +240,8 @@ export function разобратьПраздники(ответ) {
  */
 export function заметкаПраздниковМира(сцена) {
   const режим = settings.holidayReminder || 'day';
-  if (режим === 'off' || !Number.isFinite(сцена)) return '';
+  // «Праздники мира» выключены — модель о них не слышит, даже если список остался.
+  if (settings.holidayGen === false || режим === 'off' || !Number.isFinite(сцена)) return '';
   const все = вокруг(сцена);
   const сегодня = все.find(п => п.через === 0);
   const про = (п) => п.о ? ` (${безТочки(п.о)})` : '';
@@ -217,7 +291,7 @@ if (typeof document !== 'undefined' && typeof document.addEventListener === 'fun
     const х = хранилище();
     if (!х) return;
     if (кнопка.dataset.hudHolprep === 'yes') {
-      if (!добавитьПодсказку('holiday', плашка.dataset.holText || '')) {
+      if (!добавитьПодсказку('holiday', плашка.dataset.holText || '', плашка.dataset.holKey || '')) {
         вопрос.innerHTML = '<small>Очередь подсказок полна (до трёх на ответ) — предложите после следующего ответа.</small>';
         return;
       }

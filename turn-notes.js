@@ -20,15 +20,15 @@
 // продолжения это последнее сообщение, у нового ответа — следующее. Заметка
 // с другой целью устарела. Всё лежит в метаданных чата.
 
-import { settings } from './settings.js?v=23.89.35';
-import { статусОбещания } from './hud-expand.js?v=23.89.35';
-import { полеВкл } from './deep-fields.js?v=23.89.35';
-import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.35';
-import { namesLikelySame } from './names.js?v=23.89.35';
-import { датаИзТекста, дм } from './render/conception.js?v=23.89.35';
-import { праздникиГода } from './render/holidays.js?v=23.89.35';
-import { заметкаПраздниковМира, скрытыеПраздникиЭпохи } from './render/holiday-lore.js?v=23.89.35';
-import { заметкаСил } from './render/powers.js?v=23.89.35';
+import { settings } from './settings.js?v=23.89.36';
+import { статусОбещания } from './hud-expand.js?v=23.89.36';
+import { полеВкл } from './deep-fields.js?v=23.89.36';
+import { естьЗаглушкаHUD } from './hud-block.js?v=23.89.36';
+import { namesLikelySame } from './names.js?v=23.89.36';
+import { датаИзТекста, дм } from './render/conception.js?v=23.89.36';
+import { праздникиГода } from './render/holidays.js?v=23.89.36';
+import { заметкаПраздниковМира, заметкаДеталейПраздника, скрытыеПраздникиЭпохи } from './render/holiday-lore.js?v=23.89.36';
+import { заметкаСил } from './render/powers.js?v=23.89.36';
 
 const КЛЮЧ = 'tavernosHudNotes';
 const ДЕНЬ = 864e5;
@@ -97,19 +97,35 @@ const ПОДСКАЗКИ = {
   consequence: (т) => `What has been building up now has its consequence — let it land in this reply, the way the scene allows: «${т}».`,
   // Праздник мира скоро (render/holiday-lore.js): игрок решил начать подготовку.
   holiday: (т) => `An event of this world is coming: ${т}. The characters can start getting ready for it.`,
+  // Как празднуют (render/holiday-day.js): игрок попросил передать модели суть и три детали.
+  holidayDetails: (т) => `How this holiday is marked in this world: ${т}. Keep these details in the world around the player as open chances to take part; never decide whether or how the player joins.`,
 };
 const ПРЕДЕЛ_ПОДСКАЗОК = 3;
 
 export function подсказки() { const х = хранилище(); return х ? х.подсказки.slice() : []; }
 /** false — такая уже есть или очередь полна. */
-export function добавитьПодсказку(вид, текст) {
+// ключ — откуда подсказка (у праздника мира — его id|год): убрали праздник —
+// уходит и его подсказка (убратьПодсказкиПраздника).
+export function добавитьПодсказку(вид, текст, ключ = '') {
   const х = хранилище();
-  const т = String(текст || '').trim().slice(0, 300);
+  // Детали праздника — суть и три детали, им нужно больше места, чем короткой подсказке.
+  const т = String(текст || '').trim().slice(0, вид === 'holidayDetails' ? 1200 : 300);
   if (!х || !т || !ПОДСКАЗКИ[вид] || х.подсказки.length >= ПРЕДЕЛ_ПОДСКАЗОК || х.подсказки.some(п => п.текст === т)) return false;
-  х.подсказки.push({ id: Date.now().toString(36) + х.подсказки.length, вид, текст: т, цель: null });
+  х.подсказки.push({ id: Date.now().toString(36) + х.подсказки.length, вид, текст: т, цель: null, ...(ключ ? { ключ: String(ключ) } : {}) });
   сохранить();
   return true;
 }
+/** Подсказки вида вид, чей ключ ровно ключ (или начинается с начало) — снять из очереди. */
+export function убратьПодсказкиПоКлючу(вид, { ключ = '', начало = '' } = {}) {
+  const х = хранилище();
+  if (!х || (!ключ && !начало)) return false;
+  const было = х.подсказки.length;
+  х.подсказки = х.подсказки.filter(п => !(п.вид === вид && (ключ ? String(п.ключ || '') === ключ : String(п.ключ || '').startsWith(начало))));
+  if (х.подсказки.length !== было) сохранить();
+  return х.подсказки.length !== было;
+}
+/** Праздник мира убран из календаря — его подсказка подготовки модели уже не уходит. */
+export const убратьПодсказкиПраздника = (id) => !!id && убратьПодсказкиПоКлючу('holiday', { начало: id + '|' });
 export function убратьПодсказку(id) {
   const х = хранилище();
   if (!х) return false;
@@ -121,7 +137,9 @@ export function убратьПодсказку(id) {
 // Свайпы того же сообщения получают ту же подсказку; новое сообщение её снимает.
 function подсказкиХода(х, цель) {
   if (!вкл('enableHintButtons')) return '';
-  const живые = х.подсказки.filter(п => п.цель === null || п.цель === цель);
+  // «Праздники мира» выключены — их подсказки подготовки не уходят и не копятся.
+  const живые = х.подсказки.filter(п => (п.цель === null || п.цель === цель) && !(п.вид === 'holiday' && settings.holidayGen === false)
+    && !(п.вид === 'holidayDetails' && settings.holidayGen === false && settings.enableEraHolidays === false));
   const менялось = живые.length !== х.подсказки.length || живые.some(п => п.цель === null);
   живые.forEach(п => { п.цель = цель; });
   х.подсказки = живые;
@@ -849,6 +867,8 @@ export function заметкиХода({ чат, снимок = null, тип = '
     if (вкл('enableEraHolidays') && нота('hol')) { const п = заметкаПраздников(х, снимок, цель, сцена); if (п) строки.push(п); }
     // Праздники мира (render/holiday-lore.js): напоминание в день или заранее.
     { const п = заметкаПраздниковМира(сцена); if (п) строки.push(п); }
+    // Как празднуют (render/holiday-day.js): в сам день — суть и три детали, если их уже придумали.
+    { const п = заметкаДеталейПраздника(сцена); if (п) строки.push(п); }
     // Силы приземлённого фэнтези (render/powers.js): мана, чары по времени, тело и сила.
     строки.push(...заметкаСил(людиСнимка(снимок, игрок), снимок.sc));
     строки.push(...заметкаПриглашений(х, цель, сцена, игрок), ...заметкаСроков(х, снимок, цель, сцена));

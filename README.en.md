@@ -657,8 +657,9 @@ Turn on lazy tabs, lighter old cards and Performance Mode; lower "Build the last
 
 ## Changelog
 
-The latest version is **23.89.35**:
+The latest version is **23.89.36**:
 
+- How a holiday is celebrated; Spells views and the new Grimoire and Atlas of Gifts; a removed or disabled holiday is not sent to the model; past intimacy keeps its chance the next morning.
 - Abilities views: "Grimoire" and "Atlas of Gifts"; the conception chance keeps intimacy the model left out and intimacy past midnight.
 - With hidden magic, single blocks can take the magic look; holiday controls in the calendar.
 - The world from three settings: era, technology and magic (none, hidden, open; spells or innate powers). Fantasy in both eras with restyled blocks. People who wield magic get mana, abilities with limits, four-stage backlash, timed spells and body-driven power.

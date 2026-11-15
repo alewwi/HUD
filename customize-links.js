@@ -9,9 +9,9 @@
 // телефона в примере работают как обычно. Что каждая настройка есть в карте,
 // проверяет tests/unit.mjs.
 
-import { settings } from './settings.js?v=23.89.35';
-import { слои, адресСлоя, файлИз, сПоказаннымиЧастями, запомнитьРазмер, прямоугольникСлоя } from './scene-pieces.js?v=23.89.35';
-import { т } from './i18n.js?v=23.89.35';
+import { settings } from './settings.js?v=23.89.36';
+import { слои, адресСлоя, файлИз, сПоказаннымиЧастями, запомнитьРазмер, прямоугольникСлоя } from './scene-pieces.js?v=23.89.36';
+import { т } from './i18n.js?v=23.89.36';
 
 const ВИДЫ_ПОД_КЛАСС = {
   age: 'ageView', clothes: 'clothesView', looks: 'looksView', role: 'roleView', body: 'bodyStateView', phys: 'physView', powers: 'abilitiesView', health: 'healthView',
@@ -25,7 +25,7 @@ const ВИДЫ_ПО_ПОДПИСИ = [
   ['бельё', 'underwearView'], ['готовность к оргазму', 'orgView'], ['пульс', 'vitalsView'], ['жизненные показатели', 'vitalsView'], ['карта тела', 'bodyMapView', 'silhouetteStyle', 'silhouetteOutlines', 'silhouetteLook'],
   ['отношения', 'relationsView'], ['кинк', 'kinkView'], ['фетиш', 'kinkView'], ['никогда не сделает', 'kinkView'], ['не возбуждает', 'kinkView'], ['словесная дуэль', 'duelView'], ['вехи и уход', 'kidCareView'],
   ['таймлайн', 'timelineView'], ['мини-карта маршрута', 'routeView'], ['эмоции', 'moodView'], ['приглашения', 'invitesView'], ['обещания', 'promisesView'], ['важное', 'importantView'], ['ружья', 'gunsView'], ['кто что знает', 'secretsGridView'], ['не знает', 'knowsNotView', 'knowledgeLine'], ['зашифрованные', 'secretsView'], ['скрытый подтекст', 'subtextVeil'],
-  ['мысли', 'dropCap', 'thoughtBrackets', 'fontMain'], ['способности', 'abilitiesView'],
+  ['мысли', 'dropCap', 'thoughtBrackets', 'fontMain'], ['способности', 'abilitiesView'], ['чары', 'effectsView'], ['эффекты', 'effectsView'],
 ];
 const ТЕКСТ = ['fontMain', 'fontSizeMain', 'textColor', 'textMutedColor'];
 const БЛОК = ['infoBlockBgStart', 'infoBlockBgAlpha', 'infoBlockBgEnd', 'sectionSkin', 'cornerShape'];

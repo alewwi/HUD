@@ -12,22 +12,22 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml, генерацияТаверны } from '../utils.js?v=23.89.35';
-import { settings } from '../settings.js?v=23.89.35';
-import { старина, заклинанияВМире, дарыВМире, магияСкрыта } from '../era.js?v=23.89.35';
-import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.35';
-import { связьПраздников, разобратьПраздники, нормализоватьПраздник, праздникиМира, добавитьПраздникиМира, убратьПраздникМира, скрытыеПраздникиЭпохи, скрытьПраздникЭпохи } from './holiday-lore.js?v=23.89.35';
-import { праздникиГода } from './holidays.js?v=23.89.35';
-import { т } from '../i18n.js?v=23.89.35';
+import { escapeHtml, генерацияТаверны } from '../utils.js?v=23.89.36';
+import { settings } from '../settings.js?v=23.89.36';
+import { старина, заклинанияВМире, дарыВМире, магияСкрыта } from '../era.js?v=23.89.36';
+import { карточкаПерсонажа, персонаИгрока, parseAssistantAnswer } from './assistant.js?v=23.89.36';
+import { связьПраздников, разобратьПраздники, нормализоватьПраздник, праздникиМира, добавитьПраздникиМира, убратьПраздникМира, скрытыеПраздникиЭпохи, скрытьПраздникЭпохи } from './holiday-lore.js?v=23.89.36';
+import { праздникиГода } from './holidays.js?v=23.89.36';
+import { т } from '../i18n.js?v=23.89.36';
 
-const ЖДЁМ_МС = 180000;
-const ЛОР_СИМВОЛОВ = 40000;
+export const ЖДЁМ_МС = 180000;
+export const ЛОР_СИМВОЛОВ = 40000;
 
 function контекст() { try { return globalThis.SillyTavern?.getContext?.() || null; } catch (_) { return null; } }
 function сохранитьНастройки() { try { связьПраздников().сохранить?.(); } catch (_) { /* не критично */ } }
 
 // Лорбуки по умолчанию: книга карточки и книга чата.
-function своиЛорбуки(ctx) {
+export function своиЛорбуки(ctx) {
   const out = [];
   try {
     const c = ctx && ctx.characters && ctx.characters[ctx.characterId];
@@ -41,7 +41,7 @@ function своиЛорбуки(ctx) {
 
 /** Промпт: что и в каком виде вернуть. */
 // Эпоха для модели: средневековье и какое фэнтези (era.js). Обычная современность — пусто.
-function эпохаПраздников() {
+export function эпохаПраздников() {
   // Магия в мире (era.js), а не облик: скрытая магия тоже даёт свои праздники.
   const магия = (заклинанияВМире() ? 'fantasy with spells and enchanted things' : дарыВМире() ? 'grounded fantasy: innate elemental gifts and spirits, no spells or magic tools' : '') + (магияСкрыта() ? ', magic hidden from ordinary society' : '');
   if (!старина() && !магия) return '';
@@ -68,7 +68,7 @@ Answer with JSON only, no other text:
   return { system, user };
 }
 
-async function отправить(ctx, system, user, signal) {
+export async function отправить(ctx, system, user, signal) {
   const профиль = String(settings.holidayProfileId || '');
   const служба = ctx.ConnectionManagerRequestService;
   const профили = (() => { try { return связьПраздников().профили?.() || []; } catch (_) { return []; } })();
@@ -80,7 +80,7 @@ async function отправить(ctx, system, user, signal) {
   return генерацияТаверны(ctx, { prompt: user, systemPrompt: system, responseLength: 3000, signal });
 }
 // Текст ответа: обычный или рассуждения, если модель ответила в них (GLM, DeepSeek).
-function текстОтвета(raw) {
+export function текстОтвета(raw) {
   const s = parseAssistantAnswer(raw);
   if (s.includes('[') || !raw || typeof raw !== 'object') return s;
   return String(raw.reasoning || raw.reasoning_content || raw.choices?.[0]?.message?.reasoning_content || s);

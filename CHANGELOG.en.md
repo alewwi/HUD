@@ -4,6 +4,19 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.36 — 2026-11-15
+
+How a holiday is celebrated, new Spells and Abilities views; a removed or disabled holiday no longer sends anything to the model; the chance of past intimacy no longer grows the next morning.
+
+### Added
+- **How it is celebrated.** Click a holiday in the calendar and the model comes up with its essence and three details: a custom, a place and an event. Context to choose from: lorebooks, persona, card, recent messages. Details can go to the model as a one-time hint, and on the day itself they go with the turn notes. "Come up with new ones" drops the old ones at once.
+- **Spells views** (Body and health): "Dial" — each spell gets its own ring up to the hour it ends; "Tags" — paper talismans whose tails smoulder as time runs out; "List". Expired spells turn grey.
+- **Grimoire and Atlas of Gifts redone:** a book entry with an initial, a bookmark and notes in the margins; a map with a cartouche, a route and map symbols. Mastery in the world's words: apprentice…magister with spells, novice…master with innate gifts.
+
+### Fixed
+- **Past intimacy the next morning.** The card recalculated yesterday's intimacy without its protection: a 5% act with a condom turned into 33% together with the dice threshold. Now past intimacy keeps its chance; it can only grow during the same night.
+- **Holidays and the prompt.** Disabled world holidays no longer remind the model of themselves. A holiday removed with the cross takes its preparation hint and details with it; details of a hidden built-in holiday are not sent either.
+
 ## 23.89.35 — 2026-11-15
 
 The Abilities block gets a choice of view, and the conception chance no longer loses intimacy the model left out.

@@ -19,7 +19,7 @@ const МОТИВЫ = {
   },
 };
 
-const ЗНАКИ = { water: 'tide', fire: 'ember', bolt: 'ember', blood: 'ember', earth: 'grove', leaf: 'grove', shield: 'grove' };
+const ЗНАКИ = { water: 'tide', fire: 'ember', bolt: 'ember', blood: 'ember', earth: 'grove', leaf: 'grove' };
 const звезда = (x, y, r) => `<path d="M${x-r} ${y}h${2*r}m${-r} ${-r}v${2*r}"/>`;
 const искры = [[29,36,3],[66,98,4],[98,29,3],[137,83,6],[170,48,4],[207,112,3],[227,27,3],[256,71,4],[282,17,3],
   [449,25,4],[482,77,5],[527,38,3],[550,105,3],[580,65,6],[608,21,3],[619,126,5],[44,168,3],[118,154,4],[189,147,3],[542,163,3]];
