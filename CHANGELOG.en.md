@@ -4,6 +4,12 @@
 
 All notable changes to TavernOS HUD, newest first, starting from version 23.88.7.
 
+## 23.89.45 — 2026-11-16
+
+### Fixed
+- **Building up and guns.** A gun due on 15.06 fired on the morning of the 15th: a deadline without an hour counted as midnight. Now a gun is not overdue on its own day.
+- **A fired gun leaves Building up at once.** The deadline list was refreshed only by the next generation, so a gun the model had already marked fired or removed stayed in the plate and on the tab badge. The plate now takes guns from the same HUD as the card.
+
 ## 23.89.44 — 2026-11-15
 
 "nc" for companions is expanded.

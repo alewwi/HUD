@@ -8,22 +8,25 @@
 //
 // TavernOS HUD © 2026 alewwi — https://github.com/alewwi/HUD — GNU AGPL-3.0, see LICENSE and NOTICE.md.
 
-import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки } from '../utils.js?v=23.89.44';
-import { settings } from '../settings.js?v=23.89.44';
-import { namesLikelySame } from '../names.js?v=23.89.44';
-import { parseSceneDate } from '../history-analyzer.js?v=23.89.44';
-import { запущенноеУ, срокиНитей, добавитьПодсказку, отметкаПоследствия, отметитьПоследствие } from '../turn-notes.js?v=23.89.44';
-import { раскрывашка } from './fold.js?v=23.89.44';
+import { escapeHtml, flattenFieldValue, снятьЗаглушки, имяБезПриставки } from '../utils.js?v=23.89.45';
+import { settings } from '../settings.js?v=23.89.45';
+import { namesLikelySame } from '../names.js?v=23.89.45';
+import { parseSceneDate } from '../history-analyzer.js?v=23.89.45';
+import { запущенноеУ, срокиНитей, разобратьНить, добавитьПодсказку, отметкаПоследствия, отметитьПоследствие } from '../turn-notes.js?v=23.89.45';
+import { раскрывашка } from './fold.js?v=23.89.45';
 
 const ДЕНЬ = 864e5;
 // Пороги: «накопленное», а не плохой час.
 const ПОРОГ = { стресс: 85, энергия: 10, дней: 3 };
 
-// Кошелёк телефона: чей и сколько. Ставит index.js перед сборкой карточки.
-let контекст = { владелец: '', баланс: null, валюта: '' };
-export function задатьКонтекстПоследствий({ владелец = '', баланс = null, валюта = '' } = {}) {
+// Кошелёк телефона: чей и сколько, и ружья этого HUD. Ставит index.js перед сборкой карточки.
+// Ружья — из самой карточки: сроки хода (turn-notes.js) обновляются только при
+// генерации, и ружьё, которое модель уже отметила выстрелившим или убрала,
+// до следующего запроса оставалось «Назревает».
+let контекст = { владелец: '', баланс: null, валюта: '', ружья: null };
+export function задатьКонтекстПоследствий({ владелец = '', баланс = null, валюта = '', ружья = null } = {}) {
   const ч = parseFloat(String(баланс ?? '').replace(/[\s ]/g, '').replace(',', '.').replace(/[^\d.\-−]/g, '').replace('−', '-'));
-  контекст = { владелец: String(владелец || ''), баланс: Number.isFinite(ч) ? ч : null, валюта: String(валюта || '') };
+  контекст = { владелец: String(владелец || ''), баланс: Number.isFinite(ч) ? ч : null, валюта: String(валюта || ''), ружья: Array.isArray(ружья) ? ружья : null };
 }
 
 const шкала = (текст, код) => { const м = String(текст || '').match(new RegExp(`(?:^|;)\\s*${код}\\s*[:：]\\s*(\\d{1,3})`, 'i')); return м ? +м[1] : null; };
@@ -55,9 +58,13 @@ export function последствияЧеловека(о, имя) {
     const месяц = сцена !== null ? new Date(сцена).toISOString().slice(0, 7) : 'x';
     out.push({ ключ: `долг|${имя}|${месяц}`, что: 'Приходит коллектор', почему: `на счету ${контекст.баланс}${контекст.валюта ? ' ' + контекст.валюта : ''}` });
   }
-  // Ружьё с истёкшим сроком, привязанное к этому человеку.
-  if (сцена !== null) for (const н of срокиНитей()) {
-    if (!Number.isFinite(н.дата) || н.дата > сцена || !н.завязка || !н.кто) continue;
+  // Ружьё с истёкшим сроком, привязанное к этому человеку. Срок — день: в сам
+  // этот день ружьё ещё не просрочено (дата сцены без часа — та же полночь).
+  const нити = контекст.ружья && сцена !== null
+    ? контекст.ружья.map(с => разобратьНить(typeof с === 'string' ? с : '', new Date(сцена).getUTCFullYear())).filter(н => !/fired|выстрел|сработ|исполн|done/i.test(н.статус))
+    : срокиНитей();
+  if (сцена !== null) for (const н of нити) {
+    if (!Number.isFinite(н.дата) || н.дата >= сцена || !н.завязка || !н.кто) continue;
     if (!String(н.кто).split(/[,;и&]+/).some(кто => кто.trim() && namesLikelySame(кто.trim(), имя))) continue;
     const д = new Date(н.дата);
     out.push({ ключ: `ружьё|${нормаКлюча(н.завязка)}`, что: `Ружьё стреляет: ${н.завязка}`, почему: `срок истёк ${String(д.getUTCDate()).padStart(2, '0')}.${String(д.getUTCMonth() + 1).padStart(2, '0')}` });
